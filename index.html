@@ -1465,6 +1465,9 @@ let MKT_POS = "ALL", MKT_KIND = "ALL", MKT_SLOT = "ALL", MKT_MINE = false, DFS_P
    mobile, wants to scroll past hundreds of rows to reach the lineup or the optimizer. */
 let DFS_PAGE = 1;
 const DFS_PAGE_SIZE = 25;
+/* The full props board can run to 900+ lines across every market and player, so it's paginated too. */
+let MKT_PAGE = 1;
+const MKT_PAGE_SIZE = 25;
 /* Card order. "edge" ranks by what the price leaves on the table; "model" by the model's chance
    alone ("who scores?" on a touchdown list). The choice sticks until changed: a market chip
    never moves it. Unmodelled rows go last either way, mine first among them. */
@@ -2071,10 +2074,20 @@ function builderHTML(){
             </label>
           </div>
           ${(() => {
-            const rows = PROPS.filter(p => (MKT_POS==="ALL"||p.pos===MKT_POS) && (MKT_KIND==="ALL"||p.mkt===MKT_KIND)
+            const all = PROPS.filter(p => (MKT_POS==="ALL"||p.pos===MKT_POS) && (MKT_KIND==="ALL"||p.mkt===MKT_KIND)
               && (MKT_SLOT==="ALL"||p.slot===MKT_SLOT) && (!MKT_MINE||p.mine)).sort(SORTS[MKT_SORT]);
+            const pages = Math.max(1, Math.ceil(all.length / MKT_PAGE_SIZE));
+            const page = Math.min(MKT_PAGE, pages);
+            const rows = all.slice((page-1)*MKT_PAGE_SIZE, page*MKT_PAGE_SIZE);
+            const pager = `<div class="filters" style="margin-top:8px">
+              <span class="lbl">${all.length} line${all.length===1?"":"s"}</span>
+              <span style="flex:1"></span>
+              <button class="chip" data-mktpage="prev" ${page<=1?"disabled":""}>‹ Prev</button>
+              <span class="lbl">Page ${page} of ${pages}</span>
+              <button class="chip" data-mktpage="next" ${page>=pages?"disabled":""}>Next ›</button>
+            </div>`;
             return rows.length
-              ? `<div class="legs" style="margin-top:14px">${rows.map((p)=>propCard(p, PROPS.indexOf(p))).join("")}</div>`
+              ? `${pager}<div class="legs" style="margin-top:14px">${rows.map((p)=>propCard(p, PROPS.indexOf(p))).join("")}</div>`
               : `<div class="state-empty" style="margin:20px 0;min-height:120px"><div><b>0</b><span>NO LINES MATCH THAT FILTER</span></div></div>`;
           })()}
         </div>
@@ -2164,10 +2177,10 @@ function render(){
   if (SURFACE === "builder"){
     v.innerHTML = builderHTML();
     v.querySelectorAll(".mode").forEach(b=>b.addEventListener("click",()=>{
-      BUILD_MODE = b.dataset.mode; render();
+      BUILD_MODE = b.dataset.mode; MKT_PAGE = 1; DFS_PAGE = 1; render();
     }));
     v.querySelectorAll("[data-mpos]").forEach(b=>b.addEventListener("click",()=>{
-      MKT_POS = b.dataset.mpos; render();
+      MKT_POS = b.dataset.mpos; MKT_PAGE = 1; render();
     }));
     v.querySelectorAll("[data-dpos]").forEach(b=>b.addEventListener("click",()=>{
       DFS_POS = b.dataset.dpos; DFS_PAGE = 1; render();
@@ -2177,6 +2190,10 @@ function render(){
     }));
     v.querySelectorAll("[data-dfspage]").forEach(b=>b.addEventListener("click",()=>{
       DFS_PAGE = Math.max(1, DFS_PAGE + (b.dataset.dfspage === "next" ? 1 : -1));
+      const y = window.scrollY; render(); window.scrollTo(0, y);
+    }));
+    v.querySelectorAll("[data-mktpage]").forEach(b=>b.addEventListener("click",()=>{
+      MKT_PAGE = Math.max(1, MKT_PAGE + (b.dataset.mktpage === "next" ? 1 : -1));
       const y = window.scrollY; render(); window.scrollTo(0, y);
     }));
     v.querySelectorAll("[data-topmode]").forEach(b=>b.addEventListener("click",()=>{
@@ -2190,14 +2207,14 @@ function render(){
       const y = window.scrollY; render(); window.scrollTo(0, y);
     }));
     v.querySelectorAll("[data-mine]").forEach(b=>b.addEventListener("click",()=>{
-      MKT_MINE = !MKT_MINE; render();
+      MKT_MINE = !MKT_MINE; MKT_PAGE = 1; render();
     }));
     v.querySelectorAll("[data-msel]").forEach(sel=>sel.addEventListener("change",()=>{
       const val = sel.value;
       if (sel.dataset.msel === "mkind"){ MKT_KIND = val; MKT_SORT = val === "TD" ? "model" : "edge"; }
       else if (sel.dataset.msel === "mslot"){ MKT_SLOT = val; }
       else if (sel.dataset.msel === "msort"){ MKT_SORT = val; }
-      render();
+      MKT_PAGE = 1; render();
     }));
     v.querySelectorAll("[data-preset]").forEach(b=>b.addEventListener("click",()=>{
       SLIP_MODE = b.dataset.preset; SLIP = presetSlip(SLIP_MODE);
