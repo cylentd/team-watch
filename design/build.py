@@ -29,7 +29,7 @@ SLUGS = [
     "davante-adams", "jameson-williams", "josh-jacobs", "tony-pollard",
     "courtland-sutton", "matthew-stafford", "xavier-worthy", "deebo-samuel",
     "dallas-goedert",
-    # ESPN - Saquon Deez Nuts
+    # ESPN - Purdy Big in Japan
     "amonra-st-brown", "cam-skattebo", "tee-higgins", "george-kittle",
     "dk-metcalf", "brock-purdy", "jordan-mason", "jared-goff", "jerry-jeudy",
     "hunter-henry", "najee-harris", "tyrone-tracy",
