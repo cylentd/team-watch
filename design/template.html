@@ -391,6 +391,150 @@ html{scrollbar-color:var(--line-2) var(--void)}
 /* ============================== FOOTER ============================== */
 .foot{border-top:1px solid var(--line);padding:22px 0 40px;color:var(--ink-3);font-family:var(--mono);font-size:10px;letter-spacing:.1em;display:flex;gap:18px;flex-wrap:wrap}
 
+/* ============================== PRIMARY NAV ============================== */
+.navbar{border-bottom:1px solid var(--line);background:var(--panel)}
+.nav{display:flex}
+.navitem{
+  position:relative;appearance:none;background:none;cursor:pointer;
+  border:0;border-right:1px solid var(--line);
+  padding:13px 22px;display:flex;align-items:baseline;gap:9px;color:var(--ink-3);
+  font-family:var(--disp);font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:.01em;
+  transition:color .2s var(--ease),background .2s var(--ease);
+}
+.navitem:first-child{border-left:1px solid var(--line)}
+.navitem .ix{font-family:var(--mono);font-size:9px;font-weight:500;letter-spacing:.1em;opacity:.55}
+.navitem:hover{color:var(--ink-2);background:var(--panel-2)}
+.navitem[aria-current="true"]{color:var(--lime);background:var(--panel-2)}
+.navitem[aria-current="true"]::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--lime)}
+.navitem:active{transform:scale(.985)}
+
+/* ============================== THE POOL ============================== */
+.quadwrap{border:1px solid var(--line);background:var(--panel);margin-top:14px}
+.quadhead{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.quadscroll{overflow-x:auto}
+.quad{display:block;min-width:700px;width:100%;height:412px}
+.quad .axis-line{stroke:var(--line-2);stroke-width:1}
+.quad .qgrid{stroke:var(--line);stroke-width:1;stroke-dasharray:2 5}
+.quad .qname{font-family:"JetBrains Mono",monospace;font-size:9px;letter-spacing:.18em;fill:var(--ink-3)}
+.quad .qtick{font-family:"JetBrains Mono",monospace;font-size:8.5px;fill:var(--ink-3)}
+.quad .dot{cursor:pointer;transition:r .18s var(--ease)}
+.quad .dot:hover{r:9}
+.quad .dotlab{font-family:"JetBrains Mono",monospace;font-size:8.5px;fill:var(--ink-2);pointer-events:none}
+.quadkey{display:flex;gap:16px;flex-wrap:wrap;padding:11px 16px;border-top:1px solid var(--line);background:var(--panel-2)}
+.quadkey span{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--ink-3)}
+.quadkey i{width:8px;height:8px;border-radius:99px;display:block}
+
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:16px}
+.filters .lbl{margin-right:2px}
+.chip{
+  appearance:none;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  padding:6px 11px;border:1px solid var(--line-2);color:var(--ink-2);background:none;cursor:pointer;
+  border-radius:2px;transition:all .18s var(--ease);
+}
+.chip:hover{border-color:var(--ink-3);color:var(--ink)}
+.chip[aria-pressed="true"]{border-color:var(--lime);color:var(--lime);background:rgba(200,255,46,.08)}
+.chip:active{transform:scale(.96)}
+
+.ptable{margin-top:14px;border-top:1px solid var(--line);overflow-x:auto}
+.phead,.prow{
+  display:grid;grid-template-columns:30px 40px minmax(150px,1fr) 66px 70px 60px 56px 96px 62px;
+  gap:12px;align-items:center;padding:9px 12px;border-bottom:1px solid var(--line);min-width:840px;
+}
+.phead{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);background:var(--panel)}
+.prow{cursor:pointer;transition:background .18s var(--ease);opacity:0;transform:translateY(8px);animation:rowin .5s var(--ease) forwards}
+.prow:hover{background:var(--panel-2)}
+.prow.mine{box-shadow:inset 2px 0 0 var(--lime)}
+.pnum{font-family:var(--mono);font-size:12.5px;letter-spacing:-.02em}
+.pnum.pos{color:var(--up)} .pnum.neg{color:var(--down)}
+.pname{min-width:0}
+.pname b{display:block;font-weight:500;font-size:13.5px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pname span{font-family:var(--mono);font-size:9.5px;color:var(--ink-3);letter-spacing:.06em}
+.pool-head{width:40px;height:40px;border-radius:99px;object-fit:cover;border:1px solid var(--line-2);background:var(--panel-3);display:block}
+.vchip{display:block;font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.1em;padding:4px 0;border-radius:2px;text-align:center;white-space:nowrap}
+.v-conf{color:var(--up);border:1px solid rgba(55,224,139,.35);background:rgba(55,224,139,.09)}
+.v-sell{color:var(--down);border:1px solid rgba(255,90,82,.35);background:rgba(255,90,82,.09)}
+.v-buy{color:var(--lime);border:1px solid rgba(200,255,46,.35);background:rgba(200,255,46,.08)}
+.v-hold{color:var(--ink-3);border:1px solid var(--line-2)}
+
+/* ============================== BUILDER ============================== */
+.modes{display:flex;margin-top:16px;border:1px solid var(--line);width:max-content}
+.mode{
+  appearance:none;background:none;border:0;border-right:1px solid var(--line);cursor:pointer;
+  padding:11px 24px;color:var(--ink-3);font-family:var(--mono);font-size:10px;font-weight:700;
+  letter-spacing:.2em;text-transform:uppercase;transition:all .2s var(--ease);
+}
+.mode:last-child{border-right:0}
+.mode[aria-pressed="true"]{background:var(--lime);color:#0b0d05}
+.mode:not([aria-pressed="true"]):hover{background:var(--panel-2);color:var(--ink)}
+.mode:active{transform:scale(.97)}
+
+.build{display:grid;grid-template-columns:minmax(0,1fr) 356px;gap:16px;margin-top:16px;align-items:start}
+.legs{display:flex;flex-direction:column;gap:10px}
+.leg{
+  display:grid;grid-template-columns:40px minmax(0,1fr) 92px 96px;gap:14px;align-items:center;
+  border:1px solid var(--line);background:var(--panel);padding:12px 14px;cursor:pointer;
+  transition:border-color .2s var(--ease),background .2s var(--ease);
+}
+.leg:hover{border-color:var(--line-2);background:var(--panel-2)}
+.leg:active{transform:scale(.995)}
+.leg img,.leg .fallback{width:40px;height:40px;border-radius:99px;object-fit:cover;border:1px solid var(--line-2);background:var(--panel-3)}
+.leg .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--ink-3)}
+.leg .prop{font-size:13.5px;font-weight:500;letter-spacing:-.01em}
+.leg .book{font-family:var(--mono);font-size:9.5px;color:var(--ink-3);margin-top:4px;letter-spacing:.06em}
+.probwrap{font-family:var(--mono);text-align:right}
+.probwrap b{font-size:14px;font-weight:700}
+.probwrap span{display:block;font-size:8px;color:var(--ink-3);letter-spacing:.14em;margin-top:3px}
+.edgecell{text-align:right;font-family:var(--mono)}
+.edgecell b{font-size:15px;font-weight:700}
+.edgecell b.pos{color:var(--lime)} .edgecell b.neg{color:var(--down)}
+.edgecell .ebar{height:4px;background:var(--line);margin-top:7px;position:relative;overflow:hidden}
+.edgecell .ebar i{position:absolute;top:0;bottom:0;left:50%;background:var(--lime)}
+.edgecell .ebar i.neg{background:var(--down)}
+
+.slip{position:sticky;top:118px;border:1px solid var(--line-2);background:var(--panel)}
+.sliphead{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid var(--line);background:var(--panel-2)}
+.slipleg{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 15px;border-bottom:1px solid var(--line)}
+.slipleg .p{font-size:12.5px;font-weight:500;letter-spacing:-.01em}
+.slipleg .m{font-family:var(--mono);font-size:9px;color:var(--ink-3);margin-top:3px;letter-spacing:.06em}
+.slipleg .o{font-family:var(--mono);font-size:12px;font-weight:700}
+.corr{display:flex;align-items:center;gap:9px;padding:10px 15px;border-bottom:1px solid var(--line);
+  background:rgba(255,176,32,.07);color:var(--amber);font-family:var(--mono);font-size:9.5px;letter-spacing:.1em}
+.payout{padding:15px}
+.payrow{display:flex;align-items:baseline;justify-content:space-between;padding:6px 0;font-family:var(--mono);font-size:11px;color:var(--ink-2)}
+.payrow b{color:var(--ink);font-weight:700;font-size:13px}
+.bigedge{margin:12px 0 4px;font-family:var(--mono);font-size:38px;font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--lime)}
+
+.dfs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.slotcard{
+  border:1px solid var(--line);background:var(--panel);padding:11px 13px;min-height:76px;
+  display:grid;grid-template-columns:38px minmax(0,1fr);gap:11px;align-items:center;
+  transition:border-color .2s var(--ease);
+}
+.slotcard:hover{border-color:var(--line-2)}
+.slotcard img,.slotcard .fallback{width:38px;height:38px;border-radius:99px;object-fit:cover;border:1px solid var(--line-2);background:var(--panel-3)}
+.slotcard .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--ink-3)}
+.slotcard .sn{font-size:13px;font-weight:500;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slotcard .sm{font-family:var(--mono);font-size:9px;color:var(--ink-3);margin-top:4px;letter-spacing:.06em}
+.slotcard .slotname{position:absolute}
+.slotcard.vacant{
+  grid-template-columns:minmax(0,1fr);text-align:center;border-style:dashed;border-color:var(--line-2);
+  cursor:pointer;color:var(--ink-3);place-items:center;
+}
+.slotcard.vacant:hover{border-color:var(--lime);color:var(--lime)}
+.slottag{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.16em;color:var(--ink-3);margin-bottom:6px;display:block}
+.salwrap{margin-top:16px;border:1px solid var(--line);background:var(--panel);padding:15px}
+.salbar{height:9px;background:var(--line);margin-top:12px;position:relative;overflow:hidden}
+.salbar i{position:absolute;top:0;bottom:0;left:0;background:var(--lime);width:0;animation:grow 1s var(--ease) .3s forwards}
+.salbar.over i{background:var(--down)}
+.salrow{display:flex;gap:26px;flex-wrap:wrap}
+
+.inferred{
+  display:flex;align-items:center;gap:10px;margin-top:24px;padding:10px 14px;
+  border:1px solid var(--line);border-left:2px solid var(--line-2);background:var(--panel);
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
+}
+.inferred span{color:var(--ink-2)}
+
 /* ============================== RESPONSIVE ============================== */
 @media (max-width:960px){
   .hero-in{grid-template-columns:minmax(0,1fr);gap:26px}
@@ -450,7 +594,33 @@ html{scrollbar-color:var(--line-2) var(--void)}
   .states{grid-template-columns:minmax(0,1fr)}
   .expo{padding:18px 16px}
   .expo h3{font-size:22px}
+
+  .nav{overflow-x:auto;scrollbar-width:none}
+  .nav::-webkit-scrollbar{display:none}
+  .navitem{padding:11px 15px;font-size:12.5px;flex-shrink:0}
+  .hero h1{font-size:clamp(30px,8.6vw,80px)}
+  .quad{height:320px;min-width:540px}
+  .quadhead{padding:12px 13px}
+  .quadscroll{position:relative}
+  .quadscroll::after{
+    content:"SWIPE →";position:absolute;right:8px;bottom:8px;
+    font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;color:var(--ink-3);
+    background:var(--panel);padding:3px 6px;border:1px solid var(--line);pointer-events:none;
+  }
+  .build{grid-template-columns:minmax(0,1fr);gap:14px}
+  .slip{position:static}
+  .leg{grid-template-columns:36px minmax(0,1fr) auto;gap:9px 12px;align-items:center}
+  .leg img,.leg .fallback{width:36px;height:36px;grid-row:1/3}
+  .leg > div:nth-child(2){grid-column:2/4}
+  .probwrap{grid-column:2;grid-row:2;text-align:left;display:flex;align-items:baseline;gap:6px}
+  .edgecell{grid-column:3;grid-row:2;display:flex;align-items:baseline;gap:6px;justify-self:end}
+  .probwrap span,.edgecell .ebar{display:none}
+  .probwrap b::after{content:" MODEL";font-size:8px;color:var(--ink-3);letter-spacing:.14em}
+  .edgecell b::after{content:" EDGE";font-size:8px;color:var(--ink-3);letter-spacing:.14em}
+  .dfs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .salrow{gap:16px}
 }
+@media (max-width:430px){ .dfs{grid-template-columns:minmax(0,1fr)} }
 .slotm{display:none}
 .pill.warn .abbr{display:none}
 
@@ -478,7 +648,11 @@ html{scrollbar-color:var(--line-2) var(--void)}
   </div>
 </header>
 
-<div class="switch-bar">
+<div class="navbar">
+  <div class="wrap nav" id="nav"></div>
+</div>
+
+<div class="switch-bar" id="switchbar">
   <div class="wrap">
     <div class="switch" role="tablist" id="switch"></div>
   </div>
@@ -510,7 +684,7 @@ const P = (n, pos, team, slug, o) => Object.assign({n, pos, team, slug}, o);
 const TEAMS = {
   yahoo: {
     key:"yahoo", plat:"Yahoo", tint:"var(--yahoo)", slot:12,
-    name:"Toilet Bowl Contender", record:"0–0",
+    name:"Chat Take the Wheel", record:"0–0",
     meta:["12-team", "half PPR", "slot 12", "1 QB / 2 RB / 3 WR / TE / FLEX / DEF"],
     roster:[
       P("Matthew Stafford","QB","LAR","matthew-stafford",{slot:"QB",start:1,trend:[41,38,44,40,46,49],d:+6.2,rank:[11,32,+2,.66],news:1}),
@@ -533,26 +707,101 @@ const TEAMS = {
     key:"espn", plat:"ESPN", tint:"var(--espn)", slot:11,
     name:"D. Luu", record:"0–0",
     meta:["12-team","half PPR","slot 11","no kicker · 2 FLEX"],
-    roster:[
-      P("Brock Purdy","QB","SF","brock-purdy",{slot:"QB",start:1,trend:[39,42,40,45,43,47],d:+5.1,rank:[14,32,+3,.58],news:1}),
-      P("De'Von Achane","RB","MIA","devon-achane",{slot:"RB1",start:1,trend:[70,73,68,77,80,83],d:+11.8,rank:[3,58,+2,.96],news:3,hot:1,dual:1}),
-      P("Cam Skattebo","RB","NYG","cam-skattebo",{slot:"RB2",start:1,trend:null,d:null,rank:[34,58,0,.44],news:2}),
-      P("Amon-Ra St. Brown","WR","DET","amonra-st-brown",{slot:"WR1",start:1,trend:[74,72,78,76,80,79],d:+3.3,rank:[4,74,+1,.95],news:1}),
-      P("Tee Higgins","WR","CIN","tee-higgins",{slot:"WR2",start:1,trend:[59,63,61,66,64,68],d:+6.4,rank:[13,74,+2,.82],news:1}),
-      P("Tetairoa McMillan","WR","CAR","tetairoa-mcmillan",{slot:"WR3",start:1,trend:null,d:null,rank:[38,74,0,.49],news:1,dual:1}),
-      P("George Kittle","TE","SF","george-kittle",{slot:"TE",start:1,trend:[51,48,54,52,49,53],d:+2.1,rank:[4,26,+1,.88],news:1}),
-      P("DK Metcalf","WR","PIT","dk-metcalf",{slot:"FLX1",start:1,trend:[56,54,50,52,48,45],d:-8.3,rank:[27,74,-4,.63],news:2}),
-      P("Tony Pollard","RB","TEN","tony-pollard",{slot:"FLX2",start:1,trend:[48,46,45,49,47,44],d:-2.9,rank:[28,58,-1,.52],news:1,dual:1}),
-      P("Seahawks","DST","SEA","__dst",{slot:"D/ST",start:1,trend:[22,26,19,24,28,25],d:+1.4,rank:[9,32,+2,.71],news:0}),
-      P("Jared Goff","QB","DET","jared-goff",{slot:"BN",trend:[43,45,42,44,46,45],d:+0.6,rank:[12,32,0,.63],news:0}),
-      P("Jordan Mason","RB","MIN","jordan-mason",{slot:"BN",trend:[31,35,40,44,49,54],d:+18.9,rank:[36,58,+9,.47],news:3,hot:1}),
-      P("Jerry Jeudy","WR","CLE","jerry-jeudy",{slot:"BN",trend:[45,42,38,36,33,31],d:-11.4,rank:[52,74,-9,.31],news:1}),
-      P("Hunter Henry","TE","NE","hunter-henry",{slot:"BN",trend:[27,29,26,28,25,27],d:-0.4,rank:[17,26,0,.36],news:0}),
-      P("Najee Harris","RB","LAC","najee-harris",{slot:"BN",trend:[38,36,34,35,32,30],d:-6.8,rank:[44,58,-5,.26],news:1}),
-      P("Tyrone Tracy Jr.","RB","NYG","tyrone-tracy",{slot:"BN",trend:[33,36,34,31,29,27],d:-7.2,rank:[47,58,-4,.22],news:1}),
-    ]
+    roster:[]   // hydrated from LIVE_ESPN below
   }
 };
+
+/* Signals keyed by player name. Structure comes from the live pull, these do not —
+   model.watch fills them in once nflverse publishes week 1. */
+const SIGNALS = {
+  "Brock Purdy":        {trend:[39,42,40,45,43,47], d:+5.1,  rank:[14,32,+3,.58], news:1},
+  "De'Von Achane":      {trend:[70,73,68,77,80,83], d:+11.8, rank:[3,58,+2,.96],  news:3, hot:1},
+  "Cam Skattebo":       {trend:null,                d:null,  rank:[34,58,0,.44],  news:2},
+  "Amon-Ra St. Brown":  {trend:[74,72,78,76,80,79], d:+3.3,  rank:[4,74,+1,.95],  news:1},
+  "Tee Higgins":        {trend:[59,63,61,66,64,68], d:+6.4,  rank:[13,74,+2,.82], news:1},
+  "Tetairoa McMillan":  {trend:null,                d:null,  rank:[38,74,0,.49],  news:1},
+  "George Kittle":      {trend:[51,48,54,52,49,53], d:+2.1,  rank:[4,26,+1,.88],  news:1},
+  "DK Metcalf":         {trend:[56,54,50,52,48,45], d:-8.3,  rank:[27,74,-4,.63], news:2},
+  "Tony Pollard":       {trend:[48,46,45,49,47,44], d:-2.9,  rank:[28,58,-1,.52], news:1},
+  "Seahawks":           {trend:[22,26,19,24,28,25], d:+1.4,  rank:[9,32,+2,.71],  news:0},
+  "Jared Goff":         {trend:[43,45,42,44,46,45], d:+0.6,  rank:[12,32,0,.63],  news:0},
+  "Jordan Mason":       {trend:[31,35,40,44,49,54], d:+18.9, rank:[36,58,+9,.47], news:3, hot:1},
+  "Jerry Jeudy":        {trend:[45,42,38,36,33,31], d:-11.4, rank:[52,74,-9,.31], news:1},
+  "Hunter Henry":       {trend:[27,29,26,28,25,27], d:-0.4,  rank:[17,26,0,.36],  news:0},
+  "Najee Harris":       {trend:[38,36,34,35,32,30], d:-6.8,  rank:[44,58,-5,.26], news:1},
+  "Tyrone Tracy Jr.":   {trend:[33,36,34,31,29,27], d:-7.2,  rank:[47,58,-4,.22], news:1},
+  "Matthew Stafford":   {trend:[41,38,44,40,46,49], d:+6.2,  rank:[11,32,+2,.66], news:1},
+  "Derrick Henry":      {trend:[62,58,66,71,69,74], d:+9.4,  rank:[5,58,+1,.92],  news:2, hot:1},
+  "Rashee Rice":        {trend:[55,52,49,44,41,38], d:-14.1, rank:[24,74,-6,.68], news:2, status:"Q"},
+  "Davante Adams":      {trend:[58,60,57,59,55,56], d:-1.2,  rank:[16,74,0,.79],  news:1},
+  "Dallas Goedert":     {trend:[33,31,36,34,30,29], d:-4.8,  rank:[12,26,-3,.55], news:0},
+  "Jameson Williams":   {trend:[44,47,51,56,58,63], d:+13.6, rank:[21,74,+5,.72], news:2, hot:1},
+  "Courtland Sutton":   {trend:[42,45,43,41,44,46], d:+1.8,  rank:[31,74,+1,.58], news:0},
+  "Xavier Worthy":      {trend:[36,39,45,48,52,57], d:+15.2, rank:[29,74,+7,.61], news:2, hot:1},
+  "Deebo Samuel Sr.":   {trend:[47,44,40,38,35,33], d:-9.7,  rank:[46,74,-8,.38], news:1},
+  "Josh Jacobs":        {trend:[64,61,58,0,0,0],    d:null,  rank:[null,58,null,null], news:4,
+                         status:"OUT", statusText:"EXEMPT",
+                         note:"On the commissioner exempt list since 2026-08-30. Hearing set for Sept 10."},
+};
+
+/* ESPN starts two RB and two WR, so those slots are numbered; the singles are not. */
+function hydrateEspn(){
+  if (typeof LIVE_ESPN === "undefined" || !LIVE_ESPN) return;
+  const seen = {};
+  TEAMS.espn.name = LIVE_ESPN.name;
+  TEAMS.espn.meta = ["12-team","half PPR","no kicker · 2 FLEX", LIVE_ESPN.league];
+  TEAMS.espn.roster = LIVE_ESPN.roster.map(p => {
+    let slot = p.slot;
+    if (slot === "RB" || slot === "WR"){ seen[slot] = (seen[slot]||0)+1; slot += seen[slot]; }
+    return Object.assign({
+      n:p.n, pos:p.pos, team:p.team, slug:p.slug, slot,
+      start: slot !== "BN", status: p.status || null,
+      trend:null, d:null, rank:[null,0,null,null], news:0,
+    }, SIGNALS[p.n] || {});
+  });
+}
+hydrateEspn();
+
+/* Yahoo comes from a website scrape with no lineup slot, so the slots below are inferred by
+   filling the league's lineup in roster order. The board labels them as inferred. */
+const YAHOO_LINEUP = [["QB",1],["RB",2],["WR",3],["TE",1]];
+function hydrateYahoo(){
+  if (typeof LIVE_YAHOO === "undefined" || !LIVE_YAHOO) return;
+  const need = {}; YAHOO_LINEUP.forEach(([p,n]) => need[p] = n);
+  const seen = {};
+  let flexTaken = false;
+  const roster = LIVE_YAHOO.roster.map(p => {
+    const sig = SIGNALS[p.n] || {};
+    let slot = "BN";
+    if (sig.status === "OUT"){
+      slot = "OUT";                       // an unavailable player never fills a lineup slot
+    } else if (need[p.pos] > 0){
+      need[p.pos]--;
+      seen[p.pos] = (seen[p.pos]||0) + 1;
+      slot = (YAHOO_LINEUP.find(l=>l[0]===p.pos)[1] > 1) ? p.pos + seen[p.pos] : p.pos;
+    } else if (!flexTaken && ["RB","WR","TE"].includes(p.pos)){
+      flexTaken = true; slot = "FLEX";
+    }
+    return Object.assign({
+      n:p.n, pos:p.pos, team:p.team, slug:p.slug, slot,
+      start: slot !== "BN" && slot !== "OUT", status:null,
+      trend:null, d:null, rank:[null,0,null,null], news:0,
+    }, sig);
+  });
+  TEAMS.yahoo.name = LIVE_YAHOO.name;
+  TEAMS.yahoo.meta = ["12-team","half PPR","slot 12", LIVE_YAHOO.league];
+  TEAMS.yahoo.inferred = "Lineup slots inferred — the Yahoo scrape does not expose them.";
+  TEAMS.yahoo.roster = roster;
+}
+hydrateYahoo();
+
+/* A player on both rosters gets the "2 leagues" tag — computed, never hand-listed. */
+(function markDual(){
+  const y = new Set(TEAMS.yahoo.roster.map(p=>p.n));
+  const e = new Set(TEAMS.espn.roster.map(p=>p.n));
+  TEAMS.yahoo.roster.forEach(p=>{ if (e.has(p.n)) p.dual = 1; });
+  TEAMS.espn.roster.forEach(p=>{ if (y.has(p.n)) p.dual = 1; });
+})();
 
 const TICKER = [
   {t:"up",   b:"De'Von Achane", s:"snap share up to 71% in the joint practice report", src:"BEAT · 2h"},
@@ -683,18 +932,26 @@ function tickerHTML(){
   </div>`;
 }
 
+const WORD = ["Nobody","One man","Two men","Three men","Four men","Five men","Six men"];
 function expoHTML(){
-  const shared = ["devon-achane","tetairoa-mcmillan","tony-pollard"];
-  const names = {"devon-achane":"Achane","tetairoa-mcmillan":"McMillan","tony-pollard":"Pollard"};
+  const e = new Set(TEAMS.espn.roster.map(p=>p.n));
+  const shared = TEAMS.yahoo.roster.filter(p=>e.has(p.n));
+  if (!shared.length) return `<div class="expo"><div>
+      <div class="lbl" style="margin-bottom:10px">Cross-league exposure</div>
+      <h3>No overlap</h3>
+      <p>Not one player starts for both teams, so no single injury can cost you two lineups.
+      That is rarer than it sounds in a 12-team pair.</p></div></div>`;
+  const last = shared.map(p=>p.n.split(" ").slice(-1)[0].replace(/(Jr\.|Sr\.)$/,"").trim());
+  const names = last.slice(0,-1).join(", ") + (last.length>1 ? " and " + last.slice(-1) : "");
   return `<div class="expo">
     <div>
       <div class="lbl" style="margin-bottom:10px">Cross-league exposure</div>
-      <h3>Three men, two teams</h3>
-      <p>Achane, McMillan and Pollard start for both franchises. One hamstring takes out
-      two lineups at once, and one hot streak wins two weeks. Watch these three first.</p>
+      <h3>${WORD[shared.length]||shared.length}, two teams</h3>
+      <p>${names} sit on both rosters. One hamstring takes out two lineups at once, and one hot
+      streak wins two weeks. Watch these ${shared.length===1?"":shared.length} first.</p>
     </div>
     <div class="expo-faces">
-      ${shared.map(s=>`<figure title="${names[s]}"><img src="${HEADS[s]||""}" alt="${names[s]}"></figure>`).join("")}
+      ${shared.map(p=>`<figure title="${esc(p.n)}"><img src="${HEADS[p.slug]||""}" alt="${esc(p.n)}"></figure>`).join("")}
     </div>
   </div>`;
 }
@@ -746,7 +1003,314 @@ function statesHTML(){
   </div>`;
 }
 
+/* ------------------------------------------------------------------
+   THE POOL — every player who logged a snap, ranked on usage, not points.
+   dShare is the change in snap/target share; dPts the change in points.
+   The gap between them is the whole product.
+------------------------------------------------------------------ */
+const POOL = [
+  {n:"Chase Brown",      slug:"chase-brown",      pos:"RB", team:"CIN", snaps:71, dSnap:+14.0, share:23.4, dShare:+9.2,  rz:5, ppg:14.2, luck:+0.4, own:41, v:"CONFIRMED"},
+  {n:"Denzel Boston",    slug:"denzel-boston",    pos:"WR", team:"LV",  snaps:44, dSnap:+16.2, share:19.1, dShare:+11.1, rz:1, ppg:6.1,  luck:-2.9, own:6,  v:"BUY LOW"},
+  {n:"Bhayshul Tuten",   slug:"bhayshul-tuten",   pos:"RB", team:"JAX", snaps:39, dSnap:+13.1, share:20.8, dShare:+12.4, rz:2, ppg:7.4,  luck:-3.8, own:18, v:"BUY LOW"},
+  {n:"Brenton Strange",  slug:"brenton-strange",  pos:"TE", team:"JAX", snaps:63, dSnap:+11.4, share:17.6, dShare:+9.8,  rz:3, ppg:11.0, luck:+0.2, own:37, v:"CONFIRMED"},
+  {n:"Isaiah Likely",    slug:"isaiah-likely",    pos:"TE", team:"BAL", snaps:58, dSnap:+9.6,  share:16.2, dShare:+8.1,  rz:4, ppg:12.8, luck:+1.1, own:34, v:"CONFIRMED"},
+  {n:"Jalen Coker",      slug:"jalen-coker",      pos:"WR", team:"CAR", snaps:66, dSnap:+10.2, share:18.9, dShare:+7.6,  rz:1, ppg:8.2,  luck:-1.2, own:28, v:"BUY LOW"},
+  {n:"Blake Corum",      slug:"blake-corum",      pos:"RB", team:"LA",  snaps:34, dSnap:+8.8,  share:15.1, dShare:+6.9,  rz:2, ppg:8.9,  luck:+0.4, own:22, v:"RISING"},
+  {n:"Braelon Allen",    slug:"braelon-allen",    pos:"RB", team:"NYJ", snaps:41, dSnap:+7.1,  share:17.7, dShare:+5.2,  rz:3, ppg:7.8,  luck:-2.6, own:31, v:"BUY LOW"},
+  {n:"Dylan Sampson",    slug:"dylan-sampson",    pos:"RB", team:"CLE", snaps:29, dSnap:+6.4,  share:13.9, dShare:+4.4,  rz:1, ppg:6.9,  luck:+1.1, own:12, v:"RISING"},
+  {n:"Carnell Tate",     slug:"carnell-tate",     pos:"WR", team:"CHI", snaps:52, dSnap:+5.2,  share:14.8, dShare:+3.8,  rz:2, ppg:11.4, luck:+4.9, own:9,  v:"CONFIRMED"},
+  {n:"Adonai Mitchell",  slug:"adonai-mitchell",  pos:"WR", team:"IND", snaps:61, dSnap:-1.9,  share:17.2, dShare:-1.4,  rz:3, ppg:15.6, luck:+9.2, own:26, v:"SELL HIGH"},
+  {n:"Alec Pierce",      slug:"alec-pierce",      pos:"WR", team:"IND", snaps:57, dSnap:-3.4,  share:15.0, dShare:-2.8,  rz:1, ppg:13.9, luck:+7.1, own:19, v:"SELL HIGH"},
+  {n:"Chig Okonkwo",     slug:"chig-okonkwo",     pos:"TE", team:"TEN", snaps:60, dSnap:-2.6,  share:13.1, dShare:-3.2,  rz:1, ppg:7.2,  luck:-1.8, own:21, v:"hold"},
+  {n:"Jalen Nailor",     slug:"jalen-nailor",     pos:"WR", team:"MIN", snaps:46, dSnap:-5.1,  share:11.8, dShare:-4.1,  rz:0, ppg:5.4,  luck:-3.3, own:8,  v:"hold"},
+  {n:"Dontayvion Wicks", slug:"dontayvion-wicks", pos:"WR", team:"GB",  snaps:43, dSnap:-7.8,  share:10.4, dShare:-6.2,  rz:2, ppg:11.8, luck:+3.4, own:14, v:"SELL HIGH"},
+  {n:"Jerry Jeudy",      slug:"jerry-jeudy",      pos:"WR", team:"CLE", snaps:49, dSnap:-11.6, share:12.2, dShare:-9.4,  rz:0, ppg:6.4,  luck:-5.2, own:44, v:"SELL NOW", mine:1},
+];
+
+const VCLASS = {"CONFIRMED":"v-conf","RISING":"v-conf","BUY LOW":"v-buy","SELL HIGH":"v-sell","SELL NOW":"v-sell","hold":"v-hold","NEW":"v-hold"};
+const VDOT   = {"CONFIRMED":"var(--up)","RISING":"var(--up)","BUY LOW":"var(--lime)","SELL HIGH":"var(--down)","SELL NOW":"var(--down)","hold":"var(--ink-3)","NEW":"var(--ink-3)"};
+
+let POOL_FILTER = "ALL";
+
+function scatterHTML(rows){
+  const W = 1080, H = 400, PX = 54, PY = 34;
+  const xs = rows.map(r=>r.dShare), ys = rows.map(r=>r.luck);
+  const xm = Math.max(14, ...xs.map(Math.abs)) * 1.15;
+  const ym = Math.max(8,  ...ys.map(Math.abs)) * 1.2;
+  const X = v => PX + ((v + xm) / (2*xm)) * (W - PX*2);
+  const Y = v => H - PY - ((v + ym) / (2*ym)) * (H - PY*2);
+  const cx = X(0), cy = Y(0);
+
+  const quads = [
+    [W-PX-10, PY+20,  "end",   "CONFIRMED — role and box score agree"],
+    [PX+10,   PY+20,  "start", "SELL HIGH — points without the role"],
+    [W-PX-10, H-PY-10,"end",   "BUY LOW — role without the points"],
+    [PX+10,   H-PY-10,"start", "FADING — both gone"],
+  ].map(([x,y,a,t]) => `<text class="qname" x="${x}" y="${y}" text-anchor="${a}">${t}</text>`).join("");
+
+  // Labels sit to the right of their dot; when that would collide with one already
+  // placed, the label flips above instead. Cheap, and it keeps every name readable.
+  const placed = [];
+  const dots = rows.map((r,i) => {
+    const rad = 4 + Math.min(6, r.snaps/14);
+    const px = X(r.dShare), py = Y(r.luck);
+    let lx = px + rad + 5, ly = py + 3.5, anchor = "start";
+    const hits = () => placed.some(p => Math.abs(p.x-lx) < 64 && Math.abs(p.y-ly) < 11);
+    if (hits()){ ly = py - rad - 6; lx = px; anchor = "middle"; }
+    if (hits()){ ly = py + rad + 13; lx = px; anchor = "middle"; }
+    if (hits()){ lx = px - rad - 5; ly = py + 3.5; anchor = "end"; }
+    placed.push({x:lx, y:ly});
+    return `<g class="dotg" data-i="${i}">
+      <circle class="dot" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${rad.toFixed(1)}"
+        fill="${VDOT[r.v]}" fill-opacity=".8" stroke="${r.mine?"var(--lime)":"none"}" stroke-width="${r.mine?2:0}">
+        <title>${esc(r.n)} — usage ${r.dShare>0?"+":""}${r.dShare}, luck ${r.luck>0?"+":""}${r.luck}</title>
+      </circle>
+      <text class="dotlab" x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${anchor}">${esc(r.n.split(" ").slice(-1)[0])}</text>
+    </g>`;
+  }).join("");
+
+  return `<div class="quadwrap">
+    <div class="quadhead">
+      <div><span class="lbl">Usage against luck</span>
+        <div style="margin-top:6px;font-size:12.5px;color:var(--ink-2)">Right means the role is growing. Up means the points are running ahead of it.</div></div>
+      <span class="pill">${rows.length} players · min 25 snaps</span>
+    </div>
+    <div class="quadscroll">
+      <svg class="quad" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
+        <line class="qgrid" x1="${PX}" y1="${PY}" x2="${W-PX}" y2="${PY}"/>
+        <line class="qgrid" x1="${PX}" y1="${H-PY}" x2="${W-PX}" y2="${H-PY}"/>
+        <line class="axis-line" x1="${cx}" y1="${PY}" x2="${cx}" y2="${H-PY}"/>
+        <line class="axis-line" x1="${PX}" y1="${cy}" x2="${W-PX}" y2="${cy}"/>
+        ${quads}
+        <text class="qtick" x="${W-PX}" y="${cy+16}" text-anchor="end">USAGE +</text>
+        <text class="qtick" x="${PX}" y="${cy+16}">USAGE −</text>
+        <text class="qtick" x="${cx+8}" y="${PY+12}">LUCK +</text>
+        <text class="qtick" x="${cx+8}" y="${H-PY-6}">LUCK −</text>
+        ${dots}
+      </svg>
+    </div>
+    <div class="quadkey">
+      <span><i style="background:var(--up)"></i>Confirmed / rising</span>
+      <span><i style="background:var(--lime)"></i>Buy low</span>
+      <span><i style="background:var(--down)"></i>Sell</span>
+      <span><i style="background:var(--ink-3)"></i>Hold</span>
+      <span><i style="background:none;border:2px solid var(--lime)"></i>On one of my rosters</span>
+    </div>
+  </div>`;
+}
+
+function poolRow(r, i){
+  const sgn = v => (v>0?"+":"") + v.toFixed(1);
+  const cls = v => v>0.5 ? "pos" : v<-0.5 ? "neg" : "";
+  return `<div class="prow ${r.mine?"mine":""}" style="animation-delay:${60+i*26}ms" data-pool="${i}" role="button" tabindex="0">
+    <div class="pnum" style="color:var(--ink-3)">${String(i+1).padStart(2,"0")}</div>
+    <div>${HEADS[r.slug] ? `<img class="pool-head" src="${HEADS[r.slug]}" alt="">` : `<div class="pool-head" style="display:grid;place-items:center;font-family:var(--mono);font-size:11px;color:var(--ink-3)">${esc(initials(r.n))}</div>`}</div>
+    <div class="pname"><b>${esc(r.n)}</b><span>${esc(r.pos)} · ${esc(r.team)}</span></div>
+    <div class="pnum">${r.snaps}</div>
+    <div class="pnum ${cls(r.dSnap)}">${sgn(r.dSnap)}</div>
+    <div class="pnum">${r.share.toFixed(1)}</div>
+    <div class="pnum ${cls(r.dShare)}">${sgn(r.dShare)}</div>
+    <div><span class="vchip ${VCLASS[r.v]}">${esc(r.v.toUpperCase())}</span></div>
+    <div class="pnum" style="color:var(--ink-2)">${r.own}%</div>
+  </div>`;
+}
+
+function poolHTML(){
+  const rows = POOL_FILTER === "ALL" ? POOL : POOL.filter(r=>r.pos===POOL_FILTER);
+  const rising = POOL.filter(r=>r.dShare>3).length;
+  const falling = POOL.filter(r=>r.dShare<-3).length;
+  return `<section class="hero">
+    <div class="numghost">${POOL.length}</div>
+    <div class="wrap hero-in">
+      <div>
+        <div class="hero-eyebrow" style="--tint:var(--lime)">
+          <span class="league-mark"></span><span class="lbl">Every player who logged a snap · week 1</span>
+        </div>
+        <h1>Who is<br>getting<br><em>the ball</em></h1>
+        <div class="hero-meta">
+          <span class="pill">Ranked on usage, not points</span>
+          <span class="pill">Rostered % from both leagues</span>
+        </div>
+      </div>
+      <div><div class="signals">
+        <div class="sig up"><div class="lbl">Role growing</div><div class="sig-val">${rising}</div><div class="sig-sub">SHARE +3 OR MORE</div></div>
+        <div class="sig down"><div class="lbl">Role shrinking</div><div class="sig-val">${falling}</div><div class="sig-sub">SHARE -3 OR MORE</div></div>
+        <div class="sig empty"><div class="lbl">Tracked</div><div class="sig-val">—</div><div class="sig-sub">FILLS AFTER WEEK 1</div></div>
+      </div></div>
+    </div>
+  </section>
+  ${tickerHTML()}
+  <div class="wrap">
+    ${scatterHTML(rows)}
+    <div class="filters">
+      <span class="lbl">Position</span>
+      ${["ALL","QB","RB","WR","TE"].map(p=>`<button class="chip" data-pos="${p}" aria-pressed="${POOL_FILTER===p}">${p}</button>`).join("")}
+      <span style="flex:1"></span>
+      <span class="lbl">Sorted by share change</span>
+    </div>
+    <div class="ptable">
+      <div class="phead">
+        <div>#</div><div></div><div>Player</div><div>Snaps</div><div>Δ snaps</div>
+        <div>Share</div><div>Δ share</div><div>Verdict</div><div>Rostered</div>
+      </div>
+      ${rows.length ? rows.map(poolRow).join("")
+        : `<div class="state-empty" style="margin:26px 0;min-height:120px"><div><b>0</b><span>NO PLAYERS AT THIS POSITION</span></div></div>`}
+    </div>
+    <div class="rule"><h2>Where the pool goes next</h2><span class="hair"></span><span class="side">builder</span></div>
+    <p style="color:var(--ink-2);font-size:13px;max-width:64ch;line-height:1.6;margin:14px 0 60px">
+      A player whose role is growing while his points lag is the same edge in three products: a waiver claim,
+      a trade offer, and a prop. The builder takes this table as its shortlist.</p>
+  </div>`;
+}
+
+/* ------------------------------------------------------------------
+   BUILDER — parlay slip and DFS lineup, both fed by the pool.
+------------------------------------------------------------------ */
+const PROPS = [
+  {n:"De'Von Achane",     slug:"devon-achane",     prop:"60+ rushing yards",  game:"MIA @ IND", book:"-115", model:62, edge:+8.5},
+  {n:"Amon-Ra St. Brown", slug:"amonra-st-brown",  prop:"6+ receptions",      game:"DET vs GB", book:"-130", model:64, edge:+7.5},
+  {n:"Jared Goff",        slug:"jared-goff",       prop:"250+ passing yards", game:"DET vs GB", book:"-105", model:57, edge:+5.8},
+  {n:"Chase Brown",       slug:"chase-brown",      prop:"Anytime touchdown",  game:"CIN @ CLE", book:"+140", model:46, edge:+4.3},
+  {n:"George Kittle",     slug:"george-kittle",    prop:"Anytime touchdown",  game:"SF vs ARI", book:"+185", model:39, edge:+3.9},
+  {n:"Tee Higgins",       slug:"tee-higgins",      prop:"70+ receiving yards",game:"CIN @ CLE", book:"-110", model:49, edge:-3.2},
+];
+const SLIP = [0,1,2];
+
+const DFS = [
+  {slot:"QB",   n:"Jared Goff",        slug:"jared-goff",       sal:6200, proj:18.4, own:14},
+  {slot:"RB",   n:"De'Von Achane",     slug:"devon-achane",     sal:8400, proj:21.1, own:32},
+  {slot:"RB",   n:"Chase Brown",       slug:"chase-brown",      sal:5900, proj:14.2, own:19},
+  {slot:"WR",   n:"Amon-Ra St. Brown", slug:"amonra-st-brown",  sal:8100, proj:19.8, own:27},
+  {slot:"WR",   n:"Tee Higgins",       slug:"tee-higgins",      sal:6800, proj:15.4, own:16},
+  {slot:"WR",   n:"Jalen Coker",       slug:"jalen-coker",      sal:3600, proj:9.8,  own:6},
+  {slot:"TE",   n:"Isaiah Likely",     slug:"isaiah-likely",    sal:4200, proj:11.2, own:11},
+  {slot:"FLEX", n:null},
+  {slot:"D/ST", n:"Seahawks",          slug:null, abbr:"SEA",   sal:2700, proj:7.4,  own:9},
+];
+const CAP = 50000;
+
+let BUILD_MODE = "parlay";
+
+function propCard(p, i){
+  const pos = p.edge >= 0;
+  const w = Math.min(50, Math.abs(p.edge) * 4.4);
+  return `<div class="leg" data-prop="${i}" role="button" tabindex="0">
+    ${HEADS[p.slug] ? `<img src="${HEADS[p.slug]}" alt="">` : `<div class="fallback">${esc(initials(p.n))}</div>`}
+    <div>
+      <div class="prop">${esc(p.n)} · ${esc(p.prop)}</div>
+      <div class="book">${esc(p.game)} · BOOK ${esc(p.book)}</div>
+    </div>
+    <div class="probwrap"><b>${p.model}%</b><span>MODEL</span></div>
+    <div class="edgecell">
+      <b class="${pos?"pos":"neg"}">${pos?"+":""}${p.edge.toFixed(1)}</b>
+      <div class="ebar"><i class="${pos?"":"neg"}" style="${pos?`left:50%;width:${w}%`:`left:${50-w}%;width:${w}%`}"></i></div>
+    </div>
+  </div>`;
+}
+
+function slipHTML(){
+  const legs = SLIP.map(i=>PROPS[i]);
+  const games = legs.map(l=>l.game);
+  const corr = games.find((g,i)=>games.indexOf(g)!==i);
+  return `<div class="slip">
+    <div class="sliphead"><span class="lbl">The slip</span><span class="pill">${legs.length} legs</span></div>
+    ${legs.map(l=>`<div class="slipleg">
+      <div><div class="p">${esc(l.n)}</div><div class="m">${esc(l.prop.toUpperCase())}</div></div>
+      <div class="o">${esc(l.book)}</div></div>`).join("")}
+    ${corr ? `<div class="corr"><span>⚠</span>TWO LEGS IN ${esc(corr.toUpperCase())} — CORRELATED, PRICE IT AS ONE</div>` : ""}
+    <div class="payout">
+      <span class="lbl">Model edge over the book</span>
+      <div class="bigedge">+4.6</div>
+      <div class="payrow"><span>MODEL PROBABILITY</span><b>24.1%</b></div>
+      <div class="payrow"><span>BOOK IMPLIED</span><b>19.5%</b></div>
+      <div class="payrow"><span>COMBINED ODDS</span><b>+412</b></div>
+      <div class="payrow"><span>$25 RETURNS</span><b>$128</b></div>
+      <button class="btn" style="width:100%;margin-top:14px">Copy slip</button>
+    </div>
+  </div>`;
+}
+
+function dfsHTML(){
+  const filled = DFS.filter(d=>d.n);
+  const spent = filled.reduce((a,d)=>a+d.sal,0);
+  const proj  = filled.reduce((a,d)=>a+d.proj,0);
+  const own   = filled.reduce((a,d)=>a+d.own,0);
+  const pct   = Math.min(100, (spent/CAP)*100);
+  return `<div class="dfs">
+    ${DFS.map(d => d.n ? `
+      <div class="slotcard">
+        ${HEADS[d.slug] ? `<img src="${HEADS[d.slug]}" alt="">` : `<div class="fallback">${esc(d.abbr || initials(d.n))}</div>`}
+        <div style="min-width:0">
+          <span class="slottag">${esc(d.slot)}</span>
+          <div class="sn">${esc(d.n)}</div>
+          <div class="sm">$${d.sal.toLocaleString()} · ${d.proj.toFixed(1)} PROJ · ${d.own}% OWN</div>
+        </div>
+      </div>` : `
+      <div class="slotcard vacant" role="button" tabindex="0">
+        <div><span class="slottag">${esc(d.slot)}</span>
+        <div style="font-family:var(--mono);font-size:11px;letter-spacing:.14em">+ ADD PLAYER</div>
+        <div style="font-family:var(--mono);font-size:9px;margin-top:5px;color:var(--ink-3)">$${(CAP-spent).toLocaleString()} LEFT</div></div>
+      </div>`).join("")}
+  </div>
+  <div class="salwrap">
+    <div class="salrow">
+      <div class="stat"><b style="font-size:17px">$${spent.toLocaleString()}</b><span>SPENT OF $${CAP.toLocaleString()}</span></div>
+      <div class="stat"><b style="font-size:17px;color:var(--lime)">$${(CAP-spent).toLocaleString()}</b><span>LEFT FOR 1 SLOT</span></div>
+      <div class="stat"><b style="font-size:17px">${proj.toFixed(1)}</b><span>PROJECTED POINTS</span></div>
+      <div class="stat"><b style="font-size:17px">${own}%</b><span>SUMMED OWNERSHIP</span></div>
+    </div>
+    <div class="salbar"><i style="--w:${pct.toFixed(1)}%"></i></div>
+    <div style="display:flex;justify-content:space-between;margin-top:9px;font-family:var(--mono);font-size:9px;color:var(--ink-3);letter-spacing:.12em">
+      <span>ONE SLOT OPEN</span><span>CAP $${CAP.toLocaleString()}</span></div>
+  </div>`;
+}
+
+function builderHTML(){
+  const parlay = BUILD_MODE === "parlay";
+  return `<section class="hero">
+    <div class="numghost">${parlay ? SLIP.length : DFS.filter(d=>d.n).length}</div>
+    <div class="wrap hero-in">
+      <div>
+        <div class="hero-eyebrow" style="--tint:var(--lime)">
+          <span class="league-mark"></span><span class="lbl">Same edge, different wrapper</span>
+        </div>
+        <h1>Build the<br><em>${parlay ? "slip" : "lineup"}</em></h1>
+        <div class="hero-meta"><span class="pill">Shortlist comes from the pool</span>
+        <span class="pill">Model probability vs book price</span></div>
+      </div>
+      <div><div class="signals">
+        <div class="sig up"><div class="lbl">Legs with edge</div><div class="sig-val">${PROPS.filter(p=>p.edge>0).length}</div><div class="sig-sub">OF ${PROPS.length} PRICED</div></div>
+        <div class="sig down"><div class="lbl">Priced against</div><div class="sig-val">${PROPS.filter(p=>p.edge<0).length}</div><div class="sig-sub">SKIP THESE</div></div>
+        <div class="sig empty"><div class="lbl">Books live</div><div class="sig-val">—</div><div class="sig-sub">LINES POST THURSDAY</div></div>
+      </div></div>
+    </div>
+  </section>
+  <div class="wrap">
+    <div class="modes">
+      <button class="mode" data-mode="parlay" aria-pressed="${parlay}">Parlay</button>
+      <button class="mode" data-mode="dfs" aria-pressed="${!parlay}">DFS lineup</button>
+    </div>
+    ${parlay ? `
+      <div class="build">
+        <div>
+          <div class="rule" style="margin-top:22px"><h2>Candidate legs</h2>
+            <span class="count">${String(PROPS.length).padStart(2,"0")}</span><span class="hair"></span>
+            <span class="side">model % vs book price</span></div>
+          <div class="legs" style="margin-top:14px">${PROPS.map(propCard).join("")}</div>
+        </div>
+        <div style="padding-top:22px">${slipHTML()}</div>
+      </div>`
+    : `
+      <div class="rule" style="margin-top:22px"><h2>Lineup</h2>
+        <span class="count">09</span><span class="hair"></span><span class="side">$50,000 cap</span></div>
+      ${dfsHTML()}`}
+    <div class="rule"><h2>Component states</h2><span class="hair"></span><span class="side">before the books post</span></div>
+    ${statesHTML()}
+  </div>`;
+}
+
 /* ---------------------------- views ---------------------------- */
+let SURFACE = "teams";
 let VIEW = "yahoo";
 
 function heroHTML(team){
@@ -797,6 +1361,29 @@ function bothHeroHTML(){
 
 function render(){
   const v = document.getElementById("view");
+  document.getElementById("switchbar").hidden = SURFACE !== "teams";
+
+  if (SURFACE === "pool"){
+    v.innerHTML = poolHTML();
+    v.querySelectorAll(".chip[data-pos]").forEach(b=>b.addEventListener("click",()=>{
+      POOL_FILTER = b.dataset.pos; render();
+    }));
+    v.querySelectorAll("[data-pool]").forEach(el=>{
+      const open = ()=>openPoolDrawer(+el.dataset.pool);
+      el.addEventListener("click", open);
+      el.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();open();} });
+    });
+    v.querySelectorAll(".dotg").forEach(g=>g.addEventListener("click",()=>openPoolDrawer(+g.dataset.i)));
+    return;
+  }
+  if (SURFACE === "builder"){
+    v.innerHTML = builderHTML();
+    v.querySelectorAll(".mode").forEach(b=>b.addEventListener("click",()=>{
+      BUILD_MODE = b.dataset.mode; render();
+    }));
+    return;
+  }
+
   if (VIEW === "both"){
     v.innerHTML = bothHeroHTML() + tickerHTML() + `<div class="wrap">${expoHTML()}
       <div class="rule"><h2>Yahoo · Toilet Bowl Contender</h2><span class="hair"></span><span class="side">${TEAMS.yahoo.roster.length} rostered</span></div>
@@ -811,6 +1398,7 @@ function render(){
   } else {
     const team = TEAMS[VIEW];
     v.innerHTML = heroHTML(team) + tickerHTML() + `<div class="wrap">
+      ${team.inferred ? `<div class="inferred"><span>◇</span>${esc(team.inferred)}</div>` : ""}
       ${boardHTML(team)}
       <div class="rule"><h2>The wire</h2><span class="hair"></span><span class="side">waiver replacements</span></div>
       ${wireHTML()}
@@ -824,12 +1412,26 @@ function render(){
   });
 }
 
+function buildNav(){
+  const n = document.getElementById("nav");
+  const items = [["teams","My teams"],["pool","The pool"],["builder","Builder"]];
+  n.innerHTML = items.map(([k,label],i)=>
+    `<button class="navitem" data-s="${k}" aria-current="${SURFACE===k}">
+      <span class="ix">${String(i+1).padStart(2,"0")}</span>${label}</button>`).join("");
+  n.querySelectorAll(".navitem").forEach(b=>b.addEventListener("click",()=>{
+    SURFACE = b.dataset.s;
+    n.querySelectorAll(".navitem").forEach(x=>x.setAttribute("aria-current", x.dataset.s===SURFACE));
+    render(); window.scrollTo({top:0,behavior:"smooth"});
+  }));
+}
+
 function buildSwitch(){
   const s = document.getElementById("switch");
+  const shorten = s => s.split(/\s+/).slice(0,3).join(" ");
   const cells = [
-    {k:"yahoo", plat:"Yahoo", team:"Toilet Bowl Contender", short:"Toilet Bowl", tint:"var(--yahoo)"},
-    {k:"espn",  plat:"ESPN",  team:"D. Luu",                short:"D. Luu",      tint:"var(--espn)"},
-    {k:"both",  plat:"Combined", team:"Both teams",         short:"Both",        tint:"var(--lime)"},
+    {k:"yahoo", plat:"Yahoo", team:TEAMS.yahoo.name, short:shorten(TEAMS.yahoo.name), tint:"var(--yahoo)"},
+    {k:"espn",  plat:"ESPN",  team:TEAMS.espn.name,  short:shorten(TEAMS.espn.name),  tint:"var(--espn)"},
+    {k:"both",  plat:"Combined", team:"Both teams",  short:"Both",                    tint:"var(--lime)"},
   ];
   s.innerHTML = cells.map(c=>`<button class="tab" role="tab" data-k="${c.k}" style="--tint:${c.tint}"
       aria-selected="${VIEW===c.k}">
@@ -915,6 +1517,71 @@ function openDrawer(teamKey, i){
   document.getElementById("scrim").classList.add("on");
   d.querySelector(".dr-close").addEventListener("click", closeDrawer);
 }
+function openPoolDrawer(i){
+  const r = POOL[i];
+  if (!r) return;
+  const d = document.getElementById("drawer");
+  const bar = (label, val, max, neg) => `
+    <div class="why-row"><div class="t"><b>${label}</b> ${val>0?"+":""}${val}</div>
+      <div class="why-bar ${neg?"neg":""}"><i style="width:${Math.min(100,Math.abs(val)/max*100).toFixed(0)}%"></i></div></div>`;
+  d.innerHTML = `
+    <div class="dr-head">
+      <button class="dr-close" aria-label="Close">✕</button>
+      <div class="dr-id">
+        ${HEADS[r.slug] ? `<img src="${HEADS[r.slug]}" alt="">` : `<div class="fallback">${esc(initials(r.n))}</div>`}
+        <div>
+          <h3>${esc(r.n)}</h3>
+          <div class="lbl">${esc(r.pos)} · ${esc(r.team)} · ${r.own}% rostered</div>
+        </div>
+      </div>
+      <div style="margin-top:14px"><span class="vchip ${VCLASS[r.v]}" style="display:inline-block;padding:5px 10px">${esc(r.v.toUpperCase())}</span></div>
+    </div>
+    <div class="dr-body">
+      <div class="dr-sec">
+        <span class="lbl">The gap</span>
+        <div class="why">
+          ${bar("Snap change", r.dSnap, 18, r.dSnap<0)}
+          ${bar("Share change", r.dShare, 14, r.dShare<0)}
+          ${bar("Touchdown luck", r.luck, 10, r.luck<0)}
+        </div>
+        <p style="margin:16px 0 0;color:var(--ink-2);font-size:12.5px;line-height:1.6">
+          ${r.dShare > 0 && r.luck < 0
+            ? "The role is growing and the box score has not caught up. This is the buy window."
+            : r.dShare < 0 && r.luck > 0
+            ? "The points are borrowed from touchdown luck while the role shrinks. Sell into the good week."
+            : r.dShare > 0
+            ? "Role and production agree. Nothing mispriced, but the floor is real."
+            : "Neither the role nor the points are moving. Nothing to do."}
+        </p>
+      </div>
+      <div class="dr-sec">
+        <span class="lbl">Raw</span>
+        <div class="why" style="margin-top:2px">
+          <div class="why-row"><div class="t"><b>Snaps</b> ${r.snaps}</div><div class="why-bar"><i style="width:${r.snaps}%"></i></div></div>
+          <div class="why-row"><div class="t"><b>Share</b> ${r.share}%</div><div class="why-bar"><i style="width:${(r.share*3).toFixed(0)}%"></i></div></div>
+          <div class="why-row"><div class="t"><b>Red-zone looks</b> ${r.rz}</div><div class="why-bar"><i style="width:${r.rz*18}%"></i></div></div>
+          <div class="why-row"><div class="t"><b>Points per game</b> ${r.ppg}</div><div class="why-bar"><i style="width:${(r.ppg*5).toFixed(0)}%"></i></div></div>
+        </div>
+      </div>
+      <div class="dr-sec">
+        <span class="lbl">Where this shows up</span>
+        <div class="newsitem ${r.dShare>0?"up":"down"}"><div class="bar"></div><div>
+          <h4>Waiver claim</h4><p>${r.own}% rostered — ${r.own<35?"claimable in both leagues":"gone in most leagues, trade instead"}.</p></div></div>
+        <div class="newsitem ${r.luck>0?"down":"up"}"><div class="bar"></div><div>
+          <h4>Trade</h4><p>${r.luck>2?"Sell while the box score still looks good.":"Buy before the box score catches up."}</p></div></div>
+        <div class="newsitem"><div class="bar"></div><div>
+          <h4>Prop</h4><p>Volume props follow role, not touchdowns. ${r.dShare>3?"Worth a line check.":"Skip."}</p></div></div>
+      </div>
+    </div>
+    <div class="dr-foot">
+      <button class="btn ghost">Watch news</button>
+      <button class="btn">Add to builder</button>
+    </div>`;
+  d.classList.add("on"); d.setAttribute("aria-hidden","false");
+  document.getElementById("scrim").classList.add("on");
+  d.querySelector(".dr-close").addEventListener("click", closeDrawer);
+}
+
 function closeDrawer(){
   document.getElementById("drawer").classList.remove("on");
   document.getElementById("drawer").setAttribute("aria-hidden","true");
@@ -923,6 +1590,7 @@ function closeDrawer(){
 document.getElementById("scrim").addEventListener("click", closeDrawer);
 document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeDrawer(); });
 
+buildNav();
 buildSwitch();
 render();
 </script>

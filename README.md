@@ -1,20 +1,19 @@
 # Team Watch
 
-A roster console for two fantasy football teams — one on Yahoo, one on ESPN. It answers one
-question per player: **what moved, and what do I do about it.**
+A console for two fantasy football teams — one on Yahoo, one on ESPN. It answers one question per
+player: **what moved, and what do I do about it.**
 
 Live: deployed on Vercel from `index.html`.
 
-| Panel | What it shows |
-|---|---|
-| Roster board | six-week sparkline, delta %, position rank vs the league, unread news count |
-| Player drawer | bigger trend chart, why it moved, news list, your player against all 12 rosters |
-| The wire | waiver swap cards — drop → add, lineup delta, suggested FAAB bid |
-| Combined view | the players who start for **both** teams, where one injury costs two lineups |
+| # | Surface | What it shows |
+|---|---|---|
+| 01 | My teams | roster board with trend sparkline, position rank, news badge; player drawer; waiver swap cards; the players who start for **both** teams |
+| 02 | The pool | every player who logged a snap, on a usage-against-luck scatter — role growing, points lagging, and the four quadrants that follow |
+| 03 | Builder | parlay slip with model-vs-book edge and a correlated-legs warning, or a DFS lineup against a salary cap |
 
-The page is a design mock. Rosters are real; trend, rank, news and waiver content are sample
-data, replaced later by the `team-watch` skill. See [design/DESIGN.md](design/DESIGN.md) for the
-data contract and the design system.
+Rosters and team names are pulled live from the `draft-war-room` repo. Trend, rank, news, pool and
+builder content are sample data, replaced later by the `team-watch` skill. See
+[design/DESIGN.md](design/DESIGN.md) for the data contract and the design system.
 
 ## Build
 
@@ -26,6 +25,10 @@ Edit `design/template.html`, never the generated files. The build writes two cop
 page: `index.html` at the root (full HTML document, what Vercel serves) and `design/index.html`
 (fragment, what the Artifact publisher takes). Player headshots are inlined as data URIs, so
 both files work offline.
+
+The build also reads `draft-war-room/data/{espn_rosters,league_rosters}.json` and injects the live
+rosters. If those files are missing it falls back to the copies inside the template, so the page
+always renders.
 
 ## Layout
 
