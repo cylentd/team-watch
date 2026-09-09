@@ -1,4 +1,4 @@
-"""Inline the draft-war-room headshots into a self-contained index.html.
+"""Inline the ff-jarvis headshots into a self-contained index.html.
 
 template.html holds the design; this replaces the /*__HEADS__*/ token with a
 slug -> data-URI map so the page works offline and as a published Artifact.
@@ -10,9 +10,9 @@ import pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parent
 REPO = ROOT.parent
-HEADS_SRC = pathlib.Path("C:/Users/David/Github/draft-war-room/app/public/heads")
+HEADS_SRC = pathlib.Path("C:/Users/David/Github/ff-jarvis/app/public/heads")
 
-DWR = pathlib.Path("C:/Users/David/Github/draft-war-room/data")
+DWR = pathlib.Path("C:/Users/David/Github/ff-jarvis/data")
 ESPN_ROSTERS = DWR / "espn_rosters.json"
 YAHOO_ROSTERS = DWR / "league_rosters.json"
 
@@ -24,12 +24,12 @@ SLUGS = [
     "braelon-allen", "dylan-sampson", "chig-okonkwo", "brenton-strange",
     "dontayvion-wicks", "jalen-nailor", "adonai-mitchell", "alec-pierce",
     "carnell-tate", "denzel-boston", "devaughn-vele",
-    # Yahoo - Toilet Bowl Contender
+    # Yahoo - Chat Take the Wheel
     "derrick-henry", "devon-achane", "rashee-rice", "tetairoa-mcmillan",
     "davante-adams", "jameson-williams", "josh-jacobs", "tony-pollard",
     "courtland-sutton", "matthew-stafford", "xavier-worthy", "deebo-samuel",
     "dallas-goedert",
-    # ESPN - D. Luu
+    # ESPN - Saquon Deez Nuts
     "amonra-st-brown", "cam-skattebo", "tee-higgins", "george-kittle",
     "dk-metcalf", "brock-purdy", "jordan-mason", "jared-goff", "jerry-jeudy",
     "hunter-henry", "najee-harris", "tyrone-tracy",
@@ -37,7 +37,7 @@ SLUGS = [
 
 
 def slugify(name):
-    """ESPN display name -> headshot slug, matching draft-war-room's file naming."""
+    """ESPN display name -> headshot slug, matching ff-jarvis's file naming."""
     cleaned = "".join(c if (c.isalnum() or c == " ") else "" for c in name.lower())
     parts = [p for p in cleaned.split() if p not in SUFFIXES]
     return "-".join(parts)

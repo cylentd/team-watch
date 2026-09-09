@@ -11,7 +11,7 @@ Live: deployed on Vercel from `index.html`.
 | 02 | The pool | every player who logged a snap, on a usage-against-luck scatter — role growing, points lagging, and the four quadrants that follow |
 | 03 | Builder | parlay slip with model-vs-book edge and a correlated-legs warning, or a DFS lineup against a salary cap |
 
-Rosters and team names are pulled live from the `draft-war-room` repo. Trend, rank, news, pool and
+Rosters and team names are pulled live from the `ff-jarvis` repo. Trend, rank, news, pool and
 builder content are sample data, replaced later by the `team-watch` skill. See
 [design/DESIGN.md](design/DESIGN.md) for the data contract and the design system.
 
@@ -26,7 +26,7 @@ page: `index.html` at the root (full HTML document, what Vercel serves) and `des
 (fragment, what the Artifact publisher takes). Player headshots are inlined as data URIs, so
 both files work offline.
 
-The build also reads `draft-war-room/data/{espn_rosters,league_rosters}.json` and injects the live
+The build also reads `ff-jarvis/data/{espn_rosters,league_rosters}.json` and injects the live
 rosters. If those files are missing it falls back to the copies inside the template, so the page
 always renders.
 

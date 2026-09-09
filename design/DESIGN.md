@@ -16,7 +16,7 @@ python design/build.py
 
 ## Live data in, sample signals on top
 
-`build.py` reads the real roster files from `draft-war-room` and injects them:
+`build.py` reads the real roster files from `ff-jarvis` and injects them:
 
 | Source | Injected as | Carries |
 |---|---|---|
