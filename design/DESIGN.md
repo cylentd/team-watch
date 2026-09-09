@@ -1,12 +1,13 @@
 # Team Watch — design mock
 
-Three surfaces, one console:
+Four surfaces, one console:
 
 | # | Surface | Question it answers |
 |---|---|---|
 | 01 | My teams | What moved on my two rosters, and what do I do about it |
 | 02 | The pool | Which player anywhere in the league is taking over a role |
-| 03 | Builder | Turn that edge into a parlay slip or a DFS lineup |
+| 03 | Parlay | Which of the model's best slips do I take, or what do I build myself |
+| 04 | DFS | Which precomputed lineup do I load, or what do I build myself |
 
 Build after editing `template.html`:
 
@@ -45,13 +46,24 @@ share, y = touchdown luck.** The four corners are the whole product.
 Dot size is snaps. A lime ring means he is on one of my rosters. Table below repeats it as rows
 so the numbers are readable.
 
-## Builder
+## Parlay and DFS
 
-Two modes. **Parlay**: candidate legs with model probability against the book price, an edge bar
-per leg, and a slip that warns when two legs share a game (correlated legs are one bet, not two).
-**DFS**: nine slots against a cap, salary bar, summed ownership, and a styled empty slot — a second
-toggle picks Yahoo ($200 cap, live from ff-jarvis's `data/dfs_pool.json`) or DraftKings ($50,000
-cap, sample).
+Split into their own top-level tabs (2026-09-09) so the cart, not the 900-row props pool, is the
+first thing a mobile reader reaches. Each tab: a collapsed-by-default "how this works" banner,
+a gallery of the model's precomputed picks, then the cart-style custom builder, then the pool.
+
+**Parlay**: the gallery is one card per kickoff window (never two calendar dates in one card —
+`design/build.py`'s `assign_windows` splits a time-of-day bucket like "evening" into per-weekday
+windows, e.g. "Thursday Night" / "Monday Night", when the week's games land on more than one
+date) crossed with yards / TDs / mix scope, ranked by model edge, the best one badged. Load a
+card into the cart or tap lines by hand; the cart warns when two legs share a game (correlated
+legs are one bet, not two). Model %/edge and every book's price live behind each line's chevron,
+not on the row.
+
+**DFS**: a swipeable rail of precomputed lineups per strategy (greedy = max points, non-chalk =
+for GPPs) each with a "Load into my lineup" button, then nine cart slots against a cap, salary
+bar, summed ownership, and a styled empty slot — a second toggle picks Yahoo ($200 cap, live from
+ff-jarvis's `data/dfs_pool.json`) or DraftKings ($50,000 cap, sample).
 
 ## Direction
 
@@ -73,7 +85,10 @@ JetBrains Mono (all numerals).
 Empty, loading skeletons, error (401 / token expired), stale cache. Plus in-place variants: the
 scatter's no-data axes, `No data` trend chips, unranked players, and an empty DFS slot.
 
-## Verified 2026-09-08
+## Verified 2026-09-09
 
-Desktop 1400px and phone 390px, no horizontal overflow on any of the three surfaces, no console
-errors. Rosters and team names are live. Trend, rank, news, pool, props and DFS content are sample.
+Desktop 1400px and phone 390px, no horizontal overflow on any of the four surfaces, no console
+errors. Gallery/rail interactions checked headless: loading a gallery card or a strategy lineup
+into the cart, expanding a leg's chevron without toggling it into the slip, tapping inside the
+expanded detail without toggling it, the explainer's open state surviving a pagination re-render.
+Rosters and team names are live. Trend, rank, news, pool, props and DFS content are sample.

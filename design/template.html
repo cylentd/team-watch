@@ -487,21 +487,9 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .v-hold{color:var(--ink-3);border:1px solid var(--line-2)}
 
 /* ============================== BUILDER ============================== */
-.modes{display:flex;margin-top:16px;border:1px solid var(--line);width:max-content}
-.mode{
-  appearance:none;background:none;border:0;border-right:1px solid var(--line);cursor:pointer;
-  padding:11px 24px;color:var(--ink-3);font-family:var(--mono);font-size:11px;font-weight:700;
-  letter-spacing:.2em;text-transform:uppercase;transition:all .2s var(--ease);
-}
-.mode:last-child{border-right:0}
-.mode[aria-pressed="true"]{background:var(--lime);color:#0b0d05}
-.mode:not([aria-pressed="true"]):hover{background:var(--panel-2);color:var(--ink)}
-.mode:active{transform:scale(.97)}
-/* The book toggle is a sub-choice of DFS lineup, not a peer of Parlay/DFS — visually subordinate:
-   smaller, indented off a rule, joined to the primary switch rather than stacked as a second
-   identical row. */
-.switcher{display:flex;align-items:center;flex-wrap:wrap;gap:16px;margin-top:16px}
-.modes-sub{display:flex;align-items:center;gap:8px;padding-left:16px;border-left:2px solid var(--line-2)}
+/* The DK/Yahoo book toggle, in the DFS tab's own hero (Parlay/DFS is the nav split now, not a
+   switcher on this surface). */
+.modes-sub{display:flex;align-items:center;gap:8px}
 .mode-sub{
   appearance:none;background:none;border:1px solid var(--line-2);cursor:pointer;margin-left:-1px;
   padding:6px 14px;color:var(--ink-3);font-family:var(--mono);font-size:10px;font-weight:700;
@@ -513,9 +501,10 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .mode-sub:active{transform:scale(.95)}
 
 .build{display:grid;grid-template-columns:minmax(0,1fr) 356px;gap:16px;margin-top:16px;align-items:start}
+.build > .side{order:2}
 .legs{display:flex;flex-direction:column;gap:10px}
 .leg{
-  display:grid;grid-template-columns:40px minmax(0,1fr) 92px 96px;gap:14px;align-items:center;
+  display:grid;grid-template-columns:40px minmax(0,1fr) auto 22px;gap:14px;align-items:center;
   border:1px solid var(--line);background:var(--panel);padding:12px 14px;cursor:pointer;
   transition:border-color .2s var(--ease),background .2s var(--ease);
 }
@@ -525,6 +514,7 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .leg .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--ink-3)}
 .leg .prop{font-size:14.5px;font-weight:600;letter-spacing:-.01em}
 .leg .book{font-family:var(--mono);font-size:12.5px;color:var(--ink-2);margin-top:5px;letter-spacing:.02em;line-height:1.4}
+.leg .o{font-family:var(--mono);font-size:14.5px;font-weight:700;text-align:right;white-space:nowrap}
 .probwrap{font-family:var(--mono);text-align:right}
 .probwrap b{font-size:15px;font-weight:700}
 .probwrap span{display:block;font-size:11px;color:var(--ink-3);letter-spacing:.14em;margin-top:3px}
@@ -540,20 +530,25 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .leg .tag{vertical-align:middle;margin-left:4px}
 .tag.t-q{color:var(--amber);border:1px solid rgba(255,176,32,.4);background:rgba(255,176,32,.08)}
 .tag.t-bk{color:var(--ink-3);border:1px solid var(--line-2)}
+.tag.t-out{color:var(--down);border:1px solid rgba(255,90,82,.4)}
 .tag.t-role{color:var(--amber);border:1px dashed rgba(255,176,32,.5);cursor:help}
 .tag.t-cbup{color:var(--up);border:1px solid rgba(55,224,139,.4);cursor:help}
 .tag.t-cbdn{color:var(--down);border:1px solid rgba(255,90,82,.4);cursor:help}
-/* game-log strip: the last 12 games as bars against the line, opened by the card's chevron */
+/* Everything behind the chevron: model%/edge, every book's price, and the game log -- the
+   primary row stays to who/when/one price, the rest is a tap away. */
+.leg .legx{grid-column:1/-1;border-top:1px solid var(--line);margin-top:8px;padding-top:12px;
+  display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-start;cursor:default}
+.leg .legx .probwrap,.leg .legx .edgecell{text-align:left}
+.leg .booklines{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);line-height:1.6;flex:1;min-width:200px}
 .leg .more{appearance:none;background:none;border:1px solid var(--line);color:var(--ink-3);width:22px;height:22px;
   border-radius:2px;cursor:pointer;font-size:10px;display:grid;place-items:center;justify-self:end;transition:all .15s var(--ease)}
 .leg .more:hover{color:var(--ink);border-color:var(--line-2)}
 .leg .more[aria-expanded="true"]{color:var(--lime);border-color:var(--lime)}
-.leg .gl{grid-column:1/-1;border-top:1px solid var(--line);padding-top:10px;margin-top:2px}
+.leg .gl{width:100%;border-top:1px solid var(--line);padding-top:10px;margin-top:2px}
 .leg .gl svg{width:100%;height:72px;display:block}
 .leg .gl .glcap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:6px;
   font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--ink-3);text-transform:uppercase}
 .leg .gl .glcap b{color:var(--ink)}
-.leg{grid-template-columns:40px minmax(0,1fr) 92px 96px 22px}
 .presets{display:flex;flex-wrap:wrap;gap:6px;padding:10px 15px;border-bottom:1px solid var(--line)}
 .presets .chip{padding:5px 9px;font-size:11px}
 .bigedge.pending{color:var(--ink-3);font-size:22px;font-weight:400;letter-spacing:.02em;text-transform:uppercase;padding:8px 0}
@@ -563,13 +558,20 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .side{position:sticky;top:118px;margin-top:22px;max-height:calc(100vh - 130px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line-2) transparent;padding-right:2px}
 .side::-webkit-scrollbar{width:6px}.side::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:3px}
 .slip{border:1px solid var(--line-2);background:var(--panel)}
-/* Lineup cards reuse .sliphead/.lslot/.payout but NOT .slip's position:sticky — several sticky
-   siblings stacked in one scroll container fight each other and clip (that was the bug: card 1
-   pinned mid-scroll while card 4 kept flowing beneath it in the same column). Plain wrapping grid,
-   not a carousel: 3 cards fit one row on desktop and stack on mobile, nothing to navigate. */
-.lineupgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:14px}
-.lineupcard{position:static;border:1px solid var(--line-2);background:var(--panel)}
-.lineupcard.best{border-color:var(--lime);box-shadow:0 0 0 1px var(--lime) inset}
+/* Lineup and gallery-slip cards reuse .sliphead/.lslot/.slipleg/.payout but NOT .slip's
+   position:sticky — several sticky siblings stacked in one scroll container fight each other
+   and clip (that was the bug: card 1 pinned mid-scroll while card 4 kept flowing beneath it in
+   the same column). .rail/.railscroll below is a horizontal scroll-snap carousel on mobile
+   (matches the scatter chart's swipe pattern) and a plain wrapping row on desktop. */
+.rail{position:relative}
+.railscroll{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(280px,340px);gap:14px;margin-top:14px;
+  overflow-x:auto;scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
+.railscroll::-webkit-scrollbar{height:6px}
+.railscroll::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:3px}
+.railscroll > *{min-width:0}
+.lineupcard,.presetcard{position:static;border:1px solid var(--line-2);background:var(--panel)}
+.lineupcard.best,.presetcard.best{border-color:var(--lime);box-shadow:0 0 0 1px var(--lime) inset}
+.presetfoot .payrow b.pos{color:var(--lime)} .presetfoot .payrow b.neg{color:var(--down)}
 .hint{font-size:12px;color:var(--ink-3);line-height:1.5;margin-top:8px;max-width:70ch}
 .sliphead{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid var(--line);background:var(--panel-2)}
 .slipleg{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 15px;border-bottom:1px solid var(--line)}
@@ -616,9 +618,31 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .mkthead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-top:22px;
   padding:14px 16px;border:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
 .mktsrc{margin-top:7px;font-size:13px;color:var(--ink-2);line-height:1.5}
-.mktdef{margin-top:9px;padding-top:9px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:16px 24px;font-size:12.5px;color:var(--ink-2);line-height:1.5}
-.mktdef b{color:var(--ink);letter-spacing:.06em}
 .leg.mine{box-shadow:inset 2px 0 0 var(--lime)}
+
+.explain{border:1px solid var(--line);background:var(--panel);margin-top:16px}
+.explain > summary{list-style:none;cursor:pointer;display:flex;align-items:center;
+  justify-content:space-between;padding:12px 15px;font-family:var(--mono);
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);
+  transition:color .15s var(--ease)}
+.explain > summary::-webkit-details-marker{display:none}
+.explain > summary::marker{content:""}
+.explain > summary:hover{color:var(--ink)}
+.explain .ex-chev{transition:transform .2s var(--ease)}
+.explain[open] > summary{border-bottom:1px solid var(--line);color:var(--lime)}
+.explain[open] .ex-chev{transform:rotate(180deg)}
+.ex-body{padding:13px 15px}
+.ex-body ol{margin:0;padding-left:18px;font-size:13px;line-height:1.6;color:var(--ink-2)}
+.ex-body li + li{margin-top:8px}
+.ex-body b{color:var(--ink)}
+.ex-note{margin:12px 0 0;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-3);line-height:1.7}
+.ex-note b{color:var(--ink-2)}
+details.deep{border:1px solid var(--line);background:var(--panel);margin-top:24px}
+details.deep > summary{list-style:none;cursor:pointer;padding:12px 15px;font-family:var(--mono);
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+details.deep > summary::-webkit-details-marker{display:none}
+details.deep[open] > summary{border-bottom:1px solid var(--line)}
+details.deep > summary:hover{color:var(--ink)}
 .dfstable .phead,.dfstable .prow{grid-template-columns:40px minmax(120px,1fr) 76px 54px 56px 50px 66px;min-width:0}
 .dfsrow .chip{padding:5px 9px;font-size:11px}
 .lslot{display:grid;grid-template-columns:42px 34px minmax(0,1fr) auto;gap:10px;align-items:center;
@@ -761,15 +785,33 @@ html{scrollbar-color:var(--line-2) var(--void)}
     animation:swipehint 1.6s var(--ease) infinite;
   }
   @keyframes swipehint{0%,100%{transform:translateX(0)}50%{transform:translateX(4px)}}
+  /* .rail (non-scrolling) holds the fade + hint pinned to the edge; .railscroll (nested) is the
+     actual scroller. Unlike .quadscroll, which puts these pseudo-elements on the scrolling box
+     itself, keeping them on a non-scrolling wrapper means they don't scroll away with content. */
+  .rail{position:relative}
+  .rail::before{
+    content:"";position:absolute;top:14px;right:0;bottom:0;width:36px;pointer-events:none;z-index:1;
+    background:linear-gradient(90deg,transparent,var(--void) 82%);
+  }
+  .rail::after{
+    content:"SWIPE →";position:absolute;right:8px;bottom:8px;z-index:2;
+    font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--lime);
+    background:var(--panel);padding:3px 6px;border:1px solid var(--lime);pointer-events:none;
+    animation:swipehint 1.6s var(--ease) infinite;
+  }
+  .railscroll{overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 0 0 14px;
+    grid-auto-columns:86%;scrollbar-width:none}
+  .railscroll::-webkit-scrollbar{display:none}
+  .railscroll > *{scroll-snap-align:start}
   .build{grid-template-columns:minmax(0,1fr);gap:14px}
+  .build > .side{order:0;margin-top:0}
   .side{position:static;max-height:none;overflow:visible;padding-right:0}
-  .leg{grid-template-columns:36px minmax(0,1fr) auto;gap:9px 12px;align-items:center}
-  .leg img,.leg .fallback{width:36px;height:36px;grid-row:1/3}
-  .leg > div:nth-child(2){grid-column:2/3}
-  .leg .more{grid-column:3;grid-row:1;justify-self:end}
-  .probwrap{grid-column:2;grid-row:2;text-align:left;display:flex;align-items:baseline;gap:6px}
-  .edgecell{grid-column:3;grid-row:2;display:flex;align-items:baseline;gap:6px;justify-self:end}
+  .leg{grid-template-columns:36px minmax(0,1fr) auto 22px;gap:9px 12px;align-items:center}
+  .leg img,.leg .fallback{width:36px;height:36px}
+  .leg .legx{gap:10px 16px}
   .probwrap span,.edgecell .ebar{display:none}
+  .probwrap{display:flex;align-items:baseline;gap:6px}
+  .edgecell{display:flex;align-items:baseline;gap:6px}
   .probwrap b::after{content:" MODEL";font-size:11px;color:var(--ink-3);letter-spacing:.14em}
   .probwrap.implied b::after{content:" BOOK IMPLIED"}
   .edgecell b::after{content:" EDGE";font-size:11px;color:var(--ink-3);letter-spacing:.14em}
@@ -1359,14 +1401,18 @@ const bookLine = p => !p.books ? `BOOK ${p.book}`
     + (p.opp_f ? ` · ${esc(p.opp)} D ${Math.round(Math.abs(p.opp_f - 1) * 100) === 0 ? "±0" : (p.opp_f >= 1 ? "+" : "−") + Math.round(Math.abs(p.opp_f - 1) * 100)}%` : "");
 const ud = p => p.books && p.books.Underdog;
 
-/* Slip presets. "Best" is the three largest positive edges the model will stand behind: one leg
-   per game (a second leg in the same game is correlated and the book prices it as one), one per
-   player, a rate resting on at least 8 of his own games, and a model chance between 25% and 85%
-   so a thin sample or a novelty price cannot top the list. The three slot presets apply the same
-   rule to one kickoff window on David's clock (1pm-ET wave = morning, 4pm wave = afternoon, the
-   night games = evening). "Mine" is three of my players in three games, no model involved. Any
-   tap on a card turns the slip custom. */
-const SLOTS = {morning:"Morning", afternoon:"Afternoon", evening:"Evening"};
+/* Kickoff windows: build.py splits each time-of-day bucket by calendar date so a window never
+   mixes two different days (the old "evening" spanned Thursday/Sunday/Monday night at once).
+   Ordered chronologically; empty on the sample data (PROPS_SAMPLE carries no `win` field). */
+const WINDOWS = (LIVE_MARKET && LIVE_MARKET.windows) || [];
+const winGames = k => new Set(PROPS.filter(p => !k || p.win === k).map(p => p.game)).size;
+
+/* Gallery presets. "Best" is the largest positive edges the model will stand behind: a rate
+   resting on at least 8 of his own games, a model chance between 25% and 85% so a thin sample
+   or a novelty price cannot top the list, one leg per player. One card per kickoff window
+   (never mixed dates) crossed with a scope -- yards (rush/rec/receptions/pass), TDs, or mix
+   (both, each leg still gated by its own market's band). "Mine" is three of my players in
+   three games, no model involved. Any tap on a leg turns the slip custom. */
 const SLIP_LEGS = 3;
 /* Sportsbook legs: a DraftKings price between -300 and +200 (edge in points rewards a +750 long
    shot far more than it deserves), a model chance of 35-85%, a rate on 8+ games, positive edge. */
@@ -1374,23 +1420,30 @@ const SLIP_LEGS = 3;
    the role the model knows about; a backup, a questionable, or a line the book has moved far
    from last season's rate is news, not edge. */
 const playing = p => p.flag !== "out" && p.flag !== "q" && p.flag !== "backup" && !p.stale;
-/* Scope: a yards slip (rush, rec, receptions, pass) or a touchdown slip. Touchdown legs are
-   priced longer and land less often, so the floor is 30% and the price window runs to +600. */
-let SLIP_SCOPE = "yards";
-const inScope = p => SLIP_SCOPE === "tds" ? p.mkt === "TD" : p.mkt !== "TD";
-const legOK = p => typeof p.edge === "number" && p.edge > 0 && (p.games||0) >= 8 && playing(p)
-  && inScope(p) && p.book === "DraftKings"
+/* Scope, parameterized so the gallery can evaluate all three independently of any UI toggle.
+   Touchdown legs are priced longer and land less often, so the floor is 30% and the price
+   window runs to +600; mix needs no new band since each leg is still gated by its own market. */
+const scopeOK = (p, s) => s === "tds" ? p.mkt === "TD" : s === "mix" ? true : p.mkt !== "TD";
+const legOKIn = (p, s) => typeof p.edge === "number" && p.edge > 0 && (p.games||0) >= 8 && playing(p)
+  && scopeOK(p, s) && p.book === "DraftKings"
   && (p.mkt === "TD" ? (p.model >= 30 && overPrice(p) >= -300 && overPrice(p) <= 600)
                      : (p.model >= 35 && p.model <= 85 && overPrice(p) >= -300 && overPrice(p) <= 200));
-function pickLegs(cands, key){
+function pickLegs(cands, key, allowSameGame){
   const seenG = new Set(), seenP = new Set(), out = [];
   cands.sort((a,b) => key(b[0]) - key(a[0])).forEach(([p,i]) => {
-    if (out.length < SLIP_LEGS && !seenG.has(p.game) && !seenP.has(p.n)){ seenG.add(p.game); seenP.add(p.n); out.push(i); }
+    if (out.length < SLIP_LEGS && (allowSameGame || !seenG.has(p.game)) && !seenP.has(p.n)){
+      seenG.add(p.game); seenP.add(p.n); out.push(i);
+    }
   });
   return out;
 }
-function bestSlip(slot){
-  return pickLegs(PROPS.map((p,i)=>[p,i]).filter(([p]) => legOK(p) && (!slot || p.slot === slot)), p => p.edge);
+function bestSlipIn(scope, winKey){
+  const cands = PROPS.map((p,i)=>[p,i]).filter(([p]) => legOKIn(p, scope) && (!winKey || p.win === winKey));
+  const games = new Set(cands.map(([p]) => p.game)).size;
+  // A single-game window (a Thu/Sun/Mon night with one game on the slate) can never fill three
+  // legs under the one-leg-per-game rule -- allow it there; the `.corr` warning already tells
+  // the reader it is a same-game parlay and to price it as one.
+  return pickLegs(cands, p => p.edge, games > 0 && games < SLIP_LEGS);
 }
 /* Underdog is pick'em: higher or lower at their line, paid by a fixed multiplier, so the pick is
    whichever side the model gives more than 58% (a 3-pick entry needs each leg near 55% to break
@@ -1409,17 +1462,38 @@ function mineSlip(){
   return out;
 }
 const HAS_MODEL = PROPS.some(p => typeof p.edge === "number");
-const PRESETS = [["best","Best"],["morning","Morning"],["afternoon","Afternoon"],["evening","Evening"],["underdog","Underdog"],["mine","Mine"],["blank","Blank"]];
+const PRESETS = [["mine","My players"],["underdog","Underdog"],["blank","Clear"]];
 function presetSlip(k){
-  if (k === "blank") return [];
   if (k === "mine") return mineSlip();
   if (k === "underdog") return udSlip();
-  if (k === "best") return bestSlip(null);
-  return bestSlip(k);
+  return [];
 }
-let SLIP_MODE = HAS_MODEL ? "best" : "mine";
-let SLIP = presetSlip(SLIP_MODE);
-const slotGames = slot => new Set(PROPS.filter(p => !slot || p.slot === slot).map(p => p.game)).size;
+/* The cart starts empty -- the gallery below answers "what does the model like", the cart is
+   the user's own, built one leg at a time, cart-style. */
+let SLIP_MODE = "blank";
+let SLIP = [];
+
+/* One card per window x scope with at least two legs, deduped (mix often reproduces yards or
+   tds exactly). No whole-slate card -- that would reintroduce the cross-date bug this fixes.
+   Computed once: PROPS never mutates, and toggling the cart must not re-roll the gallery. */
+const GALLERY = (() => {
+  const scopes = [["yards","Yards"],["tds","TDs"],["mix","Mix"]];
+  const out = [], seen = new Set();
+  for (const w of WINDOWS) for (const [s, label] of scopes){
+    const legs = bestSlipIn(s, w.k);
+    if (legs.length < 2) continue;
+    const sig = legs.slice().sort((a,b)=>a-b).join(",");
+    if (seen.has(sig)) continue;
+    seen.add(sig);
+    out.push({i: out.length, scope: s, scopeLabel: label, win: w, legs,
+               edge: legs.reduce((a,i)=>a+PROPS[i].edge, 0)});
+  }
+  return out;
+})();
+const GALLERY_BEST = GALLERY.reduce((a,c) => !a || c.edge > a.edge ? c : a, null);
+/* The gallery's own filter -- not fed into legOKIn/bestSlipIn, which already ran once above. */
+let SLIP_SCOPE = "all";
+let GAL_WIN = "ALL";
 
 /* DraftKings pool. Salaries are the whole contest, not my league. Sample only — no live
    DraftKings export is wired yet (see DFSPOOL_YAHOO below for the Yahoo side). */
@@ -1453,7 +1527,7 @@ const LIVE_YAHOO_DFS = (typeof LIVE_DFS_YAHOO !== "undefined" && LIVE_DFS_YAHOO)
 const DFSPOOL_YAHOO_SAMPLE = DFSPOOL_DK.map(p => ({...p, sal: Math.round(p.sal/200)}));
 const DFSPOOL_YAHOO = LIVE_YAHOO_DFS ? LIVE_YAHOO_DFS.players : DFSPOOL_YAHOO_SAMPLE;
 
-let MKT_POS = "ALL", MKT_KIND = "ALL", MKT_SLOT = "ALL", MKT_MINE = false, DFS_POS = "ALL";
+let MKT_POS = "ALL", MKT_KIND = "ALL", MKT_WIN = "ALL", MKT_MINE = false, DFS_POS = "ALL";
 /* The pool can run to 700+ rows (a full Yahoo slate), so it's paginated — nobody, least of all on
    mobile, wants to scroll past hundreds of rows to reach the lineup or the optimizer. */
 let DFS_PAGE = 1;
@@ -1490,8 +1564,7 @@ const CAP_YAHOO = 200;
    NFL roster: 1 QB, 2 RB, 3 WR, 1 TE, 1 FLEX (RB/WR/TE), 1 DST. */
 const LINEUP_SLOTS = ["QB","RB","RB","WR","WR","WR","TE","FLEX","DST"];
 
-/* Which book the DFS half of the builder shows. Parlay/DFS is BUILD_MODE; this is the second
-   toggle, live only inside DFS mode. */
+/* Which book the DFS tab shows -- Yahoo or DraftKings. */
 let DFS_SITE = "yahoo";
 function dfsSite(){
   return DFS_SITE === "dk"
@@ -1612,33 +1685,33 @@ function topLineups(){
   return TOP_CACHE.get(key);
 }
 
-let BUILD_MODE = "parlay";
-
 const propLabel = p => p.line === null ? MKT[p.mkt] : `${MKT[p.mkt]} o${p.line}`;
 
 function propCard(p, i){
   const inSlip = SLIP.includes(i);
   const hasModel = typeof p.model === "number";
   const implied = overPrice(p) !== null ? Math.round(amToProb(overPrice(p)) * 100) : null;
-  let right;
+  let detail;
   if (hasModel){
     const pos = p.edge >= 0;
     const w = Math.min(50, Math.abs(p.edge) * 4.4);
-    right = `<div class="probwrap"><b>${p.model}%</b><span>MODEL</span></div>
+    detail = `<div class="probwrap"><b>${p.model}%</b><span>MODEL</span></div>
     <div class="edgecell">
       <b class="${pos?"pos":"neg"}">${pos?"+":""}${p.edge.toFixed(1)}</b>
       <div class="ebar"><i class="${pos?"":"neg"}" style="${pos?`left:50%;width:${w}%`:`left:${50-w}%;width:${w}%`}"></i></div>
     </div>`;
   } else {
-    right = `<div class="probwrap implied"><b>${implied === null ? "—" : implied + "%"}</b><span>BOOK IMPLIED</span></div>
+    detail = `<div class="probwrap implied"><b>${implied === null ? "—" : implied + "%"}</b><span>BOOK IMPLIED</span></div>
     <div class="edgecell pending"><b>—</b><span>MODEL PENDING</span></div>`;
   }
-  if (p.flag === "out") right = `<div class="probwrap implied"><b>—</b><span>NOT PLAYING</span></div>
+  if (p.flag === "out") detail = `<div class="probwrap implied"><b>—</b><span>NOT PLAYING</span></div>
     <div class="edgecell pending"><b>OUT</b><span>${esc((p.injury_note||p.injury||"").toUpperCase())}</span></div>`;
-  else if (p.norole) right = `<div class="probwrap implied"><b>—</b><span>NO YARDS LINE</span></div>
+  else if (p.norole) detail = `<div class="probwrap implied"><b>—</b><span>NO YARDS LINE</span></div>
     <div class="edgecell pending"><b>—</b><span>NO ROLE PRICED</span></div>`;
-  const tag = (p.flag === "q" ? `<span class="tag t-q">Q${p.injury_note ? " · " + esc(p.injury_note) : ""}</span>`
+  const tag = (p.flag === "out" ? `<span class="tag t-out">OUT${p.injury_note ? " · " + esc(p.injury_note) : ""}</span>`
+    : p.flag === "q" ? `<span class="tag t-q">Q${p.injury_note ? " · " + esc(p.injury_note) : ""}</span>`
     : p.flag === "backup" ? `<span class="tag t-bk">${esc(p.pos)}${p.depth}</span>` : "")
+    + (p.norole ? `<span class="tag t-bk">NO ROLE</span>` : "")
     + (p.stale ? `<span class="tag t-role" title="The book's line is far from last season's rate: the role changed and the model has not caught up. Not slip material.">ROLE?</span>` : "")
     + (p.cb ? `<span class="tag ${p.cb.v === "upgrade" ? "t-cbup" : "t-cbdn"}" title="RotoBaller WR/CB matchups, week ${LIVE_MARKET && LIVE_MARKET.wrcb ? LIVE_MARKET.wrcb.week : ""}: ${esc(p.cb.v)} vs ${esc(p.cb.cb)}. ${esc(p.cb.why)} — opinion, not in the number.">CB ${p.cb.v === "upgrade" ? "↑" : "↓"} ${esc(lastName(p.cb.cb))}</span>` : "");
   const log = LIVE_MARKET && LIVE_MARKET.logs && p.slug ? LIVE_MARKET.logs[p.slug] : (LIVE_MARKET && LIVE_MARKET.logs ? LIVE_MARKET.logs[slugOf(p.n)] : null);
@@ -1647,11 +1720,15 @@ function propCard(p, i){
     ${HEADS[p.slug] ? `<img src="${HEADS[p.slug]}" alt="">` : `<div class="fallback">${esc(initials(p.n))}</div>`}
     <div>
       <div class="prop">${esc(p.n)} · ${esc(propLabel(p))}${tag ? " " + tag : ""}</div>
-      <div class="book">${esc(p.pos)} · ${esc(p.game)}${p.kick ? ` ${esc(p.kick)}` : ""} · ${esc(bookLine(p))}</div>
+      <div class="book">${esc(p.pos)} · ${esc(p.game)}${p.kick ? ` · ${esc(p.kick)}` : ""}</div>
     </div>
-    ${right}
-    ${log ? `<button class="more" data-more="${i}" aria-expanded="${open}" title="Last ${log.g.length} games against this line" tabindex="-1">${open ? "▴" : "▾"}</button>` : `<span></span>`}
-    ${open && log ? gameLogHTML(p, log) : ""}
+    <div class="o">${esc(fmtAm(overPrice(p)))}</div>
+    <button class="more" data-more="${i}" aria-expanded="${open}" title="${log ? `Last ${log.g.length} games against this line` : "More on this line"}" tabindex="-1">${open ? "▴" : "▾"}</button>
+    ${open ? `<div class="legx">
+      ${detail}
+      <div class="booklines">${esc(bookLine(p))}</div>
+      ${log ? gameLogHTML(p, log) : ""}
+    </div>` : ""}
   </div>`;
 }
 
@@ -1759,22 +1836,42 @@ function marketHead(kind){
   const f = (typeof LIVE_FEED !== "undefined" && LIVE_FEED) ? LIVE_FEED.fetched : {};
   const site = kind === "dfs" ? dfsSite() : null;
   const when = kind === "props" ? (LIVE_MARKET ? LIVE_MARKET.fetched : null) : site.when;
-  const hasModel = kind === "props" && LIVE_MARKET && LIVE_MARKET.model;
   return `<div class="mkthead">
     <div>
       <span class="lbl">${kind === "props" ? "Player prop market" : `${site.label} DFS player pool`}</span>
       <div class="mktsrc">${kind === "props"
         ? `${PROPS.length} priced lines · ${new Set(PROPS.map(p=>p.n)).size} players · ${new Set(PROPS.map(p=>p.game)).size} games · ${BOOKS.join(", ")}`
-          + (hasModel ? ` · model through ${esc(LIVE_MARKET.model.through)}` : "") + `${LIVE_MARKET ? "" : " · SAMPLE"}`
+          + (LIVE_MARKET && LIVE_MARKET.model ? ` · model through ${esc(LIVE_MARKET.model.through)}` : "") + `${LIVE_MARKET ? "" : " · SAMPLE"}`
         : `${site.pool.length} players · $${site.cap.toLocaleString()} cap · salaries as posted${site.key==="yahoo" && !LIVE_YAHOO_DFS ? " · SAMPLE" : ""}`}</div>
-      ${hasModel ? `<div class="mktdef">
-        <span><b>MODEL %</b> chance the over hits, from the player's last 24 games, nudged by what his opponent allows to his position</span>
-        <span><b>EDGE</b> model % minus the book's break-even, in points — +5 means the model likes the over 5 points more than the price needs</span>
-      </div>` : ""}
     </div>
     <span class="pill ${when?"":"warn"}">${when ? `Fetched ${esc(when)}`
       : (kind === "props" ? "No props pulled yet" : "No salary export loaded")}</span>
   </div>`;
+}
+
+/* A short, collapsed-by-default "how this works" card at the top of Parlay and DFS. Open
+   state survives a re-render (e.g. paging the pool) but never triggers one on its own --
+   <details> animates itself, so the toggle listener only records what happened. */
+let EXPLAIN = {parlay:false, dfs:false};
+function explainHTML(kind){
+  const parlay = kind === "parlay";
+  return `<details class="explain" data-explain="${kind}" ${EXPLAIN[kind]?"open":""}>
+    <summary><span class="lbl">How this works</span><span class="ex-chev">▾</span></summary>
+    <div class="ex-body">
+      ${parlay ? `<ol>
+        <li>Browse the model's best slips below — each card is one scope (yards, TDs, or both) inside one kickoff window, and never mixes two days.</li>
+        <li>Tap <b>Load into my slip</b> to start from one, or scroll to the lines and tap any player to add a leg yourself.</li>
+        <li>Your slip prices itself as you go. <b>Copy slip</b> puts it on the clipboard, ready to type into the book.</li>
+      </ol>
+      <p class="ex-note"><b>MODEL %</b> is the chance the over hits, from the player's last 24 games, nudged by what his opponent allows to his position. <b>EDGE</b> is model % minus the book's break-even, in points — +5 means the model likes the over 5 points more than the price needs. Both live behind each line's chevron, not on the card.</p>`
+      : `<ol>
+        <li><b>Greedy</b> builds the highest-projected lineup — what most of the field lands on. <b>Non-chalk</b> sits the single most-projected play at each position and trades a little projection for a lineup the field isn't all rostering, which is the point of a GPP.</li>
+        <li>Swipe the lineups below, tap <b>Load into my lineup</b> to start from one.</li>
+        <li>Fill or swap slots from the pool underneath.</li>
+      </ol>
+      <p class="ex-note">No site publishes real ownership before lock — PROJ OWN is a rank-based estimate, same idea any pre-lock ownership projection tool uses.</p>`}
+    </div>
+  </details>`;
 }
 
 /* The model, described where the number is used. The live counts come from this build; the
@@ -1873,18 +1970,11 @@ function slipHTML(){
   const modeled = legs.length > 0 && legs.every(l => typeof l.model === "number");
   const modelP = modeled ? legs.reduce((a,l)=>a*l.model/100, 1) : null;
   const pct = x => `${(x*100).toFixed(1)}%`;
-  const slot = SLOTS[SLIP_MODE] ? SLIP_MODE : null;
   const udMode = SLIP_MODE === "underdog";
-  const kind = SLIP_SCOPE === "tds" ? "TD slip" : "slip";
-  const title = SLIP_MODE === "custom" || SLIP_MODE === "blank" ? "Your slip" : SLIP_MODE === "mine" ? "My players"
-    : udMode ? "Underdog picks" : slot ? `Best ${SLOTS[slot].toLowerCase()} ${kind}` : `Best ${kind} on the slate`;
+  const title = SLIP_MODE === "mine" ? "My players" : udMode ? "Underdog picks" : "Your slip";
   const udP = udMode && legs.length ? legs.reduce((a,l)=>a*ud(l).conf/100, 1) : null;
-  // Underdog has no touchdown market, so that preset only shows in the yards scope.
   const chips = `<div class="presets">
-    ${HAS_MODEL ? `<span class="lbl" style="align-self:center;margin-right:2px">Legs</span>
-      ${[["yards","Yards"],["tds","TDs"]].map(([k,label])=>`<button class="chip" data-scope="${k}" aria-pressed="${SLIP_SCOPE===k}">${label}</button>`).join("")}
-      <span style="flex-basis:100%;height:0"></span>` : ""}
-    ${PRESETS.filter(([k]) => k === "mine" || (HAS_MODEL && (k !== "underdog" || SLIP_SCOPE === "yards"))).map(([k,label]) =>
+    ${PRESETS.filter(([k]) => k !== "underdog" || HAS_MODEL).map(([k,label]) =>
       `<button class="chip" data-preset="${k}" aria-pressed="${SLIP_MODE===k}">${label}</button>`).join("")}</div>`;
   if (udMode) return `<div class="slip">
     <div class="sliphead"><span class="lbl">${title}</span><span class="pill">${legs.length} picks</span></div>
@@ -1903,12 +1993,12 @@ function slipHTML(){
     </div>
   </div>`;
   return `<div class="slip">
-    <div class="sliphead"><span class="lbl">${title}</span><span class="pill">${legs.length} legs${slot ? ` · ${slotGames(slot)} games` : ""}</span></div>
+    <div class="sliphead"><span class="lbl">${title}</span><span class="pill">${legs.length} legs</span></div>
     ${chips}
     ${legs.length ? legs.map(l=>`<div class="slipleg">
       <div><div class="p">${esc(l.n)}</div><div class="m">${esc(propLabel(l).toUpperCase())}${l.books ? ` · ${esc(ABBR[l.book]||l.book)}` : ""}${l.kick ? ` · ${esc(l.kick.toUpperCase())}` : ""}${typeof l.edge === "number" ? ` · ${l.model}% · ${l.edge>0?"+":""}${l.edge.toFixed(1)}` : ""}</div></div>
       <div class="o">${esc(fmtAm(overPrice(l)))}</div></div>`).join("")
-      : `<div class="state-empty" style="margin:14px 15px;min-height:90px"><div><b>0</b><span>${slot ? `NO ${SLIP_SCOPE === "tds" ? "TD " : ""}EDGE THE MODEL WILL STAND BEHIND IN THE ${SLOTS[slot].toUpperCase()} WINDOW` : SLIP_MODE === "custom" || SLIP_MODE === "blank" ? "TAP A LINE TO ADD A LEG" : `NO ${SLIP_SCOPE === "tds" ? "TD " : ""}EDGE THE MODEL WILL STAND BEHIND`}</span></div></div>`}
+      : `<div class="state-empty" style="margin:14px 15px;min-height:90px"><div><b>0</b><span>${SLIP_MODE === "mine" ? "NONE OF MY PLAYERS PRICE AN EDGE RIGHT NOW" : "TAP A LINE BELOW, OR LOAD A CARD FROM THE GALLERY"}</span></div></div>`}
     ${corr ? `<div class="corr"><span>⚠</span>TWO LEGS IN ${esc(corr.toUpperCase())} — CORRELATED, PRICE IT AS ONE</div>` : ""}
     <div class="payout">
       <span class="lbl">${modeled ? "Model edge over the book" : "Model edge"}</span>
@@ -1981,6 +2071,55 @@ function lineupCard(l, i, cap){
     </div>
   </div>`;
 }
+
+/* One compact card per gallery slip -- not the full slipHTML() payout block, since there can be
+   a dozen or more of these in one rail. No model%/edge on the leg rows themselves (that's the
+   noise the cart used to lead with); one footer line carries the model-vs-book number once. */
+function presetCard(card){
+  const legs = card.legs.map(i=>PROPS[i]);
+  const games = new Set(legs.map(l=>l.game));
+  const sameGame = games.size < legs.length;
+  const prices = legs.map(overPrice).filter(a => a !== null);
+  const priced = prices.length === legs.length;
+  const dec = priced ? prices.reduce((a,x)=>a*amToDec(x), 1) : null;
+  const implied = priced ? prices.reduce((a,x)=>a*amToProb(x), 1) : null;
+  const modelP = legs.reduce((a,l)=>a*l.model/100, 1);
+  return `<div class="slip presetcard ${card === GALLERY_BEST ? "best" : ""}">
+    <div class="sliphead"><span class="lbl">${card===GALLERY_BEST?"★ Best · ":""}${esc(card.win.short)} · ${esc(card.scopeLabel)}</span>
+      <span class="pill">${legs.length} legs${priced ? ` · ${esc(fmtAm(decToAm(dec)))}` : ""}</span></div>
+    ${legs.map(l=>`<div class="slipleg">
+      <div><div class="p">${esc(l.n)}</div><div class="m">${esc(propLabel(l).toUpperCase())}${l.kick ? ` · ${esc(l.kick.toUpperCase())}` : ""}</div></div>
+      <div class="o">${esc(fmtAm(overPrice(l)))}</div></div>`).join("")}
+    ${sameGame ? `<div class="corr"><span>⚠</span>SAME GAME — CORRELATED, PRICE IT AS ONE</div>` : ""}
+    <div class="payout presetfoot">
+      <div class="payrow"><span>MODEL vs BOOK</span><b class="${modelP>=implied?"pos":"neg"}">${modelP>=implied?"+":""}${((modelP-implied)*100).toFixed(1)}</b></div>
+      <div class="payrow"><span>$25 RETURNS</span><b>${priced ? `$${Math.round(25*dec)}` : "—"}</b></div>
+      <button class="btn" style="width:100%;margin-top:10px" data-loadslip="${card.i}">Load into my slip</button>
+    </div>
+  </div>`;
+}
+
+function galleryHTML(){
+  const scopes = [["all","All"],["yards","Yards"],["tds","TDs"],["mix","Mix"]];
+  const cards = GALLERY.filter(c => (SLIP_SCOPE==="all"||c.scope===SLIP_SCOPE) && (GAL_WIN==="ALL"||c.win.k===GAL_WIN));
+  return `<div class="rule"><h2>The model's best slips</h2><span class="hair"></span>
+    <span class="side">one window per card · never two days</span></div>
+  <div class="filters">
+    <span class="lbl">Legs</span>
+    ${scopes.map(([k,label])=>`<button class="chip" data-scope="${k}" aria-pressed="${SLIP_SCOPE===k}">${label}</button>`).join("")}
+    <span style="flex:1"></span>
+    <label class="selwrap"><span class="lbl">Window</span>
+      <select class="msel" data-msel="gwin">
+        <option value="ALL" ${GAL_WIN==="ALL"?"selected":""}>All</option>
+        ${WINDOWS.map(w=>`<option value="${w.k}" ${GAL_WIN===w.k?"selected":""}>${esc(w.label)}</option>`).join("")}
+      </select>
+    </label>
+  </div>
+  ${cards.length
+    ? `<div class="rail"><div class="railscroll">${cards.map(presetCard).join("")}</div></div>`
+    : `<div class="state-empty" style="margin:14px 0;min-height:110px"><div><b>0</b><span>NO WINDOW HAS THREE LINES THE MODEL WILL STAND BEHIND</span></div></div>`}`;
+}
+
 function topLineupsHTML(){
   const site = dfsSite();
   const lineups = topLineups();
@@ -1991,30 +2130,26 @@ function topLineupsHTML(){
     <button class="chip" data-topmode="greedy" aria-pressed="${TOP_MODE==="greedy"}">Greedy · max points</button>
     <button class="chip" data-topmode="contrarian" aria-pressed="${TOP_MODE==="contrarian"}">Non-chalk · for GPPs</button>
   </div>
-  <div class="hint">No site publishes real ownership before lock — PROJ OWN is a rank-based estimate,
-    same idea any pre-lock ownership projection tool uses. Non-chalk sits the single most-projected
-    play at each position and biases the rest toward less of it.</div>
   ${lineups.length ? `
-  <div class="lineupgrid">${lineups.map((l,i)=>lineupCard(l,i,site.cap)).join("")}</div>`
+  <div class="rail"><div class="railscroll">${lineups.map((l,i)=>lineupCard(l,i,site.cap)).join("")}</div></div>`
   : `<div class="state-empty" style="min-height:120px"><div><b>0</b><span>NOT ENOUGH PRICED PLAYERS AT EVERY POSITION TO FILL A LINEUP</span></div></div>`}`;
 }
 
-function builderHTML(){
-  const parlay = BUILD_MODE === "parlay";
+function parlayHTML(){
+  const hasModel = PROPS.some(p=>typeof p.model==="number");
   return `<section class="hero">
-    <div class="numghost">${parlay ? SLIP.length : dfsSite().lineup.filter(d=>d.n).length}</div>
+    <div class="numghost">${SLIP.length}</div>
     <div class="wrap hero-in">
       <div>
         <div class="hero-eyebrow" style="--tint:var(--lime)">
-          <span class="league-mark"></span><span class="lbl">${parlay ? `${PROPS.length} lines priced · week 1` : `${dfsSite().label} · $${dfsSite().cap.toLocaleString()} cap`}</span>
+          <span class="league-mark"></span><span class="lbl">${PROPS.length} lines priced · week 1</span>
         </div>
-        <h1>Build the<br><em>${parlay ? "slip" : "lineup"}</em></h1>
-        <div class="hero-meta"><span class="pill ${LIVE_MARKET && !PROPS.some(p=>typeof p.model==="number") ? "warn" : ""}">${LIVE_MARKET && !PROPS.some(p=>typeof p.model==="number") ? "Book prices only · model pending" : "Model % vs book price"}</span></div>
+        <h1>Build the<br><em>slip</em></h1>
+        <div class="hero-meta"><span class="pill ${LIVE_MARKET && !hasModel ? "warn" : ""}">${LIVE_MARKET && !hasModel ? "Book prices only · model pending" : "Model % vs book price"}</span></div>
       </div>
       <div><div class="signals">
-        ${PROPS.some(p=>typeof p.model==="number") ? `
-        <div class="sig up"><div class="lbl">Legs with edge</div><div class="sig-val">${PROPS.filter(p=>p.edge>0).length}</div><div class="sig-sub">OF ${PROPS.length} PRICED</div></div>
-        <div class="sig down"><div class="lbl">Priced against</div><div class="sig-val">${PROPS.filter(p=>p.edge<0).length}</div><div class="sig-sub">SKIP THESE</div></div>` : `
+        ${hasModel ? `
+        <div class="sig up"><div class="lbl">Legs with edge</div><div class="sig-val">${PROPS.filter(p=>p.edge>0).length}</div><div class="sig-sub">OF ${PROPS.length} PRICED</div></div>` : `
         <div class="sig up"><div class="lbl">Lines priced</div><div class="sig-val">${PROPS.length}</div><div class="sig-sub">${new Set(PROPS.map(p=>p.n)).size} PLAYERS</div></div>
         <div class="sig"><div class="lbl">My players priced</div><div class="sig-val">${new Set(PROPS.filter(p=>p.mine).map(p=>p.n)).size}</div><div class="sig-sub">${PROPS.filter(p=>p.mine).length} LINES</div></div>`}
         ${LIVE_MARKET
@@ -2024,106 +2159,124 @@ function builderHTML(){
     </div>
   </section>
   <div class="wrap">
-    <div class="switcher">
-      <div class="modes">
-        <button class="mode" data-mode="parlay" aria-pressed="${parlay}">Parlay</button>
-        <button class="mode" data-mode="dfs" aria-pressed="${!parlay}">DFS lineup</button>
+    ${explainHTML("parlay")}
+    ${galleryHTML()}
+    <div class="build" style="margin-top:24px">
+      <div class="side">${slipHTML()}</div>
+      <div>
+        ${marketHead("props")}
+        <div class="filters">
+          <span class="lbl">Position</span>
+          ${["ALL","QB","RB","WR","TE"].map(p=>`<button class="chip" data-mpos="${p}" aria-pressed="${MKT_POS===p}">${p}</button>`).join("")}
+          <span style="flex:1"></span>
+          <button class="chip" data-mine="1" aria-pressed="${MKT_MINE}">My players only</button>
+        </div>
+        <div class="filters" style="margin-top:8px">
+          <label class="selwrap"><span class="lbl">Market</span>
+            <select class="msel" data-msel="mkind">
+              ${[["ALL","All"],["TD","Anytime TD"],["RUSH","Rush yds"],["REC","Rec yds"],["RECS","Receptions"],["PASS","Pass yds"]]
+                .map(([k,label])=>`<option value="${k}" ${MKT_KIND===k?"selected":""}>${label}</option>`).join("")}
+            </select>
+          </label>
+          <label class="selwrap"><span class="lbl">Kickoff</span>
+            <select class="msel" data-msel="mwin">
+              <option value="ALL" ${MKT_WIN==="ALL"?"selected":""}>All</option>
+              ${WINDOWS.map(w=>`<option value="${w.k}" ${MKT_WIN===w.k?"selected":""}>${esc(w.label)}</option>`).join("")}
+            </select>
+          </label>
+          <span style="flex:1"></span>
+          <label class="selwrap"><span class="lbl">Sort</span>
+            <select class="msel" data-msel="msort">
+              ${[["edge","Edge"],["model","Model %"]]
+                .map(([k,label])=>`<option value="${k}" ${MKT_SORT===k?"selected":""}>${label}</option>`).join("")}
+            </select>
+          </label>
+        </div>
+        ${(() => {
+          const all = PROPS.filter(p => (MKT_POS==="ALL"||p.pos===MKT_POS) && (MKT_KIND==="ALL"||p.mkt===MKT_KIND)
+            && (MKT_WIN==="ALL"||p.win===MKT_WIN) && (!MKT_MINE||p.mine)).sort(SORTS[MKT_SORT]);
+          const pages = Math.max(1, Math.ceil(all.length / MKT_PAGE_SIZE));
+          const page = Math.min(MKT_PAGE, pages);
+          const rows = all.slice((page-1)*MKT_PAGE_SIZE, page*MKT_PAGE_SIZE);
+          const pager = `<div class="filters" style="margin-top:8px">
+            <span class="lbl">${all.length} line${all.length===1?"":"s"}</span>
+            <span style="flex:1"></span>
+            <button class="chip" data-mktpage="prev" ${page<=1?"disabled":""}>‹ Prev</button>
+            <span class="lbl">Page ${page} of ${pages}</span>
+            <button class="chip" data-mktpage="next" ${page>=pages?"disabled":""}>Next ›</button>
+          </div>`;
+          return rows.length
+            ? `${pager}<div class="legs" style="margin-top:14px">${rows.map((p)=>propCard(p, PROPS.indexOf(p))).join("")}</div>`
+            : `<div class="state-empty" style="margin:20px 0;min-height:120px"><div><b>0</b><span>NO LINES MATCH THAT FILTER</span></div></div>`;
+        })()}
       </div>
-      ${!parlay ? `<div class="modes-sub">
-        <span class="lbl">Book</span>
-        <button class="mode-sub" data-dfssite="yahoo" aria-pressed="${DFS_SITE==="yahoo"}">Yahoo</button>
-        <button class="mode-sub" data-dfssite="dk" aria-pressed="${DFS_SITE==="dk"}">DraftKings</button>
-      </div>` : ""}
     </div>
-    ${parlay ? `
-      <div class="build">
-        <div>
-          ${marketHead("props")}
-          <div class="filters">
-            <span class="lbl">Position</span>
-            ${["ALL","QB","RB","WR","TE"].map(p=>`<button class="chip" data-mpos="${p}" aria-pressed="${MKT_POS===p}">${p}</button>`).join("")}
-            <span style="flex:1"></span>
-            <button class="chip" data-mine="1" aria-pressed="${MKT_MINE}">My players only</button>
-          </div>
-          <div class="filters" style="margin-top:8px">
-            <label class="selwrap"><span class="lbl">Market</span>
-              <select class="msel" data-msel="mkind">
-                ${[["ALL","All"],["TD","Anytime TD"],["RUSH","Rush yds"],["REC","Rec yds"],["RECS","Receptions"],["PASS","Pass yds"]]
-                  .map(([k,label])=>`<option value="${k}" ${MKT_KIND===k?"selected":""}>${label}</option>`).join("")}
-              </select>
-            </label>
-            <label class="selwrap"><span class="lbl">Kickoff</span>
-              <select class="msel" data-msel="mslot">
-                ${[["ALL","All"],["morning","Morning"],["afternoon","Afternoon"],["evening","Evening"]]
-                  .map(([k,label])=>`<option value="${k}" ${MKT_SLOT===k?"selected":""}>${label}</option>`).join("")}
-              </select>
-            </label>
-            <span style="flex:1"></span>
-            <label class="selwrap"><span class="lbl">Sort</span>
-              <select class="msel" data-msel="msort">
-                ${[["edge","Edge"],["model","Model %"]]
-                  .map(([k,label])=>`<option value="${k}" ${MKT_SORT===k?"selected":""}>${label}</option>`).join("")}
-              </select>
-            </label>
-          </div>
-          ${(() => {
-            const all = PROPS.filter(p => (MKT_POS==="ALL"||p.pos===MKT_POS) && (MKT_KIND==="ALL"||p.mkt===MKT_KIND)
-              && (MKT_SLOT==="ALL"||p.slot===MKT_SLOT) && (!MKT_MINE||p.mine)).sort(SORTS[MKT_SORT]);
-            const pages = Math.max(1, Math.ceil(all.length / MKT_PAGE_SIZE));
-            const page = Math.min(MKT_PAGE, pages);
-            const rows = all.slice((page-1)*MKT_PAGE_SIZE, page*MKT_PAGE_SIZE);
-            const pager = `<div class="filters" style="margin-top:8px">
-              <span class="lbl">${all.length} line${all.length===1?"":"s"}</span>
-              <span style="flex:1"></span>
-              <button class="chip" data-mktpage="prev" ${page<=1?"disabled":""}>‹ Prev</button>
-              <span class="lbl">Page ${page} of ${pages}</span>
-              <button class="chip" data-mktpage="next" ${page>=pages?"disabled":""}>Next ›</button>
-            </div>`;
-            return rows.length
-              ? `${pager}<div class="legs" style="margin-top:14px">${rows.map((p)=>propCard(p, PROPS.indexOf(p))).join("")}</div>`
-              : `<div class="state-empty" style="margin:20px 0;min-height:120px"><div><b>0</b><span>NO LINES MATCH THAT FILTER</span></div></div>`;
-          })()}
+    <details class="deep"><summary>How the number is made</summary>${modelCardHTML()}</details>
+    <div class="rule"><h2>Component states</h2><span class="hair"></span><span class="side">before the books post</span></div>
+    ${statesHTML()}
+  </div>`;
+}
+
+function dfsSurfaceHTML(){
+  const site = dfsSite();
+  return `<section class="hero">
+    <div class="numghost">${site.lineup.filter(d=>d.n).length}</div>
+    <div class="wrap hero-in">
+      <div>
+        <div class="hero-eyebrow" style="--tint:var(--lime)">
+          <span class="league-mark"></span><span class="lbl">${site.label} · $${site.cap.toLocaleString()} cap</span>
         </div>
-        <div class="side">${slipHTML()}${modelCardHTML()}</div>
-      </div>`
-    : `
-      ${topLineupsHTML()}
-      <div class="build" style="margin-top:24px">
-        <div>
-          ${marketHead("dfs")}
-          <div class="filters">
-            <span class="lbl">Position</span>
-            ${["ALL","QB","RB","WR","TE","DST"].map(p=>`<button class="chip" data-dpos="${p}" aria-pressed="${DFS_POS===p}">${p}</button>`).join("")}
-            <span style="flex:1"></span>
-            <span class="lbl">Value = points per $${(dfsSite().cap/50).toLocaleString()}</span>
-          </div>
-          ${(() => {
-            const site = dfsSite();
-            const cap = site.cap;
-            const valueLeaders = dfsValueLeaders(site.pool, cap);
-            const handcuffs = dfsHandcuffs(site.pool);
-            const all = site.pool.filter(p => DFS_POS==="ALL"||p.pos===DFS_POS);
-            const pages = Math.max(1, Math.ceil(all.length / DFS_PAGE_SIZE));
-            const page = Math.min(DFS_PAGE, pages);
-            const rows = all.slice((page-1)*DFS_PAGE_SIZE, page*DFS_PAGE_SIZE);
-            const pager = `<div class="filters" style="margin-top:8px">
-              <span class="lbl">${all.length} player${all.length===1?"":"s"}</span>
-              <span style="flex:1"></span>
-              <button class="chip" data-dfspage="prev" ${page<=1?"disabled":""}>‹ Prev</button>
-              <span class="lbl">Page ${page} of ${pages}</span>
-              <button class="chip" data-dfspage="next" ${page>=pages?"disabled":""}>Next ›</button>
-            </div>`;
-            return `${pager}
-            <div class="ptable dfstable">
-              <div class="phead"><div></div><div>Player</div><div>Salary</div><div>Proj</div>
-                <div>Value</div><div>Own</div><div></div></div>
-              ${rows.length ? rows.map((p,i)=>dfsPoolRow(p,i,cap,valueLeaders,handcuffs)).join("")
-                : `<div class="state-empty" style="margin:20px 0;min-height:110px"><div><b>0</b><span>NO PLAYERS AT THAT POSITION</span></div></div>`}
-            </div>`;
-          })()}
+        <h1>Build the<br><em>lineup</em></h1>
+        <div class="modes-sub" style="margin-top:14px">
+          <span class="lbl" style="margin-right:8px">Book</span>
+          <button class="mode-sub" data-dfssite="yahoo" aria-pressed="${DFS_SITE==="yahoo"}">Yahoo</button>
+          <button class="mode-sub" data-dfssite="dk" aria-pressed="${DFS_SITE==="dk"}">DraftKings</button>
         </div>
-        <div>${dfsHTML()}</div>
-      </div>`}
+      </div>
+      <div><div class="signals">
+        <div class="sig up"><div class="lbl">Slots filled</div><div class="sig-val">${site.lineup.filter(d=>d.n).length}</div><div class="sig-sub">OF ${site.lineup.length}</div></div>
+        <div class="sig"><div class="lbl">Pool</div><div class="sig-val">${site.pool.length}</div><div class="sig-sub">PLAYERS</div></div>
+      </div></div>
+    </div>
+  </section>
+  <div class="wrap">
+    ${explainHTML("dfs")}
+    ${topLineupsHTML()}
+    <div class="build" style="margin-top:24px">
+      <div class="side">${dfsHTML()}</div>
+      <div>
+        ${marketHead("dfs")}
+        <div class="filters">
+          <span class="lbl">Position</span>
+          ${["ALL","QB","RB","WR","TE","DST"].map(p=>`<button class="chip" data-dpos="${p}" aria-pressed="${DFS_POS===p}">${p}</button>`).join("")}
+          <span style="flex:1"></span>
+          <span class="lbl">Value = points per $${(site.cap/50).toLocaleString()}</span>
+        </div>
+        ${(() => {
+          const cap = site.cap;
+          const valueLeaders = dfsValueLeaders(site.pool, cap);
+          const handcuffs = dfsHandcuffs(site.pool);
+          const all = site.pool.filter(p => DFS_POS==="ALL"||p.pos===DFS_POS);
+          const pages = Math.max(1, Math.ceil(all.length / DFS_PAGE_SIZE));
+          const page = Math.min(DFS_PAGE, pages);
+          const rows = all.slice((page-1)*DFS_PAGE_SIZE, page*DFS_PAGE_SIZE);
+          const pager = `<div class="filters" style="margin-top:8px">
+            <span class="lbl">${all.length} player${all.length===1?"":"s"}</span>
+            <span style="flex:1"></span>
+            <button class="chip" data-dfspage="prev" ${page<=1?"disabled":""}>‹ Prev</button>
+            <span class="lbl">Page ${page} of ${pages}</span>
+            <button class="chip" data-dfspage="next" ${page>=pages?"disabled":""}>Next ›</button>
+          </div>`;
+          return `${pager}
+          <div class="ptable dfstable">
+            <div class="phead"><div></div><div>Player</div><div>Salary</div><div>Proj</div>
+              <div>Value</div><div>Own</div><div></div></div>
+            ${rows.length ? rows.map((p,i)=>dfsPoolRow(p,i,cap,valueLeaders,handcuffs)).join("")
+              : `<div class="state-empty" style="margin:20px 0;min-height:110px"><div><b>0</b><span>NO PLAYERS AT THAT POSITION</span></div></div>`}
+          </div>`;
+        })()}
+      </div>
+    </div>
     <div class="rule"><h2>Component states</h2><span class="hair"></span><span class="side">before the books post</span></div>
     ${statesHTML()}
   </div>`;
@@ -2150,6 +2303,111 @@ function heroHTML(team){
   </section>`;
 }
 
+/* A scroll container with clipped content (the scatter, a rail) is easy to miss entirely on
+   first view -- nudge it once so the swipe is felt, not just hinted at in small print. Bails
+   when there's nothing to scroll (desktop, or a rail short enough to fit) and won't re-fire on
+   a later re-render of the same element (dataset.nudged is a one-shot flag). */
+function nudgeScrollers(root){
+  root.querySelectorAll(".quadscroll, .railscroll").forEach(el=>{
+    if (el.scrollWidth <= el.clientWidth + 4 || el.dataset.nudged) return;
+    el.dataset.nudged = "1";
+    requestAnimationFrame(()=>{
+      el.scrollTo({left: 46, behavior: "smooth"});
+      setTimeout(()=>el.scrollTo({left: 0, behavior: "smooth"}), 650);
+    });
+  });
+}
+
+/* Every data-* handler for both Parlay and DFS, lifted into one function so the nav split does
+   not duplicate wiring: each querySelectorAll is a harmless no-op on whichever tab has no
+   matching nodes (data-dfspage and data-mktpage already worked this way before the split). */
+function wireBuilder(v){
+  v.querySelectorAll("[data-mpos]").forEach(b=>b.addEventListener("click",()=>{
+    MKT_POS = b.dataset.mpos; MKT_PAGE = 1; render();
+  }));
+  v.querySelectorAll("[data-dpos]").forEach(b=>b.addEventListener("click",()=>{
+    DFS_POS = b.dataset.dpos; DFS_PAGE = 1; render();
+  }));
+  v.querySelectorAll("[data-dfssite]").forEach(b=>b.addEventListener("click",()=>{
+    DFS_SITE = b.dataset.dfssite; DFS_PAGE = 1; render();
+  }));
+  v.querySelectorAll("[data-dfspage]").forEach(b=>b.addEventListener("click",()=>{
+    DFS_PAGE = Math.max(1, DFS_PAGE + (b.dataset.dfspage === "next" ? 1 : -1));
+    const y = window.scrollY; render(); window.scrollTo(0, y);
+  }));
+  v.querySelectorAll("[data-mktpage]").forEach(b=>b.addEventListener("click",()=>{
+    MKT_PAGE = Math.max(1, MKT_PAGE + (b.dataset.mktpage === "next" ? 1 : -1));
+    const y = window.scrollY; render(); window.scrollTo(0, y);
+  }));
+  v.querySelectorAll("[data-topmode]").forEach(b=>b.addEventListener("click",()=>{
+    TOP_MODE = b.dataset.topmode; render();
+  }));
+  v.querySelectorAll("[data-loadlineup]").forEach(b=>b.addEventListener("click",()=>{
+    const l = topLineups()[+b.dataset.loadlineup];
+    if (!l) return;
+    const lineup = dfsSite().lineup;
+    l.players.forEach((d,i)=>{ lineup[i] = {...d}; });
+    const y = window.scrollY; render(); window.scrollTo(0, y);
+  }));
+  v.querySelectorAll("[data-mine]").forEach(b=>b.addEventListener("click",()=>{
+    MKT_MINE = !MKT_MINE; MKT_PAGE = 1; render();
+  }));
+  v.querySelectorAll("[data-msel]").forEach(sel=>sel.addEventListener("change",()=>{
+    const val = sel.value;
+    if (sel.dataset.msel === "mkind"){ MKT_KIND = val; MKT_SORT = val === "TD" ? "model" : "edge"; MKT_PAGE = 1; }
+    else if (sel.dataset.msel === "mwin"){ MKT_WIN = val; MKT_PAGE = 1; }
+    else if (sel.dataset.msel === "msort"){ MKT_SORT = val; MKT_PAGE = 1; }
+    else if (sel.dataset.msel === "gwin"){ GAL_WIN = val; }
+    render();
+  }));
+  v.querySelectorAll("[data-preset]").forEach(b=>b.addEventListener("click",()=>{
+    SLIP_MODE = b.dataset.preset; SLIP = presetSlip(SLIP_MODE);
+    const y = window.scrollY; render(); window.scrollTo(0, y);
+  }));
+  v.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click", async ()=>{
+    const text = slipText(b.dataset.copy === "picks");
+    let ok = false;
+    try { await navigator.clipboard.writeText(text); ok = true; }
+    catch (e) {
+      const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta);
+      ta.select(); try { ok = document.execCommand("copy"); } catch (e2) {} ta.remove();
+    }
+    const was = b.textContent; b.textContent = ok ? "Copied" : "Copy failed";
+    setTimeout(()=>{ b.textContent = was; }, 1400);
+  }));
+  v.querySelectorAll("[data-scope]").forEach(b=>b.addEventListener("click",()=>{
+    SLIP_SCOPE = b.dataset.scope;
+    render();
+  }));
+  v.querySelectorAll("[data-loadslip]").forEach(b=>b.addEventListener("click",()=>{
+    const card = GALLERY[+b.dataset.loadslip];
+    if (!card) return;
+    SLIP = card.legs.slice();
+    SLIP_MODE = "custom";
+    render();
+    v.querySelector(".build .side .slip")?.scrollIntoView({behavior:"smooth", block:"start"});
+  }));
+  v.querySelectorAll("[data-explain]").forEach(el=>el.addEventListener("toggle",()=>{
+    EXPLAIN[el.dataset.explain] = el.open;
+  }));
+  v.querySelectorAll("[data-prop]").forEach(el=>{
+    const toggle = ()=>{
+      const i = +el.dataset.prop;
+      SLIP = SLIP.includes(i) ? SLIP.filter(x=>x!==i) : SLIP.concat(i);
+      SLIP_MODE = "custom";
+      const y = window.scrollY; render(); window.scrollTo(0, y);
+    };
+    el.addEventListener("click", e=>{ if (e.target.closest(".more, .gl, .legx")) return; toggle(); });
+    el.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();toggle();} });
+  });
+  v.querySelectorAll("[data-more]").forEach(b=>b.addEventListener("click", e=>{
+    e.stopPropagation();
+    const i = +b.dataset.more;
+    if (EXPANDED.has(i)) EXPANDED.delete(i); else EXPANDED.add(i);
+    const y = window.scrollY; render(); window.scrollTo(0, y);
+  }));
+}
+
 function render(){
   const v = document.getElementById("view");
   document.getElementById("switch").hidden = SURFACE !== "teams";
@@ -2165,97 +2423,13 @@ function render(){
       el.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();open();} });
     });
     v.querySelectorAll(".dotg").forEach(g=>g.addEventListener("click",()=>openPoolDrawer(+g.dataset.i)));
-    // A scroll container with clipped content (the scatter, on narrow screens) is easy to miss
-    // entirely -- nudge it once so the swipe is felt, not just hinted at in small print.
-    v.querySelectorAll(".quadscroll").forEach(el=>{
-      if (el.scrollWidth <= el.clientWidth + 4 || el.dataset.nudged) return;
-      el.dataset.nudged = "1";
-      requestAnimationFrame(()=>{
-        el.scrollTo({left: 46, behavior: "smooth"});
-        setTimeout(()=>el.scrollTo({left: 0, behavior: "smooth"}), 650);
-      });
-    });
+    nudgeScrollers(v);
     return;
   }
-  if (SURFACE === "builder"){
-    v.innerHTML = builderHTML();
-    v.querySelectorAll(".mode").forEach(b=>b.addEventListener("click",()=>{
-      BUILD_MODE = b.dataset.mode; MKT_PAGE = 1; DFS_PAGE = 1; render();
-    }));
-    v.querySelectorAll("[data-mpos]").forEach(b=>b.addEventListener("click",()=>{
-      MKT_POS = b.dataset.mpos; MKT_PAGE = 1; render();
-    }));
-    v.querySelectorAll("[data-dpos]").forEach(b=>b.addEventListener("click",()=>{
-      DFS_POS = b.dataset.dpos; DFS_PAGE = 1; render();
-    }));
-    v.querySelectorAll("[data-dfssite]").forEach(b=>b.addEventListener("click",()=>{
-      DFS_SITE = b.dataset.dfssite; DFS_PAGE = 1; render();
-    }));
-    v.querySelectorAll("[data-dfspage]").forEach(b=>b.addEventListener("click",()=>{
-      DFS_PAGE = Math.max(1, DFS_PAGE + (b.dataset.dfspage === "next" ? 1 : -1));
-      const y = window.scrollY; render(); window.scrollTo(0, y);
-    }));
-    v.querySelectorAll("[data-mktpage]").forEach(b=>b.addEventListener("click",()=>{
-      MKT_PAGE = Math.max(1, MKT_PAGE + (b.dataset.mktpage === "next" ? 1 : -1));
-      const y = window.scrollY; render(); window.scrollTo(0, y);
-    }));
-    v.querySelectorAll("[data-topmode]").forEach(b=>b.addEventListener("click",()=>{
-      TOP_MODE = b.dataset.topmode; render();
-    }));
-    v.querySelectorAll("[data-loadlineup]").forEach(b=>b.addEventListener("click",()=>{
-      const l = topLineups()[+b.dataset.loadlineup];
-      if (!l) return;
-      const lineup = dfsSite().lineup;
-      l.players.forEach((d,i)=>{ lineup[i] = {...d}; });
-      const y = window.scrollY; render(); window.scrollTo(0, y);
-    }));
-    v.querySelectorAll("[data-mine]").forEach(b=>b.addEventListener("click",()=>{
-      MKT_MINE = !MKT_MINE; MKT_PAGE = 1; render();
-    }));
-    v.querySelectorAll("[data-msel]").forEach(sel=>sel.addEventListener("change",()=>{
-      const val = sel.value;
-      if (sel.dataset.msel === "mkind"){ MKT_KIND = val; MKT_SORT = val === "TD" ? "model" : "edge"; }
-      else if (sel.dataset.msel === "mslot"){ MKT_SLOT = val; }
-      else if (sel.dataset.msel === "msort"){ MKT_SORT = val; }
-      MKT_PAGE = 1; render();
-    }));
-    v.querySelectorAll("[data-preset]").forEach(b=>b.addEventListener("click",()=>{
-      SLIP_MODE = b.dataset.preset; SLIP = presetSlip(SLIP_MODE);
-      const y = window.scrollY; render(); window.scrollTo(0, y);
-    }));
-    v.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click", async ()=>{
-      const text = slipText(b.dataset.copy === "picks");
-      let ok = false;
-      try { await navigator.clipboard.writeText(text); ok = true; }
-      catch (e) {
-        const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta);
-        ta.select(); try { ok = document.execCommand("copy"); } catch (e2) {} ta.remove();
-      }
-      const was = b.textContent; b.textContent = ok ? "Copied" : "Copy failed";
-      setTimeout(()=>{ b.textContent = was; }, 1400);
-    }));
-    v.querySelectorAll("[data-scope]").forEach(b=>b.addEventListener("click",()=>{
-      SLIP_SCOPE = b.dataset.scope;
-      if (SLIP_MODE === "custom" || (SLIP_MODE === "underdog" && SLIP_SCOPE === "tds")) SLIP_MODE = "best";
-      if (SLIP_MODE !== "mine") SLIP = presetSlip(SLIP_MODE);
-      const y = window.scrollY; render(); window.scrollTo(0, y);
-    }));
-    v.querySelectorAll("[data-prop]").forEach(el=>{
-      const toggle = ()=>{
-        const i = +el.dataset.prop;
-        SLIP = SLIP.includes(i) ? SLIP.filter(x=>x!==i) : SLIP.concat(i);
-        SLIP_MODE = "custom";
-        const y = window.scrollY; render(); window.scrollTo(0, y);
-      };
-      el.addEventListener("click", e=>{ if (e.target.closest(".more, .gl")) return; toggle(); });
-      el.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();toggle();} });
-    });
-    v.querySelectorAll("[data-more]").forEach(b=>b.addEventListener("click", e=>{
-      e.stopPropagation();
-      const i = +b.dataset.more;
-      if (EXPANDED.has(i)) EXPANDED.delete(i); else EXPANDED.add(i);
-      const y = window.scrollY; render(); window.scrollTo(0, y);
-    }));
+  if (SURFACE === "parlay" || SURFACE === "dfs"){
+    v.innerHTML = SURFACE === "parlay" ? parlayHTML() : dfsSurfaceHTML();
+    wireBuilder(v);
+    nudgeScrollers(v);
     return;
   }
 
@@ -2314,11 +2488,12 @@ const NEWS_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 const NAV_ICON = {
   teams: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="7" r="2.4" opacity=".55"/><path d="M15.5 14.2c2.6.4 4.5 2.2 4.5 5.3" opacity=".55"/></svg>`,
   pool: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><circle cx="9" cy="14" r="1.6" fill="currentColor" stroke="none"/><circle cx="14" cy="9" r="1.6" fill="currentColor" stroke="none"/><circle cx="18" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg>`,
-  builder: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><circle cx="9" cy="7" r="2" fill="var(--panel)"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="15" cy="12" r="2" fill="var(--panel)"/><line x1="4" y1="17" x2="20" y2="17"/><circle cx="11" cy="17" r="2" fill="var(--panel)"/></svg>`,
+  parlay: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><circle cx="9" cy="7" r="2" fill="var(--panel)"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="15" cy="12" r="2" fill="var(--panel)"/><line x1="4" y1="17" x2="20" y2="17"/><circle cx="11" cy="17" r="2" fill="var(--panel)"/></svg>`,
+  dfs: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="6" height="6" rx="1"/><rect x="14.5" y="3.5" width="6" height="6" rx="1"/><rect x="3.5" y="14.5" width="6" height="6" rx="1"/><rect x="14.5" y="14.5" width="6" height="6" rx="1"/></svg>`,
 };
 function buildNav(){
   const n = document.getElementById("nav");
-  const items = [["teams","My teams"],["pool","The pool"],["builder","Builder"]];
+  const items = [["teams","My teams"],["pool","The pool"],["parlay","Parlay"],["dfs","DFS"]];
   n.innerHTML = items.map(([k,label])=>
     `<button class="navitem" data-s="${k}" aria-current="${SURFACE===k}">
       <span class="ix">${NAV_ICON[k]}</span>${label}</button>`).join("");
