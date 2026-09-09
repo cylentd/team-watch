@@ -147,7 +147,8 @@ html{scrollbar-color:var(--line-2) var(--void)}
   pointer-events:none;user-select:none;letter-spacing:-.05em;
 }
 .hero-in{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:44px;align-items:end}
-.hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.hero-eyebrow .teamswitch{margin-left:auto}
 .league-mark{width:8px;height:8px;border-radius:99px;background:var(--tint)}
 .hero h1{
   font-family:var(--disp);font-weight:800;
@@ -742,8 +743,10 @@ details.deep > summary:hover{color:var(--ink)}
   .sig-val{font-size:23px;margin-top:7px}
   .sig-sub{font-size:11px;letter-spacing:.06em}
 
-  .ts-team{font-size:12px;max-width:74px;overflow:hidden;text-overflow:ellipsis}
-  .ts-btn{padding:7px 9px}
+  .ts-team{font-size:12px;max-width:150px;overflow:hidden;text-overflow:ellipsis}
+  .ts-btn{padding:7px 9px;min-width:0}
+  .hero-eyebrow{gap:8px}
+  .hero-eyebrow .teamswitch{max-width:100%}
 
   .colhead{display:none}
   .board{margin-top:14px}
@@ -778,8 +781,8 @@ details.deep > summary:hover{color:var(--ink)}
     -webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 22px),transparent);
     mask-image:linear-gradient(90deg,#000 calc(100% - 22px),transparent);}
   .nav::-webkit-scrollbar{display:none}
-  .navitem{padding:11px 15px;font-size:12.5px;flex-shrink:0}
-  .navitem .ix{width:17px;height:17px}
+  .navitem{padding:11px 9px;font-size:11.5px;gap:5px;flex-shrink:0}
+  .navitem .ix{width:15px;height:15px}
   .hero h1{font-size:clamp(30px,8.6vw,80px)}
   .quad{height:320px;min-width:540px}
   .quadhead{padding:12px 13px}
@@ -865,7 +868,6 @@ details.deep > summary:hover{color:var(--ink)}
 <div class="navbar">
   <div class="wrap navrow">
     <div class="nav" id="nav"></div>
-    <div class="teamswitch" id="switch"></div>
   </div>
 </div>
 
@@ -2301,6 +2303,42 @@ function dfsSurfaceHTML(){
 let SURFACE = "teams";
 let VIEW = "yahoo";
 
+/* The Yahoo/ESPN team switch. It used to live in the navbar next to the tabs, crowding them on
+   mobile; now it rides the hero's own eyebrow line ("YAHOO · 0-0"), which already has the room
+   and is where a reader looks first to confirm which team they're on. */
+function teamSwitchHTML(){
+  const cells = [
+    {k:"yahoo", plat:"Yahoo", team:TEAMS.yahoo.name, tint:"var(--yahoo)"},
+    {k:"espn",  plat:"ESPN",  team:TEAMS.espn.name,  tint:"var(--espn)"},
+  ];
+  const cur = cells.find(c=>c.k===VIEW);
+  return `<div class="teamswitch" id="switch" style="--tint:${cur.tint}">
+    <button class="ts-btn" data-tsbtn aria-haspopup="listbox" aria-expanded="false">
+      <span class="ts-dot"></span>
+      <span class="ts-team">${esc(cur.team)}</span>
+      <span class="ts-chev">▾</span>
+    </button>
+    <div class="ts-menu" data-tsmenu role="listbox" hidden>
+      ${cells.map(c=>`<button class="ts-item" role="option" data-k="${c.k}" style="--tint:${c.tint}" aria-selected="${c.k===VIEW}">${c.plat} · ${esc(c.team)}</button>`).join("")}
+    </div>
+  </div>`;
+}
+function wireTeamSwitch(v){
+  const sw = v.querySelector("#switch");
+  if (!sw) return;
+  const btn = sw.querySelector("[data-tsbtn]"), menu = sw.querySelector("[data-tsmenu]");
+  btn.addEventListener("click", e=>{
+    e.stopPropagation();
+    const open = menu.hidden;
+    menu.hidden = !open;
+    btn.setAttribute("aria-expanded", String(open));
+  });
+  sw.querySelectorAll(".ts-item").forEach(b=>b.addEventListener("click", ()=>{
+    VIEW = b.dataset.k;
+    render(); window.scrollTo({top:0, behavior:"smooth"});
+  }));
+}
+
 function heroHTML(team){
   return `<section class="hero">
     <div class="numghost">${team.slot}</div>
@@ -2309,6 +2347,7 @@ function heroHTML(team){
         <div class="hero-eyebrow" style="--tint:${team.tint}">
           <span class="league-mark"></span>
           <span class="lbl">${team.plat} · ${team.record}</span>
+          ${teamSwitchHTML()}
         </div>
         <h1>${esc(team.name)}</h1>
         <button class="leaguechip">${esc(team.meta[team.meta.length-1])} <span class="lc-info">ⓘ</span></button>
@@ -2425,7 +2464,6 @@ function wireBuilder(v){
 
 function render(){
   const v = document.getElementById("view");
-  document.getElementById("switch").hidden = SURFACE !== "teams";
 
   if (SURFACE === "pool"){
     v.innerHTML = poolHTML();
@@ -2457,6 +2495,7 @@ function render(){
     ${statesHTML()}
   </div>`;
   v.querySelector(".leaguechip")?.addEventListener("click", ()=>openLeagueInfo(team.key));
+  wireTeamSwitch(v);
   document.querySelectorAll(".row").forEach(r=>{
     r.addEventListener("click", ()=>openDrawer(r.dataset.team, +r.dataset.i));
     r.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();openDrawer(r.dataset.team,+r.dataset.i);} });
@@ -2519,43 +2558,17 @@ function buildNav(){
   }));
 }
 
-function buildSwitch(){
-  const s = document.getElementById("switch");
-  const cells = [
-    {k:"yahoo", plat:"Yahoo", team:TEAMS.yahoo.name, tint:"var(--yahoo)"},
-    {k:"espn",  plat:"ESPN",  team:TEAMS.espn.name,  tint:"var(--espn)"},
-  ];
-  const paint = () => {
-    const cur = cells.find(c=>c.k===VIEW);
-    s.style.setProperty("--tint", cur.tint);
-    s.querySelector(".ts-team").textContent = cur.team;
-    s.querySelectorAll(".ts-item").forEach(x=>x.setAttribute("aria-selected", x.dataset.k===VIEW));
-  };
-  s.innerHTML = `
-    <button class="ts-btn" id="tsbtn" aria-haspopup="listbox" aria-expanded="false">
-      <span class="ts-dot"></span>
-      <span class="ts-team"></span>
-      <span class="ts-chev">▾</span>
-    </button>
-    <div class="ts-menu" id="tsmenu" role="listbox" hidden>
-      ${cells.map(c=>`<button class="ts-item" role="option" data-k="${c.k}" style="--tint:${c.tint}">${c.plat} · ${esc(c.team)}</button>`).join("")}
-    </div>`;
-  paint();
-  const btn = s.querySelector("#tsbtn"), menu = s.querySelector("#tsmenu");
-  const close = () => { menu.hidden = true; btn.setAttribute("aria-expanded","false"); };
-  btn.addEventListener("click", e=>{
-    e.stopPropagation();
-    const open = menu.hidden;
-    menu.hidden = !open;
-    btn.setAttribute("aria-expanded", String(open));
-  });
-  s.querySelectorAll(".ts-item").forEach(b=>b.addEventListener("click", ()=>{
-    VIEW = b.dataset.k;
-    paint(); close();
-    render(); window.scrollTo({top:0, behavior:"smooth"});
-  }));
-  document.addEventListener("click", e=>{ if(!s.contains(e.target)) close(); });
-}
+/* One global listener, registered once, rather than one per render -- render() rebuilds
+   #switch's markup from scratch every time (see teamSwitchHTML/wireTeamSwitch above), so a
+   listener attached inside render() would stack a new copy on every re-render. */
+document.addEventListener("click", e=>{
+  const sw = document.getElementById("switch");
+  if (!sw) return;
+  const menu = sw.querySelector("[data-tsmenu]"), btn = sw.querySelector("[data-tsbtn]");
+  if (menu && !menu.hidden && !sw.contains(e.target)){
+    menu.hidden = true; btn.setAttribute("aria-expanded","false");
+  }
+});
 
 /* ---------------------------- drawer ---------------------------- */
 function findPlayer(teamKey, i){
@@ -2729,7 +2742,6 @@ document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeDrawer(); })
 
 buildFeed();
 buildNav();
-buildSwitch();
 render();
 </script>
 
