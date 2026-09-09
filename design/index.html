@@ -1379,8 +1379,8 @@ const DFSPOOL_YAHOO = LIVE_YAHOO_DFS ? LIVE_YAHOO_DFS.players : DFSPOOL_YAHOO_SA
 
 let MKT_POS = "ALL", MKT_KIND = "ALL", MKT_SLOT = "ALL", MKT_MINE = false, DFS_POS = "ALL";
 /* Card order. "edge" ranks by what the price leaves on the table; "model" by the model's chance
-   alone, which is the question asked of a touchdown list ("who scores?"), so picking the TD
-   market switches to it. Unmodelled rows go last either way, mine first among them. */
+   alone ("who scores?" on a touchdown list). The choice sticks until changed: a market chip
+   never moves it. Unmodelled rows go last either way, mine first among them. */
 let MKT_SORT = "edge";
 const SORTS = {
   edge:  (a,b) => (typeof b.edge === "number") - (typeof a.edge === "number") || (b.edge||0) - (a.edge||0) || (b.mine||0) - (a.mine||0),
@@ -1784,7 +1784,7 @@ function render(){
       MKT_MINE = !MKT_MINE; render();
     }));
     v.querySelectorAll("[data-mkind]").forEach(b=>b.addEventListener("click",()=>{
-      MKT_KIND = b.dataset.mkind; MKT_SORT = MKT_KIND === "TD" ? "model" : "edge"; render();
+      MKT_KIND = b.dataset.mkind; render();
     }));
     v.querySelectorAll("[data-msort]").forEach(b=>b.addEventListener("click",()=>{
       MKT_SORT = b.dataset.msort; render();
