@@ -1517,12 +1517,24 @@ function chalkMap(pool){
    (two 8-of-9-shared lineups tell you nothing a single one doesn't).
    mode "greedy": pure projection — the highest-projected player at a position wins that slot in
    every lineup, same as any optimizer would build it. mode "contrarian": the single most-chalky
-   eligible player is sat outright (that IS what non-chalk means — it can't just softly discourage
-   him and then pick him anyway), and what's left is scored on projection minus a chalk penalty, so
-   the build actively trades some projection for one the field isn't all rostering — the point of a
-   small-field or single-entry GPP, where "greedy" x N all cashing or all missing together is the
-   actual risk. */
-function fillOneLineup(pool, cap, mode, chalk){
+   player at each position (QB, RB, WR, TE, DST — not per slot, so FLEX can't re-admit a benched RB/WR/TE
+   through the back door) is sat outright (that IS what non-chalk means — it can't just softly
+   discourage him and then pick him anyway), and what's left is scored on projection minus a chalk
+   penalty, so the build actively trades some projection for one the field isn't all rostering —
+   the point of a small-field or single-entry GPP, where "greedy" x N all cashing or all missing
+   together is the actual risk. */
+function chalkiestPerPosition(pool, chalk){
+  const byPos = {};
+  pool.forEach(p=>(byPos[p.pos] ||= []).push(p));
+  const banned = new Set();
+  Object.values(byPos).forEach(list=>{
+    if (list.length < 2) return;
+    const top = list.reduce((a,b)=> chalk.get(b) > chalk.get(a) ? b : a);
+    banned.add(top.n);
+  });
+  return banned;
+}
+function fillOneLineup(pool, cap, mode, chalk, banned){
   const minSal = Math.min(...pool.map(p=>p.sal));
   const order = [...LINEUP_SLOTS.keys()].sort(()=>Math.random()-0.5);
   const chosen = new Array(LINEUP_SLOTS.length);
@@ -1536,9 +1548,8 @@ function fillOneLineup(pool, cap, mode, chalk){
     let candidates = pool.filter(p => eligible(p) && !used.has(p.n) && p.sal <= budget);
     if (!candidates.length) candidates = pool.filter(p => eligible(p) && !used.has(p.n) && p.sal <= cap - spent);
     if (!candidates.length) return null;
-    if (mode === "contrarian" && candidates.length > 1){
-      const maxChalk = Math.max(...candidates.map(p => chalk.get(p)));
-      const sat = candidates.filter(p => chalk.get(p) < maxChalk);
+    if (mode === "contrarian"){
+      const sat = candidates.filter(p => !banned.has(p.n));
       if (sat.length) candidates = sat;
     }
     const score = p => mode === "contrarian" ? p.proj - chalk.get(p)*10 : p.proj;
@@ -1556,9 +1567,10 @@ function fillOneLineup(pool, cap, mode, chalk){
 }
 function bestLineups(pool, cap, mode, count){
   const chalk = chalkMap(pool);
+  const banned = mode === "contrarian" ? chalkiestPerPosition(pool, chalk) : null;
   const seen = new Set(), found = [];
   for (let i = 0; i < 400 && found.length < 40; i++){
-    const l = fillOneLineup(pool, cap, mode, chalk);
+    const l = fillOneLineup(pool, cap, mode, chalk, banned);
     if (!l) continue;
     const key = l.players.map(p=>p.n).sort().join("|");
     if (seen.has(key)) continue;
@@ -1577,12 +1589,12 @@ function bestLineups(pool, cap, mode, count){
   return picked;
 }
 let TOP_MODE = "greedy";
-let TOP_CACHE = {key:null, lineups:[]};
+const TOP_CACHE = new Map(); // key (site|mode|poolSize) -> lineups, so toggling modes doesn't re-roll a mode already built
 function topLineups(){
   const site = dfsSite();
   const key = `${site.key}|${TOP_MODE}|${site.pool.length}`;
-  if (TOP_CACHE.key !== key) TOP_CACHE = {key, lineups: bestLineups(site.pool, site.cap, TOP_MODE, TOP_COUNT)};
-  return TOP_CACHE.lineups;
+  if (!TOP_CACHE.has(key)) TOP_CACHE.set(key, bestLineups(site.pool, site.cap, TOP_MODE, TOP_COUNT));
+  return TOP_CACHE.get(key);
 }
 
 let BUILD_MODE = "parlay";
@@ -1664,13 +1676,61 @@ function gameLogHTML(p, log){
 }
 
 const INJ = {Q:"Q", O:"O", OUT:"OUT", IR:"IR", SUSP:"SUSP", PUP:"PUP", D:"D"};
-function dfsPoolRow(p, i, cap){
+/* Best-value marker: the single highest points-per-$1000 player at each position (min 2 players
+   at that position, else "best" is meaningless). Computed once per pool, not per row, so every
+   row at a position agrees on who holds it. */
+function dfsValueLeaders(pool, cap){
+  const byPos = {};
+  pool.forEach(p=>(byPos[p.pos] ||= []).push(p));
+  const leaders = new Set();
+  Object.values(byPos).forEach(list=>{
+    if (list.length < 2) return;
+    const best = list.reduce((a,b) => (b.proj/b.sal) > (a.proj/a.sal) ? b : a);
+    leaders.add(best.n);
+  });
+  return leaders;
+}
+/* A player's `team` field, checked against `game` ("AWAY@HOME") when the pool carries one — the
+   Yahoo export has shipped rows where `team` doesn't match either side of the player's own game
+   (seen 2026-09-09: a bench RB tagged with a teammate's team while `game` had him elsewhere). A
+   row that fails this check is real (right salary/proj/status) but its team is not trustworthy
+   enough to group into a same-team handcuff read, so it's left out of that grouping entirely. */
+function teamVerified(p){
+  if (!p.game) return true;
+  const at = p.game.indexOf("@");
+  if (at < 0) return true;
+  return p.team === p.game.slice(0, at) || p.team === p.game.slice(at + 1);
+}
+/* Handcuff marker: same team, same position, the starter (highest salary) carries an OUT/IR
+   status — the cheapest teammate left at that spot is the one who inherits the workload, and the
+   field usually hasn't priced that in yet. Keyed by name -> the starter's name it backs up. */
+function dfsHandcuffs(pool){
+  const byTeamPos = {};
+  pool.forEach(p=>{
+    if (!teamVerified(p)) return;
+    (byTeamPos[`${p.team}|${p.pos}`] ||= []).push(p);
+  });
+  const handcuffs = new Map();
+  Object.values(byTeamPos).forEach(list=>{
+    if (list.length < 2) return;
+    const starter = list.reduce((a,b) => b.sal > a.sal ? b : a);
+    if (starter.status !== "OUT" && starter.status !== "IR") return;
+    const cheapest = list.filter(p => p !== starter).sort((a,b)=>a.sal-b.sal)[0];
+    handcuffs.set(cheapest.n, starter.n);
+  });
+  return handcuffs;
+}
+function dfsPoolRow(p, i, cap, valueLeaders, handcuffs){
   const value = (p.proj / (p.sal/(cap/50))).toFixed(2);
   const status = INJ[p.status] || (p.status ? p.status : null);
+  const handcuffFor = handcuffs.get(p.n);
+  const tags = (status ? ` <span class="tag ${status==="Q"?"q":"o"}">${esc(status)}</span>` : "")
+    + (valueLeaders.has(p.n) ? ` <span class="tag t-cbup" title="Highest points per $1,000 at ${esc(p.pos)} in this pool">BEST VALUE</span>` : "")
+    + (handcuffFor ? ` <span class="tag t-role" title="${esc(handcuffFor)} (the ${esc(p.pos)} starter) is OUT/IR — cheapest teammate left at ${esc(p.pos)}, first in line for the workload">HANDCUFF</span>` : "");
   return `<div class="prow dfsrow ${p.mine?"mine":""}" style="animation-delay:${40+i*18}ms" data-dfs="${i}" role="button" tabindex="0">
     <div>${HEADS[p.slug] ? `<img class="pool-head" src="${HEADS[p.slug]}" alt="">`
         : `<div class="pool-head" style="display:grid;place-items:center;font-family:var(--mono);font-size:11px;color:var(--ink-3)">${esc(p.abbr||initials(p.n))}</div>`}</div>
-    <div class="pname"><b>${esc(p.n)}${status ? ` <span class="tag ${status==="Q"?"q":"o"}">${esc(status)}</span>` : ""}</b><span>${esc(p.pos)} · ${esc(p.team)}</span></div>
+    <div class="pname"><b>${esc(p.n)}${tags}</b><span>${esc(p.pos)} · ${esc(p.team)}</span></div>
     <div class="pnum">$${p.sal.toLocaleString()}</div>
     <div class="pnum">${p.proj.toFixed(1)}</div>
     <div class="pnum ${value>2.6?"pos":""}">${value}</div>
@@ -2012,8 +2072,11 @@ function builderHTML(){
             <span class="lbl">Value = points per $${(dfsSite().cap/50).toLocaleString()}</span>
           </div>
           ${(() => {
-            const cap = dfsSite().cap;
-            const all = dfsSite().pool.filter(p => DFS_POS==="ALL"||p.pos===DFS_POS);
+            const site = dfsSite();
+            const cap = site.cap;
+            const valueLeaders = dfsValueLeaders(site.pool, cap);
+            const handcuffs = dfsHandcuffs(site.pool);
+            const all = site.pool.filter(p => DFS_POS==="ALL"||p.pos===DFS_POS);
             const pages = Math.max(1, Math.ceil(all.length / DFS_PAGE_SIZE));
             const page = Math.min(DFS_PAGE, pages);
             const rows = all.slice((page-1)*DFS_PAGE_SIZE, page*DFS_PAGE_SIZE);
@@ -2028,7 +2091,7 @@ function builderHTML(){
             <div class="ptable dfstable">
               <div class="phead"><div></div><div>Player</div><div>Salary</div><div>Proj</div>
                 <div>Value</div><div>Own</div><div></div></div>
-              ${rows.length ? rows.map((p,i)=>dfsPoolRow(p,i,cap)).join("")
+              ${rows.length ? rows.map((p,i)=>dfsPoolRow(p,i,cap,valueLeaders,handcuffs)).join("")
                 : `<div class="state-empty" style="margin:20px 0;min-height:110px"><div><b>0</b><span>NO PLAYERS AT THAT POSITION</span></div></div>`}
             </div>`;
           })()}

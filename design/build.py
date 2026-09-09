@@ -551,7 +551,7 @@ def live_dfs_yahoo(available):
         pos = "DST" if r["pos"] == "DEF" else r["pos"]
         players.append({
             "n": name, "pos": pos, "team": r["team"], "sal": r["salary"], "proj": r["fppg"],
-            "status": badge, "slug": slug if slug in available else None,
+            "status": badge, "slug": slug if slug in available else None, "game": r.get("game"),
         })
     if not players:
         return None
