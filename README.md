@@ -9,7 +9,7 @@ Live: deployed on Vercel from `index.html`.
 |---|---|---|
 | 01 | My teams | roster board with trend sparkline, position rank, news badge; player drawer; waiver swap cards; the players who start for **both** teams |
 | 02 | The pool | every player who logged a snap, on a usage-against-luck scatter — role growing, points lagging, and the four quadrants that follow |
-| 03 | Builder | parlay slip with model-vs-book edge and a correlated-legs warning, or a DFS lineup against a salary cap |
+| 03 | Builder | parlay slip with model-vs-book edge and a correlated-legs warning, or a DFS lineup against a salary cap — Yahoo (live) or DraftKings (sample) |
 
 Rosters and team names are pulled live from the `ff-jarvis` repo. Trend, rank, news, pool and
 builder content are sample data, replaced later by the `team-watch` skill. See
@@ -29,6 +29,10 @@ both files work offline.
 The build also reads `ff-jarvis/data/{espn_rosters,league_rosters}.json` and injects the live
 rosters. If those files are missing it falls back to the copies inside the template, so the page
 always renders.
+
+Yahoo's DFS pool in the Builder reads `data/dfs_yahoo.csv` — a contest's own "Export Player
+List" CSV, saved by hand (Yahoo has no public API for this). Re-download it before a build to
+refresh salaries and injury statuses; without it the Yahoo mode falls back to sample data.
 
 ## Layout
 

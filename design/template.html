@@ -1313,8 +1313,9 @@ let SLIP_MODE = HAS_MODEL ? "best" : "mine";
 let SLIP = presetSlip(SLIP_MODE);
 const slotGames = slot => new Set(PROPS.filter(p => !slot || p.slot === slot).map(p => p.game)).size;
 
-/* Yahoo DFS pool. Salaries are the whole contest, not my league. */
-const DFSPOOL = [
+/* DraftKings pool. Salaries are the whole contest, not my league. Sample only — no live
+   DraftKings export is wired yet (see DFSPOOL_YAHOO below for the Yahoo side). */
+const DFSPOOL_DK = [
   {n:"De'Von Achane",     slug:"devon-achane",     pos:"RB", team:"MIA", sal:8400, proj:21.1, own:32, mine:1},
   {n:"Amon-Ra St. Brown", slug:"amonra-st-brown",  pos:"WR", team:"DET", sal:8100, proj:19.8, own:27, mine:1},
   {n:"Derrick Henry",     slug:"derrick-henry",    pos:"RB", team:"BAL", sal:7900, proj:18.9, own:24, mine:1},
@@ -1335,6 +1336,14 @@ const DFSPOOL = [
   {n:"Dylan Sampson",     slug:"dylan-sampson",    pos:"RB", team:"CLE", sal:2900, proj:7.9,  own:6},
   {n:"Seahawks",          slug:null, abbr:"SEA",   pos:"DST",team:"SEA", sal:2700, proj:7.4,  own:9},
 ];
+/* Yahoo pool. `LIVE_DFS_YAHOO` comes from a contest's own "Export Player List" CSV
+   (data/dfs_yahoo.csv, refetched by hand — Yahoo has no public API for this), injected by
+   build.py. Yahoo's cap is $200, not DraftKings' $50,000, so salaries here are a different
+   scale; `own` isn't in Yahoo's export, so live rows carry none. Sample below (DK scale / 42,
+   roughly matching Yahoo's $10-$40 range) is the fallback. */
+const LIVE_YAHOO_DFS = (typeof LIVE_DFS_YAHOO !== "undefined" && LIVE_DFS_YAHOO) ? LIVE_DFS_YAHOO : null;
+const DFSPOOL_YAHOO_SAMPLE = DFSPOOL_DK.map(p => ({...p, sal: Math.round(p.sal/200)}));
+const DFSPOOL_YAHOO = LIVE_YAHOO_DFS ? LIVE_YAHOO_DFS.players : DFSPOOL_YAHOO_SAMPLE;
 
 let MKT_POS = "ALL", MKT_KIND = "ALL", MKT_SLOT = "ALL", MKT_MINE = false, DFS_POS = "ALL";
 /* Card order. "edge" ranks by what the price leaves on the table; "model" by the model's chance
@@ -1346,7 +1355,7 @@ const SORTS = {
   model: (a,b) => (typeof b.model === "number") - (typeof a.model === "number") || (b.model||0) - (a.model||0) || (b.mine||0) - (a.mine||0),
 };
 
-const DFS = [
+const DFS_DK = [
   {slot:"QB",   n:"Jared Goff",        slug:"jared-goff",       sal:6200, proj:18.4, own:14},
   {slot:"RB",   n:"De'Von Achane",     slug:"devon-achane",     sal:8400, proj:21.1, own:32},
   {slot:"RB",   n:"Chase Brown",       slug:"chase-brown",      sal:5900, proj:14.2, own:19},
@@ -1357,7 +1366,21 @@ const DFS = [
   {slot:"FLEX", n:null},
   {slot:"D/ST", n:"Seahawks",          slug:null, abbr:"SEA",   sal:2700, proj:7.4,  own:9},
 ];
-const CAP = 50000;
+const CAP_DK = 50000;
+/* Yahoo's own slate: no curated sample lineup to seed it with, so every slot starts vacant
+   whichever way DFS_SITE points. */
+const DFS_YAHOO = ["QB","RB","RB","WR","WR","WR","TE","FLEX","DST"].map(slot => ({slot, n:null}));
+const CAP_YAHOO = 200;
+
+/* Which book the DFS half of the builder shows. Parlay/DFS is BUILD_MODE; this is the second
+   toggle, live only inside DFS mode. */
+let DFS_SITE = "yahoo";
+function dfsSite(){
+  return DFS_SITE === "dk"
+    ? {key:"dk", label:"DraftKings", cap:CAP_DK, pool:DFSPOOL_DK, lineup:DFS_DK, when:null}
+    : {key:"yahoo", label:"Yahoo", cap:CAP_YAHOO, pool:DFSPOOL_YAHOO, lineup:DFS_YAHOO,
+       when: LIVE_YAHOO_DFS ? LIVE_YAHOO_DFS.fetched : null};
+}
 
 let BUILD_MODE = "parlay";
 
@@ -1390,30 +1413,33 @@ function propCard(p, i){
   </div>`;
 }
 
-function dfsPoolRow(p, i){
-  const value = (p.proj / (p.sal/1000)).toFixed(2);
+const INJ = {Q:"Q", O:"O", OUT:"OUT", IR:"IR", SUSP:"SUSP", PUP:"PUP", D:"D"};
+function dfsPoolRow(p, i, cap){
+  const value = (p.proj / (p.sal/(cap/50))).toFixed(2);
+  const status = INJ[p.status] || (p.status ? p.status : null);
   return `<div class="prow dfsrow ${p.mine?"mine":""}" style="animation-delay:${40+i*18}ms" data-dfs="${i}" role="button" tabindex="0">
     <div>${HEADS[p.slug] ? `<img class="pool-head" src="${HEADS[p.slug]}" alt="">`
         : `<div class="pool-head" style="display:grid;place-items:center;font-family:var(--mono);font-size:11px;color:var(--ink-3)">${esc(p.abbr||initials(p.n))}</div>`}</div>
-    <div class="pname"><b>${esc(p.n)}</b><span>${esc(p.pos)} · ${esc(p.team)}</span></div>
+    <div class="pname"><b>${esc(p.n)}${status ? ` <span class="tag ${status==="Q"?"q":"o"}">${esc(status)}</span>` : ""}</b><span>${esc(p.pos)} · ${esc(p.team)}</span></div>
     <div class="pnum">$${p.sal.toLocaleString()}</div>
     <div class="pnum">${p.proj.toFixed(1)}</div>
     <div class="pnum ${value>2.6?"pos":""}">${value}</div>
-    <div class="pnum" style="color:var(--ink-2)">${p.own}%</div>
+    <div class="pnum" style="color:var(--ink-2)">${typeof p.own === "number" ? `${p.own}%` : "—"}</div>
     <div><button class="chip" tabindex="-1">+ Add</button></div>
   </div>`;
 }
 
 function marketHead(kind){
   const f = (typeof LIVE_FEED !== "undefined" && LIVE_FEED) ? LIVE_FEED.fetched : {};
-  const when = kind === "props" ? (LIVE_MARKET ? LIVE_MARKET.fetched : null) : f.dfs;
+  const site = kind === "dfs" ? dfsSite() : null;
+  const when = kind === "props" ? (LIVE_MARKET ? LIVE_MARKET.fetched : null) : site.when;
   return `<div class="mkthead">
     <div>
-      <span class="lbl">${kind === "props" ? "Player prop market" : "Yahoo DFS player pool"}</span>
+      <span class="lbl">${kind === "props" ? "Player prop market" : `${site.label} DFS player pool`}</span>
       <div class="mktsrc">${kind === "props"
         ? `${PROPS.length} priced lines · ${new Set(PROPS.map(p=>p.n)).size} players · ${new Set(PROPS.map(p=>p.game)).size} games · ${BOOKS.join(", ")}${LIVE_MARKET ? "" : " · SAMPLE"}`
           + (LIVE_MARKET && LIVE_MARKET.model ? `<br>Model: ${LIVE_MARKET.model.modeled} lines priced from games through ${esc(LIVE_MARKET.model.through)}. MODEL % is the chance the over hits, from the player's own last 24 games. EDGE is that minus the break-even of the over's price, in points: +5 means the model has it five points better than the book needs.` : "")
-        : `${DFSPOOL.length} players · $50,000 cap · salaries as posted`}</div>
+        : `${site.pool.length} players · $${site.cap.toLocaleString()} cap · salaries as posted${site.key==="yahoo" && !LIVE_YAHOO_DFS ? " · SAMPLE" : ""}`}</div>
     </div>
     <span class="pill ${when?"":"warn"}">${when ? `Fetched ${esc(when)}`
       : (kind === "props" ? "No props pulled yet" : "No salary export loaded")}</span>
@@ -1477,14 +1503,17 @@ function slipHTML(){
 }
 
 function dfsHTML(){
+  const site = dfsSite();
+  const DFS = site.lineup, CAP = site.cap;
   const filled = DFS.filter(d=>d.n);
   const spent = filled.reduce((a,d)=>a+d.sal,0);
   const proj  = filled.reduce((a,d)=>a+d.proj,0);
-  const own   = filled.reduce((a,d)=>a+d.own,0);
+  const hasOwn = filled.some(d=>typeof d.own === "number");
+  const own   = filled.reduce((a,d)=>a+(d.own||0),0);
   const pct   = Math.min(100, (spent/CAP)*100);
   const open = DFS.filter(d=>!d.n).length;
   return `<div class="slip">
-    <div class="sliphead"><span class="lbl">My lineup</span>
+    <div class="sliphead"><span class="lbl">My ${esc(site.label)} lineup</span>
       <span class="pill">${filled.length}/${DFS.length} filled</span></div>
     ${DFS.map(d => d.n ? `
       <div class="lslot">
@@ -1492,7 +1521,7 @@ function dfsHTML(){
         ${HEADS[d.slug] ? `<img src="${HEADS[d.slug]}" alt="">` : `<div class="fallback">${esc(d.abbr || initials(d.n))}</div>`}
         <div style="min-width:0">
           <div class="sn">${esc(d.n)}</div>
-          <div class="sm">${d.proj.toFixed(1)} PROJ · ${d.own}% OWN</div>
+          <div class="sm">${d.proj.toFixed(1)} PROJ${typeof d.own === "number" ? ` · ${d.own}% OWN` : ""}</div>
         </div>
         <div class="lsal">$${d.sal.toLocaleString()}</div>
       </div>` : `
@@ -1506,7 +1535,7 @@ function dfsHTML(){
       <div class="payrow"><span>LEFT FOR ${open} SLOT${open===1?"":"S"}</span>
         <b style="color:var(--lime)">$${(CAP-spent).toLocaleString()}</b></div>
       <div class="payrow"><span>PROJECTED</span><b>${proj.toFixed(1)}</b></div>
-      <div class="payrow"><span>SUMMED OWNERSHIP</span><b>${own}%</b></div>
+      ${hasOwn ? `<div class="payrow"><span>SUMMED OWNERSHIP</span><b>${own}%</b></div>` : ""}
       <button class="btn" style="width:100%;margin-top:14px">Export lineup</button>
     </div>
   </div>`;
@@ -1515,7 +1544,7 @@ function dfsHTML(){
 function builderHTML(){
   const parlay = BUILD_MODE === "parlay";
   return `<section class="hero">
-    <div class="numghost">${parlay ? SLIP.length : DFS.filter(d=>d.n).length}</div>
+    <div class="numghost">${parlay ? SLIP.length : dfsSite().lineup.filter(d=>d.n).length}</div>
     <div class="wrap hero-in">
       <div>
         <div class="hero-eyebrow" style="--tint:var(--lime)">
@@ -1542,6 +1571,10 @@ function builderHTML(){
       <button class="mode" data-mode="parlay" aria-pressed="${parlay}">Parlay</button>
       <button class="mode" data-mode="dfs" aria-pressed="${!parlay}">DFS lineup</button>
     </div>
+    ${!parlay ? `<div class="modes" style="margin-top:8px">
+      <button class="mode" data-dfssite="yahoo" aria-pressed="${DFS_SITE==="yahoo"}">Yahoo</button>
+      <button class="mode" data-dfssite="dk" aria-pressed="${DFS_SITE==="dk"}">DraftKings</button>
+    </div>` : ""}
     ${parlay ? `
       <div class="build">
         <div>
@@ -1582,14 +1615,15 @@ function builderHTML(){
             <span class="lbl">Position</span>
             ${["ALL","QB","RB","WR","TE","DST"].map(p=>`<button class="chip" data-dpos="${p}" aria-pressed="${DFS_POS===p}">${p}</button>`).join("")}
             <span style="flex:1"></span>
-            <span class="lbl">Value = points per $1,000</span>
+            <span class="lbl">Value = points per $${(dfsSite().cap/50).toLocaleString()}</span>
           </div>
           <div class="ptable dfstable">
             <div class="phead"><div></div><div>Player</div><div>Salary</div><div>Proj</div>
               <div>Value</div><div>Own</div><div></div></div>
             ${(() => {
-              const rows = DFSPOOL.filter(p => DFS_POS==="ALL"||p.pos===DFS_POS);
-              return rows.length ? rows.map((p,i)=>dfsPoolRow(p,i)).join("")
+              const cap = dfsSite().cap;
+              const rows = dfsSite().pool.filter(p => DFS_POS==="ALL"||p.pos===DFS_POS);
+              return rows.length ? rows.map((p,i)=>dfsPoolRow(p,i,cap)).join("")
                 : `<div class="state-empty" style="margin:20px 0;min-height:110px"><div><b>0</b><span>NO PLAYERS AT THAT POSITION</span></div></div>`;
             })()}
           </div>
@@ -1649,6 +1683,9 @@ function render(){
     }));
     v.querySelectorAll("[data-dpos]").forEach(b=>b.addEventListener("click",()=>{
       DFS_POS = b.dataset.dpos; render();
+    }));
+    v.querySelectorAll("[data-dfssite]").forEach(b=>b.addEventListener("click",()=>{
+      DFS_SITE = b.dataset.dfssite; render();
     }));
     v.querySelectorAll("[data-mine]").forEach(b=>b.addEventListener("click",()=>{
       MKT_MINE = !MKT_MINE; render();

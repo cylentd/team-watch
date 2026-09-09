@@ -49,7 +49,8 @@ so the numbers are readable.
 
 Two modes. **Parlay**: candidate legs with model probability against the book price, an edge bar
 per leg, and a slip that warns when two legs share a game (correlated legs are one bet, not two).
-**DFS**: nine slots against a $50,000 cap, salary bar, summed ownership, and a styled empty slot.
+**DFS**: nine slots against a cap, salary bar, summed ownership, and a styled empty slot — a second
+toggle picks Yahoo ($200 cap, live from `data/dfs_yahoo.csv`) or DraftKings ($50,000 cap, sample).
 
 ## Direction
 

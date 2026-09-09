@@ -18,6 +18,7 @@ DWR = pathlib.Path("C:/Users/David/Github/ff-jarvis/data")
 ESPN_ROSTERS = DWR / "espn_rosters.json"
 YAHOO_ROSTERS = DWR / "league_rosters.json"
 BP_PROPS = DWR / "bettingpros_props.json"
+DFS_YAHOO_CSV = ROOT.parent / "data" / "dfs_yahoo.csv"
 
 SUFFIXES = {"jr", "sr", "ii", "iii", "iv", "v"}
 
@@ -380,10 +381,46 @@ def live_yahoo(available):
             "updated": d["updated"], "roster": out}
 
 
+def live_dfs_yahoo(available):
+    """Yahoo's own contest salary export. Yahoo has no public API for this — it's saved by hand
+    from a contest's "Export Player List" link (a `contestPlayers` CSV) to `data/dfs_yahoo.csv`
+    and re-fetched before each build. `sal` and `proj` (FPPG) are Yahoo's own $200-cap scale, not
+    DraftKings'; `status` is Yahoo's Injury Status column, blank means active."""
+    if not DFS_YAHOO_CSV.exists():
+        return None
+    import csv
+    rows = csv.DictReader(DFS_YAHOO_CSV.read_text(encoding="utf-8-sig").splitlines())
+    players = []
+    for r in rows:
+        try:
+            sal = int(r["Salary"])
+            proj = float(r["FPPG"])
+        except (KeyError, ValueError, TypeError):
+            continue
+        pos = "DST" if r["Position"] == "DEF" else r["Position"]
+        name = f"{r['First Name']} {r['Last Name']}".strip()
+        slug = slugify(name)
+        status = (r.get("Injury Status") or "").strip()
+        players.append({
+            "n": name, "pos": pos, "team": r["Team"], "sal": sal, "proj": proj,
+            "status": status or None, "slug": slug if slug in available else None,
+        })
+    if not players:
+        return None
+    players.sort(key=lambda p: -p["sal"])
+    mtime = dt.datetime.fromtimestamp(DFS_YAHOO_CSV.stat().st_mtime, LOCAL_TZ)
+    return {
+        "fetched": mtime.strftime("%a %I:%M%p").replace(" 0", " "),
+        "source": "Yahoo contest export (manual)",
+        "players": players,
+    }
+
+
 def main():
     available = {p.stem for p in HEADS_SRC.glob("*.webp")}
     live = live_espn(available)
     liveY = live_yahoo(available)
+    liveDfsYahoo = live_dfs_yahoo(available)
 
     props = live_props(available, roster_index(("espn", live), ("yahoo", liveY)))
 
@@ -393,6 +430,8 @@ def main():
             wanted += [p["slug"] for p in src["roster"] if p["slug"]]
     if props:
         wanted += [p["slug"] for p in props["props"] if p["slug"]]
+    if liveDfsYahoo:
+        wanted += [p["slug"] for p in liveDfsYahoo["players"] if p["slug"]]
 
     heads = {}
     missing = []
@@ -409,7 +448,8 @@ def main():
         "const LIVE_ESPN = " + json.dumps(live) + ";\n"
         "const LIVE_YAHOO = " + json.dumps(liveY) + ";\n"
         "const LIVE_FEED = " + json.dumps(live_feed()) + ";\n"
-        "const LIVE_PROPS = " + json.dumps(props) + ";"
+        "const LIVE_PROPS = " + json.dumps(props) + ";\n"
+        "const LIVE_DFS_YAHOO = " + json.dumps(liveDfsYahoo) + ";"
     )
     tpl = (ROOT / "template.html").read_text(encoding="utf-8")
     body = tpl.replace("/*__HEADS__*/", injected)
@@ -458,6 +498,10 @@ def main():
             print("Model: no props_model.json, every card says pending")
     else:
         print("Props: no BettingPros file, template falls back to its sample")
+    if liveDfsYahoo:
+        print(f"Yahoo DFS: {len(liveDfsYahoo['players'])} players, pulled {liveDfsYahoo['fetched']}")
+    else:
+        print("Yahoo DFS: no data/dfs_yahoo.csv, template falls back to its sample")
     if missing:
         print(f"no headshot for {len(missing)} slugs (initials fallback renders)")
 
