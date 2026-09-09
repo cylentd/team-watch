@@ -1470,6 +1470,20 @@ const bookLine = p => !p.books ? `BOOK ${p.book}`
     + (p.games ? ` · ${p.games} GP` : "")
     + (p.opp_f ? ` · ${esc(p.opp)} D ${Math.round(Math.abs(p.opp_f - 1) * 100) === 0 ? "±0" : (p.opp_f >= 1 ? "+" : "−") + Math.round(Math.abs(p.opp_f - 1) * 100)}%` : "");
 const ud = p => p.books && p.books.Underdog;
+/* Underdog carries no anytime-TD line in this feed at all (checked 2026-09-10: 0 of 430 TD rows
+   have an Underdog price -- their pick'em board just isn't in what BettingPros scrapes here). A
+   TD leg is still a higher/lower call at heart (score one, or don't), and the model's P(score) is
+   the same number a real 0.5-line price would need, so TD derives its pick from the model
+   instead of sitting out of Underdog mode entirely. `synthetic: true` marks the difference
+   everywhere this is shown -- it is a model read, never passed off as an Underdog price. */
+function udPick(p){
+  const real = ud(p);
+  if (real && typeof real.conf === "number") return real;
+  if (p.mkt === "TD" && typeof p.model === "number")
+    return {pick: p.model >= 50 ? "higher" : "lower",
+            conf: Math.round(Math.max(p.model, 100 - p.model)), line: null, synthetic: true};
+  return null;
+}
 
 /* Kickoff windows: build.py splits each time-of-day bucket by calendar date so a window never
    mixes two different days (the old "evening" spanned Thursday/Sunday/Monday night at once).
@@ -1500,14 +1514,20 @@ const scopeOK = (p, s) => s === "tds" ? p.mkt === "TD" : s === "mix" ? true : p.
    to break even at 6x), ranked by that confidence. A 0.5-reception or 12.5-yard line is
    confidence for free and Underdog knows it, so those lines are skipped too. */
 const UD_MIN = 58;
-const legOKInBook = (p, s, book) => book === "underdog"
-  ? ud(p) && ud(p).conf >= UD_MIN && (p.games||0) >= 8 && playing(p) && !ud(p).stale && scopeOK(p, s)
-    && (p.mkt === "RECS" ? ud(p).line >= 2.5 : ud(p).line >= 15)
-  : typeof p.edge === "number" && p.edge > 0 && (p.games||0) >= 8 && playing(p)
-    && scopeOK(p, s) && p.book === "DraftKings"
-    && (p.mkt === "TD" ? (p.model >= 30 && overPrice(p) >= -300 && overPrice(p) <= 600)
-                       : (p.model >= 35 && p.model <= 85 && overPrice(p) >= -300 && overPrice(p) <= 200));
-const legMetric = (book) => book === "underdog" ? (p => ud(p).conf) : (p => p.edge);
+const legOKInBook = (p, s, book) => {
+  if (book !== "underdog")
+    return typeof p.edge === "number" && p.edge > 0 && (p.games||0) >= 8 && playing(p)
+      && scopeOK(p, s) && p.book === "DraftKings"
+      && (p.mkt === "TD" ? (p.model >= 30 && overPrice(p) >= -300 && overPrice(p) <= 600)
+                         : (p.model >= 35 && p.model <= 85 && overPrice(p) >= -300 && overPrice(p) <= 200));
+  const u = udPick(p);
+  return u && u.conf >= UD_MIN && (p.games||0) >= 8 && playing(p) && !u.stale && scopeOK(p, s)
+    // The line-size floor (a 0.5-reception or 12.5-yard line is confidence for free) only means
+    // anything for a real yardage/receptions line; a TD pick has no line to be thin, it is
+    // whichever side the model favors.
+    && (p.mkt === "TD" ? true : p.mkt === "RECS" ? u.line >= 2.5 : u.line >= 15);
+};
+const legMetric = (book) => book === "underdog" ? (p => udPick(p).conf) : (p => p.edge);
 function pickLegs(cands, key, allowSameGame){
   const seenG = new Set(), seenP = new Set(), out = [];
   cands.sort((a,b) => key(b[0]) - key(a[0])).forEach(([p,i]) => {
@@ -1528,7 +1548,7 @@ function bestSlipIn(scope, winKey, book){
 function mineSlip(book){
   if (!LIVE_MARKET) return [1,2,5];
   const seen = new Set(), out = [];
-  const ok = book === "underdog" ? p => !!ud(p) : p => p.mkt !== "TD";
+  const ok = book === "underdog" ? p => !!udPick(p) : p => p.mkt !== "TD";
   PROPS.forEach((p,i) => { if (p.mine && ok(p) && !seen.has(p.game) && out.length < SLIP_LEGS){ seen.add(p.game); out.push(i); } });
   return out;
 }
@@ -1621,7 +1641,7 @@ let MKT_SORT = "edge";
 const SORTS = {
   edge:  (a,b) => (typeof b.edge === "number") - (typeof a.edge === "number") || (b.edge||0) - (a.edge||0) || (b.mine||0) - (a.mine||0),
   model: (a,b) => (typeof b.model === "number") - (typeof a.model === "number") || (b.model||0) - (a.model||0) || (b.mine||0) - (a.mine||0),
-  conf:  (a,b) => (ud(b)?ud(b).conf:-1) - (ud(a)?ud(a).conf:-1) || (b.mine||0) - (a.mine||0),
+  conf:  (a,b) => (udPick(b)?udPick(b).conf:-1) - (udPick(a)?udPick(a).conf:-1) || (b.mine||0) - (a.mine||0),
 };
 
 const DFS_DK = [
@@ -1782,17 +1802,18 @@ const propLabel = p => p.line === null ? MKT[p.mkt] : `${MKT[p.mkt]} o${p.line}`
    priced-against-a-vig DK line. */
 function udPropCard(p, i){
   const inSlip = SLIP.includes(i);
-  const u = ud(p);
+  const u = udPick(p);
   const tag = (p.flag === "out" ? `<span class="tag t-out">OUT${p.injury_note ? " · " + esc(p.injury_note) : ""}</span>`
     : p.flag === "q" ? `<span class="tag t-q">Q${p.injury_note ? " · " + esc(p.injury_note) : ""}</span>`
     : p.flag === "backup" ? `<span class="tag t-bk">${esc(p.pos)}${p.depth}</span>` : "")
-    + (u.stale ? `<span class="tag t-role" title="The book's line is far from last season's rate: the role changed and the model has not caught up. Not slip material.">ROLE?</span>` : "");
+    + (u.stale ? `<span class="tag t-role" title="The book's line is far from last season's rate: the role changed and the model has not caught up. Not slip material.">ROLE?</span>` : "")
+    + (u.synthetic ? `<span class="tag t-bk" title="Underdog carries no anytime-TD line to read here -- this pick comes straight from the model's chance of scoring, not a price Underdog posted.">MODEL</span>` : "");
   const log = LIVE_MARKET && LIVE_MARKET.logs && p.slug ? LIVE_MARKET.logs[p.slug] : (LIVE_MARKET && LIVE_MARKET.logs ? LIVE_MARKET.logs[slugOf(p.n)] : null);
   const open = EXPANDED.has(i);
   return `<div class="leg ${p.mine?"mine":""} ${inSlip?"inslip":""} ${p.flag==="out"?"isout":""} ${open?"open":""}" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">
     ${HEADS[p.slug] ? `<img src="${HEADS[p.slug]}" alt="">` : `<div class="fallback">${esc(initials(p.n))}</div>`}
     <div>
-      <div class="prop">${esc(p.n)} · ${esc(MKT[p.mkt])} ${u.line}${tag ? " " + tag : ""}</div>
+      <div class="prop">${esc(p.n)} · ${esc(MKT[p.mkt])}${u.line !== null ? ` ${u.line}` : ""}${tag ? " " + tag : ""}</div>
       <div class="book">${esc(p.pos)} · ${esc(p.game)}${p.kick ? ` · ${esc(p.kick)}` : ""}</div>
     </div>
     <div class="o udpick ${u.pick||""}">${u.pick ? u.pick.toUpperCase() : "—"}<span class="conf">${typeof u.conf === "number" ? u.conf+"%" : "PENDING"}</span></div>
@@ -2074,7 +2095,7 @@ function modelCardHTML(){
 function slipText(picks){
   const legs = SLIP.map(i=>PROPS[i]);
   const lines = legs.map(l => picks
-    ? `${l.n} ${MKT[l.mkt]} ${ud(l).pick} ${ud(l).line} (Underdog) · model ${ud(l).conf}%`
+    ? `${l.n} ${MKT[l.mkt]} ${udPick(l).pick}${udPick(l).line !== null ? ` ${udPick(l).line}` : ""} (${udPick(l).synthetic ? "model" : "Underdog"}) · ${udPick(l).conf}%`
     : `${l.n} ${propLabel(l)} ${fmtAm(overPrice(l))} (${l.books ? l.book : "book"})${typeof l.model === "number" ? ` · model ${l.model}%${typeof l.edge === "number" ? `, edge ${l.edge>0?"+":""}${l.edge.toFixed(1)}` : ""}` : ""}`);
   return lines.join("\n") + `\nTeam Watch · ${LIVE_MARKET ? "lines " + LIVE_MARKET.fetched : "sample lines"}`;
 }
@@ -2094,23 +2115,23 @@ function slipHTML(){
   const pct = x => `${(x*100).toFixed(1)}%`;
   const udMode = PARLAY_BOOK === "underdog";
   const title = SLIP_MODE === "mine" ? "My players" : udMode ? "Underdog picks" : "Your slip";
-  const udP = udMode && legs.length ? legs.reduce((a,l)=>a*ud(l).conf/100, 1) : null;
+  const udP = udMode && legs.length ? legs.reduce((a,l)=>a*udPick(l).conf/100, 1) : null;
   const chips = `<div class="presets">
     ${PRESETS.map(([k,label]) =>
       `<button class="chip" data-preset="${k}" aria-pressed="${SLIP_MODE===k}">${label}</button>`).join("")}</div>`;
   if (udMode) return `<div class="slip">
     <div class="sliphead"><span class="lbl">${title}</span><span class="pill">${legs.length} picks</span></div>
     ${chips}
-    ${legs.length ? legs.map(l=>`<div class="slipleg">
-      <div><div class="p">${esc(l.n)}</div><div class="m">${esc(MKT[l.mkt].toUpperCase())} ${ud(l).line}${l.kick ? ` · ${esc(l.kick.toUpperCase())}` : ""}</div></div>
-      <div class="o udpick ${ud(l).pick||""}">${ud(l).pick ? ud(l).pick.toUpperCase() : "—"}<span class="conf">${typeof ud(l).conf === "number" ? ud(l).conf+"%" : "PENDING"}</span></div></div>`).join("")
-      : `<div class="state-empty" style="margin:14px 15px;min-height:90px"><div><b>0</b><span>NO UNDERDOG LINE THE MODEL PUTS PAST ${UD_MIN}%</span></div></div>`}
+    ${legs.length ? legs.map(l=>{ const u = udPick(l); return `<div class="slipleg">
+      <div><div class="p">${esc(l.n)}</div><div class="m">${esc(MKT[l.mkt].toUpperCase())}${u.line !== null ? ` ${u.line}` : ""}${l.kick ? ` · ${esc(l.kick.toUpperCase())}` : ""}${u.synthetic ? " · MODEL" : ""}</div></div>
+      <div class="o udpick ${u.pick||""}">${u.pick ? u.pick.toUpperCase() : "—"}<span class="conf">${typeof u.conf === "number" ? u.conf+"%" : "PENDING"}</span></div></div>`;}).join("")
+      : `<div class="state-empty" style="margin:14px 15px;min-height:90px"><div><b>0</b><span>NO PICK THE MODEL PUTS PAST ${UD_MIN}%</span></div></div>`}
     <div class="payout">
       <span class="lbl">All picks hit</span>
       <div class="bigedge">${udP === null ? "—" : `${(udP*100).toFixed(1)}%`}</div>
       <div class="payrow"><span>BREAK-EVEN IF IT PAYS 6×</span><b>16.7%</b></div>
       <div class="payrow"><span>BREAK-EVEN IF IT PAYS 3×</span><b>33.3%</b></div>
-      <div class="payrow"><span>PICKS ARE AT UNDERDOG'S LINE</span><b>NOT DK'S</b></div>
+      <div class="payrow"><span>${legs.some(l=>udPick(l).synthetic) ? "TD PICKS ARE MODEL-READ" : "PICKS ARE AT UNDERDOG'S LINE"}</span><b>${legs.some(l=>udPick(l).synthetic) ? "NOT AN UD PRICE" : "NOT DK'S"}</b></div>
       <button class="btn" data-copy="picks" style="width:100%;margin-top:14px" ${legs.length ? "" : "disabled"}>Copy picks</button>
     </div>
   </div>`;
@@ -2208,16 +2229,16 @@ function presetCard(card){
   const games = new Set(legs.map(l=>l.game));
   const sameGame = games.size < legs.length;
   const best = card === GALLERY_BEST[card.book];
-  const legRows = legs.map(l => card.book === "underdog"
+  const legRows = legs.map(l => { const u = card.book === "underdog" ? udPick(l) : null; return card.book === "underdog"
     ? `<div class="slipleg">
-        <div><div class="p">${esc(l.n)}</div><div class="m">${esc(MKT[l.mkt].toUpperCase())} ${ud(l).line}${l.kick ? ` · ${esc(l.kick.toUpperCase())}` : ""}</div></div>
-        <div class="o udpick ${ud(l).pick||""}">${ud(l).pick ? ud(l).pick.toUpperCase() : "—"}<span class="conf">${typeof ud(l).conf === "number" ? ud(l).conf+"%" : "PENDING"}</span></div></div>`
+        <div><div class="p">${esc(l.n)}</div><div class="m">${esc(MKT[l.mkt].toUpperCase())}${u.line !== null ? ` ${u.line}` : ""}${l.kick ? ` · ${esc(l.kick.toUpperCase())}` : ""}${u.synthetic ? " · MODEL" : ""}</div></div>
+        <div class="o udpick ${u.pick||""}">${u.pick ? u.pick.toUpperCase() : "—"}<span class="conf">${typeof u.conf === "number" ? u.conf+"%" : "PENDING"}</span></div></div>`
     : `<div class="slipleg">
         <div><div class="p">${esc(l.n)}</div><div class="m">${esc(propLabel(l).toUpperCase())}${l.kick ? ` · ${esc(l.kick.toUpperCase())}` : ""}</div></div>
-        <div class="o">${esc(fmtAm(overPrice(l)))}</div></div>`).join("");
+        <div class="o">${esc(fmtAm(overPrice(l)))}</div></div>`; }).join("");
   let footer;
   if (card.book === "underdog"){
-    const udP = legs.reduce((a,l)=>a*ud(l).conf/100, 1);
+    const udP = legs.reduce((a,l)=>a*udPick(l).conf/100, 1);
     footer = `<div class="payrow"><span>ALL PICKS HIT</span><b class="pos">${(udP*100).toFixed(1)}%</b></div>
       <div class="payrow"><span>BREAK-EVEN AT 6×</span><b>16.7%</b></div>`;
   } else {
@@ -2302,7 +2323,7 @@ function parlayHTML(){
       </div>
       <div><div class="signals">
         ${PARLAY_BOOK === "underdog" ? `
-        <div class="sig up"><div class="lbl">Picks past 58%</div><div class="sig-val">${PROPS.filter(p=>ud(p)&&typeof ud(p).conf==="number"&&ud(p).conf>=UD_MIN).length}</div><div class="sig-sub">OF ${PROPS.filter(p=>ud(p)).length} PRICED ON UD</div></div>`
+        <div class="sig up"><div class="lbl">Picks past 58%</div><div class="sig-val">${PROPS.filter(p=>{const u=udPick(p); return u&&u.conf>=UD_MIN;}).length}</div><div class="sig-sub">OF ${PROPS.filter(p=>udPick(p)).length} RATED</div></div>`
         : hasModel ? `
         <div class="sig up"><div class="lbl">Legs with edge</div><div class="sig-val">${PROPS.filter(p=>p.edge>0).length}</div><div class="sig-sub">OF ${PROPS.length} PRICED</div></div>` : `
         <div class="sig up"><div class="lbl">Lines priced</div><div class="sig-val">${PROPS.length}</div><div class="sig-sub">${new Set(PROPS.map(p=>p.n)).size} PLAYERS</div></div>
@@ -2329,9 +2350,7 @@ function parlayHTML(){
         <div class="filters" style="margin-top:8px">
           <label class="selwrap"><span class="lbl">Market</span>
             <select class="msel" data-msel="mkind">
-              ${(PARLAY_BOOK === "underdog"
-                ? [["ALL","All"],["RUSH","Rush yds"],["REC","Rec yds"],["RECS","Receptions"],["PASS","Pass yds"]]
-                : [["ALL","All"],["TD","Anytime TD"],["RUSH","Rush yds"],["REC","Rec yds"],["RECS","Receptions"],["PASS","Pass yds"]])
+              ${[["ALL","All"],["TD","Anytime TD"],["RUSH","Rush yds"],["REC","Rec yds"],["RECS","Receptions"],["PASS","Pass yds"]]
                 .map(([k,label])=>`<option value="${k}" ${MKT_KIND===k?"selected":""}>${label}</option>`).join("")}
             </select>
           </label>
@@ -2352,9 +2371,9 @@ function parlayHTML(){
         ${(() => {
           const all = PROPS.filter(p => (MKT_POS==="ALL"||p.pos===MKT_POS) && (MKT_KIND==="ALL"||p.mkt===MKT_KIND)
             && (MKT_WIN==="ALL"||p.win===MKT_WIN) && (!MKT_MINE||p.mine)
-            // Underdog price without a model rating yet has no higher/lower call to show --
-            // conf (and therefore pick) undefined is "model pending", not zero.
-            && (PARLAY_BOOK !== "underdog" || (ud(p) && typeof ud(p).conf === "number"))).sort(SORTS[MKT_SORT]);
+            // A real Underdog price without a model rating yet has no higher/lower call to
+            // show; udPick covers that plus the TD rows Underdog has no line for at all.
+            && (PARLAY_BOOK !== "underdog" || udPick(p))).sort(SORTS[MKT_SORT]);
           const pages = Math.max(1, Math.ceil(all.length / MKT_PAGE_SIZE));
           const page = Math.min(MKT_PAGE, pages);
           const rows = all.slice((page-1)*MKT_PAGE_SIZE, page*MKT_PAGE_SIZE);
@@ -2618,7 +2637,6 @@ function wireBuilder(v){
   v.querySelectorAll("[data-parlaybook]").forEach(b=>b.addEventListener("click",()=>{
     PARLAY_BOOK = b.dataset.parlaybook;
     MKT_PAGE = 1; MKT_SORT = PARLAY_BOOK === "underdog" ? "conf" : "edge";
-    if (PARLAY_BOOK === "underdog" && MKT_KIND === "TD") MKT_KIND = "ALL";
     SLIP = []; SLIP_MODE = "blank";
     render();
   }));

@@ -68,10 +68,14 @@ per-weekday windows, e.g. "Thursday Night" / "Monday Night", when the week's gam
 than one date) crossed with yards / TDs / mix scope, ranked by model edge, the best one badged.
 Model %/edge and every book's price live behind each line's chevron, not on the row.
 **Underdog**: pick'em, one stat and one tap — the row leads with the model's higher/lower call
-and its confidence (that IS the primary info here, not noise the way DK's model%/edge is), a
-same set of gallery cards built from Underdog-eligible legs (conf ≥ 58%) instead of DK edge,
-ranked by confidence. Switching the toggle clears the cart (a leg's meaning doesn't carry across
-books). Either way: load a card into the cart or tap lines by hand; the cart warns when two legs
+and its confidence (that IS the primary info here, not noise the way DK's model%/edge is; Higher
+green, Lower red, the same up/down tokens as everywhere else), a same set of gallery cards built
+from Underdog-eligible legs (conf ≥ 58%) instead of DK edge, ranked by confidence. Underdog
+carries no anytime-TD price in this feed at all (checked 2026-09-10: 0 of 430 TD rows), so a TD
+pick derives from the model's own chance of scoring instead — tagged `MODEL` on the row and in
+the cart's footer caption, never shown as an Underdog price. Switching the toggle clears the cart
+(a leg's meaning doesn't carry across books). Either way: load a card into the cart or tap lines
+by hand; the cart warns when two legs
 share a game (correlated legs are one bet, not two).
 
 **DFS**: a swipeable rail of precomputed lineups per strategy (an equal-width segmented control,
