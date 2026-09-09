@@ -1,2 +1,6 @@
 .vercel
 node_modules/
+
+# Written by `python -m model.refresh`. It is a local build input — the page bakes it in at
+# build time, so the deployed site never reads it, and it churns on every run.
+data/feed.json

@@ -71,6 +71,34 @@ def live_espn(available):
             "updated": d["updated"], "roster": out}
 
 
+def live_feed():
+    """What `python -m model.refresh` last wrote. Drives the status strip, so the page reports
+    the real state of each source instead of a hardcoded banner. Only the provenance is taken —
+    the payloads stay out of the page until there is something in them."""
+    path = REPO / "data" / "feed.json"
+    if not path.exists():
+        return None
+    try:
+        d = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    usage = (d.get("usage") or {}).get("data") or {}
+    market = d.get("market") or {}
+    return {
+        "generated": d.get("generated"),
+        "steps": d.get("steps", []),
+        "usage_ready": bool(usage.get("ready")),
+        "usage_note": usage.get("note"),
+        "pool_size": len(usage.get("pool") or []),
+        "fetched": {
+            "espn": ((d.get("rosters") or {}).get("espn") or {}).get("fetched"),
+            "yahoo": ((d.get("rosters") or {}).get("yahoo") or {}).get("fetched"),
+            "props": ((market.get("props") or {}).get("fetched")),
+            "dfs": ((market.get("dfs") or {}).get("fetched")),
+        },
+    }
+
+
 def live_yahoo(available):
     """Yahoo comes from a website scrape, so it carries no lineup slot or injury status.
     The template infers slots and says so on the page."""
@@ -114,7 +142,8 @@ def main():
     injected = (
         "const HEADS = " + json.dumps(heads) + ";\n"
         "const LIVE_ESPN = " + json.dumps(live) + ";\n"
-        "const LIVE_YAHOO = " + json.dumps(liveY) + ";"
+        "const LIVE_YAHOO = " + json.dumps(liveY) + ";\n"
+        "const LIVE_FEED = " + json.dumps(live_feed()) + ";"
     )
     tpl = (ROOT / "template.html").read_text(encoding="utf-8")
     body = tpl.replace("/*__HEADS__*/", injected)
