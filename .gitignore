@@ -4,3 +4,6 @@ node_modules/
 # Written by `python -m model.refresh`. It is a local build input — the page bakes it in at
 # build time, so the deployed site never reads it, and it churns on every run.
 data/feed.json
+# Copy of ff-jarvis data/props_model.json that build.py falls back to when the feed lacks the
+# model block (the ff-jarvis checkout is shared and can sit on another branch). Same churn.
+data/props_model.json

@@ -5,8 +5,10 @@ slug -> data-URI map so the page works offline and as a published Artifact.
 Run: python design/build.py
 """
 import base64
+import datetime as dt
 import json
 import pathlib
+import zoneinfo
 
 ROOT = pathlib.Path(__file__).resolve().parent
 REPO = ROOT.parent
@@ -15,8 +17,30 @@ HEADS_SRC = pathlib.Path("C:/Users/David/Github/ff-jarvis/app/public/heads")
 DWR = pathlib.Path("C:/Users/David/Github/ff-jarvis/data")
 ESPN_ROSTERS = DWR / "espn_rosters.json"
 YAHOO_ROSTERS = DWR / "league_rosters.json"
+BP_PROPS = DWR / "bettingpros_props.json"
 
 SUFFIXES = {"jr", "sr", "ii", "iii", "iv", "v"}
+
+# Sportsbooks the builder shows, in display order. BettingPros returns its own consensus line
+# alongside them even when the request filters by book; it is kept per prop as a reference and
+# never listed as a book you can bet at.
+BOOK_ORDER = ["DraftKings", "Underdog"]
+REFERENCE_BOOK = "Consensus"
+POS_ORDER = {"QB": 0, "RB": 1, "WR": 2, "TE": 3}
+MKT_ORDER = {"PASS": 0, "RUSH": 1, "REC": 2, "RECS": 3, "TD": 4}
+# BettingPros team codes that differ from the ESPN/nflverse codes the rest of the page uses.
+TEAM_FIX = {"JAC": "JAX"}
+# The anytime-TD market prices whole teams too; those rows are not players.
+NFL_TEAMS = {
+    "Arizona Cardinals", "Atlanta Falcons", "Baltimore Ravens", "Buffalo Bills",
+    "Carolina Panthers", "Chicago Bears", "Cincinnati Bengals", "Cleveland Browns",
+    "Dallas Cowboys", "Denver Broncos", "Detroit Lions", "Green Bay Packers",
+    "Houston Texans", "Indianapolis Colts", "Jacksonville Jaguars", "Kansas City Chiefs",
+    "Las Vegas Raiders", "Los Angeles Chargers", "Los Angeles Rams", "Miami Dolphins",
+    "Minnesota Vikings", "New England Patriots", "New Orleans Saints", "New York Giants",
+    "New York Jets", "Philadelphia Eagles", "Pittsburgh Steelers", "San Francisco 49ers",
+    "Seattle Seahawks", "Tampa Bay Buccaneers", "Tennessee Titans", "Washington Commanders",
+}
 
 SLUGS = [
     # league-wide pool + builder samples
@@ -95,9 +119,245 @@ def live_feed():
             "yahoo": ((d.get("rosters") or {}).get("yahoo") or {}).get("fetched"),
             "props": ((market.get("props") or {}).get("fetched")),
             "props_bp": ((market.get("props_bp") or {}).get("fetched")),
+            "props_model": ((market.get("props_model") or {}).get("fetched")),
             "dfs": ((market.get("dfs") or {}).get("fetched")),
         },
     }
+
+
+def nfl_roster():
+    """slug -> (pos, team) from the nflverse roster ff-jarvis caches. Optional: without pandas
+    or the file, a touchdown-only name that no yards market identifies is left out."""
+    path = DWR / "cache" / "roster_2026.parquet"
+    try:
+        import pandas as pd
+        d = pd.read_parquet(path, columns=["full_name", "position", "team"])
+    except Exception:
+        return {}
+    out = {}
+    for name, pos, team in d.itertuples(index=False):
+        if pos in POS_ORDER and name:
+            out.setdefault(slugify(name), (pos, team))
+    return out
+
+
+def load_props_raw():
+    """The BettingPros pull, preferring the feed (`market.props_bp`) so the page shows what the
+    scheduled refresh saw. A feed older than the props step lacks the block; then the file the
+    props client wrote is read directly, the same way the rosters are."""
+    feed = REPO / "data" / "feed.json"
+    try:
+        d = json.loads(feed.read_text(encoding="utf-8"))
+        block = ((d.get("market") or {}).get("props_bp") or {}).get("data")
+        if block and block.get("props"):
+            return block, "feed.json"
+    except (OSError, json.JSONDecodeError):
+        pass
+    if BP_PROPS.exists():
+        try:
+            return json.loads(BP_PROPS.read_text(encoding="utf-8")), "ff-jarvis/data"
+        except (OSError, json.JSONDecodeError):
+            return None, None
+    return None, None
+
+
+def load_model_raw():
+    """P(over) per priced line from ff-jarvis's `model.market.props_model`, feed first, file second,
+    the same way the lines themselves are read."""
+    feed = REPO / "data" / "feed.json"
+    try:
+        d = json.loads(feed.read_text(encoding="utf-8"))
+        block = ((d.get("market") or {}).get("props_model") or {}).get("data")
+        if block and block.get("lines"):
+            return block
+    except (OSError, json.JSONDecodeError):
+        pass
+    # Third choice: the copy kept beside the feed. The ff-jarvis checkout can sit on another branch
+    # (two sessions share it), and the refresh then rewrites the feed without the model block.
+    for path in (DWR / "props_model.json", REPO / "data" / "props_model.json"):
+        if path.exists():
+            try:
+                return json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+    return None
+
+
+LOCAL_TZ = zoneinfo.ZoneInfo("America/Los_Angeles")
+UTC = dt.timezone.utc
+
+
+def kickoff(commence):
+    """BettingPros gives kickoff in UTC. Bucket it on David's clock: the 1pm-ET wave is morning,
+    the 4pm wave afternoon, everything from the night windows (Thu, Sun, Mon) evening."""
+    try:
+        t = dt.datetime.strptime(commence, "%Y-%m-%d %H:%M:%S").replace(tzinfo=UTC).astimezone(LOCAL_TZ)
+    except (TypeError, ValueError):
+        return None, None
+    slot = "morning" if t.hour < 12 else "afternoon" if t.hour < 16 else "evening"
+    label = t.strftime("%a %I:%M%p").replace(" 0", " ").replace("AM", "a").replace("PM", "p")
+    return slot, label
+
+
+def implied(american):
+    """Break-even probability of an American price, vig included."""
+    a = float(american)
+    return 100.0 / (a + 100.0) if a > 0 else -a / (-a + 100.0)
+
+
+def live_props(available, rosters):
+    """One row per (player, market) from the BettingPros pull, priced per book.
+
+    The raw file is one row per (player, market, book, side, line). Three things about it are
+    handled here rather than in the template: stale lines (an August number sits next to this
+    week's for a few players; the newest `updated` per book and side wins), the anytime-TD market
+    (BettingPros prices it as one offer per game whose selections are the players, so the row's
+    `player` is a meaningless first participant and the real name is in `side`; team rows are
+    dropped), and the consensus line that comes back even when the request filters by book.
+    `rosters` is slug -> {pos, team, leagues} for my two teams; it sets `mine` and fills position
+    and team for a player the TD market names but no yards market does.
+    """
+    raw, origin = load_props_raw()
+    if not raw:
+        return None
+
+    # Who a name is: the yards markets carry position and team; the TD market carries neither
+    # and spells names its own way ("Deebo Samuel Sr." vs "Deebo Samuel"), so everything keys on
+    # the slug, and a TD-only name falls back to my rosters, then to the nflverse roster.
+    ident, spelling = {}, {}
+    for r in raw["props"]:
+        if r.get("market") != "TD" and r.get("player"):
+            slug = slugify(r["player"])
+            ident.setdefault(slug, (r.get("position"), r.get("team")))
+            spelling.setdefault(slug, r["player"])
+    nfl = nfl_roster()
+
+    latest = {}
+    for r in raw["props"]:
+        mkt = r.get("market")
+        if mkt == "TD":
+            name, side, line = r.get("side") or "", "Over", None
+            if name in NFL_TEAMS:
+                continue
+        else:
+            name, side, line = r.get("player") or "", r.get("side"), r.get("line")
+        if not name or side not in ("Over", "Under") or r.get("price") is None:
+            continue
+        slug = slugify(name)
+        spelling.setdefault(slug, name)
+        key = (slug, mkt, r.get("book"), side)
+        prev = latest.get(key)
+        if prev is None or (r.get("updated") or "") > (prev["updated"] or ""):
+            latest[key] = {"mkt": mkt, "book": r.get("book"), "side": side,
+                           "line": line, "price": int(r["price"]), "game": r.get("game"),
+                           "commence": r.get("commence"), "updated": r.get("updated") or ""}
+
+    groups = {}
+    for (slug, mkt, book, side), r in latest.items():
+        g = groups.setdefault((slug, mkt), {"books": {}, "game": r["game"],
+                                            "commence": r["commence"], "updated": ""})
+        b = g["books"].setdefault(book, {})
+        b[side.lower()] = r["price"]
+        if side == "Over":
+            b["line"] = r["line"]
+        g["updated"] = max(g["updated"], r["updated"])
+
+    out = []
+    for (slug, mkt), g in groups.items():
+        name = spelling[slug]
+        ro = rosters.get(slug)
+        pos, team = ident.get(slug) or (None, None)
+        if not pos and ro:
+            pos, team = ro["pos"], ro["team"]
+        if not pos and slug in nfl:
+            pos, team = nfl[slug]
+        if pos not in POS_ORDER:
+            continue  # a fullback, linebacker or unknown name priced only for a touchdown
+        books = g["books"]
+        primary = next((b for b in BOOK_ORDER if "over" in books.get(b, {})), None)
+        if primary is None:
+            continue  # consensus-only rows are a reference, not a bet
+        slot, kick = kickoff(g["commence"])
+        out.append({
+            "slot": slot,
+            "kick": kick,
+            "n": name,
+            "slug": slug if slug in available else None,
+            "pos": pos,
+            "team": TEAM_FIX.get(team, team),
+            "mkt": mkt,
+            "game": g["game"],
+            "commence": g["commence"],
+            "updated": g["updated"],
+            "line": None if mkt == "TD" else books[primary].get("line"),
+            "book": primary,
+            "books": {b: books[b] for b in BOOK_ORDER if b in books},
+            "ref": books.get(REFERENCE_BOOK),
+            "mine": 1 if ro else 0,
+            "leagues": ro["leagues"] if ro else [],
+        })
+
+    # The model's P(over) for the line the card shows (the primary book's). `model` is that chance
+    # in percent; `edge` is it minus the break-even of the over price, in points, so +4 means the
+    # model thinks the over clears the vig by four points. Nothing when the model has no rate for
+    # the player (rookie, or no game in the last season): the card says "model pending".
+    model = load_model_raw()
+    priced = {}
+    if model:
+        for r in model["lines"]:
+            priced[(slugify(r["name"]), r["market"], r["line"])] = r
+    modeled = 0
+    for p in out:
+        slug = slugify(p["n"])
+        # Every book's own line gets its own P(over): Underdog often posts a different number, and
+        # on Underdog the bet is a pick (higher or lower at their line), not a price, so the card
+        # carries the pick and its confidence rather than an edge.
+        for b, x in p["books"].items():
+            rb = priced.get((slug, p["mkt"], x.get("line") if p["mkt"] != "TD" else None))
+            if rb is None:
+                continue
+            x["model"] = round(rb["p_over"] * 100)
+            if b == "Underdog" and p["mkt"] != "TD":
+                x["pick"] = "higher" if rb["p_over"] >= 0.5 else "lower"
+                x["conf"] = round(max(rb["p_over"], 1 - rb["p_over"]) * 100)
+        r = priced.get((slug, p["mkt"], p["line"]))
+        if r is None:
+            continue
+        over = p["books"][p["book"]]["over"]
+        p["model"] = round(r["p_over"] * 100)
+        p["edge"] = round((r["p_over"] - implied(over)) * 100, 1)
+        p["mu"] = r["mu"]
+        p["games"] = r["games"]   # how much of his own history the rate rests on
+        modeled += 1
+
+    # Best edge first; unmodelled rows after, mine first, by kickoff.
+    out.sort(key=lambda p: (0, -p["edge"]) if "edge" in p
+             else (1, not p["mine"], p["commence"] or "", POS_ORDER.get(p["pos"], 9), p["n"]))
+    return {
+        "source": raw.get("source"),
+        "origin": origin,
+        "fetched": raw.get("fetched"),
+        "events": raw.get("events"),
+        "failed": raw.get("failed") or [],
+        "books": [b for b in BOOK_ORDER if any(b in p["books"] for p in out)],
+        "players": len({p["n"] for p in out}),
+        "model": {"through": model.get("through"), "generated": model.get("generated"),
+                  "modeled": modeled} if model else None,
+        "props": out,
+    }
+
+
+def roster_index(*sources):
+    """slug -> {pos, team, leagues} across my teams, for the builder's `mine` flag."""
+    idx = {}
+    for key, src in sources:
+        if not src:
+            continue
+        for p in src["roster"]:
+            slug = slugify(p["n"])
+            e = idx.setdefault(slug, {"pos": p["pos"], "team": p["team"], "leagues": []})
+            e["leagues"].append(key)
+    return idx
 
 
 def live_yahoo(available):
@@ -125,10 +385,14 @@ def main():
     live = live_espn(available)
     liveY = live_yahoo(available)
 
+    props = live_props(available, roster_index(("espn", live), ("yahoo", liveY)))
+
     wanted = list(SLUGS)
     for src in (live, liveY):
         if src:
             wanted += [p["slug"] for p in src["roster"] if p["slug"]]
+    if props:
+        wanted += [p["slug"] for p in props["props"] if p["slug"]]
 
     heads = {}
     missing = []
@@ -144,7 +408,8 @@ def main():
         "const HEADS = " + json.dumps(heads) + ";\n"
         "const LIVE_ESPN = " + json.dumps(live) + ";\n"
         "const LIVE_YAHOO = " + json.dumps(liveY) + ";\n"
-        "const LIVE_FEED = " + json.dumps(live_feed()) + ";"
+        "const LIVE_FEED = " + json.dumps(live_feed()) + ";\n"
+        "const LIVE_PROPS = " + json.dumps(props) + ";"
     )
     tpl = (ROOT / "template.html").read_text(encoding="utf-8")
     body = tpl.replace("/*__HEADS__*/", injected)
@@ -181,8 +446,20 @@ def main():
             print(f"{label}: {len(src['roster'])} players, {src['league']}, pulled {src['updated']}")
         else:
             print(f"{label}: no live file, template falls back to its own copy")
+    if props:
+        mine = sum(1 for p in props["props"] if p["mine"])
+        print(f"Props: {len(props['props'])} lines, {props['players']} players, "
+              f"{props['events']} games, {'/'.join(props['books'])}, pulled {props['fetched']} "
+              f"(from {props['origin']}), {mine} on my rosters")
+        if props["model"]:
+            print(f"Model: {props['model']['modeled']} of {len(props['props'])} lines priced, "
+                  f"stats through {props['model']['through']}, run {props['model']['generated']}")
+        else:
+            print("Model: no props_model.json, every card says pending")
+    else:
+        print("Props: no BettingPros file, template falls back to its sample")
     if missing:
-        print("no headshot (initials fallback renders):", ", ".join(missing))
+        print(f"no headshot for {len(missing)} slugs (initials fallback renders)")
 
 
 if __name__ == "__main__":
