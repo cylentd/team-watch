@@ -1566,6 +1566,10 @@ function fillOneLineup(pool, cap, mode, chalk, banned){
   return {players: chosen, spent, proj: chosen.reduce((a,d)=>a+d.proj,0), own, chalk: avgChalk};
 }
 function bestLineups(pool, cap, mode, count){
+  // OUT/IR players stay in the pool table (so their tag is visible) but can't score points, so
+  // the optimizer never gets to roster them -- a stale-but-real-looking proj (like a $10 Yahoo
+  // row for a guy who's since changed teams) would otherwise win a slot on "value" alone.
+  pool = pool.filter(p => p.status !== "OUT" && p.status !== "IR");
   const chalk = chalkMap(pool);
   const banned = mode === "contrarian" ? chalkiestPerPosition(pool, chalk) : null;
   const seen = new Set(), found = [];
@@ -1681,7 +1685,7 @@ const INJ = {Q:"Q", O:"O", OUT:"OUT", IR:"IR", SUSP:"SUSP", PUP:"PUP", D:"D"};
    row at a position agrees on who holds it. */
 function dfsValueLeaders(pool, cap){
   const byPos = {};
-  pool.forEach(p=>(byPos[p.pos] ||= []).push(p));
+  pool.filter(p => p.status !== "OUT" && p.status !== "IR").forEach(p=>(byPos[p.pos] ||= []).push(p));
   const leaders = new Set();
   Object.values(byPos).forEach(list=>{
     if (list.length < 2) return;
@@ -1715,8 +1719,9 @@ function dfsHandcuffs(pool){
     if (list.length < 2) return;
     const starter = list.reduce((a,b) => b.sal > a.sal ? b : a);
     if (starter.status !== "OUT" && starter.status !== "IR") return;
-    const cheapest = list.filter(p => p !== starter).sort((a,b)=>a.sal-b.sal)[0];
-    handcuffs.set(cheapest.n, starter.n);
+    const backups = list.filter(p => p !== starter && p.status !== "OUT" && p.status !== "IR").sort((a,b)=>a.sal-b.sal);
+    if (!backups.length) return;
+    handcuffs.set(backups[0].n, starter.n);
   });
   return handcuffs;
 }

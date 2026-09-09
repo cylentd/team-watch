@@ -534,7 +534,13 @@ def load_dfs_pool():
 def live_dfs_yahoo(available):
     """The DFS Builder's Yahoo pool. `sal`/`proj` are Yahoo's own $200-cap scale, not DraftKings'.
     Status prefers Sleeper (see load_status()); the pool's own raw Yahoo status column fills the
-    gap for a player Sleeper doesn't track."""
+    gap for a player Sleeper doesn't track. Yahoo's own export can be stale in a way no status
+    field catches: a player who has since changed teams (Theo Wease, MIA -> LAC practice squad,
+    2026-09-02) still shows up salaried under his old team with a real-looking projection, no
+    status at all, because the CSV was captured before the move. Sleeper's own roster team is
+    fresher than Yahoo's export in practice, so a disagreement between the two is itself read as
+    "this row predates a roster move" and the player is treated as OUT, same as any other
+    not-playing badge."""
     pool = load_dfs_pool()
     if not pool or not pool.get("players"):
         return None
@@ -544,8 +550,13 @@ def live_dfs_yahoo(available):
         name = r["name"]
         slug = slugify(name)
         rec = status.get(norm_name(name))
+        team = TEAM_FIX.get(r["team"], r["team"])
         if rec is not None:
-            badge = {"out": "OUT", "q": "Q"}.get(sleeper_flag(rec))
+            rec_team = TEAM_FIX.get(rec.get("team"), rec.get("team"))
+            if rec_team and rec_team != team:
+                badge = "OUT"
+            else:
+                badge = {"out": "OUT", "q": "Q"}.get(sleeper_flag(rec))
         else:
             badge = (r.get("status") or "").strip() or None
         pos = "DST" if r["pos"] == "DEF" else r["pos"]
