@@ -315,7 +315,7 @@ def live_props(available, rosters):
         # carries the pick and its confidence rather than an edge.
         for b, x in p["books"].items():
             rb = priced.get((slug, p["mkt"], x.get("line") if p["mkt"] != "TD" else None))
-            if rb is None:
+            if rb is None or rb.get("p_over") is None:
                 continue
             x["model"] = round(rb["p_over"] * 100)
             if b == "Underdog" and p["mkt"] != "TD":
@@ -324,6 +324,16 @@ def live_props(available, rosters):
         r = priced.get((slug, p["mkt"], p["line"]))
         if r is None:
             continue
+        # This week's status rides with the price: OUT (Sleeper says he is not playing, the line
+        # is stale), Q (questionable, priced but not slip material), backup (depth chart), or
+        # no_role (a touchdown line on a player the book prices no yards for).
+        for k in ("flag", "injury", "injury_note", "depth"):
+            if r.get(k) is not None:
+                p[k] = r[k]
+        if r.get("p_over") is None:
+            if p.get("flag") != "out":
+                p["norole"] = 1   # a touchdown line on a player the book prices no yards for
+            continue
         over = p["books"][p["book"]]["over"]
         p["model"] = round(r["p_over"] * 100)
         p["edge"] = round((r["p_over"] - implied(over)) * 100, 1)
@@ -331,9 +341,10 @@ def live_props(available, rosters):
         p["games"] = r["games"]   # how much of his own history the rate rests on
         modeled += 1
 
-    # Best edge first; unmodelled rows after, mine first, by kickoff.
+    # Best edge first; unmodelled rows after, mine first, by kickoff; the not-playing last.
     out.sort(key=lambda p: (0, -p["edge"]) if "edge" in p
-             else (1, not p["mine"], p["commence"] or "", POS_ORDER.get(p["pos"], 9), p["n"]))
+             else (2 if p.get("flag") == "out" else 1, not p["mine"], p["commence"] or "",
+                   POS_ORDER.get(p["pos"], 9), p["n"]))
     return {
         "source": raw.get("source"),
         "origin": origin,
@@ -343,7 +354,8 @@ def live_props(available, rosters):
         "books": [b for b in BOOK_ORDER if any(b in p["books"] for p in out)],
         "players": len({p["n"] for p in out}),
         "model": {"through": model.get("through"), "generated": model.get("generated"),
-                  "modeled": modeled} if model else None,
+                  "modeled": modeled, "status_fetched": model.get("status_fetched"),
+                  "not_playing": model.get("not_playing", 0)} if model else None,
         "props": out,
     }
 

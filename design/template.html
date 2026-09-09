@@ -509,6 +509,10 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .edgecell.pending b{color:var(--ink-3);font-weight:400}
 .edgecell.pending span{display:block;font-size:11px;color:var(--ink-3);letter-spacing:.14em;margin-top:3px}
 .leg.inslip{border-color:var(--lime);background:rgba(200,255,46,.05)}
+.leg.isout{opacity:.55}
+.leg .tag{vertical-align:middle;margin-left:4px}
+.tag.t-q{color:var(--amber);border:1px solid rgba(255,176,32,.4);background:rgba(255,176,32,.08)}
+.tag.t-bk{color:var(--ink-3);border:1px solid var(--line-2)}
 .presets{display:flex;flex-wrap:wrap;gap:6px;padding:10px 15px;border-bottom:1px solid var(--line)}
 .presets .chip{padding:5px 9px;font-size:11px}
 .bigedge.pending{color:var(--ink-3);font-size:22px;font-weight:400;letter-spacing:.02em;text-transform:uppercase;padding:8px 0}
@@ -1272,7 +1276,8 @@ const SLOTS = {morning:"Morning", afternoon:"Afternoon", evening:"Evening"};
 const SLIP_LEGS = 3;
 /* Sportsbook legs: a DraftKings price between -300 and +200 (edge in points rewards a +750 long
    shot far more than it deserves), a model chance of 35-85%, a rate on 8+ games, positive edge. */
-const legOK = p => typeof p.edge === "number" && p.edge > 0 && (p.games||0) >= 8
+const playing = p => p.flag !== "out" && p.flag !== "q";   // a slip leg has to be on the field
+const legOK = p => typeof p.edge === "number" && p.edge > 0 && (p.games||0) >= 8 && playing(p)
   && p.model >= 35 && p.model <= 85 && p.book === "DraftKings"
   && overPrice(p) >= -300 && overPrice(p) <= 200;
 function pickLegs(cands, key){
@@ -1290,7 +1295,7 @@ function bestSlip(slot){
    even at 6x), ranked by that confidence. */
 const UD_MIN = 58;
 /* A 0.5-reception or 12.5-yard line is confidence for free and Underdog knows it; skip them. */
-const udOK = p => ud(p) && ud(p).conf >= UD_MIN && (p.games||0) >= 8
+const udOK = p => ud(p) && ud(p).conf >= UD_MIN && (p.games||0) >= 8 && playing(p)
   && (p.mkt === "RECS" ? ud(p).line >= 2.5 : ud(p).line >= 15);
 function udSlip(){
   return pickLegs(PROPS.map((p,i)=>[p,i]).filter(([p]) => udOK(p)), p => ud(p).conf);
@@ -1403,10 +1408,16 @@ function propCard(p, i){
     right = `<div class="probwrap implied"><b>${implied === null ? "—" : implied + "%"}</b><span>BOOK IMPLIED</span></div>
     <div class="edgecell pending"><b>—</b><span>MODEL PENDING</span></div>`;
   }
-  return `<div class="leg ${p.mine?"mine":""} ${inSlip?"inslip":""}" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">
+  if (p.flag === "out") right = `<div class="probwrap implied"><b>—</b><span>NOT PLAYING</span></div>
+    <div class="edgecell pending"><b>OUT</b><span>${esc((p.injury_note||p.injury||"").toUpperCase())}</span></div>`;
+  else if (p.norole) right = `<div class="probwrap implied"><b>—</b><span>NO YARDS LINE</span></div>
+    <div class="edgecell pending"><b>—</b><span>NO ROLE PRICED</span></div>`;
+  const tag = p.flag === "q" ? `<span class="tag t-q">Q${p.injury_note ? " · " + esc(p.injury_note) : ""}</span>`
+    : p.flag === "backup" ? `<span class="tag t-bk">${esc(p.pos)}${p.depth}</span>` : "";
+  return `<div class="leg ${p.mine?"mine":""} ${inSlip?"inslip":""} ${p.flag==="out"?"isout":""}" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">
     ${HEADS[p.slug] ? `<img src="${HEADS[p.slug]}" alt="">` : `<div class="fallback">${esc(initials(p.n))}</div>`}
     <div>
-      <div class="prop">${esc(p.n)} · ${esc(propLabel(p))}</div>
+      <div class="prop">${esc(p.n)} · ${esc(propLabel(p))}${tag ? " " + tag : ""}</div>
       <div class="book">${esc(p.pos)} · ${esc(p.game)}${p.kick ? ` ${esc(p.kick)}` : ""} · ${esc(bookLine(p))}</div>
     </div>
     ${right}
