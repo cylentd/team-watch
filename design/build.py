@@ -8,6 +8,7 @@ import base64
 import datetime as dt
 import json
 import pathlib
+import re
 import zoneinfo
 
 ROOT = pathlib.Path(__file__).resolve().parent
@@ -18,7 +19,58 @@ DWR = pathlib.Path("C:/Users/David/Github/ff-jarvis/data")
 ESPN_ROSTERS = DWR / "espn_rosters.json"
 YAHOO_ROSTERS = DWR / "league_rosters.json"
 BP_PROPS = DWR / "bettingpros_props.json"
-DFS_YAHOO_CSV = ROOT.parent / "data" / "dfs_yahoo.csv"
+SLEEPER_STATUS = DWR / "sleeper_status.json"
+DFS_POOL = DWR / "dfs_pool.json"
+
+# A depth-chart slot at or past this number, for the player's position, reads as "the backup."
+# Mirrors ff-jarvis's model.clients.sleeper.BACKUP_DEPTH.
+BACKUP_DEPTH = {"QB": 2, "RB": 2, "TE": 2, "WR": 3}
+SUFFIX_RE = re.compile(r"\b(jr|sr|ii|iii|iv|v)\b\.?$")
+
+
+def norm_name(name):
+    """Matches ff-jarvis's model.common.data.norm_name() exactly -- the join key Sleeper's status
+    file (and everything else in ff-jarvis) uses. Deliberately separate from slugify() below, which
+    serves headshot filenames and isn't guaranteed to normalize identically."""
+    n = re.sub(r"[.'\-]", "", name.lower()).strip()
+    n = SUFFIX_RE.sub("", n).strip()
+    return re.sub(r"\s+", " ", n)
+
+
+def sleeper_flag(rec):
+    """Mirrors ff-jarvis's model.clients.sleeper.derive_status() -- the one place "is this guy
+    playing" gets decided. Team-watch's badges only render OUT/Q today; 'backup' is computed for
+    parity with the source of truth but has no UI here yet."""
+    if not rec:
+        return None
+    if not rec.get("playing", True):
+        return "out"
+    if rec.get("injury") == "Questionable":
+        return "q"
+    if rec.get("depth") and rec["depth"] >= BACKUP_DEPTH.get(rec.get("pos"), 9):
+        return "backup"
+    return None
+
+
+def load_status():
+    """norm_name -> Sleeper record (ff-jarvis's model.clients.sleeper), the canonical injury/depth
+    read every feature should prefer over deriving its own. Feed-first (what the scheduled refresh
+    saw), the ff-jarvis file directly as a fallback -- the same two-tier pattern load_props_raw()
+    and load_model_raw() already use below."""
+    feed = REPO / "data" / "feed.json"
+    try:
+        d = json.loads(feed.read_text(encoding="utf-8"))
+        block = (d.get("status") or {}).get("data")
+        if block and block.get("players"):
+            return block["players"]
+    except (OSError, json.JSONDecodeError):
+        pass
+    if SLEEPER_STATUS.exists():
+        try:
+            return json.loads(SLEEPER_STATUS.read_text(encoding="utf-8")).get("players", {})
+        except (OSError, json.JSONDecodeError):
+            pass
+    return {}
 
 SUFFIXES = {"jr", "sr", "ii", "iii", "iv", "v"}
 
@@ -84,6 +136,7 @@ def live_espn(available):
     if not ESPN_ROSTERS.exists():
         return None
     d = json.loads(ESPN_ROSTERS.read_text(encoding="utf-8"))
+    status = load_status()
     me = d["me"]
     out = []
     flex = 0
@@ -94,14 +147,22 @@ def live_espn(available):
             slot = f"FLX{flex}"
         elif slot == "BE":
             slot = "BN"
-        slug = slugify(p["name"].replace(" D/ST", ""))
+        name = p["name"].replace(" D/ST", "")
+        slug = slugify(name)
+        # Sleeper wins whenever it has a record for this player -- even a "healthy" read overrides
+        # a stale ESPN status. ESPN's own field only fills the gap when Sleeper has no entry at all.
+        rec = status.get(norm_name(name))
+        if rec is not None:
+            badge = {"out": "OUT", "q": "Q"}.get(sleeper_flag(rec))
+        else:
+            badge = {"QUESTIONABLE": "Q", "OUT": "OUT"}.get(p.get("status") or "", None)
         out.append({
-            "n": p["name"].replace(" D/ST", ""),
+            "n": name,
             "pos": "DST" if p["pos"] == "DEF" else p["pos"],
             "team": p["team"],
             "slot": slot,
             "slug": slug if slug in available else None,
-            "status": {"QUESTIONABLE": "Q", "OUT": "OUT"}.get(p.get("status") or "", None),
+            "status": badge,
         })
     return {"name": me, "league": d["league"], "league_id": d["league_id"],
             "updated": d["updated"], "roster": out}
@@ -449,37 +510,55 @@ def live_yahoo(available):
             "updated": d["updated"], "roster": out}
 
 
-def live_dfs_yahoo(available):
-    """Yahoo's own contest salary export. Yahoo has no public API for this — it's saved by hand
-    from a contest's "Export Player List" link (a `contestPlayers` CSV) to `data/dfs_yahoo.csv`
-    and re-fetched before each build. `sal` and `proj` (FPPG) are Yahoo's own $200-cap scale, not
-    DraftKings'; `status` is Yahoo's Injury Status column, blank means active."""
-    if not DFS_YAHOO_CSV.exists():
-        return None
-    import csv
-    rows = csv.DictReader(DFS_YAHOO_CSV.read_text(encoding="utf-8-sig").splitlines())
-    players = []
-    for r in rows:
+def load_dfs_pool():
+    """Yahoo's own contest salary export, imported into ff-jarvis by `python -m model.clients.dfs
+    import <csv>` -- deliberately manual, per that module's own docstring: an automated Yahoo
+    scrape is a decision to ask about, not build quietly. Feed-first, the ff-jarvis file directly
+    as a fallback, same two-tier pattern as load_status()/load_props_raw()."""
+    feed = REPO / "data" / "feed.json"
+    try:
+        d = json.loads(feed.read_text(encoding="utf-8"))
+        block = ((d.get("market") or {}).get("dfs") or {}).get("data")
+        if block and block.get("players"):
+            return block
+    except (OSError, json.JSONDecodeError):
+        pass
+    if DFS_POOL.exists():
         try:
-            sal = int(r["Salary"])
-            proj = float(r["FPPG"])
-        except (KeyError, ValueError, TypeError):
-            continue
-        pos = "DST" if r["Position"] == "DEF" else r["Position"]
-        name = f"{r['First Name']} {r['Last Name']}".strip()
+            return json.loads(DFS_POOL.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            pass
+    return None
+
+
+def live_dfs_yahoo(available):
+    """The DFS Builder's Yahoo pool. `sal`/`proj` are Yahoo's own $200-cap scale, not DraftKings'.
+    Status prefers Sleeper (see load_status()); the pool's own raw Yahoo status column fills the
+    gap for a player Sleeper doesn't track."""
+    pool = load_dfs_pool()
+    if not pool or not pool.get("players"):
+        return None
+    status = load_status()
+    players = []
+    for r in pool["players"]:
+        name = r["name"]
         slug = slugify(name)
-        status = (r.get("Injury Status") or "").strip()
+        rec = status.get(norm_name(name))
+        if rec is not None:
+            badge = {"out": "OUT", "q": "Q"}.get(sleeper_flag(rec))
+        else:
+            badge = (r.get("status") or "").strip() or None
+        pos = "DST" if r["pos"] == "DEF" else r["pos"]
         players.append({
-            "n": name, "pos": pos, "team": r["Team"], "sal": sal, "proj": proj,
-            "status": status or None, "slug": slug if slug in available else None,
+            "n": name, "pos": pos, "team": r["team"], "sal": r["salary"], "proj": r["fppg"],
+            "status": badge, "slug": slug if slug in available else None,
         })
     if not players:
         return None
     players.sort(key=lambda p: -p["sal"])
-    mtime = dt.datetime.fromtimestamp(DFS_YAHOO_CSV.stat().st_mtime, LOCAL_TZ)
     return {
-        "fetched": mtime.strftime("%a %I:%M%p").replace(" 0", " "),
-        "source": "Yahoo contest export (manual)",
+        "fetched": pool.get("fetched"),
+        "source": pool.get("source", "ff-jarvis dfs_pool.json"),
         "players": players,
     }
 
@@ -569,7 +648,7 @@ def main():
     if liveDfsYahoo:
         print(f"Yahoo DFS: {len(liveDfsYahoo['players'])} players, pulled {liveDfsYahoo['fetched']}")
     else:
-        print("Yahoo DFS: no data/dfs_yahoo.csv, template falls back to its sample")
+        print("Yahoo DFS: no ff-jarvis dfs_pool.json/feed block, template falls back to its sample")
     if missing:
         print(f"no headshot for {len(missing)} slugs (initials fallback renders)")
 

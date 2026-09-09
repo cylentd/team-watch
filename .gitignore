@@ -7,6 +7,6 @@ data/feed.json
 # Copy of ff-jarvis data/props_model.json that build.py falls back to when the feed lacks the
 # model block (the ff-jarvis checkout is shared and can sit on another branch). Same churn.
 data/props_model.json
-# Yahoo's own contest salary export, saved by hand before each build (no public API for this).
-# Baked into the page at build time; churns every refetch.
+# Retired: the DFS pool now comes from ff-jarvis's data/dfs_pool.json (see design/build.py's
+# load_dfs_pool()). Left ignored in case a manual export is ever saved here again.
 data/dfs_yahoo.csv

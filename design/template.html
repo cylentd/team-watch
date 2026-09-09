@@ -131,7 +131,7 @@ html{scrollbar-color:var(--line-2) var(--void)}
 /* ============================== HERO ============================== */
 .hero{position:relative;padding:44px 0 34px;overflow:hidden}
 .numghost{
-  position:absolute;left:-34px;top:-46px;z-index:0;
+  position:absolute;left:calc(max(0px, (100vw - 1180px) / 2) - 34px);top:-46px;z-index:0;
   font-family:var(--disp);font-weight:800;font-size:270px;line-height:1;
   color:transparent;-webkit-text-stroke:1.5px rgba(200,255,46,.09);
   pointer-events:none;user-select:none;letter-spacing:-.05em;
@@ -169,7 +169,7 @@ html{scrollbar-color:var(--line-2) var(--void)}
 
 /* ============================== TICKER ============================== */
 .ticker{
-  position:relative;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  position:relative;border:1px solid var(--line);
   background:var(--panel);height:42px;overflow:hidden;display:flex;align-items:center;
 }
 .ticker-tag{
@@ -201,28 +201,28 @@ html{scrollbar-color:var(--line-2) var(--void)}
 
 /* ============================== ROSTER ROW ============================== */
 .colhead{
-  display:grid;grid-template-columns:54px 46px minmax(0,380px) 198px 112px 34px 1fr;
-  grid-template-areas:"slot head name trend rank news spacer";
+  display:grid;grid-template-columns:54px 46px 280px 194px 108px 34px;
+  grid-template-areas:"slot head name trend rank news";
   gap:16px;padding:0 14px 6px 12px;margin-top:18px;
 }
 .colhead .ch{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
 .colhead .ch-trend{grid-area:trend}
-.colhead .ch-rank{grid-area:rank;text-align:right}
+.colhead .ch-rank{grid-area:rank;text-align:left}
 .colhead .ch-news{grid-area:news;text-align:center}
 .board{margin-top:0;border-top:1px solid var(--line)}
 .row{
   display:grid;
-  grid-template-columns:54px 46px minmax(0,380px) 198px 112px 34px 1fr;
-  grid-template-areas:"slot head name trend rank news spacer";
+  grid-template-columns:54px 46px 280px 194px 108px 34px;
+  grid-template-areas:"slot head name trend rank news";
   align-items:center;gap:16px;
   padding:11px 14px 11px 12px;
   border-bottom:1px solid var(--line);
   cursor:pointer;position:relative;background:transparent;
   transition:background .18s var(--ease);
-  opacity:0;transform:translateY(10px);
-  animation:rowin .55s var(--ease) forwards;
+  opacity:0;
+  animation:rowin .4s var(--ease) forwards;
 }
-@keyframes rowin{to{opacity:1;transform:none}}
+@keyframes rowin{to{opacity:1}}
 .row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--lime);transform:scaleY(0);transform-origin:center;transition:transform .28s var(--ease)}
 .row:hover{background:var(--panel-2)}
 .row:hover::before{transform:scaleY(1)}
@@ -272,15 +272,13 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .nm-2{display:flex;align-items:center;gap:9px;margin-top:4px;font-family:var(--mono);font-size:11.5px;color:var(--ink-3);letter-spacing:.04em}
 .nm-2 .sep{width:3px;height:3px;background:var(--line-2);border-radius:99px}
 
-.trend{grid-area:trend;display:flex;align-items:center;gap:12px;min-width:0}
+.trend{grid-area:trend;display:flex;align-items:center;gap:14px;min-width:0}
 .spark{flex-shrink:0}
-.spark path.line{fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;
-  stroke-dasharray:400;stroke-dashoffset:400;animation:draw 1.1s var(--ease) .25s forwards}
-@keyframes draw{to{stroke-dashoffset:0}}
-.spark .area{opacity:0;animation:fade .8s var(--ease) .8s forwards}
-@keyframes fade{to{opacity:.13}}
-.spark .cap{opacity:0;animation:fade2 .4s var(--ease) 1.15s forwards}
-@keyframes fade2{to{opacity:1}}
+.spark path.line{fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.spark .area{opacity:.13}
+.spark .reveal{clip-path:inset(0 100% 0 0);
+  animation:wipe .9s var(--ease) calc(var(--rowdelay,0ms) + 80ms) forwards}
+@keyframes wipe{to{clip-path:inset(0 0 0 0)}}
 .delta{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
 .delta.up{color:var(--up)}
 .delta.down{color:var(--down)}
@@ -405,18 +403,22 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .foot{border-top:1px solid var(--line);padding:22px 0 40px;color:var(--ink-3);font-family:var(--mono);font-size:11px;letter-spacing:.1em;display:flex;gap:18px;flex-wrap:wrap}
 
 /* ============================== PRIMARY NAV ============================== */
-.navbar{border-bottom:1px solid var(--line);background:var(--panel)}
+.navbar{
+  position:sticky; top:58px; z-index:39;
+  border-bottom:1px solid var(--line);background:var(--panel);
+  box-shadow:0 12px 16px -10px rgba(0,0,0,.55);
+}
 .navrow{display:flex;align-items:center;justify-content:space-between;gap:16px}
 .nav{display:flex;min-width:0}
 .navitem{
   position:relative;appearance:none;background:none;cursor:pointer;
   border:0;border-right:1px solid var(--line);
-  padding:13px 22px;display:flex;align-items:baseline;gap:9px;color:var(--ink-3);
-  font-family:var(--disp);font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:.01em;
+  padding:15px 24px;display:flex;align-items:center;gap:10px;color:var(--ink-3);
+  font-family:var(--disp);font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.01em;
   transition:color .2s var(--ease),background .2s var(--ease);
 }
 .navitem:first-child{border-left:1px solid var(--line)}
-.navitem .ix{display:inline-flex;width:16px;height:16px;opacity:.6}
+.navitem .ix{display:inline-flex;width:20px;height:20px;opacity:.6}
 .navitem .ix svg{width:100%;height:100%}
 .navitem[aria-current="true"] .ix{opacity:1}
 .navitem:hover{color:var(--ink-2);background:var(--panel-2)}
@@ -450,6 +452,18 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .chip:hover{border-color:var(--ink-3);color:var(--ink)}
 .chip[aria-pressed="true"]{border-color:var(--lime);color:var(--lime);background:rgba(200,255,46,.08)}
 .chip:active{transform:scale(.96)}
+.selwrap{display:inline-flex;align-items:center;gap:8px}
+.msel{
+  appearance:none;-webkit-appearance:none;-moz-appearance:none;
+  font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  padding:6px 26px 6px 11px;border:1px solid var(--line-2);color:var(--ink);background-color:var(--panel-2);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2386859a' stroke-width='1.6' fill='none'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+  border-radius:2px;cursor:pointer;transition:border-color .18s var(--ease);
+}
+.msel:hover{border-color:var(--ink-3)}
+.msel:focus{outline:none;border-color:var(--lime)}
+.msel option{background:var(--panel-2);color:var(--ink)}
 
 .ptable{margin-top:14px;border-top:1px solid var(--line);overflow-x:auto}
 .phead,.prow{
@@ -457,7 +471,7 @@ html{scrollbar-color:var(--line-2) var(--void)}
   gap:12px;align-items:center;padding:9px 12px;border-bottom:1px solid var(--line);min-width:840px;
 }
 .phead{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);background:var(--panel)}
-.prow{cursor:pointer;transition:background .18s var(--ease);opacity:0;transform:translateY(8px);animation:rowin .5s var(--ease) forwards}
+.prow{cursor:pointer;transition:background .18s var(--ease);opacity:0;animation:rowin .4s var(--ease) forwards}
 .prow:hover{background:var(--panel-2)}
 .prow.mine{box-shadow:inset 2px 0 0 var(--lime)}
 .pnum{font-family:var(--mono);font-size:12.5px;letter-spacing:-.02em}
@@ -483,6 +497,20 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .mode[aria-pressed="true"]{background:var(--lime);color:#0b0d05}
 .mode:not([aria-pressed="true"]):hover{background:var(--panel-2);color:var(--ink)}
 .mode:active{transform:scale(.97)}
+/* The book toggle is a sub-choice of DFS lineup, not a peer of Parlay/DFS — visually subordinate:
+   smaller, indented off a rule, joined to the primary switch rather than stacked as a second
+   identical row. */
+.switcher{display:flex;align-items:center;flex-wrap:wrap;gap:16px;margin-top:16px}
+.modes-sub{display:flex;align-items:center;gap:8px;padding-left:16px;border-left:2px solid var(--line-2)}
+.mode-sub{
+  appearance:none;background:none;border:1px solid var(--line-2);cursor:pointer;margin-left:-1px;
+  padding:6px 14px;color:var(--ink-3);font-family:var(--mono);font-size:10px;font-weight:700;
+  letter-spacing:.16em;text-transform:uppercase;transition:all .2s var(--ease);
+}
+.mode-sub:first-of-type{margin-left:0}
+.mode-sub[aria-pressed="true"]{background:var(--panel-3);color:var(--lime);border-color:var(--lime);position:relative;z-index:1}
+.mode-sub:not([aria-pressed="true"]):hover{color:var(--ink);border-color:var(--line)}
+.mode-sub:active{transform:scale(.95)}
 
 .build{display:grid;grid-template-columns:minmax(0,1fr) 356px;gap:16px;margin-top:16px;align-items:start}
 .legs{display:flex;flex-direction:column;gap:10px}
@@ -495,20 +523,19 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .leg:active{transform:scale(.995)}
 .leg img,.leg .fallback{width:40px;height:40px;border-radius:99px;object-fit:cover;border:1px solid var(--line-2);background:var(--panel-3)}
 .leg .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--ink-3)}
-.leg .prop{font-size:13.5px;font-weight:500;letter-spacing:-.01em}
-.leg .book{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:4px;letter-spacing:.06em}
+.leg .prop{font-size:14.5px;font-weight:600;letter-spacing:-.01em}
+.leg .book{font-family:var(--mono);font-size:12.5px;color:var(--ink-2);margin-top:5px;letter-spacing:.02em;line-height:1.4}
 .probwrap{font-family:var(--mono);text-align:right}
-.probwrap b{font-size:14px;font-weight:700}
+.probwrap b{font-size:15px;font-weight:700}
 .probwrap span{display:block;font-size:11px;color:var(--ink-3);letter-spacing:.14em;margin-top:3px}
 .edgecell{text-align:right;font-family:var(--mono)}
-.edgecell b{font-size:15px;font-weight:700}
+.edgecell b{font-size:16px;font-weight:700}
 .edgecell b.pos{color:var(--lime)} .edgecell b.neg{color:var(--down)}
 .edgecell .ebar{height:4px;background:var(--line);margin-top:7px;position:relative;overflow:hidden}
 .edgecell .ebar i{position:absolute;top:0;bottom:0;left:50%;background:var(--lime)}
 .edgecell .ebar i.neg{background:var(--down)}
 .edgecell.pending b{color:var(--ink-3);font-weight:400}
 .edgecell.pending span{display:block;font-size:11px;color:var(--ink-3);letter-spacing:.14em;margin-top:3px}
-.leg.inslip{border-color:var(--lime);background:rgba(200,255,46,.05)}
 .leg.isout{opacity:.55}
 .leg .tag{vertical-align:middle;margin-left:4px}
 .tag.t-q{color:var(--amber);border:1px solid rgba(255,176,32,.4);background:rgba(255,176,32,.08)}
@@ -533,13 +560,21 @@ html{scrollbar-color:var(--line-2) var(--void)}
 
 /* The right column (slip + model card) sticks as one and scrolls inside itself when taller than
    the viewport, so the card is never hidden under a sticky slip. */
-.side{position:sticky;top:118px;max-height:calc(100vh - 130px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line-2) transparent;padding-right:2px}
+.side{position:sticky;top:118px;margin-top:22px;max-height:calc(100vh - 130px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line-2) transparent;padding-right:2px}
 .side::-webkit-scrollbar{width:6px}.side::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:3px}
 .slip{border:1px solid var(--line-2);background:var(--panel)}
+/* Lineup cards reuse .sliphead/.lslot/.payout but NOT .slip's position:sticky — several sticky
+   siblings stacked in one scroll container fight each other and clip (that was the bug: card 1
+   pinned mid-scroll while card 4 kept flowing beneath it in the same column). Plain wrapping grid,
+   not a carousel: 3 cards fit one row on desktop and stack on mobile, nothing to navigate. */
+.lineupgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:14px}
+.lineupcard{position:static;border:1px solid var(--line-2);background:var(--panel)}
+.lineupcard.best{border-color:var(--lime);box-shadow:0 0 0 1px var(--lime) inset}
+.hint{font-size:12px;color:var(--ink-3);line-height:1.5;margin-top:8px;max-width:70ch}
 .sliphead{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid var(--line);background:var(--panel-2)}
 .slipleg{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 15px;border-bottom:1px solid var(--line)}
-.slipleg .p{font-size:12.5px;font-weight:500;letter-spacing:-.01em}
-.slipleg .m{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:3px;letter-spacing:.06em}
+.slipleg .p{font-size:13.5px;font-weight:600;letter-spacing:-.01em}
+.slipleg .m{font-family:var(--mono);font-size:12px;color:var(--ink-2);margin-top:4px;letter-spacing:.02em}
 .slipleg .o{font-family:var(--mono);font-size:12px;font-weight:700}
 .corr{display:flex;align-items:center;gap:9px;padding:10px 15px;border-bottom:1px solid var(--line);
   background:rgba(255,176,32,.07);color:var(--amber);font-family:var(--mono);font-size:11px;letter-spacing:.1em}
@@ -580,7 +615,9 @@ html{scrollbar-color:var(--line-2) var(--void)}
 
 .mkthead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-top:22px;
   padding:14px 16px;border:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
-.mktsrc{margin-top:7px;font-size:12.5px;color:var(--ink-2)}
+.mktsrc{margin-top:7px;font-size:13px;color:var(--ink-2);line-height:1.5}
+.mktdef{margin-top:9px;padding-top:9px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:16px 24px;font-size:12.5px;color:var(--ink-2);line-height:1.5}
+.mktdef b{color:var(--ink);letter-spacing:.06em}
 .leg.mine{box-shadow:inset 2px 0 0 var(--lime)}
 .dfstable .phead,.dfstable .prow{grid-template-columns:40px minmax(120px,1fr) 76px 54px 56px 50px 66px;min-width:0}
 .dfsrow .chip{padding:5px 9px;font-size:11px}
@@ -657,6 +694,7 @@ html{scrollbar-color:var(--line-2) var(--void)}
 @media (max-width:760px){
   .wrap{padding:0 14px}
   .topbar-in{height:52px;gap:10px}
+  .navbar{top:52px}
   .brand-name{font-size:16px}
   #weekpill{display:none}
   .topbar .pill.warn .full{display:none}
@@ -705,6 +743,7 @@ html{scrollbar-color:var(--line-2) var(--void)}
   .nav{overflow-x:auto;scrollbar-width:none}
   .nav::-webkit-scrollbar{display:none}
   .navitem{padding:11px 15px;font-size:12.5px;flex-shrink:0}
+  .navitem .ix{width:17px;height:17px}
   .hero h1{font-size:clamp(30px,8.6vw,80px)}
   .quad{height:320px;min-width:540px}
   .quadhead{padding:12px 13px}
@@ -743,9 +782,7 @@ html{scrollbar-color:var(--line-2) var(--void)}
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.001ms!important;animation-delay:0ms!important;transition-duration:.001ms!important}
   .row{opacity:1;transform:none}
-  .spark path.line{stroke-dashoffset:0}
-  .spark .area{opacity:.13}
-  .spark .cap{opacity:1}
+  .spark .reveal{clip-path:inset(0 0 0 0)}
   .pctbar i{width:var(--w)}
 }
 </style>
@@ -960,9 +997,11 @@ function sparkHTML(v, w, h){
   const col = v[v.length-1] > v[0] ? "var(--up)" : v[v.length-1] < v[0] ? "var(--down)" : "var(--ink-3)";
   const area = `M ${pts[0]} L ${pts.slice(1).join(" L ")} L ${x(v.length-1).toFixed(1)},${h} L ${x(0).toFixed(1)},${h} Z`;
   return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
-    <path class="area" d="${area}" fill="${col}"/>
-    <path class="line" d="M ${pts[0]} L ${pts.slice(1).join(" L ")}" stroke="${col}"/>
-    <circle class="cap" cx="${x(v.length-1).toFixed(1)}" cy="${y(v[v.length-1]).toFixed(1)}" r="2.6" fill="${col}"/>
+    <g class="reveal">
+      <path class="area" d="${area}" fill="${col}"/>
+      <path class="line" d="M ${pts[0]} L ${pts.slice(1).join(" L ")}" stroke="${col}"/>
+      <circle class="cap" cx="${x(v.length-1).toFixed(1)}" cy="${y(v[v.length-1]).toFixed(1)}" r="2.6" fill="${col}"/>
+    </g>
   </svg>`;
 }
 
@@ -989,7 +1028,8 @@ function rowHTML(p, i, teamKey){
   const tag = st ? `<span class="tag ${p.status==="OUT"?"o":"q"}">${esc(st)}</span>` : "";
   const dual = p.dual ? `<span class="tag dual">2 leagues</span>` : "";
   const badge = p.status ? `<span class="badge ${p.status==="OUT"?"o":"q"}">${p.status==="OUT"?"!":"Q"}</span>` : "";
-  return `<div class="row ${cls}" style="animation-delay:${40+i*32}ms" data-team="${teamKey}" data-i="${i}" role="button" tabindex="0">
+  const rd = 40+i*32;
+  return `<div class="row ${cls}" style="animation-delay:${rd}ms;--rowdelay:${rd}ms" data-team="${teamKey}" data-i="${i}" role="button" tabindex="0">
     <div class="slot"><span>${esc(p.slot)}</span></div>
     <div class="head">${headHTML(p)}${badge}</div>
     <div class="nm">
@@ -1001,7 +1041,7 @@ function rowHTML(p, i, teamKey){
         <span>wk1 ${p.pos==="DST"?"vs":"@"} ${["HOU","LV","NYJ","ARI","CHI"][i%5]}</span>
       </div>
     </div>
-    <div class="trend">${sparkHTML(p.trend,120,34)}${deltaHTML(p.d)}</div>
+    <div class="trend">${sparkHTML(p.trend,128,34)}${deltaHTML(p.d)}</div>
     <div class="rk">${rankHTML(p)}</div>
     <div class="news">${p.news
       ? `<span class="newstag ${p.hot?"hot":""}">${NEWS_ICON}<b>${p.news}</b></span>`
@@ -1047,10 +1087,10 @@ function tickerHTML(){
       <span class="arrow ${t.t}">${t.t==="up"?"▲":t.t==="down"?"▼":"—"}</span><b>${esc(t.b)}</b> ${esc(t.s)} <span class="src">${esc(t.src)}</span></a>`;
   };
   const run = TICKER.map(item).join("");
-  return `<div class="ticker">
+  return `<div class="wrap" style="margin:16px auto"><div class="ticker">
     <div class="ticker-tag">LIVE</div>
     <div class="ticker-track">${run}${run}</div>
-  </div>`;
+  </div></div>`;
 }
 
 function wireHTML(){
@@ -1253,10 +1293,6 @@ function poolHTML(){
       ${rows.length ? rows.map(poolRow).join("")
         : `<div class="state-empty" style="margin:26px 0;min-height:120px"><div><b>0</b><span>NO PLAYERS AT THIS POSITION</span></div></div>`}
     </div>
-    <div class="rule"><h2>Where the pool goes next</h2><span class="hair"></span><span class="side">builder</span></div>
-    <p style="color:var(--ink-2);font-size:13px;max-width:64ch;line-height:1.6;margin:14px 0 60px">
-      A player whose role is growing while his points lag is the same edge in three products: a waiver claim,
-      a trade offer, and a prop. The builder takes this table as its shortlist.</p>
   </div>`;
 }
 
@@ -1410,6 +1446,10 @@ const DFSPOOL_YAHOO_SAMPLE = DFSPOOL_DK.map(p => ({...p, sal: Math.round(p.sal/2
 const DFSPOOL_YAHOO = LIVE_YAHOO_DFS ? LIVE_YAHOO_DFS.players : DFSPOOL_YAHOO_SAMPLE;
 
 let MKT_POS = "ALL", MKT_KIND = "ALL", MKT_SLOT = "ALL", MKT_MINE = false, DFS_POS = "ALL";
+/* The pool can run to 700+ rows (a full Yahoo slate), so it's paginated — nobody, least of all on
+   mobile, wants to scroll past hundreds of rows to reach the lineup or the optimizer. */
+let DFS_PAGE = 1;
+const DFS_PAGE_SIZE = 25;
 /* Card order. "edge" ranks by what the price leaves on the table; "model" by the model's chance
    alone ("who scores?" on a touchdown list). The choice sticks until changed: a market chip
    never moves it. Unmodelled rows go last either way, mine first among them. */
@@ -1428,13 +1468,16 @@ const DFS_DK = [
   {slot:"WR",   n:"Jalen Coker",       slug:"jalen-coker",      sal:3600, proj:9.8,  own:6},
   {slot:"TE",   n:"Isaiah Likely",     slug:"isaiah-likely",    sal:4200, proj:11.2, own:11},
   {slot:"FLEX", n:null},
-  {slot:"D/ST", n:"Seahawks",          slug:null, abbr:"SEA",   sal:2700, proj:7.4,  own:9},
+  {slot:"DST",  n:"Seahawks",          slug:null, abbr:"SEA",   sal:2700, proj:7.4,  own:9},
 ];
 const CAP_DK = 50000;
 /* Yahoo's own slate: no curated sample lineup to seed it with, so every slot starts vacant
    whichever way DFS_SITE points. */
 const DFS_YAHOO = ["QB","RB","RB","WR","WR","WR","TE","FLEX","DST"].map(slot => ({slot, n:null}));
 const CAP_YAHOO = 200;
+/* Slot order the optimizer fills and the "My lineup" card renders, one classic DK/Yahoo
+   NFL roster: 1 QB, 2 RB, 3 WR, 1 TE, 1 FLEX (RB/WR/TE), 1 DST. */
+const LINEUP_SLOTS = ["QB","RB","RB","WR","WR","WR","TE","FLEX","DST"];
 
 /* Which book the DFS half of the builder shows. Parlay/DFS is BUILD_MODE; this is the second
    toggle, live only inside DFS mode. */
@@ -1444,6 +1487,102 @@ function dfsSite(){
     ? {key:"dk", label:"DraftKings", cap:CAP_DK, pool:DFSPOOL_DK, lineup:DFS_DK, when:null}
     : {key:"yahoo", label:"Yahoo", cap:CAP_YAHOO, pool:DFSPOOL_YAHOO, lineup:DFS_YAHOO,
        when: LIVE_YAHOO_DFS ? LIVE_YAHOO_DFS.fetched : null};
+}
+
+const TOP_COUNT = 3;
+/* How chalky a player is, 0 (contrarian) to 1 (chalk), keyed by player object. Real ownership
+   when the site has it (DraftKings sample); otherwise a proxy — rank by projection within
+   position, since Yahoo's export carries no ownership column and the highest-projected player at
+   a position is exactly who a max-points build (and most of the field) rosters anyway. */
+function chalkMap(pool){
+  const m = new Map();
+  if (pool.some(p=>typeof p.own==="number")){
+    const max = Math.max(1, ...pool.map(p=>p.own||0));
+    pool.forEach(p=>m.set(p, (p.own||0)/max));
+    return m;
+  }
+  const byPos = {};
+  pool.forEach(p=>(byPos[p.pos] ||= []).push(p));
+  Object.values(byPos).forEach(list=>{
+    const sorted = [...list].sort((a,b)=>b.proj-a.proj);
+    const n = sorted.length;
+    sorted.forEach((p,i)=>m.set(p, n>1 ? 1-i/(n-1) : 1));
+  });
+  return m;
+}
+/* Top-lineups optimizer. No solver library (the page has to work offline as a data URI), so it's
+   randomized-greedy: fill each slot from its eligible pool, biased toward the mode's score but with
+   enough noise that repeated fills land on different rosters, keep every valid one under cap, then
+   greedily keep the best-scoring lineups that each swap out 3+ players from every one kept already
+   (two 8-of-9-shared lineups tell you nothing a single one doesn't).
+   mode "greedy": pure projection — the highest-projected player at a position wins that slot in
+   every lineup, same as any optimizer would build it. mode "contrarian": the single most-chalky
+   eligible player is sat outright (that IS what non-chalk means — it can't just softly discourage
+   him and then pick him anyway), and what's left is scored on projection minus a chalk penalty, so
+   the build actively trades some projection for one the field isn't all rostering — the point of a
+   small-field or single-entry GPP, where "greedy" x N all cashing or all missing together is the
+   actual risk. */
+function fillOneLineup(pool, cap, mode, chalk){
+  const minSal = Math.min(...pool.map(p=>p.sal));
+  const order = [...LINEUP_SLOTS.keys()].sort(()=>Math.random()-0.5);
+  const chosen = new Array(LINEUP_SLOTS.length);
+  const used = new Set();
+  let spent = 0;
+  for (const i of order){
+    const slot = LINEUP_SLOTS[i];
+    const eligible = slot === "FLEX" ? p => ["RB","WR","TE"].includes(p.pos) : p => p.pos === slot;
+    const remaining = LINEUP_SLOTS.length - chosen.filter(Boolean).length - 1;
+    const budget = cap - spent - remaining * minSal;
+    let candidates = pool.filter(p => eligible(p) && !used.has(p.n) && p.sal <= budget);
+    if (!candidates.length) candidates = pool.filter(p => eligible(p) && !used.has(p.n) && p.sal <= cap - spent);
+    if (!candidates.length) return null;
+    if (mode === "contrarian" && candidates.length > 1){
+      const maxChalk = Math.max(...candidates.map(p => chalk.get(p)));
+      const sat = candidates.filter(p => chalk.get(p) < maxChalk);
+      if (sat.length) candidates = sat;
+    }
+    const score = p => mode === "contrarian" ? p.proj - chalk.get(p)*10 : p.proj;
+    const ranked = candidates.map(p => ({p, s: Math.max(0.05, score(p)) * (0.55 + Math.random())}))
+      .sort((a,b) => b.s - a.s);
+    const pick = ranked[0].p;
+    chosen[i] = {slot, ...pick, _chalk: chalk.get(pick)};
+    used.add(pick.n);
+    spent += pick.sal;
+  }
+  if (spent > cap) return null;
+  const own = chosen.some(d=>typeof d.own === "number") ? chosen.reduce((a,d)=>a+(d.own||0),0) : null;
+  const avgChalk = chosen.reduce((a,d)=>a+d._chalk,0) / chosen.length;
+  return {players: chosen, spent, proj: chosen.reduce((a,d)=>a+d.proj,0), own, chalk: avgChalk};
+}
+function bestLineups(pool, cap, mode, count){
+  const chalk = chalkMap(pool);
+  const seen = new Set(), found = [];
+  for (let i = 0; i < 400 && found.length < 40; i++){
+    const l = fillOneLineup(pool, cap, mode, chalk);
+    if (!l) continue;
+    const key = l.players.map(p=>p.n).sort().join("|");
+    if (seen.has(key)) continue;
+    seen.add(key);
+    found.push(l);
+  }
+  found.sort((a,b) => mode === "contrarian"
+    ? (b.proj - b.chalk*10) - (a.proj - a.chalk*10)
+    : b.proj - a.proj);
+  const picked = [];
+  for (const l of found){
+    if (picked.length >= count) break;
+    const tooClose = picked.some(k => k.players.filter(x => l.players.some(y=>y.n===x.n)).length > 6);
+    if (!tooClose) picked.push(l);
+  }
+  return picked;
+}
+let TOP_MODE = "greedy";
+let TOP_CACHE = {key:null, lineups:[]};
+function topLineups(){
+  const site = dfsSite();
+  const key = `${site.key}|${TOP_MODE}|${site.pool.length}`;
+  if (TOP_CACHE.key !== key) TOP_CACHE = {key, lineups: bestLineups(site.pool, site.cap, TOP_MODE, TOP_COUNT)};
+  return TOP_CACHE.lineups;
 }
 
 let BUILD_MODE = "parlay";
@@ -1544,13 +1683,18 @@ function marketHead(kind){
   const f = (typeof LIVE_FEED !== "undefined" && LIVE_FEED) ? LIVE_FEED.fetched : {};
   const site = kind === "dfs" ? dfsSite() : null;
   const when = kind === "props" ? (LIVE_MARKET ? LIVE_MARKET.fetched : null) : site.when;
+  const hasModel = kind === "props" && LIVE_MARKET && LIVE_MARKET.model;
   return `<div class="mkthead">
     <div>
       <span class="lbl">${kind === "props" ? "Player prop market" : `${site.label} DFS player pool`}</span>
       <div class="mktsrc">${kind === "props"
-        ? `${PROPS.length} priced lines · ${new Set(PROPS.map(p=>p.n)).size} players · ${new Set(PROPS.map(p=>p.game)).size} games · ${BOOKS.join(", ")}${LIVE_MARKET ? "" : " · SAMPLE"}`
-          + (LIVE_MARKET && LIVE_MARKET.model ? `<br>Model: ${LIVE_MARKET.model.modeled} lines priced from games through ${esc(LIVE_MARKET.model.through)}. MODEL % is the chance the over hits, from the player's own last 24 games, nudged by what the defense he faces allows to his position ("SEA D −8%" on the card). EDGE is that minus the break-even of the over's price, in points: +5 means the model has it five points better than the book needs.` : "")
+        ? `${PROPS.length} priced lines · ${new Set(PROPS.map(p=>p.n)).size} players · ${new Set(PROPS.map(p=>p.game)).size} games · ${BOOKS.join(", ")}`
+          + (hasModel ? ` · model through ${esc(LIVE_MARKET.model.through)}` : "") + `${LIVE_MARKET ? "" : " · SAMPLE"}`
         : `${site.pool.length} players · $${site.cap.toLocaleString()} cap · salaries as posted${site.key==="yahoo" && !LIVE_YAHOO_DFS ? " · SAMPLE" : ""}`}</div>
+      ${hasModel ? `<div class="mktdef">
+        <span><b>MODEL %</b> chance the over hits, from the player's last 24 games, nudged by what his opponent allows to his position</span>
+        <span><b>EDGE</b> model % minus the book's break-even, in points — +5 means the model likes the over 5 points more than the price needs</span>
+      </div>` : ""}
     </div>
     <span class="pill ${when?"":"warn"}">${when ? `Fetched ${esc(when)}`
       : (kind === "props" ? "No props pulled yet" : "No salary export loaded")}</span>
@@ -1741,6 +1885,44 @@ function dfsHTML(){
   </div>`;
 }
 
+function lineupCard(l, i, cap){
+  const pct = Math.min(100, (l.spent/cap)*100);
+  return `<div class="lineupcard ${i===0?"best":""}">
+    <div class="sliphead"><span class="lbl">${i===0?"★ Best · ":""}Lineup ${i+1}</span>
+      <span class="pill">${l.proj.toFixed(1)} PROJ · ~${Math.round(l.chalk*100)}% PROJ OWN</span></div>
+    ${l.players.map(d => `
+      <div class="lslot" style="padding:8px 15px">
+        <span class="slottag">${esc(d.slot)}</span>
+        ${HEADS[d.slug] ? `<img src="${HEADS[d.slug]}" alt="">` : `<div class="fallback">${esc(d.abbr || initials(d.n))}</div>`}
+        <div style="min-width:0"><div class="sn">${esc(d.n)}</div>
+          <div class="sm">${esc(d.pos)} · ${esc(d.team)} · ${d.proj.toFixed(1)} PROJ</div></div>
+        <div class="lsal">$${d.sal.toLocaleString()}</div>
+      </div>`).join("")}
+    <div class="payout" style="padding-top:10px">
+      <div class="payrow"><span>SPENT</span><b>$${l.spent.toLocaleString()} <span style="color:var(--ink-3)">of $${cap.toLocaleString()}</span></b></div>
+      <div class="salbar"><i style="--w:${pct.toFixed(1)}%"></i></div>
+      <button class="btn" style="width:100%;margin-top:12px" data-loadlineup="${i}">Load into my lineup</button>
+    </div>
+  </div>`;
+}
+function topLineupsHTML(){
+  const site = dfsSite();
+  const lineups = topLineups();
+  return `<div class="rule"><h2>Top ${TOP_COUNT} lineups</h2><span class="hair"></span>
+    <span class="side">randomized-greedy, not exact-optimal</span></div>
+  <div class="filters">
+    <span class="lbl">Strategy</span>
+    <button class="chip" data-topmode="greedy" aria-pressed="${TOP_MODE==="greedy"}">Greedy · max points</button>
+    <button class="chip" data-topmode="contrarian" aria-pressed="${TOP_MODE==="contrarian"}">Non-chalk · for GPPs</button>
+  </div>
+  <div class="hint">No site publishes real ownership before lock — PROJ OWN is a rank-based estimate,
+    same idea any pre-lock ownership projection tool uses. Non-chalk sits the single most-projected
+    play at each position and biases the rest toward less of it.</div>
+  ${lineups.length ? `
+  <div class="lineupgrid">${lineups.map((l,i)=>lineupCard(l,i,site.cap)).join("")}</div>`
+  : `<div class="state-empty" style="min-height:120px"><div><b>0</b><span>NOT ENOUGH PRICED PLAYERS AT EVERY POSITION TO FILL A LINEUP</span></div></div>`}`;
+}
+
 function builderHTML(){
   const parlay = BUILD_MODE === "parlay";
   return `<section class="hero">
@@ -1748,11 +1930,10 @@ function builderHTML(){
     <div class="wrap hero-in">
       <div>
         <div class="hero-eyebrow" style="--tint:var(--lime)">
-          <span class="league-mark"></span><span class="lbl">Same edge, different wrapper</span>
+          <span class="league-mark"></span><span class="lbl">${parlay ? `${PROPS.length} lines priced · week 1` : `${dfsSite().label} · $${dfsSite().cap.toLocaleString()} cap`}</span>
         </div>
         <h1>Build the<br><em>${parlay ? "slip" : "lineup"}</em></h1>
-        <div class="hero-meta"><span class="pill">Shortlist comes from the pool</span>
-        <span class="pill ${LIVE_MARKET && !PROPS.some(p=>typeof p.model==="number") ? "warn" : ""}">${LIVE_MARKET && !PROPS.some(p=>typeof p.model==="number") ? "Book prices only · model pending" : "Model probability vs book price"}</span></div>
+        <div class="hero-meta"><span class="pill ${LIVE_MARKET && !PROPS.some(p=>typeof p.model==="number") ? "warn" : ""}">${LIVE_MARKET && !PROPS.some(p=>typeof p.model==="number") ? "Book prices only · model pending" : "Model % vs book price"}</span></div>
       </div>
       <div><div class="signals">
         ${PROPS.some(p=>typeof p.model==="number") ? `
@@ -1767,14 +1948,17 @@ function builderHTML(){
     </div>
   </section>
   <div class="wrap">
-    <div class="modes">
-      <button class="mode" data-mode="parlay" aria-pressed="${parlay}">Parlay</button>
-      <button class="mode" data-mode="dfs" aria-pressed="${!parlay}">DFS lineup</button>
+    <div class="switcher">
+      <div class="modes">
+        <button class="mode" data-mode="parlay" aria-pressed="${parlay}">Parlay</button>
+        <button class="mode" data-mode="dfs" aria-pressed="${!parlay}">DFS lineup</button>
+      </div>
+      ${!parlay ? `<div class="modes-sub">
+        <span class="lbl">Book</span>
+        <button class="mode-sub" data-dfssite="yahoo" aria-pressed="${DFS_SITE==="yahoo"}">Yahoo</button>
+        <button class="mode-sub" data-dfssite="dk" aria-pressed="${DFS_SITE==="dk"}">DraftKings</button>
+      </div>` : ""}
     </div>
-    ${!parlay ? `<div class="modes" style="margin-top:8px">
-      <button class="mode" data-dfssite="yahoo" aria-pressed="${DFS_SITE==="yahoo"}">Yahoo</button>
-      <button class="mode" data-dfssite="dk" aria-pressed="${DFS_SITE==="dk"}">DraftKings</button>
-    </div>` : ""}
     ${parlay ? `
       <div class="build">
         <div>
@@ -1786,16 +1970,25 @@ function builderHTML(){
             <button class="chip" data-mine="1" aria-pressed="${MKT_MINE}">My players only</button>
           </div>
           <div class="filters" style="margin-top:8px">
-            <span class="lbl">Market</span>
-            ${[["ALL","All"],["TD","Anytime TD"],["RUSH","Rush yds"],["REC","Rec yds"],["RECS","Receptions"],["PASS","Pass yds"]]
-              .map(([k,label])=>`<button class="chip" data-mkind="${k}" aria-pressed="${MKT_KIND===k}">${label}</button>`).join("")}
+            <label class="selwrap"><span class="lbl">Market</span>
+              <select class="msel" data-msel="mkind">
+                ${[["ALL","All"],["TD","Anytime TD"],["RUSH","Rush yds"],["REC","Rec yds"],["RECS","Receptions"],["PASS","Pass yds"]]
+                  .map(([k,label])=>`<option value="${k}" ${MKT_KIND===k?"selected":""}>${label}</option>`).join("")}
+              </select>
+            </label>
+            <label class="selwrap"><span class="lbl">Kickoff</span>
+              <select class="msel" data-msel="mslot">
+                ${[["ALL","All"],["morning","Morning"],["afternoon","Afternoon"],["evening","Evening"]]
+                  .map(([k,label])=>`<option value="${k}" ${MKT_SLOT===k?"selected":""}>${label}</option>`).join("")}
+              </select>
+            </label>
             <span style="flex:1"></span>
-            <span class="lbl">Kickoff</span>
-            ${[["ALL","All"],["morning","Morning"],["afternoon","Afternoon"],["evening","Evening"]]
-              .map(([k,label])=>`<button class="chip" data-mslot="${k}" aria-pressed="${MKT_SLOT===k}">${label}</button>`).join("")}
-            <span class="lbl" style="margin-left:10px">Sort</span>
-            ${[["edge","Edge"],["model","Model %"]]
-              .map(([k,label])=>`<button class="chip" data-msort="${k}" aria-pressed="${MKT_SORT===k}">${label}</button>`).join("")}
+            <label class="selwrap"><span class="lbl">Sort</span>
+              <select class="msel" data-msel="msort">
+                ${[["edge","Edge"],["model","Model %"]]
+                  .map(([k,label])=>`<option value="${k}" ${MKT_SORT===k?"selected":""}>${label}</option>`).join("")}
+              </select>
+            </label>
           </div>
           ${(() => {
             const rows = PROPS.filter(p => (MKT_POS==="ALL"||p.pos===MKT_POS) && (MKT_KIND==="ALL"||p.mkt===MKT_KIND)
@@ -1808,7 +2001,8 @@ function builderHTML(){
         <div class="side">${slipHTML()}${modelCardHTML()}</div>
       </div>`
     : `
-      <div class="build">
+      ${topLineupsHTML()}
+      <div class="build" style="margin-top:24px">
         <div>
           ${marketHead("dfs")}
           <div class="filters">
@@ -1817,16 +2011,27 @@ function builderHTML(){
             <span style="flex:1"></span>
             <span class="lbl">Value = points per $${(dfsSite().cap/50).toLocaleString()}</span>
           </div>
-          <div class="ptable dfstable">
-            <div class="phead"><div></div><div>Player</div><div>Salary</div><div>Proj</div>
-              <div>Value</div><div>Own</div><div></div></div>
-            ${(() => {
-              const cap = dfsSite().cap;
-              const rows = dfsSite().pool.filter(p => DFS_POS==="ALL"||p.pos===DFS_POS);
-              return rows.length ? rows.map((p,i)=>dfsPoolRow(p,i,cap)).join("")
-                : `<div class="state-empty" style="margin:20px 0;min-height:110px"><div><b>0</b><span>NO PLAYERS AT THAT POSITION</span></div></div>`;
-            })()}
-          </div>
+          ${(() => {
+            const cap = dfsSite().cap;
+            const all = dfsSite().pool.filter(p => DFS_POS==="ALL"||p.pos===DFS_POS);
+            const pages = Math.max(1, Math.ceil(all.length / DFS_PAGE_SIZE));
+            const page = Math.min(DFS_PAGE, pages);
+            const rows = all.slice((page-1)*DFS_PAGE_SIZE, page*DFS_PAGE_SIZE);
+            const pager = `<div class="filters" style="margin-top:8px">
+              <span class="lbl">${all.length} player${all.length===1?"":"s"}</span>
+              <span style="flex:1"></span>
+              <button class="chip" data-dfspage="prev" ${page<=1?"disabled":""}>‹ Prev</button>
+              <span class="lbl">Page ${page} of ${pages}</span>
+              <button class="chip" data-dfspage="next" ${page>=pages?"disabled":""}>Next ›</button>
+            </div>`;
+            return `${pager}
+            <div class="ptable dfstable">
+              <div class="phead"><div></div><div>Player</div><div>Salary</div><div>Proj</div>
+                <div>Value</div><div>Own</div><div></div></div>
+              ${rows.length ? rows.map((p,i)=>dfsPoolRow(p,i,cap)).join("")
+                : `<div class="state-empty" style="margin:20px 0;min-height:110px"><div><b>0</b><span>NO PLAYERS AT THAT POSITION</span></div></div>`}
+            </div>`;
+          })()}
         </div>
         <div>${dfsHTML()}</div>
       </div>`}
@@ -1882,22 +2087,34 @@ function render(){
       MKT_POS = b.dataset.mpos; render();
     }));
     v.querySelectorAll("[data-dpos]").forEach(b=>b.addEventListener("click",()=>{
-      DFS_POS = b.dataset.dpos; render();
+      DFS_POS = b.dataset.dpos; DFS_PAGE = 1; render();
     }));
     v.querySelectorAll("[data-dfssite]").forEach(b=>b.addEventListener("click",()=>{
-      DFS_SITE = b.dataset.dfssite; render();
+      DFS_SITE = b.dataset.dfssite; DFS_PAGE = 1; render();
+    }));
+    v.querySelectorAll("[data-dfspage]").forEach(b=>b.addEventListener("click",()=>{
+      DFS_PAGE = Math.max(1, DFS_PAGE + (b.dataset.dfspage === "next" ? 1 : -1));
+      const y = window.scrollY; render(); window.scrollTo(0, y);
+    }));
+    v.querySelectorAll("[data-topmode]").forEach(b=>b.addEventListener("click",()=>{
+      TOP_MODE = b.dataset.topmode; render();
+    }));
+    v.querySelectorAll("[data-loadlineup]").forEach(b=>b.addEventListener("click",()=>{
+      const l = topLineups()[+b.dataset.loadlineup];
+      if (!l) return;
+      const lineup = dfsSite().lineup;
+      l.players.forEach((d,i)=>{ lineup[i] = {...d}; });
+      const y = window.scrollY; render(); window.scrollTo(0, y);
     }));
     v.querySelectorAll("[data-mine]").forEach(b=>b.addEventListener("click",()=>{
       MKT_MINE = !MKT_MINE; render();
     }));
-    v.querySelectorAll("[data-mkind]").forEach(b=>b.addEventListener("click",()=>{
-      MKT_KIND = b.dataset.mkind; render();
-    }));
-    v.querySelectorAll("[data-msort]").forEach(b=>b.addEventListener("click",()=>{
-      MKT_SORT = b.dataset.msort; render();
-    }));
-    v.querySelectorAll("[data-mslot]").forEach(b=>b.addEventListener("click",()=>{
-      MKT_SLOT = b.dataset.mslot; render();
+    v.querySelectorAll("[data-msel]").forEach(sel=>sel.addEventListener("change",()=>{
+      const val = sel.value;
+      if (sel.dataset.msel === "mkind"){ MKT_KIND = val; MKT_SORT = val === "TD" ? "model" : "edge"; }
+      else if (sel.dataset.msel === "mslot"){ MKT_SLOT = val; }
+      else if (sel.dataset.msel === "msort"){ MKT_SORT = val; }
+      render();
     }));
     v.querySelectorAll("[data-preset]").forEach(b=>b.addEventListener("click",()=>{
       SLIP_MODE = b.dataset.preset; SLIP = presetSlip(SLIP_MODE);

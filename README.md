@@ -30,9 +30,13 @@ The build also reads `ff-jarvis/data/{espn_rosters,league_rosters}.json` and inj
 rosters. If those files are missing it falls back to the copies inside the template, so the page
 always renders.
 
-Yahoo's DFS pool in the Builder reads `data/dfs_yahoo.csv` — a contest's own "Export Player
-List" CSV, saved by hand (Yahoo has no public API for this). Re-download it before a build to
-refresh salaries and injury statuses; without it the Yahoo mode falls back to sample data.
+Yahoo's DFS pool in the Builder reads ff-jarvis's `data/dfs_pool.json` (via `feed.json`'s
+`market.dfs` block, or that file directly) — a contest's own "Export Player List" CSV, imported by
+hand with `python -m model.clients.dfs import <csv>` (Yahoo has no public API for this, and an
+automated scrape is deliberately not built — see that module's docstring). Re-import before a build
+to refresh salaries; without it the Yahoo mode falls back to sample data. Injury status prefers
+ff-jarvis's Sleeper read (`data/sleeper_status.json`) over the pool's own Yahoo status column —
+see `design/build.py`'s `load_status()`.
 
 ## Layout
 
