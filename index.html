@@ -539,7 +539,11 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .presets .chip{padding:5px 9px;font-size:11px}
 .bigedge.pending{color:var(--ink-3);font-size:22px;font-weight:400;letter-spacing:.02em;text-transform:uppercase;padding:8px 0}
 
-.slip{position:sticky;top:118px;border:1px solid var(--line-2);background:var(--panel)}
+/* The right column (slip + model card) sticks as one and scrolls inside itself when taller than
+   the viewport, so the card is never hidden under a sticky slip. */
+.side{position:sticky;top:118px;max-height:calc(100vh - 130px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line-2) transparent;padding-right:2px}
+.side::-webkit-scrollbar{width:6px}.side::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:3px}
+.slip{border:1px solid var(--line-2);background:var(--panel)}
 .sliphead{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid var(--line);background:var(--panel-2)}
 .slipleg{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 15px;border-bottom:1px solid var(--line)}
 .slipleg .p{font-size:12.5px;font-weight:500;letter-spacing:-.01em}
@@ -548,6 +552,36 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .corr{display:flex;align-items:center;gap:9px;padding:10px 15px;border-bottom:1px solid var(--line);
   background:rgba(255,176,32,.07);color:var(--amber);font-family:var(--mono);font-size:11px;letter-spacing:.1em}
 .payout{padding:15px}
+
+/* model card: what goes into the number, how much each part weighs, and the sample it was
+   measured on. Sits under the slip; the slip stays sticky, this scrolls. */
+.mcard{margin-top:14px;border:1px solid var(--line);background:var(--panel)}
+.mcard-head{padding:13px 15px 11px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+.mcard-head h3{margin:0;font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:-.02em;line-height:1;text-transform:uppercase}
+.mcard-head h3 em{font-style:normal;color:var(--lime)}
+.mcard-head .lbl{white-space:nowrap}
+.ribbon{padding:14px 15px 4px}
+.ribbon .lbl{display:block;margin-bottom:8px}
+.ribbon .bar{display:flex;height:22px;border:1px solid var(--line-2);overflow:hidden}
+.ribbon .bar i{display:grid;place-items:center;font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.1em;white-space:nowrap;overflow:hidden}
+.ribbon .bar .a{background:var(--lime);color:#0b0d05}
+.ribbon .bar .b{background:var(--panel-3);color:var(--ink)}
+.ribbon .bar .c{background:repeating-linear-gradient(135deg,var(--panel-3) 0 4px,var(--panel) 4px 8px);color:var(--ink-2);border-left:1px solid var(--line-2)}
+.ribbon .key{display:flex;gap:14px;flex-wrap:wrap;margin-top:7px;font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--ink-3);text-transform:uppercase}
+.mrow{display:grid;grid-template-columns:22px minmax(0,1fr) 88px;gap:10px 12px;padding:12px 15px;border-top:1px solid var(--line);align-items:start}
+.mrow .ix{font-family:var(--mono);font-size:10px;color:var(--ink-3);padding-top:3px}
+.mrow h4{margin:0;font-size:13px;font-weight:600;letter-spacing:-.01em}
+.mrow p{margin:4px 0 0;font-size:11.5px;line-height:1.5;color:var(--ink-2)}
+.mrow .ev{margin-top:6px;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:var(--ink-3);text-transform:uppercase}
+.mrow .ev b{color:var(--ink);font-weight:600}
+.mrow .wt{text-align:right}
+.mrow .wt b{display:block;font-family:var(--mono);font-size:19px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.mrow .wt span{display:block;margin-top:4px;font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase}
+.mrow.off{opacity:.62}
+.mrow.off .wt b{color:var(--ink-3);font-size:14px;font-weight:400}
+.mcard-foot{padding:11px 15px 13px;border-top:1px solid var(--line-2);background:var(--panel-2);font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--ink-3);text-transform:uppercase;line-height:1.7}
+.mcard-foot b{color:var(--amber);font-weight:600}
+@media (max-width:760px){.mrow{grid-template-columns:18px minmax(0,1fr) 70px;padding:11px 13px}.mcard-head h3{font-size:19px}}
 .payrow{display:flex;align-items:baseline;justify-content:space-between;padding:6px 0;font-family:var(--mono);font-size:11px;color:var(--ink-2)}
 .payrow b{color:var(--ink);font-weight:700;font-size:13px}
 .bigedge{margin:12px 0 4px;font-family:var(--mono);font-size:38px;font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--lime)}
@@ -689,7 +723,7 @@ html{scrollbar-color:var(--line-2) var(--void)}
     background:var(--panel);padding:3px 6px;border:1px solid var(--line);pointer-events:none;
   }
   .build{grid-template-columns:minmax(0,1fr);gap:14px}
-  .slip{position:static}
+  .side{position:static;max-height:none;overflow:visible;padding-right:0}
   .leg{grid-template-columns:36px minmax(0,1fr) auto;gap:9px 12px;align-items:center}
   .leg img,.leg .fallback{width:36px;height:36px;grid-row:1/3}
   .leg > div:nth-child(2){grid-column:2/3}
@@ -1291,7 +1325,7 @@ const bookLine = p => !p.books ? `BOOK ${p.book}`
   : Object.entries(p.books).map(([b,x]) => `${ABBR[b]||b} ${x.line == null ? "" : `o${x.line} `}${fmtAm(x.over)}`
       + (x.pick ? ` → ${x.pick.toUpperCase()} ${x.conf}%` : "")).join(" · ")
     + (p.games ? ` · ${p.games} GP` : "")
-    + (p.opp_f ? ` · ${esc(p.opp)} D ${p.opp_f >= 1 ? "+" : "−"}${Math.round(Math.abs(p.opp_f - 1) * 100)}%` : "");
+    + (p.opp_f ? ` · ${esc(p.opp)} D ${Math.round(Math.abs(p.opp_f - 1) * 100) === 0 ? "±0" : (p.opp_f >= 1 ? "+" : "−") + Math.round(Math.abs(p.opp_f - 1) * 100)}%` : "");
 const ud = p => p.books && p.books.Underdog;
 
 /* Slip presets. "Best" is the three largest positive edges the model will stand behind: one leg
@@ -1534,6 +1568,79 @@ function marketHead(kind){
   </div>`;
 }
 
+/* The model, described where the number is used. The live counts come from this build; the
+   measured numbers are the 2025 rolling backtest in ff-jarvis METHODOLOGY 12.29, copied here with
+   their date. A touchdown number is mostly the book's lines: the prior weighs 15 games against a
+   player's own effective sample of at most 6.2 (24 games at half-life 4), so 15 / 21.2 = 71%. */
+const BACKTEST = {
+  date: "2026-09-09", games: 18158, players: 542, season: 2025,
+  cover: [76.6, 82.3],           // 80% bands: share of games inside, worst and best market
+  td: {n: 4938, before: 0.442, after: 0.428},   // log loss of P(any TD), position prior -> book's role
+  opp: {n: 536, before: 69.2, after: 68.5},     // passing-yards MAE without / with the defense
+  tdBookShare: 71, ownWindow: 24, halfLife: 4, oppWeight: 0.5,
+};
+function modelCardHTML(){
+  if (!LIVE_MARKET || !LIVE_MARKET.model) return "";
+  const P = PROPS, M = LIVE_MARKET.model;
+  const n = k => P.filter(k).length;
+  const out = n(p => p.flag === "out"), q = n(p => p.flag === "q"), bk = n(p => p.flag === "backup"),
+        stale = n(p => p.stale), norole = n(p => p.norole);
+  const fs = P.map(p => p.opp_f).filter(Boolean);
+  const fmin = fs.length ? Math.min(...fs) : 1, fmax = fs.length ? Math.max(...fs) : 1;
+  const w = BACKTEST.oppWeight;
+  const oppLo = Math.round((Math.pow(fmin, w) - 1) * 100), oppHi = Math.round((Math.pow(fmax, w) - 1) * 100);
+  const pct = x => `${x.toFixed(1)}%`;
+  return `<section class="mcard" aria-label="How the number is made">
+    <div class="mcard-head">
+      <h3>How the <em>number</em> is made</h3>
+      <span class="lbl">Measured on ${BACKTEST.games.toLocaleString()} games</span>
+    </div>
+    <div class="ribbon">
+      <span class="lbl">A touchdown number, by weight</span>
+      <div class="bar" role="img" aria-label="71% the book's lines, 29% his own games, then the defense">
+        <i class="a" style="flex:${BACKTEST.tdBookShare}">BOOK'S LINES ${BACKTEST.tdBookShare}%</i>
+        <i class="b" style="flex:${100 - BACKTEST.tdBookShare}">HIS GAMES ${100 - BACKTEST.tdBookShare}%</i>
+      </div>
+      <div class="key"><span>A yards number is his games alone, then × the defense</span></div>
+    </div>
+    <div class="mrow">
+      <span class="ix">01</span>
+      <div><h4>His own games</h4>
+        <p>The last ${BACKTEST.ownWindow}, the newest counting most (a game four back counts half). The spread around that rate comes from how far players like him have landed from theirs.</p>
+        <div class="ev">80% bands held <b>${pct(BACKTEST.cover[0])}–${pct(BACKTEST.cover[1])}</b> of ${BACKTEST.games.toLocaleString()} player-games, ${BACKTEST.season}, out of sample</div></div>
+      <div class="wt"><b>100%</b><span>of a yards number</span></div>
+    </div>
+    <div class="mrow">
+      <span class="ix">02</span>
+      <div><h4>The book's lines</h4>
+        <p>His rushing and receiving lines say what his job is this week. They set most of the touchdown number and, when they sit far from his history, mark a yards line ROLE? instead of edge.</p>
+        <div class="ev">TD error <b>${BACKTEST.td.before} → ${BACKTEST.td.after}</b> on ${BACKTEST.td.n.toLocaleString()} games · <b>${stale}</b> lines ROLE?, <b>${norole}</b> TD lines with no role this week</div></div>
+      <div class="wt"><b>${BACKTEST.tdBookShare}%</b><span>of a TD number</span></div>
+    </div>
+    <div class="mrow">
+      <span class="ix">03</span>
+      <div><h4>The defense</h4>
+        <p>What it allows his position, last 8 games against league, taken at half strength. It moves passing; rushing and receiving barely notice.</p>
+        <div class="ev">Passing error <b>${BACKTEST.opp.before} → ${BACKTEST.opp.after}</b> yds on ${BACKTEST.opp.n} games · others within 0.1 · this slate <b>${oppLo >= 0 ? "+" : "−"}${Math.abs(oppLo)}% to +${oppHi}%</b></div></div>
+      <div class="wt"><b>×½</b><span>weight on the rate</span></div>
+    </div>
+    <div class="mrow">
+      <span class="ix">04</span>
+      <div><h4>Who is playing</h4>
+        <p>Sleeper's injury report and depth chart. Out gets no number, questionable and backups get a tag, and none of them can enter a slip.</p>
+        <div class="ev">This week <b>${out}</b> lines out · <b>${q}</b> questionable · <b>${bk}</b> backups${M.status_fetched ? ` · pulled ${esc(M.status_fetched)}` : ""}</div></div>
+      <div class="wt"><b>gate</b><span>not a weight</span></div>
+    </div>
+    <div class="mrow off">
+      <span class="ix">—</span>
+      <div><h4>Not in it yet</h4>
+        <p>Game total and spread, scheme, cornerback matchups, weather, Wednesday-to-Friday practice. Volume × efficiency was tried and did not beat his plain games.</p></div>
+      <div class="wt"><b>0</b><span>untested here</span></div>
+    </div>
+    <div class="mcard-foot">Calibrated on ${BACKTEST.season} · stats through ${esc(M.through)} · <b>not yet scored against closing lines</b> · first grade when week-1 box scores post</div>
+  </section>`;
+}
+
 /* What "Copy slip" puts on the clipboard: one leg per line, the way you would type it into the
    book, plus the model's number so a pasted slip still says why. */
 function slipText(picks){
@@ -1709,7 +1816,7 @@ function builderHTML(){
               : `<div class="state-empty" style="margin:20px 0;min-height:120px"><div><b>0</b><span>NO LINES MATCH THAT FILTER</span></div></div>`;
           })()}
         </div>
-        <div>${slipHTML()}</div>
+        <div class="side">${slipHTML()}${modelCardHTML()}</div>
       </div>`
     : `
       <div class="build">
