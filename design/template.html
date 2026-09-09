@@ -514,6 +514,8 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .tag.t-q{color:var(--amber);border:1px solid rgba(255,176,32,.4);background:rgba(255,176,32,.08)}
 .tag.t-bk{color:var(--ink-3);border:1px solid var(--line-2)}
 .tag.t-role{color:var(--amber);border:1px dashed rgba(255,176,32,.5);cursor:help}
+.tag.t-cbup{color:var(--up);border:1px solid rgba(55,224,139,.4);cursor:help}
+.tag.t-cbdn{color:var(--down);border:1px solid rgba(255,90,82,.4);cursor:help}
 /* game-log strip: the last 12 games as bars against the line, opened by the card's chevron */
 .leg .more{appearance:none;background:none;border:1px solid var(--line);color:var(--ink-3);width:22px;height:22px;
   border-radius:2px;cursor:pointer;font-size:10px;display:grid;place-items:center;justify-self:end;transition:all .15s var(--ease)}
@@ -1471,7 +1473,8 @@ function propCard(p, i){
     <div class="edgecell pending"><b>—</b><span>NO ROLE PRICED</span></div>`;
   const tag = (p.flag === "q" ? `<span class="tag t-q">Q${p.injury_note ? " · " + esc(p.injury_note) : ""}</span>`
     : p.flag === "backup" ? `<span class="tag t-bk">${esc(p.pos)}${p.depth}</span>` : "")
-    + (p.stale ? `<span class="tag t-role" title="The book's line is far from last season's rate: the role changed and the model has not caught up. Not slip material.">ROLE?</span>` : "");
+    + (p.stale ? `<span class="tag t-role" title="The book's line is far from last season's rate: the role changed and the model has not caught up. Not slip material.">ROLE?</span>` : "")
+    + (p.cb ? `<span class="tag ${p.cb.v === "upgrade" ? "t-cbup" : "t-cbdn"}" title="RotoBaller WR/CB matchups, week ${LIVE_MARKET && LIVE_MARKET.wrcb ? LIVE_MARKET.wrcb.week : ""}: ${esc(p.cb.v)} vs ${esc(p.cb.cb)}. ${esc(p.cb.why)} — opinion, not in the number.">CB ${p.cb.v === "upgrade" ? "↑" : "↓"} ${esc(lastName(p.cb.cb))}</span>` : "");
   const log = LIVE_MARKET && LIVE_MARKET.logs && p.slug ? LIVE_MARKET.logs[p.slug] : (LIVE_MARKET && LIVE_MARKET.logs ? LIVE_MARKET.logs[slugOf(p.n)] : null);
   const open = EXPANDED.has(i);
   return `<div class="leg ${p.mine?"mine":""} ${inSlip?"inslip":""} ${p.flag==="out"?"isout":""} ${open?"open":""}" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">
@@ -1488,6 +1491,7 @@ function propCard(p, i){
 
 /* The same slug rule build.py uses, for a player the headshot set does not know. */
 const slugOf = n => n.toLowerCase().replace(/[^a-z0-9 ]/g, "").split(/\s+/).filter(w => !["jr","sr","ii","iii","iv","v"].includes(w)).join("-");
+const lastName = n => n.replace(/\s+(Jr|Sr|II|III|IV|V)\.?$/i, "").trim().split(" ").slice(-1)[0];
 let EXPANDED = new Set();
 
 /* The last 12 games as bars, the line as a rule across them. A bar that clears the line is lime.
@@ -1619,7 +1623,7 @@ function modelCardHTML(){
     <div class="mrow off">
       <span class="ix">—</span>
       <div><h4>Not in it yet</h4>
-        <p>Game total and spread, scheme, cornerback matchups, weather, Wednesday-to-Friday practice. Volume × efficiency was tried and did not beat his plain games.</p></div>
+        <p>Game total and spread, scheme, weather, Wednesday-to-Friday practice. Cornerback matchups appear as a CB tag from RotoBaller's weekly column, opinion only. Volume × efficiency and touchdowns allowed by the defense were tried and did not beat what is here.</p></div>
       <div class="wt"><b>0</b><span>untested here</span></div>
     </div>
     <div class="mcard-foot">Calibrated on ${BACKTEST.season} · stats through ${esc(M.through)} · <b>not yet scored against closing lines</b> · first grade when week-1 box scores post</div>

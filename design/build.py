@@ -211,6 +211,25 @@ def kickoff(commence):
     return slot, label
 
 
+def load_wrcb():
+    """RotoBaller's WR/CB column for the week, feed first then the ff-jarvis file."""
+    feed = REPO / "data" / "feed.json"
+    try:
+        d = json.loads(feed.read_text(encoding="utf-8"))
+        block = ((d.get("market") or {}).get("wrcb") or {}).get("data")
+        if block and block.get("records"):
+            return block
+    except (OSError, json.JSONDecodeError):
+        pass
+    path = DWR / "wrcb.json"
+    if path.exists():
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return None
+    return None
+
+
 def implied(american):
     """Break-even probability of an American price, vig included."""
     a = float(american)
@@ -363,6 +382,17 @@ def live_props(available, rosters):
         if p["mkt"] != "TD" and p["line"] and r["mu"] and is_stale(p["mkt"], r["mu"], p["line"]):
             p["stale"] = 1
 
+    # RotoBaller's named WR/CB upgrades and downgrades, a tag on the receiver's cards. Opinion
+    # about a matchup the model cannot see; it moves no number and no slip.
+    wrcb = load_wrcb()
+    if wrcb:
+        by_slug = {slugify(r["wr"]): r for r in wrcb.get("records", [])}
+        for p in out:
+            r = by_slug.get(slugify(p["n"]))
+            if r and p["mkt"] in ("REC", "RECS", "TD"):
+                p["cb"] = {"v": r["verdict"], "cb": r["cb"], "why": (r.get("rationale") or "")[:400],
+                           "url": r.get("source_url")}
+
     # Best edge first; unmodelled rows after, mine first, by kickoff; the not-playing last.
     out.sort(key=lambda p: (0, -p["edge"]) if "edge" in p
              else (2 if p.get("flag") == "out" else 1, not p["mine"], p["commence"] or "",
@@ -379,6 +409,8 @@ def live_props(available, rosters):
                   "modeled": modeled, "status_fetched": model.get("status_fetched"),
                   "not_playing": model.get("not_playing", 0)} if model else None,
         "props": out,
+        "wrcb": {"week": wrcb.get("week"), "fetched": wrcb.get("fetched"),
+                 "n": len(wrcb.get("records", []))} if wrcb else None,
         # last 12 games per priced player, keyed by slug: the card's game-log strip
         "logs": {slugify(k): v for k, v in (model or {}).get("logs", {}).items() if v},
     }
