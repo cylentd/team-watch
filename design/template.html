@@ -1,0 +1,928 @@
+<title>Team Watch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   TEAM WATCH — "Signal Desk"
+   Dark broadcast/terminal console. Committed single look.
+   Colour budget: lime = active/brand, green = up, red = down,
+   amber = caution/stale. Positions are typographic, never coloured.
+   ============================================================ */
+
+:root{
+  --void:#08080a;
+  --panel:#101116;
+  --panel-2:#171922;
+  --panel-3:#1e2029;
+  --line:#23252f;
+  --line-2:#33363f;
+  --ink:#f3f1ea;
+  --ink-2:#9a99a6;
+  --ink-3:#6a6975;
+  --lime:#c8ff2e;
+  --up:#37e08b;
+  --down:#ff5a52;
+  --amber:#ffb020;
+  --yahoo:#8b5cff;
+  --espn:#ff2d2d;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --disp:"Bricolage Grotesque","Archivo",sans-serif;
+  --ui:"Archivo","Segoe UI",sans-serif;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:
+    radial-gradient(1200px 600px at 12% -8%, rgba(200,255,46,.055), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, rgba(139,92,255,.05), transparent 55%),
+    var(--void);
+  color:var(--ink);
+  font-family:var(--ui);
+  font-size:14px;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+/* grain */
+.grain{
+  position:fixed; inset:0; pointer-events:none; z-index:60; opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--void)}
+::-webkit-scrollbar-thumb{background:var(--line-2);border:2px solid var(--void);border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:var(--lime)}
+html{scrollbar-color:var(--line-2) var(--void)}
+
+.wrap{max-width:1180px;margin:0 auto;padding:0 26px}
+.bleed{width:100%}
+
+/* mono label */
+.lbl{
+  font-family:var(--mono); font-size:10px; font-weight:500;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--ink-3);
+}
+
+/* ============================== TOP BAR ============================== */
+.topbar{
+  position:sticky; top:0; z-index:40;
+  background:var(--void);
+  border-bottom:1px solid var(--line);
+}
+.topbar-in{
+  display:flex; align-items:center; gap:18px; height:58px;
+}
+.brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.brand-mark{
+  width:11px;height:22px;background:var(--lime);
+  box-shadow:0 0 18px rgba(200,255,46,.5);
+  animation:pulse 2.6s var(--ease) infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scaleY(1)}50%{opacity:.55;transform:scaleY(.72)}}
+.brand-name{
+  font-family:var(--disp); font-weight:800; font-size:19px;
+  letter-spacing:-.02em; text-transform:uppercase;
+}
+.brand-name i{color:var(--lime);font-style:normal}
+.topbar-spacer{flex:1}
+.pill{
+  display:inline-flex;align-items:center;gap:7px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  padding:5px 10px;border:1px solid var(--line-2);color:var(--ink-2);
+  border-radius:2px;white-space:nowrap;
+}
+.pill.warn{border-color:rgba(255,176,32,.35);color:var(--amber);background:rgba(255,176,32,.06)}
+.dot{width:5px;height:5px;border-radius:99px;background:currentColor}
+
+/* ============================== SWITCHER ============================== */
+.switch-bar{border-bottom:1px solid var(--line);background:rgba(16,17,22,.5)}
+.switch{display:flex;gap:0}
+.tab{
+  position:relative;appearance:none;background:none;border:0;cursor:pointer;
+  padding:16px 22px 14px; text-align:left; color:var(--ink-3);
+  font-family:var(--ui); border-right:1px solid var(--line);
+  transition:background .25s var(--ease), color .25s var(--ease);
+}
+.tab:first-child{border-left:1px solid var(--line)}
+.tab::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--tint,var(--line-2));opacity:.45;transition:opacity .25s var(--ease)}
+.tab:hover{background:var(--panel);color:var(--ink-2)}
+.tab .tab-plat{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:4px}
+.tab .tab-team{display:block;font-size:14px;font-weight:500;letter-spacing:-.01em;white-space:nowrap}
+.tab-team .sm{display:none}
+.tab[aria-selected="true"]{background:var(--panel-2);color:var(--ink)}
+.tab[aria-selected="true"]::before{opacity:1}
+.tab[aria-selected="true"] .tab-plat{color:var(--tint)}
+.tab[aria-selected="true"]::after{
+  content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:var(--lime);
+}
+.tab:active{transform:scale(.985)}
+
+/* ============================== HERO ============================== */
+.hero{position:relative;padding:44px 0 34px;overflow:hidden}
+.numghost{
+  position:absolute;left:-34px;top:-46px;z-index:0;
+  font-family:var(--disp);font-weight:800;font-size:270px;line-height:1;
+  color:transparent;-webkit-text-stroke:1.5px rgba(200,255,46,.09);
+  pointer-events:none;user-select:none;letter-spacing:-.05em;
+}
+.hero-in{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:44px;align-items:end}
+.hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.league-mark{width:8px;height:8px;border-radius:99px;background:var(--tint)}
+.hero h1{
+  font-family:var(--disp);font-weight:800;
+  font-size:clamp(38px,6.4vw,80px);line-height:.9;letter-spacing:-.035em;
+  margin:0 0 16px;text-transform:uppercase;
+}
+.hero h1 em{font-style:normal;color:transparent;-webkit-text-stroke:2px var(--ink-2)}
+.hero-meta{display:flex;flex-wrap:wrap;gap:8px}
+
+.signals{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);background:var(--panel)}
+.sig{padding:14px 12px 13px;border-right:1px solid var(--line);min-width:0}
+.sig:last-child{border-right:0}
+.sig .lbl{white-space:nowrap;font-size:9px;letter-spacing:.16em}
+.sig-val{font-family:var(--mono);font-weight:700;font-size:30px;line-height:1;letter-spacing:-.03em;margin-top:9px}
+.sig-sub{font-family:var(--mono);font-size:9px;color:var(--ink-3);margin-top:7px;letter-spacing:.08em;white-space:nowrap}
+.sig.up .sig-val{color:var(--up)}
+.sig.down .sig-val{color:var(--down)}
+.sig.empty .sig-val{color:var(--ink-3)}
+.sig.empty{background:
+  repeating-linear-gradient(-45deg,transparent,transparent 6px,rgba(255,255,255,.018) 6px,rgba(255,255,255,.018) 12px)}
+
+/* ============================== TICKER ============================== */
+.ticker{
+  position:relative;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  background:var(--panel);height:42px;overflow:hidden;display:flex;align-items:center;
+}
+.ticker-tag{
+  flex-shrink:0;align-self:stretch;display:flex;align-items:center;gap:7px;
+  padding:0 14px;background:var(--lime);color:#0b0d05;
+  font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.18em;
+  z-index:2;
+}
+.ticker-track{display:flex;gap:0;white-space:nowrap;animation:slide 62s linear infinite}
+.ticker:hover .ticker-track{animation-play-state:paused}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.tick{display:inline-flex;align-items:center;gap:9px;padding:0 22px;font-size:12.5px;color:var(--ink-2)}
+.tick b{color:var(--ink);font-weight:500}
+.tick .arrow{font-family:var(--mono);font-size:11px}
+.tick .arrow.up{color:var(--up)}
+.tick .arrow.down{color:var(--down)}
+.tick .arrow.flat{color:var(--ink-3)}
+.tick .src{font-family:var(--mono);font-size:9.5px;color:var(--ink-3);letter-spacing:.08em}
+.tick::after{content:"";width:4px;height:4px;background:var(--line-2);transform:rotate(45deg);margin-left:22px}
+
+/* ============================== SECTION RULE ============================== */
+.rule{display:flex;align-items:center;gap:14px;margin:38px 0 0}
+.rule h2{font-family:var(--disp);font-weight:800;font-size:15px;letter-spacing:.02em;text-transform:uppercase;margin:0;white-space:nowrap}
+.rule .count{font-family:var(--mono);font-size:10px;color:var(--ink-3);letter-spacing:.14em}
+.rule .hair{flex:1;height:1px;background:linear-gradient(90deg,var(--line-2),transparent)}
+.rule .side{font-family:var(--mono);font-size:10px;color:var(--ink-3);letter-spacing:.14em}
+
+/* ============================== ROSTER ROW ============================== */
+.board{margin-top:14px;border-top:1px solid var(--line)}
+.row{
+  display:grid;
+  grid-template-columns:54px 46px minmax(0,1fr) 198px 112px 34px;
+  grid-template-areas:"slot head name trend rank news";
+  align-items:center;gap:16px;
+  padding:11px 14px 11px 12px;
+  border-bottom:1px solid var(--line);
+  cursor:pointer;position:relative;background:transparent;
+  transition:background .18s var(--ease);
+  opacity:0;transform:translateY(10px);
+  animation:rowin .55s var(--ease) forwards;
+}
+@keyframes rowin{to{opacity:1;transform:none}}
+.row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--lime);transform:scaleY(0);transform-origin:center;transition:transform .28s var(--ease)}
+.row:hover{background:var(--panel-2)}
+.row:hover::before{transform:scaleY(1)}
+.row:active{transform:scale(.996)}
+.row.bench{background:rgba(255,255,255,.012)}
+.row.out{background:rgba(255,90,82,.04)}
+
+.slot{grid-area:slot}
+.slot span{
+  display:inline-block;min-width:44px;text-align:center;padding:4px 0;
+  font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;
+  border:1px solid var(--line-2);color:var(--ink-2);border-radius:2px;
+}
+.row.start .slot span{color:var(--lime);border-color:rgba(200,255,46,.35);background:rgba(200,255,46,.06)}
+
+.head{grid-area:head;position:relative;width:46px;height:46px}
+.head img{width:46px;height:46px;border-radius:99px;object-fit:cover;background:var(--panel-3);border:1px solid var(--line-2);display:block}
+.row.start .head img{border-color:rgba(200,255,46,.4)}
+.head .fallback{
+  width:46px;height:46px;border-radius:99px;display:grid;place-items:center;
+  background:linear-gradient(145deg,var(--panel-3),var(--panel));border:1px solid var(--line-2);
+  font-family:var(--mono);font-size:13px;font-weight:700;color:var(--ink-3);letter-spacing:.02em;
+}
+.head .dst{
+  width:46px;height:46px;border-radius:4px;display:grid;place-items:center;
+  background:var(--panel-3);border:1px solid var(--line-2);
+  font-family:var(--disp);font-weight:800;font-size:15px;color:var(--ink-2);
+}
+.head .badge{
+  position:absolute;right:-3px;bottom:-3px;min-width:17px;height:17px;padding:0 4px;
+  display:grid;place-items:center;border-radius:99px;border:2px solid var(--void);
+  font-family:var(--mono);font-size:9px;font-weight:700;
+}
+.badge.q{background:var(--amber);color:#1a1200}
+.badge.o{background:var(--down);color:#2a0503}
+
+.nm{grid-area:name;min-width:0}
+.nm-1{display:flex;align-items:center;gap:8px;min-width:0}
+.nm-1 b{font-weight:500;font-size:15.5px;letter-spacing:-.012em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tag{
+  flex-shrink:0;font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.12em;
+  padding:2.5px 5px;border-radius:2px;text-transform:uppercase;
+}
+.tag.q{background:rgba(255,176,32,.14);color:var(--amber);border:1px solid rgba(255,176,32,.3)}
+.tag.o{background:rgba(255,90,82,.14);color:var(--down);border:1px solid rgba(255,90,82,.3)}
+.tag.dual{background:rgba(139,92,255,.14);color:#b596ff;border:1px solid rgba(139,92,255,.34)}
+.nm-2{display:flex;align-items:center;gap:9px;margin-top:4px;font-family:var(--mono);font-size:10.5px;color:var(--ink-3);letter-spacing:.04em}
+.nm-2 .sep{width:3px;height:3px;background:var(--line-2);border-radius:99px}
+.opp-dot{width:6px;height:6px;border-radius:99px;flex-shrink:0}
+
+.trend{grid-area:trend;display:flex;align-items:center;gap:12px;min-width:0}
+.spark{flex-shrink:0}
+.spark path.line{fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:400;stroke-dashoffset:400;animation:draw 1.1s var(--ease) .25s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.spark .area{opacity:0;animation:fade .8s var(--ease) .8s forwards}
+@keyframes fade{to{opacity:.13}}
+.spark .cap{opacity:0;animation:fade2 .4s var(--ease) 1.15s forwards}
+@keyframes fade2{to{opacity:1}}
+.delta{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
+.delta.up{color:var(--up)}
+.delta.down{color:var(--down)}
+.delta.flat{color:var(--ink-3)}
+.delta.new{color:var(--ink-3);border:1px dashed var(--line-2);padding:2px 6px;font-size:9.5px;letter-spacing:.14em}
+
+.rk{grid-area:rank;min-width:0;white-space:nowrap}
+.rk-1{display:flex;align-items:baseline;gap:6px}
+.rk-1 b{font-family:var(--mono);font-size:19px;font-weight:700;letter-spacing:-.03em}
+.rk-1 small{font-family:var(--mono);font-size:9.5px;color:var(--ink-3)}
+.rk-1 .mv{font-family:var(--mono);font-size:10px;font-weight:700}
+.mv.up{color:var(--up)} .mv.down{color:var(--down)} .mv.flat{color:var(--ink-3)}
+.pctbar{height:3px;background:var(--line);margin-top:6px;position:relative;overflow:hidden}
+.pctbar i{position:absolute;left:0;top:0;bottom:0;background:var(--ink-2);width:0;animation:grow 1s var(--ease) .4s forwards}
+.row.start .pctbar i{background:var(--lime)}
+@keyframes grow{to{width:var(--w)}}
+
+.news{grid-area:news;display:flex;justify-content:flex-end}
+.news i{
+  width:28px;height:28px;border-radius:99px;display:grid;place-items:center;
+  border:1px solid var(--line-2);font-family:var(--mono);font-size:11px;font-style:normal;color:var(--ink-3);
+  transition:all .2s var(--ease);
+}
+.news i.hot{border-color:rgba(200,255,46,.45);color:var(--lime);background:rgba(200,255,46,.08)}
+.row:hover .news i{border-color:var(--lime);color:var(--lime)}
+
+/* ============================== DOUBLE EXPOSURE ============================== */
+.expo{
+  position:relative;margin-top:26px;border:1px solid rgba(139,92,255,.3);
+  background:linear-gradient(120deg,rgba(139,92,255,.09),rgba(255,45,45,.05) 70%,transparent);
+  padding:22px 24px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:26px;align-items:center;
+}
+.expo h3{font-family:var(--disp);font-weight:800;font-size:26px;letter-spacing:-.02em;margin:0 0 8px;text-transform:uppercase}
+.expo p{margin:0;color:var(--ink-2);font-size:13px;max-width:52ch;line-height:1.55}
+.expo-faces{display:flex}
+.expo-faces figure{margin:0 0 0 -16px}
+.expo-faces figure:first-child{margin-left:0}
+.expo-faces img{width:62px;height:62px;border-radius:99px;object-fit:cover;border:2px solid #14121c;background:var(--panel-3);display:block}
+
+/* ============================== THE WIRE ============================== */
+.wire{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
+.swap{border:1px solid var(--line);background:var(--panel);padding:0;overflow:hidden}
+.swap-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel-2)}
+.swap-body{display:grid;grid-template-columns:1fr 34px 1fr;align-items:center}
+.side-o,.side-i{padding:14px}
+.side-o{border-right:1px solid var(--line);box-shadow:inset 3px 0 0 rgba(255,90,82,.55)}
+.side-i{border-left:1px solid var(--line);box-shadow:inset -3px 0 0 rgba(200,255,46,.55)}
+.side-h{display:flex;align-items:center;gap:9px}
+.side-h img,.side-h .fallback{width:36px;height:36px;border-radius:99px;object-fit:cover;border:1px solid var(--line-2);background:var(--panel-3)}
+.side-h .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--ink-3)}
+.side-n{font-size:13.5px;font-weight:500;letter-spacing:-.01em}
+.side-m{font-family:var(--mono);font-size:9.5px;color:var(--ink-3);margin-top:3px;letter-spacing:.06em}
+.side-stats{display:flex;gap:14px;margin-top:12px}
+.stat{font-family:var(--mono)}
+.stat b{display:block;font-size:14px;font-weight:700}
+.stat span{display:block;font-size:8.5px;color:var(--ink-3);letter-spacing:.14em;margin-top:3px}
+.arrowcell{display:grid;place-items:center;height:100%;background:var(--panel-2);border-left:1px solid var(--line);border-right:1px solid var(--line);font-family:var(--mono);color:var(--ink-3);font-size:14px}
+.swap-foot{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-top:1px solid var(--line)}
+.btn{
+  appearance:none;border:1px solid var(--lime);background:rgba(200,255,46,.1);color:var(--lime);
+  font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  padding:8px 14px;border-radius:2px;cursor:pointer;transition:all .2s var(--ease);
+}
+.btn:hover{background:var(--lime);color:#0b0d05}
+.btn:active{transform:scale(.96)}
+.btn.ghost{border-color:var(--line-2);background:none;color:var(--ink-2)}
+.btn.ghost:hover{border-color:var(--ink-2);background:var(--panel-3);color:var(--ink)}
+
+/* ============================== STATES ============================== */
+.states{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:16px;margin-bottom:60px}
+.state{border:1px solid var(--line);background:var(--panel);padding:16px;min-height:132px;display:flex;flex-direction:column;gap:12px}
+.state-t{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--ink-3)}
+.state-empty{flex:1;display:grid;place-items:center;border:1px dashed var(--line-2);color:var(--ink-3);text-align:center;padding:14px}
+.state-empty b{display:block;font-family:var(--mono);font-size:22px;color:var(--line-2)}
+.state-empty span{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em}
+.skel{height:14px;background:linear-gradient(90deg,var(--panel-2) 0%,var(--panel-3) 40%,rgba(200,255,46,.08) 50%,var(--panel-3) 60%,var(--panel-2) 100%);background-size:220% 100%;animation:shim 1.5s linear infinite}
+@keyframes shim{to{background-position:-220% 0}}
+.state-err{flex:1;border:1px solid rgba(255,90,82,.3);background:rgba(255,90,82,.06);padding:12px;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.state-err b{color:var(--down);font-family:var(--mono);font-size:11px;letter-spacing:.14em}
+.state-err span{color:var(--ink-2);font-size:11.5px;line-height:1.5}
+.state-stale{flex:1;border:1px solid rgba(255,176,32,.3);background:rgba(255,176,32,.06);padding:12px;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.state-stale b{color:var(--amber);font-family:var(--mono);font-size:11px;letter-spacing:.14em}
+.state-stale span{color:var(--ink-2);font-size:11.5px;line-height:1.5}
+
+/* ============================== DRAWER ============================== */
+.scrim{position:fixed;inset:0;background:rgba(4,4,6,.62);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .35s var(--ease);z-index:50}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{
+  position:fixed;top:0;right:0;bottom:0;width:min(432px,94vw);z-index:51;
+  background:var(--panel);border-left:1px solid var(--line-2);
+  transform:translateX(102%);transition:transform .42s var(--ease);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.drawer.on{transform:none;box-shadow:-40px 0 80px rgba(0,0,0,.55)}
+.dr-head{padding:22px 22px 18px;border-bottom:1px solid var(--line);position:relative;
+  background:linear-gradient(180deg,var(--panel-2),var(--panel))}
+.dr-close{position:absolute;top:16px;right:16px;width:30px;height:30px;border:1px solid var(--line-2);background:none;color:var(--ink-3);cursor:pointer;font-family:var(--mono);border-radius:2px;transition:all .2s var(--ease)}
+.dr-close:hover{border-color:var(--down);color:var(--down)}
+.dr-close:active{transform:scale(.92)}
+.dr-id{display:flex;gap:14px;align-items:center}
+.dr-id img,.dr-id .fallback{width:64px;height:64px;border-radius:99px;object-fit:cover;border:1px solid var(--line-2);background:var(--panel-3)}
+.dr-id .fallback{display:grid;place-items:center;font-family:var(--mono);font-weight:700;color:var(--ink-3)}
+.dr-id h3{font-family:var(--disp);font-weight:800;font-size:27px;line-height:1;letter-spacing:-.03em;margin:0 0 7px;text-transform:uppercase}
+.dr-body{flex:1;overflow-y:auto;padding:0 22px 22px}
+.dr-sec{padding:20px 0;border-bottom:1px solid var(--line)}
+.dr-sec:last-child{border-bottom:0}
+.dr-sec > .lbl{display:block;margin-bottom:14px}
+.bigspark{width:100%;height:88px;display:block}
+.axis{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;color:var(--ink-3);margin-top:7px;letter-spacing:.06em}
+.why{display:flex;flex-direction:column;gap:12px}
+.why-row{display:grid;grid-template-columns:minmax(0,1fr) 62px;gap:12px;align-items:center}
+.why-row .t{font-size:12.5px;color:var(--ink-2)}
+.why-row .t b{color:var(--ink);font-weight:500}
+.why-bar{height:5px;background:var(--line);position:relative}
+.why-bar i{position:absolute;left:0;top:0;bottom:0;background:var(--up)}
+.why-bar.neg i{background:var(--down)}
+.newsitem{display:grid;grid-template-columns:3px minmax(0,1fr);gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+.newsitem:last-child{border-bottom:0}
+.newsitem .bar{background:var(--ink-3)}
+.newsitem.up .bar{background:var(--up)}
+.newsitem.down .bar{background:var(--down)}
+.newsitem h4{margin:0 0 5px;font-size:13px;font-weight:500;line-height:1.4;letter-spacing:-.01em}
+.newsitem p{margin:0 0 7px;font-size:12px;color:var(--ink-2);line-height:1.55}
+.newsitem .meta{font-family:var(--mono);font-size:9px;color:var(--ink-3);letter-spacing:.1em}
+.leaguebars{display:flex;align-items:flex-end;gap:4px;height:74px;margin-top:4px}
+.leaguebars i{flex:1;background:var(--line-2);position:relative;transition:background .2s var(--ease)}
+.leaguebars i.me{background:var(--lime)}
+.leaguecap{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;color:var(--ink-3);margin-top:8px;letter-spacing:.08em}
+.dr-foot{padding:16px 22px;border-top:1px solid var(--line);background:var(--panel-2);display:flex;gap:10px}
+.dr-foot .btn{flex:1;text-align:center}
+
+/* ============================== FOOTER ============================== */
+.foot{border-top:1px solid var(--line);padding:22px 0 40px;color:var(--ink-3);font-family:var(--mono);font-size:10px;letter-spacing:.1em;display:flex;gap:18px;flex-wrap:wrap}
+
+/* ============================== RESPONSIVE ============================== */
+@media (max-width:960px){
+  .hero-in{grid-template-columns:minmax(0,1fr);gap:26px}
+  .signals{max-width:none}
+  .wire{grid-template-columns:minmax(0,1fr)}
+  .states{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .expo{grid-template-columns:minmax(0,1fr);gap:18px}
+}
+@media (max-width:760px){
+  .wrap{padding:0 14px}
+  .topbar-in{height:52px;gap:10px}
+  .brand-name{font-size:16px}
+  #weekpill{display:none}
+  .topbar .pill.warn .full{display:none}
+  .topbar .pill.warn .abbr{display:inline}
+
+  .numghost{font-size:150px;left:-14px;top:6px}
+  .hero{padding:30px 0 26px}
+  .hero-meta .pill{font-size:9px;padding:4px 8px}
+  .sig{padding:11px 9px}
+  .sig .lbl{font-size:8px;letter-spacing:.1em}
+  .sig-val{font-size:23px;margin-top:7px}
+  .sig-sub{font-size:7.5px;letter-spacing:.06em}
+
+  .switch{overflow-x:auto;scrollbar-width:none}
+  .switch::-webkit-scrollbar{display:none}
+  .tab{padding:11px 14px 10px;flex-shrink:0}
+  .tab .tab-team{font-size:13px}
+  .tab-team .lg{display:none}
+  .tab-team .sm{display:inline}
+
+  .row{
+    grid-template-columns:44px minmax(0,1fr) auto;
+    grid-template-areas:
+      "head name  news"
+      "head trend rank";
+    gap:7px 11px;padding:11px 8px;
+  }
+  .slot{display:none}
+  .head,.head img,.head .fallback,.head .dst{width:44px;height:44px}
+  .nm-1 b{font-size:14.5px}
+  .nm-2{font-size:9.5px;gap:6px}
+  .nm-2 .slotm{display:inline;color:var(--lime);font-weight:700}
+  .nm-2 .posx{display:none}
+  .trend{gap:9px}
+  .spark{width:100%;flex:1;height:30px}
+  .delta{font-size:11px}
+  .rk{text-align:right}
+  .rk-1{justify-content:flex-end;gap:5px}
+  .rk-1 b{font-size:16px}
+  .pctbar{display:none}
+
+  .swap-body{grid-template-columns:minmax(0,1fr)}
+  .side-o{border-right:0;border-bottom:1px solid var(--line)}
+  .side-i{border-left:0;box-shadow:inset 3px 0 0 rgba(200,255,46,.55)}
+  .arrowcell{display:none}
+  .states{grid-template-columns:minmax(0,1fr)}
+  .expo{padding:18px 16px}
+  .expo h3{font-size:22px}
+}
+.slotm{display:none}
+.pill.warn .abbr{display:none}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms!important;animation-delay:0ms!important;transition-duration:.001ms!important}
+  .row{opacity:1;transform:none}
+  .spark path.line{stroke-dashoffset:0}
+  .spark .area{opacity:.13}
+  .spark .cap{opacity:1}
+  .pctbar i{width:var(--w)}
+}
+</style>
+
+<div class="grain"></div>
+
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-name">Team<i>//</i>Watch</div>
+    </div>
+    <div class="topbar-spacer"></div>
+    <span class="pill warn"><span class="dot"></span><span class="full">Sample signals — skill not wired</span><span class="abbr">Sample data</span></span>
+    <span class="pill" id="weekpill"><span class="dot" style="color:var(--lime)"></span>Week 1 · Preseason</span>
+  </div>
+</header>
+
+<div class="switch-bar">
+  <div class="wrap">
+    <div class="switch" role="tablist" id="switch"></div>
+  </div>
+</div>
+
+<main id="view"></main>
+
+<div class="wrap">
+  <div class="foot">
+    <span>TEAM//WATCH · DESIGN MOCK 2026-09-08</span>
+    <span>SOURCES: YAHOO API · ESPN API · TEAM-WATCH SKILL</span>
+    <span>HEADSHOTS FROM DRAFT-WAR-ROOM</span>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true"></aside>
+
+<script>
+/*__HEADS__*/
+
+/* ------------------------------------------------------------------
+   SAMPLE DATA — shaped exactly how the team-watch skill will deliver it.
+   Rosters are real (Yahoo draft 2026-09-07, ESPN draft 2026-09-08).
+   trend / rank / news payloads are placeholders.
+------------------------------------------------------------------ */
+const P = (n, pos, team, slug, o) => Object.assign({n, pos, team, slug}, o);
+
+const TEAMS = {
+  yahoo: {
+    key:"yahoo", plat:"Yahoo", tint:"var(--yahoo)", slot:12,
+    name:"Toilet Bowl Contender", record:"0–0",
+    meta:["12-team", "half PPR", "slot 12", "1 QB / 2 RB / 3 WR / TE / FLEX / DEF"],
+    roster:[
+      P("Matthew Stafford","QB","LAR","matthew-stafford",{slot:"QB",start:1,trend:[41,38,44,40,46,49],d:+6.2,rank:[11,32,+2,.66],news:1}),
+      P("Derrick Henry","RB","BAL","derrick-henry",{slot:"RB1",start:1,trend:[62,58,66,71,69,74],d:+9.4,rank:[5,58,+1,.92],news:2,hot:1}),
+      P("De'Von Achane","RB","MIA","devon-achane",{slot:"RB2",start:1,trend:[70,73,68,77,80,83],d:+11.8,rank:[3,58,+2,.96],news:3,hot:1,dual:1}),
+      P("Rashee Rice","WR","KC","rashee-rice",{slot:"WR1",start:1,trend:[55,52,49,44,41,38],d:-14.1,rank:[24,74,-6,.68],news:2,status:"Q"}),
+      P("Davante Adams","WR","LAR","davante-adams",{slot:"WR2",start:1,trend:[58,60,57,59,55,56],d:-1.2,rank:[16,74,0,.79],news:1}),
+      P("Tetairoa McMillan","WR","CAR","tetairoa-mcmillan",{slot:"WR3",start:1,trend:null,d:null,rank:[38,74,0,.49],news:1,dual:1}),
+      P("Dallas Goedert","TE","PHI","dallas-goedert",{slot:"TE",start:1,trend:[33,31,36,34,30,29],d:-4.8,rank:[12,26,-3,.55],news:0}),
+      P("Jameson Williams","WR","DET","jameson-williams",{slot:"FLEX",start:1,trend:[44,47,51,56,58,63],d:+13.6,rank:[21,74,+5,.72],news:2,hot:1}),
+      P("Tony Pollard","RB","TEN","tony-pollard",{slot:"BN",trend:[48,46,45,49,47,44],d:-2.9,rank:[28,58,-1,.52],news:1,dual:1}),
+      P("Courtland Sutton","WR","DEN","courtland-sutton",{slot:"BN",trend:[42,45,43,41,44,46],d:+1.8,rank:[31,74,+1,.58],news:0}),
+      P("Xavier Worthy","WR","KC","xavier-worthy",{slot:"BN",trend:[36,39,45,48,52,57],d:+15.2,rank:[29,74,+7,.61],news:2,hot:1}),
+      P("Deebo Samuel Sr.","WR","WAS","deebo-samuel",{slot:"BN",trend:[47,44,40,38,35,33],d:-9.7,rank:[46,74,-8,.38],news:1}),
+      P("Josh Jacobs","RB","GB","josh-jacobs",{slot:"OUT",trend:[64,61,58,0,0,0],d:null,rank:[null,58,null,null],news:4,status:"OUT",statusText:"EXEMPT",
+        note:"On the commissioner exempt list since 2026-08-30. Hearing set for Sept 10."}),
+    ]
+  },
+  espn: {
+    key:"espn", plat:"ESPN", tint:"var(--espn)", slot:11,
+    name:"D. Luu", record:"0–0",
+    meta:["12-team","half PPR","slot 11","no kicker · 2 FLEX"],
+    roster:[
+      P("Brock Purdy","QB","SF","brock-purdy",{slot:"QB",start:1,trend:[39,42,40,45,43,47],d:+5.1,rank:[14,32,+3,.58],news:1}),
+      P("De'Von Achane","RB","MIA","devon-achane",{slot:"RB1",start:1,trend:[70,73,68,77,80,83],d:+11.8,rank:[3,58,+2,.96],news:3,hot:1,dual:1}),
+      P("Cam Skattebo","RB","NYG","cam-skattebo",{slot:"RB2",start:1,trend:null,d:null,rank:[34,58,0,.44],news:2}),
+      P("Amon-Ra St. Brown","WR","DET","amonra-st-brown",{slot:"WR1",start:1,trend:[74,72,78,76,80,79],d:+3.3,rank:[4,74,+1,.95],news:1}),
+      P("Tee Higgins","WR","CIN","tee-higgins",{slot:"WR2",start:1,trend:[59,63,61,66,64,68],d:+6.4,rank:[13,74,+2,.82],news:1}),
+      P("Tetairoa McMillan","WR","CAR","tetairoa-mcmillan",{slot:"WR3",start:1,trend:null,d:null,rank:[38,74,0,.49],news:1,dual:1}),
+      P("George Kittle","TE","SF","george-kittle",{slot:"TE",start:1,trend:[51,48,54,52,49,53],d:+2.1,rank:[4,26,+1,.88],news:1}),
+      P("DK Metcalf","WR","PIT","dk-metcalf",{slot:"FLX1",start:1,trend:[56,54,50,52,48,45],d:-8.3,rank:[27,74,-4,.63],news:2}),
+      P("Tony Pollard","RB","TEN","tony-pollard",{slot:"FLX2",start:1,trend:[48,46,45,49,47,44],d:-2.9,rank:[28,58,-1,.52],news:1,dual:1}),
+      P("Seahawks","DST","SEA","__dst",{slot:"D/ST",start:1,trend:[22,26,19,24,28,25],d:+1.4,rank:[9,32,+2,.71],news:0}),
+      P("Jared Goff","QB","DET","jared-goff",{slot:"BN",trend:[43,45,42,44,46,45],d:+0.6,rank:[12,32,0,.63],news:0}),
+      P("Jordan Mason","RB","MIN","jordan-mason",{slot:"BN",trend:[31,35,40,44,49,54],d:+18.9,rank:[36,58,+9,.47],news:3,hot:1}),
+      P("Jerry Jeudy","WR","CLE","jerry-jeudy",{slot:"BN",trend:[45,42,38,36,33,31],d:-11.4,rank:[52,74,-9,.31],news:1}),
+      P("Hunter Henry","TE","NE","hunter-henry",{slot:"BN",trend:[27,29,26,28,25,27],d:-0.4,rank:[17,26,0,.36],news:0}),
+      P("Najee Harris","RB","LAC","najee-harris",{slot:"BN",trend:[38,36,34,35,32,30],d:-6.8,rank:[44,58,-5,.26],news:1}),
+      P("Tyrone Tracy Jr.","RB","NYG","tyrone-tracy",{slot:"BN",trend:[33,36,34,31,29,27],d:-7.2,rank:[47,58,-4,.22],news:1}),
+    ]
+  }
+};
+
+const TICKER = [
+  {t:"up",   b:"De'Von Achane", s:"snap share up to 71% in the joint practice report", src:"BEAT · 2h"},
+  {t:"down", b:"Rashee Rice", s:"limited Wednesday, listed questionable for week 1", src:"WIRE · 4h"},
+  {t:"flat", b:"Josh Jacobs", s:"exempt-list hearing scheduled for Sept 10", src:"LEAGUE · 1d"},
+  {t:"up",   b:"Jordan Mason", s:"first-team reps continue while the RB1 sits", src:"BEAT · 6h"},
+  {t:"down", b:"Jerry Jeudy", s:"third on the depth chart after the preseason finale", src:"WIRE · 9h"},
+  {t:"up",   b:"Xavier Worthy", s:"red-zone target share leads the room this camp", src:"BEAT · 11h"},
+];
+
+const WIRE = [
+  {out:{n:"Tyrone Tracy Jr.",slug:"tyrone-tracy",m:"RB · NYG · BN",pos:"RB47",d:-7.2},
+   in_:{n:"Chase Brown",slug:"chase-brown",m:"RB · CIN · 41% rostered",pos:"RB22",d:+12.6},
+   team:"ESPN", gain:"+18.4 proj/wk", faab:"12% FAAB"},
+  {out:{n:"Deebo Samuel Sr.",slug:"deebo-samuel",m:"WR · WAS · BN",pos:"WR46",d:-9.7},
+   in_:{n:"Jalen Coker",slug:"jalen-coker",m:"WR · CAR · 28% rostered",pos:"WR39",d:+8.1},
+   team:"YAHOO", gain:"+6.2 proj/wk", faab:"5% FAAB"},
+];
+
+/* ---------------------------- helpers ---------------------------- */
+const initials = n => n.split(/\s+/).slice(0,2).map(w=>w[0]).join("");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function headHTML(p, cls){
+  if (p.pos === "DST") return `<div class="dst">${esc(p.team)}</div>`;
+  const src = HEADS[p.slug];
+  if (!src) return `<div class="fallback">${esc(initials(p.n))}</div>`;
+  return `<img src="${src}" alt="" loading="lazy">`;
+}
+
+function sparkHTML(v, w, h){
+  if (!v) {
+    return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+      <line x1="1" y1="${h/2}" x2="${w-1}" y2="${h/2}" stroke="var(--line-2)" stroke-width="1.4" stroke-dasharray="3 4"/>
+    </svg>`;
+  }
+  const min = Math.min(...v), max = Math.max(...v), span = (max-min)||1;
+  const x = i => 1 + i*((w-2)/(v.length-1));
+  const y = k => (h-3) - ((k-min)/span)*(h-6);
+  const pts = v.map((k,i)=>`${x(i).toFixed(1)},${y(k).toFixed(1)}`);
+  const col = v[v.length-1] > v[0] ? "var(--up)" : v[v.length-1] < v[0] ? "var(--down)" : "var(--ink-3)";
+  const area = `M ${pts[0]} L ${pts.slice(1).join(" L ")} L ${x(v.length-1).toFixed(1)},${h} L ${x(0).toFixed(1)},${h} Z`;
+  return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+    <path class="area" d="${area}" fill="${col}"/>
+    <path class="line" d="M ${pts[0]} L ${pts.slice(1).join(" L ")}" stroke="${col}"/>
+    <circle class="cap" cx="${x(v.length-1).toFixed(1)}" cy="${y(v[v.length-1]).toFixed(1)}" r="2.6" fill="${col}"/>
+  </svg>`;
+}
+
+function deltaHTML(d){
+  if (d === null || d === undefined) return `<span class="delta new">No data</span>`;
+  const k = d > 1.5 ? "up" : d < -1.5 ? "down" : "flat";
+  const g = k === "up" ? "▲" : k === "down" ? "▼" : "—";
+  return `<span class="delta ${k}">${g} ${d>0?"+":""}${d.toFixed(1)}%</span>`;
+}
+
+function rankHTML(p){
+  const [r, of, mv, pct] = p.rank;
+  if (r === null) return `<div class="rk-1"><b style="color:var(--ink-3)">—</b><small>unranked</small></div>
+    <div class="pctbar"></div>`;
+  const mk = mv > 0 ? "up" : mv < 0 ? "down" : "flat";
+  const mg = mv > 0 ? `▲${mv}` : mv < 0 ? `▼${Math.abs(mv)}` : "—";
+  return `<div class="rk-1"><b>${p.pos}${r}</b><small>of ${of}</small><span class="mv ${mk}">${mg}</span></div>
+    <div class="pctbar"><i style="--w:${Math.round(pct*100)}%"></i></div>`;
+}
+
+const OPP = {hard:"var(--down)", mid:"var(--amber)", easy:"var(--up)"};
+function oppFor(p){ const k = (p.n.length + p.team.length) % 3; return ["easy","mid","hard"][k]; }
+
+function rowHTML(p, i, teamKey){
+  const cls = p.slot === "OUT" ? "out" : p.start ? "start" : "bench";
+  const st = p.statusText || p.status;
+  const tag = st ? `<span class="tag ${p.status==="OUT"?"o":"q"}">${esc(st)}</span>` : "";
+  const dual = p.dual ? `<span class="tag dual">2 leagues</span>` : "";
+  const badge = p.status ? `<span class="badge ${p.status==="OUT"?"o":"q"}">${p.status==="OUT"?"!":"Q"}</span>` : "";
+  return `<div class="row ${cls}" style="animation-delay:${40+i*32}ms" data-team="${teamKey}" data-i="${i}" role="button" tabindex="0">
+    <div class="slot"><span>${esc(p.slot)}</span></div>
+    <div class="head">${headHTML(p)}${badge}</div>
+    <div class="nm">
+      <div class="nm-1"><b>${esc(p.n)}</b>${tag}${dual}</div>
+      <div class="nm-2">
+        <span class="slotm">${esc(p.slot)}</span>
+        <span><em class="posx" style="font-style:normal">${esc(p.pos)} · </em>${esc(p.team)}</span>
+        <span class="sep"></span>
+        <span class="opp-dot" style="background:${OPP[oppFor(p)]}"></span>
+        <span>wk1 ${p.pos==="DST"?"vs":"@"} ${["HOU","LV","NYJ","ARI","CHI"][i%5]}</span>
+      </div>
+    </div>
+    <div class="trend">${sparkHTML(p.trend,120,34)}${deltaHTML(p.d)}</div>
+    <div class="rk">${rankHTML(p)}</div>
+    <div class="news"><i class="${p.hot?"hot":""}">${p.news||"·"}</i></div>
+  </div>`;
+}
+
+function boardHTML(team){
+  const groups = [
+    ["Starters", team.roster.filter(p=>p.start)],
+    ["Bench",    team.roster.filter(p=>!p.start && p.slot!=="OUT")],
+    ["Out / exempt", team.roster.filter(p=>p.slot==="OUT")],
+  ].filter(g=>g[1].length);
+  let n = 0;
+  return groups.map(([label, list]) => `
+    <div class="rule">
+      <h2>${label}</h2><span class="count">${String(list.length).padStart(2,"0")}</span>
+      <span class="hair"></span>
+      <span class="side">trend · pos rank · news</span>
+    </div>
+    <div class="board">${list.map(p=>rowHTML(p, n++, team.key)).join("")}</div>
+  `).join("");
+}
+
+function signalsHTML(team){
+  const up = team.roster.filter(p=>p.d>1.5).length;
+  const dn = team.roster.filter(p=>p.d<-1.5).length;
+  return `<div class="signals">
+    <div class="sig up"><div class="lbl">Up trend</div><div class="sig-val">${up}</div><div class="sig-sub">OF ${team.roster.length} ROSTERED</div></div>
+    <div class="sig down"><div class="lbl">Down trend</div><div class="sig-val">${dn}</div><div class="sig-sub">2 ARE STARTERS</div></div>
+    <div class="sig empty"><div class="lbl">League rank</div><div class="sig-val">—</div><div class="sig-sub">NO GAMES YET</div></div>
+  </div>`;
+}
+
+function tickerHTML(){
+  const item = t => `<span class="tick"><span class="arrow ${t.t}">${t.t==="up"?"▲":t.t==="down"?"▼":"—"}</span><b>${esc(t.b)}</b> ${esc(t.s)} <span class="src">${esc(t.src)}</span></span>`;
+  const run = TICKER.map(item).join("");
+  return `<div class="ticker">
+    <div class="ticker-tag">LIVE</div>
+    <div class="ticker-track">${run}${run}</div>
+  </div>`;
+}
+
+function expoHTML(){
+  const shared = ["devon-achane","tetairoa-mcmillan","tony-pollard"];
+  const names = {"devon-achane":"Achane","tetairoa-mcmillan":"McMillan","tony-pollard":"Pollard"};
+  return `<div class="expo">
+    <div>
+      <div class="lbl" style="margin-bottom:10px">Cross-league exposure</div>
+      <h3>Three men, two teams</h3>
+      <p>Achane, McMillan and Pollard start for both franchises. One hamstring takes out
+      two lineups at once, and one hot streak wins two weeks. Watch these three first.</p>
+    </div>
+    <div class="expo-faces">
+      ${shared.map(s=>`<figure title="${names[s]}"><img src="${HEADS[s]||""}" alt="${names[s]}"></figure>`).join("")}
+    </div>
+  </div>`;
+}
+
+function wireHTML(){
+  const side = (p, kind) => `
+    <div class="side-${kind==="out"?"o":"i"}">
+      <div class="lbl">${kind==="out"?"Drop":"Add"}</div>
+      <div class="side-h" style="margin-top:10px">
+        ${HEADS[p.slug] ? `<img src="${HEADS[p.slug]}" alt="">` : `<div class="fallback">${esc(initials(p.n))}</div>`}
+        <div><div class="side-n">${esc(p.n)}</div><div class="side-m">${esc(p.m)}</div></div>
+      </div>
+      <div class="side-stats">
+        <div class="stat"><b>${esc(p.pos)}</b><span>POS RANK</span></div>
+        <div class="stat"><b style="color:${p.d>0?"var(--up)":"var(--down)"}">${p.d>0?"+":""}${p.d}%</b><span>6-WK TREND</span></div>
+      </div>
+    </div>`;
+  return `<div class="wire">${WIRE.map(w=>`
+    <div class="swap">
+      <div class="swap-head">
+        <span class="lbl">Suggested swap</span>
+        <span class="pill" style="border-color:${w.team==="ESPN"?"rgba(255,45,45,.4)":"rgba(139,92,255,.4)"};color:var(--ink-2)">${w.team}</span>
+      </div>
+      <div class="swap-body">${side(w.out,"out")}<div class="arrowcell">→</div>${side(w.in_,"in")}</div>
+      <div class="swap-foot">
+        <div style="display:flex;gap:18px">
+          <div class="stat"><b style="color:var(--lime)">${w.gain}</b><span>LINEUP DELTA</span></div>
+          <div class="stat"><b>${w.faab}</b><span>SUGGESTED BID</span></div>
+        </div>
+        <button class="btn">Queue claim</button>
+      </div>
+    </div>`).join("")}</div>`;
+}
+
+function statesHTML(){
+  return `<div class="states">
+    <div class="state"><div class="state-t">EMPTY</div>
+      <div class="state-empty"><div><b>—</b><span>NO GAMES PLAYED</span></div></div></div>
+    <div class="state"><div class="state-t">LOADING</div>
+      <div style="display:flex;flex-direction:column;gap:10px;flex:1;justify-content:center">
+        <div class="skel" style="width:70%"></div><div class="skel" style="width:100%"></div>
+        <div class="skel" style="width:44%"></div><div class="skel" style="width:82%"></div></div></div>
+    <div class="state"><div class="state-t">ERROR</div>
+      <div class="state-err"><b>SIGNAL LOST</b><span>Yahoo returned 401. Token expired — re-auth and retry.</span>
+      <button class="btn ghost" style="align-self:flex-start">Retry</button></div></div>
+    <div class="state"><div class="state-t">STALE</div>
+      <div class="state-stale"><b>DATA 3H OLD</b><span>Last successful pull 06:12. Showing cached ranks.</span>
+      <button class="btn ghost" style="align-self:flex-start">Refresh</button></div></div>
+  </div>`;
+}
+
+/* ---------------------------- views ---------------------------- */
+let VIEW = "yahoo";
+
+function heroHTML(team){
+  return `<section class="hero">
+    <div class="numghost">${team.slot}</div>
+    <div class="wrap hero-in">
+      <div>
+        <div class="hero-eyebrow" style="--tint:${team.tint}">
+          <span class="league-mark"></span>
+          <span class="lbl">${team.plat} · ${team.record} · draft slot ${team.slot}</span>
+        </div>
+        <h1>${esc(team.name)}</h1>
+        <div class="hero-meta">${team.meta.map(m=>`<span class="pill">${esc(m)}</span>`).join("")}</div>
+      </div>
+      <div>${signalsHTML(team)}</div>
+    </div>
+  </section>`;
+}
+
+function bothHeroHTML(){
+  const y = TEAMS.yahoo, e = TEAMS.espn;
+  const all = y.roster.concat(e.roster);
+  const uniq = new Set(all.map(p=>p.n)).size;
+  return `<section class="hero">
+    <div class="numghost">29</div>
+    <div class="wrap hero-in">
+      <div>
+        <div class="hero-eyebrow" style="--tint:var(--lime)">
+          <span class="league-mark"></span><span class="lbl">Two franchises · 24 rivals · one board</span>
+        </div>
+        <h1>Every guy<br><em>I own</em></h1>
+        <div class="hero-meta">
+          <span class="pill">${all.length} roster spots</span>
+          <span class="pill">${uniq} unique players</span>
+          <span class="pill">${all.length-uniq} doubled up</span>
+        </div>
+      </div>
+      <div>
+        <div class="signals">
+          <div class="sig up"><div class="lbl">Up</div><div class="sig-val">${all.filter(p=>p.d>1.5).length}</div><div class="sig-sub">ACROSS BOTH</div></div>
+          <div class="sig down"><div class="lbl">Down</div><div class="sig-val">${all.filter(p=>p.d<-1.5).length}</div><div class="sig-sub">ACROSS BOTH</div></div>
+          <div class="sig empty"><div class="lbl">Combined</div><div class="sig-val">—</div><div class="sig-sub">NO GAMES YET</div></div>
+        </div>
+      </div>
+    </div>
+  </section>`;
+}
+
+function render(){
+  const v = document.getElementById("view");
+  if (VIEW === "both"){
+    v.innerHTML = bothHeroHTML() + tickerHTML() + `<div class="wrap">${expoHTML()}
+      <div class="rule"><h2>Yahoo · Toilet Bowl Contender</h2><span class="hair"></span><span class="side">${TEAMS.yahoo.roster.length} rostered</span></div>
+      <div class="board">${TEAMS.yahoo.roster.filter(p=>p.start).map((p,i)=>rowHTML(p,i,"yahoo")).join("")}</div>
+      <div class="rule"><h2>ESPN · D. Luu</h2><span class="hair"></span><span class="side">${TEAMS.espn.roster.length} rostered</span></div>
+      <div class="board">${TEAMS.espn.roster.filter(p=>p.start).map((p,i)=>rowHTML(p,i,"espn")).join("")}</div>
+      <div class="rule"><h2>The wire</h2><span class="hair"></span><span class="side">both leagues</span></div>
+      ${wireHTML()}
+      <div class="rule"><h2>Component states</h2><span class="hair"></span><span class="side">before the feed lands</span></div>
+      ${statesHTML()}
+    </div>`;
+  } else {
+    const team = TEAMS[VIEW];
+    v.innerHTML = heroHTML(team) + tickerHTML() + `<div class="wrap">
+      ${boardHTML(team)}
+      <div class="rule"><h2>The wire</h2><span class="hair"></span><span class="side">waiver replacements</span></div>
+      ${wireHTML()}
+      <div class="rule"><h2>Component states</h2><span class="hair"></span><span class="side">before the feed lands</span></div>
+      ${statesHTML()}
+    </div>`;
+  }
+  document.querySelectorAll(".row").forEach(r=>{
+    r.addEventListener("click", ()=>openDrawer(r.dataset.team, +r.dataset.i));
+    r.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();openDrawer(r.dataset.team,+r.dataset.i);} });
+  });
+}
+
+function buildSwitch(){
+  const s = document.getElementById("switch");
+  const cells = [
+    {k:"yahoo", plat:"Yahoo", team:"Toilet Bowl Contender", short:"Toilet Bowl", tint:"var(--yahoo)"},
+    {k:"espn",  plat:"ESPN",  team:"D. Luu",                short:"D. Luu",      tint:"var(--espn)"},
+    {k:"both",  plat:"Combined", team:"Both teams",         short:"Both",        tint:"var(--lime)"},
+  ];
+  s.innerHTML = cells.map(c=>`<button class="tab" role="tab" data-k="${c.k}" style="--tint:${c.tint}"
+      aria-selected="${VIEW===c.k}">
+      <span class="tab-plat">${c.plat}</span>
+      <span class="tab-team"><span class="lg">${c.team}</span><span class="sm">${c.short}</span></span></button>`).join("");
+  s.querySelectorAll(".tab").forEach(b=>b.addEventListener("click", ()=>{
+    VIEW = b.dataset.k;
+    s.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected", x.dataset.k===VIEW));
+    render(); window.scrollTo({top:0, behavior:"smooth"});
+  }));
+}
+
+/* ---------------------------- drawer ---------------------------- */
+function findPlayer(teamKey, i){
+  const list = VIEW === "both" ? TEAMS[teamKey].roster.filter(p=>p.start) : TEAMS[teamKey].roster;
+  if (VIEW === "both") return list[i];
+  const ordered = TEAMS[teamKey].roster.filter(p=>p.start)
+    .concat(TEAMS[teamKey].roster.filter(p=>!p.start && p.slot!=="OUT"))
+    .concat(TEAMS[teamKey].roster.filter(p=>p.slot==="OUT"));
+  return ordered[i];
+}
+
+function openDrawer(teamKey, i){
+  const p = findPlayer(teamKey, i);
+  if (!p) return;
+  const d = document.getElementById("drawer");
+  const bars = Array.from({length:12}, (_,k)=>{
+    const h = 20 + ((k*37)%70);
+    const me = k === 4;
+    return `<i class="${me?"me":""}" style="height:${me?86:h}%"></i>`;
+  }).join("");
+  const news = (p.news ? [
+    {t:"up", h:`${p.n.split(" ").slice(-1)} takes first-team reps through camp`, p:"Beat writer notes a full practice load and a bump in the two-minute package.", m:"BEAT REPORT · 4H AGO"},
+    {t:"flat", h:"Coach non-committal on week 1 workload", p:"Split backfield language from the podium, no depth-chart change announced.", m:"PRESSER · 1D AGO"},
+    {t:"down", h:"Snap projection trimmed in the latest model run", p:"Rotation risk keeps the floor low until the first live game.", m:"MODEL · 2D AGO"},
+  ] : []);
+
+  d.innerHTML = `
+    <div class="dr-head">
+      <button class="dr-close" aria-label="Close">✕</button>
+      <div class="dr-id">
+        ${headHTML(p)}
+        <div>
+          <h3>${esc(p.n)}</h3>
+          <div class="lbl">${esc(p.pos)} · ${esc(p.team)} · ${esc(TEAMS[teamKey].plat)} ${esc(p.slot)}</div>
+        </div>
+      </div>
+      ${p.note ? `<div style="margin-top:14px;padding:10px 12px;border:1px solid rgba(255,90,82,.3);background:rgba(255,90,82,.06);font-size:12px;color:var(--ink-2);line-height:1.5">${esc(p.note)}</div>` : ""}
+    </div>
+    <div class="dr-body">
+      <div class="dr-sec">
+        <span class="lbl">Six-week form</span>
+        ${p.trend ? sparkHTML(p.trend, 386, 88).replace('class="spark"','class="spark bigspark"') :
+          `<div class="state-empty" style="height:88px"><div><b>—</b><span>NO GAMES PLAYED</span></div></div>`}
+        <div class="axis"><span>WK -6</span><span>WK -4</span><span>WK -2</span><span>NOW</span></div>
+      </div>
+      <div class="dr-sec">
+        <span class="lbl">Why it moved</span>
+        <div class="why">
+          <div class="why-row"><div class="t"><b>Snap share</b> 71% → 78%</div><div class="why-bar"><i style="width:78%"></i></div></div>
+          <div class="why-row"><div class="t"><b>Target share</b> 19% → 23%</div><div class="why-bar"><i style="width:64%"></i></div></div>
+          <div class="why-row"><div class="t"><b>Red-zone looks</b> 4 → 2</div><div class="why-bar neg"><i style="width:31%"></i></div></div>
+        </div>
+      </div>
+      <div class="dr-sec">
+        <span class="lbl">News · ${p.news||0} items</span>
+        ${news.length ? news.slice(0, Math.min(3, p.news)).map(x=>`
+          <div class="newsitem ${x.t}"><div class="bar"></div>
+            <div><h4>${esc(x.h)}</h4><p>${esc(x.p)}</p><div class="meta">${esc(x.m)}</div></div></div>`).join("")
+          : `<div class="state-empty" style="min-height:76px"><div><b>0</b><span>NOTHING FILED THIS WEEK</span></div></div>`}
+      </div>
+      <div class="dr-sec">
+        <span class="lbl">Against the league · ${esc(p.pos)} started</span>
+        <div class="leaguebars">${bars}</div>
+        <div class="leaguecap"><span>12 MANAGERS</span><span>YOU — ${p.rank[0]?p.pos+p.rank[0]:"UNRANKED"}</span></div>
+      </div>
+    </div>
+    <div class="dr-foot">
+      <button class="btn ghost">Watch news</button>
+      <button class="btn">Suggest replacement</button>
+    </div>`;
+  d.classList.add("on"); d.setAttribute("aria-hidden","false");
+  document.getElementById("scrim").classList.add("on");
+  d.querySelector(".dr-close").addEventListener("click", closeDrawer);
+}
+function closeDrawer(){
+  document.getElementById("drawer").classList.remove("on");
+  document.getElementById("drawer").setAttribute("aria-hidden","true");
+  document.getElementById("scrim").classList.remove("on");
+}
+document.getElementById("scrim").addEventListener("click", closeDrawer);
+document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeDrawer(); });
+
+buildSwitch();
+render();
+</script>
