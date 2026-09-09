@@ -1275,7 +1275,8 @@ const ABBR = {DraftKings:"DK", Underdog:"UD"};
 const bookLine = p => !p.books ? `BOOK ${p.book}`
   : Object.entries(p.books).map(([b,x]) => `${ABBR[b]||b} ${x.line == null ? "" : `o${x.line} `}${fmtAm(x.over)}`
       + (x.pick ? ` → ${x.pick.toUpperCase()} ${x.conf}%` : "")).join(" · ")
-    + (p.games ? ` · ${p.games} GP` : "");
+    + (p.games ? ` · ${p.games} GP` : "")
+    + (p.opp_f ? ` · ${esc(p.opp)} D ${p.opp_f >= 1 ? "+" : "−"}${Math.round(Math.abs(p.opp_f - 1) * 100)}%` : "");
 const ud = p => p.books && p.books.Underdog;
 
 /* Slip presets. "Best" is the three largest positive edges the model will stand behind: one leg
@@ -1510,7 +1511,7 @@ function marketHead(kind){
       <span class="lbl">${kind === "props" ? "Player prop market" : `${site.label} DFS player pool`}</span>
       <div class="mktsrc">${kind === "props"
         ? `${PROPS.length} priced lines · ${new Set(PROPS.map(p=>p.n)).size} players · ${new Set(PROPS.map(p=>p.game)).size} games · ${BOOKS.join(", ")}${LIVE_MARKET ? "" : " · SAMPLE"}`
-          + (LIVE_MARKET && LIVE_MARKET.model ? `<br>Model: ${LIVE_MARKET.model.modeled} lines priced from games through ${esc(LIVE_MARKET.model.through)}. MODEL % is the chance the over hits, from the player's own last 24 games. EDGE is that minus the break-even of the over's price, in points: +5 means the model has it five points better than the book needs.` : "")
+          + (LIVE_MARKET && LIVE_MARKET.model ? `<br>Model: ${LIVE_MARKET.model.modeled} lines priced from games through ${esc(LIVE_MARKET.model.through)}. MODEL % is the chance the over hits, from the player's own last 24 games, nudged by what the defense he faces allows to his position ("SEA D −8%" on the card). EDGE is that minus the break-even of the over's price, in points: +5 means the model has it five points better than the book needs.` : "")
         : `${site.pool.length} players · $${site.cap.toLocaleString()} cap · salaries as posted${site.key==="yahoo" && !LIVE_YAHOO_DFS ? " · SAMPLE" : ""}`}</div>
     </div>
     <span class="pill ${when?"":"warn"}">${when ? `Fetched ${esc(when)}`

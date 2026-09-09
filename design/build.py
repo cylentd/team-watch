@@ -34,7 +34,7 @@ TEAM_FIX = {"JAC": "JAX"}
 # Where the model's rate sits relative to the book's line across the whole slate (week 1 2026:
 # medians 1.12 rush, 1.13 rec, 1.01 receptions, 0.94 pass), and how far from that a line can be
 # before it is read as a role change rather than a disagreement.
-STALE_CENTRE = {"RUSH": 1.12, "REC": 1.13, "RECS": 1.0, "PASS": 0.94}
+STALE_CENTRE = {"RUSH": 1.12, "REC": 1.10, "RECS": 1.0, "PASS": 0.93}
 STALE_BAND = 1.35
 
 
@@ -352,6 +352,8 @@ def live_props(available, rosters):
         p["edge"] = round((r["p_over"] - implied(over)) * 100, 1)
         p["mu"] = r["mu"]
         p["games"] = r["games"]   # how much of his own history the rate rests on
+        if r.get("opp_f"):
+            p["opp"], p["opp_f"] = r.get("opp"), r["opp_f"]   # the defense, and what it allows vs league
         modeled += 1
         # Role check. The rate is last season's; the line is this week's. Across the slate the
         # rate sits about 12% above a yards line (a mean over a median) and on top of a receptions
