@@ -1296,9 +1296,14 @@ const SLIP_LEGS = 3;
    the role the model knows about; a backup, a questionable, or a line the book has moved far
    from last season's rate is news, not edge. */
 const playing = p => p.flag !== "out" && p.flag !== "q" && p.flag !== "backup" && !p.stale;
+/* Scope: a yards slip (rush, rec, receptions, pass) or a touchdown slip. Touchdown legs are
+   priced longer and land less often, so the floor is 30% and the price window runs to +600. */
+let SLIP_SCOPE = "yards";
+const inScope = p => SLIP_SCOPE === "tds" ? p.mkt === "TD" : p.mkt !== "TD";
 const legOK = p => typeof p.edge === "number" && p.edge > 0 && (p.games||0) >= 8 && playing(p)
-  && p.model >= 35 && p.model <= 85 && p.book === "DraftKings"
-  && overPrice(p) >= -300 && overPrice(p) <= 200;
+  && inScope(p) && p.book === "DraftKings"
+  && (p.mkt === "TD" ? (p.model >= 30 && overPrice(p) >= -300 && overPrice(p) <= 600)
+                     : (p.model >= 35 && p.model <= 85 && overPrice(p) >= -300 && overPrice(p) <= 200));
 function pickLegs(cands, key){
   const seenG = new Set(), seenP = new Set(), out = [];
   cands.sort((a,b) => key(b[0]) - key(a[0])).forEach(([p,i]) => {
@@ -1492,10 +1497,16 @@ function slipHTML(){
   const pct = x => `${(x*100).toFixed(1)}%`;
   const slot = SLOTS[SLIP_MODE] ? SLIP_MODE : null;
   const udMode = SLIP_MODE === "underdog";
+  const kind = SLIP_SCOPE === "tds" ? "TD slip" : "slip";
   const title = SLIP_MODE === "custom" ? "Your slip" : SLIP_MODE === "mine" ? "My players"
-    : udMode ? "Underdog picks" : slot ? `Best ${SLOTS[slot].toLowerCase()} slip` : "Best slip on the slate";
+    : udMode ? "Underdog picks" : slot ? `Best ${SLOTS[slot].toLowerCase()} ${kind}` : `Best ${kind} on the slate`;
   const udP = udMode && legs.length ? legs.reduce((a,l)=>a*ud(l).conf/100, 1) : null;
-  const chips = `<div class="presets">${PRESETS.filter(([k]) => k === "mine" || HAS_MODEL).map(([k,label]) =>
+  // Underdog has no touchdown market, so that preset only shows in the yards scope.
+  const chips = `<div class="presets">
+    ${HAS_MODEL ? `<span class="lbl" style="align-self:center;margin-right:2px">Legs</span>
+      ${[["yards","Yards"],["tds","TDs"]].map(([k,label])=>`<button class="chip" data-scope="${k}" aria-pressed="${SLIP_SCOPE===k}">${label}</button>`).join("")}
+      <span style="flex-basis:100%;height:0"></span>` : ""}
+    ${PRESETS.filter(([k]) => k === "mine" || (HAS_MODEL && (k !== "underdog" || SLIP_SCOPE === "yards"))).map(([k,label]) =>
       `<button class="chip" data-preset="${k}" aria-pressed="${SLIP_MODE===k}">${label}</button>`).join("")}</div>`;
   if (udMode) return `<div class="slip">
     <div class="sliphead"><span class="lbl">${title}</span><span class="pill">${legs.length} picks</span></div>
@@ -1519,7 +1530,7 @@ function slipHTML(){
     ${legs.length ? legs.map(l=>`<div class="slipleg">
       <div><div class="p">${esc(l.n)}</div><div class="m">${esc(propLabel(l).toUpperCase())}${l.books ? ` · ${esc(ABBR[l.book]||l.book)}` : ""}${l.kick ? ` · ${esc(l.kick.toUpperCase())}` : ""}${typeof l.edge === "number" ? ` · ${l.model}% · ${l.edge>0?"+":""}${l.edge.toFixed(1)}` : ""}</div></div>
       <div class="o">${esc(fmtAm(overPrice(l)))}</div></div>`).join("")
-      : `<div class="state-empty" style="margin:14px 15px;min-height:90px"><div><b>0</b><span>${slot ? `NO EDGE THE MODEL WILL STAND BEHIND IN THE ${SLOTS[slot].toUpperCase()} WINDOW` : "TAP A LINE TO ADD A LEG"}</span></div></div>`}
+      : `<div class="state-empty" style="margin:14px 15px;min-height:90px"><div><b>0</b><span>${slot ? `NO ${SLIP_SCOPE === "tds" ? "TD " : ""}EDGE THE MODEL WILL STAND BEHIND IN THE ${SLOTS[slot].toUpperCase()} WINDOW` : SLIP_MODE === "custom" ? "TAP A LINE TO ADD A LEG" : `NO ${SLIP_SCOPE === "tds" ? "TD " : ""}EDGE THE MODEL WILL STAND BEHIND`}</span></div></div>`}
     ${corr ? `<div class="corr"><span>⚠</span>TWO LEGS IN ${esc(corr.toUpperCase())} — CORRELATED, PRICE IT AS ONE</div>` : ""}
     <div class="payout">
       <span class="lbl">${modeled ? "Model edge over the book" : "Model edge"}</span>
@@ -1732,6 +1743,12 @@ function render(){
     }));
     v.querySelectorAll("[data-preset]").forEach(b=>b.addEventListener("click",()=>{
       SLIP_MODE = b.dataset.preset; SLIP = presetSlip(SLIP_MODE);
+      const y = window.scrollY; render(); window.scrollTo(0, y);
+    }));
+    v.querySelectorAll("[data-scope]").forEach(b=>b.addEventListener("click",()=>{
+      SLIP_SCOPE = b.dataset.scope;
+      if (SLIP_MODE === "custom" || (SLIP_MODE === "underdog" && SLIP_SCOPE === "tds")) SLIP_MODE = "best";
+      if (SLIP_MODE !== "mine") SLIP = presetSlip(SLIP_MODE);
       const y = window.scrollY; render(); window.scrollTo(0, y);
     }));
     v.querySelectorAll("[data-prop]").forEach(el=>{
