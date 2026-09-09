@@ -94,6 +94,7 @@ def live_feed():
             "espn": ((d.get("rosters") or {}).get("espn") or {}).get("fetched"),
             "yahoo": ((d.get("rosters") or {}).get("yahoo") or {}).get("fetched"),
             "props": ((market.get("props") or {}).get("fetched")),
+            "props_bp": ((market.get("props_bp") or {}).get("fetched")),
             "dfs": ((market.get("dfs") or {}).get("fetched")),
         },
     }
