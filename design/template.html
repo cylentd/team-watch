@@ -514,6 +514,17 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .tag.t-q{color:var(--amber);border:1px solid rgba(255,176,32,.4);background:rgba(255,176,32,.08)}
 .tag.t-bk{color:var(--ink-3);border:1px solid var(--line-2)}
 .tag.t-role{color:var(--amber);border:1px dashed rgba(255,176,32,.5);cursor:help}
+/* game-log strip: the last 12 games as bars against the line, opened by the card's chevron */
+.leg .more{appearance:none;background:none;border:1px solid var(--line);color:var(--ink-3);width:22px;height:22px;
+  border-radius:2px;cursor:pointer;font-size:10px;display:grid;place-items:center;justify-self:end;transition:all .15s var(--ease)}
+.leg .more:hover{color:var(--ink);border-color:var(--line-2)}
+.leg .more[aria-expanded="true"]{color:var(--lime);border-color:var(--lime)}
+.leg .gl{grid-column:1/-1;border-top:1px solid var(--line);padding-top:10px;margin-top:2px}
+.leg .gl svg{width:100%;height:72px;display:block}
+.leg .gl .glcap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:6px;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--ink-3);text-transform:uppercase}
+.leg .gl .glcap b{color:var(--ink)}
+.leg{grid-template-columns:40px minmax(0,1fr) 92px 96px 22px}
 .presets{display:flex;flex-wrap:wrap;gap:6px;padding:10px 15px;border-bottom:1px solid var(--line)}
 .presets .chip{padding:5px 9px;font-size:11px}
 .bigedge.pending{color:var(--ink-3);font-size:22px;font-weight:400;letter-spacing:.02em;text-transform:uppercase;padding:8px 0}
@@ -671,7 +682,8 @@ html{scrollbar-color:var(--line-2) var(--void)}
   .slip{position:static}
   .leg{grid-template-columns:36px minmax(0,1fr) auto;gap:9px 12px;align-items:center}
   .leg img,.leg .fallback{width:36px;height:36px;grid-row:1/3}
-  .leg > div:nth-child(2){grid-column:2/4}
+  .leg > div:nth-child(2){grid-column:2/3}
+  .leg .more{grid-column:3;grid-row:1;justify-self:end}
   .probwrap{grid-column:2;grid-row:2;text-align:left;display:flex;align-items:baseline;gap:6px}
   .edgecell{grid-column:3;grid-row:2;display:flex;align-items:baseline;gap:6px;justify-self:end}
   .probwrap span,.edgecell .ebar{display:none}
@@ -1425,13 +1437,51 @@ function propCard(p, i){
   const tag = (p.flag === "q" ? `<span class="tag t-q">Q${p.injury_note ? " · " + esc(p.injury_note) : ""}</span>`
     : p.flag === "backup" ? `<span class="tag t-bk">${esc(p.pos)}${p.depth}</span>` : "")
     + (p.stale ? `<span class="tag t-role" title="The book's line is far from last season's rate: the role changed and the model has not caught up. Not slip material.">ROLE?</span>` : "");
-  return `<div class="leg ${p.mine?"mine":""} ${inSlip?"inslip":""} ${p.flag==="out"?"isout":""}" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">
+  const log = LIVE_MARKET && LIVE_MARKET.logs && p.slug ? LIVE_MARKET.logs[p.slug] : (LIVE_MARKET && LIVE_MARKET.logs ? LIVE_MARKET.logs[slugOf(p.n)] : null);
+  const open = EXPANDED.has(i);
+  return `<div class="leg ${p.mine?"mine":""} ${inSlip?"inslip":""} ${p.flag==="out"?"isout":""} ${open?"open":""}" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">
     ${HEADS[p.slug] ? `<img src="${HEADS[p.slug]}" alt="">` : `<div class="fallback">${esc(initials(p.n))}</div>`}
     <div>
       <div class="prop">${esc(p.n)} · ${esc(propLabel(p))}${tag ? " " + tag : ""}</div>
       <div class="book">${esc(p.pos)} · ${esc(p.game)}${p.kick ? ` ${esc(p.kick)}` : ""} · ${esc(bookLine(p))}</div>
     </div>
     ${right}
+    ${log ? `<button class="more" data-more="${i}" aria-expanded="${open}" title="Last ${log.g.length} games against this line" tabindex="-1">${open ? "▴" : "▾"}</button>` : `<span></span>`}
+    ${open && log ? gameLogHTML(p, log) : ""}
+  </div>`;
+}
+
+/* The same slug rule build.py uses, for a player the headshot set does not know. */
+const slugOf = n => n.toLowerCase().replace(/[^a-z0-9 ]/g, "").split(/\s+/).filter(w => !["jr","sr","ii","iii","iv","v"].includes(w)).join("-");
+let EXPANDED = new Set();
+
+/* The last 12 games as bars, the line as a rule across them. A bar that clears the line is lime.
+   For a touchdown line the bars are scores and the rule sits at one. */
+function gameLogHTML(p, log){
+  const vals = log.v[p.mkt] || [];
+  const line = p.mkt === "TD" ? 1 : p.line;
+  if (!vals.length) return "";
+  const W = 600, H = 72, padT = 8, padB = 14, n = vals.length, gap = 4;
+  const bw = (W - gap * (n - 1)) / n;
+  const top = Math.max(...vals, line || 0, 1) * 1.08;
+  const y = v => padT + (H - padT - padB) * (1 - v / top);
+  const hit = vals.filter(v => line != null && (p.mkt === "TD" ? v >= 1 : v > line)).length;
+  const bars = vals.map((v, k) => {
+    const x = k * (bw + gap), h = Math.max(1.5, y(0) - y(v));
+    const ok = line != null && (p.mkt === "TD" ? v >= 1 : v > line);
+    const g = log.g[k];
+    return `<rect x="${x.toFixed(1)}" y="${y(v).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${ok ? "var(--lime)" : "var(--line-2)"}"><title>${g[0]} wk${g[1]} ${g[2] ? "vs " + esc(g[2]) : ""}: ${v}</title></rect>
+      <text x="${(x + bw/2).toFixed(1)}" y="${H - 3}" text-anchor="middle" font-size="8" fill="var(--ink-3)" font-family="var(--mono)">${g[1]}</text>`;
+  }).join("");
+  const rule = line != null ? `<line x1="0" x2="${W}" y1="${y(line).toFixed(1)}" y2="${y(line).toFixed(1)}" stroke="var(--amber)" stroke-dasharray="3 3" stroke-width="1"/>` : "";
+  const avg = vals.reduce((a, b) => a + b, 0) / n;
+  const first = log.g[0], last = log.g[n - 1];
+  return `<div class="gl">
+    <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-label="last ${n} games">${bars}${rule}</svg>
+    <div class="glcap">
+      <span>${p.mkt === "TD" ? `scored in <b>${hit} of ${n}</b>` : `cleared ${line} in <b>${hit} of ${n}</b>`} · avg <b>${p.mkt === "TD" || p.mkt === "RECS" ? avg.toFixed(1) : avg.toFixed(0)}</b>${typeof p.mu === "number" ? ` · rate <b>${p.mkt === "TD" ? (p.mu).toFixed(2) : p.mu.toFixed(p.mkt === "RECS" ? 1 : 0)}</b>` : ""}</span>
+      <span>${first[0]} wk${first[1]} → ${last[0]} wk${last[1]} · week numbers under the bars</span>
+    </div>
   </div>`;
 }
 
@@ -1765,9 +1815,15 @@ function render(){
         SLIP_MODE = "custom";
         const y = window.scrollY; render(); window.scrollTo(0, y);
       };
-      el.addEventListener("click", toggle);
+      el.addEventListener("click", e=>{ if (e.target.closest(".more, .gl")) return; toggle(); });
       el.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();toggle();} });
     });
+    v.querySelectorAll("[data-more]").forEach(b=>b.addEventListener("click", e=>{
+      e.stopPropagation();
+      const i = +b.dataset.more;
+      if (EXPANDED.has(i)) EXPANDED.delete(i); else EXPANDED.add(i);
+      const y = window.scrollY; render(); window.scrollTo(0, y);
+    }));
     return;
   }
 

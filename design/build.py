@@ -377,6 +377,8 @@ def live_props(available, rosters):
                   "modeled": modeled, "status_fetched": model.get("status_fetched"),
                   "not_playing": model.get("not_playing", 0)} if model else None,
         "props": out,
+        # last 12 games per priced player, keyed by slug: the card's game-log strip
+        "logs": {slugify(k): v for k, v in (model or {}).get("logs", {}).items() if v},
     }
 
 
