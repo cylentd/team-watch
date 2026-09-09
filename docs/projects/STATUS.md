@@ -4,7 +4,7 @@ One line per active thread. Update the moment you stop working on something — 
 
 | Thread | Branch | Status | Next action | Touched |
 |---|---|---|---|---|
-| _(none active)_ | | | | |
+| Wire real props into builder | main | props client live in ff-jarvis (DraftKings + Underdog, `data/bettingpros_props.json`); builder UI (`template.html` PROPS/SLIP) still hardcoded sample data; no per-stat prediction model exists to fill the "model %" / "edge" columns the card design assumes | Decide the model/edge question first (see options in session), then wire `feed.json market.props_bp` into `build.py`; DFS lineup separately needs a Yahoo contest CSV export, nothing pulls it yet | 2026-09-09 |
 
 ## Closed (last 5)
 
