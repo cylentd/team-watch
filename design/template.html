@@ -708,7 +708,7 @@ html{scrollbar-color:var(--line-2) var(--void)}
   .sig-val{font-size:23px;margin-top:7px}
   .sig-sub{font-size:11px;letter-spacing:.06em}
 
-  .ts-team{font-size:12px}
+  .ts-team{font-size:12px;max-width:74px;overflow:hidden;text-overflow:ellipsis}
   .ts-btn{padding:7px 9px}
 
   .colhead{display:none}
@@ -740,7 +740,9 @@ html{scrollbar-color:var(--line-2) var(--void)}
   .arrowcell{display:none}
   .states{grid-template-columns:minmax(0,1fr)}
 
-  .nav{overflow-x:auto;scrollbar-width:none}
+  .nav{overflow-x:auto;scrollbar-width:none;
+    -webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 22px),transparent);
+    mask-image:linear-gradient(90deg,#000 calc(100% - 22px),transparent);}
   .nav::-webkit-scrollbar{display:none}
   .navitem{padding:11px 15px;font-size:12.5px;flex-shrink:0}
   .navitem .ix{width:17px;height:17px}
@@ -748,11 +750,17 @@ html{scrollbar-color:var(--line-2) var(--void)}
   .quad{height:320px;min-width:540px}
   .quadhead{padding:12px 13px}
   .quadscroll{position:relative}
-  .quadscroll::after{
-    content:"SWIPE →";position:absolute;right:8px;bottom:8px;
-    font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--ink-3);
-    background:var(--panel);padding:3px 6px;border:1px solid var(--line);pointer-events:none;
+  .quadscroll::before{
+    content:"";position:absolute;top:0;right:0;bottom:0;width:36px;pointer-events:none;
+    background:linear-gradient(90deg,transparent,var(--panel) 82%);
   }
+  .quadscroll::after{
+    content:"SWIPE →";position:absolute;right:8px;bottom:8px;z-index:1;
+    font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--lime);
+    background:var(--panel);padding:3px 6px;border:1px solid var(--lime);pointer-events:none;
+    animation:swipehint 1.6s var(--ease) infinite;
+  }
+  @keyframes swipehint{0%,100%{transform:translateX(0)}50%{transform:translateX(4px)}}
   .build{grid-template-columns:minmax(0,1fr);gap:14px}
   .side{position:static;max-height:none;overflow:visible;padding-right:0}
   .leg{grid-template-columns:36px minmax(0,1fr) auto;gap:9px 12px;align-items:center}
@@ -2157,6 +2165,16 @@ function render(){
       el.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();open();} });
     });
     v.querySelectorAll(".dotg").forEach(g=>g.addEventListener("click",()=>openPoolDrawer(+g.dataset.i)));
+    // A scroll container with clipped content (the scatter, on narrow screens) is easy to miss
+    // entirely -- nudge it once so the swipe is felt, not just hinted at in small print.
+    v.querySelectorAll(".quadscroll").forEach(el=>{
+      if (el.scrollWidth <= el.clientWidth + 4 || el.dataset.nudged) return;
+      el.dataset.nudged = "1";
+      requestAnimationFrame(()=>{
+        el.scrollTo({left: 46, behavior: "smooth"});
+        setTimeout(()=>el.scrollTo({left: 0, behavior: "smooth"}), 650);
+      });
+    });
     return;
   }
   if (SURFACE === "builder"){
