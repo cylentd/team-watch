@@ -513,6 +513,7 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .leg .tag{vertical-align:middle;margin-left:4px}
 .tag.t-q{color:var(--amber);border:1px solid rgba(255,176,32,.4);background:rgba(255,176,32,.08)}
 .tag.t-bk{color:var(--ink-3);border:1px solid var(--line-2)}
+.tag.t-role{color:var(--amber);border:1px dashed rgba(255,176,32,.5);cursor:help}
 .presets{display:flex;flex-wrap:wrap;gap:6px;padding:10px 15px;border-bottom:1px solid var(--line)}
 .presets .chip{padding:5px 9px;font-size:11px}
 .bigedge.pending{color:var(--ink-3);font-size:22px;font-weight:400;letter-spacing:.02em;text-transform:uppercase;padding:8px 0}
@@ -1276,7 +1277,10 @@ const SLOTS = {morning:"Morning", afternoon:"Afternoon", evening:"Evening"};
 const SLIP_LEGS = 3;
 /* Sportsbook legs: a DraftKings price between -300 and +200 (edge in points rewards a +750 long
    shot far more than it deserves), a model chance of 35-85%, a rate on 8+ games, positive edge. */
-const playing = p => p.flag !== "out" && p.flag !== "q";   // a slip leg has to be on the field
+/* A slip leg has to be on the field, in a starter's role, and priced at a line that agrees with
+   the role the model knows about; a backup, a questionable, or a line the book has moved far
+   from last season's rate is news, not edge. */
+const playing = p => p.flag !== "out" && p.flag !== "q" && p.flag !== "backup" && !p.stale;
 const legOK = p => typeof p.edge === "number" && p.edge > 0 && (p.games||0) >= 8 && playing(p)
   && p.model >= 35 && p.model <= 85 && p.book === "DraftKings"
   && overPrice(p) >= -300 && overPrice(p) <= 200;
@@ -1295,7 +1299,7 @@ function bestSlip(slot){
    even at 6x), ranked by that confidence. */
 const UD_MIN = 58;
 /* A 0.5-reception or 12.5-yard line is confidence for free and Underdog knows it; skip them. */
-const udOK = p => ud(p) && ud(p).conf >= UD_MIN && (p.games||0) >= 8 && playing(p)
+const udOK = p => ud(p) && ud(p).conf >= UD_MIN && (p.games||0) >= 8 && playing(p) && !ud(p).stale
   && (p.mkt === "RECS" ? ud(p).line >= 2.5 : ud(p).line >= 15);
 function udSlip(){
   return pickLegs(PROPS.map((p,i)=>[p,i]).filter(([p]) => udOK(p)), p => ud(p).conf);
@@ -1412,8 +1416,9 @@ function propCard(p, i){
     <div class="edgecell pending"><b>OUT</b><span>${esc((p.injury_note||p.injury||"").toUpperCase())}</span></div>`;
   else if (p.norole) right = `<div class="probwrap implied"><b>—</b><span>NO YARDS LINE</span></div>
     <div class="edgecell pending"><b>—</b><span>NO ROLE PRICED</span></div>`;
-  const tag = p.flag === "q" ? `<span class="tag t-q">Q${p.injury_note ? " · " + esc(p.injury_note) : ""}</span>`
-    : p.flag === "backup" ? `<span class="tag t-bk">${esc(p.pos)}${p.depth}</span>` : "";
+  const tag = (p.flag === "q" ? `<span class="tag t-q">Q${p.injury_note ? " · " + esc(p.injury_note) : ""}</span>`
+    : p.flag === "backup" ? `<span class="tag t-bk">${esc(p.pos)}${p.depth}</span>` : "")
+    + (p.stale ? `<span class="tag t-role" title="The book's line is far from last season's rate: the role changed and the model has not caught up. Not slip material.">ROLE?</span>` : "");
   return `<div class="leg ${p.mine?"mine":""} ${inSlip?"inslip":""} ${p.flag==="out"?"isout":""}" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">
     ${HEADS[p.slug] ? `<img src="${HEADS[p.slug]}" alt="">` : `<div class="fallback">${esc(initials(p.n))}</div>`}
     <div>

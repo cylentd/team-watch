@@ -31,6 +31,17 @@ POS_ORDER = {"QB": 0, "RB": 1, "WR": 2, "TE": 3}
 MKT_ORDER = {"PASS": 0, "RUSH": 1, "REC": 2, "RECS": 3, "TD": 4}
 # BettingPros team codes that differ from the ESPN/nflverse codes the rest of the page uses.
 TEAM_FIX = {"JAC": "JAX"}
+# Where the model's rate sits relative to the book's line across the whole slate (week 1 2026:
+# medians 1.12 rush, 1.13 rec, 1.01 receptions, 0.94 pass), and how far from that a line can be
+# before it is read as a role change rather than a disagreement.
+STALE_CENTRE = {"RUSH": 1.12, "REC": 1.13, "RECS": 1.0, "PASS": 0.94}
+STALE_BAND = 1.35
+
+
+def is_stale(mkt, mu, line):
+    r0 = STALE_CENTRE.get(mkt, 1.0)
+    ratio = mu / line
+    return ratio > r0 * STALE_BAND or ratio < r0 / STALE_BAND
 # The anytime-TD market prices whole teams too; those rows are not players.
 NFL_TEAMS = {
     "Arizona Cardinals", "Atlanta Falcons", "Baltimore Ravens", "Buffalo Bills",
@@ -321,6 +332,8 @@ def live_props(available, rosters):
             if b == "Underdog" and p["mkt"] != "TD":
                 x["pick"] = "higher" if rb["p_over"] >= 0.5 else "lower"
                 x["conf"] = round(max(rb["p_over"], 1 - rb["p_over"]) * 100)
+            if p["mkt"] != "TD" and x.get("line") and rb.get("mu") and is_stale(p["mkt"], rb["mu"], x["line"]):
+                x["stale"] = 1   # this book's own line is the one that moved
         r = priced.get((slug, p["mkt"], p["line"]))
         if r is None:
             continue
@@ -340,6 +353,13 @@ def live_props(available, rosters):
         p["mu"] = r["mu"]
         p["games"] = r["games"]   # how much of his own history the rate rests on
         modeled += 1
+        # Role check. The rate is last season's; the line is this week's. Across the slate the
+        # rate sits about 12% above a yards line (a mean over a median) and on top of a receptions
+        # line. A line far outside that band means the book knows the role changed -- a demoted
+        # starter, a back in a new committee -- and the gap is not an edge. The card says ROLE?
+        # and no preset will build a slip on it.
+        if p["mkt"] != "TD" and p["line"] and r["mu"] and is_stale(p["mkt"], r["mu"], p["line"]):
+            p["stale"] = 1
 
     # Best edge first; unmodelled rows after, mine first, by kickoff; the not-playing last.
     out.sort(key=lambda p: (0, -p["edge"]) if "edge" in p
