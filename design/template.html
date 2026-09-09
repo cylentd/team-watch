@@ -592,7 +592,9 @@ html{scrollbar-color:var(--line-2) var(--void)}
 /* Underdog's pick badge: HIGHER/LOWER stacked over its confidence, lime-accented like any other
    "this is the model's call" surface (the chip.go treatment, the presetcard.best border). */
 .o.udpick{display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1.15;
-  border-color:rgba(200,255,46,.35);color:var(--lime)}
+  border-color:var(--line-2);color:var(--ink-2)}
+.o.udpick.higher{border-color:rgba(55,224,139,.4);color:var(--up)}
+.o.udpick.lower{border-color:rgba(255,90,82,.4);color:var(--down)}
 .o.udpick .conf{font-size:10px;letter-spacing:.04em;color:var(--ink-2)}
 .corr{display:flex;align-items:center;gap:9px;padding:10px 15px;border-bottom:1px solid var(--line);
   background:rgba(255,176,32,.07);color:var(--amber);font-family:var(--mono);font-size:11px;letter-spacing:.1em}
@@ -1778,7 +1780,7 @@ function udPropCard(p, i){
       <div class="prop">${esc(p.n)} · ${esc(MKT[p.mkt])} ${u.line}${tag ? " " + tag : ""}</div>
       <div class="book">${esc(p.pos)} · ${esc(p.game)}${p.kick ? ` · ${esc(p.kick)}` : ""}</div>
     </div>
-    <div class="o udpick">${u.pick ? u.pick.toUpperCase() : "—"}<span class="conf">${typeof u.conf === "number" ? u.conf+"%" : "PENDING"}</span></div>
+    <div class="o udpick ${u.pick||""}">${u.pick ? u.pick.toUpperCase() : "—"}<span class="conf">${typeof u.conf === "number" ? u.conf+"%" : "PENDING"}</span></div>
     <button class="more" data-more="${i}" aria-expanded="${open}" title="${log ? `Last ${log.g.length} games against this line` : "More on this line"}" tabindex="-1">${open ? "▴" : "▾"}</button>
     ${open ? `<div class="legx">
       <div class="booklines">${esc(bookLine(p))}</div>
@@ -2086,7 +2088,7 @@ function slipHTML(){
     ${chips}
     ${legs.length ? legs.map(l=>`<div class="slipleg">
       <div><div class="p">${esc(l.n)}</div><div class="m">${esc(MKT[l.mkt].toUpperCase())} ${ud(l).line}${l.kick ? ` · ${esc(l.kick.toUpperCase())}` : ""}</div></div>
-      <div class="o udpick">${ud(l).pick ? ud(l).pick.toUpperCase() : "—"}<span class="conf">${typeof ud(l).conf === "number" ? ud(l).conf+"%" : "PENDING"}</span></div></div>`).join("")
+      <div class="o udpick ${ud(l).pick||""}">${ud(l).pick ? ud(l).pick.toUpperCase() : "—"}<span class="conf">${typeof ud(l).conf === "number" ? ud(l).conf+"%" : "PENDING"}</span></div></div>`).join("")
       : `<div class="state-empty" style="margin:14px 15px;min-height:90px"><div><b>0</b><span>NO UNDERDOG LINE THE MODEL PUTS PAST ${UD_MIN}%</span></div></div>`}
     <div class="payout">
       <span class="lbl">All picks hit</span>
@@ -2194,7 +2196,7 @@ function presetCard(card){
   const legRows = legs.map(l => card.book === "underdog"
     ? `<div class="slipleg">
         <div><div class="p">${esc(l.n)}</div><div class="m">${esc(MKT[l.mkt].toUpperCase())} ${ud(l).line}${l.kick ? ` · ${esc(l.kick.toUpperCase())}` : ""}</div></div>
-        <div class="o udpick">${ud(l).pick ? ud(l).pick.toUpperCase() : "—"}<span class="conf">${typeof ud(l).conf === "number" ? ud(l).conf+"%" : "PENDING"}</span></div></div>`
+        <div class="o udpick ${ud(l).pick||""}">${ud(l).pick ? ud(l).pick.toUpperCase() : "—"}<span class="conf">${typeof ud(l).conf === "number" ? ud(l).conf+"%" : "PENDING"}</span></div></div>`
     : `<div class="slipleg">
         <div><div class="p">${esc(l.n)}</div><div class="m">${esc(propLabel(l).toUpperCase())}${l.kick ? ` · ${esc(l.kick.toUpperCase())}` : ""}</div></div>
         <div class="o">${esc(fmtAm(overPrice(l)))}</div></div>`).join("");
