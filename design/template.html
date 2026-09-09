@@ -97,6 +97,7 @@ html{scrollbar-color:var(--line-2) var(--void)}
   border-radius:2px;white-space:nowrap;
 }
 .pill.warn{border-color:rgba(255,176,32,.35);color:var(--amber);background:rgba(255,176,32,.06)}
+.pill.live{border-color:rgba(200,255,46,.35);color:var(--lime);background:rgba(200,255,46,.06)}
 .dot{width:5px;height:5px;border-radius:99px;background:currentColor}
 
 /* ============================== TEAM SWITCH (dropdown) ============================== */
@@ -337,21 +338,11 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .btn.ghost{border-color:var(--line-2);background:none;color:var(--ink-2)}
 .btn.ghost:hover{border-color:var(--ink-2);background:var(--panel-3);color:var(--ink)}
 
-/* ============================== STATES ============================== */
-.states{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:16px;margin-bottom:60px}
-.state{border:1px solid var(--line);background:var(--panel);padding:16px;min-height:132px;display:flex;flex-direction:column;gap:12px}
-.state-t{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--ink-3)}
+/* ============================== EMPTY STATE ============================== */
+/* The one shared "nothing here" block -- filtered-list, empty-cart, no-window-matches, etc. */
 .state-empty{flex:1;display:grid;place-items:center;border:1px dashed var(--line-2);color:var(--ink-3);text-align:center;padding:14px}
 .state-empty b{display:block;font-family:var(--mono);font-size:22px;color:var(--line-2)}
 .state-empty span{font-family:var(--mono);font-size:11px;letter-spacing:.1em}
-.skel{height:14px;background:linear-gradient(90deg,var(--panel-2) 0%,var(--panel-3) 40%,rgba(200,255,46,.08) 50%,var(--panel-3) 60%,var(--panel-2) 100%);background-size:220% 100%;animation:shim 1.5s linear infinite}
-@keyframes shim{to{background-position:-220% 0}}
-.state-err{flex:1;border:1px solid rgba(255,90,82,.3);background:rgba(255,90,82,.06);padding:12px;display:flex;flex-direction:column;justify-content:center;gap:8px}
-.state-err b{color:var(--down);font-family:var(--mono);font-size:11px;letter-spacing:.14em}
-.state-err span{color:var(--ink-2);font-size:11.5px;line-height:1.5}
-.state-stale{flex:1;border:1px solid rgba(255,176,32,.3);background:rgba(255,176,32,.06);padding:12px;display:flex;flex-direction:column;justify-content:center;gap:8px}
-.state-stale b{color:var(--amber);font-family:var(--mono);font-size:11px;letter-spacing:.14em}
-.state-stale span{color:var(--ink-2);font-size:11.5px;line-height:1.5}
 
 /* ============================== DRAWER ============================== */
 .scrim{position:fixed;inset:0;background:rgba(4,4,6,.62);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .35s var(--ease);z-index:50}
@@ -515,7 +506,9 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .leg .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--ink-3)}
 .leg .prop{font-size:14.5px;font-weight:600;letter-spacing:-.01em}
 .leg .book{font-family:var(--mono);font-size:12.5px;color:var(--ink-2);margin-top:5px;letter-spacing:.02em;line-height:1.4}
-.leg .o{font-family:var(--mono);font-size:14.5px;font-weight:700;text-align:right;white-space:nowrap}
+.leg .o{font-family:var(--mono);font-size:13.5px;font-weight:700;white-space:nowrap;
+  padding:7px 11px;border:1px solid var(--line-2);border-radius:3px;background:var(--panel-2);
+  text-align:center;letter-spacing:.01em}
 .probwrap{font-family:var(--mono);text-align:right}
 .probwrap b{font-size:15px;font-weight:700}
 .probwrap span{display:block;font-size:11px;color:var(--ink-3);letter-spacing:.14em;margin-top:3px}
@@ -552,6 +545,21 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .leg .gl .glcap b{color:var(--ink)}
 .presets{display:flex;flex-wrap:wrap;gap:6px;padding:10px 15px;border-bottom:1px solid var(--line)}
 .presets .chip{padding:5px 9px;font-size:11px}
+
+/* Equal-width segmented control -- two roughly-equal-length options that read as one choice,
+   not a row of independent chips of whatever width their label happens to need. */
+.strategy{display:flex;border:1px solid var(--line-2);background:var(--panel);margin-top:16px}
+.strat-btn{
+  flex:1;appearance:none;background:none;cursor:pointer;border:0;border-right:1px solid var(--line-2);
+  padding:12px 10px;text-align:center;color:var(--ink-2);transition:all .18s var(--ease);
+}
+.strat-btn:last-child{border-right:0}
+.strat-btn:hover{background:var(--panel-2);color:var(--ink)}
+.strat-btn:active{transform:scale(.98)}
+.strat-btn .st-name{display:block;font-family:var(--disp);font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:.01em}
+.strat-btn .st-sub{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-top:3px}
+.strat-btn[aria-pressed="true"]{background:rgba(200,255,46,.08);color:var(--lime)}
+.strat-btn[aria-pressed="true"] .st-sub{color:var(--lime);opacity:.75}
 .bigedge.pending{color:var(--ink-3);font-size:22px;font-weight:400;letter-spacing:.02em;text-transform:uppercase;padding:8px 0}
 
 /* The right column (slip + model card) sticks as one and scrolls inside itself when taller than
@@ -578,7 +586,14 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .slipleg{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 15px;border-bottom:1px solid var(--line)}
 .slipleg .p{font-size:13.5px;font-weight:600;letter-spacing:-.01em}
 .slipleg .m{font-family:var(--mono);font-size:12px;color:var(--ink-2);margin-top:4px;letter-spacing:.02em}
-.slipleg .o{font-family:var(--mono);font-size:12px;font-weight:700}
+.slipleg .o{font-family:var(--mono);font-size:12px;font-weight:700;white-space:nowrap;
+  padding:5px 9px;border:1px solid var(--line-2);border-radius:3px;background:var(--panel-3);
+  text-align:center}
+/* Underdog's pick badge: HIGHER/LOWER stacked over its confidence, lime-accented like any other
+   "this is the model's call" surface (the chip.go treatment, the presetcard.best border). */
+.o.udpick{display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1.15;
+  border-color:rgba(200,255,46,.35);color:var(--lime)}
+.o.udpick .conf{font-size:10px;letter-spacing:.04em;color:var(--ink-2)}
 .corr{display:flex;align-items:center;gap:9px;padding:10px 15px;border-bottom:1px solid var(--line);
   background:rgba(255,176,32,.07);color:var(--amber);font-family:var(--mono);font-size:11px;letter-spacing:.1em}
 .payout{padding:15px}
@@ -646,18 +661,35 @@ details.deep[open] > summary{border-bottom:1px solid var(--line)}
 details.deep > summary:hover{color:var(--ink)}
 .dfstable .phead,.dfstable .prow{grid-template-columns:40px minmax(120px,1fr) 76px 54px 56px 50px 66px;min-width:0}
 .dfsrow .chip{padding:5px 9px;font-size:11px}
-.lslot{display:grid;grid-template-columns:42px 34px minmax(0,1fr) auto;gap:10px;align-items:center;
-  padding:9px 14px;border-bottom:1px solid var(--line)}
+.dfsrow .chip.go{border-color:var(--lime);color:var(--lime);background:rgba(200,255,46,.08)}
+.dfsrow.ineligible{opacity:.4}
+.dfsrow.ineligible .chip{color:var(--down);border-color:rgba(255,90,82,.35)}
+.lslot{display:grid;grid-template-columns:42px 34px minmax(0,1fr) auto auto;gap:10px;align-items:center;
+  padding:9px 14px;border-bottom:1px solid var(--line);border-left:2px solid transparent;
+  transition:background .15s var(--ease),border-color .15s var(--ease)}
+.lslot:not(.vacant){cursor:pointer}
+.lslot:not(.vacant):hover{background:var(--panel-2)}
 .lslot img,.lslot .fallback{width:34px;height:34px;border-radius:99px;object-fit:cover;border:1px solid var(--line-2);background:var(--panel-3)}
 .lslot .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--ink-3)}
 .lslot .slottag{margin:0}
 .lslot .sn{font-size:12.5px;font-weight:500;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lslot .sm{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:3px;letter-spacing:.08em}
 .lslot .lsal{font-family:var(--mono);font-size:11.5px;font-weight:700}
-.lslot.vacant{grid-template-columns:42px minmax(0,1fr);border-left:2px solid transparent;cursor:pointer;
+.lslot .lremove{appearance:none;background:none;border:1px solid var(--line-2);color:var(--ink-3);
+  width:22px;height:22px;border-radius:2px;cursor:pointer;font-size:11px;display:grid;place-items:center;
+  transition:all .15s var(--ease)}
+.lslot .lremove:hover{color:var(--down);border-color:rgba(255,90,82,.5)}
+.lslot.active{border-left-color:var(--lime);background:rgba(200,255,46,.06)}
+.lslot.vacant{grid-template-columns:42px minmax(0,1fr);cursor:pointer;
   background:repeating-linear-gradient(-45deg,transparent,transparent 5px,rgba(255,255,255,.016) 5px,rgba(255,255,255,.016) 10px)}
 .lslot.vacant:hover{border-left-color:var(--lime)}
+.lslot.vacant.active{border-left-color:var(--lime);background:rgba(200,255,46,.1)}
 .lslot .vhint{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ink-3)}
+.pickbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  padding:10px 15px;background:rgba(200,255,46,.06);border-bottom:1px solid var(--line);
+  font-size:12px;color:var(--ink-2);line-height:1.5}
+.pickbar b{color:var(--lime)}
+.pickbar .err{color:var(--down)}
 
 /* ============================== FEED STATUS ============================== */
 .statuswrap{position:relative}
@@ -722,8 +754,8 @@ details.deep > summary:hover{color:var(--ink)}
   .navbar{top:52px}
   .brand-name{font-size:16px}
   #weekpill{display:none}
-  .topbar .pill.warn .full{display:none}
-  .topbar .pill.warn .abbr{display:inline}
+  .topbar .pill .full{display:none}
+  .topbar .pill .abbr{display:inline}
 
   .numghost{font-size:150px;left:-14px;top:6px}
   .hero{padding:30px 0 26px}
@@ -775,6 +807,10 @@ details.deep > summary:hover{color:var(--ink)}
   .navitem .ix{width:15px;height:15px}
   .hero h1{font-size:clamp(30px,8.6vw,80px)}
   .quad{height:320px;min-width:540px}
+  /* The compact (portrait, no per-dot labels) mobile geometry from scatterHTML fits its
+     container at ~1:1, so it needs none of the above -- no forced min-width, no scroll. */
+  .quad.quad-compact{height:440px;min-width:0;width:100%}
+  .quad-compact .dotlab{display:none}
   .quadhead{padding:12px 13px}
   .quadscroll{position:relative}
   .quadscroll::before{
@@ -788,6 +824,10 @@ details.deep > summary:hover{color:var(--ink)}
     animation:swipehint 1.6s var(--ease) infinite;
   }
   @keyframes swipehint{0%,100%{transform:translateX(0)}50%{transform:translateX(4px)}}
+  /* Hidden once there's nothing left to swipe to -- content that already fits, or a scroller
+     already at its end. Toggled by nudgeScrollers() on every render and every scroll event. */
+  .quadscroll.no-swipe::before,.quadscroll.no-swipe::after,
+  .rail.no-swipe::before,.rail.no-swipe::after{display:none}
   /* .rail (non-scrolling) holds the fade + hint pinned to the edge; .railscroll (nested) is the
      actual scroller. Unlike .quadscroll, which puts these pseudo-elements on the scrolling box
      itself, keeping them on a non-scrolling wrapper means they don't scroll away with content. */
@@ -830,7 +870,7 @@ details.deep > summary:hover{color:var(--ink)}
 }
 @media (max-width:430px){ .dfs{grid-template-columns:minmax(0,1fr)} }
 .slotm{display:none}
-.pill.warn .abbr{display:none}
+.pill .abbr{display:none}
 
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.001ms!important;animation-delay:0ms!important;transition-duration:.001ms!important}
@@ -849,7 +889,7 @@ details.deep > summary:hover{color:var(--ink)}
       <div class="brand-name">Team<i>//</i>Watch</div>
     </div>
     <div class="topbar-spacer"></div>
-    <span class="pill warn"><span class="dot"></span><span class="full">Sample signals — skill not wired</span><span class="abbr">Sample data</span></span>
+    <span class="pill warn" id="topbadge"><span class="dot"></span><span class="full">Sample signals — skill not wired</span><span class="abbr">Sample data</span></span>
     <span class="pill" id="weekpill"><span class="dot" style="color:var(--lime)"></span>Week 1 · Preseason</span>
     <div class="statuswrap" id="feed"></div>
   </div>
@@ -1175,23 +1215,6 @@ function wireHTML(){
     </div>`).join("")}</div>`;
 }
 
-function statesHTML(){
-  return `<div class="states">
-    <div class="state"><div class="state-t">EMPTY</div>
-      <div class="state-empty"><div><b>—</b><span>NO GAMES PLAYED</span></div></div></div>
-    <div class="state"><div class="state-t">LOADING</div>
-      <div style="display:flex;flex-direction:column;gap:10px;flex:1;justify-content:center">
-        <div class="skel" style="width:70%"></div><div class="skel" style="width:100%"></div>
-        <div class="skel" style="width:44%"></div><div class="skel" style="width:82%"></div></div></div>
-    <div class="state"><div class="state-t">ERROR</div>
-      <div class="state-err"><b>SIGNAL LOST</b><span>Yahoo returned 401. Token expired — re-auth and retry.</span>
-      <button class="btn ghost" style="align-self:flex-start">Retry</button></div></div>
-    <div class="state"><div class="state-t">STALE</div>
-      <div class="state-stale"><b>DATA 3H OLD</b><span>Last successful pull 06:12. Showing cached ranks.</span>
-      <button class="btn ghost" style="align-self:flex-start">Refresh</button></div></div>
-  </div>`;
-}
-
 /* ------------------------------------------------------------------
    THE POOL — every player who logged a snap, ranked on usage, not points.
    dShare is the change in snap/target share; dPts the change in points.
@@ -1220,9 +1243,20 @@ const VCLASS = {"CONFIRMED":"v-conf","RISING":"v-conf","BUY LOW":"v-buy","SELL H
 const VDOT   = {"CONFIRMED":"var(--up)","RISING":"var(--up)","BUY LOW":"var(--lime)","SELL HIGH":"var(--down)","SELL NOW":"var(--down)","hold":"var(--ink-3)","NEW":"var(--ink-3)"};
 
 let POOL_FILTER = "ALL";
+/* The ranked list can run long once real usage data lands (this is sample-capped at 16); the
+   scatter above it already shows the whole shape, so the list itself pages the same way the
+   props and DFS pools do, 10 at a time. */
+let POOL_PAGE = 1;
+const POOL_PAGE_SIZE = 10;
 
 function scatterHTML(rows){
-  const W = 1080, H = 400, PX = 54, PY = 34;
+  // A taller, narrower geometry on mobile -- close to 1:1 with the actual container width --
+  // means the SVG's own viewBox units render near their real size instead of scaled down to
+  // ~35% (1080-wide box in a 362px container), which is what forced the horizontal swipe.
+  // Per-dot name labels are dropped there (16 of them at that scale collide anyway, and the
+  // ranked table right below already names every player); tap still opens the same drawer.
+  const mobile = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(max-width:760px)").matches;
+  const W = mobile ? 380 : 1080, H = mobile ? 460 : 400, PX = mobile ? 30 : 54, PY = mobile ? 22 : 34;
   const xs = rows.map(r=>r.dShare), ys = rows.map(r=>r.luck);
   const xm = Math.max(14, ...xs.map(Math.abs)) * 1.15;
   const ym = Math.max(8,  ...ys.map(Math.abs)) * 1.2;
@@ -1231,17 +1265,17 @@ function scatterHTML(rows){
   const cx = X(0), cy = Y(0);
 
   const quads = [
-    [W-PX-10, PY+20,  "end",   "CONFIRMED — role and box score agree"],
-    [PX+10,   PY+20,  "start", "SELL HIGH — points without the role"],
-    [W-PX-10, H-PY-10,"end",   "BUY LOW — role without the points"],
-    [PX+10,   H-PY-10,"start", "FADING — both gone"],
+    [W-PX-8, PY+16,  "end",   "CONFIRMED"],
+    [PX+8,   PY+16,  "start", "SELL HIGH"],
+    [W-PX-8, H-PY-10,"end",   "BUY LOW"],
+    [PX+8,   H-PY-10,"start", "FADING"],
   ].map(([x,y,a,t]) => `<text class="qname" x="${x}" y="${y}" text-anchor="${a}">${t}</text>`).join("");
 
   // Labels sit to the right of their dot; when that would collide with one already
   // placed, the label flips above instead. Cheap, and it keeps every name readable.
   const placed = [];
   const dots = rows.map((r,i) => {
-    const rad = 4 + Math.min(6, r.snaps/14);
+    const rad = (mobile ? 3.5 : 4) + Math.min(mobile ? 5 : 6, r.snaps/14);
     const px = X(r.dShare), py = Y(r.luck);
     let lx = px + rad + 5, ly = py + 3.5, anchor = "start";
     const hits = () => placed.some(p => Math.abs(p.x-lx) < 64 && Math.abs(p.y-ly) < 11);
@@ -1249,23 +1283,25 @@ function scatterHTML(rows){
     if (hits()){ ly = py + rad + 13; lx = px; anchor = "middle"; }
     if (hits()){ lx = px - rad - 5; ly = py + 3.5; anchor = "end"; }
     placed.push({x:lx, y:ly});
-    return `<g class="dotg" data-i="${i}">
+    // The drawer opens by index into the full POOL array, not this (possibly filtered) rows
+    // array -- POOL.indexOf, not the map index, or a position filter opens the wrong player.
+    return `<g class="dotg" data-i="${POOL.indexOf(r)}">
       <circle class="dot" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${rad.toFixed(1)}"
         fill="${VDOT[r.v]}" fill-opacity=".8" stroke="${r.mine?"var(--lime)":"none"}" stroke-width="${r.mine?2:0}">
         <title>${esc(r.n)} — usage ${r.dShare>0?"+":""}${r.dShare}, luck ${r.luck>0?"+":""}${r.luck}</title>
       </circle>
-      <text class="dotlab" x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${anchor}">${esc(r.n.split(" ").slice(-1)[0])}</text>
+      ${mobile ? "" : `<text class="dotlab" x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${anchor}">${esc(r.n.split(" ").slice(-1)[0])}</text>`}
     </g>`;
   }).join("");
 
   return `<div class="quadwrap">
     <div class="quadhead">
       <div><span class="lbl">Usage against luck</span>
-        <div style="margin-top:6px;font-size:12.5px;color:var(--ink-2)">Right means the role is growing. Up means the points are running ahead of it.</div></div>
+        <div style="margin-top:6px;font-size:12.5px;color:var(--ink-2)">Right means the role is growing. Up means the points are running ahead of it.${mobile ? " Tap a dot for the player." : ""}</div></div>
       <span class="pill">${rows.length} players · min 25 snaps</span>
     </div>
     <div class="quadscroll">
-      <svg class="quad" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
+      <svg class="quad ${mobile ? "quad-compact" : ""}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
         <line class="qgrid" x1="${PX}" y1="${PY}" x2="${W-PX}" y2="${PY}"/>
         <line class="qgrid" x1="${PX}" y1="${H-PY}" x2="${W-PX}" y2="${H-PY}"/>
         <line class="axis-line" x1="${cx}" y1="${PY}" x2="${cx}" y2="${H-PY}"/>
@@ -1291,7 +1327,9 @@ function scatterHTML(rows){
 function poolRow(r, i){
   const sgn = v => (v>0?"+":"") + v.toFixed(1);
   const cls = v => v>0.5 ? "pos" : v<-0.5 ? "neg" : "";
-  return `<div class="prow ${r.mine?"mine":""}" style="animation-delay:${60+i*26}ms" data-pool="${i}" role="button" tabindex="0">
+  // `i` is the display rank (1-based, correct across pages); the drawer needs the full POOL
+  // array's index, which diverges from `i` the moment a position filter is active.
+  return `<div class="prow ${r.mine?"mine":""}" style="animation-delay:${60+i*26}ms" data-pool="${POOL.indexOf(r)}" role="button" tabindex="0">
     <div class="pnum" style="color:var(--ink-3)">${String(i+1).padStart(2,"0")}</div>
     <div>${HEADS[r.slug] ? `<img class="pool-head" src="${HEADS[r.slug]}" alt="">` : `<div class="pool-head" style="display:grid;place-items:center;font-family:var(--mono);font-size:11px;color:var(--ink-3)">${esc(initials(r.n))}</div>`}</div>
     <div class="pname"><b>${esc(r.n)}</b><span>${esc(r.pos)} · ${esc(r.team)}</span></div>
@@ -1337,14 +1375,27 @@ function poolHTML(){
       <span style="flex:1"></span>
       <span class="lbl">Sorted by share change</span>
     </div>
-    <div class="ptable">
-      <div class="phead">
-        <div>#</div><div></div><div>Player</div><div>Snaps</div><div>Δ snaps</div>
-        <div>Share</div><div>Δ share</div><div>Verdict</div><div>Rostered</div>
-      </div>
-      ${rows.length ? rows.map(poolRow).join("")
-        : `<div class="state-empty" style="margin:26px 0;min-height:120px"><div><b>0</b><span>NO PLAYERS AT THIS POSITION</span></div></div>`}
-    </div>
+    ${(() => {
+      const pages = Math.max(1, Math.ceil(rows.length / POOL_PAGE_SIZE));
+      const page = Math.min(POOL_PAGE, pages);
+      const pageRows = rows.slice((page-1)*POOL_PAGE_SIZE, page*POOL_PAGE_SIZE);
+      const pager = `<div class="filters" style="margin-top:8px">
+        <span class="lbl">${rows.length} player${rows.length===1?"":"s"}</span>
+        <span style="flex:1"></span>
+        <button class="chip" data-poolpage="prev" ${page<=1?"disabled":""}>‹ Prev</button>
+        <span class="lbl">Page ${page} of ${pages}</span>
+        <button class="chip" data-poolpage="next" ${page>=pages?"disabled":""}>Next ›</button>
+      </div>`;
+      return `${pager}
+      <div class="ptable">
+        <div class="phead">
+          <div>#</div><div></div><div>Player</div><div>Snaps</div><div>Δ snaps</div>
+          <div>Share</div><div>Δ share</div><div>Verdict</div><div>Rostered</div>
+        </div>
+        ${pageRows.length ? pageRows.map((r,i)=>poolRow(r, (page-1)*POOL_PAGE_SIZE + i)).join("")
+          : `<div class="state-empty" style="margin:26px 0;min-height:120px"><div><b>0</b><span>NO PLAYERS AT THIS POSITION</span></div></div>`}
+      </div>`;
+    })()}
   </div>`;
 }
 
@@ -1426,10 +1477,20 @@ const playing = p => p.flag !== "out" && p.flag !== "q" && p.flag !== "backup" &
    Touchdown legs are priced longer and land less often, so the floor is 30% and the price
    window runs to +600; mix needs no new band since each leg is still gated by its own market. */
 const scopeOK = (p, s) => s === "tds" ? p.mkt === "TD" : s === "mix" ? true : p.mkt !== "TD";
-const legOKIn = (p, s) => typeof p.edge === "number" && p.edge > 0 && (p.games||0) >= 8 && playing(p)
-  && scopeOK(p, s) && p.book === "DraftKings"
-  && (p.mkt === "TD" ? (p.model >= 30 && overPrice(p) >= -300 && overPrice(p) <= 600)
-                     : (p.model >= 35 && p.model <= 85 && overPrice(p) >= -300 && overPrice(p) <= 200));
+/* Underdog is pick'em: higher or lower at their line, paid by a fixed multiplier (no anytime-TD
+   pick'em market, so a TD-scoped Underdog card is always empty -- honest, not a bug), so the
+   pick is whichever side the model gives more than 58% (a 3-pick entry needs each leg near 55%
+   to break even at 6x), ranked by that confidence. A 0.5-reception or 12.5-yard line is
+   confidence for free and Underdog knows it, so those lines are skipped too. */
+const UD_MIN = 58;
+const legOKInBook = (p, s, book) => book === "underdog"
+  ? ud(p) && ud(p).conf >= UD_MIN && (p.games||0) >= 8 && playing(p) && !ud(p).stale && scopeOK(p, s)
+    && (p.mkt === "RECS" ? ud(p).line >= 2.5 : ud(p).line >= 15)
+  : typeof p.edge === "number" && p.edge > 0 && (p.games||0) >= 8 && playing(p)
+    && scopeOK(p, s) && p.book === "DraftKings"
+    && (p.mkt === "TD" ? (p.model >= 30 && overPrice(p) >= -300 && overPrice(p) <= 600)
+                       : (p.model >= 35 && p.model <= 85 && overPrice(p) >= -300 && overPrice(p) <= 200));
+const legMetric = (book) => book === "underdog" ? (p => ud(p).conf) : (p => p.edge);
 function pickLegs(cands, key, allowSameGame){
   const seenG = new Set(), seenP = new Set(), out = [];
   cands.sort((a,b) => key(b[0]) - key(a[0])).forEach(([p,i]) => {
@@ -1439,61 +1500,60 @@ function pickLegs(cands, key, allowSameGame){
   });
   return out;
 }
-function bestSlipIn(scope, winKey){
-  const cands = PROPS.map((p,i)=>[p,i]).filter(([p]) => legOKIn(p, scope) && (!winKey || p.win === winKey));
+function bestSlipIn(scope, winKey, book){
+  const cands = PROPS.map((p,i)=>[p,i]).filter(([p]) => legOKInBook(p, scope, book) && (!winKey || p.win === winKey));
   const games = new Set(cands.map(([p]) => p.game)).size;
   // A single-game window (a Thu/Sun/Mon night with one game on the slate) can never fill three
   // legs under the one-leg-per-game rule -- allow it there; the `.corr` warning already tells
   // the reader it is a same-game parlay and to price it as one.
-  return pickLegs(cands, p => p.edge, games > 0 && games < SLIP_LEGS);
+  return pickLegs(cands, legMetric(book), games > 0 && games < SLIP_LEGS);
 }
-/* Underdog is pick'em: higher or lower at their line, paid by a fixed multiplier, so the pick is
-   whichever side the model gives more than 58% (a 3-pick entry needs each leg near 55% to break
-   even at 6x), ranked by that confidence. */
-const UD_MIN = 58;
-/* A 0.5-reception or 12.5-yard line is confidence for free and Underdog knows it; skip them. */
-const udOK = p => ud(p) && ud(p).conf >= UD_MIN && (p.games||0) >= 8 && playing(p) && !ud(p).stale
-  && (p.mkt === "RECS" ? ud(p).line >= 2.5 : ud(p).line >= 15);
-function udSlip(){
-  return pickLegs(PROPS.map((p,i)=>[p,i]).filter(([p]) => udOK(p)), p => ud(p).conf);
-}
-function mineSlip(){
+function mineSlip(book){
   if (!LIVE_MARKET) return [1,2,5];
   const seen = new Set(), out = [];
-  PROPS.forEach((p,i) => { if (p.mine && p.mkt !== "TD" && !seen.has(p.game) && out.length < SLIP_LEGS){ seen.add(p.game); out.push(i); } });
+  const ok = book === "underdog" ? p => !!ud(p) : p => p.mkt !== "TD";
+  PROPS.forEach((p,i) => { if (p.mine && ok(p) && !seen.has(p.game) && out.length < SLIP_LEGS){ seen.add(p.game); out.push(i); } });
   return out;
 }
-const HAS_MODEL = PROPS.some(p => typeof p.edge === "number");
-const PRESETS = [["mine","My players"],["underdog","Underdog"],["blank","Clear"]];
-function presetSlip(k){
-  if (k === "mine") return mineSlip();
-  if (k === "underdog") return udSlip();
+const PRESETS = [["mine","My players"],["blank","Clear"]];
+function presetSlip(k, book){
+  if (k === "mine") return mineSlip(book);
   return [];
 }
 /* The cart starts empty -- the gallery below answers "what does the model like", the cart is
    the user's own, built one leg at a time, cart-style. */
 let SLIP_MODE = "blank";
 let SLIP = [];
+/* DraftKings (over/price) or Underdog (higher/lower + confidence) -- a page-level toggle, same
+   pattern as DFS_SITE, because the two books need different rows, a different gallery, and a
+   different cart payout entirely, not just a different price column. */
+let PARLAY_BOOK = "dk";
 
 /* One card per window x scope with at least two legs, deduped (mix often reproduces yards or
    tds exactly). No whole-slate card -- that would reintroduce the cross-date bug this fixes.
-   Computed once: PROPS never mutates, and toggling the cart must not re-roll the gallery. */
-const GALLERY = (() => {
+   Computed once per book: PROPS never mutates, and toggling the cart must not re-roll the
+   gallery. Both books' galleries are built up front so switching PARLAY_BOOK is instant. */
+function buildGallery(book){
   const scopes = [["yards","Yards"],["tds","TDs"],["mix","Mix"]];
+  const metric = legMetric(book);
   const out = [], seen = new Set();
   for (const w of WINDOWS) for (const [s, label] of scopes){
-    const legs = bestSlipIn(s, w.k);
+    const legs = bestSlipIn(s, w.k, book);
     if (legs.length < 2) continue;
     const sig = legs.slice().sort((a,b)=>a-b).join(",");
     if (seen.has(sig)) continue;
     seen.add(sig);
-    out.push({i: out.length, scope: s, scopeLabel: label, win: w, legs,
-               edge: legs.reduce((a,i)=>a+PROPS[i].edge, 0)});
+    out.push({i: out.length, book, scope: s, scopeLabel: label, win: w, legs,
+               metric: legs.reduce((a,i)=>a+metric(PROPS[i]), 0) / legs.length});
   }
   return out;
-})();
-const GALLERY_BEST = GALLERY.reduce((a,c) => !a || c.edge > a.edge ? c : a, null);
-/* The gallery's own filter -- not fed into legOKIn/bestSlipIn, which already ran once above. */
+}
+const GALLERIES = {dk: buildGallery("dk"), underdog: buildGallery("underdog")};
+const GALLERY_BEST = {
+  dk: GALLERIES.dk.reduce((a,c) => !a || c.metric > a.metric ? c : a, null),
+  underdog: GALLERIES.underdog.reduce((a,c) => !a || c.metric > a.metric ? c : a, null),
+};
+/* The gallery's own filter -- not fed into legOKInBook/bestSlipIn, which already ran once above. */
 let SLIP_SCOPE = "all";
 let GAL_WIN = "ALL";
 
@@ -1544,6 +1604,7 @@ let MKT_SORT = "edge";
 const SORTS = {
   edge:  (a,b) => (typeof b.edge === "number") - (typeof a.edge === "number") || (b.edge||0) - (a.edge||0) || (b.mine||0) - (a.mine||0),
   model: (a,b) => (typeof b.model === "number") - (typeof a.model === "number") || (b.model||0) - (a.model||0) || (b.mine||0) - (a.mine||0),
+  conf:  (a,b) => (ud(b)?ud(b).conf:-1) - (ud(a)?ud(a).conf:-1) || (b.mine||0) - (a.mine||0),
 };
 
 const DFS_DK = [
@@ -1565,6 +1626,15 @@ const CAP_YAHOO = 200;
 /* Slot order the optimizer fills and the "My lineup" card renders, one classic DK/Yahoo
    NFL roster: 1 QB, 2 RB, 3 WR, 1 TE, 1 FLEX (RB/WR/TE), 1 DST. */
 const LINEUP_SLOTS = ["QB","RB","RB","WR","WR","WR","TE","FLEX","DST"];
+const slotEligible = (slot, pos) => slot === "FLEX" ? ["RB","WR","TE"].includes(pos) : slot === pos;
+
+/* The custom lineup cart: which slot (index into site.lineup) is currently being filled, or
+   null when no slot is selected -- a tap on the pool then auto-picks the first open slot the
+   player fits. Set by tapping a slot (vacant, to fill it; filled, to swap it); cleared on a
+   successful pick, Cancel, or a DFS_SITE/pool-position change (a stale index into a different
+   site's lineup array is worse than just dropping the selection). */
+let ACTIVE_SLOT = null;
+let PICK_ERR = null;
 
 /* Which book the DFS tab shows -- Yahoo or DraftKings. */
 let DFS_SITE = "yahoo";
@@ -1689,7 +1759,36 @@ function topLineups(){
 
 const propLabel = p => p.line === null ? MKT[p.mkt] : `${MKT[p.mkt]} o${p.line}`;
 
+/* Underdog's whole pitch is one stat, one tap: higher or lower. Skip the DK-only model%/edge
+   detail (there is no "book implied" the same way against a flat-multiplier payout) and lead
+   the row with the pick itself -- that IS the primary info here, not noise the way it is for a
+   priced-against-a-vig DK line. */
+function udPropCard(p, i){
+  const inSlip = SLIP.includes(i);
+  const u = ud(p);
+  const tag = (p.flag === "out" ? `<span class="tag t-out">OUT${p.injury_note ? " · " + esc(p.injury_note) : ""}</span>`
+    : p.flag === "q" ? `<span class="tag t-q">Q${p.injury_note ? " · " + esc(p.injury_note) : ""}</span>`
+    : p.flag === "backup" ? `<span class="tag t-bk">${esc(p.pos)}${p.depth}</span>` : "")
+    + (u.stale ? `<span class="tag t-role" title="The book's line is far from last season's rate: the role changed and the model has not caught up. Not slip material.">ROLE?</span>` : "");
+  const log = LIVE_MARKET && LIVE_MARKET.logs && p.slug ? LIVE_MARKET.logs[p.slug] : (LIVE_MARKET && LIVE_MARKET.logs ? LIVE_MARKET.logs[slugOf(p.n)] : null);
+  const open = EXPANDED.has(i);
+  return `<div class="leg ${p.mine?"mine":""} ${inSlip?"inslip":""} ${p.flag==="out"?"isout":""} ${open?"open":""}" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">
+    ${HEADS[p.slug] ? `<img src="${HEADS[p.slug]}" alt="">` : `<div class="fallback">${esc(initials(p.n))}</div>`}
+    <div>
+      <div class="prop">${esc(p.n)} · ${esc(MKT[p.mkt])} ${u.line}${tag ? " " + tag : ""}</div>
+      <div class="book">${esc(p.pos)} · ${esc(p.game)}${p.kick ? ` · ${esc(p.kick)}` : ""}</div>
+    </div>
+    <div class="o udpick">${u.pick ? u.pick.toUpperCase() : "—"}<span class="conf">${typeof u.conf === "number" ? u.conf+"%" : "PENDING"}</span></div>
+    <button class="more" data-more="${i}" aria-expanded="${open}" title="${log ? `Last ${log.g.length} games against this line` : "More on this line"}" tabindex="-1">${open ? "▴" : "▾"}</button>
+    ${open ? `<div class="legx">
+      <div class="booklines">${esc(bookLine(p))}</div>
+      ${log ? gameLogHTML(p, log) : ""}
+    </div>` : ""}
+  </div>`;
+}
+
 function propCard(p, i){
+  if (PARLAY_BOOK === "underdog") return udPropCard(p, i);
   const inSlip = SLIP.includes(i);
   const hasModel = typeof p.model === "number";
   const implied = overPrice(p) !== null ? Math.round(amToProb(overPrice(p)) * 100) : null;
@@ -1815,14 +1914,18 @@ function dfsHandcuffs(pool){
   });
   return handcuffs;
 }
-function dfsPoolRow(p, i, cap, valueLeaders, handcuffs){
+function dfsPoolRow(p, i, cap, valueLeaders, handcuffs, poolIndex, activeEligible){
   const value = (p.proj / (p.sal/(cap/50))).toFixed(2);
   const status = INJ[p.status] || (p.status ? p.status : null);
   const handcuffFor = handcuffs.get(p.n);
   const tags = (status ? ` <span class="tag ${status==="Q"?"q":"o"}">${esc(status)}</span>` : "")
     + (valueLeaders.has(p.n) ? ` <span class="tag t-cbup" title="Highest points per $1,000 at ${esc(p.pos)} in this pool">BEST VALUE</span>` : "")
     + (handcuffFor ? ` <span class="tag t-role" title="${esc(handcuffFor)} (the ${esc(p.pos)} starter) is OUT/IR — cheapest teammate left at ${esc(p.pos)}, first in line for the workload">HANDCUFF</span>` : "");
-  return `<div class="prow dfsrow ${p.mine?"mine":""}" style="animation-delay:${40+i*18}ms" data-dfs="${i}" role="button" tabindex="0">
+  // activeEligible: null when no lineup slot is being filled (a tap auto-picks the first open
+  // slot this player fits); true/false once a slot IS selected, so a wrong-position player reads
+  // as disabled rather than silently doing nothing when tapped.
+  const addLabel = activeEligible === false ? "WRONG POS" : activeEligible === true ? "SWAP IN" : "+ ADD";
+  return `<div class="prow dfsrow ${p.mine?"mine":""} ${activeEligible===false?"ineligible":""}" style="animation-delay:${40+i*18}ms" data-dfs="${poolIndex}" role="button" tabindex="0">
     <div>${HEADS[p.slug] ? `<img class="pool-head" src="${HEADS[p.slug]}" alt="">`
         : `<div class="pool-head" style="display:grid;place-items:center;font-family:var(--mono);font-size:11px;color:var(--ink-3)">${esc(p.abbr||initials(p.n))}</div>`}</div>
     <div class="pname"><b>${esc(p.n)}${tags}</b><span>${esc(p.pos)} · ${esc(p.team)}</span></div>
@@ -1830,7 +1933,7 @@ function dfsPoolRow(p, i, cap, valueLeaders, handcuffs){
     <div class="pnum">${p.proj.toFixed(1)}</div>
     <div class="pnum ${value>2.6?"pos":""}">${value}</div>
     <div class="pnum" style="color:var(--ink-2)">${typeof p.own === "number" ? `${p.own}%` : "—"}</div>
-    <div><button class="chip" tabindex="-1">+ Add</button></div>
+    <div><button class="chip ${activeEligible===true?"go":""}" tabindex="-1">${addLabel}</button></div>
   </div>`;
 }
 
@@ -1972,18 +2075,18 @@ function slipHTML(){
   const modeled = legs.length > 0 && legs.every(l => typeof l.model === "number");
   const modelP = modeled ? legs.reduce((a,l)=>a*l.model/100, 1) : null;
   const pct = x => `${(x*100).toFixed(1)}%`;
-  const udMode = SLIP_MODE === "underdog";
+  const udMode = PARLAY_BOOK === "underdog";
   const title = SLIP_MODE === "mine" ? "My players" : udMode ? "Underdog picks" : "Your slip";
   const udP = udMode && legs.length ? legs.reduce((a,l)=>a*ud(l).conf/100, 1) : null;
   const chips = `<div class="presets">
-    ${PRESETS.filter(([k]) => k !== "underdog" || HAS_MODEL).map(([k,label]) =>
+    ${PRESETS.map(([k,label]) =>
       `<button class="chip" data-preset="${k}" aria-pressed="${SLIP_MODE===k}">${label}</button>`).join("")}</div>`;
   if (udMode) return `<div class="slip">
     <div class="sliphead"><span class="lbl">${title}</span><span class="pill">${legs.length} picks</span></div>
     ${chips}
     ${legs.length ? legs.map(l=>`<div class="slipleg">
       <div><div class="p">${esc(l.n)}</div><div class="m">${esc(MKT[l.mkt].toUpperCase())} ${ud(l).line}${l.kick ? ` · ${esc(l.kick.toUpperCase())}` : ""}</div></div>
-      <div class="o">${ud(l).pick.toUpperCase()} <span style="color:var(--lime)">${ud(l).conf}%</span></div></div>`).join("")
+      <div class="o udpick">${ud(l).pick ? ud(l).pick.toUpperCase() : "—"}<span class="conf">${typeof ud(l).conf === "number" ? ud(l).conf+"%" : "PENDING"}</span></div></div>`).join("")
       : `<div class="state-empty" style="margin:14px 15px;min-height:90px"><div><b>0</b><span>NO UNDERDOG LINE THE MODEL PUTS PAST ${UD_MIN}%</span></div></div>`}
     <div class="payout">
       <span class="lbl">All picks hit</span>
@@ -2024,11 +2127,16 @@ function dfsHTML(){
   const own   = filled.reduce((a,d)=>a+(d.own||0),0);
   const pct   = Math.min(100, (spent/CAP)*100);
   const open = DFS.filter(d=>!d.n).length;
+  const picking = ACTIVE_SLOT !== null && ACTIVE_SLOT < DFS.length;
   return `<div class="slip">
     <div class="sliphead"><span class="lbl">My ${esc(site.label)} lineup</span>
       <span class="pill">${filled.length}/${DFS.length} filled</span></div>
-    ${DFS.map(d => d.n ? `
-      <div class="lslot">
+    ${picking || PICK_ERR ? `<div class="pickbar">
+        <span>${picking ? `Picking <b>${esc(DFS[ACTIVE_SLOT].slot)}</b> — tap a player below` : ""}${PICK_ERR ? `${picking ? ", or " : ""}<span class="err">${esc(PICK_ERR)}</span>` : ""}</span>
+        ${picking ? `<button class="chip" data-cancelpick="1">Cancel</button>` : ""}
+      </div>` : ""}
+    ${DFS.map((d,i) => d.n ? `
+      <div class="lslot ${ACTIVE_SLOT===i?"active":""}" data-slot="${i}" role="button" tabindex="0">
         <span class="slottag">${esc(d.slot)}</span>
         ${HEADS[d.slug] ? `<img src="${HEADS[d.slug]}" alt="">` : `<div class="fallback">${esc(d.abbr || initials(d.n))}</div>`}
         <div style="min-width:0">
@@ -2036,10 +2144,11 @@ function dfsHTML(){
           <div class="sm">${d.proj.toFixed(1)} PROJ${typeof d.own === "number" ? ` · ${d.own}% OWN` : ""}</div>
         </div>
         <div class="lsal">$${d.sal.toLocaleString()}</div>
+        <button class="lremove" data-remove="${i}" title="Remove" tabindex="-1">✕</button>
       </div>` : `
-      <div class="lslot vacant" role="button" tabindex="0">
+      <div class="lslot vacant ${ACTIVE_SLOT===i?"active":""}" data-slot="${i}" role="button" tabindex="0">
         <span class="slottag">${esc(d.slot)}</span>
-        <div class="vhint">Pick from the pool · $${(CAP-spent).toLocaleString()} left</div>
+        <div class="vhint">${ACTIVE_SLOT===i ? "Tap a player below" : "Pick from the pool"} · $${(CAP-spent).toLocaleString()} left</div>
       </div>`).join("")}
     <div class="payout">
       <div class="salbar ${spent>CAP?"over":""}"><i style="--w:${pct.toFixed(1)}%"></i></div>
@@ -2081,29 +2190,46 @@ function presetCard(card){
   const legs = card.legs.map(i=>PROPS[i]);
   const games = new Set(legs.map(l=>l.game));
   const sameGame = games.size < legs.length;
-  const prices = legs.map(overPrice).filter(a => a !== null);
-  const priced = prices.length === legs.length;
-  const dec = priced ? prices.reduce((a,x)=>a*amToDec(x), 1) : null;
-  const implied = priced ? prices.reduce((a,x)=>a*amToProb(x), 1) : null;
-  const modelP = legs.reduce((a,l)=>a*l.model/100, 1);
-  return `<div class="slip presetcard ${card === GALLERY_BEST ? "best" : ""}">
-    <div class="sliphead"><span class="lbl">${card===GALLERY_BEST?"★ Best · ":""}${esc(card.win.short)} · ${esc(card.scopeLabel)}</span>
-      <span class="pill">${legs.length} legs${priced ? ` · ${esc(fmtAm(decToAm(dec)))}` : ""}</span></div>
-    ${legs.map(l=>`<div class="slipleg">
-      <div><div class="p">${esc(l.n)}</div><div class="m">${esc(propLabel(l).toUpperCase())}${l.kick ? ` · ${esc(l.kick.toUpperCase())}` : ""}</div></div>
-      <div class="o">${esc(fmtAm(overPrice(l)))}</div></div>`).join("")}
+  const best = card === GALLERY_BEST[card.book];
+  const legRows = legs.map(l => card.book === "underdog"
+    ? `<div class="slipleg">
+        <div><div class="p">${esc(l.n)}</div><div class="m">${esc(MKT[l.mkt].toUpperCase())} ${ud(l).line}${l.kick ? ` · ${esc(l.kick.toUpperCase())}` : ""}</div></div>
+        <div class="o udpick">${ud(l).pick ? ud(l).pick.toUpperCase() : "—"}<span class="conf">${typeof ud(l).conf === "number" ? ud(l).conf+"%" : "PENDING"}</span></div></div>`
+    : `<div class="slipleg">
+        <div><div class="p">${esc(l.n)}</div><div class="m">${esc(propLabel(l).toUpperCase())}${l.kick ? ` · ${esc(l.kick.toUpperCase())}` : ""}</div></div>
+        <div class="o">${esc(fmtAm(overPrice(l)))}</div></div>`).join("");
+  let footer;
+  if (card.book === "underdog"){
+    const udP = legs.reduce((a,l)=>a*ud(l).conf/100, 1);
+    footer = `<div class="payrow"><span>ALL PICKS HIT</span><b class="pos">${(udP*100).toFixed(1)}%</b></div>
+      <div class="payrow"><span>BREAK-EVEN AT 6×</span><b>16.7%</b></div>`;
+  } else {
+    const prices = legs.map(overPrice).filter(a => a !== null);
+    const priced = prices.length === legs.length;
+    const dec = priced ? prices.reduce((a,x)=>a*amToDec(x), 1) : null;
+    const implied = priced ? prices.reduce((a,x)=>a*amToProb(x), 1) : null;
+    const modelP = legs.reduce((a,l)=>a*l.model/100, 1);
+    footer = `<div class="payrow"><span>MODEL vs BOOK</span><b class="${modelP>=implied?"pos":"neg"}">${modelP>=implied?"+":""}${((modelP-implied)*100).toFixed(1)}</b></div>
+      <div class="payrow"><span>$25 RETURNS</span><b>${priced ? `$${Math.round(25*dec)}` : "—"}</b></div>`;
+  }
+  const pricedAll = card.book !== "underdog" && legs.every(l => overPrice(l) !== null);
+  const headPill = card.book === "underdog" ? `${legs.length} legs`
+    : `${legs.length} legs${pricedAll ? ` · ${esc(fmtAm(decToAm(legs.map(overPrice).reduce((a,x)=>a*amToDec(x),1))))}` : ""}`;
+  return `<div class="slip presetcard ${best ? "best" : ""}">
+    <div class="sliphead"><span class="lbl">${best?"★ Best · ":""}${esc(card.win.short)} · ${esc(card.scopeLabel)}</span>
+      <span class="pill">${headPill}</span></div>
+    ${legRows}
     ${sameGame ? `<div class="corr"><span>⚠</span>SAME GAME — CORRELATED, PRICE IT AS ONE</div>` : ""}
     <div class="payout presetfoot">
-      <div class="payrow"><span>MODEL vs BOOK</span><b class="${modelP>=implied?"pos":"neg"}">${modelP>=implied?"+":""}${((modelP-implied)*100).toFixed(1)}</b></div>
-      <div class="payrow"><span>$25 RETURNS</span><b>${priced ? `$${Math.round(25*dec)}` : "—"}</b></div>
-      <button class="btn" style="width:100%;margin-top:10px" data-loadslip="${card.i}">Load into my slip</button>
+      ${footer}
+      <button class="btn" style="width:100%;margin-top:10px" data-loadslip="${card.book}:${card.i}">Load into my slip</button>
     </div>
   </div>`;
 }
 
 function galleryHTML(){
   const scopes = [["all","All"],["yards","Yards"],["tds","TDs"],["mix","Mix"]];
-  const cards = GALLERY.filter(c => (SLIP_SCOPE==="all"||c.scope===SLIP_SCOPE) && (GAL_WIN==="ALL"||c.win.k===GAL_WIN));
+  const cards = GALLERIES[PARLAY_BOOK].filter(c => (SLIP_SCOPE==="all"||c.scope===SLIP_SCOPE) && (GAL_WIN==="ALL"||c.win.k===GAL_WIN));
   return `<div class="rule"><h2>The model's best slips</h2><span class="hair"></span>
     <span class="side">one window per card · never two days</span></div>
   <div class="filters">
@@ -2127,10 +2253,13 @@ function topLineupsHTML(){
   const lineups = topLineups();
   return `<div class="rule"><h2>Top ${TOP_COUNT} lineups</h2><span class="hair"></span>
     <span class="side">randomized-greedy, not exact-optimal</span></div>
-  <div class="filters">
-    <span class="lbl">Strategy</span>
-    <button class="chip" data-topmode="greedy" aria-pressed="${TOP_MODE==="greedy"}">Greedy · max points</button>
-    <button class="chip" data-topmode="contrarian" aria-pressed="${TOP_MODE==="contrarian"}">Non-chalk · for GPPs</button>
+  <div class="strategy">
+    <button class="strat-btn" data-topmode="greedy" aria-pressed="${TOP_MODE==="greedy"}">
+      <span class="st-name">Greedy</span><span class="st-sub">Max points</span>
+    </button>
+    <button class="strat-btn" data-topmode="contrarian" aria-pressed="${TOP_MODE==="contrarian"}">
+      <span class="st-name">Non-chalk</span><span class="st-sub">For GPPs</span>
+    </button>
   </div>
   ${lineups.length ? `
   <div class="rail"><div class="railscroll">${lineups.map((l,i)=>lineupCard(l,i,site.cap)).join("")}</div></div>`
@@ -2147,10 +2276,17 @@ function parlayHTML(){
           <span class="league-mark"></span><span class="lbl">${PROPS.length} lines priced · week 1</span>
         </div>
         <h1>Build the<br><em>slip</em></h1>
-        <div class="hero-meta"><span class="pill ${LIVE_MARKET && !hasModel ? "warn" : ""}">${LIVE_MARKET && !hasModel ? "Book prices only · model pending" : "Model % vs book price"}</span></div>
+        <div class="hero-meta"><span class="pill ${LIVE_MARKET && !hasModel ? "warn" : ""}">${LIVE_MARKET && !hasModel ? "Book prices only · model pending" : PARLAY_BOOK === "underdog" ? "Higher or lower, one tap" : "Model % vs book price"}</span></div>
+        <div class="modes-sub" style="margin-top:14px">
+          <span class="lbl" style="margin-right:8px">Book</span>
+          <button class="mode-sub" data-parlaybook="dk" aria-pressed="${PARLAY_BOOK==="dk"}">DraftKings</button>
+          <button class="mode-sub" data-parlaybook="underdog" aria-pressed="${PARLAY_BOOK==="underdog"}">Underdog</button>
+        </div>
       </div>
       <div><div class="signals">
-        ${hasModel ? `
+        ${PARLAY_BOOK === "underdog" ? `
+        <div class="sig up"><div class="lbl">Picks past 58%</div><div class="sig-val">${PROPS.filter(p=>ud(p)&&typeof ud(p).conf==="number"&&ud(p).conf>=UD_MIN).length}</div><div class="sig-sub">OF ${PROPS.filter(p=>ud(p)).length} PRICED ON UD</div></div>`
+        : hasModel ? `
         <div class="sig up"><div class="lbl">Legs with edge</div><div class="sig-val">${PROPS.filter(p=>p.edge>0).length}</div><div class="sig-sub">OF ${PROPS.length} PRICED</div></div>` : `
         <div class="sig up"><div class="lbl">Lines priced</div><div class="sig-val">${PROPS.length}</div><div class="sig-sub">${new Set(PROPS.map(p=>p.n)).size} PLAYERS</div></div>
         <div class="sig"><div class="lbl">My players priced</div><div class="sig-val">${new Set(PROPS.filter(p=>p.mine).map(p=>p.n)).size}</div><div class="sig-sub">${PROPS.filter(p=>p.mine).length} LINES</div></div>`}
@@ -2176,7 +2312,9 @@ function parlayHTML(){
         <div class="filters" style="margin-top:8px">
           <label class="selwrap"><span class="lbl">Market</span>
             <select class="msel" data-msel="mkind">
-              ${[["ALL","All"],["TD","Anytime TD"],["RUSH","Rush yds"],["REC","Rec yds"],["RECS","Receptions"],["PASS","Pass yds"]]
+              ${(PARLAY_BOOK === "underdog"
+                ? [["ALL","All"],["RUSH","Rush yds"],["REC","Rec yds"],["RECS","Receptions"],["PASS","Pass yds"]]
+                : [["ALL","All"],["TD","Anytime TD"],["RUSH","Rush yds"],["REC","Rec yds"],["RECS","Receptions"],["PASS","Pass yds"]])
                 .map(([k,label])=>`<option value="${k}" ${MKT_KIND===k?"selected":""}>${label}</option>`).join("")}
             </select>
           </label>
@@ -2189,14 +2327,17 @@ function parlayHTML(){
           <span style="flex:1"></span>
           <label class="selwrap"><span class="lbl">Sort</span>
             <select class="msel" data-msel="msort">
-              ${[["edge","Edge"],["model","Model %"]]
+              ${(PARLAY_BOOK === "underdog" ? [["conf","Confidence"]] : [["edge","Edge"],["model","Model %"]])
                 .map(([k,label])=>`<option value="${k}" ${MKT_SORT===k?"selected":""}>${label}</option>`).join("")}
             </select>
           </label>
         </div>
         ${(() => {
           const all = PROPS.filter(p => (MKT_POS==="ALL"||p.pos===MKT_POS) && (MKT_KIND==="ALL"||p.mkt===MKT_KIND)
-            && (MKT_WIN==="ALL"||p.win===MKT_WIN) && (!MKT_MINE||p.mine)).sort(SORTS[MKT_SORT]);
+            && (MKT_WIN==="ALL"||p.win===MKT_WIN) && (!MKT_MINE||p.mine)
+            // Underdog price without a model rating yet has no higher/lower call to show --
+            // conf (and therefore pick) undefined is "model pending", not zero.
+            && (PARLAY_BOOK !== "underdog" || (ud(p) && typeof ud(p).conf === "number"))).sort(SORTS[MKT_SORT]);
           const pages = Math.max(1, Math.ceil(all.length / MKT_PAGE_SIZE));
           const page = Math.min(MKT_PAGE, pages);
           const rows = all.slice((page-1)*MKT_PAGE_SIZE, page*MKT_PAGE_SIZE);
@@ -2214,8 +2355,6 @@ function parlayHTML(){
       </div>
     </div>
     <details class="deep"><summary>How the number is made</summary>${modelCardHTML()}</details>
-    <div class="rule"><h2>Component states</h2><span class="hair"></span><span class="side">before the books post</span></div>
-    ${statesHTML()}
   </div>`;
 }
 
@@ -2269,18 +2408,18 @@ function dfsSurfaceHTML(){
             <span class="lbl">Page ${page} of ${pages}</span>
             <button class="chip" data-dfspage="next" ${page>=pages?"disabled":""}>Next ›</button>
           </div>`;
+          const pickSlot = ACTIVE_SLOT !== null ? site.lineup[ACTIVE_SLOT] : null;
           return `${pager}
           <div class="ptable dfstable">
             <div class="phead"><div></div><div>Player</div><div>Salary</div><div>Proj</div>
               <div>Value</div><div>Own</div><div></div></div>
-            ${rows.length ? rows.map((p,i)=>dfsPoolRow(p,i,cap,valueLeaders,handcuffs)).join("")
+            ${rows.length ? rows.map((p,i)=>dfsPoolRow(p,i,cap,valueLeaders,handcuffs,
+                site.pool.indexOf(p), pickSlot ? slotEligible(pickSlot.slot, p.pos) : null)).join("")
               : `<div class="state-empty" style="margin:20px 0;min-height:110px"><div><b>0</b><span>NO PLAYERS AT THAT POSITION</span></div></div>`}
           </div>`;
         })()}
       </div>
     </div>
-    <div class="rule"><h2>Component states</h2><span class="hair"></span><span class="side">before the books post</span></div>
-    ${statesHTML()}
   </div>`;
 }
 
@@ -2345,9 +2484,24 @@ function heroHTML(team){
 /* A scroll container with clipped content (the scatter, a rail) is easy to miss entirely on
    first view -- nudge it once so the swipe is felt, not just hinted at in small print. Bails
    when there's nothing to scroll (desktop, or a rail short enough to fit) and won't re-fire on
-   a later re-render of the same element (dataset.nudged is a one-shot flag). */
+   a later re-render of the same element (dataset.nudged is a one-shot flag).
+
+   Also keeps the "SWIPE ->" hint honest: hides it (via the .no-swipe class) the moment there is
+   nothing left to swipe to, whether that's because the content fits with no scrolling at all or
+   because the user already scrolled to the end. Re-checked on every scroll and every re-render. */
 function nudgeScrollers(root){
   root.querySelectorAll(".quadscroll, .railscroll").forEach(el=>{
+    const hintTarget = el.closest(".rail") || el;
+    const update = () => {
+      const canScroll = el.scrollWidth > el.clientWidth + 4;
+      const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4;
+      hintTarget.classList.toggle("no-swipe", !canScroll || atEnd);
+    };
+    update();
+    if (!el.dataset.hintWired){
+      el.dataset.hintWired = "1";
+      el.addEventListener("scroll", update, {passive:true});
+    }
     if (el.scrollWidth <= el.clientWidth + 4 || el.dataset.nudged) return;
     el.dataset.nudged = "1";
     requestAnimationFrame(()=>{
@@ -2365,10 +2519,50 @@ function wireBuilder(v){
     MKT_POS = b.dataset.mpos; MKT_PAGE = 1; render();
   }));
   v.querySelectorAll("[data-dpos]").forEach(b=>b.addEventListener("click",()=>{
-    DFS_POS = b.dataset.dpos; DFS_PAGE = 1; render();
+    DFS_POS = b.dataset.dpos; DFS_PAGE = 1; PICK_ERR = null; render();
   }));
   v.querySelectorAll("[data-dfssite]").forEach(b=>b.addEventListener("click",()=>{
-    DFS_SITE = b.dataset.dfssite; DFS_PAGE = 1; render();
+    DFS_SITE = b.dataset.dfssite; DFS_PAGE = 1; ACTIVE_SLOT = null; PICK_ERR = null; render();
+  }));
+  v.querySelectorAll("[data-slot]").forEach(el=>{
+    const pick = ()=>{
+      const i = +el.dataset.slot;
+      ACTIVE_SLOT = ACTIVE_SLOT === i ? null : i;
+      PICK_ERR = null;
+      render();
+    };
+    el.addEventListener("click", e=>{ if (e.target.closest("[data-remove]")) return; pick(); });
+    el.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();pick();} });
+  });
+  v.querySelectorAll("[data-remove]").forEach(b=>b.addEventListener("click", e=>{
+    e.stopPropagation();
+    const i = +b.dataset.remove;
+    const DFS = dfsSite().lineup;
+    DFS[i] = {slot: DFS[i].slot, n: null};
+    if (ACTIVE_SLOT === i) ACTIVE_SLOT = null;
+    render();
+  }));
+  v.querySelectorAll("[data-cancelpick]").forEach(b=>b.addEventListener("click",()=>{
+    ACTIVE_SLOT = null; PICK_ERR = null; render();
+  }));
+  v.querySelectorAll("[data-dfs]").forEach(el=>el.addEventListener("click",()=>{
+    const p = dfsSite().pool[+el.dataset.dfs];
+    if (!p) return;
+    const DFS = dfsSite().lineup;
+    if (ACTIVE_SLOT !== null){
+      if (!slotEligible(DFS[ACTIVE_SLOT].slot, p.pos)){
+        PICK_ERR = `${p.n} is ${p.pos}, not ${DFS[ACTIVE_SLOT].slot}`;
+        render();
+        return;
+      }
+      DFS[ACTIVE_SLOT] = {...p, slot: DFS[ACTIVE_SLOT].slot};
+      ACTIVE_SLOT = null; PICK_ERR = null;
+    } else {
+      const idx = DFS.findIndex(d => !d.n && slotEligible(d.slot, p.pos));
+      if (idx === -1){ PICK_ERR = `No open ${p.pos} slot — tap one to swap instead`; render(); return; }
+      DFS[idx] = {...p, slot: DFS[idx].slot};
+    }
+    render();
   }));
   v.querySelectorAll("[data-dfspage]").forEach(b=>b.addEventListener("click",()=>{
     DFS_PAGE = Math.max(1, DFS_PAGE + (b.dataset.dfspage === "next" ? 1 : -1));
@@ -2386,6 +2580,7 @@ function wireBuilder(v){
     if (!l) return;
     const lineup = dfsSite().lineup;
     l.players.forEach((d,i)=>{ lineup[i] = {...d}; });
+    ACTIVE_SLOT = null; PICK_ERR = null;
     const y = window.scrollY; render(); window.scrollTo(0, y);
   }));
   v.querySelectorAll("[data-mine]").forEach(b=>b.addEventListener("click",()=>{
@@ -2393,15 +2588,22 @@ function wireBuilder(v){
   }));
   v.querySelectorAll("[data-msel]").forEach(sel=>sel.addEventListener("change",()=>{
     const val = sel.value;
-    if (sel.dataset.msel === "mkind"){ MKT_KIND = val; MKT_SORT = val === "TD" ? "model" : "edge"; MKT_PAGE = 1; }
+    if (sel.dataset.msel === "mkind"){ MKT_KIND = val; if (PARLAY_BOOK !== "underdog") MKT_SORT = val === "TD" ? "model" : "edge"; MKT_PAGE = 1; }
     else if (sel.dataset.msel === "mwin"){ MKT_WIN = val; MKT_PAGE = 1; }
     else if (sel.dataset.msel === "msort"){ MKT_SORT = val; MKT_PAGE = 1; }
     else if (sel.dataset.msel === "gwin"){ GAL_WIN = val; }
     render();
   }));
   v.querySelectorAll("[data-preset]").forEach(b=>b.addEventListener("click",()=>{
-    SLIP_MODE = b.dataset.preset; SLIP = presetSlip(SLIP_MODE);
+    SLIP_MODE = b.dataset.preset; SLIP = presetSlip(SLIP_MODE, PARLAY_BOOK);
     const y = window.scrollY; render(); window.scrollTo(0, y);
+  }));
+  v.querySelectorAll("[data-parlaybook]").forEach(b=>b.addEventListener("click",()=>{
+    PARLAY_BOOK = b.dataset.parlaybook;
+    MKT_PAGE = 1; MKT_SORT = PARLAY_BOOK === "underdog" ? "conf" : "edge";
+    if (PARLAY_BOOK === "underdog" && MKT_KIND === "TD") MKT_KIND = "ALL";
+    SLIP = []; SLIP_MODE = "blank";
+    render();
   }));
   v.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click", async ()=>{
     const text = slipText(b.dataset.copy === "picks");
@@ -2419,7 +2621,8 @@ function wireBuilder(v){
     render();
   }));
   v.querySelectorAll("[data-loadslip]").forEach(b=>b.addEventListener("click",()=>{
-    const card = GALLERY[+b.dataset.loadslip];
+    const [book, i] = b.dataset.loadslip.split(":");
+    const card = GALLERIES[book] && GALLERIES[book][+i];
     if (!card) return;
     SLIP = card.legs.slice();
     SLIP_MODE = "custom";
@@ -2447,13 +2650,42 @@ function wireBuilder(v){
   }));
 }
 
+/* The topbar badge used to say "Sample data" unconditionally, even on Parlay/DFS once props
+   and the Yahoo DFS pool went live -- it never checked what was actually loaded. This does. */
+function topbarBadge(){
+  if (SURFACE === "parlay"){
+    return LIVE_MARKET
+      ? {tone:"live", full:"Live props · trend, rank & news still sample", abbr:"Props live"}
+      : {tone:"warn", full:"Sample props — BettingPros not pulled", abbr:"Sample data"};
+  }
+  if (SURFACE === "dfs"){
+    const live = dfsSite().key === "yahoo" && !!LIVE_YAHOO_DFS;
+    return live
+      ? {tone:"live", full:"Live Yahoo pool · rest of app sample", abbr:"Pool live"}
+      : {tone:"warn", full:"Sample DFS pool — no salary export loaded", abbr:"Sample data"};
+  }
+  return {tone:"warn", full:"Sample signals — skill not wired", abbr:"Sample data"};
+}
+function paintBadge(){
+  const b = topbarBadge(), el = document.getElementById("topbadge");
+  el.classList.toggle("warn", b.tone==="warn");
+  el.classList.toggle("live", b.tone==="live");
+  el.querySelector(".full").textContent = b.full;
+  el.querySelector(".abbr").textContent = b.abbr;
+}
+
 function render(){
   const v = document.getElementById("view");
+  paintBadge();
 
   if (SURFACE === "pool"){
     v.innerHTML = poolHTML();
     v.querySelectorAll(".chip[data-pos]").forEach(b=>b.addEventListener("click",()=>{
-      POOL_FILTER = b.dataset.pos; render();
+      POOL_FILTER = b.dataset.pos; POOL_PAGE = 1; render();
+    }));
+    v.querySelectorAll("[data-poolpage]").forEach(b=>b.addEventListener("click",()=>{
+      POOL_PAGE = Math.max(1, POOL_PAGE + (b.dataset.poolpage === "next" ? 1 : -1));
+      const y = window.scrollY; render(); window.scrollTo(0, y);
     }));
     v.querySelectorAll("[data-pool]").forEach(el=>{
       const open = ()=>openPoolDrawer(+el.dataset.pool);
@@ -2476,8 +2708,6 @@ function render(){
     ${boardHTML(team)}
     <div class="rule"><h2>The wire</h2><span class="hair"></span><span class="side">waiver replacements</span></div>
     ${wireHTML()}
-    <div class="rule"><h2>Component states</h2><span class="hair"></span><span class="side">before the feed lands</span></div>
-    ${statesHTML()}
   </div>`;
   v.querySelector(".leaguechip")?.addEventListener("click", ()=>openLeagueInfo(team.key));
   wireTeamSwitch(v);
