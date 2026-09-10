@@ -1,5 +1,7 @@
 .vercel
 node_modules/
+# design/build.py leaves this behind whenever anything imports it rather than running it.
+__pycache__/
 
 # Written by `python -m model.refresh`. It is a local build input — the page bakes it in at
 # build time, so the deployed site never reads it, and it churns on every run.

@@ -1,0 +1,20 @@
+# index.html and design/index.html are build output, not source: ~1.4 MB each, rewritten in full
+# by design/build.py on every run because the headshots are inlined as base64. Two branches that
+# both carry a build therefore conflict on a million lines that cannot be merged, only chosen.
+#
+#   -diff        keep them out of diffs and reviews; there is nothing to read
+#   merge=ours   on conflict, keep this side rather than producing conflict markers inside a
+#                1.4 MB blob. The result is then WRONG until rebuilt -- that is fine and expected:
+#                the fix for a conflict here is always `python design/build.py`, never a merge.
+#
+# merge=ours needs a driver defined, or git ignores the attribute silently:
+#
+#   git config --local merge.ours.driver true
+#
+# scripts/land.ps1 sets it if it is missing, so a fresh clone gets it on the first land.
+index.html         -diff merge=ours
+design/index.html  -diff merge=ours
+
+# Source parts must not pick up CRLF: the build concatenates them byte for byte, and a stray \r
+# changes the output hash. (design/src/ arrives with the decomposition; harmless until then.)
+design/src/**      text eol=lf

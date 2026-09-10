@@ -27,6 +27,19 @@ page: `index.html` at the root (full HTML document, what Vercel serves) and `des
 (fragment, what the Artifact publisher takes). Player headshots are inlined as data URIs, so
 both files work offline.
 
+Both outputs are ~1.4 MB and are rewritten in full on every build, so a feature branch that
+commits them conflicts with any other branch on a blob nobody can merge. **Feature branches do
+not commit them; the build runs once, at land time:**
+
+```
+.\scripts\land.ps1        # rebase onto main, rebuild, fold into the commit, land
+```
+
+`.gitattributes` marks both `-diff merge=ours`, which needs a driver defined once per clone —
+`git config --local merge.ours.driver true`. `land.ps1` sets it if it is missing. If the two
+files ever do conflict, never merge them: `git checkout --ours index.html design/index.html`,
+finish the rebase, then rebuild.
+
 The build also reads `ff-jarvis/data/{espn_rosters,league_rosters}.json` and injects the live
 rosters. If those files are missing it falls back to the copies inside the template, so the page
 always renders.
