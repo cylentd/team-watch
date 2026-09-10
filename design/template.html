@@ -530,19 +530,51 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .tag.t-cbdn{color:var(--down);border:1px solid rgba(255,90,82,.4);cursor:help}
 /* Everything behind the chevron: model%/edge, every book's price, and the game log -- the
    primary row stays to who/when/one price, the rest is a tap away. */
-.leg .legx{grid-column:1/-1;border-top:1px solid var(--line);margin-top:8px;padding-top:12px;
+.leg .legx,.udline .legx{grid-column:1/-1;border-top:1px solid var(--line);margin-top:8px;padding-top:12px;
   display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-start;cursor:default}
 .leg .legx .probwrap,.leg .legx .edgecell{text-align:left}
-.leg .booklines{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);line-height:1.6;flex:1;min-width:200px}
-.leg .more{appearance:none;background:none;border:1px solid var(--line);color:var(--ink-3);width:22px;height:22px;
+.leg .booklines,.udline .booklines{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);line-height:1.6;flex:1;min-width:200px}
+.leg .more,.udline .more{appearance:none;background:none;border:1px solid var(--line);color:var(--ink-3);width:22px;height:22px;
   border-radius:2px;cursor:pointer;font-size:10px;display:grid;place-items:center;justify-self:end;transition:all .15s var(--ease)}
-.leg .more:hover{color:var(--ink);border-color:var(--line-2)}
-.leg .more[aria-expanded="true"]{color:var(--lime);border-color:var(--lime)}
-.leg .gl{width:100%;border-top:1px solid var(--line);padding-top:10px;margin-top:2px}
-.leg .gl svg{width:100%;height:72px;display:block}
-.leg .gl .glcap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:6px;
+.leg .more:hover,.udline .more:hover{color:var(--ink);border-color:var(--line-2)}
+.leg .more[aria-expanded="true"],.udline .more[aria-expanded="true"]{color:var(--lime);border-color:var(--lime)}
+.leg .gl,.udline .gl{width:100%;border-top:1px solid var(--line);padding-top:10px;margin-top:2px}
+.leg .gl svg,.udline .gl svg{width:100%;height:72px;display:block}
+.leg .gl .glcap,.udline .gl .glcap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:6px;
   font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--ink-3);text-transform:uppercase}
-.leg .gl .glcap b{color:var(--ink)}
+.leg .gl .glcap b,.udline .gl .glcap b{color:var(--ink)}
+/* Underdog list, one card per player. The header is who and when, once; each line under it
+   is one call -- direction, the line as the loudest numeral on the page, the stat -- with a
+   meter running the width the old layout left empty and the confidence at the end. Tap a line
+   to put it in the slip. The meter is empty at a coin flip, full at 100%, lime only past the
+   58% floor a slip leg needs. */
+.pcard{border:1px solid var(--line);background:var(--panel);transition:border-color .2s var(--ease)}
+.pcard:hover{border-color:var(--line-2)}
+.pcard.mine{box-shadow:inset 2px 0 0 var(--lime)}
+.pcard.isout{opacity:.55}
+.phead2{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;align-items:center;padding:12px 14px 10px}
+.phead2 img,.phead2 .fallback{width:40px;height:40px;border-radius:99px;object-fit:cover;border:1px solid var(--line-2);background:var(--panel-3)}
+.phead2 .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--ink-3)}
+.phead2 .prop{font-size:15px;font-weight:600;letter-spacing:-.01em;line-height:22px}
+.phead2 .book{font-family:var(--mono);font-size:12px;color:var(--ink-2);margin-top:2px;letter-spacing:.02em}
+.udline{display:grid;grid-template-columns:78px auto minmax(40px,1fr) 64px 22px;gap:14px;align-items:center;
+  padding:10px 14px;border-top:1px solid var(--line);cursor:pointer;font-family:var(--mono);transition:background .2s var(--ease)}
+.udline:hover{background:var(--panel-2)}
+.udline:active{transform:scale(.995)}
+.udline[aria-pressed="true"]{background:rgba(200,255,46,.06);box-shadow:inset 3px 0 0 var(--lime)}
+.udline .dir{font-size:10.5px;font-weight:700;letter-spacing:.14em;color:var(--ink-3)}
+.udline.higher .dir{color:var(--up)} .udline.lower .dir{color:var(--down)}
+.udline .ln{white-space:nowrap}
+.udline .ln b{font-size:24px;font-weight:700;letter-spacing:-.02em;line-height:1;color:var(--ink)}
+.udline .ln small{font-size:10.5px;font-weight:600;letter-spacing:.12em;color:var(--ink-2);margin-left:7px}
+.udline .ln .tag{margin-left:8px;vertical-align:4px}
+.udline .meter{height:3px;background:var(--line-2);overflow:hidden}
+.udline .meter i{display:block;height:100%;background:var(--lime);transform-origin:left;transition:transform .5s var(--ease)}
+.udline.weak .meter i{background:var(--ink-3)}
+.udline .pct{text-align:right;font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1;color:var(--ink);white-space:nowrap}
+.udline .pct i{font-style:normal;font-size:11px;font-weight:600;color:var(--ink-3)}
+.udline.weak .pct{color:var(--ink-2)}
+.udline .pct.pending{font-size:10.5px;letter-spacing:.14em;color:var(--ink-3)}
 .presets{display:flex;flex-wrap:wrap;gap:6px;padding:10px 15px;border-bottom:1px solid var(--line)}
 .presets .chip{padding:5px 9px;font-size:11px}
 
@@ -590,6 +622,16 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .legremove:hover{color:var(--down);border-color:rgba(255,90,82,.5)}
 .slipleg .p{font-size:13.5px;font-weight:600;letter-spacing:-.01em}
 .slipleg .m{font-family:var(--mono);font-size:12px;color:var(--ink-2);margin-top:4px;letter-spacing:.02em}
+/* Underdog cart leg: a ticket stub. Name, then the call -- direction, line, stat -- and the
+   remove button. No kickoff, no confidence, no MODEL note: the list beside it says all of that,
+   and the footer already totals the confidence and flags the model-read TD picks once. */
+.slipleg.ud{grid-template-columns:minmax(0,1fr) auto;padding:10px 15px}
+.slipleg.ud .p{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slipleg.ud .m{margin-top:3px;display:flex;align-items:baseline;gap:9px}
+.slipleg.ud .m .dir{font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--ink-3)}
+.slipleg.ud.higher .m .dir{color:var(--up)} .slipleg.ud.lower .m .dir{color:var(--down)}
+.slipleg.ud .m b{font-size:15px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.slipleg.ud .m .stat{font-size:10.5px;font-weight:600;letter-spacing:.12em}
 .slipleg .o{font-family:var(--mono);font-size:12px;font-weight:700;white-space:nowrap;
   padding:5px 9px;border:1px solid var(--line-2);border-radius:3px;background:var(--panel-3);
   text-align:center}
@@ -882,7 +924,13 @@ details.deep > summary:hover{color:var(--ink)}
   /* A phone column cannot hold "Rhamondre Stevenson" plus a ROLE? pill on one line; the pill
      is the reason the row is not slip material, so let the line wrap rather than lose it. */
   .leg.ud .prop{white-space:normal;line-height:20px}
-  .leg.ud .tag .was{display:none}   /* "NEW TEAM" fits; "· WAS GB" is the tooltip's job here */
+  .leg.ud .tag .was,.phead2 .tag .was{display:none}   /* "NEW TEAM" fits; "· WAS GB" is the tooltip's job here */
+  .phead2{grid-template-columns:36px minmax(0,1fr);gap:10px;padding:10px 12px 8px}
+  .phead2 img,.phead2 .fallback{width:36px;height:36px}
+  .phead2 .prop{white-space:normal;line-height:20px}
+  .udline{grid-template-columns:66px auto minmax(0,1fr) 54px 22px;gap:9px;padding:9px 12px}   /* the meter gives way before a pill can push the chevron off the edge */
+  .udline .ln b{font-size:20px} .udline .ln small{margin-left:5px}
+  .udline .pct{font-size:18px}
   .udcall{min-width:56px} .udcall .num{font-size:17px}
   .udconf{width:44px} .udconf b{font-size:18px}
   .leg .legx{gap:10px 16px}
@@ -1873,6 +1921,45 @@ function udPropCard(p, i){
   </div>`;
 }
 
+/* One card per player in Underdog mode: the header says who and when once, then one line per
+   market. Player-level reasons (OUT, Q, depth, NEW TEAM, too few games) sit on the header;
+   line-level ones (ROLE?, THIN LINE) sit on the line they belong to. `rows` arrive in list
+   order, so the first row is the player's strongest call and the lines keep the sort. */
+function lineTag(p, u){
+  if (u.stale) return `<span class="tag t-role" title="The book's line is far from last season's rate: the role changed and the model has not caught up. Not slip material.">ROLE?</span>`;
+  if (!u.synthetic && u.line !== null && (p.mkt === "RECS" ? u.line < 2.5 : u.line < 15)) return `<span class="tag t-bk" title="A line this small is confidence for free and Underdog prices it that way. Not slip material.">THIN LINE</span>`;
+  return "";
+}
+function udLine(p, i, headerSaysNo){
+  const u = udPick(p), inSlip = SLIP.includes(i), open = EXPANDED.has(i);
+  const hasConf = typeof u.conf === "number";
+  const fill = hasConf ? Math.max(0, Math.min(1, (u.conf - 50) / 50)).toFixed(2) : 0;
+  const log = LIVE_MARKET && LIVE_MARKET.logs && p.slug ? LIVE_MARKET.logs[p.slug] : (LIVE_MARKET && LIVE_MARKET.logs ? LIVE_MARKET.logs[slugOf(p.n)] : null);
+  return `<div class="udline ${u.pick||""} ${hasConf && u.conf < UD_MIN ? "weak" : ""}" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">
+    <span class="dir">${u.pick === "higher" ? "▲ HIGHER" : u.pick === "lower" ? "▼ LOWER" : "NO CALL"}</span>
+    <span class="ln"><b>${u.line !== null ? u.line : "TD"}</b><small>${u.line !== null ? MKT_SHORT[p.mkt] : "ANYTIME"}</small>${headerSaysNo ? "" : lineTag(p, u)}</span>
+    <span class="meter"><i style="transform:scaleX(${fill})"></i></span>
+    ${hasConf ? `<span class="pct">${u.conf}<i>%</i></span>` : `<span class="pct pending">PENDING</span>`}
+    <button class="more" data-more="${i}" aria-expanded="${open}" title="${log ? `Last ${log.g.length} games against this line` : "More on this line"}" tabindex="-1">${open ? "▴" : "▾"}</button>
+    ${open ? `<div class="legx"><div class="booklines">${esc(bookLine(p))}</div>${log ? gameLogHTML(p, log) : ""}</div>` : ""}
+  </div>`;
+}
+function udPlayerCard(rows){
+  const p = rows[0];
+  const tag = whyNotSlip({...p, stale: 0, norole: 0}, null);
+  return `<div class="pcard ${p.mine ? "mine" : ""} ${p.flag === "out" ? "isout" : ""}">
+    <div class="phead2">
+      ${HEADS[p.slug] ? `<img src="${HEADS[p.slug]}" alt="">` : `<div class="fallback">${esc(initials(p.n))}</div>`}
+      <div>
+        <div class="prop">${esc(p.n)}${tag ? " " + tag : ""}</div>
+        <div class="book">${esc(p.pos)} · ${esc(p.game)}${p.kick ? ` · ${esc(p.kick)}` : ""}</div>
+      </div>
+    </div>
+    ${rows.map(r => udLine(r, PROPS.indexOf(r), !!tag)).join("")}
+  </div>`;
+}
+const UD_PAGE_SIZE = 10;   // players per page in Underdog mode; MKT_PAGE_SIZE counts lines in DK mode
+
 function propCard(p, i){
   if (PARLAY_BOOK === "underdog") return udPropCard(p, i);
   const inSlip = SLIP.includes(i);
@@ -2166,9 +2253,9 @@ function slipHTML(){
   if (udMode) return `<div class="slip">
     <div class="sliphead"><span class="lbl">${title}</span><span class="pill">${legs.length} picks</span></div>
     ${chips}
-    ${legs.length ? legs.map((l,k)=>{ const u = udPick(l); return `<div class="slipleg">
-      <div><div class="p">${esc(l.n)}</div><div class="m">${esc(MKT[l.mkt].toUpperCase())}${u.line !== null ? ` ${u.line}` : ""}${l.kick ? ` · ${esc(l.kick.toUpperCase())}` : ""}${u.synthetic ? " · MODEL" : ""}</div></div>
-      <div class="o udpick ${u.pick||""}">${u.pick ? u.pick.toUpperCase() : "—"}<span class="conf">${typeof u.conf === "number" ? u.conf+"%" : "PENDING"}</span></div>
+    ${legs.length ? legs.map((l,k)=>{ const u = udPick(l); return `<div class="slipleg ud ${u.pick||""}">
+      <div><div class="p">${esc(l.n)}</div>
+        <div class="m"><span class="dir">${u.pick === "higher" ? "▲ HIGHER" : u.pick === "lower" ? "▼ LOWER" : "NO CALL"}</span><b>${u.line !== null ? u.line : "TD"}</b><span class="stat">${u.line !== null ? MKT_SHORT[l.mkt] : "ANYTIME"}</span></div></div>
       <button class="legremove" data-removeleg="${SLIP[k]}" title="Remove">✕</button></div>`;}).join("")
       : `<div class="state-empty" style="margin:14px 15px;min-height:90px"><div><b>0</b><span>NO PICK THE MODEL PUTS PAST ${UD_MIN}%</span></div></div>`}
     <div class="payout">
@@ -2439,18 +2526,24 @@ function parlayHTML(){
             // A real Underdog price without a model rating yet has no higher/lower call to
             // show; udPick covers that plus the TD rows Underdog has no line for at all.
             && (PARLAY_BOOK !== "underdog" || udPick(p))).sort(SORTS[MKT_SORT]);
-          const pages = Math.max(1, Math.ceil(all.length / MKT_PAGE_SIZE));
+          // Underdog mode groups the sorted lines by player, first appearance keeping the
+          // sort (so a Confidence sort orders players by their strongest call), and pages by
+          // player. DK mode stays one row per line.
+          const ud = PARLAY_BOOK === "underdog";
+          const groups = ud ? [...all.reduce((m, p) => (m.get(p.n) || m.set(p.n, []).get(p.n)).push(p) && m, new Map()).values()] : null;
+          const units = ud ? groups : all, size = ud ? UD_PAGE_SIZE : MKT_PAGE_SIZE;
+          const pages = Math.max(1, Math.ceil(units.length / size));
           const page = Math.min(MKT_PAGE, pages);
-          const rows = all.slice((page-1)*MKT_PAGE_SIZE, page*MKT_PAGE_SIZE);
+          const rows = units.slice((page-1)*size, page*size);
           const pager = `<div class="filters" style="margin-top:8px">
-            <span class="lbl">${all.length} line${all.length===1?"":"s"}${PARLAY_BOOK === "underdog" && all.some(p => udPick(p).synthetic) ? " · TD picks are the model's P(score), Underdog posts no TD line" : ""}</span>
+            <span class="lbl">${all.length} line${all.length===1?"":"s"}${ud ? ` · ${groups.length} player${groups.length===1?"":"s"}` : ""}${ud && all.some(p => udPick(p).synthetic) ? " · TD picks are the model's P(score), Underdog posts no TD line" : ""}</span>
             <span style="flex:1"></span>
             <button class="chip" data-mktpage="prev" ${page<=1?"disabled":""}>‹ Prev</button>
             <span class="lbl">Page ${page} of ${pages}</span>
             <button class="chip" data-mktpage="next" ${page>=pages?"disabled":""}>Next ›</button>
           </div>`;
           return rows.length
-            ? `${pager}<div class="legs" style="margin-top:14px">${rows.map((p)=>propCard(p, PROPS.indexOf(p))).join("")}</div>`
+            ? `${pager}<div class="legs" style="margin-top:14px">${ud ? rows.map(udPlayerCard).join("") : rows.map((p)=>propCard(p, PROPS.indexOf(p))).join("")}</div>`
             : `<div class="state-empty" style="margin:20px 0;min-height:120px"><div><b>0</b><span>NO LINES MATCH THAT FILTER</span></div></div>`;
         })()}
       </div>
