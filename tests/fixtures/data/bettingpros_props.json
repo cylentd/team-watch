@@ -1,0 +1,69 @@
+{
+ "source": "BettingPros (unofficial, embedded key)",
+ "sport": "NFL",
+ "fetched": "2026-09-10 07:35",
+ "markets": [
+  ["rushing-yards", "RUSH"],
+  ["receiving-yards", "REC"],
+  ["receptions", "RECS"],
+  ["passing-yards", "PASS"],
+  ["touchdown-scored", "TD"]
+ ],
+ "events": 3,
+ "failed": [],
+ "props": [
+  {"player": "Chase Brown", "position": "RB", "team": "CIN", "market": "RUSH", "side": "Over", "line": 65.5, "price": -130, "book": "DraftKings", "game": "CIN @ NYJ", "commence": "2026-09-13 17:00:00", "updated": "2026-09-09 10:00:00"},
+  {"player": "Chase Brown", "position": "RB", "team": "CIN", "market": "RUSH", "side": "Over", "line": 65.5, "price": -110, "book": "DraftKings", "game": "CIN @ NYJ", "commence": "2026-09-13 17:00:00", "updated": "2026-09-10 07:35:00"},
+  {"player": "Chase Brown", "position": "RB", "team": "CIN", "market": "RUSH", "side": "Under", "line": 65.5, "price": -112, "book": "DraftKings", "game": "CIN @ NYJ", "commence": "2026-09-13 17:00:00", "updated": "2026-09-10 07:35:00"},
+  {"player": "Chase Brown", "position": "RB", "team": "CIN", "market": "RUSH", "side": "Over", "line": 65.5, "price": -108, "book": "Underdog", "game": "CIN @ NYJ", "commence": "2026-09-13 17:00:00", "updated": "2026-09-10 07:35:00"},
+  {"player": "Chase Brown", "position": "RB", "team": "CIN", "market": "RUSH", "side": "Over", "line": 65.5, "price": -115, "book": "Consensus", "game": "CIN @ NYJ", "commence": "2026-09-13 17:00:00", "updated": "2026-09-10 07:35:00"},
+
+  {"player": "Tee Higgins", "position": "WR", "team": "CIN", "market": "REC", "side": "Over", "line": 55.5, "price": -105, "book": "DraftKings", "game": "CIN @ NYJ", "commence": "2026-09-13 17:00:00", "updated": "2026-09-10 07:35:00"},
+  {"player": "Tee Higgins", "position": "WR", "team": "CIN", "market": "REC", "side": "Over", "line": 55.5, "price": -102, "book": "Underdog", "game": "CIN @ NYJ", "commence": "2026-09-13 17:00:00", "updated": "2026-09-10 07:35:00"},
+  {"player": "Tee Higgins", "position": "WR", "team": "CIN", "market": "REC", "side": "Over", "line": 55.5, "price": -110, "book": "Consensus", "game": "CIN @ NYJ", "commence": "2026-09-13 17:00:00", "updated": "2026-09-10 07:35:00"},
+
+  {"player": "Tee Higgins", "position": "WR", "team": "CIN", "market": "RECS", "side": "Over", "line": 4.5, "price": -120, "book": "DraftKings", "game": "CIN @ NYJ", "commence": "2026-09-13 17:00:00", "updated": "2026-09-10 07:35:00"},
+  {"player": "Tee Higgins", "position": "WR", "team": "CIN", "market": "RECS", "side": "Over", "line": 4.5, "price": -115, "book": "Underdog", "game": "CIN @ NYJ", "commence": "2026-09-13 17:00:00", "updated": "2026-09-10 07:35:00"},
+
+  {"player": "Joe Burrow", "position": "QB", "team": "CIN", "market": "PASS", "side": "Over", "line": 245.5, "price": -108, "book": "DraftKings", "game": "CIN @ NYJ", "commence": "2026-09-13 17:00:00", "updated": "2026-09-10 07:35:00"},
+  {"player": "Joe Burrow", "position": "QB", "team": "CIN", "market": "PASS", "side": "Over", "line": 245.5, "price": -105, "book": "Underdog", "game": "CIN @ NYJ", "commence": "2026-09-13 17:00:00", "updated": "2026-09-10 07:35:00"},
+  {"player": "Joe Burrow", "position": "QB", "team": "CIN", "market": "PASS", "side": "Over", "line": 245.5, "price": -110, "book": "Consensus", "game": "CIN @ NYJ", "commence": "2026-09-13 17:00:00", "updated": "2026-09-10 07:35:00"},
+
+  {"player": "Chase Brown", "position": "RB", "team": "CIN", "market": "TD", "side": "Chase Brown", "line": null, "price": 160, "book": "DraftKings", "game": "CIN @ NYJ", "commence": "2026-09-13 17:00:00", "updated": "2026-09-10 07:35:00"},
+  {"player": "Chase Brown", "position": "RB", "team": "CIN", "market": "TD", "side": "Chase Brown", "line": null, "price": 165, "book": "Underdog", "game": "CIN @ NYJ", "commence": "2026-09-13 17:00:00", "updated": "2026-09-10 07:35:00"},
+  {"player": "Chase Brown", "position": "RB", "team": "CIN", "market": "TD", "side": "Chase Brown", "line": null, "price": 170, "book": "Consensus", "game": "CIN @ NYJ", "commence": "2026-09-13 17:00:00", "updated": "2026-09-10 07:35:00"},
+
+  {"player": "Tee Higgins", "position": "WR", "team": "CIN", "market": "TD", "side": "Tee Higgins", "line": null, "price": 190, "book": "DraftKings", "game": "CIN @ NYJ", "commence": "2026-09-13 17:00:00", "updated": "2026-09-10 07:35:00"},
+  {"player": "Tee Higgins", "position": "WR", "team": "CIN", "market": "TD", "side": "Tee Higgins", "line": null, "price": 195, "book": "Underdog", "game": "CIN @ NYJ", "commence": "2026-09-13 17:00:00", "updated": "2026-09-10 07:35:00"},
+
+  {"player": "TD Market", "position": null, "team": "CIN", "market": "TD", "side": "Ja'Marr Chase", "line": null, "price": 150, "book": "DraftKings", "game": "CIN @ NYJ", "commence": "2026-09-13 17:00:00", "updated": "2026-09-10 07:35:00"},
+  {"player": "TD Market", "position": null, "team": "CIN", "market": "TD", "side": "Ja'Marr Chase", "line": null, "price": 155, "book": "Underdog", "game": "CIN @ NYJ", "commence": "2026-09-13 17:00:00", "updated": "2026-09-10 07:35:00"},
+
+  {"player": "TD Market", "position": null, "team": null, "market": "TD", "side": "Cincinnati Bengals", "line": null, "price": -150, "book": "DraftKings", "game": "CIN @ NYJ", "commence": "2026-09-13 17:00:00", "updated": "2026-09-10 07:35:00"},
+
+  {"player": "Brock Purdy", "position": "QB", "team": "SF", "market": "PASS", "side": "Over", "line": 220.5, "price": -108, "book": "DraftKings", "game": "SEA @ SF", "commence": "2026-09-14 00:20:00", "updated": "2026-09-10 07:35:00"},
+  {"player": "Brock Purdy", "position": "QB", "team": "SF", "market": "PASS", "side": "Over", "line": 220.5, "price": -105, "book": "Underdog", "game": "SEA @ SF", "commence": "2026-09-14 00:20:00", "updated": "2026-09-10 07:35:00"},
+  {"player": "Brock Purdy", "position": "QB", "team": "SF", "market": "PASS", "side": "Over", "line": 220.5, "price": -112, "book": "Consensus", "game": "SEA @ SF", "commence": "2026-09-14 00:20:00", "updated": "2026-09-10 07:35:00"},
+
+  {"player": "George Kittle", "position": "TE", "team": "SF", "market": "REC", "side": "Over", "line": 45.5, "price": -102, "book": "DraftKings", "game": "SEA @ SF", "commence": "2026-09-14 00:20:00", "updated": "2026-09-10 07:35:00"},
+  {"player": "George Kittle", "position": "TE", "team": "SF", "market": "REC", "side": "Over", "line": 45.5, "price": -100, "book": "Underdog", "game": "SEA @ SF", "commence": "2026-09-14 00:20:00", "updated": "2026-09-10 07:35:00"},
+  {"player": "George Kittle", "position": "TE", "team": "SF", "market": "REC", "side": "Over", "line": 45.5, "price": -105, "book": "Consensus", "game": "SEA @ SF", "commence": "2026-09-14 00:20:00", "updated": "2026-09-10 07:35:00"},
+
+  {"player": "George Kittle", "position": "TE", "team": "SF", "market": "TD", "side": "George Kittle", "line": null, "price": 210, "book": "DraftKings", "game": "SEA @ SF", "commence": "2026-09-14 00:20:00", "updated": "2026-09-10 07:35:00"},
+  {"player": "George Kittle", "position": "TE", "team": "SF", "market": "TD", "side": "George Kittle", "line": null, "price": 215, "book": "Underdog", "game": "SEA @ SF", "commence": "2026-09-14 00:20:00", "updated": "2026-09-10 07:35:00"},
+
+  {"player": "Amon-Ra St. Brown", "position": "WR", "team": "DET", "market": "REC", "side": "Over", "line": 75.5, "price": -110, "book": "DraftKings", "game": "DET @ GB", "commence": "2026-09-15 00:15:00", "updated": "2026-09-10 07:35:00"},
+  {"player": "Amon-Ra St. Brown", "position": "WR", "team": "DET", "market": "REC", "side": "Over", "line": 75.5, "price": -108, "book": "Underdog", "game": "DET @ GB", "commence": "2026-09-15 00:15:00", "updated": "2026-09-10 07:35:00"},
+  {"player": "Amon-Ra St. Brown", "position": "WR", "team": "DET", "market": "REC", "side": "Over", "line": 75.5, "price": -115, "book": "Consensus", "game": "DET @ GB", "commence": "2026-09-15 00:15:00", "updated": "2026-09-10 07:35:00"},
+
+  {"player": "Jahmyr Gibbs", "position": "RB", "team": "DET", "market": "RUSH", "side": "Over", "line": 70.5, "price": -105, "book": "DraftKings", "game": "DET @ GB", "commence": "2026-09-15 00:15:00", "updated": "2026-09-10 07:35:00"},
+  {"player": "Jahmyr Gibbs", "position": "RB", "team": "DET", "market": "RUSH", "side": "Over", "line": 70.5, "price": -102, "book": "Underdog", "game": "DET @ GB", "commence": "2026-09-15 00:15:00", "updated": "2026-09-10 07:35:00"},
+  {"player": "Jahmyr Gibbs", "position": "RB", "team": "DET", "market": "RUSH", "side": "Over", "line": 70.5, "price": -110, "book": "Consensus", "game": "DET @ GB", "commence": "2026-09-15 00:15:00", "updated": "2026-09-10 07:35:00"},
+
+  {"player": "Jahmyr Gibbs", "position": "RB", "team": "DET", "market": "TD", "side": "Jahmyr Gibbs", "line": null, "price": 145, "book": "DraftKings", "game": "DET @ GB", "commence": "2026-09-15 00:15:00", "updated": "2026-09-10 07:35:00"},
+  {"player": "Jahmyr Gibbs", "position": "RB", "team": "DET", "market": "TD", "side": "Jahmyr Gibbs", "line": null, "price": 150, "book": "Underdog", "game": "DET @ GB", "commence": "2026-09-15 00:15:00", "updated": "2026-09-10 07:35:00"},
+
+  {"player": "Amon-Ra St. Brown", "position": "WR", "team": "DET", "market": "TD", "side": "Amon-Ra St. Brown", "line": null, "price": 180, "book": "DraftKings", "game": "DET @ GB", "commence": "2026-09-15 00:15:00", "updated": "2026-09-10 07:35:00"},
+  {"player": "Amon-Ra St. Brown", "position": "WR", "team": "DET", "market": "TD", "side": "Amon-Ra St. Brown", "line": null, "price": 185, "book": "Underdog", "game": "DET @ GB", "commence": "2026-09-15 00:15:00", "updated": "2026-09-10 07:35:00"}
+ ]
+}

@@ -12,6 +12,8 @@ import pathlib
 import re
 import zoneinfo
 
+import contract                 # design/contract.py: the shape each LIVE_* block must have
+import lint_css                 # design/lint_css.py: theme rules; an error fails the build
 from assemble import assemble   # design/assemble.py: design/src/** -> the page template
 
 ROOT = pathlib.Path(__file__).resolve().parent
@@ -757,7 +759,19 @@ def live_dfs_yahoo(available):
     }
 
 
-def main():
+class Build:
+    """What render() returns: the two outputs plus the summary main() prints."""
+    def __init__(self, page, fragment, report, heads, missing):
+        self.page, self.fragment, self.report, self.heads, self.missing = page, fragment, report, heads, missing
+
+
+def render():
+    """Everything but the writes, so a test can build in-process against fixture inputs.
+    Fails (SystemExit) on a lint error, a contract violation, or an assembly problem."""
+    bad = lint_css.errors(lint_css.lint())
+    if bad:
+        raise SystemExit("lint: " + "; ".join(f"{f.file}:{f.line} {f.rule} {f.text}" for f in bad))
+
     available = {p.stem for p in HEADS_SRC.glob("*.webp")}
     live = live_espn(available)
     liveY = live_yahoo(available)
@@ -785,22 +799,27 @@ def main():
         b64 = base64.b64encode(path.read_bytes()).decode("ascii")
         heads[slug] = f"data:image/webp;base64,{b64}"
 
-    injected = (
-        "const HEADS = " + json.dumps(heads) + ";\n"
-        "const LIVE_ESPN = " + json.dumps(live) + ";\n"
-        "const LIVE_YAHOO = " + json.dumps(liveY) + ";\n"
-        "const LIVE_FEED = " + json.dumps(live_feed()) + ";\n"
-        "const LIVE_NEWS = " + json.dumps(news) + ";\n"
-        "const LIVE_PROPS = " + json.dumps(props) + ";\n"
-        "const LIVE_DFS_YAHOO = " + json.dumps(liveDfsYahoo) + ";"
-    )
+    blocks = {
+        "LIVE_ESPN": live,
+        "LIVE_YAHOO": liveY,
+        "LIVE_FEED": live_feed(),
+        "LIVE_NEWS": news,
+        "LIVE_PROPS": props,
+        "LIVE_DFS_YAHOO": liveDfsYahoo,
+    }
+    for name, obj in blocks.items():
+        contract.validate(name, obj)   # a missing field fails the build, not the page
+    # A "</" inside a string (a headline quoting markup, say) would end the <script> early;
+    # JSON reads "<\/" as the same two characters, and JS never sees the difference.
+    injected = "\n".join(
+        ["const HEADS = " + json.dumps(heads) + ";"]
+        + [f"const {name} = " + json.dumps(obj) + ";" for name, obj in blocks.items()]
+    ).replace("</", "<\\/")
     tpl = assemble()
     body = tpl.replace("/*__HEADS__*/", injected)
 
-    # design/index.html is the fragment the Artifact publisher wants (no doctype/head).
-    (ROOT / "index.html").write_text(body, encoding="utf-8")
-
-    # The repo root is what Vercel serves, so that copy is a full HTML document.
+    # The repo root is what Vercel serves, so that copy is a full HTML document; design/index.html
+    # is the same page as a fragment (no doctype/head), which is what the Artifact publisher wants.
     favicon = (
         "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E"
         "%3Crect width='32' height='32' fill='%2308080a'/%3E"
@@ -820,39 +839,48 @@ def main():
         "<body>",
     ])
     page = f"{head}\n{body}\n</body>\n</html>\n"
-    (REPO / "index.html").write_text(page, encoding="utf-8")
 
-    kb = len(page.encode("utf-8")) / 1024
-    print(f"wrote {REPO/'index.html'} and {ROOT/'index.html'} ({kb:.0f} KB), {len(heads)} heads inlined")
+    report = []
     for label, src in (("ESPN", live), ("Yahoo", liveY)):
         if src:
-            print(f"{label}: {len(src['roster'])} players, {src['league']}, pulled {src['updated']}")
+            report.append(f"{label}: {len(src['roster'])} players, {src['league']}, pulled {src['updated']}")
         else:
-            print(f"{label}: no live file, template falls back to its own copy")
+            report.append(f"{label}: no live file, template falls back to its own copy")
     if props:
         mine = sum(1 for p in props["props"] if p["mine"])
-        print(f"Props: {len(props['props'])} lines, {props['players']} players, "
-              f"{props['events']} games, {'/'.join(props['books'])}, pulled {props['fetched']} "
-              f"(from {props['origin']}), {mine} on my rosters")
-        print("Windows: " + " · ".join(
+        report.append(f"Props: {len(props['props'])} lines, {props['players']} players, "
+                      f"{props['events']} games, {'/'.join(props['books'])}, pulled {props['fetched']} "
+                      f"(from {props['origin']}), {mine} on my rosters")
+        report.append("Windows: " + " · ".join(
             f"{w['label']}({w['n']}/{w['games']}g)" for w in props["windows"]))
         if props["model"]:
-            print(f"Model: {props['model']['modeled']} of {len(props['props'])} lines priced, "
-                  f"stats through {props['model']['through']}, run {props['model']['generated']}")
+            report.append(f"Model: {props['model']['modeled']} of {len(props['props'])} lines priced, "
+                          f"stats through {props['model']['through']}, run {props['model']['generated']}")
         else:
-            print("Model: no props_model.json, every card says pending")
+            report.append("Model: no props_model.json, every card says pending")
     else:
-        print("Props: no BettingPros file, template falls back to its sample")
+        report.append("Props: no BettingPros file, template falls back to its sample")
     if liveDfsYahoo:
-        print(f"Yahoo DFS: {len(liveDfsYahoo['players'])} players, pulled {liveDfsYahoo['fetched']}")
+        report.append(f"Yahoo DFS: {len(liveDfsYahoo['players'])} players, pulled {liveDfsYahoo['fetched']}")
     else:
-        print("Yahoo DFS: no ff-jarvis dfs_pool.json/feed block, template falls back to its sample")
+        report.append("Yahoo DFS: no ff-jarvis dfs_pool.json/feed block, template falls back to its sample")
     if news:
-        print(f"News: {len(news['items'])} items from ff-jarvis's scanner")
+        report.append(f"News: {len(news['items'])} items from ff-jarvis's scanner")
     else:
-        print("News: no breaking_news.json/feed block, template falls back to its sample")
+        report.append("News: no breaking_news.json/feed block, template falls back to its sample")
     if missing:
-        print(f"no headshot for {len(missing)} slugs (initials fallback renders)")
+        report.append(f"no headshot for {len(missing)} slugs (initials fallback renders)")
+    return Build(page, body, report, heads, missing)
+
+
+def main():
+    b = render()
+    (ROOT / "index.html").write_text(b.fragment, encoding="utf-8")
+    (REPO / "index.html").write_text(b.page, encoding="utf-8")
+    kb = len(b.page.encode("utf-8")) / 1024
+    print(f"wrote {REPO/'index.html'} and {ROOT/'index.html'} ({kb:.0f} KB), {len(b.heads)} heads inlined")
+    for line in b.report:
+        print(line)
 
 
 if __name__ == "__main__":

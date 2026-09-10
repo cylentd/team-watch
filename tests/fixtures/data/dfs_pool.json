@@ -1,0 +1,16 @@
+{
+ "source": "Yahoo DFS player export (CSV)",
+ "imported_from": "Yahoo_DF_player_export.csv",
+ "fetched": "2026-09-09 01:23",
+ "cap": 200,
+ "count": 7,
+ "players": [
+  {"id": "1", "pos": "QB", "team": "CIN", "opp": "NYJ", "game": "CIN@NYJ", "kickoff": "1:00PM EDT", "salary": 35, "fppg": 18.5, "status": "", "name": "Joe Burrow", "value": 528.6},
+  {"id": "2", "pos": "QB", "team": "SF", "opp": "SEA", "game": "SEA@SF", "kickoff": "8:20PM EDT", "salary": 33, "fppg": 17.2, "status": "Q", "name": "Brock Purdy", "value": 521.2},
+  {"id": "3", "pos": "RB", "team": "CIN", "opp": "NYJ", "game": "CIN@NYJ", "kickoff": "1:00PM EDT", "salary": 30, "fppg": 16.4, "status": "", "name": "Chase Brown", "value": 546.7},
+  {"id": "4", "pos": "RB", "team": "DET", "opp": "GB", "game": "DET@GB", "kickoff": "8:15PM EDT", "salary": 28, "fppg": 14.1, "status": "", "name": "Jahmyr Gibbs", "value": 503.9},
+  {"id": "5", "pos": "WR", "team": "CIN", "opp": "NYJ", "game": "CIN@NYJ", "kickoff": "1:00PM EDT", "salary": 29, "fppg": 15.8, "status": "O", "name": "Tee Higgins", "value": 545.0},
+  {"id": "6", "pos": "WR", "team": "DET", "opp": "GB", "game": "DET@GB", "kickoff": "8:15PM EDT", "salary": 31, "fppg": 16.9, "status": "", "name": "Amon-Ra St. Brown", "value": 545.2},
+  {"id": "7", "pos": "TE", "team": "SF", "opp": "SEA", "game": "SEA@SF", "kickoff": "8:20PM EDT", "salary": 20, "fppg": 11.3, "status": "", "name": "George Kittle", "value": 565.0}
+ ]
+}

@@ -1,0 +1,9 @@
+{
+ "items": [
+  {"id": 1, "created": "2026-09-10 18:57:42", "created_formated": "Thu, Sep 10th 6:57pm UTC", "author": null, "player_id": 1, "team_id": "CIN", "title": "Chase Brown (hamstring) questionable for Week 1", "sport_id": "NFL", "categories": null, "link": "https://example.com/news/1", "desc": "Brown was limited in practice Thursday.", "impact": "Monitor before locking lineups."},
+  {"id": 2, "created": "2026-09-10 17:30:00", "created_formated": "Thu, Sep 10th 5:30pm UTC", "author": null, "player_id": 2, "team_id": "CIN", "title": "Tee Higgins ruled out for Week 1", "sport_id": "NFL", "categories": null, "link": "https://example.com/news/2", "desc": "Higgins will not play.", "impact": "Fade in all formats."},
+  {"id": 3, "created": "2026-09-10 16:00:00", "created_formated": "Thu, Sep 10th 4:00pm UTC", "author": null, "player_id": 3, "team_id": "DET", "title": "Jahmyr Gibbs full participant in practice", "sport_id": "NFL", "categories": null, "link": "https://example.com/news/3", "desc": "Gibbs practiced fully.", "impact": "No concern."},
+  {"id": 4, "created": "2026-09-10 12:00:00", "created_formated": "Thu, Sep 10th 12:00pm UTC", "author": null, "player_id": 4, "team_id": "SF", "title": "Brock Purdy added to injury report as questionable", "sport_id": "NFL", "categories": null, "link": "https://example.com/news/4", "desc": "Purdy is questionable with a shoulder issue.", "impact": "Watch Friday's estimation."},
+  {"id": 5, "created": "bad-timestamp", "created_formated": "unknown", "author": null, "player_id": 5, "team_id": "DET", "title": "Report: minor roster move for Detroit", "sport_id": "NFL", "categories": null, "link": "https://example.com/news/5", "desc": "Unconfirmed report.", "impact": "Low confidence."}
+ ]
+}

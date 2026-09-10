@@ -1,0 +1,15 @@
+{
+ "me": "Chat Take the Wheel",
+ "league_id": "75203",
+ "league": "The Madden Curse",
+ "source": "Yahoo website scrape (model.clients.yahoo_web); the API is pending approval",
+ "updated": "2026-09-10",
+ "detail": {
+  "Chat Take the Wheel": [
+   {"id": "1", "name": "Joe Burrow", "team": "CIN", "pos": "QB"},
+   {"id": "2", "name": "Amon-Ra St. Brown", "team": "DET", "pos": "WR"},
+   {"id": "3", "name": "Chase Brown", "team": "CIN", "pos": "RB"},
+   {"id": "4", "name": "Jahmyr Gibbs", "team": "DET", "pos": "RB"}
+  ]
+ }
+}

@@ -1,0 +1,9 @@
+{
+ "source": "Sleeper players/nfl",
+ "fetched": "2026-09-10 07:35",
+ "players": {
+  "chase brown": {"name": "Chase Brown", "sleeper_id": "1", "pos": "RB", "team": "CIN", "injury": "Questionable", "injury_note": "hamstring", "practice": "limited", "depth": 1, "depth_pos": "RB", "active": true, "status": "Questionable", "playing": true},
+  "tee higgins": {"name": "Tee Higgins", "sleeper_id": "2", "pos": "WR", "team": "CIN", "injury": null, "injury_note": null, "practice": null, "depth": 1, "depth_pos": "LWR", "active": true, "status": "Out", "playing": false},
+  "jahmyr gibbs": {"name": "Jahmyr Gibbs", "sleeper_id": "3", "pos": "RB", "team": "DET", "injury": null, "injury_note": null, "practice": null, "depth": 2, "depth_pos": "RB2", "active": true, "status": "Active", "playing": true}
+ }
+}

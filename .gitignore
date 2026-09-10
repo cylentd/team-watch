@@ -12,3 +12,6 @@ data/props_model.json
 # Retired: the DFS pool now comes from ff-jarvis's data/dfs_pool.json (see design/build.py's
 # load_dfs_pool()). Left ignored in case a manual export is ever saved here again.
 data/dfs_yahoo.csv
+
+# pytest
+.pytest_cache/

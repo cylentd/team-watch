@@ -21,12 +21,22 @@ Global architecture rules apply here: `~/Github/agent-config/shared/architecture
 Never hand-edit the generated files. They are ~1.4 MB each because headshots are inlined as
 base64, and `build.py` rewrites both in full on every run.
 
-## Build and land
+## Build, test, land
 
 ```
 python design/build.py      # rebuild both outputs
-.\scripts\land.ps1          # rebase, rebuild, fold into the commit, land
+python -m pytest            # 7 s: assembler, build against fixtures, lint, budgets, rendered golden
+python -m pytest -m "not render"   # under a second, no browser
+.\scripts\land.ps1          # rebase, test, rebuild, fold into the commit, land
 ```
+
+The build fails on a lint error (`design/lint_css.py`), a contract violation (`design/contract.py`:
+an injected block missing a field the JS reads), or a part the manifests do not agree on. The
+suite builds against `tests/fixtures/` (never ff-jarvis) and compares the rendered page, in
+Chromium, to `tests/golden/render.json`. A refactor proves "no visual change" with an empty diff;
+an intended change regenerates the golden with `pytest --update-golden` and the diff is the
+review. `tests/test_budgets.py` holds the size ratchets: what is over budget today is listed
+with its size and may only shrink.
 
 **Feature branches do not commit `index.html` or `design/index.html`.** The build runs once, at
 land time, via `scripts/land.ps1`. This is not tidiness: both files are single blobs that change

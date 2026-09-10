@@ -7,8 +7,9 @@
   makes two parallel branches conflict on a 1.4 MB blob, so the convention is: feature branches
   never commit them, and the build runs once, here, at land time.
 
-  Order matters. Rebase first, then build, then commit -- building before the rebase produces a
-  page from the wrong parent and guarantees the conflict this script exists to avoid.
+  Order matters. Rebase first, then test, then build, then commit -- building before the rebase
+  produces a page from the wrong parent and guarantees the conflict this script exists to avoid,
+  and the tests run on the rebased tree, which is the one that ships.
 
 .EXAMPLE
   .\scripts\land.ps1 -DryRun     # say what would happen, change nothing
@@ -71,6 +72,16 @@ if ($behind -gt 0) {
     GitRun "rebase $Base" | Out-Null
     # A conflict in the two generated files is expected on any branch predating this convention.
     # merge=ours settles it silently; anything else stops the rebase and is a real conflict.
+}
+
+Write-Host "testing" -ForegroundColor Cyan
+Write-Host "  python -m pytest" -ForegroundColor DarkGray
+if (-not $DryRun) {
+    Push-Location $repo
+    try {
+        & python -m pytest
+        if ($LASTEXITCODE -ne 0) { throw "tests failed ($LASTEXITCODE) -- nothing landed" }
+    } finally { Pop-Location }
 }
 
 Write-Host "building" -ForegroundColor Cyan

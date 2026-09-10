@@ -41,6 +41,21 @@ not commit them; the build runs once, at land time:**
 files ever do conflict, never merge them: `git checkout --ours index.html design/index.html`,
 finish the rebase, then rebuild.
 
+## Test
+
+```
+python -m pytest                   # everything, about 7 s
+python -m pytest -m "not render"   # no browser, under a second
+python -m pytest --update-golden   # after an intended visual change
+```
+
+The suite builds the page against `tests/fixtures/` (7 players, 3 games, every live path) and
+checks: the parts assemble and the manifests agree; every injected block parses and meets the
+field contract the JS reads; the theme lint has no errors; every part and function is within its
+size budget; the assembled script parses; and the page, rendered in Chromium across every
+surface and toggle at a desktop and a phone width, matches `tests/golden/render.json` (markup
+plus the computed style of every styled class). `scripts/land.ps1` runs it before building.
+
 The build also reads `ff-jarvis/data/{espn_rosters,league_rosters}.json` and injects the live
 rosters. If those files are missing it falls back to the copies inside the template, so the page
 always renders.
@@ -61,7 +76,10 @@ design/src/css/        source — style, one part per surface or component
 design/src/js/         source — behaviour, data/ lib/ ui/ builder/ surface/ chrome/ main.js
 design/src/order.*.txt the concatenation order, with the reasons it is load-bearing
 design/assemble.py     joins the parts; --check, --map, --verify
+design/contract.py     the fields each injected block must carry; a miss fails the build
+design/lint_css.py     theme rules; an error fails the build
 design/build.py        inlines headshots and live data, writes both outputs
+tests/                 pytest suite; fixtures/ are the pinned inputs, golden/ the rendered snapshot
 design/DESIGN.md       design system + the field contract the skill must supply
 index.html             generated — do not edit
 ```

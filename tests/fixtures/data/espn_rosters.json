@@ -1,0 +1,15 @@
+{
+ "me": "Purdy Big in Japan",
+ "league_id": "1534545",
+ "source": "ESPN Fantasy API",
+ "league": "We're Big in Japan",
+ "updated": "2026-09-10",
+ "detail": {
+  "Purdy Big in Japan": [
+   {"name": "Brock Purdy", "pos": "QB", "team": "SF", "slot": "QB", "status": "QUESTIONABLE", "id": 1},
+   {"name": "George Kittle", "pos": "TE", "team": "SF", "slot": "TE", "status": "ACTIVE", "id": 2},
+   {"name": "Chase Brown", "pos": "RB", "team": "CIN", "slot": "FLEX", "status": "ACTIVE", "id": 3},
+   {"name": "Tee Higgins", "pos": "WR", "team": "CIN", "slot": "BE", "status": "ACTIVE", "id": 4}
+  ]
+ }
+}

@@ -1,0 +1,1442 @@
+{
+ "generated": "2026-09-10T07:35:32",
+ "steps": [
+  {
+   "step": "espn",
+   "ok": true,
+   "why": "",
+   "said": "  Purdy Big in Japan        4",
+   "secs": 0.5,
+   "optional": false
+  },
+  {
+   "step": "yahoo",
+   "ok": true,
+   "why": "",
+   "said": "my team: Chat Take the Wheel",
+   "secs": 12.1,
+   "optional": false
+  },
+  {
+   "step": "props_bp",
+   "ok": true,
+   "why": "",
+   "said": "history: +38 props rows (0 unchanged) -> data/history/props/2026-09-10.jsonl",
+   "secs": 4.2,
+   "optional": true
+  }
+ ],
+ "rosters": {
+  "espn": {
+   "data": {
+    "me": "Purdy Big in Japan",
+    "league": "We're Big in Japan",
+    "league_id": "1534545",
+    "updated": "2026-09-10"
+   },
+   "fetched": "2026-09-10"
+  },
+  "yahoo": {
+   "data": {
+    "me": "Chat Take the Wheel",
+    "league": "The Madden Curse",
+    "league_id": "75203",
+    "updated": "2026-09-10"
+   },
+   "fetched": "2026-09-10"
+  }
+ },
+ "usage": {
+  "data": {
+   "year": 2026,
+   "through_week": 1,
+   "window": 3,
+   "ready": true,
+   "note": null,
+   "leagues": [],
+   "pool": [
+    "chase brown",
+    "tee higgins",
+    "joe burrow",
+    "brock purdy",
+    "george kittle"
+   ]
+  },
+  "fetched": "2026-09-10 07:35"
+ },
+ "status": {
+  "data": {
+   "source": "Sleeper players/nfl",
+   "fetched": "2026-09-10 07:35",
+   "players": {
+    "chase brown": {
+     "name": "Chase Brown",
+     "sleeper_id": "1",
+     "pos": "RB",
+     "team": "CIN",
+     "injury": "Questionable",
+     "injury_note": "hamstring",
+     "practice": "limited",
+     "depth": 1,
+     "depth_pos": "RB",
+     "active": true,
+     "status": "Questionable",
+     "playing": true
+    },
+    "tee higgins": {
+     "name": "Tee Higgins",
+     "sleeper_id": "2",
+     "pos": "WR",
+     "team": "CIN",
+     "injury": null,
+     "injury_note": null,
+     "practice": null,
+     "depth": 1,
+     "depth_pos": "LWR",
+     "active": true,
+     "status": "Out",
+     "playing": false
+    },
+    "jahmyr gibbs": {
+     "name": "Jahmyr Gibbs",
+     "sleeper_id": "3",
+     "pos": "RB",
+     "team": "DET",
+     "injury": null,
+     "injury_note": null,
+     "practice": null,
+     "depth": 2,
+     "depth_pos": "RB2",
+     "active": true,
+     "status": "Active",
+     "playing": true
+    }
+   }
+  },
+  "fetched": "2026-09-10 07:35"
+ },
+ "projections": {
+  "data": {
+   "generated": "2026-09-10 07:35",
+   "through": "2025 wk18",
+   "season": 2026,
+   "scoring": "half-PPR",
+   "count": 5,
+   "from_lines": 0,
+   "moved": 0,
+   "not_playing": 0,
+   "players": [
+    {
+     "key": "joe burrow",
+     "name": "Joe Burrow",
+     "pos": "QB",
+     "team": "CIN",
+     "moved": null,
+     "opp": "NYJ",
+     "game": "CIN @ NYJ",
+     "kickoff": "2026-09-13 17:00:00",
+     "pts": 19.4,
+     "mu": {
+      "PASS": 245,
+      "RUSH": 15,
+      "TD": 0.3
+     },
+     "games": 12,
+     "last": "2025 wk18",
+     "src": "model",
+     "flag": null,
+     "injury": null,
+     "depth": 1
+    },
+    {
+     "key": "brock purdy",
+     "name": "Brock Purdy",
+     "pos": "QB",
+     "team": "SF",
+     "moved": null,
+     "opp": "SEA",
+     "game": "SEA @ SF",
+     "kickoff": "2026-09-14 00:20:00",
+     "pts": 18.1,
+     "mu": {
+      "PASS": 220,
+      "RUSH": 10,
+      "TD": 0.25
+     },
+     "games": 12,
+     "last": "2025 wk18",
+     "src": "model",
+     "flag": "q",
+     "injury": "Questionable",
+     "depth": 1
+    },
+    {
+     "key": "chase brown",
+     "name": "Chase Brown",
+     "pos": "RB",
+     "team": "CIN",
+     "moved": null,
+     "opp": "NYJ",
+     "game": "CIN @ NYJ",
+     "kickoff": "2026-09-13 17:00:00",
+     "pts": 16.2,
+     "mu": {
+      "RUSH": 75,
+      "REC": 20,
+      "TD": 0.4
+     },
+     "games": 10,
+     "last": "2025 wk18",
+     "src": "model",
+     "flag": "q",
+     "injury": "Questionable",
+     "depth": 1
+    },
+    {
+     "key": "george kittle",
+     "name": "George Kittle",
+     "pos": "TE",
+     "team": "SF",
+     "moved": null,
+     "opp": "SEA",
+     "game": "SEA @ SF",
+     "kickoff": "2026-09-14 00:20:00",
+     "pts": 13.6,
+     "mu": {
+      "REC": 50,
+      "TD": 0.2
+     },
+     "games": 12,
+     "last": "2025 wk18",
+     "src": "model",
+     "flag": null,
+     "injury": null,
+     "depth": 1
+    },
+    {
+     "key": "amonra st brown",
+     "name": "Amon-Ra St. Brown",
+     "pos": "WR",
+     "team": "DET",
+     "moved": null,
+     "opp": "GB",
+     "game": "DET @ GB",
+     "kickoff": "2026-09-15 00:15:00",
+     "pts": 17.3,
+     "mu": {
+      "REC": 85,
+      "TD": 0.3
+     },
+     "games": 12,
+     "last": "2025 wk18",
+     "src": "model",
+     "flag": null,
+     "injury": null,
+     "depth": 1
+    }
+   ]
+  },
+  "fetched": "2026-09-10 07:35"
+ },
+ "market": {
+  "lines": {
+   "data": null,
+   "fetched": null
+  },
+  "props": {
+   "data": null,
+   "fetched": null
+  },
+  "props_bp": {
+   "data": {
+    "source": "BettingPros (unofficial, embedded key)",
+    "sport": "NFL",
+    "fetched": "2026-09-10 07:35",
+    "markets": [
+     [
+      "rushing-yards",
+      "RUSH"
+     ],
+     [
+      "receiving-yards",
+      "REC"
+     ],
+     [
+      "receptions",
+      "RECS"
+     ],
+     [
+      "passing-yards",
+      "PASS"
+     ],
+     [
+      "touchdown-scored",
+      "TD"
+     ]
+    ],
+    "events": 3,
+    "failed": [],
+    "props": [
+     {
+      "player": "Chase Brown",
+      "position": "RB",
+      "team": "CIN",
+      "market": "RUSH",
+      "side": "Over",
+      "line": 65.5,
+      "price": -130,
+      "book": "DraftKings",
+      "game": "CIN @ NYJ",
+      "commence": "2026-09-13 17:00:00",
+      "updated": "2026-09-09 10:00:00"
+     },
+     {
+      "player": "Chase Brown",
+      "position": "RB",
+      "team": "CIN",
+      "market": "RUSH",
+      "side": "Over",
+      "line": 65.5,
+      "price": -110,
+      "book": "DraftKings",
+      "game": "CIN @ NYJ",
+      "commence": "2026-09-13 17:00:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Chase Brown",
+      "position": "RB",
+      "team": "CIN",
+      "market": "RUSH",
+      "side": "Under",
+      "line": 65.5,
+      "price": -112,
+      "book": "DraftKings",
+      "game": "CIN @ NYJ",
+      "commence": "2026-09-13 17:00:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Chase Brown",
+      "position": "RB",
+      "team": "CIN",
+      "market": "RUSH",
+      "side": "Over",
+      "line": 65.5,
+      "price": -108,
+      "book": "Underdog",
+      "game": "CIN @ NYJ",
+      "commence": "2026-09-13 17:00:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Chase Brown",
+      "position": "RB",
+      "team": "CIN",
+      "market": "RUSH",
+      "side": "Over",
+      "line": 65.5,
+      "price": -115,
+      "book": "Consensus",
+      "game": "CIN @ NYJ",
+      "commence": "2026-09-13 17:00:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Tee Higgins",
+      "position": "WR",
+      "team": "CIN",
+      "market": "REC",
+      "side": "Over",
+      "line": 55.5,
+      "price": -105,
+      "book": "DraftKings",
+      "game": "CIN @ NYJ",
+      "commence": "2026-09-13 17:00:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Tee Higgins",
+      "position": "WR",
+      "team": "CIN",
+      "market": "REC",
+      "side": "Over",
+      "line": 55.5,
+      "price": -102,
+      "book": "Underdog",
+      "game": "CIN @ NYJ",
+      "commence": "2026-09-13 17:00:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Tee Higgins",
+      "position": "WR",
+      "team": "CIN",
+      "market": "REC",
+      "side": "Over",
+      "line": 55.5,
+      "price": -110,
+      "book": "Consensus",
+      "game": "CIN @ NYJ",
+      "commence": "2026-09-13 17:00:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Tee Higgins",
+      "position": "WR",
+      "team": "CIN",
+      "market": "RECS",
+      "side": "Over",
+      "line": 4.5,
+      "price": -120,
+      "book": "DraftKings",
+      "game": "CIN @ NYJ",
+      "commence": "2026-09-13 17:00:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Tee Higgins",
+      "position": "WR",
+      "team": "CIN",
+      "market": "RECS",
+      "side": "Over",
+      "line": 4.5,
+      "price": -115,
+      "book": "Underdog",
+      "game": "CIN @ NYJ",
+      "commence": "2026-09-13 17:00:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Joe Burrow",
+      "position": "QB",
+      "team": "CIN",
+      "market": "PASS",
+      "side": "Over",
+      "line": 245.5,
+      "price": -108,
+      "book": "DraftKings",
+      "game": "CIN @ NYJ",
+      "commence": "2026-09-13 17:00:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Joe Burrow",
+      "position": "QB",
+      "team": "CIN",
+      "market": "PASS",
+      "side": "Over",
+      "line": 245.5,
+      "price": -105,
+      "book": "Underdog",
+      "game": "CIN @ NYJ",
+      "commence": "2026-09-13 17:00:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Joe Burrow",
+      "position": "QB",
+      "team": "CIN",
+      "market": "PASS",
+      "side": "Over",
+      "line": 245.5,
+      "price": -110,
+      "book": "Consensus",
+      "game": "CIN @ NYJ",
+      "commence": "2026-09-13 17:00:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Chase Brown",
+      "position": "RB",
+      "team": "CIN",
+      "market": "TD",
+      "side": "Chase Brown",
+      "line": null,
+      "price": 160,
+      "book": "DraftKings",
+      "game": "CIN @ NYJ",
+      "commence": "2026-09-13 17:00:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Chase Brown",
+      "position": "RB",
+      "team": "CIN",
+      "market": "TD",
+      "side": "Chase Brown",
+      "line": null,
+      "price": 165,
+      "book": "Underdog",
+      "game": "CIN @ NYJ",
+      "commence": "2026-09-13 17:00:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Chase Brown",
+      "position": "RB",
+      "team": "CIN",
+      "market": "TD",
+      "side": "Chase Brown",
+      "line": null,
+      "price": 170,
+      "book": "Consensus",
+      "game": "CIN @ NYJ",
+      "commence": "2026-09-13 17:00:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Tee Higgins",
+      "position": "WR",
+      "team": "CIN",
+      "market": "TD",
+      "side": "Tee Higgins",
+      "line": null,
+      "price": 190,
+      "book": "DraftKings",
+      "game": "CIN @ NYJ",
+      "commence": "2026-09-13 17:00:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Tee Higgins",
+      "position": "WR",
+      "team": "CIN",
+      "market": "TD",
+      "side": "Tee Higgins",
+      "line": null,
+      "price": 195,
+      "book": "Underdog",
+      "game": "CIN @ NYJ",
+      "commence": "2026-09-13 17:00:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "TD Market",
+      "position": null,
+      "team": "CIN",
+      "market": "TD",
+      "side": "Ja'Marr Chase",
+      "line": null,
+      "price": 150,
+      "book": "DraftKings",
+      "game": "CIN @ NYJ",
+      "commence": "2026-09-13 17:00:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "TD Market",
+      "position": null,
+      "team": "CIN",
+      "market": "TD",
+      "side": "Ja'Marr Chase",
+      "line": null,
+      "price": 155,
+      "book": "Underdog",
+      "game": "CIN @ NYJ",
+      "commence": "2026-09-13 17:00:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "TD Market",
+      "position": null,
+      "team": null,
+      "market": "TD",
+      "side": "Cincinnati Bengals",
+      "line": null,
+      "price": -150,
+      "book": "DraftKings",
+      "game": "CIN @ NYJ",
+      "commence": "2026-09-13 17:00:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Brock Purdy",
+      "position": "QB",
+      "team": "SF",
+      "market": "PASS",
+      "side": "Over",
+      "line": 220.5,
+      "price": -108,
+      "book": "DraftKings",
+      "game": "SEA @ SF",
+      "commence": "2026-09-14 00:20:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Brock Purdy",
+      "position": "QB",
+      "team": "SF",
+      "market": "PASS",
+      "side": "Over",
+      "line": 220.5,
+      "price": -105,
+      "book": "Underdog",
+      "game": "SEA @ SF",
+      "commence": "2026-09-14 00:20:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Brock Purdy",
+      "position": "QB",
+      "team": "SF",
+      "market": "PASS",
+      "side": "Over",
+      "line": 220.5,
+      "price": -112,
+      "book": "Consensus",
+      "game": "SEA @ SF",
+      "commence": "2026-09-14 00:20:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "George Kittle",
+      "position": "TE",
+      "team": "SF",
+      "market": "REC",
+      "side": "Over",
+      "line": 45.5,
+      "price": -102,
+      "book": "DraftKings",
+      "game": "SEA @ SF",
+      "commence": "2026-09-14 00:20:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "George Kittle",
+      "position": "TE",
+      "team": "SF",
+      "market": "REC",
+      "side": "Over",
+      "line": 45.5,
+      "price": -100,
+      "book": "Underdog",
+      "game": "SEA @ SF",
+      "commence": "2026-09-14 00:20:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "George Kittle",
+      "position": "TE",
+      "team": "SF",
+      "market": "REC",
+      "side": "Over",
+      "line": 45.5,
+      "price": -105,
+      "book": "Consensus",
+      "game": "SEA @ SF",
+      "commence": "2026-09-14 00:20:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "George Kittle",
+      "position": "TE",
+      "team": "SF",
+      "market": "TD",
+      "side": "George Kittle",
+      "line": null,
+      "price": 210,
+      "book": "DraftKings",
+      "game": "SEA @ SF",
+      "commence": "2026-09-14 00:20:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "George Kittle",
+      "position": "TE",
+      "team": "SF",
+      "market": "TD",
+      "side": "George Kittle",
+      "line": null,
+      "price": 215,
+      "book": "Underdog",
+      "game": "SEA @ SF",
+      "commence": "2026-09-14 00:20:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Amon-Ra St. Brown",
+      "position": "WR",
+      "team": "DET",
+      "market": "REC",
+      "side": "Over",
+      "line": 75.5,
+      "price": -110,
+      "book": "DraftKings",
+      "game": "DET @ GB",
+      "commence": "2026-09-15 00:15:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Amon-Ra St. Brown",
+      "position": "WR",
+      "team": "DET",
+      "market": "REC",
+      "side": "Over",
+      "line": 75.5,
+      "price": -108,
+      "book": "Underdog",
+      "game": "DET @ GB",
+      "commence": "2026-09-15 00:15:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Amon-Ra St. Brown",
+      "position": "WR",
+      "team": "DET",
+      "market": "REC",
+      "side": "Over",
+      "line": 75.5,
+      "price": -115,
+      "book": "Consensus",
+      "game": "DET @ GB",
+      "commence": "2026-09-15 00:15:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Jahmyr Gibbs",
+      "position": "RB",
+      "team": "DET",
+      "market": "RUSH",
+      "side": "Over",
+      "line": 70.5,
+      "price": -105,
+      "book": "DraftKings",
+      "game": "DET @ GB",
+      "commence": "2026-09-15 00:15:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Jahmyr Gibbs",
+      "position": "RB",
+      "team": "DET",
+      "market": "RUSH",
+      "side": "Over",
+      "line": 70.5,
+      "price": -102,
+      "book": "Underdog",
+      "game": "DET @ GB",
+      "commence": "2026-09-15 00:15:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Jahmyr Gibbs",
+      "position": "RB",
+      "team": "DET",
+      "market": "RUSH",
+      "side": "Over",
+      "line": 70.5,
+      "price": -110,
+      "book": "Consensus",
+      "game": "DET @ GB",
+      "commence": "2026-09-15 00:15:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Jahmyr Gibbs",
+      "position": "RB",
+      "team": "DET",
+      "market": "TD",
+      "side": "Jahmyr Gibbs",
+      "line": null,
+      "price": 145,
+      "book": "DraftKings",
+      "game": "DET @ GB",
+      "commence": "2026-09-15 00:15:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Jahmyr Gibbs",
+      "position": "RB",
+      "team": "DET",
+      "market": "TD",
+      "side": "Jahmyr Gibbs",
+      "line": null,
+      "price": 150,
+      "book": "Underdog",
+      "game": "DET @ GB",
+      "commence": "2026-09-15 00:15:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Amon-Ra St. Brown",
+      "position": "WR",
+      "team": "DET",
+      "market": "TD",
+      "side": "Amon-Ra St. Brown",
+      "line": null,
+      "price": 180,
+      "book": "DraftKings",
+      "game": "DET @ GB",
+      "commence": "2026-09-15 00:15:00",
+      "updated": "2026-09-10 07:35:00"
+     },
+     {
+      "player": "Amon-Ra St. Brown",
+      "position": "WR",
+      "team": "DET",
+      "market": "TD",
+      "side": "Amon-Ra St. Brown",
+      "line": null,
+      "price": 185,
+      "book": "Underdog",
+      "game": "DET @ GB",
+      "commence": "2026-09-15 00:15:00",
+      "updated": "2026-09-10 07:35:00"
+     }
+    ]
+   },
+   "fetched": "2026-09-10 07:35"
+  },
+  "props_model": {
+   "data": {
+    "generated": "2026-09-10 07:35",
+    "fetched": "2026-09-10 07:00",
+    "status_fetched": "2026-09-10 07:35",
+    "through": "2025 wk18",
+    "season": 2026,
+    "priced": 14,
+    "players": 8,
+    "not_playing": 1,
+    "no_role": 1,
+    "unmatched": [],
+    "lines": [
+     {
+      "name": "Chase Brown",
+      "key": "chase brown",
+      "market": "RUSH",
+      "line": 65.5,
+      "flag": "q",
+      "injury": "Questionable",
+      "injury_note": "hamstring, probable",
+      "depth": 1,
+      "pos": "RB",
+      "team": "PIT",
+      "mu": 75.0,
+      "p_over": 0.58,
+      "games": 10,
+      "last": "2025 wk18",
+      "opp": "NYJ",
+      "opp_f": 1.05
+     },
+     {
+      "name": "Tee Higgins",
+      "key": "tee higgins",
+      "market": "REC",
+      "line": 55.5,
+      "flag": "out",
+      "injury": null,
+      "injury_note": null,
+      "depth": 1,
+      "pos": "WR",
+      "team": "CIN",
+      "mu": 60.0,
+      "p_over": 0.55,
+      "games": 12,
+      "last": "2025 wk18",
+      "opp": "NYJ",
+      "opp_f": 0.95
+     },
+     {
+      "name": "Tee Higgins",
+      "key": "tee higgins",
+      "market": "RECS",
+      "line": 4.5,
+      "flag": "out",
+      "injury": null,
+      "injury_note": null,
+      "depth": 1,
+      "pos": "WR",
+      "team": "CIN",
+      "mu": 4.6,
+      "p_over": 0.52,
+      "games": 12,
+      "last": "2025 wk18",
+      "opp": "NYJ",
+      "opp_f": 0.95
+     },
+     {
+      "name": "Joe Burrow",
+      "key": "joe burrow",
+      "market": "PASS",
+      "line": 245.5,
+      "flag": null,
+      "injury": null,
+      "injury_note": null,
+      "depth": 1,
+      "pos": "QB",
+      "team": "CIN",
+      "mu": 230.0,
+      "p_over": 0.49,
+      "games": 12,
+      "last": "2025 wk18",
+      "opp": "NYJ",
+      "opp_f": 1.1
+     },
+     {
+      "name": "Brock Purdy",
+      "key": "brock purdy",
+      "market": "PASS",
+      "line": 220.5,
+      "flag": null,
+      "injury": null,
+      "injury_note": null,
+      "depth": 1,
+      "pos": "QB",
+      "team": "SF",
+      "mu": 205.0,
+      "p_over": 0.47,
+      "games": 12,
+      "last": "2025 wk18",
+      "opp": "SEA",
+      "opp_f": 0.98
+     },
+     {
+      "name": "George Kittle",
+      "key": "george kittle",
+      "market": "REC",
+      "line": 45.5,
+      "flag": null,
+      "injury": null,
+      "injury_note": null,
+      "depth": 1,
+      "pos": "TE",
+      "team": "SF",
+      "mu": 50.0,
+      "p_over": 0.5,
+      "games": 12,
+      "last": "2025 wk18",
+      "opp": "SEA",
+      "opp_f": 1.0
+     },
+     {
+      "name": "Amon-Ra St. Brown",
+      "key": "amonra st brown",
+      "market": "REC",
+      "line": 75.5,
+      "flag": null,
+      "injury": null,
+      "injury_note": null,
+      "depth": 1,
+      "pos": "WR",
+      "team": "DET",
+      "mu": 85.0,
+      "p_over": 0.55,
+      "games": 12,
+      "last": "2025 wk18",
+      "opp": "GB",
+      "opp_f": 1.02
+     },
+     {
+      "name": "Jahmyr Gibbs",
+      "key": "jahmyr gibbs",
+      "market": "RUSH",
+      "line": 70.5,
+      "flag": null,
+      "injury": null,
+      "injury_note": null,
+      "depth": 2,
+      "pos": "RB",
+      "team": "DET",
+      "mu": 40.0,
+      "p_over": 0.3,
+      "games": 12,
+      "last": "2025 wk18",
+      "opp": "GB",
+      "opp_f": 0.9
+     },
+     {
+      "name": "Chase Brown",
+      "key": "chase brown",
+      "market": "TD",
+      "line": null,
+      "flag": "q",
+      "injury": "Questionable",
+      "injury_note": "hamstring, probable",
+      "depth": 1,
+      "pos": "RB",
+      "team": "PIT",
+      "mu": null,
+      "p_over": 0.18,
+      "games": 10,
+      "last": "2025 wk18",
+      "opp": "NYJ",
+      "opp_f": 1.05
+     },
+     {
+      "name": "Tee Higgins",
+      "key": "tee higgins",
+      "market": "TD",
+      "line": null,
+      "flag": "out",
+      "injury": null,
+      "injury_note": null,
+      "depth": 1,
+      "pos": "WR",
+      "team": "CIN",
+      "mu": null,
+      "p_over": 0.22,
+      "games": 12,
+      "last": "2025 wk18",
+      "opp": "NYJ",
+      "opp_f": 0.95
+     },
+     {
+      "name": "George Kittle",
+      "key": "george kittle",
+      "market": "TD",
+      "line": null,
+      "flag": null,
+      "injury": null,
+      "injury_note": null,
+      "depth": 1,
+      "pos": "TE",
+      "team": "SF",
+      "mu": null,
+      "p_over": 0.15,
+      "games": 12,
+      "last": "2025 wk18",
+      "opp": "SEA",
+      "opp_f": 1.0
+     },
+     {
+      "name": "Jahmyr Gibbs",
+      "key": "jahmyr gibbs",
+      "market": "TD",
+      "line": null,
+      "flag": null,
+      "injury": null,
+      "injury_note": null,
+      "depth": 2,
+      "pos": "RB",
+      "team": "DET",
+      "mu": null,
+      "p_over": 0.35,
+      "games": 12,
+      "last": "2025 wk18",
+      "opp": "GB",
+      "opp_f": 0.9
+     },
+     {
+      "name": "Amon-Ra St. Brown",
+      "key": "amonra st brown",
+      "market": "TD",
+      "line": null,
+      "flag": null,
+      "injury": null,
+      "injury_note": null,
+      "depth": 1,
+      "pos": "WR",
+      "team": "DET",
+      "mu": null,
+      "p_over": 0.28,
+      "games": 12,
+      "last": "2025 wk18",
+      "opp": "GB",
+      "opp_f": 1.02
+     },
+     {
+      "name": "Ja'Marr Chase",
+      "key": "jamarr chase",
+      "market": "TD",
+      "line": null,
+      "flag": null,
+      "injury": null,
+      "injury_note": null,
+      "depth": 1,
+      "pos": "WR",
+      "team": "CIN",
+      "mu": null,
+      "p_over": null,
+      "games": 0,
+      "last": null,
+      "opp": null,
+      "opp_f": null
+     }
+    ],
+    "logs": {
+     "chase brown": {
+      "g": [
+       [
+        2025,
+        15,
+        "BAL"
+       ],
+       [
+        2025,
+        16,
+        "CLE"
+       ],
+       [
+        2025,
+        17,
+        "ARI"
+       ],
+       [
+        2025,
+        18,
+        "PIT"
+       ]
+      ],
+      "v": {
+       "PASS": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       "RUSH": [
+        54.0,
+        71.0,
+        88.0,
+        62.0
+       ],
+       "REC": [
+        22.0,
+        35.0,
+        18.0,
+        41.0
+       ],
+       "RECS": [
+        3,
+        4,
+        2,
+        5
+       ],
+       "TD": [
+        0,
+        1,
+        0,
+        1
+       ]
+      }
+     },
+     "amon-ra st. brown": {
+      "g": [
+       [
+        2025,
+        15,
+        "DAL"
+       ],
+       [
+        2025,
+        16,
+        "PIT"
+       ],
+       [
+        2025,
+        17,
+        "MIN"
+       ],
+       [
+        2025,
+        18,
+        "CHI"
+       ]
+      ],
+      "v": {
+       "PASS": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       "RUSH": [
+        0.0,
+        6.0,
+        0.0,
+        0.0
+       ],
+       "REC": [
+        91.0,
+        64.0,
+        108.0,
+        77.0
+       ],
+       "RECS": [
+        8,
+        6,
+        9,
+        7
+       ],
+       "TD": [
+        1,
+        0,
+        1,
+        1
+       ]
+      }
+     },
+     "jahmyr gibbs": {
+      "g": [
+       [
+        2025,
+        15,
+        "DAL"
+       ],
+       [
+        2025,
+        16,
+        "PIT"
+       ],
+       [
+        2025,
+        17,
+        "MIN"
+       ],
+       [
+        2025,
+        18,
+        "CHI"
+       ]
+      ],
+      "v": {
+       "PASS": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       "RUSH": [
+        102.0,
+        67.0,
+        131.0,
+        88.0
+       ],
+       "REC": [
+        31.0,
+        44.0,
+        12.0,
+        28.0
+       ],
+       "RECS": [
+        4,
+        5,
+        2,
+        3
+       ],
+       "TD": [
+        1,
+        1,
+        2,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "fetched": "2026-09-10 07:35"
+  },
+  "wrcb": {
+   "data": {
+    "week": 1,
+    "fetched": "2026-09-09 04:30",
+    "source": "RotoBaller WR/CB Matchups",
+    "article": "https://example.com/wrcb-week1",
+    "upgrades": 1,
+    "downgrades": 1,
+    "records": [
+     {
+      "week": 1,
+      "verdict": "upgrade",
+      "wr": "Tee Higgins",
+      "key": "tee higgins",
+      "cb": "Sample CB",
+      "rationale": "Tee Higgins draws a favorable matchup this week against a banged-up secondary.",
+      "source_url": "https://example.com/higgins"
+     },
+     {
+      "week": 1,
+      "verdict": "downgrade",
+      "wr": "Amon-Ra St. Brown",
+      "key": "amonra st brown",
+      "cb": "Other CB",
+      "rationale": "St. Brown faces a shutdown corner who has allowed the fewest yards per route run.",
+      "source_url": "https://example.com/stbrown"
+     }
+    ]
+   },
+   "fetched": "2026-09-09 04:30"
+  },
+  "dfs": {
+   "data": {
+    "source": "Yahoo DFS player export (CSV)",
+    "imported_from": "Yahoo_DF_player_export.csv",
+    "fetched": "2026-09-09 01:23",
+    "cap": 200,
+    "count": 7,
+    "players": [
+     {
+      "id": "1",
+      "pos": "QB",
+      "team": "CIN",
+      "opp": "NYJ",
+      "game": "CIN@NYJ",
+      "kickoff": "1:00PM EDT",
+      "salary": 35,
+      "fppg": 18.5,
+      "status": "",
+      "name": "Joe Burrow",
+      "value": 528.6
+     },
+     {
+      "id": "2",
+      "pos": "QB",
+      "team": "SF",
+      "opp": "SEA",
+      "game": "SEA@SF",
+      "kickoff": "8:20PM EDT",
+      "salary": 33,
+      "fppg": 17.2,
+      "status": "Q",
+      "name": "Brock Purdy",
+      "value": 521.2
+     },
+     {
+      "id": "3",
+      "pos": "RB",
+      "team": "CIN",
+      "opp": "NYJ",
+      "game": "CIN@NYJ",
+      "kickoff": "1:00PM EDT",
+      "salary": 30,
+      "fppg": 16.4,
+      "status": "",
+      "name": "Chase Brown",
+      "value": 546.7
+     },
+     {
+      "id": "4",
+      "pos": "RB",
+      "team": "DET",
+      "opp": "GB",
+      "game": "DET@GB",
+      "kickoff": "8:15PM EDT",
+      "salary": 28,
+      "fppg": 14.1,
+      "status": "",
+      "name": "Jahmyr Gibbs",
+      "value": 503.9
+     },
+     {
+      "id": "5",
+      "pos": "WR",
+      "team": "CIN",
+      "opp": "NYJ",
+      "game": "CIN@NYJ",
+      "kickoff": "1:00PM EDT",
+      "salary": 29,
+      "fppg": 15.8,
+      "status": "O",
+      "name": "Tee Higgins",
+      "value": 545.0
+     },
+     {
+      "id": "6",
+      "pos": "WR",
+      "team": "DET",
+      "opp": "GB",
+      "game": "DET@GB",
+      "kickoff": "8:15PM EDT",
+      "salary": 31,
+      "fppg": 16.9,
+      "status": "",
+      "name": "Amon-Ra St. Brown",
+      "value": 545.2
+     },
+     {
+      "id": "7",
+      "pos": "TE",
+      "team": "SF",
+      "opp": "SEA",
+      "game": "SEA@SF",
+      "kickoff": "8:20PM EDT",
+      "salary": 20,
+      "fppg": 11.3,
+      "status": "",
+      "name": "George Kittle",
+      "value": 565.0
+     }
+    ]
+   },
+   "fetched": "2026-09-09 01:23"
+  },
+  "news": {
+   "data": {
+    "items": [
+     {
+      "id": 1,
+      "created": "2026-09-10 18:57:42",
+      "created_formated": "Thu, Sep 10th 6:57pm UTC",
+      "author": null,
+      "player_id": 1,
+      "team_id": "CIN",
+      "title": "Chase Brown (hamstring) questionable for Week 1",
+      "sport_id": "NFL",
+      "categories": null,
+      "link": "https://example.com/news/1",
+      "desc": "Brown was limited in practice Thursday.",
+      "impact": "Monitor before locking lineups."
+     },
+     {
+      "id": 2,
+      "created": "2026-09-10 17:30:00",
+      "created_formated": "Thu, Sep 10th 5:30pm UTC",
+      "author": null,
+      "player_id": 2,
+      "team_id": "CIN",
+      "title": "Tee Higgins ruled out for Week 1",
+      "sport_id": "NFL",
+      "categories": null,
+      "link": "https://example.com/news/2",
+      "desc": "Higgins will not play.",
+      "impact": "Fade in all formats."
+     },
+     {
+      "id": 3,
+      "created": "2026-09-10 16:00:00",
+      "created_formated": "Thu, Sep 10th 4:00pm UTC",
+      "author": null,
+      "player_id": 3,
+      "team_id": "DET",
+      "title": "Jahmyr Gibbs full participant in practice",
+      "sport_id": "NFL",
+      "categories": null,
+      "link": "https://example.com/news/3",
+      "desc": "Gibbs practiced fully.",
+      "impact": "No concern."
+     },
+     {
+      "id": 4,
+      "created": "2026-09-10 12:00:00",
+      "created_formated": "Thu, Sep 10th 12:00pm UTC",
+      "author": null,
+      "player_id": 4,
+      "team_id": "SF",
+      "title": "Brock Purdy added to injury report as questionable",
+      "sport_id": "NFL",
+      "categories": null,
+      "link": "https://example.com/news/4",
+      "desc": "Purdy is questionable with a shoulder issue.",
+      "impact": "Watch Friday's estimation."
+     },
+     {
+      "id": 5,
+      "created": "bad-timestamp",
+      "created_formated": "unknown",
+      "author": null,
+      "player_id": 5,
+      "team_id": "DET",
+      "title": "Report: minor roster move for Detroit",
+      "sport_id": "NFL",
+      "categories": null,
+      "link": "https://example.com/news/5",
+      "desc": "Unconfirmed report.",
+      "impact": "Low confidence."
+     }
+    ]
+   },
+   "fetched": "2026-09-10 07:35"
+  }
+ }
+}

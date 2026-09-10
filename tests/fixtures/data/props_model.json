@@ -1,0 +1,436 @@
+{
+ "generated": "2026-09-10 07:35",
+ "fetched": "2026-09-10 07:00",
+ "status_fetched": "2026-09-10 07:35",
+ "through": "2025 wk18",
+ "season": 2026,
+ "priced": 14,
+ "players": 8,
+ "not_playing": 1,
+ "no_role": 1,
+ "unmatched": [],
+ "lines": [
+  {
+   "name": "Chase Brown",
+   "key": "chase brown",
+   "market": "RUSH",
+   "line": 65.5,
+   "flag": "q",
+   "injury": "Questionable",
+   "injury_note": "hamstring, probable",
+   "depth": 1,
+   "pos": "RB",
+   "team": "PIT",
+   "mu": 75.0,
+   "p_over": 0.58,
+   "games": 10,
+   "last": "2025 wk18",
+   "opp": "NYJ",
+   "opp_f": 1.05
+  },
+  {
+   "name": "Tee Higgins",
+   "key": "tee higgins",
+   "market": "REC",
+   "line": 55.5,
+   "flag": "out",
+   "injury": null,
+   "injury_note": null,
+   "depth": 1,
+   "pos": "WR",
+   "team": "CIN",
+   "mu": 60.0,
+   "p_over": 0.55,
+   "games": 12,
+   "last": "2025 wk18",
+   "opp": "NYJ",
+   "opp_f": 0.95
+  },
+  {
+   "name": "Tee Higgins",
+   "key": "tee higgins",
+   "market": "RECS",
+   "line": 4.5,
+   "flag": "out",
+   "injury": null,
+   "injury_note": null,
+   "depth": 1,
+   "pos": "WR",
+   "team": "CIN",
+   "mu": 4.6,
+   "p_over": 0.52,
+   "games": 12,
+   "last": "2025 wk18",
+   "opp": "NYJ",
+   "opp_f": 0.95
+  },
+  {
+   "name": "Joe Burrow",
+   "key": "joe burrow",
+   "market": "PASS",
+   "line": 245.5,
+   "flag": null,
+   "injury": null,
+   "injury_note": null,
+   "depth": 1,
+   "pos": "QB",
+   "team": "CIN",
+   "mu": 230.0,
+   "p_over": 0.49,
+   "games": 12,
+   "last": "2025 wk18",
+   "opp": "NYJ",
+   "opp_f": 1.1
+  },
+  {
+   "name": "Brock Purdy",
+   "key": "brock purdy",
+   "market": "PASS",
+   "line": 220.5,
+   "flag": null,
+   "injury": null,
+   "injury_note": null,
+   "depth": 1,
+   "pos": "QB",
+   "team": "SF",
+   "mu": 205.0,
+   "p_over": 0.47,
+   "games": 12,
+   "last": "2025 wk18",
+   "opp": "SEA",
+   "opp_f": 0.98
+  },
+  {
+   "name": "George Kittle",
+   "key": "george kittle",
+   "market": "REC",
+   "line": 45.5,
+   "flag": null,
+   "injury": null,
+   "injury_note": null,
+   "depth": 1,
+   "pos": "TE",
+   "team": "SF",
+   "mu": 50.0,
+   "p_over": 0.5,
+   "games": 12,
+   "last": "2025 wk18",
+   "opp": "SEA",
+   "opp_f": 1.0
+  },
+  {
+   "name": "Amon-Ra St. Brown",
+   "key": "amonra st brown",
+   "market": "REC",
+   "line": 75.5,
+   "flag": null,
+   "injury": null,
+   "injury_note": null,
+   "depth": 1,
+   "pos": "WR",
+   "team": "DET",
+   "mu": 85.0,
+   "p_over": 0.55,
+   "games": 12,
+   "last": "2025 wk18",
+   "opp": "GB",
+   "opp_f": 1.02
+  },
+  {
+   "name": "Jahmyr Gibbs",
+   "key": "jahmyr gibbs",
+   "market": "RUSH",
+   "line": 70.5,
+   "flag": null,
+   "injury": null,
+   "injury_note": null,
+   "depth": 2,
+   "pos": "RB",
+   "team": "DET",
+   "mu": 40.0,
+   "p_over": 0.3,
+   "games": 12,
+   "last": "2025 wk18",
+   "opp": "GB",
+   "opp_f": 0.9
+  },
+  {
+   "name": "Chase Brown",
+   "key": "chase brown",
+   "market": "TD",
+   "line": null,
+   "flag": "q",
+   "injury": "Questionable",
+   "injury_note": "hamstring, probable",
+   "depth": 1,
+   "pos": "RB",
+   "team": "PIT",
+   "mu": null,
+   "p_over": 0.18,
+   "games": 10,
+   "last": "2025 wk18",
+   "opp": "NYJ",
+   "opp_f": 1.05
+  },
+  {
+   "name": "Tee Higgins",
+   "key": "tee higgins",
+   "market": "TD",
+   "line": null,
+   "flag": "out",
+   "injury": null,
+   "injury_note": null,
+   "depth": 1,
+   "pos": "WR",
+   "team": "CIN",
+   "mu": null,
+   "p_over": 0.22,
+   "games": 12,
+   "last": "2025 wk18",
+   "opp": "NYJ",
+   "opp_f": 0.95
+  },
+  {
+   "name": "George Kittle",
+   "key": "george kittle",
+   "market": "TD",
+   "line": null,
+   "flag": null,
+   "injury": null,
+   "injury_note": null,
+   "depth": 1,
+   "pos": "TE",
+   "team": "SF",
+   "mu": null,
+   "p_over": 0.15,
+   "games": 12,
+   "last": "2025 wk18",
+   "opp": "SEA",
+   "opp_f": 1.0
+  },
+  {
+   "name": "Jahmyr Gibbs",
+   "key": "jahmyr gibbs",
+   "market": "TD",
+   "line": null,
+   "flag": null,
+   "injury": null,
+   "injury_note": null,
+   "depth": 2,
+   "pos": "RB",
+   "team": "DET",
+   "mu": null,
+   "p_over": 0.35,
+   "games": 12,
+   "last": "2025 wk18",
+   "opp": "GB",
+   "opp_f": 0.9
+  },
+  {
+   "name": "Amon-Ra St. Brown",
+   "key": "amonra st brown",
+   "market": "TD",
+   "line": null,
+   "flag": null,
+   "injury": null,
+   "injury_note": null,
+   "depth": 1,
+   "pos": "WR",
+   "team": "DET",
+   "mu": null,
+   "p_over": 0.28,
+   "games": 12,
+   "last": "2025 wk18",
+   "opp": "GB",
+   "opp_f": 1.02
+  },
+  {
+   "name": "Ja'Marr Chase",
+   "key": "jamarr chase",
+   "market": "TD",
+   "line": null,
+   "flag": null,
+   "injury": null,
+   "injury_note": null,
+   "depth": 1,
+   "pos": "WR",
+   "team": "CIN",
+   "mu": null,
+   "p_over": null,
+   "games": 0,
+   "last": null,
+   "opp": null,
+   "opp_f": null
+  }
+ ],
+ "logs": {
+  "chase brown": {
+   "g": [
+    [
+     2025,
+     15,
+     "BAL"
+    ],
+    [
+     2025,
+     16,
+     "CLE"
+    ],
+    [
+     2025,
+     17,
+     "ARI"
+    ],
+    [
+     2025,
+     18,
+     "PIT"
+    ]
+   ],
+   "v": {
+    "PASS": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "RUSH": [
+     54.0,
+     71.0,
+     88.0,
+     62.0
+    ],
+    "REC": [
+     22.0,
+     35.0,
+     18.0,
+     41.0
+    ],
+    "RECS": [
+     3,
+     4,
+     2,
+     5
+    ],
+    "TD": [
+     0,
+     1,
+     0,
+     1
+    ]
+   }
+  },
+  "amon-ra st. brown": {
+   "g": [
+    [
+     2025,
+     15,
+     "DAL"
+    ],
+    [
+     2025,
+     16,
+     "PIT"
+    ],
+    [
+     2025,
+     17,
+     "MIN"
+    ],
+    [
+     2025,
+     18,
+     "CHI"
+    ]
+   ],
+   "v": {
+    "PASS": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "RUSH": [
+     0.0,
+     6.0,
+     0.0,
+     0.0
+    ],
+    "REC": [
+     91.0,
+     64.0,
+     108.0,
+     77.0
+    ],
+    "RECS": [
+     8,
+     6,
+     9,
+     7
+    ],
+    "TD": [
+     1,
+     0,
+     1,
+     1
+    ]
+   }
+  },
+  "jahmyr gibbs": {
+   "g": [
+    [
+     2025,
+     15,
+     "DAL"
+    ],
+    [
+     2025,
+     16,
+     "PIT"
+    ],
+    [
+     2025,
+     17,
+     "MIN"
+    ],
+    [
+     2025,
+     18,
+     "CHI"
+    ]
+   ],
+   "v": {
+    "PASS": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "RUSH": [
+     102.0,
+     67.0,
+     131.0,
+     88.0
+    ],
+    "REC": [
+     31.0,
+     44.0,
+     12.0,
+     28.0
+    ],
+    "RECS": [
+     4,
+     5,
+     2,
+     3
+    ],
+    "TD": [
+     1,
+     1,
+     2,
+     0
+    ]
+   }
+  }
+ }
+}

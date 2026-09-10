@@ -1,0 +1,12 @@
+{
+ "week": 1,
+ "fetched": "2026-09-09 04:30",
+ "source": "RotoBaller WR/CB Matchups",
+ "article": "https://example.com/wrcb-week1",
+ "upgrades": 1,
+ "downgrades": 1,
+ "records": [
+  {"week": 1, "verdict": "upgrade", "wr": "Tee Higgins", "key": "tee higgins", "cb": "Sample CB", "rationale": "Tee Higgins draws a favorable matchup this week against a banged-up secondary.", "source_url": "https://example.com/higgins"},
+  {"week": 1, "verdict": "downgrade", "wr": "Amon-Ra St. Brown", "key": "amonra st brown", "cb": "Other CB", "rationale": "St. Brown faces a shutdown corner who has allowed the fewest yards per route run.", "source_url": "https://example.com/stbrown"}
+ ]
+}

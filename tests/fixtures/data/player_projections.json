@@ -1,0 +1,17 @@
+{
+ "generated": "2026-09-10 07:35",
+ "through": "2025 wk18",
+ "season": 2026,
+ "scoring": "half-PPR",
+ "count": 5,
+ "from_lines": 0,
+ "moved": 0,
+ "not_playing": 0,
+ "players": [
+  {"key": "joe burrow", "name": "Joe Burrow", "pos": "QB", "team": "CIN", "moved": null, "opp": "NYJ", "game": "CIN @ NYJ", "kickoff": "2026-09-13 17:00:00", "pts": 19.4, "mu": {"PASS": 245, "RUSH": 15, "TD": 0.3}, "games": 12, "last": "2025 wk18", "src": "model", "flag": null, "injury": null, "depth": 1},
+  {"key": "brock purdy", "name": "Brock Purdy", "pos": "QB", "team": "SF", "moved": null, "opp": "SEA", "game": "SEA @ SF", "kickoff": "2026-09-14 00:20:00", "pts": 18.1, "mu": {"PASS": 220, "RUSH": 10, "TD": 0.25}, "games": 12, "last": "2025 wk18", "src": "model", "flag": "q", "injury": "Questionable", "depth": 1},
+  {"key": "chase brown", "name": "Chase Brown", "pos": "RB", "team": "CIN", "moved": null, "opp": "NYJ", "game": "CIN @ NYJ", "kickoff": "2026-09-13 17:00:00", "pts": 16.2, "mu": {"RUSH": 75, "REC": 20, "TD": 0.4}, "games": 10, "last": "2025 wk18", "src": "model", "flag": "q", "injury": "Questionable", "depth": 1},
+  {"key": "george kittle", "name": "George Kittle", "pos": "TE", "team": "SF", "moved": null, "opp": "SEA", "game": "SEA @ SF", "kickoff": "2026-09-14 00:20:00", "pts": 13.6, "mu": {"REC": 50, "TD": 0.2}, "games": 12, "last": "2025 wk18", "src": "model", "flag": null, "injury": null, "depth": 1},
+  {"key": "amonra st brown", "name": "Amon-Ra St. Brown", "pos": "WR", "team": "DET", "moved": null, "opp": "GB", "game": "DET @ GB", "kickoff": "2026-09-15 00:15:00", "pts": 17.3, "mu": {"REC": 85, "TD": 0.3}, "games": 12, "last": "2025 wk18", "src": "model", "flag": null, "injury": null, "depth": 1}
+ ]
+}
