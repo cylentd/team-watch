@@ -21,6 +21,7 @@ YAHOO_ROSTERS = DWR / "league_rosters.json"
 BP_PROPS = DWR / "bettingpros_props.json"
 SLEEPER_STATUS = DWR / "sleeper_status.json"
 DFS_POOL = DWR / "dfs_pool.json"
+PLAYER_PROJ = DWR / "player_projections.json"
 
 # A depth-chart slot at or past this number, for the player's position, reads as "the backup."
 # Mirrors ff-jarvis's model.clients.sleeper.BACKUP_DEPTH.
@@ -248,6 +249,29 @@ def load_model_raw():
     # Third choice: the copy kept beside the feed. The ff-jarvis checkout can sit on another branch
     # (two sessions share it), and the refresh then rewrites the feed without the model block.
     for path in (DWR / "props_model.json", REPO / "data" / "props_model.json"):
+        if path.exists():
+            try:
+                return json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+    return None
+
+
+def load_player_proj():
+    """Half-PPR points for every player from ff-jarvis's `model.market.projections`, feed block
+    first (`projections`), then the file, same two-tier pattern as the other live reads. A feed
+    written before that step existed has no block, and an ff-jarvis checkout on another branch
+    may have no file: then nothing is modelled and every DFS row falls back to Yahoo's FPPG,
+    which the header says out loud."""
+    feed = REPO / "data" / "feed.json"
+    try:
+        d = json.loads(feed.read_text(encoding="utf-8"))
+        block = (d.get("projections") or {}).get("data")
+        if block and block.get("players"):
+            return block
+    except (OSError, json.JSONDecodeError):
+        pass
+    for path in (PLAYER_PROJ, REPO / "data" / "player_projections.json"):
         if path.exists():
             try:
                 return json.loads(path.read_text(encoding="utf-8"))
@@ -579,29 +603,21 @@ def live_yahoo(available):
             "updated": d["updated"], "roster": out}
 
 
-# Yahoo DFS scoring: half-PPR, 25 passing yards per point, 4 per passing TD, -1 per pick,
-# 10 rushing/receiving yards per point, 6 per rushing/receiving TD. Passing TDs and picks are
-# not markets in the feed, so a QB gets league-rate proxies off his passing yards (one TD per
-# ~150, one pick per ~300); everything else is the model's own rate for that market.
-YAHOO_PTS = {"PASS": 0.04, "RUSH": 0.1, "REC": 0.1, "RECS": 0.5}
+def model_points():
+    """slug -> (points, source) for every player ff-jarvis projects this week.
 
-def model_points(model):
-    """slug -> the prop model's fantasy points on Yahoo scoring, from its per-market rates (the
-    opponent-adjusted `mu` on each priced line; one rate per market, whichever line carried it).
-    Only players the books post lines for are priced, i.e. starters and the odd committee back --
-    the deep bench and every K/DST fall through to Yahoo's own number, rescaled (see below)."""
-    rates = {}
-    for r in (model or {}).get("lines", []):
-        if r.get("mu") is None:
-            continue
-        rates.setdefault(slugify(r["name"]), {})[r["market"]] = r["mu"]
-    out = {}
-    for slug, m in rates.items():
-        pts = sum(YAHOO_PTS[k] * v for k, v in m.items() if k in YAHOO_PTS) + 6 * m.get("TD", 0)
-        if "PASS" in m:
-            pts += 4 * m["PASS"] / 150 - m["PASS"] / 300
-        out[slug] = round(pts, 1)
-    return out
+    The arithmetic used to live here, over the priced prop lines only. It moved into ff-jarvis
+    (`model.market.projections`), which runs the same half-PPR conversion over every player the
+    model has rates for -- 580 rather than the 200 a book happened to post a line for -- and
+    prices a player with no game log off the book's own line instead of leaving him blank. One
+    number now serves DFS, the roster board and the trend series, and it is computed once.
+
+    `source` is "model" (his own game log) or "line" (the market's read on a player with no log).
+    Anyone still missing -- the deep bench, every K and DST -- falls back to Yahoo's FPPG below.
+    """
+    d = load_player_proj()
+    return {slugify(p["name"]): (p["pts"], p["src"]) for p in (d or {}).get("players", [])
+            if p.get("pts") is not None}
 
 def load_dfs_pool():
     """Yahoo's own contest salary export, imported into ff-jarvis by `python -m model.clients.dfs
@@ -638,18 +654,19 @@ def live_dfs_yahoo(available):
     if not pool or not pool.get("players"):
         return None
     status = load_status()
-    # The projection the optimizer builds on is the prop model's, not Yahoo's FPPG (last
-    # season's average, which knows nothing about this week). Yahoo's number is the fallback
-    # for the players the model does not price, rescaled per position by the median ratio of
+    # The projection the optimizer builds on is ff-jarvis's, not Yahoo's FPPG (last season's
+    # average, which knows nothing about this week or what team he plays for now). Yahoo's
+    # number is the fallback for whoever is left after the model and the book's own line have
+    # both had a go -- the deep bench, every K and DST -- rescaled per position by the median
     # model points to FPPG among the players it does -- the model shrinks toward the position
     # mean and sits below a raw average for stars, so an unscaled fallback would let a bench
     # QB's stale 15.1 outrank a priced starter on a different scale.
-    mp = model_points(load_model_raw())
+    mp = model_points()
     ratios = {}
     for r in pool["players"]:
         m = mp.get(slugify(r["name"]))
-        if m is not None and r["fppg"]:
-            ratios.setdefault(r["pos"], []).append(m / r["fppg"])
+        if m is not None and m[0] and r["fppg"]:
+            ratios.setdefault(r["pos"], []).append(m[0] / r["fppg"])
     scale = {pos: sorted(v)[len(v) // 2] for pos, v in ratios.items() if len(v) >= 5}
     players = []
     for r in pool["players"]:
@@ -668,7 +685,7 @@ def live_dfs_yahoo(available):
         pos = "DST" if r["pos"] == "DEF" else r["pos"]
         m = mp.get(slug)
         if m is not None:
-            proj, src = m, "model"
+            proj, src = round(m[0], 1), m[1]
         else:
             proj, src = round(r["fppg"] * scale.get(r["pos"], 1.0), 1), "yahoo"
         players.append({
@@ -679,10 +696,10 @@ def live_dfs_yahoo(available):
     if not players:
         return None
     players.sort(key=lambda p: -p["sal"])
-    modeled = sum(1 for p in players if p["src"] == "model")
     return {
         "fetched": pool.get("fetched"),
-        "modeled": modeled,
+        "modeled": sum(1 for p in players if p["src"] == "model"),
+        "lined": sum(1 for p in players if p["src"] == "line"),
         "scale": {k: round(v, 2) for k, v in scale.items()},
         "source": pool.get("source", "ff-jarvis dfs_pool.json"),
         "players": players,

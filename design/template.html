@@ -2099,7 +2099,8 @@ function dfsPoolRow(p, i, cap, valueLeaders, handcuffs, poolIndex, activeEligibl
   const status = INJ[p.status] || (p.status ? p.status : null);
   const handcuffFor = handcuffs.get(p.n);
   const tags = (status ? ` <span class="tag ${status==="Q"?"q":"o"}">${esc(status)}</span>` : "")
-    + (p.src === "yahoo" ? ` <span class="tag t-bk" title="The prop model prices no line for him this week, so this is Yahoo's FPPG (last season's average) rescaled to the model's ${esc(p.pos)} level. A guess at the model's scale, not a model read.">Y</span>` : "")
+    + (p.src === "yahoo" ? ` <span class="tag t-bk" title="The model has no rate for him and no book posts a line, so this is Yahoo's FPPG (last season's average) rescaled to the model's ${esc(p.pos)} level. A guess at the model's scale, not a model read.">Y</span>` : "")
+    + (p.src === "line" ? ` <span class="tag t-bk" title="No game log to project from — a rookie, or a player who missed last season. This is the book's own line for him this week read as a role: yards over the league's yards per carry is a carry count, receptions over the catch rate a target count. The market's read, not ours.">LINE</span>` : "")
     + (valueLeaders.has(p.n) ? ` <span class="tag t-cbup" title="Highest points per $1,000 at ${esc(p.pos)} in this pool">BEST VALUE</span>` : "")
     + (handcuffFor ? ` <span class="tag t-role" title="${esc(handcuffFor)} (the ${esc(p.pos)} starter) is OUT/IR — cheapest teammate left at ${esc(p.pos)}, first in line for the workload">HANDCUFF</span>` : "");
   // activeEligible: null when no lineup slot is being filled (a tap auto-picks the first open
@@ -2130,7 +2131,9 @@ function marketHead(kind){
           + (LIVE_MARKET && LIVE_MARKET.model ? ` · model through ${esc(LIVE_MARKET.model.through)}` : "") + `${LIVE_MARKET ? "" : " · SAMPLE"}`
         : `${site.pool.length} players · $${site.cap.toLocaleString()} cap · salaries as posted${site.key==="yahoo" && !LIVE_YAHOO_DFS ? " · SAMPLE" : ""}`
           + (site.key === "yahoo" && LIVE_YAHOO_DFS && typeof LIVE_YAHOO_DFS.modeled === "number"
-              ? ` · projections: the prop model for ${LIVE_YAHOO_DFS.modeled}, Yahoo's FPPG rescaled for the rest (Y)` : "")}</div>
+              ? ` · projections: the model for ${LIVE_YAHOO_DFS.modeled}`
+                + (LIVE_YAHOO_DFS.lined ? `, the book's line for ${LIVE_YAHOO_DFS.lined} with no game log (LINE)` : "")
+                + `, Yahoo's FPPG rescaled for the rest (Y)` : "")}</div>
     </div>
     <span class="pill ${when?"":"warn"}">${when ? `Fetched ${esc(when)}`
       : (kind === "props" ? "No props pulled yet" : "No salary export loaded")}</span>
@@ -2157,7 +2160,7 @@ function explainHTML(kind){
         <li>Swipe the lineups below, tap <b>Load into my lineup</b> to start from one.</li>
         <li>Fill or swap slots from the pool underneath.</li>
       </ol>
-      <p class="ex-note"><b>PROJ</b> is the prop model's fantasy points on Yahoo scoring — its yards, receptions and touchdown rates for this week's lines, half-PPR. A player the books post no line for (the deep bench, K, DST) wears a <b>Y</b>: Yahoo's last-season average, rescaled to the model's level at his position, a placeholder rather than a read. No site publishes real ownership before lock — PROJ OWN is a rank-based estimate, same idea any pre-lock ownership projection tool uses.</p>`}
+      <p class="ex-note"><b>PROJ</b> is the model's fantasy points on Yahoo scoring — its yards, receptions and touchdown rates for this week, half-PPR, for every player it has a rate for and not only the ones a book prices. A player with no game log at all (a rookie) wears a <b>LINE</b>: his own line this week, read as a role. Whoever is left — the deep bench, K, DST — wears a <b>Y</b>: Yahoo's last-season average, rescaled to the model's level at his position, a placeholder rather than a read. No site publishes real ownership before lock — PROJ OWN is a rank-based estimate, same idea any pre-lock ownership projection tool uses.</p>`}
     </div>
   </details>`;
 }

@@ -10,7 +10,7 @@ Live: deployed on Vercel from `index.html`.
 | 01 | My teams | roster board with trend sparkline, position rank, news badge; player drawer; waiver swap cards; the players who start for **both** teams |
 | 02 | The pool | every player who logged a snap, on a usage-against-luck scatter — role growing, points lagging, and the four quadrants that follow |
 | 03 | Parlay | a gallery of the model's best precomputed slips, one card per kickoff window (never two calendar days in one card) crossed with yards/TDs/mix, plus a cart-style custom builder |
-| 04 | DFS | precomputed lineups per strategy (greedy vs. non-chalk) in a swipeable rail, plus a cart-style custom lineup against a salary cap — Yahoo (live) or DraftKings (sample). Projections are the prop model's points on Yahoo scoring; Yahoo's FPPG, rescaled per position, only fills in players the model does not price (tagged Y) |
+| 04 | DFS | precomputed lineups per strategy (greedy vs. non-chalk) in a swipeable rail, plus a cart-style custom lineup against a salary cap — Yahoo (live) or DraftKings (sample). Projections come from ff-jarvis's `model.market.projections` — half-PPR points for every player it has a rate for. A rookie with no game log is priced off his own line this week (tagged LINE); Yahoo's FPPG, rescaled per position, fills in whoever is left (tagged Y) |
 
 Rosters and team names are pulled live from the `ff-jarvis` repo. Trend, rank, news, pool and
 builder content are sample data, replaced later by the `team-watch` skill. See
