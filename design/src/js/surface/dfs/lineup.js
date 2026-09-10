@@ -19,7 +19,7 @@ function dfsHTML(){
     ${DFS.map((d,i) => d.n ? `
       <div class="lslot ${ACTIVE_SLOT===i?"active":""}" data-slot="${i}" role="button" tabindex="0">
         <span class="slottag">${esc(d.slot)}</span>
-        ${HEADS[d.slug] ? `<img src="${HEADS[d.slug]}" alt="">` : `<div class="fallback">${esc(d.abbr || initials(d.n))}</div>`}
+        ${avatarHTML(d, d.abbr || initials(d.n))}
         <div style="min-width:0">
           <div class="sn">${esc(d.n)}</div>
           <div class="sm">${t("dfs.lineup.proj", {v: d.proj.toFixed(1)})}${typeof d.own === "number" ? ` · ${t("dfs.lineup.own", {n: d.own})}` : ""}</div>
@@ -51,7 +51,7 @@ function lineupCard(l, i, cap){
     ${l.players.map(d => `
       <div class="lslot" style="padding:8px 15px">
         <span class="slottag">${esc(d.slot)}</span>
-        ${HEADS[d.slug] ? `<img src="${HEADS[d.slug]}" alt="">` : `<div class="fallback">${esc(d.abbr || initials(d.n))}</div>`}
+        ${avatarHTML(d, d.abbr || initials(d.n))}
         <div style="min-width:0"><div class="sn">${esc(d.n)}</div>
           <div class="sm">${esc(d.pos)} · ${esc(d.team)} · ${t("dfs.lineup.proj", {v: d.proj.toFixed(1)})}</div></div>
         <div class="lsal">$${d.sal.toLocaleString()}</div>

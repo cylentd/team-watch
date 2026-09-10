@@ -44,4 +44,5 @@
 .leaguecap{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:8px;letter-spacing:.08em}
 .dr-foot{padding:16px 22px;border-top:1px solid var(--line);background:var(--panel-2);display:flex;gap:10px}
 .dr-foot .btn{flex:1;text-align:center}
-
+/* The one red note a player can carry into his drawer (an injury line from the roster source). */
+.dr-note{margin-top:14px;padding:10px 12px;border:1px solid rgb(var(--down-rgb) / .3);background:rgb(var(--down-rgb) / .06);font-size:12px;color:var(--ink-2);line-height:1.5}

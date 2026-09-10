@@ -79,7 +79,7 @@ function wireHTML(){
     <div class="side-${kind==="out"?"o":"i"}">
       <div class="lbl">${kind==="out"?t("teams.wire.drop"):t("teams.wire.add")}</div>
       <div class="side-h" style="margin-top:10px">
-        ${HEADS[p.slug] ? `<img src="${HEADS[p.slug]}" alt="">` : `<div class="fallback">${esc(initials(p.n))}</div>`}
+        ${avatarHTML(p)}
         <div><div class="side-n">${esc(p.n)}</div><div class="side-m">${esc(p.m)}</div></div>
       </div>
       <div class="side-stats">

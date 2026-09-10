@@ -1,3 +1,9 @@
+/* Headshot or initials, the fragment every card starts with. `label` overrides the initials
+   (a lineup slot shows the position abbreviation instead). headHTML below is the roster-board
+   variant: it knows about DST and lazy-loads, so the two stay separate on purpose. */
+function avatarHTML(p, label){
+  return HEADS[p.slug] ? `<img src="${HEADS[p.slug]}" alt="">` : `<div class="fallback">${esc(label || initials(p.n))}</div>`;
+}
 function headHTML(p, cls){
   if (p.pos === "DST") return `<div class="dst">${esc(p.team)}</div>`;
   const src = HEADS[p.slug];

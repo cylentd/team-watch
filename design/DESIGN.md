@@ -117,11 +117,22 @@ JetBrains Mono (all numerals).
   without a triple is an error too.
 - `font-family-literal` — a `font-family` value that isn't a `var()`.
 - `breakpoint` — a `@media` width outside the three the page uses (960/760/430).
+- `inline-colour-in-js` — a colour literal inside a `style=""` in the JS or the shell. Styling
+  belongs in a class; the JS names the class.
+- `duplicate-selector` — the same selector defined in two non-responsive parts. Either the
+  override is deliberate and `src/css/_overrides.txt` says so, or the rule lives in one part.
 
 Every colour token in `base/tokens.css` carries a channel triple next to it, e.g.
 `--lime:#c8ff2e; --lime-rgb:200 255 46;`. `rgba()` needs bare channels, so a translucent lime
 is `rgb(var(--lime-rgb) / .4)`, never `rgba(200,255,46,.4)`. A new colour means a new token plus
 its triple in `base/tokens.css` — never a literal dropped into a component file.
+
+**Spacing is px-literal, on purpose (decided 2026-09-10).** A spacing scale was considered and
+rejected on the numbers: 397 px literals across 375 spacing declarations, and every integer from
+1 to 16 is in regular use (14px appears 38 times, 7px 21, 9px 24, 11px 18). No 4px or 8px scale
+covers more than 40% of them; moving the rest onto a scale is a visual redesign of a dense data
+console, not a refactor. If a scale is ever wanted it is its own project with its own golden
+diff. Colour, type and motion are tokens; spacing is not.
 
 ## States already styled
 

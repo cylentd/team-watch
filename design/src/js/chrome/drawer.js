@@ -31,7 +31,7 @@ function openDrawer(teamKey, i){
           <div class="lbl">${esc(p.pos)} · ${esc(p.team)} · ${esc(TEAMS[teamKey].plat)} ${esc(p.slot)}</div>
         </div>
       </div>
-      ${p.note ? `<div style="margin-top:14px;padding:10px 12px;border:1px solid rgba(255,90,82,.3);background:rgba(255,90,82,.06);font-size:12px;color:var(--ink-2);line-height:1.5">${esc(p.note)}</div>` : ""}
+      ${p.note ? `<div class="dr-note">${esc(p.note)}</div>` : ""}
     </div>
     <div class="dr-body">
       <div class="dr-sec">
@@ -80,7 +80,7 @@ function openPoolDrawer(i){
     <div class="dr-head">
       <button class="dr-close" aria-label="${t("common.action.close")}">✕</button>
       <div class="dr-id">
-        ${HEADS[r.slug] ? `<img src="${HEADS[r.slug]}" alt="">` : `<div class="fallback">${esc(initials(r.n))}</div>`}
+        ${avatarHTML(r)}
         <div>
           <h3>${esc(r.n)}</h3>
           <div class="lbl">${esc(r.pos)} · ${esc(r.team)} · ${t("drawer.pool.rostered", {n: r.own})}</div>

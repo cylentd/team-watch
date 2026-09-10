@@ -36,8 +36,8 @@ LEVEL = {
     "rgba-token-triple": "error",      # backlog cleared: every rgba() spelling a token is now rgb(var(--x-rgb) / a)
     "font-family-literal": "error",    # backlog cleared: surface/pool/pool.css literals are now var(--mono/--ui/--disp)
     "breakpoint": "error",
-    "inline-colour-in-js": "warn",     # backlog: four style="" sites; not part of the token step
-    "duplicate-selector": "warn",      # backlog: the cut inherited them; acknowledged one part at a time
+    "inline-colour-in-js": "error",
+    "duplicate-selector": "error",     # zero today; a new one names itself in src/css/_overrides.txt or splits
     "token-triple-agrees": "error",    # a drifted or missing triple is a build-breaking typo, not a style choice
 }
 
