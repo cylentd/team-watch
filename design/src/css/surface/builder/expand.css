@@ -1,0 +1,15 @@
+/* Everything behind the chevron: model%/edge, every book's price, and the game log -- the
+   primary row stays to who/when/one price, the rest is a tap away. */
+.leg .legx,.udline .legx{grid-column:1/-1;border-top:1px solid var(--line);margin-top:8px;padding-top:12px;
+  display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-start;cursor:default}
+.leg .legx .probwrap,.leg .legx .edgecell{text-align:left}
+.leg .booklines,.udline .booklines{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);line-height:1.6;flex:1;min-width:200px}
+.leg .more,.udline .more{appearance:none;background:none;border:1px solid var(--line);color:var(--ink-3);width:22px;height:22px;
+  border-radius:2px;cursor:pointer;font-size:10px;display:grid;place-items:center;justify-self:end;transition:all .15s var(--ease)}
+.leg .more:hover,.udline .more:hover{color:var(--ink);border-color:var(--line-2)}
+.leg .more[aria-expanded="true"],.udline .more[aria-expanded="true"]{color:var(--lime);border-color:var(--lime)}
+.leg .gl,.udline .gl{width:100%;border-top:1px solid var(--line);padding-top:10px;margin-top:2px}
+.leg .gl svg,.udline .gl svg{width:100%;height:72px;display:block}
+.leg .gl .glcap,.udline .gl .glcap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:6px;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--ink-3);text-transform:uppercase}
+.leg .gl .glcap b,.udline .gl .glcap b{color:var(--ink)}

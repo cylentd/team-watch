@@ -1,0 +1,41 @@
+# CSS concatenation order. The assembler joins these files, in this order, into <style>.
+# Cascade order is load-bearing: later files win ties on specificity. Move a line only with
+# design/verify_render.py green on both sides.
+#
+# pin: responsive/* stay last. The 760px block enables .slotm and .pill .abbr; the two rules
+#      in responsive/430.css that hide them sit AFTER it and win on specificity (0,2,0 vs
+#      0,1,0), not on order. Reordering breaks the phone nav silently.
+# pin: chrome/feed.css is followed by surface/dfs/lineup.css because the template kept the DFS
+#      lineup grid under the FEED STATUS banner. Relocating it is a separate, rendered-diff change.
+base/tokens.css
+base/base.css
+chrome/topbar.css
+chrome/teamswitch.css
+chrome/hero.css
+surface/news/ticker.css
+component/rule.css
+surface/teams/roster.css
+surface/teams/wire.css
+component/empty.css
+chrome/drawer.css
+chrome/footer.css
+chrome/nav.css
+surface/pool/pool.css
+surface/builder/modes.css
+surface/builder/legs.css
+surface/builder/expand.css
+surface/builder/underdog-list.css
+surface/builder/strategy.css
+surface/builder/side.css
+surface/builder/ticket.css
+surface/builder/slip.css
+surface/builder/ud-row.css
+surface/builder/payout.css
+surface/builder/explain.css
+surface/dfs/table.css
+chrome/feed.css
+surface/dfs/lineup.css
+responsive/960.css
+responsive/760.css
+responsive/430.css
+responsive/motion.css

@@ -1,0 +1,36 @@
+.build{display:grid;grid-template-columns:minmax(0,1fr) 356px;gap:16px;margin-top:16px;align-items:start}
+.build > .side{order:2}
+.legs{display:flex;flex-direction:column;gap:10px}
+.leg{
+  display:grid;grid-template-columns:40px minmax(0,1fr) auto 22px;gap:14px;align-items:center;
+  border:1px solid var(--line);background:var(--panel);padding:12px 14px;cursor:pointer;
+  transition:border-color .2s var(--ease),background .2s var(--ease);
+}
+.leg:hover{border-color:var(--line-2);background:var(--panel-2)}
+.leg:active{transform:scale(.995)}
+.leg img,.leg .fallback{width:40px;height:40px;border-radius:99px;object-fit:cover;border:1px solid var(--line-2);background:var(--panel-3)}
+.leg .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--ink-3)}
+.leg .prop{font-size:14.5px;font-weight:600;letter-spacing:-.01em}
+.leg .book{font-family:var(--mono);font-size:12.5px;color:var(--ink-2);margin-top:5px;letter-spacing:.02em;line-height:1.4}
+.leg .o{font-family:var(--mono);font-size:13.5px;font-weight:700;white-space:nowrap;
+  padding:7px 11px;border:1px solid var(--line-2);border-radius:3px;background:var(--panel-2);
+  text-align:center;letter-spacing:.01em}
+.probwrap{font-family:var(--mono);text-align:right}
+.probwrap b{font-size:15px;font-weight:700}
+.probwrap span{display:block;font-size:11px;color:var(--ink-3);letter-spacing:.14em;margin-top:3px}
+.edgecell{text-align:right;font-family:var(--mono)}
+.edgecell b{font-size:16px;font-weight:700}
+.edgecell b.pos{color:var(--lime)} .edgecell b.neg{color:var(--down)}
+.edgecell .ebar{height:4px;background:var(--line);margin-top:7px;position:relative;overflow:hidden}
+.edgecell .ebar i{position:absolute;top:0;bottom:0;left:50%;background:var(--lime)}
+.edgecell .ebar i.neg{background:var(--down)}
+.edgecell.pending b{color:var(--ink-3);font-weight:400}
+.edgecell.pending span{display:block;font-size:11px;color:var(--ink-3);letter-spacing:.14em;margin-top:3px}
+.leg.isout{opacity:.55}
+.leg .tag{vertical-align:middle;margin-left:4px}
+.tag.t-q{color:var(--amber);border:1px solid rgba(255,176,32,.4);background:rgba(255,176,32,.08)}
+.tag.t-bk{color:var(--ink-3);border:1px solid var(--line-2)}
+.tag.t-out{color:var(--down);border:1px solid rgba(255,90,82,.4)}
+.tag.t-role{color:var(--amber);border:1px dashed rgba(255,176,32,.5);cursor:help}
+.tag.t-cbup{color:var(--up);border:1px solid rgba(55,224,139,.4);cursor:help}
+.tag.t-cbdn{color:var(--down);border:1px solid rgba(255,90,82,.4);cursor:help}

@@ -1,0 +1,7 @@
+/* ============================== SECTION RULE ============================== */
+.rule{display:flex;align-items:center;gap:14px;margin:38px 0 0}
+.rule h2{font-family:var(--disp);font-weight:800;font-size:15px;letter-spacing:.02em;text-transform:uppercase;margin:0;white-space:nowrap}
+.rule .count{font-family:var(--mono);font-size:11px;color:var(--ink-3);letter-spacing:.14em}
+.rule .hair{flex:1;height:1px;background:linear-gradient(90deg,var(--line-2),transparent)}
+.rule .side{font-family:var(--mono);font-size:11px;color:var(--ink-3);letter-spacing:.14em}
+

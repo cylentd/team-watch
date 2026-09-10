@@ -1,0 +1,60 @@
+/* ============================== THE POOL ============================== */
+.quadwrap{border:1px solid var(--line);background:var(--panel);margin-top:14px}
+.quadhead{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.quadscroll{overflow-x:auto}
+.quad{display:block;min-width:700px;width:100%;height:412px}
+.quad .axis-line{stroke:var(--line-2);stroke-width:1}
+.quad .qgrid{stroke:var(--line);stroke-width:1;stroke-dasharray:2 5}
+.quad .qname{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.18em;fill:var(--ink-3)}
+.quad .qtick{font-family:"JetBrains Mono",monospace;font-size:11px;fill:var(--ink-3)}
+.quad .dot{cursor:pointer;transition:r .18s var(--ease)}
+.quad .dot:hover{r:9}
+.quad .dotlab{font-family:"JetBrains Mono",monospace;font-size:11px;fill:var(--ink-2);pointer-events:none}
+.quadkey{display:flex;gap:16px;flex-wrap:wrap;padding:11px 16px;border-top:1px solid var(--line);background:var(--panel-2)}
+.quadkey span{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--ink-3)}
+.quadkey i{width:8px;height:8px;border-radius:99px;display:block}
+
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:16px}
+.filters .lbl{margin-right:2px}
+.chip{
+  appearance:none;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  padding:6px 11px;border:1px solid var(--line-2);color:var(--ink-2);background:none;cursor:pointer;
+  border-radius:2px;transition:all .18s var(--ease);
+}
+.chip:hover{border-color:var(--ink-3);color:var(--ink)}
+.chip[aria-pressed="true"]{border-color:var(--lime);color:var(--lime);background:rgba(200,255,46,.08)}
+.chip:active{transform:scale(.96)}
+.selwrap{display:inline-flex;align-items:center;gap:8px}
+.msel{
+  appearance:none;-webkit-appearance:none;-moz-appearance:none;
+  font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  padding:6px 26px 6px 11px;border:1px solid var(--line-2);color:var(--ink);background-color:var(--panel-2);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2386859a' stroke-width='1.6' fill='none'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+  border-radius:2px;cursor:pointer;transition:border-color .18s var(--ease);
+}
+.msel:hover{border-color:var(--ink-3)}
+.msel:focus{outline:none;border-color:var(--lime)}
+.msel option{background:var(--panel-2);color:var(--ink)}
+
+.ptable{margin-top:14px;border-top:1px solid var(--line);overflow-x:auto}
+.phead,.prow{
+  display:grid;grid-template-columns:30px 40px minmax(150px,1fr) 66px 70px 60px 56px 96px 62px;
+  gap:12px;align-items:center;padding:9px 12px;border-bottom:1px solid var(--line);min-width:840px;
+}
+.phead{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);background:var(--panel)}
+.prow{cursor:pointer;transition:background .18s var(--ease);opacity:0;animation:rowin .4s var(--ease) forwards}
+.prow:hover{background:var(--panel-2)}
+.prow.mine{box-shadow:inset 2px 0 0 var(--lime)}
+.pnum{font-family:var(--mono);font-size:12.5px;letter-spacing:-.02em}
+.pnum.pos{color:var(--up)} .pnum.neg{color:var(--down)}
+.pname{min-width:0}
+.pname b{display:block;font-weight:500;font-size:13.5px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pname span{font-family:var(--mono);font-size:11px;color:var(--ink-3);letter-spacing:.06em}
+.pool-head{width:40px;height:40px;border-radius:99px;object-fit:cover;border:1px solid var(--line-2);background:var(--panel-3);display:block}
+.vchip{display:block;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;padding:4px 0;border-radius:2px;text-align:center;white-space:nowrap}
+.v-conf{color:var(--up);border:1px solid rgba(55,224,139,.35);background:rgba(55,224,139,.09)}
+.v-sell{color:var(--down);border:1px solid rgba(255,90,82,.35);background:rgba(255,90,82,.09)}
+.v-buy{color:var(--lime);border:1px solid rgba(200,255,46,.35);background:rgba(200,255,46,.08)}
+.v-hold{color:var(--ink-3);border:1px solid var(--line-2)}
+

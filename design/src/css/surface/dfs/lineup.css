@@ -1,0 +1,24 @@
+.dfs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.slotcard{
+  border:1px solid var(--line);background:var(--panel);padding:11px 13px;min-height:76px;
+  display:grid;grid-template-columns:38px minmax(0,1fr);gap:11px;align-items:center;
+  transition:border-color .2s var(--ease);
+}
+.slotcard:hover{border-color:var(--line-2)}
+.slotcard img,.slotcard .fallback{width:38px;height:38px;border-radius:99px;object-fit:cover;border:1px solid var(--line-2);background:var(--panel-3)}
+.slotcard .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--ink-3)}
+.slotcard .sn{font-size:13px;font-weight:500;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slotcard .sm{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:4px;letter-spacing:.06em}
+.slotcard .slotname{position:absolute}
+.slotcard.vacant{
+  grid-template-columns:minmax(0,1fr);text-align:center;border-style:dashed;border-color:var(--line-2);
+  cursor:pointer;color:var(--ink-3);place-items:center;
+}
+.slotcard.vacant:hover{border-color:var(--lime);color:var(--lime)}
+.slottag{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--ink-3);margin-bottom:6px;display:block}
+.salwrap{margin-top:16px;border:1px solid var(--line);background:var(--panel);padding:15px}
+.salbar{height:9px;background:var(--line);margin-top:12px;position:relative;overflow:hidden}
+.salbar i{position:absolute;top:0;bottom:0;left:0;background:var(--lime);width:0;animation:grow 1s var(--ease) .3s forwards}
+.salbar.over i{background:var(--down)}
+.salrow{display:flex;gap:26px;flex-wrap:wrap}
+

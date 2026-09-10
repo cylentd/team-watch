@@ -1,0 +1,16 @@
+/* Equal-width segmented control -- two roughly-equal-length options that read as one choice,
+   not a row of independent chips of whatever width their label happens to need. */
+.strategy{display:flex;border:1px solid var(--line-2);background:var(--panel);margin-top:16px}
+.strat-btn{
+  flex:1;appearance:none;background:none;cursor:pointer;border:0;border-right:1px solid var(--line-2);
+  padding:12px 10px;text-align:center;color:var(--ink-2);transition:all .18s var(--ease);
+}
+.strat-btn:last-child{border-right:0}
+.strat-btn:hover{background:var(--panel-2);color:var(--ink)}
+.strat-btn:active{transform:scale(.98)}
+.strat-btn .st-name{display:block;font-family:var(--disp);font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:.01em}
+.strat-btn .st-sub{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-top:3px}
+.strat-btn[aria-pressed="true"]{background:rgba(200,255,46,.08);color:var(--lime)}
+.strat-btn[aria-pressed="true"] .st-sub{color:var(--lime);opacity:.75}
+.bigedge.pending{color:var(--ink-3);font-size:22px;font-weight:400;letter-spacing:.02em;text-transform:uppercase;padding:8px 0}
+

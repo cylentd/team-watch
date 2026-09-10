@@ -1,0 +1,42 @@
+/* Underdog list, one card per player. The header is who and when, once; each line under it
+   is one call -- direction, the line as the loudest numeral on the page, the stat -- with a
+   meter running the width the old layout left empty and the confidence at the end. Tap a line
+   to put it in the slip. The meter is empty at a coin flip, full at 100%, lime only past the
+   58% floor a slip leg needs. */
+.pcard{border:1px solid var(--line);background:var(--panel);transition:border-color .2s var(--ease)}
+.pcard:hover{border-color:var(--line-2)}
+.pcard.mine{box-shadow:inset 2px 0 0 var(--lime)}
+.pcard.isout{opacity:.55}
+.phead2{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;align-items:center;padding:12px 14px 10px}
+.phead2 img,.phead2 .fallback{width:40px;height:40px;border-radius:99px;object-fit:cover;border:1px solid var(--line-2);background:var(--panel-3)}
+.phead2 .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--ink-3)}
+.phead2 .prop{font-size:15px;font-weight:600;letter-spacing:-.01em;line-height:22px}
+.phead2 .book{font-family:var(--mono);font-size:12px;color:var(--ink-2);margin-top:2px;letter-spacing:.02em}
+.udline{display:grid;grid-template-columns:78px 150px minmax(40px,1fr) 64px 22px;gap:14px;align-items:center;
+  padding:10px 14px;border-top:1px solid var(--line);cursor:pointer;font-family:var(--mono);transition:background .2s var(--ease)}
+.udline:hover{background:var(--panel-2)}
+.udline:active{transform:scale(.995)}
+.udline[aria-pressed="true"]{background:rgba(200,255,46,.06);box-shadow:inset 3px 0 0 var(--lime)}
+.udline .dir{font-size:10.5px;font-weight:700;letter-spacing:.14em;color:var(--ink-3)}
+.udline.higher .dir{color:var(--up)} .udline.lower .dir{color:var(--down)}
+/* The stat column is a fixed width, not auto: each line is its own grid, so an auto column
+   would put every meter's start wherever that line's stat happened to end, and bars that do
+   not start together cannot be compared by length. A line-level pill drops under the stat. */
+.udline .ln{white-space:nowrap;display:grid;grid-template-columns:auto auto;justify-content:start;align-items:baseline;gap:4px 7px;min-width:0}
+.udline .ln b{font-size:24px;font-weight:700;letter-spacing:-.02em;line-height:1;color:var(--ink)}
+.udline .ln small{font-size:10.5px;font-weight:600;letter-spacing:.12em;color:var(--ink-2)}
+.udline .ln .tag{grid-column:1/-1;justify-self:start;margin-left:0;vertical-align:0}
+/* Meter: 50% at the left edge, 100% at the right, a tick at the 58% floor a slip leg needs.
+   The fill's colour is the confidence itself -- amber at the floor, lime at 100% -- and grey
+   below it, so a row reads from the bar's colour and length before the number. */
+.udline .meter{position:relative;height:4px;background:var(--line-2);overflow:visible}
+.udline .meter i{display:block;height:100%;background:var(--lime);transform-origin:left;transition:transform .5s var(--ease),background .5s var(--ease)}
+.udline .meter::after{content:"";position:absolute;left:16%;top:-3px;bottom:-3px;width:1px;background:var(--ink-3);opacity:.7}
+.udline.weak .meter i{background:var(--ink-3)}
+.udline .pct{text-align:right;font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1;color:var(--ink);white-space:nowrap}
+.udline .pct i{font-style:normal;font-size:11px;font-weight:600;color:var(--ink-3)}
+.udline.weak .pct{color:var(--ink-2)}
+.udline .pct.pending{font-size:10.5px;letter-spacing:.14em;color:var(--ink-3)}
+.presets{display:flex;flex-wrap:wrap;gap:6px;padding:10px 15px;border-bottom:1px solid var(--line)}
+.presets .chip{padding:5px 9px;font-size:11px}
+

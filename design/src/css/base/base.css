@@ -1,0 +1,40 @@
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --disp:"Bricolage Grotesque","Archivo",sans-serif;
+  --ui:"Archivo","Segoe UI",sans-serif;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:
+    radial-gradient(1200px 600px at 12% -8%, rgba(200,255,46,.055), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, rgba(139,92,255,.05), transparent 55%),
+    var(--void);
+  color:var(--ink);
+  font-family:var(--ui);
+  font-size:14px;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+/* grain */
+.grain{
+  position:fixed; inset:0; pointer-events:none; z-index:60; opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--void)}
+::-webkit-scrollbar-thumb{background:var(--line-2);border:2px solid var(--void);border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:var(--lime)}
+html{scrollbar-color:var(--line-2) var(--void)}
+
+.wrap{max-width:1180px;margin:0 auto;padding:0 26px}
+.bleed{width:100%}
+
+/* mono label */
+.lbl{
+  font-family:var(--mono); font-size:11px; font-weight:500;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--ink-3);
+}
+

@@ -1,0 +1,45 @@
+# JS concatenation order. The assembler joins these files, in this order, into <script>, after
+# the injected LIVE_* block. Everything is a top-level const/let/function in one scope, so order
+# is load order and the temporal dead zone applies: a file may only reference names declared in
+# files above it, or inside functions that run later.
+#
+# pin: data/* before anything that reads it; builder/slips.js runs buildGallery() at load, which
+#      needs PROPS, WINDOWS, UD_MIN and SLIP_LEGS already declared.
+# pin: chrome/state.js (SURFACE, VIEW) precedes every render function; main.js is last and is
+#      the only file with side effects on the page.
+data/teams.js
+data/hydrate.js
+data/news.js
+lib/escape.js
+ui/player.js
+surface/teams/board.js
+surface/news/news.js
+data/pool.js
+surface/pool/scatter.js
+surface/pool/pool.js
+data/market.js
+lib/odds.js
+builder/slips.js
+data/dfs.js
+builder/state.js
+builder/lineups.js
+surface/parlay/props.js
+surface/parlay/gamelog.js
+surface/dfs/rows.js
+builder/explain.js
+surface/parlay/slip.js
+surface/dfs/lineup.js
+surface/parlay/gallery.js
+surface/dfs/top.js
+surface/parlay/parlay.js
+surface/dfs/dfs.js
+chrome/state.js
+chrome/teamswitch.js
+chrome/hero.js
+ui/scrollers.js
+builder/wire.js
+chrome/render.js
+chrome/feed.js
+chrome/nav.js
+chrome/drawer.js
+main.js

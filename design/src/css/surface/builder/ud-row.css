@@ -1,0 +1,21 @@
+/* Underdog list row, read like a ticket: the name, then the call as the loudest thing on the
+   row -- direction, line, stat, one unit -- then the confidence as a numeral over a meter. The
+   meter is empty at 50% (a coin flip) and full at 100%, and only lights lime past the 58% floor
+   a slip leg needs, so "would the model build on this" is read from the bar before the number. */
+.leg.ud{grid-template-columns:40px minmax(0,1fr) auto auto 22px}
+.leg.ud .prop,.leg.ud .book{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.leg.ud .prop{line-height:22px}   /* tall enough for the pill's border, which the clip would otherwise cut */
+.leg.ud .book{margin-top:2px}
+.leg.ud .prop .tag{white-space:nowrap}
+.udcall{display:grid;gap:2px;justify-items:end;font-family:var(--mono);white-space:nowrap;text-align:right;min-width:64px}
+.udcall .dir{font-size:10.5px;font-weight:700;letter-spacing:.14em;color:var(--ink-3)}
+.udcall.higher .dir{color:var(--up)} .udcall.lower .dir{color:var(--down)}
+.udcall .num{font-size:21px;font-weight:700;letter-spacing:-.02em;line-height:1;color:var(--ink)}
+.udcall .stat{font-size:10px;font-weight:600;letter-spacing:.12em;color:var(--ink-2)}
+.udconf{width:58px;font-family:var(--mono);text-align:right}
+.udconf b{display:block;font-size:23px;font-weight:700;letter-spacing:-.02em;line-height:1;color:var(--ink)}
+.udconf b i{font-style:normal;font-size:11px;font-weight:600;color:var(--ink-3);margin-left:1px}
+.udconf .meter{height:3px;background:var(--line-2);margin-top:7px;overflow:hidden}
+.udconf .meter i{display:block;height:100%;background:var(--lime);transform-origin:left;transition:transform .5s var(--ease)}
+.udconf.weak b{color:var(--ink-2)} .udconf.weak .meter i{background:var(--ink-3)}
+.udconf.pending b{font-size:10.5px;letter-spacing:.14em;color:var(--ink-3);line-height:23px}

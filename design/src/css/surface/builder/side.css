@@ -1,0 +1,19 @@
+/* The right column (slip + model card) sticks as one and scrolls inside itself when taller than
+   the viewport, so the card is never hidden under a sticky slip. */
+.side{position:sticky;top:118px;margin-top:22px;max-height:calc(100vh - 130px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line-2) transparent;padding-right:2px}
+.side::-webkit-scrollbar{width:6px}.side::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:3px}
+.slip{border:1px solid var(--line-2);background:var(--panel)}
+/* Lineup and gallery-slip cards reuse .sliphead/.lslot/.slipleg/.payout but NOT .slip's
+   position:sticky — several sticky siblings stacked in one scroll container fight each other
+   and clip (that was the bug: card 1 pinned mid-scroll while card 4 kept flowing beneath it in
+   the same column). .rail/.railscroll below is a horizontal scroll-snap carousel on mobile
+   (matches the scatter chart's swipe pattern) and a plain wrapping row on desktop. */
+.rail{position:relative}
+.railscroll{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(280px,340px);gap:14px;margin-top:14px;
+  overflow-x:auto;scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
+.railscroll::-webkit-scrollbar{height:6px}
+.railscroll::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:3px}
+.railscroll > *{min-width:0}
+.lineupcard{position:static;border:1px solid var(--line-2);background:var(--panel)}
+.lineupcard.best{border-color:var(--lime);box-shadow:0 0 0 1px var(--lime) inset}
+

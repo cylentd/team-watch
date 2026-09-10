@@ -1,0 +1,17 @@
+.explain{border:1px solid var(--line);background:var(--panel);margin-top:16px}
+.explain > summary{list-style:none;cursor:pointer;display:flex;align-items:center;
+  justify-content:space-between;padding:12px 15px;font-family:var(--mono);
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);
+  transition:color .15s var(--ease)}
+.explain > summary::-webkit-details-marker{display:none}
+.explain > summary::marker{content:""}
+.explain > summary:hover{color:var(--ink)}
+.explain .ex-chev{transition:transform .2s var(--ease)}
+.explain[open] > summary{border-bottom:1px solid var(--line);color:var(--lime)}
+.explain[open] .ex-chev{transform:rotate(180deg)}
+.ex-body{padding:13px 15px}
+.ex-body ol{margin:0;padding-left:18px;font-size:13px;line-height:1.6;color:var(--ink-2)}
+.ex-body li + li{margin-top:8px}
+.ex-body b{color:var(--ink)}
+.ex-note{margin:12px 0 0;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-3);line-height:1.7}
+.ex-note b{color:var(--ink-2)}

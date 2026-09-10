@@ -1,0 +1,29 @@
+/* ============================== TEAM SWITCH (dropdown) ============================== */
+.teamswitch{position:relative;flex-shrink:0;padding:9px 0}
+.ts-btn{
+  position:relative;appearance:none;cursor:pointer;display:flex;align-items:center;gap:9px;
+  background:var(--panel-2);border:1px solid var(--line-2);border-radius:3px;padding:9px 12px;
+  color:var(--ink);font-family:var(--ui);white-space:nowrap;min-width:max-content;
+  transition:border-color .2s var(--ease),background .2s var(--ease);
+}
+.ts-btn:hover{border-color:var(--tint,var(--line-2));background:var(--panel-3)}
+.ts-btn:active{transform:scale(.985)}
+.ts-dot{width:7px;height:7px;border-radius:99px;background:var(--tint,var(--ink-3));flex-shrink:0}
+.ts-team{font-size:13px;font-weight:500;letter-spacing:-.01em;white-space:nowrap}
+.ts-chev{font-size:11px;color:var(--ink-3);margin-left:2px}
+.ts-btn[aria-expanded="true"] .ts-chev{transform:scaleY(-1)}
+.ts-menu{
+  position:absolute;top:calc(100% + 6px);right:0;z-index:20;min-width:220px;
+  background:var(--panel-2);border:1px solid var(--line-2);border-radius:3px;
+  box-shadow:0 12px 28px rgba(0,0,0,.45);overflow:hidden;
+}
+.ts-item{
+  display:block;width:100%;appearance:none;background:none;cursor:pointer;
+  padding:11px 13px;text-align:left;color:var(--ink-2);font-family:var(--ui);font-size:13px;
+  border:0;border-left:3px solid transparent;border-bottom:1px solid var(--line);
+  transition:background .15s var(--ease),color .15s var(--ease),border-color .15s var(--ease);
+}
+.ts-item:last-child{border-bottom:0}
+.ts-item:hover{background:var(--panel-3);color:var(--ink);border-left-color:var(--tint)}
+.ts-item[aria-selected="true"]{color:var(--ink);background:rgba(200,255,46,.06);border-left-color:var(--tint)}
+

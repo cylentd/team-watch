@@ -1,0 +1,37 @@
+/* ============================== TOP BAR ============================== */
+.topbar{
+  position:sticky; top:0; z-index:40;
+  background:var(--void);
+  border-bottom:1px solid var(--line);
+}
+.topbar-in{
+  display:flex; align-items:center; gap:18px; height:58px;
+}
+.brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.brand-mark{
+  width:11px;height:22px;background:var(--lime);
+  box-shadow:0 0 18px rgba(200,255,46,.5);
+  animation:pulse 2.6s var(--ease) infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scaleY(1)}50%{opacity:.55;transform:scaleY(.72)}}
+.brand-name{
+  font-family:var(--disp); font-weight:800; font-size:19px;
+  letter-spacing:-.02em; text-transform:uppercase;
+}
+.brand-name i{color:var(--lime);font-style:normal}
+.topbar-spacer{flex:1}
+.discordlink{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;
+  flex-shrink:0;border:1px solid var(--line-2);border-radius:3px;color:var(--ink-2);
+  transition:color .2s var(--ease),border-color .2s var(--ease),background .2s var(--ease)}
+.discordlink svg{width:16px;height:16px}
+.discordlink:hover{color:#5865f2;border-color:#5865f2;background:rgba(88,101,242,.08)}
+.pill{
+  display:inline-flex;align-items:center;gap:7px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  padding:5px 10px;border:1px solid var(--line-2);color:var(--ink-2);
+  border-radius:2px;white-space:nowrap;
+}
+.pill.warn{border-color:rgba(255,176,32,.35);color:var(--amber);background:rgba(255,176,32,.06)}
+.pill.live{border-color:rgba(200,255,46,.35);color:var(--lime);background:rgba(200,255,46,.06)}
+.dot{width:5px;height:5px;border-radius:99px;background:currentColor}
+

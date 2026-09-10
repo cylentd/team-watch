@@ -1,0 +1,24 @@
+/* ============================================================
+   TEAM WATCH — "Signal Desk"
+   Dark broadcast/terminal console. Committed single look.
+   Colour budget: lime = active/brand, green = up, red = down,
+   amber = caution/stale. Positions are typographic, never coloured.
+   ============================================================ */
+
+:root{
+  --void:#08080a;
+  --panel:#101116;
+  --panel-2:#171922;
+  --panel-3:#1e2029;
+  --line:#23252f;
+  --line-2:#33363f;
+  --ink:#f3f1ea;
+  --ink-2:#9a99a6;
+  --ink-3:#86859a;
+  --lime:#c8ff2e;
+  --up:#37e08b;
+  --down:#ff5a52;
+  --amber:#ffb020;
+  --yahoo:#8b5cff;
+  --espn:#ff2d2d;
+  --ease:cubic-bezier(.16,1,.3,1);

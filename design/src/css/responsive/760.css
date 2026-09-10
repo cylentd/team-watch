@@ -1,0 +1,141 @@
+@media (max-width:760px){
+  .wrap{padding:0 14px}
+  .topbar-in{height:52px;gap:10px}
+  .navbar{top:52px}
+  .brand-name{font-size:16px}
+  #weekpill{display:none}
+  /* The topbar is already tight enough on a phone to hide the week pill entirely -- the Discord
+     icon goes too rather than squeezing the status pills further. It's not lost: the News tab
+     leads with its own "Join the Discord" button. */
+  .discordlink{display:none}
+  .topbar .pill .full{display:none}
+  .topbar .pill .abbr{display:inline}
+
+  .numghost{font-size:150px;left:-14px;top:6px}
+  .hero{padding:30px 0 26px}
+  .hero-meta .pill{font-size:11px;padding:4px 8px}
+  .sig{padding:11px 9px}
+  .sig .lbl{font-size:11px;letter-spacing:.1em}
+  .sig-val{font-size:23px;margin-top:7px}
+  .sig-sub{font-size:11px;letter-spacing:.06em}
+
+  .ts-team{font-size:12px;max-width:150px;overflow:hidden;text-overflow:ellipsis}
+  .ts-btn{padding:7px 9px;min-width:0}
+  .hero-eyebrow{gap:8px}
+  .hero-eyebrow .teamswitch{max-width:100%}
+
+  .colhead{display:none}
+  .board{margin-top:14px}
+  .row{
+    grid-template-columns:44px minmax(0,1fr) auto;
+    grid-template-areas:
+      "head name  news"
+      "head trend rank";
+    gap:7px 11px;padding:11px 8px;
+  }
+  .slot{display:none}
+  .head,.head img,.head .fallback,.head .dst{width:44px;height:44px}
+  .nm-1 b{font-size:14.5px}
+  .nm-2{font-size:11px;gap:6px}
+  .nm-2 .slotm{display:inline;color:var(--lime);font-weight:700}
+  .nm-2 .posx{display:none}
+  .trend{gap:9px}
+  .spark{width:100%;flex:1;height:30px}
+  .delta{font-size:11px}
+  .rk{text-align:right}
+  .rk-1{justify-content:flex-end;gap:5px}
+  .rk-1 b{font-size:16px}
+  .pctbar{display:none}
+
+  .swap-body{grid-template-columns:minmax(0,1fr)}
+  .side-o{border-right:0;border-bottom:1px solid var(--line)}
+  .side-i{border-left:0;box-shadow:inset 3px 0 0 rgba(200,255,46,.55)}
+  .arrowcell{display:none}
+  .states{grid-template-columns:minmax(0,1fr)}
+
+  /* Five tabs' short labels fit a phone width outright (verified against a 362px nav at
+     390px viewport) -- overflow-x/the mask/the scrollbar hiding stay only as a safety net for
+     a narrower phone or a sixth tab later, not the expected path. */
+  .nav{overflow-x:auto;scrollbar-width:none;
+    -webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 22px),transparent);
+    mask-image:linear-gradient(90deg,#000 calc(100% - 22px),transparent);}
+  .nav::-webkit-scrollbar{display:none}
+  .navitem{padding:11px 7px;font-size:11.5px;gap:5px;flex-shrink:0}
+  .navitem .ix{width:15px;height:15px}
+  .navitem .full{display:none}
+  .navitem .abbr{display:inline}
+  .hero h1{font-size:clamp(30px,8.6vw,80px)}
+  .quad{height:320px;min-width:540px}
+  /* The compact (portrait, no per-dot labels) mobile geometry from scatterHTML fits its
+     container at ~1:1, so it needs none of the above -- no forced min-width, no scroll. */
+  .quad.quad-compact{height:440px;min-width:0;width:100%}
+  .quad-compact .dotlab{display:none}
+  .quadhead{padding:12px 13px}
+  .quadscroll{position:relative}
+  .quadscroll::before{
+    content:"";position:absolute;top:0;right:0;bottom:0;width:36px;pointer-events:none;
+    background:linear-gradient(90deg,transparent,var(--panel) 82%);
+  }
+  .quadscroll::after{
+    content:"SWIPE →";position:absolute;right:8px;bottom:8px;z-index:1;
+    font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--lime);
+    background:var(--panel);padding:3px 6px;border:1px solid var(--lime);pointer-events:none;
+  }
+  /* Hidden once there's nothing left to swipe to -- content that already fits, or a scroller
+     already at its end. Toggled by nudgeScrollers() on every render and every scroll event. The
+     hint itself sits still -- a static label plus the one-time scroll-and-back in nudgeScrollers()
+     is what sells "this moves," not a permanent twitch (that read as broken, not as an invitation). */
+  .quadscroll.no-swipe::before,.quadscroll.no-swipe::after,
+  .rail.no-swipe::before,.rail.no-swipe::after{display:none}
+  /* .rail (non-scrolling) holds the fade + hint pinned to the edge; .railscroll (nested) is the
+     actual scroller. Unlike .quadscroll, which puts these pseudo-elements on the scrolling box
+     itself, keeping them on a non-scrolling wrapper means they don't scroll away with content. */
+  .rail{position:relative}
+  .rail::before{
+    content:"";position:absolute;top:14px;right:0;bottom:0;width:36px;pointer-events:none;z-index:1;
+    background:linear-gradient(90deg,transparent,var(--void) 82%);
+  }
+  .rail::after{
+    content:"SWIPE →";position:absolute;right:8px;bottom:8px;z-index:2;
+    font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--lime);
+    background:var(--panel);padding:3px 6px;border:1px solid var(--lime);pointer-events:none;
+  }
+  .railscroll{overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 0 0 14px;
+    grid-auto-columns:86%;scrollbar-width:none}
+  .railscroll::-webkit-scrollbar{display:none}
+  .railscroll > *{scroll-snap-align:start}
+  .build{grid-template-columns:minmax(0,1fr);gap:14px}
+  .build > .side{order:0;margin-top:0}
+  .side{position:static;max-height:none;overflow:visible;padding-right:0}
+  .leg{grid-template-columns:36px minmax(0,1fr) auto 22px;gap:9px 12px;align-items:center}
+  .leg img,.leg .fallback{width:36px;height:36px}
+  .leg.ud{grid-template-columns:36px minmax(0,1fr) auto auto 22px;gap:9px 8px}
+  /* A phone column cannot hold "Rhamondre Stevenson" plus a ROLE? pill on one line; the pill
+     is the reason the row is not slip material, so let the line wrap rather than lose it. */
+  .leg.ud .prop{white-space:normal;line-height:20px}
+  .leg.ud .tag .was,.phead2 .tag .was{display:none}   /* "NEW TEAM" fits; "· WAS GB" is the tooltip's job here */
+  .phead2{grid-template-columns:36px minmax(0,1fr);gap:10px;padding:10px 12px 8px}
+  .phead2 img,.phead2 .fallback{width:36px;height:36px}
+  .phead2 .prop{white-space:normal;line-height:20px}
+  .udline{grid-template-columns:66px 112px minmax(0,1fr) 54px 22px;gap:9px;padding:9px 12px}   /* fixed stat column so meters start together; the meter gives way before anything pushes the chevron off the edge */
+  .udline .ln b{font-size:20px} .udline .ln small{margin-left:5px}
+  .udline .pct{font-size:18px}
+  .udcall{min-width:56px} .udcall .num{font-size:17px}
+  .udconf{width:44px} .udconf b{font-size:18px}
+  .leg .legx{gap:10px 16px}
+  .probwrap span,.edgecell .ebar{display:none}
+  .probwrap{display:flex;align-items:baseline;gap:6px}
+  .edgecell{display:flex;align-items:baseline;gap:6px}
+  .probwrap b::after{content:" MODEL";font-size:11px;color:var(--ink-3);letter-spacing:.14em}
+  .probwrap.implied b::after{content:" BOOK IMPLIED"}
+  .edgecell b::after{content:" EDGE";font-size:11px;color:var(--ink-3);letter-spacing:.14em}
+  .edgecell.pending b::after{content:""} .edgecell.pending span{display:inline}
+  .dfs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .salrow{gap:16px}
+  .feed{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
+  .feed::-webkit-scrollbar{display:none}
+  .src{flex-shrink:0;padding:8px 12px;font-size:11px}
+  .mkthead{padding:12px 13px}
+  .dfstable{overflow-x:auto}
+  .dfstable .phead,.dfstable .prow{min-width:520px}
+}

@@ -1,0 +1,6 @@
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms!important;animation-delay:0ms!important;transition-duration:.001ms!important}
+  .row{opacity:1;transform:none}
+  .spark .reveal{clip-path:inset(0 0 0 0)}
+  .pctbar i{width:var(--w)}
+}

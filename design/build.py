@@ -1,21 +1,27 @@
 """Inline the ff-jarvis headshots into a self-contained index.html.
 
-template.html holds the design; this replaces the /*__HEADS__*/ token with a
+design/src/ holds the design (assembled by assemble.py); this replaces the /*__HEADS__*/ token with a
 slug -> data-URI map so the page works offline and as a published Artifact.
 Run: python design/build.py
 """
 import base64
 import datetime as dt
 import json
+import os
 import pathlib
 import re
 import zoneinfo
 
+from assemble import assemble   # design/assemble.py: design/src/** -> the page template
+
 ROOT = pathlib.Path(__file__).resolve().parent
 REPO = ROOT.parent
-HEADS_SRC = pathlib.Path("C:/Users/David/Github/ff-jarvis/app/public/heads")
 
-DWR = pathlib.Path("C:/Users/David/Github/ff-jarvis/data")
+# The three input roots. Each can be pointed elsewhere by env var so a build can run against a
+# pinned snapshot (the regression suite) instead of whatever ff-jarvis holds right now.
+HEADS_SRC = pathlib.Path(os.environ.get("TEAM_WATCH_HEADS", "C:/Users/David/Github/ff-jarvis/app/public/heads"))
+DWR = pathlib.Path(os.environ.get("TEAM_WATCH_DATA", "C:/Users/David/Github/ff-jarvis/data"))
+FEED = pathlib.Path(os.environ.get("TEAM_WATCH_FEED", REPO / "data" / "feed.json"))
 ESPN_ROSTERS = DWR / "espn_rosters.json"
 YAHOO_ROSTERS = DWR / "league_rosters.json"
 BP_PROPS = DWR / "bettingpros_props.json"
@@ -58,7 +64,7 @@ def load_status():
     read every feature should prefer over deriving its own. Feed-first (what the scheduled refresh
     saw), the ff-jarvis file directly as a fallback -- the same two-tier pattern load_props_raw()
     and load_model_raw() already use below."""
-    feed = REPO / "data" / "feed.json"
+    feed = FEED
     try:
         d = json.loads(feed.read_text(encoding="utf-8"))
         block = (d.get("status") or {}).get("data")
@@ -173,7 +179,7 @@ def live_feed():
     """What `python -m model.refresh` last wrote. Drives the status strip, so the page reports
     the real state of each source instead of a hardcoded banner. Only the provenance is taken —
     the payloads stay out of the page until there is something in them."""
-    path = REPO / "data" / "feed.json"
+    path = FEED
     if not path.exists():
         return None
     try:
@@ -219,7 +225,7 @@ def load_props_raw():
     """The BettingPros pull, preferring the feed (`market.props_bp`) so the page shows what the
     scheduled refresh saw. A feed older than the props step lacks the block; then the file the
     props client wrote is read directly, the same way the rosters are."""
-    feed = REPO / "data" / "feed.json"
+    feed = FEED
     try:
         d = json.loads(feed.read_text(encoding="utf-8"))
         block = ((d.get("market") or {}).get("props_bp") or {}).get("data")
@@ -238,7 +244,7 @@ def load_props_raw():
 def load_model_raw():
     """P(over) per priced line from ff-jarvis's `model.market.props_model`, feed first, file second,
     the same way the lines themselves are read."""
-    feed = REPO / "data" / "feed.json"
+    feed = FEED
     try:
         d = json.loads(feed.read_text(encoding="utf-8"))
         block = ((d.get("market") or {}).get("props_model") or {}).get("data")
@@ -263,7 +269,7 @@ def load_player_proj():
     written before that step existed has no block, and an ff-jarvis checkout on another branch
     may have no file: then nothing is modelled and every DFS row falls back to Yahoo's FPPG,
     which the header says out loud."""
-    feed = REPO / "data" / "feed.json"
+    feed = FEED
     try:
         d = json.loads(feed.read_text(encoding="utf-8"))
         block = (d.get("projections") or {}).get("data")
@@ -355,7 +361,7 @@ def assign_windows(rows):
 
 def load_wrcb():
     """RotoBaller's WR/CB column for the week, feed first then the ff-jarvis file."""
-    feed = REPO / "data" / "feed.json"
+    feed = FEED
     try:
         d = json.loads(feed.read_text(encoding="utf-8"))
         block = ((d.get("market") or {}).get("wrcb") or {}).get("data")
@@ -377,7 +383,7 @@ def load_news():
     data/breaking_news.json) -- feed first, then the file directly, same two-tier pattern as
     every other live read here. `when` is reformatted the same way kickoff() below does it, so a
     news row and a kickoff badge read as the same kind of timestamp."""
-    feed = REPO / "data" / "feed.json"
+    feed = FEED
     raw = None
     try:
         d = json.loads(feed.read_text(encoding="utf-8"))
@@ -669,7 +675,7 @@ def load_dfs_pool():
     import <csv>` -- deliberately manual, per that module's own docstring: an automated Yahoo
     scrape is a decision to ask about, not build quietly. Feed-first, the ff-jarvis file directly
     as a fallback, same two-tier pattern as load_status()/load_props_raw()."""
-    feed = REPO / "data" / "feed.json"
+    feed = FEED
     try:
         d = json.loads(feed.read_text(encoding="utf-8"))
         block = ((d.get("market") or {}).get("dfs") or {}).get("data")
@@ -788,7 +794,7 @@ def main():
         "const LIVE_PROPS = " + json.dumps(props) + ";\n"
         "const LIVE_DFS_YAHOO = " + json.dumps(liveDfsYahoo) + ";"
     )
-    tpl = (ROOT / "template.html").read_text(encoding="utf-8")
+    tpl = assemble()
     body = tpl.replace("/*__HEADS__*/", injected)
 
     # design/index.html is the fragment the Artifact publisher wants (no doctype/head).

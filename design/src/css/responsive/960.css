@@ -1,0 +1,14 @@
+/* ============================== RESPONSIVE ============================== */
+@media (max-width:960px){
+  .hero-in{grid-template-columns:minmax(0,1fr);gap:26px}
+  .signals{max-width:none}
+  .wire{grid-template-columns:minmax(0,1fr)}
+  .states{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .expo{grid-template-columns:minmax(0,1fr);gap:18px}
+  /* Single-column hero: the signals block drops below the text instead of sitting beside it,
+     so pinning the switcher to .hero-in's corner has nothing to its right to line up with and
+     nothing below it reserving space -- it just overlaps the giant h1. Back to inline, flush
+     right within the eyebrow row itself, which is correct here since that row already spans the
+     hero's full width once there's only one column. */
+  .hero-eyebrow .teamswitch{position:static;margin-left:auto}
+}

@@ -1,0 +1,3 @@
+buildFeed();
+buildNav();
+render();
