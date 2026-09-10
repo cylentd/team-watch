@@ -1460,17 +1460,18 @@ const bookLine = p => !p.books ? `BOOK ${p.book}`
     + (p.opp_f ? ` · ${esc(p.opp)} D ${Math.round(Math.abs(p.opp_f - 1) * 100) === 0 ? "±0" : (p.opp_f >= 1 ? "+" : "−") + Math.round(Math.abs(p.opp_f - 1) * 100)}%` : "");
 const ud = p => p.books && p.books.Underdog;
 /* Underdog carries no anytime-TD line in this feed at all (checked 2026-09-10: 0 of 430 TD rows
-   have an Underdog price -- their pick'em board just isn't in what BettingPros scrapes here). A
-   TD leg is still a higher/lower call at heart (score one, or don't), and the model's P(score) is
-   the same number a real 0.5-line price would need, so TD derives its pick from the model
-   instead of sitting out of Underdog mode entirely. `synthetic: true` marks the difference
+   have an Underdog price -- their pick'em board just isn't in what BettingPros scrapes here), so
+   a TD row derives its pick from the model's P(score) instead of sitting out of Underdog mode
+   entirely. Anytime TD is a yes-only market everywhere it is sold: there is no "lower", no book
+   pays you for a player not scoring. So the derived pick is always higher and its confidence is
+   P(score) itself -- a 23% higher sorts to the bottom, where a bet you would not place belongs,
+   instead of surfacing as a 77% "lower" nobody can buy. `synthetic: true` marks the difference
    everywhere this is shown -- it is a model read, never passed off as an Underdog price. */
 function udPick(p){
   const real = ud(p);
   if (real && typeof real.conf === "number") return real;
   if (p.mkt === "TD" && typeof p.model === "number")
-    return {pick: p.model >= 50 ? "higher" : "lower",
-            conf: Math.round(Math.max(p.model, 100 - p.model)), line: null, synthetic: true};
+    return {pick: "higher", conf: Math.round(p.model), line: null, synthetic: true};
   return null;
 }
 
@@ -1792,13 +1793,21 @@ function topLineups(){
 
 const propLabel = p => p.line === null ? MKT[p.mkt] : `${MKT[p.mkt]} o${p.line}`;
 
-/* Why a row the sort put on top is not on any gallery card. OUT/Q/backup/ROLE? already say so;
-   these two were silent: every game the rate rests on was for another team, or the rate rests
-   on too few games to trust. Both are gates in legOKInBook. */
-const movedTag = p => p.moved
-  ? `<span class="tag t-role" title="Every game the model has read was for ${esc(p.moved)}. The rate knows nothing about the new offense or quarterback, and the model has no feature for a team change. Not slip material.">NEW TEAM · WAS ${esc(p.moved)}</span>` : "";
-const gamesTag = p => typeof p.model === "number" && (p.games||0) < 8
-  ? `<span class="tag t-bk" title="The rate rests on ${p.games||0} of his own games; a slip leg needs 8.">${p.games||0} GAMES</span>` : "";
+/* Why a row the sort put on top is not on any gallery card: one pill, the first reason that
+   applies, in the order legOKInBook would trip on it. A row can fail three gates at once (a
+   backup, at a moved line, on a thin number) and three pills say "no" three times -- one is the
+   answer. `u` is the Underdog pick when in that mode, for the line-size floor. */
+function whyNotSlip(p, u){
+  if (p.flag === "out") return `<span class="tag t-out">OUT${p.injury_note ? " · " + esc(p.injury_note) : ""}</span>`;
+  if (p.flag === "q") return `<span class="tag t-q">Q${p.injury_note ? " · " + esc(p.injury_note) : ""}</span>`;
+  if (p.flag === "backup") return `<span class="tag t-bk" title="Depth chart says ${esc(p.pos)}${p.depth}. Not slip material.">${esc(p.pos)}${p.depth}</span>`;
+  if (p.norole) return `<span class="tag t-bk" title="A touchdown line on a player the book prices no yards for.">NO ROLE</span>`;
+  if (p.moved) return `<span class="tag t-role" title="Every game the model has read was for ${esc(p.moved)}. The rate knows nothing about the new offense or quarterback, and the model has no feature for a team change. Not slip material.">NEW TEAM · WAS ${esc(p.moved)}</span>`;
+  if (u ? u.stale : p.stale) return `<span class="tag t-role" title="The book's line is far from last season's rate: the role changed and the model has not caught up. Not slip material.">ROLE?</span>`;
+  if (typeof p.model === "number" && (p.games||0) < 8) return `<span class="tag t-bk" title="The rate rests on ${p.games||0} of his own games; a slip leg needs 8.">${p.games||0} GAMES</span>`;
+  if (u && !u.synthetic && u.line !== null && (p.mkt === "RECS" ? u.line < 2.5 : u.line < 15)) return `<span class="tag t-bk" title="A line this small is confidence for free and Underdog prices it that way. Not slip material.">THIN LINE</span>`;
+  return "";
+}
 
 /* Underdog's whole pitch is one stat, one tap: higher or lower. Skip the DK-only model%/edge
    detail (there is no "book implied" the same way against a flat-multiplier payout) and lead
@@ -1807,13 +1816,9 @@ const gamesTag = p => typeof p.model === "number" && (p.games||0) < 8
 function udPropCard(p, i){
   const inSlip = SLIP.includes(i);
   const u = udPick(p);
-  const tag = (p.flag === "out" ? `<span class="tag t-out">OUT${p.injury_note ? " · " + esc(p.injury_note) : ""}</span>`
-    : p.flag === "q" ? `<span class="tag t-q">Q${p.injury_note ? " · " + esc(p.injury_note) : ""}</span>`
-    : p.flag === "backup" ? `<span class="tag t-bk">${esc(p.pos)}${p.depth}</span>` : "")
-    + (u.stale ? `<span class="tag t-role" title="The book's line is far from last season's rate: the role changed and the model has not caught up. Not slip material.">ROLE?</span>` : "")
-    + movedTag(p) + gamesTag(p)
-    + (u.synthetic ? `<span class="tag t-bk" title="Underdog carries no anytime-TD line to read here -- this pick comes straight from the model's chance of scoring, not a price Underdog posted. Not on a gallery card: Underdog does not sell it.">MODEL</span>` : "")
-    + (!u.synthetic && u.line !== null && (p.mkt === "RECS" ? u.line < 2.5 : u.line < 15) ? `<span class="tag t-bk" title="A line this small is confidence for free and Underdog prices it that way. Not slip material.">THIN LINE</span>` : "");
+  // No MODEL pill per row: it would sit on every TD row (Underdog prices none), which is
+  // noise, not information. The list header says it once; the cart still marks the leg.
+  const tag = whyNotSlip(p, u);
   const log = LIVE_MARKET && LIVE_MARKET.logs && p.slug ? LIVE_MARKET.logs[p.slug] : (LIVE_MARKET && LIVE_MARKET.logs ? LIVE_MARKET.logs[slugOf(p.n)] : null);
   const open = EXPANDED.has(i);
   return `<div class="leg ${p.mine?"mine":""} ${inSlip?"inslip":""} ${p.flag==="out"?"isout":""} ${open?"open":""}" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">
@@ -1853,12 +1858,7 @@ function propCard(p, i){
     <div class="edgecell pending"><b>OUT</b><span>${esc((p.injury_note||p.injury||"").toUpperCase())}</span></div>`;
   else if (p.norole) detail = `<div class="probwrap implied"><b>—</b><span>NO YARDS LINE</span></div>
     <div class="edgecell pending"><b>—</b><span>NO ROLE PRICED</span></div>`;
-  const tag = (p.flag === "out" ? `<span class="tag t-out">OUT${p.injury_note ? " · " + esc(p.injury_note) : ""}</span>`
-    : p.flag === "q" ? `<span class="tag t-q">Q${p.injury_note ? " · " + esc(p.injury_note) : ""}</span>`
-    : p.flag === "backup" ? `<span class="tag t-bk">${esc(p.pos)}${p.depth}</span>` : "")
-    + (p.norole ? `<span class="tag t-bk">NO ROLE</span>` : "")
-    + (p.stale ? `<span class="tag t-role" title="The book's line is far from last season's rate: the role changed and the model has not caught up. Not slip material.">ROLE?</span>` : "")
-    + movedTag(p) + gamesTag(p)
+  const tag = whyNotSlip(p, null)
     + (p.cb ? `<span class="tag ${p.cb.v === "upgrade" ? "t-cbup" : "t-cbdn"}" title="RotoBaller WR/CB matchups, week ${LIVE_MARKET && LIVE_MARKET.wrcb ? LIVE_MARKET.wrcb.week : ""}: ${esc(p.cb.v)} vs ${esc(p.cb.cb)}. ${esc(p.cb.why)} — opinion, not in the number.">CB ${p.cb.v === "upgrade" ? "↑" : "↓"} ${esc(lastName(p.cb.cb))}</span>` : "");
   const log = LIVE_MARKET && LIVE_MARKET.logs && p.slug ? LIVE_MARKET.logs[p.slug] : (LIVE_MARKET && LIVE_MARKET.logs ? LIVE_MARKET.logs[slugOf(p.n)] : null);
   const open = EXPANDED.has(i);
@@ -2390,7 +2390,7 @@ function parlayHTML(){
           const page = Math.min(MKT_PAGE, pages);
           const rows = all.slice((page-1)*MKT_PAGE_SIZE, page*MKT_PAGE_SIZE);
           const pager = `<div class="filters" style="margin-top:8px">
-            <span class="lbl">${all.length} line${all.length===1?"":"s"}</span>
+            <span class="lbl">${all.length} line${all.length===1?"":"s"}${PARLAY_BOOK === "underdog" && all.some(p => udPick(p).synthetic) ? " · TD picks are the model's P(score), Underdog posts no TD line" : ""}</span>
             <span style="flex:1"></span>
             <button class="chip" data-mktpage="prev" ${page<=1?"disabled":""}>‹ Prev</button>
             <span class="lbl">Page ${page} of ${pages}</span>
