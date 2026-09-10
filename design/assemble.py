@@ -8,7 +8,8 @@
 The layout, and the rules the checks enforce:
 
     src/shell.html      the document: head, <style>/*{{css}}*/</style>, static body,
-                        <script>/*__HEADS__*/ /*{{js}}*/</script>
+                        <script>/*__HEADS__*/ /*{{js}}*/</script>, {{copy:key}} in the markup
+    src/content.json    every user-facing string, flat "area.component.slot" -> text
     src/order.css.txt   every file under src/css/, one per line, in cascade order
     src/order.js.txt    every file under src/js/, one per line, in load order
     src/css/**          style only
@@ -20,9 +21,16 @@ so devtools says which file a rule or function came from; `strip_banners()` remo
 for byte comparisons. The manifests are the single order authority; filenames carry no numbers.
 A file on disk that no manifest lists, or a manifest line with no file, fails the build
 (`check()`), so a part can neither silently drop out of the page nor silently join it.
+
+Copy is data: content.json is injected as a one-line `const COPY = {...};` above the first JS
+part (a `</` inside a value is escaped, so a `<b>` in copy cannot end the <script>), read by
+`t("key")` in the JS and by `{{copy:key}}` in shell.html's static markup, which assemble
+substitutes HTML-escaped. `check()` fails on a key referenced but missing, and on a key that
+exists but nothing references: dead copy is a problem, not a leftover.
 """
 import argparse
 import hashlib
+import json
 import pathlib
 import re
 import sys
@@ -30,8 +38,11 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent
 SRC = ROOT / "src"
 SHELL = SRC / "shell.html"
+CONTENT = SRC / "content.json"
 KINDS = {"css": SRC / "order.css.txt", "js": SRC / "order.js.txt"}
 PLACEHOLDER = {"css": "/*{{css}}*/\n", "js": "/*{{js}}*/\n"}
+COPY_CALL_RE = re.compile(r'\bt\(\s*"([^"\\]+)"')
+COPY_SLOT_RE = re.compile(r"\{\{copy:([^{}]+)\}\}")
 
 
 def manifest(kind):
@@ -59,8 +70,30 @@ def strip_banners(text):
     return BANNER_RE.sub("", text)
 
 
+def content():
+    """The copy map: one flat object of "area.component.slot" -> string."""
+    return json.loads(CONTENT.read_text(encoding="utf-8"))
+
+
+def copy_decl():
+    """`const COPY = {...};`, one line. `</` is escaped so a `</b>` in copy cannot end <script>."""
+    return "const COPY = " + json.dumps(content(), ensure_ascii=False).replace("</", "<\\/") + ";\n"
+
+
+def html_escape(s):
+    return (s.replace("&", "&amp;").replace("<", "&lt;")
+             .replace(">", "&gt;").replace('"', "&quot;"))
+
+
+def shell_html():
+    """shell.html with its {{copy:key}} placeholders substituted, HTML-escaped."""
+    copy = content()
+    return COPY_SLOT_RE.sub(lambda m: html_escape(copy[m.group(1)]),
+                            SHELL.read_text(encoding="utf-8"))
+
+
 def concat(kind, banners=True):
-    chunks = []
+    chunks = [copy_decl()] if kind == "js" else []
     for rel in manifest(kind):
         if banners:
             chunks.append(banner(kind, rel))
@@ -95,6 +128,34 @@ def check():
             problems.append(f"shell.html holds {PLACEHOLDER[kind].strip()} {n} times, want 1")
     if shell.count("/*__HEADS__*/") != 1:
         problems.append("shell.html must hold /*__HEADS__*/ exactly once")
+    problems += copy_problems(shell)
+    return problems
+
+
+def copy_problems(shell):
+    """content.json is a flat str->str map, every t()/{{copy:}} resolves, every key is used."""
+    if not CONTENT.exists():
+        return [f"missing src/{CONTENT.name}"]
+    try:
+        copy = json.loads(CONTENT.read_text(encoding="utf-8"))
+    except ValueError as e:
+        return [f"content.json is not valid JSON: {e}"]
+    if not isinstance(copy, dict):
+        return ["content.json must be one flat object of key -> string"]
+    problems = [f"content.json: {k} is {type(v).__name__}, want a string"
+                for k, v in copy.items() if not isinstance(v, str)]
+    used = set()
+    for path in sorted((SRC / "js").rglob("*.js")):
+        rel = path.relative_to(SRC).as_posix()
+        for k in COPY_CALL_RE.findall(path.read_text(encoding="utf-8")):
+            used.add(k)
+            if k not in copy:
+                problems.append(f'{rel}: t("{k}") is not a key in content.json')
+    for k in COPY_SLOT_RE.findall(shell):
+        used.add(k)
+        if k not in copy:
+            problems.append(f"shell.html: {{{{copy:{k}}}}} is not a key in content.json")
+    problems += [f"content.json: {k} is never referenced" for k in sorted(set(copy) - used)]
     return problems
 
 
@@ -103,7 +164,7 @@ def assemble(banners=True):
     problems = check()
     if problems:
         raise SystemExit("assemble: " + "; ".join(problems))
-    text = SHELL.read_text(encoding="utf-8")
+    text = shell_html()
     for kind in KINDS:
         text = text.replace(PLACEHOLDER[kind], concat(kind, banners), 1)
     return text
@@ -111,11 +172,13 @@ def assemble(banners=True):
 
 def line_map(banners=True):
     """(kind/rel, first line, last line) of every part in the assembled output, 1-based."""
-    text = SHELL.read_text(encoding="utf-8")
+    text = shell_html()
     rows = []
     for kind in KINDS:
         before = text.split(PLACEHOLDER[kind], 1)[0]
         line = before.count("\n") + 1
+        if kind == "js":
+            line += copy_decl().count("\n")   # the injected COPY shifts every JS part down
         for rel in manifest(kind):
             body = (SRC / kind / rel).read_text(encoding="utf-8")
             if banners:

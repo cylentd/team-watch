@@ -10,7 +10,8 @@ Global architecture rules apply here: `~/Github/agent-config/shared/architecture
 
 | File | |
 |---|---|
-| `design/src/shell.html` | **source** — the document: head, static markup, the two slots |
+| `design/src/shell.html` | **source** — the document: head, static markup, the two slots, `{{copy:key}}` |
+| `design/src/content.json` | **source** — every user-facing string, `area.component.slot` -> text; the JS says `t("key")` and `--check` fails on a missing or unreferenced one |
 | `design/src/css/**`, `design/src/js/**` | **source** — one concern per file, none over ~200 lines |
 | `design/src/order.css.txt`, `order.js.txt` | the only order authority; `# pin:` lines say why an order is load-bearing |
 | `design/assemble.py` | joins the parts into the template string; `--check` fails on an unlisted or missing part |

@@ -38,7 +38,7 @@ function wireBuilder(v){
     const DFS = dfsSite().lineup;
     if (ACTIVE_SLOT !== null){
       if (!slotEligible(DFS[ACTIVE_SLOT].slot, p.pos)){
-        PICK_ERR = `${p.n} is ${p.pos}, not ${DFS[ACTIVE_SLOT].slot}`;
+        PICK_ERR = t("dfs.pick.wrongPos", {name: p.n, pos: p.pos, slot: DFS[ACTIVE_SLOT].slot});
         render();
         return;
       }
@@ -46,7 +46,7 @@ function wireBuilder(v){
       ACTIVE_SLOT = null; PICK_ERR = null;
     } else {
       const idx = DFS.findIndex(d => !d.n && slotEligible(d.slot, p.pos));
-      if (idx === -1){ PICK_ERR = `No open ${p.pos} slot — tap one to swap instead`; render(); return; }
+      if (idx === -1){ PICK_ERR = t("dfs.pick.noSlot", {pos: p.pos}); render(); return; }
       DFS[idx] = {...p, slot: DFS[idx].slot};
     }
     render();
@@ -99,7 +99,7 @@ function wireBuilder(v){
       const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta);
       ta.select(); try { ok = document.execCommand("copy"); } catch (e2) {} ta.remove();
     }
-    const was = b.textContent; b.textContent = ok ? "Copied" : "Copy failed";
+    const was = b.textContent; b.textContent = ok ? t("parlay.slip.copied") : t("parlay.slip.copyFailed");
     setTimeout(()=>{ b.textContent = was; }, 1400);
   }));
   v.querySelectorAll("[data-scope]").forEach(b=>b.addEventListener("click",()=>{

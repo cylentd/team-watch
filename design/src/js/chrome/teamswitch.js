@@ -3,8 +3,8 @@
    and is where a reader looks first to confirm which team they're on. */
 function teamSwitchHTML(){
   const cells = [
-    {k:"yahoo", plat:"Yahoo", team:TEAMS.yahoo.name, tint:"var(--yahoo)"},
-    {k:"espn",  plat:"ESPN",  team:TEAMS.espn.name,  tint:"var(--espn)"},
+    {k:"yahoo", plat:t("chrome.teamswitch.yahoo"), team:TEAMS.yahoo.name, tint:"var(--yahoo)"},
+    {k:"espn",  plat:t("chrome.teamswitch.espn"),  team:TEAMS.espn.name,  tint:"var(--espn)"},
   ];
   const cur = cells.find(c=>c.k===VIEW);
   return `<div class="teamswitch" id="switch" style="--tint:${cur.tint}">

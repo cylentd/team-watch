@@ -3,20 +3,20 @@
 function topbarBadge(){
   if (SURFACE === "parlay"){
     return LIVE_MARKET
-      ? {tone:"live", full:"Live props · trend, rank & news still sample", abbr:"Props live"}
-      : {tone:"warn", full:"Sample props — BettingPros not pulled", abbr:"Sample data"};
+      ? {tone:"live", full:t("chrome.badge.parlayLiveFull"), abbr:t("chrome.badge.parlayLiveAbbr")}
+      : {tone:"warn", full:t("chrome.badge.parlaySampleFull"), abbr:t("chrome.badge.sampleAbbr")};
   }
   if (SURFACE === "dfs"){
     const live = dfsSite().key === "yahoo" && !!LIVE_YAHOO_DFS;
     return live
-      ? {tone:"live", full:"Live Yahoo pool · rest of app sample", abbr:"Pool live"}
-      : {tone:"warn", full:"Sample DFS pool — no salary export loaded", abbr:"Sample data"};
+      ? {tone:"live", full:t("chrome.badge.dfsLiveFull"), abbr:t("chrome.badge.dfsLiveAbbr")}
+      : {tone:"warn", full:t("chrome.badge.dfsSampleFull"), abbr:t("chrome.badge.sampleAbbr")};
   }
   if (SURFACE === "news")
     return LIVE_NEWS
-      ? {tone:"live", full:"Live news", abbr:"News live"}
-      : {tone:"warn", full:"Sample news — scanner not pulled", abbr:"Sample data"};
-  return {tone:"warn", full:"Sample signals — skill not wired", abbr:"Sample data"};
+      ? {tone:"live", full:t("chrome.badge.newsLiveFull"), abbr:t("chrome.badge.newsLiveAbbr")}
+      : {tone:"warn", full:t("chrome.badge.newsSampleFull"), abbr:t("chrome.badge.sampleAbbr")};
+  return {tone:"warn", full:t("chrome.badge.defaultFull"), abbr:t("chrome.badge.sampleAbbr")};
 }
 function paintBadge(){
   const b = topbarBadge(), el = document.getElementById("topbadge");
@@ -65,7 +65,7 @@ function render(){
   const team = TEAMS[VIEW];
   v.innerHTML = heroHTML(team) + tickerHTML() + `<div class="wrap">
     ${boardHTML(team)}
-    <div class="rule"><h2>The wire</h2><span class="hair"></span><span class="side">waiver replacements</span></div>
+    <div class="rule"><h2>${t("teams.wire.heading")}</h2><span class="hair"></span><span class="side">${t("teams.wire.sub")}</span></div>
     ${wireHTML()}
   </div>`;
   v.querySelector(".leaguechip")?.addEventListener("click", ()=>openLeagueInfo(team.key));

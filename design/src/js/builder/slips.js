@@ -70,7 +70,7 @@ function mineSlip(book){
   PROPS.forEach((p,i) => { if (p.mine && ok(p) && !seen.has(p.game) && out.length < SLIP_LEGS){ seen.add(p.game); out.push(i); } });
   return out;
 }
-const PRESETS = [["mine","My players"],["blank","Clear"]];
+const PRESETS = [["mine",t("parlay.preset.mine")],["blank",t("parlay.preset.blank")]];
 function presetSlip(k, book){
   if (k === "mine") return mineSlip(book);
   return [];
@@ -89,7 +89,7 @@ let PARLAY_BOOK = "underdog";
    Computed once per book: PROPS never mutates, and toggling the cart must not re-roll the
    gallery. Both books' galleries are built up front so switching PARLAY_BOOK is instant. */
 function buildGallery(book){
-  const scopes = [["yards","Yards"],["tds","TDs"],["mix","Mix"]];
+  const scopes = [["yards",t("parlay.scope.yards")],["tds",t("parlay.scope.tds")],["mix",t("parlay.scope.mix")]];
   const metric = legMetric(book);
   const out = [], seen = new Set();
   for (const w of WINDOWS) for (const [s, label] of scopes){

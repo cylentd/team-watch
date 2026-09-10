@@ -14,10 +14,10 @@ function scatterHTML(rows){
   const cx = X(0), cy = Y(0);
 
   const quads = [
-    [W-PX-8, PY+16,  "end",   "CONFIRMED"],
-    [PX+8,   PY+16,  "start", "SELL HIGH"],
-    [W-PX-8, H-PY-10,"end",   "BUY LOW"],
-    [PX+8,   H-PY-10,"start", "FADING"],
+    [W-PX-8, PY+16,  "end",   t("pool.quad.confirmed")],
+    [PX+8,   PY+16,  "start", t("pool.quad.sellHigh")],
+    [W-PX-8, H-PY-10,"end",   t("pool.quad.buyLow")],
+    [PX+8,   H-PY-10,"start", t("pool.quad.fading")],
   ].map(([x,y,a,t]) => `<text class="qname" x="${x}" y="${y}" text-anchor="${a}">${t}</text>`).join("");
 
   // Labels sit to the right of their dot; when that would collide with one already
@@ -37,7 +37,7 @@ function scatterHTML(rows){
     return `<g class="dotg" data-i="${POOL.indexOf(r)}">
       <circle class="dot" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${rad.toFixed(1)}"
         fill="${VDOT[r.v]}" fill-opacity=".8" stroke="${r.mine?"var(--lime)":"none"}" stroke-width="${r.mine?2:0}">
-        <title>${esc(r.n)} — usage ${r.dShare>0?"+":""}${r.dShare}, luck ${r.luck>0?"+":""}${r.luck}</title>
+        <title>${t("pool.scatter.dotTip", {name: esc(r.n), usage: `${r.dShare>0?"+":""}${r.dShare}`, luck: `${r.luck>0?"+":""}${r.luck}`})}</title>
       </circle>
       ${mobile ? "" : `<text class="dotlab" x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${anchor}">${esc(r.n.split(" ").slice(-1)[0])}</text>`}
     </g>`;
@@ -45,9 +45,9 @@ function scatterHTML(rows){
 
   return `<div class="quadwrap">
     <div class="quadhead">
-      <div><span class="lbl">Usage against luck</span>
-        <div style="margin-top:6px;font-size:12.5px;color:var(--ink-2)">Right means the role is growing. Up means the points are running ahead of it.${mobile ? " Tap a dot for the player." : ""}</div></div>
-      <span class="pill">${rows.length} players · min 25 snaps</span>
+      <div><span class="lbl">${t("pool.scatter.heading")}</span>
+        <div style="margin-top:6px;font-size:12.5px;color:var(--ink-2)">${t("pool.scatter.sub")}${mobile ? ` ${t("pool.scatter.tapHint")}` : ""}</div></div>
+      <span class="pill">${t("pool.scatter.count", {n: rows.length})}</span>
     </div>
     <div class="quadscroll" data-railkey="pool-scatter">
       <svg class="quad ${mobile ? "quad-compact" : ""}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
@@ -56,19 +56,19 @@ function scatterHTML(rows){
         <line class="axis-line" x1="${cx}" y1="${PY}" x2="${cx}" y2="${H-PY}"/>
         <line class="axis-line" x1="${PX}" y1="${cy}" x2="${W-PX}" y2="${cy}"/>
         ${quads}
-        <text class="qtick" x="${W-PX}" y="${cy+16}" text-anchor="end">USAGE +</text>
-        <text class="qtick" x="${PX}" y="${cy+16}">USAGE −</text>
-        <text class="qtick" x="${cx+8}" y="${PY+12}">LUCK +</text>
-        <text class="qtick" x="${cx+8}" y="${H-PY-6}">LUCK −</text>
+        <text class="qtick" x="${W-PX}" y="${cy+16}" text-anchor="end">${t("pool.axis.usagePos")}</text>
+        <text class="qtick" x="${PX}" y="${cy+16}">${t("pool.axis.usageNeg")}</text>
+        <text class="qtick" x="${cx+8}" y="${PY+12}">${t("pool.axis.luckPos")}</text>
+        <text class="qtick" x="${cx+8}" y="${H-PY-6}">${t("pool.axis.luckNeg")}</text>
         ${dots}
       </svg>
     </div>
     <div class="quadkey">
-      <span><i style="background:var(--up)"></i>Confirmed / rising</span>
-      <span><i style="background:var(--lime)"></i>Buy low</span>
-      <span><i style="background:var(--down)"></i>Sell</span>
-      <span><i style="background:var(--ink-3)"></i>Hold</span>
-      <span><i style="background:none;border:2px solid var(--lime)"></i>On one of my rosters</span>
+      <span><i style="background:var(--up)"></i>${t("pool.key.confirmed")}</span>
+      <span><i style="background:var(--lime)"></i>${t("pool.key.buyLow")}</span>
+      <span><i style="background:var(--down)"></i>${t("pool.key.sell")}</span>
+      <span><i style="background:var(--ink-3)"></i>${t("pool.key.hold")}</span>
+      <span><i style="background:none;border:2px solid var(--lime)"></i>${t("pool.key.mine")}</span>
     </div>
   </div>`;
 }

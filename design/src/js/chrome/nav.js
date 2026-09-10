@@ -11,7 +11,13 @@ function buildNav(){
   // Two labels per tab, same pattern as the topbar pills' full/abbr swap: five tabs' full
   // labels don't fit a phone width without the row overflowing into a faded, scrollable strip
   // (a tab someone actually wants -- News -- shouldn't be the one left half-hidden past the edge).
-  const items = [["teams","My teams","Teams"],["pool","The pool","Pool"],["parlay","Parlay","Parlay"],["dfs","DFS","DFS"],["news","News","News"]];
+  const items = [
+    ["teams",  t("nav.teams.full"),  t("nav.teams.short")],
+    ["pool",   t("nav.pool.full"),   t("nav.pool.short")],
+    ["parlay", t("nav.parlay.full"), t("nav.parlay.short")],
+    ["dfs",    t("nav.dfs.full"),    t("nav.dfs.short")],
+    ["news",   t("nav.news.full"),   t("nav.news.short")],
+  ];
   n.innerHTML = items.map(([k,label,short])=>
     `<button class="navitem" data-s="${k}" aria-current="${SURFACE===k}">
       <span class="ix">${NAV_ICON[k]}</span><span class="full">${label}</span><span class="abbr">${short}</span></button>`).join("");

@@ -16,7 +16,7 @@ function tickerHTML(){
       <span class="arrow">●</span>${esc(it.title)}</a>`
   ).join("");
   return `<div class="wrap" style="margin:16px auto"><div class="ticker">
-    <div class="ticker-tag">LIVE</div>
+    <div class="ticker-tag">${t("news.ticker.tag")}</div>
     <div class="ticker-track">${run}${run}</div>
   </div></div>`;
 }
@@ -52,54 +52,54 @@ function newsHTML(){
     <div class="wrap hero-in">
       <div>
         <div class="hero-eyebrow" style="--tint:var(--lime)">
-          <span class="league-mark"></span><span class="lbl">${items.length} items · newest first</span>
+          <span class="league-mark"></span><span class="lbl">${t("news.hero.eyebrow", {n: items.length})}</span>
         </div>
-        <h1>What's<br><em>breaking</em></h1>
+        <h1>${t("news.hero.title")}</h1>
       </div>
       <div><div class="signals">
-        <div class="sig up"><div class="lbl">Teams in play</div><div class="sig-val">${teams}</div><div class="sig-sub">OF 32</div></div>
-        <div class="sig"><div class="lbl">Latest</div><div class="sig-val" style="font-size:22px">${items[0] && items[0].when ? esc(items[0].when) : "—"}</div><div class="sig-sub">MOST RECENT</div></div>
+        <div class="sig up"><div class="lbl">${t("news.sig.teamsLabel")}</div><div class="sig-val">${teams}</div><div class="sig-sub">${t("news.sig.teamsSub")}</div></div>
+        <div class="sig"><div class="lbl">${t("news.sig.latestLabel")}</div><div class="sig-val" style="font-size:22px">${items[0] && items[0].when ? esc(items[0].when) : "—"}</div><div class="sig-sub">${t("news.sig.latestSub")}</div></div>
       </div></div>
     </div>
   </section>
   <div class="wrap">
     ${lead ? `<div class="newslead">${newsRowHTML(lead, true)}</div>` : ""}
     <div class="filters" style="margin-top:${lead?"18":"0"}px">
-      <span class="lbl">Filter</span>
+      <span class="lbl">${t("news.filter.label")}</span>
       ${NEWS_FILTERS.map(f => `<button class="chip" data-newscat="${f}" aria-pressed="${NEWS_CAT===f}">${f}${f!=="All" && counts[f] ? ` (${counts[f]})` : ""}</button>`).join("")}
     </div>
     ${shown.length
       ? `<div class="newslist" style="margin-top:14px">${shown.map(it => newsRowHTML(it, false)).join("")}</div>`
-      : `<div class="state-empty" style="margin:14px 0;min-height:110px"><div><b>0</b><span>NO ${esc(NEWS_CAT.toUpperCase())} STORIES RIGHT NOW</span></div></div>`}
+      : `<div class="state-empty" style="margin:14px 0;min-height:110px"><div><b>0</b><span>${t("news.empty.noStories", {cat: esc(NEWS_CAT.toUpperCase())})}</span></div></div>`}
   </div>`;
 }
 
 function wireHTML(){
   const side = (p, kind) => `
     <div class="side-${kind==="out"?"o":"i"}">
-      <div class="lbl">${kind==="out"?"Drop":"Add"}</div>
+      <div class="lbl">${kind==="out"?t("teams.wire.drop"):t("teams.wire.add")}</div>
       <div class="side-h" style="margin-top:10px">
         ${HEADS[p.slug] ? `<img src="${HEADS[p.slug]}" alt="">` : `<div class="fallback">${esc(initials(p.n))}</div>`}
         <div><div class="side-n">${esc(p.n)}</div><div class="side-m">${esc(p.m)}</div></div>
       </div>
       <div class="side-stats">
-        <div class="stat"><b>${esc(p.pos)}</b><span>POS RANK</span></div>
-        <div class="stat"><b style="color:${p.d>0?"var(--up)":"var(--down)"}">${p.d>0?"+":""}${p.d}%</b><span>6-WK TREND</span></div>
+        <div class="stat"><b>${esc(p.pos)}</b><span>${t("teams.wire.posRank")}</span></div>
+        <div class="stat"><b style="color:${p.d>0?"var(--up)":"var(--down)"}">${p.d>0?"+":""}${p.d}%</b><span>${t("teams.wire.trend")}</span></div>
       </div>
     </div>`;
   return `<div class="wire">${WIRE.map(w=>`
     <div class="swap">
       <div class="swap-head">
-        <span class="lbl">Suggested swap</span>
+        <span class="lbl">${t("teams.wire.swap")}</span>
         <span class="pill" style="border-color:${w.team==="ESPN"?"rgba(255,45,45,.4)":"rgba(139,92,255,.4)"};color:var(--ink-2)">${w.team}</span>
       </div>
       <div class="swap-body">${side(w.out,"out")}<div class="arrowcell">→</div>${side(w.in_,"in")}</div>
       <div class="swap-foot">
         <div style="display:flex;gap:18px">
-          <div class="stat"><b style="color:var(--lime)">${w.gain}</b><span>LINEUP DELTA</span></div>
-          <div class="stat"><b>${w.faab}</b><span>SUGGESTED BID</span></div>
+          <div class="stat"><b style="color:var(--lime)">${w.gain}</b><span>${t("teams.wire.delta")}</span></div>
+          <div class="stat"><b>${w.faab}</b><span>${t("teams.wire.bid")}</span></div>
         </div>
-        <button class="btn">Queue claim</button>
+        <button class="btn">${t("teams.wire.claim")}</button>
       </div>
     </div>`).join("")}</div>`;
 }

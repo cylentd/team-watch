@@ -25,18 +25,18 @@ function poolHTML(){
     <div class="wrap hero-in">
       <div>
         <div class="hero-eyebrow" style="--tint:var(--lime)">
-          <span class="league-mark"></span><span class="lbl">Every player who logged a snap · week 1</span>
+          <span class="league-mark"></span><span class="lbl">${t("pool.hero.eyebrow")}</span>
         </div>
-        <h1>Who is<br>getting<br><em>the ball</em></h1>
+        <h1>${t("pool.hero.title")}</h1>
         <div class="hero-meta">
-          <span class="pill">Ranked on usage, not points</span>
-          <span class="pill">Rostered % from both leagues</span>
+          <span class="pill">${t("pool.hero.pillUsage")}</span>
+          <span class="pill">${t("pool.hero.pillRostered")}</span>
         </div>
       </div>
       <div><div class="signals">
-        <div class="sig up"><div class="lbl">Role growing</div><div class="sig-val">${rising}</div><div class="sig-sub">SHARE +3 OR MORE</div></div>
-        <div class="sig down"><div class="lbl">Role shrinking</div><div class="sig-val">${falling}</div><div class="sig-sub">SHARE -3 OR MORE</div></div>
-        <div class="sig empty"><div class="lbl">Tracked</div><div class="sig-val">—</div><div class="sig-sub">FILLS AFTER WEEK 1</div></div>
+        <div class="sig up"><div class="lbl">${t("pool.sig.risingLabel")}</div><div class="sig-val">${rising}</div><div class="sig-sub">${t("pool.sig.risingSub")}</div></div>
+        <div class="sig down"><div class="lbl">${t("pool.sig.fallingLabel")}</div><div class="sig-val">${falling}</div><div class="sig-sub">${t("pool.sig.fallingSub")}</div></div>
+        <div class="sig empty"><div class="lbl">${t("pool.sig.trackedLabel")}</div><div class="sig-val">—</div><div class="sig-sub">${t("pool.sig.trackedSub")}</div></div>
       </div></div>
     </div>
   </section>
@@ -44,30 +44,30 @@ function poolHTML(){
   <div class="wrap">
     ${scatterHTML(rows)}
     <div class="filters">
-      <span class="lbl">Position</span>
+      <span class="lbl">${t("pool.filter.position")}</span>
       ${["ALL","QB","RB","WR","TE"].map(p=>`<button class="chip" data-pos="${p}" aria-pressed="${POOL_FILTER===p}">${p}</button>`).join("")}
       <span style="flex:1"></span>
-      <span class="lbl">Sorted by share change</span>
+      <span class="lbl">${t("pool.filter.sorted")}</span>
     </div>
     ${(() => {
       const pages = Math.max(1, Math.ceil(rows.length / POOL_PAGE_SIZE));
       const page = Math.min(POOL_PAGE, pages);
       const pageRows = rows.slice((page-1)*POOL_PAGE_SIZE, page*POOL_PAGE_SIZE);
       const pager = `<div class="filters" style="margin-top:8px">
-        <span class="lbl">${rows.length} player${rows.length===1?"":"s"}</span>
+        <span class="lbl">${t("pool.pager.players", {n: rows.length, s: rows.length===1?"":"s"})}</span>
         <span style="flex:1"></span>
-        <button class="chip" data-poolpage="prev" ${page<=1?"disabled":""}>‹ Prev</button>
-        <span class="lbl">Page ${page} of ${pages}</span>
-        <button class="chip" data-poolpage="next" ${page>=pages?"disabled":""}>Next ›</button>
+        <button class="chip" data-poolpage="prev" ${page<=1?"disabled":""}>${t("common.pager.prev")}</button>
+        <span class="lbl">${t("common.pager.page", {page: page, pages: pages})}</span>
+        <button class="chip" data-poolpage="next" ${page>=pages?"disabled":""}>${t("common.pager.next")}</button>
       </div>`;
       return `${pager}
       <div class="ptable">
         <div class="phead">
-          <div>#</div><div></div><div>Player</div><div>Snaps</div><div>Δ snaps</div>
-          <div>Share</div><div>Δ share</div><div>Verdict</div><div>Rostered</div>
+          <div>#</div><div></div><div>${t("pool.table.player")}</div><div>${t("pool.table.snaps")}</div><div>${t("pool.table.dSnaps")}</div>
+          <div>${t("pool.table.share")}</div><div>${t("pool.table.dShare")}</div><div>${t("pool.table.verdict")}</div><div>${t("pool.table.rostered")}</div>
         </div>
         ${pageRows.length ? pageRows.map((r,i)=>poolRow(r, (page-1)*POOL_PAGE_SIZE + i)).join("")
-          : `<div class="state-empty" style="margin:26px 0;min-height:120px"><div><b>0</b><span>NO PLAYERS AT THIS POSITION</span></div></div>`}
+          : `<div class="state-empty" style="margin:26px 0;min-height:120px"><div><b>0</b><span>${t("pool.empty.noPlayers")}</span></div></div>`}
       </div>`;
     })()}
   </div>`;

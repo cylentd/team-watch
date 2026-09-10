@@ -48,14 +48,14 @@ function dfsPoolRow(p, i, cap, valueLeaders, handcuffs, poolIndex, activeEligibl
   const status = INJ[p.status] || (p.status ? p.status : null);
   const handcuffFor = handcuffs.get(p.n);
   const tags = (status ? ` <span class="tag ${status==="Q"?"q":"o"}">${esc(status)}</span>` : "")
-    + (p.src === "yahoo" ? ` <span class="tag t-bk" title="The model has no rate for him and no book posts a line, so this is Yahoo's FPPG (last season's average) rescaled to the model's ${esc(p.pos)} level. A guess at the model's scale, not a model read.">Y</span>` : "")
-    + (p.src === "line" ? ` <span class="tag t-bk" title="No game log to project from — a rookie, or a player who missed last season. This is the book's own line for him this week read as a role: yards over the league's yards per carry is a carry count, receptions over the catch rate a target count. The market's read, not ours.">LINE</span>` : "")
-    + (valueLeaders.has(p.n) ? ` <span class="tag t-cbup" title="Highest points per $1,000 at ${esc(p.pos)} in this pool">BEST VALUE</span>` : "")
-    + (handcuffFor ? ` <span class="tag t-role" title="${esc(handcuffFor)} (the ${esc(p.pos)} starter) is OUT/IR — cheapest teammate left at ${esc(p.pos)}, first in line for the workload">HANDCUFF</span>` : "");
+    + (p.src === "yahoo" ? ` <span class="tag t-bk" title="${t("dfs.tag.yahooTitle", {pos: esc(p.pos)})}">${t("dfs.tag.yahoo")}</span>` : "")
+    + (p.src === "line" ? ` <span class="tag t-bk" title="${t("dfs.tag.lineTitle")}">${t("dfs.tag.line")}</span>` : "")
+    + (valueLeaders.has(p.n) ? ` <span class="tag t-cbup" title="${t("dfs.tag.valueTitle", {pos: esc(p.pos)})}">${t("dfs.tag.value")}</span>` : "")
+    + (handcuffFor ? ` <span class="tag t-role" title="${t("dfs.tag.handcuffTitle", {name: esc(handcuffFor), pos: esc(p.pos)})}">${t("dfs.tag.handcuff")}</span>` : "");
   // activeEligible: null when no lineup slot is being filled (a tap auto-picks the first open
   // slot this player fits); true/false once a slot IS selected, so a wrong-position player reads
   // as disabled rather than silently doing nothing when tapped.
-  const addLabel = activeEligible === false ? "WRONG POS" : activeEligible === true ? "SWAP IN" : "+ ADD";
+  const addLabel = activeEligible === false ? t("dfs.row.wrongPos") : activeEligible === true ? t("dfs.row.swapIn") : t("dfs.row.add");
   return `<div class="prow dfsrow ${p.mine?"mine":""} ${activeEligible===false?"ineligible":""}" style="animation-delay:${40+i*18}ms" data-dfs="${poolIndex}" role="button" tabindex="0">
     <div>${HEADS[p.slug] ? `<img class="pool-head" src="${HEADS[p.slug]}" alt="">`
         : `<div class="pool-head" style="display:grid;place-items:center;font-family:var(--mono);font-size:11px;color:var(--ink-3)">${esc(p.abbr||initials(p.n))}</div>`}</div>

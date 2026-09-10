@@ -6,11 +6,11 @@ const fmtAm    = a => a === null || a === undefined ? "—" : (a > 0 ? `+${a}` :
 const overPrice = p => p.book ? (p.books ? p.books[p.book].over : Number(p.book)) : null;
 /* One line per book, "DK o63.5 -112 · UD o60.5 -107". The sample rows only carry one price. */
 const ABBR = {DraftKings:"DK", Underdog:"UD"};
-const bookLine = p => !p.books ? `BOOK ${p.book}`
+const bookLine = p => !p.books ? t("parlay.bookline.book", {price: p.book})
   : Object.entries(p.books).map(([b,x]) => `${ABBR[b]||b} ${x.line == null ? "" : `o${x.line} `}${fmtAm(x.over)}`
       + (x.pick ? ` → ${x.pick.toUpperCase()} ${x.conf}%` : "")).join(" · ")
-    + (p.games ? ` · ${p.games} GP` : "")
-    + (p.opp_f ? ` · ${esc(p.opp)} D ${Math.round(Math.abs(p.opp_f - 1) * 100) === 0 ? "±0" : (p.opp_f >= 1 ? "+" : "−") + Math.round(Math.abs(p.opp_f - 1) * 100)}%` : "");
+    + (p.games ? ` · ${t("parlay.bookline.games", {n: p.games})}` : "")
+    + (p.opp_f ? ` · ${t("parlay.bookline.opp", {team: esc(p.opp), pct: Math.round(Math.abs(p.opp_f - 1) * 100) === 0 ? "±0" : (p.opp_f >= 1 ? "+" : "−") + Math.round(Math.abs(p.opp_f - 1) * 100)})}` : "");
 const ud = p => p.books && p.books.Underdog;
 /* Underdog carries no anytime-TD line in this feed at all (checked 2026-09-10: 0 of 430 TD rows
    have an Underdog price -- their pick'em board just isn't in what BettingPros scrapes here), so

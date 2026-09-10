@@ -25,10 +25,10 @@ function gameLogHTML(p, log){
   const avg = vals.reduce((a, b) => a + b, 0) / n;
   const first = log.g[0], last = log.g[n - 1];
   return `<div class="gl">
-    <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-label="last ${n} games">${bars}${rule}</svg>
+    <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-label="${t("parlay.log.aria", {n: n})}">${bars}${rule}</svg>
     <div class="glcap">
-      <span>${p.mkt === "TD" ? `scored in <b>${hit} of ${n}</b>` : `cleared ${line} in <b>${hit} of ${n}</b>`} · avg <b>${p.mkt === "TD" || p.mkt === "RECS" ? avg.toFixed(1) : avg.toFixed(0)}</b>${typeof p.mu === "number" ? ` · rate <b>${p.mkt === "TD" ? (p.mu).toFixed(2) : p.mu.toFixed(p.mkt === "RECS" ? 1 : 0)}</b>` : ""}</span>
-      <span>${first[0]} wk${first[1]} → ${last[0]} wk${last[1]} · week numbers under the bars</span>
+      <span>${p.mkt === "TD" ? t("parlay.log.scored", {hit: hit, n: n}) : t("parlay.log.cleared", {line: line, hit: hit, n: n})} · ${t("parlay.log.avg", {v: p.mkt === "TD" || p.mkt === "RECS" ? avg.toFixed(1) : avg.toFixed(0)})}${typeof p.mu === "number" ? ` · ${t("parlay.log.rate", {v: p.mkt === "TD" ? (p.mu).toFixed(2) : p.mu.toFixed(p.mkt === "RECS" ? 1 : 0)})}` : ""}</span>
+      <span>${first[0]} wk${first[1]} → ${last[0]} wk${last[1]} · ${t("parlay.log.weeks")}</span>
     </div>
   </div>`;
 }

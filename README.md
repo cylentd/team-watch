@@ -24,7 +24,8 @@ python design/build.py
 
 Edit the parts under `design/src/`, never the generated files. `design/assemble.py` joins the
 parts in the order the two manifests give (`python design/assemble.py --map` says which part
-owns which output line). The build writes two copies of the same page: `index.html` at the root (full HTML document, what Vercel serves) and `design/index.html`
+owns which output line). Copy is data: user-facing strings live in `design/src/content.json`
+and the code says `t("area.component.slot")`, never the string. The build writes two copies of the same page: `index.html` at the root (full HTML document, what Vercel serves) and `design/index.html`
 (fragment, what the Artifact publisher takes). Player headshots are inlined as data URIs, so
 both files work offline.
 
@@ -71,7 +72,8 @@ see `design/build.py`'s `load_status()`.
 ## Layout
 
 ```
-design/src/shell.html  source — the document and its static markup
+design/src/shell.html  source — the document and its static markup ({{copy:key}} slots)
+design/src/content.json source — every user-facing string, keyed area.component.slot
 design/src/css/        source — style, one part per surface or component
 design/src/js/         source — behaviour, data/ lib/ ui/ builder/ surface/ chrome/ main.js
 design/src/order.*.txt the concatenation order, with the reasons it is load-bearing

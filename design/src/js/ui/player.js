@@ -27,7 +27,7 @@ function sparkHTML(v, w, h){
 }
 
 function deltaHTML(d){
-  if (d === null || d === undefined) return `<span class="delta new">No data</span>`;
+  if (d === null || d === undefined) return `<span class="delta new">${t("teams.delta.none")}</span>`;
   const k = d > 1.5 ? "up" : d < -1.5 ? "down" : "flat";
   const g = k === "up" ? "▲" : k === "down" ? "▼" : "—";
   return `<span class="delta ${k}">${g} ${d>0?"+":""}${d.toFixed(1)}%</span>`;
@@ -35,11 +35,11 @@ function deltaHTML(d){
 
 function rankHTML(p){
   const [r, of, mv, pct] = p.rank;
-  if (r === null) return `<div class="rk-1"><b style="color:var(--ink-3)">—</b><small>unranked</small></div>
+  if (r === null) return `<div class="rk-1"><b style="color:var(--ink-3)">—</b><small>${t("teams.rank.unranked")}</small></div>
     <div class="pctbar"></div>`;
   const mk = mv > 0 ? "up" : mv < 0 ? "down" : "flat";
   const mg = mv > 0 ? `▲${mv}` : mv < 0 ? `▼${Math.abs(mv)}` : "—";
-  return `<div class="rk-1"><b>${p.pos}${r}</b><small>of ${of}</small><span class="mv ${mk}">${mg}</span></div>
+  return `<div class="rk-1"><b>${p.pos}${r}</b><small>${t("teams.rank.of", {n: of})}</small><span class="mv ${mk}">${mg}</span></div>
     <div class="pctbar"><i style="--w:${Math.round(pct*100)}%"></i></div>`;
 }
 
