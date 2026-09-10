@@ -9,7 +9,7 @@ Four surfaces, one console:
 | 03 | Parlay | Which of the model's best slips do I take, or what do I build myself |
 | 04 | DFS | Which precomputed lineup do I load, or what do I build myself |
 
-Build after editing `template.html`:
+Build after editing anything under `design/src/`:
 
 ```
 python design/build.py
@@ -27,7 +27,7 @@ python design/build.py
 The Yahoo file comes from a website scrape, so lineup slots are inferred by filling the league
 lineup in roster order. The board says so in a caption rather than passing the guess off as fact.
 
-Everything else — `trend`, `d`, `rank`, `news` — lives in the `SIGNALS` map in `template.html`,
+Everything else — `trend`, `d`, `rank`, `news` — lives in the `SIGNALS` map in `design/src/js/data/teams.js`,
 keyed by player name. That is the seam: when `model.watch` produces real output, `SIGNALS` gets
 replaced by its JSON and nothing else changes.
 

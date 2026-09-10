@@ -10,8 +10,11 @@ Global architecture rules apply here: `~/Github/agent-config/shared/architecture
 
 | File | |
 |---|---|
-| `design/template.html` | **source** — markup, CSS, JS. Edit this. |
-| `design/build.py` | inlines headshots and live data, writes both outputs |
+| `design/src/shell.html` | **source** — the document: head, static markup, the two slots |
+| `design/src/css/**`, `design/src/js/**` | **source** — one concern per file, none over ~200 lines |
+| `design/src/order.css.txt`, `order.js.txt` | the only order authority; `# pin:` lines say why an order is load-bearing |
+| `design/assemble.py` | joins the parts into the template string; `--check` fails on an unlisted or missing part |
+| `design/build.py` | inlines headshots and live data into the assembled template, writes both outputs |
 | `index.html` | **generated** — full document, what Vercel serves |
 | `design/index.html` | **generated** — fragment, what the Artifact publisher takes |
 
@@ -42,7 +45,7 @@ python design/build.py
 ## Two sessions at once
 
 More than one Claude session works this repo. Two sessions in one checkout interleave edits in
-`design/template.html` and overwrite each other's `index.html` — it has already happened. The
+the same source file and overwrite each other's `index.html` — it has already happened. The
 second session takes a worktree: say "use a worktree", which branches from `origin/main` under
 `.claude/worktrees/`. Notes that cost time to learn:
 

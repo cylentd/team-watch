@@ -2,7 +2,7 @@
 
     python design/assemble.py --check            # manifests and files agree, placeholders present
     python design/assemble.py --map              # which part owns which line of the output
-    python design/assemble.py --verify FILE      # sha256 of assemble() vs FILE (newline-normalised)
+    python design/assemble.py --verify FILE      # sha256 of assemble(banners=False) vs FILE
     python design/assemble.py --out FILE         # write the assembled template
 
 The layout, and the rules the checks enforce:
@@ -15,13 +15,16 @@ The layout, and the rules the checks enforce:
     src/js/**           behaviour only
 
 Concatenation is a byte cut: parts are joined with nothing between them and never re-indented.
-The manifests are the single order authority; filenames carry no numbers. A file on disk that
-no manifest lists, or a manifest line with no file, fails the build (`check()`), so a part can
-neither silently drop out of the page nor silently join it.
+By default each part is preceded by a one-line origin banner (`/* ── css/chrome/nav.css ── */`)
+so devtools says which file a rule or function came from; `strip_banners()` removes them again
+for byte comparisons. The manifests are the single order authority; filenames carry no numbers.
+A file on disk that no manifest lists, or a manifest line with no file, fails the build
+(`check()`), so a part can neither silently drop out of the page nor silently join it.
 """
 import argparse
 import hashlib
 import pathlib
+import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent
@@ -45,11 +48,18 @@ def parts(kind):
     return [SRC / kind / rel for rel in manifest(kind)]
 
 
+BANNER_RE = re.compile(r"^/\* ── (css|js)/\S+ ── \*/\n", re.M)
+
+
 def banner(kind, rel):
     return f"/* ── {kind}/{rel} ── */\n"
 
 
-def concat(kind, banners=False):
+def strip_banners(text):
+    return BANNER_RE.sub("", text)
+
+
+def concat(kind, banners=True):
     chunks = []
     for rel in manifest(kind):
         if banners:
@@ -88,7 +98,7 @@ def check():
     return problems
 
 
-def assemble(banners=False):
+def assemble(banners=True):
     """The template as one string, LF newlines. Raises if check() finds anything."""
     problems = check()
     if problems:
@@ -99,7 +109,7 @@ def assemble(banners=False):
     return text
 
 
-def line_map(banners=False):
+def line_map(banners=True):
     """(kind/rel, first line, last line) of every part in the assembled output, 1-based."""
     text = SHELL.read_text(encoding="utf-8")
     rows = []
@@ -127,7 +137,7 @@ def main(argv=None):
     ap.add_argument("--map", action="store_true")
     ap.add_argument("--verify", metavar="FILE")
     ap.add_argument("--out", metavar="FILE")
-    ap.add_argument("--banners", action="store_true", help="prefix each part with an origin comment")
+    ap.add_argument("--banners", action="store_true", help="keep the origin banners in --verify/--out")
     a = ap.parse_args(argv)
 
     if a.check or not (a.map or a.verify or a.out):
@@ -138,7 +148,7 @@ def main(argv=None):
         if problems:
             return 1
     if a.map:
-        for name, s, e in line_map(a.banners):
+        for name, s, e in line_map(True):
             print(f"{s:5d}-{e:<5d} {e - s + 1:4d}  {name}")
     if a.verify:
         want = pathlib.Path(a.verify).read_text(encoding="utf-8")

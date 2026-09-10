@@ -22,8 +22,9 @@ builder content are sample data, replaced later by the `team-watch` skill. See
 python design/build.py
 ```
 
-Edit `design/template.html`, never the generated files. The build writes two copies of the same
-page: `index.html` at the root (full HTML document, what Vercel serves) and `design/index.html`
+Edit the parts under `design/src/`, never the generated files. `design/assemble.py` joins the
+parts in the order the two manifests give (`python design/assemble.py --map` says which part
+owns which output line). The build writes two copies of the same page: `index.html` at the root (full HTML document, what Vercel serves) and `design/index.html`
 (fragment, what the Artifact publisher takes). Player headshots are inlined as data URIs, so
 both files work offline.
 
@@ -55,8 +56,12 @@ see `design/build.py`'s `load_status()`.
 ## Layout
 
 ```
-design/template.html   source — all markup, CSS and sample data
-design/build.py        inlines headshots, writes both outputs
+design/src/shell.html  source — the document and its static markup
+design/src/css/        source — style, one part per surface or component
+design/src/js/         source — behaviour, data/ lib/ ui/ builder/ surface/ chrome/ main.js
+design/src/order.*.txt the concatenation order, with the reasons it is load-bearing
+design/assemble.py     joins the parts; --check, --map, --verify
+design/build.py        inlines headshots and live data, writes both outputs
 design/DESIGN.md       design system + the field contract the skill must supply
 index.html             generated — do not edit
 ```

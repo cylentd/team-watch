@@ -16,5 +16,5 @@ index.html         -diff merge=ours
 design/index.html  -diff merge=ours
 
 # Source parts must not pick up CRLF: the build concatenates them byte for byte, and a stray \r
-# changes the output hash. (design/src/ arrives with the decomposition; harmless until then.)
+# changes the output hash.
 design/src/**      text eol=lf
