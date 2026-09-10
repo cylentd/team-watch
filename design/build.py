@@ -372,6 +372,51 @@ def load_wrcb():
     return None
 
 
+def load_news():
+    """Breaking news from ff-jarvis's own scanner (it watches FantasyPros' wire and writes
+    data/breaking_news.json) -- feed first, then the file directly, same two-tier pattern as
+    every other live read here. `when` is reformatted the same way kickoff() below does it, so a
+    news row and a kickoff badge read as the same kind of timestamp."""
+    feed = REPO / "data" / "feed.json"
+    raw = None
+    try:
+        d = json.loads(feed.read_text(encoding="utf-8"))
+        block = ((d.get("market") or {}).get("news") or {}).get("data")
+        if block and block.get("items"):
+            raw = block
+    except (OSError, json.JSONDecodeError):
+        pass
+    if raw is None:
+        path = DWR / "breaking_news.json"
+        if path.exists():
+            try:
+                raw = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                raw = None
+    if not raw or not raw.get("items"):
+        return None
+    # Sorted here, not trusted from the source or left to the client: the scanner's own file has
+    # shuffled order before now, and a client-side sort would need the raw timestamp shipped
+    # alongside the display string anyway. dt.min as the fallback key puts an unparseable date
+    # last, never first.
+    def parsed_time(it):
+        try:
+            return dt.datetime.strptime(it["created"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=UTC)
+        except (KeyError, TypeError, ValueError):
+            return dt.datetime.min.replace(tzinfo=UTC)
+    items = []
+    for it in sorted(raw["items"], key=parsed_time, reverse=True):
+        t = parsed_time(it)
+        when = None if t == dt.datetime.min.replace(tzinfo=UTC) else (
+            t.astimezone(LOCAL_TZ).strftime("%a %I:%M%p").replace(" 0", " ").replace("AM", "a").replace("PM", "p"))
+        items.append({
+            "id": it.get("id"), "title": it.get("title"), "desc": it.get("desc"),
+            "impact": it.get("impact"), "team": it.get("team_id"),
+            "categories": it.get("categories") or [], "link": it.get("link"), "when": when,
+        })
+    return {"items": items}
+
+
 def implied(american):
     """Break-even probability of an American price, vig included."""
     a = float(american)
@@ -711,6 +756,7 @@ def main():
     live = live_espn(available)
     liveY = live_yahoo(available)
     liveDfsYahoo = live_dfs_yahoo(available)
+    news = load_news()
 
     props = live_props(available, roster_index(("espn", live), ("yahoo", liveY)))
 
@@ -738,6 +784,7 @@ def main():
         "const LIVE_ESPN = " + json.dumps(live) + ";\n"
         "const LIVE_YAHOO = " + json.dumps(liveY) + ";\n"
         "const LIVE_FEED = " + json.dumps(live_feed()) + ";\n"
+        "const LIVE_NEWS = " + json.dumps(news) + ";\n"
         "const LIVE_PROPS = " + json.dumps(props) + ";\n"
         "const LIVE_DFS_YAHOO = " + json.dumps(liveDfsYahoo) + ";"
     )
@@ -794,6 +841,10 @@ def main():
         print(f"Yahoo DFS: {len(liveDfsYahoo['players'])} players, pulled {liveDfsYahoo['fetched']}")
     else:
         print("Yahoo DFS: no ff-jarvis dfs_pool.json/feed block, template falls back to its sample")
+    if news:
+        print(f"News: {len(news['items'])} items from ff-jarvis's scanner")
+    else:
+        print("News: no breaking_news.json/feed block, template falls back to its sample")
     if missing:
         print(f"no headshot for {len(missing)} slugs (initials fallback renders)")
 

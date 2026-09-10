@@ -90,6 +90,11 @@ html{scrollbar-color:var(--line-2) var(--void)}
 }
 .brand-name i{color:var(--lime);font-style:normal}
 .topbar-spacer{flex:1}
+.discordlink{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;
+  flex-shrink:0;border:1px solid var(--line-2);border-radius:3px;color:var(--ink-2);
+  transition:color .2s var(--ease),border-color .2s var(--ease),background .2s var(--ease)}
+.discordlink svg{width:16px;height:16px}
+.discordlink:hover{color:#5865f2;border-color:#5865f2;background:rgba(88,101,242,.08)}
 .pill{
   display:inline-flex;align-items:center;gap:7px;
   font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
@@ -139,7 +144,18 @@ html{scrollbar-color:var(--line-2) var(--void)}
 }
 .hero-in{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:44px;align-items:end}
 .hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
-.hero-eyebrow .teamswitch{margin-left:auto}
+/* My Teams' switcher used margin-left:auto to push right within .hero-eyebrow -- but that row
+   only spans the hero's LEFT grid column (the signals column is a sibling), so on any viewport
+   wide enough to show both columns the pill landed flush against the invisible seam between
+   them, nowhere near a real edge. It read as centered/floating because it wasn't aligned to
+   anything the eye could see. Pinning it absolute to .hero-in (the wrap itself, already the
+   positioning context) puts it on the same edge the topbar's pills and the signals column sit
+   on -- right:26px, not right:0, because an absolutely positioned child's offset is measured
+   from the containing block's OUTER padding edge, while .wrap's own padding (26px, only ever
+   this value above the 960px breakpoint this rule is scoped to) is where normal-flow content
+   like the signals column actually stops. right:0 here would land 26px past every other edge
+   on the page, not on top of them. */
+.hero-eyebrow .teamswitch{position:absolute;top:0;right:26px;margin-left:0}
 .league-mark{width:8px;height:8px;border-radius:99px;background:var(--tint)}
 .hero h1{
   font-family:var(--disp);font-weight:800;
@@ -157,7 +173,7 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .leaguechip:hover{border-color:var(--ink-2);color:var(--ink)}
 .leaguechip .lc-info{opacity:.55;font-size:11px}
 
-.signals{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);background:var(--panel)}
+.signals{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));border:1px solid var(--line);background:var(--panel)}
 .sig{padding:14px 12px 13px;border-right:1px solid var(--line);min-width:0}
 .sig:last-child{border-right:0}
 .sig .lbl{white-space:nowrap;font-size:11px;letter-spacing:.16em}
@@ -183,16 +199,49 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .ticker-track{display:flex;gap:0;white-space:nowrap;animation:slide 62s linear infinite}
 .ticker:hover .ticker-track{animation-play-state:paused}
 @keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.tick{display:inline-flex;align-items:center;gap:9px;padding:0 22px;font-size:12.5px;color:var(--ink-2);text-decoration:none;transition:color .15s var(--ease)}
-.tick:hover{color:var(--ink)}
-.tick:hover b{text-decoration:underline;text-decoration-color:var(--line-2)}
-.tick b{color:var(--ink);font-weight:500}
-.tick .arrow{font-family:var(--mono);font-size:11px}
-.tick .arrow.up{color:var(--up)}
-.tick .arrow.down{color:var(--down)}
-.tick .arrow.flat{color:var(--ink-3)}
-.tick .src{font-family:var(--mono);font-size:11px;color:var(--ink-3);letter-spacing:.08em}
+.tick{display:inline-flex;align-items:center;gap:9px;padding:0 22px;font-size:12.5px;font-weight:400;
+  color:var(--ink-2);text-decoration:none;transition:color .15s var(--ease)}
+.tick:hover{color:var(--ink);text-decoration:underline;text-decoration-color:var(--line-2)}
+.tick .arrow{font-family:var(--mono);font-size:11px;color:var(--lime)}
 .tick::after{content:"";width:4px;height:4px;background:var(--line-2);transform:rotate(45deg);margin-left:22px}
+
+/* News tab: a wire bulletin -- timestamp/team/category on their own line, then the headline,
+   then the scanner's own read on what it means (.nimpact), marked by a rule rather than a label
+   since the position already says what it is. */
+.newslist{border:1px solid var(--line);background:var(--panel)}
+.newsrow{display:block;position:relative;padding:15px 16px 15px 20px;border-bottom:1px solid var(--line);
+  text-decoration:none;color:inherit;transition:background .15s var(--ease)}
+.newsrow::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:transparent}
+.newsrow.breaking::before{background:var(--down)}
+.newsrow.injury::before{background:var(--amber)}
+.newsrow:last-child{border-bottom:0}
+.newsrow:hover{background:var(--panel-2)}
+.newsrow:hover .ntitle{text-decoration:underline;text-decoration-color:var(--line-2)}
+.newstop{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px}
+.newstop .when{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--ink-3);text-transform:uppercase}
+.nteam{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--ink-2);
+  border:1px solid var(--line-2);padding:1px 6px;border-radius:2px}
+.ncat{font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.1em;padding:2px 6px;
+  border-radius:2px;text-transform:uppercase;border:1px solid var(--line-2);color:var(--ink-3)}
+.ncat.breaking{color:var(--down);background:rgba(255,90,82,.1);border-color:rgba(255,90,82,.3)}
+.ncat.injury{color:var(--amber);background:rgba(255,176,32,.1);border-color:rgba(255,176,32,.3)}
+.ntitle{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.4}
+.ndesc{margin-top:4px;font-size:13px;color:var(--ink-2);line-height:1.5}
+.nimpact{margin-top:9px;padding-left:11px;border-left:2px solid var(--lime);font-size:12.5px;color:var(--ink-2);line-height:1.55}
+
+/* The lead story: today's freshest Breaking item, on its own above the filter row -- bigger
+   type, a live pulse instead of a plain dot, the same red stripe as any other breaking row but
+   thicker because this is the one the page is actually leading with. */
+.newslead{border:1px solid rgba(255,90,82,.35);background:var(--panel);
+  box-shadow:0 0 0 1px rgba(255,90,82,.08) inset}
+.newslead .newsrow{padding-left:24px}
+.newslead .newsrow::before{width:4px}
+.newslead .ntitle{font-family:var(--disp);font-size:21px;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.newslead .ndesc{font-size:13.5px}
+.newslead .nimpact{font-size:13px}
+.livedot{width:7px;height:7px;border-radius:99px;background:var(--down);flex-shrink:0;
+  box-shadow:0 0 8px rgba(255,90,82,.8);animation:livedot 1.4s var(--ease) infinite}
+@keyframes livedot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
 
 /* ============================== SECTION RULE ============================== */
 .rule{display:flex;align-items:center;gap:14px;margin:38px 0 0}
@@ -410,6 +459,7 @@ html{scrollbar-color:var(--line-2) var(--void)}
   transition:color .2s var(--ease),background .2s var(--ease);
 }
 .navitem:first-child{border-left:1px solid var(--line)}
+.navitem .abbr{display:none}
 .navitem .ix{display:inline-flex;width:20px;height:20px;opacity:.6}
 .navitem .ix svg{width:100%;height:100%}
 .navitem[aria-current="true"] .ix{opacity:1}
@@ -617,9 +667,45 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .railscroll::-webkit-scrollbar{height:6px}
 .railscroll::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:3px}
 .railscroll > *{min-width:0}
-.lineupcard,.presetcard{position:static;border:1px solid var(--line-2);background:var(--panel)}
-.lineupcard.best,.presetcard.best{border-color:var(--lime);box-shadow:0 0 0 1px var(--lime) inset}
-.presetfoot .payrow b.pos{color:var(--lime)} .presetfoot .payrow b.neg{color:var(--down)}
+.lineupcard{position:static;border:1px solid var(--line-2);background:var(--panel)}
+.lineupcard.best{border-color:var(--lime);box-shadow:0 0 0 1px var(--lime) inset}
+
+/* Gallery slip: a curated ticket, not the plain builder list reused with a border. A boarding-
+   pass header (scope + the one kickoff every leg on this card shares), one loud number, a torn
+   perforation, the legs, then one full-width tap. No correlation caveat -- we picked the legs
+   and own the math. Lifts and cants half a degree on hover, like a card being picked off a rail. */
+.ticket{position:static;display:flex;flex-direction:column;background:var(--panel);
+  border:1px solid var(--line-2);border-top:3px solid var(--line-2);
+  transition:transform .2s var(--ease),box-shadow .2s var(--ease),border-color .2s var(--ease)}
+.ticket:hover{transform:translateY(-4px) rotate(-.35deg);box-shadow:0 16px 32px rgba(0,0,0,.4);border-color:var(--ink-3)}
+.ticket.best{border-top-color:var(--lime)}
+.ticket-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:14px 15px 0}
+.ticket-eyebrow{display:block;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.16em;color:var(--ink-3)}
+.ticket-kick{margin-top:4px;font-family:var(--disp);font-weight:800;font-size:19px;letter-spacing:-.02em;
+  line-height:1.1;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ticket-best{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.12em;color:#0b0d05;
+  background:var(--lime);padding:3px 7px;border-radius:2px;white-space:nowrap;flex-shrink:0;margin-top:2px}
+.ticket-stat{padding:10px 15px 14px}
+.ticket-stat b{display:block;font-family:var(--mono);font-size:34px;font-weight:700;letter-spacing:-.03em;line-height:1;color:var(--lime)}
+.ticket-stat b.neg{color:var(--down)}
+.ticket-stat span{display:block;margin-top:6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--ink-3)}
+/* The torn edge between the headline and the legs -- a dashed cut with a bite out of each side,
+   like a ticket stub separated from its counterfoil. Needs .ticket to allow overflow so the
+   notches can sit half outside the card's own border. */
+.ticket-tear{position:relative;height:0;border-top:1px dashed var(--line-2);margin:0 15px}
+.ticket-tear::before,.ticket-tear::after{content:"";position:absolute;top:-7px;width:14px;height:14px;
+  border-radius:50%;background:var(--void)}
+.ticket-tear::before{left:-22px}
+.ticket-tear::after{right:-22px}
+.ticket .slipleg:last-child{border-bottom:0}
+.ticket-cta{appearance:none;width:100%;border:none;border-top:1px dashed var(--line-2);background:rgba(200,255,46,.06);
+  color:var(--lime);font-family:var(--disp);font-weight:800;text-transform:uppercase;letter-spacing:-.01em;
+  font-size:15px;padding:14px 15px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  transition:background .15s var(--ease),color .15s var(--ease)}
+.ticket-cta span{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--ink-2)}
+.ticket-cta:hover{background:var(--lime);color:#0b0d05}
+.ticket-cta:hover span{color:#0b0d05}
+.ticket-cta:active{transform:scale(.98)}
 .hint{font-size:12px;color:var(--ink-3);line-height:1.5;margin-top:8px;max-width:70ch}
 .sliphead{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid var(--line);background:var(--panel-2)}
 .slipleg{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:11px 15px;border-bottom:1px solid var(--line)}
@@ -639,6 +725,7 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .slipleg.ud.higher .m .dir{color:var(--up)} .slipleg.ud.lower .m .dir{color:var(--down)}
 .slipleg.ud .m b{font-size:15px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
 .slipleg.ud .m .stat{font-size:10.5px;font-weight:600;letter-spacing:.12em}
+.slipleg.ud .m .udtag{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--amber)}
 .slipleg .o{font-family:var(--mono);font-size:12px;font-weight:700;white-space:nowrap;
   padding:5px 9px;border:1px solid var(--line-2);border-radius:3px;background:var(--panel-3);
   text-align:center}
@@ -674,35 +761,6 @@ html{scrollbar-color:var(--line-2) var(--void)}
   background:rgba(255,176,32,.07);color:var(--amber);font-family:var(--mono);font-size:11px;letter-spacing:.1em}
 .payout{padding:15px}
 
-/* model card: what goes into the number, how much each part weighs, and the sample it was
-   measured on. Sits under the slip; the slip stays sticky, this scrolls. */
-.mcard{margin-top:14px;border:1px solid var(--line);background:var(--panel)}
-.mcard-head{padding:13px 15px 11px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
-.mcard-head h3{margin:0;font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:-.02em;line-height:1;text-transform:uppercase}
-.mcard-head h3 em{font-style:normal;color:var(--lime)}
-.mcard-head .lbl{white-space:nowrap}
-.ribbon{padding:14px 15px 4px}
-.ribbon .lbl{display:block;margin-bottom:8px}
-.ribbon .bar{display:flex;height:22px;border:1px solid var(--line-2);overflow:hidden}
-.ribbon .bar i{display:grid;place-items:center;font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.1em;white-space:nowrap;overflow:hidden}
-.ribbon .bar .a{background:var(--lime);color:#0b0d05}
-.ribbon .bar .b{background:var(--panel-3);color:var(--ink)}
-.ribbon .bar .c{background:repeating-linear-gradient(135deg,var(--panel-3) 0 4px,var(--panel) 4px 8px);color:var(--ink-2);border-left:1px solid var(--line-2)}
-.ribbon .key{display:flex;gap:14px;flex-wrap:wrap;margin-top:7px;font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--ink-3);text-transform:uppercase}
-.mrow{display:grid;grid-template-columns:22px minmax(0,1fr) 88px;gap:10px 12px;padding:12px 15px;border-top:1px solid var(--line);align-items:start}
-.mrow .ix{font-family:var(--mono);font-size:10px;color:var(--ink-3);padding-top:3px}
-.mrow h4{margin:0;font-size:13px;font-weight:600;letter-spacing:-.01em}
-.mrow p{margin:4px 0 0;font-size:11.5px;line-height:1.5;color:var(--ink-2)}
-.mrow .ev{margin-top:6px;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:var(--ink-3);text-transform:uppercase}
-.mrow .ev b{color:var(--ink);font-weight:600}
-.mrow .wt{text-align:right}
-.mrow .wt b{display:block;font-family:var(--mono);font-size:19px;font-weight:700;letter-spacing:-.03em;line-height:1}
-.mrow .wt span{display:block;margin-top:4px;font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase}
-.mrow.off{opacity:.62}
-.mrow.off .wt b{color:var(--ink-3);font-size:14px;font-weight:400}
-.mcard-foot{padding:11px 15px 13px;border-top:1px solid var(--line-2);background:var(--panel-2);font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--ink-3);text-transform:uppercase;line-height:1.7}
-.mcard-foot b{color:var(--amber);font-weight:600}
-@media (max-width:760px){.mrow{grid-template-columns:18px minmax(0,1fr) 70px;padding:11px 13px}.mcard-head h3{font-size:19px}}
 .payrow{display:flex;align-items:baseline;justify-content:space-between;padding:6px 0;font-family:var(--mono);font-size:11px;color:var(--ink-2)}
 .payrow b{color:var(--ink);font-weight:700;font-size:13px}
 .bigedge{margin:12px 0 4px;font-family:var(--mono);font-size:38px;font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--lime)}
@@ -729,12 +787,6 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .ex-body b{color:var(--ink)}
 .ex-note{margin:12px 0 0;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-3);line-height:1.7}
 .ex-note b{color:var(--ink-2)}
-details.deep{border:1px solid var(--line);background:var(--panel);margin-top:24px}
-details.deep > summary{list-style:none;cursor:pointer;padding:12px 15px;font-family:var(--mono);
-  font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
-details.deep > summary::-webkit-details-marker{display:none}
-details.deep[open] > summary{border-bottom:1px solid var(--line)}
-details.deep > summary:hover{color:var(--ink)}
 .dfstable .phead,.dfstable .prow{grid-template-columns:40px minmax(120px,1fr) 76px 54px 56px 50px 66px;min-width:0}
 .dfsrow .chip{padding:5px 9px;font-size:11px}
 .dfsrow .chip.go{border-color:var(--lime);color:var(--lime);background:rgba(200,255,46,.08)}
@@ -823,6 +875,12 @@ details.deep > summary:hover{color:var(--ink)}
   .wire{grid-template-columns:minmax(0,1fr)}
   .states{grid-template-columns:repeat(2,minmax(0,1fr))}
   .expo{grid-template-columns:minmax(0,1fr);gap:18px}
+  /* Single-column hero: the signals block drops below the text instead of sitting beside it,
+     so pinning the switcher to .hero-in's corner has nothing to its right to line up with and
+     nothing below it reserving space -- it just overlaps the giant h1. Back to inline, flush
+     right within the eyebrow row itself, which is correct here since that row already spans the
+     hero's full width once there's only one column. */
+  .hero-eyebrow .teamswitch{position:static;margin-left:auto}
 }
 @media (max-width:760px){
   .wrap{padding:0 14px}
@@ -830,6 +888,10 @@ details.deep > summary:hover{color:var(--ink)}
   .navbar{top:52px}
   .brand-name{font-size:16px}
   #weekpill{display:none}
+  /* The topbar is already tight enough on a phone to hide the week pill entirely -- the Discord
+     icon goes too rather than squeezing the status pills further. It's not lost: the News tab
+     leads with its own "Join the Discord" button. */
+  .discordlink{display:none}
   .topbar .pill .full{display:none}
   .topbar .pill .abbr{display:inline}
 
@@ -875,12 +937,17 @@ details.deep > summary:hover{color:var(--ink)}
   .arrowcell{display:none}
   .states{grid-template-columns:minmax(0,1fr)}
 
+  /* Five tabs' short labels fit a phone width outright (verified against a 362px nav at
+     390px viewport) -- overflow-x/the mask/the scrollbar hiding stay only as a safety net for
+     a narrower phone or a sixth tab later, not the expected path. */
   .nav{overflow-x:auto;scrollbar-width:none;
     -webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 22px),transparent);
     mask-image:linear-gradient(90deg,#000 calc(100% - 22px),transparent);}
   .nav::-webkit-scrollbar{display:none}
-  .navitem{padding:11px 9px;font-size:11.5px;gap:5px;flex-shrink:0}
+  .navitem{padding:11px 7px;font-size:11.5px;gap:5px;flex-shrink:0}
   .navitem .ix{width:15px;height:15px}
+  .navitem .full{display:none}
+  .navitem .abbr{display:inline}
   .hero h1{font-size:clamp(30px,8.6vw,80px)}
   .quad{height:320px;min-width:540px}
   /* The compact (portrait, no per-dot labels) mobile geometry from scatterHTML fits its
@@ -897,11 +964,11 @@ details.deep > summary:hover{color:var(--ink)}
     content:"SWIPE →";position:absolute;right:8px;bottom:8px;z-index:1;
     font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--lime);
     background:var(--panel);padding:3px 6px;border:1px solid var(--lime);pointer-events:none;
-    animation:swipehint 1.6s var(--ease) infinite;
   }
-  @keyframes swipehint{0%,100%{transform:translateX(0)}50%{transform:translateX(4px)}}
   /* Hidden once there's nothing left to swipe to -- content that already fits, or a scroller
-     already at its end. Toggled by nudgeScrollers() on every render and every scroll event. */
+     already at its end. Toggled by nudgeScrollers() on every render and every scroll event. The
+     hint itself sits still -- a static label plus the one-time scroll-and-back in nudgeScrollers()
+     is what sells "this moves," not a permanent twitch (that read as broken, not as an invitation). */
   .quadscroll.no-swipe::before,.quadscroll.no-swipe::after,
   .rail.no-swipe::before,.rail.no-swipe::after{display:none}
   /* .rail (non-scrolling) holds the fade + hint pinned to the edge; .railscroll (nested) is the
@@ -916,7 +983,6 @@ details.deep > summary:hover{color:var(--ink)}
     content:"SWIPE →";position:absolute;right:8px;bottom:8px;z-index:2;
     font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--lime);
     background:var(--panel);padding:3px 6px;border:1px solid var(--lime);pointer-events:none;
-    animation:swipehint 1.6s var(--ease) infinite;
   }
   .railscroll{overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 0 0 14px;
     grid-auto-columns:86%;scrollbar-width:none}
@@ -977,6 +1043,9 @@ details.deep > summary:hover{color:var(--ink)}
       <div class="brand-mark"></div>
       <div class="brand-name">Team<i>//</i>Watch</div>
     </div>
+    <a class="discordlink" href="https://discord.gg/KUzgvUmbxQ" target="_blank" rel="noopener noreferrer" title="FF news on Discord" aria-label="FF news on Discord">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.522 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1568 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
+    </a>
     <div class="topbar-spacer"></div>
     <span class="pill warn" id="topbadge"><span class="dot"></span><span class="full">Sample signals — skill not wired</span><span class="abbr">Sample data</span></span>
     <span class="pill" id="weekpill"><span class="dot" style="color:var(--lime)"></span>Week 1 · Preseason</span>
@@ -1145,6 +1214,23 @@ const TICKER = [
   {t:"up",   b:"Xavier Worthy", s:"red-zone target share leads the room this camp", src:"BEAT · 11h"},
 ];
 
+/* ff-jarvis's own scanner (data/breaking_news.json), watched via LIVE_NEWS the same two-tier
+   feed/file pattern as every other live source -- feeds both the My Teams ticker and the News
+   tab, so a real breaking story shows up in both places, not just one. Falls back to TICKER,
+   reshaped to the same fields, when that file isn't there at all. */
+const SAMPLE_NEWS = TICKER.map((t, i) => ({
+  id: i, title: `${t.b} ${t.s}`, desc: null, impact: null, team: null,
+  categories: [], link: t.url || null, when: null,
+}));
+const NEWS_ITEMS = (LIVE_NEWS && LIVE_NEWS.items) || SAMPLE_NEWS;
+const CAT_CLASS = {Breaking:"breaking", Injury:"injury", News:"news", Commentary:"commentary"};
+const NEWS_FILTERS = ["All", "Breaking", "Injury", "News", "Commentary"];
+let NEWS_CAT = "All";
+/* The row itself carries the severity, not just its tags -- a left stripe you catch scrolling
+   past, before you've read a single tag. Breaking outranks Injury when a story is both. */
+const newsSeverity = it => (it.categories || []).includes("Breaking") ? "breaking"
+  : (it.categories || []).includes("Injury") ? "injury" : "";
+
 const WIRE = [
   {out:{n:"Tyrone Tracy Jr.",slug:"tyrone-tracy",m:"RB · NYG · BN",pos:"RB47",d:-7.2},
    in_:{n:"Chase Brown",slug:"chase-brown",m:"RB · CIN · 41% rostered",pos:"RB22",d:+12.6},
@@ -1261,17 +1347,80 @@ function signalsHTML(team){
   </div>`;
 }
 
+/* The My Teams ticker: real breaking/injury news now, same NEWS_ITEMS the News tab reads, so a
+   story that's actually breaking shows up here too instead of the old fixed six-line sample
+   loop. Filtered to what's actually urgent (severity), not every routine practice-report line --
+   a ticker that scrolls past in a few seconds is the wrong place for "logged a full practice."
+   Falls back to the plain feed on a quiet day with nothing severe, so it's never empty. Just the
+   headline: the timestamp/team detail lives one click away on the News tab, and repeating it
+   here for a dozen scrolling items was noise a glance doesn't need. */
 function tickerHTML(){
-  const item = t => {
-    const href = t.url || `https://www.google.com/search?tbm=nws&q=${encodeURIComponent(t.b + " " + t.s)}`;
-    return `<a class="tick" href="${esc(href)}" target="_blank" rel="noopener noreferrer">
-      <span class="arrow ${t.t}">${t.t==="up"?"▲":t.t==="down"?"▼":"—"}</span><b>${esc(t.b)}</b> ${esc(t.s)} <span class="src">${esc(t.src)}</span></a>`;
-  };
-  const run = TICKER.map(item).join("");
+  const severe = NEWS_ITEMS.filter(it => newsSeverity(it));
+  // Every item left after that filter is already Breaking or Injury, so coloring the dot by
+  // severity here (red/amber, the News tab's language) would just paint the whole row the same
+  // color and say nothing -- a plain lime dot marks "live," which is the thing this row of
+  // filtered-down items has left to say that the headline itself doesn't already.
+  const run = (severe.length ? severe : NEWS_ITEMS).slice(0, 12).map(it =>
+    `<a class="tick" href="${esc(it.link || `https://www.google.com/search?tbm=nws&q=${encodeURIComponent(it.title)}`)}" target="_blank" rel="noopener noreferrer">
+      <span class="arrow">●</span>${esc(it.title)}</a>`
+  ).join("");
   return `<div class="wrap" style="margin:16px auto"><div class="ticker">
     <div class="ticker-tag">LIVE</div>
     <div class="ticker-track">${run}${run}</div>
   </div></div>`;
+}
+
+function newsRowHTML(it, featured){
+  const href = it.link || `https://www.google.com/search?tbm=nws&q=${encodeURIComponent(it.title)}`;
+  const sev = newsSeverity(it);
+  return `<a class="newsrow ${sev} ${featured ? "featured" : ""}" href="${esc(href)}" target="_blank" rel="noopener noreferrer">
+    <div class="newstop">
+      ${featured ? `<span class="livedot"></span>` : ""}
+      ${it.when ? `<span class="when">${esc(it.when)}</span>` : ""}
+      ${it.team ? `<span class="nteam">${esc(it.team)}</span>` : ""}
+      ${(it.categories || []).map(c => `<span class="ncat ${CAT_CLASS[c] || ""}">${esc(c)}</span>`).join("")}
+    </div>
+    <div class="ntitle">${esc(it.title)}</div>
+    ${it.desc && it.desc !== it.title ? `<div class="ndesc">${esc(it.desc)}</div>` : ""}
+    ${it.impact ? `<div class="nimpact">${esc(it.impact)}</div>` : ""}
+  </a>`;
+}
+function newsHTML(){
+  const items = NEWS_ITEMS;
+  const teams = new Set(items.map(i => i.team).filter(Boolean)).size;
+  // The freshest Breaking story leads on its own, above the filter -- the one thing "most
+  // recent, or breaking" actually means when a page can only lead with one story. Everything
+  // else, filtered or not, is chronological below it.
+  const lead = items.find(it => newsSeverity(it) === "breaking");
+  const rest = lead ? items.filter(it => it !== lead) : items;
+  const counts = {};
+  rest.forEach(it => (it.categories || []).forEach(c => counts[c] = (counts[c]||0) + 1));
+  const shown = NEWS_CAT === "All" ? rest : rest.filter(it => (it.categories||[]).includes(NEWS_CAT));
+  return `<section class="hero">
+    <div class="numghost">${items.length}</div>
+    <div class="wrap hero-in">
+      <div>
+        <div class="hero-eyebrow" style="--tint:var(--lime)">
+          <span class="league-mark"></span><span class="lbl">${items.length} items · newest first</span>
+        </div>
+        <h1>What's<br><em>breaking</em></h1>
+      </div>
+      <div><div class="signals">
+        <div class="sig up"><div class="lbl">Teams in play</div><div class="sig-val">${teams}</div><div class="sig-sub">OF 32</div></div>
+        <div class="sig"><div class="lbl">Latest</div><div class="sig-val" style="font-size:22px">${items[0] && items[0].when ? esc(items[0].when) : "—"}</div><div class="sig-sub">MOST RECENT</div></div>
+      </div></div>
+    </div>
+  </section>
+  <div class="wrap">
+    ${lead ? `<div class="newslead">${newsRowHTML(lead, true)}</div>` : ""}
+    <div class="filters" style="margin-top:${lead?"18":"0"}px">
+      <span class="lbl">Filter</span>
+      ${NEWS_FILTERS.map(f => `<button class="chip" data-newscat="${f}" aria-pressed="${NEWS_CAT===f}">${f}${f!=="All" && counts[f] ? ` (${counts[f]})` : ""}</button>`).join("")}
+    </div>
+    ${shown.length
+      ? `<div class="newslist" style="margin-top:14px">${shown.map(it => newsRowHTML(it, false)).join("")}</div>`
+      : `<div class="state-empty" style="margin:14px 0;min-height:110px"><div><b>0</b><span>NO ${esc(NEWS_CAT.toUpperCase())} STORIES RIGHT NOW</span></div></div>`}
+  </div>`;
 }
 
 function wireHTML(){
@@ -1582,13 +1731,14 @@ const playing = p => p.flag !== "out" && p.flag !== "q" && p.flag !== "backup" &
    Touchdown legs are priced longer and land less often, so the floor is 30% and the price
    window runs to +600; mix needs no new band since each leg is still gated by its own market. */
 const scopeOK = (p, s) => s === "tds" ? p.mkt === "TD" : s === "mix" ? true : p.mkt !== "TD";
-/* Underdog is pick'em: higher or lower at their line, paid by a fixed multiplier, so the pick is
-   whichever side the model gives more than 58% (a 3-pick entry needs each leg near 55% to break
-   even at 6x), ranked by that confidence. A 0.5-reception or 12.5-yard line is confidence for
-   free and Underdog knows it, so those lines are skipped too. Underdog posts no anytime-TD
-   line; udPick() derives one from the model for the list and the cart (tagged MODEL), but a
-   gallery card is a slip you can place, so it never holds a pick Underdog does not sell -- a
-   TD-scoped Underdog card is therefore always empty, honest, not a bug. */
+/* Underdog is pick'em: higher or lower at their line, paid by a fixed multiplier, so a
+   yards/receptions pick needs the model above 58% (a 3-pick entry needs each leg near 55% to
+   break even at 6x) to clear the "confidence for free" floor. A touchdown pick skips that floor
+   on purpose -- Underdog sells no anytime-TD line, so udPick() derives one from the model's raw
+   P(score) (tagged MODEL) and a real slate mostly runs under 50%: TDs are long shots by nature,
+   and a gallery card that only ever showed the rare 58%+ read would misrepresent what "the
+   model's best TD card" actually looks like. Ranked by confidence either way, so a card still
+   leads with its strongest read; a low number here is the risk, not a mistake. */
 const UD_MIN = 58;
 const legOKInBook = (p, s, book) => {
   if (book !== "underdog")
@@ -1597,7 +1747,9 @@ const legOKInBook = (p, s, book) => {
       && (p.mkt === "TD" ? (p.model >= 30 && overPrice(p) >= -300 && overPrice(p) <= 600)
                          : (p.model >= 35 && p.model <= 85 && overPrice(p) >= -300 && overPrice(p) <= 200));
   const u = udPick(p);
-  return u && !u.synthetic && u.conf >= UD_MIN && (p.games||0) >= 8 && playing(p) && !u.stale && scopeOK(p, s)
+  // A real yardage/receptions pick has to be at Underdog's own line (!synthetic) and clear the
+  // confidence floor; a touchdown pick is always synthetic and skips that floor (see above).
+  return u && (p.mkt === "TD" || (!u.synthetic && u.conf >= UD_MIN)) && (p.games||0) >= 8 && playing(p) && !u.stale && scopeOK(p, s)
     // The line-size floor (a 0.5-reception or 12.5-yard line is confidence for free) only means
     // anything for a real yardage/receptions line; a TD pick has no line to be thin, it is
     // whichever side the model favors.
@@ -2120,23 +2272,23 @@ function dfsPoolRow(p, i, cap, valueLeaders, handcuffs, poolIndex, activeEligibl
 }
 
 function marketHead(kind){
-  const f = (typeof LIVE_FEED !== "undefined" && LIVE_FEED) ? LIVE_FEED.fetched : {};
-  const site = kind === "dfs" ? dfsSite() : null;
-  const when = kind === "props" ? (LIVE_MARKET ? LIVE_MARKET.fetched : null) : site.when;
+  // The props market used to repeat line/player/game counts and a fetched timestamp here --
+  // exactly what the topbar's DATA status pill and dropdown already say once, globally. Showing
+  // the work twice reads as "trust us," not as more trustworthy; the DFS pool keeps its line
+  // since its cap/salary source is specific to the site toggled, not covered by that dropdown.
+  if (kind === "props") return `<div class="mkthead"><div><span class="lbl">Player prop market</span></div></div>`;
+  const site = dfsSite();
+  const when = site.when;
   return `<div class="mkthead">
     <div>
-      <span class="lbl">${kind === "props" ? "Player prop market" : `${site.label} DFS player pool`}</span>
-      <div class="mktsrc">${kind === "props"
-        ? `${PROPS.length} priced lines · ${new Set(PROPS.map(p=>p.n)).size} players · ${new Set(PROPS.map(p=>p.game)).size} games · ${BOOKS.join(", ")}`
-          + (LIVE_MARKET && LIVE_MARKET.model ? ` · model through ${esc(LIVE_MARKET.model.through)}` : "") + `${LIVE_MARKET ? "" : " · SAMPLE"}`
-        : `${site.pool.length} players · $${site.cap.toLocaleString()} cap · salaries as posted${site.key==="yahoo" && !LIVE_YAHOO_DFS ? " · SAMPLE" : ""}`
-          + (site.key === "yahoo" && LIVE_YAHOO_DFS && typeof LIVE_YAHOO_DFS.modeled === "number"
+      <span class="lbl">${site.label} DFS player pool</span>
+      <div class="mktsrc">${site.pool.length} players · $${site.cap.toLocaleString()} cap · salaries as posted${site.key==="yahoo" && !LIVE_YAHOO_DFS ? " · SAMPLE" : ""}
+          ${site.key === "yahoo" && LIVE_YAHOO_DFS && typeof LIVE_YAHOO_DFS.modeled === "number"
               ? ` · projections: the model for ${LIVE_YAHOO_DFS.modeled}`
                 + (LIVE_YAHOO_DFS.lined ? `, the book's line for ${LIVE_YAHOO_DFS.lined} with no game log (LINE)` : "")
-                + `, Yahoo's FPPG rescaled for the rest (Y)` : "")}</div>
+                + `, Yahoo's FPPG rescaled for the rest (Y)` : ""}</div>
     </div>
-    <span class="pill ${when?"":"warn"}">${when ? `Fetched ${esc(when)}`
-      : (kind === "props" ? "No props pulled yet" : "No salary export loaded")}</span>
+    <span class="pill ${when?"":"warn"}">${when ? `Fetched ${esc(when)}` : "No salary export loaded"}</span>
   </div>`;
 }
 
@@ -2163,79 +2315,6 @@ function explainHTML(kind){
       <p class="ex-note"><b>PROJ</b> is the model's fantasy points on Yahoo scoring — its yards, receptions and touchdown rates for this week, half-PPR, for every player it has a rate for and not only the ones a book prices. A player with no game log at all (a rookie) wears a <b>LINE</b>: his own line this week, read as a role. Whoever is left — the deep bench, K, DST — wears a <b>Y</b>: Yahoo's last-season average, rescaled to the model's level at his position, a placeholder rather than a read. No site publishes real ownership before lock — PROJ OWN is a rank-based estimate, same idea any pre-lock ownership projection tool uses.</p>`}
     </div>
   </details>`;
-}
-
-/* The model, described where the number is used. The live counts come from this build; the
-   measured numbers are the 2025 rolling backtest in ff-jarvis METHODOLOGY 12.29, copied here with
-   their date. A touchdown number is mostly the book's lines: the prior weighs 15 games against a
-   player's own effective sample of at most 6.2 (24 games at half-life 4), so 15 / 21.2 = 71%. */
-const BACKTEST = {
-  date: "2026-09-09", games: 18158, players: 542, season: 2025,
-  cover: [76.6, 82.3],           // 80% bands: share of games inside, worst and best market
-  td: {n: 4938, before: 0.442, after: 0.428},   // log loss of P(any TD), position prior -> book's role
-  opp: {n: 536, before: 69.2, after: 68.5},     // passing-yards MAE without / with the defense
-  tdBookShare: 71, ownWindow: 24, halfLife: 4, oppWeight: 0.5,
-};
-function modelCardHTML(){
-  if (!LIVE_MARKET || !LIVE_MARKET.model) return "";
-  const P = PROPS, M = LIVE_MARKET.model;
-  const n = k => P.filter(k).length;
-  const out = n(p => p.flag === "out"), q = n(p => p.flag === "q"), bk = n(p => p.flag === "backup"),
-        stale = n(p => p.stale), norole = n(p => p.norole), moved = n(p => p.moved);
-  const fs = P.map(p => p.opp_f).filter(Boolean);
-  const fmin = fs.length ? Math.min(...fs) : 1, fmax = fs.length ? Math.max(...fs) : 1;
-  const w = BACKTEST.oppWeight;
-  const oppLo = Math.round((Math.pow(fmin, w) - 1) * 100), oppHi = Math.round((Math.pow(fmax, w) - 1) * 100);
-  const pct = x => `${x.toFixed(1)}%`;
-  return `<section class="mcard" aria-label="How the number is made">
-    <div class="mcard-head">
-      <h3>How the <em>number</em> is made</h3>
-      <span class="lbl">Measured on ${BACKTEST.games.toLocaleString()} games</span>
-    </div>
-    <div class="ribbon">
-      <span class="lbl">A touchdown number, by weight</span>
-      <div class="bar" role="img" aria-label="71% the book's lines, 29% his own games, then the defense">
-        <i class="a" style="flex:${BACKTEST.tdBookShare}">BOOK'S LINES ${BACKTEST.tdBookShare}%</i>
-        <i class="b" style="flex:${100 - BACKTEST.tdBookShare}">HIS GAMES ${100 - BACKTEST.tdBookShare}%</i>
-      </div>
-      <div class="key"><span>A yards number is his games alone, then × the defense</span></div>
-    </div>
-    <div class="mrow">
-      <span class="ix">01</span>
-      <div><h4>His own games</h4>
-        <p>The last ${BACKTEST.ownWindow}, the newest counting most (a game four back counts half). The spread around that rate comes from how far players like him have landed from theirs.</p>
-        <div class="ev">80% bands held <b>${pct(BACKTEST.cover[0])}–${pct(BACKTEST.cover[1])}</b> of ${BACKTEST.games.toLocaleString()} player-games, ${BACKTEST.season}, out of sample</div></div>
-      <div class="wt"><b>100%</b><span>of a yards number</span></div>
-    </div>
-    <div class="mrow">
-      <span class="ix">02</span>
-      <div><h4>The book's lines</h4>
-        <p>His rushing and receiving lines say what his job is this week. They set most of the touchdown number and, when they sit far from his history, mark a yards line ROLE? instead of edge.</p>
-        <div class="ev">TD error <b>${BACKTEST.td.before} → ${BACKTEST.td.after}</b> on ${BACKTEST.td.n.toLocaleString()} games · <b>${stale}</b> lines ROLE?, <b>${moved}</b> on a new team the model has not seen, <b>${norole}</b> TD lines with no role this week</div></div>
-      <div class="wt"><b>${BACKTEST.tdBookShare}%</b><span>of a TD number</span></div>
-    </div>
-    <div class="mrow">
-      <span class="ix">03</span>
-      <div><h4>The defense</h4>
-        <p>What it allows his position, last 8 games against league, taken at half strength. It moves passing; rushing and receiving barely notice.</p>
-        <div class="ev">Passing error <b>${BACKTEST.opp.before} → ${BACKTEST.opp.after}</b> yds on ${BACKTEST.opp.n} games · others within 0.1 · this slate <b>${oppLo >= 0 ? "+" : "−"}${Math.abs(oppLo)}% to +${oppHi}%</b></div></div>
-      <div class="wt"><b>×½</b><span>weight on the rate</span></div>
-    </div>
-    <div class="mrow">
-      <span class="ix">04</span>
-      <div><h4>Who is playing</h4>
-        <p>Sleeper's injury report and depth chart. Out gets no number, questionable and backups get a tag, and none of them can enter a slip.</p>
-        <div class="ev">This week <b>${out}</b> lines out · <b>${q}</b> questionable · <b>${bk}</b> backups${M.status_fetched ? ` · pulled ${esc(M.status_fetched)}` : ""}</div></div>
-      <div class="wt"><b>gate</b><span>not a weight</span></div>
-    </div>
-    <div class="mrow off">
-      <span class="ix">—</span>
-      <div><h4>Not in it yet</h4>
-        <p>Game total and spread, scheme, weather, Wednesday-to-Friday practice. Cornerback matchups appear as a CB tag from RotoBaller's weekly column, opinion only. Volume × efficiency and touchdowns allowed by the defense were tried and did not beat what is here.</p></div>
-      <div class="wt"><b>0</b><span>untested here</span></div>
-    </div>
-    <div class="mcard-foot">Calibrated on ${BACKTEST.season} · stats through ${esc(M.through)} · <b>not yet scored against closing lines</b> · first grade when week-1 box scores post</div>
-  </section>`;
 }
 
 /* What "Copy slip" puts on the clipboard: one leg per line, the way you would type it into the
@@ -2372,46 +2451,47 @@ function lineupCard(l, i, cap){
 }
 
 /* One compact card per gallery slip -- not the full slipHTML() payout block, since there can be
-   a dozen or more of these in one rail. No model%/edge on the leg rows themselves (that's the
-   noise the cart used to lead with); one footer line carries the model-vs-book number once. */
+   a dozen or more of these in one rail. Every leg in a card shares one kickoff (that's what a
+   window is), so the kickoff is said once in the header, never per row. Underdog rows reuse the
+   exact call unit the prop market and the cart already use -- name, then HIGHER/LOWER + the
+   stat, one unit, no per-leg confidence -- since the card's own headline number already covers
+   that. No model%/edge on the leg rows themselves; one headline stat carries the number once. */
 function presetCard(card, bestOf){
   const legs = card.legs.map(i=>PROPS[i]);
-  const games = new Set(legs.map(l=>l.game));
-  const sameGame = games.size < legs.length;
   const best = card === (bestOf || GALLERY_BEST[card.book]);
   const legRows = legs.map(l => { const u = card.book === "underdog" ? udPick(l) : null; return card.book === "underdog"
-    ? `<div class="slipleg">
-        <div><div class="p">${esc(l.n)}</div><div class="m">${esc(MKT[l.mkt].toUpperCase())}${u.line !== null ? ` ${u.line}` : ""}${l.kick ? ` · ${esc(l.kick.toUpperCase())}` : ""}${u.synthetic ? " · MODEL" : ""}</div></div>
-        <div class="o udpick ${u.pick||""}">${u.pick ? u.pick.toUpperCase() : "—"}<span class="conf">${typeof u.conf === "number" ? u.conf+"%" : "PENDING"}</span></div></div>`
+    ? `<div class="slipleg ud ${u.pick||""}">
+        <div><div class="p">${esc(l.n)}</div>
+          <div class="m"><span class="dir">${u.pick === "higher" ? "▲ HIGHER" : u.pick === "lower" ? "▼ LOWER" : "NO CALL"}</span><b>${u.line !== null ? u.line : "TD"}</b><span class="stat">${u.line !== null ? MKT_SHORT[l.mkt] : "ANYTIME"}</span>${u.synthetic ? `<span class="udtag">MODEL</span>` : ""}</div></div>
+      </div>`
     : `<div class="slipleg">
-        <div><div class="p">${esc(l.n)}</div><div class="m">${esc(propLabel(l).toUpperCase())}${l.kick ? ` · ${esc(l.kick.toUpperCase())}` : ""}</div></div>
+        <div><div class="p">${esc(l.n)}</div><div class="m">${esc(propLabel(l).toUpperCase())}</div></div>
         <div class="o">${esc(fmtAm(overPrice(l)))}</div></div>`; }).join("");
-  let footer;
+  // The headline is the one number this card is selling: Underdog's combined hit rate, or DK's
+  // combined price -- not a payrow list of secondary stats a curated card doesn't need to defend.
+  let stat;
   if (card.book === "underdog"){
     const udP = legs.reduce((a,l)=>a*udPick(l).conf/100, 1);
-    footer = `<div class="payrow"><span>ALL PICKS HIT</span><b class="pos">${(udP*100).toFixed(1)}%</b></div>
-      <div class="payrow"><span>BREAK-EVEN AT 6×</span><b>16.7%</b></div>`;
+    stat = `<div class="ticket-stat"><b>${(udP*100).toFixed(1)}%</b><span>ALL ${legs.length} PICKS HIT · PAYS 6×</span></div>`;
   } else {
     const prices = legs.map(overPrice).filter(a => a !== null);
     const priced = prices.length === legs.length;
     const dec = priced ? prices.reduce((a,x)=>a*amToDec(x), 1) : null;
     const implied = priced ? prices.reduce((a,x)=>a*amToProb(x), 1) : null;
     const modelP = legs.reduce((a,l)=>a*l.model/100, 1);
-    footer = `<div class="payrow"><span>MODEL vs BOOK</span><b class="${modelP>=implied?"pos":"neg"}">${modelP>=implied?"+":""}${((modelP-implied)*100).toFixed(1)}</b></div>
-      <div class="payrow"><span>$25 RETURNS</span><b>${priced ? `$${Math.round(25*dec)}` : "—"}</b></div>`;
+    const pos = modelP >= implied;
+    stat = `<div class="ticket-stat"><b class="${pos?"":"neg"}">${priced ? esc(fmtAm(decToAm(dec))) : "—"}</b><span>${legs.length} LEGS · MODEL ${pos?"+":""}${((modelP-implied)*100).toFixed(1)} OVER THE BOOK</span></div>`;
   }
-  const pricedAll = card.book !== "underdog" && legs.every(l => overPrice(l) !== null);
-  const headPill = card.book === "underdog" ? `${legs.length} legs`
-    : `${legs.length} legs${pricedAll ? ` · ${esc(fmtAm(decToAm(legs.map(overPrice).reduce((a,x)=>a*amToDec(x),1))))}` : ""}`;
-  return `<div class="slip presetcard ${best ? "best" : ""}">
-    <div class="sliphead"><span class="lbl">${best?"★ Best · ":""}${esc(card.win.short)} · ${esc(card.scopeLabel)}</span>
-      <span class="pill">${headPill}</span></div>
-    ${legRows}
-    ${sameGame ? `<div class="corr"><span>⚠</span>SAME GAME — CORRELATED, PRICE IT AS ONE</div>` : ""}
-    <div class="payout presetfoot">
-      ${footer}
-      <button class="btn" style="width:100%;margin-top:10px" data-loadslip="${card.book}:${card.i}">Load into my slip</button>
+  const kick = card.win.kick || card.win.short;
+  return `<div class="ticket ${best ? "best" : ""}">
+    <div class="ticket-top">
+      <div><span class="ticket-eyebrow">${esc(card.scopeLabel)}</span><div class="ticket-kick">${esc(kick.toUpperCase())}</div></div>
+      ${best ? `<span class="ticket-best">★ BEST</span>` : ""}
     </div>
+    ${stat}
+    <div class="ticket-tear"></div>
+    ${legRows}
+    <button class="ticket-cta" data-loadslip="${card.book}:${card.i}">Load slip<span>${legs.length} leg${legs.length===1?"":"s"}</span></button>
   </div>`;
 }
 
@@ -2422,12 +2502,12 @@ function galleryHTML(){
   // Wednesday's strongest card instead of vanishing with the whole-week winner.
   const bestOf = cards.reduce((a,c) => !a || c.metric > a.metric ? c : a, null);
   return `<div class="rule"><h2>The model's best slips</h2><span class="hair"></span>
-    <span class="side">one window per card · never two days</span></div>
+    <span class="side">one kickoff per card · never two days</span></div>
   <div class="filters">
     <span class="lbl">Legs</span>
     ${scopes.map(([k,label])=>`<button class="chip" data-scope="${k}" aria-pressed="${SLIP_SCOPE===k}">${label}</button>`).join("")}
     <span style="flex:1"></span>
-    <label class="selwrap"><span class="lbl">Window</span>
+    <label class="selwrap"><span class="lbl">Kickoff</span>
       <select class="msel" data-msel="gwin">
         <option value="ALL" ${GAL_WIN==="ALL"?"selected":""}>All</option>
         ${WINDOWS.map(w=>`<option value="${w.k}" ${GAL_WIN===w.k?"selected":""}>${esc(w.label)}</option>`).join("")}
@@ -2436,17 +2516,12 @@ function galleryHTML(){
   </div>
   ${cards.length
     ? `<div class="rail" data-railkey="parlay-gallery"><div class="railscroll">${cards.map(c => presetCard(c, bestOf)).join("")}</div></div>`
-    : PARLAY_BOOK === "underdog" && SLIP_SCOPE === "tds"
-      // Not a thin slate: Underdog has no anytime-TD pick to sell, so a TD card there would be
-      // a bet nobody can place. Say so, and hand over the one-tap route to the cards that exist.
-      ? `<div class="state-empty" style="margin:14px 0;min-height:110px"><div><b>0</b><span>UNDERDOG SELLS NO ANYTIME-TD PICK · TD CARDS ARE DRAFTKINGS</span>
-          <button class="chip" data-parlaybook="dk" style="margin-top:10px">See DraftKings TD cards</button></div></div>`
-      : (() => {
+    : (() => {
           // How close it came: the legs that pass every gate in what is filtered, so "1 line,
           // a card needs 2" reads as the model declining, not the page failing.
           const s = SLIP_SCOPE === "all" ? "mix" : SLIP_SCOPE;
           const ok = PROPS.filter(p => legOKInBook(p, s, PARLAY_BOOK) && (GAL_WIN === "ALL" || p.win === GAL_WIN)).length;
-          return `<div class="state-empty" style="margin:14px 0;min-height:110px"><div><b>${ok}</b><span>${ok === 1 ? "LINE" : "LINES"} THE MODEL WILL STAND BEHIND HERE · A CARD NEEDS 2 IN ONE WINDOW</span></div></div>`;
+          return `<div class="state-empty" style="margin:14px 0;min-height:110px"><div><b>${ok}</b><span>${ok === 1 ? "LINE" : "LINES"} THE MODEL WILL STAND BEHIND HERE · A CARD NEEDS 2 AT ONE KICKOFF</span></div></div>`;
         })()}`;
 }
 
@@ -2478,24 +2553,18 @@ function parlayHTML(){
           <span class="league-mark"></span><span class="lbl">${PROPS.length} lines priced · week 1</span>
         </div>
         <h1>Build the<br><em>slip</em></h1>
-        <div class="hero-meta"><span class="pill ${LIVE_MARKET && !hasModel ? "warn" : ""}">${LIVE_MARKET && !hasModel ? "Book prices only · model pending" : PARLAY_BOOK === "underdog" ? "Higher or lower, one tap" : "Model % vs book price"}</span></div>
         <div class="modes-sub" style="margin-top:14px">
           <span class="lbl" style="margin-right:8px">Book</span>
           <button class="mode-sub" data-parlaybook="dk" aria-pressed="${PARLAY_BOOK==="dk"}">DraftKings</button>
           <button class="mode-sub" data-parlaybook="underdog" aria-pressed="${PARLAY_BOOK==="underdog"}">Underdog</button>
         </div>
       </div>
-      <div><div class="signals">
-        ${PARLAY_BOOK === "underdog" ? `
-        <div class="sig up"><div class="lbl">Picks past 58%</div><div class="sig-val">${PROPS.filter(p=>{const u=udPick(p); return u&&u.conf>=UD_MIN;}).length}</div><div class="sig-sub">OF ${PROPS.filter(p=>udPick(p)).length} RATED</div></div>`
-        : hasModel ? `
+      ${PARLAY_BOOK === "underdog" ? "" : `<div><div class="signals">
+        ${hasModel ? `
         <div class="sig up"><div class="lbl">Legs with edge</div><div class="sig-val">${PROPS.filter(p=>p.edge>0).length}</div><div class="sig-sub">OF ${PROPS.length} PRICED</div></div>` : `
         <div class="sig up"><div class="lbl">Lines priced</div><div class="sig-val">${PROPS.length}</div><div class="sig-sub">${new Set(PROPS.map(p=>p.n)).size} PLAYERS</div></div>
         <div class="sig"><div class="lbl">My players priced</div><div class="sig-val">${new Set(PROPS.filter(p=>p.mine).map(p=>p.n)).size}</div><div class="sig-sub">${PROPS.filter(p=>p.mine).length} LINES</div></div>`}
-        ${LIVE_MARKET
-          ? `<div class="sig"><div class="lbl">Books live</div><div class="sig-val">${BOOKS.length}</div><div class="sig-sub">${esc(BOOKS.map(b=>ABBR[b]||b).join(" · ").toUpperCase())}</div></div>`
-          : `<div class="sig empty"><div class="lbl">Books live</div><div class="sig-val">—</div><div class="sig-sub">LINES POST THURSDAY</div></div>`}
-      </div></div>
+      </div></div>`}
     </div>
   </section>
   <div class="wrap">
@@ -2565,7 +2634,6 @@ function parlayHTML(){
         })()}
       </div>
     </div>
-    <details class="deep"><summary>How the number is made</summary>${modelCardHTML()}</details>
   </div>`;
 }
 
@@ -2700,9 +2768,21 @@ function heroHTML(team){
    by each rail's stable data-railkey, so it survives across re-renders instead.
    Bails when there's nothing to scroll (desktop, or a rail short enough to fit).
 
+   The nudge is one continuous glide from the far end back to the front -- not an out-and-back
+   twitch (peeking partway and snapping back read as two separate, slightly awkward motions) and
+   not a repeating jiggle (a permanent few-px twitch read as janky/broken, not as an invitation).
+   Jumping to the end happens synchronously, before the browser's first paint of this render, so
+   what's actually seen is the whole rail already easing smoothly toward the front -- never a
+   flash of the end position sitting still. It fires once; the static "SWIPE ->" label is what's
+   left standing after.
+
    Also keeps the "SWIPE ->" hint honest: hides it (via the .no-swipe class) the moment there is
    nothing left to swipe to, whether that's because the content fits with no scrolling at all or
-   because the user already scrolled to the end. Re-checked on every scroll and every re-render. */
+   because the user already scrolled to the end. Re-checked on every scroll and every re-render.
+
+   Same pass also wires wheel-to-horizontal: a mouse has no horizontal swipe gesture, so without
+   this a desktop rail is only draggable by its thin scrollbar. Vertical wheel motion over the
+   rail pans it sideways instead of scrolling the page, same as most horizontal carousels. */
 const NUDGED = new Set();
 function nudgeScrollers(root){
   root.querySelectorAll(".quadscroll, .railscroll").forEach(el=>{
@@ -2718,11 +2798,21 @@ function nudgeScrollers(root){
       el.dataset.hintWired = "1";
       el.addEventListener("scroll", update, {passive:true});
     }
+    if (!el.dataset.wheelWired){
+      el.dataset.wheelWired = "1";
+      el.addEventListener("wheel", e=>{
+        if (el.scrollWidth <= el.clientWidth + 4) return;
+        const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+        if (!delta) return;
+        e.preventDefault();
+        el.scrollLeft += delta;
+      }, {passive:false});
+    }
     if (el.scrollWidth <= el.clientWidth + 4 || (key && NUDGED.has(key))) return;
     if (key) NUDGED.add(key);
     requestAnimationFrame(()=>{
-      el.scrollTo({left: 46, behavior: "smooth"});
-      setTimeout(()=>el.scrollTo({left: 0, behavior: "smooth"}), 650);
+      el.scrollLeft = el.scrollWidth - el.clientWidth;
+      el.scrollTo({left: 0, behavior: "smooth"});
     });
   });
 }
@@ -2885,6 +2975,10 @@ function topbarBadge(){
       ? {tone:"live", full:"Live Yahoo pool · rest of app sample", abbr:"Pool live"}
       : {tone:"warn", full:"Sample DFS pool — no salary export loaded", abbr:"Sample data"};
   }
+  if (SURFACE === "news")
+    return LIVE_NEWS
+      ? {tone:"live", full:"Live news", abbr:"News live"}
+      : {tone:"warn", full:"Sample news — scanner not pulled", abbr:"Sample data"};
   return {tone:"warn", full:"Sample signals — skill not wired", abbr:"Sample data"};
 }
 function paintBadge(){
@@ -2899,6 +2993,13 @@ function render(){
   const v = document.getElementById("view");
   paintBadge();
 
+  if (SURFACE === "news"){
+    v.innerHTML = newsHTML();
+    v.querySelectorAll("[data-newscat]").forEach(b=>b.addEventListener("click",()=>{
+      NEWS_CAT = b.dataset.newscat; render();
+    }));
+    return;
+  }
   if (SURFACE === "pool"){
     v.innerHTML = poolHTML();
     v.querySelectorAll(".chip[data-pos]").forEach(b=>b.addEventListener("click",()=>{
@@ -2980,13 +3081,17 @@ const NAV_ICON = {
   pool: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><circle cx="9" cy="14" r="1.6" fill="currentColor" stroke="none"/><circle cx="14" cy="9" r="1.6" fill="currentColor" stroke="none"/><circle cx="18" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg>`,
   parlay: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><circle cx="9" cy="7" r="2" fill="var(--panel)"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="15" cy="12" r="2" fill="var(--panel)"/><line x1="4" y1="17" x2="20" y2="17"/><circle cx="11" cy="17" r="2" fill="var(--panel)"/></svg>`,
   dfs: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="6" height="6" rx="1"/><rect x="14.5" y="3.5" width="6" height="6" rx="1"/><rect x="3.5" y="14.5" width="6" height="6" rx="1"/><rect x="14.5" y="14.5" width="6" height="6" rx="1"/></svg>`,
+  news: NEWS_ICON,
 };
 function buildNav(){
   const n = document.getElementById("nav");
-  const items = [["teams","My teams"],["pool","The pool"],["parlay","Parlay"],["dfs","DFS"]];
-  n.innerHTML = items.map(([k,label])=>
+  // Two labels per tab, same pattern as the topbar pills' full/abbr swap: five tabs' full
+  // labels don't fit a phone width without the row overflowing into a faded, scrollable strip
+  // (a tab someone actually wants -- News -- shouldn't be the one left half-hidden past the edge).
+  const items = [["teams","My teams","Teams"],["pool","The pool","Pool"],["parlay","Parlay","Parlay"],["dfs","DFS","DFS"],["news","News","News"]];
+  n.innerHTML = items.map(([k,label,short])=>
     `<button class="navitem" data-s="${k}" aria-current="${SURFACE===k}">
-      <span class="ix">${NAV_ICON[k]}</span>${label}</button>`).join("");
+      <span class="ix">${NAV_ICON[k]}</span><span class="full">${label}</span><span class="abbr">${short}</span></button>`).join("");
   n.querySelectorAll(".navitem").forEach(b=>b.addEventListener("click",()=>{
     SURFACE = b.dataset.s;
     n.querySelectorAll(".navitem").forEach(x=>x.setAttribute("aria-current", x.dataset.s===SURFACE));
