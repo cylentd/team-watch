@@ -610,6 +610,27 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .o.udpick.higher{border-color:rgba(55,224,139,.4);color:var(--up)}
 .o.udpick.lower{border-color:rgba(255,90,82,.4);color:var(--down)}
 .o.udpick .conf{font-size:10px;letter-spacing:.04em;color:var(--ink-2)}
+/* Underdog list row, read like a ticket: the name, then the call as the loudest thing on the
+   row -- direction, line, stat, one unit -- then the confidence as a numeral over a meter. The
+   meter is empty at 50% (a coin flip) and full at 100%, and only lights lime past the 58% floor
+   a slip leg needs, so "would the model build on this" is read from the bar before the number. */
+.leg.ud{grid-template-columns:40px minmax(0,1fr) auto auto 22px}
+.leg.ud .prop,.leg.ud .book{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.leg.ud .prop{line-height:22px}   /* tall enough for the pill's border, which the clip would otherwise cut */
+.leg.ud .book{margin-top:2px}
+.leg.ud .prop .tag{white-space:nowrap}
+.udcall{display:grid;gap:2px;justify-items:end;font-family:var(--mono);white-space:nowrap;text-align:right;min-width:64px}
+.udcall .dir{font-size:10.5px;font-weight:700;letter-spacing:.14em;color:var(--ink-3)}
+.udcall.higher .dir{color:var(--up)} .udcall.lower .dir{color:var(--down)}
+.udcall .num{font-size:21px;font-weight:700;letter-spacing:-.02em;line-height:1;color:var(--ink)}
+.udcall .stat{font-size:10px;font-weight:600;letter-spacing:.12em;color:var(--ink-2)}
+.udconf{width:58px;font-family:var(--mono);text-align:right}
+.udconf b{display:block;font-size:23px;font-weight:700;letter-spacing:-.02em;line-height:1;color:var(--ink)}
+.udconf b i{font-style:normal;font-size:11px;font-weight:600;color:var(--ink-3);margin-left:1px}
+.udconf .meter{height:3px;background:var(--line-2);margin-top:7px;overflow:hidden}
+.udconf .meter i{display:block;height:100%;background:var(--lime);transform-origin:left;transition:transform .5s var(--ease)}
+.udconf.weak b{color:var(--ink-2)} .udconf.weak .meter i{background:var(--ink-3)}
+.udconf.pending b{font-size:10.5px;letter-spacing:.14em;color:var(--ink-3);line-height:23px}
 .corr{display:flex;align-items:center;gap:9px;padding:10px 15px;border-bottom:1px solid var(--line);
   background:rgba(255,176,32,.07);color:var(--amber);font-family:var(--mono);font-size:11px;letter-spacing:.1em}
 .payout{padding:15px}
@@ -867,6 +888,13 @@ details.deep > summary:hover{color:var(--ink)}
   .side{position:static;max-height:none;overflow:visible;padding-right:0}
   .leg{grid-template-columns:36px minmax(0,1fr) auto 22px;gap:9px 12px;align-items:center}
   .leg img,.leg .fallback{width:36px;height:36px}
+  .leg.ud{grid-template-columns:36px minmax(0,1fr) auto auto 22px;gap:9px 8px}
+  /* A phone column cannot hold "Rhamondre Stevenson" plus a ROLE? pill on one line; the pill
+     is the reason the row is not slip material, so let the line wrap rather than lose it. */
+  .leg.ud .prop{white-space:normal;line-height:20px}
+  .leg.ud .tag .was{display:none}   /* "NEW TEAM" fits; "· WAS GB" is the tooltip's job here */
+  .udcall{min-width:56px} .udcall .num{font-size:17px}
+  .udconf{width:44px} .udconf b{font-size:18px}
   .leg .legx{gap:10px 16px}
   .probwrap span,.edgecell .ebar{display:none}
   .probwrap{display:flex;align-items:baseline;gap:6px}
@@ -1426,6 +1454,7 @@ function poolHTML(){
 /* The market is every priced player in the league, not my roster. `mine` only decides whether a
    row gets a lime edge, and whether the "my players" filter keeps it. */
 const MKT = {RUSH:"Rush yds", REC:"Rec yds", RECS:"Receptions", PASS:"Pass yds", TD:"Anytime TD"};
+const MKT_SHORT = {RUSH:"RUSH YDS", REC:"REC YDS", RECS:"REC", PASS:"PASS YDS", TD:"TD"};
 /* Sample rows: what the card looked like before a market existed. They render only when the
    build found no BettingPros pull; `model` and `edge` on them are invented numbers. */
 const PROPS_SAMPLE = [
@@ -1817,7 +1846,7 @@ function whyNotSlip(p, u){
   if (p.flag === "q") return `<span class="tag t-q">Q${p.injury_note ? " · " + esc(p.injury_note) : ""}</span>`;
   if (p.flag === "backup") return `<span class="tag t-bk" title="Depth chart says ${esc(p.pos)}${p.depth}. Not slip material.">${esc(p.pos)}${p.depth}</span>`;
   if (p.norole) return `<span class="tag t-bk" title="A touchdown line on a player the book prices no yards for.">NO ROLE</span>`;
-  if (p.moved) return `<span class="tag t-role" title="Every game the model has read was for ${esc(p.moved)}. The rate knows nothing about the new offense or quarterback, and the model has no feature for a team change. Not slip material.">NEW TEAM · WAS ${esc(p.moved)}</span>`;
+  if (p.moved) return `<span class="tag t-role" title="Every game the model has read was for ${esc(p.moved)}. The rate knows nothing about the new offense or quarterback, and the model has no feature for a team change. Not slip material.">NEW TEAM<span class="was"> · WAS ${esc(p.moved)}</span></span>`;
   if (u ? u.stale : p.stale) return `<span class="tag t-role" title="The book's line is far from last season's rate: the role changed and the model has not caught up. Not slip material.">ROLE?</span>`;
   if (typeof p.model === "number" && (p.games||0) < 8) return `<span class="tag t-bk" title="The rate rests on ${p.games||0} of his own games; a slip leg needs 8.">${p.games||0} GAMES</span>`;
   if (u && !u.synthetic && u.line !== null && (p.mkt === "RECS" ? u.line < 2.5 : u.line < 15)) return `<span class="tag t-bk" title="A line this small is confidence for free and Underdog prices it that way. Not slip material.">THIN LINE</span>`;
@@ -1836,13 +1865,21 @@ function udPropCard(p, i){
   const tag = whyNotSlip(p, u);
   const log = LIVE_MARKET && LIVE_MARKET.logs && p.slug ? LIVE_MARKET.logs[p.slug] : (LIVE_MARKET && LIVE_MARKET.logs ? LIVE_MARKET.logs[slugOf(p.n)] : null);
   const open = EXPANDED.has(i);
-  return `<div class="leg ${p.mine?"mine":""} ${inSlip?"inslip":""} ${p.flag==="out"?"isout":""} ${open?"open":""}" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">
+  // The call is one unit: "▼ LOWER / 1.5 REC". The stat lives here, not in the name line, so
+  // the eye reads name, call, confidence, and nothing twice.
+  const call = u.pick
+    ? `<div class="udcall ${u.pick}"><span class="dir">${u.pick === "higher" ? "▲ HIGHER" : "▼ LOWER"}</span><span class="num">${u.line !== null ? u.line : "TD"}</span><span class="stat">${u.line !== null ? MKT_SHORT[p.mkt] : "ANYTIME"}</span></div>`
+    : `<div class="udcall"><span class="dir">NO CALL</span><span class="num">—</span><span class="stat">${MKT_SHORT[p.mkt]}</span></div>`;
+  const conf = typeof u.conf === "number"
+    ? `<div class="udconf ${u.conf >= UD_MIN ? "" : "weak"}"><b>${u.conf}<i>%</i></b><div class="meter"><i style="transform:scaleX(${Math.max(0, Math.min(1, (u.conf - 50) / 50)).toFixed(2)})"></i></div></div>`
+    : `<div class="udconf pending"><b>PENDING</b></div>`;
+  return `<div class="leg ud ${p.mine?"mine":""} ${inSlip?"inslip":""} ${p.flag==="out"?"isout":""} ${open?"open":""}" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">
     ${HEADS[p.slug] ? `<img src="${HEADS[p.slug]}" alt="">` : `<div class="fallback">${esc(initials(p.n))}</div>`}
     <div>
-      <div class="prop">${esc(p.n)} · ${esc(MKT[p.mkt])}${u.line !== null ? ` ${u.line}` : ""}${tag ? " " + tag : ""}</div>
+      <div class="prop">${esc(p.n)}${tag ? " " + tag : ""}</div>
       <div class="book">${esc(p.pos)} · ${esc(p.game)}${p.kick ? ` · ${esc(p.kick)}` : ""}</div>
     </div>
-    <div class="o udpick ${u.pick||""}">${u.pick ? u.pick.toUpperCase() : "—"}<span class="conf">${typeof u.conf === "number" ? u.conf+"%" : "PENDING"}</span></div>
+    ${call}${conf}
     <button class="more" data-more="${i}" aria-expanded="${open}" title="${log ? `Last ${log.g.length} games against this line` : "More on this line"}" tabindex="-1">${open ? "▴" : "▾"}</button>
     ${open ? `<div class="legx">
       <div class="booklines">${esc(bookLine(p))}</div>
