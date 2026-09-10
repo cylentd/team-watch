@@ -2295,7 +2295,18 @@ function galleryHTML(){
   </div>
   ${cards.length
     ? `<div class="rail" data-railkey="parlay-gallery"><div class="railscroll">${cards.map(c => presetCard(c, bestOf)).join("")}</div></div>`
-    : `<div class="state-empty" style="margin:14px 0;min-height:110px"><div><b>0</b><span>NO WINDOW HAS THREE LINES THE MODEL WILL STAND BEHIND</span></div></div>`}`;
+    : PARLAY_BOOK === "underdog" && SLIP_SCOPE === "tds"
+      // Not a thin slate: Underdog has no anytime-TD pick to sell, so a TD card there would be
+      // a bet nobody can place. Say so, and hand over the one-tap route to the cards that exist.
+      ? `<div class="state-empty" style="margin:14px 0;min-height:110px"><div><b>0</b><span>UNDERDOG SELLS NO ANYTIME-TD PICK · TD CARDS ARE DRAFTKINGS</span>
+          <button class="chip" data-parlaybook="dk" style="margin-top:10px">See DraftKings TD cards</button></div></div>`
+      : (() => {
+          // How close it came: the legs that pass every gate in what is filtered, so "1 line,
+          // a card needs 2" reads as the model declining, not the page failing.
+          const s = SLIP_SCOPE === "all" ? "mix" : SLIP_SCOPE;
+          const ok = PROPS.filter(p => legOKInBook(p, s, PARLAY_BOOK) && (GAL_WIN === "ALL" || p.win === GAL_WIN)).length;
+          return `<div class="state-empty" style="margin:14px 0;min-height:110px"><div><b>${ok}</b><span>${ok === 1 ? "LINE" : "LINES"} THE MODEL WILL STAND BEHIND HERE · A CARD NEEDS 2 IN ONE WINDOW</span></div></div>`;
+        })()}`;
 }
 
 function topLineupsHTML(){
@@ -2375,7 +2386,12 @@ function parlayHTML(){
           <span style="flex:1"></span>
           <label class="selwrap"><span class="lbl">Sort</span>
             <select class="msel" data-msel="msort">
-              ${(PARLAY_BOOK === "underdog" ? [["conf","Confidence"],["model","Model %"],["ready","Slip-ready"]] : [["edge","Edge"],["model","Model %"],["ready","Slip-ready"]])
+              ${(PARLAY_BOOK === "underdog"
+                  // Anytime TD on Underdog is a model read at P(score) on every row, so
+                  // Confidence, Model % and Slip-ready would all order it the same way -- one
+                  // sort, named for what it is, instead of three that visibly do nothing.
+                  ? (MKT_KIND === "TD" ? [["model","Model %"]] : [["conf","Confidence"],["model","Model %"],["ready","Slip-ready"]])
+                  : [["edge","Edge"],["model","Model %"],["ready","Slip-ready"]])
                 .map(([k,label])=>`<option value="${k}" ${MKT_SORT===k?"selected":""}>${label}</option>`).join("")}
             </select>
           </label>
@@ -2641,7 +2657,7 @@ function wireBuilder(v){
   }));
   v.querySelectorAll("[data-msel]").forEach(sel=>sel.addEventListener("change",()=>{
     const val = sel.value;
-    if (sel.dataset.msel === "mkind"){ MKT_KIND = val; if (PARLAY_BOOK !== "underdog") MKT_SORT = val === "TD" ? "model" : "edge"; MKT_PAGE = 1; }
+    if (sel.dataset.msel === "mkind"){ MKT_KIND = val; MKT_SORT = val === "TD" ? "model" : (PARLAY_BOOK === "underdog" ? "conf" : "edge"); MKT_PAGE = 1; }
     else if (sel.dataset.msel === "mwin"){ MKT_WIN = val; MKT_PAGE = 1; }
     else if (sel.dataset.msel === "msort"){ MKT_SORT = val; MKT_PAGE = 1; }
     else if (sel.dataset.msel === "gwin"){ GAL_WIN = val; }
@@ -2653,7 +2669,7 @@ function wireBuilder(v){
   }));
   v.querySelectorAll("[data-parlaybook]").forEach(b=>b.addEventListener("click",()=>{
     PARLAY_BOOK = b.dataset.parlaybook;
-    MKT_PAGE = 1; MKT_SORT = PARLAY_BOOK === "underdog" ? "conf" : "edge";
+    MKT_PAGE = 1; MKT_SORT = MKT_KIND === "TD" ? "model" : (PARLAY_BOOK === "underdog" ? "conf" : "edge");
     SLIP = []; SLIP_MODE = "blank";
     render();
   }));
