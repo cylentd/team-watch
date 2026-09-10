@@ -82,7 +82,7 @@ REFERENCE_BOOK = "Consensus"
 POS_ORDER = {"QB": 0, "RB": 1, "WR": 2, "TE": 3}
 MKT_ORDER = {"PASS": 0, "RUSH": 1, "REC": 2, "RECS": 3, "TD": 4}
 # BettingPros team codes that differ from the ESPN/nflverse codes the rest of the page uses.
-TEAM_FIX = {"JAC": "JAX"}
+TEAM_FIX = {"JAC": "JAX", "LA": "LAR"}   # the book's and the model's spellings, one canon
 # Where the model's rate sits relative to the book's line across the whole slate (week 1 2026:
 # medians 1.12 rush, 1.13 rec, 1.01 receptions, 0.94 pass), and how far from that a line can be
 # before it is read as a role change rather than a disagreement.
@@ -490,6 +490,14 @@ def live_props(available, rosters):
         p["edge"] = round((r["p_over"] - implied(over)) * 100, 1)
         p["mu"] = r["mu"]
         p["games"] = r["games"]   # how much of his own history the rate rests on
+        # New team. The model's `team` is the one on his last game log; the book's is this
+        # week's. When they differ, every game the rate rests on was in another offense, with
+        # another quarterback, and the model has no feature for that (props_model.py names it
+        # a v1 blind spot). The card says NEW TEAM and no preset will build a slip on it. `FA`
+        # from the book means it does not know either, so no verdict there.
+        old = TEAM_FIX.get(r.get("team"), r.get("team"))
+        if old and p.get("team") and p["team"] != "FA" and old != p["team"]:
+            p["moved"] = old
         if r.get("opp_f"):
             p["opp"], p["opp_f"] = r.get("opp"), r["opp_f"]   # the defense, and what it allows vs league
         modeled += 1

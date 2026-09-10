@@ -583,7 +583,11 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .presetfoot .payrow b.pos{color:var(--lime)} .presetfoot .payrow b.neg{color:var(--down)}
 .hint{font-size:12px;color:var(--ink-3);line-height:1.5;margin-top:8px;max-width:70ch}
 .sliphead{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid var(--line);background:var(--panel-2)}
-.slipleg{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 15px;border-bottom:1px solid var(--line)}
+.slipleg{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:11px 15px;border-bottom:1px solid var(--line)}
+.legremove{appearance:none;background:none;border:1px solid var(--line-2);color:var(--ink-3);
+  width:24px;height:24px;border-radius:2px;cursor:pointer;font-size:11px;display:grid;place-items:center;
+  transition:all .15s var(--ease)}
+.legremove:hover{color:var(--down);border-color:rgba(255,90,82,.5)}
 .slipleg .p{font-size:13.5px;font-weight:600;letter-spacing:-.01em}
 .slipleg .m{font-family:var(--mono);font-size:12px;color:var(--ink-2);margin-top:4px;letter-spacing:.02em}
 .slipleg .o{font-family:var(--mono);font-size:12px;font-weight:700;white-space:nowrap;
@@ -1302,7 +1306,7 @@ function scatterHTML(rows){
         <div style="margin-top:6px;font-size:12.5px;color:var(--ink-2)">Right means the role is growing. Up means the points are running ahead of it.${mobile ? " Tap a dot for the player." : ""}</div></div>
       <span class="pill">${rows.length} players · min 25 snaps</span>
     </div>
-    <div class="quadscroll">
+    <div class="quadscroll" data-railkey="pool-scatter">
       <svg class="quad ${mobile ? "quad-compact" : ""}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
         <line class="qgrid" x1="${PX}" y1="${PY}" x2="${W-PX}" y2="${PY}"/>
         <line class="qgrid" x1="${PX}" y1="${H-PY}" x2="${W-PX}" y2="${H-PY}"/>
@@ -1488,16 +1492,18 @@ const SLIP_LEGS = 3;
 /* A slip leg has to be on the field, in a starter's role, and priced at a line that agrees with
    the role the model knows about; a backup, a questionable, or a line the book has moved far
    from last season's rate is news, not edge. */
-const playing = p => p.flag !== "out" && p.flag !== "q" && p.flag !== "backup" && !p.stale;
+const playing = p => p.flag !== "out" && p.flag !== "q" && p.flag !== "backup" && !p.stale && !p.moved;
 /* Scope, parameterized so the gallery can evaluate all three independently of any UI toggle.
    Touchdown legs are priced longer and land less often, so the floor is 30% and the price
    window runs to +600; mix needs no new band since each leg is still gated by its own market. */
 const scopeOK = (p, s) => s === "tds" ? p.mkt === "TD" : s === "mix" ? true : p.mkt !== "TD";
-/* Underdog is pick'em: higher or lower at their line, paid by a fixed multiplier (no anytime-TD
-   pick'em market, so a TD-scoped Underdog card is always empty -- honest, not a bug), so the
-   pick is whichever side the model gives more than 58% (a 3-pick entry needs each leg near 55%
-   to break even at 6x), ranked by that confidence. A 0.5-reception or 12.5-yard line is
-   confidence for free and Underdog knows it, so those lines are skipped too. */
+/* Underdog is pick'em: higher or lower at their line, paid by a fixed multiplier, so the pick is
+   whichever side the model gives more than 58% (a 3-pick entry needs each leg near 55% to break
+   even at 6x), ranked by that confidence. A 0.5-reception or 12.5-yard line is confidence for
+   free and Underdog knows it, so those lines are skipped too. Underdog posts no anytime-TD
+   line; udPick() derives one from the model for the list and the cart (tagged MODEL), but a
+   gallery card is a slip you can place, so it never holds a pick Underdog does not sell -- a
+   TD-scoped Underdog card is therefore always empty, honest, not a bug. */
 const UD_MIN = 58;
 const legOKInBook = (p, s, book) => {
   if (book !== "underdog")
@@ -1506,7 +1512,7 @@ const legOKInBook = (p, s, book) => {
       && (p.mkt === "TD" ? (p.model >= 30 && overPrice(p) >= -300 && overPrice(p) <= 600)
                          : (p.model >= 35 && p.model <= 85 && overPrice(p) >= -300 && overPrice(p) <= 200));
   const u = udPick(p);
-  return u && u.conf >= UD_MIN && (p.games||0) >= 8 && playing(p) && !u.stale && scopeOK(p, s)
+  return u && !u.synthetic && u.conf >= UD_MIN && (p.games||0) >= 8 && playing(p) && !u.stale && scopeOK(p, s)
     // The line-size floor (a 0.5-reception or 12.5-yard line is confidence for free) only means
     // anything for a real yardage/receptions line; a TD pick has no line to be thin, it is
     // whichever side the model favors.
@@ -1549,7 +1555,7 @@ let SLIP = [];
 /* DraftKings (over/price) or Underdog (higher/lower + confidence) -- a page-level toggle, same
    pattern as DFS_SITE, because the two books need different rows, a different gallery, and a
    different cart payout entirely, not just a different price column. */
-let PARLAY_BOOK = "dk";
+let PARLAY_BOOK = "underdog";
 
 /* One card per window x scope with at least two legs, deduped (mix often reproduces yards or
    tds exactly). No whole-slate card -- that would reintroduce the cross-date bug this fixes.
@@ -1622,11 +1628,16 @@ const MKT_PAGE_SIZE = 25;
 /* Card order. "edge" ranks by what the price leaves on the table; "model" by the model's chance
    alone ("who scores?" on a touchdown list). The choice sticks until changed: a market chip
    never moves it. Unmodelled rows go last either way, mine first among them. */
-let MKT_SORT = "edge";
+let MKT_SORT = "conf";
 const SORTS = {
   edge:  (a,b) => (typeof b.edge === "number") - (typeof a.edge === "number") || (b.edge||0) - (a.edge||0) || (b.mine||0) - (a.mine||0),
   model: (a,b) => (typeof b.model === "number") - (typeof a.model === "number") || (b.model||0) - (a.model||0) || (b.mine||0) - (a.mine||0),
   conf:  (a,b) => (udPick(b)?udPick(b).conf:-1) - (udPick(a)?udPick(a).conf:-1) || (b.mine||0) - (a.mine||0),
+  // Slip-ready first: the rows a gallery card could be built from (every gate in legOKInBook,
+  // any scope), then the book's own metric within each half. Answers "why is the top of the
+  // confidence sort not on the card" by putting the card's candidates on top.
+  ready: (a,b) => legOKInBook(b, "mix", PARLAY_BOOK) - legOKInBook(a, "mix", PARLAY_BOOK)
+    || (PARLAY_BOOK === "underdog" ? SORTS.conf(a,b) : SORTS.edge(a,b)),
 };
 
 const DFS_DK = [
@@ -1781,6 +1792,14 @@ function topLineups(){
 
 const propLabel = p => p.line === null ? MKT[p.mkt] : `${MKT[p.mkt]} o${p.line}`;
 
+/* Why a row the sort put on top is not on any gallery card. OUT/Q/backup/ROLE? already say so;
+   these two were silent: every game the rate rests on was for another team, or the rate rests
+   on too few games to trust. Both are gates in legOKInBook. */
+const movedTag = p => p.moved
+  ? `<span class="tag t-role" title="Every game the model has read was for ${esc(p.moved)}. The rate knows nothing about the new offense or quarterback, and the model has no feature for a team change. Not slip material.">NEW TEAM · WAS ${esc(p.moved)}</span>` : "";
+const gamesTag = p => typeof p.model === "number" && (p.games||0) < 8
+  ? `<span class="tag t-bk" title="The rate rests on ${p.games||0} of his own games; a slip leg needs 8.">${p.games||0} GAMES</span>` : "";
+
 /* Underdog's whole pitch is one stat, one tap: higher or lower. Skip the DK-only model%/edge
    detail (there is no "book implied" the same way against a flat-multiplier payout) and lead
    the row with the pick itself -- that IS the primary info here, not noise the way it is for a
@@ -1792,7 +1811,9 @@ function udPropCard(p, i){
     : p.flag === "q" ? `<span class="tag t-q">Q${p.injury_note ? " · " + esc(p.injury_note) : ""}</span>`
     : p.flag === "backup" ? `<span class="tag t-bk">${esc(p.pos)}${p.depth}</span>` : "")
     + (u.stale ? `<span class="tag t-role" title="The book's line is far from last season's rate: the role changed and the model has not caught up. Not slip material.">ROLE?</span>` : "")
-    + (u.synthetic ? `<span class="tag t-bk" title="Underdog carries no anytime-TD line to read here -- this pick comes straight from the model's chance of scoring, not a price Underdog posted.">MODEL</span>` : "");
+    + movedTag(p) + gamesTag(p)
+    + (u.synthetic ? `<span class="tag t-bk" title="Underdog carries no anytime-TD line to read here -- this pick comes straight from the model's chance of scoring, not a price Underdog posted. Not on a gallery card: Underdog does not sell it.">MODEL</span>` : "")
+    + (!u.synthetic && u.line !== null && (p.mkt === "RECS" ? u.line < 2.5 : u.line < 15) ? `<span class="tag t-bk" title="A line this small is confidence for free and Underdog prices it that way. Not slip material.">THIN LINE</span>` : "");
   const log = LIVE_MARKET && LIVE_MARKET.logs && p.slug ? LIVE_MARKET.logs[p.slug] : (LIVE_MARKET && LIVE_MARKET.logs ? LIVE_MARKET.logs[slugOf(p.n)] : null);
   const open = EXPANDED.has(i);
   return `<div class="leg ${p.mine?"mine":""} ${inSlip?"inslip":""} ${p.flag==="out"?"isout":""} ${open?"open":""}" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">
@@ -1837,6 +1858,7 @@ function propCard(p, i){
     : p.flag === "backup" ? `<span class="tag t-bk">${esc(p.pos)}${p.depth}</span>` : "")
     + (p.norole ? `<span class="tag t-bk">NO ROLE</span>` : "")
     + (p.stale ? `<span class="tag t-role" title="The book's line is far from last season's rate: the role changed and the model has not caught up. Not slip material.">ROLE?</span>` : "")
+    + movedTag(p) + gamesTag(p)
     + (p.cb ? `<span class="tag ${p.cb.v === "upgrade" ? "t-cbup" : "t-cbdn"}" title="RotoBaller WR/CB matchups, week ${LIVE_MARKET && LIVE_MARKET.wrcb ? LIVE_MARKET.wrcb.week : ""}: ${esc(p.cb.v)} vs ${esc(p.cb.cb)}. ${esc(p.cb.why)} — opinion, not in the number.">CB ${p.cb.v === "upgrade" ? "↑" : "↓"} ${esc(lastName(p.cb.cb))}</span>` : "");
   const log = LIVE_MARKET && LIVE_MARKET.logs && p.slug ? LIVE_MARKET.logs[p.slug] : (LIVE_MARKET && LIVE_MARKET.logs ? LIVE_MARKET.logs[slugOf(p.n)] : null);
   const open = EXPANDED.has(i);
@@ -2018,7 +2040,7 @@ function modelCardHTML(){
   const P = PROPS, M = LIVE_MARKET.model;
   const n = k => P.filter(k).length;
   const out = n(p => p.flag === "out"), q = n(p => p.flag === "q"), bk = n(p => p.flag === "backup"),
-        stale = n(p => p.stale), norole = n(p => p.norole);
+        stale = n(p => p.stale), norole = n(p => p.norole), moved = n(p => p.moved);
   const fs = P.map(p => p.opp_f).filter(Boolean);
   const fmin = fs.length ? Math.min(...fs) : 1, fmax = fs.length ? Math.max(...fs) : 1;
   const w = BACKTEST.oppWeight;
@@ -2048,7 +2070,7 @@ function modelCardHTML(){
       <span class="ix">02</span>
       <div><h4>The book's lines</h4>
         <p>His rushing and receiving lines say what his job is this week. They set most of the touchdown number and, when they sit far from his history, mark a yards line ROLE? instead of edge.</p>
-        <div class="ev">TD error <b>${BACKTEST.td.before} → ${BACKTEST.td.after}</b> on ${BACKTEST.td.n.toLocaleString()} games · <b>${stale}</b> lines ROLE?, <b>${norole}</b> TD lines with no role this week</div></div>
+        <div class="ev">TD error <b>${BACKTEST.td.before} → ${BACKTEST.td.after}</b> on ${BACKTEST.td.n.toLocaleString()} games · <b>${stale}</b> lines ROLE?, <b>${moved}</b> on a new team the model has not seen, <b>${norole}</b> TD lines with no role this week</div></div>
       <div class="wt"><b>${BACKTEST.tdBookShare}%</b><span>of a TD number</span></div>
     </div>
     <div class="mrow">
@@ -2107,9 +2129,10 @@ function slipHTML(){
   if (udMode) return `<div class="slip">
     <div class="sliphead"><span class="lbl">${title}</span><span class="pill">${legs.length} picks</span></div>
     ${chips}
-    ${legs.length ? legs.map(l=>{ const u = udPick(l); return `<div class="slipleg">
+    ${legs.length ? legs.map((l,k)=>{ const u = udPick(l); return `<div class="slipleg">
       <div><div class="p">${esc(l.n)}</div><div class="m">${esc(MKT[l.mkt].toUpperCase())}${u.line !== null ? ` ${u.line}` : ""}${l.kick ? ` · ${esc(l.kick.toUpperCase())}` : ""}${u.synthetic ? " · MODEL" : ""}</div></div>
-      <div class="o udpick ${u.pick||""}">${u.pick ? u.pick.toUpperCase() : "—"}<span class="conf">${typeof u.conf === "number" ? u.conf+"%" : "PENDING"}</span></div></div>`;}).join("")
+      <div class="o udpick ${u.pick||""}">${u.pick ? u.pick.toUpperCase() : "—"}<span class="conf">${typeof u.conf === "number" ? u.conf+"%" : "PENDING"}</span></div>
+      <button class="legremove" data-removeleg="${SLIP[k]}" title="Remove">✕</button></div>`;}).join("")
       : `<div class="state-empty" style="margin:14px 15px;min-height:90px"><div><b>0</b><span>NO PICK THE MODEL PUTS PAST ${UD_MIN}%</span></div></div>`}
     <div class="payout">
       <span class="lbl">All picks hit</span>
@@ -2123,9 +2146,10 @@ function slipHTML(){
   return `<div class="slip">
     <div class="sliphead"><span class="lbl">${title}</span><span class="pill">${legs.length} legs</span></div>
     ${chips}
-    ${legs.length ? legs.map(l=>`<div class="slipleg">
+    ${legs.length ? legs.map((l,k)=>`<div class="slipleg">
       <div><div class="p">${esc(l.n)}</div><div class="m">${esc(propLabel(l).toUpperCase())}${l.books ? ` · ${esc(ABBR[l.book]||l.book)}` : ""}${l.kick ? ` · ${esc(l.kick.toUpperCase())}` : ""}${typeof l.edge === "number" ? ` · ${l.model}% · ${l.edge>0?"+":""}${l.edge.toFixed(1)}` : ""}</div></div>
-      <div class="o">${esc(fmtAm(overPrice(l)))}</div></div>`).join("")
+      <div class="o">${esc(fmtAm(overPrice(l)))}</div>
+      <button class="legremove" data-removeleg="${SLIP[k]}" title="Remove">✕</button></div>`).join("")
       : `<div class="state-empty" style="margin:14px 15px;min-height:90px"><div><b>0</b><span>${SLIP_MODE === "mine" ? "NONE OF MY PLAYERS PRICE AN EDGE RIGHT NOW" : "TAP A LINE BELOW, OR LOAD A CARD FROM THE GALLERY"}</span></div></div>`}
     ${corr ? `<div class="corr"><span>⚠</span>TWO LEGS IN ${esc(corr.toUpperCase())} — CORRELATED, PRICE IT AS ONE</div>` : ""}
     <div class="payout">
@@ -2209,11 +2233,11 @@ function lineupCard(l, i, cap){
 /* One compact card per gallery slip -- not the full slipHTML() payout block, since there can be
    a dozen or more of these in one rail. No model%/edge on the leg rows themselves (that's the
    noise the cart used to lead with); one footer line carries the model-vs-book number once. */
-function presetCard(card){
+function presetCard(card, bestOf){
   const legs = card.legs.map(i=>PROPS[i]);
   const games = new Set(legs.map(l=>l.game));
   const sameGame = games.size < legs.length;
-  const best = card === GALLERY_BEST[card.book];
+  const best = card === (bestOf || GALLERY_BEST[card.book]);
   const legRows = legs.map(l => { const u = card.book === "underdog" ? udPick(l) : null; return card.book === "underdog"
     ? `<div class="slipleg">
         <div><div class="p">${esc(l.n)}</div><div class="m">${esc(MKT[l.mkt].toUpperCase())}${u.line !== null ? ` ${u.line}` : ""}${l.kick ? ` · ${esc(l.kick.toUpperCase())}` : ""}${u.synthetic ? " · MODEL" : ""}</div></div>
@@ -2253,6 +2277,9 @@ function presetCard(card){
 function galleryHTML(){
   const scopes = [["all","All"],["yards","Yards"],["tds","TDs"],["mix","Mix"]];
   const cards = GALLERIES[PARLAY_BOOK].filter(c => (SLIP_SCOPE==="all"||c.scope===SLIP_SCOPE) && (GAL_WIN==="ALL"||c.win.k===GAL_WIN));
+  // "Best" is the best of what is on screen: filter to Wednesday and the star moves to
+  // Wednesday's strongest card instead of vanishing with the whole-week winner.
+  const bestOf = cards.reduce((a,c) => !a || c.metric > a.metric ? c : a, null);
   return `<div class="rule"><h2>The model's best slips</h2><span class="hair"></span>
     <span class="side">one window per card · never two days</span></div>
   <div class="filters">
@@ -2267,7 +2294,7 @@ function galleryHTML(){
     </label>
   </div>
   ${cards.length
-    ? `<div class="rail"><div class="railscroll">${cards.map(presetCard).join("")}</div></div>`
+    ? `<div class="rail" data-railkey="parlay-gallery"><div class="railscroll">${cards.map(c => presetCard(c, bestOf)).join("")}</div></div>`
     : `<div class="state-empty" style="margin:14px 0;min-height:110px"><div><b>0</b><span>NO WINDOW HAS THREE LINES THE MODEL WILL STAND BEHIND</span></div></div>`}`;
 }
 
@@ -2285,7 +2312,7 @@ function topLineupsHTML(){
     </button>
   </div>
   ${lineups.length ? `
-  <div class="rail"><div class="railscroll">${lineups.map((l,i)=>lineupCard(l,i,site.cap)).join("")}</div></div>`
+  <div class="rail" data-railkey="dfs-lineups"><div class="railscroll">${lineups.map((l,i)=>lineupCard(l,i,site.cap)).join("")}</div></div>`
   : `<div class="state-empty" style="min-height:120px"><div><b>0</b><span>NOT ENOUGH PRICED PLAYERS AT EVERY POSITION TO FILL A LINEUP</span></div></div>`}`;
 }
 
@@ -2348,7 +2375,7 @@ function parlayHTML(){
           <span style="flex:1"></span>
           <label class="selwrap"><span class="lbl">Sort</span>
             <select class="msel" data-msel="msort">
-              ${(PARLAY_BOOK === "underdog" ? [["conf","Confidence"]] : [["edge","Edge"],["model","Model %"]])
+              ${(PARLAY_BOOK === "underdog" ? [["conf","Confidence"],["model","Model %"],["ready","Slip-ready"]] : [["edge","Edge"],["model","Model %"],["ready","Slip-ready"]])
                 .map(([k,label])=>`<option value="${k}" ${MKT_SORT===k?"selected":""}>${label}</option>`).join("")}
             </select>
           </label>
@@ -2503,16 +2530,21 @@ function heroHTML(team){
 }
 
 /* A scroll container with clipped content (the scatter, a rail) is easy to miss entirely on
-   first view -- nudge it once so the swipe is felt, not just hinted at in small print. Bails
-   when there's nothing to scroll (desktop, or a rail short enough to fit) and won't re-fire on
-   a later re-render of the same element (dataset.nudged is a one-shot flag).
+   first view -- nudge it once so the swipe is felt, not just hinted at in small print. Once per
+   rail per SESSION, not once per element: render() replaces the DOM wholesale on every filter
+   click or tab switch, so a per-element flag (dataset.nudged) would fire again on every single
+   re-render since the old element -- and its flag -- is gone. NUDGED is a module-level Set keyed
+   by each rail's stable data-railkey, so it survives across re-renders instead.
+   Bails when there's nothing to scroll (desktop, or a rail short enough to fit).
 
    Also keeps the "SWIPE ->" hint honest: hides it (via the .no-swipe class) the moment there is
    nothing left to swipe to, whether that's because the content fits with no scrolling at all or
    because the user already scrolled to the end. Re-checked on every scroll and every re-render. */
+const NUDGED = new Set();
 function nudgeScrollers(root){
   root.querySelectorAll(".quadscroll, .railscroll").forEach(el=>{
     const hintTarget = el.closest(".rail") || el;
+    const key = hintTarget.dataset.railkey || el.dataset.railkey;
     const update = () => {
       const canScroll = el.scrollWidth > el.clientWidth + 4;
       const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4;
@@ -2523,8 +2555,8 @@ function nudgeScrollers(root){
       el.dataset.hintWired = "1";
       el.addEventListener("scroll", update, {passive:true});
     }
-    if (el.scrollWidth <= el.clientWidth + 4 || el.dataset.nudged) return;
-    el.dataset.nudged = "1";
+    if (el.scrollWidth <= el.clientWidth + 4 || (key && NUDGED.has(key))) return;
+    if (key) NUDGED.add(key);
     requestAnimationFrame(()=>{
       el.scrollTo({left: 46, behavior: "smooth"});
       setTimeout(()=>el.scrollTo({left: 0, behavior: "smooth"}), 650);
@@ -2651,6 +2683,12 @@ function wireBuilder(v){
   }));
   v.querySelectorAll("[data-explain]").forEach(el=>el.addEventListener("toggle",()=>{
     EXPLAIN[el.dataset.explain] = el.open;
+  }));
+  v.querySelectorAll("[data-removeleg]").forEach(b=>b.addEventListener("click",()=>{
+    const i = +b.dataset.removeleg;
+    SLIP = SLIP.filter(x=>x!==i);
+    SLIP_MODE = "custom";
+    render();
   }));
   v.querySelectorAll("[data-prop]").forEach(el=>{
     const toggle = ()=>{
