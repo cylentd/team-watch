@@ -107,6 +107,22 @@ Signal Desk — a dark trading-terminal console.
 Positions are typographic, never coloured. Type: Bricolage Grotesque (display), Archivo (UI),
 JetBrains Mono (all numerals).
 
+## Theme rules
+
+`design/lint_css.py` fails the build on any of these (`python design/lint_css.py`):
+
+- `hex-outside-tokens` — a colour literal anywhere but `base/tokens.css`.
+- `rgba-token-triple` — `rgba(r,g,b,…)` spelling out a token's own channels by hand.
+- `token-triple-agrees` — a token's `--x-rgb` triple must match its `--x` hex, and a hex token
+  without a triple is an error too.
+- `font-family-literal` — a `font-family` value that isn't a `var()`.
+- `breakpoint` — a `@media` width outside the three the page uses (960/760/430).
+
+Every colour token in `base/tokens.css` carries a channel triple next to it, e.g.
+`--lime:#c8ff2e; --lime-rgb:200 255 46;`. `rgba()` needs bare channels, so a translucent lime
+is `rgb(var(--lime-rgb) / .4)`, never `rgba(200,255,46,.4)`. A new colour means a new token plus
+its triple in `base/tokens.css` — never a literal dropped into a component file.
+
 ## States already styled
 
 In-place variants: filtered-list and empty-cart empty states, the scatter's no-data axes,

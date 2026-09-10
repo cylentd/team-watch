@@ -15,6 +15,9 @@ Rules:
     inline-colour-in-js    a colour literal inside a style="" attribute in the JS or shell
     duplicate-selector     the same selector defined in two non-responsive parts, unless
                            src/css/_overrides.txt lists it (the cascade is then deliberate)
+    token-triple-agrees    every --x-rgb in tokens.css must equal the channels of --x, and
+                           every colour token with a hex must have a triple -- catches a token
+                           edited in one spot (the hex) and not the other (the triple)
 """
 import pathlib
 import re
@@ -29,12 +32,13 @@ BREAKPOINTS = {960, 760, 430}
 Finding = namedtuple("Finding", "rule level file line text")
 
 LEVEL = {
-    "hex-outside-tokens": "warn",      # backlog: a handful of #0b0d05 on lime; cleared by the token step
-    "rgba-token-triple": "warn",       # backlog: dozens; cleared by the token step
-    "font-family-literal": "warn",     # backlog: three literals in surface/pool/pool.css; cleared by the token step
+    "hex-outside-tokens": "error",     # backlog cleared: every hex literal now has a role token
+    "rgba-token-triple": "error",      # backlog cleared: every rgba() spelling a token is now rgb(var(--x-rgb) / a)
+    "font-family-literal": "error",    # backlog cleared: surface/pool/pool.css literals are now var(--mono/--ui/--disp)
     "breakpoint": "error",
-    "inline-colour-in-js": "warn",     # backlog: four style="" sites; cleared by the token step
+    "inline-colour-in-js": "warn",     # backlog: four style="" sites; not part of the token step
     "duplicate-selector": "warn",      # backlog: the cut inherited them; acknowledged one part at a time
+    "token-triple-agrees": "error",    # a drifted or missing triple is a build-breaking typo, not a style choice
 }
 
 HEX = re.compile(r"#[0-9a-fA-F]{3,8}\b")
@@ -60,6 +64,37 @@ def token_triples(tokens_css):
         h = m.group(2)
         out[(int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16))] = m.group(1)
     return out
+
+
+def token_triple_agreement(tokens_css):
+    """Findings for a --x-rgb triple that disagrees with --x's own hex, or either half missing.
+    Keeps the two spellings of a colour from drifting apart -- edit the hex, forget the triple
+    (or the reverse), and the rgb(var(--x-rgb) / a) sites go stale silently otherwise."""
+    found = []
+    hex_by_name = {}
+    for m in re.finditer(r"(--[\w-]+)\s*:\s*#([0-9a-fA-F]{6})\b", tokens_css):
+        name, h = m.group(1), m.group(2)
+        hex_by_name[name] = (int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16))
+    rgb_by_name = {}
+    for m in re.finditer(r"(--[\w-]+)-rgb\s*:\s*([^;}]+)[;}]", tokens_css):
+        name = m.group(1)
+        parts = m.group(2).split()
+        try:
+            rgb_by_name[name] = tuple(int(p) for p in parts)
+        except ValueError:
+            continue
+    for name, hexval in hex_by_name.items():
+        if name not in rgb_by_name:
+            found.append(Finding("token-triple-agrees", LEVEL["token-triple-agrees"], TOKENS, 0,
+                                 f"{name} has a hex but no {name}-rgb triple"))
+        elif rgb_by_name[name] != hexval:
+            found.append(Finding("token-triple-agrees", LEVEL["token-triple-agrees"], TOKENS, 0,
+                                 f"{name}-rgb {rgb_by_name[name]} disagrees with {name} #{'%02x%02x%02x' % hexval}"))
+    for name in rgb_by_name:
+        if name not in hex_by_name:
+            found.append(Finding("token-triple-agrees", LEVEL["token-triple-agrees"], TOKENS, 0,
+                                 f"{name}-rgb has no matching {name} hex token"))
+    return found
 
 
 def lint_css_text(rel, text, triples):
@@ -113,10 +148,11 @@ def duplicate_selectors(parts, acknowledged):
 
 def lint(src=SRC):
     tokens_path = src / "css" / TOKENS
-    triples = token_triples(tokens_path.read_text(encoding="utf-8")) if tokens_path.exists() else {}
+    tokens_text = tokens_path.read_text(encoding="utf-8") if tokens_path.exists() else ""
+    triples = token_triples(tokens_text)
     css = [(p.relative_to(src).as_posix().split("/", 1)[1], p.read_text(encoding="utf-8"))
            for p in sorted(q for q in (src / "css").rglob("*.css"))]
-    found = []
+    found = token_triple_agreement(tokens_text)
     for rel, text in css:
         found += lint_css_text(rel, text, triples)
     for p in sorted(q for q in (src / "js").rglob("*.js")) + [src / "shell.html"]:

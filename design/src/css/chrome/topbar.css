@@ -10,7 +10,7 @@
 .brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .brand-mark{
   width:11px;height:22px;background:var(--lime);
-  box-shadow:0 0 18px rgba(200,255,46,.5);
+  box-shadow:0 0 18px rgb(var(--lime-rgb) / .5);
   animation:pulse 2.6s var(--ease) infinite;
 }
 @keyframes pulse{0%,100%{opacity:1;transform:scaleY(1)}50%{opacity:.55;transform:scaleY(.72)}}
@@ -24,14 +24,14 @@
   flex-shrink:0;border:1px solid var(--line-2);border-radius:3px;color:var(--ink-2);
   transition:color .2s var(--ease),border-color .2s var(--ease),background .2s var(--ease)}
 .discordlink svg{width:16px;height:16px}
-.discordlink:hover{color:#5865f2;border-color:#5865f2;background:rgba(88,101,242,.08)}
+.discordlink:hover{color:var(--discord);border-color:var(--discord);background:rgb(var(--discord-rgb) / .08)}
 .pill{
   display:inline-flex;align-items:center;gap:7px;
   font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
   padding:5px 10px;border:1px solid var(--line-2);color:var(--ink-2);
   border-radius:2px;white-space:nowrap;
 }
-.pill.warn{border-color:rgba(255,176,32,.35);color:var(--amber);background:rgba(255,176,32,.06)}
-.pill.live{border-color:rgba(200,255,46,.35);color:var(--lime);background:rgba(200,255,46,.06)}
+.pill.warn{border-color:rgb(var(--amber-rgb) / .35);color:var(--amber);background:rgb(var(--amber-rgb) / .06)}
+.pill.live{border-color:rgb(var(--lime-rgb) / .35);color:var(--lime);background:rgb(var(--lime-rgb) / .06)}
 .dot{width:5px;height:5px;border-radius:99px;background:currentColor}
 

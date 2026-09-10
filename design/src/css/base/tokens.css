@@ -21,4 +21,43 @@
   --amber:#ffb020;
   --yahoo:#8b5cff;
   --espn:#ff2d2d;
+
+  /* Channel triples, one per colour token above and below: rgba() needs bare r,g,b channels,
+     and rgb(var(--x-rgb) / a) reproduces the exact legacy-rgba computed value an alpha literal
+     used to spell out by hand. token-triple-agrees (lint_css.py) fails the build if a triple
+     drifts from its token's hex, or a hex token is missing its triple. */
+  --void-rgb:8 8 10;
+  --panel-rgb:16 17 22;
+  --panel-2-rgb:23 25 34;
+  --panel-3-rgb:30 32 41;
+  --line-rgb:35 37 47;
+  --line-2-rgb:51 54 63;
+  --ink-rgb:243 241 234;
+  --ink-2-rgb:154 153 166;
+  --ink-3-rgb:134 133 154;
+  --lime-rgb:200 255 46;
+  --up-rgb:55 224 139;
+  --down-rgb:255 90 82;
+  --amber-rgb:255 176 32;
+  --yahoo-rgb:139 92 255;
+  --espn-rgb:255 45 45;
+
+  /* Role-named tokens for the hex literals the lint backlog found. Named by what they're for,
+     not by colour, so a reader doesn't have to decode a swatch. */
+  --discord:#5865f2;       /* Discord's own brand colour, topbar.css .discordlink:hover */
+  --discord-rgb:88 101 242;
+  --on-lime:#0b0d05;       /* near-black text/icons on a lime chip: wire.css .btn:hover,
+                               ticker.css .ticker-tag, builder/ticket.css .ticket-best & .ticket-cta:hover */
+  --on-lime-rgb:11 13 5;
+  --amber-ground:#1a1200;  /* dark ground under the amber Q badge, roster.css .badge.q */
+  --amber-ground-rgb:26 18 0;
+  --down-ground:#2a0503;   /* dark ground under the red O badge, roster.css .badge.o */
+  --down-ground-rgb:42 5 3;
+  --yahoo-tint:#b596ff;    /* lighter yahoo text tint, roster.css .tag.dual */
+  --yahoo-tint-rgb:181 150 255;
+  --shadow:#000000;        /* opaque black behind an alpha: box-shadow tints in feed.css,
+                               teamswitch.css, drawer.css, nav.css, builder/ticket.css, and the
+                               nav overflow-fade mask in responsive/760.css */
+  --shadow-rgb:0 0 0;
+
   --ease:cubic-bezier(.16,1,.3,1);

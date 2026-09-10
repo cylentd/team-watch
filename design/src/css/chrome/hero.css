@@ -3,7 +3,7 @@
 .numghost{
   position:absolute;left:calc(max(0px, (100vw - 1180px) / 2) - 34px);top:-46px;z-index:0;
   font-family:var(--disp);font-weight:800;font-size:270px;line-height:1;
-  color:transparent;-webkit-text-stroke:1.5px rgba(200,255,46,.09);
+  color:transparent;-webkit-text-stroke:1.5px rgb(var(--lime-rgb) / .09);
   pointer-events:none;user-select:none;letter-spacing:-.05em;
 }
 .hero-in{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:44px;align-items:end}

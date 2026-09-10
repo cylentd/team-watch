@@ -28,9 +28,9 @@
 .edgecell.pending span{display:block;font-size:11px;color:var(--ink-3);letter-spacing:.14em;margin-top:3px}
 .leg.isout{opacity:.55}
 .leg .tag{vertical-align:middle;margin-left:4px}
-.tag.t-q{color:var(--amber);border:1px solid rgba(255,176,32,.4);background:rgba(255,176,32,.08)}
+.tag.t-q{color:var(--amber);border:1px solid rgb(var(--amber-rgb) / .4);background:rgb(var(--amber-rgb) / .08)}
 .tag.t-bk{color:var(--ink-3);border:1px solid var(--line-2)}
-.tag.t-out{color:var(--down);border:1px solid rgba(255,90,82,.4)}
-.tag.t-role{color:var(--amber);border:1px dashed rgba(255,176,32,.5);cursor:help}
-.tag.t-cbup{color:var(--up);border:1px solid rgba(55,224,139,.4);cursor:help}
-.tag.t-cbdn{color:var(--down);border:1px solid rgba(255,90,82,.4);cursor:help}
+.tag.t-out{color:var(--down);border:1px solid rgb(var(--down-rgb) / .4)}
+.tag.t-role{color:var(--amber);border:1px dashed rgb(var(--amber-rgb) / .5);cursor:help}
+.tag.t-cbup{color:var(--up);border:1px solid rgb(var(--up-rgb) / .4);cursor:help}
+.tag.t-cbdn{color:var(--down);border:1px solid rgb(var(--down-rgb) / .4);cursor:help}

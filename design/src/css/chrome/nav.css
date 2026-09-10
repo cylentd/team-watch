@@ -2,7 +2,7 @@
 .navbar{
   position:sticky; top:58px; z-index:39;
   border-bottom:1px solid var(--line);background:var(--panel);
-  box-shadow:0 12px 16px -10px rgba(0,0,0,.55);
+  box-shadow:0 12px 16px -10px rgb(var(--shadow-rgb) / .55);
 }
 .navrow{display:flex;align-items:center;justify-content:space-between;gap:16px}
 .nav{display:flex;min-width:0}

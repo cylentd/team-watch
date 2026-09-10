@@ -16,7 +16,7 @@
   padding:10px 14px;border-top:1px solid var(--line);cursor:pointer;font-family:var(--mono);transition:background .2s var(--ease)}
 .udline:hover{background:var(--panel-2)}
 .udline:active{transform:scale(.995)}
-.udline[aria-pressed="true"]{background:rgba(200,255,46,.06);box-shadow:inset 3px 0 0 var(--lime)}
+.udline[aria-pressed="true"]{background:rgb(var(--lime-rgb) / .06);box-shadow:inset 3px 0 0 var(--lime)}
 .udline .dir{font-size:10.5px;font-weight:700;letter-spacing:.14em;color:var(--ink-3)}
 .udline.higher .dir{color:var(--up)} .udline.lower .dir{color:var(--down)}
 /* The stat column is a fixed width, not auto: each line is its own grid, so an auto column

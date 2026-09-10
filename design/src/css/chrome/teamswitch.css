@@ -15,7 +15,7 @@
 .ts-menu{
   position:absolute;top:calc(100% + 6px);right:0;z-index:20;min-width:220px;
   background:var(--panel-2);border:1px solid var(--line-2);border-radius:3px;
-  box-shadow:0 12px 28px rgba(0,0,0,.45);overflow:hidden;
+  box-shadow:0 12px 28px rgb(var(--shadow-rgb) / .45);overflow:hidden;
 }
 .ts-item{
   display:block;width:100%;appearance:none;background:none;cursor:pointer;
@@ -25,5 +25,5 @@
 }
 .ts-item:last-child{border-bottom:0}
 .ts-item:hover{background:var(--panel-3);color:var(--ink);border-left-color:var(--tint)}
-.ts-item[aria-selected="true"]{color:var(--ink);background:rgba(200,255,46,.06);border-left-color:var(--tint)}
+.ts-item[aria-selected="true"]{color:var(--ink);background:rgb(var(--lime-rgb) / .06);border-left-color:var(--tint)}
 

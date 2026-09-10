@@ -60,3 +60,22 @@ def test_duplicate_selector_across_parts():
     dup = lint_css.duplicate_selectors(parts, acknowledged=set())
     assert dup == [(".pill", ["chrome/a.css", "surface/b.css"])]          # responsive/ is exempt
     assert lint_css.duplicate_selectors(parts, acknowledged={".pill"}) == []
+
+
+def test_token_triple_agreeing_is_quiet():
+    css = ":root{--lime:#c8ff2e;--lime-rgb:200 255 46}"
+    assert lint_css.token_triple_agreement(css) == []
+
+
+def test_token_triple_drifted_is_an_error():
+    css = ":root{--lime:#c8ff2e;--lime-rgb:200 255 45}"
+    found = lint_css.token_triple_agreement(css)
+    assert [(f.rule, f.level) for f in found] == [("token-triple-agrees", "error")]
+    assert "--lime" in found[0].text
+
+
+def test_hex_token_with_no_triple_is_an_error():
+    css = ":root{--lime:#c8ff2e}"
+    found = lint_css.token_triple_agreement(css)
+    assert [(f.rule, f.level) for f in found] == [("token-triple-agrees", "error")]
+    assert "--lime" in found[0].text
