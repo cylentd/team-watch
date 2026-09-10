@@ -557,19 +557,26 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .phead2 .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--ink-3)}
 .phead2 .prop{font-size:15px;font-weight:600;letter-spacing:-.01em;line-height:22px}
 .phead2 .book{font-family:var(--mono);font-size:12px;color:var(--ink-2);margin-top:2px;letter-spacing:.02em}
-.udline{display:grid;grid-template-columns:78px auto minmax(40px,1fr) 64px 22px;gap:14px;align-items:center;
+.udline{display:grid;grid-template-columns:78px 150px minmax(40px,1fr) 64px 22px;gap:14px;align-items:center;
   padding:10px 14px;border-top:1px solid var(--line);cursor:pointer;font-family:var(--mono);transition:background .2s var(--ease)}
 .udline:hover{background:var(--panel-2)}
 .udline:active{transform:scale(.995)}
 .udline[aria-pressed="true"]{background:rgba(200,255,46,.06);box-shadow:inset 3px 0 0 var(--lime)}
 .udline .dir{font-size:10.5px;font-weight:700;letter-spacing:.14em;color:var(--ink-3)}
 .udline.higher .dir{color:var(--up)} .udline.lower .dir{color:var(--down)}
-.udline .ln{white-space:nowrap}
+/* The stat column is a fixed width, not auto: each line is its own grid, so an auto column
+   would put every meter's start wherever that line's stat happened to end, and bars that do
+   not start together cannot be compared by length. A line-level pill drops under the stat. */
+.udline .ln{white-space:nowrap;display:grid;grid-template-columns:auto auto;justify-content:start;align-items:baseline;gap:4px 7px;min-width:0}
 .udline .ln b{font-size:24px;font-weight:700;letter-spacing:-.02em;line-height:1;color:var(--ink)}
-.udline .ln small{font-size:10.5px;font-weight:600;letter-spacing:.12em;color:var(--ink-2);margin-left:7px}
-.udline .ln .tag{margin-left:8px;vertical-align:4px}
-.udline .meter{height:3px;background:var(--line-2);overflow:hidden}
-.udline .meter i{display:block;height:100%;background:var(--lime);transform-origin:left;transition:transform .5s var(--ease)}
+.udline .ln small{font-size:10.5px;font-weight:600;letter-spacing:.12em;color:var(--ink-2)}
+.udline .ln .tag{grid-column:1/-1;justify-self:start;margin-left:0;vertical-align:0}
+/* Meter: 50% at the left edge, 100% at the right, a tick at the 58% floor a slip leg needs.
+   The fill's colour is the confidence itself -- amber at the floor, lime at 100% -- and grey
+   below it, so a row reads from the bar's colour and length before the number. */
+.udline .meter{position:relative;height:4px;background:var(--line-2);overflow:visible}
+.udline .meter i{display:block;height:100%;background:var(--lime);transform-origin:left;transition:transform .5s var(--ease),background .5s var(--ease)}
+.udline .meter::after{content:"";position:absolute;left:16%;top:-3px;bottom:-3px;width:1px;background:var(--ink-3);opacity:.7}
 .udline.weak .meter i{background:var(--ink-3)}
 .udline .pct{text-align:right;font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1;color:var(--ink);white-space:nowrap}
 .udline .pct i{font-style:normal;font-size:11px;font-weight:600;color:var(--ink-3)}
@@ -928,7 +935,7 @@ details.deep > summary:hover{color:var(--ink)}
   .phead2{grid-template-columns:36px minmax(0,1fr);gap:10px;padding:10px 12px 8px}
   .phead2 img,.phead2 .fallback{width:36px;height:36px}
   .phead2 .prop{white-space:normal;line-height:20px}
-  .udline{grid-template-columns:66px auto minmax(0,1fr) 54px 22px;gap:9px;padding:9px 12px}   /* the meter gives way before a pill can push the chevron off the edge */
+  .udline{grid-template-columns:66px 112px minmax(0,1fr) 54px 22px;gap:9px;padding:9px 12px}   /* fixed stat column so meters start together; the meter gives way before anything pushes the chevron off the edge */
   .udline .ln b{font-size:20px} .udline .ln small{margin-left:5px}
   .udline .pct{font-size:18px}
   .udcall{min-width:56px} .udcall .num{font-size:17px}
@@ -1934,11 +1941,15 @@ function udLine(p, i, headerSaysNo){
   const u = udPick(p), inSlip = SLIP.includes(i), open = EXPANDED.has(i);
   const hasConf = typeof u.conf === "number";
   const fill = hasConf ? Math.max(0, Math.min(1, (u.conf - 50) / 50)).toFixed(2) : 0;
+  // Colour is the confidence: grey under the 58% floor, then amber at the floor blending to
+  // lime at 100%, so 62% and 94% differ in hue as well as length.
+  const heat = hasConf && u.conf >= UD_MIN ? Math.round((u.conf - UD_MIN) / (100 - UD_MIN) * 100) : null;
+  const fillColor = heat === null ? "var(--ink-3)" : `color-mix(in oklab, var(--lime) ${heat}%, var(--amber))`;
   const log = LIVE_MARKET && LIVE_MARKET.logs && p.slug ? LIVE_MARKET.logs[p.slug] : (LIVE_MARKET && LIVE_MARKET.logs ? LIVE_MARKET.logs[slugOf(p.n)] : null);
   return `<div class="udline ${u.pick||""} ${hasConf && u.conf < UD_MIN ? "weak" : ""}" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">
     <span class="dir">${u.pick === "higher" ? "▲ HIGHER" : u.pick === "lower" ? "▼ LOWER" : "NO CALL"}</span>
     <span class="ln"><b>${u.line !== null ? u.line : "TD"}</b><small>${u.line !== null ? MKT_SHORT[p.mkt] : "ANYTIME"}</small>${headerSaysNo ? "" : lineTag(p, u)}</span>
-    <span class="meter"><i style="transform:scaleX(${fill})"></i></span>
+    <span class="meter"><i style="transform:scaleX(${fill});background:${fillColor}"></i></span>
     ${hasConf ? `<span class="pct">${u.conf}<i>%</i></span>` : `<span class="pct pending">PENDING</span>`}
     <button class="more" data-more="${i}" aria-expanded="${open}" title="${log ? `Last ${log.g.length} games against this line` : "More on this line"}" tabindex="-1">${open ? "▴" : "▾"}</button>
     ${open ? `<div class="legx"><div class="booklines">${esc(bookLine(p))}</div>${log ? gameLogHTML(p, log) : ""}</div>` : ""}
@@ -2088,6 +2099,7 @@ function dfsPoolRow(p, i, cap, valueLeaders, handcuffs, poolIndex, activeEligibl
   const status = INJ[p.status] || (p.status ? p.status : null);
   const handcuffFor = handcuffs.get(p.n);
   const tags = (status ? ` <span class="tag ${status==="Q"?"q":"o"}">${esc(status)}</span>` : "")
+    + (p.src === "yahoo" ? ` <span class="tag t-bk" title="The prop model prices no line for him this week, so this is Yahoo's FPPG (last season's average) rescaled to the model's ${esc(p.pos)} level. A guess at the model's scale, not a model read.">Y</span>` : "")
     + (valueLeaders.has(p.n) ? ` <span class="tag t-cbup" title="Highest points per $1,000 at ${esc(p.pos)} in this pool">BEST VALUE</span>` : "")
     + (handcuffFor ? ` <span class="tag t-role" title="${esc(handcuffFor)} (the ${esc(p.pos)} starter) is OUT/IR — cheapest teammate left at ${esc(p.pos)}, first in line for the workload">HANDCUFF</span>` : "");
   // activeEligible: null when no lineup slot is being filled (a tap auto-picks the first open
@@ -2116,7 +2128,9 @@ function marketHead(kind){
       <div class="mktsrc">${kind === "props"
         ? `${PROPS.length} priced lines · ${new Set(PROPS.map(p=>p.n)).size} players · ${new Set(PROPS.map(p=>p.game)).size} games · ${BOOKS.join(", ")}`
           + (LIVE_MARKET && LIVE_MARKET.model ? ` · model through ${esc(LIVE_MARKET.model.through)}` : "") + `${LIVE_MARKET ? "" : " · SAMPLE"}`
-        : `${site.pool.length} players · $${site.cap.toLocaleString()} cap · salaries as posted${site.key==="yahoo" && !LIVE_YAHOO_DFS ? " · SAMPLE" : ""}`}</div>
+        : `${site.pool.length} players · $${site.cap.toLocaleString()} cap · salaries as posted${site.key==="yahoo" && !LIVE_YAHOO_DFS ? " · SAMPLE" : ""}`
+          + (site.key === "yahoo" && LIVE_YAHOO_DFS && typeof LIVE_YAHOO_DFS.modeled === "number"
+              ? ` · projections: the prop model for ${LIVE_YAHOO_DFS.modeled}, Yahoo's FPPG rescaled for the rest (Y)` : "")}</div>
     </div>
     <span class="pill ${when?"":"warn"}">${when ? `Fetched ${esc(when)}`
       : (kind === "props" ? "No props pulled yet" : "No salary export loaded")}</span>
@@ -2143,7 +2157,7 @@ function explainHTML(kind){
         <li>Swipe the lineups below, tap <b>Load into my lineup</b> to start from one.</li>
         <li>Fill or swap slots from the pool underneath.</li>
       </ol>
-      <p class="ex-note">No site publishes real ownership before lock — PROJ OWN is a rank-based estimate, same idea any pre-lock ownership projection tool uses.</p>`}
+      <p class="ex-note"><b>PROJ</b> is the prop model's fantasy points on Yahoo scoring — its yards, receptions and touchdown rates for this week's lines, half-PPR. A player the books post no line for (the deep bench, K, DST) wears a <b>Y</b>: Yahoo's last-season average, rescaled to the model's level at his position, a placeholder rather than a read. No site publishes real ownership before lock — PROJ OWN is a rank-based estimate, same idea any pre-lock ownership projection tool uses.</p>`}
     </div>
   </details>`;
 }

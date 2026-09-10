@@ -579,6 +579,30 @@ def live_yahoo(available):
             "updated": d["updated"], "roster": out}
 
 
+# Yahoo DFS scoring: half-PPR, 25 passing yards per point, 4 per passing TD, -1 per pick,
+# 10 rushing/receiving yards per point, 6 per rushing/receiving TD. Passing TDs and picks are
+# not markets in the feed, so a QB gets league-rate proxies off his passing yards (one TD per
+# ~150, one pick per ~300); everything else is the model's own rate for that market.
+YAHOO_PTS = {"PASS": 0.04, "RUSH": 0.1, "REC": 0.1, "RECS": 0.5}
+
+def model_points(model):
+    """slug -> the prop model's fantasy points on Yahoo scoring, from its per-market rates (the
+    opponent-adjusted `mu` on each priced line; one rate per market, whichever line carried it).
+    Only players the books post lines for are priced, i.e. starters and the odd committee back --
+    the deep bench and every K/DST fall through to Yahoo's own number, rescaled (see below)."""
+    rates = {}
+    for r in (model or {}).get("lines", []):
+        if r.get("mu") is None:
+            continue
+        rates.setdefault(slugify(r["name"]), {})[r["market"]] = r["mu"]
+    out = {}
+    for slug, m in rates.items():
+        pts = sum(YAHOO_PTS[k] * v for k, v in m.items() if k in YAHOO_PTS) + 6 * m.get("TD", 0)
+        if "PASS" in m:
+            pts += 4 * m["PASS"] / 150 - m["PASS"] / 300
+        out[slug] = round(pts, 1)
+    return out
+
 def load_dfs_pool():
     """Yahoo's own contest salary export, imported into ff-jarvis by `python -m model.clients.dfs
     import <csv>` -- deliberately manual, per that module's own docstring: an automated Yahoo
@@ -614,6 +638,19 @@ def live_dfs_yahoo(available):
     if not pool or not pool.get("players"):
         return None
     status = load_status()
+    # The projection the optimizer builds on is the prop model's, not Yahoo's FPPG (last
+    # season's average, which knows nothing about this week). Yahoo's number is the fallback
+    # for the players the model does not price, rescaled per position by the median ratio of
+    # model points to FPPG among the players it does -- the model shrinks toward the position
+    # mean and sits below a raw average for stars, so an unscaled fallback would let a bench
+    # QB's stale 15.1 outrank a priced starter on a different scale.
+    mp = model_points(load_model_raw())
+    ratios = {}
+    for r in pool["players"]:
+        m = mp.get(slugify(r["name"]))
+        if m is not None and r["fppg"]:
+            ratios.setdefault(r["pos"], []).append(m / r["fppg"])
+    scale = {pos: sorted(v)[len(v) // 2] for pos, v in ratios.items() if len(v) >= 5}
     players = []
     for r in pool["players"]:
         name = r["name"]
@@ -629,15 +666,24 @@ def live_dfs_yahoo(available):
         else:
             badge = (r.get("status") or "").strip() or None
         pos = "DST" if r["pos"] == "DEF" else r["pos"]
+        m = mp.get(slug)
+        if m is not None:
+            proj, src = m, "model"
+        else:
+            proj, src = round(r["fppg"] * scale.get(r["pos"], 1.0), 1), "yahoo"
         players.append({
-            "n": name, "pos": pos, "team": r["team"], "sal": r["salary"], "proj": r["fppg"],
+            "n": name, "pos": pos, "team": r["team"], "sal": r["salary"], "proj": proj,
+            "src": src, "fppg": r["fppg"],
             "status": badge, "slug": slug if slug in available else None, "game": r.get("game"),
         })
     if not players:
         return None
     players.sort(key=lambda p: -p["sal"])
+    modeled = sum(1 for p in players if p["src"] == "model")
     return {
         "fetched": pool.get("fetched"),
+        "modeled": modeled,
+        "scale": {k: round(v, 2) for k, v in scale.items()},
         "source": pool.get("source", "ff-jarvis dfs_pool.json"),
         "players": players,
     }
