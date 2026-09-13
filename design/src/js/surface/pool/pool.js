@@ -36,7 +36,6 @@ function poolHTML(){
       <div><div class="signals">
         <div class="sig up"><div class="lbl">${t("pool.sig.risingLabel")}</div><div class="sig-val">${rising}</div><div class="sig-sub">${t("pool.sig.risingSub")}</div></div>
         <div class="sig down"><div class="lbl">${t("pool.sig.fallingLabel")}</div><div class="sig-val">${falling}</div><div class="sig-sub">${t("pool.sig.fallingSub")}</div></div>
-        <div class="sig empty"><div class="lbl">${t("pool.sig.trackedLabel")}</div><div class="sig-val">—</div><div class="sig-sub">${t("pool.sig.trackedSub")}</div></div>
       </div></div>
     </div>
   </section>

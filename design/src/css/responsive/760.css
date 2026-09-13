@@ -20,12 +20,20 @@
   .topbar .pill .abbr{display:inline}
 
   .numghost{font-size:150px;left:-14px;top:6px}
-  .hero{padding:30px 0 26px}
+  .hero{padding:16px 0 14px}
+  .hero-in{gap:14px}
+  .hero h1{margin-bottom:8px}
+  .hero-meta{margin-top:2px}
   .hero-meta .pill{font-size:11px;padding:4px 8px}
-  .sig{padding:11px 9px}
-  .sig .lbl{font-size:11px;letter-spacing:.1em}
-  .sig-val{font-size:23px;margin-top:7px}
-  .sig-sub{font-size:11px;letter-spacing:.06em}
+  .modes-sub{margin-top:10px!important}
+  /* KPI strip was costing as much height as the headline above it on a phone: three lines
+     of type per tile (label, number, caption) at a size built for desktop. Tighten the
+     padding and drop each line a size so the strip reads as a compact stat row, not a
+     second hero. */
+  .sig{padding:7px 8px}
+  .sig .lbl{font-size:10.5px;letter-spacing:.08em}
+  .sig-val{font-size:18px;margin-top:3px}
+  .sig-sub{font-size:9.5px;letter-spacing:.04em;margin-top:2px}
 
   .ts-team{font-size:12px;max-width:150px;overflow:hidden;text-overflow:ellipsis}
   .ts-btn{padding:7px 9px;min-width:0}
