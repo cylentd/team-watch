@@ -38,7 +38,6 @@ function newsRowHTML(it, featured){
 }
 function newsHTML(){
   const items = NEWS_ITEMS;
-  const teams = new Set(items.map(i => i.team).filter(Boolean)).size;
   // The freshest Breaking story leads on its own, above the filter -- the one thing "most
   // recent, or breaking" actually means when a page can only lead with one story. Everything
   // else, filtered or not, is chronological below it.
@@ -56,9 +55,6 @@ function newsHTML(){
         </div>
         <h1>${t("news.hero.title")}</h1>
       </div>
-      <div><div class="signals">
-        <div class="sig up"><div class="lbl">${t("news.sig.teamsLabel")}</div><div class="sig-val">${teams}</div><div class="sig-sub">${t("news.sig.teamsSub")}</div></div>
-      </div></div>
     </div>
   </section>
   <div class="wrap">

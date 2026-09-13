@@ -18,7 +18,6 @@ JS_BACKLOG = {
     "parlayHTML": 93,
     "scatterHTML": 74,
     "openPoolDrawer": 64,
-    "dfsSurfaceHTML": 64,
     "openDrawer": 63,
 }
 # Same for design/*.py. build.py itself is over the 500-line file budget; the split that fixes
