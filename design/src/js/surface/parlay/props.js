@@ -21,6 +21,14 @@ function whyNotSlip(p, u){
   return "";
 }
 
+/* A hand-written role note (data/role_notes.json in ff-jarvis) already discounted this player's
+   own model number -- it is not a reason to hide him from the slip the way whyNotSlip's pills
+   are, so it renders alongside whatever whyNotSlip already says, never instead of it. */
+function roleNoteTagHTML(p){
+  return p.role_note
+    ? `<span class="tag t-role" title="${esc(p.role_note)}">${t("parlay.tag.role")}</span>` : "";
+}
+
 /* Underdog's whole pitch is one stat, one tap: higher or lower. Skip the DK-only model%/edge
    detail (there is no "book implied" the same way against a flat-multiplier payout) and lead
    the row with the pick itself -- that IS the primary info here, not noise the way it is for a
@@ -30,7 +38,7 @@ function udPropCard(p, i){
   const u = udPick(p);
   // No MODEL pill per row: it would sit on every TD row (Underdog prices none), which is
   // noise, not information. The list header says it once; the cart still marks the leg.
-  const tag = whyNotSlip(p, u);
+  const tag = whyNotSlip(p, u) + roleNoteTagHTML(p);
   const log = LIVE_MARKET && LIVE_MARKET.logs && p.slug ? LIVE_MARKET.logs[p.slug] : (LIVE_MARKET && LIVE_MARKET.logs ? LIVE_MARKET.logs[slugOf(p.n)] : null);
   const open = EXPANDED.has(i);
   // The call is one unit: "▼ LOWER / 1.5 REC". The stat lives here, not in the name line, so
@@ -85,7 +93,7 @@ function udLine(p, i, headerSaysNo){
 }
 function udPlayerCard(rows){
   const p = rows[0];
-  const tag = whyNotSlip({...p, stale: 0, norole: 0}, null);
+  const tag = whyNotSlip({...p, stale: 0, norole: 0}, null) + roleNoteTagHTML(p);
   return `<div class="pcard ${p.mine ? "mine" : ""} ${p.flag === "out" ? "isout" : ""}">
     <div class="phead2">
       ${avatarHTML(p)}
@@ -121,7 +129,7 @@ function propCard(p, i){
     <div class="edgecell pending"><b>${t("parlay.tag.out")}</b><span>${esc((p.injury_note||p.injury||"").toUpperCase())}</span></div>`;
   else if (p.norole) detail = `<div class="probwrap implied"><b>—</b><span>${t("parlay.detail.noYardsLine")}</span></div>
     <div class="edgecell pending"><b>—</b><span>${t("parlay.detail.noRolePriced")}</span></div>`;
-  const tag = whyNotSlip(p, null)
+  const tag = whyNotSlip(p, null) + roleNoteTagHTML(p)
     + (p.cb ? `<span class="tag ${p.cb.v === "upgrade" ? "t-cbup" : "t-cbdn"}" title="${t("parlay.tag.cbTitle", {week: LIVE_MARKET && LIVE_MARKET.wrcb ? LIVE_MARKET.wrcb.week : "", v: esc(p.cb.v), cb: esc(p.cb.cb), why: esc(p.cb.why)})}">${t("parlay.tag.cb", {dir: p.cb.v === "upgrade" ? "↑" : "↓", name: esc(lastName(p.cb.cb))})}</span>` : "");
   const log = LIVE_MARKET && LIVE_MARKET.logs && p.slug ? LIVE_MARKET.logs[p.slug] : (LIVE_MARKET && LIVE_MARKET.logs ? LIVE_MARKET.logs[slugOf(p.n)] : null);
   const open = EXPANDED.has(i);

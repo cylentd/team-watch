@@ -554,8 +554,10 @@ def live_props(available, rosters):
             continue
         # This week's status rides with the price: OUT (Sleeper says he is not playing, the line
         # is stale), Q (questionable, priced but not slip material), backup (depth chart), or
-        # no_role (a touchdown line on a player the book prices no yards for).
-        for k in ("flag", "injury", "injury_note", "depth"):
+        # no_role (a touchdown line on a player the book prices no yards for). role_note is a
+        # separate, hand-written signal (data/role_notes.json) already baked into this row's own
+        # p_over/edge -- it rides along only so the card can show why the number moved.
+        for k in ("flag", "injury", "injury_note", "depth", "role_note"):
             if r.get(k) is not None:
                 p[k] = r[k]
         if r.get("p_over") is None:
