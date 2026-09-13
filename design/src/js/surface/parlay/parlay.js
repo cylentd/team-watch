@@ -17,8 +17,7 @@ function parlayHTML(){
       ${PARLAY_BOOK === "underdog" ? "" : `<div><div class="signals">
         ${hasModel ? `
         <div class="sig up"><div class="lbl">${t("parlay.sig.edgeLabel")}</div><div class="sig-val">${PROPS.filter(p=>p.edge>0).length}</div><div class="sig-sub">${t("parlay.sig.edgeSub", {n: PROPS.length})}</div></div>` : `
-        <div class="sig up"><div class="lbl">${t("parlay.sig.linesLabel")}</div><div class="sig-val">${PROPS.length}</div><div class="sig-sub">${t("parlay.sig.linesSub", {n: new Set(PROPS.map(p=>p.n)).size})}</div></div>
-        <div class="sig"><div class="lbl">${t("parlay.sig.mineLabel")}</div><div class="sig-val">${new Set(PROPS.filter(p=>p.mine).map(p=>p.n)).size}</div><div class="sig-sub">${t("parlay.sig.mineSub", {n: PROPS.filter(p=>p.mine).length})}</div></div>`}
+        <div class="sig up"><div class="lbl">${t("parlay.sig.mineLabel")}</div><div class="sig-val">${new Set(PROPS.filter(p=>p.mine).map(p=>p.n)).size}</div><div class="sig-sub">${t("parlay.sig.mineSub", {n: PROPS.filter(p=>p.mine).length})}</div></div>`}
       </div></div>`}
     </div>
   </section>

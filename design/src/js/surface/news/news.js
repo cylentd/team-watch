@@ -58,7 +58,6 @@ function newsHTML(){
       </div>
       <div><div class="signals">
         <div class="sig up"><div class="lbl">${t("news.sig.teamsLabel")}</div><div class="sig-val">${teams}</div><div class="sig-sub">${t("news.sig.teamsSub")}</div></div>
-        <div class="sig"><div class="lbl">${t("news.sig.latestLabel")}</div><div class="sig-val" style="font-size:22px">${items[0] && items[0].when ? esc(items[0].when) : "—"}</div><div class="sig-sub">${t("news.sig.latestSub")}</div></div>
       </div></div>
     </div>
   </section>

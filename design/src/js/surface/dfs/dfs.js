@@ -16,7 +16,6 @@ function dfsSurfaceHTML(){
       </div>
       <div><div class="signals">
         <div class="sig up"><div class="lbl">${t("dfs.sig.slotsLabel")}</div><div class="sig-val">${site.lineup.filter(d=>d.n).length}</div><div class="sig-sub">${t("dfs.sig.slotsSub", {n: site.lineup.length})}</div></div>
-        <div class="sig"><div class="lbl">${t("dfs.sig.poolLabel")}</div><div class="sig-val">${site.pool.length}</div><div class="sig-sub">${t("dfs.sig.poolSub")}</div></div>
       </div></div>
     </div>
   </section>
