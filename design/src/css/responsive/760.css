@@ -1,7 +1,15 @@
 @media (max-width:760px){
   .wrap{padding:0 14px}
   .topbar-in{height:52px;gap:10px}
-  .navbar{top:52px}
+  /* Reach: a phone thumb hits the bottom of the screen, not a bar wedged under the header.
+     Pin the tab bar to the bottom edge instead and pad the page so content clears it. */
+  .navbar{
+    position:fixed;top:auto;bottom:0;left:0;right:0;
+    border-bottom:0;border-top:1px solid var(--line);
+    box-shadow:0 -12px 16px -10px rgb(var(--shadow-rgb) / .55);
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  body{padding-bottom:calc(54px + env(safe-area-inset-bottom))}
   .brand-name{font-size:16px}
   #weekpill{display:none}
   /* The topbar is already tight enough on a phone to hide the week pill entirely -- the Discord
