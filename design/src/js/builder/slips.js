@@ -30,15 +30,22 @@ const playing = p => p.flag !== "out" && p.flag !== "q" && p.flag !== "backup" &
    Touchdown legs are priced longer and land less often, so the floor is 30% and the price
    window runs to +600; mix needs no new band since each leg is still gated by its own market. */
 const scopeOK = (p, s) => s === "tds" ? p.mkt === "TD" : s === "mix" ? true : p.mkt !== "TD";
-/* Underdog is pick'em: higher or lower at their line, paid by a fixed multiplier, so a
-   yards/receptions pick needs the model above 58% (a 3-pick entry needs each leg near 55% to
-   break even at 6x) to clear the "confidence for free" floor. A touchdown pick skips that floor
-   on purpose -- Underdog sells no anytime-TD line, so udPick() derives one from the model's raw
-   P(score) (tagged MODEL) and a real slate mostly runs under 50%: TDs are long shots by nature,
-   and a gallery card that only ever showed the rare 58%+ read would misrepresent what "the
-   model's best TD card" actually looks like. Ranked by confidence either way, so a card still
-   leads with its strongest read; a low number here is the risk, not a mistake. */
+/* Underdog is pick'em: higher or lower at their line, paid by a fixed multiplier. UD_MIN is the
+   line list's "weak" shading, not the gallery gate (HIT_RECS / HIT_TD below). Underdog sells no
+   anytime-TD line, so udPick() derives one from the model's raw P(score), tagged MODEL. */
 const UD_MIN = 58;
+/* The Underdog gallery ranks for the chance a slip hits, and only uses the two kinds of leg that
+   held up against 2025's closing lines in both halves of the season (ff-jarvis METHODOLOGY 12.31,
+   12.34): receptions where the model says 60%+ at a 2.5+ line (hit 56.7% / 58.9%), and anytime
+   TDs where its P(score) is 50%+ (scored 61% / 54%; mostly lead backs on good offences). Yardage
+   calls faded in the held-out weeks (receiving 58.0% -> 53.0%), so they are not slip material. */
+const HIT_RECS = 60, HIT_TD = 50;
+/* Early season the receptions rate is last season's, and it did not hold: weeks 1-2 hit 48.1%,
+   weeks 3-4 53.7%, weeks 5+ 55-56%. So receptions legs join the gallery from week 5. The week is
+   RotoBaller's (it flips on Tuesday); no week on the page reads as early season. */
+const RECS_FROM_WEEK = 5;
+const NFL_WEEK = (LIVE_MARKET && LIVE_MARKET.wrcb && Number(LIVE_MARKET.wrcb.week)) || 0;
+const RECS_ON = NFL_WEEK >= RECS_FROM_WEEK;
 const legOKInBook = (p, s, book) => {
   if (!upcoming(p)) return false;
   if (book !== "underdog")
@@ -47,14 +54,16 @@ const legOKInBook = (p, s, book) => {
       && (p.mkt === "TD" ? (p.model >= 30 && overPrice(p) >= -300 && overPrice(p) <= 600)
                          : (p.model >= 35 && p.model <= 85 && overPrice(p) >= -300 && overPrice(p) <= 200));
   const u = udPick(p);
-  // A real yardage/receptions pick has to be at Underdog's own line (!synthetic) and clear the
-  // confidence floor; a touchdown pick is always synthetic and skips that floor (see above).
-  return u && (p.mkt === "TD" || (!u.synthetic && u.conf >= UD_MIN)) && (p.games||0) >= 8 && playing(p) && !u.stale && scopeOK(p, s)
-    // The line-size floor (a 0.5-reception or 12.5-yard line is confidence for free) only means
-    // anything for a real yardage/receptions line; a TD pick has no line to be thin, it is
-    // whichever side the model favors.
-    && (p.mkt === "TD" ? true : p.mkt === "RECS" ? u.line >= 2.5 : u.line >= 15);
+  // A receptions pick has to be at Underdog's own line (!synthetic), at 2.5+ (a 1.5-catch line is
+  // priced as a heavy favourite), and at the HIT_RECS floor; a touchdown pick is always synthetic
+  // and needs its P(score) at HIT_TD.
+  return u && (p.mkt === "TD" ? u.conf >= HIT_TD : RECS_ON && p.mkt === "RECS" && !u.synthetic && u.conf >= HIT_RECS && u.line >= 2.5)
+    && (p.games||0) >= 8 && playing(p) && !u.stale && scopeOK(p, s);
 };
+/* The non-TD scope is "yards" inside (scopeOK), but on Underdog it only ever holds receptions. */
+const galleryScopes = book => [["all",t("parlay.scope.all")],
+  ["yards", book === "underdog" ? t("parlay.scope.recs") : t("parlay.scope.yards")],
+  ["tds",t("parlay.scope.tds")],["mix",t("parlay.scope.mix")]];
 const legMetric = (book) => book === "underdog" ? (p => udPick(p).conf) : (p => p.edge);
 function pickLegs(cands, key, allowSameGame){
   const seenG = new Set(), seenP = new Set(), out = [];
@@ -101,7 +110,7 @@ let PARLAY_BOOK = "underdog";
    Computed once per book: PROPS never mutates, and toggling the cart must not re-roll the
    gallery. Both books' galleries are built up front so switching PARLAY_BOOK is instant. */
 function buildGallery(book){
-  const scopes = [["yards",t("parlay.scope.yards")],["tds",t("parlay.scope.tds")],["mix",t("parlay.scope.mix")]];
+  const scopes = galleryScopes(book).filter(([k]) => k !== "all");
   const metric = legMetric(book);
   const out = [], seen = new Set();
   for (const w of GAL_WINDOWS) for (const [s, label] of scopes){

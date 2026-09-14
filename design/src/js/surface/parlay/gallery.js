@@ -41,7 +41,7 @@ function presetCard(card, bestOf){
   let stat;
   if (card.book === "underdog"){
     const udP = legs.reduce((a,l)=>a*udPick(l).conf/100, 1);
-    stat = `<div class="ticket-stat"><b>${(udP*100).toFixed(1)}%</b><span>${t("parlay.gallery.allHit", {n: legs.length})}</span></div>`;
+    stat = `<div class="ticket-stat"><b>${(udP*100).toFixed(1)}%</b><span>${t("parlay.gallery.allHit", {n: legs.length, x: legs.length === 2 ? 3 : 6})}</span></div>`;
   } else {
     const prices = legs.map(overPrice).filter(a => a !== null);
     const priced = prices.length === legs.length;
@@ -65,7 +65,7 @@ function presetCard(card, bestOf){
 }
 
 function galleryHTML(){
-  const scopes = [["all",t("parlay.scope.all")],["yards",t("parlay.scope.yards")],["tds",t("parlay.scope.tds")],["mix",t("parlay.scope.mix")]];
+  const scopes = galleryScopes(PARLAY_BOOK);
   const cards = GALLERIES[PARLAY_BOOK].filter(c => (SLIP_SCOPE==="all"||c.scope===SLIP_SCOPE) && (GAL_WIN==="ALL"||c.win.k===GAL_WIN));
   // "Best" is the best of what is on screen: filter to Wednesday and the star moves to
   // Wednesday's strongest card instead of vanishing with the whole-week winner.
