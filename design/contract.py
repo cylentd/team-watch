@@ -26,7 +26,7 @@ CONTRACT = {
         "rows": ("items", ["id", "title", "desc", "impact", "team", "categories", "link", "when"]),
     },
     "LIVE_PROPS": {
-        "keys": ["fetched", "events", "books", "players", "windows", "model", "props", "wrcb", "logs"],
+        "keys": ["fetched", "events", "books", "players", "windows", "days", "model", "props", "wrcb", "logs"],
         "rows": ("props", ["n", "slug", "pos", "team", "mkt", "game", "commence", "kick", "line",
                            "book", "books", "mine", "win"]),
         # logs[slug] = {g: [[year, week, opp], ...], v: {MKT: [value per game]}} -- gamelog.js

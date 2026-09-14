@@ -26,6 +26,8 @@
 .ticket-tear::before{left:-22px}
 .ticket-tear::after{right:-22px}
 .ticket .slipleg:last-child{border-bottom:0}
+/* One line per leg saying why it is on the card; quiet, since the call above it is the answer. */
+.ticket .why{margin-top:4px;font-family:var(--mono);font-size:10.5px;letter-spacing:.02em;line-height:1.4;color:var(--ink-3)}
 .ticket-cta{appearance:none;width:100%;border:none;border-top:1px dashed var(--line-2);background:rgb(var(--lime-rgb) / .06);
   color:var(--lime);font-family:var(--disp);font-weight:800;text-transform:uppercase;letter-spacing:-.01em;
   font-size:15px;padding:14px 15px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;

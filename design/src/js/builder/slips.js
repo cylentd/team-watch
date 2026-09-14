@@ -2,7 +2,16 @@
    mixes two different days (the old "evening" spanned Thursday/Sunday/Monday night at once).
    Ordered chronologically; empty on the sample data (PROPS_SAMPLE carries no `win` field). */
 const WINDOWS = (LIVE_MARKET && LIVE_MARKET.windows) || [];
+/* Whole-day groupings (a Sunday's morning + afternoon + night), same date by construction. */
+const DAYS = (LIVE_MARKET && LIVE_MARKET.days) || [];
 const winGames = k => new Set(PROPS.filter(p => !k || p.win === k).map(p => p.game)).size;
+/* The page is a static build that can be days old when it is opened, so "has this game started"
+   is asked of the viewer's clock, once at load. A started game is no longer a bet. */
+const NOW = Date.now();
+const upcoming = p => !p.commence || Date.parse(p.commence.replace(" ", "T") + "Z") > NOW;
+const inWin = (p, w) => !w || (w.wins ? w.wins.includes(p.win) : p.win === w.k);
+/* The gallery's kickoff choices: every day, then every window, that still has a game to come. */
+const GAL_WINDOWS = [...DAYS, ...WINDOWS].filter(w => PROPS.some(p => inWin(p, w) && upcoming(p)));
 
 /* Gallery presets. "Best" is the largest positive edges the model will stand behind: a rate
    resting on at least 8 of his own games, a model chance between 25% and 85% so a thin sample
@@ -31,6 +40,7 @@ const scopeOK = (p, s) => s === "tds" ? p.mkt === "TD" : s === "mix" ? true : p.
    leads with its strongest read; a low number here is the risk, not a mistake. */
 const UD_MIN = 58;
 const legOKInBook = (p, s, book) => {
+  if (!upcoming(p)) return false;
   if (book !== "underdog")
     return typeof p.edge === "number" && p.edge > 0 && (p.games||0) >= 8 && playing(p)
       && scopeOK(p, s) && p.book === "DraftKings"
@@ -55,8 +65,8 @@ function pickLegs(cands, key, allowSameGame){
   });
   return out;
 }
-function bestSlipIn(scope, winKey, book){
-  const cands = PROPS.map((p,i)=>[p,i]).filter(([p]) => legOKInBook(p, scope, book) && (!winKey || p.win === winKey));
+function bestSlipIn(scope, win, book){
+  const cands = PROPS.map((p,i)=>[p,i]).filter(([p]) => legOKInBook(p, scope, book) && inWin(p, win));
   const games = new Set(cands.map(([p]) => p.game)).size;
   // A single-game window (a Thu/Sun/Mon night with one game on the slate) can never fill three
   // legs under the one-leg-per-game rule -- allow it there; the `.corr` warning already tells
@@ -85,15 +95,17 @@ let SLIP = [];
 let PARLAY_BOOK = "underdog";
 
 /* One card per window x scope with at least two legs, deduped (mix often reproduces yards or
-   tds exactly). No whole-slate card -- that would reintroduce the cross-date bug this fixes.
+   tds exactly). Days come first, so a Sunday's whole-day card leads and a window card that
+   repeats its legs is the one dropped. No whole-slate card -- that would reintroduce the
+   cross-date bug this fixes.
    Computed once per book: PROPS never mutates, and toggling the cart must not re-roll the
    gallery. Both books' galleries are built up front so switching PARLAY_BOOK is instant. */
 function buildGallery(book){
   const scopes = [["yards",t("parlay.scope.yards")],["tds",t("parlay.scope.tds")],["mix",t("parlay.scope.mix")]];
   const metric = legMetric(book);
   const out = [], seen = new Set();
-  for (const w of WINDOWS) for (const [s, label] of scopes){
-    const legs = bestSlipIn(s, w.k, book);
+  for (const w of GAL_WINDOWS) for (const [s, label] of scopes){
+    const legs = bestSlipIn(s, w, book);
     if (legs.length < 2) continue;
     const sig = legs.slice().sort((a,b)=>a-b).join(",");
     if (seen.has(sig)) continue;

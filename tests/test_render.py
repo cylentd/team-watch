@@ -6,7 +6,8 @@ element carrying each class the CSS defines, over the properties a theme change 
 A refactor that promises "no visual change" is proved here by an empty diff; an intended change
 regenerates the golden with `pytest --update-golden` and the diff is the review.
 
-Deterministic by construction: fixture inputs, Math.random seeded before load, external requests
+Deterministic by construction: fixture inputs, Math.random seeded and Date.now pinned before load
+(the gallery hides games that have kicked off), external requests
 (Google Fonts) blocked so fallback fonts always apply, reduced-motion so no animation is mid-flight.
 """
 import json
@@ -43,6 +44,7 @@ STATES = [
 
 SEED = """
 (() => { let s = 0x2f6e2b1; Math.random = () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; })();
+Date.now = () => Date.parse("2026-09-12T12:00:00Z");   // before every fixture kickoff, forever
 """
 
 PROBE = """

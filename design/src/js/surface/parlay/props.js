@@ -17,8 +17,7 @@ function whyNotSlip(p, u){
   if (p.moved) return `<span class="tag t-role" title="${t("parlay.tag.movedTitle", {team: esc(p.moved)})}">${t("parlay.tag.moved")}<span class="was"> · ${t("parlay.tag.movedWas", {team: esc(p.moved)})}</span></span>`;
   if (u ? u.stale : p.stale) return `<span class="tag t-role" title="${t("parlay.tag.staleTitle")}">${t("parlay.tag.stale")}</span>`;
   if (typeof p.model === "number" && (p.games||0) < 8) return `<span class="tag t-bk" title="${t("parlay.tag.gamesTitle", {n: p.games||0})}">${t("parlay.tag.games", {n: p.games||0})}</span>`;
-  if (u && !u.synthetic && u.line !== null && (p.mkt === "RECS" ? u.line < 2.5 : u.line < 15)) return `<span class="tag t-bk" title="${t("parlay.tag.thinTitle")}">${t("parlay.tag.thin")}</span>`;
-  return "";
+  if (u && !u.synthetic && u.line !== null && (p.mkt === "RECS" ? u.line < 2.5 : u.line < 15)) return `<span class="tag t-bk" title="${t("parlay.tag.thinTitle")}">${t("parlay.tag.thin")}</span>`;  return "";
 }
 
 /* A hand-written role note (data/role_notes.json in ff-jarvis) already discounted this player's
