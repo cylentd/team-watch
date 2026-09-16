@@ -18,6 +18,7 @@ from test_build import injected
 from test_render import browser, open_page  # noqa: F401  (browser is a fixture)
 
 PROFILES = json.loads((FIXTURES / "data" / "player_profiles.json").read_text(encoding="utf-8"))
+MARKET_STOCK = json.loads((FIXTURES / "data" / "market_stock.json").read_text(encoding="utf-8"))
 
 
 def test_contract_accepts_the_fixture():
@@ -57,6 +58,34 @@ def test_no_profiles_file_injects_null(monkeypatch):
     monkeypatch.setattr(build, "load_profiles", lambda: None)
     b = build.render()
     assert injected(b.fragment)["LIVE_PROFILES"] is None
+
+
+# ------------------------------------------------------------------ market.stock (step 5)
+
+def test_contract_accepts_the_market_stock_fixture():
+    assert contract.problems("LIVE_MARKET_STOCK", MARKET_STOCK) == []
+
+
+def test_contract_rejects_a_market_row_missing_a_field():
+    d = copy.deepcopy(MARKET_STOCK)
+    d["players"]["george kittle"].pop("d_rank")
+    assert contract.problems("LIVE_MARKET_STOCK", d) == ["LIVE_MARKET_STOCK.players['george kittle'].d_rank"]
+
+
+def test_build_injects_the_market_stock_from_the_feed(built):
+    """build.py re-keys the producer's norm_name-keyed players by slug (profileFor()'s key), so
+    the injected keys are slugs of the fixture's names, not the fixture's own keys."""
+    got = injected(built.fragment)["LIVE_MARKET_STOCK"]
+    assert got["backtested"] is False
+    want = {build.slugify(rec["name"]) for rec in MARKET_STOCK["players"].values()}
+    assert set(got["players"]) == want
+    assert any(line.startswith("Market stock: 4 players") for line in built.report)
+
+
+def test_no_market_stock_injects_null(monkeypatch):
+    monkeypatch.setattr(build, "load_market_stock", lambda: None)
+    b = build.render()
+    assert injected(b.fragment)["LIVE_MARKET_STOCK"] is None
 
 
 # ------------------------------------------------------------------ rendered, in Chromium
@@ -133,7 +162,7 @@ def test_panel_blocks_and_details_collapsed(browser, page_file):
     assert not drawer.locator(".pf-dsec").first.is_visible()
     drawer.locator(".pf-details > summary").click()
     assert details.get_attribute("open") is not None
-    assert drawer.locator(".pf-tag").inner_text().strip() == "UNTESTED"
+    assert drawer.locator(".pf-tag", has_text="UNTESTED").first.inner_text().strip() == "UNTESTED"
     assert drawer.inner_text().count("METHODOLOGY") == 1
     page.keyboard.press("Escape")
     assert "on" not in drawer.get_attribute("class")
@@ -166,6 +195,73 @@ def test_red_zone_line_switches_at_ten(browser, page_file):
     assert got[0].startswith("1 of 5") and "%" not in got[0]
     assert got[1].startswith("30% · 3 of 10")
     assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_market_row_shows_priced_numbers(browser, page_file):
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    row(page, "Amon-Ra St. Brown").click()
+    drawer = page.locator("#drawer")
+    drawer.locator(".pf-details > summary").click()
+    text = drawer.inner_text()
+    assert "UNTESTED" in text
+    assert "17.8 pts" in text and "role 18.2 pts" in text
+    assert "WR rank #5" in text and "z 0.82" in text
+    assert "Priced: REC" in text
+    assert not re.search(r"\b(BUY|SELL|RISING|FALLING|HOT|COLD)\b", text, re.I)
+    page.keyboard.press("Escape")
+    ctx.close()
+
+
+@pytest.mark.render
+def test_market_row_falls_back_to_model_pts(browser, page_file):
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page.evaluate("VIEW='espn'; render()")
+    row(page, "George Kittle").click()
+    drawer = page.locator("#drawer")
+    drawer.locator(".pf-details > summary").click()
+    text = drawer.inner_text()
+    assert "UNTESTED" in text
+    assert "13.1 pts, the model's number" in text
+    assert "No market priced yet." in text
+    page.keyboard.press("Escape")
+    ctx.close()
+
+
+@pytest.mark.render
+def test_market_row_zero_d_rank_shows_no_change_marker(browser, page_file):
+    """d_rank 0 (Chase Brown, tests/fixtures/data/market_stock.json) must not render a delta
+    marker next to the rank -- "#8 -- 0" reads as a range, not as "no change." z moves to the
+    role line instead of sharing the rank line."""
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    row(page, "Chase Brown").click()
+    drawer = page.locator("#drawer")
+    drawer.locator(".pf-details > summary").click()
+    rank_line = drawer.locator(".pf-cap", has_text="RB rank #8")
+    assert rank_line.count() == 1
+    assert rank_line.locator(".delta").count() == 0
+    text = drawer.inner_text()
+    assert "z -0.05" in text
+    page.keyboard.press("Escape")
+    ctx.close()
+
+
+@pytest.mark.render
+def test_market_row_partial_markets_shows_priced_not_no_market(browser, page_file):
+    """A src:"model" row can still carry a partial `markets` list (Tee Higgins: ["REC"]); the
+    "No market priced yet." sentence is only for a row with no markets priced at all."""
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page.evaluate("VIEW='espn'; render()")
+    row(page, "Tee Higgins").click()
+    drawer = page.locator("#drawer")
+    drawer.locator(".pf-details > summary").click()
+    text = drawer.inner_text()
+    assert "UNTESTED" in text
+    assert "11.2 pts, the model's number" in text
+    assert "Priced: REC" in text
+    assert "No market priced yet." not in text
+    page.keyboard.press("Escape")
     ctx.close()
 
 

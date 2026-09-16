@@ -8,7 +8,8 @@ import pytest
 import build
 import contract
 
-BLOCKS = ["HEADS", "LIVE_ESPN", "LIVE_YAHOO", "LIVE_FEED", "LIVE_NEWS", "LIVE_PROPS", "LIVE_DFS_YAHOO", "LIVE_PROFILES"]
+BLOCKS = ["HEADS", "LIVE_ESPN", "LIVE_YAHOO", "LIVE_FEED", "LIVE_NEWS", "LIVE_PROPS", "LIVE_DFS_YAHOO",
+          "LIVE_PROFILES", "LIVE_MARKET_STOCK"]
 
 
 def injected(fragment):
@@ -66,8 +67,8 @@ def test_build_is_deterministic(built):
 def test_script_terminator_in_data_is_escaped(monkeypatch):
     real = build.load_news
 
-    def poisoned():
-        d = real()
+    def poisoned(feed_path, dwr_path):
+        d = real(feed_path, dwr_path)
         d["items"][0]["title"] = 'He said "</script><b>x</b>" on air'
         return d
 

@@ -5,7 +5,6 @@ slug -> data-URI map so the page works offline and as a published Artifact.
 Run: python design/build.py
 """
 import base64
-import datetime as dt
 import json
 import os
 import pathlib
@@ -14,7 +13,8 @@ import re
 import contract                 # design/contract.py: the shape each LIVE_* block must have
 import lint_css                 # design/lint_css.py: theme rules; an error fails the build
 from assemble import assemble   # design/assemble.py: design/src/** -> the page template
-from slate import LOCAL_TZ, UTC, assign_windows, day_windows, kickoff   # design/slate.py: kickoff windows
+from news import load_news      # design/news.py: breaking news, split out to stay in budget
+from slate import assign_windows, day_windows, kickoff   # design/slate.py: kickoff windows
 
 ROOT = pathlib.Path(__file__).resolve().parent
 REPO = ROOT.parent
@@ -310,49 +310,26 @@ def load_profiles():
     return feed_block(("profiles",), "players") or read_first(DWR / "player_profiles.json")
 
 
-def load_news():
-    """Breaking news from ff-jarvis's own scanner (it watches FantasyPros' wire and writes
-    data/breaking_news.json) -- feed first, then the file directly, same two-tier pattern as
-    every other live read here. `when` is reformatted the same way kickoff() below does it, so a
-    news row and a kickoff badge read as the same kind of timestamp."""
-    feed = FEED
-    raw = None
-    try:
-        d = json.loads(feed.read_text(encoding="utf-8"))
-        block = ((d.get("market") or {}).get("news") or {}).get("data")
-        if block and block.get("items"):
-            raw = block
-    except (OSError, json.JSONDecodeError):
-        pass
-    if raw is None:
-        path = DWR / "breaking_news.json"
-        if path.exists():
-            try:
-                raw = json.loads(path.read_text(encoding="utf-8"))
-            except (OSError, json.JSONDecodeError):
-                raw = None
-    if not raw or not raw.get("items"):
-        return None
-    # Sorted here, not trusted from the source or left to the client: the scanner's own file has
-    # shuffled order before now, and a client-side sort would need the raw timestamp shipped
-    # alongside the display string anyway. dt.min as the fallback key puts an unparseable date
-    # last, never first.
-    def parsed_time(it):
-        try:
-            return dt.datetime.strptime(it["created"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=UTC)
-        except (KeyError, TypeError, ValueError):
-            return dt.datetime.min.replace(tzinfo=UTC)
-    items = []
-    for it in sorted(raw["items"], key=parsed_time, reverse=True):
-        t = parsed_time(it)
-        when = None if t == dt.datetime.min.replace(tzinfo=UTC) else (
-            t.astimezone(LOCAL_TZ).strftime("%a %I:%M%p").replace(" 0", " ").replace("AM", "a").replace("PM", "p"))
-        items.append({
-            "id": it.get("id"), "title": it.get("title"), "desc": it.get("desc"),
-            "impact": it.get("impact"), "team": it.get("team_id"),
-            "categories": it.get("categories") or [], "link": it.get("link"), "when": when,
-        })
-    return {"items": items}
+def _stock_by_slug(players):
+    """Re-key market.stock's players from the producer's norm_name key to the same slug
+    profileFor() uses (slugify(name)), so stock.js's stockFor() can share profileFor()'s lookup
+    instead of hand-mirroring ff-jarvis's norm_name (architecture.md: never hand-mirror logic
+    across repos). Two players who land on the same slug keep whichever is `src: "market"` -- a
+    priced line beats a model fallback; a tie keeps whichever was seen first."""
+    by_slug = {}
+    for rec in players.values():
+        slug = slugify(rec.get("name") or "")
+        prev = by_slug.get(slug)
+        if prev is None or (rec.get("src") == "market" and prev.get("src") != "market"):
+            by_slug[slug] = rec
+    return by_slug
+
+
+def load_market_stock():
+    """ff-jarvis's market.market_stock: feed block `market.stock` first, file fallback, then
+    re-keyed by slug (see _stock_by_slug)."""
+    block = feed_block(("market", "stock"), "players") or read_first(DWR / "market_stock.json")
+    return {**block, "players": _stock_by_slug(block["players"])} if block else block
 
 
 def implied(american):
@@ -685,6 +662,16 @@ class Build:
         self.page, self.fragment, self.report, self.heads, self.missing = page, fragment, report, heads, missing
 
 
+def add_market_stock(blocks, report):
+    """Loads LIVE_MARKET_STOCK into `blocks` and appends its build-report line -- split out of
+    render() so that function stays inside its 110-line budget (tests/test_budgets.py's
+    PY_BACKLOG ratchet) without squeezing a dict entry or a tuple unpack onto one line."""
+    stock = load_market_stock()
+    blocks["LIVE_MARKET_STOCK"] = stock
+    report.append(f"Market stock: {len(stock['players'])} players" if stock
+                  else "Market stock: none, so no market row")
+
+
 def render():
     """Everything but the writes, so a test can build in-process against fixture inputs.
     Fails (SystemExit) on a lint error, a contract violation, or an assembly problem."""
@@ -696,7 +683,7 @@ def render():
     live = live_espn(available)
     liveY = live_yahoo(available)
     liveDfsYahoo = live_dfs_yahoo(available)
-    news = load_news()
+    news = load_news(FEED, DWR)
 
     props = live_props(available, roster_index(("espn", live), ("yahoo", liveY)))
 
@@ -719,6 +706,7 @@ def render():
         b64 = base64.b64encode(path.read_bytes()).decode("ascii")
         heads[slug] = f"data:image/webp;base64,{b64}"
 
+    report = []
     blocks = {
         "LIVE_ESPN": live,
         "LIVE_YAHOO": liveY,
@@ -728,6 +716,7 @@ def render():
         "LIVE_DFS_YAHOO": liveDfsYahoo,
         "LIVE_PROFILES": load_profiles(),
     }
+    add_market_stock(blocks, report)
     for name, obj in blocks.items():
         contract.validate(name, obj)   # a missing field fails the build, not the page
     # A "</" inside a string (a headline quoting markup, say) would end the <script> early;
@@ -761,7 +750,6 @@ def render():
     ])
     page = f"{head}\n{body}\n</body>\n</html>\n"
 
-    report = []
     for label, src in (("ESPN", live), ("Yahoo", liveY)):
         if src:
             report.append(f"{label}: {len(src['roster'])} players, {src['league']}, pulled {src['updated']}")

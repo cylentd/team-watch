@@ -10,11 +10,13 @@
 data/teams.js
 data/hydrate.js
 data/news.js
+data/stock.js
 lib/escape.js
 ui/player.js
 ui/matchup.js
 surface/teams/board.js
 surface/profile/sections.js
+surface/profile/market.js
 surface/profile/details.js
 surface/profile/panel.js
 surface/news/news.js

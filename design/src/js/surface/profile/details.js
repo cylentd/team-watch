@@ -79,6 +79,7 @@ function detailsHTML(prof){
   return `<details class="pf-details">
     <summary><span class="lbl">${t("profile.details.summary")}</span><span class="pf-chev" aria-hidden="true">▸</span></summary>
     <div class="pf-details-body">
+      ${marketHTML(prof)}
       ${receiver ? zoneReadHTML(prof) + coverageHTML(prof) + sidesHTML(prof) : ""}
       ${opponentHTML(prof)}
       ${blendedHTML(prof)}

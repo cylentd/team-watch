@@ -50,6 +50,18 @@ CONTRACT = {
                                      "carries", "carry_share", "team_carries"]),
         ],
     },
+    # ff-jarvis's model.market.market_stock, feed block `market.stock`, keyed by the producer's
+    # norm_name -- build.py's load_market_stock() re-keys it by slug (profileFor()'s key) before
+    # injection, so the shape below is what the JS actually sees. Step 4 (METHODOLOGY 12.46)
+    # failed its backtest, so `backtested` is false and the page shows numbers only -- no verdict
+    # words. A "model" row (no market priced) still carries every key, with the d_*/z/rank fields
+    # null; only `pts` (from player_projections.json) is real.
+    "LIVE_MARKET_STOCK": {
+        "keys": ["generated", "at", "backtested", "trial", "players"],
+        "map": ("players", ["name", "pos", "team", "src", "game", "markets", "pts", "role_pts",
+                            "prev_at", "d_pts", "d_role_pts", "sector", "z", "rank", "d_rank",
+                            "no_market"]),
+    },
 }
 
 

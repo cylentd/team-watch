@@ -243,6 +243,81 @@
    "data": null,
    "fetched": null
   },
+  "stock": {
+   "data": {
+    "generated": "2026-09-16 09:00",
+    "at": "2026-09-16T09:00",
+    "backtested": false,
+    "trial": "METHODOLOGY 12.46",
+    "players": {
+     "amonra st brown": {
+      "name": "Amon-Ra St. Brown", "pos": "WR", "team": "DET",
+      "src": "market",
+      "game": "DET @ KC",
+      "markets": ["REC", "RECS", "TD"],
+      "pts": 17.8,
+      "role_pts": 18.2,
+      "prev_at": "2026-09-09T12:00",
+      "d_pts": 0.6,
+      "d_role_pts": 0.9,
+      "sector": "WR_1",
+      "z": 0.82,
+      "rank": 5,
+      "d_rank": 2,
+      "no_market": false
+     },
+     "george kittle": {
+      "name": "George Kittle", "pos": "TE", "team": "SF",
+      "src": "model",
+      "game": "SF vs LAR",
+      "markets": [],
+      "pts": 13.1,
+      "role_pts": null,
+      "prev_at": null,
+      "d_pts": null,
+      "d_role_pts": null,
+      "sector": "TE_2",
+      "z": null,
+      "rank": null,
+      "d_rank": null,
+      "no_market": true
+     },
+     "tee higgins": {
+      "name": "Tee Higgins", "pos": "WR", "team": "CIN",
+      "src": "model",
+      "game": "CIN @ NYJ",
+      "markets": ["REC"],
+      "pts": 11.2,
+      "role_pts": null,
+      "prev_at": null,
+      "d_pts": null,
+      "d_role_pts": null,
+      "sector": "WR_2",
+      "z": null,
+      "rank": null,
+      "d_rank": null,
+      "no_market": true
+     },
+     "chase brown": {
+      "name": "Chase Brown", "pos": "RB", "team": "CIN",
+      "src": "market",
+      "game": "CIN @ NYJ",
+      "markets": ["RUSH", "REC", "TD"],
+      "pts": 14.2,
+      "role_pts": 14.0,
+      "prev_at": "2026-09-09T12:00",
+      "d_pts": 0.1,
+      "d_role_pts": -0.05,
+      "sector": "RB_1",
+      "z": -0.05,
+      "rank": 8,
+      "d_rank": 0,
+      "no_market": false
+     }
+    }
+   },
+   "fetched": "2026-09-16 09:00"
+  },
   "props": {
    "data": null,
    "fetched": null
