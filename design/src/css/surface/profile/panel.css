@@ -1,0 +1,43 @@
+/* ============================== PROFILE PANEL ==============================
+   The player profile inside #drawer: head, then four sections that each lead with one number,
+   show shares as bars with an average tick, and close on one short caption. */
+.pf-head .dr-close{width:44px;height:44px;top:10px;right:10px;font-size:14px}
+.pf-head .dr-id{padding-right:46px}
+.pf-thru{display:flex;align-items:center;gap:10px;margin-top:14px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--ink-3)}
+.pf-body{padding:0 22px 28px}
+.pf-empty{margin-top:22px;min-height:120px}
+
+.pf-sechead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:12px}
+.pf-legend{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--ink-3);letter-spacing:.06em;white-space:nowrap}
+.pf-legend i{width:2px;height:11px;background:var(--ink)}
+
+.pf-lead{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}
+.pf-lead b{font-family:var(--mono);font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1;color:var(--ink)}
+.pf-lead span{font-size:13px;color:var(--ink-2);line-height:1.4}
+
+.pf-bars{display:flex;flex-direction:column;gap:9px}
+.pf-sub{margin:16px 0 10px}
+.pf-bar{display:grid;grid-template-columns:96px minmax(0,1fr) 38px 30px;gap:10px;align-items:center;min-height:20px}
+.pf-bar.bare{grid-template-columns:minmax(0,1fr) 38px 30px}
+.pf-bar-l{font-size:12.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pf-track{position:relative;height:6px;background:var(--line)}
+.pf-track i{position:absolute;left:0;top:0;bottom:0;background:var(--ink-3)}
+.pf-bar.lead .pf-track i{background:var(--ink-2)}
+.pf-bar.lead .pf-bar-l,.pf-bar.lead .pf-bar-v{color:var(--ink)}
+.pf-tick{position:absolute;top:-4px;bottom:-4px;width:2px;margin-left:-1px;background:var(--ink);box-shadow:0 0 0 1px var(--panel)}
+.pf-bar-v{font-family:var(--mono);font-size:12px;font-weight:700;text-align:right;color:var(--ink-2)}
+.pf-bar-d{font-family:var(--mono);font-size:11px;text-align:right;color:var(--ink-3)}
+
+.pf-cap{margin:12px 0 0;font-size:12px;line-height:1.5;color:var(--ink-3)}
+.pf-quiet{margin-top:0}
+.pf-caution{display:flex;gap:8px;align-items:baseline}
+.pf-caution::before{content:"";flex-shrink:0;width:6px;height:6px;border-radius:99px;background:var(--amber);transform:translateY(-1px)}
+
+.pf-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12.5px}
+.pf-table th,.pf-table td{padding:7px 0;border-bottom:1px solid var(--line);text-align:right;font-weight:500}
+.pf-table thead th{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);padding-top:0}
+.pf-table th:first-child{text-align:left}
+.pf-table tbody th{font-family:var(--ui);font-size:12.5px;color:var(--ink-2)}
+.pf-table td{color:var(--ink)}
+.pf-table small{color:var(--ink-3);font-size:11px}
+.pf-table tbody tr:last-child th,.pf-table tbody tr:last-child td{border-bottom:0}

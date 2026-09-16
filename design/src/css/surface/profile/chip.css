@@ -1,0 +1,16 @@
+/* ============================== MATCHUP CHIP ==============================
+   The verdict on a roster row or waiver card: green PLUS, red MINUS, neutral EVEN. An untested
+   verdict is dashed with an amber flask, so the word never reads as a proven call. */
+.mchip{
+  flex-shrink:0;display:inline-flex;align-items:center;gap:4px;
+  font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.12em;line-height:1;
+  padding:3px 5px;border-radius:2px;border:1px solid var(--line-2);color:var(--ink-2);
+}
+.mchip.plus{color:var(--up);border-color:rgb(var(--up-rgb) / .4);background:rgb(var(--up-rgb) / .08)}
+.mchip.minus{color:var(--down);border-color:rgb(var(--down-rgb) / .4);background:rgb(var(--down-rgb) / .08)}
+.mchip.even{color:var(--ink-2);border-color:var(--line-2);background:rgb(var(--ink-rgb) / .03)}
+.mchip.untested{border-style:dashed}
+.mchip .flask{width:10px;height:10px;color:var(--amber);flex-shrink:0}
+.side-n .mchip{margin-left:8px;vertical-align:2px}
+.side-i[data-wire]{cursor:pointer}
+.side-i[data-wire]:hover .side-n{color:var(--lime)}

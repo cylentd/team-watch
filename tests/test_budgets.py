@@ -17,8 +17,7 @@ JS_BACKLOG = {
     "wireBuilder": 140,
     "parlayHTML": 93,
     "scatterHTML": 74,
-    "openPoolDrawer": 64,
-    "openDrawer": 63,
+    "openPoolDrawer": 62,
 }
 # Same for design/*.py. build.py itself is over the 500-line file budget; the split that fixes
 # that is a model-vs-view change, not a refactor, so it is a ratchet here rather than a fail.

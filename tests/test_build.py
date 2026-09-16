@@ -8,7 +8,7 @@ import pytest
 import build
 import contract
 
-BLOCKS = ["HEADS", "LIVE_ESPN", "LIVE_YAHOO", "LIVE_FEED", "LIVE_NEWS", "LIVE_PROPS", "LIVE_DFS_YAHOO"]
+BLOCKS = ["HEADS", "LIVE_ESPN", "LIVE_YAHOO", "LIVE_FEED", "LIVE_NEWS", "LIVE_PROPS", "LIVE_DFS_YAHOO", "LIVE_PROFILES"]
 
 
 def injected(fragment):

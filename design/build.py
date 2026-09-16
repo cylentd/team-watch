@@ -265,21 +265,21 @@ def load_model_raw():
     return None
 
 
-def load_player_proj():
-    """Half-PPR points for every player from ff-jarvis's `model.market.projections`, feed block
-    first (`projections`), then the file, same two-tier pattern as the other live reads. A feed
-    written before that step existed has no block, and an ff-jarvis checkout on another branch
-    may have no file: then nothing is modelled and every DFS row falls back to Yahoo's FPPG,
-    which the header says out loud."""
-    feed = FEED
+def feed_block(keys, must):
+    """The `data` of the feed block at `keys` (a path of nested keys) when it carries `must`."""
     try:
-        d = json.loads(feed.read_text(encoding="utf-8"))
-        block = (d.get("projections") or {}).get("data")
-        if block and block.get("players"):
-            return block
+        d = json.loads(FEED.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
-        pass
-    for path in (PLAYER_PROJ, REPO / "data" / "player_projections.json"):
+        return None
+    for k in keys:
+        d = (d or {}).get(k)
+    block = (d or {}).get("data")
+    return block if block and block.get(must) else None
+
+
+def read_first(*paths):
+    """The first of `paths` that exists and parses as JSON, else None."""
+    for path in paths:
         if path.exists():
             try:
                 return json.loads(path.read_text(encoding="utf-8"))
@@ -288,23 +288,26 @@ def load_player_proj():
     return None
 
 
+def load_player_proj():
+    """Half-PPR points for every player from ff-jarvis's `model.market.projections`, feed block
+    first (`projections`), then the file, same two-tier pattern as the other live reads. A feed
+    written before that step existed has no block, and an ff-jarvis checkout on another branch
+    may have no file: then nothing is modelled and every DFS row falls back to Yahoo's FPPG,
+    which the header says out loud."""
+    return (feed_block(("projections",), "players")
+            or read_first(PLAYER_PROJ, REPO / "data" / "player_projections.json"))
+
+
 def load_wrcb():
     """RotoBaller's WR/CB column for the week, feed first then the ff-jarvis file."""
-    feed = FEED
-    try:
-        d = json.loads(feed.read_text(encoding="utf-8"))
-        block = ((d.get("market") or {}).get("wrcb") or {}).get("data")
-        if block and block.get("records"):
-            return block
-    except (OSError, json.JSONDecodeError):
-        pass
-    path = DWR / "wrcb.json"
-    if path.exists():
-        try:
-            return json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            return None
-    return None
+    return feed_block(("market", "wrcb"), "records") or read_first(DWR / "wrcb.json")
+
+
+def load_profiles():
+    """Per-player profile (usage by zone, coverage split, red zone, next opponent) from ff-jarvis's
+    data/player_profiles.json, feed block `profiles` first. None renders no chips and a quiet
+    "no profile yet" panel."""
+    return feed_block(("profiles",), "players") or read_first(DWR / "player_profiles.json")
 
 
 def load_news():
@@ -607,20 +610,7 @@ def load_dfs_pool():
     import <csv>` -- deliberately manual, per that module's own docstring: an automated Yahoo
     scrape is a decision to ask about, not build quietly. Feed-first, the ff-jarvis file directly
     as a fallback, same two-tier pattern as load_status()/load_props_raw()."""
-    feed = FEED
-    try:
-        d = json.loads(feed.read_text(encoding="utf-8"))
-        block = ((d.get("market") or {}).get("dfs") or {}).get("data")
-        if block and block.get("players"):
-            return block
-    except (OSError, json.JSONDecodeError):
-        pass
-    if DFS_POOL.exists():
-        try:
-            return json.loads(DFS_POOL.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            pass
-    return None
+    return feed_block(("market", "dfs"), "players") or read_first(DFS_POOL)
 
 
 def live_dfs_yahoo(available):
@@ -736,6 +726,7 @@ def render():
         "LIVE_NEWS": news,
         "LIVE_PROPS": props,
         "LIVE_DFS_YAHOO": liveDfsYahoo,
+        "LIVE_PROFILES": load_profiles(),
     }
     for name, obj in blocks.items():
         contract.validate(name, obj)   # a missing field fails the build, not the page
@@ -798,6 +789,8 @@ def render():
         report.append(f"News: {len(news['items'])} items from ff-jarvis's scanner")
     else:
         report.append("News: no breaking_news.json/feed block, template falls back to its sample")
+    prof = blocks["LIVE_PROFILES"]
+    report.append(f"Profiles: {len(prof['players'])} players" if prof else "Profiles: none, so no chips")
     if missing:
         report.append(f"no headshot for {len(missing)} slugs (initials fallback renders)")
     return Build(page, body, report, heads, missing)

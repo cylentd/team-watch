@@ -29,7 +29,10 @@ PROPS = ["color", "background-color", "border-top-color", "border-top-style", "b
 STATES = [
     ("teams-yahoo", []),
     ("teams-espn", [("eval", "VIEW='espn'; render()")]),
-    ("teams-drawer", [("click", ".row")]),
+    ("teams-drawer", [("click", ".row")]),   # Joe Burrow: no profile, the quiet state
+    ("profile-wr-drawer", [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", ".pf-untested")]),
+    ("profile-rb-drawer", [("click", ".row:has-text('Chase Brown')")]),
+    ("profile-bye-drawer", [("click", ".row:has-text('Jahmyr Gibbs')")]),
     ("pool", [("click", ".navitem[data-s='pool']")]),
     ("pool-drawer", [("click", ".navitem[data-s='pool']"), ("click", "[data-pool]")]),
     ("parlay-underdog", [("click", ".navitem[data-s='parlay']")]),

@@ -70,9 +70,6 @@ function render(){
   </div>`;
   v.querySelector(".leaguechip")?.addEventListener("click", ()=>openLeagueInfo(team.key));
   wireTeamSwitch(v);
-  document.querySelectorAll(".row").forEach(r=>{
-    r.addEventListener("click", ()=>openDrawer(r.dataset.team, +r.dataset.i));
-    r.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();openDrawer(r.dataset.team,+r.dataset.i);} });
-  });
+  wireProfiles(v);
 }
 

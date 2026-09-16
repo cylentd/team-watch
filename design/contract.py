@@ -1,6 +1,6 @@
 """The shape each injected data block must have, checked where the data enters the page.
 
-build.py injects six `const LIVE_*` blocks. The JS reads fixed field names off them (see
+build.py injects seven `const LIVE_*` blocks. The JS reads fixed field names off them (see
 src/js/data/*.js); a field renamed or dropped on the Python side used to show up as a blank
 panel or a console error on the deployed page. Now it fails the build.
 
@@ -37,6 +37,15 @@ CONTRACT = {
         "keys": ["fetched", "modeled", "lined", "players"],
         "rows": ("players", ["n", "pos", "team", "sal", "proj", "src", "status", "slug", "game"]),
     },
+    # ff-jarvis's data/player_profiles.json, keyed by slug. `next` may be null (a bye); when it is
+    # an object, next.js reads every key below, so a partial one is a crash on open.
+    "LIVE_PROFILES": {
+        "keys": ["generated", "season", "through_week", "players"],
+        "map": ("players", ["n", "pos", "team", "usage", "coverage", "red_zone", "next"]),
+        "nested": ("players", "next", ["week", "opp", "home", "zones", "man_pct", "man_pct_league",
+                                       "man_season", "dc_same", "rz", "factor", "verdict", "basis",
+                                       "tested", "method"]),
+    },
 }
 
 
@@ -62,6 +71,12 @@ def problems(name, obj, limit=8):
             out += [f"{name}.{field}[{key!r}].{k}" for k in keys if not isinstance(row, dict) or k not in row]
             if len(out) >= limit:
                 break
+    field, sub, keys = spec.get("nested", (None, None, []))
+    if field and isinstance(obj.get(field), dict):
+        for key, row in obj[field].items():
+            inner = row.get(sub) if isinstance(row, dict) else None
+            if isinstance(inner, dict):
+                out += [f"{name}.{field}[{key!r}].{sub}.{k}" for k in keys if k not in inner]
     return out[:limit]
 
 

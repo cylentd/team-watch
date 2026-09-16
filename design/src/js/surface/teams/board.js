@@ -9,7 +9,7 @@ function rowHTML(p, i, teamKey){
     <div class="slot"><span>${esc(p.slot)}</span></div>
     <div class="head">${headHTML(p)}${badge}</div>
     <div class="nm">
-      <div class="nm-1"><b>${esc(p.n)}</b>${tag}${dual}</div>
+      <div class="nm-1"><b>${esc(p.n)}</b>${tag}${dual}${verdictChipHTML(profileFor(p))}</div>
       <div class="nm-2">
         <span class="slotm">${esc(p.slot)}</span>
         <span><em class="posx" style="font-style:normal">${esc(p.pos)} · </em>${esc(p.team)}</span>

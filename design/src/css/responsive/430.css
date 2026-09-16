@@ -1,4 +1,14 @@
 @media (max-width:430px){ .dfs{grid-template-columns:minmax(0,1fr)} }
+/* The profile panel keeps 16px gutters on a phone; the zone bars give up label width first. */
+@media (max-width:430px){
+  .pf-body{padding:0 16px 24px}
+  .pf-head{padding-left:16px;padding-right:16px}
+  .pf-bar{grid-template-columns:82px minmax(0,1fr) 36px 28px;gap:8px}
+  .pf-bar.bare{grid-template-columns:minmax(0,1fr) 36px 28px}
+  /* A row name with both the 2-leagues tag and the matchup chip: the tags tighten before the name truncates. */
+  .nm-1{gap:5px}
+  .nm-1 .tag,.nm-1 .mchip{letter-spacing:.04em;padding-left:4px;padding-right:4px}
+}
 .slotm{display:none}
 .pill .abbr{display:none}
 

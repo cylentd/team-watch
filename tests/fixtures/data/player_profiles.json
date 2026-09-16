@@ -1,0 +1,132 @@
+{
+ "generated": "2026-09-16T21:00:00-07:00",
+ "season": 2026,
+ "through_week": 2,
+ "players": {
+  "amonra-st-brown": {
+   "n": "Amon-Ra St. Brown", "pos": "WR", "team": "DET",
+   "usage": {
+    "targets": 21, "prior_targets": 164, "weeks": 2, "weight": 0.45,
+    "zones": {
+     "behind": {"share": 0.09, "pos_avg": 0.12},
+     "short": {"share": 0.58, "pos_avg": 0.51},
+     "intermediate": {"share": 0.28, "pos_avg": 0.24},
+     "deep": {"share": 0.05, "pos_avg": 0.13},
+     "middle": {"share": 0.33, "pos_avg": 0.27},
+     "outside": {"share": 0.67, "pos_avg": 0.73}
+    }
+   },
+   "coverage": {
+    "seasons": [2023, 2024, 2025],
+    "targets_man": 88, "targets_zone": 240,
+    "ypt_man": 8.9, "ypt_zone": 8.1,
+    "split": 0.5,
+    "note": "his man-vs-zone split repeats weakly year to year (r 0.20, METHODOLOGY 12.39)"
+   },
+   "red_zone": {"weeks": 2, "targets": 4, "target_share": 0.31, "carries": null, "carry_share": null},
+   "next": {
+    "week": 3, "opp": "KC", "home": false,
+    "zones": [
+     {"zone": "short", "def_index": 0.96, "rank": 19, "of": 32, "targets": 68},
+     {"zone": "intermediate", "def_index": 1.12, "rank": 6, "of": 32, "targets": 41}
+    ],
+    "man_pct": 0.34, "man_pct_league": 0.31, "man_season": 2025, "dc_same": true,
+    "rz": {"rate": 0.21, "league_rate": 0.18, "faced": 22, "verdict": "leaky"},
+    "factor": {"factor": 1.04, "rank": 20, "of": 32, "verdict": "neutral"},
+    "verdict": "PLUS",
+    "basis": "58% of his targets are short; KC allows 0.96x league there",
+    "tested": false,
+    "method": "not predictive in backtest (METHODOLOGY 12.36-12.39)"
+   }
+  },
+  "george-kittle": {
+   "n": "George Kittle", "pos": "TE", "team": "SF",
+   "usage": {
+    "targets": 12, "prior_targets": 94, "weeks": 2, "weight": 0.35,
+    "zones": {
+     "behind": {"share": 0.25, "pos_avg": 0.21},
+     "short": {"share": 0.5, "pos_avg": 0.55},
+     "intermediate": {"share": 0.17, "pos_avg": 0.18},
+     "deep": {"share": 0.08, "pos_avg": 0.06},
+     "middle": {"share": 0.58, "pos_avg": 0.49},
+     "outside": {"share": 0.42, "pos_avg": 0.51}
+    }
+   },
+   "coverage": null,
+   "red_zone": {"weeks": 2, "targets": 3, "target_share": 0.27, "carries": null, "carry_share": null},
+   "next": {
+    "week": 3, "opp": "LAR", "home": true,
+    "zones": [
+     {"zone": "short", "def_index": 0.88, "rank": 27, "of": 32, "targets": 52}
+    ],
+    "man_pct": 0.22, "man_pct_league": 0.31, "man_season": 2025, "dc_same": true,
+    "rz": {"rate": 0.14, "league_rate": 0.18, "faced": 19, "verdict": "stingy"},
+    "factor": {"factor": 0.95, "rank": 9, "of": 32, "verdict": "neutral"},
+    "verdict": "MINUS",
+    "basis": "50% of his targets are short; LAR allows 0.88x league there",
+    "tested": false,
+    "method": "not predictive in backtest (METHODOLOGY 12.36-12.39)"
+   }
+  },
+  "chase-brown": {
+   "n": "Chase Brown", "pos": "RB", "team": "CIN",
+   "usage": {"targets": 9, "prior_targets": 65, "weeks": 2, "weight": 0.4, "zones": null},
+   "coverage": null,
+   "red_zone": {"weeks": 2, "targets": 1, "target_share": 0.08, "carries": 6, "carry_share": 0.55},
+   "next": {
+    "week": 3, "opp": "PIT", "home": true,
+    "zones": [],
+    "man_pct": 0.29, "man_pct_league": 0.31, "man_season": 2025, "dc_same": true,
+    "rz": {"rate": 0.17, "league_rate": 0.18, "faced": 18, "verdict": "average"},
+    "factor": {"factor": 1.01, "rank": 15, "of": 32, "verdict": "neutral"},
+    "verdict": "EVEN",
+    "basis": "PIT allows 1.01x league to backs; ranks 15th of 32",
+    "tested": true,
+    "method": "position factor is in the projection (METHODOLOGY 12.30)"
+   }
+  },
+  "jahmyr-gibbs": {
+   "n": "Jahmyr Gibbs", "pos": "RB", "team": "DET",
+   "usage": {"targets": 8, "prior_targets": 70, "weeks": 2, "weight": 0.4, "zones": null},
+   "coverage": null,
+   "red_zone": {"weeks": 2, "targets": 2, "target_share": 0.13, "carries": 5, "carry_share": 0.42},
+   "next": null
+  },
+  "tee-higgins": {
+   "n": "Tee Higgins", "pos": "WR", "team": "CIN",
+   "usage": {
+    "targets": 17, "prior_targets": 118, "weeks": 2, "weight": 0.42,
+    "zones": {
+     "behind": {"share": 0.06, "pos_avg": 0.12},
+     "short": {"share": 0.35, "pos_avg": 0.51},
+     "intermediate": {"share": 0.35, "pos_avg": 0.24},
+     "deep": {"share": 0.24, "pos_avg": 0.13},
+     "middle": {"share": 0.29, "pos_avg": 0.27},
+     "outside": {"share": 0.71, "pos_avg": 0.73}
+    }
+   },
+   "coverage": {
+    "seasons": [2023, 2024, 2025],
+    "targets_man": 61, "targets_zone": 172,
+    "ypt_man": 7.4, "ypt_zone": 8.6,
+    "split": -0.7,
+    "note": "his man-vs-zone split repeats weakly year to year (r 0.20, METHODOLOGY 12.39)"
+   },
+   "red_zone": {"weeks": 2, "targets": 3, "target_share": 0.25, "carries": null, "carry_share": null},
+   "next": {
+    "week": 3, "opp": "PIT", "home": true,
+    "zones": [
+     {"zone": "short", "def_index": 1.03, "rank": 12, "of": 32, "targets": 70},
+     {"zone": "deep", "def_index": 0.81, "rank": 29, "of": 32, "targets": 30}
+    ],
+    "man_pct": 0.41, "man_pct_league": 0.31, "man_season": 2025, "dc_same": false,
+    "rz": {"rate": 0.17, "league_rate": 0.18, "faced": 18, "verdict": "average"},
+    "factor": {"factor": 0.97, "rank": 11, "of": 32, "verdict": "neutral"},
+    "verdict": "EVEN",
+    "basis": "35% of his targets are short; PIT allows 1.03x league there",
+    "tested": false,
+    "method": "not predictive in backtest (METHODOLOGY 12.36-12.39)"
+   }
+  }
+ }
+}
