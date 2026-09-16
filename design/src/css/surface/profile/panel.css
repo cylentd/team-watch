@@ -1,9 +1,9 @@
 /* ============================== PROFILE PANEL ==============================
-   The player profile inside #drawer: head, then four sections that each lead with one number,
-   show shares as bars with an average tick, and close on one short caption. */
+   The player profile inside #drawer: head, then three blocks that each lead with one number
+   (matchup rank, role, red zone), then the Details disclosure (details.css). */
 .pf-head .dr-close{width:44px;height:44px;top:10px;right:10px;font-size:14px}
 .pf-head .dr-id{padding-right:46px}
-.pf-thru{display:flex;align-items:center;gap:10px;margin-top:14px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--ink-3)}
+.pf-head .dr-close:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 .pf-body{padding:0 22px 28px}
 .pf-empty{margin-top:22px;min-height:120px}
 
@@ -11,12 +11,27 @@
 .pf-legend{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--ink-3);letter-spacing:.06em;white-space:nowrap}
 .pf-legend i{width:2px;height:11px;background:var(--ink)}
 
-.pf-lead{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}
+.pf-rank{margin:0;font-family:var(--disp);font-size:24px;font-weight:800;line-height:1.1;letter-spacing:-.02em}
+
+.pf-lead{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;margin-bottom:14px}
 .pf-lead b{font-family:var(--mono);font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1;color:var(--ink)}
 .pf-lead span{font-size:13px;color:var(--ink-2);line-height:1.4}
+.pf-lead:last-child{margin-bottom:0}
+.pf-lead.sub{margin-top:-2px}
+.pf-lead.rz b{font-size:24px}
+.pf-lead.sub b{font-size:19px}
+
+.pf-stack{margin-bottom:2px}
+.pf-stack-track{position:relative;display:flex;height:12px;background:var(--line)}
+.pf-seg{display:block;height:100%;background:rgb(var(--ink-3-rgb) / .38);box-shadow:inset -2px 0 0 var(--panel)}
+.pf-seg.top{background:var(--ink-2)}
+.pf-keys{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:9px}
+.pf-key{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pf-key em{font-style:normal;font-size:11.5px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pf-key b{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--ink-2)}
+.pf-key.top em,.pf-key.top b{color:var(--ink)}
 
 .pf-bars{display:flex;flex-direction:column;gap:9px}
-.pf-sub{margin:16px 0 10px}
 .pf-bar{display:grid;grid-template-columns:96px minmax(0,1fr) 38px 30px;gap:10px;align-items:center;min-height:20px}
 .pf-bar.bare{grid-template-columns:minmax(0,1fr) 38px 30px}
 .pf-bar-l{font-size:12.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -28,9 +43,9 @@
 .pf-bar-v{font-family:var(--mono);font-size:12px;font-weight:700;text-align:right;color:var(--ink-2)}
 .pf-bar-d{font-family:var(--mono);font-size:11px;text-align:right;color:var(--ink-3)}
 
-.pf-cap{margin:12px 0 0;font-size:12px;line-height:1.5;color:var(--ink-3)}
-.pf-quiet{margin-top:0}
-.pf-caution{display:flex;gap:8px;align-items:baseline}
+.pf-cap{margin:12px 0 0;font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+.pf-quiet{margin-top:0;color:var(--ink-3)}
+.pf-caution{display:flex;gap:8px;align-items:baseline;color:var(--ink-3)}
 .pf-caution::before{content:"";flex-shrink:0;width:6px;height:6px;border-radius:99px;background:var(--amber);transform:translateY(-1px)}
 
 .pf-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12.5px}

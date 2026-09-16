@@ -23,7 +23,7 @@
     "split": 0.5,
     "note": "his man-vs-zone split repeats weakly year to year (r 0.20, METHODOLOGY 12.39)"
    },
-   "red_zone": {"weeks": 2, "targets": 4, "target_share": 0.31, "carries": null, "carry_share": null},
+   "red_zone": {"weeks": 2, "targets": 4, "target_share": 0.31, "team_targets": 13, "carries": null, "carry_share": null, "team_carries": null},
    "next": {
     "week": 3, "opp": "KC", "home": false,
     "zones": [
@@ -32,7 +32,7 @@
     ],
     "man_pct": 0.34, "man_pct_league": 0.31, "man_season": 2025, "dc_same": true,
     "rz": {"rate": 0.21, "league_rate": 0.18, "faced": 22, "verdict": "leaky"},
-    "factor": {"factor": 1.04, "rank": 20, "of": 32, "verdict": "neutral"},
+    "factor": {"factor": 1.05, "rank": 24, "of": 32, "verdict": "neutral"},
     "verdict": "PLUS",
     "basis": "58% of his targets are short; KC allows 0.96x league there",
     "tested": false,
@@ -53,7 +53,7 @@
     }
    },
    "coverage": null,
-   "red_zone": {"weeks": 2, "targets": 3, "target_share": 0.27, "carries": null, "carry_share": null},
+   "red_zone": {"weeks": 2, "targets": 3, "target_share": 0.38, "team_targets": 8, "carries": null, "carry_share": null, "team_carries": null},
    "next": {
     "week": 3, "opp": "LAR", "home": true,
     "zones": [
@@ -61,7 +61,7 @@
     ],
     "man_pct": 0.22, "man_pct_league": 0.31, "man_season": 2025, "dc_same": true,
     "rz": {"rate": 0.14, "league_rate": 0.18, "faced": 19, "verdict": "stingy"},
-    "factor": {"factor": 0.95, "rank": 9, "of": 32, "verdict": "neutral"},
+    "factor": {"factor": 0.91, "rank": 8, "of": 32, "verdict": "tough"},
     "verdict": "MINUS",
     "basis": "50% of his targets are short; LAR allows 0.88x league there",
     "tested": false,
@@ -72,15 +72,15 @@
    "n": "Chase Brown", "pos": "RB", "team": "CIN",
    "usage": {"targets": 9, "prior_targets": 65, "weeks": 2, "weight": 0.4, "zones": null},
    "coverage": null,
-   "red_zone": {"weeks": 2, "targets": 1, "target_share": 0.08, "carries": 6, "carry_share": 0.55},
+   "red_zone": {"weeks": 2, "targets": 1, "target_share": 0.08, "team_targets": 13, "carries": 6, "carry_share": 0.55, "team_carries": 11},
    "next": {
     "week": 3, "opp": "PIT", "home": true,
     "zones": [],
     "man_pct": 0.29, "man_pct_league": 0.31, "man_season": 2025, "dc_same": true,
     "rz": {"rate": 0.17, "league_rate": 0.18, "faced": 18, "verdict": "average"},
-    "factor": {"factor": 1.01, "rank": 15, "of": 32, "verdict": "neutral"},
+    "factor": {"factor": 1.00, "rank": 16, "of": 32, "verdict": "neutral"},
     "verdict": "EVEN",
-    "basis": "PIT allows 1.01x league to backs; ranks 15th of 32",
+    "basis": "PIT allows 1.00x league to backs; ranks 16th toughest of 32",
     "tested": true,
     "method": "position factor is in the projection (METHODOLOGY 12.30)"
    }
@@ -89,7 +89,7 @@
    "n": "Jahmyr Gibbs", "pos": "RB", "team": "DET",
    "usage": {"targets": 8, "prior_targets": 70, "weeks": 2, "weight": 0.4, "zones": null},
    "coverage": null,
-   "red_zone": {"weeks": 2, "targets": 2, "target_share": 0.13, "carries": 5, "carry_share": 0.42},
+   "red_zone": {"weeks": 2, "targets": 2, "target_share": 0.13, "team_targets": 15, "carries": 5, "carry_share": 0.56, "team_carries": 9},
    "next": null
   },
   "tee-higgins": {
@@ -112,7 +112,7 @@
     "split": -0.7,
     "note": "his man-vs-zone split repeats weakly year to year (r 0.20, METHODOLOGY 12.39)"
    },
-   "red_zone": {"weeks": 2, "targets": 3, "target_share": 0.25, "carries": null, "carry_share": null},
+   "red_zone": {"weeks": 2, "targets": 3, "target_share": 0.25, "team_targets": 12, "carries": null, "carry_share": null, "team_carries": null},
    "next": {
     "week": 3, "opp": "PIT", "home": true,
     "zones": [
@@ -121,7 +121,7 @@
     ],
     "man_pct": 0.41, "man_pct_league": 0.31, "man_season": 2025, "dc_same": false,
     "rz": {"rate": 0.17, "league_rate": 0.18, "faced": 18, "verdict": "average"},
-    "factor": {"factor": 0.97, "rank": 11, "of": 32, "verdict": "neutral"},
+    "factor": {"factor": 1.06, "rank": 25, "of": 32, "verdict": "soft"},
     "verdict": "EVEN",
     "basis": "35% of his targets are short; PIT allows 1.03x league there",
     "tested": false,

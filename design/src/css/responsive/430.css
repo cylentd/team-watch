@@ -5,9 +5,18 @@
   .pf-head{padding-left:16px;padding-right:16px}
   .pf-bar{grid-template-columns:82px minmax(0,1fr) 36px 28px;gap:8px}
   .pf-bar.bare{grid-template-columns:minmax(0,1fr) 36px 28px}
-  /* A row name with both the 2-leagues tag and the matchup chip: the tags tighten before the name truncates. */
+  /* A row name with the 2-leagues tag: the tag tightens before the name truncates. */
   .nm-1{gap:5px}
-  .nm-1 .tag,.nm-1 .mchip{letter-spacing:.04em;padding-left:4px;padding-right:4px}
+  .nm-1 .tag{letter-spacing:.04em;padding-left:4px;padding-right:4px}
+  /* The matchup leaves the trend line and joins the meta line: "TE SF · vs LAR 25th". */
+  .row{
+    grid-template-columns:44px minmax(0,1fr) auto;
+    grid-template-areas:
+      "head name  news"
+      "head trend rank";
+  }
+  .match{display:none}
+  .mu-meta{display:inline-flex}
 }
 .slotm{display:none}
 .pill .abbr{display:none}

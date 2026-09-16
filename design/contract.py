@@ -37,14 +37,18 @@ CONTRACT = {
         "keys": ["fetched", "modeled", "lined", "players"],
         "rows": ("players", ["n", "pos", "team", "sal", "proj", "src", "status", "slug", "game"]),
     },
-    # ff-jarvis's data/player_profiles.json, keyed by slug. `next` may be null (a bye); when it is
-    # an object, next.js reads every key below, so a partial one is a crash on open.
+    # ff-jarvis's data/player_profiles.json, keyed by slug. `next` and `red_zone` may be null (a
+    # bye; a QB); when either is an object, the profile JS reads every key below, so a partial one
+    # is a crash or a blank block on open.
     "LIVE_PROFILES": {
         "keys": ["generated", "season", "through_week", "players"],
         "map": ("players", ["n", "pos", "team", "usage", "coverage", "red_zone", "next"]),
-        "nested": ("players", "next", ["week", "opp", "home", "zones", "man_pct", "man_pct_league",
-                                       "man_season", "dc_same", "rz", "factor", "verdict", "basis",
-                                       "tested", "method"]),
+        "nested": [
+            ("players", "next", ["week", "opp", "home", "zones", "man_pct", "man_pct_league",
+                                 "man_season", "dc_same", "rz", "factor", "tested", "method"]),
+            ("players", "red_zone", ["targets", "target_share", "team_targets",
+                                     "carries", "carry_share", "team_carries"]),
+        ],
     },
 }
 
@@ -71,8 +75,9 @@ def problems(name, obj, limit=8):
             out += [f"{name}.{field}[{key!r}].{k}" for k in keys if not isinstance(row, dict) or k not in row]
             if len(out) >= limit:
                 break
-    field, sub, keys = spec.get("nested", (None, None, []))
-    if field and isinstance(obj.get(field), dict):
+    for field, sub, keys in spec.get("nested", []):
+        if not isinstance(obj.get(field), dict):
+            continue
         for key, row in obj[field].items():
             inner = row.get(sub) if isinstance(row, dict) else None
             if isinstance(inner, dict):

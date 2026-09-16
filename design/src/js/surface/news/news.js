@@ -78,7 +78,7 @@ function wireHTML(){
       <div class="lbl">${kind==="out"?t("teams.wire.drop"):t("teams.wire.add")}</div>
       <div class="side-h" style="margin-top:10px">
         ${avatarHTML(p)}
-        <div><div class="side-n">${esc(p.n)}${verdictChipHTML(prof)}</div><div class="side-m">${esc(p.m)}</div></div>
+        <div><div class="side-n">${esc(p.n)}</div><div class="side-m">${esc(p.m)}</div></div>
       </div>
       <div class="side-stats">
         <div class="stat"><b>${esc(p.pos)}</b><span>${t("teams.wire.posRank")}</span></div>

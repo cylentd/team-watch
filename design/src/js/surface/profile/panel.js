@@ -1,6 +1,7 @@
 /* The player profile as a slide-over in the shared #drawer, opened by tapping a roster row or a
-   waiver target. `p` needs n/pos/team/slug; `sub` is the context line (league and slot). With no
-   profile for him (or no LIVE_PROFILES at all) the panel says so quietly instead of guessing. */
+   waiver target. `p` needs n/pos/team/slug; `sub` is the context line (league and slot). Three
+   blocks up top (matchup rank, role, red zone), the rest behind Details. With no profile for him
+   (or no LIVE_PROFILES at all) the panel says so quietly instead of guessing. */
 function openProfile(p, sub){
   if (!p) return;
   const prof = profileFor(p);
@@ -17,20 +18,13 @@ function openProfile(p, sub){
         </div>
       </div>
       ${p.note ? `<div class="dr-note">${esc(p.note)}</div>` : ""}
-      ${prof ? `<div class="pf-thru">${verdictChipHTML(prof)}<span>${t("profile.head.through", {wk: LIVE_PROFILES.through_week, season: LIVE_PROFILES.season})}</span></div>` : ""}
     </div>
     <div class="dr-body pf-body">
       ${prof
-        ? usageHTML(prof) + coverageHTML(prof) + redZoneHTML(prof) + nextHTML(prof)
+        ? headlineHTML(prof) + roleHTML(prof) + redZoneHTML(prof) + detailsHTML(prof)
         : `<div class="state-empty pf-empty"><div><b>—</b><span>${t("profile.empty.none")}</span></div></div>`}
     </div>`;
   showDrawer(d, "pf-title");
-  const tag = d.querySelector(".pf-untested");
-  if (tag) tag.addEventListener("click", () => {
-    const m = d.querySelector("#pf-method");
-    m.hidden = !m.hidden;
-    tag.setAttribute("aria-expanded", String(!m.hidden));
-  });
 }
 
 /* Roster rows and waiver cards both open the profile; one wiring for both. */

@@ -9,14 +9,14 @@ function rowHTML(p, i, teamKey){
     <div class="slot"><span>${esc(p.slot)}</span></div>
     <div class="head">${headHTML(p)}${badge}</div>
     <div class="nm">
-      <div class="nm-1"><b>${esc(p.n)}</b>${tag}${dual}${verdictChipHTML(profileFor(p))}</div>
+      <div class="nm-1"><b>${esc(p.n)}</b>${tag}${dual}</div>
       <div class="nm-2">
         <span class="slotm">${esc(p.slot)}</span>
         <span><em class="posx" style="font-style:normal">${esc(p.pos)} · </em>${esc(p.team)}</span>
-        <span class="sep"></span>
-        <span>${t("teams.row.week")} ${p.pos==="DST"?"vs":"@"} ${["HOU","LV","NYJ","ARI","CHI"][i%5]}</span>
+        ${matchupMetaHTML(profileFor(p))}
       </div>
     </div>
+    <div class="match">${matchupCellHTML(profileFor(p))}</div>
     <div class="trend">${sparkHTML(p.trend,128,34)}${deltaHTML(p.d)}</div>
     <div class="rk">${rankHTML(p)}</div>
     <div class="news">${p.news
@@ -38,6 +38,7 @@ function boardHTML(team){
       <span class="hair"></span>
     </div>
     ${gi===0 ? `<div class="colhead">
+      <details class="ch ch-match"><summary title="${t("teams.col.matchupTip")}">${t("teams.col.matchup")}</summary><p class="ch-note">${t("teams.col.matchupTip")}</p></details>
       <span class="ch ch-trend">${t("teams.col.trend")}</span>
       <span class="ch ch-rank">${t("teams.col.rank")}</span>
       <span class="ch ch-news">${t("teams.col.news")}</span>

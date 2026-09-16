@@ -1,11 +1,13 @@
-"""The player profile: its contract, its injection, and the rendered chip and slide-over panel.
+"""The player profile: its contract, its injection, the roster's MATCHUP column and the slide-over.
 
-The fixture (tests/fixtures/data/player_profiles.json) holds St. Brown (WR, PLUS untested, two
-zones), Kittle (TE, MINUS untested, one zone, no coverage), Chase Brown (RB, EVEN tested),
-Gibbs (RB, bye) and Higgins (WR, EVEN untested, coordinator changed). Burrow and Purdy have none.
+The fixture (tests/fixtures/data/player_profiles.json) spreads the matchup rank (factor rank 1 =
+toughest, so "Nth easiest" = 33 - rank): Higgins 8th easiest (green), St. Brown 9th (plain),
+Chase Brown 17th (plain), Kittle 25th (red), Gibbs on a bye. Burrow and Purdy have no profile.
+Red zone: Kittle 3 of 8 team targets (counts, under 10), St. Brown 31% · 4 of 13 (share).
 """
 import copy
 import json
+import re
 
 import pytest
 
@@ -35,6 +37,16 @@ def test_contract_rejects_a_partial_next_but_allows_a_bye():
     assert contract.problems("LIVE_PROFILES", d) == ["LIVE_PROFILES.players['chase-brown'].next.tested"]
 
 
+def test_contract_rejects_a_red_zone_without_team_counts():
+    d = copy.deepcopy(PROFILES)
+    d["players"]["george-kittle"]["red_zone"].pop("team_targets")
+    d["players"]["chase-brown"]["red_zone"].pop("team_carries")
+    assert contract.problems("LIVE_PROFILES", d) == [
+        "LIVE_PROFILES.players['george-kittle'].red_zone.team_targets",
+        "LIVE_PROFILES.players['chase-brown'].red_zone.team_carries",
+    ]
+
+
 def test_build_injects_the_profiles(built):
     got = injected(built.fragment)["LIVE_PROFILES"]
     assert set(got["players"]) == set(PROFILES["players"])
@@ -53,60 +65,135 @@ def row(page, name):
     return page.locator(".row", has_text=name).first
 
 
-def chip(page, name):
-    c = row(page, name).locator(".mchip")
-    return None if c.count() == 0 else c.first
+def cell(page, name):
+    return row(page, name).locator(".match")
 
 
 @pytest.mark.render
-def test_chip_text_per_verdict_and_untested_mark(browser, page_file):
+def test_ordinal_and_colour_class(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
-    want = {"Amon-Ra St. Brown": ("PLUS", True), "Chase Brown": ("EVEN", False)}
-    for name, (word, untested) in want.items():
-        c = chip(page, name)
-        assert c is not None, name
-        assert c.inner_text().strip() == word
-        assert ("untested" in c.get_attribute("class")) is untested
-        assert (c.locator(".flask").count() == 1) is untested
-    assert chip(page, "Jahmyr Gibbs") is None          # bye: next is null
-    assert chip(page, "Joe Burrow") is None            # no profile at all
-    page.evaluate("VIEW='espn'; render()")
-    assert chip(page, "George Kittle").inner_text().strip() == "MINUS"
-    assert chip(page, "Tee Higgins").inner_text().strip() == "EVEN"
+    got = page.evaluate("""() => ({
+      nth: ordinal(easiestRank({rank: 24, of: 32})),
+      suffixes: [1, 2, 3, 4, 11, 12, 13, 21, 22, 23].map(ordinal),
+      cls: [8, 9, 24, 25].map(n => matchupClass(n, 32)),
+    })""")
+    assert got["nth"] == "9th"
+    assert got["suffixes"] == ["1st", "2nd", "3rd", "4th", "11th", "12th", "13th", "21st", "22nd", "23rd"]
+    assert got["cls"] == ["mu-easy", "", "", "mu-hard"]
     assert errors == []
     ctx.close()
 
 
 @pytest.mark.render
-def test_panel_untested_tag_iff_not_tested(browser, page_file):
+def test_matchup_column_rows(browser, page_file):
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    assert re.sub(r"\s+", " ", cell(page, "Amon-Ra St. Brown").inner_text()).strip() == "@ KC 9th"
+    assert cell(page, "Amon-Ra St. Brown").locator(".mu-n").get_attribute("class").strip() == "mu-n"
+    assert cell(page, "Jahmyr Gibbs").inner_text().strip() == "—"          # bye
+    assert cell(page, "Jahmyr Gibbs").locator(".mu-none").count() == 1
+    assert cell(page, "Joe Burrow").locator(".mu-none").count() == 1      # no profile
+    page.evaluate("VIEW='espn'; render()")
+    assert "mu-hard" in cell(page, "George Kittle").locator(".mu-n").get_attribute("class")
+    assert "mu-easy" in cell(page, "Tee Higgins").locator(".mu-n").get_attribute("class")
+    assert re.sub(r"\s+", " ", cell(page, "Tee Higgins").inner_text()).strip() == "vs PIT 8th"
+    tip = page.locator(".colhead .ch-match > summary").get_attribute("title")
+    assert tip.startswith("Rank among 32 defenses against his position")
+    assert page.locator(".mchip").count() == 0
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_phone_moves_matchup_to_the_meta_line(browser, page_file):
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    page.evaluate("VIEW='espn'; render()")
+    kittle = row(page, "George Kittle")
+    assert not kittle.locator(".match").is_visible()
+    meta = kittle.locator(".nm-2 .mu-meta")
+    assert meta.is_visible() and re.sub(r"\s+", " ", meta.inner_text()).strip() == "· vs LAR 25th"
+    assert "mu-hard" in meta.locator(".mu-n").get_attribute("class")
+    assert row(page, "Brock Purdy").locator(".mu-meta").count() == 0       # no profile: no clause
+    page.evaluate("VIEW='yahoo'; render()")
+    assert row(page, "Jahmyr Gibbs").locator(".mu-meta").count() == 0      # bye: no clause
+    assert page.evaluate("document.documentElement.scrollWidth") <= 390
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_panel_blocks_and_details_collapsed(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
     drawer = page.locator("#drawer")
     row(page, "Amon-Ra St. Brown").click()
-    assert drawer.locator(".pf-untested").count() == 1
-    assert "on paper" in drawer.locator(".pf-verdict").inner_text()
-    assert drawer.locator(".pf-untested").get_attribute("title") == PROFILES["players"]["amonra-st-brown"]["next"]["method"]
-    assert drawer.locator(".pf-sec").count() == 4
+    assert drawer.locator(".pf-sec").count() == 3
+    assert drawer.locator(".pf-rank").inner_text().strip() == "9th easiest of 32 for WRs"
+    assert "31% · 4 of 13" in drawer.locator(".pf-sec").nth(2).inner_text()
+    details = drawer.locator("details.pf-details")
+    assert details.count() == 1 and details.get_attribute("open") is None
+    assert not drawer.locator(".pf-dsec").first.is_visible()
+    drawer.locator(".pf-details > summary").click()
+    assert details.get_attribute("open") is not None
+    assert drawer.locator(".pf-tag").inner_text().strip() == "UNTESTED"
+    assert drawer.inner_text().count("METHODOLOGY") == 1
     page.keyboard.press("Escape")
     assert "on" not in drawer.get_attribute("class")
     assert page.evaluate("document.activeElement.classList.contains('row')")
     row(page, "Chase Brown").click()
-    assert drawer.locator(".pf-untested").count() == 0
-    assert "on paper" not in drawer.inner_text()
-    assert PROFILES["players"]["chase-brown"]["next"]["method"] in drawer.inner_text()
+    text = drawer.inner_text()
+    assert "A back has no depth zones." in text and drawer.locator(".pf-stack").count() == 0
+    assert text.index("6 of 11") < text.index("1 of 13")                   # carries before targets
     page.keyboard.press("Escape")
     row(page, "Jahmyr Gibbs").click()
-    assert drawer.locator(".pf-v").count() == 0
+    assert "Bye, or no schedule yet." in drawer.inner_text()
+    assert "5 of 9" in drawer.inner_text()                                  # carries, under 10
+    page.keyboard.press("Escape")
+    page.evaluate("VIEW='espn'; render()")
+    row(page, "George Kittle").click()
+    assert "mu-hard" in drawer.locator(".pf-rank").get_attribute("class")
+    rz = drawer.locator(".pf-sec").nth(2).inner_text()
+    assert "3 of 8" in rz and "%" not in rz                                 # counts under 10
     assert errors == []
     ctx.close()
 
 
 @pytest.mark.render
-def test_no_profiles_renders_no_chips_and_a_quiet_panel(browser, monkeypatch, tmp_path):
+def test_red_zone_line_switches_at_ten(browser, page_file):
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    got = page.evaluate("""() => [
+      rzLineHTML(1, 5, 0.2, ["team target", "team targets"], false),
+      rzLineHTML(3, 10, 0.3, ["team target", "team targets"], false),
+    ].map(h => { const d = document.createElement("div"); d.innerHTML = h; return d.textContent; })""")
+    assert got[0].startswith("1 of 5") and "%" not in got[0]
+    assert got[1].startswith("30% · 3 of 10")
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_no_verdict_words_on_the_page(browser, page_file):
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    words = re.compile(r"\b(PLUS|MINUS|EVEN)\b", re.I)
+    for view in ("yahoo", "espn"):
+        page.evaluate(f"VIEW='{view}'; render()")
+        assert not words.search(page.locator("body").inner_text()), view
+        for i in range(page.locator(".row").count()):
+            page.locator(".row").nth(i).click()
+            summary = page.locator("#drawer .pf-details > summary")
+            if summary.count():
+                summary.click()
+            assert not words.search(page.locator("#drawer").inner_text()), (view, i)
+            page.keyboard.press("Escape")
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_no_profiles_renders_dashes_and_a_quiet_panel(browser, monkeypatch, tmp_path):
     monkeypatch.setattr(build, "load_profiles", lambda: None)
     p = tmp_path / "index.html"
     p.write_text(build.render().page, encoding="utf-8")
     ctx, page, errors = open_page(browser, p, (390, 844))
-    assert page.locator(".mchip").count() == 0
+    assert page.locator(".match .mu-n").count() == 0
     row(page, "Amon-Ra St. Brown").click()
     assert page.locator("#drawer .pf-empty").count() == 1
     assert page.locator("#drawer .pf-sec").count() == 0

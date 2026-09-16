@@ -1,8 +1,8 @@
 /* ============================== ROSTER ROW ============================== */
 .colhead{
-  display:grid;grid-template-columns:54px 46px 280px 194px 108px 34px;
-  grid-template-areas:"slot head name trend rank news";
-  gap:16px;padding:0 14px 6px 12px;margin-top:18px;
+  display:grid;grid-template-columns:54px 46px 280px 118px 194px 108px 34px;
+  grid-template-areas:"slot head name match trend rank news";
+  gap:16px;padding:0 14px 6px 12px;margin-top:18px;align-items:center;
 }
 .colhead .ch{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
 .colhead .ch-trend{grid-area:trend}
@@ -11,8 +11,8 @@
 .board{margin-top:0;border-top:1px solid var(--line)}
 .row{
   display:grid;
-  grid-template-columns:54px 46px 280px 194px 108px 34px;
-  grid-template-areas:"slot head name trend rank news";
+  grid-template-columns:54px 46px 280px 118px 194px 108px 34px;
+  grid-template-areas:"slot head name match trend rank news";
   align-items:center;gap:16px;
   padding:11px 14px 11px 12px;
   border-bottom:1px solid var(--line);

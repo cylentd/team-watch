@@ -30,8 +30,9 @@ STATES = [
     ("teams-yahoo", []),
     ("teams-espn", [("eval", "VIEW='espn'; render()")]),
     ("teams-drawer", [("click", ".row")]),   # Joe Burrow: no profile, the quiet state
-    ("profile-wr-drawer", [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", ".pf-untested")]),
-    ("profile-rb-drawer", [("click", ".row:has-text('Chase Brown')")]),
+    ("profile-wr-drawer", [("click", ".row:has-text('Amon-Ra St. Brown')")]),
+    ("profile-wr-details-drawer", [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#drawer .pf-details > summary")]),
+    ("profile-rb-drawer", [("click", ".row:has-text('Chase Brown')"), ("click", "#drawer .pf-details > summary")]),
     ("profile-bye-drawer", [("click", ".row:has-text('Jahmyr Gibbs')")]),
     ("pool", [("click", ".navitem[data-s='pool']")]),
     ("pool-drawer", [("click", ".navitem[data-s='pool']"), ("click", "[data-pool]")]),

@@ -43,11 +43,11 @@
   .colhead{display:none}
   .board{margin-top:14px}
   .row{
-    grid-template-columns:44px minmax(0,1fr) auto;
+    grid-template-columns:44px minmax(0,1fr) auto auto;
     grid-template-areas:
-      "head name  news"
-      "head trend rank";
-    gap:7px 11px;padding:11px 8px;
+      "head name  name  news"
+      "head trend match rank";
+    gap:7px 14px;padding:11px 8px;
   }
   .slot{display:none}
   .head,.head img,.head .fallback,.head .dst{width:44px;height:44px}
@@ -65,7 +65,7 @@
 
   .swap-body{grid-template-columns:minmax(0,1fr)}
   .side-o{border-right:0;border-bottom:1px solid var(--line)}
-  .side-i{border-left:0;box-shadow:inset 3px 0 0 rgb(var(--lime-rgb) / .55)}
+  .side-i{border-left:0}
   .arrowcell{display:none}
   .states{grid-template-columns:minmax(0,1fr)}
 

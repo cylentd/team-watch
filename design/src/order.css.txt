@@ -15,12 +15,12 @@ chrome/hero.css
 surface/news/ticker.css
 component/rule.css
 surface/teams/roster.css
+surface/teams/matchup.css
 surface/teams/wire.css
 component/empty.css
 chrome/drawer.css
-surface/profile/chip.css
 surface/profile/panel.css
-surface/profile/next.css
+surface/profile/details.css
 chrome/footer.css
 chrome/nav.css
 surface/pool/pool.css

@@ -120,7 +120,7 @@ document.getElementById("scrim").addEventListener("click", closeDrawer);
 document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeDrawer(); });
 document.getElementById("drawer").addEventListener("keydown", e=>{
   if (e.key !== "Tab") return;
-  const f = [...e.currentTarget.querySelectorAll("button:not([hidden]), a[href], [tabindex]:not([tabindex='-1'])")];
+  const f = [...e.currentTarget.querySelectorAll("button:not([hidden]), a[href], summary, [tabindex]:not([tabindex='-1'])")];
   if (!f.length) return;
   if (e.shiftKey && document.activeElement === f[0]){ e.preventDefault(); f[f.length-1].focus(); }
   else if (!e.shiftKey && document.activeElement === f[f.length-1]){ e.preventDefault(); f[0].focus(); }

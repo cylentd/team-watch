@@ -1,6 +1,6 @@
-/* The first three profile sections: usage by zone, against coverage, red zone. Each leads with
-   the one number that matters, then bars (a share against its average reads as a bar with a tick),
-   then at most one short caption line. Pure functions of the profile; next.js holds the fourth. */
+/* The three profile blocks above Details: the matchup rank, his role, his red-zone share. Each
+   leads with one number and closes on at most one line. Pure functions of the profile; the
+   helpers here (bars, section, lead) are shared with details.js, which loads after. */
 const pfPct = x => x === null || x === undefined ? "—" : Math.round(x * 100) + "%";
 const DEPTH_ZONES = ["behind", "short", "intermediate", "deep"];
 const SIDE_ZONES = ["middle", "outside"];
@@ -9,6 +9,10 @@ function zoneWord(z){
   return {behind: t("profile.zone.behind"), short: t("profile.zone.short"),
     intermediate: t("profile.zone.intermediate"), deep: t("profile.zone.deep"),
     middle: t("profile.zone.middle"), outside: t("profile.zone.outside")}[z] || esc(z);
+}
+
+function targetsText(n){
+  return n === 1 ? t("profile.count.targetOne") : t("profile.count.targets", {n: n ?? "—"});
 }
 
 /* One share as a bar. `avg` (optional) draws a tick and the gap to it in points. */
@@ -30,57 +34,71 @@ function secHTML(label, body, legend){
   </section>`;
 }
 
-function leadHTML(num, text){
-  return `<div class="pf-lead"><b>${num}</b><span>${text}</span></div>`;
+function leadHTML(num, text, cls){
+  return `<div class="pf-lead${cls ? " " + cls : ""}"><b>${num}</b><span>${text}</span></div>`;
 }
 
-function usageHTML(prof){
+function headlineHTML(prof){
+  const nx = prof.next;
+  if (!nx) return secHTML(t("profile.next.labelBare"), `<p class="pf-cap pf-quiet">${t("profile.next.bye")}</p>`);
+  const n = easiestRank(nx.factor);
+  return secHTML(t("profile.next.label", {wk: nx.week, where: whereWord(nx), opp: esc(nx.opp)}), n === null
+    ? `<p class="pf-cap pf-quiet">${t("profile.matchup.none")}</p>`
+    : `<p class="pf-rank ${matchupClass(n, nx.factor.of)}">${matchupRankText(prof)}</p>`);
+}
+
+/* His depth shares as one stacked bar, the position average as ticks at its cumulative edges. */
+function stackHTML(z, top){
+  const keys = DEPTH_ZONES.filter(k => z[k]);
+  let edge = 0;
+  const ticks = keys.slice(0, -1).map(k => {
+    edge += z[k].pos_avg || 0;
+    return `<b class="pf-tick" style="left:${(Math.min(1, edge) * 100).toFixed(1)}%"></b>`;
+  }).join("");
+  const segs = keys.map(k => `<i class="pf-seg${k === top ? " top" : ""}" style="width:${(Math.max(0, z[k].share || 0) * 100).toFixed(1)}%"></i>`).join("");
+  const legend = keys.map(k => `<span class="pf-key${k === top ? " top" : ""}"><em>${zoneWord(k)}</em><b>${pfPct(z[k].share)}</b></span>`).join("");
+  return `<div class="pf-stack"><span class="pf-stack-track">${segs}${ticks}</span><div class="pf-keys">${legend}</div></div>`;
+}
+
+function roleHTML(prof){
   const u = prof.usage || {};
-  const pos = esc(prof.pos);
-  if (!u.zones){
-    const note = prof.pos === "RB" ? t("profile.usage.noZonesBack") : t("profile.usage.noZones", {pos});
-    return secHTML(t("profile.usage.labelBack"),
-      leadHTML(u.targets ?? "—", t("profile.usage.leadBack")) + `<p class="pf-cap">${note}</p>`);
-  }
   const z = u.zones;
-  const top = DEPTH_ZONES.filter(k => z[k]).sort((a, b) => z[b].share - z[a].share)[0];
-  const bars = keys => keys.filter(k => z[k]).map(k => shareBarHTML(zoneWord(k), z[k].share, z[k].pos_avg, k === top)).join("");
-  return secHTML(t("profile.usage.label"),
-    leadHTML(pfPct(z[top].share), t("profile.usage.lead", {zone: zoneWord(top).toLowerCase(), pos, avg: pfPct(z[top].pos_avg)}))
-    + `<div class="pf-bars">${bars(DEPTH_ZONES)}</div>`
-    + `<div class="pf-sub lbl">${t("profile.usage.side")}</div>`
-    + `<div class="pf-bars">${bars(SIDE_ZONES)}</div>`
-    + `<p class="pf-cap">${t("profile.usage.cap", {targets: u.targets, weight: pfPct(u.weight), prior: u.prior_targets})}</p>`,
-    t("profile.usage.legend", {pos}));
-}
-
-function coverageHTML(prof){
-  const c = prof.coverage;
-  if (!c){
-    const receiver = prof.pos === "WR" || prof.pos === "TE";
-    return secHTML(t("profile.coverage.labelBare"),
-      `<p class="pf-cap pf-quiet">${receiver ? t("profile.coverage.none") : t("profile.coverage.noneBack")}</p>`);
+  const pos = esc(prof.pos);
+  if (!z){
+    const note = prof.pos === "RB" ? t("profile.role.noZonesBack") : t("profile.role.noZones", {pos});
+    return secHTML(t("profile.role.label"),
+      leadHTML(u.targets ?? "—", u.targets === 1 ? t("profile.role.seasonOne") : t("profile.role.season"))
+      + `<p class="pf-cap pf-quiet">${note}</p>`);
   }
-  const s = c.seasons || [];
-  const span = s.length ? `${s[0]}–${String(s[s.length - 1]).slice(2)}` : "";
-  const text = c.split > 0 ? t("profile.coverage.leadMan") : c.split < 0 ? t("profile.coverage.leadZone") : t("profile.coverage.leadEven");
-  const row = (label, ypt, n) => `<tr><th scope="row">${label}</th><td>${ypt ?? "—"}</td><td>${n ?? "—"}</td></tr>`;
-  return secHTML(t("profile.coverage.label", {span}),
-    leadHTML(Math.abs(c.split ?? 0).toFixed(1), text)
-    + `<table class="pf-table"><thead><tr><th></th><th>${t("profile.coverage.colYpt")}</th><th>${t("profile.coverage.colTargets")}</th></tr></thead>
-      <tbody>${row(t("profile.coverage.man"), c.ypt_man, c.targets_man)}${row(t("profile.coverage.zone"), c.ypt_zone, c.targets_zone)}</tbody></table>`
-    + `<p class="pf-cap pf-caution">${esc(c.note)}</p>`);
+  const byShare = keys => keys.filter(k => z[k]).sort((a, b) => z[b].share - z[a].share)[0];
+  const top = byShare(DEPTH_ZONES), side = byShare(SIDE_ZONES);
+  const line = [targetsText(u.targets)]
+    .concat(side ? [t("profile.role.side", {pct: pfPct(z[side].share), side: zoneWord(side).toLowerCase()})] : [])
+    .join(" · ");
+  return secHTML(t("profile.role.label"),
+    leadHTML(pfPct(z[top].share), t("profile.role.lead", {zone: zoneWord(top).toLowerCase(), pos, avg: pfPct(z[top].pos_avg)}))
+    + stackHTML(z, top)
+    + `<p class="pf-cap">${line}</p>`,
+    t("profile.role.legend", {pos}));
 }
 
+/* Counts while the team total is under 10 ("1 of 5"), a share with its counts from 10 up. */
+function rzLineHTML(n, team, share, nouns, second){
+  const noun = team === 1 ? nouns[0] : nouns[1];
+  const cls = second ? "rz sub" : "rz";
+  if (team === null || team === undefined) return leadHTML(pfPct(share), noun, cls);
+  const num = team < 10 ? t("profile.rz.count", {n, team}) : t("profile.rz.share", {pct: pfPct(share), n, team});
+  return leadHTML(num, noun, cls);
+}
+
+/* A receiver: his targets. A back: carries first, targets second. */
 function redZoneHTML(prof){
   const r = prof.red_zone;
   if (!r) return "";
   const back = r.carries !== null && r.carries !== undefined;
-  if (!back){   // one share: the lead says it all, a bar would only repeat it
-    return secHTML(t("profile.rz.label", {wk: r.weeks}),
-      leadHTML(pfPct(r.target_share), t("profile.rz.leadTargets", {n: r.targets ?? "—"})));
-  }
-  return secHTML(t("profile.rz.label", {wk: r.weeks}),
-    leadHTML(pfPct(r.carry_share), t("profile.rz.leadCarries", {n: r.carries}))
-    + `<div class="pf-bars">${shareBarHTML(t("profile.rz.targets", {n: r.targets ?? "—"}), r.target_share, null, false)}</div>`);
+  const targets = rzLineHTML(r.targets ?? 0, r.team_targets, r.target_share,
+    [t("profile.rz.teamTarget"), t("profile.rz.teamTargets")], back);
+  const carries = back
+    ? rzLineHTML(r.carries, r.team_carries, r.carry_share, [t("profile.rz.teamCarry"), t("profile.rz.teamCarries")], false) : "";
+  return secHTML(t("profile.rz.label"), carries + targets);
 }

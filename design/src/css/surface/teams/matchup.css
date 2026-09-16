@@ -1,0 +1,25 @@
+/* ============================== MATCHUP RANK ==============================
+   The roster row's MATCHUP cell and the profile headline share one colour rule: easiest 8 up,
+   hardest 8 down, the middle 16 in plain ink. The column header's note is a native disclosure,
+   so a tap and a keyboard both reach the sentence the title attribute carries on hover. */
+.match{grid-area:match;display:flex;align-items:baseline;gap:8px;min-width:0;white-space:nowrap;font-family:var(--mono)}
+.mu-opp{font-size:12px;color:var(--ink-2);letter-spacing:.02em}
+.mu-n{font-size:14px;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
+.mu-none{font-size:13px;color:var(--ink-3)}
+.mu-easy{color:var(--up)}
+.mu-hard{color:var(--down)}
+.mu-meta{display:none;align-items:baseline;gap:6px;white-space:nowrap}
+.mu-meta .mu-n{font-size:11.5px}
+
+.colhead .ch-match{grid-area:match;position:relative}
+.ch-match > summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:5px;min-height:24px;padding:10px 0;margin:-10px 0}
+.ch-match > summary::-webkit-details-marker{display:none}
+.ch-match > summary::marker{content:""}
+.ch-match > summary::after{content:"?";display:grid;place-items:center;width:13px;height:13px;border:1px solid var(--line-2);border-radius:99px;font-size:11px;letter-spacing:0}
+.ch-match > summary:hover,.ch-match[open] > summary{color:var(--ink)}
+.ch-match > summary:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.ch-note{
+  position:absolute;left:0;top:100%;z-index:3;width:260px;margin-top:6px;padding:9px 11px;
+  background:var(--panel-2);border:1px solid var(--line-2);border-radius:3px;
+  font-family:var(--ui);font-size:12px;line-height:1.5;letter-spacing:0;text-transform:none;color:var(--ink-2);
+}
