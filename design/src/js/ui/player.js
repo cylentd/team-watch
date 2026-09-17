@@ -36,7 +36,7 @@ function deltaHTML(d){
   if (d === null || d === undefined) return `<span class="delta new">${t("teams.delta.none")}</span>`;
   const k = d > 1.5 ? "up" : d < -1.5 ? "down" : "flat";
   const g = k === "up" ? "▲" : k === "down" ? "▼" : "—";
-  return `<span class="delta ${k}">${g} ${d>0?"+":""}${d.toFixed(1)}%</span>`;
+  return `<span class="delta ${k}" title="${t("teams.delta.tip")}">${g} ${t("teams.delta.pts", {d: (d>0?"+":"") + d.toFixed(1)})}</span>`;
 }
 
 function rankHTML(p){

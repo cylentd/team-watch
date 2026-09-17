@@ -14,6 +14,7 @@ import contract                 # design/contract.py: the shape each LIVE_* bloc
 import lint_css                 # design/lint_css.py: theme rules; an error fails the build
 from assemble import assemble   # design/assemble.py: design/src/** -> the page template
 from news import load_news      # design/news.py: breaking news, split out to stay in budget
+from signals import live_signals  # design/signals.py: My Teams trend series and news counts
 from slate import assign_windows, day_windows, kickoff   # design/slate.py: kickoff windows
 
 ROOT = pathlib.Path(__file__).resolve().parent
@@ -665,13 +666,17 @@ class Build:
 
 
 def add_market_stock(blocks, report):
-    """Loads LIVE_MARKET_STOCK into `blocks` and appends its build-report line -- split out of
+    """Loads LIVE_MARKET_STOCK and LIVE_SIGNALS into `blocks` and appends their report lines -- split out of
     render() so that function stays inside its 110-line budget (tests/test_budgets.py's
     PY_BACKLOG ratchet) without squeezing a dict entry or a tuple unpack onto one line."""
     stock = load_market_stock()
     blocks["LIVE_MARKET_STOCK"] = stock
     report.append(f"Market stock: {len(stock['players'])} players" if stock
                   else "Market stock: none, so no market row")
+    sig = blocks["LIVE_SIGNALS"] = live_signals(FEED, DWR, (blocks["LIVE_ESPN"], blocks["LIVE_YAHOO"]), slugify)
+    report.append(f"Signals: {sum(1 for s in sig['players'].values() if s['series'])} trended, "
+                  f"{sum(1 for s in sig['players'].values() if s['news'])} with news" if sig
+                  else "Signals: no roster, so no trend or news counts")
 
 
 def render():

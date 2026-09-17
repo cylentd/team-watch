@@ -8,6 +8,7 @@
 # pin: chrome/state.js (SURFACE, VIEW) precedes every render function; main.js is last and is
 #      the only file with side effects on the page.
 data/teams.js
+data/signals.js
 data/hydrate.js
 data/news.js
 data/stock.js

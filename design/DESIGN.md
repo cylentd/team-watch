@@ -15,7 +15,7 @@ Build after editing anything under `design/src/`:
 python design/build.py
 ```
 
-## Live data in, sample signals on top
+## Live data in, live signals on top
 
 `build.py` reads the real roster files from `ff-jarvis` and injects them:
 
@@ -27,9 +27,18 @@ python design/build.py
 The Yahoo file comes from a website scrape, so lineup slots are inferred by filling the league
 lineup in roster order. The board says so in a caption rather than passing the guess off as fact.
 
-Everything else — `trend`, `d`, `rank`, `news` — lives in the `SIGNALS` map in `design/src/js/data/teams.js`,
-keyed by player name. That is the seam: when `model.watch` produces real output, `SIGNALS` gets
-replaced by its JSON and nothing else changes.
+A roster row's Trend, Rank and News cells come from `data/signals.js` (since 2026-09-16; the
+hand-typed `SIGNALS` map is gone). Nothing is typed by hand:
+
+| Cell | Source | Shows from |
+|---|---|---|
+| Trend line | `watch.json` `series`, weekly snap % (`LIVE_SIGNALS`) | week 2: a line needs two weeks |
+| Trend delta | `market.stock` `d_pts`, points vs his previous game's price | a priced prop market |
+| Rank | `market.stock` `rank`/`d_rank`, position rank among priced players | a priced prop market |
+| Verdict tag | `watch.json` `verdict`, hidden for NEW and hold | week 2 |
+| News | scanner stories whose headline starts with his name, team agreeing, last 72 h | now |
+
+None of the three sources is backtested. The verdict word is watch's own; the page adds none.
 
 ## The pool
 
@@ -89,8 +98,8 @@ than silently doing nothing.
 
 The topbar's live/sample badge (2026-09-09) reflects what's actually loaded per tab instead of a
 single static "Sample data" string: green "Props live" / "Pool live" when Parlay's BettingPros
-props or DFS's Yahoo salary export are in, the amber sample warning otherwise. My Teams and The
-Pool stay sample (trend/rank/news and the whole Pool dataset are still placeholders).
+props or DFS's Yahoo salary export are in, the amber sample warning otherwise. My Teams goes
+green when `LIVE_SIGNALS` is in (2026-09-16); its waiver cards are still sample.
 
 ## Direction
 

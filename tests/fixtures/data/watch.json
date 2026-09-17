@@ -1,0 +1,20 @@
+{
+ "year": 2026,
+ "through_week": 2,
+ "window": 1,
+ "ready": true,
+ "generated": "2026-09-16T05:51:25",
+ "leagues": [
+  {"label": "ESPN", "me": "Purdy Big in Japan", "updated": "2026-09-10", "players": [
+   {"name": "Brock Purdy", "pos": "QB", "team": "SF", "snap": 100.0, "d_snap": 0.0, "tgt": 0.0, "car": 16.7,
+    "rz": 0, "ppg": 21.1, "luck": 0.1, "verdict": "hold", "why": "", "series": [100.0, 100.0]},
+   {"name": "Chase Brown", "pos": "RB", "team": "CIN", "snap": 71.0, "d_snap": 13.0, "tgt": 9.0, "car": 62.0,
+    "rz": 3, "ppg": 17.4, "luck": 0.02, "verdict": "RISING", "why": "snaps +13.0, share +8; buy or start",
+    "series": [58.0, 71.0]}
+  ]}
+ ],
+ "pool": [
+  {"name": "George Kittle", "pos": "TE", "team": "SF", "snap": 70.0, "d_snap": null, "tgt": 22.0, "car": 0.0,
+   "rz": 1, "ppg": 12.0, "luck": 0.0, "verdict": "NEW", "why": "no earlier weeks to compare", "series": [null, 70.0]}
+ ]
+}

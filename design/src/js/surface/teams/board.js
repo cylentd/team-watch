@@ -3,13 +3,14 @@ function rowHTML(p, i, teamKey){
   const st = p.statusText || p.status;
   const tag = st ? `<span class="tag ${p.status==="OUT"?"o":"q"}">${esc(st)}</span>` : "";
   const dual = p.dual ? `<span class="tag dual">${t("teams.row.dual")}</span>` : "";
+  const verdict = p.verdict ? `<span class="tag verdict" title="${esc(p.why)}">${esc(p.verdict)}</span>` : "";
   const badge = p.status ? `<span class="badge ${p.status==="OUT"?"o":"q"}">${p.status==="OUT"?"!":"Q"}</span>` : "";
   const rd = 40+i*32;
   return `<div class="row ${cls}" style="animation-delay:${rd}ms;--rowdelay:${rd}ms" data-team="${teamKey}" data-i="${i}" role="button" tabindex="0">
     <div class="slot"><span>${esc(p.slot)}</span></div>
     <div class="head">${headHTML(p)}${badge}</div>
     <div class="nm">
-      <div class="nm-1"><b>${esc(p.n)}</b>${tag}${dual}</div>
+      <div class="nm-1"><b>${esc(p.n)}</b>${tag}${verdict}${dual}</div>
       <div class="nm-2">
         <span class="slotm">${esc(p.slot)}</span>
         <span><em class="posx" style="font-style:normal">${esc(p.pos)} · </em>${esc(p.team)}</span>
@@ -17,7 +18,7 @@ function rowHTML(p, i, teamKey){
       </div>
     </div>
     <div class="match">${matchupCellHTML(profileFor(p))}</div>
-    <div class="trend">${sparkHTML(p.trend,128,34)}${deltaHTML(p.d)}</div>
+    <div class="trend">${sparkHTML(p.trend,100,34)}${deltaHTML(p.d)}</div>
     <div class="rk">${rankHTML(p)}</div>
     <div class="news">${p.news
       ? `<span class="newstag ${p.hot?"hot":""}">${NEWS_ICON}<b>${p.news}</b></span>`
@@ -49,11 +50,12 @@ function boardHTML(team){
 
 function signalsHTML(team){
   const up = team.roster.filter(p=>p.d>1.5).length;
-  const dn = team.roster.filter(p=>p.d<-1.5).length;
+  const down = team.roster.filter(p=>p.d<-1.5);
+  const news = team.roster.reduce((n, p) => n + (p.news || 0), 0);
   return `<div class="signals">
     <div class="sig up"><div class="lbl">${t("teams.sig.upLabel")}</div><div class="sig-val">${up}</div><div class="sig-sub">${t("teams.sig.upSub", {n: team.roster.length})}</div></div>
-    <div class="sig down"><div class="lbl">${t("teams.sig.downLabel")}</div><div class="sig-val">${dn}</div><div class="sig-sub">${t("teams.sig.downSub")}</div></div>
-    <div class="sig empty"><div class="lbl">${t("teams.sig.rankLabel")}</div><div class="sig-val">—</div><div class="sig-sub">${t("teams.sig.rankSub")}</div></div>
+    <div class="sig down"><div class="lbl">${t("teams.sig.downLabel")}</div><div class="sig-val">${down.length}</div><div class="sig-sub">${t("teams.sig.downSub", {n: down.filter(p=>p.start).length})}</div></div>
+    <div class="sig ${news ? "" : "empty"}"><div class="lbl">${t("teams.sig.newsLabel")}</div><div class="sig-val">${news || "—"}</div><div class="sig-sub">${t("teams.sig.newsSub")}</div></div>
   </div>`;
 }
 

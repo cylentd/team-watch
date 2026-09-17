@@ -62,6 +62,12 @@ CONTRACT = {
                             "prev_at", "d_pts", "d_role_pts", "sector", "z", "rank", "d_rank",
                             "no_market"]),
     },
+    # design/signals.py: one row per player on my rosters, keyed by slug. `series` is watch.json's
+    # weekly snap share (None for a missed week); `verdict` is null when watch has no row for him.
+    "LIVE_SIGNALS": {
+        "keys": ["through_week", "ready", "players"],
+        "map": ("players", ["series", "verdict", "why", "news", "hot"]),
+    },
 }
 
 
