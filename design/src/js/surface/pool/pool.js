@@ -43,29 +43,9 @@ function poolChartHTML(rows){
 
 function poolHTML(){
   const rows = POOL_FILTER === "ALL" ? POOL : POOL.filter(r=>r.pos===POOL_FILTER);
-  const rising = POOL.filter(r=>r.dShare>3).length;
-  const falling = POOL.filter(r=>r.dShare<-3).length;
-  const week = typeof LIVE_POOL !== "undefined" && LIVE_POOL ? LIVE_POOL.through_week : null;
-  const free = POOL.filter(r => poolAvailability(r).cls === "free").length;
-  return `<section class="hero slim">
-    <div class="wrap hero-in">
-      <div>
-        <div class="hero-eyebrow" style="--tint:var(--lime)">
-          <span class="league-mark"></span><span class="lbl">${week ? t("pool.hero.eyebrowLive", {n: POOL.length, week}) : t("pool.hero.eyebrow")}</span>
-        </div>
-        <div class="hero-meta">
-          <span class="pill">${t("pool.hero.pillUsage")}</span>
-        </div>
-      </div>
-      <div><div class="signals">
-        <div class="sig up ${week && !rising && !falling ? "empty" : ""}"><div class="lbl">${t("pool.sig.risingLabel")}</div><div class="sig-val">${week && !rising && !falling ? "—" : rising}</div><div class="sig-sub">${t("pool.sig.risingSub")}</div></div>
-        <div class="sig down ${week && !rising && !falling ? "empty" : ""}"><div class="lbl">${t("pool.sig.fallingLabel")}</div><div class="sig-val">${week && !rising && !falling ? "—" : falling}</div><div class="sig-sub">${t("pool.sig.fallingSub")}</div></div>
-        <div class="sig"><div class="lbl">${t("pool.sig.freeLabel")}</div><div class="sig-val">${free}</div><div class="sig-sub">${t("pool.sig.freeSub")}</div></div>
-      </div></div>
-    </div>
-  </section>
-  ${tickerHTML()}
-  <div class="wrap">
+  // No header block: the player count, the ranking and each player's free status are all in the
+  // list itself, and the rising/falling counts are what the chart plots.
+  return `<div class="wrap">
     ${poolChartHTML(rows)}
     <div class="filters">
       <span class="lbl">${t("pool.filter.position")}</span>
