@@ -12,10 +12,12 @@ data/signals.js
 data/hydrate.js
 data/news.js
 data/stock.js
+data/waiver.js
 lib/escape.js
 ui/player.js
 ui/matchup.js
 surface/teams/board.js
+surface/teams/waiver.js
 surface/profile/sections.js
 surface/profile/market.js
 surface/profile/details.js

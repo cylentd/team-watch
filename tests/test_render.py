@@ -30,6 +30,8 @@ STATES = [
     ("teams-yahoo", []),
     ("teams-espn", [("eval", "VIEW='espn'; render()")]),
     ("teams-drawer", [("click", ".row")]),   # Joe Burrow: no profile, the quiet state
+    ("waivers-espn", [("eval", "VIEW='espn'; render()"), ("click", "[data-teamstab='waivers']")]),   # moves + all three lanes
+    ("waivers-yahoo", [("click", "[data-teamstab='waivers']")]),   # no moves, one lane
     ("profile-wr-drawer", [("click", ".row:has-text('Amon-Ra St. Brown')")]),
     ("profile-wr-details-drawer", [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#drawer .pf-details > summary")]),
     ("profile-rb-drawer", [("click", ".row:has-text('Chase Brown')"), ("click", "#drawer .pf-details > summary")]),

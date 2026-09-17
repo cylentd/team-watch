@@ -1,24 +1,55 @@
-/* ============================== THE WIRE ============================== */
-.wire{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
-.swap{border:1px solid var(--line);background:var(--panel);padding:0;overflow:hidden}
-.swap-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel-2)}
-.swap-body{display:grid;grid-template-columns:1fr 34px 1fr;align-items:center}
-.side-o,.side-i{padding:14px}
-.side-o{border-right:1px solid var(--line)}
-.side-i{border-left:1px solid var(--line)}
-.side-h{display:flex;align-items:center;gap:9px}
-.side-h img,.side-h .fallback{width:36px;height:36px;border-radius:99px;object-fit:cover;border:1px solid var(--line-2);background:var(--panel-3)}
-.side-h .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--ink-3)}
-.side-n{font-size:13.5px;font-weight:500;letter-spacing:-.01em}
-.side-i[data-wire]{cursor:pointer}
-.side-i[data-wire]:hover .side-n{color:var(--lime)}
-.side-m{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:3px;letter-spacing:.06em}
-.side-stats{display:flex;gap:14px;margin-top:12px}
+/* ============================== WAIVERS SUB-TAB ============================== */
+.teamstabs{margin-top:14px}
+.tabcount{margin-left:5px;color:var(--ink-3)}
+.mode-sub[aria-pressed="true"] .tabcount{color:inherit}
+
+/* One grid for the column heads and the rows, so every column lines up. */
+.wvhead,.wvrow{
+  display:grid;grid-template-columns:28px 46px 280px minmax(0,1fr) 128px 220px;
+  grid-template-areas:"rank head name why worth starts";gap:16px;align-items:center;
+}
+.wvhead{padding:0 14px 6px 12px;margin-top:18px}
+.wvhead .ch{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.wvhead .ch-why{grid-area:why}
+.wvhead .ch-worth{grid-area:worth;cursor:help}
+.wvhead .ch-starts{grid-area:starts}
+.wvrow{
+  padding:11px 14px 11px 12px;border-bottom:1px solid var(--line);
+  cursor:pointer;position:relative;transition:background .18s var(--ease);
+}
+.wvrow::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--lime);transform:scaleY(0);transition:transform .28s var(--ease)}
+.wvrow:hover{background:var(--panel-2)}
+.wvrow:hover::before{transform:scaleY(1)}
+.wvrow:focus-visible{outline:1px solid var(--lime);outline-offset:-1px}
+.wv-rank{grid-area:rank;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--ink-3);text-align:right}
+.wvrow .head{grid-area:head}
+.wvrow .nm{grid-area:name}
+.tag.lane{color:var(--ink-2);border:1px solid var(--line-2);cursor:help}
+.wv-why{grid-area:why;font-family:var(--mono);font-size:11.5px;color:var(--ink-2);letter-spacing:.02em;line-height:1.45}
+.wv-worth{grid-area:worth;font-family:var(--mono)}
+.wv-worth b{display:block;font-size:16px;font-weight:700;color:var(--ink)}
+.wv-worth small{display:block;font-size:11px;color:var(--ink-3);margin-top:2px;letter-spacing:.02em}
+.wv-starts{grid-area:starts;font-family:var(--mono)}
+.wv-vs{font-size:11.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wv-margin{font-size:12px;font-weight:700;margin-top:3px;letter-spacing:.04em}
+.wv-margin.up{color:var(--up)}
+.wv-margin.down{color:var(--down)}
+.wv-none{font-size:11.5px;color:var(--ink-3)}
+
+/* Suggested moves: one line each, the verb first. Add is up, drop is down, stash is neither. */
+.wvmoves{border-top:1px solid var(--line);margin-top:14px}
+.wvmove{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);min-width:0}
+.wvmove b{font-weight:500;font-size:14.5px;white-space:nowrap}
+.wvmove.add .tag{color:var(--up);border:1px solid rgb(var(--up-rgb) / .4)}
+.wvmove.drop .tag{color:var(--down);border:1px solid rgb(var(--down-rgb) / .4)}
+.wvmove.stash .tag{color:var(--ink-2);border:1px solid var(--line-2)}
+.wv-meta{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+.wv-detail{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--ink-2);text-align:right}
+
+/* Shared by DFS, parlay and the drawer. */
 .stat{font-family:var(--mono)}
 .stat b{display:block;font-size:14px;font-weight:700}
 .stat span{display:block;font-size:11px;color:var(--ink-3);letter-spacing:.14em;margin-top:3px}
-.arrowcell{display:grid;place-items:center;height:100%;background:var(--panel-2);border-left:1px solid var(--line);border-right:1px solid var(--line);font-family:var(--mono);color:var(--ink-3);font-size:14px}
-.swap-foot{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-top:1px solid var(--line)}
 .btn{
   appearance:none;border:1px solid var(--lime);background:rgb(var(--lime-rgb) / .1);color:var(--lime);
   font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
@@ -28,4 +59,3 @@
 .btn:active{transform:scale(.96)}
 .btn.ghost{border-color:var(--line-2);background:none;color:var(--ink-2)}
 .btn.ghost:hover{border-color:var(--ink-2);background:var(--panel-3);color:var(--ink)}
-

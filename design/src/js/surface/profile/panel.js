@@ -27,11 +27,11 @@ function openProfile(p, sub){
   showDrawer(d, "pf-title");
 }
 
-/* Roster rows and waiver cards both open the profile; one wiring for both. */
+/* Roster rows and waiver rows both open the profile; one wiring for both. */
 function wireProfiles(v){
   const open = el => el.dataset.team !== undefined
     ? openProfile(findPlayer(el.dataset.team, +el.dataset.i), `${TEAMS[el.dataset.team].plat} ${findPlayer(el.dataset.team, +el.dataset.i).slot}`)
-    : openProfile(WIRE[+el.dataset.wire].in_, t("profile.head.waiver"));
+    : openProfile(waiverFor(VIEW).wire[+el.dataset.wire], t("profile.head.waiver"));
   v.querySelectorAll(".row, [data-wire]").forEach(el => {
     el.addEventListener("click", () => open(el));
     el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); open(el); } });

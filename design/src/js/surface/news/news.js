@@ -69,37 +69,3 @@ function newsHTML(){
   </div>`;
 }
 
-function wireHTML(){
-  /* A waiver target with a profile opens it (panel.js wireProfiles reads data-wire). */
-  const side = (p, kind, wi) => {
-    const prof = kind === "in" ? profileFor(p) : null;
-    return `
-    <div class="side-${kind==="out"?"o":"i"}"${prof ? ` data-wire="${wi}" role="button" tabindex="0"` : ""}>
-      <div class="lbl">${kind==="out"?t("teams.wire.drop"):t("teams.wire.add")}</div>
-      <div class="side-h" style="margin-top:10px">
-        ${avatarHTML(p)}
-        <div><div class="side-n">${esc(p.n)}</div><div class="side-m">${esc(p.m)}</div></div>
-      </div>
-      <div class="side-stats">
-        <div class="stat"><b>${esc(p.pos)}</b><span>${t("teams.wire.posRank")}</span></div>
-        <div class="stat"><b style="color:${p.d>0?"var(--up)":"var(--down)"}">${p.d>0?"+":""}${p.d}%</b><span>${t("teams.wire.trend")}</span></div>
-      </div>
-    </div>`;
-  };
-  return `<div class="wire">${WIRE.map((w, wi)=>`
-    <div class="swap">
-      <div class="swap-head">
-        <span class="lbl">${t("teams.wire.swap")}</span>
-        <span class="pill" style="border-color:${w.team==="ESPN"?"rgba(255,45,45,.4)":"rgba(139,92,255,.4)"};color:var(--ink-2)">${w.team}</span>
-      </div>
-      <div class="swap-body">${side(w.out,"out",wi)}<div class="arrowcell">→</div>${side(w.in_,"in",wi)}</div>
-      <div class="swap-foot">
-        <div style="display:flex;gap:18px">
-          <div class="stat"><b style="color:var(--lime)">${w.gain}</b><span>${t("teams.wire.delta")}</span></div>
-          <div class="stat"><b>${w.faab}</b><span>${t("teams.wire.bid")}</span></div>
-        </div>
-        <button class="btn">${t("teams.wire.claim")}</button>
-      </div>
-    </div>`).join("")}</div>`;
-}
-

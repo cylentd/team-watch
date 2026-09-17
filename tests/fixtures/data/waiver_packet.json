@@ -1,0 +1,53 @@
+{
+ "kind": "waiver",
+ "date": "2026-09-16",
+ "week": 2,
+ "clears": "2026-09-23T00:00",
+ "leagues": {
+  "espn": {
+   "team": "Purdy Big in Japan",
+   "waiver": {"type": "faab", "budget_left": 1000, "priority": null},
+   "lineup_unknown": false,
+   "adds": [
+    {"key": "kalif raymond", "name": "Kalif Raymond", "pos": "WR", "team": "CHI", "availability": "active", "pts": 11.2,
+     "game": {"opponent": "MIN", "home": true},
+     "upgrade": {"replaces": "Tee Higgins", "key": "tee higgins", "slot": "FLEX", "their_pts": 9.4, "margin": 1.8}}
+   ],
+   "stash": [
+    {"key": "tyler allgeier", "name": "Tyler Allgeier", "pos": "RB", "team": "ATL", "availability": "active", "pts": 7.9,
+     "game": {"opponent": "CAR", "home": false}, "stash_reason": "handcuff"}
+   ],
+   "drops": [
+    {"key": "joe burrow", "name": "Joe Burrow", "pos": "QB", "team": "CIN", "availability": "active", "pts": 6.1,
+     "game": {"opponent": "PIT", "home": true}}
+   ],
+   "wire": [
+    {"key": "noah fant", "name": "Noah Fant", "pos": "TE", "team": "NO", "availability": "active", "pts": 4.2,
+     "game": {"opponent": "BAL", "home": false}, "lane": "usage", "work": 12.3, "role_pts": 6.6, "edge": 2.4,
+     "snap_pct": 41.0, "target_share": 15.4, "carry_share": 0.0, "promoted": null,
+     "starts_now": {"replaces": "George Kittle", "slot": "TE", "their_pts": 9.0, "margin": -2.4}},
+    {"key": "drew lock", "name": "Drew Lock", "pos": "QB", "team": "SEA", "availability": "active", "pts": 9.3,
+     "game": {"opponent": "ARI", "home": false}, "lane": "role", "work": 11.7, "role_pts": 10.0, "edge": 0.7,
+     "snap_pct": 90.0, "target_share": 0.0, "carry_share": 9.1, "promoted": {"from": 2, "to": 1},
+     "starts_now": {"replaces": "Brock Purdy", "slot": "QB", "their_pts": 18.8, "margin": -8.8}},
+    {"key": "demond claiborne", "name": "Demond Claiborne", "pos": "RB", "team": "MIN", "availability": "active", "pts": null,
+     "game": {"opponent": "CHI", "home": false}, "lane": "open", "work": null, "role_pts": null, "edge": null,
+     "snap_pct": null, "target_share": null, "carry_share": null, "promoted": null,
+     "vacated": {"key": "jordan mason", "name": "Jordan Mason", "injury": "Thumb", "work": 11.6, "opp": 15},
+     "gain": 2.1, "share_pct": 45, "starts_now": null}
+   ]
+  },
+  "yahoo": {
+   "team": "Chat Take the Wheel 👾",
+   "waiver": {"type": "faab", "budget_left": 100, "priority": null},
+   "lineup_unknown": false,
+   "adds": [], "stash": [], "drops": [],
+   "wire": [
+    {"key": "noah fant", "name": "Noah Fant", "pos": "TE", "team": "NO", "availability": "active", "pts": 4.2,
+     "game": {"opponent": "BAL", "home": false}, "lane": "usage", "work": 12.3, "role_pts": 6.6, "edge": 2.4,
+     "snap_pct": 41.0, "target_share": 15.4, "carry_share": 0.0, "promoted": null,
+     "starts_now": {"replaces": "George Kittle", "slot": "TE", "their_pts": 9.0, "margin": -2.4}}
+   ]
+  }
+ }
+}

@@ -40,6 +40,24 @@ hand-typed `SIGNALS` map is gone). Nothing is typed by hand:
 
 None of the three sources is backtested. The verdict word is watch's own; the page adds none.
 
+## Waivers (sub-tab of My Teams, 2026-09-16)
+
+A Roster | Waivers toggle under the team name, not a sixth nav tab: waivers are per league like
+the roster, so the league switch carries over, and the phone's bottom bar keeps five thumb-sized
+columns. The data is ff-jarvis's `model.season.waiver_packet`, built daily by the refresh
+(`LIVE_WAIVER`, `design/waiver.py`), and the tab only formats it.
+
+| Part | Shows | Source field |
+|---|---|---|
+| Tiles | claims clear, FAAB left, how many would start | `clears`, `budget_left`, `starts.margin >= 0` |
+| Suggested moves | ADD / STASH / DROP lines, only when the packet has any | `adds`, `stash`, `drops` |
+| The wire | ranked rows: lane tag, why, next-week points vs price, vs the starter he replaces | `wire` |
+
+A row reads left to right as the decision does. The lane tag names why he is on the list (Usage,
+Open, Role), the next column gives that lane's own evidence, and the last column answers "does he
+start for me" with the packet's margin, green or red. Nobody clearing a starter is said in the
+section header, not hidden behind empty cards.
+
 ## The pool
 
 Ranked on usage, never points. The anchor is a quadrant scatter: **x = change in snap/target
@@ -99,7 +117,7 @@ than silently doing nothing.
 The topbar's live/sample badge (2026-09-09) reflects what's actually loaded per tab instead of a
 single static "Sample data" string: green "Props live" / "Pool live" when Parlay's BettingPros
 props or DFS's Yahoo salary export are in, the amber sample warning otherwise. My Teams goes
-green when `LIVE_SIGNALS` is in (2026-09-16); its waiver cards are still sample.
+green when `LIVE_SIGNALS` is in (2026-09-16); the Waivers sub-tab is live from the same day.
 
 ## Direction
 

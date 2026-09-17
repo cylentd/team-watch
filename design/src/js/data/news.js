@@ -26,12 +26,3 @@ let NEWS_CAT = "All";
 const newsSeverity = it => (it.categories || []).includes("Breaking") ? "breaking"
   : (it.categories || []).includes("Injury") ? "injury" : "";
 
-const WIRE = [
-  {out:{n:"Tyrone Tracy Jr.",slug:"tyrone-tracy",m:"RB · NYG · BN",pos:"RB47",d:-7.2},
-   in_:{n:"Chase Brown",slug:"chase-brown",m:"RB · CIN · 41% rostered",pos:"RB22",d:+12.6},
-   team:"ESPN", gain:"+18.4 proj/wk", faab:"12% FAAB"},
-  {out:{n:"Deebo Samuel Sr.",slug:"deebo-samuel",m:"WR · WAS · BN",pos:"WR46",d:-9.7},
-   in_:{n:"Jalen Coker",slug:"jalen-coker",m:"WR · CAR · 28% rostered",pos:"WR39",d:+8.1},
-   team:"YAHOO", gain:"+6.2 proj/wk", faab:"5% FAAB"},
-];
-

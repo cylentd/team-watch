@@ -9,6 +9,10 @@ row). A block may be None -- that is "source not available", and the page falls 
 sample -- but a block that is present must be whole. Null values are fine; absent keys are not.
 """
 
+WAIVER_ROW = ["n", "slug", "pos", "team", "pts", "availability", "opp", "home", "lane", "work", "role_pts",
+              "edge", "snap", "tgt", "car", "starts", "vacated", "gain", "share_pct", "promoted", "upgrade",
+              "stash_reason"]
+
 CONTRACT = {
     "LIVE_ESPN": {
         "keys": ["name", "league", "updated", "roster"],
@@ -64,6 +68,14 @@ CONTRACT = {
     },
     # design/signals.py: one row per player on my rosters, keyed by slug. `series` is watch.json's
     # weekly snap share (None for a missed week); `verdict` is null when watch has no row for him.
+    # design/waiver.py, from ff-jarvis's model.season.waiver_packet. Each league's rows share one
+    # shape (waiver.py `_row`); a null sub-object (starts, vacated, promoted, upgrade) means that
+    # lane or list does not apply to him.
+    "LIVE_WAIVER": {
+        "keys": ["date", "week", "clears", "leagues"],
+        "map": ("leagues", ["team", "type", "budget_left", "lineup_unknown", "wire", "adds", "stash", "drops"]),
+        "map_rows": [("leagues", sub, WAIVER_ROW) for sub in ("wire", "adds", "stash", "drops")],
+    },
     "LIVE_SIGNALS": {
         "keys": ["through_week", "ready", "players"],
         "map": ("players", ["series", "verdict", "why", "news", "hot"]),
@@ -100,6 +112,10 @@ def problems(name, obj, limit=8):
             inner = row.get(sub) if isinstance(row, dict) else None
             if isinstance(inner, dict):
                 out += [f"{name}.{field}[{key!r}].{sub}.{k}" for k in keys if k not in inner]
+    for field, sub, keys in spec.get("map_rows", []):
+        for key, row in (obj.get(field) or {}).items():
+            for i, r in enumerate((row or {}).get(sub) or []):
+                out += [f"{name}.{field}[{key!r}].{sub}[{i}].{k}" for k in keys if k not in r]
     return out[:limit]
 
 

@@ -66,12 +66,13 @@ function render(){
   }
 
   const team = TEAMS[VIEW];
-  v.innerHTML = heroHTML(team) + tickerHTML() + `<div class="wrap">
-    ${boardHTML(team)}
-    <div class="rule"><h2>${t("teams.wire.heading")}</h2><span class="hair"></span><span class="side">${t("teams.wire.sub")}</span></div>
-    ${wireHTML()}
-  </div>`;
+  v.innerHTML = TEAMS_TAB === "waivers"
+    ? heroHTML(team) + `<div class="wrap">${waiverHTML(team)}</div>`
+    : heroHTML(team) + tickerHTML() + `<div class="wrap">${boardHTML(team)}</div>`;
   v.querySelector(".leaguechip")?.addEventListener("click", ()=>openLeagueInfo(team.key));
+  v.querySelectorAll("[data-teamstab]").forEach(b=>b.addEventListener("click",()=>{
+    TEAMS_TAB = b.dataset.teamstab; render();
+  }));
   wireTeamSwitch(v);
   wireProfiles(v);
 }
