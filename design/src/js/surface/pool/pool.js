@@ -47,14 +47,12 @@ function poolHTML(){
   const falling = POOL.filter(r=>r.dShare<-3).length;
   const week = typeof LIVE_POOL !== "undefined" && LIVE_POOL ? LIVE_POOL.through_week : null;
   const free = POOL.filter(r => poolAvailability(r).cls === "free").length;
-  return `<section class="hero">
-    <div class="numghost">${POOL.length}</div>
+  return `<section class="hero slim">
     <div class="wrap hero-in">
       <div>
         <div class="hero-eyebrow" style="--tint:var(--lime)">
           <span class="league-mark"></span><span class="lbl">${week ? t("pool.hero.eyebrowLive", {n: POOL.length, week}) : t("pool.hero.eyebrow")}</span>
         </div>
-        <h1>${t("pool.hero.title")}</h1>
         <div class="hero-meta">
           <span class="pill">${t("pool.hero.pillUsage")}</span>
         </div>

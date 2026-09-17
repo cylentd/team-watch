@@ -1,14 +1,12 @@
 function parlayHTML(){
   const hasModel = PROPS.some(p=>typeof p.model==="number");
-  return `<section class="hero">
-    <div class="numghost">${SLIP.length}</div>
+  return `<section class="hero slim">
     <div class="wrap hero-in">
       <div>
         <div class="hero-eyebrow" style="--tint:var(--lime)">
           <span class="league-mark"></span><span class="lbl">${SLATE_WEEK ? t("parlay.hero.eyebrow", {n: PROPS.length, week: SLATE_WEEK}) : t("parlay.hero.eyebrowNoWeek", {n: PROPS.length})}</span>
         </div>
-        <h1>${t("parlay.hero.title")}</h1>
-        <div class="modes-sub" style="margin-top:14px">
+        <div class="modes-sub dock">
           <span class="lbl" style="margin-right:8px">${t("parlay.book.label")}</span>
           <button class="mode-sub" data-parlaybook="dk" aria-pressed="${PARLAY_BOOK==="dk"}">${t("parlay.book.dk")}</button>
           <button class="mode-sub" data-parlaybook="underdog" aria-pressed="${PARLAY_BOOK==="underdog"}">${t("parlay.book.underdog")}</button>

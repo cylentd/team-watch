@@ -49,14 +49,12 @@ function newsHTML(){
     .concat(NEWS_KINDS.filter(k => counts[k.k]).map(k =>
       `<button class="chip nchip ${k.k}" data-newscat="${k.k}" aria-pressed="${NEWS_CAT===k.k}">${k.icon}${k.label()} (${counts[k.k]})</button>`));
   const label = NEWS_KIND[NEWS_CAT] ? NEWS_KIND[NEWS_CAT].label() : t("news.kind.all");
-  return `<section class="hero">
-    <div class="numghost">${items.length}</div>
+  return `<section class="hero slim">
     <div class="wrap hero-in">
       <div>
         <div class="hero-eyebrow" style="--tint:var(--lime)">
           <span class="league-mark"></span><span class="lbl">${t("news.hero.eyebrow", {n: items.length})}</span>
         </div>
-        <h1>${t("news.hero.title")}</h1>
       </div>
     </div>
   </section>

@@ -1,14 +1,12 @@
 function dfsSurfaceHTML(){
   const site = dfsSite();
-  return `<section class="hero">
-    <div class="numghost">${site.lineup.filter(d=>d.n).length}</div>
+  return `<section class="hero slim">
     <div class="wrap hero-in">
       <div>
         <div class="hero-eyebrow" style="--tint:var(--lime)">
           <span class="league-mark"></span><span class="lbl">${t("dfs.hero.eyebrow", {site: site.label, cap: site.cap.toLocaleString()})}</span>
         </div>
-        <h1>${t("dfs.hero.title")}</h1>
-        <div class="modes-sub" style="margin-top:14px">
+        <div class="modes-sub dock">
           <span class="lbl" style="margin-right:8px">${t("dfs.book.label")}</span>
           <button class="mode-sub" data-dfssite="yahoo" aria-pressed="${DFS_SITE==="yahoo"}">${t("dfs.book.yahoo")}</button>
           <button class="mode-sub" data-dfssite="dk" aria-pressed="${DFS_SITE==="dk"}">${t("dfs.book.dk")}</button>

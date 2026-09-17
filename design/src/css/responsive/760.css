@@ -26,6 +26,22 @@
   .hero-meta{margin-top:2px}
   .hero-meta .pill{font-size:11px;padding:4px 8px}
   .modes-sub{margin-top:10px!important}
+  .hero.slim{padding:12px 0 4px}
+  .hero.slim .hero-eyebrow{margin-bottom:0}
+  /* A view switch (book, roster/waivers) reshapes the whole page below it, so it docks on top of
+     the tab bar: in thumb reach, and still naming the view once the header has scrolled away. */
+  .modes-sub.dock{
+    position:fixed;left:0;right:0;bottom:calc(59px + env(safe-area-inset-bottom));z-index:39;
+    margin:0!important;padding:7px 14px;gap:0;
+    background:var(--panel);border-top:1px solid var(--line);
+    box-shadow:0 -12px 16px -10px rgb(var(--shadow-rgb) / .55);
+  }
+  .modes-sub.dock .mode-sub{flex:1 1 0;min-width:0;min-height:40px;padding-left:6px;padding-right:6px}
+  .modes-sub.dock .explain-btn{flex:none;margin-left:8px;min-height:40px}
+  /* A section's side note drops under its heading instead of squeezing into a column beside it. */
+  .rule:has(.side){flex-wrap:wrap;row-gap:6px}
+  .rule .side{flex:1 1 100%;letter-spacing:.06em}
+  body:has(.modes-sub.dock){padding-bottom:calc(114px + env(safe-area-inset-bottom))}
   /* KPI strip was costing as much height as the headline above it on a phone: three lines
      of type per tile (label, number, caption) at a size built for desktop. Tighten the
      padding and drop each line a size so the strip reads as a compact stat row, not a

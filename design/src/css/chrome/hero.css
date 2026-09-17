@@ -6,6 +6,11 @@
   color:transparent;-webkit-text-stroke:1.5px rgb(var(--lime-rgb) / .09);
   pointer-events:none;user-select:none;letter-spacing:-.05em;
 }
+/* Pool, Parlay, DFS and News carry no headline: the lit nav tab already names the surface, and the
+   eyebrow's live count is the part worth reading. Only My Teams keeps one, because a team name is
+   information the nav does not hold. */
+.hero.slim{padding:26px 0 8px}
+.hero.slim .hero-in{align-items:start}
 .hero-in{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:44px;align-items:end}
 .hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
 /* My Teams' switcher used margin-left:auto to push right within .hero-eyebrow -- but that row

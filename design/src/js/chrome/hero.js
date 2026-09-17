@@ -11,7 +11,7 @@ function heroHTML(team){
         </div>
         <h1 class="fit">${esc(team.name)}</h1>
         <button class="leaguechip">${esc(team.meta[team.meta.length-1])} <span class="lc-info">ⓘ</span></button>
-        <div class="modes-sub teamstabs" role="group" aria-label="${t("teams.tab.label")}">
+        <div class="modes-sub teamstabs dock" role="group" aria-label="${t("teams.tab.label")}">
           <button class="mode-sub" data-teamstab="roster" aria-pressed="${TEAMS_TAB==="roster"}">${t("teams.tab.roster")}</button>
           <button class="mode-sub" data-teamstab="waivers" aria-pressed="${TEAMS_TAB==="waivers"}">${t("teams.tab.waivers")}${lg ? ` <span class="tabcount">${lg.wire.length}</span>` : ""}</button>
         </div>
