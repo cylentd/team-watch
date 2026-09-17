@@ -1157,8 +1157,10 @@ html{scrollbar-color:var(--line-2) var(--void)}
      so pinning the switcher to .hero-in's corner has nothing to its right to line up with and
      nothing below it reserving space -- it just overlaps the giant h1. Back to inline, flush
      right within the eyebrow row itself, which is correct here since that row already spans the
-     hero's full width once there's only one column. */
-  .hero-eyebrow .teamswitch{position:static;margin-left:auto}
+     hero's full width once there's only one column. Relative, not static: the menu is absolute and
+     anchors to the nearest positioned ancestor, and with a static switch that was .hero-in, so the
+     menu opened at the hero's bottom edge under the ticker, clipped and untappable. */
+  .hero-eyebrow .teamswitch{position:relative;top:auto;right:auto;margin-left:auto}
 }
 /* ── css/responsive/760.css ── */
 @media (max-width:760px){
