@@ -5,7 +5,7 @@ function parlayHTML(){
     <div class="wrap hero-in">
       <div>
         <div class="hero-eyebrow" style="--tint:var(--lime)">
-          <span class="league-mark"></span><span class="lbl">${t("parlay.hero.eyebrow", {n: PROPS.length})}</span>
+          <span class="league-mark"></span><span class="lbl">${SLATE_WEEK ? t("parlay.hero.eyebrow", {n: PROPS.length, week: SLATE_WEEK}) : t("parlay.hero.eyebrowNoWeek", {n: PROPS.length})}</span>
         </div>
         <h1>${t("parlay.hero.title")}</h1>
         <div class="modes-sub" style="margin-top:14px">

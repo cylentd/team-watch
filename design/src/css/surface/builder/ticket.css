@@ -13,6 +13,9 @@
   line-height:1.1;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ticket-best{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--on-lime);
   background:var(--lime);padding:3px 7px;border-radius:2px;white-space:nowrap;flex-shrink:0;margin-top:2px}
+/* A fallback card: the best at its kickoff, but no leg cleared the gallery's gates. Amber = caution. */
+.ticket-low{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--amber);
+  border:1px solid var(--amber);padding:2px 6px;border-radius:2px;white-space:nowrap;flex-shrink:0;margin-top:2px}
 .ticket-stat{padding:10px 15px 14px}
 .ticket-stat b{display:block;font-family:var(--mono);font-size:34px;font-weight:700;letter-spacing:-.03em;line-height:1;color:var(--lime)}
 .ticket-stat b.neg{color:var(--down)}

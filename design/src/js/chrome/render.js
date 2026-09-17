@@ -24,6 +24,7 @@ function paintBadge(){
   el.classList.toggle("live", b.tone==="live");
   el.querySelector(".full").textContent = b.full;
   el.querySelector(".abbr").textContent = b.abbr;
+  if (SLATE_WEEK) document.querySelector("#weekpill .txt").textContent = t("chrome.weekpill.week", {week: SLATE_WEEK});
 }
 
 function render(){

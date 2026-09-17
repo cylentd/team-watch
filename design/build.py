@@ -245,24 +245,26 @@ def load_props_raw():
 
 def load_model_raw():
     """P(over) per priced line from ff-jarvis's `model.market.props_model`, feed first, file second,
-    the same way the lines themselves are read."""
-    feed = FEED
+    the same way the lines themselves are read. A hand re-price between refreshes leaves the file
+    newer than the feed's copy, so when both exist the later `generated` wins."""
+    found = []
     try:
-        d = json.loads(feed.read_text(encoding="utf-8"))
+        d = json.loads(FEED.read_text(encoding="utf-8"))
         block = ((d.get("market") or {}).get("props_model") or {}).get("data")
         if block and block.get("lines"):
-            return block
+            found.append(block)
     except (OSError, json.JSONDecodeError):
         pass
-    # Third choice: the copy kept beside the feed. The ff-jarvis checkout can sit on another branch
+    # The copy kept beside the feed. The ff-jarvis checkout can sit on another branch
     # (two sessions share it), and the refresh then rewrites the feed without the model block.
     for path in (DWR / "props_model.json", REPO / "data" / "props_model.json"):
         if path.exists():
             try:
-                return json.loads(path.read_text(encoding="utf-8"))
+                found.append(json.loads(path.read_text(encoding="utf-8")))
+                break
             except (OSError, json.JSONDecodeError):
                 continue
-    return None
+    return max(found, key=lambda m: m.get("generated") or "") if found else None
 
 
 def feed_block(keys, must):
@@ -522,7 +524,7 @@ def live_props(available, rosters):
         "players": len({p["n"] for p in out}),
         "windows": windows,
         "days": day_windows(windows),
-        "model": {"through": model.get("through"), "generated": model.get("generated"),
+        "model": {"through": model.get("through"), "week": model.get("week"), "generated": model.get("generated"),
                   "modeled": modeled, "status_fetched": model.get("status_fetched"),
                   "not_playing": model.get("not_playing", 0)} if model else None,
         "props": out,

@@ -39,5 +39,8 @@ const PROPS_SAMPLE = [
    terms only. */
 const LIVE_MARKET = (typeof LIVE_PROPS !== "undefined" && LIVE_PROPS && LIVE_PROPS.props.length) ? LIVE_PROPS : null;
 const PROPS = LIVE_MARKET ? LIVE_MARKET.props : PROPS_SAMPLE;
+/* The slate's NFL week, from ff-jarvis's props_model (earliest kickoff). Null on the sample or an
+   older model file, and every label that uses it has a week-less form. */
+const SLATE_WEEK = (LIVE_MARKET && LIVE_MARKET.model && LIVE_MARKET.model.week) || null;
 const BOOKS = LIVE_MARKET ? LIVE_MARKET.books : ["DraftKings","FanDuel","BetMGM","Caesars","Pinnacle"];
 

@@ -55,7 +55,7 @@ function presetCard(card, bestOf){
   return `<div class="ticket ${best ? "best" : ""}">
     <div class="ticket-top">
       <div><span class="ticket-eyebrow">${esc(card.scopeLabel)}</span><div class="ticket-kick">${esc(kick.toUpperCase())}</div></div>
-      ${best ? `<span class="ticket-best">${t("parlay.gallery.best")}</span>` : ""}
+      ${best ? `<span class="ticket-best">${t("parlay.gallery.best")}</span>` : card.low ? `<span class="ticket-low">${t("parlay.gallery.lowTag")}</span>` : ""}
     </div>
     ${stat}
     <div class="ticket-tear"></div>
@@ -69,7 +69,7 @@ function galleryHTML(){
   const cards = GALLERIES[PARLAY_BOOK].filter(c => (SLIP_SCOPE==="all"||c.scope===SLIP_SCOPE) && (GAL_WIN==="ALL"||c.win.k===GAL_WIN));
   // "Best" is the best of what is on screen: filter to Wednesday and the star moves to
   // Wednesday's strongest card instead of vanishing with the whole-week winner.
-  const bestOf = cards.reduce((a,c) => !a || c.metric > a.metric ? c : a, null);
+  const bestOf = bestCard(cards);
   return `<div class="rule"><h2>${t("parlay.gallery.heading")}</h2><span class="hair"></span>
     <span class="side">${t("parlay.gallery.sub")}</span></div>
   <div class="filters">

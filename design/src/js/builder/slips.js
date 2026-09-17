@@ -74,14 +74,27 @@ function pickLegs(cands, key, allowSameGame){
   });
   return out;
 }
-function bestSlipIn(scope, win, book){
-  const cands = PROPS.map((p,i)=>[p,i]).filter(([p]) => legOKInBook(p, scope, book) && inWin(p, win));
+/* The fallback when no slip at a kickoff clears the gates above: the best of what is on the
+   board, so every window and scope still shows a card. The gates that say "this number is wrong"
+   stay (started, out, backup, stale or moved line, no model number, a synthetic Underdog yards
+   line); the gates that say "this number is too low" go (edge, chance floors, price bands, the
+   8-game floor, receptions before week 5). The card is tagged so it never reads as a pick. */
+const legLowInBook = (p, s, book) => {
+  if (!upcoming(p) || !playing(p) || !scopeOK(p, s) || typeof p.model !== "number") return false;
+  if (book !== "underdog") return p.book === "DraftKings" && overPrice(p) !== null && typeof p.edge === "number";
+  const u = udPick(p);
+  // Non-TD stays receptions-only: the Underdog scope chip is labelled receptions.
+  return !!u && !u.stale && (p.mkt === "TD" || (p.mkt === "RECS" && !u.synthetic));
+};
+function slipFrom(ok, scope, win, book){
+  const cands = PROPS.map((p,i)=>[p,i]).filter(([p]) => ok(p, scope, book) && inWin(p, win));
   const games = new Set(cands.map(([p]) => p.game)).size;
   // A single-game window (a Thu/Sun/Mon night with one game on the slate) can never fill three
   // legs under the one-leg-per-game rule -- allow it there; the `.corr` warning already tells
   // the reader it is a same-game parlay and to price it as one.
   return pickLegs(cands, legMetric(book), games > 0 && games < SLIP_LEGS);
 }
+const bestSlipIn = (scope, win, book) => slipFrom(legOKInBook, scope, win, book);
 function mineSlip(book){
   if (!LIVE_MARKET) return [1,2,5];
   const seen = new Set(), out = [];
@@ -114,21 +127,21 @@ function buildGallery(book){
   const metric = legMetric(book);
   const out = [], seen = new Set();
   for (const w of GAL_WINDOWS) for (const [s, label] of scopes){
-    const legs = bestSlipIn(s, w, book);
+    let legs = bestSlipIn(s, w, book), low = false;
+    if (legs.length < 2){ legs = slipFrom(legLowInBook, s, w, book); low = true; }
     if (legs.length < 2) continue;
     const sig = legs.slice().sort((a,b)=>a-b).join(",");
     if (seen.has(sig)) continue;
     seen.add(sig);
-    out.push({i: out.length, book, scope: s, scopeLabel: label, win: w, legs,
+    out.push({i: out.length, book, scope: s, scopeLabel: label, win: w, legs, low,
                metric: legs.reduce((a,i)=>a+metric(PROPS[i]), 0) / legs.length});
   }
   return out;
 }
 const GALLERIES = {dk: buildGallery("dk"), underdog: buildGallery("underdog")};
-const GALLERY_BEST = {
-  dk: GALLERIES.dk.reduce((a,c) => !a || c.metric > a.metric ? c : a, null),
-  underdog: GALLERIES.underdog.reduce((a,c) => !a || c.metric > a.metric ? c : a, null),
-};
+/* A below-the-bar card is never the star. */
+const bestCard = cards => cards.reduce((a,c) => !c.low && (!a || c.metric > a.metric) ? c : a, null);
+const GALLERY_BEST = {dk: bestCard(GALLERIES.dk), underdog: bestCard(GALLERIES.underdog)};
 /* The gallery's own filter -- not fed into legOKInBook/bestSlipIn, which already ran once above. */
 let SLIP_SCOPE = "all";
 let GAL_WIN = "ALL";

@@ -22,12 +22,16 @@
    this a desktop rail is only draggable by its thin scrollbar. Vertical wheel motion over the
    rail pans it sideways instead of scrolling the page, same as most horizontal carousels. */
 const NUDGED = new Set();
+const NUDGING = new WeakSet();   // not a data- attribute: the markup must not depend on timing
 function nudgeScrollers(root){
   root.querySelectorAll(".quadscroll, .railscroll").forEach(el=>{
     const hintTarget = el.closest(".rail") || el;
     const key = hintTarget.dataset.railkey || el.dataset.railkey;
     const update = () => {
       const canScroll = el.scrollWidth > el.clientWidth + 4;
+      // The nudge's own jump to the far end is not the reader reaching it: the hint stays until
+      // the glide is back at the front, so the class never depends on when the frame is caught.
+      if (NUDGING.has(el)){ if (el.scrollLeft > 4) return; NUDGING.delete(el); }
       const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4;
       hintTarget.classList.toggle("no-swipe", !canScroll || atEnd);
     };
@@ -48,6 +52,7 @@ function nudgeScrollers(root){
     }
     if (el.scrollWidth <= el.clientWidth + 4 || (key && NUDGED.has(key))) return;
     if (key) NUDGED.add(key);
+    NUDGING.add(el);
     requestAnimationFrame(()=>{
       el.scrollLeft = el.scrollWidth - el.clientWidth;
       el.scrollTo({left: 0, behavior: "smooth"});
