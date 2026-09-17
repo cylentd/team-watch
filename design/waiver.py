@@ -68,6 +68,14 @@ def live_waiver(feed_path, dwr_path, slugify):
             "leagues": leagues}
 
 
+def report(wv):
+    """build.py's one-line summary of LIVE_WAIVER."""
+    if not wv:
+        return "Waiver: no waiver_packet.json/feed block, the tab says so"
+    per = ", ".join(f"{k} {len(v['wire'])} wire/{len(v['adds'])} adds" for k, v in wv["leagues"].items())
+    return f"Waiver: {per}, clears {wv['clears']}"
+
+
 def slugs(waiver):
     """Every player the tab draws, for build.py's headshot list."""
     return [r["slug"] for lg in ((waiver or {}).get("leagues") or {}).values()

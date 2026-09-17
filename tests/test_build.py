@@ -9,7 +9,7 @@ import build
 import contract
 
 BLOCKS = ["HEADS", "LIVE_ESPN", "LIVE_YAHOO", "LIVE_FEED", "LIVE_NEWS", "LIVE_PROPS", "LIVE_DFS_YAHOO",
-          "LIVE_PROFILES", "LIVE_WAIVER", "LIVE_MARKET_STOCK", "LIVE_SIGNALS"]
+          "LIVE_PROFILES", "LIVE_WAIVER", "LIVE_POOL", "LIVE_MARKET_STOCK", "LIVE_SIGNALS"]
 
 
 def injected(fragment):

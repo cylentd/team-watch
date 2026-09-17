@@ -14,8 +14,9 @@ import contract                 # design/contract.py: the shape each LIVE_* bloc
 import lint_css                 # design/lint_css.py: theme rules; an error fails the build
 from assemble import assemble   # design/assemble.py: design/src/** -> the page template
 from news import load_news      # design/news.py: breaking news, split out to stay in budget
-from signals import live_signals  # design/signals.py: My Teams trend series and news counts
-from waiver import live_waiver, slugs as waiver_slugs  # design/waiver.py: the Waivers sub-tab
+from signals import live_signals, load_usage, report as signals_report  # My Teams trend and news
+from waiver import live_waiver, slugs as waiver_slugs, report as waiver_report  # the Waivers sub-tab
+from pool import live_pool, report as pool_report  # design/pool.py: the Pool page
 from slate import assign_windows, day_windows, kickoff   # design/slate.py: kickoff windows
 
 ROOT = pathlib.Path(__file__).resolve().parent
@@ -666,10 +667,10 @@ class Build:
         self.page, self.fragment, self.report, self.heads, self.missing = page, fragment, report, heads, missing
 
 
-def wanted_slugs(live, liveY, props, dfs, waiver):
+def wanted_slugs(live, liveY, props, dfs, waiver, pool):
     """Every slug the page can draw a headshot for, in first-seen order is not needed: render()
     dedupes. Split out of render() for its line budget."""
-    wanted = list(SLUGS) + waiver_slugs(waiver)
+    wanted = list(SLUGS) + waiver_slugs(waiver) + [p["slug"] for p in (pool or {}).get("players", []) if p["slug"]]
     for src in (live, liveY):
         if src:
             wanted += [p["slug"] for p in src["roster"] if p["slug"]]
@@ -682,21 +683,15 @@ def wanted_slugs(live, liveY, props, dfs, waiver):
 
 def add_market_stock(blocks, report):
     """Loads LIVE_MARKET_STOCK and LIVE_SIGNALS into `blocks` and appends their report lines, plus
-    LIVE_WAIVER's (already loaded, for its headshots) -- split out of
-    render() so that function stays inside its 110-line budget (tests/test_budgets.py's
-    PY_BACKLOG ratchet) without squeezing a dict entry or a tuple unpack onto one line."""
+    LIVE_WAIVER's and LIVE_POOL's (already loaded, for headshots) -- split out of render() for its
+    110-line budget (tests/test_budgets.py's PY_BACKLOG ratchet)."""
     stock = load_market_stock()
     blocks["LIVE_MARKET_STOCK"] = stock
     report.append(f"Market stock: {len(stock['players'])} players" if stock
                   else "Market stock: none, so no market row")
-    sig = blocks["LIVE_SIGNALS"] = live_signals(FEED, DWR, (blocks["LIVE_ESPN"], blocks["LIVE_YAHOO"]), slugify)
-    report.append(f"Signals: {sum(1 for s in sig['players'].values() if s['series'])} trended, "
-                  f"{sum(1 for s in sig['players'].values() if s['news'])} with news" if sig
-                  else "Signals: no roster, so no trend or news counts")
-    wv = blocks["LIVE_WAIVER"]
-    report.append("Waiver: " + ", ".join(f"{k} {len(v['wire'])} wire/{len(v['adds'])} adds"
-                                         for k, v in wv["leagues"].items()) + f", clears {wv['clears']}" if wv
-                  else "Waiver: no waiver_packet.json/feed block, the tab says so")
+    blocks["LIVE_SIGNALS"] = live_signals(FEED, DWR, (blocks["LIVE_ESPN"], blocks["LIVE_YAHOO"]), slugify)
+    report += [signals_report(blocks["LIVE_SIGNALS"]), waiver_report(blocks["LIVE_WAIVER"]),
+               pool_report(blocks["LIVE_POOL"])]
 
 
 def render():
@@ -714,8 +709,8 @@ def render():
 
     props = live_props(available, roster_index(("espn", live), ("yahoo", liveY)))
 
-    waiver = live_waiver(FEED, DWR, slugify)
-    wanted = wanted_slugs(live, liveY, props, liveDfsYahoo, waiver)
+    waiver, pool = live_waiver(FEED, DWR, slugify), live_pool(load_usage(FEED, DWR), slugify)
+    wanted = wanted_slugs(live, liveY, props, liveDfsYahoo, waiver, pool)
 
     heads = {}
     missing = []
@@ -737,6 +732,7 @@ def render():
         "LIVE_DFS_YAHOO": liveDfsYahoo,
         "LIVE_PROFILES": load_profiles(),
         "LIVE_WAIVER": waiver,
+        "LIVE_POOL": pool,
     }
     add_market_stock(blocks, report)
     for name, obj in blocks.items():

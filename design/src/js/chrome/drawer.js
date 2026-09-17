@@ -6,13 +6,30 @@ function findPlayer(teamKey, i){
   return ordered[i];
 }
 
+/* Where a pool player shows up for me: can I claim him, is it a trade window (only once his role
+   has a measured move), and watch's own reason for the verdict. */
+function poolWhereHTML(r, free, measured){
+  return `<div class="dr-sec">
+    <span class="lbl">${t("drawer.pool.where")}</span>
+    <div class="newsitem ${free.cls === "free" ? "up" : ""}"><div class="bar"></div><div>
+      <h4>${t("drawer.pool.waiver")}</h4><p>${free.long}</p></div></div>
+    ${measured ? `<div class="newsitem ${r.luck>0?"down":"up"}"><div class="bar"></div><div>
+      <h4>${t("drawer.pool.trade")}</h4><p>${r.luck>20?t("drawer.pool.tradeSell"):t("drawer.pool.tradeBuy")}</p></div></div>` : ""}
+    ${r.why ? `<div class="newsitem"><div class="bar"></div><div>
+      <h4>${t("drawer.pool.verdict")}</h4><p>${esc(r.why)}</p></div></div>` : ""}
+  </div>`;
+}
+
 function openPoolDrawer(i){
   const r = POOL[i];
   if (!r) return;
   const d = document.getElementById("drawer");
-  const bar = (label, val, max, neg) => `
-    <div class="why-row"><div class="t"><b>${label}</b> ${val>0?"+":""}${val}</div>
-      <div class="why-bar ${neg?"neg":""}"><i style="width:${Math.min(100,Math.abs(val)/max*100).toFixed(0)}%"></i></div></div>`;
+  // A move watch has not measured yet (week 1) reads as a dash with an empty bar, never a zero.
+  const bar = (label, val, max, neg, unit) => `
+    <div class="why-row"><div class="t"><b>${label}</b> ${val === null || val === undefined ? "—" : `${val>0?"+":""}${val}${unit || ""}`}</div>
+      <div class="why-bar ${neg?"neg":""}"><i style="width:${val === null || val === undefined ? 0 : Math.min(100,Math.abs(val)/max*100).toFixed(0)}%"></i></div></div>`;
+  const measured = poolPlottable(r);
+  const free = poolAvailability(r);
   d.innerHTML = `
     <div class="dr-head">
       <button class="dr-close" aria-label="${t("common.action.close")}">✕</button>
@@ -20,7 +37,7 @@ function openPoolDrawer(i){
         ${avatarHTML(r)}
         <div>
           <h3>${esc(r.n)}</h3>
-          <div class="lbl">${esc(r.pos)} · ${esc(r.team)} · ${t("drawer.pool.rostered", {n: r.own})}</div>
+          <div class="lbl">${esc(r.pos)} · ${esc(r.team)} · ${free.long}</div>
         </div>
       </div>
       <div style="margin-top:14px"><span class="vchip ${VCLASS[r.v]}" style="display:inline-block;padding:5px 10px">${esc(r.v.toUpperCase())}</span></div>
@@ -31,10 +48,12 @@ function openPoolDrawer(i){
         <div class="why">
           ${bar(t("drawer.pool.snapChange"), r.dSnap, 18, r.dSnap<0)}
           ${bar(t("drawer.pool.shareChange"), r.dShare, 14, r.dShare<0)}
-          ${bar(t("drawer.pool.luck"), r.luck, 10, r.luck<0)}
+          ${bar(t("drawer.pool.luck"), r.luck, 60, r.luck<0, "%")}
         </div>
         <p style="margin:16px 0 0;color:var(--ink-2);font-size:12.5px;line-height:1.6">
-          ${r.dShare > 0 && r.luck < 0
+          ${!measured
+            ? t("drawer.pool.readWait")
+            : r.dShare > 0 && r.luck < 0
             ? t("drawer.pool.readBuy")
             : r.dShare < 0 && r.luck > 0
             ? t("drawer.pool.readSell")
@@ -46,25 +65,13 @@ function openPoolDrawer(i){
       <div class="dr-sec">
         <span class="lbl">${t("drawer.pool.raw")}</span>
         <div class="why" style="margin-top:2px">
-          <div class="why-row"><div class="t"><b>${t("drawer.pool.snaps")}</b> ${r.snaps}</div><div class="why-bar"><i style="width:${r.snaps}%"></i></div></div>
-          <div class="why-row"><div class="t"><b>${t("drawer.pool.share")}</b> ${r.share}%</div><div class="why-bar"><i style="width:${(r.share*3).toFixed(0)}%"></i></div></div>
-          <div class="why-row"><div class="t"><b>${t("drawer.pool.redzone")}</b> ${r.rz}</div><div class="why-bar"><i style="width:${r.rz*18}%"></i></div></div>
-          <div class="why-row"><div class="t"><b>${t("drawer.pool.ppg")}</b> ${r.ppg}</div><div class="why-bar"><i style="width:${(r.ppg*5).toFixed(0)}%"></i></div></div>
+          <div class="why-row"><div class="t"><b>${t("drawer.pool.snaps")}</b> ${poolNum(r.snaps)}%</div><div class="why-bar"><i style="width:${r.snaps || 0}%"></i></div></div>
+          <div class="why-row"><div class="t"><b>${t("drawer.pool.share")}</b> ${poolNum(r.share)}%</div><div class="why-bar"><i style="width:${Math.min(100, (r.share || 0)*2).toFixed(0)}%"></i></div></div>
+          <div class="why-row"><div class="t"><b>${t("drawer.pool.redzone")}</b> ${poolNum(r.rz)}</div><div class="why-bar"><i style="width:${Math.min(100, (r.rz || 0)*18)}%"></i></div></div>
+          <div class="why-row"><div class="t"><b>${t("drawer.pool.ppg")}</b> ${r.ppg ?? "—"}</div><div class="why-bar"><i style="width:${Math.min(100, (r.ppg || 0)*3).toFixed(0)}%"></i></div></div>
         </div>
       </div>
-      <div class="dr-sec">
-        <span class="lbl">${t("drawer.pool.where")}</span>
-        <div class="newsitem ${r.dShare>0?"up":"down"}"><div class="bar"></div><div>
-          <h4>${t("drawer.pool.waiver")}</h4><p>${t("drawer.pool.waiverText", {n: r.own, what: r.own<35?t("drawer.pool.claimable"):t("drawer.pool.gone")})}</p></div></div>
-        <div class="newsitem ${r.luck>0?"down":"up"}"><div class="bar"></div><div>
-          <h4>${t("drawer.pool.trade")}</h4><p>${r.luck>2?t("drawer.pool.tradeSell"):t("drawer.pool.tradeBuy")}</p></div></div>
-        <div class="newsitem"><div class="bar"></div><div>
-          <h4>${t("drawer.pool.prop")}</h4><p>${t("drawer.pool.propText")} ${r.dShare>3?t("drawer.pool.propCheck"):t("drawer.pool.propSkip")}</p></div></div>
-      </div>
-    </div>
-    <div class="dr-foot">
-      <button class="btn ghost">${t("drawer.action.watchNews")}</button>
-      <button class="btn">${t("drawer.action.addBuilder")}</button>
+      ${poolWhereHTML(r, free, measured)}
     </div>`;
   showDrawer(d);
 }

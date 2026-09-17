@@ -3,7 +3,7 @@
    dShare is the change in snap/target share; dPts the change in points.
    The gap between them is the whole product.
 ------------------------------------------------------------------ */
-const POOL = [
+const SAMPLE_POOL = [
   {n:"Chase Brown",      slug:"chase-brown",      pos:"RB", team:"CIN", snaps:71, dSnap:+14.0, share:23.4, dShare:+9.2,  rz:5, ppg:14.2, luck:+0.4, own:41, v:"CONFIRMED"},
   {n:"Denzel Boston",    slug:"denzel-boston",    pos:"WR", team:"LV",  snaps:44, dSnap:+16.2, share:19.1, dShare:+11.1, rz:1, ppg:6.1,  luck:-2.9, own:6,  v:"BUY LOW"},
   {n:"Bhayshul Tuten",   slug:"bhayshul-tuten",   pos:"RB", team:"JAX", snaps:39, dSnap:+13.1, share:20.8, dShare:+12.4, rz:2, ppg:7.4,  luck:-3.8, own:18, v:"BUY LOW"},
@@ -21,6 +21,15 @@ const POOL = [
   {n:"Dontayvion Wicks", slug:"dontayvion-wicks", pos:"WR", team:"GB",  snaps:43, dSnap:-7.8,  share:10.4, dShare:-6.2,  rz:2, ppg:11.8, luck:+3.4, own:14, v:"SELL HIGH"},
   {n:"Jerry Jeudy",      slug:"jerry-jeudy",      pos:"WR", team:"CLE", snaps:49, dSnap:-11.6, share:12.2, dShare:-9.4,  rz:0, ppg:6.4,  luck:-5.2, own:44, v:"SELL NOW", mine:1},
 ];
+
+/* Live since 2026-09-17: design/pool.py cuts watch.json's league-wide pool to these same fields
+   (LIVE_POOL). The sample above is only the fallback when that is missing; its luck is in points and
+   its rostered % has no live equivalent, so it carries no league status. */
+const POOL = (typeof LIVE_POOL !== "undefined" && LIVE_POOL && LIVE_POOL.players.length)
+  ? LIVE_POOL.players
+  : SAMPLE_POOL.map(r => ({...r, opp: null, why: "", leagues: {espn: null, yahoo: null}}));
+/* Only rows with a share move and a luck read can sit on the chart: none in week 1. */
+const poolPlottable = r => r.dShare !== null && r.dShare !== undefined && r.luck !== null && r.luck !== undefined;
 
 const VCLASS = {"CONFIRMED":"v-conf","RISING":"v-conf","BUY LOW":"v-buy","SELL HIGH":"v-sell","SELL NOW":"v-sell","hold":"v-hold","NEW":"v-hold"};
 const VDOT   = {"CONFIRMED":"var(--up)","RISING":"var(--up)","BUY LOW":"var(--lime)","SELL HIGH":"var(--down)","SELL NOW":"var(--down)","hold":"var(--ink-3)","NEW":"var(--ink-3)"};

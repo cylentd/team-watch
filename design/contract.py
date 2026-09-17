@@ -76,6 +76,13 @@ CONTRACT = {
         "map": ("leagues", ["team", "type", "budget_left", "lineup_unknown", "wire", "adds", "stash", "drops"]),
         "map_rows": [("leagues", sub, WAIVER_ROW) for sub in ("wire", "adds", "stash", "drops")],
     },
+    # design/pool.py, from watch.json's league-wide pool. dSnap/dShare/luck are null until a
+    # player has two weeks; the page plots only rows that have them.
+    "LIVE_POOL": {
+        "keys": ["through_week", "generated", "trended", "players"],
+        "rows": ("players", ["n", "slug", "pos", "team", "snaps", "dSnap", "share", "dShare", "opp", "rz",
+                             "ppg", "luck", "v", "why", "leagues", "mine"]),
+    },
     "LIVE_SIGNALS": {
         "keys": ["through_week", "ready", "players"],
         "map": ("players", ["series", "verdict", "why", "news", "hot"]),

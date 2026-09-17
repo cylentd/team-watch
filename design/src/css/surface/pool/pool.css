@@ -52,6 +52,10 @@
 .prow.mine{box-shadow:inset 2px 0 0 var(--lime)}
 .pnum{font-family:var(--mono);font-size:12.5px;letter-spacing:-.02em}
 .pnum.pos{color:var(--up)} .pnum.neg{color:var(--down)}
+/* Where he can be had: free is the actionable state (up), mine is the roster color (lime). */
+.pfree{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.pfree.free{color:var(--up)}
+.pfree.mine{color:var(--lime)}
 .pname{min-width:0}
 .pname b{display:block;font-weight:500;font-size:13.5px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pname span{font-family:var(--mono);font-size:11px;color:var(--ink-3);letter-spacing:.06em}

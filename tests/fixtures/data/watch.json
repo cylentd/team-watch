@@ -15,6 +15,20 @@
  ],
  "pool": [
   {"name": "George Kittle", "pos": "TE", "team": "SF", "snap": 70.0, "d_snap": null, "tgt": 22.0, "car": 0.0,
-   "rz": 1, "ppg": 12.0, "luck": 0.0, "verdict": "NEW", "why": "no earlier weeks to compare", "series": [null, 70.0]}
+   "d_tgt": null, "d_car": null, "opp": 9,
+   "rz": 1, "ppg": 12.0, "luck": 0.0, "verdict": "NEW", "why": "no earlier weeks to compare", "series": [null, 70.0],
+   "rostered_by": ["ESPN:Purdy Big in Japan", "Yahoo:Team 4"]},
+  {"name": "Chase Brown", "pos": "RB", "team": "CIN", "snap": 71.0, "d_snap": 13.0, "tgt": 9.0, "car": 62.0,
+   "d_tgt": 1.0, "d_car": 15.2, "opp": 22,
+   "rz": 3, "ppg": 17.4, "luck": -0.18, "verdict": "RISING", "why": "snaps +13.0, share +15; buy or start",
+   "series": [58.0, 71.0], "rostered_by": ["ESPN:Purdy Big in Japan", "Yahoo:Chat Take the Wheel"]},
+  {"name": "Kalif Raymond", "pos": "WR", "team": "CHI", "snap": 60.0, "d_snap": 4.0, "tgt": 34.6, "car": 0.0,
+   "d_tgt": 9.1, "d_car": 0.0, "opp": 9,
+   "rz": 1, "ppg": 11.0, "luck": -0.31, "verdict": "BUY LOW", "why": "-31% under what the usage bought, volume intact",
+   "series": [56.0, 60.0], "rostered_by": []},
+  {"name": "Dontayvion Wicks", "pos": "WR", "team": "PHI", "snap": 78.0, "d_snap": -14.0, "tgt": 12.0, "car": 0.0,
+   "d_tgt": -6.5, "d_car": 0.0, "opp": 8,
+   "rz": 1, "ppg": 15.8, "luck": 0.62, "verdict": "SELL NOW", "why": "snaps -14.0 pts; the role is going before the points do",
+   "series": [92.0, 78.0], "rostered_by": ["ESPN:Team 3"]}
  ]
 }

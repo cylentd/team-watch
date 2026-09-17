@@ -104,6 +104,14 @@ def raw_news(feed_path, dwr_path):
         return []
 
 
+def report(sig):
+    """build.py's one-line summary of LIVE_SIGNALS."""
+    if not sig:
+        return "Signals: no roster, so no trend or news counts"
+    rows = sig["players"].values()
+    return f"Signals: {sum(1 for s in rows if s['series'])} trended, {sum(1 for s in rows if s['news'])} with news"
+
+
 def live_signals(feed_path, dwr_path, rosters, slugify):
     """LIVE_SIGNALS: {through_week, ready, players: {slug: {series, verdict, why, news, hot}}}
     for every player on `rosters` (the LIVE_ESPN / LIVE_YAHOO blocks, either may be None)."""

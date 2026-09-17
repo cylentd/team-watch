@@ -49,7 +49,7 @@ function scatterHTML(rows){
     return `<g class="dotg" data-i="${POOL.indexOf(r)}">
       <circle class="dot" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${rad.toFixed(1)}"
         fill="${VDOT[r.v]}" fill-opacity=".8" stroke="${r.mine?"var(--lime)":"none"}" stroke-width="${r.mine?2:0}">
-        <title>${t("pool.scatter.dotTip", {name: esc(r.n), usage: `${r.dShare>0?"+":""}${r.dShare}`, luck: `${r.luck>0?"+":""}${r.luck}`})}</title>
+        <title>${t("pool.scatter.dotTip", {name: esc(r.n), usage: `${r.dShare>0?"+":""}${r.dShare}`, luck: `${r.luck>0?"+":""}${r.luck}%`})}</title>
       </circle>
       ${mobile ? "" : `<text class="dotlab" x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${anchor}">${esc(r.n.split(" ").slice(-1)[0])}</text>`}
     </g>`;
