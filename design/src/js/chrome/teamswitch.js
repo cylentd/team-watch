@@ -29,8 +29,12 @@ function wireTeamSwitch(v){
     btn.setAttribute("aria-expanded", String(open));
   });
   sw.querySelectorAll(".ts-item").forEach(b=>b.addEventListener("click", ()=>{
+    // No scroll: the switch sits in the hero, and a smooth scroll on top of a re-render was
+    // half of the jump. The title keeps one line (fitTitle), so the height holds too.
+    const changed = VIEW !== b.dataset.k;
     VIEW = b.dataset.k;
-    render(); window.scrollTo({top:0, behavior:"smooth"});
+    render();
+    if (changed) zipFootball();
   }));
 }
 

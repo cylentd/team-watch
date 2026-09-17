@@ -19,15 +19,26 @@ function marketHead(kind){
   </div>`;
 }
 
-/* A short, collapsed-by-default "how this works" card at the top of Parlay and DFS. Open
-   state survives a re-render (e.g. paging the pool) but never triggers one on its own --
-   <details> animates itself, so the toggle listener only records what happened. */
-let EXPLAIN = {parlay:false, dfs:false};
-function explainHTML(kind){
+/* "How this works" for Parlay and DFS: a small button beside the book/site toggle that opens the
+   steps in the drawer. It used to be a collapsed card above the gallery, which still cost a full
+   row of height before the slips and lineups -- the part of the page worth seeing first. */
+const INFO_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16.5"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg>`;
+function explainButtonHTML(kind){
+  return `<button type="button" class="explain-btn" data-explain="${kind}" aria-label="${t("builder.explain.title")}">${INFO_ICON}<span>${t("builder.explain.title")}</span></button>`;
+}
+function openExplain(kind){
+  const d = document.getElementById("drawer");
+  d.innerHTML = `
+    <div class="dr-head">
+      <button type="button" class="dr-close" aria-label="${t("common.action.close")}">✕</button>
+      <div class="dr-id"><div><h3 id="ex-title">${t("builder.explain.title")}</h3></div></div>
+    </div>
+    <div class="dr-body"><div class="ex-body">${explainBody(kind)}</div></div>`;
+  showDrawer(d, "ex-title");
+}
+function explainBody(kind){
   const parlay = kind === "parlay";
-  return `<details class="explain" data-explain="${kind}" ${EXPLAIN[kind]?"open":""}>
-    <summary><span class="lbl">${t("builder.explain.title")}</span><span class="ex-chev">▾</span></summary>
-    <div class="ex-body">
+  return `
       ${parlay ? `<ol>
         <li>${t("parlay.explain.step1")}</li>
         <li>${t("parlay.explain.step2")}</li>
@@ -39,8 +50,6 @@ function explainHTML(kind){
         <li>${t("dfs.explain.step2")}</li>
         <li>${t("dfs.explain.step3")}</li>
       </ol>
-      <p class="ex-note">${t("dfs.explain.note")}</p>`}
-    </div>
-  </details>`;
+      <p class="ex-note">${t("dfs.explain.note")}</p>`}`;
 }
 

@@ -1,16 +1,8 @@
-/* The My Teams ticker: real breaking/injury news now, same NEWS_ITEMS the News tab reads, so a
-   story that's actually breaking shows up here too instead of the old fixed six-line sample
-   loop. Filtered to what's actually urgent (severity), not every routine practice-report line --
-   a ticker that scrolls past in a few seconds is the wrong place for "logged a full practice."
-   Falls back to the plain feed on a quiet day with nothing severe, so it's never empty. Just the
-   headline: the timestamp/team detail lives one click away on the News tab, and repeating it
-   here for a dozen scrolling items was noise a glance doesn't need. */
+/* The My Teams ticker: out and injury stories first, since a ticker that scrolls past in a few
+   seconds is the wrong place for "logged a full practice". Falls back to the plain feed on a quiet
+   day so it is never empty. Just the headline; the detail is one tap away on the News tab. */
 function tickerHTML(){
-  const severe = NEWS_ITEMS.filter(it => newsSeverity(it));
-  // Every item left after that filter is already Breaking or Injury, so coloring the dot by
-  // severity here (red/amber, the News tab's language) would just paint the whole row the same
-  // color and say nothing -- a plain lime dot marks "live," which is the thing this row of
-  // filtered-down items has left to say that the headline itself doesn't already.
+  const severe = NEWS_ITEMS.filter(it => newsKind(it) === "out" || newsKind(it) === "injury");
   const run = (severe.length ? severe : NEWS_ITEMS).slice(0, 12).map(it =>
     `<a class="tick" href="${esc(it.link || `https://www.google.com/search?tbm=nws&q=${encodeURIComponent(it.title)}`)}" target="_blank" rel="noopener noreferrer">
       <span class="arrow">●</span>${esc(it.title)}</a>`
@@ -21,31 +13,42 @@ function tickerHTML(){
   </div></div>`;
 }
 
-function newsRowHTML(it, featured){
+/* A story's kind leads its row as an icon and a word, in that kind's color, so severity reads
+   before the headline does -- and a colorblind reader still gets the icon and the word. */
+function newsKindTag(kind){
+  const k = NEWS_KIND[kind];
+  return `<span class="nkind ${kind}">${k.icon}${k.label()}</span>`;
+}
+
+function newsRowHTML(it, featured, i){
   const href = it.link || `https://www.google.com/search?tbm=nws&q=${encodeURIComponent(it.title)}`;
-  const sev = newsSeverity(it);
-  return `<a class="newsrow ${sev} ${featured ? "featured" : ""}" href="${esc(href)}" target="_blank" rel="noopener noreferrer">
+  const kind = newsKind(it);
+  return `<a class="newsrow ${kind} ${featured ? "featured" : ""}" style="animation-delay:${Math.min(i || 0, 14) * 30}ms" href="${esc(href)}" target="_blank" rel="noopener noreferrer">
     <div class="newstop">
       ${featured ? `<span class="livedot"></span>` : ""}
+      ${newsKindTag(kind)}
       ${it.when ? `<span class="when">${esc(it.when)}</span>` : ""}
       ${it.team ? `<span class="nteam">${esc(it.team)}</span>` : ""}
-      ${(it.categories || []).map(c => `<span class="ncat ${CAT_CLASS[c] || ""}">${esc(c)}</span>`).join("")}
     </div>
     <div class="ntitle">${esc(it.title)}</div>
     ${it.desc && it.desc !== it.title ? `<div class="ndesc">${esc(it.desc)}</div>` : ""}
     ${it.impact ? `<div class="nimpact">${esc(it.impact)}</div>` : ""}
   </a>`;
 }
+
 function newsHTML(){
   const items = NEWS_ITEMS;
-  // The freshest Breaking story leads on its own, above the filter -- the one thing "most
-  // recent, or breaking" actually means when a page can only lead with one story. Everything
-  // else, filtered or not, is chronological below it.
-  const lead = items.find(it => newsSeverity(it) === "breaking");
+  // The freshest out story leads on its own above the filter: the one thing that changes a
+  // lineup today. Everything else, filtered or not, is chronological below it.
+  const lead = items.find(it => newsKind(it) === "out");
   const rest = lead ? items.filter(it => it !== lead) : items;
   const counts = {};
-  rest.forEach(it => (it.categories || []).forEach(c => counts[c] = (counts[c]||0) + 1));
-  const shown = NEWS_CAT === "All" ? rest : rest.filter(it => (it.categories||[]).includes(NEWS_CAT));
+  rest.forEach(it => counts[newsKind(it)] = (counts[newsKind(it)] || 0) + 1);
+  const shown = NEWS_CAT === "all" ? rest : rest.filter(it => newsKind(it) === NEWS_CAT);
+  const chips = [`<button class="chip" data-newscat="all" aria-pressed="${NEWS_CAT==="all"}">${t("news.kind.all")} (${rest.length})</button>`]
+    .concat(NEWS_KINDS.filter(k => counts[k.k]).map(k =>
+      `<button class="chip nchip ${k.k}" data-newscat="${k.k}" aria-pressed="${NEWS_CAT===k.k}">${k.icon}${k.label()} (${counts[k.k]})</button>`));
+  const label = NEWS_KIND[NEWS_CAT] ? NEWS_KIND[NEWS_CAT].label() : t("news.kind.all");
   return `<section class="hero">
     <div class="numghost">${items.length}</div>
     <div class="wrap hero-in">
@@ -58,14 +61,13 @@ function newsHTML(){
     </div>
   </section>
   <div class="wrap">
-    ${lead ? `<div class="newslead">${newsRowHTML(lead, true)}</div>` : ""}
+    ${lead ? `<div class="newslead">${newsRowHTML(lead, true, 0)}</div>` : ""}
     <div class="filters" style="margin-top:${lead?"18":"0"}px">
       <span class="lbl">${t("news.filter.label")}</span>
-      ${NEWS_FILTERS.map(f => `<button class="chip" data-newscat="${f}" aria-pressed="${NEWS_CAT===f}">${f}${f!=="All" && counts[f] ? ` (${counts[f]})` : ""}</button>`).join("")}
+      ${chips.join("")}
     </div>
     ${shown.length
-      ? `<div class="newslist" style="margin-top:14px">${shown.map(it => newsRowHTML(it, false)).join("")}</div>`
-      : `<div class="state-empty" style="margin:14px 0;min-height:110px"><div><b>0</b><span>${t("news.empty.noStories", {cat: esc(NEWS_CAT.toUpperCase())})}</span></div></div>`}
+      ? `<div class="newslist" style="margin-top:14px">${shown.map((it, i) => newsRowHTML(it, false, i)).join("")}</div>`
+      : `<div class="state-empty" style="margin:14px 0;min-height:110px"><div><b>0</b><span>${t("news.empty.noStories", {cat: esc(label.toUpperCase())})}</span></div></div>`}
   </div>`;
 }
-

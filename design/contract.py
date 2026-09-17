@@ -27,7 +27,7 @@ CONTRACT = {
     },
     "LIVE_NEWS": {
         "keys": ["items"],
-        "rows": ("items", ["id", "title", "desc", "impact", "team", "categories", "link", "when"]),
+        "rows": ("items", ["id", "title", "desc", "impact", "team", "categories", "link", "when", "kind"]),
     },
     "LIVE_PROPS": {
         "keys": ["fetched", "events", "books", "players", "windows", "days", "model", "props", "wrcb", "logs"],

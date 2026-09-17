@@ -1,3 +1,17 @@
+/* Corner names plus a faint wash on the two corners that carry a decision: top-right (role up,
+   points still owed) is the buy, bottom-left (role down, points ran ahead) the sell. Drawn first,
+   so the grid lines and dots sit on top. */
+function quadrantsHTML(W, H, PX, PY, cx, cy){
+  const names = [
+    [W-PX-8, PY+16,  "end",   t("pool.quad.buyLow"), "good"],
+    [PX+8,   PY+16,  "start", t("pool.quad.fading"), ""],
+    [W-PX-8, H-PY-10,"end",   t("pool.quad.confirmed"), ""],
+    [PX+8,   H-PY-10,"start", t("pool.quad.sellHigh"), "bad"],
+  ].map(([x,y,a,label,tone]) => `<text class="qname ${tone}" x="${x}" y="${y}" text-anchor="${a}">${label}</text>`).join("");
+  return `<rect class="qwash good" x="${cx}" y="${PY}" width="${W-PX-cx}" height="${cy-PY}"/>
+    <rect class="qwash bad" x="${PX}" y="${cy}" width="${cx-PX}" height="${H-PY-cy}"/>${names}`;
+}
+
 function scatterHTML(rows){
   // A taller, narrower geometry on mobile -- close to 1:1 with the actual container width --
   // means the SVG's own viewBox units render near their real size instead of scaled down to
@@ -9,16 +23,14 @@ function scatterHTML(rows){
   const xs = rows.map(r=>r.dShare), ys = rows.map(r=>r.luck);
   const xm = Math.max(14, ...xs.map(Math.abs)) * 1.15;
   const ym = Math.max(8,  ...ys.map(Math.abs)) * 1.2;
+  // Up is points still owed (luck below zero), so the chart reads the usual way: top-right is
+  // the best buy (role growing, points not caught up), bottom-left the clearest sell (role
+  // shrinking, points ran ahead of it). Plotting luck itself put the sells on top and read as
+  // an upside-down V.
   const X = v => PX + ((v + xm) / (2*xm)) * (W - PX*2);
-  const Y = v => H - PY - ((v + ym) / (2*ym)) * (H - PY*2);
+  const Y = v => H - PY - ((-v + ym) / (2*ym)) * (H - PY*2);
   const cx = X(0), cy = Y(0);
-
-  const quads = [
-    [W-PX-8, PY+16,  "end",   t("pool.quad.confirmed")],
-    [PX+8,   PY+16,  "start", t("pool.quad.sellHigh")],
-    [W-PX-8, H-PY-10,"end",   t("pool.quad.buyLow")],
-    [PX+8,   H-PY-10,"start", t("pool.quad.fading")],
-  ].map(([x,y,a,t]) => `<text class="qname" x="${x}" y="${y}" text-anchor="${a}">${t}</text>`).join("");
+  const quads = quadrantsHTML(W, H, PX, PY, cx, cy);
 
   // Labels sit to the right of their dot; when that would collide with one already
   // placed, the label flips above instead. Cheap, and it keeps every name readable.
@@ -58,8 +70,8 @@ function scatterHTML(rows){
         ${quads}
         <text class="qtick" x="${W-PX}" y="${cy+16}" text-anchor="end">${t("pool.axis.usagePos")}</text>
         <text class="qtick" x="${PX}" y="${cy+16}">${t("pool.axis.usageNeg")}</text>
-        <text class="qtick" x="${cx+8}" y="${PY+12}">${t("pool.axis.luckPos")}</text>
-        <text class="qtick" x="${cx+8}" y="${H-PY-6}">${t("pool.axis.luckNeg")}</text>
+        <text class="qtick" x="${cx+8}" y="${PY+12}">${t("pool.axis.owedPos")}</text>
+        <text class="qtick" x="${cx+8}" y="${H-PY-6}">${t("pool.axis.owedNeg")}</text>
         ${dots}
       </svg>
     </div>

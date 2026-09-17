@@ -12,6 +12,7 @@ function parlayHTML(){
           <span class="lbl" style="margin-right:8px">${t("parlay.book.label")}</span>
           <button class="mode-sub" data-parlaybook="dk" aria-pressed="${PARLAY_BOOK==="dk"}">${t("parlay.book.dk")}</button>
           <button class="mode-sub" data-parlaybook="underdog" aria-pressed="${PARLAY_BOOK==="underdog"}">${t("parlay.book.underdog")}</button>
+          ${explainButtonHTML("parlay")}
         </div>
       </div>
       ${PARLAY_BOOK === "underdog" ? "" : `<div><div class="signals">
@@ -22,7 +23,6 @@ function parlayHTML(){
     </div>
   </section>
   <div class="wrap">
-    ${explainHTML("parlay")}
     ${galleryHTML()}
     <div class="build" style="margin-top:24px">
       <div class="side">${slipHTML()}</div>

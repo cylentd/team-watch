@@ -44,7 +44,8 @@ STATES = [
                         ("click", "[data-preset='mine']")]),
     ("dfs-yahoo", [("click", ".navitem[data-s='dfs']")]),
     ("dfs-dk", [("click", ".navitem[data-s='dfs']"), ("click", "[data-dfssite='dk']")]),
-    ("dfs-explain", [("click", ".navitem[data-s='dfs']"), ("click", "[data-explain]")]),
+    ("dfs-explain", [("click", ".navitem[data-s='dfs']"), ("click", "[data-explain]")]),   # the drawer
+    ("news-injury", [("click", ".navitem[data-s='news']"), ("click", "[data-newscat='injury']")]),
     ("news", [("click", ".navitem[data-s='news']")]),
 ]
 

@@ -39,7 +39,7 @@ function waiverRowHTML(r, i){
     ? `<b>${wvSigned(r.gain)}</b><small>${t("waiver.worth.gain")}</small>`
     : `<b>${wvPts(r.role_pts)}</b><small>${t("waiver.worth.price", {price: wvPts(r.pts), edge: wvSigned(r.edge)})}</small>`;
   const [lane, laneTip] = (WV_LANE[r.lane] || WV_LANE.usage)();
-  return `<div class="wvrow" data-wire="${i}" role="button" tabindex="0">
+  return `<div class="wvrow" style="animation-delay:${60 + i * 55}ms" data-wire="${i}" role="button" tabindex="0">
     <div class="wv-rank">${i + 1}</div>
     <div class="head">${headHTML(r)}</div>
     <div class="nm">
@@ -53,7 +53,8 @@ function waiverRowHTML(r, i){
 }
 
 function waiverMovesHTML(lg){
-  const line = (kind, r, detail) => `<div class="wvmove ${kind}">
+  let k = 0;
+  const line = (kind, r, detail) => `<div class="wvmove ${kind}" style="animation-delay:${60 + (k++) * 55}ms">
     <span class="tag">${WV_MOVE[kind]()}</span><b>${esc(r.n)}</b>
     <span class="wv-meta">${esc(r.pos)} · ${esc(r.team)}</span><span class="wv-detail">${detail}</span></div>`;
   const rows = [

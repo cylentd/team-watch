@@ -17,6 +17,9 @@
   }
   .match{display:none}
   .mu-meta{display:inline-flex}
+  /* "How this works" keeps its icon beside the book toggle; the word would wrap the row. */
+  .explain-btn span{display:none}
+  .explain-btn svg{width:18px;height:18px}
 }
 .slotm{display:none}
 .pill .abbr{display:none}

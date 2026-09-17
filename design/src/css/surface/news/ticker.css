@@ -25,8 +25,20 @@
 .newsrow{display:block;position:relative;padding:15px 16px 15px 20px;border-bottom:1px solid var(--line);
   text-decoration:none;color:inherit;transition:background .15s var(--ease)}
 .newsrow::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:transparent}
-.newsrow.breaking::before{background:var(--down)}
+.newsrow.out::before{background:var(--down)}
 .newsrow.injury::before{background:var(--amber)}
+.newslist .newsrow{opacity:0;animation:news-in .38s var(--ease) forwards}
+@keyframes news-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* Kind tag and filter chips: icon + word, colored by severity only (red out, amber caution). */
+.nkind{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.nkind svg,.nchip svg{width:13px;height:13px;flex-shrink:0}
+.nkind.out{color:var(--down)}
+.nkind.injury{color:var(--amber)}
+.nchip{display:inline-flex;align-items:center;gap:6px}
+.nchip.out{color:var(--down)}
+.nchip.injury{color:var(--amber)}
 .newsrow:last-child{border-bottom:0}
 .newsrow:hover{background:var(--panel-2)}
 .newsrow:hover .ntitle{text-decoration:underline;text-decoration-color:var(--line-2)}
@@ -34,10 +46,6 @@
 .newstop .when{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--ink-3);text-transform:uppercase}
 .nteam{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--ink-2);
   border:1px solid var(--line-2);padding:1px 6px;border-radius:2px}
-.ncat{font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.1em;padding:2px 6px;
-  border-radius:2px;text-transform:uppercase;border:1px solid var(--line-2);color:var(--ink-3)}
-.ncat.breaking{color:var(--down);background:rgb(var(--down-rgb) / .1);border-color:rgb(var(--down-rgb) / .3)}
-.ncat.injury{color:var(--amber);background:rgb(var(--amber-rgb) / .1);border-color:rgb(var(--amber-rgb) / .3)}
 .ntitle{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.4}
 .ndesc{margin-top:4px;font-size:13px;color:var(--ink-2);line-height:1.5}
 .nimpact{margin-top:9px;padding-left:11px;border-left:2px solid var(--lime);font-size:12.5px;color:var(--ink-2);line-height:1.55}

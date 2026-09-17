@@ -115,9 +115,7 @@ function wireBuilder(v){
     render();
     v.querySelector(".build .side .slip")?.scrollIntoView({behavior:"smooth", block:"start"});
   }));
-  v.querySelectorAll("[data-explain]").forEach(el=>el.addEventListener("toggle",()=>{
-    EXPLAIN[el.dataset.explain] = el.open;
-  }));
+  v.querySelectorAll("[data-explain]").forEach(el=>el.addEventListener("click",()=>openExplain(el.dataset.explain)));
   v.querySelectorAll("[data-removeleg]").forEach(b=>b.addEventListener("click",()=>{
     const i = +b.dataset.removeleg;
     SLIP = SLIP.filter(x=>x!==i);

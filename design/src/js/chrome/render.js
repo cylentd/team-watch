@@ -69,8 +69,10 @@ function render(){
   v.innerHTML = TEAMS_TAB === "waivers"
     ? heroHTML(team) + `<div class="wrap">${waiverHTML(team)}</div>`
     : heroHTML(team) + tickerHTML() + `<div class="wrap">${boardHTML(team)}</div>`;
+  fitTitle(v);
   v.querySelector(".leaguechip")?.addEventListener("click", ()=>openLeagueInfo(team.key));
   v.querySelectorAll("[data-teamstab]").forEach(b=>b.addEventListener("click",()=>{
+    if (TEAMS_TAB !== b.dataset.teamstab) morphLogo();
     TEAMS_TAB = b.dataset.teamstab; render();
   }));
   wireTeamSwitch(v);

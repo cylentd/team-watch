@@ -9,7 +9,7 @@ function heroHTML(team){
           <span class="lbl">${team.plat} · ${team.record}</span>
           ${teamSwitchHTML()}
         </div>
-        <h1>${esc(team.name)}</h1>
+        <h1 class="fit">${esc(team.name)}</h1>
         <button class="leaguechip">${esc(team.meta[team.meta.length-1])} <span class="lc-info">ⓘ</span></button>
         <div class="modes-sub teamstabs" role="group" aria-label="${t("teams.tab.label")}">
           <button class="mode-sub" data-teamstab="roster" aria-pressed="${TEAMS_TAB==="roster"}">${t("teams.tab.roster")}</button>

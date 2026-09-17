@@ -61,14 +61,19 @@ section header, not hidden behind empty cards.
 ## The pool
 
 Ranked on usage, never points. The anchor is a quadrant scatter: **x = change in snap/target
-share, y = touchdown luck.** The four corners are the whole product.
+share, y = points still owed (luck, sign flipped).** The four corners are the whole product.
+Since 2026-09-16 it reads the usual way, best top-right to worst bottom-left; plotting luck itself
+put the sells on top and the cloud read as an upside-down V.
 
 | Quadrant | Meaning | Action |
 |---|---|---|
-| upper right | role and box score agree | confirmed, hold |
-| upper left | points without the role | sell high |
-| lower right | role without the points | **buy low** |
-| lower left | both gone | fade |
+| upper right (green wash) | role growing, points not caught up | **buy low** |
+| lower right | role and box score agree | confirmed, hold |
+| upper left | role shrinking, points were unlucky anyway | fade |
+| lower left (red wash) | points ran ahead of a shrinking role | sell high |
+
+**The Pool is still sample data** (`data/pool.js`, 16 hand-typed rows); ff-jarvis's `watch.json`
+pool (107 rows) is the live source it has not been wired to.
 
 Dot size is snaps. A lime ring means he is on one of my rosters. Table below repeats it as rows
 so the numbers are readable, paginated 10 at a time (2026-09-09) once real usage data makes the
@@ -118,6 +123,25 @@ The topbar's live/sample badge (2026-09-09) reflects what's actually loaded per 
 single static "Sample data" string: green "Props live" / "Pool live" when Parlay's BettingPros
 props or DFS's Yahoo salary export are in, the amber sample warning otherwise. My Teams goes
 green when `LIVE_SIGNALS` is in (2026-09-16); the Waivers sub-tab is live from the same day.
+
+## Motion (2026-09-16)
+
+Motion marks a change of context, never moves what is being read. All of it lives in
+`css/chrome/motion.css` and `js/chrome/motion.js`, and all of it is off under reduced motion.
+
+| Moment | Motion |
+|---|---|
+| Team switch | a football crosses the hero; the team name is one line, fitted, so the hero height holds |
+| Tab or sub-tab switch | the `//` in TEAM//WATCH crosses into an X and back |
+| Waivers, news list | rows arrive one at a time |
+
+## News severity (2026-09-16)
+
+FantasyPros tags almost no story, so `design/news.py` reads each headline into a `kind`: **out**
+(red), **injury** (amber: questionable, a missed practice, a named hamstring/concussion-class
+injury), **practice** (routine: limited, full, rest day, cleared), **move**, **other**. The kind leads
+every row as an icon and a word, and the filters are the kinds. "How this works" on Parlay and DFS
+is a small button in the hero that opens the drawer.
 
 ## Direction
 

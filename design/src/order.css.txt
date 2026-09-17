@@ -12,6 +12,7 @@ base/base.css
 chrome/topbar.css
 chrome/teamswitch.css
 chrome/hero.css
+chrome/motion.css
 surface/news/ticker.css
 component/rule.css
 surface/teams/roster.css

@@ -6,6 +6,10 @@
 .quad .axis-line{stroke:var(--line-2);stroke-width:1}
 .quad .qgrid{stroke:var(--line);stroke-width:1;stroke-dasharray:2 5}
 .quad .qname{font-family:var(--mono);font-size:11px;letter-spacing:.18em;fill:var(--ink-3)}
+.quad .qname.good{fill:var(--up)}
+.quad .qname.bad{fill:var(--down)}
+.quad .qwash.good{fill:rgb(var(--up-rgb) / .045)}
+.quad .qwash.bad{fill:rgb(var(--down-rgb) / .045)}
 .quad .qtick{font-family:var(--mono);font-size:11px;fill:var(--ink-3)}
 .quad .dot{cursor:pointer;transition:r .18s var(--ease)}
 .quad .dot:hover{r:9}

@@ -22,6 +22,7 @@ function buildNav(){
     `<button class="navitem" data-s="${k}" aria-current="${SURFACE===k}">
       <span class="ix">${NAV_ICON[k]}</span><span class="full">${label}</span><span class="abbr">${short}</span></button>`).join("");
   n.querySelectorAll(".navitem").forEach(b=>b.addEventListener("click",()=>{
+    if (SURFACE !== b.dataset.s) morphLogo();
     SURFACE = b.dataset.s;
     n.querySelectorAll(".navitem").forEach(x=>x.setAttribute("aria-current", x.dataset.s===SURFACE));
     render(); window.scrollTo({top:0,behavior:"smooth"});

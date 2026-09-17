@@ -45,6 +45,7 @@ surface/dfs/dfs.js
 chrome/state.js
 chrome/teamswitch.js
 chrome/hero.js
+chrome/motion.js
 ui/scrollers.js
 builder/wire.js
 chrome/render.js

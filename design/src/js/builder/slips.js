@@ -117,8 +117,8 @@ let SLIP = [];
 let PARLAY_BOOK = "underdog";
 
 /* One card per window x scope with at least two legs, deduped (mix often reproduces yards or
-   tds exactly). Days come first, so a Sunday's whole-day card leads and a window card that
-   repeats its legs is the one dropped. No whole-slate card -- that would reintroduce the
+   tds exactly). Days are built first, so a window card that repeats a whole-day card's legs is
+   the one dropped; display order is by kickoff (below). No whole-slate card -- that would reintroduce the
    cross-date bug this fixes.
    Computed once per book: PROPS never mutates, and toggling the cart must not re-roll the
    gallery. Both books' galleries are built up front so switching PARLAY_BOOK is instant. */
@@ -133,10 +133,16 @@ function buildGallery(book){
     const sig = legs.slice().sort((a,b)=>a-b).join(",");
     if (seen.has(sig)) continue;
     seen.add(sig);
-    out.push({i: out.length, book, scope: s, scopeLabel: label, win: w, legs, low,
+    out.push({book, scope: s, scopeLabel: label, win: w, legs, low,
                metric: legs.reduce((a,i)=>a+metric(PROPS[i]), 0) / legs.length});
   }
-  return out;
+  // The next game first (David, 2026-09-16: "the upcoming game slip should be first"): by the
+  // earliest kickoff among a card's legs, a single-window card ahead of the whole day it sits in,
+  // then build order. `i` is assigned after, because data-loadslip indexes this sorted array.
+  const kick = c => Math.min(...c.legs.map(i => PROPS[i].commence ? Date.parse(PROPS[i].commence.replace(" ", "T") + "Z") : Infinity));
+  return out.map((c, n) => ({c, n, k: kick(c)}))
+    .sort((a, b) => a.k - b.k || (a.c.win.wins ? 1 : 0) - (b.c.win.wins ? 1 : 0) || a.n - b.n)
+    .map(({c}, i) => ({...c, i}));
 }
 const GALLERIES = {dk: buildGallery("dk"), underdog: buildGallery("underdog")};
 /* A below-the-bar card is never the star. */

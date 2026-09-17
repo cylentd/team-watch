@@ -12,12 +12,12 @@ function dfsSurfaceHTML(){
           <span class="lbl" style="margin-right:8px">${t("dfs.book.label")}</span>
           <button class="mode-sub" data-dfssite="yahoo" aria-pressed="${DFS_SITE==="yahoo"}">${t("dfs.book.yahoo")}</button>
           <button class="mode-sub" data-dfssite="dk" aria-pressed="${DFS_SITE==="dk"}">${t("dfs.book.dk")}</button>
+          ${explainButtonHTML("dfs")}
         </div>
       </div>
     </div>
   </section>
   <div class="wrap">
-    ${explainHTML("dfs")}
     ${topLineupsHTML()}
     <div class="build" style="margin-top:24px">
       <div class="side">${dfsHTML()}</div>
