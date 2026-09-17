@@ -319,7 +319,7 @@
  "pool.quad.confirmed": "CONFIRMED",
  "pool.quad.fading": "FADING",
  "pool.quad.sellHigh": "SELL HIGH",
- "pool.scatter.count": "{n} players · 8+ opportunities",
+ "pool.scatter.count": "{n} players",
  "pool.scatter.dotTip": "{name} — usage {usage}, luck {luck}",
  "pool.scatter.heading": "Usage against luck",
  "pool.scatter.sub": "Right: the role is growing. Up: the points haven't caught up to it yet. Top-right is the buy, bottom-left the sell.",

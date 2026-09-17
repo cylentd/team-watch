@@ -73,7 +73,8 @@ put the sells on top and the cloud read as an upside-down V.
 | lower left (red wash) | points ran ahead of a shrinking role | sell high |
 
 **Live since 2026-09-17** (`LIVE_POOL`, `design/pool.py`): watch.json's league-wide pool, every
-player with 8+ opportunities. The share a row shows is the one watch's verdict reads (carries for a
+back and quarterback with 8+ opportunities and every receiver with 4+ (171 players in week 1; one
+floor of 8 kept only 22 WRs and 5 TEs). The share a row shows is the one watch's verdict reads (carries for a
 back, targets for a receiver or tight end, snaps for a quarterback), ranked by that share with
 quarterbacks last. "Free in" comes from watch's `rostered_by`: Mine, Both, ESPN, Yahoo, or a dash.
 Share moves need two weeks, so through week 1 the chart says when it fills in rather than plotting
