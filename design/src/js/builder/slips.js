@@ -35,17 +35,17 @@ const scopeOK = (p, s) => s === "tds" ? p.mkt === "TD" : s === "mix" ? true : p.
    anytime-TD line, so udPick() derives one from the model's raw P(score), tagged MODEL. */
 const UD_MIN = 58;
 /* The Underdog gallery ranks for the chance a slip hits, and only uses the two kinds of leg that
-   held up against 2025's closing lines in both halves of the season (ff-jarvis METHODOLOGY 12.31,
-   12.34): receptions where the model says 60%+ at a 2.5+ line (hit 56.7% / 58.9%), and anytime
-   TDs where its P(score) is 50%+ (scored 61% / 54%; mostly lead backs on good offences). Yardage
-   calls faded in the held-out weeks (receiving 58.0% -> 53.0%), so they are not slip material. */
-const HIT_RECS = 60, HIT_TD = 50;
-/* Early season the receptions rate is last season's, and it did not hold: weeks 1-2 hit 48.1%,
-   weeks 3-4 53.7%, weeks 5+ 55-56%. So receptions legs join the gallery from week 5. The week is
-   RotoBaller's (it flips on Tuesday); no week on the page reads as early season. */
-const RECS_FROM_WEEK = 5;
-const NFL_WEEK = (LIVE_MARKET && LIVE_MARKET.wrcb && Number(LIVE_MARKET.wrcb.week)) || 0;
-const RECS_ON = NFL_WEEK >= RECS_FROM_WEEK;
+   held up against 2025's closing lines (ff-jarvis METHODOLOGY 12.31, 12.34, 12.50): anytime TDs
+   where the model's P(score) is 50%+ (honest in every week bucket: stated ~54, scored 48-71), and
+   receptions at a 2.5+ Underdog line -- but only the LOWER side, at 65%+.
+
+   The side is the split that matters, not the calendar (12.50, graded 2026-09-19 on all 18 weeks
+   of 2025 under this exact filter): lower picks hit 56.3% (n 567), higher picks 42.3% (n 71), and
+   lower at 65%+ hits 57.3% (n 281, CI 51-63) against a 57.7% break-even on a 2-leg 3x board and
+   55.0% on a 3-leg 6x. The old rule gated on week 5 instead, which let the losing side through
+   from week 5 on and blocked the winning side before it. In-sample: the split was found in the
+   same 2025 data, and no other season's closing lines are on disk to check it against. */
+const HIT_RECS = 65, HIT_TD = 50;
 const legOKInBook = (p, s, book) => {
   if (!upcoming(p)) return false;
   if (book !== "underdog")
@@ -55,9 +55,10 @@ const legOKInBook = (p, s, book) => {
                          : (p.model >= 35 && p.model <= 85 && overPrice(p) >= -300 && overPrice(p) <= 200));
   const u = udPick(p);
   // A receptions pick has to be at Underdog's own line (!synthetic), at 2.5+ (a 1.5-catch line is
-  // priced as a heavy favourite), and at the HIT_RECS floor; a touchdown pick is always synthetic
-  // and needs its P(score) at HIT_TD.
-  return u && (p.mkt === "TD" ? u.conf >= HIT_TD : RECS_ON && p.mkt === "RECS" && !u.synthetic && u.conf >= HIT_RECS && u.line >= 2.5)
+  // priced as a heavy favourite), on the lower side, and at the HIT_RECS floor; a touchdown pick
+  // is always synthetic and needs its P(score) at HIT_TD.
+  return u && (p.mkt === "TD" ? u.conf >= HIT_TD
+    : p.mkt === "RECS" && !u.synthetic && u.pick === "lower" && u.conf >= HIT_RECS && u.line >= 2.5)
     && (p.games||0) >= 8 && playing(p) && !u.stale && scopeOK(p, s);
 };
 /* The non-TD scope is "yards" inside (scopeOK), but on Underdog it only ever holds receptions. */
@@ -78,7 +79,8 @@ function pickLegs(cands, key, allowSameGame){
    board, so every window and scope still shows a card. The gates that say "this number is wrong"
    stay (started, out, backup, stale or moved line, no model number, a synthetic Underdog yards
    line); the gates that say "this number is too low" go (edge, chance floors, price bands, the
-   8-game floor, receptions before week 5). The card is tagged so it never reads as a pick. */
+   8-game floor, the Underdog side and confidence floors). The card is tagged so it never reads
+   as a pick. */
 const legLowInBook = (p, s, book) => {
   if (!upcoming(p) || !playing(p) || !scopeOK(p, s) || typeof p.model !== "number") return false;
   if (book !== "underdog") return p.book === "DraftKings" && overPrice(p) !== null && typeof p.edge === "number";
