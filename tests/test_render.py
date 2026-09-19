@@ -47,10 +47,13 @@ STATES = [
     ("dfs-explain", [("click", ".navitem[data-s='dfs']"), ("click", "[data-explain]")]),   # the drawer
     ("news-injury", [("click", ".navitem[data-s='news']"), ("click", "[data-newscat='injury']")]),
     ("news", [("click", ".navitem[data-s='news']")]),
-    # A fresh browser has no saved passphrase, so this is the locked state: the form, not the
-    # composer. Deterministic because the day's counter starts at 0 in empty localStorage.
-    ("chat", [("click", ".navitem[data-s='chat']")]),
-    ("chat-ready", [("click", ".navitem[data-s='chat']"), ("eval", "chatSetPass('x'); render()")]),
+    # A fresh browser has no saved passphrase, so this is the locked state: the form, not just
+    # the composer. Deterministic because the day's counter starts at 0 in empty localStorage.
+    ("chat-open", [("click", "#chatfab")]),
+    ("chat-ready", [("eval", "chatSetPass('x')"), ("click", "#chatfab")]),
+    # The reason it is a floating panel and not a tab: it stays open over another surface, so
+    # you can read a player's row while asking about him. #view must still be the pool here.
+    ("chat-over-pool", [("click", ".navitem[data-s='pool']"), ("click", "#chatfab")]),
 ]
 
 SEED = """
@@ -77,6 +80,10 @@ PROBE = """
   return {view: strip(document.getElementById("view").innerHTML),
           drawer: strip(document.getElementById("drawer").innerHTML),
           drawerOpen: document.getElementById("drawer").classList.contains("on"),
+          // The chat panel lives outside #view so it survives a surface change, which also means
+          // the two probes above would never see it.
+          chat: strip(document.getElementById("chatdock").innerHTML),
+          chatOpen: document.getElementById("chatdock").classList.contains("on"),
           styles: out};
 }
 """
@@ -145,6 +152,22 @@ def test_state_renders_something(snapshot, state):
     if state.endswith("drawer"):
         assert out["desk"][state]["drawerOpen"], "drawer did not open"
         assert len(out["desk"][state]["drawer"]) > 100
+    if state.startswith("chat-"):
+        for vp in VIEWPORTS:
+            assert out[vp][state]["chatOpen"], f"{vp}/{state}: the chat panel did not open"
+            assert len(out[vp][state]["chat"]) > 100
+
+
+def test_chat_panel_survives_a_surface_change(snapshot):
+    """The whole reason it is a floating panel: open it, switch surface, and it is still there
+    with the page behind it changed. As a tab, asking about a player meant leaving his row."""
+    out, _ = snapshot
+    over_pool = out["desk"]["chat-over-pool"]
+    assert over_pool["chatOpen"], "the panel closed when the surface changed"
+    assert "chatinput" in over_pool["chat"], "the composer is gone"
+    # #view is the pool, not the chat -- the panel is over the page, not instead of it.
+    assert "dotg" in over_pool["view"] or "data-pool" in over_pool["view"], \
+        "#view is not the pool; the panel replaced the surface instead of floating over it"
 
 
 def diff(golden, now, limit=25):
@@ -155,7 +178,7 @@ def diff(golden, now, limit=25):
             if g is None:
                 lines.append(f"{vp}/{state}: no golden yet")
                 continue
-            for key in ("view", "drawer"):
+            for key in ("view", "drawer", "chat"):
                 if g[key] != n[key]:
                     i = next((i for i, (a, b) in enumerate(zip(g[key], n[key])) if a != b), min(len(g[key]), len(n[key])))
                     lines.append(f"{vp}/{state}: #{key} differs at char {i}: ...{n[key][max(0, i-40):i+60]!r}")

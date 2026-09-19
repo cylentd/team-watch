@@ -12,14 +12,6 @@ function topbarBadge(){
       ? {tone:"live", full:t("chrome.badge.dfsLiveFull"), abbr:t("chrome.badge.dfsLiveAbbr")}
       : {tone:"warn", full:t("chrome.badge.dfsSampleFull"), abbr:t("chrome.badge.sampleAbbr")};
   }
-  /* The chat badge counts questions, not data: it is the only surface whose freshness is a
-     budget. Warn once the day's three are gone, so the tab says why the box is disabled. */
-  if (SURFACE === "chat"){
-    const left = chatLeft();
-    return left
-      ? {tone:"live", full:t("chrome.badge.chatFull", {n: left}), abbr:t("chrome.badge.chatAbbr", {n: left})}
-      : {tone:"warn", full:t("chrome.badge.chatOutFull"), abbr:t("chrome.badge.chatOutAbbr")};
-  }
   if (SURFACE === "news")
     return LIVE_NEWS
       ? {tone:"live", full:t("chrome.badge.newsLiveFull"), abbr:t("chrome.badge.newsLiveAbbr")}
@@ -41,11 +33,6 @@ function render(){
   const v = document.getElementById("view");
   paintBadge();
 
-  if (SURFACE === "chat"){
-    v.innerHTML = chatHTML();
-    wireChat(v);
-    return;
-  }
   if (SURFACE === "news"){
     v.innerHTML = newsHTML();
     v.querySelectorAll("[data-newscat]").forEach(b=>b.addEventListener("click",()=>{

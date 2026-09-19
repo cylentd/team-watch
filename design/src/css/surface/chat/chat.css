@@ -1,74 +1,144 @@
-/* CHAT — the ask-a-question panel. One column, log above the composer. */
+/* CHAT — a floating launcher and a panel that docks above it.
+   Not a modal: no scrim, and the page behind stays scrollable and clickable while it is open. */
 
-.chatpanel{
-  background:var(--panel); border:1px solid var(--line); border-radius:14px;
-  padding:18px; display:flex; flex-direction:column; gap:12px;
+.chatfab{
+  position:fixed; right:18px; bottom:18px; z-index:60;
+  width:52px; height:52px; border-radius:50%; border:1px solid var(--line);
+  background:var(--lime); color:var(--on-lime); cursor:pointer;
+  display:grid; place-items:center;
+  box-shadow:0 6px 20px rgb(var(--shadow-rgb) / .45);
 }
-.chattitle{ font-family:var(--ui); font-size:18px; font-weight:700; color:var(--ink); margin:0; }
-.chatintro{ font-size:13px; line-height:1.5; color:var(--ink-2); margin:0; }
+.chatfab svg{ width:23px; height:23px; }
+.chatfab.on{ background:var(--panel-3); color:var(--ink); }
+.chatfab:focus-visible{ outline:2px solid var(--ink); outline-offset:3px; }
+
+/* Questions left. Reads as a count, and goes quiet rather than loud at zero: the composer
+   already says why it is disabled, so this does not need to shout it too. */
+.chatcount{
+  position:absolute; top:-3px; right:-3px; min-width:19px; height:19px; padding:0 5px;
+  border-radius:10px; background:var(--panel); color:var(--ink); border:1px solid var(--line);
+  font-family:var(--mono); font-size:11px; font-weight:700; line-height:17px; text-align:center;
+}
+.chatcount.out{ color:var(--ink-3); }
+
+.chatdock{
+  position:fixed; right:18px; bottom:80px; z-index:60;
+  width:380px; max-height:min(560px, calc(100vh - 120px));
+  display:none; flex-direction:column;
+  background:var(--panel); border:1px solid var(--line); border-radius:14px;
+  box-shadow:0 10px 34px rgb(var(--shadow-rgb) / .5);
+}
+.chatdock.on{ display:flex; }
+
+.chathead{
+  display:flex; align-items:center; gap:8px;
+  padding:13px 14px; border-bottom:1px solid var(--line-2);
+}
+.chattitle{ font-family:var(--ui); font-size:15px; font-weight:700; color:var(--ink); margin:0; flex:1; }
+.chatx{
+  font-family:var(--ui); font-size:14px; color:var(--ink-2);
+  background:none; border:0; cursor:pointer; padding:4px 6px; border-radius:6px;
+}
+.chatx:hover{ color:var(--ink); background:var(--panel-3); }
+
+.chatscroll{
+  flex:1; overflow-y:auto; padding:14px;
+  display:flex; flex-direction:column; gap:12px;
+}
+.chatintro{ font-size:12px; line-height:1.5; color:var(--ink-3); margin:0; }
+.chatempty{ font-size:13px; color:var(--ink-3); margin:0; padding:14px 0; text-align:center; }
 
 /* passphrase */
 .chatpass{
-  display:grid; grid-template-columns:auto 1fr auto; gap:8px; align-items:center;
-  background:var(--panel-2); border:1px solid var(--line-2); border-radius:10px; padding:12px;
+  display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center;
+  background:var(--panel-2); border:1px solid var(--line-2); border-radius:10px; padding:11px;
 }
-.chatpasslab{ font-size:12px; font-weight:600; color:var(--ink-2); }
+.chatpasslab{ grid-column:1 / -1; font-size:12px; font-weight:600; color:var(--ink-2); }
 .chatpassin{
   font-family:var(--ui); font-size:13px; color:var(--ink);
   background:var(--panel-3); border:1px solid var(--line); border-radius:8px; padding:8px 10px;
+  min-width:0;
 }
 .chatpassin:focus{ outline:2px solid rgb(var(--lime-rgb) / .55); outline-offset:1px; }
 .chatpasshint{ grid-column:1 / -1; font-size:11px; line-height:1.45; color:var(--ink-3); margin:0; }
 
-/* log */
-.chatlog{
-  display:flex; flex-direction:column; gap:12px;
-  max-height:460px; overflow-y:auto; padding-right:4px;
-}
-.chatempty{ font-size:13px; color:var(--ink-3); margin:0; padding:20px 0; text-align:center; }
+/* turns */
 .chatturn{ display:flex; flex-direction:column; gap:4px; }
 .chatwho{
-  font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:.04em;
+  font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.04em;
   text-transform:uppercase; color:var(--ink-3);
 }
 .chatbody{
-  font-size:14px; line-height:1.55; color:var(--ink);
+  font-size:13.5px; line-height:1.55; color:var(--ink);
   background:var(--panel-2); border:1px solid var(--line-2);
-  border-radius:10px; padding:10px 12px;
+  border-radius:10px; padding:9px 11px;
 }
 .chatturn.mine .chatbody{
   background:rgb(var(--lime-rgb) / .10); border-color:rgb(var(--lime-rgb) / .35);
 }
 
 /* composer */
-.chatbar{ display:grid; grid-template-columns:1fr auto; gap:8px; align-items:end; }
+.chatbar{
+  display:grid; grid-template-columns:1fr auto; gap:8px; align-items:end;
+  padding:11px 14px 0;
+}
 .chatinput{
-  font-family:var(--ui); font-size:14px; line-height:1.45; color:var(--ink); resize:vertical;
-  background:var(--panel-3); border:1px solid var(--line); border-radius:10px; padding:10px 12px;
+  font-family:var(--ui); font-size:13.5px; line-height:1.45; color:var(--ink); resize:none;
+  background:var(--panel-3); border:1px solid var(--line); border-radius:10px; padding:10px 11px;
+  min-height:44px; max-height:110px;
 }
 .chatinput:focus{ outline:2px solid rgb(var(--lime-rgb) / .55); outline-offset:1px; }
 .chatinput:disabled{ color:var(--ink-3); }
 .chatsend{
   font-family:var(--ui); font-size:13px; font-weight:700; color:var(--on-lime);
-  background:var(--lime); border:0; border-radius:10px; padding:11px 18px;
+  background:var(--lime); border:0; border-radius:10px; padding:11px 15px;
   min-height:44px; cursor:pointer;
 }
 .chatsend:disabled{ background:var(--panel-3); color:var(--ink-3); cursor:default; }
 
 /* footer + errors */
 .chaterr{
-  font-size:13px; color:var(--down); margin:0;
+  font-size:12.5px; color:var(--down); margin:0;
   background:var(--down-ground); border:1px solid rgb(var(--down-rgb) / .40);
-  border-radius:8px; padding:9px 11px;
+  border-radius:8px; padding:8px 10px;
 }
-.chatfoot{ font-size:11px; color:var(--ink-3); margin:0; }
+.chatfoot{ font-size:11px; color:var(--ink-3); margin:0; padding:8px 14px 12px; }
 .chatlink{
   font-family:var(--ui); font-size:11px; color:var(--ink-2);
   background:none; border:0; padding:0; text-decoration:underline; cursor:pointer;
 }
 
+/* At 760 the nav stops being a top row and becomes a fixed bottom bar 59px tall
+   (responsive/760.css), so a launcher at bottom:18 lands exactly on the last tab and eats its
+   clicks -- the render test caught it by being unable to click News on the phone viewport. Both
+   the launcher and the panel sit above that bar instead, which is also what keeps the nav
+   reachable while the panel is open: navigating with it open is the whole point of it not
+   being a tab: a launcher that covers the nav is a launcher you have to close to navigate.
+
+   Two bars, not one. Below 760 the bottom 114px is .modes-sub.dock (fixed, 55px, on Teams,
+   Parlay and DFS) stacked on .navbar (fixed, 59px, always), so anything at bottom:18 lands on
+   a pinned control that never scrolls out of the way -- first the nav, then the dock's "How
+   this works". Clearing both is the only position that is always free, and it stays on the
+   right, same corner as desktop. 128 = 114 + a 14 gap; 190 = that plus the 52px launcher and
+   10 more. The two surfaces without a dock get a launcher 55px higher than they need, which is
+   the right trade: persistent chrome that stays put while you move between tabs. */
+@media (max-width:760px){
+  .chatfab{ bottom:calc(128px + env(safe-area-inset-bottom)); }
+  .chatdock{
+    bottom:calc(190px + env(safe-area-inset-bottom));
+    max-height:calc(100vh - 280px);
+  }
+}
+
+/* A 380px panel floating over a 390px phone is just a worse full screen, so below 430 it goes
+   full width as a sheet -- still above the nav bar, never over it. */
 @media (max-width:430px){
-  .chatpanel{ padding:14px; }
-  .chatbar{ grid-template-columns:1fr; }
-  .chatpass{ grid-template-columns:1fr; }
+  .chatfab{ right:14px; }
+  .chatdock{
+    right:0; left:0; width:auto; border-radius:14px 14px 0 0;
+    bottom:calc(114px + env(safe-area-inset-bottom));
+    max-height:calc(100vh - 200px);
+  }
+  /* The open sheet would cover the launcher anyway; hiding it leaves one obvious way out. */
+  .chatfab.on{ display:none; }
 }

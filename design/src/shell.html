@@ -42,6 +42,14 @@
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer" aria-hidden="true"></aside>
 
+<!-- The chat launcher and its panel sit outside #view on purpose: render() replaces #view's
+     markup on every surface change, so anything inside it loses its state. Out here the
+     conversation survives navigating between tabs, which is the point of it being a panel
+     rather than a tab of its own. Deliberately not a modal -- no scrim, no focus trap -- so
+     the page behind stays usable while a question is open. -->
+<button class="chatfab" id="chatfab" aria-expanded="false" aria-controls="chatdock"></button>
+<aside class="chatdock" id="chatdock" aria-hidden="true"></aside>
+
 <script>
 /*__HEADS__*/
 
