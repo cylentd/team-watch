@@ -35,11 +35,11 @@ const scopeOK = (p, s) => s === "tds" ? p.mkt === "TD" : s === "mix" ? true : p.
    anytime-TD line, so udPick() derives one from the model's raw P(score), tagged MODEL. */
 const UD_MIN = 58;
 /* The Underdog gallery ranks for the chance a slip hits, and only uses the two kinds of leg that
-   held up against 2025's closing lines (ff-jarvis METHODOLOGY 12.31, 12.34, 12.50): anytime TDs
+   held up against 2025's closing lines (ff-jarvis METHODOLOGY 12.31, 12.34, 12.51): anytime TDs
    where the model's P(score) is 50%+ (honest in every week bucket: stated ~54, scored 48-71), and
    receptions at a 2.5+ Underdog line -- but only the LOWER side, at 65%+.
 
-   The side is the split that matters, not the calendar (12.50, graded 2026-09-19 on all 18 weeks
+   The side is the split that matters, not the calendar (12.51, graded 2026-09-19 on all 18 weeks
    of 2025 under this exact filter): lower picks hit 56.3% (n 567), higher picks 42.3% (n 71), and
    lower at 65%+ hits 57.3% (n 281, CI 51-63) against a 57.7% break-even on a 2-leg 3x board and
    55.0% on a 3-leg 6x. The old rule gated on week 5 instead, which let the losing side through
