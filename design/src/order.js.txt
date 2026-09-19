@@ -26,6 +26,8 @@ surface/news/news.js
 data/pool.js
 surface/pool/scatter.js
 surface/pool/pool.js
+surface/chat/context.js
+surface/chat/chat.js
 data/market.js
 lib/odds.js
 builder/slips.js

@@ -1,0 +1,74 @@
+/* CHAT — the ask-a-question panel. One column, log above the composer. */
+
+.chatpanel{
+  background:var(--panel); border:1px solid var(--line); border-radius:14px;
+  padding:18px; display:flex; flex-direction:column; gap:12px;
+}
+.chattitle{ font-family:var(--ui); font-size:18px; font-weight:700; color:var(--ink); margin:0; }
+.chatintro{ font-size:13px; line-height:1.5; color:var(--ink-2); margin:0; }
+
+/* passphrase */
+.chatpass{
+  display:grid; grid-template-columns:auto 1fr auto; gap:8px; align-items:center;
+  background:var(--panel-2); border:1px solid var(--line-2); border-radius:10px; padding:12px;
+}
+.chatpasslab{ font-size:12px; font-weight:600; color:var(--ink-2); }
+.chatpassin{
+  font-family:var(--ui); font-size:13px; color:var(--ink);
+  background:var(--panel-3); border:1px solid var(--line); border-radius:8px; padding:8px 10px;
+}
+.chatpassin:focus{ outline:2px solid rgb(var(--lime-rgb) / .55); outline-offset:1px; }
+.chatpasshint{ grid-column:1 / -1; font-size:11px; line-height:1.45; color:var(--ink-3); margin:0; }
+
+/* log */
+.chatlog{
+  display:flex; flex-direction:column; gap:12px;
+  max-height:460px; overflow-y:auto; padding-right:4px;
+}
+.chatempty{ font-size:13px; color:var(--ink-3); margin:0; padding:20px 0; text-align:center; }
+.chatturn{ display:flex; flex-direction:column; gap:4px; }
+.chatwho{
+  font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:.04em;
+  text-transform:uppercase; color:var(--ink-3);
+}
+.chatbody{
+  font-size:14px; line-height:1.55; color:var(--ink);
+  background:var(--panel-2); border:1px solid var(--line-2);
+  border-radius:10px; padding:10px 12px;
+}
+.chatturn.mine .chatbody{
+  background:rgb(var(--lime-rgb) / .10); border-color:rgb(var(--lime-rgb) / .35);
+}
+
+/* composer */
+.chatbar{ display:grid; grid-template-columns:1fr auto; gap:8px; align-items:end; }
+.chatinput{
+  font-family:var(--ui); font-size:14px; line-height:1.45; color:var(--ink); resize:vertical;
+  background:var(--panel-3); border:1px solid var(--line); border-radius:10px; padding:10px 12px;
+}
+.chatinput:focus{ outline:2px solid rgb(var(--lime-rgb) / .55); outline-offset:1px; }
+.chatinput:disabled{ color:var(--ink-3); }
+.chatsend{
+  font-family:var(--ui); font-size:13px; font-weight:700; color:var(--on-lime);
+  background:var(--lime); border:0; border-radius:10px; padding:11px 18px;
+  min-height:44px; cursor:pointer;
+}
+.chatsend:disabled{ background:var(--panel-3); color:var(--ink-3); cursor:default; }
+
+/* footer + errors */
+.chaterr{
+  font-size:13px; color:var(--down); margin:0;
+  background:var(--down-ground); border:1px solid rgb(var(--down-rgb) / .40);
+  border-radius:8px; padding:9px 11px;
+}
+.chatfoot{ font-size:11px; color:var(--ink-3); margin:0; }
+.chatlink{
+  font-family:var(--ui); font-size:11px; color:var(--ink-2);
+  background:none; border:0; padding:0; text-decoration:underline; cursor:pointer;
+}
+
+@media (max-width:430px){
+  .chatpanel{ padding:14px; }
+  .chatbar{ grid-template-columns:1fr; }
+  .chatpass{ grid-template-columns:1fr; }
+}

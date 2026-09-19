@@ -47,6 +47,10 @@ STATES = [
     ("dfs-explain", [("click", ".navitem[data-s='dfs']"), ("click", "[data-explain]")]),   # the drawer
     ("news-injury", [("click", ".navitem[data-s='news']"), ("click", "[data-newscat='injury']")]),
     ("news", [("click", ".navitem[data-s='news']")]),
+    # A fresh browser has no saved passphrase, so this is the locked state: the form, not the
+    # composer. Deterministic because the day's counter starts at 0 in empty localStorage.
+    ("chat", [("click", ".navitem[data-s='chat']")]),
+    ("chat-ready", [("click", ".navitem[data-s='chat']"), ("eval", "chatSetPass('x'); render()")]),
 ]
 
 SEED = """

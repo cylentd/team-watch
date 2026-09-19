@@ -5,6 +5,7 @@ const NAV_ICON = {
   parlay: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><circle cx="9" cy="7" r="2" fill="var(--panel)"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="15" cy="12" r="2" fill="var(--panel)"/><line x1="4" y1="17" x2="20" y2="17"/><circle cx="11" cy="17" r="2" fill="var(--panel)"/></svg>`,
   dfs: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="6" height="6" rx="1"/><rect x="14.5" y="3.5" width="6" height="6" rx="1"/><rect x="3.5" y="14.5" width="6" height="6" rx="1"/><rect x="14.5" y="14.5" width="6" height="6" rx="1"/></svg>`,
   news: NEWS_ICON,
+  chat: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3v4l4-4h9a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1z"/><circle cx="9" cy="10" r=".9" fill="currentColor" stroke="none"/><circle cx="12.5" cy="10" r=".9" fill="currentColor" stroke="none"/><circle cx="16" cy="10" r=".9" fill="currentColor" stroke="none"/></svg>`,
 };
 function buildNav(){
   const n = document.getElementById("nav");
@@ -17,6 +18,7 @@ function buildNav(){
     ["parlay", t("nav.parlay.full"), t("nav.parlay.short")],
     ["dfs",    t("nav.dfs.full"),    t("nav.dfs.short")],
     ["news",   t("nav.news.full"),   t("nav.news.short")],
+    ["chat",   t("nav.chat.full"),   t("nav.chat.short")],
   ];
   n.innerHTML = items.map(([k,label,short])=>
     `<button class="navitem" data-s="${k}" aria-current="${SURFACE===k}">

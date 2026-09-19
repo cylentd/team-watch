@@ -1,0 +1,6 @@
+# Runtime dependencies for the Vercel Python function in api/. Nothing else belongs here.
+#
+# Deliberately NOT a web framework. Vercel's file-based /api functions only work while no
+# Python framework preset is detected -- add fastapi, flask or django and Vercel hands that
+# framework every request and stops serving the static index.html this site is.
+anthropic>=0.89,<1
