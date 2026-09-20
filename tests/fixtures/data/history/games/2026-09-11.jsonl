@@ -1,0 +1,6 @@
+{"asof":"2026-09-10T05:51","game_id":"2026_02_DET_SEA","season":2026,"week":2,"gameday":"2026-09-14","kickoff":"2026-09-14T17:00:00Z","home":"SEA","away":"DET","spread_line":3.0,"total_line":45.5}
+{"asof":"2026-09-11T05:51","game_id":"2026_02_DET_SEA","season":2026,"week":2,"gameday":"2026-09-14","kickoff":"2026-09-14T17:05:00Z","home":"SEA","away":"DET","spread_line":3.5,"total_line":45.5}
+{"asof":"2026-09-11T05:51","game_id":"2026_02_WAS_LA","season":2026,"week":2,"gameday":"2026-09-14","kickoff":"2026-09-14T20:25:00Z","home":"LA","away":"WAS","spread_line":-1.5,"total_line":48.0}
+{"asof":"2026-09-11T05:51","game_id":"2026_03_KC_SF","season":2026,"week":3,"gameday":"2026-09-21","kickoff":"2026-09-21T20:25:00Z","home":"SF","away":"KC","spread_line":2.5,"total_line":44.0}
+this line is not json, and the loader must step over it rather than die
+{"asof":"2026-09-11T05:51","game_id":"2026_02_NO_KICKOFF","season":2026,"week":2,"gameday":"2026-09-14","home":"NYG","away":"DAL"}

@@ -26,6 +26,7 @@ chrome/footer.css
 chrome/nav.css
 surface/pool/pool.css
 surface/chat/chat.css
+surface/live/live.css
 surface/builder/modes.css
 surface/builder/legs.css
 surface/builder/expand.css

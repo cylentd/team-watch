@@ -1,0 +1,155 @@
+/* ------------------------------------------------------------------
+   LIVE — gameday scoreboard: my starting lineup against my opponent's, scored live.
+
+   ESPN league only. Yahoo's fantasy API is gated behind an approval that has not come, and its
+   website is a cookie-and-regex scrape; reading it from a datacenter address every 90 seconds is
+   how you lose the cookie. The ESPN half is an authenticated API read of my own league, so it is
+   the half that can poll honestly. Yahoo is a later decision, not an oversight.
+
+   The second surface that talks to a server, and unlike Chat it asks for no passphrase. What
+   was worth protecting was never the board -- it is a fantasy lineup, and the opponent can see
+   it anyway -- it was the ESPN cookies behind it, and a 60-second edge cache protects those
+   better than a secret would: repeats are served by the CDN, so ESPN sees at most one read per
+   window however many callers there are. A passphrase would make the reply uncacheable.
+
+   Nothing is stored anywhere. Each reply replaces the last, so there is no merge, no history and
+   no cache to invalidate -- ask, draw, forget. Deltas, if they are ever wanted, belong in this
+   browser, not on the server.
+------------------------------------------------------------------ */
+
+/* 90 seconds is the cadence while something is actually being played. Three guards keep it from
+   being 90 seconds all week: the Live tab has to be the one on screen, the browser tab has to be
+   visible, and a game involving somebody in this matchup has to be underway. Reading another
+   surface, a phone in a pocket, or a Tuesday all cost nothing. */
+const GD_POLL_MS = 90000;
+/* Outside a game window the board still refreshes, just rarely -- a lineup can change, and the
+   first load has to come from somewhere. Four reads an hour rather than forty. */
+const GD_IDLE_MS = 900000;
+/* How long after kickoff a game might still be scoring. Sixty minutes of play runs a bit over
+   three hours; the padding is for overtime and for a clock that started late. Erring long costs
+   a few reads at the end of a window, erring short misses the finish of a close game. */
+const GD_GAME_MS = 13500000;
+/* A repaint within this window reuses what is already drawn rather than asking again -- which is
+   what makes switching to Live and back cheap, and matches the server's own 20s memo. */
+const GD_STALE_MS = 60000;
+
+let GD_DATA = null;      /* the whole last reply, or null before the first one lands */
+let GD_ERR = "";         /* the server's own message, preferred over anything invented here */
+let GD_BUSY = false;
+let GD_AT = 0;           /* epoch ms of the last good reply, for GD_STALE_MS */
+
+const gdOnScreen = () => SURFACE === "live" && document.visibilityState === "visible";
+
+/* ---------------------------------------------------------------- the gate */
+
+/* Kickoffs, injected at build time by design/schedule.py. Null when that log was not readable,
+   and then there is no gate at all -- the idle cadence below is the only thing holding the line,
+   which is the right way round: a missing schedule should slow the board, never silence it. */
+const GD_GAMES = (LIVE_SCHEDULE && LIVE_SCHEDULE.games) || [];
+
+/* Both lineups, not just mine: the score moves when his players play too. Null before the first
+   reply lands, because there is no lineup yet to check a game against -- and every game counting
+   is exactly what lets that first reply happen. */
+function gdClubs(){
+  if (!GD_DATA) return null;
+  const out = new Set();
+  for (const r of [...GD_DATA.me.lineup, ...GD_DATA.opponent.lineup]) if (r.team) out.add(r.team);
+  return out;
+}
+
+function gdKicks(){
+  const clubs = gdClubs(), out = [];
+  for (const g of GD_GAMES){
+    if (clubs && !clubs.has(g.home) && !clubs.has(g.away)) continue;
+    const t = Date.parse(g.kickoff);
+    if (!isNaN(t)) out.push(t);
+  }
+  return out.sort((a, b) => a - b);
+}
+
+/* Somebody in this matchup is on the field right now. */
+const gdPlaying = now => gdKicks().some(k => k <= now && now < k + GD_GAME_MS);
+/* ... and when the next one starts, for the line the board shows while nothing is being played. */
+const gdNextKick = now => gdKicks().find(k => k > now);
+
+/* ---------------------------------------------------------------- fetching */
+
+async function gdFetch(){
+  if (GD_BUSY) return;
+  GD_BUSY = true;
+
+  let payload = null, ok = false;
+  try {
+    /* A plain GET, so the CDN can cache it. Anything clever here -- a POST, a header, a query
+       string that changes per call -- would make every request its own ESPN read again. */
+    const res = await fetch("/api/live", {headers: {"Accept": "application/json"}});
+    payload = await res.json().catch(() => null);
+    ok = res.ok;
+  } catch (e) {
+    /* fetch itself threw: no response, so there is no server message to prefer. */
+    GD_ERR = t("live.error.network");
+  }
+
+  GD_BUSY = false;
+  if (ok && payload && payload.me){
+    GD_DATA = payload; GD_ERR = ""; GD_AT = Date.now();
+  } else if (!GD_ERR){
+    /* Every failure this endpoint has -- not configured, expired cookies, ESPN unreachable --
+       already arrives as one sentence worth showing. A 409 saying to re-copy the cookies is
+       actionable in a way no generic retry line would be. */
+    GD_ERR = (payload && payload.error) || t("live.error.network");
+  }
+  paintLive();
+}
+
+/* Called on every paint of the surface. A fetch already in flight, or a reply still young
+   enough, means there is nothing to do -- and what counts as young enough depends on whether
+   anything is being played. */
+function gdEnsure(){
+  const now = Date.now();
+  if (!GD_DATA || now - GD_AT > (gdPlaying(now) ? GD_STALE_MS : GD_IDLE_MS)) gdFetch();
+}
+
+/* ---------------------------------------------------------------- paint */
+
+/* Repaints the board in place. Never calls render(): that rebuilds all of #view, and a poll
+   landing every 90 seconds must not rebuild the page under someone's thumb. */
+function paintLive(){
+  const host = document.querySelector("[data-gdboard]");
+  if (!host) return;              /* a different surface is showing; nothing to draw into */
+  host.innerHTML = gdBoardHTML();
+  wireLive(host);
+}
+
+function liveHTML(){
+  gdEnsure();
+  return `<div class="wrap">
+    <section class="gdboard" data-gdboard>${gdBoardHTML()}</section>
+  </div>`;
+}
+
+/* ---------------------------------------------------------------- wiring */
+
+/* Re-run after every paint, because the board's markup is rebuilt each time. Safe to repeat:
+   the elements it binds to are new ones, so nothing stacks. */
+function wireLive(host){
+  host.querySelector("[data-gdrefresh]")?.addEventListener("click", () => {
+    GD_AT = 0;                    /* force the next ensure past GD_STALE_MS */
+    gdFetch();
+  });
+}
+
+/* Registered once, at load, exactly like buildChat(): one interval for the life of the page,
+   inert unless the Live tab is on screen. Starting a timer inside render() would stack a new
+   one on every surface change, and they would all keep firing. */
+function buildLive(){
+  setInterval(() => {
+    if (!gdOnScreen()) return;
+    const now = Date.now();
+    /* Full cadence only while a game with one of these players in it is being played. Outside
+       that, a slow refresh -- enough to catch a lineup change, and to load the board at all. */
+    if (gdPlaying(now) || now - GD_AT > GD_IDLE_MS) gdFetch();
+  }, GD_POLL_MS);
+  /* Coming back to the tab should not wait out the rest of an interval. */
+  document.addEventListener("visibilitychange", () => { if (gdOnScreen()) gdEnsure(); });
+}

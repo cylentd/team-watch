@@ -5,18 +5,22 @@ const NAV_ICON = {
   parlay: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><circle cx="9" cy="7" r="2" fill="var(--panel)"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="15" cy="12" r="2" fill="var(--panel)"/><line x1="4" y1="17" x2="20" y2="17"/><circle cx="11" cy="17" r="2" fill="var(--panel)"/></svg>`,
   dfs: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="6" height="6" rx="1"/><rect x="14.5" y="3.5" width="6" height="6" rx="1"/><rect x="3.5" y="14.5" width="6" height="6" rx="1"/><rect x="14.5" y="14.5" width="6" height="6" rx="1"/></svg>`,
   news: NEWS_ICON,
+  live: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/><path d="M8.1 8.1a5.5 5.5 0 0 0 0 7.8"/><path d="M15.9 15.9a5.5 5.5 0 0 0 0-7.8"/><path d="M5.2 5.2a9.6 9.6 0 0 0 0 13.6" opacity=".55"/><path d="M18.8 18.8a9.6 9.6 0 0 0 0-13.6" opacity=".55"/></svg>`,
 };
 function buildNav(){
   const n = document.getElementById("nav");
-  // Two labels per tab, same pattern as the topbar pills' full/abbr swap: five tabs' full
+  // Two labels per tab, same pattern as the topbar pills' full/abbr swap: six tabs' full
   // labels don't fit a phone width without the row overflowing into a faded, scrollable strip
   // (a tab someone actually wants -- News -- shouldn't be the one left half-hidden past the edge).
+  // Live is last on purpose: it is the only tab that matters on exactly one day of the week, and
+  // putting it first would push the four everyday tabs along for the other six.
   const items = [
     ["teams",  t("nav.teams.full"),  t("nav.teams.short")],
     ["pool",   t("nav.pool.full"),   t("nav.pool.short")],
     ["parlay", t("nav.parlay.full"), t("nav.parlay.short")],
     ["dfs",    t("nav.dfs.full"),    t("nav.dfs.short")],
     ["news",   t("nav.news.full"),   t("nav.news.short")],
+    ["live",   t("nav.live.full"),   t("nav.live.short")],
   ];
   n.innerHTML = items.map(([k,label,short])=>
     `<button class="navitem" data-s="${k}" aria-current="${SURFACE===k}">

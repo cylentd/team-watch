@@ -18,6 +18,7 @@ from signals import live_signals, load_usage, report as signals_report  # My Tea
 from waiver import live_waiver, slugs as waiver_slugs, report as waiver_report  # the Waivers sub-tab
 from pool import live_pool, report as pool_report  # design/pool.py: the Pool page
 from slate import assign_windows, day_windows, kickoff   # design/slate.py: kickoff windows
+from schedule import load_schedule, report as schedule_report  # when Live may poll, and when not
 
 ROOT = pathlib.Path(__file__).resolve().parent
 REPO = ROOT.parent
@@ -733,8 +734,10 @@ def render():
         "LIVE_PROFILES": load_profiles(),
         "LIVE_WAIVER": waiver,
         "LIVE_POOL": pool,
+        "LIVE_SCHEDULE": load_schedule(DWR),
     }
     add_market_stock(blocks, report)
+    report.append(schedule_report(blocks["LIVE_SCHEDULE"]))
     for name, obj in blocks.items():
         contract.validate(name, obj)   # a missing field fails the build, not the page
     # A "</" inside a string (a headline quoting markup, say) would end the <script> early;

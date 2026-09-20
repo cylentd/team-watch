@@ -29,6 +29,12 @@ CONTRACT = {
         "keys": ["items"],
         "rows": ("items", ["id", "title", "desc", "impact", "team", "categories", "link", "when", "kind"]),
     },
+    # Live reads kickoff times to decide whether it may poll at all. A row missing one would look
+    # like a game that never starts, and the gate would sit idle straight through it.
+    "LIVE_SCHEDULE": {
+        "keys": ["games"],
+        "rows": ("games", ["home", "away", "kickoff"]),
+    },
     "LIVE_PROPS": {
         "keys": ["fetched", "events", "books", "players", "windows", "days", "model", "props", "wrcb", "logs"],
         "rows": ("props", ["n", "slug", "pos", "team", "mkt", "game", "commence", "kick", "line",

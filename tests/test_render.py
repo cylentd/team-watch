@@ -26,6 +26,29 @@ PROPS = ["color", "background-color", "border-top-color", "border-top-style", "b
 
 # (state name, how to reach it from a fresh load). Each is a list of steps: ("click", selector) or
 # ("eval", js). The nav is clicked, not set, so the wiring is exercised too.
+# A reply planted rather than fetched. No server runs in this test, and SEED pins Date.now(), so
+# GD_AT is always fresh and gdEnsure() never reaches for the network. The rows are chosen to
+# cover what the markup branches on: played against not-yet, a designation badge, and a bench.
+LIVE_REPLY = """
+GD_DATA = {
+  league: "espn", week: 2, asof: "2026-09-20T17:04:00+00:00",
+  me: {team: "Purdy Big in Japan", live: 31.5, projected: 131.7, winPct: 0.76, lineup: [
+    {slot:"QB", starter:true,  name:"Brock Purdy",       team:"SF",  actual:null, projected:25.7, started:false, injury:"ACTIVE"},
+    {slot:"WR", starter:true,  name:"Amon-Ra St. Brown", team:"DET", actual:31.5, projected:16.0, started:true,  injury:"ACTIVE"},
+    {slot:"RB", starter:true,  name:"De'Von Achane",     team:"MIA", actual:null, projected:14.9, started:false, injury:"QUESTIONABLE"},
+    {slot:"D/ST", starter:true,name:"Seahawks D/ST",     team:"SEA", actual:null, projected:9.2,  started:false, injury:"ACTIVE"},
+    {slot:"BE", starter:false, name:"Jared Goff",        team:"DET", actual:37.8, projected:23.2, started:true,  injury:"ACTIVE"},
+    {slot:"BE", starter:false, name:"Jordan Mason",      team:"MIN", actual:null, projected:0.0,  started:false, injury:"OUT"}]},
+  opponent: {team: "TeamMinh", live: -2.0, projected: 92.7, winPct: 0.24, lineup: [
+    {slot:"QB", starter:true,  name:"Justin Herbert",    team:"LAC", actual:null, projected:24.3, started:false, injury:"ACTIVE"},
+    {slot:"WR", starter:true,  name:"Jaxon Smith-Njigba",team:"SEA", actual:null, projected:15.0, started:false, injury:"ACTIVE"},
+    {slot:"RB", starter:true,  name:"Chase Brown",       team:"CIN", actual:null, projected:12.4, started:false, injury:"ACTIVE"},
+    {slot:"D/ST", starter:true,name:"Lions D/ST",        team:"DET", actual:-2.0, projected:5.1,  started:true,  injury:"ACTIVE"},
+    {slot:"BE", starter:false, name:"Drake Maye",        team:"NE",  actual:null, projected:22.4, started:false, injury:"ACTIVE"}]}
+};
+GD_AT = Date.now();
+"""
+
 STATES = [
     ("teams-yahoo", []),
     ("teams-espn", [("eval", "VIEW='espn'; render()")]),
@@ -54,6 +77,21 @@ STATES = [
     # The reason it is a floating panel and not a tab: it stays open over another surface, so
     # you can read a player's row while asking about him. #view must still be the pool here.
     ("chat-over-pool", [("click", ".navitem[data-s='pool']"), ("click", "#chatfab")]),
+    ("live-board", [("eval", LIVE_REPLY), ("click", ".navitem[data-s='live']")]),
+    # Both states plant a reply so gdEnsure() finds it fresh and never reaches the network:
+    # there is no server behind this test, and a failed fetch would land whenever it landed.
+    # The expired-cookie message is the one failure worth seeing drawn, because it is the one
+    # the reader can act on -- and it must appear OVER the last good board, not instead of it.
+    ("live-expired", [("eval", LIVE_REPLY
+                       + "GD_ERR = 'ESPN cookies have expired. Re-copy SWID and espn_s2.';"),
+                      ("click", ".navitem[data-s='live']")]),
+    # Nothing has ever loaded and the first call failed: the one path where the board has no
+    # numbers to keep, so the retry has to be drawn or a reload is the only way out.
+    # GD_BUSY pins it: with no data, gdEnsure() would otherwise start a fetch that fails
+    # whenever it fails and overwrites the message mid-snapshot.
+    ("live-cold-error", [("eval", "GD_BUSY = true;"
+                          " GD_ERR = 'ESPN cookies have expired. Re-copy SWID and espn_s2.';"),
+                         ("click", ".navitem[data-s='live']")]),
 ]
 
 SEED = """

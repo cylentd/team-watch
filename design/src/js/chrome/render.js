@@ -40,6 +40,13 @@ function render(){
     }));
     return;
   }
+  if (SURFACE === "live"){
+    /* liveHTML() kicks off a fetch when what it has is stale, and paintLive() redraws the board
+       in place when the reply lands -- render() is never called again for a poll. */
+    v.innerHTML = liveHTML();
+    wireLive(v);
+    return;
+  }
   if (SURFACE === "pool"){
     v.innerHTML = poolHTML();
     v.querySelectorAll(".chip[data-pos]").forEach(b=>b.addEventListener("click",()=>{

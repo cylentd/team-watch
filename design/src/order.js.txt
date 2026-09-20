@@ -7,6 +7,8 @@
 #      needs PROPS, WINDOWS, UD_MIN and SLIP_LEGS already declared.
 # pin: chrome/state.js (SURFACE, VIEW) precedes every render function; main.js is last and is
 #      the only file with side effects on the page.
+# pin: surface/live/live.js sits after chrome/state.js because gdOnScreen() reads SURFACE, and
+#      before surface/live/board.js, whose markup reads GD_DATA and GD_ERR declared there.
 data/teams.js
 data/signals.js
 data/hydrate.js
@@ -45,6 +47,8 @@ surface/dfs/top.js
 surface/parlay/parlay.js
 surface/dfs/dfs.js
 chrome/state.js
+surface/live/live.js
+surface/live/board.js
 chrome/teamswitch.js
 chrome/hero.js
 chrome/motion.js
