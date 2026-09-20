@@ -33,10 +33,18 @@ const GD_GAME_MS = 13500000;
    what makes switching to Live and back cheap, and matches the server's own 20s memo. */
 const GD_STALE_MS = 60000;
 
+/* How long a delta chip stays beside a score before it fades. Long enough to catch on a glance
+   back at the phone, short enough that the board is mostly numbers rather than mostly news. */
+const GD_PULSE_MS = 9000;
+
 let GD_DATA = null;      /* the whole last reply, or null before the first one lands */
 let GD_ERR = "";         /* the server's own message, preferred over anything invented here */
 let GD_BUSY = false;
 let GD_AT = 0;           /* epoch ms of the last good reply, for GD_STALE_MS */
+let GD_WP = [];          /* [[epoch ms, winPct]] this week, as far as this browser has watched */
+let GD_PULSE = {};       /* name -> what he just scored, for the few seconds it is worth saying */
+let GD_PULSE_T = 0;
+let GD_CATCHUP = null;   /* {movers, swing} after time away, until it is dismissed */
 
 const gdOnScreen = () => SURFACE === "live" && document.visibilityState === "visible";
 
@@ -67,6 +75,20 @@ function gdKicks(){
   return out.sort((a, b) => a - b);
 }
 
+/* When this club's game started. The season ships, so "nearest to now" is how this week's game
+   is picked out of eighteen of them -- a club plays once a week, so nothing else is close. */
+function gdKickOf(club){
+  const now = Date.now();
+  let best;
+  for (const g of GD_GAMES){
+    if (g.home !== club && g.away !== club) continue;
+    const at = Date.parse(g.kickoff);
+    if (isNaN(at)) continue;
+    if (best === undefined || Math.abs(at - now) < Math.abs(best - now)) best = at;
+  }
+  return best;
+}
+
 /* Somebody in this matchup is on the field right now. */
 const gdPlaying = now => gdKicks().some(k => k <= now && now < k + GD_GAME_MS);
 /* ... and when the next one starts, for the line the board shows while nothing is being played. */
@@ -93,6 +115,7 @@ async function gdFetch(){
   GD_BUSY = false;
   if (ok && payload && payload.me){
     GD_DATA = payload; GD_ERR = ""; GD_AT = Date.now();
+    gdNote(payload);
   } else if (!GD_ERR){
     /* Every failure this endpoint has -- not configured, expired cookies, ESPN unreachable --
        already arrives as one sentence worth showing. A 409 saying to re-copy the cookies is
@@ -100,6 +123,26 @@ async function gdFetch(){
     GD_ERR = (payload && payload.error) || t("live.error.network");
   }
   paintLive();
+}
+
+/* What this reply changed, as against the last one this reader was shown (memory.js).
+
+   Away and present are answered differently on purpose. Coming back to twelve rows each wearing
+   a chip is not news, it is noise, so time away is summed up in one line instead; while you are
+   watching, the chip beside the score IS the news and there are rarely more than one or two. */
+function gdNote(d){
+  const change = gdRemember(d);
+  GD_WP = change.wp;
+  GD_PULSE = {};
+  if (change.away && change.movers.length){
+    GD_CATCHUP = {movers: change.movers.slice(0, 3), swing: change.swing};
+  } else {
+    for (const m of change.movers) GD_PULSE[m.name] = m.delta;
+  }
+  clearTimeout(GD_PULSE_T);
+  if (Object.keys(GD_PULSE).length){
+    GD_PULSE_T = setTimeout(() => { GD_PULSE = {}; paintLive(); }, GD_PULSE_MS);
+  }
 }
 
 /* Called on every paint of the surface. A fetch already in flight, or a reply still young
@@ -137,12 +180,29 @@ function wireLive(host){
     GD_AT = 0;                    /* force the next ensure past GD_STALE_MS */
     gdFetch();
   });
+  host.querySelector("[data-gdseen]")?.addEventListener("click", () => {
+    GD_CATCHUP = null;
+    paintLive();
+  });
 }
 
 /* Registered once, at load, exactly like buildChat(): one interval for the life of the page,
    inert unless the Live tab is on screen. Starting a timer inside render() would stack a new
    one on every surface change, and they would all keep firing. */
 function buildLive(){
+  /* Paint from memory before anything is clicked. GD_AT stays 0 on purpose, so the first paint
+     of the surface still asks for a fresh reply immediately -- this shows the board at once, it
+     does not stand in for fetching one. */
+  const last = gdBoardLoad();
+  if (last){
+    GD_DATA = last;
+    GD_WP = (gdMemLoad(last.week) || {}).wp || [];
+  }
+  /* And when a game is actually being played, fetch once now rather than on the click, so the
+     numbers are already current by the time the tab is opened. Outside a game window this does
+     nothing at all, which is the whole point of the gate. */
+  if (gdPlaying(Date.now())) gdFetch();
+
   setInterval(() => {
     if (!gdOnScreen()) return;
     const now = Date.now();

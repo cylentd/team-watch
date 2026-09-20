@@ -29,17 +29,46 @@
   font:600 10px/1.4 var(--ui); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-2);
 }
 
-/* ---------------------------------------------------------------- win bar */
+/* ------------------------------------------------------------- spine, trace
 
-.gdwin{
-  display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:10px;
-  padding:0 14px 12px; background:var(--panel-2);
-  border-inline:1px solid var(--line);
+   The spine is the one element meant to be legible from across the room: ESPN's own win
+   probability as a length, not a figure. It was a 6px hairline and read as a divider. */
+
+.gdspine{ padding:0 14px 10px; background:var(--panel-2); border-inline:1px solid var(--line); }
+.gdspinetrack{
+  height:14px; border-radius:999px; overflow:hidden;
+  background:var(--panel); border:1px solid var(--line-2);
 }
-.gdwinpct{ font:600 11px/1 var(--mono); color:var(--ink-3); }
-.gdwinpct.mine{ color:var(--lime); }
-.gdwinbar{ height:6px; border-radius:999px; background:var(--panel); overflow:hidden; }
-.gdwinfill{ height:100%; background:var(--lime); border-radius:999px; }
+.gdspinefill{
+  height:100%; background:var(--lime); border-radius:999px;
+  transition:width .9s var(--ease);
+}
+
+.gdtallies{
+  display:grid; grid-template-columns:1fr 1fr; gap:10px;
+  padding:0 14px 10px; background:var(--panel-2); border-inline:1px solid var(--line);
+  font:600 11px/1 var(--mono); color:var(--ink-3);
+}
+.gdtally{ display:flex; align-items:baseline; gap:10px; min-width:0; }
+.gdtally.theirs{ justify-content:flex-end; }
+.gdtally.mine .gdwinpct{ color:var(--lime); }
+.gdtally span{ white-space:nowrap; }
+.gdpair{ display:inline-flex; align-items:baseline; gap:5px; }
+.gddot{ color:var(--line-2); }
+/* The tension, not the score: a lead with one starter left and the same lead with five left are
+   opposite situations, and the numbers above cannot tell them apart. */
+.gdleft{ color:var(--ink-2); }
+.gdtocome{ color:var(--ink-3); }
+
+/* The day's shape. Deliberately small and quiet -- it is context for the spine, not a chart
+   anyone reads values off. */
+.gdtrace{
+  padding:0 14px 10px; background:var(--panel-2); border-inline:1px solid var(--line);
+}
+.gdtrace svg{ display:block; width:100%; height:30px; }
+.gdtracefill{ fill:rgb(var(--lime-rgb) / .13); stroke:none; }
+.gdtracemid{ stroke:var(--ink-3); stroke-width:1; stroke-dasharray:2 3; opacity:.5; }
+.gdtraceline{ fill:none; stroke:var(--lime); stroke-width:2; stroke-linejoin:round; }
 
 .gdasof{
   display:flex; align-items:center; gap:8px; justify-content:center;
@@ -85,7 +114,48 @@
 .gdcell.theirs{ grid-template-columns:auto auto auto 1fr; direction:rtl; }
 .gdcell.theirs > *{ direction:ltr; }
 .gdcell.empty{ background:none; border-style:dashed; border-color:var(--line); }
-.gdcell.played{ border-color:var(--line-2); }
+
+/* Three states. "9.2" means a different thing depending on whether his game is finished, under
+   way, or has not started, and the board used to draw all three identically. */
+.gdcell.waiting{ border-color:var(--line); }
+.gdcell.playing{ border-color:var(--line-2); }
+.gdcell.final{ border-color:var(--line-2); background:var(--panel-3); }
+
+/* The club code is the live light: it is already on the row, already says which game, and is
+   the only thing on it with nothing else to do. */
+.gdcell.playing .gdclub{ color:var(--lime); animation:gdbreathe 2.4s ease-in-out infinite; }
+@keyframes gdbreathe{ 0%,100%{ opacity:1 } 50%{ opacity:.35 } }
+
+/* Points landing. The row lights for a moment and the delta takes the projection's slot, so
+   nothing moves under the reader -- the news is a colour and a number, not a layout change. */
+.gdcell.moved{ animation:gdland 1.4s var(--ease); }
+@keyframes gdland{
+  0%{ border-color:var(--lime); background:rgb(var(--lime-rgb) / .12) }
+  100%{ border-color:var(--line-2); background:var(--panel-2) }
+}
+.gddelta{ font:700 10px/1 var(--mono); min-width:30px; text-align:right; }
+.gddelta.up{ color:var(--lime); }
+.gddelta.down{ color:var(--down); }
+.gdcell.theirs .gddelta{ text-align:left; }
+
+/* ---------------------------------------------------------------- catch-up
+
+   Shown only after time away, and it stays until dismissed: the whole point is that nobody was
+   watching, so a chip that fades would be missed the same way the points were. */
+.gdcatch{
+  display:flex; flex-wrap:wrap; align-items:center; gap:10px;
+  margin:0 0 8px; padding:10px 14px; border-radius:12px;
+  background:rgb(var(--lime-rgb) / .07); border:1px solid rgb(var(--lime-rgb) / .3);
+  font:600 11px/1 var(--mono); color:var(--ink-2);
+}
+.gdcatchtitle{
+  font:600 10px/1 var(--ui); letter-spacing:.09em; text-transform:uppercase; color:var(--lime);
+}
+.gdswing{ display:inline-flex; align-items:baseline; gap:5px; color:var(--ink); }
+.gdswing .mine{ color:var(--lime); }
+.gdmover{ display:inline-flex; gap:5px; align-items:center; color:var(--ink-2); }
+.gdmover .up{ color:var(--lime); }
+.gdmover .down{ color:var(--down); }
 
 .gdname{
   display:flex; align-items:center; gap:5px; min-width:0;
@@ -96,11 +166,11 @@
    the cell -- which is how a phone lost every Q and O on the board. */
 .gdnametxt, .gdnameshort{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .gdnameshort{ display:none; }
-.gdcell:not(.played) .gdname{ color:var(--ink-2); }
+.gdcell.waiting .gdname{ color:var(--ink-2); }
 .gdclub{ font:500 10px/1 var(--mono); color:var(--ink-3); }
 .gdnow{ font:700 14px/1 var(--mono); color:var(--ink-3); min-width:42px; text-align:right; }
-.gdcell.played .gdnow{ color:var(--ink); }
-.gdcell.mine.played .gdnow{ color:var(--lime); }
+.gdcell.playing .gdnow, .gdcell.final .gdnow{ color:var(--ink); }
+.gdcell.mine.playing .gdnow, .gdcell.mine.final .gdnow{ color:var(--lime); }
 .gdcell.theirs .gdnow{ text-align:left; }
 /* The projection sits beside the live number and stays quiet: for a player still to kick off it
    is the only number there is, and once he has played it is what he was expected to do. */
@@ -121,7 +191,16 @@
   color:var(--down); background:rgb(var(--down-rgb) / .08);
   border:1px solid rgb(var(--down-rgb) / .3); border-radius:10px; padding:12px 14px;
 }
-.gdwait{ padding:22px 14px; text-align:center; color:var(--ink-3); }
+.gdwait{ padding:14px; text-align:center; color:var(--ink-3); }
+
+/* The shape of the board before the first reply has ever arrived, so the rows do not appear
+   from nothing under the reader. The breath says "coming", which is the one thing an empty
+   panel cannot say for itself. */
+.gdcell.skel, .gdslot.skel{
+  min-height:38px; background:var(--panel-2); border-color:var(--line);
+  animation:gdbreathe 1.8s ease-in-out infinite;
+}
+.gdslot.skel{ background:var(--panel); }
 
 /* ---------------------------------------------------------------- narrow */
 
@@ -136,6 +215,14 @@
 @media (max-width:430px){
   .gdhead{ padding:12px 10px 10px; }
   .gdscore{ font-size:24px; }
+  /* Two lineups share 390px, so the three tally facts do not sit on one line. Forcing the win
+     percentage onto its own row keeps the pair below it intact, rather than letting every item
+     wrap mid-phrase ("48.7 to / come"). */
+  .gdtally{ flex-wrap:wrap; gap:2px 8px; }
+  .gdwinpct{ flex-basis:100%; }
+  .gdtally.theirs .gdwinpct{ text-align:right; }
+  .gdtallies{ font-size:10px; padding:0 10px 8px; }
+  .gdspine, .gdtrace{ padding-inline:10px; }
   .gdname{ font-size:11px; }
   .gdnametxt{ display:none; }
   .gdnameshort{ display:block; }

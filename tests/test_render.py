@@ -47,6 +47,20 @@ GD_DATA = {
     {slot:"BE", starter:false, name:"Drake Maye",        team:"NE",  actual:null, projected:22.4, started:false, injury:"ACTIVE"}]}
 };
 GD_AT = Date.now();
+/* SEED pins Date.now, so these three points are the same every run -- enough for the trace to
+   draw a shape without making the golden depend on when it was taken. */
+GD_WP = [[Date.now() - 900000, 0.38], [Date.now() - 450000, 0.61], [Date.now(), 0.76]];
+"""
+
+# Points landing while you watch: the row lights and the delta takes the projection's slot.
+LIVE_MOVED = "GD_PULSE = {'Amon-Ra St. Brown': 13.5, 'Lions D/ST': -2.0};"
+
+# And the same news after time away, which is stated once instead of chipped onto every row.
+LIVE_AWAY = """
+GD_CATCHUP = {swing: {me: 21.5, opp: 3.0}, movers: [
+  {name: "Amon-Ra St. Brown", delta: 13.5},
+  {name: "Cam Skattebo", delta: 12.4},
+  {name: "Lions D/ST", delta: -2.0}]};
 """
 
 STATES = [
@@ -78,6 +92,8 @@ STATES = [
     # you can read a player's row while asking about him. #view must still be the pool here.
     ("chat-over-pool", [("click", ".navitem[data-s='pool']"), ("click", "#chatfab")]),
     ("live-board", [("eval", LIVE_REPLY), ("click", ".navitem[data-s='live']")]),
+    ("live-moved", [("eval", LIVE_REPLY + LIVE_MOVED), ("click", ".navitem[data-s='live']")]),
+    ("live-away", [("eval", LIVE_REPLY + LIVE_AWAY), ("click", ".navitem[data-s='live']")]),
     # Both states plant a reply so gdEnsure() finds it fresh and never reaches the network:
     # there is no server behind this test, and a failed fetch would land whenever it landed.
     # The expired-cookie message is the one failure worth seeing drawn, because it is the one
@@ -87,6 +103,10 @@ STATES = [
                       ("click", ".navitem[data-s='live']")]),
     # Nothing has ever loaded and the first call failed: the one path where the board has no
     # numbers to keep, so the retry has to be drawn or a reload is the only way out.
+    # A first-ever visit, before any reply has been stored: the skeleton holds the rows' space
+    # so nothing jumps when the numbers land. GD_BUSY pins it, as below.
+    ("live-skeleton", [("eval", "GD_DATA = null; GD_BUSY = true;"),
+                       ("click", ".navitem[data-s='live']")]),
     # GD_BUSY pins it: with no data, gdEnsure() would otherwise start a fetch that fails
     # whenever it fails and overwrites the message mid-snapshot.
     ("live-cold-error", [("eval", "GD_BUSY = true;"

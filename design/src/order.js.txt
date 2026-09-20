@@ -8,7 +8,8 @@
 # pin: chrome/state.js (SURFACE, VIEW) precedes every render function; main.js is last and is
 #      the only file with side effects on the page.
 # pin: surface/live/live.js sits after chrome/state.js because gdOnScreen() reads SURFACE, and
-#      before surface/live/board.js, whose markup reads GD_DATA and GD_ERR declared there.
+#      before its own markup files, whose builders read GD_DATA, GD_PULSE and GD_WP declared
+#      there. board.js precedes header.js for the same reason: gdNum/gdPct/gdSign/gdShort.
 data/teams.js
 data/signals.js
 data/hydrate.js
@@ -48,7 +49,9 @@ surface/parlay/parlay.js
 surface/dfs/dfs.js
 chrome/state.js
 surface/live/live.js
+surface/live/memory.js
 surface/live/board.js
+surface/live/header.js
 chrome/teamswitch.js
 chrome/hero.js
 chrome/motion.js
