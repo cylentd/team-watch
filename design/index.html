@@ -807,9 +807,11 @@ html{scrollbar-color:var(--line-2) var(--void)}
 /* ============================================================
    USAGE GRID
    A percentile heatmap, one position and one week at a time.
-   Colour budget is the page's own: lime top band, green above
-   the line, quiet panel through the middle, amber then red
-   below it. No new hue, and no hue that means a category.
+   Colour budget is the page's own: green solid then green
+   tinted above the line, a quiet panel through the middle,
+   amber then red below it. Three hues, ordered by warmth and
+   by lightness at once. Lime appears only where it does
+   everywhere else on the page -- active, focused, or yours.
    ============================================================ */
 
 /* Scrolls sideways rather than clipping. Seven stat columns plus a name cannot fit a phone at a
@@ -934,14 +936,23 @@ html{scrollbar-color:var(--line-2) var(--void)}
 
 /* The five percentile bands. Lightness falls monotonically from b5 to b3 and rises again into
    b1, so the order survives being read in greyscale or by an eye that cannot separate the hues. */
-/* All four coloured bands sit near full opacity. At .62 the amber read as brown and the red as
-   maroon against this background -- muddy, and a muddy "bad" is worse than no colour, because the
-   eye stops trusting the scale. Dark ink on every coloured band; only the quiet middle is light. */
-.ucell.b5{background:rgb(var(--lime-rgb) / .95);color:var(--on-lime);font-weight:700}
-.ucell.b4{background:rgb(var(--up-rgb) / .82);color:var(--void);font-weight:600}
+/* NO LIME IN THE DATA SCALE. tokens.css sets the budget: lime is active/brand -- the selected tab,
+   the sorted column header -- and green/amber/red are the values. Lime held both jobs here and it
+   failed twice over: one colour meant two things, and lime is a yellow-green, which sits beside
+   amber on the warm side and so read as a step DOWN from the mint green under it. The top band
+   looked like the second band.
+
+   The two positive bands separate by intensity instead, inside one hue: solid green is more than
+   tinted green in a way no one has to learn. Warmth then only ever increases downward -- green,
+   neutral, amber, red -- so the scale is monotonic in hue and in lightness at the same time.
+
+   Opacity stays high on the coloured bands. At .62 the amber read as brown and the red as maroon,
+   and a muddy "bad" is worse than no colour, because the eye stops trusting the scale. */
+.ucell.b5{background:rgb(var(--up-rgb));color:var(--void);font-weight:700}
+.ucell.b4{background:rgb(var(--up-rgb) / .26);color:var(--up)}
 .ucell.b3{background:var(--panel-3);color:var(--ink-2)}
 .ucell.b2{background:rgb(var(--amber-rgb) / .88);color:var(--void)}
-.ucell.b1{background:rgb(var(--down-rgb) / .88);color:var(--void);font-weight:600}
+.ucell.b1{background:rgb(var(--down-rgb) / .92);color:var(--void);font-weight:600}
 
 /* Change mode: sign only. The size is in the number, so the colour says direction and nothing
    more -- ranking a delta would put a second percentile rule in the view. */
@@ -966,11 +977,11 @@ html{scrollbar-color:var(--line-2) var(--void)}
   padding:3px 7px;
   border-radius:5px;
 }
-.ubadge.b5{background:rgb(var(--lime-rgb) / .95);color:var(--on-lime)}
-.ubadge.b4{background:rgb(var(--up-rgb) / .82);color:var(--void)}
+.ubadge.b5{background:rgb(var(--up-rgb));color:var(--void)}
+.ubadge.b4{background:rgb(var(--up-rgb) / .26);color:var(--up)}
 .ubadge.b3{background:var(--panel-3);color:var(--ink-2)}
 .ubadge.b2{background:rgb(var(--amber-rgb) / .88);color:var(--void)}
-.ubadge.b1{background:rgb(var(--down-rgb) / .88);color:var(--void)}
+.ubadge.b1{background:rgb(var(--down-rgb) / .92);color:var(--void)}
 
 .uspace{margin-left:10px}
 
