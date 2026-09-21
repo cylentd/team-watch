@@ -23,3 +23,10 @@
 .navitem[aria-current="true"]::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--lime)}
 .navitem:active{transform:scale(.985)}
 
+/* ---- the group's views, one row under the groups ---- */
+/* Reuses .modes-sub / .mode-sub, the app's sub-tab component (the builder's modes and, until the
+   nav went two-level, the Teams hero). A third caller is a component, not a coincidence. */
+.subnav{background:var(--panel-2);border-bottom:1px solid var(--line)}
+.subnav[hidden]{display:none}
+.subnav-in{display:flex;align-items:center;padding:9px 0 10px}
+

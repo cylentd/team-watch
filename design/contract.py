@@ -89,6 +89,13 @@ CONTRACT = {
         "rows": ("players", ["n", "slug", "pos", "team", "snaps", "dSnap", "share", "dShare", "opp", "rz",
                              "ppg", "luck", "v", "why", "leagues", "mine"]),
     },
+    # design/usage.py, from ff-jarvis's model.season.usage weekly grid. `cols` is the header
+    # contract itself -- the JS builds its table from it rather than hardcoding seven labels per
+    # position -- so a row whose `v`/`p` lack a column id renders an empty cell, not a crash.
+    "LIVE_USAGE": {
+        "keys": ["season", "weeks", "through", "generated", "rankBy", "cols", "rows"],
+        "rows": ("rows", ["n", "slug", "pos", "team", "wk", "q", "v", "p"]),
+    },
     "LIVE_SIGNALS": {
         "keys": ["through_week", "ready", "players"],
         "map": ("players", ["series", "verdict", "why", "news", "hot"]),

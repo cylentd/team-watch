@@ -25,6 +25,7 @@ surface/profile/details.css
 chrome/footer.css
 chrome/nav.css
 surface/pool/pool.css
+surface/usage/usage.css
 surface/chat/chat.css
 surface/live/live.css
 surface/builder/modes.css

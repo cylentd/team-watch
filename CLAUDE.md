@@ -67,10 +67,30 @@ second session takes a worktree: say "use a worktree", which branches from `orig
 - Before touching a file the other session may hold, ask it. `git stash show --name-only` is the
   cheap way to prove a file really is dirty before claiming it is.
 
+## Navigation
+
+Two levels since 2026-09-21. Four groups in the nav bar, each holding the views that answer one
+question; `SURFACE` is always the **leaf**, never the group, and the group is derived from it.
+
+| group | views |
+|---|---|
+| My teams | Roster, Waivers |
+| Scouting | Movers (the old Pool), Grid (weekly usage), News |
+| Bets | Parlay, DFS |
+| Gameday | Live |
+
+`NAV` in `js/chrome/nav.js` is the whole table; a group of one draws no sub-row. Every copy key is
+spelled out literally, because `assemble.py --check` finds orphaned keys by scanning for literal
+lookups and cannot see one built from a template. The sub-row lives **outside** `.navbar`: on a
+phone the navbar is fixed to the bottom edge, and a `.modes-sub.dock` inside it lands in the slot
+Parlay's and DFS's own switchers already occupy. Adding a view = one entry in `NAV`, one copy key,
+one branch in `render()`.
+
 ## Data
 
-`design/build.py` reads `ff-jarvis`'s `data/*.json` (rosters, props, prop model, player
-projections, Sleeper status, DFS pool) through `data/feed.json` first and the files directly as
-a fallback. DFS projections come from ff-jarvis's `model.market.projections`; the page never
+`design/sources.py` owns every read of an ff-jarvis file or feed block (feed first, file as
+fallback); `design/build.py` orchestrates and no longer loads. It reads rosters, props, prop model,
+player projections, Sleeper status, the DFS pool, and `usage_weekly.json` (the Grid, via
+`design/usage.py`, whose feed key is `usage_grid` — plain `usage` is already watch.json). DFS projections come from ff-jarvis's `model.market.projections`; the page never
 computes model numbers itself. See `README.md` for the DFS CSV import and `design/DESIGN.md` for
 the design system and the field contract.

@@ -29,6 +29,8 @@ surface/news/news.js
 data/pool.js
 surface/pool/scatter.js
 surface/pool/pool.js
+data/usage.js
+surface/usage/usage.js
 surface/chat/context.js
 surface/chat/chat.js
 data/market.js

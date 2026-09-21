@@ -17,23 +17,19 @@ from news import load_news      # design/news.py: breaking news, split out to st
 from signals import live_signals, load_usage, report as signals_report  # My Teams trend and news
 from waiver import live_waiver, slugs as waiver_slugs, report as waiver_report  # the Waivers sub-tab
 from pool import live_pool, report as pool_report  # design/pool.py: the Pool page
+from usage import live_usage, load_grid, report as usage_report  # design/usage.py: the Usage grid
 from slate import assign_windows, day_windows, kickoff   # design/slate.py: kickoff windows
 from schedule import load_schedule, report as schedule_report  # when Live may poll, and when not
+from sources import (                                    # design/sources.py: the ff-jarvis adapter
+    ROOT, REPO, DWR, FEED, ESPN_ROSTERS, YAHOO_ROSTERS, DFS_POOL,
+    feed_block, read_first, load_status, load_props_raw, load_model_raw,
+    load_player_proj, load_wrcb, load_profiles, load_dfs_pool,
+)
 
-ROOT = pathlib.Path(__file__).resolve().parent
-REPO = ROOT.parent
-
-# The three input roots. Each can be pointed elsewhere by env var so a build can run against a
-# pinned snapshot (the regression suite) instead of whatever ff-jarvis holds right now.
+# Pointed elsewhere by env var so a build can run against a pinned snapshot (the regression
+# suite) instead of whatever ff-jarvis holds right now. The other input roots (DWR, FEED) live
+# in sources.py, which owns every ff-jarvis read; this one only ever feeds base64 inlining here.
 HEADS_SRC = pathlib.Path(os.environ.get("TEAM_WATCH_HEADS", "C:/Users/David/Github/ff-jarvis/app/public/heads"))
-DWR = pathlib.Path(os.environ.get("TEAM_WATCH_DATA", "C:/Users/David/Github/ff-jarvis/data"))
-FEED = pathlib.Path(os.environ.get("TEAM_WATCH_FEED", REPO / "data" / "feed.json"))
-ESPN_ROSTERS = DWR / "espn_rosters.json"
-YAHOO_ROSTERS = DWR / "league_rosters.json"
-BP_PROPS = DWR / "bettingpros_props.json"
-SLEEPER_STATUS = DWR / "sleeper_status.json"
-DFS_POOL = DWR / "dfs_pool.json"
-PLAYER_PROJ = DWR / "player_projections.json"
 
 # A depth-chart slot at or past this number, for the player's position, reads as "the backup."
 # Mirrors ff-jarvis's model.clients.sleeper.BACKUP_DEPTH.
@@ -64,26 +60,6 @@ def sleeper_flag(rec):
         return "backup"
     return None
 
-
-def load_status():
-    """norm_name -> Sleeper record (ff-jarvis's model.clients.sleeper), the canonical injury/depth
-    read every feature should prefer over deriving its own. Feed-first (what the scheduled refresh
-    saw), the ff-jarvis file directly as a fallback -- the same two-tier pattern load_props_raw()
-    and load_model_raw() already use below."""
-    feed = FEED
-    try:
-        d = json.loads(feed.read_text(encoding="utf-8"))
-        block = (d.get("status") or {}).get("data")
-        if block and block.get("players"):
-            return block["players"]
-    except (OSError, json.JSONDecodeError):
-        pass
-    if SLEEPER_STATUS.exists():
-        try:
-            return json.loads(SLEEPER_STATUS.read_text(encoding="utf-8")).get("players", {})
-        except (OSError, json.JSONDecodeError):
-            pass
-    return {}
 
 SUFFIXES = {"jr", "sr", "ii", "iii", "iv", "v"}
 
@@ -225,95 +201,6 @@ def nfl_roster():
         if pos in POS_ORDER and name:
             out.setdefault(slugify(name), (pos, team))
     return out
-
-
-def load_props_raw():
-    """The BettingPros pull, preferring the feed (`market.props_bp`) so the page shows what the
-    scheduled refresh saw. A feed older than the props step lacks the block; then the file the
-    props client wrote is read directly, the same way the rosters are."""
-    feed = FEED
-    try:
-        d = json.loads(feed.read_text(encoding="utf-8"))
-        block = ((d.get("market") or {}).get("props_bp") or {}).get("data")
-        if block and block.get("props"):
-            return block, "feed.json"
-    except (OSError, json.JSONDecodeError):
-        pass
-    if BP_PROPS.exists():
-        try:
-            return json.loads(BP_PROPS.read_text(encoding="utf-8")), "ff-jarvis/data"
-        except (OSError, json.JSONDecodeError):
-            return None, None
-    return None, None
-
-
-def load_model_raw():
-    """P(over) per priced line from ff-jarvis's `model.market.props_model`, feed first, file second,
-    the same way the lines themselves are read. A hand re-price between refreshes leaves the file
-    newer than the feed's copy, so when both exist the later `generated` wins."""
-    found = []
-    try:
-        d = json.loads(FEED.read_text(encoding="utf-8"))
-        block = ((d.get("market") or {}).get("props_model") or {}).get("data")
-        if block and block.get("lines"):
-            found.append(block)
-    except (OSError, json.JSONDecodeError):
-        pass
-    # The copy kept beside the feed. The ff-jarvis checkout can sit on another branch
-    # (two sessions share it), and the refresh then rewrites the feed without the model block.
-    for path in (DWR / "props_model.json", REPO / "data" / "props_model.json"):
-        if path.exists():
-            try:
-                found.append(json.loads(path.read_text(encoding="utf-8")))
-                break
-            except (OSError, json.JSONDecodeError):
-                continue
-    return max(found, key=lambda m: m.get("generated") or "") if found else None
-
-
-def feed_block(keys, must):
-    """The `data` of the feed block at `keys` (a path of nested keys) when it carries `must`."""
-    try:
-        d = json.loads(FEED.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return None
-    for k in keys:
-        d = (d or {}).get(k)
-    block = (d or {}).get("data")
-    return block if block and block.get(must) else None
-
-
-def read_first(*paths):
-    """The first of `paths` that exists and parses as JSON, else None."""
-    for path in paths:
-        if path.exists():
-            try:
-                return json.loads(path.read_text(encoding="utf-8"))
-            except (OSError, json.JSONDecodeError):
-                continue
-    return None
-
-
-def load_player_proj():
-    """Half-PPR points for every player from ff-jarvis's `model.market.projections`, feed block
-    first (`projections`), then the file, same two-tier pattern as the other live reads. A feed
-    written before that step existed has no block, and an ff-jarvis checkout on another branch
-    may have no file: then nothing is modelled and every DFS row falls back to Yahoo's FPPG,
-    which the header says out loud."""
-    return (feed_block(("projections",), "players")
-            or read_first(PLAYER_PROJ, REPO / "data" / "player_projections.json"))
-
-
-def load_wrcb():
-    """RotoBaller's WR/CB column for the week, feed first then the ff-jarvis file."""
-    return feed_block(("market", "wrcb"), "records") or read_first(DWR / "wrcb.json")
-
-
-def load_profiles():
-    """Per-player profile (usage by zone, coverage split, red zone, next opponent) from ff-jarvis's
-    data/player_profiles.json, feed block `profiles` first. None renders no chips and a quiet
-    "no profile yet" panel."""
-    return feed_block(("profiles",), "players") or read_first(DWR / "player_profiles.json")
 
 
 def _stock_by_slug(players):
@@ -588,14 +475,6 @@ def model_points():
     return {slugify(p["name"]): (p["pts"], p["src"]) for p in (d or {}).get("players", [])
             if p.get("pts") is not None}
 
-def load_dfs_pool():
-    """Yahoo's own contest salary export, imported into ff-jarvis by `python -m model.clients.dfs
-    import <csv>` -- deliberately manual, per that module's own docstring: an automated Yahoo
-    scrape is a decision to ask about, not build quietly. Feed-first, the ff-jarvis file directly
-    as a fallback, same two-tier pattern as load_status()/load_props_raw()."""
-    return feed_block(("market", "dfs"), "players") or read_first(DFS_POOL)
-
-
 def live_dfs_yahoo(available):
     """The DFS Builder's Yahoo pool. `sal`/`proj` are Yahoo's own $200-cap scale, not DraftKings'.
     Status prefers Sleeper (see load_status()); the pool's own raw Yahoo status column fills the
@@ -692,7 +571,43 @@ def add_market_stock(blocks, report):
                   else "Market stock: none, so no market row")
     blocks["LIVE_SIGNALS"] = live_signals(FEED, DWR, (blocks["LIVE_ESPN"], blocks["LIVE_YAHOO"]), slugify)
     report += [signals_report(blocks["LIVE_SIGNALS"]), waiver_report(blocks["LIVE_WAIVER"]),
-               pool_report(blocks["LIVE_POOL"])]
+               pool_report(blocks["LIVE_POOL"]), usage_report(blocks["LIVE_USAGE"])]
+
+
+def report_sources(report, live, liveY, props, liveDfsYahoo, news, profiles, missing):
+    """The per-source lines of render()'s summary -- split out to keep render() under its
+    110-line budget (tests/test_budgets.py's PY_BACKLOG ratchet). Mutates `report` in place,
+    same convention as add_market_stock()."""
+    for label, src in (("ESPN", live), ("Yahoo", liveY)):
+        if src:
+            report.append(f"{label}: {len(src['roster'])} players, {src['league']}, pulled {src['updated']}")
+        else:
+            report.append(f"{label}: no live file, template falls back to its own copy")
+    if props:
+        mine = sum(1 for p in props["props"] if p["mine"])
+        report.append(f"Props: {len(props['props'])} lines, {props['players']} players, "
+                      f"{props['events']} games, {'/'.join(props['books'])}, pulled {props['fetched']} "
+                      f"(from {props['origin']}), {mine} on my rosters")
+        report.append("Windows: " + " · ".join(
+            f"{w['label']}({w['n']}/{w['games']}g)" for w in props["windows"]))
+        if props["model"]:
+            report.append(f"Model: {props['model']['modeled']} of {len(props['props'])} lines priced, "
+                          f"stats through {props['model']['through']}, run {props['model']['generated']}")
+        else:
+            report.append("Model: no props_model.json, every card says pending")
+    else:
+        report.append("Props: no BettingPros file, template falls back to its sample")
+    if liveDfsYahoo:
+        report.append(f"Yahoo DFS: {len(liveDfsYahoo['players'])} players, pulled {liveDfsYahoo['fetched']}")
+    else:
+        report.append("Yahoo DFS: no ff-jarvis dfs_pool.json/feed block, template falls back to its sample")
+    if news:
+        report.append(f"News: {len(news['items'])} items from ff-jarvis's scanner")
+    else:
+        report.append("News: no breaking_news.json/feed block, template falls back to its sample")
+    report.append(f"Profiles: {len(profiles['players'])} players" if profiles else "Profiles: none, so no chips")
+    if missing:
+        report.append(f"no headshot for {len(missing)} slugs (initials fallback renders)")
 
 
 def render():
@@ -711,6 +626,9 @@ def render():
     props = live_props(available, roster_index(("espn", live), ("yahoo", liveY)))
 
     waiver, pool = live_waiver(FEED, DWR, slugify), live_pool(load_usage(FEED, DWR), slugify)
+    # Usage is deliberately not in wanted_slugs: the grid runs 80 rows a position and draws no
+    # portrait, so inlining one per name would add megabytes for a column that does not exist.
+    usage = live_usage(load_grid(FEED, DWR), slugify)
     wanted = wanted_slugs(live, liveY, props, liveDfsYahoo, waiver, pool)
 
     heads = {}
@@ -734,6 +652,7 @@ def render():
         "LIVE_PROFILES": load_profiles(),
         "LIVE_WAIVER": waiver,
         "LIVE_POOL": pool,
+        "LIVE_USAGE": usage,
         "LIVE_SCHEDULE": load_schedule(DWR),
     }
     add_market_stock(blocks, report)
@@ -771,37 +690,7 @@ def render():
     ])
     page = f"{head}\n{body}\n</body>\n</html>\n"
 
-    for label, src in (("ESPN", live), ("Yahoo", liveY)):
-        if src:
-            report.append(f"{label}: {len(src['roster'])} players, {src['league']}, pulled {src['updated']}")
-        else:
-            report.append(f"{label}: no live file, template falls back to its own copy")
-    if props:
-        mine = sum(1 for p in props["props"] if p["mine"])
-        report.append(f"Props: {len(props['props'])} lines, {props['players']} players, "
-                      f"{props['events']} games, {'/'.join(props['books'])}, pulled {props['fetched']} "
-                      f"(from {props['origin']}), {mine} on my rosters")
-        report.append("Windows: " + " · ".join(
-            f"{w['label']}({w['n']}/{w['games']}g)" for w in props["windows"]))
-        if props["model"]:
-            report.append(f"Model: {props['model']['modeled']} of {len(props['props'])} lines priced, "
-                          f"stats through {props['model']['through']}, run {props['model']['generated']}")
-        else:
-            report.append("Model: no props_model.json, every card says pending")
-    else:
-        report.append("Props: no BettingPros file, template falls back to its sample")
-    if liveDfsYahoo:
-        report.append(f"Yahoo DFS: {len(liveDfsYahoo['players'])} players, pulled {liveDfsYahoo['fetched']}")
-    else:
-        report.append("Yahoo DFS: no ff-jarvis dfs_pool.json/feed block, template falls back to its sample")
-    if news:
-        report.append(f"News: {len(news['items'])} items from ff-jarvis's scanner")
-    else:
-        report.append("News: no breaking_news.json/feed block, template falls back to its sample")
-    prof = blocks["LIVE_PROFILES"]
-    report.append(f"Profiles: {len(prof['players'])} players" if prof else "Profiles: none, so no chips")
-    if missing:
-        report.append(f"no headshot for {len(missing)} slugs (initials fallback renders)")
+    report_sources(report, live, liveY, props, liveDfsYahoo, news, blocks["LIVE_PROFILES"], missing)
     return Build(page, body, report, heads, missing)
 
 

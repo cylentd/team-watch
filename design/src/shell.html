@@ -31,6 +31,13 @@
   </div>
 </div>
 
+<!-- The group's views. Painted by paintSubnav(), hidden entirely for a group of one so a sub-nav
+     never shows a single tab the reader cannot move away from. Deliberately OUTSIDE .navbar: on a
+     phone the navbar is fixed to the bottom edge, and a docked row inside it lands in the same
+     slot Parlay's and DFS's own view switchers already occupy, covering them. Out here it sits in
+     normal flow under the header, where nothing competes with it. -->
+<div class="subnav" id="subnav" hidden><div class="wrap subnav-in"></div></div>
+
 <main id="view"></main>
 
 <div class="wrap">

@@ -65,6 +65,10 @@ function render(){
     nudgeScrollers(v);
     return;
   }
+  if (SURFACE === "usage"){
+    v.innerHTML = usageHTML(); wireUsage(v); nudgeScrollers(v);
+    return;
+  }
   if (SURFACE === "parlay" || SURFACE === "dfs"){
     v.innerHTML = SURFACE === "parlay" ? parlayHTML() : dfsSurfaceHTML();
     wireBuilder(v);
@@ -73,15 +77,11 @@ function render(){
   }
 
   const team = TEAMS[VIEW];
-  v.innerHTML = TEAMS_TAB === "waivers"
+  v.innerHTML = SURFACE === "waivers"
     ? heroHTML(team) + `<div class="wrap">${waiverHTML(team)}</div>`
     : heroHTML(team) + tickerHTML() + `<div class="wrap">${boardHTML(team)}</div>`;
   fitTitle(v);
   v.querySelector(".leaguechip")?.addEventListener("click", ()=>openLeagueInfo(team.key));
-  v.querySelectorAll("[data-teamstab]").forEach(b=>b.addEventListener("click",()=>{
-    if (TEAMS_TAB !== b.dataset.teamstab) morphLogo();
-    TEAMS_TAB = b.dataset.teamstab; render();
-  }));
   wireTeamSwitch(v);
   wireProfiles(v);
 }

@@ -145,9 +145,9 @@ def test_line_map_accounts_for_the_injected_copy():
 
 def test_unknown_copy_key_in_js_is_a_problem(scratch_tree):
     p = scratch_tree / "js" / "chrome" / "nav.js"
-    p.write_text(p.read_text(encoding="utf-8").replace('t("nav.pool.full")', 't("nav.pool.nope")'),
+    p.write_text(p.read_text(encoding="utf-8").replace('t("nav.tab.movers")', 't("nav.tab.nope")'),
                  encoding="utf-8")
-    assert any("nav.pool.nope" in x and "not a key" in x for x in assemble.check())
+    assert any("nav.tab.nope" in x and "not a key" in x for x in assemble.check())
     with pytest.raises(SystemExit):
         assemble.assemble()
 

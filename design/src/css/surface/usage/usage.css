@@ -1,0 +1,177 @@
+/* ============================================================
+   USAGE GRID
+   A percentile heatmap, one position and one week at a time.
+   Colour budget is the page's own: lime top band, green above
+   the line, quiet panel through the middle, amber then red
+   below it. No new hue, and no hue that means a category.
+   ============================================================ */
+
+/* Scrolls sideways rather than clipping. Seven stat columns plus a name cannot fit a phone at a
+   legible size, and the wrong answer is to hide three of them: a grid whose last column is Snap%
+   is not the same grid without it. The columns keep their width and the table moves. */
+.utable{
+  display:block;
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  background:var(--panel);
+  overscroll-behavior-x:contain;
+}
+
+.uhead,.urow{
+  display:grid;
+  grid-template-columns:var(--ucols);
+  gap:3px;
+  align-items:stretch;
+  padding:3px;
+}
+
+.uhead{
+  position:sticky;
+  top:0;
+  z-index:2;
+  background:var(--panel-2);
+  border-bottom:1px solid var(--line);
+  padding-top:7px;
+  padding-bottom:7px;
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+}
+
+.uhead>div{display:flex;align-items:center;padding:0 6px}
+
+/* Every stat header is the sort control; the two fixed columns are not. */
+.ucol{
+  appearance:none;
+  border:0;
+  background:transparent;
+  color:inherit;
+  font:inherit;
+  letter-spacing:inherit;
+  text-transform:inherit;
+  text-align:center;
+  padding:0 2px;
+  cursor:pointer;
+  border-radius:5px;
+  min-height:28px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.ucol:hover{color:var(--ink)}
+.ucol.on{color:var(--lime)}
+.ucol:focus-visible{outline:2px solid var(--lime);outline-offset:1px}
+
+.urow{
+  border-top:1px solid var(--line);
+  cursor:pointer;
+  animation:urise .34s var(--ease) both;
+}
+.urow:hover{background:var(--panel-2)}
+.urow:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+
+@keyframes urise{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+.uname{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:0 8px;
+  min-width:0;
+}
+.uname b{
+  font-weight:600;
+  font-size:13px;
+  color:var(--ink);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* One dot, not a word: a row of mine should be findable without spending a column on it. */
+.udot{
+  flex:none;
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:var(--lime);
+}
+.u-mine .uname b{color:var(--lime)}
+
+.uteam{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:var(--mono);
+  font-size:10px;
+  color:var(--ink-3);
+  background:var(--panel-2);
+  border-radius:6px;
+}
+
+.ucell{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:36px;
+  border-radius:6px;
+  font-family:var(--mono);
+  font-size:13px;
+  font-weight:500;
+  background:var(--panel-2);
+  color:var(--ink-2);
+}
+
+/* The five percentile bands. Lightness falls monotonically from b5 to b3 and rises again into
+   b1, so the order survives being read in greyscale or by an eye that cannot separate the hues. */
+/* All four coloured bands sit near full opacity. At .62 the amber read as brown and the red as
+   maroon against this background -- muddy, and a muddy "bad" is worse than no colour, because the
+   eye stops trusting the scale. Dark ink on every coloured band; only the quiet middle is light. */
+.ucell.b5{background:rgb(var(--lime-rgb) / .95);color:var(--on-lime);font-weight:700}
+.ucell.b4{background:rgb(var(--up-rgb) / .82);color:var(--void);font-weight:600}
+.ucell.b3{background:var(--panel-3);color:var(--ink-2)}
+.ucell.b2{background:rgb(var(--amber-rgb) / .88);color:var(--void)}
+.ucell.b1{background:rgb(var(--down-rgb) / .88);color:var(--void);font-weight:600}
+
+/* Change mode: sign only. The size is in the number, so the colour says direction and nothing
+   more -- ranking a delta would put a second percentile rule in the view. */
+.ucell.u-up{background:rgb(var(--up-rgb) / .20);color:var(--up)}
+.ucell.u-down{background:rgb(var(--down-rgb) / .18);color:var(--down)}
+.ucell.u-none{color:var(--ink-3)}
+
+.ukey{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+  margin:10px 0 8px;
+}
+.ukey .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+
+.ubadge{
+  font-family:var(--mono);
+  font-size:9px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  padding:3px 7px;
+  border-radius:5px;
+}
+.ubadge.b5{background:rgb(var(--lime-rgb) / .95);color:var(--on-lime)}
+.ubadge.b4{background:rgb(var(--up-rgb) / .82);color:var(--void)}
+.ubadge.b3{background:var(--panel-3);color:var(--ink-2)}
+.ubadge.b2{background:rgb(var(--amber-rgb) / .88);color:var(--void)}
+.ubadge.b1{background:rgb(var(--down-rgb) / .88);color:var(--void)}
+
+.uspace{margin-left:10px}
+
+.ufoot{
+  margin:10px 0 4px;
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.04em;
+  color:var(--ink-3);
+}

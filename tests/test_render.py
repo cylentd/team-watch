@@ -63,55 +63,77 @@ GD_CATCHUP = {swing: {me: 21.5, opp: 3.0}, movers: [
   {name: "Lions D/ST", delta: -2.0}]};
 """
 
+# The nav is two levels since 2026-09-21: a group, then the view. Reaching a view is therefore
+# two clicks, not one, except in a group of one where no sub-row is drawn at all. Spelling both
+# out here (rather than trusting the group button's "return me to where I was") keeps a state
+# reachable in the same way no matter which state ran before it.
+GROUP = {"roster": "teams", "waivers": "teams",
+         "pool": "scouting", "usage": "scouting", "news": "scouting",
+         "parlay": "bets", "dfs": "bets", "live": "gameday"}
+
+
+def go(leaf):
+    steps = [("click", f".navitem[data-s='{GROUP[leaf]}']")]
+    if len([k for k, g in GROUP.items() if g == GROUP[leaf]]) > 1:
+        steps.append(("click", f"[data-leaf='{leaf}']"))
+    return steps
+
+
 STATES = [
     ("teams-yahoo", []),
     ("teams-espn", [("eval", "VIEW='espn'; render()")]),
     ("teams-drawer", [("click", ".row")]),   # Joe Burrow: no profile, the quiet state
-    ("waivers-espn", [("eval", "VIEW='espn'; render()"), ("click", "[data-teamstab='waivers']")]),   # moves + all three lanes
-    ("waivers-yahoo", [("click", "[data-teamstab='waivers']")]),   # no moves, one lane
+    ("waivers-espn", [("eval", "VIEW='espn'; render()")] + go("waivers")),   # moves + all three lanes
+    ("waivers-yahoo", go("waivers")),   # no moves, one lane
     ("profile-wr-drawer", [("click", ".row:has-text('Amon-Ra St. Brown')")]),
     ("profile-wr-details-drawer", [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#drawer .pf-details > summary")]),
     ("profile-rb-drawer", [("click", ".row:has-text('Chase Brown')"), ("click", "#drawer .pf-details > summary")]),
     ("profile-bye-drawer", [("click", ".row:has-text('Jahmyr Gibbs')")]),
-    ("pool", [("click", ".navitem[data-s='pool']")]),
-    ("pool-drawer", [("click", ".navitem[data-s='pool']"), ("click", "[data-pool]")]),
-    ("parlay-underdog", [("click", ".navitem[data-s='parlay']")]),
-    ("parlay-dk", [("click", ".navitem[data-s='parlay']"), ("click", "[data-parlaybook='dk']")]),
-    ("parlay-dk-mine", [("click", ".navitem[data-s='parlay']"), ("click", "[data-parlaybook='dk']"),
-                        ("click", "[data-preset='mine']")]),
-    ("dfs-yahoo", [("click", ".navitem[data-s='dfs']")]),
-    ("dfs-dk", [("click", ".navitem[data-s='dfs']"), ("click", "[data-dfssite='dk']")]),
-    ("dfs-explain", [("click", ".navitem[data-s='dfs']"), ("click", "[data-explain]")]),   # the drawer
-    ("news-injury", [("click", ".navitem[data-s='news']"), ("click", "[data-newscat='injury']")]),
-    ("news", [("click", ".navitem[data-s='news']")]),
+    ("pool", go("pool")),
+    ("pool-drawer", go("pool") + [("click", "[data-pool]")]),
+    # The usage grid: the default RB week-2 level view, the same grid as week-over-week change
+    # (the mode the level view cannot show), a QB grid because its columns are the ones with no
+    # counterpart anywhere else in the app, and the drawer a row opens.
+    ("usage", go("usage")),
+    ("usage-change", go("usage") + [("click", "[data-umode='change']")]),
+    ("usage-qb", go("usage") + [("click", "[data-upos='QB']")]),
+    ("usage-drawer", go("usage") + [("click", "[data-usage]")]),
+    ("parlay-underdog", go("parlay")),
+    ("parlay-dk", go("parlay") + [("click", "[data-parlaybook='dk']")]),
+    ("parlay-dk-mine", go("parlay") + [("click", "[data-parlaybook='dk']"),
+                                       ("click", "[data-preset='mine']")]),
+    ("dfs-yahoo", go("dfs")),
+    ("dfs-dk", go("dfs") + [("click", "[data-dfssite='dk']")]),
+    ("dfs-explain", go("dfs") + [("click", "[data-explain]")]),   # the drawer
+    ("news-injury", go("news") + [("click", "[data-newscat='injury']")]),
+    ("news", go("news")),
     # A fresh browser has no saved passphrase, so this is the locked state: the form, not just
     # the composer. Deterministic because the day's counter starts at 0 in empty localStorage.
     ("chat-open", [("click", "#chatfab")]),
     ("chat-ready", [("eval", "chatSetPass('x')"), ("click", "#chatfab")]),
     # The reason it is a floating panel and not a tab: it stays open over another surface, so
     # you can read a player's row while asking about him. #view must still be the pool here.
-    ("chat-over-pool", [("click", ".navitem[data-s='pool']"), ("click", "#chatfab")]),
-    ("live-board", [("eval", LIVE_REPLY), ("click", ".navitem[data-s='live']")]),
-    ("live-moved", [("eval", LIVE_REPLY + LIVE_MOVED), ("click", ".navitem[data-s='live']")]),
-    ("live-away", [("eval", LIVE_REPLY + LIVE_AWAY), ("click", ".navitem[data-s='live']")]),
+    ("chat-over-pool", go("pool") + [("click", "#chatfab")]),
+    ("live-board", [("eval", LIVE_REPLY)] + go("live")),
+    ("live-moved", [("eval", LIVE_REPLY + LIVE_MOVED)] + go("live")),
+    ("live-away", [("eval", LIVE_REPLY + LIVE_AWAY)] + go("live")),
     # Both states plant a reply so gdEnsure() finds it fresh and never reaches the network:
     # there is no server behind this test, and a failed fetch would land whenever it landed.
     # The expired-cookie message is the one failure worth seeing drawn, because it is the one
     # the reader can act on -- and it must appear OVER the last good board, not instead of it.
     ("live-expired", [("eval", LIVE_REPLY
-                       + "GD_ERR = 'ESPN cookies have expired. Re-copy SWID and espn_s2.';"),
-                      ("click", ".navitem[data-s='live']")]),
+                       + "GD_ERR = 'ESPN cookies have expired. Re-copy SWID and espn_s2.';")]
+                     + go("live")),
     # Nothing has ever loaded and the first call failed: the one path where the board has no
     # numbers to keep, so the retry has to be drawn or a reload is the only way out.
     # A first-ever visit, before any reply has been stored: the skeleton holds the rows' space
     # so nothing jumps when the numbers land. GD_BUSY pins it, as below.
-    ("live-skeleton", [("eval", "GD_DATA = null; GD_BUSY = true;"),
-                       ("click", ".navitem[data-s='live']")]),
+    ("live-skeleton", [("eval", "GD_DATA = null; GD_BUSY = true;")] + go("live")),
     # GD_BUSY pins it: with no data, gdEnsure() would otherwise start a fetch that fails
     # whenever it fails and overwrites the message mid-snapshot.
     ("live-cold-error", [("eval", "GD_BUSY = true;"
-                          " GD_ERR = 'ESPN cookies have expired. Re-copy SWID and espn_s2.';"),
-                         ("click", ".navitem[data-s='live']")]),
+                          " GD_ERR = 'ESPN cookies have expired. Re-copy SWID and espn_s2.';")]
+                         + go("live")),
 ]
 
 SEED = """

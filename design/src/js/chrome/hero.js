@@ -1,5 +1,8 @@
+/* Roster and Waivers used to be a pair of buttons docked in this hero. They moved up into the
+   nav's sub-row when the nav went two-level, because two sub-tab rows on one screen -- one in
+   the chrome, one in the page -- read as two different kinds of choice when they are the same
+   kind. The hero keeps only what it is for: whose team this is, and the tiles for the view. */
 function heroHTML(team){
-  const lg = waiverFor(team.key);
   return `<section class="hero">
     <div class="numghost">${team.slot}</div>
     <div class="wrap hero-in">
@@ -11,12 +14,8 @@ function heroHTML(team){
         </div>
         <h1 class="fit">${esc(team.name)}</h1>
         <button class="leaguechip">${esc(team.meta[team.meta.length-1])} <span class="lc-info">ⓘ</span></button>
-        <div class="modes-sub teamstabs dock" role="group" aria-label="${t("teams.tab.label")}">
-          <button class="mode-sub" data-teamstab="roster" aria-pressed="${TEAMS_TAB==="roster"}">${t("teams.tab.roster")}</button>
-          <button class="mode-sub" data-teamstab="waivers" aria-pressed="${TEAMS_TAB==="waivers"}">${t("teams.tab.waivers")}${lg ? ` <span class="tabcount">${lg.wire.length}</span>` : ""}</button>
-        </div>
       </div>
-      <div>${TEAMS_TAB === "waivers" ? waiverTilesHTML(team) : signalsHTML(team)}</div>
+      <div>${SURFACE === "waivers" ? waiverTilesHTML(team) : signalsHTML(team)}</div>
     </div>
   </section>`;
 }
