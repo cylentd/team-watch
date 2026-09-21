@@ -134,6 +134,13 @@ STATES = [
     ("live-cold-error", [("eval", "GD_BUSY = true;"
                           " GD_ERR = 'ESPN cookies have expired. Re-copy SWID and espn_s2.';")]
                          + go("live")),
+    # The only state that lets gdFetch actually run. Every other live state pins GD_DATA or
+    # GD_BUSY, so the fetch never fires and nothing here noticed that opening the page from a
+    # file logged "URL scheme file is not supported" on every attempt. This suite runs over
+    # file://, so without the PAGE_SERVED guard this state puts that error in
+    # test_no_console_errors -- which is the point of it.
+    ("live-unserved", [("eval", "GD_DATA = null; GD_ERR = ''; GD_BUSY = false; GD_AT = 0;")]
+                      + go("live")),
 ]
 
 SEED = """

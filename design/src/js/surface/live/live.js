@@ -98,6 +98,10 @@ const gdNextKick = now => gdKicks().find(k => k > now);
 
 async function gdFetch(){
   if (GD_BUSY) return;
+  /* No origin to ask. From disk this resolved to file:///api/live, which the browser refuses and
+     logs; every one of gdFetch's callers would hit it again on the next tick. Say so once, in the
+     same place every other failure of this endpoint is said, and stop. */
+  if (!PAGE_SERVED()){ GD_ERR = t("live.error.notServed"); paintLive(); return; }
   GD_BUSY = true;
 
   let payload = null, ok = false;

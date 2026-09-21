@@ -21,17 +21,12 @@ let FRESH_NEW = null;         // the newer stamp once there is one, else null
 
 const freshId = () => (typeof BUILD !== "undefined" && BUILD) ? BUILD.id : null;
 
-/* Only over http(s). Opened from disk -- the rendered-DOM test suite does exactly this, and so
-   does anyone double-clicking index.html -- a fetch resolves to file:///C:/build.json, which
-   Chromium refuses and logs as a console error on every single view. There is also nothing to
-   learn: a file on disk has no main to have moved on. */
-const freshServed = () => location.protocol === "http:" || location.protocol === "https:";
-
 async function freshCheck(){
   const now = Date.now();
+  // PAGE_SERVED: from disk there is no main to have moved on, and the attempt would only log.
   // Once it knows main has moved, there is nothing further to learn: the answer cannot go back
   // to "current" without a reload, and re-asking would only overwrite the banner with itself.
-  if (FRESH_NEW || !freshServed() || !freshId() || now - FRESH_AT < FRESH_GAP_MS) return;
+  if (FRESH_NEW || !PAGE_SERVED() || !freshId() || now - FRESH_AT < FRESH_GAP_MS) return;
   FRESH_AT = now;
   try {
     // Relative, so it follows the page rather than assuming the site root.

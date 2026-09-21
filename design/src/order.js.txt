@@ -17,6 +17,7 @@ data/news.js
 data/stock.js
 data/waiver.js
 lib/escape.js
+lib/served.js
 ui/player.js
 ui/matchup.js
 surface/teams/board.js

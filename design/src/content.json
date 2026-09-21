@@ -155,6 +155,7 @@
  "live.away.title": "while you were away",
  "live.bench": "Bench",
  "live.error.network": "Could not reach the scoreboard. It will try again.",
+ "live.error.notServed": "Live scores need the deployed site. This page was opened from a file.",
  "live.idle": "no games left this week",
  "live.left": "{n} left",
  "live.loading": "Reading the scoreboard…",
