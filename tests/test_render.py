@@ -224,6 +224,34 @@ def test_no_console_errors(snapshot):
     assert errors == {}
 
 
+@pytest.mark.parametrize("leaf,group,label", [
+    ("usage", "scouting", "GRID"),
+    ("waivers", "teams", "WAIVERS"),
+    ("parlay", "bets", "PARLAY"),
+])
+def test_a_hash_opens_its_view(browser, page_file, leaf, group, label):
+    """The view lives in the hash so a reload lands where you were reading. Renaming a leaf, or
+    dropping the hash write, breaks bookmarks and the Back button silently -- the page still works,
+    it just always opens on the roster. This is the only thing that would notice."""
+    ctx = browser.new_context(viewport={"width": 1280, "height": 900}, reduced_motion="reduce")
+    page = ctx.new_page()
+    page.set_default_timeout(5000)
+    page.route(re.compile(r"^https?://"), lambda route: route.abort())
+    page.add_init_script(SEED)
+    try:
+        page.goto(f"{page_file.as_uri()}#{leaf}")
+        page.wait_for_function("document.getElementById('view').children.length > 0")
+        assert page.locator(".navitem[aria-current='true']").get_attribute("data-s") == group
+        sub = page.locator("#subnav .mode-sub[aria-pressed='true']")
+        assert sub.inner_text().strip().upper().startswith(label)
+        # And navigating writes it back, so the next reload holds.
+        page.locator(".navitem[data-s='teams']").first.click()
+        page.wait_for_timeout(120)
+        assert page.evaluate("location.hash") == "#roster"
+    finally:
+        ctx.close()
+
+
 @pytest.mark.parametrize("state", [s for s, _ in STATES])
 def test_state_renders_something(snapshot, state):
     out, _ = snapshot

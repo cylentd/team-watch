@@ -8,6 +8,15 @@
 }
 .status-btn:hover{background:var(--panel-2)}
 .status-btn .dot{width:5px;height:5px;border-radius:99px}
+
+/* A newer build is on main. Lime because the pill stops being a reading to take and becomes a
+   control to press -- the same meaning lime already carries on the active tab and the sorted
+   column. The dot is the only motion in the topbar, and it earns it: this is the one state up
+   here that asks for an action, and it moves nothing the reader is looking at. */
+.status-btn.stale{border-color:var(--lime);color:var(--lime)}
+.status-btn.stale .dot{background:var(--lime);animation:freshpulse 2.4s var(--ease) infinite}
+@keyframes freshpulse{0%,100%{opacity:1}50%{opacity:.3}}
+
 .status-menu{
   position:absolute;top:calc(100% + 6px);right:0;z-index:20;min-width:250px;
   background:var(--panel-2);border:1px solid var(--line-2);border-radius:3px;

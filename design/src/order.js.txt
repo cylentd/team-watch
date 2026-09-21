@@ -61,6 +61,7 @@ ui/scrollers.js
 builder/wire.js
 chrome/render.js
 chrome/feed.js
+chrome/fresh.js
 chrome/nav.js
 chrome/drawer.js
 main.js

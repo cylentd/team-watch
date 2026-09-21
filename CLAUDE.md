@@ -79,12 +79,29 @@ question; `SURFACE` is always the **leaf**, never the group, and the group is de
 | Bets | Parlay, DFS |
 | Gameday | Live |
 
+The view is in the hash (`#usage`, `#roster`), so a reload, a bookmark and Back all land where they
+point; the group is derived from the leaf, and only the view is in the URL (the grid's position and
+week reset on purpose). `tests/test_render.py::test_a_hash_opens_its_view` pins it.
+
 `NAV` in `js/chrome/nav.js` is the whole table; a group of one draws no sub-row. Every copy key is
 spelled out literally, because `assemble.py --check` finds orphaned keys by scanning for literal
 lookups and cannot see one built from a template. The sub-row lives **outside** `.navbar`: on a
 phone the navbar is fixed to the bottom edge, and a `.modes-sub.dock` inside it lands in the slot
 Parlay's and DFS's own switchers already occupy. Adding a view = one entry in `NAV`, one copy key,
 one branch in `render()`.
+
+## Staying current in an open tab
+
+The page carries its data inside itself, so a tab left open holds the build it loaded with, however
+long it sits there. No cache header helps — the tab never asks again, and Vercel already serves the
+page `max-age=0, must-revalidate`, so a reload is always fresh. **Do not add a `max-age`**: it would
+only introduce staleness that does not exist today.
+
+`build.json` (written by `design/build.py`, folded in by `land.ps1` like the two pages) holds a hash
+of the injected data — never a clock, or every rebuild would claim new data. `js/chrome/fresh.js`
+fetches it on a tab click and on the window regaining focus, never on a timer: the refresh runs once
+a day and the week turns on a Tuesday. A different hash turns the DATA pill into a reload control,
+naming the new week when there is one. Only over http(s); from `file://` there is nothing to ask.
 
 ## Data
 

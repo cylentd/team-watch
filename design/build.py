@@ -5,6 +5,7 @@ slug -> data-URI map so the page works offline and as a published Artifact.
 Run: python design/build.py
 """
 import base64
+import hashlib
 import json
 import os
 import pathlib
@@ -543,8 +544,9 @@ def live_dfs_yahoo(available):
 
 class Build:
     """What render() returns: the two outputs plus the summary main() prints."""
-    def __init__(self, page, fragment, report, heads, missing):
+    def __init__(self, page, fragment, report, heads, missing, stamp=None):
         self.page, self.fragment, self.report, self.heads, self.missing = page, fragment, report, heads, missing
+        self.stamp = stamp or {}
 
 
 def wanted_slugs(live, liveY, props, dfs, waiver, pool):
@@ -659,11 +661,21 @@ def render():
     report.append(schedule_report(blocks["LIVE_SCHEDULE"]))
     for name, obj in blocks.items():
         contract.validate(name, obj)   # a missing field fails the build, not the page
+    # The build stamp is a hash of the data, never a clock. A timestamp would differ on every run,
+    # so `land.ps1` would fold a new build.json into every branch and the page would announce
+    # "new data" after a rebuild that changed nothing. The question the page actually asks is
+    # "is what I am looking at still the content on main", and that is exactly what this answers.
+    block_js = [f"const {name} = " + json.dumps(obj) + ";" for name, obj in blocks.items()]
+    stamp = {
+        "id": hashlib.sha256("".join(block_js).encode("utf-8")).hexdigest()[:12],
+        "week": ((blocks.get("LIVE_PROPS") or {}).get("model") or {}).get("week"),
+    }
     # A "</" inside a string (a headline quoting markup, say) would end the <script> early;
     # JSON reads "<\/" as the same two characters, and JS never sees the difference.
     injected = "\n".join(
         ["const HEADS = " + json.dumps(heads) + ";"]
-        + [f"const {name} = " + json.dumps(obj) + ";" for name, obj in blocks.items()]
+        + block_js
+        + ["const BUILD = " + json.dumps(stamp) + ";"]
     ).replace("</", "<\\/")
     tpl = assemble()
     body = tpl.replace("/*__HEADS__*/", injected)
@@ -691,13 +703,16 @@ def render():
     page = f"{head}\n{body}\n</body>\n</html>\n"
 
     report_sources(report, live, liveY, props, liveDfsYahoo, news, blocks["LIVE_PROFILES"], missing)
-    return Build(page, body, report, heads, missing)
+    return Build(page, body, report, heads, missing, stamp)
 
 
 def main():
     b = render()
     (ROOT / "index.html").write_text(b.fragment, encoding="utf-8")
     (REPO / "index.html").write_text(b.page, encoding="utf-8")
+    # Served at /build.json next to the page, under Vercel's static default (max-age=0,
+    # must-revalidate), so an open tab's check costs a 304 until the data actually moves.
+    (REPO / "build.json").write_text(json.dumps(b.stamp), encoding="utf-8")
     kb = len(b.page.encode("utf-8")) / 1024
     print(f"wrote {REPO/'index.html'} and {ROOT/'index.html'} ({kb:.0f} KB), {len(b.heads)} heads inlined")
     for line in b.report:

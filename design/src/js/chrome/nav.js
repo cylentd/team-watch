@@ -66,14 +66,28 @@ function paintSubnav(){
   }));
 }
 
-function navGo(leaf){
+/* The view lives in the hash, so a reload lands where you were reading rather than back on the
+   roster -- which matters more now that there are eight views instead of one. Only the view: the
+   grid's position and week reset, and that is a deliberate line, because every control that
+   learns the URL is another thing to keep in step with it. */
+const navFromHash = () => {
+  const leaf = (location.hash || "").replace(/^#\/?/, "");
+  return NAV.some(([, tabs]) => tabs.includes(leaf)) ? leaf : null;
+};
+
+function navGo(leaf, fromHash){
   LAST_LEAF[navGroupOf(leaf)] = leaf;
   SURFACE = leaf;
   const active = navGroupOf(leaf);
   document.querySelectorAll("#nav .navitem")
     .forEach(x => x.setAttribute("aria-current", x.dataset.s === active));
+  // Writing the hash back during a hashchange would re-enter this and fight the Back button.
+  if (!fromHash) location.hash = leaf;
   paintSubnav();
   render();
+  // Moving to a view is the moment you are about to read it, so it is the moment to ask whether
+  // what you are reading is still what is on main. Debounced in freshCheck, not here.
+  if (typeof freshCheck === "function") freshCheck();
 }
 
 function buildNav(){
@@ -91,6 +105,13 @@ function buildNav(){
     navGo(LAST_LEAF[g] || navTabsOf(g)[0]);
     window.scrollTo({top: 0, behavior: "smooth"});
   }));
+
+  /* Back and forward move between views, which is what a browser's own buttons are for and what
+     everyone tries first. The guard keeps a hash we just wrote from re-rendering the same view. */
+  window.addEventListener("hashchange", () => {
+    const leaf = navFromHash();
+    if (leaf && leaf !== SURFACE) navGo(leaf, true);
+  });
   paintSubnav();
 }
 
