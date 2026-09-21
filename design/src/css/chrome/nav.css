@@ -26,7 +26,13 @@
 /* ---- the group's views, one row under the groups ---- */
 /* Reuses .modes-sub / .mode-sub, the app's sub-tab component (the builder's modes and, until the
    nav went two-level, the Teams hero). A third caller is a component, not a coincidence. */
-.subnav{background:var(--panel-2);border-bottom:1px solid var(--line)}
+/* The row's own padding lives out here, on the full-bleed element, so that .subnav-in carries
+   nothing but .wrap's. Two reasons, and both bit once. A `padding:9px 0 10px` on .subnav-in is a
+   shorthand: it sets the horizontal sides to 0 as well, which dropped the first sub-tab 26px to
+   the left of the first nav item -- the two rows stopped sharing a left edge. And responsive/
+   760.css restates `.wrap{padding:0 14px}` after this file at equal specificity, so on a phone
+   that shorthand wins and takes the vertical padding with it. Nothing overrides the outer box. */
+.subnav{background:var(--panel-2);border-bottom:1px solid var(--line);padding:9px 0 10px}
 .subnav[hidden]{display:none}
-.subnav-in{display:flex;align-items:center;padding:9px 0 10px}
+.subnav-in{display:flex;align-items:center}
 
