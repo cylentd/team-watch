@@ -21,10 +21,14 @@ from pool import live_pool, report as pool_report  # design/pool.py: the Pool pa
 from usage import live_usage, load_grid, report as usage_report  # design/usage.py: the Usage grid
 from slate import assign_windows, day_windows, kickoff   # design/slate.py: kickoff windows
 from schedule import load_schedule, report as schedule_report  # when Live may poll, and when not
+from pedigree import live_pedigree, report as pedigree_report   # design/pedigree.py: the profile modal's bio strip
+from gamelog import live_gamelog, report as gamelog_report      # design/gamelog.py: the profile modal's weekly history
+from projections import live_projections, report as projections_report  # design/projections.py: projected vs actual
 from sources import (                                    # design/sources.py: the ff-jarvis adapter
     ROOT, REPO, DWR, FEED, ESPN_ROSTERS, YAHOO_ROSTERS, DFS_POOL,
     feed_block, read_first, load_status, load_props_raw, load_model_raw,
-    load_player_proj, load_wrcb, load_profiles, load_dfs_pool,
+    load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
+    load_draft_pedigree, load_weather,
 )
 
 # Pointed elsewhere by env var so a build can run against a pinned snapshot (the regression
@@ -632,6 +636,7 @@ def render():
     # portrait, so inlining one per name would add megabytes for a column that does not exist.
     usage = live_usage(load_grid(FEED, DWR), slugify)
     wanted = wanted_slugs(live, liveY, props, liveDfsYahoo, waiver, pool)
+    wanted_set = set(wanted)
 
     heads = {}
     missing = []
@@ -656,9 +661,17 @@ def render():
         "LIVE_POOL": pool,
         "LIVE_USAGE": usage,
         "LIVE_SCHEDULE": load_schedule(DWR),
+        "LIVE_PEDIGREE": live_pedigree(load_status(), load_draft_pedigree(), slugify, wanted_set),
+        "LIVE_GAMELOG": live_gamelog(load_gamelog_weekly(), slugify, wanted_set),
+        "LIVE_PROJECTIONS": live_projections(load_player_proj(), slugify, wanted_set),
+        "LIVE_WEATHER": load_weather(),
     }
     add_market_stock(blocks, report)
     report.append(schedule_report(blocks["LIVE_SCHEDULE"]))
+    report += [pedigree_report(blocks["LIVE_PEDIGREE"]), gamelog_report(blocks["LIVE_GAMELOG"]),
+              projections_report(blocks["LIVE_PROJECTIONS"]),
+              (f"Weather: {len(blocks['LIVE_WEATHER']['teams'])} teams" if blocks["LIVE_WEATHER"]
+               else "Weather: none, so no game-day forecast")]
     for name, obj in blocks.items():
         contract.validate(name, obj)   # a missing field fails the build, not the page
     # The build stamp is a hash of the data, never a clock. A timestamp would differ on every run,

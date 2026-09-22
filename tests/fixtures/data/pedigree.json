@@ -1,0 +1,16 @@
+{
+ "season": 2026,
+ "generated": "2026-09-21T05:58",
+ "draft": {
+  "chase brown": {"draft_number": 131, "entry_year": 2023, "rookie_year": 2023, "draft_club": "CIN"},
+  "jahmyr gibbs": {"draft_number": 12, "entry_year": 2023, "rookie_year": 2023, "draft_club": "DET"},
+  "amonra st brown": {"draft_number": 112, "entry_year": 2021, "rookie_year": 2021, "draft_club": "DET"},
+  "george kittle": {"draft_number": 146, "entry_year": 2017, "rookie_year": 2017, "draft_club": "SF"}
+ },
+ "bye": {"CIN": 10, "DET": 6, "SF": 8},
+ "fantasy_draft": {
+  "chase brown": {"espn": {"round": 3, "pick": 7, "drafted_by": "Big Salty"}},
+  "jahmyr gibbs": {"espn": {"round": 1, "pick": 1, "drafted_by": "Big Salty"},
+                   "yahoo": {"round": 1, "pick": 2, "drafted_by": "Team Minh"}}
+ }
+}

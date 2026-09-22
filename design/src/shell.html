@@ -49,6 +49,12 @@
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer" aria-hidden="true"></aside>
 
+<!-- The player profile is a centered popup, not a slide-over: it carries far more data than
+     the drawer's other two uses (the pool and DFS explain), so it gets its own scrim and its
+     own scale+fade-from-the-row motion (js/chrome/modal.js) instead of sharing #drawer's. -->
+<div class="modal-scrim" id="modal-scrim"></div>
+<div class="modal" id="modal" aria-hidden="true"></div>
+
 <!-- The chat launcher and its panel sit outside #view on purpose: render() replaces #view's
      markup on every surface change, so anything inside it loses its state. Out here the
      conversation survives navigating between tabs, which is the point of it being a panel

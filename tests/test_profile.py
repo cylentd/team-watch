@@ -152,35 +152,79 @@ def test_phone_moves_matchup_to_the_meta_line(browser, page_file):
 @pytest.mark.render
 def test_panel_blocks_and_details_collapsed(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
-    drawer = page.locator("#drawer")
+    modal = page.locator("#modal")
     row(page, "Amon-Ra St. Brown").click()
-    assert drawer.locator(".pf-sec").count() == 3
-    assert drawer.locator(".pf-rank").inner_text().strip() == "9th easiest of 32 for WRs"
-    assert "31% · 4 of 13" in drawer.locator(".pf-sec").nth(2).inner_text()
-    details = drawer.locator("details.pf-details")
+    # headline, role, red zone (the original three), plus usage trend, weekly history and
+    # projection (history.js) -- all six fixtures (player_profiles/usage_weekly/gamelog_weekly/
+    # player_projections) have a row for him.
+    assert modal.locator(".pf-sec").count() == 6
+    assert modal.locator(".pf-rank").inner_text().strip() == "9th easiest of 32 for WRs"
+    assert "31% · 4 of 13" in modal.locator(".pf-sec").nth(2).inner_text()
+    details = modal.locator("details.pf-details")
     assert details.count() == 1 and details.get_attribute("open") is None
-    assert not drawer.locator(".pf-dsec").first.is_visible()
-    drawer.locator(".pf-details > summary").click()
+    assert not modal.locator(".pf-dsec").first.is_visible()
+    modal.locator(".pf-details > summary").click()
     assert details.get_attribute("open") is not None
-    assert drawer.locator(".pf-tag", has_text="UNTESTED").first.inner_text().strip() == "UNTESTED"
-    assert drawer.inner_text().count("METHODOLOGY") == 1
+    assert modal.locator(".pf-tag", has_text="UNTESTED").first.inner_text().strip() == "UNTESTED"
+    assert modal.inner_text().count("METHODOLOGY") == 1
     page.keyboard.press("Escape")
-    assert "on" not in drawer.get_attribute("class")
+    assert "on" not in modal.get_attribute("class")
     assert page.evaluate("document.activeElement.classList.contains('row')")
     row(page, "Chase Brown").click()
-    text = drawer.inner_text()
-    assert "A back has no depth zones." in text and drawer.locator(".pf-stack").count() == 0
+    text = modal.inner_text()
+    assert "A back has no depth zones." in text and modal.locator(".pf-stack").count() == 0
     assert text.index("6 of 11") < text.index("1 of 13")                   # carries before targets
     page.keyboard.press("Escape")
     row(page, "Jahmyr Gibbs").click()
-    assert "Bye, or no schedule yet." in drawer.inner_text()
-    assert "5 of 9" in drawer.inner_text()                                  # carries, under 10
+    assert "Bye, or no schedule yet." in modal.inner_text()
+    assert "5 of 9" in modal.inner_text()                                  # carries, under 10
     page.keyboard.press("Escape")
     page.evaluate("VIEW='espn'; render()")
     row(page, "George Kittle").click()
-    assert "mu-hard" in drawer.locator(".pf-rank").get_attribute("class")
-    rz = drawer.locator(".pf-sec").nth(2).inner_text()
+    assert "mu-hard" in modal.locator(".pf-rank").get_attribute("class")
+    rz = modal.locator(".pf-sec").nth(2).inner_text()
     assert "3 of 8" in rz and "%" not in rz                                 # counts under 10
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_bio_strip_shows_pedigree_and_fantasy_draft(browser, page_file):
+    """tests/fixtures/data/pedigree.json: Jahmyr Gibbs was pick 12 overall in the real 2023 NFL
+    draft, drafted 1.01 by my ESPN team and 1.02 in Yahoo; Chase Brown has an ESPN pick only, the
+    per-league optional-ness that fantasy_draft's shape allows."""
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    row(page, "Jahmyr Gibbs").click()
+    bio = page.locator("#modal .pf-bio").inner_text()
+    assert "Bye wk 6" in bio
+    assert "NFL pick 12 (2023)" in bio
+    assert "ESPN pick 1.01" in bio
+    assert "Yahoo pick 1.02" in bio
+    page.keyboard.press("Escape")
+    row(page, "Chase Brown").click()
+    bio = page.locator("#modal .pf-bio").inner_text()
+    assert "ESPN pick 3.07" in bio
+    assert "Yahoo pick" not in bio
+    page.keyboard.press("Escape")
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_weather_line_shows_stadium_forecast(browser, page_file):
+    """tests/fixtures/data/weather.json: Amon-Ra St. Brown is away at KC (outdoor, sunny), Chase
+    Brown is home at CIN (outdoor, cooler), Jahmyr Gibbs has no next game (a bye in the fixture)
+    so no forecast to show at all."""
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    row(page, "Amon-Ra St. Brown").click()
+    assert "71°F, wind 10 mph · Sunny" in page.locator("#modal").inner_text()
+    page.keyboard.press("Escape")
+    row(page, "Chase Brown").click()
+    assert "58°F, wind 6 mph · Partly Cloudy" in page.locator("#modal").inner_text()
+    page.keyboard.press("Escape")
+    row(page, "Jahmyr Gibbs").click()
+    assert page.locator("#modal .pf-weather").count() == 0
+    page.keyboard.press("Escape")
     assert errors == []
     ctx.close()
 
@@ -202,9 +246,9 @@ def test_red_zone_line_switches_at_ten(browser, page_file):
 def test_market_row_shows_priced_numbers(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
     row(page, "Amon-Ra St. Brown").click()
-    drawer = page.locator("#drawer")
-    drawer.locator(".pf-details > summary").click()
-    text = drawer.inner_text()
+    modal = page.locator("#modal")
+    modal.locator(".pf-details > summary").click()
+    text = modal.inner_text()
     assert "UNTESTED" in text
     assert "17.8 pts" in text and "role 18.2 pts" in text
     assert "WR rank #5" in text and "z 0.82" in text
@@ -219,9 +263,9 @@ def test_market_row_falls_back_to_model_pts(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
     page.evaluate("VIEW='espn'; render()")
     row(page, "George Kittle").click()
-    drawer = page.locator("#drawer")
-    drawer.locator(".pf-details > summary").click()
-    text = drawer.inner_text()
+    modal = page.locator("#modal")
+    modal.locator(".pf-details > summary").click()
+    text = modal.inner_text()
     assert "UNTESTED" in text
     assert "13.1 pts, the model's number" in text
     assert "No market priced yet." in text
@@ -236,12 +280,12 @@ def test_market_row_zero_d_rank_shows_no_change_marker(browser, page_file):
     role line instead of sharing the rank line."""
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
     row(page, "Chase Brown").click()
-    drawer = page.locator("#drawer")
-    drawer.locator(".pf-details > summary").click()
-    rank_line = drawer.locator(".pf-cap", has_text="RB rank #8")
+    modal = page.locator("#modal")
+    modal.locator(".pf-details > summary").click()
+    rank_line = modal.locator(".pf-cap", has_text="RB rank #8")
     assert rank_line.count() == 1
     assert rank_line.locator(".delta").count() == 0
-    text = drawer.inner_text()
+    text = modal.inner_text()
     assert "z -0.05" in text
     page.keyboard.press("Escape")
     ctx.close()
@@ -254,9 +298,9 @@ def test_market_row_partial_markets_shows_priced_not_no_market(browser, page_fil
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
     page.evaluate("VIEW='espn'; render()")
     row(page, "Tee Higgins").click()
-    drawer = page.locator("#drawer")
-    drawer.locator(".pf-details > summary").click()
-    text = drawer.inner_text()
+    modal = page.locator("#modal")
+    modal.locator(".pf-details > summary").click()
+    text = modal.inner_text()
     assert "UNTESTED" in text
     assert "11.2 pts, the model's number" in text
     assert "Priced: REC" in text
@@ -274,10 +318,10 @@ def test_no_verdict_words_on_the_page(browser, page_file):
         assert not words.search(page.locator("body").inner_text()), view
         for i in range(page.locator(".row").count()):
             page.locator(".row").nth(i).click()
-            summary = page.locator("#drawer .pf-details > summary")
+            summary = page.locator("#modal .pf-details > summary")
             if summary.count():
                 summary.click()
-            assert not words.search(page.locator("#drawer").inner_text()), (view, i)
+            assert not words.search(page.locator("#modal").inner_text()), (view, i)
             page.keyboard.press("Escape")
     assert errors == []
     ctx.close()
@@ -291,7 +335,10 @@ def test_no_profiles_renders_dashes_and_a_quiet_panel(browser, monkeypatch, tmp_
     ctx, page, errors = open_page(browser, p, (390, 844))
     assert page.locator(".match .mu-n").count() == 0
     row(page, "Amon-Ra St. Brown").click()
-    assert page.locator("#drawer .pf-empty").count() == 1
-    assert page.locator("#drawer .pf-sec").count() == 0
+    assert page.locator("#modal .pf-empty").count() == 1
+    # The matchup/role/red-zone blocks need LIVE_PROFILES and are quiet without it, but usage
+    # trend, weekly history and projection each read their own source (LIVE_USAGE/LIVE_GAMELOG/
+    # LIVE_PROJECTIONS) and still render -- a player with no matchup profile is not blank.
+    assert page.locator("#modal .pf-sec").count() == 3
     assert errors == []
     ctx.close()

@@ -24,6 +24,9 @@ BP_PROPS = DWR / "bettingpros_props.json"
 SLEEPER_STATUS = DWR / "sleeper_status.json"
 DFS_POOL = DWR / "dfs_pool.json"
 PLAYER_PROJ = DWR / "player_projections.json"
+GAMELOG_WEEKLY = DWR / "gamelog_weekly.json"
+PEDIGREE = DWR / "pedigree.json"
+WEATHER = DWR / "weather.json"
 
 
 def load_status():
@@ -134,6 +137,28 @@ def load_profiles():
     data/player_profiles.json, feed block `profiles` first. None renders no chips and a quiet
     "no profile yet" panel."""
     return feed_block(("profiles",), "players") or read_first(DWR / "player_profiles.json")
+
+
+def load_gamelog_weekly():
+    """Per-player-week box score (rush/rec yards, TDs, receptions, fantasy points) from ff-jarvis's
+    model.season.gamelog_weekly, feed block `gamelog` first, the file second -- same two-tier
+    pattern as load_profiles(). The profile modal's weekly-history table reads this."""
+    return feed_block(("gamelog",), "rows") or read_first(GAMELOG_WEEKLY)
+
+
+def load_draft_pedigree():
+    """Real NFL draft capital, bye week, and each league's fantasy draft picks, from ff-jarvis's
+    model.season.pedigree, feed block `pedigree` first, the file second -- same two-tier pattern
+    as load_gamelog_weekly()."""
+    return feed_block(("pedigree",), "draft") or read_first(PEDIGREE)
+
+
+def load_weather():
+    """Game-day forecast per stadium from ff-jarvis's model.clients.weather (National Weather
+    Service), feed block `weather` first, the file second -- same two-tier pattern as
+    load_gamelog_weekly(). No `wanted`-slug cut: it is keyed by team, already small (32 rows).
+    Passed straight through -- no reshaping, so no dedicated design/weather.py transform."""
+    return feed_block(("weather",), "teams") or read_first(WEATHER)
 
 
 def load_dfs_pool():

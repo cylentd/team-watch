@@ -1,0 +1,12 @@
+{
+ "generated": "2026-09-21T21:00",
+ "teams": {
+  "DET": {"roof": "dome"},
+  "KC": {"roof": "outdoor", "as_of": "2026-09-21T18:00:00+00:00", "name": "Sunday",
+         "temp_f": 71, "wind": "10 mph", "wind_dir": "S", "short": "Sunny", "precip_pct": 0},
+  "SF": {"roof": "outdoor", "as_of": "2026-09-21T18:00:00+00:00", "name": "Sunday",
+         "temp_f": 64, "wind": "12 mph", "wind_dir": "W", "short": "Mostly Sunny", "precip_pct": 5},
+  "CIN": {"roof": "outdoor", "as_of": "2026-09-21T18:00:00+00:00", "name": "Sunday",
+          "temp_f": 58, "wind": "6 mph", "wind_dir": "N", "short": "Partly Cloudy", "precip_pct": 10}
+ }
+}

@@ -132,7 +132,7 @@ function wireUsage(v){
   v.querySelectorAll("[data-usage]").forEach(el => {
     const r = USAGE.rows.find(x => x.slug === el.dataset.usage && x.pos === USAGE_POS && x.wk === USAGE_WEEK);
     const open = () => openProfile(r && {n: r.n, pos: r.pos, team: r.team, slug: r.slug},
-                                   `${t("usage.filter.week")} ${USAGE_WEEK}`);
+                                   `${t("usage.filter.week")} ${USAGE_WEEK}`, el);
     el.addEventListener("click", open);
     el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); open(); } });
   });

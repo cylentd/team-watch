@@ -100,6 +100,35 @@ CONTRACT = {
         "keys": ["through_week", "ready", "players"],
         "map": ("players", ["series", "verdict", "why", "news", "hot"]),
     },
+    # design/pedigree.py, from ff-jarvis's sleeper_status.json, cut to the players the page can
+    # show. Every field may be null (Sleeper carries no bio for some deep rookies); the key
+    # itself is missing only for a player the page cannot draw a headshot for either.
+    "LIVE_PEDIGREE": {
+        "keys": ["players"],
+        "map": ("players", ["age", "height", "weight", "years_exp", "depth", "depth_pos",
+                            "draft_number", "entry_year", "rookie_year", "bye", "fantasy_draft"]),
+    },
+    # design/gamelog.py, from ff-jarvis's model.season.gamelog_weekly box score, cut to the
+    # players the page can show. The profile modal's weekly-history table.
+    "LIVE_GAMELOG": {
+        "keys": ["season", "weeks", "through", "generated", "rows"],
+        "rows": ("rows", ["n", "slug", "pos", "team", "opp", "wk", "pts", "car", "rush_yds",
+                          "rush_td", "tgt", "rec", "rec_yds", "rec_td", "pass_yds", "pass_td"]),
+    },
+    # design/projections.py, from ff-jarvis's model.market.projections, cut to the players the
+    # page can show. `mu` is the component means (PASS/RUSH/TD/...), read as-is off the source.
+    "LIVE_PROJECTIONS": {
+        "keys": ["players"],
+        "map": ("players", ["pts", "mu", "games", "src"]),
+    },
+    # ff-jarvis's model.clients.weather (National Weather Service), passed straight through, keyed
+    # by team. `roof` is the only key guaranteed present -- a dome has nothing else, and an
+    # outdoor/retractable team missing a live forecast (a miss the client already prints and
+    # skips) has only that too.
+    "LIVE_WEATHER": {
+        "keys": ["generated", "teams"],
+        "map": ("teams", ["roof"]),
+    },
 }
 
 

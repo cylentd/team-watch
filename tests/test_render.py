@@ -1,7 +1,7 @@
 """The rendered page, in Chromium, against a golden snapshot.
 
 What one run captures, for every surface and its main toggles, at a desktop and a phone width:
-`#view` and `#drawer` markup (headshot data URIs elided) and the computed style of the first
+`#view`, `#drawer` and `#modal` markup (headshot data URIs elided) and the computed style of the first
 element carrying each class the CSS defines, over the properties a theme change would move.
 A refactor that promises "no visual change" is proved here by an empty diff; an intended change
 regenerates the golden with `pytest --update-golden` and the diff is the review.
@@ -82,22 +82,22 @@ def go(leaf):
 STATES = [
     ("teams-yahoo", []),
     ("teams-espn", [("eval", "VIEW='espn'; render()")]),
-    ("teams-drawer", [("click", ".row")]),   # Joe Burrow: no profile, the quiet state
+    ("teams-modal", [("click", ".row")]),   # Joe Burrow: no matchup profile, the quiet state
     ("waivers-espn", [("eval", "VIEW='espn'; render()")] + go("waivers")),   # moves + all three lanes
     ("waivers-yahoo", go("waivers")),   # no moves, one lane
-    ("profile-wr-drawer", [("click", ".row:has-text('Amon-Ra St. Brown')")]),
-    ("profile-wr-details-drawer", [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#drawer .pf-details > summary")]),
-    ("profile-rb-drawer", [("click", ".row:has-text('Chase Brown')"), ("click", "#drawer .pf-details > summary")]),
-    ("profile-bye-drawer", [("click", ".row:has-text('Jahmyr Gibbs')")]),
+    ("profile-wr-modal", [("click", ".row:has-text('Amon-Ra St. Brown')")]),
+    ("profile-wr-details-modal", [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#modal .pf-details > summary")]),
+    ("profile-rb-modal", [("click", ".row:has-text('Chase Brown')"), ("click", "#modal .pf-details > summary")]),
+    ("profile-bye-modal", [("click", ".row:has-text('Jahmyr Gibbs')")]),
     ("pool", go("pool")),
     ("pool-drawer", go("pool") + [("click", "[data-pool]")]),
     # The usage grid: the default RB week-2 level view, the same grid as week-over-week change
     # (the mode the level view cannot show), a QB grid because its columns are the ones with no
-    # counterpart anywhere else in the app, and the drawer a row opens.
+    # counterpart anywhere else in the app, and the profile modal a row opens.
     ("usage", go("usage")),
     ("usage-change", go("usage") + [("click", "[data-umode='change']")]),
     ("usage-qb", go("usage") + [("click", "[data-upos='QB']")]),
-    ("usage-drawer", go("usage") + [("click", "[data-usage]")]),
+    ("usage-modal", go("usage") + [("click", "[data-usage]")]),
     ("parlay-underdog", go("parlay")),
     ("parlay-dk", go("parlay") + [("click", "[data-parlaybook='dk']")]),
     ("parlay-dk-mine", go("parlay") + [("click", "[data-parlaybook='dk']"),
@@ -167,6 +167,8 @@ PROBE = """
   return {view: strip(document.getElementById("view").innerHTML),
           drawer: strip(document.getElementById("drawer").innerHTML),
           drawerOpen: document.getElementById("drawer").classList.contains("on"),
+          modal: strip(document.getElementById("modal").innerHTML),
+          modalOpen: document.getElementById("modal").classList.contains("on"),
           // The chat panel lives outside #view so it survives a surface change, which also means
           // the two probes above would never see it.
           chat: strip(document.getElementById("chatdock").innerHTML),
@@ -267,6 +269,9 @@ def test_state_renders_something(snapshot, state):
     if state.endswith("drawer"):
         assert out["desk"][state]["drawerOpen"], "drawer did not open"
         assert len(out["desk"][state]["drawer"]) > 100
+    if state.endswith("modal"):
+        assert out["desk"][state]["modalOpen"], "modal did not open"
+        assert len(out["desk"][state]["modal"]) > 100
     if state.startswith("chat-"):
         for vp in VIEWPORTS:
             assert out[vp][state]["chatOpen"], f"{vp}/{state}: the chat panel did not open"
@@ -293,7 +298,7 @@ def diff(golden, now, limit=25):
             if g is None:
                 lines.append(f"{vp}/{state}: no golden yet")
                 continue
-            for key in ("view", "drawer", "chat"):
+            for key in ("view", "drawer", "modal", "chat"):
                 if g[key] != n[key]:
                     i = next((i for i, (a, b) in enumerate(zip(g[key], n[key])) if a != b), min(len(g[key]), len(n[key])))
                     lines.append(f"{vp}/{state}: #{key} differs at char {i}: ...{n[key][max(0, i-40):i+60]!r}")

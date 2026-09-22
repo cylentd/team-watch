@@ -12,7 +12,7 @@ function headHTML(p, cls){
 }
 
 function sparkHTML(v, w, h){
-  if (!v) {
+  if (!v || v.length < 2) {   // one point has no shape to draw; same flat line as no data
     return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
       <line x1="1" y1="${h/2}" x2="${w-1}" y2="${h/2}" stroke="var(--line-2)" stroke-width="1.4" stroke-dasharray="3 4"/>
     </svg>`;

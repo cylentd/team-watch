@@ -20,8 +20,10 @@ surface/teams/matchup.css
 surface/teams/wire.css
 component/empty.css
 chrome/drawer.css
+chrome/modal.css
 surface/profile/panel.css
 surface/profile/details.css
+surface/profile/history.css
 chrome/footer.css
 chrome/nav.css
 surface/pool/pool.css
