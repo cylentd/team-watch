@@ -22,10 +22,3 @@
 @media (max-width:760px){
   .modal{width:96vw;max-height:92vh}
 }
-/* Edge to edge on a phone. At 96vw/92vh the profile left a ~7px sliver of the page showing on
-   all four sides -- enough to read as a window that missed its target, not as a deliberate
-   inset -- while costing the one thing a phone has least of. dvh, not vh, so the sheet is not
-   taller than the visible area while the browser's own chrome is on screen. */
-@media (max-width:430px){
-  .modal{width:100vw;max-height:100dvh;border-left:0;border-right:0}
-}

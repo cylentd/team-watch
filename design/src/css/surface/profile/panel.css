@@ -52,21 +52,6 @@
 .pf-table small{color:var(--ink-3);font-size:var(--t-1)}
 .pf-table tbody tr:last-child th,.pf-table tbody tr:last-child td{border-bottom:0}
 
-/* One column, and a different reading order from the desktop one. Side by side, the stat sheet
-   and the week's blocks are read together; stacked, whatever comes second is a scroll away, and
-   the pedigree (age, size, draft round, league pick) is the one part of this modal that answers
-   nothing about Sunday. So: the sheet, then the week, then who he is. The left column becomes
-   display:contents so its three parts can be ordered independently of each other. */
 @media (max-width:960px){
-  /* align-items back to stretch: the desktop grid sets `start`, and a column flex container
-     reads that on the cross axis, so each block sized to its own content instead of the phone.
-     The weekly table's min-content (363px) then set the width of every section beside it and
-     pushed "Toughest", the WR-avg legend and the right of every rule past the screen edge. */
-  .pf-body{display:flex;flex-direction:column;align-items:stretch;padding-top:6px}
-  .pf-side{display:contents}
-  .pf-sheet{order:1}
-  .pf-main{order:2}
-  /* Between two sections now, so it takes a section's own top rule and spacing. */
-  .pf-facts{order:3;margin-top:0;padding-top:20px}
-  .pf-sec-proj{order:4;border-bottom:0}
+  .pf-body{display:block}
 }

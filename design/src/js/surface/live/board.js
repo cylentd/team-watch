@@ -30,9 +30,7 @@ function gdBadge(row){
    A defence loses its suffix instead of its surname -- the slot column already says D/ST. */
 function gdShort(name){
   const s = String(name);
-  if (/\sD\/ST$/.test(s)) return s.replace(/\sD\/ST$/, "");
-  const parts = s.split(/\s+/);
-  return parts.length > 1 ? `${parts[0][0]}. ${parts.slice(1).join(" ")}` : s;
+  return /\sD\/ST$/.test(s) ? s.replace(/\sD\/ST$/, "") : nameInitial(s);
 }
 
 /* Three states, not two. "9.2" against a name means something different depending on whether

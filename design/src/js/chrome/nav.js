@@ -36,15 +36,23 @@ const navGroupLabel = (group, short) => (short ? {
   bets: t("nav.group.bets.full"), gameday: t("nav.group.gameday.full"),
 })[group] || group;
 
+/* Claims are placed Tuesday and clear midweek, so on a Tuesday (the reader's local day) the wire
+   is the question: an empty hash opens Waivers and Waivers leads its group. A hash still wins.
+   The day comes from Date.now(), which the render suite pins, so a test picks the weekday. */
+const navWaiverDay = () => new Date(Date.now()).getDay() === 2;
+const navDefaultLeaf = () => navWaiverDay() ? "waivers" : NAV[0][1][0];
+
 const navGroupOf = leaf => (NAV.find(([, tabs]) => tabs.includes(leaf)) || NAV[0])[0];
-const navTabsOf = group => (NAV.find(([g]) => g === group) || NAV[0])[1];
+function navTabsOf(group){
+  const tabs = (NAV.find(([g]) => g === group) || NAV[0])[1];
+  return navWaiverDay() && tabs.includes("waivers") ? ["waivers", ...tabs.filter(k => k !== "waivers")] : tabs;
+}
 
 /* Waivers is the one leaf whose label carries a number: how many players are on the wire. It is
    the only count that changes what you would do next, so it is the only one worth a badge. */
 function navCount(leaf){
-  if (leaf !== "waivers") return "";
-  const lg = waiverFor(VIEW);
-  return lg ? ` <span class="tabcount">${lg.wire.length}</span>` : "";
+  if (leaf !== "waivers" || !WAIVER) return "";
+  return ` <span class="tabcount">${waiverPlayers().filter(r => r.tier !== "stash").length}</span>`;
 }
 
 /* A group with one leaf gets no row: a sub-nav of one is a label pretending to be a choice. */

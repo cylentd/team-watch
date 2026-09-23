@@ -50,13 +50,7 @@ function sheetDefaultAxis(s){
 
 /* One axis per stat: his season rank among the position, first place at the rim and last at the
    centre, with a tick on each axis where its elite bar sits. Labels are buttons; the card under
-   the sheet shows the chosen stat's number, rank, threshold and week-by-week line.
-
-   The grid rings are circles, not polygons. Six concentric hexagons crossed by six spokes read
-   as a drawn cube -- the eye resolves the three long diagonals into a box and the tinted shape
-   inside it into a plane leaning in it -- which is exactly the one thing this chart must not
-   look like. A round grid has no second reading, and a radius that means a percentile is round
-   anyway. */
+   the sheet shows the chosen stat's number, rank, threshold and week-by-week line. */
 function radarHTML(p){
   const s = sheetFor(p);
   if (!s) return "";
@@ -66,52 +60,37 @@ function radarHTML(p){
   const k = i => { const rk = ranks[i]; return rk && rk[1] > 1 ? Math.max(.04, 1 - (rk[0] - 1) / (rk[1] - 1)) : .04; };
   const ang = i => -Math.PI / 2 + i * 2 * Math.PI / n;
   const xy = (i, r) => [cx + Math.cos(ang(i)) * R * r, cy + Math.sin(ang(i)) * R * r];
-  const ring = (r, cls, i) => `<circle class="pf-radar-ring${cls}" style="--i:${i}" cx="${cx}" cy="${cy}" r="${(R * r).toFixed(1)}"/>`;
-  const rings = [.25, .5, .75].map((r, i) => ring(r, "", 2 - i)).join("") + ring(1, " rim", 0);
-  const spokes = s.axes.map((_, i) => { const [x, y] = xy(i, 1); return `<line class="pf-radar-axis" style="--i:${i}" x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`; }).join("");
+  const pts = r => s.axes.map((_, i) => xy(i, r).map(v => v.toFixed(1)).join(",")).join(" ");
+  const rings = [.25, .5, .75].map(r => `<polygon class="pf-radar-ring" points="${pts(r)}"/>`).join("")
+    + `<polygon class="pf-radar-ring rim" points="${pts(1)}"/>`;
+  const spokes = s.axes.map((_, i) => { const [x, y] = xy(i, 1); return `<line class="pf-radar-axis" x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`; }).join("");
   return `<div class="pf-sheet pos-${esc(String(s.pos).toLowerCase())}" data-slug="${esc(p.slug)}">
-    <svg class="pf-radar" viewBox="0 0 400 340" role="img" aria-label="${t("profile.sheet.label")}">
-      <g class="pf-radar-grid">${rings}${spokes}</g>
-      ${eliteBarsHTML(s, ang, xy, sel)}
-      <g class="pf-radar-grow">${shapeHTML(s, ranks, k, xy, sel)}</g>
-      ${axisLabelsHTML(s, ranks, sel, ang, xy)}</svg>
-    <p class="pf-radar-key">${radarKeyText(s)}</p>
+    <svg class="pf-radar" viewBox="0 0 400 340" role="img" aria-label="${t("profile.sheet.label")}">${rings}${spokes}
+      ${eliteBarsHTML(s, ang, xy)}${shapeHTML(s, ranks, k, xy)}${axisLabelsHTML(s, ranks, sel, ang, xy)}</svg>
     <p class="pf-cap pf-quiet">${captionHTML(s, ranks, sel)}</p>
     <div class="pf-stat">${statDetailHTML(s, sel)}</div></div>`;
-}
-
-/* The two things a radar cannot say for itself: which way is better, and what the ticks across
-   it are. One line under the chart, once -- not a hover, which a phone never sees, and not a
-   paragraph. The tick half is dropped when this position publishes no elite bar to draw. */
-function radarKeyText(s){
-  const ticks = s.axes.some(a => eliteRadius(s.pos, a.id, a.elite) !== null);
-  return t("profile.sheet.scale") + (ticks ? " · " + t("profile.sheet.eliteKey") : "");
 }
 
 /* An axis he has no number for is left out of the shape rather than pinned at the centre: a
    receiver heatradar has not covered yet is unmeasured on four axes, not the worst in the league
    on them, and a shape pinched to the middle says the second thing. */
-function shapeHTML(s, ranks, k, xy, sel){
+function shapeHTML(s, ranks, k, xy){
   const idx = s.axes.map((_, i) => i).filter(i => ranks[i] !== null);
   const pts = idx.map(i => xy(i, k(i)).map(v => v.toFixed(1)).join(",")).join(" ");
-  /* Each vertex carries its own stat id, so picking a label lights the point it belongs to.
-     Without it the highlight moved on the label and the shape never answered. */
   const dots = idx.map(i => {
     const [x, y] = xy(i, k(i));
-    return `<circle class="pf-radar-dot${s.axes[i].id === sel ? " on" : ""}" data-col="${esc(s.axes[i].id)}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5"/>`;
+    return `<circle class="pf-radar-dot" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5"/>`;
   }).join("");
   return `<polygon class="pf-radar-shape" points="${pts}"/>${dots}`;
 }
 
-/* The elite bar, as a short tick across its own axis: a shape reaching past it is elite there.
-   Solid and 14 units long, not a 12-unit dashed one -- at the size this draws, a dash array
-   left three dots floating in the chart that read as dust rather than as a threshold. */
-function eliteBarsHTML(s, ang, xy, sel){
+/* The elite bar, as a short dash across its own axis: a shape reaching past it is elite there. */
+function eliteBarsHTML(s, ang, xy){
   return s.axes.map((a, i) => {
     const er = eliteRadius(s.pos, a.id, a.elite);
     if (er === null) return "";
-    const [x, y] = xy(i, er), dx = -Math.sin(ang(i)) * 7, dy = Math.cos(ang(i)) * 7;
-    return `<line class="pf-radar-bar${a.id === sel ? " on" : ""}" data-col="${esc(a.id)}" x1="${(x - dx).toFixed(1)}" y1="${(y - dy).toFixed(1)}" x2="${(x + dx).toFixed(1)}" y2="${(y + dy).toFixed(1)}"/>`;
+    const [x, y] = xy(i, er), dx = -Math.sin(ang(i)) * 6, dy = Math.cos(ang(i)) * 6;
+    return `<line class="pf-radar-bar" x1="${(x - dx).toFixed(1)}" y1="${(y - dy).toFixed(1)}" x2="${(x + dx).toFixed(1)}" y2="${(y + dy).toFixed(1)}"/>`;
   }).join("");
 }
 
@@ -122,7 +101,7 @@ function axisLabelsHTML(s, ranks, sel, ang, xy){
     // The two-line block sits above a top axis, below a bottom one, centred on a side one.
     const ys = sn < -.7 ? y - 12 : sn > .7 ? y + 6 : y - 5;
     const rk = ranks[i] ? rankMark(ranks[i]) : "—";
-    return `<text class="pf-radar-l${a.id === sel ? " on" : ""}" style="--i:${i}" data-col="${esc(a.id)}" role="button" tabindex="0" x="${x.toFixed(1)}" y="${ys.toFixed(1)}" text-anchor="${anchor}"><tspan x="${x.toFixed(1)}">${esc(a.label)}</tspan><tspan class="pf-radar-v" x="${x.toFixed(1)}" dy="17">${rk}</tspan></text>`;
+    return `<text class="pf-radar-l${a.id === sel ? " on" : ""}" data-col="${esc(a.id)}" role="button" tabindex="0" x="${x.toFixed(1)}" y="${ys.toFixed(1)}" text-anchor="${anchor}"><tspan x="${x.toFixed(1)}">${esc(a.label)}</tspan><tspan class="pf-radar-v" x="${x.toFixed(1)}" dy="17">${rk}</tspan></text>`;
   }).join("");
 }
 
@@ -161,21 +140,15 @@ function statDetailHTML(s, axis){
     <b>${usageFmt(v, a.fmt)}</b><span class="pf-stat-side">${rank}${bar}</span>${line}`;
 }
 
-/* Tapping a stat on the sheet swaps the card under it and moves the highlight. One `data-col`
-   sweep lights the label, its vertex and its elite tick together, so the chart and the card are
-   visibly the same stat; the card then replays its own entrance so the number reads as changed
-   rather than as always having been that. */
+/* Tapping a stat on the sheet swaps the card under it and moves the highlight. */
 function wireSheet(d){
   const el = d.querySelector(".pf-sheet");
   if (!el) return;
   const s = sheetFor({slug: el.dataset.slug});
   if (!s) return;
-  const card = el.querySelector(".pf-stat");
   const pick = node => {
-    const col = node.dataset.col;
-    el.querySelectorAll("[data-col]").forEach(x => x.classList.toggle("on", x.dataset.col === col));
-    card.innerHTML = statDetailHTML(s, col);
-    card.classList.remove("swap"); void card.offsetWidth; card.classList.add("swap");
+    el.querySelectorAll(".pf-radar-l").forEach(x => x.classList.toggle("on", x === node));
+    el.querySelector(".pf-stat").innerHTML = statDetailHTML(s, node.dataset.col);
   };
   el.querySelectorAll(".pf-radar-l").forEach(node => {
     node.addEventListener("click", () => pick(node));

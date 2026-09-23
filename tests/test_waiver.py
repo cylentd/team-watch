@@ -10,28 +10,58 @@ def _waiver(built):
     return json.loads(m.group(1).replace("<\\/", "</"))
 
 
-def test_block_carries_both_leagues_and_the_clear_time(built):
+def test_block_carries_league_meta_in_packet_order(built):
     w = _waiver(built)
-    assert w["clears"] == "2026-09-23T00:00" and w["week"] == 2
-    assert set(w["leagues"]) == {"espn", "yahoo"}
-    assert w["leagues"]["yahoo"]["team"] == "Chat Take the Wheel \U0001F47E"
-    assert w["leagues"]["espn"]["budget_left"] == 1000
+    assert w["week"] == 3 and w["clears"] == "2026-09-23T03:00:00-04:00"
+    assert list(w["leagues_meta"]) == ["espn", "yahoo"]
+    assert w["leagues_meta"]["espn"] == {"label": "ESPN", "faab_left": 64, "faab_budget": 100,
+                                        "clears": "2026-09-23T03:00:00-04:00", "needs": ["TE"]}
 
 
-def test_rows_keep_the_packet_numbers_and_gain_a_slug(built):
-    espn = _waiver(built)["leagues"]["espn"]
-    fant, lock, claiborne = espn["wire"]
-    assert fant["slug"] == "noah-fant" and fant["role_pts"] == 6.6 and fant["edge"] == 2.4
-    assert fant["starts"] == {"replaces": "George Kittle", "slot": "TE", "their_pts": 9.0, "margin": -2.4}
-    assert lock["promoted"] == {"from": 2, "to": 1}
-    assert claiborne["vacated"] == {"name": "Jordan Mason", "injury": "Thumb"} and claiborne["starts"] is None
-    assert espn["adds"][0]["upgrade"]["margin"] == 1.8
+def test_one_card_per_player_grouped_by_tier(built):
+    """Emanuel Wilson is on both leagues' wires: one card, and the first league's record wins
+    (the Yahoo copy has an empty `leagues` map and would drop his ESPN row)."""
+    rows = _waiver(built)["players"]
+    names = [r["n"] for r in rows]
+    assert names.count("Emanuel Wilson") == 1
+    assert [r["tier"] for r in rows] == ["must", "worth", "worth", "watch", "watch", "watch", "spec", "stash"]
+    wilson = rows[0]
+    assert wilson["slug"] == "emanuel-wilson" and set(wilson["leagues"]) == {"espn", "yahoo"}
+    assert wilson["leagues"]["espn"]["verdict"] == {"kind": "start", "over": "Chase Brown", "slot": "FLEX", "margin": 4.6}
+    assert wilson["leagues"]["espn"]["drop"] == {"name": "Tee Higgins", "pos": "WR", "pts": 6.1}
+
+
+def test_rows_keep_injury_news_and_summary_source(built):
+    rows = {r["n"]: r for r in _waiver(built)["players"]}
+    pw = rows["Parker Washington"]
+    assert (pw["injury"], pw["injury_note"], pw["practice"], pw["news_count"]) == ("Q", "ankle", "LP", 2)
+    assert pw["summary"]["src"] == "rule" and pw["leagues"]["yahoo"]["status"] == "rostered"
+    assert rows["Tyler Shough"]["summary"] is None
+    assert rows["Tyler Allgeier"]["tier"] == "stash"
+
+
+def _block(**row):
+    base = {k: None for k in contract.WAIVER_ROW}
+    base["leagues"] = {}
+    base.update(row)
+    meta = {k: None for k in contract.WAIVER_META}
+    return {"date": "", "week": 3, "clears": "", "leagues_meta": {"espn": meta}, "players": [base]}
 
 
 def test_a_row_missing_a_field_fails_the_contract():
-    row = {k: None for k in contract.WAIVER_ROW}
-    del row["edge"]
-    obj = {"date": "", "week": 2, "clears": "", "leagues": {"espn": {
-        "team": "x", "type": "faab", "budget_left": 1, "lineup_unknown": False,
-        "wire": [row], "adds": [], "stash": [], "drops": []}}}
-    assert contract.problems("LIVE_WAIVER", obj) == ["LIVE_WAIVER.leagues['espn'].wire[0].edge"]
+    obj = _block()
+    del obj["players"][0]["tier"]
+    assert contract.problems("LIVE_WAIVER", obj) == ["LIVE_WAIVER.players[0].tier"]
+
+
+def test_a_league_view_missing_a_field_fails_the_contract():
+    lg = {"status": "fa", "clears": None, "need": False, "verdict": {"kind": "start", "over": "X", "slot": "RB"},
+          "drop": None}
+    obj = _block(leagues={"espn": lg})
+    assert contract.problems("LIVE_WAIVER", obj) == ["LIVE_WAIVER.players[0].leagues['espn'].verdict.margin"]
+
+
+def test_league_meta_missing_faab_fails_the_contract():
+    obj = _block()
+    del obj["leagues_meta"]["espn"]["faab_left"]
+    assert contract.problems("LIVE_WAIVER", obj) == ["LIVE_WAIVER.leagues_meta['espn'].faab_left"]

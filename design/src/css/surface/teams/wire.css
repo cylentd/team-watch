@@ -1,50 +1,8 @@
 /* ============================== WAIVERS SUB-TAB ============================== */
+/* The cards themselves live in wcard.css. */
 .teamstabs{margin-top:14px}
 .tabcount{margin-left:5px;color:var(--ink-3)}
 .mode-sub[aria-pressed="true"] .tabcount{color:inherit}
-
-/* One grid for the column heads and the rows, so every column lines up. */
-.wvhead,.wvrow{
-  display:grid;grid-template-columns:28px 46px 280px minmax(0,1fr) 128px 220px;
-  grid-template-areas:"rank head name why worth starts";gap:16px;align-items:center;
-}
-.wvhead{padding:0 14px 6px 12px;margin-top:18px}
-.wvhead .ch{font-family:var(--mono);font-size:var(--t-1);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
-.wvhead .ch-why{grid-area:why}
-.wvhead .ch-worth{grid-area:worth;cursor:help}
-.wvhead .ch-starts{grid-area:starts}
-.wvrow{
-  padding:11px 14px 11px 12px;border-bottom:1px solid var(--line);
-  cursor:pointer;position:relative;transition:background .18s var(--ease);
-}
-.wvrow::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--lime);transform:scaleY(0);transition:transform .28s var(--ease)}
-.wvrow:hover{background:var(--panel-2)}
-.wvrow:hover::before{transform:scaleY(1)}
-.wvrow:focus-visible{outline:1px solid var(--lime);outline-offset:-1px}
-.wv-rank{grid-area:rank;font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink-3);text-align:right}
-.wvrow .head{grid-area:head}
-.wvrow .nm{grid-area:name}
-.tag.lane{color:var(--ink-2);border:1px solid var(--line-2);cursor:help}
-.wv-why{grid-area:why;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2);letter-spacing:.02em;line-height:1.45}
-.wv-worth{grid-area:worth;font-family:var(--mono)}
-.wv-worth b{display:block;font-size:var(--t-3);font-weight:700;color:var(--ink)}
-.wv-worth small{display:block;font-size:var(--t-1);color:var(--ink-3);margin-top:2px;letter-spacing:.02em}
-.wv-starts{grid-area:starts;font-family:var(--mono)}
-.wv-vs{font-size:var(--t-1);color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wv-margin{font-size:var(--t-1);font-weight:700;margin-top:3px;letter-spacing:.04em}
-.wv-margin.up{color:var(--up)}
-.wv-margin.down{color:var(--down)}
-.wv-none{font-size:var(--t-1);color:var(--ink-3)}
-
-/* Suggested moves: one line each, the verb first. Add is up, drop is down, stash is neither. */
-.wvmoves{border-top:1px solid var(--line);margin-top:14px}
-.wvmove{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);min-width:0}
-.wvmove b{font-weight:500;font-size:var(--t-3);white-space:nowrap}
-.wvmove.add .tag{color:var(--up);border:1px solid rgb(var(--up-rgb) / .4)}
-.wvmove.drop .tag{color:var(--down);border:1px solid rgb(var(--down-rgb) / .4)}
-.wvmove.stash .tag{color:var(--ink-2);border:1px solid var(--line-2)}
-.wv-meta{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
-.wv-detail{margin-left:auto;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2);text-align:right}
 
 /* Shared by DFS, parlay and the drawer. */
 .stat{font-family:var(--mono)}

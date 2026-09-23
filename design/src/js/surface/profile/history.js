@@ -52,8 +52,5 @@ function projectionHTML(p){
   const mu = proj.mu
     ? Object.entries(proj.mu).map(([k, v]) => `<span class="pf-mu"><em>${esc(k)}</em><b>${Number(v).toFixed(1)}</b></span>`).join("")
     : "";
-  /* Named so the phone can move it: at one column the projection and the pedigree drop below
-     the week's blocks (panel.css), since neither answers "what do I do with him on Sunday". */
-  return secHTML(t("profile.projection.label"), `<p class="pf-cap">${line}</p>${mu ? `<div class="pf-mu-row">${mu}</div>` : ""}`,
-    "", "pf-sec-proj");
+  return secHTML(t("profile.projection.label"), `<p class="pf-cap">${line}</p>${mu ? `<div class="pf-mu-row">${mu}</div>` : ""}`);
 }

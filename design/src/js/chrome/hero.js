@@ -15,7 +15,7 @@ function heroHTML(team){
         <h1 class="fit">${esc(team.name)}</h1>
         <button class="leaguechip">${esc(team.meta[team.meta.length-1])} <span class="lc-info">ⓘ</span></button>
       </div>
-      <div>${SURFACE === "waivers" ? waiverTilesHTML(team) : signalsHTML(team)}</div>
+      <div>${SURFACE === "waivers" ? waiverHeroHTML(team) : signalsHTML(team)}</div>
     </div>
   </section>`;
 }

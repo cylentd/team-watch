@@ -1,0 +1,93 @@
+/* ============================== WAIVER CARDS ============================== */
+/* One card per candidate (surface/teams/wcard.js). Built for a 360px phone first: every block
+   stacks, nothing has a height, and the only columns are the three proof stats, which shrink
+   before they overflow. Wider screens get more cards per row, never a wider card. */
+.wvc-list{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,360px),1fr));
+  gap:12px;margin-top:14px;align-items:start;
+}
+.wvc{
+  display:flex;flex-direction:column;gap:10px;min-width:0;
+  padding:13px 14px 12px;background:var(--panel);
+  border:1px solid var(--line);border-radius:2px;
+  cursor:pointer;transition:background .18s var(--ease),border-color .18s var(--ease);
+}
+.wvc:hover{background:var(--panel-2)}
+.wvc:focus-visible{outline:1px solid var(--lime);outline-offset:1px}
+.wvc.tier-stash{border-style:dashed}
+
+.wvc-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.wvc-tier{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.tier-must .wvc-tier{color:var(--lime)}
+.tier-worth .wvc-tier{color:var(--up)}
+.tier-spec .wvc-tier{color:var(--amber)}
+.wvc-pos{
+  font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.1em;
+  color:var(--ink-2);border:1px solid var(--line-2);border-radius:2px;padding:2px 6px;
+}
+
+.wvc-id{display:flex;align-items:center;gap:12px;min-width:0}
+.wvc-id .head{flex:none}
+.wvc-who{display:flex;flex-direction:column;gap:3px;min-width:0}
+.wvc-who b{font-size:var(--t-4);font-weight:600;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wvc-team,.wvc-urank{font-family:var(--mono);font-size:var(--t-1);letter-spacing:.04em;color:var(--ink-3)}
+.wvc-urank{color:var(--ink-2)}
+
+.wvc-swap{margin:0;font-size:var(--t-3);line-height:1.4;color:var(--ink)}
+.wvc-m{font-family:var(--mono);font-weight:700;white-space:nowrap}
+.wvc-m.up{color:var(--up)}
+.wvc-m.down{color:var(--down)}
+.wvc-sum{margin:0;font-size:var(--t-2);line-height:1.5;color:var(--ink-2)}
+.wvc-rule{
+  font-family:var(--mono);font-size:var(--t-1);letter-spacing:.12em;color:var(--ink-3);
+  border:1px dashed var(--line-2);border-radius:2px;padding:0 4px;cursor:help;white-space:nowrap;
+}
+
+/* Three stats side by side, hairlines between them from the grid's own gap. */
+.wvc-proof{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.wvp{display:flex;flex-direction:column;gap:3px;min-width:0;padding:8px 9px;background:var(--panel-2)}
+.wvp-l{font-family:var(--mono);font-size:var(--t-1);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wvp b{font-family:var(--mono);font-size:var(--t-4);font-weight:700;letter-spacing:-.02em}
+.wvp-r{display:flex;align-items:baseline;gap:5px;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2)}
+.wvp-t{font-style:normal}
+.wvp-t.up{color:var(--up)}
+.wvp-t.down{color:var(--down)}
+.wvp-t.flat{color:var(--ink-3)}
+
+/* One row per league he can be had in: league and status, the margin, then what he does there. */
+.wvc-leagues{border-top:1px solid var(--line)}
+.wvl{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"lg m" "v v";
+  gap:4px 10px;padding:8px 0;border-bottom:1px solid var(--line);
+}
+.wvl-lg{grid-area:lg;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;min-width:0}
+.wvl-lg b{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.wvl-st{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.wvl-mark{width:8px;height:8px;border-radius:99px;background:var(--ink-3);flex:none}
+.wvl-mark.lg-espn{background:var(--espn)}
+.wvl-mark.lg-yahoo{background:var(--yahoo)}
+.wvl-m{grid-area:m;font-size:var(--t-2);text-align:right}
+.wvl-v{grid-area:v;font-size:var(--t-2);line-height:1.4;color:var(--ink)}
+.wvl-drop{color:var(--ink-2)}
+
+.wvc-note{margin:0;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.wvc-news{margin:0;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2)}
+.wvc-news.q{color:var(--amber)}
+.wvc-news.o{color:var(--down)}
+
+/* Speculative and Stash stay shut until asked for; the summary is a full-width tap target. */
+.wvfold{margin-top:26px}
+.wvfold-s{
+  list-style:none;cursor:pointer;padding:12px 14px;border:1px dashed var(--line-2);border-radius:2px;
+  font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);
+}
+.wvfold-s::-webkit-details-marker{display:none}
+.wvfold-s:hover,.wvfold[open] > .wvfold-s{color:var(--ink);border-color:var(--ink-3)}
+
+/* The hero on Waivers: one line where the tiles were. */
+.wvhero{margin:0;font-family:var(--mono);font-size:var(--t-2);line-height:1.6;color:var(--ink-2)}
+.wvhero > span{white-space:nowrap}
+.wvhero .sep{margin:0 2px;color:var(--ink-3)}
+.wvhero .up{color:var(--up)}
+.wvhero.empty{color:var(--ink-3)}
+.wv-empty{margin:24px 0}

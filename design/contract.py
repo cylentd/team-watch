@@ -9,9 +9,14 @@ row). A block may be None -- that is "source not available", and the page falls 
 sample -- but a block that is present must be whole. Null values are fine; absent keys are not.
 """
 
-WAIVER_ROW = ["n", "slug", "pos", "team", "pts", "availability", "opp", "home", "lane", "work", "role_pts",
-              "edge", "snap", "tgt", "car", "starts", "vacated", "gain", "share_pct", "promoted", "upgrade",
-              "stash_reason"]
+WAIVER_ROW = ["n", "slug", "pos", "team", "opp", "home", "tier", "weeks", "injury", "injury_note",
+              "practice", "news_latest", "news_count", "leagues", "summary"]
+# One league's view of a candidate (waiver.py `_league`). `verdict` and `drop` may be null; when
+# either is an object the card reads every key below.
+WAIVER_LEAGUE = ["status", "clears", "need", "verdict", "drop"]
+WAIVER_VERDICT = ["kind", "over", "slot", "margin"]
+WAIVER_DROP = ["name", "pos", "pts"]
+WAIVER_META = ["label", "faab_left", "faab_budget", "clears", "needs"]
 
 CONTRACT = {
     "LIVE_ESPN": {
@@ -74,13 +79,16 @@ CONTRACT = {
     },
     # design/signals.py: one row per player on my rosters, keyed by slug. `series` is watch.json's
     # weekly snap share (None for a missed week); `verdict` is null when watch has no row for him.
-    # design/waiver.py, from ff-jarvis's model.season.waiver_packet. Each league's rows share one
-    # shape (waiver.py `_row`); a null sub-object (starts, vacated, promoted, upgrade) means that
-    # lane or list does not apply to him.
+    # design/waiver.py, from ff-jarvis's model.season.waiver_packet: one card row per candidate
+    # (`players`), and `leagues_meta` per league, in the order the cards draw their league rows.
+    # `summary` and `news_latest` may be null; a row's `leagues` map is checked by `waiver_leagues`.
     "LIVE_WAIVER": {
-        "keys": ["date", "week", "clears", "leagues"],
-        "map": ("leagues", ["team", "type", "budget_left", "lineup_unknown", "wire", "adds", "stash", "drops"]),
-        "map_rows": [("leagues", sub, WAIVER_ROW) for sub in ("wire", "adds", "stash", "drops")],
+        "keys": ["date", "week", "clears", "leagues_meta", "players"],
+        "rows": ("players", WAIVER_ROW),
+        "map": ("leagues_meta", WAIVER_META),
+        "row_objs": [("players", "summary", ["text", "src"])],
+        "row_maps": [("players", "leagues", WAIVER_LEAGUE,
+                      {"verdict": WAIVER_VERDICT, "drop": WAIVER_DROP})],
     },
     # design/pool.py, from watch.json's league-wide pool. dSnap/dShare/luck are null until a
     # player has two weeks; the page plots only rows that have them.
@@ -189,11 +197,30 @@ def problems(name, obj, limit=8):
             inner = row.get(sub) if isinstance(row, dict) else None
             if isinstance(inner, dict):
                 out += [f"{name}.{field}[{key!r}].{sub}.{k}" for k in keys if k not in inner]
-    for field, sub, keys in spec.get("map_rows", []):
-        for key, row in (obj.get(field) or {}).items():
-            for i, r in enumerate((row or {}).get(sub) or []):
-                out += [f"{name}.{field}[{key!r}].{sub}[{i}].{k}" for k in keys if k not in r]
+    out += _row_children(name, obj, spec)
     return out[:limit]
+
+
+def _row_children(name, obj, spec):
+    """Objects hanging off each row: `row_objs` is a nullable sub-object whose keys must all be
+    there when it is present; `row_maps` is a {key: object} map per row, each object checked,
+    and its own nullable sub-objects with it."""
+    out = []
+    for field, sub, keys in spec.get("row_objs", []):
+        for i, row in enumerate(obj.get(field) or []):
+            inner = row.get(sub)
+            if isinstance(inner, dict):
+                out += [f"{name}.{field}[{i}].{sub}.{k}" for k in keys if k not in inner]
+    for field, sub, keys, children in spec.get("row_maps", []):
+        for i, row in enumerate(obj.get(field) or []):
+            for key, inner in (row.get(sub) or {}).items():
+                at = f"{name}.{field}[{i}].{sub}[{key!r}]"
+                out += [f"{at}.{k}" for k in keys if not isinstance(inner, dict) or k not in inner]
+                for child, ckeys in children.items():
+                    c = inner.get(child) if isinstance(inner, dict) else None
+                    if isinstance(c, dict):
+                        out += [f"{at}.{child}.{k}" for k in ckeys if k not in c]
+    return out
 
 
 def validate(name, obj):

@@ -78,7 +78,7 @@ function render(){
 
   const team = TEAMS[VIEW];
   v.innerHTML = SURFACE === "waivers"
-    ? heroHTML(team) + `<div class="wrap">${waiverHTML(team)}</div>`
+    ? heroHTML(team) + `<div class="wrap">${waiverHTML()}</div>`
     : heroHTML(team) + tickerHTML() + `<div class="wrap">${boardHTML(team)}</div>`;
   fitTitle(v);
   v.querySelector(".leaguechip")?.addEventListener("click", ()=>openLeagueInfo(team.key));

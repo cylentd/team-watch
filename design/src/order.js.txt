@@ -21,6 +21,8 @@ lib/served.js
 ui/player.js
 ui/matchup.js
 surface/teams/board.js
+surface/teams/proof.js
+surface/teams/wcard.js
 surface/teams/waiver.js
 surface/profile/facts.js
 surface/profile/blocks.js

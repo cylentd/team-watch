@@ -79,22 +79,6 @@
   .rk-1 b{font-size:var(--t-3)}
   .pctbar{display:none}
 
-  .wvhead{display:none}
-  .wvrow{
-    grid-template-columns:44px minmax(0,1fr) auto;
-    grid-template-areas:
-      "head name   worth"
-      "head why    why"
-      "head starts starts";
-    gap:6px 14px;padding:11px 8px;
-  }
-  .wv-rank{display:none}
-  .wvrow .head,.wvrow .head img,.wvrow .head .fallback{width:44px;height:44px}
-  .wv-worth{text-align:right}
-  .wv-starts{display:flex;align-items:baseline;gap:10px}
-  .wv-margin{margin-top:0}
-  .wvmove{flex-wrap:wrap;gap:4px 10px}
-  .wv-detail{margin-left:0;flex-basis:100%;text-align:left}
   .states{grid-template-columns:minmax(0,1fr)}
 
   /* Bottom nav: edge to edge, five equal-width columns (a thumb doesn't care which item is

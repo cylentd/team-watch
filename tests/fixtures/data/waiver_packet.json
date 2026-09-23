@@ -1,53 +1,116 @@
 {
  "kind": "waiver",
- "date": "2026-09-16",
- "week": 2,
- "clears": "2026-09-23T00:00",
+ "date": "2026-09-22",
+ "week": 3,
+ "clears": "2026-09-23T03:00:00-04:00",
+ "leagues_meta": {
+  "espn": {"label": "ESPN", "faab_left": 64, "faab_budget": 100, "clears": "2026-09-23T03:00:00-04:00", "needs": ["TE"]},
+  "yahoo": {"label": "Yahoo", "faab_left": 88, "faab_budget": 100, "clears": "2026-09-24T00:00:00-04:00", "needs": []}
+ },
  "leagues": {
   "espn": {
    "team": "Purdy Big in Japan",
-   "waiver": {"type": "faab", "budget_left": 1000, "priority": null},
+   "waiver": {"type": "faab", "budget_left": 64, "priority": null},
    "lineup_unknown": false,
-   "adds": [
-    {"key": "kalif raymond", "name": "Kalif Raymond", "pos": "WR", "team": "CHI", "availability": "active", "pts": 11.2,
-     "game": {"opponent": "MIN", "home": true},
-     "upgrade": {"replaces": "Tee Higgins", "key": "tee higgins", "slot": "FLEX", "their_pts": 9.4, "margin": 1.8}}
+   "wire": [
+    {"key": "emanuel wilson", "name": "Emanuel Wilson", "pos": "RB", "team": "SEA", "availability": "active", "pts": 12.8,
+     "game": {"opponent": "ARI", "home": true}, "lane": "open",
+     "tier": "must", "weeks": 2, "injury": null, "injury_note": null, "practice": null,
+     "news_latest": {"headline": "Emanuel Wilson expected to lead Seahawks backfield with Kenneth Walker out", "date": "2026-09-21"},
+     "news_count": 1,
+     "leagues": {
+      "espn": {"status": "waiver", "clears": "2026-09-23T03:00:00-04:00",
+               "verdict": {"kind": "start", "over": "Chase Brown", "over_key": "chase brown", "slot": "FLEX", "margin": 4.6},
+               "need": false, "drop": {"name": "Tee Higgins", "key": "tee higgins", "pos": "WR", "pts": 6.1}},
+      "yahoo": {"status": "fa", "clears": null,
+                "verdict": {"kind": "start", "over": "Chase Brown", "over_key": "chase brown", "slot": "RB", "margin": 3.4},
+                "need": false, "drop": {"name": "Joe Burrow", "key": "joe burrow", "pos": "QB", "pts": 6.4}}
+     },
+     "summary": {"text": "Wilson took 21 carries and 8 red-zone touches in week 2, up from 2 carries in week 1. He starts over Chase Brown in both leagues.", "src": "llm"}},
+    {"key": "parker washington", "name": "Parker Washington", "pos": "WR", "team": "JAX", "availability": "active", "pts": 10.9,
+     "game": {"opponent": "HOU", "home": false}, "lane": "usage",
+     "tier": "worth", "weeks": 2, "injury": "Q", "injury_note": "ankle", "practice": "LP",
+     "news_latest": {"headline": "Parker Washington limited at practice with ankle injury", "date": "2026-09-21"},
+     "news_count": 2,
+     "leagues": {
+      "espn": {"status": "fa", "clears": null,
+               "verdict": {"kind": "bench", "over": "Tee Higgins", "over_key": "tee higgins", "slot": "BE", "margin": 1.2},
+               "need": false, "drop": {"name": "Tee Higgins", "key": "tee higgins", "pos": "WR", "pts": 6.1}},
+      "yahoo": {"status": "rostered", "clears": null, "verdict": null, "need": false, "drop": null}
+     },
+     "summary": {"text": "Parker Washington: 42.9% target share in week 2, WR rank 3. Upgrades your ESPN bench over Tee Higgins by 1.2 points a week.", "src": "rule"}},
+    {"key": "juwan johnson", "name": "Juwan Johnson", "pos": "TE", "team": "NO", "availability": "active", "pts": 7.4,
+     "game": {"opponent": "SEA", "home": false}, "lane": "usage",
+     "tier": "worth", "weeks": 2, "injury": null, "injury_note": null, "practice": null,
+     "news_latest": null, "news_count": 0,
+     "leagues": {
+      "espn": {"status": "fa", "clears": null, "verdict": null, "need": true,
+               "drop": {"name": "Tee Higgins", "key": "tee higgins", "pos": "WR", "pts": 6.1}},
+      "yahoo": {"status": "waiver", "clears": "2026-09-24T00:00:00-04:00", "verdict": null, "need": false, "drop": null}
+     },
+     "summary": {"text": "Johnson ran on 84% of snaps in week 1 and 53% in week 2 with 11 targets over both. George Kittle is your only ESPN tight end.", "src": "llm"}},
+    {"key": "kalif raymond", "name": "Kalif Raymond", "pos": "WR", "team": "CHI", "availability": "active", "pts": 8.1,
+     "game": {"opponent": "MIN", "home": true}, "lane": "usage",
+     "tier": "watch", "weeks": 2, "injury": null, "injury_note": null, "practice": null,
+     "news_latest": null, "news_count": 0,
+     "leagues": {
+      "espn": {"status": "fa", "clears": null, "verdict": null, "need": false, "drop": null},
+      "yahoo": {"status": "fa", "clears": null, "verdict": null, "need": false, "drop": null}
+     },
+     "summary": {"text": "Raymond's target share fell from 34.6% to 16.7% in week 2. His aDOT dropped to 1.4.", "src": "llm"}},
+    {"key": "tyler shough", "name": "Tyler Shough", "pos": "QB", "team": "NO", "availability": "active", "pts": 14.2,
+     "game": {"opponent": "SEA", "home": false}, "lane": "role",
+     "tier": "watch", "weeks": 2, "injury": null, "injury_note": null, "practice": null,
+     "news_latest": null, "news_count": 0,
+     "leagues": {
+      "espn": {"status": "fa", "clears": null, "verdict": null, "need": false, "drop": null},
+      "yahoo": {"status": "fa", "clears": null, "verdict": null, "need": false, "drop": null}
+     },
+     "summary": null},
+    {"key": "noah fant", "name": "Noah Fant", "pos": "TE", "team": "NO", "availability": "active", "pts": 4.2,
+     "game": {"opponent": "SEA", "home": false}, "lane": "usage",
+     "tier": "watch", "weeks": 2, "injury": null, "injury_note": null, "practice": null,
+     "news_latest": null, "news_count": 0,
+     "leagues": {
+      "espn": {"status": "fa", "clears": null, "verdict": null, "need": true, "drop": null},
+      "yahoo": {"status": "mine", "clears": null, "verdict": null, "need": false, "drop": null}
+     },
+     "summary": {"text": "Fant played 44% of snaps in week 2 with no targets. Juwan Johnson took the tight end work.", "src": "llm"}},
+    {"key": "michael mayer", "name": "Michael Mayer", "pos": "TE", "team": "LV", "availability": "active", "pts": 6.9,
+     "game": {"opponent": "WAS", "home": false}, "lane": "role",
+     "tier": "spec", "weeks": 1, "injury": null, "injury_note": null, "practice": null,
+     "news_latest": null, "news_count": 0,
+     "leagues": {
+      "espn": {"status": "fa", "clears": null,
+               "verdict": {"kind": "start", "over": "George Kittle", "over_key": "george kittle", "slot": "TE", "margin": 0.8},
+               "need": true, "drop": {"name": "Tee Higgins", "key": "tee higgins", "pos": "WR", "pts": 6.1}},
+      "yahoo": {"status": "fa", "clears": null, "verdict": null, "need": false, "drop": null}
+     },
+     "summary": {"text": "Mayer drew 7 targets on a 24.1% share in his one week of work. One week is not a role yet.", "src": "llm"}}
    ],
    "stash": [
-    {"key": "tyler allgeier", "name": "Tyler Allgeier", "pos": "RB", "team": "ATL", "availability": "active", "pts": 7.9,
-     "game": {"opponent": "CAR", "home": false}, "stash_reason": "handcuff"}
-   ],
-   "drops": [
-    {"key": "joe burrow", "name": "Joe Burrow", "pos": "QB", "team": "CIN", "availability": "active", "pts": 6.1,
-     "game": {"opponent": "PIT", "home": true}}
-   ],
-   "wire": [
-    {"key": "noah fant", "name": "Noah Fant", "pos": "TE", "team": "NO", "availability": "active", "pts": 4.2,
-     "game": {"opponent": "BAL", "home": false}, "lane": "usage", "work": 12.3, "role_pts": 6.6, "edge": 2.4,
-     "snap_pct": 41.0, "target_share": 15.4, "carry_share": 0.0, "promoted": null,
-     "starts_now": {"replaces": "George Kittle", "slot": "TE", "their_pts": 9.0, "margin": -2.4}},
-    {"key": "drew lock", "name": "Drew Lock", "pos": "QB", "team": "SEA", "availability": "active", "pts": 9.3,
-     "game": {"opponent": "ARI", "home": false}, "lane": "role", "work": 11.7, "role_pts": 10.0, "edge": 0.7,
-     "snap_pct": 90.0, "target_share": 0.0, "carry_share": 9.1, "promoted": {"from": 2, "to": 1},
-     "starts_now": {"replaces": "Brock Purdy", "slot": "QB", "their_pts": 18.8, "margin": -8.8}},
-    {"key": "demond claiborne", "name": "Demond Claiborne", "pos": "RB", "team": "MIN", "availability": "active", "pts": null,
-     "game": {"opponent": "CHI", "home": false}, "lane": "open", "work": null, "role_pts": null, "edge": null,
-     "snap_pct": null, "target_share": null, "carry_share": null, "promoted": null,
-     "vacated": {"key": "jordan mason", "name": "Jordan Mason", "injury": "Thumb", "work": 11.6, "opp": 15},
-     "gain": 2.1, "share_pct": 45, "starts_now": null}
+    {"key": "tyler allgeier", "name": "Tyler Allgeier", "pos": "RB", "team": "ARI", "availability": "active", "pts": 5.3,
+     "game": {"opponent": "SEA", "home": false}, "stash_reason": "handcuff",
+     "tier": "stash", "weeks": 2, "injury": null, "injury_note": null, "practice": null,
+     "news_latest": null, "news_count": 0,
+     "leagues": {
+      "espn": {"status": "fa", "clears": null, "verdict": null, "need": false, "drop": null},
+      "yahoo": {"status": "fa", "clears": null, "verdict": null, "need": false, "drop": null}
+     },
+     "summary": {"text": "Allgeier is the handcuff behind Arizona's starter. He took 17 carries in week 1 and 5 in week 2.", "src": "llm"}}
    ]
   },
   "yahoo": {
    "team": "Chat Take the Wheel 👾",
-   "waiver": {"type": "faab", "budget_left": 100, "priority": null},
+   "waiver": {"type": "faab", "budget_left": 88, "priority": null},
    "lineup_unknown": false,
-   "adds": [], "stash": [], "drops": [],
    "wire": [
-    {"key": "noah fant", "name": "Noah Fant", "pos": "TE", "team": "NO", "availability": "active", "pts": 4.2,
-     "game": {"opponent": "BAL", "home": false}, "lane": "usage", "work": 12.3, "role_pts": 6.6, "edge": 2.4,
-     "snap_pct": 41.0, "target_share": 15.4, "carry_share": 0.0, "promoted": null,
-     "starts_now": {"replaces": "George Kittle", "slot": "TE", "their_pts": 9.0, "margin": -2.4}}
-   ]
+    {"key": "emanuel wilson", "name": "Emanuel Wilson", "pos": "RB", "team": "SEA", "availability": "active", "pts": 12.8,
+     "game": {"opponent": "ARI", "home": true}, "tier": "must", "weeks": 2,
+     "injury": null, "injury_note": null, "practice": null, "news_latest": null, "news_count": 1,
+     "leagues": {}, "summary": null}
+   ],
+   "stash": []
   }
  }
 }

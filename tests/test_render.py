@@ -83,8 +83,11 @@ STATES = [
     ("teams-yahoo", []),
     ("teams-espn", [("eval", "VIEW='espn'; render()")]),
     ("teams-modal", [("click", ".row")]),   # Joe Burrow: no matchup profile, the quiet state
-    ("waivers-espn", [("eval", "VIEW='espn'; render()")] + go("waivers")),   # moves + all three lanes
-    ("waivers-yahoo", go("waivers")),   # no moves, one lane
+    # The cards are the same for both teams; the hero line (clear time, must-claims, FAAB) is not.
+    ("waivers-espn", [("eval", "VIEW='espn'; render()")] + go("waivers")),
+    ("waivers-yahoo", go("waivers")),
+    ("waivers-folds", go("waivers") + [("click", "summary.wvfold-s >> nth=0"),
+                                       ("click", "summary.wvfold-s >> nth=1")]),   # spec + stash open
     ("profile-wr-modal", [("click", ".row:has-text('Amon-Ra St. Brown')")]),
     ("profile-wr-details-modal", [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#modal .pf-details > summary")]),
     ("profile-rb-modal", [("click", ".row:has-text('Chase Brown')"), ("click", "#modal .pf-details > summary")]),
@@ -257,6 +260,36 @@ def test_a_hash_opens_its_view(browser, page_file, leaf, group, label):
         page.locator(".navitem[data-s='teams']").first.click()
         page.wait_for_timeout(120)
         assert page.evaluate("location.hash") == "#roster"
+    finally:
+        ctx.close()
+
+
+TUESDAY = 'Date.now = () => Date.parse("2026-09-22T12:00:00Z");'   # a Tuesday in every zone -12..+11
+
+
+@pytest.mark.parametrize("day,hash,surface,first", [
+    ("tue", "", "waivers", "WAIVERS"),     # claims day: Waivers opens and leads its group
+    ("tue", "#roster", "roster", "WAIVERS"),   # a hash still wins
+    ("sat", "", "roster", "ROSTER"),       # any other day: unchanged
+])
+def test_tuesday_opens_waivers(browser, page_file, day, hash, surface, first):
+    """The day is read from Date.now(), so pinning it is the whole injection. SEED pins a
+    Saturday; a Tuesday script added after it wins."""
+    ctx = browser.new_context(viewport={"width": 390, "height": 844}, reduced_motion="reduce")
+    page = ctx.new_page()
+    page.set_default_timeout(5000)
+    page.route(re.compile(r"^https?://"), lambda route: route.abort())
+    page.add_init_script(SEED)
+    if day == "tue":
+        page.add_init_script(TUESDAY)
+    try:
+        page.goto(page_file.as_uri() + hash)
+        page.wait_for_function("document.getElementById('view').children.length > 0")
+        assert page.evaluate("SURFACE") == surface
+        subs = page.locator("#subnav .mode-sub")
+        assert subs.first.inner_text().strip().upper().startswith(first)
+        # No sideways scroll on a phone, whichever view opened.
+        assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
     finally:
         ctx.close()
 

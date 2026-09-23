@@ -34,12 +34,9 @@ function rankMarkOf(rk){
   return rk[2] ? t("profile.rank.markOfTie", {n: rk[0], of: rk[1]}) : t("profile.rank.markOf", {n: rk[0], of: rk[1]});
 }
 
-/* Small-type names lose the first name to an initial: "X. Worthy". The full name is the header's
-   job, and a red-zone key with five of them has no room for it. */
-function shortName(n){
-  const parts = String(n || "").trim().split(/\s+/);
-  return parts.length < 2 ? esc(n || "") : esc(parts[0][0] + ". " + parts.slice(1).join(" "));
-}
+/* Small-type names lose the first name to an initial: "X. Worthy" (lib/escape.js nameInitial),
+   escaped for markup. A red-zone key with five full names has no room for them. */
+const shortName = n => esc(nameInitial(n));
 
 /* His fantasy rank at his position by points per game, season to date: LIVE_POOL (every player
    who logged a snap, ff-jarvis's ppg), one {slug: ppg} map per position. */

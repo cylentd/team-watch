@@ -53,8 +53,8 @@ function rzSplitHTML(mine, team, others, field, name){
   const rest = others.filter(o => (o[field] || 0) > 0).sort((a, b) => b[field] - a[field]);
   const named = rest.reduce((s, o) => s + o[field], 0);
   const unnamed = Math.max(0, team - mine - named);
-  const seg = (n, cls, title, i) => n > 0 ? `<i${cls ? ` class="${cls}"` : ""} style="--w:${(100 * n / team).toFixed(1)}%;--i:${i}" title="${title}"></i>` : "";
-  const bar = seg(mine, "me", `${esc(name)} ${mine}`, 0) + rest.map((o, i) => seg(o[field], "", `${esc(o.n)} ${o[field]}`, i + 1)).join("");
+  const seg = (n, cls, title) => n > 0 ? `<i${cls ? ` class="${cls}"` : ""} style="--w:${(100 * n / team).toFixed(1)}%" title="${title}"></i>` : "";
+  const bar = seg(mine, "me", `${esc(name)} ${mine}`) + rest.map(o => seg(o[field], "", `${esc(o.n)} ${o[field]}`)).join("");
   const key = [`<b>${shortName(name)} ${mine}</b>`]
     .concat(rest.map(o => `<span>${shortName(o.n)} ${o[field]}</span>`), unnamed ? [`<span>${t("profile.rz.others", {n: unnamed})}</span>`] : []);
   return `<div class="pf-split"><span class="pf-split-bar">${bar}</span><div class="pf-split-key">${key.join("")}</div></div>`;

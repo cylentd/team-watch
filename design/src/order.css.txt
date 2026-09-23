@@ -18,6 +18,7 @@ component/rule.css
 surface/teams/roster.css
 surface/teams/matchup.css
 surface/teams/wire.css
+surface/teams/wcard.css
 component/empty.css
 chrome/drawer.css
 chrome/modal.css
