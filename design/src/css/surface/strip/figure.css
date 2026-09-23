@@ -1,0 +1,112 @@
+/* ------------------------------------------------------------------
+   STRIP — the figures. A headshot on a side-view body in pads, flat over the tilted field.
+
+   The rig is one SVG (js/surface/strip/art.js) with named joints; everything below is what each
+   state does to those joints. Sign convention, and it is easy to get backwards: the figure faces
+   RIGHT, so a NEGATIVE hip angle swings the leg FORWARD and a positive one back; a positive knee
+   bends it heel-up; a positive torso leans forward; a positive arm goes back. A figure running
+   the other way is the same sprite mirrored (scale:-1 1), never a second set of angles.
+
+   The headshot stays full size while the body is chibi-short: the face is what a reader
+   recognises across a 12px-tall figure, and shrinking it to scale loses the whole point.
+------------------------------------------------------------------ */
+
+.stface{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:700 11px var(--mono);
+  color:var(--ink);background:var(--panel-3) top center / cover no-repeat;border:2px solid var(--lime);flex:none}
+.stfig{display:flex;flex-direction:column;align-items:center;--jersey:var(--jersey-home)}
+.stfig .stface{width:40px;height:40px;margin-bottom:-4px;position:relative;z-index:1}
+.stfig.tk{--jersey:var(--jersey-away)}
+.stfig.tk .stface{border-color:var(--ink-3);color:var(--ink-2)}
+/* the pivot is his heel, not the middle of his feet: from the middle, half of him turns under the turf */
+.stpose{position:relative;display:flex;flex-direction:column;align-items:center;padding-inline:26px;
+  transform-origin:32px 100%;transition:rotate .34s cubic-bezier(.5,0,.9,.6)}
+
+.strig{display:block;flex:none;width:52px;height:42px;margin:-6px 0 -3px;overflow:visible;
+  filter:drop-shadow(0 0 .7px var(--shadow)) drop-shadow(0 1px 0 rgb(var(--shadow-rgb) / .55))}
+.strig *{transform-box:view-box;vector-effect:none}
+.strig .j{fill:var(--jersey)}
+.strig .p{fill:var(--pads)}
+.strig .k{fill:var(--cleat)}
+.strig .s{fill:none;stroke:var(--pads);stroke-width:1.3}
+.strig .far{opacity:.62}
+.strig .sh.far{opacity:.9}
+/* a dark keyline around the near arm only, so it separates from the jersey behind it */
+.strig .sh path,.strig .sh circle{stroke:var(--void);stroke-width:1;paint-order:stroke}
+.strig .hip{transform-origin:22px 30px}
+.strig .knee{transform-origin:22px 43px}
+.strig .sh{transform-origin:22px 12px}
+.strig .elb{transform-origin:22px 22px;rotate:-70deg}
+.strig .torso{transform-origin:22px 30px;transition:rotate .25s var(--ease)}
+.stfig.tk .strig{scale:-1 1}
+
+/* nobody stands stock still: a standing figure breathes, so a pause never looks like a hang */
+.stfig:not(.run):not(.down) .strig{animation:stbreathe 1.5s ease-in-out infinite alternate}
+@keyframes stbreathe{to{translate:0 -1.2px}}
+
+/* the run cycle */
+.stfig.run .torso{rotate:15deg}
+.stfig.run .strig{animation:stbounce .23s ease-in-out infinite alternate}
+.stfig.run .hip{animation:ststride .46s ease-in-out infinite}
+.stfig.run .knee{animation:stknee .46s ease-in-out infinite}
+.stfig.run .sh{animation:stpump .46s ease-in-out infinite}
+.stfig.run .far.hip,.stfig.run .far .knee,.stfig.run .near.sh{animation-delay:-.23s}
+.stfig.run .stface{animation:sthustle .23s ease-in-out infinite alternate}
+@keyframes ststride{0%,100%{rotate:-52deg}50%{rotate:36deg}}
+@keyframes stknee{0%,100%{rotate:14deg}25%{rotate:8deg}55%{rotate:62deg}78%{rotate:104deg}}
+@keyframes stpump{0%,100%{rotate:52deg}50%{rotate:-58deg}}
+@keyframes stbounce{to{translate:0 -2.5px}}
+@keyframes sthustle{to{translate:0 -2.5px}}
+
+/* going backwards: the same cycle in reverse is a backpedal, and he leans away from it */
+.stfig.back .hip,.stfig.back .knee,.stfig.back .sh{animation-direction:reverse}
+.stfig.back .torso{rotate:-7deg}
+/* a dropback is retreat, not a mirrored sprint: the passer turns and faces away from the line,
+   so his motion is unmistakably the opposite of a route. A receiver settling back for a screen
+   gets the same treatment, for the same reason -- he is facing the ball. */
+.stfig.qb.back .strig,.stfig.carrier.settle .strig{scale:-1 1}
+.stfig.qb.back .torso,.stfig.carrier.settle .torso{rotate:0deg}
+.stfig.qb.back .hip,.stfig.qb.back .knee,.stfig.qb.back .sh,
+.stfig.carrier.settle .hip,.stfig.carrier.settle .knee,.stfig.carrier.settle .sh{animation-direction:normal}
+
+/* carrying, throwing, being tackled */
+.stfig.has .near.sh{animation:none;rotate:18deg}
+.stfig.has .near .elb{rotate:-112deg}
+.stfig.has:not(.run) .stface{animation:stgotit .4s var(--ease)}
+/* the throw is overhand: the arm comes from behind the head, over the top, and ends out in FRONT
+   where it can be seen. Ending straight up hides it behind his own headshot. */
+.stfig.threw .near.sh{animation:sthurl .5s var(--ease) forwards}
+.stfig.threw .near .elb{rotate:-10deg}
+.stfig.threw .far.sh{rotate:-40deg}
+@keyframes sthurl{from{rotate:-205deg}to{rotate:-96deg}}
+@keyframes stgotit{40%{scale:1.22}}
+.stfig.down .stpose{rotate:-15deg}
+.stfig.down .stface{animation:stjolt .32s var(--ease)}
+.stfig.down .strig{animation:stgrapple .4s ease-in-out infinite alternate}
+@keyframes stgrapple{to{translate:-1.5px 1px}}
+@keyframes stjolt{30%{translate:-4px 0}60%{translate:2px 0}}
+/* a scorer throws his arms up and hops, ball held high */
+.stfig.joy .near.sh,.stfig.joy .far.sh{animation:none;rotate:-168deg}
+.stfig.joy .near .elb,.stfig.joy .far .elb{rotate:-8deg}
+.stfig.joy .stpose{animation:sthop .34s ease-in-out 10 alternate}
+.stfig.joy .stheld{bottom:44px;margin-left:4px}
+@keyframes sthop{to{translate:0 -8px}}
+/* a big play: speed lines stream off his back */
+.stfig.turbo .stpose::before{content:"";position:absolute;right:calc(50% + 8px);bottom:6px;width:46px;height:26px;
+  background:repeating-linear-gradient(0deg,transparent 0 5px,rgb(var(--lime-rgb) / .8) 5px 7px);
+  mask:linear-gradient(90deg,transparent,var(--shadow))}
+
+/* the ball: tucked in the near arm while carried, spiralling while in flight */
+.stball{display:block;flex:none;width:14px;height:9px}
+.stheld{display:none;position:absolute;bottom:17px;left:50%;margin-left:1px;z-index:2}
+.stfig.has .stheld{display:block}
+.stfly .stball{animation:stspiral .22s linear infinite}
+@keyframes stspiral{50%{scale:1 .5}}
+
+/* an incompletion, or a loose ball, says so where it came down: a cross and the word, not a
+   symbol to decode. Amber while a fumble is still live, red once it is settled and lost. */
+.stactor.stmiss{display:flex;align-items:center;gap:5px;transform:translate(-50%,8px);
+  font:700 11px var(--mono);color:var(--down);background:rgb(var(--void-rgb) / .85);
+  padding:2px 7px;border:1px solid rgb(var(--down-rgb) / .6);white-space:nowrap}
+.stmiss svg{width:10px;height:10px;display:block}
+.stmiss path{stroke:currentColor;stroke-width:2.4;stroke-linecap:round;vector-effect:none}
+.stactor.stmiss.warn{color:var(--amber);border-color:rgb(var(--amber-rgb) / .6)}

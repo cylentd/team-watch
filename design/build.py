@@ -12,6 +12,7 @@ import pathlib
 import re
 
 import contract                 # design/contract.py: the shape each LIVE_* block must have
+import pbp                      # design/pbp.py: nflverse play-by-play -> games/<id>.json
 import lint_css                 # design/lint_css.py: theme rules; an error fails the build
 from assemble import assemble   # design/assemble.py: design/src/** -> the page template
 from news import load_news      # design/news.py: breaking news, split out to stay in budget
@@ -730,6 +731,14 @@ def main():
     (REPO / "build.json").write_text(json.dumps(b.stamp), encoding="utf-8")
     kb = len(b.page.encode("utf-8")) / 1024
     print(f"wrote {REPO/'index.html'} and {ROOT/'index.html'} ({kb:.0f} KB), {len(b.heads)} heads inlined")
+    # One JSON per played game, for the drive strip to fetch on demand. Not injected: 39 KB a
+    # game against a page that is already 2.2 MB. Not a function either -- a Vercel Python
+    # function may not import pandas. Static files off the CDN, immutable once a game has ended.
+    sched = load_schedule(DWR)
+    if sched:
+        written, skipped = pbp.write_games(pathlib.Path(DWR) / "cache", sched, REPO / "games")
+        print(f"Games: {written} drive strips written to games/" +
+              (f", {skipped} not played yet" if isinstance(skipped, int) else f" ({skipped})"))
     for line in b.report:
         print(line)
 

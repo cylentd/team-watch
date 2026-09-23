@@ -61,6 +61,17 @@ surface/live/live.js
 surface/live/memory.js
 surface/live/board.js
 surface/live/header.js
+# pin: the strip loads bottom-up -- art and easing are pure, scene reads them, pose reads scene,
+#      strip reads pose, and transport/game are the only files with listeners or a fetch. Each
+#      file may only name things declared above it (one scope, so the temporal dead zone applies).
+surface/strip/art.js
+surface/strip/ease.js
+surface/strip/scene.js
+surface/strip/pose.js
+surface/strip/place.js
+surface/strip/strip.js
+surface/strip/transport.js
+surface/strip/game.js
 chrome/teamswitch.js
 chrome/hero.js
 chrome/motion.js

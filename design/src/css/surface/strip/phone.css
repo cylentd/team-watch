@@ -1,0 +1,74 @@
+/* ------------------------------------------------------------------
+   STRIP on a phone. Roughly nine readers in ten are on one, so this is the layout the strip was
+   designed at and the desktop rules above are what it relaxes into -- not the other way round.
+
+   360px of width and about 300px of height above the fold have to hold a scoreboard, a field, a
+   play caption and a transport. What gives way, in order: the legend (the play text already says
+   what the colours mean), where a pass was caught (desktop detail), the words on Prev/Next/Play
+   (chevrons and a triangle say it), and the score's "has the ball" (a lime square beside the team
+   says it in 7px). What never gives way is the field's height or the caption box's floor.
+
+   Pan or Fit, chosen by the reader rather than guessed at. Pan keeps the field at a readable
+   scale in a viewport that follows the ball; Fit squeezes all 120 yards on screen and shrinks the
+   figures to suit. Both were built because neither is right for everyone -- the reader who wants
+   to see the whole drive shape and the one who wants to watch the play are different people.
+------------------------------------------------------------------ */
+
+@media (max-width:430px){
+  /* the plane's layout box is taller than the tilted field it paints, and the figures' heads only
+     need part of that band, so the field moves up under the scoreboard */
+  .stbox{margin-top:-14px}
+  .stpanel{padding:10px;gap:8px}
+
+  /* the scoreboard as a broadcast bug, on one line; possession is the lime marker beside the team */
+  .stscorerow{gap:8px}
+  .stclock{font-size:var(--t-1)}
+  .stscore{font-size:var(--t-1);gap:2px 10px;flex-wrap:nowrap;white-space:nowrap}
+  .stscore strong{font-size:var(--t-3)}
+  /* "has the ball" becomes a 7px lime square. The words go out of the flow rather than being
+     sized to nothing: a screen reader still reads them, and a hidden text node left in place
+     keeps its own width, which is 86px of content inside a 7px box. */
+  .stscore .stposs{display:inline-block;width:7px;height:7px;background:var(--lime);
+    vertical-align:middle;margin-left:3px;position:relative}
+  .stscore .stposs i{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+
+  /* the play card is three lines -- who, the situation, what happened -- with the faces beside the
+     last two. Three rows, not four: the catch point is desktop detail and only makes this busy. */
+  .stcap{align-content:start;gap:0 10px;grid-template-rows:auto auto auto}
+  .stcap .stnm{grid-column:1 / -1;font-size:var(--t-4);line-height:1.15}
+  .stcap .stnm small{font-size:var(--t-1)}
+  .stcap .stfaces{grid-row:2 / span 2}
+  .stcap .styac{display:none}
+  .stcap .stface{width:48px;height:48px;font-size:var(--t-2)}
+  .stcap .stface.sm{width:34px;height:34px;font-size:var(--t-1);margin-right:-10px}
+  .stcap .stdd{font-size:var(--t-1)}
+  .stcap .sttx{font-size:var(--t-2);line-height:1.3}
+
+  /* the transport: Play, Prev and Next become icons so the scrubber keeps the row */
+  .stscrub{gap:8px;grid-template-columns:auto auto 1fr auto auto}
+  .stscrub .stw{display:none}
+  .stscrub .stic{display:block;width:12px;height:12px}
+  .stscrub button{padding:0 7px;font-size:var(--t-1)}
+  .stscrub .stmode{display:inline-block;height:100%;line-height:1.2}
+  .stkeyrow{display:none}
+
+  /* the two field treatments */
+  .stview{overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+  .stview[data-phone=pan] .ststage{min-width:720px}
+  .stview[data-phone=fit] .stactor.stfig .stpose{scale:.55;transform-origin:50% 100%}
+  .stview[data-phone=fit] .stfly .stball{width:14px;height:9px}
+  /* Fit halves the field's width, so the painted numbers shrink with it. Scaled rather than
+     re-sized: the type scale stops at 12px and these want about nine, which is a property of
+     this one squeezed view rather than a step the rest of the page should gain. */
+  .stview[data-phone=fit] .styd{scale:.75;transform-origin:50% 100%}
+  /* at Fit the field is half as wide, so every other yard number and the down marker's label
+     would collide with their neighbours; the 20s and the 50 still place the ball */
+  .stview[data-phone=fit] .styd[data-x="10"],.stview[data-phone=fit] .styd[data-x="30"],
+  .stview[data-phone=fit] .styd[data-x="70"],.stview[data-phone=fit] .styd[data-x="90"]{display:none}
+  .stview[data-phone=fit] .stltg i,.stview[data-phone=fit] .stactor.stmiss{display:none}
+
+  /* the field sits 14px under the scoreboard here, so the dimmed banner starts where it does */
+  .stslam{top:14px;--slam:clamp(var(--t-6),9vw,var(--t-7))}
+  .stslam.minor{--slam:clamp(var(--t-4),5.5vw,var(--t-5))}
+  .stslam small{display:none}
+}

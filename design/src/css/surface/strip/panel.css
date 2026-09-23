@@ -1,0 +1,102 @@
+/* ------------------------------------------------------------------
+   STRIP — everything around the field: the scoreboard, the play caption, the transport controls
+   and the moment banner.
+
+   The caption box must not change height from play to play. During a replay a box that grows for
+   a two-line pass and shrinks for a one-line run makes the whole panel jump under the reader's
+   thumb, which is worse than any amount of wasted space. The fourth row is always laid out, and
+   the floor is set in JS (fitCap) from the tallest caption of THIS drive as THIS browser actually
+   wraps it -- a pixel guess measured in one headless Chromium is wrong on the next phone's fonts.
+------------------------------------------------------------------ */
+
+.stpanel{background:var(--panel);border:1px solid var(--line);padding:12px;display:flex;flex-direction:column;gap:10px}
+
+/* the drive chart. One chip per drive, saying how it ended, because that is what a reader scans a
+   drive chart for. Eighteen of them never fit, so the row scrolls sideways at every width rather
+   than wrapping into a block that pushes the field off the screen. */
+.stdrives{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;scrollbar-width:none}
+.stdrives button{flex:none;font:500 11px var(--mono);color:var(--ink-2);background:var(--panel-2);
+  border:1px solid var(--line);padding:4px 9px;cursor:pointer;white-space:nowrap}
+.stdrives button:hover{border-color:var(--lime);color:var(--lime)}
+.stdrives button[aria-selected="true"]{background:var(--lime);color:var(--on-lime);border-color:var(--lime)}
+
+.stwait,.sterr{margin:0;padding:24px 4px;font:400 13px var(--mono);color:var(--ink-3);text-align:center}
+.sterr{color:var(--amber)}
+
+/* The strip inside its dialog: the panel has no border or ground of its own there, because the
+   dialog already is one. */
+.stbody{padding:12px;overflow-y:auto}
+.stbody.stpanel{background:none;border:0}
+
+/* The two ways in. Both are an existing number or name that now opens something, so they get the
+   least decoration that says so: the lime the rest of the page uses for "this does something". */
+.pf-wk{font:inherit;color:var(--lime);background:none;border:0;padding:0;cursor:pointer;
+  text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}
+.pf-wk:hover{text-decoration-style:solid}
+.gdcell.opens{cursor:pointer}
+.gdcell.opens:hover .gdnametxt,.gdcell.opens:hover .gdnameshort{color:var(--lime)}
+
+/* the score, then the clock in its own slot: a wider font pushes the row longer, never one over the other */
+.stscorerow{display:flex;align-items:center;gap:12px}
+.stscore{flex:0 1 auto;min-width:0;display:flex;flex-wrap:wrap;gap:4px 16px;align-items:baseline;
+  font:500 13px var(--mono);color:var(--ink-2)}
+.stscore strong{font:800 20px var(--disp);color:var(--ink);letter-spacing:-.01em}
+.stscore strong.bumped{display:inline-block;animation:stgotit .5s var(--ease)}
+.stscore .stposs{color:var(--lime)}
+.stclock{margin-left:auto;font:500 13px var(--mono);color:var(--ink-2);white-space:nowrap;flex:none}
+
+.stbox{position:relative}
+.stview{position:relative}
+
+.stcap{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto auto minmax(16px,auto);
+  gap:1px 14px;align-items:center;align-content:center;min-height:0}
+.stcap .stfaces{grid-row:span 4;display:flex;align-items:center}
+.stcap .stface{width:64px;height:64px;font-size:var(--t-4)}
+.stcap .stface.sm{width:44px;height:44px;font-size:var(--t-2);margin-right:-12px;border-color:var(--ink-3)}
+.stcap .stnm{font:800 22px/1.1 var(--disp);letter-spacing:-.01em}
+.stcap .stnm small{font:500 13px var(--mono);color:var(--ink-2);letter-spacing:0}
+.stcap .stdd{font:700 12.5px var(--mono);color:var(--lime)}
+.stcap .sttx{font-size:var(--t-2);color:var(--ink)}
+.stcap .styac{font:400 12px var(--mono);color:var(--ink-2)}
+
+.stscrub{display:grid;grid-template-columns:auto auto 1fr auto;gap:10px;align-items:center}
+.stscrub input[type=range]{width:100%;accent-color:var(--lime);margin:0;height:24px;background:transparent}
+.stscrub button{font:500 12.5px var(--mono);color:var(--ink);background:var(--panel-3);
+  border:1px solid var(--line-2);padding:6px 12px;cursor:pointer;border-radius:0}
+.stscrub button:hover{border-color:var(--lime);color:var(--lime)}
+.stscrub .stic{display:none;fill:currentColor}
+/* the Pan/Fit view button lives with the other controls and only shows on a phone */
+.stscrub .stmode{display:none}
+
+.stkey{display:flex;flex-wrap:wrap;gap:4px 16px;font:400 11.5px var(--mono);color:var(--ink-3)}
+.stkey span{display:inline-flex;align-items:center;gap:6px}
+.stkey i{display:inline-block;width:18px;height:6px}
+.stkey .k-run{background:var(--lime)}
+.stkey .k-loss{background:var(--down)}
+.stkey svg{display:block;width:18px;height:10px;overflow:visible}
+.stkey svg path{fill:none;stroke-width:2;stroke-linecap:round}
+.stkey .k-pass path{stroke:var(--lime)}
+.stkey .k-inc path{stroke:var(--down)}
+
+/* the moment. Tried above the field first, where it overlapped the play on a narrow window and
+   there was no vertical room for it on a phone at all. Dimming the field and speaking from its
+   centre is both the thing that fits and the thing that reads as an event. */
+/* --slam is the moment's own size, named because it is fluid and because the three rules that
+   set it (here, minor, and the phone's two) then read as one decision rather than four. The
+   scale's steps are the ends; the vw between them is what keeps a headline from wrapping. */
+.stslam{--slam:clamp(var(--t-5),4.6vw,var(--t-7));
+  position:absolute;inset:0;z-index:4;display:grid;place-items:center;text-align:center;pointer-events:none;
+  opacity:0;background:rgb(var(--void-rgb) / .62);font:800 var(--slam)/1 var(--disp);
+  letter-spacing:-.03em;color:var(--lime);text-shadow:0 4px 0 var(--void);transition:opacity .3s var(--ease)}
+.stslam.minor{--slam:clamp(var(--t-4),3vw,var(--t-6))}
+.stslam.bad{color:var(--down)}
+/* how a big play split between air and run: a quiet tag after the headline, not a second line */
+.stslam small{margin-left:.7em;font:600 .6em var(--mono);letter-spacing:0;color:var(--ink-2);text-shadow:none}
+.stslam.on{animation:stslam 2.5s var(--ease) forwards}
+@keyframes stslam{0%{opacity:0;transform:scale(2.2)}10%{opacity:1;transform:scale(1)}
+  74%{opacity:1;transform:scale(1.02)}100%{opacity:0;transform:scale(1.06)}}
+
+@media (prefers-reduced-motion:reduce){
+  .stahead::before,.stfig.run *,.stfig .strig,.stfig.has .stface,.stfly .stball{animation:none}
+  .stplane,.stactor,.stturf svg g,.starcs polyline{transition:none}
+}

@@ -188,6 +188,18 @@ function wireLive(host){
     GD_CATCHUP = null;
     paintLive();
   });
+  /* A name opens his club's game as a drive strip, at the drive he was last on the field for.
+     Bound here rather than once at load, because paintLive() rebuilds these cells on every poll. */
+  host.querySelectorAll("[data-gdopen]").forEach(el => {
+    const open = () => {
+      const g = stGameFor(el.dataset.gdopen);
+      if (g) openStrip(g, el.dataset.gdname, el);
+    };
+    el.addEventListener("click", open);
+    el.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " "){ e.preventDefault(); open(); }
+    });
+  });
 }
 
 /* Registered once, at load, exactly like buildChat(): one interval for the life of the page,

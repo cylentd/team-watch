@@ -25,7 +25,10 @@ $repo = Split-Path -Parent $PSScriptRoot
 # build.json belongs here for the same reason as the two pages: design/build.py writes it, so a
 # branch that carried it would conflict with every other branch that had rebuilt. It is the hash
 # of the injected data, which an open tab fetches to learn that main has moved.
-$generated = @("index.html", "design/index.html", "build.json")
+# `games/` is the drive strips, one JSON per played game, also written by design/build.py. Unlike
+# the three above these never conflict -- a finished game is never rewritten, so a build only ever
+# adds files -- but they belong to the same build, so they are folded in at the same moment.
+$generated = @("index.html", "design/index.html", "build.json", "games")
 
 # Call git.exe explicitly, and never name a helper `Git`: PowerShell resolves a function name
 # before an external command, case-insensitively, so `function Git { & git ... }` calls itself

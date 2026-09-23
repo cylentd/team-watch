@@ -32,6 +32,12 @@ surface/pool/pool.css
 surface/usage/usage.css
 surface/chat/chat.css
 surface/live/live.css
+surface/strip/field.css
+surface/strip/figure.css
+surface/strip/panel.css
+# pin: strip/phone.css last of the four -- it is the strip's own 430px block, and it relaxes the
+#      three above rather than being relaxed by them. responsive/430.css touches no st* selector.
+surface/strip/phone.css
 surface/builder/modes.css
 surface/builder/legs.css
 surface/builder/expand.css

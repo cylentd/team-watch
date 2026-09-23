@@ -70,10 +70,20 @@ def _latest_per_game(rows):
 
 
 def load_schedule(dwr):
-    """-> {"games": [{home, away, kickoff}]} , or None when the log is not there.
+    """-> {"games": [{home, away, kickoff, week, espn}], "alias": {...}} , or None when the log
+    is not there.
 
     `kickoff` is normalized to ISO-8601 UTC with a trailing Z, which Date.parse reads directly
     in the browser. No build clock is consulted, so the same log always yields the same block.
+
+    `week` and `espn` are for the second reader, added 2026-09-23: the drive strip opens a game
+    by ESPN event id, and the only two ways the page ever names a game are "the one this club is
+    playing now" (Gameday) and "week 3, this club" (a game log). Both end here.
+
+    `espn` is null for any game whose latest history row predates ff-jarvis carrying the column
+    (it is in nflverse's games.csv and was being dropped). A null is a game the strip cannot open,
+    which is why it is a null rather than an omission -- the gate above still works without it,
+    and one `python -m model.clients.results` fills every game in the season.
     """
     games_dir = pathlib.Path(dwr) / "history" / "games"
     if not games_dir.is_dir():
@@ -90,14 +100,23 @@ def load_schedule(dwr):
         home, away = r.get("home"), r.get("away")
         if not home or not away:
             continue
-        out.append({"home": TO_ESPN.get(home, home), "away": TO_ESPN.get(away, away),
+        week = r.get("week")
+        out.append({"id": r.get("game_id"),
+                    "home": TO_ESPN.get(home, home), "away": TO_ESPN.get(away, away),
                     "kickoff": when.astimezone(UTC).isoformat(timespec="seconds").replace(
-                        "+00:00", "Z")})
+                        "+00:00", "Z"),
+                    "week": int(week) if isinstance(week, (int, float)) else None,
+                    "espn": str(r["espn"]) if r.get("espn") else None})
 
     if not out:
         return None
     out.sort(key=lambda g: (g["kickoff"], g["away"]))
-    return {"games": out}
+    # The same table, shipped, because a second reader arrived that does NOT speak ESPN's dialect:
+    # the profile's game log carries nflverse's codes (LA, WAS) straight off ff-jarvis's box score,
+    # so looking a club up in `games` above silently found nothing for the Rams and the Commanders.
+    # Writing {"LA": "LAR"} again in JavaScript would be the same table in two places; sending it
+    # keeps it in one. ESPN's own codes are not keys here, so they pass through untouched.
+    return {"games": out, "alias": dict(TO_ESPN)}
 
 
 def report(block):

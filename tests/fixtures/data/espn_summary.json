@@ -1,0 +1,2495 @@
+{
+ "header": {
+  "id": "401872932",
+  "competitions": [
+   {
+    "status": {
+     "type": {
+      "id": "3",
+      "name": "STATUS_FINAL",
+      "state": "post",
+      "completed": true,
+      "description": "Final",
+      "detail": "Final",
+      "shortDetail": "Final"
+     },
+     "isTBDFlex": false
+    },
+    "competitors": [
+     {
+      "homeAway": "home",
+      "score": "41",
+      "team": {
+       "id": "2",
+       "abbreviation": "BUF",
+       "name": "Bills",
+       "shortDisplayName": null
+      }
+     },
+     {
+      "homeAway": "away",
+      "score": "31",
+      "team": {
+       "id": "8",
+       "abbreviation": "DET",
+       "name": "Lions",
+       "shortDisplayName": null
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "drives": {
+  "previous": [
+   {
+    "description": "10 plays, 85 yards, 5:51",
+    "result": "TD",
+    "displayResult": "Touchdown",
+    "team": {
+     "id": "2",
+     "abbreviation": "BUF"
+    },
+    "plays": [
+     {
+      "id": "40187293240",
+      "type": {
+       "id": "53",
+       "text": "Kickoff",
+       "abbreviation": "K"
+      },
+      "text": "J.Bates kicks 66 yards from DET 35 to BUF -1. G.Dortch to BUF 26 for 27 yards (E.O'Neill).PENALTY on BUF-S.Franklin, Offensive Holding, 10 yards, enforced at BUF 25.",
+      "awayScore": 0,
+      "homeScore": 0,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "15:00"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 0,
+       "distance": 0,
+       "yardLine": 65,
+       "yardsToEndzone": 65,
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 15,
+       "yardsToEndzone": 85,
+       "downDistanceText": "1st & 10 at BUF 15",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "2"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "40187293274",
+      "type": {
+       "id": "24",
+       "text": "Pass Reception",
+       "abbreviation": "REC"
+      },
+      "text": "J.Allen pass short left to K.Shakir pushed ob at BUF 24 for 9 yards (D.White).",
+      "awayScore": 0,
+      "homeScore": 0,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "14:51"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 15,
+       "yardsToEndzone": 85,
+       "downDistanceText": "1st & 10 at BUF 15",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "2"
+       }
+      },
+      "end": {
+       "down": 2,
+       "distance": 1,
+       "yardLine": 24,
+       "yardsToEndzone": 76,
+       "downDistanceText": "2nd & 1 at BUF 24",
+       "shortDownDistanceText": "2nd & 1",
+       "team": {
+        "id": "2"
+       }
+      },
+      "yardsAfterCatch": 10,
+      "isTurnover": false
+     },
+     {
+      "id": "40187293299",
+      "type": {
+       "id": "5",
+       "text": "Rush",
+       "abbreviation": "RUSH"
+      },
+      "text": "J.Cook up the middle to BUF 36 for 12 yards (C.Clark; A.Maddox).",
+      "awayScore": 0,
+      "homeScore": 0,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "14:25"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 2,
+       "distance": 1,
+       "yardLine": 24,
+       "yardsToEndzone": 76,
+       "downDistanceText": "2nd & 1 at BUF 24",
+       "shortDownDistanceText": "2nd & 1",
+       "team": {
+        "id": "2"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 36,
+       "yardsToEndzone": 64,
+       "downDistanceText": "1st & 10 at BUF 36",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "2"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "401872932121",
+      "type": {
+       "id": "9",
+       "text": "Fumble Recovery (Own)"
+      },
+      "text": "J.Allen sacked at BUF 32 for -4 yards (A.Hutchinson). FUMBLES (A.Hutchinson) [A.Hutchinson], recovered by BUF-S.Brown at BUF 31.",
+      "awayScore": 0,
+      "homeScore": 0,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "13:48"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 36,
+       "yardsToEndzone": 64,
+       "downDistanceText": "1st & 10 at BUF 36",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "2"
+       }
+      },
+      "end": {
+       "down": 2,
+       "distance": 15,
+       "yardLine": 31,
+       "yardsToEndzone": 69,
+       "downDistanceText": "2nd & 15 at BUF 31",
+       "shortDownDistanceText": "2nd & 15",
+       "team": {
+        "id": "2"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "401872932156",
+      "type": {
+       "id": "5",
+       "text": "Rush",
+       "abbreviation": "RUSH"
+      },
+      "text": "(Shotgun) J.Allen scrambles right end ran ob at BUF 44 for 13 yards (D.White).PENALTY on DET-D.Reed, Defensive Holding, 5 yards, enforced at BUF 44.",
+      "awayScore": 0,
+      "homeScore": 0,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "12:54"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 2,
+       "distance": 15,
+       "yardLine": 31,
+       "yardsToEndzone": 69,
+       "downDistanceText": "2nd & 15 at BUF 31",
+       "shortDownDistanceText": "2nd & 15",
+       "team": {
+        "id": "2"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 49,
+       "yardsToEndzone": 51,
+       "downDistanceText": "1st & 10 at BUF 49",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "2"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "401872932194",
+      "type": {
+       "id": "5",
+       "text": "Rush",
+       "abbreviation": "RUSH"
+      },
+      "text": "J.Cook right guard to 50 for 1 yard (J.Campbell; T.Williams).",
+      "awayScore": 0,
+      "homeScore": 0,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "12:26"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 49,
+       "yardsToEndzone": 51,
+       "downDistanceText": "1st & 10 at BUF 49",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "2"
+       }
+      },
+      "end": {
+       "down": 2,
+       "distance": 9,
+       "yardLine": 50,
+       "yardsToEndzone": 50,
+       "downDistanceText": "2nd & 9 at 50",
+       "shortDownDistanceText": "2nd & 9",
+       "team": {
+        "id": "2"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "401872932216",
+      "type": {
+       "id": "5",
+       "text": "Rush",
+       "abbreviation": "RUSH"
+      },
+      "text": "(Shotgun) J.Allen scrambles right tackle ran ob at DET 38 for 12 yards (D.Barnes).",
+      "awayScore": 0,
+      "homeScore": 0,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "11:48"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 2,
+       "distance": 9,
+       "yardLine": 50,
+       "yardsToEndzone": 50,
+       "downDistanceText": "2nd & 9 at 50",
+       "shortDownDistanceText": "2nd & 9",
+       "team": {
+        "id": "2"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 62,
+       "yardsToEndzone": 38,
+       "downDistanceText": "1st & 10 at DET 38",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "2"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "401872932243",
+      "type": {
+       "id": "24",
+       "text": "Pass Reception",
+       "abbreviation": "REC"
+      },
+      "text": "J.Allen pass short middle to K.Shakir to DET 25 for 13 yards (J.Campbell).",
+      "awayScore": 0,
+      "homeScore": 0,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "11:08"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 62,
+       "yardsToEndzone": 38,
+       "downDistanceText": "1st & 10 at DET 38",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "2"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 75,
+       "yardsToEndzone": 25,
+       "downDistanceText": "1st & 10 at DET 25",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "2"
+       }
+      },
+      "yardsAfterCatch": 0,
+      "isTurnover": false
+     },
+     {
+      "id": "401872932273",
+      "type": {
+       "id": "5",
+       "text": "Rush",
+       "abbreviation": "RUSH"
+      },
+      "text": "J.Cook right guard to DET 15 for 10 yards (A.Maddox).",
+      "awayScore": 0,
+      "homeScore": 0,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "10:28"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 75,
+       "yardsToEndzone": 25,
+       "downDistanceText": "1st & 10 at DET 25",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "2"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 85,
+       "yardsToEndzone": 15,
+       "downDistanceText": "1st & 10 at DET 15",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "2"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "401872932295",
+      "type": {
+       "id": "5",
+       "text": "Rush",
+       "abbreviation": "RUSH"
+      },
+      "text": "J.Allen scrambles left tackle to DET 1 for 14 yards (R.Ya-Sin; D.Reed).",
+      "awayScore": 0,
+      "homeScore": 0,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "9:42"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 85,
+       "yardsToEndzone": 15,
+       "downDistanceText": "1st & 10 at DET 15",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "2"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 1,
+       "yardLine": 99,
+       "yardsToEndzone": 1,
+       "downDistanceText": "1st & Goal at DET 1",
+       "shortDownDistanceText": "1st & Goal",
+       "team": {
+        "id": "2"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "401872932317",
+      "type": {
+       "id": "68",
+       "text": "Rushing Touchdown",
+       "abbreviation": "TD"
+      },
+      "text": "(No Huddle) J.Allen left guard for 1 yard, TOUCHDOWN. T.Bass extra point is GOOD, Center-R.Ferguson, Holder-T.Doman.",
+      "awayScore": 0,
+      "homeScore": 7,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "9:09"
+      },
+      "scoringPlay": true,
+      "start": {
+       "down": 1,
+       "distance": 1,
+       "yardLine": 99,
+       "yardsToEndzone": 1,
+       "downDistanceText": "1st & Goal at DET 1",
+       "shortDownDistanceText": "1st & Goal",
+       "team": {
+        "id": "2"
+       }
+      },
+      "end": {
+       "down": -1,
+       "distance": 10,
+       "yardLine": 100,
+       "yardsToEndzone": 0,
+       "team": {
+        "id": "2"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "401872932348",
+      "type": {
+       "id": "74",
+       "text": "Official Timeout",
+       "abbreviation": "Off TO"
+      },
+      "text": "Official Timeout at 09:09.",
+      "awayScore": 0,
+      "homeScore": 7,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "9:09"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": -1,
+       "distance": 0,
+       "yardLine": 85,
+       "yardsToEndzone": 0,
+       "downDistanceText": " & Goal at DET 15",
+       "shortDownDistanceText": " & Goal",
+       "team": {
+        "id": "2"
+       }
+      },
+      "end": {
+       "down": -1,
+       "distance": 0,
+       "yardLine": 85,
+       "yardsToEndzone": 0,
+       "team": {
+        "id": "2"
+       }
+      },
+      "isTurnover": false
+     }
+    ]
+   },
+   {
+    "description": "3 plays, -5 yards, 2:00",
+    "result": "PUNT",
+    "displayResult": "Punt",
+    "team": {
+     "id": "8",
+     "abbreviation": "DET"
+    },
+    "plays": [
+     {
+      "id": "401872932355",
+      "type": {
+       "id": "53",
+       "text": "Kickoff",
+       "abbreviation": "K"
+      },
+      "text": "T.Bass kicks 65 yards from BUF 35 to end zone, Touchback to the DET 35.",
+      "awayScore": 0,
+      "homeScore": 7,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "9:09"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 0,
+       "distance": 0,
+       "yardLine": 35,
+       "yardsToEndzone": 65,
+       "team": {
+        "id": "2"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 65,
+       "yardsToEndzone": 65,
+       "downDistanceText": "1st & 10 at DET 35",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "401872932379",
+      "type": {
+       "id": "24",
+       "text": "Pass Reception",
+       "abbreviation": "REC"
+      },
+      "text": "J.Goff pass short left to S.LaPorta to DET 37 for 2 yards (D.Williams).",
+      "awayScore": 0,
+      "homeScore": 7,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "9:09"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 65,
+       "yardsToEndzone": 65,
+       "downDistanceText": "1st & 10 at DET 35",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 2,
+       "distance": 8,
+       "yardLine": 63,
+       "yardsToEndzone": 63,
+       "downDistanceText": "2nd & 8 at DET 37",
+       "shortDownDistanceText": "2nd & 8",
+       "team": {
+        "id": "8"
+       }
+      },
+      "yardsAfterCatch": 10,
+      "isTurnover": false
+     },
+     {
+      "id": "401872932404",
+      "type": {
+       "id": "5",
+       "text": "Rush",
+       "abbreviation": "RUSH"
+      },
+      "text": "J.Gibbs right tackle to DET 37 for no gain (G.Rousseau).",
+      "awayScore": 0,
+      "homeScore": 7,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "8:36"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 2,
+       "distance": 8,
+       "yardLine": 63,
+       "yardsToEndzone": 63,
+       "downDistanceText": "2nd & 8 at DET 37",
+       "shortDownDistanceText": "2nd & 8",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 3,
+       "distance": 8,
+       "yardLine": 63,
+       "yardsToEndzone": 63,
+       "downDistanceText": "3rd & 8 at DET 37",
+       "shortDownDistanceText": "3rd & 8",
+       "team": {
+        "id": "8"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "401872932426",
+      "type": {
+       "id": "7",
+       "text": "Sack"
+      },
+      "text": "(Shotgun) J.Goff sacked at DET 30 for -7 yards (G.Rousseau).",
+      "awayScore": 0,
+      "homeScore": 7,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "7:54"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 3,
+       "distance": 8,
+       "yardLine": 63,
+       "yardsToEndzone": 63,
+       "downDistanceText": "3rd & 8 at DET 37",
+       "shortDownDistanceText": "3rd & 8",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 4,
+       "distance": 15,
+       "yardLine": 70,
+       "yardsToEndzone": 70,
+       "downDistanceText": "4th & 15 at DET 30",
+       "shortDownDistanceText": "4th & 15",
+       "team": {
+        "id": "8"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "401872932446",
+      "type": {
+       "id": "52",
+       "text": "Punt",
+       "abbreviation": "PUNT"
+      },
+      "text": "J.Fox punts 49 yards to BUF 21, Center-H.Hatten, fair catch by G.Dortch.",
+      "awayScore": 0,
+      "homeScore": 7,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "7:16"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 4,
+       "distance": 15,
+       "yardLine": 70,
+       "yardsToEndzone": 70,
+       "downDistanceText": "4th & 15 at DET 30",
+       "shortDownDistanceText": "4th & 15",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 21,
+       "yardsToEndzone": 79,
+       "downDistanceText": "1st & 10 at BUF 21",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "2"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "401872932456",
+      "type": {
+       "id": "74",
+       "text": "Official Timeout",
+       "abbreviation": "Off TO"
+      },
+      "text": "Official Timeout at 07:09.",
+      "awayScore": 0,
+      "homeScore": 7,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "7:09"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 21,
+       "yardsToEndzone": 0,
+       "downDistanceText": "1st & 10 at BUF 21",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "2"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 21,
+       "yardsToEndzone": 79,
+       "downDistanceText": "1st & 10 at BUF 21",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "2"
+       }
+      },
+      "isTurnover": false
+     }
+    ]
+   },
+   {
+    "description": "4 plays, 4 yards, 2:45",
+    "result": "PUNT",
+    "displayResult": "Punt",
+    "team": {
+     "id": "8",
+     "abbreviation": "DET"
+    },
+    "plays": [
+     {
+      "id": "401872932681",
+      "type": {
+       "id": "53",
+       "text": "Kickoff",
+       "abbreviation": "K"
+      },
+      "text": "T.Bass kicks 59 yards from BUF 35 to DET 6. J.Saylors to DET 34 for 28 yards (D.Hamlin).",
+      "awayScore": 0,
+      "homeScore": 14,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "3:42"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 0,
+       "distance": 0,
+       "yardLine": 35,
+       "yardsToEndzone": 65,
+       "team": {
+        "id": "2"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 66,
+       "yardsToEndzone": 66,
+       "downDistanceText": "1st & 10 at DET 34",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "401872932711",
+      "type": {
+       "id": "5",
+       "text": "Rush",
+       "abbreviation": "RUSH"
+      },
+      "text": "J.Gibbs right tackle to 50 for 16 yards (C.Bishop).",
+      "awayScore": 0,
+      "homeScore": 14,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "3:34"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 66,
+       "yardsToEndzone": 66,
+       "downDistanceText": "1st & 10 at DET 34",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 50,
+       "yardsToEndzone": 50,
+       "downDistanceText": "1st & 10 at 50",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "401872932733",
+      "type": {
+       "id": "5",
+       "text": "Rush",
+       "abbreviation": "RUSH"
+      },
+      "text": "J.Gibbs right end pushed ob at BUF 41 for 9 yards (C.Benford).",
+      "awayScore": 0,
+      "homeScore": 14,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "2:56"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 50,
+       "yardsToEndzone": 50,
+       "downDistanceText": "1st & 10 at 50",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 2,
+       "distance": 1,
+       "yardLine": 41,
+       "yardsToEndzone": 41,
+       "downDistanceText": "2nd & 1 at BUF 41",
+       "shortDownDistanceText": "2nd & 1",
+       "team": {
+        "id": "8"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "401872932760",
+      "type": {
+       "id": "9",
+       "text": "Fumble Recovery (Own)"
+      },
+      "text": "J.Goff sacked at 50 for -9 yards (G.Rousseau). FUMBLES (G.Rousseau) [G.Rousseau], recovered by DET-B.Wright at DET 49.",
+      "awayScore": 0,
+      "homeScore": 14,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "2:25"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 2,
+       "distance": 1,
+       "yardLine": 41,
+       "yardsToEndzone": 41,
+       "downDistanceText": "2nd & 1 at BUF 41",
+       "shortDownDistanceText": "2nd & 1",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 3,
+       "distance": 11,
+       "yardLine": 51,
+       "yardsToEndzone": 51,
+       "downDistanceText": "3rd & 11 at DET 49",
+       "shortDownDistanceText": "3rd & 11",
+       "team": {
+        "id": "8"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "401872932790",
+      "type": {
+       "id": "9",
+       "text": "Fumble Recovery (Own)"
+      },
+      "text": "(Shotgun) J.Goff FUMBLES (Aborted) at DET 44, and recovers at DET 38.",
+      "awayScore": 0,
+      "homeScore": 14,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "1:44"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 3,
+       "distance": 11,
+       "yardLine": 51,
+       "yardsToEndzone": 51,
+       "downDistanceText": "3rd & 11 at DET 49",
+       "shortDownDistanceText": "3rd & 11",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 4,
+       "distance": 22,
+       "yardLine": 62,
+       "yardsToEndzone": 62,
+       "downDistanceText": "4th & 22 at DET 38",
+       "shortDownDistanceText": "4th & 22",
+       "team": {
+        "id": "8"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "401872932817",
+      "type": {
+       "id": "52",
+       "text": "Punt",
+       "abbreviation": "PUNT"
+      },
+      "text": "J.Fox punts 44 yards to BUF 18, Center-H.Hatten. G.Dortch pushed ob at BUF 43 for 25 yards (D.Barnes).",
+      "awayScore": 0,
+      "homeScore": 14,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "1:09"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 4,
+       "distance": 22,
+       "yardLine": 62,
+       "yardsToEndzone": 62,
+       "downDistanceText": "4th & 22 at DET 38",
+       "shortDownDistanceText": "4th & 22",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 43,
+       "yardsToEndzone": 57,
+       "downDistanceText": "1st & 10 at BUF 43",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "2"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "401872932833",
+      "type": {
+       "id": "74",
+       "text": "Official Timeout",
+       "abbreviation": "Off TO"
+      },
+      "text": "Official Timeout at 00:57.",
+      "awayScore": 0,
+      "homeScore": 14,
+      "period": {
+       "number": 1
+      },
+      "clock": {
+       "displayValue": "0:57"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 43,
+       "yardsToEndzone": 0,
+       "downDistanceText": "1st & 10 at BUF 43",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "2"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 43,
+       "yardsToEndzone": 57,
+       "downDistanceText": "1st & 10 at BUF 43",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "2"
+       }
+      },
+      "isTurnover": false
+     }
+    ]
+   },
+   {
+    "description": "4 plays, 4 yards, 1:16",
+    "result": "PUNT",
+    "displayResult": "Punt",
+    "team": {
+     "id": "8",
+     "abbreviation": "DET"
+    },
+    "plays": [
+     {
+      "id": "4018729321763",
+      "type": {
+       "id": "53",
+       "text": "Kickoff",
+       "abbreviation": "K"
+      },
+      "text": "T.Bass kicks 65 yards from BUF 35 to DET 0. T.Kennedy to DET 27 for 27 yards (S.Franklin).",
+      "awayScore": 7,
+      "homeScore": 27,
+      "period": {
+       "number": 2
+      },
+      "clock": {
+       "displayValue": "2:52"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 0,
+       "distance": 0,
+       "yardLine": 35,
+       "yardsToEndzone": 65,
+       "team": {
+        "id": "2"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 73,
+       "yardsToEndzone": 73,
+       "downDistanceText": "1st & 10 at DET 27",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "4018729321786",
+      "type": {
+       "id": "24",
+       "text": "Pass Reception",
+       "abbreviation": "REC"
+      },
+      "text": "J.Goff pass short left to S.LaPorta to DET 39 for 12 yards (T.Bernard).",
+      "awayScore": 7,
+      "homeScore": 27,
+      "period": {
+       "number": 2
+      },
+      "clock": {
+       "displayValue": "2:46"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 73,
+       "yardsToEndzone": 73,
+       "downDistanceText": "1st & 10 at DET 27",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 61,
+       "yardsToEndzone": 61,
+       "downDistanceText": "1st & 10 at DET 39",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "yardsAfterCatch": 12,
+      "isTurnover": false
+     },
+     {
+      "id": "4018729321811",
+      "type": {
+       "id": "3",
+       "text": "Pass Incompletion"
+      },
+      "text": "J.Goff pass incomplete short left to J.Williams (D.Walker) [D.Walker].",
+      "awayScore": 7,
+      "homeScore": 27,
+      "period": {
+       "number": 2
+      },
+      "clock": {
+       "displayValue": "2:08"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 61,
+       "yardsToEndzone": 61,
+       "downDistanceText": "1st & 10 at DET 39",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 2,
+       "distance": 10,
+       "yardLine": 61,
+       "yardsToEndzone": 61,
+       "downDistanceText": "2nd & 10 at DET 39",
+       "shortDownDistanceText": "2nd & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "4018729321834",
+      "type": {
+       "id": "24",
+       "text": "Pass Reception",
+       "abbreviation": "REC"
+      },
+      "text": "J.Goff pass short middle to J.Gibbs to DET 48 for 9 yards (K.Elarms-Orr; T.Bernard).",
+      "awayScore": 7,
+      "homeScore": 27,
+      "period": {
+       "number": 2
+      },
+      "clock": {
+       "displayValue": "2:03"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 2,
+       "distance": 10,
+       "yardLine": 61,
+       "yardsToEndzone": 61,
+       "downDistanceText": "2nd & 10 at DET 39",
+       "shortDownDistanceText": "2nd & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 3,
+       "distance": 1,
+       "yardLine": 52,
+       "yardsToEndzone": 52,
+       "downDistanceText": "3rd & 1 at DET 48",
+       "shortDownDistanceText": "3rd & 1",
+       "team": {
+        "id": "8"
+       }
+      },
+      "yardsAfterCatch": 5,
+      "isTurnover": false
+     },
+     {
+      "id": "4018729321847",
+      "type": {
+       "id": "75",
+       "text": "Two-minute warning",
+       "abbreviation": "2Min Warn"
+      },
+      "text": "Two-Minute Warning",
+      "awayScore": 7,
+      "homeScore": 27,
+      "period": {
+       "number": 2
+      },
+      "clock": {
+       "displayValue": "1:56"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 3,
+       "distance": 1,
+       "yardLine": 52,
+       "yardsToEndzone": 0,
+       "downDistanceText": "3rd & 1 at DET 48",
+       "shortDownDistanceText": "3rd & 1",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 3,
+       "distance": 1,
+       "yardLine": 52,
+       "yardsToEndzone": 52,
+       "downDistanceText": "3rd & 1 at DET 48",
+       "shortDownDistanceText": "3rd & 1",
+       "team": {
+        "id": "8"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "4018729321859",
+      "type": {
+       "id": "8",
+       "text": "Penalty",
+       "abbreviation": "PEN"
+      },
+      "text": "PENALTY on DET-J.Scruggs, False Start, 4 yards, enforced at DET 48 - No Play.",
+      "awayScore": 7,
+      "homeScore": 27,
+      "period": {
+       "number": 2
+      },
+      "clock": {
+       "displayValue": "1:56"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 3,
+       "distance": 1,
+       "yardLine": 52,
+       "yardsToEndzone": 52,
+       "downDistanceText": "3rd & 1 at DET 48",
+       "shortDownDistanceText": "3rd & 1",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 3,
+       "distance": 5,
+       "yardLine": 56,
+       "yardsToEndzone": 56,
+       "downDistanceText": "3rd & 5 at DET 44",
+       "shortDownDistanceText": "3rd & 5",
+       "team": {
+        "id": "8"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "4018729321904",
+      "type": {
+       "id": "7",
+       "text": "Sack"
+      },
+      "text": "(Shotgun) J.Goff sacked at DET 31 for -13 yards (B.Chubb).",
+      "awayScore": 7,
+      "homeScore": 27,
+      "period": {
+       "number": 2
+      },
+      "clock": {
+       "displayValue": "1:56"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 3,
+       "distance": 5,
+       "yardLine": 56,
+       "yardsToEndzone": 56,
+       "downDistanceText": "3rd & 5 at DET 44",
+       "shortDownDistanceText": "3rd & 5",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 4,
+       "distance": 18,
+       "yardLine": 69,
+       "yardsToEndzone": 69,
+       "downDistanceText": "4th & 18 at DET 31",
+       "shortDownDistanceText": "4th & 18",
+       "team": {
+        "id": "8"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "4018729321914",
+      "type": {
+       "id": "21",
+       "text": "Timeout",
+       "abbreviation": "TO"
+      },
+      "text": "Timeout #1 by BUF at 01:51.",
+      "awayScore": 7,
+      "homeScore": 27,
+      "period": {
+       "number": 2
+      },
+      "clock": {
+       "displayValue": "1:51"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 4,
+       "distance": 18,
+       "yardLine": 69,
+       "yardsToEndzone": 0,
+       "downDistanceText": "4th & 18 at DET 31",
+       "shortDownDistanceText": "4th & 18",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 4,
+       "distance": 18,
+       "yardLine": 69,
+       "yardsToEndzone": 69,
+       "downDistanceText": "4th & 18 at DET 31",
+       "shortDownDistanceText": "4th & 18",
+       "team": {
+        "id": "8"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "4018729321924",
+      "type": {
+       "id": "52",
+       "text": "Punt",
+       "abbreviation": "PUNT"
+      },
+      "text": "J.Fox punts 62 yards to BUF 7, Center-H.Hatten. G.Dortch to BUF 18 for 11 yards (T.Nowaske; T.Martin).",
+      "awayScore": 7,
+      "homeScore": 27,
+      "period": {
+       "number": 2
+      },
+      "clock": {
+       "displayValue": "1:51"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 4,
+       "distance": 18,
+       "yardLine": 69,
+       "yardsToEndzone": 69,
+       "downDistanceText": "4th & 18 at DET 31",
+       "shortDownDistanceText": "4th & 18",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 18,
+       "yardsToEndzone": 82,
+       "downDistanceText": "1st & 10 at BUF 18",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "2"
+       }
+      },
+      "isTurnover": false
+     }
+    ]
+   },
+   {
+    "description": "8 plays, 65 yards, 0:39",
+    "result": "FG",
+    "displayResult": "Field Goal",
+    "team": {
+     "id": "8",
+     "abbreviation": "DET"
+    },
+    "plays": [
+     {
+      "id": "4018729322143",
+      "type": {
+       "id": "3",
+       "text": "Pass Incompletion"
+      },
+      "text": "(Shotgun) J.Goff pass incomplete deep middle to I.TeSlaa (T.Bernard).",
+      "awayScore": 7,
+      "homeScore": 27,
+      "period": {
+       "number": 2
+      },
+      "clock": {
+       "displayValue": "0:39"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 78,
+       "yardsToEndzone": 78,
+       "downDistanceText": "1st & 10 at DET 22",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 2,
+       "distance": 10,
+       "yardLine": 78,
+       "yardsToEndzone": 78,
+       "downDistanceText": "2nd & 10 at DET 22",
+       "shortDownDistanceText": "2nd & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "4018729322166",
+      "type": {
+       "id": "24",
+       "text": "Pass Reception",
+       "abbreviation": "REC"
+      },
+      "text": "(Shotgun) J.Goff pass short left to S.LaPorta to DET 34 for 12 yards (J.Hancock).",
+      "awayScore": 7,
+      "homeScore": 27,
+      "period": {
+       "number": 2
+      },
+      "clock": {
+       "displayValue": "0:33"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 2,
+       "distance": 10,
+       "yardLine": 78,
+       "yardsToEndzone": 78,
+       "downDistanceText": "2nd & 10 at DET 22",
+       "shortDownDistanceText": "2nd & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 66,
+       "yardsToEndzone": 66,
+       "downDistanceText": "1st & 10 at DET 34",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "yardsAfterCatch": 4,
+      "isTurnover": false
+     },
+     {
+      "id": "4018729322179",
+      "type": {
+       "id": "21",
+       "text": "Timeout",
+       "abbreviation": "TO"
+      },
+      "text": "Timeout #1 by DET at 00:28.",
+      "awayScore": 7,
+      "homeScore": 27,
+      "period": {
+       "number": 2
+      },
+      "clock": {
+       "displayValue": "0:28"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 66,
+       "yardsToEndzone": 0,
+       "downDistanceText": "1st & 10 at DET 34",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 66,
+       "yardsToEndzone": 66,
+       "downDistanceText": "1st & 10 at DET 34",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "4018729322191",
+      "type": {
+       "id": "24",
+       "text": "Pass Reception",
+       "abbreviation": "REC"
+      },
+      "text": "(Shotgun) J.Goff pass short right to A.St. Brown to BUF 44 for 22 yards (J.Hancock; C.Benford).",
+      "awayScore": 7,
+      "homeScore": 27,
+      "period": {
+       "number": 2
+      },
+      "clock": {
+       "displayValue": "0:28"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 66,
+       "yardsToEndzone": 66,
+       "downDistanceText": "1st & 10 at DET 34",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 44,
+       "yardsToEndzone": 44,
+       "downDistanceText": "1st & 10 at BUF 44",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "yardsAfterCatch": 12,
+      "isTurnover": false
+     },
+     {
+      "id": "4018729322207",
+      "type": {
+       "id": "21",
+       "text": "Timeout",
+       "abbreviation": "TO"
+      },
+      "text": "Timeout #2 by DET at 00:21.",
+      "awayScore": 7,
+      "homeScore": 27,
+      "period": {
+       "number": 2
+      },
+      "clock": {
+       "displayValue": "0:21"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 44,
+       "yardsToEndzone": 0,
+       "downDistanceText": "1st & 10 at BUF 44",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 44,
+       "yardsToEndzone": 44,
+       "downDistanceText": "1st & 10 at BUF 44",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "4018729322223",
+      "type": {
+       "id": "3",
+       "text": "Pass Incompletion"
+      },
+      "text": "(Shotgun) J.Goff pass incomplete short right to J.Williams [G.Rousseau].",
+      "awayScore": 7,
+      "homeScore": 27,
+      "period": {
+       "number": 2
+      },
+      "clock": {
+       "displayValue": "0:21"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 44,
+       "yardsToEndzone": 44,
+       "downDistanceText": "1st & 10 at BUF 44",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 2,
+       "distance": 10,
+       "yardLine": 44,
+       "yardsToEndzone": 44,
+       "downDistanceText": "2nd & 10 at BUF 44",
+       "shortDownDistanceText": "2nd & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "4018729322253",
+      "type": {
+       "id": "8",
+       "text": "Penalty",
+       "abbreviation": "PEN"
+      },
+      "text": "(Shotgun) PENALTY on DET-L.Borom, False Start, 5 yards, enforced at BUF 44 - No Play.",
+      "awayScore": 7,
+      "homeScore": 27,
+      "period": {
+       "number": 2
+      },
+      "clock": {
+       "displayValue": "0:16"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 2,
+       "distance": 10,
+       "yardLine": 44,
+       "yardsToEndzone": 44,
+       "downDistanceText": "2nd & 10 at BUF 44",
+       "shortDownDistanceText": "2nd & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 2,
+       "distance": 15,
+       "yardLine": 49,
+       "yardsToEndzone": 49,
+       "downDistanceText": "2nd & 15 at BUF 49",
+       "shortDownDistanceText": "2nd & 15",
+       "team": {
+        "id": "8"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "4018729322277",
+      "type": {
+       "id": "24",
+       "text": "Pass Reception",
+       "abbreviation": "REC"
+      },
+      "text": "(Shotgun) J.Goff pass deep right to J.Williams pushed ob at BUF 33 for 16 yards (M.Hairston).",
+      "awayScore": 7,
+      "homeScore": 27,
+      "period": {
+       "number": 2
+      },
+      "clock": {
+       "displayValue": "0:16"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 2,
+       "distance": 15,
+       "yardLine": 49,
+       "yardsToEndzone": 49,
+       "downDistanceText": "2nd & 15 at BUF 49",
+       "shortDownDistanceText": "2nd & 15",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 33,
+       "yardsToEndzone": 33,
+       "downDistanceText": "1st & 10 at BUF 33",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "yardsAfterCatch": 0,
+      "isTurnover": false
+     },
+     {
+      "id": "4018729322302",
+      "type": {
+       "id": "3",
+       "text": "Pass Incompletion"
+      },
+      "text": "(Shotgun) J.Goff pass incomplete deep right to I.TeSlaa.",
+      "awayScore": 7,
+      "homeScore": 27,
+      "period": {
+       "number": 2
+      },
+      "clock": {
+       "displayValue": "0:10"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 33,
+       "yardsToEndzone": 33,
+       "downDistanceText": "1st & 10 at BUF 33",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 2,
+       "distance": 10,
+       "yardLine": 33,
+       "yardsToEndzone": 33,
+       "downDistanceText": "2nd & 10 at BUF 33",
+       "shortDownDistanceText": "2nd & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "4018729322330",
+      "type": {
+       "id": "5",
+       "text": "Rush",
+       "abbreviation": "RUSH"
+      },
+      "text": "(Shotgun) J.Gibbs left guard to BUF 26 for 7 yards (L.Jackson).PENALTY on BUF-L.Jackson, Tripping, 13 yards, enforced at BUF 26.",
+      "awayScore": 7,
+      "homeScore": 27,
+      "period": {
+       "number": 2
+      },
+      "clock": {
+       "displayValue": "0:06"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 2,
+       "distance": 10,
+       "yardLine": 33,
+       "yardsToEndzone": 33,
+       "downDistanceText": "2nd & 10 at BUF 33",
+       "shortDownDistanceText": "2nd & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 13,
+       "yardsToEndzone": 13,
+       "downDistanceText": "1st & 10 at BUF 13",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "4018729322347",
+      "type": {
+       "id": "21",
+       "text": "Timeout",
+       "abbreviation": "TO"
+      },
+      "text": "Timeout #3 by BUF at 00:01.",
+      "awayScore": 7,
+      "homeScore": 27,
+      "period": {
+       "number": 2
+      },
+      "clock": {
+       "displayValue": "0:01"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 13,
+       "yardsToEndzone": 0,
+       "downDistanceText": "1st & 10 at BUF 13",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 13,
+       "yardsToEndzone": 13,
+       "downDistanceText": "1st & 10 at BUF 13",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "4018729322363",
+      "type": {
+       "id": "59",
+       "text": "Field Goal Good",
+       "abbreviation": "FG"
+      },
+      "text": "J.Bates 31 yard field goal is GOOD, Center-H.Hatten, Holder-J.Fox.",
+      "awayScore": 10,
+      "homeScore": 27,
+      "period": {
+       "number": 2
+      },
+      "clock": {
+       "displayValue": "0:00"
+      },
+      "scoringPlay": true,
+      "start": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 13,
+       "yardsToEndzone": 13,
+       "downDistanceText": "1st & 10 at BUF 13",
+       "shortDownDistanceText": "1st & 10",
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": -1,
+       "distance": 10,
+       "yardLine": 0,
+       "yardsToEndzone": 0,
+       "team": {
+        "id": "8"
+       }
+      },
+      "isTurnover": false
+     },
+     {
+      "id": "4018729322390",
+      "type": {
+       "id": "65",
+       "text": "End of Half",
+       "abbreviation": "EH"
+      },
+      "text": "END QUARTER 2",
+      "awayScore": 10,
+      "homeScore": 27,
+      "period": {
+       "number": 2
+      },
+      "clock": {
+       "displayValue": "0:00"
+      },
+      "scoringPlay": false,
+      "start": {
+       "down": 0,
+       "distance": 0,
+       "yardLine": 65,
+       "yardsToEndzone": 0,
+       "team": {
+        "id": "8"
+       }
+      },
+      "end": {
+       "down": 1,
+       "distance": 10,
+       "yardLine": 65,
+       "yardsToEndzone": 35,
+       "team": {
+        "id": "8"
+       }
+      },
+      "isTurnover": false
+     }
+    ]
+   }
+  ]
+ },
+ "boxscore": {
+  "players": [
+   {
+    "team": {
+     "abbreviation": "DET"
+    },
+    "statistics": [
+     {
+      "name": "passing",
+      "athletes": [
+       {
+        "athlete": {
+         "id": "3046779",
+         "displayName": "Jared Goff",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/3046779.png"
+         }
+        }
+       }
+      ]
+     },
+     {
+      "name": "rushing",
+      "athletes": [
+       {
+        "athlete": {
+         "id": "4429795",
+         "displayName": "Jahmyr Gibbs",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4429795.png"
+         }
+        }
+       }
+      ]
+     },
+     {
+      "name": "receiving",
+      "athletes": [
+       {
+        "athlete": {
+         "id": "4374302",
+         "displayName": "Amon-Ra St. Brown",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4374302.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "4430027",
+         "displayName": "Sam LaPorta",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4430027.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "4426388",
+         "displayName": "Jameson Williams",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4426388.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "5123663",
+         "displayName": "Isaac TeSlaa",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/5123663.png"
+         }
+        }
+       }
+      ]
+     },
+     {
+      "name": "fumbles",
+      "athletes": [
+       {
+        "athlete": {
+         "id": "4242392",
+         "displayName": "Brock Wright",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4242392.png"
+         }
+        }
+       }
+      ]
+     },
+     {
+      "name": "defensive",
+      "athletes": [
+       {
+        "athlete": {
+         "id": "3045463",
+         "displayName": "Chuck Clark",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/3045463.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "4260409",
+         "displayName": "Derrick Barnes",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4260409.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "3910229",
+         "displayName": "Rock Ya-Sin",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/3910229.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "4035434",
+         "displayName": "Devin White",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4035434.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "3139387",
+         "displayName": "D.J. Reed",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/3139387.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "4569465",
+         "displayName": "Jack Campbell",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4569465.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "4431615",
+         "displayName": "Tyleik Williams",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4431615.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "4372099",
+         "displayName": "Aidan Hutchinson",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4372099.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "3123938",
+         "displayName": "Avonte Maddox",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/3123938.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "5144894",
+         "displayName": "Trevor Nowaske",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/5144894.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "4383429",
+         "displayName": "Jacob Saylors",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4383429.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "4892218",
+         "displayName": "Eric O'Neill",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4892218.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "4245144",
+         "displayName": "Tay Martin",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4245144.png"
+         }
+        }
+       }
+      ]
+     },
+     {
+      "name": "kickReturns",
+      "athletes": [
+       {
+        "athlete": {
+         "id": "3126997",
+         "displayName": "Tom Kennedy",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/3126997.png"
+         }
+        }
+       }
+      ]
+     },
+     {
+      "name": "kicking",
+      "athletes": [
+       {
+        "athlete": {
+         "id": "4689936",
+         "displayName": "Jake Bates",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4689936.png"
+         }
+        }
+       }
+      ]
+     },
+     {
+      "name": "punting",
+      "athletes": [
+       {
+        "athlete": {
+         "id": "3916370",
+         "displayName": "Jack Fox",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/3916370.png"
+         }
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "team": {
+     "abbreviation": "BUF"
+    },
+    "statistics": [
+     {
+      "name": "passing",
+      "athletes": [
+       {
+        "athlete": {
+         "id": "3918298",
+         "displayName": "Josh Allen",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/3918298.png"
+         }
+        }
+       }
+      ]
+     },
+     {
+      "name": "rushing",
+      "athletes": [
+       {
+        "athlete": {
+         "id": "4379399",
+         "displayName": "James Cook III",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4379399.png"
+         }
+        }
+       }
+      ]
+     },
+     {
+      "name": "receiving",
+      "athletes": [
+       {
+        "athlete": {
+         "id": "4373678",
+         "displayName": "Khalil Shakir",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4373678.png"
+         }
+        }
+       }
+      ]
+     },
+     {
+      "name": "fumbles",
+      "athletes": [
+       {
+        "athlete": {
+         "id": "4030899",
+         "displayName": "Spencer Brown",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4030899.png"
+         }
+        }
+       }
+      ]
+     },
+     {
+      "name": "defensive",
+      "athletes": [
+       {
+        "athlete": {
+         "id": "4379778",
+         "displayName": "Christian Benford",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4379778.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "4568624",
+         "displayName": "Dorian Williams",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4568624.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "4676004",
+         "displayName": "Cole Bishop",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4676004.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "4259166",
+         "displayName": "Terrel Bernard",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4259166.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "4596480",
+         "displayName": "Jordan Hancock",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4596480.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "3116733",
+         "displayName": "Bradley Chubb",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/3116733.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "4362506",
+         "displayName": "Greg Rousseau",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4362506.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "4036060",
+         "displayName": "Damar Hamlin",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4036060.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "4432715",
+         "displayName": "Landon Jackson",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4432715.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "4594321",
+         "displayName": "Kaleb Elarms-Orr",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4594321.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "4044133",
+         "displayName": "Sam Franklin Jr.",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4044133.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "4688931",
+         "displayName": "Maxwell Hairston",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4688931.png"
+         }
+        }
+       },
+       {
+        "athlete": {
+         "id": "4831989",
+         "displayName": "Deone Walker",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4831989.png"
+         }
+        }
+       }
+      ]
+     },
+     {
+      "name": "kickReturns",
+      "athletes": [
+       {
+        "athlete": {
+         "id": "4037235",
+         "displayName": "Greg Dortch",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4037235.png"
+         }
+        }
+       }
+      ]
+     },
+     {
+      "name": "kicking",
+      "athletes": [
+       {
+        "athlete": {
+         "id": "3917232",
+         "displayName": "Tyler Bass",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/3917232.png"
+         }
+        }
+       }
+      ]
+     },
+     {
+      "name": "punting",
+      "athletes": [
+       {
+        "athlete": {
+         "id": "4682758",
+         "displayName": "Tommy Doman Jr.",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nfl/players/full/4682758.png"
+         }
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

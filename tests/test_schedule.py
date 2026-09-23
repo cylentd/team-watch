@@ -63,6 +63,26 @@ def test_games_are_sorted_by_kickoff(block):
     assert kicks == sorted(kicks)
 
 
+def test_the_espn_event_id_comes_through_and_a_missing_one_is_null(block):
+    """The drive strip opens a game by its ESPN event id; `week` plus the two clubs is the only
+    handle the page ever has on a game. A history row written before ff-jarvis carried the column
+    has no id, and that has to arrive as a null the strip can refuse -- not as an absent key the
+    contract would reject, and not as a wrong id."""
+    assert by_teams(block, "DET", "SEA")["espn"] == "401871234"
+    assert by_teams(block, "DET", "SEA")["week"] == 2
+    assert by_teams(block, "KC", "SF")["week"] == 3
+    assert by_teams(block, "WSH", "LAR")["espn"] is None
+
+
+def test_the_dialect_table_ships_with_the_block(block):
+    """`games` speaks ESPN (the Live board joins against /api/live's club codes), but the profile's
+    game log carries nflverse's straight off the box score -- so a Rams row said LA and matched no
+    game at all until this table came with it. One table, sent, rather than two kept in step."""
+    assert block["alias"]["LA"] == "LAR" and block["alias"]["WAS"] == "WSH"
+    # and it is only for the codes that differ: an ESPN code must pass through untouched
+    assert "BUF" not in block["alias"]
+
+
 def test_every_row_meets_the_contract(block):
     import contract
     assert contract.problems("LIVE_SCHEDULE", block) == []

@@ -35,10 +35,13 @@ CONTRACT = {
         "rows": ("items", ["id", "title", "desc", "impact", "team", "categories", "link", "when", "kind"]),
     },
     # Live reads kickoff times to decide whether it may poll at all. A row missing one would look
-    # like a game that never starts, and the gate would sit idle straight through it.
+    # like a game that never starts, and the gate would sit idle straight through it. The drive
+    # strip reads `week` and `espn` off the same rows to turn "this club, this week" into the
+    # event id /api/game wants; `espn` may be null (an older history row), and the strip then has
+    # no game to open rather than a wrong one.
     "LIVE_SCHEDULE": {
-        "keys": ["games"],
-        "rows": ("games", ["home", "away", "kickoff"]),
+        "keys": ["games", "alias"],
+        "rows": ("games", ["id", "home", "away", "kickoff", "week", "espn"]),
     },
     "LIVE_PROPS": {
         "keys": ["fetched", "events", "books", "players", "windows", "days", "model", "props", "wrcb", "logs"],

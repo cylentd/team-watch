@@ -24,6 +24,16 @@ const GAMELOG_COLS = [
   {id: "rec_td", label: () => t("profile.history.colRecTd"), has: "tgt"},
 ];
 
+/* The week number opens that game's drive strip -- the second of the two ways in, the first being
+   a name on the Live board. A plain number when the schedule has no ESPN id for it (an older
+   history row), because a control that does nothing is worse than no control. */
+function weekCell(p, r){
+  const club = r.team || p.team;
+  if (typeof stGameFor !== "function" || !stGameFor(club, r.wk)) return r.wk;
+  return `<button type="button" class="pf-wk" data-stripclub="${esc(club)}" data-stripwk="${r.wk}"
+    data-stripname="${esc(p.n)}" aria-label="${esc(t("strip.open.week", {n: r.wk}))}">${r.wk}</button>`;
+}
+
 function weeklyHistoryHTML(p){
   const rows = gamelogRows(p.slug);
   if (!rows.length) return "";
@@ -35,7 +45,7 @@ function weeklyHistoryHTML(p){
   const table = `<div class="pf-table-scroll"><table class="pf-table pf-table-wk"><thead><tr><th>${t("profile.history.colWeek")}</th>
     <th>${t("profile.history.colOpp")}</th><th>${t("profile.history.colPts")}</th>
     ${cols.map(c => `<th>${c.label()}</th>`).join("")}</tr></thead>
-    <tbody>${rows.map(r => `<tr><th scope="row">${r.wk}</th><td>${esc(r.opp || "—")}</td><td>${glNum(r.pts)}</td>
+    <tbody>${rows.map(r => `<tr><th scope="row">${weekCell(p, r)}</th><td>${esc(r.opp || "—")}</td><td>${glNum(r.pts)}</td>
       ${cols.map(c => `<td>${glNum(r[c.id])}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
   return secHTML(t("profile.history.label"), spark + table);
 }

@@ -52,7 +52,15 @@ function gdCellHTML(row, side, now){
   const trailing = moved === undefined
     ? `<span class="gdproj">${gdNum(row.projected)}</span>`
     : `<span class="gddelta ${moved < 0 ? "down" : "up"}">${esc(gdSign(moved))}</span>`;
-  return `<div class="gdcell ${side} ${gdState(row, now)}${moved === undefined ? "" : " moved"}">
+  /* Tapping a name opens his club's game at the drive he was last on the field for -- the first
+     of the drive strip's two ways in. Only when the schedule has an ESPN id for that game; a
+     player on a bye, or a game whose history row predates the id, stays a plain row. */
+  const game = typeof stGameFor === "function" ? stGameFor(row.team) : null;
+  const opens = game
+    ? ` role="button" tabindex="0" data-gdopen="${esc(row.team)}" data-gdname="${esc(name)}"`
+      + ` aria-label="${esc(t("strip.open.player", {name}))}"`
+    : "";
+  return `<div class="gdcell ${side} ${gdState(row, now)}${moved === undefined ? "" : " moved"}${game ? " opens" : ""}"${opens}>
     <span class="gdname"><span class="gdnametxt">${esc(name)}</span><span
       class="gdnameshort">${esc(gdShort(name))}</span>${gdBadge(row)}</span>
     <span class="gdclub">${esc(row.team || "")}</span>

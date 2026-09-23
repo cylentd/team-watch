@@ -39,6 +39,13 @@ function openProfile(p, originEl){
     </div>`;
   wireSheet(d);
   showModal(d, originEl, "pf-title");
+  /* A week in the game log opens that game's drive strip, over this profile rather than instead
+     of it (shell.html has a second dialog for exactly this). Bound after the markup, because
+     openProfile rebuilds #modal on every open. */
+  d.querySelectorAll("[data-stripwk]").forEach(b => b.addEventListener("click", () => {
+    const g = stGameFor(b.dataset.stripclub, +b.dataset.stripwk);
+    if (g) openStrip(g, b.dataset.stripname, b);
+  }));
 }
 
 /* Roster rows and waiver cards both open the profile; one wiring for both. */

@@ -19,6 +19,14 @@
 /* The body's own scrollbar: thin, dark, no arrows. Set here rather than inherited from html,
    since scrollbar-color on the root does not always reach a nested scroller. */
 .modal .dr-body{scrollbar-width:thin;scrollbar-color:var(--line-2) var(--panel)}
+
+/* The strip's dialog sits OVER the profile's, and wants width rather than height: a drive is
+   120 yards laid end to end, and every pixel taken off the field is a yard the reader squints
+   at. It matches the profile's width rather than undercutting it -- a narrower sheet appearing
+   on top of a wider one reads as the wrong thing opening. */
+.stripmodal{width:min(1100px,96vw);z-index:63}
+#strip-scrim{z-index:62}
+
 @media (max-width:760px){
   .modal{width:96vw;max-height:92vh}
 }
