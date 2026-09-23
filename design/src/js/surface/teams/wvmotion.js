@@ -45,29 +45,21 @@ function wvFlip(card){
   const btn = card.querySelector(".wvc-flip"), on = btn.getAttribute("aria-pressed") !== "true";
   btn.setAttribute("aria-pressed", String(on));
   card.classList.toggle("flipped", on);
+  wvLive(card);
+}
+
+/* Which faces a reader can reach. One face on a flip card; both on a card laid open (.both, set
+   by wdesk.js on a wide screen), where nothing is hidden and nothing may be inert. */
+function wvLive(card){
+  const open = card.classList.contains("both"), on = card.classList.contains("flipped");
   const [front, back] = card.querySelectorAll(".wvc-face");
-  [[front, on], [back, !on]].forEach(([face, hide]) => {
+  [[front, !open && on], [back, !open && !on]].forEach(([face, hide]) => {
     face.inert = hide;
     face.setAttribute("aria-hidden", String(hide));
   });
 }
 
-/* The chat button floats over the page's right edge (fixed, so every row passes under it as the
-   page scrolls). --fab-clear is how far it reaches into the Waivers column, measured from both
-   boxes in the reader's browser, never guessed: the rail rows and the card footers keep that much
-   clear on their right. Zero when the button is hidden or sits outside the column (a desktop). */
-function wvFabClear(v){
-  const wv = v.querySelector(".wv"), fab = document.getElementById("chatfab");
-  if (!wv) return;
-  const f = fab ? fab.getBoundingClientRect() : null;
-  const clear = f && f.width ? Math.max(0, Math.ceil(wv.getBoundingClientRect().right - f.left + 8)) : 0;
-  wv.style.setProperty("--fab-clear", `${clear}px`);
-}
-if (typeof window !== "undefined") window.addEventListener("resize", () => {
-  if (SURFACE === "waivers") wvFabClear(document.getElementById("view"));
-});
-
 function wireWaivers(v){
   v.querySelectorAll(".wvc-flip").forEach(b => b.addEventListener("click", () => wvFlip(b.closest(".wvc"))));
-  wvFabClear(v);
+  wvDesk(v);
 }

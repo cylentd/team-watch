@@ -88,7 +88,9 @@ STATES = [
     ("waivers-espn", [("eval", "VIEW='espn'; render()")] + go("waivers")),
     ("waivers-yahoo", go("waivers")),
     ("waivers-claimday", [("eval", 'Date.now = () => Date.parse("2026-09-22T12:00:00Z")')] + go("waivers")),
-    ("waivers-flipped", [("eval", "VIEW='espn'; render()")] + go("waivers") + [("click", ".wvc-flip")]),
+    # The first card that flips: on a phone the Must claim, on a desktop (where a Must claim lies
+    # open with no flip) the first Worth a claim.
+    ("waivers-flipped", [("eval", "VIEW='espn'; render()")] + go("waivers") + [("click", ".wvc-flip >> visible=true")]),
     ("waivers-folds", go("waivers") + [("click", "summary.wvfold-s >> nth=0"),
                                        ("click", "summary.wvfold-s >> nth=1")]),   # spec + stash open
     ("profile-wr-modal", [("click", ".row:has-text('Amon-Ra St. Brown')")]),

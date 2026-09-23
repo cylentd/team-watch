@@ -135,6 +135,16 @@ def test_the_rail_orders_path_drop_status_adds(open_waivers):
     assert "D. Achane DNP (hamstring) → J. Wright is FA" in first
 
 
+def test_a_path_says_what_the_claim_does_when_it_knows(open_waivers):
+    """ESPN's path carries a verdict and says it the way a drop does; Yahoo's has none and stops
+    at who is available."""
+    page = open_waivers("espn")
+    assert page.locator(".wvr-row.k-path .wvr-t").inner_text().startswith(
+        "D. Achane DNP (hamstring) → J. Wright is FA · bench over C. Brown, +2.1/wk")
+    yahoo = open_waivers("yahoo")
+    assert "·" not in yahoo.locator(".wvr-row.k-path .wvr-t").inner_text()
+
+
 def test_an_empty_rail_says_since_when(open_waivers):
     page = open_waivers("espn")
     page.evaluate("WIRE.leagues.espn.events = []; render();")
@@ -199,6 +209,42 @@ def test_no_rail_text_or_turn_label_sits_under_the_chat_button(open_waivers, wid
       return els.filter(e => e.getBoundingClientRect().right > fab.left).map(e => e.textContent.trim().slice(0, 30));
     })()""")
     assert over == []
+
+
+@pytest.mark.parametrize("day", ["sat", "tue"])
+def test_a_desktop_lays_the_must_claim_open_beside_a_rail_column(open_waivers, day):
+    """At 1280px the Must claim shows both faces at once (no flip, nothing inert) and the rail is a
+    sticky right-hand column holding every row, claim day included."""
+    page = open_waivers("espn", width=1280, init=TUESDAY if day == "tue" else "")
+    must = page.locator(".wvc.tier-must").first
+    front, back = must.locator(".wvc-front"), must.locator(".wvc-back")
+    assert front.is_visible() and back.is_visible()
+    assert page.evaluate("""(() => { const c = document.querySelector('.wvc.tier-must');
+      return [...c.querySelectorAll('.wvc-face')].map(f => [f.inert, f.getAttribute('aria-hidden')]); })()""") \
+        == [[False, "false"], [False, "false"]]
+    assert not must.locator(".wvc-flip").is_visible()
+    f, b = front.bounding_box(), back.bounding_box()
+    assert b["x"] >= f["x"] + f["width"] - 1 and abs(b["y"] - f["y"]) < 1 and abs(b["height"] - f["height"]) < 1
+    # The profile button on the open back is reachable by keyboard.
+    assert back.locator(".wvc-profile").is_enabled()
+    rail, cards = page.locator(".wvr").bounding_box(), page.locator(".wv-cards").bounding_box()
+    assert rail["x"] >= cards["x"] + cards["width"] and abs(rail["y"] - cards["y"]) < 40
+    assert page.evaluate("getComputedStyle(document.querySelector('.wvr')).position") == "sticky"
+    assert page.locator(".wvr-row:visible").count() == 5
+    # Other tiers keep the flip, two to a row.
+    worth = page.locator(".wvc.tier-worth .wvc-flip").first
+    assert worth.is_visible()
+    worth.click()
+    assert worth.get_attribute("aria-pressed") == "true"
+    assert page.errors == []
+
+
+def test_a_phone_still_flips_the_must_claim(open_waivers):
+    page = open_waivers("espn", width=390)
+    must = page.locator(".wvc.tier-must").first
+    assert must.locator(".wvc-flip").is_visible()
+    assert page.evaluate("document.querySelector('.wvc.tier-must .wvc-back').inert") is True
+    assert page.locator(".wvc.both").count() == 0
 
 
 def test_section_counts_are_plain(open_waivers):

@@ -11,13 +11,15 @@
   }
   body{padding-bottom:calc(59px + env(safe-area-inset-bottom))}
   .brand-name{font-size:var(--t-3)}
-  /* The topbar is tight on a phone: the Discord icon goes rather than squeezing the status
-     pill. It's not lost: the News tab
+  #weekpill{display:none}
+  /* The topbar is already tight enough on a phone to hide the week pill entirely -- the Discord
+     icon goes too rather than squeezing the status pills further. It's not lost: the News tab
      leads with its own "Join the Discord" button. */
   .discordlink{display:none}
   .topbar .pill .full{display:none}
   .topbar .pill .abbr{display:inline}
 
+  .numghost{font-size:var(--t-ghost-sm);left:-14px;top:6px}
   .hero{padding:16px 0 14px}
   .hero-in{gap:14px}
   .hero h1{margin-bottom:8px}
@@ -67,7 +69,7 @@
   .head,.head img,.head .fallback,.head .dst{width:44px;height:44px}
   .nm-1 b{font-size:var(--t-3)}
   .nm-2{font-size:var(--t-1);gap:6px}
-  .nm-2 .slotm{display:inline;color:var(--ink-2);font-weight:700}
+  .nm-2 .slotm{display:inline;color:var(--lime);font-weight:700}
   .nm-2 .posx{display:none}
   .trend{gap:9px}
   .spark{width:100%;flex:1;height:30px}
@@ -76,8 +78,6 @@
   .rk-1{justify-content:flex-end;gap:5px}
   .rk-1 b{font-size:var(--t-3)}
   .pctbar{display:none}
-  /* A dash holds a column on desktop. A phone row has no columns, so an empty cell is just a mark. */
-  .delta.none,.rk-1.none,.newstag.empty{display:none}
 
   .states{grid-template-columns:minmax(0,1fr)}
 

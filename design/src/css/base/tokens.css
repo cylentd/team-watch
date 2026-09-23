@@ -66,7 +66,7 @@
   --amber-ground-rgb:26 18 0;
   --down-ground:#2a0503;   /* dark ground under the red O badge, roster.css .badge.o */
   --down-ground-rgb:42 5 3;
-  --yahoo-tint:#b596ff;    /* lighter yahoo text tint, search.css .sr-yahoo */
+  --yahoo-tint:#b596ff;    /* lighter yahoo text tint, roster.css .tag.dual */
   --yahoo-tint-rgb:181 150 255;
   --shadow:#000000;        /* opaque black behind an alpha: box-shadow tints in feed.css,
                                teamswitch.css, drawer.css, nav.css, builder/ticket.css, and the

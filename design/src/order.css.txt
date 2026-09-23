@@ -21,6 +21,8 @@ surface/teams/wire.css
 surface/teams/wcard.css
 surface/teams/wback.css
 surface/teams/rail.css
+# pin: wdesk.css after wcard/wback/rail/wire -- it overrides their phone rules at equal specificity.
+surface/teams/wdesk.css
 component/empty.css
 chrome/drawer.css
 chrome/modal.css

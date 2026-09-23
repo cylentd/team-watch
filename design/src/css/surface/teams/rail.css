@@ -3,7 +3,9 @@
    leads each row as a word, coloured by what it asks of you: a path is a claim to make (lime), a
    drop a candidate (green), my player's status a caution (amber), adds only context (grey). */
 .wvr{margin-top:18px}
-.wvr.watch{margin-bottom:10px}
+/* No bottom margin: .wv-cards is a size container (wdesk.css), which stops margins collapsing
+   through its top, so the first heading's own 38px is the whole gap under the rail. */
+.wvr.watch{margin-bottom:0}
 .wvr-list{list-style:none;margin:10px 0 0;padding:0;border-top:1px solid var(--line)}
 .wvr-row{
   display:grid;grid-template-columns:58px minmax(0,1fr);grid-template-areas:"k t" "k at";

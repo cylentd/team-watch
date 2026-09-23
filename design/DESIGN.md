@@ -203,7 +203,9 @@ JetBrains Mono (all numerals).
 - `font-size-literal` — a `font-size` that isn't a step of the type scale (`--t-1` 12px through
   `--t-7` 40px, plus the hero's two ghost sizes) in `base/base.css`. Added 2026-09-21, when 217
   literals from 9px to 38px moved onto the scale in one pass; 12px is the floor.
-- `breakpoint` — a `@media` width outside the three the page uses (960/760/430).
+- `breakpoint` — a `@media` width outside the four the page uses (1100/960/760/430). 1100 is
+  Waivers' wide layout only (2026-09-23): the Breaking rail as a sticky right column. The
+  Waivers cards answer to their own column's width instead, through a container query.
 - `inline-colour-in-js` — a colour literal inside a `style=""` in the JS or the shell. Styling
   belongs in a class; the JS names the class.
 - `duplicate-selector` — the same selector defined in two non-responsive parts. Either the

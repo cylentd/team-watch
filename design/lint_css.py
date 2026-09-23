@@ -29,7 +29,8 @@ ROOT = pathlib.Path(__file__).resolve().parent
 SRC = ROOT / "src"
 TOKENS = "base/tokens.css"
 BASE = "base/base.css"       # the type scale lives here, so its px values are the tokens
-BREAKPOINTS = {960, 760, 430}
+# 1100 is Waivers' wide layout only (surface/teams/wdesk.css): the rail as a right-hand column.
+BREAKPOINTS = {1100, 960, 760, 430}
 
 Finding = namedtuple("Finding", "rule level file line text")
 

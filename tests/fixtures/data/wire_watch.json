@@ -10,6 +10,7 @@
    {"kind": "path", "at": "2026-09-23T11:05:00-07:00", "key": "jaylen wright", "name": "Jaylen Wright", "pos": "RB", "team": "MIA",
     "status": "fa", "clears": null,
     "because": {"key": "de'von achane", "name": "De'Von Achane", "status": "O", "practice": "DNP", "note": "hamstring"},
+    "verdict": {"kind": "bench", "over": "Chase Brown", "over_key": "chase brown", "margin": 2.1},
     "headline": "De'Von Achane (hamstring) did not practice Wednesday"},
    {"kind": "drop", "at": "2026-09-23T09:20:00-07:00", "key": "rashid shaheed", "name": "Rashid Shaheed", "pos": "WR", "team": "NO",
     "by": "TeamMinh", "status": "waiver", "clears": "2026-09-25T03:00:00-04:00",

@@ -20,25 +20,31 @@ function wvAvail(e, key){
   return when ? t("waiver.rail.waiver", {when}) : t("waiver.rail.waiverNoWhen");
 }
 
+/* What claiming him does for this roster, the producer's verdict in words: "fills your RB need",
+   "starts over C. Brown at FLEX, +1.4/wk", "bench over T. Higgins, +2.1/wk". A drop always has
+   one; a path has one when ff-jarvis sent it. */
+function wvRailVerdict(e){
+  const v = e.verdict || {};
+  return v.kind === "need" ? t("waiver.rail.need", {pos: esc(e.pos)})
+    : v.start ? t("waiver.rail.start", {over: esc(nameInitial(v.over)), slot: esc(v.slot || ""), margin: wvMarginHTML(v.margin)})
+    : t("waiver.rail.bench", {over: esc(nameInitial(v.over)), margin: wvMarginHTML(v.margin)});
+}
+
 function wvRailText(e, key){
   const name = `<b>${esc(nameInitial(e.name))}</b>`;
   if (e.kind === "path"){
     const b = e.because || {};
     const why = WV_PRACTICE[b.practice] ? b.practice : wvHealth(b.status);
-    return t("waiver.rail.path", {because: esc(nameInitial(b.name)), why: esc(why) + wvNote(b.note), name, avail: wvAvail(e, key)});
+    const path = t("waiver.rail.path", {because: esc(nameInitial(b.name)), why: esc(why) + wvNote(b.note), name, avail: wvAvail(e, key)});
+    return e.verdict ? t("waiver.rail.pathVerdict", {path, what: wvRailVerdict(e)}) : path;
   }
-  if (e.kind === "drop"){
-    const v = e.verdict || {};
-    const what = v.kind === "need" ? t("waiver.rail.need", {pos: esc(e.pos)})
-      : v.start ? t("waiver.rail.start", {over: esc(nameInitial(v.over)), slot: esc(v.slot || ""), margin: wvMarginHTML(v.margin)})
-      : t("waiver.rail.bench", {over: esc(nameInitial(v.over)), margin: wvMarginHTML(v.margin)});
-    return t("waiver.rail.drop", {by: esc(e.by), name, pos: esc(e.pos), what});
-  }
+  if (e.kind === "drop")
+    return t("waiver.rail.drop", {by: esc(e.by), name, pos: esc(e.pos), what: wvRailVerdict(e)});
   if (e.kind === "status"){
     const prac = WV_PRACTICE[e.practice] ? `, ${WV_PRACTICE[e.practice]()}` : "";
     return t("waiver.rail.status", {name, from: wvHealth(e.from), to: wvHealth(e.to) + wvNote(e.note) + prac});
   }
-  return t("waiver.rail.adds", {n: e.count, name});
+  return e.count === 1 ? t("waiver.rail.addsOne", {name}) : t("waiver.rail.adds", {n: e.count, name});
 }
 
 function wvRailRowHTML(e, key, since){

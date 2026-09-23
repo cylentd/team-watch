@@ -16,6 +16,8 @@
   --t-7:40px;    /* a player's name */
   --t-hero:clamp(38px,6.4vw,80px);    /* the hero headline, fluid with the viewport */
   --t-hero-sm:clamp(30px,8.6vw,80px); /* the same at phone width */
+  --t-ghost:270px;    /* the hero's background numeral */
+  --t-ghost-sm:150px; /* the same at phone width */
 }
 
 *{box-sizing:border-box}

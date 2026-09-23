@@ -27,7 +27,7 @@ WAIVER_LEAGUE = ["status", "clears", "need", "tier", "lane", "verdict", "drop"]
 # `clears`, `practice`, `note` and the `over` of a need-drop may be null.
 WIRE_EVENT = ["kind", "at", "key", "name", "pos", "team", "headline"]
 WIRE_KIND = {
-    "path": ["status", "clears", "because"],
+    "path": ["status", "clears", "because", "verdict"],
     "drop": ["by", "status", "clears", "verdict"],
     "status": ["from", "to", "practice", "note", "mine"],
     "adds": ["count"],
@@ -38,6 +38,12 @@ WIRE_BECAUSE = ["key", "name", "status", "practice", "note"]
 WIRE_VERDICT = ["kind", "start", "slot", "over", "over_key", "margin"]
 # Of the lists above, the keys a producer may leave out (wire_watch.py writes them as null).
 WIRE_OPTIONAL = {"headline", "clears", "practice", "note", "over", "over_key", "start", "slot"}
+# Keys only one kind may leave out. A path's `verdict` (2026-09-23) is a drop's verdict shape,
+# what claiming the opened player does for my roster; a producer from before it sends none.
+# A drop's verdict stays required.
+WIRE_KIND_OPTIONAL = {"path": {"verdict"}}
+# Each kind's sub-objects and their keys; one listed in WIRE_KIND_OPTIONAL may be null.
+WIRE_SUBS = {"path": {"because": WIRE_BECAUSE, "verdict": WIRE_VERDICT}, "drop": {"verdict": WIRE_VERDICT}}
 WAIVER_VERDICT = ["kind", "over", "slot", "margin"]
 WAIVER_DROP = ["name", "pos", "pts"]
 WAIVER_META = ["label", "faab_left", "faab_budget", "clears", "needs"]
@@ -251,11 +257,11 @@ def _wire_events(name, obj):
                 out.append(f"{here}.kind")
                 continue
             out += [f"{here}.{k}" for k in WIRE_EVENT + WIRE_KIND[kind] if k not in e]
-            sub, keys = {"path": ("because", WIRE_BECAUSE), "drop": ("verdict", WIRE_VERDICT)}.get(kind, (None, []))
-            if sub and isinstance(e.get(sub), dict):
-                out += [f"{here}.{sub}.{k}" for k in keys if k not in e[sub]]
-            elif sub and sub in e:
-                out.append(f"{here}.{sub}")
+            for sub, keys in WIRE_SUBS.get(kind, {}).items():
+                if isinstance(e.get(sub), dict):
+                    out += [f"{here}.{sub}.{k}" for k in keys if k not in e[sub]]
+                elif sub in e and not (e[sub] is None and sub in WIRE_KIND_OPTIONAL.get(kind, ())):
+                    out.append(f"{here}.{sub}")
     return out
 
 

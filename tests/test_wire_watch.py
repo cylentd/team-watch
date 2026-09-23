@@ -34,6 +34,22 @@ def test_a_starting_drop_and_an_unknown_status_pass_through(built):
     assert next(e for e in yahoo if e["kind"] == "path")["status"] == "unknown"
 
 
+def test_a_path_verdict_is_optional_and_checked_when_sent(built, tmp_path):
+    """ESPN's path carries a verdict (a drop's shape); Yahoo's comes from an older producer and has
+    none, which reads null. A verdict that is sent is held to the drop's keys."""
+    w = _wire(built)
+    espn = next(e for e in w["leagues"]["espn"]["events"] if e["kind"] == "path")
+    assert espn["verdict"] == {"kind": "bench", "start": None, "slot": None, "over": "Chase Brown",
+                               "over_key": "chase brown", "margin": 2.1}
+    assert next(e for e in w["leagues"]["yahoo"]["events"] if e["kind"] == "path")["verdict"] is None
+    bad = json.loads((FIXTURES / "data" / "wire_watch.json").read_text(encoding="utf-8"))
+    del bad["leagues"]["espn"]["events"][2]["verdict"]["margin"]
+    (tmp_path / "wire_watch.json").write_text(json.dumps(bad))
+    (tmp_path / "feed.json").write_text("{}")
+    got = wire_watch.live_wire(tmp_path / "feed.json", tmp_path)
+    assert contract.problems("LIVE_WIRE", got) == ["LIVE_WIRE.leagues['espn'].events[2].verdict.margin"]
+
+
 def test_producer_order_is_kept(built):
     """Newest first within a league is the producer's promise; the rail's kind order is the JS's."""
     ats = [e["at"] for e in _wire(built)["leagues"]["espn"]["events"]]

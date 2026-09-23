@@ -33,6 +33,5 @@
 }
 .pill.warn{border-color:rgb(var(--amber-rgb) / .35);color:var(--amber);background:rgb(var(--amber-rgb) / .06)}
 .pill.live{border-color:rgb(var(--lime-rgb) / .35);color:var(--lime);background:rgb(var(--lime-rgb) / .06)}
-.pill[hidden]{display:none}
 .dot{width:5px;height:5px;border-radius:99px;background:currentColor}
 

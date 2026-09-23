@@ -28,6 +28,7 @@ surface/teams/wback.js
 # pin: rail.js after wcard.js -- WV_HEALTH spreads WV_INJURY at load, not inside a function.
 surface/teams/rail.js
 surface/teams/wvmotion.js
+surface/teams/wdesk.js
 surface/teams/waiver.js
 surface/profile/facts.js
 surface/profile/blocks.js

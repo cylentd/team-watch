@@ -8,11 +8,12 @@ producer's own; this file only trims to the fields the rail draws and reorders n
 
 Strict on purpose: the field lists are contract.py's, and a required field the producer did not
 send stays missing here, so the contract fails the build and names it instead of the rail drawing
-a blank. Only the keys in contract.WIRE_OPTIONAL are filled with null."""
+a blank. Only the keys in contract.WIRE_OPTIONAL (and a kind's WIRE_KIND_OPTIONAL) are filled
+with null."""
 import json
 from datetime import datetime
 
-from contract import WIRE_BECAUSE, WIRE_EVENT, WIRE_KIND, WIRE_OPTIONAL, WIRE_VERDICT
+from contract import WIRE_EVENT, WIRE_KIND, WIRE_KIND_OPTIONAL, WIRE_OPTIONAL, WIRE_SUBS
 
 MAX_LEAGUES = 3
 
@@ -47,21 +48,20 @@ def load_wire(feed_path, dwr_path):
     return found[0] if found else None
 
 
-def _cut(d, keys):
+def _cut(d, keys, optional=()):
     """The keys the rail reads: a required one only when present (so the contract sees the gap),
     an optional one always, null when absent."""
     if not isinstance(d, dict):
         return d
-    return {k: d.get(k) for k in keys if k in d or k in WIRE_OPTIONAL}
+    return {k: d.get(k) for k in keys if k in d or k in WIRE_OPTIONAL or k in optional}
 
 
 def _event(e):
     kind = e["kind"]
-    out = _cut(e, WIRE_EVENT + WIRE_KIND[kind])
-    if kind == "path" and "because" in out:
-        out["because"] = _cut(out["because"], WIRE_BECAUSE)
-    if kind == "drop" and "verdict" in out:
-        out["verdict"] = _cut(out["verdict"], WIRE_VERDICT)
+    out = _cut(e, WIRE_EVENT + WIRE_KIND[kind], WIRE_KIND_OPTIONAL.get(kind, ()))
+    for sub, keys in WIRE_SUBS.get(kind, {}).items():
+        if sub in out:
+            out[sub] = _cut(out[sub], keys)
     return out
 
 

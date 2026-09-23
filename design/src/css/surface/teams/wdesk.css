@@ -1,0 +1,61 @@
+/* ============================== WAIVERS, WIDE ============================== */
+/* The phone layout is the base (wcard.css, rail.css, wire.css); this file only spends width a
+   phone does not have. Two triggers, each answering its own question:
+   - The cards column's own width (a container query), so the cards react to the room they have,
+     whether that is the full page (761-1099px) or the main column beside the rail (1100px+).
+     At 640px of column: two cards per row, and a Must claim spans the row with both faces open.
+   - The viewport at 1100px: the Breaking rail becomes a sticky right-hand column, and the hero
+     folds into one row.
+   wdesk.js reads the two flags below (--wvc-both, --wvr-side) so the markup follows the CSS:
+   an open face is never inert, a side rail shows every row. The breakpoint lives only here. */
+.wv-cards{container:wvcards / inline-size}
+
+/* Everything up to 760px is the phone layout, untouched: "not (max-width:760px)" is the page's
+   own phone breakpoint read the other way round, not a new one. */
+@media not all and (max-width:760px){
+  @container wvcards (min-width:640px){
+    .wvc-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+    /* A Must claim is the decision of the day: the full row, the evidence beside it, no flip. */
+    .wvc.tier-must{grid-column:1/-1;--wvc-both:1}
+    .wvc.tier-must .wvc-flip,
+    .wvc.tier-must .wvc-front .wvc-foot,
+    .wvc.tier-must .wvc-turn{display:none}
+    .wvc.tier-must .wvc-in{grid-template-columns:repeat(2,minmax(0,1fr));gap:0;transform:none;transition:none}
+    .wvc.tier-must .wvc-face{grid-area:auto;backface-visibility:visible;-webkit-backface-visibility:visible}
+    .wvc.tier-must .wvc-back{transform:none}
+    .wvc.tier-must .wvc-front{border-right-color:transparent}
+    /* Both faces show, so the summary would read twice: the front keeps it. */
+    .wvc.tier-must .wvc-back .wvc-sum{display:none}
+  }
+}
+
+@media (min-width:1100px){
+  /* Cards left, the rail right and pinned under the nav, scrolling on its own when it is taller
+     than the screen. --wv-stick is the nav's bottom edge, measured by wdesk.js. */
+  .wv{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,34%);column-gap:28px;align-items:start}
+  .wv > .wv-cards{grid-column:1;grid-row:1}
+  .wv > .wvr{
+    grid-column:2;grid-row:1;--wvr-side:1;
+    position:sticky;top:calc(var(--wv-stick, 0px) + 14px);
+    max-height:calc(100vh - var(--wv-stick, 0px) - 28px);overflow-y:auto;overscroll-behavior:contain;
+    scrollbar-width:thin;scrollbar-color:var(--line-2) transparent;
+  }
+  .wv > .wvr,
+  .wv > .wv-cards > .rule:first-child{margin-top:24px}
+  .wv > .wvr > .rule{position:sticky;top:0;z-index:1;margin-top:0;padding-bottom:4px;background:var(--void)}
+  .wv > .wvr > .wvr-list{margin-top:6px}
+
+  /* The hero in one row: name left, the wire's line right on its baseline. The name column's
+     wrapper steps aside (display:contents) so the name and the line share a grid row. */
+  .hero:has(.wvhero){padding:28px 0 6px}
+  .hero:has(.wvhero) .hero-in{
+    grid-template-columns:minmax(0,1fr) fit-content(60%);
+    grid-template-areas:"eye eye" "name line" "chip .";column-gap:32px;row-gap:10px;align-items:end;
+  }
+  .hero:has(.wvhero) .hero-in > div:first-child{display:contents}
+  .hero:has(.wvhero) .hero-eyebrow{grid-area:eye;margin-bottom:4px}
+  .hero:has(.wvhero) h1{grid-area:name;margin:0}
+  .hero:has(.wvhero) .leaguechip{grid-area:chip;justify-self:start}
+  .hero:has(.wvhero) .hero-in > div:last-child{grid-area:line}
+  .wvhero{text-align:right}
+}
