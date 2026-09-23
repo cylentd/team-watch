@@ -62,6 +62,44 @@ function wvUsageRankHTML(r){
   return rank ? `<span class="wvc-urank">${t("waiver.card.usageRank", {rank, stat: esc(col.label), wk})}</span>` : "";
 }
 
+/* The back's trend: one proof stat, every week the grid has, as a small line. One series, so no
+   legend; the line in the de-emphasis ink and this week's point in the accent (dataviz: a stat
+   tile's sparkline). A week he did not play is a gap, not a zero. Each point carries its week and
+   value as a tooltip; the value and rank beside the line are the readable copy. */
+const WV_SPARK = {w: 96, h: 28, pad: 4};
+
+function wvSparkHTML(vals, weeks, fmt){
+  const {w, h, pad} = WV_SPARK, got = vals.filter(v => v !== null);
+  if (!got.length) return `<svg class="wvs" viewBox="0 0 ${w} ${h}" aria-hidden="true"></svg>`;
+  const lo = Math.min(...got), span = (Math.max(...got) - lo) || 1;
+  const x = i => weeks.length < 2 ? w / 2 : pad + i * (w - 2 * pad) / (weeks.length - 1);
+  const y = v => h - pad - (v - lo) / span * (h - 2 * pad);
+  let d = "", pen = false;
+  vals.forEach((v, i) => {
+    if (v === null){ pen = false; return; }
+    d += `${pen ? "L" : "M"}${x(i).toFixed(1)} ${y(v).toFixed(1)} `; pen = true;
+  });
+  const dots = vals.map((v, i) => v === null ? "" :
+    `<circle class="${i === vals.length - 1 ? "now" : ""}" cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="${i === vals.length - 1 ? 3 : 2}"><title>${t("waiver.trend.point", {wk: weeks[i], v: usageFmt(v, fmt)})}</title></circle>`).join("");
+  return `<svg class="wvs" viewBox="0 0 ${w} ${h}" role="img" aria-label="${t("waiver.trend.label")}"><path d="${d.trim()}"/>${dots}</svg>`;
+}
+
+function wvTrendsHTML(r){
+  if (typeof USAGE === "undefined" || !USAGE || !WV_PROOF[r.pos]) return "";
+  const weeks = (USAGE.weeks || []).slice().sort((a, b) => a - b).filter(k => k <= (USAGE.through || k));
+  const [wk] = wvWeeks();
+  const rows = WV_PROOF[r.pos].map(want => wvCol(r.pos, want)).filter(Boolean).map(c => {
+    const vals = weeks.map(k => wvWeekValue(r.slug, c.id, k));
+    const now = vals[vals.length - 1];
+    const rank = now === null ? null : wvWeekRank(r.pos, c.id, r.slug, wk);
+    return `<div class="wvt"><span class="wvp-l">${esc(c.label)}</span>${wvSparkHTML(vals, weeks, c.fmt)}
+      <b>${usageFmt(now, c.fmt)}</b><span class="wvp-r">${rank || t("waiver.proof.noRank")}</span></div>`;
+  });
+  if (!rows.length) return "";
+  const span = weeks.length > 1 ? t("waiver.trend.weeks", {a: weeks[0], b: weeks[weeks.length - 1]}) : t("waiver.trend.week", {a: weeks[0]});
+  return `<div class="wvc-trends"><span class="wvt-span">${span}</span>${rows.join("")}</div>`;
+}
+
 function wvProofHTML(r){
   if (typeof USAGE === "undefined" || !USAGE || !WV_PROOF[r.pos]) return "";
   const [wk, prev] = wvWeeks();

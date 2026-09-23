@@ -1,0 +1,22 @@
+/* ============================== WAIVER CARD BACK ============================== */
+/* The evidence face (surface/teams/wback.js): the week-by-week proof, the full summary, the
+   news, the other leagues, the profile button. */
+.wvc-bname{font-family:var(--disp);font-size:var(--t-3);font-weight:700;color:var(--ink)}
+
+/* Three rows: label, the line, this week's value, the rank. The line takes what is left. */
+.wvc-trends{display:flex;flex-direction:column;gap:6px;padding:8px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.wvt-span{font-family:var(--mono);font-size:var(--t-1);letter-spacing:.06em;color:var(--ink-3)}
+.wvt{display:grid;grid-template-columns:minmax(0,1fr) 96px 52px 44px;align-items:center;gap:10px;min-width:0}
+.wvt b{font-family:var(--mono);font-size:var(--t-3);font-weight:700;text-align:right}
+.wvt .wvp-r{justify-content:flex-end}
+.wvs{display:block;width:96px;height:28px;overflow:visible}
+.wvs path{fill:none;stroke:var(--ink-3);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.wvs circle{fill:var(--ink-3)}
+.wvs circle.now{fill:var(--lime)}
+
+.wvc-news{display:flex;flex-direction:column;gap:3px;margin:0;font-size:var(--t-2);line-height:1.45;color:var(--ink-2)}
+.wvc-news b{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.06em;color:var(--ink-2)}
+.wvc-news b.q{color:var(--amber)}
+.wvc-news b.o{color:var(--down)}
+.wvc-hl{color:var(--ink)}
+.wvc-other{margin:0;font-family:var(--mono);font-size:var(--t-1);line-height:1.6;color:var(--ink-2)}

@@ -48,11 +48,12 @@ function navTabsOf(group){
   return navWaiverDay() && tabs.includes("waivers") ? ["waivers", ...tabs.filter(k => k !== "waivers")] : tabs;
 }
 
-/* Waivers is the one leaf whose label carries a number: how many players are on the wire. It is
-   the only count that changes what you would do next, so it is the only one worth a badge. */
+/* Waivers is the one leaf whose label carries a number: how many players are on the wire in the
+   league on screen. It is the only count that changes what you would do next, so it is the only
+   one worth a badge. A team switch repaints it (teamswitch.js). */
 function navCount(leaf){
   if (leaf !== "waivers" || !WAIVER) return "";
-  return ` <span class="tabcount">${waiverPlayers().filter(r => r.tier !== "stash").length}</span>`;
+  return ` <span class="tabcount">${waiverIn(VIEW).filter(([r]) => waiverTier(r, VIEW) !== "stash").length}</span>`;
 }
 
 /* A group with one leaf gets no row: a sub-nav of one is a label pretending to be a choice. */

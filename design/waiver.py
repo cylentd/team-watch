@@ -42,7 +42,10 @@ def _pick(d, *keys):
 def _league(lg):
     """One league's view of a candidate: can I get him there, and what he does for that roster."""
     lg = lg or {}
-    return {"status": lg.get("status"), "clears": lg.get("clears"), "need": bool(lg.get("need")),
+    # `tier` is this league's own (ff-jarvis, from 2026-09-23); null on an older packet, and the
+    # card then falls back to the row's top-level tier (data/waiver.js waiverTier).
+    tier = lg.get("tier") if lg.get("tier") in TIERS else None
+    return {"status": lg.get("status"), "clears": lg.get("clears"), "need": bool(lg.get("need")), "tier": tier, "lane": None,
             "verdict": _pick(lg.get("verdict"), "kind", "over", "slot", "margin"),
             "drop": _pick(lg.get("drop"), "name", "pos", "pts")}
 
@@ -62,16 +65,28 @@ def _row(p, slugify, tier=None):
 
 
 def _candidates(packet):
-    """(record, default tier) in the packet's order, packet-level lists first, then per league."""
+    """(record, default tier, league whose list carried it) in the packet's order, packet-level
+    lists first (league None), then per league."""
     for p in packet.get("wire") or []:
-        yield p, None
+        yield p, None, None
     for p in packet.get("stash") or []:
-        yield p, "stash"
-    for lg in (packet.get("leagues") or {}).values():
+        yield p, "stash", None
+    for key, lg in (packet.get("leagues") or {}).items():
         for p in lg.get("wire") or []:
-            yield p, None
+            yield p, None, key
         for p in lg.get("stash") or []:
-            yield p, "stash"
+            yield p, "stash", key
+
+
+def _set_lane(row, p, league):
+    """`lane` is why that league's screen listed him (judged against that roster), so it belongs
+    to the league view, not the card: Jerome Ford is a STARTER in ESPN and nothing in Yahoo. A
+    packet-level record's lane applies to every league it has a view for."""
+    if not p.get("lane"):
+        return
+    for k, view in row["leagues"].items():
+        if league in (None, k) and view["lane"] is None:
+            view["lane"] = p["lane"]
 
 
 def _meta(packet):
@@ -94,13 +109,13 @@ def live_waiver(feed_path, dwr_path, slugify):
     packet = load_packet(feed_path, dwr_path)
     if not packet:
         return None
-    seen, rows = set(), []
-    for p, tier in _candidates(packet):
+    seen, rows = {}, []
+    for p, tier, league in _candidates(packet):
         key = p.get("key") or (p.get("name") or "").lower()
-        if key in seen:
-            continue
-        seen.add(key)
-        rows.append(_row(p, slugify, tier))
+        if key not in seen:
+            seen[key] = _row(p, slugify, tier)
+            rows.append(seen[key])
+        _set_lane(seen[key], p, league)
     order = {t: i for i, t in enumerate(TIERS)}
     rows.sort(key=lambda r: order.get(r["tier"], len(TIERS)))   # stable: packet order within a tier
     return {"date": packet.get("date"), "week": packet.get("week"), "clears": packet.get("clears"),

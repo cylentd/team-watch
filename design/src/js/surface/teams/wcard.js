@@ -1,6 +1,8 @@
-/* One waiver card, in the order a phone reads it: tier and position, who he is, where he ranks,
-   the swap he makes, why (two sentences), the proof, then one row per league he can be had in.
-   The whole card is the tap target for the profile (panel.js wireProfiles, via data-wire).
+/* One waiver card, a trading card with two faces, for the league on screen (VIEW).
+   Front decides: tier stamp, who he is, the swap and the drop in one line, the first sentence of
+   the summary, three proof stats. Back is the evidence (wback.js). The flip button lies under the
+   faces and covers the whole card; the faces let taps through (pointer-events), so a tap anywhere
+   flips it, and only the back's "Full profile" button takes its own taps.
    His name in the heading is full; every other name on the card is "B. Allen" (nameInitial). */
 const wvSigned = v => v === null || v === undefined ? "—" : (v > 0 ? "+" : "") + Number(v).toFixed(1);
 /* Literal keys, so assemble.py's copy check sees every one. */
@@ -15,82 +17,80 @@ const WV_PRACTICE = {
   DNP: () => t("waiver.practice.dnp"), LP: () => t("waiver.practice.lp"), FP: () => t("waiver.practice.fp"),
 };
 
+/* Why this league's screen listed him (`leagues[VIEW].lane`), as a tag under his name with the
+   reason as its tooltip. No lane in this league, or an unknown one, draws nothing. Literal keys, so the copy check sees every one. */
+const WV_LANE = {
+  starter: () => [t("waiver.lane.starter"), t("waiver.lane.starterTip")],
+  open: () => [t("waiver.lane.open"), t("waiver.lane.openTip")],
+  usage: () => [t("waiver.lane.usage"), t("waiver.lane.usageTip")],
+  role: () => [t("waiver.lane.role"), t("waiver.lane.roleTip")],
+  insure: () => [t("waiver.lane.insure"), t("waiver.lane.insureTip")],
+  injured: () => [t("waiver.lane.injured"), t("waiver.lane.injuredTip")],
+};
+function wvLaneHTML(lane){
+  if (!WV_LANE[lane]) return "";
+  const [word, tip] = WV_LANE[lane]();
+  return `<span class="wvc-lane lane-${esc(lane)}" title="${esc(tip)}">${word}</span>`;
+}
+
+/* A section header's count, "Must claim · 1": a plain count, never zero-padded, so it cannot be
+   read as a section number. */
+const wvCountHTML = n => `<span class="count wv-count">${t("waiver.section.count", {n})}</span>`;
+
 const wvMarginHTML = m => `<b class="wvc-m ${m >= 0 ? "up" : "down"}">${t("waiver.unit.perWeek", {m: wvSigned(m)})}</b>`;
 
-/* The headline: the best swap across his open leagues, else the need he fills, else nothing --
-   a watch-list name has no swap yet, and a sentence saying so would be filler. */
-function wvSwapHTML(r){
-  const v = waiverBestVerdict(r);
-  if (v && v.kind === "start")
-    return t("waiver.swap.start", {over: esc(nameInitial(v.over)), slot: esc(v.slot), margin: wvMarginHTML(v.margin)});
-  if (v) return t("waiver.swap.bench", {over: esc(nameInitial(v.over)), margin: wvMarginHTML(v.margin)});
-  return waiverLeagues(r).some(([, lg]) => waiverOpen(lg) && lg.need) ? t("waiver.swap.need", {pos: esc(r.pos)}) : "";
-}
-
-function wvSummaryHTML(r){
-  const s = r.summary;
-  if (!s || !s.text) return "";
-  const mark = s.src === "rule"
-    ? ` <span class="wvc-rule" title="${t("waiver.summary.ruleTip")}">${t("waiver.summary.rule")}</span>` : "";
-  return `<p class="wvc-sum">${esc(s.text)}${mark}</p>`;
-}
-
-function wvVerdictText(r, lg){
+/* What he does for this league's roster, then who goes: "Bench over H. Henry, +1.2/wk · drop
+   K. Raymond". Nothing at all for a name with no swap yet; a sentence saying so is filler. */
+function wvSwapHTML(r, lg){
   const v = lg.verdict;
-  if (v && v.kind === "start") return t("waiver.league.start", {over: esc(nameInitial(v.over)), slot: esc(v.slot)});
-  if (v) return t("waiver.league.bench", {over: esc(nameInitial(v.over))});
-  return lg.need ? t("waiver.league.need", {pos: esc(r.pos)}) : t("waiver.league.none");
+  const swap = v && v.kind === "start"
+    ? t("waiver.swap.start", {over: esc(nameInitial(v.over)), slot: esc(v.slot), margin: wvMarginHTML(v.margin)})
+    : v ? t("waiver.swap.bench", {over: esc(nameInitial(v.over)), margin: wvMarginHTML(v.margin)})
+    : lg.need ? t("waiver.swap.need", {pos: esc(r.pos)}) : "";
+  if (!swap) return "";
+  const drop = lg.drop ? `<span class="wvc-drop">${t("waiver.swap.drop", {name: esc(nameInitial(lg.drop.name))})}</span>` : "";
+  return `<p class="wvc-swap">${swap}${drop}</p>`;
 }
 
-function wvLeagueHTML(r, key, lg){
-  const meta = waiverMeta()[key];
-  const status = lg.status === "waiver"
-    ? t("waiver.league.waiver", {when: waiverWhen(lg.clears || meta.clears) || ""}) : t("waiver.league.fa");
-  const drop = lg.drop
-    ? `<span class="wvl-drop">${t("waiver.league.drop", {name: esc(nameInitial(lg.drop.name)), pos: esc(lg.drop.pos)})}</span>` : "";
-  return `<div class="wvl">
-    <span class="wvl-lg"><i class="wvl-mark lg-${esc(key)}"></i><b>${esc(meta.label)}</b><span class="wvl-st">${status}</span></span>
-    <span class="wvl-m">${lg.verdict ? wvMarginHTML(lg.verdict.margin) : ""}</span>
-    <span class="wvl-v">${wvVerdictText(r, lg)}${drop}</span>
+/* FA, or on waivers with the clear time: the one fact that says whether a claim is a bid. Also
+   read by the rail for a drop. Anything but fa/waiver is unknown, and says so: never "FA". */
+function wvStatusText(lg, key){
+  if (lg.status === "fa") return t("waiver.card.fa");
+  if (lg.status !== "waiver") return t("waiver.card.unknown");
+  const when = waiverWhen(lg.clears || (waiverMeta()[key] || {}).clears);
+  return when ? t("waiver.card.waiver", {when}) : t("waiver.card.waiverNoWhen");
+}
+
+/* The summary's first sentence. A period after a short word ("St.", "Jr.") is not an end. */
+function wvFirstSentence(text){
+  const m = /^(.+?(?:\b\w{3,}|\d|%|\))[.!?])\s+(?=[A-Z])/.exec(text || "");
+  return m ? m[1] : text || "";
+}
+
+function wvFrontHTML(r, key, tier){
+  const lg = r.leagues[key];
+  const opp = !r.opp ? "" : r.home ? t("waiver.card.vs", {opp: esc(r.opp)}) : t("waiver.card.at", {opp: esc(r.opp)});
+  const first = r.summary && r.summary.text ? `<p class="wvc-lede">${esc(wvFirstSentence(r.summary.text))}</p>` : "";
+  return `<div class="wvc-face wvc-front">
+    <div class="wvc-top"><span class="wvc-stamp">${(WV_TIER[tier] || WV_TIER.watch)()}</span>
+      <span class="wvc-st">${esc(r.pos)} · ${wvStatusText(lg, key)}</span></div>
+    <div class="wvc-id"><div class="head">${headHTML(r)}</div>
+      <div class="wvc-who"><h3>${esc(r.n)}</h3><span class="wvc-team">${esc(r.team)} ${opp}</span>${wvUsageRankHTML(r)}${wvLaneHTML(lg.lane)}</div></div>
+    ${wvSwapHTML(r, lg)}
+    ${first}
+    ${wvProofHTML(r)}
+    <div class="wvc-foot" aria-hidden="true"><span></span><span class="wvc-turn">${t("waiver.card.turnFront")}</span></div>
   </div>`;
 }
 
-/* Leagues where he is already on a roster fold into one grey line, mine named apart. */
-function wvRosteredHTML(r){
-  const all = waiverLeagues(r), meta = waiverMeta();
-  const mine = all.filter(([, lg]) => lg.status === "mine").map(([k]) => esc(meta[k].label));
-  const gone = all.filter(([, lg]) => lg.status === "rostered").map(([k]) => esc(meta[k].label));
-  const parts = [gone.length ? t("waiver.league.rostered", {leagues: gone.join(", ")}) : "",
-                 mine.length ? t("waiver.league.mine", {leagues: mine.join(", ")}) : ""].filter(Boolean);
-  return parts.length ? `<p class="wvc-note">${parts.join(" · ")}</p>` : "";
-}
-
-/* Injury, practice and news on one line, only when there is any of it. */
-function wvNewsHTML(r){
-  const inj = WV_INJURY[r.injury];
-  const hurt = inj ? inj() + (r.injury_note ? ` (${esc(r.injury_note)})` : "") : "";
-  const prac = WV_PRACTICE[r.practice] ? WV_PRACTICE[r.practice]() : "";
-  const news = r.news_count ? t("waiver.card.news", {n: r.news_count}) : "";
-  const parts = [hurt, prac, news].filter(Boolean);
-  if (!parts.length) return "";
-  const tone = r.injury === "Q" ? "q" : r.injury ? "o" : "";
-  const title = r.news_latest ? ` title="${esc(r.news_latest.headline)}"` : "";
-  return `<p class="wvc-news ${tone}"${title}>${parts.join(" · ")}</p>`;
-}
-
-function wvCardHTML(r, i, n){
-  const opp = !r.opp ? "" : r.home ? t("waiver.card.vs", {opp: esc(r.opp)}) : t("waiver.card.at", {opp: esc(r.opp)});
-  const open = waiverLeagues(r).filter(([, lg]) => waiverOpen(lg));
-  const swap = wvSwapHTML(r);
-  return `<article class="wvc tier-${esc(r.tier)}" style="animation-delay:${60 + n * 55}ms" data-wire="${i}" role="button" tabindex="0">
-    <div class="wvc-top"><span class="wvc-tier">${(WV_TIER[r.tier] || WV_TIER.watch)()}</span><span class="wvc-pos">${esc(r.pos)}</span></div>
-    <div class="wvc-id"><div class="head">${headHTML(r)}</div>
-      <div class="wvc-who"><b>${esc(r.n)}</b><span class="wvc-team">${esc(r.team)} ${opp}</span>${wvUsageRankHTML(r)}</div></div>
-    ${swap ? `<p class="wvc-swap">${swap}</p>` : ""}
-    ${wvSummaryHTML(r)}
-    ${wvProofHTML(r)}
-    ${open.length ? `<div class="wvc-leagues">${open.map(([k, lg]) => wvLeagueHTML(r, k, lg)).join("")}</div>` : ""}
-    ${wvRosteredHTML(r)}
-    ${wvNewsHTML(r)}
+/* `n` is the card's place in the deal, so the cards land in rank order. */
+function wvCardHTML(r, i, n, key){
+  const tier = waiverTier(r, key);
+  return `<article class="wvc tier-${esc(tier)}" style="--i:${n}">
+    <button type="button" class="wvc-flip" aria-pressed="false" aria-label="${esc(t("waiver.card.flipLabel", {name: r.n}))}"></button>
+    <div class="wvc-in">
+      ${wvFrontHTML(r, key, tier)}
+      ${wvBackHTML(r, i, key)}
+    </div>
   </article>`;
 }

@@ -1,0 +1,38 @@
+{
+ "asof": "2026-09-23T14:30:00-07:00",
+ "leagues": {
+  "espn": {"events": [
+   {"kind": "adds", "at": "2026-09-23T13:10:00-07:00", "key": "emanuel wilson", "name": "Emanuel Wilson", "pos": "RB", "team": "SEA",
+    "count": 3, "headline": null},
+   {"kind": "status", "at": "2026-09-23T12:40:00-07:00", "key": "chase brown", "name": "Chase Brown", "pos": "RB", "team": "CIN",
+    "from": "healthy", "to": "Q", "practice": "LP", "note": "ankle", "mine": true,
+    "headline": "Chase Brown limited at Wednesday practice with ankle injury"},
+   {"kind": "path", "at": "2026-09-23T11:05:00-07:00", "key": "jaylen wright", "name": "Jaylen Wright", "pos": "RB", "team": "MIA",
+    "status": "fa", "clears": null,
+    "because": {"key": "de'von achane", "name": "De'Von Achane", "status": "O", "practice": "DNP", "note": "hamstring"},
+    "headline": "De'Von Achane (hamstring) did not practice Wednesday"},
+   {"kind": "drop", "at": "2026-09-23T09:20:00-07:00", "key": "rashid shaheed", "name": "Rashid Shaheed", "pos": "WR", "team": "NO",
+    "by": "TeamMinh", "status": "waiver", "clears": "2026-09-25T03:00:00-04:00",
+    "verdict": {"kind": "bench", "over": "Tee Higgins", "over_key": "tee higgins", "margin": 2.1},
+    "headline": null},
+   {"kind": "adds", "at": "2026-09-22T20:00:00-07:00", "key": "parker washington", "name": "Parker Washington", "pos": "WR", "team": "JAX",
+    "count": 2, "headline": null}
+  ]},
+  "yahoo": {"events": [
+   {"kind": "status", "at": "2026-09-23T12:50:00-07:00", "key": "joe burrow", "name": "Joe Burrow", "pos": "QB", "team": "CIN",
+    "from": "healthy", "to": "D", "practice": "DNP", "note": "toe", "mine": true, "headline": null},
+   {"kind": "drop", "at": "2026-09-23T10:15:00-07:00", "key": "dalton kincaid", "name": "Dalton Kincaid", "pos": "TE", "team": "BUF",
+    "by": "Gridiron Gurus", "status": "fa", "clears": null,
+    "verdict": {"kind": "need", "over": null, "over_key": null, "margin": 3.0},
+    "headline": "Dalton Kincaid released by fantasy manager after two quiet weeks"},
+   {"kind": "path", "at": "2026-09-22T18:30:00-07:00", "key": "tyler allgeier", "name": "Tyler Allgeier", "pos": "RB", "team": "ARI",
+    "status": "unknown", "clears": null,
+    "because": {"key": "trey benson", "name": "Trey Benson", "status": "IR", "practice": null, "note": "knee"},
+    "headline": null},
+   {"kind": "drop", "at": "2026-09-22T09:00:00-07:00", "key": "rhamondre stevenson", "name": "Rhamondre Stevenson", "pos": "RB", "team": "NE",
+    "by": "Gridiron Gurus", "status": "waiver", "clears": "2026-09-24T00:00:00-04:00",
+    "verdict": {"kind": "bench", "start": true, "slot": "FLEX", "over": "Chase Brown", "over_key": "chase brown", "margin": 1.4},
+    "headline": null}
+  ]}
+ }
+}

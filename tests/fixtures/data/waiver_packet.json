@@ -19,10 +19,10 @@
      "news_latest": {"headline": "Emanuel Wilson expected to lead Seahawks backfield with Kenneth Walker out", "date": "2026-09-21"},
      "news_count": 1,
      "leagues": {
-      "espn": {"status": "waiver", "clears": "2026-09-23T03:00:00-04:00",
+      "espn": {"tier": "must", "status": "waiver", "clears": "2026-09-23T03:00:00-04:00",
                "verdict": {"kind": "start", "over": "Chase Brown", "over_key": "chase brown", "slot": "FLEX", "margin": 4.6},
                "need": false, "drop": {"name": "Tee Higgins", "key": "tee higgins", "pos": "WR", "pts": 6.1}},
-      "yahoo": {"status": "fa", "clears": null,
+      "yahoo": {"tier": "worth", "status": "fa", "clears": null,
                 "verdict": {"kind": "start", "over": "Chase Brown", "over_key": "chase brown", "slot": "RB", "margin": 3.4},
                 "need": false, "drop": {"name": "Joe Burrow", "key": "joe burrow", "pos": "QB", "pts": 6.4}}
      },
@@ -33,7 +33,7 @@
      "news_latest": {"headline": "Parker Washington limited at practice with ankle injury", "date": "2026-09-21"},
      "news_count": 2,
      "leagues": {
-      "espn": {"status": "fa", "clears": null,
+      "espn": {"tier": "worth", "status": "fa", "clears": null,
                "verdict": {"kind": "bench", "over": "Tee Higgins", "over_key": "tee higgins", "slot": "BE", "margin": 1.2},
                "need": false, "drop": {"name": "Tee Higgins", "key": "tee higgins", "pos": "WR", "pts": 6.1}},
       "yahoo": {"status": "rostered", "clears": null, "verdict": null, "need": false, "drop": null}
@@ -44,9 +44,9 @@
      "tier": "worth", "weeks": 2, "injury": null, "injury_note": null, "practice": null,
      "news_latest": null, "news_count": 0,
      "leagues": {
-      "espn": {"status": "fa", "clears": null, "verdict": null, "need": true,
+      "espn": {"tier": "worth", "status": "fa", "clears": null, "verdict": null, "need": true,
                "drop": {"name": "Tee Higgins", "key": "tee higgins", "pos": "WR", "pts": 6.1}},
-      "yahoo": {"status": "waiver", "clears": "2026-09-24T00:00:00-04:00", "verdict": null, "need": false, "drop": null}
+      "yahoo": {"tier": "watch", "status": "waiver", "clears": "2026-09-24T00:00:00-04:00", "verdict": null, "need": false, "drop": null}
      },
      "summary": {"text": "Johnson ran on 84% of snaps in week 1 and 53% in week 2 with 11 targets over both. George Kittle is your only ESPN tight end.", "src": "llm"}},
     {"key": "kalif raymond", "name": "Kalif Raymond", "pos": "WR", "team": "CHI", "availability": "active", "pts": 8.1,
@@ -54,8 +54,8 @@
      "tier": "watch", "weeks": 2, "injury": null, "injury_note": null, "practice": null,
      "news_latest": null, "news_count": 0,
      "leagues": {
-      "espn": {"status": "fa", "clears": null, "verdict": null, "need": false, "drop": null},
-      "yahoo": {"status": "fa", "clears": null, "verdict": null, "need": false, "drop": null}
+      "espn": {"tier": "watch", "status": "fa", "clears": null, "verdict": null, "need": false, "drop": null},
+      "yahoo": {"tier": "watch", "status": "fa", "clears": null, "verdict": null, "need": false, "drop": null}
      },
      "summary": {"text": "Raymond's target share fell from 34.6% to 16.7% in week 2. His aDOT dropped to 1.4.", "src": "llm"}},
     {"key": "tyler shough", "name": "Tyler Shough", "pos": "QB", "team": "NO", "availability": "active", "pts": 14.2,
@@ -63,8 +63,8 @@
      "tier": "watch", "weeks": 2, "injury": null, "injury_note": null, "practice": null,
      "news_latest": null, "news_count": 0,
      "leagues": {
-      "espn": {"status": "fa", "clears": null, "verdict": null, "need": false, "drop": null},
-      "yahoo": {"status": "fa", "clears": null, "verdict": null, "need": false, "drop": null}
+      "espn": {"tier": "watch", "status": "fa", "clears": null, "verdict": null, "need": false, "drop": null},
+      "yahoo": {"tier": "spec", "status": "fa", "clears": null, "verdict": null, "need": false, "drop": null}
      },
      "summary": null},
     {"key": "noah fant", "name": "Noah Fant", "pos": "TE", "team": "NO", "availability": "active", "pts": 4.2,
@@ -72,7 +72,7 @@
      "tier": "watch", "weeks": 2, "injury": null, "injury_note": null, "practice": null,
      "news_latest": null, "news_count": 0,
      "leagues": {
-      "espn": {"status": "fa", "clears": null, "verdict": null, "need": true, "drop": null},
+      "espn": {"tier": "watch", "status": "fa", "clears": null, "verdict": null, "need": true, "drop": null},
       "yahoo": {"status": "mine", "clears": null, "verdict": null, "need": false, "drop": null}
      },
      "summary": {"text": "Fant played 44% of snaps in week 2 with no targets. Juwan Johnson took the tight end work.", "src": "llm"}},
@@ -81,12 +81,23 @@
      "tier": "spec", "weeks": 1, "injury": null, "injury_note": null, "practice": null,
      "news_latest": null, "news_count": 0,
      "leagues": {
-      "espn": {"status": "fa", "clears": null,
+      "espn": {"tier": "spec", "status": "fa", "clears": null,
                "verdict": {"kind": "start", "over": "George Kittle", "over_key": "george kittle", "slot": "TE", "margin": 0.8},
                "need": true, "drop": {"name": "Tee Higgins", "key": "tee higgins", "pos": "WR", "pts": 6.1}},
-      "yahoo": {"status": "fa", "clears": null, "verdict": null, "need": false, "drop": null}
+      "yahoo": {"tier": "spec", "status": "fa", "clears": null, "verdict": null, "need": false, "drop": null}
      },
-     "summary": {"text": "Mayer drew 7 targets on a 24.1% share in his one week of work. One week is not a role yet.", "src": "llm"}}
+     "summary": {"text": "Mayer drew 7 targets on a 24.1% share in his one week of work. One week is not a role yet.", "src": "llm"}},
+    {"key": "jerome ford", "name": "Jerome Ford", "pos": "RB", "team": "CLE", "availability": "active", "pts": 11.9,
+     "game": {"opponent": "BAL", "home": true}, "lane": "starter",
+     "tier": "must", "weeks": 2, "injury": null, "injury_note": null, "practice": null,
+     "news_latest": null, "news_count": 0,
+     "leagues": {
+      "espn": {"tier": "must", "status": "fa", "clears": null,
+               "verdict": {"kind": "start", "over": "Chase Brown", "over_key": "chase brown", "slot": "FLEX", "margin": 2.2},
+               "need": false, "drop": {"name": "Tee Higgins", "key": "tee higgins", "pos": "WR", "pts": 6.1}},
+      "yahoo": {"tier": "watch", "status": "unknown", "clears": null, "verdict": null, "need": false, "drop": null}
+     },
+     "summary": {"text": "Ford projects 11.9 against Chase Brown's 9.7 at FLEX. The Yahoo scrape could not see whether he is rostered there.", "src": "llm"}}
    ],
    "stash": [
     {"key": "tyler allgeier", "name": "Tyler Allgeier", "pos": "RB", "team": "ARI", "availability": "active", "pts": 5.3,
@@ -97,7 +108,17 @@
       "espn": {"status": "fa", "clears": null, "verdict": null, "need": false, "drop": null},
       "yahoo": {"status": "fa", "clears": null, "verdict": null, "need": false, "drop": null}
      },
-     "summary": {"text": "Allgeier is the handcuff behind Arizona's starter. He took 17 carries in week 1 and 5 in week 2.", "src": "llm"}}
+     "summary": {"text": "Allgeier is the handcuff behind Arizona's starter. He took 17 carries in week 1 and 5 in week 2.", "src": "llm"}},
+    {"key": "tank dell", "name": "Tank Dell", "pos": "WR", "team": "HOU", "availability": "out", "pts": 9.4,
+     "game": {"opponent": "JAX", "home": true}, "lane": "injured",
+     "tier": "stash", "weeks": 1, "injury": "O", "injury_note": "knee", "practice": "DNP",
+     "news_latest": {"headline": "Tank Dell (knee) ruled out for Week 3", "date": "2026-09-21"},
+     "news_count": 1,
+     "leagues": {
+      "espn": {"tier": "stash", "status": "fa", "clears": null, "verdict": null, "need": false, "drop": null},
+      "yahoo": {"tier": "stash", "status": "fa", "clears": null, "verdict": null, "need": false, "drop": null}
+     },
+     "summary": {"text": "Dell is out with a knee injury. He ran a route on 88% of dropbacks before it.", "src": "llm"}}
    ]
   },
   "yahoo": {

@@ -9,11 +9,35 @@ row). A block may be None -- that is "source not available", and the page falls 
 sample -- but a block that is present must be whole. Null values are fine; absent keys are not.
 """
 
+# A league's `status` is fa | waiver | rostered | mine | unknown -- no value is enforced here:
+# "unknown" (the scrape could not tell) is a real answer, and the card says so rather than
+# guessing FA (data/waiver.js waiverListed). A league's `lane` is why that league's screen listed
+# him (usage, role, open, insure, starter, injured), null where it did not (waiver.py _set_lane).
 WAIVER_ROW = ["n", "slug", "pos", "team", "opp", "home", "tier", "weeks", "injury", "injury_note",
               "practice", "news_latest", "news_count", "leagues", "summary"]
 # One league's view of a candidate (waiver.py `_league`). `verdict` and `drop` may be null; when
-# either is an object the card reads every key below.
-WAIVER_LEAGUE = ["status", "clears", "need", "verdict", "drop"]
+# either is an object the card reads every key below. `tier` is that league's own tier (added
+# 2026-09-23); a packet from before it reads null there and the card falls back to the row's
+# top-level `tier`, which ff-jarvis keeps as the best of the per-league ones.
+WAIVER_LEAGUE = ["status", "clears", "need", "tier", "lane", "verdict", "drop"]
+
+# ff-jarvis's wire_watch (design/wire_watch.py), the Breaking rail. Per league a list of events;
+# every event carries WIRE_EVENT and its kind's own keys. wire_watch.py cuts to exactly these and
+# never fills a required one, so a field the producer dropped fails here by name. `headline`,
+# `clears`, `practice`, `note` and the `over` of a need-drop may be null.
+WIRE_EVENT = ["kind", "at", "key", "name", "pos", "team", "headline"]
+WIRE_KIND = {
+    "path": ["status", "clears", "because"],
+    "drop": ["by", "status", "clears", "verdict"],
+    "status": ["from", "to", "practice", "note", "mine"],
+    "adds": ["count"],
+}
+WIRE_BECAUSE = ["key", "name", "status", "practice", "note"]
+# A drop's verdict: kind bench|need; `start` true with a `slot` when he would start there (the
+# kind stays "bench"). An event's `status` may be "unknown", which the rail says as such.
+WIRE_VERDICT = ["kind", "start", "slot", "over", "over_key", "margin"]
+# Of the lists above, the keys a producer may leave out (wire_watch.py writes them as null).
+WIRE_OPTIONAL = {"headline", "clears", "practice", "note", "over", "over_key", "start", "slot"}
 WAIVER_VERDICT = ["kind", "over", "slot", "margin"]
 WAIVER_DROP = ["name", "pos", "pts"]
 WAIVER_META = ["label", "faab_left", "faab_budget", "clears", "needs"]
@@ -92,6 +116,12 @@ CONTRACT = {
         "row_objs": [("players", "summary", ["text", "src"])],
         "row_maps": [("players", "leagues", WAIVER_LEAGUE,
                       {"verdict": WAIVER_VERDICT, "drop": WAIVER_DROP})],
+    },
+    # design/wire_watch.py, the Breaking rail: {asof, leagues: {key: {events}}}, checked per
+    # event by `_wire_events` (the kind decides the keys).
+    "LIVE_WIRE": {
+        "keys": ["asof", "leagues"],
+        "wire_events": True,
     },
     # design/pool.py, from watch.json's league-wide pool. dSnap/dShare/luck are null until a
     # player has two weeks; the page plots only rows that have them.
@@ -201,7 +231,32 @@ def problems(name, obj, limit=8):
             if isinstance(inner, dict):
                 out += [f"{name}.{field}[{key!r}].{sub}.{k}" for k in keys if k not in inner]
     out += _row_children(name, obj, spec)
+    if spec.get("wire_events"):
+        out += _wire_events(name, obj)
     return out[:limit]
+
+
+def _wire_events(name, obj):
+    """Each league's `events`, each event by its kind, and the kind's one sub-object."""
+    out = []
+    for lg, block in (obj.get("leagues") or {}).items():
+        at = f"{name}.leagues[{lg!r}]"
+        if not isinstance(block, dict) or not isinstance(block.get("events"), list):
+            out.append(f"{at}.events")
+            continue
+        for i, e in enumerate(block["events"]):
+            here = f"{at}.events[{i}]"
+            kind = e.get("kind")
+            if kind not in WIRE_KIND:
+                out.append(f"{here}.kind")
+                continue
+            out += [f"{here}.{k}" for k in WIRE_EVENT + WIRE_KIND[kind] if k not in e]
+            sub, keys = {"path": ("because", WIRE_BECAUSE), "drop": ("verdict", WIRE_VERDICT)}.get(kind, (None, []))
+            if sub and isinstance(e.get(sub), dict):
+                out += [f"{here}.{sub}.{k}" for k in keys if k not in e[sub]]
+            elif sub and sub in e:
+                out.append(f"{here}.{sub}")
+    return out
 
 
 def _row_children(name, obj, spec):

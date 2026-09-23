@@ -1,0 +1,35 @@
+/* ============================== BREAKING RAIL ============================== */
+/* What moved on the wire (surface/teams/rail.js): still, stacked rows, never a crawl. The kind
+   leads each row as a word, coloured by what it asks of you: a path is a claim to make (lime), a
+   drop a candidate (green), my player's status a caution (amber), adds only context (grey). */
+.wvr{margin-top:18px}
+.wvr.watch{margin-bottom:10px}
+.wvr-list{list-style:none;margin:10px 0 0;padding:0;border-top:1px solid var(--line)}
+.wvr-row{
+  display:grid;grid-template-columns:58px minmax(0,1fr);grid-template-areas:"k t" "k at";
+  gap:2px 12px;padding:10px calc(4px + var(--fab-clear, 0px)) 10px 4px;border-bottom:1px solid var(--line);
+}
+.wvr-k{
+  grid-area:k;padding-top:2px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);
+}
+.k-path .wvr-k{color:var(--lime)}
+.k-drop .wvr-k{color:var(--up)}
+.k-status .wvr-k{color:var(--amber)}
+.wvr-t{grid-area:t;margin:0;font-size:var(--t-2);line-height:1.45;color:var(--ink-2);min-width:0}
+.wvr-t > b{color:var(--ink);font-weight:600}
+.wvr-h{display:block;margin-top:2px;font-size:var(--t-1);color:var(--ink-3)}
+.wvr-at{grid-area:at;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+
+/* Claim day: three rows under the hero, the rest one tap away. */
+.wvr.claim .wvr-row{padding-top:8px;padding-bottom:8px}
+.wvr-more > summary{
+  list-style:none;cursor:pointer;padding:9px 4px;
+  font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);
+}
+.wvr-more > summary::-webkit-details-marker{display:none}
+.wvr-more > summary:hover{color:var(--ink)}
+.wvr-more[open] > summary{display:none}
+.wvr-more .wvr-list{margin-top:0;border-top:0}
+.wvr-none{margin:0;padding:12px 4px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  font-family:var(--mono);font-size:var(--t-1);letter-spacing:.06em;color:var(--ink-3)}

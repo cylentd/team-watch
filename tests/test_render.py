@@ -83,9 +83,12 @@ STATES = [
     ("teams-yahoo", []),
     ("teams-espn", [("eval", "VIEW='espn'; render()")]),
     ("teams-modal", [("click", ".row")]),   # Joe Burrow: no matchup profile, the quiet state
-    # The cards are the same for both teams; the hero line (clear time, must-claims, FAAB) is not.
+    # One league at a time since v2: the team on screen picks the cards, tiers, hero and rail.
+    # SEED is a Saturday, so these are wire-watch mode (the rail leads, every row shown).
     ("waivers-espn", [("eval", "VIEW='espn'; render()")] + go("waivers")),
     ("waivers-yahoo", go("waivers")),
+    ("waivers-claimday", [("eval", 'Date.now = () => Date.parse("2026-09-22T12:00:00Z")')] + go("waivers")),
+    ("waivers-flipped", [("eval", "VIEW='espn'; render()")] + go("waivers") + [("click", ".wvc-flip")]),
     ("waivers-folds", go("waivers") + [("click", "summary.wvfold-s >> nth=0"),
                                        ("click", "summary.wvfold-s >> nth=1")]),   # spec + stash open
     ("profile-wr-modal", [("click", ".row:has-text('Amon-Ra St. Brown')")]),

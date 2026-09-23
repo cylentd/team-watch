@@ -1,6 +1,26 @@
 /* ============================== WAIVERS SUB-TAB ============================== */
-/* The cards themselves live in wcard.css. */
+/* The cards live in wcard.css and wback.css, the Breaking rail in rail.css. */
 .teamstabs{margin-top:14px}
+
+/* Speculative and Stash stay shut until asked for; the summary is a full-width tap target. */
+.wvfold{margin-top:26px}
+.wvfold-s{
+  list-style:none;cursor:pointer;padding:12px 14px;border:1px dashed var(--line-2);border-radius:2px;
+  font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);
+}
+.wvfold-s::-webkit-details-marker{display:none}
+.wvfold-s:hover,.wvfold[open] > .wvfold-s{color:var(--ink);border-color:var(--ink-3)}
+
+/* The hero on Waivers: one line where the tiles were, led by the day's mode. */
+.wvhero{margin:0;font-family:var(--mono);font-size:var(--t-2);line-height:1.6;color:var(--ink-2)}
+.wvhero > span{white-space:nowrap}
+.wvhero .sep{margin:0 2px;color:var(--ink-3)}
+.wvhero .up{color:var(--up)}
+.wvhero-mode{color:var(--lime);font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.wvhero.empty{color:var(--ink-3)}
+.wv-empty{margin:24px 0}
+/* "Must claim · 1": the count sits against its title, not out on the rule's gap. */
+.rule .wv-count{margin-left:-8px;letter-spacing:.06em}
 .tabcount{margin-left:5px;color:var(--ink-3)}
 .mode-sub[aria-pressed="true"] .tabcount{color:inherit}
 

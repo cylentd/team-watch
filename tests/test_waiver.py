@@ -24,11 +24,33 @@ def test_one_card_per_player_grouped_by_tier(built):
     rows = _waiver(built)["players"]
     names = [r["n"] for r in rows]
     assert names.count("Emanuel Wilson") == 1
-    assert [r["tier"] for r in rows] == ["must", "worth", "worth", "watch", "watch", "watch", "spec", "stash"]
+    assert [r["tier"] for r in rows] == ["must", "must", "worth", "worth", "watch", "watch", "watch", "spec",
+                                         "stash", "stash"]
     wilson = rows[0]
     assert wilson["slug"] == "emanuel-wilson" and set(wilson["leagues"]) == {"espn", "yahoo"}
     assert wilson["leagues"]["espn"]["verdict"] == {"kind": "start", "over": "Chase Brown", "slot": "FLEX", "margin": 4.6}
     assert wilson["leagues"]["espn"]["drop"] == {"name": "Tee Higgins", "pos": "WR", "pts": 6.1}
+
+
+def test_each_league_carries_its_own_tier_or_null(built):
+    """ff-jarvis's per-league tier (2026-09-23) passes through; an older packet's missing one is
+    null, and the page falls back to the row's top-level tier."""
+    rows = {r["n"]: r for r in _waiver(built)["players"]}
+    wilson = rows["Emanuel Wilson"]["leagues"]
+    assert (wilson["espn"]["tier"], wilson["yahoo"]["tier"]) == ("must", "worth")
+    assert rows["Tyler Allgeier"]["leagues"]["espn"]["tier"] is None
+
+
+def test_new_lanes_and_an_unknown_status_pass_through(built):
+    rows = {r["n"]: r for r in _waiver(built)["players"]}
+    ford, dell = rows["Jerome Ford"], rows["Tank Dell"]
+    # The lane is the listing league's: ESPN's screen found Ford as a STARTER, Yahoo's did not list him.
+    assert (ford["leagues"]["espn"]["lane"], ford["leagues"]["yahoo"]["lane"]) == ("starter", None)
+    assert (ford["tier"], ford["leagues"]["yahoo"]["status"]) == ("must", "unknown")
+    assert (dell["leagues"]["espn"]["lane"], dell["tier"], dell["injury"], dell["injury_note"]) == ("injured", "stash", "O", "knee")
+    assert rows["Tyler Allgeier"]["leagues"]["espn"]["lane"] is None      # a stash record carries no lane
+    # Emanuel Wilson is on both wires; only ESPN's record has a lane, and the Yahoo copy adds none.
+    assert (rows["Emanuel Wilson"]["leagues"]["espn"]["lane"], rows["Emanuel Wilson"]["leagues"]["yahoo"]["lane"]) == ("open", None)
 
 
 def test_rows_keep_injury_news_and_summary_source(built):
@@ -64,8 +86,8 @@ def test_a_row_missing_a_field_fails_the_contract():
 
 
 def test_a_league_view_missing_a_field_fails_the_contract():
-    lg = {"status": "fa", "clears": None, "need": False, "verdict": {"kind": "start", "over": "X", "slot": "RB"},
-          "drop": None}
+    lg = {"status": "fa", "clears": None, "need": False, "tier": None, "lane": None,
+          "verdict": {"kind": "start", "over": "X", "slot": "RB"}, "drop": None}
     obj = _block(leagues={"espn": lg})
     assert contract.problems("LIVE_WAIVER", obj) == ["LIVE_WAIVER.players[0].leagues['espn'].verdict.margin"]
 

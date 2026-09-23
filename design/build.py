@@ -18,6 +18,7 @@ from assemble import assemble   # design/assemble.py: design/src/** -> the page 
 from news import load_news      # design/news.py: breaking news, split out to stay in budget
 from signals import live_signals, load_usage, report as signals_report  # My Teams trend and news
 from waiver import live_waiver, slugs as waiver_slugs, report as waiver_report  # the Waivers sub-tab
+from wire_watch import live_wire, report as wire_report                          # its Breaking rail
 from pool import live_pool, report as pool_report  # design/pool.py: the Pool page
 from usage import live_usage, load_grid, report as usage_report  # design/usage.py: the Usage grid
 from slate import assign_windows, day_windows, kickoff   # design/slate.py: kickoff windows
@@ -579,7 +580,7 @@ def add_market_stock(blocks, report):
                   else "Market stock: none, so no market row")
     blocks["LIVE_SIGNALS"] = live_signals(FEED, DWR, (blocks["LIVE_ESPN"], blocks["LIVE_YAHOO"]), slugify)
     report += [signals_report(blocks["LIVE_SIGNALS"]), waiver_report(blocks["LIVE_WAIVER"]),
-               pool_report(blocks["LIVE_POOL"]), usage_report(blocks["LIVE_USAGE"])]
+               wire_report(blocks["LIVE_WIRE"]), pool_report(blocks["LIVE_POOL"]), usage_report(blocks["LIVE_USAGE"])]
 
 
 def report_sources(report, live, liveY, props, liveDfsYahoo, news, profiles, missing):
@@ -660,6 +661,7 @@ def render():
         "LIVE_DFS_YAHOO": liveDfsYahoo,
         "LIVE_PROFILES": load_profiles(),
         "LIVE_WAIVER": waiver,
+        "LIVE_WIRE": live_wire(FEED, DWR),
         "LIVE_POOL": pool,
         "LIVE_USAGE": usage,
         "LIVE_SCHEDULE": load_schedule(DWR),

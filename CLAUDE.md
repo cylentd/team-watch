@@ -113,6 +113,7 @@ naming the new week when there is one. Only over http(s); from `file://` there i
 `design/sources.py` owns every read of an ff-jarvis file or feed block (feed first, file as
 fallback); `design/build.py` orchestrates and no longer loads. It reads rosters, props, prop model,
 player projections, Sleeper status, the DFS pool, and `usage_weekly.json` (the Grid, via
-`design/usage.py`, whose feed key is `usage_grid` — plain `usage` is already watch.json). DFS projections come from ff-jarvis's `model.market.projections`; the page never
+`design/usage.py`, whose feed key is `usage_grid` — plain `usage` is already watch.json), and
+`wire_watch` (the Waivers Breaking rail, via `design/wire_watch.py`; its field lists live in `contract.py`). DFS projections come from ff-jarvis's `model.market.projections`; the page never
 computes model numbers itself. See `README.md` for the DFS CSV import and `design/DESIGN.md` for
 the design system and the field contract.

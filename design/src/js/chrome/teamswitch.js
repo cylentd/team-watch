@@ -34,6 +34,7 @@ function wireTeamSwitch(v){
     const changed = VIEW !== b.dataset.k;
     VIEW = b.dataset.k;
     render();
+    paintSubnav();       // the Waivers count is per league
     if (changed) zipFootball();
   }));
 }

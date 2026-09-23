@@ -60,6 +60,29 @@ Waivers and Waivers leads My teams.
 | Proof | 3 stats by position, rank that week, arrow vs the week before | the usage grid (`LIVE_USAGE`) |
 | League rows | status, verdict, drop, margin, per league he is available in | `leagues[*]`, in `leagues_meta` order |
 
+**v2 since 2026-09-23** (supersedes the cross-league cards and league rows above). The team
+dropdown picks ONE league: tiers (`leagues[VIEW].tier`, else the row's `tier`), swap, drop, hero
+and the Breaking rail are that league's; the others are one line on the card back.
+
+| Part | Shows | Source |
+|---|---|---|
+| Card front | tier stamp, name, "Bench over X · drop Y", first summary sentence, 3 proof stats | packet, usage grid |
+| Card back | each proof stat week by week (sparkline), full summary, news, other leagues, Full profile | usage grid, packet |
+| Breaking rail | path > drop > status > adds (adds capped at 3), still stacked rows | `wire_watch` (`LIVE_WIRE`, `design/wire_watch.py`) |
+| Mode | Tuesday (local): rail under the hero, 3 rows + Show all. Wed–Mon: rail leads, every row | `navWaiverDay()` |
+
+Motion (off under reduced motion): the deal on the first open of a day (`tw.waiver.dealt`), a
+stamp slam on Must claim and a quieter mark on Worth during that deal, and rail rows newer than
+the last visit (`tw.wire.seen`) lit once. The flip is a rotateY with both faces in one grid cell,
+so the card never changes height; reduced motion swaps faces instantly.
+
+A league `status` of `unknown` draws the card and says "Availability unknown", never FA. The
+lane tag under a name (`leagues[VIEW].lane`: Beats a starter, Open work, Usage, Depth move,
+Insurance, Out now) is that league's reason; a league that did not list him shows none. Section
+counts are plain ("Must claim · 2"), never zero-padded. The floating chat button covers the
+page's right edge on a phone, so the rail rows and card footers keep `--fab-clear` free on their
+right, measured from both boxes at render and on resize.
+
 ## The pool
 
 Ranked on usage, never points. The anchor is a quadrant scatter: **x = change in snap/target

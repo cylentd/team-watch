@@ -28,6 +28,23 @@
 }
 @keyframes zip-spin{0%{transform:scaleY(1)}25%{transform:scaleY(.72)}50%{transform:scaleY(1)}75%{transform:scaleY(.72)}100%{transform:scaleY(1)}}
 
-/* Waiver cards arrive one at a time from the right; the delay is set per card in wcard.js. */
-.wvc-list > .wvc{opacity:0;animation:wv-in .46s var(--ease) forwards}
-@keyframes wv-in{from{opacity:0;transform:translateX(34px)}to{opacity:1;transform:none}}
+/* Waivers, first open of a day only (.deal, from wvMotionTake): the cards are dealt in rank
+   order, each dropping onto the table from a little above; --i is the card's place in the deal.
+   Then the Must-claim stamps slam down once and the Worth boxes are marked, quieter. Any other
+   open shows everything in place, and the rail's new rows light once and settle. */
+.wv.deal .wvc{opacity:0;animation:wv-deal var(--dur-deal) var(--ease) forwards;
+  animation-delay:calc(var(--i, 0) * var(--deal-step))}
+@keyframes wv-deal{from{opacity:0;transform:translateY(-18px) rotate(-1.5deg) scale(1.03)}to{opacity:1;transform:none}}
+.wv.deal .tier-must .wvc-stamp{animation:wv-slam var(--dur-stamp) var(--ease) both;
+  animation-delay:calc(var(--i, 0) * var(--deal-step) + var(--dur-deal))}
+/* The impact is the keyframes, not the easing: it falls, hits, and settles a pixel back. */
+@keyframes wv-slam{
+  0%{opacity:0;transform:rotate(-8deg) scale(1.6)}
+  60%{opacity:1;transform:rotate(-3deg) scale(1) translateY(1.5px)}
+  100%{opacity:1;transform:rotate(-3deg) scale(1)}
+}
+.wv.deal .tier-worth .wvc-stamp{animation:wv-mark var(--dur-stamp) var(--ease) both;
+  animation-delay:calc(var(--i, 0) * var(--deal-step) + var(--dur-deal))}
+@keyframes wv-mark{from{opacity:0;transform:scale(1.2)}to{opacity:1;transform:none}}
+.wvr-row.fresh{animation:wvr-flash var(--dur-flash) var(--ease) 1}
+@keyframes wvr-flash{0%,30%{background:rgb(var(--lime-rgb) / .16)}100%{background:transparent}}

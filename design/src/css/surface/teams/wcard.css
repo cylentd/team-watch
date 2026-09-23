@@ -1,43 +1,82 @@
 /* ============================== WAIVER CARDS ============================== */
-/* One card per candidate (surface/teams/wcard.js). Built for a 360px phone first: every block
-   stacks, nothing has a height, and the only columns are the three proof stats, which shrink
-   before they overflow. Wider screens get more cards per row, never a wider card. */
+/* One trading card per candidate (surface/teams/wcard.js, wback.js). Built for a 360px phone
+   first: every block stacks, nothing has a height, and the only columns are the three proof
+   stats, which shrink before they overflow. Wider screens get more cards per row, never a wider
+   card. Both faces sit in one grid cell, so the card is as tall as its taller face and a flip
+   never changes the page's height. */
 .wvc-list{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,360px),1fr));
-  gap:12px;margin-top:14px;align-items:start;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));
+  gap:12px;margin-top:14px;
 }
-.wvc{
-  display:flex;flex-direction:column;gap:10px;min-width:0;
+/* A flex column whose .wvc-in grows, so the faces fill the row's height: cards side by side
+   share their baselines. Not display:grid: two grid cards inside a shut <details> crashed
+   Chromium's renderer on getComputedStyle (found by the golden probe, 2026-09-23). */
+.wvc{position:relative;display:flex;flex-direction:column;min-width:0;perspective:1400px}
+.wvc:has(.wvc-flip:focus-visible){outline:1px solid var(--lime);outline-offset:2px}
+
+/* The flip button lies under the faces and covers the card; the faces let taps through. */
+.wvc-flip{
+  position:absolute;inset:0;z-index:0;appearance:none;margin:0;padding:0;
+  border:0;background:none;cursor:pointer;
+}
+.wvc-flip:focus{outline:none}
+.wvc-in{
+  position:relative;z-index:1;flex:1 1 auto;display:grid;pointer-events:none;
+  transform-style:preserve-3d;transition:transform var(--dur-flip) var(--ease);
+}
+.wvc.flipped .wvc-in{transform:rotateY(180deg)}
+.wvc-face{
+  grid-area:1/1;display:flex;flex-direction:column;gap:10px;min-width:0;
   padding:13px 14px 12px;background:var(--panel);
   border:1px solid var(--line);border-radius:2px;
-  cursor:pointer;transition:background .18s var(--ease),border-color .18s var(--ease);
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  transition:background .18s var(--ease),border-color .18s var(--ease);
 }
-.wvc:hover{background:var(--panel-2)}
-.wvc:focus-visible{outline:1px solid var(--lime);outline-offset:1px}
-.wvc.tier-stash{border-style:dashed}
+.wvc-back{transform:rotateY(180deg);background:var(--panel-2)}
+.wvc:hover .wvc-face{border-color:var(--line-2)}
+.wvc-profile,.wvc-rule,.wvc-lane,.wvs circle{pointer-events:auto}
+.wvc.tier-stash .wvc-face{border-style:dashed}
 
-.wvc-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.wvc-tier{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
-.tier-must .wvc-tier{color:var(--lime)}
-.tier-worth .wvc-tier{color:var(--up)}
-.tier-spec .wvc-tier{color:var(--amber)}
-.wvc-pos{
-  font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.1em;
-  color:var(--ink-2);border:1px solid var(--line-2);border-radius:2px;padding:2px 6px;
+/* Stamp left, position and status right; on a narrow card the status drops under, whole. */
+.wvc-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 10px;min-width:0}
+.wvc-st{font-family:var(--mono);font-size:var(--t-1);letter-spacing:.06em;color:var(--ink-2);white-space:nowrap}
+
+/* The tier as a stamp. Must claim is inked in lime and set a few degrees off square, like a
+   stamp that was pressed by hand; Worth is a plain green box; the rest are only words. */
+.wvc-stamp{
+  font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);padding:3px 0;white-space:nowrap;
 }
+.tier-must .wvc-stamp{
+  color:var(--lime);border:2px solid var(--lime);border-radius:2px;padding:3px 8px;
+  transform:rotate(-3deg);background:rgb(var(--lime-rgb) / .08);
+}
+.tier-worth .wvc-stamp{color:var(--up);border:1px solid rgb(var(--up-rgb) / .6);border-radius:2px;padding:3px 7px}
+.tier-spec .wvc-stamp{color:var(--amber)}
 
 .wvc-id{display:flex;align-items:center;gap:12px;min-width:0}
 .wvc-id .head{flex:none}
 .wvc-who{display:flex;flex-direction:column;gap:3px;min-width:0}
-.wvc-who b{font-size:var(--t-4);font-weight:600;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wvc-who h3{
+  margin:0;font-family:var(--disp);font-size:var(--t-4);font-weight:700;letter-spacing:-.01em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
 .wvc-team,.wvc-urank{font-family:var(--mono);font-size:var(--t-1);letter-spacing:.04em;color:var(--ink-3)}
 .wvc-urank{color:var(--ink-2)}
+/* Why he is listed. A starter beater is the buy (lime); a player out now is red; the rest plain. */
+.wvc-lane{
+  align-self:flex-start;margin-top:2px;padding:1px 6px;border:1px solid var(--line-2);border-radius:2px;
+  font-family:var(--mono);font-size:var(--t-1);letter-spacing:.06em;color:var(--ink-2);cursor:help;
+}
+.wvc-lane.lane-starter{color:var(--lime);border-color:rgb(var(--lime-rgb) / .5)}
+.wvc-lane.lane-injured{color:var(--down);border-color:rgb(var(--down-rgb) / .5)}
 
 .wvc-swap{margin:0;font-size:var(--t-3);line-height:1.4;color:var(--ink)}
+.wvc-drop{color:var(--ink-2)}
 .wvc-m{font-family:var(--mono);font-weight:700;white-space:nowrap}
 .wvc-m.up{color:var(--up)}
 .wvc-m.down{color:var(--down)}
-.wvc-sum{margin:0;font-size:var(--t-2);line-height:1.5;color:var(--ink-2)}
+.wvc-lede,.wvc-sum{margin:0;font-size:var(--t-2);line-height:1.5;color:var(--ink-2)}
 .wvc-rule{
   font-family:var(--mono);font-size:var(--t-1);letter-spacing:.12em;color:var(--ink-3);
   border:1px dashed var(--line-2);border-radius:2px;padding:0 4px;cursor:help;white-space:nowrap;
@@ -54,40 +93,11 @@
 .wvp-t.down{color:var(--down)}
 .wvp-t.flat{color:var(--ink-3)}
 
-/* One row per league he can be had in: league and status, the margin, then what he does there. */
-.wvc-leagues{border-top:1px solid var(--line)}
-.wvl{
-  display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"lg m" "v v";
-  gap:4px 10px;padding:8px 0;border-bottom:1px solid var(--line);
-}
-.wvl-lg{grid-area:lg;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;min-width:0}
-.wvl-lg b{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.1em;text-transform:uppercase}
-.wvl-st{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
-.wvl-mark{width:8px;height:8px;border-radius:99px;background:var(--ink-3);flex:none}
-.wvl-mark.lg-espn{background:var(--espn)}
-.wvl-mark.lg-yahoo{background:var(--yahoo)}
-.wvl-m{grid-area:m;font-size:var(--t-2);text-align:right}
-.wvl-v{grid-area:v;font-size:var(--t-2);line-height:1.4;color:var(--ink)}
-.wvl-drop{color:var(--ink-2)}
-
-.wvc-note{margin:0;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
-.wvc-news{margin:0;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2)}
-.wvc-news.q{color:var(--amber)}
-.wvc-news.o{color:var(--down)}
-
-/* Speculative and Stash stay shut until asked for; the summary is a full-width tap target. */
-.wvfold{margin-top:26px}
-.wvfold-s{
-  list-style:none;cursor:pointer;padding:12px 14px;border:1px dashed var(--line-2);border-radius:2px;
-  font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);
-}
-.wvfold-s::-webkit-details-marker{display:none}
-.wvfold-s:hover,.wvfold[open] > .wvfold-s{color:var(--ink);border-color:var(--ink-3)}
-
-/* The hero on Waivers: one line where the tiles were. */
-.wvhero{margin:0;font-family:var(--mono);font-size:var(--t-2);line-height:1.6;color:var(--ink-2)}
-.wvhero > span{white-space:nowrap}
-.wvhero .sep{margin:0 2px;color:var(--ink-3)}
-.wvhero .up{color:var(--up)}
-.wvhero.empty{color:var(--ink-3)}
-.wv-empty{margin:24px 0}
+/* The footer both faces end on: where the card turns, and on the back the way to the profile. */
+/* --fab-clear (wvmotion.js) keeps "Evidence ›" out from under the floating chat button; the face's
+   own 15px of padding and border already count toward it. */
+.wvc-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;min-height:30px;
+  padding-right:max(0px, calc(var(--fab-clear, 0px) - 15px))}
+.wvc-turn{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.wvc:hover .wvc-turn,.wvc.flipped .wvc-turn{color:var(--lime)}
+.wvc-profile{position:relative;z-index:2}
