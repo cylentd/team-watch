@@ -40,6 +40,15 @@ def test_rows_keep_injury_news_and_summary_source(built):
     assert rows["Tyler Allgeier"]["tier"] == "stash"
 
 
+def test_a_same_day_tie_reads_the_file_not_the_feed(tmp_path):
+    # 2026-09-22: the feed's older same-date copy won the tie and every card landed under Watch.
+    import waiver
+    lg = {"espn": {"wire": []}}
+    (tmp_path / "feed.json").write_text(json.dumps({"waiver": {"data": {"date": "2026-09-22", "leagues": lg, "src": "feed"}}}))
+    (tmp_path / "waiver_packet.json").write_text(json.dumps({"date": "2026-09-22", "leagues": lg, "src": "file"}))
+    assert waiver.load_packet(tmp_path / "feed.json", tmp_path)["src"] == "file"
+
+
 def _block(**row):
     base = {k: None for k in contract.WAIVER_ROW}
     base["leagues"] = {}

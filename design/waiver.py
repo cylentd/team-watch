@@ -15,19 +15,21 @@ MAX_LEAGUES = 3
 
 
 def load_packet(feed_path, dwr_path):
+    # The file goes first: `date` is a day, not a time, so a same-day tie is common, and max() keeps
+    # the first. The producer writes the file itself; the feed only holds the last refresh's copy.
     found = []
-    try:
-        block = (json.loads(feed_path.read_text(encoding="utf-8")).get("waiver") or {}).get("data")
-        if block and block.get("leagues"):
-            found.append(block)
-    except (OSError, json.JSONDecodeError):
-        pass
     path = dwr_path / "waiver_packet.json"
     try:
         if path.exists():
             d = json.loads(path.read_text(encoding="utf-8"))
             if d.get("leagues"):
                 found.append(d)
+    except (OSError, json.JSONDecodeError):
+        pass
+    try:
+        block = (json.loads(feed_path.read_text(encoding="utf-8")).get("waiver") or {}).get("data")
+        if block and block.get("leagues"):
+            found.append(block)
     except (OSError, json.JSONDecodeError):
         pass
     return max(found, key=lambda b: b.get("date") or "") if found else None
