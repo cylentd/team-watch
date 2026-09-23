@@ -17,21 +17,19 @@ function rankAmong(by, slug){
   return [above + 1, Object.keys(by).length, same > 1];
 }
 
-/* "RB9", or "RB9*" when he shares it -- the head line, where the position is the point.
-   Two literal t() calls, for assemble.py --check. */
+/* "RB9" -- the head line, where the position is the point.
+
+   No tie marker, from 2026-09-22. rankAmong already handles a tie the honest way: two players
+   level are both 9th and the next is 11th. An asterisk on top of that only said "someone else
+   has this number too", which changes no decision a reader of this page is making, and six of
+   them ringing the radar at the size the rank is set read as damage on the glyphs. */
 function rankText(pos, rk){
-  return rk[2] ? t("profile.rank.tie", {pos: esc(pos), n: rk[0]}) : t("profile.rank.plain", {pos: esc(pos), n: rk[0]});
+  return t("profile.rank.plain", {pos: esc(pos), n: rk[0]});
 }
 
-/* "#9", or "#9*" on a tie -- the radar, where six of them have to fit. */
+/* "#9" -- the radar, where six of them have to fit. */
 function rankMark(rk){
-  return rk[2] ? t("profile.rank.markTie", {n: rk[0]}) : t("profile.rank.mark", {n: rk[0]});
-}
-
-/* "#9 of 120" -- the card, which has room for the denominator and needs it: each axis has its
-   own, since a receiver ranks among everyone with a target but only among those with routes. */
-function rankMarkOf(rk){
-  return rk[2] ? t("profile.rank.markOfTie", {n: rk[0], of: rk[1]}) : t("profile.rank.markOf", {n: rk[0], of: rk[1]});
+  return t("profile.rank.mark", {n: rk[0]});
 }
 
 /* Small-type names lose the first name to an initial: "X. Worthy" (lib/escape.js nameInitial),
@@ -52,12 +50,27 @@ function ppgRank(p){
   return rankAmong(PPG_BY[pos], p.slug);
 }
 
-/* "WR · DET · WR28" under the name: his fantasy rank at his position, the way a fantasy reader
-   already says it. No rank, no clause. */
+/* "WR · DET · WR28 · BYE 9" under the name: what he is, who he plays for, his fantasy rank at
+   his position the way a fantasy reader says it, and the one week he cannot be started. Any
+   clause with no source drops out rather than dashing.
+
+   The bye is here rather than on a line of its own because it is the only static fact about him
+   that changes a decision -- everything else the head used to carry (age, size, years) is
+   reference, and reference belongs in the Bio block, not in chrome that is paid for on every
+   screen of a phone scroll.
+
+   One separator for the whole page: " · ". Never a mixture, and never a vertical bar as a second
+   kind of divider -- there is no second meaning for it to carry, and the page already spells
+   this separator 26 times in copy and 13 more in joins like this one. The line groups itself by
+   weight instead: the rank is the bright thing, the bye the quiet one. */
 function identityHTML(p, prof){
   const pos = prof ? prof.pos : p.pos;
   const rk = ppgRank({slug: p.slug, pos});
-  return [esc(pos), esc(prof ? prof.team : p.team), rk ? rankText(pos, rk) : ""].filter(Boolean).join(" · ");
+  const b = pedigreeFor(p);
+  return [esc(pos), esc(prof ? prof.team : p.team),
+    rk ? `<b class="pf-id-rank">${rankText(pos, rk)}</b>` : "",
+    b && pedHas(b.bye) ? `<span class="pf-id-bye">${t("profile.bio.bye", {n: b.bye})}</span>` : "",
+  ].filter(Boolean).join(" · ");
 }
 
 /* "Rd 2.02", plus "· by X" when someone other than my team in that league took him. Round and
@@ -72,7 +85,7 @@ function leaguePickText(fd, mine){
    three: a reader with five leagues gets his first three here, not a wall of picks. */
 function leagueFactRows(fd){
   return Object.keys(TEAMS).slice(0, 3)
-    .map(k => [esc(TEAMS[k].name), leaguePickText(fd[k], TEAMS[k].name), "wide"])
+    .map(k => [esc(TEAMS[k].name), leaguePickText(fd[k], TEAMS[k].name)])
     .filter(c => c[1] !== null);
 }
 
@@ -85,22 +98,36 @@ function inchesText(h){
   return Number.isFinite(n) && n > 12 ? t("profile.fact.height", {ft: Math.floor(n / 12), in: n % 12}) : esc(h);
 }
 
-function factsHTML(p){
+const pedHas = v => v !== null && v !== undefined && v !== "";
+
+/* Everything about the man rather than the week: how old, how big, how long he has been doing
+   this, and where the NFL and each of my leagues took him. Its own pane since 2026-09-22 (the
+   Bio tab), because none of it decides anything this Sunday -- it qualifies the numbers in the
+   other three. No heading of its own: the tab is the heading.
+
+   It was an unheaded grid under the chart before that, which is where the eye had already
+   stopped, with his age beside a dynasty pick from three years ago as though the two were the
+   same kind of fact. The one fact in it that does decide something, the bye, is on the identity
+   line under his name instead.
+
+   Measurables take the two-column half of the grid, draft rows the full width: "Rd 1.12 · 2023"
+   and a league name are long, and "Age 27" is not. */
+function bioBlockHTML(p){
   const b = pedigreeFor(p);
   if (!b) return "";
-  const has = v => v !== null && v !== undefined && v !== "";
-  const fd = b.fantasy_draft || {};
-  const nfl = has(b.draft_round) && has(b.draft_slot)
+  const size = [inchesText(b.height), pedHas(b.weight) ? t("profile.fact.lb", {n: b.weight}) : null]
+    .filter(Boolean).join(" · ");
+  const nfl = pedHas(b.draft_round) && pedHas(b.draft_slot)
     ? t("profile.fact.nflRound", {r: b.draft_round, s: String(b.draft_slot).padStart(2, "0"), yr: b.entry_year ?? "—"})
-    : has(b.draft_number) ? t("profile.fact.nflPick", {n: b.draft_number, yr: b.entry_year ?? "—"}) : null;
-  const size = [inchesText(b.height), has(b.weight) ? t("profile.fact.lb", {n: b.weight}) : null].filter(Boolean).join(" · ");
-  const cells = [
-    [t("profile.fact.age"), has(b.age) ? b.age : null],
+    : pedHas(b.draft_number) ? t("profile.fact.nflPick", {n: b.draft_number, yr: b.entry_year ?? "—"}) : null;
+  const half = [
+    [t("profile.fact.age"), pedHas(b.age) ? b.age : null],
     [t("profile.fact.size"), size || null],
-    [t("profile.fact.exp"), has(b.years_exp) ? (b.years_exp === 0 ? t("profile.fact.rookie") : t("profile.fact.years", {n: b.years_exp})) : null],
-    [t("profile.fact.bye"), has(b.bye) ? t("profile.fact.week", {n: b.bye}) : null],
-    [t("profile.fact.nfl"), nfl, "wide"],
-  ].filter(c => c[1] !== null).concat(leagueFactRows(fd));
-  if (!cells.length) return "";
-  return `<dl class="pf-facts">${cells.map(([k, v, cls]) => `<div${cls ? ` class="${cls}"` : ""}><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>`;
+    [t("profile.fact.exp"), pedHas(b.years_exp)
+      ? (b.years_exp === 0 ? t("profile.fact.rookie") : t("profile.fact.years", {n: b.years_exp})) : null],
+  ].filter(c => c[1] !== null);
+  const wide = (nfl ? [[t("profile.fact.nfl"), nfl]] : []).concat(leagueFactRows(b.fantasy_draft || {}));
+  if (!half.length && !wide.length) return "";
+  const cell = (k, v, cls) => `<div${cls ? ` class="${cls}"` : ""}><dt>${k}</dt><dd>${v}</dd></div>`;
+  return `<dl class="pf-facts">${half.map(([k, v]) => cell(k, v)).join("")}${wide.map(([k, v]) => cell(k, v, "wide")).join("")}</dl>`;
 }

@@ -336,6 +336,9 @@ def test_a_week_in_the_game_log_opens_that_game_over_the_profile(browser, page_f
     page, ctx, errors, calls = served(browser, page_file, shaped)
     open_roster(page)
     page.click(".row:has-text('Jahmyr Gibbs')")
+    # The game log is the Log pane since the modal went to tabs (2026-09-22); it is one tap in,
+    # not on screen at open.
+    page.click("#modal [data-pftab='log']")
     week = page.locator("#modal .pf-wk").first
     assert week.count(), "no week in the game log opens a game"
     week.click()
@@ -408,6 +411,7 @@ def test_the_same_game_is_only_fetched_once(browser, page_file, shaped):
     page, ctx, errors, calls = served(browser, page_file, shaped)
     open_roster(page)
     page.click(".row:has-text('Jahmyr Gibbs')")
+    page.click("#modal [data-pftab='log']")      # the game log is the Log pane now
     for _ in range(2):
         page.locator("#modal .pf-wk").first.click()
         page.wait_for_selector("#stripmodal .stturf")

@@ -50,108 +50,169 @@ function sheetDefaultAxis(s){
 
 /* One axis per stat: his season rank among the position, first place at the rim and last at the
    centre, with a tick on each axis where its elite bar sits. Labels are buttons; the card under
-   the sheet shows the chosen stat's number, rank, threshold and week-by-week line. */
+   the sheet shows the chosen stat's number, rank, threshold and week-by-week line.
+
+   The grid rings are circles, not polygons. Six concentric hexagons crossed by six spokes read
+   as a drawn cube -- the eye resolves the three long diagonals into a box and the tinted shape
+   inside it into a plane leaning in it -- which is exactly the one thing this chart must not
+   look like. A round grid has no second reading, and a radius that means a percentile is round
+   anyway. */
 function radarHTML(p){
   const s = sheetFor(p);
   if (!s) return "";
-  const n = s.axes.length, cx = 200, cy = 170, R = 112;   // 400 x 340: side labels need the room
+  /* The viewBox bleeds 34 units past the chart box on each side. A flank label is anchored
+     outwards from x = cx ± 1.2R, so its length runs away from the centre: "Breakaway" at this
+     size is 78 units wide and ended at x = -12, clipped by the viewBox and visibly closer to the
+     edge than "Opp%" opposite it. The bleed is symmetric, so the chart stays centred whatever
+     the six labels happen to be.
+
+     R is 134 and the labels ride at 1.14R rather than 1.2R, because the dial was taking barely
+     half the width of its own column while the label ring took the rest. Both numbers are at
+     their limit for this viewBox: the top label's cap sits at y = 3 against an edge of 0, the
+     bottom label's second line at y = 351 against 360, and "Breakaway" anchored outward ends at
+     x = -31 against -34. Moving either further needs a bigger box, not a bigger radius. */
+  const n = s.axes.length, cx = 200, cy = 176, R = 134, LR = 1.14;   // -34..434 x 0..360 viewBox
   const sel = sheetDefaultAxis(s);
   const ranks = s.axes.map(a => sheetRank(s.pos, a.id, p.slug));
   const k = i => { const rk = ranks[i]; return rk && rk[1] > 1 ? Math.max(.04, 1 - (rk[0] - 1) / (rk[1] - 1)) : .04; };
   const ang = i => -Math.PI / 2 + i * 2 * Math.PI / n;
   const xy = (i, r) => [cx + Math.cos(ang(i)) * R * r, cy + Math.sin(ang(i)) * R * r];
-  const pts = r => s.axes.map((_, i) => xy(i, r).map(v => v.toFixed(1)).join(",")).join(" ");
-  const rings = [.25, .5, .75].map(r => `<polygon class="pf-radar-ring" points="${pts(r)}"/>`).join("")
-    + `<polygon class="pf-radar-ring rim" points="${pts(1)}"/>`;
-  const spokes = s.axes.map((_, i) => { const [x, y] = xy(i, 1); return `<line class="pf-radar-axis" x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`; }).join("");
+  const ring = (r, cls, i) => `<circle class="pf-radar-ring${cls}" style="--i:${i}" cx="${cx}" cy="${cy}" r="${(R * r).toFixed(1)}"/>`;
+  const rings = [.25, .5, .75].map((r, i) => ring(r, "", 2 - i)).join("") + ring(1, " rim", 0);
+  /* Ticks, not spokes. A full spoke's only job is to say where an axis is, and the label and the
+     vertex both already say that -- meanwhile six of them crossed the translucent shape, showing
+     through it and turning the fill muddy. The tick keeps the anchoring and leaves the middle of
+     the chart to the data. */
+  const spokes = s.axes.map((_, i) => {
+    const [x0, y0] = xy(i, .93), [x1, y1] = xy(i, 1);
+    return `<line class="pf-radar-axis" style="--i:${i}" x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}"/>`;
+  }).join("");
   return `<div class="pf-sheet pos-${esc(String(s.pos).toLowerCase())}" data-slug="${esc(p.slug)}">
-    <svg class="pf-radar" viewBox="0 0 400 340" role="img" aria-label="${t("profile.sheet.label")}">${rings}${spokes}
-      ${eliteBarsHTML(s, ang, xy)}${shapeHTML(s, ranks, k, xy)}${axisLabelsHTML(s, ranks, sel, ang, xy)}</svg>
-    <p class="pf-cap pf-quiet">${captionHTML(s, ranks, sel)}</p>
+    <svg class="pf-radar" viewBox="-34 0 468 360" role="img" aria-label="${t("profile.sheet.label")}">
+      ${radarDefsHTML(cx, cy, R)}
+      <circle class="pf-radar-disc" cx="${cx}" cy="${cy}" r="${R}"/>
+      <g class="pf-radar-grid">${rings}${spokes}</g>
+      ${eliteBarsHTML(s, ang, xy, sel, cx, cy, R, n)}
+      <g class="pf-radar-grow">${shapeHTML(s, ranks, k, xy, sel, cx, cy)}</g>
+      <circle class="pf-radar-hub" cx="${cx}" cy="${cy}" r="2"/>
+      ${axisLabelsHTML(s, ranks, sel, ang, xy, LR)}</svg>
     <div class="pf-stat">${statDetailHTML(s, sel)}</div></div>`;
+}
+
+/* Two gradients, both anchored to the chart's own centre rather than to a bounding box, so the
+   shape's colour depends on how far out it reaches and not on how wide it happens to be.
+
+   The disc runs dark at the hub to lighter at the rim, which is the scale itself made visible:
+   the caption says "1st at the rim" once, and the surface says it continuously. The fill runs
+   dense at the hub to thin at the rim, so a shape that reaches has an airy edge and a shape
+   pinched to the middle looks like the dense little knot it is.
+
+   Stop colours live in CSS (sheet.css) rather than on the stops, both because a colour literal
+   in JS is a lint error here and because the tint is a position token the class already carries. */
+function radarDefsHTML(cx, cy, R){
+  const at = `gradientUnits="userSpaceOnUse" cx="${cx}" cy="${cy}" r="${R}"`;
+  return `<defs>
+    <radialGradient id="pf-disc-g" ${at}>
+      <stop class="pf-disc-0" offset="0"/><stop class="pf-disc-1" offset="1"/>
+    </radialGradient>
+    <radialGradient id="pf-fill-g" ${at}>
+      <stop class="pf-fill-0" offset="0"/><stop class="pf-fill-1" offset="1"/>
+    </radialGradient>
+  </defs>`;
 }
 
 /* An axis he has no number for is left out of the shape rather than pinned at the centre: a
    receiver heatradar has not covered yet is unmeasured on four axes, not the worst in the league
    on them, and a shape pinched to the middle says the second thing. */
-function shapeHTML(s, ranks, k, xy){
+function shapeHTML(s, ranks, k, xy, sel, cx, cy){
   const idx = s.axes.map((_, i) => i).filter(i => ranks[i] !== null);
   const pts = idx.map(i => xy(i, k(i)).map(v => v.toFixed(1)).join(",")).join(" ");
+  /* Under three measured axes there is no shape to draw, and <polygon> with two points renders
+     as a bare line between them -- which reads as a broken chart rather than as a player the
+     route data has not covered yet. The vertices still plot, because they are real, and the
+     count says why the rest is missing. Rashee Rice in week 2 is the case: WOPR and RZ Tgts
+     measured, the four route-derived stats not. */
+  const poly = idx.length >= 3 ? `<polygon class="pf-radar-shape" points="${pts}"/>` : "";
+  const note = idx.length >= 3 ? ""
+    : `<text class="pf-radar-note" x="${cx}" y="${cy + 46}" text-anchor="middle">${t("profile.sheet.partial", {n: idx.length, of: s.axes.length})}</text>`;
+  /* Each vertex carries its own stat id, so picking a label lights the point it belongs to.
+     Without it the highlight moved on the label and the shape never answered. */
   const dots = idx.map(i => {
     const [x, y] = xy(i, k(i));
-    return `<circle class="pf-radar-dot" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5"/>`;
+    return `<circle class="pf-radar-dot${s.axes[i].id === sel ? " on" : ""}" data-col="${esc(s.axes[i].id)}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5"/>`;
   }).join("");
-  return `<polygon class="pf-radar-shape" points="${pts}"/>${dots}`;
+  /* Two rings at the selected vertex, both moved by wireSheet on a pick. `mark` is the resting
+     state -- a target on the point being read, which is where the number it describes actually
+     is; a tinted spoke out from the centre did the same job but drew a line across the shape to
+     do it. `ping` fires once on a change. Neither carries a data-col, so the sweep that lights
+     the label, tick and dot leaves them alone. */
+  const si = s.axes.findIndex(a => a.id === sel);
+  const [px, py] = idx.includes(si) ? xy(si, k(si)) : [0, 0];
+  const at = `cx="${px.toFixed(1)}" cy="${py.toFixed(1)}"`;
+  return `${poly}${note}
+    <circle class="pf-radar-mark" ${at} r="11"/>
+    <circle class="pf-radar-ping" ${at} r="6"/>${dots}`;
 }
 
-/* The elite bar, as a short dash across its own axis: a shape reaching past it is elite there. */
-function eliteBarsHTML(s, ang, xy){
+/* The elite bar as an arc across the whole sector its axis owns, not a tick on the axis line.
+
+   Two reasons, and the second is the real one. A 14-unit dash sitting in open space had nothing
+   to belong to -- six of them read as scratches on the glass, which is what they looked like.
+   And a threshold is a contour, not a point: drawn as an arc, the player's own shape visibly
+   crosses outside it or falls inside it, so "elite on this stat" becomes something you see
+   rather than something you work out from two numbers in the card.
+
+   The arc spans the axis's angle plus or minus half a sector, so the six arcs tile the circle
+   without touching. An axis the producer publishes no bar for simply has no arc.
+
+   Each arc carries its own ELITE tag, sitting just outside it -- on the side the shape has to
+   reach to clear it, so the word marks the zone rather than the line. Only the selected axis's
+   tag is shown, because six of them at once is a wall of the same word. This replaces the legend
+   that used to sit under the chart saying "dashed arc = elite": a code explained in a caption is
+   a code the reader has to carry back to the picture, and the fix is to put the word on the
+   thing. Tag and arc share the axis id, so the same `data-col` sweep lights both. */
+function eliteBarsHTML(s, ang, xy, sel, cx, cy, R, n){
+  const half = Math.PI / n * .82;
   return s.axes.map((a, i) => {
     const er = eliteRadius(s.pos, a.id, a.elite);
     if (er === null) return "";
-    const [x, y] = xy(i, er), dx = -Math.sin(ang(i)) * 6, dy = Math.cos(ang(i)) * 6;
-    return `<line class="pf-radar-bar" x1="${(x - dx).toFixed(1)}" y1="${(y - dy).toFixed(1)}" x2="${(x + dx).toFixed(1)}" y2="${(y + dy).toFixed(1)}"/>`;
+    const r = er * R, a0 = ang(i) - half, a1 = ang(i) + half, on = a.id === sel ? " on" : "";
+    const pt = t2 => `${(cx + Math.cos(t2) * r).toFixed(1)},${(cy + Math.sin(t2) * r).toFixed(1)}`;
+    /* At the arc's end, not its middle. The middle of the arc is the axis itself, which is
+       exactly where that stat's own vertex sits -- on a stat whose bar is near the rim the tag
+       landed on top of the point and its marker ring. The end of the arc is always clear of
+       every vertex, and only one tag is ever shown so two cannot collide. */
+    const tr = Math.min(r + 9, R - 7);
+    const tx = cx + Math.cos(a1) * tr, ty = cy + Math.sin(a1) * tr;
+    return `<path class="pf-radar-bar${on}" data-col="${esc(a.id)}" fill="none" d="M ${pt(a0)} A ${r.toFixed(1)} ${r.toFixed(1)} 0 0 1 ${pt(a1)}"/>`
+      + `<text class="pf-radar-bartag${on}" data-col="${esc(a.id)}" x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="middle" dominant-baseline="middle">${t("profile.sheet.eliteTag")}</text>`;
   }).join("");
 }
 
-function axisLabelsHTML(s, ranks, sel, ang, xy){
+function axisLabelsHTML(s, ranks, sel, ang, xy, LR){
   return s.axes.map((a, i) => {
-    const [x, y] = xy(i, 1.2), c = Math.cos(ang(i)), sn = Math.sin(ang(i));
+    const [x, y] = xy(i, LR), c = Math.cos(ang(i)), sn = Math.sin(ang(i));
     const anchor = c > .3 ? "start" : c < -.3 ? "end" : "middle";
     // The two-line block sits above a top axis, below a bottom one, centred on a side one.
     const ys = sn < -.7 ? y - 12 : sn > .7 ? y + 6 : y - 5;
     const rk = ranks[i] ? rankMark(ranks[i]) : "—";
-    return `<text class="pf-radar-l${a.id === sel ? " on" : ""}" data-col="${esc(a.id)}" role="button" tabindex="0" x="${x.toFixed(1)}" y="${ys.toFixed(1)}" text-anchor="${anchor}"><tspan x="${x.toFixed(1)}">${esc(a.label)}</tspan><tspan class="pf-radar-v" x="${x.toFixed(1)}" dy="17">${rk}</tspan></text>`;
+    return `<text class="pf-radar-l${a.id === sel ? " on" : ""}" style="--i:${i}" data-col="${esc(a.id)}" role="button" tabindex="0" x="${x.toFixed(1)}" y="${ys.toFixed(1)}" text-anchor="${anchor}"><tspan x="${x.toFixed(1)}">${esc(a.label)}</tspan><tspan class="pf-radar-v" x="${x.toFixed(1)}" dy="19">${rk}</tspan></text>`;
   }).join("");
 }
 
 /* The caption's denominator is the opening axis's own, not the largest across all six: those
    differ (everyone with a target, but only those with routes), and one caption cannot be right
    for six. The card carries each axis's exact "of N" as the reader taps through. */
-function captionHTML(s, ranks, sel){
-  const of = (ranks[s.axes.findIndex(a => a.id === sel)] || [])[1] || 0;
-  const tied = ranks.some(rk => rk && rk[2]) ? ` · ${t("profile.sheet.tied")}` : "";
-  return t("profile.sheet.caption", {pos: esc(s.pos), of, g: s.row.g}) + tied;
-}
-
-/* His weeks on one stat, oldest first. The Grid carries every sheet stat weekly as well as
-   season-to-date, so the card's line and the radar's radius are the same number over different
-   windows -- never two different definitions of the stat. */
-function statWeeks(slug, axis){
-  if (typeof USAGE === "undefined" || !USAGE) return [];
-  return USAGE.rows.filter(r => r.slug === slug && r.v[axis] !== null && r.v[axis] !== undefined)
-    .sort((a, b) => a.wk - b.wk);
-}
-
-/* The card under the sheet for one stat: his season number, his rank on it, the elite bar and
-   whether he clears it, and the weeks as a line. */
-function statDetailHTML(s, axis){
-  const a = s.axes.find(x => x.id === axis) || s.axes[0];
-  const slug = s.row.slug, v = s.row.v[a.id];
-  const rk = sheetRank(s.pos, a.id, slug);
-  const rank = rk ? `<small class="pf-stat-r">${rankMarkOf(rk)}</small>` : "";
-  const bar = a.elite === null || a.elite === undefined || v === null || v === undefined ? ""
-    : `<small class="pf-stat-d ${v >= a.elite ? "up" : "down"}">${t("profile.stat.elite", {n: usageFmt(a.elite, a.fmt)})}</small>`;
-  const wk = statWeeks(slug, a.id);
-  const line = wk.length ? sparkHTML(wk.map(r => r.v[a.id]), 160, 36) : "";
-  const weeks = wk.length
-    ? `<span class="pf-stat-wk">${t("profile.stat.weeks", {a: wk[0].wk, b: wk[wk.length - 1].wk})}</span>` : "";
-  return `<div class="pf-stat-h"><span class="pf-stat-l">${esc(a.label)}</span>${weeks}</div>
-    <b>${usageFmt(v, a.fmt)}</b><span class="pf-stat-side">${rank}${bar}</span>${line}`;
-}
-
-/* Tapping a stat on the sheet swaps the card under it and moves the highlight. */
-function wireSheet(d){
-  const el = d.querySelector(".pf-sheet");
-  if (!el) return;
-  const s = sheetFor({slug: el.dataset.slug});
-  if (!s) return;
-  const pick = node => {
-    el.querySelectorAll(".pf-radar-l").forEach(x => x.classList.toggle("on", x === node));
-    el.querySelector(".pf-stat").innerHTML = statDetailHTML(s, node.dataset.col);
-  };
-  el.querySelectorAll(".pf-radar-l").forEach(node => {
-    node.addEventListener("click", () => pick(node));
-    node.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); pick(node); } });
-  });
+/* The denominator and the sample, per axis, for the card's header line -- not a caption under
+   the chart. It was a paragraph of its own saying "Out of 120 WRs · 2 games", which repeated the
+   lede's own "of 120" a hundred pixels below it and cost the left column 20px it did not have:
+   24 of 30 players overflowed the modal by exactly the height of that block and its neighbours.
+   In the header it costs nothing, sits beside the stat it belongs to, and still follows a pick,
+   which matters because a receiver ranks among everyone with a target on one stat and only among
+   those with routes on the next. */
+function statMetaText(s, sel, withGames){
+  const of = (sheetRank(s.pos, sel, s.row.slug) || [])[1] || 0;
+  // Games played only when the stat has no weekly rows to name a window with; otherwise the
+  // window says the sample and "2 gm" beside "wk 1" would be two different counts of it.
+  return withGames ? t("profile.sheet.metaGames", {of, g: s.row.g}) : t("profile.sheet.meta", {of});
 }

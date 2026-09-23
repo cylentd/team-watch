@@ -35,8 +35,11 @@ surface/profile/blocks.js
 surface/profile/sections.js
 surface/profile/history.js
 surface/profile/sheet.js
+surface/profile/statcard.js
 surface/profile/market.js
 surface/profile/details.js
+surface/profile/lede.js
+surface/profile/tabs.js
 surface/profile/panel.js
 surface/news/news.js
 data/pool.js

@@ -1,12 +1,17 @@
 /* The player profile as a centered popup in #modal (chrome/modal.js), opened by tapping a
    roster row, a waiver target, or a usage row. `p` needs n/pos/team/slug; `originEl` is the
-   clicked element, for the scale-from-row motion. The body is two columns (panel.css): the stat
-   sheet on the left (the radar, whose stats are buttons for the trend card under it, then
-   facts and projection); the matchup, red zone, target depth, weekly history and Details on
-   the right. The three matchup blocks and Details need
-   ff-jarvis's per-player profile (LIVE_PROFILES) and say so quietly when it has none; every
-   other block reads its own source and simply renders nothing without one, so a player with no
-   matchup profile still opens with whatever else the page knows about him. */
+   clicked element, for the scale-from-row motion.
+
+   Three tiers, and the order is the answer to "what do I do with him this week":
+
+     1. the lede -- three numbers, nothing else in the modal is this large (lede.js)
+     2. the stat sheet -- his shape against his position, and the card under it (sheet.js)
+     3. the panes -- usage, matchup, log, bio, one at a time (tabs.js)
+
+   Desktop puts 2 and 3 side by side; a phone stacks them (panel.css). Every block reads its own
+   source and renders nothing without one, so a player ff-jarvis has no matchup profile for still
+   opens with whatever else the page knows; when that is nothing at all, the pane area says so
+   once instead of four times. */
 function openProfile(p, originEl){
   if (!p) return;
   searchRemember(p);   // the search sheet's "recent" list (chrome/search.js)
@@ -25,29 +30,31 @@ function openProfile(p, originEl){
       ${p.note ? `<div class="dr-note">${esc(p.note)}</div>` : ""}
     </div>
     <div class="dr-body pf-body">
-      <aside class="pf-side">
-        ${radarHTML(p)}
-        ${factsHTML(p)}
-        ${projectionHTML(p)}
-      </aside>
-      <div class="pf-main">
-        ${prof
-          ? headlineHTML(prof) + redZoneHTML(prof) + roleHTML(prof)
-          : `<div class="state-empty pf-empty"><div><b>—</b><span>${t("profile.empty.none")}</span></div></div>`}
-        ${weeklyHistoryHTML(p)}
-        ${prof ? detailsHTML(prof) : ""}
+      ${ledeHTML(p, prof)}
+      <div class="pf-cols">
+        <div class="pf-side">${radarHTML(p)}</div>
+        <div class="pf-main">${tabsHTML(prof, p)}</div>
       </div>
     </div>`;
   wireSheet(d);
+  wireTabs(d, prof, p);
   showModal(d, originEl, "pf-title");
-  /* A week in the game log opens that game's drive strip, over this profile rather than instead
-     of it (shell.html has a second dialog for exactly this). Bound after the markup, because
-     openProfile rebuilds #modal on every open. */
-  d.querySelectorAll("[data-stripwk]").forEach(b => b.addEventListener("click", () => {
-    const g = stGameFor(b.dataset.stripclub, +b.dataset.stripwk);
-    if (g) openStrip(g, b.dataset.stripname, b);
-  }));
 }
+
+/* A week in the game log opens that game's drive strip, over this profile rather than instead of
+   it (shell.html has a second dialog for exactly this).
+
+   Delegated from #modal, and bound once at load rather than per button inside openProfile. The
+   game log lives in the Log pane, and tabs.js renders a pane only when the reader opens that tab,
+   so a one-shot querySelectorAll at open time finds no buttons at all -- the default pane is
+   Usage. Delegation also survives every later re-render without stacking a second listener on an
+   element openProfile keeps and refills. */
+document.getElementById("modal").addEventListener("click", e => {
+  const b = e.target.closest("[data-stripwk]");
+  if (!b) return;
+  const g = stGameFor(b.dataset.stripclub, +b.dataset.stripwk);
+  if (g) openStrip(g, b.dataset.stripname, b);
+});
 
 /* Roster rows and waiver cards both open the profile; one wiring for both. */
 function wireProfiles(v){

@@ -1,18 +1,79 @@
 /* ============================== PROFILE PANEL ==============================
-   The player profile inside #modal: head, then a two-column body -- the stat sheet (radar, facts,
-   projection; sheet.css) on the left, the matchup/red-zone/role blocks and the usage tiles,
-   weekly history and Details disclosure on the right. Every size here is a step of the type
-   scale in base.css; the modal is where that scale started. */
+   The player profile inside #modal, in three tiers (panel.js says why in that order):
+
+     the lede    three numbers at hero size, full width, above everything   (lede.js)
+     the sheet   the radar and the card under it, left column               (sheet.css)
+     the panes   usage / matchup / log, one at a time, right column         (tabs.js)
+
+   Every size here is a step of the type scale in base.css; the modal is where that scale
+   started. */
 .pf-head .dr-close{width:44px;height:44px;top:12px;right:12px;font-size:var(--t-3)}
 .pf-head .dr-id{padding-right:46px;gap:18px}
 .pf-head .dr-id img,.pf-head .dr-id .fallback{width:84px;height:84px}
 .pf-head h3{font-size:var(--t-7);margin-bottom:8px}
 .pf-head .dr-close:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 .modal .lbl{font-size:var(--t-1);font-weight:600;letter-spacing:.16em;color:var(--ink-2)}
-.pf-body{padding:0 26px 30px;display:grid;grid-template-columns:400px minmax(0,1fr);gap:0 36px;align-items:start}
+/* The identity line carries four clauses now, so it drops from .16em to .07em tracking: at the
+   wide setting "WR · DET · WR28 · BYE 9" ran past a 360px phone and took a third line in a head
+   that is fixed above the scroll. Grouping comes from weight, not from a second separator --
+   the rank is the bright thing on the line, the bye the quiet one. */
+.pf-who .lbl{letter-spacing:.05em}
+.pf-id-rank{font-weight:700;color:var(--ink)}
+.pf-id-bye{color:var(--ink-3)}
+.pf-body{padding:0 26px 30px}
+/* The chart column takes what it can up to 460px, and the pane's own 480px minimum is what
+   stops it: on a 1240px modal the chart gets its full width, and on a narrow desktop the chart
+   gives ground first rather than squeezing the weekly table into a sideways scroll. A fixed
+   400px column drew the radar at 215px, which is small for the one thing in here worth looking
+   at. */
+.pf-cols{display:grid;grid-template-columns:minmax(330px,520px) minmax(480px,1fr);
+  gap:0 38px;align-items:start}
 .pf-empty{margin-top:22px;min-height:120px}
 
+/* The lede. grid-auto-flow:column so one, two or three cells all divide the row evenly -- a
+   player with no projection gets two wide cells, not two narrow ones and a gap. The rule between
+   cells is the only thing separating them; boxes would make three tiles out of one sentence. */
+.pf-lede{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);
+  margin:0 0 4px;padding:14px 0 16px;border-bottom:1px solid var(--line)}
+.pf-lede-c{display:flex;flex-direction:column;gap:4px;min-width:0;padding-right:18px}
+.pf-lede-c + .pf-lede-c{border-left:1px solid var(--line);padding-left:22px}
+/* t-5, not t-6. At 34px the row read as a second hero under a 40px name and took the weight off
+   the chart it is supposed to introduce; 24px is still the largest number below the name. */
+.pf-lede-c b{font-family:var(--mono);font-size:var(--t-5);font-weight:700;line-height:1;
+  letter-spacing:-.03em;color:var(--ink)}
+/* The one coloured number in the modal, and only at the extremes: matchupClass tints the
+   easiest and hardest eight defences and leaves the middle sixteen plain, the same call the
+   roster row makes. A tint on all 32 would say "this matters" 32 times. */
+.pf-lede-c.mu-easy b{color:var(--up)}
+.pf-lede-c.mu-hard b{color:var(--down)}
+.pf-lede-l{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pf-lede-s{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* The panes' tab bar: .modes-sub, the app's sub-tab component (nav.css names the rule -- a
+   third caller is a component; this is the fourth). Full-width columns rather than content-width
+   buttons, because the bar is the pane's header, not a control floating above it. */
+/* Sticky inside the scrolling body. The bar is the pane's header, and the matchup pane runs
+   1,200px: without this the only way back to the other two is to scroll to the top. Safe where
+   the left column was not -- 40px against a 680px scrollport, so nothing it carries can fall
+   out of reach. The background is opaque because pane content scrolls under it. */
+.pf-tabs{position:sticky;top:0;z-index:2;margin-bottom:2px;padding-bottom:6px;background:var(--panel)}
+.pf-tabs .mode-sub{flex:1 1 0;min-width:0;min-height:40px;padding-left:8px;padding-right:8px}
+.pf-tabs .mode-sub[aria-selected="true"],
+.pf-tabs .mode-sub[aria-selected="true"]:hover{background:var(--panel-3);color:var(--lime);
+  border-color:var(--lime);position:relative;z-index:1}
+.pf-tabs .mode-sub:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+/* A pane arrives as one thing, not as a stack of separately-animating sections. */
+@keyframes pf-pane{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.pf-tabpane{animation:pf-pane .26s var(--ease)}
+
 .pf-sechead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}
+.pf-sechead-r{display:inline-flex;align-items:baseline;gap:14px;flex-shrink:0}
+/* How many weeks the block's numbers cover. The blocks do not share a window -- the red zone and
+   the depth chart are season to date, while anything divided by routes waits on heatradar -- and
+   a number with no window cannot be checked. */
+.pf-win{font-family:var(--mono);font-size:var(--t-1);letter-spacing:.06em;color:var(--ink-3);white-space:nowrap}
 .pf-legend{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);letter-spacing:.06em;white-space:nowrap}
 .pf-legend i{width:2px;height:11px;background:var(--ink)}
 
@@ -52,6 +113,20 @@
 .pf-table small{color:var(--ink-3);font-size:var(--t-1)}
 .pf-table tbody tr:last-child th,.pf-table tbody tr:last-child td{border-bottom:0}
 
+/* One column, and a different reading order from the desktop one. Side by side, the sheet and
+   the panes are read together; stacked, whatever comes second is a scroll away, and the pedigree
+   (age, size, draft round, league pick) is the one part of this modal that answers nothing about
+   Sunday. So: sheet, panes, then who he is. The left column becomes display:contents so its two
+   parts can be ordered independently of each other.
+
+   align-items is set back to stretch: the desktop grid sets `start`, and a column flex container
+   reads that on the cross axis, so each block sized to its own content instead of to the phone.
+   The weekly table's min-content (363px) then set the width of every section beside it and
+   pushed "Toughest", the WR-avg legend and the right of every rule past the screen edge. */
 @media (max-width:960px){
-  .pf-body{display:block}
+  .pf-cols{display:flex;flex-direction:column;align-items:stretch}
+  .pf-side{display:contents}
+  .pf-sheet{order:1}
+  .pf-main{order:2}
+  .pf-lede{padding:14px 0 16px}
 }

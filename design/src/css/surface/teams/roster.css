@@ -76,6 +76,10 @@
 .spark{flex-shrink:0}
 .spark path.line{fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .spark .area{opacity:.13}
+/* The elite bar, where a caller passes one (the profile's stat card): the weeks are read against
+   it instead of against the frame. Dashed and dim, so it is scenery for the line, never a second
+   series. The roster's own sparklines pass no reference and draw none. */
+.spark .ref{stroke:var(--line-2);stroke-width:1;stroke-dasharray:3 3}
 .spark .reveal{clip-path:inset(0 100% 0 0);
   animation:wipe .9s var(--ease) calc(var(--rowdelay,0ms) + 80ms) forwards}
 @keyframes wipe{to{clip-path:inset(0 0 0 0)}}

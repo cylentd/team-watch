@@ -5,14 +5,20 @@
    is the one thing to remember: his shape against every player at his position. */
 .pf-who{min-width:0}
 
-/* Left column. Sticky inside the scrolling body, so the sheet stays while the right side scrolls. */
-.pf-side{position:sticky;top:0;padding:22px 0 8px}
+/* Left column. Not sticky: the sheet, the facts table and the projection together run taller
+   than the modal body for most players, and a sticky column taller than its scrollport pins its
+   top and carries its own bottom permanently out of view -- the projection line and the model's
+   component chips were unreachable on every back in the league. */
+/* 10px, not 22: the column runs radar + card, and every pixel of chrome above it came straight
+   off the bottom of the card. 24 of 30 players overflowed the modal by 60px, and this plus the
+   caption move and the card's own tightening is where that 60 came from. */
+.pf-side{padding:10px 0 2px;min-width:0}
 .pf-main{min-width:0}
 
 /* The sheet is the one place a position carries a colour (DESIGN.md names the exception): a run
    of profiles reads QB/RB/WR/TE at a glance without anyone reading the label. `--tint` and its
    channel triple are set here and used by everything inside. */
-.pf-sheet{padding-bottom:6px;--tint:var(--ink-2);--tint-rgb:var(--ink-2-rgb)}
+.pf-sheet{--tint:var(--ink-2);--tint-rgb:var(--ink-2-rgb)}
 .pf-sheet.pos-qb{--tint:var(--pos-qb);--tint-rgb:var(--pos-qb-rgb)}
 .pf-sheet.pos-rb{--tint:var(--pos-rb);--tint-rgb:var(--pos-rb-rgb)}
 .pf-sheet.pos-wr{--tint:var(--pos-wr);--tint-rgb:var(--pos-wr-rgb)}
@@ -21,37 +27,116 @@
 /* No overflow:visible -- a flank label is anchored outwards, and letting it paint outside the
    viewBox puts it on top of the block in the next column. */
 .pf-radar{display:block;width:100%;height:auto}
-.pf-radar-ring{fill:none;stroke:var(--line)}
-.pf-radar-ring.rim{stroke:var(--line-2);fill:rgb(var(--panel-2-rgb) / .6)}
-.pf-radar-axis{stroke:var(--line)}
-.pf-radar-shape{fill:rgb(var(--tint-rgb) / .2);stroke:var(--tint);stroke-width:2;stroke-linejoin:round}
-.pf-radar-dot{fill:var(--tint);stroke:var(--panel);stroke-width:1.5}
-/* The elite bar: a dash across its own axis, so a shape reaching past it is elite on that stat. */
-.pf-radar-bar{stroke:var(--ink-3);stroke-width:2;stroke-linecap:round;stroke-dasharray:2 2.5}
+
+/* The dial face. Dark at the hub, lighter at the rim: the caption says "1st at the rim" once
+   and this says it continuously, so which way is better is a property of the surface rather
+   than a sentence the reader has to hold. */
+.pf-radar-disc{fill:url(#pf-disc-g)}
+.pf-disc-0{stop-color:var(--panel);stop-opacity:.9}
+.pf-disc-1{stop-color:var(--panel-3);stop-opacity:.85}
+
+/* Grid, in three weights instead of four identical greys: the rim is the scale's edge and holds
+   a solid line, the inner rings are dotted and fade toward the hub, and each is drawn under the
+   fill rather than through it. */
+.pf-radar-ring{fill:none;stroke:var(--line-2);stroke-dasharray:1.5 4.5;stroke-linecap:round;
+  opacity:calc(.42 + var(--i,0) * .19)}
+.pf-radar-ring.rim{stroke:var(--line-2);stroke-dasharray:none;opacity:1}
+.pf-radar-axis{stroke:var(--line-2);stroke-width:1.5;stroke-linecap:round}
+.pf-radar-hub{fill:var(--line-2)}
+
+/* The measurement itself, and the only lit thing on the dial. The gradient runs dense at the hub
+   to thin at the rim, so a shape that reaches has an airy edge while one pinched to the middle
+   reads as the tight knot it is; the glow separates live data from printed grid, which is the
+   one distinction this chart has to make and the idiom the whole console is built on. */
+.pf-radar-shape{fill:url(#pf-fill-g);stroke:var(--tint);stroke-width:2.25;
+  stroke-linejoin:round;filter:drop-shadow(0 0 5px rgb(var(--tint-rgb) / .42))}
+.pf-fill-0{stop-color:var(--tint);stop-opacity:.34}
+.pf-fill-1{stop-color:var(--tint);stop-opacity:.07}
+/* Small and unstroked. A 1.5-unit panel-coloured ring on a 3.5-unit dot is most of the dot, and
+   against the lit edge it read as a chip out of the stroke rather than as a point on it. */
+.pf-radar-dot{r:3;fill:var(--tint);stroke:none;transition:r .2s var(--ease)}
+/* The chosen stat's vertex, so the card under the chart and the chart agree at a glance. The
+   marker is a ring on the point itself, not a spoke out from the centre: the number the card is
+   describing lives at that vertex, and a line to it crossed the shape to say so. The ping it
+   fires on a change is one shot, not a loop -- motion marks the change, and a permanent blink on
+   a dense page is something to look away from rather than at. */
+.pf-radar-dot.on{r:5}
+.pf-radar-mark{fill:none;stroke:rgb(var(--tint-rgb) / .55);stroke-width:1.5;pointer-events:none;
+  transition:cx .25s var(--ease),cy .25s var(--ease)}
+@keyframes pf-ping{from{r:7;opacity:.8}to{r:22;opacity:0}}
+.pf-radar-ping{fill:none;stroke:var(--tint);stroke-width:2;opacity:0;pointer-events:none}
+.pf-radar-ping.on{animation:pf-ping .55s var(--ease)}
+/* The elite bar: an arc across the sector its axis owns, so the shape visibly crosses outside it
+   or falls inside it. Dashed and cool, so it never competes with the lit shape for attention --
+   it is the bar being cleared, not the thing being measured. */
+.pf-radar-bar{stroke:rgb(var(--ink-3-rgb) / .5);stroke-width:1.5;stroke-linecap:round;
+  stroke-dasharray:4 4;transition:stroke .2s var(--ease)}
+.pf-radar-bar.on{stroke:rgb(var(--ink-3-rgb) / .9)}
+/* The word on the thing, instead of a legend under the chart. Shown for the selected axis only;
+   paint-order draws a panel-coloured halo behind the glyphs first, so it stays legible wherever
+   the shape happens to pass under it. */
+.pf-radar-bartag{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.16em;
+  fill:var(--ink-3);opacity:0;pointer-events:none;
+  paint-order:stroke;stroke:var(--panel);stroke-width:3.5;stroke-linejoin:round;
+  transition:opacity .2s var(--ease)}
+.pf-radar-bartag.on{opacity:1}
+/* Shown in place of the shape when under three axes are measured, where the shape would have
+   been: the dial is not empty by accident and the count says so. */
+.pf-radar-note{font-family:var(--mono);font-size:var(--t-1);fill:var(--ink-3);letter-spacing:.08em}
+
+/* Motion: the shape inflates from the centre outward, because the radius IS the rank -- the
+   chart drawing itself, not an entrance. The grid arrives first from the rim inward, the ticks
+   and then the labels last, so the reader sees the frame before the reading. Reduced motion
+   collapses every duration to nothing (responsive/motion.css) and all of it lands finished. */
+@keyframes pf-grow{from{transform:scale(.03);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes pf-in{from{opacity:0}to{opacity:1}}
+@keyframes pf-label{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+/* The origin is the chart's hub (cx 200, cy 176 in sheet.js), not the viewBox's middle: the
+   shape inflates out of the centre it is measured from. */
+.pf-radar-grow{transform-box:view-box;transform-origin:200px 176px;animation:pf-grow .6s var(--ease) .14s backwards}
+.pf-radar-grid > *{animation:pf-in .34s var(--ease) calc(var(--i,0) * 45ms) backwards}
+.pf-radar-bar{animation:pf-in .3s var(--ease) .5s backwards}
+.pf-radar-l{animation:pf-label .36s var(--ease) calc(.4s + var(--i,0) * 40ms) backwards}
 
 /* Every label is a button. The dotted underline is the affordance: it says "there is more here"
    without a line of copy telling the reader to tap, and unlike a hover it survives on a phone.
    pointer-events:bounding-box makes the whole label box the target, not the glyph strokes. */
-.pf-radar-l{font-family:var(--mono);font-size:var(--t-2);fill:var(--ink-3);letter-spacing:.04em;
+/* Name small and quiet, rank large and bright. Both were within a step of each other, so the
+   ring read as twelve equal fragments of text; at a four-step gap the eye takes the six numbers
+   first and reads the names only for the one it stops on -- which is the order the chart is
+   actually used in. */
+.pf-radar-l{font-family:var(--mono);font-size:var(--t-1);fill:var(--ink-3);letter-spacing:.08em;
   cursor:pointer;pointer-events:bounding-box;transition:fill .15s var(--ease)}
 .pf-radar-l tspan:first-child{text-decoration:underline dotted;text-underline-offset:3px;
   text-decoration-color:var(--line-2);text-decoration-thickness:1px}
-.pf-radar-v{fill:var(--ink);font-weight:700;font-size:var(--t-3)}
+.pf-radar-v{fill:var(--ink);font-weight:700;font-size:var(--t-4);letter-spacing:-.01em}
 .pf-radar-l:hover{fill:var(--ink)}
 .pf-radar-l:hover tspan:first-child{text-decoration-color:var(--ink-3)}
 .pf-radar-l.on{fill:var(--ink)}
 .pf-radar-l.on tspan:first-child{text-decoration:underline solid;text-decoration-thickness:2px;text-decoration-color:var(--tint)}
 .pf-radar-l.on .pf-radar-v{fill:var(--tint)}
-.pf-radar-l:focus-visible{outline:none;fill:var(--tint)}
+/* A click gives :focus but not :focus-visible, so scoping the reset to :focus-visible left the
+   UA's own white box drawn round whichever stat was last tapped. The keyboard ring is a real
+   ring, not a removal -- these are the only tab stops inside the chart. */
+.pf-radar-l:focus{outline:none}
+.pf-radar-l:focus-visible{outline:2px solid var(--lime);outline-offset:3px;fill:var(--tint)}
 .pf-sheet .pf-cap{text-align:center;font-family:var(--mono);letter-spacing:.06em}
 
 /* The card under the sheet for the chosen stat: this week's value, his rank on it, the change
    on last week, the weeks as a line. */
-.pf-stat{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"h h" "v side" "s s";
-  gap:4px 12px;margin-top:14px;padding:12px 14px 10px;border:1px solid var(--line);
+.pf-stat{display:grid;grid-template-columns:minmax(0,1fr) auto;
+  /* The number leads and the definition supports it, never the other way round: a reader who
+     already knows what WOPR is should not have to read past a sentence to reach 0.81. */
+  grid-template-areas:"h h" "v side" "def def" "s s";
+  gap:3px 12px;margin-top:10px;padding:10px 14px 8px;border:1px solid var(--line);
   border-left:2px solid var(--tint);background:var(--panel-2)}
 .pf-stat-h{grid-area:h;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
 .pf-stat-l{font-family:var(--mono);font-size:var(--t-1);font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--tint)}
+/* What the stat is, in the reader's words, under the initials it has to be labelled with. */
+.pf-stat-def{grid-area:def;margin:6px 0 0;font-size:var(--t-2);line-height:1.35;color:var(--ink-2)}
+/* What it is, then what to do with it. The second clause is dimmer and on its own line: a
+   reader who already knows the stat skips it without having to read past it. */
+.pf-stat-why{display:block;margin-top:4px;color:var(--ink-3)}
 .pf-stat-wk{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
 .pf-stat > b{grid-area:v;font-family:var(--mono);font-size:var(--t-6);font-weight:700;line-height:1;color:var(--ink);align-self:end}
 .pf-stat-side{grid-area:side;display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end;gap:3px;font-family:var(--mono);font-size:var(--t-2);white-space:nowrap}
@@ -59,9 +144,16 @@
 .pf-stat-d{color:var(--ink-3)}
 .pf-stat-d.up{color:var(--up)}
 .pf-stat-d.down{color:var(--down)}
-.pf-stat .spark{grid-area:s;width:100%;height:36px;margin-top:8px}
+.pf-stat .spark{grid-area:s;width:100%;height:30px;margin-top:6px}
+/* Replayed on every stat swap (sheet.js): the number is a different number now, and a silent
+   substitution reads as if it had always said that. */
+@keyframes pf-swap{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.pf-stat.swap > b,.pf-stat.swap .pf-stat-side,.pf-stat.swap .pf-stat-h,
+.pf-stat.swap .pf-stat-def{animation:pf-swap .3s var(--ease) backwards}
+.pf-stat.swap .pf-stat-side{animation-delay:.05s}
 
-.pf-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px;margin:16px 0 0;padding:18px 0 0;border-top:1px solid var(--line)}
+/* The Bio pane's grid. No heading and no rule of its own: the tab above it is both. */
+.pf-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px;margin:4px 0 0}
 .pf-facts > div{min-width:0}
 .pf-facts .wide{grid-column:1 / -1}
 .pf-facts dt{font-family:var(--mono);font-size:var(--t-1);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-bottom:4px}
@@ -76,6 +168,10 @@
 .pf-strip-cells i.me.mu-easy{background:var(--up);box-shadow:0 0 0 2px var(--panel),0 0 0 3px var(--up)}
 .pf-strip-cells i.me.mu-hard{background:var(--down);box-shadow:0 0 0 2px var(--panel),0 0 0 3px var(--down)}
 .pf-strip-ends{display:flex;justify-content:space-between;margin-top:7px;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+/* His cell lands last, after the scale it sits on has drawn: the strip is the denominator and
+   the lit cell is the answer, so they arrive in that order rather than together. */
+@keyframes pf-drop{from{opacity:0;transform:scaleY(.2)}to{opacity:1;transform:scaleY(1)}}
+.pf-strip-cells i.me{animation:pf-drop .42s var(--ease) .34s backwards}
 
 /* Forecast: one line -- an icon, the number, the word. */
 .pf-wx{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:12px}
@@ -90,31 +186,51 @@
 .pf-split{margin:-4px 0 18px}
 .pf-split:last-child{margin-bottom:0}
 .pf-split-bar{display:flex;height:14px;background:var(--line)}
-.pf-split-bar i{display:block;width:var(--w);background:rgb(var(--ink-3-rgb) / .45);box-shadow:inset -2px 0 0 var(--panel)}
+.pf-split-bar i{display:block;width:var(--w);background:rgb(var(--ink-3-rgb) / .45);box-shadow:inset -2px 0 0 var(--panel);
+  animation:pf-widen .55s var(--ease) calc(.12s + var(--i,0) * 60ms) backwards}
+/* The team's touches fill left to right in the order the key names them, his first. */
+@keyframes pf-widen{from{width:0}to{width:var(--w)}}
 .pf-split-bar i.me{background:var(--ink)}
 .pf-split-key{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
 .pf-split-key b{color:var(--ink);font-weight:700}
 
-/* Target depth: one column per zone, his bar bright beside the position's dim one. */
-.pf-zones{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:4px}
-.pf-zone{display:grid;grid-template-columns:auto auto;grid-template-areas:"bars bars" "em em" "b s";gap:2px 6px;align-items:baseline;min-width:0}
+/* Target depth: one column per zone, his bar bright beside the position's dim one. The four
+   zones share the parent's rows through subgrid, so "Intermediate" can wrap to two lines on a
+   phone without the numbers under it sliding out of line with the other three -- the previous
+   single-line rule truncated it to "Intermedi..." instead. */
+.pf-zones{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:auto auto auto;
+  gap:2px 12px;margin-top:4px}
+.pf-zone{display:grid;grid-row:span 3;grid-template-rows:subgrid;grid-template-columns:auto auto;
+  grid-template-areas:"bars bars" "em em" "b s";column-gap:6px;align-items:baseline;min-width:0}
 .pf-zone-bars{grid-area:bars;display:flex;align-items:flex-end;gap:3px;height:56px;margin-bottom:6px;border-bottom:1px solid var(--line)}
 .pf-zone-bars i{display:block;width:16px;height:var(--h);min-height:2px;background:var(--ink-2)}
 .pf-zone-bars i.avg{background:rgb(var(--ink-3-rgb) / .45)}
 .pf-zone.top .pf-zone-bars i.me{background:var(--ink)}
-.pf-zone em{grid-area:em;font-style:normal;font-size:var(--t-2);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pf-zone em{grid-area:em;font-style:normal;font-size:var(--t-2);line-height:1.25;color:var(--ink-3);
+  align-self:start;overflow-wrap:anywhere}
 .pf-zone b{grid-area:b;font-family:var(--mono);font-size:var(--t-4);font-weight:700;color:var(--ink-2)}
 .pf-zone.top b,.pf-zone.top em{color:var(--ink)}
 .pf-zone small{grid-area:s;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
 .pf-sec-zones .pf-legend i{width:10px;height:10px;background:rgb(var(--ink-3-rgb) / .45)}
+/* The columns grow from their own baseline, left to right: the bar's height is the share, so
+   the growth is the measurement being taken, not an entrance flourish. */
+@keyframes pf-rise{from{height:0}to{height:var(--h)}}
+.pf-zone-bars i{animation:pf-rise .5s var(--ease) calc(.1s + var(--i,0) * 70ms) backwards}
 
 
+/* width:100% is load-bearing, not belt-and-braces. These are flex items of .pf-cols at this
+   width, and an auto margin on the cross axis cancels align-items:stretch: the box falls back to
+   its content size, so the sheet was as wide as whichever definition sentence the card happened
+   to be showing. Tapping a stat with shorter copy narrowed the column, and the radar -- sized in
+   percent of it -- shrank by 21px with it. An explicit width leaves the auto margins nothing to
+   absorb and they go back to being a centring device. */
 @media (max-width:960px){
-  .pf-side{position:static;padding-top:6px}
-  .pf-sheet{max-width:420px;margin:0 auto}
+  .pf-sheet{width:100%;max-width:420px;margin:0 auto}
+  .pf-facts{width:100%;max-width:420px;margin-left:auto;margin-right:auto}
 }
 @media (max-width:430px){
   .pf-facts{gap:12px 14px}
-  .pf-zones{gap:8px}
+  .pf-zones{column-gap:8px}
   .pf-zone-bars i{width:12px}
+  .pf-zone b{font-size:var(--t-3)}
 }

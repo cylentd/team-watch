@@ -93,9 +93,16 @@ STATES = [
     ("waivers-flipped", [("eval", "VIEW='espn'; render()")] + go("waivers") + [("click", ".wvc-flip >> visible=true")]),
     ("waivers-folds", go("waivers") + [("click", "summary.wvfold-s >> nth=0"),
                                        ("click", "summary.wvfold-s >> nth=1")]),   # spec + stash open
-    ("profile-wr-modal", [("click", ".row:has-text('Amon-Ra St. Brown')")]),
-    ("profile-wr-details-modal", [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#modal .pf-details > summary")]),
-    ("profile-rb-modal", [("click", ".row:has-text('Chase Brown')"), ("click", "#modal .pf-details > summary")]),
+    # The modal is panes since 2026-09-22, so each one is its own state: the tab bar only renders
+    # the pane that is open, and a pane that renders nothing is dropped from the bar entirely (a
+    # back has no target depth, a passer no red zone, a player with no pedigree no Bio). PF_TAB is
+    # module state that survives an open, so every state below spells out the tab it wants rather
+    # than trusting whichever one ran before it.
+    ("profile-wr-modal", [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#modal [data-pftab='usage']")]),
+    ("profile-wr-matchup-modal", [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#modal [data-pftab='matchup']")]),
+    ("profile-wr-log-modal", [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#modal [data-pftab='log']")]),
+    ("profile-rb-modal", [("click", ".row:has-text('Chase Brown')"), ("click", "#modal [data-pftab='matchup']")]),
+    ("profile-rb-bio-modal", [("click", ".row:has-text('Chase Brown')"), ("click", "#modal [data-pftab='bio']")]),
     ("profile-bye-modal", [("click", ".row:has-text('Jahmyr Gibbs')")]),
     ("pool", go("pool")),
     ("pool-drawer", go("pool") + [("click", "[data-pool]")]),

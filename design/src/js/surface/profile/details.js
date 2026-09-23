@@ -1,6 +1,9 @@
-/* Everything under the profile's Details disclosure, collapsed by default: the zone read, his
-   coverage split, middle vs outside, the opponent's rates and raw factor, and the blend note.
-   The one METHODOLOGY citation lives in the method line; the coverage note drops its own. */
+/* The finer reads the panes are built from: the zone read, his coverage split, middle vs
+   outside, the opponent's rates and raw factor, and the blend note. Each is a block a pane
+   composes (tabs.js), not a section on its own -- they used to sit behind a "Details"
+   disclosure inside an already-stacked column, which is a second level of hiding under a first
+   level nobody had got through. The one METHODOLOGY citation lives in the method line; the
+   coverage note drops its own. */
 function subHTML(label, body, extra){
   return `<div class="pf-dsec">
     <div class="pf-sechead"><span class="lbl">${label}</span>${extra || ""}</div>
@@ -74,15 +77,3 @@ function blendedHTML(prof){
   return `<p class="pf-cap pf-blend">${t("profile.details.blended", {targets: targetsText(u.targets), weight: pfPct(u.weight), prior: u.prior_targets ?? "—"})}</p>`;
 }
 
-function detailsHTML(prof){
-  const receiver = prof.pos === "WR" || prof.pos === "TE";
-  return `<details class="pf-details">
-    <summary><span class="lbl">${t("profile.details.summary")}</span><span class="pf-chev" aria-hidden="true">▸</span></summary>
-    <div class="pf-details-body">
-      ${marketHTML(prof)}
-      ${receiver ? zoneReadHTML(prof) + coverageHTML(prof) + sidesHTML(prof) : ""}
-      ${opponentHTML(prof)}
-      ${blendedHTML(prof)}
-    </div>
-  </details>`;
-}

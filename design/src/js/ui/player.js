@@ -11,7 +11,11 @@ function headHTML(p, cls){
   return `<img src="${src}" alt="" loading="lazy">`;
 }
 
-function sparkHTML(v, w, h){
+/* `ref`, when given, draws a dashed rule across the chart at that value -- the profile card's
+   elite bar, so a week above the bar is visibly above it. It is only drawn when it falls inside
+   the series' own range: a bar off the top of the chart would either flatten every point to
+   make room for it, or sit on the frame pretending to be the last gridline. */
+function sparkHTML(v, w, h, ref){
   if (!v || v.length < 2) {   // one point has no shape to draw; same flat line as no data
     return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
       <line x1="1" y1="${h/2}" x2="${w-1}" y2="${h/2}" stroke="var(--line-2)" stroke-width="1.4" stroke-dasharray="3 4"/>
@@ -23,7 +27,9 @@ function sparkHTML(v, w, h){
   const pts = v.map((k,i)=>`${x(i).toFixed(1)},${y(k).toFixed(1)}`);
   const col = v[v.length-1] > v[0] ? "var(--up)" : v[v.length-1] < v[0] ? "var(--down)" : "var(--ink-3)";
   const area = `M ${pts[0]} L ${pts.slice(1).join(" L ")} L ${x(v.length-1).toFixed(1)},${h} L ${x(0).toFixed(1)},${h} Z`;
-  return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+  const bar = ref !== null && ref !== undefined && ref > min && ref < max
+    ? `<line class="ref" x1="1" y1="${y(ref).toFixed(1)}" x2="${w-1}" y2="${y(ref).toFixed(1)}"/>` : "";
+  return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${bar}
     <g class="reveal">
       <path class="area" d="${area}" fill="${col}"/>
       <path class="line" d="M ${pts[0]} L ${pts.slice(1).join(" L ")}" stroke="${col}"/>

@@ -4,8 +4,17 @@
    the "from" transform starts exactly where the click happened. */
 .modal-scrim{position:fixed;inset:0;background:rgba(4,4,6,.66);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .3s var(--ease);z-index:60}
 .modal-scrim.on{opacity:1;pointer-events:auto}
+/* A fixed box, not one that sizes to whatever is inside it. Measured across every roster player
+   and every pane at 1400x950, the content ran from 172px to 1,105px, so the dialog resized
+   itself between 277px and 874px tall -- on every player, on every tab switch, and by up to 63px
+   just from tapping a different stat on the radar. A dialog that changes size under the cursor
+   that opened it is the thing this trades a little empty space to avoid.
+
+   860 is the 90th percentile of real content plus the head: most players fill it, the matchup
+   pane scrolls, and only a player the model knows nothing about leaves it part empty -- which is
+   what the pane's empty state is for. The body flexes into whatever is left and scrolls. */
 .modal{
-  position:fixed;top:50%;left:50%;z-index:61;width:min(1100px,96vw);max-height:min(940px,92vh);
+  position:fixed;top:50%;left:50%;z-index:61;width:min(1240px,96vw);height:min(860px,90vh);
   background:var(--panel);border:1px solid var(--line-2);
   display:flex;flex-direction:column;overflow:hidden;
   transform:translate(-50%,-50%) translate(var(--dx,0px),var(--dy,0px)) scale(.2);
@@ -23,10 +32,16 @@
 /* The strip's dialog sits OVER the profile's, and wants width rather than height: a drive is
    120 yards laid end to end, and every pixel taken off the field is a yard the reader squints
    at. It matches the profile's width rather than undercutting it -- a narrower sheet appearing
-   on top of a wider one reads as the wrong thing opening. */
-.stripmodal{width:min(1100px,96vw);z-index:63}
+   on top of a wider one reads as the wrong thing opening -- so this number tracks .modal's. */
+.stripmodal{width:min(1240px,96vw);z-index:63}
 #strip-scrim{z-index:62}
-
 @media (max-width:760px){
-  .modal{width:96vw;max-height:92vh}
+  .modal{width:96vw;height:92vh}
+}
+/* Edge to edge on a phone. At 96vw/92vh the profile left a ~7px sliver of the page showing on
+   all four sides -- enough to read as a window that missed its target, not as a deliberate
+   inset -- while costing the one thing a phone has least of. dvh, not vh, so the sheet is not
+   taller than the visible area while the browser's own chrome is on screen. */
+@media (max-width:430px){
+  .modal{width:100vw;height:100dvh;border-left:0;border-right:0}
 }

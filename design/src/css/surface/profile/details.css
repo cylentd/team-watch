@@ -1,23 +1,10 @@
-/* ============================== PROFILE · DETAILS ==============================
-   The collapsed disclosure under the three blocks: zone read (with its amber UNTESTED tag),
-   coverage split, middle vs outside, the opponent's rates against the league tick, raw factor. */
-.pf-details{margin:0}
-.pf-details > summary{
-  list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;min-height:48px;
-  color:var(--ink-2);transition:color .15s var(--ease);
-}
-.pf-details > summary::-webkit-details-marker{display:none}
-.pf-details > summary::marker{content:""}
-.pf-details > summary .lbl{color:inherit}
-.pf-details > summary:hover{color:var(--ink)}
-.pf-details > summary:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
-.pf-chev{order:-1;font-size:var(--t-1);transition:transform .2s var(--ease)}
-.pf-details[open] > summary{color:var(--lime)}
-.pf-details[open] .pf-chev{transform:rotate(90deg)}
-.pf-details-body{padding:4px 0 6px}
-
-.pf-dsec{padding:14px 0;border-top:1px solid var(--line)}
-.pf-dsec:first-child{border-top:0;padding-top:4px}
+/* ============================== PROFILE · FINER READS ==============================
+   The blocks a pane composes below its headline section: zone read (with its amber UNTESTED
+   tag), coverage split, middle vs outside, the opponent's rates against the league tick, raw
+   factor. Same rhythm as .dr-sec -- 20px and a rule below, never a rule above -- because a pane
+   mixes the two kinds and two adjacent borders drew as one 2px line. */
+.pf-dsec{padding:20px 0;border-bottom:1px solid var(--line)}
+.pf-dsec:last-of-type{border-bottom:0}
 .pf-tag{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.14em;line-height:1;color:var(--amber);background:rgb(var(--amber-rgb) / .06);border:1px dashed rgb(var(--amber-rgb) / .55);padding:4px 6px;border-radius:2px}
 .pf-fine{margin-top:8px;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.02em;color:var(--ink-3)}
 .pf-say{margin:0 0 10px;font-size:var(--t-2);line-height:1.45;color:var(--ink)}

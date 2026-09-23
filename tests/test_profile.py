@@ -21,6 +21,13 @@ PROFILES = json.loads((FIXTURES / "data" / "player_profiles.json").read_text(enc
 MARKET_STOCK = json.loads((FIXTURES / "data" / "market_stock.json").read_text(encoding="utf-8"))
 
 
+def tab(page, name):
+    """Open one of the modal's panes. Only the open pane is in the DOM (tabs.js), so a test that
+    wants the matchup blocks has to ask for them; a pane with nothing in it draws no button, so
+    `.count()` first when the player may not have that pane at all."""
+    page.locator(f"#modal [data-pftab='{name}']").click()
+
+
 def test_contract_accepts_the_fixture():
     assert contract.problems("LIVE_PROFILES", PROFILES) == []
 
@@ -150,41 +157,85 @@ def test_phone_moves_matchup_to_the_meta_line(browser, page_file):
 
 
 @pytest.mark.render
-def test_panel_blocks_and_details_collapsed(browser, page_file):
+def test_panes_split_the_blocks_and_only_one_is_in_the_dom(browser, page_file):
+    """Three panes since 2026-09-22, replacing eleven stacked blocks and the Details disclosure
+    nested inside them. Each block still renders exactly as before; what changed is which pane
+    it belongs to, and that only the open pane exists in the DOM at all."""
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
     modal = page.locator("#modal")
     row(page, "Amon-Ra St. Brown").click()
-    # projection (the stat-sheet column), then matchup, red zone, target depth and weekly
-    # history -- every fixture (player_profiles/usage_weekly/gamelog_weekly/player_projections)
-    # has a row for him.
-    assert modal.locator(".pf-sec").count() == 5
+    assert [b.inner_text() for b in modal.locator("[data-pftab]").all()] == ["USAGE", "MATCHUP", "LOG"]
+    # Usage opens first: target depth, red zone, middle vs outside. Nothing from another pane.
     assert modal.locator(".pf-sec", has_text="Target depth").locator(".pf-zone").count() == 4
-    assert modal.locator(".pf-rank").inner_text().strip() == "9th easiest of 32 for WRs"
     assert "31% · 4 of 13" in modal.locator(".pf-sec", has_text="Red zone").inner_text()
-    details = modal.locator("details.pf-details")
-    assert details.count() == 1 and details.get_attribute("open") is None
-    assert not modal.locator(".pf-dsec").first.is_visible()
-    modal.locator(".pf-details > summary").click()
-    assert details.get_attribute("open") is not None
+    assert modal.locator(".pf-rank").count() == 0
+    tab(page, "matchup")
+    assert modal.locator(".pf-rank").inner_text().strip() == "9th easiest of 32 for WRs"
+    assert modal.locator(".pf-zones").count() == 0                         # usage is gone, not hidden
     assert modal.locator(".pf-tag", has_text="UNTESTED").first.inner_text().strip() == "UNTESTED"
     assert modal.inner_text().count("METHODOLOGY") == 1
+    tab(page, "log")
+    assert modal.locator(".pf-table-wk").count() == 1
+    assert "PROJECTION" in modal.inner_text()
     page.keyboard.press("Escape")
     assert "on" not in modal.get_attribute("class")
     assert page.evaluate("document.activeElement.classList.contains('row')")
     row(page, "Chase Brown").click()
+    # Four tabs for him, three for St. Brown above: Bio reads LIVE_PEDIGREE alone, and the
+    # fixture has a pedigree record for this back and none for that receiver. A pane with
+    # nothing in it draws no button rather than opening on an empty panel.
+    assert [b.inner_text() for b in modal.locator("[data-pftab]").all()] == ["USAGE", "MATCHUP", "LOG", "BIO"]
+    tab(page, "usage")
     text = modal.inner_text()
     assert "Target depth" not in text and modal.locator(".pf-zones").count() == 0   # a back: no block
     assert text.index("6 of 11") < text.index("1 of 13")                   # carries before targets
     page.keyboard.press("Escape")
     row(page, "Jahmyr Gibbs").click()
-    assert "Bye, or no schedule yet." in modal.inner_text()
+    tab(page, "usage")
     assert "5 of 9" in modal.inner_text()                                  # carries, under 10
+    tab(page, "matchup")
+    assert "Bye, or no schedule yet." in modal.inner_text()
     page.keyboard.press("Escape")
     page.evaluate("VIEW='espn'; render()")
     row(page, "George Kittle").click()
-    assert "mu-hard" in modal.locator(".pf-rank").get_attribute("class")
+    tab(page, "usage")
     rz = modal.locator(".pf-sec", has_text="Red zone").inner_text()
     assert "3 of 8" in rz and "%" not in rz.split("\n")[1]                  # counts under 10
+    tab(page, "matchup")
+    assert "mu-hard" in modal.locator(".pf-rank").get_attribute("class")
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_the_lede_leads_with_three_numbers(browser, page_file):
+    """The modal's answer to "what do I do with him", above the charts and above the tabs: what
+    he scores, who he plays, and whether the role backs it up. Numbers only -- DESIGN.md's market
+    rule bans a verdict word, and METHODOLOGY 12.46 is why. A cell whose source has nothing for
+    this player is left out rather than dashed, so the row never shows a number that failed."""
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    row(page, "Amon-Ra St. Brown").click()
+    cells = page.locator("#modal .pf-lede-c")
+    assert cells.count() == 3
+    assert [c.locator("b").inner_text() for c in cells.all()] == ["17.3", "9th", "#5"]
+    assert [c.locator(".pf-lede-l").inner_text() for c in cells.all()] == ["PROJECTED", "EASIEST", "WOPR"]
+    assert cells.nth(1).locator(".pf-lede-s").inner_text() == "of 32 WRs"
+    # 9th of 32 is neither of the eight easiest nor the eight hardest: plain, the same call the
+    # roster row's MATCHUP cell makes. Kittle at 25th is one of the eight hardest.
+    assert cells.nth(1).get_attribute("class") == "pf-lede-c"
+    # The rank now has exactly one home at each altitude: the lede, and the radar's own label.
+    # It used to be in the card under the radar as well -- three copies of one number.
+    assert page.locator("#modal .pf-stat-r").count() == 0
+    page.keyboard.press("Escape")
+    page.evaluate("VIEW='espn'; render()")
+    row(page, "George Kittle").click()
+    assert "mu-hard" in page.locator("#modal .pf-lede-c").nth(1).get_attribute("class")
+    assert page.locator("#modal .pf-lede-c").nth(1).locator("b").inner_text() == "8th"
+    page.keyboard.press("Escape")
+    page.evaluate("VIEW='yahoo'; render()")                 # Gibbs is on the Yahoo roster
+    row(page, "Jahmyr Gibbs").click()                       # a bye: the one place a dash earns it
+    bye = page.locator("#modal .pf-lede-c", has_text="bye week")
+    assert bye.count() == 1 and bye.locator("b").inner_text() == "—"
     assert errors == []
     ctx.close()
 
@@ -193,12 +244,29 @@ def test_panel_blocks_and_details_collapsed(browser, page_file):
 def test_facts_show_pedigree_and_fantasy_draft(browser, page_file):
     """tests/fixtures/data/pedigree.json: Jahmyr Gibbs was 1.12 (pick 12 overall) in the real
     2023 NFL draft, drafted 1.01 by my ESPN team and 1.02 in Yahoo; Chase Brown has an ESPN pick
-    only, the per-league optional-ness that fantasy_draft's shape allows."""
+    only, the per-league optional-ness that fantasy_draft's shape allows.
+
+    The bio splits in two (2026-09-22). Age, size, experience and the bye qualify every number in
+    the modal, so they are a line under his name; where he was drafted is history that decides
+    nothing this week, so it keeps a headed block at the foot of the left column."""
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
     row(page, "Jahmyr Gibbs").click()
-    facts = page.locator("#modal .pf-facts").inner_text()
-    assert "Week 6" in facts
+    # The bye is the one fact here that decides something, so it is on the identity line under
+    # his name; the rest is reference and lives in its own Bio pane. The fixture's pedigree
+    # carries no measurables, so the pane's live shape is proved against a stub -- what matters
+    # is that a missing field drops out rather than dashing.
+    assert page.locator("#modal .pf-who .lbl").inner_text().upper().endswith("· BYE 6")
+    tab(page, "bio")
+    facts = page.locator("#modal .pf-tabpane .pf-facts").inner_text()
+    assert "Week 6" not in facts                      # the bye is the head's now, not the grid's
     assert "Rd 1.12 · 2023" in facts and "overall" not in facts
+    assert page.evaluate("""() => {
+      LIVE_PEDIGREE.players['stub'] = {age: 27, height: '73', weight: 210, years_exp: 5, bye: 9};
+      const d = document.createElement('div');
+      d.innerHTML = bioBlockHTML({slug: 'stub'});
+      return [...d.querySelectorAll('dt')].map((k, i) =>
+        k.textContent + ' ' + d.querySelectorAll('dd')[i].textContent); }""") \
+        == ["Age 27", "Size 6′1″ · 210 lb", "Exp 5 yr pro"]
     # One row per league I have a team in, labelled by my team's name there (uppercase in the
     # render); "by X" only when someone else took him.
     labels = [d.inner_text() for d in page.locator("#modal .pf-facts dt").all()]
@@ -208,7 +276,8 @@ def test_facts_show_pedigree_and_fantasy_draft(browser, page_file):
     assert "Rd 1.02 · by Team Minh" in facts
     page.keyboard.press("Escape")
     row(page, "Chase Brown").click()
-    facts = page.locator("#modal .pf-facts").inner_text()
+    tab(page, "bio")
+    facts = page.locator("#modal .pf-tabpane .pf-facts").inner_text()
     assert "Rd 3.07 · by Big Salty" in facts
     assert page.evaluate("TEAMS.yahoo.name").upper() not in [d.inner_text() for d in page.locator("#modal .pf-facts dt").all()]
     page.keyboard.press("Escape")
@@ -225,7 +294,10 @@ def test_head_line_gives_the_fantasy_tier(browser, page_file):
     row(page, "Chase Brown").click()
     head = page.locator("#modal .pf-who .lbl").inner_text().upper()
     rank, of, _tied = page.evaluate("ppgRank({slug: 'chase-brown', pos: 'RB'})")
-    assert head == f"RB · CIN · RB{rank}"
+    # One separator for the whole line, and the same one the rest of the page uses. The bye
+    # joins it (2026-09-22) rather than taking a third line in a head fixed above the scroll.
+    assert head == f"RB · CIN · RB{rank} · BYE 10"
+    assert "|" not in head
     assert of == page.evaluate("LIVE_POOL.players.filter(r => r.pos === 'RB' && r.ppg !== null).length")
     page.keyboard.press("Escape")
     row(page, "Amon-Ra St. Brown").click()          # not in the fixture pool: no clause at all
@@ -239,9 +311,11 @@ def test_head_line_gives_the_fantasy_tier(browser, page_file):
 def test_weather_shows_stadium_forecast_with_icons(browser, page_file):
     """tests/fixtures/data/weather.json: Amon-Ra St. Brown is away at KC (outdoor, sunny), Chase
     Brown is home at CIN (outdoor, cooler), Jahmyr Gibbs has no next game (a bye in the fixture)
-    so no forecast to show at all. The forecast sits inside the matchup block."""
+    so no forecast to show at all. The forecast sits inside the matchup block, in the Matchup
+    pane."""
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
     row(page, "Amon-Ra St. Brown").click()
+    tab(page, "matchup")
     wx = page.locator("#modal .pf-sec", has_text="Week 3 @ KC").locator(".pf-weather")
     assert wx.count() == 1
     text = wx.inner_text()
@@ -250,10 +324,12 @@ def test_weather_shows_stadium_forecast_with_icons(browser, page_file):
     assert wx.locator("svg.pf-wx-i").count() == 2
     page.keyboard.press("Escape")
     row(page, "Chase Brown").click()
+    tab(page, "matchup")
     text = page.locator("#modal .pf-weather").inner_text()
     assert "58°F" in text and "Partly Cloudy" in text and "6 mph" in text
     page.keyboard.press("Escape")
     row(page, "Jahmyr Gibbs").click()
+    tab(page, "matchup")
     assert page.locator("#modal .pf-weather").count() == 0
     page.keyboard.press("Escape")
     assert errors == []
@@ -290,7 +366,9 @@ def test_stat_sheet_draws_the_positions_own_axes(browser, page_file):
     """ff-jarvis's `sheet.axes` drives the shape: six for a receiver, none of them a raw count
     the Grid already shows. Every number is his season rank among the position ("#3", "#3*" on a
     tie), first place at the rim. Each label is a button; the card under the sheet shows that
-    stat's number, its exact "of N", its elite bar and the weeks as a line."""
+    stat's number, its elite bar and the weeks as a line, and the caption under the chart carries
+    that axis's own "of N" -- the rank itself is the lede's and the radar label's, not the
+    card's, so one number has one home."""
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
     row(page, "Amon-Ra St. Brown").click()
     radar = page.locator("#modal .pf-radar")
@@ -301,27 +379,109 @@ def test_stat_sheet_draws_the_positions_own_axes(browser, page_file):
     assert axes == ["wopr", "route_pct", "tprr", "yprr", "fdrr", "rz_tgt"]
     assert radar.locator("text.pf-radar-l").count() == len(axes)
     assert radar.locator("text.pf-radar-l", has_text="aDOT").count() == 0   # not "more is better"
-    rank, of, tied = page.evaluate("sheetRank('WR', 'wopr', 'amonra-st-brown')")
+    rank, of, _tied = page.evaluate("sheetRank('WR', 'wopr', 'amonra-st-brown')")
     mark = page.evaluate("rankMark(sheetRank('WR', 'wopr', 'amonra-st-brown'))")
     assert rank >= 1 and of >= rank
-    assert mark == (f"#{rank}*" if tied else f"#{rank}")
-    assert ("* tied" in page.locator("#modal .pf-sheet .pf-cap").inner_text()) == page.evaluate(
-        "[...document.querySelectorAll('#modal .pf-radar-v')].some(e => e.textContent.endsWith('*'))")
+    # No tie marker anywhere, from 2026-09-22: rankAmong already shares the rank, and the
+    # asterisk on top only said "someone else has this number", which decides nothing.
+    assert mark == f"#{rank}"
+    assert "*" not in radar.text_content()
     assert f"WOPR{mark}" in radar.text_content()             # SVG: text_content, no inner_text
-    assert f"Out of {of} WRs" in page.locator("#modal .pf-sheet").inner_text()
+    # The denominator lives on the card's header line, not in a caption under the chart: it
+    # repeated the lede's own "of 120" and cost the left column height it did not have.
+    assert f"of {of}" in page.locator("#modal .pf-stat-wk").inner_text()
+    assert page.locator("#modal .pf-sheet .pf-cap").count() == 0
     # The card opens on the first axis and follows a tap on another.
     card = page.locator("#modal .pf-stat")
     assert card.count() == 1
     assert card.locator(".pf-stat-l").inner_text() == "WOPR"
-    assert card.locator(".pf-stat-r").inner_text() == f"{mark} of {of}"
-    assert card.locator(".pf-stat-d").inner_text() == "elite 0.70"
+    assert card.locator(".pf-stat-r").count() == 0             # the rank belongs to the lede
+    # The gap, not the threshold: "elite >= 0.00" printed in red said the elite bar was the bad
+    # thing, when what is red is him being under it. The colour now agrees with the sign.
+    assert card.locator(".pf-stat-d").inner_text() == "0.11 over the elite bar (0.70)"
+    assert card.locator(".pf-stat-d").get_attribute("class").endswith("up")
+    # And the initials are defined, with a second clause on what to do with the number.
+    assert "air yards" in card.locator(".pf-stat-def").inner_text()
+    assert "predictor" in card.locator(".pf-stat-why").inner_text()
     assert "on" in radar.locator("text.pf-radar-l", has_text="WOPR").get_attribute("class")
+    # A pick moves three things at once, so the chart and the card are visibly the same stat.
+    assert radar.locator("circle.pf-radar-dot.on").get_attribute("data-col") == "wopr"
     radar.locator("text.pf-radar-l", has_text="YPRR").click()
     assert card.locator(".pf-stat-l").inner_text() == "YPRR"
     assert "on" in radar.locator("text.pf-radar-l", has_text="YPRR").get_attribute("class")
     assert "on" not in radar.locator("text.pf-radar-l", has_text="WOPR").get_attribute("class")
+    assert radar.locator("circle.pf-radar-dot.on").get_attribute("data-col") == "yprr"
+    # Each axis has its own denominator (everyone with a target, but only those with routes),
+    # so the header follows the pick rather than freezing on the opening axis's.
+    yprr_of = page.evaluate("sheetRank('WR', 'yprr', 'amonra-st-brown')")[1]
+    assert f"of {yprr_of}" in page.locator("#modal .pf-stat-wk").inner_text()
     assert "pctl" not in page.locator("#modal").inner_text()
     page.keyboard.press("Escape")
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_every_block_says_how_many_weeks_it_covers(browser, page_file):
+    """The blocks do not share a window. Red zone and target depth are season to date; anything
+    divided by routes waits on heatradar, which publishes one week at a time, so Route%, TPRR,
+    YPRR and 1D/RR can be a one-week number sitting on the same chart as two-week ones. A number
+    whose window is not stated cannot be checked -- which is exactly how a correct red-zone
+    figure came to look wrong."""
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    row(page, "Amon-Ra St. Brown").click()
+    tab(page, "usage")
+    wins = {w.locator("xpath=ancestor::section").locator(".lbl").inner_text(): w.inner_text()
+            for w in page.locator("#modal .pf-win").all()}
+    assert wins == {"TARGET DEPTH": "2 wk", "RED ZONE": "2 wk"}   # .lbl uppercases in the render
+    # And per stat, on the card. Three states, because the fixture has no weekly rows for the
+    # sheet stats and that is itself one of them.
+    radar = page.locator("#modal .pf-radar")
+    meta = page.locator("#modal .pf-stat-wk")
+    of = page.evaluate("sheetRank('WR', 'yprr', 'amonra-st-brown')")[1]
+    radar.locator("text.pf-radar-l", has_text="YPRR").click()
+    assert meta.inner_text() == f"2 gm · of {of}"          # no weekly rows: games, no window
+    plant = """(weeks) => {
+      const row = USAGE.rows.find(r => r.slug === 'amonra-st-brown');
+      USAGE.rows = USAGE.rows.filter(r => r.slug !== 'amonra-st-brown');
+      weeks.forEach(wk => USAGE.rows.push({...row, wk, v: {...row.v, yprr: 1.5 + wk}}));
+    }"""
+    page.evaluate(plant, [1, 2])
+    radar.locator("text.pf-radar-l", has_text="YPRR").click()
+    assert meta.inner_text() == f"of {of} · wk 1–2"         # two weeks: the range, no games
+    # Now as heatradar actually publishes it: week 1 only, while his other stats have two.
+    page.evaluate(plant, [1])
+    radar.locator("text.pf-radar-l", has_text="YPRR").click()
+    assert meta.inner_text() == f"of {of} · wk 1"
+    assert "gm" not in meta.inner_text()                    # never both counts of one sample
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_too_few_measured_axes_draw_no_shape(browser, page_file):
+    """Under three measured axes there is no shape, and <polygon> with two points renders as a
+    bare line between them -- which reads as a broken chart rather than as a player heatradar
+    has not covered yet. The vertices still plot, because they are real, and the count says why
+    the rest is missing. (Rashee Rice in week 2: WOPR and RZ Tgts measured, the four
+    route-derived stats not.)"""
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    row(page, "Amon-Ra St. Brown").click()
+    radar = page.locator("#modal .pf-radar")
+    assert radar.locator("polygon.pf-radar-shape").count() == 1     # six axes: a real shape
+    assert radar.locator(".pf-radar-note").count() == 0
+    page.keyboard.press("Escape")
+    # Strip four of his six axes and reopen: two points left, so no polygon and a count instead.
+    page.evaluate("""() => {
+      const r = USAGE.sheet.rows.find(x => x.slug === 'amonra-st-brown');
+      ['route_pct', 'tprr', 'yprr', 'fdrr'].forEach(k => { r.v[k] = null; });
+      for (const k in SHEET_BY) delete SHEET_BY[k];   // memoised per position+axis
+    }""")
+    row(page, "Amon-Ra St. Brown").click()
+    assert radar.locator("polygon.pf-radar-shape").count() == 0
+    assert radar.locator("circle.pf-radar-dot").count() == 2
+    assert radar.locator(".pf-radar-note").text_content().strip() == "2 of 6 stats measured"
+    assert radar.text_content().count("—") == 4                     # the unmeasured axes say so
     assert errors == []
     ctx.close()
 
@@ -361,10 +521,10 @@ def test_ties_share_a_rank(browser, page_file):
     assert page.evaluate("sheetRank('XX', 'car', 'b')") == [1, 3, True]
     assert page.evaluate("sheetRank('XX', 'car', 'c')") == [3, 3, False]
     assert page.evaluate("sheetRank('XX', 'car', 'nobody')") is None
-    assert page.evaluate("rankText('XX', [1, 3, true])") == "XX1*"
+    # The tie is in the rank itself -- both are 1st and the next is 3rd -- not in a marker on it.
+    assert page.evaluate("rankText('XX', [1, 3, true])") == "XX1"
     assert page.evaluate("rankText('XX', [3, 3, false])") == "XX3"
-    assert page.evaluate("rankMark([1, 3, true])") == "#1*"
-    assert page.evaluate("rankMarkOf([3, 7, false])") == "#3 of 7"
+    assert page.evaluate("rankMark([1, 3, true])") == "#1"
     assert page.evaluate("rankAmong({a: 2.5, b: 2.5, c: 2.5}, 'b')") == [1, 3, True]
     assert errors == []
     ctx.close()
@@ -402,7 +562,7 @@ def test_market_row_shows_priced_numbers(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
     row(page, "Amon-Ra St. Brown").click()
     modal = page.locator("#modal")
-    modal.locator(".pf-details > summary").click()
+    tab(page, "matchup")
     text = modal.inner_text()
     assert "UNTESTED" in text
     assert "17.8 pts" in text and "role 18.2 pts" in text
@@ -419,7 +579,7 @@ def test_market_row_falls_back_to_model_pts(browser, page_file):
     page.evaluate("VIEW='espn'; render()")
     row(page, "George Kittle").click()
     modal = page.locator("#modal")
-    modal.locator(".pf-details > summary").click()
+    tab(page, "matchup")
     text = modal.inner_text()
     assert "UNTESTED" in text
     assert "13.1 pts, the model's number" in text
@@ -436,7 +596,7 @@ def test_market_row_zero_d_rank_shows_no_change_marker(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
     row(page, "Chase Brown").click()
     modal = page.locator("#modal")
-    modal.locator(".pf-details > summary").click()
+    tab(page, "matchup")
     rank_line = modal.locator(".pf-cap", has_text="RB rank #8")
     assert rank_line.count() == 1
     assert rank_line.locator(".delta").count() == 0
@@ -454,7 +614,7 @@ def test_market_row_partial_markets_shows_priced_not_no_market(browser, page_fil
     page.evaluate("VIEW='espn'; render()")
     row(page, "Tee Higgins").click()
     modal = page.locator("#modal")
-    modal.locator(".pf-details > summary").click()
+    tab(page, "matchup")
     text = modal.inner_text()
     assert "UNTESTED" in text
     assert "11.2 pts, the model's number" in text
@@ -473,9 +633,11 @@ def test_no_verdict_words_on_the_page(browser, page_file):
         assert not words.search(page.locator("body").inner_text()), view
         for i in range(page.locator(".row").count()):
             page.locator(".row").nth(i).click()
-            summary = page.locator("#modal .pf-details > summary")
-            if summary.count():
-                summary.click()
+            # Every pane, not just the one that opens: a verdict word hiding in the matchup
+            # pane is still on the page.
+            for b in page.locator("#modal [data-pftab]").all():
+                b.click()
+                assert not words.search(page.locator("#modal").inner_text()), (view, i)
             assert not words.search(page.locator("#modal").inner_text()), (view, i)
             page.keyboard.press("Escape")
     assert errors == []
@@ -491,11 +653,13 @@ def test_no_profiles_renders_dashes_and_a_quiet_panel(browser, monkeypatch, tmp_
     assert page.locator(".match .mu-n").count() == 0
     row(page, "Amon-Ra St. Brown").click()
     assert page.locator("#modal .pf-empty").count() == 1
-    # The matchup/red-zone/depth blocks need LIVE_PROFILES and are quiet without it, but the
-    # stat sheet, weekly history and projection each read their own source (LIVE_USAGE/
-    # LIVE_GAMELOG/LIVE_PROJECTIONS) and still render -- a player with no matchup profile is
-    # not blank.
-    assert page.locator("#modal .pf-sec").count() == 2
+    # The usage and matchup panes need LIVE_PROFILES, so neither draws a tab and the notice says
+    # why once. The stat sheet, weekly history and projection each read their own source
+    # (LIVE_USAGE/LIVE_GAMELOG/LIVE_PROJECTIONS) and still render -- a player with no matchup
+    # profile is not blank, and the lede still leads with what it can price.
+    assert page.locator("#modal [data-pftab]").count() == 0
+    assert page.locator("#modal .pf-sec").count() == 2         # weekly history, projection
     assert page.locator("#modal .pf-radar").count() == 1
+    assert page.locator("#modal .pf-lede-c").count() == 2      # projected + WOPR, no matchup
     assert errors == []
     ctx.close()

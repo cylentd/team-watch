@@ -27,11 +27,24 @@ function shareBarHTML(label, share, avg, lead){
   </div>`;
 }
 
-function secHTML(label, body, legend, cls){
+/* `win` is the window the block's numbers cover, in weeks. It sits in the head because the
+   blocks do not all cover the same one: the red zone and the depth chart are season to date,
+   while anything divided by routes is stuck on whatever week heatradar has published. Without
+   it the reader has no way to tell a two-week number from a one-week number, and the only
+   honest answer to "does that look right?" is to go and read the source file. */
+function secHTML(label, body, legend, cls, win){
+  const right = (win ? `<span class="pf-win">${win}</span>` : "")
+    + (legend ? `<span class="pf-legend"><i></i>${legend}</span>` : "");
   return `<section class="dr-sec pf-sec${cls ? " " + cls : ""}">
-    <div class="pf-sechead"><span class="lbl">${label}</span>${legend ? `<span class="pf-legend"><i></i>${legend}</span>` : ""}</div>
+    <div class="pf-sechead"><span class="lbl">${label}</span>${right ? `<span class="pf-sechead-r">${right}</span>` : ""}</div>
     ${body}
   </section>`;
+}
+
+/* "2 wk", from a count rather than a range: these blocks publish how many weeks they cover, not
+   which, and inventing "wk 1-2" from a count assumes a season that always starts at week 1. */
+function winText(n){
+  return n === null || n === undefined ? "" : t("profile.win.n", {n});
 }
 
 function leadHTML(num, text, cls){
@@ -79,7 +92,7 @@ function roleHTML(prof){
     leadHTML(pfPct(z[top].share), t("profile.role.lead", {zone: zoneWord(top).toLowerCase(), pos, avg: pfPct(z[top].pos_avg)}))
     + zonesHTML(z, top)
     + `<p class="pf-cap">${line}</p>`,
-    t("profile.role.legend", {pos}), "pf-sec-zones");
+    t("profile.role.legend", {pos}), "pf-sec-zones", winText(u.weeks));
 }
 
 /* Counts while the team total is under 10 ("1 of 5"), a share with its counts from 10 up. */
@@ -105,5 +118,5 @@ function redZoneHTML(prof){
   const carries = back
     ? rzLineHTML(r.carries, r.team_carries, r.carry_share, [t("profile.rz.teamCarry"), t("profile.rz.teamCarries")], false)
       + rzSplitHTML(r.carries, r.team_carries, others, "carries", prof.n) : "";
-  return secHTML(t("profile.rz.label"), carries + targets);
+  return secHTML(t("profile.rz.label"), carries + targets, "", "", winText(r.weeks));
 }

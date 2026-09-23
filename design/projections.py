@@ -12,9 +12,12 @@ def report(proj):
 
 
 def live_projections(raw, slugify, wanted):
-    """LIVE_PROJECTIONS: {players: {slug -> {pts, mu, games, src}}} or None when ff-jarvis has not
-    written the file. Two players on the same slug keep the model source over a line-only
-    fallback, same tie-break as build.py's _stock_by_slug()."""
+    """LIVE_PROJECTIONS: {players: {slug -> {pts, mu, games, src}}, meta: {scoring, through}} or
+    None when ff-jarvis has not written the file. Two players on the same slug keep the model
+    source over a line-only fallback, same tie-break as build.py's _stock_by_slug().
+
+    `meta` carries the producer's own header so the modal can say whose projection it is showing
+    and on what scoring, rather than printing a number with no owner."""
     players = (raw or {}).get("players") or []
     if not players:
         return None
@@ -27,4 +30,7 @@ def live_projections(raw, slugify, wanted):
         if prev is None or (p.get("src") == "model" and prev.get("src") != "model"):
             out[slug] = {"pts": p.get("pts"), "mu": p.get("mu"), "games": p.get("games"),
                         "src": p.get("src")}
-    return {"players": out} if out else None
+    if not out:
+        return None
+    meta = {k: (raw or {}).get(k) for k in ("scoring", "through", "generated")}
+    return {"players": out, "meta": meta}

@@ -164,6 +164,107 @@ Motion marks a change of context, never moves what is being read. All of it live
 | Team switch | a football crosses the hero; the team name is one line, fitted, so the hero height holds |
 | Tab or sub-tab switch | the `//` in TEAM//WATCH crosses into an X and back |
 | Waivers, news list | rows arrive one at a time |
+| Profile modal charts | every chart draws itself along the axis that carries its number (below) |
+
+## The profile modal (rebuilt 2026-09-22)
+
+Eleven blocks at one weight is a wall. Three tiers, and the order is the answer to "what do I do
+with him this week":
+
+| Tier | What | Where |
+|---|---|---|
+| **Lede** | three numbers at hero size, full width | `js/surface/profile/lede.js` |
+| **Sheet** | the radar and the card under it | `sheet.js`, `statcard.js` |
+| **Panes** | Usage / Matchup / Log / Bio, one at a time | `tabs.js` |
+
+The lede is **projected · matchup · lead usage stat**, and it is numbers, never a word: the market
+rule below bans a verdict, so choosing three numbers and sizing them is how this page answers a
+start-or-sit question. A cell whose source has nothing for that player is left out rather than
+dashed — two numbers read as two numbers, a dash reads as a number that failed. The one exception
+is a bye, where the cell *is* the week and "none" is the honest answer.
+
+The panes use `.modes-sub`, the app's sub-tab component (nav.css names the rule: a third caller is
+a component; this is the fourth). Only the open pane is in the DOM — every chart animates on
+insert, so a hidden pane would finish its entrance unseen. A pane that renders nothing draws no
+tab at all: a back has no target depth, a passer no red zone, a player with no pedigree no Bio.
+The bar is sticky inside the scrolling body, because the Matchup pane runs 1,200px and the way
+back to the other two should not be a scroll to the top. `PF_TAB` survives an open, so reading two
+players against each other opens the same pane twice.
+
+The **Details disclosure is gone.** It was a second level of hiding underneath a first level
+nobody had got through, and its five blocks are now ordinary sections inside the panes.
+
+**The modal is a fixed box**, `min(860px, 90vh)`. Measured across every roster player and every
+pane, it had been resizing between 277px and 874px tall — on every player, on every tab switch,
+and by up to 63px from tapping a different stat on the radar. 860 is the 90th percentile of real
+content: most players fill it, the Matchup pane scrolls, and the card's height is reserved by
+measuring all six variants in the browser at open rather than guessing a wrap-dependent number in
+CSS.
+
+**Numbers have one home each.** The rank used to be in the lede, on the radar's own axis label,
+*and* in the card under the radar — three copies of one number on one screen. The card now carries
+the value, its elite bar and its weekly line; its header carries that axis's own "of N" and
+follows the reader's pick, since a receiver ranks among everyone with a target on one stat and
+only among those with routes on the next.
+
+**Every block states its own window, and they do not share one.** `routes_run.json` is whatever
+week heatradar last published — one at a time — so Route%, TPRR, YPRR and 1D/RR can be a one-week
+number sitting on the same chart as WOPR and RZ Tgts, which are season to date. Section heads
+carry `2 wk`; the stat card carries `of 120 · wk 1–2` or `of 101 · wk 1`. A number whose window is
+not stated cannot be checked, which is how a correct red-zone figure came to look wrong.
+
+### Motion
+
+Every chart draws itself along the axis that carries its meaning, so the motion is the
+measurement, not an entrance. The radar's shape inflates from the centre, because the radius is
+the rank; the depth columns grow from their baseline, because the height is the share; the
+red-zone bar fills left to right in the order its key names; the matchup strip lands the lit cell
+last, after the scale it sits on. All of it is CSS keyframes in `surface/profile/sheet.css` and
+all of it collapses to the finished state under reduced motion.
+
+### The chart itself
+
+It is a dial, not a default radar. The grid rings are **circles**: concentric hexagons crossed by
+spokes resolve into a drawn cube, with the tinted shape as a plane leaning in it, and a radius
+that means a percentile is round anyway. The disc runs dark at the hub to lighter at the rim, so
+"1st at the rim" is a property of the surface rather than a caption. The fill is a radial gradient
+dense at the hub and thin at the rim, and the stroke carries a glow: the shape is the only lit
+thing on the dial, which is the one distinction this chart has to make.
+
+| Was | Is | Why |
+|---|---|---|
+| Six full spokes | ticks at the rim | a spoke's only job is saying where an axis is, and six of them crossed the translucent shape and showed through it, which is what made the fill look muddy |
+| Elite bar: a dash on the axis | a **dashed arc across the axis's sector**, tagged `ELITE` | six dashes in open space read as scratches on the glass; a threshold is a contour, so the shape now visibly crosses outside it |
+| A legend under the chart | the word on the arc | `1st at the rim · dashed arc = elite` was a code explained in a caption, which the reader has to carry back to the picture |
+| Label 13.5px, rank 15px | label 12px quiet, rank 18px bright | twelve near-equal fragments of text; at a four-step gap the eye takes the six numbers first |
+| Rank edge-aligned under its label | centred, measured with `getBBox` at open | a flank label anchors outward, so the rank inherited that anchor and hung off the end of the longer words |
+| Under 3 measured axes: a 2-point `<polygon>` | no polygon, real vertices, and a count | two points render as a bare line, which reads as a broken chart rather than as a player heatradar has not covered yet |
+
+### On a phone
+
+The left column becomes `display:contents` and the parts reorder: **sheet, panes, then who he
+is.** Side by side the sheet and the panes are read together; stacked, whatever comes second is a
+scroll away, and the pedigree is the one part that answers nothing about Sunday. The head is 24px
+over two lines rather than 34px over three — it is fixed above the scrolling body, so its height
+is paid on every screen of the scroll, and at 34px it took a fifth of a 780px phone to repeat the
+row the reader just tapped. The modal goes edge to edge below 430px (`100vw`/`100dvh`); at
+96vw/92vh it left a sliver of the page showing on all four sides, which read as a window that
+missed its target.
+
+Measured on the WR fixture, 360×780 phone and 1400px desktop:
+
+| | Before | After |
+|---|---|---|
+| Phone, first screen (px of chrome-free content) | 551 | 682 |
+| Phone, total scroll to the end of the default view | 1,421 | 1,088 |
+| Desktop, the default view | 856 in a 747 window | no scroll at 950px viewport and up |
+| Dial diameter, desktop | 191 | 298 |
+| Modal box height, across every player and pane | 277–874, resizing | 855, fixed |
+
+The weekly log is built for eighteen weeks: a column group with nothing in it is never drawn (a
+back had two columns of passing zeros), the head is sticky, the season total is a foot row, and
+on a phone each week becomes a block of labelled chips rather than a sideways drag. Verified
+against a fabricated 18-week season at 360px and 1400px — `tableScrolls: false` at both.
 
 ## News severity (2026-09-16)
 
