@@ -1,17 +1,12 @@
 /* ============================== HERO ============================== */
 .hero{position:relative;padding:44px 0 34px;overflow:hidden}
-.numghost{
-  position:absolute;left:calc(max(0px, (100vw - 1180px) / 2) - 34px);top:-46px;z-index:0;
-  font-family:var(--disp);font-weight:800;font-size:var(--t-ghost);line-height:1;
-  color:transparent;-webkit-text-stroke:1.5px rgb(var(--lime-rgb) / .09);
-  pointer-events:none;user-select:none;letter-spacing:-.05em;
-}
 /* Pool, Parlay, DFS and News carry no headline: the lit nav tab already names the surface, and the
    eyebrow's live count is the part worth reading. Only My Teams keeps one, because a team name is
    information the nav does not hold. */
 .hero.slim{padding:26px 0 8px}
 .hero.slim .hero-in{align-items:start}
 .hero-in{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:44px;align-items:end}
+.hero-in.solo{grid-template-columns:minmax(0,1fr)}
 .hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
 /* My Teams' switcher used margin-left:auto to push right within .hero-eyebrow -- but that row
    only spans the hero's LEFT grid column (the signals column is a sibling), so on any viewport
@@ -33,13 +28,15 @@
 }
 .hero h1 em{font-style:normal;color:transparent;-webkit-text-stroke:2px var(--ink-2)}
 .hero-meta{display:flex;flex-wrap:wrap;gap:8px}
+/* The league name reads as a line of text, not a button: it still opens the league's rules, but it
+   is the least-used control on the page and a bordered box made it look like the most important. */
 .leaguechip{
   display:inline-flex;align-items:center;gap:7px;appearance:none;cursor:pointer;
-  background:none;border:1px solid var(--line-2);border-radius:2px;padding:6px 11px;
-  font-family:var(--mono);font-size:var(--t-1);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);
-  transition:border-color .2s var(--ease),color .2s var(--ease);
+  background:none;border:0;padding:4px 0;
+  font-family:var(--mono);font-size:var(--t-1);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
+  transition:color .2s var(--ease);
 }
-.leaguechip:hover{border-color:var(--ink-2);color:var(--ink)}
+.leaguechip:hover{color:var(--ink)}
 .leaguechip .lc-info{opacity:.55;font-size:var(--t-1)}
 
 .signals{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));border:1px solid var(--line);background:var(--panel)}

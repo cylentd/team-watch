@@ -15,9 +15,13 @@ function buildFeed(){
   const okCount = cells.filter(([,[s]])=>s==="ok").length;
   const worst = cells.some(([,[s]])=>s==="wait") ? "wait" : okCount===cells.length ? "ok" : "off";
   const dotColor = {ok:"var(--up)", wait:"var(--amber)", off:"var(--line-2)"}[worst];
+  // One pill, not two: the week is its label, the dot is the sources' health, and the per-source
+  // detail is one tap away. The separate week pill went on 2026-09-22.
+  const count = t("chrome.feed.dataCount", {ok: okCount, n: cells.length});
+  const label = (typeof SLATE_WEEK !== "undefined" && SLATE_WEEK) ? t("chrome.weekpill.week", {week: SLATE_WEEK}) : count;
   el.innerHTML = `
-    <button class="status-btn" id="statusbtn" aria-haspopup="true" aria-expanded="false">
-      <span class="dot" style="background:${dotColor}"></span>${t("chrome.feed.dataCount", {ok: okCount, n: cells.length})}
+    <button class="status-btn" id="statusbtn" aria-haspopup="true" aria-expanded="false" title="${count}">
+      <span class="dot" style="background:${dotColor}"></span>${label}
     </button>
     <div class="status-menu" id="statusmenu" hidden>
       ${cells.map(([label,[state,text]]) =>

@@ -20,13 +20,15 @@ function topbarBadge(){
     ? {tone:"live", full:t("chrome.badge.teamsLiveFull"), abbr:t("chrome.badge.teamsLiveAbbr")}
     : {tone:"warn", full:t("chrome.badge.defaultFull"), abbr:t("chrome.badge.sampleAbbr")};
 }
+/* Shown only when a view is running on sample data. "Live" is the normal state, and a pill that
+   announces the normal state on every view is one more thing competing for the eye. */
 function paintBadge(){
   const b = topbarBadge(), el = document.getElementById("topbadge");
+  el.hidden = b.tone === "live";
   el.classList.toggle("warn", b.tone==="warn");
   el.classList.toggle("live", b.tone==="live");
   el.querySelector(".full").textContent = b.full;
   el.querySelector(".abbr").textContent = b.abbr;
-  if (SLATE_WEEK) document.querySelector("#weekpill .txt").textContent = t("chrome.weekpill.week", {week: SLATE_WEEK});
 }
 
 function render(){
