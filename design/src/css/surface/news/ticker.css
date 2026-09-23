@@ -6,16 +6,16 @@
 .ticker-tag{
   flex-shrink:0;align-self:stretch;display:flex;align-items:center;gap:7px;
   padding:0 14px;background:var(--lime);color:var(--on-lime);
-  font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.18em;
+  font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.18em;
   z-index:2;
 }
 .ticker-track{display:flex;gap:0;white-space:nowrap;animation:slide 62s linear infinite}
 .ticker:hover .ticker-track{animation-play-state:paused}
 @keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.tick{display:inline-flex;align-items:center;gap:9px;padding:0 22px;font-size:12.5px;font-weight:400;
+.tick{display:inline-flex;align-items:center;gap:9px;padding:0 22px;font-size:var(--t-2);font-weight:400;
   color:var(--ink-2);text-decoration:none;transition:color .15s var(--ease)}
 .tick:hover{color:var(--ink);text-decoration:underline;text-decoration-color:var(--line-2)}
-.tick .arrow{font-family:var(--mono);font-size:11px;color:var(--lime)}
+.tick .arrow{font-family:var(--mono);font-size:var(--t-1);color:var(--lime)}
 .tick::after{content:"";width:4px;height:4px;background:var(--line-2);transform:rotate(45deg);margin-left:22px}
 
 /* News tab: a wire bulletin -- timestamp/team/category on their own line, then the headline,
@@ -31,7 +31,7 @@
 @keyframes news-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
 /* Kind tag and filter chips: icon + word, colored by severity only (red out, amber caution). */
-.nkind{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11px;font-weight:700;
+.nkind{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;
   letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
 .nkind svg,.nchip svg{width:13px;height:13px;flex-shrink:0}
 .nkind.out{color:var(--down)}
@@ -43,12 +43,12 @@
 .newsrow:hover{background:var(--panel-2)}
 .newsrow:hover .ntitle{text-decoration:underline;text-decoration-color:var(--line-2)}
 .newstop{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px}
-.newstop .when{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--ink-3);text-transform:uppercase}
-.nteam{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--ink-2);
+.newstop .when{font-family:var(--mono);font-size:var(--t-1);letter-spacing:.1em;color:var(--ink-3);text-transform:uppercase}
+.nteam{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.08em;color:var(--ink-2);
   border:1px solid var(--line-2);padding:1px 6px;border-radius:2px}
-.ntitle{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.4}
-.ndesc{margin-top:4px;font-size:13px;color:var(--ink-2);line-height:1.5}
-.nimpact{margin-top:9px;padding-left:11px;border-left:2px solid var(--lime);font-size:12.5px;color:var(--ink-2);line-height:1.55}
+.ntitle{font-size:var(--t-3);font-weight:700;color:var(--ink);line-height:1.4}
+.ndesc{margin-top:4px;font-size:var(--t-2);color:var(--ink-2);line-height:1.5}
+.nimpact{margin-top:9px;padding-left:11px;border-left:2px solid var(--lime);font-size:var(--t-2);color:var(--ink-2);line-height:1.55}
 
 /* The lead story: today's freshest Breaking item, on its own above the filter row -- bigger
    type, a live pulse instead of a plain dot, the same red stripe as any other breaking row but
@@ -57,9 +57,9 @@
   box-shadow:0 0 0 1px rgb(var(--down-rgb) / .08) inset}
 .newslead .newsrow{padding-left:24px}
 .newslead .newsrow::before{width:4px}
-.newslead .ntitle{font-family:var(--disp);font-size:21px;font-weight:800;letter-spacing:-.01em;line-height:1.25}
-.newslead .ndesc{font-size:13.5px}
-.newslead .nimpact{font-size:13px}
+.newslead .ntitle{font-family:var(--disp);font-size:var(--t-5);font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.newslead .ndesc{font-size:var(--t-2)}
+.newslead .nimpact{font-size:var(--t-2)}
 .livedot{width:7px;height:7px;border-radius:99px;background:var(--down);flex-shrink:0;
   box-shadow:0 0 8px rgb(var(--down-rgb) / .8);animation:livedot 1.4s var(--ease) infinite}
 @keyframes livedot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}

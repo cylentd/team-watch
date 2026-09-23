@@ -58,7 +58,7 @@ function dfsPoolRow(p, i, cap, valueLeaders, handcuffs, poolIndex, activeEligibl
   const addLabel = activeEligible === false ? t("dfs.row.wrongPos") : activeEligible === true ? t("dfs.row.swapIn") : t("dfs.row.add");
   return `<div class="prow dfsrow ${p.mine?"mine":""} ${activeEligible===false?"ineligible":""}" style="animation-delay:${40+i*18}ms" data-dfs="${poolIndex}" role="button" tabindex="0">
     <div>${HEADS[p.slug] ? `<img class="pool-head" src="${HEADS[p.slug]}" alt="">`
-        : `<div class="pool-head" style="display:grid;place-items:center;font-family:var(--mono);font-size:11px;color:var(--ink-3)">${esc(p.abbr||initials(p.n))}</div>`}</div>
+        : `<div class="pool-head" style="display:grid;place-items:center;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)">${esc(p.abbr||initials(p.n))}</div>`}</div>
     <div class="pname"><b>${esc(p.n)}${tags}</b><span>${esc(p.pos)} · ${esc(p.team)}</span></div>
     <div class="pnum">$${p.sal.toLocaleString()}</div>
     <div class="pnum">${p.proj.toFixed(1)}</div>

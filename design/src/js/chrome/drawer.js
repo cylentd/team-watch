@@ -50,7 +50,7 @@ function openPoolDrawer(i){
           ${bar(t("drawer.pool.shareChange"), r.dShare, 14, r.dShare<0)}
           ${bar(t("drawer.pool.luck"), r.luck, 60, r.luck<0, "%")}
         </div>
-        <p style="margin:16px 0 0;color:var(--ink-2);font-size:12.5px;line-height:1.6">
+        <p style="margin:16px 0 0;color:var(--ink-2);font-size:var(--t-2);line-height:1.6">
           ${!measured
             ? t("drawer.pool.readWait")
             : r.dShare > 0 && r.luck < 0

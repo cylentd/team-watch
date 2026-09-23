@@ -15,7 +15,7 @@
 }
 @keyframes pulse{0%,100%{opacity:1;transform:scaleY(1)}50%{opacity:.55;transform:scaleY(.72)}}
 .brand-name{
-  font-family:var(--disp); font-weight:800; font-size:19px;
+  font-family:var(--disp); font-weight:800; font-size:var(--t-4);
   letter-spacing:-.02em; text-transform:uppercase;
 }
 .brand-name i{color:var(--lime);font-style:normal}
@@ -27,7 +27,7 @@
 .discordlink:hover{color:var(--discord);border-color:var(--discord);background:rgb(var(--discord-rgb) / .08)}
 .pill{
   display:inline-flex;align-items:center;gap:7px;
-  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  font-family:var(--mono);font-size:var(--t-1);letter-spacing:.14em;text-transform:uppercase;
   padding:5px 10px;border:1px solid var(--line-2);color:var(--ink-2);
   border-radius:2px;white-space:nowrap;
 }

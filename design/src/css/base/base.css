@@ -1,6 +1,23 @@
   --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
   --disp:"Bricolage Grotesque","Archivo",sans-serif;
   --ui:"Archivo","Segoe UI",sans-serif;
+
+  /* Type scale (2026-09-21). Seven steps, named by rank so a part says "one step up" rather
+     than a number that drifts. Every font-size on the page is one of these (lint_css.py
+     font-size-literal fails the build on a px literal); the two ghost sizes are the hero's
+     background numeral. The complaint that started this was mono at 9.5-11px with wide tracking
+     reading as "skinny", so the floor is 12px and nothing under it is a text size. */
+  --t-1:12px;    /* fine print: table heads, chip and fact labels, meta lines */
+  --t-2:13.5px;  /* tables, captions, facts, row names */
+  --t-3:15px;    /* body copy, the words beside a lead number */
+  --t-4:18px;    /* secondary numbers */
+  --t-5:24px;    /* lead numbers, the matchup line, section titles */
+  --t-6:34px;    /* hero numbers */
+  --t-7:40px;    /* a player's name */
+  --t-hero:clamp(38px,6.4vw,80px);    /* the hero headline, fluid with the viewport */
+  --t-hero-sm:clamp(30px,8.6vw,80px); /* the same at phone width */
+  --t-ghost:270px;    /* the hero's background numeral */
+  --t-ghost-sm:150px; /* the same at phone width */
 }
 
 *{box-sizing:border-box}

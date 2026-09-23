@@ -39,6 +39,9 @@ def test_rgba_of_a_non_token_colour_is_quiet():
 
 def test_font_family_literal_fires_and_var_is_quiet():
     assert rules(lint_css.lint_css_text("x.css", '.a{font-family:"JetBrains Mono",monospace}', TRIPLES)) == ["font-family-literal"]
+    assert rules(lint_css.lint_css_text("x.css", '.a{font-size:11px}', TRIPLES)) == ["font-size-literal"]
+    assert rules(lint_css.lint_css_text("x.css", '.a{font-size:var(--t-1)}', TRIPLES)) == []
+    assert rules(lint_css.lint_css_text("base/base.css", '  --t-1:12px;', TRIPLES)) == []
     assert lint_css.lint_css_text("x.css", ".a{font-family:var(--mono)}", TRIPLES) == []
 
 

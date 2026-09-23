@@ -8,18 +8,18 @@
 .ticket:hover{transform:translateY(-4px) rotate(-.35deg);box-shadow:0 16px 32px rgb(var(--shadow-rgb) / .4);border-color:var(--ink-3)}
 .ticket.best{border-top-color:var(--lime)}
 .ticket-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:14px 15px 0}
-.ticket-eyebrow{display:block;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.16em;color:var(--ink-3)}
-.ticket-kick{margin-top:4px;font-family:var(--disp);font-weight:800;font-size:19px;letter-spacing:-.02em;
+.ticket-eyebrow{display:block;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.16em;color:var(--ink-3)}
+.ticket-kick{margin-top:4px;font-family:var(--disp);font-weight:800;font-size:var(--t-4);letter-spacing:-.02em;
   line-height:1.1;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ticket-best{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--on-lime);
+.ticket-best{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.12em;color:var(--on-lime);
   background:var(--lime);padding:3px 7px;border-radius:2px;white-space:nowrap;flex-shrink:0;margin-top:2px}
 /* A fallback card: the best at its kickoff, but no leg cleared the gallery's gates. Amber = caution. */
-.ticket-low{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--amber);
+.ticket-low{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.12em;color:var(--amber);
   border:1px solid var(--amber);padding:2px 6px;border-radius:2px;white-space:nowrap;flex-shrink:0;margin-top:2px}
 .ticket-stat{padding:10px 15px 14px}
-.ticket-stat b{display:block;font-family:var(--mono);font-size:34px;font-weight:700;letter-spacing:-.03em;line-height:1;color:var(--lime)}
+.ticket-stat b{display:block;font-family:var(--mono);font-size:var(--t-6);font-weight:700;letter-spacing:-.03em;line-height:1;color:var(--lime)}
 .ticket-stat b.neg{color:var(--down)}
-.ticket-stat span{display:block;margin-top:6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--ink-3)}
+.ticket-stat span{display:block;margin-top:6px;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.1em;color:var(--ink-3)}
 /* The torn edge between the headline and the legs -- a dashed cut with a bite out of each side,
    like a ticket stub separated from its counterfoil. Needs .ticket to allow overflow so the
    notches can sit half outside the card's own border. */
@@ -30,13 +30,13 @@
 .ticket-tear::after{right:-22px}
 .ticket .slipleg:last-child{border-bottom:0}
 /* One line per leg saying why it is on the card; quiet, since the call above it is the answer. */
-.ticket .why{margin-top:4px;font-family:var(--mono);font-size:10.5px;letter-spacing:.02em;line-height:1.4;color:var(--ink-3)}
+.ticket .why{margin-top:4px;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.02em;line-height:1.4;color:var(--ink-3)}
 .ticket-cta{appearance:none;width:100%;border:none;border-top:1px dashed var(--line-2);background:rgb(var(--lime-rgb) / .06);
   color:var(--lime);font-family:var(--disp);font-weight:800;text-transform:uppercase;letter-spacing:-.01em;
-  font-size:15px;padding:14px 15px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  font-size:var(--t-3);padding:14px 15px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;
   transition:background .15s var(--ease),color .15s var(--ease)}
-.ticket-cta span{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--ink-2)}
+.ticket-cta span{font-family:var(--mono);font-size:var(--t-1);font-weight:600;letter-spacing:.08em;color:var(--ink-2)}
 .ticket-cta:hover{background:var(--lime);color:var(--on-lime)}
 .ticket-cta:hover span{color:var(--on-lime)}
 .ticket-cta:active{transform:scale(.98)}
-.hint{font-size:12px;color:var(--ink-3);line-height:1.5;margin-top:8px;max-width:70ch}
+.hint{font-size:var(--t-1);color:var(--ink-3);line-height:1.5;margin-top:8px;max-width:70ch}

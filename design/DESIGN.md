@@ -160,7 +160,10 @@ Signal Desk — a dark trading-terminal console.
 | amber `#ffb020` | caution, stale, correlated legs |
 | violet / red marks | Yahoo / ESPN league identity only |
 
-Positions are typographic, never coloured. Type: Bricolage Grotesque (display), Archivo (UI),
+Positions are typographic, never coloured, with one exception decided 2026-09-21: the profile
+modal's stat sheet (radar, its chips, the stat card) is tinted by position (`--pos-qb/rb/wr/te`),
+so a run of profiles reads QB/RB/WR/TE at a glance. Rows, cells and badges stay typographic.
+Type: Bricolage Grotesque (display), Archivo (UI),
 JetBrains Mono (all numerals).
 
 ## Theme rules
@@ -172,6 +175,9 @@ JetBrains Mono (all numerals).
 - `token-triple-agrees` — a token's `--x-rgb` triple must match its `--x` hex, and a hex token
   without a triple is an error too.
 - `font-family-literal` — a `font-family` value that isn't a `var()`.
+- `font-size-literal` — a `font-size` that isn't a step of the type scale (`--t-1` 12px through
+  `--t-7` 40px, plus the hero's two ghost sizes) in `base/base.css`. Added 2026-09-21, when 217
+  literals from 9px to 38px moved onto the scale in one pass; 12px is the floor.
 - `breakpoint` — a `@media` width outside the three the page uses (960/760/430).
 - `inline-colour-in-js` — a colour literal inside a `style=""` in the JS or the shell. Styling
   belongs in a class; the JS names the class.

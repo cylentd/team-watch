@@ -9,23 +9,23 @@
 .leg:hover{border-color:var(--line-2);background:var(--panel-2)}
 .leg:active{transform:scale(.995)}
 .leg img,.leg .fallback{width:40px;height:40px;border-radius:99px;object-fit:cover;border:1px solid var(--line-2);background:var(--panel-3)}
-.leg .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--ink-3)}
-.leg .prop{font-size:14.5px;font-weight:600;letter-spacing:-.01em}
-.leg .book{font-family:var(--mono);font-size:12.5px;color:var(--ink-2);margin-top:5px;letter-spacing:.02em;line-height:1.4}
-.leg .o{font-family:var(--mono);font-size:13.5px;font-weight:700;white-space:nowrap;
+.leg .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink-3)}
+.leg .prop{font-size:var(--t-3);font-weight:600;letter-spacing:-.01em}
+.leg .book{font-family:var(--mono);font-size:var(--t-2);color:var(--ink-2);margin-top:5px;letter-spacing:.02em;line-height:1.4}
+.leg .o{font-family:var(--mono);font-size:var(--t-2);font-weight:700;white-space:nowrap;
   padding:7px 11px;border:1px solid var(--line-2);border-radius:3px;background:var(--panel-2);
   text-align:center;letter-spacing:.01em}
 .probwrap{font-family:var(--mono);text-align:right}
-.probwrap b{font-size:15px;font-weight:700}
-.probwrap span{display:block;font-size:11px;color:var(--ink-3);letter-spacing:.14em;margin-top:3px}
+.probwrap b{font-size:var(--t-3);font-weight:700}
+.probwrap span{display:block;font-size:var(--t-1);color:var(--ink-3);letter-spacing:.14em;margin-top:3px}
 .edgecell{text-align:right;font-family:var(--mono)}
-.edgecell b{font-size:16px;font-weight:700}
+.edgecell b{font-size:var(--t-3);font-weight:700}
 .edgecell b.pos{color:var(--lime)} .edgecell b.neg{color:var(--down)}
 .edgecell .ebar{height:4px;background:var(--line);margin-top:7px;position:relative;overflow:hidden}
 .edgecell .ebar i{position:absolute;top:0;bottom:0;left:50%;background:var(--lime)}
 .edgecell .ebar i.neg{background:var(--down)}
 .edgecell.pending b{color:var(--ink-3);font-weight:400}
-.edgecell.pending span{display:block;font-size:11px;color:var(--ink-3);letter-spacing:.14em;margin-top:3px}
+.edgecell.pending span{display:block;font-size:var(--t-1);color:var(--ink-3);letter-spacing:.14em;margin-top:3px}
 .leg.isout{opacity:.55}
 .leg .tag{vertical-align:middle;margin-left:4px}
 .tag.t-q{color:var(--amber);border:1px solid rgb(var(--amber-rgb) / .4);background:rgb(var(--amber-rgb) / .08)}

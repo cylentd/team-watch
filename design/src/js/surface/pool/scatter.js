@@ -58,7 +58,7 @@ function scatterHTML(rows){
   return `<div class="quadwrap">
     <div class="quadhead">
       <div><span class="lbl">${t("pool.scatter.heading")}</span>
-        <div style="margin-top:6px;font-size:12.5px;color:var(--ink-2)">${t("pool.scatter.sub")}${mobile ? ` ${t("pool.scatter.tapHint")}` : ""}</div></div>
+        <div style="margin-top:6px;font-size:var(--t-2);color:var(--ink-2)">${t("pool.scatter.sub")}${mobile ? ` ${t("pool.scatter.tapHint")}` : ""}</div></div>
       <span class="pill">${t("pool.scatter.count", {n: rows.length})}</span>
     </div>
     <div class="quadscroll" data-railkey="pool-scatter">

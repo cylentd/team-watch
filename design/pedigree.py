@@ -38,7 +38,8 @@ def live_pedigree(status, draft, slugify, wanted):
         out[slug] = {"age": rec.get("age"), "height": rec.get("height"), "weight": rec.get("weight"),
                      "years_exp": rec.get("years_exp"), "depth": rec.get("depth"),
                      "depth_pos": rec.get("depth_pos"),
-                     "draft_number": nd.get("draft_number"), "entry_year": nd.get("entry_year"),
+                     "draft_number": nd.get("draft_number"), "draft_round": nd.get("draft_round"),
+                     "draft_slot": nd.get("draft_slot"), "entry_year": nd.get("entry_year"),
                      "rookie_year": nd.get("rookie_year"),
                      "bye": bye.get(rec.get("team")),
                      "fantasy_draft": fantasy.get(key)}

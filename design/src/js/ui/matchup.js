@@ -30,10 +30,14 @@ function whereWord(nx){
   return nx.home ? t("profile.next.home") : t("profile.next.away");
 }
 
-/* "9th easiest of 32 for WRs"; the caller checks easiestRank first. */
+/* "9th easiest of 32 for WRs" in the easier half, "13th toughest of 32" past the midpoint --
+   "20th easiest" read as easy at a glance when the strip put him on the tough side. The caller
+   checks easiestRank first. */
 function matchupRankText(prof){
-  const f = prof.next.factor;
-  return t("profile.matchup.rank", {nth: ordinal(easiestRank(f)), of: f.of, pos: esc(prof.pos)});
+  const f = prof.next.factor, n = easiestRank(f);
+  return n <= f.of / 2
+    ? t("profile.matchup.rank", {nth: ordinal(n), of: f.of, pos: esc(prof.pos)})
+    : t("profile.matchup.rankTough", {nth: ordinal(f.of - n + 1), of: f.of, pos: esc(prof.pos)});
 }
 
 /* The same rank as a clause on the row's meta line, shown only at phone width (430.css) where the

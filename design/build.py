@@ -24,11 +24,12 @@ from schedule import load_schedule, report as schedule_report  # when Live may p
 from pedigree import live_pedigree, report as pedigree_report   # design/pedigree.py: the profile modal's bio strip
 from gamelog import live_gamelog, report as gamelog_report      # design/gamelog.py: the profile modal's weekly history
 from projections import live_projections, report as projections_report  # design/projections.py: projected vs actual
+from routes import live_routes, report as routes_report          # design/routes.py: the profile sheet's YPRR axis
 from sources import (                                    # design/sources.py: the ff-jarvis adapter
     ROOT, REPO, DWR, FEED, ESPN_ROSTERS, YAHOO_ROSTERS, DFS_POOL,
     feed_block, read_first, load_status, load_props_raw, load_model_raw,
     load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
-    load_draft_pedigree, load_weather,
+    load_draft_pedigree, load_weather, load_routes,
 )
 
 # Pointed elsewhere by env var so a build can run against a pinned snapshot (the regression
@@ -665,11 +666,12 @@ def render():
         "LIVE_GAMELOG": live_gamelog(load_gamelog_weekly(), slugify, wanted_set),
         "LIVE_PROJECTIONS": live_projections(load_player_proj(), slugify, wanted_set),
         "LIVE_WEATHER": load_weather(),
+        "LIVE_ROUTES": live_routes(load_routes(), slugify, wanted_set),
     }
     add_market_stock(blocks, report)
     report.append(schedule_report(blocks["LIVE_SCHEDULE"]))
     report += [pedigree_report(blocks["LIVE_PEDIGREE"]), gamelog_report(blocks["LIVE_GAMELOG"]),
-              projections_report(blocks["LIVE_PROJECTIONS"]),
+              projections_report(blocks["LIVE_PROJECTIONS"]), routes_report(blocks["LIVE_ROUTES"]),
               (f"Weather: {len(blocks['LIVE_WEATHER']['teams'])} teams" if blocks["LIVE_WEATHER"]
                else "Weather: none, so no game-day forecast")]
     for name, obj in blocks.items():

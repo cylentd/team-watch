@@ -22,8 +22,11 @@ ui/player.js
 ui/matchup.js
 surface/teams/board.js
 surface/teams/waiver.js
+surface/profile/facts.js
+surface/profile/blocks.js
 surface/profile/sections.js
 surface/profile/history.js
+surface/profile/sheet.js
 surface/profile/market.js
 surface/profile/details.js
 surface/profile/panel.js

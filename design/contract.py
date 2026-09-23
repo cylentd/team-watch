@@ -57,7 +57,7 @@ CONTRACT = {
             ("players", "next", ["week", "opp", "home", "zones", "man_pct", "man_pct_league",
                                  "man_season", "dc_same", "rz", "factor", "tested", "method"]),
             ("players", "red_zone", ["targets", "target_share", "team_targets",
-                                     "carries", "carry_share", "team_carries"]),
+                                     "carries", "carry_share", "team_carries", "others"]),
         ],
     },
     # ff-jarvis's model.market.market_stock, feed block `market.stock`, keyed by the producer's
@@ -92,9 +92,15 @@ CONTRACT = {
     # design/usage.py, from ff-jarvis's model.season.usage weekly grid. `cols` is the header
     # contract itself -- the JS builds its table from it rather than hardcoding seven labels per
     # position -- so a row whose `v`/`p` lack a column id renders an empty cell, not a crash.
+    # `sheet` is the profile modal's stat sheet, from ff-jarvis's model.season.sheet: `axes` is the
+    # axis contract per position (the JS draws from it rather than hardcoding six labels three
+    # times) and `rows` is one season-to-date row per player. Every player the producer kept is in
+    # `rows`, not only the page's own display cut, because the modal ranks a player against his
+    # whole position and dropping the tail would move everyone's rank.
     "LIVE_USAGE": {
-        "keys": ["season", "weeks", "through", "generated", "rankBy", "cols", "rows"],
+        "keys": ["season", "weeks", "through", "generated", "rankBy", "cols", "sheet", "rows"],
         "rows": ("rows", ["n", "slug", "pos", "team", "wk", "q", "v", "p"]),
+        "sub_rows": [("sheet", "rows", ["n", "slug", "pos", "team", "g", "v"])],
     },
     "LIVE_SIGNALS": {
         "keys": ["through_week", "ready", "players"],
@@ -106,7 +112,8 @@ CONTRACT = {
     "LIVE_PEDIGREE": {
         "keys": ["players"],
         "map": ("players", ["age", "height", "weight", "years_exp", "depth", "depth_pos",
-                            "draft_number", "entry_year", "rookie_year", "bye", "fantasy_draft"]),
+                            "draft_number", "draft_round", "draft_slot", "entry_year", "rookie_year",
+                            "bye", "fantasy_draft"]),
     },
     # design/gamelog.py, from ff-jarvis's model.season.gamelog_weekly box score, cut to the
     # players the page can show. The profile modal's weekly-history table.
@@ -129,11 +136,25 @@ CONTRACT = {
         "keys": ["generated", "teams"],
         "map": ("teams", ["roof"]),
     },
+    # design/routes.py, from ff-jarvis's model.clients.routes (heatradar.app): routes run and
+    # yards per route run, season to date, cut to the players the page can show. The profile
+    # sheet's YPRR axis for a receiver; `yprr` may be null under the source's route floor.
+    "LIVE_ROUTES": {
+        "keys": ["fetched", "week", "players"],
+        "map": ("players", ["n", "pos", "team", "routes", "yprr", "tprr", "target_share"]),
+    },
 }
 
 
 class ContractError(SystemExit):
     """Raised as SystemExit so `python design/build.py` exits non-zero with the message."""
+
+
+def _row_specs(spec):
+    """`rows` is one (field, keys) pair, or a list of them for a block with two row lists."""
+    if not spec:
+        return []
+    return list(spec) if isinstance(spec[0], (list, tuple)) else [spec]
 
 
 def problems(name, obj, limit=8):
@@ -142,12 +163,19 @@ def problems(name, obj, limit=8):
         return []
     spec = CONTRACT[name]
     out = [f"{name}.{k}" for k in spec["keys"] if k not in obj]
-    field, keys = spec.get("rows", (None, []))
-    if field and isinstance(obj.get(field), list):
-        for i, row in enumerate(obj[field]):
-            out += [f"{name}.{field}[{i}].{k}" for k in keys if k not in row]
-            if len(out) >= limit:
-                break
+    for field, keys in _row_specs(spec.get("rows")):
+        if field and isinstance(obj.get(field), list):
+            for i, row in enumerate(obj[field]):
+                out += [f"{name}.{field}[{i}].{k}" for k in keys if k not in row]
+                if len(out) >= limit:
+                    break
+    for field, sub, keys in spec.get("sub_rows", []):
+        inner = (obj.get(field) or {}).get(sub)
+        if isinstance(inner, list):
+            for i, row in enumerate(inner):
+                out += [f"{name}.{field}.{sub}[{i}].{k}" for k in keys if k not in row]
+                if len(out) >= limit:
+                    break
     field, keys = spec.get("map", (None, []))
     if field and isinstance(obj.get(field), dict):
         for key, row in obj[field].items():

@@ -59,6 +59,7 @@ function usageFmt(v, fmt){
   if (v === null || v === undefined) return "—";
   if (fmt === "pct") return Math.round(v) + "%";
   if (fmt === "one") return Number(v).toFixed(1);
+  if (fmt === "two") return Number(v).toFixed(2);
   return String(Math.round(v));
 }
 

@@ -2,7 +2,8 @@
    TEAM WATCH — "Signal Desk"
    Dark broadcast/terminal console. Committed single look.
    Colour budget: lime = active/brand, green = up, red = down,
-   amber = caution/stale. Positions are typographic, never coloured.
+   amber = caution/stale. Positions are typographic, never coloured -- except the
+   profile's stat sheet, tinted by position (the --pos-* tokens below).
    ============================================================ */
 
 :root{
@@ -41,6 +42,18 @@
   --amber-rgb:255 176 32;
   --yahoo-rgb:139 92 255;
   --espn-rgb:255 45 45;
+
+  /* Position tints (2026-09-21), the one exception to "positions are typographic": the profile's
+     stat sheet is tinted by position so a run of profiles reads QB/RB/WR/TE at a glance. Nowhere
+     else -- a row, a cell, a badge stays typographic, and lime/green/red/amber keep their jobs. */
+  --pos-qb:#5ab4ff;
+  --pos-rb:#ff9d5c;
+  --pos-wr:#ff6fd8;
+  --pos-te:#3fd8c2;
+  --pos-qb-rgb:90 180 255;
+  --pos-rb-rgb:255 157 92;
+  --pos-wr-rgb:255 111 216;
+  --pos-te-rgb:63 216 194;
 
   /* Role-named tokens for the hex literals the lint backlog found. Named by what they're for,
      not by colour, so a reader doesn't have to decode a swatch. */

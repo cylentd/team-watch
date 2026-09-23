@@ -9,7 +9,7 @@
   grid-template-areas:"rank head name why worth starts";gap:16px;align-items:center;
 }
 .wvhead{padding:0 14px 6px 12px;margin-top:18px}
-.wvhead .ch{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.wvhead .ch{font-family:var(--mono);font-size:var(--t-1);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
 .wvhead .ch-why{grid-area:why}
 .wvhead .ch-worth{grid-area:worth;cursor:help}
 .wvhead .ch-starts{grid-area:starts}
@@ -21,38 +21,38 @@
 .wvrow:hover{background:var(--panel-2)}
 .wvrow:hover::before{transform:scaleY(1)}
 .wvrow:focus-visible{outline:1px solid var(--lime);outline-offset:-1px}
-.wv-rank{grid-area:rank;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--ink-3);text-align:right}
+.wv-rank{grid-area:rank;font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink-3);text-align:right}
 .wvrow .head{grid-area:head}
 .wvrow .nm{grid-area:name}
 .tag.lane{color:var(--ink-2);border:1px solid var(--line-2);cursor:help}
-.wv-why{grid-area:why;font-family:var(--mono);font-size:11.5px;color:var(--ink-2);letter-spacing:.02em;line-height:1.45}
+.wv-why{grid-area:why;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2);letter-spacing:.02em;line-height:1.45}
 .wv-worth{grid-area:worth;font-family:var(--mono)}
-.wv-worth b{display:block;font-size:16px;font-weight:700;color:var(--ink)}
-.wv-worth small{display:block;font-size:11px;color:var(--ink-3);margin-top:2px;letter-spacing:.02em}
+.wv-worth b{display:block;font-size:var(--t-3);font-weight:700;color:var(--ink)}
+.wv-worth small{display:block;font-size:var(--t-1);color:var(--ink-3);margin-top:2px;letter-spacing:.02em}
 .wv-starts{grid-area:starts;font-family:var(--mono)}
-.wv-vs{font-size:11.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wv-margin{font-size:12px;font-weight:700;margin-top:3px;letter-spacing:.04em}
+.wv-vs{font-size:var(--t-1);color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wv-margin{font-size:var(--t-1);font-weight:700;margin-top:3px;letter-spacing:.04em}
 .wv-margin.up{color:var(--up)}
 .wv-margin.down{color:var(--down)}
-.wv-none{font-size:11.5px;color:var(--ink-3)}
+.wv-none{font-size:var(--t-1);color:var(--ink-3)}
 
 /* Suggested moves: one line each, the verb first. Add is up, drop is down, stash is neither. */
 .wvmoves{border-top:1px solid var(--line);margin-top:14px}
 .wvmove{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);min-width:0}
-.wvmove b{font-weight:500;font-size:14.5px;white-space:nowrap}
+.wvmove b{font-weight:500;font-size:var(--t-3);white-space:nowrap}
 .wvmove.add .tag{color:var(--up);border:1px solid rgb(var(--up-rgb) / .4)}
 .wvmove.drop .tag{color:var(--down);border:1px solid rgb(var(--down-rgb) / .4)}
 .wvmove.stash .tag{color:var(--ink-2);border:1px solid var(--line-2)}
-.wv-meta{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
-.wv-detail{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--ink-2);text-align:right}
+.wv-meta{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.wv-detail{margin-left:auto;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2);text-align:right}
 
 /* Shared by DFS, parlay and the drawer. */
 .stat{font-family:var(--mono)}
-.stat b{display:block;font-size:14px;font-weight:700}
-.stat span{display:block;font-size:11px;color:var(--ink-3);letter-spacing:.14em;margin-top:3px}
+.stat b{display:block;font-size:var(--t-3);font-weight:700}
+.stat span{display:block;font-size:var(--t-1);color:var(--ink-3);letter-spacing:.14em;margin-top:3px}
 .btn{
   appearance:none;border:1px solid var(--lime);background:rgb(var(--lime-rgb) / .1);color:var(--lime);
-  font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.16em;text-transform:uppercase;
   padding:8px 14px;border-radius:2px;cursor:pointer;transition:all .2s var(--ease);
 }
 .btn:hover{background:var(--lime);color:var(--on-lime)}

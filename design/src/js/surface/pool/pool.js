@@ -22,7 +22,7 @@ function poolRow(r, i){
   const free = poolAvailability(r);
   return `<div class="prow ${r.mine?"mine":""}" style="animation-delay:${60+i*26}ms" data-pool="${POOL.indexOf(r)}" role="button" tabindex="0">
     <div class="pnum" style="color:var(--ink-3)">${String(i+1).padStart(2,"0")}</div>
-    <div>${HEADS[r.slug] ? `<img class="pool-head" src="${HEADS[r.slug]}" alt="">` : `<div class="pool-head" style="display:grid;place-items:center;font-family:var(--mono);font-size:11px;color:var(--ink-3)">${esc(initials(r.n))}</div>`}</div>
+    <div>${HEADS[r.slug] ? `<img class="pool-head" src="${HEADS[r.slug]}" alt="">` : `<div class="pool-head" style="display:grid;place-items:center;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)">${esc(initials(r.n))}</div>`}</div>
     <div class="pname"><b>${esc(r.n)}</b><span>${esc(r.pos)} · ${esc(r.team)}</span></div>
     <div class="pnum">${poolNum(r.snaps)}</div>
     <div class="pnum ${poolTone(r.dSnap)}">${poolSigned(r.dSnap)}</div>

@@ -52,8 +52,26 @@ def report(usage):
         return "Usage: no usage_weekly.json, Usage tab falls back to its sample"
     weeks = usage["weeks"]
     span = f"week {weeks[0]}" if len(weeks) == 1 else f"weeks {weeks[0]}-{weeks[-1]}"
+    sheet = usage.get("sheet")
+    seen = f", {len(sheet['rows'])} on the stat sheet" if sheet else ", no stat sheet"
     return (f"Usage: {len(usage['rows'])} player-weeks over {span}, "
-            f"{len(usage['cols'])} position grids")
+            f"{len(usage['cols'])} position grids{seen}")
+
+
+def _sheet(block, slugify):
+    """ff-jarvis's `sheet`: the axis contract per position, and one season-to-date row per player.
+
+    Unlike `rows`, this keeps every player the producer kept rather than the page's display cut.
+    The modal ranks a player against his whole position, so dropping the tail here would quietly
+    move everyone's rank -- a receiver would read WR20 out of 80 on a page that kept 80 of 340."""
+    rows = (block or {}).get("rows") or []
+    axes = (block or {}).get("axes") or {}
+    if not rows or not axes:
+        return None
+    return {"axes": axes,
+            "rows": [{"n": r.get("name"), "slug": slugify(r.get("name") or ""),
+                      "pos": r.get("pos"), "team": r.get("team"), "g": r.get("g"),
+                      "v": r.get("v") or {}} for r in rows]}
 
 
 def _row(r, slugify):
@@ -85,4 +103,5 @@ def live_usage(grid, slugify):
 
     return {"season": grid.get("season"), "weeks": weeks, "through": grid.get("through"),
             "generated": grid.get("generated"), "rankBy": RANK_BY,
-            "cols": cols, "rows": [_row(r, slugify) for r in kept]}
+            "cols": cols, "sheet": _sheet(grid.get("sheet"), slugify),
+            "rows": [_row(r, slugify) for r in kept]}

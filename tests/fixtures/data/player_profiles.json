@@ -23,7 +23,8 @@
     "split": 0.5,
     "note": "his man-vs-zone split repeats weakly year to year (r 0.20, METHODOLOGY 12.39)"
    },
-   "red_zone": {"weeks": 2, "targets": 4, "target_share": 0.31, "team_targets": 13, "carries": null, "carry_share": null, "team_carries": null},
+   "red_zone": {"weeks": 2, "targets": 4, "target_share": 0.31, "team_targets": 13, "carries": null, "carry_share": null, "team_carries": null,
+                "others": [{"n": "Jahmyr Gibbs", "pos": "RB", "carries": 5, "targets": 2}, {"n": "Sam LaPorta", "pos": "TE", "carries": 0, "targets": 4}]},
    "next": {
     "week": 3, "opp": "KC", "home": false,
     "zones": [
@@ -53,7 +54,8 @@
     }
    },
    "coverage": null,
-   "red_zone": {"weeks": 2, "targets": 3, "target_share": 0.38, "team_targets": 8, "carries": null, "carry_share": null, "team_carries": null},
+   "red_zone": {"weeks": 2, "targets": 3, "target_share": 0.38, "team_targets": 8, "carries": null, "carry_share": null, "team_carries": null,
+                "others": [{"n": "Christian McCaffrey", "pos": "RB", "carries": 4, "targets": 2}]},
    "next": {
     "week": 3, "opp": "LAR", "home": true,
     "zones": [
@@ -72,7 +74,8 @@
    "n": "Chase Brown", "pos": "RB", "team": "CIN",
    "usage": {"targets": 9, "prior_targets": 65, "weeks": 2, "weight": 0.4, "zones": null},
    "coverage": null,
-   "red_zone": {"weeks": 2, "targets": 1, "target_share": 0.08, "team_targets": 13, "carries": 6, "carry_share": 0.55, "team_carries": 11},
+   "red_zone": {"weeks": 2, "targets": 1, "target_share": 0.08, "team_targets": 13, "carries": 6, "carry_share": 0.55, "team_carries": 11,
+                "others": [{"n": "Ja'Marr Chase", "pos": "WR", "carries": 0, "targets": 5}, {"n": "Tee Higgins", "pos": "WR", "carries": 0, "targets": 3}, {"n": "Zack Moss", "pos": "RB", "carries": 3, "targets": 1}]},
    "next": {
     "week": 3, "opp": "PIT", "home": true,
     "zones": [],
@@ -89,7 +92,8 @@
    "n": "Jahmyr Gibbs", "pos": "RB", "team": "DET",
    "usage": {"targets": 8, "prior_targets": 70, "weeks": 2, "weight": 0.4, "zones": null},
    "coverage": null,
-   "red_zone": {"weeks": 2, "targets": 2, "target_share": 0.13, "team_targets": 15, "carries": 5, "carry_share": 0.56, "team_carries": 9},
+   "red_zone": {"weeks": 2, "targets": 2, "target_share": 0.13, "team_targets": 15, "carries": 5, "carry_share": 0.56, "team_carries": 9,
+                "others": [{"n": "Amon-Ra St. Brown", "pos": "WR", "carries": 0, "targets": 4}, {"n": "David Montgomery", "pos": "RB", "carries": 3, "targets": 0}]},
    "next": null
   },
   "tee-higgins": {
@@ -112,7 +116,8 @@
     "split": -0.7,
     "note": "his man-vs-zone split repeats weakly year to year (r 0.20, METHODOLOGY 12.39)"
    },
-   "red_zone": {"weeks": 2, "targets": 3, "target_share": 0.25, "team_targets": 12, "carries": null, "carry_share": null, "team_carries": null},
+   "red_zone": {"weeks": 2, "targets": 3, "target_share": 0.25, "team_targets": 12, "carries": null, "carry_share": null, "team_carries": null,
+                "others": [{"n": "Ja'Marr Chase", "pos": "WR", "carries": 0, "targets": 5}, {"n": "Chase Brown", "pos": "RB", "carries": 6, "targets": 1}]},
    "next": {
     "week": 3, "opp": "PIT", "home": true,
     "zones": [

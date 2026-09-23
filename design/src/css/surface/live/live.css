@@ -205,27 +205,27 @@
 /* ---------------------------------------------------------------- narrow */
 
 @media (max-width:760px){
-  .gdscore{ font-size:28px; }
+  .gdscore{ font-size:var(--t-5); }
   .gdrow{ grid-template-columns:1fr 40px 1fr; gap:4px; }
   .gdcell{ padding:8px; gap:5px; grid-template-columns:1fr auto auto; }
   .gdcell.theirs{ grid-template-columns:auto auto 1fr; }
   .gdclub{ display:none; }
-  .gdnow{ min-width:34px; font-size:13px; }
+  .gdnow{ min-width:34px; font-size:var(--t-2); }
 }
 @media (max-width:430px){
   .gdhead{ padding:12px 10px 10px; }
-  .gdscore{ font-size:24px; }
+  .gdscore{ font-size:var(--t-5); }
   /* Two lineups share 390px, so the three tally facts do not sit on one line. Forcing the win
      percentage onto its own row keeps the pair below it intact, rather than letting every item
      wrap mid-phrase ("48.7 to / come"). */
   .gdtally{ flex-wrap:wrap; gap:2px 8px; }
   .gdwinpct{ flex-basis:100%; }
   .gdtally.theirs .gdwinpct{ text-align:right; }
-  .gdtallies{ font-size:10px; padding:0 10px 8px; }
+  .gdtallies{ font-size:var(--t-1); padding:0 10px 8px; }
   .gdspine, .gdtrace{ padding-inline:10px; }
-  .gdname{ font-size:11px; }
+  .gdname{ font-size:var(--t-1); }
   .gdnametxt{ display:none; }
   .gdnameshort{ display:block; }
   .gdrow{ grid-template-columns:1fr 32px 1fr; }
-  .gdslot{ font-size:9px; }
+  .gdslot{ font-size:var(--t-1); }
 }

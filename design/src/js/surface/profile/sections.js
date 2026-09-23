@@ -27,8 +27,8 @@ function shareBarHTML(label, share, avg, lead){
   </div>`;
 }
 
-function secHTML(label, body, legend){
-  return `<section class="dr-sec pf-sec">
+function secHTML(label, body, legend, cls){
+  return `<section class="dr-sec pf-sec${cls ? " " + cls : ""}">
     <div class="pf-sechead"><span class="lbl">${label}</span>${legend ? `<span class="pf-legend"><i></i>${legend}</span>` : ""}</div>
     ${body}
   </section>`;
@@ -38,38 +38,38 @@ function leadHTML(num, text, cls){
   return `<div class="pf-lead${cls ? " " + cls : ""}"><b>${num}</b><span>${text}</span></div>`;
 }
 
+/* The matchup: the rank as a sentence, then as a cell on the strip of every defence
+   (sheet.js), then the forecast at that stadium. */
 function headlineHTML(prof){
   const nx = prof.next;
   if (!nx) return secHTML(t("profile.next.labelBare"), `<p class="pf-cap pf-quiet">${t("profile.next.bye")}</p>`);
   const n = easiestRank(nx.factor);
-  return secHTML(t("profile.next.label", {wk: nx.week, where: whereWord(nx), opp: esc(nx.opp)}), n === null
+  const cls = n === null ? "" : matchupClass(n, nx.factor.of);
+  const rank = n === null
     ? `<p class="pf-cap pf-quiet">${t("profile.matchup.none")}</p>`
-    : `<p class="pf-rank ${matchupClass(n, nx.factor.of)}">${matchupRankText(prof)}</p>`);
+    : `<p class="pf-rank ${cls}">${matchupRankText(prof)}</p>` + rankStripHTML(n, nx.factor.of, cls);
+  return secHTML(t("profile.next.label", {wk: nx.week, where: whereWord(nx), opp: esc(nx.opp)}), rank + weatherHTML(prof));
 }
 
-/* His depth shares as one stacked bar, the position average as ticks at its cumulative edges. */
-function stackHTML(z, top){
+/* His depth shares against the position's, one column per zone: his bar bright, the average
+   dim beside it, both on the same scale (the tallest of either fills the column). */
+function zonesHTML(z, top){
   const keys = DEPTH_ZONES.filter(k => z[k]);
-  let edge = 0;
-  const ticks = keys.slice(0, -1).map(k => {
-    edge += z[k].pos_avg || 0;
-    return `<b class="pf-tick" style="left:${(Math.min(1, edge) * 100).toFixed(1)}%"></b>`;
-  }).join("");
-  const segs = keys.map(k => `<i class="pf-seg${k === top ? " top" : ""}" style="width:${(Math.max(0, z[k].share || 0) * 100).toFixed(1)}%"></i>`).join("");
-  const legend = keys.map(k => `<span class="pf-key${k === top ? " top" : ""}"><em>${zoneWord(k)}</em><b>${pfPct(z[k].share)}</b></span>`).join("");
-  return `<div class="pf-stack"><span class="pf-stack-track">${segs}${ticks}</span><div class="pf-keys">${legend}</div></div>`;
+  const max = Math.max(.01, ...keys.map(k => Math.max(z[k].share || 0, z[k].pos_avg || 0)));
+  const h = v => (Math.max(0, v || 0) / max * 100).toFixed(0);
+  return `<div class="pf-zones">${keys.map(k => `<div class="pf-zone${k === top ? " top" : ""}">
+      <span class="pf-zone-bars"><i class="me" style="--h:${h(z[k].share)}%"></i><i class="avg" style="--h:${h(z[k].pos_avg)}%"></i></span>
+      <em>${zoneWord(k)}</em><b>${pfPct(z[k].share)}</b><small>${pfPct(z[k].pos_avg)}</small>
+    </div>`).join("")}</div>`;
 }
 
+/* Where his targets come from, for a receiver. A back has no depth zones, and his volume is
+   already in the trend tiles, so he gets no block at all. */
 function roleHTML(prof){
   const u = prof.usage || {};
   const z = u.zones;
   const pos = esc(prof.pos);
-  if (!z){
-    const note = prof.pos === "RB" ? t("profile.role.noZonesBack") : t("profile.role.noZones", {pos});
-    return secHTML(t("profile.role.label"),
-      leadHTML(u.targets ?? "—", u.targets === 1 ? t("profile.role.seasonOne") : t("profile.role.season"))
-      + `<p class="pf-cap pf-quiet">${note}</p>`);
-  }
+  if (!z) return "";
   const byShare = keys => keys.filter(k => z[k]).sort((a, b) => z[b].share - z[a].share)[0];
   const top = byShare(DEPTH_ZONES), side = byShare(SIDE_ZONES);
   const line = [targetsText(u.targets)]
@@ -77,9 +77,9 @@ function roleHTML(prof){
     .join(" · ");
   return secHTML(t("profile.role.label"),
     leadHTML(pfPct(z[top].share), t("profile.role.lead", {zone: zoneWord(top).toLowerCase(), pos, avg: pfPct(z[top].pos_avg)}))
-    + stackHTML(z, top)
+    + zonesHTML(z, top)
     + `<p class="pf-cap">${line}</p>`,
-    t("profile.role.legend", {pos}));
+    t("profile.role.legend", {pos}), "pf-sec-zones");
 }
 
 /* Counts while the team total is under 10 ("1 of 5"), a share with its counts from 10 up. */
@@ -91,14 +91,19 @@ function rzLineHTML(n, team, share, nouns, second){
   return leadHTML(num, noun, cls);
 }
 
-/* A receiver: his targets. A back: carries first, targets second. */
+/* A receiver: his targets. A back: carries first, targets second. Under each line, the team's
+   touches as a bar with the teammates who took the rest (sheet.js rzSplitHTML). */
 function redZoneHTML(prof){
   const r = prof.red_zone;
   if (!r) return "";
-  const back = r.carries !== null && r.carries !== undefined;
+  // A passer has no red-zone role of either kind: no block at all, rather than a dash and a noun.
+  if ((r.team_targets ?? null) === null && (r.team_carries ?? null) === null) return "";
+  const back = r.carries !== null && r.carries !== undefined, others = r.others || [];
   const targets = rzLineHTML(r.targets ?? 0, r.team_targets, r.target_share,
-    [t("profile.rz.teamTarget"), t("profile.rz.teamTargets")], back);
+      [t("profile.rz.teamTarget"), t("profile.rz.teamTargets")], back)
+    + rzSplitHTML(r.targets ?? 0, r.team_targets, others, "targets", prof.n);
   const carries = back
-    ? rzLineHTML(r.carries, r.team_carries, r.carry_share, [t("profile.rz.teamCarry"), t("profile.rz.teamCarries")], false) : "";
+    ? rzLineHTML(r.carries, r.team_carries, r.carry_share, [t("profile.rz.teamCarry"), t("profile.rz.teamCarries")], false)
+      + rzSplitHTML(r.carries, r.team_carries, others, "carries", prof.n) : "";
   return secHTML(t("profile.rz.label"), carries + targets);
 }

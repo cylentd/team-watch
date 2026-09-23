@@ -1,5 +1,5 @@
 .dfstable .phead,.dfstable .prow{grid-template-columns:40px minmax(120px,1fr) 76px 54px 56px 50px 66px;min-width:0}
-.dfsrow .chip{padding:5px 9px;font-size:11px}
+.dfsrow .chip{padding:5px 9px;font-size:var(--t-1)}
 .dfsrow .chip.go{border-color:var(--lime);color:var(--lime);background:rgb(var(--lime-rgb) / .08)}
 .dfsrow.ineligible{opacity:.4}
 .dfsrow.ineligible .chip{color:var(--down);border-color:rgb(var(--down-rgb) / .35)}
@@ -9,13 +9,13 @@
 .lslot:not(.vacant){cursor:pointer}
 .lslot:not(.vacant):hover{background:var(--panel-2)}
 .lslot img,.lslot .fallback{width:34px;height:34px;border-radius:99px;object-fit:cover;border:1px solid var(--line-2);background:var(--panel-3)}
-.lslot .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--ink-3)}
+.lslot .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink-3)}
 .lslot .slottag{margin:0}
-.lslot .sn{font-size:12.5px;font-weight:500;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lslot .sm{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:3px;letter-spacing:.08em}
-.lslot .lsal{font-family:var(--mono);font-size:11.5px;font-weight:700}
+.lslot .sn{font-size:var(--t-2);font-weight:500;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lslot .sm{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);margin-top:3px;letter-spacing:.08em}
+.lslot .lsal{font-family:var(--mono);font-size:var(--t-1);font-weight:700}
 .lslot .lremove{appearance:none;background:none;border:1px solid var(--line-2);color:var(--ink-3);
-  width:22px;height:22px;border-radius:2px;cursor:pointer;font-size:11px;display:grid;place-items:center;
+  width:22px;height:22px;border-radius:2px;cursor:pointer;font-size:var(--t-1);display:grid;place-items:center;
   transition:all .15s var(--ease)}
 .lslot .lremove:hover{color:var(--down);border-color:rgb(var(--down-rgb) / .5)}
 .lslot.active{border-left-color:var(--lime);background:rgb(var(--lime-rgb) / .06)}
@@ -23,10 +23,10 @@
   background:repeating-linear-gradient(-45deg,transparent,transparent 5px,rgba(255,255,255,.016) 5px,rgba(255,255,255,.016) 10px)}
 .lslot.vacant:hover{border-left-color:var(--lime)}
 .lslot.vacant.active{border-left-color:var(--lime);background:rgb(var(--lime-rgb) / .1)}
-.lslot .vhint{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ink-3)}
+.lslot .vhint{font-family:var(--mono);font-size:var(--t-1);letter-spacing:.1em;color:var(--ink-3)}
 .pickbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
   padding:10px 15px;background:rgb(var(--lime-rgb) / .06);border-bottom:1px solid var(--line);
-  font-size:12px;color:var(--ink-2);line-height:1.5}
+  font-size:var(--t-1);color:var(--ink-2);line-height:1.5}
 .pickbar b{color:var(--lime)}
 .pickbar .err{color:var(--down)}
 

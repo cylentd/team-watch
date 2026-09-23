@@ -10,7 +10,7 @@
     padding-bottom:env(safe-area-inset-bottom);
   }
   body{padding-bottom:calc(59px + env(safe-area-inset-bottom))}
-  .brand-name{font-size:16px}
+  .brand-name{font-size:var(--t-3)}
   #weekpill{display:none}
   /* The topbar is already tight enough on a phone to hide the week pill entirely -- the Discord
      icon goes too rather than squeezing the status pills further. It's not lost: the News tab
@@ -19,12 +19,12 @@
   .topbar .pill .full{display:none}
   .topbar .pill .abbr{display:inline}
 
-  .numghost{font-size:150px;left:-14px;top:6px}
+  .numghost{font-size:var(--t-ghost-sm);left:-14px;top:6px}
   .hero{padding:16px 0 14px}
   .hero-in{gap:14px}
   .hero h1{margin-bottom:8px}
   .hero-meta{margin-top:2px}
-  .hero-meta .pill{font-size:11px;padding:4px 8px}
+  .hero-meta .pill{font-size:var(--t-1);padding:4px 8px}
   .modes-sub{margin-top:10px!important}
   .hero.slim{padding:12px 0 4px}
   .hero.slim .hero-eyebrow{margin-bottom:0}
@@ -47,11 +47,11 @@
      padding and drop each line a size so the strip reads as a compact stat row, not a
      second hero. */
   .sig{padding:7px 8px}
-  .sig .lbl{font-size:10.5px;letter-spacing:.08em}
-  .sig-val{font-size:18px;margin-top:3px}
-  .sig-sub{font-size:9.5px;letter-spacing:.04em;margin-top:2px}
+  .sig .lbl{font-size:var(--t-1);letter-spacing:.08em}
+  .sig-val{font-size:var(--t-4);margin-top:3px}
+  .sig-sub{font-size:var(--t-1);letter-spacing:.04em;margin-top:2px}
 
-  .ts-team{font-size:12px;max-width:150px;overflow:hidden;text-overflow:ellipsis}
+  .ts-team{font-size:var(--t-1);max-width:150px;overflow:hidden;text-overflow:ellipsis}
   .ts-btn{padding:7px 9px;min-width:0}
   .hero-eyebrow{gap:8px}
   .hero-eyebrow .teamswitch{max-width:100%}
@@ -67,16 +67,16 @@
   }
   .slot{display:none}
   .head,.head img,.head .fallback,.head .dst{width:44px;height:44px}
-  .nm-1 b{font-size:14.5px}
-  .nm-2{font-size:11px;gap:6px}
+  .nm-1 b{font-size:var(--t-3)}
+  .nm-2{font-size:var(--t-1);gap:6px}
   .nm-2 .slotm{display:inline;color:var(--lime);font-weight:700}
   .nm-2 .posx{display:none}
   .trend{gap:9px}
   .spark{width:100%;flex:1;height:30px}
-  .delta{font-size:11px}
+  .delta{font-size:var(--t-1)}
   .rk{text-align:right}
   .rk-1{justify-content:flex-end;gap:5px}
-  .rk-1 b{font-size:16px}
+  .rk-1 b{font-size:var(--t-3)}
   .pctbar{display:none}
 
   .wvhead{display:none}
@@ -105,14 +105,14 @@
   .nav{width:100%}
   .navitem{
     flex:1 1 0;flex-direction:column;justify-content:center;gap:4px;
-    padding:9px 4px 11px;font-size:10px;border-right:0;
+    padding:9px 4px 11px;font-size:var(--t-1);border-right:0;
   }
   .navitem:first-child{border-left:0}
   .navitem .ix{width:22px;height:22px}
   .navitem .full{display:none}
   .navitem .abbr{display:inline}
   .navitem[aria-current="true"]::after{top:0;bottom:auto}
-  .hero h1{font-size:clamp(30px,8.6vw,80px)}
+  .hero h1{font-size:var(--t-hero-sm)}
   .quad{height:320px;min-width:540px}
   /* The compact (portrait, no per-dot labels) mobile geometry from scatterHTML fits its
      container at ~1:1, so it needs none of the above -- no forced min-width, no scroll. */
@@ -126,7 +126,7 @@
   }
   .quadscroll::after{
     content:"SWIPE →";position:absolute;right:8px;bottom:8px;z-index:1;
-    font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--lime);
+    font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.16em;color:var(--lime);
     background:var(--panel);padding:3px 6px;border:1px solid var(--lime);pointer-events:none;
   }
   /* Hidden once there's nothing left to swipe to -- content that already fits, or a scroller
@@ -145,7 +145,7 @@
   }
   .rail::after{
     content:"SWIPE →";position:absolute;right:8px;bottom:8px;z-index:2;
-    font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--lime);
+    font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.16em;color:var(--lime);
     background:var(--panel);padding:3px 6px;border:1px solid var(--lime);pointer-events:none;
   }
   .railscroll{overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 0 0 14px;
@@ -166,23 +166,23 @@
   .phead2 img,.phead2 .fallback{width:36px;height:36px}
   .phead2 .prop{white-space:normal;line-height:20px}
   .udline{grid-template-columns:66px 112px minmax(0,1fr) 54px 22px;gap:9px;padding:9px 12px}   /* fixed stat column so meters start together; the meter gives way before anything pushes the chevron off the edge */
-  .udline .ln b{font-size:20px} .udline .ln small{margin-left:5px}
-  .udline .pct{font-size:18px}
-  .udcall{min-width:56px} .udcall .num{font-size:17px}
-  .udconf{width:44px} .udconf b{font-size:18px}
+  .udline .ln b{font-size:var(--t-4)} .udline .ln small{margin-left:5px}
+  .udline .pct{font-size:var(--t-4)}
+  .udcall{min-width:56px} .udcall .num{font-size:var(--t-4)}
+  .udconf{width:44px} .udconf b{font-size:var(--t-4)}
   .leg .legx{gap:10px 16px}
   .probwrap span,.edgecell .ebar{display:none}
   .probwrap{display:flex;align-items:baseline;gap:6px}
   .edgecell{display:flex;align-items:baseline;gap:6px}
-  .probwrap b::after{content:" MODEL";font-size:11px;color:var(--ink-3);letter-spacing:.14em}
+  .probwrap b::after{content:" MODEL";font-size:var(--t-1);color:var(--ink-3);letter-spacing:.14em}
   .probwrap.implied b::after{content:" BOOK IMPLIED"}
-  .edgecell b::after{content:" EDGE";font-size:11px;color:var(--ink-3);letter-spacing:.14em}
+  .edgecell b::after{content:" EDGE";font-size:var(--t-1);color:var(--ink-3);letter-spacing:.14em}
   .edgecell.pending b::after{content:""} .edgecell.pending span{display:inline}
   .dfs{grid-template-columns:repeat(2,minmax(0,1fr))}
   .salrow{gap:16px}
   .feed{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
   .feed::-webkit-scrollbar{display:none}
-  .src{flex-shrink:0;padding:8px 12px;font-size:11px}
+  .src{flex-shrink:0;padding:8px 12px;font-size:var(--t-1)}
   .mkthead{padding:12px 13px}
   .dfstable{overflow-x:auto}
   .dfstable .phead,.dfstable .prow{min-width:520px}

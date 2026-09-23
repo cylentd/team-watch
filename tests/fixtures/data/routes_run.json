@@ -1,0 +1,14 @@
+{
+ "source": "heatradar.app/nfl/routes",
+ "url": "https://heatradar.app/nfl/routes",
+ "fetched": "2026-09-21 18:37",
+ "week": 2,
+ "players": {
+  "amonra st brown": {"name": "Amon-Ra St. Brown", "pos": "WR", "team": "DET", "routes": 71, "route_rate": 96.0, "route_share": 96.0, "targets": 27, "receptions": 19, "yards": 209, "touchdowns": 2, "tprr": 38.0, "yprr": 2.94, "target_share": 33.1, "avg_depth_of_target": 8.1, "caught_percent": 70.4, "slot_rate": 61.0, "wide_rate": 39.0, "inline_rate": 0.0, "week": 2},
+  "tee higgins": {"name": "Tee Higgins", "pos": "WR", "team": "CIN", "routes": 30, "route_rate": 90.0, "route_share": 90.0, "targets": 6, "receptions": 4, "yards": 78, "touchdowns": 1, "tprr": 20.0, "yprr": 2.6, "target_share": 17.0, "avg_depth_of_target": 13.1, "caught_percent": 66.7, "slot_rate": 20.0, "wide_rate": 80.0, "inline_rate": 0.0, "week": 2},
+  "jameson williams": {"name": "Jameson Williams", "pos": "WR", "team": "DET", "routes": 66, "route_rate": 89.0, "route_share": 89.0, "targets": 12, "receptions": 7, "yards": 141, "touchdowns": 1, "tprr": 18.2, "yprr": 2.14, "target_share": 14.7, "avg_depth_of_target": 15.9, "caught_percent": 58.3, "slot_rate": 15.0, "wide_rate": 85.0, "inline_rate": 0.0, "week": 2},
+  "george kittle": {"name": "George Kittle", "pos": "TE", "team": "SF", "routes": 48, "route_rate": 76.0, "route_share": 76.0, "targets": 12, "receptions": 10, "yards": 135, "touchdowns": 0, "tprr": 25.0, "yprr": 2.81, "target_share": 19.0, "avg_depth_of_target": 7.4, "caught_percent": 83.3, "slot_rate": 30.0, "wide_rate": 10.0, "inline_rate": 60.0, "week": 2},
+  "chase brown": {"name": "Chase Brown", "pos": "RB", "team": "CIN", "routes": 40, "route_rate": 56.0, "route_share": 56.0, "targets": 11, "receptions": 9, "yards": 67, "touchdowns": 1, "tprr": 27.5, "yprr": 1.68, "target_share": 15.5, "avg_depth_of_target": 0.9, "caught_percent": 81.8, "slot_rate": 5.0, "wide_rate": 3.0, "inline_rate": 0.0, "week": 2},
+  "jahmyr gibbs": {"name": "Jahmyr Gibbs", "pos": "RB", "team": "DET", "routes": 44, "route_rate": 60.0, "route_share": 60.0, "targets": 13, "receptions": 11, "yards": 91, "touchdowns": 1, "tprr": 29.5, "yprr": 2.07, "target_share": 16.0, "avg_depth_of_target": 1.2, "caught_percent": 84.6, "slot_rate": 8.0, "wide_rate": 4.0, "inline_rate": 0.0, "week": 2}
+ }
+}

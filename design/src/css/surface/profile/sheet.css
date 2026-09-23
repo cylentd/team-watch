@@ -1,0 +1,120 @@
+/* ============================== PROFILE · STAT SHEET ==============================
+   The left column of the modal body (radar of his season percentiles, the facts table, the
+   projection line) and the visual blocks on the right: the matchup rank strip, the forecast
+   with icons, the red-zone split of the team's touches, and one tile per usage stat. The radar
+   is the one thing to remember: his shape against every player at his position. */
+.pf-who{min-width:0}
+
+/* Left column. Sticky inside the scrolling body, so the sheet stays while the right side scrolls. */
+.pf-side{position:sticky;top:0;padding:22px 0 8px}
+.pf-main{min-width:0}
+
+/* The sheet is the one place a position carries a colour (DESIGN.md names the exception): a run
+   of profiles reads QB/RB/WR/TE at a glance without anyone reading the label. `--tint` and its
+   channel triple are set here and used by everything inside. */
+.pf-sheet{padding-bottom:6px;--tint:var(--ink-2);--tint-rgb:var(--ink-2-rgb)}
+.pf-sheet.pos-qb{--tint:var(--pos-qb);--tint-rgb:var(--pos-qb-rgb)}
+.pf-sheet.pos-rb{--tint:var(--pos-rb);--tint-rgb:var(--pos-rb-rgb)}
+.pf-sheet.pos-wr{--tint:var(--pos-wr);--tint-rgb:var(--pos-wr-rgb)}
+.pf-sheet.pos-te{--tint:var(--pos-te);--tint-rgb:var(--pos-te-rgb)}
+
+/* No overflow:visible -- a flank label is anchored outwards, and letting it paint outside the
+   viewBox puts it on top of the block in the next column. */
+.pf-radar{display:block;width:100%;height:auto}
+.pf-radar-ring{fill:none;stroke:var(--line)}
+.pf-radar-ring.rim{stroke:var(--line-2);fill:rgb(var(--panel-2-rgb) / .6)}
+.pf-radar-axis{stroke:var(--line)}
+.pf-radar-shape{fill:rgb(var(--tint-rgb) / .2);stroke:var(--tint);stroke-width:2;stroke-linejoin:round}
+.pf-radar-dot{fill:var(--tint);stroke:var(--panel);stroke-width:1.5}
+/* The elite bar: a dash across its own axis, so a shape reaching past it is elite on that stat. */
+.pf-radar-bar{stroke:var(--ink-3);stroke-width:2;stroke-linecap:round;stroke-dasharray:2 2.5}
+
+/* Every label is a button. The dotted underline is the affordance: it says "there is more here"
+   without a line of copy telling the reader to tap, and unlike a hover it survives on a phone.
+   pointer-events:bounding-box makes the whole label box the target, not the glyph strokes. */
+.pf-radar-l{font-family:var(--mono);font-size:var(--t-2);fill:var(--ink-3);letter-spacing:.04em;
+  cursor:pointer;pointer-events:bounding-box;transition:fill .15s var(--ease)}
+.pf-radar-l tspan:first-child{text-decoration:underline dotted;text-underline-offset:3px;
+  text-decoration-color:var(--line-2);text-decoration-thickness:1px}
+.pf-radar-v{fill:var(--ink);font-weight:700;font-size:var(--t-3)}
+.pf-radar-l:hover{fill:var(--ink)}
+.pf-radar-l:hover tspan:first-child{text-decoration-color:var(--ink-3)}
+.pf-radar-l.on{fill:var(--ink)}
+.pf-radar-l.on tspan:first-child{text-decoration:underline solid;text-decoration-thickness:2px;text-decoration-color:var(--tint)}
+.pf-radar-l.on .pf-radar-v{fill:var(--tint)}
+.pf-radar-l:focus-visible{outline:none;fill:var(--tint)}
+.pf-sheet .pf-cap{text-align:center;font-family:var(--mono);letter-spacing:.06em}
+
+/* The card under the sheet for the chosen stat: this week's value, his rank on it, the change
+   on last week, the weeks as a line. */
+.pf-stat{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"h h" "v side" "s s";
+  gap:4px 12px;margin-top:14px;padding:12px 14px 10px;border:1px solid var(--line);
+  border-left:2px solid var(--tint);background:var(--panel-2)}
+.pf-stat-h{grid-area:h;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.pf-stat-l{font-family:var(--mono);font-size:var(--t-1);font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--tint)}
+.pf-stat-wk{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
+.pf-stat > b{grid-area:v;font-family:var(--mono);font-size:var(--t-6);font-weight:700;line-height:1;color:var(--ink);align-self:end}
+.pf-stat-side{grid-area:side;display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end;gap:3px;font-family:var(--mono);font-size:var(--t-2);white-space:nowrap}
+.pf-stat-r{font-weight:700;color:var(--ink)}
+.pf-stat-d{color:var(--ink-3)}
+.pf-stat-d.up{color:var(--up)}
+.pf-stat-d.down{color:var(--down)}
+.pf-stat .spark{grid-area:s;width:100%;height:36px;margin-top:8px}
+
+.pf-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px;margin:16px 0 0;padding:18px 0 0;border-top:1px solid var(--line)}
+.pf-facts > div{min-width:0}
+.pf-facts .wide{grid-column:1 / -1}
+.pf-facts dt{font-family:var(--mono);font-size:var(--t-1);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-bottom:4px}
+.pf-facts dd{margin:0;font-family:var(--mono);font-size:var(--t-2);font-weight:600;color:var(--ink);line-height:1.35}
+.pf-facts dd small{color:var(--ink-3);font-weight:500}
+
+/* The matchup rank as a strip of every defence: one cell per rank, his opponent's lit. */
+.pf-strip{margin-top:14px}
+.pf-strip-cells{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:2px;height:10px}
+.pf-strip-cells i{display:block;background:var(--line)}
+.pf-strip-cells i.me{background:var(--ink);box-shadow:0 0 0 2px var(--panel),0 0 0 3px var(--ink)}
+.pf-strip-cells i.me.mu-easy{background:var(--up);box-shadow:0 0 0 2px var(--panel),0 0 0 3px var(--up)}
+.pf-strip-cells i.me.mu-hard{background:var(--down);box-shadow:0 0 0 2px var(--panel),0 0 0 3px var(--down)}
+.pf-strip-ends{display:flex;justify-content:space-between;margin-top:7px;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+
+/* Forecast: one line -- an icon, the number, the word. */
+.pf-wx{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:12px}
+.pf-wx-c{display:inline-flex;align-items:center;gap:7px;color:var(--ink-2)}
+.pf-wx-c b{font-family:var(--mono);font-size:var(--t-3);font-weight:700;color:var(--ink);line-height:1}
+.pf-wx-c em{font-style:normal;font-size:var(--t-2);color:var(--ink-3)}
+.pf-wx-note{color:var(--ink-3)}
+.pf-wx-i{width:18px;height:18px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+/* Red zone: the team's touches as one bar, his share first and bright, each named teammate
+   after it, the unnamed rest as the empty track. */
+.pf-split{margin:-4px 0 18px}
+.pf-split:last-child{margin-bottom:0}
+.pf-split-bar{display:flex;height:14px;background:var(--line)}
+.pf-split-bar i{display:block;width:var(--w);background:rgb(var(--ink-3-rgb) / .45);box-shadow:inset -2px 0 0 var(--panel)}
+.pf-split-bar i.me{background:var(--ink)}
+.pf-split-key{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.pf-split-key b{color:var(--ink);font-weight:700}
+
+/* Target depth: one column per zone, his bar bright beside the position's dim one. */
+.pf-zones{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:4px}
+.pf-zone{display:grid;grid-template-columns:auto auto;grid-template-areas:"bars bars" "em em" "b s";gap:2px 6px;align-items:baseline;min-width:0}
+.pf-zone-bars{grid-area:bars;display:flex;align-items:flex-end;gap:3px;height:56px;margin-bottom:6px;border-bottom:1px solid var(--line)}
+.pf-zone-bars i{display:block;width:16px;height:var(--h);min-height:2px;background:var(--ink-2)}
+.pf-zone-bars i.avg{background:rgb(var(--ink-3-rgb) / .45)}
+.pf-zone.top .pf-zone-bars i.me{background:var(--ink)}
+.pf-zone em{grid-area:em;font-style:normal;font-size:var(--t-2);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pf-zone b{grid-area:b;font-family:var(--mono);font-size:var(--t-4);font-weight:700;color:var(--ink-2)}
+.pf-zone.top b,.pf-zone.top em{color:var(--ink)}
+.pf-zone small{grid-area:s;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.pf-sec-zones .pf-legend i{width:10px;height:10px;background:rgb(var(--ink-3-rgb) / .45)}
+
+
+@media (max-width:960px){
+  .pf-side{position:static;padding-top:6px}
+  .pf-sheet{max-width:420px;margin:0 auto}
+}
+@media (max-width:430px){
+  .pf-facts{gap:12px 14px}
+  .pf-zones{gap:8px}
+  .pf-zone-bars i{width:12px}
+}

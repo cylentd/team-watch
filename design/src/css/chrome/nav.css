@@ -10,7 +10,7 @@
   position:relative;appearance:none;background:none;cursor:pointer;
   border:0;border-right:1px solid var(--line);
   padding:15px 24px;display:flex;align-items:center;gap:10px;color:var(--ink-3);
-  font-family:var(--disp);font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.01em;
+  font-family:var(--disp);font-weight:800;font-size:var(--t-3);text-transform:uppercase;letter-spacing:.01em;
   transition:color .2s var(--ease),background .2s var(--ease);
 }
 .navitem:first-child{border-left:1px solid var(--line)}

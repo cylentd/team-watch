@@ -3,7 +3,7 @@
 .status-btn{
   display:inline-flex;align-items:center;gap:7px;appearance:none;cursor:pointer;
   background:none;border:1px solid var(--line-2);border-radius:2px;padding:5px 10px;
-  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);
+  font-family:var(--mono);font-size:var(--t-1);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);
   transition:border-color .2s var(--ease),background .2s var(--ease);
 }
 .status-btn:hover{background:var(--panel-2)}
@@ -23,7 +23,7 @@
   box-shadow:0 12px 28px rgb(var(--shadow-rgb) / .45);padding:6px 0;
 }
 .src{display:flex;align-items:center;gap:9px;padding:7px 13px;
-  font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+  font-family:var(--mono);font-size:var(--t-1);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
 .src i{width:6px;height:6px;border-radius:99px;flex-shrink:0}
 .src.ok i{background:var(--up)}
 .src.wait i{background:var(--amber)}

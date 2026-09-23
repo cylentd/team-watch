@@ -27,6 +27,7 @@ PLAYER_PROJ = DWR / "player_projections.json"
 GAMELOG_WEEKLY = DWR / "gamelog_weekly.json"
 PEDIGREE = DWR / "pedigree.json"
 WEATHER = DWR / "weather.json"
+ROUTES = DWR / "routes_run.json"
 
 
 def load_status():
@@ -159,6 +160,13 @@ def load_weather():
     load_gamelog_weekly(). No `wanted`-slug cut: it is keyed by team, already small (32 rows).
     Passed straight through -- no reshaping, so no dedicated design/weather.py transform."""
     return feed_block(("weather",), "teams") or read_first(WEATHER)
+
+
+def load_routes():
+    """Routes run and yards per route run, season to date, from ff-jarvis's model.clients.routes
+    (heatradar.app), feed block `routes` first, the file second. design/routes.py cuts it to
+    the page's players for the profile sheet's YPRR axis."""
+    return feed_block(("routes",), "players") or read_first(ROUTES)
 
 
 def load_dfs_pool():

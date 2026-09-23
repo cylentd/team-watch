@@ -11,6 +11,7 @@ Rules:
     hex-outside-tokens     a colour literal anywhere but base/tokens.css
     rgba-token-triple      rgba(r,g,b,...) spelling out a token's own channels
     font-family-literal    font-family not a var() (fonts are tokens too)
+    font-size-literal      font-size not a var() of the type scale in base/base.css
     breakpoint             a @media width that is not one of the three the page uses
     inline-colour-in-js    a colour literal inside a style="" attribute in the JS or shell
     duplicate-selector     the same selector defined in two non-responsive parts, unless
@@ -27,6 +28,7 @@ from collections import namedtuple
 ROOT = pathlib.Path(__file__).resolve().parent
 SRC = ROOT / "src"
 TOKENS = "base/tokens.css"
+BASE = "base/base.css"       # the type scale lives here, so its px values are the tokens
 BREAKPOINTS = {960, 760, 430}
 
 Finding = namedtuple("Finding", "rule level file line text")
@@ -35,6 +37,7 @@ LEVEL = {
     "hex-outside-tokens": "error",     # backlog cleared: every hex literal now has a role token
     "rgba-token-triple": "error",      # backlog cleared: every rgba() spelling a token is now rgb(var(--x-rgb) / a)
     "font-family-literal": "error",    # backlog cleared: surface/pool/pool.css literals are now var(--mono/--ui/--disp)
+    "font-size-literal": "error",      # 2026-09-21: 217 px literals moved onto --t-1..7 in one pass; none left
     "breakpoint": "error",
     "inline-colour-in-js": "error",
     "duplicate-selector": "error",     # zero today; a new one names itself in src/css/_overrides.txt or splits
@@ -44,6 +47,7 @@ LEVEL = {
 HEX = re.compile(r"#[0-9a-fA-F]{3,8}\b")
 RGBA = re.compile(r"rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)")
 FONT = re.compile(r"font-family\s*:\s*([^;}]+)")
+FONT_SIZE = re.compile(r"font-size\s*:\s*([^;}\"]+)")
 MEDIA = re.compile(r"@media[^{]*\((?:max|min)-width\s*:\s*(\d+)px")
 STYLE_ATTR = re.compile(r'style="[^"]*"')
 SELECTOR = re.compile(r"^([.#][^{@/]+?)\s*\{", re.M)
@@ -115,6 +119,9 @@ def lint_css_text(rel, text, triples):
             for m in FONT.finditer(code):
                 if not m.group(1).strip().startswith("var("):
                     found.append(Finding("font-family-literal", LEVEL["font-family-literal"], rel, n, m.group(1).strip()))
+            for m in FONT_SIZE.finditer(code):
+                if rel != BASE and not m.group(1).strip().startswith("var("):
+                    found.append(Finding("font-size-literal", LEVEL["font-size-literal"], rel, n, m.group(1).strip()))
         for m in MEDIA.finditer(code):
             if int(m.group(1)) not in BREAKPOINTS:
                 found.append(Finding("breakpoint", LEVEL["breakpoint"], rel, n, f"{m.group(1)}px"))
