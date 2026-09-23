@@ -20,6 +20,7 @@ const WV_PRACTICE = {
 /* Why this league's screen listed him (`leagues[VIEW].lane`), as a tag under his name with the
    reason as its tooltip. No lane in this league, or an unknown one, draws nothing. Literal keys, so the copy check sees every one. */
 const WV_LANE = {
+  hole: () => [t("waiver.lane.hole"), t("waiver.lane.holeTip")],
   starter: () => [t("waiver.lane.starter"), t("waiver.lane.starterTip")],
   open: () => [t("waiver.lane.open"), t("waiver.lane.openTip")],
   usage: () => [t("waiver.lane.usage"), t("waiver.lane.usageTip")],

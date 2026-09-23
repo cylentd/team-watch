@@ -721,6 +721,8 @@
  "waiver.injury.ir": "IR",
  "waiver.injury.o": "Out",
  "waiver.injury.q": "Questionable",
+ "waiver.lane.hole": "Empty slot",
+ "waiver.lane.holeTip": "You cannot fill this starting slot: it scores zero until you do",
  "waiver.lane.injured": "Out now",
  "waiver.lane.injuredTip": "Hurt now: a stash for when he is back",
  "waiver.lane.insure": "Insurance",

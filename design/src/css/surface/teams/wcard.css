@@ -63,11 +63,13 @@
 }
 .wvc-team,.wvc-urank{font-family:var(--mono);font-size:var(--t-1);letter-spacing:.04em;color:var(--ink-3)}
 .wvc-urank{color:var(--ink-2)}
-/* Why he is listed. A starter beater is the buy (lime); a player out now is red; the rest plain. */
+/* Why he is listed. An empty starting slot is the one that costs points this week (amber); a
+   starter beater is the buy (lime); a player out now is red; the rest plain. */
 .wvc-lane{
   align-self:flex-start;margin-top:2px;padding:1px 6px;border:1px solid var(--line-2);border-radius:2px;
   font-family:var(--mono);font-size:var(--t-1);letter-spacing:.06em;color:var(--ink-2);cursor:help;
 }
+.wvc-lane.lane-hole{color:var(--amber);border-color:rgb(var(--amber-rgb) / .5)}
 .wvc-lane.lane-starter{color:var(--lime);border-color:rgb(var(--lime-rgb) / .5)}
 .wvc-lane.lane-injured{color:var(--down);border-color:rgb(var(--down-rgb) / .5)}
 
