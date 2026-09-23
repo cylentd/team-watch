@@ -1,0 +1,84 @@
+/* ============================== SEARCH ============================== */
+/* The player search sheet (js/chrome/search.js). On a desktop it is a panel near the top of the
+   screen, input first, results below. On a phone (760.css) it fills the visual viewport, the input
+   docks at the bottom and the results stack upward from it. Under the profile's scrim (60), so a
+   result's profile opens over the sheet rather than behind it. */
+.search{
+  position:fixed;inset:0;z-index:59;
+  display:flex;justify-content:center;align-items:flex-start;padding-top:12vh;
+  background:rgb(var(--void-rgb) / .72);backdrop-filter:blur(3px);
+}
+.search[hidden]{display:none}
+/* The chat launcher sits at 60 in the same corner as Cancel; it has nothing to do in a search. */
+body:has(.search:not([hidden])){overflow:hidden}
+body:has(.search:not([hidden])) .chatfab{display:none}
+
+.search-in{
+  width:min(560px,92vw);display:flex;flex-direction:column;
+  background:var(--panel);border:1px solid var(--line-2);
+  box-shadow:0 50px 100px rgb(var(--shadow-rgb) / .6);
+  animation:search-in .22s var(--ease);
+}
+@keyframes search-in{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+@keyframes search-up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+.search-bar{order:-1;display:flex;align-items:center;gap:10px;padding:10px 10px 10px 16px;border-bottom:1px solid var(--line)}
+.search-q{
+  flex:1;min-width:0;appearance:none;background:none;border:0;outline:0;padding:8px 0;
+  color:var(--ink);font-family:var(--ui);font-size:var(--t-4);caret-color:var(--lime);
+}
+.search-q::placeholder{color:var(--ink-3)}
+.search-q::-webkit-search-cancel-button{display:none}
+.search-x{
+  appearance:none;background:none;cursor:pointer;flex:none;
+  border:1px solid var(--line-2);color:var(--ink-2);padding:8px 10px;
+  font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  transition:color .15s var(--ease),border-color .15s var(--ease);
+}
+.search-x:hover{color:var(--ink);border-color:var(--ink-3)}
+.search-x:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+
+.search-list{
+  list-style:none;margin:0;padding:6px 0;max-height:60vh;overflow-y:auto;
+  display:flex;flex-direction:column;
+  scrollbar-width:thin;scrollbar-color:var(--line-2) var(--panel);
+}
+.search-list:empty{display:none}
+
+.sr-row{
+  display:grid;grid-template-columns:40px minmax(0,1fr) auto;align-items:center;gap:12px;
+  padding:8px 16px;cursor:pointer;transition:background .12s var(--ease);
+}
+.sr-row:hover,.sr-row[aria-selected="true"]{background:var(--panel-2)}
+.sr-row:active{background:var(--panel-3)}
+.sr-head img,.sr-head .fallback,.sr-head .dst{
+  width:40px;height:40px;border-radius:99px;display:grid;place-items:center;object-fit:cover;
+  background:var(--panel-3);border:1px solid var(--line-2);
+  font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink-3);
+}
+.sr-head .dst{border-radius:4px;font-family:var(--disp);color:var(--ink-2)}
+.sr-who{display:flex;flex-direction:column;gap:2px;min-width:0}
+/* The name is quiet and the letters you typed are bright: the eye finds the match, then the rest. */
+.sr-name{
+  font-family:var(--ui);font-size:var(--t-3);font-weight:500;color:var(--ink-2);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.sr-name b{font-weight:700;color:var(--ink)}
+.sr-meta{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);letter-spacing:.06em}
+.sr-tags{display:flex;gap:5px}
+.sr-lg.sr-espn{color:var(--espn);border:1px solid rgb(var(--espn-rgb) / .4)}
+.sr-lg.sr-yahoo{color:var(--yahoo-tint);border:1px solid rgb(var(--yahoo-rgb) / .45)}
+
+/* What the idle list is (Recent, or Your roster). Last in the markup; on a desktop it leads. */
+.sr-cap{
+  order:-1;padding:6px 16px 4px;
+  font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);
+}
+.sr-none{padding:18px 16px;font-family:var(--ui);font-size:var(--t-3);color:var(--ink-2)}
+
+/* The nav bar's search slot: at the row's right end on a desktop, with the "/" it answers to. */
+.navsearch{border-left:1px solid var(--line)}
+.navkbd{
+  font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink-3);
+  border:1px solid var(--line-2);border-radius:3px;padding:1px 6px;
+}

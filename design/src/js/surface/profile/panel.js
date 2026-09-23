@@ -9,6 +9,7 @@
    matchup profile still opens with whatever else the page knows about him. */
 function openProfile(p, originEl){
   if (!p) return;
+  searchRemember(p);   // the search sheet's "recent" list (chrome/search.js)
   const prof = profileFor(p);
   const d = document.getElementById("modal");
   d.innerHTML = `

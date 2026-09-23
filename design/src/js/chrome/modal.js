@@ -29,13 +29,21 @@ function showModal(d, originEl, labelledby){
   const close = d.querySelector(".dr-close");
   close.addEventListener("click", () => closeModal(d));
   close.focus({preventScroll: true});
+  layerPush(d.id, () => modalShut(d));   // the phone's Back closes this, not the view (layers.js)
 }
 
 /* Closes one dialog, or the topmost open one. "Topmost" is the last in document order, which is
    also the one with the higher z-index, so Escape and a scrim click agree with what is on top. */
 function closeModal(d){
   d = d || modalOpen().pop();
-  if (!d || !d.classList.contains("on")) return;
+  if (!d) return;
+  modalShut(d);
+  layerDone(d.id);
+}
+
+/* The close itself, with no history bookkeeping: what Back runs, after the entry is already gone. */
+function modalShut(d){
+  if (!d.classList.contains("on")) return;
   d.classList.remove("on");
   d.setAttribute("aria-hidden", "true");
   modalScrim(d).classList.remove("on");

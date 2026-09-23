@@ -90,6 +90,11 @@ phone the navbar is fixed to the bottom edge, and a `.modes-sub.dock` inside it 
 Parlay's and DFS's own switchers already occupy. Adding a view = one entry in `NAV`, one copy key,
 one branch in `render()`.
 
+Player search (2026-09-22) is not a view: no `NAV` entry, no hash. It is the bar's fifth slot on a
+phone and `/` on a desktop; `js/data/search.js` joins every live player row by slug and ranks,
+`js/chrome/search.js` is the sheet. Overlays push a URL-less history entry (`js/chrome/layers.js`),
+so Back closes the profile, then search, before it ever changes the view.
+
 ## Staying current in an open tab
 
 The page carries its data inside itself, so a tab left open holds the build it loaded with, however

@@ -28,6 +28,7 @@ surface/profile/history.css
 surface/profile/sheet.css
 chrome/footer.css
 chrome/nav.css
+chrome/search.css
 surface/pool/pool.css
 surface/usage/usage.css
 surface/chat/chat.css

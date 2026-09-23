@@ -28,6 +28,13 @@
 <div class="navbar">
   <div class="wrap navrow">
     <div class="nav" id="nav"></div>
+    <!-- Search is not a view, so it is not in NAV: no hash, no aria-current. On a phone it takes
+         the bar's fifth column (760.css); on a desktop it sits at the row's right end. -->
+    <button class="navitem navsearch" id="navsearch" type="button" aria-haspopup="dialog" aria-controls="search">
+      <span class="ix"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg></span
+      ><span class="full">{{copy:nav.search.label}}</span><span class="abbr">{{copy:nav.search.label}}</span
+      ><kbd class="navkbd" aria-hidden="true">/</kbd>
+    </button>
   </div>
 </div>
 
@@ -68,6 +75,22 @@
      the page behind stays usable while a question is open. -->
 <button class="chatfab" id="chatfab" aria-expanded="false" aria-controls="chatdock"></button>
 <aside class="chatdock" id="chatdock" aria-hidden="true"></aside>
+
+<!-- Player search (js/chrome/search.js). The list comes before the input in the markup and in
+     reading order; on a phone search.css stacks it upward from the input, so the best match sits
+     next to the thumb. It sits under the profile's scrim, so a result's profile opens over it. -->
+<div class="search" id="search" role="dialog" aria-modal="true" aria-label="{{copy:search.input.label}}" hidden>
+  <div class="search-in">
+    <ol class="search-list" id="search-list" role="listbox" aria-label="{{copy:search.list.label}}"></ol>
+    <div class="search-bar">
+      <input class="search-q" id="search-q" type="search" role="combobox" aria-expanded="true"
+        aria-controls="search-list" aria-autocomplete="list" aria-label="{{copy:search.input.label}}"
+        placeholder="{{copy:search.input.placeholder}}" autocomplete="off" autocapitalize="off"
+        autocorrect="off" spellcheck="false" enterkeyhint="go">
+      <button class="search-x" id="search-x" type="button">{{copy:search.action.cancel}}</button>
+    </div>
+  </div>
+</div>
 
 <script>
 /*__HEADS__*/

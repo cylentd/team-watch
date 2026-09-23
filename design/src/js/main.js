@@ -5,6 +5,7 @@ SURFACE = navFromHash() || navDefaultLeaf();
 
 buildFeed();
 buildNav();
+buildSearch(); // the sheet lives outside #view, so it is wired once, like the nav
 render();
 buildFresh();  // is /build.json still ours? asked on a tab click and on returning to the window
 buildChat();   // the floating panel: outside #view, so it is wired once rather than per render

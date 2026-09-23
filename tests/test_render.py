@@ -117,6 +117,11 @@ STATES = [
     # The reason it is a floating panel and not a tab: it stays open over another surface, so
     # you can read a player's row while asking about him. #view must still be the pool here.
     ("chat-over-pool", go("pool") + [("click", "#chatfab")]),
+    # Player search: idle (the roster, since a fresh browser has no recents), and a query that
+    # hits a typo, a hyphenated name and two leagues' tags at once.
+    ("search-idle", [("click", "#navsearch")]),
+    ("search-typed", [("click", "#navsearch"),
+                      ("eval", "document.getElementById('search-q').value = 'brwon'; searchPaint()")]),
     ("live-board", [("eval", LIVE_REPLY)] + go("live")),
     ("live-moved", [("eval", LIVE_REPLY + LIVE_MOVED)] + go("live")),
     ("live-away", [("eval", LIVE_REPLY + LIVE_AWAY)] + go("live")),
@@ -176,6 +181,9 @@ PROBE = """
           // the two probes above would never see it.
           chat: strip(document.getElementById("chatdock").innerHTML),
           chatOpen: document.getElementById("chatdock").classList.contains("on"),
+          // The search sheet is outside #view for the same reason.
+          search: strip(document.getElementById("search-list").innerHTML),
+          searchOpen: !document.getElementById("search").hidden,
           styles: out};
 }
 """
@@ -331,7 +339,7 @@ def diff(golden, now, limit=25):
             if g is None:
                 lines.append(f"{vp}/{state}: no golden yet")
                 continue
-            for key in ("view", "drawer", "modal", "chat"):
+            for key in ("view", "drawer", "modal", "chat", "search"):
                 if g[key] != n[key]:
                     i = next((i for i, (a, b) in enumerate(zip(g[key], n[key])) if a != b), min(len(g[key]), len(n[key])))
                     lines.append(f"{vp}/{state}: #{key} differs at char {i}: ...{n[key][max(0, i-40):i+60]!r}")
