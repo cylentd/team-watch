@@ -5,8 +5,11 @@
    is the one thing to remember: his shape against every player at his position. */
 .pf-who{min-width:0}
 
-/* Left column. Sticky inside the scrolling body, so the sheet stays while the right side scrolls. */
-.pf-side{position:sticky;top:0;padding:22px 0 8px}
+/* Left column. Not sticky: the sheet, the facts table and the projection together run taller
+   than the modal body for most players, and a sticky column taller than its scrollport pins its
+   top and carries its own bottom permanently out of view -- the projection line and the model's
+   component chips were unreachable on every back in the league. */
+.pf-side{padding:22px 0 8px;min-width:0}
 .pf-main{min-width:0}
 
 /* The sheet is the one place a position carries a colour (DESIGN.md names the exception): a run
@@ -25,9 +28,26 @@
 .pf-radar-ring.rim{stroke:var(--line-2);fill:rgb(var(--panel-2-rgb) / .6)}
 .pf-radar-axis{stroke:var(--line)}
 .pf-radar-shape{fill:rgb(var(--tint-rgb) / .2);stroke:var(--tint);stroke-width:2;stroke-linejoin:round}
-.pf-radar-dot{fill:var(--tint);stroke:var(--panel);stroke-width:1.5}
-/* The elite bar: a dash across its own axis, so a shape reaching past it is elite on that stat. */
-.pf-radar-bar{stroke:var(--ink-3);stroke-width:2;stroke-linecap:round;stroke-dasharray:2 2.5}
+.pf-radar-dot{fill:var(--tint);stroke:var(--panel);stroke-width:1.5;transition:r .2s var(--ease)}
+/* The chosen stat's vertex, so the card under the chart and the chart agree at a glance. */
+.pf-radar-dot.on{r:6}
+/* The elite bar: a tick across its own axis, so a shape reaching past it is elite on that stat. */
+.pf-radar-bar{stroke:var(--ink-3);stroke-width:2;stroke-linecap:round;transition:stroke .2s var(--ease)}
+.pf-radar-bar.on{stroke:var(--ink-2)}
+.pf-radar-key{margin:2px 0 0;text-align:center;font-family:var(--mono);font-size:var(--t-1);
+  letter-spacing:.06em;color:var(--ink-3)}
+
+/* Motion: the shape inflates from the centre outward, because the radius IS the rank -- the
+   chart drawing itself, not an entrance. The grid arrives first from the rim inward, the ticks
+   and then the labels last, so the reader sees the frame before the reading. Reduced motion
+   collapses every duration to nothing (responsive/motion.css) and all of it lands finished. */
+@keyframes pf-grow{from{transform:scale(.03);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes pf-in{from{opacity:0}to{opacity:1}}
+@keyframes pf-label{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.pf-radar-grow{transform-box:view-box;transform-origin:200px 170px;animation:pf-grow .6s var(--ease) .14s backwards}
+.pf-radar-grid > *{animation:pf-in .34s var(--ease) calc(var(--i,0) * 45ms) backwards}
+.pf-radar-bar{animation:pf-in .3s var(--ease) .5s backwards}
+.pf-radar-l{animation:pf-label .36s var(--ease) calc(.4s + var(--i,0) * 40ms) backwards}
 
 /* Every label is a button. The dotted underline is the affordance: it says "there is more here"
    without a line of copy telling the reader to tap, and unlike a hover it survives on a phone.
@@ -60,6 +80,11 @@
 .pf-stat-d.up{color:var(--up)}
 .pf-stat-d.down{color:var(--down)}
 .pf-stat .spark{grid-area:s;width:100%;height:36px;margin-top:8px}
+/* Replayed on every stat swap (sheet.js): the number is a different number now, and a silent
+   substitution reads as if it had always said that. */
+@keyframes pf-swap{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.pf-stat.swap > b,.pf-stat.swap .pf-stat-side,.pf-stat.swap .pf-stat-h{animation:pf-swap .3s var(--ease) backwards}
+.pf-stat.swap .pf-stat-side{animation-delay:.05s}
 
 .pf-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px;margin:16px 0 0;padding:18px 0 0;border-top:1px solid var(--line)}
 .pf-facts > div{min-width:0}
@@ -76,6 +101,10 @@
 .pf-strip-cells i.me.mu-easy{background:var(--up);box-shadow:0 0 0 2px var(--panel),0 0 0 3px var(--up)}
 .pf-strip-cells i.me.mu-hard{background:var(--down);box-shadow:0 0 0 2px var(--panel),0 0 0 3px var(--down)}
 .pf-strip-ends{display:flex;justify-content:space-between;margin-top:7px;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+/* His cell lands last, after the scale it sits on has drawn: the strip is the denominator and
+   the lit cell is the answer, so they arrive in that order rather than together. */
+@keyframes pf-drop{from{opacity:0;transform:scaleY(.2)}to{opacity:1;transform:scaleY(1)}}
+.pf-strip-cells i.me{animation:pf-drop .42s var(--ease) .34s backwards}
 
 /* Forecast: one line -- an icon, the number, the word. */
 .pf-wx{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:12px}
@@ -90,31 +119,45 @@
 .pf-split{margin:-4px 0 18px}
 .pf-split:last-child{margin-bottom:0}
 .pf-split-bar{display:flex;height:14px;background:var(--line)}
-.pf-split-bar i{display:block;width:var(--w);background:rgb(var(--ink-3-rgb) / .45);box-shadow:inset -2px 0 0 var(--panel)}
+.pf-split-bar i{display:block;width:var(--w);background:rgb(var(--ink-3-rgb) / .45);box-shadow:inset -2px 0 0 var(--panel);
+  animation:pf-widen .55s var(--ease) calc(.12s + var(--i,0) * 60ms) backwards}
+/* The team's touches fill left to right in the order the key names them, his first. */
+@keyframes pf-widen{from{width:0}to{width:var(--w)}}
 .pf-split-bar i.me{background:var(--ink)}
 .pf-split-key{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
 .pf-split-key b{color:var(--ink);font-weight:700}
 
-/* Target depth: one column per zone, his bar bright beside the position's dim one. */
-.pf-zones{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:4px}
-.pf-zone{display:grid;grid-template-columns:auto auto;grid-template-areas:"bars bars" "em em" "b s";gap:2px 6px;align-items:baseline;min-width:0}
+/* Target depth: one column per zone, his bar bright beside the position's dim one. The four
+   zones share the parent's rows through subgrid, so "Intermediate" can wrap to two lines on a
+   phone without the numbers under it sliding out of line with the other three -- the previous
+   single-line rule truncated it to "Intermedi..." instead. */
+.pf-zones{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:auto auto auto;
+  gap:2px 12px;margin-top:4px}
+.pf-zone{display:grid;grid-row:span 3;grid-template-rows:subgrid;grid-template-columns:auto auto;
+  grid-template-areas:"bars bars" "em em" "b s";column-gap:6px;align-items:baseline;min-width:0}
 .pf-zone-bars{grid-area:bars;display:flex;align-items:flex-end;gap:3px;height:56px;margin-bottom:6px;border-bottom:1px solid var(--line)}
 .pf-zone-bars i{display:block;width:16px;height:var(--h);min-height:2px;background:var(--ink-2)}
 .pf-zone-bars i.avg{background:rgb(var(--ink-3-rgb) / .45)}
 .pf-zone.top .pf-zone-bars i.me{background:var(--ink)}
-.pf-zone em{grid-area:em;font-style:normal;font-size:var(--t-2);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pf-zone em{grid-area:em;font-style:normal;font-size:var(--t-2);line-height:1.25;color:var(--ink-3);
+  align-self:start;overflow-wrap:anywhere}
 .pf-zone b{grid-area:b;font-family:var(--mono);font-size:var(--t-4);font-weight:700;color:var(--ink-2)}
 .pf-zone.top b,.pf-zone.top em{color:var(--ink)}
 .pf-zone small{grid-area:s;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
 .pf-sec-zones .pf-legend i{width:10px;height:10px;background:rgb(var(--ink-3-rgb) / .45)}
+/* The columns grow from their own baseline, left to right: the bar's height is the share, so
+   the growth is the measurement being taken, not an entrance flourish. */
+@keyframes pf-rise{from{height:0}to{height:var(--h)}}
+.pf-zone-bars i{animation:pf-rise .5s var(--ease) calc(.1s + var(--i,0) * 70ms) backwards}
 
 
 @media (max-width:960px){
-  .pf-side{position:static;padding-top:6px}
   .pf-sheet{max-width:420px;margin:0 auto}
+  .pf-facts{max-width:420px;margin-left:auto;margin-right:auto}
 }
 @media (max-width:430px){
   .pf-facts{gap:12px 14px}
-  .pf-zones{gap:8px}
+  .pf-zones{column-gap:8px}
   .pf-zone-bars i{width:12px}
+  .pf-zone b{font-size:var(--t-3)}
 }

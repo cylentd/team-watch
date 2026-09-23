@@ -4,11 +4,15 @@
   /* The two topbar pills at 12px: tighter tracking keeps "DATA 5/5" on one line at 390px. */
   .topbar .pill,.topbar .status-btn{letter-spacing:.02em;padding-left:6px;padding-right:6px}
   .pf-body{padding:0 16px 24px}
-  .pf-head{padding-left:16px;padding-right:16px}
-  /* The head at phone width: a smaller name and headshot, so the sheet starts above the fold. */
-  .pf-head h3{font-size:var(--t-6)}
-  .pf-head .dr-id{gap:12px}
-  .pf-head .dr-id img,.pf-head .dr-id .fallback{width:60px;height:60px}
+  /* The head at phone width. It is fixed above the scrolling body, so its height is paid on
+     every screen of the scroll, not once: at 34px a three-word name set three lines deep and
+     took 165px of a 780px phone -- a fifth of the screen, permanently, to repeat the row the
+     reader just tapped. Two lines at 24px is 96px, and the name is still the largest thing. */
+  .pf-head{padding:14px 16px 13px}
+  .pf-head h3{font-size:var(--t-5);margin-bottom:6px}
+  .pf-head .dr-id{gap:12px;padding-right:44px}
+  .pf-head .dr-id img,.pf-head .dr-id .fallback{width:52px;height:52px}
+  .pf-head .dr-close{width:40px;height:40px;top:9px;right:9px}
   .pf-bar{grid-template-columns:82px minmax(0,1fr) 36px 28px;gap:8px}
   .pf-bar.bare{grid-template-columns:minmax(0,1fr) 36px 28px}
   /* A row name with the 2-leagues tag: the tag tightens before the name truncates. */

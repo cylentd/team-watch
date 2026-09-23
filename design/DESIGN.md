@@ -139,6 +139,35 @@ Motion marks a change of context, never moves what is being read. All of it live
 | Team switch | a football crosses the hero; the team name is one line, fitted, so the hero height holds |
 | Tab or sub-tab switch | the `//` in TEAM//WATCH crosses into an X and back |
 | Waivers, news list | rows arrive one at a time |
+| Profile modal charts | every chart draws itself along the axis that carries its number (below) |
+
+## The profile modal (audited 2026-09-22)
+
+Every chart in the modal draws itself along the axis that carries its meaning, so the motion is
+the measurement, not an entrance. The radar's shape inflates from the centre, because the radius
+is the rank; the depth columns grow from their baseline, because the height is the share; the
+red-zone bar fills left to right in the order its key names; the matchup strip lands the lit cell
+last, after the scale it sits on. All of it is CSS keyframes in `surface/profile/sheet.css` and
+all of it collapses to the finished state under reduced motion.
+
+Five things the audit changed:
+
+| Was | Is | Why |
+|---|---|---|
+| Hexagonal grid rings + spokes | **circular** rings, same spokes | three concentric hexagons crossed by six spokes resolve into a drawn cube, with the tinted shape as a plane leaning in it |
+| Elite bar: 12-unit dashed tick | 14-unit solid tick, and a key line | at render size the dash array left three dots that read as dust |
+| Nothing said which way was better | `1st at the rim · tick = elite` under the chart | a radar cannot say its own direction, and a hover never reaches a phone |
+| Left column `position:sticky` | static | the sheet runs taller than the modal body, so sticky pinned its top and carried the projection permanently out of view |
+| Picking a stat lit its label only | lights label, vertex and elite tick together | one `data-col` sweep; the chart and the card are visibly the same stat |
+
+On a phone the left column becomes `display:contents` and the parts reorder: **sheet, then the
+week, then who he is.** Side by side the sheet and the matchup are read together; stacked,
+whatever comes second is a scroll away, and the pedigree is the one part that answers nothing
+about Sunday. The head is 24px over two lines rather than 34px over three — it is fixed above the
+scrolling body, so its height is paid on every screen of the scroll, and at 34px it took a fifth
+of a 780px phone to repeat the row the reader just tapped. The modal itself goes edge to edge
+below 430px (`100vw`/`100dvh`); at 96vw/92vh it left a sliver of the page showing on all four
+sides, which read as a window that missed its target.
 
 ## News severity (2026-09-16)
 

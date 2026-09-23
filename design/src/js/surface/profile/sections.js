@@ -57,7 +57,7 @@ function zonesHTML(z, top){
   const keys = DEPTH_ZONES.filter(k => z[k]);
   const max = Math.max(.01, ...keys.map(k => Math.max(z[k].share || 0, z[k].pos_avg || 0)));
   const h = v => (Math.max(0, v || 0) / max * 100).toFixed(0);
-  return `<div class="pf-zones">${keys.map(k => `<div class="pf-zone${k === top ? " top" : ""}">
+  return `<div class="pf-zones">${keys.map((k, i) => `<div class="pf-zone${k === top ? " top" : ""}" style="--i:${i}">
       <span class="pf-zone-bars"><i class="me" style="--h:${h(z[k].share)}%"></i><i class="avg" style="--h:${h(z[k].pos_avg)}%"></i></span>
       <em>${zoneWord(k)}</em><b>${pfPct(z[k].share)}</b><small>${pfPct(z[k].pos_avg)}</small>
     </div>`).join("")}</div>`;

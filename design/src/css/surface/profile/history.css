@@ -1,8 +1,11 @@
 /* ============================== PROFILE · HISTORY ==============================
    The weekly box score and the projection line: a points sparkline over the table, and the
    projection's component-mean chips. .pf-table already carries the table look (panel.css). */
-.pf-spark-row{display:flex;align-items:center;gap:14px;margin-bottom:12px}
-.pf-spark-row .spark{flex:1;min-width:0;height:44px}
+.pf-spark-row{display:flex;align-items:flex-end;gap:14px;margin-bottom:12px}
+/* A floor under the line. Two weeks fill the box whatever the numbers are, so the filled area
+   arrived as a bare wedge with nothing to be a wedge against; the rule is the zero it sits on. */
+.pf-spark-row .spark{flex:1;min-width:0;height:44px;border-bottom:1px solid var(--line)}
+.pf-spark-row .spark .area{opacity:.1}
 .pf-spark-v{display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;
   font-family:var(--mono);font-size:var(--t-5);font-weight:700;color:var(--ink);line-height:1.1}
 .pf-spark-v em{font-style:normal;font-family:var(--ui);font-size:var(--t-1);font-weight:500;
@@ -10,7 +13,11 @@
 
 /* Scrolls sideways rather than wrapping or clipping columns -- the same call usage.css's .utable
    makes: a stat table missing its last column on a phone is not the same table without it. */
-.pf-table-scroll{overflow-x:auto;overscroll-behavior-x:contain;margin:0 -2px}
+/* The scrollbar is themed here rather than inherited: a nested scroller does not pick up the
+   root's scrollbar-color, so this one drew as the OS default -- a pale track with arrow buttons
+   sitting under a dark table. */
+.pf-table-scroll{overflow-x:auto;overscroll-behavior-x:contain;margin:0 -2px;
+  scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
 .pf-table-wk{width:auto;min-width:100%}
 .pf-table-wk th,.pf-table-wk td{padding:7px 10px;font-size:var(--t-2);white-space:nowrap}
 .pf-table-wk thead th{font-size:var(--t-1)}
