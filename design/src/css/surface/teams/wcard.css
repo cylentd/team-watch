@@ -96,10 +96,7 @@
 .wvp-t.flat{color:var(--ink-3)}
 
 /* The footer both faces end on: where the card turns, and on the back the way to the profile. */
-/* --fab-clear (wvmotion.js) keeps "Evidence ›" out from under the floating chat button; the face's
-   own 15px of padding and border already count toward it. */
-.wvc-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;min-height:30px;
-  padding-right:max(0px, calc(var(--fab-clear, 0px) - 15px))}
+.wvc-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;min-height:30px}
 .wvc-turn{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
 .wvc:hover .wvc-turn,.wvc.flipped .wvc-turn{color:var(--lime)}
 .wvc-profile{position:relative;z-index:2}

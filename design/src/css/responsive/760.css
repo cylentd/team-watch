@@ -1,95 +1,100 @@
 @media (max-width:760px){
   .wrap{padding:0 14px}
-  .topbar-in{height:52px;gap:10px}
-  /* Reach: a phone thumb hits the bottom of the screen, not a bar wedged under the header.
-     Pin the tab bar to the bottom edge instead and pad the page so content clears it. */
-  .navbar{
-    position:fixed;top:auto;bottom:0;left:0;right:0;
-    border-bottom:0;border-top:1px solid var(--line);
-    box-shadow:0 -12px 16px -10px rgb(var(--shadow-rgb) / .55);
-    padding-bottom:env(safe-area-inset-bottom);
-  }
-  body{padding-bottom:calc(59px + env(safe-area-inset-bottom))}
+  /* No brand row on a phone (2026-09-24): an app's name does not sit above its own tabs. The row
+     comes back for one reason only, a newer build on main -- then its DATA pill is the reload
+     control (fresh.js), and it scrolls away with the page. The status badge beside it only ever
+     repeated what the view's own rows already show, so a phone drops it for good. */
+  .topbar{position:static}
+  .topbar:not(:has(.status-btn.stale)){display:none}
+  .topbar .brand{display:none}
+  .topbar-in{height:48px;gap:10px}
+  #topbadge{display:none}
   .brand-name{font-size:var(--t-3)}
   #weekpill{display:none}
-  /* The topbar is already tight enough on a phone to hide the week pill entirely -- the Discord
-     icon goes too rather than squeezing the status pills further. It's not lost: the News tab
-     leads with its own "Join the Discord" button. */
   .discordlink{display:none}
   .topbar .pill .full{display:none}
   .topbar .pill .abbr{display:inline}
 
-  .numghost{font-size:var(--t-ghost-sm);left:-14px;top:6px}
-  .hero{padding:16px 0 14px}
-  .hero-in{gap:14px}
+  /* The nav is at the top on a phone since 2026-09-24. The bottom bar reached a thumb, but it
+     read as a second app's chrome stacked under this one, and with Parlay's and DFS's own
+     switchers docked above it the bottom 114px of every screen was controls. At the top it is a
+     row of words: four groups, then search and chat as icons. It slides away while the reader
+     scrolls down a list and comes back on the first scroll up (js/chrome/hidebar.js). */
+  .navbar{
+    top:0;background:var(--void);box-shadow:none;
+    transition:transform .28s var(--ease);
+  }
+  .navrow{padding:0 6px;gap:0;height:var(--nav-h)}
+  .nav{flex:1 1 auto;min-width:0;gap:2px}
+  .navitem{
+    border:0;padding:0 8px;height:var(--nav-h);background:none;
+    font-family:var(--disp);font-weight:700;font-size:var(--t-4);text-transform:none;letter-spacing:-.01em;
+    color:var(--ink-3);
+  }
+  .navitem:first-child{border-left:0}
+  .navitem:hover{background:none}
+  .navitem .ix{display:none}
+  .navitem .full{display:none}
+  .navitem .abbr{display:inline}
+  .navitem[aria-current="true"]{background:none;color:var(--ink)}
+  .navitem[aria-current="true"]::after{display:none}
+  .navsearch,.chatfab{flex:none;width:44px;padding:0;justify-content:center;color:var(--ink-2)}
+  .navsearch .ix,.chatfab .ix{display:inline-flex}
+  .navsearch .full,.navsearch .abbr,.navkbd{display:none}
+
+  /* The group's views: underline tabs, sticky under the groups, and away with them. */
+  .subnav{
+    position:sticky;top:var(--nav-h);z-index:38;
+    background:var(--void);padding:0;border-bottom:1px solid var(--line);
+    transition:transform .28s var(--ease);
+  }
+  .subnav .modes-sub{margin:0!important;gap:20px;border:0;background:none;padding:0}
+  .subnav .mode-sub{
+    background:none;border:0;border-radius:0;padding:10px 0 11px;min-height:0;
+    font-family:var(--ui);font-size:var(--t-2);font-weight:600;letter-spacing:0;text-transform:none;
+    color:var(--ink-3);box-shadow:inset 0 -2px 0 transparent;
+  }
+  .subnav .mode-sub[aria-pressed="true"]{color:var(--ink);background:none;box-shadow:inset 0 -2px 0 var(--lime)}
+  body.hdr-away .navbar{transform:translateY(-100%)}
+  body.hdr-away .subnav{transform:translateY(calc(-100% - var(--nav-h)))}
+
+  /* My Teams' hero on a phone is one line: the team switch is the title, the league and record
+     sit beside it. The ghost numeral and the uppercase name repeated what the switch says. */
+  .numghost{display:none}
+  .hero{padding:16px 0 6px}
+  .hero-in{gap:10px}
+  .hero:not(.slim) h1{display:none}
+  .hero:not(.slim) .hero-eyebrow{flex-wrap:nowrap;margin-bottom:2px}
+  .hero:not(.slim) .league-mark{display:none}
+  .hero:not(.slim) .hero-eyebrow .lbl{display:none}
+  .hero-rec{display:inline}
+  .hero:not(.slim) .teamswitch{order:1;min-width:0;padding:0;margin:0}
+  .hero:not(.slim) .ts-btn{background:none;border:0;padding:4px 0;min-width:0;gap:8px}
+  .hero:not(.slim) .ts-team{font-family:var(--disp);font-size:var(--t-5);font-weight:700;max-width:none;
+    overflow:hidden;text-overflow:ellipsis}
+  .hero:not(.slim) .ts-chev{font-size:var(--t-2)}
+  .hero:not(.slim) .ts-menu{left:0;right:auto}
+  .leaguechip{border:0;padding:0;letter-spacing:.06em;color:var(--ink-3)}
+  .hero-rec + .leaguechip::before{content:"·";margin-right:10px;color:var(--ink-3)}
   .hero h1{margin-bottom:8px}
   .hero-meta{margin-top:2px}
   .hero-meta .pill{font-size:var(--t-1);padding:4px 8px}
   .modes-sub{margin-top:10px!important}
   .hero.slim{padding:12px 0 4px}
   .hero.slim .hero-eyebrow{margin-bottom:0}
-  /* A view switch (book, roster/waivers) reshapes the whole page below it, so it docks on top of
-     the tab bar: in thumb reach, and still naming the view once the header has scrolled away. */
-  .modes-sub.dock{
-    position:fixed;left:0;right:0;bottom:calc(59px + env(safe-area-inset-bottom));z-index:39;
-    margin:0!important;padding:7px 14px;gap:0;
-    background:var(--panel);border-top:1px solid var(--line);
-    box-shadow:0 -12px 16px -10px rgb(var(--shadow-rgb) / .55);
-  }
+  /* A book switch (Parlay, DFS) stays where it is written, at the top of its view, in flow. It
+     docked over the bottom tab bar until the nav moved up; now nothing is pinned to the bottom. */
+  .modes-sub.dock{margin:12px 0 0!important}
   .modes-sub.dock .mode-sub{flex:1 1 0;min-width:0;min-height:40px;padding-left:6px;padding-right:6px}
   .modes-sub.dock .explain-btn{flex:none;margin-left:8px;min-height:40px}
   /* A section's side note drops under its heading instead of squeezing into a column beside it. */
   .rule:has(.side){flex-wrap:wrap;row-gap:6px}
   .rule .side{flex:1 1 100%;letter-spacing:.06em}
-  body:has(.modes-sub.dock){padding-bottom:calc(114px + env(safe-area-inset-bottom))}
-  /* KPI strip was costing as much height as the headline above it on a phone: three lines
-     of type per tile (label, number, caption) at a size built for desktop. Tighten the
-     padding and drop each line a size so the strip reads as a compact stat row, not a
-     second hero. */
-  .sig{padding:7px 8px}
-  .sig .lbl{font-size:var(--t-1);letter-spacing:.08em}
-  .sig-val{font-size:var(--t-4);margin-top:3px}
-  .sig-sub{font-size:var(--t-1);letter-spacing:.04em;margin-top:2px}
 
-  .ts-team{font-size:var(--t-1);max-width:150px;overflow:hidden;text-overflow:ellipsis}
-  .ts-btn{padding:7px 9px;min-width:0}
   .hero-eyebrow{gap:8px}
-  .hero-eyebrow .teamswitch{max-width:100%}
 
-  .colhead{display:none}
-  .board{margin-top:14px}
-  .row{
-    grid-template-columns:44px minmax(0,1fr) auto auto;
-    grid-template-areas:
-      "head name  name  news"
-      "head trend match rank";
-    gap:7px 14px;padding:11px 8px;
-  }
-  .slot{display:none}
-  .head,.head img,.head .fallback,.head .dst{width:44px;height:44px}
-  .nm-1 b{font-size:var(--t-3)}
-  .nm-2{font-size:var(--t-1);gap:6px}
-  .nm-2 .slotm{display:inline;color:var(--lime);font-weight:700}
-  .nm-2 .posx{display:none}
-  .trend{gap:9px}
-  .spark{width:100%;flex:1;height:30px}
-  .delta{font-size:var(--t-1)}
-  .rk{text-align:right}
-  .rk-1{justify-content:flex-end;gap:5px}
-  .rk-1 b{font-size:var(--t-3)}
-  .pctbar{display:none}
 
   .states{grid-template-columns:minmax(0,1fr)}
-
-  /* Bottom nav: edge to edge, five equal-width columns (a thumb doesn't care which item is
-     widest), icon over label, sized to Apple/Material's ~56px minimum tap target -- the old
-     inline icon+label pill was sized for a border-bottom strip under the header, not a thumb
-     zone at the bottom of the screen. */
-  .navrow{padding:0;gap:0}
-  /* Search takes the fifth column: the four groups share 4/5 of the bar, search the last 1/5. */
-  .nav{flex:4 1 0;min-width:0}
-  .navsearch{flex:1 1 0;border-left:0}
-  .navkbd{display:none}
 
   /* The search sheet fills the visual viewport (measured in search.js, so the keyboard shrinks
      it), the input docks at the bottom and the list stacks upward from it: column-reverse puts
@@ -103,15 +108,6 @@
   .sr-row{min-height:56px;padding:8px 14px}
   .sr-cap{order:0;padding:10px 14px 6px}
   .sr-none{padding:18px 14px}
-  .navitem{
-    flex:1 1 0;flex-direction:column;justify-content:center;gap:4px;
-    padding:9px 4px 11px;font-size:var(--t-1);border-right:0;
-  }
-  .navitem:first-child{border-left:0}
-  .navitem .ix{width:22px;height:22px}
-  .navitem .full{display:none}
-  .navitem .abbr{display:inline}
-  .navitem[aria-current="true"]::after{top:0;bottom:auto}
   .hero h1{font-size:var(--t-hero-sm)}
   .quad{height:320px;min-width:540px}
   /* The compact (portrait, no per-dot labels) mobile geometry from scatterHTML fits its

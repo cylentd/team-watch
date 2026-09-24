@@ -7,12 +7,14 @@
    ============================================================ */
 
 :root{
-  --void:#08080a;
-  --panel:#101116;
-  --panel-2:#171922;
-  --panel-3:#1e2029;
-  --line:#23252f;
-  --line-2:#33363f;
+  /* Slate, not black (2026-09-24). #08080a behind #f3f1ea text was ~19:1, a glare the eye works
+     against on a phone at night; slate keeps body text above 14:1 and lets a surface step read. */
+  --void:#111418;
+  --panel:#171b21;
+  --panel-2:#1d222a;
+  --panel-3:#242a33;
+  --line:#262c35;
+  --line-2:#343b46;
   --ink:#f3f1ea;
   /* Lifted 2026-09-23. Measured across three views, the quiet tier sat at 4.87-5.56:1 against its
      own surfaces -- legally AA and nothing more -- while carrying almost every label on the page at
@@ -33,12 +35,12 @@
      and rgb(var(--x-rgb) / a) reproduces the exact legacy-rgba computed value an alpha literal
      used to spell out by hand. token-triple-agrees (lint_css.py) fails the build if a triple
      drifts from its token's hex, or a hex token is missing its triple. */
-  --void-rgb:8 8 10;
-  --panel-rgb:16 17 22;
-  --panel-2-rgb:23 25 34;
-  --panel-3-rgb:30 32 41;
-  --line-rgb:35 37 47;
-  --line-2-rgb:51 54 63;
+  --void-rgb:17 20 24;
+  --panel-rgb:23 27 33;
+  --panel-2-rgb:29 34 42;
+  --panel-3-rgb:36 42 51;
+  --line-rgb:38 44 53;
+  --line-2-rgb:52 59 70;
   --ink-rgb:243 241 234;
   --ink-2-rgb:184 183 194;
   --ink-3-rgb:154 153 166;
@@ -66,8 +68,10 @@
   --discord:#5865f2;       /* Discord's own brand colour, topbar.css .discordlink:hover */
   --discord-rgb:88 101 242;
   --on-lime:#0b0d05;       /* near-black text/icons on a lime chip: wire.css .btn:hover,
-                               ticker.css .ticker-tag, builder/ticket.css .ticket-best & .ticket-cta:hover */
+                               builder/ticket.css .ticket-best & .ticket-cta:hover */
   --on-lime-rgb:11 13 5;
+  --on-signal:#0b0f0c;     /* text on a filled up/down box: the roster's projection pill */
+  --on-signal-rgb:11 15 12;
   --amber-ground:#1a1200;  /* dark ground under the amber Q badge, roster.css .badge.q */
   --amber-ground-rgb:26 18 0;
   --down-ground:#2a0503;   /* dark ground under the red O badge, roster.css .badge.o */
@@ -101,6 +105,8 @@
   --jersey-home-rgb:29 79 196;
   --jersey-away:#6b7080;
   --jersey-away-rgb:107 112 128;
+
+  --nav-h:48px;         /* the phone nav row; the view tabs stick under it (responsive/760.css) */
 
   --ease:cubic-bezier(.16,1,.3,1);
   --ease-flight:cubic-bezier(.3,.1,.25,1);      /* the football's pass across the hero */

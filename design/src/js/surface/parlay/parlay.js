@@ -1,5 +1,4 @@
 function parlayHTML(){
-  const hasModel = PROPS.some(p=>typeof p.model==="number");
   return `<section class="hero slim">
     <div class="wrap hero-in">
       <div>
@@ -13,11 +12,6 @@ function parlayHTML(){
           ${explainButtonHTML("parlay")}
         </div>
       </div>
-      ${PARLAY_BOOK === "underdog" ? "" : `<div><div class="signals">
-        ${hasModel ? `
-        <div class="sig up"><div class="lbl">${t("parlay.sig.edgeLabel")}</div><div class="sig-val">${PROPS.filter(p=>p.edge>0).length}</div><div class="sig-sub">${t("parlay.sig.edgeSub", {n: PROPS.length})}</div></div>` : `
-        <div class="sig up"><div class="lbl">${t("parlay.sig.mineLabel")}</div><div class="sig-val">${new Set(PROPS.filter(p=>p.mine).map(p=>p.n)).size}</div><div class="sig-sub">${t("parlay.sig.mineSub", {n: PROPS.filter(p=>p.mine).length})}</div></div>`}
-      </div></div>`}
     </div>
   </section>
   <div class="wrap">

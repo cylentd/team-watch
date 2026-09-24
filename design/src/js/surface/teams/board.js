@@ -23,6 +23,7 @@ function rowHTML(p, i, teamKey){
     <div class="news">${p.news
       ? `<span class="newstag ${p.hot?"hot":""}">${NEWS_ICON}<b>${p.news}</b></span>`
       : `<span class="newstag empty">–</span>`}</div>
+    ${projPillHTML(p)}
   </div>`;
 }
 
@@ -46,16 +47,5 @@ function boardHTML(team){
     </div>` : ""}
     <div class="board">${list.map(p=>rowHTML(p, n++, team.key)).join("")}</div>
   `).join("");
-}
-
-function signalsHTML(team){
-  const up = team.roster.filter(p=>p.d>1.5).length;
-  const down = team.roster.filter(p=>p.d<-1.5);
-  const news = team.roster.reduce((n, p) => n + (p.news || 0), 0);
-  return `<div class="signals">
-    <div class="sig up"><div class="lbl">${t("teams.sig.upLabel")}</div><div class="sig-val">${up}</div><div class="sig-sub">${t("teams.sig.upSub", {n: team.roster.length})}</div></div>
-    <div class="sig down"><div class="lbl">${t("teams.sig.downLabel")}</div><div class="sig-val">${down.length}</div><div class="sig-sub">${t("teams.sig.downSub", {n: down.filter(p=>p.start).length})}</div></div>
-    <div class="sig ${news ? "" : "empty"}"><div class="lbl">${t("teams.sig.newsLabel")}</div><div class="sig-val">${news || "—"}</div><div class="sig-sub">${t("teams.sig.newsSub")}</div></div>
-  </div>`;
 }
 

@@ -15,10 +15,9 @@ function ledeCellHTML(value, label, sub, cls){
 }
 
 function ledeProjHTML(p){
-  if (typeof LIVE_PROJECTIONS === "undefined" || !LIVE_PROJECTIONS) return "";
-  const proj = LIVE_PROJECTIONS.players[p.slug];
-  if (!proj || proj.pts === null || proj.pts === undefined) return "";
-  return ledeCellHTML(proj.pts.toFixed(1), t("profile.lede.proj"), t("profile.lede.projSub"));
+  const pts = projFor(p);
+  if (pts === null) return "";
+  return ledeCellHTML(pts.toFixed(1), t("profile.lede.proj"), t("profile.lede.projSub"));
 }
 
 /* The rank counted from whichever end is nearer, the same call matchupRankText makes: "20th

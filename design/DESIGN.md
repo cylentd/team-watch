@@ -40,11 +40,26 @@ hand-typed `SIGNALS` map is gone). Nothing is typed by hand:
 
 None of the three sources is backtested. The verdict word is watch's own; the page adds none.
 
+## Phone layout (2026-09-24)
+
+Storyboard: https://claude.ai/artifact/1S2qLgCTvmMxASpaUZK4q3. Every list row answers one
+question: who, which way, one number.
+
+| Part | Phone | Where |
+|---|---|---|
+| Nav | top: four groups as words, search + chat icons; view tabs underlined below; both hide on scroll down | `responsive/760.css`, `js/chrome/hidebar.js` |
+| Brand row | hidden; shown only when a newer build makes DATA a reload control | `responsive/760.css` |
+| Ground | slate `#111418`, surfaces one step up each; no pure black, no radial glow | `base/tokens.css` |
+| Roster row | 52px head, name, "RB · BAL @ DAL", trend line, projection pill | `responsive/lists.css` |
+| Movers row | 52px head, name, role-share pill | `responsive/lists.css` |
+| Value pill | filled green/red by direction, grey when flat | `component/vpill.css` |
+| KPI tiles | removed at every width (roster and parlay) | — |
+
 ## Waivers (sub-tab of My Teams, 2026-09-16)
 
 A Roster | Waivers toggle under the team name, not a sixth nav tab: waivers are per league like
-the roster, so the league switch carries over, and the phone's bottom bar keeps five thumb-sized
-columns. The data is ff-jarvis's `model.season.waiver_packet`, built daily by the refresh
+the roster, so the league switch carries over. (The phone's bottom bar this protected became a
+top nav on 2026-09-24.) The data is ff-jarvis's `model.season.waiver_packet`, built daily by the refresh
 (`LIVE_WAIVER`, `design/waiver.py`), and the tab only formats it.
 
 **Cards since 2026-09-22** (superseding the rows, Suggested moves and drops list). One card per
@@ -79,9 +94,11 @@ so the card never changes height; reduced motion swaps faces instantly.
 A league `status` of `unknown` draws the card and says "Availability unknown", never FA. The
 lane tag under a name (`leagues[VIEW].lane`: Beats a starter, Open work, Usage, Depth move,
 Insurance, Out now) is that league's reason; a league that did not list him shows none. Section
-counts are plain ("Must claim · 2"), never zero-padded. The floating chat button covers the
-page's right edge on a phone, so the rail rows and card footers keep `--fab-clear` free on their
-right, measured from both boxes at render and on resize.
+counts are plain ("Must claim · 2"), never zero-padded. ~~The floating chat button covers the
+page's right edge on a phone, so the rail rows and card footers keep `--fab-clear` free.~~
+Superseded 2026-09-24: the chat launcher is in the nav row and covers nothing. The rail is three
+rows + Show all on every day, not only Tuesday (the Mode row above is superseded on that point),
+and a phone card front drops the proof stats and lane tag; the back still has both.
 
 ## The pool
 
@@ -193,9 +210,9 @@ the app's own search sheet, handed a slot to fill instead of a profile to open: 
 Axes are position-specific (a back has no YPRR), so a pick of another position moves the board to
 his position and keeps only him; refusing it would make the reader undo a search he meant.
 
-On a phone the chat button's reservation is measured from both boxes at render, the same rule the
-waivers rail follows, because the rightmost dot is the best player at the position and is the one
-thing that must not sit under it. The lane head is two fixed rows at every width: letting it wrap
+~~On a phone the chat button's reservation is measured from both boxes at render.~~ Superseded
+2026-09-24: the button left the page's edge for the nav row, so the lanes keep no reservation.
+The lane head is two fixed rows at every width: letting it wrap
 fitted 360px, but only the lanes whose axis publishes a threshold wrapped, so three heads were one
 line and three were two and the six stopped sharing a baseline down the card.
 

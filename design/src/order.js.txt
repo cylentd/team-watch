@@ -99,6 +99,7 @@ chrome/render.js
 chrome/feed.js
 chrome/fresh.js
 chrome/nav.js
+chrome/hidebar.js
 chrome/drawer.js
 # pin: layers.js before modal.js and search.js, whose opens push onto its stack.
 chrome/layers.js

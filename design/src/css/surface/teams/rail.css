@@ -9,7 +9,7 @@
 .wvr-list{list-style:none;margin:10px 0 0;padding:0;border-top:1px solid var(--line)}
 .wvr-row{
   display:grid;grid-template-columns:58px minmax(0,1fr);grid-template-areas:"k t" "k at";
-  gap:2px 12px;padding:10px calc(4px + var(--fab-clear, 0px)) 10px 4px;border-bottom:1px solid var(--line);
+  gap:2px 12px;padding:10px 4px;border-bottom:1px solid var(--line);
 }
 .wvr-k{
   grid-area:k;padding-top:2px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;

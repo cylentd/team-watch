@@ -35,6 +35,10 @@
       ><span class="full">{{copy:nav.search.label}}</span><span class="abbr">{{copy:nav.search.label}}</span
       ><kbd class="navkbd" aria-hidden="true">/</kbd>
     </button>
+    <!-- Chat sits beside search, in the bar, not floating over the rows it would otherwise cover.
+         It stays outside #view, so render() never touches it and an open conversation survives a
+         view change. Its panel (#chatdock) is still a sibling of #view, further down. -->
+    <button class="navitem chatfab" id="chatfab" type="button" aria-expanded="false" aria-controls="chatdock"></button>
   </div>
 </div>
 
@@ -68,12 +72,11 @@
 <div class="modal-scrim" id="strip-scrim"></div>
 <div class="modal stripmodal" id="stripmodal" aria-hidden="true" data-scrim="strip-scrim"></div>
 
-<!-- The chat launcher and its panel sit outside #view on purpose: render() replaces #view's
-     markup on every surface change, so anything inside it loses its state. Out here the
-     conversation survives navigating between tabs, which is the point of it being a panel
-     rather than a tab of its own. Deliberately not a modal -- no scrim, no focus trap -- so
-     the page behind stays usable while a question is open. -->
-<button class="chatfab" id="chatfab" aria-expanded="false" aria-controls="chatdock"></button>
+<!-- The chat panel sits outside #view on purpose: render() replaces #view's markup on every
+     surface change, so anything inside it loses its state. Out here the conversation survives
+     navigating between tabs, which is the point of it being a panel rather than a tab of its
+     own. Deliberately not a modal -- no scrim, no focus trap -- so the page behind stays usable
+     while a question is open. Its launcher is in the nav row. -->
 <aside class="chatdock" id="chatdock" aria-hidden="true"></aside>
 
 <!-- Player search (js/chrome/search.js). The list comes before the input in the markup and in

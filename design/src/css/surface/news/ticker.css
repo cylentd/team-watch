@@ -1,22 +1,6 @@
-/* ============================== TICKER ============================== */
-.ticker{
-  position:relative;border:1px solid var(--line);
-  background:var(--panel);height:42px;overflow:hidden;display:flex;align-items:center;
-}
-.ticker-tag{
-  flex-shrink:0;align-self:stretch;display:flex;align-items:center;gap:7px;
-  padding:0 14px;background:var(--lime);color:var(--on-lime);
-  font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.18em;
-  z-index:2;
-}
-.ticker-track{display:flex;gap:0;white-space:nowrap;animation:slide 62s linear infinite}
-.ticker:hover .ticker-track{animation-play-state:paused}
-@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.tick{display:inline-flex;align-items:center;gap:9px;padding:0 22px;font-size:var(--t-2);font-weight:400;
-  color:var(--ink-2);text-decoration:none;transition:color .15s var(--ease)}
-.tick:hover{color:var(--ink);text-decoration:underline;text-decoration-color:var(--line-2)}
-.tick .arrow{font-family:var(--mono);font-size:var(--t-1);color:var(--lime)}
-.tick::after{content:"";width:4px;height:4px;background:var(--line-2);transform:rotate(45deg);margin-left:22px}
+/* ============================== NEWS ============================== */
+/* The My Teams ticker that shared this file went on 2026-09-24: a crawl moves content the reader
+   is trying to read, and the News tab already leads with the same stories. */
 
 /* News tab: a wire bulletin -- timestamp/team/category on their own line, then the headline,
    then the scanner's own read on what it means (.nimpact), marked by a rule rather than a label
@@ -48,7 +32,7 @@
   border:1px solid var(--line-2);padding:1px 6px;border-radius:2px}
 .ntitle{font-size:var(--t-3);font-weight:700;color:var(--ink);line-height:1.4}
 .ndesc{margin-top:4px;font-size:var(--t-2);color:var(--ink-2);line-height:1.5}
-.nimpact{margin-top:9px;padding-left:11px;border-left:2px solid var(--lime);font-size:var(--t-2);color:var(--ink-2);line-height:1.55}
+.nimpact{margin-top:9px;font-size:var(--t-2);color:var(--ink-2);line-height:1.55}
 
 /* The lead story: today's freshest Breaking item, on its own above the filter row -- bigger
    type, a live pulse instead of a plain dot, the same red stripe as any other breaking row but

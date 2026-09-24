@@ -104,19 +104,4 @@ function wireBd(v){
   set("[data-bddrop]", b => { BD_NOTE = ""; BD_PICKS = BD_PICKS.filter(s => s !== b.dataset.bddrop); });
   // The picker is the app's own search sheet, handed a slot to fill instead of a profile to open.
   v.querySelectorAll("[data-bdadd]").forEach(b => b.addEventListener("click", () => searchOpen(bdAdd)));
-  bdFabClear(v);
-}
-
-/* The chat button floats over the page's right edge, fixed, so every lane passes under it as the
-   page scrolls -- and on this surface the rightmost dot is the best player at the position, the
-   one thing that must not be covered. The rail ends where the button starts, measured from both
-   boxes in the reader's browser rather than guessed at a breakpoint; on a desktop the lanes stop
-   well short of it and the reservation comes out zero. Same rule as the waivers rail. */
-function bdFabClear(v){
-  const box = v.querySelector(".bd-lanes"), fab = document.getElementById("chatfab");
-  if (!box) return;
-  const f = fab ? fab.getBoundingClientRect() : null;
-  const clear = f && f.width
-    ? Math.max(0, Math.ceil(box.getBoundingClientRect().right - f.left + 8)) : 0;
-  box.style.setProperty("--fab-clear", `${clear}px`);
 }

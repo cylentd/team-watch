@@ -25,7 +25,7 @@ function sparkHTML(v, w, h, ref){
   const x = i => 1 + i*((w-2)/(v.length-1));
   const y = k => (h-3) - ((k-min)/span)*(h-6);
   const pts = v.map((k,i)=>`${x(i).toFixed(1)},${y(k).toFixed(1)}`);
-  const col = v[v.length-1] > v[0] ? "var(--up)" : v[v.length-1] < v[0] ? "var(--down)" : "var(--ink-3)";
+  const col = {up: "var(--up)", down: "var(--down)", flat: "var(--ink-3)"}[trendDir(v)];
   const area = `M ${pts[0]} L ${pts.slice(1).join(" L ")} L ${x(v.length-1).toFixed(1)},${h} L ${x(0).toFixed(1)},${h} Z`;
   const bar = ref !== null && ref !== undefined && ref > min && ref < max
     ? `<line class="ref" x1="1" y1="${y(ref).toFixed(1)}" x2="${w-1}" y2="${y(ref).toFixed(1)}"/>` : "";
@@ -36,6 +36,27 @@ function sparkHTML(v, w, h, ref){
       <circle class="cap" cx="${x(v.length-1).toFixed(1)}" cy="${y(v[v.length-1]).toFixed(1)}" r="2.6" fill="${col}"/>
     </g>
   </svg>`;
+}
+
+/* Which way a series moved, first week to last. The sparkline's colour and the roster pill's
+   colour both come from here, so the line and the number beside it never disagree. */
+function trendDir(v){
+  if (!v || v.length < 2) return "flat";
+  return v[v.length-1] > v[0] ? "up" : v[v.length-1] < v[0] ? "down" : "flat";
+}
+
+/* This week's projected points from ff-jarvis's player projections, or null. */
+function projFor(p){
+  if (typeof LIVE_PROJECTIONS === "undefined" || !LIVE_PROJECTIONS) return null;
+  const proj = LIVE_PROJECTIONS.players[p.slug];
+  return proj && typeof proj.pts === "number" ? proj.pts : null;
+}
+
+/* The roster row's one number on a phone, Robinhood's price box: projected points, filled in the
+   colour of the trend line beside it. No projection prints a dash in a quiet box, never a zero. */
+function projPillHTML(p){
+  const pts = projFor(p);
+  return `<div class="vpill rproj ${pts === null ? "none" : trendDir(p.trend)}">${pts === null ? "—" : pts.toFixed(1)}</div>`;
 }
 
 function deltaHTML(d){

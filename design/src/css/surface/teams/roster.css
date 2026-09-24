@@ -100,6 +100,9 @@
 .row.start .pctbar i{background:var(--lime)}
 @keyframes grow{to{width:var(--w)}}
 
+/* The phone's one number, a .vpill (component/vpill.css). */
+.rproj{grid-area:proj}
+
 .news{grid-area:news;display:flex;justify-content:center}
 .newstag{
   display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:3px;

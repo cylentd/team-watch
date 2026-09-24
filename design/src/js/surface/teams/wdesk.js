@@ -27,31 +27,11 @@ function wvRailSide(wv){
   if (nav) wv.style.setProperty("--wv-stick", `${Math.round((parseFloat(getComputedStyle(nav).top) || 0) + nav.offsetHeight)}px`);
 }
 
-/* The chat button floats over the page's right edge (fixed, so every row passes under it as the
-   page scrolls). --fab-clear is how far it reaches into a box, measured from both boxes in the
-   reader's browser, never guessed: the rail rows and the card footers keep that much clear on
-   their right. Set on the whole tab, then overridden on any card or rail that ends elsewhere --
-   a card in the left column of a wide screen never sits under the button, so it keeps nothing. */
-function wvFabClear(v){
-  const wv = v.querySelector(".wv"), fab = document.getElementById("chatfab");
-  if (!wv) return;
-  const f = fab ? fab.getBoundingClientRect() : null;
-  const clear = el => f && f.width ? Math.max(0, Math.ceil(el.getBoundingClientRect().right - f.left + 8)) : 0;
-  const all = clear(wv);
-  wv.style.setProperty("--fab-clear", `${all}px`);
-  v.querySelectorAll(".wvr, .wvc").forEach(el => {
-    const own = clear(el);
-    if (own !== all) el.style.setProperty("--fab-clear", `${own}px`);
-    else el.style.removeProperty("--fab-clear");
-  });
-}
-
 function wvDesk(v){
   const wv = v.querySelector(".wv");
   if (!wv) return;
   wvFaces(v);
   wvRailSide(wv);
-  wvFabClear(v);
 }
 if (typeof window !== "undefined") window.addEventListener("resize", () => {
   if (SURFACE === "waivers") wvDesk(document.getElementById("view"));

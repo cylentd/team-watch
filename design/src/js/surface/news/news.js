@@ -1,18 +1,3 @@
-/* The My Teams ticker: out and injury stories first, since a ticker that scrolls past in a few
-   seconds is the wrong place for "logged a full practice". Falls back to the plain feed on a quiet
-   day so it is never empty. Just the headline; the detail is one tap away on the News tab. */
-function tickerHTML(){
-  const severe = NEWS_ITEMS.filter(it => newsKind(it) === "out" || newsKind(it) === "injury");
-  const run = (severe.length ? severe : NEWS_ITEMS).slice(0, 12).map(it =>
-    `<a class="tick" href="${esc(it.link || `https://www.google.com/search?tbm=nws&q=${encodeURIComponent(it.title)}`)}" target="_blank" rel="noopener noreferrer">
-      <span class="arrow">●</span>${esc(it.title)}</a>`
-  ).join("");
-  return `<div class="wrap" style="margin:16px auto"><div class="ticker">
-    <div class="ticker-tag">${t("news.ticker.tag")}</div>
-    <div class="ticker-track">${run}${run}</div>
-  </div></div>`;
-}
-
 /* A story's kind leads its row as an icon and a word, in that kind's color, so severity reads
    before the headline does -- and a colorblind reader still gets the icon and the word. */
 function newsKindTag(kind){
@@ -58,7 +43,7 @@ function newsHTML(){
       </div>
     </div>
   </section>
-  <div class="wrap">
+  <div class="wrap newswrap">
     ${lead ? `<div class="newslead">${newsRowHTML(lead, true, 0)}</div>` : ""}
     <div class="filters" style="margin-top:${lead?"18":"0"}px">
       <span class="lbl">${t("news.filter.label")}</span>

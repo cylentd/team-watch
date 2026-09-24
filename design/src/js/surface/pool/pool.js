@@ -30,7 +30,16 @@ function poolRow(r, i){
     <div class="pnum ${poolTone(r.dShare)}">${poolSigned(r.dShare)}</div>
     <div><span class="vchip ${VCLASS[r.v] || "v-hold"}" title="${esc(r.why || "")}">${esc(r.v.toUpperCase())}</span></div>
     <div class="pnum pfree ${free.cls}">${free.text}</div>
+    ${poolPillHTML(r)}
   </div>`;
+}
+
+/* The phone's one number: role share, filled by which way it moved week on week (the same 0.5
+   point threshold as the desktop columns' tint). */
+function poolPillHTML(r){
+  if (r.share === null || r.share === undefined) return `<div class="vpill none">—</div>`;
+  const dir = {pos: "up", neg: "down"}[poolTone(r.dShare)] || "flat";
+  return `<div class="vpill ${dir}">${r.share.toFixed(0)}%</div>`;
 }
 
 /* The chart needs a share move, which needs two weeks. Until then it says when, instead of an
@@ -65,7 +74,7 @@ function poolHTML(){
         <button class="chip" data-poolpage="next" ${page>=pages?"disabled":""}>${t("common.pager.next")}</button>
       </div>`;
       return `${pager}
-      <div class="ptable">
+      <div class="ptable pooltable">
         <div class="phead">
           <div>#</div><div></div><div>${t("pool.table.player")}</div><div>${t("pool.table.snaps")}</div><div>${t("pool.table.dSnaps")}</div>
           <div>${t("pool.table.share")}</div><div>${t("pool.table.dShare")}</div><div>${t("pool.table.verdict")}</div><div>${t("pool.table.free")}</div>

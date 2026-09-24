@@ -15,6 +15,7 @@ chrome/hero.css
 chrome/motion.css
 surface/news/ticker.css
 component/rule.css
+component/vpill.css
 surface/teams/roster.css
 surface/teams/matchup.css
 surface/teams/wire.css
@@ -62,5 +63,6 @@ chrome/feed.css
 surface/dfs/lineup.css
 responsive/960.css
 responsive/760.css
+responsive/lists.css
 responsive/430.css
 responsive/motion.css

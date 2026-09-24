@@ -11,18 +11,6 @@
   .pf-head .dr-id img,.pf-head .dr-id .fallback{width:60px;height:60px}
   .pf-bar{grid-template-columns:82px minmax(0,1fr) 36px 28px;gap:8px}
   .pf-bar.bare{grid-template-columns:minmax(0,1fr) 36px 28px}
-  /* A row name with the 2-leagues tag: the tag tightens before the name truncates. */
-  .nm-1{gap:5px}
-  .nm-1 .tag{letter-spacing:.04em;padding-left:4px;padding-right:4px}
-  /* The matchup leaves the trend line and joins the meta line: "TE SF · vs LAR 25th". */
-  .row{
-    grid-template-columns:44px minmax(0,1fr) auto;
-    grid-template-areas:
-      "head name  news"
-      "head trend rank";
-  }
-  .match{display:none}
-  .mu-meta{display:inline-flex}
   /* "How this works" keeps its icon beside the book toggle; the word would wrap the row. */
   .explain-btn span{display:none}
   .explain-btn svg{width:18px;height:18px}

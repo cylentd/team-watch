@@ -69,10 +69,11 @@ function wvRailHTML(key, mode, since){
   if (!ev.length) return wvRailEmptyHTML(mode);
   const rows = ev.map(e => wvRailRowHTML(e, key, since));
   const head = `<div class="rule"><h2>${t("waiver.rail.title")}</h2>${wvCountHTML(ev.length)}<span class="hair"></span></div>`;
-  if (mode === "watch")
-    return `<section class="wvr watch" aria-label="${t("waiver.rail.title")}">${head}<ol class="wvr-list">${rows.join("")}</ol></section>`;
+  /* Three rows deep on every day since 2026-09-24. The whole rail used to lead the week, and on a
+     phone ten rows of it pushed the first player worth claiming two screens down. A wide screen
+     loses nothing: its side column opens "Show all" itself (wdesk.js wvRailSide). */
   const rest = rows.slice(WV_RAIL_CAP);
-  return `<section class="wvr claim" aria-label="${t("waiver.rail.title")}">${head}
+  return `<section class="wvr ${mode}" aria-label="${t("waiver.rail.title")}">${head}
     <ol class="wvr-list">${rows.slice(0, WV_RAIL_CAP).join("")}</ol>
     ${rest.length ? `<details class="wvr-more"><summary>${t("waiver.rail.showAll", {n: ev.length})}</summary>
       <ol class="wvr-list">${rest.join("")}</ol></details>` : ""}

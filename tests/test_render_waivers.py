@@ -112,18 +112,16 @@ def test_a_packet_without_per_league_tiers_falls_back(open_waivers):
     assert page.locator(".wvfold .wvc:has-text('Tyler Allgeier') .wvc-stamp").text_content() == "Stash"
 
 
-@pytest.mark.parametrize("day,mode,shown", [("sat", "watch", 5), ("tue", "claim", 3)])
-def test_the_mode_follows_the_weekday(open_waivers, day, mode, shown):
+@pytest.mark.parametrize("day,mode", [("sat", "watch"), ("tue", "claim")])
+def test_the_mode_follows_the_weekday(open_waivers, day, mode):
     page = open_waivers("espn", init=TUESDAY if day == "tue" else "")
     assert page.locator(f".wv.mode-{mode}").count() == 1
-    assert page.locator(f".wvr.{mode} > .wvr-list > .wvr-row").count() == shown
-    if mode == "claim":
-        assert page.locator(".wvr-more summary").inner_text().strip().upper() == "SHOW ALL 5"
-        assert page.locator(".wvhero-mode").inner_text().upper() == "CLAIM DAY"
-    else:
-        assert page.locator(".wvr-more").count() == 0
-        assert page.locator(".wvhero-mode").inner_text().upper() == "WIRE WATCH"
-    # The rail sits above the cards in both; on claim day it is three rows, not the whole wire.
+    # Three rows and "Show all" on every day since 2026-09-24; the weekday picks only the hero word.
+    assert page.locator(f".wvr.{mode} > .wvr-list > .wvr-row").count() == 3
+    assert page.locator(".wvr-more summary").inner_text().strip().upper() == "SHOW ALL 5"
+    word = "CLAIM DAY" if mode == "claim" else "WIRE WATCH"
+    assert page.locator(".wvhero-mode").inner_text().upper() == word
+    # The rail sits above the cards in both, three rows deep, never the whole wire.
     assert page.evaluate("document.querySelector('.wvr').compareDocumentPosition(document.querySelector('.wv-cards')) & 4")
 
 
@@ -199,16 +197,12 @@ def test_the_deal_runs_once_per_day(open_waivers):
 
 
 @pytest.mark.parametrize("width", [360, 390, 1400])
-def test_no_rail_text_or_turn_label_sits_under_the_chat_button(open_waivers, width):
-    """The chat button is fixed to the right edge, so every row scrolls past it. The rail's text
-    and each card's "Evidence ›" must end left of it at any scroll position."""
+def test_the_chat_button_sits_in_the_nav_not_over_the_rows(open_waivers, width):
+    """Since 2026-09-24 the chat launcher is in the nav row. Nothing floats over a list, so no
+    surface has to keep its right edge clear of it."""
     page = open_waivers("espn", width=width)
-    over = page.evaluate("""(() => {
-      const fab = document.getElementById('chatfab').getBoundingClientRect();
-      const els = [...document.querySelectorAll('.wvr-t, .wvr-at, .wvr-k, .wv-cards > .wvc-list .wvc-front .wvc-turn')];
-      return els.filter(e => e.getBoundingClientRect().right > fab.left).map(e => e.textContent.trim().slice(0, 30));
-    })()""")
-    assert over == []
+    assert page.evaluate("document.getElementById('chatfab').closest('.navrow') !== null")
+    assert page.evaluate("getComputedStyle(document.getElementById('chatfab')).position") != "fixed"
 
 
 @pytest.mark.parametrize("day", ["sat", "tue"])

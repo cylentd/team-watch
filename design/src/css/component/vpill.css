@@ -1,0 +1,13 @@
+/* ============================== VALUE PILL ============================== */
+/* A row's one number on a phone, Robinhood's price box: filled in the colour of the way it is
+   moving, quiet grey when flat, dimmed text when there is no number. The roster uses it for the
+   week's projection, Movers for role share. The desktop rows have columns for these numbers, so
+   each caller shows it only at phone width (responsive/760.css). */
+.vpill{
+  display:none;justify-self:end;min-width:62px;padding:8px 6px;border-radius:8px;
+  font-family:var(--mono);font-size:var(--t-3);font-weight:700;text-align:center;letter-spacing:-.02em;
+  background:var(--panel-3);color:var(--ink);font-variant-numeric:tabular-nums;
+}
+.vpill.up{background:var(--up);color:var(--on-signal)}
+.vpill.down{background:var(--down);color:var(--on-signal)}
+.vpill.none{color:var(--ink-3)}

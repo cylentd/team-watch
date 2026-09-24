@@ -70,7 +70,7 @@ function render(){
   // The deal and the rail's "new" flash are taken once per page load, on the first Waivers render.
   v.innerHTML = SURFACE === "waivers"
     ? heroHTML(team) + `<div class="wrap">${waiverHTML(wvMotionTake())}</div>`
-    : heroHTML(team) + tickerHTML() + `<div class="wrap">${boardHTML(team)}</div>`;
+    : heroHTML(team) + `<div class="wrap">${boardHTML(team)}</div>`;
   fitTitle(v);
   v.querySelector(".leaguechip")?.addEventListener("click", ()=>openLeagueInfo(team.key));
   wireTeamSwitch(v);
