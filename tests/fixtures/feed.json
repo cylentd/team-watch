@@ -2019,23 +2019,41 @@
      "ol_continuity_reason": "no snap-count release yet for week 3 (game not final, or nflverse has not posted it yet)",
      "ol_out": 0,
      "ol_out_by_status": {},
-     "ol_out_reason": null
+     "ol_out_reason": null,
+     "ol_starters_out": 0,
+     "ol_starters_out_of": 5,
+     "ol_starters_out_names": [],
+     "ol_starters_out_reason": null
     },
     "SF": {
      "ol_continuity": null,
      "ol_continuity_of": 5,
      "ol_continuity_reason": "no snap-count release yet for week 3 (game not final, or nflverse has not posted it yet)",
-     "ol_out": 0,
-     "ol_out_by_status": {},
-     "ol_out_reason": null
+     "ol_out": 1,
+     "ol_out_by_status": {
+      "Questionable": 1
+     },
+     "ol_out_reason": null,
+     "ol_starters_out": null,
+     "ol_starters_out_of": 5,
+     "ol_starters_out_names": [],
+     "ol_starters_out_reason": "no snap-count release yet for week 3 (game not final, or nflverse has not posted it yet)"
     },
     "DET": {
-     "ol_continuity": null,
+     "ol_continuity": 4,
      "ol_continuity_of": 5,
-     "ol_continuity_reason": "no snap-count release yet for week 3 (game not final, or nflverse has not posted it yet)",
-     "ol_out": 0,
-     "ol_out_by_status": {},
-     "ol_out_reason": null
+     "ol_continuity_reason": null,
+     "ol_out": 3,
+     "ol_out_by_status": {
+      "none": 1,
+      "Out": 1,
+      "Questionable": 1
+     },
+     "ol_out_reason": null,
+     "ol_starters_out": 2,
+     "ol_starters_out_of": 5,
+     "ol_starters_out_names": ["Frank Ragnow", "Taylor Decker"],
+     "ol_starters_out_reason": null
     }
    }
   },

@@ -112,6 +112,13 @@ STATES = [
     ("profile-wr-log-modal", [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#modal [data-pftab='log']")]),
     ("profile-rb-modal", [("click", ".row:has-text('Chase Brown')"), ("click", "#modal [data-pftab='matchup']")]),
     ("profile-rb-bio-modal", [("click", ".row:has-text('Chase Brown')"), ("click", "#modal [data-pftab='bio']")]),
+    # SF's starters-out count is null (no snap-count release yet) -- the shape live data shows
+    # until ff-jarvis lands its new fields -- so the line falls back to the plain injury-report
+    # count instead of the starters-out cell DET and CIN cover. Kittle is SF only on the ESPN
+    # roster fixture, so this is the one state that switches leagues before opening a profile.
+    ("profile-te-matchup-modal", [("eval", "VIEW='espn'; render()"),
+                                   ("click", ".row:has-text('George Kittle')"),
+                                   ("click", "#modal [data-pftab='matchup']")]),
     ("profile-bye-modal", [("click", ".row:has-text('Jahmyr Gibbs')")]),
     # The Board: the leaderboard it arrives as, the same board as a duel, and a WR board because
     # that position publishes the most elite bars -- the one mark that is drawn only on the lanes

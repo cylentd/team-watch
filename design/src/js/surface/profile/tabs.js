@@ -14,7 +14,7 @@ const PF_TABS = [
   {id: "usage", label: () => t("profile.tab.usage"),
    body: (prof, p) => prof ? roleHTML(prof) + redZoneHTML(prof) + (pfReceiver(prof) ? sidesHTML(prof) : "") : ""},
   {id: "matchup", label: () => t("profile.tab.matchup"),
-   body: (prof, p) => !prof ? "" : headlineHTML(prof) + opponentHTML(prof)
+   body: (prof, p) => !prof ? "" : headlineHTML(prof) + opponentHTML(prof) + lineHTML(prof)
      + (pfReceiver(prof) ? zoneReadHTML(prof) + coverageHTML(prof) : "")
      + marketHTML(prof) + blendedHTML(prof)},
   {id: "log", label: () => t("profile.tab.log"),

@@ -71,6 +71,42 @@ function opponentHTML(prof){
     `<span class="pf-legend"><i></i>${t("profile.next.legend")}</span>`);
 }
 
+/* His own team's offensive line this week, from LIVE_TRENCHES. `ol_starters_out` is the lead
+   cell: of the five usual starters (ranked by snaps through last week), how many this week's
+   injury report lists Out or Doubtful -- the before-kickoff answer to "is his line down
+   starters this week". `ol_continuity` (usual starters who actually played) only fills in after
+   the game, so it stays as its own cell. The plain injury-report count is the weaker signal --
+   every lineman on the report, starter or not -- so it only shows when `ol_starters_out` is
+   null (no starting five known yet). Labelled with the team, never with him, because a team
+   number beside a player's stats is otherwise read as his. A null field is a count ff-jarvis
+   could not take (bye, week not played, report not out) and draws nothing; a real 0 is drawn,
+   in the plain colour -- amber is reserved for a real starter actually out. */
+const LINE_POS = ["QB", "RB", "WR", "TE"];
+function lineHTML(prof){
+  if (typeof LIVE_TRENCHES === "undefined" || !LIVE_TRENCHES || !LINE_POS.includes(prof.pos)) return "";
+  const r = LIVE_TRENCHES.teams[prof.team];
+  if (!r) return "";
+  const by = r.ol_out_by_status || {};
+  const named = Object.keys(by).filter(k => k !== "none" && by[k] > 0);
+  const hurt = named.some(k => /^(out|doubtful)$/i.test(k));
+  const cell = (v, words, down, title) => `<span class="pf-wx-c"${title ? ` title="${esc(title)}"` : ""}><b${down ? ` class="down"` : ""}>${v}</b><em>${words}</em></span>`;
+  const startersKnown = r.ol_starters_out !== null && r.ol_starters_out !== undefined && r.ol_starters_out_of;
+  const starterNames = r.ol_starters_out_names || [];
+  const starters = !startersKnown ? "" : cell(`${r.ol_starters_out}/${r.ol_starters_out_of}`,
+    t("profile.line.startersOut"), r.ol_starters_out >= 1, starterNames.length ? starterNames.join(", ") : "");
+  const list = named.map(k => `${by[k]} ${esc(k.toLowerCase())}`).join(", ");
+  // One lineman is "lineman": a literal key per count, because the copy check sees only literal lookups.
+  const outWords = r.ol_out === 1
+    ? (named.length ? t("profile.line.outListOne", {list}) : t("profile.line.outOne"))
+    : (named.length ? t("profile.line.outList", {list}) : t("profile.line.out"));
+  const out = startersKnown || r.ol_out === null || r.ol_out === undefined ? "" : cell(r.ol_out, outWords, hurt);
+  const kept = r.ol_continuity === null || r.ol_continuity === undefined || !r.ol_continuity_of ? ""
+    : cell(`${r.ol_continuity}/${r.ol_continuity_of}`, t("profile.line.kept"), r.ol_continuity < r.ol_continuity_of);
+  if (!starters && !out && !kept) return "";
+  const wk = LIVE_TRENCHES.week ? `<span class="pf-win">${t("profile.line.week", {wk: LIVE_TRENCHES.week})}</span>` : "";
+  return subHTML(t("profile.line.label", {team: esc(prof.team)}), `<div class="pf-wx pf-line">${starters}${kept}${out}</div>`, wk);
+}
+
 function blendedHTML(prof){
   const u = prof.usage;
   if (!u || u.targets === null || u.targets === undefined) return "";

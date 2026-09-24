@@ -205,11 +205,16 @@ CONTRACT = {
     # design/archetype.py, from ff-jarvis's model.season.trenches, every team passed through
     # whole (32 rows, no wanted-slug cut). `ol_continuity` and `ol_out` may be null/0 for a
     # reason named in the matching `_reason` field; `ol_out_by_status` is a count per status,
-    # `{}` when nobody is out.
+    # `{}` when nobody is out. `ol_starters_out` is the same five-most-used pool checked against
+    # Out/Doubtful only -- the before-kickoff signal `ol_continuity` cannot give until after the
+    # game; `ol_starters_out_names` lists the affected linemen, `ol_starters_out_reason` names
+    # why it is null.
     "LIVE_TRENCHES": {
         "keys": ["generated", "season", "week", "teams"],
         "map": ("teams", ["ol_continuity", "ol_continuity_of", "ol_continuity_reason",
-                          "ol_out", "ol_out_by_status", "ol_out_reason"]),
+                          "ol_out", "ol_out_by_status", "ol_out_reason",
+                          "ol_starters_out", "ol_starters_out_of", "ol_starters_out_names",
+                          "ol_starters_out_reason"]),
     },
 }
 

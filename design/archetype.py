@@ -57,9 +57,13 @@ def live_archetype(archetype, wanted):
 
 # The team record's own envelope (model/season/trenches.py): a count and, when it is null or
 # zero for a reason worth naming, the reason beside it -- the same null-carries-its-reason rule
-# ARCHETYPE.md states for role/style, applied to a team instead of a player.
+# ARCHETYPE.md states for role/style, applied to a team instead of a player. `ol_starters_out`
+# is the before-kickoff read: the same five-most-used-linemen pool `ol_continuity` measures,
+# checked against this week's Out/Doubtful designations instead of who actually played.
 TEAM_FIELDS = ["ol_continuity", "ol_continuity_of", "ol_continuity_reason",
-               "ol_out", "ol_out_by_status", "ol_out_reason"]
+               "ol_out", "ol_out_by_status", "ol_out_reason",
+               "ol_starters_out", "ol_starters_out_of", "ol_starters_out_names",
+               "ol_starters_out_reason"]
 
 
 def live_trenches(trenches):

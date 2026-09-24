@@ -217,9 +217,18 @@ one. Year over year the style axes run r=.37 (breakaway) down to r=.24 (yards be
 measured in ff-jarvis's `model/season/ARCHETYPE.md`: a data point to fold into a read, never a
 forecast. Nothing is summed — no composite, no grade, no ranking, the same rule "overall" follows.
 
-`LIVE_TRENCHES` (team-level OL continuity and injury exposure) is injected and **deliberately
-unrendered.** The Board's unit is a player against his position, and a team number on a player's
-card would be read as his. It waits for a surface whose unit is a team.
+`LIVE_TRENCHES` (team-level OL continuity and injury exposure) stays off the Board: the Board's
+unit is a player against his position, and a team number on a player's card would be read as his.
+Since 2026-09-23 it renders in one place, the profile's Matchup pane, under the opponent's defense,
+as a block headed with the team — "DET offensive line", never his name — so it answers "is his line
+down starters this week" without posing as his stat. Since 2026-09-24 the lead cell is
+`ol_starters_out`: of the five usual starters (ranked by snaps through last week), how many this
+week's injury report lists Out or Doubtful — `2/5 starters out`, the names on a tooltip, amber from
+one out and up (a real `0/5` stays plain). It is the before-kickoff read; `ol_continuity` (usual
+starters who actually played) only fills in after the game, and keeps its own cell, `4/5`. The
+plain injury-report count — every lineman on the report, starter or not — is the weaker signal, so
+it only shows when `ol_starters_out` is null (no starting five known yet). QB/RB/WR/TE only; a null
+field is a count ff-jarvis could not take and draws nothing, a real 0 draws.
 
 Reuses rather than rebuilds. `sheetValues()` (`profile/sheet.js`) is the one definition of who
 counts on an axis — the radar's denominator and the Board's are the same number. The picker is
