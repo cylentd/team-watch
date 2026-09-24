@@ -49,9 +49,24 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .wrap{max-width:1180px;margin:0 auto;padding:0 26px}
 .bleed{width:100%}
 
-/* mono label */
+/* The mono label. On the scale since 2026-09-23: it was 11px, the one size the type scale does not
+   contain, and it is the most-used label style on the page. lint_css.py exempts this file (the
+   scale's own px values live here), so nothing had caught it.
+
+   The tracking comes down as the size goes up, which is why this costs no layout: JetBrains Mono
+   advances 0.6em, so 11px at .2em was 8.80px per character and 12px at .14em is 8.88px -- under one
+   percent wider, on a label that is a handful of characters long. .14em is also what .chip already
+   uses, so the two agree now. */
 .lbl{
-  font-family:var(--mono); font-size:11px; font-weight:500;
-  letter-spacing:.2em; text-transform:uppercase; color:var(--ink-3);
+  font-family:var(--mono); font-size:var(--t-1); font-weight:500;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3);
+}
+
+/* A sentence is not a label. Mono is for numerals (DESIGN.md's own rule) and uppercase costs the
+   word shapes a reader navigates by, so the caption lines that explain a view -- the usage key's
+   note, a surface's source line -- take the UI face at the body step, sentence case. */
+.note{
+  font-family:var(--ui); font-size:var(--t-2); font-weight:400;
+  letter-spacing:normal; color:var(--ink-3);
 }
 

@@ -251,10 +251,16 @@
     "trial": "METHODOLOGY 12.46",
     "players": {
      "amonra st brown": {
-      "name": "Amon-Ra St. Brown", "pos": "WR", "team": "DET",
+      "name": "Amon-Ra St. Brown",
+      "pos": "WR",
+      "team": "DET",
       "src": "market",
       "game": "DET @ KC",
-      "markets": ["REC", "RECS", "TD"],
+      "markets": [
+       "REC",
+       "RECS",
+       "TD"
+      ],
       "pts": 17.8,
       "role_pts": 18.2,
       "prev_at": "2026-09-09T12:00",
@@ -267,7 +273,9 @@
       "no_market": false
      },
      "george kittle": {
-      "name": "George Kittle", "pos": "TE", "team": "SF",
+      "name": "George Kittle",
+      "pos": "TE",
+      "team": "SF",
       "src": "model",
       "game": "SF vs LAR",
       "markets": [],
@@ -283,10 +291,14 @@
       "no_market": true
      },
      "tee higgins": {
-      "name": "Tee Higgins", "pos": "WR", "team": "CIN",
+      "name": "Tee Higgins",
+      "pos": "WR",
+      "team": "CIN",
       "src": "model",
       "game": "CIN @ NYJ",
-      "markets": ["REC"],
+      "markets": [
+       "REC"
+      ],
       "pts": 11.2,
       "role_pts": null,
       "prev_at": null,
@@ -299,10 +311,16 @@
       "no_market": true
      },
      "chase brown": {
-      "name": "Chase Brown", "pos": "RB", "team": "CIN",
+      "name": "Chase Brown",
+      "pos": "RB",
+      "team": "CIN",
       "src": "market",
       "game": "CIN @ NYJ",
-      "markets": ["RUSH", "REC", "TD"],
+      "markets": [
+       "RUSH",
+       "REC",
+       "TD"
+      ],
       "pts": 14.2,
       "role_pts": 14.0,
       "prev_at": "2026-09-09T12:00",
@@ -1513,5 +1531,514 @@
    },
    "fetched": "2026-09-10 07:35"
   }
+ },
+ "archetype": {
+  "data": {
+   "season": 2026,
+   "generated": "2026-09-23T21:14",
+   "players": {
+    "cam-skattebo": {
+     "name": "Cam Skattebo",
+     "pos": "RB",
+     "team": "NYG",
+     "gsis_id": "00-0040715",
+     "role": null,
+     "role_null": "no route rate",
+     "role_evidence": {
+      "window": "2026 to date",
+      "car": 30,
+      "tgt": 4,
+      "touch": 34,
+      "games": 2,
+      "gl_car": 2,
+      "team_gl_car": 3,
+      "gl_share": 66.67,
+      "opp_pct": 61.8,
+      "route_pct": null,
+      "brk_rate": 0.0,
+      "ryoe": 0.28
+     },
+     "style": null,
+     "style_null": "career carries < 250",
+     "style_floor": 250,
+     "style_evidence": {
+      "window": "2018-2026",
+      "car": 119
+     },
+     "flags": [],
+     "athletic_profile": {
+      "speed": null,
+      "burst": 85,
+      "agility": null,
+      "forty": null,
+      "wt": 219.0,
+      "vertical": 39.5,
+      "broad_jump": 123.0,
+      "cone": null,
+      "shuttle": null,
+      "pool": "RB"
+     }
+    },
+    "josh-allen": {
+     "name": "Josh Allen",
+     "pos": "QB",
+     "team": "BUF",
+     "gsis_id": "00-0034857",
+     "role": null,
+     "role_null": "not a field for quarterbacks",
+     "role_evidence": null,
+     "style": "dual_threat",
+     "style_null": null,
+     "style_floor": 30,
+     "style_evidence": {
+      "window": "2026",
+      "dropbacks": 70,
+      "designed_pct": 21.3,
+      "scr_rate": 8.6,
+      "gl_pct": 60.0
+     },
+     "flags": [
+      "goal_line_runner"
+     ],
+     "athletic_profile": {
+      "speed": 76,
+      "burst": 84,
+      "agility": 67,
+      "forty": 4.75,
+      "wt": 237.0,
+      "vertical": 33.5,
+      "broad_jump": 119.0,
+      "cone": 6.9,
+      "shuttle": 4.4,
+      "pool": "QB"
+     }
+    },
+    "emanuel-wilson": {
+     "name": "Emanuel Wilson",
+     "pos": "RB",
+     "team": "SEA",
+     "gsis_id": "00-0038797",
+     "role": "goal_line",
+     "role_null": null,
+     "role_evidence": {
+      "window": "2026 to date",
+      "car": 23,
+      "tgt": 1,
+      "touch": 24,
+      "games": 2,
+      "gl_car": 4,
+      "team_gl_car": 7,
+      "gl_share": 57.14,
+      "opp_pct": 35.8,
+      "route_pct": null,
+      "brk_rate": 4.3,
+      "ryoe": 0.66
+     },
+     "style": "one_cut",
+     "style_null": null,
+     "style_floor": 250,
+     "style_evidence": {
+      "window": "2018-2026",
+      "car": 265,
+      "ybc_att": 2.29,
+      "yac_att": 2.15,
+      "brk_tkl_rate": 6.04,
+      "brk_rate": 3.77,
+      "brk_car": 265,
+      "p_ybc_att": 49,
+      "p_yac_att": 78,
+      "p_brk_tkl_rate": 38,
+      "p_brk_rate": 31
+     },
+     "flags": [],
+     "athletic_profile": null
+    },
+    "joe-burrow": {
+     "name": "Joe Burrow",
+     "pos": "QB",
+     "team": "CIN",
+     "gsis_id": "00-0036442",
+     "role": null,
+     "role_null": "not a field for quarterbacks",
+     "role_evidence": null,
+     "style": "pocket",
+     "style_null": null,
+     "style_floor": 30,
+     "style_evidence": {
+      "window": "2026",
+      "dropbacks": 73,
+      "designed_pct": 6.4,
+      "scr_rate": 1.4,
+      "gl_pct": 0.0
+     },
+     "flags": [],
+     "athletic_profile": {
+      "speed": null,
+      "burst": null,
+      "agility": null,
+      "forty": null,
+      "wt": 221.0,
+      "vertical": null,
+      "broad_jump": null,
+      "cone": null,
+      "shuttle": null,
+      "pool": "QB"
+     }
+    },
+    "chase-brown": {
+     "name": "Chase Brown",
+     "pos": "RB",
+     "team": "CIN",
+     "gsis_id": "00-0038597",
+     "role": "every_down",
+     "role_null": null,
+     "role_evidence": {
+      "window": "2026 to date",
+      "car": 36,
+      "tgt": 11,
+      "touch": 47,
+      "games": 2,
+      "gl_car": 3,
+      "team_gl_car": 3,
+      "gl_share": 100.0,
+      "opp_pct": 81.0,
+      "route_pct": 54.1,
+      "brk_rate": 0.0,
+      "ryoe": -0.34
+     },
+     "style": "one_cut",
+     "style_null": null,
+     "style_floor": 250,
+     "style_evidence": {
+      "window": "2018-2026",
+      "car": 541,
+      "ybc_att": 2.33,
+      "yac_att": 1.97,
+      "brk_tkl_rate": 8.13,
+      "brk_rate": 4.24,
+      "brk_car": 543,
+      "p_ybc_att": 56,
+      "p_yac_att": 48,
+      "p_brk_tkl_rate": 74,
+      "p_brk_rate": 45
+     },
+     "flags": [],
+     "athletic_profile": {
+      "speed": 76,
+      "burst": 94,
+      "agility": null,
+      "forty": 4.43,
+      "wt": 209.0,
+      "vertical": 40.0,
+      "broad_jump": 127.0,
+      "cone": null,
+      "shuttle": null,
+      "pool": "RB"
+     }
+    },
+    "tee-higgins": {
+     "name": "Tee Higgins",
+     "pos": "WR",
+     "team": "CIN",
+     "gsis_id": "00-0036410",
+     "role": "every_down",
+     "role_null": null,
+     "role_evidence": {
+      "window": "2026 to date",
+      "games": 2,
+      "snap_pct": 72.0,
+      "route_pct": 83.8,
+      "wopr": 0.74,
+      "tprr": 19.4,
+      "rz_tgt": 0.0
+     },
+     "style": "deep_threat",
+     "style_null": null,
+     "style_floor": 25,
+     "style_evidence": {
+      "window": "2018-2025",
+      "seasons": 6,
+      "tgt": 610,
+      "adot": 11.6,
+      "ybc_r": 10.1,
+      "yac_r": 3.9,
+      "yac_share": 0.278,
+      "brk_tgt": 0.038,
+      "catch": 0.638,
+      "p_adot": 62.0,
+      "p_yac_share": 30.0
+     },
+     "flags": [],
+     "athletic_profile": {
+      "speed": null,
+      "burst": null,
+      "agility": null,
+      "forty": null,
+      "wt": 216.0,
+      "vertical": null,
+      "broad_jump": null,
+      "cone": null,
+      "shuttle": null,
+      "pool": "WR"
+     }
+    },
+    "brock-purdy": {
+     "name": "Brock Purdy",
+     "pos": "QB",
+     "team": "SF",
+     "gsis_id": "00-0037834",
+     "role": null,
+     "role_null": "not a field for quarterbacks",
+     "role_evidence": null,
+     "style": "scrambler",
+     "style_null": null,
+     "style_floor": 30,
+     "style_evidence": {
+      "window": "2026",
+      "dropbacks": 61,
+      "designed_pct": 6.0,
+      "scr_rate": 8.2,
+      "gl_pct": 20.0
+     },
+     "flags": [],
+     "athletic_profile": {
+      "speed": 26,
+      "burst": null,
+      "agility": 25,
+      "forty": 4.84,
+      "wt": 212.0,
+      "vertical": 27.0,
+      "broad_jump": null,
+      "cone": 7.21,
+      "shuttle": 4.45,
+      "pool": "QB"
+     }
+    },
+    "george-kittle": {
+     "name": "George Kittle",
+     "pos": "TE",
+     "team": "SF",
+     "gsis_id": "00-0033288",
+     "role": "rotational",
+     "role_null": null,
+     "role_evidence": {
+      "window": "2026 to date",
+      "games": 2,
+      "snap_pct": 47.0,
+      "route_pct": 47.2,
+      "wopr": 0.43,
+      "tprr": 29.4,
+      "rz_tgt": 1.5
+     },
+     "style": "complete",
+     "style_null": null,
+     "style_floor": 100,
+     "style_evidence": {
+      "window": "2018-2025",
+      "seasons": 8,
+      "tgt": 739,
+      "adot": 7.4,
+      "ybc_r": 6.6,
+      "yac_r": 7.0,
+      "yac_share": 0.515,
+      "brk_tgt": 0.055,
+      "catch": 0.747,
+      "p_adot": 71.0,
+      "p_yac_share": 68.0
+     },
+     "flags": [],
+     "athletic_profile": {
+      "speed": 94,
+      "burst": 96,
+      "agility": null,
+      "forty": 4.52,
+      "wt": 247.0,
+      "vertical": 35.0,
+      "broad_jump": 132.0,
+      "cone": null,
+      "shuttle": null,
+      "pool": "TE"
+     }
+    },
+    "amonra-st-brown": {
+     "name": "Amon-Ra St. Brown",
+     "pos": "WR",
+     "team": "DET",
+     "gsis_id": "00-0036963",
+     "role": "every_down",
+     "role_null": null,
+     "role_evidence": {
+      "window": "2026 to date",
+      "games": 2,
+      "snap_pct": 92.5,
+      "route_pct": 96.5,
+      "wopr": 0.81,
+      "tprr": 32.9,
+      "rz_tgt": 3.0
+     },
+     "style": "yac",
+     "style_null": null,
+     "style_floor": 25,
+     "style_evidence": {
+      "window": "2018-2025",
+      "seasons": 5,
+      "tgt": 742,
+      "adot": 7.4,
+      "ybc_r": 6.7,
+      "yac_r": 4.7,
+      "yac_share": 0.414,
+      "brk_tgt": 0.035,
+      "catch": 0.737,
+      "p_adot": 13.0,
+      "p_yac_share": 76.0
+     },
+     "flags": [],
+     "athletic_profile": {
+      "speed": 35,
+      "burst": 84,
+      "agility": 63,
+      "forty": 4.51,
+      "wt": 197.0,
+      "vertical": 38.5,
+      "broad_jump": 127.0,
+      "cone": 6.88,
+      "shuttle": 4.17,
+      "pool": "WR"
+     }
+    },
+    "jahmyr-gibbs": {
+     "name": "Jahmyr Gibbs",
+     "pos": "RB",
+     "team": "DET",
+     "gsis_id": "00-0039139",
+     "role": "every_down",
+     "role_null": null,
+     "role_evidence": {
+      "window": "2026 to date",
+      "car": 45,
+      "tgt": 13,
+      "touch": 58,
+      "games": 2,
+      "gl_car": 5,
+      "team_gl_car": 5,
+      "gl_share": 100.0,
+      "opp_pct": 92.1,
+      "route_pct": 55.3,
+      "brk_rate": 8.9,
+      "ryoe": 0.26
+     },
+     "style": "complete",
+     "style_null": null,
+     "style_floor": 250,
+     "style_evidence": {
+      "window": "2018-2026",
+      "car": 720,
+      "ybc_att": 3.14,
+      "yac_att": 2.12,
+      "brk_tkl_rate": 9.17,
+      "brk_rate": 8.06,
+      "brk_car": 720,
+      "p_ybc_att": 100,
+      "p_yac_att": 72,
+      "p_brk_tkl_rate": 90,
+      "p_brk_rate": 98
+     },
+     "flags": [],
+     "athletic_profile": {
+      "speed": 81,
+      "burst": null,
+      "agility": null,
+      "forty": 4.36,
+      "wt": 199.0,
+      "vertical": 33.5,
+      "broad_jump": null,
+      "cone": null,
+      "shuttle": null,
+      "pool": "RB"
+     }
+    },
+    "jamarr-chase": {
+     "name": "Ja'Marr Chase",
+     "pos": "WR",
+     "team": "CIN",
+     "gsis_id": "00-0036900",
+     "role": "every_down",
+     "role_null": null,
+     "role_evidence": {
+      "window": "2026 to date",
+      "games": 2,
+      "snap_pct": 91.0,
+      "route_pct": 97.3,
+      "wopr": 0.5,
+      "tprr": 11.1,
+      "rz_tgt": 1.0
+     },
+     "style": "yac",
+     "style_null": null,
+     "style_floor": 25,
+     "style_evidence": {
+      "window": "2018-2025",
+      "seasons": 5,
+      "tgt": 767,
+      "adot": 9.3,
+      "ybc_r": 7.3,
+      "yac_r": 5.9,
+      "yac_share": 0.447,
+      "brk_tgt": 0.053,
+      "catch": 0.678,
+      "p_adot": 31.0,
+      "p_yac_share": 82.0
+     },
+     "flags": [],
+     "athletic_profile": {
+      "speed": 93,
+      "burst": 96,
+      "agility": 75,
+      "forty": 4.34,
+      "wt": 201.0,
+      "vertical": 41.0,
+      "broad_jump": 132.0,
+      "cone": 6.96,
+      "shuttle": 3.99,
+      "pool": "WR"
+     }
+    }
+   }
+  },
+  "fetched": "2026-09-23T21:14"
+ },
+ "trenches": {
+  "data": {
+   "season": 2026,
+   "week": 3,
+   "generated": "2026-09-23T19:58",
+   "teams": {
+    "CIN": {
+     "ol_continuity": null,
+     "ol_continuity_of": 5,
+     "ol_continuity_reason": "no snap-count release yet for week 3 (game not final, or nflverse has not posted it yet)",
+     "ol_out": 0,
+     "ol_out_by_status": {},
+     "ol_out_reason": null
+    },
+    "SF": {
+     "ol_continuity": null,
+     "ol_continuity_of": 5,
+     "ol_continuity_reason": "no snap-count release yet for week 3 (game not final, or nflverse has not posted it yet)",
+     "ol_out": 0,
+     "ol_out_by_status": {},
+     "ol_out_reason": null
+    },
+    "DET": {
+     "ol_continuity": null,
+     "ol_continuity_of": 5,
+     "ol_continuity_reason": "no snap-count release yet for week 3 (game not final, or nflverse has not posted it yet)",
+     "ol_out": 0,
+     "ol_out_by_status": {},
+     "ol_out_reason": null
+    }
+   }
+  },
+  "fetched": "2026-09-23T19:58"
  }
 }

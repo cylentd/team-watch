@@ -14,8 +14,14 @@
   --line:#23252f;
   --line-2:#33363f;
   --ink:#f3f1ea;
-  --ink-2:#9a99a6;
-  --ink-3:#86859a;
+  /* Lifted 2026-09-23. Measured across three views, the quiet tier sat at 4.87-5.56:1 against its
+     own surfaces -- legally AA and nothing more -- while carrying almost every label on the page at
+     12px, in mono, uppercase, with up to 2.2px of tracking. Each of those is fine alone; stacked
+     they are why the page read as hard work. The two greys each move up one step and keep their
+     distance from each other: on --panel the tier is now 16.7 / 9.5 / 6.7, three clear steps with
+     the floor above AA rather than on it. --ink-3's new value is what --ink-2 used to be. */
+  --ink-2:#b8b7c2;
+  --ink-3:#9a99a6;
   --lime:#c8ff2e;
   --up:#37e08b;
   --down:#ff5a52;
@@ -34,8 +40,8 @@
   --line-rgb:35 37 47;
   --line-2-rgb:51 54 63;
   --ink-rgb:243 241 234;
-  --ink-2-rgb:154 153 166;
-  --ink-3-rgb:134 133 154;
+  --ink-2-rgb:184 183 194;
+  --ink-3-rgb:154 153 166;
   --lime-rgb:200 255 46;
   --up-rgb:55 224 139;
   --down-rgb:255 90 82;

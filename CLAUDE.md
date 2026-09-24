@@ -75,7 +75,7 @@ question; `SURFACE` is always the **leaf**, never the group, and the group is de
 | group | views |
 |---|---|
 | My teams | Roster, Waivers |
-| Scouting | Movers (the old Pool), Grid (weekly usage), News |
+| Scouting | Board (who leads each stat, 2026-09-23), Movers (the old Pool), Grid (weekly usage), News |
 | Bets | Parlay, DFS |
 | Gameday | Live |
 

@@ -27,6 +27,10 @@ from pedigree import live_pedigree, report as pedigree_report   # design/pedigre
 from gamelog import live_gamelog, report as gamelog_report      # design/gamelog.py: the profile modal's weekly history
 from projections import live_projections, report as projections_report  # design/projections.py: projected vs actual
 from routes import live_routes, report as routes_report          # design/routes.py: the profile sheet's YPRR axis
+from archetype import (                                           # design/archetype.py: role/style labels + OL context
+    load_archetype, load_trenches, live_archetype, live_trenches,
+    report_archetype, report_trenches,
+)
 from sources import (                                    # design/sources.py: the ff-jarvis adapter
     ROOT, REPO, DWR, FEED, ESPN_ROSTERS, YAHOO_ROSTERS, DFS_POOL,
     feed_block, read_first, load_status, load_props_raw, load_model_raw,
@@ -670,11 +674,14 @@ def render():
         "LIVE_PROJECTIONS": live_projections(load_player_proj(), slugify, wanted_set),
         "LIVE_WEATHER": load_weather(),
         "LIVE_ROUTES": live_routes(load_routes(), slugify, wanted_set),
+        "LIVE_ARCHETYPE": live_archetype(load_archetype(FEED, DWR), wanted_set),
+        "LIVE_TRENCHES": live_trenches(load_trenches(FEED, DWR)),
     }
     add_market_stock(blocks, report)
     report.append(schedule_report(blocks["LIVE_SCHEDULE"]))
     report += [pedigree_report(blocks["LIVE_PEDIGREE"]), gamelog_report(blocks["LIVE_GAMELOG"]),
               projections_report(blocks["LIVE_PROJECTIONS"]), routes_report(blocks["LIVE_ROUTES"]),
+              report_archetype(blocks["LIVE_ARCHETYPE"]), report_trenches(blocks["LIVE_TRENCHES"]),
               (f"Weather: {len(blocks['LIVE_WEATHER']['teams'])} teams" if blocks["LIVE_WEATHER"]
                else "Weather: none, so no game-day forecast")]
     for name, obj in blocks.items():

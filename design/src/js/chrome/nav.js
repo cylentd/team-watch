@@ -14,7 +14,7 @@ const NAV_ICON = {
    Each leaf's label is its own key, so a rename here never silently changes a heading elsewhere. */
 const NAV = [
   ["teams",    ["roster", "waivers"]],
-  ["scouting", ["pool", "usage", "news"]],
+  ["scouting", ["board", "pool", "usage", "news"]],
   ["bets",     ["parlay", "dfs"]],
   ["gameday",  ["live"]],
 ];
@@ -23,9 +23,9 @@ const NAV = [
    orphaned by scanning for literal lookups, and a key assembled from a template is invisible to
    it -- the build would pass while the label rendered blank. */
 const navLabel = leaf => ({
-  roster: t("nav.tab.roster"), waivers: t("nav.tab.waivers"), pool: t("nav.tab.movers"),
-  usage: t("nav.tab.grid"), news: t("nav.tab.news"), parlay: t("nav.tab.parlay"),
-  dfs: t("nav.tab.dfs"), live: t("nav.tab.live"),
+  roster: t("nav.tab.roster"), waivers: t("nav.tab.waivers"), board: t("nav.tab.board"),
+  pool: t("nav.tab.movers"), usage: t("nav.tab.grid"), news: t("nav.tab.news"),
+  parlay: t("nav.tab.parlay"), dfs: t("nav.tab.dfs"), live: t("nav.tab.live"),
 }[leaf] || leaf);
 
 const navGroupLabel = (group, short) => (short ? {

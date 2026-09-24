@@ -48,21 +48,11 @@ function render(){
     return;
   }
   if (SURFACE === "pool"){
-    v.innerHTML = poolHTML();
-    v.querySelectorAll(".chip[data-pos]").forEach(b=>b.addEventListener("click",()=>{
-      POOL_FILTER = b.dataset.pos; POOL_PAGE = 1; render();
-    }));
-    v.querySelectorAll("[data-poolpage]").forEach(b=>b.addEventListener("click",()=>{
-      POOL_PAGE = Math.max(1, POOL_PAGE + (b.dataset.poolpage === "next" ? 1 : -1));
-      const y = window.scrollY; render(); window.scrollTo(0, y);
-    }));
-    v.querySelectorAll("[data-pool]").forEach(el=>{
-      const open = ()=>openPoolDrawer(+el.dataset.pool);
-      el.addEventListener("click", open);
-      el.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();open();} });
-    });
-    v.querySelectorAll(".dotg").forEach(g=>g.addEventListener("click",()=>openPoolDrawer(+g.dataset.i)));
-    nudgeScrollers(v);
+    v.innerHTML = poolHTML(); wirePool(v); nudgeScrollers(v);
+    return;
+  }
+  if (SURFACE === "board"){
+    v.innerHTML = bdViewHTML(); wireBd(v);
     return;
   }
   if (SURFACE === "usage"){

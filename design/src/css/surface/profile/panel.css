@@ -129,4 +129,14 @@
   .pf-sheet{order:1}
   .pf-main{order:2}
   .pf-lede{padding:14px 0 16px}
+  /* The three lede labels were ellipsised on a phone -- "TOUGHE...", "DROPBA..." -- which tells a
+     reader nothing and sits directly under the number it is supposed to name. Three columns of a
+     360px modal are about 110px each, and 40px of that was the gutter: 18px of right padding on
+     every cell plus 22px of left padding on the two with a rule. The gutter comes down and the
+     label's own tracking with it, which buys "DROPBACKS" (9 characters, the longest axis label
+     any position publishes) about 30px -- enough that the longest of them fits unclipped. The
+     number above keeps its full size; only the space around the label moves. */
+  .pf-lede-c{padding-right:7px}
+  .pf-lede-c + .pf-lede-c{padding-left:9px}
+  .pf-lede-l{letter-spacing:.04em}
 }

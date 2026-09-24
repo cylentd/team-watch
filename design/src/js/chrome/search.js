@@ -8,6 +8,10 @@ const SEARCH_MAX = 8;
 const SEARCH_RECENT_KEY = "tw.search.recent";
 let SEARCH_ROWS = [];
 let SEARCH_AT = 0;
+/* Set by searchOpen(fn): a pick hands the player to fn and closes, instead of opening his
+   profile. The Board fills a slot with it -- the same sheet, the same index, one destination
+   swapped, rather than a second player picker built beside this one. */
+let SEARCH_TAKE = null;
 
 const searchEl = id => document.getElementById(id);
 
@@ -65,7 +69,10 @@ function searchMove(step){
 
 function searchPick(i){
   const e = SEARCH_ROWS[i];
-  if (e) openProfile(searchPlayer(e), searchEl(`sr-${i}`));
+  if (!e) return;
+  // Taken before the close, because closing clears it.
+  if (SEARCH_TAKE){ const take = SEARCH_TAKE; searchClose(); take(searchPlayer(e)); return; }
+  openProfile(searchPlayer(e), searchEl(`sr-${i}`));
 }
 
 /* iOS leaves a fixed element's bottom under the keyboard: the keyboard shrinks the visual
@@ -81,9 +88,10 @@ function searchFit(){
   s.toggleAttribute("data-kb", v.height < window.innerHeight - 120);
 }
 
-function searchOpen(){
+function searchOpen(take){
   const s = searchEl("search");
   if (!s.hidden) return;
+  SEARCH_TAKE = typeof take === "function" ? take : null;
   s.hidden = false;
   // Focus inside the tap itself: iOS raises the keyboard only for a focus the user caused.
   searchEl("search-q").focus({preventScroll: true});
@@ -97,6 +105,7 @@ function searchShut(){
   const s = searchEl("search");
   if (s.hidden) return;
   s.hidden = true;
+  SEARCH_TAKE = null;
   searchEl("search-q").value = "";
   searchEl("navsearch").focus({preventScroll: true});
 }

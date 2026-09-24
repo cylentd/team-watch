@@ -47,6 +47,14 @@ surface/pool/scatter.js
 surface/pool/pool.js
 data/usage.js
 surface/usage/usage.js
+# pin: board/* after data/usage.js -- bdRows memoises off USAGE.sheet, and after
+#      surface/profile/sheet.js, whose sheetValues() is the one definition of who counts on an
+#      axis. lane.js before board.js is readability, not load order: both are functions.
+surface/board/lane.js
+# label.js reads LIVE_ARCHETYPE, which the assembler injects above every part, so its place here is
+# readability -- lane, label, then the view that calls both.
+surface/board/label.js
+surface/board/board.js
 surface/chat/context.js
 surface/chat/chat.js
 data/market.js

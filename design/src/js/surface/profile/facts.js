@@ -112,9 +112,71 @@ const pedHas = v => v !== null && v !== undefined && v !== "";
 
    Measurables take the two-column half of the grid, draft rows the full width: "Rd 1.12 · 2023"
    and a league name are long, and "Age 27" is not. */
+/* What he tested as, beside the pedigree: the combine, once, forever. It belongs in this pane and
+   nowhere else -- the pane answers nothing about Sunday, and neither does a forty time.
+
+   NEVER A SCORE. Three percentiles, each its own bar, never summed: the combine says what a player
+   can do, not what he does, and a fast heavy back is not thereby a power back. The percentile is
+   within the combine's own position pool, which is not always his fantasy position (a fullback is
+   ranked among fullbacks), so the pool is named under the bars.
+
+   A MISSING DRILL IS A MISSING NUMBER, NOT A ZERO. 277 players in ff-jarvis's set have no agility
+   score at all; a bar at the floor would read as the slowest man who tested. No bar is drawn, and
+   the score is named as unmeasured instead. */
+function athBarHTML(label, pct){
+  return `<div class="pf-bar">
+    <span class="pf-bar-l">${label}</span>
+    <span class="pf-track"><i style="width:${Math.max(0, Math.min(100, pct)).toFixed(0)}%"></i></span>
+    <span class="pf-bar-v">${ordinal(pct)}</span>
+    <span class="pf-bar-d"></span>
+  </div>`;
+}
+
+/* The drills the three scores are built from, so a reader can check them: Speed is the forty
+   against his weight, Burst is vertical plus broad, Agility is cone plus shuttle. */
+function drillsText(ap){
+  return [pedHas(ap.forty) ? t("profile.athletic.forty", {v: Number(ap.forty).toFixed(2)}) : null,
+    pedHas(ap.vertical) ? t("profile.athletic.vertical", {v: athIn(ap.vertical)}) : null,
+    pedHas(ap.broad_jump) ? t("profile.athletic.broad", {v: athIn(ap.broad_jump)}) : null,
+    pedHas(ap.cone) ? t("profile.athletic.cone", {v: Number(ap.cone).toFixed(2)}) : null,
+    pedHas(ap.shuttle) ? t("profile.athletic.shuttle", {v: Number(ap.shuttle).toFixed(2)}) : null,
+  ].filter(Boolean).join(" · ");
+}
+
+// Inches, as the combine publishes them: a half inch kept, a whole one not dressed as 40.0.
+const athIn = v => String(Number(v) % 1 === 0 ? Number(v) : Number(v).toFixed(1));
+
+function athleticBlockHTML(p){
+  const a = typeof LIVE_ARCHETYPE !== "undefined" && LIVE_ARCHETYPE ? LIVE_ARCHETYPE.players[p.slug] : null;
+  if (!a) return "";
+  const sec = body => secHTML(t("profile.athletic.label"), body, "", "", t("profile.athletic.win"));
+  const b = pedigreeFor(p);
+  /* No combine record at all. A rookie may still be measured; a veteran who ran at his pro day
+     instead, or went undrafted, never will be -- two different absences, said differently. */
+  if (!a.athletic_profile)
+    return sec(`<p class="pf-cap pf-quiet">${b && b.years_exp === 0
+      ? t("profile.athletic.rookie") : t("profile.athletic.none")}</p>`);
+  const ap = a.athletic_profile;
+  const scores = [[t("profile.athletic.speed"), ap.speed], [t("profile.athletic.burst"), ap.burst],
+                  [t("profile.athletic.agility"), ap.agility]];
+  const bars = scores.filter(s => pedHas(s[1])).map(s => athBarHTML(s[0], s[1])).join("");
+  const gone = scores.filter(s => !pedHas(s[1])).map(s => s[0]);
+  const drills = drillsText(ap);
+  if (!bars && !drills) return sec(`<p class="pf-cap pf-quiet">${t("profile.athletic.none")}</p>`);
+  return sec((bars ? `<div class="pf-bars">${bars}</div>` : "")
+    + (bars ? `<p class="pf-cap pf-quiet">${t("profile.athletic.pool", {pool: esc(ap.pool)})}</p>` : "")
+    + (drills ? `<p class="pf-cap">${drills}</p>` : "")
+    + (gone.length ? `<p class="pf-cap pf-quiet">${t("profile.athletic.missing", {list: gone.join(" · ")})}</p>` : ""));
+}
+
+/* The athletic profile joins the pedigree here rather than standing alone: this pane is who he is,
+   and a player the page holds no pedigree for still draws no Bio tab (tabs.js states that rule).
+   In ff-jarvis's live set exactly one archetype player has no pedigree record, and he has no
+   combine record either, so nothing measurable is lost by keeping the two together. */
 function bioBlockHTML(p){
   const b = pedigreeFor(p);
   if (!b) return "";
+  const ath = athleticBlockHTML(p);
   const size = [inchesText(b.height), pedHas(b.weight) ? t("profile.fact.lb", {n: b.weight}) : null]
     .filter(Boolean).join(" · ");
   const nfl = pedHas(b.draft_round) && pedHas(b.draft_slot)
@@ -127,7 +189,7 @@ function bioBlockHTML(p){
       ? (b.years_exp === 0 ? t("profile.fact.rookie") : t("profile.fact.years", {n: b.years_exp})) : null],
   ].filter(c => c[1] !== null);
   const wide = (nfl ? [[t("profile.fact.nfl"), nfl]] : []).concat(leagueFactRows(b.fantasy_draft || {}));
-  if (!half.length && !wide.length) return "";
+  if (!half.length && !wide.length) return ath;
   const cell = (k, v, cls) => `<div${cls ? ` class="${cls}"` : ""}><dt>${k}</dt><dd>${v}</dd></div>`;
-  return `<dl class="pf-facts">${half.map(([k, v]) => cell(k, v)).join("")}${wide.map(([k, v]) => cell(k, v, "wide")).join("")}</dl>`;
+  return `<dl class="pf-facts">${half.map(([k, v]) => cell(k, v)).join("")}${wide.map(([k, v]) => cell(k, v, "wide")).join("")}</dl>` + ath;
 }

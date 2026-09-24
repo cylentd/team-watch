@@ -68,7 +68,7 @@ GD_CATCHUP = {swing: {me: 21.5, opp: 3.0}, movers: [
 # out here (rather than trusting the group button's "return me to where I was") keeps a state
 # reachable in the same way no matter which state ran before it.
 GROUP = {"roster": "teams", "waivers": "teams",
-         "pool": "scouting", "usage": "scouting", "news": "scouting",
+         "board": "scouting", "pool": "scouting", "usage": "scouting", "news": "scouting",
          "parlay": "bets", "dfs": "bets", "live": "gameday"}
 
 
@@ -77,6 +77,15 @@ def go(leaf):
     if len([k for k, g in GROUP.items() if g == GROUP[leaf]]) > 1:
         steps.append(("click", f"[data-leaf='{leaf}']"))
     return steps
+
+
+def bdpick(q):
+    """Fill a Board slot the way a reader does: the app's own search sheet, opened with a slot to
+    fill instead of a profile to open. Driving it through searchOpen/searchPick rather than
+    calling bdAdd is the point -- the handoff is the part that would break silently."""
+    return [("click", "[data-bdadd]"),
+            ("eval", f"document.getElementById('search-q').value = {q!r}; searchPaint()"),
+            ("click", "#sr-0")]
 
 
 STATES = [
@@ -104,6 +113,24 @@ STATES = [
     ("profile-rb-modal", [("click", ".row:has-text('Chase Brown')"), ("click", "#modal [data-pftab='matchup']")]),
     ("profile-rb-bio-modal", [("click", ".row:has-text('Chase Brown')"), ("click", "#modal [data-pftab='bio']")]),
     ("profile-bye-modal", [("click", ".row:has-text('Jahmyr Gibbs')")]),
+    # The Board: the leaderboard it arrives as, the same board as a duel, and a WR board because
+    # that position publishes the most elite bars -- the one mark that is drawn only on the lanes
+    # whose axis has a published threshold.
+    ("board", go("board")),
+    # Chase Brown and Skattebo rather than two arbitrary backs: both are in the fixture's archetype
+    # block, so this state is the only one that reviews a rendered role and style label. Skattebo
+    # carries a null style with its reason ("career carries < 250") and a null role with his, which
+    # is the path a blank would silently pass. Picking players the block does not cover renders the
+    # lanes and nothing else, which is what this state did before.
+    ("board-two", go("board") + bdpick("chase brown") + bdpick("skattebo")),
+    # The quarterback label: a style with no role beside it, because role is not a field for the
+    # position, and the reason has to render where the word would be. Burrow rather than the
+    # fixture's flag-carrying passer: wanted_slugs deliberately excludes the usage grid (build.py),
+    # and with no pool block in the fixture the only archetype records that survive the cut are
+    # roster and prop players. The `goal_line_runner` flag is therefore not reachable from a
+    # fixture-built page at all, and is checked against the live build instead.
+    ("board-qb", go("board") + [("click", "[data-bdpos='QB']")] + bdpick("burrow")),
+    ("board-wr", go("board") + [("click", "[data-bdpos='WR']")]),
     ("pool", go("pool")),
     ("pool-drawer", go("pool") + [("click", "[data-pool]")]),
     # The usage grid: the default RB week-2 level view, the same grid as week-over-week change
@@ -257,6 +284,7 @@ def test_no_console_errors(snapshot):
 
 
 @pytest.mark.parametrize("leaf,group,label", [
+    ("board", "scouting", "BOARD"),
     ("usage", "scouting", "GRID"),
     ("waivers", "teams", "WAIVERS"),
     ("parlay", "bets", "PARLAY"),

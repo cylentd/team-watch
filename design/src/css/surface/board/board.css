@@ -1,0 +1,247 @@
+/* ============================================================
+   THE BOARD
+   One lane per stat, the position's whole field on it. The rail
+   carries the stat's own value, so the pack sits where the pack
+   is and the gap between two dots is the gap between two players.
+
+   Colour budget unchanged. Lime keeps its one job -- active, and
+   here that is the player ahead on this lane. The reference marks
+   are greys: the middle-half band is a surface, the elite bar a
+   dashed rule, and neither competes with a player for the eye.
+   Green and red stay out: "ahead of the other guy" is not up or
+   down, and a red dot on a top-five back would read as a verdict.
+   ============================================================ */
+
+/* ---- the answer line ---- */
+.bd-lead{
+  margin:16px 0 2px;
+  font-size:var(--t-5);
+  font-weight:600;
+  letter-spacing:-.015em;
+  color:var(--ink-2);
+}
+.bd-lead .on{color:var(--lime);font-weight:700}
+
+.bd-note{
+  margin:10px 0 0;
+  font-family:var(--mono);
+  font-size:var(--t-1);
+  letter-spacing:.06em;
+  color:var(--amber);
+}
+
+/* ---- who is on the board ---- */
+.bd-picks{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.bd-pick{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:4px 4px 4px 5px;
+  border:1px solid var(--line-2);
+  border-radius:2px;
+  background:var(--panel);
+}
+.bd-pick b{font-size:var(--t-2);font-weight:600;color:var(--ink)}
+
+/* The same two letters the rail draws, so the chip is the legend and the rail needs none. */
+.bd-key{
+  font-family:var(--mono);
+  font-size:var(--t-1);
+  font-weight:700;
+  letter-spacing:.1em;
+  color:var(--lime);
+  background:rgb(var(--lime-rgb) / .1);
+  border:1px solid rgb(var(--lime-rgb) / .4);
+  border-radius:2px;
+  padding:3px 5px;
+}
+
+.bd-x{
+  appearance:none;
+  border:0;
+  background:none;
+  cursor:pointer;
+  color:var(--ink-3);
+  font-family:var(--mono);
+  font-size:var(--t-1);
+  line-height:1;
+  padding:5px 6px;
+  border-radius:2px;
+}
+.bd-x:hover{color:var(--down);background:rgb(var(--down-rgb) / .1)}
+.bd-x:focus-visible{outline:2px solid var(--lime);outline-offset:1px}
+
+/* ---- the two words: what he is asked to do, and what he does with it ----
+   Quieter than a lane by construction. The word is t-4 -- under the answer line, under a lane's
+   number -- and nothing here is lime: lime means active, and a label is no contest anybody is
+   winning. Same panel, rule and radius as the lanes, so the two read as one surface. The window
+   and the sample close the label row; on their own line they would outweigh the word they qualify.
+   .bd-why is a null label's reason standing where the word would be -- a blank there is the
+   failure the envelope exists to prevent, and a dash would read as a word that failed. */
+.bd-labels{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,264px),1fr));gap:10px;margin-top:12px}
+.bd-lab{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:11px 14px 13px}
+.bd-lab-h{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.bd-lab-h b{font-size:var(--t-2);font-weight:600;color:var(--ink)}
+.bd-fld + .bd-fld{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.bd-fld-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.bd-win{margin-left:auto;letter-spacing:.06em;text-align:right}
+.bd-line{margin-top:3px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.bd-word{font-size:var(--t-4);font-weight:600;letter-spacing:-.01em;color:var(--ink)}
+.bd-why{font-size:var(--t-3);color:var(--ink-3)}
+/* A flag layers on a style instead of replacing it, so it is a pill beside the word. */
+.bd-flag{
+  font-family:var(--mono);font-size:var(--t-1);letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-2);border:1px solid var(--line-2);border-radius:2px;padding:2px 5px;white-space:nowrap;
+}
+.bd-ev{margin:3px 0 0;line-height:1.45}
+/* Said once for the whole block, not per player: the Grid's own sentence, which this page owns. */
+.bd-say{margin:8px 0 0}
+
+/* ---- the lanes ---- */
+.bd-lanes{
+  margin-top:14px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--panel);
+}
+/* The right padding is the chat button's reservation (bdFabClear), never less than the lane's own
+   16px. It sits here rather than on .bd-rail because the rail's parts are absolutely positioned
+   against the rail's PADDING box -- padding on the rail would leave them exactly where they were. */
+.bd-lane{
+  padding:10px max(16px, var(--fab-clear, 0px)) 12px 16px;
+  animation:bdrise .34s var(--ease) both;
+}
+.bd-lane + .bd-lane{border-top:1px solid var(--line)}
+@keyframes bdrise{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* Two rows at every width, not a wrap. Letting it wrap fitted 360px, but only the lanes whose
+   axis publishes a threshold wrapped -- so three lanes were one line tall and three were two, and
+   the six heads stopped sharing a baseline down the card. The stat and its numbers hold row one
+   on every lane; the denominator and the threshold are row two on every lane. */
+.bd-lh{display:grid;grid-template-columns:1fr auto;align-items:baseline;column-gap:9px;row-gap:1px}
+.bd-ax{grid-column:1;font-size:var(--t-3);font-weight:600;color:var(--ink);letter-spacing:-.01em}
+.bd-meta{grid-column:1 / -1;grid-row:2;display:inline-flex;align-items:baseline;gap:9px}
+.bd-of{
+  font-family:var(--mono);
+  font-size:var(--t-1);
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+}
+/* The threshold, named with its number, beside the stat it belongs to. The dashed rule on the
+   rail is then the only dashed mark on the lane and needs no word of its own. */
+.bd-elite{
+  font-family:var(--mono);
+  font-size:var(--t-1);
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  border-bottom:1px dashed var(--ink-2);
+  white-space:nowrap;
+}
+.bd-vals{grid-column:2;grid-row:1;justify-self:end;display:flex;align-items:baseline;gap:10px;min-width:0}
+.bd-nm{font-size:var(--t-2);color:var(--ink-3);white-space:nowrap}
+.bd-v{
+  font-family:var(--mono);
+  font-size:var(--t-4);
+  font-weight:500;
+  letter-spacing:-.02em;
+  color:var(--ink-2);
+}
+.bd-v.on{color:var(--lime)}
+
+/* ---- the rail ----
+   Everything hangs off the vertical centre: the axis is centred, the dot is centred on it, and
+   the two tags sit at the box's own edges. No height is guessed from where a word might wrap. */
+.bd-rail{position:relative;height:46px;margin-top:2px}
+.bd-reveal{animation:bdsweep .55s var(--ease) both}
+@keyframes bdsweep{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+
+.bd-scale{
+  position:absolute;
+  left:0;
+  right:0;
+  top:50%;
+  width:100%;
+  height:14px;
+  transform:translateY(-50%);
+  overflow:visible;
+}
+
+/* The middle half of the position, as a surface rather than a line with a word on it: a dot
+   inside the band is one of the pack, a dot out past its right edge is not, and that reads
+   without anything having to be explained. */
+.bd-iqr{fill:var(--panel-3)}
+
+/* One tick per qualified player. They fade toward the left end, so which way is "more" is a
+   property of the rail -- the same move the radar's disc makes from hub to rim -- instead of a
+   sentence under the chart. */
+.bd-tick{
+  stroke:var(--ink-3);
+  stroke-width:1;
+  stroke-opacity:var(--o);
+  vector-effect:non-scaling-stroke;
+}
+
+/* Where the scale was cut at Tukey's fence. The ticks past it stack against this rule and a
+   pinned dot sits on it, so "further out than the chart goes" is visible as a wall. */
+.bd-cut{
+  stroke:var(--line-2);
+  stroke-width:2;
+  vector-effect:non-scaling-stroke;
+}
+
+/* The elite bar, dashed, exactly as the radar draws it -- the same idiom for the same fact, and
+   the same dash the lane's head underlines its number with. */
+.bd-bar{
+  stroke:var(--ink-2);
+  stroke-width:1;
+  stroke-dasharray:3 3;
+  vector-effect:non-scaling-stroke;
+}
+
+/* ---- a player on the rail ---- */
+.bd-mk{position:absolute;top:0;bottom:0;left:calc(var(--x) * 1%);width:0}
+.bd-pin{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  width:11px;
+  height:11px;
+  border-radius:50%;
+  border:1.5px solid var(--lime);
+  background:var(--panel);
+}
+.bd-mk.ahead .bd-pin{background:var(--lime);box-shadow:0 0 0 3px rgb(var(--lime-rgb) / .16)}
+.bd-tag{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  font-family:var(--mono);
+  font-size:var(--t-1);
+  font-weight:700;
+  letter-spacing:.08em;
+  line-height:1;
+  color:var(--ink-3);
+  white-space:nowrap;
+}
+.bd-mk.ahead .bd-tag{color:var(--lime)}
+/* Above for the first pick, below for the second. Collision avoidance, not a code: the initials
+   say who it is, and two dots a pixel apart still read as two players. */
+.bd-a .bd-tag{top:0}
+.bd-b .bd-tag{bottom:0}
+
+.bd-thin{
+  position:absolute;
+  top:50%;
+  left:0;
+  transform:translateY(-50%);
+  font-family:var(--mono);
+  font-size:var(--t-1);
+  letter-spacing:.08em;
+  color:var(--ink-3);
+}
+
+/* Type comes from .note (base.css): a source line is a sentence, not a label. */
+.bd-foot{margin:10px 0 4px}

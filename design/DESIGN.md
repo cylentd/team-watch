@@ -116,6 +116,89 @@ box shape, and the table right below already names every player — dots stay ta
 same drawer. Quadrant corner labels shortened to one word each (`CONFIRMED`, `SELL HIGH`, `BUY
 LOW`, `FADING`) at both sizes, the explanatory phrase folded into the intro line instead.
 
+## The Board (Scouting's first view, 2026-09-23)
+
+One lane per stat, the position's whole field on it. One component, three jobs, which is why it
+is the whole surface:
+
+| Picked | What a lane is |
+|---|---|
+| none | a leaderboard — the head names that lane's leader and his number |
+| one | that player against the field |
+| two | a duel; the distance between the dots is the answer on that stat |
+
+**The lane's x is the stat's own value, never a rank.** A rank axis is uniform by construction —
+every tick evenly spaced, the middle always dead centre, the gap between two players a count of
+who is between them rather than the distance between them. On a value axis the pack clusters
+where the pack is. The rank still gets said, in the head, because "#3" is what a reader repeats.
+
+**The scale stops at Tukey's fence** (`q3 + 1.5·IQR`), **never tighter than the 97th and the
+3rd**. Both halves are load-bearing. One receiver ran a route, caught it for 40, and holds a YPRR
+of 13.64 against a position whose middle half is 0.78 to 2.20: drawn to the maximum he owned 80%
+of the rail and the other 110 piled into the left edge. But the fence alone over-cuts a stat
+whose middle half is narrow — RYOE's quartiles are 0.00 and 0.24 across 74 backs, which put 20 of
+them on the two walls, and two players both pinned read as level when one is twice the other.
+With the percentile floor the worst case anywhere is 4 pinned per end. A lane that was cut draws
+a rule at that end; the number itself is never lost, because the head carries it in full.
+
+| Part | What it is | Why not the alternative |
+|---|---|---|
+| Field | one tick per qualified player, fading leftward | direction is a property of the rail, not a caption saying which way is more — the radar's hub-to-rim move |
+| Band | the middle half of the position, shaded | a median line needs a word; a region shows whether a dot is in the pack or out past it |
+| Elite | dashed rule, named **with its number** in the head | on the rail the word wants the band a pick's initials own, and at 360px the two ran through each other ("ELIBRTE") |
+| Dot | filled = ahead on this lane | lime keeps its one job; green/red would read as a verdict on a top-five back |
+| Tag | his initials, first pick above the axis, second below | collision avoidance, not a code — the chips above carry the same two letters, so the rail needs no legend |
+
+**"Overall" is a count of lanes, not a score.** Six stats ff-jarvis publishes separately, weighted
+into one number by this page, would be this page inventing a model, and nothing here is
+backtested. Counting the lanes each player is ahead on says the same thing out of numbers already
+on the screen, and a reader can check it by looking. Only lanes where both have a number count.
+
+### Role and style: two words under the picks (2026-09-23)
+
+A lane is the position's whole field; a label is one player's, and most of the board has no
+archetype record at all — so the two words sit under the picks and never on a lane. Each carries the
+two or three numbers that produced it and the window they were measured over, because a word without
+them is a verdict. `surface/board/label.js`, from ff-jarvis's `model.season.archetype`.
+
+| Field | Window | Moves when | Card |
+|---|---|---|---|
+| Role | this season | the depth chart moves | opp share, route rate, goal line (RB); route rate, WOPR, TPRR (WR); snaps too (TE) |
+| Style | his career | barely — it is a trait | before/after contact, breakaway (RB); aDOT, YAC share, catch (WR/TE); designed, scrambles, goal line (QB) |
+
+They are separate on purpose: a back's style does not change when his guard goes out, his context
+does. **A null is not a blank.** ff-jarvis's envelope guarantees exactly one of `role`/`role_null` is
+set, and the reason stands where the word would — "not a field for quarterbacks", "career carries <
+250". A number the evidence has nothing for drops out of the line rather than dashing, the same rule
+a lane follows for an unmeasured axis. A flag (`goal_line_runner`) is a pill beside the style and
+never a fourth style: a passer the offence runs at the goal line is usually one of the three
+already, and a fourth bucket would force a choice between two true facts.
+
+Type follows the house rule as of 2026-09-23: the field's name and its window are labels and take
+`.lbl`; the line of evidence under the word is a sentence and takes `.note`. The word is `t-4` and
+nothing in the block is lime — lime means active, and a label is no contest anybody is winning.
+
+The block closes on the Grid's own sentence, *what he did, not what he will do*, and not on a new
+one. Year over year the style axes run r=.37 (breakaway) down to r=.24 (yards before contact),
+measured in ff-jarvis's `model/season/ARCHETYPE.md`: a data point to fold into a read, never a
+forecast. Nothing is summed — no composite, no grade, no ranking, the same rule "overall" follows.
+
+`LIVE_TRENCHES` (team-level OL continuity and injury exposure) is injected and **deliberately
+unrendered.** The Board's unit is a player against his position, and a team number on a player's
+card would be read as his. It waits for a surface whose unit is a team.
+
+Reuses rather than rebuilds. `sheetValues()` (`profile/sheet.js`) is the one definition of who
+counts on an axis — the radar's denominator and the Board's are the same number. The picker is
+the app's own search sheet, handed a slot to fill instead of a profile to open: `searchOpen(fn)`.
+Axes are position-specific (a back has no YPRR), so a pick of another position moves the board to
+his position and keeps only him; refusing it would make the reader undo a search he meant.
+
+On a phone the chat button's reservation is measured from both boxes at render, the same rule the
+waivers rail follows, because the rightmost dot is the best player at the position and is the one
+thing that must not sit under it. The lane head is two fixed rows at every width: letting it wrap
+fitted 360px, but only the lanes whose axis publishes a threshold wrapped, so three heads were one
+line and three were two and the six stopped sharing a baseline down the card.
+
 ## Parlay and DFS
 
 Split into their own top-level tabs (2026-09-09) so the cart, not the 900-row props pool, is the
@@ -190,6 +273,18 @@ tab at all: a back has no target depth, a passer no red zone, a player with no p
 The bar is sticky inside the scrolling body, because the Matchup pane runs 1,200px and the way
 back to the other two should not be a scroll to the top. `PF_TAB` survives an open, so reading two
 players against each other opens the same pane twice.
+
+**The Bio pane carries the athletic profile** (2026-09-23), beside the pedigree it already shows:
+three percentiles as bars — Speed from the forty against his weight, Burst from vertical plus broad,
+Agility from cone plus shuttle — then the drills behind them and the pool they are ranked in. The
+pool is the combine's own position, not always his fantasy one, so a fullback is ranked among
+fullbacks and the block says which. Never summed into an athleticism number: the combine says what a
+player can do, not what he does, and a fast heavy back is not thereby a power back. **A missing
+drill draws no bar.** 277 players in the set have no agility score, and a bar at the floor would
+read as the slowest man who tested; the score is named as unmeasured under the bars instead. No
+record at all says so — "Not yet measured" for a rookie, "No combine record" for a veteran who ran
+at his pro day or went undrafted. It joins the pedigree rather than standing alone, so the rule
+above holds: no pedigree, no Bio tab.
 
 The **Details disclosure is gone.** It was a second level of hiding underneath a first level
 nobody had got through, and its five blocks are now ordinary sections inside the panes.

@@ -190,6 +190,27 @@ CONTRACT = {
         "keys": ["fetched", "week", "players"],
         "map": ("players", ["n", "pos", "team", "routes", "yprr", "tprr", "target_share"]),
     },
+    # design/archetype.py, from ff-jarvis's model.season.archetype (model/season/ARCHETYPE.md is
+    # the contract), cut to the players the page can show. Every player carries every key: a
+    # position with nothing to say for `role` or `style` emits null there and the reason in
+    # `role_null`/`style_null`, never an absent field, so exactly one of each pair is non-null.
+    # `athletic_profile` may itself be null (no combine record at all) or a dict with any drill
+    # null (a skipped one). `flags` is always a list, `[]` when empty.
+    "LIVE_ARCHETYPE": {
+        "keys": ["generated", "season", "players"],
+        "map": ("players", ["name", "pos", "team", "gsis_id", "role", "role_null", "role_evidence",
+                            "style", "style_null", "style_floor", "style_evidence",
+                            "athletic_profile", "flags"]),
+    },
+    # design/archetype.py, from ff-jarvis's model.season.trenches, every team passed through
+    # whole (32 rows, no wanted-slug cut). `ol_continuity` and `ol_out` may be null/0 for a
+    # reason named in the matching `_reason` field; `ol_out_by_status` is a count per status,
+    # `{}` when nobody is out.
+    "LIVE_TRENCHES": {
+        "keys": ["generated", "season", "week", "teams"],
+        "map": ("teams", ["ol_continuity", "ol_continuity_of", "ol_continuity_reason",
+                          "ol_out", "ol_out_by_status", "ol_out_reason"]),
+    },
 }
 
 

@@ -179,10 +179,5 @@
 
 .uspace{margin-left:10px}
 
-.ufoot{
-  margin:10px 0 4px;
-  font-family:var(--mono);
-  font-size:var(--t-1);
-  letter-spacing:.04em;
-  color:var(--ink-3);
-}
+/* Type comes from .note (base.css): a source line is a sentence, not a label. */
+.ufoot{margin:10px 0 4px}

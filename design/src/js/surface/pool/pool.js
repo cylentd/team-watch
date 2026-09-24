@@ -76,3 +76,23 @@ function poolHTML(){
     })()}
   </div>`;
 }
+
+/* Moved out of render() on 2026-09-23, where it was the one surface still wiring itself inline:
+   every other view hands render() a single wire* call, and this one was fifteen lines of listener
+   in the middle of the dispatch. Same listeners, same order. */
+function wirePool(v){
+  v.querySelectorAll(".chip[data-pos]").forEach(b => b.addEventListener("click", () => {
+    POOL_FILTER = b.dataset.pos; POOL_PAGE = 1; render();
+  }));
+  // A page turn is a read of the same list, so the scroll position is held across the re-render.
+  v.querySelectorAll("[data-poolpage]").forEach(b => b.addEventListener("click", () => {
+    POOL_PAGE = Math.max(1, POOL_PAGE + (b.dataset.poolpage === "next" ? 1 : -1));
+    const y = window.scrollY; render(); window.scrollTo(0, y);
+  }));
+  v.querySelectorAll("[data-pool]").forEach(el => {
+    const open = () => openPoolDrawer(+el.dataset.pool);
+    el.addEventListener("click", open);
+    el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); open(); } });
+  });
+  v.querySelectorAll(".dotg").forEach(g => g.addEventListener("click", () => openPoolDrawer(+g.dataset.i)));
+}

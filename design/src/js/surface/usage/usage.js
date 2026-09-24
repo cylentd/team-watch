@@ -39,6 +39,10 @@ function usageCell(r, was, col){
   return `<div class="ucell ${usageBand(r.p[col.id])}">${usageFmt(r.v[col.id], col.fmt)}</div>`;
 }
 
+/* shortName, not the full name: at 360px this column ellipsised "Omarion Hampt...", "Jacory
+   Croskey..." and "TreVeyon Hend...", and a surname cut in half is the one part of the row a
+   reader needs. "O. Hampton" fits where "Omarion Hampton" does not, and it is the app's spelling
+   for a name in small type everywhere else. */
 function usageRow(r, i, cols, prev){
   const was = prev ? prev[r.slug] : null;
   const mine = usageMine().has(r.slug);
@@ -47,7 +51,7 @@ function usageRow(r, i, cols, prev){
   // rendered-DOM golden depend on when the screenshot happened to fire.
   return `<div class="urow ${mine ? "u-mine" : ""}" style="animation-delay:${40 + Math.min(i, 10) * 18}ms"
     data-usage="${esc(r.slug)}" role="button" tabindex="0">
-    <div class="uname"><b>${esc(r.n)}</b>${mine ? `<i class="udot" aria-hidden="true"></i>` : ""}</div>
+    <div class="uname"><b>${shortName(r.n)}</b>${mine ? `<i class="udot" aria-hidden="true"></i>` : ""}</div>
     <div class="uteam">${esc(r.team || "—")}</div>
     ${cols.map(c => usageCell(r, was, c)).join("")}
   </div>`;
@@ -74,7 +78,7 @@ function usageLegend(){
     <span class="lbl">${t("usage.key.label")}</span>
     ${bands.map(([c, l]) => `<span class="ubadge ${c}">${l}</span>`).join("")}
     <span style="flex:1"></span>
-    <span class="lbl">${USAGE_MODE === "change" ? t("usage.key.changeNote") : t("usage.key.levelNote")}</span>
+    <span class="note">${USAGE_MODE === "change" ? t("usage.key.changeNote") : t("usage.key.levelNote")}</span>
   </div>`;
 }
 
@@ -109,7 +113,7 @@ function usageHTML(){
       ${rows.length ? rows.map((r, i) => usageRow(r, i, cols, prev)).join("")
         : `<div class="state-empty" style="margin:26px 0;min-height:120px"><div><b>0</b><span>${t("usage.empty.noPlayers")}</span></div></div>`}
     </div>
-    <div class="ufoot">${t("usage.foot.source", {n: rows.length, week: USAGE_WEEK, pos: USAGE_POS})}</div>
+    <div class="note ufoot">${t("usage.foot.source", {n: rows.length, week: USAGE_WEEK, pos: USAGE_POS})}</div>
   </div>`;
 }
 
