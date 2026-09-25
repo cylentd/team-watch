@@ -20,6 +20,11 @@
 .nchip{display:inline-flex;align-items:center;gap:6px}
 .nchip.out{color:var(--down)}
 .nchip.injury{color:var(--amber)}
+/* The player's head leads the row, beside the kind line, so a scan finds "my guy" by face before
+   reading. A row with no player keeps the full width; the text column of every other row lines up. */
+.newsrow.has-head{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;align-items:start}
+.nhead img,.nhead .fallback{width:40px;height:40px;border-radius:99px;object-fit:cover;border:1px solid var(--line-2);background:var(--panel-3)}
+.nhead .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink-3)}
 .newsrow:last-child{border-bottom:0}
 .newsrow:hover{background:var(--panel-2)}
 .newsrow:hover .ntitle{text-decoration:underline;text-decoration-color:var(--line-2)}

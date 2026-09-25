@@ -2,7 +2,7 @@
 Every case here is a real 2026-09-16 FantasyPros headline."""
 import pytest
 
-from news import news_kind
+from news import news_kind, news_player
 
 
 @pytest.mark.parametrize("title, kind", [
@@ -26,6 +26,28 @@ def test_real_headlines(title, kind):
 
 def test_the_desc_decides_only_when_the_title_says_nothing():
     assert news_kind({"title": "Report: minor roster move for Detroit", "desc": "He was placed on IR."}) == "out"
+
+
+@pytest.mark.parametrize("title, name, slug", [
+    ("Cooper Kupp (back) practices fully Thursday ", "Cooper Kupp", "cooper-kupp"),
+    ("Marvin Mims Jr. (foot) limited again Thursday", "Marvin Mims Jr.", "marvin-mims"),
+    ("Amon-Ra St. Brown (ankle) limited Wednesday", "Amon-Ra St. Brown", "amonra-st-brown"),
+    ("Brian O'Neill (knee) upgraded to full participant Thursday", "Brian O'Neill", "brian-oneill"),
+])
+def test_the_player_is_the_name_before_the_injury_tag(title, name, slug):
+    got_name, slugs = news_player(title)
+    assert got_name == name
+    assert slugs[0] == slug   # the whole name, when it is all there is before the tag
+
+
+def test_a_title_without_a_tag_names_no_player_but_still_offers_slugs():
+    name, slugs = news_player("Ronnie Rivers placed on IR")
+    assert name is None
+    assert "ronnie-rivers" in slugs   # the page draws a head only if HEADS has one
+
+
+def test_an_empty_title_offers_nothing():
+    assert news_player(None) == (None, [])
 
 
 def test_every_built_item_carries_a_kind(built):

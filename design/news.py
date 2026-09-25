@@ -4,9 +4,14 @@ Self-contained: takes the feed and ff-jarvis data-root paths as arguments instea
 build.py's FEED/DWR constants, so there is no import cycle back into build.py."""
 import datetime as dt
 import json
+import pathlib
 import re
+import sys
 
 from slate import LOCAL_TZ, UTC
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "api"))
+from _espn import slugify  # noqa: E402
 
 # What a story means for a lineup, read off its own words, because FantasyPros tags almost nothing
 # (13 of 200 items carried a category on 2026-09-16, so category filters showed empty lists).
@@ -51,6 +56,20 @@ def news_kind(it):
     return "news"
 
 
+def news_player(title):
+    """(name, slugs) for the player a story leads with. The scanner names no player (only
+    FantasyPros' own id), but its titles lead with one: "Cooper Kupp (back) practices fully".
+    `name` is the text before that injury tag, so it is None for a title without one; the page
+    draws initials from it when no head matches. `slugs` run four words down to two, longest
+    first, because a name runs two to four ("Amon-Ra St. Brown" is three) and the page, not the
+    build, knows which heads exist: it draws the first slug HEADS has. 194 of 200 titles on
+    2026-09-24 led with a player; 77 of those had a head in ff-jarvis."""
+    title = title or ""
+    name = title.split("(")[0].strip() if "(" in title else None
+    words = slugify(name or title).split("-")
+    return name, ["-".join(words[:n]) for n in (4, 3, 2) if len(words) >= n]
+
+
 def load_news(feed_path, dwr_path):
     """Breaking news from ff-jarvis's own scanner (it watches FantasyPros' wire and writes
     data/breaking_news.json) -- feed first, then the file directly, same two-tier pattern as
@@ -85,12 +104,13 @@ def load_news(feed_path, dwr_path):
     items = []
     for it in sorted(raw["items"], key=parsed_time, reverse=True):
         t = parsed_time(it)
+        player, slugs = news_player(it.get("title"))
         when = None if t == dt.datetime.min.replace(tzinfo=UTC) else (
             t.astimezone(LOCAL_TZ).strftime("%a %I:%M%p").replace(" 0", " ").replace("AM", "a").replace("PM", "p"))
         items.append({
             "id": it.get("id"), "title": it.get("title"), "desc": it.get("desc"),
             "impact": it.get("impact"), "team": it.get("team_id"),
             "categories": it.get("categories") or [], "link": it.get("link"), "when": when,
-            "kind": news_kind(it),
+            "kind": news_kind(it), "player": player, "slugs": slugs,
         })
     return {"items": items}

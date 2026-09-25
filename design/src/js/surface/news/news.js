@@ -5,10 +5,21 @@ function newsKindTag(kind){
   return `<span class="nkind ${kind}">${k.icon}${k.label()}</span>`;
 }
 
+/* The player the story leads with: a head when HEADS has one of the build's candidate slugs,
+   initials when the title names the player but no head exists, nothing for a story with no player.
+   The build parses the name; the page picks the slug, because only HEADS knows which exist. */
+function newsHeadHTML(it){
+  const slug = (it.slugs || []).find(s => HEADS[s]);
+  if (!slug && !it.player) return "";
+  return `<div class="nhead">${avatarHTML({n: it.player || "", slug})}</div>`;
+}
+
 function newsRowHTML(it, featured, i){
   const href = it.link || `https://www.google.com/search?tbm=nws&q=${encodeURIComponent(it.title)}`;
   const kind = newsKind(it);
-  return `<a class="newsrow ${kind} ${featured ? "featured" : ""}" style="animation-delay:${Math.min(i || 0, 14) * 30}ms" href="${esc(href)}" target="_blank" rel="noopener noreferrer">
+  const head = newsHeadHTML(it);
+  return `<a class="newsrow ${kind} ${featured ? "featured" : ""} ${head ? "has-head" : ""}" style="animation-delay:${Math.min(i || 0, 14) * 30}ms" href="${esc(href)}" target="_blank" rel="noopener noreferrer">
+    ${head}<div class="nbody">
     <div class="newstop">
       ${featured ? `<span class="livedot"></span>` : ""}
       ${newsKindTag(kind)}
@@ -18,6 +29,7 @@ function newsRowHTML(it, featured, i){
     <div class="ntitle">${esc(it.title)}</div>
     ${it.desc && it.desc !== it.title ? `<div class="ndesc">${esc(it.desc)}</div>` : ""}
     ${it.impact ? `<div class="nimpact">${esc(it.impact)}</div>` : ""}
+    </div>
   </a>`;
 }
 
