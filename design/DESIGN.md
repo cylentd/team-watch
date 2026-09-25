@@ -54,7 +54,7 @@ question: who, which way, one number.
 | Roster row | a lineup sheet since 2026-09-25 (storyboard https://claude.ai/artifact/AqRomyQsQfd7TjYRiJkmhd): starter = slot, 28px head, name over "RB · BAL @ DAL", trend line, projection in ink with a green/red arrow. Bench two to a row with short names ("D. Goedert"), no line. The whole Yahoo team fits 360×660. Desktop: the bench column sits beside the starters, 44px heads, full names | `surface/teams/roster.css`, `responsive/lists.css` |
 | Roster cards | the Cards half of a Sheet / Cards switch (2026-09-25, remembered per phone). Tier = this week's projected rank at the position (`LIVE_PROJECTIONS` rank/of, ranked over every projected player in `design/projections.py`): #1 signature (pearl frame, etched pearl, name in `--sig` script across the lower photo, never a real autograph), #2-3 gold + glitter, #4-12 gold, #13-24 silver, rest plain. The card prints "#7 RB", never a tier code. K and DST are support cards with no tier: turf and posts with one weather chip (dome, else wind); team colours (`data/teamcolors.js`) with the opponent's implied points (`LIVE_LINES`, `design/lines.py`). Tap flips to the rank, the snap-share line and the profile. Three across on a phone, five on a desktop | `surface/teams/cards.css`, `js/surface/teams/cards.js`, `cardmotion.js` |
 | Week's pack | once per league per week in Cards view: a sealed pack of the players ranked top 12 at their position, turned lowest rank first, the signature card last and signed as it lands; face down every card shares one frame. A tap skips; reduced motion gets the end | `surface/teams/pack.css`, `js/surface/teams/pack.js` |
-| Gallery slip | printed paper since 2026-09-25: the only light surface, `--paper*` tokens; book, kind, kickoff, legs, payout at the foot, barcode, ink button; punched top and torn bottom by mask | `surface/builder/ticket.css` |
+| Gallery slip | after Underdog's share card since 2026-09-25 (was printed paper, which read as a bright panel in spaced capitals): a dark rounded card; headline number on top; legs grouped under game and kickoff; one rounded row per leg with photo, name, the call as a sentence ("Lower 4.5 Receptions") and one number at the right (Underdog %, DK price); a perforation, then Load slip | `surface/builder/ticket.css` |
 | Roster hero | one line at every width since 2026-09-25: the team switch is the title, "Yahoo · 0-0 · league" beside it; Waivers keeps its full hero | `chrome/hero.css` `.hero.team` |
 | This week | the roster's brief (`js/surface/teams/brief.js`): a starter's status (red out, amber other), a must-claim (lime), who the news names (grey). Desktop from 1100px: up to three lines in a sticky column beside the rows; 761-1099px: above the rows; phone: one line, a decision only, else nothing | `surface/teams/brief.css` |
 | Topbar (desktop) | one pill: the week, its dot the sources' health; the live badge shows only on sample data | `js/chrome/feed.js`, `js/chrome/render.js` |
@@ -290,8 +290,9 @@ share a game (correlated legs are one bet, not two).
 The market is a card grid (2026-09-25, `css/surface/builder/grid.css`): two cards to a row on a
 phone, as many 220px cards as fit from 760px up, so a screen holds twice the players the list did.
 Opening a line's chevron widens its card to the whole row. Page sizes are multiples of 2 and 3
-(12 players, 24 lines) so a page ends on a full row. The gallery slip's paper was toned down the
-same day (`--paper` #f1efe8 → #cbc4b4); it glowed against the dark page.
+(12 players, 24 lines) so a page ends on a full row. ~~The gallery slip's paper was toned down the
+same day (`--paper` #f1efe8 → #cbc4b4); it glowed against the dark page.~~ Superseded the same day:
+the slip went dark (below).
 
 **DFS**: a swipeable rail of precomputed lineups per strategy (an equal-width segmented control,
 greedy = max points, non-chalk = for GPPs) each with a "Load into my lineup" button, then nine

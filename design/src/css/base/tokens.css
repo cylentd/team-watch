@@ -106,23 +106,10 @@
   --jersey-away:#6b7080;
   --jersey-away-rgb:107 112 128;
 
-  /* The gallery slip is printed on paper (2026-09-25, builder/ticket.css): the one light surface on
-     the page, so it reads as an object you take to the window. Wins and losses keep green and red,
-     darkened until they hold contrast on paper. Toned down 2026-09-25 from #f1efe8, which glowed
-     against the dark page: a slip under the room's light, not a lit screen. Every ink holds 4.5:1
-     or more on it (ink 9.8, ink-2 5.4, up 5.1, down 5.1). */
-  --paper:#cbc4b4;
-  --paper-rgb:203 196 180;
-  --paper-2:#bdb5a3;
-  --paper-2-rgb:189 181 163;
+  /* Near-black ink for text on a light surface: a pale team colour on a DST card
+     (js/data/teamcolors.js). The paper gallery slip that also used it went dark 2026-09-25. */
   --paper-ink:#1d1c1a;
   --paper-ink-rgb:29 28 26;
-  --paper-ink-2:#4a463f;
-  --paper-ink-2-rgb:74 70 63;
-  --paper-up:#09552f;
-  --paper-up-rgb:9 85 47;
-  --paper-down:#8f1d17;
-  --paper-down-rgb:143 29 23;
 
   /* The roster cards' tiers (2026-09-25, surface/teams/cards.css): silver for #13-24 at the
      position, gold for #4-12 and the #2-3 glitter card, a soft pearl for the #1 signature card.

@@ -46,6 +46,23 @@ def test_a_new_view_enters_once_and_a_tap_pops_only_its_line(browser, page_file)
     ctx.close()
 
 
+@pytest.mark.parametrize("book", ["underdog", "dk"])
+def test_a_slip_groups_its_legs_by_game_and_reads_each_as_a_sentence(browser, page_file, book):
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    page.evaluate(f"SURFACE='parlay'; PARLAY_BOOK='{book}'; render()")
+    slip = page.locator(".ticket").first
+    if slip.count() == 0:
+        pytest.skip("the fixture's market builds no gallery slip for this book")
+    legs, games = slip.locator(".tk-leg"), slip.locator(".tk-game")
+    assert legs.count() >= 2 and 1 <= games.count() <= legs.count()
+    assert legs.first.locator("img, .fallback").count() == 1, "every leg carries his photo"
+    call = legs.first.locator(".tk-call").inner_text()
+    assert call != call.upper(), "the call is sentence case, not capitals"
+    assert slip.locator(".tk-head b").inner_text().strip() not in ("", "—")
+    assert errors == []
+    ctx.close()
+
+
 def test_reduced_motion_never_marks_an_entrance(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     page.evaluate("SURFACE='parlay'; render()")
