@@ -11,14 +11,17 @@ function teamSwitchCells(){
     ({k, plat:TEAMS[k].plat, team:TEAMS[k].name, tint:TEAMS[k].tint})));
 }
 
+/* The chevron sits in its own round well (2026-09-25): a bare ▾ after a long team name read as
+   punctuation, so readers never found the switch. The league dot before the name went the same
+   day: "YAHOO" is spelled out on the line under it, so the dot was a colour code saying it again. */
+const TS_CHEV = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 function teamSwitchHTML(){
   const cells = teamSwitchCells();
   const cur = cells.find(c=>c.k===VIEW) || cells[0];
   return `<div class="teamswitch" id="switch" style="--tint:${cur.tint}">
-    <button class="ts-btn" data-tsbtn aria-haspopup="listbox" aria-expanded="false">
-      <span class="ts-dot"></span>
+    <button class="ts-btn" data-tsbtn aria-haspopup="listbox" aria-expanded="false" aria-label="${t("chrome.teamswitch.label", {team: esc(cur.team)})}">
       <span class="ts-team">${esc(cur.team)}</span>
-      <span class="ts-chev">▾</span>
+      <span class="ts-chev">${TS_CHEV}</span>
     </button>
     <div class="ts-menu" data-tsmenu role="listbox" hidden>
       ${cells.map(c=>`<button class="ts-item" role="option" data-k="${esc(c.k)}" style="--tint:${c.tint}" aria-selected="${c.k===VIEW}">${c.plat} · ${esc(c.team)}</button>`).join("")}

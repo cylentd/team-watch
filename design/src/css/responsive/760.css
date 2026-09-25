@@ -71,7 +71,7 @@
   .hero:not(.slim) .ts-btn{background:none;border:0;padding:4px 0;min-width:0;gap:8px}
   .hero:not(.slim) .ts-team{font-family:var(--disp);font-size:var(--t-5);font-weight:700;max-width:none;
     overflow:hidden;text-overflow:ellipsis}
-  .hero:not(.slim) .ts-chev{font-size:var(--t-2)}
+  .hero:not(.slim) .ts-chev{width:28px;height:28px}
   .hero:not(.slim) .ts-menu{left:0;right:auto}
   .leaguechip{border:0;padding:0;letter-spacing:.06em;color:var(--ink-3)}
   .hero-rec + .leaguechip::before{content:"·";margin-right:10px;color:var(--ink-3)}

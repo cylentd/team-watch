@@ -8,10 +8,14 @@
 }
 .ts-btn:hover{border-color:var(--tint,var(--line-2));background:var(--panel-3)}
 .ts-btn:active{transform:scale(.985)}
-.ts-dot{width:7px;height:7px;border-radius:99px;background:var(--tint,var(--ink-3));flex-shrink:0}
 .ts-team{font-size:var(--t-2);font-weight:500;letter-spacing:-.01em;white-space:nowrap}
-.ts-chev{font-size:var(--t-1);color:var(--ink-3);margin-left:2px}
-.ts-btn[aria-expanded="true"] .ts-chev{transform:scaleY(-1)}
+/* A round well with a drawn chevron: reads as a control at any title size, and turns on open. */
+.ts-chev{flex-shrink:0;display:grid;place-items:center;width:26px;height:26px;border-radius:99px;
+  background:var(--panel-2);border:1px solid var(--line-2);color:var(--ink-2);
+  transition:transform var(--dur-spring) var(--spring),background .2s var(--ease),color .2s var(--ease)}
+.ts-chev svg{width:14px;height:14px;display:block}
+.ts-btn:hover .ts-chev{background:var(--panel-3);color:var(--ink)}
+.ts-btn[aria-expanded="true"] .ts-chev{transform:rotate(180deg);color:var(--lime);border-color:rgb(var(--lime-rgb) / .5)}
 .ts-menu{
   position:absolute;top:calc(100% + 6px);right:0;z-index:20;min-width:220px;
   background:var(--panel-2);border:1px solid var(--line-2);border-radius:3px;

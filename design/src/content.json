@@ -112,6 +112,7 @@
  "chrome.fresh.week": "Week {week} ready ↻",
  "chrome.head.title": "Team Watch",
  "chrome.teamswitch.espn": "ESPN",
+ "chrome.teamswitch.label": "{team}, switch team",
  "chrome.teamswitch.yahoo": "Yahoo",
  "chrome.weekpill.week": "Week {week}",
  "common.action.close": "Close",
