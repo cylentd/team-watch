@@ -71,7 +71,7 @@ function galleryHTML(){
   // Wednesday's strongest card instead of vanishing with the whole-week winner.
   const bestOf = bestCard(cards);
   return `<div class="rule"><h2>${t("parlay.gallery.heading")}</h2><span class="hair"></span>
-    <span class="side">${t("parlay.gallery.sub")}</span></div>
+    <span class="side side-explain">${t("parlay.gallery.sub")}</span></div>
   <div class="filters">
     <span class="lbl">${t("parlay.gallery.legsLabel")}</span>
     ${scopes.map(([k,label])=>`<button class="chip" data-scope="${k}" aria-pressed="${SLIP_SCOPE===k}">${label}</button>`).join("")}

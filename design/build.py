@@ -623,6 +623,33 @@ def report_sources(report, live, liveY, props, liveDfsYahoo, news, profiles, mis
         report.append(f"no headshot for {len(missing)} slugs (initials fallback renders)")
 
 
+def document_head():
+    """The <head> of the served page, up to <body>. The page ground is read from tokens.css, so
+    what paints before the stylesheet never disagrees with it: the ground under a short page and a
+    phone browser's own bar (theme-color) both come from here."""
+    void = re.search(r"--void:(#[0-9a-fA-F]{6});",
+                     (ROOT / "src" / "css" / "base" / "tokens.css").read_text(encoding="utf-8")).group(1)
+    favicon = (
+        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E"
+        f"%3Crect width='32' height='32' fill='%23{void[1:]}'/%3E"
+        "%3Crect x='11' y='6' width='10' height='20' fill='%23c8ff2e'/%3E%3C/svg%3E"
+    )
+    return "\n".join([
+        "<!doctype html>",
+        '<html lang="en">',
+        "<head>",
+        '<meta charset="utf-8">',
+        '<meta name="viewport" content="width=device-width, initial-scale=1">',
+        '<meta name="description" content="Team Watch - roster console for two fantasy football teams.">',
+        f'<link rel="icon" href="{favicon}">',
+        f'<meta name="theme-color" content="{void}">',
+        f"<style>html{{background:{void};color-scheme:dark}}body{{margin:0}}"
+        "img{max-width:100%}[hidden]{display:none!important}</style>",
+        "</head>",
+        "<body>",
+    ])
+
+
 def render():
     """Everything but the writes, so a test can build in-process against fixture inputs.
     Fails (SystemExit) on a lint error, a contract violation, or an assembly problem."""
@@ -707,25 +734,7 @@ def render():
 
     # The repo root is what Vercel serves, so that copy is a full HTML document; design/index.html
     # is the same page as a fragment (no doctype/head), which is what the Artifact publisher wants.
-    favicon = (
-        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E"
-        "%3Crect width='32' height='32' fill='%2308080a'/%3E"
-        "%3Crect x='11' y='6' width='10' height='20' fill='%23c8ff2e'/%3E%3C/svg%3E"
-    )
-    head = "\n".join([
-        "<!doctype html>",
-        '<html lang="en">',
-        "<head>",
-        '<meta charset="utf-8">',
-        '<meta name="viewport" content="width=device-width, initial-scale=1">',
-        '<meta name="description" content="Team Watch - roster console for two fantasy football teams.">',
-        f'<link rel="icon" href="{favicon}">',
-        "<style>html{background:#08080a;color-scheme:dark}body{margin:0}"
-        "img{max-width:100%}[hidden]{display:none!important}</style>",
-        "</head>",
-        "<body>",
-    ])
-    page = f"{head}\n{body}\n</body>\n</html>\n"
+    page = f"{document_head()}\n{body}\n</body>\n</html>\n"
 
     report_sources(report, live, liveY, props, liveDfsYahoo, news, blocks["LIVE_PROFILES"], missing)
     return Build(page, body, report, heads, missing, stamp)

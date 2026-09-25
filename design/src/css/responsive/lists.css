@@ -31,13 +31,45 @@
   .filters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-left:-14px;margin-right:-14px;
     padding:0 14px}
   .filters::-webkit-scrollbar{display:none}
-  .filters > .lbl{display:none}
+  /* Only the row's category word ("Position", "Filter") goes. A label mid-row names the chips
+     after it -- "Week" before "1 2", "Page 1 of 25" -- and bare numbers would mean nothing. */
+  .filters > .lbl:first-child{display:none}
+  .filters > .lbl:not(:first-child){align-self:center;margin-left:6px}
   .filters > *{flex:none}
   .chip{border-radius:999px;border-color:transparent;background:var(--panel-2);
     font-family:var(--ui);font-size:var(--t-2);font-weight:500;letter-spacing:0;text-transform:none;padding:8px 14px}
   .chip[aria-pressed="true"]{background:var(--ink);color:var(--void);border-color:transparent}
   .chip.nchip.out[aria-pressed="false"]{color:var(--down)}
   .chip.nchip.injury[aria-pressed="false"]{color:var(--amber)}
+
+  /* Parlay's and DFS's book switch on a phone: one segmented control. The "Book" word goes (the
+     two names say it), and the (i) beside it keeps the explainer the header line used to carry. */
+  .modes-sub.dock{gap:0;padding:3px;background:var(--panel-2);border-radius:10px}
+  .modes-sub.dock > .lbl{display:none}
+  .modes-sub.dock .mode-sub{border:0;border-radius:8px;margin:0;min-height:36px;background:none;
+    font-family:var(--ui);font-size:var(--t-2);font-weight:600;letter-spacing:0;text-transform:none;color:var(--ink-3)}
+  .modes-sub.dock .mode-sub[aria-pressed="true"]{background:var(--panel-3);color:var(--ink);border:0}
+  .modes-sub.dock .explain-btn{min-height:36px;border:0;background:none}
+  .rule .side-explain{display:none}
+
+  /* A DFS lineup card's rows on a phone: the slot tag narrows, the head grows, and the meta line
+     drops mono tracking so "QB · BUF · 22.6 proj" holds one line inside the 86% card. */
+  .lineupcard .lslot{grid-template-columns:30px 40px minmax(0,1fr) auto;gap:10px}
+  .lineupcard .lslot img,.lineupcard .lslot .fallback{width:40px;height:40px}
+  .lineupcard .lslot .sn{font-size:var(--t-3);font-weight:600}
+  .lineupcard .lslot .sm{font-family:var(--ui);font-size:var(--t-2);letter-spacing:0;white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis}
+  .lineupcard .lslot .lsal{font-size:var(--t-2)}
+
+  /* The Grid's colour key on a phone: the five bands on one line, in words. "Colour" and the
+     percentile sentence go; "Top 10%" already says both. */
+  .ukey{flex-wrap:nowrap;gap:4px;margin:12px 0 10px}
+  .ukey .lbl,.ukey .note,.ukey > span[style]{display:none}
+  .ukey{gap:3px}
+  .ubadge{font-family:var(--ui);letter-spacing:0;text-transform:none;padding:4px 4px;white-space:nowrap}
+  /* The slip rail's "SWIPE →" tag sat on the slip's own leg count. The next card peeking in at
+     the right edge already says there is more; the fade stays. */
+  .rail::after{display:none}
 
   /* News on a phone: filters first, the lead story as the first row rather than a framed card,
      and each row the kind line plus headline plus the scanner's read, clamped to two lines. The
