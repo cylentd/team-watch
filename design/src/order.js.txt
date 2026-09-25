@@ -45,6 +45,8 @@ surface/profile/sections.js
 surface/profile/history.js
 surface/profile/sheet.js
 surface/profile/statcard.js
+surface/profile/radarmotion.js
+surface/profile/radartouch.js
 surface/profile/market.js
 surface/profile/details.js
 surface/profile/lede.js

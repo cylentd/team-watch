@@ -38,9 +38,15 @@ function sheetRank(pos, axis, slug){ return rankAmong(sheetValues(pos, axis), sl
    exactly on the threshold would take. Null when the axis has no published bar. */
 function eliteRadius(pos, axis, elite){
   if (elite === null || elite === undefined) return null;
+  return valueRadius(pos, axis, elite);
+}
+
+/* The radius any value would take on an axis: the same rank-to-radius rule the shape uses, for a
+   number no player has to have -- the elite bar, or the starters' median the compare ghost draws. */
+function valueRadius(pos, axis, x){
   const v = Object.values(sheetValues(pos, axis));
   if (v.length < 2) return null;
-  return Math.max(.04, Math.min(1, 1 - v.filter(x => x > elite).length / (v.length - 1)));
+  return Math.max(.04, Math.min(1, 1 - v.filter(y => y > x).length / (v.length - 1)));
 }
 
 function sheetDefaultAxis(s){
@@ -87,15 +93,25 @@ function radarHTML(p){
     const [x0, y0] = xy(i, .93), [x1, y1] = xy(i, 1);
     return `<line class="pf-radar-axis" style="--i:${i}" x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}"/>`;
   }).join("");
-  return `<div class="pf-sheet pos-${esc(String(s.pos).toLowerCase())}" data-slug="${esc(p.slug)}">
-    <svg class="pf-radar" viewBox="-34 0 468 360" role="img" aria-label="${t("profile.sheet.label")}">
+  /* The dial's touch target is an HTML circle over the disc, not the SVG itself: touch-action is
+     only reliable on HTML boxes, and it has to be `none` on the dial (a drag scrubs the axes)
+     while the label ring around it still scrolls the modal. Percentages of the viewBox, so it
+     tracks the chart at every width. */
+  const pc = (a, b) => (a / b * 100).toFixed(2) + "%";
+  const hit = `left:${pc(cx - R + 34, 468)};top:${pc(cy - R, 360)};width:${pc(2 * R, 468)};height:${pc(2 * R, 360)}`;
+  const shaped = ranks.filter(r => r !== null).length >= 3;
+  return `<div class="pf-sheet pos-${esc(String(s.pos).toLowerCase())}" data-slug="${esc(p.slug)}"><div class="pf-radar-box">
+    <svg class="pf-radar" viewBox="-34 0 468 360" role="img" aria-label="${t("profile.sheet.label")}" data-cx="${cx}" data-cy="${cy}" data-r="${R}">
       ${radarDefsHTML(cx, cy, R)}
       <circle class="pf-radar-disc" cx="${cx}" cy="${cy}" r="${R}"/>
       <g class="pf-radar-grid">${rings}${spokes}</g>
       ${eliteBarsHTML(s, ang, xy, sel, cx, cy, R, n)}
+      ${shaped ? `<polygon class="pf-radar-ghost" points=""/>` : ""}
       <g class="pf-radar-grow">${shapeHTML(s, ranks, k, xy, sel, cx, cy)}</g>
       <circle class="pf-radar-hub" cx="${cx}" cy="${cy}" r="2"/>
-      ${axisLabelsHTML(s, ranks, sel, ang, xy, LR)}</svg>
+      ${axisLabelsHTML(s, ranks, sel, ang, xy, LR)}
+      ${shaped ? `<text class="pf-radar-cmp" role="button" tabindex="0" x="-30" y="14">${t("profile.sheet.compare", {pos: esc(s.pos)})}</text>` : ""}</svg>
+    <div class="pf-radar-hit" style="${hit}"></div></div>
     <div class="pf-stat">${statDetailHTML(s, sel)}</div></div>`;
 }
 
@@ -184,7 +200,7 @@ function eliteBarsHTML(s, ang, xy, sel, cx, cy, R, n){
        every vertex, and only one tag is ever shown so two cannot collide. */
     const tr = Math.min(r + 9, R - 7);
     const tx = cx + Math.cos(a1) * tr, ty = cy + Math.sin(a1) * tr;
-    return `<path class="pf-radar-bar${on}" data-col="${esc(a.id)}" fill="none" d="M ${pt(a0)} A ${r.toFixed(1)} ${r.toFixed(1)} 0 0 1 ${pt(a1)}"/>`
+    return `<path class="pf-radar-bar${on}" data-col="${esc(a.id)}" data-r="${r.toFixed(1)}" fill="none" d="M ${pt(a0)} A ${r.toFixed(1)} ${r.toFixed(1)} 0 0 1 ${pt(a1)}"/>`
       + `<text class="pf-radar-bartag${on}" data-col="${esc(a.id)}" x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="middle" dominant-baseline="middle">${t("profile.sheet.eliteTag")}</text>`;
   }).join("");
 }

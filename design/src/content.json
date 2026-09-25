@@ -591,6 +591,8 @@
  "profile.rz.teamCarry": "red-zone carry",
  "profile.rz.teamTarget": "red-zone target",
  "profile.rz.teamTargets": "of the team’s red-zone targets",
+ "profile.sheet.compare": "vs {pos} starters",
+ "profile.sheet.compareOn": "median of top {n} {pos}s",
  "profile.sheet.eliteTag": "ELITE",
  "profile.sheet.label": "Stat sheet: his rank at his position on every usage stat this week",
  "profile.sheet.meta": "of {of}",

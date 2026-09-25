@@ -166,6 +166,7 @@ function wireSheet(d){
     el.querySelectorAll("[data-col]").forEach(x => x.classList.toggle("on", x.dataset.col === col));
     card.innerHTML = statDetailHTML(s, col);
     card.classList.remove("swap"); void card.offsetWidth; card.classList.add("swap");
+    countUp(card.querySelector(".pf-stat > b"));
     const dot = el.querySelector(`.pf-radar-dot[data-col="${col}"]`);
     if (!dot) return;
     [mark, ping].forEach(c => {
@@ -180,4 +181,9 @@ function wireSheet(d){
     node.addEventListener("click", () => pick(node));
     node.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); pick(node); } });
   });
+  const g = radarGeo(el);
+  if (!g) return;
+  radarGrow(g);
+  countUp(card.querySelector(".pf-stat > b"), 380);
+  wireRadarTouch(el, s, g, pick);
 }

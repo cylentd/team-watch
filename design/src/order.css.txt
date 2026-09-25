@@ -35,6 +35,7 @@ surface/profile/panel.css
 surface/profile/details.css
 surface/profile/history.css
 surface/profile/sheet.css
+surface/profile/radar.css
 chrome/footer.css
 chrome/nav.css
 chrome/search.css

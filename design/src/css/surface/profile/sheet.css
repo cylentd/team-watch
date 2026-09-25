@@ -49,7 +49,8 @@
    reads as the tight knot it is; the glow separates live data from printed grid, which is the
    one distinction this chart has to make and the idiom the whole console is built on. */
 .pf-radar-shape{fill:url(#pf-fill-g);stroke:var(--tint);stroke-width:2.25;
-  stroke-linejoin:round;filter:drop-shadow(0 0 5px rgb(var(--tint-rgb) / .42))}
+  stroke-linejoin:round;filter:drop-shadow(0 0 5px rgb(var(--tint-rgb) / .42));
+  transition:fill-opacity .2s var(--ease)}
 .pf-fill-0{stop-color:var(--tint);stop-opacity:.34}
 .pf-fill-1{stop-color:var(--tint);stop-opacity:.07}
 /* Small and unstroked. A 1.5-unit panel-coloured ring on a 3.5-unit dot is most of the dot, and
@@ -138,7 +139,8 @@
    reader who already knows the stat skips it without having to read past it. */
 .pf-stat-why{display:block;margin-top:4px;color:var(--ink-3)}
 .pf-stat-wk{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
-.pf-stat > b{grid-area:v;font-family:var(--mono);font-size:var(--t-6);font-weight:700;line-height:1;color:var(--ink);align-self:end}
+.pf-stat > b{grid-area:v;font-family:var(--mono);font-size:var(--t-6);font-weight:700;line-height:1;color:var(--ink);align-self:end;
+  font-variant-numeric:tabular-nums}
 .pf-stat-side{grid-area:side;display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end;gap:3px;font-family:var(--mono);font-size:var(--t-2);white-space:nowrap}
 .pf-stat-r{font-weight:700;color:var(--ink)}
 .pf-stat-d{color:var(--ink-3)}
