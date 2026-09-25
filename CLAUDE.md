@@ -56,12 +56,16 @@ python design/build.py
 ## Two sessions at once
 
 More than one Claude session works this repo. Two sessions in one checkout interleave edits in
-the same source file and overwrite each other's `index.html` — it has already happened. The
-second session takes a worktree: say "use a worktree", which branches from `origin/main` under
-`.claude/worktrees/`. Notes that cost time to learn:
+the same source file and overwrite each other's `index.html` — it has already happened. So every
+feature session, not only the second, starts in its own worktree (`claude -w <feature>`), and the
+main checkout stays on `main`, unedited. Notes that cost time to learn:
 
-- `git land` runs `git checkout main`, and git refuses a branch checked out in another worktree.
-  Land from a checkout where `main` is free, or remove the worktree first.
+- `.\scripts\land.ps1` lands from the worktree itself (since 2026-09-24 `git land` pushes
+  `HEAD:main` and never checks `main` out). A diff outside `tests/` and `*.md` changes the live
+  page, so it needs `-Yes`, passed only after the user says yes. Landing ends the feature: close
+  the session.
+- The page-rebuild job pushes to `main` at 6:30 and 15:00. A land that races it gets exit 2 from
+  `git land`; `land.ps1` rebases, rebuilds and retries once.
 - A fresh worktree has no `data/feed.json` (untracked). The build falls back to reading
   `ff-jarvis` directly, so it still works; copy the file in if you want the freshness badges.
 - Before touching a file the other session may hold, ask it. `git stash show --name-only` is the

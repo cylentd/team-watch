@@ -14,6 +14,10 @@
 # scripts/land.ps1 sets it if it is missing, so a fresh clone gets it on the first land.
 index.html         -diff merge=ours
 design/index.html  -diff merge=ours
+# Same build, same rule: land.ps1 folds these into the branch commit too, so a land that retries
+# after another session's land replays them onto a newer build.json and games/.
+build.json         -diff merge=ours
+games/**           -diff merge=ours
 
 # Source parts must not pick up CRLF: the build concatenates them byte for byte, and a stray \r
 # changes the output hash.
