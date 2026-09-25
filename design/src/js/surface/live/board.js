@@ -27,10 +27,11 @@ function gdBadge(row){
 
 /* Two spellings of a name, the same full/abbr swap the nav tabs and topbar pills use: at 430px
    two lineups share the width and "De'Von Achane" truncates to "De'Von …", which names nobody.
-   A defence loses its suffix instead of its surname -- the slot column already says D/ST. */
+   A defence keeps its whole name: since the phone cell went to two lines (2026-09-24) there is
+   room, and on the bench the slot column says BE, so "Bengals" alone read as a person. */
 function gdShort(name){
   const s = String(name);
-  return /\sD\/ST$/.test(s) ? s.replace(/\sD\/ST$/, "") : nameInitial(s);
+  return /\sD\/ST$/.test(s) ? s : nameInitial(s);
 }
 
 /* Three states, not two. "9.2" against a name means something different depending on whether

@@ -2292,10 +2292,9 @@ body:has(.connect:not([hidden])){overflow:hidden}
   height:14px; border-radius:999px; overflow:hidden;
   background:var(--panel); border:1px solid var(--line-2);
 }
-.gdspinefill{
-  height:100%; background:var(--lime); border-radius:999px;
-  transition:width .9s var(--ease);
-}
+/* No transition: paintLive() rebuilds the board on every poll, so the fill is a new element each
+   time and there is no old width to animate from. A glide needs the element kept across polls. */
+.gdspinefill{ height:100%; background:var(--lime); border-radius:999px; }
 
 .gdtallies{
   display:grid; grid-template-columns:1fr 1fr; gap:10px;
@@ -2476,11 +2475,25 @@ body:has(.connect:not([hidden])){overflow:hidden}
   .gdtally.theirs .gdwinpct{ text-align:right; }
   .gdtallies{ font-size:var(--t-1); padding:0 10px 8px; }
   .gdspine, .gdtrace{ padding-inline:10px; }
-  .gdname{ font-size:var(--t-1); }
   .gdnametxt{ display:none; }
   .gdnameshort{ display:block; }
   .gdrow{ grid-template-columns:1fr 32px 1fr; }
   .gdslot{ font-size:var(--t-1); }
+
+  /* Two lines per cell (2026-09-24): one line left the name ~40px at 360 ("Seaha…"). The name
+     takes the whole width; .gdname dissolves so its badge drops to the numbers' line. */
+  .gdcell, .gdcell.theirs{ grid-template-columns:minmax(0,1fr) auto auto;
+    grid-template-areas:"nm nm nm" "bd now pj"; row-gap:3px; column-gap:6px; padding:7px 8px; }
+  .gdname{ display:contents; }
+  .gdnameshort{ grid-area:nm; font:600 var(--t-2)/1.25 var(--ui); color:var(--ink); }
+  .gdcell.waiting .gdnameshort{ color:var(--ink-2); }
+  .gdbadge{ grid-area:bd; justify-self:start; }
+  .gdnow{ grid-area:now; min-width:0; }
+  .gdproj, .gddelta{ grid-area:pj; min-width:26px; }
+  .gdcell.skel{ min-height:48px; }
+  /* Both totals stay in view: the scores band sticks under the nav bar and rides up with it. */
+  .gdhead{ position:sticky; top:var(--nav-h); z-index:30; border-radius:0; transition:top .28s var(--ease); }
+  body.hdr-away .gdhead{ top:0; }
 }
 /* ── css/surface/strip/field.css ── */
 /* ------------------------------------------------------------------
@@ -9061,10 +9074,11 @@ function gdBadge(row){
 
 /* Two spellings of a name, the same full/abbr swap the nav tabs and topbar pills use: at 430px
    two lineups share the width and "De'Von Achane" truncates to "De'Von …", which names nobody.
-   A defence loses its suffix instead of its surname -- the slot column already says D/ST. */
+   A defence keeps its whole name: since the phone cell went to two lines (2026-09-24) there is
+   room, and on the bench the slot column says BE, so "Bengals" alone read as a person. */
 function gdShort(name){
   const s = String(name);
-  return /\sD\/ST$/.test(s) ? s.replace(/\sD\/ST$/, "") : nameInitial(s);
+  return /\sD\/ST$/.test(s) ? s : nameInitial(s);
 }
 
 /* Three states, not two. "9.2" against a name means something different depending on whether
