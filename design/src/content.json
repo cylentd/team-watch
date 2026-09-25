@@ -602,6 +602,7 @@
  "profile.tab.log": "Log",
  "profile.tab.matchup": "Matchup",
  "profile.tab.usage": "Usage",
+ "profile.tag.teams": "On {n} of your teams",
  "profile.weather.dome": "Dome, no weather",
  "profile.weather.retractable": "roof may close",
  "profile.weather.temp": "{n}°F",

@@ -169,6 +169,29 @@ def test_phone_moves_matchup_to_the_meta_line(browser, page_file):
 
 
 @pytest.mark.render
+def test_head_carries_the_verdict_and_both_teams(browser, page_file):
+    """The verdict word and the two-league tag left the roster row on 2026-09-25 for the profile
+    head. Looked up by slug, so a sheet opened from anywhere (search passes a bare {n, pos, team})
+    says the same thing a roster row's sheet does."""
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    modal = page.locator("#modal")
+    page.evaluate("VIEW='espn'; render()")
+    row(page, "Chase Brown").click()                     # RISING in watch, on both fixture rosters
+    tags = modal.locator(".pf-tags")
+    assert tags.locator(".tag.verdict").inner_text().strip() == "RISING"
+    assert tags.locator(".pf-why").inner_text().startswith("snaps +13.0")
+    assert tags.locator(".pf-mine").inner_text().strip() == "On 2 of your teams"
+    from_search = page.evaluate("""() => { openProfile({n: "Chase Brown", pos: "RB", team: "CIN"});
+      return document.querySelector("#modal .pf-tags").innerText; }""")
+    assert "RISING" in from_search and "On 2 of your teams" in from_search
+    page.evaluate("""() => openProfile(findPlayer('espn', TEAMS.espn.roster.filter(p => p.start)
+      .findIndex(p => p.n === 'Brock Purdy')))""")      # watch says hold, one roster: no line
+    assert modal.locator(".pf-tags").count() == 0
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
 def test_panes_split_the_blocks_and_only_one_is_in_the_dom(browser, page_file):
     """Three panes since 2026-09-22, replacing eleven stacked blocks and the Details disclosure
     nested inside them. Each block still renders exactly as before; what changed is which pane

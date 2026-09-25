@@ -20,6 +20,13 @@
 .pf-who .lbl{letter-spacing:.05em}
 .pf-id-rank{font-weight:700;color:var(--ink)}
 .pf-id-bye{color:var(--ink-3)}
+/* The head's second line (profile/tags.js): watch's verdict word and its reason, then how many of
+   my teams he is on. Grey throughout: the word is watch's call, not a colour the page adds. */
+.pf-tags{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px;margin-top:8px;
+  font-size:var(--t-2);color:var(--ink-3)}
+.pf-tags .tag.verdict{color:var(--ink-2);border:1px solid var(--line-2)}
+.pf-mine::before{content:"·";margin-right:10px}
+.pf-tags > .pf-mine:first-child::before{content:none}
 .pf-body{padding:0 26px 30px}
 /* The chart column takes what it can up to 460px, and the pane's own 480px minimum is what
    stops it: on a 1240px modal the chart gets its full width, and on a narrow desktop the chart

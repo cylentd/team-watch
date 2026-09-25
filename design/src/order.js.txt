@@ -33,6 +33,7 @@ surface/teams/wvmotion.js
 surface/teams/wdesk.js
 surface/teams/waiver.js
 surface/profile/facts.js
+surface/profile/tags.js
 surface/profile/blocks.js
 surface/profile/sections.js
 surface/profile/history.js

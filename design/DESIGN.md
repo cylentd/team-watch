@@ -36,7 +36,7 @@ projection at every width; the rest are read elsewhere:
 | Trend line | `watch.json` `series`, weekly snap % (`LIVE_SIGNALS`) | the row; last week's % is its title |
 | Projection | `LIVE_PROJECTIONS` `pts` | the row's pill |
 | Market delta, rank | `market.stock` `d_pts`, `rank`/`d_rank` | the profile's market block |
-| Verdict word | `watch.json` `verdict`, hidden for NEW and hold | not drawn yet (profile follow-up) |
+| Verdict word | `watch.json` `verdict` and `why`, hidden for NEW and hold | the profile head's second line, with "On 2 of your teams" (`profile/tags.js`) |
 | News count | scanner stories naming him, last 72 h | the This week brief |
 
 None of the three sources is backtested. The verdict word is watch's own; the page adds none.
