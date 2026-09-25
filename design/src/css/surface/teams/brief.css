@@ -1,0 +1,40 @@
+/* ============================== THIS WEEK ============================== */
+/* The roster's brief (js/surface/teams/brief.js), in the same list language as the player rows.
+   The dot is the only colour and keeps the app's meanings: red out, amber a status, lime a claim
+   to make, grey a story. Where it sits depends on the width:
+   - from 1100px: a sticky column beside the rows, so it never pushes a player down;
+   - 761-1099px: above the rows, up to three lines;
+   - a phone: one line, and only a decision (a status or a must-claim), else nothing at all --
+     the storyboard's roster shows seven players before the first scroll (responsive/lists.css). */
+.brief{margin-top:20px;max-width:720px}
+.brief-h{font-family:var(--ui);font-size:var(--t-2);font-weight:600;color:var(--ink-2);margin:0 0 4px}
+.brief-line{
+  display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:10px 0;
+  appearance:none;background:none;border:0;border-bottom:1px solid var(--line);cursor:pointer;
+  font-family:var(--ui);font-size:var(--t-3);color:var(--ink);text-align:left;
+}
+.brief-line:first-of-type{border-top:1px solid var(--line)}
+.brief-line:hover .brief-txt{text-decoration:underline;text-decoration-color:var(--line-2)}
+.brief-line:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.brief-dot{width:8px;height:8px;border-radius:99px;flex:none;background:var(--ink-3)}
+.brief-line.down .brief-dot{background:var(--down)}
+.brief-line.warn .brief-dot{background:var(--amber)}
+.brief-line.lime .brief-dot{background:var(--lime)}
+.brief-txt{flex:1;min-width:0}
+.brief-go{color:var(--ink-3);font-size:var(--t-4);line-height:1}
+.brief-quiet{margin:0;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  font-size:var(--t-2);color:var(--ink-3)}
+
+@media (min-width:1100px){
+  .rl{display:grid;grid-template-columns:minmax(0,1fr) 300px;column-gap:48px;align-items:start}
+  .rl > .rl-rows{grid-column:1;grid-row:1;min-width:0}
+  .rl > .brief{grid-column:2;grid-row:1;max-width:none;margin-top:22px;
+    position:sticky;top:calc(var(--rl-stick, 0px) + 14px)}
+  .brief-line{font-size:var(--t-2);min-height:44px}
+}
+
+@media (max-width:760px){
+  .brief{margin-top:4px}
+  .brief-h,.brief-quiet,.brief-line.soft,.brief-line ~ .brief-line{display:none}
+  .brief-line{border-top:0;min-height:44px}
+}

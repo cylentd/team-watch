@@ -40,20 +40,12 @@ function matchupRankText(prof){
     : t("profile.matchup.rankTough", {nth: ordinal(f.of - n + 1), of: f.of, pos: esc(prof.pos)});
 }
 
-/* The same rank as a clause on the row's meta line, shown only at phone width (430.css) where the
-   column would crowd the trend line. No rank: no clause at all. */
+/* The roster row's matchup, a clause on its meta line since the Matchup column went (2026-09-25):
+   "@ KC 20th", the ordinal's title saying what it ranks. A phone drops the ordinal (lists.css); it
+   is the profile's there. No rank -- a bye, no profile -- is no clause at all. */
 function matchupMetaHTML(prof){
   const nx = prof && prof.next;
   const n = nx ? easiestRank(nx.factor) : null;
   if (n === null) return "";
-  return `<span class="mu-meta"><span class="mu-dot">·</span>${whereWord(nx)} ${esc(nx.opp)} <b class="mu-n ${matchupClass(n, nx.factor.of)}">${ordinal(n)}</b></span>`;
-}
-
-/* The roster row's MATCHUP cell: "@ KC  20th", or a muted dash on a bye or with no rank. */
-function matchupCellHTML(prof){
-  const nx = prof && prof.next;
-  const n = nx ? easiestRank(nx.factor) : null;
-  if (n === null) return `<span class="mu-none">—</span>`;
-  return `<span class="mu-opp">${whereWord(nx)} ${esc(nx.opp)}</span>`
-    + `<b class="mu-n ${matchupClass(n, nx.factor.of)}" title="${matchupRankText(prof)}">${ordinal(n)}</b>`;
+  return `<span class="mu-meta">${whereWord(nx)} ${esc(nx.opp)} <b class="mu-n ${matchupClass(n, nx.factor.of)}" title="${matchupRankText(prof)}">${ordinal(n)}</b></span>`;
 }

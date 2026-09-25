@@ -10,7 +10,6 @@
   .topbar-in{height:48px;gap:10px}
   #topbadge{display:none}
   .brand-name{font-size:var(--t-3)}
-  #weekpill{display:none}
   .discordlink{display:none}
   .topbar .pill .full{display:none}
   .topbar .pill .abbr{display:inline}

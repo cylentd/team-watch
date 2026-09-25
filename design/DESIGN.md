@@ -27,16 +27,17 @@ python design/build.py
 The Yahoo file comes from a website scrape, so lineup slots are inferred by filling the league
 lineup in roster order. The board says so in a caption rather than passing the guess off as fact.
 
-A roster row's Trend, Rank and News cells come from `data/signals.js` (since 2026-09-16; the
-hand-typed `SIGNALS` map is gone). Nothing is typed by hand:
+A roster row's signals come from `data/signals.js` (since 2026-09-16; the hand-typed `SIGNALS`
+map is gone). Nothing is typed by hand. Since 2026-09-25 the row draws only the first and the
+projection at every width; the rest are read elsewhere:
 
-| Cell | Source | Shows from |
+| Signal | Source | Drawn where |
 |---|---|---|
-| Trend line | `watch.json` `series`, weekly snap % (`LIVE_SIGNALS`) | week 2: a line needs two weeks |
-| Trend delta | `market.stock` `d_pts`, points vs his previous game's price | a priced prop market |
-| Rank | `market.stock` `rank`/`d_rank`, position rank among priced players | a priced prop market |
-| Verdict tag | `watch.json` `verdict`, hidden for NEW and hold | week 2 |
-| News | scanner stories whose headline starts with his name, team agreeing, last 72 h | now |
+| Trend line | `watch.json` `series`, weekly snap % (`LIVE_SIGNALS`) | the row; last week's % is its title |
+| Projection | `LIVE_PROJECTIONS` `pts` | the row's pill |
+| Market delta, rank | `market.stock` `d_pts`, `rank`/`d_rank` | the profile's market block |
+| Verdict word | `watch.json` `verdict`, hidden for NEW and hold | not drawn yet (profile follow-up) |
+| News count | scanner stories naming him, last 72 h | the This week brief |
 
 None of the three sources is backtested. The verdict word is watch's own; the page adds none.
 
@@ -50,7 +51,10 @@ question: who, which way, one number.
 | Nav | top: four groups as words, search + chat icons; view tabs underlined below; both hide on scroll down | `responsive/760.css`, `js/chrome/hidebar.js` |
 | Brand row | hidden; shown only when a newer build makes DATA a reload control | `responsive/760.css` |
 | Ground | slate `#111418`, surfaces one step up each; no pure black, no radial glow | `base/tokens.css` |
-| Roster row | 52px head, name, "RB · BAL @ DAL", trend line, projection pill | `responsive/lists.css` |
+| Roster row | 52px head, name, "RB · BAL @ DAL", trend line, projection pill. Desktop draws the same row since 2026-09-25, adding only the matchup ordinal | `surface/teams/roster.css`, `responsive/lists.css` |
+| Roster hero | one line at every width since 2026-09-25: the team switch is the title, "Yahoo · 0-0 · league" beside it; Waivers keeps its full hero | `chrome/hero.css` `.hero.team` |
+| This week | the roster's brief (`js/surface/teams/brief.js`): a starter's status (red out, amber other), a must-claim (lime), who the news names (grey). Desktop from 1100px: up to three lines in a sticky column beside the rows; 761-1099px: above the rows; phone: one line, a decision only, else nothing | `surface/teams/brief.css` |
+| Topbar (desktop) | one pill: the week, its dot the sources' health; the live badge shows only on sample data | `js/chrome/feed.js`, `js/chrome/render.js` |
 | Movers row | 52px head, name, role-share pill | `responsive/lists.css` |
 | Value pill | filled green/red by direction, grey when flat | `component/vpill.css` |
 | KPI tiles | removed at every width (roster and parlay) | — |

@@ -94,7 +94,7 @@
   --amber-ground-rgb:26 18 0;
   --down-ground:#2a0503;   /* dark ground under the red O badge, roster.css .badge.o */
   --down-ground-rgb:42 5 3;
-  --yahoo-tint:#b596ff;    /* lighter yahoo text tint, roster.css .tag.dual */
+  --yahoo-tint:#b596ff;    /* lighter yahoo text tint, search.css .sr-yahoo */
   --yahoo-tint-rgb:181 150 255;
   --shadow:#000000;        /* opaque black behind an alpha: box-shadow tints in feed.css,
                                teamswitch.css, drawer.css, nav.css, builder/ticket.css, and the
@@ -239,6 +239,7 @@ html{scrollbar-color:var(--line-2) var(--void)}
 }
 .pill.warn{border-color:rgb(var(--amber-rgb) / .35);color:var(--amber);background:rgb(var(--amber-rgb) / .06)}
 .pill.live{border-color:rgb(var(--lime-rgb) / .35);color:var(--lime);background:rgb(var(--lime-rgb) / .06)}
+.pill[hidden]{display:none}
 .dot{width:5px;height:5px;border-radius:99px;background:currentColor}
 
 /* ── css/chrome/teamswitch.css ── */
@@ -319,6 +320,24 @@ html{scrollbar-color:var(--line-2) var(--void)}
 }
 .leaguechip:hover{border-color:var(--ink-2);color:var(--ink)}
 .leaguechip .lc-info{opacity:.55;font-size:var(--t-1)}
+
+/* The roster's hero at every width (2026-09-25): one line, the team switch as the title, the
+   platform, record and league beside it. The phone had it first (responsive/760.css); desktop
+   dropped the ghost numeral, the uppercase name that repeated the switch, and the bordered chip. */
+.hero.team{padding:28px 0 4px}
+.hero.team .numghost,.hero.team h1.fit,.hero.team .league-mark,.hero.team .hero-eyebrow .lbl{display:none}
+.hero.team .hero-in{grid-template-columns:minmax(0,1fr);gap:4px}
+.hero.team .hero-eyebrow{flex-wrap:nowrap;margin-bottom:0}
+.hero.team .teamswitch{position:relative;top:auto;right:auto;order:1;min-width:0;padding:0;margin:0}
+.hero.team .ts-btn{background:none;border:0;padding:4px 0;min-width:0;gap:10px}
+.hero.team .ts-team{font-family:var(--disp);font-size:var(--t-6);font-weight:700;max-width:none;
+  overflow:hidden;text-overflow:ellipsis}
+.hero.team .ts-chev{font-size:var(--t-2)}
+.hero.team .ts-menu{left:0;right:auto}
+.hero.team .hero-rec{display:inline}
+.hero.team .leaguechip{border:0;padding:0;letter-spacing:.06em;color:var(--ink-3)}
+.hero.team .leaguechip:hover{color:var(--ink)}
+.hero.team .hero-rec + .leaguechip::before{content:"·";margin-right:10px;color:var(--ink-3)}
 
 /* ── css/chrome/motion.css ── */
 /* ============================== MOTION ============================== */
@@ -442,59 +461,41 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .vpill.none{color:var(--ink-3)}
 /* ── css/surface/teams/roster.css ── */
 /* ============================== ROSTER ROW ============================== */
-.colhead{
-  display:grid;grid-template-columns:54px 46px 280px 118px 194px 108px 34px;
-  grid-template-areas:"slot head name match trend rank news";
-  gap:16px;padding:0 14px 6px 12px;margin-top:18px;align-items:center;
-}
-.colhead .ch{font-family:var(--mono);font-size:var(--t-1);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
-.colhead .ch-trend{grid-area:trend}
-.colhead .ch-rank{grid-area:rank;text-align:left}
-.colhead .ch-news{grid-area:news;text-align:center}
-.board{margin-top:0;border-top:1px solid var(--line)}
+/* One row at every width since 2026-09-25 (js/surface/teams/board.js): head, name over position
+   and matchup, the snap-share line, the projection pill. responsive/lists.css only tightens it for
+   a phone. The desktop's slot box, matchup, market, rank and news columns are gone. */
+.board{margin-top:0}
 .row{
   display:grid;
-  grid-template-columns:54px 46px 280px 118px 194px 108px 34px;
-  grid-template-areas:"slot head name match trend rank news";
+  grid-template-columns:52px minmax(0,1fr) 80px auto;
+  grid-template-areas:"head name trend proj";
   align-items:center;gap:16px;
-  padding:11px 14px 11px 12px;
+  padding:12px 8px;
   border-bottom:1px solid var(--line);
-  cursor:pointer;position:relative;background:transparent;
+  cursor:pointer;position:relative;background:transparent;border-radius:6px;
   transition:background .18s var(--ease);
   opacity:0;
   animation:rowin .4s var(--ease) forwards;
 }
 @keyframes rowin{to{opacity:1}}
-.row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--lime);transform:scaleY(0);transform-origin:center;transition:transform .28s var(--ease)}
 .row:hover{background:var(--panel-2)}
-.row:hover::before{transform:scaleY(1)}
 .row:active{transform:scale(.996)}
-.row.bench{background:rgba(255,255,255,.012)}
-.row.out{background:rgb(var(--down-rgb) / .04)}
+.row:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
 
-.slot{grid-area:slot}
-.slot span{
-  display:inline-block;min-width:44px;text-align:center;padding:4px 0;
-  font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.1em;
-  border:1px solid var(--line-2);color:var(--ink-2);border-radius:2px;
-}
-.row.start .slot span{color:var(--lime);border-color:rgb(var(--lime-rgb) / .35);background:rgb(var(--lime-rgb) / .06)}
-
-.head{grid-area:head;position:relative;width:46px;height:46px}
-.head img{width:46px;height:46px;border-radius:99px;object-fit:cover;background:var(--panel-3);border:1px solid var(--line-2);display:block}
-.row.start .head img{border-color:rgb(var(--lime-rgb) / .4)}
+.head{grid-area:head;position:relative;width:52px;height:52px}
+.head img{width:52px;height:52px;border-radius:99px;object-fit:cover;background:var(--panel-3);border:1px solid var(--line-2);display:block}
 .head .fallback{
-  width:46px;height:46px;border-radius:99px;display:grid;place-items:center;
-  background:linear-gradient(145deg,var(--panel-3),var(--panel));border:1px solid var(--line-2);
-  font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink-3);letter-spacing:.02em;
+  width:52px;height:52px;border-radius:99px;display:grid;place-items:center;
+  background:var(--panel-3);border:1px solid var(--line-2);
+  font-family:var(--ui);font-size:var(--t-2);font-weight:600;color:var(--ink-3);
 }
 .head .dst{
-  width:46px;height:46px;border-radius:4px;display:grid;place-items:center;
+  width:52px;height:52px;border-radius:6px;display:grid;place-items:center;
   background:var(--panel-3);border:1px solid var(--line-2);
   font-family:var(--disp);font-weight:800;font-size:var(--t-3);color:var(--ink-2);
 }
 .head .badge{
-  position:absolute;right:-3px;bottom:-3px;min-width:17px;height:17px;padding:0 4px;
+  position:absolute;right:-3px;bottom:-3px;min-width:18px;height:18px;padding:0 4px;
   display:grid;place-items:center;border-radius:99px;border:2px solid var(--void);
   font-family:var(--mono);font-size:var(--t-1);font-weight:700;
 }
@@ -503,22 +504,24 @@ html{scrollbar-color:var(--line-2) var(--void)}
 
 .nm{grid-area:name;min-width:0}
 .nm-1{display:flex;align-items:center;gap:8px;min-width:0}
-.nm-1 b{font-weight:500;font-size:var(--t-3);letter-spacing:-.012em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nm-1 b{font-weight:600;font-size:var(--t-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nm-2{display:flex;align-items:baseline;margin-top:3px;font-family:var(--ui);font-size:var(--t-2);color:var(--ink-3)}
+
+/* Status tags, also drawn by other views (search results, parlay legs). */
 .tag{
   flex-shrink:0;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.12em;
   padding:2.5px 5px;border-radius:2px;text-transform:uppercase;
 }
 .tag.q{background:rgb(var(--amber-rgb) / .14);color:var(--amber);border:1px solid rgb(var(--amber-rgb) / .3)}
 .tag.o{background:rgb(var(--down-rgb) / .14);color:var(--down);border:1px solid rgb(var(--down-rgb) / .3)}
-.tag.verdict{color:var(--ink-2);border:1px dashed var(--line-2);cursor:help}
-.tag.dual{background:rgb(var(--yahoo-rgb) / .14);color:var(--yahoo-tint);border:1px solid rgb(var(--yahoo-rgb) / .34)}
-.nm-2{display:flex;align-items:center;gap:9px;margin-top:4px;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);letter-spacing:.04em}
-.nm-2 .sep{width:3px;height:3px;background:var(--line-2);border-radius:99px}
 
-.trend{grid-area:trend;display:flex;align-items:center;gap:14px;min-width:0}
+.trend{grid-area:trend;display:flex;align-items:center;min-width:0}
 .spark{flex-shrink:0}
 .spark path.line{fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .spark .area{opacity:.13}
+/* On the row the line is the whole signal: no fill under it, a stroke heavy enough to read. */
+.row .spark .area{display:none}
+.row .spark path.line{stroke-width:2}
 /* The elite bar, where a caller passes one (the profile's stat card): the weeks are read against
    it instead of against the frame. Dashed and dim, so it is scenery for the line, never a second
    series. The roster's own sparklines pass no reference and draw none. */
@@ -526,63 +529,67 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .spark .reveal{clip-path:inset(0 100% 0 0);
   animation:wipe .9s var(--ease) calc(var(--rowdelay,0ms) + 80ms) forwards}
 @keyframes wipe{to{clip-path:inset(0 0 0 0)}}
+
+/* The price-move chip, drawn by the profile's market block (js/surface/profile/market.js). */
 .delta{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:-.01em;white-space:nowrap}
 .delta.up{color:var(--up)}
 .delta.down{color:var(--down)}
 .delta.flat{color:var(--ink-3)}
-.delta.new{color:var(--ink-3);border:1px dashed var(--line-2);padding:2px 6px;font-size:var(--t-1);letter-spacing:.14em}
 
-.rk{grid-area:rank;min-width:0;white-space:nowrap}
-.rk-1{display:flex;align-items:baseline;gap:6px}
-.rk-1 b{font-family:var(--mono);font-size:var(--t-4);font-weight:700;letter-spacing:-.03em}
-.rk-1 small{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
-.rk-1 .mv{font-family:var(--mono);font-size:var(--t-1);font-weight:700}
-.mv.up{color:var(--up)} .mv.down{color:var(--down)} .mv.flat{color:var(--ink-3)}
-.pctbar{height:3px;background:var(--line);margin-top:6px;position:relative;overflow:hidden}
-.pctbar i{position:absolute;left:0;top:0;bottom:0;background:var(--ink-2);width:0;animation:grow 1s var(--ease) .4s forwards}
-.row.start .pctbar i{background:var(--lime)}
-@keyframes grow{to{width:var(--w)}}
-
-/* The phone's one number, a .vpill (component/vpill.css). */
+/* The row's one number, a .vpill (component/vpill.css), shown at every width on the roster. */
 .rproj{grid-area:proj}
-
-.news{grid-area:news;display:flex;justify-content:center}
-.newstag{
-  display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:3px;
-  border:1px solid var(--line-2);font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink-3);
-  transition:all .2s var(--ease);
+.row .vpill{display:block}
+/* ── css/surface/teams/brief.css ── */
+/* ============================== THIS WEEK ============================== */
+/* The roster's brief (js/surface/teams/brief.js), in the same list language as the player rows.
+   The dot is the only colour and keeps the app's meanings: red out, amber a status, lime a claim
+   to make, grey a story. Where it sits depends on the width:
+   - from 1100px: a sticky column beside the rows, so it never pushes a player down;
+   - 761-1099px: above the rows, up to three lines;
+   - a phone: one line, and only a decision (a status or a must-claim), else nothing at all --
+     the storyboard's roster shows seven players before the first scroll (responsive/lists.css). */
+.brief{margin-top:20px;max-width:720px}
+.brief-h{font-family:var(--ui);font-size:var(--t-2);font-weight:600;color:var(--ink-2);margin:0 0 4px}
+.brief-line{
+  display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:10px 0;
+  appearance:none;background:none;border:0;border-bottom:1px solid var(--line);cursor:pointer;
+  font-family:var(--ui);font-size:var(--t-3);color:var(--ink);text-align:left;
 }
-.newstag svg{width:12px;height:12px;flex-shrink:0}
-.newstag.hot{border-color:rgb(var(--lime-rgb) / .45);color:var(--lime);background:rgb(var(--lime-rgb) / .08)}
-.newstag.empty{border-color:transparent;color:var(--ink-3);opacity:.4}
-.row:hover .newstag:not(.empty){border-color:var(--lime);color:var(--lime)}
+.brief-line:first-of-type{border-top:1px solid var(--line)}
+.brief-line:hover .brief-txt{text-decoration:underline;text-decoration-color:var(--line-2)}
+.brief-line:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.brief-dot{width:8px;height:8px;border-radius:99px;flex:none;background:var(--ink-3)}
+.brief-line.down .brief-dot{background:var(--down)}
+.brief-line.warn .brief-dot{background:var(--amber)}
+.brief-line.lime .brief-dot{background:var(--lime)}
+.brief-txt{flex:1;min-width:0}
+.brief-go{color:var(--ink-3);font-size:var(--t-4);line-height:1}
+.brief-quiet{margin:0;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  font-size:var(--t-2);color:var(--ink-3)}
 
+@media (min-width:1100px){
+  .rl{display:grid;grid-template-columns:minmax(0,1fr) 300px;column-gap:48px;align-items:start}
+  .rl > .rl-rows{grid-column:1;grid-row:1;min-width:0}
+  .rl > .brief{grid-column:2;grid-row:1;max-width:none;margin-top:22px;
+    position:sticky;top:calc(var(--rl-stick, 0px) + 14px)}
+  .brief-line{font-size:var(--t-2);min-height:44px}
+}
+
+@media (max-width:760px){
+  .brief{margin-top:4px}
+  .brief-h,.brief-quiet,.brief-line.soft,.brief-line ~ .brief-line{display:none}
+  .brief-line{border-top:0;min-height:44px}
+}
 /* ── css/surface/teams/matchup.css ── */
 /* ============================== MATCHUP RANK ==============================
-   The roster row's MATCHUP cell and the profile headline share one colour rule: easiest 8 up,
-   hardest 8 down, the middle 16 in plain ink. The column header's note is a native disclosure,
-   so a tap and a keyboard both reach the sentence the title attribute carries on hover. */
-.match{grid-area:match;display:flex;align-items:baseline;gap:8px;min-width:0;white-space:nowrap;font-family:var(--mono)}
-.mu-opp{font-size:var(--t-1);color:var(--ink-2);letter-spacing:.02em}
+   The roster row's matchup clause and the profile headline share one colour rule: easiest 8 up,
+   hardest 8 down, the middle 16 in plain ink. The Matchup column and its header note went on
+   2026-09-25; the clause's ordinal carries the same sentence as its title. */
 .mu-n{font-size:var(--t-3);font-weight:700;letter-spacing:-.01em;color:var(--ink)}
-.mu-none{font-size:var(--t-2);color:var(--ink-3)}
 .mu-easy{color:var(--up)}
 .mu-hard{color:var(--down)}
-.mu-meta{display:none;align-items:baseline;gap:6px;white-space:nowrap}
-.mu-meta .mu-n{font-size:var(--t-1)}
-
-.colhead .ch-match{grid-area:match;position:relative}
-.ch-match > summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:5px;min-height:24px;padding:10px 0;margin:-10px 0}
-.ch-match > summary::-webkit-details-marker{display:none}
-.ch-match > summary::marker{content:""}
-.ch-match > summary::after{content:"?";display:grid;place-items:center;width:13px;height:13px;border:1px solid var(--line-2);border-radius:99px;font-size:var(--t-1);letter-spacing:0}
-.ch-match > summary:hover,.ch-match[open] > summary{color:var(--ink)}
-.ch-match > summary:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
-.ch-note{
-  position:absolute;left:0;top:100%;z-index:3;width:260px;margin-top:6px;padding:9px 11px;
-  background:var(--panel-2);border:1px solid var(--line-2);border-radius:3px;
-  font-family:var(--ui);font-size:var(--t-1);line-height:1.5;letter-spacing:0;text-transform:none;color:var(--ink-2);
-}
+.mu-meta{display:inline-flex;align-items:baseline;gap:4px;margin-left:4px;white-space:nowrap}
+.mu-meta .mu-n{font-size:var(--t-2);font-weight:600;cursor:help}
 /* ── css/surface/teams/wire.css ── */
 /* ============================== WAIVERS SUB-TAB ============================== */
 /* The cards live in wcard.css and wback.css, the Breaking rail in rail.css. */
@@ -3246,7 +3253,6 @@ body:has(.connect:not([hidden])){overflow:hidden}
   .topbar-in{height:48px;gap:10px}
   #topbadge{display:none}
   .brand-name{font-size:var(--t-3)}
-  #weekpill{display:none}
   .discordlink{display:none}
   .topbar .pill .full{display:none}
   .topbar .pill .abbr{display:inline}
@@ -3426,27 +3432,10 @@ body:has(.connect:not([hidden])){overflow:hidden}
   /* The roster row on a phone, 2026-09-24: who, which way, one number. A 52px head, the name over
      "RB · BAL @ DAL", the trend line, and the projection pill. Rank, the matchup ordinal, the
      verdict and news tags all live one tap away in the profile; the Q/O badge stays on the head. */
-  .colhead{display:none}
-  .board{margin-top:4px;border-top:0}
-  .row{
-    grid-template-columns:52px minmax(0,1fr) 56px auto;
-    grid-template-areas:"head name trend proj";
-    gap:12px;padding:10px 0;
-  }
-  .row.bench,.row.out{background:none}
-  .row::before{display:none}
-  .slot,.match,.rk,.news,.delta{display:none}
-  .head,.head img,.head .fallback,.head .dst{width:52px;height:52px}
-  .row.start .head img{border-color:var(--line-2)}
-  .nm-1 b{font-size:var(--t-3);font-weight:600}
-  .nm-1 .tag{display:none}
-  .nm-2{font-family:var(--ui);font-size:var(--t-2);gap:0;letter-spacing:0;margin-top:3px}
-  .nm-2 .mu-meta{display:inline-flex;gap:4px;margin-left:4px}
-  .nm-2 .mu-dot,.nm-2 .mu-n{display:none}
-  .trend{gap:0}
+  .board{margin-top:4px}
+  .row{grid-template-columns:52px minmax(0,1fr) 56px auto;gap:12px;padding:10px 0;border-radius:0}
+  .nm-2 .mu-n{display:none}
   .spark{width:56px;height:24px}
-  .row .spark .area{display:none}
-  .row .spark path.line{stroke-width:2}
   .vpill{display:block}
   /* Filter rows on a phone: one line that scrolls sideways, pill chips in the UI face. The
      "Position" / "Filter" label goes; the chips name themselves. */
@@ -3543,7 +3532,6 @@ body:has(.connect:not([hidden])){overflow:hidden}
   .explain-btn span{display:none}
   .explain-btn svg{width:18px;height:18px}
 }
-.slotm{display:none}
 .pill .abbr{display:none}
 
 /* ── css/responsive/motion.css ── */
@@ -3555,7 +3543,6 @@ body:has(.connect:not([hidden])){overflow:hidden}
   .wvr-row.fresh{animation:none}
   .zip{display:none}
   .spark .reveal{clip-path:inset(0 0 0 0)}
-  .pctbar i{width:var(--w)}
 }
 </style>
 
@@ -3571,9 +3558,7 @@ body:has(.connect:not([hidden])){overflow:hidden}
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.522 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1568 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
     </a>
     <div class="topbar-spacer"></div>
-    <span class="pill warn" id="topbadge"><span class="dot"></span><span class="full">Sample signals — skill not wired</span><span class="abbr">Sample data</span></span>
-    <span class="pill" id="weekpill"><span class="dot" style="color:var(--lime)"></span><span class="txt">This week</span></span>
-    <div class="statuswrap" id="feed"></div>
+    <span class="pill warn" id="topbadge"><span class="dot"></span><span class="full">Sample signals — skill not wired</span><span class="abbr">Sample data</span></span>    <div class="statuswrap" id="feed"></div>
   </div>
 </header>
 
@@ -3676,7 +3661,7 @@ const LIVE_MARKET_STOCK = {"generated": "2026-09-24 05:58", "at": "2026-09-24T05
 const LIVE_SIGNALS = {"through_week": 2, "ready": true, "players": {"amonra-st-brown": {"series": [90.0, 95.0], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "devon-achane": {"series": [86.0, 76.0], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "cam-skattebo": {"series": [61.0, 59.0], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "tetairoa-mcmillan": {"series": [82.0, 80.0], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "tee-higgins": {"series": [72.0, 72.0], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "tony-pollard": {"series": [52.0, 55.0], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 2, "hot": false}, "george-kittle": {"series": [46.0, 48.0], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "dk-metcalf": {"series": [96.0, 97.0], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "brock-purdy": {"series": [100.0, 85.0], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "jordan-mason": {"series": [45.0, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "null": {"series": [], "verdict": null, "why": null, "news": 0, "hot": false}, "jared-goff": {"series": [100.0, 100.0], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "bo-nix": {"series": [100.0, 100.0], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "dalton-schultz": {"series": [66.0, 68.0], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 2, "hot": false}, "matthew-stafford": {"series": [84.0, 100.0], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "derrick-henry": {"series": [54.0, 53.0], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "rashee-rice": {"series": [83.0, 79.0], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "davante-adams": {"series": [54.0, 65.0], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "dallas-goedert": {"series": [95.0, 25.0], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 1, "hot": false}, "jameson-williams": {"series": [84.0, 97.0], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "josh-jacobs": {"series": [], "verdict": null, "why": null, "news": 0, "hot": false}, "rj-harvey": {"series": [51.0, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 3, "hot": false}}};
 const BUILD = {"id": "ac2db3dc4c12", "week": 3};
 
-const COPY = {"board.action.add": "+ Add player", "board.action.remove": "Remove {name}", "board.empty.noSheetSub": "THE SEASON SHEET ARRIVES WITH THE FIRST WEEK OF USAGE", "board.empty.noSheetTitle": "No stat sheet yet", "board.filter.position": "Position", "board.foot.source": "{n} {pos}s on ff-jarvis's season sheet. Each lane is that stat's own range, low to high; the shaded block is the middle half of the position, and a rule at a lane's end means a few values run past the scale.", "board.label.carries": "{n} career carries", "board.label.caveat": "What he did, not what he will do.", "board.label.dropbacks": "{n} dropbacks", "board.label.flagGoalLine": "Goal-line runner", "board.label.games": "{n} games", "board.label.role": "Role", "board.label.style": "Style", "board.label.targets": "{n} career targets", "board.label.touches": "{n} touches", "board.lane.elite": "elite {v}", "board.lane.of": "of {n}", "board.lane.thin": "Fewer than two measured", "board.lead.level": "Level — {n} lanes each of {of}", "board.lead.noShared": "No stat has a number for both", "board.lead.none": "Who leads every {pos} stat", "board.lead.one": "{name} against every {pos}", "board.lead.two": "{name} leads {n} of {of}", "board.note.noSheet": "{name} is not on the season sheet — no usage to rank him on.", "board.num.adot": "aDOT", "board.num.afterContact": "After contact", "board.num.beforeContact": "Before contact", "board.num.breakaway": "Breakaway", "board.num.catchRate": "Catch rate", "board.num.designed": "Designed runs", "board.num.goalLine": "Goal line", "board.num.oppShare": "Opp share", "board.num.routeRate": "Route rate", "board.num.scramble": "Scrambles", "board.num.snapRate": "Snap rate", "board.num.tprr": "TPRR", "board.num.wopr": "WOPR", "board.num.yacShare": "YAC share", "board.role.committee": "Committee", "board.role.earlyDown": "Early down", "board.role.everyDown": "Every down", "board.role.goalLine": "Goal line", "board.role.inLine": "In line", "board.role.move": "Move", "board.role.rotational": "Rotational", "board.role.satellite": "Satellite", "board.role.situational": "Situational", "board.style.complete": "Complete", "board.style.deepThreat": "Deep threat", "board.style.dualThreat": "Dual threat", "board.style.homeRun": "Home run", "board.style.oneCut": "One cut", "board.style.pocket": "Pocket", "board.style.possession": "Possession", "board.style.power": "Power", "board.style.scrambler": "Scrambler", "board.style.yac": "Yards after catch", "builder.explain.title": "How this works", "chat.claude": "Claude", "chat.close": "Close chat", "chat.empty": "No questions yet today.", "chat.error.network": "Could not reach the server. Try again.", "chat.error.nopass": "Enter the passphrase first.", "chat.intro": "Three questions a day. It sees the players you name, their usage and this week's numbers.", "chat.limit.left": "{n} of {of} questions left today", "chat.limit.none": "Out of questions until tomorrow", "chat.open": "Ask about your teams", "chat.pass.forget": "Forget passphrase", "chat.pass.hint": "Stored in this browser only. It is what keeps this endpoint off a stranger's bill.", "chat.pass.label": "Passphrase", "chat.pass.placeholder": "The one set in Vercel", "chat.pass.save": "Save", "chat.placeholder": "Start Achane or Pollard this week?", "chat.send": "Ask", "chat.thinking": "Thinking…", "chat.title": "Ask about your teams", "chat.you": "You", "chrome.badge.defaultFull": "Sample signals — skill not wired", "chrome.badge.dfsLiveAbbr": "Pool live", "chrome.badge.dfsLiveFull": "Live Yahoo pool · rest of app sample", "chrome.badge.dfsSampleFull": "Sample DFS pool — no salary export loaded", "chrome.badge.newsLiveAbbr": "News live", "chrome.badge.newsLiveFull": "Live news", "chrome.badge.newsSampleFull": "Sample news — scanner not pulled", "chrome.badge.parlayLiveAbbr": "Props live", "chrome.badge.parlayLiveFull": "Live props", "chrome.badge.parlaySampleFull": "Sample props — BettingPros not pulled", "chrome.badge.sampleAbbr": "Sample data", "chrome.badge.teamsLiveAbbr": "Rosters live", "chrome.badge.teamsLiveFull": "Live rosters, trend, news & waivers", "chrome.brand.label": "Team Watch", "chrome.discord.tooltip": "FF news on Discord", "chrome.feed.dataCount": "DATA {ok}/{n}", "chrome.feed.dfs": "DFS", "chrome.feed.espn": "ESPN", "chrome.feed.neverPulled": "never pulled", "chrome.feed.noExport": "no salary export", "chrome.feed.notPulled": "not pulled yet", "chrome.feed.poolSize": "{n} players", "chrome.feed.props": "Props", "chrome.feed.refreshed": "refreshed", "chrome.feed.usage": "Usage", "chrome.feed.waiting": "waiting for week 1", "chrome.feed.yahoo": "Yahoo", "chrome.footer.sources": "SOURCES: YAHOO SITE · ESPN LEAGUE · NFLVERSE · BETTINGPROS · SLEEPER · FANTASYPROS NEWS", "chrome.fresh.new": "New data ↻", "chrome.fresh.tip": "This tab is showing an older build. Reload for the current one.", "chrome.fresh.week": "Week {week} ready ↻", "chrome.head.title": "Team Watch", "chrome.teamswitch.espn": "ESPN", "chrome.teamswitch.yahoo": "Yahoo", "chrome.weekpill.text": "This week", "chrome.weekpill.week": "Week {week}", "common.action.close": "Close", "common.action.remove": "Remove", "common.ordinal.nd": "{n}nd", "common.ordinal.rd": "{n}rd", "common.ordinal.st": "{n}st", "common.ordinal.th": "{n}th", "common.pager.next": "Next ›", "common.pager.page": "Page {page} of {pages}", "common.pager.prev": "‹ Prev", "connect.add": "+ Add a league", "connect.busy": "Connecting…", "connect.desk.how": "On espn.com, open DevTools → Application → Cookies → fantasy.espn.com and copy these two values.", "connect.desk.title": "On a computer", "connect.error.expired": "ESPN refused those cookies. Log in to espn.com again and reconnect.", "connect.error.generic": "That did not work. Check the link and try again.", "connect.error.offline": "No connection. Try again when you are back online.", "connect.error.private": "This league is private. Connect it with your ESPN login below.", "connect.go": "Connect", "connect.lede": "Paste your ESPN league link. Your two leagues stay here too.", "connect.link.label": "ESPN league link or ID", "connect.link.placeholder": "fantasy.espn.com/football/league?leagueId=…", "connect.list.down": "ESPN did not answer", "connect.list.expired": "Login expired: reconnect", "connect.list.title": "Connected here", "connect.phone.android": "Android (Chrome): bookmark this page, then edit the bookmark and paste the code as its URL.", "connect.phone.copied": "Copied", "connect.phone.copy": "Copy the bookmark code.", "connect.phone.copyBtn": "Copy", "connect.phone.iphone": "iPhone (Safari): bookmark any page, then open Bookmarks → Edit, tap it, and paste the code as its address.", "connect.phone.tap": "Open your league on espn.com in that browser, logged in, and open the bookmark. On Android, type its name in the address bar and tap it.", "connect.phone.title": "On your phone", "connect.pick.ask": "Which team in {league} is yours?", "connect.plat.espn": "ESPN", "connect.private.lm": "Easiest: ask your league manager to turn on public viewing (League → Settings → Basic Settings on espn.com). Then the link alone works.", "connect.private.summary": "Private league?", "connect.title": "Add a league", "connect.yahooSoon": "Yahoo sign-in is coming next.", "dfs.book.dk": "DraftKings", "dfs.book.label": "Book", "dfs.book.yahoo": "Yahoo", "dfs.card.load": "Load into my lineup", "dfs.card.of": "of ${n}", "dfs.card.stats": "{proj} PROJ · ~{own}% PROJ OWN", "dfs.card.title": "Lineup {n}", "dfs.card.titleBest": "★ Best · Lineup {n}", "dfs.empty.noPlayers": "NO PLAYERS AT THAT POSITION", "dfs.explain.note": "<b>PROJ<\/b> is the model's fantasy points on Yahoo scoring — its yards, receptions and touchdown rates for this week, half-PPR, for every player it has a rate for and not only the ones a book prices. A player with no game log at all (a rookie) wears a <b>LINE<\/b>: his own line this week, read as a role. Whoever is left — the deep bench, K, DST — wears a <b>Y<\/b>: Yahoo's last-season average, rescaled to the model's level at his position, a placeholder rather than a read. No site publishes real ownership before lock — PROJ OWN is a rank-based estimate, same idea any pre-lock ownership projection tool uses.", "dfs.explain.step1": "<b>Greedy<\/b> builds the highest-projected lineup — what most of the field lands on. <b>Non-chalk<\/b> sits the single most-projected play at each position and trades a little projection for a lineup the field isn't all rostering, which is the point of a GPP.", "dfs.explain.step2": "Swipe the lineups below, tap <b>Load into my lineup<\/b> to start from one.", "dfs.explain.step3": "Fill or swap slots from the pool underneath.", "dfs.filter.position": "Position", "dfs.filter.valueNote": "Value = points per ${n}", "dfs.hero.eyebrow": "{site} · ${cap} cap", "dfs.lineup.cancel": "Cancel", "dfs.lineup.export": "Export lineup", "dfs.lineup.filled": "{n}/{of} filled", "dfs.lineup.left": "${n} left", "dfs.lineup.leftFor": "LEFT FOR {n} SLOT{s}", "dfs.lineup.orSep": ", or ", "dfs.lineup.own": "{n}% OWN", "dfs.lineup.pickFromPool": "Pick from the pool", "dfs.lineup.picking": "Picking <b>{slot}<\/b> — tap a player below", "dfs.lineup.proj": "{v} PROJ", "dfs.lineup.projected": "PROJECTED", "dfs.lineup.spent": "SPENT", "dfs.lineup.summedOwn": "SUMMED OWNERSHIP", "dfs.lineup.tapBelow": "Tap a player below", "dfs.lineup.title": "My {site} lineup", "dfs.market.fetched": "Fetched {when}", "dfs.market.heading": "{site} DFS player pool", "dfs.market.lined": "the book's line for {n} with no game log (LINE)", "dfs.market.modeled": "projections: the model for {n}", "dfs.market.noExport": "No salary export loaded", "dfs.market.rest": "Yahoo's FPPG rescaled for the rest (Y)", "dfs.market.sample": "SAMPLE", "dfs.market.source": "{n} players · ${cap} cap · salaries as posted", "dfs.pager.players": "{n} player{s}", "dfs.pick.noSlot": "No open {pos} slot — tap one to swap instead", "dfs.pick.wrongPos": "{name} is {pos}, not {slot}", "dfs.row.add": "+ ADD", "dfs.row.swapIn": "SWAP IN", "dfs.row.wrongPos": "WRONG POS", "dfs.table.own": "Own", "dfs.table.player": "Player", "dfs.table.proj": "Proj", "dfs.table.salary": "Salary", "dfs.table.value": "Value", "dfs.tag.handcuff": "HANDCUFF", "dfs.tag.handcuffTitle": "{name} (the {pos} starter) is OUT/IR — cheapest teammate left at {pos}, first in line for the workload", "dfs.tag.line": "LINE", "dfs.tag.lineTitle": "No game log to project from — a rookie, or a player who missed last season. This is the book's own line for him this week read as a role: yards over the league's yards per carry is a carry count, receptions over the catch rate a target count. The market's read, not ours.", "dfs.tag.value": "BEST VALUE", "dfs.tag.valueTitle": "Highest points per $1,000 at {pos} in this pool", "dfs.tag.yahoo": "Y", "dfs.tag.yahooTitle": "The model has no rate for him and no book posts a line, so this is Yahoo's FPPG (last season's average) rescaled to the model's {pos} level. A guess at the model's scale, not a model read.", "dfs.top.contrarian": "Non-chalk", "dfs.top.contrarianSub": "For GPPs", "dfs.top.empty": "NOT ENOUGH PRICED PLAYERS AT EVERY POSITION TO FILL A LINEUP", "dfs.top.greedy": "Greedy", "dfs.top.greedySub": "Max points", "dfs.top.heading": "Top {n} lineups", "dfs.top.sub": "randomized-greedy, not exact-optimal", "drawer.league.format": "Format", "drawer.league.meta": "{plat} · draft slot {slot} · record {record}", "drawer.pool.gap": "The gap", "drawer.pool.luck": "Points vs. usage", "drawer.pool.ppg": "Points per game", "drawer.pool.raw": "Raw", "drawer.pool.readAgree": "Role and production agree. Nothing mispriced, but the floor is real.", "drawer.pool.readBuy": "The role is growing and the box score has not caught up. This is the buy window.", "drawer.pool.readFlat": "Neither the role nor the points are moving. Nothing to do.", "drawer.pool.readSell": "The points are borrowed from touchdown luck while the role shrinks. Sell into the good week.", "drawer.pool.readWait": "One week of usage is a level, not a trend. The read on this player comes after week 2.", "drawer.pool.redzone": "Red-zone looks", "drawer.pool.share": "Share", "drawer.pool.shareChange": "Share change", "drawer.pool.snapChange": "Snap change", "drawer.pool.snaps": "Snaps", "drawer.pool.trade": "Trade", "drawer.pool.tradeBuy": "Buy before the box score catches up.", "drawer.pool.tradeSell": "Sell while the box score still looks good.", "drawer.pool.verdict": "Verdict", "drawer.pool.waiver": "Waiver claim", "drawer.pool.where": "Where this shows up", "live.asof": "updated {time}", "live.away.title": "while you were away", "live.bench": "Bench", "live.error.network": "Could not reach the scoreboard. It will try again.", "live.error.notServed": "Live scores need the deployed site. This page was opened from a file.", "live.idle": "no games left this week", "live.left": "{n} left", "live.loading": "Reading the scoreboard…", "live.next": "next kickoff {when}", "live.proj": "proj {pts}", "live.refresh": "Refresh", "live.seen": "got it", "live.starters": "Starters", "live.tocome": "{pts} to come", "live.unnamed": "—", "live.week": "Week {week}", "live.win": "{pct}% win", "market.name.PASS": "Pass yds", "market.name.REC": "Rec yds", "market.name.RECS": "Receptions", "market.name.RUSH": "Rush yds", "market.name.TD": "Anytime TD", "market.short.PASS": "PASS YDS", "market.short.REC": "REC YDS", "market.short.RECS": "REC", "market.short.RUSH": "RUSH YDS", "market.short.TD": "TD", "nav.group.bets.full": "Bets", "nav.group.bets.short": "Bets", "nav.group.gameday.full": "Gameday", "nav.group.gameday.short": "Live", "nav.group.scouting.full": "Scouting", "nav.group.scouting.short": "Scout", "nav.group.teams.full": "My teams", "nav.group.teams.short": "Teams", "nav.search.label": "Search", "nav.sub.label": "Views in this section", "nav.tab.board": "Board", "nav.tab.dfs": "DFS", "nav.tab.grid": "Grid", "nav.tab.live": "Live", "nav.tab.movers": "Movers", "nav.tab.news": "News", "nav.tab.parlay": "Parlay", "nav.tab.roster": "Roster", "nav.tab.waivers": "Waivers", "news.empty.noStories": "NO {cat} STORIES RIGHT NOW", "news.filter.label": "Filter", "news.hero.eyebrow": "{n} items · newest first", "news.kind.all": "All", "news.kind.injury": "Injury", "news.kind.move": "Move", "news.kind.news": "Other", "news.kind.out": "Out", "news.kind.practice": "Practice", "parlay.book.dk": "DraftKings", "parlay.book.label": "Book", "parlay.book.underdog": "Underdog", "parlay.bookline.book": "BOOK {price}", "parlay.bookline.games": "{n} GP", "parlay.bookline.opp": "{team} D {pct}%", "parlay.call.anytime": "ANYTIME", "parlay.call.higher": "▲ HIGHER", "parlay.call.lower": "▼ LOWER", "parlay.call.none": "NO CALL", "parlay.call.pending": "PENDING", "parlay.call.td": "TD", "parlay.copy.book": "book", "parlay.copy.edge": "edge {n}", "parlay.copy.footer": "Team Watch · {lines}", "parlay.copy.lines": "lines {when}", "parlay.copy.model": "model", "parlay.copy.modelPct": "model {n}%", "parlay.copy.sampleLines": "sample lines", "parlay.copy.underdog": "Underdog", "parlay.detail.bookImplied": "BOOK IMPLIED", "parlay.detail.model": "MODEL", "parlay.detail.modelPending": "MODEL PENDING", "parlay.detail.noRolePriced": "NO ROLE PRICED", "parlay.detail.noYardsLine": "NO YARDS LINE", "parlay.detail.notPlaying": "NOT PLAYING", "parlay.empty.noLines": "NO LINES MATCH THAT FILTER", "parlay.explain.note": "<b>MODEL %<\/b> is the chance the over hits, from the player's last 24 games, nudged by what his opponent allows to his position. <b>EDGE<\/b> is model % minus the book's break-even, in points — +5 means the model likes the over 5 points more than the price needs. Both live behind each line's chevron, not on the card.", "parlay.explain.step1": "Browse the slips most likely to hit below — on Underdog each card is receptions, TDs, or both, inside one day or kickoff window, and never mixes two days.", "parlay.explain.step2": "Tap <b>Load into my slip<\/b> to start from one, or scroll to the lines and tap any player to add a leg yourself.", "parlay.explain.step3": "Your slip prices itself as you go. <b>Copy slip<\/b> puts it on the clipboard, ready to type into the book.", "parlay.filter.kickoff": "Kickoff", "parlay.filter.market": "Market", "parlay.filter.mineOnly": "My players only", "parlay.filter.position": "Position", "parlay.filter.sort": "Sort", "parlay.gallery.allHit": "ALL {n} PICKS HIT · PAYS {x}×", "parlay.gallery.best": "★ BEST", "parlay.gallery.empty": "LINE{s} THE MODEL WILL STAND BEHIND HERE · A CARD NEEDS 2 AT ONE KICKOFF", "parlay.gallery.heading": "Slips most likely to hit", "parlay.gallery.legCount": "{n} leg{s}", "parlay.gallery.legsLabel": "Legs", "parlay.gallery.legsOverBook": "{n} LEGS · MODEL {d} OVER THE BOOK", "parlay.gallery.loadSlip": "Load slip", "parlay.gallery.lowTag": "BELOW THE BAR", "parlay.gallery.modelTag": "MODEL", "parlay.gallery.sub": "Underdog: TDs at 50%+, receptions only on the lower side at 65%+ · below the bar = the best left at that kickoff · why under each leg", "parlay.hero.eyebrow": "{n} lines priced · week {week}", "parlay.hero.eyebrowNoWeek": "{n} lines priced", "parlay.log.aria": "last {n} games", "parlay.log.avg": "avg <b>{v}<\/b>", "parlay.log.cleared": "cleared {line} in <b>{hit} of {n}<\/b>", "parlay.log.rate": "rate <b>{v}<\/b>", "parlay.log.scored": "scored in <b>{hit} of {n}<\/b>", "parlay.log.weeks": "week numbers under the bars", "parlay.market.heading": "Player prop market", "parlay.more.log": "Last {n} games against this line", "parlay.more.plain": "More on this line", "parlay.option.all": "All", "parlay.pager.lines": "{n} line{s}", "parlay.pager.players": "{n} player{s}", "parlay.pager.tdNote": "TD picks are the model's P(score), Underdog posts no TD line", "parlay.preset.blank": "Clear", "parlay.preset.mine": "My players", "parlay.scope.all": "All", "parlay.scope.mix": "Mix", "parlay.scope.recs": "Receptions", "parlay.scope.tds": "TDs", "parlay.scope.yards": "Yards", "parlay.slip.allHit": "All picks hit", "parlay.slip.be3": "BREAK-EVEN IF IT PAYS 3×", "parlay.slip.be6": "BREAK-EVEN IF IT PAYS 6×", "parlay.slip.combinedOdds": "COMBINED ODDS", "parlay.slip.copied": "Copied", "parlay.slip.copyFailed": "Copy failed", "parlay.slip.copyPicks": "Copy picks", "parlay.slip.copySlip": "Copy slip", "parlay.slip.corr": "TWO LEGS IN {game} — CORRELATED, PRICE IT AS ONE", "parlay.slip.edgeLabel": "Model edge", "parlay.slip.edgeOverBook": "Model edge over the book", "parlay.slip.emptyBlank": "TAP A LINE BELOW, OR LOAD A CARD FROM THE GALLERY", "parlay.slip.emptyMine": "NONE OF MY PLAYERS PRICE AN EDGE RIGHT NOW", "parlay.slip.emptyUd": "NO PICK THE MODEL PUTS PAST {n}%", "parlay.slip.legCount": "{n} legs", "parlay.slip.modelProb": "MODEL PROBABILITY", "parlay.slip.notDk": "NOT DK'S", "parlay.slip.notUdPrice": "NOT AN UD PRICE", "parlay.slip.pending": "pending", "parlay.slip.pickCount": "{n} picks", "parlay.slip.returns25": "$25 RETURNS", "parlay.slip.tdModelRead": "TD PICKS ARE MODEL-READ", "parlay.slip.titleDk": "Your slip", "parlay.slip.titleMine": "My players", "parlay.slip.titleUd": "Underdog picks", "parlay.slip.udLine": "PICKS ARE AT UNDERDOG'S LINE", "parlay.sort.conf": "Confidence", "parlay.sort.edge": "Edge", "parlay.sort.model": "Model %", "parlay.sort.ready": "Slip-ready", "parlay.tag.backupTitle": "Depth chart says {pos}{depth}. Not slip material.", "parlay.tag.cb": "CB {dir} {name}", "parlay.tag.cbTitle": "RotoBaller WR/CB matchups, week {week}: {v} vs {cb}. {why} — opinion, not in the number.", "parlay.tag.games": "{n} GAMES", "parlay.tag.gamesTitle": "The rate rests on {n} of his own games; a slip leg needs 8.", "parlay.tag.moved": "NEW TEAM", "parlay.tag.movedTitle": "Every game the model has read was for {team}. The rate knows nothing about the new offense or quarterback, and the model has no feature for a team change. Not slip material.", "parlay.tag.movedWas": "WAS {team}", "parlay.tag.noRole": "NO ROLE", "parlay.tag.noRoleTitle": "A touchdown line on a player the book prices no yards for.", "parlay.tag.out": "OUT", "parlay.tag.q": "Q", "parlay.tag.role": "ROLE", "parlay.tag.stale": "ROLE?", "parlay.tag.staleTitle": "The book's line is far from last season's rate: the role changed and the model has not caught up. Not slip material.", "parlay.tag.thin": "THIN LINE", "parlay.tag.thinTitle": "A line this small is confidence for free and Underdog prices it that way. Not slip material.", "parlay.why.dk": "Model {model}% · price says {implied}%", "parlay.why.rate": "{rate} {unit}/gm over {games} games", "parlay.why.td": "Model {model}% from his usage", "parlay.why.ud": "Model {model}%", "pool.axis.owedNeg": "RAN HOT", "pool.axis.owedPos": "POINTS OWED", "pool.axis.usageNeg": "USAGE −", "pool.axis.usagePos": "USAGE +", "pool.chart.waitSub": "The chart plots each player's change in role. That needs two weeks of snaps, so it fills in the Tuesday after week 2's games.", "pool.chart.waitTitle": "Week 2", "pool.empty.noPlayers": "NO PLAYERS AT THIS POSITION", "pool.filter.position": "Position", "pool.filter.sorted": "Ranked by role share", "pool.free.both": "Both", "pool.free.bothLong": "Free in both leagues", "pool.free.espn": "ESPN", "pool.free.espnLong": "Free in ESPN, rostered in Yahoo", "pool.free.mine": "Mine", "pool.free.mineLong": "On one of my rosters", "pool.free.none": "—", "pool.free.noneLong": "Rostered in both leagues", "pool.free.yahoo": "Yahoo", "pool.free.yahooLong": "Free in Yahoo, rostered in ESPN", "pool.key.buyLow": "Buy low", "pool.key.confirmed": "Confirmed / rising", "pool.key.hold": "Hold", "pool.key.mine": "On one of my rosters", "pool.key.sell": "Sell", "pool.pager.players": "{n} player{s}", "pool.quad.buyLow": "BUY LOW", "pool.quad.confirmed": "CONFIRMED", "pool.quad.fading": "FADING", "pool.quad.sellHigh": "SELL HIGH", "pool.scatter.count": "{n} players", "pool.scatter.dotTip": "{name} — usage {usage}, luck {luck}", "pool.scatter.heading": "Usage against luck", "pool.scatter.sub": "Right: the role is growing. Up: the points haven't caught up to it yet. Top-right is the buy, bottom-left the sell.", "pool.scatter.tapHint": "Tap a dot for the player.", "pool.table.dShare": "Δ share", "pool.table.dSnaps": "Δ snaps", "pool.table.free": "Free in", "pool.table.player": "Player", "pool.table.share": "Share", "pool.table.snaps": "Snaps", "pool.table.verdict": "Verdict", "profile.athletic.agility": "Agility", "profile.athletic.broad": "Broad {v}″", "profile.athletic.burst": "Burst", "profile.athletic.cone": "3-cone {v}", "profile.athletic.forty": "40 {v}", "profile.athletic.label": "Athletic profile", "profile.athletic.missing": "{list}: not measured.", "profile.athletic.none": "No combine record.", "profile.athletic.pool": "Percentile among {pool}s who tested.", "profile.athletic.rookie": "Not yet measured.", "profile.athletic.shuttle": "Shuttle {v}", "profile.athletic.speed": "Speed", "profile.athletic.vertical": "Vertical {v}″", "profile.athletic.win": "Combine", "profile.bio.bye": "bye {n}", "profile.count.targetOne": "1 target", "profile.count.targets": "{n} targets", "profile.coverage.colTargets": "Targets", "profile.coverage.colYpt": "Yds/tgt", "profile.coverage.label": "Against coverage · {span}", "profile.coverage.labelBare": "Against coverage", "profile.coverage.leadEven": "Same yds/target vs man and zone", "profile.coverage.leadMan": "{n} yds/target better vs man", "profile.coverage.leadZone": "{n} yds/target better vs zone", "profile.coverage.man": "Man", "profile.coverage.none": "Under 30 targets against man or zone.", "profile.coverage.zone": "Zone", "profile.def.brkRate": "Share of his carries that went 15+ yards.", "profile.def.designedPct": "His share of the team's called runs.", "profile.def.dropbacks": "Pass plays per game, sacks and scrambles included.", "profile.def.fdrr": "First downs per route run.", "profile.def.fpDb": "Fantasy points per dropback.", "profile.def.glPct": "His share of the team's carries inside the 5.", "profile.def.oppPct": "His share of the carries and targets the team's backs got.", "profile.def.routePct": "Share of his team's dropbacks he ran a route on.", "profile.def.ryoe": "Rushing yards over expected, per carry. Above zero is beating the blocking.", "profile.def.rz": "Touches per game inside the 20.", "profile.def.rzAtt": "Pass attempts per game inside the 20.", "profile.def.rzTgt": "Targets per game inside the 20.", "profile.def.scrRate": "Share of his dropbacks he ran on.", "profile.def.tprr": "Targets per route run.", "profile.def.wopp": "Weighted opportunity per game: carries + 2.5 × targets, the PPR exchange rate.", "profile.def.wopr": "Weighted opportunity: 1.5 × his share of the team's targets + 0.7 × his share of its air yards.", "profile.def.yprr": "Receiving yards per route run.", "profile.details.blended": "{targets} this season, blended {weight} with {prior} last season.", "profile.empty.none": "NO PROFILE YET", "profile.fact.age": "Age", "profile.fact.exp": "Exp", "profile.fact.height": "{ft}′{in}″", "profile.fact.lb": "{n} lb", "profile.fact.leaguePick": "Rd {pick}", "profile.fact.leaguePickBy": "Rd {pick} · by {by}", "profile.fact.nfl": "NFL", "profile.fact.nflPick": "#{n} overall · {yr}", "profile.fact.nflRound": "Rd {r}.{s} · {yr}", "profile.fact.rookie": "Rookie", "profile.fact.size": "Size", "profile.fact.years": "{n} yr pro", "profile.history.colCar": "Car", "profile.history.colOpp": "Opp", "profile.history.colPassTd": "Pass TD", "profile.history.colPassYds": "Pass Yds", "profile.history.colPts": "Pts", "profile.history.colRec": "Rec", "profile.history.colRecTd": "Rec TD", "profile.history.colRecYds": "Rec Yds", "profile.history.colRushTd": "Rush TD", "profile.history.colRushYds": "Rush Yds", "profile.history.colTgt": "Tgt", "profile.history.colWeek": "Wk", "profile.history.games": "{n} gm", "profile.history.label": "Weekly stats", "profile.history.pts": "pts, last game", "profile.history.total": "Season", "profile.lede.bye": "bye week", "profile.lede.easiest": "easiest", "profile.lede.matchup": "matchup", "profile.lede.ofN": "of {of}", "profile.lede.ofPos": "of {of} {pos}s", "profile.lede.proj": "projected", "profile.lede.projSub": "next game", "profile.lede.toughest": "toughest", "profile.line.kept": "usual starters played", "profile.line.label": "{team} offensive line", "profile.line.out": "linemen on the injury report", "profile.line.outList": "linemen on the injury report ({list})", "profile.line.outListOne": "lineman on the injury report ({list})", "profile.line.outOne": "lineman on the injury report", "profile.line.startersOut": "starters out", "profile.line.week": "Week {wk}", "profile.market.label": "Market", "profile.market.line.pts": "{pts} pts", "profile.market.line.rank": "{pos} rank #{rank}", "profile.market.line.role": "role {role} pts", "profile.market.line.z": "z {z}", "profile.market.model": "{pts} pts, the model's number", "profile.market.noMarket": "No market priced yet.", "profile.market.priced": "Priced: {markets}", "profile.matchup.easiest": "Easiest", "profile.matchup.none": "No matchup rank yet.", "profile.matchup.rank": "{nth} easiest of {of} for {pos}s", "profile.matchup.rankTough": "{nth} toughest of {of} for {pos}s", "profile.matchup.toughest": "Toughest", "profile.next.away": "@", "profile.next.bye": "Bye, or no schedule yet.", "profile.next.factor": "Raw factor", "profile.next.home": "vs", "profile.next.label": "Week {wk} {where} {opp}", "profile.next.labelBare": "Next game", "profile.next.legend": "League avg", "profile.next.man": "Man coverage rate · {season}", "profile.next.opponent": "{opp} defense", "profile.next.rz": "Red-zone rate allowed · {n} faced", "profile.next.stale": "STALE", "profile.next.staleTip": "New defensive coordinator since {season}", "profile.projection.label": "Projection", "profile.projection.muPass": "Pass yds", "profile.projection.muRec": "Rec yds", "profile.projection.muRecs": "Catches", "profile.projection.muRush": "Rush yds", "profile.projection.muTd": "TDs", "profile.projection.source": "ff-jarvis's model · {scoring} · fitted through {through}", "profile.rank.mark": "#{n}", "profile.rank.plain": "{pos}{n}", "profile.role.label": "Target depth", "profile.role.lead": "{zone} ({pos} avg {avg})", "profile.role.legend": "{pos} avg", "profile.role.side": "{pct} {side}", "profile.rz.count": "{n} of {team}", "profile.rz.label": "Red zone", "profile.rz.others": "{n} more", "profile.rz.share": "{pct} · {n} of {team}", "profile.rz.teamCarries": "of the team’s red-zone carries", "profile.rz.teamCarry": "red-zone carry", "profile.rz.teamTarget": "red-zone target", "profile.rz.teamTargets": "of the team’s red-zone targets", "profile.sheet.eliteTag": "ELITE", "profile.sheet.label": "Stat sheet: his rank at his position on every usage stat this week", "profile.sheet.meta": "of {of}", "profile.sheet.metaGames": "{g} gm · of {of}", "profile.sheet.partial": "{n} of {of} stats measured", "profile.side.label": "Middle vs outside", "profile.stat.overElite": "{gap} over the elite bar ({bar})", "profile.stat.underElite": "{gap} under the elite bar ({bar})", "profile.stat.week": "wk {n}", "profile.stat.weeks": "wk {a}–{b}", "profile.tab.bio": "Bio", "profile.tab.label": "Which part of his profile to show", "profile.tab.log": "Log", "profile.tab.matchup": "Matchup", "profile.tab.usage": "Usage", "profile.weather.dome": "Dome, no weather", "profile.weather.retractable": "roof may close", "profile.weather.temp": "{n}°F", "profile.weather.wind": "wind", "profile.weather.windFrom": "from {dir}", "profile.why.brkRate": "Where a back’s ceiling games come from.", "profile.why.designedPct": "Called runs are the rushing floor a scrambler does not have.", "profile.why.dropbacks": "Pace and game script. More plays, more chances.", "profile.why.fdrr": "Moving the chains keeps him on the field and keeps drives alive.", "profile.why.fpDb": "Efficiency per chance, so a low-volume week still counts.", "profile.why.glPct": "A quarterback who keeps it at the goal line is a quarterback who scores.", "profile.why.oppPct": "Whether the backfield is his or a committee.", "profile.why.routePct": "A receiver off the field cannot be targeted. This is his floor.", "profile.why.ryoe": "Separates the back from his offensive line.", "profile.why.rz": "Goal-line work is the difference between a flex and a starter.", "profile.why.rzAtt": "Red-zone volume is touchdown volume.", "profile.why.rzTgt": "Where touchdowns come from, and touchdowns are what swing a week.", "profile.why.scrRate": "Scrambling yards are free fantasy points his arm did not have to earn.", "profile.why.tprr": "How often the quarterback looks at him when he does run. Earned, not given.", "profile.why.wopp": "Total workload. The thing that survives a bad game.", "profile.why.wopr": "The single best predictor of a receiver scoring next week.", "profile.why.yprr": "Volume and efficiency in one number. The closest thing to a receiver grade.", "profile.win.n": "{n} wk", "profile.zone.behind": "Behind", "profile.zone.deep": "Deep", "profile.zone.intermediate": "Intermediate", "profile.zone.middle": "Middle", "profile.zone.outside": "Outside", "profile.zone.short": "Short", "profile.zoneRead.colFaced": "Tgts", "profile.zoneRead.colIndex": "Allows", "profile.zoneRead.colRank": "Softest", "profile.zoneRead.colZone": "His zone", "profile.zoneRead.empty": "Zone read starts about week 4 (defences need 25 targets in a zone).", "profile.zoneRead.label": "Zone read", "profile.zoneRead.untested": "UNTESTED", "search.action.cancel": "Cancel", "search.empty.none": "No “{q}” in this week’s data", "search.input.label": "Search players", "search.input.placeholder": "Player, team or position", "search.list.label": "Players", "search.list.recent": "Recent", "search.list.roster": "Your roster", "strip.caption.caught": "caught at {spot} · {n} after the catch", "strip.caption.from": "from {qb}", "strip.control.next": "Next", "strip.control.pause": "Pause", "strip.control.play": "Play", "strip.control.prev": "Prev", "strip.control.scrub": "Scrub through the drive", "strip.control.view": "Field view, tap to switch", "strip.drive.untitled": "Drive", "strip.error.network": "Could not reach the game feed. Try again.", "strip.error.notPlayed": "This game has not been played yet.", "strip.error.notServed": "The drive strip needs the deployed site. This page was opened from a file.", "strip.key.inc": "incomplete", "strip.key.loss": "loss", "strip.key.pass": "pass", "strip.key.run": "run", "strip.loading": "Reading the game…", "strip.moment.air": "{n} in the air", "strip.moment.big": "BIG PLAY +{n}", "strip.moment.fg": "FIELD GOAL", "strip.moment.fgMissed": "NO GOOD", "strip.moment.fumble": "FUMBLE LOST", "strip.moment.int": "INTERCEPTED", "strip.moment.td": "TOUCHDOWN", "strip.moment.tdLong": "{n}-YARD TOUCHDOWN", "strip.moment.yac": "{n} after the catch", "strip.open.player": "Watch {name}'s drive", "strip.open.week": "Watch week {n}", "strip.score.hasBall": "has the ball", "strip.spot.fifty": "the 50", "strip.tag.fumble": "fumble", "strip.tag.fumbleLost": "fumble lost, {by} recovers", "strip.tag.fumbleOwn": "fumble, {by} recovers", "strip.tag.incomplete": "incomplete", "strip.tag.intercepted": "intercepted", "strip.title.at": "at", "strip.title.week": "Week {n}", "strip.unnamed": "—", "strip.view.fit": "Fit", "strip.view.pan": "Pan", "teams.col.matchup": "Matchup", "teams.col.matchupTip": "Rank among 32 defenses against his position; 1st = easiest. Green easiest 8, red hardest 8.", "teams.col.news": "News", "teams.col.rank": "Rank", "teams.col.trend": "Trend", "teams.delta.none": "No data", "teams.delta.pts": "{d} pts", "teams.delta.tip": "Change in the points the betting market implies for his next game, against his last game's price", "teams.group.bench": "Bench", "teams.group.out": "Out / exempt", "teams.group.starters": "Starters", "teams.rank.of": "of {n}", "teams.rank.unranked": "unranked", "teams.row.dual": "2 leagues", "usage.band.low10": "Bottom 10%", "usage.band.low25": "Bottom 25%", "usage.band.middle": "Middle", "usage.band.top10": "Top 10%", "usage.band.top25": "Top 25%", "usage.empty.noGridSub": "nflverse publishes a week's usage the Tuesday after its games. Until then there is nothing to rank.", "usage.empty.noGridTitle": "No grid yet", "usage.empty.noPlayers": "NOBODY AT THIS POSITION THIS WEEK", "usage.filter.mine": "★ Mine", "usage.filter.position": "Position", "usage.filter.week": "Week", "usage.foot.source": "{n} players, {pos} week {week}. nflverse, via ff-jarvis model.season.usage. What he did, not what he will do.", "usage.key.changeNote": "Green up, red down, against the week before", "usage.key.label": "Colour", "usage.key.levelNote": "Percentile among qualified players at this position, this week", "usage.mode.change": "Change", "usage.mode.level": "Level", "usage.table.player": "Player", "usage.table.team": "Team", "waiver.card.at": "@ {opp}", "waiver.card.backTitle": "Evidence", "waiver.card.fa": "FA", "waiver.card.flipLabel": "Evidence for {name}", "waiver.card.profile": "Full profile ›", "waiver.card.turnBack": "‹ Front", "waiver.card.turnFront": "Evidence ›", "waiver.card.unknown": "Availability unknown", "waiver.card.usageRank": "{rank} in {stat}, week {wk}", "waiver.card.vs": "vs {opp}", "waiver.card.waiver": "Waivers · {when}", "waiver.card.waiverNoWhen": "On waivers", "waiver.empty.noPacket": "No waiver packet yet. ff-jarvis builds it in the morning refresh.", "waiver.empty.noWire": "Nobody on the wire is worth a claim this week.", "waiver.fold.spec": "Show {n} speculative", "waiver.fold.stash": "Show {n} to stash", "waiver.hero.claimDay": "Claim day", "waiver.hero.clears": "Waivers clear {when}", "waiver.hero.faab": "FAAB ${n} left", "waiver.hero.must": "{n} must-claims", "waiver.hero.mustOne": "1 must-claim", "waiver.hero.none": "No waiver data for this league", "waiver.hero.wireWatch": "Wire watch", "waiver.injury.d": "Doubtful", "waiver.injury.ir": "IR", "waiver.injury.o": "Out", "waiver.injury.q": "Questionable", "waiver.lane.hole": "Empty slot", "waiver.lane.holeTip": "You cannot fill this starting slot: it scores zero until you do", "waiver.lane.injured": "Out now", "waiver.lane.injuredTip": "Hurt now: a stash for when he is back", "waiver.lane.insure": "Insurance", "waiver.lane.insureTip": "Next in line behind a healthy lead back", "waiver.lane.open": "Open work", "waiver.lane.openTip": "A back is out and he is next in that room", "waiver.lane.role": "Depth move", "waiver.lane.roleTip": "Moved up the depth chart this week", "waiver.lane.starter": "Beats a starter", "waiver.lane.starterTip": "Projects above one of your healthy starters in this league", "waiver.lane.usage": "Usage", "waiver.lane.usageTip": "Already on the field: his work is worth more than his price", "waiver.other.bench": ", bench over {over} {margin}", "waiver.other.fa": "{league}: FA", "waiver.other.mine": "{league}: on your team", "waiver.other.need": ", fills your {pos} need", "waiver.other.rostered": "{league}: rostered", "waiver.other.start": ", starts over {over} at {slot} {margin}", "waiver.other.unknown": "{league}: availability unknown", "waiver.other.waiver": "{league}: on waivers", "waiver.practice.dnp": "did not practice", "waiver.practice.fp": "full practice", "waiver.practice.lp": "limited practice", "waiver.proof.down": "▼", "waiver.proof.downTip": "Down from the week before", "waiver.proof.flat": "–", "waiver.proof.flatTip": "Same as the week before", "waiver.proof.noRank": "—", "waiver.proof.up": "▲", "waiver.proof.upTip": "Up from the week before", "waiver.rail.adds": "{n} teams added {name} this week", "waiver.rail.addsOne": "1 team added {name} this week", "waiver.rail.bench": "bench over {over}, {margin}", "waiver.rail.drop": "{by} dropped {name} ({pos}) · {what}", "waiver.rail.fa": "is FA", "waiver.rail.healthy": "healthy", "waiver.rail.kind.adds": "Adds", "waiver.rail.kind.drop": "Drop", "waiver.rail.kind.path": "Path", "waiver.rail.kind.status": "Status", "waiver.rail.need": "fills your {pos} need", "waiver.rail.none": "No wire moves since {day}", "waiver.rail.noneYet": "No wire moves yet", "waiver.rail.path": "{because} {why} → {name} {avail}", "waiver.rail.pathVerdict": "{path} · {what}", "waiver.rail.showAll": "Show all {n}", "waiver.rail.start": "starts over {over} at {slot}, {margin}", "waiver.rail.status": "{name}: {from} → {to}", "waiver.rail.title": "Breaking", "waiver.rail.unknown": "(availability unknown)", "waiver.rail.waiver": "is on waivers until {when}", "waiver.rail.waiverNoWhen": "is on waivers", "waiver.section.count": "· {n}", "waiver.section.more": "top 5 shown, {n} more not", "waiver.section.must": "Must claim", "waiver.section.watch": "Watch", "waiver.section.worth": "Worth a claim", "waiver.summary.rule": "RULE", "waiver.summary.ruleTip": "Built from a template: the written summary did not pass its fact check", "waiver.swap.bench": "Bench over {over}, {margin}", "waiver.swap.drop": " · drop {name}", "waiver.swap.need": "Fills your {pos} need", "waiver.swap.start": "Starts over {over} at {slot}, {margin}", "waiver.tier.must": "Must claim", "waiver.tier.spec": "Speculative", "waiver.tier.stash": "Stash", "waiver.tier.watch": "Watch", "waiver.tier.worth": "Worth a claim", "waiver.trend.label": "Week by week", "waiver.trend.point": "Week {wk}: {v}", "waiver.trend.week": "Week {a}", "waiver.trend.weeks": "Weeks {a}–{b}", "waiver.unit.perWeek": "{m}/wk"};
+const COPY = {"board.action.add": "+ Add player", "board.action.remove": "Remove {name}", "board.empty.noSheetSub": "THE SEASON SHEET ARRIVES WITH THE FIRST WEEK OF USAGE", "board.empty.noSheetTitle": "No stat sheet yet", "board.filter.position": "Position", "board.foot.source": "{n} {pos}s on ff-jarvis's season sheet. Each lane is that stat's own range, low to high; the shaded block is the middle half of the position, and a rule at a lane's end means a few values run past the scale.", "board.label.carries": "{n} career carries", "board.label.caveat": "What he did, not what he will do.", "board.label.dropbacks": "{n} dropbacks", "board.label.flagGoalLine": "Goal-line runner", "board.label.games": "{n} games", "board.label.role": "Role", "board.label.style": "Style", "board.label.targets": "{n} career targets", "board.label.touches": "{n} touches", "board.lane.elite": "elite {v}", "board.lane.of": "of {n}", "board.lane.thin": "Fewer than two measured", "board.lead.level": "Level — {n} lanes each of {of}", "board.lead.noShared": "No stat has a number for both", "board.lead.none": "Who leads every {pos} stat", "board.lead.one": "{name} against every {pos}", "board.lead.two": "{name} leads {n} of {of}", "board.note.noSheet": "{name} is not on the season sheet — no usage to rank him on.", "board.num.adot": "aDOT", "board.num.afterContact": "After contact", "board.num.beforeContact": "Before contact", "board.num.breakaway": "Breakaway", "board.num.catchRate": "Catch rate", "board.num.designed": "Designed runs", "board.num.goalLine": "Goal line", "board.num.oppShare": "Opp share", "board.num.routeRate": "Route rate", "board.num.scramble": "Scrambles", "board.num.snapRate": "Snap rate", "board.num.tprr": "TPRR", "board.num.wopr": "WOPR", "board.num.yacShare": "YAC share", "board.role.committee": "Committee", "board.role.earlyDown": "Early down", "board.role.everyDown": "Every down", "board.role.goalLine": "Goal line", "board.role.inLine": "In line", "board.role.move": "Move", "board.role.rotational": "Rotational", "board.role.satellite": "Satellite", "board.role.situational": "Situational", "board.style.complete": "Complete", "board.style.deepThreat": "Deep threat", "board.style.dualThreat": "Dual threat", "board.style.homeRun": "Home run", "board.style.oneCut": "One cut", "board.style.pocket": "Pocket", "board.style.possession": "Possession", "board.style.power": "Power", "board.style.scrambler": "Scrambler", "board.style.yac": "Yards after catch", "builder.explain.title": "How this works", "chat.claude": "Claude", "chat.close": "Close chat", "chat.empty": "No questions yet today.", "chat.error.network": "Could not reach the server. Try again.", "chat.error.nopass": "Enter the passphrase first.", "chat.intro": "Three questions a day. It sees the players you name, their usage and this week's numbers.", "chat.limit.left": "{n} of {of} questions left today", "chat.limit.none": "Out of questions until tomorrow", "chat.open": "Ask about your teams", "chat.pass.forget": "Forget passphrase", "chat.pass.hint": "Stored in this browser only. It is what keeps this endpoint off a stranger's bill.", "chat.pass.label": "Passphrase", "chat.pass.placeholder": "The one set in Vercel", "chat.pass.save": "Save", "chat.placeholder": "Start Achane or Pollard this week?", "chat.send": "Ask", "chat.thinking": "Thinking…", "chat.title": "Ask about your teams", "chat.you": "You", "chrome.badge.defaultFull": "Sample signals — skill not wired", "chrome.badge.dfsLiveAbbr": "Pool live", "chrome.badge.dfsLiveFull": "Live Yahoo pool · rest of app sample", "chrome.badge.dfsSampleFull": "Sample DFS pool — no salary export loaded", "chrome.badge.newsLiveAbbr": "News live", "chrome.badge.newsLiveFull": "Live news", "chrome.badge.newsSampleFull": "Sample news — scanner not pulled", "chrome.badge.parlayLiveAbbr": "Props live", "chrome.badge.parlayLiveFull": "Live props", "chrome.badge.parlaySampleFull": "Sample props — BettingPros not pulled", "chrome.badge.sampleAbbr": "Sample data", "chrome.badge.teamsLiveAbbr": "Rosters live", "chrome.badge.teamsLiveFull": "Live rosters, trend, news & waivers", "chrome.brand.label": "Team Watch", "chrome.discord.tooltip": "FF news on Discord", "chrome.feed.dataCount": "DATA {ok}/{n}", "chrome.feed.dfs": "DFS", "chrome.feed.espn": "ESPN", "chrome.feed.neverPulled": "never pulled", "chrome.feed.noExport": "no salary export", "chrome.feed.notPulled": "not pulled yet", "chrome.feed.poolSize": "{n} players", "chrome.feed.props": "Props", "chrome.feed.refreshed": "refreshed", "chrome.feed.usage": "Usage", "chrome.feed.waiting": "waiting for week 1", "chrome.feed.yahoo": "Yahoo", "chrome.footer.sources": "SOURCES: YAHOO SITE · ESPN LEAGUE · NFLVERSE · BETTINGPROS · SLEEPER · FANTASYPROS NEWS", "chrome.fresh.new": "New data ↻", "chrome.fresh.tip": "This tab is showing an older build. Reload for the current one.", "chrome.fresh.week": "Week {week} ready ↻", "chrome.head.title": "Team Watch", "chrome.teamswitch.espn": "ESPN", "chrome.teamswitch.yahoo": "Yahoo", "chrome.weekpill.week": "Week {week}", "common.action.close": "Close", "common.action.remove": "Remove", "common.ordinal.nd": "{n}nd", "common.ordinal.rd": "{n}rd", "common.ordinal.st": "{n}st", "common.ordinal.th": "{n}th", "common.pager.next": "Next ›", "common.pager.page": "Page {page} of {pages}", "common.pager.prev": "‹ Prev", "connect.add": "+ Add a league", "connect.busy": "Connecting…", "connect.desk.how": "On espn.com, open DevTools → Application → Cookies → fantasy.espn.com and copy these two values.", "connect.desk.title": "On a computer", "connect.error.expired": "ESPN refused those cookies. Log in to espn.com again and reconnect.", "connect.error.generic": "That did not work. Check the link and try again.", "connect.error.offline": "No connection. Try again when you are back online.", "connect.error.private": "This league is private. Connect it with your ESPN login below.", "connect.go": "Connect", "connect.lede": "Paste your ESPN league link. Your two leagues stay here too.", "connect.link.label": "ESPN league link or ID", "connect.link.placeholder": "fantasy.espn.com/football/league?leagueId=…", "connect.list.down": "ESPN did not answer", "connect.list.expired": "Login expired: reconnect", "connect.list.title": "Connected here", "connect.phone.android": "Android (Chrome): bookmark this page, then edit the bookmark and paste the code as its URL.", "connect.phone.copied": "Copied", "connect.phone.copy": "Copy the bookmark code.", "connect.phone.copyBtn": "Copy", "connect.phone.iphone": "iPhone (Safari): bookmark any page, then open Bookmarks → Edit, tap it, and paste the code as its address.", "connect.phone.tap": "Open your league on espn.com in that browser, logged in, and open the bookmark. On Android, type its name in the address bar and tap it.", "connect.phone.title": "On your phone", "connect.pick.ask": "Which team in {league} is yours?", "connect.plat.espn": "ESPN", "connect.private.lm": "Easiest: ask your league manager to turn on public viewing (League → Settings → Basic Settings on espn.com). Then the link alone works.", "connect.private.summary": "Private league?", "connect.title": "Add a league", "connect.yahooSoon": "Yahoo sign-in is coming next.", "dfs.book.dk": "DraftKings", "dfs.book.label": "Book", "dfs.book.yahoo": "Yahoo", "dfs.card.load": "Load into my lineup", "dfs.card.of": "of ${n}", "dfs.card.stats": "{proj} PROJ · ~{own}% PROJ OWN", "dfs.card.title": "Lineup {n}", "dfs.card.titleBest": "★ Best · Lineup {n}", "dfs.empty.noPlayers": "NO PLAYERS AT THAT POSITION", "dfs.explain.note": "<b>PROJ<\/b> is the model's fantasy points on Yahoo scoring — its yards, receptions and touchdown rates for this week, half-PPR, for every player it has a rate for and not only the ones a book prices. A player with no game log at all (a rookie) wears a <b>LINE<\/b>: his own line this week, read as a role. Whoever is left — the deep bench, K, DST — wears a <b>Y<\/b>: Yahoo's last-season average, rescaled to the model's level at his position, a placeholder rather than a read. No site publishes real ownership before lock — PROJ OWN is a rank-based estimate, same idea any pre-lock ownership projection tool uses.", "dfs.explain.step1": "<b>Greedy<\/b> builds the highest-projected lineup — what most of the field lands on. <b>Non-chalk<\/b> sits the single most-projected play at each position and trades a little projection for a lineup the field isn't all rostering, which is the point of a GPP.", "dfs.explain.step2": "Swipe the lineups below, tap <b>Load into my lineup<\/b> to start from one.", "dfs.explain.step3": "Fill or swap slots from the pool underneath.", "dfs.filter.position": "Position", "dfs.filter.valueNote": "Value = points per ${n}", "dfs.hero.eyebrow": "{site} · ${cap} cap", "dfs.lineup.cancel": "Cancel", "dfs.lineup.export": "Export lineup", "dfs.lineup.filled": "{n}/{of} filled", "dfs.lineup.left": "${n} left", "dfs.lineup.leftFor": "LEFT FOR {n} SLOT{s}", "dfs.lineup.orSep": ", or ", "dfs.lineup.own": "{n}% OWN", "dfs.lineup.pickFromPool": "Pick from the pool", "dfs.lineup.picking": "Picking <b>{slot}<\/b> — tap a player below", "dfs.lineup.proj": "{v} PROJ", "dfs.lineup.projected": "PROJECTED", "dfs.lineup.spent": "SPENT", "dfs.lineup.summedOwn": "SUMMED OWNERSHIP", "dfs.lineup.tapBelow": "Tap a player below", "dfs.lineup.title": "My {site} lineup", "dfs.market.fetched": "Fetched {when}", "dfs.market.heading": "{site} DFS player pool", "dfs.market.lined": "the book's line for {n} with no game log (LINE)", "dfs.market.modeled": "projections: the model for {n}", "dfs.market.noExport": "No salary export loaded", "dfs.market.rest": "Yahoo's FPPG rescaled for the rest (Y)", "dfs.market.sample": "SAMPLE", "dfs.market.source": "{n} players · ${cap} cap · salaries as posted", "dfs.pager.players": "{n} player{s}", "dfs.pick.noSlot": "No open {pos} slot — tap one to swap instead", "dfs.pick.wrongPos": "{name} is {pos}, not {slot}", "dfs.row.add": "+ ADD", "dfs.row.swapIn": "SWAP IN", "dfs.row.wrongPos": "WRONG POS", "dfs.table.own": "Own", "dfs.table.player": "Player", "dfs.table.proj": "Proj", "dfs.table.salary": "Salary", "dfs.table.value": "Value", "dfs.tag.handcuff": "HANDCUFF", "dfs.tag.handcuffTitle": "{name} (the {pos} starter) is OUT/IR — cheapest teammate left at {pos}, first in line for the workload", "dfs.tag.line": "LINE", "dfs.tag.lineTitle": "No game log to project from — a rookie, or a player who missed last season. This is the book's own line for him this week read as a role: yards over the league's yards per carry is a carry count, receptions over the catch rate a target count. The market's read, not ours.", "dfs.tag.value": "BEST VALUE", "dfs.tag.valueTitle": "Highest points per $1,000 at {pos} in this pool", "dfs.tag.yahoo": "Y", "dfs.tag.yahooTitle": "The model has no rate for him and no book posts a line, so this is Yahoo's FPPG (last season's average) rescaled to the model's {pos} level. A guess at the model's scale, not a model read.", "dfs.top.contrarian": "Non-chalk", "dfs.top.contrarianSub": "For GPPs", "dfs.top.empty": "NOT ENOUGH PRICED PLAYERS AT EVERY POSITION TO FILL A LINEUP", "dfs.top.greedy": "Greedy", "dfs.top.greedySub": "Max points", "dfs.top.heading": "Top {n} lineups", "dfs.top.sub": "randomized-greedy, not exact-optimal", "drawer.league.format": "Format", "drawer.league.meta": "{plat} · draft slot {slot} · record {record}", "drawer.pool.gap": "The gap", "drawer.pool.luck": "Points vs. usage", "drawer.pool.ppg": "Points per game", "drawer.pool.raw": "Raw", "drawer.pool.readAgree": "Role and production agree. Nothing mispriced, but the floor is real.", "drawer.pool.readBuy": "The role is growing and the box score has not caught up. This is the buy window.", "drawer.pool.readFlat": "Neither the role nor the points are moving. Nothing to do.", "drawer.pool.readSell": "The points are borrowed from touchdown luck while the role shrinks. Sell into the good week.", "drawer.pool.readWait": "One week of usage is a level, not a trend. The read on this player comes after week 2.", "drawer.pool.redzone": "Red-zone looks", "drawer.pool.share": "Share", "drawer.pool.shareChange": "Share change", "drawer.pool.snapChange": "Snap change", "drawer.pool.snaps": "Snaps", "drawer.pool.trade": "Trade", "drawer.pool.tradeBuy": "Buy before the box score catches up.", "drawer.pool.tradeSell": "Sell while the box score still looks good.", "drawer.pool.verdict": "Verdict", "drawer.pool.waiver": "Waiver claim", "drawer.pool.where": "Where this shows up", "live.asof": "updated {time}", "live.away.title": "while you were away", "live.bench": "Bench", "live.error.network": "Could not reach the scoreboard. It will try again.", "live.error.notServed": "Live scores need the deployed site. This page was opened from a file.", "live.idle": "no games left this week", "live.left": "{n} left", "live.loading": "Reading the scoreboard…", "live.next": "next kickoff {when}", "live.proj": "proj {pts}", "live.refresh": "Refresh", "live.seen": "got it", "live.starters": "Starters", "live.tocome": "{pts} to come", "live.unnamed": "—", "live.week": "Week {week}", "live.win": "{pct}% win", "market.name.PASS": "Pass yds", "market.name.REC": "Rec yds", "market.name.RECS": "Receptions", "market.name.RUSH": "Rush yds", "market.name.TD": "Anytime TD", "market.short.PASS": "PASS YDS", "market.short.REC": "REC YDS", "market.short.RECS": "REC", "market.short.RUSH": "RUSH YDS", "market.short.TD": "TD", "nav.group.bets.full": "Bets", "nav.group.bets.short": "Bets", "nav.group.gameday.full": "Gameday", "nav.group.gameday.short": "Live", "nav.group.scouting.full": "Scouting", "nav.group.scouting.short": "Scout", "nav.group.teams.full": "My teams", "nav.group.teams.short": "Teams", "nav.search.label": "Search", "nav.sub.label": "Views in this section", "nav.tab.board": "Board", "nav.tab.dfs": "DFS", "nav.tab.grid": "Grid", "nav.tab.live": "Live", "nav.tab.movers": "Movers", "nav.tab.news": "News", "nav.tab.parlay": "Parlay", "nav.tab.roster": "Roster", "nav.tab.waivers": "Waivers", "news.empty.noStories": "NO {cat} STORIES RIGHT NOW", "news.filter.label": "Filter", "news.hero.eyebrow": "{n} items · newest first", "news.kind.all": "All", "news.kind.injury": "Injury", "news.kind.move": "Move", "news.kind.news": "Other", "news.kind.out": "Out", "news.kind.practice": "Practice", "parlay.book.dk": "DraftKings", "parlay.book.label": "Book", "parlay.book.underdog": "Underdog", "parlay.bookline.book": "BOOK {price}", "parlay.bookline.games": "{n} GP", "parlay.bookline.opp": "{team} D {pct}%", "parlay.call.anytime": "ANYTIME", "parlay.call.higher": "▲ HIGHER", "parlay.call.lower": "▼ LOWER", "parlay.call.none": "NO CALL", "parlay.call.pending": "PENDING", "parlay.call.td": "TD", "parlay.copy.book": "book", "parlay.copy.edge": "edge {n}", "parlay.copy.footer": "Team Watch · {lines}", "parlay.copy.lines": "lines {when}", "parlay.copy.model": "model", "parlay.copy.modelPct": "model {n}%", "parlay.copy.sampleLines": "sample lines", "parlay.copy.underdog": "Underdog", "parlay.detail.bookImplied": "BOOK IMPLIED", "parlay.detail.model": "MODEL", "parlay.detail.modelPending": "MODEL PENDING", "parlay.detail.noRolePriced": "NO ROLE PRICED", "parlay.detail.noYardsLine": "NO YARDS LINE", "parlay.detail.notPlaying": "NOT PLAYING", "parlay.empty.noLines": "NO LINES MATCH THAT FILTER", "parlay.explain.note": "<b>MODEL %<\/b> is the chance the over hits, from the player's last 24 games, nudged by what his opponent allows to his position. <b>EDGE<\/b> is model % minus the book's break-even, in points — +5 means the model likes the over 5 points more than the price needs. Both live behind each line's chevron, not on the card.", "parlay.explain.step1": "Browse the slips most likely to hit below — on Underdog each card is receptions, TDs, or both, inside one day or kickoff window, and never mixes two days.", "parlay.explain.step2": "Tap <b>Load into my slip<\/b> to start from one, or scroll to the lines and tap any player to add a leg yourself.", "parlay.explain.step3": "Your slip prices itself as you go. <b>Copy slip<\/b> puts it on the clipboard, ready to type into the book.", "parlay.filter.kickoff": "Kickoff", "parlay.filter.market": "Market", "parlay.filter.mineOnly": "My players only", "parlay.filter.position": "Position", "parlay.filter.sort": "Sort", "parlay.gallery.allHit": "ALL {n} PICKS HIT · PAYS {x}×", "parlay.gallery.best": "★ BEST", "parlay.gallery.empty": "LINE{s} THE MODEL WILL STAND BEHIND HERE · A CARD NEEDS 2 AT ONE KICKOFF", "parlay.gallery.heading": "Slips most likely to hit", "parlay.gallery.legCount": "{n} leg{s}", "parlay.gallery.legsLabel": "Legs", "parlay.gallery.legsOverBook": "{n} LEGS · MODEL {d} OVER THE BOOK", "parlay.gallery.loadSlip": "Load slip", "parlay.gallery.lowTag": "BELOW THE BAR", "parlay.gallery.modelTag": "MODEL", "parlay.gallery.sub": "Underdog: TDs at 50%+, receptions only on the lower side at 65%+ · below the bar = the best left at that kickoff · why under each leg", "parlay.hero.eyebrow": "{n} lines priced · week {week}", "parlay.hero.eyebrowNoWeek": "{n} lines priced", "parlay.log.aria": "last {n} games", "parlay.log.avg": "avg <b>{v}<\/b>", "parlay.log.cleared": "cleared {line} in <b>{hit} of {n}<\/b>", "parlay.log.rate": "rate <b>{v}<\/b>", "parlay.log.scored": "scored in <b>{hit} of {n}<\/b>", "parlay.log.weeks": "week numbers under the bars", "parlay.market.heading": "Player prop market", "parlay.more.log": "Last {n} games against this line", "parlay.more.plain": "More on this line", "parlay.option.all": "All", "parlay.pager.lines": "{n} line{s}", "parlay.pager.players": "{n} player{s}", "parlay.pager.tdNote": "TD picks are the model's P(score), Underdog posts no TD line", "parlay.preset.blank": "Clear", "parlay.preset.mine": "My players", "parlay.scope.all": "All", "parlay.scope.mix": "Mix", "parlay.scope.recs": "Receptions", "parlay.scope.tds": "TDs", "parlay.scope.yards": "Yards", "parlay.slip.allHit": "All picks hit", "parlay.slip.be3": "BREAK-EVEN IF IT PAYS 3×", "parlay.slip.be6": "BREAK-EVEN IF IT PAYS 6×", "parlay.slip.combinedOdds": "COMBINED ODDS", "parlay.slip.copied": "Copied", "parlay.slip.copyFailed": "Copy failed", "parlay.slip.copyPicks": "Copy picks", "parlay.slip.copySlip": "Copy slip", "parlay.slip.corr": "TWO LEGS IN {game} — CORRELATED, PRICE IT AS ONE", "parlay.slip.edgeLabel": "Model edge", "parlay.slip.edgeOverBook": "Model edge over the book", "parlay.slip.emptyBlank": "TAP A LINE BELOW, OR LOAD A CARD FROM THE GALLERY", "parlay.slip.emptyMine": "NONE OF MY PLAYERS PRICE AN EDGE RIGHT NOW", "parlay.slip.emptyUd": "NO PICK THE MODEL PUTS PAST {n}%", "parlay.slip.legCount": "{n} legs", "parlay.slip.modelProb": "MODEL PROBABILITY", "parlay.slip.notDk": "NOT DK'S", "parlay.slip.notUdPrice": "NOT AN UD PRICE", "parlay.slip.pending": "pending", "parlay.slip.pickCount": "{n} picks", "parlay.slip.returns25": "$25 RETURNS", "parlay.slip.tdModelRead": "TD PICKS ARE MODEL-READ", "parlay.slip.titleDk": "Your slip", "parlay.slip.titleMine": "My players", "parlay.slip.titleUd": "Underdog picks", "parlay.slip.udLine": "PICKS ARE AT UNDERDOG'S LINE", "parlay.sort.conf": "Confidence", "parlay.sort.edge": "Edge", "parlay.sort.model": "Model %", "parlay.sort.ready": "Slip-ready", "parlay.tag.backupTitle": "Depth chart says {pos}{depth}. Not slip material.", "parlay.tag.cb": "CB {dir} {name}", "parlay.tag.cbTitle": "RotoBaller WR/CB matchups, week {week}: {v} vs {cb}. {why} — opinion, not in the number.", "parlay.tag.games": "{n} GAMES", "parlay.tag.gamesTitle": "The rate rests on {n} of his own games; a slip leg needs 8.", "parlay.tag.moved": "NEW TEAM", "parlay.tag.movedTitle": "Every game the model has read was for {team}. The rate knows nothing about the new offense or quarterback, and the model has no feature for a team change. Not slip material.", "parlay.tag.movedWas": "WAS {team}", "parlay.tag.noRole": "NO ROLE", "parlay.tag.noRoleTitle": "A touchdown line on a player the book prices no yards for.", "parlay.tag.out": "OUT", "parlay.tag.q": "Q", "parlay.tag.role": "ROLE", "parlay.tag.stale": "ROLE?", "parlay.tag.staleTitle": "The book's line is far from last season's rate: the role changed and the model has not caught up. Not slip material.", "parlay.tag.thin": "THIN LINE", "parlay.tag.thinTitle": "A line this small is confidence for free and Underdog prices it that way. Not slip material.", "parlay.why.dk": "Model {model}% · price says {implied}%", "parlay.why.rate": "{rate} {unit}/gm over {games} games", "parlay.why.td": "Model {model}% from his usage", "parlay.why.ud": "Model {model}%", "pool.axis.owedNeg": "RAN HOT", "pool.axis.owedPos": "POINTS OWED", "pool.axis.usageNeg": "USAGE −", "pool.axis.usagePos": "USAGE +", "pool.chart.waitSub": "The chart plots each player's change in role. That needs two weeks of snaps, so it fills in the Tuesday after week 2's games.", "pool.chart.waitTitle": "Week 2", "pool.empty.noPlayers": "NO PLAYERS AT THIS POSITION", "pool.filter.position": "Position", "pool.filter.sorted": "Ranked by role share", "pool.free.both": "Both", "pool.free.bothLong": "Free in both leagues", "pool.free.espn": "ESPN", "pool.free.espnLong": "Free in ESPN, rostered in Yahoo", "pool.free.mine": "Mine", "pool.free.mineLong": "On one of my rosters", "pool.free.none": "—", "pool.free.noneLong": "Rostered in both leagues", "pool.free.yahoo": "Yahoo", "pool.free.yahooLong": "Free in Yahoo, rostered in ESPN", "pool.key.buyLow": "Buy low", "pool.key.confirmed": "Confirmed / rising", "pool.key.hold": "Hold", "pool.key.mine": "On one of my rosters", "pool.key.sell": "Sell", "pool.pager.players": "{n} player{s}", "pool.quad.buyLow": "BUY LOW", "pool.quad.confirmed": "CONFIRMED", "pool.quad.fading": "FADING", "pool.quad.sellHigh": "SELL HIGH", "pool.scatter.count": "{n} players", "pool.scatter.dotTip": "{name} — usage {usage}, luck {luck}", "pool.scatter.heading": "Usage against luck", "pool.scatter.sub": "Right: the role is growing. Up: the points haven't caught up to it yet. Top-right is the buy, bottom-left the sell.", "pool.scatter.tapHint": "Tap a dot for the player.", "pool.table.dShare": "Δ share", "pool.table.dSnaps": "Δ snaps", "pool.table.free": "Free in", "pool.table.player": "Player", "pool.table.share": "Share", "pool.table.snaps": "Snaps", "pool.table.verdict": "Verdict", "profile.athletic.agility": "Agility", "profile.athletic.broad": "Broad {v}″", "profile.athletic.burst": "Burst", "profile.athletic.cone": "3-cone {v}", "profile.athletic.forty": "40 {v}", "profile.athletic.label": "Athletic profile", "profile.athletic.missing": "{list}: not measured.", "profile.athletic.none": "No combine record.", "profile.athletic.pool": "Percentile among {pool}s who tested.", "profile.athletic.rookie": "Not yet measured.", "profile.athletic.shuttle": "Shuttle {v}", "profile.athletic.speed": "Speed", "profile.athletic.vertical": "Vertical {v}″", "profile.athletic.win": "Combine", "profile.bio.bye": "bye {n}", "profile.count.targetOne": "1 target", "profile.count.targets": "{n} targets", "profile.coverage.colTargets": "Targets", "profile.coverage.colYpt": "Yds/tgt", "profile.coverage.label": "Against coverage · {span}", "profile.coverage.labelBare": "Against coverage", "profile.coverage.leadEven": "Same yds/target vs man and zone", "profile.coverage.leadMan": "{n} yds/target better vs man", "profile.coverage.leadZone": "{n} yds/target better vs zone", "profile.coverage.man": "Man", "profile.coverage.none": "Under 30 targets against man or zone.", "profile.coverage.zone": "Zone", "profile.def.brkRate": "Share of his carries that went 15+ yards.", "profile.def.designedPct": "His share of the team's called runs.", "profile.def.dropbacks": "Pass plays per game, sacks and scrambles included.", "profile.def.fdrr": "First downs per route run.", "profile.def.fpDb": "Fantasy points per dropback.", "profile.def.glPct": "His share of the team's carries inside the 5.", "profile.def.oppPct": "His share of the carries and targets the team's backs got.", "profile.def.routePct": "Share of his team's dropbacks he ran a route on.", "profile.def.ryoe": "Rushing yards over expected, per carry. Above zero is beating the blocking.", "profile.def.rz": "Touches per game inside the 20.", "profile.def.rzAtt": "Pass attempts per game inside the 20.", "profile.def.rzTgt": "Targets per game inside the 20.", "profile.def.scrRate": "Share of his dropbacks he ran on.", "profile.def.tprr": "Targets per route run.", "profile.def.wopp": "Weighted opportunity per game: carries + 2.5 × targets, the PPR exchange rate.", "profile.def.wopr": "Weighted opportunity: 1.5 × his share of the team's targets + 0.7 × his share of its air yards.", "profile.def.yprr": "Receiving yards per route run.", "profile.details.blended": "{targets} this season, blended {weight} with {prior} last season.", "profile.empty.none": "NO PROFILE YET", "profile.fact.age": "Age", "profile.fact.exp": "Exp", "profile.fact.height": "{ft}′{in}″", "profile.fact.lb": "{n} lb", "profile.fact.leaguePick": "Rd {pick}", "profile.fact.leaguePickBy": "Rd {pick} · by {by}", "profile.fact.nfl": "NFL", "profile.fact.nflPick": "#{n} overall · {yr}", "profile.fact.nflRound": "Rd {r}.{s} · {yr}", "profile.fact.rookie": "Rookie", "profile.fact.size": "Size", "profile.fact.years": "{n} yr pro", "profile.history.colCar": "Car", "profile.history.colOpp": "Opp", "profile.history.colPassTd": "Pass TD", "profile.history.colPassYds": "Pass Yds", "profile.history.colPts": "Pts", "profile.history.colRec": "Rec", "profile.history.colRecTd": "Rec TD", "profile.history.colRecYds": "Rec Yds", "profile.history.colRushTd": "Rush TD", "profile.history.colRushYds": "Rush Yds", "profile.history.colTgt": "Tgt", "profile.history.colWeek": "Wk", "profile.history.games": "{n} gm", "profile.history.label": "Weekly stats", "profile.history.pts": "pts, last game", "profile.history.total": "Season", "profile.lede.bye": "bye week", "profile.lede.easiest": "easiest", "profile.lede.matchup": "matchup", "profile.lede.ofN": "of {of}", "profile.lede.ofPos": "of {of} {pos}s", "profile.lede.proj": "projected", "profile.lede.projSub": "next game", "profile.lede.toughest": "toughest", "profile.line.kept": "usual starters played", "profile.line.label": "{team} offensive line", "profile.line.out": "linemen on the injury report", "profile.line.outList": "linemen on the injury report ({list})", "profile.line.outListOne": "lineman on the injury report ({list})", "profile.line.outOne": "lineman on the injury report", "profile.line.startersOut": "starters out", "profile.line.week": "Week {wk}", "profile.market.label": "Market", "profile.market.line.pts": "{pts} pts", "profile.market.line.rank": "{pos} rank #{rank}", "profile.market.line.role": "role {role} pts", "profile.market.line.z": "z {z}", "profile.market.model": "{pts} pts, the model's number", "profile.market.noMarket": "No market priced yet.", "profile.market.priced": "Priced: {markets}", "profile.matchup.easiest": "Easiest", "profile.matchup.none": "No matchup rank yet.", "profile.matchup.rank": "{nth} easiest of {of} for {pos}s", "profile.matchup.rankTough": "{nth} toughest of {of} for {pos}s", "profile.matchup.toughest": "Toughest", "profile.next.away": "@", "profile.next.bye": "Bye, or no schedule yet.", "profile.next.factor": "Raw factor", "profile.next.home": "vs", "profile.next.label": "Week {wk} {where} {opp}", "profile.next.labelBare": "Next game", "profile.next.legend": "League avg", "profile.next.man": "Man coverage rate · {season}", "profile.next.opponent": "{opp} defense", "profile.next.rz": "Red-zone rate allowed · {n} faced", "profile.next.stale": "STALE", "profile.next.staleTip": "New defensive coordinator since {season}", "profile.projection.label": "Projection", "profile.projection.muPass": "Pass yds", "profile.projection.muRec": "Rec yds", "profile.projection.muRecs": "Catches", "profile.projection.muRush": "Rush yds", "profile.projection.muTd": "TDs", "profile.projection.source": "ff-jarvis's model · {scoring} · fitted through {through}", "profile.rank.mark": "#{n}", "profile.rank.plain": "{pos}{n}", "profile.role.label": "Target depth", "profile.role.lead": "{zone} ({pos} avg {avg})", "profile.role.legend": "{pos} avg", "profile.role.side": "{pct} {side}", "profile.rz.count": "{n} of {team}", "profile.rz.label": "Red zone", "profile.rz.others": "{n} more", "profile.rz.share": "{pct} · {n} of {team}", "profile.rz.teamCarries": "of the team’s red-zone carries", "profile.rz.teamCarry": "red-zone carry", "profile.rz.teamTarget": "red-zone target", "profile.rz.teamTargets": "of the team’s red-zone targets", "profile.sheet.eliteTag": "ELITE", "profile.sheet.label": "Stat sheet: his rank at his position on every usage stat this week", "profile.sheet.meta": "of {of}", "profile.sheet.metaGames": "{g} gm · of {of}", "profile.sheet.partial": "{n} of {of} stats measured", "profile.side.label": "Middle vs outside", "profile.stat.overElite": "{gap} over the elite bar ({bar})", "profile.stat.underElite": "{gap} under the elite bar ({bar})", "profile.stat.week": "wk {n}", "profile.stat.weeks": "wk {a}–{b}", "profile.tab.bio": "Bio", "profile.tab.label": "Which part of his profile to show", "profile.tab.log": "Log", "profile.tab.matchup": "Matchup", "profile.tab.usage": "Usage", "profile.weather.dome": "Dome, no weather", "profile.weather.retractable": "roof may close", "profile.weather.temp": "{n}°F", "profile.weather.wind": "wind", "profile.weather.windFrom": "from {dir}", "profile.why.brkRate": "Where a back’s ceiling games come from.", "profile.why.designedPct": "Called runs are the rushing floor a scrambler does not have.", "profile.why.dropbacks": "Pace and game script. More plays, more chances.", "profile.why.fdrr": "Moving the chains keeps him on the field and keeps drives alive.", "profile.why.fpDb": "Efficiency per chance, so a low-volume week still counts.", "profile.why.glPct": "A quarterback who keeps it at the goal line is a quarterback who scores.", "profile.why.oppPct": "Whether the backfield is his or a committee.", "profile.why.routePct": "A receiver off the field cannot be targeted. This is his floor.", "profile.why.ryoe": "Separates the back from his offensive line.", "profile.why.rz": "Goal-line work is the difference between a flex and a starter.", "profile.why.rzAtt": "Red-zone volume is touchdown volume.", "profile.why.rzTgt": "Where touchdowns come from, and touchdowns are what swing a week.", "profile.why.scrRate": "Scrambling yards are free fantasy points his arm did not have to earn.", "profile.why.tprr": "How often the quarterback looks at him when he does run. Earned, not given.", "profile.why.wopp": "Total workload. The thing that survives a bad game.", "profile.why.wopr": "The single best predictor of a receiver scoring next week.", "profile.why.yprr": "Volume and efficiency in one number. The closest thing to a receiver grade.", "profile.win.n": "{n} wk", "profile.zone.behind": "Behind", "profile.zone.deep": "Deep", "profile.zone.intermediate": "Intermediate", "profile.zone.middle": "Middle", "profile.zone.outside": "Outside", "profile.zone.short": "Short", "profile.zoneRead.colFaced": "Tgts", "profile.zoneRead.colIndex": "Allows", "profile.zoneRead.colRank": "Softest", "profile.zoneRead.colZone": "His zone", "profile.zoneRead.empty": "Zone read starts about week 4 (defences need 25 targets in a zone).", "profile.zoneRead.label": "Zone read", "profile.zoneRead.untested": "UNTESTED", "search.action.cancel": "Cancel", "search.empty.none": "No “{q}” in this week’s data", "search.input.label": "Search players", "search.input.placeholder": "Player, team or position", "search.list.label": "Players", "search.list.recent": "Recent", "search.list.roster": "Your roster", "strip.caption.caught": "caught at {spot} · {n} after the catch", "strip.caption.from": "from {qb}", "strip.control.next": "Next", "strip.control.pause": "Pause", "strip.control.play": "Play", "strip.control.prev": "Prev", "strip.control.scrub": "Scrub through the drive", "strip.control.view": "Field view, tap to switch", "strip.drive.untitled": "Drive", "strip.error.network": "Could not reach the game feed. Try again.", "strip.error.notPlayed": "This game has not been played yet.", "strip.error.notServed": "The drive strip needs the deployed site. This page was opened from a file.", "strip.key.inc": "incomplete", "strip.key.loss": "loss", "strip.key.pass": "pass", "strip.key.run": "run", "strip.loading": "Reading the game…", "strip.moment.air": "{n} in the air", "strip.moment.big": "BIG PLAY +{n}", "strip.moment.fg": "FIELD GOAL", "strip.moment.fgMissed": "NO GOOD", "strip.moment.fumble": "FUMBLE LOST", "strip.moment.int": "INTERCEPTED", "strip.moment.td": "TOUCHDOWN", "strip.moment.tdLong": "{n}-YARD TOUCHDOWN", "strip.moment.yac": "{n} after the catch", "strip.open.player": "Watch {name}'s drive", "strip.open.week": "Watch week {n}", "strip.score.hasBall": "has the ball", "strip.spot.fifty": "the 50", "strip.tag.fumble": "fumble", "strip.tag.fumbleLost": "fumble lost, {by} recovers", "strip.tag.fumbleOwn": "fumble, {by} recovers", "strip.tag.incomplete": "incomplete", "strip.tag.intercepted": "intercepted", "strip.title.at": "at", "strip.title.week": "Week {n}", "strip.unnamed": "—", "strip.view.fit": "Fit", "strip.view.pan": "Pan", "teams.brief.mustMany": "{n} must-claims on waivers", "teams.brief.mustOne": "A must-claim is on waivers", "teams.brief.newsMany": "News on {names}", "teams.brief.newsOne": "{name}: {n} new stories", "teams.brief.quiet": "Nothing needs you this week.", "teams.brief.status": "{name} is {status}", "teams.brief.statusMany": "{n} starters flagged: {names}", "teams.brief.title": "This week", "teams.group.bench": "Bench", "teams.group.out": "Out / exempt", "teams.group.starters": "Starters", "teams.row.snapNone": "Snap share: fewer than two weeks played", "teams.row.snapTip": "Snap share, last week {n}%", "usage.band.low10": "Bottom 10%", "usage.band.low25": "Bottom 25%", "usage.band.middle": "Middle", "usage.band.top10": "Top 10%", "usage.band.top25": "Top 25%", "usage.empty.noGridSub": "nflverse publishes a week's usage the Tuesday after its games. Until then there is nothing to rank.", "usage.empty.noGridTitle": "No grid yet", "usage.empty.noPlayers": "NOBODY AT THIS POSITION THIS WEEK", "usage.filter.mine": "★ Mine", "usage.filter.position": "Position", "usage.filter.week": "Week", "usage.foot.source": "{n} players, {pos} week {week}. nflverse, via ff-jarvis model.season.usage. What he did, not what he will do.", "usage.key.changeNote": "Green up, red down, against the week before", "usage.key.label": "Colour", "usage.key.levelNote": "Percentile among qualified players at this position, this week", "usage.mode.change": "Change", "usage.mode.level": "Level", "usage.table.player": "Player", "usage.table.team": "Team", "waiver.card.at": "@ {opp}", "waiver.card.backTitle": "Evidence", "waiver.card.fa": "FA", "waiver.card.flipLabel": "Evidence for {name}", "waiver.card.profile": "Full profile ›", "waiver.card.turnBack": "‹ Front", "waiver.card.turnFront": "Evidence ›", "waiver.card.unknown": "Availability unknown", "waiver.card.usageRank": "{rank} in {stat}, week {wk}", "waiver.card.vs": "vs {opp}", "waiver.card.waiver": "Waivers · {when}", "waiver.card.waiverNoWhen": "On waivers", "waiver.empty.noPacket": "No waiver packet yet. ff-jarvis builds it in the morning refresh.", "waiver.empty.noWire": "Nobody on the wire is worth a claim this week.", "waiver.fold.spec": "Show {n} speculative", "waiver.fold.stash": "Show {n} to stash", "waiver.hero.claimDay": "Claim day", "waiver.hero.clears": "Waivers clear {when}", "waiver.hero.faab": "FAAB ${n} left", "waiver.hero.must": "{n} must-claims", "waiver.hero.mustOne": "1 must-claim", "waiver.hero.none": "No waiver data for this league", "waiver.hero.wireWatch": "Wire watch", "waiver.injury.d": "Doubtful", "waiver.injury.ir": "IR", "waiver.injury.o": "Out", "waiver.injury.q": "Questionable", "waiver.lane.hole": "Empty slot", "waiver.lane.holeTip": "You cannot fill this starting slot: it scores zero until you do", "waiver.lane.injured": "Out now", "waiver.lane.injuredTip": "Hurt now: a stash for when he is back", "waiver.lane.insure": "Insurance", "waiver.lane.insureTip": "Next in line behind a healthy lead back", "waiver.lane.open": "Open work", "waiver.lane.openTip": "A back is out and he is next in that room", "waiver.lane.role": "Depth move", "waiver.lane.roleTip": "Moved up the depth chart this week", "waiver.lane.starter": "Beats a starter", "waiver.lane.starterTip": "Projects above one of your healthy starters in this league", "waiver.lane.usage": "Usage", "waiver.lane.usageTip": "Already on the field: his work is worth more than his price", "waiver.other.bench": ", bench over {over} {margin}", "waiver.other.fa": "{league}: FA", "waiver.other.mine": "{league}: on your team", "waiver.other.need": ", fills your {pos} need", "waiver.other.rostered": "{league}: rostered", "waiver.other.start": ", starts over {over} at {slot} {margin}", "waiver.other.unknown": "{league}: availability unknown", "waiver.other.waiver": "{league}: on waivers", "waiver.practice.dnp": "did not practice", "waiver.practice.fp": "full practice", "waiver.practice.lp": "limited practice", "waiver.proof.down": "▼", "waiver.proof.downTip": "Down from the week before", "waiver.proof.flat": "–", "waiver.proof.flatTip": "Same as the week before", "waiver.proof.noRank": "—", "waiver.proof.up": "▲", "waiver.proof.upTip": "Up from the week before", "waiver.rail.adds": "{n} teams added {name} this week", "waiver.rail.addsOne": "1 team added {name} this week", "waiver.rail.bench": "bench over {over}, {margin}", "waiver.rail.drop": "{by} dropped {name} ({pos}) · {what}", "waiver.rail.fa": "is FA", "waiver.rail.healthy": "healthy", "waiver.rail.kind.adds": "Adds", "waiver.rail.kind.drop": "Drop", "waiver.rail.kind.path": "Path", "waiver.rail.kind.status": "Status", "waiver.rail.need": "fills your {pos} need", "waiver.rail.none": "No wire moves since {day}", "waiver.rail.noneYet": "No wire moves yet", "waiver.rail.path": "{because} {why} → {name} {avail}", "waiver.rail.pathVerdict": "{path} · {what}", "waiver.rail.showAll": "Show all {n}", "waiver.rail.start": "starts over {over} at {slot}, {margin}", "waiver.rail.status": "{name}: {from} → {to}", "waiver.rail.title": "Breaking", "waiver.rail.unknown": "(availability unknown)", "waiver.rail.waiver": "is on waivers until {when}", "waiver.rail.waiverNoWhen": "is on waivers", "waiver.section.count": "· {n}", "waiver.section.more": "top 5 shown, {n} more not", "waiver.section.must": "Must claim", "waiver.section.watch": "Watch", "waiver.section.worth": "Worth a claim", "waiver.summary.rule": "RULE", "waiver.summary.ruleTip": "Built from a template: the written summary did not pass its fact check", "waiver.swap.bench": "Bench over {over}, {margin}", "waiver.swap.drop": " · drop {name}", "waiver.swap.need": "Fills your {pos} need", "waiver.swap.start": "Starts over {over} at {slot}, {margin}", "waiver.tier.must": "Must claim", "waiver.tier.spec": "Speculative", "waiver.tier.stash": "Stash", "waiver.tier.watch": "Watch", "waiver.tier.worth": "Worth a claim", "waiver.trend.label": "Week by week", "waiver.trend.point": "Week {wk}: {v}", "waiver.trend.week": "Week {a}", "waiver.trend.weeks": "Weeks {a}–{b}", "waiver.unit.perWeek": "{m}/wk"};
 /* ── js/data/teams.js ── */
 /* ------------------------------------------------------------------
    Team shells. Rosters are real (Yahoo draft 2026-09-07, ESPN draft 2026-09-08); the Yahoo list
@@ -4096,28 +4081,11 @@ function projFor(p){
   return proj && typeof proj.pts === "number" ? proj.pts : null;
 }
 
-/* The roster row's one number on a phone, Robinhood's price box: projected points, filled in the
-   colour of the trend line beside it. No projection prints a dash in a quiet box, never a zero. */
+/* The roster row's one number at every width, Robinhood's price box: projected points, filled in
+   the colour of the trend line beside it. No projection prints a dash in a quiet box, never a zero. */
 function projPillHTML(p){
   const pts = projFor(p);
   return `<div class="vpill rproj ${pts === null ? "none" : trendDir(p.trend)}">${pts === null ? "—" : pts.toFixed(1)}</div>`;
-}
-
-function deltaHTML(d){
-  if (d === null || d === undefined) return `<span class="delta new">${t("teams.delta.none")}</span>`;
-  const k = d > 1.5 ? "up" : d < -1.5 ? "down" : "flat";
-  const g = k === "up" ? "▲" : k === "down" ? "▼" : "—";
-  return `<span class="delta ${k}" title="${t("teams.delta.tip")}">${g} ${t("teams.delta.pts", {d: (d>0?"+":"") + d.toFixed(1)})}</span>`;
-}
-
-function rankHTML(p){
-  const [r, of, mv, pct] = p.rank;
-  if (r === null) return `<div class="rk-1"><b style="color:var(--ink-3)">—</b><small>${t("teams.rank.unranked")}</small></div>
-    <div class="pctbar"></div>`;
-  const mk = mv > 0 ? "up" : mv < 0 ? "down" : "flat";
-  const mg = mv > 0 ? `▲${mv}` : mv < 0 ? `▼${Math.abs(mv)}` : "—";
-  return `<div class="rk-1"><b>${p.pos}${r}</b><small>${t("teams.rank.of", {n: of})}</small><span class="mv ${mk}">${mg}</span></div>
-    <div class="pctbar"><i style="--w:${Math.round(pct*100)}%"></i></div>`;
 }
 
 /* ── js/ui/matchup.js ── */
@@ -4163,49 +4131,36 @@ function matchupRankText(prof){
     : t("profile.matchup.rankTough", {nth: ordinal(f.of - n + 1), of: f.of, pos: esc(prof.pos)});
 }
 
-/* The same rank as a clause on the row's meta line, shown only at phone width (430.css) where the
-   column would crowd the trend line. No rank: no clause at all. */
+/* The roster row's matchup, a clause on its meta line since the Matchup column went (2026-09-25):
+   "@ KC 20th", the ordinal's title saying what it ranks. A phone drops the ordinal (lists.css); it
+   is the profile's there. No rank -- a bye, no profile -- is no clause at all. */
 function matchupMetaHTML(prof){
   const nx = prof && prof.next;
   const n = nx ? easiestRank(nx.factor) : null;
   if (n === null) return "";
-  return `<span class="mu-meta"><span class="mu-dot">·</span>${whereWord(nx)} ${esc(nx.opp)} <b class="mu-n ${matchupClass(n, nx.factor.of)}">${ordinal(n)}</b></span>`;
-}
-
-/* The roster row's MATCHUP cell: "@ KC  20th", or a muted dash on a bye or with no rank. */
-function matchupCellHTML(prof){
-  const nx = prof && prof.next;
-  const n = nx ? easiestRank(nx.factor) : null;
-  if (n === null) return `<span class="mu-none">—</span>`;
-  return `<span class="mu-opp">${whereWord(nx)} ${esc(nx.opp)}</span>`
-    + `<b class="mu-n ${matchupClass(n, nx.factor.of)}" title="${matchupRankText(prof)}">${ordinal(n)}</b>`;
+  return `<span class="mu-meta">${whereWord(nx)} ${esc(nx.opp)} <b class="mu-n ${matchupClass(n, nx.factor.of)}" title="${matchupRankText(prof)}">${ordinal(n)}</b></span>`;
 }
 /* ── js/surface/teams/board.js ── */
+/* The roster row at every width since 2026-09-25: who, which way, one number (the storyboard's
+   rule, design/DESIGN.md "Phone layout"). A head with its Q/O badge, the name over "RB · BAL @ DAL
+   16th", the snap-share line, the projection pill. Desktop used to add a slot box, a matchup column,
+   a market delta, a rank and a news count -- five more things per row, most of them a dash until
+   the books priced the week. The rank and the market are the profile's; news is the brief's. */
 function rowHTML(p, i, teamKey){
   const cls = p.slot === "OUT" ? "out" : p.start ? "start" : "bench";
-  const st = p.statusText || p.status;
-  const tag = st ? `<span class="tag ${p.status==="OUT"?"o":"q"}">${esc(st)}</span>` : "";
-  const dual = p.dual ? `<span class="tag dual">${t("teams.row.dual")}</span>` : "";
-  const verdict = p.verdict ? `<span class="tag verdict" title="${esc(p.why)}">${esc(p.verdict)}</span>` : "";
   const badge = p.status ? `<span class="badge ${p.status==="OUT"?"o":"q"}">${p.status==="OUT"?"!":"Q"}</span>` : "";
   const rd = 40+i*32;
+  const snap = p.trend ? t("teams.row.snapTip", {n: Math.round(p.trend[p.trend.length-1])}) : t("teams.row.snapNone");
   return `<div class="row ${cls}" style="animation-delay:${rd}ms;--rowdelay:${rd}ms" data-team="${teamKey}" data-i="${i}" role="button" tabindex="0">
-    <div class="slot"><span>${esc(p.slot)}</span></div>
     <div class="head">${headHTML(p)}${badge}</div>
     <div class="nm">
-      <div class="nm-1"><b>${esc(p.n)}</b>${tag}${verdict}${dual}</div>
+      <div class="nm-1"><b>${esc(p.n)}</b></div>
       <div class="nm-2">
-        <span class="slotm">${esc(p.slot)}</span>
-        <span><em class="posx" style="font-style:normal">${esc(p.pos)} · </em>${esc(p.team)}</span>
+        <span>${esc(p.pos)} · ${esc(p.team)}</span>
         ${matchupMetaHTML(profileFor(p))}
       </div>
     </div>
-    <div class="match">${matchupCellHTML(profileFor(p))}</div>
-    <div class="trend">${sparkHTML(p.trend,100,34)}${deltaHTML(p.d)}</div>
-    <div class="rk">${rankHTML(p)}</div>
-    <div class="news">${p.news
-      ? `<span class="newstag ${p.hot?"hot":""}">${NEWS_ICON}<b>${p.news}</b></span>`
-      : `<span class="newstag empty">–</span>`}</div>
+    <div class="trend" title="${snap}">${sparkHTML(p.trend,80,30)}</div>
     ${projPillHTML(p)}
   </div>`;
 }
@@ -4217,21 +4172,78 @@ function boardHTML(team){
     [t("teams.group.out"), team.roster.filter(p=>p.slot==="OUT")],
   ].filter(g=>g[1].length);
   let n = 0;
-  return groups.map(([label, list], gi) => `
+  return groups.map(([label, list]) => `
     <div class="rule">
       <h2>${label}</h2><span class="count">${String(list.length).padStart(2,"0")}</span>
       <span class="hair"></span>
     </div>
-    ${gi===0 ? `<div class="colhead">
-      <details class="ch ch-match"><summary title="${t("teams.col.matchupTip")}">${t("teams.col.matchup")}</summary><p class="ch-note">${t("teams.col.matchupTip")}</p></details>
-      <span class="ch ch-trend">${t("teams.col.trend")}</span>
-      <span class="ch ch-rank">${t("teams.col.rank")}</span>
-      <span class="ch ch-news">${t("teams.col.news")}</span>
-    </div>` : ""}
     <div class="board">${list.map(p=>rowHTML(p, n++, team.key)).join("")}</div>
   `).join("");
 }
+/* ── js/surface/teams/brief.js ── */
+/* "This week": the roster's opening lines, 2026-09-24. It took the ticker's place, but where the
+   ticker crawled league-wide injury news, the brief names only this team's players and only what
+   asks for a decision: a starter with a status, a must-claim on this league's wire, a player the
+   news is about. Three lines at most, in that order, each one a tap to the thing it names. Read
+   from data the rows already carry -- nothing here computes a verdict of its own. */
 
+/* The profile index a roster row carries: starters, then bench, then out (drawer.js findPlayer). */
+function briefOrder(team){
+  return team.roster.filter(p=>p.start)
+    .concat(team.roster.filter(p=>!p.start && p.slot!=="OUT"))
+    .concat(team.roster.filter(p=>p.slot==="OUT"));
+}
+
+function briefLines(team){
+  const order = briefOrder(team), at = p => order.indexOf(p);
+  const names = ps => ps.map(p => esc(nameInitial(p.n))).join(", ");
+  const out = [];
+
+  const flagged = team.roster.filter(p => p.start && p.status);
+  if (flagged.length){
+    const worst = flagged.some(p => p.status === "OUT") ? "down" : "warn";
+    out.push({tone: worst, i: at(flagged[0]),
+      text: flagged.length === 1
+        ? t("teams.brief.status", {name: esc(nameInitial(flagged[0].n)), status: esc(flagged[0].statusText || flagged[0].status)})
+        : t("teams.brief.statusMany", {n: flagged.length, names: names(flagged)})});
+  }
+
+  const must = typeof waiverMustIn === "function" ? waiverMustIn(team.key) : 0;
+  if (must) out.push({tone: "lime", go: "waivers",
+    text: must === 1 ? t("teams.brief.mustOne") : t("teams.brief.mustMany", {n: must})});
+
+  const told = team.roster.filter(p => p.news).sort((a, b) => b.news - a.news || at(a) - at(b));
+  // "soft": worth reading, nothing to decide. A phone shows one line and never this kind (brief.css).
+  if (told.length) out.push({tone: "soft", i: at(told[0]),
+    text: told.length === 1
+      ? t("teams.brief.newsOne", {name: esc(nameInitial(told[0].n)), n: told[0].news})
+      : t("teams.brief.newsMany", {names: names(told.slice(0, 3))})});
+
+  return out.slice(0, 3);
+}
+
+function briefHTML(team){
+  const lines = briefLines(team);
+  const body = lines.length
+    ? lines.map(l => `<button class="brief-line ${l.tone}" ${l.go ? `data-go="${l.go}"` : `data-team="${team.key}" data-i="${l.i}"`}>
+        <span class="brief-dot"></span><span class="brief-txt">${l.text}</span><span class="brief-go" aria-hidden="true">&rsaquo;</span>
+      </button>`).join("")
+    : `<p class="brief-quiet">${t("teams.brief.quiet")}</p>`;
+  return `<section class="brief" aria-label="${t("teams.brief.title")}">
+    <h2 class="brief-h">${t("teams.brief.title")}</h2>${body}
+  </section>`;
+}
+
+/* From 1100px the brief is a sticky column beside the rows, pinned just under the nav -- the same
+   measurement Waivers' rail takes (wdesk.js wvRailSide), since the nav's height is not a token. */
+function wireBrief(v){
+  const rl = v.querySelector(".rl"), nav = document.querySelector(".navbar");
+  if (rl && nav) rl.style.setProperty("--rl-stick", `${Math.round((parseFloat(getComputedStyle(nav).top) || 0) + nav.offsetHeight)}px`);
+  v.querySelectorAll(".brief-line").forEach(el => el.addEventListener("click", () => {
+    if (el.dataset.go) navGo(el.dataset.go);
+    else openProfile(findPlayer(el.dataset.team, +el.dataset.i), el);
+  }));
+}
 /* ── js/surface/teams/proof.js ── */
 /* A waiver card's evidence: three usage stats chosen by position, each with his rank at the
    position that week and an arrow against the week before.
@@ -10468,9 +10480,12 @@ function buildConnect(){
    the chrome, one in the page -- read as two different kinds of choice when they are the same
    kind. The hero keeps only what it is for: whose team this is. The roster's three KPI tiles
    (trending up, trending down, news) went on 2026-09-24: each counted something the rows below
-   already show on their own, and on a phone they cost a screen-third before the first player. */
+   already show on their own, and on a phone they cost a screen-third before the first player.
+   Since 2026-09-25 the roster's hero is the phone's one line at every width (.hero.team, hero.css):
+   the team switch is the title. Waivers keeps the full hero, which carries its FAAB and claims. */
 function heroHTML(team){
-  return `<section class="hero">
+  const wire = SURFACE === "waivers" && !team.connected;
+  return `<section class="hero${wire ? "" : " team"}">
     <div class="numghost">${team.slot}</div>
     <div class="wrap hero-in">
       <div>
@@ -10485,7 +10500,7 @@ function heroHTML(team){
           <button class="leaguechip">${esc(team.meta[team.meta.length-1])} <span class="lc-info">ⓘ</span></button>
         </div>
       </div>
-      <div>${SURFACE === "waivers" ? waiverHeroHTML(team) : ""}</div>
+      ${wire ? `<div>${waiverHeroHTML(team)}</div>` : ""}
     </div>
   </section>`;
 }
@@ -10767,13 +10782,15 @@ function topbarBadge(){
     ? {tone:"live", full:t("chrome.badge.teamsLiveFull"), abbr:t("chrome.badge.teamsLiveAbbr")}
     : {tone:"warn", full:t("chrome.badge.defaultFull"), abbr:t("chrome.badge.sampleAbbr")};
 }
+/* Shown only when a view runs on sample data (2026-09-25). "Live" is the normal state, and a pill
+   announcing the normal state on every view is one more thing competing for the eye. */
 function paintBadge(){
   const b = topbarBadge(), el = document.getElementById("topbadge");
+  el.hidden = b.tone === "live";
   el.classList.toggle("warn", b.tone==="warn");
   el.classList.toggle("live", b.tone==="live");
   el.querySelector(".full").textContent = b.full;
   el.querySelector(".abbr").textContent = b.abbr;
-  if (SLATE_WEEK) document.querySelector("#weekpill .txt").textContent = t("chrome.weekpill.week", {week: SLATE_WEEK});
 }
 
 function render(){
@@ -10819,8 +10836,9 @@ function render(){
   // The deal and the rail's "new" flash are taken once per page load, on the first Waivers render.
   v.innerHTML = wire
     ? heroHTML(team) + `<div class="wrap">${waiverHTML(wvMotionTake())}</div>`
-    : heroHTML(team) + `<div class="wrap">${boardHTML(team)}</div>`;
+    : heroHTML(team) + `<div class="wrap rl">${briefHTML(team)}<div class="rl-rows">${boardHTML(team)}</div></div>`;
   fitTitle(v);
+  if (!wire) wireBrief(v);
   v.querySelector(".leaguechip")?.addEventListener("click", ()=>openLeagueInfo(team.key));
   wireTeamSwitch(v);
   wireProfiles(v);
@@ -10845,9 +10863,13 @@ function buildFeed(){
   const okCount = cells.filter(([,[s]])=>s==="ok").length;
   const worst = cells.some(([,[s]])=>s==="wait") ? "wait" : okCount===cells.length ? "ok" : "off";
   const dotColor = {ok:"var(--up)", wait:"var(--amber)", off:"var(--line-2)"}[worst];
+  // One pill, not two (2026-09-25): the week is its label, the dot is the sources' health, and the
+  // per-source detail is one tap away. The separate week pill went.
+  const count = t("chrome.feed.dataCount", {ok: okCount, n: cells.length});
+  const label = (typeof SLATE_WEEK !== "undefined" && SLATE_WEEK) ? t("chrome.weekpill.week", {week: SLATE_WEEK}) : count;
   el.innerHTML = `
-    <button class="status-btn" id="statusbtn" aria-haspopup="true" aria-expanded="false">
-      <span class="dot" style="background:${dotColor}"></span>${t("chrome.feed.dataCount", {ok: okCount, n: cells.length})}
+    <button class="status-btn" id="statusbtn" aria-haspopup="true" aria-expanded="false" title="${count}">
+      <span class="dot" style="background:${dotColor}"></span>${label}
     </button>
     <div class="status-menu" id="statusmenu" hidden>
       ${cells.map(([label,[state,text]]) =>
@@ -10933,7 +10955,6 @@ function buildFresh(){
   });
 }
 /* ── js/chrome/nav.js ── */
-const NEWS_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-4 4V16H4z"/></svg>`;
 /* One icon per group, not per view. Scouting keeps the old Pool chart mark because the scatter
    is still the first thing behind that tab; Bets keeps the parlay ticket for the same reason. */
 const NAV_ICON = {

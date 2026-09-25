@@ -1,4 +1,3 @@
-const NEWS_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-4 4V16H4z"/></svg>`;
 /* One icon per group, not per view. Scouting keeps the old Pool chart mark because the scatter
    is still the first thing behind that tab; Bets keeps the parlay ticket for the same reason. */
 const NAV_ICON = {

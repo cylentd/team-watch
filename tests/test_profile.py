@@ -111,7 +111,8 @@ def row(page, name):
 
 
 def cell(page, name):
-    return row(page, name).locator(".match")
+    """The row's matchup, a clause on its meta line since the Matchup column went (2026-09-25)."""
+    return row(page, name).locator(".mu-meta")
 
 
 @pytest.mark.render
@@ -134,15 +135,15 @@ def test_matchup_column_rows(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
     assert re.sub(r"\s+", " ", cell(page, "Amon-Ra St. Brown").inner_text()).strip() == "@ KC 9th"
     assert cell(page, "Amon-Ra St. Brown").locator(".mu-n").get_attribute("class").strip() == "mu-n"
-    assert cell(page, "Jahmyr Gibbs").inner_text().strip() == "—"          # bye
-    assert cell(page, "Jahmyr Gibbs").locator(".mu-none").count() == 1
-    assert cell(page, "Joe Burrow").locator(".mu-none").count() == 1      # no profile
+    assert cell(page, "Jahmyr Gibbs").count() == 0                         # bye: no clause
+    assert cell(page, "Joe Burrow").count() == 0                           # no profile: no clause
     page.evaluate("VIEW='espn'; render()")
     assert "mu-hard" in cell(page, "George Kittle").locator(".mu-n").get_attribute("class")
     assert "mu-easy" in cell(page, "Tee Higgins").locator(".mu-n").get_attribute("class")
     assert re.sub(r"\s+", " ", cell(page, "Tee Higgins").inner_text()).strip() == "vs PIT 8th"
-    tip = page.locator(".colhead .ch-match > summary").get_attribute("title")
-    assert tip.startswith("Rank among 32 defenses against his position")
+    # The ordinal says what it ranks in its title, since the column header that carried it went.
+    tip = cell(page, "Tee Higgins").locator(".mu-n").get_attribute("title")
+    assert "easiest of 32" in tip
     assert page.locator(".mchip").count() == 0
     assert errors == []
     ctx.close()

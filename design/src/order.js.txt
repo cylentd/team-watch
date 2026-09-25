@@ -23,6 +23,7 @@ lib/served.js
 ui/player.js
 ui/matchup.js
 surface/teams/board.js
+surface/teams/brief.js
 surface/teams/proof.js
 surface/teams/wcard.js
 surface/teams/wback.js

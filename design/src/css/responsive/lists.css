@@ -4,27 +4,10 @@
   /* The roster row on a phone, 2026-09-24: who, which way, one number. A 52px head, the name over
      "RB · BAL @ DAL", the trend line, and the projection pill. Rank, the matchup ordinal, the
      verdict and news tags all live one tap away in the profile; the Q/O badge stays on the head. */
-  .colhead{display:none}
-  .board{margin-top:4px;border-top:0}
-  .row{
-    grid-template-columns:52px minmax(0,1fr) 56px auto;
-    grid-template-areas:"head name trend proj";
-    gap:12px;padding:10px 0;
-  }
-  .row.bench,.row.out{background:none}
-  .row::before{display:none}
-  .slot,.match,.rk,.news,.delta{display:none}
-  .head,.head img,.head .fallback,.head .dst{width:52px;height:52px}
-  .row.start .head img{border-color:var(--line-2)}
-  .nm-1 b{font-size:var(--t-3);font-weight:600}
-  .nm-1 .tag{display:none}
-  .nm-2{font-family:var(--ui);font-size:var(--t-2);gap:0;letter-spacing:0;margin-top:3px}
-  .nm-2 .mu-meta{display:inline-flex;gap:4px;margin-left:4px}
-  .nm-2 .mu-dot,.nm-2 .mu-n{display:none}
-  .trend{gap:0}
+  .board{margin-top:4px}
+  .row{grid-template-columns:52px minmax(0,1fr) 56px auto;gap:12px;padding:10px 0;border-radius:0}
+  .nm-2 .mu-n{display:none}
   .spark{width:56px;height:24px}
-  .row .spark .area{display:none}
-  .row .spark path.line{stroke-width:2}
   .vpill{display:block}
   /* Filter rows on a phone: one line that scrolls sideways, pill chips in the UI face. The
      "Position" / "Filter" label goes; the chips name themselves. */

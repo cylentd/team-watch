@@ -20,13 +20,15 @@ function topbarBadge(){
     ? {tone:"live", full:t("chrome.badge.teamsLiveFull"), abbr:t("chrome.badge.teamsLiveAbbr")}
     : {tone:"warn", full:t("chrome.badge.defaultFull"), abbr:t("chrome.badge.sampleAbbr")};
 }
+/* Shown only when a view runs on sample data (2026-09-25). "Live" is the normal state, and a pill
+   announcing the normal state on every view is one more thing competing for the eye. */
 function paintBadge(){
   const b = topbarBadge(), el = document.getElementById("topbadge");
+  el.hidden = b.tone === "live";
   el.classList.toggle("warn", b.tone==="warn");
   el.classList.toggle("live", b.tone==="live");
   el.querySelector(".full").textContent = b.full;
   el.querySelector(".abbr").textContent = b.abbr;
-  if (SLATE_WEEK) document.querySelector("#weekpill .txt").textContent = t("chrome.weekpill.week", {week: SLATE_WEEK});
 }
 
 function render(){
@@ -72,8 +74,9 @@ function render(){
   // The deal and the rail's "new" flash are taken once per page load, on the first Waivers render.
   v.innerHTML = wire
     ? heroHTML(team) + `<div class="wrap">${waiverHTML(wvMotionTake())}</div>`
-    : heroHTML(team) + `<div class="wrap">${boardHTML(team)}</div>`;
+    : heroHTML(team) + `<div class="wrap rl">${briefHTML(team)}<div class="rl-rows">${boardHTML(team)}</div></div>`;
   fitTitle(v);
+  if (!wire) wireBrief(v);
   v.querySelector(".leaguechip")?.addEventListener("click", ()=>openLeagueInfo(team.key));
   wireTeamSwitch(v);
   wireProfiles(v);

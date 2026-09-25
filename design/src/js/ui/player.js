@@ -66,27 +66,10 @@ function projFor(p){
   return proj && typeof proj.pts === "number" ? proj.pts : null;
 }
 
-/* The roster row's one number on a phone, Robinhood's price box: projected points, filled in the
-   colour of the trend line beside it. No projection prints a dash in a quiet box, never a zero. */
+/* The roster row's one number at every width, Robinhood's price box: projected points, filled in
+   the colour of the trend line beside it. No projection prints a dash in a quiet box, never a zero. */
 function projPillHTML(p){
   const pts = projFor(p);
   return `<div class="vpill rproj ${pts === null ? "none" : trendDir(p.trend)}">${pts === null ? "—" : pts.toFixed(1)}</div>`;
-}
-
-function deltaHTML(d){
-  if (d === null || d === undefined) return `<span class="delta new">${t("teams.delta.none")}</span>`;
-  const k = d > 1.5 ? "up" : d < -1.5 ? "down" : "flat";
-  const g = k === "up" ? "▲" : k === "down" ? "▼" : "—";
-  return `<span class="delta ${k}" title="${t("teams.delta.tip")}">${g} ${t("teams.delta.pts", {d: (d>0?"+":"") + d.toFixed(1)})}</span>`;
-}
-
-function rankHTML(p){
-  const [r, of, mv, pct] = p.rank;
-  if (r === null) return `<div class="rk-1"><b style="color:var(--ink-3)">—</b><small>${t("teams.rank.unranked")}</small></div>
-    <div class="pctbar"></div>`;
-  const mk = mv > 0 ? "up" : mv < 0 ? "down" : "flat";
-  const mg = mv > 0 ? `▲${mv}` : mv < 0 ? `▼${Math.abs(mv)}` : "—";
-  return `<div class="rk-1"><b>${p.pos}${r}</b><small>${t("teams.rank.of", {n: of})}</small><span class="mv ${mk}">${mg}</span></div>
-    <div class="pctbar"><i style="--w:${Math.round(pct*100)}%"></i></div>`;
 }
 

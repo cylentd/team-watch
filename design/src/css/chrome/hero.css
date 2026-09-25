@@ -46,3 +46,21 @@
 .leaguechip:hover{border-color:var(--ink-2);color:var(--ink)}
 .leaguechip .lc-info{opacity:.55;font-size:var(--t-1)}
 
+/* The roster's hero at every width (2026-09-25): one line, the team switch as the title, the
+   platform, record and league beside it. The phone had it first (responsive/760.css); desktop
+   dropped the ghost numeral, the uppercase name that repeated the switch, and the bordered chip. */
+.hero.team{padding:28px 0 4px}
+.hero.team .numghost,.hero.team h1.fit,.hero.team .league-mark,.hero.team .hero-eyebrow .lbl{display:none}
+.hero.team .hero-in{grid-template-columns:minmax(0,1fr);gap:4px}
+.hero.team .hero-eyebrow{flex-wrap:nowrap;margin-bottom:0}
+.hero.team .teamswitch{position:relative;top:auto;right:auto;order:1;min-width:0;padding:0;margin:0}
+.hero.team .ts-btn{background:none;border:0;padding:4px 0;min-width:0;gap:10px}
+.hero.team .ts-team{font-family:var(--disp);font-size:var(--t-6);font-weight:700;max-width:none;
+  overflow:hidden;text-overflow:ellipsis}
+.hero.team .ts-chev{font-size:var(--t-2)}
+.hero.team .ts-menu{left:0;right:auto}
+.hero.team .hero-rec{display:inline}
+.hero.team .leaguechip{border:0;padding:0;letter-spacing:.06em;color:var(--ink-3)}
+.hero.team .leaguechip:hover{color:var(--ink)}
+.hero.team .hero-rec + .leaguechip::before{content:"·";margin-right:10px;color:var(--ink-3)}
+
