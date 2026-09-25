@@ -68,7 +68,7 @@ GD_CATCHUP = {swing: {me: 21.5, opp: 3.0}, movers: [
 # out here (rather than trusting the group button's "return me to where I was") keeps a state
 # reachable in the same way no matter which state ran before it.
 GROUP = {"roster": "teams", "waivers": "teams",
-         "board": "scouting", "pool": "scouting", "usage": "scouting", "news": "scouting",
+         "board": "scouting", "usage": "scouting", "news": "scouting",
          "parlay": "bets", "dfs": "bets", "live": "gameday"}
 
 
@@ -87,6 +87,8 @@ def bdpick(q):
             ("eval", f"document.getElementById('search-q').value = {q!r}; searchPaint()"),
             ("click", "#sr-0")]
 
+
+MOVERS = go("board") + [("click", "[data-bdmode='movers']")]
 
 STATES = [
     # The page opens on the Board since 2026-09-24, so the roster states navigate there.
@@ -139,8 +141,12 @@ STATES = [
     # fixture-built page at all, and is checked against the live build instead.
     ("board-qb", go("board") + [("click", "[data-bdpos='QB']")] + bdpick("burrow")),
     ("board-wr", go("board") + [("click", "[data-bdpos='WR']")]),
-    ("pool", go("pool")),
-    ("pool-drawer", go("pool") + [("click", "[data-pool]")]),
+    # Movers, the Board's second mode since 2026-09-25 (a view of its own before): the fixture
+    # falls back to the sample pool, which has share moves, so it sorts on them; -wait blanks every
+    # move to reach the week-1 path, where the list ranks by share under one line saying why.
+    ("board-movers", MOVERS),
+    ("board-movers-wait", [("eval", "POOL.forEach(r => { r.dShare = null; })")] + MOVERS),
+    ("board-movers-drawer", MOVERS + [("click", "[data-pool]")]),
     # The usage grid: the default RB week-2 level view, the same grid as week-over-week change
     # (the mode the level view cannot show), a QB grid because its columns are the ones with no
     # counterpart anywhere else in the app, and the profile modal a row opens.
@@ -162,8 +168,8 @@ STATES = [
     ("chat-open", [("click", "#chatfab")]),
     ("chat-ready", [("eval", "chatSetPass('x')"), ("click", "#chatfab")]),
     # The reason it is a floating panel and not a tab: it stays open over another surface, so
-    # you can read a player's row while asking about him. #view must still be the pool here.
-    ("chat-over-pool", go("pool") + [("click", "#chatfab")]),
+    # you can read a player's row while asking about him. #view must still be Movers here.
+    ("chat-over-movers", MOVERS + [("click", "#chatfab")]),
     # Player search: idle (the roster, since a fresh browser has no recents), and a query that
     # hits a typo, a hyphenated name and two leagues' tags at once.
     ("search-idle", [("click", "#navsearch")]),
@@ -293,6 +299,8 @@ def test_no_console_errors(snapshot):
 
 @pytest.mark.parametrize("leaf,group,label", [
     ("board", "scouting", "BOARD"),
+    ("movers", "scouting", "BOARD"),   # the Board's Movers mode
+    ("pool", "scouting", "BOARD"),     # the old Movers view's hash, kept for bookmarks
     ("usage", "scouting", "GRID"),
     ("waivers", "teams", "WAIVERS"),
     ("parlay", "bets", "PARLAY"),
@@ -316,6 +324,33 @@ def test_a_hash_opens_its_view(browser, page_file, leaf, group, label):
         page.locator(".navitem[data-s='teams']").first.click()
         page.wait_for_timeout(120)
         assert page.evaluate("location.hash") == "#roster"
+    finally:
+        ctx.close()
+
+
+@pytest.mark.parametrize("hash", ["#movers", "#pool"])
+def test_movers_hash_opens_the_board_in_movers(browser, page_file, hash):
+    """Movers was a view until 2026-09-25 and is the Board's second mode now: its hash, old or
+    new, must open the Board with Movers pressed, a switch must write the hash, and Back must
+    undo the switch rather than leave the Board."""
+    ctx = browser.new_context(viewport={"width": 390, "height": 844}, reduced_motion="reduce")
+    page = ctx.new_page()
+    page.set_default_timeout(5000)
+    page.route(re.compile(r"^https?://"), lambda route: route.abort())
+    page.add_init_script(SEED)
+    try:
+        page.goto(page_file.as_uri() + hash)
+        page.wait_for_function("document.getElementById('view').children.length > 0")
+        assert page.evaluate("[SURFACE, BD_MODE]") == ["board", "movers"]
+        assert page.locator("[data-bdmode='movers'][aria-pressed='true']").count() == 1
+        assert page.locator("[data-bdadd]").count() == 0, "+ Add player belongs to Leaders only"
+        page.locator("[data-bdmode='leaders']").click()
+        page.wait_for_timeout(120)
+        assert page.evaluate("[location.hash, BD_MODE]") == ["#board", "leaders"]
+        page.go_back()
+        page.wait_for_function("BD_MODE === 'movers'")
+        assert page.locator("[data-pool]").count() > 0
+        assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
     finally:
         ctx.close()
 
@@ -371,12 +406,12 @@ def test_chat_panel_survives_a_surface_change(snapshot):
     """The whole reason it is a floating panel: open it, switch surface, and it is still there
     with the page behind it changed. As a tab, asking about a player meant leaving his row."""
     out, _ = snapshot
-    over_pool = out["desk"]["chat-over-pool"]
+    over_pool = out["desk"]["chat-over-movers"]
     assert over_pool["chatOpen"], "the panel closed when the surface changed"
     assert "chatinput" in over_pool["chat"], "the composer is gone"
-    # #view is the pool, not the chat -- the panel is over the page, not instead of it.
+    # #view is Movers, not the chat -- the panel is over the page, not instead of it.
     assert "dotg" in over_pool["view"] or "data-pool" in over_pool["view"], \
-        "#view is not the pool; the panel replaced the surface instead of floating over it"
+        "#view is not Movers; the panel replaced the surface instead of floating over it"
 
 
 def diff(golden, now, limit=25):

@@ -41,6 +41,7 @@ surface/usage/usage.css
 # pin: board.css after pool.css -- the Board's controls are pool.css's .filters and .chip, and
 #      this file only adds beside them. It defines no selector either of them owns.
 surface/board/board.css
+surface/board/modes.css
 surface/chat/chat.css
 surface/live/live.css
 surface/strip/field.css

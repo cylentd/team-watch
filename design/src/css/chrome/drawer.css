@@ -13,7 +13,10 @@
 .dr-close{position:absolute;top:16px;right:16px;width:30px;height:30px;border:1px solid var(--line-2);background:none;color:var(--ink-3);cursor:pointer;font-family:var(--mono);border-radius:2px;transition:all .2s var(--ease)}
 .dr-close:hover{border-color:var(--down);color:var(--down)}
 .dr-close:active{transform:scale(.92)}
-.dr-id{display:flex;gap:14px;align-items:center}
+/* The close button is absolute, so the name keeps its column clear of it (30px + 16px inset, less
+   the head's own 22px padding) and wraps rather than running under it. */
+.dr-id{display:flex;gap:14px;align-items:center;padding-right:28px}
+.dr-id > div{min-width:0;overflow-wrap:anywhere}
 .dr-id img,.dr-id .fallback{width:64px;height:64px;border-radius:99px;object-fit:cover;border:1px solid var(--line-2);background:var(--panel-3)}
 .dr-id .fallback{display:grid;place-items:center;font-family:var(--mono);font-weight:700;color:var(--ink-3)}
 .dr-id h3{font-family:var(--disp);font-weight:800;font-size:var(--t-5);line-height:1;letter-spacing:-.03em;margin:0 0 7px;text-transform:uppercase}

@@ -1,5 +1,5 @@
-/* One icon per group, not per view. Scouting keeps the old Pool chart mark because the scatter
-   is still the first thing behind that tab. Bets is a banknote (2026-09-25): the three slider
+/* One icon per group, not per view. Scouting keeps the old Pool chart mark: the scatter is the
+   Board's Movers mode since 2026-09-25. Bets is a banknote (2026-09-25): the three slider
    knobs it used to wear read as settings. */
 const NAV_ICON = {
   teams: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="7" r="2.4" opacity=".55"/><path d="M15.5 14.2c2.6.4 4.5 2.2 4.5 5.3" opacity=".55"/></svg>`,
@@ -8,13 +8,14 @@ const NAV_ICON = {
   gameday: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/><path d="M8.1 8.1a5.5 5.5 0 0 0 0 7.8"/><path d="M15.9 15.9a5.5 5.5 0 0 0 0-7.8"/><path d="M5.2 5.2a9.6 9.6 0 0 0 0 13.6" opacity=".55"/><path d="M18.8 18.8a9.6 9.6 0 0 0 0-13.6" opacity=".55"/></svg>`,
 };
 /* Four groups, each holding the views that answer one question. Seven flat tabs fitted no phone
-   and, worse, implied seven peers: Movers and Grid are two readings of the same usage data, and
+   and, worse, implied seven peers: Board and Grid are two readings of the same usage data, and
    Roster and Waivers were already a pair hidden inside the hero. Grouping says which is which.
+   Movers left the table on 2026-09-25 to become the Board's second mode (board.js).
    Gameday holds one view today and exists as a group because that is where a live surface grows.
    Each leaf's label is its own key, so a rename here never silently changes a heading elsewhere. */
 const NAV = [
   ["teams",    ["roster", "waivers"]],
-  ["scouting", ["board", "pool", "usage", "news"]],
+  ["scouting", ["board", "usage", "news"]],
   ["bets",     ["parlay", "dfs"]],
   ["gameday",  ["live"]],
 ];
@@ -24,7 +25,7 @@ const NAV = [
    it -- the build would pass while the label rendered blank. */
 const navLabel = leaf => ({
   roster: t("nav.tab.roster"), waivers: t("nav.tab.waivers"), board: t("nav.tab.board"),
-  pool: t("nav.tab.movers"), usage: t("nav.tab.grid"), news: t("nav.tab.news"),
+  usage: t("nav.tab.grid"), news: t("nav.tab.news"),
   parlay: t("nav.tab.parlay"), dfs: t("nav.tab.dfs"), live: t("nav.tab.live"),
 }[leaf] || leaf);
 
@@ -83,19 +84,28 @@ function paintSubnav(){
    roster -- which matters more now that there are eight views instead of one. Only the view: the
    grid's position and week reset, and that is a deliberate line, because every control that
    learns the URL is another thing to keep in step with it. */
+/* One exception, since 2026-09-25: the Board's Movers mode is #movers. Movers was a view of its
+   own until then, so a bookmark to it -- #pool, its old leaf -- must still land on it, and a
+   reload in it should stay in it. Every other control's state stays out of the URL. */
+const NAV_MOVERS_HASH = ["movers", "pool"];
+const navHash = () => (location.hash || "").replace(/^#\/?/, "");
+const navHashIsMovers = () => NAV_MOVERS_HASH.includes(navHash());
+const navHashOf = leaf => leaf === "board" && BD_MODE === "movers" ? "movers" : leaf;
 const navFromHash = () => {
-  const leaf = (location.hash || "").replace(/^#\/?/, "");
+  const leaf = navHash();
+  if (NAV_MOVERS_HASH.includes(leaf)) return "board";
   return NAV.some(([, tabs]) => tabs.includes(leaf)) ? leaf : null;
 };
 
 function navGo(leaf, fromHash){
   LAST_LEAF[navGroupOf(leaf)] = leaf;
   SURFACE = leaf;
+  if (fromHash && leaf === "board") BD_MODE = navHashIsMovers() ? "movers" : "leaders";
   const active = navGroupOf(leaf);
   document.querySelectorAll("#nav .navitem")
     .forEach(x => x.setAttribute("aria-current", x.dataset.s === active));
   // Writing the hash back during a hashchange would re-enter this and fight the Back button.
-  if (!fromHash) location.hash = leaf;
+  if (!fromHash) location.hash = navHashOf(leaf);
   paintSubnav();
   render();
   // Moving to a view is the moment you are about to read it, so it is the moment to ask whether
@@ -123,7 +133,8 @@ function buildNav(){
      everyone tries first. The guard keeps a hash we just wrote from re-rendering the same view. */
   window.addEventListener("hashchange", () => {
     const leaf = navFromHash();
-    if (leaf && leaf !== SURFACE) navGo(leaf, true);
+    const modeMoved = leaf === "board" && navHashIsMovers() !== (BD_MODE === "movers");
+    if (leaf && (leaf !== SURFACE || modeMoved)) navGo(leaf, true);
   });
   paintSubnav();
 }

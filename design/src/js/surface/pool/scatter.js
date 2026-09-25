@@ -1,12 +1,14 @@
 /* Corner names plus a faint wash on the two corners that carry a decision: top-right (role up,
    points still owed) is the buy, bottom-left (role down, points ran ahead) the sell. Drawn first,
-   so the grid lines and dots sit on top. */
-function quadrantsHTML(W, H, PX, PY, cx, cy){
+   so the grid lines and dots sit on top. `drop` moves the names one line in from the top and
+   bottom edges, where the axis ticks ("POINTS OWED", "RAN HOT") sit: on the phone's narrow box
+   the vertical axis lands close enough to a corner that the two ran into each other. */
+function quadrantsHTML(W, H, PX, PY, cx, cy, drop){
   const names = [
-    [W-PX-8, PY+16,  "end",   t("pool.quad.buyLow"), "good"],
-    [PX+8,   PY+16,  "start", t("pool.quad.fading"), ""],
-    [W-PX-8, H-PY-10,"end",   t("pool.quad.confirmed"), ""],
-    [PX+8,   H-PY-10,"start", t("pool.quad.sellHigh"), "bad"],
+    [W-PX-8, PY+16+drop,  "end",   t("pool.quad.buyLow"), "good"],
+    [PX+8,   PY+16+drop,  "start", t("pool.quad.fading"), ""],
+    [W-PX-8, H-PY-10-drop,"end",   t("pool.quad.confirmed"), ""],
+    [PX+8,   H-PY-10-drop,"start", t("pool.quad.sellHigh"), "bad"],
   ].map(([x,y,a,label,tone]) => `<text class="qname ${tone}" x="${x}" y="${y}" text-anchor="${a}">${label}</text>`).join("");
   return `<rect class="qwash good" x="${cx}" y="${PY}" width="${W-PX-cx}" height="${cy-PY}"/>
     <rect class="qwash bad" x="${PX}" y="${cy}" width="${cx-PX}" height="${H-PY-cy}"/>${names}`;
@@ -30,7 +32,7 @@ function scatterHTML(rows){
   const X = v => PX + ((v + xm) / (2*xm)) * (W - PX*2);
   const Y = v => H - PY - ((-v + ym) / (2*ym)) * (H - PY*2);
   const cx = X(0), cy = Y(0);
-  const quads = quadrantsHTML(W, H, PX, PY, cx, cy);
+  const quads = quadrantsHTML(W, H, PX, PY, cx, cy, mobile ? 18 : 0);
 
   // Labels sit to the right of their dot; when that would collide with one already
   // placed, the label flips above instead. Cheap, and it keeps every name readable.

@@ -1,7 +1,8 @@
 /* ============================== VALUE PILL ============================== */
 /* A row's one number on a phone, Robinhood's price box: filled in the colour of the way it is
-   moving, quiet grey when flat, dimmed text when there is no number. Movers uses it for role
-   share (the roster did until 2026-09-25; its number is now .rproj, neutral with an arrow). The
+   moving, quiet grey when flat, dimmed text when there is no number. Movers uses it for the share
+   change it sorts on, or role share before any exists (the roster did until 2026-09-25; its
+   number is now .rproj, neutral with an arrow). The
    desktop rows have columns for these numbers, so it shows only at phone width (responsive/lists.css). */
 .vpill{
   display:none;justify-self:end;min-width:62px;padding:8px 6px;border-radius:8px;

@@ -5,7 +5,7 @@ Four surfaces, one console:
 | # | Surface | Question it answers |
 |---|---|---|
 | 01 | My teams | What moved on my two rosters, and what do I do about it |
-| 02 | The pool | Which player anywhere in the league is taking over a role |
+| 02 | The Board | Who leads each stat (Leaders), and who anywhere is taking over a role (Movers, the old Pool) |
 | 03 | Parlay | Which of the model's best slips do I take, or what do I build myself |
 | 04 | DFS | Which precomputed lineup do I load, or what do I build myself |
 
@@ -56,7 +56,7 @@ question: who, which way, one number.
 | Roster hero | one line at every width since 2026-09-25: the team switch is the title, "Yahoo · 0-0 · league" beside it; Waivers keeps its full hero | `chrome/hero.css` `.hero.team` |
 | This week | the roster's brief (`js/surface/teams/brief.js`): a starter's status (red out, amber other), a must-claim (lime), who the news names (grey). Desktop from 1100px: up to three lines in a sticky column beside the rows; 761-1099px: above the rows; phone: one line, a decision only, else nothing | `surface/teams/brief.css` |
 | Topbar (desktop) | one pill: the week, its dot the sources' health; the live badge shows only on sample data | `js/chrome/feed.js`, `js/chrome/render.js` |
-| Movers row | 52px head, name, role-share pill | `responsive/lists.css` |
+| Movers row | 52px head, name over verdict chip, share-change pill (role share before week 2) | `responsive/lists.css` |
 | Value pill | filled green/red by direction, grey when flat; Movers only since 2026-09-25 | `component/vpill.css` |
 | KPI tiles | removed at every width (roster and parlay) | — |
 
@@ -121,39 +121,6 @@ page's right edge on a phone, so the rail rows and card footers keep `--fab-clea
 Superseded 2026-09-24: the chat launcher is in the nav row and covers nothing. The rail is three
 rows + Show all on every day, not only Tuesday (the Mode row above is superseded on that point),
 and a phone card front drops the proof stats and lane tag; the back still has both.
-
-## The pool
-
-Ranked on usage, never points. The anchor is a quadrant scatter: **x = change in snap/target
-share, y = points still owed (luck, sign flipped).** The four corners are the whole product.
-Since 2026-09-16 it reads the usual way, best top-right to worst bottom-left; plotting luck itself
-put the sells on top and the cloud read as an upside-down V.
-
-| Quadrant | Meaning | Action |
-|---|---|---|
-| upper right (green wash) | role growing, points not caught up | **buy low** |
-| lower right | role and box score agree | confirmed, hold |
-| upper left | role shrinking, points were unlucky anyway | fade |
-| lower left (red wash) | points ran ahead of a shrinking role | sell high |
-
-**Live since 2026-09-17** (`LIVE_POOL`, `design/pool.py`): watch.json's league-wide pool, every
-back and quarterback with 8+ opportunities and every receiver with 4+ (171 players in week 1; one
-floor of 8 kept only 22 WRs and 5 TEs). The share a row shows is the one watch's verdict reads (carries for a
-back, targets for a receiver or tight end, snaps for a quarterback), ranked by that share with
-quarterbacks last. "Free in" comes from watch's `rostered_by`: Mine, Both, ESPN, Yahoo, or a dash.
-Share moves need two weeks, so through week 1 the chart says when it fills in rather than plotting
-nothing. The 16 hand-typed rows in `data/pool.js` are only the fallback when watch.json is missing.
-
-Dot size is snaps. A lime ring means he is on one of my rosters. Table below repeats it as rows
-so the numbers are readable, paginated 10 at a time (2026-09-09) once real usage data makes the
-list run long — the sample data's 16 fits on two pages.
-
-On mobile (2026-09-09) the chart draws to a taller, narrower geometry sized close to 1:1 with the
-actual screen instead of the desktop box scaled down to ~35% (which is what forced a horizontal
-swipe to read anything). Per-dot name labels drop at that size — 16 of them collide regardless of
-box shape, and the table right below already names every player — dots stay tappable into the
-same drawer. Quadrant corner labels shortened to one word each (`CONFIRMED`, `SELL HIGH`, `BUY
-LOW`, `FADING`) at both sizes, the explanatory phrase folded into the intro line instead.
 
 ## The Board (Scouting's first view, 2026-09-23)
 
@@ -245,6 +212,54 @@ his position and keeps only him; refusing it would make the reader undo a search
 The lane head is two fixed rows at every width: letting it wrap
 fitted 360px, but only the lanes whose axis publishes a threshold wrapped, so three heads were one
 line and three were two and the six stopped sharing a baseline down the card.
+
+### Two modes: Leaders · Movers (2026-09-25)
+
+Movers was its own view (the old Pool, `#pool`) until 2026-09-25. It is now the Board's second
+mode: two readings of one position, so they share the position chip.
+
+| Mode | What it answers | Controls under the chip |
+|---|---|---|
+| Leaders | who leads each stat (the lanes above) | "+ Add player", the picks |
+| Movers | whose role is growing, week on week | the pager; a row opens the drawer |
+
+- **The switch** sits directly under the position chips. It is the builder's `.modes-sub.dock`,
+  the same control Parlay and DFS switch books with: a full-width segmented pill on a phone, the
+  mono boxed toggle on a desktop.
+- **One filter.** Movers has no chips and no ALL of its own; the Board's chip filters it. A chip
+  is offered when the mode has something to draw for it.
+- **The hash** is the one exception to "only the view is in the URL": Movers is `#movers`, and
+  the old `#pool` still opens it, so a bookmark survives. Leaders is `#board`. A switch writes the
+  hash, so Back undoes it.
+
+**Movers, the mode.** Ranked on usage, never points: the rows sort by share change, largest rise
+first, a row with no move below every row with one. The anchor is a quadrant scatter: **x =
+change in snap/target share, y = points still owed (luck, sign flipped).** Best is top-right,
+worst bottom-left; plotting luck itself put the sells on top and read as an upside-down V.
+
+| Quadrant | Meaning | Action |
+|---|---|---|
+| upper right (green wash) | role growing, points not caught up | **buy low** |
+| lower right | role and box score agree | confirmed, hold |
+| upper left | role shrinking, points were unlucky anyway | fade |
+| lower left (red wash) | points ran ahead of a shrinking role | sell high |
+
+**Before a second week.** A share move needs two weeks. While no row anywhere has one, there is
+no chart, the list ranks by role share, and one plain line above it says so (`pool.wait.line`).
+
+**Live since 2026-09-17** (`LIVE_POOL`, `design/pool.py`): watch.json's league-wide pool, every
+back and quarterback with 8+ opportunities and every receiver with 4+. The share a row shows is the
+one watch's verdict reads (carries for a back, targets for a receiver or tight end, snaps for a
+quarterback). "Free in" comes from watch's `rostered_by`: Mine, Both, ESPN, Yahoo, or a dash. The
+16 hand-typed rows in `data/pool.js` are only the fallback when watch.json is missing.
+
+Dot size is snaps; a lime ring means he is on one of my rosters. The list pages 10 at a time. A
+desktop row has every column: snaps, Δ snaps, share, Δ share, verdict, free in. A phone row is
+head, the name ("B. Allen") over the verdict chip, and the number the list sorts on in a `.vpill`:
+the signed share change, or role share before one exists. The rest is the drawer's.
+
+On a phone the chart draws to a taller, narrower geometry sized close to 1:1 with the screen,
+per-dot names dropped (the list below names every player); dots stay tappable into the drawer.
 
 ## Parlay and DFS
 

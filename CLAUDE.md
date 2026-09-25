@@ -80,13 +80,15 @@ question; `SURFACE` is always the **leaf**, never the group, and the group is de
 | group | views |
 |---|---|
 | My teams | Roster, Waivers |
-| Scouting | Board (who leads each stat, 2026-09-23), Movers (the old Pool), Grid (weekly usage), News |
+| Scouting | Board (Leaders: who leads each stat; Movers: whose role is growing, the old Pool, a mode since 2026-09-25), Grid (weekly usage), News |
 | Bets | Parlay, DFS |
 | Gameday | Live |
 
 The view is in the hash (`#usage`, `#roster`), so a reload, a bookmark and Back all land where they
 point; the group is derived from the leaf, and only the view is in the URL (the grid's position and
-week reset on purpose). `tests/test_render.py::test_a_hash_opens_its_view` pins it.
+week reset on purpose). `tests/test_render.py::test_a_hash_opens_its_view` pins it. One exception:
+the Board's Movers mode is `#movers`, and the old `#pool` opens it, because Movers was a view and
+bookmarks point at it (`test_movers_hash_opens_the_board_in_movers`).
 
 With no hash, `navDefaultLeaf` in `js/chrome/nav.js` opens Board (rosters barely move; stats and
 news move daily) except on a Tuesday, when Waivers still leads.

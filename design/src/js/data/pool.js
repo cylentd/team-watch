@@ -1,5 +1,6 @@
 /* ------------------------------------------------------------------
-   THE POOL — every player who logged a snap, ranked on usage, not points.
+   THE POOL — every player who logged a snap, ranked on usage, not points. Drawn by the
+   Board's Movers mode (surface/pool/pool.js).
    dShare is the change in snap/target share; dPts the change in points.
    The gap between them is the whole product.
 ------------------------------------------------------------------ */
@@ -34,10 +35,9 @@ const poolPlottable = r => r.dShare !== null && r.dShare !== undefined && r.luck
 const VCLASS = {"CONFIRMED":"v-conf","RISING":"v-conf","BUY LOW":"v-buy","SELL HIGH":"v-sell","SELL NOW":"v-sell","hold":"v-hold","NEW":"v-hold"};
 const VDOT   = {"CONFIRMED":"var(--up)","RISING":"var(--up)","BUY LOW":"var(--lime)","SELL HIGH":"var(--down)","SELL NOW":"var(--down)","hold":"var(--ink-3)","NEW":"var(--ink-3)"};
 
-let POOL_FILTER = "ALL";
 /* The ranked list can run long once real usage data lands (this is sample-capped at 16); the
    scatter above it already shows the whole shape, so the list itself pages the same way the
-   props and DFS pools do, 10 at a time. */
+   props and DFS pools do, 10 at a time. The position filter is the Board's BD_POS. */
 let POOL_PAGE = 1;
 const POOL_PAGE_SIZE = 10;
 
