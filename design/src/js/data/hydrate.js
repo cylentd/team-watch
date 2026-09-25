@@ -20,15 +20,23 @@ function hydrateEspn(){
 }
 hydrateEspn();
 
-/* Yahoo comes from a website scrape with no lineup slot, so the slots below are inferred by
-   filling the league's lineup in roster order. The board labels them as inferred. */
-const YAHOO_LINEUP = [["QB",1],["RB",2],["WR",3],["TE",1]];
+/* Yahoo's scrape carries each player's real lineup slot (build.py maps W/R/T to FLEX, DEF to
+   DST), and then the rows go through the same path as ESPN's. Only a scrape without slots falls
+   back to inferring them, by filling the league's 9-man lineup in roster order: QB, 2 RB, 2 WR,
+   TE, one W/R/T flex, K, DST. */
+const YAHOO_LINEUP = [["QB",1],["RB",2],["WR",2],["TE",1],["K",1],["DST",1]];
 function hydrateYahoo(){
   if (typeof LIVE_YAHOO === "undefined" || !LIVE_YAHOO) return;
+  const roster = LIVE_YAHOO.roster.every(p => p.slot) ? espnRows(LIVE_YAHOO.roster) : inferYahoo(LIVE_YAHOO.roster);
+  TEAMS.yahoo.name = LIVE_YAHOO.name;
+  TEAMS.yahoo.meta = ["12-team","half PPR","slot 12", LIVE_YAHOO.league];
+  TEAMS.yahoo.roster = roster;
+}
+function inferYahoo(rows){
   const need = {}; YAHOO_LINEUP.forEach(([p,n]) => need[p] = n);
   const seen = {};
   let flexTaken = false;
-  const roster = LIVE_YAHOO.roster.map(p => {
+  return rows.map(p => {
     let slot = "BN";
     if (need[p.pos] > 0){
       need[p.pos]--;
@@ -40,9 +48,6 @@ function hydrateYahoo(){
     const row = {n:p.n, pos:p.pos, team:p.team, slug:p.slug, slot, start: slot !== "BN", status:null};
     return Object.assign(row, signalsFor(row));
   });
-  TEAMS.yahoo.name = LIVE_YAHOO.name;
-  TEAMS.yahoo.meta = ["12-team","half PPR","slot 12", LIVE_YAHOO.league];
-  TEAMS.yahoo.roster = roster;
 }
 if (typeof LIVE_YAHOO === "undefined" || !LIVE_YAHOO)
   TEAMS.yahoo.roster.forEach(p => Object.assign(p, signalsFor(p)));   // the sample roster, same cells

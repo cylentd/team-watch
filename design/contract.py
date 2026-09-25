@@ -55,7 +55,7 @@ CONTRACT = {
     },
     "LIVE_YAHOO": {
         "keys": ["name", "league", "updated", "roster"],
-        "rows": ("roster", ["n", "pos", "team", "slug"]),
+        "rows": ("roster", ["n", "pos", "team", "slot", "slug"]),
     },
     "LIVE_FEED": {
         "keys": ["generated", "steps", "usage_ready", "pool_size", "fetched"],

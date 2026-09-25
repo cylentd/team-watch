@@ -466,9 +466,15 @@ def roster_index(*sources):
     return idx
 
 
+# Yahoo's lineup slot names -> the ones the page uses. Anything else (QB, RB, WR, TE, K, BN) is
+# already the page's name.
+YAHOO_SLOT = {"W/R/T": "FLEX", "DEF": "DST", "D/ST": "DST", "IR": "OUT"}
+
+
 def live_yahoo(available):
-    """Yahoo comes from a website scrape, so it carries no lineup slot or injury status.
-    The template infers slots and says so on the page."""
+    """Yahoo comes from a website scrape with no injury status. Since 2026-09 the scrape carries
+    each player's lineup slot, which is passed through; a scrape without one gives slot None, and
+    the template falls back to inferring the lineup."""
     if not YAHOO_ROSTERS.exists():
         return None
     d = json.loads(YAHOO_ROSTERS.read_text(encoding="utf-8"))
@@ -476,10 +482,12 @@ def live_yahoo(available):
     out = []
     for p in d["detail"][me]:
         slug = slugify(p["name"])
+        slot = p.get("slot")
         out.append({
             "n": p["name"],
             "pos": "DST" if p["pos"] in ("DEF", "D/ST") else p["pos"],
             "team": p["team"],
+            "slot": YAHOO_SLOT.get(slot, slot),
             "slug": slug if slug in available else None,
         })
     return {"name": me, "league": d["league"], "league_id": d["league_id"],
