@@ -1,16 +1,21 @@
 /* ------------------------------------------------------------------
-   MOVERS -- the Board's second mode since 2026-09-25 (a view of its own before). The Board owns
-   the position chip and the switch; this file draws what sits under them: the scatter, the pager,
-   the rows, and it wires the pager and the drawer. No filter of its own: the Board's chip is the
-   one filter, so there is no ALL.
+   MOVERS -- the Board's second mode: whose role is growing, grouped by team (2026-09-25).
+
+   A share is a slice of one team's pie, so a player's gain is some teammate's loss. A ranked list
+   showed the gain alone and left the reader to guess why; a card per team puts the riser beside
+   the teammate the work came from (K. Coleman +17.9, D. Moore -28.6, both BUF). The why is then
+   in the data, not in a sentence.
+
+   The Board owns the position chip and the switch; this file draws the cards, the pager, and
+   wires the drawer. Receivers and tight ends share one pie (targets), so a WR card can name the
+   TE who lost them; a back's pie is carries and a quarterback's is snaps.
 ------------------------------------------------------------------ */
 const poolSigned = v => v === null || v === undefined ? "—" : (v > 0 ? "+" : "") + Number(v).toFixed(1);
-const poolNum = v => v === null || v === undefined ? "—" : Number(v).toFixed(0);
-const poolTone = v => v === null || v === undefined ? "" : v > 0.5 ? "pos" : v < -0.5 ? "neg" : "";
+const poolNum = v => v === null || v === undefined ? "—" : Number(v).toFixed(0);   // the drawer's
 
 /* Where he can be had: mine, free in both leagues, free in one, or gone. From watch's own
-   rostered_by, never a percentage the leagues do not publish. */
-/* `text` fits the table column; `long` is the drawer's sentence. */
+   rostered_by, never a percentage the leagues do not publish. `text` is short; `long` is the
+   drawer's sentence. */
 function poolAvailability(r){
   if (r.mine) return {cls: "mine", text: t("pool.free.mine"), long: t("pool.free.mineLong")};
   const L = r.leagues || {};
@@ -22,50 +27,53 @@ function poolAvailability(r){
   return {cls: "", text: t("pool.free.none"), long: t("pool.free.noneLong")};
 }
 
-/* Sorted by share change, largest rise first; a row with no move sinks below every row with one.
-   Until any player anywhere has moved (the whole of week 1, when a move needs a second week) there
-   is nothing to rank on, so the list ranks by role share and says why in one line above it. */
+/* A move worth a card: five points of share. On a team throwing 35 times a game that is about two
+   targets a game changing hands -- a role, not noise. Conventional, not backtested, like every
+   threshold watch itself applies. */
+const POOL_MOVE = 5;
+const POOL_PIE = {WR: "tgt", TE: "tgt", RB: "car", QB: "snap"};
+const poolShareLabel = pos => ({tgt: t("pool.share.tgt"), car: t("pool.share.car"), snap: t("pool.share.snap")})[POOL_PIE[pos]];
 const poolMoved = () => POOL.some(r => r.dShare);
-function poolRows(pos, moved){
-  const key = moved ? "dShare" : "share";
-  const val = r => r[key] === null || r[key] === undefined ? -Infinity : r[key];
-  return POOL.filter(r => r.pos === pos).sort((a, b) => val(b) - val(a));
+const poolBig = r => r.dShare !== null && r.dShare !== undefined && Math.abs(r.dShare) >= POOL_MOVE;
+
+/* One card per team with a big move at this position. The card holds that team's big movers from
+   the same pie, largest rise first, at most four; it sorts by the largest move of this position. */
+function poolTeams(pos){
+  const pie = POOL_PIE[pos], by = {};
+  POOL.filter(r => POOL_PIE[r.pos] === pie && poolBig(r)).forEach(r => { (by[r.team] = by[r.team] || []).push(r); });
+  return Object.entries(by)
+    .map(([team, rows]) => ({team, rows: rows.sort((a, b) => b.dShare - a.dShare).slice(0, 4),
+      lead: Math.max(0, ...rows.filter(r => r.pos === pos).map(r => Math.abs(r.dShare)))}))
+    .filter(c => c.lead > 0)
+    .sort((a, b) => b.lead - a.lead || a.team.localeCompare(b.team));
 }
 
-function poolRow(r, i, moved){
-  // `i` is the display rank (1-based, correct across pages); the drawer needs the full POOL
-  // array's index, which diverges from `i` the moment the list is filtered or re-sorted.
-  // NEW (no earlier week to compare) is every row in week 1, so it draws no chip: a chip that is
-  // the same on every row says nothing. The drawer still names it.
-  const free = poolAvailability(r);
-  return `<div class="prow ${r.mine?"mine":""}" style="animation-delay:${60+i*26}ms" data-pool="${POOL.indexOf(r)}" role="button" tabindex="0">
-    <div class="pnum" style="color:var(--ink-3)">${String(i+1).padStart(2,"0")}</div>
-    <div>${HEADS[r.slug] ? `<img class="pool-head" src="${HEADS[r.slug]}" alt="">` : `<div class="pool-head" style="display:grid;place-items:center;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)">${esc(initials(r.n))}</div>`}</div>
-    <div class="pname"><b>${esc(nameInitial(r.n))}</b><span>${esc(r.pos)} · ${esc(r.team)}</span></div>
-    <div class="pnum">${poolNum(r.snaps)}</div>
-    <div class="pnum ${poolTone(r.dSnap)}">${poolSigned(r.dSnap)}</div>
-    <div class="pnum">${r.share === null || r.share === undefined ? "—" : r.share.toFixed(1)}</div>
-    <div class="pnum ${poolTone(r.dShare)}">${poolSigned(r.dShare)}</div>
-    <div class="pverdict">${r.v === "NEW" ? "" : `<span class="vchip ${VCLASS[r.v] || "v-hold"}" title="${esc(r.why || "")}">${esc(r.v.toUpperCase())}</span>`}</div>
-    <div class="pnum pfree ${free.cls}">${free.text}</div>
-    ${poolPillHTML(r, moved)}
+/* No verdict chip on the row. watch's verdict reads snaps before share, so a receiver whose targets
+   rose while his snaps fell reads SELL NOW beside a green +23.4 (J. Waddle, week 3) -- two signals
+   arguing in one row. The drawer carries the verdict with its reason, where the two can be read
+   together. */
+function poolRowHTML(r, pos){
+  const was = r.share === null || r.share === undefined ? null : r.share - r.dShare;
+  const pct = v => v === null ? "—" : Math.max(0, v).toFixed(1) + "%";
+  return `<div class="xf-row${r.mine ? " mine" : ""}" data-pool="${POOL.indexOf(r)}" role="button" tabindex="0">
+    <span class="xf-head">${avatarHTML(r)}</span>
+    <span class="xf-nm"><b>${esc(nameInitial(r.n))}${r.pos !== pos ? ` <em>${esc(r.pos)}</em>` : ""}</b
+      ><span>${pct(was)} → ${pct(r.share)}</span></span>
+    <span class="xf-d ${r.dShare > 0 ? "up" : "down"}">${poolSigned(r.dShare)}</span>
   </div>`;
 }
 
-/* The phone's one number is the one the list is sorted on: the signed share change, filled by
-   which way it went (the same 0.5 point threshold as the desktop columns' tint), or, before any
-   move exists, the role share itself. */
-function poolPillHTML(r, moved){
-  const v = moved ? r.dShare : r.share;
-  if (v === null || v === undefined) return `<div class="vpill none">—</div>`;
-  if (!moved) return `<div class="vpill flat">${v.toFixed(0)}%</div>`;
-  const dir = {pos: "up", neg: "down"}[poolTone(v)] || "flat";
-  return `<div class="vpill ${dir}">${poolSigned(v)}</div>`;
+function poolCardHTML(c, pos, i){
+  return `<section class="xf" style="animation-delay:${40 + i * 50}ms">
+    <div class="xf-t"><b>${esc(c.team)}</b><span>${poolShareLabel(pos)}</span></div>
+    ${c.rows.map(r => poolRowHTML(r, pos)).join("")}
+  </section>`;
 }
 
 function poolPagerHTML(n, page, pages){
-  return `<div class="filters" style="margin-top:8px">
-    <span class="lbl">${t("pool.pager.players", {n, s: n===1?"":"s"})}</span>
+  if (pages <= 1) return "";
+  return `<div class="filters" style="margin-top:12px">
+    <span class="lbl">${t("pool.pager.teams", {n, s: n === 1 ? "" : "s"})}</span>
     <span style="flex:1"></span>
     <button class="chip" data-poolpage="prev" ${page<=1?"disabled":""}>${t("common.pager.prev")}</button>
     <span class="lbl">${t("common.pager.page", {page, pages})}</span>
@@ -73,29 +81,21 @@ function poolPagerHTML(n, page, pages){
   </div>`;
 }
 
-/* The chart needs a share move, which needs two weeks; until then it is left out, and the one
-   line above the list says why for the chart and the ranking both. */
+/* Until any player has two weeks there is no move at all, and the one line says so. */
 function poolHTML(pos){
-  const moved = poolMoved();
-  const rows = poolRows(pos, moved);
-  const plotted = rows.filter(poolPlottable);
-  const pages = Math.max(1, Math.ceil(rows.length / POOL_PAGE_SIZE));
+  if (!poolMoved()) return `<p class="note pool-wait">${t("pool.wait.line")}</p>`;
+  const cards = poolTeams(pos);
+  if (!cards.length) return `<div class="state-empty" style="margin:26px 0;min-height:120px"><div><b>0</b
+    ><span>${t("pool.empty.noMoves", {pos, n: POOL_MOVE})}</span></div></div>`;
+  const pages = Math.max(1, Math.ceil(cards.length / POOL_PAGE_SIZE));
   const page = Math.min(POOL_PAGE, pages);
-  const pageRows = rows.slice((page-1)*POOL_PAGE_SIZE, page*POOL_PAGE_SIZE);
-  return `${plotted.length ? scatterHTML(plotted) : ""}
-    ${moved ? "" : `<p class="note pool-wait">${t("pool.wait.line")}</p>`}
-    ${poolPagerHTML(rows.length, page, pages)}
-    <div class="ptable pooltable">
-      <div class="phead">
-        <div>#</div><div></div><div>${t("pool.table.player")}</div><div>${t("pool.table.snaps")}</div><div>${t("pool.table.dSnaps")}</div>
-        <div>${t("pool.table.share")}</div><div>${t("pool.table.dShare")}</div><div>${t("pool.table.verdict")}</div><div>${t("pool.table.free")}</div>
-      </div>
-      ${pageRows.length ? pageRows.map((r,i)=>poolRow(r, (page-1)*POOL_PAGE_SIZE + i, moved)).join("")
-        : `<div class="state-empty" style="margin:26px 0;min-height:120px"><div><b>0</b><span>${t("pool.empty.noPlayers")}</span></div></div>`}
-    </div>`;
+  return `<div class="xf-grid">${cards.slice((page-1)*POOL_PAGE_SIZE, page*POOL_PAGE_SIZE)
+      .map((c, i) => poolCardHTML(c, pos, i)).join("")}</div>
+    ${poolPagerHTML(cards.length, page, pages)}
+    <p class="note bd-foot">${t("pool.foot", {n: POOL_MOVE, wk: (typeof LIVE_POOL !== "undefined" && LIVE_POOL && LIVE_POOL.through_week) || "—"})}</p>`;
 }
 
-/* The pager and the drawer. The position chip that filters this list is the Board's (wireBd). */
+/* The pager and the drawer. The position chip that filters the cards is the Board's (wireBd). */
 function wirePool(v){
   // A page turn is a read of the same list, so the scroll position is held across the re-render.
   v.querySelectorAll("[data-poolpage]").forEach(b => b.addEventListener("click", () => {
@@ -107,5 +107,4 @@ function wirePool(v){
     el.addEventListener("click", open);
     el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); open(); } });
   });
-  v.querySelectorAll(".dotg").forEach(g => g.addEventListener("click", () => openPoolDrawer(+g.dataset.i)));
 }

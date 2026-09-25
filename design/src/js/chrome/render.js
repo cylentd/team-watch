@@ -51,9 +51,7 @@ function render(){
     return;
   }
   if (SURFACE === "board"){
-    // Movers mode carries the scatter, whose phone geometry can still scroll sideways.
     v.innerHTML = bdViewHTML(); wireBd(v);
-    if (BD_MODE === "movers") nudgeScrollers(v);
     return;
   }
   if (SURFACE === "usage"){

@@ -1,4 +1,4 @@
-/* A scroll container with clipped content (the scatter, a rail) is easy to miss entirely on
+/* A scroll container with clipped content (a rail) is easy to miss entirely on
    first view -- nudge it once so the swipe is felt, not just hinted at in small print. Once per
    rail per SESSION, not once per element: render() replaces the DOM wholesale on every filter
    click or tab switch, so a per-element flag (dataset.nudged) would fire again on every single
@@ -24,7 +24,7 @@
 const NUDGED = new Set();
 const NUDGING = new WeakSet();   // not a data- attribute: the markup must not depend on timing
 function nudgeScrollers(root){
-  root.querySelectorAll(".quadscroll, .railscroll").forEach(el=>{
+  root.querySelectorAll(".railscroll").forEach(el=>{
     const hintTarget = el.closest(".rail") || el;
     const key = hintTarget.dataset.railkey || el.dataset.railkey;
     const update = () => {

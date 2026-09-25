@@ -52,8 +52,8 @@
   --espn-rgb:255 45 45;
 
   /* Position tints (2026-09-21), the one exception to "positions are typographic": the profile's
-     stat sheet is tinted by position so a run of profiles reads QB/RB/WR/TE at a glance. Nowhere
-     else -- a row, a cell, a badge stays typographic, and lime/green/red/amber keep their jobs. */
+     stat sheet is tinted by position so a run of profiles reads QB/RB/WR/TE at a glance. The Board
+     (2026-09-25) is the same sheet as a leaderboard and wears the same tint. Nowhere else -- a row, a cell, a badge stays typographic, and lime/green/red/amber keep their jobs. */
   --pos-qb:#5ab4ff;
   --pos-rb:#ff9d5c;
   --pos-wr:#ff6fd8;

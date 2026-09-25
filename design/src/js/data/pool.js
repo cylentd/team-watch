@@ -33,11 +33,9 @@ const POOL = (typeof LIVE_POOL !== "undefined" && LIVE_POOL && LIVE_POOL.players
 const poolPlottable = r => r.dShare !== null && r.dShare !== undefined && r.luck !== null && r.luck !== undefined;
 
 const VCLASS = {"CONFIRMED":"v-conf","RISING":"v-conf","BUY LOW":"v-buy","SELL HIGH":"v-sell","SELL NOW":"v-sell","hold":"v-hold","NEW":"v-hold"};
-const VDOT   = {"CONFIRMED":"var(--up)","RISING":"var(--up)","BUY LOW":"var(--lime)","SELL HIGH":"var(--down)","SELL NOW":"var(--down)","hold":"var(--ink-3)","NEW":"var(--ink-3)"};
-
-/* The ranked list can run long once real usage data lands (this is sample-capped at 16); the
-   scatter above it already shows the whole shape, so the list itself pages the same way the
-   props and DFS pools do, 10 at a time. The position filter is the Board's BD_POS. */
+/* Movers draws one card per team (surface/pool/pool.js), six to a page: a phone shows two or three
+   at once, and a page of six is a thumb's worth of scrolling. The position filter is the Board's
+   BD_POS. */
 let POOL_PAGE = 1;
-const POOL_PAGE_SIZE = 10;
+const POOL_PAGE_SIZE = 6;
 

@@ -12,9 +12,24 @@ function sheetFor(p){
   const s = typeof USAGE !== "undefined" && USAGE ? USAGE.sheet : null;
   if (!s || !p || !p.slug) return null;
   const row = s.rows.find(r => r.slug === p.slug);
-  const axes = row && s.axes[row.pos];
+  const axes = row && sheetQualified(row) && s.axes[row.pos];
   return axes && axes.length ? {axes, row, pos: row.pos} : null;
 }
+
+/* WHO IS RANKED: half the games the busiest player at his position has, rounded up -- the NFL's
+   own qualifier shape. Every axis is a rate or a share, and a rate on one game is a small sample
+   posing as a season: Zay Flowers left week 1 after about 11 routes and held a YPRR of 13.64 against
+   a field led by 4.69. Scaled to the most games, not the week number, so a Thursday game or a bye
+   never moves the bar for everyone else. Week 1 needs one game, which is every row. */
+const SHEET_MIN_G = {};
+function sheetMinGames(pos){
+  if (!(pos in SHEET_MIN_G)){
+    const most = Math.max(0, ...USAGE.sheet.rows.filter(r => r.pos === pos).map(r => r.g || 0));
+    SHEET_MIN_G[pos] = Math.max(1, Math.ceil(most / 2));
+  }
+  return SHEET_MIN_G[pos];
+}
+const sheetQualified = r => (r.g || 0) >= sheetMinGames(r.pos);
 
 /* {slug: value} for one axis across a position. Memoised: every open reranks, and `rows` holds
    the producer's whole position rather than the page's display cut, so this is the honest
@@ -25,7 +40,7 @@ function sheetValues(pos, axis){
   if (!SHEET_BY[key]){
     const by = {};
     USAGE.sheet.rows.forEach(r => {
-      if (r.pos === pos && r.v[axis] !== null && r.v[axis] !== undefined) by[r.slug] = r.v[axis];
+      if (r.pos === pos && sheetQualified(r) && r.v[axis] !== null && r.v[axis] !== undefined) by[r.slug] = r.v[axis];
     });
     SHEET_BY[key] = by;
   }

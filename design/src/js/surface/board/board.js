@@ -1,10 +1,9 @@
 /* ------------------------------------------------------------------
-   THE BOARD — the view: which position, who is on it, and who leads.
+   THE BOARD — the view: which position, which stat, who leads it.
 
-   One component does three jobs, which is why it is the whole surface. With nobody picked each
-   lane names its own leader, so the board arrives as a leaderboard. With one pick it is that
-   player against the field. With two it is a duel, and the distance between the dots is the
-   answer on that stat.
+   With nobody picked it is a leaderboard, one stat at a time (leaders.js). With one pick he is
+   pinned under the top five at his own rank. With two it is a duel: the line above the board
+   counts the stats each leads, and the one ahead on the stat on screen is lit.
 
    NO COMPOSITE SCORE. "Overall" here is a count of lanes, not a rating: six stats ff-jarvis
    publishes separately, weighted into one number by this page, would be this page inventing a
@@ -16,6 +15,7 @@ let BD_POS = "RB";
 /* "leaders" is the lanes; "movers" is who is gaining role, week on week (surface/pool/pool.js).
    Two readings of one position, so they share the chip. The one mode with a hash (nav.js). */
 let BD_MODE = "leaders";
+let BD_STAT = null;  // the axis on screen; null is the position's default (bdStatOf)
 let BD_PICKS = [];   // slugs, newest last, at most two
 let BD_NOTE = "";    // why the last pick did not land, cleared by the next render
 
@@ -36,8 +36,9 @@ function bdTally(pos, axes, picks){
   return out;
 }
 
+/* Said only once somebody is picked: with nobody picked the leaderboard itself is the answer. */
 function bdLeadHTML(pos, axes, picks){
-  if (!picks.length) return `<div class="bd-lead">${t("board.lead.none", {pos})}</div>`;
+  if (!picks.length) return "";
   if (picks.length === 1)
     return `<div class="bd-lead">${t("board.lead.one", {name: esc(nameInitial(picks[0].n)), pos})}</div>`;
   const k = bdTally(pos, axes, picks);
@@ -88,16 +89,23 @@ function bdViewHTML(){
   if (!axes.length) return `<div class="wrap">${bdModeHTML()}<div class="state-empty" style="min-height:220px">
     <div><b>${t("board.empty.noSheetTitle")}</b><span>${t("board.empty.noSheetSub")}</span></div></div></div>`;
   const picks = bdPicked();
-  return `<div class="wrap">
+  return `<div class="wrap pos-${BD_POS.toLowerCase()}">
     ${bdControlsHTML()}
     ${bdModeHTML()}
     ${BD_NOTE ? `<p class="bd-note">${BD_NOTE}</p>` : ""}
     ${bdChipsHTML(picks)}
     ${bdLeadHTML(BD_POS, axes, picks)}
+    ${bdBoardHTML(BD_POS, picks)}
     ${bdLabelsHTML(picks)}
-    <div class="bd-lanes">${axes.map((a, i) => bdLaneHTML(BD_POS, a, picks, i)).join("")}</div>
-    <div class="note bd-foot">${t("board.foot.source", {n: bdRows(BD_POS).length, pos: BD_POS})}</div>
   </div>`;
+}
+
+/* Sideways through the stats, the same order as the tabs, stopping at either end. */
+function bdStep(dir){
+  const axes = bdAxes(BD_POS), i = axes.findIndex(a => a.id === bdStatOf(BD_POS)), j = i + dir;
+  if (j < 0 || j >= axes.length) return false;
+  BD_STAT = axes[j].id;
+  return true;
 }
 
 /* A pick of another position moves the board to his position and keeps only him. The axes are
@@ -108,6 +116,8 @@ function bdAdd(p){
   const row = ((USAGE.sheet || {}).rows || []).find(r => r.slug === p.slug);
   if (!row){
     BD_NOTE = t("board.note.noSheet", {name: esc(nameInitial(p.n))});
+  } else if (!sheetQualified(row)){
+    BD_NOTE = t("board.note.fewGames", {name: esc(nameInitial(p.n)), g: row.g || 0, min: sheetMinGames(row.pos)});
   } else {
     if (row.pos !== BD_POS){ BD_POS = row.pos; BD_PICKS = []; }
     BD_PICKS = [...BD_PICKS.filter(s => s !== row.slug), row.slug].slice(-2);
@@ -118,7 +128,27 @@ function bdAdd(p){
 function wireBd(v){
   const set = (sel, fn) => v.querySelectorAll(sel).forEach(b => b.addEventListener("click", () => { fn(b); render(); }));
   // Switching position drops the picks: they are rows of the position that just left the screen.
-  set("[data-bdpos]", b => { BD_NOTE = ""; POOL_PAGE = 1; if (b.dataset.bdpos !== BD_POS){ BD_POS = b.dataset.bdpos; BD_PICKS = []; } });
+  set("[data-bdpos]", b => { BD_NOTE = ""; POOL_PAGE = 1; if (b.dataset.bdpos !== BD_POS){ BD_POS = b.dataset.bdpos; BD_PICKS = []; BD_STAT = null; } });
+  set("[data-bdstat]", b => { BD_NOTE = ""; BD_STAT = b.dataset.bdstat; });
+  v.querySelectorAll("[data-bdopen]").forEach(el => el.addEventListener("click", () => {
+    const r = ((USAGE.sheet || {}).rows || []).find(x => x.slug === el.dataset.bdopen);
+    if (r) openProfile({n: r.n, pos: r.pos, team: r.team, slug: r.slug}, el);
+  }));
+  // A horizontal swipe on the card moves one stat; a mostly-vertical drag is a scroll and is left alone.
+  v.querySelectorAll("[data-bdswipe]").forEach(el => {
+    let x0 = null, y0 = 0;
+    el.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, {passive: true});
+    el.addEventListener("touchend", e => {
+      if (x0 === null) return;
+      const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+      x0 = null;
+      if (Math.abs(dx) > 48 && Math.abs(dx) > 1.5 * Math.abs(dy) && bdStep(dx < 0 ? 1 : -1)){
+        BD_NOTE = ""; render();
+        const tab = document.querySelector(".bd-tab[aria-selected=true]");
+        if (tab) tab.scrollIntoView({block: "nearest", inline: "center"});
+      }
+    }, {passive: true});
+  });
   set("[data-bddrop]", b => { BD_NOTE = ""; BD_PICKS = BD_PICKS.filter(s => s !== b.dataset.bddrop); });
   // The mode goes in the hash (nav.js), so Back undoes a switch and a reload keeps it. The write
   // fires a hashchange that finds SURFACE and BD_MODE already where it points, and does nothing.

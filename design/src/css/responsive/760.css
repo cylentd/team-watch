@@ -108,31 +108,14 @@
   .sr-cap{order:0;padding:10px 14px 6px}
   .sr-none{padding:18px 14px}
   .hero h1{font-size:var(--t-hero-sm)}
-  .quad{height:320px;min-width:540px}
-  /* The compact (portrait, no per-dot labels) mobile geometry from scatterHTML fits its
-     container at ~1:1, so it needs none of the above -- no forced min-width, no scroll. */
-  .quad.quad-compact{height:440px;min-width:0;width:100%}
-  .quad-compact .dotlab{display:none}
-  .quadhead{padding:12px 13px}
-  .quadscroll{position:relative}
-  .quadscroll::before{
-    content:"";position:absolute;top:0;right:0;bottom:0;width:36px;pointer-events:none;
-    background:linear-gradient(90deg,transparent,var(--panel) 82%);
-  }
-  .quadscroll::after{
-    content:"SWIPE →";position:absolute;right:8px;bottom:8px;z-index:1;
-    font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.16em;color:var(--lime);
-    background:var(--panel);padding:3px 6px;border:1px solid var(--lime);pointer-events:none;
-  }
   /* Hidden once there's nothing left to swipe to -- content that already fits, or a scroller
      already at its end. Toggled by nudgeScrollers() on every render and every scroll event. The
      hint itself sits still -- a static label plus the one-time scroll-and-back in nudgeScrollers()
      is what sells "this moves," not a permanent twitch (that read as broken, not as an invitation). */
-  .quadscroll.no-swipe::before,.quadscroll.no-swipe::after,
   .rail.no-swipe::before,.rail.no-swipe::after{display:none}
   /* .rail (non-scrolling) holds the fade + hint pinned to the edge; .railscroll (nested) is the
-     actual scroller. Unlike .quadscroll, which puts these pseudo-elements on the scrolling box
-     itself, keeping them on a non-scrolling wrapper means they don't scroll away with content. */
+     actual scroller. Keeping the pseudo-elements on a non-scrolling wrapper means they don't
+     scroll away with content. */
   .rail{position:relative}
   .rail::before{
     content:"";position:absolute;top:14px;right:0;bottom:0;width:36px;pointer-events:none;z-index:1;

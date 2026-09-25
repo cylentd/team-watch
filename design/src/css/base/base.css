@@ -17,6 +17,7 @@
   --t-5:24px;    /* lead numbers, the matchup line, section titles */
   --t-6:34px;    /* hero numbers */
   --t-7:40px;    /* a player's name */
+  --t-lead:clamp(56px,15vw,84px);     /* the Board's #1 number, its one headline */
   --t-hero:clamp(38px,6.4vw,80px);    /* the hero headline, fluid with the viewport */
   --t-hero-sm:clamp(30px,8.6vw,80px); /* the same at phone width */
   --t-ghost:270px;    /* the hero's background numeral */
