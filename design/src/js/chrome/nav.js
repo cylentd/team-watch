@@ -1,4 +1,5 @@
-/* One icon per group, not per view. Scouting keeps the old Pool chart mark: the scatter is the
+/* One icon per group, not per view. The `scouting` group has read "Players" since 2026-09-25 (the
+   id stays, so nothing keyed on it moves). It keeps the old Pool chart mark: the scatter is the
    Board's Movers mode since 2026-09-25. Bets is a banknote (2026-09-25): the three slider
    knobs it used to wear read as settings. */
 const NAV_ICON = {
@@ -116,7 +117,7 @@ function navGo(leaf, fromHash){
 function buildNav(){
   const n = document.getElementById("nav");
   // Two labels per group, same pattern as the topbar pills' full/abbr swap: four fit a phone
-  // where seven did not, but "Scouting" and "Gameday" still need a short form at 430px.
+  // where seven did not, but "Gameday" still needs a short form at 430px ("Players" is its own).
   n.innerHTML = NAV.map(([g]) =>
     `<button class="navitem" data-s="${g}" aria-current="${navGroupOf(SURFACE) === g}">
       <span class="ix">${NAV_ICON[g]}</span><span class="full">${navGroupLabel(g, false)}</span

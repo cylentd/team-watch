@@ -130,6 +130,18 @@
   --iri-3-rgb:242 207 174;
   --iri-4:#b3f0d4;
   --iri-4-rgb:179 240 212;
+  /* The #1 card's holo (2026-09-25): the pearl's hues at full strength. Saturated on purpose, since
+     it is one card a week at most, so a full spectrum reads as foil there rather than as a code. */
+  --holo-1:#5ef2ff;
+  --holo-1-rgb:94 242 255;
+  --holo-2:#b28cff;
+  --holo-2-rgb:178 140 255;
+  --holo-3:#ff7ad9;
+  --holo-3-rgb:255 122 217;
+  --holo-4:#ffd66b;
+  --holo-4-rgb:255 214 107;
+  --holo-5:#7dffb2;
+  --holo-5-rgb:125 255 178;
 
   --nav-h:48px;         /* the phone nav row; the view tabs stick under it (responsive/760.css) */
 

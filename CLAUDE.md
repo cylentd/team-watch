@@ -80,7 +80,7 @@ question; `SURFACE` is always the **leaf**, never the group, and the group is de
 | group | views |
 |---|---|
 | My teams | Roster, Waivers |
-| Scouting | Board (Leaders: who leads each stat; Movers: whose role is growing, the old Pool, a mode since 2026-09-25), Grid (weekly usage), News |
+| Players (id `scouting`, was "Scouting" until 2026-09-25) | Board (Leaders: who leads each stat; Movers: whose role is growing, the old Pool, a mode since 2026-09-25), Grid (weekly usage), News |
 | Bets | Parlay, DFS |
 | Gameday | Live |
 

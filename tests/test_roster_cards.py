@@ -59,8 +59,8 @@ def test_cards_draw_every_player_and_the_choice_survives_a_reload(browser, page_
 @pytest.mark.render
 def test_a_tier_is_the_rank_and_support_cards_have_none(browser, page_file):
     ctx, page, errors = cards_page(browser, page_file)
-    tiers = page.evaluate("[1,2,3,4,12,13,24,25,null].map(cardTier)")
-    assert tiers == ["sig", "sr", "sr", "ur", "ur", "r", "r", "c", "c"]
+    tiers = page.evaluate("[1,2,5,6,8,9,12,13,24,25,null].map(cardTier)")
+    assert tiers == ["one", "sig", "sig", "sr", "sr", "ur", "ur", "r", "r", "c", "c"]
     # A support card, drawn directly: no rank line, no foil, whatever the fixture's roster holds.
     page.evaluate("""document.querySelector('.cards .cardgrid').insertAdjacentHTML('beforeend',
       cardHTML({n:'Bengals', pos:'DST', team:'CIN', slot:'DST', start:true, slug:null}, 0, 'espn'))""")

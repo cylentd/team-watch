@@ -4,7 +4,7 @@
    from the lowest rank to the highest, the signature card last and signed as it lands. A tap skips to
    the end; reduced motion gets the end at once. Web Animations only, no library. Opening is
    remembered in localStorage, which can refuse: then the pack simply shows again next load. */
-const PACK_TIERS = ["ur", "sr", "sig"];
+const PACK_TIERS = ["ur", "sr", "sig", "one"];
 
 /* The week of the next kickoff on the schedule, or null when there is none to name. */
 function packWeek(){
@@ -75,7 +75,7 @@ async function packReveal(box, team, wk){
     {duration: 420, delay: i * 90, easing: "cubic-bezier(.2,.8,.2,1)"})));
 
   for (const [i, el] of els.entries()){
-    const last = i === els.length - 1, sig = el.classList.contains("tier-sig");
+    const last = i === els.length - 1, sig = el.classList.contains("tier-sig") || el.classList.contains("tier-one");
     await wait(last ? 450 : 160);
     if (sig) await run(el, [0, -3, 3, -3, 3, 0].map(d => ({transform: `rotate(${d}deg)`})), {duration: 420});
     await run(el, [{transform: "rotateY(0)"}, {transform: "rotateY(90deg)"}], {duration: sig ? 260 : 180, easing: "ease-in"});

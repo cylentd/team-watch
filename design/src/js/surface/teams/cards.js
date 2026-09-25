@@ -1,12 +1,16 @@
 /* The roster as trading cards (2026-09-25), the Cards half of the Sheet / Cards switch. A card's
    tier is this week's projected rank at his position (LIVE_PROJECTIONS rank/of, design/projections.py),
-   never a hand pick: #1 is the signature card, #2-3 secret rare (glitter), #4-12 gold, #13-24 silver,
-   the rest plain. The card prints the rank in words ("#7 RB"), never a tier code. A kicker and a
+   never a hand pick: #1 holo, #2-5 signed, #6-8 glitter, #9-12 gold, #13-24 silver, the rest plain
+   (bands below). The back prints the rank in words ("#7 RB"), never a tier code. A kicker and a
    defense have no projection, so no tier: they are support cards whose art is the matchup. Tap flips
    a card; its back carries the trend line the front leaves out and the way into the profile. */
+/* Tiers widened 2026-09-25, still earned by rank alone, never by being a roster's best: #1 is its
+   own tier ("one": a moving holographic frame and foil), #2-5 signed, #6-8 glitter, #9-12 gold.
+   Only #1 was signed before, and most rosters never hold one. A roster with nobody in the top
+   five gets no signature card: that is the news, not a gap to fill. */
 function cardTier(rank){
   if (!rank) return "c";
-  return rank === 1 ? "sig" : rank <= 3 ? "sr" : rank <= 12 ? "ur" : rank <= 24 ? "r" : "c";
+  return rank === 1 ? "one" : rank <= 5 ? "sig" : rank <= 8 ? "sr" : rank <= 12 ? "ur" : rank <= 24 ? "r" : "c";
 }
 function cardRank(p){
   if (typeof LIVE_PROJECTIONS === "undefined" || !LIVE_PROJECTIONS) return null;
@@ -35,16 +39,20 @@ function cardTeamRow(block, team){
 const cardLines = team => cardTeamRow(typeof LIVE_LINES !== "undefined" ? LIVE_LINES : null, team);
 const cardMatchup = (team, g) => g ? `${team} ${g.home ? "vs" : "@"} ${g.opp}` : team;
 
-function cardFront(p, tier, rank, g){
+/* The front says four things: slot, points, who, and the game. The rank is the back's first line
+   and the frame's colour, so the front no longer prints it (2026-09-25: a fifth line, and the
+   position a second time, is what made a phone row of three read as crowded). */
+function cardFront(p, tier, g){
   const pts = projFor(p);
-  const sig = tier === "sig" ? `<span class="tc-sig">${esc(p.n)}</span>` : "";
+  const sig = tier === "sig" || tier === "one" ? `<span class="tc-sig">${esc(p.n)}</span>` : "";
+  // Behind the photo: glitter (#2-3), the pearl etch (signature), or the #1's holo foil and glitter.
+  const foil = {sr: `<i class="tc-spark"></i>`, sig: `<i class="tc-etch"></i>`, one: `<i class="tc-holo"></i><i class="tc-spark"></i>`}[tier] || "";
   return `<div class="tc-face tc-front">
       <div class="tc-top"><span>${esc(p.start ? slotLabel(p.slot) : p.pos)}</span><span class="tc-num">${pts === null ? "—" : pts.toFixed(1)}</span></div>
-      <div class="tc-art pos-${esc(p.pos)}">${tier === "sr" ? `<i class="tc-spark"></i>` : tier === "sig" ? `<i class="tc-etch"></i>` : ""}
+      <div class="tc-art pos-${esc(p.pos)}">${foil}
         <div class="head">${headHTML(p)}</div>${sig}</div>
       <div class="tc-name">${esc(nameInitial(p.n))}</div>
       <div class="tc-meta">${esc(cardMatchup(p.team, g))}</div>
-      <div class="tc-foot">${rank ? t("teams.card.rank", {n: rank, pos: esc(p.pos)}) : t("teams.card.unranked")}</div>
     </div>`;
 }
 
@@ -127,7 +135,7 @@ function cardHTML(p, i, teamKey){
         <div class="tc-name">${esc(p.pos === "K" ? nameInitial(p.n) : p.n)}</div>
         <div class="tc-meta">${p.pos === "K" ? t("teams.card.kicker", {team: esc(p.team)}) : t("teams.card.defense", {team: esc(p.team)})}</div>
       </div>`
-    : cardFront(p, tier, rank, g);
+    : cardFront(p, tier, g);
   return `<div class="tc tier-${tier}" ${colours} role="button" tabindex="0" aria-label="${t("teams.card.flip", {name: esc(p.n)})}">
     <div class="tc-flip">${front}${support ? supportBack(p, g, teamKey, i) : cardBack(p, rank, teamKey, i)}</div>
     <div class="tc-glare"></div>
