@@ -188,6 +188,34 @@
 .bd-gap{height:10px;border-top:1px dashed var(--line-2);margin:4px 16px 0}
 .bd-gap + .bd-row{border-top:0}
 
+/* ---- the rest of the field, behind one tap ----
+   The button spans the card's width so a thumb finds it without aiming; the open list is the
+   same rows on the same panel, so #6 reads as the next line of the leaderboard. */
+.bd-more-btn{
+  appearance:none;display:block;width:100%;max-width:1000px;margin-top:8px;cursor:pointer;
+  font-family:var(--ui);font-size:var(--t-2);font-weight:600;color:var(--ink-2);
+  padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel);
+  transition:color .18s var(--ease),border-color .18s var(--ease);
+}
+.bd-more-btn:hover{color:var(--ink);border-color:var(--line-2)}
+.bd-more-btn:active{transform:scale(var(--press))}
+.bd-more-btn:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.bd-more{
+  margin-top:8px;max-width:1000px;border:1px solid var(--line);border-radius:14px;background:var(--panel);
+  scroll-margin-top:calc(var(--nav-h) + 12px);
+}
+.bd-pager{margin:0;padding:10px 16px 12px;border-top:1px solid var(--line)}
+/* The phone hides a filter row's leading label (responsive/lists.css) because there it names the
+   chips beside it; here it is the range on screen, the one thing the pager must say. */
+.filters.bd-pager > .lbl:first-child{display:inline}
+/* Range plus three controls is wider than 360px, so on a phone the range takes a line of its own
+   and the controls sit under it, rather than the last one running off the edge. */
+@media (max-width:760px){
+  /* A phone filter row bleeds to the screen edge (lists.css); this one lives inside a panel. */
+  .filters.bd-pager{flex-wrap:wrap;row-gap:8px;margin:0;padding:10px 16px 12px;overflow:visible}
+  .filters.bd-pager > .lbl:first-child{flex-basis:100%;margin-left:0}
+}
+
 /* Wider than a phone, the #1 and the list sit side by side: stacked at 1200px the bars ran a
    thousand pixels for a four-row list, and the card was mostly empty. */
 @media (min-width:760px){

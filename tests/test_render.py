@@ -141,6 +141,8 @@ STATES = [
     # fixture-built page at all, and is checked against the live build instead.
     ("board-qb", go("board") + [("click", "[data-bdpos='QB']")] + bdpick("burrow")),
     ("board-wr", go("board") + [("click", "[data-bdpos='WR']")]),
+    # The whole field behind "Show all": #6 on, twenty to a page, with its own pager.
+    ("board-wr-all", go("board") + [("click", "[data-bdpos='WR']"), ("click", ".bd-more-btn")]),
     # Movers, the Board's second mode since 2026-09-25 (a view of its own before): the fixture
     # falls back to the sample pool, which has share moves, so it sorts on them; -wait blanks every
     # move to reach the week-1 path, where the list ranks by share under one line saying why.

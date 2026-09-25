@@ -101,11 +101,13 @@ function bdBoardHTML(pos, picks){
   const scale = v => hi === lo ? 1 : (v - lo) / (hi - lo);
   const slugs = picks.map(p => p.slug), ahead = bdAheadOn(by, picks);
   const rankOf = r => rankAmong(by, r.slug)[0];
-  const rows = ranked.slice(1, BD_TOP).map(r =>
-    bdRowHTML(r, rankOf(r), a, scale, slugs.includes(r.slug), r.slug === ahead)).join("");
-  // Picks below the top five, pinned at their own rank. A pick with no number on this stat is
-  // said as such rather than left off, because the reader put him there.
-  const pinned = picks.filter(p => !ranked.slice(0, BD_TOP).some(r => r.slug === p.slug)).map(p => {
+  const row = r => bdRowHTML(r, rankOf(r), a, scale, slugs.includes(r.slug), r.slug === ahead);
+  const rows = ranked.slice(1, BD_TOP).map(row).join("");
+  const more = bdMoreHTML(ranked, row);
+  // Picks not on screen, pinned at their own rank. A pick with no number on this stat is said as
+  // such rather than left off, because the reader put him there.
+  const shown = ranked.slice(0, BD_TOP).concat(bdPageRows(ranked));
+  const pinned = picks.filter(p => !shown.some(r => r.slug === p.slug)).map(p => {
     const r = ranked.find(x => x.slug === p.slug);
     return r ? bdRowHTML(r, rankOf(r), a, scale, true, r.slug === ahead)
       : `<div class="bd-row pick none"><span class="bd-rk">—</span><span class="bd-head">${avatarHTML(p)}</span
@@ -121,5 +123,34 @@ function bdBoardHTML(pos, picks){
       ${bdHeroHTML(a, ranked[0], ranked.length, slugs.includes(ranked[0].slug))}
       <div class="bd-list">${rows}${pinned ? `<div class="bd-gap" aria-hidden="true"></div>${pinned}` : ""}</div>
     </div>
+    ${more}
     <p class="note bd-foot">${foot}</p>`;
+}
+
+/* THE REST OF THE FIELD, on request. The top five answer "who leads"; the rest answers "where is
+   my guy", which a reader asks less often and wants whole, so it sits behind one tap and pages by
+   twenty rather than growing the page by a hundred rows. BD_PAGE 0 is closed. */
+const BD_PAGE_SIZE = 20;
+function bdPageRows(ranked){
+  if (!BD_PAGE) return [];
+  const from = BD_TOP + (BD_PAGE - 1) * BD_PAGE_SIZE;
+  return ranked.slice(from, from + BD_PAGE_SIZE);
+}
+
+function bdMoreHTML(ranked, row){
+  const rest = ranked.length - BD_TOP;
+  if (rest <= 0) return "";
+  if (!BD_PAGE) return `<button type="button" class="bd-more-btn" data-bdpage="1">${t("board.more.show", {n: ranked.length})}</button>`;
+  const pages = Math.ceil(rest / BD_PAGE_SIZE), page = Math.min(BD_PAGE, pages);
+  const from = BD_TOP + (page - 1) * BD_PAGE_SIZE + 1, to = Math.min(ranked.length, from + BD_PAGE_SIZE - 1);
+  return `<div class="bd-more">
+    <div class="bd-list">${bdPageRows(ranked).map(row).join("")}</div>
+    <div class="filters bd-pager">
+      <span class="lbl">${t("board.more.range", {from, to, n: ranked.length})}</span>
+      <span style="flex:1"></span>
+      <button class="chip" data-bdpage="${page - 1}" ${page <= 1 ? "disabled" : ""}>${t("common.pager.prev")}</button>
+      <button class="chip" data-bdpage="${page + 1}" ${page >= pages ? "disabled" : ""}>${t("common.pager.next")}</button>
+      <button class="chip" data-bdpage="0">${t("board.more.hide")}</button>
+    </div>
+  </div>`;
 }
