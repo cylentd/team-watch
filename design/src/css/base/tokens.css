@@ -108,19 +108,21 @@
 
   /* The gallery slip is printed on paper (2026-09-25, builder/ticket.css): the one light surface on
      the page, so it reads as an object you take to the window. Wins and losses keep green and red,
-     darkened until they hold contrast on paper. */
-  --paper:#f1efe8;
-  --paper-rgb:241 239 232;
-  --paper-2:#e2dfd5;
-  --paper-2-rgb:226 223 213;
+     darkened until they hold contrast on paper. Toned down 2026-09-25 from #f1efe8, which glowed
+     against the dark page: a slip under the room's light, not a lit screen. Every ink holds 4.5:1
+     or more on it (ink 9.8, ink-2 5.4, up 5.1, down 5.1). */
+  --paper:#cbc4b4;
+  --paper-rgb:203 196 180;
+  --paper-2:#bdb5a3;
+  --paper-2-rgb:189 181 163;
   --paper-ink:#1d1c1a;
   --paper-ink-rgb:29 28 26;
-  --paper-ink-2:#5d5a53;
-  --paper-ink-2-rgb:93 90 83;
-  --paper-up:#0f7a45;
-  --paper-up-rgb:15 122 69;
-  --paper-down:#b3261e;
-  --paper-down-rgb:179 38 30;
+  --paper-ink-2:#4a463f;
+  --paper-ink-2-rgb:74 70 63;
+  --paper-up:#09552f;
+  --paper-up-rgb:9 85 47;
+  --paper-down:#8f1d17;
+  --paper-down-rgb:143 29 23;
 
   /* The roster cards' tiers (2026-09-25, surface/teams/cards.css): silver for #13-24 at the
      position, gold for #4-12 and the #2-3 glitter card, a soft pearl for the #1 signature card.
@@ -146,7 +148,18 @@
 
   --ease:cubic-bezier(.16,1,.3,1);
   --ease-flight:cubic-bezier(.3,.1,.25,1);      /* the football's pass across the hero */
-  --dur-deal:.5s;       /* one waiver card landing on the first open of a day */
+  /* Springs (2026-09-25), sampled from a damped spring of mass 1 the way motion.dev computes its
+     own: --spring is stiffness 500 / damping 30 (5.7% overshoot, settles in --dur-spring), for
+     anything that moves in answer to a hand. --spring-pop is 400 / 20 (16%), for one small thing
+     that lands: a count ticking up, a check appearing. Regenerate, never hand-edit a point. */
+  --spring:linear(0, .057, .192, .359, .529, .682, .81, .907, .977, 1.022, 1.047, 1.057, 1.057, 1.052, 1.043, 1.033, 1.023, 1.015, 1.008, 1.003, 1, .998, .997, .997, .997, .997, .998, .998, 1);
+  --spring-pop:linear(0, .102, .333, .6, .838, 1.014, 1.119, 1.16, 1.156, 1.123, 1.08, 1.039, 1.006, .985, .975, .974, .978, .984, .991, .997, 1.001, 1.004, 1.004, 1.004, 1.003, 1.002, 1.001, 1, 1);
+  --dur-spring:.46s;
+  --dur-pop:.69s;
+  --press:.96;          /* the scale a control shrinks to under a finger */
+  --lift:-3px;          /* how far a card rises under the pointer */
+  --enter-step:28ms;    /* the gap between two cards arriving on a new view */
+  --dur-deal:.5s;     /* one waiver card landing on the first open of a day */
   --deal-step:60ms;     /* the gap between two cards of the deal */
   --dur-flip:.55s;      /* a waiver card turning over */
   --dur-stamp:.4s;      /* the Must-claim stamp slam; the Worth mark reuses it, quieter */

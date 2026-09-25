@@ -75,7 +75,7 @@ function parlayHTML(){
             <button class="chip" data-mktpage="next" ${page>=pages?"disabled":""}>${t("common.pager.next")}</button>
           </div>`;
           return rows.length
-            ? `${pager}<div class="legs" style="margin-top:14px">${ud ? rows.map(udPlayerCard).join("") : rows.map((p)=>propCard(p, PROPS.indexOf(p))).join("")}</div>`
+            ? `${pager}<div class="legs ${ud ? "pgrid" : "lgrid"}" style="margin-top:14px">${ud ? rows.map(udPlayerCard).join("") : rows.map((p)=>propCard(p, PROPS.indexOf(p))).join("")}</div>`
             : `<div class="state-empty" style="margin:20px 0;min-height:120px"><div><b>0</b><span>${t("parlay.empty.noLines")}</span></div></div>`;
         })()}
       </div>

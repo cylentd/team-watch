@@ -5,7 +5,7 @@ let DFS_PAGE = 1;
 const DFS_PAGE_SIZE = 25;
 /* The full props board can run to 900+ lines across every market and player, so it's paginated too. */
 let MKT_PAGE = 1;
-const MKT_PAGE_SIZE = 25;
+const MKT_PAGE_SIZE = 24;   // lines per page in DK mode: whole rows of the two- or three-wide grid
 /* Card order. "edge" ranks by what the price leaves on the table; "model" by the model's chance
    alone ("who scores?" on a touchdown list). The choice sticks until changed: a market chip
    never moves it. Unmodelled rows go last either way, mine first among them. */

@@ -1,5 +1,5 @@
 @media (prefers-reduced-motion:reduce){
-  *{animation-duration:.001ms!important;animation-delay:0ms!important;transition-duration:.001ms!important}
+  *{animation-duration:.001ms!important;animation-delay:0ms!important;transition-duration:.001ms!important;transition-delay:0ms!important}
   .row,.wv.deal .wvc,.newslist .newsrow{opacity:1;transform:none}
   /* The flip is an instant swap: no turn, the faces trade places. */
   .wvc-in{transition:none}

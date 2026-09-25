@@ -48,12 +48,35 @@ function cardFront(p, tier, rank, g){
     </div>`;
 }
 
-/* The back holds only what the front does not: why the tier, and the snap-share line. The projection
-   and the matchup are already on the front, and a phone card has no room to say them twice. */
+/* The back holds only what the front does not: why the tier, and his role as a stat sheet. Three
+   usage stats for his position (WV_PROOF, the waiver card's choice, so the two never disagree),
+   each with this week's value, an arrow against last week, and a bar that is his percentile at
+   the position that week (the Grid's own `p`). The snap line it replaced was two or three points
+   with no numbers. The week is his latest game, not the league's (a Thursday or Monday game can
+   leave him a week behind), and the back says which. A player the Grid has no row for keeps the line. */
+function cardStats(p){
+  if (typeof USAGE === "undefined" || !USAGE || !WV_PROOF[p.pos] || !p.slug) return null;
+  const mine = USAGE.rows.filter(x => x.slug === p.slug).sort((a, b) => a.wk - b.wk);
+  const row = mine[mine.length - 1], before = mine[mine.length - 2];
+  const cols = WV_PROOF[p.pos].map(want => wvCol(p.pos, want)).filter(Boolean);
+  if (!row || !cols.length) return null;
+  const val = (r, id) => r && r.v[id] !== undefined ? r.v[id] : null;
+  const html = `<div class="bk-stats">${cols.map(c => {
+    const now = val(row, c.id);
+    const pct = row.p && typeof row.p[c.id] === "number" ? row.p[c.id] : null;
+    const band = pct === null ? "" : pct >= 67 ? "hi" : pct >= 34 ? "mid" : "lo";
+    const tip = pct === null ? esc(c.label) : t("teams.card.pctTip", {stat: esc(c.label), p: pct, pos: esc(p.pos)});
+    return `<div class="bk-stat ${band}" title="${tip}">
+        <span class="bk-l">${esc(c.label)}</span><b>${usageFmt(now, c.fmt)}${wvTrendHTML(now, before ? val(before, c.id) : null)}</b>
+        <span class="bk-bar"><i style="--p:${pct === null ? 0 : pct / 100}"></i></span></div>`;
+  }).join("")}</div>`;
+  return {html, wk: row.wk};
+}
 function cardBack(p, rank, teamKey, i){
+  const stats = cardStats(p);
   return `<div class="tc-face tc-back">
-      <div class="bk-why"><b>${rank ? t("teams.card.rank", {n: rank, pos: esc(p.pos)}) : esc(p.pos)}</b>${t("teams.card.thisWeek")}</div>
-      <div class="bk-l">${t("teams.card.snap")}</div><div class="bk-sp">${sparkHTML(p.trend, 110, 28)}</div>
+      <div class="bk-why"><b>${rank ? t("teams.card.rank", {n: rank, pos: esc(p.pos)}) : esc(p.pos)}</b>${stats ? t("teams.card.roleWeek", {wk: stats.wk}) : t("teams.card.thisWeek")}</div>
+      ${stats ? stats.html : `<div class="bk-l">${t("teams.card.snap")}</div><div class="bk-sp">${sparkHTML(p.trend, 110, 28)}</div>`}
       <button class="bk-open" type="button" data-cteam="${teamKey}" data-ci="${i}">${t("teams.card.profile")}</button>
     </div>`;
 }

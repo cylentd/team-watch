@@ -128,6 +128,7 @@ function wireBuilder(v){
       SLIP = SLIP.includes(i) ? SLIP.filter(x=>x!==i) : SLIP.concat(i);
       SLIP_MODE = "custom";
       const y = window.scrollY; render(); window.scrollTo(0, y);
+      popLeg(v, i, SLIP.includes(i));
     };
     el.addEventListener("click", e=>{ if (e.target.closest(".more, .gl, .legx")) return; toggle(); });
     el.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();toggle();} });

@@ -34,6 +34,7 @@ function paintBadge(){
 function render(){
   const v = document.getElementById("view");
   paintBadge();
+  markEnter(v);
 
   if (SURFACE === "news"){
     v.innerHTML = newsHTML();

@@ -1,5 +1,6 @@
 /* The cards' motion (surface/teams/cards.js): tilt toward the pointer or a dragging finger, the foil
-   and glare following the same point through --mx/--my, and a flip on tap. Plain CSS transitions
+   and glare following the same point through --mx/--my, the photo drifting against the tilt
+   through --px/--py, and a flip on tap. Plain CSS transitions
    driven by custom properties -- no animation library, the page carries its own weight. Reduced
    motion keeps the light and the flip's result and drops the tilt and the turn. */
 function wireCards(v){
@@ -13,11 +14,14 @@ function wireCards(v){
       if (!still){
         el.style.setProperty("--ry", `${((x - .5) * 20).toFixed(1)}deg`);
         el.style.setProperty("--rx", `${((.5 - y) * 20).toFixed(1)}deg`);
+        // -0.5..0.5, unitless: the photo's parallax multiplies it into pixels (cards.css).
+        el.style.setProperty("--px", (x - .5).toFixed(3));
+        el.style.setProperty("--py", (y - .5).toFixed(3));
       }
     });
     el.addEventListener("pointerleave", () => {
       el.classList.remove("live");
-      ["--mx", "--my", "--rx", "--ry"].forEach(k => el.style.removeProperty(k));
+      ["--mx", "--my", "--rx", "--ry", "--px", "--py"].forEach(k => el.style.removeProperty(k));
     });
     const turn = () => el.classList.toggle("back");
     el.addEventListener("click", e => { if (!e.target.closest(".bk-open")) turn(); });

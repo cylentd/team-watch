@@ -83,6 +83,40 @@ def test_a_tap_flips_the_card_and_its_back_opens_the_profile(browser, page_file)
 
 
 @pytest.mark.render
+def test_a_card_back_is_a_role_sheet_from_his_latest_game(browser, page_file):
+    ctx, page, errors = cards_page(browser, page_file)
+    # The first skill player the Grid has a row for: his back is three stats with percentile bars.
+    got = page.evaluate("""(() => {
+      const p = TEAMS.espn.roster.find(p => WV_PROOF[p.pos] && USAGE.rows.some(r => r.slug === p.slug));
+      if (!p) return null;
+      const d = document.createElement('div'); d.innerHTML = cardHTML(p, 0, 'espn');
+      const last = Math.max(...USAGE.rows.filter(r => r.slug === p.slug).map(r => r.wk));
+      return {stats: d.querySelectorAll('.bk-stat').length, bars: [...d.querySelectorAll('.bk-bar i')].map(i => i.style.getPropertyValue('--p')),
+              week: d.querySelector('.bk-why').textContent.includes(String(last)), spark: d.querySelectorAll('.tc-back .spark').length};
+    })()""")
+    if got is None:
+        pytest.skip("no rostered skill player in the fixture's usage grid")
+    assert got["stats"] == 3 and all(b != "" for b in got["bars"])
+    assert got["week"] and got["spark"] == 0
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_the_photo_fills_the_art_from_its_bottom_edge(browser, page_file):
+    ctx, page, errors = cards_page(browser, page_file)
+    img = page.locator(".cards .tc-art > .head > img").first
+    if img.count() == 0:
+        pytest.skip("no headshot file in the fixture build")
+    art = img.locator("xpath=../..").bounding_box()
+    box = img.bounding_box()
+    assert box["height"] > art["height"] * 0.8
+    assert abs((box["y"] + box["height"]) - (art["y"] + art["height"])) < 1.5
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
 def test_the_pack_opens_once_a_week(browser, page_file):
     ctx, page, errors = cards_page(browser, page_file)
     if page.locator(".pack").count() == 0:

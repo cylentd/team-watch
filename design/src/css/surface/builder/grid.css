@@ -1,0 +1,48 @@
+/* ============================== PROP MARKET: CARD GRID ============================== */
+/* 2026-09-25: the market is cards, two to a row on a phone and as many as fit on a desktop, so a
+   screen shows twice the players it did as a list. .pgrid holds Underdog's player cards
+   (underdog-list.css), .lgrid DraftKings' one-line cards (legs.css). Each rule here is a class
+   deeper than the list rule it reshapes, so it wins over responsive/760.css, which comes later.
+   Opening a line's chevron (the game log) widens its card to the whole row: a chart needs room. */
+.pgrid,.lgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:start}
+.pgrid > .pcard:has(.legx),.lgrid > .leg:has(.legx){grid-column:1/-1}
+
+/* Underdog: who and when on top, then one small block per call. */
+.pgrid .pcard{display:flex;flex-direction:column;min-width:0}
+.pgrid .phead2{grid-template-columns:32px minmax(0,1fr);gap:8px;padding:10px 10px 8px;align-items:start}
+.pgrid .phead2 img,.pgrid .phead2 .fallback{width:32px;height:32px}
+.pgrid .phead2 .prop{font-size:var(--t-2);line-height:18px;white-space:normal}
+.pgrid .phead2 .book{font-size:var(--t-1);line-height:1.35}
+/* The kickoff, and DK's prop, take their own line in a card rather than wrapping mid-sentence
+   behind a dot. Outside a grid (none today) they would read inline, after a dot. */
+:is(.phead2,.leg) :is(.kick,.pl)::before{content:" · "}
+:is(.pgrid .phead2,.lgrid .leg) :is(.kick,.pl){display:block}
+:is(.pgrid .phead2,.lgrid .leg) :is(.kick,.pl)::before{content:none}
+/* Mixed case on purpose: uppercase makes "o0.5" read as "00.5". */
+.lgrid .leg .pl{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.02em;color:var(--ink-2)}
+/* A call: direction over the line, the confidence beside them, the meter under all three. */
+.pgrid .udline{grid-template-columns:minmax(0,1fr) auto 22px;grid-template-areas:"dir pct more" "ln pct more" "meter meter meter";
+  gap:2px 6px;padding:8px 10px 9px}
+.pgrid .udline .dir{grid-area:dir;font-size:var(--t-1);letter-spacing:.1em}
+.pgrid .udline .ln{grid-area:ln;display:flex;flex-wrap:wrap;align-items:baseline;gap:0 5px}
+.pgrid .udline .ln b{font-size:var(--t-4)}
+.pgrid .udline .ln small{margin-left:0;letter-spacing:.08em}
+.pgrid .udline .pct{grid-area:pct;align-self:center;font-size:var(--t-4)}
+.pgrid .udline .more{grid-area:more;align-self:center}
+.pgrid .udline .meter{grid-area:meter;margin-top:5px}
+.pgrid .udline .legx{grid-column:1/-1;grid-row:4}
+
+/* DraftKings: the player and the line, then the price and the chevron on one foot row. */
+.lgrid .leg{grid-template-columns:32px minmax(0,1fr) 22px;grid-template-areas:"av txt txt" "o o more";
+  gap:8px;padding:10px;align-items:start;min-width:0}
+.lgrid .leg > img,.lgrid .leg > .fallback{grid-area:av;width:32px;height:32px}
+.lgrid .leg > div:not([class]){grid-area:txt;min-width:0}   /* the name block, the one child with no class */
+.lgrid .leg .prop{font-size:var(--t-2);line-height:18px}
+.lgrid .leg .book{font-size:var(--t-1);margin-top:3px}
+.lgrid .leg .o{grid-area:o;justify-self:start;padding:5px 9px}
+.lgrid .leg .more{grid-area:more;align-self:center}
+.lgrid .leg .legx{grid-column:1/-1;grid-row:3}
+
+@media (min-width:760px){
+  .pgrid,.lgrid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+}

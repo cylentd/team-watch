@@ -6,7 +6,8 @@
    the legs and own the math. */
 /* A slip is as long as its legs: align-self keeps the rail from stretching a 2-leg slip to the
    height of a 3-leg one, which would print blank paper under its button. */
-.ticket{position:static;display:flex;flex-direction:column;align-self:flex-start;background:var(--paper);color:var(--paper-ink);
+/* The paper falls off toward the foot, as a slip does held under one light. */
+.ticket{position:static;display:flex;flex-direction:column;align-self:flex-start;background:linear-gradient(180deg,var(--paper),var(--paper-2));color:var(--paper-ink);
   padding:12px 0 18px;
   -webkit-mask:radial-gradient(circle 4px at 50% 0,transparent 98%,var(--shadow)) top/12px 51% repeat-x,
     conic-gradient(from 135deg at 50% 100%,transparent 90deg,var(--shadow) 0) bottom/12px 51% repeat-x;

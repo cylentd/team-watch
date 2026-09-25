@@ -98,13 +98,15 @@ function udPlayerCard(rows){
       ${avatarHTML(p)}
       <div>
         <div class="prop">${esc(p.n)}${tag ? " " + tag : ""}</div>
-        <div class="book">${esc(p.pos)} · ${esc(p.game)}${p.kick ? ` · ${esc(p.kick)}` : ""}</div>
+        <div class="book">${esc(p.pos)} · ${esc(p.game)}${p.kick ? `<span class="kick">${esc(p.kick)}</span>` : ""}</div>
       </div>
     </div>
     ${rows.map(r => udLine(r, PROPS.indexOf(r), !!tag)).join("")}
   </div>`;
 }
-const UD_PAGE_SIZE = 10;   // players per page in Underdog mode; MKT_PAGE_SIZE counts lines in DK mode
+// Players per page in Underdog mode, a multiple of two and three so the card grid ends on a full
+// row at either width (builder/grid.css); MKT_PAGE_SIZE counts lines in DK mode.
+const UD_PAGE_SIZE = 12;
 
 function propCard(p, i){
   if (PARLAY_BOOK === "underdog") return udPropCard(p, i);
@@ -135,8 +137,8 @@ function propCard(p, i){
   return `<div class="leg ${p.mine?"mine":""} ${inSlip?"inslip":""} ${p.flag==="out"?"isout":""} ${open?"open":""}" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">
     ${avatarHTML(p)}
     <div>
-      <div class="prop">${esc(p.n)} · ${esc(propLabel(p))}${tag ? " " + tag : ""}</div>
-      <div class="book">${esc(p.pos)} · ${esc(p.game)}${p.kick ? ` · ${esc(p.kick)}` : ""}</div>
+      <div class="prop">${esc(p.n)}<span class="pl">${esc(propLabel(p))}</span>${tag ? " " + tag : ""}</div>
+      <div class="book">${esc(p.pos)} · ${esc(p.game)}${p.kick ? `<span class="kick">${esc(p.kick)}</span>` : ""}</div>
     </div>
     <div class="o">${esc(fmtAm(overPrice(p)))}</div>
     ${moreButtonHTML(i, open, log)}

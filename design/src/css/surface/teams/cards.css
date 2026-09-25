@@ -29,8 +29,16 @@
 .tc-art.pos-RB{--tint:var(--pos-rb-rgb)}
 .tc-art.pos-WR{--tint:var(--pos-wr-rgb)}
 .tc-art.pos-TE{--tint:var(--pos-te-rgb)}
-.tc .head,.tc .head img,.tc .head .fallback,.tc .head .dst{position:relative;z-index:1;width:var(--th);height:var(--th)}
-.tc .head img,.tc .head .fallback{border:2px solid rgb(var(--ink-rgb) / .15)}
+/* The photo stands on the art's bottom edge and fills its height, the way a printed card is cut
+   (2026-09-25; it was a small circle in the middle). Heads are transparent cutouts, so the tint
+   shows around him. It drifts a few pixels against the tilt (--px/--py from cardmotion.js), so the
+   photo sits in front of the art. A player with no photo keeps the initials, centred. */
+.tc-art > .head{position:absolute;z-index:1;inset:6% 0 0;width:auto;height:auto;display:flex;justify-content:center;align-items:flex-end;
+  translate:calc(var(--px, 0) * -6px) calc(var(--py, 0) * -4px);transition:translate var(--dur-spring) var(--spring)}
+.tc.live .tc-art > .head{transition:none}
+.tc-art > .head > img{height:100%;width:auto;max-width:100%;aspect-ratio:1;object-fit:contain;object-position:bottom;
+  border:0;border-radius:0;background:none;filter:drop-shadow(0 3px 5px rgb(var(--shadow-rgb) / .45))}
+.tc-art > .head .fallback{align-self:center;width:var(--th);height:var(--th);border:2px solid rgb(var(--ink-rgb) / .15)}
 .tc-name{padding:4px 6px 0;text-align:center;font-family:var(--disp);font-weight:800;font-size:var(--t-2);line-height:1.15;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tc-meta{padding:1px 6px 0;text-align:center;font-size:var(--t-1);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -72,6 +80,20 @@
 .bk-why b{display:block;font-family:var(--disp);font-weight:800;font-size:var(--t-3);color:var(--ink)}
 .bk-l{margin-top:4px;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.06em;color:var(--ink-3);text-transform:uppercase;white-space:nowrap}
 .bk-sp .spark{width:100%;height:24px}
+/* The role sheet: label and value on one line, the percentile bar under them. The bar's colour
+   is its band (top third lime, middle amber, bottom grey), so three bars read before three numbers. */
+.bk-stats{display:flex;flex-direction:column;gap:5px;margin-top:3px}
+.bk-stat{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;column-gap:4px}
+.bk-stat .bk-l{margin-top:0;overflow:hidden;text-overflow:ellipsis}
+.bk-stat b{font-family:var(--mono);font-size:var(--t-1);font-weight:700;white-space:nowrap}
+.bk-stat .wvp-t{margin-left:2px}
+.bk-bar{grid-column:1/-1;height:3px;margin-top:2px;border-radius:2px;background:var(--line);overflow:hidden}
+.bk-bar i{display:block;height:100%;background:var(--ink-3);transform:scaleX(var(--p));transform-origin:left;
+  transition:transform var(--dur-spring) var(--spring) .15s}
+.bk-stat.mid .bk-bar i{background:var(--amber)}
+.bk-stat.hi .bk-bar i{background:var(--lime)}
+/* The bars fill as the card turns over, not before: the back is hidden until then. */
+.tc:not(.back) .bk-bar i{transform:scaleX(0);transition-delay:0s}
 .bk-m{font-size:var(--t-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bk-note{margin-top:4px;font-size:var(--t-1);line-height:1.3;color:var(--ink-3)}
 .bk-open{appearance:none;margin-top:auto;border:1px solid var(--line-2);border-radius:4px;background:var(--panel-2);color:var(--ink);
@@ -83,7 +105,7 @@
 .tier-k{--frame:var(--turf-line)}
 .tier-k .tc-face{background:var(--turf)}
 .tier-k .tc-art{background:repeating-linear-gradient(180deg,var(--turf) 0 13px,var(--turf-2) 13px 26px);box-shadow:inset 0 0 0 1px var(--turf-line)}
-.tier-k .tc-art .head{margin-top:22%}
+.tier-k .tc-art > .head{inset:30% 0 0}
 .tc-posts{position:absolute;top:5%;left:50%;width:42%;transform:translateX(-50%);fill:none;stroke:var(--post);stroke-width:3;stroke-linecap:round}
 .tc-chip{position:absolute;z-index:2;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.04em;
   color:var(--ink);background:rgb(var(--void-rgb) / .75);border-radius:3px;padding:1px 4px;white-space:nowrap}

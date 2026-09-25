@@ -1,0 +1,68 @@
+/* ============================== MICROINTERACTIONS ============================== */
+/* 2026-09-25, after motion.dev's gestures, in plain CSS: the springs are tokens (base/tokens.css)
+   sampled from the same physics, so nothing here loads a library. Four beats, each answering a hand
+   or a change of view, never running under something being read:
+   - press: a control shrinks under a finger and springs back when let go;
+   - lift: a card rises under a pointer (desktop only; a phone has no hover);
+   - enter: on a new view the cards arrive staggered (#view.enter, js/chrome/motion.js markEnter);
+   - land: the line just tapped and the slip's count pop once (.just, .bump, from popLeg).
+   Reduced motion gets none of it: every rule sits in the no-preference block. */
+
+/* The place of a card in its row, for the stagger. sibling-index() is not in Safari yet. */
+:is(.cardgrid,.legs,.railscroll) > :nth-child(n+2){--i:1}
+:is(.cardgrid,.legs,.railscroll) > :nth-child(n+3){--i:2}
+:is(.cardgrid,.legs,.railscroll) > :nth-child(n+4){--i:3}
+:is(.cardgrid,.legs,.railscroll) > :nth-child(n+5){--i:4}
+:is(.cardgrid,.legs,.railscroll) > :nth-child(n+6){--i:5}
+:is(.cardgrid,.legs,.railscroll) > :nth-child(n+7){--i:6}
+:is(.cardgrid,.legs,.railscroll) > :nth-child(n+8){--i:7}
+:is(.cardgrid,.legs,.railscroll) > :nth-child(n+9){--i:8}
+:is(.cardgrid,.legs,.railscroll) > :nth-child(n+10){--i:9}
+
+@media (prefers-reduced-motion:no-preference){
+  /* Press. The later `transform` in each list wins over `all` for that one property, so the colour
+     fades keep their ease and only the squash springs. Pressing in is quick; the release springs. */
+  .chip,.btn,.mode-sub{transition:all .18s var(--ease),transform var(--dur-spring) var(--spring)}
+  .navitem{transition:color .2s var(--ease),background .2s var(--ease),transform var(--dur-spring) var(--spring)}
+  .ticket-cta,.bk-open{transition:background .15s var(--ease),color .15s var(--ease),transform var(--dur-spring) var(--spring)}
+  .leg .more,.udline .more,.legremove{transition:all .15s var(--ease),transform var(--dur-spring) var(--spring)}
+  :is(.chip,.btn,.mode-sub,.navitem,.ticket-cta,.bk-open,.leg .more,.udline .more,.legremove):active{
+    transform:scale(var(--press));transition-duration:.18s,.08s}
+  .navitem:active{transition-duration:.2s,.2s,.08s}
+  /* A card tilts by transform, so its press is the separate `scale`, which the tilt never touches. */
+  .tc{transition:transform .5s var(--ease),scale var(--dur-spring) var(--spring)}
+  .tc.live{transition:scale var(--dur-spring) var(--spring)}
+  .tc:active{scale:.97}
+  /* The turn overshoots a few degrees and settles, like a card flicked over on a table. */
+  .tc-flip{transition:transform .7s var(--spring)}
+  .udline,.leg{transition:background .2s var(--ease),border-color .2s var(--ease),scale var(--dur-spring) var(--spring)}
+  .udline:active,.leg:active{transform:none;scale:.98}
+
+  /* Lift, only where there is a pointer to lift under. */
+  @media (hover:hover){
+    .pcard{transition:border-color .2s var(--ease),translate var(--dur-spring) var(--spring),box-shadow .3s var(--ease)}
+    .pcard:hover{translate:0 var(--lift);box-shadow:0 10px 24px rgb(var(--shadow-rgb) / .35)}
+    .ticket{transition:transform var(--dur-spring) var(--spring)}
+  }
+
+  /* Enter: a new view's cards rise into place one after another, the first nine at most, so a long
+     list never waits on its tail. The meters fill from empty on the same beat. */
+  #view.enter :is(.cardgrid,.legs,.railscroll) > *{
+    animation:mi-rise var(--dur-spring) var(--spring) both;animation-delay:calc(var(--i, 0) * var(--enter-step))}
+  #view.enter .udline .meter i,#view.enter .udconf .meter i{
+    animation:mi-fill var(--dur-pop) var(--spring) both;animation-delay:calc(var(--i, 0) * var(--enter-step) + .12s)}
+  /* The active tab's underline draws itself in from the middle. */
+  .navitem[aria-current="true"]::after{animation:mi-ink var(--dur-spring) var(--spring) both}
+
+  /* Land: the tapped line flashes lime and its number pops; the slip's count ticks. */
+  .udline.just,.leg.just{animation:mi-flash .6s var(--ease)}
+  .udline.just .pct,.leg.just .udconf b,.leg.just .o{animation:mi-pop var(--dur-pop) var(--spring-pop)}
+  .slip .sliphead .pill.bump{animation:mi-pop var(--dur-pop) var(--spring-pop)}
+  .slip .slipleg.just{animation:mi-slide var(--dur-spring) var(--spring) both}
+}
+@keyframes mi-rise{from{opacity:0;translate:0 10px;scale:.97}}
+@keyframes mi-fill{from{transform:scaleX(0)}}
+@keyframes mi-ink{from{transform:scaleX(0)}}
+@keyframes mi-pop{from{scale:1.22}}
+@keyframes mi-flash{from{background:rgb(var(--lime-rgb) / .16)}}
+@keyframes mi-slide{from{opacity:0;translate:-12px 0}}

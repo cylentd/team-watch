@@ -39,6 +39,28 @@ function zipFootball(){
   hero.appendChild(z);
 }
 
+/* Microinteractions (2026-09-25, css/chrome/micro.css). Two hooks the CSS cannot find on its own,
+   because render() rebuilds the whole view on every tap:
+   - markEnter: #view gets .enter only when what it shows changed (a view, a league, a mode, a
+     page or a filter), so the cards arrive staggered then and a tap that only adds a leg does not
+     replay the arrival of everything on screen.
+   - popLeg: the line just tapped and the slip's count get a class for one landing beat. */
+let ENTER_KEY = null;
+function enterKey(){
+  return [SURFACE, VIEW, ROSTER_MODE, BD_MODE, PARLAY_BOOK, MKT_PAGE, MKT_POS, MKT_KIND, MKT_WIN, MKT_MINE, SLIP_SCOPE, GAL_WIN].join("|");
+}
+function markEnter(v){
+  const key = enterKey();
+  v.classList.toggle("enter", key !== ENTER_KEY && !REDUCED());   // reduced motion: nothing to stagger
+  ENTER_KEY = key;
+}
+function popLeg(v, i, added){
+  if (REDUCED()) return;
+  v.querySelectorAll(`[data-prop="${i}"]`).forEach(el => el.classList.add("just"));
+  v.querySelector(".slip .sliphead .pill")?.classList.add("bump");
+  if (added){ const legs = v.querySelectorAll(".slip .slipleg"); legs[legs.length - 1]?.classList.add("just"); }
+}
+
 function morphLogo(){
   const s = document.querySelector(".brand-name .slashes");
   if (!s || REDUCED()) return;

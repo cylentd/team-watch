@@ -287,6 +287,12 @@ the cart's footer caption, never shown as an Underdog price. Switching the toggl
 by hand; the cart warns when two legs
 share a game (correlated legs are one bet, not two).
 
+The market is a card grid (2026-09-25, `css/surface/builder/grid.css`): two cards to a row on a
+phone, as many 220px cards as fit from 760px up, so a screen holds twice the players the list did.
+Opening a line's chevron widens its card to the whole row. Page sizes are multiples of 2 and 3
+(12 players, 24 lines) so a page ends on a full row. The gallery slip's paper was toned down the
+same day (`--paper` #f1efe8 → #cbc4b4); it glowed against the dark page.
+
 **DFS**: a swipeable rail of precomputed lineups per strategy (an equal-width segmented control,
 greedy = max points, non-chalk = for GPPs) each with a "Load into my lineup" button, then nine
 cart slots against a cap, salary bar, summed ownership, and a styled empty slot — a second toggle
@@ -312,6 +318,22 @@ Motion marks a change of context, never moves what is being read. All of it live
 | Tab or sub-tab switch | the `//` in TEAM//WATCH crosses into an X and back |
 | Waivers, news list | rows arrive one at a time |
 | Profile modal charts | every chart draws itself along the axis that carries its number (below) |
+
+**Microinteractions (2026-09-25)**, after motion.dev's gestures but in plain CSS
+(`css/chrome/micro.css`). The springs are `--spring` and `--spring-pop` in `tokens.css`, `linear()`
+curves sampled from a real damped spring, so no library loads.
+
+| Beat | What moves |
+|---|---|
+| Press | every chip, button, nav tab, card and market line squashes under a finger and springs back |
+| Lift | a market card rises under a pointer (hover devices only) |
+| Enter | a new view's cards, slips and market cards rise in, staggered; meters fill from empty |
+| Land | the tapped line flashes and its % pops; the slip count ticks; the new slip leg slides in |
+| Card | the flip overshoots and settles; the photo drifts against the tilt |
+
+Enter fires only when what the view shows changed (`markEnter` in `js/chrome/motion.js`), never on
+a tap that only adds a leg, because `render()` rebuilds the whole view on every tap.
+`tests/test_parlay_grid.py` pins both halves.
 
 ## The profile modal (rebuilt 2026-09-22)
 

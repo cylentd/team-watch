@@ -61,11 +61,15 @@ surface/builder/side.css
 surface/builder/ticket.css
 surface/builder/slip.css
 surface/builder/ud-row.css
+surface/builder/grid.css
 surface/builder/payout.css
 surface/builder/explain.css
 surface/dfs/table.css
 chrome/feed.css
 surface/dfs/lineup.css
+# pin: micro.css after every surface -- it restates the transition lists of controls and cards
+#      those files own (the spring on transform), and wins ties by coming later.
+chrome/micro.css
 responsive/960.css
 responsive/760.css
 responsive/lists.css
