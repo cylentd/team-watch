@@ -133,11 +133,13 @@
 .tc-imp span{margin-top:3px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.06em}
 
 @media (min-width:960px){
-  /* Five across: nine starters are a row of five and a row of four, a bench of five is one row. */
-  .cardgrid{grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
-  .tc{--th:84px}
-  .tc-name{font-size:var(--t-4)}
-  .tc-sig{font-size:var(--t-5)}
-  .tc-imp b{font-size:var(--t-6)}
-  .tc-abbr{transform:rotate(-8deg) scale(2.2)}
+  /* A starting lineup is always nine, so it is a 3x3 block, and the bench stands to its right
+     three across (2026-09-25; it was five across under the starters, a scroll below the fold).
+     A card's width comes from the window's height, so three rows (4.2 card widths tall with the
+     gaps) fit under the ~410px of header above them; 104px at the least, 150px at the most. */
+  .cards{--cw:clamp(104px, calc((100dvh - 410px) / 4.2), 150px);
+    display:grid;grid-template-columns:auto auto;gap:0 44px;justify-content:start;align-items:start}
+  .cards-col.bench{margin-top:0}
+  .cardgrid{grid-template-columns:repeat(3,var(--cw));gap:12px}
+  .tc{--th:64px}
 }

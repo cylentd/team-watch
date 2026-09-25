@@ -1,6 +1,8 @@
 """The roster's Cards view (2026-09-25): the tier is this week's rank at the position, K and DST are
 support cards with no tier, the Sheet / Cards choice survives a reload, and the week's pack opens
 once. The ranks and the implied points are computed at build time; the rest renders."""
+import re
+
 import pytest
 
 from lines import live_lines
@@ -138,7 +140,7 @@ def test_the_pack_opens_once_a_week(browser, page_file):
         pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
     page.click(".pack-seal")                                   # reduced motion: the end at once
     page.wait_for_selector(".pack-done")
-    assert page.locator(".pack-grid .tc.pk-down").count() == 0
+    assert page.locator(".cards .tc.pk-down").count() == 0
     page.click(".pack-done")
     assert page.locator(".pack").count() == 0
     assert errors == []
@@ -161,6 +163,46 @@ def test_rip_again_puts_this_weeks_pack_back_sealed(browser, page_file):
 
 
 @pytest.mark.render
+def test_the_pack_turns_over_in_its_own_roster_slots_and_skip_ends_it(browser, page_file):
+    from test_render import SEED
+    ctx = browser.new_context(viewport={"width": 390, "height": 844}, reduced_motion="no-preference")
+    page = ctx.new_page()
+    errors = []
+    page.on("pageerror", lambda e: errors.append(str(e)))
+    page.route(re.compile(r"^https?://"), lambda route: route.abort())
+    page.add_init_script(SEED)
+    page.goto(page_file.as_uri() + "#roster")
+    page.wait_for_function("document.getElementById('view').children.length > 0")
+    page.evaluate("VIEW='espn'; render()")
+    page.click("[data-rmode='cards']")
+    if page.locator(".pack").count() == 0:
+        pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
+    page.click(".pack-seal")
+    page.wait_for_selector(".pack-live")
+    # Face down are exactly the pack's players, in their own slots (the profile index is the slot).
+    down = page.evaluate("[...document.querySelectorAll('.cards .tc.pk-down .bk-open')].map(b => +b.dataset.ci).sort((a, b) => a - b)")
+    want = page.evaluate("packCards(TEAMS.espn).map(c => c.i).sort((a, b) => a - b)")
+    assert down == want and len(want) > 0
+    assert page.locator("[data-rerip]").count() == 0, "no Rip again while the pack is turning"
+    page.click(".pk-skip")
+    page.wait_for_selector(".pack-done")
+    assert page.locator(".cards .tc.pk-down").count() == 0 and page.locator(".pk-scrim").count() == 0
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_on_a_desktop_the_starters_are_three_by_three_with_the_bench_beside(browser, page_file):
+    ctx, page, errors = cards_page(browser, page_file, viewport=(1400, 900))
+    cols = page.evaluate("[...document.querySelectorAll('.cards .cardgrid')].map(g => getComputedStyle(g).gridTemplateColumns.split(' ').length)")
+    assert cols[0] == 3
+    starters, bench = page.locator(".cards-col").nth(0).bounding_box(), page.locator(".cards-col.bench").bounding_box()
+    assert bench["x"] > starters["x"] + starters["width"] - 1 and abs(bench["y"] - starters["y"]) < 2
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
 def test_a_short_drag_springs_back_and_a_long_one_rips(browser, page_file):
     ctx, page, errors = cards_page(browser, page_file)
     if page.locator(".pack").count() == 0:
@@ -178,9 +220,9 @@ def test_a_short_drag_springs_back_and_a_long_one_rips(browser, page_file):
         page.mouse.up()
 
     drag(box["width"] * .25)
-    assert page.locator(".pk-stage").count() == 0
+    assert page.locator(".pack-live").count() == 0
     assert page.evaluate("getComputedStyle(document.querySelector('.pack-seal')).getPropertyValue('--tear').trim()") in ("0", "0.000")
     drag(box["width"] * .7)
-    page.wait_for_selector(".pk-stage")
+    page.wait_for_selector(".pack-live")
     assert errors == []
     ctx.close()

@@ -5,8 +5,9 @@
 
    Ripping it (rebuilt 2026-09-25): the sealed pack glows in the colour of the best card inside;
    dragging a finger across it tears the strip off the top, following the finger, and a tap tears it
-   in one go. Foil flakes burst from the tear (packfx.js) and the cards open on their own stage
-   (packstage.js). "Rip again" on the Sheet / Cards row puts this week's pack back, sealed. */
+   in one go. Foil flakes burst from the tear (packfx.js) and the cards turn over in their own
+   slots in the roster (packreveal.js). "Rip again" on the Sheet / Cards row puts this week's pack
+   back, sealed. */
 const PACK_TIERS = ["ur", "sr", "sig", "one"];
 let PACK_REPLAY = null;     // "<league>-<week>" while a replayed pack is on the page
 
@@ -38,7 +39,8 @@ function packCards(team){
 /* This week's pack has been opened and still holds cards: the Sheet / Cards row offers it again. */
 function packReplayable(team){
   const wk = packWeek();
-  return !!wk && packOpened(team, wk) && packCards(team).length > 0 && PACK_REPLAY !== `${team.key}-${wk}`;
+  return !!wk && packOpened(team, wk) && packCards(team).length > 0 && PACK_REPLAY !== `${team.key}-${wk}`
+    && !packRevealing(team);
 }
 function packReplay(team){
   PACK_REPLAY = `${team.key}-${packWeek()}`;
@@ -48,6 +50,7 @@ function packReplay(team){
 
 function packHTML(team){
   const wk = packWeek(), cards = packCards(team);
+  if (wk && cards.length && packRevealing(team)) return packLiveHTML(team);
   if (!wk || !cards.length || (packOpened(team, wk) && PACK_REPLAY !== `${team.key}-${wk}`)) return "";
   const best = cardTier(cards[cards.length - 1].rank);   // the glow gives away how good, never who
   return `<div class="pack" data-pack="${wk}">
@@ -64,9 +67,9 @@ function packHTML(team){
    way and it finishes on its own; short of that it springs back. A tap without a drag tears it at
    once, and Enter or Space on the focused pack does the same. */
 function wirePack(v, team){
-  const box = v.querySelector(".pack");
-  if (!box) return;
-  const wk = +box.dataset.pack, seal = box.querySelector(".pack-seal");
+  const box = v.querySelector(".pack"), seal = box && box.querySelector(".pack-seal");
+  if (!seal) return;       // no pack, or the line shown while its cards turn over
+  const wk = +box.dataset.pack;
   let x0 = null, tear = 0, done = false;
   const set = p => { tear = p; seal.style.setProperty("--tear", p.toFixed(3)); };
   const finish = () => { if (done) return; done = true; packRip(box, seal, team, wk); };
@@ -88,7 +91,8 @@ function wirePack(v, team){
   seal.addEventListener("click", e => { e.stopPropagation(); if (e.detail === 0) finish(); });
 }
 
-/* The strip flies off, flakes burst from the tear, the pack drops away, and the stage opens. */
+/* The strip flies off, flakes burst from the tear, the pack drops away, and its cards turn over in
+   the roster below (packreveal.js). */
 async function packRip(box, seal, team, wk){
   packMark(team, wk);
   PACK_REPLAY = null;
@@ -105,6 +109,8 @@ async function packRip(box, seal, team, wk){
     await seal.animate([{translate: "0 0", opacity: 1}, {translate: "0 60px", scale: ".9", opacity: 0}],
       {duration: 280, easing: "ease-in", fill: "forwards"}).finished;
   }
-  box.hidden = true;
-  packStage(team);
+  PACK_ORDER = new Map(packCards(team).map((c, k) => [c.i, k]));
+  PACK_REVEAL = `${team.key}-${wk}`;
+  render();
+  packRevealRun(team);
 }

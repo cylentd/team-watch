@@ -19,7 +19,7 @@ component/vpill.css
 surface/teams/roster.css
 surface/teams/cards.css
 surface/teams/pack.css
-surface/teams/packstage.css
+surface/teams/packreveal.css
 surface/teams/brief.css
 surface/teams/matchup.css
 surface/teams/wire.css

@@ -155,7 +155,8 @@ function cardsHTML(team){
   const start = team.roster.filter(p => p.start);
   const rest = team.roster.filter(p => !p.start && p.slot !== "OUT").concat(team.roster.filter(p => p.slot === "OUT"));
   let n = 0;
-  const grid = list => `<div class="cardgrid">${list.map(p => cardHTML(p, n++, team.key)).join("")}</div>`;
+  // While this week's pack is turning over, its cards are drawn face down in their slots (packreveal.js).
+  const grid = list => `<div class="cardgrid">${list.map(p => { const i = n++; return packFaceDown(team, i, cardHTML(p, i, team.key)); }).join("")}</div>`;
   const rule = (label, count) => `<div class="rule"><h2>${label}</h2><span class="count">${String(count).padStart(2,"0")}</span><span class="hair"></span></div>`;
   return `<div class="cards">
     <section class="cards-col">${rule(t("teams.group.starters"), start.length)}${grid(start)}</section>
