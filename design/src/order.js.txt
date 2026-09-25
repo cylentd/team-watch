@@ -27,6 +27,8 @@ surface/teams/board.js
 surface/teams/cards.js
 surface/teams/cardmotion.js
 surface/teams/pack.js
+surface/teams/packfx.js
+surface/teams/packstage.js
 surface/teams/brief.js
 surface/teams/proof.js
 surface/teams/wcard.js

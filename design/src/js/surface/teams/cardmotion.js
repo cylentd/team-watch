@@ -43,18 +43,23 @@ function rosterModeLoad(){
 function rosterModeSave(m){
   try { localStorage.setItem("tw-roster-mode", m); } catch (e) { /* a private window keeps it for this load */ }
 }
-function rosterModeHTML(){
+/* "Rip again" (2026-09-25) sits at the end of the same row once this week's pack is open: it puts
+   the pack back on the page, sealed, with the same cards (pack.js packReplay). */
+function rosterModeHTML(team){
+  const again = ROSTER_MODE === "cards" && team && packReplayable(team);
   return `<div class="filters rmode" role="group" aria-label="${t("teams.mode.label")}">
     <button class="chip" data-rmode="sheet" aria-pressed="${ROSTER_MODE === "sheet"}">${t("teams.mode.sheet")}</button>
-    <button class="chip" data-rmode="cards" aria-pressed="${ROSTER_MODE === "cards"}">${t("teams.mode.cards")}</button>
+    <button class="chip" data-rmode="cards" aria-pressed="${ROSTER_MODE === "cards"}">${t("teams.mode.cards")}</button>${again ? `
+    <button class="chip rm-again" data-rerip>${t("teams.pack.again")}</button>` : ""}
   </div>`;
 }
-function wireRosterMode(v){
+function wireRosterMode(v, team){
   v.querySelectorAll("[data-rmode]").forEach(b => b.addEventListener("click", () => {
     if (ROSTER_MODE === b.dataset.rmode) return;
     ROSTER_MODE = b.dataset.rmode;
     rosterModeSave(ROSTER_MODE);
     render();
   }));
+  v.querySelector("[data-rerip]")?.addEventListener("click", () => packReplay(team));
   if (ROSTER_MODE === "cards") wireCards(v);
 }

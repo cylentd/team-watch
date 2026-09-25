@@ -1,10 +1,14 @@
 /* The week's pack (2026-09-25): once per league per week, the Cards view opens with a sealed pack
    holding the players who rank in the top 12 at their position this week (cards.js cardTier "ur" and
-   up), so how many cards it holds is itself the news. Tap tears it; the cards deal face down and turn
-   from the lowest rank to the highest, the signature card last and signed as it lands. A tap skips to
-   the end; reduced motion gets the end at once. Web Animations only, no library. Opening is
-   remembered in localStorage, which can refuse: then the pack simply shows again next load. */
+   up), so how many cards it holds is itself the news. Opening is remembered in localStorage, which
+   can refuse: then the pack simply shows again next load.
+
+   Ripping it (rebuilt 2026-09-25): the sealed pack glows in the colour of the best card inside;
+   dragging a finger across it tears the strip off the top, following the finger, and a tap tears it
+   in one go. Foil flakes burst from the tear (packfx.js) and the cards open on their own stage
+   (packstage.js). "Rip again" on the Sheet / Cards row puts this week's pack back, sealed. */
 const PACK_TIERS = ["ur", "sr", "sig", "one"];
+let PACK_REPLAY = null;     // "<league>-<week>" while a replayed pack is on the page
 
 /* The week of the next kickoff on the schedule, or null when there is none to name. */
 function packWeek(){
@@ -31,68 +35,76 @@ function packCards(team){
     .sort((a, b) => b.rank - a.rank);
 }
 
+/* This week's pack has been opened and still holds cards: the Sheet / Cards row offers it again. */
+function packReplayable(team){
+  const wk = packWeek();
+  return !!wk && packOpened(team, wk) && packCards(team).length > 0 && PACK_REPLAY !== `${team.key}-${wk}`;
+}
+function packReplay(team){
+  PACK_REPLAY = `${team.key}-${packWeek()}`;
+  render();
+  document.querySelector(".pack")?.scrollIntoView({behavior: "smooth", block: "center"});
+}
+
 function packHTML(team){
   const wk = packWeek(), cards = packCards(team);
-  if (!wk || !cards.length || packOpened(team, wk)) return "";
+  if (!wk || !cards.length || (packOpened(team, wk) && PACK_REPLAY !== `${team.key}-${wk}`)) return "";
+  const best = cardTier(cards[cards.length - 1].rank);   // the glow gives away how good, never who
   return `<div class="pack" data-pack="${wk}">
     <p class="pack-msg">${t("teams.pack.lead", {wk, n: cards.length})}</p>
-    <button class="pack-seal" type="button" aria-label="${t("teams.pack.open")}">
+    <div class="pack-glow tease-${best}"><button class="pack-seal" type="button" aria-label="${t("teams.pack.open")}">
       <span class="pack-top"></span><b>TEAM<i>//</i>WATCH</b>
       <span class="pack-wk">${t("teams.pack.week", {wk})}</span><span class="pack-n">${t("teams.pack.count", {n: cards.length})}</span>
-    </button>
+    </button></div>
     <p class="pack-hint">${t("teams.pack.hint")}</p>
   </div>`;
 }
 
+/* The tear follows the finger: --tear runs 0..1 across 80% of the pack's width. Let go past half
+   way and it finishes on its own; short of that it springs back. A tap without a drag tears it at
+   once, and Enter or Space on the focused pack does the same. */
 function wirePack(v, team){
   const box = v.querySelector(".pack");
   if (!box) return;
-  const wk = +box.dataset.pack;
-  box.querySelector(".pack-seal").addEventListener("click", e => { e.stopPropagation(); packReveal(box, team, wk); });
+  const wk = +box.dataset.pack, seal = box.querySelector(".pack-seal");
+  let x0 = null, tear = 0, done = false;
+  const set = p => { tear = p; seal.style.setProperty("--tear", p.toFixed(3)); };
+  const finish = () => { if (done) return; done = true; packRip(box, seal, team, wk); };
+  seal.addEventListener("pointerdown", e => { x0 = e.clientX; seal.classList.add("tearing"); seal.setPointerCapture?.(e.pointerId); });
+  seal.addEventListener("pointermove", e => {
+    if (x0 === null) return;
+    set(Math.min(1, Math.abs(e.clientX - x0) / (seal.offsetWidth * .8)));
+    if (tear >= 1) finish();
+  });
+  const release = e => {
+    if (x0 === null) return;
+    const tapped = Math.abs(e.clientX - x0) < 8;
+    x0 = null; seal.classList.remove("tearing");
+    if (tapped || tear > .5) finish(); else set(0);
+  };
+  seal.addEventListener("pointerup", release);
+  seal.addEventListener("pointercancel", () => { x0 = null; seal.classList.remove("tearing"); set(0); });
+  // A click from the keyboard has no pointer before it (detail 0); a pointer's click was handled above.
+  seal.addEventListener("click", e => { e.stopPropagation(); if (e.detail === 0) finish(); });
 }
 
-async function packReveal(box, team, wk){
+/* The strip flies off, flakes burst from the tear, the pack drops away, and the stage opens. */
+async function packRip(box, seal, team, wk){
   packMark(team, wk);
-  const cards = packCards(team), still = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let skip = still;
-  const seal = box.querySelector(".pack-seal"), msg = box.querySelector(".pack-msg");
-  const run = (el, frames, o) => skip || !el.animate ? Promise.resolve() : el.animate(frames, {fill: "both", ...o}).finished;
-  const wait = ms => skip ? Promise.resolve() : new Promise(r => setTimeout(r, ms));
-  box.addEventListener("click", () => { skip = true; box.getAnimations({subtree: true}).forEach(a => a.finish()); });
-
-  box.querySelector(".pack-hint").remove();
-  await run(seal.querySelector(".pack-top"), [{transform: "none"}, {transform: "translate(40px,-70px) rotate(-16deg)", opacity: 0}], {duration: 420, easing: "ease-in"});
-  await run(seal, [{transform: "none"}, {transform: "translateY(280px)", opacity: 0}], {duration: 420, easing: "ease-in"});
-  seal.remove();
-
-  const grid = document.createElement("div");
-  grid.className = "cardgrid pack-grid";
-  grid.innerHTML = cards.map(c => cardHTML(c.p, c.i, team.key)).join("");
-  box.appendChild(grid);
-  const els = [...grid.querySelectorAll(".tc")];
-  els.forEach(el => el.classList.add("pk-down"));
-  await Promise.all(els.map((el, i) => run(el, [{transform: "translateY(-120px) scale(.6)", opacity: 0}, {transform: "none", opacity: 1}],
-    {duration: 420, delay: i * 90, easing: "cubic-bezier(.2,.8,.2,1)"})));
-
-  for (const [i, el] of els.entries()){
-    const last = i === els.length - 1, sig = el.classList.contains("tier-sig") || el.classList.contains("tier-one");
-    await wait(last ? 450 : 160);
-    if (sig) await run(el, [0, -3, 3, -3, 3, 0].map(d => ({transform: `rotate(${d}deg)`})), {duration: 420});
-    await run(el, [{transform: "rotateY(0)"}, {transform: "rotateY(90deg)"}], {duration: sig ? 260 : 180, easing: "ease-in"});
-    el.classList.remove("pk-down");
-    await run(el, [{transform: "rotateY(-90deg)"}, {transform: "none"}], {duration: sig ? 520 : 300, easing: "cubic-bezier(.22,1,.36,1)"});
-    const ink = el.querySelector(".tc-sig");
-    if (ink) await run(ink, [{clipPath: "inset(0 100% 0 0)"}, {clipPath: "inset(0 0 0 0)"}], {duration: 900, easing: "ease-in-out"});
+  PACK_REPLAY = null;
+  const still = REDUCED();
+  packBuzz(18);
+  if (!still){
+    const r = seal.getBoundingClientRect();
+    seal.style.setProperty("--tear", 1);
+    seal.classList.add("ripped");
+    packBurst(r.left + r.width / 2, r.top + 16, {n: 46, tier: cardTier(packCards(team).slice(-1)[0].rank)});
+    await seal.querySelector(".pack-top").animate(
+      [{translate: "0 0", rotate: "-14deg", opacity: 1}, {translate: "90px -120px", rotate: "-38deg", opacity: 0}],
+      {duration: 380, easing: "cubic-bezier(.3,.6,.4,1)", fill: "forwards"}).finished;
+    await seal.animate([{translate: "0 0", opacity: 1}, {translate: "0 60px", scale: ".9", opacity: 0}],
+      {duration: 280, easing: "ease-in", fill: "forwards"}).finished;
   }
-  // Every animation above ends where the card rests anyway; cancel them so a held transform can't
-  // override the tilt (cardmotion.js) or the flip once the cards are handed over.
-  box.getAnimations({subtree: true}).forEach(a => a.cancel());
-  els.forEach(el => el.classList.remove("pk-down"));
-  const top = cards[cards.length - 1];
-  msg.innerHTML = t("teams.pack.done", {name: esc(nameInitial(top.p.n)), rank: top.rank, pos: esc(top.p.pos)});
-  const done = document.createElement("button");
-  done.type = "button"; done.className = "chip pack-done"; done.textContent = t("teams.pack.close");
-  done.addEventListener("click", e => { e.stopPropagation(); render(); });
-  box.appendChild(done);
-  wireCards(grid);
+  box.hidden = true;
+  packStage(team);
 }

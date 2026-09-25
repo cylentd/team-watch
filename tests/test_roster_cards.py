@@ -128,3 +128,44 @@ def test_the_pack_opens_once_a_week(browser, page_file):
     assert page.locator(".pack").count() == 0
     assert errors == []
     ctx.close()
+
+
+@pytest.mark.render
+def test_rip_again_puts_this_weeks_pack_back_sealed(browser, page_file):
+    ctx, page, errors = cards_page(browser, page_file)
+    if page.locator(".pack").count() == 0:
+        pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
+    assert page.locator("[data-rerip]").count() == 0, "nothing to rip again before the pack is opened"
+    page.click(".pack-seal")
+    page.click(".pack-done")
+    page.click("[data-rerip]")
+    assert page.locator(".pack .pack-seal").count() == 1
+    assert page.locator("[data-rerip]").count() == 0, "the pack is on the page, so the button steps aside"
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_a_short_drag_springs_back_and_a_long_one_rips(browser, page_file):
+    ctx, page, errors = cards_page(browser, page_file)
+    if page.locator(".pack").count() == 0:
+        pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
+    seal = page.locator(".pack-seal")
+    seal.scroll_into_view_if_needed()
+    box = seal.bounding_box()
+    y, x = box["y"] + 14, box["x"] + 10
+
+    def drag(dx):
+        page.mouse.move(x, y)
+        page.mouse.down()
+        for k in range(1, 6):
+            page.mouse.move(x + dx * k / 5, y)
+        page.mouse.up()
+
+    drag(box["width"] * .25)
+    assert page.locator(".pk-stage").count() == 0
+    assert page.evaluate("getComputedStyle(document.querySelector('.pack-seal')).getPropertyValue('--tear').trim()") in ("0", "0.000")
+    drag(box["width"] * .7)
+    page.wait_for_selector(".pk-stage")
+    assert errors == []
+    ctx.close()

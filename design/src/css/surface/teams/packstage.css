@@ -1,0 +1,53 @@
+/* ============================== ROSTER: THE PACK'S STAGE ============================== */
+/* 2026-09-25 (js/surface/teams/packstage.js, packfx.js). The cards of a ripped pack open on their
+   own dark stage over the page: a face-down stack in the middle (--k is a card's depth, 0 on top),
+   the tray of revealed cards under it. The best card's moment dims the stage and turns light rays
+   behind the stack, gold for a signed card, the holo spectrum for a #1. Scrolls on a short phone. */
+body.pk-open{overflow:hidden}
+.pk-stage{position:fixed;inset:0;z-index:57;overflow-y:auto;overscroll-behavior:contain;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  padding:calc(env(safe-area-inset-top, 0px) + 14px) 16px calc(env(safe-area-inset-bottom, 0px) + 24px);
+  background:radial-gradient(circle at 50% 38%,var(--panel-3),var(--void) 70%);
+  cursor:pointer;-webkit-tap-highlight-color:transparent;isolation:isolate}
+.pk-stage.pk-over{cursor:default}
+.pk-bar{align-self:stretch;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.pk-count{font-family:var(--mono);font-size:var(--t-1);letter-spacing:.14em;color:var(--ink-3)}
+.pk-msg{margin:0;min-height:2.6em;display:flex;align-items:center;text-align:center;font-size:var(--t-3);color:var(--ink-2);text-wrap:balance}
+.pk-msg b{color:var(--ink);margin-right:4px}
+.pk-hint{margin:0;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.14em;color:var(--ink-3)}
+@media (prefers-reduced-motion:no-preference){ .pk-hint{animation:pk-blink 1.4s ease-in-out infinite alternate} }
+@keyframes pk-blink{to{opacity:.35}}
+
+/* The stack, and the card on show on top of it. */
+.pk-stack{position:relative;flex-shrink:0;width:min(210px,56vw);aspect-ratio:5/7;perspective:900px;z-index:1}
+.pk-stack .tc{position:absolute;inset:0;--th:72px;
+  translate:calc(var(--k, 0) * 2px) calc(var(--k, 0) * -2px);rotate:calc((var(--k, 0) - 1) * 1.4deg);z-index:calc(20 - var(--k, 0))}
+.pk-stack .tc.pk-shown{translate:0 0;rotate:0deg;z-index:30}
+.pk-stack .tc-name{font-size:var(--t-3)}
+.pk-stack .tc-sig{font-size:var(--t-5)}
+.pk-tray{width:min(420px,100%);perspective:900px;margin-top:4px}
+.pk-tray:empty{display:none}
+.pk-foot{min-height:44px;display:flex;justify-content:center}
+.pk-foot .pack-done{margin:0}
+
+/* The best card's moment: rays turn behind the stack, a flash, and the card a size up. */
+.pk-rays{position:fixed;left:50%;top:40%;width:170vmax;height:170vmax;translate:-50% -50%;z-index:0;pointer-events:none;opacity:0;
+  background:repeating-conic-gradient(from 0deg,rgb(var(--gold-2-rgb) / .16) 0 5deg,transparent 5deg 15deg);
+  -webkit-mask:radial-gradient(circle,var(--shadow) 0,transparent 42%);mask:radial-gradient(circle,var(--shadow) 0,transparent 42%);
+  transition:opacity .6s var(--ease)}
+.pk-best-sig .pk-rays{background:repeating-conic-gradient(from 0deg,rgb(var(--iri-2-rgb) / .2) 0 5deg,transparent 5deg 15deg)}
+.pk-best-one .pk-rays{background:repeating-conic-gradient(from 0deg,rgb(var(--holo-1-rgb) / .22) 0 4deg,transparent 4deg 9deg,
+  rgb(var(--holo-3-rgb) / .22) 9deg 13deg,transparent 13deg 18deg,rgb(var(--holo-4-rgb) / .22) 18deg 22deg,transparent 22deg 27deg)}
+.pk-dim .pk-rays{opacity:1}
+.pk-dim .pk-tray{opacity:.55;transition:opacity .4s var(--ease)}
+.pk-over .pk-tray{opacity:1}
+.pk-dim .pk-stack .tc.pk-shown{scale:1.12}
+.pk-dim .pk-stack{margin-block:14px 18px}   /* room for the best card a size up, clear of the tray */
+.pk-flash{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:0;
+  background:radial-gradient(circle at 50% 40%,rgb(var(--ink-rgb) / .95),rgb(var(--ink-rgb) / .2) 45%,transparent 70%)}
+.pk-best-one .pk-flash{background:radial-gradient(circle at 50% 40%,rgb(var(--ink-rgb) / .95),rgb(var(--holo-2-rgb) / .35) 40%,transparent 70%)}
+@media (prefers-reduced-motion:no-preference){ .pk-rays{animation:pk-spin 22s linear infinite} }
+@keyframes pk-spin{to{rotate:360deg}}
+
+/* The flakes' canvas (packfx.js): over everything, never in the way of a tap. */
+.pk-fx{position:fixed;inset:0;width:100vw;height:100vh;z-index:58;pointer-events:none}
