@@ -6719,8 +6719,8 @@ function bdLaneHTML(pos, a, picks, i){
    labels and take .lbl, the line of evidence under the word is a sentence and takes .note.
 
    ROLE is this season and moves when the depth chart moves. STYLE is his career and should barely
-   move -- and its axes are not equally sturdy: year over year, breakaway is r=.37 and yards before
-   contact r=.24 (ff-jarvis, model/season/ARCHETYPE.md). That is a data point a reader folds into a
+   move -- and its axes are not equally sturdy (the measurement: ff-jarvis model/season/ARCHETYPE.md,
+   "`style` — four, career, and the axes are not equally sturdy"). That is a data point a reader folds into a
    read, never a forecast, so the block closes on the sentence the Grid already uses for exactly
    this: what he did, not what he will do. No new sentence, no composite, no grade.
 
@@ -6749,9 +6749,8 @@ function bdStyleWord(v){
     pocket: t("board.style.pocket"), scrambler: t("board.style.scrambler")})[v] || esc(v);
 }
 
-/* A flag layers on top of a style rather than replacing it, so it is a pill beside the word and
-   never a fourth value: a passer the offence runs at the goal line is usually also one of the
-   three styles, and picking between two true facts is what a fourth bucket would force. */
+/* Why a flag is a pill beside the word and never a fourth value: ff-jarvis
+   model/season/ARCHETYPE.md, "Quarterback" (the goal_line_runner paragraph). */
 function bdFlagsHTML(flags){
   return flags.map(f => f === "goal_line_runner"
     ? `<span class="bd-flag">${t("board.label.flagGoalLine")}</span>` : "").join("");

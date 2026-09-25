@@ -1,6 +1,7 @@
-"""LIVE_ARCHETYPE and LIVE_TRENCHES: ff-jarvis's model.season.archetype (594 players, the
-role/style/athletic_profile envelope) and model.season.trenches (32 teams, OL continuity and
-injury exposure). model/season/ARCHETYPE.md in ff-jarvis is the contract both producers write to.
+"""LIVE_ARCHETYPE and LIVE_TRENCHES: ff-jarvis's model.season.archetype (every player in the
+season's grid, keyed by slug -- the role/style/athletic_profile envelope) and model.season.trenches
+(32 teams, OL continuity and injury exposure). model/season/ARCHETYPE.md in ff-jarvis is the
+contract both producers write to.
 
 archetype.json is already keyed by slug -- the producer's own bridge join, not name-matched here
 -- so this file does no re-keying, only the same wanted-slug cut pedigree.py/routes.py already

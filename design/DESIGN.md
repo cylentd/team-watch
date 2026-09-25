@@ -204,17 +204,16 @@ They are separate on purpose: a back's style does not change when his guard goes
 does. **A null is not a blank.** ff-jarvis's envelope guarantees exactly one of `role`/`role_null` is
 set, and the reason stands where the word would — "not a field for quarterbacks", "career carries <
 250". A number the evidence has nothing for drops out of the line rather than dashing, the same rule
-a lane follows for an unmeasured axis. A flag (`goal_line_runner`) is a pill beside the style and
-never a fourth style: a passer the offence runs at the goal line is usually one of the three
-already, and a fourth bucket would force a choice between two true facts.
+a lane follows for an unmeasured axis. Why a flag (`goal_line_runner`) is a pill beside the style
+and never a fourth style: ff-jarvis `model/season/ARCHETYPE.md`, "Quarterback".
 
 Type follows the house rule as of 2026-09-23: the field's name and its window are labels and take
 `.lbl`; the line of evidence under the word is a sentence and takes `.note`. The word is `t-4` and
 nothing in the block is lime — lime means active, and a label is no contest anybody is winning.
 
 The block closes on the Grid's own sentence, *what he did, not what he will do*, and not on a new
-one. Year over year the style axes run r=.37 (breakaway) down to r=.24 (yards before contact),
-measured in ff-jarvis's `model/season/ARCHETYPE.md`: a data point to fold into a read, never a
+one. Why the style axes aren't equally sturdy: ff-jarvis `model/season/ARCHETYPE.md`, "`style` —
+four, career, and the axes are not equally sturdy" — a data point to fold into a read, never a
 forecast. Nothing is summed — no composite, no grade, no ranking, the same rule "overall" follows.
 
 `LIVE_TRENCHES` (team-level OL continuity and injury exposure) stays off the Board: the Board's
