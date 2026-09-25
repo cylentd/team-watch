@@ -46,9 +46,11 @@ function bdHeldOut(pos, axis, cut){
     .sort((a, b) => b.v[axis] - a.v[axis]);
 }
 
+/* Tabs carry the stat's plain name (axisName, profile/statcard.js), the same name the profile's
+   radar and card use; the producer's abbreviation stays as the unit beside the hero's number. */
 function bdTabsHTML(axes, sel){
   return `<div class="bd-tabs" role="tablist" aria-label="${t("board.tabs.label")}">${axes.map(a =>
-    `<button type="button" class="bd-tab" role="tab" data-bdstat="${esc(a.id)}" aria-selected="${a.id === sel}">${esc(a.label)}</button>`).join("")}</div>`;
+    `<button type="button" class="bd-tab" role="tab" data-bdstat="${esc(a.id)}" aria-selected="${a.id === sel}">${esc(axisName(a))}</button>`).join("")}</div>`;
 }
 
 /* The #1. A title, so the name is whole (the page initials names everywhere else). The elite bar

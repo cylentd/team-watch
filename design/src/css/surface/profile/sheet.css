@@ -92,35 +92,40 @@
 @keyframes pf-grow{from{transform:scale(.03);opacity:0}to{transform:scale(1);opacity:1}}
 @keyframes pf-in{from{opacity:0}to{opacity:1}}
 @keyframes pf-label{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-/* The origin is the chart's hub (cx 200, cy 176 in sheet.js), not the viewBox's middle: the
+/* The origin is the chart's hub (cx 200, cy 196 in sheet.js), not the viewBox's middle: the
    shape inflates out of the centre it is measured from. */
-.pf-radar-grow{transform-box:view-box;transform-origin:200px 176px;animation:pf-grow .6s var(--ease) .14s backwards}
+.pf-radar-grow{transform-box:view-box;transform-origin:200px 196px;animation:pf-grow .6s var(--ease) .14s backwards}
 .pf-radar-grid > *{animation:pf-in .34s var(--ease) calc(var(--i,0) * 45ms) backwards}
 .pf-radar-bar{animation:pf-in .3s var(--ease) .5s backwards}
 .pf-radar-l{animation:pf-label .36s var(--ease) calc(.4s + var(--i,0) * 40ms) backwards}
 
-/* Every label is a button. The dotted underline is the affordance: it says "there is more here"
-   without a line of copy telling the reader to tap, and unlike a hover it survives on a phone.
-   pointer-events:bounding-box makes the whole label box the target, not the glyph strokes. */
-/* Name small and quiet, rank large and bright. Both were within a step of each other, so the
-   ring read as twelve equal fragments of text; at a four-step gap the eye takes the six numbers
-   first and reads the names only for the one it stops on -- which is the order the chart is
-   actually used in. */
-.pf-radar-l{font-family:var(--mono);font-size:var(--t-1);fill:var(--ink-3);letter-spacing:.08em;
-  cursor:pointer;pointer-events:bounding-box;transition:fill .15s var(--ease)}
-.pf-radar-l tspan:first-child{text-decoration:underline dotted;text-underline-offset:3px;
-  text-decoration-color:var(--line-2);text-decoration-thickness:1px}
-.pf-radar-v{fill:var(--ink);font-weight:700;font-size:var(--t-4);letter-spacing:-.01em}
-.pf-radar-l:hover{fill:var(--ink)}
-.pf-radar-l:hover tspan:first-child{text-decoration-color:var(--ink-3)}
-.pf-radar-l.on{fill:var(--ink)}
-.pf-radar-l.on tspan:first-child{text-decoration:underline solid;text-decoration-thickness:2px;text-decoration-color:var(--tint)}
-.pf-radar-l.on .pf-radar-v{fill:var(--tint)}
+/* The labels: HTML buttons over the chart (sheet.js says why), at the page's own type sizes.
+   Rank first at t-4 in mono, the plain name under it at t-2 in the UI face -- a letter-spaced
+   mono name at 12px was the hardest thing on the chart to read. Positioned with `translate`,
+   not `transform`, so the entrance keyframes (which own transform) never undo the anchoring. */
+.pf-radar-l{position:absolute;display:flex;flex-direction:column;gap:1px;margin:0;padding:2px 4px;
+  border:0;background:none;font:inherit;color:var(--ink);cursor:pointer;line-height:1.1;
+  -webkit-tap-highlight-color:transparent;max-width:30%}
+.pf-radar-l.at-n{translate:-50% -100%;align-items:center;text-align:center}
+.pf-radar-l.at-s{translate:-50% 0;align-items:center;text-align:center}
+.pf-radar-l.at-e{translate:0 -50%;align-items:flex-start;text-align:left}
+.pf-radar-l.at-w{translate:-100% -50%;align-items:flex-end;text-align:right}
+.pf-radar-v{font-family:var(--mono);font-size:var(--t-4);font-weight:700;letter-spacing:-.02em;
+  color:var(--ink);transition:color .15s var(--ease)}
+.pf-radar-n{font-family:var(--ui);font-size:var(--t-2);color:var(--ink-2);
+  text-decoration:underline 2px transparent;text-underline-offset:4px;
+  transition:color .15s var(--ease),text-decoration-color .15s var(--ease)}
+/* Bottom half of the position: the rank steps back, so the strengths are what the eye lands on. */
+.pf-radar-l.low .pf-radar-v{color:var(--ink-3)}
+.pf-radar-l:hover .pf-radar-n{color:var(--ink)}
+/* The chosen stat: its name underlined in the position's colour, the same stroke the card under
+   the chart is edged with. The rank keeps its own colour, so "dim" still means "weak". */
+.pf-radar-l.on .pf-radar-n{color:var(--ink);text-decoration-color:var(--tint)}
 /* A click gives :focus but not :focus-visible, so scoping the reset to :focus-visible left the
    UA's own white box drawn round whichever stat was last tapped. The keyboard ring is a real
    ring, not a removal -- these are the only tab stops inside the chart. */
 .pf-radar-l:focus{outline:none}
-.pf-radar-l:focus-visible{outline:2px solid var(--lime);outline-offset:3px;fill:var(--tint)}
+.pf-radar-l:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 .pf-sheet .pf-cap{text-align:center;font-family:var(--mono);letter-spacing:.06em}
 
 /* The card under the sheet for the chosen stat: this week's value, his rank on it, the change

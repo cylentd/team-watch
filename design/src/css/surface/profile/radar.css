@@ -1,35 +1,16 @@
 /* ============================== PROFILE · RADAR MOTION ==============================
-   The radar's live layer (2026-09-25): the dial's touch target, the compare ghost and its chip,
-   the elite arc lighting as a vertex crosses it, the spark's end point landing. The JS is
-   radarmotion.js and radartouch.js; the static chart is sheet.css. */
+   The radar's live layer (2026-09-25): the dial's touch target, the elite arc lighting as a
+   vertex crosses it, the spark's end point landing. The JS is radarmotion.js and radartouch.js;
+   the static chart and its labels are sheet.css. */
 
 .pf-radar-box{position:relative}
-/* The dial answers a hand: tap picks, drag sweeps, hold compares. touch-action:none only here, so
-   the label ring and everything else in the modal still scroll under a thumb. */
+/* The dial answers a hand: tap picks, drag sweeps. touch-action:none only here, so the label
+   ring and everything else in the modal still scroll under a thumb. */
 .pf-radar-hit{position:absolute;border-radius:50%;touch-action:none;cursor:pointer;
   -webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 .pf-sheet.scrub .pf-radar-hit{cursor:grabbing}
 /* JS springs each vertex out on its own (radarGrow), so the CSS scale-in stands down. */
 .pf-sheet.js-grow .pf-radar-grow{animation:none}
-
-/* The compare ghost: the median starter's shape, dashed and uncoloured so it reads as the
-   reference and his lit shape stays the reading. Hidden until held; his fill steps back while it
-   shows so the two outlines are what the eye compares. */
-.pf-radar-ghost{fill:rgb(var(--ink-2-rgb) / .06);stroke:var(--ink-2);stroke-width:1.5;
-  stroke-dasharray:4 3;stroke-linejoin:round;opacity:0;pointer-events:none;transition:opacity .2s var(--ease)}
-.pf-sheet.cmp .pf-radar-ghost{opacity:1}
-.pf-sheet.cmp .pf-radar-shape{fill-opacity:.45}
-
-/* The chip names the ghost in the ghost's own colour, so the words and the dashed line are one
-   thing. Dotted underline like the axis labels: it is a button too. */
-.pf-radar-cmp{font-family:var(--mono);font-size:var(--t-1);letter-spacing:.08em;fill:var(--ink-3);
-  cursor:pointer;pointer-events:bounding-box;user-select:none;-webkit-user-select:none;
-  text-decoration:underline dotted;text-underline-offset:3px;text-decoration-color:var(--line-2);
-  transition:fill .15s var(--ease)}
-.pf-radar-cmp:hover,.pf-sheet.cmp .pf-radar-cmp{fill:var(--ink-2)}
-.pf-sheet.cmp .pf-radar-cmp{text-decoration:underline dashed;text-decoration-color:var(--ink-2)}
-.pf-radar-cmp:focus{outline:none}
-.pf-radar-cmp:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
 
 /* A vertex crossing its elite arc on the way out: the arc flares in the position's colour and
    settles back to its resting dash. Once, at the crossing, never again. */

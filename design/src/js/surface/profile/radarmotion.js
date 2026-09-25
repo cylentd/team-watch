@@ -37,8 +37,7 @@ function radarGeo(el){
   const cx = +svg.dataset.cx, cy = +svg.dataset.cy, R = +svg.dataset.r;
   const end = dots.map(d => [+d.getAttribute("cx") - cx, +d.getAttribute("cy") - cy]);
   return {el, svg, cx, cy, R, dots, end, f: end.map(() => 1),
-    shape: svg.querySelector(".pf-radar-shape"), ghost: svg.querySelector(".pf-radar-ghost"),
-    mark: svg.querySelector(".pf-radar-mark"), ping: svg.querySelector(".pf-radar-ping")};
+    shape: svg.querySelector(".pf-radar-shape"), mark: svg.querySelector(".pf-radar-mark"), ping: svg.querySelector(".pf-radar-ping")};
 }
 
 const radarPts = pts => pts.map(p => p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ");

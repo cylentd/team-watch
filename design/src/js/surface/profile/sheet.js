@@ -53,15 +53,9 @@ function sheetRank(pos, axis, slug){ return rankAmong(sheetValues(pos, axis), sl
    exactly on the threshold would take. Null when the axis has no published bar. */
 function eliteRadius(pos, axis, elite){
   if (elite === null || elite === undefined) return null;
-  return valueRadius(pos, axis, elite);
-}
-
-/* The radius any value would take on an axis: the same rank-to-radius rule the shape uses, for a
-   number no player has to have -- the elite bar, or the starters' median the compare ghost draws. */
-function valueRadius(pos, axis, x){
   const v = Object.values(sheetValues(pos, axis));
   if (v.length < 2) return null;
-  return Math.max(.04, Math.min(1, 1 - v.filter(y => y > x).length / (v.length - 1)));
+  return Math.max(.04, Math.min(1, 1 - v.filter(x => x > elite).length / (v.length - 1)));
 }
 
 function sheetDefaultAxis(s){
@@ -81,18 +75,12 @@ function sheetDefaultAxis(s){
 function radarHTML(p){
   const s = sheetFor(p);
   if (!s) return "";
-  /* The viewBox bleeds 34 units past the chart box on each side. A flank label is anchored
-     outwards from x = cx ± 1.2R, so its length runs away from the centre: "Breakaway" at this
-     size is 78 units wide and ended at x = -12, clipped by the viewBox and visibly closer to the
-     edge than "Opp%" opposite it. The bleed is symmetric, so the chart stays centred whatever
-     the six labels happen to be.
-
-     R is 134 and the labels ride at 1.14R rather than 1.2R, because the dial was taking barely
-     half the width of its own column while the label ring took the rest. Both numbers are at
-     their limit for this viewBox: the top label's cap sits at y = 3 against an edge of 0, the
-     bottom label's second line at y = 351 against 360, and "Breakaway" anchored outward ends at
-     x = -31 against -34. Moving either further needs a bigger box, not a bigger radius. */
-  const n = s.axes.length, cx = 200, cy = 176, R = 134, LR = 1.14;   // -34..434 x 0..360 viewBox
+  /* The labels are HTML over the SVG since 2026-09-25 (axisLabelsHTML says why), so the viewBox
+     only has to hold the dial and leave room round it: 57 units above and below for a two-line
+     label block, and the flanks for a name up to about 90px wide at a 360px phone. R 114 in a
+     468 x 392 box is what fits both: at 120, "Targets/route" and "Pts/dropback" ran 3px past the
+     edge. The chart is centred, so the room is symmetric. */
+  const n = s.axes.length, cx = 200, cy = 196, R = 114, VW = 468, VH = 392;   // -34..434 x 0..392
   const sel = sheetDefaultAxis(s);
   const ranks = s.axes.map(a => sheetRank(s.pos, a.id, p.slug));
   const k = i => { const rk = ranks[i]; return rk && rk[1] > 1 ? Math.max(.04, 1 - (rk[0] - 1) / (rk[1] - 1)) : .04; };
@@ -113,20 +101,18 @@ function radarHTML(p){
      while the label ring around it still scrolls the modal. Percentages of the viewBox, so it
      tracks the chart at every width. */
   const pc = (a, b) => (a / b * 100).toFixed(2) + "%";
-  const hit = `left:${pc(cx - R + 34, 468)};top:${pc(cy - R, 360)};width:${pc(2 * R, 468)};height:${pc(2 * R, 360)}`;
-  const shaped = ranks.filter(r => r !== null).length >= 3;
+  const hit = `left:${pc(cx - R + 34, VW)};top:${pc(cy - R, VH)};width:${pc(2 * R, VW)};height:${pc(2 * R, VH)}`;
+  const at = (x, y) => `left:${pc(x + 34, VW)};top:${pc(y, VH)}`;
   return `<div class="pf-sheet pos-${esc(String(s.pos).toLowerCase())}" data-slug="${esc(p.slug)}"><div class="pf-radar-box">
-    <svg class="pf-radar" viewBox="-34 0 468 360" role="img" aria-label="${t("profile.sheet.label")}" data-cx="${cx}" data-cy="${cy}" data-r="${R}">
+    <svg class="pf-radar" viewBox="-34 0 ${VW} ${VH}" role="img" aria-label="${t("profile.sheet.label")}" data-cx="${cx}" data-cy="${cy}" data-r="${R}">
       ${radarDefsHTML(cx, cy, R)}
       <circle class="pf-radar-disc" cx="${cx}" cy="${cy}" r="${R}"/>
       <g class="pf-radar-grid">${rings}${spokes}</g>
       ${eliteBarsHTML(s, ang, xy, sel, cx, cy, R, n)}
-      ${shaped ? `<polygon class="pf-radar-ghost" points=""/>` : ""}
       <g class="pf-radar-grow">${shapeHTML(s, ranks, k, xy, sel, cx, cy)}</g>
-      <circle class="pf-radar-hub" cx="${cx}" cy="${cy}" r="2"/>
-      ${axisLabelsHTML(s, ranks, sel, ang, xy, LR)}
-      ${shaped ? `<text class="pf-radar-cmp" role="button" tabindex="0" x="-30" y="14">${t("profile.sheet.compare", {pos: esc(s.pos)})}</text>` : ""}</svg>
-    <div class="pf-radar-hit" style="${hit}"></div></div>
+      <circle class="pf-radar-hub" cx="${cx}" cy="${cy}" r="2"/></svg>
+    <div class="pf-radar-hit" style="${hit}"></div>
+    ${axisLabelsHTML(s, ranks, k, sel, ang, xy, at, R)}</div>
     <div class="pf-stat">${statDetailHTML(s, sel)}</div></div>`;
 }
 
@@ -220,14 +206,24 @@ function eliteBarsHTML(s, ang, xy, sel, cx, cy, R, n){
   }).join("");
 }
 
-function axisLabelsHTML(s, ranks, sel, ang, xy, LR){
+/* Rank first and big, the stat's plain name under it -- the order the chart is read in.
+   HTML over the SVG, not <text> inside it, since 2026-09-25: SVG text scales with the viewBox,
+   and at a 360px phone the chart draws at 70% of its authored size, so a 12px name rendered at
+   8.4px and an 18px rank at 12.6px. HTML text keeps its CSS size at every width, and a button is a
+   real button. Each block hangs off the rim on the side it labels (`at-n` above, `at-s` below,
+   `at-e`/`at-w` outward), so its length runs away from the dial, never across it.
+
+   A rank in the bottom half of the position is dimmed (`low`): six equally bright numbers gave
+   #3 and #43 the same weight, and the weak spots should recede rather than compete. */
+function axisLabelsHTML(s, ranks, k, sel, ang, xy, at, R){
   return s.axes.map((a, i) => {
-    const [x, y] = xy(i, LR), c = Math.cos(ang(i)), sn = Math.sin(ang(i));
-    const anchor = c > .3 ? "start" : c < -.3 ? "end" : "middle";
-    // The two-line block sits above a top axis, below a bottom one, centred on a side one.
-    const ys = sn < -.7 ? y - 12 : sn > .7 ? y + 6 : y - 5;
+    const c = Math.cos(ang(i)), sn = Math.sin(ang(i));
+    const side = sn < -.7 ? "n" : sn > .7 ? "s" : c > 0 ? "e" : "w";
+    const [x, y] = xy(i, 1 + (side === "n" || side === "s" ? 8 : 10) / R);   // units clear of the rim
     const rk = ranks[i] ? rankMark(ranks[i]) : "—";
-    return `<text class="pf-radar-l${a.id === sel ? " on" : ""}" style="--i:${i}" data-col="${esc(a.id)}" role="button" tabindex="0" x="${x.toFixed(1)}" y="${ys.toFixed(1)}" text-anchor="${anchor}"><tspan x="${x.toFixed(1)}">${esc(a.label)}</tspan><tspan class="pf-radar-v" x="${x.toFixed(1)}" dy="19">${rk}</tspan></text>`;
+    const cls = (a.id === sel ? " on" : "") + (!ranks[i] || k(i) < .5 ? " low" : "");
+    return `<button type="button" class="pf-radar-l at-${side}${cls}" style="${at(x, y)};--i:${i}" data-col="${esc(a.id)}"
+      ><b class="pf-radar-v">${rk}</b><span class="pf-radar-n">${esc(axisName(a))}</span></button>`;
   }).join("");
 }
 

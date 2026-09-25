@@ -253,7 +253,7 @@ def test_the_lede_leads_with_three_numbers(browser, page_file):
     cells = page.locator("#modal .pf-lede-c")
     assert cells.count() == 3
     assert [c.locator("b").inner_text() for c in cells.all()] == ["17.3", "9th", "#5"]
-    assert [c.locator(".pf-lede-l").inner_text() for c in cells.all()] == ["PROJECTED", "EASIEST", "WOPR"]
+    assert [c.locator(".pf-lede-l").inner_text() for c in cells.all()] == ["PROJECTED", "EASIEST", "TARGET SHARE"]
     assert cells.nth(1).locator(".pf-lede-s").inner_text() == "of 32 WRs"
     # 9th of 32 is neither of the eight easiest nor the eight hardest: plain, the same call the
     # roster row's MATCHUP cell makes. Kittle at 25th is one of the eight hardest.
@@ -412,8 +412,8 @@ def test_stat_sheet_draws_the_positions_own_axes(browser, page_file):
     assert radar.locator(".pf-radar-ring").count() == 4
     axes = page.evaluate("USAGE.sheet.axes.WR.map(a => a.id)")
     assert axes == ["wopr", "route_pct", "tprr", "yprr", "fdrr", "rz_tgt"]
-    assert radar.locator("text.pf-radar-l").count() == len(axes)
-    assert radar.locator("text.pf-radar-l", has_text="aDOT").count() == 0   # not "more is better"
+    assert page.locator("#modal .pf-radar-l").count() == len(axes)
+    assert page.locator("#modal .pf-radar-l", has_text="aDOT").count() == 0   # not "more is better"
     rank, of, _tied = page.evaluate("sheetRank('WR', 'wopr', 'amonra-st-brown')")
     mark = page.evaluate("rankMark(sheetRank('WR', 'wopr', 'amonra-st-brown'))")
     assert rank >= 1 and of >= rank
@@ -421,7 +421,8 @@ def test_stat_sheet_draws_the_positions_own_axes(browser, page_file):
     # asterisk on top only said "someone else has this number", which decides nothing.
     assert mark == f"#{rank}"
     assert "*" not in radar.text_content()
-    assert f"WOPR{mark}" in radar.text_content()             # SVG: text_content, no inner_text
+    # Rank first, then the stat's plain name (HTML labels over the chart since 2026-09-25).
+    assert f"{mark}Target share" in page.locator("#modal .pf-radar-box").text_content()
     # The denominator lives on the card's header line, not in a caption under the chart: it
     # repeated the lede's own "of 120" and cost the left column height it did not have.
     assert f"of {of}" in page.locator("#modal .pf-stat-wk").inner_text()
@@ -429,7 +430,7 @@ def test_stat_sheet_draws_the_positions_own_axes(browser, page_file):
     # The card opens on the first axis and follows a tap on another.
     card = page.locator("#modal .pf-stat")
     assert card.count() == 1
-    assert card.locator(".pf-stat-l").inner_text() == "WOPR"
+    assert card.locator(".pf-stat-l").inner_text() == "TARGET SHARE"
     assert card.locator(".pf-stat-r").count() == 0             # the rank belongs to the lede
     # The gap, not the threshold: "elite >= 0.00" printed in red said the elite bar was the bad
     # thing, when what is red is him being under it. The colour now agrees with the sign.
@@ -438,13 +439,13 @@ def test_stat_sheet_draws_the_positions_own_axes(browser, page_file):
     # And the initials are defined, with a second clause on what to do with the number.
     assert "air yards" in card.locator(".pf-stat-def").inner_text()
     assert "predictor" in card.locator(".pf-stat-why").inner_text()
-    assert "on" in radar.locator("text.pf-radar-l", has_text="WOPR").get_attribute("class")
+    assert "on" in page.locator("#modal .pf-radar-l", has_text="Target share").get_attribute("class")
     # A pick moves three things at once, so the chart and the card are visibly the same stat.
     assert radar.locator("circle.pf-radar-dot.on").get_attribute("data-col") == "wopr"
-    radar.locator("text.pf-radar-l", has_text="YPRR").click()
-    assert card.locator(".pf-stat-l").inner_text() == "YPRR"
-    assert "on" in radar.locator("text.pf-radar-l", has_text="YPRR").get_attribute("class")
-    assert "on" not in radar.locator("text.pf-radar-l", has_text="WOPR").get_attribute("class")
+    page.locator("#modal .pf-radar-l", has_text="Yds/route").click()
+    assert card.locator(".pf-stat-l").inner_text() == "YDS/ROUTE"
+    assert "on" in page.locator("#modal .pf-radar-l", has_text="Yds/route").get_attribute("class")
+    assert "on" not in page.locator("#modal .pf-radar-l", has_text="Target share").get_attribute("class")
     assert radar.locator("circle.pf-radar-dot.on").get_attribute("data-col") == "yprr"
     # Each axis has its own denominator (everyone with a target, but only those with routes),
     # so the header follows the pick rather than freezing on the opening axis's.
@@ -474,7 +475,7 @@ def test_every_block_says_how_many_weeks_it_covers(browser, page_file):
     radar = page.locator("#modal .pf-radar")
     meta = page.locator("#modal .pf-stat-wk")
     of = page.evaluate("sheetRank('WR', 'yprr', 'amonra-st-brown')")[1]
-    radar.locator("text.pf-radar-l", has_text="YPRR").click()
+    page.locator("#modal .pf-radar-l", has_text="Yds/route").click()
     assert meta.inner_text() == f"2 gm · of {of}"          # no weekly rows: games, no window
     plant = """(weeks) => {
       const row = USAGE.rows.find(r => r.slug === 'amonra-st-brown');
@@ -482,11 +483,11 @@ def test_every_block_says_how_many_weeks_it_covers(browser, page_file):
       weeks.forEach(wk => USAGE.rows.push({...row, wk, v: {...row.v, yprr: 1.5 + wk}}));
     }"""
     page.evaluate(plant, [1, 2])
-    radar.locator("text.pf-radar-l", has_text="YPRR").click()
+    page.locator("#modal .pf-radar-l", has_text="Yds/route").click()
     assert meta.inner_text() == f"of {of} · wk 1–2"         # two weeks: the range, no games
     # Now as heatradar actually publishes it: week 1 only, while his other stats have two.
     page.evaluate(plant, [1])
-    radar.locator("text.pf-radar-l", has_text="YPRR").click()
+    page.locator("#modal .pf-radar-l", has_text="Yds/route").click()
     assert meta.inner_text() == f"of {of} · wk 1"
     assert "gm" not in meta.inner_text()                    # never both counts of one sample
     assert errors == []
@@ -516,7 +517,7 @@ def test_too_few_measured_axes_draw_no_shape(browser, page_file):
     assert radar.locator("polygon.pf-radar-shape").count() == 0
     assert radar.locator("circle.pf-radar-dot").count() == 2
     assert radar.locator(".pf-radar-note").text_content().strip() == "2 of 6 stats measured"
-    assert radar.text_content().count("—") == 4                     # the unmeasured axes say so
+    assert page.locator("#modal .pf-radar-box").text_content().count("—") == 4   # the unmeasured axes say so
     assert errors == []
     ctx.close()
 
@@ -537,7 +538,7 @@ def test_each_position_gets_its_own_shape(browser, page_file):
         assert len(set(ids)) == len(ids), pos
     row(page, "Chase Brown").click()
     assert page.locator("#modal .pf-sheet.pos-rb").count() == 1
-    assert page.locator("#modal .pf-radar text.pf-radar-l").count() == 6
+    assert page.locator("#modal .pf-radar-l").count() == 6
     page.keyboard.press("Escape")
     assert errors == []
     ctx.close()

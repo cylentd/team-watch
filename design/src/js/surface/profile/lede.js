@@ -44,7 +44,7 @@ function ledeUsageHTML(p){
   const axis = s.axes.find(a => a.id === sheetDefaultAxis(s)) || s.axes[0];
   const rk = sheetRank(s.pos, axis.id, p.slug);
   if (!rk) return "";
-  return ledeCellHTML(rankMark(rk), esc(axis.label), t("profile.lede.ofN", {of: rk[1]}));
+  return ledeCellHTML(rankMark(rk), esc(axisName(axis)), t("profile.lede.ofN", {of: rk[1]}));
 }
 
 function ledeHTML(p, prof){

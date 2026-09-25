@@ -103,26 +103,35 @@ function statDetailHTML(s, axis){
   const weeks = `<span class="pf-stat-wk">${meta}</span>`;
   const def = AXIS_DEF[a.id]
     ? `<p class="pf-stat-def">${AXIS_DEF[a.id]()}${AXIS_WHY[a.id] ? `<span class="pf-stat-why">${AXIS_WHY[a.id]()}</span>` : ""}</p>` : "";
-  return `<div class="pf-stat-h"><span class="pf-stat-l">${esc(a.label)}</span>${weeks}</div>
+  return `<div class="pf-stat-h"><span class="pf-stat-l">${esc(axisName(a))}</span>${weeks}</div>
     ${def}<b>${usageFmt(v, a.fmt)}</b><span class="pf-stat-side">${bar}</span>${line}`;
 }
 
-/* Centre each rank under its own label. A flank label is anchored outwards so its text grows
-   away from the chart, and the rank inherited that anchor -- which right-aligned "#29" under
-   "Breakaway" and left-aligned "#2" under "Route%", so the numbers sat off-centre from the words
-   above them. The width of a word is only knowable once it is laid out, so this measures it: one
-   getBBox per label, at open, before the modal animates in. */
-function centreRanks(el){
-  el.querySelectorAll(".pf-radar-l").forEach(node => {
-    const label = node.querySelector("tspan"), value = node.querySelector(".pf-radar-v");
-    if (!label || !value) return;
-    let box;
-    try { box = label.getBBox(); } catch (e) { return; }   // not laid out yet: leave as authored
-    if (!box.width) return;
-    value.setAttribute("x", (box.x + box.width / 2).toFixed(1));
-    value.setAttribute("text-anchor", "middle");
-  });
-}
+/* Each stat's name in plain words, 2026-09-25. ff-jarvis's labels are the analyst's shorthand
+   ("Wtd Opp", "RYOE", "1D/RR"), which a reader has to decode before reading; these say what the
+   stat is about, and the card's definition under the chart still gives the exact formula. One
+   name per stat everywhere it appears -- radar, card, lede, Board -- so the reader never has to
+   match two names for one thing. An axis with no entry falls back to the producer's label. */
+const AXIS_NAME = {
+  wopr:         () => t("profile.axis.wopr"),
+  route_pct:    () => t("profile.axis.routePct"),
+  tprr:         () => t("profile.axis.tprr"),
+  yprr:         () => t("profile.axis.yprr"),
+  fdrr:         () => t("profile.axis.fdrr"),
+  rz_tgt:       () => t("profile.axis.rzTgt"),
+  wopp:         () => t("profile.axis.wopp"),
+  opp_pct:      () => t("profile.axis.oppPct"),
+  rz:           () => t("profile.axis.rz"),
+  ryoe:         () => t("profile.axis.ryoe"),
+  brk_rate:     () => t("profile.axis.brkRate"),
+  dropbacks:    () => t("profile.axis.dropbacks"),
+  designed_pct: () => t("profile.axis.designedPct"),
+  scr_rate:     () => t("profile.axis.scrRate"),
+  gl_pct:       () => t("profile.axis.glPct"),
+  rz_att:       () => t("profile.axis.rzAtt"),
+  fp_db:        () => t("profile.axis.fpDb"),
+};
+const axisName = a => AXIS_NAME[a.id] ? AXIS_NAME[a.id]() : a.label;
 
 /* Tapping a stat on the sheet swaps the card under it and moves the highlight. One `data-col`
    sweep lights the label, its spoke, its vertex and its elite tick together, so the chart and
@@ -157,7 +166,6 @@ function wireSheet(d){
   if (!el) return;
   const s = sheetFor({slug: el.dataset.slug});
   if (!s) return;
-  centreRanks(el);
   const card = el.querySelector(".pf-stat");
   reserveTallest(card, s.axes, id => statDetailHTML(s, id));
   const ping = el.querySelector(".pf-radar-ping"), mark = el.querySelector(".pf-radar-mark");
@@ -177,10 +185,8 @@ function wireSheet(d){
     if (!ping) return;
     ping.classList.remove("on"); void ping.getBoundingClientRect(); ping.classList.add("on");
   };
-  el.querySelectorAll(".pf-radar-l").forEach(node => {
-    node.addEventListener("click", () => pick(node));
-    node.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); pick(node); } });
-  });
+  // Buttons: Enter and Space already arrive as a click.
+  el.querySelectorAll(".pf-radar-l").forEach(node => node.addEventListener("click", () => pick(node)));
   const g = radarGeo(el);
   if (!g) return;
   radarGrow(g);
