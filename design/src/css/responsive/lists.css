@@ -80,7 +80,6 @@
   .newswrap > .newslist{margin-top:0!important}
   .newslead,.newslist{border:0;background:none;box-shadow:none}
   .newsrow,.newslead .newsrow{padding:14px 0;border-bottom:1px solid var(--line)}
-  .newsrow::before{display:none}
   .newslead .ntitle{font-size:var(--t-4)}
   .newsrow .ndesc{display:none}
   .nimpact{border-left:0;padding-left:0;margin-top:6px;color:var(--ink-3);

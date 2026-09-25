@@ -57,8 +57,14 @@ if (-not (GitRead "config --local --get merge.ours.driver")) {
     if (-not $DryRun) { GitRead "config --local merge.ours.driver true" | Out-Null }
 }
 
-# Uncommitted work that is not build output means this is not a finished branch.
-$dirty = @(GitRead "status --porcelain" | Where-Object { $_ -and ($_.Substring(3) -notin $generated) })
+# Uncommitted work that is not build output means this is not a finished branch. `games` is a
+# directory, so a path counts as build output when it IS one of $generated or sits under one:
+# comparing whole paths only let games/2026_02_LV_LAC.json through as unfinished work.
+function IsGenerated($path) {
+    foreach ($g in $generated) { if ($path -eq $g -or $path.StartsWith("$g/")) { return $true } }
+    return $false
+}
+$dirty = @(GitRead "status --porcelain" | Where-Object { $_ -and -not (IsGenerated $_.Substring(3)) })
 if ($dirty.Count -gt 0) {
     Write-Host ($dirty -join "`n")
     throw "Uncommitted changes that are not build output. Commit or stash them first."
