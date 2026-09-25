@@ -58,13 +58,13 @@ python design/build.py
 
 More than one Claude session works this repo. Two sessions in one checkout interleave edits in
 the same source file and overwrite each other's `index.html` — it has already happened. So every
-feature session, not only the second, starts in its own worktree (`claude -w <feature>`), and the
-main checkout stays on `main`, unedited. Notes that cost time to learn:
+feature, not only the second, starts in its own worktree (`EnterWorktree` before the first edit),
+and the main checkout stays on `main`, unedited. Notes that cost time to learn:
 
 - `.\scripts\land.ps1` lands from the worktree itself (since 2026-09-24 `git land` pushes
   `HEAD:main` and never checks `main` out). A diff outside `tests/` and `*.md` changes the live
-  page, so it needs `-Yes`, passed only after the user says yes. Landing ends the feature: close
-  the session.
+  page, so it needs `-Yes`, passed only after the user says yes. Landing ends the feature:
+  `ExitWorktree` with `remove` puts the session back in the main checkout, and the session goes on.
 - The page-rebuild job pushes to `main` at 6:30 and 15:00. A land that races it gets exit 2 from
   `git land`; `land.ps1` rebases, rebuilds and retries once.
 - A fresh worktree has no `data/feed.json` (untracked). The build falls back to reading
