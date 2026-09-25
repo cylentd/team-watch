@@ -53,8 +53,12 @@ function bdTabsHTML(axes, sel){
 
 /* The #1. A title, so the name is whole (the page initials names everywhere else). The elite bar
    is said with its number when ff-jarvis publishes one; there is no bar to draw it against here. */
+/* The photo is the 256px head where ff-jarvis cut one (HEADS_LG, as the trading cards use): the
+   hero draws it about 220px tall, and the 96px file stretched to that is visibly soft. */
 function bdHeroHTML(a, top, n, picked){
-  const head = HEADS[top.slug] ? `<img class="bd-hero-img" src="${HEADS[top.slug]}" alt="" onerror="this.remove()">` : "";
+  const lg = typeof HEADS_LG !== "undefined" && HEADS_LG ? HEADS_LG[top.slug] : null;
+  const src = lg || HEADS[top.slug];
+  const head = src ? `<img class="bd-hero-img" src="${src}" alt="" onerror="this.remove()">` : "";
   const elite = a.elite === null || a.elite === undefined ? ""
     : `<span class="bd-hero-elite">${t("board.hero.elite", {v: usageFmt(a.elite, a.fmt)})}</span>`;
   return `<button type="button" class="bd-hero${picked ? " pick" : ""}" data-bdopen="${esc(top.slug)}">
