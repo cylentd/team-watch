@@ -128,9 +128,11 @@ function bdBoardHTML(pos, picks){
 }
 
 /* THE REST OF THE FIELD, on request. The top five answer "who leads"; the rest answers "where is
-   my guy", which a reader asks less often and wants whole, so it sits behind one tap and pages by
-   twenty rather than growing the page by a hundred rows. BD_PAGE 0 is closed. */
-const BD_PAGE_SIZE = 20;
+   my guy", which a reader asks less often and wants whole, so it sits behind one tap and pages
+   rather than growing the page by a hundred rows. A page is one screen, so it is read without
+   scrolling and Next replaces the scroll: fit.js measures how many rows that is and resets this.
+   12 is only the first render's guess. BD_PAGE 0 is closed. */
+let BD_PAGE_SIZE = 12;
 function bdPageRows(ranked){
   if (!BD_PAGE) return [];
   const from = BD_TOP + (BD_PAGE - 1) * BD_PAGE_SIZE;

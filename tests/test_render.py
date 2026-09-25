@@ -357,6 +357,32 @@ def test_movers_hash_opens_the_board_in_movers(browser, page_file, hash):
         ctx.close()
 
 
+@pytest.mark.parametrize("w,h", [(360, 800), (1280, 1080)])
+def test_show_all_page_fits_the_screen(browser, page_file, w, h):
+    """A page of the Board's full list is one screen (board/fit.js): opened and turned, the whole
+    list, pager included, sits between the chrome and the bottom edge, and a taller screen holds
+    more rows than a phone."""
+    ctx = browser.new_context(viewport={"width": w, "height": h}, reduced_motion="reduce")
+    page = ctx.new_page()
+    page.set_default_timeout(5000)
+    page.route(re.compile(r"^https?://"), lambda route: route.abort())
+    page.add_init_script(SEED)
+    fits = "(() => { const m = document.querySelector('.bd-more').getBoundingClientRect(); return m.bottom <= innerHeight && m.top >= 0; })()"
+    try:
+        page.goto(page_file.as_uri() + "#board")
+        page.wait_for_function("document.getElementById('view').children.length > 0")
+        page.locator(".bd-more-btn").click()
+        assert page.evaluate(fits)
+        rows = page.evaluate("document.querySelectorAll('.bd-more .bd-row').length")
+        assert rows == page.evaluate("BD_PAGE_SIZE") or page.locator(".bd-pager [data-bdpage='2']").is_disabled()
+        assert page.evaluate("BD_PAGE_SIZE") >= (15 if h >= 1000 else 5)
+        if not page.locator(".bd-pager [data-bdpage='2']").is_disabled():
+            page.locator(".bd-pager [data-bdpage='2']").click()
+            assert page.evaluate(fits)
+    finally:
+        ctx.close()
+
+
 TUESDAY = 'Date.now = () => Date.parse("2026-09-22T12:00:00Z");'   # a Tuesday in every zone -12..+11
 
 

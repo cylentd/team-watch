@@ -132,17 +132,16 @@ function wireBd(v){
   set("[data-bdpos]", b => { BD_NOTE = ""; POOL_PAGE = 1; if (b.dataset.bdpos !== BD_POS){ BD_POS = b.dataset.bdpos; BD_PICKS = []; BD_STAT = null; BD_PAGE = 0; } });
   // A new stat is a new ranking, so the list closes: page 3 of TPRR is nobody's page 3 of YPRR.
   set("[data-bdstat]", b => { BD_NOTE = ""; BD_STAT = b.dataset.bdstat; BD_PAGE = 0; });
-  // Opening, paging and closing keep the reader where he is; closing scrolls back to the card
-  // only if the list he was reading has just vanished from under him.
+  // Opening or turning a page sizes the page to the screen and brings the list to its top
+  // (fit.js). Closing scrolls back to the card only if the list he was reading has just vanished
+  // from under him; otherwise he stays where he is.
   v.querySelectorAll("[data-bdpage]").forEach(b => b.addEventListener("click", () => {
     const next = +b.dataset.bdpage, y = window.scrollY;
     BD_PAGE = next; render();
     const card = document.querySelector(".bd-card");
-    if (next === 0 && card && card.getBoundingClientRect().bottom < 0) card.scrollIntoView({block: "start"});
-    else if (next > 1 || (next === 1 && b.closest(".bd-pager"))) {
-      const list = document.querySelector(".bd-more");
-      if (list) list.scrollIntoView({block: "start"});
-    } else window.scrollTo(0, y);
+    if (next > 0) bdFitPage();
+    else if (card && card.getBoundingClientRect().bottom < 0) card.scrollIntoView({block: "start"});
+    else window.scrollTo(0, y);
   }));
   v.querySelectorAll("[data-bdopen]").forEach(el => el.addEventListener("click", () => {
     const r = ((USAGE.sheet || {}).rows || []).find(x => x.slug === el.dataset.bdopen);
