@@ -18,11 +18,15 @@ data/news.js
 data/stock.js
 data/waiver.js
 data/wire.js
+data/teamcolors.js
 lib/escape.js
 lib/served.js
 ui/player.js
 ui/matchup.js
 surface/teams/board.js
+surface/teams/cards.js
+surface/teams/cardmotion.js
+surface/teams/pack.js
 surface/teams/brief.js
 surface/teams/proof.js
 surface/teams/wcard.js

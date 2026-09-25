@@ -1,6 +1,9 @@
   --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
   --disp:"Bricolage Grotesque","Archivo",sans-serif;
   --ui:"Archivo","Segoe UI",sans-serif;
+  /* The signature card's ink (surface/teams/cards.css): a player's name in a script face, never
+     presented as his real autograph. Mixed case only. */
+  --sig:"Mrs Saint Delafield","Brush Script MT",cursive;
 
   /* Type scale (2026-09-21). Seven steps, named by rank so a part says "one step up" rather
      than a number that drifts. Every font-size on the page is one of these (lint_css.py

@@ -8,3 +8,6 @@ let VIEW = "yahoo";
    were reading rather than resetting to Movers, which matters most for Grid: the week and
    position you had picked survive, so the tab is where you left it. */
 let LAST_LEAF = {};
+/* How the roster draws: "sheet" (the lineup sheet) or "cards" (surface/teams/cards.js). Remembered
+   per phone (cardmotion.js rosterModeLoad); the sheet is the default. */
+let ROSTER_MODE = rosterModeLoad();

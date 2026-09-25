@@ -1,0 +1,110 @@
+/* ============================== ROSTER: CARDS ============================== */
+/* 2026-09-25 (js/surface/teams/cards.js, cardmotion.js). A card is 5:7; three to a row on a phone,
+   so all nine starters fill the first screen, as many as fit on a desktop. The frame is the tier:
+   plain, silver (#13-24 at the position), gold (#4-12), gold with glitter behind the face (#2-3),
+   pearl with an etch behind the face and the name signed across the photo (#1). Nothing is printed
+   over a face or over text. --mx/--my is where the light falls, set by the pointer. */
+@property --mx{syntax:"<percentage>";inherits:true;initial-value:50%}
+@property --my{syntax:"<percentage>";inherits:true;initial-value:50%}
+.rmode{margin:12px 0 0}
+.cards-col.bench{margin-top:6px}
+.cardgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}
+.tc{--rx:0deg;--ry:0deg;--frame:var(--line-2);--th:52px;
+  position:relative;aspect-ratio:5/7;border-radius:10px;padding:4px;background:var(--frame);
+  cursor:pointer;isolation:isolate;touch-action:pan-y;
+  transform:perspective(700px) rotateX(var(--rx)) rotateY(var(--ry));transition:transform .5s var(--ease);
+  box-shadow:0 2px 4px rgb(var(--shadow-rgb) / .5),0 8px 18px rgb(var(--shadow-rgb) / .3)}
+.tc.live{transition:none}
+.tc:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+.tc-flip{position:relative;height:100%;transform-style:preserve-3d;transition:transform .6s var(--ease)}
+.tc.back .tc-flip{transform:rotateY(180deg)}
+.tc-face{position:absolute;inset:0;border-radius:7px;background:var(--panel);display:flex;flex-direction:column;
+  overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.tc-top{display:flex;justify-content:space-between;align-items:baseline;gap:4px;padding:5px 6px 3px;
+  font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.04em;color:var(--ink-2);white-space:nowrap}
+.tc-num{color:var(--ink)}
+.tc-art{--tint:var(--ink-rgb);position:relative;flex:1;margin:0 4px;border-radius:5px;overflow:hidden;
+  display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,rgb(var(--tint) / .34),rgb(var(--tint) / .05) 70%),var(--panel-3)}
+.tc-art.pos-QB{--tint:var(--pos-qb-rgb)}
+.tc-art.pos-RB{--tint:var(--pos-rb-rgb)}
+.tc-art.pos-WR{--tint:var(--pos-wr-rgb)}
+.tc-art.pos-TE{--tint:var(--pos-te-rgb)}
+.tc .head,.tc .head img,.tc .head .fallback,.tc .head .dst{position:relative;z-index:1;width:var(--th);height:var(--th)}
+.tc .head img,.tc .head .fallback{border:2px solid rgb(var(--ink-rgb) / .15)}
+.tc-name{padding:4px 6px 0;text-align:center;font-family:var(--disp);font-weight:800;font-size:var(--t-2);line-height:1.15;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-meta{padding:1px 6px 0;text-align:center;font-size:var(--t-1);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-foot{padding:2px 6px 6px;text-align:center;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.04em;color:var(--ink-3);white-space:nowrap}
+
+/* Tiers: the frame is the rarity. */
+.tier-r{--frame:linear-gradient(135deg,var(--silver-1),var(--silver-2) 45%,var(--silver-1) 55%,var(--silver-2))}
+.tier-ur,.tier-sr{--frame:linear-gradient(135deg,var(--gold-1),var(--gold-2) 40%,var(--gold-1) 60%,var(--gold-2))}
+.tier-sig{--frame:linear-gradient(115deg,var(--iri-1),var(--iri-2) 25%,var(--iri-3) 50%,var(--iri-4) 75%,var(--iri-1)) var(--mx) var(--my)/320% 320%}
+.tier-sig .tc-face{background:var(--cleat)}
+/* #2-3: glitter behind the face, lit only where the light falls. White and pale gold, never a rainbow. */
+.tc-spark{position:absolute;inset:0;mix-blend-mode:color-dodge;
+  background-image:radial-gradient(circle,rgb(var(--ink-rgb) / .95) 0 1px,transparent 1.6px),
+    radial-gradient(circle,rgb(var(--gold-2-rgb) / .9) 0 .8px,transparent 1.4px),
+    radial-gradient(circle,rgb(var(--ink-rgb) / .7) 0 .6px,transparent 1.1px);
+  background-size:23px 19px,31px 27px,13px 17px;background-position:0 0,7px 11px,3px 5px;
+  -webkit-mask-image:radial-gradient(circle at var(--mx) var(--my),var(--shadow) 0,transparent 65%);
+          mask-image:radial-gradient(circle at var(--mx) var(--my),var(--shadow) 0,transparent 65%)}
+/* #1: a soft pearl showing only through fine etched lines. */
+.tc-etch{position:absolute;inset:0;opacity:.5;mix-blend-mode:color-dodge;
+  background:linear-gradient(115deg,var(--iri-1),var(--iri-2) 25%,var(--iri-3) 50%,var(--iri-4) 75%,var(--iri-1)) var(--mx) var(--my)/320% 320%;
+  -webkit-mask-image:repeating-linear-gradient(60deg,transparent 0 2px,var(--shadow) 2px 2.6px);
+          mask-image:repeating-linear-gradient(60deg,transparent 0 2px,var(--shadow) 2px 2.6px)}
+/* Signed across the lower photo, the top layer of the art: gold ink with a dark edge that reads on any jersey. */
+.tc-sig{position:absolute;z-index:3;left:0;right:0;bottom:0;text-align:center;font-family:var(--sig);
+  font-size:var(--t-4);line-height:1.25;color:var(--gold-2);transform:rotate(-5deg);white-space:nowrap;pointer-events:none;
+  text-shadow:0 0 1px rgb(var(--shadow-rgb) / .9),0 1px 2px rgb(var(--shadow-rgb) / .7)}
+.tc-glare{position:absolute;inset:0;border-radius:10px;pointer-events:none;opacity:0;mix-blend-mode:overlay;
+  background:radial-gradient(circle at var(--mx) var(--my),rgb(var(--ink-rgb) / .7),transparent 55%);transition:opacity .3s}
+.tc.live .tc-glare{opacity:.8}
+@media (prefers-reduced-motion:no-preference){
+  .tier-sr:not(.live),.tier-sig:not(.live){animation:tcsheen 6s ease-in-out infinite alternate}
+}
+@keyframes tcsheen{from{--mx:15%;--my:20%}to{--mx:85%;--my:80%}}
+
+/* The back: the trend line the front leaves out, and the way into the profile. */
+.tc-back{transform:rotateY(180deg);padding:7px 8px 8px;gap:1px}
+.bk-why{font-size:var(--t-1);color:var(--ink-3);padding-bottom:4px;border-bottom:1px solid var(--line)}
+.bk-why b{display:block;font-family:var(--disp);font-weight:800;font-size:var(--t-3);color:var(--ink)}
+.bk-l{margin-top:4px;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.06em;color:var(--ink-3);text-transform:uppercase;white-space:nowrap}
+.bk-sp .spark{width:100%;height:24px}
+.bk-m{font-size:var(--t-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bk-note{margin-top:4px;font-size:var(--t-1);line-height:1.3;color:var(--ink-3)}
+.bk-open{appearance:none;margin-top:auto;border:1px solid var(--line-2);border-radius:4px;background:var(--panel-2);color:var(--ink);
+  font-family:var(--ui);font-weight:600;font-size:var(--t-1);padding:5px 4px;cursor:pointer}
+.bk-open:hover{background:var(--panel-3)}
+.bk-open:focus-visible{outline:2px solid var(--lime);outline-offset:1px}
+
+/* Support cards: no rank, so no tier, no metal and no foil. The art is the matchup. */
+.tier-k{--frame:var(--turf-line)}
+.tier-k .tc-face{background:var(--turf)}
+.tier-k .tc-art{background:repeating-linear-gradient(180deg,var(--turf) 0 13px,var(--turf-2) 13px 26px);box-shadow:inset 0 0 0 1px var(--turf-line)}
+.tier-k .tc-art .head{margin-top:22%}
+.tc-posts{position:absolute;top:5%;left:50%;width:42%;transform:translateX(-50%);fill:none;stroke:var(--post);stroke-width:3;stroke-linecap:round}
+.tc-chip{position:absolute;z-index:2;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.04em;
+  color:var(--ink);background:rgb(var(--void-rgb) / .75);border-radius:3px;padding:1px 4px;white-space:nowrap}
+.tc-chip.r{right:3px;bottom:3px}
+.tier-dst{--frame:var(--team,var(--line-2))}
+.tier-dst .tc-face{background:var(--team-2,var(--panel))}
+.tier-dst .tc-art{background:repeating-linear-gradient(135deg,transparent 0 8px,rgb(var(--shadow-rgb) / .12) 8px 16px),var(--team,var(--panel-3))}
+.tier-dst .tc-top,.tier-dst .tc-name{color:var(--on-team-2,var(--ink))}
+.tier-dst .tc-meta{color:var(--on-team-2,var(--ink-3));opacity:.75}
+.tc-abbr{position:absolute;left:-6%;top:-8%;font-family:var(--disp);font-weight:800;font-size:var(--t-7);line-height:1;
+  letter-spacing:-.04em;color:rgb(var(--shadow-rgb) / .22);transform:rotate(-8deg) scale(1.5);transform-origin:left top;white-space:nowrap}
+.tc-imp{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 4px;color:var(--on-team,var(--ink))}
+.tc-imp b{font-family:var(--mono);font-weight:700;font-size:var(--t-5);line-height:1}
+.tc-imp span{margin-top:3px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.06em}
+
+@media (min-width:960px){
+  /* Five across: nine starters are a row of five and a row of four, a bench of five is one row. */
+  .cardgrid{grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+  .tc{--th:84px}
+  .tc-name{font-size:var(--t-4)}
+  .tc-sig{font-size:var(--t-5)}
+  .tc-imp b{font-size:var(--t-6)}
+  .tc-abbr{transform:rotate(-8deg) scale(2.2)}
+}

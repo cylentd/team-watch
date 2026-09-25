@@ -122,6 +122,26 @@
   --paper-down:#b3261e;
   --paper-down-rgb:179 38 30;
 
+  /* The roster cards' tiers (2026-09-25, surface/teams/cards.css): silver for #13-24 at the
+     position, gold for #4-12 and the #2-3 glitter card, a soft pearl for the #1 signature card.
+     The pearl is four pale hues, never a full rainbow: it reads as foil, not as a colour code. */
+  --silver-1:#8e96a3;
+  --silver-1-rgb:142 150 163;
+  --silver-2:#e6e9ee;
+  --silver-2-rgb:230 233 238;
+  --gold-1:#8a6a1f;
+  --gold-1-rgb:138 106 31;
+  --gold-2:#f5d77a;
+  --gold-2-rgb:245 215 122;
+  --iri-1:#9fe3f5;
+  --iri-1-rgb:159 227 245;
+  --iri-2:#c7b3f2;
+  --iri-2-rgb:199 179 242;
+  --iri-3:#f2cfae;
+  --iri-3-rgb:242 207 174;
+  --iri-4:#b3f0d4;
+  --iri-4-rgb:179 240 212;
+
   --nav-h:48px;         /* the phone nav row; the view tabs stick under it (responsive/760.css) */
 
   --ease:cubic-bezier(.16,1,.3,1);

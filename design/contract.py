@@ -173,7 +173,7 @@ CONTRACT = {
     # page can show. `mu` is the component means (PASS/RUSH/TD/...), read as-is off the source.
     "LIVE_PROJECTIONS": {
         "keys": ["players"],
-        "map": ("players", ["pts", "mu", "games", "src"]),
+        "map": ("players", ["pts", "mu", "games", "src", "rank", "of"]),
     },
     # ff-jarvis's model.clients.weather (National Weather Service), passed straight through, keyed
     # by team. `roof` is the only key guaranteed present -- a dome has nothing else, and an
@@ -182,6 +182,12 @@ CONTRACT = {
     "LIVE_WEATHER": {
         "keys": ["generated", "teams"],
         "map": ("teams", ["roof"]),
+    },
+    # design/lines.py: each team's implied points from the DFS lobby's game lines. The roster's
+    # defense card reads the opponent's; kicker and defense cards read `opp`.
+    "LIVE_LINES": {
+        "keys": ["teams"],
+        "map": ("teams", ["implied", "opp", "spread", "total"]),
     },
     # design/routes.py, from ff-jarvis's model.clients.routes (heatradar.app): routes run and
     # yards per route run, season to date, cut to the players the page can show. The profile

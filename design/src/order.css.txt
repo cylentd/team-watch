@@ -17,6 +17,8 @@ surface/news/ticker.css
 component/rule.css
 component/vpill.css
 surface/teams/roster.css
+surface/teams/cards.css
+surface/teams/pack.css
 surface/teams/brief.css
 surface/teams/matchup.css
 surface/teams/wire.css
