@@ -89,9 +89,10 @@ def bdpick(q):
 
 
 STATES = [
-    ("teams-yahoo", []),
-    ("teams-espn", [("eval", "VIEW='espn'; render()")]),
-    ("teams-modal", [("click", ".row")]),   # Joe Burrow: no matchup profile, the quiet state
+    # The page opens on the Board since 2026-09-24, so the roster states navigate there.
+    ("teams-yahoo", go("roster")),
+    ("teams-espn", [("eval", "VIEW='espn'; render()")] + go("roster")),
+    ("teams-modal", go("roster") + [("click", ".row")]),   # Joe Burrow: no matchup profile, the quiet state
     # One league at a time since v2: the team on screen picks the cards, tiers, hero and rail.
     # SEED is a Saturday, so these are wire-watch mode (the rail leads, every row shown).
     ("waivers-espn", [("eval", "VIEW='espn'; render()")] + go("waivers")),
@@ -107,19 +108,19 @@ STATES = [
     # back has no target depth, a passer no red zone, a player with no pedigree no Bio). PF_TAB is
     # module state that survives an open, so every state below spells out the tab it wants rather
     # than trusting whichever one ran before it.
-    ("profile-wr-modal", [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#modal [data-pftab='usage']")]),
-    ("profile-wr-matchup-modal", [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#modal [data-pftab='matchup']")]),
-    ("profile-wr-log-modal", [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#modal [data-pftab='log']")]),
-    ("profile-rb-modal", [("click", ".row:has-text('Chase Brown')"), ("click", "#modal [data-pftab='matchup']")]),
-    ("profile-rb-bio-modal", [("click", ".row:has-text('Chase Brown')"), ("click", "#modal [data-pftab='bio']")]),
+    ("profile-wr-modal", go("roster") + [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#modal [data-pftab='usage']")]),
+    ("profile-wr-matchup-modal", go("roster") + [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#modal [data-pftab='matchup']")]),
+    ("profile-wr-log-modal", go("roster") + [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#modal [data-pftab='log']")]),
+    ("profile-rb-modal", go("roster") + [("click", ".row:has-text('Chase Brown')"), ("click", "#modal [data-pftab='matchup']")]),
+    ("profile-rb-bio-modal", go("roster") + [("click", ".row:has-text('Chase Brown')"), ("click", "#modal [data-pftab='bio']")]),
     # SF's starters-out count is null (no snap-count release yet) -- the shape live data shows
     # until ff-jarvis lands its new fields -- so the line falls back to the plain injury-report
     # count instead of the starters-out cell DET and CIN cover. Kittle is SF only on the ESPN
     # roster fixture, so this is the one state that switches leagues before opening a profile.
-    ("profile-te-matchup-modal", [("eval", "VIEW='espn'; render()"),
-                                   ("click", ".row:has-text('George Kittle')"),
-                                   ("click", "#modal [data-pftab='matchup']")]),
-    ("profile-bye-modal", [("click", ".row:has-text('Jahmyr Gibbs')")]),
+    ("profile-te-matchup-modal", [("eval", "VIEW='espn'; render()")] + go("roster") +
+                                 [("click", ".row:has-text('George Kittle')"),
+                                  ("click", "#modal [data-pftab='matchup']")]),
+    ("profile-bye-modal", go("roster") + [("click", ".row:has-text('Jahmyr Gibbs')")]),
     # The Board: the leaderboard it arrives as, the same board as a duel, and a WR board because
     # that position publishes the most elite bars -- the one mark that is drawn only on the lanes
     # whose axis has a published threshold.
@@ -325,7 +326,7 @@ TUESDAY = 'Date.now = () => Date.parse("2026-09-22T12:00:00Z");'   # a Tuesday i
 @pytest.mark.parametrize("day,hash,surface,first", [
     ("tue", "", "waivers", "WAIVERS"),     # claims day: Waivers opens and leads its group
     ("tue", "#roster", "roster", "WAIVERS"),   # a hash still wins
-    ("sat", "", "roster", "ROSTER"),       # any other day: unchanged
+    ("sat", "", "board", "BOARD"),         # any other day: Board leads, not Roster
 ])
 def test_tuesday_opens_waivers(browser, page_file, day, hash, surface, first):
     """The day is read from Date.now(), so pinning it is the whole injection. SEED pins a

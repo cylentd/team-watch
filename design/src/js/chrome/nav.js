@@ -38,9 +38,11 @@ const navGroupLabel = (group, short) => (short ? {
 
 /* Claims are placed Tuesday and clear midweek, so on a Tuesday (the reader's local day) the wire
    is the question: an empty hash opens Waivers and Waivers leads its group. A hash still wins.
-   The day comes from Date.now(), which the render suite pins, so a test picks the weekday. */
+   The day comes from Date.now(), which the render suite pins, so a test picks the weekday. Any
+   other day, rosters barely move (maybe three times a week) but stats and news move daily, so
+   Board -- who leads each stat -- is the default instead of Roster. */
 const navWaiverDay = () => new Date(Date.now()).getDay() === 2;
-const navDefaultLeaf = () => navWaiverDay() ? "waivers" : NAV[0][1][0];
+const navDefaultLeaf = () => navWaiverDay() ? "waivers" : "board";
 
 const navGroupOf = leaf => (NAV.find(([, tabs]) => tabs.includes(leaf)) || NAV[0])[0];
 function navTabsOf(group){

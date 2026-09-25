@@ -1,6 +1,6 @@
 /* A hash in the address bar wins over the default view: a reload, a bookmark and a shared link
    all arrive this way, and all three should land where they point. Without one, the day picks
-   (nav.js navDefaultLeaf: Waivers on a Tuesday, the roster otherwise). */
+   (nav.js navDefaultLeaf: Waivers on a Tuesday, the Board otherwise). */
 SURFACE = navFromHash() || navDefaultLeaf();
 
 buildFeed();

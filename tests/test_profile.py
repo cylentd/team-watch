@@ -15,10 +15,19 @@ import build
 import contract
 from conftest import FIXTURES
 from test_build import injected
-from test_render import browser, open_page  # noqa: F401  (browser is a fixture)
+from test_render import browser, drive, go  # noqa: F401  (browser is a fixture)
+from test_render import open_page as open_any_page
 
 PROFILES = json.loads((FIXTURES / "data" / "player_profiles.json").read_text(encoding="utf-8"))
 MARKET_STOCK = json.loads((FIXTURES / "data" / "market_stock.json").read_text(encoding="utf-8"))
+
+
+def open_page(browser, page_file, viewport):
+    """Every rendered test here clicks a player on the roster, and the page opens on the Board
+    since 2026-09-24, so go to the roster first."""
+    ctx, page, errors = open_any_page(browser, page_file, viewport)
+    drive(page, go("roster"))
+    return ctx, page, errors
 
 
 def tab(page, name):

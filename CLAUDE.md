@@ -88,6 +88,9 @@ The view is in the hash (`#usage`, `#roster`), so a reload, a bookmark and Back 
 point; the group is derived from the leaf, and only the view is in the URL (the grid's position and
 week reset on purpose). `tests/test_render.py::test_a_hash_opens_its_view` pins it.
 
+With no hash, `navDefaultLeaf` in `js/chrome/nav.js` opens Board (rosters barely move; stats and
+news move daily) except on a Tuesday, when Waivers still leads.
+
 `NAV` in `js/chrome/nav.js` is the whole table; a group of one draws no sub-row. Every copy key is
 spelled out literally, because `assemble.py --check` finds orphaned keys by scanning for literal
 lookups and cannot see one built from a template. The sub-row lives **outside** `.navbar`: on a
