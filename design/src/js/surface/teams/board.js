@@ -1,39 +1,52 @@
-/* The roster row at every width since 2026-09-25: who, which way, one number (the storyboard's
-   rule, design/DESIGN.md "Phone layout"). A head with its Q/O badge, the name over "RB · BAL @ DAL
-   16th", the snap-share line, the projection pill. Desktop used to add a slot box, a matchup column,
-   a market delta, a rank and a news count -- five more things per row, most of them a dash until
-   the books priced the week. The rank and the market are the profile's; news is the brief's. */
+/* The roster as a lineup sheet (2026-09-25): the whole team on one phone screen. A starter row is
+   slot, head, name over "RB · BAL @ DAL", the snap-share line, and the projection with an arrow
+   that says which way the line went. The number itself stays neutral: the old filled pill repeated
+   the line's colour, so six red boxes on eight starters read as an alarm. Bench and out rows drop
+   the slot and the line and go two to a row on a phone; on a desktop the bench sits beside the
+   starters. The rank and the market are the profile's; news is the brief's. */
 function rowHTML(p, i, teamKey){
   const cls = p.slot === "OUT" ? "out" : p.start ? "start" : "bench";
   const badge = p.status ? `<span class="badge ${p.status==="OUT"?"o":"q"}">${p.status==="OUT"?"!":"Q"}</span>` : "";
-  const rd = 40+i*32;
+  const rd = 40+i*24;
   const snap = p.trend ? t("teams.row.snapTip", {n: Math.round(p.trend[p.trend.length-1])}) : t("teams.row.snapNone");
   return `<div class="row ${cls}" style="animation-delay:${rd}ms;--rowdelay:${rd}ms" data-team="${teamKey}" data-i="${i}" role="button" tabindex="0">
+    ${p.start ? `<span class="slot">${esc(slotLabel(p.slot))}</span>` : ""}
     <div class="head">${headHTML(p)}${badge}</div>
     <div class="nm">
-      <div class="nm-1"><b>${esc(p.n)}</b></div>
+      <div class="nm-1"><b><span class="nm-full">${esc(p.n)}</span><span class="nm-ini">${esc(nameInitial(p.n))}</span></b></div>
       <div class="nm-2">
-        <span>${esc(p.pos)} · ${esc(p.team)}</span>
+        <span>${esc(p.pos)}<span class="nm-tm"> · ${esc(p.team)}</span></span>
         ${matchupMetaHTML(profileFor(p))}
       </div>
     </div>
-    <div class="trend" title="${snap}">${sparkHTML(p.trend,80,30)}</div>
-    ${projPillHTML(p)}
+    ${p.start ? `<div class="trend" title="${snap}">${sparkHTML(p.trend,72,24)}</div>` : ""}
+    ${projNumHTML(p)}
   </div>`;
+}
+
+/* A lineup slot as the sheet prints it: RB1 and FLX2 lose their number, every flex spelling is FLX,
+   and ESPN's D/ST is DST. */
+function slotLabel(slot){
+  const s = String(slot || "").replace(/\d+$/, "");
+  return {FLEX: "FLX", "D/ST": "DST", DEF: "DST"}[s] || s;
 }
 
 function boardHTML(team){
   const groups = [
-    [t("teams.group.starters"), team.roster.filter(p=>p.start)],
-    [t("teams.group.bench"),    team.roster.filter(p=>!p.start && p.slot!=="OUT")],
-    [t("teams.group.out"), team.roster.filter(p=>p.slot==="OUT")],
-  ].filter(g=>g[1].length);
+    ["start", t("teams.group.starters"), team.roster.filter(p=>p.start)],
+    ["bench", t("teams.group.bench"),    team.roster.filter(p=>!p.start && p.slot!=="OUT")],
+    ["out",   t("teams.group.out"),      team.roster.filter(p=>p.slot==="OUT")],
+  ].filter(g=>g[2].length);
   let n = 0;
-  return groups.map(([label, list]) => `
+  const group = ([key, label, list]) => `
     <div class="rule">
       <h2>${label}</h2><span class="count">${String(list.length).padStart(2,"0")}</span>
       <span class="hair"></span>
     </div>
-    <div class="board">${list.map(p=>rowHTML(p, n++, team.key)).join("")}</div>
-  `).join("");
+    <div class="board ${key === "start" ? "" : "two"}">${list.map(p=>rowHTML(p, n++, team.key)).join("")}</div>`;
+  const [start, ...rest] = groups[0] && groups[0][0] === "start" ? groups : [null, ...groups];
+  return `<div class="sheet">
+    ${start ? `<section class="sheet-col">${group(start)}</section>` : ""}
+    ${rest.length ? `<section class="sheet-col">${rest.map(group).join("")}</section>` : ""}
+  </div>`;
 }

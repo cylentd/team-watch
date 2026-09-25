@@ -52,14 +52,20 @@ function presetCard(card, bestOf){
     stat = `<div class="ticket-stat"><b class="${pos?"":"neg"}">${priced ? esc(fmtAm(decToAm(dec))) : "—"}</b><span>${t("parlay.gallery.legsOverBook", {n: legs.length, d: `${pos?"+":""}${((modelP-implied)*100).toFixed(1)}`})}</span></div>`;
   }
   const kick = day ? card.win.short : card.win.kick || card.win.short;
+  // A printed slip (2026-09-25): the book at the top, what the slip is and when it kicks off, the
+  // legs, then the payout line at the foot where a real ticket prints it, and the barcode.
   return `<div class="ticket ${best ? "best" : ""}">
     <div class="ticket-top">
-      <div><span class="ticket-eyebrow">${esc(card.scopeLabel)}</span><div class="ticket-kick">${esc(kick.toUpperCase())}</div></div>
+      <div><span class="ticket-eyebrow">${card.book === "underdog" ? t("parlay.book.underdog") : t("parlay.book.dk")}</span>
+        <div class="ticket-kind">${esc(card.scopeLabel)}</div>
+        <div class="ticket-kick">${esc(kick.toUpperCase())}</div></div>
       ${best ? `<span class="ticket-best">${t("parlay.gallery.best")}</span>` : card.low ? `<span class="ticket-low">${t("parlay.gallery.lowTag")}</span>` : ""}
     </div>
-    ${stat}
     <div class="ticket-tear"></div>
     ${legRows}
+    <div class="ticket-tear"></div>
+    ${stat}
+    <div class="ticket-code" aria-hidden="true"></div>
     <button class="ticket-cta" data-loadslip="${card.book}:${card.i}">${t("parlay.gallery.loadSlip")}<span>${t("parlay.gallery.legCount", {n: legs.length, s: legs.length===1?"":"s"})}</span></button>
   </div>`;
 }

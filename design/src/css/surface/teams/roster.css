@@ -1,19 +1,39 @@
-/* ============================== ROSTER ROW ============================== */
-/* One row at every width since 2026-09-25 (js/surface/teams/board.js): head, name over position
-   and matchup, the snap-share line, the projection pill. responsive/lists.css only tightens it for
-   a phone. The desktop's slot box, matchup, market, rank and news columns are gone. */
-.board{margin-top:0}
+/* ============================== ROSTER: THE LINEUP SHEET ============================== */
+/* 2026-09-25 (js/surface/teams/board.js). A starter row is slot, head, name, snap-share line,
+   projection; a bench or out row is head, name, projection. The phone fits the whole team on one
+   screen: 40px starter rows, the bench two to a row (responsive/lists.css). A desktop puts the
+   bench column beside the starters instead of under them. --hd is the head's size in a row. */
+.board{margin-top:4px}
+.sheet-col{min-width:0}
 .row{
+  --hd:40px;
   display:grid;
-  grid-template-columns:52px minmax(0,1fr) 80px auto;
-  grid-template-areas:"head name trend proj";
-  align-items:center;gap:16px;
-  padding:12px 8px;
+  grid-template-columns:var(--hd) minmax(0,1fr) auto;
+  grid-template-areas:"head name proj";
+  align-items:center;gap:12px;
+  padding:8px 6px;
   border-bottom:1px solid var(--line);
   cursor:pointer;position:relative;background:transparent;border-radius:6px;
   transition:background .18s var(--ease);
   opacity:0;
   animation:rowin .4s var(--ease) forwards;
+}
+.row.start{
+  grid-template-columns:34px var(--hd) minmax(0,1fr) 72px 60px;
+  grid-template-areas:"slot head name trend proj";
+}
+.slot{grid-area:slot;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.06em;color:var(--ink-3)}
+.row .head,.row .head img,.row .head .fallback,.row .head .dst{width:var(--hd);height:var(--hd)}
+.row .head .fallback,.row .head .dst{font-size:var(--t-1)}
+.row.bench .nm-1 b,.row.out .nm-1 b{font-weight:500}
+/* A name renders both ways; a phone's two-up bench shows "D. Goedert", every other row the full name. */
+.nm-ini{display:none}
+.row .nm-2{min-width:0;overflow:hidden;white-space:nowrap}
+
+@media (min-width:960px){
+  /* Starters and bench side by side: the empty middle of a full-width row becomes the bench. */
+  .sheet{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);column-gap:40px;align-items:start}
+  .row{--hd:44px}
 }
 @keyframes rowin{to{opacity:1}}
 .row:hover{background:var(--panel-2)}
@@ -74,6 +94,10 @@
 .delta.down{color:var(--down)}
 .delta.flat{color:var(--ink-3)}
 
-/* The row's one number, a .vpill (component/vpill.css), shown at every width on the roster. */
-.rproj{grid-area:proj}
-.row .vpill{display:block}
+/* The row's one number: neutral ink, with the trend line's direction as a small arrow beside it. */
+.rproj{grid-area:proj;display:flex;align-items:center;justify-content:flex-end;gap:4px;
+  font-family:var(--mono);font-weight:700;font-size:var(--t-4);font-variant-numeric:tabular-nums;color:var(--ink)}
+.rproj.none{color:var(--ink-3)}
+.rp-ar{width:8px;height:8px;flex-shrink:0}
+.rp-ar.up{fill:var(--up)}
+.rp-ar.down{fill:var(--down)}

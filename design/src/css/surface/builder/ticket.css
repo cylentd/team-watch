@@ -1,42 +1,64 @@
-/* Gallery slip: a curated ticket, not the plain builder list reused with a border. A boarding-
-   pass header (scope + the one kickoff every leg on this card shares), one loud number, a torn
-   perforation, the legs, then one full-width tap. No correlation caveat -- we picked the legs
-   and own the math. Lifts and cants half a degree on hover, like a card being picked off a rail. */
-.ticket{position:static;display:flex;flex-direction:column;background:var(--panel);
-  border:1px solid var(--line-2);border-top:3px solid var(--line-2);
-  transition:transform .2s var(--ease),box-shadow .2s var(--ease),border-color .2s var(--ease)}
-.ticket:hover{transform:translateY(-4px) rotate(-.35deg);box-shadow:0 16px 32px rgb(var(--shadow-rgb) / .4);border-color:var(--ink-3)}
-.ticket.best{border-top-color:var(--lime)}
-.ticket-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:14px 15px 0}
-.ticket-eyebrow{display:block;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.16em;color:var(--ink-3)}
-.ticket-kick{margin-top:4px;font-family:var(--disp);font-weight:800;font-size:var(--t-4);letter-spacing:-.02em;
-  line-height:1.1;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ticket-best{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.12em;color:var(--on-lime);
-  background:var(--lime);padding:3px 7px;border-radius:2px;white-space:nowrap;flex-shrink:0;margin-top:2px}
-/* A fallback card: the best at its kickoff, but no leg cleared the gallery's gates. Amber = caution. */
-.ticket-low{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.12em;color:var(--amber);
-  border:1px solid var(--amber);padding:2px 6px;border-radius:2px;white-space:nowrap;flex-shrink:0;margin-top:2px}
-.ticket-stat{padding:10px 15px 14px}
-.ticket-stat b{display:block;font-family:var(--mono);font-size:var(--t-6);font-weight:700;letter-spacing:-.03em;line-height:1;color:var(--lime)}
-.ticket-stat b.neg{color:var(--down)}
-.ticket-stat span{display:block;margin-top:6px;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.1em;color:var(--ink-3)}
-/* The torn edge between the headline and the legs -- a dashed cut with a bite out of each side,
-   like a ticket stub separated from its counterfoil. Needs .ticket to allow overflow so the
-   notches can sit half outside the card's own border. */
-.ticket-tear{position:relative;height:0;border-top:1px dashed var(--line-2);margin:0 15px}
+/* Gallery slip: a printed betting slip (2026-09-25), the one paper surface on the page. The book at
+   the top, what the slip is and its one kickoff, a torn perforation, the legs, the payout line at
+   the foot where a real ticket prints it, a barcode, then one full-width tap. Punched along the top
+   edge and torn along the bottom, by a mask, so the page shows through the holes. Lifts and cants
+   half a degree on hover, like a slip picked off the counter. No correlation caveat -- we picked
+   the legs and own the math. */
+/* A slip is as long as its legs: align-self keeps the rail from stretching a 2-leg slip to the
+   height of a 3-leg one, which would print blank paper under its button. */
+.ticket{position:static;display:flex;flex-direction:column;align-self:flex-start;background:var(--paper);color:var(--paper-ink);
+  padding:12px 0 18px;
+  -webkit-mask:radial-gradient(circle 4px at 50% 0,transparent 98%,var(--shadow)) top/12px 51% repeat-x,
+    conic-gradient(from 135deg at 50% 100%,transparent 90deg,var(--shadow) 0) bottom/12px 51% repeat-x;
+          mask:radial-gradient(circle 4px at 50% 0,transparent 98%,var(--shadow)) top/12px 51% repeat-x,
+    conic-gradient(from 135deg at 50% 100%,transparent 90deg,var(--shadow) 0) bottom/12px 51% repeat-x;
+  transition:transform .2s var(--ease)}
+.ticket:hover{transform:translateY(-4px) rotate(-.35deg)}
+.ticket-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:10px 15px 12px}
+.ticket-eyebrow{display:block;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--paper-ink)}
+.ticket-kind{margin-top:8px;font-family:var(--disp);font-weight:800;font-size:var(--t-5);letter-spacing:-.01em;line-height:1}
+.ticket-kick{margin-top:4px;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.12em;color:var(--paper-ink-2);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Best on screen: a stamp in ink. A fallback card (no leg cleared the gates) gets an outlined one. */
+.ticket-best{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.12em;color:var(--paper);
+  background:var(--paper-ink);padding:3px 7px;border-radius:2px;white-space:nowrap;flex-shrink:0;margin-top:2px;transform:rotate(-3deg)}
+.ticket-low{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.12em;color:var(--paper-ink-2);
+  border:1px solid var(--paper-ink-2);padding:2px 6px;border-radius:2px;white-space:nowrap;flex-shrink:0;margin-top:2px}
+/* The payout line, printed at the foot: the one number the slip is selling. */
+.ticket-stat{padding:12px 15px 4px}
+.ticket-stat b{display:block;font-family:var(--disp);font-size:var(--t-7);font-weight:800;letter-spacing:-.02em;line-height:.95;color:var(--paper-ink)}
+.ticket-stat b.neg{color:var(--paper-down)}
+.ticket-stat span{display:block;margin-top:6px;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.1em;color:var(--paper-ink-2)}
+/* A perforation between the parts, with a bite out of each side where the page shows through. */
+.ticket-tear{position:relative;height:0;border-top:1.5px dashed rgb(var(--paper-ink-2-rgb) / .55);margin:4px 15px}
 .ticket-tear::before,.ticket-tear::after{content:"";position:absolute;top:-7px;width:14px;height:14px;
   border-radius:50%;background:var(--void)}
 .ticket-tear::before{left:-22px}
 .ticket-tear::after{right:-22px}
-.ticket .slipleg:last-child{border-bottom:0}
+/* The legs, reprinted in ink: the builder cart's .slipleg (slip.css) is drawn for the dark page. */
+.ticket .slipleg{border-bottom:1px dotted rgb(var(--paper-ink-2-rgb) / .35)}
+.ticket .slipleg:has(+ .ticket-tear){border-bottom:0}
+.ticket .slipleg .p{color:var(--paper-ink)}
+.ticket .slipleg .m{color:var(--paper-ink-2)}
+.ticket .slipleg.ud .m b{color:var(--paper-ink)}
+.ticket .slipleg.ud .m .dir{color:var(--paper-ink-2)}
+.ticket .slipleg.ud.higher .m .dir{color:var(--paper-up)}
+.ticket .slipleg.ud.lower .m .dir{color:var(--paper-down)}
+.ticket .slipleg.ud .m .udtag{color:var(--paper-ink-2)}
+.ticket .slipleg .o{background:none;border-color:var(--paper-ink-2);color:var(--paper-ink)}
 /* One line per leg saying why it is on the card; quiet, since the call above it is the answer. */
-.ticket .why{margin-top:4px;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.02em;line-height:1.4;color:var(--ink-3)}
-.ticket-cta{appearance:none;width:100%;border:none;border-top:1px dashed var(--line-2);background:rgb(var(--lime-rgb) / .06);
-  color:var(--lime);font-family:var(--disp);font-weight:800;text-transform:uppercase;letter-spacing:-.01em;
-  font-size:var(--t-3);padding:14px 15px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;
+.ticket .why{margin-top:4px;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.02em;line-height:1.4;color:var(--paper-ink-2)}
+.ticket-code{height:30px;margin:12px 15px 0;
+  background:repeating-linear-gradient(90deg,var(--paper-ink) 0 2px,transparent 2px 4px,var(--paper-ink) 4px 5px,transparent 5px 8px,
+    var(--paper-ink) 8px 11px,transparent 11px 12px,var(--paper-ink) 12px 13px,transparent 13px 16px)}
+.ticket-cta{appearance:none;margin:12px 15px 0;border:2px solid var(--paper-ink);border-radius:2px;background:var(--paper-ink);
+  color:var(--paper);font-family:var(--disp);font-weight:800;text-transform:uppercase;letter-spacing:-.01em;
+  font-size:var(--t-3);padding:11px 13px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;
   transition:background .15s var(--ease),color .15s var(--ease)}
-.ticket-cta span{font-family:var(--mono);font-size:var(--t-1);font-weight:600;letter-spacing:.08em;color:var(--ink-2)}
-.ticket-cta:hover{background:var(--lime);color:var(--on-lime)}
-.ticket-cta:hover span{color:var(--on-lime)}
+.ticket-cta span{font-family:var(--mono);font-size:var(--t-1);font-weight:600;letter-spacing:.08em;color:rgb(var(--paper-rgb) / .7)}
+.ticket-cta:hover{background:var(--paper);color:var(--paper-ink)}
+.ticket-cta:hover span{color:var(--paper-ink-2)}
+.ticket-cta:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 .ticket-cta:active{transform:scale(.98)}
 .hint{font-size:var(--t-1);color:var(--ink-3);line-height:1.5;margin-top:8px;max-width:70ch}

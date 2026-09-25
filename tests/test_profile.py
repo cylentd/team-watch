@@ -159,7 +159,7 @@ def test_phone_moves_matchup_to_the_meta_line(browser, page_file):
     # The ordinal is the profile's since 2026-09-24: a phone row reads "TE · SF vs LAR".
     assert meta.is_visible() and re.sub(r"\s+", " ", meta.inner_text()).strip() == "vs LAR"
     assert not meta.locator(".mu-n").is_visible()
-    assert kittle.locator(".vpill").is_visible()
+    assert kittle.locator(".rproj").is_visible()
     assert row(page, "Brock Purdy").locator(".mu-meta").count() == 0       # no profile: no clause
     page.evaluate("VIEW='yahoo'; render()")
     assert row(page, "Jahmyr Gibbs").locator(".mu-meta").count() == 0      # bye: no clause

@@ -1,13 +1,25 @@
 /* The phone's lists (2026-09-24): every list row is who, which way, one number. Split from
    760.css, same breakpoint, loaded right after it. */
 @media (max-width:760px){
-  /* The roster row on a phone, 2026-09-24: who, which way, one number. A 52px head, the name over
-     "RB · BAL @ DAL", the trend line, and the projection pill. Rank, the matchup ordinal, the
-     verdict and news tags all live one tap away in the profile; the Q/O badge stays on the head. */
-  .board{margin-top:4px}
-  .row{grid-template-columns:52px minmax(0,1fr) 56px auto;gap:12px;padding:10px 0;border-radius:0}
+  /* The lineup sheet on a phone, 2026-09-25: all nine starters and the bench on one screen. A
+     starter row is 40px: slot, a 30px head, the name over "RB · BAL @ DAL", a short line, the
+     number. The bench goes two to a row with no line. Rank, the matchup ordinal, the verdict and
+     news tags all live one tap away in the profile; the Q/O badge stays on the head. */
+  .row{--hd:28px;gap:8px;padding:2px 0;border-radius:0}
+  .hero.team{padding-top:12px}
+  .row.start{grid-template-columns:28px var(--hd) minmax(0,1fr) 44px 52px}
+  .row .nm-1 b{font-size:var(--t-2)}
+  .row .nm-2{margin-top:0;font-size:var(--t-1)}
+  .row .spark{width:44px;height:18px}
+  .rproj{font-size:var(--t-3)}
+  .rl-rows .rule{margin-top:12px}
+  .rl-rows .sheet-col:first-child > .rule:first-child{margin-top:8px}
+  .board.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:14px}
+  .board.two .row{gap:7px}
+  .board.two .rproj{font-size:var(--t-2)}
+  .board.two .nm-full,.board.two .nm-tm{display:none}
+  .board.two .nm-ini{display:inline}
   .nm-2 .mu-n{display:none}
-  .spark{width:56px;height:24px}
   .vpill{display:block}
   /* Filter rows on a phone: one line that scrolls sideways, pill chips in the UI face. The
      "Position" / "Filter" label goes; the chips name themselves. */

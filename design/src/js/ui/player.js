@@ -66,10 +66,15 @@ function projFor(p){
   return proj && typeof proj.pts === "number" ? proj.pts : null;
 }
 
-/* The roster row's one number at every width, Robinhood's price box: projected points, filled in
-   the colour of the trend line beside it. No projection prints a dash in a quiet box, never a zero. */
-function projPillHTML(p){
+/* The roster row's one number at every width: projected points in the ink colour, with a small
+   arrow in the trend line's colour (2026-09-25). The pill used to be filled with that colour, which
+   said the line's direction a second time at full volume. No projection prints a dash, never a zero;
+   a flat or missing line draws no arrow. */
+function projNumHTML(p){
   const pts = projFor(p);
-  return `<div class="vpill rproj ${pts === null ? "none" : trendDir(p.trend)}">${pts === null ? "—" : pts.toFixed(1)}</div>`;
+  if (pts === null) return `<div class="rproj none">—</div>`;
+  const dir = trendDir(p.trend);
+  const arrow = dir === "flat" ? "" : `<svg class="rp-ar ${dir}" viewBox="0 0 8 8" aria-hidden="true"><path d="${dir === "up" ? "M4 1 7.5 7h-7z" : "M4 7 .5 1h7z"}"/></svg>`;
+  return `<div class="rproj">${pts.toFixed(1)}${arrow}</div>`;
 }
 

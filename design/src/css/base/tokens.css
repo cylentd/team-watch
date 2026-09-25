@@ -67,8 +67,8 @@
      not by colour, so a reader doesn't have to decode a swatch. */
   --discord:#5865f2;       /* Discord's own brand colour, topbar.css .discordlink:hover */
   --discord-rgb:88 101 242;
-  --on-lime:#0b0d05;       /* near-black text/icons on a lime chip: wire.css .btn:hover,
-                               builder/ticket.css .ticket-best & .ticket-cta:hover */
+  --on-lime:#0b0d05;       /* near-black text/icons on a lime chip: wire.css .btn:hover and the
+                               other lime-filled controls (the gallery slip went to paper 2026-09-25) */
   --on-lime-rgb:11 13 5;
   --on-signal:#0b0f0c;     /* text on a filled up/down box: the roster's projection pill */
   --on-signal-rgb:11 15 12;
@@ -105,6 +105,22 @@
   --jersey-home-rgb:29 79 196;
   --jersey-away:#6b7080;
   --jersey-away-rgb:107 112 128;
+
+  /* The gallery slip is printed on paper (2026-09-25, builder/ticket.css): the one light surface on
+     the page, so it reads as an object you take to the window. Wins and losses keep green and red,
+     darkened until they hold contrast on paper. */
+  --paper:#f1efe8;
+  --paper-rgb:241 239 232;
+  --paper-2:#e2dfd5;
+  --paper-2-rgb:226 223 213;
+  --paper-ink:#1d1c1a;
+  --paper-ink-rgb:29 28 26;
+  --paper-ink-2:#5d5a53;
+  --paper-ink-2-rgb:93 90 83;
+  --paper-up:#0f7a45;
+  --paper-up-rgb:15 122 69;
+  --paper-down:#b3261e;
+  --paper-down-rgb:179 38 30;
 
   --nav-h:48px;         /* the phone nav row; the view tabs stick under it (responsive/760.css) */
 
