@@ -103,6 +103,21 @@ def test_a_card_back_is_a_role_sheet_from_his_latest_game(browser, page_file):
 
 
 @pytest.mark.render
+def test_a_card_takes_the_256px_head_where_there_is_one(browser, page_file):
+    ctx, page, errors = cards_page(browser, page_file)
+    got = page.evaluate("""(() => {
+      HEADS_LG['a-sharp-one'] = 'heads/lg/a-sharp-one.webp'; HEADS['a-sharp-one'] = 'heads/a-sharp-one.webp';
+      HEADS['a-soft-one'] = 'heads/a-soft-one.webp';
+      const src = slug => { const d = document.createElement('div'); d.innerHTML = cardHeadHTML({n: 'A One', slug, pos: 'WR'});
+        return d.querySelector('img').getAttribute('src'); };
+      return [src('a-sharp-one'), src('a-soft-one')];
+    })()""")
+    assert got == ["heads/lg/a-sharp-one.webp", "heads/a-soft-one.webp"]
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
 def test_the_photo_fills_the_art_from_its_bottom_edge(browser, page_file):
     ctx, page, errors = cards_page(browser, page_file)
     img = page.locator(".cards .tc-art > .head > img").first

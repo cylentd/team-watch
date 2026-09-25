@@ -51,14 +51,16 @@ from _espn import slugify  # noqa: E402
 HEADS_SRC = pathlib.Path(os.environ.get("TEAM_WATCH_HEADS", "C:/Users/David/Github/ff-jarvis/app/public/heads"))
 # Served next to the page, and the prefix of every HEADS url, so the two cannot disagree.
 HEADS_DIR = "heads"
+# The 256px heads (2026-09-25), which ff-jarvis cuts for its draft board's players only. The
+# 96px ones are sharp in a 40px row but blur when a trading card stretches them 2-3x, so the
+# cards (HEADS_LG) take the large file where there is one. About 230 players, 1.9 MB.
+HEADS_LG = "lg"
 
 
-def write_heads(dest_root):
-    """Mirror HEADS_SRC into <dest_root>/heads/, dropping a head ff-jarvis no longer has, so the
-    folder is exactly the set HEADS names. Returns how many were written."""
-    out = pathlib.Path(dest_root) / HEADS_DIR
-    out.mkdir(exist_ok=True)
-    src = {p.name: p for p in HEADS_SRC.glob("*.webp")}
+def _mirror(src_dir, out):
+    """Make <out> hold exactly src_dir's .webp files: copy what changed, drop what is gone."""
+    out.mkdir(parents=True, exist_ok=True)
+    src = {p.name: p for p in src_dir.glob("*.webp")}
     for stale in out.glob("*.webp"):
         if stale.name not in src:
             stale.unlink()
@@ -68,6 +70,16 @@ def write_heads(dest_root):
         if not target.exists() or target.read_bytes() != data:
             target.write_bytes(data)
     return len(src)
+
+
+def write_heads(dest_root):
+    """Mirror HEADS_SRC into <dest_root>/heads/ (and its lg/ into heads/lg/), dropping a head
+    ff-jarvis no longer has, so each folder is exactly the set HEADS / HEADS_LG names. Returns
+    how many 96px heads were written."""
+    out = pathlib.Path(dest_root) / HEADS_DIR
+    n = _mirror(HEADS_SRC, out)
+    _mirror(HEADS_SRC / HEADS_LG, out / HEADS_LG)
+    return n
 
 # A depth-chart slot at or past this number, for the player's position, reads as "the backup."
 # Mirrors ff-jarvis's model.clients.sleeper.BACKUP_DEPTH.
@@ -700,6 +712,7 @@ def render():
     # runtime, so the build cannot know them. They are files now (write_heads), fetched lazily, so
     # a head nobody scrolls to costs nothing -- inlined, all of them would cost the page 470 KB.
     heads = {slug: f"{HEADS_DIR}/{slug}.webp" for slug in sorted(available)}
+    heads_lg = {p.stem: f"{HEADS_DIR}/{HEADS_LG}/{p.name}" for p in sorted((HEADS_SRC / HEADS_LG).glob("*.webp"))}
     missing = [slug for slug in dict.fromkeys(wanted) if slug not in available]
 
     report = []
@@ -747,7 +760,7 @@ def render():
     # A "</" inside a string (a headline quoting markup, say) would end the <script> early;
     # JSON reads "<\/" as the same two characters, and JS never sees the difference.
     injected = "\n".join(
-        ["const HEADS = " + json.dumps(heads) + ";"]
+        ["const HEADS = " + json.dumps(heads) + ";", "const HEADS_LG = " + json.dumps(heads_lg) + ";"]
         + block_js
         + ["const BUILD = " + json.dumps(stamp) + ";"]
     ).replace("</", "<\\/")

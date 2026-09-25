@@ -16,7 +16,7 @@ Global architecture rules apply here: `~/Github/agent-config/shared/architecture
 | `design/src/order.css.txt`, `order.js.txt` | the only order authority; `# pin:` lines say why an order is load-bearing |
 | `design/assemble.py` | joins the parts into the template string; `--check` fails on an unlisted or missing part |
 | `design/build.py` | inlines live data into the assembled template, writes both outputs, copies headshots to `heads/` |
-| `heads/` | **generated** — every ff-jarvis headshot, `<slug>.webp`; the page names them by path (since 2026-09-24) |
+| `heads/` | **generated** — every ff-jarvis headshot, `<slug>.webp` (96px); the page names them by path (since 2026-09-24). `heads/lg/` holds the 256px ones ff-jarvis cuts for its board players (~230); the trading cards use those (since 2026-09-25) |
 | `index.html` | **generated** — full document, what Vercel serves |
 | `design/index.html` | **generated** — fragment, what the Artifact publisher takes |
 

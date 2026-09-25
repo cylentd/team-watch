@@ -18,6 +18,14 @@ function cardRank(p){
   return r && r.rank ? r.rank : null;
 }
 
+/* A card's photo is the 256px head where ff-jarvis cut one (HEADS_LG, the draft board's players),
+   since a card shows it at 2-3x the 96px file's size and blurs it. Anyone else keeps the 96px
+   head, and a failed load still falls back to initials (headImgHTML). */
+function cardHeadHTML(p){
+  const lg = typeof HEADS_LG !== "undefined" && HEADS_LG && p.slug ? HEADS_LG[p.slug] : null;
+  return lg ? headImgHTML(lg, initials(p.n)) : headHTML(p);
+}
+
 /* This week's game for a team, from the schedule: the next kickoff not more than four hours gone.
    The schedule spells two clubs its own way (alias: LA -> LAR, WAS -> WSH), and so do the lines. */
 const cardCode = team => (typeof LIVE_SCHEDULE !== "undefined" && LIVE_SCHEDULE && LIVE_SCHEDULE.alias || {})[team] || team;
@@ -50,7 +58,7 @@ function cardFront(p, tier, g){
   return `<div class="tc-face tc-front">
       <div class="tc-top"><span>${esc(p.start ? slotLabel(p.slot) : p.pos)}</span><span class="tc-num">${pts === null ? "—" : pts.toFixed(1)}</span></div>
       <div class="tc-art pos-${esc(p.pos)}">${foil}
-        <div class="head">${headHTML(p)}</div>${sig}</div>
+        <div class="head">${cardHeadHTML(p)}</div>${sig}</div>
       <div class="tc-name">${esc(nameInitial(p.n))}</div>
       <div class="tc-meta">${esc(cardMatchup(p.team, g))}</div>
     </div>`;
@@ -99,7 +107,7 @@ function supportArt(p, g){
     // One chip, the one that decides a kick: a roof means no wind at all; otherwise the wind.
     const chip = !w ? t("teams.card.noForecast") : w.roof === "dome" ? t("teams.card.dome")
       : w.wind ? t("teams.card.wind", {w: esc(w.wind), d: esc(w.wind_dir || "")}) : cardRoof(w);
-    return `${CARD_POSTS}<div class="head">${headHTML(p)}</div><span class="tc-chip r">${chip}</span>`;
+    return `${CARD_POSTS}<div class="head">${cardHeadHTML(p)}</div><span class="tc-chip r">${chip}</span>`;
   }
   const opp = g ? cardLines(g.opp) : null;
   return `<span class="tc-abbr">${esc(p.team)}</span>
