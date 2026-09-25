@@ -44,4 +44,6 @@ def built():
 def page_file(built, tmp_path_factory):
     p = tmp_path_factory.mktemp("page") / "index.html"
     p.write_text(built.page, encoding="utf-8")
+    import build
+    build.write_heads(p.parent)   # the page names heads by path, so they sit beside it as served
     return p

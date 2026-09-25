@@ -15,12 +15,13 @@ Global architecture rules apply here: `~/Github/agent-config/shared/architecture
 | `design/src/css/**`, `design/src/js/**` | **source** — one concern per file, none over ~200 lines |
 | `design/src/order.css.txt`, `order.js.txt` | the only order authority; `# pin:` lines say why an order is load-bearing |
 | `design/assemble.py` | joins the parts into the template string; `--check` fails on an unlisted or missing part |
-| `design/build.py` | inlines headshots and live data into the assembled template, writes both outputs |
+| `design/build.py` | inlines live data into the assembled template, writes both outputs, copies headshots to `heads/` |
+| `heads/` | **generated** — every ff-jarvis headshot, `<slug>.webp`; the page names them by path (since 2026-09-24) |
 | `index.html` | **generated** — full document, what Vercel serves |
 | `design/index.html` | **generated** — fragment, what the Artifact publisher takes |
 
-Never hand-edit the generated files. They are ~1.4 MB each because headshots are inlined as
-base64, and `build.py` rewrites both in full on every run.
+Never hand-edit the generated files. The pages are ~2.6 MB each (all live data inlined), and
+`build.py` rewrites both in full on every run.
 
 ## Build, test, land
 

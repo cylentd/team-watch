@@ -38,7 +38,8 @@ $repo = Split-Path -Parent $PSScriptRoot
 # `games/` is the drive strips, one JSON per played game, also written by design/build.py. Unlike
 # the three above these never conflict -- a finished game is never rewritten, so a build only ever
 # adds files -- but they belong to the same build, so they are folded in at the same moment.
-$generated = @("index.html", "design/index.html", "build.json", "games")
+# `heads/` is the headshots, copied from ff-jarvis by the same build; the page names them by path.
+$generated = @("index.html", "design/index.html", "build.json", "games", "heads")
 
 # Call git.exe explicitly, and never name a helper `Git`: PowerShell resolves a function name
 # before an external command, case-insensitively, so `function Git { & git ... }` calls itself

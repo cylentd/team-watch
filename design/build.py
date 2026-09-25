@@ -1,10 +1,10 @@
-"""Inline the ff-jarvis headshots into a self-contained index.html.
+"""Inject the live data into index.html and copy the ff-jarvis headshots beside it.
 
-design/src/ holds the design (assembled by assemble.py); this replaces the /*__HEADS__*/ token with a
-slug -> data-URI map so the page works offline and as a published Artifact.
+design/src/ holds the design (assembled by assemble.py); this replaces the /*__HEADS__*/ token with
+the slug -> heads/<slug>.webp map and every LIVE_* block. The heads are files, not data URIs, so a
+published Artifact (design/index.html) shows initials unless heads/ is published with it.
 Run: python design/build.py
 """
-import base64
 import hashlib
 import json
 import os
@@ -46,8 +46,27 @@ from _espn import slugify  # noqa: E402
 
 # Pointed elsewhere by env var so a build can run against a pinned snapshot (the regression
 # suite) instead of whatever ff-jarvis holds right now. The other input roots (DWR, FEED) live
-# in sources.py, which owns every ff-jarvis read; this one only ever feeds base64 inlining here.
+# in sources.py, which owns every ff-jarvis read; this one only ever feeds write_heads() here.
 HEADS_SRC = pathlib.Path(os.environ.get("TEAM_WATCH_HEADS", "C:/Users/David/Github/ff-jarvis/app/public/heads"))
+# Served next to the page, and the prefix of every HEADS url, so the two cannot disagree.
+HEADS_DIR = "heads"
+
+
+def write_heads(dest_root):
+    """Mirror HEADS_SRC into <dest_root>/heads/, dropping a head ff-jarvis no longer has, so the
+    folder is exactly the set HEADS names. Returns how many were written."""
+    out = pathlib.Path(dest_root) / HEADS_DIR
+    out.mkdir(exist_ok=True)
+    src = {p.name: p for p in HEADS_SRC.glob("*.webp")}
+    for stale in out.glob("*.webp"):
+        if stale.name not in src:
+            stale.unlink()
+    for name, p in src.items():
+        target = out / name
+        data = p.read_bytes()
+        if not target.exists() or target.read_bytes() != data:
+            target.write_bytes(data)
+    return len(src)
 
 # A depth-chart slot at or past this number, for the player's position, reads as "the backup."
 # Mirrors ff-jarvis's model.clients.sleeper.BACKUP_DEPTH.
@@ -668,15 +687,11 @@ def render():
     wanted = wanted_slugs(live, liveY, props, liveDfsYahoo, waiver, pool)
     wanted_set = set(wanted)
 
-    heads = {}
-    missing = []
-    for slug in dict.fromkeys(wanted):
-        path = HEADS_SRC / f"{slug}.webp"
-        if not path.exists():
-            missing.append(slug)
-            continue
-        b64 = base64.b64encode(path.read_bytes()).decode("ascii")
-        heads[slug] = f"data:image/webp;base64,{b64}"
+    # Every head ff-jarvis has, not only the wanted ones: a connected league's players are read at
+    # runtime, so the build cannot know them. They are files now (write_heads), fetched lazily, so
+    # a head nobody scrolls to costs nothing -- inlined, all of them would cost the page 470 KB.
+    heads = {slug: f"{HEADS_DIR}/{slug}.webp" for slug in sorted(available)}
+    missing = [slug for slug in dict.fromkeys(wanted) if slug not in available]
 
     report = []
     blocks = {
@@ -744,7 +759,8 @@ def main():
     # must-revalidate), so an open tab's check costs a 304 until the data actually moves.
     (REPO / "build.json").write_text(json.dumps(b.stamp), encoding="utf-8")
     kb = len(b.page.encode("utf-8")) / 1024
-    print(f"wrote {REPO/'index.html'} and {ROOT/'index.html'} ({kb:.0f} KB), {len(b.heads)} heads inlined")
+    print(f"wrote {REPO/'index.html'} and {ROOT/'index.html'} ({kb:.0f} KB), "
+          f"{write_heads(REPO)} heads to {HEADS_DIR}/")
     # One JSON per played game, for the drive strip to fetch on demand. Not injected: 39 KB a
     # game against a page that is already 2.2 MB. Not a function either -- a Vercel Python
     # function may not import pandas. Static files off the CDN, immutable once a game has ended.

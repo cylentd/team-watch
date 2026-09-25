@@ -44,11 +44,21 @@ def test_injected_blocks_meet_the_contract(built):
         assert contract.problems(name, d[name]) == []
 
 
-def test_heads_are_inlined(built):
-    assert built.heads, "no headshot inlined -- fixtures/heads is empty or slugs do not match"
-    assert built.fragment.count("data:image/webp;base64,") == len(built.heads)
-    for slug in built.heads:
-        assert f'"{slug}"' in built.fragment
+def test_heads_are_files_not_inlined(built):
+    """Every head ff-jarvis has is named, not only the wanted ones -- a connected league's players
+    are only known at runtime -- and none is a data URI any more."""
+    assert built.heads, "no headshot named -- fixtures/heads is empty"
+    assert set(built.heads) == {p.stem for p in build.HEADS_SRC.glob("*.webp")}
+    assert "data:image/webp;base64," not in built.fragment
+    assert injected(built.fragment)["HEADS"] == {s: f"heads/{s}.webp" for s in built.heads}
+
+
+def test_write_heads_mirrors_the_source(tmp_path):
+    (tmp_path / "heads").mkdir()
+    (tmp_path / "heads" / "gone-player.webp").write_bytes(b"old")
+    n = build.write_heads(tmp_path)
+    written = {p.name for p in (tmp_path / "heads").glob("*.webp")}
+    assert written == {p.name for p in build.HEADS_SRC.glob("*.webp")} and n == len(written)
 
 
 def test_page_wraps_fragment(built):

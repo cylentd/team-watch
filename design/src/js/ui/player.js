@@ -2,13 +2,27 @@
    (a lineup slot shows the position abbreviation instead). headHTML below is the roster-board
    variant: it knows about DST and lazy-loads, so the two stay separate on purpose. */
 function avatarHTML(p, label){
-  return HEADS[p.slug] ? `<img src="${HEADS[p.slug]}" alt="">` : `<div class="fallback">${esc(label || initials(p.n))}</div>`;
+  const text = label || initials(p.n);
+  return HEADS[p.slug] ? headImgHTML(HEADS[p.slug], text) : `<div class="fallback">${esc(text)}</div>`;
 }
 function headHTML(p, cls){
   if (p.pos === "DST") return `<div class="dst">${esc(p.team)}</div>`;
   const src = HEADS[p.slug];
   if (!src) return `<div class="fallback">${esc(initials(p.n))}</div>`;
-  return `<img src="${src}" alt="" loading="lazy">`;
+  return headImgHTML(src, initials(p.n));
+}
+
+/* Heads are files beside the page (heads/<slug>.webp), so one can fail to load: a published
+   Artifact without the folder, a deploy mid-flight. The failed image becomes the same initials
+   block a player with no head gets, never a broken-image glyph. */
+function headImgHTML(src, text){
+  return `<img src="${src}" alt="" loading="lazy" data-i="${esc(text)}" onerror="headFail(this)">`;
+}
+function headFail(img){
+  const d = document.createElement("div");
+  d.className = "fallback";
+  d.textContent = img.dataset.i;
+  img.replaceWith(d);
 }
 
 /* `ref`, when given, draws a dashed rule across the chart at that value -- the profile card's

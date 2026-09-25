@@ -26,8 +26,8 @@ Edit the parts under `design/src/`, never the generated files. `design/assemble.
 parts in the order the two manifests give (`python design/assemble.py --map` says which part
 owns which output line). Copy is data: user-facing strings live in `design/src/content.json`
 and the code says `t("area.component.slot")`, never the string. The build writes two copies of the same page: `index.html` at the root (full HTML document, what Vercel serves) and `design/index.html`
-(fragment, what the Artifact publisher takes). Player headshots are inlined as data URIs, so
-both files work offline.
+(fragment, what the Artifact publisher takes). Player headshots are files: the build copies
+every ff-jarvis head to `heads/` beside the page, and a head that fails to load shows initials.
 
 Both outputs are ~1.4 MB and are rewritten in full on every build, so a feature branch that
 commits them conflicts with any other branch on a blob nobody can merge. **Feature branches do
@@ -80,7 +80,7 @@ design/src/order.*.txt the concatenation order, with the reasons it is load-bear
 design/assemble.py     joins the parts; --check, --map, --verify
 design/contract.py     the fields each injected block must carry; a miss fails the build
 design/lint_css.py     theme rules; an error fails the build
-design/build.py        inlines headshots and live data, writes both outputs
+design/build.py        inlines live data, copies headshots to heads/, writes both outputs
 tests/                 pytest suite; fixtures/ are the pinned inputs, golden/ the rendered snapshot
 design/DESIGN.md       design system + the field contract the skill must supply
 index.html             generated — do not edit

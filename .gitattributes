@@ -1,5 +1,5 @@
-# index.html and design/index.html are build output, not source: ~1.4 MB each, rewritten in full
-# by design/build.py on every run because the headshots are inlined as base64. Two branches that
+# index.html and design/index.html are build output, not source: ~2.6 MB each, rewritten in full
+# by design/build.py on every run because the live data is inlined. Two branches that
 # both carry a build therefore conflict on a million lines that cannot be merged, only chosen.
 #
 #   -diff        keep them out of diffs and reviews; there is nothing to read
@@ -18,6 +18,7 @@ design/index.html  -diff merge=ours
 # after another session's land replays them onto a newer build.json and games/.
 build.json         -diff merge=ours
 games/**           -diff merge=ours
+heads/**           -diff merge=ours
 
 # Source parts must not pick up CRLF: the build concatenates them byte for byte, and a stray \r
 # changes the output hash.
