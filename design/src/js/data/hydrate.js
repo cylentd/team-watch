@@ -1,15 +1,22 @@
-/* ESPN starts two RB and two WR, so those slots are numbered; the singles are not. */
-function hydrateEspn(){
-  if (typeof LIVE_ESPN === "undefined" || !LIVE_ESPN) return;
+/* LIVE_ESPN-shaped rows -> roster rows. ESPN starts two RB and two WR, so those slots are
+   numbered; the singles are not. A connected league (data/connect.js) arrives in the same shape
+   from api/league.py and goes through here too. */
+function espnRows(rows){
   const seen = {};
-  TEAMS.espn.name = LIVE_ESPN.name;
-  TEAMS.espn.meta = ["12-team","half PPR","no kicker · 2 FLEX", LIVE_ESPN.league];
-  TEAMS.espn.roster = LIVE_ESPN.roster.map(p => {
+  return rows.map(p => {
     let slot = p.slot;
     if (slot === "RB" || slot === "WR"){ seen[slot] = (seen[slot]||0)+1; slot += seen[slot]; }
-    const row = {n:p.n, pos:p.pos, team:p.team, slug:p.slug, slot, start: slot !== "BN", status: p.status || null};
+    const row = {n:p.n, pos:p.pos, team:p.team, slug:p.slug, slot,
+      start: slot !== "BN" && slot !== "OUT", status: p.status || null};
     return Object.assign(row, signalsFor(row));
   });
+}
+
+function hydrateEspn(){
+  if (typeof LIVE_ESPN === "undefined" || !LIVE_ESPN) return;
+  TEAMS.espn.name = LIVE_ESPN.name;
+  TEAMS.espn.meta = ["12-team","half PPR","no kicker · 2 FLEX", LIVE_ESPN.league];
+  TEAMS.espn.roster = espnRows(LIVE_ESPN.roster);
 }
 hydrateEspn();
 

@@ -13,6 +13,7 @@
 data/teams.js
 data/signals.js
 data/hydrate.js
+data/connect.js
 data/news.js
 data/stock.js
 data/waiver.js
@@ -91,6 +92,7 @@ surface/strip/strip.js
 surface/strip/transport.js
 surface/strip/game.js
 chrome/teamswitch.js
+chrome/connect.js
 chrome/hero.js
 chrome/motion.js
 ui/scrollers.js

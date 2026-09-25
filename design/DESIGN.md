@@ -55,6 +55,23 @@ question: who, which way, one number.
 | Value pill | filled green/red by direction, grey when flat | `component/vpill.css` |
 | KPI tiles | removed at every width (roster and parlay) | — |
 
+## Connected leagues (2026-09-24)
+
+A visitor adds an ESPN league from the team switch ("+ Add a league"). Plan and decisions:
+https://claude.ai/artifact/4ynPcsonQ7NkyUV8CNsNJM. David's two leagues stay baked in and default.
+
+| Part | Where |
+|---|---|
+| Endpoint: GET lists, POST connects, DELETE forgets | `api/league.py` |
+| ESPN host, id maps, slug (shared with `live.py` and `build.py`) | `api/_espn.py` |
+| Connection: HttpOnly cookie `tw_leagues`, 400 days, browser only | `api/league.py` |
+| Runtime state, added to `TEAMS` with `connected: true` | `js/data/connect.js` |
+| The sheet: link, league-manager tip, phone bookmark, pasted cookies | `js/chrome/connect.js` |
+
+A connected league has no Waivers tab: ff-jarvis builds the packet for David's leagues only. The
+phone bookmark works because neither `espn_s2` nor `SWID` is HttpOnly (checked 2026-09-24). Yahoo
+sign-in is phase 2.
+
 ## Waivers (sub-tab of My Teams, 2026-09-16)
 
 A Roster | Waivers toggle under the team name, not a sixth nav tab: waivers are per league like

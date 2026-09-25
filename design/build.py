@@ -10,6 +10,7 @@ import json
 import os
 import pathlib
 import re
+import sys
 
 import contract                 # design/contract.py: the shape each LIVE_* block must have
 import pbp                      # design/pbp.py: nflverse play-by-play -> games/<id>.json
@@ -37,6 +38,11 @@ from sources import (                                    # design/sources.py: th
     load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
     load_draft_pedigree, load_weather, load_routes,
 )
+
+# One slug for one name across the page and the functions: api/league.py slugs a connected
+# league's players at request time with this same function (api/_espn.py).
+sys.path.insert(0, str(REPO / "api"))
+from _espn import slugify  # noqa: E402
 
 # Pointed elsewhere by env var so a build can run against a pinned snapshot (the regression
 # suite) instead of whatever ff-jarvis holds right now. The other input roots (DWR, FEED) live
@@ -71,9 +77,6 @@ def sleeper_flag(rec):
     if rec.get("depth") and rec["depth"] >= BACKUP_DEPTH.get(rec.get("pos"), 9):
         return "backup"
     return None
-
-
-SUFFIXES = {"jr", "sr", "ii", "iii", "iv", "v"}
 
 # Sportsbooks the builder shows, in display order. BettingPros returns its own consensus line
 # alongside them even when the request filters by book; it is kept per prop as a reference and
@@ -123,13 +126,6 @@ SLUGS = [
     "dk-metcalf", "brock-purdy", "jordan-mason", "jared-goff", "jerry-jeudy",
     "hunter-henry", "najee-harris", "tyrone-tracy",
 ]
-
-
-def slugify(name):
-    """ESPN display name -> headshot slug, matching ff-jarvis's file naming."""
-    cleaned = "".join(c if (c.isalnum() or c == " ") else "" for c in name.lower())
-    parts = [p for p in cleaned.split() if p not in SUFFIXES]
-    return "-".join(parts)
 
 
 def live_espn(available):

@@ -66,15 +66,17 @@ function render(){
     return;
   }
 
-  const team = TEAMS[VIEW];
+  const team = TEAMS[VIEW] || TEAMS.yahoo;
+  // A connected league has no Waivers (nav.js hides the tab); a stale #waivers draws its roster.
+  const wire = SURFACE === "waivers" && !team.connected;
   // The deal and the rail's "new" flash are taken once per page load, on the first Waivers render.
-  v.innerHTML = SURFACE === "waivers"
+  v.innerHTML = wire
     ? heroHTML(team) + `<div class="wrap">${waiverHTML(wvMotionTake())}</div>`
     : heroHTML(team) + `<div class="wrap">${boardHTML(team)}</div>`;
   fitTitle(v);
   v.querySelector(".leaguechip")?.addEventListener("click", ()=>openLeagueInfo(team.key));
   wireTeamSwitch(v);
   wireProfiles(v);
-  if (SURFACE === "waivers") wireWaivers(v);
+  if (wire) wireWaivers(v);
 }
 

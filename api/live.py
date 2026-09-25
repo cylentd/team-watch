@@ -55,14 +55,16 @@ page decides when to poll from the kickoff times it already holds.
 import datetime
 import json
 import os
+import sys
 import time
-import urllib.error
-import urllib.parse
-import urllib.request
 
 from http.server import BaseHTTPRequestHandler
 
-HOST = "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl"
+# The host, id maps, season rule and GET are shared with api/league.py (api/_espn.py).
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _espn import BENCH, PRO, SLOT, Expired, season  # noqa: E402
+import _espn  # noqa: E402
+
 # Three views, each earning its place, measured against the live league 2026-09-20:
 #   mMatchupScore  both lineups' point rows, the live totals, the win probability
 #   mTeam          team names, and the primaryOwner that identifies which team is mine
@@ -72,7 +74,6 @@ HOST = "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl"
 # view left out is mRoster, which alone inflated the teams block to 2.9 MB.
 # No scoringPeriodId is sent: ESPN states its own current period in the reply.
 VIEWS = ["mMatchupScore", "mTeam", "mBoxscore"]
-TIMEOUT = 15
 
 CACHE_S = 60          # what the edge serves without asking this function again
 SWR_S = 30            # ... and how long past that it may serve a stale copy while refreshing
@@ -81,47 +82,13 @@ SWR_S = 30            # ... and how long past that it may serve a stale copy whi
 MIN_INTERVAL = 20
 
 ACTUAL, PROJECTED = 0, 1
-BENCH = (20, 21)
-SLOT = {0: "QB", 2: "RB", 3: "RB/WR", 4: "WR", 5: "WR/TE", 6: "TE", 7: "OP", 16: "D/ST",
-        17: "K", 20: "BE", 21: "IR", 23: "FLEX"}
-PRO = {0: "FA", 1: "ATL", 2: "BUF", 3: "CHI", 4: "CIN", 5: "CLE", 6: "DAL", 7: "DEN", 8: "DET",
-       9: "GB", 10: "TEN", 11: "IND", 12: "KC", 13: "LV", 14: "LAR", 15: "MIA", 16: "MIN",
-       17: "NE", 18: "NO", 19: "NYG", 20: "NYJ", 21: "PHI", 22: "ARI", 23: "PIT", 24: "LAC",
-       25: "SF", 26: "SEA", 27: "TB", 28: "WSH", 29: "CAR", 30: "JAX", 33: "BAL", 34: "HOU"}
 
 _memo = {"at": 0.0, "body": None}
 
 
-class Expired(Exception):
-    """ESPN rejected the cookies. Distinct from a transient failure: retrying cannot fix it."""
-
-
-def season():
-    override = os.environ.get("ESPN_SEASON")
-    if override:
-        return int(override)
-    today = datetime.date.today()
-    return today.year - 1 if today.month <= 2 else today.year
-
-
 def fetch(swid, s2, league_id):
     """One GET against the league. Returns the parsed body."""
-    if not swid.startswith("{"):
-        swid = "{" + swid.strip("{}") + "}"
-    url = (f"{HOST}/seasons/{season()}/segments/0/leagues/{league_id}?"
-           + urllib.parse.urlencode([("view", v) for v in VIEWS]))
-    req = urllib.request.Request(url, headers={
-        "Cookie": f"SWID={swid}; espn_s2={s2}",
-        "Accept": "application/json",
-        "User-Agent": "team-watch-live/1.0",
-    })
-    try:
-        with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
-            return json.loads(r.read())
-    except urllib.error.HTTPError as exc:
-        if exc.code in (401, 403):
-            raise Expired(f"ESPN returned {exc.code}") from exc
-        raise
+    return _espn.fetch(league_id, VIEWS, swid, s2, agent="team-watch-live/1.0")
 
 
 def points(player, week, source):

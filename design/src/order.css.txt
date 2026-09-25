@@ -34,6 +34,7 @@ surface/profile/sheet.css
 chrome/footer.css
 chrome/nav.css
 chrome/search.css
+chrome/connect.css
 surface/pool/pool.css
 surface/usage/usage.css
 # pin: board.css after pool.css -- the Board's controls are pool.css's .filters and .chip, and
