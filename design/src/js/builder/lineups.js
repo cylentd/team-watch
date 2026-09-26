@@ -102,13 +102,12 @@ function mulberry32(seed){
   };
 }
 
-/* Top-lineups optimizer. No solver library (the page has to work offline as a data URI), so it's
-   randomized-greedy: fill each slot from its eligible pool, biased toward the mode's score but with
-   enough noise that repeated fills land on different rosters, keep every valid one under cap, then
-   greedily keep the best-scoring lineups that each swap out 3+ players from every one kept already
-   (two 8-of-9-shared lineups tell you nothing a single one doesn't).
-   mode "greedy": pure projection — the highest-projected player at a position wins that slot in
-   every lineup, same as any optimizer would build it. mode "contrarian": the single most-chalky
+/* Top-lineups. The first is exact: solveLineup (solve.js) finds the lineup with the highest total
+   score under the cap, which is what weighs points per dollar -- a cheap player wins a slot when
+   the money he saves buys more points elsewhere. The rest come from re-solving with every score
+   jittered by a seeded ±20%, then keeping the best-scoring lineups that each swap out 3+ players
+   from every one kept already (two 8-of-9-shared lineups tell you nothing a single one doesn't).
+   mode "greedy": pure projection, the most projected points the cap allows. mode "contrarian": the single most-chalky
    player at each position (QB, RB, WR, TE, DST — not per slot, so FLEX can't re-admit a benched RB/WR/TE
    through the back door) is sat outright (that IS what non-chalk means — it can't just softly
    discourage him and then pick him anyway), and what's left is scored on projection minus a chalk
@@ -127,54 +126,35 @@ function chalkiestPerPosition(pool, chalk){
   });
   return banned;
 }
-function fillOneLineup(pool, cap, mode, chalk, banned, rand){
-  const minSal = Math.min(...pool.map(p=>p.sal));
-  const order = [...LINEUP_SLOTS.keys()].sort(()=>rand()-0.5);
-  const chosen = new Array(LINEUP_SLOTS.length);
-  const used = new Set();
-  let spent = 0;
-  for (const i of order){
-    const slot = LINEUP_SLOTS[i];
-    const eligible = slot === "FLEX" ? p => ["RB","WR","TE"].includes(p.pos) : p => p.pos === slot;
-    const remaining = LINEUP_SLOTS.length - chosen.filter(Boolean).length - 1;
-    const budget = cap - spent - remaining * minSal;
-    let candidates = pool.filter(p => eligible(p) && !used.has(p.n) && p.sal <= budget);
-    if (!candidates.length) candidates = pool.filter(p => eligible(p) && !used.has(p.n) && p.sal <= cap - spent);
-    if (!candidates.length) return null;
-    if (mode === "contrarian"){
-      const sat = candidates.filter(p => !banned.has(p.n));
-      if (sat.length) candidates = sat;
-    }
-    const score = p => mode === "contrarian" ? p.proj - chalk.get(p)*10 : p.proj;
-    const ranked = candidates.map(p => ({p, s: Math.max(0.05, score(p)) * (0.55 + rand())}))
-      .sort((a,b) => b.s - a.s);
-    const pick = ranked[0].p;
-    chosen[i] = {slot, ...pick, _chalk: chalk.get(pick)};
-    used.add(pick.n);
-    spent += pick.sal;
-  }
-  if (spent > cap) return null;
+const SOLVES = 30;   // one exact solve plus 29 jittered ones; ~1 ms each on Yahoo's 200-step cap
+function lineupOf(chosen, chalkOf){
   const own = chosen.some(d=>typeof d.own === "number") ? chosen.reduce((a,d)=>a+(d.own||0),0) : null;
-  const avgChalk = chosen.reduce((a,d)=>a+d._chalk,0) / chosen.length;
-  return {players: chosen, spent, proj: chosen.reduce((a,d)=>a+d.proj,0), own, chalk: avgChalk,
-    corr: correlationAdj(chosen)};
+  const players = chosen.map(d => ({...d, _chalk: chalkOf.get(d.n)}));
+  return {players, spent: players.reduce((a,d)=>a+d.sal,0), proj: players.reduce((a,d)=>a+d.proj,0), own,
+    chalk: players.reduce((a,d)=>a+d._chalk,0) / players.length, corr: correlationAdj(players)};
 }
 function bestLineups(pool, cap, mode, count){
   // OUT/IR players stay in the pool table (so their tag is visible) but can't score points, so
   // the optimizer never gets to roster them -- a stale-but-real-looking proj (like a $10 Yahoo
   // row for a guy who's since changed teams) would otherwise win a slot on "value" alone.
-  pool = pool.filter(p => p.status !== "OUT" && p.status !== "IR");
+  pool = pool.filter(p => p.status !== "OUT" && p.status !== "IR" && p.sal > 0);
   const chalk = chalkMap(pool);
-  const banned = mode === "contrarian" ? chalkiestPerPosition(pool, chalk) : null;
+  const chalkOf = new Map(pool.map(p => [p.n, chalk.get(p)]));
+  if (mode === "contrarian"){
+    const banned = chalkiestPerPosition(pool, chalk), sat = pool.filter(p => !banned.has(p.n));
+    if (solveLineup(sat, cap, () => 1)) pool = sat;   // a pool too thin to fill without them keeps them
+  }
+  const score = p => Math.max(0.05, mode === "contrarian" ? p.proj - chalkOf.get(p.n)*10 : p.proj);
   const rand = mulberry32(seedFromPool(pool, mode));
   const seen = new Set(), found = [];
-  for (let i = 0; i < 400 && found.length < 40; i++){
-    const l = fillOneLineup(pool, cap, mode, chalk, banned, rand);
-    if (!l) continue;
-    const key = l.players.map(p=>p.n).sort().join("|");
+  for (let i = 0; i < SOLVES; i++){
+    const jitter = new Map(pool.map(p => [p.n, i ? 0.8 + 0.4*rand() : 1]));
+    const chosen = solveLineup(pool, cap, p => score(p) * jitter.get(p.n));
+    if (!chosen) break;
+    const key = chosen.map(p=>p.n).sort().join("|");
     if (seen.has(key)) continue;
     seen.add(key);
-    found.push(l);
+    found.push(lineupOf(chosen, chalkOf));
   }
   const rank = l => (mode === "contrarian" ? l.proj - l.chalk*10 : l.proj) + l.corr;
   found.sort((a,b) => rank(b) - rank(a));

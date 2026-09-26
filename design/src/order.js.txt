@@ -79,6 +79,7 @@ builder/slips.js
 data/dfs.js
 data/search.js
 builder/state.js
+builder/solve.js
 builder/lineups.js
 surface/parlay/props.js
 surface/parlay/gamelog.js

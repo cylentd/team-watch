@@ -2,7 +2,8 @@
 // weekly backtest scores exactly what the page would have shown. Called by dfs_backtest.py:
 //   node design/dfs_backtest.js <pool.json>   ->   {"greedy": [...], "contrarian": [...]} on stdout
 const fs = require("fs"), path = require("path");
-const src = fs.readFileSync(path.join(__dirname, "src/js/builder/lineups.js"), "utf8");
+const src = ["solve.js", "lineups.js"]
+  .map(f => fs.readFileSync(path.join(__dirname, "src/js/builder", f), "utf8")).join("\n");
 const pool = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
 const run = new Function("pool",
   src + "\nreturn {greedy: bestLineups(pool, CAP_YAHOO, 'greedy', TOP_COUNT)," +
