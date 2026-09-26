@@ -630,15 +630,21 @@ def test_the_legs_run_on_the_replays_clock(browser, page_file, shaped):
     page, ctx, errors = open_strip(browser, page_file, shaped, None)
     leg = """() => { const h = document.querySelector("#striptest .stfig.run .near.hip");
                      return h ? getComputedStyle(h).rotate : null; }"""
+    # Waits are on what the page draws, not on a clock: under the full suite's load a fixed 120ms
+    # sometimes held no new replay frame, and the legs read "did not move" (2026-09-26).
+    frames = "() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))"
     page.click("#striptest .stplay")
     page.wait_for_function(leg.replace("return h ?", "return !!h &&").replace(": null", ""), timeout=6000)
     a = page.evaluate(leg)
-    page.wait_for_timeout(120)
-    b = page.evaluate(leg)
+    try:                                                # up to 3s for the legs to change
+        b = page.wait_for_function(f"a => {{ const v = ({leg})(); return v !== a && v; }}", arg=a, timeout=3000).json_value()
+    except Exception:
+        b = page.evaluate(leg)                          # still the same: the assert below says so
     page.click("#striptest .stplay")                    # pause
-    page.wait_for_timeout(50)
+    page.evaluate(frames)                               # let a frame already queued land
     c = page.evaluate(leg)
     page.wait_for_timeout(200)
+    page.evaluate(frames)
     d = page.evaluate(leg)
     ctx.close()
     assert not errors, errors
