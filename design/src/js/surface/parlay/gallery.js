@@ -29,6 +29,16 @@ function legCall(l, book){
   return l.line === null ? esc(MKT[l.mkt]) : `<em class="higher">${t("parlay.slip.over")}</em> ${l.line} ${esc(MKT[l.mkt])}`;
 }
 
+/* The verdict as a pill, so nobody does the arithmetic (2026-09-25): the model's chance against
+   what the payout (Underdog: 1/x) or the price (DK: its implied chance) needs. A ratio under 1.25
+   is "close", since a model a few points off erases it. The pill says "model" because the chance
+   is the model's product of its legs, not a promise; its title shows both numbers. */
+function slipVerdict(ratio, what, model, needs){
+  const [cls, text] = ratio >= 1.25 ? ["up", t("parlay.slip.beats", {what})]
+    : ratio >= 1 ? ["", t("parlay.slip.close", {what})] : ["down", t("parlay.slip.short", {what})];
+  return `<span class="tk-flag ${cls}" title="${esc(t("parlay.slip.verdictTip", {model, needs}))}">${text}</span>`;
+}
+
 /* The legs under the game they belong to, first appearance keeping the card's order. */
 function legGroups(legs){
   const by = new Map();
@@ -45,11 +55,13 @@ function presetCard(card, bestOf){
   const legs = card.legs.map(i=>PROPS[i]);
   const best = card === (bestOf || GALLERY_BEST[card.book]);
   const ud = card.book === "underdog";
-  let head, meta;
+  let head, meta, verdict = "";
   if (ud){
     const udP = legs.reduce((a,l)=>a*udPick(l).conf/100, 1);
-    meta = t("parlay.slip.udMeta", {n: legs.length, x: legs.length === 2 ? 3 : 6});
+    const x = legs.length === 2 ? 3 : 6;
+    meta = t("parlay.slip.udMeta", {n: legs.length, x});
     head = `<b>${(udP*100).toFixed(1)}%</b> ${t("parlay.slip.toHitAll", {n: legs.length})}`;
+    verdict = slipVerdict(udP * x, t("parlay.slip.vsPayout", {x}), (udP*100).toFixed(1), (100/x).toFixed(1));
   } else {
     const prices = legs.map(overPrice).filter(a => a !== null);
     const priced = prices.length === legs.length;
@@ -59,9 +71,11 @@ function presetCard(card, bestOf){
     const pos = modelP >= implied;
     meta = t("parlay.slip.dkMeta", {n: legs.length, d: `${pos?"+":""}${((modelP-implied)*100).toFixed(1)}`});
     head = `<b class="${pos?"":"neg"}">${priced ? esc(fmtAm(decToAm(dec))) : "—"}</b> ${t("parlay.slip.forLegs", {n: legs.length})}`;
+    if (priced) verdict = slipVerdict(modelP / implied, t("parlay.slip.vsPrice"), (modelP*100).toFixed(1), (implied*100).toFixed(1));
   }
-  const flag = best ? `<span class="tk-flag best">${t("parlay.slip.best")}</span>`
-    : card.low ? `<span class="tk-flag">${t("parlay.slip.low")}</span>` : "";
+  const tags = [best ? `<span class="tk-flag best">${t("parlay.slip.best")}</span>` : "", verdict,
+    card.low ? `<span class="tk-flag">${t("parlay.slip.low")}</span>` : ""].join("");
+  const flag = `<div class="tk-tags">${tags}</div>`;
   const groups = legGroups(legs).map(g => `<div class="tk-game"><b>${esc(g[0].game)}</b>${g[0].kick ? `<span>${esc(g[0].kick)}</span>` : ""}</div>
     ${g.map(l => `<div class="tk-leg">${avatarHTML(l)}
       <div class="tk-who"><b>${esc(l.n)}</b><span class="tk-call">${legCall(l, card.book)}</span>${legWhy(l, card.book)}</div>

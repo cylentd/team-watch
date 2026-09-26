@@ -65,6 +65,29 @@ def test_a_slip_groups_its_legs_by_game_and_reads_each_as_a_sentence(browser, pa
     ctx.close()
 
 
+def test_every_underdog_slip_says_its_verdict(browser, page_file):
+    """Each Underdog slip carries one verdict pill (2026-09-25), so nobody works out whether a slip
+    beats its payout: "beats" at a quarter or more over 1/x, "short of" under it, and its title
+    holds both numbers."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    page.evaluate("SURFACE='parlay'; PARLAY_BOOK='underdog'; render()")
+    slips = page.locator(".ticket")
+    if slips.count() == 0:
+        pytest.skip("the fixture's market builds no gallery slip")
+    for i in range(slips.count()):
+        s = slips.nth(i)
+        pct = float(s.locator(".tk-head b").inner_text().rstrip("%"))
+        x = 3 if s.locator(".tk-leg").count() == 2 else 6
+        pill = s.locator(".tk-flag[title]")
+        assert pill.count() == 1
+        ratio = pct / 100 * x
+        want = "beats" if ratio >= 1.25 else "near" if ratio >= 1 else "short of"
+        assert f"Model: {want} the {x}× payout" == pill.inner_text()
+        assert f"{100 / x:.1f}%" in pill.get_attribute("title")
+    assert errors == []
+    ctx.close()
+
+
 def test_reduced_motion_never_marks_an_entrance(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     page.evaluate("SURFACE='build'; render()")
