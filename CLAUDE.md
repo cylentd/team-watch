@@ -81,7 +81,7 @@ question; `SURFACE` is always the **leaf**, never the group, and the group is de
 | group | views |
 |---|---|
 | My teams | Roster, Waivers |
-| Players (id `scouting`, was "Scouting" until 2026-09-25) | Leaders (leaf `board`: who leads each stat), Movers (whose role is growing, by team), Matchups (start or sit, ours beside Pitcher List's, with the record), Grid (weekly usage), News |
+| Players (id `scouting`, was "Scouting" until 2026-09-25) | Ranks (this week's projected rank per position and FLEX, in tiers; since 2026-09-26), Leaders (leaf `board`: who leads each stat, the #1's card then a list paged to one screen), Movers (whose role is growing, by team), Matchups (start or sit, ours beside Pitcher List's, with the record), Grid (weekly usage), News |
 | Bets | Parlay, DFS |
 | Gameday | Live |
 
@@ -93,8 +93,13 @@ Movers share one surface (`js/surface/board/`, which reads `BD_MODE` from the vi
 share the position chip; they became views on 2026-09-25 because a Leaders/Movers switch was a
 fifth row of controls above the data on a phone (`test_movers_hash_opens_movers`).
 
-With no hash, `navDefaultLeaf` in `js/chrome/nav.js` opens Leaders (rosters barely move; stats and
-news move daily) except on a Tuesday, when Waivers still leads.
+With no hash, `navDefaultLeaf` in `js/chrome/nav.js` opens Ranks (rosters barely move; projections,
+stats and news move daily; it was Leaders until 2026-09-26) except on a Tuesday, when Waivers
+still leads.
+
+Leaders pages instead of scrolling: `board/fit.js` measures, in the reader's browser, how many rows
+fit under the #1's card (page 1, `BD_FIRST_SIZE`) and on a page without it (`BD_PAGE_SIZE`), so the
+card and its Prev / Next end above the bottom edge (`test_leaders_page_fits_the_screen`).
 
 `NAV` in `js/chrome/nav.js` is the whole table; a group of one draws no sub-row. Every copy key is
 spelled out literally, because `assemble.py --check` finds orphaned keys by scanning for literal
@@ -129,5 +134,7 @@ player projections, Sleeper status, the DFS pool, and `usage_weekly.json` (the G
 `design/usage.py`, whose feed key is `usage_grid` — plain `usage` is already watch.json), and
 A visitor's own ESPN league is read at runtime by `api/league.py`, never baked in (DESIGN.md,
 "Connected leagues"). `wire_watch` (the Waivers Breaking rail, via `design/wire_watch.py`; its field lists live in `contract.py`). DFS projections come from ff-jarvis's `model.market.projections`; the page never
-computes model numbers itself. See `README.md` for the DFS CSV import and `design/DESIGN.md` for
+computes model numbers itself. Ranks' tiers (`design/ranks.py`, `LIVE_RANKS`) are cut at build
+time from those same projections by natural breaks (1-D k-means, a fixed tier count per position),
+and its rank is the one the roster cards use (`projections.position_ranks`). See `README.md` for the DFS CSV import and `design/DESIGN.md` for
 the design system and the field contract.
