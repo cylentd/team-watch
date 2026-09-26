@@ -1,17 +1,19 @@
 /* ------------------------------------------------------------------
-   THE BOARD — one stat at a time, as a broadcast leaderboard (2026-09-25).
+   THE BOARD — one stat at a time, as a leaderboard (2026-09-25; a list since 2026-09-26).
 
-   Six lanes of tick marks answered "who leads" in six thin grey strips, and the answer was a name
-   in 13.5px at the end of each. The leaderboard puts the answer first: the #1 is a face and the
-   biggest number on the page, #2-#5 sit under him with a bar each, and the six stats are tabs the
-   reader swipes through. The rank is still said as a number, because "#3" is what a reader repeats.
+   The stats are tabs the reader swipes through, and the list under them is one screen of rows,
+   each with a bar, paged with Prev / Next rather than scrolled. Until 2026-09-26 the #1 was a
+   208px photo card and #2-#5 sat under him, and the rest hid behind "Show all", so a 360px phone
+   showed five players before a tap. The #1 keeps his card, a little shorter, and the list runs on
+   from #2 to the bottom of the screen. The rank is said as a number, because "#3" is what a
+   reader repeats.
 
    It reads USAGE.sheet through sheetValues(), the same function the profile's radar ranks from, so
    who counts on a stat has one definition -- including the games floor (sheetQualified, sheet.js).
-   A picked player who is not in the top five is pinned under it at his own rank, so the reader's
+   A picked player who is not on the page is pinned under it at his own rank, so the reader's
    player never has to be found.
 ------------------------------------------------------------------ */
-const BD_TOP = 5;
+const BD_HELD_TOP = 5;   // the footer names who the games floor kept out of the top five
 
 const BD_ROWS = {};
 function bdRows(pos){
@@ -54,14 +56,15 @@ function bdTabsHTML(axes, sel){
 }
 
 /* The #1. A title, so the name is whole (the page initials names everywhere else). The elite bar
-   is said with its number when ff-jarvis publishes one; there is no bar to draw it against here. */
-/* The photo names every size cut (headSrcset): the hero draws it about 220px tall, so a 2x or 3x
+   is said with its number when ff-jarvis publishes one; there is no bar to draw it against here.
+   Kept on 2026-09-26 when the rest became a list: without it the view was one more list of six. */
+/* The photo names every size cut (headSrcset): the hero draws it up to ~220px tall, so a 2x or 3x
    screen takes the 512px file, and the 96px one stretched to that was visibly soft. Above the fold,
    so not lazy, and so it states its size rather than sizes="auto". */
 function bdHeroHTML(a, top, n, picked){
   const lg = typeof HEADS_LG !== "undefined" && HEADS_LG ? HEADS_LG[top.slug] : null;
   const src = lg || HEADS[top.slug], set = headSrcset(top.slug);
-  const head = src ? `<img class="bd-hero-img" src="${src}"${set ? ` srcset="${set}" sizes="220px"` : ""} alt="" decoding="async" onerror="this.remove()">` : "";
+  const head = src ? `<img class="bd-hero-img" src="${src}"${set ? ` srcset="${set}" sizes="(min-width: 760px) 420px, 160px"` : ""} alt="" decoding="async" onerror="this.remove()">` : "";
   const elite = a.elite === null || a.elite === undefined ? ""
     : `<span class="bd-hero-elite">${t("board.hero.elite", {v: usageFmt(a.elite, a.fmt)})}</span>`;
   return `<button type="button" class="bd-hero${picked ? " pick" : ""}" data-bdopen="${esc(top.slug)}">
@@ -75,8 +78,8 @@ function bdHeroHTML(a, top, n, picked){
   </button>`;
 }
 
-/* One row under the #1. The bar is the value against the #1's, measured from the position's floor
-   rather than zero, so a stat that runs negative (RYOE) still draws a bar that means something. */
+/* One row. The bar is the value against the #1's, measured from the position's floor rather than
+   zero, so a stat that runs negative (RYOE) still draws a bar that means something. */
 function bdRowHTML(r, rank, a, scale, picked, ahead){
   const w = Math.max(4, Math.round(scale(r.val) * 100));
   return `<button type="button" class="bd-row${picked ? " pick" : ""}${ahead ? " ahead" : ""}" data-bdopen="${esc(r.slug)}">
@@ -105,57 +108,56 @@ function bdBoardHTML(pos, picks){
   const slugs = picks.map(p => p.slug), ahead = bdAheadOn(by, picks);
   const rankOf = r => rankAmong(by, r.slug)[0];
   const row = r => bdRowHTML(r, rankOf(r), a, scale, slugs.includes(r.slug), r.slug === ahead);
-  const rows = ranked.slice(1, BD_TOP).map(row).join("");
-  const more = bdMoreHTML(ranked, row);
-  // Picks not on screen, pinned at their own rank. A pick with no number on this stat is said as
-  // such rather than left off, because the reader put him there.
-  const shown = ranked.slice(0, BD_TOP).concat(bdPageRows(ranked));
+  const shown = bdPageRows(ranked);
+  // Picks not on this page, pinned at their own rank. A pick with no number on this stat is said
+  // as such rather than left off, because the reader put him there.
   const pinned = picks.filter(p => !shown.some(r => r.slug === p.slug)).map(p => {
     const r = ranked.find(x => x.slug === p.slug);
     return r ? bdRowHTML(r, rankOf(r), a, scale, true, r.slug === ahead)
       : `<div class="bd-row pick none"><span class="bd-rk">—</span><span class="bd-head">${avatarHTML(p)}</span
           ><span class="bd-nm">${esc(nameInitial(p.n))}</span><span class="bd-v">${t("board.row.none")}</span></div>`;
   }).join("");
-  const held = bdHeldOut(pos, sel, (ranked[Math.min(BD_TOP, ranked.length) - 1] || {}).val ?? Infinity);
+  const held = bdHeldOut(pos, sel, (ranked[Math.min(BD_HELD_TOP, ranked.length) - 1] || {}).val ?? Infinity);
   const minG = sheetMinGames(pos);
   const foot = (minG > 1 ? t("board.foot.qualified", {n: ranked.length, pos, g: minG}) : t("board.foot.all", {n: ranked.length, pos}))
     + (held.length ? " " + t("board.foot.held", {list: held.map(r =>
         `${esc(nameInitial(r.n))} ${usageFmt(r.v[sel], a.fmt)} (${t("board.foot.games", {g: r.g || 0})})`).join(", ")}) : "");
   return `${bdTabsHTML(axes, sel)}
     <div class="bd-card" data-bdswipe>
-      ${bdHeroHTML(a, ranked[0], ranked.length, slugs.includes(ranked[0].slug))}
-      <div class="bd-list">${rows}${pinned ? `<div class="bd-gap" aria-hidden="true"></div>${pinned}` : ""}</div>
+      ${bdPageOf(ranked) === 1 ? bdHeroHTML(a, ranked[0], ranked.length, slugs.includes(ranked[0].slug)) : ""}
+      <div class="bd-side">
+        <div class="bd-list">${shown.map(row).join("")}</div>
+        ${pinned ? `<div class="bd-list bd-pinned"><div class="bd-gap" aria-hidden="true"></div>${pinned}</div>` : ""}
+        ${bdPagerHTML(ranked)}
+      </div>
     </div>
-    ${more}
     <p class="note bd-foot">${foot}</p>`;
 }
 
-/* THE REST OF THE FIELD, on request. The top five answer "who leads"; the rest answers "where is
-   my guy", which a reader asks less often and wants whole, so it sits behind one tap and pages
-   rather than growing the page by a hundred rows. A page is one screen, so it is read without
-   scrolling and Next replaces the scroll: fit.js measures how many rows that is and resets this.
-   12 is only the first render's guess. BD_PAGE 0 is closed. */
-let BD_PAGE_SIZE = 12;
+/* A page is one screen: read without scrolling, and Next replaces the scroll. Page 1 is the #1's
+   hero and the rows from #2; later pages are rows only, so they hold more. fit.js measures both
+   counts in the reader's browser and resets them; 7 and 12 are only the first render's guesses
+   (a 360x740 phone). Pages count from 1. */
+let BD_FIRST_SIZE = 7, BD_PAGE_SIZE = 12;
+function bdPageCount(ranked){ return 1 + Math.max(0, Math.ceil((ranked.length - 1 - BD_FIRST_SIZE) / BD_PAGE_SIZE)); }
+const bdPageOf = ranked => Math.min(BD_PAGE, bdPageCount(ranked));
+// Where a page starts in `ranked` (0 is the hero), and how many rows it holds.
+const bdPageFrom = page => page === 1 ? 1 : 1 + BD_FIRST_SIZE + (page - 2) * BD_PAGE_SIZE;
+const bdPageLen = page => page === 1 ? BD_FIRST_SIZE : BD_PAGE_SIZE;
 function bdPageRows(ranked){
-  if (!BD_PAGE) return [];
-  const from = BD_TOP + (BD_PAGE - 1) * BD_PAGE_SIZE;
-  return ranked.slice(from, from + BD_PAGE_SIZE);
+  const page = bdPageOf(ranked), from = bdPageFrom(page);
+  return ranked.slice(from, from + bdPageLen(page));
 }
 
-function bdMoreHTML(ranked, row){
-  const rest = ranked.length - BD_TOP;
-  if (rest <= 0) return "";
-  if (!BD_PAGE) return `<button type="button" class="bd-more-btn" data-bdpage="1">${t("board.more.show", {n: ranked.length})}</button>`;
-  const pages = Math.ceil(rest / BD_PAGE_SIZE), page = Math.min(BD_PAGE, pages);
-  const from = BD_TOP + (page - 1) * BD_PAGE_SIZE + 1, to = Math.min(ranked.length, from + BD_PAGE_SIZE - 1);
-  return `<div class="bd-more">
-    <div class="bd-list">${bdPageRows(ranked).map(row).join("")}</div>
-    <div class="filters bd-pager">
+function bdPagerHTML(ranked){
+  const pages = bdPageCount(ranked);
+  if (pages < 2) return "";
+  const page = bdPageOf(ranked);
+  const from = page === 1 ? 1 : bdPageFrom(page) + 1, to = Math.min(ranked.length, bdPageFrom(page) + bdPageLen(page));
+  return `<div class="filters bd-pager">
       <span class="lbl">${t("board.more.range", {from, to, n: ranked.length})}</span>
       <span style="flex:1"></span>
       <button class="chip" data-bdpage="${page - 1}" ${page <= 1 ? "disabled" : ""}>${t("common.pager.prev")}</button>
       <button class="chip" data-bdpage="${page + 1}" ${page >= pages ? "disabled" : ""}>${t("common.pager.next")}</button>
-      <button class="chip" data-bdpage="0">${t("board.more.hide")}</button>
-    </div>
-  </div>`;
+    </div>`;
 }

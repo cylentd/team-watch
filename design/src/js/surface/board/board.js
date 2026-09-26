@@ -16,7 +16,7 @@ let BD_POS = "RB";
    SURFACE by render(); the two views share the position chip, so they share this surface. */
 let BD_MODE = "leaders";
 let BD_STAT = null;  // the axis on screen; null is the position's default (bdStatOf)
-let BD_PAGE = 0;     // the full list's page under the top five; 0 is closed (leaders.js)
+let BD_PAGE = 1;     // the list's page, from 1 (leaders.js)
 let BD_PICKS = [];   // slugs, newest last, at most two
 let BD_NOTE = "";    // why the last pick did not land, cleared by the next render
 
@@ -94,7 +94,7 @@ function bdViewHTML(){
 function bdStep(dir){
   const axes = bdAxes(BD_POS), i = axes.findIndex(a => a.id === bdStatOf(BD_POS)), j = i + dir;
   if (j < 0 || j >= axes.length) return false;
-  BD_STAT = axes[j].id; BD_PAGE = 0;
+  BD_STAT = axes[j].id; BD_PAGE = 1;
   return true;
 }
 
@@ -118,20 +118,11 @@ function bdAdd(p){
 function wireBd(v){
   const set = (sel, fn) => v.querySelectorAll(sel).forEach(b => b.addEventListener("click", () => { fn(b); render(); }));
   // Switching position drops the picks: they are rows of the position that just left the screen.
-  set("[data-bdpos]", b => { BD_NOTE = ""; POOL_PAGE = 1; if (b.dataset.bdpos !== BD_POS){ BD_POS = b.dataset.bdpos; BD_PICKS = []; BD_STAT = null; BD_PAGE = 0; } });
-  // A new stat is a new ranking, so the list closes: page 3 of TPRR is nobody's page 3 of YPRR.
-  set("[data-bdstat]", b => { BD_NOTE = ""; BD_STAT = b.dataset.bdstat; BD_PAGE = 0; });
-  // Opening or turning a page sizes the page to the screen and brings the list to its top
-  // (fit.js). Closing scrolls back to the card only if the list he was reading has just vanished
-  // from under him; otherwise he stays where he is.
-  v.querySelectorAll("[data-bdpage]").forEach(b => b.addEventListener("click", () => {
-    const next = +b.dataset.bdpage, y = window.scrollY;
-    BD_PAGE = next; render();
-    const card = document.querySelector(".bd-card");
-    if (next > 0) bdFitPage();
-    else if (card && card.getBoundingClientRect().bottom < 0) card.scrollIntoView({block: "start"});
-    else window.scrollTo(0, y);
-  }));
+  set("[data-bdpos]", b => { BD_NOTE = ""; POOL_PAGE = 1; if (b.dataset.bdpos !== BD_POS){ BD_POS = b.dataset.bdpos; BD_PICKS = []; BD_STAT = null; BD_PAGE = 1; } });
+  // A new stat is a new ranking, so the list starts over: page 3 of TPRR is nobody's page 3 of YPRR.
+  set("[data-bdstat]", b => { BD_NOTE = ""; BD_STAT = b.dataset.bdstat; BD_PAGE = 1; });
+  // Turning a page keeps the reader where he is: the page is sized to fit from the top.
+  set("[data-bdpage]", b => { BD_PAGE = +b.dataset.bdpage; });
   v.querySelectorAll("[data-bdopen]").forEach(el => el.addEventListener("click", () => {
     const r = ((USAGE.sheet || {}).rows || []).find(x => x.slug === el.dataset.bdopen);
     if (r) openProfile({n: r.n, pos: r.pos, team: r.team, slug: r.slug}, el);
@@ -155,4 +146,5 @@ function wireBd(v){
   // The picker is the app's own search sheet, handed a slot to fill instead of a profile to open.
   v.querySelectorAll("[data-bdadd]").forEach(b => b.addEventListener("click", () => searchOpen(bdAdd)));
   if (BD_MODE === "movers") wirePool(v);
+  else bdFitPage();   // the page holds what the screen shows (fit.js); re-renders once if it must
 }

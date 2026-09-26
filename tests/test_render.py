@@ -68,7 +68,7 @@ GD_CATCHUP = {swing: {me: 21.5, opp: 3.0}, movers: [
 # out here (rather than trusting the group button's "return me to where I was") keeps a state
 # reachable in the same way no matter which state ran before it.
 GROUP = {"roster": "teams", "waivers": "teams",
-         "board": "scouting", "movers": "scouting", "matchups": "scouting", "usage": "scouting", "news": "scouting",
+         "ranks": "scouting", "board": "scouting", "movers": "scouting", "matchups": "scouting", "usage": "scouting", "news": "scouting",
          "parlay": "bets", "build": "bets", "dfs": "bets", "live": "gameday"}
 
 
@@ -141,8 +141,11 @@ STATES = [
     # fixture-built page at all, and is checked against the live build instead.
     ("board-qb", go("board") + [("click", "[data-bdpos='QB']")] + bdpick("burrow")),
     ("board-wr", go("board") + [("click", "[data-bdpos='WR']")]),
-    # The whole field behind "Show all": #6 on, twenty to a page, with its own pager.
-    ("board-wr-all", go("board") + [("click", "[data-bdpos='WR']"), ("click", ".bd-more-btn")]),
+    # The list's second page: the pager turns it in place (a list since 2026-09-26).
+    ("board-wr-page2", go("board") + [("click", "[data-bdpos='WR']"), ("click", ".bd-pager [data-bdpage='2']")]),
+    # Players > Ranks (2026-09-26): a position's tiers, and FLEX with its "RB3" per row.
+    ("ranks", go("ranks")),
+    ("ranks-flex", go("ranks") + [("click", "[data-rkpos='FLEX']")]),
     # Movers, the Board's second mode since 2026-09-25 (a view of its own before): the fixture
     # falls back to the sample pool, which has share moves, so it sorts on them; -wait blanks every
     # move to reach the week-1 path, where the list ranks by share under one line saying why.
@@ -322,6 +325,7 @@ def test_no_console_errors(snapshot):
 
 
 @pytest.mark.parametrize("leaf,group,label", [
+    ("ranks", "scouting", "RANKS"),
     ("board", "scouting", "LEADERS"),  # the leaf is still `board`, so its bookmarks land
     ("movers", "scouting", "MOVERS"),  # a view beside Leaders since 2026-09-25
     ("pool", "scouting", "MOVERS"),    # the old Movers view's hash, kept for bookmarks
@@ -404,26 +408,27 @@ def test_movers_hash_opens_movers(browser, page_file, hash):
         ctx.close()
 
 
-@pytest.mark.parametrize("w,h", [(360, 800), (1280, 1080)])
-def test_show_all_page_fits_the_screen(browser, page_file, w, h):
-    """A page of the Board's full list is one screen (board/fit.js): opened and turned, the whole
-    list, pager included, sits between the chrome and the bottom edge, and a taller screen holds
-    more rows than a phone."""
+@pytest.mark.parametrize("w,h", [(360, 740), (1280, 1080)])
+def test_leaders_page_fits_the_screen(browser, page_file, w, h):
+    """Leaders opens on the #1's card with the list running on under it, and a page is one screen
+    (board/fit.js, 2026-09-26): as it lands and after a turn, the card, pager included, ends above
+    the bottom edge with no scroll, and a taller screen holds more rows than a phone. A 360x740
+    phone showed five players before a tap until then; the hero plus the list must beat that."""
     ctx = browser.new_context(viewport={"width": w, "height": h}, reduced_motion="reduce")
     page = ctx.new_page()
     page.set_default_timeout(5000)
     page.route(re.compile(r"^https?://"), lambda route: route.abort())
     page.add_init_script(SEED)
-    fits = "(() => { const m = document.querySelector('.bd-more').getBoundingClientRect(); return m.bottom <= innerHeight && m.top >= 0; })()"
+    fits = "(() => { const m = document.querySelector('.bd-card').getBoundingClientRect(); return scrollY === 0 && m.bottom <= innerHeight; })()"
     try:
         page.goto(page_file.as_uri() + "#board")
         page.wait_for_function("document.getElementById('view').children.length > 0")
-        page.locator(".bd-more-btn").click()
         assert page.evaluate(fits)
-        rows = page.evaluate("document.querySelectorAll('.bd-more .bd-row').length")
-        assert rows == page.evaluate("BD_PAGE_SIZE") or page.locator(".bd-pager [data-bdpage='2']").is_disabled()
-        assert page.evaluate("BD_PAGE_SIZE") >= (15 if h >= 1000 else 5)
-        if not page.locator(".bd-pager [data-bdpage='2']").is_disabled():
+        assert page.locator(".bd-card > .bd-hero").count() == 1, "the #1 keeps his card"
+        rows = page.evaluate("document.querySelectorAll('.bd-card .bd-list:not(.bd-pinned) > .bd-row').length")
+        assert rows == page.evaluate("BD_FIRST_SIZE") or page.locator(".bd-pager [data-bdpage='2']").count() == 0
+        assert page.evaluate("BD_FIRST_SIZE") >= (15 if h >= 1000 else 6)
+        if page.locator(".bd-pager [data-bdpage='2']:not([disabled])").count():
             page.locator(".bd-pager [data-bdpage='2']").click()
             assert page.evaluate(fits)
     finally:
@@ -436,7 +441,7 @@ TUESDAY = 'Date.now = () => Date.parse("2026-09-22T12:00:00Z");'   # a Tuesday i
 @pytest.mark.parametrize("day,hash,surface,first", [
     ("tue", "", "waivers", "WAIVERS"),     # claims day: Waivers opens and leads its group
     ("tue", "#roster", "roster", "WAIVERS"),   # a hash still wins
-    ("sat", "", "board", "LEADERS"),       # any other day: Leaders leads, not Roster
+    ("sat", "", "ranks", "RANKS"),         # any other day: Ranks leads, not Roster (Leaders until 2026-09-26)
 ])
 def test_tuesday_opens_waivers(browser, page_file, day, hash, surface, first):
     """The day is read from Date.now(), so pinning it is the whole injection. SEED pins a

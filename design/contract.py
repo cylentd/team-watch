@@ -180,6 +180,13 @@ CONTRACT = {
         "keys": ["players"],
         "map": ("players", ["pts", "mu", "games", "src", "rank", "of", "out"]),
     },
+    # design/ranks.py: Players > Ranks. Every position's list in `rows`, RB/WR/TE together in
+    # `flex`, each tiered by natural breaks. `home` may be null (a game string with no "@").
+    "LIVE_RANKS": {
+        "keys": ["scoring", "through", "rows", "flex"],
+        "rows": [("rows", ["slug", "n", "pos", "team", "opp", "home", "pts", "rank", "tier"]),
+                 ("flex", ["slug", "n", "pos", "team", "opp", "home", "pts", "rank", "tier"])],
+    },
     # design/signed.py: page players who finished top 3 at their position in the last completed
     # week. The card's autograph.
     "LIVE_SIGNED": {

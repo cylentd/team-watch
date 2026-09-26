@@ -55,6 +55,10 @@ function render(){
     v.innerHTML = bdViewHTML(); wireBd(v);
     return;
   }
+  if (SURFACE === "ranks"){
+    v.innerHTML = ranksHTML(); wireRanks(v);
+    return;
+  }
   if (SURFACE === "matchups"){
     v.innerHTML = matchupsHTML(); wireMatchups(v);
     return;

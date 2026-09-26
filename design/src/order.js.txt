@@ -64,6 +64,7 @@ data/usage.js
 surface/usage/usage.js
 data/startsit.js
 surface/matchups/matchups.js
+surface/ranks/ranks.js
 # pin: board/* after data/usage.js -- bdRows memoises off USAGE.sheet, and after
 #      surface/profile/sheet.js, whose sheetValues() is the one definition of who counts on an
 #      axis. leaders.js before board.js is readability, not load order: both are functions.

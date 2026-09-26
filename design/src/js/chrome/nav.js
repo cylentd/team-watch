@@ -20,7 +20,7 @@ const NAV_ICON = {
    Each leaf's label is its own key, so a rename here never silently changes a heading elsewhere. */
 const NAV = [
   ["teams",    ["roster", "waivers"]],
-  ["scouting", ["board", "movers", "matchups", "usage", "news"]],
+  ["scouting", ["ranks", "board", "movers", "matchups", "usage", "news"]],
   ["bets",     ["parlay", "build", "dfs"]],
   ["gameday",  ["live"]],
 ];
@@ -29,7 +29,7 @@ const NAV = [
    orphaned by scanning for literal lookups, and a key assembled from a template is invisible to
    it -- the build would pass while the label rendered blank. */
 const navLabel = leaf => ({
-  roster: t("nav.tab.roster"), waivers: t("nav.tab.waivers"), board: t("nav.tab.board"), movers: t("nav.tab.movers"),
+  roster: t("nav.tab.roster"), waivers: t("nav.tab.waivers"), ranks: t("nav.tab.ranks"), board: t("nav.tab.board"), movers: t("nav.tab.movers"),
   matchups: t("nav.tab.matchups"), usage: t("nav.tab.grid"), news: t("nav.tab.news"),
   parlay: t("nav.tab.parlay"), build: t("nav.tab.build"), dfs: t("nav.tab.dfs"), live: t("nav.tab.live"),
 }[leaf] || leaf);
@@ -46,9 +46,10 @@ const navGroupLabel = (group, short) => (short ? {
    is the question: an empty hash opens Waivers and Waivers leads its group. A hash still wins.
    The day comes from Date.now(), which the render suite pins, so a test picks the weekday. Any
    other day, rosters barely move (maybe three times a week) but stats and news move daily, so
-   Board -- who leads each stat -- is the default instead of Roster. */
+   the Players group opens instead of Roster: Ranks since 2026-09-26, its first view and the
+   question most readers bring (it was Board, who leads each stat). */
 const navWaiverDay = () => new Date(Date.now()).getDay() === 2;
-const navDefaultLeaf = () => navWaiverDay() ? "waivers" : "board";
+const navDefaultLeaf = () => navWaiverDay() ? "waivers" : "ranks";
 
 const navGroupOf = leaf => (NAV.find(([, tabs]) => tabs.includes(leaf)) || NAV[0])[0];
 function navTabsOf(group){

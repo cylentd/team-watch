@@ -1,0 +1,28 @@
+/* ============================== RANKS ============================== */
+/* Players > Ranks (js/surface/ranks/ranks.js, 2026-09-26). One list on one panel: a tier line,
+   then its rows. Rows are 44px, no photo, so a 360x740 phone shows about a dozen players under the
+   one control row. The tier line is a quiet mono label with a hairline: it marks a drop, it is not
+   a heading to read. Your player is named in lime, the Board's "pick" colour. */
+.rk-list{margin-top:12px;max-width:760px;border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden}
+.rk-tier{display:flex;align-items:center;gap:10px;padding:8px 16px 4px;
+  font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.rk-tier i{flex:1;height:1px;background:var(--line-2)}
+.rk-tier:not(:first-child){margin-top:4px;border-top:1px solid var(--line)}
+.rk-row{appearance:none;border:0;background:none;color:inherit;font:inherit;cursor:pointer;text-align:left;
+  display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:center;
+  width:100%;min-height:44px;padding:5px 16px}
+.rk-row + .rk-row{border-top:1px solid var(--line)}
+.rk-row:hover{background:var(--panel-2)}
+.rk-row:active{transform:scale(var(--press))}
+.rk-row:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+.rk-n{font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink-3);font-variant-numeric:tabular-nums;text-align:right}
+.rk-who{display:grid;min-width:0}
+.rk-nm{font-size:var(--t-2);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rk-game{display:flex;align-items:center;gap:6px;font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
+.rk-pos{font-family:var(--mono);font-weight:700;color:var(--ink-2)}
+.rk-pts{font-family:var(--mono);font-size:var(--t-3);font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink)}
+.rk-row.mine .rk-nm{color:var(--lime)}
+.rk-mine{margin-left:6px;font-style:normal;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.1em;color:var(--lime)}
+.rk-inj{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.04em;color:var(--amber)}
+.rk-inj.d{color:var(--down)}
+.rk-foot{max-width:760px}

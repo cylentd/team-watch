@@ -27,6 +27,7 @@ from schedule import load_schedule, report as schedule_report  # when Live may p
 from pedigree import live_pedigree, report as pedigree_report   # design/pedigree.py: the profile modal's bio strip
 from gamelog import live_gamelog, report as gamelog_report      # design/gamelog.py: the profile modal's weekly history
 from projections import live_projections, report as projections_report  # design/projections.py: projected vs actual
+from ranks import live_ranks, report as ranks_report     # design/ranks.py: Players > Ranks, tiered
 from injury import live_injury, report as injury_report  # design/injury.py: who is out, doubtful, questionable
 from signed import live_signed, report as signed_report  # design/signed.py: who earned an autograph
 from lines import live_lines, report as lines_report  # design/lines.py: implied points per team
@@ -434,7 +435,6 @@ def live_props(available, rosters):
                            "url": r.get("source_url")}
 
     windows = assign_windows(out)
-
     # Best edge first; unmodelled rows after, mine first, by kickoff; the not-playing last.
     out.sort(key=lambda p: (0, -p["edge"]) if "edge" in p
              else (2 if p.get("flag") == "out" else 1, not p["mine"], p["commence"] or "",
@@ -718,6 +718,7 @@ def render():
         "LIVE_PEDIGREE": live_pedigree(load_status(), load_draft_pedigree(), slugify, wanted_set),
         "LIVE_GAMELOG": live_gamelog(load_gamelog_weekly(), slugify, wanted_set),
         "LIVE_PROJECTIONS": live_projections(load_player_proj(), slugify, wanted_set, load_status()),
+        "LIVE_RANKS": live_ranks(load_player_proj(), slugify, load_status()),
         "LIVE_INJURY": live_injury(load_status(), slugify, wanted_set),
         "LIVE_WEATHER": load_weather(),
         "LIVE_LINES": live_lines(load_dfs_pool(), TEAM_FIX),
@@ -728,14 +729,13 @@ def render():
     }
     blocks["LIVE_SIGNED"] = live_signed(load_gamelog_weekly(), blocks["LIVE_SCHEDULE"], slugify, wanted_set)
     add_market_stock(blocks, report)
-    report.append(schedule_report(blocks["LIVE_SCHEDULE"]))
-    report.append(signed_report(blocks["LIVE_SIGNED"]))
-    report += [pedigree_report(blocks["LIVE_PEDIGREE"]), gamelog_report(blocks["LIVE_GAMELOG"]),
-              projections_report(blocks["LIVE_PROJECTIONS"]), routes_report(blocks["LIVE_ROUTES"]),
-              report_archetype(blocks["LIVE_ARCHETYPE"]), report_trenches(blocks["LIVE_TRENCHES"]),
-              lines_report(blocks["LIVE_LINES"]), injury_report(blocks["LIVE_INJURY"]), startsit_report(blocks["LIVE_STARTSIT"]),
-              (f"Weather: {len(blocks['LIVE_WEATHER']['teams'])} teams" if blocks["LIVE_WEATHER"]
-               else "Weather: none, so no game-day forecast")]
+    report += [schedule_report(blocks["LIVE_SCHEDULE"]), signed_report(blocks["LIVE_SIGNED"]),
+               pedigree_report(blocks["LIVE_PEDIGREE"]), gamelog_report(blocks["LIVE_GAMELOG"]),
+               projections_report(blocks["LIVE_PROJECTIONS"]), ranks_report(blocks["LIVE_RANKS"]),
+               routes_report(blocks["LIVE_ROUTES"]), report_archetype(blocks["LIVE_ARCHETYPE"]),
+               report_trenches(blocks["LIVE_TRENCHES"]), lines_report(blocks["LIVE_LINES"]),
+               injury_report(blocks["LIVE_INJURY"]), startsit_report(blocks["LIVE_STARTSIT"]),
+               f"Weather: {len(blocks['LIVE_WEATHER']['teams'])} teams" if blocks["LIVE_WEATHER"] else "Weather: none"]
     for name, obj in blocks.items():
         contract.validate(name, obj)   # a missing field fails the build, not the page
     # The build stamp is a hash of the data, never a clock. A timestamp would differ on every run,

@@ -123,17 +123,18 @@
 .bd-tab[aria-selected=true]{color:var(--ink);border-bottom-color:var(--lime)}
 .bd-tab:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
 
-/* ---- the card: the #1 and the four under him ---- */
+/* ---- the card: the #1, then a page of the list, a pick pinned below, the pager ---- */
 .bd-card{
   margin-top:12px;border:1px solid var(--line);border-radius:14px;background:var(--panel);
   overflow:hidden;touch-action:pan-y;
 }
 
 /* The #1. The photo sits on the right and fades into the panel from its left edge, so the number
-   and the name own the left half at every width without a box drawn around either. */
+   and the name own the left half at every width without a box drawn around either. 156px on a
+   phone (208 until 2026-09-26): the list under it has to fit the same screen. */
 .bd-hero{
   appearance:none;border:0;cursor:pointer;text-align:left;color:inherit;font:inherit;
-  position:relative;display:grid;width:100%;min-height:208px;padding:0;overflow:hidden;
+  position:relative;display:grid;width:100%;min-height:156px;padding:0;overflow:hidden;
   background:linear-gradient(120deg,rgb(var(--tint-rgb) / .16),rgb(var(--tint-rgb) / 0) 62%),var(--panel-2);
   border-bottom:1px solid var(--line);
   animation:bdin .42s var(--ease) both;
@@ -149,8 +150,8 @@
 /* The rank hangs from the top; the number and the name stand on the bottom edge beside the
    photo, a broadcast lower third. Top-aligned, the block ended at the team line and left a band of
    empty panel under the name while the photo sat on the floor beside it. */
-.bd-hero-txt{position:relative;display:flex;flex-direction:column;gap:6px;padding:16px 18px 18px;max-width:64%}
-.bd-hero-txt > .bd-hero-rk{margin-bottom:auto;padding-bottom:10px}
+.bd-hero-txt{position:relative;display:flex;flex-direction:column;gap:4px;padding:14px 18px 14px;max-width:64%}
+.bd-hero-txt > .bd-hero-rk{margin-bottom:auto;padding-bottom:6px}
 .bd-hero-rk{font-family:var(--disp);font-size:var(--t-3);font-weight:800;color:var(--tint)}
 .bd-hero-v{
   font-family:var(--disp);font-size:var(--t-lead);font-weight:800;line-height:.9;letter-spacing:-.04em;
@@ -165,13 +166,12 @@
 .bd-hero-who span,.bd-hero-elite{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);letter-spacing:.04em}
 .bd-hero.pick .bd-hero-who b{color:var(--lime)}
 @keyframes bdin{from{opacity:.4;transform:translateX(6px)}to{opacity:1;transform:none}}
-
-/* ---- #2 to #5, and a pick pinned below ---- */
+.bd-side{min-width:0}
 .bd-list{display:grid;padding:4px 0 6px}
 .bd-row{
   appearance:none;border:0;background:none;color:inherit;font:inherit;cursor:pointer;text-align:left;
-  display:grid;grid-template-columns:22px 32px minmax(0,1fr) auto;gap:10px;align-items:center;
-  padding:8px 16px;width:100%;
+  display:grid;grid-template-columns:22px 28px minmax(0,1fr) auto;gap:10px;align-items:center;
+  padding:5px 16px;width:100%;
   animation:bdrise .34s var(--ease) both;
 }
 .bd-row:nth-child(2){animation-delay:40ms}
@@ -182,9 +182,8 @@
 .bd-row:active{transform:scale(var(--press))}
 .bd-row:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
 @keyframes bdrise{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-.bd-rk{font-family:var(--disp);font-size:var(--t-3);font-weight:800;color:var(--ink-3);text-align:center}
-/* grid-template pins the one track to the box; see .xf-head in pool.css for the 150px strip it prevents. */
-.bd-head{width:32px;height:32px;border-radius:50%;overflow:hidden;background:var(--panel-3);display:grid;
+.bd-rk{font-family:var(--disp);font-size:var(--t-3);font-weight:800;color:var(--ink-3);text-align:center}/* grid-template pins the one track to the box; see .xf-head in pool.css for the 150px strip it prevents. */
+.bd-head{width:28px;height:28px;border-radius:50%;overflow:hidden;background:var(--panel-3);display:grid;
   grid-template:100% / 100%;place-items:center}
 .bd-head img{width:100%;height:100%;object-fit:cover;object-position:top}
 .bd-head .fallback{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
@@ -196,46 +195,31 @@
 .bd-row.ahead .bd-v{color:var(--lime)}
 .bd-row.none{cursor:default}
 .bd-row.none .bd-v{font-family:var(--ui);font-size:var(--t-1);font-weight:500;color:var(--ink-3)}
-/* The break between the top five and a pinned pick: a gap, so #34 does not read as #6. */
-.bd-gap{height:10px;border-top:1px dashed var(--line-2);margin:4px 16px 0}
+/* The break between the page and a pinned pick: a gap, so #34 does not read as #12. */
+.bd-pinned{padding-top:0}
+.bd-gap{height:10px;border-top:1px dashed var(--line-2);margin:0 16px}
 .bd-gap + .bd-row{border-top:0}
 
-/* ---- the rest of the field, behind one tap ----
-   The button spans the card's width so a thumb finds it without aiming; the open list is the
-   same rows on the same panel, so #6 reads as the next line of the leaderboard. */
-.bd-more-btn{
-  appearance:none;display:block;width:100%;max-width:1000px;margin-top:8px;cursor:pointer;
-  font-family:var(--ui);font-size:var(--t-2);font-weight:600;color:var(--ink-2);
-  padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel);
-  transition:color .18s var(--ease),border-color .18s var(--ease);
-}
-.bd-more-btn:hover{color:var(--ink);border-color:var(--line-2)}
-.bd-more-btn:active{transform:scale(var(--press))}
-.bd-more-btn:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
-.bd-more{
-  margin-top:8px;max-width:1000px;border:1px solid var(--line);border-radius:14px;background:var(--panel);
-}
+/* ---- the pager, the card's last row ---- */
 .bd-pager{margin:0;padding:10px 16px 12px;border-top:1px solid var(--line)}
 /* The phone hides a filter row's leading label (responsive/lists.css) because there it names the
    chips beside it; here it is the range on screen, the one thing the pager must say. */
 .filters.bd-pager > .lbl:first-child{display:inline}
-/* Range plus three controls is wider than 360px, so on a phone the range takes a line of its own
-   and the controls sit under it, rather than the last one running off the edge. */
 @media (max-width:760px){
-  /* A phone filter row bleeds to the screen edge (lists.css); this one lives inside a panel. */
-  .filters.bd-pager{flex-wrap:wrap;row-gap:8px;margin:0;padding:10px 16px 12px;overflow:visible}
-  .filters.bd-pager > .lbl:first-child{flex-basis:100%;margin-left:0}
+  /* A phone filter row bleeds to the screen edge and scrolls (lists.css); this one lives inside a
+     panel, and the range with Prev and Next fits a 360px line. */
+  .filters.bd-pager{margin:0;padding:10px 16px 12px;overflow:visible}
+  .filters.bd-pager > .lbl:first-child{margin-left:0}
 }
 
-/* Wider than a phone, the #1 and the list sit side by side: stacked at 1200px the bars ran a
-   thousand pixels for a four-row list, and the card was mostly empty. */
+/* Wider than a phone, the #1 and the list sit side by side, the hero standing the list's full
+   height; stacked at 1200px the bars ran a thousand pixels across. A later page has no hero, so
+   its list takes the width. */
 @media (min-width:760px){
-  .bd-card{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);max-width:1000px}
-  .bd-hero{border-bottom:0;border-right:1px solid var(--line)}
-  /* The four rows fill the column top to bottom, so their dividers meet the card's edges and the
-     first row's top is the card's top. Centred, the list floated 30px inside a taller column and
-     shared no edge with the #1 beside it. */
-  .bd-list{padding:0;grid-auto-rows:1fr}
+  .bd-card{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);max-width:1100px}
+  .bd-card:not(:has(> .bd-hero)){grid-template-columns:minmax(0,1fr);max-width:760px}
+  .bd-hero{border-bottom:0;border-right:1px solid var(--line);min-height:208px}
+  .bd-hero-img{max-height:none;height:min(100%, 420px)}
 }
 
 /* Type comes from .note (base.css): a source line is a sentence, not a label. */
