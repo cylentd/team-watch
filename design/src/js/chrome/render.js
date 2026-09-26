@@ -77,7 +77,7 @@ function render(){
 
   const team = TEAMS[VIEW] || TEAMS.yahoo;
   // A connected league has no Waivers (nav.js hides the tab); a stale #waivers draws its roster.
-  const wire = SURFACE === "waivers" && !notMine(team);
+  const wire = SURFACE === "waivers" && hasWaivers(team);
   // The deal and the rail's "new" flash are taken once per page load, on the first Waivers render.
   v.innerHTML = wire
     ? heroHTML(team) + `<div class="wrap">${waiverHTML(wvMotionTake())}</div>`

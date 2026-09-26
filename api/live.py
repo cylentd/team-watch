@@ -59,6 +59,7 @@ import sys
 import time
 
 from http.server import BaseHTTPRequestHandler
+from urllib.parse import parse_qs, urlparse
 
 # The host, id maps, season rule and GET are shared with api/league.py (api/_espn.py).
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -83,7 +84,20 @@ MIN_INTERVAL = 20
 
 ACTUAL, PROJECTED = 0, 1
 
-_memo = {"at": 0.0, "body": None}
+# The raw league reply, not a shaped board: since 2026-09-26 one read serves every team's matchup
+# (?team=, a leaguemate's), so ESPN still sees one read per window however many teams are asked for.
+_memo = {"at": 0.0, "raw": None}
+TEAM_MAX = 80         # a team name is short; anything longer is not one
+
+
+def _norm(s):
+    """Case and spacing folded: ESPN keeps a name's double spaces ("Lets rock  Mate")."""
+    return " ".join(str(s or "").split()).lower()
+
+
+def team_names(t):
+    """Both spellings ESPN has used for a team: `name`, and the older location + nickname."""
+    return {_norm(t.get("name")), _norm(" ".join(x for x in (t.get("location"), t.get("nickname")) if x))} - {""}
 
 
 def fetch(swid, s2, league_id):
@@ -136,10 +150,11 @@ def side_summary(side, names, week):
     }
 
 
-def shape(body, swid):
-    """The whole 589 KB reply reduced to the one matchup the page draws.
+def shape(body, swid, team=None):
+    """The whole 589 KB reply reduced to the one matchup the page draws: David's, or with `team`
+    (a team name, leaguemates phase 2) that team's. "me" is then the named team's side.
 
-    Raises LookupError when my team or my matchup is missing, which is a real failure worth
+    Raises LookupError when the team or its matchup is missing, which is a real failure worth
     saying out loud rather than rendering an empty board.
     """
     week = body.get("scoringPeriodId")
@@ -147,9 +162,15 @@ def shape(body, swid):
     teams = body.get("teams") or []
     names = {t.get("id"): (t.get("name") or f"Team {t.get('id')}") for t in teams}
 
-    want = ("{" + swid.strip("{}") + "}").upper()
-    me = next((t for t in teams if str(t.get("primaryOwner", "")).upper() == want), None)
-    my_id = me.get("id") if me else int(os.environ.get("ESPN_TEAM_ID") or 0) or None
+    if team:
+        me = next((t for t in teams if _norm(team) in team_names(t)), None)
+        if me is None:
+            raise LookupError(f"no team named {team!r}")
+        my_id = me.get("id")
+    else:
+        want = ("{" + swid.strip("{}") + "}").upper()
+        me = next((t for t in teams if str(t.get("primaryOwner", "")).upper() == want), None)
+        my_id = me.get("id") if me else int(os.environ.get("ESPN_TEAM_ID") or 0) or None
     if my_id is None:
         raise LookupError("could not identify my team from the SWID cookie")
 
@@ -173,16 +194,16 @@ def shape(body, swid):
     }
 
 
-def live():
-    """The shaped scoreboard, memoized for MIN_INTERVAL seconds on a warm instance."""
+def live(team=None):
+    """The shaped scoreboard for David's team, or `team`'s. The league reply is memoized for
+    MIN_INTERVAL seconds on a warm instance, so every team's board shares one ESPN read."""
     now = time.time()
-    if _memo["body"] is not None and now - _memo["at"] < MIN_INTERVAL:
-        return dict(_memo["body"], cached=True)
-
     swid = os.environ["ESPN_SWID"]
-    out = shape(fetch(swid, os.environ["ESPN_S2"], os.environ["ESPN_LEAGUE_ID"]), swid)
-    _memo["at"], _memo["body"] = now, out
-    return dict(out, cached=False)
+    cached = _memo["raw"] is not None and now - _memo["at"] < MIN_INTERVAL
+    if not cached:
+        _memo["raw"] = fetch(swid, os.environ["ESPN_S2"], os.environ["ESPN_LEAGUE_ID"])
+        _memo["at"] = now
+    return dict(shape(_memo["raw"], swid, team), cached=cached)
 
 
 def configured():
@@ -207,8 +228,12 @@ class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if not configured():
             return self._send(503, {"error": "Live is not configured on the server yet."})
+        # ?team=<team name>: a leaguemate's board. Only ever looked up among the league's own teams.
+        team = (parse_qs(urlparse(self.path).query).get("team") or [None])[0]
+        if team is not None and not 0 < len(team) <= TEAM_MAX:
+            return self._send(400, {"error": "That is not a team name."})
         try:
-            self._send(200, live(), cache=True)
+            self._send(200, live(team), cache=True)
         except Expired:
             # The one failure a retry cannot fix, so the page says so instead of spinning.
             self._send(409, {"error": "ESPN cookies have expired. Re-copy SWID and espn_s2.",

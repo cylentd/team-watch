@@ -103,6 +103,7 @@ surface/parlay/masonry.js
 surface/dfs/dfs.js
 chrome/state.js
 surface/live/live.js
+surface/live/follow.js
 surface/live/memory.js
 surface/live/board.js
 surface/live/header.js

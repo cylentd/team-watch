@@ -104,11 +104,15 @@ async function gdFetch(){
   if (!PAGE_SERVED()){ GD_ERR = t("live.error.notServed"); paintLive(); return; }
   GD_BUSY = true;
 
+  const asked = gdTeamKey();
   let payload = null, ok = false;
   try {
     /* A plain GET, so the CDN can cache it. Anything clever here -- a POST, a header, a query
-       string that changes per call -- would make every request its own ESPN read again. */
-    const res = await fetch("/api/live", {headers: {"Accept": "application/json"}});
+       string that changes per call -- would make every request its own ESPN read again. The
+       ?team= of a leaguemate's board is the same string on every call, so it caches per team. */
+    const team = gdTeamName();
+    const res = await fetch(team ? `/api/live?team=${encodeURIComponent(team)}` : "/api/live",
+      {headers: {"Accept": "application/json"}});
     payload = await res.json().catch(() => null);
     ok = res.ok;
   } catch (e) {
@@ -117,6 +121,9 @@ async function gdFetch(){
   }
 
   GD_BUSY = false;
+  // The team on screen changed while this was in flight: its reply belongs to a board no longer
+  // shown. gdFollow already reset the board; the next ensure asks for the right team.
+  if (asked !== gdTeamKey()){ paintLive(); return; }
   if (ok && payload && payload.me){
     GD_DATA = payload; GD_ERR = ""; GD_AT = Date.now();
     gdNote(payload);
@@ -169,6 +176,8 @@ function paintLive(){
 }
 
 function liveHTML(){
+  if (gdYahooMate()) return `<div class="wrap"><div class="state-empty"><div><b>—</b><span>${t("live.yahooMate")}</span></div></div></div>`;
+  gdFollow();
   gdEnsure();
   return `<div class="wrap">
     <section class="gdboard" data-gdboard>${gdBoardHTML()}</section>

@@ -600,7 +600,8 @@ def add_market_stock(blocks, report):
     blocks["LIVE_MARKET_STOCK"] = stock
     report.append(f"Market stock: {len(stock['players'])} players" if stock
                   else "Market stock: none, so no market row")
-    blocks["LIVE_SIGNALS"] = live_signals(FEED, DWR, (blocks["LIVE_ESPN"], blocks["LIVE_YAHOO"]), slugify)
+    blocks["LIVE_SIGNALS"] = live_signals(FEED, DWR, (blocks["LIVE_ESPN"], blocks["LIVE_YAHOO"],
+                                                      *(blocks["LIVE_MATES"] or {}).get("teams", [])), slugify)
     report += [signals_report(blocks["LIVE_SIGNALS"]), waiver_report(blocks["LIVE_WAIVER"]),
                wire_report(blocks["LIVE_WIRE"]), pool_report(blocks["LIVE_POOL"]), usage_report(blocks["LIVE_USAGE"]),
                mates_report(blocks["LIVE_MATES"])]

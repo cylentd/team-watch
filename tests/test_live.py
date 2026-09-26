@@ -149,6 +149,44 @@ def test_an_unknown_swid_is_an_error_not_an_empty_board():
         live.shape(body(), "{NOBODY}")
 
 
+def test_a_named_team_gets_its_own_board_with_its_side_as_me():
+    """A leaguemate's board (?team=, 2026-09-26): the named team is "me", David's is the opponent."""
+    out = live.shape(body(), SWID, team="TeamMinh")
+    assert (out["me"]["team"], out["opponent"]["team"]) == ("TeamMinh", "Purdy Big in Japan")
+    assert (out["me"]["live"], out["opponent"]["live"]) == (-2.0, 31.5)
+
+
+def test_a_team_name_matches_whatever_its_case_and_spacing():
+    """ff-jarvis keys a team by ESPN's own name, double spaces and all ("Lets rock  Mate")."""
+    b = body()
+    b["teams"][1]["name"] = "Lets rock  Mate"
+    assert live.shape(b, SWID, team="lets rock mate")["me"]["team"] == "Lets rock  Mate"
+
+
+def test_a_team_named_by_location_and_nickname_is_found():
+    b = body()
+    b["teams"][1] = {"id": 15, "location": "Team", "nickname": "Minh", "primaryOwner": "{OTHER}"}
+    assert live.shape(b, SWID, team="Team Minh")["opponent"]["team"] == "Purdy Big in Japan"
+
+
+def test_an_unknown_team_is_an_error_not_davids_board():
+    with pytest.raises(LookupError):
+        live.shape(body(), SWID, team="Nobody FC")
+
+
+def test_one_espn_read_serves_every_teams_board(monkeypatch):
+    """The memo holds the league reply, not a shaped board, so twelve teams asking inside the
+    window still cost ESPN one read."""
+    calls = []
+    monkeypatch.setattr(live, "fetch", lambda *a: calls.append(a) or body())
+    monkeypatch.setattr(live, "_memo", {"at": 0.0, "raw": None})
+    for k, v in {"ESPN_SWID": SWID, "ESPN_S2": "x", "ESPN_LEAGUE_ID": "1"}.items():
+        monkeypatch.setenv(k, v)
+    mine, theirs = live.live(), live.live("TeamMinh")
+    assert len(calls) == 1 and theirs["cached"] is True
+    assert mine["me"]["team"] != theirs["me"]["team"]
+
+
 def test_a_missing_matchup_is_an_error():
     b = body()
     b["schedule"] = [r for r in b["schedule"] if r["matchupPeriodId"] != 2]

@@ -70,8 +70,8 @@ function wireTeamSwitch(v){
     VIEW = b.dataset.k;
     myTeamSave(VIEW);    // the reader's pick opens next time too (data/mates.js)
     SEARCH_INDEX = null; // a leaguemate's roster counts as "yours" in search only while on screen
-    // A connected league or a leaguemate's team has no Waivers (ff-jarvis builds David's only).
-    if (notMine(TEAMS[VIEW]) && SURFACE === "waivers") SURFACE = "roster";
+    // A connected league has no Waivers (ff-jarvis builds David's two leagues only).
+    if (!hasWaivers(TEAMS[VIEW]) && SURFACE === "waivers") SURFACE = "roster";
     render();
     paintSubnav();       // the Waivers count is per league, and a connected league has none
     if (changed) zipFootball();

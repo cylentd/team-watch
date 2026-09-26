@@ -114,9 +114,11 @@ def report(sig):
 
 def live_signals(feed_path, dwr_path, rosters, slugify):
     """LIVE_SIGNALS: {through_week, ready, players: {slug: {series, verdict, why, news, hot}}}
-    for every player on `rosters` (the LIVE_ESPN / LIVE_YAHOO blocks, either may be None)."""
-    # One entry per slug: a player on both rosters must not count each story twice.
-    players = list({p["slug"]: p for r in rosters if r for p in r["roster"]}.values())
+    for every player on `rosters` (LIVE_ESPN, LIVE_YAHOO and, since 2026-09-26, each LIVE_MATES
+    team; any may be None). A signal is a fact about the player, not about whose team he is on."""
+    # One entry per slug: a player on both rosters must not count each story twice. A player with
+    # no headshot has no slug, and the page looks signals up by slug, so he has none to find.
+    players = list({p["slug"]: p for r in rosters if r for p in r["roster"] if p["slug"]}.values())
     if not players:
         return None
     usage = load_usage(feed_path, dwr_path)

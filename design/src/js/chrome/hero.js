@@ -9,7 +9,7 @@
 /* `side` sits at the hero's right end: the roster's Sheet / Cards switch (2026-09-25), moved up out
    of the rows' column so the starters, the bench and "This week" share one top edge. */
 function heroHTML(team, side = ""){
-  const wire = SURFACE === "waivers" && !notMine(team);
+  const wire = SURFACE === "waivers" && hasWaivers(team);
   const rec = team.record ? `${team.plat} · ${team.record}` : team.plat;   // a leaguemate's record is not pulled
   return `<section class="hero${wire ? "" : " team"}">
     <div class="numghost">${team.slot}</div>

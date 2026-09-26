@@ -20,11 +20,48 @@ def test_a_leaguemate_picks_their_team_and_it_sticks(browser, page_file):
     assert page.evaluate("VIEW") == mates[0]
     assert page.evaluate("localStorage.getItem('tw-team')") == mates[0]
     assert page.locator("[data-tsask]").count() == 0, "asked only until a pick"
-    assert "Waivers" not in page.locator("#subnav").inner_text(), "no Waivers for a leaguemate yet"
+    assert "Waivers" in page.locator("#subnav").inner_text(), "their league's rail (phase 2)"
+    assert page.locator("#subnav .tabcount").count() == 0, "but no claim count: that list is David's"
     assert page.locator("#view .row").count() > 0, "the leaguemate's roster draws"
     page.reload()
     page.wait_for_function("document.getElementById('view').children.length > 0")
     assert page.evaluate("VIEW") == mates[0], "the pick opens next time"
+    assert errors == []
+    ctx.close()
+
+
+def test_a_leaguemates_waivers_is_their_leagues_rail_without_davids_advice(browser, page_file):
+    """Phase 2 (2026-09-26): a leaguemate's Waivers tab shows the league's Breaking rail, keyed by
+    league, with no status rows (David's players), no verdicts, no cards, no must-claim count."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    mate = page.evaluate("(MATES[0] || {}).key")
+    if not mate:
+        pytest.skip("the fixture's roster files hold no other team")
+    page.evaluate(f"VIEW = '{mate}'; SURFACE = 'waivers'; render(); paintSubnav()")
+    assert "Waivers" in page.locator("#subnav").inner_text()
+    assert page.locator(".wvc").count() == 0 and page.locator(".wv-mate").count() == 1
+    assert page.locator(".wvr-row.k-status").count() == 0
+    league = page.evaluate(f"TEAMS['{mate}'].league")
+    kept = page.evaluate(f"wireEvents('{league}').filter(e => e.kind !== 'status').length")
+    assert page.locator(".wvr-row").count() == kept, "every league-wide row stays"
+    text = page.locator("#view").inner_text()
+    assert "must-claim" not in text.lower() and "FAAB" not in text
+    assert errors == []
+    ctx.close()
+
+
+def test_live_follows_a_leaguemates_espn_team_and_says_so_for_yahoo(browser, page_file):
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    mate = page.evaluate("(MATES.find(m => m.league === 'espn') || {}).key")
+    if not mate:
+        pytest.skip("no ESPN leaguemate in the fixture")
+    assert page.evaluate("gdTeamName()") is None, "David's own board asks /api/live plain"
+    page.evaluate(f"VIEW = '{mate}'")
+    assert page.evaluate("gdTeamName()") == page.evaluate(f"TEAMS['{mate}'].name")
+    assert page.evaluate("GD_MEM_KEY(3)") != "tw-live-espn-w3", "a leaguemate's memory is kept apart"
+    page.evaluate("""TEAMS['yahoo-test'] = Object.assign({}, TEAMS.yahoo, {key: 'yahoo-test', mate: true, league: 'yahoo'});
+      VIEW = 'yahoo-test'; SURFACE = 'live'; render()""")
+    assert "Yahoo league" in page.locator("#view").inner_text()
     assert errors == []
     ctx.close()
 

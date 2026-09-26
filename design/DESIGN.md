@@ -91,8 +91,18 @@ pick any team, team names only (never an owner's), per-team waiver adds this sea
 | Added to `TEAMS` with `mate: true`; the pick, in `localStorage` `tw-team` | `js/data/mates.js` |
 | The menu, grouped by league; "Not your team? Pick yours" until a pick | `js/chrome/teamswitch.js` |
 
-`notMine(team)` (a leaguemate's or a connected league) hides Waivers and the brief's wire card.
-Search counts a leaguemate's players as "yours" only while their team is on screen.
+`notMine(team)` (a leaguemate's or a connected league) hides every line of claim advice: it is
+computed against David's roster. Search counts a leaguemate's players as "yours" only while their
+team is on screen.
+
+Phase 2 (2026-09-26):
+
+| A leaguemate sees | How |
+|---|---|
+| Trend and news on their rows and Cards | `design/signals.py` reads every LIVE_MATES roster too |
+| Waivers: their league's Breaking rail, no status rows, no verdicts, no cards | `waiverKey(team)` is the league; `wvMateEvents` (rail.js) |
+| Live: their own ESPN matchup | `api/live.py ?team=<name>`, one memoized ESPN read for all; `surface/live/follow.js` |
+| Live, Yahoo league: a line saying Live follows ESPN only | `gdYahooMate()` |
 
 ## Waivers (sub-tab of My Teams, 2026-09-16)
 

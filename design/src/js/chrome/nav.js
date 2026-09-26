@@ -54,9 +54,9 @@ const navDefaultLeaf = () => navWaiverDay() ? "waivers" : "ranks";
 const navGroupOf = leaf => (NAV.find(([, tabs]) => tabs.includes(leaf)) || NAV[0])[0];
 function navTabsOf(group){
   const all = (NAV.find(([g]) => g === group) || NAV[0])[1];
-  // A connected league or a leaguemate's team has no Waivers: ff-jarvis builds the packet for
-  // David's two teams only (a leaguemate's is phase 3).
-  const tabs = notMine(TEAMS[VIEW]) ? all.filter(k => k !== "waivers") : all;
+  // A connected league has no Waivers: ff-jarvis builds the packet for David's two leagues only.
+  // A leaguemate's team has its league's rail (data/mates.js hasWaivers).
+  const tabs = hasWaivers(TEAMS[VIEW]) ? all : all.filter(k => k !== "waivers");
   return navWaiverDay() && tabs.includes("waivers") ? ["waivers", ...tabs.filter(k => k !== "waivers")] : tabs;
 }
 
@@ -64,7 +64,8 @@ function navTabsOf(group){
    league on screen. It is the only count that changes what you would do next, so it is the only
    one worth a badge. A team switch repaints it (teamswitch.js). */
 function navCount(leaf){
-  if (leaf !== "waivers" || !WAIVER) return "";
+  // A leaguemate's count would be David's claim list, so theirs has none.
+  if (leaf !== "waivers" || !WAIVER || notMine(TEAMS[VIEW])) return "";
   return ` <span class="tabcount">${waiverIn(VIEW).filter(([r]) => waiverTier(r, VIEW) !== "stash").length}</span>`;
 }
 

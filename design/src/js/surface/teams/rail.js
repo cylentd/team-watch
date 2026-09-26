@@ -39,7 +39,8 @@ function wvRailText(e, key){
     return e.verdict ? t("waiver.rail.pathVerdict", {path, what: wvRailVerdict(e)}) : path;
   }
   if (e.kind === "drop")
-    return t("waiver.rail.drop", {by: esc(e.by), name, pos: esc(e.pos), what: wvRailVerdict(e)});
+    return e.verdict ? t("waiver.rail.drop", {by: esc(e.by), name, pos: esc(e.pos), what: wvRailVerdict(e)})
+      : t("waiver.rail.dropBare", {by: esc(e.by), name, pos: esc(e.pos)});
   if (e.kind === "status"){
     const prac = WV_PRACTICE[e.practice] ? `, ${WV_PRACTICE[e.practice]()}` : "";
     return t("waiver.rail.status", {name, from: wvHealth(e.from), to: wvHealth(e.to) + wvNote(e.note) + prac});
@@ -64,8 +65,12 @@ function wvRailEmptyHTML(mode){
   return `<section class="wvr ${mode} empty"><p class="wvr-none">${day ? t("waiver.rail.none", {day}) : t("waiver.rail.noneYet")}</p></section>`;
 }
 
-function wvRailHTML(key, mode, since){
-  const ev = wireEvents(key);
+/* `mate` (a leaguemate's team on screen, phase 2): the league's rows without David's -- no status
+   row (those are his own players) and no verdict (what claiming does for his roster). */
+const wvMateEvents = ev => ev.filter(e => e.kind !== "status").map(e => ({...e, verdict: null}));
+
+function wvRailHTML(key, mode, since, mate){
+  const ev = mate ? wvMateEvents(wireEvents(key)) : wireEvents(key);
   if (!ev.length) return wvRailEmptyHTML(mode);
   const rows = ev.map(e => wvRailRowHTML(e, key, since));
   const head = `<div class="rule"><h2>${t("waiver.rail.title")}</h2>${wvCountHTML(ev.length)}<span class="hair"></span></div>`;

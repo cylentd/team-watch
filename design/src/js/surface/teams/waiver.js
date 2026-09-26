@@ -39,25 +39,33 @@ function wvCardsHTML(key){
    are new. The markup is otherwise the same on every render. */
 function waiverHTML(motion){
   if (!WAIVER) return `<div class="state-empty wv-empty"><div><b>—</b><span>${t("waiver.empty.noPacket")}</span></div></div>`;
-  const key = VIEW;
+  const team = TEAMS[VIEW], key = waiverKey(team), mate = notMine(team);
   if (!waiverMeta()[key]) return `<div class="state-empty wv-empty"><div><b>—</b><span>${t("waiver.hero.none")}</span></div></div>`;
   const mode = wvMode(), m = motion || {deal: false, since: Infinity};
-  const rail = wvRailHTML(key, mode, m.since), cards = `<div class="wv-cards">${wvCardsHTML(key)}</div>`;
-  return `<div class="wv mode-${mode}${m.deal ? " deal" : ""}">${rail}${cards}</div>`;
+  // A leaguemate gets the league's rail and no cards: every card is advice for David's roster
+  // (its tier, its swap, its drop). Their own arrives with a per-team packet (leaguemates phase 3).
+  // With no cards, the rail leads every day: the "watch" shape, whatever the weekday.
+  const shape = mate ? "watch" : mode;
+  const rail = wvRailHTML(key, shape, m.since, mate);
+  const cards = mate ? `<p class="wv-mate">${t("waiver.mate.soon")}</p>` : `<div class="wv-cards">${wvCardsHTML(key)}</div>`;
+  return `<div class="wv mode-${shape}${m.deal ? " deal" : ""}">${rail}${cards}</div>`;
 }
 
 /* The hero on Waivers, one line for the league on screen: which day of the week it is for the
    wire, when its claims clear, how many must-claims are open there, and what is left to bid. */
 function waiverHeroHTML(team){
-  const meta = waiverMeta()[team.key];
+  const key = waiverKey(team), mate = notMine(team);
+  const meta = waiverMeta()[key];
   if (!meta) return `<p class="wvhero empty">${t("waiver.hero.none")}</p>`;
   const when = waiverWhen(meta.clears || (WAIVER && WAIVER.clears));
-  const n = waiverMustIn(team.key);
+  const n = waiverMustIn(key);
+  // A leaguemate's hero keeps the league's facts (the day, when claims clear) and drops David's:
+  // his must-claim count and his FAAB.
   const parts = [
     `<span class="wvhero-mode">${wvMode() === "claim" ? t("waiver.hero.claimDay") : t("waiver.hero.wireWatch")}</span>`,
     when ? `<span>${t("waiver.hero.clears", {when})}</span>` : "",
-    `<span class="${n ? "up" : ""}">${n === 1 ? t("waiver.hero.mustOne") : t("waiver.hero.must", {n})}</span>`,
-    meta.faab_left === null || meta.faab_left === undefined ? "" : `<span>${t("waiver.hero.faab", {n: meta.faab_left})}</span>`,
+    mate ? "" : `<span class="${n ? "up" : ""}">${n === 1 ? t("waiver.hero.mustOne") : t("waiver.hero.must", {n})}</span>`,
+    mate || meta.faab_left === null || meta.faab_left === undefined ? "" : `<span>${t("waiver.hero.faab", {n: meta.faab_left})}</span>`,
   ].filter(Boolean);
   // Each part keeps its words together; a narrow hero breaks between parts, never inside one.
   return `<p class="wvhero">${parts.join(` <span class="sep">·</span> `)}</p>`;

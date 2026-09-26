@@ -18,12 +18,15 @@
    costs a delta chip, and must never cost the board.
 ------------------------------------------------------------------ */
 
-const GD_MEM_KEY = week => `tw-live-espn-w${week}`;
+/* Keyed by the team Live follows (gdTeamKey, live.js; 2026-09-26): a leaguemate's board must not
+   be diffed against David's, or every player on it would read as a mover. David's keys are the
+   same as before, so his memory survives the change. */
+const GD_MEM_KEY = week => `tw-live-espn-w${week}${gdTeamKey() ? `-${gdTeamKey()}` : ""}`;
 /* The last board itself, so a click paints complete instead of empty. Every other tab's data is
    inlined at build time and paints instantly; Live's arrives over the wire, and the two-step --
    an empty panel, then 130ms later the board -- is what reads as lag. The fetch is not slow, the
    emptiness is. */
-const GD_LAST_KEY = "tw-live-espn-last";
+const GD_LAST_KEY = () => `tw-live-espn-last${gdTeamKey() ? `-${gdTeamKey()}` : ""}`;
 /* How old a remembered board may be and still be worth painting. Two days covers a whole
    gameday and the Monday night after it, and stops short of the Tuesday the NFL week rolls over
    -- painting last week's opponent as though he were this week's would be wrong, not just
@@ -50,7 +53,7 @@ function gdMemSave(mem){
 }
 
 function gdBoardSave(d){
-  try { localStorage.setItem(GD_LAST_KEY, JSON.stringify({asof: d.asof, board: d})); } catch (e) {}
+  try { localStorage.setItem(GD_LAST_KEY(), JSON.stringify({asof: d.asof, board: d})); } catch (e) {}
 }
 
 /* The last board, if it is recent enough to still describe this week's matchup. Painting it is
@@ -58,7 +61,7 @@ function gdBoardSave(d){
    numbers under it, and the fresh reply is already on its way when the reader sees them. */
 function gdBoardLoad(){
   try {
-    const wrap = JSON.parse(localStorage.getItem(GD_LAST_KEY) || "null");
+    const wrap = JSON.parse(localStorage.getItem(GD_LAST_KEY()) || "null");
     if (!wrap || !wrap.board || !wrap.asof) return null;
     const age = Date.now() - Date.parse(wrap.asof);
     return (age >= 0 && age < GD_KEEP_MS) ? wrap.board : null;
