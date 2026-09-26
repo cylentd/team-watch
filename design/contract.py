@@ -173,7 +173,13 @@ CONTRACT = {
     # page can show. `mu` is the component means (PASS/RUSH/TD/...), read as-is off the source.
     "LIVE_PROJECTIONS": {
         "keys": ["players"],
-        "map": ("players", ["pts", "mu", "games", "src", "rank", "of"]),
+        "map": ("players", ["pts", "mu", "games", "src", "rank", "of", "out"]),
+    },
+    # design/injury.py, from ff-jarvis's Sleeper status: every hurt player the page can show, `s`
+    # OUT / D / Q. `note` may be null (Sleeper gives no reason for some).
+    "LIVE_INJURY": {
+        "keys": ["players"],
+        "map": ("players", ["s", "code", "note"]),
     },
     # ff-jarvis's model.clients.weather (National Weather Service), passed straight through, keyed
     # by team. `roof` is the only key guaranteed present -- a dome has nothing else, and an

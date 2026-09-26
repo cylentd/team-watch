@@ -23,6 +23,18 @@ def test_rank_is_within_the_position_over_everyone_projected():
     assert "d-four" not in r
 
 
+def test_a_player_not_playing_has_no_points_no_rank_and_the_rest_move_up():
+    from projections import live_projections
+    raw = {"players": [{"name": "A One", "pos": "RB", "pts": 20, "src": "model"},
+                       {"name": "B Two", "pos": "RB", "pts": 12, "src": "model"},
+                       {"name": "C Three", "pos": "RB", "pts": 9, "src": "model"}]}
+    status = {"a one": {"name": "A One", "injury": "NA"}, "b two": {"name": "B Two", "injury": "Questionable"}}
+    got = live_projections(raw, slug, {"a-one", "b-two", "c-three"}, status)["players"]
+    assert got["a-one"]["pts"] is None and got["a-one"]["rank"] is None and got["a-one"]["out"] == "NA"
+    assert got["b-two"]["rank"] == 1 and got["b-two"]["pts"] == 12 and got["b-two"]["out"] is None
+    assert got["c-three"]["rank"] == 2 and got["c-three"]["of"] == 2
+
+
 def test_implied_points_split_the_total_by_the_spread():
     pool = {"games": {"BAL@DAL": {"odds": {"overUnder": 52.5, "homeSpread": 3.5, "awaySpread": -3.5}},
                       "LA@SF": {"odds": {"overUnder": 44.0, "homeSpread": -2.0, "awaySpread": 2.0}},
@@ -35,9 +47,31 @@ def test_implied_points_split_the_total_by_the_spread():
     assert live_lines({"games": {}}, {}) is None
 
 
-def cards_page(browser, page_file, viewport=(360, 660)):
+def cards_page(browser, page_file, viewport=(360, 660), keep_stage=False):
+    """The ESPN roster in Cards view. An unopened pack opens its stage by itself a moment after the
+    view draws; unless the test wants it, the stage is closed (Escape before a rip puts the pack
+    back on the page)."""
     ctx, page, errors = open_page(browser, page_file, viewport)
     drive(page, go("roster"))
+    page.evaluate("VIEW='espn'; render()")
+    page.click("[data-rmode='cards']")
+    page.wait_for_timeout(450)
+    if not keep_stage and page.locator(".pk-stage").count():
+        page.keyboard.press("Escape")
+    return ctx, page, errors
+
+
+def motion_page(browser, page_file):
+    """The same, with motion on, as a reader without reduced motion sees it."""
+    from test_render import SEED
+    ctx = browser.new_context(viewport={"width": 390, "height": 844}, reduced_motion="no-preference")
+    page = ctx.new_page()
+    errors = []
+    page.on("pageerror", lambda e: errors.append(str(e)))
+    page.route(re.compile(r"^https?://"), lambda route: route.abort())
+    page.add_init_script(SEED)
+    page.goto(page_file.as_uri() + "#roster")
+    page.wait_for_function("document.getElementById('view').children.length > 0")
     page.evaluate("VIEW='espn'; render()")
     page.click("[data-rmode='cards']")
     return ctx, page, errors
@@ -61,13 +95,81 @@ def test_cards_draw_every_player_and_the_choice_survives_a_reload(browser, page_
 @pytest.mark.render
 def test_a_tier_is_the_rank_and_support_cards_have_none(browser, page_file):
     ctx, page, errors = cards_page(browser, page_file)
-    tiers = page.evaluate("[1,2,5,6,8,9,12,13,24,25,null].map(cardTier)")
-    assert tiers == ["one", "sig", "sig", "sr", "sr", "ur", "ur", "r", "r", "c", "c"]
+    tiers = page.evaluate("[1,2,5,6,12,13,24,25,null].map(cardTier)")
+    assert tiers == ["one", "sig", "sig", "ur", "ur", "r", "r", "c", "c"]
     # A support card, drawn directly: no rank line, no foil, whatever the fixture's roster holds.
     page.evaluate("""document.querySelector('.cards .cardgrid').insertAdjacentHTML('beforeend',
       cardHTML({n:'Bengals', pos:'DST', team:'CIN', slot:'DST', start:true, slug:null}, 0, 'espn'))""")
     dst = page.locator(".cards .tc.tier-dst").last
     assert dst.locator(".tc-foot").count() == 0 and dst.locator(".tc-spark, .tc-etch").count() == 0
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_every_card_back_fits_its_card_on_a_small_phone(browser, page_file):
+    # A 360px screen: the support backs lost their values to a squeezed row, then overflowed.
+    ctx, page, errors = cards_page(browser, page_file)
+    page.evaluate("""document.querySelector('.cards .cardgrid').insertAdjacentHTML('beforeend',
+      cardHTML({n:'Bengals', pos:'DST', team:'CIN', slot:'DST', start:true, slug:null}, 0, 'espn') +
+      cardHTML({n:'Cam Little', pos:'K', team:'JAX', slot:'K', start:true, slug:null}, 0, 'espn'))""")
+    over = page.evaluate("[...document.querySelectorAll('.cards .tc-back')].filter(b => b.scrollHeight > b.clientHeight + 1).length")
+    assert over == 0
+    # The defense's face is its club code.
+    assert page.locator(".cards .tc.tier-dst .tc-abbr").last.inner_text() == "CIN"
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_a_starter_who_will_sit_is_named_above_the_roster_and_marked_in_it(browser, page_file):
+    ctx, page, errors = cards_page(browser, page_file)
+    # On every team: the first starter out, a bench player questionable, everyone else healthy.
+    page.evaluate("""(() => { LIVE_INJURY.players = {};
+      for (const tm of Object.values(TEAMS)){
+        const s = tm.roster.find(p => p.start && p.slug && !['K','DST'].includes(p.pos));
+        const b = tm.roster.find(p => !p.start && p.slug);
+        tm.roster.forEach(p => { p.status = null; });
+        if (s) LIVE_INJURY.players[s.slug] = {s: 'OUT', code: 'IR', note: 'Knee'};
+        if (b) LIVE_INJURY.players[b.slug] = {s: 'Q', code: 'Questionable', note: null};
+      }
+      render(); })()""")
+    page.keyboard.press("Escape")
+    warn = page.locator(".inj-warn")
+    assert warn.count() == 1 and "Knee" in warn.inner_text()
+    alert = page.locator(".cards .tc.inj-alert")
+    assert alert.count() == 1 and alert.locator(".tc-inj").inner_text() == "OUT"
+    # Questionable is only a chip, never the warning.
+    assert page.locator(".cards .tc.inj-q .tc-chip.q").count() <= 1 and page.locator(".cards .tc.inj-q.inj-alert").count() == 0
+    page.locator("[data-rmode=sheet]").click()
+    assert page.locator(".inj-warn").count() == 1 and page.locator(".row.inj-alert").count() == 1
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_weather_shows_where_it_touches_a_player_and_nowhere_covered(browser, page_file):
+    ctx, page, errors = cards_page(browser, page_file)
+    got = page.evaluate("""(() => {
+      const storm = {roof:'outdoor', wind:'15 to 20 mph', precip_pct:60, short:'Rain'};
+      const gust = {roof:'outdoor', wind:'22 mph', precip_pct:0, short:'Sunny'};
+      return {
+        kStorm: cardWeatherFx(storm, 'K'),
+        snow: cardWeatherFx({roof:'outdoor', wind:'5 mph', precip_pct:0, short:'Light Snow'}, 'QB'),
+        fair: cardWeatherFx({roof:'outdoor', wind:'3 to 8 mph', precip_pct:5, short:'Sunny'}, 'WR'),
+        dome: cardWeatherFx({roof:'dome', wind:'30 mph', precip_pct:90, short:'Snow'}, 'WR'),
+        roof: cardWeatherFx(storm, 'TE') && cardWeatherFx({...storm, roof:'retractable'}, 'TE'),
+        rbGust: cardWeatherFx(gust, 'RB'), rbGustNote: cardWeatherNote(gust, 'RB'),
+        wrGustNote: cardWeatherNote(gust, 'WR'), rbRainNote: cardWeatherNote(storm, 'RB'),
+      };
+    })()""")
+    assert "wind" in got["kStorm"] and "rain" in got["kStorm"]
+    assert "snow" in got["snow"] and "wind" not in got["snow"]
+    assert got["fair"] == "" and got["dome"] == "" and got["roof"] == ""
+    # Wind does not hurt a runner; rain gives him carries.
+    assert got["rbGust"] == "" and got["rbGustNote"] is None
+    assert got["wrGustNote"] == {"what": "WIND 22", "kind": "WIND", "effect": "pass ↓"}
+    assert got["rbRainNote"] == {"what": "RAIN 60%", "kind": "RAIN", "effect": "run ↑"}
     assert errors == []
     ctx.close()
 
@@ -91,6 +193,9 @@ def test_a_card_back_is_a_role_sheet_from_his_latest_game(browser, page_file):
     got = page.evaluate("""(() => {
       const p = TEAMS.espn.roster.find(p => WV_PROOF[p.pos] && USAGE.rows.some(r => r.slug === p.slug));
       if (!p) return null;
+      // Healthy and dry, so the heading's second line is the week (an injury or the weather outranks it).
+      if (typeof LIVE_INJURY !== 'undefined' && LIVE_INJURY) LIVE_INJURY.players = {};
+      p.status = null; if (typeof LIVE_WEATHER !== 'undefined' && LIVE_WEATHER) LIVE_WEATHER.teams = {};
       const d = document.createElement('div'); d.innerHTML = cardHTML(p, 0, 'espn');
       const last = Math.max(...USAGE.rows.filter(r => r.slug === p.slug).map(r => r.wk));
       return {stats: d.querySelectorAll('.bk-stat').length, bars: [...d.querySelectorAll('.bk-bar i')].map(i => i.style.getPropertyValue('--p')),
@@ -138,55 +243,51 @@ def test_the_pack_opens_once_a_week(browser, page_file):
     ctx, page, errors = cards_page(browser, page_file)
     if page.locator(".pack").count() == 0:
         pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
-    page.click(".pack-seal")                                   # reduced motion: the end at once
-    page.wait_for_selector(".pack-done")
-    assert page.locator(".cards .tc.pk-down").count() == 0
-    page.click(".pack-done")
+    page.click(".pack .pack-seal")                              # the page's pack puts it back on the stage
+    page.click(".pk-stage .pack-seal")                          # reduced motion: straight to the roster
+    page.wait_for_selector(".pk-stage", state="detached")
+    assert page.locator(".cards .tc.pk-slot").count() == 0
     assert page.locator(".pack").count() == 0
+    page.evaluate("render()")
+    page.wait_for_timeout(450)
+    assert page.locator(".pk-stage").count() == 0, "an opened pack never opens its stage again by itself"
     assert errors == []
     ctx.close()
 
 
 @pytest.mark.render
-def test_rip_again_puts_this_weeks_pack_back_sealed(browser, page_file):
+def test_rip_again_puts_this_weeks_pack_back_on_the_stage(browser, page_file):
     ctx, page, errors = cards_page(browser, page_file)
     if page.locator(".pack").count() == 0:
         pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
     assert page.locator("[data-rerip]").count() == 0, "nothing to rip again before the pack is opened"
-    page.click(".pack-seal")
-    page.click(".pack-done")
+    page.click(".pack .pack-seal")
+    page.click(".pk-stage .pack-seal")
+    page.wait_for_selector(".pk-stage", state="detached")
     page.click("[data-rerip]")
-    assert page.locator(".pack .pack-seal").count() == 1
-    assert page.locator("[data-rerip]").count() == 0, "the pack is on the page, so the button steps aside"
+    assert page.locator(".pk-stage .pack-seal").count() == 1
+    assert page.locator("[data-rerip]").count() == 0, "the pack is on the stage, so the button steps aside"
     assert errors == []
     ctx.close()
 
 
 @pytest.mark.render
-def test_the_pack_turns_over_in_its_own_roster_slots_and_skip_ends_it(browser, page_file):
-    from test_render import SEED
-    ctx = browser.new_context(viewport={"width": 390, "height": 844}, reduced_motion="no-preference")
-    page = ctx.new_page()
-    errors = []
-    page.on("pageerror", lambda e: errors.append(str(e)))
-    page.route(re.compile(r"^https?://"), lambda route: route.abort())
-    page.add_init_script(SEED)
-    page.goto(page_file.as_uri() + "#roster")
-    page.wait_for_function("document.getElementById('view').children.length > 0")
-    page.evaluate("VIEW='espn'; render()")
-    page.click("[data-rmode='cards']")
-    if page.locator(".pack").count() == 0:
+def test_the_stage_opens_by_itself_and_its_cards_fly_home_to_their_slots(browser, page_file):
+    ctx, page, errors = motion_page(browser, page_file)
+    try:
+        page.wait_for_selector(".pk-stage", timeout=2000)
+    except Exception:
         pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
-    page.click(".pack-seal")
-    page.wait_for_selector(".pack-live")
-    # Face down are exactly the pack's players, in their own slots (the profile index is the slot).
-    down = page.evaluate("[...document.querySelectorAll('.cards .tc.pk-down .bk-open')].map(b => +b.dataset.ci).sort((a, b) => a - b)")
+    # While the stage holds the pack, its players' slots on the page are left empty, in place.
+    empty = page.evaluate("[...document.querySelectorAll('.cards .tc.pk-slot .bk-open')].map(b => +b.dataset.ci).sort((a, b) => a - b)")
     want = page.evaluate("packCards(TEAMS.espn).map(c => c.i).sort((a, b) => a - b)")
-    assert down == want and len(want) > 0
-    assert page.locator("[data-rerip]").count() == 0, "no Rip again while the pack is turning"
-    page.click(".pk-skip")
-    page.wait_for_selector(".pack-done")
-    assert page.locator(".cards .tc.pk-down").count() == 0 and page.locator(".pk-scrim").count() == 0
+    assert empty == want and len(want) > 0
+    page.click(".pk-stage .pack-seal")
+    page.wait_for_selector(".pk-card")
+    page.keyboard.press("Escape")                               # after the rip, Escape skips to the roster
+    page.wait_for_selector(".pk-stage", state="detached", timeout=6000)
+    assert page.locator(".cards .tc.pk-slot").count() == 0 and page.locator(".pk-card").count() == 0
+    assert page.locator("[data-rerip]").count() == 1
     assert errors == []
     ctx.close()
 
@@ -204,11 +305,10 @@ def test_on_a_desktop_the_starters_are_three_by_three_with_the_bench_beside(brow
 
 @pytest.mark.render
 def test_a_short_drag_springs_back_and_a_long_one_rips(browser, page_file):
-    ctx, page, errors = cards_page(browser, page_file)
-    if page.locator(".pack").count() == 0:
+    ctx, page, errors = cards_page(browser, page_file, keep_stage=True)
+    if page.locator(".pk-stage").count() == 0:
         pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
-    seal = page.locator(".pack-seal")
-    seal.scroll_into_view_if_needed()
+    seal = page.locator(".pk-stage .pack-seal")
     box = seal.bounding_box()
     y, x = box["y"] + 14, box["x"] + 10
 
@@ -220,9 +320,10 @@ def test_a_short_drag_springs_back_and_a_long_one_rips(browser, page_file):
         page.mouse.up()
 
     drag(box["width"] * .25)
-    assert page.locator(".pack-live").count() == 0
-    assert page.evaluate("getComputedStyle(document.querySelector('.pack-seal')).getPropertyValue('--tear').trim()") in ("0", "0.000")
+    assert page.locator(".pk-stage .pack-seal").count() == 1, "a short drag does not rip"
+    assert page.evaluate("getComputedStyle(document.querySelector('.pk-stage .pack-seal')).getPropertyValue('--tear').trim()") in ("0", "0.000")
     drag(box["width"] * .7)
-    page.wait_for_selector(".pack-live")
+    page.wait_for_selector(".pk-stage", state="detached")       # reduced motion: ripped, straight to the roster
+    assert page.locator(".pack").count() == 0
     assert errors == []
     ctx.close()

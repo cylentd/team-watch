@@ -6,8 +6,8 @@
    gets neither. Android buzzes; iOS Safari has no vibrate, and the call is a no-op there. */
 const PACK_FX_COLOURS = {
   one: ["--holo-1", "--holo-2", "--holo-3", "--holo-4", "--holo-5"],
-  sig: ["--iri-1", "--iri-2", "--iri-3", "--iri-4", "--ink"],
-  sr: ["--gold-1", "--gold-2", "--ink"],
+  sig: ["--epic-1", "--epic-2", "--iri-2", "--ink"],
+
   ur: ["--gold-1", "--gold-2"],
 };
 

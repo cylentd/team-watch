@@ -25,10 +25,14 @@ ui/player.js
 ui/matchup.js
 surface/teams/board.js
 surface/teams/cards.js
+surface/teams/cardsupport.js
+surface/teams/cardweather.js
+surface/teams/injury.js
 surface/teams/cardmotion.js
 surface/teams/pack.js
 surface/teams/packfx.js
-surface/teams/packreveal.js
+surface/teams/packshow.js
+surface/teams/packdeal.js
 surface/teams/brief.js
 surface/teams/proof.js
 surface/teams/wcard.js

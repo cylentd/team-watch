@@ -35,8 +35,8 @@
    glow on the seal itself. */
 .pack-seal{touch-action:pan-y}
 .pack-glow{width:max-content;margin:0 auto;filter:drop-shadow(0 0 var(--glow-r, 0) var(--glow, transparent))}
-.pack-glow.tease-ur,.pack-glow.tease-sr{--glow:rgb(var(--gold-2-rgb) / .55);--glow-r:10px}
-.pack-glow.tease-sig{--glow:rgb(var(--iri-2-rgb) / .7);--glow-r:14px}
+.pack-glow.tease-ur{--glow:rgb(var(--gold-2-rgb) / .55);--glow-r:10px}
+.pack-glow.tease-sig{--glow:rgb(var(--epic-2-rgb) / .7);--glow-r:14px}
 .pack-glow.tease-one{--glow:rgb(var(--holo-3-rgb) / .8);--glow-r:18px}
 @media (prefers-reduced-motion:no-preference){
   .pack-glow.tease-sig,.pack-glow.tease-one{animation:pk-breathe 1.8s ease-in-out infinite alternate}

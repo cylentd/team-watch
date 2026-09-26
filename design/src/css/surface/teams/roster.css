@@ -58,7 +58,7 @@
   font-family:var(--mono);font-size:var(--t-1);font-weight:700;
 }
 .badge.q{background:var(--amber);color:var(--amber-ground)}
-.badge.o{background:var(--down);color:var(--down-ground)}
+.badge.o,.badge.d{background:var(--down);color:var(--down-ground)}
 
 .nm{grid-area:name;min-width:0}
 .nm-1{display:flex;align-items:center;gap:8px;min-width:0}
@@ -98,6 +98,7 @@
 .rproj{grid-area:proj;display:flex;align-items:center;justify-content:flex-end;gap:4px;
   font-family:var(--mono);font-weight:700;font-size:var(--t-4);font-variant-numeric:tabular-nums;color:var(--ink)}
 .rproj.none{color:var(--ink-3)}
+.rproj.out{color:var(--down);font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.08em}
 .rp-ar{width:8px;height:8px;flex-shrink:0}
 .rp-ar.up{fill:var(--up)}
 .rp-ar.down{fill:var(--down)}

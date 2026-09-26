@@ -65,6 +65,26 @@ function projFor(p){
   const proj = LIVE_PROJECTIONS.players[p.slug];
   return proj && typeof proj.pts === "number" ? proj.pts : null;
 }
+/* Sleeper's code when he is not playing this week (design/projections.py OUT_INJURY), or null. */
+function projOut(p){
+  if (typeof LIVE_PROJECTIONS === "undefined" || !LIVE_PROJECTIONS) return null;
+  const proj = LIVE_PROJECTIONS.players[p.slug];
+  return proj && proj.out ? proj.out : null;
+}
+
+/* Is he hurt this week: {s: "OUT" / "D" / "Q", code, note} from Sleeper (LIVE_INJURY,
+   design/injury.py), or null. A player Sleeper has no row for falls back to his league's own flag,
+   which says only out or not. */
+function injFor(p){
+  const r = typeof LIVE_INJURY !== "undefined" && LIVE_INJURY && p.slug ? LIVE_INJURY.players[p.slug] : null;
+  if (r) return r;
+  return p.status ? {s: p.status === "OUT" ? "OUT" : "Q", code: p.status, note: null} : null;
+}
+/* Will he likely sit: out, or doubtful. The lineup warning's test. */
+const injSits = p => { const r = injFor(p); return !!r && (r.s === "OUT" || r.s === "D"); };
+/* "OUT · Personal", "DOUBTFUL · Hamstring": the level and Sleeper's reason. */
+const INJ_WORD = {OUT: () => t("teams.inj.out"), D: () => t("teams.inj.doubtful"), Q: () => t("teams.inj.questionable")};
+const injLabel = r => r.note ? t("teams.inj.withNote", {s: INJ_WORD[r.s](), note: esc(r.note)}) : INJ_WORD[r.s]();
 
 /* The roster row's one number at every width: projected points in the ink colour, with a small
    arrow in the trend line's colour (2026-09-25). The pill used to be filled with that colour, which
@@ -72,7 +92,9 @@ function projFor(p){
    a flat or missing line draws no arrow. */
 function projNumHTML(p){
   const pts = projFor(p);
-  if (pts === null) return `<div class="rproj none">—</div>`;
+  if (pts === null) return projOut(p)
+    ? `<div class="rproj none out" title="${t("teams.card.outTip", {code: esc(projOut(p))})}">${t("teams.card.out")}</div>`
+    : `<div class="rproj none">—</div>`;
   const dir = trendDir(p.trend);
   const arrow = dir === "flat" ? "" : `<svg class="rp-ar ${dir}" viewBox="0 0 8 8" aria-hidden="true"><path d="${dir === "up" ? "M4 1 7.5 7h-7z" : "M4 7 .5 1h7z"}"/></svg>`;
   return `<div class="rproj">${pts.toFixed(1)}${arrow}</div>`;

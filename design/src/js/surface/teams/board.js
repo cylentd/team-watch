@@ -5,8 +5,10 @@
    the slot and the line and go two to a row on a phone; on a desktop the bench sits beside the
    starters. The rank and the market are the profile's; news is the brief's. */
 function rowHTML(p, i, teamKey){
-  const cls = p.slot === "OUT" ? "out" : p.start ? "start" : "bench";
-  const badge = p.status ? `<span class="badge ${p.status==="OUT"?"o":"q"}">${p.status==="OUT"?"!":"Q"}</span>` : "";
+  const cls = (p.slot === "OUT" ? "out" : p.start ? "start" : "bench") + injClass(p);
+  // The injury badge on the head: ! out, D doubtful, Q questionable; the reason is its tooltip.
+  const inj = injFor(p);
+  const badge = inj ? `<span class="badge ${{OUT: "o", D: "d", Q: "q"}[inj.s]}" title="${injLabel(inj)}">${{OUT: "!", D: "D", Q: "Q"}[inj.s]}</span>` : "";
   const rd = 40+i*24;
   const snap = p.trend ? t("teams.row.snapTip", {n: Math.round(p.trend[p.trend.length-1])}) : t("teams.row.snapNone");
   return `<div class="row ${cls}" style="animation-delay:${rd}ms;--rowdelay:${rd}ms" data-team="${teamKey}" data-i="${i}" role="button" tabindex="0">
@@ -45,7 +47,7 @@ function boardHTML(team){
     </div>
     <div class="board ${key === "start" ? "" : "two"}">${list.map(p=>rowHTML(p, n++, team.key)).join("")}</div>`;
   const [start, ...rest] = groups[0] && groups[0][0] === "start" ? groups : [null, ...groups];
-  return `<div class="sheet">
+  return `${injWarnHTML(team)}<div class="sheet">
     ${start ? `<section class="sheet-col">${group(start)}</section>` : ""}
     ${rest.length ? `<section class="sheet-col">${rest.map(group).join("")}</section>` : ""}
   </div>`;

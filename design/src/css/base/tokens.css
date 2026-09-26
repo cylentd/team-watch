@@ -130,6 +130,17 @@
   --iri-3-rgb:242 207 174;
   --iri-4:#b3f0d4;
   --iri-4-rgb:179 240 212;
+  /* Epic and uncommon frames (2026-09-25). The tiers used gold twice and silver beside plain grey,
+     so two cards a tier apart looked alike; each tier is now its own colour family: holo, violet,
+     gold, blue, plain. */
+  --epic-1:#4a2fb8;
+  --epic-1-rgb:74 47 184;
+  --epic-2:#b9a4ff;
+  --epic-2-rgb:185 164 255;
+  --uncommon-1:#1f4f8f;
+  --uncommon-1-rgb:31 79 143;
+  --uncommon-2:#8cc2ff;
+  --uncommon-2-rgb:140 194 255;
   /* The #1 card's holo (2026-09-25): the pearl's hues at full strength. Saturated on purpose, since
      it is one card a week at most, so a full spectrum reads as foil there rather than as a code. */
   --holo-1:#5ef2ff;

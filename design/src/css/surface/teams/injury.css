@@ -1,0 +1,35 @@
+/* ============================== ROSTER: WHO IS HURT ============================== */
+/* 2026-09-25 (js/surface/teams/injury.js, injFor in js/ui/player.js). Three levels from Sleeper:
+   OUT and doubtful are red (he will likely sit), questionable amber (he will likely play). A
+   starter who will likely sit is named in the strip above the roster and marked where he stands,
+   Sheet or Cards, so the warning and the lineup point at the same people. */
+
+/* The strip above the roster. */
+.inj-warn{display:flex;align-items:flex-start;gap:10px;margin:12px 0 0;padding:10px 12px;border-radius:8px;
+  border:1px solid rgb(var(--down-rgb) / .45);background:rgb(var(--down-rgb) / .1);font-size:var(--t-2);color:var(--ink-2)}
+.inj-warn svg{flex:none;width:18px;height:18px;margin-top:1px;fill:none;stroke:var(--down);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.inj-warn circle{fill:var(--down)}
+.inj-warn p{margin:0;line-height:1.45}
+.inj-warn strong{color:var(--down);margin-right:4px}
+.inj-warn b{color:var(--ink)}
+.inj-warn i{font-style:normal;margin:0 6px;color:var(--ink-3)}
+
+/* The sheet: an out player's photo goes grey; a starter who will likely sit gets a red edge and wash. */
+.row.inj-out .head img{filter:grayscale(1);opacity:.55}
+.row.inj-alert{box-shadow:-3px 0 0 var(--down);background:rgb(var(--down-rgb) / .08)}
+
+/* A card: out greys the photo; out and doubtful lay a band across its foot. The band is the level
+   alone ("OUT · PERSONAL" did not fit a phone card); the reason is on the back and in the strip. */
+.tc.inj-out .tc-art > .head{filter:grayscale(1) brightness(.7)}
+.tc.inj-d .tc-art > .head{filter:saturate(.45)}
+.tc-inj{position:absolute;z-index:3;left:0;right:0;bottom:0;padding:3px 4px;text-align:center;
+  font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--down-ground);background:var(--down)}
+.tc-chip.q{left:4px;bottom:4px;color:var(--amber-ground);background:var(--amber)}
+/* A starter who will likely sit: a red ring that breathes, outside the tier's frame. */
+.tc.inj-alert::after{content:"";position:absolute;inset:-4px;border-radius:13px;border:2px solid var(--down);pointer-events:none}
+@media (prefers-reduced-motion:no-preference){ .tc.inj-alert::after{animation:inj-pulse 1.6s ease-in-out infinite alternate} }
+@keyframes inj-pulse{from{opacity:1}to{opacity:.3}}
+/* The back's second line in the level's colour. */
+.bk-inj{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--down);text-transform:uppercase;font-family:var(--mono);font-weight:700}
+.bk-inj.q{color:var(--amber)}

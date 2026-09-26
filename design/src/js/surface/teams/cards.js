@@ -1,16 +1,16 @@
 /* The roster as trading cards (2026-09-25), the Cards half of the Sheet / Cards switch. A card's
    tier is this week's projected rank at his position (LIVE_PROJECTIONS rank/of, design/projections.py),
-   never a hand pick: #1 holo, #2-5 signed, #6-8 glitter, #9-12 gold, #13-24 silver, the rest plain
-   (bands below). The back prints the rank in words ("#7 RB"), never a tier code. A kicker and a
-   defense have no projection, so no tier: they are support cards whose art is the matchup. Tap flips
-   a card; its back carries the trend line the front leaves out and the way into the profile. */
-/* Tiers widened 2026-09-25, still earned by rank alone, never by being a roster's best: #1 is its
-   own tier ("one": a moving holographic frame and foil), #2-5 signed, #6-8 glitter, #9-12 gold.
-   Only #1 was signed before, and most rosters never hold one. A roster with nobody in the top
-   five gets no signature card: that is the news, not a gap to fill. */
+   never a hand pick. The back prints the rank in words ("#7 RB"), never a tier code. A kicker and
+   a defense have no projection, so no tier: they are support cards whose art is the matchup. A
+   player not playing this week has no rank, so no tier either. Tap flips a card; its back carries
+   the role stats the front leaves out and the way into the profile. */
+/* Five tiers, each its own colour family (2026-09-25; earned by rank alone, never by being a
+   roster's best):  #1 "one" holo · #2-5 "sig" violet, signed · #6-12 "ur" gold · #13-24 "r" blue ·
+   the rest "c" plain. It had gold twice and silver beside grey, so neighbouring tiers looked alike.
+   A roster with nobody in the top five gets no signed card: that is the news, not a gap to fill. */
 function cardTier(rank){
   if (!rank) return "c";
-  return rank === 1 ? "one" : rank <= 5 ? "sig" : rank <= 8 ? "sr" : rank <= 12 ? "ur" : rank <= 24 ? "r" : "c";
+  return rank === 1 ? "one" : rank <= 5 ? "sig" : rank <= 12 ? "ur" : rank <= 24 ? "r" : "c";
 }
 function cardRank(p){
   if (typeof LIVE_PROJECTIONS === "undefined" || !LIVE_PROJECTIONS) return null;
@@ -47,18 +47,28 @@ function cardTeamRow(block, team){
 const cardLines = team => cardTeamRow(typeof LIVE_LINES !== "undefined" ? LIVE_LINES : null, team);
 const cardMatchup = (team, g) => g ? `${team} ${g.home ? "vs" : "@"} ${g.opp}` : team;
 
-/* The front says four things: slot, points, who, and the game. The rank is the back's first line
-   and the frame's colour, so the front no longer prints it (2026-09-25: a fifth line, and the
-   position a second time, is what made a phone row of three read as crowded). */
-function cardFront(p, tier, g){
+/* The front says four lines: slot and points, who, and the game, and a small stamp in the photo's
+   corner gives the rank ("#7") in the tier's colour. The rank as a text line was dropped earlier the
+   same day (a fifth line made a phone row of three crowded); the stamp keeps two cards of one tier
+   apart without the line. */
+function cardFront(p, tier, g, rank){
   const pts = projFor(p);
-  const sig = tier === "sig" || tier === "one" ? `<span class="tc-sig">${esc(p.n)}</span>` : "";
-  // Behind the photo: glitter (#2-3), the pearl etch (signature), or the #1's holo foil and glitter.
-  const foil = {sr: `<i class="tc-spark"></i>`, sig: `<i class="tc-etch"></i>`, one: `<i class="tc-holo"></i><i class="tc-spark"></i>`}[tier] || "";
+  // Hurt: out or doubtful is a band across the foot of the photo, in place of the signature, with
+  // the reason as its tooltip; questionable is a small Q in the corner (injury.js, 2026-09-25).
+  const inj = injFor(p), band = inj && inj.s !== "Q";
+  const hurt = !inj ? "" : band ? `<span class="tc-inj ${inj.s.toLowerCase()}" title="${injLabel(inj)}">${INJ_WORD[inj.s]()}</span>`
+    : `<span class="tc-chip q" title="${injLabel(inj)}">${t("teams.inj.q")}</span>`;
+  const sig = !band && (tier === "sig" || tier === "one") ? `<span class="tc-sig">${esc(p.n)}</span>` : "";
+  // Behind the photo: the violet etch (#2-5), or the #1's holo foil and glitter.
+  const foil = {sig: `<i class="tc-etch"></i>`, one: `<i class="tc-holo"></i><i class="tc-spark"></i>`}[tier] || "";
+  const stamp = rank ? `<span class="tc-rank" title="${t("teams.card.rank", {n: rank, pos: esc(p.pos)})}">${t("teams.card.rankStamp", {n: rank})}</span>` : "";
+  // Weather that touches him: moving over the art, and its chip in the other top corner.
+  const w = inj && inj.s === "OUT" ? null : cardWeather(g), wx = cardWeatherNote(w, p.pos);
+  const sky = wx ? `${cardWeatherFx(w, p.pos)}<span class="tc-chip wx" title="${t("teams.card.wxTip", wx)}">${wx.what}</span>` : "";
   return `<div class="tc-face tc-front">
-      <div class="tc-top"><span>${esc(p.start ? slotLabel(p.slot) : p.pos)}</span><span class="tc-num">${pts === null ? "—" : pts.toFixed(1)}</span></div>
-      <div class="tc-art pos-${esc(p.pos)}">${foil}
-        <div class="head">${cardHeadHTML(p)}</div>${sig}</div>
+      <div class="tc-top"><span>${esc(p.start ? slotLabel(p.slot) : p.pos)}</span><span class="tc-num${projOut(p) ? " out" : ""}">${pts !== null ? pts.toFixed(1) : projOut(p) ? t("teams.card.out") : "—"}</span></div>
+      <div class="tc-art pos-${esc(p.pos)}">${foil}${sky}${stamp}
+        <div class="head">${cardHeadHTML(p)}</div>${sig}${hurt}</div>
       <div class="tc-name">${esc(nameInitial(p.n))}</div>
       <div class="tc-meta">${esc(cardMatchup(p.team, g))}</div>
     </div>`;
@@ -88,44 +98,17 @@ function cardStats(p){
   }).join("")}</div>`;
   return {html, wk: row.wk};
 }
-function cardBack(p, rank, teamKey, i){
-  const stats = cardStats(p);
-  return `<div class="tc-face tc-back">
-      <div class="bk-why"><b>${rank ? t("teams.card.rank", {n: rank, pos: esc(p.pos)}) : esc(p.pos)}</b>${stats ? t("teams.card.roleWeek", {wk: stats.wk}) : t("teams.card.thisWeek")}</div>
+/* The heading's second line is what matters most this week: his injury ("OUT · Personal"), else
+   the weather when it touches him ("RAIN · pass ↓"), else which week the stats are from. */
+function cardBack(p, rank, teamKey, i, g){
+  const stats = cardStats(p), inj = injFor(p);
+  const wx = inj && inj.s === "OUT" ? null : cardWeatherNote(cardWeather(g), p.pos);
+  const sub = inj ? `<span class="bk-inj ${inj.s.toLowerCase()}" title="${injLabel(inj)}">${injLabel(inj)}</span>`
+    : wx ? `<span class="bk-wx" title="${t("teams.card.wxTip", wx)}">${t("teams.card.wxNote", wx)}</span>`
+    : `<span>${stats ? t("teams.card.roleWeek", {wk: stats.wk}) : t("teams.card.thisWeek")}</span>`;
+  return `<div class="tc-face tc-back pos-${esc(p.pos)}">
+      <div class="bk-why"><b>${rank ? t("teams.card.rank", {n: rank, pos: esc(p.pos)}) : esc(p.pos)}</b>${sub}</div>
       ${stats ? stats.html : `<div class="bk-l">${t("teams.card.snap")}</div><div class="bk-sp">${sparkHTML(p.trend, 110, 28)}</div>`}
-      <button class="bk-open" type="button" data-cteam="${teamKey}" data-ci="${i}">${t("teams.card.profile")}</button>
-    </div>`;
-}
-
-/* Support cards. The kicker's art is his venue: turf, the posts, the roof and the wind (today's
-   forecast at the home stadium, LIVE_WEATHER). The defense's is its colours and the opponent's
-   implied points (LIVE_LINES), where lower is better for you. */
-const CARD_POSTS = `<svg class="tc-posts" viewBox="0 0 58 40" aria-hidden="true"><path d="M6 4v20M52 4v20M6 24h46M29 24v16"/></svg>`;
-function supportArt(p, g){
-  if (p.pos === "K"){
-    const w = g ? cardTeamRow(typeof LIVE_WEATHER !== "undefined" ? LIVE_WEATHER : null, g.venue) : null;
-    // One chip, the one that decides a kick: a roof means no wind at all; otherwise the wind.
-    const chip = !w ? t("teams.card.noForecast") : w.roof === "dome" ? t("teams.card.dome")
-      : w.wind ? t("teams.card.wind", {w: esc(w.wind), d: esc(w.wind_dir || "")}) : cardRoof(w);
-    return `${CARD_POSTS}<div class="head">${cardHeadHTML(p)}</div><span class="tc-chip r">${chip}</span>`;
-  }
-  const opp = g ? cardLines(g.opp) : null;
-  return `<span class="tc-abbr">${esc(p.team)}</span>
-    <div class="tc-imp">${opp ? `<b>${opp.implied}</b><span>${t("teams.card.implied", {team: esc(g.opp)})}</span>` : `<span>${t("teams.card.noLine")}</span>`}</div>`;
-}
-const cardRoof = w => w.roof === "dome" ? t("teams.card.dome") : w.roof === "retractable" ? t("teams.card.retractable") : t("teams.card.outdoor");
-function supportBack(p, g, teamKey, i){
-  const opp = g ? cardLines(g.opp) : null, mine = cardLines(p.team);
-  const w = g ? cardTeamRow(typeof LIVE_WEATHER !== "undefined" ? LIVE_WEATHER : null, g.venue) : null;
-  const rows = p.pos === "K"
-    ? [[t("teams.card.roof"), w ? cardRoof(w) : "—"],
-       [t("teams.card.windLabel"), w && w.wind && w.roof !== "dome" ? `${w.wind} ${w.wind_dir || ""}` : "—"],
-       [t("teams.card.teamImplied"), mine ? String(mine.implied) : "—"]]
-    : [[t("teams.card.oppImplied"), opp ? String(opp.implied) : "—"], [t("teams.card.spread"), mine ? `${p.team} ${mine.spread > 0 ? "+" : ""}${mine.spread}` : "—"]];
-  return `<div class="tc-face tc-back">
-      <div class="bk-why"><b>${p.pos === "K" ? t("teams.card.kicking") : t("teams.card.defending")}</b>${esc(cardMatchup(p.team, g))}</div>
-      ${rows.map(([l, v]) => `<div class="bk-l">${l}</div><div class="bk-m">${esc(v)}</div>`).join("")}
-      ${p.pos === "DST" ? `<div class="bk-note">${t("teams.card.lowerBetter")}</div>` : ""}
       <button class="bk-open" type="button" data-cteam="${teamKey}" data-ci="${i}">${t("teams.card.profile")}</button>
     </div>`;
 }
@@ -143,9 +126,9 @@ function cardHTML(p, i, teamKey){
         <div class="tc-name">${esc(p.pos === "K" ? nameInitial(p.n) : p.n)}</div>
         <div class="tc-meta">${p.pos === "K" ? t("teams.card.kicker", {team: esc(p.team)}) : t("teams.card.defense", {team: esc(p.team)})}</div>
       </div>`
-    : cardFront(p, tier, g);
-  return `<div class="tc tier-${tier}" ${colours} role="button" tabindex="0" aria-label="${t("teams.card.flip", {name: esc(p.n)})}">
-    <div class="tc-flip">${front}${support ? supportBack(p, g, teamKey, i) : cardBack(p, rank, teamKey, i)}</div>
+    : cardFront(p, tier, g, rank);
+  return `<div class="tc tier-${tier}${support ? "" : injClass(p)}" ${colours} role="button" tabindex="0" aria-label="${t("teams.card.flip", {name: esc(p.n)})}">
+    <div class="tc-flip">${front}${support ? supportBack(p, g, teamKey, i) : cardBack(p, rank, teamKey, i, g)}</div>
     <div class="tc-glare"></div>
   </div>`;
 }
@@ -158,7 +141,7 @@ function cardsHTML(team){
   // While this week's pack is turning over, its cards are drawn face down in their slots (packreveal.js).
   const grid = list => `<div class="cardgrid">${list.map(p => { const i = n++; return packFaceDown(team, i, cardHTML(p, i, team.key)); }).join("")}</div>`;
   const rule = (label, count) => `<div class="rule"><h2>${label}</h2><span class="count">${String(count).padStart(2,"0")}</span><span class="hair"></span></div>`;
-  return `<div class="cards">
+  return `${injWarnHTML(team)}<div class="cards">
     <section class="cards-col">${rule(t("teams.group.starters"), start.length)}${grid(start)}</section>
     ${rest.length ? `<section class="cards-col bench">${rule(t("teams.group.bench"), rest.length)}${grid(rest)}</section>` : ""}
   </div>`;

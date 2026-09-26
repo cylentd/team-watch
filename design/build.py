@@ -27,6 +27,7 @@ from schedule import load_schedule, report as schedule_report  # when Live may p
 from pedigree import live_pedigree, report as pedigree_report   # design/pedigree.py: the profile modal's bio strip
 from gamelog import live_gamelog, report as gamelog_report      # design/gamelog.py: the profile modal's weekly history
 from projections import live_projections, report as projections_report  # design/projections.py: projected vs actual
+from injury import live_injury, report as injury_report  # design/injury.py: who is out, doubtful, questionable
 from lines import live_lines, report as lines_report  # design/lines.py: implied points per team
 from routes import live_routes, report as routes_report          # design/routes.py: the profile sheet's YPRR axis
 from archetype import (                                           # design/archetype.py: role/style labels + OL context
@@ -731,7 +732,8 @@ def render():
         "LIVE_SCHEDULE": load_schedule(DWR),
         "LIVE_PEDIGREE": live_pedigree(load_status(), load_draft_pedigree(), slugify, wanted_set),
         "LIVE_GAMELOG": live_gamelog(load_gamelog_weekly(), slugify, wanted_set),
-        "LIVE_PROJECTIONS": live_projections(load_player_proj(), slugify, wanted_set),
+        "LIVE_PROJECTIONS": live_projections(load_player_proj(), slugify, wanted_set, load_status()),
+        "LIVE_INJURY": live_injury(load_status(), slugify, wanted_set),
         "LIVE_WEATHER": load_weather(),
         "LIVE_LINES": live_lines(load_dfs_pool(), TEAM_FIX),
         "LIVE_ROUTES": live_routes(load_routes(), slugify, wanted_set),
@@ -743,7 +745,7 @@ def render():
     report += [pedigree_report(blocks["LIVE_PEDIGREE"]), gamelog_report(blocks["LIVE_GAMELOG"]),
               projections_report(blocks["LIVE_PROJECTIONS"]), routes_report(blocks["LIVE_ROUTES"]),
               report_archetype(blocks["LIVE_ARCHETYPE"]), report_trenches(blocks["LIVE_TRENCHES"]),
-              lines_report(blocks["LIVE_LINES"]),
+              lines_report(blocks["LIVE_LINES"]), injury_report(blocks["LIVE_INJURY"]),
               (f"Weather: {len(blocks['LIVE_WEATHER']['teams'])} teams" if blocks["LIVE_WEATHER"]
                else "Weather: none, so no game-day forecast")]
     for name, obj in blocks.items():
