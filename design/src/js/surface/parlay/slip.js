@@ -8,6 +8,21 @@ function slipText(picks){
   return lines.join("\n") + `\n${t("parlay.copy.footer", {lines: LIVE_MARKET ? t("parlay.copy.lines", {when: LIVE_MARKET.fetched}) : t("parlay.copy.sampleLines")})}`;
 }
 
+/* The payout box (2026-09-25): the multiplier the Underdog app quotes for this slip, boosts and
+   discounts included, filled with the standard board until the reader types one. The verdict under
+   it is the graded chance against that number, and updates as they type (wireBets). */
+function betsVerdictHTML(legs){
+  const x = betsPayout(legs), p = udChance(legs);
+  return x > 1 ? slipVerdict(p * x, t("parlay.slip.vsPayout", {x}), (p*100).toFixed(1), (100/x).toFixed(1))
+    : `<span class="tk-flag">${t("parlay.slip.typePay")}</span>`;
+}
+function betsPayHTML(legs){
+  const x = betsPayout(legs);
+  return `<label class="paybox"><span>${t("parlay.slip.appPays")}</span>
+      <input data-bpay inputmode="decimal" autocomplete="off" value="${x ? x : ""}" placeholder="${t("parlay.slip.payHint")}"><i>×</i></label>
+    <div class="payverdict" data-bpayv>${betsVerdictHTML(legs)}</div>`;
+}
+
 function slipHTML(){
   const legs = SLIP.map(i=>PROPS[i]);
   const games = legs.map(l=>l.game);
@@ -38,8 +53,7 @@ function slipHTML(){
     <div class="payout">
       <span class="lbl">${t("parlay.slip.allHit")}</span>
       <div class="bigedge">${udP === null ? "—" : `${(udP*100).toFixed(1)}%`}</div>
-      <div class="payrow"><span>${t("parlay.slip.be6")}</span><b>16.7%</b></div>
-      <div class="payrow"><span>${t("parlay.slip.be3")}</span><b>33.3%</b></div>
+      ${legs.length >= 2 ? betsPayHTML(legs) : ""}
       <div class="payrow"><span>${legs.some(l=>udPick(l).synthetic) ? t("parlay.slip.tdModelRead") : t("parlay.slip.udLine")}</span><b>${legs.some(l=>udPick(l).synthetic) ? t("parlay.slip.notUdPrice") : t("parlay.slip.notDk")}</b></div>
       <button class="btn" data-copy="picks" style="width:100%;margin-top:14px" ${legs.length ? "" : "disabled"}>${t("parlay.slip.copyPicks")}</button>
     </div>

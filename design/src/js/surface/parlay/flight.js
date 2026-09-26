@@ -132,5 +132,12 @@ function wireBets(v){
   }));
   v.querySelectorAll("[data-tray]").forEach(b => b.addEventListener("click", betsSheetOpen));
   v.querySelectorAll("[data-sheetclose]").forEach(b => b.addEventListener("click", betsSheetClose));
+  // The typed payout belongs to this exact slip; only the verdict redraws, so the field keeps focus.
+  v.querySelectorAll("[data-bpay]").forEach(el => el.addEventListener("input", () => {
+    const x = parseFloat(el.value.replace(",", "."));
+    BETS_PAY = x > 1 ? {sig: slipSig(), x} : {sig: slipSig(), x: null};
+    const out = v.querySelector("[data-bpayv]");
+    if (out) out.innerHTML = betsVerdictHTML(betsSlipLegs());
+  }));
 }
 document.addEventListener("keydown", e => { if (e.key === "Escape" && BETS_SHEET) betsSheetClose(); });

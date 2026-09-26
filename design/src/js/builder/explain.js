@@ -42,6 +42,7 @@ function explainBody(kind){
         <li>${t("parlay.explain.step3")}</li>
       </ol>
       <p class="ex-note">${t("parlay.explain.tags")}</p>
+      <p class="ex-note">${t("parlay.explain.long")}</p>
       <p class="ex-note">${t("parlay.explain.note")}</p>`
       : `<ol>
         <li>${t("dfs.explain.step1")}</li>

@@ -74,10 +74,14 @@ def test_every_underdog_slip_says_its_verdict(browser, page_file):
     slips = page.locator(".ticket")
     if slips.count() == 0:
         pytest.skip("the fixture's market builds no gallery slip")
+    board = {2: 3, 3: 6, 4: 10, 5: 20}
     for i in range(slips.count()):
         s = slips.nth(i)
         pct = float(s.locator(".tk-head b").inner_text().rstrip("%"))
-        x = 3 if s.locator(".tk-leg").count() == 2 else 6
+        if "stack" in s.locator(".tk-top").inner_text():
+            assert s.locator(".tk-flag").filter(has_text="Type the app's payout").count() == 1
+            continue
+        x = board[s.locator(".tk-leg").count()]
         pill = s.locator(".tk-flag[title]")
         assert pill.count() == 1
         ratio = pct / 100 * x
@@ -88,6 +92,49 @@ def test_every_underdog_slip_says_its_verdict(browser, page_file):
     assert page.locator(".tk-grid").evaluate("() => GALLERIES.dk.length") == 0 or \
         page.evaluate("PARLAY_BOOK='dk'; render(); document.querySelectorAll('.ticket .tk-flag[title]').length") == 0, \
         "DraftKings slips carry no verdict: graded, the model's +EV overs lost"
+    assert errors == []
+    ctx.close()
+
+
+def test_the_typed_payout_decides_the_verdict(browser, page_file):
+    """The sheet takes the multiplier the Underdog app quotes (2026-09-25): it starts at the
+    standard board, the verdict follows what is typed without the field losing focus, and the
+    number belongs to that slip only."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    page.evaluate("SURFACE='parlay'; PARLAY_BOOK='underdog'; render()")
+    if page.locator(".ticket").count() == 0:
+        pytest.skip("the fixture's market builds no gallery slip")
+    page.locator(".ticket .ticket-cta").first.click()
+    page.locator("[data-tray]").click()
+    n = page.evaluate("SLIP.length")
+    box = page.locator("[data-bpay]")
+    assert box.input_value() == str({2: 3, 3: 6, 4: 10, 5: 20}[n])
+    box.fill("1.5")
+    assert page.locator("[data-bpayv]").inner_text().startswith("Short of the 1.5× payout")
+    assert page.evaluate("document.activeElement.hasAttribute('data-bpay')")
+    box.fill("500")
+    assert page.locator("[data-bpayv]").inner_text().startswith("Beats the 500× payout")
+    page.evaluate("SLIP = SLIP.slice(0, -1)")
+    assert page.evaluate("betsPayout(betsSlipLegs())") == {1: None, 2: 3, 3: 6, 4: 10}[n - 1], \
+        "a changed slip goes back to the board"
+    assert errors == []
+    ctx.close()
+
+
+def test_a_stack_counts_at_its_graded_joint_rate(browser, page_file):
+    """A QB and his top two receivers, all lower, hit together 23.1% (ff-jarvis 12.32), not the
+    product of three legs, and a stack gets no standard payout."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    got = page.evaluate("""(() => {
+      const qb = PROPS.find(p => p.mkt === 'PASS' && isLower(p) && stackOf(p) && stackOf(p).every(isLower));
+      if (!qb) return null;
+      const s = stackOf(qb);
+      return {chance: udChance(s), pay: betsPayout(s), inside: stackIn(s) !== null};
+    })()""")
+    if got is None:
+        pytest.skip("the fixture has no all-lower stack")
+    assert abs(got["chance"] - 0.231) < 1e-9
+    assert got["pay"] is None and got["inside"]
     assert errors == []
     ctx.close()
 

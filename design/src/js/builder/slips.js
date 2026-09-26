@@ -46,21 +46,7 @@ const UD_MIN = 58;
    from week 5 on and blocked the winning side before it. In-sample: the split was found in the
    same 2025 data, and no other season's closing lines are on disk to check it against. */
 const HIT_RECS = 65, HIT_TD = 50;
-/* What a leg actually hit when graded, which a slip's chance is built from (2026-09-25), since the
-   model's receptions confidence runs ~8 points high (12.51: lower stated 65.4, hit 56.3; lower at
-   65%+ hit 57.3; higher stated 61.9, hit 42.3). A receptions pick counts at its side's graded rate,
-   never above its own confidence; a touchdown at its P(score), which grading found honest. */
-const GRADED = {lowerAtFloor: 57.3, lower: 56.3, higher: 42.3};
-function legHit(p){
-  const u = udPick(p);
-  if (p.mkt === "TD" || u.synthetic) return u.conf;
-  const g = u.pick === "higher" ? GRADED.higher : u.conf >= HIT_RECS ? GRADED.lowerAtFloor : GRADED.lower;
-  return Math.min(u.conf, g);
-}
-/* A slip's graded chance to hit every leg, and that against what its flat board pays (2-pick 3x,
-   3-pick 6x): above 1 the slip beats its payout. */
-const udPayout = n => n === 2 ? 3 : 6;
-const udChance = legs => legs.reduce((a,l) => a * legHit(l) / 100, 1);
+/* A leg's graded chance, the payout board and stacks live in builder/grade.js. */
 const legOKInBook = (p, s, book) => {
   if (!upcoming(p)) return false;
   if (book !== "underdog")
@@ -77,14 +63,19 @@ const legOKInBook = (p, s, book) => {
     && (p.games||0) >= 8 && playing(p) && !u.stale && scopeOK(p, s);
 };
 /* The non-TD scope is "yards" inside (scopeOK), but on Underdog it only ever holds receptions. */
+/* Underdog adds Long (4-5 picks, 2026-09-25: a long slip is worth it when every leg is, and the
+   payout grows faster than the chance falls) and Stacks (a QB with his receivers, grade.js). */
 const galleryScopes = book => [["all",t("parlay.scope.all")],
   ["yards", book === "underdog" ? t("parlay.scope.recs") : t("parlay.scope.yards")],
-  ["tds",t("parlay.scope.tds")],["mix",t("parlay.scope.mix")]];
-const legMetric = (book) => book === "underdog" ? (p => udPick(p).conf) : (p => p.edge);
-function pickLegs(cands, key, allowSameGame){
+  ["tds",t("parlay.scope.tds")],["mix",t("parlay.scope.mix")],
+  ...(book === "underdog" ? [["long",t("parlay.scope.long")],["stack",t("parlay.scope.stack")]] : [])];
+const LONG_LEGS = 5;
+/* Underdog legs rank by graded chance, the model's confidence breaking ties. */
+const legMetric = (book) => book === "underdog" ? (p => legHit(p) + udPick(p).conf / 1000) : (p => p.edge);
+function pickLegs(cands, key, allowSameGame, n = SLIP_LEGS){
   const seenG = new Set(), seenP = new Set(), out = [];
   cands.sort((a,b) => key(b[0]) - key(a[0])).forEach(([p,i]) => {
-    if (out.length < SLIP_LEGS && (allowSameGame || !seenG.has(p.game)) && !seenP.has(p.n)){
+    if (out.length < n && (allowSameGame || !seenG.has(p.game)) && !seenP.has(p.n)){
       seenG.add(p.game); seenP.add(p.n); out.push(i);
     }
   });
@@ -104,12 +95,14 @@ const legLowInBook = (p, s, book) => {
   return !!u && !u.stale && (p.mkt === "TD" || (p.mkt === "RECS" && !u.synthetic));
 };
 function slipFrom(ok, scope, win, book){
-  const cands = PROPS.map((p,i)=>[p,i]).filter(([p]) => ok(p, scope, book) && inWin(p, win));
+  // A long card draws from the mix pool, five picks, one per game, never a same-game fallback.
+  const long = scope === "long";
+  const cands = PROPS.map((p,i)=>[p,i]).filter(([p]) => ok(p, long ? "mix" : scope, book) && inWin(p, win));
   const games = new Set(cands.map(([p]) => p.game)).size;
   // A single-game window (a Thu/Sun/Mon night with one game on the slate) can never fill three
   // legs under the one-leg-per-game rule -- allow it there; the `.corr` warning already tells
   // the reader it is a same-game parlay and to price it as one.
-  return pickLegs(cands, legMetric(book), games > 0 && games < SLIP_LEGS);
+  return pickLegs(cands, legMetric(book), !long && games > 0 && games < SLIP_LEGS, long ? LONG_LEGS : SLIP_LEGS);
 }
 const bestSlipIn = (scope, win, book) => slipFrom(legOKInBook, scope, win, book);
 function mineSlip(book){
@@ -143,19 +136,30 @@ function buildGallery(book){
   const scopes = galleryScopes(book).filter(([k]) => k !== "all");
   const metric = legMetric(book);
   const out = [], seen = new Set();
-  for (const w of GAL_WINDOWS) for (const [s, label] of scopes){
-    let legs = bestSlipIn(s, w, book), low = false;
-    if (legs.length < 2){ legs = slipFrom(legLowInBook, s, w, book); low = true; }
-    if (legs.length < 2) continue;
+  const add = (s, label, w, legs, low) => {
     const sig = legs.slice().sort((a,b)=>a-b).join(",");
-    if (seen.has(sig)) continue;
+    if (seen.has(sig)) return;
     seen.add(sig);
     // The star goes to the best return, not the safest slip: on Underdog the graded chance times
-    // the payout (David, 2026-09-25: the point is the edge, not the hit rate).
-    const ps = legs.map(i => PROPS[i]);
+    // the payout (David, 2026-09-25: the point is the edge, not the hit rate). A stack's payout is
+    // unknown until the app quotes it, so a stack is never the star.
+    const ps = legs.map(i => PROPS[i]), x = s === "stack" ? null : udPayout(ps.length);
     out.push({book, scope: s, scopeLabel: label, win: w, legs, low,
-               metric: book === "underdog" ? udChance(ps) * udPayout(ps.length)
-                 : ps.reduce((a,p)=>a+metric(p), 0) / ps.length});
+               metric: book !== "underdog" ? ps.reduce((a,p)=>a+metric(p), 0) / ps.length
+                 : x ? udChance(ps) * x : -1});
+  };
+  for (const w of GAL_WINDOWS) for (const [s, label] of scopes){
+    // One card per stack: the whole day is built first, so a window repeating its QB is dropped.
+    if (s === "stack"){
+      stackCards(w).filter(legs => !seen.has(`qb:${legs[0]}`))
+        .forEach(legs => { seen.add(`qb:${legs[0]}`); add(s, label, w, legs, false); });
+      continue;
+    }
+    let legs = bestSlipIn(s, w, book), low = false;
+    if (s === "long"){ if (legs.length >= 4) add(s, label, w, legs, false); continue; }
+    if (legs.length < 2){ legs = slipFrom(legLowInBook, s, w, book); low = true; }
+    if (legs.length < 2) continue;
+    add(s, label, w, legs, low);
   }
   // The next game first (David, 2026-09-16: "the upcoming game slip should be first"): by the
   // earliest kickoff among a card's legs, a single-window card ahead of the whole day it sits in,

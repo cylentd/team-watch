@@ -74,6 +74,7 @@ surface/chat/context.js
 surface/chat/chat.js
 data/market.js
 lib/odds.js
+builder/grade.js
 builder/slips.js
 data/dfs.js
 data/search.js

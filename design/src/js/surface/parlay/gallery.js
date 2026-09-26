@@ -57,10 +57,11 @@ function presetCard(card, bestOf){
   let head, meta, verdict = "";
   if (ud){
     const udP = udChance(legs);
-    const x = udPayout(legs.length);
-    meta = t("parlay.slip.udMeta", {n: legs.length, x});
+    const x = card.scope === "stack" ? null : udPayout(legs.length);
+    meta = x ? t("parlay.slip.udMeta", {n: legs.length, x}) : t("parlay.slip.udMetaStack", {n: legs.length});
     head = `<b>${(udP*100).toFixed(1)}%</b> ${t("parlay.slip.toHitAll", {n: legs.length})}`;
-    verdict = slipVerdict(udP * x, t("parlay.slip.vsPayout", {x}), (udP*100).toFixed(1), (100/x).toFixed(1));
+    verdict = x ? slipVerdict(udP * x, t("parlay.slip.vsPayout", {x}), (udP*100).toFixed(1), (100/x).toFixed(1))
+      : `<span class="tk-flag">${t("parlay.slip.typePay")}</span>`;
   } else {
     const prices = legs.map(overPrice).filter(a => a !== null);
     const priced = prices.length === legs.length;
