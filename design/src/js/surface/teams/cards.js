@@ -52,10 +52,8 @@ function cardTeamRow(block, team){
 const cardLines = team => cardTeamRow(typeof LIVE_LINES !== "undefined" ? LIVE_LINES : null, team);
 const cardMatchup = (team, g) => g ? `${team} ${g.home ? "vs" : "@"} ${g.opp}` : team;
 
-/* The front says four lines: slot and points, who, and the game, and a small stamp in the photo's
-   corner gives the rank ("#7") in the tier's colour. The rank as a text line was dropped earlier the
-   same day (a fifth line made a phone row of three crowded); the stamp keeps two cards of one tier
-   apart without the line. */
+/* The front says four lines: position with rank ("RB7", in the tier's colour) and points, who, and
+   the game. The rank keeps two cards of one tier apart. */
 function cardFront(p, tier, g, rank){
   const pts = projFor(p);
   // Hurt: out or doubtful is a band across the foot of the photo, in place of the signature, with
@@ -69,13 +67,18 @@ function cardFront(p, tier, g, rank){
   const sig = !band && won ? `<span class="tc-sig" title="${t("teams.card.signedTip", {rank: won.rank, pos: esc(p.pos), wk: LIVE_SIGNED.wk, pts: won.pts})}">${esc(p.n)}</span>` : "";
   // Behind the photo: the violet etch (#2-5), or the #1's holo foil and glitter.
   const foil = {sig: `<i class="tc-etch"></i>`, one: `<i class="tc-holo"></i><i class="tc-spark"></i>`}[tier] || "";
-  const stamp = rank ? `<span class="tc-rank" title="${t("teams.card.rank", {n: rank, pos: esc(p.pos)})}">${t("teams.card.rankStamp", {n: rank})}</span>` : "";
-  // Weather that touches him: moving over the art, and its chip in the other top corner.
+  // His position and rank as one engraved label ("QB12", 2026-09-25): it was the lineup slot over a
+  // "#12" stamp in the photo's corner, two labels where one says both, and a FLX slot said nothing
+  // the grid's place does not. The letters lead and the rank follows, lighter, so a row reads
+  // RB, RB, WR first. Unranked (out) is the position alone.
+  const label = rank ? `${esc(p.pos)}<span class="tc-rk">${rank}</span>` : esc(p.pos);
+  const tip = rank ? ` title="${t("teams.card.rank", {n: rank, pos: esc(p.pos)})}"` : "";
+  // Weather that touches him: moving over the art, and its chip in the photo's top corner.
   const w = inj && inj.s === "OUT" ? null : cardWeather(g), wx = cardWeatherNote(w, p.pos);
   const sky = wx ? `${cardWeatherFx(w, p.pos)}<span class="tc-chip wx" title="${t("teams.card.wxTip", wx)}"><span class="wx-long">${wx.what}</span><span class="wx-short">${wx.kind}</span></span>` : "";
   return `<div class="tc-face tc-front">
-      <div class="tc-top"><span>${esc(p.start ? slotLabel(p.slot) : p.pos)}</span><span class="tc-num${projOut(p) ? " out" : ""}">${pts !== null ? pts.toFixed(1) : projOut(p) ? t("teams.card.out") : "—"}</span></div>
-      <div class="tc-art pos-${esc(p.pos)}">${foil}${sky}${stamp}
+      <div class="tc-top"><span class="tc-pos"${tip}>${label}</span><span class="tc-num${projOut(p) ? " out" : ""}">${pts !== null ? pts.toFixed(1) : projOut(p) ? t("teams.card.out") : "—"}</span></div>
+      <div class="tc-art pos-${esc(p.pos)}">${foil}${sky}
         <div class="head">${cardHeadHTML(p)}</div>${sig}${hurt}</div>
       <div class="tc-name">${esc(nameInitial(p.n))}</div>
       <div class="tc-meta">${esc(cardMatchup(p.team, g))}</div>
@@ -129,7 +132,7 @@ function cardHTML(p, i, teamKey){
   const colours = p.pos === "DST" ? teamColourStyle(p.team) : "";
   const front = support
     ? `<div class="tc-face tc-front">
-        <div class="tc-top"><span>${esc(p.pos)}</span><span>${esc(g ? `${g.home ? "vs" : "@"} ${g.opp}` : "")}</span></div>
+        <div class="tc-top"><span class="tc-pos">${esc(p.pos)}</span><span>${esc(g ? `${g.home ? "vs" : "@"} ${g.opp}` : "")}</span></div>
         <div class="tc-art">${supportArt(p, g)}</div>
         <div class="tc-name">${esc(p.pos === "K" ? nameInitial(p.n) : p.n)}</div>
         <div class="tc-meta">${p.pos === "K" ? t("teams.card.kicker", {team: esc(p.team)}) : t("teams.card.defense", {team: esc(p.team)})}</div>

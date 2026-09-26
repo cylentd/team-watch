@@ -785,7 +785,6 @@
  "teams.card.profile": "Open profile",
  "teams.card.rain": "Rain",
  "teams.card.rank": "#{n} {pos}",
- "teams.card.rankStamp": "#{n}",
  "teams.card.retractable": "RETRACTABLE",
  "teams.card.roleWeek": "role · week {wk}",
  "teams.card.roof": "Roof",

@@ -4,8 +4,8 @@
    one colour family each: plain (#25 and on at the position), blue (#13-24), gold (#6-12), violet
    with an etch behind the face and the name signed across the photo (#2-5), and for the #1 a
    turning holographic frame, holo foil and glitter behind the face, a glow, and the signature.
-   A small stamp in the photo's top corner gives the rank itself, in the tier's colour, so two
-   cards of one tier still read apart. Nothing is printed over a face or over text. --mx/--my is
+   The top bar's label gives the rank itself beside the position ("QB12"), in the tier's colour,
+   so two cards of one tier still read apart. Nothing is printed over a face or over text. --mx/--my is
    where the light falls, set by the pointer. */
 @property --ang{syntax:"<angle>";inherits:true;initial-value:0deg}
 @property --mx{syntax:"<percentage>";inherits:true;initial-value:50%}
@@ -56,8 +56,8 @@
 .tc-meta{padding:1px 6px 7px;text-align:center;font-size:var(--t-1);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* Tiers: the frame is the rarity, one colour family each (2026-09-25): plain, blue, gold, violet,
-   holo. --tier-ink colours the rank stamp to match. */
-.tier-c{--tier-ink:var(--ink-3)}
+   holo. --tier-ink colours the position label to match. */
+.tier-c{--tier-ink:var(--ink-2)}
 .tier-r{--frame:linear-gradient(135deg,var(--uncommon-1),var(--uncommon-2) 45%,var(--uncommon-1) 55%,var(--uncommon-2));--tier-ink:var(--uncommon-2)}
 .tier-ur{--frame:linear-gradient(135deg,var(--gold-1),var(--gold-2) 40%,var(--gold-1) 60%,var(--gold-2));--tier-ink:var(--gold-2)}
 .tier-sig{--frame:linear-gradient(115deg,var(--epic-1),var(--epic-2) 35%,var(--epic-1) 55%,var(--epic-2) 80%,var(--epic-1)) var(--mx) var(--my)/260% 260%;
@@ -71,9 +71,13 @@
 .tc-holo{position:absolute;inset:0;opacity:.6;mix-blend-mode:color-dodge;
   background:repeating-linear-gradient(115deg,transparent 0,rgb(var(--holo-1-rgb) / .7) 7%,rgb(var(--holo-2-rgb) / .7) 14%,
     rgb(var(--holo-3-rgb) / .7) 21%,rgb(var(--holo-4-rgb) / .7) 28%,rgb(var(--holo-5-rgb) / .7) 35%,transparent 42%) var(--mx) var(--my)/260% 260%}
-/* The rank stamp: top corner of the photo, the rank in the tier's colour on a dark chip. */
-.tc-rank{position:absolute;z-index:2;top:4px;left:4px;padding:1px 5px;border-radius:3px;background:rgb(var(--void-rgb) / .72);
-  font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.02em;color:var(--tier-ink, var(--ink-2))}
+/* Position and rank, "QB12", engraved into the card's top bar in the tier's colour: a dark edge
+   above the strokes and a faint light one below read as cut in, not printed on (2026-09-25). */
+.tc-pos{font-family:var(--disp);font-size:var(--t-2);font-weight:800;letter-spacing:.06em;line-height:1;
+  color:var(--tier-ink, var(--ink-2));
+  text-shadow:0 -1px 0 rgb(var(--shadow-rgb) / .9),0 1px 0 rgb(var(--ink-rgb) / .16)}
+/* The rank after the letters: smaller and quieter, so the position is what a row reads first. */
+.tc-rk{margin-left:2px;font-size:var(--t-1);font-weight:600;letter-spacing:.02em;opacity:.65}
 /* The #1: glitter behind the face, lit only where the light falls. White and pale gold. */
 .tc-spark{position:absolute;inset:0;mix-blend-mode:color-dodge;
   background-image:radial-gradient(circle,rgb(var(--ink-rgb) / .95) 0 1px,transparent 1.6px),
@@ -164,8 +168,8 @@
 /* A player's weather chip: the photo's other top corner from the rank stamp, amber like a warning. */
 .tc-chip.wx{top:4px;right:4px;color:var(--amber)}
 /* A card too narrow for the stamp and the chip side by side (~110px of art: a phone, or a desktop
-   squeezed beside "This week") says only "RAIN", so "#12" and "RAIN 46%" never overlap; the
-   percentage is in the tooltip and on the back. Dropped a row, the chip covered his face. */
+   squeezed beside "This week") says only "RAIN", so the chip stays off his face; the percentage
+   is in the tooltip and on the back. Dropped a row, the chip covered his face. */
 .tc-art{container-type:inline-size}
 .tc-chip.wx .wx-short{display:none}
 @container (max-width:118px){ .tc-chip.wx .wx-long{display:none} .tc-chip.wx .wx-short{display:inline} }
@@ -174,6 +178,7 @@
 .tier-dst .tc-face{background:var(--team-2,var(--panel))}
 .tier-dst .tc-art{background:repeating-linear-gradient(135deg,transparent 0 8px,rgb(var(--shadow-rgb) / .12) 8px 16px),var(--team,var(--panel-3))}
 .tier-dst .tc-top,.tier-dst .tc-name{color:var(--on-team-2,var(--ink))}
+.tier-dst .tc-pos{color:inherit}
 .tier-dst .tc-meta{color:var(--on-team-2,var(--ink-3));opacity:.75}
 /* The club's code is the defense card's face, large in its own colours, so the card says which
    defense before anything else (2026-09-25; the opponent's points had the middle and the code was a
