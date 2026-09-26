@@ -175,3 +175,41 @@ def load_dfs_pool():
     scrape is a decision to ask about, not build quietly. Feed-first, the ff-jarvis file directly
     as a fallback, same two-tier pattern as load_status()/load_props_raw()."""
     return feed_block(("market", "dfs"), "players") or read_first(DFS_POOL)
+
+
+def load_recap(season, week):
+    """ff-jarvis's weekly recap (model.season.recap): per player `actual` and pregame `proj`,
+    half-PPR, keyed by norm_name. No DST or K rows. None when the week has none yet."""
+    return read_first(DWR / "recap" / f"{season}-w{week:02d}.json")
+
+
+def load_status_asof(day):
+    """norm_name -> the newest Sleeper status row ff-jarvis recorded on or before `day`
+    (YYYY-MM-DD, history kind `status`): load_status() as it stood that morning."""
+    out = {}
+    for path in sorted((DWR / "history" / "status").glob("*.jsonl")):
+        if path.stem > day:
+            break
+        for line in path.read_text(encoding="utf-8").splitlines():
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if row.get("key"):
+                out[row["key"]] = row
+    return out
+
+
+def load_dfs_history(season, week):
+    """Every Yahoo DFS pool row ff-jarvis recorded for one week (history kind `dfs`, since
+    2026-09-25; week 1 was backfilled, week 2 was never saved). Oldest first."""
+    rows = []
+    for path in sorted((DWR / "history" / "dfs").glob("*.jsonl")):
+        for line in path.read_text(encoding="utf-8").splitlines():
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if row.get("season") == season and row.get("week") == week:
+                rows.append(row)
+    return rows

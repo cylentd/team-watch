@@ -530,7 +530,7 @@ def model_points():
     return {slugify(p["name"]): (p["pts"], p["src"]) for p in (d or {}).get("players", [])
             if p.get("pts") is not None}
 
-def live_dfs_yahoo(available):
+def live_dfs_yahoo(available, pool=None, mp=None, status=None):
     """The DFS Builder's Yahoo pool. `sal`/`proj` are Yahoo's own $200-cap scale, not DraftKings'.
     Status prefers Sleeper (see load_status()); the pool's own raw Yahoo status column fills the
     gap for a player Sleeper doesn't track. Yahoo's own export can be stale in a way no status
@@ -540,10 +540,10 @@ def live_dfs_yahoo(available):
     fresher than Yahoo's export in practice, so a disagreement between the two is itself read as
     "this row predates a roster move" and the player is treated as OUT, same as any other
     not-playing badge."""
-    pool = load_dfs_pool()
+    pool = pool or load_dfs_pool()   # the args are the backtest's past week (design/dfs_backtest.py)
     if not pool or not pool.get("players"):
         return None
-    status = load_status()
+    status = load_status() if status is None else status
     # The projection the optimizer builds on is ff-jarvis's, not Yahoo's FPPG (last season's
     # average, which knows nothing about this week or what team he plays for now). Yahoo's
     # number is the fallback for whoever is left after the model and the book's own line have
@@ -551,7 +551,7 @@ def live_dfs_yahoo(available):
     # model points to FPPG among the players it does -- the model shrinks toward the position
     # mean and sits below a raw average for stars, so an unscaled fallback would let a bench
     # QB's stale 15.1 outrank a priced starter on a different scale.
-    mp = model_points()
+    mp = model_points() if mp is None else mp
     ratios = {}
     for r in pool["players"]:
         m = mp.get(slugify(r["name"]))
