@@ -29,13 +29,7 @@ const SAMPLE_POOL = [
 const POOL = (typeof LIVE_POOL !== "undefined" && LIVE_POOL && LIVE_POOL.players.length)
   ? LIVE_POOL.players
   : SAMPLE_POOL.map(r => ({...r, opp: null, why: "", leagues: {espn: null, yahoo: null}}));
-/* Only rows with a share move and a luck read can sit on the chart: none in week 1. */
-const poolPlottable = r => r.dShare !== null && r.dShare !== undefined && r.luck !== null && r.luck !== undefined;
-
-const VCLASS = {"CONFIRMED":"v-conf","RISING":"v-conf","BUY LOW":"v-buy","SELL HIGH":"v-sell","SELL NOW":"v-sell","hold":"v-hold","NEW":"v-hold"};
-/* Movers draws one card per team (surface/pool/pool.js), six to a page: a phone shows two or three
-   at once, and a page of six is a thumb's worth of scrolling. The position filter is the Board's
-   BD_POS. */
+/* Movers draws one card per team (surface/pool/pool.js); how many to a page is its poolPageSize.
+   The position filter is the Board's BD_POS. */
 let POOL_PAGE = 1;
-const POOL_PAGE_SIZE = 6;
 

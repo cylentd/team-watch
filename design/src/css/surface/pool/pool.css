@@ -1,23 +1,50 @@
 /* ============================== MOVERS ==============================
-   One card per team: who gained share and the teammate it came from. Green and red carry their
-   one job here, up and down; the team is the card's title because the team is the story. */
-.xf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:12px;margin-top:14px}
+   One card per team: who gained share and the teammate it came from.
+
+   Every card is one size -- the grid's column wide, three rows tall -- so a page turn swaps cards
+   without the grid reflowing under the eye. Colour: the header wears the club's own colour (whose
+   card it is); green and red keep their one job, up and down; lime is my player, as everywhere.
+   Motion is feedback: cards arrive from the side the page turned, each row's bar grows from where
+   the share was to where it is, and a card lifts under the pointer. */
+.xf-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:14px}
+@media (min-width:760px){ .xf-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (min-width:960px){ .xf-grid{grid-template-columns:repeat(3,minmax(0,1fr))} }
+
 .xf{
-  border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:12px 14px 8px;
-  display:grid;align-content:start;animation:bdrise .34s var(--ease) both;
+  position:relative;display:grid;align-content:start;overflow:hidden;
+  border:1px solid var(--line);border-radius:16px;padding:0 14px 6px;
+  background:
+    linear-gradient(165deg,color-mix(in srgb,var(--team,var(--panel-3)) 42%,transparent) 0,transparent 58px),
+    var(--panel);
+  animation:xfin .5s var(--spring) both;animation-delay:calc(var(--i,0) * var(--enter-step));
+  transition:transform var(--dur-spring) var(--spring),border-color .2s var(--ease),box-shadow .2s var(--ease);
 }
-.xf-t{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding-bottom:6px}
-.xf-t b{font-family:var(--disp);font-size:var(--t-5);font-weight:800;letter-spacing:-.01em}
-.xf-t span{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase}
+.xf:hover{transform:translateY(var(--lift));border-color:var(--line-2);box-shadow:0 18px 32px -22px rgb(var(--shadow-rgb) / .9)}
+.from-next .xf{animation-name:xfnext}
+.from-prev .xf{animation-name:xfprev}
+@keyframes xfin{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes xfnext{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes xfprev{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
+
+.xf-t{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:12px 0 8px}
+.xf-t b{font-family:var(--disp);font-size:var(--t-5);font-weight:800;letter-spacing:-.01em;color:var(--ink)}
+.xf-t span{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2);letter-spacing:.06em;text-transform:uppercase}
+
+/* A row is a button: it opens the player's profile. Its height is fixed by its content (a 36px head,
+   two lines and a 4px bar), never by wrapping -- the name ellipsises -- so three rows are always
+   the same card. An empty slot keeps that height. */
 .xf-row{
-  display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:10px;align-items:center;
-  padding:8px 2px;border-top:1px solid var(--line);cursor:pointer;border-radius:6px;
-  transition:background .18s var(--ease);
+  appearance:none;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;
+  display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;
+  min-height:62px;padding:8px 4px;border-top:1px solid var(--line);border-radius:8px;
+  transition:background .18s var(--ease),transform .12s var(--ease);
 }
-.xf-row:hover{background:var(--panel-2)}
+.xf-row:hover{background:rgb(var(--ink-rgb) / .04)}
 .xf-row:active{transform:scale(var(--press))}
 .xf-row:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
-.xf-head{width:40px;height:40px;border-radius:50%;overflow:hidden;background:var(--panel-3);display:grid;place-items:center}
+.xf-none{cursor:default;border-top-style:dashed}
+.xf-none:hover{background:none}
+.xf-head{width:36px;height:36px;border-radius:50%;overflow:hidden;background:var(--panel-3);display:grid;place-items:center}
 .xf-head img{width:100%;height:100%;object-fit:cover;object-position:top}
 .xf-head .fallback{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
 .xf-nm{min-width:0;display:grid;gap:2px}
@@ -25,10 +52,22 @@
 .xf-nm em{font-style:normal;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);font-weight:500}
 .xf-nm span{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);font-variant-numeric:tabular-nums}
 .xf-row.mine .xf-nm b{color:var(--lime)}
+
+/* The move as a bar: the faint ghost reaches where his share was, the solid bar where it is now. */
+.xf-bar{position:relative;display:block;height:4px;margin-top:3px;border-radius:2px;background:var(--panel-3)}
+.xf-bar::before{content:"";position:absolute;inset:0 auto 0 0;width:var(--was);border-radius:2px;background:rgb(var(--ink-rgb) / .22)}
+.xf-bar > i{position:absolute;inset:0 auto 0 0;width:var(--now);border-radius:2px;
+  animation:xfbar .7s var(--ease) both;animation-delay:calc(var(--i,0) * var(--enter-step) + 140ms)}
+.xf-bar.up > i{background:var(--up)}
+.xf-bar.down > i{background:var(--down)}
+.xf-bar.flat > i{background:var(--ink-3)}
+@keyframes xfbar{from{width:var(--was)}to{width:var(--now)}}
+
 .xf-d{font-family:var(--mono);font-size:var(--t-4);font-weight:700;font-variant-numeric:tabular-nums;text-align:right;min-width:3.6em}
 .xf-d.up{color:var(--up)}
 .xf-d.down{color:var(--down)}
-
+.xf-d.flat{color:var(--ink-3)}
+.xf-pager{margin-top:12px}
 .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:16px}
 .filters .lbl{margin-right:2px}
 .chip{
@@ -71,9 +110,3 @@
 .pname b{display:block;font-weight:500;font-size:var(--t-2);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pname span{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);letter-spacing:.06em}
 .pool-head{width:40px;height:40px;border-radius:99px;object-fit:cover;border:1px solid var(--line-2);background:var(--panel-3);display:block}
-.vchip{display:block;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.1em;padding:4px 0;border-radius:2px;text-align:center;white-space:nowrap}
-.v-conf{color:var(--up);border:1px solid rgb(var(--up-rgb) / .35);background:rgb(var(--up-rgb) / .09)}
-.v-sell{color:var(--down);border:1px solid rgb(var(--down-rgb) / .35);background:rgb(var(--down-rgb) / .09)}
-.v-buy{color:var(--lime);border:1px solid rgb(var(--lime-rgb) / .35);background:rgb(var(--lime-rgb) / .08)}
-.v-hold{color:var(--ink-3);border:1px solid var(--line-2)}
-

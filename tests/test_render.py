@@ -148,7 +148,8 @@ STATES = [
     # move to reach the week-1 path, where the list ranks by share under one line saying why.
     ("board-movers", MOVERS),
     ("board-movers-wait", [("eval", "POOL.forEach(r => { r.dShare = null; })")] + MOVERS),
-    ("board-movers-drawer", MOVERS + [("click", "[data-pool]")]),
+    # A mover opens the player's profile, the same modal the Leaders board opens (2026-09-25).
+    ("board-movers-modal", MOVERS + [("click", "[data-poolslug]")]),
     # The usage grid: the default RB week-2 level view, the same grid as week-over-week change
     # (the mode the level view cannot show), a QB grid because its columns are the ones with no
     # counterpart anywhere else in the app, and the profile modal a row opens.
@@ -351,7 +352,7 @@ def test_movers_hash_opens_the_board_in_movers(browser, page_file, hash):
         assert page.evaluate("[location.hash, BD_MODE]") == ["#board", "leaders"]
         page.go_back()
         page.wait_for_function("BD_MODE === 'movers'")
-        assert page.locator("[data-pool]").count() > 0
+        assert page.locator("[data-poolslug]").count() > 0
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
     finally:
         ctx.close()
@@ -438,7 +439,7 @@ def test_chat_panel_survives_a_surface_change(snapshot):
     assert over_pool["chatOpen"], "the panel closed when the surface changed"
     assert "chatinput" in over_pool["chat"], "the composer is gone"
     # #view is Movers, not the chat -- the panel is over the page, not instead of it.
-    assert "dotg" in over_pool["view"] or "data-pool" in over_pool["view"], \
+    assert "data-poolslug" in over_pool["view"], \
         "#view is not Movers; the panel replaced the surface instead of floating over it"
 
 
