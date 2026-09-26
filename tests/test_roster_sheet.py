@@ -46,6 +46,23 @@ def test_a_starter_row_shows_usage_and_a_td_chance(browser, page_file):
 
 
 @pytest.mark.render
+@pytest.mark.parametrize("width", [360, 1100, 1280])
+def test_no_name_loses_its_end(browser, page_file, width):
+    """A long name wraps to a second line, never ends in "..." (2026-09-25: "Tetairoa McMill..."
+    at 1280, nearly every name at 1100). The check measures the text itself against its cell, so
+    an ellipsis set on any ancestor counts."""
+    ctx, page, errors = espn_roster(browser, page_file, (width, 900))
+    # A third line is clamped away; scrollHeight past the box by more than a descender's 2px says so.
+    cut = page.evaluate("""[...document.querySelectorAll('.row .nm')].filter(nm => {
+      const b = nm.querySelector('.nm-1 b'), r = document.createRange(); r.selectNodeContents(b);
+      return r.getBoundingClientRect().width > nm.getBoundingClientRect().width + 0.5 || b.scrollHeight > b.clientHeight + 2;
+    }).map(nm => nm.querySelector('.nm-1 b').innerText)""")
+    assert cut == []
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
 def test_a_desktop_puts_the_bench_beside_the_starters(browser, page_file):
     ctx, page, errors = espn_roster(browser, page_file, (1280, 900))
     tops = page.eval_on_selector_all(".sheet-col", "els => els.map(e => Math.round(e.getBoundingClientRect().top))")
