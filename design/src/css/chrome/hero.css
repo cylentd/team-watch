@@ -54,7 +54,14 @@
    as a sliver, and a tap meant for ESPN landed on the Sheet / Cards chips below. */
 .hero.team{padding:28px 0 4px;overflow:clip visible;z-index:5}
 .hero.team .numghost,.hero.team h1.fit,.hero.team .league-mark,.hero.team .hero-eyebrow .lbl{display:none}
-.hero.team .hero-in{grid-template-columns:minmax(0,1fr);gap:4px}
+.hero.team .hero-in{grid-template-columns:minmax(0,1fr) auto;gap:4px 20px;align-items:end}
+/* The Sheet / Cards switch at the header's right end, on the league line's baseline. */
+.hero.team .hero-side .rmode{margin:0;padding:0;flex-wrap:nowrap}
+/* A phone's title fills the width, so the switch takes the line under the league. */
+@media (max-width:760px){
+  .hero.team .hero-in{grid-template-columns:minmax(0,1fr)}
+  .hero.team .hero-side{margin-top:8px}
+}
 .hero.team .hero-eyebrow{flex-wrap:nowrap;margin-bottom:0}
 .hero.team .teamswitch{position:relative;top:auto;right:auto;order:1;min-width:0;padding:0;margin:0}
 .hero.team .ts-btn{background:none;border:0;padding:4px 0;min-width:0;gap:10px}

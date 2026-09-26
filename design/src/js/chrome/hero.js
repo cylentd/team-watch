@@ -6,7 +6,9 @@
    already show on their own, and on a phone they cost a screen-third before the first player.
    Since 2026-09-25 the roster's hero is the phone's one line at every width (.hero.team, hero.css):
    the team switch is the title. Waivers keeps the full hero, which carries its FAAB and claims. */
-function heroHTML(team){
+/* `side` sits at the hero's right end: the roster's Sheet / Cards switch (2026-09-25), moved up out
+   of the rows' column so the starters, the bench and "This week" share one top edge. */
+function heroHTML(team, side = ""){
   const wire = SURFACE === "waivers" && !team.connected;
   return `<section class="hero${wire ? "" : " team"}">
     <div class="numghost">${team.slot}</div>
@@ -23,7 +25,7 @@ function heroHTML(team){
           <button class="leaguechip">${esc(team.meta[team.meta.length-1])} <span class="lc-info">ⓘ</span></button>
         </div>
       </div>
-      ${wire ? `<div>${waiverHeroHTML(team)}</div>` : ""}
+      ${wire ? `<div>${waiverHeroHTML(team)}</div>` : side ? `<div class="hero-side">${side}</div>` : ""}
     </div>
   </section>`;
 }

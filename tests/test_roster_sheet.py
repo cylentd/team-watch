@@ -30,6 +30,22 @@ def test_a_phone_row_is_full_size(browser, page_file):
 
 
 @pytest.mark.render
+def test_a_starter_row_shows_usage_and_a_td_chance(browser, page_file):
+    """Usage by position where the snap-share line was, and the TD chance under the projection
+    only from 25% up (2026-09-25, storyboard option A)."""
+    ctx, page, errors = espn_roster(browser, page_file, (1280, 900))
+    assert page.locator(".row .trend, .row .spark").count() == 0, "the snap-share line is gone"
+    words = page.eval_on_selector_all(".row.start .ruse small", "els => els.map(e => e.textContent)")
+    assert set(words) <= {"targets", "touches", "dropbacks"}, words
+    shown = page.eval_on_selector_all(".rtd", "els => els.map(e => parseInt(e.textContent.replace(/\\D/g, '')))")
+    assert all(n >= 25 for n in shown), shown
+    assert page.evaluate("TEAMS.espn.roster.every(p => { const n = tdChanceFor(p); return n === null || n < 25 || projFor(p) === null"
+                         " || !!document.querySelector(`.row[data-i='${briefOrder(TEAMS.espn).indexOf(p)}'] .rtd`); })")
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
 def test_a_desktop_puts_the_bench_beside_the_starters(browser, page_file):
     ctx, page, errors = espn_roster(browser, page_file, (1280, 900))
     tops = page.eval_on_selector_all(".sheet-col", "els => els.map(e => Math.round(e.getBoundingClientRect().top))")

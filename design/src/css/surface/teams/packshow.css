@@ -30,7 +30,12 @@ body.pk-open{overflow:hidden}
 .pk-msg{position:absolute;z-index:4;left:16px;right:16px;top:calc(45% - var(--pkw) * .7 - 64px);margin:0;text-align:center;
   font-size:var(--t-3);color:var(--ink-2);text-wrap:balance}
 .pk-msg b{color:var(--ink);margin-right:4px}
+/* The caption over each card as it is dealt, "#3 RB · Signature" (.deal, packdeal.js): headline
+   size since 2026-09-25; as body text it read as a footnote over a card twice its height. */
+.pk-msg.deal{top:calc(45% - var(--pkw) * .7 - 78px);font-family:var(--disp);font-size:var(--t-5);font-weight:700;line-height:1.2}
+.pk-msg.deal b{margin-right:6px;font-weight:800}
 .pk-msg .pk-signed-tag{font-style:normal;font-family:var(--sig);font-size:var(--t-4);color:var(--gold-2)}
+.pk-msg.deal .pk-signed-tag{font-size:var(--t-6);font-weight:400}
 /* The sealed pack in 3D: it leans toward the mouse (--prx/--pry, packshow.js), or sways by itself
    where there is no mouse, and holds still while a finger tears it. Its strip flies off in 3D
    (the seal's own perspective) and the pack tips back as the first card rises out of it. */

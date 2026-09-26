@@ -122,7 +122,8 @@ async function pkDeal(S){
     pkLight(S, cardTier(c.rank));                 // the room takes the card's tier colour
     // The label once the face has settled, never while it is still face down.
     await pkSleep(S, 60);
-    if (!S.skip) S.st.querySelector(".pk-msg").innerHTML = pkLabel(c);
+    // .deal: a card's caption is a headline; the intro sentence the slot held before stays body size.
+    if (!S.skip){ const m = S.st.querySelector(".pk-msg"); m.classList.add("deal"); m.innerHTML = pkLabel(c); }
     await pkSign(S, el);
     await pkSleep(S, 700);
     pkLight(S, null);

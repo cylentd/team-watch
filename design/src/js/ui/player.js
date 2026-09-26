@@ -100,17 +100,26 @@ const injSits = p => { const r = injFor(p); return !!r && (r.s === "OUT" || r.s 
 const INJ_WORD = {OUT: () => t("teams.inj.out"), D: () => t("teams.inj.doubtful"), Q: () => t("teams.inj.questionable")};
 const injLabel = r => r.note ? t("teams.inj.withNote", {s: INJ_WORD[r.s](), note: esc(r.note)}) : INJ_WORD[r.s]();
 
-/* The roster row's one number at every width: projected points in the ink colour, with a small
-   arrow in the trend line's colour (2026-09-25). The pill used to be filled with that colour, which
-   said the line's direction a second time at full volume. No projection prints a dash, never a zero;
-   a flat or missing line draws no arrow. */
+/* His chance to score this week, from the props model's P(score): the one model number grading
+   found honest (ff-jarvis METHODOLOGY 12.31). Null without a TD line. */
+function tdChanceFor(p){
+  if (typeof PROPS === "undefined" || !p.slug) return null;
+  const r = PROPS.find(x => x.slug === p.slug && x.mkt === "TD");
+  return r && typeof r.model === "number" ? Math.round(r.model) : null;
+}
+const TD_SHOW = 25, TD_HOT = 45;
+
+/* The roster row's one number at every width: projected points in the ink colour, and under it
+   his TD chance from 25% up, lime from 45% (2026-09-25; it replaced an arrow that repeated the
+   snap-share line, which left the row). No projection prints a dash, never a zero. */
 function projNumHTML(p){
   const pts = projFor(p);
   if (pts === null) return projOut(p)
     ? `<div class="rproj none out" title="${t("teams.card.outTip", {code: esc(projOut(p))})}">${t("teams.card.out")}</div>`
     : `<div class="rproj none">—</div>`;
-  const dir = trendDir(p.trend);
-  const arrow = dir === "flat" ? "" : `<svg class="rp-ar ${dir}" viewBox="0 0 8 8" aria-hidden="true"><path d="${dir === "up" ? "M4 1 7.5 7h-7z" : "M4 7 .5 1h7z"}"/></svg>`;
-  return `<div class="rproj">${pts.toFixed(1)}${arrow}</div>`;
+  const td = tdChanceFor(p);
+  const chip = td !== null && td >= TD_SHOW
+    ? `<small class="rtd ${td >= TD_HOT ? "hot" : ""}" title="${t("teams.row.tdTip", {n: td})}">${t("teams.row.td", {n: td})}</small>` : "";
+  return `<div class="rproj">${pts.toFixed(1)}${chip}</div>`;
 }
 

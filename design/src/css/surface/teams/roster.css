@@ -31,9 +31,16 @@
 .row .nm-2{min-width:0;overflow:hidden;white-space:nowrap}
 
 @media (min-width:960px){
-  /* Starters and bench side by side: the empty middle of a full-width row becomes the bench. */
-  .sheet{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);column-gap:40px;align-items:start}
-  .row{--hd:44px}
+  /* Starters and bench side by side: the empty middle of a full-width row becomes the bench. The
+     same frame as the cards (cards.css .cards: two columns, a 44px gutter), and rows sized to fill
+     it: a bigger head, name and number, since the sheet had room it left empty (2026-09-25). */
+  .sheet{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);column-gap:44px;align-items:start}
+  .row{--hd:52px;padding:11px 8px}
+  .row.start{grid-template-columns:32px var(--hd) minmax(0,1fr) 64px 64px}
+  .row .nm-1 b{font-size:var(--t-4)}
+  .row .nm-2{font-size:var(--t-2)}
+  .row .spark{width:64px;height:26px}
+  .rproj{font-size:var(--t-5)}
 }
 @keyframes rowin{to{opacity:1}}
 .row:hover{background:var(--panel-2)}
@@ -73,7 +80,10 @@
 .tag.q{background:rgb(var(--amber-rgb) / .14);color:var(--amber);border:1px solid rgb(var(--amber-rgb) / .3)}
 .tag.o{background:rgb(var(--down-rgb) / .14);color:var(--down);border:1px solid rgb(var(--down-rgb) / .3)}
 
-.trend{grid-area:trend;display:flex;align-items:center;min-width:0}
+/* Usage, where the snap-share line was (board.js rowUsage): the number over what it counts. */
+.ruse{grid-area:trend;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;min-width:0;line-height:1.15}
+.ruse b{font-family:var(--mono);font-size:var(--t-3);font-weight:700;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.ruse small{font-size:var(--t-1);color:var(--ink-3)}
 .spark{flex-shrink:0}
 .spark path.line{fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .spark .area{opacity:.13}
@@ -94,9 +104,12 @@
 .delta.down{color:var(--down)}
 .delta.flat{color:var(--ink-3)}
 
-/* The row's one number: neutral ink, with the trend line's direction as a small arrow beside it. */
-.rproj{grid-area:proj;display:flex;align-items:center;justify-content:flex-end;gap:4px;
+/* The row's one number in neutral ink, and under it his TD chance (ui/player.js projNumHTML). */
+.rproj{grid-area:proj;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:3px;
   font-family:var(--mono);font-weight:700;font-size:var(--t-4);font-variant-numeric:tabular-nums;color:var(--ink)}
+.rtd{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.02em;line-height:1;
+  padding:2px 5px;border-radius:4px;background:var(--panel-2);color:var(--ink-2);white-space:nowrap}
+.rtd.hot{color:var(--lime);background:rgb(var(--lime-rgb) / .1)}
 .rproj.none{color:var(--ink-3)}
 .rproj.out{color:var(--down);font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.08em}
 .rp-ar{width:8px;height:8px;flex-shrink:0}

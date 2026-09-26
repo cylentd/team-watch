@@ -73,7 +73,7 @@ function render(){
   // The deal and the rail's "new" flash are taken once per page load, on the first Waivers render.
   v.innerHTML = wire
     ? heroHTML(team) + `<div class="wrap">${waiverHTML(wvMotionTake())}</div>`
-    : heroHTML(team) + `<div class="wrap rl">${briefHTML(team)}<div class="rl-rows">${rosterModeHTML(team)}${
+    : heroHTML(team, rosterModeHTML(team)) + `<div class="wrap rl">${briefHTML(team)}<div class="rl-rows">${
         ROSTER_MODE === "cards" ? packHTML(team) + cardsHTML(team) : boardHTML(team)}</div></div>`;
   fitTitle(v);
   if (!wire){ wireBrief(v); wireRosterMode(v, team); wirePack(v, team); }
