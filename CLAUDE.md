@@ -81,7 +81,7 @@ question; `SURFACE` is always the **leaf**, never the group, and the group is de
 | group | views |
 |---|---|
 | My teams | Roster, Waivers |
-| Players (id `scouting`, was "Scouting" until 2026-09-25) | Leaders (leaf `board`: who leads each stat), Movers (whose role is growing, by team), Grid (weekly usage), News |
+| Players (id `scouting`, was "Scouting" until 2026-09-25) | Leaders (leaf `board`: who leads each stat), Movers (whose role is growing, by team), Matchups (start or sit, ours beside Pitcher List's, with the record), Grid (weekly usage), News |
 | Bets | Parlay, DFS |
 | Gameday | Live |
 

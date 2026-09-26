@@ -1,0 +1,14 @@
+{
+ "week": 3,
+ "fetched": "2026-09-25 08:00",
+ "source": "Pitcher List Start 'Em and Sit 'Em",
+ "article": "https://football.pitcherlist.com/start-em-and-sit-em-week-3-3/",
+ "published": "2026-09-25T08:24:59",
+ "published_utc": "2026-09-25T12:24:59",
+ "scoring": "PPR",
+ "count": 2,
+ "calls": [
+  {"week": 3, "call": "START", "pos": "QB", "player": "Brock Purdy", "key": "brock purdy", "team": "SF", "opp": "ARI", "home": false, "rationale": "Arizona gave up three passing touchdowns last week, and Purdy has thrown 38 times a game.", "url": "https://football.pitcherlist.com/start-em-and-sit-em-week-3-3/"},
+  {"week": 3, "call": "SIT", "pos": "WR", "player": "Tee Higgins", "key": "tee higgins", "team": "CIN", "opp": "PIT", "home": false, "rationale": "Pittsburgh's corners held him to two catches in both meetings last season.", "url": "https://football.pitcherlist.com/start-em-and-sit-em-week-3-3/"}
+ ]
+}

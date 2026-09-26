@@ -55,6 +55,10 @@ function render(){
     v.innerHTML = bdViewHTML(); wireBd(v);
     return;
   }
+  if (SURFACE === "matchups"){
+    v.innerHTML = matchupsHTML(); wireMatchups(v);
+    return;
+  }
   if (SURFACE === "usage"){
     v.innerHTML = usageHTML(); wireUsage(v); nudgeScrollers(v);
     return;

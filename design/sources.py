@@ -10,6 +10,7 @@ build.py and calls these readers -- this file returns parsed JSON, nothing more.
 import json
 import os
 import pathlib
+import re
 
 ROOT = pathlib.Path(__file__).resolve().parent
 REPO = ROOT.parent
@@ -175,6 +176,19 @@ def load_dfs_pool():
     scrape is a decision to ask about, not build quietly. Feed-first, the ff-jarvis file directly
     as a fallback, same two-tier pattern as load_status()/load_props_raw()."""
     return feed_block(("market", "dfs"), "players") or read_first(DFS_POOL)
+
+
+def load_startsit():
+    """(our calls, Pitcher List's calls, the newest grade file carrying a start/sit record), each
+    None when ff-jarvis has not written it. Files only: none of the three is a feed block."""
+    graded = []
+    for path in (DWR / "grades").glob("*-w*.json"):
+        m = re.fullmatch(r"(\d{4})-w(\d+)", path.stem)
+        g = read_first(path) if m else None
+        if g and g.get("startsit_record"):
+            graded.append(((int(m.group(1)), int(m.group(2))), g))
+    newest = max(graded, key=lambda x: x[0])[1] if graded else None
+    return read_first(DWR / "startsit_calls.json"), read_first(DWR / "pl_startsit.json"), newest
 
 
 def load_recap(season, week):

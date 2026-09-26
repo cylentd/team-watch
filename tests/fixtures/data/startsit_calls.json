@@ -1,0 +1,21 @@
+{
+ "generated": "2026-09-25 21:00",
+ "season": 2026,
+ "week": 3,
+ "positions": {
+  "QB": {"best": null, "start": [
+    {"key": "brock purdy", "name": "Brock Purdy", "pos": "QB", "team": "SF", "opp": "ARI", "game": "SF @ ARI", "kickoff": "2026-09-27 20:25:00", "pts": 16.2, "rank": 19, "ecr": 24, "own": 61.0, "why": [], "but": [["tot", -1, "Team total 20.5, 19th of 26"]]}
+   ], "sit": [], "counts": {"projected": 40, "start": 1, "sit": 0}},
+  "RB": {"best": {"key": "jahmyr gibbs", "name": "Jahmyr Gibbs", "pos": "RB", "team": "DET", "opp": "CHI", "game": "CHI @ DET", "kickoff": "2026-09-27 17:00:00", "pts": 19.4, "rank": 2, "ecr": 2, "own": 99.8, "why": [["vol", 1, "19 touches a game, 64% snaps"], ["mx", 1, "CHI run D: 2nd softest"]], "but": []},
+   "start": [
+    {"key": "chase brown", "name": "Chase Brown", "pos": "RB", "team": "CIN", "opp": "PIT", "game": "CIN @ PIT", "kickoff": "2026-09-27 17:00:00", "pts": 11.8, "rank": 27, "ecr": 35, "own": 88.0, "why": [["vol", 1, "16 touches a game, 70% snaps"], ["rz", 1, "4 red-zone touches in 2 games"]], "but": []}
+   ], "sit": [], "counts": {"projected": 90, "start": 1, "sit": 0}},
+  "WR": {"best": null, "start": [
+    {"key": "tee higgins", "name": "Tee Higgins", "pos": "WR", "team": "CIN", "opp": "PIT", "game": "CIN @ PIT", "kickoff": "2026-09-27 17:00:00", "pts": 11.1, "rank": 28, "ecr": 36, "own": 90.1, "why": [["vol", 1, "24% target share"], ["mx", 1, "PIT D vs WRs: 3rd softest"]], "but": [["rz", -1, "No red-zone targets in 2 games"]]}
+   ], "sit": [
+    {"key": "amonra st brown", "name": "Amon-Ra St. Brown", "pos": "WR", "team": "DET", "opp": "CHI", "game": "CHI @ DET", "kickoff": "2026-09-27 17:00:00", "pts": 9.6, "rank": 40, "ecr": 30, "own": 99.0, "why": [["tot", -1, "Team total 18.0, 24th of 26"]], "but": [["vol", 1, "27% target share"]]}
+   ], "counts": {"projected": 150, "start": 1, "sit": 1}},
+  "TE": {"best": {"key": "george kittle", "name": "George Kittle", "pos": "TE", "team": "SF", "opp": "ARI", "game": "SF @ ARI", "kickoff": "2026-09-27 20:25:00", "pts": 12.9, "rank": 3, "ecr": null, "own": null, "why": [], "but": []}, "start": [], "sit": [], "counts": {"projected": 60, "start": 0, "sit": 0}}
+ },
+ "calls": []
+}

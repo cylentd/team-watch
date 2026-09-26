@@ -263,6 +263,37 @@ the signed share change, or role share before one exists. The rest is the drawer
 On a phone the chart draws to a taller, narrower geometry sized close to 1:1 with the screen,
 per-dot names dropped (the list below names every player); dots stay tappable into the drawer.
 
+## Matchups (Players, 2026-09-25)
+
+Start or sit, for the players past the obvious starters. `LIVE_STARTSIT` (`design/startsit.py`) carries
+ff-jarvis's own calls as frozen for the record (`model.season.startsit_calls`), Pitcher List's column
+for the same week, and the season record (`model.season.grade`). The page computes nothing.
+
+| part | what it shows |
+|---|---|
+| Record strip | Ours against Pitcher List through the last graded week, and the 1 / 0.5 / 0 scale |
+| Position chips | QB RB WR TE, the one control row; WR opens |
+| Start | Our starts outside the top 12 (QB/TE) or 24 (RB/WR), by our rank |
+| Sit | Our sits on players the experts rank in that band, 40%+ rostered |
+| Best spot | The softest matchup among our starters at the position, lime |
+| Pitcher List | Their calls at the position, their words clamped to two lines, a link to the column |
+
+- **The record leads.** It is the trust question. Through week 2 of 2026 ours reads 0.32 against
+  Pitcher List's 0.67, and the strip says so without softening; the higher score is the lime one.
+- **Every graded call is shown.** A call with no backing stat says "No stat this season backs this
+  call" in amber rather than being hidden: hiding it would make the page and the record disagree.
+- **Evidence chips carry a sign.** Up to three that argue the call, then one "but" against it. The
+  defense-vs-WR chip is dashed: ff-jarvis's backtest found no WR matchup effect, so it is colour.
+- **First data at ~180px on a 360×800 phone, the first call at ~305px.** Over the 200px budget for the
+  first call, on purpose: the record is data, and a call read before the record is a call trusted
+  without the one number that says whether to.
+- **Desktop:** our start and sit on the left, best spot and Pitcher List on the right, so the two
+  sources read side by side. A phone stacks them in that order.
+- **Rows open the profile**, the same modal every other view opens.
+
+Not built yet: Bets > Games (every game with its implied totals and each offense against the other
+defense by position), the storyboard's second view.
+
 ## Parlay and DFS
 
 **Superseded for Parlay 2026-09-25: Slips and Build.** Parlay is two views, Slips (leaf `parlay`,

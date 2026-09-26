@@ -68,7 +68,7 @@ GD_CATCHUP = {swing: {me: 21.5, opp: 3.0}, movers: [
 # out here (rather than trusting the group button's "return me to where I was") keeps a state
 # reachable in the same way no matter which state ran before it.
 GROUP = {"roster": "teams", "waivers": "teams",
-         "board": "scouting", "movers": "scouting", "usage": "scouting", "news": "scouting",
+         "board": "scouting", "movers": "scouting", "matchups": "scouting", "usage": "scouting", "news": "scouting",
          "parlay": "bets", "build": "bets", "dfs": "bets", "live": "gameday"}
 
 
@@ -154,6 +154,17 @@ STATES = [
     # same grid as week-over-week change (the mode the level view cannot show; the week and the
     # reading sit in the panel the bar's last chip opens since 2026-09-25), a QB grid because its
     # columns are the ones with no counterpart anywhere else in the app, and the profile modal.
+    # Matchups (2026-09-25): WR opens with a backed start (Higgins, whom Pitcher List says to sit),
+    # a sit, and a sit's counter-evidence; QB is the unbacked call with Pitcher List agreeing; RB
+    # carries the best spot; a row opens the profile; and a week with nothing yet (no calls, no
+    # column, no graded week) says each of those in its own place. LIVE_STARTSIT is a const, so
+    # the null block (no calls file) is pinned in tests/test_startsit.py instead.
+    ("matchups", go("matchups")),
+    ("matchups-qb", go("matchups") + [("click", "[data-mupos='QB']")]),
+    ("matchups-rb", go("matchups") + [("click", "[data-mupos='RB']")]),
+    ("matchups-modal", go("matchups") + [("click", "[data-muslug]")]),
+    ("matchups-empty", [("eval", "Object.assign(LIVE_STARTSIT, {calls: [], pl: [], article: null, record: null})")]
+                       + go("matchups")),
     ("usage", go("usage")),
     ("usage-panel", go("usage") + [("click", "[data-upanel]")]),
     ("usage-change", go("usage") + [("click", "[data-upanel]"), ("click", "[data-umode='change']")]),
@@ -315,6 +326,7 @@ def test_no_console_errors(snapshot):
     ("movers", "scouting", "MOVERS"),  # a view beside Leaders since 2026-09-25
     ("pool", "scouting", "MOVERS"),    # the old Movers view's hash, kept for bookmarks
     ("usage", "scouting", "GRID"),
+    ("matchups", "scouting", "MATCHUPS"),
     ("waivers", "teams", "WAIVERS"),
     ("parlay", "bets", "SLIPS"),        # the leaf is still `parlay`, so its bookmarks land
     ("build", "bets", "BUILD"),

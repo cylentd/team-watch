@@ -1,0 +1,11 @@
+{
+ "season": 2026,
+ "week": 2,
+ "complete": true,
+ "startsit": {},
+ "startsit_record": {
+  "weeks": [1, 2],
+  "ours": {"n": 31, "dnp": 1, "score": 0.324, "score_no_dnp": 0.337},
+  "pitcherlist": {"n": 12, "dnp": 0, "score": 0.667, "score_no_dnp": 0.667}
+ }
+}

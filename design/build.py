@@ -31,15 +31,14 @@ from injury import live_injury, report as injury_report  # design/injury.py: who
 from signed import live_signed, report as signed_report  # design/signed.py: who earned an autograph
 from lines import live_lines, report as lines_report  # design/lines.py: implied points per team
 from routes import live_routes, report as routes_report          # design/routes.py: the profile sheet's YPRR axis
-from archetype import (                                           # design/archetype.py: role/style labels + OL context
-    load_archetype, load_trenches, live_archetype, live_trenches,
-    report_archetype, report_trenches,
-)
+from archetype import (load_archetype, load_trenches, live_archetype, live_trenches,  # role/style labels + OL context
+                       report_archetype, report_trenches)
+from startsit import live_startsit, report as startsit_report  # design/startsit.py: the Matchups view
 from sources import (                                    # design/sources.py: the ff-jarvis adapter
     ROOT, REPO, DWR, FEED, ESPN_ROSTERS, YAHOO_ROSTERS, DFS_POOL,
     feed_block, read_first, load_status, load_props_raw, load_model_raw,
     load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
-    load_draft_pedigree, load_weather, load_routes,
+    load_draft_pedigree, load_weather, load_routes, load_startsit,
 )
 
 # One slug for one name across the page and the functions: api/league.py slugs a connected
@@ -753,6 +752,7 @@ def render():
         "LIVE_ROUTES": live_routes(load_routes(), slugify, wanted_set),
         "LIVE_ARCHETYPE": live_archetype(load_archetype(FEED, DWR), wanted_set),
         "LIVE_TRENCHES": live_trenches(load_trenches(FEED, DWR)),
+        "LIVE_STARTSIT": live_startsit(*load_startsit(), slugify),
     }
     blocks["LIVE_SIGNED"] = live_signed(load_gamelog_weekly(), blocks["LIVE_SCHEDULE"], slugify, wanted_set)
     add_market_stock(blocks, report)
@@ -761,7 +761,7 @@ def render():
     report += [pedigree_report(blocks["LIVE_PEDIGREE"]), gamelog_report(blocks["LIVE_GAMELOG"]),
               projections_report(blocks["LIVE_PROJECTIONS"]), routes_report(blocks["LIVE_ROUTES"]),
               report_archetype(blocks["LIVE_ARCHETYPE"]), report_trenches(blocks["LIVE_TRENCHES"]),
-              lines_report(blocks["LIVE_LINES"]), injury_report(blocks["LIVE_INJURY"]),
+              lines_report(blocks["LIVE_LINES"]), injury_report(blocks["LIVE_INJURY"]), startsit_report(blocks["LIVE_STARTSIT"]),
               (f"Weather: {len(blocks['LIVE_WEATHER']['teams'])} teams" if blocks["LIVE_WEATHER"]
                else "Weather: none, so no game-day forecast")]
     for name, obj in blocks.items():

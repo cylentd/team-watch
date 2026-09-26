@@ -234,6 +234,15 @@ CONTRACT = {
                           "ol_starters_out", "ol_starters_out_of", "ol_starters_out_names",
                           "ol_starters_out_reason"]),
     },
+    # design/startsit.py, the Matchups view. `tag` is best|start|sit; `ecr` and `own` may be null
+    # (no expert rank for the best spot). `record` is null until a week is graded; `pl` is empty
+    # when Pitcher List's column is not this week's, and `article` null with it.
+    "LIVE_STARTSIT": {
+        "keys": ["week", "generated", "calls", "pl", "article", "record"],
+        "rows": [("calls", ["tag", "n", "slug", "pos", "team", "opp", "home", "pts", "rank", "ecr", "own",
+                            "why", "but"]),
+                 ("pl", ["call", "pos", "n", "slug", "team", "opp", "home", "rationale"])],
+    },
 }
 
 

@@ -15,6 +15,9 @@ Jahmyr Gibbs) across CIN/SF/DET, plus Ja'Marr Chase as a TD-only, headshot-less,
 | `data/dfs_pool.json` | `load_dfs_pool()` — Yahoo DFS pool, incl. an FPPG-fallback row |
 | `data/wrcb.json` | `load_wrcb()` — WR/CB upgrade/downgrade tags |
 | `data/breaking_news.json` | `load_news()` — 5 items, one with an unparseable date |
+| `data/startsit_calls.json` | `load_startsit()` — Matchups: a backed and an unbacked start, a sit, two best spots, one without an expert rank |
+| `data/pl_startsit.json` | `load_startsit()` — Pitcher List's calls, same week: one agrees with ours (Purdy), one contradicts it (Higgins) |
+| `data/grades/2026-w2.json` | `load_startsit()` — the season record, ours behind Pitcher List's |
 | `data/cache/roster_2026.parquet` | `nfl_roster()` — resolves Ja'Marr Chase's TD-only position |
 | `heads/*.webp` | inlined headshots; Ja'Marr Chase has none (tests the missing-headshot path) |
 | `feed.json` | `TEAM_WATCH_FEED` — feed-first copy of every block above |
