@@ -58,13 +58,15 @@ function legRowHTML(l, book){
   const team = (TEAM_COLOURS[l.team] || [])[0];
   const more = [u && u.synthetic ? t("parlay.gallery.modelTag") : "", legWhy(l, book)].filter(Boolean).join(" · ");
   return `<div class="tk-leg" role="button" tabindex="0" aria-expanded="false" data-legmore>
-      <span class="tk-face"${team ? ` style="--team:${team}"` : ""}>${avatarHTML(l)}</span>
+      <span class="tk-face" data-slug="${esc(l.slug)}"${team ? ` style="--team:${team}"` : ""}>${avatarHTML(l)}</span>
       <div class="tk-who"><b>${esc(nameInitial(l.n))}</b><span class="tk-call">${legCall(l, book)}</span></div>
       <span class="tk-num">${ud ? `${u.conf}<i>%</i>` : esc(fmtAm(overPrice(l)))}</span>
       <div class="tk-more">${more ? `<span>${esc(more)}</span>` : ""}<span>${esc([l.game, l.kick].filter(Boolean).join(" · "))}</span></div>
     </div>`;
 }
-function presetCard(card, best, groupName){
+/* `deal` (surface/parlay/deal.js) draws a dealt slip: {load, pill, tone} -- its own load key and a
+   tier pill in place of the best pill. */
+function presetCard(card, best, groupName, deal){
   const legs = card.legs.map(i=>PROPS[i]);
   const ud = card.book === "underdog";
   const n = legs.length;
@@ -94,13 +96,15 @@ function presetCard(card, best, groupName){
     note = `<span>${t("parlay.slip.edgeLabel")} ${pos?"+":""}${((modelP-implied)*100).toFixed(1)}</span>`;
   }
   const mark = card.low ? `<span>${t("parlay.slip.low")}</span>` : "";
-  const pill = best ? `<span class="tk-bestpill">${t("parlay.slip.bestAt", {when: esc(groupName)})}</span>` : "";
-  return `<div class="ticket ${best ? "best" : ""}" data-card="${card.book}:${card.i}">
+  const pill = deal ? `<span class="tk-tierpill ${deal.tone}">${deal.pill}</span>`
+    : best ? `<span class="tk-bestpill">${t("parlay.slip.bestAt", {when: esc(groupName)})}</span>` : "";
+  const load = deal ? `data-loaddeal="${esc(deal.load)}"` : `data-loadslip="${card.book}:${card.i}"`;
+  return `<div class="ticket ${best ? "best" : ""} ${deal ? `dealt ${deal.tone}` : ""}" data-card="${card.book}:${esc(String(card.i))}">
     <div class="tk-top"><span class="tk-kind">${t("parlay.slip.pickCount", {n})}<span>${esc(card.scopeLabel)}</span></span>${pill}${pays ? `<span class="tk-pays">${pays}</span>` : ""}</div>
     ${legs.map(l => legRowHTML(l, card.book)).join("")}
     <div class="ticket-tear"></div>
     <div class="tk-stub">
-      <div class="tk-head">${head}<button class="ticket-cta" data-loadslip="${card.book}:${card.i}">${t("parlay.gallery.loadSlip")}</button></div>
+      <div class="tk-head">${head}<button class="ticket-cta" ${load}>${t("parlay.gallery.loadSlip")}</button></div>
       ${meter}
       <div class="tk-note">${mark}${note}</div>
     </div>
@@ -122,7 +126,8 @@ function galleryHTML(){
     const best = bestCard(mine), name = galGroupName(g);
     const ordered = best ? [best, ...mine.filter(c => c !== best)] : mine;
     return `<section class="tk-group">
-      <div class="tk-when"><h3>${esc(name)}</h3><span>${t("parlay.gallery.groupMeta", {kick: esc(g.kick || ""), n: g.games, s: g.games === 1 ? "" : "s"})}</span></div>
+      <div class="tk-when"><h3>${esc(name)}</h3><span>${t("parlay.gallery.groupMeta", {kick: esc(g.kick || ""), n: g.games, s: g.games === 1 ? "" : "s"})}</span>${dealButtonHTML(g)}</div>
+      ${dealBlockHTML(g, name)}
       <div class="tk-grid">${ordered.map(c => presetCard(c, c === best, name)).join("")}</div>
     </section>`;
   }).join("");

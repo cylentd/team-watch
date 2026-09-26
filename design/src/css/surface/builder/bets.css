@@ -45,6 +45,10 @@
 /* A slip ends where its picks end (2026-09-25): stretched to its row, a 2-pick slip beside a
    5-pick one carried 395px of empty card. */
 .tk-grid .ticket{width:auto;align-self:start}
+/* Packed (js/surface/parlay/masonry.js): 2px rows, each slip spanning its measured height plus
+   the gap, so the vertical gap moves from the grid onto the slip. */
+.tk-grid.masonry{grid-auto-rows:2px;row-gap:0}
+.tk-grid.masonry > .ticket{margin-bottom:14px}
 
 .bets .legs{margin-top:14px}
 .bets-pager{margin-top:12px}

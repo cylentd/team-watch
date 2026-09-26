@@ -141,6 +141,69 @@ def test_slips_group_by_kickoff_with_the_best_first(browser, page_file):
     ctx.close()
 
 
+def test_deal_me_3_deals_from_the_kickoff_and_keeps_the_models_pick(browser, page_file):
+    """Deal me 3 (2026-09-25) sits only on a kickoff whose approved picks span 4+ games. It deals
+    a 3-pick and a 5-pick at random from that kickoff's picks, one per game, plus the model's pick,
+    which shares no player with the kickoff's best slip and survives "Deal again". A dealt slip
+    loads into the tray like any other."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    page.evaluate("SURFACE='parlay'; PARLAY_BOOK='underdog'; render()")
+    ok = page.evaluate("GAL_GROUPS.filter(g => dealOK(g)).map(g => g.k)")
+    shown = page.evaluate("[...document.querySelectorAll('[data-deal]')].map(b => b.dataset.deal)")
+    assert sorted(shown) == sorted(k for k in ok if k in page.evaluate("GALLERIES.underdog.map(c => c.win.k)"))
+    if shown:
+        k = shown[0]
+        page.click(f".tk-dealbtn[data-deal='{k}']")
+    else:
+        # The fixture has no approved pick at any kickoff (its slips are all fallbacks) and at most
+        # 2 games per kickoff, so widen the pool to every Underdog-priced pick on the slate and deal
+        # under the first kickoff that has a slip: the dealing, the deck, the redeal and the load
+        # all still run.
+        page.evaluate("dealPool = w => PROPS.map((p, i) => i).filter(i => udPick(PROPS[i]))")
+        k = page.evaluate("(GAL_GROUPS.find(g => !g.wins && GALLERIES.underdog.some(c => c.win === g)) || {}).k")
+        if not k or len({page.evaluate(f"PROPS[{i}].game") for i in page.evaluate("dealPool()")}) < 3:
+            pytest.skip("the fixture slate has fewer than 3 games of Underdog picks")
+        page.evaluate(f"dealFor(GAL_GROUPS.find(g => g.k === '{k}')); render(); dealPlay()")
+    deal = page.evaluate(f"DEALS['{k}']")
+    pool = set(page.evaluate(f"dealPool(GAL_GROUPS.find(g => g.k === '{k}'))"))
+    for tier, n in (("medium", 3), ("hard", 5), ("model", 3)):
+        legs = deal[tier]
+        if legs is None:
+            continue
+        assert len(legs) == n and set(legs) <= pool, tier
+        assert len({page.evaluate(f"PROPS[{i}].game") for i in legs}) == n, "one pick per game"
+    best = page.evaluate(f"(bestCard(GALLERIES.underdog.filter(c => c.win.k === '{k}')) || {{legs: []}}).legs.map(i => PROPS[i].n)")
+    if deal["model"]:
+        assert not {page.evaluate(f"PROPS[{i}].n") for i in deal["model"]} & set(best)
+    assert page.locator(f".tk-deal[data-dealt='{k}'] .tk-deck .tk-face").count() == len(pool)
+    page.click(".tk-again")
+    assert page.evaluate(f"DEALS['{k}'].model") == deal["model"], "the model's pick is not rerolled"
+    page.locator(".tk-deal .ticket [data-loaddeal]").first.click()
+    assert page.evaluate("SLIP.length") == len(page.evaluate(f"DEALS['{k}'].medium"))
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.parametrize("book", ["underdog", "dk"])
+def test_slips_pack_their_columns_with_no_holes(browser, page_file, book):
+    """A grid row used to be as tall as its tallest slip, so a 4-pick under a 5-pick left a
+    card-sized hole beside it (2026-09-25). Packed, the space under any slip is the grid's 14px
+    gap, before and after a pick opens."""
+    ctx, page, errors = open_page(browser, page_file, (1280, 900))
+    page.evaluate(f"SURFACE='parlay'; PARLAY_BOOK='{book}'; render()")
+    if page.locator(".ticket").count() < 2:
+        pytest.skip("the fixture builds fewer than two slips for this book")
+    holes = """() => Math.max(0, ...[...document.querySelectorAll('.tk-grid')].flatMap(g => {
+      const r = [...g.querySelectorAll(':scope > .ticket')].map(c => c.getBoundingClientRect());
+      return r.map(a => { const below = r.filter(b => Math.abs(b.left - a.left) < 2 && b.top > a.top);
+        return below.length ? Math.min(...below.map(b => b.top)) - a.bottom : 0; }); }))"""
+    assert page.evaluate(holes) <= 16
+    page.locator(".ticket .tk-leg").first.click()
+    assert page.evaluate(holes) <= 16, "an opened pick re-packs its column"
+    assert errors == []
+    ctx.close()
+
+
 def test_a_near_copy_slip_is_dropped(browser, page_file):
     """A slip of 3+ that shares all but one leg with a kept slip of its own kind is a copy
     (2026-09-25: Sunday morning's receptions slip reused 2 of the whole day's 3)."""

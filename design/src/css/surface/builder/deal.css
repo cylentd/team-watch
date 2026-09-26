@@ -1,0 +1,30 @@
+/* Deal me 3 (2026-09-25; js/surface/parlay/deal.js). The button sits on its kickoff's heading;
+   a deal draws the deck (the kickoff's approved picks as faces) and three slips under it. */
+.tk-dealbtn{margin-left:auto;appearance:none;cursor:pointer;background:none;
+  border:1px solid rgb(var(--lime-rgb) / .5);border-radius:99px;padding:5px 12px;
+  font-family:var(--ui);font-weight:700;font-size:var(--t-2);color:var(--lime);
+  transition:background .15s var(--ease),transform var(--dur-spring) var(--spring)}
+.tk-dealbtn:hover{background:rgb(var(--lime-rgb) / .08)}
+.tk-dealbtn:active{transform:scale(var(--press))}
+.tk-dealbtn:focus-visible,.tk-again:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+
+.tk-deal{margin-top:10px;padding:12px;border:1px dashed var(--line-2);border-radius:14px}
+.tk-deckhead{display:flex;align-items:baseline;gap:10px;font-size:var(--t-1);color:var(--ink-3)}
+.tk-again{margin-left:auto;flex:none;appearance:none;cursor:pointer;background:none;border:0;padding:0;
+  font-family:var(--ui);font-weight:600;font-size:var(--t-2);color:var(--ink-2);text-decoration:underline;text-underline-offset:3px}
+.tk-again:hover{color:var(--ink)}
+/* The deck: faces overlapping like a fanned hand, so 11 fit a phone's row. */
+.tk-deck{display:flex;flex-wrap:wrap;padding:8px 0 2px 8px}
+.tk-deck .tk-face{width:32px;height:32px;margin-left:-8px;transition:opacity .25s var(--ease),filter .25s var(--ease)}
+.tk-deck .tk-face.out{opacity:.35;filter:grayscale(1)}
+.tk-deal .tk-grid{margin-top:12px}
+/* A face in flight, from the deck to its row. */
+.tk-fly{position:fixed;z-index:30;margin:0;pointer-events:none;transform-origin:0 0}
+
+/* The tier on a dealt slip: medium neutral, hard in caution amber, the model's pick outlined in
+   lime (a filled lime pill already means the kickoff's best slip). */
+.tk-tierpill{margin-left:auto;flex:none;font-weight:700;font-size:var(--t-1);white-space:nowrap;
+  border-radius:99px;padding:3px 10px;background:var(--panel-3);color:var(--ink-2)}
+.tk-tierpill.hard{background:rgb(var(--amber-rgb) / .14);color:var(--amber)}
+.tk-tierpill.model{background:none;box-shadow:inset 0 0 0 1px rgb(var(--lime-rgb) / .6);color:var(--lime)}
+.tk-tierpill + .tk-pays{margin-left:0}

@@ -78,6 +78,7 @@ data/market.js
 lib/odds.js
 builder/grade.js
 builder/slips.js
+builder/deal.js
 data/dfs.js
 data/search.js
 builder/state.js
@@ -95,6 +96,8 @@ surface/parlay/parlay.js
 surface/parlay/bar.js
 surface/parlay/tray.js
 surface/parlay/flight.js
+surface/parlay/deal.js
+surface/parlay/masonry.js
 surface/dfs/dfs.js
 chrome/state.js
 surface/live/live.js

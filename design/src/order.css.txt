@@ -65,6 +65,7 @@ surface/builder/underdog-list.css
 surface/builder/strategy.css
 surface/builder/side.css
 surface/builder/ticket.css
+surface/builder/deal.css
 surface/builder/slip.css
 surface/builder/ud-row.css
 surface/builder/grid.css

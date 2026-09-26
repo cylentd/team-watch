@@ -130,12 +130,15 @@ function wireBets(v){
     const y = window.scrollY; render(); window.scrollTo(0, y);
     betsPour(from, SLIP.map(k => PROPS[k].n));
   }));
-  // A pick opens its details in place (2026-09-25): only its own slip grows.
+  // A pick opens its details in place (2026-09-25): only its own slip grows, and its column
+  // re-packs under it.
+  slipMasonry(v);
   v.querySelectorAll("[data-legmore]").forEach(el => {
-    const flip = () => el.setAttribute("aria-expanded", String(el.classList.toggle("open")));
+    const flip = () => { el.setAttribute("aria-expanded", String(el.classList.toggle("open"))); slipMasonry(el.closest(".tk-group") || v); };
     el.addEventListener("click", flip);
     el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); flip(); } });
   });
+  wireDeal(v);
   v.querySelectorAll("[data-tray]").forEach(b => b.addEventListener("click", betsSheetOpen));
   v.querySelectorAll("[data-sheetclose]").forEach(b => b.addEventListener("click", betsSheetClose));
   // The typed payout belongs to this exact slip; only the verdict redraws, so the field keeps focus.
