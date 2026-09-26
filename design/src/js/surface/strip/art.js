@@ -22,6 +22,16 @@ const ST_BALL = '<svg class="stball" viewBox="0 0 26 16" aria-hidden="true">'
   + '<path d="M1 8C5 1.2 21 1.2 25 8C21 14.8 5 14.8 1 8Z" fill="var(--ball)" stroke="var(--ball-lace)" stroke-opacity=".55" stroke-width=".8"/>'
   + '<path d="M9 8h8M11 6.2v3.6M13 6.2v3.6M15 6.2v3.6" stroke="var(--ball-lace)" stroke-width="1.1" fill="none"/></svg>';
 
+/* The helmet, facing right, sat on the shoulders inside the torso group so it leans, turns and
+   mirrors with the body. Chibi-big on purpose: at 12px of body a true-scale head is a dot. Shell
+   in the team colour, a centre stripe, an ear hole and the facemask cage at the front. It replaced
+   the headshot on 2026-09-26: two faces on one spot covered each other on every pass and tackle,
+   and the play card under the field already shows both faces with the names. */
+const ST_HELMET = '<g class="hm">'
+  + '<path class="j" d="M9.5 3C8.6-11 17-18.5 26-18.5C34.6-18.5 39.5-11.5 39.5-3.5L39.5 3.5L31 4.5L28.5 9.5L13 9.5C11 8 9.8 5.8 9.5 3Z"/>'
+  + '<path class="hs" d="M25.5-18.4C17.5-17 12.2-11 11-1.5"/><circle class="he" cx="19.5" cy="-0.5" r="2.4"/>'
+  + '<path class="hk" d="M31-3.5H42M31 1.5H41.5M36.5-4.5V6"/></g>';
+
 /* One figure, facing right. Far limbs first so the near ones paint over them; the joints carry the
    class names figure.css rotates (hip, knee, sh, elb, torso) and pose.js sets directly on a kick. */
 const ST_RUNNER = '<svg class="strig" viewBox="-18 -4 84 68" aria-hidden="true">'
@@ -32,6 +42,7 @@ const ST_RUNNER = '<svg class="strig" viewBox="-18 -4 84 68" aria-hidden="true">
   + '<g class="elb"><path class="p" d="M19.5 21.5L20.2 31L23.8 31L24.5 21.5Z"/><circle class="k" cx="22" cy="32.2" r="3"/></g></g>'
   + '<path class="j" d="M15.6 13Q14.8 27 17 31.5L27 31.5Q29.2 27 28.4 13Z"/><ellipse class="j" cx="22" cy="11.5" rx="9.6" ry="5.8"/>'
   + '<path class="s" d="M13.4 13.6Q22 17.6 30.6 13.6"/><rect class="p" x="16.6" y="28.4" width="10.8" height="4.4" rx="2"/>'
+  + ST_HELMET
   + '<g class="sh near"><path class="j" d="M18.4 11L19.2 22.5L24.8 22.5L25.6 11Z"/>'
   + '<g class="elb"><path class="p" d="M19.5 21.5L20.2 31L23.8 31L24.5 21.5Z"/><circle class="k" cx="22" cy="32.2" r="3"/></g></g></g>'
   + '<g class="hip near"><path class="p" d="M17.4 29.5Q16.8 37 19 43.5L25 43.5Q27.2 37 26.6 29.5Z"/>'
@@ -75,4 +86,6 @@ function stFace(who, url, cls = ""){
     : `<span class="stface${cls}"${label}>${esc(stInitials(who))}</span>`;
 }
 
-const stFigure = (who, url) => `<div class="stpose">${stFace(who, url)}${ST_RUNNER}<span class="stheld">${ST_BALL}</span></div>`;
+/* the ring on the ground is how the reader finds the man the play card names among helmets */
+const stFigure = who => `<div class="stpose" role="img" aria-label="${esc(who || "")}"><span class="stspot"></span>`
+  + `${ST_RUNNER}<span class="stheld">${ST_BALL}</span></div>`;

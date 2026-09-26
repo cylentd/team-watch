@@ -23,13 +23,15 @@ function stBind(root, drive, id, faces){
           nA: q(".a-nA"), fA: q(".a-fA"), nB: q(".a-nB"), fB: q(".a-fB")},
     clips: drive.plays.map((p, i) => root.querySelectorAll(`#${id}g${i} rect, #${id}a${i} rect`)),
     marks: [...root.querySelectorAll(".stturf svg g[data-i]")],
-    memo: {}, ver: 0, shown: -1,
+    memo: {}, ver: 0, shown: -1, clipKey: [],
   };
   S.el.arcs.innerHTML = S.plays.map((p, j) => p.k === "rush" ? ""
     : `<polyline class="${p.k === "inc" || p.k === "int" ? "inc" : "pass"}" data-j="${j}"/>`).join("");
   const pose = (i, f, hold = 1, all = false) => stPoseFrame(S, i, f, hold, all);
   /* the arc cache is measured against a layout; anything that moves the field invalidates it */
   pose.bump = () => { S.ver++; };
+  /* whose feet the ring goes under when he is on the play; null leaves it on the carrier */
+  pose.mark = who => { S.mark = who; S.shown = -1; };
   pose.geom = S.g;
   return pose;
 }
@@ -70,10 +72,16 @@ function stArcPoints(S, j){
 }
 
 /* Plays before i are drawn whole and stepped back; play i is drawn up to u. */
+/* Only an arc whose drawn length or layout changed is rewritten: every attribute write on an SVG
+   repaints it, and all but one arc are standing still on any given frame. */
 function stDrawArcs(S, i, u0, whole){
-  S.el.arcs.querySelectorAll("polyline").forEach(pl => {
-    const j = +pl.dataset.j, u = j < i ? 1 : j > i ? 0 : u0;
-    pl.classList.toggle("past", !whole && j < i);
+  S.arcEls = S.arcEls || [...S.el.arcs.querySelectorAll("polyline")];
+  S.arcEls.forEach(pl => {
+    const j = +pl.dataset.j, u = j < i ? 1 : j > i ? 0 : u0, past = !whole && j < i;
+    if (pl.classList.contains("past") !== past) pl.classList.toggle("past", past);
+    const key = u ? u.toFixed(4) + "@" + S.ver : "0";
+    if (pl.__key === key) return;
+    pl.__key = key;
     if (!u) return pl.setAttribute("points", "");
     const all = stArcPoints(S, j), at = u * ST_ARC_N, k = Math.floor(at), out = all.slice(0, k + 1);
     if (k < ST_ARC_N) out.push([stLerp(all[k][0], all[k + 1][0], at - k),
@@ -89,10 +97,16 @@ function stReveal(S, i, f, all){
   S.plays.forEach((pl, j) => {
     const fj = j < i ? 1 : j > i ? 0 : f, cur = S.g.prog(pl, fj);
     const c0 = fj >= S.g.flightOf(pl) ? S.g.catchOf(pl) : pl.from;
-    const lo = Math.min(pl.from, c0, cur), hi = Math.max(pl.from, c0, cur);
+    const lo = Math.min(pl.from, c0, cur), hi = Math.max(pl.from, c0, cur), key = lo + ":" + hi;
+    /* unchanged clips are left alone: a write to one repaints the whole tilted field */
+    if (S.clipKey[j] === key) return;
+    S.clipKey[j] = key;
     S.clips[j].forEach(r => { r.setAttribute("x", lo); r.setAttribute("width", hi - lo); });
   });
-  S.marks.forEach(gr => gr.classList.toggle("past", !all && +gr.dataset.i < i));
+  S.marks.forEach(gr => {
+    const past = !all && +gr.dataset.i < i;
+    if (gr.classList.contains("past") !== past) gr.classList.toggle("past", past);
+  });
 }
 
 /* An interception's return line grows during the beat AFTER the catch, not during the play. */
@@ -106,26 +120,43 @@ function stRevealReturn(S, i, after){
   });
 }
 
-/* Read where each anchor landed on screen and put its sprite there. */
+/* Read where each anchor landed on screen and put its sprite there. Every read comes before any
+   write: a read after a write forces the browser to lay the 3D scene out again, and interleaving
+   them cost three and a half layouts a frame. */
 function stPlace(S, x){
   const p = x.p, f = x.f, o = S.root.getBoundingClientRect(), el = S.el, anc = S.anc;
   const k = stScale(S.root);
   const lift = p.k === "fg" ? 0 : x.picked ? ST_HAND.y
     : x.inc ? ST_HAND.y * (1 - f)
     : x.loose ? ST_HAND.y * (1 - Math.min(x.after * 3, 1)) : ST_HAND.y;
-  [[el.carrier, anc.carrier, 0, 0], [el.qb, anc.qb, 0, 0], [el.tk, anc.tk, 0, 0],
-   [el.fly, anc.fly, ST_HAND.x, -lift], [el.miss, anc.miss, ST_HAND.x, 0]].forEach(([node, a, dx, dy]) => {
-    const r = a.getBoundingClientRect();
-    node.style.translate = `${(r.left - o.left) / k + dx}px ${(r.top - o.top) / k + dy}px`;
+  const at = a => { const r = a.getBoundingClientRect(); return [(r.left - o.left) / k, (r.top - o.top) / k]; };
+  const put = [[el.carrier, anc.carrier, 0, 0], [el.qb, anc.qb, 0, 0], [el.tk, anc.tk, 0, 0],
+    [el.fly, anc.fly, ST_HAND.x, -lift], [el.miss, anc.miss, ST_HAND.x, 0]].map(([node, a, dx, dy]) => {
+    const [l, t] = at(a);
+    return [node, l + dx, t + dy];
   });
-  /* the uprights stay screen-vertical like the figures; only the crossbar's direction and length
-     come from the scene, one anchor under each upright on the end line */
-  [[el.postA, anc.nA, anc.fA], [el.postB, anc.nB, anc.fB]].forEach(([node, near, far]) => {
-    const rn = near.getBoundingClientRect(), rf = far.getBoundingClientRect();
-    node.style.translate = `${(rn.left - o.left) / k}px ${(rn.top - o.top) / k}px`;
-    node.querySelector("path").setAttribute("d",
-      stPostPath((rf.left - rn.left) / k, (rf.top - rn.top) / k));
-  });
+  /* the goalposts only move when the layout does, so they are measured once per layout (and per
+     ancestor scale, which the dialog's open animation changes) rather than every frame */
+  const postKey = S.ver + "@" + k.toFixed(3) + "@" + o.width.toFixed(1);
+  const posts = S.posts && S.posts.key === postKey ? null
+    : [[el.postA, anc.nA, anc.fA], [el.postB, anc.nB, anc.fB]].map(([node, near, far]) => [node, at(near), at(far)]);
+  put.forEach(([node, l, t]) => { node.style.translate = `${l}px ${t}px`; });
+  if (posts){
+    S.posts = {key: postKey};
+    /* the uprights stay screen-vertical like the figures; only the crossbar's direction and length
+       come from the scene, one anchor under each upright on the end line */
+    posts.forEach(([node, [nl, nt], [fl, ft]]) => {
+      node.style.translate = `${nl}px ${nt}px`;
+      node.querySelector("path").setAttribute("d", stPostPath(fl - nl, ft - nt));
+    });
+  }
+}
+
+/* Who stands on the lime ring: the reader's own player when the reel is narrowed to him and he is
+   on this play (as the passer, or even as the tackler), otherwise the man the play card names. */
+function stRing(S, p){
+  const on = S.mark && p.qb === S.mark ? "qb" : S.mark && p.tk === S.mark ? "tk" : "carrier";
+  ["carrier", "qb", "tk"].forEach(r => S.el[r].classList.toggle("ring", r === on));
 }
 
 /* One whole frame. Returns whatever the chevrons should point past: the ball while it is in the
@@ -136,9 +167,10 @@ function stPoseFrame(S, i, f, hold, all){
   stRevealReturn(S, i, x.after);
   if (i !== S.shown){
     S.shown = i;
-    S.el.carrier.innerHTML = stFigure(p.who, S.faces[p.who]);
-    S.el.qb.innerHTML = p.qb ? stFigure(p.qb, S.faces[p.qb]) : "";
-    S.el.tk.innerHTML = p.tk ? stFigure(p.tk, S.faces[p.tk]) : "";
+    S.el.carrier.innerHTML = stFigure(p.who);
+    S.el.qb.innerHTML = p.qb ? stFigure(p.qb) : "";
+    S.el.tk.innerHTML = p.tk ? stFigure(p.tk) : "";
+    stRing(S, p);
   }
   const cx = stPoseCarrier(S, x);
   stPoseQb(S, x);

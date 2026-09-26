@@ -14,7 +14,13 @@
    Every class here is st-prefixed, like Live's gd-. The page has a .row and a .score of its own.
 ------------------------------------------------------------------ */
 
-.ststage{position:relative;perspective:820px;perspective-origin:50% -20%;--tilt:52deg;padding-top:6px}
+/* --clock is the replay's own clock as an animation delay. Every loop in the strip (the run
+   cycle, the bounce, the spiral, the chevrons) is a PAUSED animation positioned by it, and
+   stRender moves --ph once per frame it draws. So the loops advance at the replay's frame rate
+   (60 at most) instead of the screen's (120 on this machine), and stand still whenever the replay
+   does -- the same keyframes, and every rule that overrides one still wins. (2026-09-26) */
+.ststage{position:relative;perspective:820px;perspective-origin:50% -20%;--tilt:52deg;padding-top:6px;
+  --clock:calc(var(--ph, 0) * -1s)}
 .stplane{display:flex;height:132px;border:1px solid var(--turf-line);transform:rotateX(var(--tilt));
   transform-origin:50% 100%;transform-style:preserve-3d;transition:transform .6s var(--ease)}
 .stplane .stturf,.stplane .stez{transform-style:preserve-3d}
@@ -48,10 +54,8 @@
      colour escaping tokens.css. The lime comes from the background it reveals. */
   --chev:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='14'%3E%3Cpath d='M3 2.5L8 7l-5 4.5' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
 .stahead::before{content:"";position:absolute;inset:0 0 0 -16px;background:rgb(var(--lime-rgb) / .4);
-  mask:var(--chev) 0 50% / 16px 14px repeat-x;animation:stmarch 1.1s linear infinite}
+  mask:var(--chev) 0 50% / 16px 14px repeat-x;animation:stmarch 1.1s linear var(--clock) infinite paused}
 .ststage.rev .stahead::before{scale:-1 1}
-/* offscreen, the chevrons stop: a marching animation nobody is looking at is pure battery */
-.ststage.offscreen .stahead::before{animation-play-state:paused}
 @keyframes stmarch{to{translate:16px 0}}
 /* a turnover flips the field: the chevrons go, and the other end zone becomes the one at risk */
 .ststage.turnover .stahead{display:none}
@@ -76,7 +80,10 @@
 .stair{position:absolute;left:0;right:0;height:150px;transform:rotateX(-90deg);transform-origin:50% 100%;pointer-events:none}
 .stanc{position:absolute;bottom:0;width:0;height:0;visibility:hidden}
 .stactors{position:absolute;inset:0;pointer-events:none}
-.stactor{position:absolute;left:0;top:0;transform:translate(-50%,-100%);transition:opacity .25s}
+/* Each sprite is its own compositor layer, so moving one is a translate on the GPU. Without it
+   every frame repainted the whole field-sized overlay they share -- about 2x the field on desktop,
+   where it is scaled up. Measured 2026-09-26, whole browser, playing: 2.8% -> 2.0% of 20 threads. */
+.stactor{position:absolute;left:0;top:0;transform:translate(-50%,-100%);transition:opacity .25s;will-change:translate}
 .stshadow{position:absolute;width:22px;height:8px;margin-left:-11px;border-radius:50%;background:rgb(var(--shadow-rgb) / .55)}
 
 /* the ball's flight, drawn flat over the field from points probed along the arc in the scene.

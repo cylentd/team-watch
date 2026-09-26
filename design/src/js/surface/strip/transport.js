@@ -15,6 +15,8 @@ const ST_BEAT = 900;
 /* the pause before a play that does not follow the last one on the field: a new possession, or
    the next of a player's plays with other plays skipped in between */
 const ST_LEAD = 500;
+/* a hair under 1000/60, so a 60Hz screen's frames (16.7ms apart, give or take) are never skipped */
+const ST_FRAME_MS = 14;
 
 /* `at` is the drive to open at, shown finished; left out, a finished game opens at the kickoff
    and a live one at its latest play. `who` is the player the reader came from, spelled the way
@@ -43,6 +45,8 @@ function stStop(ctl){
 
 function stSetPlaying(ctl, on){
   ctl.playing = on;
+  /* idle figures breathe only while the reel is playing (figure.css) */
+  ctl.ui.host.classList.toggle("stplaying", on);
   const label = on ? t("strip.control.pause") : t("strip.control.play");
   ctl.ui.play.innerHTML = (on ? ST_PAUSE_ICON : ST_PLAY_ICON) + `<span class="stw">${label}</span>`;
   ctl.ui.play.setAttribute("aria-label", label);
@@ -53,7 +57,9 @@ function stSetPlaying(ctl, on){
    A drag on the field itself never paints, so the reader is never fought for the scroll. */
 function stKeepInView(ctl, x){
   const view = ctl.ui.view;
-  if (view.scrollWidth <= view.clientWidth) return;
+  /* whether the field pans at all is decided once per layout (stAgain): asking scrollWidth here,
+     after the frame's writes, forced a second layout of the 3D scene on every frame */
+  if (!ctl.pans) return;
   const tf = ctl.turf.getBoundingClientRect(), v = view.getBoundingClientRect();
   /* scrollLeft is in the element's own pixels; the rects above are in screen pixels, which a
      transformed ancestor (the dialog's open animation) scales. Same correction as stPlace. */
@@ -130,7 +136,12 @@ function stPlay(ctl){
   const elapsed = f0 ? tl[i0].start + tl[i0].move * stEaseInv(f0) : i0 ? tl[i0 - 1].end : 0;
   const t0 = performance.now() - elapsed;
   if (!elapsed) ctl.fired = -1;
+  let last = 0;
   const tick = now => {
+    /* 60 frames a second at most. A 120Hz screen otherwise doubles every cost below for motion
+       nobody can tell apart; the timing is wall-clock, so a skipped frame changes nothing. */
+    if (now - last < ST_FRAME_MS){ ctl.raf = requestAnimationFrame(tick); return; }
+    last = now;
     const el = now - t0, k = tl.findIndex(x => el < x.end);
     if (k < 0){ stSeek(ctl, R); return stSetPlaying(ctl, false); }
     const local = el - tl[k].start, ms = tl[k].move;
@@ -148,6 +159,7 @@ function stPlay(ctl){
 function stAgain(ctl){
   if (!ctl.pose) return;
   stScaleField(ctl);
+  ctl.pans = ctl.ui.view.scrollWidth > ctl.ui.view.clientWidth;
   ctl.pose.bump();
   stFitCap(ctl);
   stSeek(ctl, ctl.T);
@@ -184,8 +196,6 @@ function stWire(ctl){
     stSeek(ctl, k);
     stGlide(ctl, k + 1, stMoveAt(ctl, k));
   });
-  /* the chevrons march only while the field is on screen; an animation nobody sees is battery */
-  new IntersectionObserver(([e]) => ui.stage.classList.toggle("offscreen", !e.isIntersecting)).observe(ui.stage);
   ST_MOUNTED.add(ctl);
 }
 

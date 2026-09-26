@@ -33,6 +33,7 @@
   font:500 13px var(--mono);color:var(--ink-2)}
 .stscore strong{font:800 20px var(--disp);color:var(--ink);letter-spacing:-.01em}
 .stscore strong.bumped{display:inline-block;animation:stgotit .5s var(--ease)}
+@keyframes stgotit{40%{scale:1.22}}
 .stscore .stposs{color:var(--lime)}
 .stclock{margin-left:auto;font:500 13px var(--mono);color:var(--ink-2);white-space:nowrap;flex:none}
 
@@ -88,6 +89,6 @@
   74%{opacity:1;transform:scale(1.02)}100%{opacity:0;transform:scale(1.06)}}
 
 @media (prefers-reduced-motion:reduce){
-  .stahead::before,.stfig.run *,.stfig .strig,.stfig.has .stface,.stfly .stball{animation:none}
+  .stahead::before,.stfig.run *,.stfig .strig,.stfly .stball{animation:none}
   .stplane,.stactor,.stturf svg g,.starcs polyline{transition:none}
 }

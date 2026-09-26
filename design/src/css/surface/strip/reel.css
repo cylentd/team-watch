@@ -52,7 +52,6 @@
 /* the field drawn at its own size and scaled up whole (transport.js, stScaleField) */
 .stbox.zoomed{height:calc(var(--sth) * var(--stz))}
 .stbox.zoomed .stview{width:calc(100% / var(--stz));transform:scale(var(--stz));transform-origin:0 0}
-
 /* Wide: the list beside the field, the full height of the dialog, scrolling on its own. The
    field's column shares its top and bottom edge. */
 @media (min-width:960px){

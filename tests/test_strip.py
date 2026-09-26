@@ -453,6 +453,66 @@ def test_the_player_chip_and_a_quarter_narrow_the_reel_to_his_plays(browser, pag
     assert his_q2 == {"rows": len(q2), "max": len(q2), "chip": str(len(q2))}, his_q2
 
 
+def test_the_ring_is_under_the_man_the_reader_follows(browser, page_file, shaped):
+    """The field has no faces (2026-09-26); the lime ring says who to watch. In the game view it is
+    the man the play card names; narrowed to a passer, it moves to the passer on his throws."""
+    who = "J. Goff"
+    page, ctx, errors = open_strip(browser, page_file, shaped, None, DESK, who)
+    ring = lambda: page.evaluate("""() => [...document.querySelectorAll("#striptest .stactor.ring")]
+      .map(e => [...e.classList].find(c => ["carrier", "qb", "tk"].includes(c)))""")
+    k = page.evaluate(f"""() => window.__ctl.reel.findIndex(s =>
+      window.__ctl.data.drives[s.d].plays[s.i].qb === "{who}")""")
+    page.evaluate(f"() => stSeek(window.__ctl, {k} + .5)")
+    game = ring()
+    page.click("#striptest .stme")
+    page.evaluate("() => stSeek(window.__ctl, .5)")
+    his = ring()
+    faces = page.evaluate('() => document.querySelectorAll("#striptest .stactors .stface").length')
+    ctx.close()
+    assert not errors, errors
+    assert game == ["carrier"], game
+    assert his == ["qb"], his
+    assert faces == 0, "a headshot is back on the field"
+
+
+def test_nothing_on_the_field_animates_while_paused(browser, page_file, shaped):
+    """The chevrons and a standing figure's breathing used to loop forever, repainting the tilted
+    field for nobody (STYLE.md, Motion 1). Paused, no looping animation in the strip is running;
+    a one-off fade (the lit row's) ends by itself."""
+    page, ctx, errors = open_strip(browser, page_file, shaped, None)
+    running = page.evaluate("""() => document.getAnimations()
+      .filter(a => a.playState === "running" && a.effect && a.effect.target
+                   && a.effect.getTiming().iterations === Infinity
+                   && document.getElementById("striptest").contains(a.effect.target))
+      .map(a => a.animationName || "?")""")
+    ctx.close()
+    assert not errors, errors
+    assert running == [], f"still animating while paused: {running}"
+
+
+def test_the_legs_run_on_the_replays_clock(browser, page_file, shaped):
+    """The run cycle is a paused animation positioned by the replay's own clock (field.css,
+    --clock), so it moves only on frames the replay draws. Playing, a runner's legs move; the
+    moment the replay stops, they stop too."""
+    page, ctx, errors = open_strip(browser, page_file, shaped, None)
+    leg = """() => { const h = document.querySelector("#striptest .stfig.run .near.hip");
+                     return h ? getComputedStyle(h).rotate : null; }"""
+    page.click("#striptest .stplay")
+    page.wait_for_function(leg.replace("return h ?", "return !!h &&").replace(": null", ""), timeout=6000)
+    a = page.evaluate(leg)
+    page.wait_for_timeout(120)
+    b = page.evaluate(leg)
+    page.click("#striptest .stplay")                    # pause
+    page.wait_for_timeout(50)
+    c = page.evaluate(leg)
+    page.wait_for_timeout(200)
+    d = page.evaluate(leg)
+    ctx.close()
+    assert not errors, errors
+    assert a is not None and b is not None and a != b, f"the legs did not move while playing: {a} -> {b}"
+    assert c == d, f"the legs kept moving while paused: {c} -> {d}"
+
+
 def test_a_row_in_the_list_plays_that_play(browser, page_file, shaped):
     """Tapping a row runs its play from the snap to the beat after it, on its own drive's field,
     and lights that row."""

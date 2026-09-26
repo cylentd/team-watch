@@ -139,6 +139,7 @@ function stShowDrive(ctl, i, quiet){
   ctl.ui.stage.className = "ststage" + (ctl.drive.dir < 0 ? " rev" : "");
   ctl.ui.stage.innerHTML = stStageHTML(ctl.drive, "s" + i, ctl.data.home.abbr, ctl.data.away.abbr);
   ctl.pose = stBind(ctl.ui.stage, ctl.drive, "s" + i, ctl.faces);
+  ctl.pose.mark(ctl.sel && ctl.sel.me ? ctl.sel.who : null);
   ctl.ahead = ctl.ui.stage.querySelector(".stahead");
   ctl.ltg = ctl.ui.stage.querySelector(".stltg");
   ctl.turf = ctl.ui.stage.querySelector(".stturf");
@@ -156,6 +157,8 @@ function stShowDrive(ctl, i, quiet){
 function stRender(ctl, tm, hold = 1){
   const n = ctl.n, i = tm <= 0 ? 0 : Math.min(Math.ceil(tm) - 1, n - 1);
   const f = tm <= 0 ? 0 : tm - i, p = ctl.plays[i], done = f >= 1, over = tm >= n && hold >= 1;
+  /* the clock every loop on the field is positioned by (field.css, --clock) */
+  ctl.ui.stage.style.setProperty("--ph", (performance.now() / 1000).toFixed(3));
   const x = ctl.pose(i, f, hold, over);
   /* the chevrons fill the ground between the ball and the end zone this drive is heading for --
      which is the LEFT one on an away drive, because the field never flips */

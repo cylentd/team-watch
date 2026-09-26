@@ -120,6 +120,7 @@ function stSelect(ctl, patch){
   ctl.reel = stReelOf(ctl.data, ctl.sel);
   if (!ctl.reel.length){ ctl.sel.q = 0; ctl.reel = stReelOf(ctl.data, ctl.sel); }
   stStop(ctl);
+  if (ctl.pose) ctl.pose.mark(ctl.sel.me ? ctl.sel.who : null);
   stPaintFilt(ctl);
   stPaintList(ctl);
   ctl.ui.slider.max = ctl.reel.length;

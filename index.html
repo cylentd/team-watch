@@ -3334,7 +3334,13 @@ body:has(.connect:not([hidden])){overflow:hidden}
    Every class here is st-prefixed, like Live's gd-. The page has a .row and a .score of its own.
 ------------------------------------------------------------------ */
 
-.ststage{position:relative;perspective:820px;perspective-origin:50% -20%;--tilt:52deg;padding-top:6px}
+/* --clock is the replay's own clock as an animation delay. Every loop in the strip (the run
+   cycle, the bounce, the spiral, the chevrons) is a PAUSED animation positioned by it, and
+   stRender moves --ph once per frame it draws. So the loops advance at the replay's frame rate
+   (60 at most) instead of the screen's (120 on this machine), and stand still whenever the replay
+   does -- the same keyframes, and every rule that overrides one still wins. (2026-09-26) */
+.ststage{position:relative;perspective:820px;perspective-origin:50% -20%;--tilt:52deg;padding-top:6px;
+  --clock:calc(var(--ph, 0) * -1s)}
 .stplane{display:flex;height:132px;border:1px solid var(--turf-line);transform:rotateX(var(--tilt));
   transform-origin:50% 100%;transform-style:preserve-3d;transition:transform .6s var(--ease)}
 .stplane .stturf,.stplane .stez{transform-style:preserve-3d}
@@ -3368,10 +3374,8 @@ body:has(.connect:not([hidden])){overflow:hidden}
      colour escaping tokens.css. The lime comes from the background it reveals. */
   --chev:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='14'%3E%3Cpath d='M3 2.5L8 7l-5 4.5' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
 .stahead::before{content:"";position:absolute;inset:0 0 0 -16px;background:rgb(var(--lime-rgb) / .4);
-  mask:var(--chev) 0 50% / 16px 14px repeat-x;animation:stmarch 1.1s linear infinite}
+  mask:var(--chev) 0 50% / 16px 14px repeat-x;animation:stmarch 1.1s linear var(--clock) infinite paused}
 .ststage.rev .stahead::before{scale:-1 1}
-/* offscreen, the chevrons stop: a marching animation nobody is looking at is pure battery */
-.ststage.offscreen .stahead::before{animation-play-state:paused}
 @keyframes stmarch{to{translate:16px 0}}
 /* a turnover flips the field: the chevrons go, and the other end zone becomes the one at risk */
 .ststage.turnover .stahead{display:none}
@@ -3396,7 +3400,10 @@ body:has(.connect:not([hidden])){overflow:hidden}
 .stair{position:absolute;left:0;right:0;height:150px;transform:rotateX(-90deg);transform-origin:50% 100%;pointer-events:none}
 .stanc{position:absolute;bottom:0;width:0;height:0;visibility:hidden}
 .stactors{position:absolute;inset:0;pointer-events:none}
-.stactor{position:absolute;left:0;top:0;transform:translate(-50%,-100%);transition:opacity .25s}
+/* Each sprite is its own compositor layer, so moving one is a translate on the GPU. Without it
+   every frame repainted the whole field-sized overlay they share -- about 2x the field on desktop,
+   where it is scaled up. Measured 2026-09-26, whole browser, playing: 2.8% -> 2.0% of 20 threads. */
+.stactor{position:absolute;left:0;top:0;transform:translate(-50%,-100%);transition:opacity .25s;will-change:translate}
 .stshadow{position:absolute;width:22px;height:8px;margin-left:-11px;border-radius:50%;background:rgb(var(--shadow-rgb) / .55)}
 
 /* the ball's flight, drawn flat over the field from points probed along the arc in the scene.
@@ -3415,7 +3422,7 @@ body:has(.connect:not([hidden])){overflow:hidden}
 .stpost path{fill:none;stroke:var(--post);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 /* ── css/surface/strip/figure.css ── */
 /* ------------------------------------------------------------------
-   STRIP — the figures. A headshot on a side-view body in pads, flat over the tilted field.
+   STRIP — the figures. A helmeted, side-view body in pads, flat over the tilted field.
 
    The rig is one SVG (js/surface/strip/art.js) with named joints; everything below is what each
    state does to those joints. Sign convention, and it is easy to get backwards: the figure faces
@@ -3423,27 +3430,44 @@ body:has(.connect:not([hidden])){overflow:hidden}
    bends it heel-up; a positive torso leans forward; a positive arm goes back. A figure running
    the other way is the same sprite mirrored (scale:-1 1), never a second set of angles.
 
-   The headshot stays full size while the body is chibi-short: the face is what a reader
-   recognises across a 12px-tall figure, and shrinking it to scale loses the whole point.
+   Until 2026-09-26 each figure wore his headshot. Two of them on one spot -- a passer and his
+   receiver at the snap, a tackler on his man -- covered each other on nearly every play, and the
+   play card under the field already carries both faces and both names. So the field says team
+   (the helmet's colour) and focus (the lime ring), and the card says who.
 ------------------------------------------------------------------ */
 
+/* the headshot, as the play card and the player chip draw it */
 .stface{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:700 11px var(--mono);
   color:var(--ink);background:var(--panel-3) top center / cover no-repeat;border:2px solid var(--lime);flex:none}
 .stfig{display:flex;flex-direction:column;align-items:center;--jersey:var(--jersey-home)}
-.stfig .stface{width:40px;height:40px;margin-bottom:-4px;position:relative;z-index:1}
 .stfig.tk{--jersey:var(--jersey-away)}
-.stfig.tk .stface{border-color:var(--ink-3);color:var(--ink-2)}
+/* the man with the ball is drawn over anyone standing on him */
+.stactor.carrier{z-index:2}
+
+/* the ring on the ground under the man the reader should follow (place.js, stRing). Behind his
+   feet, inside his own sprite, so it travels with him and never needs placing. */
+.stspot{display:none;position:absolute;z-index:-1;left:50%;bottom:-4px;width:34px;height:11px;margin-left:-17px;
+  border:2px solid var(--lime);border-radius:50%;background:rgb(var(--lime-rgb) / .18)}
+.stfig.ring .stspot{display:block}
+.stfig.down .stspot{rotate:15deg}
 /* the pivot is his heel, not the middle of his feet: from the middle, half of him turns under the turf */
 .stpose{position:relative;display:flex;flex-direction:column;align-items:center;padding-inline:26px;
   transform-origin:32px 100%;transition:rotate .34s cubic-bezier(.5,0,.9,.6)}
 
-.strig{display:block;flex:none;width:52px;height:42px;margin:-6px 0 -3px;overflow:visible;
-  filter:drop-shadow(0 0 .7px var(--shadow)) drop-shadow(0 1px 0 rgb(var(--shadow-rgb) / .55))}
+/* The keyline that lifts the figure off the turf is a stroke painted under each part, not a
+   filter: a filter on a rig whose limbs move is re-run on every frame the limbs move, and a
+   stroke is just part of the paint. The top margin leaves room for the helmet, which overflows
+   the rig's viewBox upward. */
+.strig{display:block;flex:none;width:52px;height:42px;margin:10px 0 -3px;overflow:visible}
 .strig *{transform-box:view-box;vector-effect:none}
+.strig .j,.strig .p,.strig .k{stroke:var(--shadow);stroke-width:1.1;stroke-linejoin:round;paint-order:stroke}
 .strig .j{fill:var(--jersey)}
 .strig .p{fill:var(--pads)}
 .strig .k{fill:var(--cleat)}
 .strig .s{fill:none;stroke:var(--pads);stroke-width:1.3}
+.strig .hm .hs{fill:none;stroke:var(--pads);stroke-width:2.6;stroke-linecap:round}
+.strig .hm .he{fill:var(--shadow)}
+.strig .hm .hk{fill:none;stroke:var(--pads);stroke-width:1.8;stroke-linecap:round}
 .strig .far{opacity:.62}
 .strig .sh.far{opacity:.9}
 /* a dark keyline around the near arm only, so it separates from the jersey behind it */
@@ -3455,23 +3479,23 @@ body:has(.connect:not([hidden])){overflow:hidden}
 .strig .torso{transform-origin:22px 30px;transition:rotate .25s var(--ease)}
 .stfig.tk .strig{scale:-1 1}
 
-/* nobody stands stock still: a standing figure breathes, so a pause never looks like a hang */
-.stfig:not(.run):not(.down) .strig{animation:stbreathe 1.5s ease-in-out infinite alternate}
+/* nobody stands stock still while the reel plays: a standing figure breathes, so a pause between
+   plays never looks like a hang. Paused, he stands still -- an idle loop repaints the field
+   forever for nobody (STYLE.md, Motion 1). */
+.stplaying .stfig:not(.run):not(.down) .strig{animation:stbreathe 1.5s ease-in-out var(--clock) infinite alternate paused}
 @keyframes stbreathe{to{translate:0 -1.2px}}
 
 /* the run cycle */
 .stfig.run .torso{rotate:15deg}
-.stfig.run .strig{animation:stbounce .23s ease-in-out infinite alternate}
-.stfig.run .hip{animation:ststride .46s ease-in-out infinite}
-.stfig.run .knee{animation:stknee .46s ease-in-out infinite}
-.stfig.run .sh{animation:stpump .46s ease-in-out infinite}
-.stfig.run .far.hip,.stfig.run .far .knee,.stfig.run .near.sh{animation-delay:-.23s}
-.stfig.run .stface{animation:sthustle .23s ease-in-out infinite alternate}
+.stfig.run .strig{animation:stbounce .23s ease-in-out var(--clock) infinite alternate paused}
+.stfig.run .hip{animation:ststride .46s ease-in-out var(--clock) infinite paused}
+.stfig.run .knee{animation:stknee .46s ease-in-out var(--clock) infinite paused}
+.stfig.run .sh{animation:stpump .46s ease-in-out var(--clock) infinite paused}
+.stfig.run .far.hip,.stfig.run .far .knee,.stfig.run .near.sh{animation-delay:calc(var(--clock) - .23s)}
 @keyframes ststride{0%,100%{rotate:-52deg}50%{rotate:36deg}}
 @keyframes stknee{0%,100%{rotate:14deg}25%{rotate:8deg}55%{rotate:62deg}78%{rotate:104deg}}
 @keyframes stpump{0%,100%{rotate:52deg}50%{rotate:-58deg}}
 @keyframes stbounce{to{translate:0 -2.5px}}
-@keyframes sthustle{to{translate:0 -2.5px}}
 
 /* going backwards: the same cycle in reverse is a backpedal, and he leans away from it */
 .stfig.back .hip,.stfig.back .knee,.stfig.back .sh{animation-direction:reverse}
@@ -3487,19 +3511,15 @@ body:has(.connect:not([hidden])){overflow:hidden}
 /* carrying, throwing, being tackled */
 .stfig.has .near.sh{animation:none;rotate:18deg}
 .stfig.has .near .elb{rotate:-112deg}
-.stfig.has:not(.run) .stface{animation:stgotit .4s var(--ease)}
 /* the throw is overhand: the arm comes from behind the head, over the top, and ends out in FRONT
-   where it can be seen. Ending straight up hides it behind his own headshot. */
+   where it can be seen. Ending straight up hides it behind his own helmet. */
 .stfig.threw .near.sh{animation:sthurl .5s var(--ease) forwards}
 .stfig.threw .near .elb{rotate:-10deg}
 .stfig.threw .far.sh{rotate:-40deg}
 @keyframes sthurl{from{rotate:-205deg}to{rotate:-96deg}}
-@keyframes stgotit{40%{scale:1.22}}
 .stfig.down .stpose{rotate:-15deg}
-.stfig.down .stface{animation:stjolt .32s var(--ease)}
-.stfig.down .strig{animation:stgrapple .4s ease-in-out infinite alternate}
+.stfig.down .strig{animation:stgrapple .4s ease-in-out var(--clock) infinite alternate paused}
 @keyframes stgrapple{to{translate:-1.5px 1px}}
-@keyframes stjolt{30%{translate:-4px 0}60%{translate:2px 0}}
 /* a scorer throws his arms up and hops, ball held high */
 .stfig.joy .near.sh,.stfig.joy .far.sh{animation:none;rotate:-168deg}
 .stfig.joy .near .elb,.stfig.joy .far .elb{rotate:-8deg}
@@ -3515,7 +3535,7 @@ body:has(.connect:not([hidden])){overflow:hidden}
 .stball{display:block;flex:none;width:14px;height:9px}
 .stheld{display:none;position:absolute;bottom:17px;left:50%;margin-left:1px;z-index:2}
 .stfig.has .stheld{display:block}
-.stfly .stball{animation:stspiral .22s linear infinite}
+.stfly .stball{animation:stspiral .22s linear var(--clock) infinite paused}
 @keyframes stspiral{50%{scale:1 .5}}
 
 /* an incompletion, or a loose ball, says so where it came down: a cross and the word, not a
@@ -3562,6 +3582,7 @@ body:has(.connect:not([hidden])){overflow:hidden}
   font:500 13px var(--mono);color:var(--ink-2)}
 .stscore strong{font:800 20px var(--disp);color:var(--ink);letter-spacing:-.01em}
 .stscore strong.bumped{display:inline-block;animation:stgotit .5s var(--ease)}
+@keyframes stgotit{40%{scale:1.22}}
 .stscore .stposs{color:var(--lime)}
 .stclock{margin-left:auto;font:500 13px var(--mono);color:var(--ink-2);white-space:nowrap;flex:none}
 
@@ -3617,7 +3638,7 @@ body:has(.connect:not([hidden])){overflow:hidden}
   74%{opacity:1;transform:scale(1.02)}100%{opacity:0;transform:scale(1.06)}}
 
 @media (prefers-reduced-motion:reduce){
-  .stahead::before,.stfig.run *,.stfig .strig,.stfig.has .stface,.stfly .stball{animation:none}
+  .stahead::before,.stfig.run *,.stfig .strig,.stfly .stball{animation:none}
   .stplane,.stactor,.stturf svg g,.starcs polyline{transition:none}
 }
 /* ── css/surface/strip/reel.css ── */
@@ -3675,7 +3696,6 @@ body:has(.connect:not([hidden])){overflow:hidden}
 /* the field drawn at its own size and scaled up whole (transport.js, stScaleField) */
 .stbox.zoomed{height:calc(var(--sth) * var(--stz))}
 .stbox.zoomed .stview{width:calc(100% / var(--stz));transform:scale(var(--stz));transform-origin:0 0}
-
 /* Wide: the list beside the field, the full height of the dialog, scrolling on its own. The
    field's column shares its top and bottom edge. */
 @media (min-width:960px){
@@ -12521,6 +12541,16 @@ const ST_BALL = '<svg class="stball" viewBox="0 0 26 16" aria-hidden="true">'
   + '<path d="M1 8C5 1.2 21 1.2 25 8C21 14.8 5 14.8 1 8Z" fill="var(--ball)" stroke="var(--ball-lace)" stroke-opacity=".55" stroke-width=".8"/>'
   + '<path d="M9 8h8M11 6.2v3.6M13 6.2v3.6M15 6.2v3.6" stroke="var(--ball-lace)" stroke-width="1.1" fill="none"/></svg>';
 
+/* The helmet, facing right, sat on the shoulders inside the torso group so it leans, turns and
+   mirrors with the body. Chibi-big on purpose: at 12px of body a true-scale head is a dot. Shell
+   in the team colour, a centre stripe, an ear hole and the facemask cage at the front. It replaced
+   the headshot on 2026-09-26: two faces on one spot covered each other on every pass and tackle,
+   and the play card under the field already shows both faces with the names. */
+const ST_HELMET = '<g class="hm">'
+  + '<path class="j" d="M9.5 3C8.6-11 17-18.5 26-18.5C34.6-18.5 39.5-11.5 39.5-3.5L39.5 3.5L31 4.5L28.5 9.5L13 9.5C11 8 9.8 5.8 9.5 3Z"/>'
+  + '<path class="hs" d="M25.5-18.4C17.5-17 12.2-11 11-1.5"/><circle class="he" cx="19.5" cy="-0.5" r="2.4"/>'
+  + '<path class="hk" d="M31-3.5H42M31 1.5H41.5M36.5-4.5V6"/></g>';
+
 /* One figure, facing right. Far limbs first so the near ones paint over them; the joints carry the
    class names figure.css rotates (hip, knee, sh, elb, torso) and pose.js sets directly on a kick. */
 const ST_RUNNER = '<svg class="strig" viewBox="-18 -4 84 68" aria-hidden="true">'
@@ -12531,6 +12561,7 @@ const ST_RUNNER = '<svg class="strig" viewBox="-18 -4 84 68" aria-hidden="true">
   + '<g class="elb"><path class="p" d="M19.5 21.5L20.2 31L23.8 31L24.5 21.5Z"/><circle class="k" cx="22" cy="32.2" r="3"/></g></g>'
   + '<path class="j" d="M15.6 13Q14.8 27 17 31.5L27 31.5Q29.2 27 28.4 13Z"/><ellipse class="j" cx="22" cy="11.5" rx="9.6" ry="5.8"/>'
   + '<path class="s" d="M13.4 13.6Q22 17.6 30.6 13.6"/><rect class="p" x="16.6" y="28.4" width="10.8" height="4.4" rx="2"/>'
+  + ST_HELMET
   + '<g class="sh near"><path class="j" d="M18.4 11L19.2 22.5L24.8 22.5L25.6 11Z"/>'
   + '<g class="elb"><path class="p" d="M19.5 21.5L20.2 31L23.8 31L24.5 21.5Z"/><circle class="k" cx="22" cy="32.2" r="3"/></g></g></g>'
   + '<g class="hip near"><path class="p" d="M17.4 29.5Q16.8 37 19 43.5L25 43.5Q27.2 37 26.6 29.5Z"/>'
@@ -12574,7 +12605,9 @@ function stFace(who, url, cls = ""){
     : `<span class="stface${cls}"${label}>${esc(stInitials(who))}</span>`;
 }
 
-const stFigure = (who, url) => `<div class="stpose">${stFace(who, url)}${ST_RUNNER}<span class="stheld">${ST_BALL}</span></div>`;
+/* the ring on the ground is how the reader finds the man the play card names among helmets */
+const stFigure = who => `<div class="stpose" role="img" aria-label="${esc(who || "")}"><span class="stspot"></span>`
+  + `${ST_RUNNER}<span class="stheld">${ST_BALL}</span></div>`;
 /* ── js/surface/strip/ease.js ── */
 /* ------------------------------------------------------------------
    STRIP EASING — the small maths the strip's motion is built on.
@@ -12930,13 +12963,15 @@ function stBind(root, drive, id, faces){
           nA: q(".a-nA"), fA: q(".a-fA"), nB: q(".a-nB"), fB: q(".a-fB")},
     clips: drive.plays.map((p, i) => root.querySelectorAll(`#${id}g${i} rect, #${id}a${i} rect`)),
     marks: [...root.querySelectorAll(".stturf svg g[data-i]")],
-    memo: {}, ver: 0, shown: -1,
+    memo: {}, ver: 0, shown: -1, clipKey: [],
   };
   S.el.arcs.innerHTML = S.plays.map((p, j) => p.k === "rush" ? ""
     : `<polyline class="${p.k === "inc" || p.k === "int" ? "inc" : "pass"}" data-j="${j}"/>`).join("");
   const pose = (i, f, hold = 1, all = false) => stPoseFrame(S, i, f, hold, all);
   /* the arc cache is measured against a layout; anything that moves the field invalidates it */
   pose.bump = () => { S.ver++; };
+  /* whose feet the ring goes under when he is on the play; null leaves it on the carrier */
+  pose.mark = who => { S.mark = who; S.shown = -1; };
   pose.geom = S.g;
   return pose;
 }
@@ -12977,10 +13012,16 @@ function stArcPoints(S, j){
 }
 
 /* Plays before i are drawn whole and stepped back; play i is drawn up to u. */
+/* Only an arc whose drawn length or layout changed is rewritten: every attribute write on an SVG
+   repaints it, and all but one arc are standing still on any given frame. */
 function stDrawArcs(S, i, u0, whole){
-  S.el.arcs.querySelectorAll("polyline").forEach(pl => {
-    const j = +pl.dataset.j, u = j < i ? 1 : j > i ? 0 : u0;
-    pl.classList.toggle("past", !whole && j < i);
+  S.arcEls = S.arcEls || [...S.el.arcs.querySelectorAll("polyline")];
+  S.arcEls.forEach(pl => {
+    const j = +pl.dataset.j, u = j < i ? 1 : j > i ? 0 : u0, past = !whole && j < i;
+    if (pl.classList.contains("past") !== past) pl.classList.toggle("past", past);
+    const key = u ? u.toFixed(4) + "@" + S.ver : "0";
+    if (pl.__key === key) return;
+    pl.__key = key;
     if (!u) return pl.setAttribute("points", "");
     const all = stArcPoints(S, j), at = u * ST_ARC_N, k = Math.floor(at), out = all.slice(0, k + 1);
     if (k < ST_ARC_N) out.push([stLerp(all[k][0], all[k + 1][0], at - k),
@@ -12996,10 +13037,16 @@ function stReveal(S, i, f, all){
   S.plays.forEach((pl, j) => {
     const fj = j < i ? 1 : j > i ? 0 : f, cur = S.g.prog(pl, fj);
     const c0 = fj >= S.g.flightOf(pl) ? S.g.catchOf(pl) : pl.from;
-    const lo = Math.min(pl.from, c0, cur), hi = Math.max(pl.from, c0, cur);
+    const lo = Math.min(pl.from, c0, cur), hi = Math.max(pl.from, c0, cur), key = lo + ":" + hi;
+    /* unchanged clips are left alone: a write to one repaints the whole tilted field */
+    if (S.clipKey[j] === key) return;
+    S.clipKey[j] = key;
     S.clips[j].forEach(r => { r.setAttribute("x", lo); r.setAttribute("width", hi - lo); });
   });
-  S.marks.forEach(gr => gr.classList.toggle("past", !all && +gr.dataset.i < i));
+  S.marks.forEach(gr => {
+    const past = !all && +gr.dataset.i < i;
+    if (gr.classList.contains("past") !== past) gr.classList.toggle("past", past);
+  });
 }
 
 /* An interception's return line grows during the beat AFTER the catch, not during the play. */
@@ -13013,26 +13060,43 @@ function stRevealReturn(S, i, after){
   });
 }
 
-/* Read where each anchor landed on screen and put its sprite there. */
+/* Read where each anchor landed on screen and put its sprite there. Every read comes before any
+   write: a read after a write forces the browser to lay the 3D scene out again, and interleaving
+   them cost three and a half layouts a frame. */
 function stPlace(S, x){
   const p = x.p, f = x.f, o = S.root.getBoundingClientRect(), el = S.el, anc = S.anc;
   const k = stScale(S.root);
   const lift = p.k === "fg" ? 0 : x.picked ? ST_HAND.y
     : x.inc ? ST_HAND.y * (1 - f)
     : x.loose ? ST_HAND.y * (1 - Math.min(x.after * 3, 1)) : ST_HAND.y;
-  [[el.carrier, anc.carrier, 0, 0], [el.qb, anc.qb, 0, 0], [el.tk, anc.tk, 0, 0],
-   [el.fly, anc.fly, ST_HAND.x, -lift], [el.miss, anc.miss, ST_HAND.x, 0]].forEach(([node, a, dx, dy]) => {
-    const r = a.getBoundingClientRect();
-    node.style.translate = `${(r.left - o.left) / k + dx}px ${(r.top - o.top) / k + dy}px`;
+  const at = a => { const r = a.getBoundingClientRect(); return [(r.left - o.left) / k, (r.top - o.top) / k]; };
+  const put = [[el.carrier, anc.carrier, 0, 0], [el.qb, anc.qb, 0, 0], [el.tk, anc.tk, 0, 0],
+    [el.fly, anc.fly, ST_HAND.x, -lift], [el.miss, anc.miss, ST_HAND.x, 0]].map(([node, a, dx, dy]) => {
+    const [l, t] = at(a);
+    return [node, l + dx, t + dy];
   });
-  /* the uprights stay screen-vertical like the figures; only the crossbar's direction and length
-     come from the scene, one anchor under each upright on the end line */
-  [[el.postA, anc.nA, anc.fA], [el.postB, anc.nB, anc.fB]].forEach(([node, near, far]) => {
-    const rn = near.getBoundingClientRect(), rf = far.getBoundingClientRect();
-    node.style.translate = `${(rn.left - o.left) / k}px ${(rn.top - o.top) / k}px`;
-    node.querySelector("path").setAttribute("d",
-      stPostPath((rf.left - rn.left) / k, (rf.top - rn.top) / k));
-  });
+  /* the goalposts only move when the layout does, so they are measured once per layout (and per
+     ancestor scale, which the dialog's open animation changes) rather than every frame */
+  const postKey = S.ver + "@" + k.toFixed(3) + "@" + o.width.toFixed(1);
+  const posts = S.posts && S.posts.key === postKey ? null
+    : [[el.postA, anc.nA, anc.fA], [el.postB, anc.nB, anc.fB]].map(([node, near, far]) => [node, at(near), at(far)]);
+  put.forEach(([node, l, t]) => { node.style.translate = `${l}px ${t}px`; });
+  if (posts){
+    S.posts = {key: postKey};
+    /* the uprights stay screen-vertical like the figures; only the crossbar's direction and length
+       come from the scene, one anchor under each upright on the end line */
+    posts.forEach(([node, [nl, nt], [fl, ft]]) => {
+      node.style.translate = `${nl}px ${nt}px`;
+      node.querySelector("path").setAttribute("d", stPostPath(fl - nl, ft - nt));
+    });
+  }
+}
+
+/* Who stands on the lime ring: the reader's own player when the reel is narrowed to him and he is
+   on this play (as the passer, or even as the tackler), otherwise the man the play card names. */
+function stRing(S, p){
+  const on = S.mark && p.qb === S.mark ? "qb" : S.mark && p.tk === S.mark ? "tk" : "carrier";
+  ["carrier", "qb", "tk"].forEach(r => S.el[r].classList.toggle("ring", r === on));
 }
 
 /* One whole frame. Returns whatever the chevrons should point past: the ball while it is in the
@@ -13043,9 +13107,10 @@ function stPoseFrame(S, i, f, hold, all){
   stRevealReturn(S, i, x.after);
   if (i !== S.shown){
     S.shown = i;
-    S.el.carrier.innerHTML = stFigure(p.who, S.faces[p.who]);
-    S.el.qb.innerHTML = p.qb ? stFigure(p.qb, S.faces[p.qb]) : "";
-    S.el.tk.innerHTML = p.tk ? stFigure(p.tk, S.faces[p.tk]) : "";
+    S.el.carrier.innerHTML = stFigure(p.who);
+    S.el.qb.innerHTML = p.qb ? stFigure(p.qb) : "";
+    S.el.tk.innerHTML = p.tk ? stFigure(p.tk) : "";
+    stRing(S, p);
   }
   const cx = stPoseCarrier(S, x);
   stPoseQb(S, x);
@@ -13196,6 +13261,7 @@ function stShowDrive(ctl, i, quiet){
   ctl.ui.stage.className = "ststage" + (ctl.drive.dir < 0 ? " rev" : "");
   ctl.ui.stage.innerHTML = stStageHTML(ctl.drive, "s" + i, ctl.data.home.abbr, ctl.data.away.abbr);
   ctl.pose = stBind(ctl.ui.stage, ctl.drive, "s" + i, ctl.faces);
+  ctl.pose.mark(ctl.sel && ctl.sel.me ? ctl.sel.who : null);
   ctl.ahead = ctl.ui.stage.querySelector(".stahead");
   ctl.ltg = ctl.ui.stage.querySelector(".stltg");
   ctl.turf = ctl.ui.stage.querySelector(".stturf");
@@ -13213,6 +13279,8 @@ function stShowDrive(ctl, i, quiet){
 function stRender(ctl, tm, hold = 1){
   const n = ctl.n, i = tm <= 0 ? 0 : Math.min(Math.ceil(tm) - 1, n - 1);
   const f = tm <= 0 ? 0 : tm - i, p = ctl.plays[i], done = f >= 1, over = tm >= n && hold >= 1;
+  /* the clock every loop on the field is positioned by (field.css, --clock) */
+  ctl.ui.stage.style.setProperty("--ph", (performance.now() / 1000).toFixed(3));
   const x = ctl.pose(i, f, hold, over);
   /* the chevrons fill the ground between the ball and the end zone this drive is heading for --
      which is the LEFT one on an away drive, because the field never flips */
@@ -13385,6 +13453,7 @@ function stSelect(ctl, patch){
   ctl.reel = stReelOf(ctl.data, ctl.sel);
   if (!ctl.reel.length){ ctl.sel.q = 0; ctl.reel = stReelOf(ctl.data, ctl.sel); }
   stStop(ctl);
+  if (ctl.pose) ctl.pose.mark(ctl.sel.me ? ctl.sel.who : null);
   stPaintFilt(ctl);
   stPaintList(ctl);
   ctl.ui.slider.max = ctl.reel.length;
@@ -13415,6 +13484,8 @@ const ST_BEAT = 900;
 /* the pause before a play that does not follow the last one on the field: a new possession, or
    the next of a player's plays with other plays skipped in between */
 const ST_LEAD = 500;
+/* a hair under 1000/60, so a 60Hz screen's frames (16.7ms apart, give or take) are never skipped */
+const ST_FRAME_MS = 14;
 
 /* `at` is the drive to open at, shown finished; left out, a finished game opens at the kickoff
    and a live one at its latest play. `who` is the player the reader came from, spelled the way
@@ -13443,6 +13514,8 @@ function stStop(ctl){
 
 function stSetPlaying(ctl, on){
   ctl.playing = on;
+  /* idle figures breathe only while the reel is playing (figure.css) */
+  ctl.ui.host.classList.toggle("stplaying", on);
   const label = on ? t("strip.control.pause") : t("strip.control.play");
   ctl.ui.play.innerHTML = (on ? ST_PAUSE_ICON : ST_PLAY_ICON) + `<span class="stw">${label}</span>`;
   ctl.ui.play.setAttribute("aria-label", label);
@@ -13453,7 +13526,9 @@ function stSetPlaying(ctl, on){
    A drag on the field itself never paints, so the reader is never fought for the scroll. */
 function stKeepInView(ctl, x){
   const view = ctl.ui.view;
-  if (view.scrollWidth <= view.clientWidth) return;
+  /* whether the field pans at all is decided once per layout (stAgain): asking scrollWidth here,
+     after the frame's writes, forced a second layout of the 3D scene on every frame */
+  if (!ctl.pans) return;
   const tf = ctl.turf.getBoundingClientRect(), v = view.getBoundingClientRect();
   /* scrollLeft is in the element's own pixels; the rects above are in screen pixels, which a
      transformed ancestor (the dialog's open animation) scales. Same correction as stPlace. */
@@ -13530,7 +13605,12 @@ function stPlay(ctl){
   const elapsed = f0 ? tl[i0].start + tl[i0].move * stEaseInv(f0) : i0 ? tl[i0 - 1].end : 0;
   const t0 = performance.now() - elapsed;
   if (!elapsed) ctl.fired = -1;
+  let last = 0;
   const tick = now => {
+    /* 60 frames a second at most. A 120Hz screen otherwise doubles every cost below for motion
+       nobody can tell apart; the timing is wall-clock, so a skipped frame changes nothing. */
+    if (now - last < ST_FRAME_MS){ ctl.raf = requestAnimationFrame(tick); return; }
+    last = now;
     const el = now - t0, k = tl.findIndex(x => el < x.end);
     if (k < 0){ stSeek(ctl, R); return stSetPlaying(ctl, false); }
     const local = el - tl[k].start, ms = tl[k].move;
@@ -13548,6 +13628,7 @@ function stPlay(ctl){
 function stAgain(ctl){
   if (!ctl.pose) return;
   stScaleField(ctl);
+  ctl.pans = ctl.ui.view.scrollWidth > ctl.ui.view.clientWidth;
   ctl.pose.bump();
   stFitCap(ctl);
   stSeek(ctl, ctl.T);
@@ -13584,8 +13665,6 @@ function stWire(ctl){
     stSeek(ctl, k);
     stGlide(ctl, k + 1, stMoveAt(ctl, k));
   });
-  /* the chevrons march only while the field is on screen; an animation nobody sees is battery */
-  new IntersectionObserver(([e]) => ui.stage.classList.toggle("offscreen", !e.isIntersecting)).observe(ui.stage);
   ST_MOUNTED.add(ctl);
 }
 
