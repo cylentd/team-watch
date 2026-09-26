@@ -151,6 +151,12 @@
 .pf-stat-d{color:var(--ink-3)}
 .pf-stat-d.up{color:var(--up)}
 .pf-stat-d.down{color:var(--down)}
+/* What the rate is out of (sample.js). It may wrap: "1 of 3 team carries inside the 5" is wider
+   than the side column on a 360px phone, and the column's nowrap would push it off the card. */
+.pf-stat-smp,.pf-stat-thin{white-space:normal;text-align:right;color:var(--ink-3)}
+.pf-stat-thin{font-style:italic}
+/* Below its floor the number is true but unranked, so it recedes like an unranked radar label. */
+.pf-stat > b.thin{color:var(--ink-3)}
 .pf-stat .spark{grid-area:s;width:100%;height:30px;margin-top:6px}
 /* Replayed on every stat swap (sheet.js): the number is a different number now, and a silent
    substitution reads as if it had always said that. */

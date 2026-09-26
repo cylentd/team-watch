@@ -63,7 +63,10 @@ def _sheet(block, slugify):
 
     Unlike `rows`, this keeps every player the producer kept rather than the page's display cut.
     The modal ranks a player against his whole position, so dropping the tail here would quietly
-    move everyone's rank -- a receiver would read WR20 out of 80 on a page that kept 80 of 340."""
+    move everyone's rank -- a receiver would read WR20 out of 80 on a page that kept 80 of 340.
+
+    `s` is the producer's `n` renamed (here `n` is the name): per rate axis, [numerator,
+    denominator]. The page ranks nothing whose denominator is under the axis's `floor`."""
     rows = (block or {}).get("rows") or []
     axes = (block or {}).get("axes") or {}
     if not rows or not axes:
@@ -71,7 +74,7 @@ def _sheet(block, slugify):
     return {"axes": axes,
             "rows": [{"n": r.get("name"), "slug": slugify(r.get("name") or ""),
                       "pos": r.get("pos"), "team": r.get("team"), "g": r.get("g"),
-                      "v": r.get("v") or {}} for r in rows]}
+                      "v": r.get("v") or {}, "s": r.get("n") or {}} for r in rows]}
 
 
 def _row(r, slugify):

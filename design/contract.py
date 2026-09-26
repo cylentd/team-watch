@@ -152,7 +152,7 @@ CONTRACT = {
     "LIVE_USAGE": {
         "keys": ["season", "weeks", "through", "generated", "rankBy", "cols", "sheet", "rows"],
         "rows": ("rows", ["n", "slug", "pos", "team", "wk", "q", "v", "p"]),
-        "sub_rows": [("sheet", "rows", ["n", "slug", "pos", "team", "g", "v"])],
+        "sub_rows": [("sheet", "rows", ["n", "slug", "pos", "team", "g", "v", "s"])],
     },
     "LIVE_SIGNALS": {
         "keys": ["through_week", "ready", "players"],

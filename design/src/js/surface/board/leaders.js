@@ -48,6 +48,13 @@ function bdHeldOut(pos, axis, cut){
     .sort((a, b) => b.v[axis] - a.v[axis]);
 }
 
+/* The same, for the sample floor (sheetThin): enough games, too few chances on this stat. */
+function bdThinOut(pos, axis, cut){
+  return ((USAGE.sheet || {}).rows || [])
+    .filter(r => r.pos === pos && sheetQualified(r) && sheetThin(r, axis) && r.v[axis] !== null && r.v[axis] !== undefined && r.v[axis] > cut)
+    .sort((a, b) => b.v[axis] - a.v[axis]).slice(0, BD_HELD_TOP);   // early on, goal line has dozens
+}
+
 /* Tabs carry the stat's plain name (axisName, profile/statcard.js), the same name the profile's
    radar and card use; the producer's abbreviation stays as the unit beside the hero's number. */
 function bdTabsHTML(axes, sel){
@@ -117,11 +124,14 @@ function bdBoardHTML(pos, picks){
       : `<div class="bd-row pick none"><span class="bd-rk">—</span><span class="bd-head">${avatarHTML(p)}</span
           ><span class="bd-nm">${esc(nameInitial(p.n))}</span><span class="bd-v">${t("board.row.none")}</span></div>`;
   }).join("");
-  const held = bdHeldOut(pos, sel, (ranked[Math.min(BD_HELD_TOP, ranked.length) - 1] || {}).val ?? Infinity);
+  const cut = (ranked[Math.min(BD_HELD_TOP, ranked.length) - 1] || {}).val ?? Infinity;
+  const held = bdHeldOut(pos, sel, cut), thin = bdThinOut(pos, sel, cut);
   const minG = sheetMinGames(pos);
   const foot = (minG > 1 ? t("board.foot.qualified", {n: ranked.length, pos, g: minG}) : t("board.foot.all", {n: ranked.length, pos}))
     + (held.length ? " " + t("board.foot.held", {list: held.map(r =>
-        `${esc(nameInitial(r.n))} ${usageFmt(r.v[sel], a.fmt)} (${t("board.foot.games", {g: r.g || 0})})`).join(", ")}) : "");
+        `${esc(nameInitial(r.n))} ${usageFmt(r.v[sel], a.fmt)} (${t("board.foot.games", {g: r.g || 0})})`).join(", ")}) : "")
+    + (thin.length ? " " + t("board.foot.thin", {floor: a.floor, list: thin.map(r =>
+        `${esc(nameInitial(r.n))} ${usageFmt(r.v[sel], a.fmt)} (${esc(sampleShort(r, a))})`).join(", ")}) : "");
   return `${bdTabsHTML(axes, sel)}
     <div class="bd-card" data-bdswipe>
       ${bdPageOf(ranked) === 1 ? bdHeroHTML(a, ranked[0], ranked.length, slugs.includes(ranked[0].slug)) : ""}

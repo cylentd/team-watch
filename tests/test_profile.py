@@ -397,6 +397,32 @@ def test_red_zone_split_names_the_teammates(browser, page_file):
 
 
 @pytest.mark.render
+def test_a_rate_under_its_floor_shows_its_sample_and_no_rank(browser, page_file):
+    """2026-09-26: M. Stafford's 33% goal-line share was 1 of 3 and ranked 85th percentile. In the
+    fixture L. Jackson is 1 of 4 against a floor of 5, J. Allen 3 of 5. Below the floor the number
+    stays, says what it is out of, and nothing ranks it: not the radar, not Leaders."""
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    got = page.evaluate("""(() => {
+      const s = sheetFor({slug: 'lamar-jackson'}), a = s.axes.find(x => x.id === 'gl_pct');
+      const d = document.createElement('div'); d.innerHTML = statDetailHTML(s, 'gl_pct');
+      const allen = sheetFor({slug: 'josh-allen'});
+      const d2 = document.createElement('div'); d2.innerHTML = statDetailHTML(allen, 'gl_pct');
+      return {rank: sheetRank('QB', 'gl_pct', 'lamar-jackson'), allen: sheetRank('QB', 'gl_pct', 'josh-allen'),
+              smp: d.querySelector('.pf-stat-smp').textContent, thin: d.querySelector('.pf-stat-thin').textContent,
+              dim: d.querySelector('b').className, meta: d.querySelector('.pf-stat-wk').textContent,
+              allenSmp: d2.querySelector('.pf-stat-smp').textContent, allenThin: d2.querySelectorAll('.pf-stat-thin').length,
+              held: bdThinOut('QB', 'gl_pct', -1).map(r => sampleShort(r, a)), floor: a.floor};
+    })()""")
+    assert got["rank"] is None and got["allen"] is not None
+    assert got["smp"] == "1 of 4 team carries inside the 5"
+    assert got["thin"] == "Too few to rank (needs 5)" and got["dim"] == "thin"
+    assert "of " not in got["meta"]                       # no "of 0" for a rank that is not one
+    assert got["allenSmp"] == "3 of 5 team carries inside the 5" and got["allenThin"] == 0
+    assert got["held"] == ["3/4", "2/3", "1/4"]           # C. Ward 75%, T. Shough 66.7%, L. Jackson 25%
+    assert not errors
+    ctx.close()
+
+
 def test_stat_sheet_draws_the_positions_own_axes(browser, page_file):
     """ff-jarvis's `sheet.axes` drives the shape: six for a receiver, none of them a raw count
     the Grid already shows. Every number is his season rank among the position ("#3", "#3*" on a

@@ -30,6 +30,7 @@ function sheetMinGames(pos){
   return SHEET_MIN_G[pos];
 }
 const sheetQualified = r => (r.g || 0) >= sheetMinGames(r.pos);
+// The games floor cannot see a rate on too few chances; sheetThin (sample.js) can.
 
 /* {slug: value} for one axis across a position. Memoised: every open reranks, and `rows` holds
    the producer's whole position rather than the page's display cut, so this is the honest
@@ -40,7 +41,7 @@ function sheetValues(pos, axis){
   if (!SHEET_BY[key]){
     const by = {};
     USAGE.sheet.rows.forEach(r => {
-      if (r.pos === pos && sheetQualified(r) && r.v[axis] !== null && r.v[axis] !== undefined) by[r.slug] = r.v[axis];
+      if (r.pos === pos && sheetQualified(r) && !sheetThin(r, axis) && r.v[axis] !== null && r.v[axis] !== undefined) by[r.slug] = r.v[axis];
     });
     SHEET_BY[key] = by;
   }
@@ -238,7 +239,10 @@ function axisLabelsHTML(s, ranks, k, sel, ang, xy, at, R){
    which matters because a receiver ranks among everyone with a target on one stat and only among
    those with routes on the next. */
 function statMetaText(s, sel, withGames){
-  const of = (sheetRank(s.pos, sel, s.row.slug) || [])[1] || 0;
+  // Unranked on this stat (sheetThin): "of 0" would be a number that is not one.
+  const rk = sheetRank(s.pos, sel, s.row.slug);
+  if (!rk) return withGames ? t("profile.sheet.games", {g: s.row.g}) : "";
+  const of = rk[1];
   // Games played only when the stat has no weekly rows to name a window with; otherwise the
   // window says the sample and "2 gm" beside "wk 1" would be two different counts of it.
   return withGames ? t("profile.sheet.metaGames", {of, g: s.row.g}) : t("profile.sheet.meta", {of});

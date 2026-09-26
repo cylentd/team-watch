@@ -48,6 +48,7 @@ surface/profile/tags.js
 surface/profile/blocks.js
 surface/profile/sections.js
 surface/profile/history.js
+surface/profile/sample.js
 surface/profile/sheet.js
 surface/profile/statcard.js
 surface/profile/radarmotion.js

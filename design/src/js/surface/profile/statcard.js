@@ -87,7 +87,9 @@ function statDetailHTML(s, axis){
      which side of the bar he is on, and the colour agrees with the sign instead of contradicting
      a number nobody was being asked to judge. The bar itself still appears, because "0.42 short"
      of what is not a number. */
-  const bar = a.elite === null || a.elite === undefined || v === null || v === undefined ? ""
+  // Not under the sample floor either: "over the elite bar" on 12 routes is the claim it can't make.
+  const thin = sheetThin(s.row, a.id);
+  const bar = a.elite === null || a.elite === undefined || v === null || v === undefined || thin ? ""
     : eliteGapHTML(v, a);
   const wk = statWeeks(slug, a.id);
   // The spark is read against the same bar, so a week above it is visibly a week above it.
@@ -99,12 +101,12 @@ function statDetailHTML(s, axis){
   const span = !wk.length ? "" : wk.length === 1 || wk[0].wk === wk[wk.length - 1].wk
     ? t("profile.stat.week", {n: wk[0].wk})
     : t("profile.stat.weeks", {a: wk[0].wk, b: wk[wk.length - 1].wk});
-  const meta = [statMetaText(s, a.id, !span)].concat(span ? [span] : []).join(" · ");
+  const meta = [statMetaText(s, a.id, !span)].concat(span ? [span] : []).filter(Boolean).join(" · ");
   const weeks = `<span class="pf-stat-wk">${meta}</span>`;
   const def = AXIS_DEF[a.id]
     ? `<p class="pf-stat-def">${AXIS_DEF[a.id]()}${AXIS_WHY[a.id] ? `<span class="pf-stat-why">${AXIS_WHY[a.id]()}</span>` : ""}</p>` : "";
   return `<div class="pf-stat-h"><span class="pf-stat-l">${esc(axisName(a))}</span>${weeks}</div>
-    ${def}<b>${usageFmt(v, a.fmt)}</b><span class="pf-stat-side">${bar}</span>${line}`;
+    ${def}<b${thin ? ` class="thin"` : ""}>${usageFmt(v, a.fmt)}</b><span class="pf-stat-side">${sampleHTML(s.row, a)}${bar}</span>${line}`;
 }
 
 /* Each stat's name in plain words, 2026-09-25. ff-jarvis's labels are the analyst's shorthand
