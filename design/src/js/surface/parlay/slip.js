@@ -23,7 +23,7 @@ function slipHTML(){
   const pct = x => `${(x*100).toFixed(1)}%`;
   const udMode = PARLAY_BOOK === "underdog";
   const title = SLIP_MODE === "mine" ? t("parlay.slip.titleMine") : udMode ? t("parlay.slip.titleUd") : t("parlay.slip.titleDk");
-  const udP = udMode && legs.length ? legs.reduce((a,l)=>a*udPick(l).conf/100, 1) : null;
+  const udP = udMode && legs.length ? udChance(legs) : null;
   const chips = `<div class="presets">
     ${PRESETS.map(([k,label]) =>
       `<button class="chip" data-preset="${k}" aria-pressed="${SLIP_MODE===k}">${label}</button>`).join("")}</div>`;

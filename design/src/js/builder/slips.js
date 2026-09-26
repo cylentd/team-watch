@@ -46,6 +46,21 @@ const UD_MIN = 58;
    from week 5 on and blocked the winning side before it. In-sample: the split was found in the
    same 2025 data, and no other season's closing lines are on disk to check it against. */
 const HIT_RECS = 65, HIT_TD = 50;
+/* What a leg actually hit when graded, which a slip's chance is built from (2026-09-25), since the
+   model's receptions confidence runs ~8 points high (12.51: lower stated 65.4, hit 56.3; lower at
+   65%+ hit 57.3; higher stated 61.9, hit 42.3). A receptions pick counts at its side's graded rate,
+   never above its own confidence; a touchdown at its P(score), which grading found honest. */
+const GRADED = {lowerAtFloor: 57.3, lower: 56.3, higher: 42.3};
+function legHit(p){
+  const u = udPick(p);
+  if (p.mkt === "TD" || u.synthetic) return u.conf;
+  const g = u.pick === "higher" ? GRADED.higher : u.conf >= HIT_RECS ? GRADED.lowerAtFloor : GRADED.lower;
+  return Math.min(u.conf, g);
+}
+/* A slip's graded chance to hit every leg, and that against what its flat board pays (2-pick 3x,
+   3-pick 6x): above 1 the slip beats its payout. */
+const udPayout = n => n === 2 ? 3 : 6;
+const udChance = legs => legs.reduce((a,l) => a * legHit(l) / 100, 1);
 const legOKInBook = (p, s, book) => {
   if (!upcoming(p)) return false;
   if (book !== "underdog")
@@ -135,8 +150,12 @@ function buildGallery(book){
     const sig = legs.slice().sort((a,b)=>a-b).join(",");
     if (seen.has(sig)) continue;
     seen.add(sig);
+    // The star goes to the best return, not the safest slip: on Underdog the graded chance times
+    // the payout (David, 2026-09-25: the point is the edge, not the hit rate).
+    const ps = legs.map(i => PROPS[i]);
     out.push({book, scope: s, scopeLabel: label, win: w, legs, low,
-               metric: legs.reduce((a,i)=>a+metric(PROPS[i]), 0) / legs.length});
+               metric: book === "underdog" ? udChance(ps) * udPayout(ps.length)
+                 : ps.reduce((a,p)=>a+metric(p), 0) / ps.length});
   }
   // The next game first (David, 2026-09-16: "the upcoming game slip should be first"): by the
   // earliest kickoff among a card's legs, a single-window card ahead of the whole day it sits in,

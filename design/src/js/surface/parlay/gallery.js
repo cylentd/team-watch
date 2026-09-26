@@ -29,10 +29,9 @@ function legCall(l, book){
   return l.line === null ? esc(MKT[l.mkt]) : `<em class="higher">${t("parlay.slip.over")}</em> ${l.line} ${esc(MKT[l.mkt])}`;
 }
 
-/* The verdict as a pill, so nobody does the arithmetic (2026-09-25): the model's chance against
-   what the payout (Underdog: 1/x) or the price (DK: its implied chance) needs. A ratio under 1.25
-   is "close", since a model a few points off erases it. The pill says "model" because the chance
-   is the model's product of its legs, not a promise; its title shows both numbers. */
+/* The verdict as a pill, so nobody does the arithmetic (2026-09-25): the slip's graded chance
+   (udChance, slips.js) against what its payout needs, 1/x. A ratio under 1.25 is "near", since a
+   rate a few points off erases it. Its title shows both numbers. Underdog only. */
 function slipVerdict(ratio, what, model, needs){
   const [cls, text] = ratio >= 1.25 ? ["up", t("parlay.slip.beats", {what})]
     : ratio >= 1 ? ["", t("parlay.slip.close", {what})] : ["down", t("parlay.slip.short", {what})];
@@ -57,8 +56,8 @@ function presetCard(card, bestOf){
   const ud = card.book === "underdog";
   let head, meta, verdict = "";
   if (ud){
-    const udP = legs.reduce((a,l)=>a*udPick(l).conf/100, 1);
-    const x = legs.length === 2 ? 3 : 6;
+    const udP = udChance(legs);
+    const x = udPayout(legs.length);
     meta = t("parlay.slip.udMeta", {n: legs.length, x});
     head = `<b>${(udP*100).toFixed(1)}%</b> ${t("parlay.slip.toHitAll", {n: legs.length})}`;
     verdict = slipVerdict(udP * x, t("parlay.slip.vsPayout", {x}), (udP*100).toFixed(1), (100/x).toFixed(1));
@@ -71,7 +70,8 @@ function presetCard(card, bestOf){
     const pos = modelP >= implied;
     meta = t("parlay.slip.dkMeta", {n: legs.length, d: `${pos?"+":""}${((modelP-implied)*100).toFixed(1)}`});
     head = `<b class="${pos?"":"neg"}">${priced ? esc(fmtAm(decToAm(dec))) : "—"}</b> ${t("parlay.slip.forLegs", {n: legs.length})}`;
-    if (priced) verdict = slipVerdict(modelP / implied, t("parlay.slip.vsPrice"), (modelP*100).toFixed(1), (implied*100).toFixed(1));
+    // No verdict pill on DraftKings: the overs the model calls +EV lost when graded singly at the
+    // close (ff-jarvis METHODOLOGY 12.31: -2.3% and -10.3%, n 427 each), so a "beats" would overclaim.
   }
   const tags = [best ? `<span class="tk-flag best">${t("parlay.slip.best")}</span>` : "", verdict,
     card.low ? `<span class="tk-flag">${t("parlay.slip.low")}</span>` : ""].join("");

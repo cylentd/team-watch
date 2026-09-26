@@ -68,7 +68,7 @@ def test_a_slip_groups_its_legs_by_game_and_reads_each_as_a_sentence(browser, pa
 def test_every_underdog_slip_says_its_verdict(browser, page_file):
     """Each Underdog slip carries one verdict pill (2026-09-25), so nobody works out whether a slip
     beats its payout: "beats" at a quarter or more over 1/x, "short of" under it, and its title
-    holds both numbers."""
+    holds both numbers. The chance is graded, so a receptions leg never counts above 57.3%."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     page.evaluate("SURFACE='parlay'; PARLAY_BOOK='underdog'; render()")
     slips = page.locator(".ticket")
@@ -81,9 +81,13 @@ def test_every_underdog_slip_says_its_verdict(browser, page_file):
         pill = s.locator(".tk-flag[title]")
         assert pill.count() == 1
         ratio = pct / 100 * x
-        want = "beats" if ratio >= 1.25 else "near" if ratio >= 1 else "short of"
-        assert f"Model: {want} the {x}× payout" == pill.inner_text()
+        want = "Beats" if ratio >= 1.25 else "Near" if ratio >= 1 else "Short of"
+        assert f"{want} the {x}× payout" == pill.inner_text()
         assert f"{100 / x:.1f}%" in pill.get_attribute("title")
+    assert page.evaluate("PROPS.filter(p => p.mkt === 'RECS' && udPick(p)).every(p => legHit(p) <= 57.3)")
+    assert page.locator(".tk-grid").evaluate("() => GALLERIES.dk.length") == 0 or \
+        page.evaluate("PARLAY_BOOK='dk'; render(); document.querySelectorAll('.ticket .tk-flag[title]').length") == 0, \
+        "DraftKings slips carry no verdict: graded, the model's +EV overs lost"
     assert errors == []
     ctx.close()
 

@@ -2,11 +2,12 @@
    place a pick lands and the count you are building -- and a tap grows it into the sheet: why the
    slip's chance is what it is, then the slip itself (slip.js) with its legs, payout and copy.
 
-   The chance is the one number the slip is for. Underdog: every leg's confidence multiplied, the
-   chance all of them hit. DK: the model's chance of the same, where every leg is modelled. */
+   The chance is the one number the slip is for. Underdog: every leg's graded chance multiplied
+   (legHit, slips.js), the chance all of them hit. DK: the model's chance of the same, where every
+   leg is modelled. */
 function betsSlipLegs(){ return SLIP.map(i => PROPS[i]).filter(Boolean); }
 function betsLegChance(l){
-  if (PARLAY_BOOK === "underdog"){ const u = udPick(l); return u ? u.conf : null; }
+  if (PARLAY_BOOK === "underdog") return udPick(l) ? legHit(l) : null;
   return typeof l.model === "number" ? l.model : null;
 }
 function betsSlipPct(){
