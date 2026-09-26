@@ -30,6 +30,7 @@
 .brief.done .brief-h{margin:0;padding:6px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .brief.done .brief-h h2{font-size:var(--t-3)}
 .brief-line:first-of-type{border-top:1px solid var(--line)}
+.brief.peek .brief-line:first-of-type{border-top:0}
 .brief-line:hover{background:var(--panel-2)}
 .brief-line:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 .brief-ico{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:var(--panel-2);color:var(--ink-3)}
@@ -54,9 +55,10 @@
   /* Its heading sits on the starters' and bench's heading line (measured, 2026-09-25). */
   .rl > .brief{grid-column:2;grid-row:1;max-width:none;margin-top:38px;
     position:sticky;top:calc(var(--rl-stick, 0px) + 14px)}
-  /* All checked: the column goes and the rows take the width; the one row sits above them. */
-  .rl:has(> .brief.done){display:block}
-  .rl > .brief.done{position:static;margin-top:14px;max-width:720px}
+  /* All checked: the one row stays at the head of its column, still on the headings' line, so
+     "Show" opens the lines where they were and a reload shuts them there. Folding the column away
+     sent the brief above the rows and back on every "Show" (2026-09-25). */
+  .rl > .brief.done{margin-top:31px}
   .brief-line{font-size:var(--t-2)}
   .brief-txt small{font-size:var(--t-1)}
   .brief-more{display:none}

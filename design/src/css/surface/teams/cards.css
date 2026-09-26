@@ -192,6 +192,9 @@
   .cards{--cw:clamp(84px, min(calc((100dvh - 410px) / 4.2), calc((100cqw - 92px) / 6)), 150px);
     display:grid;grid-template-columns:auto auto;gap:0 44px;justify-content:start;align-items:start}
   .cards-col.bench{margin-top:0}
+  /* Both headings are the height of "Rip again" (32px), so the bench's cards start on the
+     starters' line whether or not the starters carry it (2026-09-25). */
+  .cards-col > .rule{min-height:32px}
   .cardgrid{grid-template-columns:repeat(3,var(--cw));gap:12px}
   .tc{--th:64px}
 }
