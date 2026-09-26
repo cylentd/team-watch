@@ -354,6 +354,28 @@ def test_a_hash_opens_its_view(browser, page_file, leaf, group, label):
         ctx.close()
 
 
+@pytest.mark.parametrize("hash", ["#movers", "#matchups", "#board"])
+def test_a_head_fills_its_circle(browser, page_file, hash):
+    """Every drawn headshot is exactly as tall as the circle that clips it. Until 2026-09-25 the
+    `.xf-head`/`.bd-head` grid sized its implicit row to the img's default 150px, so a 36px circle
+    showed the top of a 36x150 strip -- hair and background, no face -- in Movers, Matchups and
+    Leaders alike. The golden probe measures no img, which is how it shipped."""
+    ctx = browser.new_context(viewport={"width": 390, "height": 844}, reduced_motion="reduce")
+    page = ctx.new_page()
+    page.route(re.compile(r"^https?://"), lambda route: route.abort())
+    page.add_init_script(SEED)
+    try:
+        page.goto(page_file.as_uri() + hash)
+        page.wait_for_function("document.getElementById('view').children.length > 0")
+        page.wait_for_timeout(200)
+        sizes = page.evaluate("""() => [...document.querySelectorAll('.xf-head img, .bd-head img')].map(i =>
+            [Math.round(i.getBoundingClientRect().height), Math.round(i.parentElement.getBoundingClientRect().height)])""")
+        assert sizes, f"no headshot drawn on {hash}; the check would pass on nothing"
+        assert all(h == box for h, box in sizes), f"img height vs its circle: {sizes[:5]}"
+    finally:
+        ctx.close()
+
+
 @pytest.mark.parametrize("hash", ["#movers", "#pool"])
 def test_movers_hash_opens_movers(browser, page_file, hash):
     """Movers is a view beside Leaders (2026-09-25; a mode of the Board for a few hours before,
