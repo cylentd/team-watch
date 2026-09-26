@@ -12,8 +12,8 @@
 ------------------------------------------------------------------ */
 const BD_POSITIONS = ["QB", "RB", "WR", "TE"];
 let BD_POS = "RB";
-/* "leaders" is the lanes; "movers" is who is gaining role, week on week (surface/pool/pool.js).
-   Two readings of one position, so they share the chip. The one mode with a hash (nav.js). */
+/* Which view is drawing: "leaders" (#board) or "movers" (#movers, surface/pool/pool.js). Set from
+   SURFACE by render(); the two views share the position chip, so they share this surface. */
 let BD_MODE = "leaders";
 let BD_STAT = null;  // the axis on screen; null is the position's default (bdStatOf)
 let BD_PAGE = 0;     // the full list's page under the top five; 0 is closed (leaders.js)
@@ -61,8 +61,8 @@ function bdChipsHTML(picks){
         aria-label="${t("board.action.remove", {name: esc(p.n)})}">✕</button></span>`).join("")}</div>`;
 }
 
-/* A position is offered when this mode has something to draw for it: lanes, or movers. A pick
-   is a Leaders idea, so "+ Add player" is too. */
+/* A position is offered when this view has something to draw for it: lanes, or movers. A pick
+   is a Leaders idea, so "+ Compare" is too. */
 function bdControlsHTML(){
   const has = BD_MODE === "movers" ? p => POOL.some(r => r.pos === p) : p => bdAxes(p).length;
   return `<div class="filters">
@@ -74,25 +74,14 @@ function bdControlsHTML(){
   </div>`;
 }
 
-/* Under the chips, the builder's segmented switch (.modes-sub.dock): the same control Parlay and
-   DFS switch books with, so a phone reads it as one two-way choice. */
-function bdModeHTML(){
-  const b = (m, label) =>
-    `<button class="mode-sub" data-bdmode="${m}" aria-pressed="${BD_MODE === m}">${label}</button>`;
-  return `<div class="modes-sub dock bd-modes" role="group" aria-label="${t("board.mode.label")}">
-    ${b("leaders", t("board.mode.leaders"))}${b("movers", t("board.mode.movers"))}
-  </div>`;
-}
-
 function bdViewHTML(){
-  if (BD_MODE === "movers") return `<div class="wrap">${bdControlsHTML()}${bdModeHTML()}${poolHTML(BD_POS)}</div>`;
+  if (BD_MODE === "movers") return `<div class="wrap">${bdControlsHTML()}${poolHTML(BD_POS)}</div>`;
   const axes = bdAxes(BD_POS);
-  if (!axes.length) return `<div class="wrap">${bdModeHTML()}<div class="state-empty" style="min-height:220px">
+  if (!axes.length) return `<div class="wrap"><div class="state-empty" style="min-height:220px">
     <div><b>${t("board.empty.noSheetTitle")}</b><span>${t("board.empty.noSheetSub")}</span></div></div></div>`;
   const picks = bdPicked();
   return `<div class="wrap pos-${BD_POS.toLowerCase()}">
     ${bdControlsHTML()}
-    ${bdModeHTML()}
     ${BD_NOTE ? `<p class="bd-note">${BD_NOTE}</p>` : ""}
     ${bdChipsHTML(picks)}
     ${bdLeadHTML(BD_POS, axes, picks)}
@@ -163,9 +152,6 @@ function wireBd(v){
     }, {passive: true});
   });
   set("[data-bddrop]", b => { BD_NOTE = ""; BD_PICKS = BD_PICKS.filter(s => s !== b.dataset.bddrop); });
-  // The mode goes in the hash (nav.js), so Back undoes a switch and a reload keeps it. The write
-  // fires a hashchange that finds SURFACE and BD_MODE already where it points, and does nothing.
-  set("[data-bdmode]", b => { BD_NOTE = ""; POOL_PAGE = 1; BD_MODE = b.dataset.bdmode; location.hash = navHashOf("board"); });
   // The picker is the app's own search sheet, handed a slot to fill instead of a profile to open.
   v.querySelectorAll("[data-bdadd]").forEach(b => b.addEventListener("click", () => searchOpen(bdAdd)));
   if (BD_MODE === "movers") wirePool(v);

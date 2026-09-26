@@ -2,7 +2,6 @@
    all arrive this way, and all three should land where they point. Without one, the day picks
    (nav.js navDefaultLeaf: Waivers on a Tuesday, the Board otherwise). */
 SURFACE = navFromHash() || navDefaultLeaf();
-if (navHashIsMovers()) BD_MODE = "movers";   // #movers, or a bookmark to the old #pool view
 
 buildFeed();
 buildNav();

@@ -50,7 +50,8 @@ function render(){
     wireLive(v);
     return;
   }
-  if (SURFACE === "board"){
+  if (SURFACE === "board" || SURFACE === "movers"){
+    BD_MODE = SURFACE === "movers" ? "movers" : "leaders";
     v.innerHTML = bdViewHTML(); wireBd(v);
     return;
   }

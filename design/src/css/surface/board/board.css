@@ -127,7 +127,7 @@
    and the name own the left half at every width without a box drawn around either. */
 .bd-hero{
   appearance:none;border:0;cursor:pointer;text-align:left;color:inherit;font:inherit;
-  position:relative;display:block;width:100%;min-height:208px;padding:0;overflow:hidden;
+  position:relative;display:grid;width:100%;min-height:208px;padding:0;overflow:hidden;
   background:linear-gradient(120deg,rgb(var(--tint-rgb) / .16),rgb(var(--tint-rgb) / 0) 62%),var(--panel-2);
   border-bottom:1px solid var(--line);
   animation:bdin .42s var(--ease) both;
@@ -140,7 +140,11 @@
   transition:transform var(--dur-spring) var(--spring);
 }
 .bd-hero:hover .bd-hero-img{transform:translateY(var(--lift))}
-.bd-hero-txt{position:relative;display:grid;gap:6px;padding:16px 18px 18px;max-width:64%}
+/* The rank hangs from the top; the number and the name stand on the bottom edge beside the
+   photo, a broadcast lower third. Top-aligned, the block ended at the team line and left a band of
+   empty panel under the name while the photo sat on the floor beside it. */
+.bd-hero-txt{position:relative;display:flex;flex-direction:column;gap:6px;padding:16px 18px 18px;max-width:64%}
+.bd-hero-txt > .bd-hero-rk{margin-bottom:auto;padding-bottom:10px}
 .bd-hero-rk{font-family:var(--disp);font-size:var(--t-3);font-weight:800;color:var(--tint)}
 .bd-hero-v{
   font-family:var(--disp);font-size:var(--t-lead);font-weight:800;line-height:.9;letter-spacing:-.04em;
@@ -219,8 +223,11 @@
    thousand pixels for a four-row list, and the card was mostly empty. */
 @media (min-width:760px){
   .bd-card{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);max-width:1000px}
-  .bd-hero{border-bottom:0;border-right:1px solid var(--line);min-height:260px}
-  .bd-list{align-content:center}
+  .bd-hero{border-bottom:0;border-right:1px solid var(--line)}
+  /* The four rows fill the column top to bottom, so their dividers meet the card's edges and the
+     first row's top is the card's top. Centred, the list floated 30px inside a taller column and
+     shared no edge with the #1 beside it. */
+  .bd-list{padding:0;grid-auto-rows:1fr}
 }
 
 /* Type comes from .note (base.css): a source line is a sentence, not a label. */

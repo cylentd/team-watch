@@ -80,17 +80,19 @@ question; `SURFACE` is always the **leaf**, never the group, and the group is de
 | group | views |
 |---|---|
 | My teams | Roster, Waivers |
-| Players (id `scouting`, was "Scouting" until 2026-09-25) | Board (Leaders: who leads each stat; Movers: whose role is growing, the old Pool, a mode since 2026-09-25), Grid (weekly usage), News |
+| Players (id `scouting`, was "Scouting" until 2026-09-25) | Leaders (leaf `board`: who leads each stat), Movers (whose role is growing, by team), Grid (weekly usage), News |
 | Bets | Parlay, DFS |
 | Gameday | Live |
 
 The view is in the hash (`#usage`, `#roster`), so a reload, a bookmark and Back all land where they
 point; the group is derived from the leaf, and only the view is in the URL (the grid's position and
-week reset on purpose). `tests/test_render.py::test_a_hash_opens_its_view` pins it. One exception:
-the Board's Movers mode is `#movers`, and the old `#pool` opens it, because Movers was a view and
-bookmarks point at it (`test_movers_hash_opens_the_board_in_movers`).
+week reset on purpose). `tests/test_render.py::test_a_hash_opens_its_view` pins it. Old names still
+land: `#pool` opens Movers (`NAV_ALIAS`), and Leaders keeps the leaf and hash `board`. Leaders and
+Movers share one surface (`js/surface/board/`, which reads `BD_MODE` from the view), since they
+share the position chip; they became views on 2026-09-25 because a Leaders/Movers switch was a
+fifth row of controls above the data on a phone (`test_movers_hash_opens_movers`).
 
-With no hash, `navDefaultLeaf` in `js/chrome/nav.js` opens Board (rosters barely move; stats and
+With no hash, `navDefaultLeaf` in `js/chrome/nav.js` opens Leaders (rosters barely move; stats and
 news move daily) except on a Tuesday, when Waivers still leads.
 
 `NAV` in `js/chrome/nav.js` is the whole table; a group of one draws no sub-row. Every copy key is

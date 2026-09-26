@@ -68,7 +68,7 @@ GD_CATCHUP = {swing: {me: 21.5, opp: 3.0}, movers: [
 # out here (rather than trusting the group button's "return me to where I was") keeps a state
 # reachable in the same way no matter which state ran before it.
 GROUP = {"roster": "teams", "waivers": "teams",
-         "board": "scouting", "usage": "scouting", "news": "scouting",
+         "board": "scouting", "movers": "scouting", "usage": "scouting", "news": "scouting",
          "parlay": "bets", "dfs": "bets", "live": "gameday"}
 
 
@@ -88,7 +88,7 @@ def bdpick(q):
             ("click", "#sr-0")]
 
 
-MOVERS = go("board") + [("click", "[data-bdmode='movers']")]
+MOVERS = go("movers")
 
 STATES = [
     # The page opens on the Board since 2026-09-24, so the roster states navigate there.
@@ -301,9 +301,9 @@ def test_no_console_errors(snapshot):
 
 
 @pytest.mark.parametrize("leaf,group,label", [
-    ("board", "scouting", "BOARD"),
-    ("movers", "scouting", "BOARD"),   # the Board's Movers mode
-    ("pool", "scouting", "BOARD"),     # the old Movers view's hash, kept for bookmarks
+    ("board", "scouting", "LEADERS"),  # the leaf is still `board`, so its bookmarks land
+    ("movers", "scouting", "MOVERS"),  # a view beside Leaders since 2026-09-25
+    ("pool", "scouting", "MOVERS"),    # the old Movers view's hash, kept for bookmarks
     ("usage", "scouting", "GRID"),
     ("waivers", "teams", "WAIVERS"),
     ("parlay", "bets", "PARLAY"),
@@ -332,10 +332,10 @@ def test_a_hash_opens_its_view(browser, page_file, leaf, group, label):
 
 
 @pytest.mark.parametrize("hash", ["#movers", "#pool"])
-def test_movers_hash_opens_the_board_in_movers(browser, page_file, hash):
-    """Movers was a view until 2026-09-25 and is the Board's second mode now: its hash, old or
-    new, must open the Board with Movers pressed, a switch must write the hash, and Back must
-    undo the switch rather than leave the Board."""
+def test_movers_hash_opens_movers(browser, page_file, hash):
+    """Movers is a view beside Leaders (2026-09-25; a mode of the Board for a few hours before,
+    and the `pool` view before that): its hash, old or new, must open it with its tab pressed, the
+    Leaders tab must write #board, and Back must return to Movers."""
     ctx = browser.new_context(viewport={"width": 390, "height": 844}, reduced_motion="reduce")
     page = ctx.new_page()
     page.set_default_timeout(5000)
@@ -344,14 +344,15 @@ def test_movers_hash_opens_the_board_in_movers(browser, page_file, hash):
     try:
         page.goto(page_file.as_uri() + hash)
         page.wait_for_function("document.getElementById('view').children.length > 0")
-        assert page.evaluate("[SURFACE, BD_MODE]") == ["board", "movers"]
-        assert page.locator("[data-bdmode='movers'][aria-pressed='true']").count() == 1
-        assert page.locator("[data-bdadd]").count() == 0, "+ Add player belongs to Leaders only"
-        page.locator("[data-bdmode='leaders']").click()
+        assert page.evaluate("[SURFACE, BD_MODE]") == ["movers", "movers"]
+        assert page.locator("#subnav [data-leaf='movers'][aria-pressed='true']").count() == 1
+        assert page.locator("[data-bdmode]").count() == 0, "the Leaders/Movers switch row is gone"
+        assert page.locator("[data-bdadd]").count() == 0, "+ Compare belongs to Leaders only"
+        page.locator("#subnav [data-leaf='board']").click()
         page.wait_for_timeout(120)
-        assert page.evaluate("[location.hash, BD_MODE]") == ["#board", "leaders"]
+        assert page.evaluate("[location.hash, SURFACE, BD_MODE]") == ["#board", "board", "leaders"]
         page.go_back()
-        page.wait_for_function("BD_MODE === 'movers'")
+        page.wait_for_function("SURFACE === 'movers'")
         assert page.locator("[data-poolslug]").count() > 0
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
     finally:
@@ -390,7 +391,7 @@ TUESDAY = 'Date.now = () => Date.parse("2026-09-22T12:00:00Z");'   # a Tuesday i
 @pytest.mark.parametrize("day,hash,surface,first", [
     ("tue", "", "waivers", "WAIVERS"),     # claims day: Waivers opens and leads its group
     ("tue", "#roster", "roster", "WAIVERS"),   # a hash still wins
-    ("sat", "", "board", "BOARD"),         # any other day: Board leads, not Roster
+    ("sat", "", "board", "LEADERS"),       # any other day: Leaders leads, not Roster
 ])
 def test_tuesday_opens_waivers(browser, page_file, day, hash, surface, first):
     """The day is read from Date.now(), so pinning it is the whole injection. SEED pins a

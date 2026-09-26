@@ -1,5 +1,0 @@
-/* The Board's Leaders / Movers switch (2026-09-25) and the one line Movers shows while no share
-   has moved yet. The switch is the builder's .modes-sub.dock (builder/modes.css, and the phone's
-   segmented form in responsive/lists.css); this file only spaces it under the position chips. */
-.bd-modes{margin-top:12px}
-.pool-wait{margin:14px 0 0}

@@ -11,12 +11,15 @@ const NAV_ICON = {
 /* Four groups, each holding the views that answer one question. Seven flat tabs fitted no phone
    and, worse, implied seven peers: Board and Grid are two readings of the same usage data, and
    Roster and Waivers were already a pair hidden inside the hero. Grouping says which is which.
-   Movers left the table on 2026-09-25 to become the Board's second mode (board.js).
+   Movers left the table on 2026-09-25 to become the Board's second mode, and came back the same
+   day as a view: a mode switch was a fifth row of controls above the data on a phone, and Leaders
+   and Movers answer different questions, which is what a view is. "Board" reads Leaders now; its
+   leaf and hash stay `board`, so bookmarks still land.
    Gameday holds one view today and exists as a group because that is where a live surface grows.
    Each leaf's label is its own key, so a rename here never silently changes a heading elsewhere. */
 const NAV = [
   ["teams",    ["roster", "waivers"]],
-  ["scouting", ["board", "usage", "news"]],
+  ["scouting", ["board", "movers", "usage", "news"]],
   ["bets",     ["parlay", "dfs"]],
   ["gameday",  ["live"]],
 ];
@@ -25,7 +28,7 @@ const NAV = [
    orphaned by scanning for literal lookups, and a key assembled from a template is invisible to
    it -- the build would pass while the label rendered blank. */
 const navLabel = leaf => ({
-  roster: t("nav.tab.roster"), waivers: t("nav.tab.waivers"), board: t("nav.tab.board"),
+  roster: t("nav.tab.roster"), waivers: t("nav.tab.waivers"), board: t("nav.tab.board"), movers: t("nav.tab.movers"),
   usage: t("nav.tab.grid"), news: t("nav.tab.news"),
   parlay: t("nav.tab.parlay"), dfs: t("nav.tab.dfs"), live: t("nav.tab.live"),
 }[leaf] || leaf);
@@ -85,28 +88,22 @@ function paintSubnav(){
    roster -- which matters more now that there are eight views instead of one. Only the view: the
    grid's position and week reset, and that is a deliberate line, because every control that
    learns the URL is another thing to keep in step with it. */
-/* One exception, since 2026-09-25: the Board's Movers mode is #movers. Movers was a view of its
-   own until then, so a bookmark to it -- #pool, its old leaf -- must still land on it, and a
-   reload in it should stay in it. Every other control's state stays out of the URL. */
-const NAV_MOVERS_HASH = ["movers", "pool"];
+/* Old names that still land: Movers was the `pool` view until 2026-09-25, and bookmarks point at it. */
+const NAV_ALIAS = {pool: "movers"};
 const navHash = () => (location.hash || "").replace(/^#\/?/, "");
-const navHashIsMovers = () => NAV_MOVERS_HASH.includes(navHash());
-const navHashOf = leaf => leaf === "board" && BD_MODE === "movers" ? "movers" : leaf;
 const navFromHash = () => {
-  const leaf = navHash();
-  if (NAV_MOVERS_HASH.includes(leaf)) return "board";
+  const leaf = NAV_ALIAS[navHash()] || navHash();
   return NAV.some(([, tabs]) => tabs.includes(leaf)) ? leaf : null;
 };
 
 function navGo(leaf, fromHash){
   LAST_LEAF[navGroupOf(leaf)] = leaf;
   SURFACE = leaf;
-  if (fromHash && leaf === "board") BD_MODE = navHashIsMovers() ? "movers" : "leaders";
   const active = navGroupOf(leaf);
   document.querySelectorAll("#nav .navitem")
     .forEach(x => x.setAttribute("aria-current", x.dataset.s === active));
   // Writing the hash back during a hashchange would re-enter this and fight the Back button.
-  if (!fromHash) location.hash = navHashOf(leaf);
+  if (!fromHash) location.hash = leaf;
   paintSubnav();
   render();
   // Moving to a view is the moment you are about to read it, so it is the moment to ask whether
@@ -134,8 +131,7 @@ function buildNav(){
      everyone tries first. The guard keeps a hash we just wrote from re-rendering the same view. */
   window.addEventListener("hashchange", () => {
     const leaf = navFromHash();
-    const modeMoved = leaf === "board" && navHashIsMovers() !== (BD_MODE === "movers");
-    if (leaf && (leaf !== SURFACE || modeMoved)) navGo(leaf, true);
+    if (leaf && leaf !== SURFACE) navGo(leaf, true);
   });
   paintSubnav();
 }
