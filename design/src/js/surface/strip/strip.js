@@ -55,6 +55,7 @@ function stMoment(p, dir){
   if (p.k === "fg") return {txt: p.made ? t("strip.moment.fg") : t("strip.moment.fgMissed"), cls: p.made ? "" : " bad"};
   if (p.k === "int") return {txt: t("strip.moment.int"), cls: " bad"};
   if (p.fum && p.fum.lost) return {txt: t("strip.moment.fumble"), cls: " bad"};
+  if (p.sack) return {txt: t("strip.moment.sack", {n: Math.abs(Math.round(gain))}), cls: " bad"};
   if (p.k !== "inc" && gain >= 20){
     /* whichever half of the gain is bigger gets named; a tie goes to the air yards, the flashier
        number. One line only -- the band has room for a headline and a tag, not two sentences. */
@@ -88,9 +89,13 @@ function stCaption(ctl, p, over, dr = ctl.drive){
   const c = over ? dr.end : p;
   const who = p.who || t("strip.unnamed");
   const from = p.qb ? ` <small>${t("strip.caption.from", {qb: esc(p.qb)})}</small>` : "";
-  const yac = !over && p.k === "pass" && p.yac != null
+  const caught = !over && p.k === "pass" && p.yac != null
     ? `<span class="styac">${t("strip.caption.caught",
         {spot: stSpot(p.to - p.yac * dr.dir, ctl.home, ctl.away), n: p.yac})}</span>` : "";
+  /* PFR counts broken tackles per game, never per play, so the card says it as a game total */
+  const n = !over && p.who && ctl.data.brk ? ctl.data.brk[p.who] : 0;
+  const brk = n ? `<span class="stbrk">${n === 1 ? t("strip.caption.brkOne") : t("strip.caption.brk", {n})}</span>` : "";
+  const yac = caught || brk ? `<span class="stmore">${caught}${brk}</span>` : "";
   return `<span class="stfaces">${p.qb ? stFace(p.qb, ctl.faces[p.qb], " sm") : ""}${stFace(who, ctl.faces[p.who])}</span>`
     + `<span class="stnm">${esc(who)}${from}</span><span class="stdd">${esc(c.dd || "")}</span>`
     + `<span class="sttx">${esc(stPlayText(c.tx))}</span>${yac}`;
@@ -144,6 +149,7 @@ function stShowDrive(ctl, i, quiet){
   ctl.ltg = ctl.ui.stage.querySelector(".stltg");
   ctl.turf = ctl.ui.stage.querySelector(".stturf");
   ctl.ui.slam.className = "stslam";
+  stKits(ctl);
   /* a new possession while playing arrives from the side it will attack from, so the change of
      drive reads as one; a scrub rebuilds in place, since the hand is already saying where it is */
   if (quiet && ctl.playing && was != null && was !== i && !ST_REDUCED){
@@ -159,21 +165,24 @@ function stRender(ctl, tm, hold = 1){
   const f = tm <= 0 ? 0 : tm - i, p = ctl.plays[i], done = f >= 1, over = tm >= n && hold >= 1;
   /* the clock every loop on the field is positioned by (field.css, --clock) */
   ctl.ui.stage.style.setProperty("--ph", (performance.now() / 1000).toFixed(3));
-  const x = ctl.pose(i, f, hold, over);
-  /* the chevrons fill the ground between the ball and the end zone this drive is heading for --
-     which is the LEFT one on an away drive, because the field never flips */
-  const back = ctl.drive.dir < 0;
+  const fr = ctl.pose(i, f, hold, over), x = fr.at;
+  /* possession has changed hands: the threat is at the other end now */
+  const turned = done && (p.k === "int" || (!!p.fum && p.fum.lost && hold >= .55) || (!!p.turnover && p.k !== "fg"));
+  /* the chevrons fill the ground between the ball and the end zone the team WITH the ball is
+     heading for -- the LEFT one on an away drive, because the field never flips, and the other
+     one the moment possession changes, when they swing round (moments.css) */
+  const back = (ctl.drive.dir < 0) !== turned;
   ctl.ahead.style.left = back ? "0" : `calc(${x}% + 20px)`;
   ctl.ahead.style.right = back ? `calc(${100 - x}% + 20px)` : "0";
+  ctl.ui.stage.classList.toggle("chevback", back);
   stKeepInView(ctl, x);
-  /* possession has changed hands: the chevrons go and the threat is at the other end */
-  const turned = done && (p.k === "int" || (!!p.fum && p.fum.lost && hold >= .55) || (!!p.turnover && p.k !== "fg"));
   ctl.ltg.style.left = (p.line == null ? 0 : p.line) + "%";
   ctl.ltg.style.display = p.line != null && p.line < 100 && p.line > 0 && !(over && p.td) && !turned ? "" : "none";
   const tgt = ctl.ui.stage.querySelector(".stez.tgt");
   if (tgt) tgt.classList.toggle("scored", (!!p.td || (p.k === "fg" && p.made)) && done);
   ctl.ui.stage.classList.toggle("turnover", turned);
   stSlam(ctl, p, i, done, hold);
+  stMoments(ctl, p, i, fr);
   stScore(ctl, p, done, over, turned);
   const key = over ? -1 : i;
   if (key !== ctl.shown){ ctl.shown = key; ctl.ui.cap.innerHTML = stCaption(ctl, p, over); }

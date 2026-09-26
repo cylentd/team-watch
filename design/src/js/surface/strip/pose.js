@@ -26,8 +26,11 @@ function stFrame(S, p, f, hold){
   x.loss = (x.e - p.from) * dir < 0;
   x.big = p.k !== "inc" && p.k !== "fg" && !x.picked && Math.abs(x.e - p.from) >= 20;
   /* contact comes while both men are still moving, so neither brakes before the hit */
-  x.HIT = p.k === "pass" ? x.FL + (1 - x.FL) * .8 : .8;
+  x.HIT = g.hitOf(p);
   x.met = !!p.tk && !x.picked && f >= x.HIT;
+  /* he goes down at the spot: at once from a single tackler, and only at the end of the play when
+     a second man had to arrive -- the yards between are him carrying the first one */
+  x.fell = x.met && f >= (p.tk2 ? .97 : x.HIT);
   /* A real route (3+ air yards) has a stem and a break: release, run downfield while the passer
      drops, then close under the ball. A screen or swing caught at or behind the line is not that
      route run backwards -- there is no downfield break to show -- so he takes his release step,
@@ -64,9 +67,11 @@ function stPoseCarrier(S, x){
   const cl = S.el.carrier.classList;
   cl.toggle("settle", settling);
   /* no run cycle over zero ground on a shallow route during the drop; a kicker never runs at all */
-  cl.toggle("run", p.k !== "fg" && f > 0 && f < 1 && !(x.shallow && f < x.DROP));
+  cl.toggle("run", p.k !== "fg" && f > 0 && f < 1 && !(x.shallow && f < x.DROP) && !x.fell);
   cl.toggle("back", x.loss);
-  cl.toggle("down", x.met);
+  cl.toggle("down", x.fell);
+  /* stopped for a loss he goes over backwards; otherwise he falls forward, over the ball */
+  cl.toggle("over", x.fell && (x.loss || !!p.sack));
   cl.toggle("has", (!x.inAir || x.caught) && !x.loose);
   cl.toggle("joy", !!p.td && f >= 1);
   cl.toggle("turbo", x.big && f > .25 && f < 1 && (!x.inAir || x.caught));
@@ -115,6 +120,19 @@ function stPoseTk(S, x){
   return grab;
 }
 
+/* The second tackler, when nflverse credits one (tk2). He is pursuit: he comes from behind, closes
+   while the first man is already on the carrier, and piles on from the back. Facing the way the
+   play runs, because he is chasing it. */
+function stPoseTk2(S, x){
+  const p = x.p, f = x.f, dir = S.dir, on = !!p.tk2 && !x.picked;
+  S.el.tk2.style.display = on && f > x.HIT - .35 ? "" : "none";
+  if (!on) return;
+  const u = stClamp((f - (x.HIT - .35)) / .4, 0, 1);
+  S.anc.tk2.style.left = (stCarrierAt(S, x, f) - dir * stLerp(9, 1.6, stOut(u))) + "%";
+  S.el.tk2.classList.toggle("run", u < 1 && f < 1);
+  S.el.tk2.classList.toggle("down", u >= 1);
+}
+
 /* The ball, and the tag that names what happened to it where it came down. */
 function stPoseBall(S, x, grab){
   const p = x.p, f = x.f, dir = S.dir, a = stOut(x.after);
@@ -137,13 +155,16 @@ function stPoseBall(S, x, grab){
    with it. Every copy key is spelled out in full; assemble --check scans for literal lookups. */
 function stPoseTag(S, x){
   const p = x.p, settled = x.loose && x.after >= .55;
+  const pile = !!p.tk2 && x.fell && x.f >= 1 && !x.loose;
   const say = x.taken ? t("strip.tag.intercepted")
     : x.inc && x.f >= 1 ? t("strip.tag.incomplete")
     : settled && p.fum.lost ? t("strip.tag.fumbleLost", {by: p.fum.by})
     : settled ? t("strip.tag.fumbleOwn", {by: p.fum.by})
-    : x.loose ? t("strip.tag.fumble") : "";
+    : x.loose ? t("strip.tag.fumble")
+    : pile ? t("strip.tag.pile") : "";
   S.el.miss.style.display = say ? "" : "none";
   S.el.miss.classList.toggle("warn", x.loose && !(p.fum.lost && x.after >= .55));
+  S.el.miss.classList.toggle("pile", pile && !x.taken);
   if (say && S.el.miss.lastChild.nodeValue !== say) S.el.miss.lastChild.nodeValue = say;
   S.anc.miss.style.left = (x.loose ? p.fum.spot : x.e) + "%";
 }

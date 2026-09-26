@@ -114,6 +114,7 @@ surface/strip/pose.js
 surface/strip/place.js
 surface/strip/strip.js
 surface/strip/reel.js
+surface/strip/moments.js
 surface/strip/transport.js
 surface/strip/game.js
 chrome/teamswitch.js

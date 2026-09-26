@@ -118,8 +118,9 @@ function stTimeline(ctl){
     const dr = ctl.data.drives[s.d], p = dr.plays[s.i], m = stMoment(p, dr.dir), prev = ctl.reel[k - 1];
     const rest = p.td ? 1800 : p.k === "int" ? 1600 : m ? 1600 : p.tk || p.fum ? 900 : p.k === "inc" ? 600 : 0;
     const start = acc + (prev && (prev.d !== s.d || prev.i !== s.i - 1) ? ST_LEAD : 0), move = stMoveAt(ctl, k);
-    acc = start + move + (stEventful(p) || m ? ST_BEAT : 240) + rest;
-    return {start, move, end: acc};
+    const warp = stWarp(p, dr.dir, move);      /* hit-stops, slow motion, a turnover's freeze */
+    acc = start + move + warp.extra + (stEventful(p) || m ? ST_BEAT : 240) + rest;
+    return {start, move, warp, end: acc};
   });
 }
 
@@ -144,7 +145,7 @@ function stPlay(ctl){
     last = now;
     const el = now - t0, k = tl.findIndex(x => el < x.end);
     if (k < 0){ stSeek(ctl, R); return stSetPlaying(ctl, false); }
-    const local = el - tl[k].start, ms = tl[k].move;
+    const wall = el - tl[k].start, ms = tl[k].move, local = wall < 0 ? wall : tl[k].warp.map(wall);
     if (local < 0) stSeek(ctl, k);
     else stSeek(ctl, k + (ST_REDUCED ? 1 : stEase(Math.min(local / ms, 1))),
                 ST_REDUCED ? 1 : stClamp((local - ms) / ST_BEAT, 0, 1));

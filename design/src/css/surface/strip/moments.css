@@ -1,0 +1,58 @@
+/* ------------------------------------------------------------------
+   STRIP MOMENTS — how a play lands (js/surface/strip/moments.js says when each one fires).
+   The figures' own poses for it live here too: going down, diving, spiking. Every rig angle
+   follows figure.css's convention -- drawn facing right, mirrored by --face and --turn.
+------------------------------------------------------------------ */
+
+/* A jersey too dark for the black keyline on the turf (kits.json, dark) gets a light one. */
+.ststage[data-odark="1"] .stfig:not(.tk):not(.tk2) .strig :is(.j),
+.ststage[data-ddark="1"] :is(.stfig.tk,.stfig.tk2) .strig :is(.j){stroke:rgb(var(--ink-rgb) / .55)}
+
+/* Going down. Over the ball and forward from his front foot on a gain; backwards from the heel
+   when he was stopped for a loss or sacked. The tackler leaves his feet and dives through him. */
+.stfig.carrier.down .strig{rotate:64deg;transform-origin:30px 100%}
+.stfig.carrier.down.over .strig{rotate:-72deg;transform-origin:6px 100%}
+.stfig.carrier.down .torso{rotate:10deg}
+.stfig.tk.down .strig,.stfig.tk2.down .strig{rotate:34deg;transform-origin:30px 100%;
+  animation:stgrapple .4s ease-in-out var(--clock) infinite alternate paused}
+@keyframes stgrapple{to{translate:-1.5px 1px}}
+.stfig.tk.down .torso,.stfig.tk2.down .torso{rotate:40deg}
+.stfig.tk.down .sh,.stfig.tk2.down .sh{animation:none;rotate:-96deg}
+
+/* the tag under a pile names it: a second man had to come and bring him down */
+.stactor.stmiss.pile{color:var(--ink);border-color:var(--line-2)}
+.stactor.stmiss.pile svg{display:none}                  /* the cross means a miss; this is not one */
+
+/* a touchdown's spike: the ball leaves the raised hand, hits the turf, bounces once and is gone */
+.stfig.spike .stheld{animation:stspike .8s cubic-bezier(.5,0,.9,.6) forwards}
+@keyframes stspike{0%{translate:0 0}32%{translate:4px 44px}52%{translate:8px 30px}
+  72%{translate:11px 44px}100%{translate:12px 44px;opacity:0}}
+
+/* a returner, the ball stolen, streams red speed lines: the other side's big play */
+.stfig.tk.has.run .stpose::before{content:"";position:absolute;right:calc(50% + 8px);bottom:6px;width:46px;height:26px;
+  background:repeating-linear-gradient(0deg,transparent 0 5px,rgb(var(--down-rgb) / .8) 5px 7px);
+  mask:linear-gradient(90deg,transparent,var(--shadow))}
+
+/* afterimages of a big play's carrier: copies of his sprite, fainter, a few frames behind */
+.stactor.stghost{pointer-events:none;z-index:1}
+.stactor.stghost .stspot,.stactor.stghost .stheld{display:none}
+
+/* the camera's push-in stays inside the field's own box */
+.stbox.stpushing .stview{overflow:clip}
+
+/* the one-shots, placed at a sprite's spot in the flat overlay and removed when they finish */
+/* Each on its own compositor layer, like the sprites (field.css): animated inside the shared
+   overlay, a burst and three dust puffs repainted all of it on every frame -- 0.4% of the machine
+   while playing, measured 2026-09-26. */
+.stfx{position:absolute;left:0;top:0;width:0;height:0;pointer-events:none;z-index:3;will-change:transform,opacity}
+.stburst i{position:absolute;left:-1.5px;top:-16px;width:3px;height:11px;border-radius:2px;
+  background:var(--ink);transform-origin:1.5px 16px}
+.stpuff::before{content:"";position:absolute;left:-6px;top:-6px;width:12px;height:12px;border-radius:50%;
+  background:rgb(var(--ink-rgb) / .35)}
+.stpulse::before{content:"";position:absolute;left:-18px;top:-18px;width:36px;height:36px;border-radius:50%;
+  border:3px solid var(--down)}
+.stconfetti{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
+
+/* the play card's second line: where a pass was caught, and the game's broken tackles */
+.stcap .stmore{display:flex;flex-wrap:wrap;gap:0 12px;font:400 12px var(--mono);color:var(--ink-2)}
+.stcap .stbrk{color:var(--ink)}

@@ -15,10 +15,10 @@ function stBind(root, drive, id, faces){
   const q = s => root.querySelector(s);
   const S = {
     root, id, faces, plays: drive.plays, dir: drive.dir, g: stGeom(drive.dir),
-    el: {carrier: q(".stactor.carrier"), qb: q(".stactor.qb"), tk: q(".stactor.tk"),
+    el: {carrier: q(".stactor.carrier"), qb: q(".stactor.qb"), tk: q(".stactor.tk"), tk2: q(".stactor.tk2"),
          fly: q(".stactor.stfly"), miss: q(".stactor.stmiss"), shadow: q(".stshadow"),
          postA: q(".stactor.postA"), postB: q(".stactor.postB"), arcs: q(".starcs")},
-    anc: {carrier: q(".a-carrier"), qb: q(".a-qb"), tk: q(".a-tk"), fly: q(".a-fly"),
+    anc: {carrier: q(".a-carrier"), qb: q(".a-qb"), tk: q(".a-tk"), tk2: q(".a-tk2"), fly: q(".a-fly"),
           miss: q(".a-miss"), probe: q(".a-probe"),
           nA: q(".a-nA"), fA: q(".a-fA"), nB: q(".a-nB"), fB: q(".a-fB")},
     clips: drive.plays.map((p, i) => root.querySelectorAll(`#${id}g${i} rect, #${id}a${i} rect`)),
@@ -130,7 +130,7 @@ function stPlace(S, x){
     : x.inc ? ST_HAND.y * (1 - f)
     : x.loose ? ST_HAND.y * (1 - Math.min(x.after * 3, 1)) : ST_HAND.y;
   const at = a => { const r = a.getBoundingClientRect(); return [(r.left - o.left) / k, (r.top - o.top) / k]; };
-  const put = [[el.carrier, anc.carrier, 0, 0], [el.qb, anc.qb, 0, 0], [el.tk, anc.tk, 0, 0],
+  const put = [[el.carrier, anc.carrier, 0, 0], [el.qb, anc.qb, 0, 0], [el.tk, anc.tk, 0, 0], [el.tk2, anc.tk2, 0, 0],
     [el.fly, anc.fly, ST_HAND.x, -lift], [el.miss, anc.miss, ST_HAND.x, 0]].map(([node, a, dx, dy]) => {
     const [l, t] = at(a);
     return [node, l + dx, t + dy];
@@ -153,14 +153,18 @@ function stPlace(S, x){
 }
 
 /* Who stands on the lime ring: the reader's own player when the reel is narrowed to him and he is
-   on this play (as the passer, or even as the tackler), otherwise the man the play card names. */
-function stRing(S, p){
-  const on = S.mark && p.qb === S.mark ? "qb" : S.mark && p.tk === S.mark ? "tk" : "carrier";
-  ["carrier", "qb", "tk"].forEach(r => S.el[r].classList.toggle("ring", r === on));
+   on this play (as the passer, or even as a tackler), otherwise the man the play card names --
+   until the defence has the ball, when it is whoever has it. */
+function stRing(S, p, stolen){
+  const on = stolen ? "tk" : S.mark && p.qb === S.mark ? "qb" : S.mark && p.tk === S.mark ? "tk"
+    : S.mark && p.tk2 === S.mark ? "tk2" : "carrier";
+  ["carrier", "qb", "tk", "tk2"].forEach(r => {
+    if (S.el[r].classList.contains("ring") !== (r === on)) S.el[r].classList.toggle("ring", r === on);
+  });
 }
 
-/* One whole frame. Returns whatever the chevrons should point past: the ball while it is in the
-   air, the man once he has it. */
+/* One whole frame. Returns the frame's state for moments.js, with `at` set to whatever the
+   chevrons should point past: the ball while it is in the air, the man once he has it. */
 function stPoseFrame(S, i, f, hold, all){
   const p = S.plays[i], x = stFrame(S, p, f, hold);
   stReveal(S, i, f, all);
@@ -170,12 +174,16 @@ function stPoseFrame(S, i, f, hold, all){
     S.el.carrier.innerHTML = stFigure(p.who);
     S.el.qb.innerHTML = p.qb ? stFigure(p.qb) : "";
     S.el.tk.innerHTML = p.tk ? stFigure(p.tk) : "";
-    stRing(S, p);
+    S.el.tk2.innerHTML = p.tk2 ? stFigure(p.tk2) : "";
   }
   const cx = stPoseCarrier(S, x);
   stPoseQb(S, x);
-  const bx = stPoseBall(S, x, stPoseTk(S, x));
+  x.grab = stPoseTk(S, x);
+  stPoseTk2(S, x);
+  const bx = stPoseBall(S, x, x.grab);
+  stRing(S, p, x.taken || x.grab >= 1);
   stPlace(S, x);
   stDrawArcs(S, i, x.fl, all);
-  return x.inAir && !x.caught ? bx : cx;
+  x.at = x.inAir && !x.caught ? bx : cx;
+  return x;
 }

@@ -1,0 +1,167 @@
+{
+ "source": "nflverse teams_colors_logos.csv (team_color, team_color2)",
+ "fetched": "2026-09-26",
+ "note": "dark: the jersey is too dark to read on the turf with a black keyline, so it gets a light one",
+ "kits": {
+  "ARI": {
+   "jersey": "#97233f",
+   "trim": "#000000",
+   "dark": false
+  },
+  "ATL": {
+   "jersey": "#a71930",
+   "trim": "#000000",
+   "dark": false
+  },
+  "BAL": {
+   "jersey": "#241773",
+   "trim": "#9e7c0c",
+   "dark": true
+  },
+  "BUF": {
+   "jersey": "#00338d",
+   "trim": "#c60c30",
+   "dark": true
+  },
+  "CAR": {
+   "jersey": "#0085ca",
+   "trim": "#000000",
+   "dark": false
+  },
+  "CHI": {
+   "jersey": "#0b162a",
+   "trim": "#e64100",
+   "dark": true
+  },
+  "CIN": {
+   "jersey": "#fb4f14",
+   "trim": "#000000",
+   "dark": false
+  },
+  "CLE": {
+   "jersey": "#ff3c00",
+   "trim": "#311d00",
+   "dark": false
+  },
+  "DAL": {
+   "jersey": "#002244",
+   "trim": "#b0b7bc",
+   "dark": true
+  },
+  "DEN": {
+   "jersey": "#002244",
+   "trim": "#fb4f14",
+   "dark": true
+  },
+  "DET": {
+   "jersey": "#0076b6",
+   "trim": "#b0b7bc",
+   "dark": false
+  },
+  "GB": {
+   "jersey": "#203731",
+   "trim": "#ffb612",
+   "dark": true
+  },
+  "HOU": {
+   "jersey": "#03202f",
+   "trim": "#a71930",
+   "dark": true
+  },
+  "IND": {
+   "jersey": "#002c5f",
+   "trim": "#a5acaf",
+   "dark": true
+  },
+  "JAX": {
+   "jersey": "#006778",
+   "trim": "#000000",
+   "dark": false
+  },
+  "KC": {
+   "jersey": "#e31837",
+   "trim": "#ffb612",
+   "dark": false
+  },
+  "LA": {
+   "jersey": "#003594",
+   "trim": "#ffd100",
+   "dark": false
+  },
+  "LAC": {
+   "jersey": "#007bc7",
+   "trim": "#ffc20e",
+   "dark": false
+  },
+  "LV": {
+   "jersey": "#000000",
+   "trim": "#a5acaf",
+   "dark": true
+  },
+  "MIA": {
+   "jersey": "#008e97",
+   "trim": "#f58220",
+   "dark": false
+  },
+  "MIN": {
+   "jersey": "#4f2683",
+   "trim": "#ffc62f",
+   "dark": false
+  },
+  "NE": {
+   "jersey": "#002244",
+   "trim": "#c60c30",
+   "dark": true
+  },
+  "NO": {
+   "jersey": "#d3bc8d",
+   "trim": "#000000",
+   "dark": false
+  },
+  "NYG": {
+   "jersey": "#0b2265",
+   "trim": "#a71930",
+   "dark": true
+  },
+  "NYJ": {
+   "jersey": "#003f2d",
+   "trim": "#000000",
+   "dark": true
+  },
+  "PHI": {
+   "jersey": "#004c54",
+   "trim": "#a5acaf",
+   "dark": false
+  },
+  "PIT": {
+   "jersey": "#000000",
+   "trim": "#ffb612",
+   "dark": true
+  },
+  "SEA": {
+   "jersey": "#002244",
+   "trim": "#69be28",
+   "dark": true
+  },
+  "SF": {
+   "jersey": "#aa0000",
+   "trim": "#b3995d",
+   "dark": false
+  },
+  "TB": {
+   "jersey": "#a71930",
+   "trim": "#322f2b",
+   "dark": false
+  },
+  "TEN": {
+   "jersey": "#4495d2",
+   "trim": "#d50a0a",
+   "dark": false
+  },
+  "WAS": {
+   "jersey": "#5a1414",
+   "trim": "#ffb612",
+   "dark": true
+  }
+ }
+}

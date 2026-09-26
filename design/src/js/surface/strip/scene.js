@@ -40,6 +40,9 @@ function stGeom(dir){
   g.flightOf = p => p.k !== "pass" ? 1
     : g.dropOf(p) + (1 - g.dropOf(p)) * (p.yac > 0
       ? stClamp(g.airOf(p) / (g.airOf(p) + p.yac), .35, 1) : 1);
+  /* when the tackler meets him: late in a run, late in the run after a catch. Here rather than in
+     pose.js because the transport's hit-stop has to freeze on the same instant the pose draws. */
+  g.hitOf = p => p.k === "pass" ? g.flightOf(p) + (1 - g.flightOf(p)) * .8 : .8;
   g.peak = p => Math.min(ST_FIELD.PEAK, 14 + Math.abs(g.catchOf(p) - p.from) * 2.3);
   /* height of the ball u of the way through its flight. A pass comes back down to a hand; a kick's
      back half only sinks to ST_FGEND of the peak, because it is still rising over the crossbar. */
@@ -98,7 +101,7 @@ function stFieldHTML(plays, g, id, label, dir){
     + `<span class="stshadow" style="top:${BASE - 4}px"></span>`
     + `<div class="stair" style="top:${BASE - ST_AIR}px">`
     + `<svg viewBox="0 0 100 ${ST_AIR}" preserveAspectRatio="none" aria-hidden="true"><defs>${air}</defs></svg>`
-    + '<i class="stanc a-qb"></i><i class="stanc a-tk"></i><i class="stanc a-carrier"></i>'
+    + '<i class="stanc a-qb"></i><i class="stanc a-tk"></i><i class="stanc a-tk2"></i><i class="stanc a-carrier"></i>'
     + '<i class="stanc a-fly"></i><i class="stanc a-miss"></i><i class="stanc a-probe"></i></div>';
 }
 
@@ -106,7 +109,8 @@ function stFieldHTML(plays, g, id, label, dir){
 const stActorsHTML = () => '<div class="stactors"><svg class="starcs" aria-hidden="true"></svg>'
   + `<div class="stactor stpost postA">${ST_POST}</div><div class="stactor stpost postB">${ST_POST}</div>`
   + `<div class="stactor stmiss"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7"/></svg>${t("strip.tag.incomplete")}</div>`
-  + '<div class="stactor stfig qb"></div><div class="stactor stfig tk"></div><div class="stactor stfig carrier"></div>'
+  + '<div class="stactor stfig qb"></div><div class="stactor stfig tk"></div><div class="stactor stfig tk2"></div>'
+  + '<div class="stactor stfig carrier"></div>'
   + `<div class="stactor stfly">${ST_BALL}</div></div>`;
 
 /* The whole stage for one drive. `dir` sends the play the right way; the field itself never flips. */

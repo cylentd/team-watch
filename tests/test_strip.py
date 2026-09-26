@@ -177,6 +177,124 @@ def test_an_away_drive_runs_the_other_way(browser, page_file, shaped):
     assert (end < start) == gained, f"{p['tx'][:60]!r} drew the wrong way"
 
 
+def test_every_figure_faces_the_way_his_drive_says(browser, page_file, shaped):
+    """The rig is drawn facing right. Until 2026-09-26 only the chevrons knew the drive's
+    direction, and an away offense ran left facing right. The ball carrier faces the end zone his
+    drive attacks; the tackler faces him."""
+    out = {}
+    for dirn in (1, -1):
+        # the ESPN fixture names no tacklers, so one is added to a copy of the play being drawn
+        data = json.loads(json.dumps(shaped))
+        d, i = next((a, j) for a, x in enumerate(data["drives"]) if x["dir"] == dirn
+                    for j, p in enumerate(x["plays"]) if p["k"] == "rush")
+        data["drives"][d]["plays"][i]["tk"] = "A. Tackler"
+        page, ctx, errors = open_strip(browser, page_file, data, d)
+        page.evaluate("i => stRender(window.__ctl, i + .5)", i)
+        out[dirn] = page.evaluate("""() => ["carrier", "tk"].map(r =>
+          getComputedStyle(document.querySelector("#striptest .stactor." + r + " .stpose")).scale.split(" ")[0])""")
+        ctx.close()
+        assert not errors, errors
+    assert out[1] == ["1", "-1"], f"home drive: carrier, tackler facing {out[1]}"
+    assert out[-1] == ["-1", "1"], f"away drive: carrier, tackler facing {out[-1]}"
+
+
+def _with(shaped, fn):
+    data = json.loads(json.dumps(shaped))
+    fn(data)
+    return data
+
+
+def test_a_hit_stops_time_and_a_turnover_freezes_it(browser, page_file, shaped):
+    """moments.js stWarp: contact holds its frame for 70ms (a sack 110), a big play runs its break
+    at 30%, an interception freezes on the ball for 260ms. Wall time in, play time out."""
+    page, ctx, errors = open_strip(browser, page_file, shaped, 0)
+    out = page.evaluate("""() => {
+      const g = stGeom(1), m = 1000, at = f => m * stEaseInv(f);
+      const hit = stWarp({k: "rush", from: 20, to: 25, tk: "A"}, 1, m), h = at(g.hitOf({k: "rush"}));
+      const pick = stWarp({k: "int", from: 20, to: 40}, 1, m);
+      const big = stWarp({k: "rush", from: 20, to: 45}, 1, m);
+      return {extra: hit.extra, held: [hit.map(h + 10), hit.map(h + 60)], after: hit.map(h + 170),
+              pick: [pick.extra, pick.map(m + 100)], big: big.extra > 0};
+    }""")
+    ctx.close()
+    assert not errors, errors
+    assert out["extra"] == 70
+    assert abs(out["held"][0] - out["held"][1]) < 1e-6, "the hit-stop did not hold the frame"
+    assert out["pick"] == [260, 1000]
+    assert out["big"], "a 25-yard run got no slow motion"
+
+
+def test_team_kits_colour_the_figures(browser, page_file, shaped):
+    """The offense wears the drive's club and the defence the other; a game with no kits keeps
+    the house blue and grey."""
+    def kit(d):
+        d["home"]["kit"] = {"jersey": "#aa0000", "trim": "#b3995d", "dark": False}
+        d["away"]["kit"] = {"jersey": "#003594", "trim": "#ffd100", "dark": False}
+        for dr in d["drives"]:
+            dr["team"] = d["home"]["abbr"] if dr["dir"] > 0 else d["away"]["abbr"]
+    data = _with(shaped, kit)
+    d = next(i for i, x in enumerate(data["drives"]) if x["dir"] > 0)
+    page, ctx, errors = open_strip(browser, page_file, data, d)
+    got = page.evaluate("""() => ["carrier", "tk"].map(r =>
+      getComputedStyle(document.querySelector("#striptest .stactor." + r)).getPropertyValue("--jersey").trim())""")
+    ctx.close()
+    assert not errors, errors
+    assert got == ["#aa0000", "#003594"], got
+
+
+def test_a_second_tackler_piles_on_and_is_named(browser, page_file, shaped):
+    """An assisted tackle (tk2) draws a second defender arriving, and the finished play is tagged
+    as a pile. It is the per-play fact behind "running through people"."""
+    def pile(d):
+        p = next(p for x in d["drives"] for p in x["plays"] if p["k"] == "rush" and p["to"] != p["from"])
+        p["tk"], p["tk2"] = "A. One", "B. Two"
+    data = _with(shaped, pile)
+    d, i = next((a, j) for a, x in enumerate(data["drives"]) for j, p in enumerate(x["plays"]) if p.get("tk2"))
+    page, ctx, errors = open_strip(browser, page_file, data, d)
+    page.evaluate("i => stRender(window.__ctl, i + 1, .8)", i)
+    got = page.evaluate("""() => ({shown: getComputedStyle(document.querySelector("#striptest .stactor.tk2")).display,
+      down: document.querySelector("#striptest .stactor.carrier").classList.contains("down"),
+      tag: document.querySelector("#striptest .stactor.stmiss").textContent.trim()})""")
+    ctx.close()
+    assert not errors, errors
+    assert got["shown"] != "none" and got["down"], got
+    assert got["tag"] == "2 tacklers", got
+
+
+def test_a_turnover_swings_the_chevrons_round(browser, page_file, shaped):
+    """After an interception the chevrons run toward the end the defence now attacks, in red,
+    instead of vanishing."""
+    def pick(d):
+        p = next(p for x in d["drives"] if x["dir"] > 0 for p in x["plays"] if p["k"] in ("pass", "inc"))
+        p.update(k="int", ret=5)
+    data = _with(shaped, pick)
+    d, i = next((a, j) for a, x in enumerate(data["drives"]) for j, p in enumerate(x["plays"]) if p["k"] == "int")
+    page, ctx, errors = open_strip(browser, page_file, data, d)
+    page.evaluate("i => stRender(window.__ctl, i + .5)", i)
+    before = page.evaluate('() => document.querySelector("#striptest .ststage").className')
+    page.evaluate("i => stRender(window.__ctl, i + 1, 1)", i)
+    after = page.evaluate("""() => ({cls: document.querySelector("#striptest .ststage").className,
+      shown: getComputedStyle(document.querySelector("#striptest .stahead")).display})""")
+    ctx.close()
+    assert not errors, errors
+    assert "chevback" not in before and "chevback" in after["cls"] and "turnover" in after["cls"], (before, after)
+    assert after["shown"] != "none"
+
+
+def test_the_card_says_the_games_broken_tackles(browser, page_file, shaped):
+    """PFR counts broken tackles per game, never per play: the card says the game total for the
+    man it names, and nothing for a man with none."""
+    who = next(p["who"] for x in shaped["drives"] for p in x["plays"] if p["k"] == "rush" and p.get("who"))
+    data = _with(shaped, lambda d: d.update(brk={who: 4}))
+    d, i = next((a, j) for a, x in enumerate(data["drives"]) for j, p in enumerate(x["plays"]) if p.get("who") == who)
+    page, ctx, errors = open_strip(browser, page_file, data, d)
+    page.evaluate("i => stRender(window.__ctl, i + .5)", i)
+    line = page.evaluate('() => (document.querySelector("#striptest .stcap .stbrk") || {}).textContent')
+    ctx.close()
+    assert not errors, errors
+    assert line == "broke 4 tackles this game", line
+
+
 def test_the_caption_box_never_changes_height(browser, page_file, shaped):
     """A box that grows for a two-line pass and shrinks for a one-line run makes the whole panel
     jump under the reader's thumb during a replay. Measured at 360px, where captions wrap."""

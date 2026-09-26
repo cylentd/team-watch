@@ -55,6 +55,7 @@ surface/strip/field.css
 surface/strip/figure.css
 surface/strip/panel.css
 surface/strip/reel.css
+surface/strip/moments.css
 # pin: strip/phone.css last of the four -- it is the strip's own 430px block, and it relaxes the
 #      three above rather than being relaxed by them. responsive/430.css touches no st* selector.
 surface/strip/phone.css

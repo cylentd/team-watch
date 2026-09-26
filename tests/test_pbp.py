@@ -105,6 +105,32 @@ def test_a_sack_is_drawn_as_a_run_backwards(shaped):
     assert any((p["to"] - p["from"]) * d["dir"] < 0 for d, p in sacks)
 
 
+def test_an_assisted_tackle_names_both_men_once():
+    """The pile the strip draws is the second name here. nflverse repeats a name across its
+    solo/assist/with-assist columns; each man is named once, first-credited first."""
+    r = {"solo_tackle_1_player_name": None, "assist_tackle_1_player_name": "A.Hutchinson",
+         "assist_tackle_2_player_name": "J.Campbell", "tackle_with_assist_1_player_name": "A.Hutchinson"}
+    assert pbp.tacklers(r) == ["A. Hutchinson", "J. Campbell"]
+    assert pbp.tacklers({"solo_tackle_1_player_name": "F.Warner"}) == ["F. Warner"]
+
+
+def test_a_sack_says_so(shaped):
+    """Drawn as a run backwards, flagged so the strip can call it a sack."""
+    sacks = [p for d in shaped["drives"] for p in d["plays"] if p.get("sack")]
+    assert sacks and all(p["k"] == "rush" and (p["to"] - p["from"]) * d["dir"] <= 0
+                         for d in shaped["drives"] for p in d["plays"] if p.get("sack"))
+
+
+def test_kits_and_broken_tackles_ride_along(rows, roster):
+    """Team colours come from design/kits.json; PFR's per-game broken tackles are keyed by the
+    play text's spelling, and a player this game never names is dropped rather than guessed."""
+    kits = {"BUF": {"jersey": "#00338d", "trim": "#c60c30", "dark": True}}
+    out = pbp.shape(rows, roster, {"game_id": GAME, "home": "BUF", "away": "DET", "kits": kits,
+                                   "brk": {"Josh Allen": 2, "Nobody Here": 4, "James Cook": 0}})
+    assert out["home"]["kit"] == kits["BUF"] and "kit" not in out["away"]
+    assert out["brk"] == {"J. Allen": 2}
+
+
 def test_a_face_is_joined_by_id_not_by_spelling(shaped):
     """The failure this replaces: ESPN writes 'James Cook III' in a boxscore and 'J.Cook' in a
     play, so the ESPN producer has to strip suffixes and hope. nflverse gives an id per name."""

@@ -114,12 +114,18 @@ def clock(r):
     return f"Q{int(q)} {t}" if q and t else t
 
 
-def tackler(r):
-    for key in ("solo_tackle_1_player_name", "assist_tackle_1_player_name"):
+def tacklers(r):
+    """Everyone nflverse credits with the tackle, first-named first. An assisted tackle names two
+    (38% of 2026's runs through week 2), and the strip draws the second man arriving: it is the
+    one per-play fact that says a back took more than one man to bring down. Broken tackles are
+    not a per-play column anywhere nflverse publishes; the game total comes from PFR (brk)."""
+    out = []
+    for key in ("solo_tackle_1_player_name", "assist_tackle_1_player_name", "assist_tackle_2_player_name",
+                "tackle_with_assist_1_player_name", "tackle_with_assist_2_player_name"):
         who = tidy(r.get(key))
-        if who:
-            return who
-    return None
+        if who and who not in out:
+            out.append(who)
+    return out
 
 
 def fumble(r, end, dirn):
@@ -182,9 +188,13 @@ def play_row(r, home_ball):
     fum = fumble(r, row["to"], dirn)
     if fum:
         row["fum"] = fum
-    tk = tackler(r)
-    if tk:
-        row["tk"] = tk
+    tks = tacklers(r)
+    if tks:
+        row["tk"] = tks[0]
+    if len(tks) > 1:
+        row["tk2"] = tks[1]
+    if k == "rush" and num(r.get("sack")):
+        row["sack"] = True                 # drawn as a run backwards; the flag is what says why
     return row
 
 
@@ -195,6 +205,7 @@ NAMED = [("passer_player_name", "passer_player_id"), ("receiver_player_name", "r
          ("rusher_player_name", "rusher_player_id"), ("kicker_player_name", "kicker_player_id"),
          ("solo_tackle_1_player_name", "solo_tackle_1_player_id"),
          ("assist_tackle_1_player_name", "assist_tackle_1_player_id"),
+         ("assist_tackle_2_player_name", "assist_tackle_2_player_id"),
          ("interception_player_name", "interception_player_id"),
          ("fumble_recovery_1_player_name", "fumble_recovery_1_player_id")]
 
@@ -307,6 +318,8 @@ def write_games(cache, schedule, out_dir):
     frame = pd.read_parquet(pbp_path)
     roster = pd.read_parquet(roster_path).set_index("gsis_id")
     by_id = {(g["home"], g["away"], g["week"]): g for g in schedule["games"]}
+    kits = json.loads((pathlib.Path(__file__).parent / "kits.json").read_text(encoding="utf-8"))["kits"]
+    brk = broken_tackles(pathlib.Path(cache) / f"adv_wk_rush_{season}.parquet")
     out_dir = pathlib.Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     written, skipped = 0, 0
@@ -315,7 +328,8 @@ def write_games(cache, schedule, out_dir):
         home, away = rows.home_team.iloc[0], rows.away_team.iloc[0]
         meta = by_id.get((_espn_code(home), _espn_code(away), int(rows.week.iloc[0])), {})
         try:
-            payload = shape(records, roster, dict(meta, game_id=str(game_id), home=home, away=away))
+            payload = shape(records, roster, dict(meta, game_id=str(game_id), home=home, away=away,
+                                                  kits=kits, brk=brk.get(str(game_id))))
         except LookupError:
             skipped += 1                                         # scheduled, not played
             continue
@@ -323,6 +337,23 @@ def write_games(cache, schedule, out_dir):
             json.dumps(payload, separators=(",", ":")), encoding="utf-8")
         written += 1
     return written, skipped
+
+
+def broken_tackles(path):
+    """{game_id: {full name: broken tackles}} from PFR's weekly advanced rushing file, running and
+    receiving together (a back breaks tackles after the catch too). PFR states this per game and
+    never per play, which is why the strip says it on the play card and never acts out a miss.
+    Missing file -> {}: the count is a line on the card, not something a game needs to draw."""
+    import pandas as pd                                          # noqa: PLC0415
+
+    if not pathlib.Path(path).exists():
+        return {}
+    out = {}
+    for r in pd.read_parquet(path).itertuples():
+        n = (num(r.rushing_broken_tackles) or 0) + (num(r.receiving_broken_tackles) or 0)
+        if n and isinstance(r.pfr_player_name, str):
+            out.setdefault(str(r.game_id), {})[r.pfr_player_name] = n
+    return out
 
 
 def _season(schedule):
@@ -354,12 +385,19 @@ def shape(rows, roster, meta):
         raise LookupError(f"{meta.get('game_id')} carried no play the strip can draw")
     faces, names = athletes(rows, roster)
     last = drives[-1]["end"]["score"]
+    kits = meta.get("kits") or {}
+    side = lambda abbr, score: dict({"abbr": abbr, "name": abbr, "score": score},
+                                    **({"kit": kits[abbr]} if abbr in kits else {}))
+    # PFR's per-game broken tackles, keyed the way the play text spells a name. Only players this
+    # game's rows name, and only a count above zero: "broke 0 tackles" is not worth a line.
+    brk = {names[full]: int(n) for full, n in (meta.get("brk") or {}).items() if full in names and n}
     return {
         "event": str(meta.get("espn") or ""), "game": meta.get("game_id"),
         "state": "post", "detail": meta.get("detail") or "Final",
         "source": "nflverse",
-        "home": {"abbr": home, "name": home, "score": last[0]},
-        "away": {"abbr": away, "name": away, "score": last[1]},
+        "home": side(home, last[0]),
+        "away": side(away, last[1]),
+        **({"brk": brk} if brk else {}),
         "current": len(drives) - 1,
         "drives": drives, "faces": faces, "names": names,
         "unknownPlayTypes": unknown_types(rows),
