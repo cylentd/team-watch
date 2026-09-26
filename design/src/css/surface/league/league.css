@@ -1,0 +1,50 @@
+/* ============================== LEAGUE ==============================
+   Recap, rivalry, history. Panels in the house surfaces; numbers in mono, names in the UI face.
+   The awards sit two to a row at every width so a phone shows all six in one screen. */
+.lg{display:grid;gap:26px;padding:16px 0 32px}
+.lg-col{display:grid;gap:26px;align-content:start;min-width:0}
+.lg-sec{display:grid;gap:12px;min-width:0}
+.lg-hd{margin:0;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-family:var(--disp);font-size:var(--t-5);font-weight:800;line-height:1.15}
+.lg-hd span{font-family:var(--ui);font-size:var(--t-1);font-weight:500;color:var(--ink-3)}
+.lg-sub{margin:6px 0 0;font-size:var(--t-1);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.lg-weeks{margin-top:0;overflow-x:auto;scrollbar-width:none}
+.lg-none{margin:0;padding:18px 0;color:var(--ink-3);font-size:var(--t-2)}
+
+.lg-yours{background:var(--panel);border:1px solid var(--line-2);border-radius:12px;padding:12px 14px;display:grid;gap:6px}
+.lg-lbl{font-size:var(--t-1);font-weight:600;color:var(--ink-3)}
+.lg-score{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;font-size:var(--t-3)}
+.lg-score .w{font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lg-score .l{color:var(--ink-3);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lg-pts{font-family:var(--mono);font-size:var(--t-3);font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.lg-pts.l{color:var(--ink-3);font-weight:500}
+.lg-line{margin:0;font-size:var(--t-2);color:var(--ink-2)}
+
+.lg-awards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lg-aw{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 11px;display:grid;gap:3px;min-width:0}
+.lg-aw-k{font-size:var(--t-1);font-weight:600;color:var(--ink-3)}
+.lg-aw-t{font-size:var(--t-2);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lg-aw-v{font-family:var(--mono);font-size:var(--t-4);font-weight:700;font-variant-numeric:tabular-nums}
+.lg-aw-v small{margin-left:5px;font-family:var(--ui);font-size:var(--t-1);font-weight:500;color:var(--ink-3)}
+
+.lg-rival{background:var(--panel);border:1px solid var(--line-2);border-radius:12px;padding:12px 14px;display:grid;gap:8px}
+.lg-rrow{display:flex;justify-content:space-between;gap:10px;font-size:var(--t-2);font-weight:600}
+.lg-rrow span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lg-rrow span:last-child{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.lg-rrow.l{color:var(--ink-3)}
+.lg-bar{height:8px;border-radius:4px;background:var(--panel-3);overflow:hidden}
+.lg-bar i{display:block;height:100%;background:var(--lime)}
+.lg-foot{margin:0;font-size:var(--t-1);line-height:1.5;color:var(--ink-2)}
+.lg-foot b{color:var(--ink);font-family:var(--mono)}
+
+.lg-facts,.lg-champs{margin:0;padding:0;list-style:none;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.lg-fact{padding:10px 13px;border-bottom:1px solid var(--line);font-size:var(--t-2);line-height:1.45;color:var(--ink-2)}
+.lg-fact b{color:var(--ink);font-family:var(--mono);font-weight:700}
+.lg-champs li{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:10px;align-items:baseline;padding:9px 13px;border-bottom:1px solid var(--line);font-size:var(--t-2)}
+.lg-fact:last-child,.lg-champs li:last-child{border-bottom:0}
+.lg-y,.lg-r{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);font-variant-numeric:tabular-nums}
+.lg-y{font-weight:700}
+.lg-cn{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+@media (min-width:960px){
+  .lg{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px;padding-top:24px}
+}

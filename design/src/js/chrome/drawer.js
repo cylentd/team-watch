@@ -17,7 +17,8 @@ function openLeagueInfo(key){
       <div class="dr-id">
         <div>
           <h3>${esc(leagueName)}</h3>
-          <div class="lbl">${t("drawer.league.meta", {plat: esc(team.plat), slot: team.slot, record: esc(team.record)})}</div>
+          <div class="lbl">${[esc(team.plat), team.slot ? t("drawer.league.slot", {slot: team.slot}) : "",
+            team.record ? t("drawer.league.record", {record: esc(team.record)}) : ""].filter(Boolean).join(" · ")}</div>
         </div>
       </div>
     </div>

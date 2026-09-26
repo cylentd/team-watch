@@ -8,7 +8,7 @@ const P = (n, pos, team, slug, o) => Object.assign({n, pos, team, slug}, o);
 const TEAMS = {
   yahoo: {
     key:"yahoo", plat:"Yahoo", tint:"var(--yahoo)", slot:12,
-    name:"Chat Take the Wheel", record:"0–0",
+    name:"Chat Take the Wheel", record:"",   // no source has the Yahoo record; blank beats a false 0–0
     meta:["12-team", "half PPR", "slot 12", "1 QB / 2 RB / 3 WR / TE / FLEX / DEF"],
     roster:[
       P("Matthew Stafford","QB","LAR","matthew-stafford",{slot:"QB",start:1}),
@@ -28,7 +28,7 @@ const TEAMS = {
   },
   espn: {
     key:"espn", plat:"ESPN", tint:"var(--espn)", slot:11,
-    name:"D. Luu", record:"0–0",
+    name:"D. Luu", record:"",   // data/league.js fills it from ESPN's standings
     meta:["12-team","half PPR","slot 11","no kicker · 2 FLEX"],
     roster:[]   // hydrated from LIVE_ESPN below
   }

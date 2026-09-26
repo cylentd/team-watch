@@ -22,7 +22,7 @@ const NAV_ICON = {
    "This week" (2026-09-26) leads: the Digest, what changed league-wide this week, is the front page. */
 const NAV = [
   ["week",     ["digest"]],
-  ["teams",    ["roster", "waivers"]],
+  ["teams",    ["roster", "waivers", "league"]],
   ["scouting", ["ranks", "board", "movers", "matchups", "usage", "news"]],
   ["bets",     ["parlay", "build", "dfs"]],
   ["gameday",  ["live"]],
@@ -32,7 +32,8 @@ const NAV = [
    orphaned by scanning for literal lookups, and a key assembled from a template is invisible to
    it -- the build would pass while the label rendered blank. */
 const navLabel = leaf => ({
-  digest: t("nav.tab.digest"), roster: t("nav.tab.roster"), waivers: t("nav.tab.waivers"), ranks: t("nav.tab.ranks"),
+  digest: t("nav.tab.digest"), roster: t("nav.tab.roster"), waivers: t("nav.tab.waivers"), league: t("nav.tab.league"),
+  ranks: t("nav.tab.ranks"),
   board: t("nav.tab.board"), movers: t("nav.tab.movers"),
   matchups: t("nav.tab.matchups"), usage: t("nav.tab.grid"), news: t("nav.tab.news"),
   parlay: t("nav.tab.parlay"), build: t("nav.tab.build"), dfs: t("nav.tab.dfs"), live: t("nav.tab.live"),
@@ -59,7 +60,8 @@ function navTabsOf(group){
   const all = (NAV.find(([g]) => g === group) || NAV[0])[1];
   // A connected league has no Waivers: ff-jarvis builds the packet for David's two leagues only.
   // A leaguemate's team has its league's rail (data/mates.js hasWaivers).
-  const tabs = hasWaivers(TEAMS[VIEW]) ? all : all.filter(k => k !== "waivers");
+  // League is the ESPN league's recap and history (data/league.js hasLeague): no Yahoo team has one.
+  const tabs = all.filter(k => (k !== "waivers" || hasWaivers(TEAMS[VIEW])) && (k !== "league" || hasLeague(TEAMS[VIEW])));
   return navWaiverDay() && tabs.includes("waivers") ? ["waivers", ...tabs.filter(k => k !== "waivers")] : tabs;
 }
 

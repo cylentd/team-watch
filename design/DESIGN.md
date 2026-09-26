@@ -105,6 +105,27 @@ Phase 2 (2026-09-26):
 | Live: their own ESPN matchup | `api/live.py ?team=<name>`, one memoized ESPN read for all; `surface/live/follow.js` |
 | Live, Yahoo league: a line saying Live follows ESPN only | `gdYahooMate()` |
 
+Phase 3 (per-team waiver advice) is shelved, 2026-09-26: it would help leaguemates beat David.
+What a leaguemate sees stays fun and shared, never advice.
+
+## League (sub-tab of My teams, 2026-09-26)
+
+The ESPN league's own story, for the team on screen. Storyboard:
+https://claude.ai/artifact/Lf17QZYMoNJvmVHCT45xUJ. ESPN teams only; a Yahoo team has no tab until
+Yahoo approves the API.
+
+| Part | Where |
+|---|---|
+| This season and 2014-2025, from ff-jarvis `model.clients.espn_league` | `design/sources.py load_league` |
+| Awards, head-to-head, champions, records: all computed at build time | `design/league_recap.py` -> `LIVE_LEAGUE` |
+| Which team is on screen (by the team switch's key), today's names | `js/data/league.js` |
+| The week: chips, the team's own game, six awards | `surface/league/recap.js` |
+| Rivalry with this week's opponent; records; champions | `surface/league/history.js` |
+
+A team is its ESPN id across seasons and is always named by today's name. Early seasons carry
+ESPN's default "Team <surname>", so a past name never ships; a team that left draws as "a former
+team". A week chip redraws only the recap; the rivalry and history below never move.
+
 ## Waivers (sub-tab of My Teams, 2026-09-16)
 
 A Roster | Waivers toggle under the team name, not a sixth nav tab: waivers are per league like

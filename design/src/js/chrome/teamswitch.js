@@ -72,6 +72,7 @@ function wireTeamSwitch(v){
     SEARCH_INDEX = null; // a leaguemate's roster counts as "yours" in search only while on screen
     // A connected league has no Waivers (ff-jarvis builds David's two leagues only).
     if (!hasWaivers(TEAMS[VIEW]) && SURFACE === "waivers") SURFACE = "roster";
+    if (!hasLeague(TEAMS[VIEW]) && SURFACE === "league") SURFACE = "roster";   // League is ESPN's only
     render();
     paintSubnav();       // the Waivers count is per league, and a connected league has none
     if (changed) zipFootball();

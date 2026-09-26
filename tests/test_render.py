@@ -67,7 +67,7 @@ GD_CATCHUP = {swing: {me: 21.5, opp: 3.0}, movers: [
 # two clicks, not one, except in a group of one where no sub-row is drawn at all. Spelling both
 # out here (rather than trusting the group button's "return me to where I was") keeps a state
 # reachable in the same way no matter which state ran before it.
-GROUP = {"digest": "week", "roster": "teams", "waivers": "teams",
+GROUP = {"digest": "week", "roster": "teams", "waivers": "teams", "league": "teams",
          "ranks": "scouting", "board": "scouting", "movers": "scouting", "matchups": "scouting", "usage": "scouting", "news": "scouting",
          "parlay": "bets", "build": "bets", "dfs": "bets", "live": "gameday"}
 
@@ -114,6 +114,11 @@ STATES = [
     # The first card that flips: on a phone the Must claim, on a desktop (where a Must claim lies
     # open with no flip) the first Worth a claim.
     ("waivers-flipped", [("eval", "VIEW='espn'; render()")] + go("waivers") + [("click", ".wvc-flip >> visible=true")]),
+    # My teams > League (2026-09-26): ESPN teams only. David's team, a leaguemate's (its own
+    # matchup and rivalry), and week 1 picked by its chip.
+    ("league-espn", [("eval", "VIEW='espn'; render()")] + go("league")),
+    ("league-mate", [("eval", "VIEW='espn-run-it-back'; render()")] + go("league")),
+    ("league-week1", [("eval", "VIEW='espn'; render()")] + go("league") + [("click", "[data-lgweek='1']")]),
     ("waivers-folds", go("waivers") + [("click", "summary.wvfold-s >> nth=0"),
                                        ("click", "summary.wvfold-s >> nth=1")]),   # spec + stash open
     # The modal is panes since 2026-09-22, so each one is its own state: the tab bar only renders

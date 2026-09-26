@@ -37,11 +37,12 @@ from archetype import (load_archetype, load_trenches, live_archetype, live_trenc
 from startsit import live_startsit, report as startsit_report  # design/startsit.py: the Matchups view
 from mates import espn_rows, yahoo_rows, live_mates, slugs as mate_slugs, report as mates_report  # every team in both leagues
 from digest import live_digest, report as digest_report        # design/digest.py: the Digest view
+from league_recap import live_league, report as league_report  # My teams > League: recaps and history
 from sources import (                                    # design/sources.py: the ff-jarvis adapter
     ROOT, REPO, DWR, FEED, ESPN_ROSTERS, YAHOO_ROSTERS, DFS_POOL,
     feed_block, read_first, load_status, load_props_raw, load_model_raw,
     load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
-    load_draft_pedigree, load_weather, load_routes, load_startsit, load_digest,
+    load_draft_pedigree, load_weather, load_routes, load_startsit, load_digest, load_league,
 )
 
 # One slug for one name across the page and the functions: api/league.py slugs a connected
@@ -605,7 +606,7 @@ def add_market_stock(blocks, report):
                                                       *(blocks["LIVE_MATES"] or {}).get("teams", [])), slugify)
     report += [signals_report(blocks["LIVE_SIGNALS"]), waiver_report(blocks["LIVE_WAIVER"]),
                wire_report(blocks["LIVE_WIRE"]), pool_report(blocks["LIVE_POOL"]), usage_report(blocks["LIVE_USAGE"]),
-               mates_report(blocks["LIVE_MATES"])]
+               mates_report(blocks["LIVE_MATES"]), league_report(blocks["LIVE_LEAGUE"])]
 
 
 def report_sources(report, live, liveY, props, liveDfsYahoo, news, profiles, missing):
@@ -729,6 +730,7 @@ def render():
         "LIVE_TRENCHES": live_trenches(load_trenches(FEED, DWR)),
         "LIVE_STARTSIT": live_startsit(*load_startsit(), slugify),
         "LIVE_DIGEST": live_digest(load_digest(), slugify),
+        "LIVE_LEAGUE": live_league(*load_league(), roster_file(ESPN_ROSTERS), slugify),
     }
     blocks["LIVE_SIGNED"] = live_signed(load_gamelog_weekly(), blocks["LIVE_SCHEDULE"], slugify, wanted_set)
     add_market_stock(blocks, report)

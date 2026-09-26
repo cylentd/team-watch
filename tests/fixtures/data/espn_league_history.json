@@ -1,0 +1,218 @@
+{
+ "generated": "2026-09-12T06:00",
+ "league_id": 1,
+ "seasons": {
+  "2024": {
+   "season": 2024,
+   "league": "We're Big in Japan",
+   "regular_weeks": 2,
+   "playoff_teams": 2,
+   "bonus": null,
+   "week": 3,
+   "teams": {
+    "12": {
+     "name": "The Evil Twin",
+     "w": 2,
+     "l": 0,
+     "t": 0,
+     "pf": 250.0,
+     "pa": 0.0,
+     "seed": null,
+     "final": 1
+    },
+    "1": {
+     "name": "Team Oldname",
+     "w": 1,
+     "l": 1,
+     "t": 0,
+     "pf": 260.5,
+     "pa": 0.0,
+     "seed": null,
+     "final": 2
+    },
+    "14": {
+     "name": "Back Crack",
+     "w": 0,
+     "l": 2,
+     "t": 0,
+     "pf": 180.0,
+     "pa": 0.0,
+     "seed": null,
+     "final": 3
+    },
+    "2": {
+     "name": "Team Gone",
+     "w": 1,
+     "l": 1,
+     "t": 0,
+     "pf": 199.0,
+     "pa": 0.0,
+     "seed": null,
+     "final": 4
+    }
+   },
+   "games": [
+    {
+     "week": 1,
+     "home": 12,
+     "away": 1,
+     "hp": 120.0,
+     "ap": 110.0,
+     "winner": "home",
+     "tier": null
+    },
+    {
+     "week": 1,
+     "home": 14,
+     "away": 2,
+     "hp": 90.0,
+     "ap": 100.0,
+     "winner": "away",
+     "tier": null
+    },
+    {
+     "week": 2,
+     "home": 12,
+     "away": 14,
+     "hp": 130.0,
+     "ap": 70.0,
+     "winner": "home",
+     "tier": null
+    },
+    {
+     "week": 2,
+     "home": 1,
+     "away": 2,
+     "hp": 150.5,
+     "ap": 99.0,
+     "winner": "home",
+     "tier": null
+    },
+    {
+     "week": 3,
+     "home": 12,
+     "away": 1,
+     "hp": 101.0,
+     "ap": 100.0,
+     "winner": "home",
+     "tier": "playoff"
+    },
+    {
+     "week": 3,
+     "home": 14,
+     "away": 2,
+     "hp": 80.0,
+     "ap": 60.0,
+     "winner": "home",
+     "tier": "consolation"
+    }
+   ]
+  },
+  "2025": {
+   "season": 2025,
+   "league": "We're Big in Japan",
+   "regular_weeks": 2,
+   "playoff_teams": 2,
+   "bonus": null,
+   "week": 3,
+   "teams": {
+    "12": {
+     "name": "Purdy Big in Japan",
+     "w": 0,
+     "l": 2,
+     "t": 0,
+     "pf": 190.0,
+     "pa": 0.0,
+     "seed": null,
+     "final": 3
+    },
+    "1": {
+     "name": "Run It Back",
+     "w": 2,
+     "l": 0,
+     "t": 0,
+     "pf": 240.0,
+     "pa": 0.0,
+     "seed": null,
+     "final": 1
+    },
+    "14": {
+     "name": "Big Salty",
+     "w": 1,
+     "l": 1,
+     "t": 0,
+     "pf": 200.0,
+     "pa": 0.0,
+     "seed": null,
+     "final": 2
+    },
+    "2": {
+     "name": "Team Gone",
+     "w": 1,
+     "l": 1,
+     "t": 0,
+     "pf": 170.0,
+     "pa": 0.0,
+     "seed": null,
+     "final": 4
+    }
+   },
+   "games": [
+    {
+     "week": 1,
+     "home": 12,
+     "away": 1,
+     "hp": 95.0,
+     "ap": 125.0,
+     "winner": "away",
+     "tier": null
+    },
+    {
+     "week": 1,
+     "home": 14,
+     "away": 2,
+     "hp": 100.0,
+     "ap": 80.0,
+     "winner": "home",
+     "tier": null
+    },
+    {
+     "week": 2,
+     "home": 12,
+     "away": 14,
+     "hp": 95.0,
+     "ap": 100.0,
+     "winner": "away",
+     "tier": null
+    },
+    {
+     "week": 2,
+     "home": 1,
+     "away": 2,
+     "hp": 115.0,
+     "ap": 90.0,
+     "winner": "home",
+     "tier": null
+    },
+    {
+     "week": 3,
+     "home": 1,
+     "away": 14,
+     "hp": 118.0,
+     "ap": 117.2,
+     "winner": "home",
+     "tier": "playoff"
+    },
+    {
+     "week": 3,
+     "home": 12,
+     "away": 2,
+     "hp": 85.0,
+     "ap": 70.0,
+     "winner": "home",
+     "tier": "consolation"
+    }
+   ]
+  }
+ }
+}

@@ -64,6 +64,7 @@ surface/digest/bodies.css
 # pin: digest/wall.css after lead.css, ticker.css and bodies.css -- it rearranges all three from
 #      1100px up, and component/lead.css's 960px sticky column is what it undoes.
 surface/digest/wall.css
+surface/league/league.css
 surface/chat/chat.css
 surface/live/live.css
 surface/strip/field.css

@@ -197,6 +197,12 @@ def load_digest():
     return feed_block(("weekly_digest",), "week") or read_first(DWR / "weekly_digest.json")
 
 
+def load_league():
+    """(this season, every past season) of the ESPN league, from ff-jarvis's model.clients.espn_league.
+    Files only: neither is a feed block. design/league_recap.py cuts them for My teams > League."""
+    return read_first(DWR / "espn_league.json"), read_first(DWR / "espn_league_history.json")
+
+
 def load_recap(season, week):
     """ff-jarvis's weekly recap (model.season.recap): per player `actual` and pregame `proj`,
     half-PPR, keyed by norm_name. No DST or K rows. None when the week has none yet."""

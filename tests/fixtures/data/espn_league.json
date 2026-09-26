@@ -1,0 +1,130 @@
+{
+ "generated": "2026-09-12T06:00",
+ "league_id": 1,
+ "previous": [
+  2024,
+  2025
+ ],
+ "season": 2026,
+ "league": "We're Big in Japan",
+ "regular_weeks": 14,
+ "playoff_teams": 2,
+ "bonus": "WIN_BONUS_TOP_HALF",
+ "week": 3,
+ "teams": {
+  "12": {
+   "name": "Purdy Big in Japan",
+   "w": 3,
+   "l": 1,
+   "t": 0,
+   "pf": 0.0,
+   "pa": 0.0,
+   "seed": null,
+   "final": null
+  },
+  "1": {
+   "name": "Run It Back",
+   "w": 2,
+   "l": 2,
+   "t": 0,
+   "pf": 0.0,
+   "pa": 0.0,
+   "seed": null,
+   "final": null
+  },
+  "14": {
+   "name": "Big Salty",
+   "w": 1,
+   "l": 3,
+   "t": 0,
+   "pf": 0.0,
+   "pa": 0.0,
+   "seed": null,
+   "final": null
+  },
+  "15": {
+   "name": "TeamMinh",
+   "w": 2,
+   "l": 2,
+   "t": 0,
+   "pf": 0.0,
+   "pa": 0.0,
+   "seed": null,
+   "final": null
+  }
+ },
+ "games": [
+  {
+   "week": 1,
+   "home": 12,
+   "away": 1,
+   "hp": 101.35,
+   "ap": 117.4,
+   "winner": "away",
+   "tier": null
+  },
+  {
+   "week": 1,
+   "home": 14,
+   "away": 15,
+   "hp": 137.35,
+   "ap": 110.9,
+   "winner": "home",
+   "tier": null
+  },
+  {
+   "week": 2,
+   "home": 15,
+   "away": 12,
+   "hp": 82.1,
+   "ap": 137.35,
+   "winner": "away",
+   "tier": null
+  },
+  {
+   "week": 2,
+   "home": 1,
+   "away": 14,
+   "hp": 89.45,
+   "ap": 88.9,
+   "winner": "home",
+   "tier": null
+  },
+  {
+   "week": 3,
+   "home": 14,
+   "away": 12,
+   "hp": null,
+   "ap": null,
+   "winner": null,
+   "tier": null
+  },
+  {
+   "week": 3,
+   "home": 1,
+   "away": 15,
+   "hp": null,
+   "ap": null,
+   "winner": null,
+   "tier": null
+  },
+  {
+   "week": 4,
+   "home": 12,
+   "away": 15,
+   "hp": null,
+   "ap": null,
+   "winner": null,
+   "tier": null
+  },
+  {
+   "week": 4,
+   "home": 14,
+   "away": 1,
+   "hp": null,
+   "ap": null,
+   "winner": null,
+   "tier": null
+  }
+ ]
+}

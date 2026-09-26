@@ -274,6 +274,17 @@ CONTRACT = {
                  ("news", ["when", "headline", "kind", "n", "rest", "slugs"])],
         "row_objs": [("hurt", "game", ["away", "home", "kick"])],
     },
+    # design/league_recap.py: the ESPN league's recap and history, My teams > League. `h2h` is
+    # {team id: {opponent id: record}}; each week's `awards` may lack the winner-only four in a
+    # week of ties. A fact carries `k` and its kind's own keys (surface/league/facts.js).
+    "LIVE_LEAGUE": {
+        "keys": ["league", "season", "week", "since", "teams", "weeks", "now", "h2h", "champs", "facts"],
+        "rows": [("teams", ["id", "name", "key", "w", "l", "t"]),
+                 ("weeks", ["week", "games", "awards"]),
+                 ("now", ["a", "b"]),
+                 ("champs", ["y", "id", "w", "l", "t"]),
+                 ("facts", ["k"])],
+    },
 }
 
 
