@@ -1,0 +1,32 @@
+/* ============================== MATCHUPS: THE LEAD ==============================
+   The shared lead panel (component/lead.css) with three things the Digest's lacks: the facts line
+   (ours, the experts', the projection), up to three evidence chips, and a foot across the panel's
+   floor saying why this call leads. The evidence chips are the same ones an opened row shows. */
+.mu-facts{display:flex;flex-wrap:wrap;gap:6px 14px;margin:0}
+.mu-facts span{font-family:var(--mono);font-size:var(--t-2);font-weight:500;line-height:1.2;color:var(--ink);font-variant-numeric:tabular-nums}
+.mu-facts i{margin-left:4px;font-family:var(--ui);font-size:var(--t-1);font-style:normal;color:var(--ink-3)}
+
+/* Evidence: green argues the call, amber argues against it. The defense-vs-position chip is
+   dashed: ff-jarvis's backtest found no such effect, so it is colour, never a reason. */
+.mu-evs{display:flex;flex-wrap:wrap;gap:6px}
+.mu-ev{
+  font-size:var(--t-1);font-weight:500;line-height:1.25;padding:4px 8px;border-radius:12px;
+  border:1px solid var(--line-2);color:var(--ink-2);
+}
+.mu-ev.pro{border-color:rgb(var(--up-rgb) / .45);color:var(--up)}
+.mu-ev.pro.mx{border-style:dashed;border-color:var(--line-2);color:var(--ink-2)}
+.mu-ev.con{border-color:rgb(var(--amber-rgb) / .5);color:var(--amber)}
+
+.mu-lead-why{
+  grid-column:1 / -1;position:relative;z-index:1;margin:0 -16px;padding:9px 16px;
+  border-top:1px solid var(--line);background:var(--void);font-size:var(--t-1);line-height:1.45;color:var(--ink-3);
+}
+.mu-lead.has-photo .mu-lead-why{margin-right:0}
+.mu-lead-why b{color:var(--ink-2);font-weight:600}
+.mu-lead.quiet{min-height:0}
+
+@media (min-width:960px){
+  .mu-lead.has-photo .dg-photo{bottom:38px}
+  .mu-lead-why,.mu-lead.has-photo .mu-lead-why{margin:0 -28px;padding:10px 28px}
+  .mu-lead.quiet .dg-lead-txt{padding-bottom:28px;max-width:none}
+}

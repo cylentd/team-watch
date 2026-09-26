@@ -26,9 +26,11 @@
   }
   .navrow{padding:0 6px;gap:0;height:var(--nav-h)}
   .nav{flex:1 1 auto;min-width:0;gap:2px}
+  /* Five groups since 2026-09-26 (This week leads): at --t-4 with 8px sides the words ended at
+     335px and the search icon covered "Live", so the words step down to --t-3 with 5px sides. */
   .navitem{
-    border:0;padding:0 8px;height:var(--nav-h);background:none;
-    font-family:var(--disp);font-weight:700;font-size:var(--t-4);text-transform:none;letter-spacing:-.01em;
+    border:0;padding:0 5px;height:var(--nav-h);background:none;
+    font-family:var(--disp);font-weight:700;font-size:var(--t-3);text-transform:none;letter-spacing:-.01em;
     color:var(--ink-3);
   }
   .navitem .full{display:none}

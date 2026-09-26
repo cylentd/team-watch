@@ -80,6 +80,7 @@ question; `SURFACE` is always the **leaf**, never the group, and the group is de
 
 | group | views |
 |---|---|
+| This week (id `week`, since 2026-09-26) | Digest (leaf `digest`, the default page except Tuesday, when Waivers leads): the league-wide week as a lead plus one-line rows, from ff-jarvis `weekly_digest.json` |
 | My teams | Roster, Waivers |
 | Players (id `scouting`, was "Scouting" until 2026-09-25) | Ranks (this week's projected rank per position and FLEX, in tiers; since 2026-09-26), Leaders (leaf `board`: who leads each stat, the #1's card then a list paged to one screen), Movers (whose role is growing, by team), Matchups (start or sit, ours beside Pitcher List's, with the record), Grid (weekly usage), News |
 | Bets | Parlay, DFS |
@@ -93,9 +94,8 @@ Movers share one surface (`js/surface/board/`, which reads `BD_MODE` from the vi
 share the position chip; they became views on 2026-09-25 because a Leaders/Movers switch was a
 fifth row of controls above the data on a phone (`test_movers_hash_opens_movers`).
 
-With no hash, `navDefaultLeaf` in `js/chrome/nav.js` opens Ranks (rosters barely move; projections,
-stats and news move daily; it was Leaders until 2026-09-26) except on a Tuesday, when Waivers
-still leads.
+With no hash, `navDefaultLeaf` in `js/chrome/nav.js` opens the Digest (the week league-wide; it was
+Leaders, then briefly Ranks, on 2026-09-26) except on a Tuesday, when Waivers still leads.
 
 Leaders pages instead of scrolling: `board/fit.js` measures, in the reader's browser, how many rows
 fit under the #1's card (page 1, `BD_FIRST_SIZE`) and on a page without it (`BD_PAGE_SIZE`), so the

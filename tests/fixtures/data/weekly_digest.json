@@ -1,0 +1,726 @@
+{
+ "season": 2026,
+ "week": 3,
+ "asof": "2026-09-25 22:40",
+ "rules": {
+  "wx_list": {
+   "wind": 15,
+   "rain": 50
+  },
+  "wx_lead": {
+   "wind": 20,
+   "rain": 60
+  },
+  "gems": {
+   "usage_top_pct": 40,
+   "rostered_max": 40,
+   "weeks": 2
+  }
+ },
+ "lead": {
+  "rule": "hurt",
+  "index": 0
+ },
+ "hurt": [
+  {
+   "key": "puka nacua",
+   "name": "Puka Nacua",
+   "pos": "WR",
+   "team": "LA",
+   "status": "Doubtful",
+   "was": null,
+   "injury": "Hip",
+   "changed": "2026-09-25",
+   "new": true,
+   "rank": 2,
+   "rostered": 99.9,
+   "game": {
+    "away": "LA",
+    "home": "DEN",
+    "kickoff": "2026-09-28 00:20:00"
+   }
+  },
+  {
+   "key": "nico collins",
+   "name": "Nico Collins",
+   "pos": "WR",
+   "team": "HOU",
+   "status": "Out",
+   "was": null,
+   "injury": "Hamstring",
+   "changed": "2026-09-25",
+   "new": true,
+   "rank": 8,
+   "rostered": null,
+   "game": {
+    "away": "HOU",
+    "home": "IND",
+    "kickoff": "2026-09-27 17:00:00"
+   }
+  },
+  {
+   "key": "jaylen warren",
+   "name": "Jaylen Warren",
+   "pos": "RB",
+   "team": "PIT",
+   "status": "Questionable",
+   "was": null,
+   "injury": "Undisclosed",
+   "changed": "2026-09-24",
+   "new": false,
+   "rank": 18,
+   "rostered": 89,
+   "game": {
+    "away": "CIN",
+    "home": "PIT",
+    "kickoff": "2026-09-27 17:00:00"
+   }
+  },
+  {
+   "key": "devonta smith",
+   "name": "DeVonta Smith",
+   "pos": "WR",
+   "team": "PHI",
+   "status": "Questionable",
+   "was": null,
+   "injury": "Hamstring",
+   "changed": "2026-09-25",
+   "new": true,
+   "rank": 18,
+   "rostered": 99.2,
+   "game": {
+    "away": "PHI",
+    "home": "CHI",
+    "kickoff": "2026-09-29 00:15:00"
+   }
+  },
+  {
+   "key": "jaxson dart",
+   "name": "Jaxson Dart",
+   "pos": "QB",
+   "team": "NYG",
+   "status": "IR",
+   "was": "Doubtful",
+   "injury": "Knee - Meniscus",
+   "changed": "2026-09-24",
+   "new": false,
+   "rank": 21,
+   "rostered": null,
+   "game": null
+  },
+  {
+   "key": "travis etienne",
+   "name": "Travis Etienne",
+   "pos": "RB",
+   "team": "NO",
+   "status": "Questionable",
+   "was": null,
+   "injury": "Hamstring",
+   "changed": "2026-09-24",
+   "new": false,
+   "rank": 22,
+   "rostered": 97.2,
+   "game": null
+  },
+  {
+   "key": "jayden daniels",
+   "name": "Jayden Daniels",
+   "pos": "QB",
+   "team": "WAS",
+   "status": "Out",
+   "was": "Doubtful",
+   "injury": "Elbow",
+   "changed": "2026-09-24",
+   "new": false,
+   "rank": 23,
+   "rostered": null,
+   "game": {
+    "away": "SEA",
+    "home": "WAS",
+    "kickoff": "2026-09-27 17:00:00"
+   }
+  },
+  {
+   "key": "jalen coker",
+   "name": "Jalen Coker",
+   "pos": "WR",
+   "team": "CAR",
+   "status": "Questionable",
+   "was": null,
+   "injury": "Ankle",
+   "changed": "2026-09-24",
+   "new": false,
+   "rank": 26,
+   "rostered": 86.1,
+   "game": {
+    "away": "CAR",
+    "home": "CLE",
+    "kickoff": "2026-09-27 17:00:00"
+   }
+  },
+  {
+   "key": "colby parkinson",
+   "name": "Colby Parkinson",
+   "pos": "TE",
+   "team": "LA",
+   "status": "Questionable",
+   "was": null,
+   "injury": "Knee",
+   "changed": "2026-09-24",
+   "new": false,
+   "rank": 26,
+   "rostered": 1.4,
+   "game": {
+    "away": "LA",
+    "home": "DEN",
+    "kickoff": "2026-09-28 00:20:00"
+   }
+  },
+  {
+   "key": "tony pollard",
+   "name": "Tony Pollard",
+   "pos": "RB",
+   "team": "TEN",
+   "status": "Questionable",
+   "was": null,
+   "injury": "Undisclosed",
+   "changed": "2026-09-24",
+   "new": false,
+   "rank": 27,
+   "rostered": 86,
+   "game": null
+  },
+  {
+   "key": "aaron jones",
+   "name": "Aaron Jones",
+   "pos": "RB",
+   "team": "MIN",
+   "status": "Questionable",
+   "was": null,
+   "injury": "Undisclosed",
+   "changed": "2026-09-24",
+   "new": false,
+   "rank": 28,
+   "rostered": 85.3,
+   "game": {
+    "away": "MIN",
+    "home": "TB",
+    "kickoff": "2026-09-27 20:05:00"
+   }
+  },
+  {
+   "key": "chig okonkwo",
+   "name": "Chig Okonkwo",
+   "pos": "TE",
+   "team": "WAS",
+   "status": "Doubtful",
+   "was": null,
+   "injury": "Hamstring",
+   "changed": "2026-09-25",
+   "new": true,
+   "rank": 29,
+   "rostered": null,
+   "game": {
+    "away": "SEA",
+    "home": "WAS",
+    "kickoff": "2026-09-27 17:00:00"
+   }
+  }
+ ],
+ "matchups": {
+  "calls": 17,
+  "best": {
+   "QB": {
+    "key": "cj stroud",
+    "name": "C.J. Stroud",
+    "pos": "QB",
+    "team": "HOU",
+    "opp": "IND",
+    "home": false,
+    "pts": 17.7,
+    "why": "IND pass D: 1st softest"
+   },
+   "RB": {
+    "key": "quinshon judkins",
+    "name": "Quinshon Judkins",
+    "pos": "RB",
+    "team": "CLE",
+    "opp": "CAR",
+    "home": true,
+    "pts": 9.8,
+    "why": "16 touches a game, 66% snaps"
+   },
+   "WR": {
+    "key": "ceedee lamb",
+    "name": "CeeDee Lamb",
+    "pos": "WR",
+    "team": "DAL",
+    "opp": "BAL",
+    "home": true,
+    "pts": 13.4,
+    "why": "28% target share"
+   },
+   "TE": {
+    "key": "pat freiermuth",
+    "name": "Pat Freiermuth",
+    "pos": "TE",
+    "team": "PIT",
+    "opp": "CIN",
+    "home": true,
+    "pts": 7.4,
+    "why": "CIN D vs TEs: 1st softest"
+   }
+  },
+  "record": {
+   "through": 2,
+   "ours": {
+    "score": 0.324,
+    "n": 31
+   },
+   "pl": {
+    "score": 0.667,
+    "n": 12
+   }
+  }
+ },
+ "weather": {
+  "games": [
+   {
+    "away": "SEA",
+    "home": "WAS",
+    "kickoff": "2026-09-27 17:00:00",
+    "roof": "outdoor",
+    "temp_f": 73,
+    "wind_mph": 15,
+    "precip_pct": 0,
+    "short": "Mostly Sunny",
+    "lead": false,
+    "bar": "wind"
+   }
+  ],
+  "near": {
+   "away": "LA",
+   "home": "DEN",
+   "kickoff": "2026-09-28 00:20:00",
+   "roof": "outdoor",
+   "temp_f": 77,
+   "wind_mph": 6,
+   "precip_pct": 46,
+   "short": "Patchy Fog then Chance Showers And Thunderstorms",
+   "lead": false,
+   "bar": "rain"
+  }
+ },
+ "adds": {
+  "weeks": [
+   2,
+   3
+  ],
+  "rows": [
+   {
+    "key": "denzel boston",
+    "name": "Denzel Boston",
+    "pos": "WR",
+    "team": "CLE",
+    "was": 26.4,
+    "now": 53.1,
+    "delta": 26.7
+   },
+   {
+    "key": "bryce young",
+    "name": "Bryce Young",
+    "pos": "QB",
+    "team": "CAR",
+    "was": 33.3,
+    "now": 58.3,
+    "delta": 25.0
+   },
+   {
+    "key": "dalton schultz",
+    "name": "Dalton Schultz",
+    "pos": "TE",
+    "team": "HOU",
+    "was": 20.1,
+    "now": 42.8,
+    "delta": 22.7
+   },
+   {
+    "key": "tyler shough",
+    "name": "Tyler Shough",
+    "pos": "QB",
+    "team": "NO",
+    "was": 49.8,
+    "now": 66.8,
+    "delta": 17.0
+   },
+   {
+    "key": "jonah coleman",
+    "name": "Jonah Coleman",
+    "pos": "RB",
+    "team": "DEN",
+    "was": 22,
+    "now": 36.8,
+    "delta": 14.8
+   },
+   {
+    "key": "emanuel wilson",
+    "name": "Emanuel Wilson",
+    "pos": "RB",
+    "team": "SEA",
+    "was": 0.4,
+    "now": 14.7,
+    "delta": 14.3
+   }
+  ]
+ },
+ "top5": {
+  "QB": [
+   {
+    "key": "josh allen",
+    "name": "Josh Allen",
+    "team": "BUF",
+    "opp": "LAC",
+    "pts": 22.64
+   },
+   {
+    "key": "patrick mahomes",
+    "name": "Patrick Mahomes",
+    "team": "KC",
+    "opp": "MIA",
+    "pts": 20.71
+   },
+   {
+    "key": "tyler shough",
+    "name": "Tyler Shough",
+    "team": "NO",
+    "opp": "LV",
+    "pts": 19.68
+   },
+   {
+    "key": "brock purdy",
+    "name": "Brock Purdy",
+    "team": "SF",
+    "opp": "ARI",
+    "pts": 19.32
+   },
+   {
+    "key": "lamar jackson",
+    "name": "Lamar Jackson",
+    "team": "BAL",
+    "opp": "DAL",
+    "pts": 19.29
+   }
+  ],
+  "RB": [
+   {
+    "key": "bijan robinson",
+    "name": "Bijan Robinson",
+    "team": "ATL",
+    "opp": "NO",
+    "pts": 19.68
+   },
+   {
+    "key": "jahmyr gibbs",
+    "name": "Jahmyr Gibbs",
+    "team": "DET",
+    "opp": "NYJ",
+    "pts": 18.75
+   },
+   {
+    "key": "derrick henry",
+    "name": "Derrick Henry",
+    "team": "BAL",
+    "opp": "DAL",
+    "pts": 17.86
+   },
+   {
+    "key": "christian mccaffrey",
+    "name": "Christian McCaffrey",
+    "team": "SF",
+    "opp": "ARI",
+    "pts": 17.56
+   },
+   {
+    "key": "kenneth walker iii",
+    "name": "Kenneth Walker III",
+    "team": "KC",
+    "opp": "MIA",
+    "pts": 16.2
+   }
+  ],
+  "WR": [
+   {
+    "key": "jaxon smith njigba",
+    "name": "Jaxon Smith-Njigba",
+    "team": "SEA",
+    "opp": "WAS",
+    "pts": 17.64
+   },
+   {
+    "key": "puka nacua",
+    "name": "Puka Nacua",
+    "team": "LA",
+    "opp": "DEN",
+    "pts": 16.59
+   },
+   {
+    "key": "amon ra st brown",
+    "name": "Amon-Ra St. Brown",
+    "team": "DET",
+    "opp": "NYJ",
+    "pts": 16.44
+   },
+   {
+    "key": "chris olave",
+    "name": "Chris Olave",
+    "team": "NO",
+    "opp": "LV",
+    "pts": 15.44
+   },
+   {
+    "key": "zay flowers",
+    "name": "Zay Flowers",
+    "team": "BAL",
+    "opp": "DAL",
+    "pts": 14.15
+   }
+  ],
+  "TE": [
+   {
+    "key": "trey mcbride",
+    "name": "Trey McBride",
+    "team": "ARI",
+    "opp": "SF",
+    "pts": 13.52
+   },
+   {
+    "key": "george kittle",
+    "name": "George Kittle",
+    "team": "SF",
+    "opp": "ARI",
+    "pts": 11.22
+   },
+   {
+    "key": "dalton schultz",
+    "name": "Dalton Schultz",
+    "team": "HOU",
+    "opp": "IND",
+    "pts": 10.85
+   },
+   {
+    "key": "travis kelce",
+    "name": "Travis Kelce",
+    "team": "KC",
+    "opp": "MIA",
+    "pts": 10.2
+   },
+   {
+    "key": "sam laporta",
+    "name": "Sam LaPorta",
+    "team": "DET",
+    "opp": "NYJ",
+    "pts": 9.9
+   }
+  ]
+ },
+ "stock": {
+  "up": [
+   {
+    "key": "jaylen warren",
+    "name": "Jaylen Warren",
+    "pos": "RB",
+    "team": "PIT",
+    "d_pts": 3.69,
+    "pts": 14.38
+   },
+   {
+    "key": "terrance ferguson",
+    "name": "Terrance Ferguson",
+    "pos": "TE",
+    "team": "LA",
+    "d_pts": 3.02,
+    "pts": 9.74
+   },
+   {
+    "key": "lamar jackson",
+    "name": "Lamar Jackson",
+    "pos": "QB",
+    "team": "BAL",
+    "d_pts": 2.8,
+    "pts": 22.49
+   },
+   {
+    "key": "denzel boston",
+    "name": "Denzel Boston",
+    "pos": "WR",
+    "team": "CLE",
+    "d_pts": 2.53,
+    "pts": 9.28
+   },
+   {
+    "key": "chuba hubbard",
+    "name": "Chuba Hubbard",
+    "pos": "RB",
+    "team": "CAR",
+    "d_pts": 2.4,
+    "pts": 14.73
+   }
+  ],
+  "down": [
+   {
+    "key": "colston loveland",
+    "name": "Colston Loveland",
+    "pos": "TE",
+    "team": "CHI",
+    "d_pts": -4.33,
+    "pts": 6.41
+   },
+   {
+    "key": "brock bowers",
+    "name": "Brock Bowers",
+    "pos": "TE",
+    "team": "LV",
+    "d_pts": -3.43,
+    "pts": 9.92
+   },
+   {
+    "key": "luther burden",
+    "name": "Luther Burden",
+    "pos": "WR",
+    "team": "CHI",
+    "d_pts": -3.29,
+    "pts": 7.09
+   },
+   {
+    "key": "quentin johnston",
+    "name": "Quentin Johnston",
+    "pos": "WR",
+    "team": "LAC",
+    "d_pts": -3.28,
+    "pts": 7.28
+   },
+   {
+    "key": "jacory croskey merritt",
+    "name": "Jacory Croskey-Merritt",
+    "pos": "RB",
+    "team": "WAS",
+    "d_pts": -2.92,
+    "pts": 6.52
+   }
+  ]
+ },
+ "gems": [
+  {
+   "key": "adonai mitchell",
+   "name": "Adonai Mitchell",
+   "pos": "WR",
+   "team": "NYJ",
+   "usage": 33.3,
+   "metric": "tgt_pct",
+   "ecr": 33,
+   "rostered": 23.8
+  },
+  {
+   "key": "rashod bateman",
+   "name": "Rashod Bateman",
+   "pos": "WR",
+   "team": "BAL",
+   "usage": 31.0,
+   "metric": "tgt_pct",
+   "ecr": 42,
+   "rostered": 27.8
+  },
+  {
+   "key": "terrance ferguson",
+   "name": "Terrance Ferguson",
+   "pos": "TE",
+   "team": "LA",
+   "usage": 30.0,
+   "metric": "tgt_pct",
+   "ecr": 21,
+   "rostered": 19.8
+  },
+  {
+   "key": "tre tucker",
+   "name": "Tre Tucker",
+   "pos": "WR",
+   "team": "LV",
+   "usage": 24.1,
+   "metric": "tgt_pct",
+   "ecr": 41,
+   "rostered": 32
+  },
+  {
+   "key": "rashid shaheed",
+   "name": "Rashid Shaheed",
+   "pos": "WR",
+   "team": "SEA",
+   "usage": 23.1,
+   "metric": "tgt_pct",
+   "ecr": 57,
+   "rostered": 36.5
+  }
+ ],
+ "news": [
+  {
+   "created": "2026-09-25T15:31:36",
+   "headline": "Jaylen Wright (stinger/foot) doubtful to play Sunday",
+   "key": null,
+   "name": null
+  },
+  {
+   "created": "2026-09-25T15:31:36",
+   "headline": "Ryan Miller (hip/back) officially questionable for Sunday",
+   "key": null,
+   "name": null
+  },
+  {
+   "created": "2026-09-25T15:31:36",
+   "headline": "Chris Bell (knee) good to go for Sunday",
+   "key": null,
+   "name": null
+  },
+  {
+   "created": "2026-09-25T15:11:36",
+   "headline": "Chop Robinson (concussion) set to play Sunday",
+   "key": null,
+   "name": null
+  },
+  {
+   "created": "2026-09-25T15:11:36",
+   "headline": "Rashee Rice (knee) without injury designation for Sunday",
+   "key": null,
+   "name": null
+  },
+  {
+   "created": "2026-09-25T15:11:36",
+   "headline": "Mansoor Delane (shoulder) will play Sunday",
+   "key": null,
+   "name": null
+  },
+  {
+   "created": "2026-09-25T15:11:36",
+   "headline": "L'Jarius Sneed (knee) cleared to play Sunday",
+   "key": null,
+   "name": null
+  },
+  {
+   "created": "2026-09-25T15:11:36",
+   "headline": "Josh Simmons (back) ruled out for Sunday",
+   "key": null,
+   "name": null
+  },
+  {
+   "created": "2026-09-25T15:11:36",
+   "headline": "Ronnie Stanley (toe) won't play Sunday",
+   "key": null,
+   "name": null
+  },
+  {
+   "created": "2026-09-25T15:11:36",
+   "headline": "John Simpson (groin) available to play Sunday",
+   "key": null,
+   "name": null
+  }
+ ]
+}

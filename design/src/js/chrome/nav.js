@@ -3,6 +3,7 @@
    Board's Movers mode since 2026-09-25. Bets is a banknote (2026-09-25): the three slider
    knobs it used to wear read as settings. */
 const NAV_ICON = {
+  week: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M7.5 14h4" opacity=".55"/></svg>`,
   teams: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="7" r="2.4" opacity=".55"/><path d="M15.5 14.2c2.6.4 4.5 2.2 4.5 5.3" opacity=".55"/></svg>`,
   scouting: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><circle cx="9" cy="14" r="1.6" fill="currentColor" stroke="none"/><circle cx="14" cy="9" r="1.6" fill="currentColor" stroke="none"/><circle cx="18" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg>`,
   bets: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.8"/><path d="M6 9.5v5M18 9.5v5"/></svg>`,
@@ -17,8 +18,10 @@ const NAV_ICON = {
    leaf and hash stay `board`, so bookmarks still land. Parlay split the same way that day: Slips
    (leaf `parlay`, so its bookmarks land) and Build.
    Gameday holds one view today and exists as a group because that is where a live surface grows.
-   Each leaf's label is its own key, so a rename here never silently changes a heading elsewhere. */
+   Each leaf's label is its own key, so a rename here never silently changes a heading elsewhere.
+   "This week" (2026-09-26) leads: the Digest, what changed league-wide this week, is the front page. */
 const NAV = [
+  ["week",     ["digest"]],
   ["teams",    ["roster", "waivers"]],
   ["scouting", ["ranks", "board", "movers", "matchups", "usage", "news"]],
   ["bets",     ["parlay", "build", "dfs"]],
@@ -29,27 +32,27 @@ const NAV = [
    orphaned by scanning for literal lookups, and a key assembled from a template is invisible to
    it -- the build would pass while the label rendered blank. */
 const navLabel = leaf => ({
-  roster: t("nav.tab.roster"), waivers: t("nav.tab.waivers"), ranks: t("nav.tab.ranks"), board: t("nav.tab.board"), movers: t("nav.tab.movers"),
+  digest: t("nav.tab.digest"), roster: t("nav.tab.roster"), waivers: t("nav.tab.waivers"), ranks: t("nav.tab.ranks"),
+  board: t("nav.tab.board"), movers: t("nav.tab.movers"),
   matchups: t("nav.tab.matchups"), usage: t("nav.tab.grid"), news: t("nav.tab.news"),
   parlay: t("nav.tab.parlay"), build: t("nav.tab.build"), dfs: t("nav.tab.dfs"), live: t("nav.tab.live"),
 }[leaf] || leaf);
 
 const navGroupLabel = (group, short) => (short ? {
-  teams: t("nav.group.teams.short"), scouting: t("nav.group.scouting.short"),
+  week: t("nav.group.week.short"), teams: t("nav.group.teams.short"), scouting: t("nav.group.scouting.short"),
   bets: t("nav.group.bets.short"), gameday: t("nav.group.gameday.short"),
 } : {
-  teams: t("nav.group.teams.full"), scouting: t("nav.group.scouting.full"),
+  week: t("nav.group.week.full"), teams: t("nav.group.teams.full"), scouting: t("nav.group.scouting.full"),
   bets: t("nav.group.bets.full"), gameday: t("nav.group.gameday.full"),
 })[group] || group;
 
 /* Claims are placed Tuesday and clear midweek, so on a Tuesday (the reader's local day) the wire
    is the question: an empty hash opens Waivers and Waivers leads its group. A hash still wins.
    The day comes from Date.now(), which the render suite pins, so a test picks the weekday. Any
-   other day, rosters barely move (maybe three times a week) but stats and news move daily, so
-   the Players group opens instead of Roster: Ranks since 2026-09-26, its first view and the
-   question most readers bring (it was Board, who leads each stat). */
+   other day the Digest opens (2026-09-26): the week league-wide in one screen. It was Ranks for
+   part of that day, and Board (who leads each stat) before; Ranks stays Players' first view. */
 const navWaiverDay = () => new Date(Date.now()).getDay() === 2;
-const navDefaultLeaf = () => navWaiverDay() ? "waivers" : "ranks";
+const navDefaultLeaf = () => navWaiverDay() ? "waivers" : "digest";
 
 const navGroupOf = leaf => (NAV.find(([, tabs]) => tabs.includes(leaf)) || NAV[0])[0];
 function navTabsOf(group){

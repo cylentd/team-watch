@@ -55,14 +55,9 @@ function render(){
     v.innerHTML = bdViewHTML(); wireBd(v);
     return;
   }
-  if (SURFACE === "ranks"){
-    v.innerHTML = ranksHTML(); wireRanks(v);
-    return;
-  }
-  if (SURFACE === "matchups"){
-    v.innerHTML = matchupsHTML(); wireMatchups(v);
-    return;
-  }
+  /* Views that are one HTML function and one wiring function, nothing else. */
+  const plain = {ranks: [ranksHTML, wireRanks], digest: [digestHTML, wireDigest], matchups: [matchupsHTML, wireMatchups]}[SURFACE];
+  if (plain){ v.innerHTML = plain[0](); plain[1](v); return; }
   if (SURFACE === "usage"){
     v.innerHTML = usageHTML(); wireUsage(v); nudgeScrollers(v);
     return;

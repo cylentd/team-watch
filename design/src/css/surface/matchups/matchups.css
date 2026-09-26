@@ -1,71 +1,62 @@
 /* ============================== MATCHUPS ==============================
-   Record, position chips, then the calls. A phone stacks start, sit, the best spot and Pitcher List
-   in that order; a desktop puts our calls beside the best spot and Pitcher List's, so the two
-   sources read side by side. Green and red keep their one job: start and sit. Lime is the best
-   spot, the one thing this view recommends without a disagreement behind it. */
-.muwrap{padding-bottom:28px}
+   The Digest's language on the Players side: a record strip, the position chips, the lead, then
+   one-line rows. A phone stacks them full-bleed; from 960px the record and chips span the width,
+   the lead is a 440px sticky column and the calls sit beside it, ours and Pitcher List's in two
+   columns from 1100px. Green and red keep their one job, start and sit; lime is the better record
+   and the best spot. */
+.mu{display:grid;grid-template-columns:minmax(0,1fr);padding-bottom:28px}
 
-/* The record is the view's first data and its trust question, so it leads -- as a strip, not a
-   card, to keep the first call inside the phone's first screen. */
-.mu-record{margin-top:10px;padding-left:10px;border-left:2px solid var(--line-2)}
-.mu-record p{margin:0;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2);line-height:1.55}
-.mu-record b{font-size:var(--t-3);font-variant-numeric:tabular-nums;color:var(--ink)}
-.mu-record.us b.us,.mu-record.pl b.pl{color:var(--lime)}
-.mu-record .mu-scale{color:var(--ink-3)}
-
-.mu-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:0 24px;margin-top:6px}
-@media (min-width:960px){ .mu-grid{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)} }
-.mu-col{min-width:0}
-.mu-sec{margin-top:18px}
-.mu-h{
-  display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0 0 4px;
-  font-family:var(--mono);font-size:var(--t-1);font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);
+/* The record is the view's first data and its trust question, so it leads, as a strip. */
+.mu-rec{
+  display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;
+  padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel);
 }
-.mu-link{font-family:var(--ui);font-size:var(--t-1);letter-spacing:0;text-transform:none;color:var(--lime);text-decoration:none}
-.mu-link:hover{text-decoration:underline}
-.mu-best{padding:10px 12px 4px;border:1px solid var(--line-2);border-radius:12px;background:var(--panel-2)}
-.mu-best .mu-h{color:var(--lime)}
-.mu-best .mu-row{border-top:0}
+.mu-rec-l{display:grid;gap:3px;font-size:var(--t-1);font-weight:600;line-height:1.2;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+.mu-rec small{font-family:var(--mono);font-size:var(--t-1);font-weight:500;line-height:1;letter-spacing:0;text-transform:none;color:var(--ink-3)}
+.mu-rec-bars{display:grid;gap:5px;min-width:0}
+.mu-rb{display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:8px;align-items:center;font-size:var(--t-1);color:var(--ink-2)}
+.mu-rb > span:first-child{white-space:nowrap}
+.mu-tr{height:6px;border-radius:3px;overflow:hidden;background:var(--panel-3)}
+.mu-tr i{display:block;height:100%;width:var(--w);border-radius:3px;background:var(--line-2)}
+.mu-rb.lead{color:var(--ink)}
+.mu-rb.lead .mu-tr i{background:var(--lime)}
+.mu-rb em{font-family:var(--mono);font-size:var(--t-2);font-weight:700;font-style:normal;line-height:1;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mu-rb.lead em{color:var(--lime)}
+.mu-rec.none{grid-template-columns:auto minmax(0,1fr)}
+.mu-rec-none{font-size:var(--t-2);color:var(--ink-2)}
 
-/* A row is a button: it opens the player's profile. */
-.mu-row{
-  appearance:none;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;
-  display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;align-items:start;width:100%;
-  padding:10px 4px;border-top:1px solid var(--line);border-radius:8px;
-  transition:background .18s var(--ease),transform .12s var(--ease);
-  animation:muin .4s var(--ease) both;animation-delay:calc(var(--i,0) * var(--enter-step));
+/* The one control row. */
+.filters.mu-pos{margin:0;padding:10px 14px;border-bottom:1px solid var(--line)}
+
+/* A list's header: what it is on the left, what its numbers are on the right. */
+.mu-list{min-width:0}
+.mu-grp{
+  display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0;padding:14px 14px 6px;
+  font-size:var(--t-1);font-weight:600;line-height:1;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);
 }
-.mu-row:hover{background:rgb(var(--ink-rgb) / .04)}
-.mu-row:active{transform:scale(var(--press))}
-.mu-row:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
-@keyframes muin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.mu-row .xf-head{margin-top:2px}
-.mu-body{min-width:0;display:grid;gap:4px}
-.mu-top{display:flex;align-items:baseline;gap:8px;min-width:0}
-.mu-top b{font-size:var(--t-3);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mu-top em{font-style:normal;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
-.mu-ranks{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);font-variant-numeric:tabular-nums}
-.mu-pts{font-family:var(--mono);font-size:var(--t-4);font-weight:700;font-variant-numeric:tabular-nums;padding-top:1px}
+.mu-grp span{font-family:var(--mono);font-weight:500;letter-spacing:0;text-transform:none}
+.mu-empty{margin:4px 14px 0;padding:12px 14px;border:1px dashed var(--line-2);border-radius:10px;color:var(--ink-3);font-size:var(--t-2)}
+.mu-foot{margin:22px 14px 0;max-width:72ch;font-size:var(--t-1);line-height:1.5;color:var(--ink-3)}
 
-.mu-tag{
-  flex:none;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.08em;
-  padding:2px 6px;border-radius:5px;background:var(--panel-3);color:var(--ink-2);
+/* The two lists go side by side once each can hold a row whose name is not cut to initials:
+   measured on the lists' own width, not the window's, because the sticky lead takes 440px of it.
+   Desktop's column now caps at 664px (the app's own gutter, matching Digest's .wrap), so the
+   threshold sits under that instead of the old 720px, which never fired once the cap landed. */
+.mu-cols{min-width:0;container-type:inline-size}
+@container (min-width:600px){
+  .mu-cols-in{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .mu-cols-in > .mu-list + .mu-list{border-left:1px solid var(--line)}
 }
-.mu-tag.start{background:rgb(var(--up-rgb) / .16);color:var(--up)}
-.mu-tag.sit{background:rgb(var(--down-rgb) / .16);color:var(--down)}
-.mu-tag.best{background:rgb(var(--lime-rgb) / .14);color:var(--lime)}
 
-/* The evidence. The defense-vs-WR chip is dashed: the backtest found no WR matchup effect, so it
-   is colour, never a reason. A call with no chip says so in amber rather than looking backed. */
-.mu-why{display:flex;flex-wrap:wrap;gap:5px}
-.mu-chip{font-size:var(--t-1);color:var(--ink-2);background:var(--panel-2);border-radius:6px;padding:3px 7px}
-.mu-chip.mx{background:none;border:1px dashed var(--line-2)}
-.mu-chip.but{background:none;color:var(--ink-3);padding-left:0}
-.mu-chip.none{background:none;color:var(--amber);padding-left:0}
-
-.mu-quote{
-  font-size:var(--t-2);color:var(--ink-2);line-height:1.45;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+@media (min-width:960px){
+  .mu{grid-template-columns:440px minmax(0,1fr);column-gap:24px;align-items:start;max-width:1180px;
+    margin:0 auto;padding:20px 26px 40px}
+  .mu-rec,.filters.mu-pos,.mu-foot{grid-column:1 / -1}
+  /* The bars stop at 560px: a score bar a thousand pixels long reads as a progress bar. */
+  .mu-rec{grid-template-columns:auto minmax(0,560px) auto;justify-content:start;column-gap:20px;
+    border:1px solid var(--line);border-radius:12px;padding:12px 18px}
+  .mu-rb{grid-template-columns:96px minmax(0,1fr) auto}
+  .filters.mu-pos{padding:14px 0 18px;border-bottom:0}
+  .mu-cols{border-top:1px solid var(--line)}
+  .mu-foot{margin:28px 0 0}
 }
-.mu-empty{margin:4px 0 0;padding:12px 14px;border:1px dashed var(--line-2);border-radius:10px;color:var(--ink-3);font-size:var(--t-2)}
-.mu-foot{margin-top:22px;max-width:72ch}

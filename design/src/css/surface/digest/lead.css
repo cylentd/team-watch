@@ -1,0 +1,10 @@
+/* ============================== DIGEST: THE LEAD ==============================
+   The lead panel itself is shared with Matchups (component/lead.css). This file holds the
+   Digest's grid: a phone stacks the lead over the ticker; from 960px the lead is a 440px column
+   that stays put while the ticker beside it scrolls. */
+.dg{display:grid;grid-template-columns:minmax(0,1fr)}
+
+@media (min-width:960px){
+  .dg{grid-template-columns:440px minmax(0,1fr);column-gap:28px;align-items:start;max-width:1180px;
+    margin:0 auto;padding:20px 26px 40px}
+}

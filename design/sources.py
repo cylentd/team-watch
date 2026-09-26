@@ -191,6 +191,12 @@ def load_startsit():
     return read_first(DWR / "startsit_calls.json"), read_first(DWR / "pl_startsit.json"), newest
 
 
+def load_digest():
+    """The league-wide week packet (model.season.weekly_digest), feed block `weekly_digest` first,
+    the file second. design/digest.py cuts it for the Digest view; None when neither exists."""
+    return feed_block(("weekly_digest",), "week") or read_first(DWR / "weekly_digest.json")
+
+
 def load_recap(season, week):
     """ff-jarvis's weekly recap (model.season.recap): per player `actual` and pregame `proj`,
     half-PPR, keyed by norm_name. No DST or K rows. None when the week has none yet."""

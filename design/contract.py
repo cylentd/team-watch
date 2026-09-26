@@ -255,6 +255,23 @@ CONTRACT = {
                             "why", "but"]),
                  ("pl", ["call", "pos", "n", "slug", "team", "opp", "home", "rationale"])],
     },
+    # design/digest.py, the Digest view (This week). `lead`, `record` and `near` may be null, and a
+    # hurt row's `game`; `rank`, `rostered`, `injury`, `was`, `why`, `opp`, `temp_f`, `short`,
+    # `when` and a headline's `n` may be null too. Every list may be empty: that is "nothing new".
+    "LIVE_DIGEST": {
+        "keys": ["season", "week", "asof", "lead", "rules", "hurt", "calls", "record", "best", "wx", "near",
+                 "adds_weeks", "adds", "top5", "up", "down", "gems", "news"],
+        "rows": [("hurt", ["n", "slug", "pos", "team", "status", "was", "injury", "new", "rank", "rostered", "game"]),
+                 ("best", ["n", "slug", "pos", "team", "opp", "home", "pts", "why"]),
+                 ("wx", ["away", "home", "kick", "temp_f", "wind_mph", "precip_pct", "short", "lead", "bar"]),
+                 ("adds", ["n", "slug", "pos", "team", "was", "now", "delta"]),
+                 ("top5", ["pos", "n", "slug", "team", "opp", "pts"]),
+                 ("up", ["n", "slug", "pos", "team", "d_pts", "pts"]),
+                 ("down", ["n", "slug", "pos", "team", "d_pts", "pts"]),
+                 ("gems", ["n", "slug", "pos", "team", "usage", "metric", "ecr", "rostered"]),
+                 ("news", ["when", "headline", "kind", "n", "rest", "slugs"])],
+        "row_objs": [("hurt", "game", ["away", "home", "kick"])],
+    },
 }
 
 

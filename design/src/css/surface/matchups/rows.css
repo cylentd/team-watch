@@ -1,0 +1,59 @@
+/* ============================== MATCHUPS: THE CALL ROWS ==============================
+   A 52px-min line per call: tag, head, name over game (the meta line wraps to a second line
+   rather than cut the kickoff time; the name itself stays one line), ours over the experts',
+   projection. The row opens in place on the house spring, grid rows 0fr to 1fr, the same motion
+   as a Digest row. The opened body is indented to the name, so the evidence reads as belonging
+   to it. */
+.mu-call{border-bottom:1px solid var(--line)}
+.mu-call-h{
+  appearance:none;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;
+  width:100%;min-height:52px;display:grid;grid-template-columns:48px 32px minmax(0,1fr) 64px 36px;
+  align-items:center;gap:8px;padding:0 14px;
+  transition:background .2s var(--ease),transform var(--dur-spring) var(--spring);
+}
+.mu-call-h:active{transform:scale(var(--press))}
+.mu-call-h:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+@media (hover:hover){ .mu-call-h:hover{background:var(--panel)} }
+.mu-call[data-open] .mu-call-h{background:var(--panel)}
+
+.mu-tag{
+  font-family:var(--mono);font-size:var(--t-1);font-weight:700;line-height:1;letter-spacing:.02em;
+  padding:5px 0;border-radius:5px;text-align:center;
+}
+.mu-tag.start{color:var(--up);box-shadow:inset 0 0 0 1px rgb(var(--up-rgb) / .5)}
+.mu-tag.sit{color:var(--down);box-shadow:inset 0 0 0 1px rgb(var(--down-rgb) / .5)}
+.mu-hd{width:32px;height:32px}
+.mu-nm{min-width:0;display:grid;gap:1px}
+.mu-nm b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mu-nm span{font-size:var(--t-1);color:var(--ink-3);white-space:normal;line-height:1.3;overflow-wrap:break-word}
+.mu-rk{font-family:var(--mono);font-size:var(--t-2);font-weight:500;line-height:1;text-align:right;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.mu-rk b{font-weight:700;color:var(--ink)}
+.mu-pt{font-family:var(--mono);font-size:var(--t-3);font-weight:500;line-height:1;text-align:right;font-variant-numeric:tabular-nums}
+.mu-plm{
+  font-family:var(--mono);font-size:var(--t-1);font-weight:700;line-height:1;text-align:center;
+  padding:4px 0;border:1px solid var(--line-2);border-radius:5px;color:var(--ink-3);
+}
+
+.mu-b{display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--dur-spring) var(--spring)}
+.mu-call[data-open] .mu-b{grid-template-rows:1fr}
+.mu-in{overflow:hidden;min-height:0;background:var(--panel)}
+.mu-pad{display:grid;gap:8px;padding:4px 14px 12px 102px}
+
+.mu-quote{
+  margin:0;font-size:var(--t-2);line-height:1.45;color:var(--ink-2);
+  display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden;
+}
+.mu-src{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0;font-size:var(--t-1);line-height:1.45;color:var(--ink-3)}
+.mu-go{
+  appearance:none;border:0;background:none;font:inherit;cursor:pointer;flex:none;
+  display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 0 0 12px;
+  color:var(--lime);font-weight:600;white-space:nowrap;text-decoration:none;
+}
+.mu-go:hover{text-decoration:underline;text-underline-offset:3px}
+.mu-go:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
+.mu-arrow{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+@media (min-width:960px){
+  .mu-call-h{grid-template-columns:48px 32px minmax(0,1fr) 56px 32px;padding:0 16px}
+  .mu-pad{padding:4px 16px 14px 104px}
+}

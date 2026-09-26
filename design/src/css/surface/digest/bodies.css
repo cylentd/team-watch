@@ -1,0 +1,53 @@
+/* ============================== DIGEST: OPENED ROWS ==============================
+   The shapes a row opens to, past the player line in ticker.css: the waiver-adds bar, Top 5's four
+   short lists, Stock's two columns, a news line, a weather line. */
+
+/* Waiver adds: the bar grows from last week's % rostered to this week's when the row opens. The
+   motion is the data change: grey is where he was, lime is how far he moved. `.hold` keeps the
+   day's already-open row at last week's value for one frame, so it grows once on arrival too. */
+.dg-bar{position:relative;display:block;height:6px;margin-top:5px;border-radius:3px;background:var(--panel-3)}
+.dg-bar i,.dg-bar u{position:absolute;top:0;bottom:0}
+.dg-bar i{left:0;width:var(--a);border-radius:3px;background:var(--line-2)}
+.dg-bar u{
+  left:var(--a);width:calc(var(--b) - var(--a));border-radius:0 3px 3px 0;background:var(--lime);
+  transform:scaleX(0);transform-origin:left;
+  transition:transform var(--dur-pop) var(--ease) calc(var(--i, 0) * var(--enter-step) * 2.5 + var(--enter-step) * 5);
+}
+.dg-row[data-open] .dg-bar u{transform:scaleX(1)}
+.dg-row[data-open].hold .dg-bar u{transform:scaleX(0);transition:none}
+.dg-plus{color:var(--lime)}
+
+/* Top 5: four short lists, five rows each, two across on a phone and four on a desktop. */
+.dg-t5{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 14px;padding-top:6px}
+.dg-t5 h4,.dg-two h4{margin:0 0 4px;font-size:var(--t-1);font-weight:600;line-height:1;letter-spacing:.07em;color:var(--ink-3)}
+.dg-t5 ol{margin:0;padding:0;list-style:none;display:grid;gap:3px}
+.dg-t5 li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;font-size:var(--t-2)}
+.dg-t5 li span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dg-t5 li em{font-style:normal;font-family:var(--mono);color:var(--ink-2);font-variant-numeric:tabular-nums}
+
+/* Stock: who rose beside who fell, one row each. */
+.dg-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 14px;padding-top:6px}
+.dg-mv{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center;min-height:26px;font-size:var(--t-2)}
+.dg-mv span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dg-mv em{font-style:normal;font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums}
+.dg-mv em.up{color:var(--up)}
+.dg-mv em.dn{color:var(--down)}
+
+/* News: the time, then the headline with its player named first, red when he is out. */
+.dg-news{display:grid;grid-template-columns:62px minmax(0,1fr);gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:var(--t-2)}
+.dg-news:last-of-type{border-bottom:0}
+.dg-news time{font-family:var(--mono);font-size:var(--t-1);line-height:1.6;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.dg-news b{font-weight:600}
+.dg-news b.out{color:var(--down)}
+.dg-news b.q{color:var(--amber)}
+
+/* Weather: the mark, the game over its kickoff and sky, the number that put it on the list. */
+.dg-wx{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:10px;align-items:center;min-height:46px}
+.dg-ico{width:24px;height:24px;fill:none;stroke:var(--sky);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.dg-wx .dg-ico{justify-self:center}
+.dg-wx.near .dg-ico{stroke:var(--ink-3)}
+.dg-wx.near .dg-ln-r{color:var(--ink-3)}
+
+@media (min-width:960px){
+  .dg-t5{grid-template-columns:repeat(4,minmax(0,1fr))}
+}

@@ -1,0 +1,65 @@
+/* ============================== THE LEAD ==============================
+   One fact on the panel, washed in its status colour (red for a starter who will likely sit, amber
+   questionable, sky for weather, lime for a call to make), the player's photo fading into it on
+   the right. A phone draws it full-bleed; from 960px it is a 440px column that stays put while the
+   list beside it scrolls. Shared by the Digest (digest/lead.css holds its grid) and Matchups
+   (matchups/lead.css adds its facts, chips and foot). */
+.dg-lead{
+  position:relative;overflow:hidden;background:var(--panel);border-bottom:1px solid var(--line);
+  display:grid;grid-template-columns:minmax(0,1fr);min-height:200px;padding:20px 16px 0;
+}
+.dg-lead.has-photo{grid-template-columns:minmax(0,1fr) 132px;min-height:236px;padding-right:0}
+.dg-lead.out{background:linear-gradient(180deg,rgb(var(--down-rgb) / .10),transparent 70%),var(--panel)}
+.dg-lead.q{background:linear-gradient(180deg,rgb(var(--amber-rgb) / .08),transparent 70%),var(--panel)}
+.dg-lead.sky{background:linear-gradient(180deg,rgb(var(--sky-rgb) / .09),transparent 70%),var(--panel)}
+.dg-lead.go{background:linear-gradient(180deg,rgb(var(--lime-rgb) / .07),transparent 70%),var(--panel)}
+/* Nothing to lead with (no packet, or a quiet week): one short statement, not a 200px band of
+   panel with nothing in it, so the rows start right under it. */
+.dg-lead.quiet{min-height:0;padding-top:16px}
+.dg-lead.quiet .dg-lead-txt{gap:4px;padding-bottom:14px}
+.dg-lead.quiet .dg-lead-h{font-size:var(--t-4);font-weight:700;line-height:1.2;letter-spacing:-.01em}
+
+.dg-lead-txt{display:grid;align-content:start;gap:10px;padding-bottom:20px;position:relative;z-index:1;min-width:0}
+.dg-lead-h{
+  margin:0;font-family:var(--disp);font-size:var(--t-6);font-weight:800;line-height:1.02;
+  letter-spacing:-.025em;text-wrap:balance;color:var(--ink);overflow-wrap:anywhere;
+}
+.dg-lead-h.long{font-size:var(--t-5);font-weight:700;line-height:1.15;letter-spacing:-.015em}
+.dg-em{font-style:normal}
+.dg-em.out{color:var(--down)}
+.dg-em.q{color:var(--amber)}
+.dg-em.sky{color:var(--sky)}
+.dg-em.go{color:var(--lime)}
+.dg-lead-fact{margin:0;font-size:var(--t-2);line-height:1.45;color:var(--ink-2);text-wrap:pretty}
+
+/* The photo sits on the panel's floor and fades out at its foot and its left edge, so a headshot
+   with its own gray backdrop (not a transparent cutout) never shows a hard rectangle: two masks,
+   intersected, so only the region inside both survives. */
+.dg-photo{
+  align-self:end;justify-self:end;width:168px;max-width:none;margin-right:-24px;
+  -webkit-mask-image:linear-gradient(to bottom,var(--void) 70%,transparent),
+    linear-gradient(to right,transparent,var(--void) 30%);
+  -webkit-mask-composite:source-in;
+  mask-image:linear-gradient(to bottom,var(--void) 70%,transparent),
+    linear-gradient(to right,transparent,var(--void) 30%);
+  mask-composite:intersect;
+}
+/* Weather has no face: its lead carries the wind or rain mark instead, drawn large and quiet. */
+.dg-glyph{align-self:center;justify-self:center;width:96px;height:96px;margin:0 18px 20px 0;
+  -webkit-mask-image:none;mask-image:none}
+.dg-glyph .dg-ico{width:100%;height:100%;stroke:rgb(var(--sky-rgb) / .7);stroke-width:1.4}
+
+@media (min-width:960px){
+  .dg-lead,.dg-lead.has-photo{
+    position:sticky;top:72px;min-height:420px;grid-template-columns:minmax(0,1fr);padding:32px 28px 0;
+    border:1px solid var(--line);border-radius:16px;
+  }
+  .dg-lead-h{font-size:var(--t-7);max-width:12ch}
+  .dg-lead-h.long{font-size:var(--t-5);max-width:none}
+  .dg-lead-txt{max-width:280px;padding-bottom:160px}
+  .dg-lead.has-photo .dg-photo{position:absolute;right:-10px;bottom:0;width:260px;margin:0}
+  .dg-lead .dg-glyph{position:absolute;right:28px;bottom:28px;width:150px;height:150px;margin:0}
+  .dg-lead.quiet{min-height:0;padding-top:24px}
+  .dg-lead.quiet .dg-lead-txt{padding-bottom:22px}
+  .dg-lead.quiet .dg-lead-h{font-size:var(--t-5);max-width:none}
+}

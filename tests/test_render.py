@@ -67,7 +67,7 @@ GD_CATCHUP = {swing: {me: 21.5, opp: 3.0}, movers: [
 # two clicks, not one, except in a group of one where no sub-row is drawn at all. Spelling both
 # out here (rather than trusting the group button's "return me to where I was") keeps a state
 # reachable in the same way no matter which state ran before it.
-GROUP = {"roster": "teams", "waivers": "teams",
+GROUP = {"digest": "week", "roster": "teams", "waivers": "teams",
          "ranks": "scouting", "board": "scouting", "movers": "scouting", "matchups": "scouting", "usage": "scouting", "news": "scouting",
          "parlay": "bets", "build": "bets", "dfs": "bets", "live": "gameday"}
 
@@ -91,7 +91,18 @@ def bdpick(q):
 MOVERS = go("movers")
 
 STATES = [
-    # The page opens on the Board since 2026-09-24, so the roster states navigate there.
+    # The Digest (This week, 2026-09-26), the page's default: the day picks the open row. Friday
+    # opens Hurt (the fixture leads with a doubtful Puka Nacua), Tuesday opens Waiver adds, a tap
+    # moves the one open row to Top 5, and a packet with every section empty says "nothing new" on
+    # each row with nothing open. LIVE_DIGEST is a const, so the null block (no packet file) is
+    # pinned in tests/test_digest.py instead.
+    ("digest", [("eval", 'Date.now = () => Date.parse("2026-09-25T12:00:00Z")')] + go("digest")),
+    ("digest-tuesday", [("eval", 'Date.now = () => Date.parse("2026-09-22T12:00:00Z")')] + go("digest")),
+    ("digest-top5", go("digest") + [("click", "[data-dgrow='t5'] .dg-head")]),
+    ("digest-empty", [("eval", "Object.assign(LIVE_DIGEST, {lead: null, hurt: [], calls: 0, record: null, best: [],"
+                               " wx: [], near: null, adds: [], top5: [], up: [], down: [], gems: [], news: []})")]
+                     + go("digest")),
+    # The page opens on the Digest since 2026-09-26, so the roster states navigate there.
     ("teams-yahoo", go("roster")),
     ("teams-espn", [("eval", "VIEW='espn'; render()")] + go("roster")),
     ("teams-modal", go("roster") + [("click", ".row")]),   # Joe Burrow: no matchup profile, the quiet state
@@ -157,15 +168,20 @@ STATES = [
     # same grid as week-over-week change (the mode the level view cannot show; the week and the
     # reading sit in the panel the bar's last chip opens since 2026-09-25), a QB grid because its
     # columns are the ones with no counterpart anywhere else in the app, and the profile modal.
-    # Matchups (2026-09-25): WR opens with a backed start (Higgins, whom Pitcher List says to sit),
-    # a sit, and a sit's counter-evidence; QB is the unbacked call with Pitcher List agreeing; RB
-    # carries the best spot; a row opens the profile; and a week with nothing yet (no calls, no
-    # column, no graded week) says each of those in its own place. LIVE_STARTSIT is a const, so
-    # the null block (no calls file) is pinned in tests/test_startsit.py instead.
+    # Matchups (redesigned 2026-09-26 in the Digest's language): WR has no best spot, so its lead
+    # says so, then a start (Higgins, whom Pitcher List says to sit) and a sit. -open opens
+    # Higgins' row to its evidence (a dashed matchup chip and a "but"); -pl-open opens Pitcher
+    # List's Higgins row to their words; QB is the unbacked call; RB carries the best spot as the
+    # lead, photo and chips; the opened row's link opens the profile; and a week with nothing yet
+    # (no calls, no column, no graded week) says each of those in its own place. LIVE_STARTSIT is
+    # a const, so the null block (no calls file) is pinned in tests/test_startsit.py instead.
     ("matchups", go("matchups")),
+    ("matchups-open", go("matchups") + [("click", "[data-mukey^='c:'] .mu-call-h")]),
+    ("matchups-pl-open", go("matchups") + [("click", "[data-mukey^='p:'] .mu-call-h")]),
     ("matchups-qb", go("matchups") + [("click", "[data-mupos='QB']")]),
     ("matchups-rb", go("matchups") + [("click", "[data-mupos='RB']")]),
-    ("matchups-modal", go("matchups") + [("click", "[data-muslug]")]),
+    ("matchups-modal", go("matchups") + [("click", "[data-mukey^='c:'] .mu-call-h"),
+                                         ("click", ".mu-call[data-open] [data-muslug]")]),
     ("matchups-empty", [("eval", "Object.assign(LIVE_STARTSIT, {calls: [], pl: [], article: null, record: null})")]
                        + go("matchups")),
     ("usage", go("usage")),
@@ -441,7 +457,7 @@ TUESDAY = 'Date.now = () => Date.parse("2026-09-22T12:00:00Z");'   # a Tuesday i
 @pytest.mark.parametrize("day,hash,surface,first", [
     ("tue", "", "waivers", "WAIVERS"),     # claims day: Waivers opens and leads its group
     ("tue", "#roster", "roster", "WAIVERS"),   # a hash still wins
-    ("sat", "", "ranks", "RANKS"),         # any other day: Ranks leads, not Roster (Leaders until 2026-09-26)
+    ("sat", "", "digest", None),           # any other day: the Digest, a group of one (no sub-row)
 ])
 def test_tuesday_opens_waivers(browser, page_file, day, hash, surface, first):
     """The day is read from Date.now(), so pinning it is the whole injection. SEED pins a
@@ -458,7 +474,10 @@ def test_tuesday_opens_waivers(browser, page_file, day, hash, surface, first):
         page.wait_for_function("document.getElementById('view').children.length > 0")
         assert page.evaluate("SURFACE") == surface
         subs = page.locator("#subnav .mode-sub")
-        assert subs.first.inner_text().strip().upper().startswith(first)
+        if first:
+            assert subs.first.inner_text().strip().upper().startswith(first)
+        else:
+            assert subs.count() == 0
         # No sideways scroll on a phone, whichever view opened.
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
     finally:

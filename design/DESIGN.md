@@ -48,7 +48,7 @@ question: who, which way, one number.
 
 | Part | Phone | Where |
 |---|---|---|
-| Nav | top: four groups as words, search + chat icons; view tabs underlined below; both hide on scroll down | `responsive/760.css`, `js/chrome/hidebar.js` |
+| Nav | top: five groups as words since 2026-09-26 (This week leads; the words step down to `--t-3` with 5px sides, because at `--t-4` the search icon covered "Live" at 360px), search + chat icons; view tabs underlined below; both hide on scroll down | `responsive/760.css`, `js/chrome/hidebar.js` |
 | Brand row | hidden; shown only when a newer build makes DATA a reload control | `responsive/760.css` |
 | Ground | slate `#111418`, surfaces one step up each; no pure black, no radial glow | `base/tokens.css` |
 | Roster row | a lineup sheet since 2026-09-25 (storyboard https://claude.ai/artifact/AqRomyQsQfd7TjYRiJkmhd): starter = slot, 28px head, name over "RB · BAL @ DAL", trend line, projection in ink with a green/red arrow. Bench two to a row with short names ("D. Goedert"), no line. The whole Yahoo team fits 360×660. Desktop: the bench column sits beside the starters, 44px heads, full names | `surface/teams/roster.css`, `responsive/lists.css` |
@@ -60,6 +60,7 @@ question: who, which way, one number.
 | Topbar (desktop) | one pill: the week, its dot the sources' health; the live badge shows only on sample data | `js/chrome/feed.js`, `js/chrome/render.js` |
 | Movers row | 52px head, name over verdict chip, share-change pill (role share before week 2) | `responsive/lists.css` |
 | Value pill | filled green/red by direction, grey when flat; Movers only since 2026-09-25 | `component/vpill.css` |
+| Lead panel | shared by Digest and Matchups since 2026-09-26: one fact on `--panel`, a top wash in its status colour (red will likely sit, amber questionable, sky weather, lime a call), Bricolage headline `--t-6` (`--t-5` for a sentence), one fact line, the headshot masked into the panel at its foot and left edge. Full-bleed on a phone; from 960px a 440px sticky column, headline `--t-7`, photo 260px | `component/lead.css` |
 | KPI tiles | removed at every width (roster and parlay) | — |
 
 ## Connected leagues (2026-09-24)
@@ -288,33 +289,99 @@ the signed share change, or role share before one exists. The rest is the drawer
 On a phone the chart draws to a taller, narrower geometry sized close to 1:1 with the screen,
 per-dot names dropped (the list below names every player); dots stay tappable into the drawer.
 
-## Matchups (Players, 2026-09-25)
+## Digest (This week, 2026-09-26)
 
-Start or sit, for the players past the obvious starters. `LIVE_STARTSIT` (`design/startsit.py`) carries
-ff-jarvis's own calls as frozen for the record (`model.season.startsit_calls`), Pitcher List's column
-for the same week, and the season record (`model.season.grade`). The page computes nothing.
+The front page: one fact leads, every other topic is one ticker row. Storyboard (v3):
+https://claude.ai/artifact/QyeSKebCWdeCqA9YvxXsdX; direction contract
+`.impeccable/surfaces/design-src-js-surface-digest-digest-js.md`. `LIVE_DIGEST` (`design/digest.py`)
+cuts ff-jarvis's `data/weekly_digest.json`, the same packet the morning Discord post renders. The page
+picks nothing and computes nothing; it only decides which row lies open. This week is the first nav
+group and Digest the default leaf, except on a Tuesday, when Waivers leads.
 
 | part | what it shows |
 |---|---|
-| Record strip | Ours against Pitcher List through the last graded week, and the 1 / 0.5 / 0 scale |
-| Position chips | QB RB WR TE, the one control row; WR opens |
-| Start | Our starts outside the top 12 (QB/TE) or 24 (RB/WR), by our rank |
-| Sit | Our sits on players the experts rank in that band, 40%+ rostered |
-| Best spot | The softest matchup among our starters at the position, lime |
-| Pitcher List | Their calls at the position, their words clamped to two lines, a link to the column |
+| Lead | ff-jarvis's pick (`lead.rule`): a hurt starter, else a game in bad weather, else the top headline. A headline, one fact line ("The WR2 this week. Hip. LA @ DEN, Sun 5:20 PM."), the photo; weather draws its wind or rain mark instead. No stats row |
+| Hurt | red count; the next two who will likely sit, then how many are questionable |
+| Matchups | the call count; the best spot at WR, else RB, TE, QB |
+| Weather | sky count; the first game past the bar, in mph or % rain |
+| Waiver adds | lime pill: the biggest rise in ESPN % rostered |
+| Top 5 | the leader at each position |
+| Stock | the biggest rise and drop in the books' implied points |
+| Gems | count; the first high-usage player ranked outside the starters |
+| News | count; the newest FantasyPros headline |
 
-- **The record leads.** It is the trust question. Through week 2 of 2026 ours reads 0.32 against
-  Pitcher List's 0.67, and the strip says so without softening; the higher score is the lime one.
+- **Eight rows, 52px each** (56px from 960px): uppercase label, mono count pill, one line with the
+  single most important name, chevron. Top 5 and Stock are lists and carry no count. A section
+  with nothing says "nothing new" and cannot open.
+- **The day opens one row** (`DG_DAY`, `data/digest.js`): Tuesday and Wednesday Waiver adds; Sunday
+  Hurt, then Weather if no designation is new; every other day Hurt. A row earns it only with news
+  in it (Hurt: a designation changed in the last 24 hours). The reader's own tap overrides and is
+  kept across views.
+- **A row opens in place**, one at a time, on the house spring (grid rows 0fr to 1fr); the list is
+  never redrawn under the reader. It lists its players (each opens the profile), then a foot: where
+  the numbers come from and a link to the full view. The adds bars grow from last week's % rostered
+  to this week's.
+- **Thresholds come from the packet's `rules`, never copied.** The weather and gems feet quote
+  `rules.wx_list` and `rules.gems`, and which bar a game crossed is the row's own `bar`.
+  ff-jarvis's `weekly_digest_schema` owns the numbers.
+- **First data:** the lead at 49px, the first ticker row at 285px on a 360x800 phone (fixture,
+  measured 2026-09-26). Closed, the eight rows end near 700px, above the fold; the day's open row
+  pushes the later ones below it.
+- **Nothing to lead with** (no packet, or a quiet week): the lead shrinks to one short line
+  (`.dg-lead.quiet`), so the rows start right under it instead of under a 200px empty band.
+- **Desktop (960px+):** the lead is a 440px sticky column (min 420px tall); the ticker scrolls
+  beside it; the page caps at 1180px.
+
+Not backtested: Weather, Stock and Gems. Each says "Not backtested." in amber on its opened foot,
+never on the closed line: the closed line is the fact, the caveat is for whoever reads on. Lead copy
+for the weather and news rules has no real week yet (2026-09-26).
+
+## Matchups (Players, redesigned 2026-09-26)
+
+Start or sit, for the players past the obvious starters, in the Digest's language (storyboard
+frames 4 and 5, same link). `LIVE_STARTSIT` (`design/startsit.py`) carries ff-jarvis's own calls as
+frozen for the record (`model.season.startsit_calls`), Pitcher List's column for the same week, and
+the season record (`model.season.grade`). The page computes nothing.
+
+| part | what it shows |
+|---|---|
+| Record strip | Pitcher List and ours through the last graded week: one bar each, filled to the score (0 to 1), each count on its own bar ("0.67 · 12 calls"); the higher one lime |
+| Position chips | QB RB WR TE, the one control row; WR opens |
+| Lead | the best spot at the position, the shared lead panel: "Start" + his name in lime, a facts line (our rank, the experts', the projection), up to three evidence chips, the photo, a foot naming the game and kickoff. A position with none says so |
+| Our calls | one line per call, starts then sits: tag, head, name over game and kickoff, ours / experts, projection |
+| Pitcher List | their calls at the position, a PL mark where our ranks sit |
+| Foot | what makes a call, and the 1 / 0.5 / 0 scale (week 1 counts half) |
+
+- **The record leads.** It is the trust question. Through week 2 of 2026 ours read 0.32 against
+  Pitcher List's 0.67 (2026-09-25), and the strip says so without softening.
+- **The lead keeps its facts line**, unlike the Digest's: our rank beside the experts' is what the
+  page is for.
+- **Rows open in place**, one open across both lists, kept across a position change. Ours opens to
+  up to four evidence chips (green for; the defense-vs-position chip dashed, because ff-jarvis's
+  backtest found no such effect; amber "but ..." against), the projection's source and a link to the
+  profile. Pitcher List's opens to their own words (clamped to five lines) and a link to the column.
+  Nothing on the closed line argues.
 - **Every graded call is shown.** A call with no backing stat says "No stat this season backs this
   call" in amber rather than being hidden: hiding it would make the page and the record disagree.
-- **Evidence chips carry a sign.** Up to three that argue the call, then one "but" against it. The
-  defense-vs-WR chip is dashed: ff-jarvis's backtest found no WR matchup effect, so it is colour.
-- **First data at ~180px on a 360×800 phone, the first call at ~305px.** Over the 200px budget for the
-  first call, on purpose: the record is data, and a call read before the record is a call trusted
-  without the one number that says whether to.
-- **Desktop:** our start and sit on the left, best spot and Pitcher List on the right, so the two
-  sources read side by side. A phone stacks them in that order.
-- **Rows open the profile**, the same modal every other view opens.
+- **Kickoff times come from `LIVE_SCHEDULE`** (matched through its club-code alias). The meta line
+  wraps to a second line rather than cut the time; the name stays one line. No schedule row: the
+  game alone. A Pitcher List row with no opponent shows the team, never "vs null".
+- **Measured first data (2026-09-26, fixture, WR, 360x800):**
+
+  | element | top |
+  |---|---|
+  | Record strip | 89px |
+  | Lead | 204px |
+  | First call | 335px |
+
+  Over the 200px budget for the first call, on purpose: a call read before the record is a call
+  trusted without the one number that says whether to.
+- **Desktop (960px+):** the record and chips span the width (bars capped at 560px, so a score never
+  reads as a progress bar); the lead is a 440px sticky column; the calls sit beside it, ours and
+  Pitcher List's side by side once their column is 600px wide (a container query on the lists, not
+  the window), stacked below that. The page caps at 1180px.
+
+Not backtested: the calls. The foot says so, and names the record as the test.
 
 Not built yet: Bets > Games (every game with its implied totals and each offense against the other
 defense by position), the storyboard's second view.

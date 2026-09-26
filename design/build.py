@@ -36,11 +36,12 @@ from archetype import (load_archetype, load_trenches, live_archetype, live_trenc
                        report_archetype, report_trenches)
 from startsit import live_startsit, report as startsit_report  # design/startsit.py: the Matchups view
 from mates import espn_rows, yahoo_rows, live_mates, slugs as mate_slugs, report as mates_report  # every team in both leagues
+from digest import live_digest, report as digest_report        # design/digest.py: the Digest view
 from sources import (                                    # design/sources.py: the ff-jarvis adapter
     ROOT, REPO, DWR, FEED, ESPN_ROSTERS, YAHOO_ROSTERS, DFS_POOL,
     feed_block, read_first, load_status, load_props_raw, load_model_raw,
     load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
-    load_draft_pedigree, load_weather, load_routes, load_startsit,
+    load_draft_pedigree, load_weather, load_routes, load_startsit, load_digest,
 )
 
 # One slug for one name across the page and the functions: api/league.py slugs a connected
@@ -727,10 +728,11 @@ def render():
         "LIVE_ARCHETYPE": live_archetype(load_archetype(FEED, DWR), wanted_set),
         "LIVE_TRENCHES": live_trenches(load_trenches(FEED, DWR)),
         "LIVE_STARTSIT": live_startsit(*load_startsit(), slugify),
+        "LIVE_DIGEST": live_digest(load_digest(), slugify),
     }
     blocks["LIVE_SIGNED"] = live_signed(load_gamelog_weekly(), blocks["LIVE_SCHEDULE"], slugify, wanted_set)
     add_market_stock(blocks, report)
-    report += [schedule_report(blocks["LIVE_SCHEDULE"]), signed_report(blocks["LIVE_SIGNED"]),
+    report += [schedule_report(blocks["LIVE_SCHEDULE"]), signed_report(blocks["LIVE_SIGNED"]), digest_report(blocks["LIVE_DIGEST"]),
                pedigree_report(blocks["LIVE_PEDIGREE"]), gamelog_report(blocks["LIVE_GAMELOG"]),
                projections_report(blocks["LIVE_PROJECTIONS"]), ranks_report(blocks["LIVE_RANKS"]),
                routes_report(blocks["LIVE_ROUTES"]), report_archetype(blocks["LIVE_ARCHETYPE"]),
@@ -751,8 +753,7 @@ def render():
     # A "</" inside a string (a headline quoting markup, say) would end the <script> early;
     # JSON reads "<\/" as the same two characters, and JS never sees the difference.
     injected = "\n".join(
-        ["const HEADS = " + json.dumps(heads) + ";", "const HEADS_LG = " + json.dumps(heads_lg) + ";",
-         "const HEADS_XL = " + json.dumps(heads_xl) + ";"]
+        [f"const {k} = {json.dumps(v)};" for k, v in (("HEADS", heads), ("HEADS_LG", heads_lg), ("HEADS_XL", heads_xl))]
         + block_js
         + ["const BUILD = " + json.dumps(stamp) + ";"]
     ).replace("</", "<\\/")

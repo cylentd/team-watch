@@ -47,10 +47,20 @@ surface/usage/usage.css
 # pin: board.css after pool.css -- the Board's controls are pool.css's .filters and .chip, and
 #      this file only adds beside them. It defines no selector either of them owns.
 surface/board/board.css
+# pin: component/lead.css before matchups/lead.css, which adds to the shared lead panel at equal
+#      specificity (its facts, chips, foot and the photo lifted clear of the foot on a desktop).
+component/lead.css
 # pin: matchups.css after pool.css -- its rows reuse .xf-head, and its controls .filters and .chip.
 surface/matchups/matchups.css
 # pin: ranks.css after pool.css -- its position row is pool.css's .setrow and .chip.
 surface/ranks/ranks.css
+surface/matchups/lead.css
+surface/matchups/rows.css
+# pin: digest/bodies.css after ticker.css -- its `.dg-ico` size yields to lead.css's `.dg-glyph .dg-ico`
+#      on specificity, and its bar rules sit inside rows that ticker.css lays out.
+surface/digest/lead.css
+surface/digest/ticker.css
+surface/digest/bodies.css
 surface/chat/chat.css
 surface/live/live.css
 surface/strip/field.css
