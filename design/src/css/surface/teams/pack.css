@@ -115,4 +115,8 @@
 @keyframes pk-strain{0%,100%{translate:0 0}50%{translate:.6px -.4px}}
 .pack-hint{margin:10px 0 0;text-align:center;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.14em;color:var(--ink-3)}
 .pack-done{display:block;margin:14px auto 0}
-.rmode .rm-again{margin-left:auto}
+/* "Rip again" belongs to Cards, so it sits right after that chip as a quieter action, not at the
+   far end of the row where it floated over the gap between the columns (2026-09-25). */
+.rmode .rm-again{margin-left:4px;display:inline-flex;align-items:center;gap:6px;border-color:transparent;background:none;color:var(--ink-2)}
+.rmode .rm-again:hover{color:var(--lime)}
+.rmode .rm-again svg{width:14px;height:14px}

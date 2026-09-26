@@ -61,7 +61,9 @@
 .hero.team .ts-team{font-family:var(--disp);font-size:var(--t-6);font-weight:700;max-width:none;
   overflow:hidden;text-overflow:ellipsis}
 .hero.team .ts-chev{width:30px;height:30px}
-.hero.team .ts-menu{left:0;right:auto}
+/* The menu opens under the chevron, the thing that was tapped, at the title's right end; anchored
+   left it appeared across the title from it (2026-09-25). */
+.hero.team .ts-menu{left:auto;right:0}
 .hero.team .hero-rec{display:inline}
 .hero.team .leaguechip{border:0;padding:0;letter-spacing:.06em;color:var(--ink-3)}
 .hero.team .leaguechip:hover{color:var(--ink)}

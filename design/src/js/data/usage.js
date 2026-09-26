@@ -79,8 +79,19 @@ function usageMine(){
 
 const USAGE_POSITIONS = ["QB", "RB", "WR", "TE"];
 let USAGE_POS = "RB";
-let USAGE_WEEK = USAGE.through || (USAGE.weeks || [1])[0];
+/* How many teams have a row in a week. A week opens as soon as its Thursday game is in, so the
+   newest week can hold two teams out of 32; the grid then showed "5 players, RB week 3". */
+const usageTeams = wk => new Set((USAGE.rows || []).filter(r => r.wk === wk).map(r => r.team)).size;
+/* The grid opens on the newest week most teams have played (2026-09-25); a week still being
+   played stays one tap away, and its foot says how much of it is in. */
+const usagePartial = wk => usageTeams(wk) < Math.max(0, ...(USAGE.weeks || []).map(usageTeams)) / 2;
+function usageDefaultWeek(){
+  const full = (USAGE.weeks || []).filter(w => !usagePartial(w));
+  return full.length ? full[full.length - 1] : (USAGE.through || (USAGE.weeks || [])[0] || 1);
+}
+let USAGE_WEEK = usageDefaultWeek();
 let USAGE_SORT = null;      // a column id, else the position's own rank column
 let USAGE_DESC = true;
 let USAGE_MODE = "level";   // "level" = what he did, "change" = the move from the week before
 let USAGE_MINE = false;
+let USAGE_PANEL = false;    // the week / reading panel under the controls row is open

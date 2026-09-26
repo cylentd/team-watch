@@ -1,9 +1,9 @@
-/* The roster as a lineup sheet (2026-09-25): the whole team on one phone screen. A starter row is
-   slot, head, name over "RB · BAL @ DAL", the snap-share line, and the projection with an arrow
-   that says which way the line went. The number itself stays neutral: the old filled pill repeated
-   the line's colour, so six red boxes on eight starters read as an alarm. Bench and out rows drop
-   the slot and the line and go two to a row on a phone; on a desktop the bench sits beside the
-   starters. The rank and the market are the profile's; news is the brief's. */
+/* The roster as a lineup sheet (2026-09-25). A starter row is slot, head, name over
+   "RB · BAL @ DAL", the snap-share line, and the projection with an arrow that says which way the
+   line went. The number itself stays neutral: the old filled pill repeated the line's colour, so
+   six red boxes on eight starters read as an alarm. Bench and out rows drop the slot and the line;
+   on a desktop the bench sits beside the starters. The rank and the market are the profile's;
+   news is the checklist's. */
 function rowHTML(p, i, teamKey){
   const cls = (p.slot === "OUT" ? "out" : p.start ? "start" : "bench") + injClass(p);
   // The injury badge on the head: ! out, D doubtful, Q questionable; the reason is its tooltip.

@@ -1,24 +1,19 @@
 /* The phone's lists (2026-09-24): every list row is who, which way, one number. Split from
    760.css, same breakpoint, loaded right after it. */
 @media (max-width:760px){
-  /* The lineup sheet on a phone, 2026-09-25: all nine starters and the bench on one screen. A
-     starter row is 40px: slot, a 30px head, the name over "RB · BAL @ DAL", a short line, the
-     number. The bench goes two to a row with no line. Rank, the matchup ordinal, the verdict and
-     news tags all live one tap away in the profile; the Q/O badge stays on the head. */
-  .row{--hd:28px;gap:8px;padding:2px 0;border-radius:0}
+  /* The lineup sheet on a phone. It was squeezed to fit the whole team on one screen (28px heads,
+     the bench two to a row in initials) and read as small beside the cards; since 2026-09-25 (late)
+     it keeps the cards' frame: full-width rows, a 40px head, the full name, the bench one to a row
+     like the starters. Rank, the matchup ordinal, the verdict and news tags stay one tap away in
+     the profile; the Q/O badge stays on the head. */
+  .row{gap:10px;padding:6px 0;border-radius:0}
   .hero.team{padding-top:12px}
-  .row.start{grid-template-columns:28px var(--hd) minmax(0,1fr) 44px 52px}
-  .row .nm-1 b{font-size:var(--t-2)}
-  .row .nm-2{margin-top:0;font-size:var(--t-1)}
-  .row .spark{width:44px;height:18px}
-  .rproj{font-size:var(--t-3)}
-  .rl-rows .rule{margin-top:12px}
+  .row.start{grid-template-columns:30px var(--hd) minmax(0,1fr) 48px 56px}
+  .row .nm-1 b{font-size:var(--t-3)}
+  .row .nm-2{margin-top:1px;font-size:var(--t-2)}
+  .row .spark{width:48px;height:20px}
+  .rl-rows .rule{margin-top:16px}
   .rl-rows .sheet-col:first-child > .rule:first-child{margin-top:8px}
-  .board.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:14px}
-  .board.two .row{gap:7px}
-  .board.two .rproj{font-size:var(--t-2)}
-  .board.two .nm-full,.board.two .nm-tm{display:none}
-  .board.two .nm-ini{display:inline}
   .nm-2 .mu-n{display:none}
   .vpill{display:block}
   /* Filter rows on a phone: one line that scrolls sideways, pill chips in the UI face. The
@@ -70,7 +65,9 @@
      and each row the kind line plus headline plus the scanner's read, clamped to two lines. The
      wire's own description is on the far side of the link. */
   .newswrap{display:flex;flex-direction:column}
-  .newswrap > .filters{order:-1;margin-top:4px!important}
+  /* Its five chips carry counts and need ~590px, so they wrap to two lines rather than scroll a
+     third of themselves off the edge (STYLE.md, 2026-09-25): two short rows, every kind in view. */
+  .newswrap > .filters{order:-1;margin-top:4px!important;flex-wrap:wrap;overflow:visible;row-gap:8px}
   .newswrap > .newslead{margin-top:10px}
   .newswrap > .newslist{margin-top:0!important}
   .newslead,.newslist{border:0;background:none;box-shadow:none}

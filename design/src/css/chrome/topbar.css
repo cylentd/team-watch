@@ -11,9 +11,9 @@
 .brand-mark{
   width:11px;height:22px;background:var(--lime);
   box-shadow:0 0 18px rgb(var(--lime-rgb) / .5);
-  animation:pulse 2.6s var(--ease) infinite;
 }
-@keyframes pulse{0%,100%{opacity:1;transform:scaleY(1)}50%{opacity:.55;transform:scaleY(.72)}}
+/* The mark stands still (2026-09-25, STYLE.md motion rule 1): it pulsed forever on every page,
+   the one thing moving that nobody asked to move. */
 .brand-name{
   font-family:var(--disp); font-weight:800; font-size:var(--t-4);
   letter-spacing:-.02em; text-transform:uppercase;

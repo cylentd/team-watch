@@ -8,9 +8,8 @@
    everywhere else on the page -- active, focused, or yours.
    ============================================================ */
 
-/* Scrolls sideways rather than clipping. Seven stat columns plus a name cannot fit a phone at a
-   legible size, and the wrong answer is to hide three of them: a grid whose last column is Snap%
-   is not the same grid without it. The columns keep their width and the table moves. */
+/* Never hides a column: a grid whose last column is Snap% is not the same grid without it. On a
+   desktop the columns sit in one row; on a phone each row splits in two (below). */
 .utable{
   display:block;
   border:1px solid var(--line);
@@ -178,6 +177,22 @@
 .ubadge.b1{background:rgb(var(--down-rgb) / .92);color:var(--void)}
 
 .uspace{margin-left:10px}
+
+/* A phone reads each player on two lines (2026-09-25): name and team, then every stat under
+   them. Seven columns at ~44px fit 330px, so nothing is hidden and nothing scrolls sideways
+   (STYLE.md); the headers wrap in the UI face instead of ellipsising "CARR...". --un is the
+   position's column count, set on the table. */
+@media (max-width:430px){
+  .utable{overflow-x:visible}
+  .uhead,.urow{grid-template-columns:repeat(var(--un),minmax(0,1fr))}
+  .uhead>div:first-child,.uname{grid-column:1 / -3}
+  .uhead>div:nth-child(2),.uteam{grid-column:-3 / -1}
+  .uname{padding:6px 6px 2px}
+  .uteam{margin-top:4px}
+  .ucol{white-space:normal;line-height:1.15;font-family:var(--ui);font-size:var(--t-1);letter-spacing:0;
+    text-transform:none;padding:2px 1px}
+  .ucell{min-height:32px;font-size:var(--t-1)}
+}
 
 /* Type comes from .note (base.css): a source line is a sentence, not a label. */
 .ufoot{margin:10px 0 4px}

@@ -106,6 +106,11 @@
   --jersey-away:#6b7080;
   --jersey-away-rgb:107 112 128;
 
+  /* Weather (2026-09-25): the one mark for rain, wind and snow, on the roster's "This week"
+     checklist. Its own token, so the position tints keep their one job. */
+  --sky:#5ab4ff;
+  --sky-rgb:90 180 255;
+
   /* The Bets slip (2026-09-25): one deep navy, so a slip reads as a solid object on the slate page.
      Grey one step up was 1.07:1 against the page and vanished; this separates by hue as well as
      brightness. The legs sink into the darker well. */

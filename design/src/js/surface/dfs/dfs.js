@@ -1,27 +1,38 @@
+/* One row above the lineups (STYLE.md audit, 2026-09-25): the strategy, which changes what the
+   three lineups are, and a chip naming the site and cap that opens the rest. It replaces a hero
+   line, a site switch and a two-box strategy toggle, three rows that put the first lineup at
+   294px on a phone. */
+function dfsBarHTML(){
+  const site = dfsSite();
+  const row = `<div class="setrow">
+    <button class="chip" data-topmode="greedy" aria-pressed="${TOP_MODE==="greedy"}">${t("dfs.top.greedy")}</button>
+    <button class="chip" data-topmode="contrarian" aria-pressed="${TOP_MODE==="contrarian"}">${t("dfs.top.contrarian")}</button>
+    <button type="button" class="chip setchip" data-dfspanel aria-expanded="${DFS_PANEL}" aria-label="${t("dfs.set.label")}">${t("dfs.set.chip", {site: site.label, cap: site.cap.toLocaleString()})}<span class="caret" aria-hidden="true"></span></button>
+  </div>`;
+  if (!DFS_PANEL) return row;
+  return row + `<div class="setpanel">
+    <span class="lbl">${t("dfs.book.label")}</span>
+    <button class="chip" data-dfssite="yahoo" aria-pressed="${DFS_SITE==="yahoo"}">${t("dfs.book.yahoo")}</button>
+    <button class="chip" data-dfssite="dk" aria-pressed="${DFS_SITE==="dk"}">${t("dfs.book.dk")}</button>
+    <span style="flex:1"></span>
+    ${explainButtonHTML("dfs")}
+    <span class="lbl">${t("dfs.top.greedy")}: ${t("dfs.top.greedySub")} · ${t("dfs.top.contrarian")}: ${t("dfs.top.contrarianSub")}</span>
+  </div>`;
+}
+function wireDfsBar(v){
+  v.querySelectorAll("[data-dfspanel]").forEach(b => b.addEventListener("click", () => { DFS_PANEL = !DFS_PANEL; render(); }));
+}
+
 function dfsSurfaceHTML(){
   const site = dfsSite();
-  return `<section class="hero slim">
-    <div class="wrap hero-in">
-      <div>
-        <div class="hero-eyebrow" style="--tint:var(--lime)">
-          <span class="league-mark"></span><span class="lbl">${t("dfs.hero.eyebrow", {site: site.label, cap: site.cap.toLocaleString()})}</span>
-        </div>
-        <div class="modes-sub dock">
-          <span class="lbl" style="margin-right:8px">${t("dfs.book.label")}</span>
-          <button class="mode-sub" data-dfssite="yahoo" aria-pressed="${DFS_SITE==="yahoo"}">${t("dfs.book.yahoo")}</button>
-          <button class="mode-sub" data-dfssite="dk" aria-pressed="${DFS_SITE==="dk"}">${t("dfs.book.dk")}</button>
-          ${explainButtonHTML("dfs")}
-        </div>
-      </div>
-    </div>
-  </section>
-  <div class="wrap">
+  return `<div class="wrap">
+    ${dfsBarHTML()}
     ${topLineupsHTML()}
     <div class="build" style="margin-top:24px">
       <div class="side">${dfsHTML()}</div>
       <div>
         ${marketHead("dfs")}
-        <div class="filters">
+        <div class="filters dfs-pos">
           <span class="lbl">${t("dfs.filter.position")}</span>
           ${["ALL","QB","RB","WR","TE","DST"].map(p=>`<button class="chip" data-dpos="${p}" aria-pressed="${DFS_POS===p}">${p}</button>`).join("")}
           <span style="flex:1"></span>

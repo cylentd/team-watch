@@ -1,0 +1,20 @@
+/* The settings chip and the panel it opens (2026-09-25, STYLE.md "one row above the data"): a
+   view keeps the one filter a reader changes most as its row, and everything else moves behind
+   this chip, which names what is set. Grid and DFS use it; Bets has its own (bets.css), the first
+   of the three. */
+.setrow{display:flex;align-items:center;gap:8px;margin-top:16px}
+.setrow > .chip{flex:none}
+.setchip{margin-left:auto;flex:none;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.setchip .caret{width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
+  transform:translateY(-2px) rotate(45deg);transition:transform var(--dur-spring) var(--spring)}
+.setchip[aria-expanded="true"] .caret{transform:translateY(1px) rotate(-135deg)}
+.setchip[aria-expanded="true"]{border-color:var(--lime);color:var(--lime)}
+.setpanel{margin-top:10px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px 8px;animation:bdrise .3s var(--ease) both}
+.setpanel .lbl{flex-basis:100%}
+.setpanel .lbl + .chip{margin-left:0}
+@media (max-width:430px){
+  .setrow{margin-top:12px}
+  .setrow > .chip:not(.setchip){padding-left:12px;padding-right:12px}
+  .setchip{padding-left:11px;padding-right:11px;gap:5px}
+}

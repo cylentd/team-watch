@@ -1,40 +1,51 @@
 /* ============================== THIS WEEK ============================== */
-/* The roster's brief (js/surface/teams/brief.js), in the same list language as the player rows.
-   The dot is the only colour and keeps the app's meanings: red out, amber a status, lime a claim
-   to make, grey a story. Where it sits depends on the width:
+/* The roster's checklist (js/surface/teams/brief.js, 2026-09-25). Each line is a mark in its
+   kind's colour, the fact, and a quieter second line saying what it touches. The mark's colour
+   keeps the app's meanings: red out, amber a status or a tough matchup, lime a move to make,
+   green the wire, sky blue the weather, grey the news. Where it sits depends on the width:
    - from 1100px: a sticky column beside the rows, so it never pushes a player down;
-   - 761-1099px: above the rows, up to three lines;
-   - a phone: one line, and only a decision (a status or a must-claim), else nothing at all --
-     the storyboard's roster shows seven players before the first scroll (responsive/lists.css). */
+   - below: above the rows, three lines and "Show all" (a phone scrolls to reach the roster, and
+     three lines are what decides whether it needs to). */
 .brief{margin-top:20px;max-width:720px}
-.brief-h{font-family:var(--ui);font-size:var(--t-2);font-weight:600;color:var(--ink-2);margin:0 0 4px}
+.brief-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 6px;
+  font-family:var(--disp);font-size:var(--t-4);font-weight:800;color:var(--ink)}
+.brief-h small{font-family:var(--ui);font-size:var(--t-1);font-weight:500;color:var(--ink-3)}
 .brief-line{
-  display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:10px 0;
-  appearance:none;background:none;border:0;border-bottom:1px solid var(--line);cursor:pointer;
-  font-family:var(--ui);font-size:var(--t-3);color:var(--ink);text-align:left;
+  display:grid;grid-template-columns:28px minmax(0,1fr) 12px;align-items:center;gap:12px;width:100%;
+  padding:10px 4px;appearance:none;background:none;border:0;border-bottom:1px solid var(--line);cursor:pointer;
+  font-family:var(--ui);font-size:var(--t-3);color:var(--ink);text-align:left;line-height:1.35;
+  transition:background .15s var(--ease);
 }
 .brief-line:first-of-type{border-top:1px solid var(--line)}
-.brief-line:hover .brief-txt{text-decoration:underline;text-decoration-color:var(--line-2)}
+.brief-line:hover{background:var(--panel-2)}
 .brief-line:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
-.brief-dot{width:8px;height:8px;border-radius:99px;flex:none;background:var(--ink-3)}
-.brief-line.down .brief-dot{background:var(--down)}
-.brief-line.warn .brief-dot{background:var(--amber)}
-.brief-line.lime .brief-dot{background:var(--lime)}
-.brief-txt{flex:1;min-width:0}
+.brief-ico{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:var(--panel-2);color:var(--ink-3)}
+.brief-ico svg{width:16px;height:16px}
+.brief-line.down .brief-ico{color:var(--down)}
+.brief-line.warn .brief-ico{color:var(--amber)}
+.brief-line.lime .brief-ico,.brief-line.ok .brief-ico{color:var(--lime)}
+.brief-line.up .brief-ico{color:var(--up)}
+.brief-line.sky .brief-ico{color:var(--sky)}
+.brief-txt{min-width:0}
+.brief-txt small{display:block;margin-top:2px;font-size:var(--t-2);color:var(--ink-3)}
 .brief-go{color:var(--ink-3);font-size:var(--t-4);line-height:1}
+.brief-more{appearance:none;background:none;border:0;cursor:pointer;padding:10px 4px;
+  font-family:var(--ui);font-size:var(--t-2);font-weight:600;color:var(--ink-2)}
+.brief-more:hover{color:var(--lime)}
 .brief-quiet{margin:0;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
   font-size:var(--t-2);color:var(--ink-3)}
 
 @media (min-width:1100px){
-  .rl{display:grid;grid-template-columns:minmax(0,1fr) 300px;column-gap:48px;align-items:start}
+  .rl{display:grid;grid-template-columns:minmax(0,1fr) 320px;column-gap:44px;align-items:start}
   .rl > .rl-rows{grid-column:1;grid-row:1;min-width:0}
   .rl > .brief{grid-column:2;grid-row:1;max-width:none;margin-top:22px;
     position:sticky;top:calc(var(--rl-stick, 0px) + 14px)}
-  .brief-line{font-size:var(--t-2);min-height:44px}
+  .brief-line{font-size:var(--t-2)}
+  .brief-txt small{font-size:var(--t-1)}
+  .brief-more{display:none}
 }
-
+.brief:not(.all) .brief-line:nth-of-type(n+4){display:none}
+@media (min-width:1100px){ .brief:not(.all) .brief-line:nth-of-type(n+4){display:grid} }
 @media (max-width:760px){
-  .brief{margin-top:4px}
-  .brief-h,.brief-quiet,.brief-line.soft,.brief-line ~ .brief-line{display:none}
-  .brief-line{border-top:0;min-height:44px}
+  .brief{margin-top:10px}
 }

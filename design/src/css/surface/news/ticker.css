@@ -37,12 +37,14 @@
 .nimpact{margin-top:9px;font-size:var(--t-2);color:var(--ink-2);line-height:1.55}
 
 /* The lead story: today's freshest Out item, on its own above the filter row -- bigger type and
-   a live pulse instead of a plain dot. The pulse and the red Out word say it is breaking. */
+   a live pulse instead of a plain dot. The pulse and the red Out word say it is breaking. It
+   pulses three times as the story arrives, then holds (STYLE.md motion rule 1: only data
+   arriving moves on its own). */
 .newslead{border:1px solid var(--line);background:var(--panel)}
 .newslead .ntitle{font-family:var(--disp);font-size:var(--t-5);font-weight:800;letter-spacing:-.01em;line-height:1.25}
 .newslead .ndesc{font-size:var(--t-2)}
 .newslead .nimpact{font-size:var(--t-2)}
 .livedot{width:7px;height:7px;border-radius:99px;background:var(--down);flex-shrink:0;
-  box-shadow:0 0 8px rgb(var(--down-rgb) / .8);animation:livedot 1.4s var(--ease) infinite}
+  box-shadow:0 0 8px rgb(var(--down-rgb) / .8);animation:livedot 1.4s var(--ease) 3}
 @keyframes livedot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
 

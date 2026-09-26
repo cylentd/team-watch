@@ -16,6 +16,8 @@ A reader on a phone scrolls to reach data, never to get past controls.
 | No sideways scroll inside a page that scrolls down. | Two axes to scroll is a maze on a phone. | Parlay's slip carousel |
 | A row of up to ~6 siblings stays visible (tabs, chips). A dropdown is for many options or rare changes. | A dropdown hides the options and costs two taps. | Sub-tabs kept over dropdowns (2026-09-25) |
 | What the reader builds (a slip, a lineup) lives on the bottom edge as a tray, not mid-page. | The thumb is already there, from any view. | Parlay slip, 875px down |
+| The row holds the filter changed most; the rest goes behind a settings chip at its end that names what is set (`chrome/setchip.css`). | One row that fits beats a row that scrolls its last options off the edge. | Grid (12 controls) and DFS (3 rows), audit 2026-09-25 |
+| A table too wide for a phone splits each row onto two lines; it never hides a column or scrolls. | Every number stays, with its label above it. | Grid and the DFS pool, audit 2026-09-25 |
 
 Budget, at 360x800, measured in the browser: **the first data starts by ~200px**. A view over it
 names the reason in its `DESIGN.md` section.
@@ -68,6 +70,8 @@ loads. A new curve or duration is a new token, never a literal in a component.
 3. Page, filter and tap through it: nothing jumps, and every motion ends where its thing lives.
 4. Every interaction has a render test (`tests/test_render.py`), and the golden diff shows only
    this view.
+5. `tests/test_style_rules.py` passes: nothing scrolls sideways at 360px (Leaders' faded stat
+   tabs are the one exception) and nothing loops while the page is idle.
 
 The playable motion reference is the Bets storyboard, published 2026-09-25:
 https://claude.ai/artifact/LQVFzVaNCNKhWWBHzHAL7L

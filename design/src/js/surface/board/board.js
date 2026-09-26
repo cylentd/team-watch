@@ -65,8 +65,8 @@ function bdChipsHTML(picks){
    is a Leaders idea, so "+ Compare" is too. */
 function bdControlsHTML(){
   const has = BD_MODE === "movers" ? p => POOL.some(r => r.pos === p) : p => bdAxes(p).length;
-  return `<div class="filters">
-    <span class="lbl">${t("board.filter.position")}</span>
+  // .setrow, not .filters: the chips fit a phone, so the row never scrolls (STYLE.md audit).
+  return `<div class="setrow" role="group" aria-label="${t("board.filter.position")}">
     ${BD_POSITIONS.filter(has).map(p =>
       `<button class="chip" data-bdpos="${p}" aria-pressed="${BD_POS === p}">${p}</button>`).join("")}
     ${BD_MODE === "movers" ? "" : `<span style="flex:1"></span>

@@ -9,15 +9,15 @@
    Reduced motion gets none of it: every rule sits in the no-preference block. */
 
 /* The place of a card in its row, for the stagger. sibling-index() is not in Safari yet. */
-:is(.cardgrid,.legs,.railscroll,.tk-grid) > :nth-child(n+2){--i:1}
-:is(.cardgrid,.legs,.railscroll,.tk-grid) > :nth-child(n+3){--i:2}
-:is(.cardgrid,.legs,.railscroll,.tk-grid) > :nth-child(n+4){--i:3}
-:is(.cardgrid,.legs,.railscroll,.tk-grid) > :nth-child(n+5){--i:4}
-:is(.cardgrid,.legs,.railscroll,.tk-grid) > :nth-child(n+6){--i:5}
-:is(.cardgrid,.legs,.railscroll,.tk-grid) > :nth-child(n+7){--i:6}
-:is(.cardgrid,.legs,.railscroll,.tk-grid) > :nth-child(n+8){--i:7}
-:is(.cardgrid,.legs,.railscroll,.tk-grid) > :nth-child(n+9){--i:8}
-:is(.cardgrid,.legs,.railscroll,.tk-grid) > :nth-child(n+10){--i:9}
+:is(.cardgrid,.legs,.railscroll,.tk-grid,.lu-grid) > :nth-child(n+2){--i:1}
+:is(.cardgrid,.legs,.railscroll,.tk-grid,.lu-grid) > :nth-child(n+3){--i:2}
+:is(.cardgrid,.legs,.railscroll,.tk-grid,.lu-grid) > :nth-child(n+4){--i:3}
+:is(.cardgrid,.legs,.railscroll,.tk-grid,.lu-grid) > :nth-child(n+5){--i:4}
+:is(.cardgrid,.legs,.railscroll,.tk-grid,.lu-grid) > :nth-child(n+6){--i:5}
+:is(.cardgrid,.legs,.railscroll,.tk-grid,.lu-grid) > :nth-child(n+7){--i:6}
+:is(.cardgrid,.legs,.railscroll,.tk-grid,.lu-grid) > :nth-child(n+8){--i:7}
+:is(.cardgrid,.legs,.railscroll,.tk-grid,.lu-grid) > :nth-child(n+9){--i:8}
+:is(.cardgrid,.legs,.railscroll,.tk-grid,.lu-grid) > :nth-child(n+10){--i:9}
 
 @media (prefers-reduced-motion:no-preference){
   /* Press. The later `transform` in each list wins over `all` for that one property, so the colour
@@ -47,7 +47,7 @@
 
   /* Enter: a new view's cards rise into place one after another, the first nine at most, so a long
      list never waits on its tail. The meters fill from empty on the same beat. */
-  #view.enter :is(.cardgrid,.legs,.railscroll,.tk-grid) > *{
+  #view.enter :is(.cardgrid,.legs,.railscroll,.tk-grid,.lu-grid) > *{
     animation:mi-rise var(--dur-spring) var(--spring) both;animation-delay:calc(var(--i, 0) * var(--enter-step))}
   #view.enter .udline .meter i,#view.enter .udconf .meter i{
     animation:mi-fill var(--dur-pop) var(--spring) both;animation-delay:calc(var(--i, 0) * var(--enter-step) + .12s)}

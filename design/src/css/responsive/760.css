@@ -38,6 +38,9 @@
   .navitem[aria-current="true"]{background:none;color:var(--ink)}
   .navitem[aria-current="true"]::after{display:none}
   .navsearch,.chatfab{flex:none;width:44px;padding:0;justify-content:center;color:var(--ink-2)}
+  .navsearch{min-width:0;margin:0;border:0;border-radius:0;background:none;align-self:stretch}
+  .navsearch:hover{background:none}
+  .navsearch .ix{width:20px;height:20px}
   .navsearch .ix,.chatfab .ix{display:inline-flex}
   .navsearch .full,.navsearch .abbr,.navkbd{display:none}
 
@@ -72,7 +75,7 @@
   .hero:not(.slim) .ts-team{font-family:var(--disp);font-size:var(--t-5);font-weight:700;max-width:none;
     overflow:hidden;text-overflow:ellipsis}
   .hero:not(.slim) .ts-chev{width:28px;height:28px}
-  .hero:not(.slim) .ts-menu{left:0;right:auto}
+  .hero:not(.slim) .ts-menu{left:auto;right:0}   /* under the chevron (hero.css) */
   .leaguechip{border:0;padding:0;letter-spacing:.06em;color:var(--ink-3)}
   .hero-rec + .leaguechip::before{content:"·";margin-right:10px;color:var(--ink-3)}
   .hero h1{margin-bottom:8px}

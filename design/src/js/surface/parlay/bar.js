@@ -21,7 +21,9 @@ function betsBarHTML(build){
     ${["ALL","QB","RB","WR","TE"].map(p=>`<button class="chip" data-mpos="${p}" aria-pressed="${MKT_POS===p}">${p === "ALL" ? t("parlay.option.all") : p}</button>`).join("")}
     ${set}</div>`;
   return `<div class="bets-bar bets-tabsrow">
-    <div class="bd-tabs" role="tablist" aria-label="${t("parlay.gallery.legsLabel")}">${galleryScopes(PARLAY_BOOK).map(([k, label]) =>
+    <div class="bd-tabs" role="tablist" aria-label="${t("parlay.gallery.legsLabel")}">${galleryScopes(PARLAY_BOOK)
+      // No Mix tab (2026-09-25): mix cards still show under All, and six tabs did not fit a phone.
+      .filter(([k]) => k !== "mix").map(([k, label]) =>
       `<button type="button" class="bd-tab" role="tab" data-scope="${k}" aria-selected="${SLIP_SCOPE===k}">${label}</button>`).join("")}</div>
     ${set}</div>`;
 }

@@ -1,5 +1,6 @@
-"""The roster as a lineup sheet (2026-09-25): the whole team on one phone screen, the bench beside
-the starters on a desktop. Runs on the ESPN fixture, the one with a bench."""
+"""The roster as a lineup sheet (2026-09-25): full-size rows on a phone in the cards' frame (it was
+squeezed to one screen, and David found it read small), the bench beside the starters on a
+desktop. Runs on the ESPN fixture, the one with a bench."""
 import re
 
 import pytest
@@ -15,14 +16,15 @@ def espn_roster(browser, page_file, viewport):
 
 
 @pytest.mark.render
-def test_a_phone_starter_row_is_a_sheet_line(browser, page_file):
+def test_a_phone_row_is_full_size(browser, page_file):
     ctx, page, errors = espn_roster(browser, page_file, (360, 660))
-    heights = page.eval_on_selector_all(".row.start", "els => els.map(e => e.getBoundingClientRect().height)")
-    assert heights and max(heights) <= 40, heights
+    heads = page.eval_on_selector_all(".row .head img, .row .head .fallback", "els => els.map(e => e.getBoundingClientRect().width)")
+    assert heads and min(heads) >= 40, heads
     slots = page.eval_on_selector_all(".row.start .slot", "els => els.map(e => e.textContent)")
     assert slots and not any(re.search(r"\d", s) for s in slots), slots   # RB1 prints RB, FLX2 prints FLX
-    cols = page.eval_on_selector(".board.two", "e => getComputedStyle(e).gridTemplateColumns.split(' ').length")
-    assert cols == 2
+    # The bench is one to a row, like the starters: every bench row as wide as a starter row.
+    widths = page.eval_on_selector_all(".row", "els => [...new Set(els.map(e => Math.round(e.getBoundingClientRect().width)))]")
+    assert len(widths) == 1, widths
     assert errors == []
     ctx.close()
 

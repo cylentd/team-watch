@@ -107,6 +107,12 @@
   border-bottom:1px solid var(--line);
 }
 .bd-tabs::-webkit-scrollbar{display:none}
+/* Leaders' six stats need ~470px, so on a phone the row fades out at its right edge: the half-seen
+   tab reads as "more this way" rather than as a cut (STYLE.md audit, 2026-09-25). Bets' tabs fit
+   and do not fade. The end padding lets the last tab scroll clear of the fade. */
+@media (max-width:430px){
+  .bd-tabs:not(.bets-tabsrow .bd-tabs){mask-image:linear-gradient(90deg,var(--shadow) calc(100% - 36px),transparent);padding-right:36px}
+}
 .bd-tab{
   appearance:none;border:0;background:none;cursor:pointer;flex:none;
   font-family:var(--ui);font-size:var(--t-2);font-weight:600;color:var(--ink-3);

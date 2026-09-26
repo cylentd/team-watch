@@ -29,6 +29,7 @@ let PICK_ERR = null;
 
 /* Which book the DFS tab shows -- Yahoo or DraftKings. */
 let DFS_SITE = "yahoo";
+let DFS_PANEL = false;   // the site panel under the DFS bar is open
 function dfsSite(){
   return DFS_SITE === "dk"
     ? {key:"dk", label:"DraftKings", cap:CAP_DK, pool:DFSPOOL_DK, lineup:DFS_DK, when:null}

@@ -1,7 +1,7 @@
 /* ============================== ROSTER: THE LINEUP SHEET ============================== */
 /* 2026-09-25 (js/surface/teams/board.js). A starter row is slot, head, name, snap-share line,
-   projection; a bench or out row is head, name, projection. The phone fits the whole team on one
-   screen: 40px starter rows, the bench two to a row (responsive/lists.css). A desktop puts the
+   projection; a bench or out row is head, name, projection. A phone keeps full-size rows, the
+   bench one to a row like the starters (responsive/lists.css). A desktop puts the
    bench column beside the starters instead of under them. --hd is the head's size in a row. */
 .board{margin-top:4px}
 .sheet-col{min-width:0}

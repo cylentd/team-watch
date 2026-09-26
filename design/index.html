@@ -113,6 +113,11 @@
   --jersey-away:#6b7080;
   --jersey-away-rgb:107 112 128;
 
+  /* Weather (2026-09-25): the one mark for rain, wind and snow, on the roster's "This week"
+     checklist. Its own token, so the position tints keep their one job. */
+  --sky:#5ab4ff;
+  --sky-rgb:90 180 255;
+
   /* The Bets slip (2026-09-25): one deep navy, so a slip reads as a solid object on the slate page.
      Grey one step up was 1.07:1 against the page and vanished; this separates by hue as well as
      brightness. The legs sink into the darker well. */
@@ -277,9 +282,9 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .brand-mark{
   width:11px;height:22px;background:var(--lime);
   box-shadow:0 0 18px rgb(var(--lime-rgb) / .5);
-  animation:pulse 2.6s var(--ease) infinite;
 }
-@keyframes pulse{0%,100%{opacity:1;transform:scaleY(1)}50%{opacity:.55;transform:scaleY(.72)}}
+/* The mark stands still (2026-09-25, STYLE.md motion rule 1): it pulsed forever on every page,
+   the one thing moving that nobody asked to move. */
 .brand-name{
   font-family:var(--disp); font-weight:800; font-size:var(--t-4);
   letter-spacing:-.02em; text-transform:uppercase;
@@ -400,7 +405,9 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .hero.team .ts-team{font-family:var(--disp);font-size:var(--t-6);font-weight:700;max-width:none;
   overflow:hidden;text-overflow:ellipsis}
 .hero.team .ts-chev{width:30px;height:30px}
-.hero.team .ts-menu{left:0;right:auto}
+/* The menu opens under the chevron, the thing that was tapped, at the title's right end; anchored
+   left it appeared across the title from it (2026-09-25). */
+.hero.team .ts-menu{left:auto;right:0}
 .hero.team .hero-rec{display:inline}
 .hero.team .leaguechip{border:0;padding:0;letter-spacing:.06em;color:var(--ink-3)}
 .hero.team .leaguechip:hover{color:var(--ink)}
@@ -497,13 +504,15 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .nimpact{margin-top:9px;font-size:var(--t-2);color:var(--ink-2);line-height:1.55}
 
 /* The lead story: today's freshest Out item, on its own above the filter row -- bigger type and
-   a live pulse instead of a plain dot. The pulse and the red Out word say it is breaking. */
+   a live pulse instead of a plain dot. The pulse and the red Out word say it is breaking. It
+   pulses three times as the story arrives, then holds (STYLE.md motion rule 1: only data
+   arriving moves on its own). */
 .newslead{border:1px solid var(--line);background:var(--panel)}
 .newslead .ntitle{font-family:var(--disp);font-size:var(--t-5);font-weight:800;letter-spacing:-.01em;line-height:1.25}
 .newslead .ndesc{font-size:var(--t-2)}
 .newslead .nimpact{font-size:var(--t-2)}
 .livedot{width:7px;height:7px;border-radius:99px;background:var(--down);flex-shrink:0;
-  box-shadow:0 0 8px rgb(var(--down-rgb) / .8);animation:livedot 1.4s var(--ease) infinite}
+  box-shadow:0 0 8px rgb(var(--down-rgb) / .8);animation:livedot 1.4s var(--ease) 3}
 @keyframes livedot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
 
 /* ── css/component/rule.css ── */
@@ -535,8 +544,8 @@ html{scrollbar-color:var(--line-2) var(--void)}
 /* ── css/surface/teams/roster.css ── */
 /* ============================== ROSTER: THE LINEUP SHEET ============================== */
 /* 2026-09-25 (js/surface/teams/board.js). A starter row is slot, head, name, snap-share line,
-   projection; a bench or out row is head, name, projection. The phone fits the whole team on one
-   screen: 40px starter rows, the bench two to a row (responsive/lists.css). A desktop puts the
+   projection; a bench or out row is head, name, projection. A phone keeps full-size rows, the
+   bench one to a row like the starters (responsive/lists.css). A desktop puts the
    bench column beside the starters instead of under them. --hd is the head's size in a row. */
 .board{margin-top:4px}
 .sheet-col{min-width:0}
@@ -1019,7 +1028,11 @@ html{scrollbar-color:var(--line-2) var(--void)}
 @keyframes pk-strain{0%,100%{translate:0 0}50%{translate:.6px -.4px}}
 .pack-hint{margin:10px 0 0;text-align:center;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.14em;color:var(--ink-3)}
 .pack-done{display:block;margin:14px auto 0}
-.rmode .rm-again{margin-left:auto}
+/* "Rip again" belongs to Cards, so it sits right after that chip as a quieter action, not at the
+   far end of the row where it floated over the gap between the columns (2026-09-25). */
+.rmode .rm-again{margin-left:4px;display:inline-flex;align-items:center;gap:6px;border-color:transparent;background:none;color:var(--ink-2)}
+.rmode .rm-again:hover{color:var(--lime)}
+.rmode .rm-again svg{width:14px;height:14px}
 /* ── css/surface/teams/packshow.css ── */
 /* ============================== ROSTER: THE PACK'S STAGE ============================== */
 /* 2026-09-25 (js/surface/teams/packshow.js, packdeal.js, packfx.js). A dark room over the page:
@@ -1116,44 +1129,55 @@ body.pk-open{overflow:hidden}
 .pk-fx{position:fixed;inset:0;width:100vw;height:100vh;z-index:58;pointer-events:none}
 /* ── css/surface/teams/brief.css ── */
 /* ============================== THIS WEEK ============================== */
-/* The roster's brief (js/surface/teams/brief.js), in the same list language as the player rows.
-   The dot is the only colour and keeps the app's meanings: red out, amber a status, lime a claim
-   to make, grey a story. Where it sits depends on the width:
+/* The roster's checklist (js/surface/teams/brief.js, 2026-09-25). Each line is a mark in its
+   kind's colour, the fact, and a quieter second line saying what it touches. The mark's colour
+   keeps the app's meanings: red out, amber a status or a tough matchup, lime a move to make,
+   green the wire, sky blue the weather, grey the news. Where it sits depends on the width:
    - from 1100px: a sticky column beside the rows, so it never pushes a player down;
-   - 761-1099px: above the rows, up to three lines;
-   - a phone: one line, and only a decision (a status or a must-claim), else nothing at all --
-     the storyboard's roster shows seven players before the first scroll (responsive/lists.css). */
+   - below: above the rows, three lines and "Show all" (a phone scrolls to reach the roster, and
+     three lines are what decides whether it needs to). */
 .brief{margin-top:20px;max-width:720px}
-.brief-h{font-family:var(--ui);font-size:var(--t-2);font-weight:600;color:var(--ink-2);margin:0 0 4px}
+.brief-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 6px;
+  font-family:var(--disp);font-size:var(--t-4);font-weight:800;color:var(--ink)}
+.brief-h small{font-family:var(--ui);font-size:var(--t-1);font-weight:500;color:var(--ink-3)}
 .brief-line{
-  display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:10px 0;
-  appearance:none;background:none;border:0;border-bottom:1px solid var(--line);cursor:pointer;
-  font-family:var(--ui);font-size:var(--t-3);color:var(--ink);text-align:left;
+  display:grid;grid-template-columns:28px minmax(0,1fr) 12px;align-items:center;gap:12px;width:100%;
+  padding:10px 4px;appearance:none;background:none;border:0;border-bottom:1px solid var(--line);cursor:pointer;
+  font-family:var(--ui);font-size:var(--t-3);color:var(--ink);text-align:left;line-height:1.35;
+  transition:background .15s var(--ease);
 }
 .brief-line:first-of-type{border-top:1px solid var(--line)}
-.brief-line:hover .brief-txt{text-decoration:underline;text-decoration-color:var(--line-2)}
+.brief-line:hover{background:var(--panel-2)}
 .brief-line:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
-.brief-dot{width:8px;height:8px;border-radius:99px;flex:none;background:var(--ink-3)}
-.brief-line.down .brief-dot{background:var(--down)}
-.brief-line.warn .brief-dot{background:var(--amber)}
-.brief-line.lime .brief-dot{background:var(--lime)}
-.brief-txt{flex:1;min-width:0}
+.brief-ico{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:var(--panel-2);color:var(--ink-3)}
+.brief-ico svg{width:16px;height:16px}
+.brief-line.down .brief-ico{color:var(--down)}
+.brief-line.warn .brief-ico{color:var(--amber)}
+.brief-line.lime .brief-ico,.brief-line.ok .brief-ico{color:var(--lime)}
+.brief-line.up .brief-ico{color:var(--up)}
+.brief-line.sky .brief-ico{color:var(--sky)}
+.brief-txt{min-width:0}
+.brief-txt small{display:block;margin-top:2px;font-size:var(--t-2);color:var(--ink-3)}
 .brief-go{color:var(--ink-3);font-size:var(--t-4);line-height:1}
+.brief-more{appearance:none;background:none;border:0;cursor:pointer;padding:10px 4px;
+  font-family:var(--ui);font-size:var(--t-2);font-weight:600;color:var(--ink-2)}
+.brief-more:hover{color:var(--lime)}
 .brief-quiet{margin:0;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
   font-size:var(--t-2);color:var(--ink-3)}
 
 @media (min-width:1100px){
-  .rl{display:grid;grid-template-columns:minmax(0,1fr) 300px;column-gap:48px;align-items:start}
+  .rl{display:grid;grid-template-columns:minmax(0,1fr) 320px;column-gap:44px;align-items:start}
   .rl > .rl-rows{grid-column:1;grid-row:1;min-width:0}
   .rl > .brief{grid-column:2;grid-row:1;max-width:none;margin-top:22px;
     position:sticky;top:calc(var(--rl-stick, 0px) + 14px)}
-  .brief-line{font-size:var(--t-2);min-height:44px}
+  .brief-line{font-size:var(--t-2)}
+  .brief-txt small{font-size:var(--t-1)}
+  .brief-more{display:none}
 }
-
+.brief:not(.all) .brief-line:nth-of-type(n+4){display:none}
+@media (min-width:1100px){ .brief:not(.all) .brief-line:nth-of-type(n+4){display:grid} }
 @media (max-width:760px){
-  .brief{margin-top:4px}
-  .brief-h,.brief-quiet,.brief-line.soft,.brief-line ~ .brief-line{display:none}
-  .brief-line{border-top:0;min-height:44px}
+  .brief{margin-top:10px}
 }
 /* ── css/surface/teams/matchup.css ── */
 /* ============================== MATCHUP RANK ==============================
@@ -2170,8 +2194,17 @@ body:has(.search:not([hidden])) .chatfab{display:none}
 }
 .sr-none{padding:18px 16px;font-family:var(--ui);font-size:var(--t-3);color:var(--ink-2)}
 
-/* The nav bar's search slot: at the row's right end on a desktop, with the "/" it answers to. */
-.navsearch{border-left:1px solid var(--line)}
+/* The nav bar's search slot on a desktop (2026-09-25): a field, not a tab, sat right against chat
+   at the row's end, the two reading as the bar's tools. The row spreads its children, so without
+   the auto margin search floated alone mid-way, a wide gap between it and chat. The phone's bar
+   draws both as icons (760.css). */
+.navsearch{margin-left:auto;align-self:center;min-width:240px;justify-content:space-between;gap:10px;
+  margin-top:6px;margin-bottom:6px;padding:6px 12px;border:1px solid var(--line-2);border-radius:8px;background:var(--void);
+  font-family:var(--ui);font-weight:500;font-size:var(--t-2);text-transform:none;letter-spacing:0;color:var(--ink-3)}
+.navsearch:hover{border-color:var(--ink-3);background:var(--void);color:var(--ink-2)}
+.navsearch .ix{width:16px;height:16px}
+.navsearch .full{flex:1;text-align:left}
+.navsearch + .chatfab{border-left:0;margin-left:4px}
 .navkbd{
   font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink-3);
   border:1px solid var(--line-2);border-radius:3px;padding:1px 6px;
@@ -2373,9 +2406,8 @@ body:has(.connect:not([hidden])){overflow:hidden}
    everywhere else on the page -- active, focused, or yours.
    ============================================================ */
 
-/* Scrolls sideways rather than clipping. Seven stat columns plus a name cannot fit a phone at a
-   legible size, and the wrong answer is to hide three of them: a grid whose last column is Snap%
-   is not the same grid without it. The columns keep their width and the table moves. */
+/* Never hides a column: a grid whose last column is Snap% is not the same grid without it. On a
+   desktop the columns sit in one row; on a phone each row splits in two (below). */
 .utable{
   display:block;
   border:1px solid var(--line);
@@ -2544,6 +2576,22 @@ body:has(.connect:not([hidden])){overflow:hidden}
 
 .uspace{margin-left:10px}
 
+/* A phone reads each player on two lines (2026-09-25): name and team, then every stat under
+   them. Seven columns at ~44px fit 330px, so nothing is hidden and nothing scrolls sideways
+   (STYLE.md); the headers wrap in the UI face instead of ellipsising "CARR...". --un is the
+   position's column count, set on the table. */
+@media (max-width:430px){
+  .utable{overflow-x:visible}
+  .uhead,.urow{grid-template-columns:repeat(var(--un),minmax(0,1fr))}
+  .uhead>div:first-child,.uname{grid-column:1 / -3}
+  .uhead>div:nth-child(2),.uteam{grid-column:-3 / -1}
+  .uname{padding:6px 6px 2px}
+  .uteam{margin-top:4px}
+  .ucol{white-space:normal;line-height:1.15;font-family:var(--ui);font-size:var(--t-1);letter-spacing:0;
+    text-transform:none;padding:2px 1px}
+  .ucell{min-height:32px;font-size:var(--t-1)}
+}
+
 /* Type comes from .note (base.css): a source line is a sentence, not a label. */
 .ufoot{margin:10px 0 4px}
 /* ── css/surface/board/board.css ── */
@@ -2656,6 +2704,12 @@ body:has(.connect:not([hidden])){overflow:hidden}
   border-bottom:1px solid var(--line);
 }
 .bd-tabs::-webkit-scrollbar{display:none}
+/* Leaders' six stats need ~470px, so on a phone the row fades out at its right edge: the half-seen
+   tab reads as "more this way" rather than as a cut (STYLE.md audit, 2026-09-25). Bets' tabs fit
+   and do not fade. The end padding lets the last tab scroll clear of the fade. */
+@media (max-width:430px){
+  .bd-tabs:not(.bets-tabsrow .bd-tabs){mask-image:linear-gradient(90deg,var(--shadow) calc(100% - 36px),transparent);padding-right:36px}
+}
 .bd-tab{
   appearance:none;border:0;background:none;cursor:pointer;flex:none;
   font-family:var(--ui);font-size:var(--t-2);font-weight:600;color:var(--ink-3);
@@ -3642,22 +3696,9 @@ body:has(.connect:not([hidden])){overflow:hidden}
 .presets .chip{padding:5px 9px;font-size:var(--t-1)}
 
 /* ── css/surface/builder/strategy.css ── */
-/* Equal-width segmented control -- two roughly-equal-length options that read as one choice,
-   not a row of independent chips of whatever width their label happens to need. */
-.strategy{display:flex;border:1px solid var(--line-2);background:var(--panel);margin-top:16px}
-.strat-btn{
-  flex:1;appearance:none;background:none;cursor:pointer;border:0;border-right:1px solid var(--line-2);
-  padding:12px 10px;text-align:center;color:var(--ink-2);transition:all .18s var(--ease);
-}
-.strat-btn:last-child{border-right:0}
-.strat-btn:hover{background:var(--panel-2);color:var(--ink)}
-.strat-btn:active{transform:scale(.98)}
-.strat-btn .st-name{display:block;font-family:var(--disp);font-weight:800;font-size:var(--t-3);text-transform:uppercase;letter-spacing:.01em}
-.strat-btn .st-sub{display:block;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-top:3px}
-.strat-btn[aria-pressed="true"]{background:rgb(var(--lime-rgb) / .08);color:var(--lime)}
-.strat-btn[aria-pressed="true"] .st-sub{color:var(--lime);opacity:.75}
+/* The DFS strategy toggle (a two-box segmented control) became two chips in the DFS bar on
+   2026-09-25; what is left here is the slip's pending state. */
 .bigedge.pending{color:var(--ink-3);font-size:var(--t-5);font-weight:400;letter-spacing:.02em;text-transform:uppercase;padding:8px 0}
-
 /* ── css/surface/builder/side.css ── */
 /* The right column (slip + model card) sticks as one and scrolls inside itself when taller than
    the viewport, so the card is never hidden under a sticky slip. */
@@ -3801,7 +3842,10 @@ body:has(.connect:not([hidden])){overflow:hidden}
    (underdog-list.css), .lgrid DraftKings' one-line cards (legs.css). Each rule here is a class
    deeper than the list rule it reshapes, so it wins over responsive/760.css, which comes later.
    Opening a line's chevron (the game log) widens its card to the whole row: a chart needs room. */
-.pgrid,.lgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:start}
+/* Cards in a row share their top and bottom edges (STYLE.md, audit 2026-09-25): a two-call card
+   beside a three-call one stretches, its calls on top and the spare room under them, so the row
+   reads as one row rather than a ragged edge with gaps under the short cards. */
+.pgrid,.lgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:stretch}
 .pgrid > .pcard:has(.legx),.lgrid > .leg:has(.legx){grid-column:1/-1}
 
 /* Underdog: who and when on top, then one small block per call. */
@@ -3904,7 +3948,14 @@ body:has(.connect:not([hidden])){overflow:hidden}
 .bets-set[aria-expanded="true"] .bets-caret{transform:translateY(1px) rotate(-135deg)}
 .bets-set[aria-expanded="true"]{border-color:var(--lime);color:var(--lime)}
 .bets-set .abbr{display:none}
-@media (max-width:430px){ .bets-set .full{display:none} .bets-set .abbr{display:inline} }
+/* At 360px every tab and chip of the row stays on screen (STYLE.md: up to ~6 siblings stay
+   visible), so a phone gets tighter tabs and chips rather than a row that hides its last options. */
+@media (max-width:430px){
+  .bets-set .full{display:none} .bets-set .abbr{display:inline}
+  .bets-set{padding-left:10px;padding-right:10px;gap:5px}
+  .bets-tabsrow .bd-tab{padding-left:6px;padding-right:6px}
+  .bets-bar.filters .chip:not(.bets-set){padding-left:11px;padding-right:11px}
+}
 
 /* ---- the settings panel: book, kickoff, and Build's own three ---- */
 .bets-panel{margin-top:10px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);
@@ -3975,6 +4026,25 @@ body:has(.connect:not([hidden])){overflow:hidden}
 .odds-row.all .odds-bar > i{background:var(--lime)}
 /* ── css/surface/dfs/table.css ── */
 .dfstable .phead,.dfstable .prow{grid-template-columns:40px minmax(120px,1fr) 76px 54px 56px 50px 66px;min-width:0}
+/* A phone reads each pool row on two lines (2026-09-25): photo, name and the add button, then
+   salary, projection, value and ownership under the name. Every column stays and the table no
+   longer scrolls sideways (STYLE.md); the header takes the same shape, so each number keeps its
+   label above it. */
+@media (max-width:430px){
+  #view .dfstable{overflow-x:visible}
+  #view .dfstable .phead,#view .dfstable .prow{grid-template-columns:40px repeat(4,minmax(0,1fr)) auto;min-width:0;row-gap:4px}
+  #view .dfstable :is(.phead,.prow) > :nth-child(1){grid-column:1;grid-row:1 / span 2}
+  #view .dfstable :is(.phead,.prow) > :nth-child(2){grid-column:2 / 6;grid-row:1}
+  #view .dfstable :is(.phead,.prow) > :nth-child(7){grid-column:6;grid-row:1 / span 2;align-self:center}
+  #view .dfstable .phead > :nth-child(2){display:none}
+}
+/* The pool's six position chips fit a phone; the value note beside them wraps under them instead
+   of pushing the row sideways. */
+@media (max-width:430px){ #view .filters.dfs-pos{flex-wrap:wrap;overflow:visible;row-gap:8px} }
+/* The three lineups: one column on a phone, three across a desktop. */
+.lu-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;margin-top:14px;align-items:start}
+@media (min-width:760px){ .lu-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (min-width:960px){ .lu-grid{grid-template-columns:repeat(3,minmax(0,1fr))} }
 .dfsrow .chip{padding:5px 9px;font-size:var(--t-1)}
 .dfsrow .chip.go{border-color:var(--lime);color:var(--lime);background:rgb(var(--lime-rgb) / .08)}
 .dfsrow.ineligible{opacity:.4}
@@ -4078,15 +4148,15 @@ body:has(.connect:not([hidden])){overflow:hidden}
    Reduced motion gets none of it: every rule sits in the no-preference block. */
 
 /* The place of a card in its row, for the stagger. sibling-index() is not in Safari yet. */
-:is(.cardgrid,.legs,.railscroll,.tk-grid) > :nth-child(n+2){--i:1}
-:is(.cardgrid,.legs,.railscroll,.tk-grid) > :nth-child(n+3){--i:2}
-:is(.cardgrid,.legs,.railscroll,.tk-grid) > :nth-child(n+4){--i:3}
-:is(.cardgrid,.legs,.railscroll,.tk-grid) > :nth-child(n+5){--i:4}
-:is(.cardgrid,.legs,.railscroll,.tk-grid) > :nth-child(n+6){--i:5}
-:is(.cardgrid,.legs,.railscroll,.tk-grid) > :nth-child(n+7){--i:6}
-:is(.cardgrid,.legs,.railscroll,.tk-grid) > :nth-child(n+8){--i:7}
-:is(.cardgrid,.legs,.railscroll,.tk-grid) > :nth-child(n+9){--i:8}
-:is(.cardgrid,.legs,.railscroll,.tk-grid) > :nth-child(n+10){--i:9}
+:is(.cardgrid,.legs,.railscroll,.tk-grid,.lu-grid) > :nth-child(n+2){--i:1}
+:is(.cardgrid,.legs,.railscroll,.tk-grid,.lu-grid) > :nth-child(n+3){--i:2}
+:is(.cardgrid,.legs,.railscroll,.tk-grid,.lu-grid) > :nth-child(n+4){--i:3}
+:is(.cardgrid,.legs,.railscroll,.tk-grid,.lu-grid) > :nth-child(n+5){--i:4}
+:is(.cardgrid,.legs,.railscroll,.tk-grid,.lu-grid) > :nth-child(n+6){--i:5}
+:is(.cardgrid,.legs,.railscroll,.tk-grid,.lu-grid) > :nth-child(n+7){--i:6}
+:is(.cardgrid,.legs,.railscroll,.tk-grid,.lu-grid) > :nth-child(n+8){--i:7}
+:is(.cardgrid,.legs,.railscroll,.tk-grid,.lu-grid) > :nth-child(n+9){--i:8}
+:is(.cardgrid,.legs,.railscroll,.tk-grid,.lu-grid) > :nth-child(n+10){--i:9}
 
 @media (prefers-reduced-motion:no-preference){
   /* Press. The later `transform` in each list wins over `all` for that one property, so the colour
@@ -4116,7 +4186,7 @@ body:has(.connect:not([hidden])){overflow:hidden}
 
   /* Enter: a new view's cards rise into place one after another, the first nine at most, so a long
      list never waits on its tail. The meters fill from empty on the same beat. */
-  #view.enter :is(.cardgrid,.legs,.railscroll,.tk-grid) > *{
+  #view.enter :is(.cardgrid,.legs,.railscroll,.tk-grid,.lu-grid) > *{
     animation:mi-rise var(--dur-spring) var(--spring) both;animation-delay:calc(var(--i, 0) * var(--enter-step))}
   #view.enter .udline .meter i,#view.enter .udconf .meter i{
     animation:mi-fill var(--dur-pop) var(--spring) both;animation-delay:calc(var(--i, 0) * var(--enter-step) + .12s)}
@@ -4135,6 +4205,27 @@ body:has(.connect:not([hidden])){overflow:hidden}
 @keyframes mi-pop{from{scale:1.22}}
 @keyframes mi-flash{from{background:rgb(var(--lime-rgb) / .16)}}
 @keyframes mi-slide{from{opacity:0;translate:-12px 0}}
+/* ── css/chrome/setchip.css ── */
+/* The settings chip and the panel it opens (2026-09-25, STYLE.md "one row above the data"): a
+   view keeps the one filter a reader changes most as its row, and everything else moves behind
+   this chip, which names what is set. Grid and DFS use it; Bets has its own (bets.css), the first
+   of the three. */
+.setrow{display:flex;align-items:center;gap:8px;margin-top:16px}
+.setrow > .chip{flex:none}
+.setchip{margin-left:auto;flex:none;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.setchip .caret{width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
+  transform:translateY(-2px) rotate(45deg);transition:transform var(--dur-spring) var(--spring)}
+.setchip[aria-expanded="true"] .caret{transform:translateY(1px) rotate(-135deg)}
+.setchip[aria-expanded="true"]{border-color:var(--lime);color:var(--lime)}
+.setpanel{margin-top:10px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px 8px;animation:bdrise .3s var(--ease) both}
+.setpanel .lbl{flex-basis:100%}
+.setpanel .lbl + .chip{margin-left:0}
+@media (max-width:430px){
+  .setrow{margin-top:12px}
+  .setrow > .chip:not(.setchip){padding-left:12px;padding-right:12px}
+  .setchip{padding-left:11px;padding-right:11px;gap:5px}
+}
 /* ── css/responsive/960.css ── */
 /* ============================== RESPONSIVE ============================== */
 @media (max-width:960px){
@@ -4191,6 +4282,9 @@ body:has(.connect:not([hidden])){overflow:hidden}
   .navitem[aria-current="true"]{background:none;color:var(--ink)}
   .navitem[aria-current="true"]::after{display:none}
   .navsearch,.chatfab{flex:none;width:44px;padding:0;justify-content:center;color:var(--ink-2)}
+  .navsearch{min-width:0;margin:0;border:0;border-radius:0;background:none;align-self:stretch}
+  .navsearch:hover{background:none}
+  .navsearch .ix{width:20px;height:20px}
   .navsearch .ix,.chatfab .ix{display:inline-flex}
   .navsearch .full,.navsearch .abbr,.navkbd{display:none}
 
@@ -4225,7 +4319,7 @@ body:has(.connect:not([hidden])){overflow:hidden}
   .hero:not(.slim) .ts-team{font-family:var(--disp);font-size:var(--t-5);font-weight:700;max-width:none;
     overflow:hidden;text-overflow:ellipsis}
   .hero:not(.slim) .ts-chev{width:28px;height:28px}
-  .hero:not(.slim) .ts-menu{left:0;right:auto}
+  .hero:not(.slim) .ts-menu{left:auto;right:0}   /* under the chevron (hero.css) */
   .leaguechip{border:0;padding:0;letter-spacing:.06em;color:var(--ink-3)}
   .hero-rec + .leaguechip::before{content:"·";margin-right:10px;color:var(--ink-3)}
   .hero h1{margin-bottom:8px}
@@ -4322,24 +4416,19 @@ body:has(.connect:not([hidden])){overflow:hidden}
 /* The phone's lists (2026-09-24): every list row is who, which way, one number. Split from
    760.css, same breakpoint, loaded right after it. */
 @media (max-width:760px){
-  /* The lineup sheet on a phone, 2026-09-25: all nine starters and the bench on one screen. A
-     starter row is 40px: slot, a 30px head, the name over "RB · BAL @ DAL", a short line, the
-     number. The bench goes two to a row with no line. Rank, the matchup ordinal, the verdict and
-     news tags all live one tap away in the profile; the Q/O badge stays on the head. */
-  .row{--hd:28px;gap:8px;padding:2px 0;border-radius:0}
+  /* The lineup sheet on a phone. It was squeezed to fit the whole team on one screen (28px heads,
+     the bench two to a row in initials) and read as small beside the cards; since 2026-09-25 (late)
+     it keeps the cards' frame: full-width rows, a 40px head, the full name, the bench one to a row
+     like the starters. Rank, the matchup ordinal, the verdict and news tags stay one tap away in
+     the profile; the Q/O badge stays on the head. */
+  .row{gap:10px;padding:6px 0;border-radius:0}
   .hero.team{padding-top:12px}
-  .row.start{grid-template-columns:28px var(--hd) minmax(0,1fr) 44px 52px}
-  .row .nm-1 b{font-size:var(--t-2)}
-  .row .nm-2{margin-top:0;font-size:var(--t-1)}
-  .row .spark{width:44px;height:18px}
-  .rproj{font-size:var(--t-3)}
-  .rl-rows .rule{margin-top:12px}
+  .row.start{grid-template-columns:30px var(--hd) minmax(0,1fr) 48px 56px}
+  .row .nm-1 b{font-size:var(--t-3)}
+  .row .nm-2{margin-top:1px;font-size:var(--t-2)}
+  .row .spark{width:48px;height:20px}
+  .rl-rows .rule{margin-top:16px}
   .rl-rows .sheet-col:first-child > .rule:first-child{margin-top:8px}
-  .board.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:14px}
-  .board.two .row{gap:7px}
-  .board.two .rproj{font-size:var(--t-2)}
-  .board.two .nm-full,.board.two .nm-tm{display:none}
-  .board.two .nm-ini{display:inline}
   .nm-2 .mu-n{display:none}
   .vpill{display:block}
   /* Filter rows on a phone: one line that scrolls sideways, pill chips in the UI face. The
@@ -4391,7 +4480,9 @@ body:has(.connect:not([hidden])){overflow:hidden}
      and each row the kind line plus headline plus the scanner's read, clamped to two lines. The
      wire's own description is on the far side of the link. */
   .newswrap{display:flex;flex-direction:column}
-  .newswrap > .filters{order:-1;margin-top:4px!important}
+  /* Its five chips carry counts and need ~590px, so they wrap to two lines rather than scroll a
+     third of themselves off the edge (STYLE.md, 2026-09-25): two short rows, every kind in view. */
+  .newswrap > .filters{order:-1;margin-top:4px!important;flex-wrap:wrap;overflow:visible;row-gap:8px}
   .newswrap > .newslead{margin-top:10px}
   .newswrap > .newslist{margin-top:0!important}
   .newslead,.newslist{border:0;background:none;box-shadow:none}
@@ -4480,10 +4571,11 @@ body:has(.connect:not([hidden])){overflow:hidden}
   <div class="wrap navrow">
     <div class="nav" id="nav"></div>
     <!-- Search is not a view, so it is not in NAV: no hash, no aria-current. On a phone it takes
-         the bar's fifth column (760.css); on a desktop it sits at the row's right end. -->
-    <button class="navitem navsearch" id="navsearch" type="button" aria-haspopup="dialog" aria-controls="search">
+         the bar's fifth column (760.css); on a desktop it is a field at the row's right end, right
+         against chat (search.css). -->
+    <button class="navitem navsearch" id="navsearch" type="button" aria-haspopup="dialog" aria-controls="search" aria-label="Search players">
       <span class="ix"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg></span
-      ><span class="full">Search</span><span class="abbr">Search</span
+      ><span class="full">Search players</span><span class="abbr">Search</span
       ><kbd class="navkbd" aria-hidden="true">/</kbd>
     </button>
     <!-- Chat sits beside search, in the bar, not floating over the rows it would otherwise cover.
@@ -4580,7 +4672,7 @@ const LIVE_MARKET_STOCK = {"generated": "2026-09-25 05:59", "at": "2026-09-25T05
 const LIVE_SIGNALS = {"through_week": 3, "ready": true, "players": {"amonra-st-brown": {"series": [90.0, 95.0, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "devon-achane": {"series": [86.0, 76.0, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "cam-skattebo": {"series": [61.0, 59.0, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "tetairoa-mcmillan": {"series": [82.0, 80.0, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "tee-higgins": {"series": [72.0, 72.0, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "tony-pollard": {"series": [52.0, 55.0, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 4, "hot": false}, "george-kittle": {"series": [46.0, 48.0, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "dk-metcalf": {"series": [96.0, 97.0, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "brock-purdy": {"series": [100.0, 85.0, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "jordan-mason": {"series": [45.0, null, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "null": {"series": [], "verdict": null, "why": null, "news": 0, "hot": false}, "jared-goff": {"series": [100.0, 100.0, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "kalif-raymond": {"series": [60.0, 62.0, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "bo-nix": {"series": [100.0, 100.0, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "emanuel-wilson": {"series": [6.0, 41.0, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "dalton-schultz": {"series": [66.0, 68.0, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "matthew-stafford": {"series": [84.0, 100.0, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "derrick-henry": {"series": [54.0, 53.0, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "rashee-rice": {"series": [83.0, 79.0, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 1, "hot": false}, "pat-freiermuth": {"series": [73.0, 66.0, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "davante-adams": {"series": [54.0, 65.0, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "dallas-goedert": {"series": [95.0, 25.0, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 1, "hot": false}, "jameson-williams": {"series": [84.0, 97.0, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 0, "hot": false}, "josh-jacobs": {"series": [], "verdict": null, "why": null, "news": 0, "hot": false}, "rj-harvey": {"series": [51.0, null, null], "verdict": "NEW", "why": "no earlier weeks to compare; usage is a level, not a trend", "news": 2, "hot": false}, "cam-little": {"series": [], "verdict": null, "why": null, "news": 0, "hot": false}}};
 const BUILD = {"id": "734064a99722", "week": 3};
 
-const COPY = {"board.action.add": "+ Compare", "board.action.remove": "Remove {name}", "board.empty.noSheetSub": "THE SEASON SHEET ARRIVES WITH THE FIRST WEEK OF USAGE", "board.empty.noSheetTitle": "No stat sheet yet", "board.empty.thinSub": "NOBODY AT THIS POSITION HAS A NUMBER ON THIS STAT YET", "board.empty.thinTitle": "No leaders yet", "board.filter.position": "Position", "board.foot.all": "Ranked among {n} {pos}s on ff-jarvis's season sheet.", "board.foot.games": "{g} g", "board.foot.held": "Held out for too few games: {list}.", "board.foot.qualified": "Ranked among {n} {pos}s with {g}+ games.", "board.hero.elite": "Elite is {v}", "board.hero.meta": "{team} · {g} g", "board.hero.rank": "#1 of {n}", "board.label.carries": "{n} career carries", "board.label.caveat": "What he did, not what he will do.", "board.label.dropbacks": "{n} dropbacks", "board.label.flagGoalLine": "Goal-line runner", "board.label.games": "{n} games", "board.label.role": "Role", "board.label.style": "Style", "board.label.targets": "{n} career targets", "board.label.touches": "{n} touches", "board.lead.level": "Level — {n} stats each of {of}", "board.lead.noShared": "No stat has a number for both", "board.lead.one": "{name}'s rank on every {pos} stat", "board.lead.two": "{name} leads {n} of {of}", "board.more.hide": "Top 5 only", "board.more.range": "#{from}–{to} of {n}", "board.more.show": "Show all {n}", "board.note.fewGames": "{name} has {g} of the {min} games a rank needs.", "board.note.noSheet": "{name} is not on the season sheet — no usage to rank him on.", "board.num.adot": "aDOT", "board.num.afterContact": "After contact", "board.num.beforeContact": "Before contact", "board.num.breakaway": "Breakaway", "board.num.catchRate": "Catch rate", "board.num.designed": "Designed runs", "board.num.goalLine": "Goal line", "board.num.oppShare": "Opp share", "board.num.routeRate": "Route rate", "board.num.scramble": "Scrambles", "board.num.snapRate": "Snap rate", "board.num.tprr": "TPRR", "board.num.wopr": "WOPR", "board.num.yacShare": "YAC share", "board.role.committee": "Committee", "board.role.earlyDown": "Early down", "board.role.everyDown": "Every down", "board.role.goalLine": "Goal line", "board.role.inLine": "In line", "board.role.move": "Move", "board.role.rotational": "Rotational", "board.role.satellite": "Satellite", "board.role.situational": "Situational", "board.row.none": "no number", "board.style.complete": "Complete", "board.style.deepThreat": "Deep threat", "board.style.dualThreat": "Dual threat", "board.style.homeRun": "Home run", "board.style.oneCut": "One cut", "board.style.pocket": "Pocket", "board.style.possession": "Possession", "board.style.power": "Power", "board.style.scrambler": "Scrambler", "board.style.yac": "Yards after catch", "board.tabs.label": "Stat", "builder.explain.title": "How this works", "chat.claude": "Claude", "chat.close": "Close chat", "chat.empty": "No questions yet today.", "chat.error.network": "Could not reach the server. Try again.", "chat.error.nopass": "Enter the passphrase first.", "chat.intro": "Three questions a day. It sees the players you name, their usage and this week's numbers.", "chat.limit.left": "{n} of {of} questions left today", "chat.limit.none": "Out of questions until tomorrow", "chat.open": "Ask about your teams", "chat.pass.forget": "Forget passphrase", "chat.pass.hint": "Stored in this browser only. It is what keeps this endpoint off a stranger's bill.", "chat.pass.label": "Passphrase", "chat.pass.placeholder": "The one set in Vercel", "chat.pass.save": "Save", "chat.placeholder": "Start Achane or Pollard this week?", "chat.send": "Ask", "chat.thinking": "Thinking…", "chat.title": "Ask about your teams", "chat.you": "You", "chrome.badge.defaultFull": "Sample signals — skill not wired", "chrome.badge.dfsLiveAbbr": "Pool live", "chrome.badge.dfsLiveFull": "Live Yahoo pool · rest of app sample", "chrome.badge.dfsSampleFull": "Sample DFS pool — no salary export loaded", "chrome.badge.newsLiveAbbr": "News live", "chrome.badge.newsLiveFull": "Live news", "chrome.badge.newsSampleFull": "Sample news — scanner not pulled", "chrome.badge.parlayLiveAbbr": "Props live", "chrome.badge.parlayLiveFull": "Live props", "chrome.badge.parlaySampleFull": "Sample props — BettingPros not pulled", "chrome.badge.sampleAbbr": "Sample data", "chrome.badge.teamsLiveAbbr": "Rosters live", "chrome.badge.teamsLiveFull": "Live rosters, trend, news & waivers", "chrome.brand.label": "Team Watch", "chrome.discord.tooltip": "FF news on Discord", "chrome.feed.dataCount": "DATA {ok}/{n}", "chrome.feed.dfs": "DFS", "chrome.feed.espn": "ESPN", "chrome.feed.neverPulled": "never pulled", "chrome.feed.noExport": "no salary export", "chrome.feed.notPulled": "not pulled yet", "chrome.feed.poolSize": "{n} players", "chrome.feed.props": "Props", "chrome.feed.refreshed": "refreshed", "chrome.feed.usage": "Usage", "chrome.feed.waiting": "waiting for week 1", "chrome.feed.yahoo": "Yahoo", "chrome.footer.sources": "SOURCES: YAHOO SITE · ESPN LEAGUE · NFLVERSE · BETTINGPROS · SLEEPER · FANTASYPROS NEWS", "chrome.fresh.new": "New data ↻", "chrome.fresh.tip": "This tab is showing an older build. Reload for the current one.", "chrome.fresh.week": "Week {week} ready ↻", "chrome.head.title": "Team Watch", "chrome.teamswitch.espn": "ESPN", "chrome.teamswitch.label": "{team}, switch team", "chrome.teamswitch.yahoo": "Yahoo", "chrome.weekpill.week": "Week {week}", "common.action.close": "Close", "common.action.remove": "Remove", "common.ordinal.nd": "{n}nd", "common.ordinal.rd": "{n}rd", "common.ordinal.st": "{n}st", "common.ordinal.th": "{n}th", "common.pager.next": "Next ›", "common.pager.page": "Page {page} of {pages}", "common.pager.prev": "‹ Prev", "connect.add": "+ Add a league", "connect.busy": "Connecting…", "connect.desk.how": "On espn.com, open DevTools → Application → Cookies → fantasy.espn.com and copy these two values.", "connect.desk.title": "On a computer", "connect.error.expired": "ESPN refused those cookies. Log in to espn.com again and reconnect.", "connect.error.generic": "That did not work. Check the link and try again.", "connect.error.offline": "No connection. Try again when you are back online.", "connect.error.private": "This league is private. Connect it with your ESPN login below.", "connect.go": "Connect", "connect.lede": "Paste your ESPN league link. Your two leagues stay here too.", "connect.link.label": "ESPN league link or ID", "connect.link.placeholder": "fantasy.espn.com/football/league?leagueId=…", "connect.list.down": "ESPN did not answer", "connect.list.expired": "Login expired: reconnect", "connect.list.title": "Connected here", "connect.phone.android": "Android (Chrome): bookmark this page, then edit the bookmark and paste the code as its URL.", "connect.phone.copied": "Copied", "connect.phone.copy": "Copy the bookmark code.", "connect.phone.copyBtn": "Copy", "connect.phone.iphone": "iPhone (Safari): bookmark any page, then open Bookmarks → Edit, tap it, and paste the code as its address.", "connect.phone.tap": "Open your league on espn.com in that browser, logged in, and open the bookmark. On Android, type its name in the address bar and tap it.", "connect.phone.title": "On your phone", "connect.pick.ask": "Which team in {league} is yours?", "connect.plat.espn": "ESPN", "connect.private.lm": "Easiest: ask your league manager to turn on public viewing (League → Settings → Basic Settings on espn.com). Then the link alone works.", "connect.private.summary": "Private league?", "connect.title": "Add a league", "connect.yahooSoon": "Yahoo sign-in is coming next.", "dfs.book.dk": "DraftKings", "dfs.book.label": "Book", "dfs.book.yahoo": "Yahoo", "dfs.card.load": "Load into my lineup", "dfs.card.of": "of ${n}", "dfs.card.stats": "{proj} PROJ · ~{own}% PROJ OWN", "dfs.card.title": "Lineup {n}", "dfs.card.titleBest": "★ Best · Lineup {n}", "dfs.empty.noPlayers": "NO PLAYERS AT THAT POSITION", "dfs.explain.note": "<b>PROJ<\/b> is the model's fantasy points on Yahoo scoring — its yards, receptions and touchdown rates for this week, half-PPR, for every player it has a rate for and not only the ones a book prices. A player with no game log at all (a rookie) wears a <b>LINE<\/b>: his own line this week, read as a role. Whoever is left — the deep bench, K, DST — wears a <b>Y<\/b>: Yahoo's last-season average, rescaled to the model's level at his position, a placeholder rather than a read. No site publishes real ownership before lock — PROJ OWN is a rank-based estimate, same idea any pre-lock ownership projection tool uses.", "dfs.explain.step1": "<b>Greedy<\/b> builds the highest-projected lineup — what most of the field lands on. <b>Non-chalk<\/b> sits the single most-projected play at each position and trades a little projection for a lineup the field isn't all rostering, which is the point of a GPP.", "dfs.explain.step2": "Swipe the lineups below, tap <b>Load into my lineup<\/b> to start from one.", "dfs.explain.step3": "Fill or swap slots from the pool underneath.", "dfs.filter.position": "Position", "dfs.filter.valueNote": "Value = points per ${n}", "dfs.hero.eyebrow": "{site} · ${cap} cap", "dfs.lineup.cancel": "Cancel", "dfs.lineup.export": "Export lineup", "dfs.lineup.filled": "{n}/{of} filled", "dfs.lineup.left": "${n} left", "dfs.lineup.leftFor": "LEFT FOR {n} SLOT{s}", "dfs.lineup.orSep": ", or ", "dfs.lineup.own": "{n}% OWN", "dfs.lineup.pickFromPool": "Pick from the pool", "dfs.lineup.picking": "Picking <b>{slot}<\/b> — tap a player below", "dfs.lineup.proj": "{v} PROJ", "dfs.lineup.projected": "PROJECTED", "dfs.lineup.spent": "SPENT", "dfs.lineup.summedOwn": "SUMMED OWNERSHIP", "dfs.lineup.tapBelow": "Tap a player below", "dfs.lineup.title": "My {site} lineup", "dfs.market.fetched": "Fetched {when}", "dfs.market.heading": "{site} DFS player pool", "dfs.market.lined": "the book's line for {n} with no game log (LINE)", "dfs.market.modeled": "projections: the model for {n}", "dfs.market.noExport": "No salary export loaded", "dfs.market.rest": "Yahoo's FPPG rescaled for the rest (Y)", "dfs.market.sample": "SAMPLE", "dfs.market.source": "{n} players · ${cap} cap · salaries as posted", "dfs.pager.players": "{n} player{s}", "dfs.pick.noSlot": "No open {pos} slot — tap one to swap instead", "dfs.pick.wrongPos": "{name} is {pos}, not {slot}", "dfs.row.add": "+ ADD", "dfs.row.swapIn": "SWAP IN", "dfs.row.wrongPos": "WRONG POS", "dfs.table.own": "Own", "dfs.table.player": "Player", "dfs.table.proj": "Proj", "dfs.table.salary": "Salary", "dfs.table.value": "Value", "dfs.tag.handcuff": "HANDCUFF", "dfs.tag.handcuffTitle": "{name} (the {pos} starter) is OUT/IR — cheapest teammate left at {pos}, first in line for the workload", "dfs.tag.line": "LINE", "dfs.tag.lineTitle": "No game log to project from — a rookie, or a player who missed last season. This is the book's own line for him this week read as a role: yards over the league's yards per carry is a carry count, receptions over the catch rate a target count. The market's read, not ours.", "dfs.tag.value": "BEST VALUE", "dfs.tag.valueTitle": "Highest points per $1,000 at {pos} in this pool", "dfs.tag.yahoo": "Y", "dfs.tag.yahooTitle": "The model has no rate for him and no book posts a line, so this is Yahoo's FPPG (last season's average) rescaled to the model's {pos} level. A guess at the model's scale, not a model read.", "dfs.top.contrarian": "Non-chalk", "dfs.top.contrarianSub": "For GPPs", "dfs.top.empty": "NOT ENOUGH PRICED PLAYERS AT EVERY POSITION TO FILL A LINEUP", "dfs.top.greedy": "Max points", "dfs.top.greedySub": "Best under the cap", "dfs.top.heading": "Top {n} lineups", "dfs.top.sub": "exact: most projected points the cap allows", "drawer.league.format": "Format", "drawer.league.meta": "{plat} · draft slot {slot} · record {record}", "live.asof": "updated {time}", "live.away.title": "while you were away", "live.bench": "Bench", "live.error.network": "Could not reach the scoreboard. It will try again.", "live.error.notServed": "Live scores need the deployed site. This page was opened from a file.", "live.idle": "no games left this week", "live.left": "{n} left", "live.loading": "Reading the scoreboard…", "live.next": "next kickoff {when}", "live.proj": "proj {pts}", "live.refresh": "Refresh", "live.seen": "got it", "live.starters": "Starters", "live.tocome": "{pts} to come", "live.unnamed": "—", "live.week": "Week {week}", "live.win": "{pct}% win", "market.name.PASS": "Pass yds", "market.name.REC": "Rec yds", "market.name.RECS": "Receptions", "market.name.RUSH": "Rush yds", "market.name.TD": "Anytime TD", "market.short.PASS": "PASS YDS", "market.short.REC": "REC YDS", "market.short.RECS": "REC", "market.short.RUSH": "RUSH YDS", "market.short.TD": "TD", "nav.group.bets.full": "Bets", "nav.group.bets.short": "Bets", "nav.group.gameday.full": "Gameday", "nav.group.gameday.short": "Live", "nav.group.scouting.full": "Players", "nav.group.scouting.short": "Players", "nav.group.teams.full": "My teams", "nav.group.teams.short": "Teams", "nav.search.label": "Search", "nav.sub.label": "Views in this section", "nav.tab.board": "Leaders", "nav.tab.build": "Build", "nav.tab.dfs": "DFS", "nav.tab.grid": "Grid", "nav.tab.live": "Live", "nav.tab.movers": "Movers", "nav.tab.news": "News", "nav.tab.parlay": "Slips", "nav.tab.roster": "Roster", "nav.tab.waivers": "Waivers", "news.empty.noStories": "NO {cat} STORIES RIGHT NOW", "news.filter.label": "Filter", "news.hero.eyebrow": "{n} items · newest first", "news.kind.all": "All", "news.kind.injury": "Injury", "news.kind.move": "Move", "news.kind.news": "Other", "news.kind.out": "Out", "news.kind.practice": "Practice", "parlay.bar.dk": "DraftKings", "parlay.bar.dkShort": "DK", "parlay.bar.settings": "Book, kickoff and filters", "parlay.bar.ud": "Underdog", "parlay.bar.udShort": "UD", "parlay.book.dk": "DraftKings", "parlay.book.underdog": "Underdog", "parlay.bookline.book": "BOOK {price}", "parlay.bookline.games": "{n} GP", "parlay.bookline.opp": "{team} D {pct}%", "parlay.call.anytime": "ANYTIME", "parlay.call.higher": "▲ HIGHER", "parlay.call.lower": "▼ LOWER", "parlay.call.none": "NO CALL", "parlay.call.pending": "PENDING", "parlay.call.td": "TD", "parlay.copy.book": "book", "parlay.copy.edge": "edge {n}", "parlay.copy.footer": "Team Watch · {lines}", "parlay.copy.lines": "lines {when}", "parlay.copy.model": "model", "parlay.copy.modelPct": "model {n}%", "parlay.copy.sampleLines": "sample lines", "parlay.copy.underdog": "Underdog", "parlay.detail.bookImplied": "BOOK IMPLIED", "parlay.detail.model": "MODEL", "parlay.detail.modelPending": "MODEL PENDING", "parlay.detail.noRolePriced": "NO ROLE PRICED", "parlay.detail.noYardsLine": "NO YARDS LINE", "parlay.detail.notPlaying": "NOT PLAYING", "parlay.empty.noLines": "NO LINES MATCH THAT FILTER", "parlay.explain.long": "<b>Long<\/b> slips are 4 or 5 picks from the same legs, priced at the standard board (10× for 4, 20× for 5). A long slip is worth more when every leg is, since the payout grows faster than the chance falls, but Underdog often pays less than the board: type the app's number into your slip and the verdict follows it. <b>Stacks<\/b> are a QB's passing yards and his team's two biggest receiving-yards lines, all lower, plus one pick from another game. A bad passing day sinks all three together, so they hit together 23.1% of the time in 2025 where three separate legs would hit 13%. Underdog pays less for same-team picks, so a stack needs the app's payout before it says anything.", "parlay.explain.note": "<b>MODEL %<\/b> is the chance the over hits, from the player's last 24 games, nudged by what his opponent allows to his position. <b>EDGE<\/b> is model % minus the book's break-even, in points — +5 means the model likes the over 5 points more than the price needs. Both live behind each line's chevron, not on the card.", "parlay.explain.step1": "Browse the slips most likely to hit below — on Underdog each card is receptions, TDs, or both, inside one day or kickoff window, and never mixes two days.", "parlay.explain.step2": "Tap <b>Load into my slip<\/b> to start from one, or scroll to the lines and tap any player to add a leg yourself.", "parlay.explain.step3": "Your slip prices itself as you go. <b>Copy slip<\/b> puts it on the clipboard, ready to type into the book.", "parlay.explain.tags": "<b>The big number is graded, not the model's raw confidence.<\/b> A receptions pick counts at the rate picks like it actually hit on 2025's closing lines (57% for a lower at 65%+, 42% for a higher), since the model's confidence ran about 8 points high; a touchdown counts at the model's P(score), which grading found honest. <b>Beats<\/b> means that chance is at least a quarter over what the payout needs (a 6× slip needs 16.7%, a 3× needs 33.3%). <b>Near<\/b> is inside that quarter, where a few points either way flips it. <b>Short of<\/b> means the payout asks for more. One season of grading, so every number here is an estimate.", "parlay.filter.kickoff": "Kickoff", "parlay.filter.market": "Market", "parlay.filter.mineOnly": "My players only", "parlay.filter.sort": "Sort", "parlay.gallery.empty": "LINE{s} THE MODEL WILL STAND BEHIND HERE · A CARD NEEDS 2 AT ONE KICKOFF", "parlay.gallery.legCount": "{n} leg{s}", "parlay.gallery.legsLabel": "Legs", "parlay.gallery.loadSlip": "Load slip", "parlay.gallery.modelTag": "MODEL", "parlay.gallery.sub": "Underdog: TDs at 50%+, receptions only on the lower side at 65%+ · below the bar = the best left at that kickoff · why under each leg", "parlay.hero.eyebrow": "{n} lines priced · week {week}", "parlay.hero.eyebrowNoWeek": "{n} lines priced", "parlay.log.aria": "last {n} games", "parlay.log.avg": "avg <b>{v}<\/b>", "parlay.log.cleared": "cleared {line} in <b>{hit} of {n}<\/b>", "parlay.log.rate": "rate <b>{v}<\/b>", "parlay.log.scored": "scored in <b>{hit} of {n}<\/b>", "parlay.log.weeks": "week numbers under the bars", "parlay.more.log": "Last {n} games against this line", "parlay.more.plain": "More on this line", "parlay.option.all": "All", "parlay.pager.lines": "{n} line{s}", "parlay.pager.players": "{n} player{s}", "parlay.pager.tdNote": "TD picks are the model's P(score), Underdog posts no TD line", "parlay.preset.blank": "Clear", "parlay.preset.mine": "My players", "parlay.scope.all": "All", "parlay.scope.long": "Long", "parlay.scope.mix": "Mix", "parlay.scope.recs": "Receptions", "parlay.scope.stack": "Stacks", "parlay.scope.tds": "TDs", "parlay.scope.yards": "Yards", "parlay.slip.allHit": "All picks hit", "parlay.slip.appPays": "Underdog pays", "parlay.slip.beats": "Beats {what}", "parlay.slip.best": "★ Best on screen", "parlay.slip.close": "Near {what}", "parlay.slip.combinedOdds": "COMBINED ODDS", "parlay.slip.copied": "Copied", "parlay.slip.copyFailed": "Copy failed", "parlay.slip.copyPicks": "Copy picks", "parlay.slip.copySlip": "Copy slip", "parlay.slip.corr": "TWO LEGS IN {game} — CORRELATED, PRICE IT AS ONE", "parlay.slip.dkMeta": "{n} legs · edge {d}", "parlay.slip.edgeLabel": "Model edge", "parlay.slip.edgeOverBook": "Model edge over the book", "parlay.slip.emptyBlank": "TAP A LINE BELOW, OR LOAD A CARD FROM THE GALLERY", "parlay.slip.emptyMine": "NONE OF MY PLAYERS PRICE AN EDGE RIGHT NOW", "parlay.slip.emptyUd": "NO PICK THE MODEL PUTS PAST {n}%", "parlay.slip.forLegs": "for {n} legs", "parlay.slip.higher": "Higher", "parlay.slip.legCount": "{n} legs", "parlay.slip.low": "Below the bar", "parlay.slip.lower": "Lower", "parlay.slip.modelProb": "MODEL PROBABILITY", "parlay.slip.notDk": "NOT DK'S", "parlay.slip.notUdPrice": "NOT AN UD PRICE", "parlay.slip.over": "Over", "parlay.slip.payHint": "e.g. 8.18", "parlay.slip.pending": "pending", "parlay.slip.pickCount": "{n} picks", "parlay.slip.returns25": "$25 RETURNS", "parlay.slip.short": "Short of {what}", "parlay.slip.tdModelRead": "TD PICKS ARE MODEL-READ", "parlay.slip.titleDk": "Your slip", "parlay.slip.titleMine": "My players", "parlay.slip.titleUd": "Underdog picks", "parlay.slip.toHitAll": "to hit all {n}", "parlay.slip.typePay": "Type the app's payout", "parlay.slip.udLine": "PICKS ARE AT UNDERDOG'S LINE", "parlay.slip.udMeta": "{n} picks · pays {x}×", "parlay.slip.udMetaStack": "{n} picks · same-team stack", "parlay.slip.verdictTip": "Graded chance {model}%. The slip needs {needs}%.", "parlay.slip.vsPayout": "the {x}× payout", "parlay.sort.conf": "Confidence", "parlay.sort.edge": "Edge", "parlay.sort.model": "Model %", "parlay.sort.ready": "Slip-ready", "parlay.tag.backupTitle": "Depth chart says {pos}{depth}. Not slip material.", "parlay.tag.cb": "CB {dir} {name}", "parlay.tag.cbTitle": "RotoBaller WR/CB matchups, week {week}: {v} vs {cb}. {why} — opinion, not in the number.", "parlay.tag.games": "{n} GAMES", "parlay.tag.gamesTitle": "The rate rests on {n} of his own games; a slip leg needs 8.", "parlay.tag.moved": "NEW TEAM", "parlay.tag.movedTitle": "Every game the model has read was for {team}. The rate knows nothing about the new offense or quarterback, and the model has no feature for a team change. Not slip material.", "parlay.tag.movedWas": "WAS {team}", "parlay.tag.noRole": "NO ROLE", "parlay.tag.noRoleTitle": "A touchdown line on a player the book prices no yards for.", "parlay.tag.out": "OUT", "parlay.tag.q": "Q", "parlay.tag.role": "ROLE", "parlay.tag.stale": "ROLE?", "parlay.tag.staleTitle": "The book's line is far from last season's rate: the role changed and the model has not caught up. Not slip material.", "parlay.tag.thin": "THIN LINE", "parlay.tag.thinTitle": "A line this small is confidence for free and Underdog prices it that way. Not slip material.", "parlay.tray.allHit": "All {n} hit", "parlay.tray.empty": "Tap a line to add it", "parlay.tray.label": "Your slip", "parlay.tray.legs": "leg{s}", "parlay.tray.picks": "pick{s}", "parlay.why.dk": "Model {model}% · price says {implied}%", "parlay.why.rate": "{rate} {unit}/gm over {games} games", "parlay.why.tdUsage": "From his usage", "pool.empty.noMoves": "NO {pos} MOVED {n}+ POINTS OF SHARE", "pool.foot": "Recent weeks against the ones before, through week {wk}. A card needs a move of {n}+ points of share. Tap a player for his numbers.", "pool.pager.teams": "{n} team{s}", "pool.share.car": "Carry share", "pool.share.snap": "Snap share", "pool.share.tgt": "Target share", "pool.wait.line": "Share moves need two weeks of data. Until then this list ranks by role share, and there is no chart.", "profile.athletic.agility": "Agility", "profile.athletic.broad": "Broad {v}″", "profile.athletic.burst": "Burst", "profile.athletic.cone": "3-cone {v}", "profile.athletic.forty": "40 {v}", "profile.athletic.label": "Athletic profile", "profile.athletic.missing": "{list}: not measured.", "profile.athletic.none": "No combine record.", "profile.athletic.pool": "Percentile among {pool}s who tested.", "profile.athletic.rookie": "Not yet measured.", "profile.athletic.shuttle": "Shuttle {v}", "profile.athletic.speed": "Speed", "profile.athletic.vertical": "Vertical {v}″", "profile.athletic.win": "Combine", "profile.axis.brkRate": "Big runs", "profile.axis.designedPct": "Designed runs", "profile.axis.dropbacks": "Dropbacks", "profile.axis.fdrr": "1st downs", "profile.axis.fpDb": "Pts/dropback", "profile.axis.glPct": "Goal line", "profile.axis.oppPct": "Share", "profile.axis.routePct": "Routes", "profile.axis.ryoe": "Yds over exp", "profile.axis.rz": "Red zone", "profile.axis.rzAtt": "RZ throws", "profile.axis.rzTgt": "RZ targets", "profile.axis.scrRate": "Scrambles", "profile.axis.tprr": "Targets/route", "profile.axis.wopp": "Workload", "profile.axis.wopr": "Target share", "profile.axis.yprr": "Yds/route", "profile.bio.bye": "bye {n}", "profile.count.targetOne": "1 target", "profile.count.targets": "{n} targets", "profile.coverage.colTargets": "Targets", "profile.coverage.colYpt": "Yds/tgt", "profile.coverage.label": "Against coverage · {span}", "profile.coverage.labelBare": "Against coverage", "profile.coverage.leadEven": "Same yds/target vs man and zone", "profile.coverage.leadMan": "{n} yds/target better vs man", "profile.coverage.leadZone": "{n} yds/target better vs zone", "profile.coverage.man": "Man", "profile.coverage.none": "Under 30 targets against man or zone.", "profile.coverage.zone": "Zone", "profile.def.brkRate": "Share of his carries that went 15+ yards.", "profile.def.designedPct": "His share of the team's called runs.", "profile.def.dropbacks": "Pass plays per game, sacks and scrambles included.", "profile.def.fdrr": "First downs per route run.", "profile.def.fpDb": "Fantasy points per dropback.", "profile.def.glPct": "His share of the team's carries inside the 5.", "profile.def.oppPct": "His share of the carries and targets the team's backs got.", "profile.def.routePct": "Share of his team's dropbacks he ran a route on.", "profile.def.ryoe": "Rushing yards over expected, per carry. Above zero is beating the blocking.", "profile.def.rz": "Touches per game inside the 20.", "profile.def.rzAtt": "Pass attempts per game inside the 20.", "profile.def.rzTgt": "Targets per game inside the 20.", "profile.def.scrRate": "Share of his dropbacks he ran on.", "profile.def.tprr": "Targets per route run.", "profile.def.wopp": "Weighted opportunity per game: carries + 2.5 × targets, the PPR exchange rate.", "profile.def.wopr": "Weighted opportunity: 1.5 × his share of the team's targets + 0.7 × his share of its air yards.", "profile.def.yprr": "Receiving yards per route run.", "profile.details.blended": "{targets} this season, blended {weight} with {prior} last season.", "profile.empty.none": "NO PROFILE YET", "profile.fact.age": "Age", "profile.fact.exp": "Exp", "profile.fact.height": "{ft}′{in}″", "profile.fact.lb": "{n} lb", "profile.fact.leaguePick": "Rd {pick}", "profile.fact.leaguePickBy": "Rd {pick} · by {by}", "profile.fact.nfl": "NFL", "profile.fact.nflPick": "#{n} overall · {yr}", "profile.fact.nflRound": "Rd {r}.{s} · {yr}", "profile.fact.rookie": "Rookie", "profile.fact.size": "Size", "profile.fact.years": "{n} yr pro", "profile.history.colCar": "Car", "profile.history.colOpp": "Opp", "profile.history.colPassTd": "Pass TD", "profile.history.colPassYds": "Pass Yds", "profile.history.colPts": "Pts", "profile.history.colRec": "Rec", "profile.history.colRecTd": "Rec TD", "profile.history.colRecYds": "Rec Yds", "profile.history.colRushTd": "Rush TD", "profile.history.colRushYds": "Rush Yds", "profile.history.colTgt": "Tgt", "profile.history.colWeek": "Wk", "profile.history.games": "{n} gm", "profile.history.label": "Weekly stats", "profile.history.pts": "pts, last game", "profile.history.total": "Season", "profile.lede.bye": "bye week", "profile.lede.easiest": "easiest", "profile.lede.matchup": "matchup", "profile.lede.ofN": "of {of}", "profile.lede.ofPos": "of {of} {pos}s", "profile.lede.proj": "projected", "profile.lede.projSub": "next game", "profile.lede.toughest": "toughest", "profile.line.kept": "usual starters played", "profile.line.label": "{team} offensive line", "profile.line.out": "linemen on the injury report", "profile.line.outList": "linemen on the injury report ({list})", "profile.line.outListOne": "lineman on the injury report ({list})", "profile.line.outOne": "lineman on the injury report", "profile.line.startersOut": "starters out", "profile.line.week": "Week {wk}", "profile.market.label": "Market", "profile.market.line.pts": "{pts} pts", "profile.market.line.rank": "{pos} rank #{rank}", "profile.market.line.role": "role {role} pts", "profile.market.line.z": "z {z}", "profile.market.model": "{pts} pts, the model's number", "profile.market.noMarket": "No market priced yet.", "profile.market.priced": "Priced: {markets}", "profile.matchup.easiest": "Easiest", "profile.matchup.none": "No matchup rank yet.", "profile.matchup.rank": "{nth} easiest of {of} for {pos}s", "profile.matchup.rankTough": "{nth} toughest of {of} for {pos}s", "profile.matchup.toughest": "Toughest", "profile.next.away": "@", "profile.next.bye": "Bye, or no schedule yet.", "profile.next.factor": "Raw factor", "profile.next.home": "vs", "profile.next.label": "Week {wk} {where} {opp}", "profile.next.labelBare": "Next game", "profile.next.legend": "League avg", "profile.next.man": "Man coverage rate · {season}", "profile.next.opponent": "{opp} defense", "profile.next.rz": "Red-zone rate allowed · {n} faced", "profile.next.stale": "STALE", "profile.next.staleTip": "New defensive coordinator since {season}", "profile.projection.label": "Projection", "profile.projection.muPass": "Pass yds", "profile.projection.muRec": "Rec yds", "profile.projection.muRecs": "Catches", "profile.projection.muRush": "Rush yds", "profile.projection.muTd": "TDs", "profile.projection.source": "ff-jarvis's model · {scoring} · fitted through {through}", "profile.rank.mark": "#{n}", "profile.rank.plain": "{pos}{n}", "profile.role.label": "Target depth", "profile.role.lead": "{zone} ({pos} avg {avg})", "profile.role.legend": "{pos} avg", "profile.role.side": "{pct} {side}", "profile.rz.count": "{n} of {team}", "profile.rz.label": "Red zone", "profile.rz.others": "{n} more", "profile.rz.share": "{pct} · {n} of {team}", "profile.rz.teamCarries": "of the team’s red-zone carries", "profile.rz.teamCarry": "red-zone carry", "profile.rz.teamTarget": "red-zone target", "profile.rz.teamTargets": "of the team’s red-zone targets", "profile.sheet.eliteTag": "ELITE", "profile.sheet.label": "Stat sheet: his rank at his position on every usage stat this week", "profile.sheet.meta": "of {of}", "profile.sheet.metaGames": "{g} gm · of {of}", "profile.sheet.partial": "{n} of {of} stats measured", "profile.side.label": "Middle vs outside", "profile.stat.overElite": "{gap} over the elite bar ({bar})", "profile.stat.underElite": "{gap} under the elite bar ({bar})", "profile.stat.week": "wk {n}", "profile.stat.weeks": "wk {a}–{b}", "profile.tab.bio": "Bio", "profile.tab.label": "Which part of his profile to show", "profile.tab.log": "Log", "profile.tab.matchup": "Matchup", "profile.tab.usage": "Usage", "profile.tag.teams": "On {n} of your teams", "profile.weather.dome": "Dome, no weather", "profile.weather.retractable": "roof may close", "profile.weather.temp": "{n}°F", "profile.weather.wind": "wind", "profile.weather.windFrom": "from {dir}", "profile.why.brkRate": "Where a back’s ceiling games come from.", "profile.why.designedPct": "Called runs are the rushing floor a scrambler does not have.", "profile.why.dropbacks": "Pace and game script. More plays, more chances.", "profile.why.fdrr": "Moving the chains keeps him on the field and keeps drives alive.", "profile.why.fpDb": "Efficiency per chance, so a low-volume week still counts.", "profile.why.glPct": "A quarterback who keeps it at the goal line is a quarterback who scores.", "profile.why.oppPct": "Whether the backfield is his or a committee.", "profile.why.routePct": "A receiver off the field cannot be targeted. This is his floor.", "profile.why.ryoe": "Separates the back from his offensive line.", "profile.why.rz": "Goal-line work is the difference between a flex and a starter.", "profile.why.rzAtt": "Red-zone volume is touchdown volume.", "profile.why.rzTgt": "Where touchdowns come from, and touchdowns are what swing a week.", "profile.why.scrRate": "Scrambling yards are free fantasy points his arm did not have to earn.", "profile.why.tprr": "How often the quarterback looks at him when he does run. Earned, not given.", "profile.why.wopp": "Total workload. The thing that survives a bad game.", "profile.why.wopr": "The single best predictor of a receiver scoring next week.", "profile.why.yprr": "Volume and efficiency in one number. The closest thing to a receiver grade.", "profile.win.n": "{n} wk", "profile.zone.behind": "Behind", "profile.zone.deep": "Deep", "profile.zone.intermediate": "Intermediate", "profile.zone.middle": "Middle", "profile.zone.outside": "Outside", "profile.zone.short": "Short", "profile.zoneRead.colFaced": "Tgts", "profile.zoneRead.colIndex": "Allows", "profile.zoneRead.colRank": "Softest", "profile.zoneRead.colZone": "His zone", "profile.zoneRead.empty": "Zone read starts about week 4 (defences need 25 targets in a zone).", "profile.zoneRead.label": "Zone read", "profile.zoneRead.untested": "UNTESTED", "search.action.cancel": "Cancel", "search.empty.none": "No “{q}” in this week’s data", "search.input.label": "Search players", "search.input.placeholder": "Player, team or position", "search.list.label": "Players", "search.list.recent": "Recent", "search.list.roster": "Your roster", "strip.caption.caught": "caught at {spot} · {n} after the catch", "strip.caption.from": "from {qb}", "strip.control.next": "Next", "strip.control.pause": "Pause", "strip.control.play": "Play", "strip.control.prev": "Prev", "strip.control.scrub": "Scrub through the drive", "strip.control.view": "Field view, tap to switch", "strip.drive.untitled": "Drive", "strip.error.network": "Could not reach the game feed. Try again.", "strip.error.notPlayed": "This game has not been played yet.", "strip.error.notServed": "The drive strip needs the deployed site. This page was opened from a file.", "strip.key.inc": "incomplete", "strip.key.loss": "loss", "strip.key.pass": "pass", "strip.key.run": "run", "strip.loading": "Reading the game…", "strip.moment.air": "{n} in the air", "strip.moment.big": "BIG PLAY +{n}", "strip.moment.fg": "FIELD GOAL", "strip.moment.fgMissed": "NO GOOD", "strip.moment.fumble": "FUMBLE LOST", "strip.moment.int": "INTERCEPTED", "strip.moment.td": "TOUCHDOWN", "strip.moment.tdLong": "{n}-YARD TOUCHDOWN", "strip.moment.yac": "{n} after the catch", "strip.open.player": "Watch {name}'s drive", "strip.open.week": "Watch week {n}", "strip.score.hasBall": "has the ball", "strip.spot.fifty": "the 50", "strip.tag.fumble": "fumble", "strip.tag.fumbleLost": "fumble lost, {by} recovers", "strip.tag.fumbleOwn": "fumble, {by} recovers", "strip.tag.incomplete": "incomplete", "strip.tag.intercepted": "intercepted", "strip.title.at": "at", "strip.title.week": "Week {n}", "strip.unnamed": "—", "strip.view.fit": "Fit", "strip.view.pan": "Pan", "teams.brief.mustMany": "{n} must-claims on waivers", "teams.brief.mustOne": "A must-claim is on waivers", "teams.brief.newsMany": "News on {names}", "teams.brief.newsOne": "{name}: {n} new stories", "teams.brief.quiet": "Nothing needs you this week.", "teams.brief.status": "{name} is {status}", "teams.brief.statusMany": "{n} starters flagged: {names}", "teams.brief.title": "This week", "teams.card.defending": "Defending", "teams.card.defense": "Defense · {team}", "teams.card.dome": "DOME", "teams.card.flip": "{name}, tap to flip", "teams.card.implied": "{team} {n} PTS", "teams.card.kicker": "Kicker · {team}", "teams.card.kicking": "Kicking", "teams.card.lowerBetter": "Opponent's implied points: lower is better for a defense.", "teams.card.noForecast": "NO FORECAST", "teams.card.noLine": "NO LINE YET", "teams.card.oppImplied": "Opp pts", "teams.card.out": "OUT", "teams.card.outTip": "Not playing this week (Sleeper: {code})", "teams.card.outdoor": "OUTDOOR", "teams.card.pctTip": "{stat}: better than {p}% of {pos}s this week", "teams.card.profile": "Open profile", "teams.card.rain": "Rain", "teams.card.rank": "#{n} {pos}", "teams.card.rankStamp": "#{n}", "teams.card.retractable": "RETRACTABLE", "teams.card.roleWeek": "role · week {wk}", "teams.card.roof": "Roof", "teams.card.signedTip": "Signed: {pos}{rank} in week {wk}, {pts} pts", "teams.card.snap": "Snap share", "teams.card.spread": "Spread", "teams.card.teamImplied": "Team pts", "teams.card.thisWeek": "this week", "teams.card.total": "Total", "teams.card.wind": "{w} {d}", "teams.card.windLabel": "Wind", "teams.card.wxKick": "kick ↓", "teams.card.wxNote": "{kind} · {effect}", "teams.card.wxPass": "pass ↓", "teams.card.wxRain": "RAIN {n}%", "teams.card.wxRainWord": "RAIN", "teams.card.wxRun": "run ↑", "teams.card.wxSnow": "SNOW", "teams.card.wxTip": "{what} at kickoff · {effect}", "teams.card.wxWind": "WIND {n}", "teams.card.wxWindWord": "WIND", "teams.group.bench": "Bench", "teams.group.out": "Out / exempt", "teams.group.starters": "Starters", "teams.inj.doubtful": "DOUBTFUL", "teams.inj.out": "OUT", "teams.inj.q": "Q", "teams.inj.questionable": "QUESTIONABLE", "teams.inj.warnMany": "{n} starters will likely sit:", "teams.inj.warnOne": "1 starter will likely sit:", "teams.inj.withNote": "{s} · {note}", "teams.mode.cards": "Cards", "teams.mode.label": "Roster view", "teams.mode.sheet": "Sheet", "teams.pack.again": "Rip again", "teams.pack.cards": "CARDS", "teams.pack.closeLabel": "Close", "teams.pack.done": "<b>{name}<\/b> is the #{rank} {pos} this week.", "teams.pack.hint": "DRAG ACROSS THE TOP TO RIP", "teams.pack.lead": "Week {wk} is in. <b>{n} cards<\/b> in your pack: your top-12 players, and anyone who signed.", "teams.pack.open": "Open this week's pack", "teams.pack.side": "{season} SEASON", "teams.pack.signed": "signed", "teams.pack.stage": "This week's pack", "teams.pack.tapOpen": "TAP TO OPEN", "teams.pack.tier.c": "Common", "teams.pack.tier.one": "Legendary", "teams.pack.tier.r": "Uncommon", "teams.pack.tier.sig": "Epic", "teams.pack.tier.ur": "Rare", "teams.pack.weekWord": "WEEK", "teams.row.snapNone": "Snap share: fewer than two weeks played", "teams.row.snapTip": "Snap share, last week {n}%", "usage.band.low10": "Bottom 10%", "usage.band.low25": "Bottom 25%", "usage.band.middle": "Middle", "usage.band.top10": "Top 10%", "usage.band.top25": "Top 25%", "usage.empty.noGridSub": "nflverse publishes a week's usage the Tuesday after its games. Until then there is nothing to rank.", "usage.empty.noGridTitle": "No grid yet", "usage.empty.noPlayers": "NOBODY AT THIS POSITION THIS WEEK", "usage.filter.mine": "★ Mine", "usage.filter.position": "Position", "usage.filter.week": "Week", "usage.foot.source": "{n} players, {pos} week {week}. nflverse, via ff-jarvis model.season.usage. What he did, not what he will do.", "usage.key.changeNote": "Green up, red down, against the week before", "usage.key.label": "Colour", "usage.key.levelNote": "Percentile among qualified players at this position, this week", "usage.mode.change": "Change", "usage.mode.level": "Level", "usage.table.player": "Player", "usage.table.team": "Team", "waiver.card.at": "@ {opp}", "waiver.card.backTitle": "Evidence", "waiver.card.fa": "FA", "waiver.card.flipLabel": "Evidence for {name}", "waiver.card.profile": "Full profile ›", "waiver.card.turnBack": "‹ Front", "waiver.card.turnFront": "Evidence ›", "waiver.card.unknown": "Availability unknown", "waiver.card.usageRank": "{rank} in {stat}, week {wk}", "waiver.card.vs": "vs {opp}", "waiver.card.waiver": "Waivers · {when}", "waiver.card.waiverNoWhen": "On waivers", "waiver.empty.noPacket": "No waiver packet yet. ff-jarvis builds it in the morning refresh.", "waiver.empty.noWire": "Nobody on the wire is worth a claim this week.", "waiver.fold.spec": "Show {n} speculative", "waiver.fold.stash": "Show {n} to stash", "waiver.hero.claimDay": "Claim day", "waiver.hero.clears": "Waivers clear {when}", "waiver.hero.faab": "FAAB ${n} left", "waiver.hero.must": "{n} must-claims", "waiver.hero.mustOne": "1 must-claim", "waiver.hero.none": "No waiver data for this league", "waiver.hero.wireWatch": "Wire watch", "waiver.injury.d": "Doubtful", "waiver.injury.ir": "IR", "waiver.injury.o": "Out", "waiver.injury.q": "Questionable", "waiver.lane.hole": "Empty slot", "waiver.lane.holeTip": "You cannot fill this starting slot: it scores zero until you do", "waiver.lane.injured": "Out now", "waiver.lane.injuredTip": "Hurt now: a stash for when he is back", "waiver.lane.insure": "Insurance", "waiver.lane.insureTip": "Next in line behind a healthy lead back", "waiver.lane.open": "Open work", "waiver.lane.openTip": "A back is out and he is next in that room", "waiver.lane.role": "Depth move", "waiver.lane.roleTip": "Moved up the depth chart this week", "waiver.lane.starter": "Beats a starter", "waiver.lane.starterTip": "Projects above one of your healthy starters in this league", "waiver.lane.usage": "Usage", "waiver.lane.usageTip": "Already on the field: his work is worth more than his price", "waiver.other.bench": ", bench over {over} {margin}", "waiver.other.fa": "{league}: FA", "waiver.other.mine": "{league}: on your team", "waiver.other.need": ", fills your {pos} need", "waiver.other.rostered": "{league}: rostered", "waiver.other.start": ", starts over {over} at {slot} {margin}", "waiver.other.unknown": "{league}: availability unknown", "waiver.other.waiver": "{league}: on waivers", "waiver.practice.dnp": "did not practice", "waiver.practice.fp": "full practice", "waiver.practice.lp": "limited practice", "waiver.proof.down": "▼", "waiver.proof.downTip": "Down from the week before", "waiver.proof.flat": "–", "waiver.proof.flatTip": "Same as the week before", "waiver.proof.noRank": "—", "waiver.proof.up": "▲", "waiver.proof.upTip": "Up from the week before", "waiver.rail.adds": "{n} teams added {name} this week", "waiver.rail.addsOne": "1 team added {name} this week", "waiver.rail.bench": "bench over {over}, {margin}", "waiver.rail.drop": "{by} dropped {name} ({pos}) · {what}", "waiver.rail.fa": "is FA", "waiver.rail.healthy": "healthy", "waiver.rail.kind.adds": "Adds", "waiver.rail.kind.drop": "Drop", "waiver.rail.kind.path": "Path", "waiver.rail.kind.status": "Status", "waiver.rail.need": "fills your {pos} need", "waiver.rail.none": "No wire moves since {day}", "waiver.rail.noneYet": "No wire moves yet", "waiver.rail.path": "{because} {why} → {name} {avail}", "waiver.rail.pathVerdict": "{path} · {what}", "waiver.rail.showAll": "Show all {n}", "waiver.rail.start": "starts over {over} at {slot}, {margin}", "waiver.rail.status": "{name}: {from} → {to}", "waiver.rail.title": "Breaking", "waiver.rail.unknown": "(availability unknown)", "waiver.rail.waiver": "is on waivers until {when}", "waiver.rail.waiverNoWhen": "is on waivers", "waiver.section.count": "· {n}", "waiver.section.more": "top 5 shown, {n} more not", "waiver.section.must": "Must claim", "waiver.section.watch": "Watch", "waiver.section.worth": "Worth a claim", "waiver.summary.rule": "RULE", "waiver.summary.ruleTip": "Built from a template: the written summary did not pass its fact check", "waiver.swap.bench": "Bench over {over}, {margin}", "waiver.swap.drop": " · drop {name}", "waiver.swap.need": "Fills your {pos} need", "waiver.swap.start": "Starts over {over} at {slot}, {margin}", "waiver.tier.must": "Must claim", "waiver.tier.spec": "Speculative", "waiver.tier.stash": "Stash", "waiver.tier.watch": "Watch", "waiver.tier.worth": "Worth a claim", "waiver.trend.label": "Week by week", "waiver.trend.point": "Week {wk}: {v}", "waiver.trend.week": "Week {a}", "waiver.trend.weeks": "Weeks {a}–{b}", "waiver.unit.perWeek": "{m}/wk"};
+const COPY = {"board.action.add": "+ Compare", "board.action.remove": "Remove {name}", "board.empty.noSheetSub": "THE SEASON SHEET ARRIVES WITH THE FIRST WEEK OF USAGE", "board.empty.noSheetTitle": "No stat sheet yet", "board.empty.thinSub": "NOBODY AT THIS POSITION HAS A NUMBER ON THIS STAT YET", "board.empty.thinTitle": "No leaders yet", "board.filter.position": "Position", "board.foot.all": "Ranked among {n} {pos}s on ff-jarvis's season sheet.", "board.foot.games": "{g} g", "board.foot.held": "Held out for too few games: {list}.", "board.foot.qualified": "Ranked among {n} {pos}s with {g}+ games.", "board.hero.elite": "Elite is {v}", "board.hero.meta": "{team} · {g} g", "board.hero.rank": "#1 of {n}", "board.label.carries": "{n} career carries", "board.label.caveat": "What he did, not what he will do.", "board.label.dropbacks": "{n} dropbacks", "board.label.flagGoalLine": "Goal-line runner", "board.label.games": "{n} games", "board.label.role": "Role", "board.label.style": "Style", "board.label.targets": "{n} career targets", "board.label.touches": "{n} touches", "board.lead.level": "Level — {n} stats each of {of}", "board.lead.noShared": "No stat has a number for both", "board.lead.one": "{name}'s rank on every {pos} stat", "board.lead.two": "{name} leads {n} of {of}", "board.more.hide": "Top 5 only", "board.more.range": "#{from}–{to} of {n}", "board.more.show": "Show all {n}", "board.note.fewGames": "{name} has {g} of the {min} games a rank needs.", "board.note.noSheet": "{name} is not on the season sheet — no usage to rank him on.", "board.num.adot": "aDOT", "board.num.afterContact": "After contact", "board.num.beforeContact": "Before contact", "board.num.breakaway": "Breakaway", "board.num.catchRate": "Catch rate", "board.num.designed": "Designed runs", "board.num.goalLine": "Goal line", "board.num.oppShare": "Opp share", "board.num.routeRate": "Route rate", "board.num.scramble": "Scrambles", "board.num.snapRate": "Snap rate", "board.num.tprr": "TPRR", "board.num.wopr": "WOPR", "board.num.yacShare": "YAC share", "board.role.committee": "Committee", "board.role.earlyDown": "Early down", "board.role.everyDown": "Every down", "board.role.goalLine": "Goal line", "board.role.inLine": "In line", "board.role.move": "Move", "board.role.rotational": "Rotational", "board.role.satellite": "Satellite", "board.role.situational": "Situational", "board.row.none": "no number", "board.style.complete": "Complete", "board.style.deepThreat": "Deep threat", "board.style.dualThreat": "Dual threat", "board.style.homeRun": "Home run", "board.style.oneCut": "One cut", "board.style.pocket": "Pocket", "board.style.possession": "Possession", "board.style.power": "Power", "board.style.scrambler": "Scrambler", "board.style.yac": "Yards after catch", "board.tabs.label": "Stat", "builder.explain.title": "How this works", "chat.claude": "Claude", "chat.close": "Close chat", "chat.empty": "No questions yet today.", "chat.error.network": "Could not reach the server. Try again.", "chat.error.nopass": "Enter the passphrase first.", "chat.intro": "Three questions a day. It sees the players you name, their usage and this week's numbers.", "chat.limit.left": "{n} of {of} questions left today", "chat.limit.none": "Out of questions until tomorrow", "chat.open": "Ask about your teams", "chat.pass.forget": "Forget passphrase", "chat.pass.hint": "Stored in this browser only. It is what keeps this endpoint off a stranger's bill.", "chat.pass.label": "Passphrase", "chat.pass.placeholder": "The one set in Vercel", "chat.pass.save": "Save", "chat.placeholder": "Start Achane or Pollard this week?", "chat.send": "Ask", "chat.thinking": "Thinking…", "chat.title": "Ask about your teams", "chat.you": "You", "chrome.badge.defaultFull": "Sample signals — skill not wired", "chrome.badge.dfsLiveAbbr": "Pool live", "chrome.badge.dfsLiveFull": "Live Yahoo pool · rest of app sample", "chrome.badge.dfsSampleFull": "Sample DFS pool — no salary export loaded", "chrome.badge.newsLiveAbbr": "News live", "chrome.badge.newsLiveFull": "Live news", "chrome.badge.newsSampleFull": "Sample news — scanner not pulled", "chrome.badge.parlayLiveAbbr": "Props live", "chrome.badge.parlayLiveFull": "Live props", "chrome.badge.parlaySampleFull": "Sample props — BettingPros not pulled", "chrome.badge.sampleAbbr": "Sample data", "chrome.badge.teamsLiveAbbr": "Rosters live", "chrome.badge.teamsLiveFull": "Live rosters, trend, news & waivers", "chrome.brand.label": "Team Watch", "chrome.discord.tooltip": "FF news on Discord", "chrome.feed.dataCount": "DATA {ok}/{n}", "chrome.feed.dfs": "DFS", "chrome.feed.espn": "ESPN", "chrome.feed.neverPulled": "never pulled", "chrome.feed.noExport": "no salary export", "chrome.feed.notPulled": "not pulled yet", "chrome.feed.poolSize": "{n} players", "chrome.feed.props": "Props", "chrome.feed.refreshed": "refreshed", "chrome.feed.usage": "Usage", "chrome.feed.waiting": "waiting for week 1", "chrome.feed.yahoo": "Yahoo", "chrome.footer.sources": "SOURCES: YAHOO SITE · ESPN LEAGUE · NFLVERSE · BETTINGPROS · SLEEPER · FANTASYPROS NEWS", "chrome.fresh.new": "New data ↻", "chrome.fresh.tip": "This tab is showing an older build. Reload for the current one.", "chrome.fresh.week": "Week {week} ready ↻", "chrome.head.title": "Team Watch", "chrome.teamswitch.espn": "ESPN", "chrome.teamswitch.label": "{team}, switch team", "chrome.teamswitch.yahoo": "Yahoo", "chrome.weekpill.week": "Week {week}", "common.action.close": "Close", "common.action.remove": "Remove", "common.ordinal.nd": "{n}nd", "common.ordinal.rd": "{n}rd", "common.ordinal.st": "{n}st", "common.ordinal.th": "{n}th", "common.pager.next": "Next ›", "common.pager.page": "Page {page} of {pages}", "common.pager.prev": "‹ Prev", "connect.add": "+ Add a league", "connect.busy": "Connecting…", "connect.desk.how": "On espn.com, open DevTools → Application → Cookies → fantasy.espn.com and copy these two values.", "connect.desk.title": "On a computer", "connect.error.expired": "ESPN refused those cookies. Log in to espn.com again and reconnect.", "connect.error.generic": "That did not work. Check the link and try again.", "connect.error.offline": "No connection. Try again when you are back online.", "connect.error.private": "This league is private. Connect it with your ESPN login below.", "connect.go": "Connect", "connect.lede": "Paste your ESPN league link. Your two leagues stay here too.", "connect.link.label": "ESPN league link or ID", "connect.link.placeholder": "fantasy.espn.com/football/league?leagueId=…", "connect.list.down": "ESPN did not answer", "connect.list.expired": "Login expired: reconnect", "connect.list.title": "Connected here", "connect.phone.android": "Android (Chrome): bookmark this page, then edit the bookmark and paste the code as its URL.", "connect.phone.copied": "Copied", "connect.phone.copy": "Copy the bookmark code.", "connect.phone.copyBtn": "Copy", "connect.phone.iphone": "iPhone (Safari): bookmark any page, then open Bookmarks → Edit, tap it, and paste the code as its address.", "connect.phone.tap": "Open your league on espn.com in that browser, logged in, and open the bookmark. On Android, type its name in the address bar and tap it.", "connect.phone.title": "On your phone", "connect.pick.ask": "Which team in {league} is yours?", "connect.plat.espn": "ESPN", "connect.private.lm": "Easiest: ask your league manager to turn on public viewing (League → Settings → Basic Settings on espn.com). Then the link alone works.", "connect.private.summary": "Private league?", "connect.title": "Add a league", "connect.yahooSoon": "Yahoo sign-in is coming next.", "dfs.book.dk": "DraftKings", "dfs.book.label": "Book", "dfs.book.yahoo": "Yahoo", "dfs.card.load": "Load into my lineup", "dfs.card.of": "of ${n}", "dfs.card.stats": "{proj} PROJ · ~{own}% PROJ OWN", "dfs.card.title": "Lineup {n}", "dfs.card.titleBest": "★ Best · Lineup {n}", "dfs.empty.noPlayers": "NO PLAYERS AT THAT POSITION", "dfs.explain.note": "<b>PROJ<\/b> is the model's fantasy points on Yahoo scoring — its yards, receptions and touchdown rates for this week, half-PPR, for every player it has a rate for and not only the ones a book prices. A player with no game log at all (a rookie) wears a <b>LINE<\/b>: his own line this week, read as a role. Whoever is left — the deep bench, K, DST — wears a <b>Y<\/b>: Yahoo's last-season average, rescaled to the model's level at his position, a placeholder rather than a read. No site publishes real ownership before lock — PROJ OWN is a rank-based estimate, same idea any pre-lock ownership projection tool uses.", "dfs.explain.step1": "<b>Greedy<\/b> builds the highest-projected lineup — what most of the field lands on. <b>Non-chalk<\/b> sits the single most-projected play at each position and trades a little projection for a lineup the field isn't all rostering, which is the point of a GPP.", "dfs.explain.step2": "Swipe the lineups below, tap <b>Load into my lineup<\/b> to start from one.", "dfs.explain.step3": "Fill or swap slots from the pool underneath.", "dfs.filter.position": "Position", "dfs.filter.valueNote": "Value = points per ${n}", "dfs.lineup.cancel": "Cancel", "dfs.lineup.export": "Export lineup", "dfs.lineup.filled": "{n}/{of} filled", "dfs.lineup.left": "${n} left", "dfs.lineup.leftFor": "LEFT FOR {n} SLOT{s}", "dfs.lineup.orSep": ", or ", "dfs.lineup.own": "{n}% OWN", "dfs.lineup.pickFromPool": "Pick from the pool", "dfs.lineup.picking": "Picking <b>{slot}<\/b> — tap a player below", "dfs.lineup.proj": "{v} PROJ", "dfs.lineup.projected": "PROJECTED", "dfs.lineup.spent": "SPENT", "dfs.lineup.summedOwn": "SUMMED OWNERSHIP", "dfs.lineup.tapBelow": "Tap a player below", "dfs.lineup.title": "My {site} lineup", "dfs.market.fetched": "Fetched {when}", "dfs.market.heading": "{site} DFS player pool", "dfs.market.lined": "the book's line for {n} with no game log (LINE)", "dfs.market.modeled": "projections: the model for {n}", "dfs.market.noExport": "No salary export loaded", "dfs.market.rest": "Yahoo's FPPG rescaled for the rest (Y)", "dfs.market.sample": "SAMPLE", "dfs.market.source": "{n} players · ${cap} cap · salaries as posted", "dfs.pager.players": "{n} player{s}", "dfs.pick.noSlot": "No open {pos} slot — tap one to swap instead", "dfs.pick.wrongPos": "{name} is {pos}, not {slot}", "dfs.row.add": "+ ADD", "dfs.row.swapIn": "SWAP IN", "dfs.row.wrongPos": "WRONG POS", "dfs.set.chip": "{site} · ${cap}", "dfs.set.label": "Site and cap", "dfs.table.own": "Own", "dfs.table.player": "Player", "dfs.table.proj": "Proj", "dfs.table.salary": "Salary", "dfs.table.value": "Value", "dfs.tag.handcuff": "HANDCUFF", "dfs.tag.handcuffTitle": "{name} (the {pos} starter) is OUT/IR — cheapest teammate left at {pos}, first in line for the workload", "dfs.tag.line": "LINE", "dfs.tag.lineTitle": "No game log to project from — a rookie, or a player who missed last season. This is the book's own line for him this week read as a role: yards over the league's yards per carry is a carry count, receptions over the catch rate a target count. The market's read, not ours.", "dfs.tag.value": "BEST VALUE", "dfs.tag.valueTitle": "Highest points per $1,000 at {pos} in this pool", "dfs.tag.yahoo": "Y", "dfs.tag.yahooTitle": "The model has no rate for him and no book posts a line, so this is Yahoo's FPPG (last season's average) rescaled to the model's {pos} level. A guess at the model's scale, not a model read.", "dfs.top.contrarian": "Non-chalk", "dfs.top.contrarianSub": "For GPPs", "dfs.top.empty": "NOT ENOUGH PRICED PLAYERS AT EVERY POSITION TO FILL A LINEUP", "dfs.top.greedy": "Max points", "dfs.top.greedySub": "Best under the cap", "drawer.league.format": "Format", "drawer.league.meta": "{plat} · draft slot {slot} · record {record}", "live.asof": "updated {time}", "live.away.title": "while you were away", "live.bench": "Bench", "live.error.network": "Could not reach the scoreboard. It will try again.", "live.error.notServed": "Live scores need the deployed site. This page was opened from a file.", "live.idle": "no games left this week", "live.left": "{n} left", "live.loading": "Reading the scoreboard…", "live.next": "next kickoff {when}", "live.proj": "proj {pts}", "live.refresh": "Refresh", "live.seen": "got it", "live.starters": "Starters", "live.tocome": "{pts} to come", "live.unnamed": "—", "live.week": "Week {week}", "live.win": "{pct}% win", "market.name.PASS": "Pass yds", "market.name.REC": "Rec yds", "market.name.RECS": "Receptions", "market.name.RUSH": "Rush yds", "market.name.TD": "Anytime TD", "market.short.PASS": "PASS YDS", "market.short.REC": "REC YDS", "market.short.RECS": "REC", "market.short.RUSH": "RUSH YDS", "market.short.TD": "TD", "nav.group.bets.full": "Bets", "nav.group.bets.short": "Bets", "nav.group.gameday.full": "Gameday", "nav.group.gameday.short": "Live", "nav.group.scouting.full": "Players", "nav.group.scouting.short": "Players", "nav.group.teams.full": "My teams", "nav.group.teams.short": "Teams", "nav.search.field": "Search players", "nav.search.label": "Search", "nav.sub.label": "Views in this section", "nav.tab.board": "Leaders", "nav.tab.build": "Build", "nav.tab.dfs": "DFS", "nav.tab.grid": "Grid", "nav.tab.live": "Live", "nav.tab.movers": "Movers", "nav.tab.news": "News", "nav.tab.parlay": "Slips", "nav.tab.roster": "Roster", "nav.tab.waivers": "Waivers", "news.empty.noStories": "NO {cat} STORIES RIGHT NOW", "news.filter.label": "Filter", "news.hero.eyebrow": "{n} items · newest first", "news.kind.all": "All", "news.kind.injury": "Injury", "news.kind.move": "Move", "news.kind.news": "Other", "news.kind.out": "Out", "news.kind.practice": "Practice", "parlay.bar.dk": "DraftKings", "parlay.bar.dkShort": "DK", "parlay.bar.settings": "Book, kickoff and filters", "parlay.bar.ud": "Underdog", "parlay.bar.udShort": "UD", "parlay.book.dk": "DraftKings", "parlay.book.underdog": "Underdog", "parlay.bookline.book": "BOOK {price}", "parlay.bookline.games": "{n} GP", "parlay.bookline.opp": "{team} D {pct}%", "parlay.call.anytime": "ANYTIME", "parlay.call.higher": "▲ HIGHER", "parlay.call.lower": "▼ LOWER", "parlay.call.none": "NO CALL", "parlay.call.pending": "PENDING", "parlay.call.td": "TD", "parlay.copy.book": "book", "parlay.copy.edge": "edge {n}", "parlay.copy.footer": "Team Watch · {lines}", "parlay.copy.lines": "lines {when}", "parlay.copy.model": "model", "parlay.copy.modelPct": "model {n}%", "parlay.copy.sampleLines": "sample lines", "parlay.copy.underdog": "Underdog", "parlay.detail.bookImplied": "BOOK IMPLIED", "parlay.detail.model": "MODEL", "parlay.detail.modelPending": "MODEL PENDING", "parlay.detail.noRolePriced": "NO ROLE PRICED", "parlay.detail.noYardsLine": "NO YARDS LINE", "parlay.detail.notPlaying": "NOT PLAYING", "parlay.empty.noLines": "NO LINES MATCH THAT FILTER", "parlay.explain.long": "<b>Long<\/b> slips are 4 or 5 picks from the same legs, priced at the standard board (10× for 4, 20× for 5). A long slip is worth more when every leg is, since the payout grows faster than the chance falls, but Underdog often pays less than the board: type the app's number into your slip and the verdict follows it. <b>Stacks<\/b> are a QB's passing yards and his team's two biggest receiving-yards lines, all lower, plus one pick from another game. A bad passing day sinks all three together, so they hit together 23.1% of the time in 2025 where three separate legs would hit 13%. Underdog pays less for same-team picks, so a stack needs the app's payout before it says anything.", "parlay.explain.note": "<b>MODEL %<\/b> is the chance the over hits, from the player's last 24 games, nudged by what his opponent allows to his position. <b>EDGE<\/b> is model % minus the book's break-even, in points — +5 means the model likes the over 5 points more than the price needs. Both live behind each line's chevron, not on the card.", "parlay.explain.step1": "Browse the slips most likely to hit below — on Underdog each card is receptions, TDs, or both, inside one day or kickoff window, and never mixes two days.", "parlay.explain.step2": "Tap <b>Load into my slip<\/b> to start from one, or scroll to the lines and tap any player to add a leg yourself.", "parlay.explain.step3": "Your slip prices itself as you go. <b>Copy slip<\/b> puts it on the clipboard, ready to type into the book.", "parlay.explain.tags": "<b>The big number is graded, not the model's raw confidence.<\/b> A receptions pick counts at the rate picks like it actually hit on 2025's closing lines (57% for a lower at 65%+, 42% for a higher), since the model's confidence ran about 8 points high; a touchdown counts at the model's P(score), which grading found honest. <b>Beats<\/b> means that chance is at least a quarter over what the payout needs (a 6× slip needs 16.7%, a 3× needs 33.3%). <b>Near<\/b> is inside that quarter, where a few points either way flips it. <b>Short of<\/b> means the payout asks for more. One season of grading, so every number here is an estimate.", "parlay.filter.kickoff": "Kickoff", "parlay.filter.market": "Market", "parlay.filter.mineOnly": "My players only", "parlay.filter.sort": "Sort", "parlay.gallery.empty": "LINE{s} THE MODEL WILL STAND BEHIND HERE · A CARD NEEDS 2 AT ONE KICKOFF", "parlay.gallery.legCount": "{n} leg{s}", "parlay.gallery.legsLabel": "Legs", "parlay.gallery.loadSlip": "Load slip", "parlay.gallery.modelTag": "MODEL", "parlay.gallery.sub": "Underdog: TDs at 50%+, receptions only on the lower side at 65%+ · below the bar = the best left at that kickoff · why under each leg", "parlay.hero.eyebrow": "{n} lines priced · week {week}", "parlay.hero.eyebrowNoWeek": "{n} lines priced", "parlay.log.aria": "last {n} games", "parlay.log.avg": "avg <b>{v}<\/b>", "parlay.log.cleared": "cleared {line} in <b>{hit} of {n}<\/b>", "parlay.log.rate": "rate <b>{v}<\/b>", "parlay.log.scored": "scored in <b>{hit} of {n}<\/b>", "parlay.log.weeks": "week numbers under the bars", "parlay.more.log": "Last {n} games against this line", "parlay.more.plain": "More on this line", "parlay.option.all": "All", "parlay.pager.lines": "{n} line{s}", "parlay.pager.players": "{n} player{s}", "parlay.pager.tdNote": "TD picks are the model's P(score), Underdog posts no TD line", "parlay.preset.blank": "Clear", "parlay.preset.mine": "My players", "parlay.scope.all": "All", "parlay.scope.long": "Long", "parlay.scope.mix": "Mix", "parlay.scope.recs": "Receptions", "parlay.scope.stack": "Stacks", "parlay.scope.tds": "TDs", "parlay.scope.yards": "Yards", "parlay.slip.allHit": "All picks hit", "parlay.slip.appPays": "Underdog pays", "parlay.slip.beats": "Beats {what}", "parlay.slip.best": "★ Best on screen", "parlay.slip.close": "Near {what}", "parlay.slip.combinedOdds": "COMBINED ODDS", "parlay.slip.copied": "Copied", "parlay.slip.copyFailed": "Copy failed", "parlay.slip.copyPicks": "Copy picks", "parlay.slip.copySlip": "Copy slip", "parlay.slip.corr": "TWO LEGS IN {game} — CORRELATED, PRICE IT AS ONE", "parlay.slip.dkMeta": "{n} legs · edge {d}", "parlay.slip.edgeLabel": "Model edge", "parlay.slip.edgeOverBook": "Model edge over the book", "parlay.slip.emptyBlank": "TAP A LINE BELOW, OR LOAD A CARD FROM THE GALLERY", "parlay.slip.emptyMine": "NONE OF MY PLAYERS PRICE AN EDGE RIGHT NOW", "parlay.slip.emptyUd": "NO PICK THE MODEL PUTS PAST {n}%", "parlay.slip.forLegs": "for {n} legs", "parlay.slip.higher": "Higher", "parlay.slip.legCount": "{n} legs", "parlay.slip.low": "Below the bar", "parlay.slip.lower": "Lower", "parlay.slip.modelProb": "MODEL PROBABILITY", "parlay.slip.notDk": "NOT DK'S", "parlay.slip.notUdPrice": "NOT AN UD PRICE", "parlay.slip.over": "Over", "parlay.slip.payHint": "e.g. 8.18", "parlay.slip.pending": "pending", "parlay.slip.pickCount": "{n} picks", "parlay.slip.returns25": "$25 RETURNS", "parlay.slip.short": "Short of {what}", "parlay.slip.tdModelRead": "TD PICKS ARE MODEL-READ", "parlay.slip.titleDk": "Your slip", "parlay.slip.titleMine": "My players", "parlay.slip.titleUd": "Underdog picks", "parlay.slip.toHitAll": "to hit all {n}", "parlay.slip.typePay": "Type the app's payout", "parlay.slip.udLine": "PICKS ARE AT UNDERDOG'S LINE", "parlay.slip.udMeta": "{n} picks · pays {x}×", "parlay.slip.udMetaStack": "{n} picks · same-team stack", "parlay.slip.verdictTip": "Graded chance {model}%. The slip needs {needs}%.", "parlay.slip.vsPayout": "the {x}× payout", "parlay.sort.conf": "Confidence", "parlay.sort.edge": "Edge", "parlay.sort.model": "Model %", "parlay.sort.ready": "Slip-ready", "parlay.tag.backupTitle": "Depth chart says {pos}{depth}. Not slip material.", "parlay.tag.cb": "CB {dir} {name}", "parlay.tag.cbTitle": "RotoBaller WR/CB matchups, week {week}: {v} vs {cb}. {why} — opinion, not in the number.", "parlay.tag.games": "{n} GAMES", "parlay.tag.gamesTitle": "The rate rests on {n} of his own games; a slip leg needs 8.", "parlay.tag.moved": "NEW TEAM", "parlay.tag.movedTitle": "Every game the model has read was for {team}. The rate knows nothing about the new offense or quarterback, and the model has no feature for a team change. Not slip material.", "parlay.tag.movedWas": "WAS {team}", "parlay.tag.noRole": "NO ROLE", "parlay.tag.noRoleTitle": "A touchdown line on a player the book prices no yards for.", "parlay.tag.out": "OUT", "parlay.tag.q": "Q", "parlay.tag.role": "ROLE", "parlay.tag.stale": "ROLE?", "parlay.tag.staleTitle": "The book's line is far from last season's rate: the role changed and the model has not caught up. Not slip material.", "parlay.tag.thin": "THIN LINE", "parlay.tag.thinTitle": "A line this small is confidence for free and Underdog prices it that way. Not slip material.", "parlay.tray.allHit": "All {n} hit", "parlay.tray.empty": "Tap a line to add it", "parlay.tray.label": "Your slip", "parlay.tray.legs": "leg{s}", "parlay.tray.picks": "pick{s}", "parlay.why.dk": "Model {model}% · price says {implied}%", "parlay.why.rate": "{rate} {unit}/gm over {games} games", "parlay.why.tdUsage": "From his usage", "pool.empty.noMoves": "NO {pos} MOVED {n}+ POINTS OF SHARE", "pool.foot": "Recent weeks against the ones before, through week {wk}. A card needs a move of {n}+ points of share. Tap a player for his numbers.", "pool.pager.teams": "{n} team{s}", "pool.share.car": "Carry share", "pool.share.snap": "Snap share", "pool.share.tgt": "Target share", "pool.wait.line": "Share moves need two weeks of data. Until then this list ranks by role share, and there is no chart.", "profile.athletic.agility": "Agility", "profile.athletic.broad": "Broad {v}″", "profile.athletic.burst": "Burst", "profile.athletic.cone": "3-cone {v}", "profile.athletic.forty": "40 {v}", "profile.athletic.label": "Athletic profile", "profile.athletic.missing": "{list}: not measured.", "profile.athletic.none": "No combine record.", "profile.athletic.pool": "Percentile among {pool}s who tested.", "profile.athletic.rookie": "Not yet measured.", "profile.athletic.shuttle": "Shuttle {v}", "profile.athletic.speed": "Speed", "profile.athletic.vertical": "Vertical {v}″", "profile.athletic.win": "Combine", "profile.axis.brkRate": "Big runs", "profile.axis.designedPct": "Designed runs", "profile.axis.dropbacks": "Dropbacks", "profile.axis.fdrr": "1st downs", "profile.axis.fpDb": "Pts/dropback", "profile.axis.glPct": "Goal line", "profile.axis.oppPct": "Share", "profile.axis.routePct": "Routes", "profile.axis.ryoe": "Yds over exp", "profile.axis.rz": "Red zone", "profile.axis.rzAtt": "RZ throws", "profile.axis.rzTgt": "RZ targets", "profile.axis.scrRate": "Scrambles", "profile.axis.tprr": "Targets/route", "profile.axis.wopp": "Workload", "profile.axis.wopr": "Target share", "profile.axis.yprr": "Yds/route", "profile.bio.bye": "bye {n}", "profile.count.targetOne": "1 target", "profile.count.targets": "{n} targets", "profile.coverage.colTargets": "Targets", "profile.coverage.colYpt": "Yds/tgt", "profile.coverage.label": "Against coverage · {span}", "profile.coverage.labelBare": "Against coverage", "profile.coverage.leadEven": "Same yds/target vs man and zone", "profile.coverage.leadMan": "{n} yds/target better vs man", "profile.coverage.leadZone": "{n} yds/target better vs zone", "profile.coverage.man": "Man", "profile.coverage.none": "Under 30 targets against man or zone.", "profile.coverage.zone": "Zone", "profile.def.brkRate": "Share of his carries that went 15+ yards.", "profile.def.designedPct": "His share of the team's called runs.", "profile.def.dropbacks": "Pass plays per game, sacks and scrambles included.", "profile.def.fdrr": "First downs per route run.", "profile.def.fpDb": "Fantasy points per dropback.", "profile.def.glPct": "His share of the team's carries inside the 5.", "profile.def.oppPct": "His share of the carries and targets the team's backs got.", "profile.def.routePct": "Share of his team's dropbacks he ran a route on.", "profile.def.ryoe": "Rushing yards over expected, per carry. Above zero is beating the blocking.", "profile.def.rz": "Touches per game inside the 20.", "profile.def.rzAtt": "Pass attempts per game inside the 20.", "profile.def.rzTgt": "Targets per game inside the 20.", "profile.def.scrRate": "Share of his dropbacks he ran on.", "profile.def.tprr": "Targets per route run.", "profile.def.wopp": "Weighted opportunity per game: carries + 2.5 × targets, the PPR exchange rate.", "profile.def.wopr": "Weighted opportunity: 1.5 × his share of the team's targets + 0.7 × his share of its air yards.", "profile.def.yprr": "Receiving yards per route run.", "profile.details.blended": "{targets} this season, blended {weight} with {prior} last season.", "profile.empty.none": "NO PROFILE YET", "profile.fact.age": "Age", "profile.fact.exp": "Exp", "profile.fact.height": "{ft}′{in}″", "profile.fact.lb": "{n} lb", "profile.fact.leaguePick": "Rd {pick}", "profile.fact.leaguePickBy": "Rd {pick} · by {by}", "profile.fact.nfl": "NFL", "profile.fact.nflPick": "#{n} overall · {yr}", "profile.fact.nflRound": "Rd {r}.{s} · {yr}", "profile.fact.rookie": "Rookie", "profile.fact.size": "Size", "profile.fact.years": "{n} yr pro", "profile.history.colCar": "Car", "profile.history.colOpp": "Opp", "profile.history.colPassTd": "Pass TD", "profile.history.colPassYds": "Pass Yds", "profile.history.colPts": "Pts", "profile.history.colRec": "Rec", "profile.history.colRecTd": "Rec TD", "profile.history.colRecYds": "Rec Yds", "profile.history.colRushTd": "Rush TD", "profile.history.colRushYds": "Rush Yds", "profile.history.colTgt": "Tgt", "profile.history.colWeek": "Wk", "profile.history.games": "{n} gm", "profile.history.label": "Weekly stats", "profile.history.pts": "pts, last game", "profile.history.total": "Season", "profile.lede.bye": "bye week", "profile.lede.easiest": "easiest", "profile.lede.matchup": "matchup", "profile.lede.ofN": "of {of}", "profile.lede.ofPos": "of {of} {pos}s", "profile.lede.proj": "projected", "profile.lede.projSub": "next game", "profile.lede.toughest": "toughest", "profile.line.kept": "usual starters played", "profile.line.label": "{team} offensive line", "profile.line.out": "linemen on the injury report", "profile.line.outList": "linemen on the injury report ({list})", "profile.line.outListOne": "lineman on the injury report ({list})", "profile.line.outOne": "lineman on the injury report", "profile.line.startersOut": "starters out", "profile.line.week": "Week {wk}", "profile.market.label": "Market", "profile.market.line.pts": "{pts} pts", "profile.market.line.rank": "{pos} rank #{rank}", "profile.market.line.role": "role {role} pts", "profile.market.line.z": "z {z}", "profile.market.model": "{pts} pts, the model's number", "profile.market.noMarket": "No market priced yet.", "profile.market.priced": "Priced: {markets}", "profile.matchup.easiest": "Easiest", "profile.matchup.none": "No matchup rank yet.", "profile.matchup.rank": "{nth} easiest of {of} for {pos}s", "profile.matchup.rankTough": "{nth} toughest of {of} for {pos}s", "profile.matchup.toughest": "Toughest", "profile.next.away": "@", "profile.next.bye": "Bye, or no schedule yet.", "profile.next.factor": "Raw factor", "profile.next.home": "vs", "profile.next.label": "Week {wk} {where} {opp}", "profile.next.labelBare": "Next game", "profile.next.legend": "League avg", "profile.next.man": "Man coverage rate · {season}", "profile.next.opponent": "{opp} defense", "profile.next.rz": "Red-zone rate allowed · {n} faced", "profile.next.stale": "STALE", "profile.next.staleTip": "New defensive coordinator since {season}", "profile.projection.label": "Projection", "profile.projection.muPass": "Pass yds", "profile.projection.muRec": "Rec yds", "profile.projection.muRecs": "Catches", "profile.projection.muRush": "Rush yds", "profile.projection.muTd": "TDs", "profile.projection.source": "ff-jarvis's model · {scoring} · fitted through {through}", "profile.rank.mark": "#{n}", "profile.rank.plain": "{pos}{n}", "profile.role.label": "Target depth", "profile.role.lead": "{zone} ({pos} avg {avg})", "profile.role.legend": "{pos} avg", "profile.role.side": "{pct} {side}", "profile.rz.count": "{n} of {team}", "profile.rz.label": "Red zone", "profile.rz.others": "{n} more", "profile.rz.share": "{pct} · {n} of {team}", "profile.rz.teamCarries": "of the team’s red-zone carries", "profile.rz.teamCarry": "red-zone carry", "profile.rz.teamTarget": "red-zone target", "profile.rz.teamTargets": "of the team’s red-zone targets", "profile.sheet.eliteTag": "ELITE", "profile.sheet.label": "Stat sheet: his rank at his position on every usage stat this week", "profile.sheet.meta": "of {of}", "profile.sheet.metaGames": "{g} gm · of {of}", "profile.sheet.partial": "{n} of {of} stats measured", "profile.side.label": "Middle vs outside", "profile.stat.overElite": "{gap} over the elite bar ({bar})", "profile.stat.underElite": "{gap} under the elite bar ({bar})", "profile.stat.week": "wk {n}", "profile.stat.weeks": "wk {a}–{b}", "profile.tab.bio": "Bio", "profile.tab.label": "Which part of his profile to show", "profile.tab.log": "Log", "profile.tab.matchup": "Matchup", "profile.tab.usage": "Usage", "profile.tag.teams": "On {n} of your teams", "profile.weather.dome": "Dome, no weather", "profile.weather.retractable": "roof may close", "profile.weather.temp": "{n}°F", "profile.weather.wind": "wind", "profile.weather.windFrom": "from {dir}", "profile.why.brkRate": "Where a back’s ceiling games come from.", "profile.why.designedPct": "Called runs are the rushing floor a scrambler does not have.", "profile.why.dropbacks": "Pace and game script. More plays, more chances.", "profile.why.fdrr": "Moving the chains keeps him on the field and keeps drives alive.", "profile.why.fpDb": "Efficiency per chance, so a low-volume week still counts.", "profile.why.glPct": "A quarterback who keeps it at the goal line is a quarterback who scores.", "profile.why.oppPct": "Whether the backfield is his or a committee.", "profile.why.routePct": "A receiver off the field cannot be targeted. This is his floor.", "profile.why.ryoe": "Separates the back from his offensive line.", "profile.why.rz": "Goal-line work is the difference between a flex and a starter.", "profile.why.rzAtt": "Red-zone volume is touchdown volume.", "profile.why.rzTgt": "Where touchdowns come from, and touchdowns are what swing a week.", "profile.why.scrRate": "Scrambling yards are free fantasy points his arm did not have to earn.", "profile.why.tprr": "How often the quarterback looks at him when he does run. Earned, not given.", "profile.why.wopp": "Total workload. The thing that survives a bad game.", "profile.why.wopr": "The single best predictor of a receiver scoring next week.", "profile.why.yprr": "Volume and efficiency in one number. The closest thing to a receiver grade.", "profile.win.n": "{n} wk", "profile.zone.behind": "Behind", "profile.zone.deep": "Deep", "profile.zone.intermediate": "Intermediate", "profile.zone.middle": "Middle", "profile.zone.outside": "Outside", "profile.zone.short": "Short", "profile.zoneRead.colFaced": "Tgts", "profile.zoneRead.colIndex": "Allows", "profile.zoneRead.colRank": "Softest", "profile.zoneRead.colZone": "His zone", "profile.zoneRead.empty": "Zone read starts about week 4 (defences need 25 targets in a zone).", "profile.zoneRead.label": "Zone read", "profile.zoneRead.untested": "UNTESTED", "search.action.cancel": "Cancel", "search.empty.none": "No “{q}” in this week’s data", "search.input.label": "Search players", "search.input.placeholder": "Player, team or position", "search.list.label": "Players", "search.list.recent": "Recent", "search.list.roster": "Your roster", "strip.caption.caught": "caught at {spot} · {n} after the catch", "strip.caption.from": "from {qb}", "strip.control.next": "Next", "strip.control.pause": "Pause", "strip.control.play": "Play", "strip.control.prev": "Prev", "strip.control.scrub": "Scrub through the drive", "strip.control.view": "Field view, tap to switch", "strip.drive.untitled": "Drive", "strip.error.network": "Could not reach the game feed. Try again.", "strip.error.notPlayed": "This game has not been played yet.", "strip.error.notServed": "The drive strip needs the deployed site. This page was opened from a file.", "strip.key.inc": "incomplete", "strip.key.loss": "loss", "strip.key.pass": "pass", "strip.key.run": "run", "strip.loading": "Reading the game…", "strip.moment.air": "{n} in the air", "strip.moment.big": "BIG PLAY +{n}", "strip.moment.fg": "FIELD GOAL", "strip.moment.fgMissed": "NO GOOD", "strip.moment.fumble": "FUMBLE LOST", "strip.moment.int": "INTERCEPTED", "strip.moment.td": "TOUCHDOWN", "strip.moment.tdLong": "{n}-YARD TOUCHDOWN", "strip.moment.yac": "{n} after the catch", "strip.open.player": "Watch {name}'s drive", "strip.open.week": "Watch week {n}", "strip.score.hasBall": "has the ball", "strip.spot.fifty": "the 50", "strip.tag.fumble": "fumble", "strip.tag.fumbleLost": "fumble lost, {by} recovers", "strip.tag.fumbleOwn": "fumble, {by} recovers", "strip.tag.incomplete": "incomplete", "strip.tag.intercepted": "intercepted", "strip.title.at": "at", "strip.title.week": "Week {n}", "strip.unnamed": "—", "strip.view.fit": "Fit", "strip.view.pan": "Pan", "teams.brief.all": "Show all {n}", "teams.brief.count": "{n} thing{s} to check", "teams.brief.fewer": "Show fewer", "teams.brief.hurtBench": "On your bench", "teams.brief.hurtBenchOnly": "On your bench; your starters are clear", "teams.brief.hurtStart": "In your lineup: swap before kickoff", "teams.brief.muEasy": "Softest: {m}", "teams.brief.muHard": "Toughest matchup: {m}", "teams.brief.muOne": "<b>{name}<\/b> {where} {opp} ({nth})", "teams.brief.mustMany": "{n} must-claims on waivers", "teams.brief.mustOne": "A must-claim is on waivers", "teams.brief.newsMany": "News on {names}", "teams.brief.newsOne": "{name}: {n} new stories", "teams.brief.newsSub": "Opens the player's profile", "teams.brief.quiet": "Nothing needs you this week.", "teams.brief.set": "Lineup is set", "teams.brief.setBecause": "{out} ({outPts}) starts over {in} ({inPts}), who is {status}", "teams.brief.setClose": "Closest call: {in} ({inPts}) on the bench, {out} ({outPts}) starting", "teams.brief.setSub": "Every starter out-projects the bench player who could replace him", "teams.brief.swap": "Start <b>{in}<\/b> ({inPts}) over <b>{out}<\/b> ({outPts})", "teams.brief.swapSub": "+{n} projected points", "teams.brief.title": "This week", "teams.brief.worth": "{n} worth a claim on your wire", "teams.brief.wx": "{what} at {where}", "teams.brief.wxBench": "{names} on your bench", "teams.brief.wxStart": "{names} play in it", "teams.card.defending": "Defending", "teams.card.defense": "Defense · {team}", "teams.card.dome": "DOME", "teams.card.flip": "{name}, tap to flip", "teams.card.implied": "{team} {n} PTS", "teams.card.kicker": "Kicker · {team}", "teams.card.kicking": "Kicking", "teams.card.lowerBetter": "Opponent's implied points: lower is better for a defense.", "teams.card.noForecast": "NO FORECAST", "teams.card.noLine": "NO LINE YET", "teams.card.oppImplied": "Opp pts", "teams.card.out": "OUT", "teams.card.outTip": "Not playing this week (Sleeper: {code})", "teams.card.outdoor": "OUTDOOR", "teams.card.pctTip": "{stat}: better than {p}% of {pos}s this week", "teams.card.profile": "Open profile", "teams.card.rain": "Rain", "teams.card.rank": "#{n} {pos}", "teams.card.rankStamp": "#{n}", "teams.card.retractable": "RETRACTABLE", "teams.card.roleWeek": "role · week {wk}", "teams.card.roof": "Roof", "teams.card.signedTip": "Signed: {pos}{rank} in week {wk}, {pts} pts", "teams.card.snap": "Snap share", "teams.card.spread": "Spread", "teams.card.teamImplied": "Team pts", "teams.card.thisWeek": "this week", "teams.card.total": "Total", "teams.card.wind": "{w} {d}", "teams.card.windLabel": "Wind", "teams.card.wxKick": "kick ↓", "teams.card.wxNote": "{kind} · {effect}", "teams.card.wxPass": "pass ↓", "teams.card.wxRain": "RAIN {n}%", "teams.card.wxRainWord": "RAIN", "teams.card.wxRun": "run ↑", "teams.card.wxSnow": "SNOW", "teams.card.wxTip": "{what} at kickoff · {effect}", "teams.card.wxWind": "WIND {n}", "teams.card.wxWindWord": "WIND", "teams.group.bench": "Bench", "teams.group.out": "Out / exempt", "teams.group.starters": "Starters", "teams.inj.doubtful": "DOUBTFUL", "teams.inj.out": "OUT", "teams.inj.q": "Q", "teams.inj.questionable": "QUESTIONABLE", "teams.inj.warnMany": "{n} starters will likely sit:", "teams.inj.warnOne": "1 starter will likely sit:", "teams.inj.withNote": "{s} · {note}", "teams.mode.cards": "Cards", "teams.mode.label": "Roster view", "teams.mode.sheet": "Sheet", "teams.pack.again": "Rip again", "teams.pack.cards": "CARDS", "teams.pack.closeLabel": "Close", "teams.pack.done": "<b>{name}<\/b> is the #{rank} {pos} this week.", "teams.pack.hint": "DRAG ACROSS THE TOP TO RIP", "teams.pack.lead": "Week {wk} is in. <b>{n} cards<\/b> in your pack: your top-12 players, and anyone who signed.", "teams.pack.open": "Open this week's pack", "teams.pack.side": "{season} SEASON", "teams.pack.signed": "signed", "teams.pack.stage": "This week's pack", "teams.pack.tapOpen": "TAP TO OPEN", "teams.pack.tier.c": "Common", "teams.pack.tier.one": "Legendary", "teams.pack.tier.r": "Uncommon", "teams.pack.tier.sig": "Epic", "teams.pack.tier.ur": "Rare", "teams.pack.weekWord": "WEEK", "teams.row.snapNone": "Snap share: fewer than two weeks played", "teams.row.snapTip": "Snap share, last week {n}%", "usage.band.low10": "Bottom 10%", "usage.band.low25": "Bottom 25%", "usage.band.middle": "Middle", "usage.band.top10": "Top 10%", "usage.band.top25": "Top 25%", "usage.empty.noGridSub": "nflverse publishes a week's usage the Tuesday after its games. Until then there is nothing to rank.", "usage.empty.noGridTitle": "No grid yet", "usage.empty.noPlayers": "NOBODY AT THIS POSITION THIS WEEK", "usage.filter.mine": "★ Mine", "usage.filter.week": "Week", "usage.foot.partial": "Week {w} is still being played: {n} teams so far.", "usage.foot.source": "{n} players, {pos} week {week}. nflverse, via ff-jarvis model.season.usage. What he did, not what he will do.", "usage.key.changeNote": "Green up, red down, against the week before", "usage.key.label": "Colour", "usage.key.levelNote": "Percentile among qualified players at this position, this week", "usage.mode.change": "Change", "usage.mode.level": "Level", "usage.set.label": "Week and reading", "usage.set.show": "Show", "usage.set.week": "Week {w}", "usage.table.player": "Player", "usage.table.team": "Team", "waiver.card.at": "@ {opp}", "waiver.card.backTitle": "Evidence", "waiver.card.fa": "FA", "waiver.card.flipLabel": "Evidence for {name}", "waiver.card.profile": "Full profile ›", "waiver.card.turnBack": "‹ Front", "waiver.card.turnFront": "Evidence ›", "waiver.card.unknown": "Availability unknown", "waiver.card.usageRank": "{rank} in {stat}, week {wk}", "waiver.card.vs": "vs {opp}", "waiver.card.waiver": "Waivers · {when}", "waiver.card.waiverNoWhen": "On waivers", "waiver.empty.noPacket": "No waiver packet yet. ff-jarvis builds it in the morning refresh.", "waiver.empty.noWire": "Nobody on the wire is worth a claim this week.", "waiver.fold.spec": "Show {n} speculative", "waiver.fold.stash": "Show {n} to stash", "waiver.hero.claimDay": "Claim day", "waiver.hero.clears": "Waivers clear {when}", "waiver.hero.faab": "FAAB ${n} left", "waiver.hero.must": "{n} must-claims", "waiver.hero.mustOne": "1 must-claim", "waiver.hero.none": "No waiver data for this league", "waiver.hero.wireWatch": "Wire watch", "waiver.injury.d": "Doubtful", "waiver.injury.ir": "IR", "waiver.injury.o": "Out", "waiver.injury.q": "Questionable", "waiver.lane.hole": "Empty slot", "waiver.lane.holeTip": "You cannot fill this starting slot: it scores zero until you do", "waiver.lane.injured": "Out now", "waiver.lane.injuredTip": "Hurt now: a stash for when he is back", "waiver.lane.insure": "Insurance", "waiver.lane.insureTip": "Next in line behind a healthy lead back", "waiver.lane.open": "Open work", "waiver.lane.openTip": "A back is out and he is next in that room", "waiver.lane.role": "Depth move", "waiver.lane.roleTip": "Moved up the depth chart this week", "waiver.lane.starter": "Beats a starter", "waiver.lane.starterTip": "Projects above one of your healthy starters in this league", "waiver.lane.usage": "Usage", "waiver.lane.usageTip": "Already on the field: his work is worth more than his price", "waiver.other.bench": ", bench over {over} {margin}", "waiver.other.fa": "{league}: FA", "waiver.other.mine": "{league}: on your team", "waiver.other.need": ", fills your {pos} need", "waiver.other.rostered": "{league}: rostered", "waiver.other.start": ", starts over {over} at {slot} {margin}", "waiver.other.unknown": "{league}: availability unknown", "waiver.other.waiver": "{league}: on waivers", "waiver.practice.dnp": "did not practice", "waiver.practice.fp": "full practice", "waiver.practice.lp": "limited practice", "waiver.proof.down": "▼", "waiver.proof.downTip": "Down from the week before", "waiver.proof.flat": "–", "waiver.proof.flatTip": "Same as the week before", "waiver.proof.noRank": "—", "waiver.proof.up": "▲", "waiver.proof.upTip": "Up from the week before", "waiver.rail.adds": "{n} teams added {name} this week", "waiver.rail.addsOne": "1 team added {name} this week", "waiver.rail.bench": "bench over {over}, {margin}", "waiver.rail.drop": "{by} dropped {name} ({pos}) · {what}", "waiver.rail.fa": "is FA", "waiver.rail.healthy": "healthy", "waiver.rail.kind.adds": "Adds", "waiver.rail.kind.drop": "Drop", "waiver.rail.kind.path": "Path", "waiver.rail.kind.status": "Status", "waiver.rail.need": "fills your {pos} need", "waiver.rail.none": "No wire moves since {day}", "waiver.rail.noneYet": "No wire moves yet", "waiver.rail.path": "{because} {why} → {name} {avail}", "waiver.rail.pathVerdict": "{path} · {what}", "waiver.rail.showAll": "Show all {n}", "waiver.rail.start": "starts over {over} at {slot}, {margin}", "waiver.rail.status": "{name}: {from} → {to}", "waiver.rail.title": "Breaking", "waiver.rail.unknown": "(availability unknown)", "waiver.rail.waiver": "is on waivers until {when}", "waiver.rail.waiverNoWhen": "is on waivers", "waiver.section.count": "· {n}", "waiver.section.more": "top 5 shown, {n} more not", "waiver.section.must": "Must claim", "waiver.section.watch": "Watch", "waiver.section.worth": "Worth a claim", "waiver.summary.rule": "RULE", "waiver.summary.ruleTip": "Built from a template: the written summary did not pass its fact check", "waiver.swap.bench": "Bench over {over}, {margin}", "waiver.swap.drop": " · drop {name}", "waiver.swap.need": "Fills your {pos} need", "waiver.swap.start": "Starts over {over} at {slot}, {margin}", "waiver.tier.must": "Must claim", "waiver.tier.spec": "Speculative", "waiver.tier.stash": "Stash", "waiver.tier.watch": "Watch", "waiver.tier.worth": "Worth a claim", "waiver.trend.label": "Week by week", "waiver.trend.point": "Week {wk}: {v}", "waiver.trend.week": "Week {a}", "waiver.trend.weeks": "Weeks {a}–{b}", "waiver.unit.perWeek": "{m}/wk"};
 /* ── js/data/teams.js ── */
 /* ------------------------------------------------------------------
    Team shells. Rosters are real (Yahoo draft 2026-09-07, ESPN draft 2026-09-08); the Yahoo list
@@ -5139,12 +5231,12 @@ function matchupMetaHTML(prof){
   return `<span class="mu-meta">${whereWord(nx)} ${esc(nx.opp)} <b class="mu-n ${matchupClass(n, nx.factor.of)}" title="${matchupRankText(prof)}">${ordinal(n)}</b></span>`;
 }
 /* ── js/surface/teams/board.js ── */
-/* The roster as a lineup sheet (2026-09-25): the whole team on one phone screen. A starter row is
-   slot, head, name over "RB · BAL @ DAL", the snap-share line, and the projection with an arrow
-   that says which way the line went. The number itself stays neutral: the old filled pill repeated
-   the line's colour, so six red boxes on eight starters read as an alarm. Bench and out rows drop
-   the slot and the line and go two to a row on a phone; on a desktop the bench sits beside the
-   starters. The rank and the market are the profile's; news is the brief's. */
+/* The roster as a lineup sheet (2026-09-25). A starter row is slot, head, name over
+   "RB · BAL @ DAL", the snap-share line, and the projection with an arrow that says which way the
+   line went. The number itself stays neutral: the old filled pill repeated the line's colour, so
+   six red boxes on eight starters read as an alarm. Bench and out rows drop the slot and the line;
+   on a desktop the bench sits beside the starters. The rank and the market are the profile's;
+   news is the checklist's. */
 function rowHTML(p, i, teamKey){
   const cls = (p.slot === "OUT" ? "out" : p.start ? "start" : "bench") + injClass(p);
   // The injury badge on the head: ! out, D doubtful, Q questionable; the reason is its tooltip.
@@ -5500,14 +5592,15 @@ function rosterModeLoad(){
 function rosterModeSave(m){
   try { localStorage.setItem("tw-roster-mode", m); } catch (e) { /* a private window keeps it for this load */ }
 }
-/* "Rip again" (2026-09-25) sits at the end of the same row once this week's pack is open: it puts
-   the pack back on the page, sealed, with the same cards (pack.js packReplay). */
+/* "Rip again" (2026-09-25) follows the Cards chip once this week's pack is open: it puts the pack
+   back on the page, sealed, with the same cards (pack.js packReplay). The arrow says "again". */
+const RERIP_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>`;
 function rosterModeHTML(team){
   const again = ROSTER_MODE === "cards" && team && packReplayable(team);
   return `<div class="filters rmode" role="group" aria-label="${t("teams.mode.label")}">
     <button class="chip" data-rmode="sheet" aria-pressed="${ROSTER_MODE === "sheet"}">${t("teams.mode.sheet")}</button>
     <button class="chip" data-rmode="cards" aria-pressed="${ROSTER_MODE === "cards"}">${t("teams.mode.cards")}</button>${again ? `
-    <button class="chip rm-again" data-rerip>${t("teams.pack.again")}</button>` : ""}
+    <button class="chip rm-again" data-rerip>${RERIP_ICON}${t("teams.pack.again")}</button>` : ""}
   </div>`;
 }
 function wireRosterMode(v, team){
@@ -6058,11 +6151,14 @@ async function pkHome(S){
   pkClose(S);
 }
 /* ── js/surface/teams/brief.js ── */
-/* "This week": the roster's opening lines, 2026-09-24. It took the ticker's place, but where the
-   ticker crawled league-wide injury news, the brief names only this team's players and only what
-   asks for a decision: a starter with a status, a must-claim on this league's wire, a player the
-   news is about. Three lines at most, in that order, each one a tap to the thing it names. Read
-   from data the rows already carry -- nothing here computes a verdict of its own. */
+/* "This week": the roster's checklist (2026-09-25, from the storyboard David picked; it replaced a
+   brief of at most three lines that usually held one). One line per thing to check before
+   kickoff, most urgent first: who is hurt, whether the lineup is right, the weather, the
+   matchups, the wire, the news. Each line says the fact, a second line says what it touches, and
+   a tap opens the player or the view it names. Every fact is read from data the page already
+   carries; nothing here computes a verdict of its own. */
+
+let BRIEF_ALL = false;   // a phone shows three lines until "Show all"
 
 /* The profile index a roster row carries: starters, then bench, then out (drawer.js findPlayer). */
 function briefOrder(team){
@@ -6070,44 +6166,131 @@ function briefOrder(team){
     .concat(team.roster.filter(p=>!p.start && p.slot!=="OUT"))
     .concat(team.roster.filter(p=>p.slot==="OUT"));
 }
+const briefName = p => esc(nameInitial(p.n));
+const briefList = ps => ps.map(briefName).join(", ");
+const briefStatus = p => { const r = injFor(p); return r ? INJ_WORD[r.s]().toLowerCase() : ""; };
+
+/* Hurt: starters first (a decision before kickoff), then the bench (a decision on the wire). */
+function briefHurt(team, at){
+  const out = [], hurt = team.roster.filter(p => p.slot !== "OUT" && injFor(p));
+  const starters = hurt.filter(p => p.start), bench = hurt.filter(p => !p.start);
+  const says = ps => ps.map(p => `<b>${briefName(p)}</b> ${briefStatus(p)}`).join(" · ");
+  if (starters.length) out.push({kind: "hurt", tone: starters.some(injSits) ? "down" : "warn", i: at(starters[0]),
+    text: says(starters), sub: t("teams.brief.hurtStart")});
+  if (bench.length) out.push({kind: "hurt", tone: "warn", i: at(bench[0]),
+    text: says(bench), sub: starters.length ? t("teams.brief.hurtBench") : t("teams.brief.hurtBenchOnly")});
+  return out;
+}
+
+/* Which lineup slots a position can fill: its own, a flex (RB/WR/TE), a superflex (any). */
+function briefFits(slot, pos){
+  const s = slotLabel(slot);
+  if (s === pos) return true;
+  if (s === "FLX" || s === "W/R/T" || s === "RB/WR/TE") return ["RB", "WR", "TE"].includes(pos);
+  if (s === "SFLX" || s === "OP" || s === "Q/W/R/T") return ["QB", "RB", "WR", "TE"].includes(pos);
+  return false;
+}
+/* The lineup check: a healthy bench player who out-projects a starter he could replace by a full
+   point (under that, a projection's own noise decides it). None is "set", and the second line
+   names the closest call, or a bench player who projects higher but will likely sit. */
+const BRIEF_SWAP_PTS = 1;
+function briefLineup(team, at){
+  const starters = team.roster.filter(p => p.start && projFor(p) !== null);
+  const bench = team.roster.filter(p => !p.start && p.slot !== "OUT" && projFor(p) !== null);
+  let best = null, close = null, sitting = null;
+  const keep = (cur, x) => !cur || x.gain > cur.gain ? x : cur;
+  bench.forEach(b => starters.filter(s => briefFits(s.slot, b.pos) && projFor(b) > projFor(s)).forEach(s => {
+    const x = {b, s, gain: projFor(b) - projFor(s)};
+    if (injSits(b)) sitting = keep(sitting, x);
+    else if (x.gain >= BRIEF_SWAP_PTS) best = keep(best, x);
+    else close = keep(close, x);
+  }));
+  const pts = p => projFor(p).toFixed(1);
+  const pair = x => ({in: briefName(x.b), inPts: pts(x.b), out: briefName(x.s), outPts: pts(x.s)});
+  if (best) return [{kind: "lu", tone: "lime", i: at(best.b), text: t("teams.brief.swap", pair(best)),
+    sub: t("teams.brief.swapSub", {n: best.gain.toFixed(1)})}];
+  const sub = close ? t("teams.brief.setClose", pair(close))
+    : sitting ? t("teams.brief.setBecause", {...pair(sitting), status: briefStatus(sitting.b)}) : t("teams.brief.setSub");
+  return [{kind: "lu", tone: "ok", i: at(close ? close.b : starters[0] || team.roster[0]), text: t("teams.brief.set"), sub}];
+}
+
+/* Weather: the forecast that touches the most of his players, starters named first. */
+function briefWeather(team, at){
+  const by = new Map();
+  team.roster.filter(p => p.slot !== "OUT").forEach(p => {
+    const g = cardGame(p.team), w = cardWeather(g), wx = cardWeatherNote(w, p.pos);
+    if (!wx) return;
+    const k = `${g.venue}|${wx.kind}`;
+    (by.get(k) || by.set(k, {g, wx, ps: []}).get(k)).ps.push(p);
+  });
+  const top = [...by.values()].sort((a, b) => b.ps.filter(p => p.start).length - a.ps.filter(p => p.start).length || b.ps.length - a.ps.length)[0];
+  if (!top) return [];
+  const start = top.ps.filter(p => p.start), bench = top.ps.filter(p => !p.start);
+  return [{kind: "wx", tone: "sky", i: at(top.ps[0]),
+    text: t("teams.brief.wx", {what: esc(top.wx.what.charAt(0) + top.wx.what.slice(1).toLowerCase()), where: esc(top.g.venue)}),
+    sub: [start.length ? t("teams.brief.wxStart", {names: briefList(start)}) : "",
+          bench.length ? t("teams.brief.wxBench", {names: briefList(bench)}) : ""].filter(Boolean).join("; ")}];
+}
+
+/* Matchups: his toughest and softest starter this week, by the page's own ranks. */
+function briefMatchups(team, at){
+  const ranked = team.roster.filter(p => p.start).map(p => ({p, prof: profileFor(p)}))
+    .filter(x => x.prof && x.prof.next && easiestRank(x.prof.next.factor) !== null)
+    .map(x => ({...x, n: easiestRank(x.prof.next.factor)})).sort((a, b) => b.n - a.n);
+  if (ranked.length < 2) return [];
+  const say = x => t("teams.brief.muOne", {name: briefName(x.p), where: whereWord(x.prof.next), opp: esc(x.prof.next.opp), nth: ordinal(x.n)});
+  const hard = ranked[0], easy = ranked[ranked.length - 1];
+  return [{kind: "mu", tone: "warn", i: at(hard.p), text: t("teams.brief.muHard", {m: say(hard)}), sub: t("teams.brief.muEasy", {m: say(easy)})}];
+}
+
+/* The wire: must-claims first, else what is worth a claim, with when the claims clear. */
+function briefWire(team){
+  if (team.connected || typeof waiverIn !== "function") return [];
+  const must = waiverMustIn(team.key), worth = waiverIn(team.key).filter(([r]) => waiverTier(r, team.key) === "worth").length;
+  if (!must && !worth) return [];
+  const meta = waiverMeta()[team.key], when = meta ? waiverWhen(meta.clears || (WAIVER && WAIVER.clears)) : "";
+  return [{kind: "wire", tone: must ? "lime" : "up", go: "waivers",
+    text: must ? (must === 1 ? t("teams.brief.mustOne") : t("teams.brief.mustMany", {n: must})) : t("teams.brief.worth", {n: worth}),
+    sub: when ? t("waiver.hero.clears", {when}) : ""}];
+}
+
+function briefNews(team, at){
+  const told = team.roster.filter(p => p.news).sort((a, b) => b.news - a.news || at(a) - at(b));
+  if (!told.length) return [];
+  return [{kind: "news", tone: "soft", i: at(told[0]),
+    text: told.length === 1 ? t("teams.brief.newsOne", {name: briefName(told[0]), n: told[0].news}) : t("teams.brief.newsMany", {names: briefList(told.slice(0, 3))}),
+    sub: t("teams.brief.newsSub")}];
+}
 
 function briefLines(team){
   const order = briefOrder(team), at = p => order.indexOf(p);
-  const names = ps => ps.map(p => esc(nameInitial(p.n))).join(", ");
-  const out = [];
-
-  const flagged = team.roster.filter(p => p.start && p.status);
-  if (flagged.length){
-    const worst = flagged.some(p => p.status === "OUT") ? "down" : "warn";
-    out.push({tone: worst, i: at(flagged[0]),
-      text: flagged.length === 1
-        ? t("teams.brief.status", {name: esc(nameInitial(flagged[0].n)), status: esc(flagged[0].statusText || flagged[0].status)})
-        : t("teams.brief.statusMany", {n: flagged.length, names: names(flagged)})});
-  }
-
-  const must = typeof waiverMustIn === "function" ? waiverMustIn(team.key) : 0;
-  if (must) out.push({tone: "lime", go: "waivers",
-    text: must === 1 ? t("teams.brief.mustOne") : t("teams.brief.mustMany", {n: must})});
-
-  const told = team.roster.filter(p => p.news).sort((a, b) => b.news - a.news || at(a) - at(b));
-  // "soft": worth reading, nothing to decide. A phone shows one line and never this kind (brief.css).
-  if (told.length) out.push({tone: "soft", i: at(told[0]),
-    text: told.length === 1
-      ? t("teams.brief.newsOne", {name: esc(nameInitial(told[0].n)), n: told[0].news})
-      : t("teams.brief.newsMany", {names: names(told.slice(0, 3))})});
-
-  return out.slice(0, 3);
+  return [...briefHurt(team, at), ...briefLineup(team, at), ...briefWeather(team, at),
+          ...briefMatchups(team, at), ...briefWire(team), ...briefNews(team, at)];
 }
+
+/* The kind's mark, drawn in its colour: a cross for health, a checked list for the lineup, a cloud
+   for weather, a shield for a matchup, a plus for the wire, a page for news. */
+const BRIEF_ICON = {
+  hurt: '<path d="M12 4v16M4 12h16"/>',
+  lu: '<path d="M4 6h16M4 12h10M4 18h7"/><path d="m15 16 2 2 4-4"/>',
+  wx: '<path d="M7 16a4 4 0 1 1 1-7.9A5 5 0 0 1 18 9a3.5 3.5 0 0 1-.5 7z"/><path d="m9 19-1 2M13 19l-1 2M17 19l-1 2"/>',
+  mu: '<path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/>',
+  wire: '<path d="M12 5v14M5 12h14"/>',
+  news: '<path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/>',
+};
 
 function briefHTML(team){
   const lines = briefLines(team);
-  const body = lines.length
-    ? lines.map(l => `<button class="brief-line ${l.tone}" ${l.go ? `data-go="${l.go}"` : `data-team="${team.key}" data-i="${l.i}"`}>
-        <span class="brief-dot"></span><span class="brief-txt">${l.text}</span><span class="brief-go" aria-hidden="true">&rsaquo;</span>
-      </button>`).join("")
-    : `<p class="brief-quiet">${t("teams.brief.quiet")}</p>`;
-  return `<section class="brief" aria-label="${t("teams.brief.title")}">
-    <h2 class="brief-h">${t("teams.brief.title")}</h2>${body}
+  if (!lines.length) return `<section class="brief" aria-label="${t("teams.brief.title")}">
+    <h2 class="brief-h">${t("teams.brief.title")}</h2><p class="brief-quiet">${t("teams.brief.quiet")}</p></section>`;
+  const more = lines.length > 3;
+  return `<section class="brief${BRIEF_ALL ? " all" : ""}" aria-label="${t("teams.brief.title")}">
+    <h2 class="brief-h">${t("teams.brief.title")}<small>${t("teams.brief.count", {n: lines.length, s: lines.length === 1 ? "" : "s"})}</small></h2>
+    ${lines.map(l => `<button class="brief-line k-${l.kind} ${l.tone}" ${l.go ? `data-go="${l.go}"` : `data-team="${team.key}" data-i="${l.i}"`}>
+        <span class="brief-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${BRIEF_ICON[l.kind]}</svg></span>
+        <span class="brief-txt">${l.text}${l.sub ? `<small>${l.sub}</small>` : ""}</span><span class="brief-go" aria-hidden="true">&rsaquo;</span>
+      </button>`).join("")}
+    ${more ? `<button type="button" class="brief-more" data-briefall aria-expanded="${BRIEF_ALL}">${BRIEF_ALL ? t("teams.brief.fewer") : t("teams.brief.all", {n: lines.length})}</button>` : ""}
   </section>`;
 }
 
@@ -6120,6 +6303,7 @@ function wireBrief(v){
     if (el.dataset.go) navGo(el.dataset.go);
     else openProfile(findPlayer(el.dataset.team, +el.dataset.i), el);
   }));
+  v.querySelector("[data-briefall]")?.addEventListener("click", () => { BRIEF_ALL = !BRIEF_ALL; render(); });
 }
 /* ── js/surface/teams/proof.js ── */
 /* A waiver card's evidence: three usage stats chosen by position, each with his rank at the
@@ -8436,11 +8620,22 @@ function usageMine(){
 
 const USAGE_POSITIONS = ["QB", "RB", "WR", "TE"];
 let USAGE_POS = "RB";
-let USAGE_WEEK = USAGE.through || (USAGE.weeks || [1])[0];
+/* How many teams have a row in a week. A week opens as soon as its Thursday game is in, so the
+   newest week can hold two teams out of 32; the grid then showed "5 players, RB week 3". */
+const usageTeams = wk => new Set((USAGE.rows || []).filter(r => r.wk === wk).map(r => r.team)).size;
+/* The grid opens on the newest week most teams have played (2026-09-25); a week still being
+   played stays one tap away, and its foot says how much of it is in. */
+const usagePartial = wk => usageTeams(wk) < Math.max(0, ...(USAGE.weeks || []).map(usageTeams)) / 2;
+function usageDefaultWeek(){
+  const full = (USAGE.weeks || []).filter(w => !usagePartial(w));
+  return full.length ? full[full.length - 1] : (USAGE.through || (USAGE.weeks || [])[0] || 1);
+}
+let USAGE_WEEK = usageDefaultWeek();
 let USAGE_SORT = null;      // a column id, else the position's own rank column
 let USAGE_DESC = true;
 let USAGE_MODE = "level";   // "level" = what he did, "change" = the move from the week before
 let USAGE_MINE = false;
+let USAGE_PANEL = false;    // the week / reading panel under the controls row is open
 /* ── js/surface/usage/usage.js ── */
 /* The Usage grid. One position, one week, the seven columns that position is judged on. */
 
@@ -8526,15 +8721,23 @@ function usageLegend(){
   </div>`;
 }
 
+/* One row above the grid (STYLE.md, 2026-09-25): the position, which is what a reader changes
+   most, and a chip naming the week and reading that opens the rest. The row of twelve controls it
+   replaces scrolled its week chips off a phone's edge. */
 function usageControls(){
   const weeks = USAGE.weeks || [];
-  return `<div class="filters">
-    <span class="lbl">${t("usage.filter.position")}</span>
+  const set = [t("usage.set.week", {w: USAGE_WEEK}), USAGE_MODE === "change" ? t("usage.mode.change") : "",
+    USAGE_MINE ? t("usage.filter.mine") : ""].filter(Boolean).join(" · ");
+  const row = `<div class="setrow">
     ${USAGE_POSITIONS.filter(p => usageCols(p).length).map(p =>
       `<button class="chip" data-upos="${p}" aria-pressed="${USAGE_POS === p}">${p}</button>`).join("")}
-    <span class="lbl uspace">${t("usage.filter.week")}</span>
+    <button type="button" class="chip setchip" data-upanel aria-expanded="${USAGE_PANEL}" aria-label="${t("usage.set.label")}">${set}<span class="caret" aria-hidden="true"></span></button>
+  </div>`;
+  if (!USAGE_PANEL) return row;
+  return row + `<div class="setpanel">
+    <span class="lbl">${t("usage.filter.week")}</span>
     ${weeks.map(w => `<button class="chip" data-uweek="${w}" aria-pressed="${USAGE_WEEK === w}">${w}</button>`).join("")}
-    <span style="flex:1"></span>
+    <span class="lbl">${t("usage.set.show")}</span>
     <button class="chip" data-umode="level" aria-pressed="${USAGE_MODE === "level"}">${t("usage.mode.level")}</button>
     <button class="chip" data-umode="change" aria-pressed="${USAGE_MODE === "change"}" ${weeks.length < 2 ? "disabled" : ""}>${t("usage.mode.change")}</button>
     <button class="chip" data-umine aria-pressed="${USAGE_MINE}">${t("usage.filter.mine")}</button>
@@ -8552,12 +8755,13 @@ function usageHTML(){
   return `<div class="wrap">
     ${usageControls()}
     ${usageLegend()}
-    <div class="utable" style="--ucols:${template}">
+    <div class="utable" style="--ucols:${template};--un:${cols.length}">
       ${usageHead(cols)}
       ${rows.length ? rows.map((r, i) => usageRow(r, i, cols, prev)).join("")
         : `<div class="state-empty" style="margin:26px 0;min-height:120px"><div><b>0</b><span>${t("usage.empty.noPlayers")}</span></div></div>`}
     </div>
-    <div class="note ufoot">${t("usage.foot.source", {n: rows.length, week: USAGE_WEEK, pos: USAGE_POS})}</div>
+    <div class="note ufoot">${t("usage.foot.source", {n: rows.length, week: USAGE_WEEK, pos: USAGE_POS})}${usagePartial(USAGE_WEEK)
+      ? ` ${t("usage.foot.partial", {w: USAGE_WEEK, n: usageTeams(USAGE_WEEK)})}` : ""}</div>
   </div>`;
 }
 
@@ -8567,6 +8771,7 @@ function wireUsage(v){
   set("[data-uweek]", b => { USAGE_WEEK = +b.dataset.uweek; });
   set("[data-umode]", b => { USAGE_MODE = b.dataset.umode; });
   set("[data-umine]", () => { USAGE_MINE = !USAGE_MINE; });
+  set("[data-upanel]", () => { USAGE_PANEL = !USAGE_PANEL; });
 
   /* Clicking the live column flips the direction; a new column starts descending, because the
      question a usage column answers is always "who had the most". Scroll is held because a
@@ -8995,8 +9200,8 @@ function bdChipsHTML(picks){
    is a Leaders idea, so "+ Compare" is too. */
 function bdControlsHTML(){
   const has = BD_MODE === "movers" ? p => POOL.some(r => r.pos === p) : p => bdAxes(p).length;
-  return `<div class="filters">
-    <span class="lbl">${t("board.filter.position")}</span>
+  // .setrow, not .filters: the chips fit a phone, so the row never scrolls (STYLE.md audit).
+  return `<div class="setrow" role="group" aria-label="${t("board.filter.position")}">
     ${BD_POSITIONS.filter(has).map(p =>
       `<button class="chip" data-bdpos="${p}" aria-pressed="${BD_POS === p}">${p}</button>`).join("")}
     ${BD_MODE === "movers" ? "" : `<span style="flex:1"></span>
@@ -10042,6 +10247,7 @@ let PICK_ERR = null;
 
 /* Which book the DFS tab shows -- Yahoo or DraftKings. */
 let DFS_SITE = "yahoo";
+let DFS_PANEL = false;   // the site panel under the DFS bar is open
 function dfsSite(){
   return DFS_SITE === "dk"
     ? {key:"dk", label:"DraftKings", cap:CAP_DK, pool:DFSPOOL_DK, lineup:DFS_DK, when:null}
@@ -10770,18 +10976,10 @@ function galleryHTML(){
 function topLineupsHTML(){
   const site = dfsSite();
   const lineups = topLineups();
-  return `<div class="rule"><h2>${t("dfs.top.heading", {n: TOP_COUNT})}</h2><span class="hair"></span>
-    <span class="side side-explain">${t("dfs.top.sub")}</span></div>
-  <div class="strategy">
-    <button class="strat-btn" data-topmode="greedy" aria-pressed="${TOP_MODE==="greedy"}">
-      <span class="st-name">${t("dfs.top.greedy")}</span><span class="st-sub">${t("dfs.top.greedySub")}</span>
-    </button>
-    <button class="strat-btn" data-topmode="contrarian" aria-pressed="${TOP_MODE==="contrarian"}">
-      <span class="st-name">${t("dfs.top.contrarian")}</span><span class="st-sub">${t("dfs.top.contrarianSub")}</span>
-    </button>
-  </div>
-  ${lineups.length ? `
-  <div class="rail" data-railkey="dfs-lineups"><div class="railscroll">${lineups.map((l,i)=>lineupCard(l,i,site.cap)).join("")}</div></div>`
+  // The strategy moved to the bar (dfsBarHTML). The lineups stack down the page on a phone and
+  // sit three across on a desktop: no sideways rail inside a page that scrolls down (STYLE.md).
+  return `${lineups.length ? `
+  <div class="lu-grid">${lineups.map((l,i)=>lineupCard(l,i,site.cap)).join("")}</div>`
   : `<div class="state-empty" style="min-height:120px"><div><b>0</b><span>${t("dfs.top.empty")}</span></div></div>`}`;
 }
 
@@ -10860,7 +11058,9 @@ function betsBarHTML(build){
     ${["ALL","QB","RB","WR","TE"].map(p=>`<button class="chip" data-mpos="${p}" aria-pressed="${MKT_POS===p}">${p === "ALL" ? t("parlay.option.all") : p}</button>`).join("")}
     ${set}</div>`;
   return `<div class="bets-bar bets-tabsrow">
-    <div class="bd-tabs" role="tablist" aria-label="${t("parlay.gallery.legsLabel")}">${galleryScopes(PARLAY_BOOK).map(([k, label]) =>
+    <div class="bd-tabs" role="tablist" aria-label="${t("parlay.gallery.legsLabel")}">${galleryScopes(PARLAY_BOOK)
+      // No Mix tab (2026-09-25): mix cards still show under All, and six tabs did not fit a phone.
+      .filter(([k]) => k !== "mix").map(([k, label]) =>
       `<button type="button" class="bd-tab" role="tab" data-scope="${k}" aria-selected="${SLIP_SCOPE===k}">${label}</button>`).join("")}</div>
     ${set}</div>`;
 }
@@ -11084,30 +11284,41 @@ function wireBets(v){
 }
 document.addEventListener("keydown", e => { if (e.key === "Escape" && BETS_SHEET) betsSheetClose(); });
 /* ── js/surface/dfs/dfs.js ── */
+/* One row above the lineups (STYLE.md audit, 2026-09-25): the strategy, which changes what the
+   three lineups are, and a chip naming the site and cap that opens the rest. It replaces a hero
+   line, a site switch and a two-box strategy toggle, three rows that put the first lineup at
+   294px on a phone. */
+function dfsBarHTML(){
+  const site = dfsSite();
+  const row = `<div class="setrow">
+    <button class="chip" data-topmode="greedy" aria-pressed="${TOP_MODE==="greedy"}">${t("dfs.top.greedy")}</button>
+    <button class="chip" data-topmode="contrarian" aria-pressed="${TOP_MODE==="contrarian"}">${t("dfs.top.contrarian")}</button>
+    <button type="button" class="chip setchip" data-dfspanel aria-expanded="${DFS_PANEL}" aria-label="${t("dfs.set.label")}">${t("dfs.set.chip", {site: site.label, cap: site.cap.toLocaleString()})}<span class="caret" aria-hidden="true"></span></button>
+  </div>`;
+  if (!DFS_PANEL) return row;
+  return row + `<div class="setpanel">
+    <span class="lbl">${t("dfs.book.label")}</span>
+    <button class="chip" data-dfssite="yahoo" aria-pressed="${DFS_SITE==="yahoo"}">${t("dfs.book.yahoo")}</button>
+    <button class="chip" data-dfssite="dk" aria-pressed="${DFS_SITE==="dk"}">${t("dfs.book.dk")}</button>
+    <span style="flex:1"></span>
+    ${explainButtonHTML("dfs")}
+    <span class="lbl">${t("dfs.top.greedy")}: ${t("dfs.top.greedySub")} · ${t("dfs.top.contrarian")}: ${t("dfs.top.contrarianSub")}</span>
+  </div>`;
+}
+function wireDfsBar(v){
+  v.querySelectorAll("[data-dfspanel]").forEach(b => b.addEventListener("click", () => { DFS_PANEL = !DFS_PANEL; render(); }));
+}
+
 function dfsSurfaceHTML(){
   const site = dfsSite();
-  return `<section class="hero slim">
-    <div class="wrap hero-in">
-      <div>
-        <div class="hero-eyebrow" style="--tint:var(--lime)">
-          <span class="league-mark"></span><span class="lbl">${t("dfs.hero.eyebrow", {site: site.label, cap: site.cap.toLocaleString()})}</span>
-        </div>
-        <div class="modes-sub dock">
-          <span class="lbl" style="margin-right:8px">${t("dfs.book.label")}</span>
-          <button class="mode-sub" data-dfssite="yahoo" aria-pressed="${DFS_SITE==="yahoo"}">${t("dfs.book.yahoo")}</button>
-          <button class="mode-sub" data-dfssite="dk" aria-pressed="${DFS_SITE==="dk"}">${t("dfs.book.dk")}</button>
-          ${explainButtonHTML("dfs")}
-        </div>
-      </div>
-    </div>
-  </section>
-  <div class="wrap">
+  return `<div class="wrap">
+    ${dfsBarHTML()}
     ${topLineupsHTML()}
     <div class="build" style="margin-top:24px">
       <div class="side">${dfsHTML()}</div>
       <div>
         ${marketHead("dfs")}
-        <div class="filters">
+        <div class="filters dfs-pos">
           <span class="lbl">${t("dfs.filter.position")}</span>
           ${["ALL","QB","RB","WR","TE","DST"].map(p=>`<button class="chip" data-dpos="${p}" aria-pressed="${DFS_POS===p}">${p}</button>`).join("")}
           <span style="flex:1"></span>
@@ -13375,7 +13586,7 @@ function render(){
   if (SURFACE === "parlay" || SURFACE === "build" || SURFACE === "dfs"){
     v.innerHTML = SURFACE === "dfs" ? dfsSurfaceHTML() : parlayHTML();
     wireBuilder(v);
-    if (SURFACE !== "dfs") wireBets(v);
+    if (SURFACE !== "dfs") wireBets(v); else wireDfsBar(v);
     nudgeScrollers(v);
     return;
   }

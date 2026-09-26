@@ -4,7 +4,10 @@
    (underdog-list.css), .lgrid DraftKings' one-line cards (legs.css). Each rule here is a class
    deeper than the list rule it reshapes, so it wins over responsive/760.css, which comes later.
    Opening a line's chevron (the game log) widens its card to the whole row: a chart needs room. */
-.pgrid,.lgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:start}
+/* Cards in a row share their top and bottom edges (STYLE.md, audit 2026-09-25): a two-call card
+   beside a three-call one stretches, its calls on top and the spare room under them, so the row
+   reads as one row rather than a ragged edge with gaps under the short cards. */
+.pgrid,.lgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:stretch}
 .pgrid > .pcard:has(.legx),.lgrid > .leg:has(.legx){grid-column:1/-1}
 
 /* Underdog: who and when on top, then one small block per call. */

@@ -82,15 +82,23 @@ function usageLegend(){
   </div>`;
 }
 
+/* One row above the grid (STYLE.md, 2026-09-25): the position, which is what a reader changes
+   most, and a chip naming the week and reading that opens the rest. The row of twelve controls it
+   replaces scrolled its week chips off a phone's edge. */
 function usageControls(){
   const weeks = USAGE.weeks || [];
-  return `<div class="filters">
-    <span class="lbl">${t("usage.filter.position")}</span>
+  const set = [t("usage.set.week", {w: USAGE_WEEK}), USAGE_MODE === "change" ? t("usage.mode.change") : "",
+    USAGE_MINE ? t("usage.filter.mine") : ""].filter(Boolean).join(" · ");
+  const row = `<div class="setrow">
     ${USAGE_POSITIONS.filter(p => usageCols(p).length).map(p =>
       `<button class="chip" data-upos="${p}" aria-pressed="${USAGE_POS === p}">${p}</button>`).join("")}
-    <span class="lbl uspace">${t("usage.filter.week")}</span>
+    <button type="button" class="chip setchip" data-upanel aria-expanded="${USAGE_PANEL}" aria-label="${t("usage.set.label")}">${set}<span class="caret" aria-hidden="true"></span></button>
+  </div>`;
+  if (!USAGE_PANEL) return row;
+  return row + `<div class="setpanel">
+    <span class="lbl">${t("usage.filter.week")}</span>
     ${weeks.map(w => `<button class="chip" data-uweek="${w}" aria-pressed="${USAGE_WEEK === w}">${w}</button>`).join("")}
-    <span style="flex:1"></span>
+    <span class="lbl">${t("usage.set.show")}</span>
     <button class="chip" data-umode="level" aria-pressed="${USAGE_MODE === "level"}">${t("usage.mode.level")}</button>
     <button class="chip" data-umode="change" aria-pressed="${USAGE_MODE === "change"}" ${weeks.length < 2 ? "disabled" : ""}>${t("usage.mode.change")}</button>
     <button class="chip" data-umine aria-pressed="${USAGE_MINE}">${t("usage.filter.mine")}</button>
@@ -108,12 +116,13 @@ function usageHTML(){
   return `<div class="wrap">
     ${usageControls()}
     ${usageLegend()}
-    <div class="utable" style="--ucols:${template}">
+    <div class="utable" style="--ucols:${template};--un:${cols.length}">
       ${usageHead(cols)}
       ${rows.length ? rows.map((r, i) => usageRow(r, i, cols, prev)).join("")
         : `<div class="state-empty" style="margin:26px 0;min-height:120px"><div><b>0</b><span>${t("usage.empty.noPlayers")}</span></div></div>`}
     </div>
-    <div class="note ufoot">${t("usage.foot.source", {n: rows.length, week: USAGE_WEEK, pos: USAGE_POS})}</div>
+    <div class="note ufoot">${t("usage.foot.source", {n: rows.length, week: USAGE_WEEK, pos: USAGE_POS})}${usagePartial(USAGE_WEEK)
+      ? ` ${t("usage.foot.partial", {w: USAGE_WEEK, n: usageTeams(USAGE_WEEK)})}` : ""}</div>
   </div>`;
 }
 
@@ -123,6 +132,7 @@ function wireUsage(v){
   set("[data-uweek]", b => { USAGE_WEEK = +b.dataset.uweek; });
   set("[data-umode]", b => { USAGE_MODE = b.dataset.umode; });
   set("[data-umine]", () => { USAGE_MINE = !USAGE_MINE; });
+  set("[data-upanel]", () => { USAGE_PANEL = !USAGE_PANEL; });
 
   /* Clicking the live column flips the direction; a new column starts descending, because the
      question a usage column answers is always "who had the most". Scroll is held because a

@@ -150,11 +150,13 @@ STATES = [
     ("board-movers-wait", [("eval", "POOL.forEach(r => { r.dShare = null; })")] + MOVERS),
     # A mover opens the player's profile, the same modal the Leaders board opens (2026-09-25).
     ("board-movers-modal", MOVERS + [("click", "[data-poolslug]")]),
-    # The usage grid: the default RB week-2 level view, the same grid as week-over-week change
-    # (the mode the level view cannot show), a QB grid because its columns are the ones with no
-    # counterpart anywhere else in the app, and the profile modal a row opens.
+    # The usage grid: the default RB level view on the newest week most teams have played, the
+    # same grid as week-over-week change (the mode the level view cannot show; the week and the
+    # reading sit in the panel the bar's last chip opens since 2026-09-25), a QB grid because its
+    # columns are the ones with no counterpart anywhere else in the app, and the profile modal.
     ("usage", go("usage")),
-    ("usage-change", go("usage") + [("click", "[data-umode='change']")]),
+    ("usage-panel", go("usage") + [("click", "[data-upanel]")]),
+    ("usage-change", go("usage") + [("click", "[data-upanel]"), ("click", "[data-umode='change']")]),
     ("usage-qb", go("usage") + [("click", "[data-upos='QB']")]),
     ("usage-modal", go("usage") + [("click", "[data-usage]")]),
     # Bets since 2026-09-25: Slips (leaf `parlay`) and Build, the book in the settings panel the
@@ -167,8 +169,11 @@ STATES = [
     ("build-panel", go("build") + [("click", "[data-betspanel]")]),
     ("parlay-sheet", go("parlay") + [("click", "[data-loadslip]"), ("click", "[data-tray]")]),
     ("dfs-yahoo", go("dfs")),
-    ("dfs-dk", go("dfs") + [("click", "[data-dfssite='dk']")]),
-    ("dfs-explain", go("dfs") + [("click", "[data-explain]")]),   # the drawer
+    # DFS since 2026-09-25: the strategy as the bar's chips, the site and "how this works" in the
+    # panel its last chip opens.
+    ("dfs-dk", go("dfs") + [("click", "[data-dfspanel]"), ("click", "[data-dfssite='dk']")]),
+    ("dfs-contrarian", go("dfs") + [("click", "[data-topmode='contrarian']")]),
+    ("dfs-explain", go("dfs") + [("click", "[data-dfspanel]"), ("click", "[data-explain]")]),   # the drawer
     ("news-injury", go("news") + [("click", "[data-newscat='injury']")]),
     ("news", go("news")),
     # A fresh browser has no saved passphrase, so this is the locked state: the form, not just

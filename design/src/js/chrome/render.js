@@ -62,7 +62,7 @@ function render(){
   if (SURFACE === "parlay" || SURFACE === "build" || SURFACE === "dfs"){
     v.innerHTML = SURFACE === "dfs" ? dfsSurfaceHTML() : parlayHTML();
     wireBuilder(v);
-    if (SURFACE !== "dfs") wireBets(v);
+    if (SURFACE !== "dfs") wireBets(v); else wireDfsBar(v);
     nudgeScrollers(v);
     return;
   }
