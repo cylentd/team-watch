@@ -1,11 +1,28 @@
 /* ============================== ROSTER: THE PACK'S STAGE ============================== */
-/* 2026-09-25 (js/surface/teams/packshow.js, packdeal.js, packfx.js). A black stage over the page:
+/* 2026-09-25 (js/surface/teams/packshow.js, packdeal.js, packfx.js). A dark room over the page:
    the sealed pack in the middle, then one card at a time in the same place (--pkw wide, its centre
    at 45% of the height), the pile at the foot. The best card's moment turns light rays behind the
-   centre. .pk-home fades the stage away to the roster while the cards fly into their slots. */
+   centre. .pk-home fades the stage away to the roster while the cards fly into their slots.
+
+   The room, reworked the same evening (it was a flat near-black): the roster stays behind it,
+   blurred and dimmed past reading, darkening to near-black at the edges, so the eye goes to the
+   one lit place. That light is the only colour on the stage and it means something: each card's
+   tier as it turns (--pl, the colour; --pa, how strong), brightest for the best. A pool of it on
+   the floor under the card puts the card in a space instead of on a flat colour. */
+@property --pa{syntax:"<number>";inherits:true;initial-value:0}
 body.pk-open{overflow:hidden}
-.pk-stage{--pkw:min(220px,58vw);position:fixed;inset:0;z-index:57;-webkit-tap-highlight-color:transparent}
-.pk-back{position:absolute;inset:0;background:var(--void);opacity:1;transition:opacity .5s var(--ease)}
+.pk-stage{--pkw:clamp(200px,min(58vw,38vh),320px);--pl:var(--ink-rgb);--pa:.08;
+  position:fixed;inset:0;z-index:57;-webkit-tap-highlight-color:transparent;transition:--pa .6s var(--ease)}
+.pk-back{position:absolute;inset:0;opacity:1;transition:opacity .5s var(--ease);
+  -webkit-backdrop-filter:blur(18px) saturate(.5);backdrop-filter:blur(18px) saturate(.5);
+  background:radial-gradient(ellipse 70% 60% at 50% 45%,rgb(var(--void-rgb) / .78),rgb(var(--void-rgb) / .93) 60%,rgb(var(--void-rgb) / .99))}
+/* The light behind the centre card, and its pool on the floor under it. */
+.pk-light{position:absolute;z-index:1;left:50%;top:45%;width:calc(var(--pkw) * 3.2);aspect-ratio:1;translate:-50% -50%;pointer-events:none;
+  background:radial-gradient(circle,rgb(var(--pl) / var(--pa)) 0,rgb(var(--pl) / calc(var(--pa) * .35)) 30%,transparent 62%)}
+.pk-floor{position:absolute;z-index:1;left:50%;top:calc(45% + var(--pkw) * .7 + 8px);width:calc(var(--pkw) * 1.5);height:calc(var(--pkw) * .22);
+  translate:-50% -50%;pointer-events:none;
+  background:radial-gradient(ellipse closest-side,rgb(var(--pl) / calc(var(--pa) * 1.1)),transparent),
+    radial-gradient(ellipse closest-side,rgb(var(--shadow-rgb) / .7),transparent 80%)}
 .pk-close{position:absolute;z-index:4;top:calc(env(safe-area-inset-top, 0px) + 12px);right:14px;width:40px;height:40px;
   border-radius:99px;border:1px solid var(--line-2);background:var(--panel-2);color:var(--ink-2);font-size:var(--t-3);cursor:pointer}
 .pk-close:hover{color:var(--ink)}
@@ -14,9 +31,19 @@ body.pk-open{overflow:hidden}
   font-size:var(--t-3);color:var(--ink-2);text-wrap:balance}
 .pk-msg b{color:var(--ink);margin-right:4px}
 .pk-msg .pk-signed-tag{font-style:normal;font-family:var(--sig);font-size:var(--t-4);color:var(--gold-2)}
-.pk-center{position:absolute;z-index:3;left:50%;top:45%;translate:-50% -50%}
-.pk-center .pack-seal{width:200px;height:280px}
-.pk-hint{position:absolute;z-index:4;left:16px;right:16px;top:calc(45% + 170px);margin:0;text-align:center;
+/* The sealed pack in 3D: it leans toward the mouse (--prx/--pry, packshow.js), or sways by itself
+   where there is no mouse, and holds still while a finger tears it. Its strip flies off in 3D
+   (the seal's own perspective) and the pack tips back as the first card rises out of it. */
+.pk-center{position:absolute;z-index:3;left:50%;top:45%;translate:-50% -50%;perspective:900px}
+.pk-center .pack-glow{transform:rotateX(var(--prx, 0deg)) rotateY(var(--pry, 0deg));transition:transform .5s cubic-bezier(.25,1,.5,1)}
+.pk-center .pack-seal{width:calc(var(--pkw) * .92);height:calc(var(--pkw) * 1.28);perspective:700px}
+@media (prefers-reduced-motion:no-preference){
+  .pk-stage:not(.pk-aim):not(.pk-ripped) .pk-center .pack-glow{animation:pk-sway 5s ease-in-out infinite alternate,pk-breathe 1.8s ease-in-out infinite alternate}
+  .pk-stage:not(.pk-aim):not(.pk-ripped) .pk-center .pack-glow.tease-ur{animation:pk-sway 5s ease-in-out infinite alternate}
+  .pk-stage:has(.pack-seal.tearing) .pk-center .pack-glow{animation-play-state:paused}
+}
+@keyframes pk-sway{from{transform:rotateX(5deg) rotateY(-10deg)}to{transform:rotateX(-3deg) rotateY(10deg)}}
+.pk-hint{position:absolute;z-index:4;left:16px;right:16px;top:calc(45% + var(--pkw) * .64 + 30px);margin:0;text-align:center;
   font-family:var(--mono);font-size:var(--t-1);letter-spacing:.14em;color:var(--ink-3)}
 @media (prefers-reduced-motion:no-preference){ .pk-hint{animation:pk-blink 1.4s ease-in-out infinite alternate} }
 @keyframes pk-blink{to{opacity:.35}}
@@ -54,7 +81,7 @@ body.pk-open{overflow:hidden}
 
 /* Home: the stage fades to the roster; only the flying cards stay. */
 .pk-home{pointer-events:none}
-.pk-home :is(.pk-back,.pk-rays,.pk-msg,.pk-close){opacity:0;transition:opacity .5s var(--ease)}
+.pk-home :is(.pk-back,.pk-rays,.pk-msg,.pk-close,.pk-light,.pk-floor){opacity:0;transition:opacity .5s var(--ease)}
 /* A slot waiting for its card: kept in place so the grid does not move, invisible until it lands. */
 .tc.pk-slot{visibility:hidden}
 

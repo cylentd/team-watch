@@ -352,6 +352,24 @@ def test_the_stage_opens_by_itself_and_its_cards_fly_home_to_their_slots(browser
 
 
 @pytest.mark.render
+def test_the_first_card_comes_out_of_the_pack_and_the_light_takes_its_tier(browser, page_file):
+    ctx, page, errors = motion_page(browser, page_file)
+    try:
+        page.wait_for_selector(".pk-stage", timeout=2000)
+    except Exception:
+        pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
+    rip(page)
+    page.wait_for_selector(".pk-card")
+    # The pack is still on the stage while its first card rises out of it, then it goes.
+    assert page.locator(".pk-center").count() == 1
+    page.wait_for_selector(".pk-center", state="detached", timeout=4000)
+    # Once a card turns, the room's light is its tier's, stronger than the plain room.
+    page.wait_for_function("parseFloat(getComputedStyle(document.querySelector('.pk-stage')).getPropertyValue('--pa')) > .2", timeout=8000)
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
 def test_on_a_desktop_the_starters_are_three_by_three_with_the_bench_beside(browser, page_file):
     ctx, page, errors = cards_page(browser, page_file, viewport=(1400, 900))
     cols = page.evaluate("[...document.querySelectorAll('.cards .cardgrid')].map(g => getComputedStyle(g).gridTemplateColumns.split(' ').length)")

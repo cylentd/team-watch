@@ -31,7 +31,7 @@ function packShow(team, wk){
   const st = document.createElement("div");
   st.className = "pk-stage";
   st.setAttribute("role", "dialog"); st.setAttribute("aria-modal", "true"); st.setAttribute("aria-label", t("teams.pack.stage"));
-  st.innerHTML = `<div class="pk-back"></div><div class="pk-rays"></div><div class="pk-flash"></div>
+  st.innerHTML = `<div class="pk-back"></div><div class="pk-light"></div><div class="pk-floor"></div><div class="pk-rays"></div><div class="pk-flash"></div>
     <button class="pk-close" type="button" aria-label="${t("teams.pack.closeLabel")}">✕</button>
     <p class="pk-msg" aria-live="polite">${t("teams.pack.lead", {wk, n: cards.length})}</p>
     <div class="pk-center">${packSealHTML(team, wk, cards)}</div>
@@ -45,8 +45,35 @@ function packShow(team, wk){
   st.querySelector(".pk-close").addEventListener("click", () => pkQuit(S));
   // Each eighth of the tear: a tick under the finger and a pinch of foil from the tear point.
   wireRip(st.querySelector(".pack-seal"), () => pkRip(S), (x, y) => { packBuzz(6); packBurst(x, y, {n: 6, tier: S.best, spread: .35}); });
+  pkAim(S);
   render();                     // the page drops its own copy of the pack while the stage holds it
   if (!REDUCED()) st.animate([{opacity: 0}, {opacity: 1}], {duration: 260});
+}
+
+/* The sealed pack leans toward the mouse, up to 9° up or down and 14° across, and its foil's shine
+   follows it (--mx/--my). A touch screen has no hover: there the pack sways by itself (packshow.css). */
+function pkAim(S){
+  S.st.addEventListener("pointermove", e => {
+    if (e.pointerType !== "mouse" || S.ripped) return;
+    const c = S.st.querySelector(".pk-center"), seal = c && c.querySelector(".pack-seal");
+    if (!seal || seal.classList.contains("tearing")) return;
+    const r = c.getBoundingClientRect();
+    const dx = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (innerWidth / 2)));
+    const dy = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height / 2)) / (innerHeight / 2)));
+    S.st.classList.add("pk-aim");
+    c.style.setProperty("--prx", `${(-dy * 9).toFixed(1)}deg`);
+    c.style.setProperty("--pry", `${(dx * 14).toFixed(1)}deg`);
+    seal.style.setProperty("--mx", `${Math.round(50 + dx * 40)}%`);
+    seal.style.setProperty("--my", `${Math.round(50 + dy * 40)}%`);
+  });
+}
+
+/* The stage's light: a card's tier colour, stronger the rarer (null: the room's plain low light). */
+const PK_LIGHT = {c: ["--ink-rgb", .12], r: ["--uncommon-2-rgb", .3], ur: ["--gold-2-rgb", .38], sig: ["--epic-2-rgb", .48], one: ["--holo-3-rgb", .6]};
+function pkLight(S, tier){
+  const [rgb, a] = PK_LIGHT[tier] || ["--ink-rgb", .08];
+  S.st.style.setProperty("--pl", `var(${rgb})`);
+  S.st.style.setProperty("--pa", String(a));
 }
 
 /* ✕, Escape or Back. Before the rip the pack goes back on the page; after it, straight to the end. */
@@ -68,19 +95,24 @@ async function pkRip(S){
   packMark(S.team, S.wk);
   packBuzz(18);
   S.st.querySelector(".pk-hint").remove();
-  const seal = S.st.querySelector(".pack-seal");
-  if (!REDUCED()){
+  S.st.classList.add("pk-ripped");
+  const center = S.st.querySelector(".pk-center"), seal = center.querySelector(".pack-seal");
+  if (REDUCED()){ center.remove(); S.skip = true; }
+  else {
+    // The strip flies off in 3D, turning over as it goes, while the pack tips back to open its mouth.
     const r = seal.getBoundingClientRect();
     packBurst(r.left + r.width / 2, r.top + 16, {n: 46, tier: S.best});
-    await seal.querySelector(".pack-top").animate(
-      [{translate: "0 0", rotate: "0deg", opacity: 1}, {translate: "40px -40px", rotate: "-12deg", opacity: 1, offset: .35},
-       {translate: "130px -150px", rotate: "-34deg", opacity: 0}],
-      {duration: 460, easing: "cubic-bezier(.25,.7,.35,1)", fill: "forwards"}).finished;
-    await seal.animate([{translate: "0 0", opacity: 1}, {translate: "0 90px", scale: ".9", opacity: 0}],
-      {duration: 300, easing: "ease-in", fill: "forwards"}).finished;
+    const out = "cubic-bezier(.25,1,.5,1)";
+    await Promise.all([
+      seal.querySelector(".pack-top").animate([
+        {transform: "translate3d(0,0,0) rotateX(0) rotateZ(0)", opacity: 1},
+        {transform: "translate3d(40px,-46px,40px) rotateX(40deg) rotateZ(-10deg)", opacity: 1, offset: .35},
+        {transform: "translate3d(150px,-170px,90px) rotateX(120deg) rotateZ(-38deg)", opacity: 0}],
+        {duration: 520, easing: out, fill: "forwards"}).finished,
+      center.querySelector(".pack-glow").animate([{transform: "rotateX(16deg) rotateY(0deg)"}],
+        {duration: 460, easing: out, fill: "forwards"}).finished]);
+    S.pack = center;
   }
-  S.st.querySelector(".pk-center").remove();
-  if (REDUCED()) S.skip = true;
   await pkDeal(S);
   await pkHome(S);
 }

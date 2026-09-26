@@ -953,13 +953,30 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .rmode .rm-again{margin-left:auto}
 /* ── css/surface/teams/packshow.css ── */
 /* ============================== ROSTER: THE PACK'S STAGE ============================== */
-/* 2026-09-25 (js/surface/teams/packshow.js, packdeal.js, packfx.js). A black stage over the page:
+/* 2026-09-25 (js/surface/teams/packshow.js, packdeal.js, packfx.js). A dark room over the page:
    the sealed pack in the middle, then one card at a time in the same place (--pkw wide, its centre
    at 45% of the height), the pile at the foot. The best card's moment turns light rays behind the
-   centre. .pk-home fades the stage away to the roster while the cards fly into their slots. */
+   centre. .pk-home fades the stage away to the roster while the cards fly into their slots.
+
+   The room, reworked the same evening (it was a flat near-black): the roster stays behind it,
+   blurred and dimmed past reading, darkening to near-black at the edges, so the eye goes to the
+   one lit place. That light is the only colour on the stage and it means something: each card's
+   tier as it turns (--pl, the colour; --pa, how strong), brightest for the best. A pool of it on
+   the floor under the card puts the card in a space instead of on a flat colour. */
+@property --pa{syntax:"<number>";inherits:true;initial-value:0}
 body.pk-open{overflow:hidden}
-.pk-stage{--pkw:min(220px,58vw);position:fixed;inset:0;z-index:57;-webkit-tap-highlight-color:transparent}
-.pk-back{position:absolute;inset:0;background:var(--void);opacity:1;transition:opacity .5s var(--ease)}
+.pk-stage{--pkw:clamp(200px,min(58vw,38vh),320px);--pl:var(--ink-rgb);--pa:.08;
+  position:fixed;inset:0;z-index:57;-webkit-tap-highlight-color:transparent;transition:--pa .6s var(--ease)}
+.pk-back{position:absolute;inset:0;opacity:1;transition:opacity .5s var(--ease);
+  -webkit-backdrop-filter:blur(18px) saturate(.5);backdrop-filter:blur(18px) saturate(.5);
+  background:radial-gradient(ellipse 70% 60% at 50% 45%,rgb(var(--void-rgb) / .78),rgb(var(--void-rgb) / .93) 60%,rgb(var(--void-rgb) / .99))}
+/* The light behind the centre card, and its pool on the floor under it. */
+.pk-light{position:absolute;z-index:1;left:50%;top:45%;width:calc(var(--pkw) * 3.2);aspect-ratio:1;translate:-50% -50%;pointer-events:none;
+  background:radial-gradient(circle,rgb(var(--pl) / var(--pa)) 0,rgb(var(--pl) / calc(var(--pa) * .35)) 30%,transparent 62%)}
+.pk-floor{position:absolute;z-index:1;left:50%;top:calc(45% + var(--pkw) * .7 + 8px);width:calc(var(--pkw) * 1.5);height:calc(var(--pkw) * .22);
+  translate:-50% -50%;pointer-events:none;
+  background:radial-gradient(ellipse closest-side,rgb(var(--pl) / calc(var(--pa) * 1.1)),transparent),
+    radial-gradient(ellipse closest-side,rgb(var(--shadow-rgb) / .7),transparent 80%)}
 .pk-close{position:absolute;z-index:4;top:calc(env(safe-area-inset-top, 0px) + 12px);right:14px;width:40px;height:40px;
   border-radius:99px;border:1px solid var(--line-2);background:var(--panel-2);color:var(--ink-2);font-size:var(--t-3);cursor:pointer}
 .pk-close:hover{color:var(--ink)}
@@ -968,9 +985,19 @@ body.pk-open{overflow:hidden}
   font-size:var(--t-3);color:var(--ink-2);text-wrap:balance}
 .pk-msg b{color:var(--ink);margin-right:4px}
 .pk-msg .pk-signed-tag{font-style:normal;font-family:var(--sig);font-size:var(--t-4);color:var(--gold-2)}
-.pk-center{position:absolute;z-index:3;left:50%;top:45%;translate:-50% -50%}
-.pk-center .pack-seal{width:200px;height:280px}
-.pk-hint{position:absolute;z-index:4;left:16px;right:16px;top:calc(45% + 170px);margin:0;text-align:center;
+/* The sealed pack in 3D: it leans toward the mouse (--prx/--pry, packshow.js), or sways by itself
+   where there is no mouse, and holds still while a finger tears it. Its strip flies off in 3D
+   (the seal's own perspective) and the pack tips back as the first card rises out of it. */
+.pk-center{position:absolute;z-index:3;left:50%;top:45%;translate:-50% -50%;perspective:900px}
+.pk-center .pack-glow{transform:rotateX(var(--prx, 0deg)) rotateY(var(--pry, 0deg));transition:transform .5s cubic-bezier(.25,1,.5,1)}
+.pk-center .pack-seal{width:calc(var(--pkw) * .92);height:calc(var(--pkw) * 1.28);perspective:700px}
+@media (prefers-reduced-motion:no-preference){
+  .pk-stage:not(.pk-aim):not(.pk-ripped) .pk-center .pack-glow{animation:pk-sway 5s ease-in-out infinite alternate,pk-breathe 1.8s ease-in-out infinite alternate}
+  .pk-stage:not(.pk-aim):not(.pk-ripped) .pk-center .pack-glow.tease-ur{animation:pk-sway 5s ease-in-out infinite alternate}
+  .pk-stage:has(.pack-seal.tearing) .pk-center .pack-glow{animation-play-state:paused}
+}
+@keyframes pk-sway{from{transform:rotateX(5deg) rotateY(-10deg)}to{transform:rotateX(-3deg) rotateY(10deg)}}
+.pk-hint{position:absolute;z-index:4;left:16px;right:16px;top:calc(45% + var(--pkw) * .64 + 30px);margin:0;text-align:center;
   font-family:var(--mono);font-size:var(--t-1);letter-spacing:.14em;color:var(--ink-3)}
 @media (prefers-reduced-motion:no-preference){ .pk-hint{animation:pk-blink 1.4s ease-in-out infinite alternate} }
 @keyframes pk-blink{to{opacity:.35}}
@@ -1008,7 +1035,7 @@ body.pk-open{overflow:hidden}
 
 /* Home: the stage fades to the roster; only the flying cards stay. */
 .pk-home{pointer-events:none}
-.pk-home :is(.pk-back,.pk-rays,.pk-msg,.pk-close){opacity:0;transition:opacity .5s var(--ease)}
+.pk-home :is(.pk-back,.pk-rays,.pk-msg,.pk-close,.pk-light,.pk-floor){opacity:0;transition:opacity .5s var(--ease)}
 /* A slot waiting for its card: kept in place so the grid does not move, invisible until it lands. */
 .tc.pk-slot{visibility:hidden}
 
@@ -5607,7 +5634,7 @@ function packShow(team, wk){
   const st = document.createElement("div");
   st.className = "pk-stage";
   st.setAttribute("role", "dialog"); st.setAttribute("aria-modal", "true"); st.setAttribute("aria-label", t("teams.pack.stage"));
-  st.innerHTML = `<div class="pk-back"></div><div class="pk-rays"></div><div class="pk-flash"></div>
+  st.innerHTML = `<div class="pk-back"></div><div class="pk-light"></div><div class="pk-floor"></div><div class="pk-rays"></div><div class="pk-flash"></div>
     <button class="pk-close" type="button" aria-label="${t("teams.pack.closeLabel")}">✕</button>
     <p class="pk-msg" aria-live="polite">${t("teams.pack.lead", {wk, n: cards.length})}</p>
     <div class="pk-center">${packSealHTML(team, wk, cards)}</div>
@@ -5621,8 +5648,35 @@ function packShow(team, wk){
   st.querySelector(".pk-close").addEventListener("click", () => pkQuit(S));
   // Each eighth of the tear: a tick under the finger and a pinch of foil from the tear point.
   wireRip(st.querySelector(".pack-seal"), () => pkRip(S), (x, y) => { packBuzz(6); packBurst(x, y, {n: 6, tier: S.best, spread: .35}); });
+  pkAim(S);
   render();                     // the page drops its own copy of the pack while the stage holds it
   if (!REDUCED()) st.animate([{opacity: 0}, {opacity: 1}], {duration: 260});
+}
+
+/* The sealed pack leans toward the mouse, up to 9° up or down and 14° across, and its foil's shine
+   follows it (--mx/--my). A touch screen has no hover: there the pack sways by itself (packshow.css). */
+function pkAim(S){
+  S.st.addEventListener("pointermove", e => {
+    if (e.pointerType !== "mouse" || S.ripped) return;
+    const c = S.st.querySelector(".pk-center"), seal = c && c.querySelector(".pack-seal");
+    if (!seal || seal.classList.contains("tearing")) return;
+    const r = c.getBoundingClientRect();
+    const dx = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (innerWidth / 2)));
+    const dy = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height / 2)) / (innerHeight / 2)));
+    S.st.classList.add("pk-aim");
+    c.style.setProperty("--prx", `${(-dy * 9).toFixed(1)}deg`);
+    c.style.setProperty("--pry", `${(dx * 14).toFixed(1)}deg`);
+    seal.style.setProperty("--mx", `${Math.round(50 + dx * 40)}%`);
+    seal.style.setProperty("--my", `${Math.round(50 + dy * 40)}%`);
+  });
+}
+
+/* The stage's light: a card's tier colour, stronger the rarer (null: the room's plain low light). */
+const PK_LIGHT = {c: ["--ink-rgb", .12], r: ["--uncommon-2-rgb", .3], ur: ["--gold-2-rgb", .38], sig: ["--epic-2-rgb", .48], one: ["--holo-3-rgb", .6]};
+function pkLight(S, tier){
+  const [rgb, a] = PK_LIGHT[tier] || ["--ink-rgb", .08];
+  S.st.style.setProperty("--pl", `var(${rgb})`);
+  S.st.style.setProperty("--pa", String(a));
 }
 
 /* ✕, Escape or Back. Before the rip the pack goes back on the page; after it, straight to the end. */
@@ -5644,19 +5698,24 @@ async function pkRip(S){
   packMark(S.team, S.wk);
   packBuzz(18);
   S.st.querySelector(".pk-hint").remove();
-  const seal = S.st.querySelector(".pack-seal");
-  if (!REDUCED()){
+  S.st.classList.add("pk-ripped");
+  const center = S.st.querySelector(".pk-center"), seal = center.querySelector(".pack-seal");
+  if (REDUCED()){ center.remove(); S.skip = true; }
+  else {
+    // The strip flies off in 3D, turning over as it goes, while the pack tips back to open its mouth.
     const r = seal.getBoundingClientRect();
     packBurst(r.left + r.width / 2, r.top + 16, {n: 46, tier: S.best});
-    await seal.querySelector(".pack-top").animate(
-      [{translate: "0 0", rotate: "0deg", opacity: 1}, {translate: "40px -40px", rotate: "-12deg", opacity: 1, offset: .35},
-       {translate: "130px -150px", rotate: "-34deg", opacity: 0}],
-      {duration: 460, easing: "cubic-bezier(.25,.7,.35,1)", fill: "forwards"}).finished;
-    await seal.animate([{translate: "0 0", opacity: 1}, {translate: "0 90px", scale: ".9", opacity: 0}],
-      {duration: 300, easing: "ease-in", fill: "forwards"}).finished;
+    const out = "cubic-bezier(.25,1,.5,1)";
+    await Promise.all([
+      seal.querySelector(".pack-top").animate([
+        {transform: "translate3d(0,0,0) rotateX(0) rotateZ(0)", opacity: 1},
+        {transform: "translate3d(40px,-46px,40px) rotateX(40deg) rotateZ(-10deg)", opacity: 1, offset: .35},
+        {transform: "translate3d(150px,-170px,90px) rotateX(120deg) rotateZ(-38deg)", opacity: 0}],
+        {duration: 520, easing: out, fill: "forwards"}).finished,
+      center.querySelector(".pack-glow").animate([{transform: "rotateX(16deg) rotateY(0deg)"}],
+        {duration: 460, easing: out, fill: "forwards"}).finished]);
+    S.pack = center;
   }
-  S.st.querySelector(".pk-center").remove();
-  if (REDUCED()) S.skip = true;
   await pkDeal(S);
   await pkHome(S);
 }
@@ -5720,7 +5779,9 @@ async function pkSign(S, el){
 
 /* The pile: small at the foot of the screen, fanned so the count shows, each card leaning a little. */
 function pkPilePlace(S, k){
-  const mid = (S.cards.length - 1) / 2, lift = innerHeight * .55 - 64;
+  // Its foot 18px above the window's: the card is sized by the window (--pkw), so the lift is too.
+  const mid = (S.cards.length - 1) / 2, w = S.shown[0] ? S.shown[0].offsetWidth : 220;
+  const lift = innerHeight * .55 - w * 1.4 * .3 / 2 - 18;
   return {translate: `${(k - mid) * 20}px ${lift}px`, scale: ".3", rotate: `${(k - mid) * 4}deg`};
 }
 
@@ -5739,6 +5800,22 @@ async function pkToPile(S, el, k){
   Object.assign(el.style, to);
 }
 
+/* The first card comes out of the pack (2026-09-25; the pack used to fade and the cards appear
+   from nowhere). It starts behind the pack, the pack's body hiding it, rises out of the open mouth,
+   comes forward over it, and the empty pack drops away. */
+async function pkOutOfPack(S, el){
+  const pack = S.pack, h = el.offsetWidth * 1.4;
+  S.pack = null;
+  if (S.skip){ pack.remove(); return; }
+  el.style.zIndex = "2";                          // behind the pack (z 3) until it is out
+  el.style.translate = `0 ${Math.round(h * .12)}px`; el.style.scale = ".88";
+  await pkMove(S, el, {translate: `0 ${Math.round(-h * .62)}px`, scale: ".9"}, 620, "cubic-bezier(.3,.8,.3,1)");
+  el.style.zIndex = "";
+  pack.animate([{translate: "-50% -50%", opacity: 1}, {translate: "-50% 10%", opacity: 0}],
+    {duration: 420, easing: "cubic-bezier(.5,0,.75,0)", fill: "forwards"}).finished.then(() => pack.remove());
+  await pkMove(S, el, {translate: "0 0", scale: "1"}, 520);
+}
+
 async function pkDeal(S){
   for (const [k, c] of S.cards.entries()){
     const el = pkCardEl(S, c);
@@ -5746,16 +5823,21 @@ async function pkDeal(S){
     S.st.appendChild(el);
     S.shown.push(el);
     const last = k === S.cards.length - 1;
-    el.style.translate = "0 70px"; el.style.scale = ".7";
-    await pkMove(S, el, {translate: "0 0", scale: "1"}, 360);
+    if (S.pack) await pkOutOfPack(S, el);
+    else {
+      el.style.translate = "0 70px"; el.style.scale = ".7";
+      await pkMove(S, el, {translate: "0 0", scale: "1"}, 360);
+    }
     if (last){ await pkHero(S, el, c); break; }
     await pkSleep(S, 120);
     await pkTurn(S, el, false);
+    pkLight(S, cardTier(c.rank));                 // the room takes the card's tier colour
     // The label once the face has settled, never while it is still face down.
     await pkSleep(S, 60);
     if (!S.skip) S.st.querySelector(".pk-msg").innerHTML = pkLabel(c);
     await pkSign(S, el);
     await pkSleep(S, 700);
+    pkLight(S, null);
     await pkToPile(S, el, k);
   }
 }
@@ -5773,6 +5855,7 @@ async function pkHero(S, el, c){
   }
   await pkMove(S, el, {translate: "0 0", scale: "1.16"}, 500);
   await pkTurn(S, el, true);
+  pkLight(S, S.best);
   await pkSign(S, el);
   const top = S.cards[S.cards.length - 1];
   S.st.querySelector(".pk-msg").innerHTML = t("teams.pack.done", {name: esc(nameInitial(top.p.n)), rank: top.rank, pos: esc(top.p.pos)});

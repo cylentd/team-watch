@@ -57,7 +57,9 @@ async function pkSign(S, el){
 
 /* The pile: small at the foot of the screen, fanned so the count shows, each card leaning a little. */
 function pkPilePlace(S, k){
-  const mid = (S.cards.length - 1) / 2, lift = innerHeight * .55 - 64;
+  // Its foot 18px above the window's: the card is sized by the window (--pkw), so the lift is too.
+  const mid = (S.cards.length - 1) / 2, w = S.shown[0] ? S.shown[0].offsetWidth : 220;
+  const lift = innerHeight * .55 - w * 1.4 * .3 / 2 - 18;
   return {translate: `${(k - mid) * 20}px ${lift}px`, scale: ".3", rotate: `${(k - mid) * 4}deg`};
 }
 
@@ -76,6 +78,22 @@ async function pkToPile(S, el, k){
   Object.assign(el.style, to);
 }
 
+/* The first card comes out of the pack (2026-09-25; the pack used to fade and the cards appear
+   from nowhere). It starts behind the pack, the pack's body hiding it, rises out of the open mouth,
+   comes forward over it, and the empty pack drops away. */
+async function pkOutOfPack(S, el){
+  const pack = S.pack, h = el.offsetWidth * 1.4;
+  S.pack = null;
+  if (S.skip){ pack.remove(); return; }
+  el.style.zIndex = "2";                          // behind the pack (z 3) until it is out
+  el.style.translate = `0 ${Math.round(h * .12)}px`; el.style.scale = ".88";
+  await pkMove(S, el, {translate: `0 ${Math.round(-h * .62)}px`, scale: ".9"}, 620, "cubic-bezier(.3,.8,.3,1)");
+  el.style.zIndex = "";
+  pack.animate([{translate: "-50% -50%", opacity: 1}, {translate: "-50% 10%", opacity: 0}],
+    {duration: 420, easing: "cubic-bezier(.5,0,.75,0)", fill: "forwards"}).finished.then(() => pack.remove());
+  await pkMove(S, el, {translate: "0 0", scale: "1"}, 520);
+}
+
 async function pkDeal(S){
   for (const [k, c] of S.cards.entries()){
     const el = pkCardEl(S, c);
@@ -83,16 +101,21 @@ async function pkDeal(S){
     S.st.appendChild(el);
     S.shown.push(el);
     const last = k === S.cards.length - 1;
-    el.style.translate = "0 70px"; el.style.scale = ".7";
-    await pkMove(S, el, {translate: "0 0", scale: "1"}, 360);
+    if (S.pack) await pkOutOfPack(S, el);
+    else {
+      el.style.translate = "0 70px"; el.style.scale = ".7";
+      await pkMove(S, el, {translate: "0 0", scale: "1"}, 360);
+    }
     if (last){ await pkHero(S, el, c); break; }
     await pkSleep(S, 120);
     await pkTurn(S, el, false);
+    pkLight(S, cardTier(c.rank));                 // the room takes the card's tier colour
     // The label once the face has settled, never while it is still face down.
     await pkSleep(S, 60);
     if (!S.skip) S.st.querySelector(".pk-msg").innerHTML = pkLabel(c);
     await pkSign(S, el);
     await pkSleep(S, 700);
+    pkLight(S, null);
     await pkToPile(S, el, k);
   }
 }
@@ -110,6 +133,7 @@ async function pkHero(S, el, c){
   }
   await pkMove(S, el, {translate: "0 0", scale: "1.16"}, 500);
   await pkTurn(S, el, true);
+  pkLight(S, S.best);
   await pkSign(S, el);
   const top = S.cards[S.cards.length - 1];
   S.st.querySelector(".pk-msg").innerHTML = t("teams.pack.done", {name: esc(nameInitial(top.p.n)), rank: top.rank, pos: esc(top.p.pos)});
