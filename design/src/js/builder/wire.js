@@ -76,10 +76,10 @@ function wireBuilder(v){
   v.querySelectorAll("[data-msel]").forEach(sel=>sel.addEventListener("change",()=>{
     const val = sel.value;
     if (sel.dataset.msel === "mkind"){ MKT_KIND = val; MKT_SORT = val === "TD" ? "model" : (PARLAY_BOOK === "underdog" ? "conf" : "edge"); MKT_PAGE = 1; }
-    else if (sel.dataset.msel === "mwin"){ MKT_WIN = val; MKT_PAGE = 1; }
     else if (sel.dataset.msel === "msort"){ MKT_SORT = val; MKT_PAGE = 1; }
-    else if (sel.dataset.msel === "gwin"){ GAL_WIN = val; }
-    render();
+    else if (sel.dataset.msel === "gwin"){ GAL_WIN = val; MKT_PAGE = 1; }
+    // A kickoff change on Slips keeps the cards that stay in view and slides them (flight.js).
+    if (sel.dataset.msel === "gwin") betsFlip(render); else render();
   }));
   v.querySelectorAll("[data-preset]").forEach(b=>b.addEventListener("click",()=>{
     SLIP_MODE = b.dataset.preset; SLIP = presetSlip(SLIP_MODE, PARLAY_BOOK);
@@ -102,19 +102,6 @@ function wireBuilder(v){
     const was = b.textContent; b.textContent = ok ? t("parlay.slip.copied") : t("parlay.slip.copyFailed");
     setTimeout(()=>{ b.textContent = was; }, 1400);
   }));
-  v.querySelectorAll("[data-scope]").forEach(b=>b.addEventListener("click",()=>{
-    SLIP_SCOPE = b.dataset.scope;
-    render();
-  }));
-  v.querySelectorAll("[data-loadslip]").forEach(b=>b.addEventListener("click",()=>{
-    const [book, i] = b.dataset.loadslip.split(":");
-    const card = GALLERIES[book] && GALLERIES[book][+i];
-    if (!card) return;
-    SLIP = card.legs.slice();
-    SLIP_MODE = "custom";
-    render();
-    v.querySelector(".build .side .slip")?.scrollIntoView({behavior:"smooth", block:"start"});
-  }));
   v.querySelectorAll("[data-explain]").forEach(el=>el.addEventListener("click",()=>openExplain(el.dataset.explain)));
   v.querySelectorAll("[data-removeleg]").forEach(b=>b.addEventListener("click",()=>{
     const i = +b.dataset.removeleg;
@@ -124,11 +111,13 @@ function wireBuilder(v){
   }));
   v.querySelectorAll("[data-prop]").forEach(el=>{
     const toggle = ()=>{
-      const i = +el.dataset.prop;
+      const i = +el.dataset.prop, from = el.getBoundingClientRect(), was = betsSlipPct();
       SLIP = SLIP.includes(i) ? SLIP.filter(x=>x!==i) : SLIP.concat(i);
       SLIP_MODE = "custom";
       const y = window.scrollY; render(); window.scrollTo(0, y);
       popLeg(v, i, SLIP.includes(i));
+      // An added pick flies to the tray; a removed one needs no flight, the tray just re-counts.
+      if (SLIP.includes(i)) betsFly(from, PROPS[i].n, was); else betsLand(SLIP.length, was);
     };
     el.addEventListener("click", e=>{ if (e.target.closest(".more, .gl, .legx")) return; toggle(); });
     el.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();toggle();} });

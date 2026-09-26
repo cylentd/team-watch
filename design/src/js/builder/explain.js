@@ -1,9 +1,6 @@
-function marketHead(kind){
-  // The props market used to repeat line/player/game counts and a fetched timestamp here --
-  // exactly what the topbar's DATA status pill and dropdown already say once, globally. Showing
-  // the work twice reads as "trust us," not as more trustworthy; the DFS pool keeps its line
-  // since its cap/salary source is specific to the site toggled, not covered by that dropdown.
-  if (kind === "props") return `<div class="mkthead"><div><span class="lbl">${t("parlay.market.heading")}</span></div></div>`;
+function marketHead(){
+  // DFS only since 2026-09-25: Build is the props market, and its view name is its heading. The DFS
+  // pool keeps its line since its cap/salary source is specific to the site toggled.
   const site = dfsSite();
   const when = site.when;
   return `<div class="mkthead">

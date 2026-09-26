@@ -14,8 +14,7 @@ FUNCTION_LINES = 60
 
 # JS functions over budget when the ratchet was set (2026-09-10). Shrink one, lower its number.
 JS_BACKLOG = {
-    "wireBuilder": 140,
-    "parlayHTML": 93,
+    "wireBuilder": 128,
 }
 # Same for design/*.py. build.py itself is over the 500-line file budget; the split that fixes
 # that is a model-vs-view change, not a refactor, so it is a ratchet here rather than a fail.

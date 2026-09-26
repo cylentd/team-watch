@@ -88,6 +88,9 @@ surface/dfs/lineup.js
 surface/parlay/gallery.js
 surface/dfs/top.js
 surface/parlay/parlay.js
+surface/parlay/bar.js
+surface/parlay/tray.js
+surface/parlay/flight.js
 surface/dfs/dfs.js
 chrome/state.js
 surface/live/live.js

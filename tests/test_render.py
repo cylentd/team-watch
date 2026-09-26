@@ -69,7 +69,7 @@ GD_CATCHUP = {swing: {me: 21.5, opp: 3.0}, movers: [
 # reachable in the same way no matter which state ran before it.
 GROUP = {"roster": "teams", "waivers": "teams",
          "board": "scouting", "movers": "scouting", "usage": "scouting", "news": "scouting",
-         "parlay": "bets", "dfs": "bets", "live": "gameday"}
+         "parlay": "bets", "build": "bets", "dfs": "bets", "live": "gameday"}
 
 
 def go(leaf):
@@ -157,10 +157,15 @@ STATES = [
     ("usage-change", go("usage") + [("click", "[data-umode='change']")]),
     ("usage-qb", go("usage") + [("click", "[data-upos='QB']")]),
     ("usage-modal", go("usage") + [("click", "[data-usage]")]),
+    # Bets since 2026-09-25: Slips (leaf `parlay`) and Build, the book in the settings panel the
+    # bar's last chip opens, and the slip in a sheet the tray opens.
     ("parlay-underdog", go("parlay")),
-    ("parlay-dk", go("parlay") + [("click", "[data-parlaybook='dk']")]),
-    ("parlay-dk-mine", go("parlay") + [("click", "[data-parlaybook='dk']"),
-                                       ("click", "[data-preset='mine']")]),
+    ("parlay-dk", go("parlay") + [("click", "[data-betspanel]"), ("click", "[data-parlaybook='dk']")]),
+    ("parlay-dk-mine", go("parlay") + [("click", "[data-betspanel]"), ("click", "[data-parlaybook='dk']"),
+                                       ("click", "[data-tray]"), ("click", "[data-preset='mine']")]),
+    ("build-underdog", go("build")),
+    ("build-panel", go("build") + [("click", "[data-betspanel]")]),
+    ("parlay-sheet", go("parlay") + [("click", "[data-loadslip]"), ("click", "[data-tray]")]),
     ("dfs-yahoo", go("dfs")),
     ("dfs-dk", go("dfs") + [("click", "[data-dfssite='dk']")]),
     ("dfs-explain", go("dfs") + [("click", "[data-explain]")]),   # the drawer
@@ -306,7 +311,8 @@ def test_no_console_errors(snapshot):
     ("pool", "scouting", "MOVERS"),    # the old Movers view's hash, kept for bookmarks
     ("usage", "scouting", "GRID"),
     ("waivers", "teams", "WAIVERS"),
-    ("parlay", "bets", "PARLAY"),
+    ("parlay", "bets", "SLIPS"),        # the leaf is still `parlay`, so its bookmarks land
+    ("build", "bets", "BUILD"),
 ])
 def test_a_hash_opens_its_view(browser, page_file, leaf, group, label):
     """The view lives in the hash so a reload lands where you were reading. Renaming a leaf, or

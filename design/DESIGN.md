@@ -265,6 +265,14 @@ per-dot names dropped (the list below names every player); dots stay tappable in
 
 ## Parlay and DFS
 
+**Superseded for Parlay 2026-09-25: Slips and Build.** Parlay is two views, Slips (leaf `parlay`,
+the ready-made tickets stacked down the page) and Build (leaf `build`, the line market). Each has
+one row of controls; its last chip names the book and kickoff and opens a panel with them (and
+Build's market, sort and "my players"). Kickoff is one setting, `GAL_WIN`, for both views. The slip
+is a tray on the bottom edge that opens into a sheet: a bar per leg's chance, the all-hit bar, then
+the slip. At 360px the first slip moved from 303px to 154px. Motion: `surface/parlay/flight.js`,
+per `design/STYLE.md`. DFS keeps the layout below.
+
 Split into their own top-level tabs (2026-09-09) so the cart, not the 900-row props pool, is the
 first thing a mobile reader reaches. Each tab: a collapsed-by-default "how this works" banner,
 a gallery of the model's precomputed picks, then the cart-style custom builder, then the pool.

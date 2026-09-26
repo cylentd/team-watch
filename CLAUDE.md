@@ -5,6 +5,7 @@ Vercel **is** git-connected: a push to `main` deploys within a minute, so `main`
 carry a current build. Data comes from the sibling `ff-jarvis` repo; this repo renders it.
 
 Global architecture rules apply here: `~/Github/agent-config/shared/architecture.md`.
+Every new or changed view passes `design/STYLE.md` (controls, layout, motion) before it lands.
 
 ## Source vs generated
 

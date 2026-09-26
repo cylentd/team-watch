@@ -1,0 +1,92 @@
+/* ============================================================
+   BETS -- Slips and Build (2026-09-25)
+   One row of controls, the settings panel it opens, the slips
+   stacked down the page, and the slip on the bottom edge: a tray
+   that grows into a sheet. Lime is the slip, as everywhere: the
+   tray is filled once it holds a pick, muted while empty.
+   ============================================================ */
+
+/* the page leaves room under its last row for the tray */
+.bets{padding-bottom:92px}
+
+/* ---- the bar ---- */
+.bets-bar{margin-top:14px}
+.bets-tabsrow{display:flex;align-items:flex-end;gap:10px;border-bottom:1px solid var(--line)}
+.bets-tabsrow .bd-tabs{margin-top:0;border-bottom:0;flex:1 1 auto;min-width:0}
+.bets-set{margin-left:auto;flex:none;display:inline-flex;align-items:center;gap:6px;max-width:190px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bets-tabsrow .bets-set{margin-bottom:6px}
+.bets-caret{width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
+  transform:translateY(-2px) rotate(45deg);transition:transform var(--dur-spring) var(--spring)}
+.bets-set[aria-expanded="true"] .bets-caret{transform:translateY(1px) rotate(-135deg)}
+.bets-set[aria-expanded="true"]{border-color:var(--lime);color:var(--lime)}
+.bets-set .abbr{display:none}
+@media (max-width:430px){ .bets-set .full{display:none} .bets-set .abbr{display:inline} }
+
+/* ---- the settings panel: book, kickoff, and Build's own three ---- */
+.bets-panel{margin-top:10px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);
+  display:grid;gap:10px;animation:bdrise .3s var(--ease) both}
+/* A phone's filter row is one line that scrolls sideways (lists.css); inside the panel it wraps,
+   so a select never sits half off the edge. */
+.bets-panel .filters{margin:0;padding:0;flex-wrap:wrap;overflow:visible;row-gap:10px}
+.bets-book{max-width:320px}
+
+/* ---- the slips, stacked: one column on a phone ---- */
+.tk-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;margin-top:14px;align-items:start}
+@media (min-width:760px){ .tk-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (min-width:960px){ .tk-grid{grid-template-columns:repeat(3,minmax(0,1fr))} }
+.tk-grid .ticket{width:auto;align-self:stretch}
+
+.bets .legs{margin-top:14px}
+.bets-pager{margin-top:12px}
+.bets-foot{margin:16px 0 0}
+
+/* ---- the tray, on the bottom edge where the thumb already is ---- */
+.tray{
+  position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom, 0px));z-index:32;
+  margin:0 auto;max-width:560px;display:flex;justify-content:space-between;align-items:center;gap:12px;
+  appearance:none;border:0;border-radius:16px;padding:13px 16px;cursor:pointer;
+  background:var(--lime);color:var(--on-lime);font-family:var(--ui);font-size:var(--t-3);font-weight:700;
+  box-shadow:0 14px 30px -12px rgb(var(--shadow-rgb) / .9);
+  transition:background .2s var(--ease),color .2s var(--ease),transform .12s var(--ease);
+}
+.tray:active{transform:scale(var(--press))}
+.tray:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.tray.empty{background:var(--panel-3);color:var(--ink-2);box-shadow:0 10px 24px -14px rgb(var(--shadow-rgb) / .9)}
+.tray-n{display:inline-block;font-variant-numeric:tabular-nums}
+.tray-pc{font-family:var(--mono);font-size:var(--t-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tray.empty .tray-pc{font-family:var(--ui);font-weight:500}
+
+/* the name that flies from a line to the tray */
+.bets-fly{position:fixed;z-index:70;pointer-events:none;white-space:nowrap;
+  background:var(--lime);color:var(--on-lime);font-family:var(--ui);font-size:var(--t-1);font-weight:700;
+  padding:6px 10px;border-radius:999px}
+
+/* ---- the sheet the tray grows into ---- */
+.sheet-scrim{position:fixed;inset:0;z-index:44;background:rgb(var(--shadow-rgb) / .55);opacity:0;pointer-events:none;
+  transition:opacity .25s var(--ease)}
+.sheet-scrim.on{opacity:1;pointer-events:auto}
+.slipsheet{
+  position:fixed;left:0;right:0;bottom:0;z-index:45;margin:0 auto;max-width:560px;max-height:86vh;overflow-y:auto;
+  background:var(--panel);border:1px solid var(--line-2);border-bottom:0;border-radius:20px 20px 0 0;
+  padding:8px 14px calc(18px + env(safe-area-inset-bottom, 0px));display:grid;gap:12px;
+  transform:translateY(105%);visibility:hidden;
+}
+.slipsheet.on{transform:none;visibility:visible}
+.grab{appearance:none;border:0;justify-self:center;width:44px;height:18px;padding:0;cursor:pointer;
+  background:linear-gradient(var(--line-2),var(--line-2)) center / 44px 4px no-repeat;border-radius:4px}
+.grab:focus-visible{outline:2px solid var(--lime)}
+.slipsheet .slip{border:0;background:none;padding:0}
+/* The all-hit bar above already carries the slip's chance; the payout block keeps its break-evens. */
+.slipsheet .payout > .lbl:first-child,.slipsheet .bigedge{display:none}
+
+/* why the slip's chance is what it is: each leg, then all of them */
+.odds{display:grid;gap:7px;padding:4px 2px 2px}
+.odds-row{display:grid;grid-template-columns:minmax(0,108px) 1fr 52px;gap:10px;align-items:center;font-size:var(--t-2)}
+.odds-row > span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink-2)}
+.odds-bar{display:block;height:8px;border-radius:4px;background:var(--panel-3);overflow:hidden}
+.odds-bar > i{display:block;height:100%;width:var(--w);border-radius:4px;background:var(--ink-2)}
+.odds-row b{font-family:var(--mono);font-size:var(--t-2);text-align:right;font-variant-numeric:tabular-nums}
+.odds-row.all{border-top:1px solid var(--line);padding-top:8px}
+.odds-row.all > span{color:var(--ink);font-weight:700}
+.odds-row.all .odds-bar > i{background:var(--lime)}

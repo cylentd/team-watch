@@ -47,7 +47,7 @@ function zipFootball(){
    - popLeg: the line just tapped and the slip's count get a class for one landing beat. */
 let ENTER_KEY = null;
 function enterKey(){
-  return [SURFACE, VIEW, ROSTER_MODE, BD_MODE, PARLAY_BOOK, MKT_PAGE, MKT_POS, MKT_KIND, MKT_WIN, MKT_MINE, SLIP_SCOPE, GAL_WIN].join("|");
+  return [SURFACE, VIEW, ROSTER_MODE, BD_MODE, PARLAY_BOOK, MKT_PAGE, MKT_POS, MKT_KIND, MKT_MINE, SLIP_SCOPE, GAL_WIN].join("|");
 }
 function markEnter(v){
   const key = enterKey();

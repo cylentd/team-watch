@@ -1,4 +1,4 @@
-let MKT_POS = "ALL", MKT_KIND = "ALL", MKT_WIN = "ALL", MKT_MINE = false, DFS_POS = "ALL";
+let MKT_POS = "ALL", MKT_KIND = "ALL", MKT_MINE = false, DFS_POS = "ALL";   // kickoff is GAL_WIN (slips.js)
 /* The pool can run to 700+ rows (a full Yahoo slate), so it's paginated — nobody, least of all on
    mobile, wants to scroll past hundreds of rows to reach the lineup or the optimizer. */
 let DFS_PAGE = 1;

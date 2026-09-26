@@ -59,9 +59,10 @@ function render(){
     v.innerHTML = usageHTML(); wireUsage(v); nudgeScrollers(v);
     return;
   }
-  if (SURFACE === "parlay" || SURFACE === "dfs"){
-    v.innerHTML = SURFACE === "parlay" ? parlayHTML() : dfsSurfaceHTML();
+  if (SURFACE === "parlay" || SURFACE === "build" || SURFACE === "dfs"){
+    v.innerHTML = SURFACE === "dfs" ? dfsSurfaceHTML() : parlayHTML();
     wireBuilder(v);
+    if (SURFACE !== "dfs") wireBets(v);
     nudgeScrollers(v);
     return;
   }

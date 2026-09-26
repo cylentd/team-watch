@@ -66,7 +66,7 @@ function presetCard(card, bestOf){
     ${g.map(l => `<div class="tk-leg">${avatarHTML(l)}
       <div class="tk-who"><b>${esc(l.n)}</b><span class="tk-call">${legCall(l, card.book)}</span>${legWhy(l, card.book)}</div>
       <span class="tk-num">${ud ? `${udPick(l).conf}<i>%</i>` : esc(fmtAm(overPrice(l)))}</span></div>`).join("")}`).join("");
-  return `<div class="ticket ${best ? "best" : ""}">
+  return `<div class="ticket ${best ? "best" : ""}" data-card="${card.book}:${card.i}">
     <div class="tk-top"><span>${esc(card.scopeLabel)} · ${meta}</span><span class="tk-book">${ud ? t("parlay.book.underdog") : t("parlay.book.dk")}</span></div>
     <div class="tk-head">${head}</div>
     ${flag}
@@ -77,26 +77,14 @@ function presetCard(card, bestOf){
 }
 
 function galleryHTML(){
-  const scopes = galleryScopes(PARLAY_BOOK);
   const cards = GALLERIES[PARLAY_BOOK].filter(c => (SLIP_SCOPE==="all"||c.scope===SLIP_SCOPE) && (GAL_WIN==="ALL"||c.win.k===GAL_WIN));
   // "Best" is the best of what is on screen: filter to Wednesday and the star moves to
   // Wednesday's strongest card instead of vanishing with the whole-week winner.
   const bestOf = bestCard(cards);
-  return `<div class="rule"><h2>${t("parlay.gallery.heading")}</h2><span class="hair"></span>
-    <span class="side side-explain">${t("parlay.gallery.sub")}</span></div>
-  <div class="filters">
-    <span class="lbl">${t("parlay.gallery.legsLabel")}</span>
-    ${scopes.map(([k,label])=>`<button class="chip" data-scope="${k}" aria-pressed="${SLIP_SCOPE===k}">${label}</button>`).join("")}
-    <span style="flex:1"></span>
-    <label class="selwrap"><span class="lbl">${t("parlay.filter.kickoff")}</span>
-      <select class="msel" data-msel="gwin">
-        <option value="ALL" ${GAL_WIN==="ALL"?"selected":""}>${t("parlay.option.all")}</option>
-        ${GAL_WINDOWS.map(w=>`<option value="${w.k}" ${GAL_WIN===w.k?"selected":""}>${esc(w.label)}</option>`).join("")}
-      </select>
-    </label>
-  </div>
-  ${cards.length
-    ? `<div class="rail" data-railkey="parlay-gallery"><div class="railscroll">${cards.map(c => presetCard(c, bestOf)).join("")}</div></div>`
+  // The legs filter and kickoff live in the Bets bar (bar.js); the cards stack down the page, one
+  // column on a phone, so nothing scrolls sideways inside a page that scrolls down.
+  return cards.length
+    ? `<div class="tk-grid">${cards.map(c => presetCard(c, bestOf)).join("")}</div>`
     : (() => {
           // How close it came: the legs that pass every gate in what is filtered, so "1 line,
           // a card needs 2" reads as the model declining, not the page failing.
@@ -104,6 +92,6 @@ function galleryHTML(){
           const win = GAL_WINDOWS.find(w => w.k === GAL_WIN);
           const ok = PROPS.filter(p => legOKInBook(p, s, PARLAY_BOOK) && inWin(p, win)).length;
           return `<div class="state-empty" style="margin:14px 0;min-height:110px"><div><b>${ok}</b><span>${t("parlay.gallery.empty", {s: ok === 1 ? "" : "S"})}</span></div></div>`;
-        })()}`;
+        })();
 }
 

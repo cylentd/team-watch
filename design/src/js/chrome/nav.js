@@ -14,13 +14,14 @@ const NAV_ICON = {
    Movers left the table on 2026-09-25 to become the Board's second mode, and came back the same
    day as a view: a mode switch was a fifth row of controls above the data on a phone, and Leaders
    and Movers answer different questions, which is what a view is. "Board" reads Leaders now; its
-   leaf and hash stay `board`, so bookmarks still land.
+   leaf and hash stay `board`, so bookmarks still land. Parlay split the same way that day: Slips
+   (leaf `parlay`, so its bookmarks land) and Build.
    Gameday holds one view today and exists as a group because that is where a live surface grows.
    Each leaf's label is its own key, so a rename here never silently changes a heading elsewhere. */
 const NAV = [
   ["teams",    ["roster", "waivers"]],
   ["scouting", ["board", "movers", "usage", "news"]],
-  ["bets",     ["parlay", "dfs"]],
+  ["bets",     ["parlay", "build", "dfs"]],
   ["gameday",  ["live"]],
 ];
 
@@ -30,7 +31,7 @@ const NAV = [
 const navLabel = leaf => ({
   roster: t("nav.tab.roster"), waivers: t("nav.tab.waivers"), board: t("nav.tab.board"), movers: t("nav.tab.movers"),
   usage: t("nav.tab.grid"), news: t("nav.tab.news"),
-  parlay: t("nav.tab.parlay"), dfs: t("nav.tab.dfs"), live: t("nav.tab.live"),
+  parlay: t("nav.tab.parlay"), build: t("nav.tab.build"), dfs: t("nav.tab.dfs"), live: t("nav.tab.live"),
 }[leaf] || leaf);
 
 const navGroupLabel = (group, short) => (short ? {

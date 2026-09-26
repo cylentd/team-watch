@@ -152,5 +152,10 @@ const bestCard = cards => cards.reduce((a,c) => !c.low && (!a || c.metric > a.me
 const GALLERY_BEST = {dk: bestCard(GALLERIES.dk), underdog: bestCard(GALLERIES.underdog)};
 /* The gallery's own filter -- not fed into legOKInBook/bestSlipIn, which already ran once above. */
 let SLIP_SCOPE = "all";
+/* The one kickoff filter for both Bets views (2026-09-25): Slips filters its cards by it, Build its
+   lines. Two selects used to set two variables, so a reader who picked Sunday for the slips saw
+   Thursday's lines under them. */
 let GAL_WIN = "ALL";
+let BETS_PANEL = false;   // the settings panel under the bar is open
+let BETS_SHEET = false;   // the slip sheet is up
 
