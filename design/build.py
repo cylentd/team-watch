@@ -57,6 +57,7 @@ HEADS_DIR = "heads"
 # 96px ones are sharp in a 40px row but blur when a trading card stretches them 2-3x, so the
 # cards (HEADS_LG) take the large file where there is one. About 230 players, 1.9 MB.
 HEADS_LG = "lg"
+HEADS_XL = "xl"   # 512px (2026-09-25); the page's srcset loads it only where 256px blurs (player.js)
 
 
 def _mirror(src_dir, out):
@@ -75,12 +76,13 @@ def _mirror(src_dir, out):
 
 
 def write_heads(dest_root):
-    """Mirror HEADS_SRC into <dest_root>/heads/ (and its lg/ into heads/lg/), dropping a head
-    ff-jarvis no longer has, so each folder is exactly the set HEADS / HEADS_LG names. Returns
-    how many 96px heads were written."""
+    """Mirror HEADS_SRC into <dest_root>/heads/ (and its lg/ and xl/ into heads/lg/, heads/xl/),
+    dropping a head ff-jarvis no longer has, so each folder is exactly the set HEADS / HEADS_LG /
+    HEADS_XL names. Returns how many 96px heads were written."""
     out = pathlib.Path(dest_root) / HEADS_DIR
     n = _mirror(HEADS_SRC, out)
-    _mirror(HEADS_SRC / HEADS_LG, out / HEADS_LG)
+    for sub in (HEADS_LG, HEADS_XL):
+        _mirror(HEADS_SRC / sub, out / sub)
     return n
 
 # A depth-chart slot at or past this number, for the player's position, reads as "the backup."
@@ -725,6 +727,7 @@ def render():
     # a head nobody scrolls to costs nothing -- inlined, all of them would cost the page 470 KB.
     heads = {slug: f"{HEADS_DIR}/{slug}.webp" for slug in sorted(available)}
     heads_lg = {p.stem: f"{HEADS_DIR}/{HEADS_LG}/{p.name}" for p in sorted((HEADS_SRC / HEADS_LG).glob("*.webp"))}
+    heads_xl = {p.stem: f"{HEADS_DIR}/{HEADS_XL}/{p.name}" for p in sorted((HEADS_SRC / HEADS_XL).glob("*.webp"))}
     missing = [slug for slug in dict.fromkeys(wanted) if slug not in available]
 
     report = []
@@ -775,7 +778,8 @@ def render():
     # A "</" inside a string (a headline quoting markup, say) would end the <script> early;
     # JSON reads "<\/" as the same two characters, and JS never sees the difference.
     injected = "\n".join(
-        ["const HEADS = " + json.dumps(heads) + ";", "const HEADS_LG = " + json.dumps(heads_lg) + ";"]
+        ["const HEADS = " + json.dumps(heads) + ";", "const HEADS_LG = " + json.dumps(heads_lg) + ";",
+         "const HEADS_XL = " + json.dumps(heads_xl) + ";"]
         + block_js
         + ["const BUILD = " + json.dumps(stamp) + ";"]
     ).replace("</", "<\\/")

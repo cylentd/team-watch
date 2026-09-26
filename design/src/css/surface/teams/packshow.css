@@ -35,11 +35,10 @@ body.pk-open{overflow:hidden}
    where there is no mouse, and holds still while a finger tears it. Its strip flies off in 3D
    (the seal's own perspective) and the pack tips back as the first card rises out of it. */
 .pk-center{position:absolute;z-index:3;left:50%;top:45%;translate:-50% -50%;perspective:900px}
-.pk-center .pack-glow{transform:rotateX(var(--prx, 0deg)) rotateY(var(--pry, 0deg));transition:transform .5s cubic-bezier(.25,1,.5,1)}
+.pk-center .pack-glow{transform:rotateX(var(--prx, 0deg)) rotateY(var(--pry, 0deg));transition:transform .5s cubic-bezier(.25,1,.5,1);will-change:transform}
 .pk-center .pack-seal{width:calc(var(--pkw) * .92);height:calc(var(--pkw) * 1.28);perspective:700px}
 @media (prefers-reduced-motion:no-preference){
-  .pk-stage:not(.pk-aim):not(.pk-ripped) .pk-center .pack-glow{animation:pk-sway 5s ease-in-out infinite alternate,pk-breathe 1.8s ease-in-out infinite alternate}
-  .pk-stage:not(.pk-aim):not(.pk-ripped) .pk-center .pack-glow.tease-ur{animation:pk-sway 5s ease-in-out infinite alternate}
+  .pk-stage:not(.pk-aim):not(.pk-ripped) .pk-center .pack-glow{animation:pk-sway 5s ease-in-out infinite alternate}
   .pk-stage:has(.pack-seal.tearing) .pk-center .pack-glow{animation-play-state:paused}
 }
 @keyframes pk-sway{from{transform:rotateX(5deg) rotateY(-10deg)}to{transform:rotateX(-3deg) rotateY(10deg)}}
@@ -51,7 +50,7 @@ body.pk-open{overflow:hidden}
 /* A card on the stage: a wrapper centred by its margins, placed by translate, scale and rotate
    (packdeal.js pkMove), with perspective for the turn. Inside, .pk-inner turns in 3D with two faces
    back to back: the pack's card back, and the card. It starts face down. */
-.pk-card{position:fixed;z-index:3;left:50%;top:45%;width:var(--pkw);aspect-ratio:5/7;margin-left:calc(var(--pkw) / -2);margin-top:calc(var(--pkw) * -.7);
+.pk-card{will-change:transform;position:fixed;z-index:3;left:50%;top:45%;width:var(--pkw);aspect-ratio:5/7;margin-left:calc(var(--pkw) / -2);margin-top:calc(var(--pkw) * -.7);
   cursor:default;perspective:1100px}
 .pk-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;rotate:y 180deg}
 .pk-inner > .tc,.pk-cb{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}

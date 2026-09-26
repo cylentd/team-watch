@@ -759,7 +759,7 @@
  "teams.pack.tier.r": "Uncommon",
  "teams.pack.tier.sig": "Epic",
  "teams.pack.tier.ur": "Rare",
- "teams.pack.week": "WEEK {wk}",
+ "teams.pack.weekWord": "WEEK",
  "teams.row.snapNone": "Snap share: fewer than two weeks played",
  "teams.row.snapTip": "Snap share, last week {n}%",
  "usage.band.low10": "Bottom 10%",

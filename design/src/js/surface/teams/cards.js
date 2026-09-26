@@ -28,7 +28,7 @@ function cardRank(p){
    head, and a failed load still falls back to initials (headImgHTML). */
 function cardHeadHTML(p){
   const lg = typeof HEADS_LG !== "undefined" && HEADS_LG && p.slug ? HEADS_LG[p.slug] : null;
-  return lg ? headImgHTML(lg, initials(p.n)) : headHTML(p);
+  return lg ? headImgHTML(lg, initials(p.n), p.slug, 110) : headHTML(p);
 }
 
 /* This week's game for a team, from the schedule: the next kickoff not more than four hours gone.

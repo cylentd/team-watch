@@ -46,14 +46,17 @@ function packReplayable(team){
 /* The sealed pack (art reworked 2026-09-25: it was a plain gradient with a dark band for a strip).
    Holo foil, ridged heat seals at both ends and a perforated tear strip in the same foil. The key
    art is drawn as SVG so it scales with the pack: the brand's // as two lime stripes across it,
-   faint yard lines, and the week's number, huge and embossed. The logo and the week at the top,
-   the card count in a round holo badge, the season up the side in small print. The glow is the best
-   tier: how good, never who. */
+   faint yard lines, and the week's number, huge and embossed under a small WEEK (a printed
+   "WEEK 3" line as well said it twice). The logo at the top, its // the header's two bars, which
+   cross into an X as the pack opens; the card count in a round holo badge, the season up the side.
+   Under the strip is the pack's open mouth, dark with the cards' top edges, so a tear shows an
+   opening rather than more foil. The glow is the best tier: how good, never who. */
 function packArtSVG(wk){
   const size = String(wk).length > 1 ? 74 : 104;
   return `<svg class="pack-art" viewBox="0 0 100 140" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <path class="pa-yards" d="M0 46h100M0 66h100M0 86h100M0 106h100M0 126h100M33 55v3M67 55v3M33 75v3M67 75v3M33 95v3M67 95v3M33 115v3M67 115v3"/>
       <path class="pa-slash" d="M-8 140H14L68 0H46ZM20 140H30L84 0H74Z"/>
+      <text class="pa-wl" x="50" y="${size > 90 ? 58 : 70}" text-anchor="middle" font-size="7">${t("teams.pack.weekWord")}</text>
       <text class="pa-wk" x="50" y="${size > 90 ? 132 : 124}" text-anchor="middle" font-size="${size}">${wk}</text>
     </svg>`;
 }
@@ -61,9 +64,8 @@ function packSealHTML(team, wk, cards){
   const best = cardTier(cards[cards.length - 1].rank);
   return `<div class="pack-glow tease-${best}"><button class="pack-seal" type="button" aria-label="${t("teams.pack.open")}">
       <span class="pack-foil">${packArtSVG(wk)}</span>
-      <span class="pack-top"><i class="pt-base"></i><i class="pt-flap"></i><i class="pt-edge"></i></span>
-      <b>TEAM<i>//</i>WATCH</b>
-      <span class="pack-wk">${t("teams.pack.week", {wk})}</span>
+      <span class="pack-top"><i class="pt-mouth"></i><i class="pt-base"></i><i class="pt-flap"></i><i class="pt-edge"></i></span>
+      <b>TEAM<i class="slashes" aria-hidden="true"><b></b><b></b></i>WATCH</b>
       <span class="pack-n">${cards.length}<small>${t("teams.pack.cards")}</small></span>
       <span class="pack-side">${t("teams.pack.side", {season: packSeason()})}</span>
     </button></div>`;

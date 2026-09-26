@@ -3,20 +3,34 @@
    variant: it knows about DST and lazy-loads, so the two stay separate on purpose. */
 function avatarHTML(p, label){
   const text = label || initials(p.n);
-  return HEADS[p.slug] ? headImgHTML(HEADS[p.slug], text) : `<div class="fallback">${esc(text)}</div>`;
+  return HEADS[p.slug] ? headImgHTML(HEADS[p.slug], text, p.slug) : `<div class="fallback">${esc(text)}</div>`;
 }
 function headHTML(p, cls){
   if (p.pos === "DST") return `<div class="dst">${esc(p.team)}</div>`;
   const src = HEADS[p.slug];
   if (!src) return `<div class="fallback">${esc(initials(p.n))}</div>`;
-  return headImgHTML(src, initials(p.n));
+  return headImgHTML(src, initials(p.n), p.slug);
+}
+
+/* Every size ff-jarvis cut for a player, as a srcset: 96px (HEADS), 256px (HEADS_LG), 512px
+   (HEADS_XL, since 2026-09-25). The browser takes the smallest one sharp at the size the photo is
+   drawn on that screen, so a row never loads the big file and the pack stage never blurs. */
+function headSrcset(slug){
+  const maps = [[typeof HEADS !== "undefined" ? HEADS : null, 96],
+                [typeof HEADS_LG !== "undefined" ? HEADS_LG : null, 256],
+                [typeof HEADS_XL !== "undefined" ? HEADS_XL : null, 512]];
+  return maps.filter(([m]) => m && m[slug]).map(([m, w]) => `${m[slug]} ${w}w`).join(", ");
 }
 
 /* Heads are files beside the page (heads/<slug>.webp), so one can fail to load: a published
    Artifact without the folder, a deploy mid-flight. The failed image becomes the same initials
-   block a player with no head gets, never a broken-image glyph. */
-function headImgHTML(src, text){
-  return `<img src="${src}" alt="" loading="lazy" data-i="${esc(text)}" onerror="headFail(this)">`;
+   block a player with no head gets, never a broken-image glyph. `px` is the width it is drawn at,
+   for a browser that cannot measure it itself (sizes="auto" is Chrome 126+, Firefox 150+ and
+   Safari 27+, as of 2026-09-25); the others take the first size that fits. */
+function headImgHTML(src, text, slug, px){
+  const set = slug ? headSrcset(slug) : "";
+  const pick = set ? ` srcset="${set}" sizes="auto, ${px || 48}px"` : "";
+  return `<img src="${src}"${pick} alt="" loading="lazy" decoding="async" data-i="${esc(text)}" onerror="headFail(this)">`;
 }
 function headFail(img){
   const d = document.createElement("div");

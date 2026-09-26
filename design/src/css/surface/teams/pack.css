@@ -9,20 +9,25 @@
 .pack-msg b{color:var(--ink)}
 .pack-seal{position:relative;display:block;width:180px;height:250px;margin:0 auto;padding:0;border:0;cursor:pointer;
   color:var(--ink);font:inherit;background:none;container-type:size}
-/* The foil, crimped at both ends by a mask. Its own layer, so the torn strip can lift out past the
-   pack's edge instead of being cut by the crimp. Holo over it, sliding with the light (--mx/--my);
-   a ridged heat seal across its foot. */
-.pack-foil{position:absolute;inset:0;overflow:hidden;
+/* The foil, below the strip, crimped at its foot by a mask. Its own layer, so the torn strip can lift
+   out past the pack's edge instead of being cut by the crimp; it starts under the strip, so a tear
+   opens onto the pack's mouth (.pt-mouth), not onto more foil. A ridged heat seal across its foot.
+   The holo over it (and over the strip) is an oversized layer that slides by transform: animating
+   its background position, as it did, repainted the pack every frame and stuttered the sway. */
+.pack-foil{position:absolute;inset:30px 0 0;overflow:hidden;
   background:linear-gradient(160deg,var(--panel-3),var(--void) 55%,var(--panel-2));
-  -webkit-mask:conic-gradient(from -45deg at 50% 7px,transparent 90deg,var(--shadow) 0) top/12px 51% repeat-x,
-    conic-gradient(from 135deg at 50% calc(100% - 7px),transparent 90deg,var(--shadow) 0) bottom/12px 51% repeat-x;
-          mask:conic-gradient(from -45deg at 50% 7px,transparent 90deg,var(--shadow) 0) top/12px 51% repeat-x,
-    conic-gradient(from 135deg at 50% calc(100% - 7px),transparent 90deg,var(--shadow) 0) bottom/12px 51% repeat-x}
-.pack-foil::before,.pt-base::before,.pt-flap::before{content:"";position:absolute;inset:0;z-index:1;opacity:.42;mix-blend-mode:color-dodge;pointer-events:none;
-  background:linear-gradient(115deg,var(--iri-1),var(--iri-2) 25%,var(--iri-3) 50%,var(--iri-4) 75%,var(--iri-1)) var(--mx) var(--my)/320% 320%}
+  -webkit-mask:conic-gradient(from 135deg at 50% calc(100% - 7px),transparent 90deg,var(--shadow) 0) bottom/12px 100% repeat-x;
+          mask:conic-gradient(from 135deg at 50% calc(100% - 7px),transparent 90deg,var(--shadow) 0) bottom/12px 100% repeat-x}
+.pack-foil::before,.pt-base::before,.pt-flap::before{content:"";position:absolute;inset:-60%;z-index:1;opacity:.42;mix-blend-mode:color-dodge;pointer-events:none;
+  background:linear-gradient(115deg,var(--iri-1),var(--iri-2) 12%,var(--iri-3) 25%,var(--iri-4) 37%,var(--iri-1) 50%,var(--iri-2) 62%,var(--iri-3) 75%,var(--iri-4) 87%,var(--iri-1));
+  translate:calc((var(--mx, 50%) - 50%) * -.5) calc((var(--my, 50%) - 50%) * -.5)}
 .pack-foil::after{content:"";position:absolute;left:0;right:0;bottom:0;height:18px;
   background:repeating-linear-gradient(90deg,rgb(var(--ink-rgb) / .09) 0 1px,transparent 1px 3px),linear-gradient(0deg,rgb(var(--void-rgb) / .5),transparent)}
-@media (prefers-reduced-motion:no-preference){ .pack-foil::before,.pt-base::before,.pt-flap::before{animation:tcsheen 4s ease-in-out infinite alternate} }
+@media (prefers-reduced-motion:no-preference){
+  :not(.pk-aim) > .pk-center .pack-foil::before,.pack .pack-foil::before,
+  :not(.pk-aim) > .pk-center :is(.pt-base,.pt-flap)::before{animation:pk-holo 4s ease-in-out infinite alternate}
+}
+@keyframes pk-holo{from{translate:-18% -14%}to{translate:18% 14%}}
 .pack-seal:focus-visible{outline:2px solid var(--lime);outline-offset:4px}
 /* The key art (pack.js packArtSVG): yard lines, the brand's // as two stripes, the week's number embossed. */
 .pack-art{position:absolute;inset:0;width:100%;height:100%}
@@ -31,12 +36,16 @@
    went muddy under the holo's colour-dodge). */
 .pa-slash{fill:rgb(var(--void-rgb) / .28);stroke:rgb(var(--lime-rgb) / .55);stroke-width:.35}
 .pa-wk{font-family:var(--disp);font-weight:800;letter-spacing:-.04em;fill:rgb(var(--ink-rgb) / .06);stroke:rgb(var(--ink-rgb) / .38);stroke-width:.45}
-/* The print: the logo and the week under the strip, the count in a holo badge, the season up the side. */
-.pack-seal b,.pack-wk,.pack-n,.pack-side{position:absolute;z-index:1}
-.pack-seal b{left:0;right:0;top:19%;text-align:center;font-family:var(--disp);font-weight:800;font-size:var(--t-5);line-height:1;
+.pa-wl{font-family:var(--mono);font-weight:700;letter-spacing:.35em;fill:rgb(var(--ink-rgb) / .55)}
+/* The print: the logo under the strip, the count in a holo badge, the season up the side. */
+.pack-seal > b,.pack-n,.pack-side{position:absolute;z-index:1}
+.pack-seal > b{left:0;right:0;top:19%;text-align:center;font-family:var(--disp);font-weight:800;font-size:var(--t-5);line-height:1;
   text-shadow:0 1px 2px rgb(var(--shadow-rgb) / .6)}
-.pack-seal b i{font-style:normal;color:var(--lime)}
-.pack-wk{left:0;right:0;top:calc(19% + 1.7em);text-align:center;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.3em;color:var(--ink-2)}
+/* Its // is the header's two lime bars (chrome/motion.css), crossing into an X as the pack opens. */
+.pack-seal > b .slashes{display:inline-flex;align-items:center;gap:.12em;margin:0 .1em;height:.8em;vertical-align:-.04em}
+.pack-seal > b .slashes b{display:block;width:.1em;height:100%;background:var(--lime);transform:rotate(22deg)}
+.pack-seal > b .slashes.morph b:first-child{animation:slash-a .72s var(--ease) both}
+.pack-seal > b .slashes.morph b:last-child{animation:slash-b .72s var(--ease) both}
 .pack-n{right:9%;bottom:10%;width:46px;aspect-ratio:1;border-radius:50%;display:grid;place-content:center;text-align:center;
   font-family:var(--disp);font-weight:800;font-size:var(--t-4);line-height:.9;color:var(--ink);background:rgb(var(--void-rgb) / .72);
   box-shadow:0 0 0 2px var(--void),0 0 0 3.5px var(--holo-2)}
@@ -56,9 +65,14 @@
 .pack-seal{--tdir:1;transition:--tear .42s var(--spring),--ta .42s var(--spring),--tb .42s var(--spring),--te .42s var(--spring)}
 .pack-seal.tearing{transition:none}
 .pack-top{position:absolute;z-index:2;left:0;right:0;top:0;height:30px}
+/* The pack's mouth, under the strip: dark inside, the top edges of the cards at the bottom of it,
+   seen only where the strip is torn away. */
+.pt-mouth{position:absolute;inset:0;
+  background:linear-gradient(0deg,rgb(var(--ink-rgb) / .5) 0 1px,transparent 1px 3px,rgb(var(--ink-rgb) / .3) 3px 4px,transparent 4px) bottom/100% 7px no-repeat,
+    linear-gradient(180deg,var(--void),var(--panel-2))}
 .pt-base,.pt-flap{position:absolute;inset:0;overflow:hidden;
   background:radial-gradient(circle,rgb(var(--void-rgb) / .85) 0 1px,transparent 1.6px) 0 100%/6px 5px repeat-x,
-    repeating-linear-gradient(90deg,rgb(var(--ink-rgb) / .05) 0 1px,transparent 1px 3px),
+    repeating-linear-gradient(90deg,rgb(var(--ink-rgb) / .025) 0 1px,transparent 1px 4px),
     linear-gradient(160deg,var(--panel-3),var(--void) 180%)}
 /* The strip keeps the crimp along its top edge. */
 .pt-base,.pt-flap{-webkit-mask:conic-gradient(from -45deg at 50% 7px,transparent 90deg,var(--shadow) 0) top/12px 100% repeat-x;
@@ -67,7 +81,7 @@
 .pt-base{clip-path:polygon(0 -20px,calc(var(--ta) * 100%) -20px,calc(var(--ta) * 100%) 100%,calc(var(--tb) * 100%) 100%,
   calc(var(--tb) * 100%) -20px,100% -20px,100% 100%,0 100%)}
 .pt-flap{clip-path:inset(-20px calc((1 - var(--tb)) * 100%) 0 calc(var(--ta) * 100%));transform-origin:calc(var(--te) * 100%) 100%;
-  rotate:calc(var(--tdir) * min(var(--tear), .5) * 16deg);translate:0 calc(var(--tear) * -3px);
+  rotate:calc(var(--tdir) * min(var(--tear), .5) * 18deg);translate:0 calc(min(var(--tear), .6) * -18px);
   filter:drop-shadow(0 3px 3px rgb(var(--shadow-rgb) / .55))}
 .pt-edge{position:absolute;top:0;bottom:0;left:calc(var(--te) * 100% - 3px);width:6px;opacity:calc(var(--tear) * 30);
   background:linear-gradient(180deg,var(--holo-1),var(--ink) 50%,var(--holo-3));filter:blur(1.5px);
@@ -84,16 +98,20 @@
    breathes. It says how good, never who. On a wrapper, because the seal's crimp mask would cut a
    glow on the seal itself. */
 .pack-seal{touch-action:none}
-.pack-glow{width:max-content;margin:0 auto;filter:drop-shadow(0 0 var(--glow-r, 0) var(--glow, transparent))}
+/* The glow is a soft layer behind the pack whose opacity breathes; it was an animated drop-shadow
+   filter, repainted every frame, which with the sway made the pack stutter (2026-09-25). */
+.pack-glow{position:relative;isolation:isolate;width:max-content;margin:0 auto}
+.pack-glow::before{content:"";position:absolute;inset:calc(var(--glow-r, 0px) * -1.6);z-index:-1;border-radius:18px;pointer-events:none;
+  background:radial-gradient(closest-side,var(--glow, transparent) 55%,transparent);opacity:.75}
 .pack-glow.tease-ur{--glow:rgb(var(--gold-2-rgb) / .55);--glow-r:10px}
 .pack-glow.tease-sig{--glow:rgb(var(--epic-2-rgb) / .7);--glow-r:14px}
 .pack-glow.tease-one{--glow:rgb(var(--holo-3-rgb) / .8);--glow-r:18px}
 @media (prefers-reduced-motion:no-preference){
-  .pack-glow.tease-sig,.pack-glow.tease-one{animation:pk-breathe 1.8s ease-in-out infinite alternate}
-  .pack-glow.tease-one{animation-duration:1.1s}
+  .pack-glow.tease-sig::before,.pack-glow.tease-one::before{animation:pk-breathe 1.8s ease-in-out infinite alternate}
+  .pack-glow.tease-one::before{animation-duration:1.1s}
   .pack-seal.tearing{animation:pk-strain .12s linear infinite}
 }
-@keyframes pk-breathe{to{filter:drop-shadow(0 0 calc(var(--glow-r) * 1.8) var(--glow))}}
+@keyframes pk-breathe{from{opacity:.55}to{opacity:1}}
 @keyframes pk-strain{0%,100%{translate:0 0}50%{translate:.6px -.4px}}
 .pack-hint{margin:10px 0 0;text-align:center;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.14em;color:var(--ink-3)}
 .pack-done{display:block;margin:14px auto 0}

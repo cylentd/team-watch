@@ -95,6 +95,7 @@ async function pkOutOfPack(S, el){
 }
 
 async function pkDeal(S){
+  await Promise.race([S.ready, pkSleep(S, 1500)]);   // the photos, sharp, before the first card (1.5s at most)
   for (const [k, c] of S.cards.entries()){
     const el = pkCardEl(S, c);
     if (!S.skip) S.st.querySelector(".pk-msg").innerHTML = "";   // the last card's label goes with it
@@ -103,6 +104,11 @@ async function pkDeal(S){
     const cw = S.cw();
     el.style.setProperty("--cw0", `${cw}px`);
     el.style.setProperty("--pkz", (el.offsetWidth / cw).toFixed(4));
+    // The photo is the sharpest file there is, already loaded (packShow preloads the pack's), set
+    // directly: a srcset would start from its small layout size (it is scaled up by transform) and
+    // swap a blurry photo for a sharp one in front of the reader.
+    const img = el.querySelector(".tc-art img"), best = pkBestHead(c.p);
+    if (img && best){ img.removeAttribute("srcset"); img.removeAttribute("sizes"); img.loading = "eager"; img.src = best; }
     S.shown.push(el);
     const last = k === S.cards.length - 1;
     if (S.pack) await pkOutOfPack(S, el);
@@ -141,7 +147,8 @@ async function pkHero(S, el, c){
   await pkSign(S, el);
   const top = S.cards[S.cards.length - 1];
   S.st.querySelector(".pk-msg").innerHTML = t("teams.pack.done", {name: esc(nameInitial(top.p.n)), rank: top.rank, pos: esc(top.p.pos)});
-  await pkSleep(S, 1500);
+  // Long enough to read the line above it (it was 1.5s); a tap anywhere goes on sooner.
+  await Promise.race([pkSleep(S, 3400), new Promise(r => S.st.addEventListener("click", r, {once: true}))]);
 }
 
 /* The stage fades to the roster and every card flies from where it is into its empty slot. */

@@ -18,6 +18,7 @@ component/rule.css
 component/vpill.css
 surface/teams/roster.css
 surface/teams/cards.css
+surface/teams/cardweather.css
 surface/teams/injury.css
 surface/teams/pack.css
 surface/teams/packshow.css

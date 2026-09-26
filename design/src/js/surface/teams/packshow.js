@@ -40,6 +40,11 @@ function packShow(team, wk){
   document.body.classList.add("pk-open");
   const S = {st, team, wk, cards, ripped: false, skip: false, shown: [], best: cardTier(cards[cards.length - 1].rank)};
   S.cw = () => document.querySelector("#view .cards .tc")?.offsetWidth || 114;   // a roster card's width, read when dealt
+  // The pack's photos, the sharpest size cut, loaded and decoded while the reader tears.
+  S.ready = Promise.all(cards.map(c => pkBestHead(c.p)).filter(Boolean).map(src => {
+    const im = new Image(); im.src = src;
+    return im.decode().catch(() => {});
+  }));
   S.key = e => { if (e.key === "Escape") pkQuit(S); };
   document.addEventListener("keydown", S.key);
   layerPush("pack", () => pkQuit(S, true));
@@ -67,6 +72,12 @@ function pkAim(S){
     seal.style.setProperty("--mx", `${Math.round(50 + dx * 40)}%`);
     seal.style.setProperty("--my", `${Math.round(50 + dy * 40)}%`);
   });
+}
+
+/* A pack card's photo: the largest file cut for him (512, else 256, else 96px), or null. */
+function pkBestHead(p){
+  const pick = m => typeof m !== "undefined" && m && p.slug ? m[p.slug] : null;
+  return pick(typeof HEADS_XL !== "undefined" ? HEADS_XL : null) || pick(typeof HEADS_LG !== "undefined" ? HEADS_LG : null) || pick(HEADS);
 }
 
 /* The stage's light: a card's tier colour, stronger the rarer (null: the room's plain low light). */
@@ -103,6 +114,7 @@ async function pkRip(S){
     // The strip flies off in 3D, turning over as it goes, while the pack tips back to open its mouth.
     const r = seal.getBoundingClientRect();
     packBurst(r.left + r.width / 2, r.top + 16, {n: 46, tier: S.best});
+    seal.querySelector(".slashes")?.classList.add("morph");   // the logo's // crosses into an X, as the header's does
     const out = "cubic-bezier(.25,1,.5,1)";
     await Promise.all([
       seal.querySelector(".pack-top").animate([
