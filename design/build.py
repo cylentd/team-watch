@@ -28,6 +28,7 @@ from pedigree import live_pedigree, report as pedigree_report   # design/pedigre
 from gamelog import live_gamelog, report as gamelog_report      # design/gamelog.py: the profile modal's weekly history
 from projections import live_projections, report as projections_report  # design/projections.py: projected vs actual
 from injury import live_injury, report as injury_report  # design/injury.py: who is out, doubtful, questionable
+from signed import live_signed, report as signed_report  # design/signed.py: who earned an autograph
 from lines import live_lines, report as lines_report  # design/lines.py: implied points per team
 from routes import live_routes, report as routes_report          # design/routes.py: the profile sheet's YPRR axis
 from archetype import (                                           # design/archetype.py: role/style labels + OL context
@@ -177,6 +178,11 @@ def live_espn(available):
             slot = f"FLX{flex}"
         elif slot == "BE":
             slot = "BN"
+        elif slot == "IR":
+            # Injured reserve is a bench spot, not a lineup one: the page's "OUT" group, the same
+            # as Yahoo's (YAHOO_SLOT) and a connected league's (api/league.py). Passed through as
+            # "IR" it counted as a starter, and the lineup warning named him (2026-09-25).
+            slot = "OUT"
         name = p["name"].replace(" D/ST", "")
         slug = slugify(name)
         # Sleeper wins whenever it has a record for this player -- even a "healthy" read overrides
@@ -745,8 +751,10 @@ def render():
         "LIVE_ARCHETYPE": live_archetype(load_archetype(FEED, DWR), wanted_set),
         "LIVE_TRENCHES": live_trenches(load_trenches(FEED, DWR)),
     }
+    blocks["LIVE_SIGNED"] = live_signed(load_gamelog_weekly(), blocks["LIVE_SCHEDULE"], slugify, wanted_set)
     add_market_stock(blocks, report)
     report.append(schedule_report(blocks["LIVE_SCHEDULE"]))
+    report.append(signed_report(blocks["LIVE_SIGNED"]))
     report += [pedigree_report(blocks["LIVE_PEDIGREE"]), gamelog_report(blocks["LIVE_GAMELOG"]),
               projections_report(blocks["LIVE_PROJECTIONS"]), routes_report(blocks["LIVE_ROUTES"]),
               report_archetype(blocks["LIVE_ARCHETYPE"]), report_trenches(blocks["LIVE_TRENCHES"]),

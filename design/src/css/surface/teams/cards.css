@@ -80,10 +80,24 @@
   background:linear-gradient(115deg,var(--epic-2),var(--iri-2) 30%,var(--epic-2) 60%,var(--iri-1) 85%,var(--epic-2)) var(--mx) var(--my)/320% 320%;
   -webkit-mask-image:repeating-linear-gradient(60deg,transparent 0 2px,var(--shadow) 2px 2.6px);
           mask-image:repeating-linear-gradient(60deg,transparent 0 2px,var(--shadow) 2px 2.6px)}
-/* Signed across the lower photo, the top layer of the art: gold ink with a dark edge that reads on any jersey. */
+/* Signed across the lower photo, the top layer of the art (earned: cards.js cardSigned). Gold foil
+   ink, not flat gold: a band of light runs along the stroke, a dark edge keeps it on any jersey,
+   and it glows; a small holo seal after the name says it is authentic. The ink is the text's own
+   background, so the edge and glow are drop-shadows (a text-shadow would show through it). */
 .tc-sig{position:absolute;z-index:3;left:0;right:0;bottom:0;text-align:center;font-family:var(--sig);
-  font-size:var(--t-4);line-height:1.25;color:var(--gold-2);transform:rotate(-5deg);white-space:nowrap;pointer-events:none;
-  text-shadow:0 0 1px rgb(var(--shadow-rgb) / .9),0 1px 2px rgb(var(--shadow-rgb) / .7)}
+  font-size:var(--t-4);line-height:1.25;transform:rotate(-5deg);white-space:nowrap;
+  color:transparent;-webkit-background-clip:text;background-clip:text;
+  background-image:linear-gradient(100deg,var(--gold-1) 0%,var(--gold-2) 38%,var(--ink) 50%,var(--gold-2) 62%,var(--gold-1) 100%);
+  background-size:300% 100%;background-position:100% 0;
+  filter:drop-shadow(0 0 1px rgb(var(--shadow-rgb) / .95)) drop-shadow(0 1px 2px rgb(var(--shadow-rgb) / .7)) drop-shadow(0 0 6px rgb(var(--gold-2-rgb) / .55))}
+.tc-sig::after{content:"";display:inline-block;width:.55em;height:.55em;margin-left:.2em;border-radius:50%;vertical-align:.1em;
+  background:conic-gradient(from var(--ang),var(--holo-1),var(--holo-2),var(--holo-3),var(--holo-4),var(--holo-5),var(--holo-1));
+  box-shadow:0 0 0 1px rgb(var(--ink-rgb) / .8)}
+@media (prefers-reduced-motion:no-preference){
+  .tc-sig{animation:sig-shine 2.6s linear infinite}
+  .tc-sig::after{animation:tcspin 3s linear infinite}
+}
+@keyframes sig-shine{from{background-position:100% 0}to{background-position:0 0}}
 .tc-glare{position:absolute;inset:0;border-radius:10px;pointer-events:none;opacity:0;mix-blend-mode:overlay;
   background:radial-gradient(circle at var(--mx) var(--my),rgb(var(--ink-rgb) / .7),transparent 55%);transition:opacity .3s}
 .tc.live .tc-glare{opacity:.8}

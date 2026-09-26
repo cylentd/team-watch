@@ -16,8 +16,10 @@ function packFaceDown(team, i, html){
 }
 
 // Spelled out one call each: assemble.py --check finds a key only in a literal lookup.
-const PACK_TIER_LABEL = {one: () => t("teams.pack.tier.one"), sig: () => t("teams.pack.tier.sig"), ur: () => t("teams.pack.tier.ur")};
-const pkLabel = c => `<b>${t("teams.card.rank", {n: c.rank, pos: esc(c.p.pos)})}</b> · ${PACK_TIER_LABEL[cardTier(c.rank)]()}`;
+const PACK_TIER_LABEL = {one: () => t("teams.pack.tier.one"), sig: () => t("teams.pack.tier.sig"), ur: () => t("teams.pack.tier.ur"),
+  r: () => t("teams.pack.tier.r"), c: () => t("teams.pack.tier.c")};
+const pkLabel = c => `<b>${t("teams.card.rank", {n: c.rank, pos: esc(c.p.pos)})}</b> · ${PACK_TIER_LABEL[cardTier(c.rank)]()}`
+  + (cardSigned(c.p) ? ` · <em class="pk-signed-tag">${t("teams.pack.signed")}</em>` : "");
 const pkSpring = el => getComputedStyle(el).getPropertyValue("--spring").trim() || "ease-out";
 const pkSleep = (S, ms) => S.skip ? Promise.resolve() : new Promise(r => setTimeout(r, ms));
 
@@ -41,7 +43,8 @@ function packShow(team, wk){
   document.addEventListener("keydown", S.key);
   layerPush("pack", () => pkQuit(S, true));
   st.querySelector(".pk-close").addEventListener("click", () => pkQuit(S));
-  wireRip(st.querySelector(".pack-seal"), () => pkRip(S));
+  // Each eighth of the tear: a tick under the finger and a pinch of foil from the tear point.
+  wireRip(st.querySelector(".pack-seal"), () => pkRip(S), (x, y) => { packBuzz(6); packBurst(x, y, {n: 6, tier: S.best, spread: .35}); });
   render();                     // the page drops its own copy of the pack while the stage holds it
   if (!REDUCED()) st.animate([{opacity: 0}, {opacity: 1}], {duration: 260});
 }
@@ -68,11 +71,11 @@ async function pkRip(S){
   const seal = S.st.querySelector(".pack-seal");
   if (!REDUCED()){
     const r = seal.getBoundingClientRect();
-    seal.style.setProperty("--tear", 1);
     packBurst(r.left + r.width / 2, r.top + 16, {n: 46, tier: S.best});
     await seal.querySelector(".pack-top").animate(
-      [{translate: "0 0", rotate: "-14deg", opacity: 1}, {translate: "90px -120px", rotate: "-38deg", opacity: 0}],
-      {duration: 380, easing: "cubic-bezier(.3,.6,.4,1)", fill: "forwards"}).finished;
+      [{translate: "0 0", rotate: "0deg", opacity: 1}, {translate: "40px -40px", rotate: "-12deg", opacity: 1, offset: .35},
+       {translate: "130px -150px", rotate: "-34deg", opacity: 0}],
+      {duration: 460, easing: "cubic-bezier(.25,.7,.35,1)", fill: "forwards"}).finished;
     await seal.animate([{translate: "0 0", opacity: 1}, {translate: "0 90px", scale: ".9", opacity: 0}],
       {duration: 300, easing: "ease-in", fill: "forwards"}).finished;
   }

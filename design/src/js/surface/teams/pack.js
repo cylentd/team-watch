@@ -27,12 +27,13 @@ function packMark(team, wk){
   try { localStorage.setItem(packKey(team, wk), "1"); } catch (e) { /* shows again next load */ }
 }
 
-/* The pack's players with their profile index, lowest rank first so the best turns last. */
+/* The pack's players with their profile index, lowest rank first so the best turns last: the top
+   12 at a position, and any signed card (cards.js cardSigned) whatever its tier, the chase card. */
 function packCards(team){
   const ordered = team.roster.filter(p => p.start)
     .concat(team.roster.filter(p => !p.start && p.slot !== "OUT"), team.roster.filter(p => p.slot === "OUT"));
   return ordered.map((p, i) => ({p, i, rank: cardRank(p)}))
-    .filter(c => c.rank && PACK_TIERS.includes(cardTier(c.rank)))
+    .filter(c => c.rank && (PACK_TIERS.includes(cardTier(c.rank)) || cardSigned(c.p)))
     .sort((a, b) => b.rank - a.rank);
 }
 
@@ -46,7 +47,7 @@ function packReplayable(team){
 function packSealHTML(team, wk, cards){
   const best = cardTier(cards[cards.length - 1].rank);
   return `<div class="pack-glow tease-${best}"><button class="pack-seal" type="button" aria-label="${t("teams.pack.open")}">
-      <span class="pack-top"></span><b>TEAM<i>//</i>WATCH</b>
+      <span class="pack-foil"></span><span class="pack-top"><i class="pt-base"></i><i class="pt-flap"></i><i class="pt-edge"></i></span><b>TEAM<i>//</i>WATCH</b>
       <span class="pack-wk">${t("teams.pack.week", {wk})}</span><span class="pack-n">${t("teams.pack.count", {n: cards.length})}</span>
     </button></div>`;
 }
@@ -74,26 +75,52 @@ function wirePack(v, team){
 }
 function packReplay(team){ packShow(team, packWeek()); }
 
-/* The tear follows the finger: --tear runs 0..1 across 80% of the pack's width. Let go past half
-   way and it finishes on its own; short of that it springs back. A tap without a drag tears it at
-   once, and Enter or Space on the focused pack does the same. */
-function wireRip(seal, onRip){
-  let x0 = null, tear = 0, done = false;
+/* The tear (2026-09-25, reworked the same day: it jumped). It has to be torn: a drag that starts on
+   the strip across the top, either way, and --tear (0..1 over 75% of the width) follows the finger.
+   The torn length of the strip lifts off at the tear point while the rest stays on (pack.css).
+   Every eighth of the way ticks: a buzz and a few flakes from the tear point (onTick). Let go past
+   55% and it finishes by itself; short of that it springs back, both eased by the registered
+   property's transition, not a jump. A touch anywhere else on the pack only nudges the strip and
+   says where to tear. Enter or Space on the focused pack tears it at once. */
+const RIP_STEPS = 8, RIP_DONE = .55;
+function wireRip(seal, onRip, onTick){
+  let x0 = null, tear = 0, step = 0, done = false;
   const set = p => { tear = p; seal.style.setProperty("--tear", p.toFixed(3)); };
-  const finish = () => { if (done) return; done = true; onRip(); };
-  seal.addEventListener("pointerdown", e => { x0 = e.clientX; seal.classList.add("tearing"); seal.setPointerCapture?.(e.pointerId); });
+  const finish = () => {
+    if (done) return;
+    done = true; x0 = null; seal.classList.remove("tearing");
+    set(1);
+    setTimeout(onRip, REDUCED() ? 0 : 200);    // the transition runs the rest of the tear first
+  };
+  const nudge = () => {
+    seal.classList.remove("nudge"); void seal.offsetWidth; seal.classList.add("nudge");
+    packBuzz(8);
+  };
+  seal.addEventListener("pointerdown", e => {
+    if (done) return;
+    const r = seal.getBoundingClientRect();
+    if (e.clientY - r.top > r.height * .3) return nudge();   // the strip, and a thumb's width under it
+    x0 = e.clientX; step = 0;
+    seal.classList.add("tearing"); seal.setPointerCapture?.(e.pointerId);
+  });
   seal.addEventListener("pointermove", e => {
     if (x0 === null) return;
-    set(Math.min(1, Math.abs(e.clientX - x0) / (seal.offsetWidth * .8)));
+    set(Math.min(1, Math.abs(e.clientX - x0) / (seal.offsetWidth * .75)));
+    const now = Math.floor(tear * RIP_STEPS);
+    if (now > step){
+      step = now;
+      const r = seal.getBoundingClientRect();
+      onTick?.(r.left + r.width * tear, r.top + 16, tear);
+    }
     if (tear >= 1) finish();
   });
-  seal.addEventListener("pointerup", e => {
+  const release = () => {
     if (x0 === null) return;
-    const tapped = Math.abs(e.clientX - x0) < 8;
     x0 = null; seal.classList.remove("tearing");
-    if (tapped || tear > .5) finish(); else set(0);
-  });
-  seal.addEventListener("pointercancel", () => { x0 = null; seal.classList.remove("tearing"); set(0); });
-  // A click from the keyboard has no pointer before it (detail 0); a pointer's click was handled above.
+    if (tear > RIP_DONE) finish(); else { set(0); if (tear < .04) nudge(); }
+  };
+  seal.addEventListener("pointerup", release);
+  seal.addEventListener("pointercancel", release);
+  // A click from the keyboard has no pointer before it (detail 0); a pointer's is the drag's.
   seal.addEventListener("click", e => { e.stopPropagation(); if (e.detail === 0) finish(); });
 }

@@ -5,12 +5,17 @@
    player not playing this week has no rank, so no tier either. Tap flips a card; its back carries
    the role stats the front leaves out and the way into the profile. */
 /* Five tiers, each its own colour family (2026-09-25; earned by rank alone, never by being a
-   roster's best):  #1 "one" holo · #2-5 "sig" violet, signed · #6-12 "ur" gold · #13-24 "r" blue ·
+   roster's best):  #1 "one" holo · #2-5 "sig" violet, etched · #6-12 "ur" gold · #13-24 "r" blue ·
    the rest "c" plain. It had gold twice and silver beside grey, so neighbouring tiers looked alike.
-   A roster with nobody in the top five gets no signed card: that is the news, not a gap to fill. */
+   The autograph is not a tier (since 2026-09-25, it was #1-5): it is earned by last week's finish,
+   cardSigned. A roster with nobody who finished top 3 gets none: that is the news, not a gap. */
 function cardTier(rank){
   if (!rank) return "c";
   return rank === 1 ? "one" : rank <= 5 ? "sig" : rank <= 12 ? "ur" : rank <= 24 ? "r" : "c";
+}
+/* {rank, pts} when he finished top 3 at his position in the last completed week (design/signed.py). */
+function cardSigned(p){
+  return typeof LIVE_SIGNED !== "undefined" && LIVE_SIGNED && p.slug ? LIVE_SIGNED.players[p.slug] || null : null;
 }
 function cardRank(p){
   if (typeof LIVE_PROJECTIONS === "undefined" || !LIVE_PROJECTIONS) return null;
@@ -58,7 +63,10 @@ function cardFront(p, tier, g, rank){
   const inj = injFor(p), band = inj && inj.s !== "Q";
   const hurt = !inj ? "" : band ? `<span class="tc-inj ${inj.s.toLowerCase()}" title="${injLabel(inj)}">${INJ_WORD[inj.s]()}</span>`
     : `<span class="tc-chip q" title="${injLabel(inj)}">${t("teams.inj.q")}</span>`;
-  const sig = !band && (tier === "sig" || tier === "one") ? `<span class="tc-sig">${esc(p.n)}</span>` : "";
+  // Signed only when he earned it: top 3 at his position in the last completed week (LIVE_SIGNED),
+  // on any tier. The tier is what he is expected to do; the autograph is what he did.
+  const won = cardSigned(p);
+  const sig = !band && won ? `<span class="tc-sig" title="${t("teams.card.signedTip", {rank: won.rank, pos: esc(p.pos), wk: LIVE_SIGNED.wk, pts: won.pts})}">${esc(p.n)}</span>` : "";
   // Behind the photo: the violet etch (#2-5), or the #1's holo foil and glitter.
   const foil = {sig: `<i class="tc-etch"></i>`, one: `<i class="tc-holo"></i><i class="tc-spark"></i>`}[tier] || "";
   const stamp = rank ? `<span class="tc-rank" title="${t("teams.card.rank", {n: rank, pos: esc(p.pos)})}">${t("teams.card.rankStamp", {n: rank})}</span>` : "";

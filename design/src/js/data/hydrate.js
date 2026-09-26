@@ -7,7 +7,7 @@ function espnRows(rows){
     let slot = p.slot;
     if (slot === "RB" || slot === "WR"){ seen[slot] = (seen[slot]||0)+1; slot += seen[slot]; }
     const row = {n:p.n, pos:p.pos, team:p.team, slug:p.slug, slot,
-      start: slot !== "BN" && slot !== "OUT", status: p.status || null};
+      start: !["BN", "OUT", "IR"].includes(slot), status: p.status || null};   // IR is a bench spot
     return Object.assign(row, signalsFor(row));
   });
 }

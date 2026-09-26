@@ -61,6 +61,17 @@ def cards_page(browser, page_file, viewport=(360, 660), keep_stage=False):
     return ctx, page, errors
 
 
+def rip(page, part=.9):
+    """Drag along the stage pack's strip, `part` of its width. A tap no longer rips (2026-09-25)."""
+    box = page.locator(".pk-stage .pack-seal").bounding_box()
+    y, x = box["y"] + 14, box["x"] + 10
+    page.mouse.move(x, y)
+    page.mouse.down()
+    for k in range(1, 7):
+        page.mouse.move(x + box["width"] * part * k / 6, y)
+    page.mouse.up()
+
+
 def motion_page(browser, page_file):
     """The same, with motion on, as a reader without reduced motion sees it."""
     from test_render import SEED
@@ -117,6 +128,54 @@ def test_every_card_back_fits_its_card_on_a_small_phone(browser, page_file):
     assert over == 0
     # The defense's face is its club code.
     assert page.locator(".cards .tc.tier-dst .tc-abbr").last.inner_text() == "CIN"
+    assert errors == []
+    ctx.close()
+
+
+def test_an_autograph_is_a_top_three_finish_in_the_last_completed_week():
+    from signed import completed_week, live_signed
+    games = [{"week": 2, "home": "A", "away": "B"}, {"week": 2, "home": "C", "away": "D"},
+             {"week": 3, "home": "A", "away": "C"}, {"week": 3, "home": "B", "away": "D"}]
+    rows = [{"name": f"R{i}", "pos": "RB", "week": 2, "team": "ABCD"[i % 4], "pts": 30 - i} for i in range(5)]
+    rows += [{"name": "Q1", "pos": "QB", "week": 2, "team": "A", "pts": 25},
+             {"name": "R9", "pos": "RB", "week": 3, "team": "A", "pts": 50}]      # Thursday's game alone
+    assert completed_week(rows, games) == 2
+    got = live_signed({"rows": rows}, {"games": games}, slug, {"r0", "r2", "r3", "q1", "r9"})
+    assert got == {"wk": 2, "players": {"r0": {"rank": 1, "pts": 30}, "r2": {"rank": 3, "pts": 28},
+                                        "q1": {"rank": 1, "pts": 25}}}
+    assert live_signed({"rows": rows}, {"games": []}, slug, {"r0"}) is None
+
+
+@pytest.mark.render
+def test_only_a_signed_player_has_the_autograph_whatever_his_tier(browser, page_file):
+    ctx, page, errors = cards_page(browser, page_file)
+    # The fixtures log too few teams for any week to be complete: then nobody is signed, not even
+    # an Epic or the #1 (it was every #1-5 until 2026-09-25).
+    if page.evaluate("LIVE_SIGNED === null"):
+        assert page.locator(".cards .tc-sig").count() == 0
+        ctx.close()
+        return
+    got = page.evaluate("""(() => {
+      const ps = TEAMS.espn.roster.filter(p => p.slug && ['QB','RB','WR','TE'].includes(p.pos)).slice(0, 2);
+      if (ps.length < 2) return null;
+      LIVE_SIGNED.players = {[ps[0].slug]: {rank: 2, pts: 30}};
+      if (typeof LIVE_INJURY !== 'undefined' && LIVE_INJURY) LIVE_INJURY.players = {};
+      ps.forEach(p => { p.status = null; });
+      const sig = p => { const d = document.createElement('div'); d.innerHTML = cardHTML(p, 0, 'espn'); return d.querySelectorAll('.tc-sig').length; };
+      return [sig(ps[0]), sig(ps[1])];
+    })()""")
+    if got is None:
+        pytest.skip("the fixture's ESPN roster has too few skill players")
+    assert got == [1, 0]
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_an_ir_spot_is_not_in_the_starting_lineup(browser, page_file):
+    ctx, page, errors = cards_page(browser, page_file)
+    rows = page.evaluate("espnRows([{n:'A', pos:'RB', team:'X', slug:'a', slot:'IR'}, {n:'B', pos:'RB', team:'X', slug:'b', slot:'RB'}]).map(p => p.start)")
+    assert rows == [False, True]
     assert errors == []
     ctx.close()
 
@@ -244,7 +303,7 @@ def test_the_pack_opens_once_a_week(browser, page_file):
     if page.locator(".pack").count() == 0:
         pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
     page.click(".pack .pack-seal")                              # the page's pack puts it back on the stage
-    page.click(".pk-stage .pack-seal")                          # reduced motion: straight to the roster
+    rip(page)                                                   # reduced motion: straight to the roster
     page.wait_for_selector(".pk-stage", state="detached")
     assert page.locator(".cards .tc.pk-slot").count() == 0
     assert page.locator(".pack").count() == 0
@@ -262,7 +321,7 @@ def test_rip_again_puts_this_weeks_pack_back_on_the_stage(browser, page_file):
         pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
     assert page.locator("[data-rerip]").count() == 0, "nothing to rip again before the pack is opened"
     page.click(".pack .pack-seal")
-    page.click(".pk-stage .pack-seal")
+    rip(page)
     page.wait_for_selector(".pk-stage", state="detached")
     page.click("[data-rerip]")
     assert page.locator(".pk-stage .pack-seal").count() == 1
@@ -282,7 +341,7 @@ def test_the_stage_opens_by_itself_and_its_cards_fly_home_to_their_slots(browser
     empty = page.evaluate("[...document.querySelectorAll('.cards .tc.pk-slot .bk-open')].map(b => +b.dataset.ci).sort((a, b) => a - b)")
     want = page.evaluate("packCards(TEAMS.espn).map(c => c.i).sort((a, b) => a - b)")
     assert empty == want and len(want) > 0
-    page.click(".pk-stage .pack-seal")
+    rip(page)
     page.wait_for_selector(".pk-card")
     page.keyboard.press("Escape")                               # after the rip, Escape skips to the roster
     page.wait_for_selector(".pk-stage", state="detached", timeout=6000)
@@ -304,25 +363,27 @@ def test_on_a_desktop_the_starters_are_three_by_three_with_the_bench_beside(brow
 
 
 @pytest.mark.render
-def test_a_short_drag_springs_back_and_a_long_one_rips(browser, page_file):
+def test_only_a_drag_along_the_strip_rips_and_a_short_one_springs_back(browser, page_file):
     ctx, page, errors = cards_page(browser, page_file, keep_stage=True)
     if page.locator(".pk-stage").count() == 0:
         pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
-    seal = page.locator(".pk-stage .pack-seal")
-    box = seal.bounding_box()
-    y, x = box["y"] + 14, box["x"] + 10
-
-    def drag(dx):
-        page.mouse.move(x, y)
-        page.mouse.down()
-        for k in range(1, 6):
-            page.mouse.move(x + dx * k / 5, y)
-        page.mouse.up()
-
-    drag(box["width"] * .25)
+    box = page.locator(".pk-stage .pack-seal").bounding_box()
+    tear = "getComputedStyle(document.querySelector('.pk-stage .pack-seal')).getPropertyValue('--tear').trim()"
+    # A tap on the pack's body, and a tap on the strip, only nudge.
+    page.mouse.click(box["x"] + box["width"] / 2, box["y"] + box["height"] * .7)
+    page.mouse.click(box["x"] + 20, box["y"] + 14)
+    assert page.locator(".pk-stage .pack-seal").count() == 1, "a tap does not rip"
+    # A drag across the body, below the strip, does not tear either.
+    page.mouse.move(box["x"] + 10, box["y"] + box["height"] * .6)
+    page.mouse.down()
+    page.mouse.move(box["x"] + box["width"] - 10, box["y"] + box["height"] * .6)
+    page.mouse.up()
+    assert page.locator(".pk-stage .pack-seal").count() == 1, "only the strip tears"
+    rip(page, .3)
+    page.wait_for_timeout(600)                                 # the spring back is eased, not a jump
     assert page.locator(".pk-stage .pack-seal").count() == 1, "a short drag does not rip"
-    assert page.evaluate("getComputedStyle(document.querySelector('.pk-stage .pack-seal')).getPropertyValue('--tear').trim()") in ("0", "0.000")
-    drag(box["width"] * .7)
+    assert page.evaluate(tear) in ("0", "0.000")
+    rip(page, .8)
     page.wait_for_selector(".pk-stage", state="detached")       # reduced motion: ripped, straight to the roster
     assert page.locator(".pack").count() == 0
     assert errors == []
