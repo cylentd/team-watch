@@ -1,60 +1,71 @@
-/* Gallery slip, drawn after Underdog's own share card (2026-09-25; the printed-paper slip before it
-   read as a bright panel on the dark page, in spaced capitals). A dark card one step above the
-   page: the number the slip is selling on top, big; each game with its kickoff; one rounded row
-   per leg with his photo, his name, the call as a sentence and one number at the right edge.
-   Sentence case throughout: capitals and letter-spacing are what made the paper slip slow.
-   A slip is as long as its legs: align-self keeps the rail from stretching a 2-leg slip to the
-   height of a 3-leg one. Deep navy since 2026-09-25 (grey --panel blended into the page): a lit
-   top edge and a drop shadow lift it, and the legs sink into wells. */
-.ticket{position:relative;display:flex;flex-direction:column;align-self:flex-start;overflow:hidden;
-  background:var(--slip);color:var(--ink);border:1px solid rgb(var(--ink-rgb) / .1);border-radius:18px;padding:16px 14px 14px;
-  box-shadow:inset 0 1px 0 rgb(var(--ink-rgb) / .08),0 14px 28px -14px rgb(var(--shadow-rgb) / .9);
+/* Gallery slip: a pick'em entry with a tear-off stub (2026-09-25). Underdog's navy share card
+   before it was the one surface off the slate palette, spent 103px per pick on a game header plus
+   a boxed well, and stretched to its row's tallest neighbour; printed paper before that glared.
+   Now: the page's own panel, one row per pick, a perforation with a bite out of each edge, and a
+   stub one step lighter holding the chance, the meter and Load. A slip is as tall as its picks. */
+.ticket{position:relative;display:flex;flex-direction:column;overflow:hidden;
+  background:var(--panel);color:var(--ink);border:1px solid var(--line-2);border-radius:14px;
   transition:transform .2s var(--ease),border-color .2s var(--ease)}
-.ticket.best{border-color:rgb(var(--lime-rgb) / .6)}
-.ticket:hover{transform:translateY(-3px);border-color:rgb(var(--ink-rgb) / .3)}
+.ticket.best{border-color:rgb(var(--lime-rgb) / .55)}
+.ticket:hover{transform:translateY(var(--lift));border-color:var(--ink-3)}
 .ticket.best:hover{border-color:var(--lime)}
-.tk-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:var(--t-2);font-weight:600;color:var(--ink-2)}
-.tk-book{flex-shrink:0;font-family:var(--disp);font-weight:800;text-transform:uppercase;letter-spacing:-.01em;color:var(--ink-3)}
-.tk-head{margin-top:6px;font-family:var(--disp);font-weight:800;font-size:var(--t-4);line-height:1.1;color:var(--ink-2)}
-.tk-head b{font-size:var(--t-7);letter-spacing:-.02em;color:var(--ink)}
-.tk-head b.neg{color:var(--down)}
-/* The tags under the number: best on screen, the model's verdict against the payout, and the
-   fallback card when no leg cleared the gates. */
-.tk-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.tk-tags:empty{display:none}
-.tk-flag{font-size:var(--t-1);font-weight:700;padding:3px 9px;border-radius:99px;
-  border:1px solid rgb(var(--ink-rgb) / .2);color:var(--ink-2)}
-.tk-flag.best{border-color:rgb(var(--lime-rgb) / .5);color:var(--lime)}
-.tk-flag.up{border-color:rgb(var(--up-rgb) / .5);color:var(--up)}
-.tk-flag.down{border-color:rgb(var(--down-rgb) / .5);color:var(--down)}
-.tk-game{display:flex;flex-direction:column;gap:1px;margin-top:16px;font-size:var(--t-2);color:var(--ink-2)}
-.tk-game b{font-weight:600;color:var(--ink)}
-.tk-leg{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:11px;align-items:center;margin-top:8px;
-  padding:10px 12px;border-radius:14px;background:var(--slip-well);box-shadow:inset 0 1px 2px rgb(var(--shadow-rgb) / .5)}
-.tk-leg img,.tk-leg .fallback{width:40px;height:40px;border-radius:99px;object-fit:cover;background:var(--panel-3)}
+
+/* The entry: what it is, and what it pays. */
+.tk-top{display:flex;align-items:center;gap:10px;padding:12px 14px 6px}
+.tk-kind{font-family:var(--disp);font-weight:700;font-size:var(--t-3);color:var(--ink)}
+.tk-kind span{margin-left:8px;font-family:var(--ui);font-weight:500;font-size:var(--t-2);color:var(--ink-3)}
+.tk-pays{margin-left:auto;flex:none;font-family:var(--mono);font-weight:700;font-size:var(--t-2);
+  background:var(--panel-3);border-radius:99px;padding:3px 10px}
+
+/* One row per pick: photo, the call, the why with its game, the one number. */
+.tk-leg{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 14px}
+.tk-leg img,.tk-leg .fallback{width:34px;height:34px;border-radius:99px;object-fit:cover;background:var(--panel-3)}
 .tk-leg .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink-3)}
 .tk-who{min-width:0}
-.tk-who b{display:block;font-size:var(--t-3);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tk-call{display:block;margin-top:2px;font-size:var(--t-2);color:var(--ink-2)}
-.tk-call em{font-style:normal;font-weight:700;color:var(--ink)}
-.tk-call em.higher{color:var(--up)}
-.tk-call em.lower{color:var(--down)}
+.tk-call{display:block;font-size:var(--t-2);color:var(--ink-2);line-height:1.4}
+.tk-call b{font-weight:700;color:var(--ink);margin-right:2px}
+.tk-dir{font-style:normal;font-weight:700;font-size:var(--t-1);padding:1px 7px;border-radius:99px;
+  color:var(--ink);background:var(--panel-3)}
+.tk-dir.higher{color:var(--up);background:rgb(var(--up-rgb) / .14)}
+.tk-dir.lower{color:var(--down);background:rgb(var(--down-rgb) / .14)}
 .tk-model{font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--amber)}
-.tk-leg .why{display:block;margin-top:3px;font-size:var(--t-1);line-height:1.35;color:var(--ink-3)}
+.tk-leg .why{display:block;margin-top:2px;font-size:var(--t-1);line-height:1.35;color:var(--ink-3)}
 .tk-num{font-family:var(--mono);font-size:var(--t-3);font-weight:700;white-space:nowrap}
 .tk-num i{font-style:normal;font-size:var(--t-1);color:var(--ink-3)}
+
 /* A perforation with a bite out of each side, where the page shows through. */
-.ticket-tear{position:relative;height:0;margin:18px 0 12px;border-top:1.5px dashed rgb(var(--ink-rgb) / .18)}
+.ticket-tear{position:relative;height:0;margin:10px 14px 0;border-top:1.5px dashed var(--line-2)}
 .ticket-tear::before,.ticket-tear::after{content:"";position:absolute;top:-9px;width:18px;height:18px;border-radius:50%;background:var(--void)}
 .ticket-tear::before{left:-24px}
 .ticket-tear::after{right:-24px}
-.ticket-cta{appearance:none;display:flex;align-items:center;justify-content:space-between;gap:10px;border:0;border-radius:12px;
-  background:rgb(var(--ink-rgb) / .1);color:var(--ink);font-family:var(--ui);font-weight:700;font-size:var(--t-3);padding:12px 14px;cursor:pointer;
+
+/* The stub: what this page adds to the entry. */
+.tk-stub{display:grid;gap:9px;padding:12px 14px 13px;background:var(--panel-2)}
+.tk-head{display:flex;align-items:center;gap:8px;font-family:var(--disp);font-weight:700;font-size:var(--t-2);color:var(--ink-2)}
+.tk-head b{font-weight:800;font-size:var(--t-5);letter-spacing:-.02em;color:var(--ink);line-height:1}
+.tk-head b.neg{color:var(--down)}
+.ticket-cta{appearance:none;margin-left:auto;flex:none;border:0;border-radius:8px;cursor:pointer;
+  background:var(--panel-3);color:var(--ink);font-family:var(--ui);font-weight:700;font-size:var(--t-2);padding:8px 14px;
   transition:background .15s var(--ease),color .15s var(--ease)}
-.ticket-cta span{font-size:var(--t-2);font-weight:600;color:var(--ink-3)}
+.ticket-cta:hover{background:var(--line-2)}
 .ticket.best .ticket-cta{background:var(--lime);color:var(--on-lime)}
-.ticket.best .ticket-cta span{color:rgb(var(--on-lime-rgb) / .7)}
-.ticket-cta:hover{background:rgb(var(--ink-rgb) / .16)}
 .ticket.best .ticket-cta:hover{background:var(--lime);filter:brightness(1.08)}
 .ticket-cta:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.tk-meter{position:relative;height:6px;border-radius:3px;background:var(--panel-3)}
+.tk-meter i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--ink-3)}
+.tk-meter i.up{background:var(--up)}
+.tk-meter i.down{background:var(--down)}
+.tk-meter u{position:absolute;top:-4px;bottom:-4px;width:2px;margin-left:-1px;border-radius:1px;background:var(--ink)}
+.tk-note{display:flex;align-items:baseline;gap:10px;font-size:var(--t-1);color:var(--ink-3)}
+.tk-note > span:last-child{margin-left:auto;text-align:right}
+.tk-note b{font-weight:700;color:var(--ink)}
+.tk-note b.up{color:var(--up)}
+.tk-note b.down{color:var(--down)}
+.tk-best{font-weight:600;color:var(--lime)}
+
+/* The cart's verdict pill (slip.js pay box) still uses the flag. */
+.tk-flag{font-size:var(--t-1);font-weight:700;padding:3px 9px;border-radius:99px;
+  border:1px solid rgb(var(--ink-rgb) / .2);color:var(--ink-2)}
+.tk-flag.up{border-color:rgb(var(--up-rgb) / .5);color:var(--up)}
+.tk-flag.down{border-color:rgb(var(--down-rgb) / .5);color:var(--down)}
 .hint{font-size:var(--t-1);color:var(--ink-3);line-height:1.5;margin-top:8px;max-width:70ch}

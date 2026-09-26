@@ -49,26 +49,32 @@ def test_a_new_view_enters_once_and_a_tap_pops_only_its_line(browser, page_file)
 
 
 @pytest.mark.parametrize("book", ["underdog", "dk"])
-def test_a_slip_groups_its_legs_by_game_and_reads_each_as_a_sentence(browser, page_file, book):
+def test_a_slip_is_one_row_per_pick_read_as_a_sentence(browser, page_file, book):
+    """A pick'em entry (2026-09-25): one row per pick, its game and kickoff on the why line rather
+    than a header per game (nearly every pick is its own game, so the header cost 31px a leg)."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     page.evaluate(f"SURFACE='parlay'; PARLAY_BOOK='{book}'; render()")
     slip = page.locator(".ticket").first
     if slip.count() == 0:
         pytest.skip("the fixture's market builds no gallery slip for this book")
-    legs, games = slip.locator(".tk-leg"), slip.locator(".tk-game")
-    assert legs.count() >= 2 and 1 <= games.count() <= legs.count()
+    legs = slip.locator(".tk-leg")
+    assert legs.count() >= 2 and slip.locator(".tk-game").count() == 0
     assert legs.first.locator("img, .fallback").count() == 1, "every leg carries his photo"
     call = legs.first.locator(".tk-call").inner_text()
     assert call != call.upper(), "the call is sentence case, not capitals"
-    assert slip.locator(".tk-head b").inner_text().strip() not in ("", "—")
+    game = page.evaluate(f"PROPS[GALLERIES['{book}'][0].legs[0]].game")
+    assert game in legs.first.locator(".why").inner_text(), "the pick names its game"
+    assert slip.locator(".tk-stub .tk-head b").inner_text().strip() not in ("", "—")
+    assert slip.locator(".tk-stub [data-loadslip]").count() == 1, "Load sits on the stub"
     assert errors == []
     ctx.close()
 
 
-def test_every_underdog_slip_says_its_verdict(browser, page_file):
-    """Each Underdog slip carries one verdict pill (2026-09-25), so nobody works out whether a slip
-    beats its payout: "beats" at a quarter or more over 1/x, "short of" under it, and its title
-    holds both numbers. The chance is graded, so a receptions leg never counts above 57.3%."""
+def test_every_underdog_slip_draws_its_verdict(browser, page_file):
+    """Each Underdog slip draws its verdict on the stub (2026-09-25), so nobody works out whether a
+    slip beats its payout: the meter's bar is the chance and its tick is 1/x, on one 0-50% scale;
+    the note says what x needs and "Beats it" at a quarter or more over 1/x, "Short" under it.
+    The chance is graded, so a receptions leg never counts above 57.3%."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     page.evaluate("SURFACE='parlay'; PARLAY_BOOK='underdog'; render()")
     slips = page.locator(".ticket")
@@ -78,20 +84,36 @@ def test_every_underdog_slip_says_its_verdict(browser, page_file):
     for i in range(slips.count()):
         s = slips.nth(i)
         pct = float(s.locator(".tk-head b").inner_text().rstrip("%"))
-        if "stack" in s.locator(".tk-top").inner_text():
-            assert s.locator(".tk-flag").filter(has_text="Type the app's payout").count() == 1
+        if s.locator(".tk-pays").count() == 0:   # a stack: the app quotes its payout
+            assert "Type the app's payout" in s.locator(".tk-note").inner_text()
+            assert s.locator(".tk-meter").count() == 0
             continue
         x = board[s.locator(".tk-leg").count()]
-        pill = s.locator(".tk-flag[title]")
-        assert pill.count() == 1
+        assert s.locator(".tk-pays").inner_text() == f"{x}×"
+        note = s.locator(".tk-note span[title]")
+        assert note.count() == 1
         ratio = pct / 100 * x
-        want = "Beats" if ratio >= 1.25 else "Near" if ratio >= 1 else "Short of"
-        assert f"{want} the {x}× payout" == pill.inner_text()
-        assert f"{100 / x:.1f}%" in pill.get_attribute("title")
+        want = "Beats it" if ratio >= 1.25 else "Near" if ratio >= 1 else "Short"
+        assert note.inner_text().endswith(f"{x}× needs {100 / x:.1f}% · {want}")
+        tick = s.locator(".tk-meter u").evaluate("u => parseFloat(u.style.left)")
+        assert abs(tick - min(100 / x / 50, 1) * 100) < 0.01
     assert page.evaluate("PROPS.filter(p => p.mkt === 'RECS' && udPick(p)).every(p => legHit(p) <= 57.3)")
     assert page.locator(".tk-grid").evaluate("() => GALLERIES.dk.length") == 0 or \
-        page.evaluate("PARLAY_BOOK='dk'; render(); document.querySelectorAll('.ticket .tk-flag[title]').length") == 0, \
+        page.evaluate("PARLAY_BOOK='dk'; render(); document.querySelectorAll('.ticket .tk-meter, .ticket .tk-note [title]').length") == 0, \
         "DraftKings slips carry no verdict: graded, the model's +EV overs lost"
+    assert errors == []
+    ctx.close()
+
+
+def test_a_near_copy_slip_is_dropped(browser, page_file):
+    """A slip of 3+ that shares all but one leg with a kept slip of its own kind is a copy
+    (2026-09-25: Sunday morning's receptions slip reused 2 of the whole day's 3)."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    near = page.evaluate("""() => Object.values(GALLERIES).flatMap(g => g.flatMap((a, i) => g.slice(i + 1)
+        .filter(b => a.scope === b.scope && a.scope !== 'stack' && b.legs.length >= 3 &&
+          b.legs.filter(l => a.legs.includes(l)).length >= b.legs.length - 1)
+        .map(b => [a.scope, a.legs, b.legs])))""")
+    assert near == []
     assert errors == []
     ctx.close()
 

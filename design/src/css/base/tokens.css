@@ -111,14 +111,6 @@
   --sky:#5ab4ff;
   --sky-rgb:90 180 255;
 
-  /* The Bets slip (2026-09-25): one deep navy, so a slip reads as a solid object on the slate page.
-     Grey one step up was 1.07:1 against the page and vanished; this separates by hue as well as
-     brightness. The legs sink into the darker well. */
-  --slip:#172447;
-  --slip-rgb:23 36 71;
-  --slip-well:#0c1220;
-  --slip-well-rgb:12 18 32;
-
   /* Near-black ink for text on a light surface: a pale team colour on a DST card
      (js/data/teamcolors.js). The paper gallery slip that also used it went dark 2026-09-25. */
   --paper-ink:#1d1c1a;

@@ -136,9 +136,15 @@ function buildGallery(book){
   const scopes = galleryScopes(book).filter(([k]) => k !== "all");
   const metric = legMetric(book);
   const out = [], seen = new Set();
+  /* A near copy is a copy (2026-09-25): Sunday morning's 3 receptions slip reused 2 of the whole
+     day's 3, and its 5-pick long card 4 of 5. A slip of 3 or more that shares all but one leg with
+     a kept slip of its own kind is dropped (a 3-pick inside a 5-pick is a different bet: 6x, not
+     20x); days are built first, so the whole-day card stays. */
+  const nearCopy = (s, legs) => legs.length >= 3 && out.some(c =>
+    c.scope === s && legs.filter(i => c.legs.includes(i)).length >= legs.length - 1);
   const add = (s, label, w, legs, low) => {
     const sig = legs.slice().sort((a,b)=>a-b).join(",");
-    if (seen.has(sig)) return;
+    if (seen.has(sig) || (s !== "stack" && nearCopy(s, legs))) return;
     seen.add(sig);
     // The star goes to the best return, not the safest slip: on Underdog the graded chance times
     // the payout (David, 2026-09-25: the point is the edge, not the hit rate). A stack's payout is

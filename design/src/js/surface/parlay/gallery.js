@@ -8,86 +8,93 @@
 function legWhy(l, book){
   const rate = typeof l.mu === "number"
     ? t("parlay.why.rate", {rate: l.mkt === "RECS" ? l.mu.toFixed(1) : Math.round(l.mu), unit: MKT_SHORT[l.mkt].toLowerCase(), games: l.games}) : "";
-  let why;
-  if (book === "underdog"){
-    why = udPick(l).synthetic ? t("parlay.why.tdUsage") : rate;
-  } else {
-    why = [t("parlay.why.dk", {model: l.model, implied: Math.round(amToProb(overPrice(l)) * 100)}), l.mkt === "TD" ? "" : rate]
-      .filter(Boolean).join(" · ");
-  }
-  return why ? `<span class="why">${esc(why)}</span>` : "";
+  if (book === "underdog") return udPick(l).synthetic ? t("parlay.why.tdUsage") : rate;
+  return [t("parlay.why.dk", {model: l.model, implied: Math.round(amToProb(overPrice(l)) * 100)}), l.mkt === "TD" ? "" : rate]
+    .filter(Boolean).join(" · ");
 }
 
 /* A leg read as a sentence, the way the book's own app prints it: "Lower 4.5 Receptions". The
-   direction word carries the colour; nothing is in capitals. */
+   direction is a small tinted chip (2026-09-25), the way every pick'em slip marks it; nothing is
+   in capitals. */
 function legCall(l, book){
   if (book === "underdog"){
     const u = udPick(l);
     const dir = u.pick === "higher" ? t("parlay.slip.higher") : u.pick === "lower" ? t("parlay.slip.lower") : "";
-    return `<em class="${u.pick || ""}">${dir}</em> ${u.line !== null ? `${u.line} ${esc(MKT[l.mkt])}` : esc(MKT.TD)}${u.synthetic ? ` <span class="tk-model">${t("parlay.gallery.modelTag")}</span>` : ""}`;
+    return `${dir ? `<em class="tk-dir ${u.pick}">${dir}</em> ` : ""}${u.line !== null ? `${u.line} ${esc(MKT[l.mkt])}` : esc(MKT.TD)}${u.synthetic ? ` <span class="tk-model">${t("parlay.gallery.modelTag")}</span>` : ""}`;
   }
-  return l.line === null ? esc(MKT[l.mkt]) : `<em class="higher">${t("parlay.slip.over")}</em> ${l.line} ${esc(MKT[l.mkt])}`;
+  return l.line === null ? esc(MKT[l.mkt]) : `<em class="tk-dir higher">${t("parlay.slip.over")}</em> ${l.line} ${esc(MKT[l.mkt])}`;
 }
 
-/* The verdict as a pill, so nobody does the arithmetic (2026-09-25): the slip's graded chance
-   (udChance, slips.js) against what its payout needs, 1/x. A ratio under 1.25 is "near", since a
-   rate a few points off erases it. Its title shows both numbers. Underdog only. */
+/* The verdict as words, so nobody does the arithmetic (the cart's pay box, slip.js): the slip's
+   graded chance (udChance, slips.js) against what its payout needs, 1/x. A ratio under 1.25 is
+   "near", since a rate a few points off erases it. Its title shows both numbers. */
+const verdictTone = ratio => ratio >= 1.25 ? "up" : ratio >= 1 ? "near" : "down";
 function slipVerdict(ratio, what, model, needs){
-  const [cls, text] = ratio >= 1.25 ? ["up", t("parlay.slip.beats", {what})]
-    : ratio >= 1 ? ["", t("parlay.slip.close", {what})] : ["down", t("parlay.slip.short", {what})];
-  return `<span class="tk-flag ${cls}" title="${esc(t("parlay.slip.verdictTip", {model, needs}))}">${text}</span>`;
+  const tone = verdictTone(ratio);
+  const text = tone === "up" ? t("parlay.slip.beats", {what}) : tone === "near" ? t("parlay.slip.close", {what}) : t("parlay.slip.short", {what});
+  return `<span class="tk-flag ${tone === "near" ? "" : tone}" title="${esc(t("parlay.slip.verdictTip", {model, needs}))}">${text}</span>`;
 }
 
-/* The legs under the game they belong to, first appearance keeping the card's order. */
-function legGroups(legs){
-  const by = new Map();
-  legs.forEach(l => (by.get(l.game) || by.set(l.game, []).get(l.game)).push(l));
-  return [...by.values()];
+/* The verdict drawn (2026-09-25): the bar is the slip's chance, the tick is what the payout needs,
+   on one 0-50% scale for every slip so two slips compare by eye. Green clears it by 25%, red falls
+   short, grey is near. Underdog with a known payout only. */
+const METER_TOP = 0.5;
+function slipMeterHTML(p, x){
+  const tone = verdictTone(p * x), pct = v => `${Math.min(v / METER_TOP, 1) * 100}%`;
+  return `<div class="tk-meter"><i class="${tone}" style="width:${pct(p)}"></i><u style="left:${pct(1 / x)}"></u></div>`;
 }
 
-/* A gallery slip, drawn after Underdog's own share card (2026-09-25; it was printed paper, which
-   read as a bright panel on the dark page and set every line in spaced capitals). The number the
-   slip is selling on top, big; then each game with its kickoff, and one rounded row per leg:
-   his photo, his name, the call as a sentence, and the one number beside it (Underdog: the
-   model's confidence; DK: the price). The why line stays under each call, quiet. */
+/* A gallery slip, drawn as a pick'em entry with a tear-off stub (2026-09-25; Underdog's navy share
+   card before it, printed paper before that). The entry: how many picks and of what, the payout as
+   a chip, one row per pick -- photo, name, the call, the one number (Underdog: the model's
+   confidence; DK: the price), and under it the why with the game and kickoff. Past the perforation
+   the stub holds what this page adds: the chance to hit all, the meter, and Load. One row per pick
+   because nearly every pick is its own game: the game header per leg cost 31px each. */
 function presetCard(card, bestOf){
   const legs = card.legs.map(i=>PROPS[i]);
   const best = card === (bestOf || GALLERY_BEST[card.book]);
   const ud = card.book === "underdog";
-  let head, meta, verdict = "";
+  const n = legs.length;
+  let pays, head, meter = "", note = "";
   if (ud){
-    const udP = udChance(legs);
-    const x = card.scope === "stack" ? null : udPayout(legs.length);
-    meta = x ? t("parlay.slip.udMeta", {n: legs.length, x}) : t("parlay.slip.udMetaStack", {n: legs.length});
-    head = `<b>${(udP*100).toFixed(1)}%</b> ${t("parlay.slip.toHitAll", {n: legs.length})}`;
-    verdict = x ? slipVerdict(udP * x, t("parlay.slip.vsPayout", {x}), (udP*100).toFixed(1), (100/x).toFixed(1))
-      : `<span class="tk-flag">${t("parlay.slip.typePay")}</span>`;
+    const p = udChance(legs);
+    const x = card.scope === "stack" ? null : udPayout(n);
+    pays = x ? t("parlay.slip.pays", {x}) : "";
+    head = `<b>${(p*100).toFixed(1)}%</b> ${t("parlay.slip.toHitAll", {n})}`;
+    if (x){
+      const tone = verdictTone(p * x);
+      const word = tone === "up" ? t("parlay.slip.tone.up") : tone === "near" ? t("parlay.slip.tone.near") : t("parlay.slip.tone.down");
+      meter = slipMeterHTML(p, x);
+      note = `<span title="${esc(t("parlay.slip.verdictTip", {model: (p*100).toFixed(1), needs: (100/x).toFixed(1)}))}">${t("parlay.slip.needs", {x, p: (100/x).toFixed(1)})} · <b class="${tone}">${word}</b></span>`;
+    } else note = `<span>${t("parlay.slip.typePay")}</span>`;
   } else {
     const prices = legs.map(overPrice).filter(a => a !== null);
-    const priced = prices.length === legs.length;
+    const priced = prices.length === n;
     const dec = priced ? prices.reduce((a,x)=>a*amToDec(x), 1) : null;
     const implied = priced ? prices.reduce((a,x)=>a*amToProb(x), 1) : null;
     const modelP = legs.reduce((a,l)=>a*l.model/100, 1);
     const pos = modelP >= implied;
-    meta = t("parlay.slip.dkMeta", {n: legs.length, d: `${pos?"+":""}${((modelP-implied)*100).toFixed(1)}`});
-    head = `<b class="${pos?"":"neg"}">${priced ? esc(fmtAm(decToAm(dec))) : "—"}</b> ${t("parlay.slip.forLegs", {n: legs.length})}`;
-    // No verdict pill on DraftKings: the overs the model calls +EV lost when graded singly at the
+    pays = "";   // the price is the stub's headline; a chip would say it twice
+    head = `<b class="${pos?"":"neg"}">${priced ? esc(fmtAm(decToAm(dec))) : "—"}</b>`;
+    // No verdict on DraftKings: the overs the model calls +EV lost when graded singly at the
     // close (ff-jarvis METHODOLOGY 12.31: -2.3% and -10.3%, n 427 each), so a "beats" would overclaim.
+    note = `<span>${t("parlay.slip.edgeLabel")} ${pos?"+":""}${((modelP-implied)*100).toFixed(1)}</span>`;
   }
-  const tags = [best ? `<span class="tk-flag best">${t("parlay.slip.best")}</span>` : "", verdict,
-    card.low ? `<span class="tk-flag">${t("parlay.slip.low")}</span>` : ""].join("");
-  const flag = `<div class="tk-tags">${tags}</div>`;
-  const groups = legGroups(legs).map(g => `<div class="tk-game"><b>${esc(g[0].game)}</b>${g[0].kick ? `<span>${esc(g[0].kick)}</span>` : ""}</div>
-    ${g.map(l => `<div class="tk-leg">${avatarHTML(l)}
-      <div class="tk-who"><b>${esc(l.n)}</b><span class="tk-call">${legCall(l, card.book)}</span>${legWhy(l, card.book)}</div>
-      <span class="tk-num">${ud ? `${udPick(l).conf}<i>%</i>` : esc(fmtAm(overPrice(l)))}</span></div>`).join("")}`).join("");
+  const mark = best ? `<span class="tk-best">${t("parlay.slip.best")}</span>`
+    : card.low ? `<span>${t("parlay.slip.low")}</span>` : "";
+  const rows = legs.map(l => `<div class="tk-leg">${avatarHTML(l)}
+      <div class="tk-who"><span class="tk-call"><b>${esc(nameInitial(l.n))}</b> ${legCall(l, card.book)}</span>
+        <span class="why">${esc([legWhy(l, card.book), l.game, l.kick].filter(Boolean).join(" · "))}</span></div>
+      <span class="tk-num">${ud ? `${udPick(l).conf}<i>%</i>` : esc(fmtAm(overPrice(l)))}</span></div>`).join("");
   return `<div class="ticket ${best ? "best" : ""}" data-card="${card.book}:${card.i}">
-    <div class="tk-top"><span>${esc(card.scopeLabel)} · ${meta}</span><span class="tk-book">${ud ? t("parlay.book.underdog") : t("parlay.book.dk")}</span></div>
-    <div class="tk-head">${head}</div>
-    ${flag}
-    ${groups}
+    <div class="tk-top"><span class="tk-kind">${t("parlay.slip.pickCount", {n})}<span>${esc(card.scopeLabel)}</span></span>${pays ? `<span class="tk-pays">${pays}</span>` : ""}</div>
+    ${rows}
     <div class="ticket-tear"></div>
-    <button class="ticket-cta" data-loadslip="${card.book}:${card.i}">${t("parlay.gallery.loadSlip")}<span>${t("parlay.gallery.legCount", {n: legs.length, s: legs.length===1?"":"s"})}</span></button>
+    <div class="tk-stub">
+      <div class="tk-head">${head}<button class="ticket-cta" data-loadslip="${card.book}:${card.i}">${t("parlay.gallery.loadSlip")}</button></div>
+      ${meter}
+      <div class="tk-note">${mark}${note}</div>
+    </div>
   </div>`;
 }
 

@@ -42,7 +42,9 @@
 .tk-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;margin-top:14px;align-items:start}
 @media (min-width:760px){ .tk-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
 @media (min-width:960px){ .tk-grid{grid-template-columns:repeat(3,minmax(0,1fr))} }
-.tk-grid .ticket{width:auto;align-self:stretch}
+/* A slip ends where its picks end (2026-09-25): stretched to its row, a 2-pick slip beside a
+   5-pick one carried 395px of empty card. */
+.tk-grid .ticket{width:auto;align-self:start}
 
 .bets .legs{margin-top:14px}
 .bets-pager{margin-top:12px}
