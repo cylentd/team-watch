@@ -50,8 +50,9 @@ def test_a_new_view_enters_once_and_a_tap_pops_only_its_line(browser, page_file)
 
 @pytest.mark.parametrize("book", ["underdog", "dk"])
 def test_a_slip_is_one_row_per_pick_read_as_a_sentence(browser, page_file, book):
-    """A pick'em entry (2026-09-25): one row per pick, its game and kickoff on the why line rather
-    than a header per game (nearly every pick is its own game, so the header cost 31px a leg)."""
+    """A pick'em entry (2026-09-25): one row per pick, two lines -- his face on his team's colour,
+    his name, the call. The why, the game and the kickoff open under the pick on a tap, and only
+    that pick's slip grows."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     page.evaluate(f"SURFACE='parlay'; PARLAY_BOOK='{book}'; render()")
     slip = page.locator(".ticket").first
@@ -59,11 +60,19 @@ def test_a_slip_is_one_row_per_pick_read_as_a_sentence(browser, page_file, book)
         pytest.skip("the fixture's market builds no gallery slip for this book")
     legs = slip.locator(".tk-leg")
     assert legs.count() >= 2 and slip.locator(".tk-game").count() == 0
-    assert legs.first.locator("img, .fallback").count() == 1, "every leg carries his photo"
+    assert legs.first.locator(".tk-face img, .tk-face .fallback").count() == 1, "every leg carries his photo"
     call = legs.first.locator(".tk-call").inner_text()
     assert call != call.upper(), "the call is sentence case, not capitals"
-    game = page.evaluate(f"PROPS[GALLERIES['{book}'][0].legs[0]].game")
-    assert game in legs.first.locator(".why").inner_text(), "the pick names its game"
+    i = int(slip.get_attribute("data-card").split(":")[1])
+    game = page.evaluate(f"PROPS[GALLERIES['{book}'][{i}].legs[0]].game")
+    more = legs.first.locator(".tk-more")
+    assert not more.is_visible(), "the details wait for a tap"
+    others = page.locator(".ticket").nth(1).bounding_box() if page.locator(".ticket").count() > 1 else None
+    legs.first.click()
+    assert more.is_visible() and game in more.inner_text(), "the tap opens the pick's game"
+    assert legs.first.get_attribute("aria-expanded") == "true"
+    if others:
+        assert page.locator(".ticket").nth(1).bounding_box()["x"] == others["x"], "nothing beside it moves sideways"
     assert slip.locator(".tk-stub .tk-head b").inner_text().strip() not in ("", "—")
     assert slip.locator(".tk-stub [data-loadslip]").count() == 1, "Load sits on the stub"
     assert errors == []
@@ -101,6 +110,33 @@ def test_every_underdog_slip_draws_its_verdict(browser, page_file):
     assert page.locator(".tk-grid").evaluate("() => GALLERIES.dk.length") == 0 or \
         page.evaluate("PARLAY_BOOK='dk'; render(); document.querySelectorAll('.ticket .tk-meter, .ticket .tk-note [title]').length") == 0, \
         "DraftKings slips carry no verdict: graded, the model's +EV overs lost"
+    assert errors == []
+    ctx.close()
+
+
+def test_slips_group_by_kickoff_with_the_best_first(browser, page_file):
+    """Slips sit under a heading per kickoff (2026-09-25), in kickoff order; each group opens with
+    its best slip, the only one wearing that group's pill. A whole-day group shows only when its
+    slip beats its payout by a quarter and out-returns every window of that day."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    page.evaluate("SURFACE='parlay'; PARLAY_BOOK='underdog'; render()")
+    groups = page.locator(".tk-group")
+    if groups.count() == 0:
+        pytest.skip("the fixture's market builds no gallery slip")
+    order = page.evaluate("GAL_GROUPS.map(g => g.k)")
+    shown = page.evaluate("[...new Set(GALLERIES.underdog.map(c => c.win.k))]")
+    assert shown == [k for k in order if k in shown], "groups run in kickoff order"
+    for n in range(groups.count()):
+        g = groups.nth(n)
+        name = g.locator("h3").inner_text()
+        pills = g.locator(".tk-bestpill")
+        assert pills.count() <= 1
+        if pills.count():
+            assert pills.inner_text() == f"Best {name}"
+            assert g.locator(".ticket").first.locator(".tk-bestpill").count() == 1, "the best slip leads"
+    days = page.evaluate("""GALLERIES.underdog.filter(c => c.win.wins).map(c => [c.metric,
+        Math.max(-Infinity, ...GALLERIES.underdog.filter(w => c.win.wins.includes(w.win.k) && !w.low).map(w => w.metric))])""")
+    assert all(m >= 1.25 and m > bar for m, bar in days), "a whole-day slip has to be really good"
     assert errors == []
     ctx.close()
 

@@ -20,7 +20,8 @@ function legCall(l, book){
   if (book === "underdog"){
     const u = udPick(l);
     const dir = u.pick === "higher" ? t("parlay.slip.higher") : u.pick === "lower" ? t("parlay.slip.lower") : "";
-    return `${dir ? `<em class="tk-dir ${u.pick}">${dir}</em> ` : ""}${u.line !== null ? `${u.line} ${esc(MKT[l.mkt])}` : esc(MKT.TD)}${u.synthetic ? ` <span class="tk-model">${t("parlay.gallery.modelTag")}</span>` : ""}`;
+    // A model-read TD says so in the pick's details (legRowHTML), not on the call.
+    return `${dir ? `<em class="tk-dir ${u.pick}">${dir}</em> ` : ""}${u.line !== null ? `${u.line} ${esc(MKT[l.mkt])}` : esc(MKT.TD)}`;
   }
   return l.line === null ? esc(MKT[l.mkt]) : `<em class="tk-dir higher">${t("parlay.slip.over")}</em> ${l.line} ${esc(MKT[l.mkt])}`;
 }
@@ -49,10 +50,22 @@ function slipMeterHTML(p, x){
    a chip, one row per pick -- photo, name, the call, the one number (Underdog: the model's
    confidence; DK: the price), and under it the why with the game and kickoff. Past the perforation
    the stub holds what this page adds: the chance to hit all, the meter, and Load. One row per pick
-   because nearly every pick is its own game: the game header per leg cost 31px each. */
-function presetCard(card, bestOf){
+   because nearly every pick is its own game: the game header per leg cost 31px each.
+   A pick is two lines since 2026-09-25 ("too busy and it's small"): his face on his team's colour,
+   his name, the call. The why, the game and the kickoff open under it on a tap. */
+function legRowHTML(l, book){
+  const ud = book === "underdog", u = ud ? udPick(l) : null;
+  const team = (TEAM_COLOURS[l.team] || [])[0];
+  const more = [u && u.synthetic ? t("parlay.gallery.modelTag") : "", legWhy(l, book)].filter(Boolean).join(" · ");
+  return `<div class="tk-leg" role="button" tabindex="0" aria-expanded="false" data-legmore>
+      <span class="tk-face"${team ? ` style="--team:${team}"` : ""}>${avatarHTML(l)}</span>
+      <div class="tk-who"><b>${esc(nameInitial(l.n))}</b><span class="tk-call">${legCall(l, book)}</span></div>
+      <span class="tk-num">${ud ? `${u.conf}<i>%</i>` : esc(fmtAm(overPrice(l)))}</span>
+      <div class="tk-more">${more ? `<span>${esc(more)}</span>` : ""}<span>${esc([l.game, l.kick].filter(Boolean).join(" · "))}</span></div>
+    </div>`;
+}
+function presetCard(card, best, groupName){
   const legs = card.legs.map(i=>PROPS[i]);
-  const best = card === (bestOf || GALLERY_BEST[card.book]);
   const ud = card.book === "underdog";
   const n = legs.length;
   let pays, head, meter = "", note = "";
@@ -80,15 +93,11 @@ function presetCard(card, bestOf){
     // close (ff-jarvis METHODOLOGY 12.31: -2.3% and -10.3%, n 427 each), so a "beats" would overclaim.
     note = `<span>${t("parlay.slip.edgeLabel")} ${pos?"+":""}${((modelP-implied)*100).toFixed(1)}</span>`;
   }
-  const mark = best ? `<span class="tk-best">${t("parlay.slip.best")}</span>`
-    : card.low ? `<span>${t("parlay.slip.low")}</span>` : "";
-  const rows = legs.map(l => `<div class="tk-leg">${avatarHTML(l)}
-      <div class="tk-who"><span class="tk-call"><b>${esc(nameInitial(l.n))}</b> ${legCall(l, card.book)}</span>
-        <span class="why">${esc([legWhy(l, card.book), l.game, l.kick].filter(Boolean).join(" · "))}</span></div>
-      <span class="tk-num">${ud ? `${udPick(l).conf}<i>%</i>` : esc(fmtAm(overPrice(l)))}</span></div>`).join("");
+  const mark = card.low ? `<span>${t("parlay.slip.low")}</span>` : "";
+  const pill = best ? `<span class="tk-bestpill">${t("parlay.slip.bestAt", {when: esc(groupName)})}</span>` : "";
   return `<div class="ticket ${best ? "best" : ""}" data-card="${card.book}:${card.i}">
-    <div class="tk-top"><span class="tk-kind">${t("parlay.slip.pickCount", {n})}<span>${esc(card.scopeLabel)}</span></span>${pays ? `<span class="tk-pays">${pays}</span>` : ""}</div>
-    ${rows}
+    <div class="tk-top"><span class="tk-kind">${t("parlay.slip.pickCount", {n})}<span>${esc(card.scopeLabel)}</span></span>${pill}${pays ? `<span class="tk-pays">${pays}</span>` : ""}</div>
+    ${legs.map(l => legRowHTML(l, card.book)).join("")}
     <div class="ticket-tear"></div>
     <div class="tk-stub">
       <div class="tk-head">${head}<button class="ticket-cta" data-loadslip="${card.book}:${card.i}">${t("parlay.gallery.loadSlip")}</button></div>
@@ -98,15 +107,27 @@ function presetCard(card, bestOf){
   </div>`;
 }
 
+/* The slips under a heading per kickoff (2026-09-25), the group's best first with its pill. The
+   best is the best of what is on screen: filter to TDs and the pill moves to the best TD slip.
+   Picking a whole day in the kickoff filter keeps every group of that day. */
 function galleryHTML(){
-  const cards = GALLERIES[PARLAY_BOOK].filter(c => (SLIP_SCOPE==="all"||c.scope===SLIP_SCOPE) && (GAL_WIN==="ALL"||c.win.k===GAL_WIN));
-  // "Best" is the best of what is on screen: filter to Wednesday and the star moves to
-  // Wednesday's strongest card instead of vanishing with the whole-week winner.
-  const bestOf = bestCard(cards);
+  const pick = GAL_WINDOWS.find(w => w.k === GAL_WIN);
+  const inPick = c => GAL_WIN === "ALL" || c.win.k === GAL_WIN || !!(pick && pick.wins && pick.wins.includes(c.win.k));
+  const cards = GALLERIES[PARLAY_BOOK].filter(c => (SLIP_SCOPE==="all"||c.scope===SLIP_SCOPE) && inPick(c));
   // The legs filter and kickoff live in the Bets bar (bar.js); the cards stack down the page, one
   // column on a phone, so nothing scrolls sideways inside a page that scrolls down.
+  const groups = GAL_GROUPS.map(g => {
+    const mine = cards.filter(c => c.win === g);
+    if (!mine.length) return "";
+    const best = bestCard(mine), name = galGroupName(g);
+    const ordered = best ? [best, ...mine.filter(c => c !== best)] : mine;
+    return `<section class="tk-group">
+      <div class="tk-when"><h3>${esc(name)}</h3><span>${t("parlay.gallery.groupMeta", {kick: esc(g.kick || ""), n: g.games, s: g.games === 1 ? "" : "s"})}</span></div>
+      <div class="tk-grid">${ordered.map(c => presetCard(c, c === best, name)).join("")}</div>
+    </section>`;
+  }).join("");
   return cards.length
-    ? `<div class="tk-grid">${cards.map(c => presetCard(c, bestOf)).join("")}</div>`
+    ? groups
     : (() => {
           // How close it came: the legs that pass every gate in what is filtered, so "1 line,
           // a card needs 2" reads as the model declining, not the page failing.

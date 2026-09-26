@@ -16,22 +16,42 @@
 .tk-kind span{margin-left:8px;font-family:var(--ui);font-weight:500;font-size:var(--t-2);color:var(--ink-3)}
 .tk-pays{margin-left:auto;flex:none;font-family:var(--mono);font-weight:700;font-size:var(--t-2);
   background:var(--panel-3);border-radius:99px;padding:3px 10px}
+/* The best slip at its kickoff wears the pill; lime is the page's "the one to pick" colour. */
+.tk-bestpill{margin-left:auto;flex:none;font-weight:700;font-size:var(--t-1);white-space:nowrap;
+  background:var(--lime);color:var(--on-lime);border-radius:99px;padding:3px 10px}
+.tk-bestpill + .tk-pays{margin-left:0}
 
-/* One row per pick: photo, the call, the why with its game, the one number. */
-.tk-leg{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 14px}
-.tk-leg img,.tk-leg .fallback{width:34px;height:34px;border-radius:99px;object-fit:cover;background:var(--panel-3)}
-.tk-leg .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink-3)}
-.tk-who{min-width:0}
-.tk-call{display:block;font-size:var(--t-2);color:var(--ink-2);line-height:1.4}
-.tk-call b{font-weight:700;color:var(--ink);margin-right:2px}
-.tk-dir{font-style:normal;font-weight:700;font-size:var(--t-1);padding:1px 7px;border-radius:99px;
+/* A heading per kickoff: what the reader scrolls to. */
+.tk-group{margin-top:26px}
+.tk-group:first-child{margin-top:14px}
+.tk-when{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.tk-when h3{margin:0;font-family:var(--disp);font-weight:800;font-size:var(--t-4);letter-spacing:-.01em}
+.tk-when span{font-size:var(--t-1);color:var(--ink-3)}
+.tk-group .tk-grid{margin-top:10px}
+
+/* One row per pick, two lines (2026-09-25, "too busy and it's small"): his face on his team's
+   colour, his name, the call, the one number. The why, the game and the kickoff open on a tap. */
+.tk-leg{display:grid;grid-template-columns:46px minmax(0,1fr) auto;column-gap:12px;align-items:center;
+  padding:8px 14px;cursor:pointer;transition:background .15s var(--ease)}
+.tk-leg:hover{background:rgb(var(--ink-rgb) / .03)}
+.tk-leg.open{background:var(--panel-2)}
+.tk-leg:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+.tk-face{width:46px;height:46px;border-radius:99px;overflow:hidden;background:var(--team,var(--panel-3));
+  box-shadow:inset 0 0 0 1px rgb(var(--ink-rgb) / .12)}
+.tk-face img,.tk-face .fallback{display:block;width:100%;height:100%;object-fit:cover;object-position:top center}
+.tk-face .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink)}
+.tk-who{min-width:0;display:flex;flex-direction:column;gap:3px}
+.tk-who b{font-size:var(--t-3);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tk-call{font-size:var(--t-2);color:var(--ink-2)}
+.tk-dir{font-style:normal;font-weight:700;font-size:var(--t-1);padding:1px 8px;border-radius:99px;margin-right:4px;
   color:var(--ink);background:var(--panel-3)}
 .tk-dir.higher{color:var(--up);background:rgb(var(--up-rgb) / .14)}
 .tk-dir.lower{color:var(--down);background:rgb(var(--down-rgb) / .14)}
-.tk-model{font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--amber)}
-.tk-leg .why{display:block;margin-top:2px;font-size:var(--t-1);line-height:1.35;color:var(--ink-3)}
-.tk-num{font-family:var(--mono);font-size:var(--t-3);font-weight:700;white-space:nowrap}
+.tk-num{font-family:var(--mono);font-size:var(--t-4);font-weight:700;white-space:nowrap}
 .tk-num i{font-style:normal;font-size:var(--t-1);color:var(--ink-3)}
+.tk-more{display:none;grid-column:2 / -1;margin-top:6px;font-size:var(--t-1);line-height:1.45;color:var(--ink-3)}
+.tk-more span{display:block}
+.tk-leg.open .tk-more{display:block}
 
 /* A perforation with a bite out of each side, where the page shows through. */
 .ticket-tear{position:relative;height:0;margin:10px 14px 0;border-top:1.5px dashed var(--line-2)}
@@ -61,7 +81,6 @@
 .tk-note b{font-weight:700;color:var(--ink)}
 .tk-note b.up{color:var(--up)}
 .tk-note b.down{color:var(--down)}
-.tk-best{font-weight:600;color:var(--lime)}
 
 /* The cart's verdict pill (slip.js pay box) still uses the flag. */
 .tk-flag{font-size:var(--t-1);font-weight:700;padding:3px 9px;border-radius:99px;
