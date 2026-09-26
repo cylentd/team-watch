@@ -570,6 +570,11 @@ def live_dfs_yahoo(available):
         m = mp.get(slug)
         if m is not None:
             proj, src = round(m[0], 1), m[1]
+        elif r["pos"] == "DEF" and r.get("yahoo_proj") is not None:
+            # The model has no defense rates, and no DEF ratio ever reaches `scale`, so FPPG went
+            # through raw: a defense's season average runs ~2.5x Yahoo's own this-week projection
+            # (CIN 14.5 vs 4.3, 2026-09-25), which made the priciest DST look like the best value.
+            proj, src = round(r["yahoo_proj"], 1), "yahoo"
         else:
             proj, src = round(r["fppg"] * scale.get(r["pos"], 1.0), 1), "yahoo"
         players.append({
