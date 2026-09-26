@@ -43,15 +43,16 @@ function rosterModeLoad(){
 function rosterModeSave(m){
   try { localStorage.setItem("tw-roster-mode", m); } catch (e) { /* a private window keeps it for this load */ }
 }
-/* "Rip again" (2026-09-25) follows the Cards chip once this week's pack is open: it puts the pack
-   back on the page, sealed, with the same cards (pack.js packReplay). The arrow says "again". */
+/* "Rip again" (2026-09-25) puts this week's opened pack back on the stage, sealed, with the same
+   cards (pack.js packReplay). It sits at the end of the Starters rule over the cards, never in the
+   Sheet / Cards switch: there it came and went with the mode and moved both chips each time
+   (2026-09-25). The arrow says "again". */
 const RERIP_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>`;
-function rosterModeHTML(team){
-  const again = ROSTER_MODE === "cards" && team && packReplayable(team);
+const reripHTML = team => packReplayable(team) ? `<button class="rm-again" type="button" data-rerip>${RERIP_ICON}${t("teams.pack.again")}</button>` : "";
+function rosterModeHTML(){
   return `<div class="filters rmode" role="group" aria-label="${t("teams.mode.label")}">
     <button class="chip" data-rmode="sheet" aria-pressed="${ROSTER_MODE === "sheet"}">${t("teams.mode.sheet")}</button>
-    <button class="chip" data-rmode="cards" aria-pressed="${ROSTER_MODE === "cards"}">${t("teams.mode.cards")}</button>${again ? `
-    <button class="chip rm-again" data-rerip>${RERIP_ICON}${t("teams.pack.again")}</button>` : ""}
+    <button class="chip" data-rmode="cards" aria-pressed="${ROSTER_MODE === "cards"}">${t("teams.mode.cards")}</button>
   </div>`;
 }
 function wireRosterMode(v, team){

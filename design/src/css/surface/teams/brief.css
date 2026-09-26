@@ -7,15 +7,28 @@
    - below: above the rows, three lines and "Show all" (a phone scrolls to reach the roster, and
      three lines are what decides whether it needs to). */
 .brief{margin-top:20px;max-width:720px}
-.brief-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 6px;
-  font-family:var(--disp);font-size:var(--t-4);font-weight:800;color:var(--ink)}
-.brief-h small{font-family:var(--ui);font-size:var(--t-1);font-weight:500;color:var(--ink-3)}
+.brief-h{display:flex;align-items:center;gap:10px;margin:0 0 6px;min-height:32px}
+.brief-h h2{margin:0;font-family:var(--disp);font-size:var(--t-4);font-weight:800;color:var(--ink)}
+.brief-h small{margin-left:auto;font-family:var(--ui);font-size:var(--t-1);font-weight:500;color:var(--ink-3)}
+/* "Got it" / "Show": the header's one action, a quiet pill like the Sheet / Cards chips. */
+.brief-act{appearance:none;border:0;border-radius:999px;padding:6px 12px;background:var(--panel-2);cursor:pointer;
+  font-family:var(--ui);font-size:var(--t-2);font-weight:600;color:var(--ink-2)}
+.brief-act:hover{color:var(--ink)}
+.brief-act:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 .brief-line{
   display:grid;grid-template-columns:28px minmax(0,1fr) 12px;align-items:center;gap:12px;width:100%;
   padding:10px 4px;appearance:none;background:none;border:0;border-bottom:1px solid var(--line);cursor:pointer;
   font-family:var(--ui);font-size:var(--t-3);color:var(--ink);text-align:left;line-height:1.35;
-  transition:background .15s var(--ease);
+  transition:background .15s var(--ease),translate var(--dur-spring) var(--spring),opacity var(--dur-spring) var(--spring);
+  touch-action:pan-y;overflow:hidden
 }
+.brief-line.swiping{transition:none}
+/* A checked line shown again ("Show checked"): there, but no longer asking. */
+.brief-line.checked{opacity:.55}
+.brief-foot{display:flex;flex-wrap:wrap;gap:0 16px}
+/* All checked: one row, the heading and the way back. */
+.brief.done .brief-h{margin:0;padding:6px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.brief.done .brief-h h2{font-size:var(--t-3)}
 .brief-line:first-of-type{border-top:1px solid var(--line)}
 .brief-line:hover{background:var(--panel-2)}
 .brief-line:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
@@ -41,6 +54,9 @@
   /* Its heading sits on the starters' and bench's heading line (measured, 2026-09-25). */
   .rl > .brief{grid-column:2;grid-row:1;max-width:none;margin-top:38px;
     position:sticky;top:calc(var(--rl-stick, 0px) + 14px)}
+  /* All checked: the column goes and the rows take the width; the one row sits above them. */
+  .rl:has(> .brief.done){display:block}
+  .rl > .brief.done{position:static;margin-top:14px;max-width:720px}
   .brief-line{font-size:var(--t-2)}
   .brief-txt small{font-size:var(--t-1)}
   .brief-more{display:none}

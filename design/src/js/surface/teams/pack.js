@@ -109,10 +109,11 @@ function packReplay(team){
    The torn stretch lifts off at the finger while the rest stays on (pack.css). Every eighth of the
    way ticks: a buzz and a few flakes from the tear point (onTick). Let go past 55% and the whole
    strip tears by itself; short of that it closes back up to where it started, both eased by the
-   registered properties' transitions, not a jump. A touch anywhere else only tugs the strip.
+   registered properties' transitions, not a jump. A touch anywhere else goes to onBody (the stage
+   turns the pack with it, packshow.js pkTilt), which tugs the strip when it was only a tap.
    Enter or Space on the focused pack tears it at once. */
 const RIP_STEPS = 8, RIP_DONE = .55;
-function wireRip(seal, onRip, onTick){
+function wireRip(seal, onRip, onTick, onBody){
   let s = null, tear = 0, step = 0, done = false;
   const put = (a, b, end, dir, p) => {
     tear = p;
@@ -133,7 +134,7 @@ function wireRip(seal, onRip, onTick){
   seal.addEventListener("pointerdown", e => {
     if (done) return;
     const r = seal.getBoundingClientRect();
-    if (e.clientY - r.top > r.height * .3) return nudge();   // the strip, and a thumb's width under it
+    if (e.clientY - r.top > r.height * .3) return onBody ? onBody(e, nudge) : nudge();   // the strip, and a thumb's width under it
     s = frac(e); step = 0;
     seal.classList.add("tearing"); seal.setPointerCapture?.(e.pointerId);
     put(s, s, s, 1, 0);                          // closed, at the finger, before it moves

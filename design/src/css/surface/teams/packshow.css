@@ -36,17 +36,16 @@ body.pk-open{overflow:hidden}
 .pk-msg.deal b{margin-right:6px;font-weight:800}
 .pk-msg .pk-signed-tag{font-style:normal;font-family:var(--sig);font-size:var(--t-4);color:var(--gold-2)}
 .pk-msg.deal .pk-signed-tag{font-size:var(--t-6);font-weight:400}
-/* The sealed pack in 3D: it leans toward the mouse (--prx/--pry, packshow.js), or sways by itself
-   where there is no mouse, and holds still while a finger tears it. Its strip flies off in 3D
-   (the seal's own perspective) and the pack tips back as the first card rises out of it. */
+/* The sealed pack in 3D: at rest it stands at a slight lean; it leans toward the mouse, turns with
+   a drag on its body (--prx/--pry, packshow.js pkLean), and springs back when let go. Its strip
+   flies off in 3D (the seal's own perspective) and the pack tips back as the first card rises out
+   of it. It no longer sways by itself on a phone (2026-09-25): nothing to hold, and the reader
+   saw a dark box swinging across the foil as it swayed. */
 .pk-center{position:absolute;z-index:3;left:50%;top:45%;translate:-50% -50%;perspective:900px}
-.pk-center .pack-glow{transform:rotateX(var(--prx, 0deg)) rotateY(var(--pry, 0deg));transition:transform .5s cubic-bezier(.25,1,.5,1);will-change:transform}
+.pk-center .pack-glow{transform:rotateX(var(--prx, 4deg)) rotateY(var(--pry, -9deg));transition:transform var(--dur-pop) var(--spring-pop)}
+.pk-drag .pk-center .pack-glow{transition:none}
+.pk-aim:not(.pk-drag) .pk-center .pack-glow{transition:transform .5s cubic-bezier(.25,1,.5,1)}
 .pk-center .pack-seal{width:calc(var(--pkw) * .92);height:calc(var(--pkw) * 1.28);perspective:700px}
-@media (prefers-reduced-motion:no-preference){
-  .pk-stage:not(.pk-aim):not(.pk-ripped) .pk-center .pack-glow{animation:pk-sway 5s ease-in-out infinite alternate}
-  .pk-stage:has(.pack-seal.tearing) .pk-center .pack-glow{animation-play-state:paused}
-}
-@keyframes pk-sway{from{transform:rotateX(5deg) rotateY(-10deg)}to{transform:rotateX(-3deg) rotateY(10deg)}}
 .pk-hint{position:absolute;z-index:4;left:16px;right:16px;top:calc(45% + var(--pkw) * .64 + 30px);margin:0;text-align:center;
   font-family:var(--mono);font-size:var(--t-1);letter-spacing:.14em;color:var(--ink-3)}
 @media (prefers-reduced-motion:no-preference){ .pk-hint{animation:pk-blink 1.4s ease-in-out infinite alternate} }
@@ -90,7 +89,7 @@ body.pk-open{overflow:hidden}
 
 /* Home: the stage fades to the roster; only the flying cards stay. */
 .pk-home{pointer-events:none}
-.pk-home :is(.pk-back,.pk-rays,.pk-msg,.pk-close,.pk-light,.pk-floor){opacity:0;transition:opacity .5s var(--ease)}
+.pk-home :is(.pk-back,.pk-rays,.pk-msg,.pk-hint,.pk-close,.pk-light,.pk-floor){opacity:0;transition:opacity .5s var(--ease)}
 /* A slot waiting for its card: kept in place so the grid does not move, invisible until it lands. */
 .tc.pk-slot{visibility:hidden}
 

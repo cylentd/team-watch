@@ -72,7 +72,7 @@ function cardFront(p, tier, g, rank){
   const stamp = rank ? `<span class="tc-rank" title="${t("teams.card.rank", {n: rank, pos: esc(p.pos)})}">${t("teams.card.rankStamp", {n: rank})}</span>` : "";
   // Weather that touches him: moving over the art, and its chip in the other top corner.
   const w = inj && inj.s === "OUT" ? null : cardWeather(g), wx = cardWeatherNote(w, p.pos);
-  const sky = wx ? `${cardWeatherFx(w, p.pos)}<span class="tc-chip wx" title="${t("teams.card.wxTip", wx)}">${wx.what}</span>` : "";
+  const sky = wx ? `${cardWeatherFx(w, p.pos)}<span class="tc-chip wx" title="${t("teams.card.wxTip", wx)}"><span class="wx-long">${wx.what}</span><span class="wx-short">${wx.kind}</span></span>` : "";
   return `<div class="tc-face tc-front">
       <div class="tc-top"><span>${esc(p.start ? slotLabel(p.slot) : p.pos)}</span><span class="tc-num${projOut(p) ? " out" : ""}">${pts !== null ? pts.toFixed(1) : projOut(p) ? t("teams.card.out") : "—"}</span></div>
       <div class="tc-art pos-${esc(p.pos)}">${foil}${sky}${stamp}
@@ -148,9 +148,9 @@ function cardsHTML(team){
   let n = 0;
   // While this week's pack is turning over, its cards are drawn face down in their slots (packreveal.js).
   const grid = list => `<div class="cardgrid">${list.map(p => { const i = n++; return packFaceDown(team, i, cardHTML(p, i, team.key)); }).join("")}</div>`;
-  const rule = (label, count) => `<div class="rule"><h2>${label}</h2><span class="count">${String(count).padStart(2,"0")}</span><span class="hair"></span></div>`;
+  const rule = (label, count, end = "") => `<div class="rule"><h2>${label}</h2><span class="count">${String(count).padStart(2,"0")}</span><span class="hair"></span>${end}</div>`;
   return `${injWarnHTML(team)}<div class="cards">
-    <section class="cards-col">${rule(t("teams.group.starters"), start.length)}${grid(start)}</section>
+    <section class="cards-col">${rule(t("teams.group.starters"), start.length, reripHTML(team))}${grid(start)}</section>
     ${rest.length ? `<section class="cards-col bench">${rule(t("teams.group.bench"), rest.length)}${grid(rest)}</section>` : ""}
   </div>`;
 }

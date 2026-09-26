@@ -163,6 +163,12 @@
 .tc-chip.r{right:3px;bottom:3px}
 /* A player's weather chip: the photo's other top corner from the rank stamp, amber like a warning. */
 .tc-chip.wx{top:4px;right:4px;color:var(--amber)}
+/* A card too narrow for the stamp and the chip side by side (~110px of art: a phone, or a desktop
+   squeezed beside "This week") says only "RAIN", so "#12" and "RAIN 46%" never overlap; the
+   percentage is in the tooltip and on the back. Dropped a row, the chip covered his face. */
+.tc-art{container-type:inline-size}
+.tc-chip.wx .wx-short{display:none}
+@container (max-width:118px){ .tc-chip.wx .wx-long{display:none} .tc-chip.wx .wx-short{display:inline} }
 .bk-wx{display:block;color:var(--amber);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tier-dst{--frame:var(--team,var(--line-2))}
 .tier-dst .tc-face{background:var(--team-2,var(--panel))}
@@ -179,8 +185,11 @@
   /* A starting lineup is always nine, so it is a 3x3 block, and the bench stands to its right
      three across (2026-09-25; it was five across under the starters, a scroll below the fold).
      A card's width comes from the window's height, so three rows (4.2 card widths tall with the
-     gaps) fit under the ~410px of header above them; 104px at the least, 150px at the most. */
-  .cards{--cw:clamp(104px, calc((100dvh - 410px) / 4.2), 150px);
+     gaps) fit under the ~410px of header above them; 150px at the most. It is also held to the
+     width its column has: six across, two 12px gaps each side and the 44px between the halves.
+     Sized by the window alone, the bench ran under "This week" beside it (2026-09-25). */
+  .rl-rows{container-type:inline-size}
+  .cards{--cw:clamp(84px, min(calc((100dvh - 410px) / 4.2), calc((100cqw - 92px) / 6)), 150px);
     display:grid;grid-template-columns:auto auto;gap:0 44px;justify-content:start;align-items:start}
   .cards-col.bench{margin-top:0}
   .cardgrid{grid-template-columns:repeat(3,var(--cw));gap:12px}

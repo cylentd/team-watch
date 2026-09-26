@@ -6,6 +6,33 @@
    carries; nothing here computes a verdict of its own. */
 
 let BRIEF_ALL = false;   // a phone shows three lines until "Show all"
+let BRIEF_PEEK = false;  // the checked lines are shown again, until "Hide checked" or a reload
+
+/* Checked lines (2026-09-25): the list is read once, then it is in the way, on a phone above the
+   whole roster. "Got it" checks every line, a swipe checks one, and a line that is all checked
+   folds to one row. Kept per league per week, by what the line says, so a line whose fact changes
+   (a new injury, a new swap) comes back. localStorage can refuse: this load still remembers. */
+const BRIEF_MEM = new Map();
+const briefKey = team => `tw-brief-${team.key}-${packWeek() || 0}`;
+function briefId(l){
+  let h = 5381;
+  for (const ch of `${l.kind}|${l.text}|${l.sub || ""}`) h = (h * 33 ^ ch.charCodeAt(0)) >>> 0;
+  return h.toString(36);
+}
+function briefChecked(team){
+  const k = briefKey(team);
+  if (!BRIEF_MEM.has(k)){
+    let ids = [];
+    try { ids = JSON.parse(localStorage.getItem(k) || "[]"); } catch (e) { /* none kept */ }
+    BRIEF_MEM.set(k, new Set(Array.isArray(ids) ? ids : []));
+  }
+  return BRIEF_MEM.get(k);
+}
+function briefCheck(team, ids){
+  const s = briefChecked(team);
+  ids.forEach(id => s.add(id));
+  try { localStorage.setItem(briefKey(team), JSON.stringify([...s])); } catch (e) { /* kept for this load */ }
+}
 
 /* The profile index a roster row carries: starters, then bench, then out (drawer.js findPlayer). */
 function briefOrder(team){
@@ -127,18 +154,61 @@ const BRIEF_ICON = {
 };
 
 function briefHTML(team){
-  const lines = briefLines(team);
-  if (!lines.length) return `<section class="brief" aria-label="${t("teams.brief.title")}">
-    <h2 class="brief-h">${t("teams.brief.title")}</h2><p class="brief-quiet">${t("teams.brief.quiet")}</p></section>`;
+  const all = briefLines(team).map(l => ({...l, id: briefId(l)}));
+  const head = (small, act) => `<div class="brief-h"><h2>${t("teams.brief.title")}</h2><small>${small}</small>${act}</div>`;
+  if (!all.length) return `<section class="brief" aria-label="${t("teams.brief.title")}">
+    ${head("", "")}<p class="brief-quiet">${t("teams.brief.quiet")}</p></section>`;
+  const checked = briefChecked(team), open = all.filter(l => !checked.has(l.id));
+  const lines = BRIEF_PEEK ? all : open, done = all.length - open.length;
+  // Every line checked: one row that says so, and the way back to them.
+  if (!lines.length) return `<section class="brief done" aria-label="${t("teams.brief.title")}" data-bteam="${team.key}">
+    ${head(t("teams.brief.allChecked", {n: all.length}), `<button type="button" class="brief-act" data-briefpeek>${t("teams.brief.show")}</button>`)}</section>`;
   const more = lines.length > 3;
-  return `<section class="brief${BRIEF_ALL ? " all" : ""}" aria-label="${t("teams.brief.title")}">
-    <h2 class="brief-h">${t("teams.brief.title")}<small>${t("teams.brief.count", {n: lines.length, s: lines.length === 1 ? "" : "s"})}</small></h2>
-    ${lines.map(l => `<button class="brief-line k-${l.kind} ${l.tone}" ${l.go ? `data-go="${l.go}"` : `data-team="${team.key}" data-i="${l.i}"`}>
+  const foot = [
+    more ? `<button type="button" class="brief-more" data-briefall aria-expanded="${BRIEF_ALL}">${BRIEF_ALL ? t("teams.brief.fewer") : t("teams.brief.all", {n: lines.length})}</button>` : "",
+    done ? `<button type="button" class="brief-more" data-briefpeek>${BRIEF_PEEK ? t("teams.brief.hideChecked") : t("teams.brief.showChecked", {n: done})}</button>` : "",
+  ].join("");
+  return `<section class="brief${BRIEF_ALL ? " all" : ""}" aria-label="${t("teams.brief.title")}" data-bteam="${team.key}">
+    ${head(t("teams.brief.count", {n: open.length, s: open.length === 1 ? "" : "s"}),
+      open.length ? `<button type="button" class="brief-act" data-briefok>${t("teams.brief.gotIt")}</button>` : "")}
+    ${lines.map(l => `<button class="brief-line k-${l.kind} ${l.tone}${checked.has(l.id) ? " checked" : ""}" data-bid="${l.id}" ${l.go ? `data-go="${l.go}"` : `data-team="${team.key}" data-i="${l.i}"`}>
         <span class="brief-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${BRIEF_ICON[l.kind]}</svg></span>
         <span class="brief-txt">${l.text}${l.sub ? `<small>${l.sub}</small>` : ""}</span><span class="brief-go" aria-hidden="true">&rsaquo;</span>
       </button>`).join("")}
-    ${more ? `<button type="button" class="brief-more" data-briefall aria-expanded="${BRIEF_ALL}">${BRIEF_ALL ? t("teams.brief.fewer") : t("teams.brief.all", {n: lines.length})}</button>` : ""}
+    ${foot ? `<div class="brief-foot">${foot}</div>` : ""}
   </section>`;
+}
+
+/* A line swiped sideways past a third of its width is checked: it slides out the way it went and
+   its row closes up. Short of that it springs back, and it is still a tap. Vertical drags scroll. */
+const BRIEF_SWIPE = 1 / 3;
+function wireBriefSwipe(el, team){
+  let x0 = null, y0 = 0, dx = 0, moved = false;
+  el.addEventListener("pointerdown", e => { x0 = e.clientX; y0 = e.clientY; dx = 0; moved = false; });
+  el.addEventListener("pointermove", e => {
+    if (x0 === null) return;
+    dx = e.clientX - x0;
+    if (!moved && Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(e.clientY - y0)){ moved = true; el.setPointerCapture?.(e.pointerId); el.classList.add("swiping"); }
+    if (moved){ el.style.translate = `${dx}px 0`; el.style.opacity = String(1 - Math.min(.7, Math.abs(dx) / el.offsetWidth)); }
+  });
+  const end = async () => {
+    if (x0 === null) return;
+    x0 = null; el.classList.remove("swiping");
+    if (!moved) return;
+    el.dataset.swiped = "1";                          // the click this release fires is not a tap
+    setTimeout(() => delete el.dataset.swiped, 0);
+    if (Math.abs(dx) < el.offsetWidth * BRIEF_SWIPE){ el.style.translate = ""; el.style.opacity = ""; return; }
+    briefCheck(team, [el.dataset.bid]);
+    if (!REDUCED()){
+      await el.animate([{translate: `${dx}px 0`, opacity: el.style.opacity}, {translate: `${Math.sign(dx) * el.offsetWidth}px 0`, opacity: 0}],
+        {duration: 180, easing: "ease-in", fill: "forwards"}).finished;
+      await el.animate([{height: `${el.offsetHeight}px`}, {height: "0px", paddingTop: 0, paddingBottom: 0, borderWidth: 0}],
+        {duration: 200, easing: getComputedStyle(el).getPropertyValue("--spring").trim() || "ease-out", fill: "forwards"}).finished;
+    }
+    render();
+  };
+  el.addEventListener("pointerup", end);
+  el.addEventListener("pointercancel", end);
 }
 
 /* From 1100px the brief is a sticky column beside the rows, pinned just under the nav -- the same
@@ -146,9 +216,20 @@ function briefHTML(team){
 function wireBrief(v){
   const rl = v.querySelector(".rl"), nav = document.querySelector(".navbar");
   if (rl && nav) rl.style.setProperty("--rl-stick", `${Math.round((parseFloat(getComputedStyle(nav).top) || 0) + nav.offsetHeight)}px`);
-  v.querySelectorAll(".brief-line").forEach(el => el.addEventListener("click", () => {
-    if (el.dataset.go) navGo(el.dataset.go);
-    else openProfile(findPlayer(el.dataset.team, +el.dataset.i), el);
-  }));
+  const box = v.querySelector(".brief[data-bteam]"), team = box && TEAMS[box.dataset.bteam];
+  v.querySelectorAll(".brief-line").forEach(el => {
+    el.addEventListener("click", () => {
+      if (el.dataset.swiped) return;
+      if (el.dataset.go) navGo(el.dataset.go);
+      else openProfile(findPlayer(el.dataset.team, +el.dataset.i), el);
+    });
+    if (team && !el.classList.contains("checked")) wireBriefSwipe(el, team);
+  });
   v.querySelector("[data-briefall]")?.addEventListener("click", () => { BRIEF_ALL = !BRIEF_ALL; render(); });
+  v.querySelector("[data-briefpeek]")?.addEventListener("click", () => { BRIEF_PEEK = !BRIEF_PEEK; render(); });
+  v.querySelector("[data-briefok]")?.addEventListener("click", () => {
+    briefCheck(team, [...v.querySelectorAll(".brief-line[data-bid]:not(.checked)")].map(el => el.dataset.bid));
+    BRIEF_PEEK = false; BRIEF_ALL = false;
+    render();
+  });
 }

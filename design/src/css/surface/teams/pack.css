@@ -23,9 +23,11 @@
   translate:calc((var(--mx, 50%) - 50%) * -.5) calc((var(--my, 50%) - 50%) * -.5)}
 .pack-foil::after{content:"";position:absolute;left:0;right:0;bottom:0;height:18px;
   background:repeating-linear-gradient(90deg,rgb(var(--ink-rgb) / .09) 0 1px,transparent 1px 3px),linear-gradient(0deg,rgb(var(--void-rgb) / .5),transparent)}
+/* The page's small pack shimmers by itself; the stage's follows the hand instead (pkLean), since
+   a layer drifting inside a 3D-turned, masked pack is the likeliest source of the dark box a
+   phone showed swinging across it (2026-09-25). */
 @media (prefers-reduced-motion:no-preference){
-  :not(.pk-aim) > .pk-center .pack-foil::before,.pack .pack-foil::before,
-  :not(.pk-aim) > .pk-center :is(.pt-base,.pt-flap)::before{animation:pk-holo 4s ease-in-out infinite alternate}
+  .pack .pack-foil::before{animation:pk-holo 4s ease-in-out infinite alternate}
 }
 @keyframes pk-holo{from{translate:-18% -14%}to{translate:18% 14%}}
 .pack-seal:focus-visible{outline:2px solid var(--lime);outline-offset:4px}
@@ -115,8 +117,10 @@
 @keyframes pk-strain{0%,100%{translate:0 0}50%{translate:.6px -.4px}}
 .pack-hint{margin:10px 0 0;text-align:center;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.14em;color:var(--ink-3)}
 .pack-done{display:block;margin:14px auto 0}
-/* "Rip again" belongs to Cards, so it sits right after that chip as a quieter action, not at the
-   far end of the row where it floated over the gap between the columns (2026-09-25). */
-.rmode .rm-again{margin-left:4px;display:inline-flex;align-items:center;gap:6px;border-color:transparent;background:none;color:var(--ink-2)}
-.rmode .rm-again:hover{color:var(--lime)}
-.rmode .rm-again svg{width:14px;height:14px}
+/* "Rip again" ends the Starters rule over the cards (cardmotion.js reripHTML), a quiet text action.
+   In the Sheet / Cards switch it came and went with the mode and shifted both chips (2026-09-25). */
+.rule .rm-again{appearance:none;display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 2px;border:0;background:none;cursor:pointer;
+  font-family:var(--ui);font-size:var(--t-2);font-weight:500;color:var(--ink-2);white-space:nowrap}
+.rule .rm-again:hover{color:var(--lime)}
+.rule .rm-again:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.rule .rm-again svg{width:14px;height:14px}

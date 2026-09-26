@@ -21,7 +21,30 @@ const PACK_TIER_LABEL = {one: () => t("teams.pack.tier.one"), sig: () => t("team
 const pkLabel = c => `<b>${t("teams.card.rank", {n: c.rank, pos: esc(c.p.pos)})}</b> · ${PACK_TIER_LABEL[cardTier(c.rank)]()}`
   + (cardSigned(c.p) ? ` · <em class="pk-signed-tag">${t("teams.pack.signed")}</em>` : "");
 const pkSpring = el => getComputedStyle(el).getPropertyValue("--spring").trim() || "ease-out";
-const pkSleep = (S, ms) => S.skip ? Promise.resolve() : new Promise(r => setTimeout(r, ms));
+
+/* A tap while the cards are dealt hurries the card on the stage (2026-09-25): its running motion
+   plays PK_RUSH times faster, its pauses end, and the next card comes at the normal pace, so a
+   reader can tap through the pack card by card. S.rush is cleared as each card is dealt. */
+const PK_RUSH = 6;
+function pkSleep(S, ms){
+  if (S.skip || S.rush) return Promise.resolve();
+  return new Promise(r => {
+    const done = () => { clearTimeout(id); S.wake.delete(done); r(); };
+    const id = setTimeout(done, ms);
+    S.wake.add(done);
+  });
+}
+function pkAnim(S, el, frames, opts){
+  const a = el.animate(frames, opts);
+  if (S.rush) a.updatePlaybackRate(PK_RUSH);
+  return a;
+}
+function pkHurry(S){
+  if (!S.ripped || S.homing || S.skip || S.rush) return;
+  S.rush = true;
+  S.st.getAnimations({subtree: true}).forEach(a => { if (a.effect.getTiming().iterations !== Infinity) a.updatePlaybackRate(PK_RUSH); });
+  [...S.wake].forEach(done => done());
+}
 
 function packShow(team, wk){
   if (PACK_SHOW || !wk) return;
@@ -38,7 +61,8 @@ function packShow(team, wk){
     <p class="pk-hint">${t("teams.pack.hint")}</p>`;
   document.body.appendChild(st);
   document.body.classList.add("pk-open");
-  const S = {st, team, wk, cards, ripped: false, skip: false, shown: [], best: cardTier(cards[cards.length - 1].rank)};
+  const S = {st, team, wk, cards, ripped: false, skip: false, rush: false, homing: false, wake: new Set(), shown: [], best: cardTier(cards[cards.length - 1].rank)};
+  st.addEventListener("click", e => { if (!e.target.closest(".pk-close")) pkHurry(S); });
   S.cw = () => document.querySelector("#view .cards .tc")?.offsetWidth || 114;   // a roster card's width, read when dealt
   // The pack's photos, the sharpest size cut, loaded and decoded while the reader tears.
   S.ready = Promise.all(cards.map(c => pkBestHead(c.p)).filter(Boolean).map(src => {
@@ -50,28 +74,67 @@ function packShow(team, wk){
   layerPush("pack", () => pkQuit(S, true));
   st.querySelector(".pk-close").addEventListener("click", () => pkQuit(S));
   // Each eighth of the tear: a tick under the finger and a pinch of foil from the tear point.
-  wireRip(st.querySelector(".pack-seal"), () => pkRip(S), (x, y) => { packBuzz(6); packBurst(x, y, {n: 6, tier: S.best, spread: .35}); });
+  wireRip(st.querySelector(".pack-seal"), () => pkRip(S), (x, y) => { packBuzz(6); packBurst(x, y, {n: 6, tier: S.best, spread: .35}); },
+    (e, nudge) => pkTilt(S, e, nudge));
   pkAim(S);
   render();                     // the page drops its own copy of the pack while the stage holds it
   if (!REDUCED()) st.animate([{opacity: 0}, {opacity: 1}], {duration: 260});
 }
 
-/* The sealed pack leans toward the mouse, up to 9° up or down and 14° across, and its foil's shine
-   follows it (--mx/--my). A touch screen has no hover: there the pack sways by itself (packshow.css). */
+/* The sealed pack leans toward the mouse and its foil's shine follows it (--mx/--my). The lean is
+   measured against the pack, not the window: the pointer a pack's width from its centre is the
+   full 16° up or down and 26° across (it was the window's half, so a big screen needed a long
+   reach for 14°, 2026-09-25). */
+const PK_AIM_X = 16, PK_AIM_Y = 26;
+function pkLean(S, dx, dy){
+  const c = S.st.querySelector(".pk-center"), seal = c && c.querySelector(".pack-seal");
+  if (!seal) return;
+  c.style.setProperty("--prx", `${(-dy * PK_AIM_X).toFixed(1)}deg`);
+  c.style.setProperty("--pry", `${(dx * PK_AIM_Y).toFixed(1)}deg`);
+  seal.style.setProperty("--mx", `${Math.round(50 + dx * 40)}%`);
+  seal.style.setProperty("--my", `${Math.round(50 + dy * 40)}%`);
+}
 function pkAim(S){
   S.st.addEventListener("pointermove", e => {
-    if (e.pointerType !== "mouse" || S.ripped) return;
+    if (e.pointerType !== "mouse" || S.ripped || S.st.classList.contains("pk-drag")) return;
     const c = S.st.querySelector(".pk-center"), seal = c && c.querySelector(".pack-seal");
     if (!seal || seal.classList.contains("tearing")) return;
-    const r = c.getBoundingClientRect();
-    const dx = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (innerWidth / 2)));
-    const dy = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height / 2)) / (innerHeight / 2)));
+    const r = c.getBoundingClientRect(), clamp = v => Math.max(-1, Math.min(1, v));
     S.st.classList.add("pk-aim");
-    c.style.setProperty("--prx", `${(-dy * 9).toFixed(1)}deg`);
-    c.style.setProperty("--pry", `${(dx * 14).toFixed(1)}deg`);
-    seal.style.setProperty("--mx", `${Math.round(50 + dx * 40)}%`);
-    seal.style.setProperty("--my", `${Math.round(50 + dy * 40)}%`);
+    pkLean(S, clamp((e.clientX - (r.left + r.width / 2)) / r.width), clamp((e.clientY - (r.top + r.height / 2)) / r.height));
   });
+}
+
+/* A drag on the pack's body (below the strip) turns it with the finger or the mouse, up to 1.6x
+   the hover lean, the foil's shine going with it; let go and it springs back to rest (the
+   transition in packshow.css). A tap that did not move tugs the strip instead, to say where to tear. */
+function pkTilt(S, e, nudge){
+  const c = S.st.querySelector(".pk-center"), seal = c && c.querySelector(".pack-seal");
+  if (!seal || S.ripped) return;
+  const x0 = e.clientX, y0 = e.clientY, r = seal.getBoundingClientRect();
+  const clamp = v => Math.max(-1.6, Math.min(1.6, v));
+  let moved = false;
+  seal.setPointerCapture?.(e.pointerId);
+  S.st.classList.add("pk-drag");
+  const move = ev => {
+    const dx = ev.clientX - x0, dy = ev.clientY - y0;
+    if (!moved && Math.hypot(dx, dy) < 6) return;
+    moved = true;
+    pkLean(S, clamp(dx / (r.width * .6)), clamp(dy / (r.height * .6)));
+  };
+  const up = () => {
+    seal.removeEventListener("pointermove", move);
+    seal.removeEventListener("pointerup", up);
+    seal.removeEventListener("pointercancel", up);
+    S.st.classList.remove("pk-drag");
+    if (!moved) return nudge();
+    S.st.classList.remove("pk-aim");
+    ["--prx", "--pry"].forEach(k => c.style.removeProperty(k));
+    ["--mx", "--my"].forEach(k => seal.style.removeProperty(k));
+  };
+  seal.addEventListener("pointermove", move);
+  seal.addEventListener("pointerup", up);
+  seal.addEventListener("pointercancel", up);
 }
 
 /* A pack card's photo: the largest file cut for him (512, else 256, else 96px), or null. */
@@ -106,7 +169,7 @@ async function pkRip(S){
   S.ripped = true;
   packMark(S.team, S.wk);
   packBuzz(18);
-  S.st.querySelector(".pk-hint").remove();
+  S.st.querySelector(".pk-hint").textContent = t("teams.pack.faster");
   S.st.classList.add("pk-ripped");
   const center = S.st.querySelector(".pk-center"), seal = center.querySelector(".pack-seal");
   if (REDUCED()){ center.remove(); S.skip = true; }
