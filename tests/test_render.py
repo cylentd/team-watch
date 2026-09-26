@@ -69,6 +69,7 @@ GD_CATCHUP = {swing: {me: 21.5, opp: 3.0}, movers: [
 # reachable in the same way no matter which state ran before it.
 GROUP = {"digest": "week", "roster": "teams", "waivers": "teams", "league": "teams",
          "ranks": "scouting", "board": "scouting", "movers": "scouting", "matchups": "scouting", "usage": "scouting", "news": "scouting",
+         "weather": "week",
          "parlay": "bets", "build": "bets", "dfs": "bets", "live": "gameday"}
 
 
@@ -162,6 +163,9 @@ STATES = [
     # Players > Ranks (2026-09-26): a position's tiers, and FLEX with its "RB3" per row.
     ("ranks", go("ranks")),
     ("ranks-flex", go("ranks") + [("click", "[data-rkpos='FLEX']")]),
+    # This week > Weather (2026-09-26): week 2's four games, the dome first, then the rest by wind
+    # (NE windy, IND retractable, SEA with no forecast yet); DET's players listed under DET @ SEA.
+    ("weather", go("weather")),
     # Movers, the Board's second mode since 2026-09-25 (a view of its own before): the fixture
     # falls back to the sample pool, which has share moves, so it sorts on them; -wait blanks every
     # move to reach the week-1 path, where the list ranks by share under one line saying why.
@@ -352,6 +356,7 @@ def test_no_console_errors(snapshot):
     ("pool", "scouting", "MOVERS"),    # the old Movers view's hash, kept for bookmarks
     ("usage", "scouting", "GRID"),
     ("matchups", "scouting", "MATCHUPS"),
+    ("weather", "week", "WEATHER"),
     ("waivers", "teams", "WAIVERS"),
     ("parlay", "bets", "SLIPS"),        # the leaf is still `parlay`, so its bookmarks land
     ("build", "bets", "BUILD"),
@@ -462,7 +467,7 @@ TUESDAY = 'Date.now = () => Date.parse("2026-09-22T12:00:00Z");'   # a Tuesday i
 @pytest.mark.parametrize("day,hash,surface,first", [
     ("tue", "", "waivers", "WAIVERS"),     # claims day: Waivers opens and leads its group
     ("tue", "#roster", "roster", "WAIVERS"),   # a hash still wins
-    ("sat", "", "digest", None),           # any other day: the Digest, a group of one (no sub-row)
+    ("sat", "", "digest", "DIGEST"),       # any other day: the Digest, first of This week (Digest, Weather)
 ])
 def test_tuesday_opens_waivers(browser, page_file, day, hash, surface, first):
     """The day is read from Date.now(), so pinning it is the whole injection. SEED pins a

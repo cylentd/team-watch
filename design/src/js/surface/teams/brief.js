@@ -13,7 +13,7 @@ let BRIEF_PEEK = false;  // the checked lines are shown again, until "Hide check
    folds to one row. Kept per league per week, by what the line says, so a line whose fact changes
    (a new injury, a new swap) comes back. localStorage can refuse: this load still remembers. */
 const BRIEF_MEM = new Map();
-const briefKey = team => `tw-brief-${team.key}-${packWeek() || 0}`;
+const briefKey = team => `tw-brief-${team.key}-${schedWeek() || 0}`;
 function briefId(l){
   let h = 5381;
   for (const ch of `${l.kind}|${l.text}|${l.sub || ""}`) h = (h * 33 ^ ch.charCodeAt(0)) >>> 0;

@@ -1,28 +1,13 @@
 /* The three drawn blocks on the modal's right side, each a pure function of what it is handed:
    the matchup rank as a strip of every defence, the forecast as icons, and the red-zone split of
-   the team's touches. sections.js composes them; nothing here reads a global except the copy. */
+   the team's touches. sections.js composes them; nothing here reads a global except the copy.
+   The weather icons (wxIcon, wxKind) live in ui/weather.js, shared with the cards and Weather. */
 
 /* Every defence as a cell, easiest on the left, his opponent's lit. */
 function rankStripHTML(n, of, cls){
   const cells = Array.from({length: of}, (_, i) => `<i${i + 1 === n ? ` class="me ${cls}"` : ""}></i>`).join("");
   return `<div class="pf-strip"><span class="pf-strip-cells">${cells}</span>
     <span class="pf-strip-ends"><em>${t("profile.matchup.easiest")}</em><em>${t("profile.matchup.toughest")}</em></span></div>`;
-}
-
-const WX_ICONS = {
-  sun: `<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/>`,
-  cloud: `<path d="M7 18a4 4 0 0 1-.6-7.95A6 6 0 0 1 18 9.5 3.5 3.5 0 0 1 17.5 18Z"/>`,
-  rain: `<path d="M7 15a4 4 0 0 1-.6-7.95A6 6 0 0 1 18 6.5 3.5 3.5 0 0 1 17.5 15Z"/><path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3"/>`,
-  snow: `<path d="M7 15a4 4 0 0 1-.6-7.95A6 6 0 0 1 18 6.5 3.5 3.5 0 0 1 17.5 15Z"/><path d="M8 18v3M12 18v3M16 18v3M6.5 19.5h3M10.5 19.5h3M14.5 19.5h3"/>`,
-  wind: `<path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h8a2 2 0 1 1-2 2"/>`,
-  drop: `<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/>`,
-  dome: `<path d="M3 20h18M4 20v-5a8 8 0 0 1 16 0v5M12 7V4"/>`,
-};
-function wxIcon(k){ return `<svg class="pf-wx-i" viewBox="0 0 24 24" aria-hidden="true">${WX_ICONS[k] || WX_ICONS.cloud}</svg>`; }
-function wxKind(short){
-  const s = (short || "").toLowerCase();
-  return /snow|flurr|sleet|wintry|blizzard/.test(s) ? "snow" : /rain|shower|storm|drizzle/.test(s) ? "rain"
-    : /cloud|overcast|fog|haze/.test(s) ? "cloud" : "sun";
 }
 
 /* The next game's forecast at whichever stadium it's actually played at -- his own team's when

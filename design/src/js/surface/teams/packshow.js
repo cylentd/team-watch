@@ -11,7 +11,7 @@ const packShowing = () => !!PACK_SHOW;
 
 /* A pack card is left out of its slot (kept in place, invisible) while the stage shows it. */
 function packFaceDown(team, i, html){
-  if (!PACK_SHOW || PACK_SHOW.key !== `${team.key}-${packWeek()}` || !PACK_SHOW.order.has(i)) return html;
+  if (!PACK_SHOW || PACK_SHOW.key !== `${team.key}-${schedWeek()}` || !PACK_SHOW.order.has(i)) return html;
   return html.replace('class="tc ', `data-pk="${PACK_SHOW.order.get(i)}" class="tc pk-slot `);
 }
 

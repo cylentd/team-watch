@@ -42,8 +42,9 @@ from sources import (                                    # design/sources.py: th
     ROOT, REPO, DWR, FEED, ESPN_ROSTERS, YAHOO_ROSTERS, DFS_POOL,
     feed_block, read_first, load_status, load_props_raw, load_model_raw,
     load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
-    load_draft_pedigree, load_weather, load_routes, load_startsit, load_digest, load_league,
+    load_draft_pedigree, load_weather, load_weather_backtest, load_routes, load_startsit, load_digest, load_league,
 )
+from wx_history import live_wx_history, report as wx_history_report  # Weather's backtest lines
 
 # One slug for one name across the page and the functions: api/league.py slugs a connected
 # league's players at request time with this same function (api/_espn.py).
@@ -724,6 +725,7 @@ def render():
         "LIVE_RANKS": live_ranks(load_player_proj(), slugify, load_status(), load_schedule(DWR)),
         "LIVE_INJURY": live_injury(load_status(), slugify, wanted_set),
         "LIVE_WEATHER": load_weather(),
+        "LIVE_WX_HISTORY": live_wx_history(load_weather_backtest(), load_player_proj()),
         "LIVE_LINES": live_lines(load_dfs_pool(), TEAM_FIX),
         "LIVE_ROUTES": live_routes(load_routes(), slugify, wanted_set),
         "LIVE_ARCHETYPE": live_archetype(load_archetype(FEED, DWR), wanted_set),
@@ -740,6 +742,7 @@ def render():
                routes_report(blocks["LIVE_ROUTES"]), report_archetype(blocks["LIVE_ARCHETYPE"]),
                report_trenches(blocks["LIVE_TRENCHES"]), lines_report(blocks["LIVE_LINES"]),
                injury_report(blocks["LIVE_INJURY"]), startsit_report(blocks["LIVE_STARTSIT"]),
+               wx_history_report(blocks["LIVE_WX_HISTORY"]),
                f"Weather: {len(blocks['LIVE_WEATHER']['teams'])} teams" if blocks["LIVE_WEATHER"] else "Weather: none"]
     for name, obj in blocks.items():
         contract.validate(name, obj)   # a missing field fails the build, not the page

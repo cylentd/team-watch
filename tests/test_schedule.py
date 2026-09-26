@@ -55,7 +55,7 @@ def test_a_row_with_no_kickoff_is_dropped(block):
 
 def test_a_malformed_line_is_stepped_over(block):
     """Half a schedule still gates better than none, so one bad line is not fatal."""
-    assert len(block["games"]) == 3
+    assert len(block["games"]) == 5
 
 
 def test_games_are_sorted_by_kickoff(block):
@@ -99,4 +99,4 @@ def test_no_build_clock_is_consulted(block):
 
 def test_report_says_when_there_is_nothing(tmp_path):
     assert "no live file" in schedule.report(None)
-    assert "3 games" in schedule.report(schedule.load_schedule(FIXTURE))
+    assert "5 games" in schedule.report(schedule.load_schedule(FIXTURE))

@@ -18,6 +18,10 @@ Jahmyr Gibbs) across CIN/SF/DET, plus Ja'Marr Chase as a TD-only, headshot-less,
 | `data/startsit_calls.json` | `load_startsit()` — Matchups: a backed and an unbacked start, a sit, two best spots, one without an expert rank |
 | `data/pl_startsit.json` | `load_startsit()` — Pitcher List's calls, same week: one agrees with ours (Purdy), one contradicts it (Higgins) |
 | `data/grades/2026-w2.json` | `load_startsit()` — the season record, ours behind Pitcher List's |
+| `data/history/games/*.jsonl` | `load_schedule()` — week 2 (the pinned clock's week): DET @ SEA, WAS @ LA, MIA @ NE, JAX @ IND; week 3 KC @ SF; a row with no kickoff and a malformed line |
+| `data/weather.json` | `load_weather()` — This week > Weather's four cases in week 2: LA a dome, IND retractable with a forecast, NE windy and wet, SEA outdoor with no forecast yet |
+| `data/player_projections.json` `weather_adjust` | Weather's "Already in our projections?": wind QB and TE and precip WR in since 2026-09-26 (feed block and file), so wind WR reads "not yet" and kickers "we don't project kickers" |
+| `data/weather_backtest.json` | `load_weather_backtest()` — Weather's history lines, both arms: dome not proven (K fails on year-to-year only), wind proven for QB and K but not RB, cold K proven on arm a and not on arm b |
 | `data/cache/roster_2026.parquet` | `nfl_roster()` — resolves Ja'Marr Chase's TD-only position |
 | `heads/*.webp` | inlined headshots; Ja'Marr Chase has none (tests the missing-headshot path) |
 | `feed.json` | `TEAM_WATCH_FEED` — feed-first copy of every block above |

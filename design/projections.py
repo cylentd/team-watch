@@ -122,7 +122,10 @@ def live_projections(raw, slugify, wanted, status=None, schedule=None):
             rank, of = ranks.get(slug, (None, None))
             out[slug] = {"pts": None if slug in gone or slug in done else p.get("pts"), "mu": p.get("mu"),
                         "games": p.get("games"), "src": p.get("src"), "rank": rank, "of": of,
-                        "out": gone.get(slug), "done": done.get(slug)}
+                        "out": gone.get(slug), "done": done.get(slug),
+                        # {adj, cond}: points ff-jarvis already moved for this game's weather
+                        # (its weather_adjust, METHODOLOGY 12.53), null when none applied.
+                        "wx": p.get("wx")}
     if not out:
         return None
     meta = {k: (raw or {}).get(k) for k in ("scoring", "through", "generated")}

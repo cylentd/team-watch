@@ -20,10 +20,12 @@ data/stock.js
 data/waiver.js
 data/wire.js
 data/teamcolors.js
+data/schedule.js
 lib/escape.js
 lib/served.js
 ui/player.js
 ui/matchup.js
+ui/weather.js
 surface/teams/board.js
 surface/teams/cards.js
 surface/teams/cardsupport.js
@@ -68,6 +70,10 @@ surface/matchups/lead.js
 surface/matchups/rows.js
 surface/matchups/matchups.js
 surface/ranks/ranks.js
+data/weather.js
+data/wxhistory.js
+surface/weather/history.js
+surface/weather/weather.js
 data/digest.js
 surface/digest/lead.js
 surface/digest/rows.js

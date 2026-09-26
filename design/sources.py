@@ -28,6 +28,7 @@ PLAYER_PROJ = DWR / "player_projections.json"
 GAMELOG_WEEKLY = DWR / "gamelog_weekly.json"
 PEDIGREE = DWR / "pedigree.json"
 WEATHER = DWR / "weather.json"
+WEATHER_BACKTEST = DWR / "weather_backtest.json"
 ROUTES = DWR / "routes_run.json"
 
 
@@ -161,6 +162,13 @@ def load_weather():
     load_gamelog_weekly(). No `wanted`-slug cut: it is keyed by team, already small (32 rows).
     Passed straight through -- no reshaping, so no dedicated design/weather.py transform."""
     return feed_block(("weather",), "teams") or read_first(WEATHER)
+
+
+def load_weather_backtest():
+    """ff-jarvis's weather backtest (model/season/weather_backtest.py), the file only: it is
+    rerun by hand, not by the scheduled refresh, so no feed block carries it. None when absent;
+    design/wx_history.py cuts it to what the Weather view prints."""
+    return read_first(WEATHER_BACKTEST)
 
 
 def load_routes():

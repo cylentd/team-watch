@@ -125,6 +125,16 @@
    "from_lines": 0,
    "moved": 0,
    "not_playing": 0,
+   "weather_adjust": {
+    "since": "2026-09-26",
+    "cells": {"wind": {"QB": -1.33, "TE": -0.43}, "precip": {"WR": -0.56}},
+    "skipped": {"wind": {"K": -0.62}, "precip": {"K": -0.93}},
+    "skipped_why": "kickers are not projected",
+    "thresholds": {"wind_mph": 15.0, "precip_pct": 50, "roof": "outdoor", "kickoff": "forecast at kickoff"},
+    "applied": 0,
+    "source": "fixture: METHODOLOGY 12.53 arm b",
+    "table": "fixture"
+   },
    "players": [
     {
      "key": "joe burrow",

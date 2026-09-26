@@ -11,7 +11,6 @@
   .pf-bar.bare{grid-template-columns:minmax(0,1fr) 36px 28px}
   /* "How this works" keeps its icon beside the book toggle; the word would wrap the row. */
   .explain-btn span{display:none}
-  .explain-btn svg{width:18px;height:18px}
-}
+  .explain-btn svg{width:18px;height:18px}}
 .pill .abbr{display:none}
 

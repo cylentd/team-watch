@@ -422,6 +422,44 @@ Not backtested: the calls. The foot says so, and names the record as the test.
 Not built yet: Bets > Games (every game with its implied totals and each offense against the other
 defense by position), the storyboard's second view.
 
+## Weather (This week, 2026-09-26)
+
+Every game of this week (`schedWeek`, the pack's week) with the forecast at kickoff and the reader's
+own players in it, both leagues, kickers included. `LIVE_WEATHER` is joined on the home club through
+the schedule's alias (LA is LAR there); a forecast counts only when its `kickoff` is this game's.
+It sat in Players for its first hours; it moved to This week (after Digest) the same day, which
+put Players back to six views and let the 7-tab phone rule go.
+
+| part | what it shows |
+|---|---|
+| Head | "Week N weather", the source (National Weather Service, hour of kickoff) |
+| Indoors | every dome, kickoff order: matchup, kickoff, "Dome, no weather" |
+| Outdoors, most wind first | open air and retractable roofs, by the top of the wind range: temperature and sky, wind and direction, precip %, the forecast's age. A retractable roof adds "roof may close". No forecast says so; a game under way says none is kept |
+| History | per condition the game meets: "Does it matter?" and "Already in our projections?" |
+| Mine | position chip, name, a "wx −1.1" note when ff-jarvis moved his projection for the weather, league(s); a tap opens the profile |
+
+- **Facts only.** No verdict word about a player, no colour by effect. The sort is the one ordering
+  and its heading names it.
+- **History lines:** `LIVE_WX_HISTORY` (`design/wx_history.py`) summarises ff-jarvis's weather
+  backtest (`data/weather_backtest.json`, METHODOLOGY 12.53) per condition at build time. A dome
+  gets the dome line; an open-air game with a forecast gets wind and cold at the backtest's own
+  thresholds, and rain or snow at a 50% forecast chance (the line says the history is rain that
+  fell). A retractable roof gets none. Casual wording, no stats talk on the card (2026-09-26):
+  - *Does it matter?* vs his recent games and opponent (arm a). "Yes. Players score fewer points
+    than usual: QB −1.5 · K −0.7 · WR −0.5. RBs: no clear effect." One position: "Yes. Kickers score
+    about 0.8 fewer points than usual." None: "No clear effect." plus the closest position and why:
+    "Kickers score a bit more indoors, but it doesn't hold up season to season" (rolling only) or
+    "The numbers are too mixed to tell."
+  - *Already in our projections?* From the projections' `weather_adjust` block (ff-jarvis, since
+    2026-09-26): "Yes, since Sep 26." / "Not yet." / "We don't project kickers.", per position when
+    they differ. No block: the question is not asked.
+  - n, the 95% range and one sentence on what the projections start from sit behind "Why". One
+    footnote names the seasons. No backtest file: no lines, no footnote, no build failure.
+- **Player rows:** only ff-jarvis's own adjustment (`wx` on his `LIVE_PROJECTIONS` row) shows, as a
+  small grey "wx −1.1"; the backtest's position numbers stay in the line above the list.
+- **First data:** the first game at 200px on a 360x800 phone (live data, 2026-09-26). Desktop is a
+  grid of equal panels, three across at 1400px.
+
 ## Parlay and DFS
 
 **Superseded for Parlay 2026-09-25: Slips and Build.** Parlay is two views, Slips (leaf `parlay`,

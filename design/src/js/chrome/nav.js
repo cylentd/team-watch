@@ -21,7 +21,7 @@ const NAV_ICON = {
    Each leaf's label is its own key, so a rename here never silently changes a heading elsewhere.
    "This week" (2026-09-26) leads: the Digest, what changed league-wide this week, is the front page. */
 const NAV = [
-  ["week",     ["digest"]],
+  ["week",     ["digest", "weather"]],
   ["teams",    ["roster", "waivers", "league"]],
   ["scouting", ["ranks", "board", "movers", "matchups", "usage", "news"]],
   ["bets",     ["parlay", "build", "dfs"]],
@@ -36,6 +36,7 @@ const navLabel = leaf => ({
   ranks: t("nav.tab.ranks"),
   board: t("nav.tab.board"), movers: t("nav.tab.movers"),
   matchups: t("nav.tab.matchups"), usage: t("nav.tab.grid"), news: t("nav.tab.news"),
+  weather: t("nav.tab.weather"),
   parlay: t("nav.tab.parlay"), build: t("nav.tab.build"), dfs: t("nav.tab.dfs"), live: t("nav.tab.live"),
 }[leaf] || leaf);
 

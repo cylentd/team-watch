@@ -32,24 +32,17 @@ function cardHeadHTML(p){
 }
 
 /* This week's game for a team, from the schedule: the next kickoff not more than four hours gone.
-   The schedule spells two clubs its own way (alias: LA -> LAR, WAS -> WSH), and so do the lines. */
-const cardCode = team => (typeof LIVE_SCHEDULE !== "undefined" && LIVE_SCHEDULE && LIVE_SCHEDULE.alias || {})[team] || team;
+   The schedule spells two clubs its own way (alias: LA -> LAR, WAS -> WSH), and so do the lines
+   (data/schedule.js). */
 function cardGame(team){
-  if (typeof LIVE_SCHEDULE === "undefined" || !LIVE_SCHEDULE) return null;
-  const code = cardCode(team), now = Date.now() - 4 * 3600e3;
+  if (!schedOk()) return null;
+  const code = schedCode(team), now = Date.now() - SCHED_GRACE_MS;
   const g = LIVE_SCHEDULE.games
     .filter(x => (x.home === code || x.away === code) && Date.parse(x.kickoff) > now)
     .sort((a, b) => Date.parse(a.kickoff) - Date.parse(b.kickoff))[0];
   return g ? {opp: g.home === code ? g.away : g.home, home: g.home === code, venue: g.home} : null;
 }
-/* A row of a team-keyed block under either spelling of the club. */
-function cardTeamRow(block, team){
-  if (!block) return null;
-  const alias = (typeof LIVE_SCHEDULE !== "undefined" && LIVE_SCHEDULE && LIVE_SCHEDULE.alias) || {};
-  const plain = Object.keys(alias).find(k => alias[k] === team);
-  return block.teams[team] || block.teams[alias[team]] || (plain ? block.teams[plain] : null) || null;
-}
-const cardLines = team => cardTeamRow(typeof LIVE_LINES !== "undefined" ? LIVE_LINES : null, team);
+const cardLines = team => schedTeamRow(typeof LIVE_LINES !== "undefined" ? LIVE_LINES : null, team);
 const cardMatchup = (team, g) => g ? `${team} ${g.home ? "vs" : "@"} ${g.opp}` : team;
 
 /* The front says four lines: position with rank ("RB7", in the tier's colour) and points, who, and

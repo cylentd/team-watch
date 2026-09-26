@@ -11,14 +11,7 @@ const PACK_TIERS = ["ur", "sig", "one"];
 let PACK_REPLAY = null;          // "<league>-<week>" while a replayed pack is waiting to be ripped
 const PACK_AUTO_SEEN = new Set(); // "<league>-<week>" whose stage already opened on its own this load
 
-/* The week of the next kickoff on the schedule, or null when there is none to name. */
-function packWeek(){
-  if (typeof LIVE_SCHEDULE === "undefined" || !LIVE_SCHEDULE) return null;
-  const now = Date.now() - 4 * 3600e3;
-  const next = LIVE_SCHEDULE.games.filter(g => Date.parse(g.kickoff) > now)
-    .sort((a, b) => Date.parse(a.kickoff) - Date.parse(b.kickoff))[0];
-  return next ? next.week : null;
-}
+/* The pack's week is the schedule's this-week (data/schedule.js schedWeek). */
 const packKey = (team, wk) => `tw-pack-${team.key}-${wk}`;
 function packOpened(team, wk){
   try { return localStorage.getItem(packKey(team, wk)) === "1"; } catch (e) { return false; }
@@ -39,7 +32,7 @@ function packCards(team){
 
 /* This week's pack has been opened and still holds cards: the Sheet / Cards row offers it again. */
 function packReplayable(team){
-  const wk = packWeek();
+  const wk = schedWeek();
   return !!wk && packOpened(team, wk) && packCards(team).length > 0 && !packShowing();
 }
 
@@ -78,7 +71,7 @@ function packSeason(){
 
 /* On the page: the unopened pack, small, as the way onto the stage. */
 function packHTML(team){
-  const wk = packWeek(), cards = packCards(team);
+  const wk = schedWeek(), cards = packCards(team);
   if (!wk || !cards.length || packOpened(team, wk) || packShowing()) return "";
   return `<div class="pack" data-pack="${wk}">
     <p class="pack-msg">${t("teams.pack.lead", {wk, n: cards.length})}</p>
@@ -98,7 +91,7 @@ function wirePack(v, team){
   }
 }
 function packReplay(team){
-  packShow(team, packWeek());
+  packShow(team, schedWeek());
 }
 
 /* The tear (2026-09-25, reworked twice the same day: it jumped, then it always began at the left

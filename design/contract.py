@@ -180,7 +180,7 @@ CONTRACT = {
     # page can show. `mu` is the component means (PASS/RUSH/TD/...), read as-is off the source.
     "LIVE_PROJECTIONS": {
         "keys": ["players"],
-        "map": ("players", ["pts", "mu", "games", "src", "rank", "of", "out", "done"]),
+        "map": ("players", ["pts", "mu", "games", "src", "rank", "of", "out", "done", "wx"]),
     },
     # design/ranks.py: Players > Ranks. Every position's list in `rows`, RB/WR/TE together in
     # `flex`, each tiered by natural breaks, one week only: `week` is null with no schedule, and
@@ -208,6 +208,13 @@ CONTRACT = {
     "LIVE_WEATHER": {
         "keys": ["generated", "teams"],
         "map": ("teams", ["roof"]),
+    },
+    # design/wx_history.py: ff-jarvis's weather backtest, one summary per condition. `top` is null
+    # when some position passed; `inproj` ({yes, no, kickers}) and `since` are null without the
+    # projections' weather_adjust block. `matters` and `why` rows carry pos, mean, n, lo, hi.
+    "LIVE_WX_HISTORY": {
+        "keys": ["seasons", "thresholds", "since", "conditions"],
+        "map": ("conditions", ["matters", "unproven", "top", "inproj", "why"]),
     },
     # design/lines.py: each team's implied points from the DFS lobby's game lines. The roster's
     # defense card reads the opponent's; kicker and defense cards read `opp`.

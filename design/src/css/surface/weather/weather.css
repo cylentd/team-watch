@@ -1,0 +1,42 @@
+/* ============================== WEATHER ============================== */
+/* This week > Weather (js/surface/weather/weather.js, 2026-09-26). One panel per game: matchup and
+   kickoff, the roof, the forecast as three icon cells, its age, then the reader's players in it.
+   Facts only, so nothing here is coloured by what the weather might do: every number is --ink,
+   every label --ink-3, and positions are typographic like every other row on the page. */
+.wt-headline{margin:14px 0 0}
+.wt-headline h2{margin:0;font-family:var(--disp);font-size:var(--t-4);font-weight:800;color:var(--ink)}
+.wt-headline p{margin:2px 0 0;font-size:var(--t-1);color:var(--ink-3);max-width:70ch}
+.wt-sec{margin-top:14px}
+.wt-grid{display:grid;gap:10px;margin-top:8px}
+.wt-game{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:12px 14px;display:grid;gap:8px;align-content:start}
+.wt-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.wt-match{font-family:var(--mono);font-size:var(--t-3);font-weight:700;color:var(--ink);letter-spacing:.02em}
+.wt-kick{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
+.wt-roof{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:var(--t-1);color:var(--ink-2)}
+.wt-roof em{font-style:normal;color:var(--ink-3)}
+.wt-roof em::before{content:"· "}
+.wt-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.wt-f{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:6px;align-items:center;color:var(--ink-3)}
+.wt-f .pf-wx-i{grid-row:span 2}
+.wt-f b{font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink);white-space:nowrap}
+/* The sky phrase wraps rather than cut: "Rain Showers" is the fact, "Rain Show..." is not. */
+.wt-f em{font-style:normal;font-size:var(--t-1);color:var(--ink-3);line-height:1.25;overflow-wrap:break-word}
+.wt-age,.wt-nofc,.wt-none-mine{margin:0;font-size:var(--t-1);color:var(--ink-3)}
+.wt-nofc{color:var(--ink-2)}
+.wt-mine{list-style:none;margin:0;padding:8px 0 0;border-top:1px solid var(--line);display:grid;gap:2px}
+.wt-none-mine{padding-top:8px;border-top:1px solid var(--line)}
+.wt-p{appearance:none;border:0;background:none;color:inherit;font:inherit;cursor:pointer;text-align:left;
+  display:grid;grid-template-columns:36px minmax(0,1fr) auto auto;gap:8px;align-items:center;width:100%;min-height:36px;padding:2px 4px;border-radius:8px}
+.wt-p:hover{background:var(--panel-2)}
+.wt-p:active{transform:scale(var(--press))}
+.wt-p:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+.wt-pos{font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink-2);border:1px solid var(--line);border-radius:6px;text-align:center;padding:1px 0}
+.wt-nm{font-size:var(--t-2);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* "wx −1.1": what ff-jarvis already moved in his projection for the weather. Neutral grey, no
+   colour for the sign: it is a fact about the number, not a call. */
+.wt-adj{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.wt-lg{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
+/* A desktop fills its width: the games as a grid of equal panels, three across at full width. */
+@media (min-width:760px){
+  .wt-grid{grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+}

@@ -7,6 +7,12 @@
   "SF": {"roof": "outdoor", "as_of": "2026-09-21T18:00:00+00:00", "name": "Sunday",
          "temp_f": 64, "wind": "12 mph", "wind_dir": "W", "short": "Mostly Sunny", "precip_pct": 5},
   "CIN": {"roof": "outdoor", "as_of": "2026-09-21T18:00:00+00:00", "name": "Sunday",
-          "temp_f": 58, "wind": "6 mph", "wind_dir": "N", "short": "Partly Cloudy", "precip_pct": 10}
+          "temp_f": 58, "wind": "6 mph", "wind_dir": "N", "short": "Partly Cloudy", "precip_pct": 10},
+  "SEA": {"roof": "outdoor"},
+  "LA": {"roof": "dome"},
+  "NE": {"roof": "outdoor", "as_of": "2026-09-12T08:00:00+00:00", "kickoff": "2026-09-14T17:05:00Z",
+         "temp_f": 61, "wind": "15 to 22 mph", "wind_dir": "NW", "short": "Chance Rain Showers", "precip_pct": 40},
+  "IND": {"roof": "retractable", "as_of": "2026-09-12T10:30:00+00:00", "kickoff": "2026-09-14T20:05:00Z",
+          "temp_f": 74, "wind": "7 mph", "wind_dir": "SW", "short": "Partly Sunny", "precip_pct": 10}
  }
 }

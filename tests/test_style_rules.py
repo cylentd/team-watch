@@ -6,7 +6,7 @@ import pytest
 
 from test_render import browser, open_page  # noqa: F401  (browser is a fixture)
 
-VIEWS = ["roster", "waivers", "board", "movers", "usage", "news", "parlay", "build", "dfs"]
+VIEWS = ["roster", "waivers", "board", "movers", "usage", "news", "parlay", "build", "dfs", "weather"]
 SIDEWAYS = """[...document.querySelectorAll('#view *')].filter(e =>
   /(auto|scroll)/.test(getComputedStyle(e).overflowX) && e.scrollWidth > e.clientWidth + 4
   && !e.matches('.bd-tabs:not(.bets-tabsrow .bd-tabs)')).map(e => String(e.className).slice(0, 40))"""

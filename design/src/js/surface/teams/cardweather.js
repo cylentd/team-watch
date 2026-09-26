@@ -4,16 +4,14 @@
    the day. What it does to a player follows the public splits: wind from 15 mph, rain from a 40%
    chance and any snow cut passing and kicking; wet weather tilts a game to the run. A card shows
    it only when it matters, so a fair-weather week draws nothing. */
-const cardWeather = g => g ? cardTeamRow(typeof LIVE_WEATHER !== "undefined" ? LIVE_WEATHER : null, g.venue) : null;
-/* The top of a forecast's wind range: "5 to 10 mph" is 10. */
-const cardWindMph = w => w && w.wind ? Math.max(...(w.wind.match(/\d+/g) || ["0"]).map(Number)) : 0;
+const cardWeather = g => g ? schedTeamRow(typeof LIVE_WEATHER !== "undefined" ? LIVE_WEATHER : null, g.venue) : null;
 const WX_WIND_MPH = 15, WX_WET_PCT = 40;
 
 /* What is falling or blowing: {wind, fall} with fall "snow" / "rain" / "", or null when nothing
    is, or the stadium is covered. */
 function cardSky(w){
   if (!w || w.roof !== "outdoor") return null;
-  const mph = cardWindMph(w), sky = (w.short || "").toLowerCase();
+  const mph = wxWindMph(w), sky = (w.short || "").toLowerCase();
   const fall = sky.includes("snow") ? "snow" : (w.precip_pct || 0) >= WX_WET_PCT ? "rain" : "";
   return mph >= WX_WIND_MPH || fall ? {wind: mph >= WX_WIND_MPH ? mph : 0, fall} : null;
 }
