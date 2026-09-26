@@ -52,16 +52,21 @@ body.pk-open{overflow:hidden}
    (packdeal.js pkMove), with perspective for the turn. Inside, .pk-inner turns in 3D with two faces
    back to back: the pack's card back, and the card. It starts face down. */
 .pk-card{position:fixed;z-index:3;left:50%;top:45%;width:var(--pkw);aspect-ratio:5/7;margin-left:calc(var(--pkw) / -2);margin-top:calc(var(--pkw) * -.7);
-  --th:72px;cursor:default;perspective:1100px}
+  cursor:default;perspective:1100px}
 .pk-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;rotate:y 180deg}
 .pk-inner > .tc,.pk-cb{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+/* The card itself is laid out at its roster slot's width (--cw0) and scaled up whole (--pkz,
+   packdeal.js), so it is the same card, bigger. Laid out at the stage's width its text rows kept
+   their pixel size and the photo stretched into the rest: 75% of the card's height, not 53%. */
+.pk-inner > .tc{inset:auto;left:0;top:0;width:var(--cw0);height:calc(var(--cw0) * 1.4);scale:var(--pkz, 1);transform-origin:0 0}
 .pk-cb{rotate:y 180deg;border-radius:10px;padding:4px;background:var(--line-2);
   box-shadow:0 2px 4px rgb(var(--shadow-rgb) / .5),0 8px 18px rgb(var(--shadow-rgb) / .3)}
 .pk-cb b{display:grid;place-items:center;height:100%;border-radius:7px;font-family:var(--disp);font-weight:800;font-size:var(--t-3);color:var(--ink);
   background:repeating-linear-gradient(45deg,var(--panel-2) 0 9px,var(--panel-3) 9px 18px)}
 .pk-cb b i{font-style:normal;color:var(--lime)}
-.pk-card .tc-name{font-size:var(--t-3)}
-.pk-card .tc-sig{font-size:var(--t-5);clip-path:inset(-20% 100% -20% -5%)}
+/* The reveal is the player: no weather on a stage card (it is back on the card in its roster slot). */
+.pk-card :is(.tc-wx,.tc-chip.wx){display:none}
+.pk-card .tc-sig{clip-path:inset(-20% 100% -20% -5%)}
 .pk-card.pk-signed .tc-sig{clip-path:inset(-20% -5% -20% -5%)}
 
 /* The best card's moment: rays turn behind the centre, and a flash. */

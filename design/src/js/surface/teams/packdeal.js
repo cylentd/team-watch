@@ -99,6 +99,10 @@ async function pkDeal(S){
     const el = pkCardEl(S, c);
     if (!S.skip) S.st.querySelector(".pk-msg").innerHTML = "";   // the last card's label goes with it
     S.st.appendChild(el);
+    // Laid out at the roster card's width, scaled up whole to the stage's (packshow.css .pk-inner > .tc).
+    const cw = S.cw();
+    el.style.setProperty("--cw0", `${cw}px`);
+    el.style.setProperty("--pkz", (el.offsetWidth / cw).toFixed(4));
     S.shown.push(el);
     const last = k === S.cards.length - 1;
     if (S.pack) await pkOutOfPack(S, el);

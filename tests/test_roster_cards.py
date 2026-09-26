@@ -370,6 +370,41 @@ def test_the_first_card_comes_out_of_the_pack_and_the_light_takes_its_tier(brows
 
 
 @pytest.mark.render
+def test_the_tear_starts_under_the_finger_and_runs_its_way(browser, page_file):
+    ctx, page, errors = cards_page(browser, page_file, keep_stage=True)
+    if page.locator(".pk-stage").count() == 0:
+        pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
+    box = page.locator(".pk-stage .pack-seal").bounding_box()
+    y = box["y"] + 14
+    page.mouse.move(box["x"] + box["width"] * .6, y)
+    page.mouse.down()
+    page.mouse.move(box["x"] + box["width"] * .45, y)
+    page.mouse.move(box["x"] + box["width"] * .3, y)
+    got = page.evaluate("['--ta','--tb','--tdir'].map(k => parseFloat(getComputedStyle(document.querySelector('.pk-stage .pack-seal')).getPropertyValue(k)))")
+    page.mouse.up()
+    assert abs(got[0] - .3) < .03 and abs(got[1] - .6) < .03 and got[2] == -1
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_a_stage_card_is_its_roster_card_scaled_up_whole(browser, page_file):
+    ctx, page, errors = motion_page(browser, page_file)
+    try:
+        page.wait_for_selector(".pk-stage", timeout=2000)
+    except Exception:
+        pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
+    rip(page)
+    page.wait_for_function("document.querySelector('.pk-card .tc') && document.querySelector('.pk-msg').textContent.includes('#')", timeout=8000)
+    share = """(el => el.querySelector('.tc-art').getBoundingClientRect().height / el.getBoundingClientRect().height)"""
+    stage = page.evaluate(f"{share}(document.querySelector('.pk-card .tc'))")
+    roster = page.evaluate(f"{share}(document.querySelector('#view .cards .tc'))")
+    assert abs(stage - roster) < .02, f"the photo is {stage:.2f} of a stage card, {roster:.2f} of a roster card"
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
 def test_on_a_desktop_the_starters_are_three_by_three_with_the_bench_beside(browser, page_file):
     ctx, page, errors = cards_page(browser, page_file, viewport=(1400, 900))
     cols = page.evaluate("[...document.querySelectorAll('.cards .cardgrid')].map(g => getComputedStyle(g).gridTemplateColumns.split(' ').length)")

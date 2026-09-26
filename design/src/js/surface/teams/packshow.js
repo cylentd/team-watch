@@ -39,6 +39,7 @@ function packShow(team, wk){
   document.body.appendChild(st);
   document.body.classList.add("pk-open");
   const S = {st, team, wk, cards, ripped: false, skip: false, shown: [], best: cardTier(cards[cards.length - 1].rank)};
+  S.cw = () => document.querySelector("#view .cards .tc")?.offsetWidth || 114;   // a roster card's width, read when dealt
   S.key = e => { if (e.key === "Escape") pkQuit(S); };
   document.addEventListener("keydown", S.key);
   layerPush("pack", () => pkQuit(S, true));
