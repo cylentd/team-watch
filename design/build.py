@@ -34,6 +34,7 @@ from routes import live_routes, report as routes_report          # design/routes
 from archetype import (load_archetype, load_trenches, live_archetype, live_trenches,  # role/style labels + OL context
                        report_archetype, report_trenches)
 from startsit import live_startsit, report as startsit_report  # design/startsit.py: the Matchups view
+from mates import espn_rows, yahoo_rows, live_mates, slugs as mate_slugs, report as mates_report  # every team in both leagues
 from sources import (                                    # design/sources.py: the ff-jarvis adapter
     ROOT, REPO, DWR, FEED, ESPN_ROSTERS, YAHOO_ROSTERS, DFS_POOL,
     feed_block, read_first, load_status, load_props_raw, load_model_raw,
@@ -168,41 +169,26 @@ def live_espn(available):
     if not ESPN_ROSTERS.exists():
         return None
     d = json.loads(ESPN_ROSTERS.read_text(encoding="utf-8"))
+    return {"name": d["me"], "league": d["league"], "league_id": d["league_id"],
+            "updated": d["updated"], "roster": espn_rows(d["detail"][d["me"]], available, status_badge(), slugify)}
+
+
+def status_badge():
+    """(name, espn_status) -> "Q" | "OUT" | None. Sleeper wins whenever it has a record for this
+    player -- even a "healthy" read overrides a stale ESPN status. ESPN's own field only fills the
+    gap when Sleeper has no entry at all."""
     status = load_status()
-    me = d["me"]
-    out = []
-    flex = 0
-    for p in d["detail"][me]:
-        slot = p["slot"]
-        if slot == "FLEX":
-            flex += 1
-            slot = f"FLX{flex}"
-        elif slot == "BE":
-            slot = "BN"
-        elif slot == "IR":
-            # Injured reserve is a bench spot, not a lineup one: the page's "OUT" group, the same
-            # as Yahoo's (YAHOO_SLOT) and a connected league's (api/league.py). Passed through as
-            # "IR" it counted as a starter, and the lineup warning named him (2026-09-25).
-            slot = "OUT"
-        name = p["name"].replace(" D/ST", "")
-        slug = slugify(name)
-        # Sleeper wins whenever it has a record for this player -- even a "healthy" read overrides
-        # a stale ESPN status. ESPN's own field only fills the gap when Sleeper has no entry at all.
+
+    def badge(name, espn_status):
         rec = status.get(norm_name(name))
         if rec is not None:
-            badge = {"out": "OUT", "q": "Q"}.get(sleeper_flag(rec))
-        else:
-            badge = {"QUESTIONABLE": "Q", "OUT": "OUT"}.get(p.get("status") or "", None)
-        out.append({
-            "n": name,
-            "pos": "DST" if p["pos"] == "DEF" else p["pos"],
-            "team": p["team"],
-            "slot": slot,
-            "slug": slug if slug in available else None,
-            "status": badge,
-        })
-    return {"name": me, "league": d["league"], "league_id": d["league_id"],
-            "updated": d["updated"], "roster": out}
+            return {"out": "OUT", "q": "Q"}.get(sleeper_flag(rec))
+        return {"QUESTIONABLE": "Q", "OUT": "OUT"}.get(espn_status or "", None)
+    return badge
+
+
+def roster_file(path):
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
 
 
 def live_feed():
@@ -487,32 +473,15 @@ def roster_index(*sources):
     return idx
 
 
-# Yahoo's lineup slot names -> the ones the page uses. Anything else (QB, RB, WR, TE, K, BN) is
-# already the page's name.
-YAHOO_SLOT = {"W/R/T": "FLEX", "DEF": "DST", "D/ST": "DST", "IR": "OUT"}
-
-
 def live_yahoo(available):
     """Yahoo comes from a website scrape with no injury status. Since 2026-09 the scrape carries
-    each player's lineup slot, which is passed through; a scrape without one gives slot None, and
-    the template falls back to inferring the lineup."""
+    each player's lineup slot, which is passed through (mates.YAHOO_SLOT); a scrape without one
+    gives slot None, and the template falls back to inferring the lineup."""
     if not YAHOO_ROSTERS.exists():
         return None
     d = json.loads(YAHOO_ROSTERS.read_text(encoding="utf-8"))
-    me = d["me"]
-    out = []
-    for p in d["detail"][me]:
-        slug = slugify(p["name"])
-        slot = p.get("slot")
-        out.append({
-            "n": p["name"],
-            "pos": "DST" if p["pos"] in ("DEF", "D/ST") else p["pos"],
-            "team": p["team"],
-            "slot": YAHOO_SLOT.get(slot, slot),
-            "slug": slug if slug in available else None,
-        })
-    return {"name": me, "league": d["league"], "league_id": d["league_id"],
-            "updated": d["updated"], "roster": out}
+    return {"name": d["me"], "league": d["league"], "league_id": d["league_id"],
+            "updated": d["updated"], "roster": yahoo_rows(d["detail"][d["me"]], available, slugify)}
 
 
 def model_points():
@@ -633,7 +602,8 @@ def add_market_stock(blocks, report):
                   else "Market stock: none, so no market row")
     blocks["LIVE_SIGNALS"] = live_signals(FEED, DWR, (blocks["LIVE_ESPN"], blocks["LIVE_YAHOO"]), slugify)
     report += [signals_report(blocks["LIVE_SIGNALS"]), waiver_report(blocks["LIVE_WAIVER"]),
-               wire_report(blocks["LIVE_WIRE"]), pool_report(blocks["LIVE_POOL"]), usage_report(blocks["LIVE_USAGE"])]
+               wire_report(blocks["LIVE_WIRE"]), pool_report(blocks["LIVE_POOL"]), usage_report(blocks["LIVE_USAGE"]),
+               mates_report(blocks["LIVE_MATES"])]
 
 
 def report_sources(report, live, liveY, props, liveDfsYahoo, news, profiles, missing):
@@ -709,6 +679,7 @@ def render():
     available = {p.stem for p in HEADS_SRC.glob("*.webp")}
     live = live_espn(available)
     liveY = live_yahoo(available)
+    mates = live_mates(roster_file(ESPN_ROSTERS), roster_file(YAHOO_ROSTERS), available, status_badge(), slugify)
     liveDfsYahoo = live_dfs_yahoo(available)
     news = load_news(FEED, DWR)
 
@@ -718,7 +689,7 @@ def render():
     # Usage is deliberately not in wanted_slugs: the grid runs 80 rows a position and draws no
     # portrait, so inlining one per name would add megabytes for a column that does not exist.
     usage = live_usage(load_grid(FEED, DWR), slugify)
-    wanted = wanted_slugs(live, liveY, props, liveDfsYahoo, waiver, pool)
+    wanted = wanted_slugs(live, liveY, props, liveDfsYahoo, waiver, pool) + mate_slugs(mates)
     wanted_set = set(wanted)
 
     # Every head ff-jarvis has, not only the wanted ones: a connected league's players are read at
@@ -733,6 +704,7 @@ def render():
     blocks = {
         "LIVE_ESPN": live,
         "LIVE_YAHOO": liveY,
+        "LIVE_MATES": mates,
         "LIVE_FEED": live_feed(),
         "LIVE_NEWS": news,
         "LIVE_PROPS": props,

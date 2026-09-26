@@ -10,6 +10,12 @@
    {"name": "George Kittle", "pos": "TE", "team": "SF", "slot": "TE", "status": "ACTIVE", "id": 2},
    {"name": "Chase Brown", "pos": "RB", "team": "CIN", "slot": "FLEX", "status": "ACTIVE", "id": 3},
    {"name": "Tee Higgins", "pos": "WR", "team": "CIN", "slot": "BE", "status": "ACTIVE", "id": 4}
+  ],
+  "Run It Back": [
+   {"name": "Bijan Robinson", "pos": "RB", "team": "ATL", "slot": "RB", "status": "ACTIVE", "id": 101},
+   {"name": "Justin Jefferson", "pos": "WR", "team": "MIN", "slot": "WR", "status": "ACTIVE", "id": 102},
+   {"name": "Josh Allen", "pos": "QB", "team": "BUF", "slot": "QB", "status": "ACTIVE", "id": 103},
+   {"name": "Chuba Hubbard", "pos": "RB", "team": "CAR", "slot": "BE", "status": "ACTIVE", "id": 104}
   ]
  }
 }

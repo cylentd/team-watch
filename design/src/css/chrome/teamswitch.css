@@ -28,6 +28,16 @@
   transition:background .15s var(--ease),color .15s var(--ease),border-color .15s var(--ease);
 }
 .ts-item:last-child{border-bottom:0}
+/* 24 teams since 2026-09-25 (data/mates.js): the menu scrolls inside itself, a league's name
+   heads its twelve. */
+.ts-menu{max-height:min(62vh,460px);overflow-y:auto;overscroll-behavior:contain}
+.ts-head{position:sticky;top:0;z-index:1;padding:8px 13px 6px;background:var(--panel-3);
+  font-family:var(--ui);font-size:var(--t-1);font-weight:700;color:var(--ink-2);border-bottom:1px solid var(--line)}
+/* The first-visit nudge under the team's name, until the reader picks a team. */
+.ts-ask{appearance:none;background:none;border:0;padding:0;margin-top:6px;cursor:pointer;
+  font-family:var(--ui);font-size:var(--t-2);font-weight:600;color:var(--lime);
+  text-decoration:underline;text-underline-offset:3px}
+.ts-ask:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 .ts-discord{color:var(--discord);text-decoration:none;--tint:var(--discord)}
 .ts-item:hover{background:var(--panel-3);color:var(--ink);border-left-color:var(--tint)}
 .ts-item[aria-selected="true"]{color:var(--ink);background:rgb(var(--lime-rgb) / .06);border-left-color:var(--tint)}

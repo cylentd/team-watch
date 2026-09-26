@@ -3,7 +3,8 @@
    leaf, never the group, because every render branch asks "which view am I drawing" and none
    of them asks "which group" -- deriving the group from the leaf keeps one source of truth. */
 let SURFACE = "roster";
-let VIEW = "yahoo";
+/* The team on screen: the reader's own pick when they made one (data/mates.js), else David's. */
+let VIEW = myTeamLoad() || "yahoo";
 /* The leaf each group was last left on. Coming back to Scouting returns you to the view you
    were reading rather than resetting to Movers, which matters most for Grid: the week and
    position you had picked survive, so the tab is where you left it. */

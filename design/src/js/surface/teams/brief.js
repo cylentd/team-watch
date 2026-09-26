@@ -119,7 +119,7 @@ function briefMatchups(team, at){
 
 /* The wire: must-claims first, else what is worth a claim, with when the claims clear. */
 function briefWire(team){
-  if (team.connected || typeof waiverIn !== "function") return [];
+  if (notMine(team) || typeof waiverIn !== "function") return [];
   const must = waiverMustIn(team.key), worth = waiverIn(team.key).filter(([r]) => waiverTier(r, team.key) === "worth").length;
   if (!must && !worth) return [];
   const meta = waiverMeta()[team.key], when = meta ? waiverWhen(meta.clears || (WAIVER && WAIVER.clears)) : "";

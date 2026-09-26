@@ -79,6 +79,21 @@ A connected league has no Waivers tab: ff-jarvis builds the packet for David's l
 phone bookmark works because neither `espn_s2` nor `SWID` is HttpOnly (checked 2026-09-24). Yahoo
 sign-in is phase 2.
 
+## Leaguemates (2026-09-25)
+
+Every team in David's two leagues is on the page, so a leaguemate picks theirs from the team
+switch. Plan: https://claude.ai/artifact/NENnnTRYduCTAZEnG2r9ue. Decided 2026-09-25: anyone may
+pick any team, team names only (never an owner's), per-team waiver adds this season (phase 3).
+
+| Part | Where |
+|---|---|
+| All 24 rosters, rows shared with David's own | `design/mates.py` -> `LIVE_MATES` |
+| Added to `TEAMS` with `mate: true`; the pick, in `localStorage` `tw-team` | `js/data/mates.js` |
+| The menu, grouped by league; "Not your team? Pick yours" until a pick | `js/chrome/teamswitch.js` |
+
+`notMine(team)` (a leaguemate's or a connected league) hides Waivers and the brief's wire card.
+Search counts a leaguemate's players as "yours" only while their team is on screen.
+
 ## Waivers (sub-tab of My Teams, 2026-09-16)
 
 A Roster | Waivers toggle under the team name, not a sixth nav tab: waivers are per league like

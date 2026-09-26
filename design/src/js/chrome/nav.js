@@ -53,8 +53,9 @@ const navDefaultLeaf = () => navWaiverDay() ? "waivers" : "board";
 const navGroupOf = leaf => (NAV.find(([, tabs]) => tabs.includes(leaf)) || NAV[0])[0];
 function navTabsOf(group){
   const all = (NAV.find(([g]) => g === group) || NAV[0])[1];
-  // A connected league has no Waivers: ff-jarvis builds the packet for David's leagues only.
-  const tabs = TEAMS[VIEW] && TEAMS[VIEW].connected ? all.filter(k => k !== "waivers") : all;
+  // A connected league or a leaguemate's team has no Waivers: ff-jarvis builds the packet for
+  // David's two teams only (a leaguemate's is phase 3).
+  const tabs = notMine(TEAMS[VIEW]) ? all.filter(k => k !== "waivers") : all;
   return navWaiverDay() && tabs.includes("waivers") ? ["waivers", ...tabs.filter(k => k !== "waivers")] : tabs;
 }
 

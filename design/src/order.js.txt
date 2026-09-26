@@ -14,6 +14,7 @@ data/teams.js
 data/signals.js
 data/hydrate.js
 data/connect.js
+data/mates.js
 data/news.js
 data/stock.js
 data/waiver.js

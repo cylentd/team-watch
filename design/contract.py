@@ -57,6 +57,11 @@ CONTRACT = {
         "keys": ["name", "league", "updated", "roster"],
         "rows": ("roster", ["n", "pos", "team", "slot", "slug"]),
     },
+    # design/mates.py: every other team in both leagues, rows in LIVE_ESPN / LIVE_YAHOO's shape.
+    "LIVE_MATES": {
+        "keys": ["teams"],
+        "rows": ("teams", ["key", "league", "name", "roster"]),
+    },
     "LIVE_FEED": {
         "keys": ["generated", "steps", "usage_ready", "pool_size", "fetched"],
     },

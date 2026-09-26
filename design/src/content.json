@@ -119,6 +119,8 @@
  "chrome.fresh.tip": "This tab is showing an older build. Reload for the current one.",
  "chrome.fresh.week": "Week {week} ready ↻",
  "chrome.head.title": "Team Watch",
+ "chrome.teamswitch.ask": "Not your team? Pick yours",
+ "chrome.teamswitch.connected": "Leagues you added",
  "chrome.teamswitch.espn": "ESPN",
  "chrome.teamswitch.label": "{team}, switch team",
  "chrome.teamswitch.yahoo": "Yahoo",

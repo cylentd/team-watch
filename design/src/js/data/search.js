@@ -8,9 +8,12 @@ const SEARCH_TIER = {roster: 3, market: 2, grid: 1};
 let SEARCH_INDEX = null;
 
 /* [row, tier, league] for every player row the page holds, rosters first so a rostered player's
-   own row (slot, note) is the one the profile opens with. */
+   own row (slot, note) is the one the profile opens with. A leaguemate's team (data/mates.js)
+   counts as rostered only when it is the one on screen: the other 21 are not the reader's, and
+   their 240 players would all read as "on your team". A team switch drops the index (teamswitch.js). */
 function searchSources(){
-  const mine = Object.values(TEAMS).flatMap(tm => (tm.roster || []).map(p => [p, "roster", tm.key]));
+  const mine = Object.values(TEAMS).filter(tm => !tm.mate || tm.key === VIEW)
+    .flatMap(tm => (tm.roster || []).map(p => [p, "roster", tm.key]));
   const live = (on, rows) => on ? rows.map(p => [p, "market"]) : [];
   const grid = USAGE_LIVE ? [...USAGE.rows, ...((USAGE.sheet && USAGE.sheet.rows) || [])] : [];
   return [

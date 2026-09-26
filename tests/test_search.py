@@ -28,9 +28,25 @@ def slugs(page, q):
 def test_the_index_holds_each_player_once_and_every_rostered_one(page):
     dupes = page.evaluate("(() => { const s = searchIndex().map(e => e.slug); return s.length - new Set(s).size; })()")
     assert dupes == 0
-    missing = page.evaluate("""Object.values(TEAMS).flatMap(tm => tm.roster.map(p => [p.slug, tm.key]))
+    # A leaguemate's team is rostered only while it is on screen (data/search.js); a player with no
+    # headshot is indexed by his name's slug.
+    missing = page.evaluate("""Object.values(TEAMS).filter(tm => !tm.mate || tm.key === VIEW)
+        .flatMap(tm => tm.roster.map(p => [p.slug || slugOf(p.n), tm.key]))
         .filter(([s, k]) => !searchIndex().some(e => e.slug === s && e.tier === 3 && e.leagues.includes(k)))""")
     assert missing == []
+
+
+def test_a_leaguemates_players_are_yours_only_on_their_team(page):
+    mate = page.evaluate("(MATES[0] || {}).key")
+    if not mate:
+        pytest.skip("no leaguemate in the fixture")
+    tagged = lambda: page.evaluate(f"searchIndex().filter(e => e.leagues.includes('{mate}')).length")
+    assert tagged() == 0, "another team's players are not the reader's"
+    page.evaluate(f"VIEW = '{mate}'; SEARCH_INDEX = null")
+    try:
+        assert tagged() > 0, "the reader's own pick is"
+    finally:
+        page.evaluate("VIEW = 'yahoo'; SEARCH_INDEX = null")   # the page is shared with the tests after
 
 
 @pytest.mark.parametrize("q,first", [
