@@ -98,8 +98,10 @@ function chatDockHTML(){
 function renderChat(){
   const fab = document.getElementById("chatfab"), dock = document.getElementById("chatdock");
   const left = chatLeft();
-  fab.innerHTML = `${CHAT_GLYPH}<span class="chatcount ${left ? "" : "out"}">${left}</span>`;
+  fab.innerHTML = CHAT_GLYPH;
+  fab.classList.toggle("out", !left);
   fab.setAttribute("aria-label", t("chat.open"));
+  fab.title = t("chat.limit.left", {n: left, of: CHAT_DAILY});
   fab.setAttribute("aria-expanded", String(CHAT_OPEN));
   fab.classList.toggle("on", CHAT_OPEN);
   dock.classList.toggle("on", CHAT_OPEN);

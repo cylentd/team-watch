@@ -76,17 +76,15 @@ body:has(.search:not([hidden])) .chatfab{display:none}
 }
 .sr-none{padding:18px 16px;font-family:var(--ui);font-size:var(--t-3);color:var(--ink-2)}
 
-/* The nav bar's search slot on a desktop (2026-09-25): a field, not a tab, sat right against chat
-   at the row's end, the two reading as the bar's tools. The row spreads its children, so without
-   the auto margin search floated alone mid-way, a wide gap between it and chat. The phone's bar
-   draws both as icons (760.css). */
-.navsearch{margin-left:auto;align-self:center;min-width:240px;justify-content:space-between;gap:10px;
-  margin-top:6px;margin-bottom:6px;padding:6px 12px;border:1px solid var(--line-2);border-radius:8px;background:var(--void);
+/* The nav bar's search slot on a desktop (2026-09-25): a field, not a tab, opening the bar's
+   tools at the row's right end. The auto margin pushes it and everything after it right. The
+   phone's bar draws search and chat as icons (760.css). */
+.navsearch{margin-left:auto;align-self:center;min-width:200px;justify-content:space-between;gap:10px;
+  padding:6px 10px 6px 12px;border:1px solid var(--line-2);border-radius:8px;background:var(--panel);
   font-family:var(--ui);font-weight:500;font-size:var(--t-2);text-transform:none;letter-spacing:0;color:var(--ink-3)}
-.navsearch:hover{border-color:var(--ink-3);background:var(--void);color:var(--ink-2)}
-.navsearch .ix{width:16px;height:16px}
+.navsearch:hover{border-color:var(--ink-3);color:var(--ink-2)}
+.navsearch .ix{display:inline-flex;width:16px;height:16px}
 .navsearch .full{flex:1;text-align:left}
-.navsearch + .chatfab{border-left:0;margin-left:4px}
 .navkbd{
   font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink-3);
   border:1px solid var(--line-2);border-radius:3px;padding:1px 6px;

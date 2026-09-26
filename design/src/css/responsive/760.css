@@ -1,18 +1,19 @@
 @media (max-width:760px){
   .wrap{padding:0 14px}
-  /* No brand row on a phone (2026-09-24): an app's name does not sit above its own tabs. The row
-     comes back for one reason only, a newer build on main -- then its DATA pill is the reload
-     control (fresh.js), and it scrolls away with the page. The status badge beside it only ever
-     repeated what the view's own rows already show, so a phone drops it for good. */
-  .topbar{position:static}
-  .topbar:not(:has(.status-btn.stale)){display:none}
-  .topbar .brand{display:none}
-  .topbar-in{height:48px;gap:10px}
-  #topbadge{display:none}
-  .brand-name{font-size:var(--t-3)}
-  .discordlink{display:none}
-  .topbar .pill .full{display:none}
-  .topbar .pill .abbr{display:inline}
+  /* No brand on a phone (2026-09-24): an app's name does not sit beside its own tabs, and the
+     row has room for four words and two icons. Discord moves into the team switch's menu
+     (teamswitch.js); the status badge only ever repeated what the view's rows already show. */
+  .navbar .brand,.discordlink,#topbadge{display:none}
+  /* The week pill shows for one reason only, a newer build on main: then it is the reload
+     control (fresh.js), and it floats over the bottom edge where the thumb is. The bar stays put
+     while it does, since a moved bar would carry a fixed child with it. */
+  .statuswrap{display:none}
+  .statuswrap:has(.status-btn.stale){display:block;position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));
+    transform:translateX(-50%);z-index:45;margin:0}
+  .statuswrap .status-btn.stale{background:var(--panel-2);padding:9px 14px;border-radius:99px;
+    box-shadow:0 8px 24px rgb(var(--shadow-rgb) / .5)}
+  .statuswrap .status-menu{top:auto;bottom:calc(100% + 6px)}
+  body:has(.status-btn.stale) .navbar{transform:none!important}
 
   /* The nav is at the top on a phone since 2026-09-24. The bottom bar reached a thumb, but it
      read as a second app's chrome stacked under this one, and with Parlay's and DFS's own
@@ -30,12 +31,8 @@
     font-family:var(--disp);font-weight:700;font-size:var(--t-4);text-transform:none;letter-spacing:-.01em;
     color:var(--ink-3);
   }
-  .navitem:first-child{border-left:0}
-  .navitem:hover{background:none}
-  .navitem .ix{display:none}
   .navitem .full{display:none}
   .navitem .abbr{display:inline}
-  .navitem[aria-current="true"]{background:none;color:var(--ink)}
   .navitem[aria-current="true"]::after{display:none}
   .navsearch,.chatfab{flex:none;width:44px;padding:0;justify-content:center;color:var(--ink-2)}
   .navsearch{min-width:0;margin:0;border:0;border-radius:0;background:none;align-self:stretch}
@@ -45,18 +42,8 @@
   .navsearch .full,.navsearch .abbr,.navkbd{display:none}
 
   /* The group's views: underline tabs, sticky under the groups, and away with them. */
-  .subnav{
-    position:sticky;top:var(--nav-h);z-index:38;
-    background:var(--void);padding:0;border-bottom:1px solid var(--line);
-    transition:transform .28s var(--ease);
-  }
-  .subnav .modes-sub{margin:0!important;gap:20px;border:0;background:none;padding:0}
-  .subnav .mode-sub{
-    background:none;border:0;border-radius:0;padding:10px 0 11px;min-height:0;
-    font-family:var(--ui);font-size:var(--t-2);font-weight:600;letter-spacing:0;text-transform:none;
-    color:var(--ink-3);box-shadow:inset 0 -2px 0 transparent;
-  }
-  .subnav .mode-sub[aria-pressed="true"]{color:var(--ink);background:none;box-shadow:inset 0 -2px 0 var(--lime)}
+  .subnav{position:sticky;top:var(--nav-h);z-index:38;transition:transform .28s var(--ease)}
+  .subnav .modes-sub{gap:20px;padding:0}
   body.hdr-away .navbar{transform:translateY(-100%)}
   body.hdr-away .subnav{transform:translateY(calc(-100% - var(--nav-h)))}
 

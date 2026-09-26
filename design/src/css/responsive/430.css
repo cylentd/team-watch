@@ -1,8 +1,6 @@
 @media (max-width:430px){ .dfs{grid-template-columns:minmax(0,1fr)} }
 /* The profile panel keeps 16px gutters on a phone; the zone bars give up label width first. */
 @media (max-width:430px){
-  /* The two topbar pills at 12px: tighter tracking keeps "DATA 5/5" on one line at 390px. */
-  .topbar .pill,.topbar .status-btn{letter-spacing:.02em;padding-left:6px;padding-right:6px}
   .pf-body{padding:0 16px 24px}
   .pf-head{padding-left:16px;padding-right:16px}
   /* The head at phone width: a smaller name and headshot, so the sheet starts above the fold. */

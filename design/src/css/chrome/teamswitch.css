@@ -28,6 +28,7 @@
   transition:background .15s var(--ease),color .15s var(--ease),border-color .15s var(--ease);
 }
 .ts-item:last-child{border-bottom:0}
+.ts-discord{color:var(--discord);text-decoration:none;--tint:var(--discord)}
 .ts-item:hover{background:var(--panel-3);color:var(--ink);border-left-color:var(--tint)}
 .ts-item[aria-selected="true"]{color:var(--ink);background:rgb(var(--lime-rgb) / .06);border-left-color:var(--tint)}
 

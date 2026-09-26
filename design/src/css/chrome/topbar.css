@@ -1,30 +1,22 @@
-/* ============================== TOP BAR ============================== */
-.topbar{
-  position:sticky; top:0; z-index:40;
-  background:var(--void);
-  border-bottom:1px solid var(--line);
-}
-.topbar-in{
-  display:flex; align-items:center; gap:18px; height:58px;
-}
-.brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.brand-mark{
-  width:11px;height:22px;background:var(--lime);
-  box-shadow:0 0 18px rgb(var(--lime-rgb) / .5);
-}
-/* The mark stands still (2026-09-25, STYLE.md motion rule 1): it pulsed forever on every page,
-   the one thing moving that nobody asked to move. */
+/* ============================== BAR: BRAND, PILLS, DISCORD ============================== */
+/* The brand row went on 2026-09-25: brand, groups and tools share one bar (nav.css). This file
+   keeps what the brand row carried -- the mark, the pills and the Discord link. */
+.brand{display:flex;align-items:center;gap:9px;flex-shrink:0;margin-right:14px}
+.brand-mark{width:9px;height:19px;background:var(--lime)}
+/* The mark stands still (2026-09-25, STYLE.md motion rule 1), and lost its glow the same day:
+   the lime block already says "brand", and the halo said it again. */
 .brand-name{
-  font-family:var(--disp); font-weight:800; font-size:var(--t-4);
-  letter-spacing:-.02em; text-transform:uppercase;
+  font-family:var(--disp); font-weight:800; font-size:var(--t-3);
+  letter-spacing:-.02em; text-transform:uppercase; white-space:nowrap;
 }
 .brand-name i{color:var(--lime);font-style:normal}
-.topbar-spacer{flex:1}
-.discordlink{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;
-  flex-shrink:0;border:1px solid var(--line-2);border-radius:3px;color:var(--ink-2);
-  transition:color .2s var(--ease),border-color .2s var(--ease),background .2s var(--ease)}
-.discordlink svg{width:16px;height:16px}
-.discordlink:hover{color:var(--discord);border-color:var(--discord);background:rgb(var(--discord-rgb) / .08)}
+/* Discord's own colour at rest: it is a way out of the page, not a disabled control. Grey read
+   as "off" (2026-09-25). */
+.discordlink{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;
+  flex-shrink:0;border-radius:8px;color:var(--discord);
+  transition:background .2s var(--ease)}
+.discordlink svg{width:19px;height:19px}
+.discordlink:hover{background:rgb(var(--discord-rgb) / .12)}
 .pill{
   display:inline-flex;align-items:center;gap:7px;
   font-family:var(--mono);font-size:var(--t-1);letter-spacing:.14em;text-transform:uppercase;
@@ -35,4 +27,3 @@
 .pill.live{border-color:rgb(var(--lime-rgb) / .35);color:var(--lime);background:rgb(var(--lime-rgb) / .06)}
 .pill[hidden]{display:none}
 .dot{width:5px;height:5px;border-radius:99px;background:currentColor}
-

@@ -11,6 +11,13 @@
 @property --mx{syntax:"<percentage>";inherits:true;initial-value:50%}
 @property --my{syntax:"<percentage>";inherits:true;initial-value:50%}
 .rmode{margin:12px 0 0}
+/* Sheet / Cards is a view switch sitting right under the bar, so it wears the bar's language at
+   every width (2026-09-25): sentence-case words, the picked one filled. It was the boxed mono chip
+   on a desktop, the one all-caps control left between the bar and the lineup. */
+.rmode .chip{border-radius:999px;border-color:transparent;background:var(--panel-2);color:var(--ink-2);
+  font-family:var(--ui);font-size:var(--t-2);font-weight:500;letter-spacing:0;text-transform:none;padding:7px 14px}
+.rmode .chip:hover{border-color:transparent;color:var(--ink)}
+.rmode .chip[aria-pressed="true"]{background:var(--ink);color:var(--void);border-color:transparent}
 .cards-col.bench{margin-top:6px}
 .cardgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}
 .tc{--rx:0deg;--ry:0deg;--frame:var(--line-2);--th:52px;

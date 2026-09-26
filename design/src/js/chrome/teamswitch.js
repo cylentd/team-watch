@@ -26,8 +26,17 @@ function teamSwitchHTML(){
     <div class="ts-menu" data-tsmenu role="listbox" hidden>
       ${cells.map(c=>`<button class="ts-item" role="option" data-k="${esc(c.k)}" style="--tint:${c.tint}" aria-selected="${c.k===VIEW}">${c.plat} · ${esc(c.team)}</button>`).join("")}
       <button class="ts-item ts-add" data-tsadd>${t("connect.add")}</button>
+      ${discordItemHTML()}
     </div>
   </div>`;
+}
+/* A phone hides the bar's Discord link (760.css), and this menu is the one every reader opens.
+   The address is read from the bar's link, so the invite lives in shell.html only. The item is
+   drawn on every screen; a desktop simply has a second way in. */
+function discordItemHTML(){
+  const a = document.querySelector(".discordlink");
+  if (!a) return "";
+  return `<a class="ts-item ts-discord" href="${esc(a.href)}" target="_blank" rel="noopener noreferrer">${t("chrome.discord.join")}</a>`;
 }
 function wireTeamSwitch(v){
   const sw = v.querySelector("#switch");

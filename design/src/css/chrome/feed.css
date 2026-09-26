@@ -1,8 +1,10 @@
 /* ============================== FEED STATUS ============================== */
-.statuswrap{position:relative}
+/* No box at rest (2026-09-25): the week is a reading, not a control, and a border made it look
+   like one. The border comes back only when it becomes one (.stale). */
+.statuswrap{position:relative;margin:0 4px}
 .status-btn{
   display:inline-flex;align-items:center;gap:7px;appearance:none;cursor:pointer;
-  background:none;border:1px solid var(--line-2);border-radius:2px;padding:5px 10px;
+  background:none;border:1px solid transparent;border-radius:2px;padding:5px 8px;
   font-family:var(--mono);font-size:var(--t-1);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);
   transition:border-color .2s var(--ease),background .2s var(--ease);
 }
