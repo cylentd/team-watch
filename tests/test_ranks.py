@@ -53,6 +53,54 @@ def test_rows_carry_the_card_rank_and_skip_the_out():
     assert r["flex"][2]["rank"] == 1, "a FLEX row keeps its position rank"
 
 
+def test_one_week_only_and_the_teams_left_off_are_named():
+    """ATL played Thursday, so the file's number for Bijan Robinson is already week 4's
+    (2026-09-26). He must not lead week 3's list, and the list must say why ATL is missing."""
+    raw = {"scoring": "half-PPR", "players": [
+        {"name": "Bijan Robinson", "pos": "RB", "team": "ATL", "opp": "NO", "game": "ATL @ NO",
+         "kickoff": "2026-10-06 00:15:00", "pts": 19.7, "injury": None, "mu": {"RUSH": 97.5, "TD": .8}},
+        {"name": "Jahmyr Gibbs", "pos": "RB", "team": "DET", "opp": "NYJ", "game": "NYJ @ DET",
+         "kickoff": "2026-09-27 17:00:00", "pts": 18.8, "injury": "Questionable", "mu": {"RUSH": 76, "REC": 41, "RECS": 4.5, "TD": .8}},
+        {"name": "Derrick Henry", "pos": "RB", "team": "BAL", "opp": "DAL", "game": "BAL @ DAL",
+         "kickoff": "2026-09-27 20:25:00", "pts": 17.9, "injury": None, "mu": None},
+    ]}
+    schedule = {"games": [
+        {"week": 4, "away": "ATL", "home": "NO", "kickoff": "2026-10-06T00:15:00Z"},
+        {"week": 3, "away": "NYJ", "home": "DET", "kickoff": "2026-09-27T17:00:00Z"},
+        {"week": 3, "away": "BAL", "home": "DAL", "kickoff": "2026-09-27T20:25:00Z"},
+    ]}
+    r = live_ranks(raw, slug, None, schedule)
+    assert r["week"] == 3 and r["off"] == ["ATL"]
+    assert [(x["slug"], x["rank"]) for x in r["rows"]] == [("jahmyr-gibbs", 1), ("derrick-henry", 2)]
+    gibbs = r["rows"][0]
+    assert gibbs["kick"] == "2026-09-27T17:00:00Z" and gibbs["inj"] == "Q"
+    assert gibbs["mu"] == {"RUSH": 76, "REC": 41, "RECS": 4.5, "TD": .8}
+
+
+def test_the_cards_take_the_same_week_cut():
+    """The roster cards read LIVE_PROJECTIONS, and a Thursday team's row is next week's there too:
+    no points, no rank, and `done` says whether his team played or has a bye."""
+    from projections import live_projections
+    raw = {"scoring": "half-PPR", "players": [
+        {"name": "Bijan Robinson", "pos": "RB", "team": "ATL", "kickoff": "2026-10-06 00:15:00", "pts": 19.7, "src": "model"},
+        {"name": "Bye Back", "pos": "RB", "team": "SEA", "kickoff": "2026-10-04 17:00:00", "pts": 18.0, "src": "model"},
+        {"name": "Jahmyr Gibbs", "pos": "RB", "team": "DET", "kickoff": "2026-09-27 17:00:00", "pts": 18.8, "src": "model"},
+    ]}
+    schedule = {"games": [
+        {"week": 3, "away": "ATL", "home": "GB", "kickoff": "2026-09-25T00:15:00Z"},
+        {"week": 3, "away": "NYJ", "home": "DET", "kickoff": "2026-09-27T17:00:00Z"},
+        {"week": 4, "away": "ATL", "home": "NO", "kickoff": "2026-10-06T00:15:00Z"},
+        {"week": 4, "away": "SEA", "home": "LAR", "kickoff": "2026-10-04T17:00:00Z"},
+    ]}
+    wanted = {"bijan-robinson", "bye-back", "jahmyr-gibbs"}
+    # Gibbs alone is in week 3 here, so weigh the vote with two more DET rows the cut ignores.
+    raw["players"] += [{"name": f"Det {i}", "pos": "WR", "team": "DET", "kickoff": "2026-09-27 17:00:00", "pts": 5.0} for i in range(2)]
+    p = live_projections(raw, slug, wanted, None, schedule)["players"]
+    assert (p["bijan-robinson"]["done"], p["bijan-robinson"]["pts"], p["bijan-robinson"]["rank"]) == ("played", None, None)
+    assert p["bye-back"]["done"] == "bye"
+    assert (p["jahmyr-gibbs"]["done"], p["jahmyr-gibbs"]["rank"]) == (None, 1)
+
+
 def test_no_projections_is_no_block():
     assert live_ranks({}, slug) is None
 
@@ -69,8 +117,13 @@ def test_ranks_draws_tiers_and_opens_a_profile(browser, page_file):
     try:
         page.goto(page_file.as_uri() + "#ranks")
         page.wait_for_function("document.querySelectorAll('.rk-row').length > 0")
-        tiers = page.evaluate("[...document.querySelectorAll('.rk-tier')].map(e => e.textContent.trim())")
+        tiers = page.evaluate("[...document.querySelectorAll('.rk-tier b')].map(e => e.textContent.trim())")
         assert tiers and tiers[0].upper() == "TIER 1"
+        # Only the reader's own players are his: a leaguemate's roster is not (2026-09-26, when
+        # the leaguemate rosters landed every rostered player read MINE).
+        mine = page.evaluate("[...document.querySelectorAll('.rk-row.mine')].map(e => e.dataset.rkopen)")
+        own = page.evaluate("[...new Set(Object.values(TEAMS).filter(t => !t.mate).flatMap(t => t.roster.map(p => p.slug)))]")
+        assert set(mine) <= set(own), set(mine) - set(own)
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
         page.locator("[data-rkpos='FLEX']").click()
         assert page.locator(".rk-pos").count() > 0, "FLEX rows say the position and its rank"

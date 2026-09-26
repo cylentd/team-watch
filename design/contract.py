@@ -13,6 +13,8 @@ sample -- but a block that is present must be whole. Null values are fine; absen
 # "unknown" (the scrape could not tell) is a real answer, and the card says so rather than
 # guessing FA (data/waiver.js waiverListed). A league's `lane` is why that league's screen listed
 # him (usage, role, open, insure, starter, injured), null where it did not (waiver.py _set_lane).
+# design/ranks.py: one row of Players > Ranks. `home`, `kick`, `inj` and `mu` may be null.
+RANK_ROW = ["slug", "n", "pos", "team", "opp", "home", "kick", "inj", "mu", "pts", "rank", "tier"]
 WAIVER_ROW = ["n", "slug", "pos", "team", "opp", "home", "tier", "weeks", "injury", "injury_note",
               "practice", "news_latest", "news_count", "leagues", "summary"]
 # One league's view of a candidate (waiver.py `_league`). `verdict` and `drop` may be null; when
@@ -178,14 +180,14 @@ CONTRACT = {
     # page can show. `mu` is the component means (PASS/RUSH/TD/...), read as-is off the source.
     "LIVE_PROJECTIONS": {
         "keys": ["players"],
-        "map": ("players", ["pts", "mu", "games", "src", "rank", "of", "out"]),
+        "map": ("players", ["pts", "mu", "games", "src", "rank", "of", "out", "done"]),
     },
     # design/ranks.py: Players > Ranks. Every position's list in `rows`, RB/WR/TE together in
-    # `flex`, each tiered by natural breaks. `home` may be null (a game string with no "@").
+    # `flex`, each tiered by natural breaks, one week only: `week` is null with no schedule, and
+    # `off` lists the teams whose next game is a later week (a Thursday game already played, a bye).
     "LIVE_RANKS": {
-        "keys": ["scoring", "through", "rows", "flex"],
-        "rows": [("rows", ["slug", "n", "pos", "team", "opp", "home", "pts", "rank", "tier"]),
-                 ("flex", ["slug", "n", "pos", "team", "opp", "home", "pts", "rank", "tier"])],
+        "keys": ["scoring", "week", "off", "rows", "flex"],
+        "rows": [("rows", RANK_ROW), ("flex", RANK_ROW)],
     },
     # design/signed.py: page players who finished top 3 at their position in the last completed
     # week. The card's autograph.

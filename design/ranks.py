@@ -1,9 +1,9 @@
 """LIVE_RANKS: this week's ranking at each position, and a FLEX ranking, each split into tiers
 (2026-09-26). Players > Ranks draws it (js/surface/ranks/).
 
-The rank is the one the roster cards already use (projections.position_ranks over ff-jarvis's
-`model.market.projections`, half-PPR, a player Sleeper lists as not playing left out), so a
-player is the same number on his card and in the list.
+The points are ff-jarvis's `model.market.projections` (half-PPR); a player Sleeper lists as not
+playing is left out, as the roster cards leave him out. The rank is his place in this week's list,
+so it can differ from his card's while a Thursday team's week-4 number still sits in the file.
 
 Tiers are natural breaks in projected points: the split of the list into k groups that keeps
 each group's points closest together (optimal 1-D k-means, exact by dynamic programming). A tier
@@ -13,7 +13,7 @@ as his are. A plain "break where the drop is large" rule was tried on week 3 and
 
 Self-contained like the other cuts: the raw block, slugify and the out-list come in as arguments.
 """
-from projections import position_ranks, unavailable
+from projections import kick_iso, slate, unavailable
 
 # How deep each list goes, and how many tiers it is split into.
 DEPTH = {"QB": (32, 8), "RB": (60, 12), "WR": (72, 14), "TE": (32, 8), "FLEX": (100, 16)}
@@ -73,32 +73,56 @@ def _home(p):
     return True if home == team else False if away == team else None
 
 
-def live_ranks(raw, slugify, status=None):
-    """LIVE_RANKS: {scoring, through, rows, flex}, or None when ff-jarvis has not written the file.
-    Both are lists of {slug, n, pos, team, opp, home, pts, rank, tier}, best first: `rows` holds
-    every position's list one after another, each tiered on its own; `flex` is RB/WR/TE together,
-    tiered together. `rank` is the position rank (the card's), on a FLEX row too; a FLEX row's
-    place is its index."""
+INJ = {"Questionable": "Q", "Doubtful": "D"}   # the ones who still play often enough to rank
+
+
+def _makeup(mu, pos):
+    """What the points are made of, as the producer's own means: passing and rushing yards for a
+    QB (his TD mean is rushing only, so it is left off), else rushing and receiving yards,
+    catches and touchdowns. Rounded for reading; null when the producer gave none."""
+    mu = mu or {}
+    keys = ("PASS", "RUSH") if pos == "QB" else ("RUSH", "REC", "RECS", "TD")
+    out = {k: round(mu[k], 1) for k in keys if isinstance(mu.get(k), (int, float))}
+    return out or None
+
+
+def live_ranks(raw, slugify, status=None, schedule=None):
+    """LIVE_RANKS: {scoring, week, off, rows, flex}, or None when ff-jarvis has not written the file.
+    Both lists hold {slug, n, pos, team, opp, home, kick, inj, mu, pts, rank, tier}, best first:
+    `rows` is every position's list one after another, each tiered on its own; `flex` is RB/WR/TE
+    together, tiered together. `rank` is the place at the position in this week's list, on a FLEX
+    row too; a FLEX row's own place is its index.
+
+    One week only (projections.slate, the same cut the roster cards take): a team whose next game
+    is a later week -- a Thursday game already played, a bye -- is left off and named in `off`."""
     players = (raw or {}).get("players") or []
     if not players:
         return None
     gone = unavailable(status, slugify)
-    ranks = position_ranks(players, slugify, gone)
+    week, done = slate(players, slugify, schedule)
     rows = {}
     for p in players:
         slug = slugify(p.get("name") or "")
-        if slug not in ranks or p.get("pts") is None:
+        if not slug or slug in gone or p.get("pts") is None or p.get("pos") not in ("QB", "RB", "WR", "TE"):
             continue
         prev = rows.get(slug)
         if prev is None or p["pts"] > prev["pts"]:
             rows[slug] = {"slug": slug, "n": p.get("name"), "pos": p.get("pos"), "team": p.get("team"),
-                          "opp": p.get("opp"), "home": _home(p), "pts": round(p["pts"], 2),
-                          "rank": ranks[slug][0], "tier": None}
-    lists = {}
+                          "opp": p.get("opp"), "home": _home(p), "kick": kick_iso(p), "inj": INJ.get(p.get("injury")),
+                          "mu": _makeup(p.get("mu"), p.get("pos")), "pts": round(p["pts"], 2), "rank": None, "tier": None}
+    off = sorted({rows[s]["team"] for s in done if s in rows})
+    live = [r for r in rows.values() if r["slug"] not in done]
+    lists, place = {}, {}
     for pos, (depth, k) in DEPTH.items():
         want = FLEX if pos == "FLEX" else (pos,)
-        top = sorted((r for r in rows.values() if r["pos"] in want), key=lambda r: (-r["pts"], r["slug"]))[:depth]
+        ordered = sorted((r for r in live if r["pos"] in want), key=lambda r: (-r["pts"], r["slug"]))
+        if pos != "FLEX":
+            place.update({r["slug"]: i + 1 for i, r in enumerate(ordered)})
+        top = ordered[:depth]
         tiers = natural_breaks([r["pts"] for r in top], k)
         lists[pos] = [{**r, "tier": t} for r, t in zip(top, tiers)]
-    return {"scoring": raw.get("scoring"), "through": raw.get("through"),
+    for rs in lists.values():
+        for r in rs:
+            r["rank"] = place[r["slug"]]
+    return {"scoring": raw.get("scoring"), "week": week, "off": off,
             "rows": [r for pos in DEPTH if pos != "FLEX" for r in lists[pos]], "flex": lists["FLEX"]}

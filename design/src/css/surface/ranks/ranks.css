@@ -1,28 +1,49 @@
 /* ============================== RANKS ============================== */
-/* Players > Ranks (js/surface/ranks/ranks.js, 2026-09-26). One list on one panel: a tier line,
-   then its rows. Rows are 44px, no photo, so a 360x740 phone shows about a dozen players under the
-   one control row. The tier line is a quiet mono label with a hairline: it marks a drop, it is not
-   a heading to read. Your player is named in lime, the Board's "pick" colour. */
-.rk-list{margin-top:12px;max-width:760px;border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden}
-.rk-tier{display:flex;align-items:center;gap:10px;padding:8px 16px 4px;
-  font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
-.rk-tier i{flex:1;height:1px;background:var(--line-2)}
-.rk-tier:not(:first-child){margin-top:4px;border-top:1px solid var(--line)}
+/* Players > Ranks (js/surface/ranks/ranks.js, 2026-09-26). Each tier is its own panel: its label
+   and points range on top, then its rows, and a gap before the next, so the list needs no rule
+   between rows or tiers (a hairline per row, a rule per tier and a hairline inside each tier label
+   read as six kinds of line on 2026-09-26). The tier label's fill steps down from lime at Tier 1
+   (--k, 0 at the top tier to 1 at the last), so how high a tier sits reads first.
+   Your player is named in lime, the Board's "pick" colour. */
+.rk-headline{margin:14px 0 0}
+.rk-headline h2{margin:0;font-family:var(--disp);font-size:var(--t-4);font-weight:800;color:var(--ink)}
+.rk-headline p{margin:2px 0 0;font-size:var(--t-1);color:var(--ink-3);max-width:70ch}
+.rk-list{display:grid;gap:10px;margin-top:12px}
+.rk-group{border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden;padding-bottom:4px}
+.rk-tier{display:flex;align-items:center;gap:10px;padding:10px 16px 6px}
+/* --tier-c runs lime -> the quiet grey; the top three tiers step fast (sqrt), so Tier 1, 2 and 3
+   of twelve still read apart. Filled at Tier 1 only, the rest outlined in their own shade. */
+.rk-group{--tier-c:color-mix(in oklab, var(--lime) calc((1 - sqrt(var(--k))) * 100%), var(--ink-3))}
+.rk-tier b{padding:2px 9px;border-radius:999px;border:1px solid var(--tier-c);font-family:var(--mono);font-size:var(--t-1);font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--tier-c)}
+.rk-group:first-child .rk-tier b{background:var(--lime);border-color:var(--lime);color:var(--void)}
+.rk-tier span{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);font-variant-numeric:tabular-nums}
 .rk-row{appearance:none;border:0;background:none;color:inherit;font:inherit;cursor:pointer;text-align:left;
-  display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:center;
-  width:100%;min-height:44px;padding:5px 16px}
-.rk-row + .rk-row{border-top:1px solid var(--line)}
+  display:grid;grid-template-columns:24px 34px minmax(0,1fr) auto;gap:10px;align-items:center;
+  width:100%;min-height:48px;padding:4px 16px}
 .rk-row:hover{background:var(--panel-2)}
 .rk-row:active{transform:scale(var(--press))}
 .rk-row:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
 .rk-n{font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink-3);font-variant-numeric:tabular-nums;text-align:right}
+/* grid-template pins the one track to the box; see .xf-head in pool.css for the 150px strip it prevents. */
+.rk-face{width:34px;height:34px;border-radius:50%;overflow:hidden;background:var(--panel-3);display:grid;grid-template:100% / 100%;place-items:center}
+.rk-face img{width:100%;height:100%;object-fit:cover;object-position:top}
+.rk-face .fallback{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
 .rk-who{display:grid;min-width:0}
 .rk-nm{font-size:var(--t-2);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rk-game{display:flex;align-items:center;gap:6px;font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
+.rk-game{display:flex;align-items:center;gap:6px;min-width:0;font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
+.rk-game > span{overflow:hidden;text-overflow:ellipsis}
 .rk-pos{font-family:var(--mono);font-weight:700;color:var(--ink-2)}
+.rk-mu{display:none;font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
 .rk-pts{font-family:var(--mono);font-size:var(--t-3);font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink)}
 .rk-row.mine .rk-nm{color:var(--lime)}
 .rk-mine{margin-left:6px;font-style:normal;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.1em;color:var(--lime)}
-.rk-inj{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.04em;color:var(--amber)}
+.rk-inj{flex:none;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.04em;color:var(--amber)}
 .rk-inj.d{color:var(--down)}
-.rk-foot{max-width:760px}
+/* A desktop has the width for what the points are made of, between the name and the number. */
+@media (min-width:760px){
+  .rk-row{grid-template-columns:28px 34px minmax(200px,280px) minmax(0,1fr) 56px;gap:14px;padding:4px 20px}
+  .rk-mu{display:block}
+  .rk-pts{text-align:right}
+  .rk-tier{padding:12px 20px 6px}
+}

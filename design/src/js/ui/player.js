@@ -85,6 +85,15 @@ function projOut(p){
   const proj = LIVE_PROJECTIONS.players[p.slug];
   return proj && proj.out ? proj.out : null;
 }
+/* "played" or "bye" when his projected game is a later week (design/projections.py slate): a
+   Thursday game already over, or no game this week. The page says which, never next week's
+   number, and he has no rank this week. */
+function projDone(p){
+  if (typeof LIVE_PROJECTIONS === "undefined" || !LIVE_PROJECTIONS) return null;
+  const proj = LIVE_PROJECTIONS.players[p.slug];
+  return proj && proj.done ? proj.done : null;
+}
+const projDoneWord = d => d === "played" ? t("teams.card.played") : t("teams.card.bye");
 
 /* Is he hurt this week: {s: "OUT" / "D" / "Q", code, note} from Sleeper (LIVE_INJURY,
    design/injury.py), or null. A player Sleeper has no row for falls back to his league's own flag,
@@ -116,6 +125,7 @@ function projNumHTML(p){
   const pts = projFor(p);
   if (pts === null) return projOut(p)
     ? `<div class="rproj none out" title="${t("teams.card.outTip", {code: esc(projOut(p))})}">${t("teams.card.out")}</div>`
+    : projDone(p) ? `<div class="rproj none">${projDoneWord(projDone(p))}</div>`
     : `<div class="rproj none">—</div>`;
   const td = tdChanceFor(p);
   const chip = td !== null && td >= TD_SHOW
