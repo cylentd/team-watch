@@ -11,15 +11,6 @@
 
 .stpanel{background:var(--panel);border:1px solid var(--line);padding:12px;display:flex;flex-direction:column;gap:10px}
 
-/* the drive chart. One chip per drive, saying how it ended, because that is what a reader scans a
-   drive chart for. Eighteen of them never fit, so the row scrolls sideways at every width rather
-   than wrapping into a block that pushes the field off the screen. */
-.stdrives{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;scrollbar-width:none}
-.stdrives button{flex:none;font:500 11px var(--mono);color:var(--ink-2);background:var(--panel-2);
-  border:1px solid var(--line);padding:4px 9px;cursor:pointer;white-space:nowrap}
-.stdrives button:hover{border-color:var(--lime);color:var(--lime)}
-.stdrives button[aria-selected="true"]{background:var(--lime);color:var(--on-lime);border-color:var(--lime)}
-
 .stwait,.sterr{margin:0;padding:24px 4px;font:400 13px var(--mono);color:var(--ink-3);text-align:center}
 .sterr{color:var(--amber)}
 

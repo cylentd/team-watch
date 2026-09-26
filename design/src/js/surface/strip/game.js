@@ -58,8 +58,9 @@ async function stLive(event){
   return payload;
 }
 
-/* Draw one game into `host`, opened at `name`'s last drive (his full name as this page spells it;
-   left out, the drive being played). Returns the mounted controller, or null when the game could
+/* Draw one game into `host`, with `name` (his full name as this page spells it) as the player the
+   reel can narrow to. `data.names` supplies the play texts' spelling of him ("J. Allen"); the
+   page never reduces a name itself. Returns the mounted controller, or null when the game could
    not be had -- the host then holds the reason, in the endpoint's own words. */
 async function stripOpenGame(host, game, name){
   host.classList.add("stpanel");
@@ -72,23 +73,11 @@ async function stripOpenGame(host, game, name){
   }
   try {
     const data = await stGame(game);
-    return stripMount(host, data, stDriveOf(data, (data.names || {})[name]));
+    return stripMount(host, data, null, (data.names || {})[name]);
   } catch (e) {
     host.innerHTML = `<p class="sterr">${esc(e.message || t("strip.error.network"))}</p>`;
     return null;
   }
-}
-
-/* Which drive a player was last on the field for -- what a tap on his name opens at, rather than
-   making him find himself in a drive chart. `who` is the play text's spelling ("J. Allen"), which
-   `data.names` supplies; the page never reduces a name itself. Falls back to the drive being
-   played, which is also the right answer for a player who has not touched the ball yet. */
-function stDriveOf(data, who){
-  if (!who) return data.current;
-  for (let i = data.drives.length - 1; i >= 0; i--){
-    if (data.drives[i].plays.some(p => p.who === who || p.qb === who)) return i;
-  }
-  return data.current;
 }
 
 /* Which NFL game a club played in `week`, or is playing now when no week is given. The schedule

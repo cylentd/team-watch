@@ -1,0 +1,64 @@
+/* ------------------------------------------------------------------
+   STRIP REEL — the row that picks which plays run, the list that names them, and the wide
+   layout that puts the list beside the field.
+
+   The row replaced a chip per drive (2026-09-25). A reader who came from a game log asks for the
+   game, a quarter, or their player -- never for "SF's fourth drive" -- and nineteen drive chips
+   scrolled sideways with three of them in view on a phone.
+------------------------------------------------------------------ */
+
+.stfilt{display:flex;align-items:center;gap:8px;min-width:0}
+.stqs{display:flex;flex:none;border:1px solid var(--line)}
+.stqs button{font:500 12px var(--mono);color:var(--ink-2);background:none;border:0;
+  border-right:1px solid var(--line);padding:6px 11px;cursor:pointer}
+.stqs button:last-child{border-right:0}
+.stqs button:hover:not(:disabled){color:var(--lime)}
+.stqs button[aria-pressed="true"]{background:var(--lime);color:var(--on-lime)}
+.stqs button:disabled{color:var(--ink-3);opacity:.45;cursor:default}
+
+/* the player chip: a toggle, so it stacks with a quarter rather than replacing it */
+.stme{margin-left:auto;min-width:0;display:inline-flex;align-items:center;gap:7px;font:500 12px var(--mono);
+  color:var(--ink-2);background:none;border:1px solid var(--line-2);border-radius:99px;padding:2px 10px 2px 2px;cursor:pointer}
+.stme span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stme em{font-style:normal;color:var(--ink-3)}
+.stme:hover{border-color:var(--lime)}
+.stme[aria-pressed="true"]{border-color:var(--lime);color:var(--lime);background:rgb(var(--lime-rgb) / .08)}
+.stme[aria-pressed="true"] em{color:var(--lime)}
+.stme .stface.xs{width:24px;height:24px;flex:none;font-size:var(--t-1);border-width:1.5px}
+
+.stgrid{display:flex;flex-direction:column;gap:10px}
+.stmain{display:flex;flex-direction:column;gap:10px;min-width:0}
+
+/* the play list. The player's own plays carry a lime dot in the game view, so the reader sees
+   where they were before narrowing to them. */
+.stlist{list-style:none;margin:0;padding:0;border:1px solid var(--line)}
+.stqh{position:sticky;top:0;z-index:1;padding:8px 10px 4px;background:var(--panel-2);
+  font:700 10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.strow{width:100%;display:grid;grid-template-columns:40px 30px minmax(0,1fr) auto;gap:8px;align-items:center;
+  padding:7px 10px;border:0;border-top:1px solid var(--line);background:none;color:var(--ink-3);
+  font:400 12px var(--mono);font-variant-numeric:tabular-nums;text-align:left;cursor:pointer;
+  transition:background .2s var(--ease)}
+.strow:hover{background:var(--panel-2)}
+.strow .stwho{font:600 13px var(--disp);color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.strow.mine .stwho::before{content:"";display:inline-block;width:6px;height:6px;margin-right:6px;
+  border-radius:50%;background:var(--lime);vertical-align:middle}
+.strow.cur{background:rgb(var(--lime-rgb) / .12)}
+.strow.cur .stclk,.strow.cur .stwho{color:var(--lime)}
+.stres{font-weight:700}
+.stres.gain,.stres.good{color:var(--lime)}
+.stres.bad{color:var(--down)}
+.stres.none{color:var(--ink-3);font-weight:400}
+
+/* the field drawn at its own size and scaled up whole (transport.js, stScaleField) */
+.stbox.zoomed{height:calc(var(--sth) * var(--stz))}
+.stbox.zoomed .stview{width:calc(100% / var(--stz));transform:scale(var(--stz));transform-origin:0 0}
+
+/* Wide: the list beside the field, the full height of the dialog, scrolling on its own. The
+   field's column shares its top and bottom edge. */
+@media (min-width:960px){
+  .stgrid{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px}
+  /* the column is as tall as what it holds, which is what stScaleField measures the room against */
+  .stmain{align-self:start}
+  .stlistbox{position:relative;min-height:240px}
+  .stlist{position:absolute;inset:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line-2) var(--panel)}
+}

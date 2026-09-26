@@ -18,7 +18,8 @@ const ST_ARC = '<path d="M1 9Q9 -5 17 9"/>';
    scanning for literal lookups, and cannot see one assembled from a template. */
 function stripPanelHTML(){
   const arc = cls => `<svg class="${cls}" viewBox="0 0 18 10" aria-hidden="true">${ST_ARC}</svg>`;
-  return '<div class="stdrives" role="tablist"></div>'
+  return '<div class="stfilt"></div>'
+    + '<div class="stgrid"><div class="stmain">'
     + '<div class="stscorerow"><div class="stscore"></div><div class="stclock"></div></div>'
     + '<div class="stbox"><div class="stview" data-phone="pan"><div class="ststage"></div></div><div class="stslam"></div></div>'
     + '<div class="stcap"></div>'
@@ -33,12 +34,14 @@ function stripPanelHTML(){
     + `<span><i class="k-run"></i>${t("strip.key.run")}</span>`
     + `<span><i class="k-loss"></i>${t("strip.key.loss")}</span>`
     + `<span>${arc("k-pass")}${t("strip.key.pass")}</span>`
-    + `<span>${arc("k-inc")}${t("strip.key.inc")}</span></div></div>`;
+    + `<span>${arc("k-inc")}${t("strip.key.inc")}</span></div></div>`
+    + `</div><div class="stlistbox"><ol class="stlist" aria-label="${esc(t("strip.list.label"))}"></ol></div></div>`;
 }
 
 function stUi(host){
   const q = s => host.querySelector(s);
-  return {host, drives: q(".stdrives"), score: q(".stscore"), clock: q(".stclock"), view: q(".stview"),
+  return {host, filt: q(".stfilt"), list: q(".stlist"), main: q(".stmain"), box: q(".stbox"),
+          score: q(".stscore"), clock: q(".stclock"), view: q(".stview"),
           stage: q(".ststage"), slam: q(".stslam"), cap: q(".stcap"), slider: q(".stslider"),
           play: q(".stplay"), mode: q(".stmode")};
 }
@@ -81,29 +84,34 @@ const ST_PREFIX = /^\((?:Shotgun|No Huddle|No Huddle, Shotgun|Field Goal formati
 const ST_ELIGIBLE = /^[^.]*reported in as eligible\.\s*/;
 const stPlayText = tx => String(tx || "").replace(ST_ELIGIBLE, "").replace(ST_PREFIX, "");
 
-function stCaption(ctl, p, over){
-  const c = over ? ctl.drive.end : p;
+function stCaption(ctl, p, over, dr = ctl.drive){
+  const c = over ? dr.end : p;
   const who = p.who || t("strip.unnamed");
   const from = p.qb ? ` <small>${t("strip.caption.from", {qb: esc(p.qb)})}</small>` : "";
   const yac = !over && p.k === "pass" && p.yac != null
     ? `<span class="styac">${t("strip.caption.caught",
-        {spot: stSpot(p.to - p.yac * ctl.drive.dir, ctl.home, ctl.away), n: p.yac})}</span>` : "";
+        {spot: stSpot(p.to - p.yac * dr.dir, ctl.home, ctl.away), n: p.yac})}</span>` : "";
   return `<span class="stfaces">${p.qb ? stFace(p.qb, ctl.faces[p.qb], " sm") : ""}${stFace(who, ctl.faces[p.who])}</span>`
     + `<span class="stnm">${esc(who)}${from}</span><span class="stdd">${esc(c.dd || "")}</span>`
     + `<span class="sttx">${esc(stPlayText(c.tx))}</span>${yac}`;
 }
 
-/* The caption box's floor: the tallest caption of THIS drive, laid out at the real width in the
+/* The caption box's floor: the tallest caption of THIS reel, laid out at the real width in the
    real fonts, measured in the reader's own browser. A hardcoded pixel floor was right in one
-   headless Chromium and wrong on the phone it was meant for. */
+   headless Chromium and wrong on the phone it was meant for. The whole reel, not the drive on
+   the field: a replay that crosses drives would otherwise jump at every change of possession. */
 function stFitCap(ctl){
   const cap = ctl.ui.cap, probe = cap.cloneNode(false);
   probe.style.cssText = `position:absolute;visibility:hidden;pointer-events:none;min-height:0;width:${cap.clientWidth}px`;
   cap.parentNode.appendChild(probe);
   let h = 0;
-  ctl.plays.forEach(p => { probe.innerHTML = stCaption(ctl, p, false); h = Math.max(h, probe.offsetHeight); });
-  probe.innerHTML = stCaption(ctl, ctl.plays[ctl.n - 1], true);
-  h = Math.max(h, probe.offsetHeight);
+  const fit = html => { probe.innerHTML = html; h = Math.max(h, probe.offsetHeight); };
+  const reel = ctl.reel || ctl.plays.map((p, i) => ({d: ctl.at, i}));
+  reel.forEach(s => {
+    const dr = ctl.data.drives[s.d], p = dr.plays[s.i];
+    fit(stCaption(ctl, p, false, dr));
+    if (s.i === dr.plays.length - 1) fit(stCaption(ctl, p, true, dr));
+  });
   probe.remove();
   cap.style.minHeight = h + "px";
 }
@@ -117,15 +125,17 @@ function stScoreHTML(ctl, score, turned){
     + `<span><strong class="staway">${esc(ctl.away)} ${score[1]}</strong>${poss(home === turned)}</span>`;
 }
 
-/* One drive onto the field. Rebuilds the stage, so anything cached against the old layout goes. */
-function stShowDrive(ctl, i){
-  stStop(ctl);
+/* One drive onto the field. Rebuilds the stage, so anything cached against the old layout goes.
+   `quiet` is the reel changing drive under a seek, which paints the frame itself; without it the
+   drive is shown finished, the way it was opened before there was a reel. */
+function stShowDrive(ctl, i, quiet){
+  if (!quiet) stStop(ctl);
+  const was = ctl.at;
   ctl.at = i;
   ctl.drive = ctl.data.drives[i];
   ctl.plays = ctl.drive.plays;
   ctl.n = ctl.plays.length;
   ctl.shown = -2; ctl.fired = -1; ctl.lastScore = "";
-  ctl.ui.drives.querySelectorAll("button").forEach((b, k) => b.setAttribute("aria-selected", String(k === i)));
   ctl.ui.stage.className = "ststage" + (ctl.drive.dir < 0 ? " rev" : "");
   ctl.ui.stage.innerHTML = stStageHTML(ctl.drive, "s" + i, ctl.data.home.abbr, ctl.data.away.abbr);
   ctl.pose = stBind(ctl.ui.stage, ctl.drive, "s" + i, ctl.faces);
@@ -133,9 +143,13 @@ function stShowDrive(ctl, i){
   ctl.ltg = ctl.ui.stage.querySelector(".stltg");
   ctl.turf = ctl.ui.stage.querySelector(".stturf");
   ctl.ui.slam.className = "stslam";
-  ctl.ui.slider.max = ctl.n;
-  stFitCap(ctl);
-  stRender(ctl, ctl.n);
+  /* a new possession while playing arrives from the side it will attack from, so the change of
+     drive reads as one; a scrub rebuilds in place, since the hand is already saying where it is */
+  if (quiet && ctl.playing && was != null && was !== i && !ST_REDUCED){
+    ctl.ui.stage.animate([{opacity: 0, translate: `${-4 * ctl.drive.dir}% 0`}, {opacity: 1, translate: "0 0"}],
+      {duration: 460, easing: getComputedStyle(ctl.ui.stage).getPropertyValue("--spring").trim() || "ease-out"});
+  }
+  if (!quiet){ ctl.ui.slider.max = ctl.n; stFitCap(ctl); stRender(ctl, ctl.n); }
 }
 
 /* One frame. Everything below reads (t, hold) and nothing else, so scrubbing and playing agree. */
@@ -160,7 +174,6 @@ function stRender(ctl, tm, hold = 1){
   stScore(ctl, p, done, over, turned);
   const key = over ? -1 : i;
   if (key !== ctl.shown){ ctl.shown = key; ctl.ui.cap.innerHTML = stCaption(ctl, p, over); }
-  ctl.ui.slider.value = tm;
 }
 
 /* The moment fires once, on the beat after the play it belongs to, and is cut short by leaving

@@ -53,12 +53,12 @@ def browser():
 
 
 MOUNT = """
-([data, at]) => {
+([data, at, who]) => {
   const host = document.createElement("div");
   host.id = "striptest";
   document.getElementById("view").innerHTML = "";
   document.getElementById("view").appendChild(host);
-  window.__ctl = stripMount(host, data, at);
+  window.__ctl = stripMount(host, data, at, who);
   return window.__ctl.n;
 }
 """
@@ -77,7 +77,7 @@ PROBE = """
 """
 
 
-def open_strip(browser, page_file, shaped, drive, viewport=DESK):
+def open_strip(browser, page_file, shaped, drive, viewport=DESK, who=None):
     """One mounted strip, plus the page errors it logged. Externals are blocked: no fonts, no
     headshots -- the strip must place a figure whether or not his picture ever arrives."""
     ctx = browser.new_context(viewport={"width": viewport[0], "height": viewport[1]})
@@ -89,7 +89,7 @@ def open_strip(browser, page_file, shaped, drive, viewport=DESK):
             if m.type == "error" and not m.text.startswith("Failed to load resource") else None)
     page.route(re.compile(r"^https?://"), lambda route: route.abort())
     page.goto(page_file.as_uri())
-    page.evaluate(MOUNT, [shaped, drive])
+    page.evaluate(MOUNT, [shaped, drive, who])
     return page, ctx, errors
 
 
@@ -191,14 +191,17 @@ def test_the_caption_box_never_changes_height(browser, page_file, shaped):
 
 
 def test_the_panel_fits_a_360px_phone(browser, page_file, shaped):
-    """Nine readers in ten are on a phone. Two things in the strip scroll sideways on purpose --
-    the drive chart and, in Pan, the field -- and nothing else may, the panel itself least of all.
-    Measured against the strip's own host: the page around it has chrome of its own."""
-    page, ctx, errors = open_strip(browser, page_file, shaped, 0, PHONE)
+    """Nine readers in ten are on a phone. One thing in the strip scrolls sideways on purpose --
+    in Pan, the field -- and nothing else may, the panel itself least of all. The filter row holds
+    Game, the quarters and the player chip on one line. Measured against the strip's own host: the
+    page around it has chrome of its own."""
+    page, ctx, errors = open_strip(browser, page_file, shaped, 0, PHONE, "J. Goff")
     over = page.evaluate("""() => {
       const bad = [], host = document.getElementById("striptest");
       for (const el of host.querySelectorAll("*")){
-        if (el.closest(".stview") || el.closest(".stdrives")) continue;
+        if (el.closest(".stview")) continue;
+        // the player's name may ellipsize inside its chip; that is clipping, not scrolling
+        if (el.closest(".stme") && getComputedStyle(el).textOverflow === "ellipsis") continue;
         // Text hidden for sighted readers but kept for screen readers is a 1px box holding a
         // whole phrase on purpose. It is clipped, not scrollable, and clip-path is what says so.
         if (getComputedStyle(el).clipPath !== "none") continue;
@@ -347,7 +350,8 @@ def test_a_week_in_the_game_log_opens_that_game_over_the_profile(browser, page_f
       strip: document.getElementById("stripmodal").classList.contains("on"),
       profile: document.getElementById("modal").classList.contains("on"),
       title: document.querySelector("#st-title").textContent,
-      plays: document.querySelectorAll("#stripmodal .stdrives button").length,
+      plays: document.querySelectorAll("#stripmodal .strow").length,
+      field: document.querySelector("#stripmodal .stbox").offsetHeight,
     })""")
     page.keyboard.press("Escape")
     after = page.evaluate("""() => ({
@@ -358,7 +362,10 @@ def test_a_week_in_the_game_log_opens_that_game_over_the_profile(browser, page_f
     assert not errors, errors
     assert calls, "the strip never asked /api/game"
     assert state["strip"] and state["profile"], "the strip replaced the profile instead of stacking"
-    assert state["plays"] == len(shaped["drives"])
+    # the whole game, one row per play, and the field scaled up to use the dialog: its box is
+    # 138px unscaled. Layout height, since the dialog is still growing out of scale(.2) here.
+    assert state["plays"] == sum(len(d["plays"]) for d in shaped["drives"])
+    assert state["field"] > 200, f"the field's box is {state['field']}px tall in a 1400x900 dialog"
     assert "at" in state["title"]
     # Escape closes the topmost dialog, not both: the reader is put back in the profile.
     assert after["profile"] and not after["strip"], "Escape closed the profile too"
@@ -394,15 +401,15 @@ def test_a_name_on_the_live_board_opens_his_clubs_game(browser, page_file, shape
                  c.hasAttribute("data-gdopen")])""")
     page.click("[data-gdopen='DET']")
     page.wait_for_selector("#stripmodal .stturf")
-    drive = page.evaluate('() => document.querySelector("#stripmodal .stdrives [aria-selected=\\"true\\"]").textContent')
+    lit = page.evaluate('() => document.querySelectorAll("#stripmodal .strow.cur").length')
     ctx.close()
     assert not errors, errors
     assert calls, "the strip never asked /api/game"
     assert dict(opens) == {"DET": True, "SEA": True, "SF": True,   # a game, with an id
                            "LAR": False,                            # a game, but no id yet
                            "LAC": False}                            # no game at all
-    # He is opened at the drive he was last on the field for, not at drive 1.
-    assert drive.strip(), "no drive is selected"
+    # the play on the field is the one lit in the list
+    assert lit == 1, f"{lit} rows lit"
 
 
 def test_the_same_game_is_only_fetched_once(browser, page_file, shaped):
@@ -420,6 +427,64 @@ def test_the_same_game_is_only_fetched_once(browser, page_file, shaped):
     ctx.close()
     assert not errors, errors
     assert len(calls) == 1, f"asked /api/game {len(calls)} times for one game"
+
+
+def test_the_player_chip_and_a_quarter_narrow_the_reel_to_his_plays(browser, page_file, shaped):
+    """The reader came from a player's game log, and asks for three things: the game, a quarter,
+    and every play that player was in. The chip stacks with a quarter, and the list and the
+    transport both run over exactly the plays chosen -- as the passer or as the man with the ball."""
+    who = "J. Goff"
+    mine = [p for d in shaped["drives"] for p in d["plays"] if who in (p.get("who"), p.get("qb"))]
+    q2 = [p for p in mine if p["clock"].startswith("Q2")]
+    page, ctx, errors = open_strip(browser, page_file, shaped, None, DESK, who)
+    count = lambda: page.evaluate("""() => ({rows: document.querySelectorAll("#striptest .strow").length,
+      max: +document.querySelector("#striptest .stslider").max,
+      chip: document.querySelector("#striptest .stme em").textContent})""")
+    game = count()
+    page.click("#striptest .stme")
+    his = count()
+    page.click('#striptest .stqs [data-q="2"]')
+    his_q2 = count()
+    ctx.close()
+    assert not errors, errors
+    total = sum(len(d["plays"]) for d in shaped["drives"])
+    assert game == {"rows": total, "max": total, "chip": str(len(mine))}, game
+    assert his == {"rows": len(mine), "max": len(mine), "chip": str(len(mine))}, his
+    assert his_q2 == {"rows": len(q2), "max": len(q2), "chip": str(len(q2))}, his_q2
+
+
+def test_a_row_in_the_list_plays_that_play(browser, page_file, shaped):
+    """Tapping a row runs its play from the snap to the beat after it, on its own drive's field,
+    and lights that row."""
+    page, ctx, errors = open_strip(browser, page_file, shaped, None)
+    rows = page.evaluate('() => document.querySelectorAll("#striptest .strow").length')
+    k = rows - 3
+    page.click(f'#striptest .strow[data-k="{k}"]')
+    page.wait_for_function(f"() => window.__ctl.T === {k + 1}", timeout=6000)
+    state = page.evaluate("""() => ({at: window.__ctl.at, lit: document.querySelector("#striptest .strow.cur").dataset.k})""")
+    ctx.close()
+    assert not errors, errors
+    last = len(shaped["drives"]) - 1
+    assert state == {"at": last, "lit": str(k)}, state
+
+
+def test_the_reel_crosses_every_drive_without_a_jump_in_the_caption(browser, page_file, shaped):
+    """Whole-game replay changes drive under the reader. Every point on the reel draws on the
+    right drive's field, and the caption box keeps one height across all of them."""
+    page, ctx, errors = open_strip(browser, page_file, shaped, None, PHONE)
+    seen = page.evaluate("""() => {
+      const ctl = window.__ctl, out = [], hs = new Set();
+      for (let T = 0; T <= ctl.reel.length; T += .5){
+        stSeek(ctl, T);
+        out.push(ctl.at === ctl.reel[stSegAt(ctl, T)].d);
+        hs.add(document.querySelector("#striptest .stcap").offsetHeight);
+      }
+      return {ok: out.every(Boolean), heights: [...hs]};
+    }""")
+    ctx.close()
+    assert not errors, errors
+    assert seen["ok"], "a point on the reel drew on another drive's field"
+    assert len(seen["heights"]) == 1, f"the caption box took {seen['heights']} across the game"
 
 
 def test_every_play_of_every_drive_draws(browser, page_file, shaped):

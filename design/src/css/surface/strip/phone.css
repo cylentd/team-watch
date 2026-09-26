@@ -19,6 +19,11 @@
      need part of that band, so the field moves up under the scoreboard */
   .stbox{margin-top:-14px}
   .stpanel{padding:10px;gap:8px}
+  .stgrid,.stmain{gap:8px}
+
+  /* Game, Q1-Q4 and the player chip on one row at 360px: the tabs tighten, the name ellipsizes */
+  .stfilt{gap:6px}
+  .stqs button{padding:6px 8px;font-size:var(--t-1)}
 
   /* the scoreboard as a broadcast bug, on one line; possession is the lime marker beside the team */
   .stscorerow{gap:8px}
