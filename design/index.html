@@ -2022,6 +2022,14 @@ body.pk-open{overflow:hidden}
    the static chart and its labels are sheet.css. */
 
 .pf-radar-box{position:relative}
+/* The viewBox leaves 57 units above and below the dial for a label block sized at a 360px phone,
+   where the chart draws at 70%. On a desktop it draws at ~100% and the same labels are the same
+   pixel size, so 37px of empty band sat above the top label and below the bottom one (measured
+   2026-09-25). The negative margins crop that band out of the flow without touching the geometry
+   the phone depends on; the labels still sit 9px clear of the box's new edge. */
+@media not all and (max-width:960px){   /* the side-by-side layout: sheet.css stacks at 960 */
+  .pf-radar-box{margin-block:-28px}
+}
 /* The dial answers a hand: tap picks, drag sweeps. touch-action:none only here, so the label
    ring and everything else in the modal still scroll under a thumb. */
 .pf-radar-hit{position:absolute;border-radius:50%;touch-action:none;cursor:pointer;
