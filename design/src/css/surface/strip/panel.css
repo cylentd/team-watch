@@ -20,10 +20,11 @@
 .stbody.stpanel{background:none;border:0}
 
 /* The two ways in. Both are an existing number or name that now opens something, so they get the
-   least decoration that says so: the lime the rest of the page uses for "this does something". */
+   least decoration that says so: the lime the rest of the page uses for "this does something".
+   The week is the keyboard's control; the mouse and the thumb have the whole row (history.css). */
 .pf-wk{font:inherit;color:var(--lime);background:none;border:0;padding:0;cursor:pointer;
-  text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}
-.pf-wk:hover{text-decoration-style:solid}
+  display:inline-flex;align-items:center}
+.pf-wk:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
 .gdcell.opens{cursor:pointer}
 .gdcell.opens:hover .gdnametxt,.gdcell.opens:hover .gdnameshort{color:var(--lime)}
 

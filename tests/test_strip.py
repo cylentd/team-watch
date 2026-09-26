@@ -412,6 +412,21 @@ def test_a_name_on_the_live_board_opens_his_clubs_game(browser, page_file, shape
     assert lit == 1, f"{lit} rows lit"
 
 
+def test_anywhere_on_a_week_row_opens_that_game(browser, page_file, shaped):
+    """The week number alone was a target nobody found (2026-09-26); the whole row opens the game.
+    Clicked on a stat cell at the far end of the row, not on the week."""
+    page, ctx, errors, calls = served(browser, page_file, shaped)
+    open_roster(page)
+    page.click(".row:has-text('Jahmyr Gibbs')")
+    page.click("#modal [data-pftab='log']")
+    page.locator("#modal .pf-table-wk tr.gl-open td:last-child").first.click()
+    page.wait_for_selector("#stripmodal .stturf")
+    opened = page.evaluate('() => document.getElementById("stripmodal").classList.contains("on")')
+    ctx.close()
+    assert not errors, errors
+    assert opened, "a click on the row did not open the game"
+
+
 def test_the_same_game_is_only_fetched_once(browser, page_file, shaped):
     """Re-opening a game the reader just looked at must not cost another ESPN read. The endpoint's
     edge cache is what protects ESPN from many readers; this is what protects it from one."""

@@ -20,7 +20,25 @@
    and drew as the OS default -- a pale track with arrow buttons under a dark table. */
 .pf-table-scroll{overflow-x:auto;overscroll-behavior-x:contain;margin:0 -2px;
   scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
-.pf-table-wk{width:100%;table-layout:auto}
+/* Fixed layout, so the widths are the colgroup's (history.js) and not whatever the browser makes
+   of the content: week and opponent together on the left, the stats sharing the rest. */
+.pf-table-wk{width:100%;table-layout:fixed}
+.pf-table-wk .gl-c-wk{width:64px}
+.pf-table-wk .gl-c-opp{width:76px}
+.pf-table-wk .gl-opp,.pf-table-wk thead th:nth-child(2){text-align:left}
+/* a QB's eight stat columns leave "PASS YDS" no room on one line: it breaks onto two, sitting on
+   the rule like the one-line labels beside it, rather than losing its last word to an ellipsis */
+.pf-table-wk thead th{white-space:normal;vertical-align:bottom;line-height:1.3}
+
+/* A game with a replay: the whole row opens it. Hover shows the row as one target; the play mark
+   by the week says what it opens, on a phone too, where there is no hover to say so. */
+.pf-table-wk .gl-open{cursor:pointer}
+.pf-table-wk .gl-open th,.pf-table-wk .gl-open td{transition:background-color .15s var(--ease)}
+@media (hover:hover){
+  .pf-table-wk .gl-open:hover th,.pf-table-wk .gl-open:hover td{background:var(--panel-2)}
+}
+.pf-table-wk .gl-open:active th,.pf-table-wk .gl-open:active td{background:var(--panel-3)}
+.pf-wk .gl-play{width:7px;height:9px;margin-right:7px;fill:currentColor;vertical-align:0}
 /* One step up the scale and more room per row. A season of box scores is the densest numeric
    block in the app and it was set at --t-2, the second-smallest step, which is a caption size
    being asked to do a table's work. */
@@ -47,7 +65,7 @@
 /* One block per week instead of one row. Each cell wears its own column name (data-c, set in
    history.js), the header row goes away, and nothing has to be dragged into view. */
 @media (max-width:760px){
-  .pf-table-wk thead{display:none}
+  .pf-table-wk thead,.pf-table-wk colgroup{display:none}
   .pf-table-wk,.pf-table-wk tbody,.pf-table-wk tfoot{display:block}
   .pf-table-wk tr{display:grid;grid-template-columns:repeat(auto-fill,minmax(66px,1fr));
     gap:9px 6px;padding:11px 0;border-bottom:1px solid var(--line)}

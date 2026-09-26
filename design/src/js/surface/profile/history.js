@@ -40,15 +40,27 @@ function glSum(rows, key){
   return Number.isInteger(n) ? n : n.toFixed(1);
 }
 
-/* The week number opens that game's drive strip -- the second of the two ways in, the first being
-   a name on the Live board. A plain number when the schedule has no ESPN id for it (an older
-   history row), because a control that does nothing is worse than no control. */
-function weekCell(p, r){
+/* A week's row opens that game's replay -- the second of the two ways in, the first being a name
+   on the Live board. The whole row is the target (2026-09-26: the week number alone was a 9px
+   target nobody found); the week stays a real button inside it, so the keyboard and a screen
+   reader still have one control per row. A plain number and a plain row when the schedule has no
+   ESPN id for the game (an older history row): a control that does nothing is worse than none. */
+const GL_PLAY = '<svg class="gl-play" viewBox="0 0 8 10" aria-hidden="true"><path d="M1 1l6 4-6 4z"/></svg>';
+
+function weekOpens(p, r){
   const club = r.team || p.team;
-  if (typeof stGameFor !== "function" || !stGameFor(club, r.wk)) return r.wk;
-  return `<button type="button" class="pf-wk" data-stripclub="${esc(club)}" data-stripwk="${r.wk}"
-    data-stripname="${esc(p.n)}" aria-label="${esc(t("strip.open.week", {n: r.wk}))}">${r.wk}</button>`;
+  return typeof stGameFor === "function" && stGameFor(club, r.wk) ? club : null;
 }
+
+function weekCell(p, r){
+  if (!weekOpens(p, r)) return r.wk;
+  return `<button type="button" class="pf-wk" aria-label="${esc(t("strip.open.week", {n: r.wk}))}">${GL_PLAY}${r.wk}</button>`;
+}
+
+const weekRowAttrs = (p, r) => {
+  const club = weekOpens(p, r);
+  return club ? ` class="gl-open" data-stripclub="${esc(club)}" data-stripwk="${r.wk}" data-stripname="${esc(p.n)}"` : "";
+};
 
 /* Every cell carries its own column name in `data-c`. On a phone the header row is dropped and
    each week becomes a block of labelled chips (history.css): at eighteen weeks and ten columns
@@ -67,14 +79,19 @@ function weeklyHistoryHTML(p){
   const cell = (v, i, cls) => `<td class="${cls || ""}" data-c="${esc(head[i])}">${v}</td>`;
   /* Week, opponent and points are named classes, not positions: on a phone the block needs one
      thing the eye lands on per week, and that is the points. */
-  const row = (wk, opp, ptsCell, get) => `<tr><th scope="row" class="gl-wk" data-c="${esc(head[0])}">${wk}</th>${cell(opp, 1, "gl-opp")}${cell(ptsCell, 2, "gl-pts")}
+  const row = (wk, opp, ptsCell, get, attrs = "") => `<tr${attrs}><th scope="row" class="gl-wk" data-c="${esc(head[0])}">${wk}</th>${cell(opp, 1, "gl-opp")}${cell(ptsCell, 2, "gl-pts")}
       ${cols.map((c, i) => cell(get(c), i + 3)).join("")}</tr>`;
-  // weekCell, not r.wk: the week is a button into that game's drive strip when the schedule has
-  // an ESPN id for it (panel.js binds the click, because openProfile rebuilds #modal every open).
-  const body = rows.map(r => row(weekCell(p, r), esc(r.opp || "—"), glNum(r.pts), c => glNum(r[c.id]))).join("");
+  // weekCell, not r.wk: the row opens that game's replay when the schedule has an ESPN id for it
+  // (panel.js binds the click, because openProfile rebuilds #modal every open).
+  const body = rows.map(r => row(weekCell(p, r), esc(r.opp || "—"), glNum(r.pts), c => glNum(r[c.id]),
+    weekRowAttrs(p, r))).join("");
   const foot = row(t("profile.history.total"), t("profile.history.games", {n: rows.length}),
     glSum(rows, "pts"), c => glSum(rows, c.id));
-  const table = `<div class="pf-table-scroll"><table class="pf-table pf-table-wk">
+  /* Week and opponent are who-and-when, fixed and together on the left; every stat column shares
+     what is left equally. With automatic widths the browser handed the spare width to whichever
+     column it liked, and it landed between the week and the opponent. */
+  const colgroup = `<colgroup><col class="gl-c-wk"><col class="gl-c-opp">${"<col>".repeat(cols.length + 1)}</colgroup>`;
+  const table = `<div class="pf-table-scroll"><table class="pf-table pf-table-wk">${colgroup}
     <thead><tr>${head.map(h => `<th>${h}</th>`).join("")}</tr></thead>
     <tbody>${body}</tbody><tfoot>${foot}</tfoot></table></div>`;
   return secHTML(t("profile.history.label"), spark + table);
