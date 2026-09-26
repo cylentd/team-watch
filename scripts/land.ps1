@@ -13,8 +13,10 @@
 
   `git land` never runs `git checkout <base>` -- it pushes HEAD onto origin/<base> and fast-forwards
   whichever checkout holds <base>, so this script lands straight from its own worktree with no
-  contention over who gets to hold main. If the push loses a race to another session or a job, git
-  land reports that (exit 2 or 3); this script re-fetches, rebases, re-tests and retries once.
+  contention over who gets to hold main. Two sessions landing at once queue (scripts/land-queue.ps1):
+  the second waits, printing whose land it is behind, then rebases onto the first. If the push
+  still loses a race (a push from outside the queue), git land reports that (exit 2 or 3); this
+  script re-fetches, rebases, re-tests and retries once.
 
   A diff that only touches docs and tests (*.md, tests/**) lands on its own. Anything that touches
   the live page stops and asks -- pass -Yes once a human has said go.
@@ -82,6 +84,18 @@ if ($dirty.Count -gt 0) {
     Write-Host ($dirty -join "`n")
     throw "Uncommitted changes that are not build output. Commit or stash them first."
 }
+
+# --- the queue ------------------------------------------------------------------------------------
+
+# One writer to main at a time (scripts/land-queue.ps1): from the first fetch to the push, this
+# land holds main, so it rebases onto the last land that finished rather than racing it. The
+# scheduled rebuild joins the same queue. A dry run changes nothing, so it does not queue.
+$ticket = $null
+if (-not $DryRun) {
+    . (Join-Path $PSScriptRoot "land-queue.ps1")
+    $ticket = Enter-LandQueue -Repo $repo -Label "land $branch"
+}
+try {
 
 # Every comparison from here on reads origin/$Base, never the local branch -- a session landing
 # from its own worktree never touches the local $Base ref, so a stale local copy would lie.
@@ -181,3 +195,5 @@ for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
         throw "git land failed ($landCode) -- nothing landed"
     }
 }
+
+} finally { if ($ticket) { Exit-LandQueue $ticket } }

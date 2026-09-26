@@ -66,8 +66,12 @@ and the main checkout stays on `main`, unedited. Notes that cost time to learn:
   `HEAD:main` and never checks `main` out). A diff outside `tests/` and `*.md` changes the live
   page, so it needs `-Yes`, passed only after the user says yes. Landing ends the feature:
   `ExitWorktree` with `remove` puts the session back in the main checkout, and the session goes on.
-- The page-rebuild job pushes to `main` at 6:30 and 15:00. A land that races it gets exit 2 from
-  `git land`; `land.ps1` rebases, rebuilds and retries once.
+- Lands queue (`scripts/land-queue.ps1`, since 2026-09-26): a ticket in `.git/land-queue`, shared by
+  every worktree, holds `main` from the first fetch to the push, so a second land waits, printing
+  whose it is behind, then rebases onto the first. The page-rebuild job (6:30 and 15:00, in
+  agent-config) takes the same queue. A dead session's ticket clears itself; a wait over 20 min
+  gives up with nothing landed. A push from outside the queue still gets exit 2 from `git land`,
+  and `land.ps1` rebases, rebuilds and retries once.
 - A fresh worktree has no `data/feed.json` (untracked). The build falls back to reading
   `ff-jarvis` directly, so it still works; copy the file in if you want the freshness badges.
 - Before touching a file the other session may hold, ask it. `git stash show --name-only` is the
