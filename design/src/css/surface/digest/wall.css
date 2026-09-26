@@ -1,0 +1,93 @@
+/* ============================== DIGEST: THE WALL (1100px and up) ==============================
+   A desktop has room for the whole week at once (2026-09-26), so the phone's ticker becomes a wall:
+   the lead as a full-width band, then every topic as an open panel on a 12-column grid. Hurt runs
+   tall beside the matchups, weather, adds and stock it affects; Top 5 and Gems share a row; News
+   closes the page in two columns. The day's topic keeps the lime title the phone gives its open
+   row. Behind the lead's photo sits the reason he leads (his rank, the wind), huge and faint. */
+
+.dg-ghost{display:none}
+.dg-t5 .dg-hd.sm{display:none}
+.dg-qlines{display:none}
+
+@media (min-width:1100px){
+  .dg{grid-template-columns:minmax(0,1fr);row-gap:22px;max-width:1680px;padding:24px 40px 56px}
+  /* The bar and the footer take the wall's width while it is on screen, so their edges line up
+     with its panels instead of sitting 250px inside them on a 1920 screen. */
+  body:has(.dg) .navrow,body:has(.dg) .foot{max-width:1680px}
+  body:has(.dg) .navrow{padding-inline:40px}
+  body:has(.dg) > .wrap{max-width:1680px;padding-inline:40px}
+
+  /* The lead band. */
+  .dg > .dg-lead,.dg > .dg-lead.has-photo{
+    position:relative;top:auto;min-height:380px;grid-template-columns:minmax(0,1fr);
+    padding:56px 64px 0;border-radius:20px;isolation:isolate;
+  }
+  .dg > .dg-lead .dg-lead-txt{max-width:min(50%,660px);gap:18px;padding-bottom:56px;z-index:2}
+  .dg > .dg-lead .dg-lead-h{font-size:var(--t-hero);max-width:12ch;line-height:.96;letter-spacing:-.035em}
+  .dg > .dg-lead .dg-lead-h.long{font-size:var(--t-6);max-width:22ch;line-height:1.1}
+  .dg > .dg-lead .dg-lead-fact{font-size:var(--t-4);line-height:1.45;max-width:36ch}
+  .dg > .dg-lead.has-photo .dg-photo{
+    position:absolute;right:7%;bottom:0;height:100%;width:auto;max-width:none;margin:0;z-index:1;
+  }
+  .dg > .dg-lead .dg-glyph{right:9%;bottom:auto;top:50%;transform:translateY(-50%);width:220px;height:220px}
+  .dg-ghost{
+    display:block;position:absolute;right:3%;top:50%;z-index:0;transform:translateY(-54%);
+    font-family:var(--disp);font-size:var(--t-ghost);font-weight:800;line-height:.8;letter-spacing:-.05em;
+    white-space:nowrap;pointer-events:none;user-select:none;
+    color:transparent;-webkit-text-stroke:1.5px rgb(var(--ink-rgb) / .13);
+  }
+  .dg-lead.out .dg-ghost{-webkit-text-stroke-color:rgb(var(--down-rgb) / .3)}
+  .dg-lead.q .dg-ghost{-webkit-text-stroke-color:rgb(var(--amber-rgb) / .3)}
+  .dg-lead.sky .dg-ghost{-webkit-text-stroke-color:rgb(var(--sky-rgb) / .3)}
+
+  /* The wall. */
+  .dg-ticker{
+    display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:20px;border-top:0;
+    grid-template-areas:
+      "hurt hurt hurt hurt hurt mu   mu   mu   mu   wx   wx   wx"
+      "hurt hurt hurt hurt hurt adds adds adds adds st   st   st"
+      "t5   t5   t5   t5   t5   t5   t5   t5   gems gems gems gems"
+      "news news news news news news news news news news news news";
+  }
+  .dg-row[data-dgrow="hurt"]{grid-area:hurt}
+  .dg-row[data-dgrow="mu"]{grid-area:mu}
+  .dg-row[data-dgrow="wx"]{grid-area:wx}
+  .dg-row[data-dgrow="adds"]{grid-area:adds}
+  .dg-row[data-dgrow="st"]{grid-area:st}
+  .dg-row[data-dgrow="t5"]{grid-area:t5}
+  .dg-row[data-dgrow="gems"]{grid-area:gems}
+  .dg-row[data-dgrow="news"]{grid-area:news}
+  .dg-row{
+    display:flex;flex-direction:column;min-width:0;overflow:hidden;
+    border:1px solid var(--line);border-radius:16px;background:var(--panel);
+  }
+
+  /* A panel's head is its title: the label and its count, no line (the panel shows it), no chevron. */
+  .dg-row .dg-head,.dg-row[data-open] .dg-head{
+    cursor:default;min-height:0;padding:20px 22px 8px;background:none;
+    grid-template-columns:auto auto minmax(0,1fr);gap:10px;
+  }
+  .dg-head:active{transform:none}
+  .dg-row .dg-s,.dg-row .dg-chev{display:none}
+  .dg-row[data-open] .dg-l{color:var(--ink);font-size:var(--t-2);letter-spacing:.08em}
+  .dg-row[data-today] .dg-l{color:var(--lime)}
+  .dg-row.empty .dg-head{padding-bottom:20px}
+  .dg-row.empty .dg-s{display:block;grid-column:1 / -1;white-space:normal}
+
+  .dg-row .dg-body{flex:1;grid-template-rows:1fr}
+  .dg-in{background:none}
+  .dg-row .dg-pad{height:100%;display:flex;flex-direction:column;gap:2px;padding:0 22px 6px}
+  .dg-row .dg-foot{margin-top:auto}
+
+  .dg-row[data-dgrow="news"] .dg-pad{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:44px}
+  .dg-row[data-dgrow="news"] .dg-news:nth-last-of-type(2){border-bottom:0}
+  .dg-row[data-dgrow="news"] .dg-foot{grid-column:1 / -1}
+
+  .dg-qlines{display:contents}
+  .dg-row[data-dgrow="hurt"] .dg-also{display:none}
+  .dg > .dg-lead .dg-lead-fact{max-width:46ch}
+
+  .dg-t5{column-gap:28px}
+  .dg-t5 li{grid-template-columns:24px minmax(0,1fr) auto;align-items:center;gap:10px;min-height:32px}
+  .dg-t5 .dg-hd.sm{display:block;width:24px;height:24px}
+}

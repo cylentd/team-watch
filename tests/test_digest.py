@@ -7,10 +7,13 @@ REPO = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "design"))
 sys.path.insert(0, str(REPO / "api"))
 
+import pytest  # noqa: E402
+
 from _espn import slugify  # noqa: E402
 import contract  # noqa: E402
 from digest import live_digest, report  # noqa: E402
 from sources import load_digest  # noqa: E402
+from test_render import browser, open_page  # noqa: E402,F401  (the suite's one Chromium)
 
 
 def _block():
@@ -67,3 +70,20 @@ def test_no_packet_is_no_block():
     assert live_digest(None, slugify) is None
     contract.validate("LIVE_DIGEST", None)
     assert "no weekly_digest.json" in report(None)
+
+
+@pytest.mark.render
+def test_the_wall_opens_every_panel_and_a_head_is_not_a_toggle(browser, page_file):
+    """From 1100px the Digest is a wall (2026-09-26): every topic open, the day's row marked, the
+    lead's ghost naming why he leads. A tap on a panel's head must not close it."""
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page.goto(page_file.as_uri() + "#digest")
+    page.wait_for_selector(".dg-row")
+    rows = page.locator(".dg-row:not(.empty)")
+    assert rows.count() == page.locator(".dg-row[data-open]").count() > 0
+    page.locator(".dg-row[data-dgrow='hurt'] .dg-head").click()
+    assert page.locator(".dg-row[data-dgrow='hurt'][data-open]").count() == 1
+    assert page.locator(".dg-ghost").inner_text() == "WR2"
+    assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+    assert errors == []
+    ctx.close()

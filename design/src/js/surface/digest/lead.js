@@ -15,7 +15,7 @@ function dgPhotoHTML(slugs){
   const slug = [].concat(slugs || []).find(s => lg[s] || HEADS[s]);
   if (!slug) return "";
   const set = headSrcset(slug);
-  return `<img class="dg-photo" src="${lg[slug] || HEADS[slug]}"${set ? ` srcset="${set}" sizes="(min-width:960px) 260px, 168px"` : ""}
+  return `<img class="dg-photo" src="${lg[slug] || HEADS[slug]}"${set ? ` srcset="${set}" sizes="(min-width:1100px) 460px, (min-width:960px) 260px, 168px"` : ""}
     alt="" decoding="async" onerror="this.remove()">`;
 }
 
@@ -26,7 +26,7 @@ function dgLeadHurt(r){
   const who = r.rank != null ? t("digest.lead.rank", {pos: esc(r.pos), rank: r.rank})
     : r.rostered != null ? t("digest.lead.rostered", {pct: dgPct(r.rostered)}) : "";
   const game = r.game ? t("digest.lead.game", {game: dgGame(r.game) + (r.game.kick ? ", " + esc(r.game.kick) : "")}) : "";
-  return {tone: cls, photo: dgPhotoHTML(r.slug),
+  return {tone: cls, photo: dgPhotoHTML(r.slug), ghost: r.rank != null ? esc(r.pos) + r.rank : "",
           head: t("digest.lead.hurt", {name: esc(r.n), status: `<em class="dg-em ${cls}">${word()}</em>`}),
           fact: [who, r.injury ? esc(r.injury) + "." : "", game].filter(Boolean).join(" ")};
 }
@@ -36,6 +36,7 @@ function dgLeadWx(g){
   const what = dgWxKind(g) === "wind" ? t("digest.lead.wx.wind", {mph: g.wind_mph}) : t("digest.lead.wx.rain", {pct: g.precip_pct});
   const sky = [g.temp_f != null ? t("digest.lead.wx.temp", {f: g.temp_f}) : "", g.short ? esc(g.short) : ""].filter(Boolean).join(", ");
   return {tone: "sky", photo: `<span class="dg-photo dg-glyph">${dgWxKind(g) === "wind" ? DG_WIND : DG_RAIN}</span>`,
+          ghost: dgWxKind(g) === "wind" ? t("digest.wx.mph", {n: g.wind_mph}) : t("digest.wx.pct", {n: g.precip_pct}),
           head: t("digest.lead.wx.head", {game: dgGame(g), what: `<em class="dg-em sky">${what}</em>`}),
           fact: [g.kick ? esc(g.kick) + "." : "", sky ? sky + "." : ""].filter(Boolean).join(" ")};
 }
@@ -57,7 +58,10 @@ function dgLead(){
 
 function dgLeadHTML(){
   const L = dgLead();
+  /* The ghost is the reason he leads (his rank, the wind), set huge and faint behind the photo on
+     a wide screen; aria-hidden, since the fact line already says it. */
   return `<article class="dg-lead ${L.tone}${L.photo ? " has-photo" : ""}">
+    ${L.ghost ? `<span class="dg-ghost" aria-hidden="true">${L.ghost}</span>` : ""}
     <div class="dg-lead-txt"><h2 class="dg-lead-h${L.long ? " long" : ""}">${L.head}</h2>
       <p class="dg-lead-fact">${L.fact}</p></div>
     ${L.photo}

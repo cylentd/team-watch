@@ -22,11 +22,14 @@ const DG_TAG = {Out: ["out", () => t("digest.tag.out")], IR: ["out", () => t("di
 
 function dgHurtBody(d){
   const q = d.hurt.filter(r => r.status === "Questionable");
-  const lines = d.hurt.filter(r => r.status !== "Questionable").map(r => {
+  const line = r => {
     const [cls, word] = DG_TAG[r.status] || ["q", () => esc(r.status)];
     const meta = [esc(r.pos), r.game ? dgGame(r.game) : esc(r.team), r.injury ? esc(r.injury) : ""].filter(Boolean).join(" · ");
     return dgLnHTML(r, meta, `<span class="dg-st ${cls}">${word()}</span>`);
-  }).join("");
+  };
+  // The questionable get a line each on the wall, where the panel has the room; a phone keeps the one-line list.
+  const lines = d.hurt.filter(r => r.status !== "Questionable").map(line).join("")
+    + (q.length ? `<div class="dg-qlines">${q.map(line).join("")}</div>` : "");
   const also = q.length ? `<p class="dg-also"><b>${t("digest.tag.q")}</b>${q.map(r => esc(dgShort(r.n))).join(", ")}</p>` : "";
   return lines + also + dgFootHTML(t("digest.foot.hurt"), "news", t("digest.go.news"));
 }
@@ -67,7 +70,7 @@ function dgAddsBody(d){
 function dgTop5Body(d){
   const cols = DG_POS.map(pos => {
     const rows = d.top5.filter(r => r.pos === pos);
-    return rows.length ? `<div><h4>${pos}</h4><ol>${rows.map(r => `<li><span>${esc(r.n)}</span><em>${r.pts.toFixed(1)}</em></li>`).join("")}</ol></div>` : "";
+    return rows.length ? `<div><h4>${pos}</h4><ol>${rows.map(r => `<li><span class="dg-hd sm">${avatarHTML(r)}</span><span>${esc(r.n)}</span><em>${r.pts.toFixed(1)}</em></li>`).join("")}</ol></div>` : "";
   }).join("");
   return `<div class="dg-t5">${cols}</div>` + dgFootHTML(t("digest.foot.t5"), "board", t("digest.go.board"));
 }

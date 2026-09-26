@@ -329,8 +329,23 @@ group and Digest the default leaf, except on a Tuesday, when Waivers leads.
   pushes the later ones below it.
 - **Nothing to lead with** (no packet, or a quiet week): the lead shrinks to one short line
   (`.dg-lead.quiet`), so the rows start right under it instead of under a 200px empty band.
-- **Desktop (960px+):** the lead is a 440px sticky column (min 420px tall); the ticker scrolls
-  beside it; the page caps at 1180px.
+- **960-1099px:** the lead is a 440px sticky column (min 420px tall); the ticker scrolls beside it.
+- **The wall (1100px+, 2026-09-26, `surface/digest/wall.css`):** a desktop shows the whole week at
+  once. The lead is a full-width band (380px, headline at `--t-hero`, the xl photo standing on its
+  floor) with the reason he leads behind the photo as a faint outlined ghost at `--t-ghost` ("WR2",
+  "22 mph"), stroked in the lead's status colour. Under it every topic is an open panel on a
+  12-column grid:
+
+  | row | panels (columns) |
+  |---|---|
+  | 1-2 | Hurt (5, both rows) · Matchups (4) · Weather (3), then Waiver adds (4) · Stock (3) |
+  | 3 | Top 5 (8, with heads) · Gems (4) |
+  | 4 | News (12, two columns) |
+
+  A panel's head is its title (label + count; no line, no chevron, not a toggle); the day's topic
+  keeps the lime title. Hurt gives each questionable player a line, since the panel has the room.
+  The page, the nav bar and the footer widen to 1680px together so their edges line up; 1920 went
+  from ~790px of margin to 240px. Phone and tablet are unchanged.
 
 Not backtested: Weather, Stock and Gems. Each says "Not backtested." in amber on its opened foot,
 never on the closed line: the closed line is the fact, the caveat is for whoever reads on. Lead copy

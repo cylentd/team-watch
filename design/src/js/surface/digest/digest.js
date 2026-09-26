@@ -74,7 +74,7 @@ function dgRowHTML(id, d, open){
   const [n, tone] = has ? dgCount(id, d) : ["", ""];
   const line = has ? dgLine(id, d) : t("digest.line.nothing");
   const on = has && open === id;
-  return `<div class="dg-row${has ? "" : " empty"}" data-dgrow="${id}"${on ? " data-open" : ""}>
+  return `<div class="dg-row${has ? "" : " empty"}" data-dgrow="${id}"${on ? " data-open data-today" : ""}>
     <button type="button" class="dg-head" aria-expanded="${on}"${has ? ` aria-controls="dg-b-${id}"` : " disabled"}>
       <span class="dg-l">${dgLabel(id)}</span><span class="dg-n ${n === "" ? "none" : tone}">${n}</span>
       <span class="dg-s">${line}</span>${has ? DG_CHEV : ""}</button>
@@ -96,14 +96,25 @@ function dgSetOpen(row, open){
   if (body) body.inert = !open;
 }
 
+/* From 1100px there is room for every topic at once (2026-09-26): the rows become the wall's
+   panels, all open, and a head is a title, not a toggle. Narrower, one row is open at a time. */
+const DG_WALL = matchMedia("(min-width:1100px)");
+function dgSyncWall(v){
+  const open = dgOpenRow();
+  v.querySelectorAll(".dg-row:not(.empty)").forEach(r => dgSetOpen(r, DG_WALL.matches || r.dataset.dgrow === open));
+}
+
 /* Opened in place, never by re-render: the row's own spring is the motion, and the rest of the
    list must not be redrawn under the reader. One open at a time; a second tap closes it. */
 function wireDigest(v){
   v.querySelectorAll(".dg-row:not(.empty) .dg-head").forEach(h => h.addEventListener("click", () => {
+    if (DG_WALL.matches) return;
     const id = h.parentElement.dataset.dgrow;
     DG_OPEN = dgOpenRow() === id ? "" : id;
     v.querySelectorAll(".dg-row").forEach(r => dgSetOpen(r, r.dataset.dgrow === DG_OPEN));
   }));
+  dgSyncWall(v);
+  DG_WALL.onchange = () => { const cur = document.querySelector(".dg"); if (cur) dgSyncWall(cur.parentElement); };
   v.querySelectorAll("[data-dggo]").forEach(b => b.addEventListener("click", () => {
     morphLogo(); navGo(b.dataset.dggo); window.scrollTo({top: 0});
   }));
