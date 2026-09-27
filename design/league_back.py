@@ -1,7 +1,7 @@
 """The Yahoo League view's back page (2026-09-27, storyboard https://claude.ai/artifact/LBKkjFWgJ1rLZGrKtQ1Fn3):
 what LIVE_LEAGUE_YAHOO carries on top of league_recap's recap and history.
 
-- each week: Claude's headline and dek, and per game its dig, stamp, box score and both records after
+- each week: Claude's headline and dek, and per game its punchline, 1-3 facts (`beats`), stamp, box score and both records after
   that week (ff-jarvis model.season.league_roast and model.clients.yahoo_box);
 - the week's bench award: the biggest same-position bench mistake, from the box (ff-jarvis decides
   what a mistake is, `left`; nothing here re-derives it);
@@ -32,7 +32,7 @@ def slim_box(b):
 
 def enrich_weeks(weeks, box, recap):
     """league_recap.weeks() rows (every decided week, oldest first), each game with both records after
-    that week, its dig, stamp and box, each week with its headline and dek (None when the roast skipped
+    that week, its punchline, facts, stamp and box, each week with its headline and dek (None when the roast skipped
     it) and the bench award."""
     boxes = {(int(w), g["home"], g["away"]): g for w, gs in ((box or {}).get("weeks") or {}).items() for g in gs}
     words = (recap or {}).get("weeks") or {}
@@ -47,8 +47,8 @@ def enrich_weeks(weeks, box, recap):
         for g in wk["games"]:
             said = (r.get("games") or {}).get(f"{g['a']}-{g['b']}") or {}
             b = boxes.get((wk["week"], g["a"], g["b"]))
-            g.update(ar=_rec(tally[g["a"]]), br=_rec(tally[g["b"]]), dig=said.get("dig"), stamp=said.get("stamp"),
-                     box=slim_box(b) if b else None)
+            g.update(ar=_rec(tally[g["a"]]), br=_rec(tally[g["b"]]), punch=said.get("punch"),
+                     beats=said.get("beats") or [], stamp=said.get("stamp"), box=slim_box(b) if b else None)
             for tid, m in zip((g["a"], g["b"]), g["box"]["left"] if g["box"] else ()):
                 if m and (not best or m["lost"] > best["v"]):
                     best = {"id": tid, "v": m["lost"], "name": m["benched"]}

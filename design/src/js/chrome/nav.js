@@ -22,7 +22,7 @@ const NAV_ICON = {
    "This week" (2026-09-26) leads: the Digest, what changed league-wide this week, is the front page. */
 const NAV = [
   ["week",     ["digest", "weather"]],
-  ["teams",    ["roster", "waivers", "league"]],
+  ["teams",    ["roster", "waivers", "league", "records"]],
   ["scouting", ["ranks", "board", "movers", "matchups", "usage", "news"]],
   ["bets",     ["parlay", "build", "dfs"]],
   ["gameday",  ["live"]],
@@ -33,6 +33,7 @@ const NAV = [
    it -- the build would pass while the label rendered blank. */
 const navLabel = leaf => ({
   digest: t("nav.tab.digest"), roster: t("nav.tab.roster"), waivers: t("nav.tab.waivers"), league: t("nav.tab.league"),
+  records: t("nav.tab.records"),
   ranks: t("nav.tab.ranks"),
   board: t("nav.tab.board"), movers: t("nav.tab.movers"),
   matchups: t("nav.tab.matchups"), usage: t("nav.tab.grid"), news: t("nav.tab.news"),
@@ -61,8 +62,10 @@ function navTabsOf(group){
   const all = (NAV.find(([g]) => g === group) || NAV[0])[1];
   // A connected league has no Waivers: ff-jarvis builds the packet for David's two leagues only.
   // A leaguemate's team has its league's rail (data/mates.js hasWaivers).
-  // League is the ESPN league's recap and history (data/league.js hasLeague): no Yahoo team has one.
-  const tabs = all.filter(k => (k !== "waivers" || hasWaivers(TEAMS[VIEW])) && (k !== "league" || hasLeague(TEAMS[VIEW])));
+  // League is each of David's two leagues' week (data/league.js hasLeague); a connected league has none.
+  // Records is the Yahoo league's all-time book (hasRecords, 2026-09-27); ESPN keeps its history in League.
+  const tabs = all.filter(k => (k !== "waivers" || hasWaivers(TEAMS[VIEW])) && (k !== "league" || hasLeague(TEAMS[VIEW]))
+    && (k !== "records" || hasRecords(TEAMS[VIEW])));
   return navWaiverDay() && tabs.includes("waivers") ? ["waivers", ...tabs.filter(k => k !== "waivers")] : tabs;
 }
 

@@ -85,7 +85,7 @@ surface/league/history.js
 surface/league/slate.js
 surface/league/back.js
 surface/league/tape.js
-surface/league/book.js
+surface/league/records.js
 surface/league/league.js
 # pin: board/* after data/usage.js -- bdRows memoises off USAGE.sheet, and after
 #      surface/profile/sheet.js, whose sheetValues() is the one definition of who counts on an

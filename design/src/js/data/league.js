@@ -27,6 +27,9 @@ let LG_WEEK = null;
 
 const hasLeague = team => !!lgOf(team);
 
+/* The Records tab: a league whose block carries a record book (Yahoo's back page, design/league_back.py). */
+const hasRecords = team => !!(lgOf(team) || {}).book;
+
 /* The team id of the team on screen, matched by the key the team switch uses. */
 const lgIdOf = team => ((LG && team && LG.teams.find(x => x.key === team.key)) || {}).id;
 

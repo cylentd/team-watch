@@ -1,5 +1,5 @@
 """design/league_back.py through live_league_yahoo against the 4-team fixture plus a week 2 box score
-and roast: each game's records, dig, stamp and box; the bench award; the tape; the record book."""
+and roast: each game's records, punchline, facts, stamp and box; the bench award; the tape; the record book."""
 import json
 import sys
 
@@ -30,13 +30,14 @@ def test_a_roasted_week_carries_its_words(back):
     assert w2["head"] == "CHAT SURVIVES BY 0.44" and w2["dek"].startswith("Jaxon The Box")
     g = {f"{x['a']}-{x['b']}": x for x in w2["games"]}
     assert g["7-3"]["stamp"] == "BURIED" and g["10-9"]["stamp"] is None
-    assert g["10-9"]["dig"].startswith("Jaxon The Box started")
+    assert g["10-9"]["punch"] == "Jaxon The Box benched the win."
+    assert g["10-9"]["beats"] == ["Rico Dowdle on the bench: 15.5", "Jaylen Warren started: 6.5", "Lost by 0.44"]
 
 
 def test_a_skipped_week_draws_scores_without_words(back):
     w1 = back["weeks"][0]
     assert w1["head"] is None and w1["dek"] is None
-    assert all(g["dig"] is None and g["box"] is None for g in w1["games"])
+    assert all(g["punch"] is None and g["beats"] == [] and g["box"] is None for g in w1["games"])
 
 
 def test_records_are_after_that_week(back):

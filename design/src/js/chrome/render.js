@@ -72,9 +72,10 @@ function render(){
   }
 
   const team = TEAMS[VIEW] || TEAMS.yahoo;
-  // League: the team switch stays on top, so a leaguemate can find their own rivalry. A Yahoo team
-  // has no League (nav.js hides the tab); a stale #league draws its roster.
+  // League and Records: the team switch stays on top, so a leaguemate can find their own rivalry. A
+  // team without one (nav.js hides the tab) draws its roster from a stale hash.
   if (SURFACE === "league" && hasLeague(team)) return renderLeague(v, team);
+  if (SURFACE === "records" && hasRecords(team)) return renderRecords(v, team);
   // A connected league has no Waivers (nav.js hides the tab); a stale #waivers draws its roster.
   const wire = SURFACE === "waivers" && hasWaivers(team);
   // The deal and the rail's "new" flash are taken once per page load, on the first Waivers render.

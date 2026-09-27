@@ -1,7 +1,8 @@
 /* ============================== LEAGUE: THE SLATE (Yahoo back page) ==============================
    Every game of the week as a card: winner over loser (the loser struck through), each side's record
-   after that week, the stamp on the week's blowout and its lowest score, Claude's dig, and a box
-   score that opens in place. The team on screen's game comes first and opens by default. */
+   after that week, Claude's punchline (the stamp beside it on the week's blowout and lowest score),
+   the 1-3 facts that back it up, and a box score that opens in place. The team on screen's game
+   comes first and opens by default. */
 
 /* The games whose box is open, by key; null until the reader taps one, meaning the team on screen's
    own game. Several may be open: closing one never moves another card. */
@@ -42,6 +43,12 @@ function lgBoxHTML(g0){
   </div>`;
 }
 
+/* One fact under the punchline, its numbers in bold so the eye lands on them; a negative one in red
+   (DJ Moore's -0.1). Split on the raw text, then escaped, so an entity's digits are never bolded. A
+   hyphen after a digit is a record ("0-2"), not a sign. */
+const lgBeatHTML = s => s.split(/((?<![\d.])-?\d+(?:\.\d+)?)/)
+  .map((p, i) => i % 2 ? `<b${p.startsWith("-") ? ' class="neg"' : ""}>${p}</b>` : esc(p)).join("");
+
 function lgGameHTML(g, id, i){
   const aWon = g.win !== "away";
   const [win, lose] = aWon ? [[g.a, g.ap, g.ar], [g.b, g.bp, g.br]] : [[g.b, g.bp, g.br], [g.a, g.ap, g.ar]];
@@ -49,11 +56,12 @@ function lgGameHTML(g, id, i){
   const open = lgIsOpen(g, id);
   const row = ([tid, pts, rec], lost) => `<span class="bp-t${lost ? " lo" : ""}"><b>${lgName(tid)}</b><small>${rec}</small></span>
     <span class="bp-p${lost ? " lo" : ""}">${lgPts(pts)}</span>`;
-  // The stamp floats at the head of the dig, so both names keep the card's full width.
+  // The stamp sits beside the punchline, so both names keep the card's full width.
   const stamp = g.stamp ? `<span class="bp-stamp">${esc(g.stamp)}</span>` : "";
   return `<article class="bp-game${mine ? " mine" : ""}" style="--i:${i}">
     <div class="bp-sc">${row(win, false)}${row(lose, g.win !== "tie")}</div>
-    ${g.dig || stamp ? `<p class="bp-dig">${stamp}${g.dig ? esc(g.dig) : ""}</p>` : ""}
+    ${g.punch || stamp ? `<div class="bp-punch"><p>${g.punch ? esc(g.punch) : ""}</p>${stamp}</div>` : ""}
+    ${g.beats.length ? `<ul class="bp-beats">${g.beats.map(b => `<li><span>${lgBeatHTML(b)}</span></li>`).join("")}</ul>` : ""}
     ${g.box ? `<button class="bp-open" data-lgbox="${lgKey(g)}" aria-expanded="${open}" aria-controls="bp-box-${lgKey(g)}">
       ${open ? t("league.box.hide") : t("league.box.show")}</button>${open ? lgBoxHTML(g) : ""}` : ""}
   </article>`;

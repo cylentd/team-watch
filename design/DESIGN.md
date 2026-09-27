@@ -158,21 +158,33 @@ https://claude.ai/artifact/LBKkjFWgJ1rLZGrKtQ1Fn3. ESPN is David's work league a
 
 | Part | Where |
 |---|---|
-| Headline, dek, one dig and stamp per game: `claude -p`, R-rated, checked against the facts | ff-jarvis `model.season.league_roast` |
+| Headline, dek, per game a punchline, 1-3 facts and a stamp: `claude -p`, R-rated, checked against the facts | ff-jarvis `model.season.league_roast` |
 | Box scores (starters, bench, the one bench mistake per side) | ff-jarvis `model.clients.yahoo_box` |
 | Records after each week, the bench award, meetings, tape fields, the record book | `design/league_back.py` |
 | Masthead, week strip, superlatives | `surface/league/back.js` |
 | Game cards and box scores (the winner's side on the left) | `surface/league/slate.js` |
-| Tale of the tape: this week's opponent, every meeting as a bar | `surface/league/tape.js` |
-| Record book: Hall of Fame, Hall of Shame, Champions | `surface/league/book.js` |
+| This week's grudge: series record, one sentence, last meetings as W/L chips | `surface/league/tape.js` |
+| Records tab: trophy case, Hall of Fame, Hall of Shame | `surface/league/records.js` |
+
+**Revised the same day** (storyboard https://claude.ai/artifact/JAp2FLPRYAXSVxnNtR8HKU), on David's read
+that it had too much data everywhere and the point got lost:
+- **The roast:** a paragraph per game became a punchline in the display face with 1-3 facts under it,
+  numbers bolded (a negative one red). A punchline must name who it is about: "The man cost you points
+  for showing up" was about DJ Moore and never said so. ff-jarvis's check enforces it.
+- **The rivalry** was a tale of the tape (6 stat rows, a bar per meeting, a legend, 2 footnotes). It
+  became the grudge: the series record, one sentence built from the data (who owns it, who has won the
+  last few) and the last 8 meetings as W/L chips. On a desktop it stays in view beside the slate.
+- **The record book left the week** for its own tab, **Records** (`hasRecords`: a league whose block
+  has a `book`, so Yahoo only). The tab has no inner tabs. It opens on a trophy case (titles by today's
+  team, then one line naming every team with none), followed by the Hall of Fame and Hall of Shame as record cards. Each
+  record is filed under today's team, with "as <name then>" under it. ESPN keeps its history in League.
 
 - **Voice:** Big Shoulders Display (`--tab`) for the headline, stamps and section heads, in this view
   only. The masthead rule is the league's colour.
 - **First data at 269px on a phone (budget ~200):** the headline is the first data and runs three
   lines at 34px. It is the reason people open the page, so it stays big. The week chips sit above it.
 - **Motion:** a new week arrives once. The dots drop, the cards rise, each loser is struck through,
-  then the stamps slam (`.bp-in`). The first tap takes the class off, so a box toggle or a tab
-  change never replays it.
+  then the stamps slam (`.bp-in`). The first tap takes the class off, so a box toggle never replays it.
 - **Taps:** several boxes may be open at once, so closing one never moves another card. Each control
   redraws only its own part.
 - **A week the roast skipped** (two rejected replies) draws scores, boxes and superlatives without words.

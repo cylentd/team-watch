@@ -1,7 +1,8 @@
 /* ============================== LEAGUE: THE BACK PAGE (Yahoo) ==============================
    2026-09-27, storyboard https://claude.ai/artifact/LBKkjFWgJ1rLZGrKtQ1Fn3. The Yahoo week as a sports
    tabloid's back page: Claude's headline and dek (ff-jarvis league_roast), every score on one line,
-   every game as a card with its dig (slate.js), then six superlatives. ESPN keeps recap.js: it is
+   every game as a card with its punchline (slate.js), then six superlatives and this week's grudge
+   (tape.js). The all-time book is its own tab, Records (records.js). ESPN keeps recap.js: it is
    David's work league, not the one his friends read. */
 
 /* The week the back page last drew, per league: a new one arrives with motion (STYLE.md: data

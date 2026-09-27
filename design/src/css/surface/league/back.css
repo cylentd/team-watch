@@ -34,9 +34,16 @@
 .bp-p{font-family:var(--mono);font-size:var(--t-4);font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
 .bp-p.lo{font-weight:500;color:var(--ink-3)}
 .bp-stamp{font-family:var(--tab);font-size:var(--t-3);font-weight:900;letter-spacing:.06em;text-transform:uppercase;line-height:1;white-space:nowrap;
-  color:var(--down);border:2px solid var(--down);border-radius:5px;padding:3px 6px 1px;transform:rotate(-8deg);
-  float:right;margin:2px 2px 6px 12px}
-.bp-dig{margin:0;font-size:var(--t-2);line-height:1.5;color:var(--ink)}
+  color:var(--down);border:2px solid var(--down);border-radius:5px;padding:3px 6px 1px;transform:rotate(-8deg);flex:none;margin-top:2px}
+/* The joke first, big, in the back page's voice; the facts that back it up under it, one per line,
+   numbers in bold so the eye lands on them (a negative one red). */
+.bp-punch{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.bp-punch p{margin:0;font-family:var(--tab);font-size:var(--t-5);font-weight:900;line-height:1;text-transform:uppercase;text-wrap:balance;overflow-wrap:anywhere}
+.bp-beats{margin:0;padding:8px 0 0;list-style:none;display:grid;gap:4px;border-top:1px solid var(--line)}
+.bp-beats li{display:flex;gap:8px;font-size:var(--t-2);line-height:1.4;color:var(--ink-2)}
+.bp-beats li::before{content:"";flex:none;width:5px;height:5px;margin-top:7px;border-radius:50%;background:var(--ink-3)}
+.bp-beats b{font-family:var(--mono);font-weight:700;color:var(--ink)}
+.bp-beats b.neg{color:var(--down)}
 .bp-open{justify-self:start;font:inherit;font-size:var(--t-1);font-weight:600;color:var(--ink-2);background:none;border:0;padding:4px 0;cursor:pointer}
 .bp-open:hover{color:var(--ink)}
 .bp-open:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
@@ -63,49 +70,34 @@
 .bp-suv{font-family:var(--mono);font-size:var(--t-4);font-weight:700;font-variant-numeric:tabular-nums}
 .bp-sud{font-size:var(--t-1);line-height:1.35;color:var(--ink-2)}
 
-/* tale of the tape */
-.bp-tape{background:var(--panel);border:1px solid var(--line-2);border-radius:12px;padding:12px 13px;display:grid;gap:10px}
-.bp-vs{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:end;gap:8px}
-.bp-va,.bp-vb{font-family:var(--tab);font-size:var(--t-4);font-weight:900;line-height:1;text-transform:uppercase;overflow-wrap:anywhere}
-.bp-vb{text-align:right;color:var(--ink-2)}
-.bp-vn{font-family:var(--tab);font-size:var(--t-6);font-weight:900;line-height:1;text-align:center;font-variant-numeric:tabular-nums}
-.bp-vn small{display:block;margin-top:3px;font-family:var(--mono);font-size:var(--t-1);font-weight:500;letter-spacing:.08em;color:var(--ink-3)}
-.bp-tt{display:grid;grid-template-columns:1fr auto 1fr;gap:5px 10px;align-items:baseline}
-.bp-tl,.bp-tr{font-family:var(--mono);font-size:var(--t-2);font-weight:700;font-variant-numeric:tabular-nums}
-.bp-tr{text-align:right}
-.bp-tl.up,.bp-tr.up{color:var(--up)}
-.bp-tm{font-size:var(--t-1);color:var(--ink-3);text-align:center}
-.bp-meets{height:96px;display:flex;align-items:stretch;gap:3px;border-block:1px solid var(--line);
-  background:linear-gradient(var(--line-2),var(--line-2)) center/100% 1px no-repeat}
-.bp-meets i{flex:1;position:relative}
-.bp-meets i::after{content:"";position:absolute;left:0;right:0;height:calc(var(--h) / 2);border-radius:2px}
-.bp-meets i.u::after{bottom:50%;background:var(--up);transform-origin:bottom}
-.bp-meets i.d::after{top:50%;background:var(--down);transform-origin:top}
-.bp-meets i.po::after{outline:1.5px solid var(--lime);outline-offset:1px}
-.bp-foot{margin:0;font-size:var(--t-1);line-height:1.5;color:var(--ink-2)}
-.bp-foot b{font-family:var(--mono);color:var(--ink)}
-
-/* record book */
-.bp-book{margin:0;padding:0;list-style:none;border:1px solid var(--line);border-radius:12px;overflow:hidden}
-.bp-book li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1px 10px;padding:9px 12px;border-bottom:1px solid var(--line)}
-.bp-book li:last-child{border-bottom:0}
-.bp-rk{grid-column:1/-1;font-size:var(--t-1);font-weight:600;color:var(--ink-3)}
-.bp-rt{font-size:var(--t-2);font-weight:700;min-width:0;overflow-wrap:anywhere}
-.bp-rv{font-family:var(--mono);font-size:var(--t-4);font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
-.bp-rd{grid-column:1/-1;font-size:var(--t-1);color:var(--ink-2)}
-.bp-book li.me .bp-rt{color:var(--lime)}
+/* this week's grudge: the series record, one sentence, the last meetings as W/L chips */
+.bp-gcard{background:var(--panel);border:1px solid var(--line-2);border-radius:12px;padding:14px;display:grid;gap:12px}
+.bp-gvs{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:10px}
+.bp-gvs span{font-size:var(--t-3);font-weight:800;line-height:1.15;overflow-wrap:anywhere}
+.bp-gvs span:last-child{text-align:right;color:var(--ink-2)}
+.bp-gvs b{font-family:var(--tab);font-size:var(--t-7);font-weight:900;line-height:1;font-variant-numeric:tabular-nums}
+.bp-gline{margin:0;font-size:var(--t-3);line-height:1.45}
+.bp-gline b{color:var(--ink);font-weight:800}
+.bp-gchips{display:flex;gap:5px}
+.bp-gchips span{flex:1;display:grid;gap:3px;text-align:center;min-width:0}
+.bp-gchips i{font-family:var(--mono);font-size:var(--t-1);font-weight:700;font-style:normal;line-height:24px;border-radius:6px;
+  background:rgb(var(--up-rgb) / .15);color:var(--up)}
+.bp-gchips i.l{background:rgb(var(--down-rgb) / .15);color:var(--down)}
+.bp-gchips small{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
 
 /* Arrival, once per new week (league.js drops .bp-in on the first tap): the dots drop onto the
-   strip, the cards rise in order, each loser is struck through, then the stamps slam. The meeting
-   bars grow from the zero line whenever the tape draws. Reduced motion: responsive/motion.css. */
+   strip, the cards rise in order, each loser is struck through, then the stamps slam.
+   Reduced motion: responsive/motion.css. */
 .bp-in .bp-dot{animation:mi-rise var(--dur-spring) var(--spring) calc(var(--i,0) * var(--enter-step)) backwards}
 .bp-in .bp-game,.bp-in .bp-su{animation:mi-rise var(--dur-spring) var(--spring) calc(var(--i,0) * 70ms) backwards}
 .bp-in .bp-t.lo::after{animation:mi-ink .42s var(--ease) calc(.3s + var(--i,0) * 70ms) backwards}
 .bp-in .bp-stamp{animation:wv-slam var(--dur-stamp) var(--spring-pop) .75s backwards}
-.bp-meets i::after{animation:mi-fill-y var(--dur-spring) var(--ease) calc(var(--i,0) * 40ms) backwards}
-@keyframes mi-fill-y{from{transform:scaleY(0)}}
 
 /* The headline steps up once a line holds more than a phone's few words. */
 @media (min-width:760px){
   .bp-hl{font-size:var(--t-7)}
+}
+/* Beside the week, the grudge card is one short block: it stays in view while the slate scrolls. */
+@media (min-width:960px){
+  .lg.bp > .lg-col:last-child{position:sticky;top:var(--page-pad);align-self:start}
 }
