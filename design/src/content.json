@@ -1049,6 +1049,7 @@
  "teams.mode.label": "Roster view",
  "teams.mode.sheet": "Sheet",
  "teams.pack.again": "Rip again",
+ "teams.pack.backLine": "WEEKLY PACK · {season}",
  "teams.pack.closeLabel": "Close",
  "teams.pack.count": "{n} PULLED",
  "teams.pack.done": "<b>{name}</b> is the #{rank} {pos} this week.",

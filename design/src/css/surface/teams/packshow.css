@@ -35,8 +35,13 @@ body.pk-open{overflow:hidden}
    reader as the first card rises out of it. It no longer sways by itself on a phone (2026-09-25): nothing to hold, and the reader
    saw a dark box swinging across the foil as it swayed. */
 .pk-center{position:absolute;z-index:3;left:50%;top:45%;translate:-50% -50%;perspective:900px}
-.pk-center .pack-glow{--pkd:20px;transform:rotateX(6deg) rotateY(var(--pry, -22deg));transition:transform var(--dur-pop) var(--spring-pop)}
+.pk-center .pack-glow{--pkd:36px;transform:rotateX(6deg) rotateY(var(--pry, -22deg));transition:transform var(--dur-pop) var(--spring-pop)}
 .pk-drag .pk-center .pack-glow{transition:none}
+/* The tier glow stays behind the pack as it spins (2026-09-27): drawn on the turning pack, it
+   was a plane that showed edge-on as a coloured line beside the pack's side. */
+.pk-center .pack-glow::before{display:none}
+.pk-center::before{content:"";position:absolute;z-index:-1;inset:calc(var(--glow-r, 0px) * -1.6);border-radius:18px;pointer-events:none;
+  background:radial-gradient(closest-side,var(--glow, transparent) 55%,transparent);opacity:.75}
 .pk-aim:not(.pk-drag) .pk-center .pack-glow{transition:transform .5s cubic-bezier(.25,1,.5,1)}
 /* Larger than the cards inside it, as a real pack is: 1.06x the card on 2026-09-26, 1.22x since
    2026-09-27 (~255px wide on a 360px phone), so the pack is the thing on the screen. */
