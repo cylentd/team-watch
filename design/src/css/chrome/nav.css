@@ -22,6 +22,25 @@
 .navitem[aria-current="true"]::after{content:"";position:absolute;left:12px;right:12px;bottom:-1px;height:2px;background:var(--lime)}
 .navitem:active{transform:scale(var(--press))}
 
+/* ---- a narrow desktop: the row gives up width before the groups do ---- */
+/* The groups shrink to nothing (.nav min-width:0), so on 761-1099px they slid under the 200px
+   search field: 9px of overlap at 1100, 300px at 761 (measured 2026-09-27). Under 1100 search is
+   its icon, as on a phone; under 960 the words step down to the phone's size too. Both stop at
+   the phone (760.css has its own row), hence "not (max-width:760px)". */
+@media (not (max-width:760px)) and (not (min-width:1100px)){
+  .navrow .navitem{padding:0 8px}
+  .navitem[aria-current="true"]::after{left:8px;right:8px}
+  .navrow .navsearch{flex:none;min-width:0;width:44px;padding:0;margin-left:auto;border:0;background:none;
+    justify-content:center;align-self:stretch;color:var(--ink-2)}
+  .navrow .navsearch .ix{width:20px;height:20px}
+  .navrow .navsearch .full,.navrow .navsearch .navkbd{display:none}
+}
+@media (not (max-width:760px)) and (not (min-width:960px)){
+  .navbar .brand-name{display:none}
+  .navrow .navitem{font-size:var(--t-3);padding:0 6px}
+  .navitem[aria-current="true"]::after{left:6px;right:6px}
+}
+
 /* ---- the group's views, one row under the groups ---- */
 /* Reuses .modes-sub / .mode-sub, the app's sub-tab component, drawn here as underlined words
    like the groups above them (2026-09-25; boxed mono tabs until then). */

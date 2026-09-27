@@ -443,6 +443,26 @@ def test_movers_hash_opens_movers(browser, page_file, hash):
         ctx.close()
 
 
+@pytest.mark.parametrize("w", [761, 800, 960, 1024, 1100])
+def test_nav_row_fits_a_narrow_desktop(browser, page_file, w):
+    """Between the phone and 1100px the groups slid under the search field and "WEEK 3" wrapped to
+    two lines (300px of overlap at 761, 9px at 1100; fixed 2026-09-27). The golden viewports are
+    390 and 1400, so neither saw it."""
+    ctx = browser.new_context(viewport={"width": w, "height": 700}, reduced_motion="reduce")
+    page = ctx.new_page()
+    page.set_default_timeout(5000)
+    page.route(re.compile(r"^https?://"), lambda route: route.abort())
+    page.add_init_script(SEED)
+    try:
+        page.goto(page_file.as_uri() + "#board")
+        page.wait_for_function("document.getElementById('view').children.length > 0")
+        nav = page.evaluate("""(() => { const n = document.querySelector('.nav'), wk = document.querySelector('.status-btn');
+          return {overflow: n.scrollWidth - n.clientWidth, weekOneLine: !wk || wk.getBoundingClientRect().height <= 30}; })()""")
+        assert nav == {"overflow": 0, "weekOneLine": True}, nav
+    finally:
+        ctx.close()
+
+
 @pytest.mark.parametrize("w,h", [(360, 740), (1280, 1080)])
 def test_leaders_page_fits_the_screen(browser, page_file, w, h):
     """Leaders opens on the #1's card with the list running on under it, and a page is one screen

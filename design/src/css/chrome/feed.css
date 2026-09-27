@@ -1,9 +1,10 @@
 /* ============================== FEED STATUS ============================== */
 /* No box at rest (2026-09-25): the week is a reading, not a control, and a border made it look
    like one. The border comes back only when it becomes one (.stale). */
-.statuswrap{position:relative;margin:0 4px}
+/* Never shrinks: at 1100px the nav row squeezed "WEEK 3" onto two lines (2026-09-27). */
+.statuswrap{position:relative;margin:0 4px;flex:none}
 .status-btn{
-  display:inline-flex;align-items:center;gap:7px;appearance:none;cursor:pointer;
+  display:inline-flex;align-items:center;gap:7px;appearance:none;cursor:pointer;white-space:nowrap;
   background:none;border:1px solid transparent;border-radius:2px;padding:5px 8px;
   font-family:var(--mono);font-size:var(--t-1);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);
   transition:border-color .2s var(--ease),background .2s var(--ease);

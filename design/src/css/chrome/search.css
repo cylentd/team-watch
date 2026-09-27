@@ -79,7 +79,7 @@ body:has(.search:not([hidden])) .chatfab{display:none}
 /* The nav bar's search slot on a desktop (2026-09-25): a field, not a tab, opening the bar's
    tools at the row's right end. The auto margin pushes it and everything after it right. The
    phone's bar draws search and chat as icons (760.css). */
-.navsearch{margin-left:auto;align-self:center;min-width:200px;justify-content:space-between;gap:10px;
+.navsearch{margin-left:auto;align-self:center;min-width:160px;justify-content:space-between;gap:10px;
   padding:6px 10px 6px 12px;border:1px solid var(--line-2);border-radius:8px;background:var(--panel);
   font-family:var(--ui);font-weight:500;font-size:var(--t-2);text-transform:none;letter-spacing:0;color:var(--ink-3)}
 .navsearch:hover{border-color:var(--ink-3);color:var(--ink-2)}

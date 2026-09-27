@@ -27,10 +27,14 @@ function bdMeasureFit(){
   const top = rows[0].getBoundingClientRect().top + window.scrollY;
   // The lowest row, not the last: from 1100px the page is two lists side by side.
   const under = card.getBoundingClientRect().bottom - Math.max(...rows.map(r => r.getBoundingClientRect().bottom));
-  // A pager that is not drawn yet (one page at the guessed size) will be once the list is cut.
-  const pager = card.querySelector(".bd-pager") ? 0 : 56;
-  const n = Math.floor((window.innerHeight - bdBottomChromeH() - top - under - pager - 8) / rowH);
-  return Math.max(BD_FIT_MIN, Math.min(BD_FIT_MAX, n)) * (BD_WIDE.matches ? 2 : 1);
+  const room = window.innerHeight - bdBottomChromeH() - top - under - 8;
+  const fit = px => Math.max(BD_FIT_MIN, Math.min(BD_FIT_MAX, Math.floor(px / rowH))) * (BD_WIDE.matches ? 2 : 1);
+  // No pager means every row is on screen. That stands if they fit without one; only a list that
+  // must be cut reserves room for the pager it will then draw. Reserving it regardless shrank a
+  // list that fitted, which drew the pager, which freed the room: a render loop (2026-09-27).
+  const paged = !!card.querySelector(".bd-pager");
+  if (!paged && rows.length <= fit(room)) return null;
+  return fit(paged ? room : room - 56);
 }
 
 /* After a render: size the page on screen to the screen. Page 1 (under the hero) and the pages
