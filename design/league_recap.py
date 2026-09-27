@@ -15,7 +15,7 @@ Nothing here advises anyone: results, awards and history are already public insi
 """
 import re
 
-from league_back import add_meets, add_tape, book, enrich_weeks, last_places
+from league_back import add_meets, add_standings, add_tape, book, enrich_weeks, last_places, next_grudge
 
 AWARDS = ("top", "low", "blow", "close", "luck", "unluck")
 
@@ -185,15 +185,28 @@ def _owner(owners, y, tid):
     return int(o) if not str(o).startswith("former-") else FORMER + int(str(o).split("-")[1])
 
 
-def live_league_yahoo(season, history, owners, rosters, slugify, box=None, recap=None):
+def _mgr_of(managers):
+    """Owner id -> the manager's display name (ff-jarvis yahoo_league_managers.json, keyed like the owner
+    map): today's id, or FORMER+N for former-N. None for an unmapped team or without the file."""
+    m = (managers or {}).get("managers") or {}
+    def name(oid):
+        if oid is None:
+            return None
+        return m.get(str(oid)) if oid < FORMER else m.get(f"former-{oid - FORMER}") if oid < 100000 else None
+    return name
+
+
+def live_league_yahoo(season, history, owners, rosters, slugify, box=None, recap=None, managers=None):
     """LIVE_LEAGUE_YAHOO, or None. Yahoo re-ids every team each season and hides managers from the
     cookie, so past teams join today's through `owners` (ff-jarvis yahoo_league_owners.json, no names).
     With every past season mapped, head-to-head and titles run all-time (`scope` "all"); without, this
     season only. A past team keeps the name it had that year (`name`); `id` says who it is today.
     `rosters` is league_rosters.json; `box` and `recap` are ff-jarvis's box scores and weekly roast,
-    and the back page (design/league_back.py) draws without either."""
+    and the back page (design/league_back.py) draws without either. `managers` names each manager
+    (`mgr` on teams, champions and records) for Records, which files a record under its manager."""
     if not season or not season.get("teams"):
         return None
+    mgr = _mgr_of(managers)
     pods = (history or {}).get("seasons") or {}
     mapped = all(str(y) in ((owners or {}).get("seasons") or {}) for y, s in pods.items() if s.get("games"))
     champs = []
@@ -201,20 +214,23 @@ def live_league_yahoo(season, history, owners, rosters, slugify, box=None, recap
         if s.get("podium"):
             oid = _owner(owners, y, s["podium"][0]["id"])
             champs.append({"y": int(y), "id": oid if oid < FORMER else None, "name": _past_name(s["podium"][0]["name"]),
-                           "w": None, "l": None, "t": None})
+                           "w": None, "l": None, "t": None, "mgr": mgr(oid)})
     now = _all_games(season, {})
     past, names, totals = _yahoo_past(pods, owners)
     everything = sorted(past + now, key=lambda g: (g["y"], g["week"]))
-    fx = _named(facts(everything, [c for c in champs if c["id"]] if mapped else [], totals), names)
+    fx = _named(facts(everything, [c for c in champs if c["id"]] if mapped else [], totals), names, mgr)
     games = everything if mapped else now
-    block = _block(season, _teams(season, rosters, slugify, "yahoo"), games, champs, fx,
+    teams = [{**t, "mgr": mgr(t["id"])} for t in _teams(season, rosters, slugify, "yahoo")]
+    block = _block(season, teams, games, champs, fx,
                    min([int(y) for y in pods] + [season["season"]]), "all" if mapped else "season")
     enrich_weeks(block["weeks"], box, recap)
+    add_standings(block["weeks"], [t["id"] for t in block["teams"]])
     add_meets(block["h2h"], games)
+    block["grudge"] = next_grudge(block["now"], block["h2h"])
     lasts = last_places(games, season["season"])
     add_tape(block["teams"], games, champs, lasts)
     b = book(fx, games, block["teams"], lasts)
-    block["book"] = {k: _named(v, names) for k, v in b.items()}
+    block["book"] = {k: _named(v, names, mgr) for k, v in b.items()}
     return block
 
 
@@ -237,16 +253,22 @@ def _yahoo_past(pods, owners):
     return games, names, totals
 
 
-def _named(fx, names):
-    """A fact from a past season names the team as it was that year (`name`, `oppname`); its `id`
-    stays when it is one of today's teams (the page adds "now ..."), and is dropped for a manager who
-    has left or an unmapped team."""
+def _named(fx, names, mgr=None):
+    """A fact from a past season names the team as it was that year (`name`, `oppname`) and, given
+    `mgr`, its manager (`mgr`, `oppmgr`, `mgrs` for a list of ids), which a former manager keeps too;
+    its `id` stays when it is one of today's teams (the page adds "now ..."), and is dropped for a
+    manager who has left or an unmapped team. A fact may pass through twice (facts, then the book):
+    a name, once set, stays."""
     for f in fx:
-        for key, label in (("id", "name"), ("opp", "oppname")):
+        for key, label, who in (("id", "name", "mgr"), ("opp", "oppname", "oppmgr")):
             if f.get(key) is not None and "y" in f and (f["y"], f[key]) in names:
                 f[label] = names[(f["y"], f[key])]
+            if mgr and f.get(key) is not None and not f.get(who) and mgr(f[key]):
+                f[who] = mgr(f[key])
             if f.get(key) is not None and f[key] >= FORMER:
                 f[key] = None
+        if mgr and f.get("ids") and "mgrs" not in f and any(map(mgr, f["ids"])):
+            f["mgrs"] = [mgr(i) for i in f["ids"]]
     return fx
 
 

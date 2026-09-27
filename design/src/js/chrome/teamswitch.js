@@ -107,8 +107,10 @@ function wireTsMenu(sw, menu){
     SEARCH_INDEX = null; // a leaguemate's roster counts as "yours" in search only while on screen
     // A connected league has no Waivers (ff-jarvis builds David's two leagues only).
     if (!hasWaivers(TEAMS[VIEW]) && SURFACE === "waivers") SURFACE = "roster";
-    if (!hasLeague(TEAMS[VIEW]) && SURFACE === "league") SURFACE = "roster";   // a connected league has none
-    if (!hasRecords(TEAMS[VIEW]) && SURFACE === "records") SURFACE = "league";  // ESPN's history is in League
+    // A team's league page follows its league: My recap for Yahoo, League for ESPN, none when connected.
+    if (SURFACE === "league" && hasRecords(TEAMS[VIEW])) SURFACE = "myrecap";
+    if (SURFACE === "myrecap" && !hasRecords(TEAMS[VIEW])) SURFACE = hasLeague(TEAMS[VIEW]) ? "league" : "roster";
+    if (SURFACE === "league" && !hasLeague(TEAMS[VIEW])) SURFACE = "roster";
     render();
     paintSubnav();       // the Waivers count is per league, and a connected league has none
     if (changed) zipFootball();

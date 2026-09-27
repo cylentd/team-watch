@@ -20,9 +20,20 @@ read = lambda n: json.loads((FIX / n).read_text(encoding="utf-8"))
 @pytest.fixture(scope="module")
 def back():
     b = live_league_yahoo(read("yahoo_league.json"), read("yahoo_league_history.json"), read("yahoo_league_owners.json"),
-                          read("league_rosters.json"), slugify, read("yahoo_league_box.json"), read("yahoo_league_recap.json"))
+                          read("league_rosters.json"), slugify, read("yahoo_league_box.json"), read("yahoo_league_recap.json"),
+                          read("yahoo_league_managers.json"))
     contract.validate("LIVE_LEAGUE_YAHOO", b)
     return b
+
+
+def test_managers_name_teams_champions_and_records(back):
+    assert {t["id"]: t["mgr"] for t in back["teams"]} == {3: "Kearny", 7: "Crystal W.", 9: "David", 10: "Jon"}
+    assert all(c["mgr"] for c in back["champs"] if c["id"] is not None)
+    every = back["book"]["fame"] + back["book"]["shame"]
+    # A former manager's record keeps its manager's name after its id is dropped.
+    assert any(f.get("id") is None and f.get("mgr") == "Justin" for f in every) or not any(
+        f.get("id") is None and "y" in f for f in every)
+    assert all(f.get("mgr") for f in every if f.get("id") is not None)
 
 
 def test_a_roasted_week_carries_its_words(back):
@@ -69,6 +80,26 @@ def test_book_splits_fame_and_shame(back):
     assert fame[:2] == ["high", "blow"] and shame[0] == "low"
     assert "robbed" in shame and "stole" in shame
     assert not set(fame) & set(shame)
+
+
+def test_standings_after_each_week(back):
+    t1, t2 = (w["table"] for w in back["weeks"])
+    assert [r["id"] for r in t1][:2] == [10, 3]                     # both 1-0, Jaxon The Box on points
+    top = t2[0]
+    assert (top["id"], top["w"], top["l"], top["pf"], top["pfr"]) == (3, 2, 0, 292.08, 1)
+    assert all(r["move"] == 0 for r in t1)                           # week 1 has no week before it
+    assert sum(r["move"] for r in t2) == 0                           # every place gained is one lost
+
+
+def test_next_grudge_is_the_most_lopsided_pairing(back):
+    from league_back import next_grudge
+    rec = lambda w, l: {"w": w, "l": l, "t": 0}
+    h2h = {"1": {"2": rec(5, 6)}, "2": {"1": rec(6, 5)}, "3": {"4": rec(0, 10)}, "4": {"3": rec(10, 0)},
+           "5": {"6": rec(2, 0)}, "6": {"5": rec(0, 2)}}
+    now = [{"a": 1, "b": 2}, {"a": 3, "b": 4}, {"a": 5, "b": 6}]
+    assert next_grudge(now, h2h) == {"a": 4, "b": 3}          # 10-0, told from the side that leads it
+    assert next_grudge([{"a": 5, "b": 6}], h2h) is None        # 2 meetings is not a grudge yet
+    assert back["grudge"] is None                              # the fixture's pairings met at most twice
 
 
 def test_without_box_or_roast_the_block_still_draws():

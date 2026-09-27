@@ -17,6 +17,9 @@ function lgRun(m){
 function lgGrudgeLine(id, opp, h, m){
   if (!m.length) return t("league.grudge.first");
   const lead = h.w > h.l ? id : h.l > h.w ? opp : null;
+  // A shutout series is the whole story: nothing else in the line competes with it.
+  if (m.length >= 3 && (!h.w || !h.l) && !h.t)
+    return t("league.grudge.never", {lead: `<b>${lgName(lead)}</b>`, other: `<b>${lgName(lead === id ? opp : id)}</b>`, n: m.length});
   const run = lgRun(m), hot = run && run[1] >= 2 ? (run[0] === "W" ? id : opp) : null;
   const at = {lead: `<b>${lgName(lead)}</b>`, other: `<b>${lgName(hot)}</b>`, n: run && run[1]};
   if (lead && hot && hot !== lead) return t("league.grudge.ownsBut", at);
@@ -25,18 +28,21 @@ function lgGrudgeLine(id, opp, h, m){
   return hot ? t("league.grudge.evenRun", at) : t("league.grudge.even");
 }
 
-function lgGrudgeHTML(id){
-  const opp = id ? lgOpp(id) : null;
+/* The team on screen against this week's opponent (My recap). */
+const lgGrudgeHTML = id => lgPairGrudgeHTML(id, id ? lgOpp(id) : null, t("league.grudge.title"));
+
+/* One pairing's grudge card, from `id`'s side: My recap's own, or the league page's biggest one. */
+function lgPairGrudgeHTML(id, opp, title){
   if (!LG.teams.some(x => x.id === id) || !LG.teams.some(x => x.id === opp)) return "";
   const h = lgH2H(id, opp) || {w: 0, l: 0, t: 0, m: []}, m = h.m || [];
-  const chips = m.slice(-8).map(x => `<span><i class="${x[2] > 0 ? "w" : "l"}">${x[2] > 0 ? t("league.grudge.w") : t("league.grudge.l")}</i>
+  const chips = m.slice(-10).map(x => `<span><i class="${x[2] > 0 ? "w" : "l"}">${x[2] > 0 ? t("league.grudge.w") : t("league.grudge.l")}</i>
     <small>'${String(x[0]).slice(2)}</small></span>`).join("");
-  return `<section class="lg-sec bp-grudge" aria-label="${t("league.rival.aria")}">
-    <h3 class="bp-hd">${t("league.grudge.title")}<span>${t("league.tape.sub", {n: LG.week})}</span></h3>
+  return `<section class="lg-sec bp-grudge" aria-label="${title}">
+    <h3 class="bp-hd">${title}<span>${t("league.tape.sub", {n: LG.week})}</span></h3>
     <div class="bp-gcard">
       <div class="bp-gvs"><span>${lgName(id)}</span><b>${h.t ? `${h.w}–${h.l}–${h.t}` : `${h.w}–${h.l}`}</b><span>${lgName(opp)}</span></div>
       <p class="bp-gline">${lgGrudgeLine(id, opp, h, m)}</p>
-      ${chips ? `<div class="bp-gchips" role="img" aria-label="${t("league.grudge.chipsAria", {n: Math.min(8, m.length)})}">${chips}</div>` : ""}
+      ${chips ? `<div class="bp-gchips" role="img" aria-label="${t("league.grudge.chipsAria", {n: Math.min(10, m.length)})}">${chips}</div>` : ""}
     </div>
   </section>`;
 }

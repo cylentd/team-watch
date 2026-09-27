@@ -21,8 +21,8 @@ const NAV_ICON = {
    Each leaf's label is its own key, so a rename here never silently changes a heading elsewhere.
    "This week" (2026-09-26) leads: the Digest, what changed league-wide this week, is the front page. */
 const NAV = [
-  ["week",     ["digest", "weather"]],
-  ["teams",    ["roster", "waivers", "league", "records"]],
+  ["week",     ["digest", "weather", "recap", "records"]],
+  ["teams",    ["roster", "waivers", "league", "myrecap"]],
   ["scouting", ["ranks", "board", "movers", "matchups", "usage", "news"]],
   ["bets",     ["parlay", "build", "dfs"]],
   ["gameday",  ["live"]],
@@ -33,7 +33,7 @@ const NAV = [
    it -- the build would pass while the label rendered blank. */
 const navLabel = leaf => ({
   digest: t("nav.tab.digest"), roster: t("nav.tab.roster"), waivers: t("nav.tab.waivers"), league: t("nav.tab.league"),
-  records: t("nav.tab.records"),
+  records: t("nav.tab.records"), recap: t("nav.tab.recap"), myrecap: t("nav.tab.myrecap"),
   ranks: t("nav.tab.ranks"),
   board: t("nav.tab.board"), movers: t("nav.tab.movers"),
   matchups: t("nav.tab.matchups"), usage: t("nav.tab.grid"), news: t("nav.tab.news"),
@@ -62,10 +62,13 @@ function navTabsOf(group){
   const all = (NAV.find(([g]) => g === group) || NAV[0])[1];
   // A connected league has no Waivers: ff-jarvis builds the packet for David's two leagues only.
   // A leaguemate's team has its league's rail (data/mates.js hasWaivers).
-  // League is each of David's two leagues' week (data/league.js hasLeague); a connected league has none.
-  // Records is the Yahoo league's all-time book (hasRecords, 2026-09-27); ESPN keeps its history in League.
-  const tabs = all.filter(k => (k !== "waivers" || hasWaivers(TEAMS[VIEW])) && (k !== "league" || hasLeague(TEAMS[VIEW]))
-    && (k !== "records" || hasRecords(TEAMS[VIEW])));
+  // The Yahoo league (the one David's friends read) has This week > League and Records, the same for
+  // every reader, and My teams > My recap for the team on screen (hasRecords). ESPN keeps its own
+  // League leaf (hasLeague and no record book); a connected league has neither.
+  const tm = TEAMS[VIEW], leagueWide = !!LGS.yahoo;
+  const tabs = all.filter(k => (k !== "waivers" || hasWaivers(tm))
+    && (k !== "league" || (hasLeague(tm) && !hasRecords(tm))) && (k !== "myrecap" || hasRecords(tm))
+    && ((k !== "recap" && k !== "records") || leagueWide));
   return navWaiverDay() && tabs.includes("waivers") ? ["waivers", ...tabs.filter(k => k !== "waivers")] : tabs;
 }
 

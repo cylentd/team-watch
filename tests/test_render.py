@@ -67,7 +67,8 @@ GD_CATCHUP = {swing: {me: 21.5, opp: 3.0}, movers: [
 # two clicks, not one, except in a group of one where no sub-row is drawn at all. Spelling both
 # out here (rather than trusting the group button's "return me to where I was") keeps a state
 # reachable in the same way no matter which state ran before it.
-GROUP = {"digest": "week", "roster": "teams", "waivers": "teams", "league": "teams", "records": "teams",
+GROUP = {"digest": "week", "roster": "teams", "waivers": "teams", "league": "teams", "myrecap": "teams",
+         "recap": "week", "records": "week",
          "ranks": "scouting", "board": "scouting", "movers": "scouting", "matchups": "scouting", "usage": "scouting", "news": "scouting",
          "weather": "week",
          "parlay": "bets", "build": "bets", "dfs": "bets", "live": "gameday"}
@@ -120,12 +121,15 @@ STATES = [
     ("league-espn", [("eval", "VIEW='espn'; render()")] + go("league")),
     ("league-mate", [("eval", "VIEW='espn-run-it-back'; render()")] + go("league")),
     ("league-week1", [("eval", "VIEW='espn'; render()")] + go("league") + [("click", "[data-lgweek='1']")]),
-    # Yahoo, the back page (2026-09-27): week 2 roasted with David's box open, week 1 with no roast
-    # (scores only), his box closed by its toggle; then Records, the all-time book on its own tab.
-    ("league-yahoo", go("league")),
-    ("league-yahoo-week1", go("league") + [("click", "[data-lgweek='1']")]),
-    ("league-yahoo-boxshut", go("league") + [("click", "[data-lgbox='10-9']")]),
+    # Yahoo (2026-09-27). This week > League, the same for every reader: week 2 roasted with every box
+    # shut, week 1 with no roast (scores only), a box opened by its toggle. This week > Records. Then My
+    # teams > My recap for David's team, week 2 (his box open) and week 1.
+    ("recap-yahoo", go("recap")),
+    ("recap-yahoo-week1", go("recap") + [("click", "[data-lgweek='1']")]),
+    ("recap-yahoo-boxopen", go("recap") + [("click", "[data-lgbox='10-9']")]),
     ("records-yahoo", go("records")),
+    ("myrecap-yahoo", go("myrecap")),
+    ("myrecap-yahoo-week1", go("myrecap") + [("click", "[data-lgweek='1']")]),
     ("waivers-folds", go("waivers") + [("click", "summary.wvfold-s >> nth=0"),
                                        ("click", "summary.wvfold-s >> nth=1")]),   # spec + stash open
     # The modal is panes since 2026-09-22, so each one is its own state: the tab bar only renders

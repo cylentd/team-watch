@@ -1,0 +1,5 @@
+{
+ "made": "test fixture",
+ "note": "today's team id or former-N -> the manager's display name",
+ "managers": {"3": "Kearny", "7": "Crystal W.", "9": "David", "10": "Jon", "former-1": "Justin"}
+}

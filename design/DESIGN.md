@@ -179,6 +179,24 @@ that it had too much data everywhere and the point got lost:
   team, then one line naming every team with none), followed by the Hall of Fame and Hall of Shame as record cards. Each
   record is filed under today's team, with "as <name then>" under it. ESPN keeps its history in League.
 
+**Split into a league recap and a personal one, the same day** (storyboard
+https://claude.ai/artifact/5vFc7Js5EsqJY3EmxgQc84). David: the recap is the league's, and it should not
+bend toward whoever is picked. **Superseded:** the League leaf and Records under My teams, above.
+- **This week > League** (leaf `recap`) and **This week > Records** (leaf `records`) always show the
+  Yahoo league and are identical whatever team is on screen: no team lit, no box open, a page head
+  naming the league. League adds **standings** after each week, one table serving as both standings and
+  power ranking (record orders it, points beside it, LUCKY/ROBBED only where the two disagree by 2+,
+  ▲▼ the move since last week), keeps the slate in story order (stamped games, then margin), and closes
+  on **next week's grudge**: the most lopsided series among next week's games, 3+ meetings.
+- **My teams > My recap** (leaf `myrecap`, Yahoo teams; a stale `#league` lands here) follows the team
+  switch: the result, the game with its box open (the bench mistake is the box's own line), this
+  week's score rank / standing / points rank, the grudge with next week's opponent, and every
+  record-book line with the team's name on it, Shame included. ESPN keeps its League leaf.
+- **Records names managers** (David's call): first names as Yahoo shows them, from ff-jarvis
+  `data/yahoo_league_managers.json`, keyed like the owner map; the two Crystals carry last initials
+  (W., H.). Team names change every season and managers do not, so a record is filed under the manager
+  with the team it was then underneath, and former managers keep their records by name.
+
 - **Voice:** Big Shoulders Display (`--tab`) for the headline, stamps and section heads, in this view
   only. The masthead rule is the league's colour.
 - **First data at 269px on a phone (budget ~200):** the headline is the first data and runs three

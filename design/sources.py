@@ -219,9 +219,11 @@ def load_league_yahoo():
 
 
 def load_league_back():
-    """(box scores, weekly roast) of the Yahoo league for its back page, from ff-jarvis's model.clients.yahoo_box
-    and model.season.league_roast. Either may be missing; the page draws scores without them."""
-    return read_first(DWR / "yahoo_league_box.json"), read_first(DWR / "yahoo_league_recap.json")
+    """(box scores, weekly roast, manager names) of the Yahoo league for its back page and Records, from
+    ff-jarvis's model.clients.yahoo_box, model.season.league_roast and data/yahoo_league_managers.json (first
+    names, David's call for Records, 2026-09-27). Any may be missing; the pages draw without them."""
+    return (read_first(DWR / "yahoo_league_box.json"), read_first(DWR / "yahoo_league_recap.json"),
+            read_first(DWR / "yahoo_league_managers.json"))
 
 
 def load_recap(season, week):

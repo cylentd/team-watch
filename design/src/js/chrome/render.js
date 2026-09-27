@@ -57,7 +57,7 @@ function render(){
   }
   /* Views that are one HTML function and one wiring function, nothing else. */
   const plain = {ranks: [ranksHTML, wireRanks], digest: [digestHTML, wireDigest], matchups: [matchupsHTML, wireMatchups],
-    weather: [wtViewHTML, wireWeather]}[SURFACE];
+    weather: [wtViewHTML, wireWeather], recap: [lgLeaguePageHTML, wireLeaguePage], records: [lgRecordsPageHTML, () => {}]}[SURFACE];
   if (plain){ v.innerHTML = plain[0](); plain[1](v); return; }
   if (SURFACE === "usage"){
     v.innerHTML = usageHTML(); wireUsage(v); nudgeScrollers(v);
@@ -72,10 +72,10 @@ function render(){
   }
 
   const team = TEAMS[VIEW] || TEAMS.yahoo;
-  // League and Records: the team switch stays on top, so a leaguemate can find their own rivalry. A
-  // team without one (nav.js hides the tab) draws its roster from a stale hash.
+  // My recap (Yahoo) and League (ESPN): the team switch stays on top, so a leaguemate finds their own.
+  // A stale #league on a Yahoo team opens My recap; a team without either draws its roster.
+  if ((SURFACE === "myrecap" || SURFACE === "league") && hasRecords(team)) return renderMyRecap(v, team);
   if (SURFACE === "league" && hasLeague(team)) return renderLeague(v, team);
-  if (SURFACE === "records" && hasRecords(team)) return renderRecords(v, team);
   // A connected league has no Waivers (nav.js hides the tab); a stale #waivers draws its roster.
   const wire = SURFACE === "waivers" && hasWaivers(team);
   // The deal and the rail's "new" flash are taken once per page load, on the first Waivers render.

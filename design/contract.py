@@ -51,9 +51,9 @@ LEAGUE_SPEC = {
 # last-place seasons (the tape), each week's headline and dek (null when the roast skipped it), and
 # the record book.
 LEAGUE_YAHOO_SPEC = {
-    "keys": LEAGUE_SPEC["keys"] + ["book"],
+    "keys": LEAGUE_SPEC["keys"] + ["book", "grudge"],
     "rows": [("teams", ["id", "name", "key", "w", "l", "t", "all", "titles", "lasts"]),
-             ("weeks", ["week", "games", "awards", "head", "dek"])] + LEAGUE_SPEC["rows"][2:],
+             ("weeks", ["week", "games", "awards", "head", "dek", "table"])] + LEAGUE_SPEC["rows"][2:],
 }
 WIRE_OPTIONAL = {"headline", "clears", "practice", "note", "over", "over_key", "start", "slot"}
 # Keys only one kind may leave out. A path's `verdict` (2026-09-23) is a drop's verdict shape,

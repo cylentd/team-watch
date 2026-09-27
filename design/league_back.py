@@ -57,6 +57,47 @@ def enrich_weeks(weeks, box, recap):
     return weeks
 
 
+def add_standings(weeks, ids):
+    """Each week row gets `table`: every team after that week in standings order (wins, then points),
+    as {id, w, l, t, pf, pfr (points rank), move (places up since the week before; 0 in week 1), tag}.
+    `tag` is "lucky" when the record ranks 2+ places better than the points, "robbed" when 2+ worse:
+    standings and a power ranking in one table, the tag only where they disagree."""
+    tally = {i: [0, 0, 0, 0.0] for i in ids}
+    last = None
+    for wk in weeks:
+        for g in wk["games"]:
+            res = {"home": (0, 1), "away": (1, 0)}.get(g["win"], (2, 2))
+            for tid, r, pts in ((g["a"], res[0], g["ap"]), (g["b"], res[1], g["bp"])):
+                if tid in tally:
+                    tally[tid][r] += 1
+                    tally[tid][3] = round(tally[tid][3] + pts, 2)
+        order = sorted(ids, key=lambda i: (-(tally[i][0] + tally[i][2] / 2), -tally[i][3]))
+        by_pf = sorted(ids, key=lambda i: -tally[i][3])
+        rows = []
+        for n, i in enumerate(order, 1):
+            pfr = by_pf.index(i) + 1
+            rows.append({"id": i, "w": tally[i][0], "l": tally[i][1], "t": tally[i][2], "pf": tally[i][3], "pfr": pfr,
+                         "move": (last.index(i) + 1 - n) if last else 0,
+                         "tag": "lucky" if pfr - n >= 2 else "robbed" if n - pfr >= 2 else None})
+        wk["table"] = rows
+        last = order
+    return weeks
+
+
+def next_grudge(now, h2h):
+    """This week's most lopsided series between two of today's teams, {a, b} with `a` the side that
+    leads it, or None when no pairing has met 3 times: the league-wide grudge the recap leads with."""
+    best = None
+    for g in now:
+        r = (h2h.get(str(g["a"])) or {}).get(str(g["b"]))
+        if not r or r["w"] + r["l"] + r["t"] < 3:
+            continue
+        key = (abs(r["w"] - r["l"]), r["w"] + r["l"] + r["t"])
+        if not best or key > best[0]:
+            best = (key, {"a": g["a"], "b": g["b"]} if r["w"] >= r["l"] else {"a": g["b"], "b": g["a"]})
+    return best[1] if best else None
+
+
 def add_meets(h2h, games):
     """h2h[a][b]["m"]: every meeting of two of today's teams, oldest first, as [season, week, a's margin,
     playoff 1/0]. Consolation games count as meetings but not as playoffs."""
