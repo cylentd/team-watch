@@ -218,6 +218,12 @@ def load_league_yahoo():
             read_first(DWR / "yahoo_league_owners.json"))
 
 
+def load_league_back():
+    """(box scores, weekly roast) of the Yahoo league for its back page, from ff-jarvis's model.clients.yahoo_box
+    and model.season.league_roast. Either may be missing; the page draws scores without them."""
+    return read_first(DWR / "yahoo_league_box.json"), read_first(DWR / "yahoo_league_recap.json")
+
+
 def load_recap(season, week):
     """ff-jarvis's weekly recap (model.season.recap): per player `actual` and pregame `proj`,
     half-PPR, keyed by norm_name. No DST or K rows. None when the week has none yet."""

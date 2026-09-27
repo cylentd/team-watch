@@ -1,0 +1,18 @@
+{
+ "generated": "2026-09-27T01:20",
+ "season": 2026,
+ "weeks": {
+  "2": [
+   {"home": 10, "away": 9,
+    "slots": [
+     {"slot": "QB", "a": {"name": "Justin Herbert", "nfl": "LAC", "pos": "QB", "pts": 20.24, "proj": 18.1, "line": "2 Pass TD"},
+                    "b": {"name": "Josh Allen", "nfl": "BUF", "pos": "QB", "pts": 40.82, "proj": 22.4, "line": "4 Pass TD"}},
+     {"slot": "RB", "a": {"name": "Jaylen Warren", "nfl": "PIT", "pos": "RB", "pts": 6.5, "proj": 10.6, "line": "30 Rush Yds"},
+                    "b": null}
+    ],
+    "bench": {"a": [{"name": "Rico Dowdle", "nfl": "CAR", "pos": "RB", "pts": 15.5, "proj": 8.0, "line": "95 Rush Yds"}], "b": []},
+    "proj": {"a": 104.5, "b": 110.2},
+    "left": {"a": {"benched": "Rico Dowdle", "benched_pts": 15.5, "started": "Jaylen Warren", "started_pts": 6.5, "lost": 9.0}, "b": null}}
+  ]
+ }
+}

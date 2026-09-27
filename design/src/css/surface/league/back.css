@@ -1,0 +1,111 @@
+/* ============================== LEAGUE: THE BACK PAGE (Yahoo) ==============================
+   A sports tabloid's back page inside Signal Desk. Its one voice is the condensed display face
+   (--tab: headline, stamps, section heads); body stays Archivo, numbers JetBrains Mono.
+   Colour map: the league's own colour rules the masthead (which league you are reading); green won,
+   red lost (the strike through a loser, the stamp); lime is the team on screen; amber a bench mistake. */
+.bp-mast{display:grid;gap:6px;padding:12px 0 14px;border-top:3px solid var(--yahoo);border-bottom:1px solid var(--line-2)}
+.bp-kick{margin:0;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--yahoo)}
+.bp-hl{margin:0;font-family:var(--tab);font-size:var(--t-6);font-weight:900;line-height:.95;text-transform:uppercase;text-wrap:balance;overflow-wrap:anywhere}
+.bp-dek{margin:0;font-size:var(--t-3);line-height:1.45;color:var(--ink-2)}
+
+.bp-hd{margin:10px 0 0;display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+  font-family:var(--tab);font-size:var(--t-5);font-weight:900;line-height:1;text-transform:uppercase}
+.bp-hd span{font-family:var(--ui);font-size:var(--t-1);font-weight:500;text-transform:none;color:var(--ink-3)}
+
+/* the week strip */
+.bp-strip{display:grid;gap:4px}
+.bp-axis{position:relative;height:22px;margin:0 7px;background:linear-gradient(var(--line-2),var(--line-2)) center/100% 1px no-repeat}
+.bp-dot{position:absolute;top:5px;width:12px;height:12px;margin-left:-6px;border-radius:50%;border:2px solid var(--void);background:var(--down)}
+.bp-dot.w{background:var(--up)}
+.bp-dot.me{box-shadow:0 0 0 2px var(--lime);z-index:1}
+.bp-ends{display:flex;justify-content:space-between;gap:8px;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.bp-rank{margin:2px 0 0;font-size:var(--t-2);color:var(--ink-2)}
+
+/* the slate */
+.bp-slate{display:grid;gap:8px}
+.bp-game{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 13px 10px;display:grid;gap:8px;min-width:0}
+.bp-game.mine{background:var(--panel-2);border-color:var(--line-2)}
+.bp-sc{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:center}
+.bp-t{display:flex;align-items:baseline;gap:6px;min-width:0;position:relative;justify-self:start;max-width:100%}
+.bp-t b{font-size:var(--t-3);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bp-t small{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
+.bp-t.lo b{font-weight:500;color:var(--ink-3)}
+.bp-t.lo::after{content:"";position:absolute;left:0;right:0;top:52%;height:2px;background:var(--down);transform-origin:left}
+.bp-p{font-family:var(--mono);font-size:var(--t-4);font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.bp-p.lo{font-weight:500;color:var(--ink-3)}
+.bp-stamp{font-family:var(--tab);font-size:var(--t-3);font-weight:900;letter-spacing:.06em;text-transform:uppercase;line-height:1;white-space:nowrap;
+  color:var(--down);border:2px solid var(--down);border-radius:5px;padding:3px 6px 1px;transform:rotate(-8deg);
+  float:right;margin:2px 2px 6px 12px}
+.bp-dig{margin:0;font-size:var(--t-2);line-height:1.5;color:var(--ink)}
+.bp-open{justify-self:start;font:inherit;font-size:var(--t-1);font-weight:600;color:var(--ink-2);background:none;border:0;padding:4px 0;cursor:pointer}
+.bp-open:hover{color:var(--ink)}
+.bp-open:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
+
+/* the box score: slot, left player and points, right points and player; the higher of each pair inked */
+.bp-box{display:grid;gap:6px;border-top:1px solid var(--line);padding-top:6px}
+.bp-bgrid{display:grid;grid-template-columns:38px minmax(0,1fr) 40px 40px minmax(0,1fr);gap:0 6px;font-size:var(--t-1)}
+.bp-bgrid > span{padding:4px 0;border-bottom:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bp-bh{font-weight:600;color:var(--ink-3)}
+.bp-bs{font-family:var(--mono);color:var(--ink-3)}
+.bp-bp{color:var(--ink-2)}
+.bp-bp.r,.bp-bh.r{text-align:right}
+.bp-bn{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-3)}
+.bp-bn.hi{color:var(--ink);font-weight:700}
+.bp-miss{margin:0;font-size:var(--t-1);line-height:1.45;color:var(--ink-2)}
+.bp-miss b{font-family:var(--mono);color:var(--amber)}
+.bp-proj{margin:0;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+
+/* superlatives */
+.bp-sups{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bp-su{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 11px;display:grid;gap:2px;align-content:start;min-width:0}
+.bp-suk{font-family:var(--tab);font-size:var(--t-2);font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.bp-sut{font-size:var(--t-2);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bp-suv{font-family:var(--mono);font-size:var(--t-4);font-weight:700;font-variant-numeric:tabular-nums}
+.bp-sud{font-size:var(--t-1);line-height:1.35;color:var(--ink-2)}
+
+/* tale of the tape */
+.bp-tape{background:var(--panel);border:1px solid var(--line-2);border-radius:12px;padding:12px 13px;display:grid;gap:10px}
+.bp-vs{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:end;gap:8px}
+.bp-va,.bp-vb{font-family:var(--tab);font-size:var(--t-4);font-weight:900;line-height:1;text-transform:uppercase;overflow-wrap:anywhere}
+.bp-vb{text-align:right;color:var(--ink-2)}
+.bp-vn{font-family:var(--tab);font-size:var(--t-6);font-weight:900;line-height:1;text-align:center;font-variant-numeric:tabular-nums}
+.bp-vn small{display:block;margin-top:3px;font-family:var(--mono);font-size:var(--t-1);font-weight:500;letter-spacing:.08em;color:var(--ink-3)}
+.bp-tt{display:grid;grid-template-columns:1fr auto 1fr;gap:5px 10px;align-items:baseline}
+.bp-tl,.bp-tr{font-family:var(--mono);font-size:var(--t-2);font-weight:700;font-variant-numeric:tabular-nums}
+.bp-tr{text-align:right}
+.bp-tl.up,.bp-tr.up{color:var(--up)}
+.bp-tm{font-size:var(--t-1);color:var(--ink-3);text-align:center}
+.bp-meets{height:96px;display:flex;align-items:stretch;gap:3px;border-block:1px solid var(--line);
+  background:linear-gradient(var(--line-2),var(--line-2)) center/100% 1px no-repeat}
+.bp-meets i{flex:1;position:relative}
+.bp-meets i::after{content:"";position:absolute;left:0;right:0;height:calc(var(--h) / 2);border-radius:2px}
+.bp-meets i.u::after{bottom:50%;background:var(--up);transform-origin:bottom}
+.bp-meets i.d::after{top:50%;background:var(--down);transform-origin:top}
+.bp-meets i.po::after{outline:1.5px solid var(--lime);outline-offset:1px}
+.bp-foot{margin:0;font-size:var(--t-1);line-height:1.5;color:var(--ink-2)}
+.bp-foot b{font-family:var(--mono);color:var(--ink)}
+
+/* record book */
+.bp-book{margin:0;padding:0;list-style:none;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.bp-book li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1px 10px;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bp-book li:last-child{border-bottom:0}
+.bp-rk{grid-column:1/-1;font-size:var(--t-1);font-weight:600;color:var(--ink-3)}
+.bp-rt{font-size:var(--t-2);font-weight:700;min-width:0;overflow-wrap:anywhere}
+.bp-rv{font-family:var(--mono);font-size:var(--t-4);font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.bp-rd{grid-column:1/-1;font-size:var(--t-1);color:var(--ink-2)}
+.bp-book li.me .bp-rt{color:var(--lime)}
+
+/* Arrival, once per new week (league.js drops .bp-in on the first tap): the dots drop onto the
+   strip, the cards rise in order, each loser is struck through, then the stamps slam. The meeting
+   bars grow from the zero line whenever the tape draws. Reduced motion: responsive/motion.css. */
+.bp-in .bp-dot{animation:mi-rise var(--dur-spring) var(--spring) calc(var(--i,0) * var(--enter-step)) backwards}
+.bp-in .bp-game,.bp-in .bp-su{animation:mi-rise var(--dur-spring) var(--spring) calc(var(--i,0) * 70ms) backwards}
+.bp-in .bp-t.lo::after{animation:mi-ink .42s var(--ease) calc(.3s + var(--i,0) * 70ms) backwards}
+.bp-in .bp-stamp{animation:wv-slam var(--dur-stamp) var(--spring-pop) .75s backwards}
+.bp-meets i::after{animation:mi-fill-y var(--dur-spring) var(--ease) calc(var(--i,0) * 40ms) backwards}
+@keyframes mi-fill-y{from{transform:scaleY(0)}}
+
+/* The headline steps up once a line holds more than a phone's few words. */
+@media (min-width:760px){
+  .bp-hl{font-size:var(--t-7)}
+}

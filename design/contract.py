@@ -47,6 +47,14 @@ LEAGUE_SPEC = {
              ("champs", ["y", "id", "name", "w", "l", "t"]),
              ("facts", ["k"])],
 }
+# The Yahoo back page (design/league_back.py) reads more: each team's all-time record, title and
+# last-place seasons (the tape), each week's headline and dek (null when the roast skipped it), and
+# the record book.
+LEAGUE_YAHOO_SPEC = {
+    "keys": LEAGUE_SPEC["keys"] + ["book"],
+    "rows": [("teams", ["id", "name", "key", "w", "l", "t", "all", "titles", "lasts"]),
+             ("weeks", ["week", "games", "awards", "head", "dek"])] + LEAGUE_SPEC["rows"][2:],
+}
 WIRE_OPTIONAL = {"headline", "clears", "practice", "note", "over", "over_key", "start", "slot"}
 # Keys only one kind may leave out. A path's `verdict` (2026-09-23) is a drop's verdict shape,
 # what claiming the opened player does for my roster; a producer from before it sends none.
@@ -299,7 +307,7 @@ CONTRACT = {
     # `awards` may lack the winner-only four in a week of ties. A fact carries `k` and its kind's own
     # keys (surface/league/history.js). A champion has an `id` (ESPN) or a past `name` (Yahoo).
     "LIVE_LEAGUE": LEAGUE_SPEC,
-    "LIVE_LEAGUE_YAHOO": LEAGUE_SPEC,
+    "LIVE_LEAGUE_YAHOO": LEAGUE_YAHOO_SPEC,
 }
 
 

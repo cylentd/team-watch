@@ -91,7 +91,8 @@ def test_yahoo_head_to_head_joins_past_seasons_by_owner(yahoo):
     """2025's team 10 is today's 9 and 2025's team 2 is today's 7 (the owner map), so their 2025
     games count toward 9 v 7; 2025's team 9 has left (former-1) and counts toward no one today."""
     assert yahoo["h2h"]["9"]["7"] == {"w": 1, "l": 1, "t": 0, "since": 2025, "big": {"v": 10.0, "y": 2025, "wk": 1},
-                                      "last": {"y": 2025, "wk": 2, "won": False, "tie": False}}
+                                      "last": {"y": 2025, "wk": 2, "won": False, "tie": False},
+                                      "m": [[2025, 1, 10.0, 0], [2025, 2, -1.0, 0]]}
     assert yahoo["h2h"]["9"]["10"]["since"] == 2026
     assert yahoo["now"] == [{"a": 9, "b": 3}, {"a": 10, "b": 7}]
 

@@ -67,6 +67,7 @@ surface/digest/bodies.css
 #      1100px up, and component/lead.css's 960px sticky column is what it undoes.
 surface/digest/wall.css
 surface/league/league.css
+surface/league/back.css
 surface/chat/chat.css
 surface/live/live.css
 surface/strip/field.css

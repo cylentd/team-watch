@@ -150,6 +150,32 @@ A team is its ESPN id across seasons and is always named by today's name. Early 
 ESPN's default "Team <surname>", so a past name never ships; a team that left draws as "a former
 team". A week chip redraws only the recap; the rivalry and history below never move.
 
+**Superseded for Yahoo, 2026-09-27: the back page.** (The `scope` paragraph above: since the owner
+map, Yahoo's head-to-head and records run all-time.) David's friends read the Yahoo league weekly, and
+the plain recap read as clinical, so Yahoo became a sports tabloid's back page. Storyboard:
+https://claude.ai/artifact/LBKkjFWgJ1rLZGrKtQ1Fn3. ESPN is David's work league and keeps the view above.
+
+| Part | Where |
+|---|---|
+| Headline, dek, one dig and stamp per game: `claude -p`, R-rated, checked against the facts | ff-jarvis `model.season.league_roast` |
+| Box scores (starters, bench, the one bench mistake per side) | ff-jarvis `model.clients.yahoo_box` |
+| Records after each week, the bench award, meetings, tape fields, the record book | `design/league_back.py` |
+| Masthead, week strip, superlatives | `surface/league/back.js` |
+| Game cards and box scores (the winner's side on the left) | `surface/league/slate.js` |
+| Tale of the tape: this week's opponent, every meeting as a bar | `surface/league/tape.js` |
+| Record book: Hall of Fame, Hall of Shame, Champions | `surface/league/book.js` |
+
+- **Voice:** Big Shoulders Display (`--tab`) for the headline, stamps and section heads, in this view
+  only. The masthead rule is the league's colour.
+- **First data at 269px on a phone (budget ~200):** the headline is the first data and runs three
+  lines at 34px. It is the reason people open the page, so it stays big. The week chips sit above it.
+- **Motion:** a new week arrives once. The dots drop, the cards rise, each loser is struck through,
+  then the stamps slam (`.bp-in`). The first tap takes the class off, so a box toggle or a tab
+  change never replays it.
+- **Taps:** several boxes may be open at once, so closing one never moves another card. Each control
+  redraws only its own part.
+- **A week the roast skipped** (two rejected replies) draws scores, boxes and superlatives without words.
+
 ## Waivers (sub-tab of My Teams, 2026-09-16)
 
 A Roster | Waivers toggle under the team name, not a sixth nav tab: waivers are per league like

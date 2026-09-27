@@ -120,9 +120,13 @@ STATES = [
     ("league-espn", [("eval", "VIEW='espn'; render()")] + go("league")),
     ("league-mate", [("eval", "VIEW='espn-run-it-back'; render()")] + go("league")),
     ("league-week1", [("eval", "VIEW='espn'; render()")] + go("league") + [("click", "[data-lgweek='1']")]),
-    # Yahoo (2026-09-26): this season's head-to-head only, champions under that year's names.
+    # Yahoo, the back page (2026-09-27): week 2 roasted with David's box open, week 1 with no roast
+    # (scores only), his box closed by its toggle, and the record book's other two tabs.
     ("league-yahoo", go("league")),
     ("league-yahoo-week1", go("league") + [("click", "[data-lgweek='1']")]),
+    ("league-yahoo-boxshut", go("league") + [("click", "[data-lgbox='10-9']")]),
+    ("league-yahoo-shame", go("league") + [("click", "[data-lgbook='shame']")]),
+    ("league-yahoo-champs", go("league") + [("click", "[data-lgbook='champs']")]),
     ("waivers-folds", go("waivers") + [("click", "summary.wvfold-s >> nth=0"),
                                        ("click", "summary.wvfold-s >> nth=1")]),   # spec + stash open
     # The modal is panes since 2026-09-22, so each one is its own state: the tab bar only renders

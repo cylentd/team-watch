@@ -15,6 +15,8 @@ Nothing here advises anyone: results, awards and history are already public insi
 """
 import re
 
+from league_back import add_meets, add_tape, book, enrich_weeks, last_places
+
 AWARDS = ("top", "low", "blow", "close", "luck", "unluck")
 
 
@@ -183,12 +185,13 @@ def _owner(owners, y, tid):
     return int(o) if not str(o).startswith("former-") else FORMER + int(str(o).split("-")[1])
 
 
-def live_league_yahoo(season, history, owners, rosters, slugify):
+def live_league_yahoo(season, history, owners, rosters, slugify, box=None, recap=None):
     """LIVE_LEAGUE_YAHOO, or None. Yahoo re-ids every team each season and hides managers from the
     cookie, so past teams join today's through `owners` (ff-jarvis yahoo_league_owners.json, no names).
     With every past season mapped, head-to-head and titles run all-time (`scope` "all"); without, this
     season only. A past team keeps the name it had that year (`name`); `id` says who it is today.
-    `rosters` is league_rosters.json."""
+    `rosters` is league_rosters.json; `box` and `recap` are ff-jarvis's box scores and weekly roast,
+    and the back page (design/league_back.py) draws without either."""
     if not season or not season.get("teams"):
         return None
     pods = (history or {}).get("seasons") or {}
@@ -203,8 +206,16 @@ def live_league_yahoo(season, history, owners, rosters, slugify):
     past, names, totals = _yahoo_past(pods, owners)
     everything = sorted(past + now, key=lambda g: (g["y"], g["week"]))
     fx = _named(facts(everything, [c for c in champs if c["id"]] if mapped else [], totals), names)
-    return _block(season, _teams(season, rosters, slugify, "yahoo"), everything if mapped else now, champs, fx,
-                  min([int(y) for y in pods] + [season["season"]]), "all" if mapped else "season")
+    games = everything if mapped else now
+    block = _block(season, _teams(season, rosters, slugify, "yahoo"), games, champs, fx,
+                   min([int(y) for y in pods] + [season["season"]]), "all" if mapped else "season")
+    enrich_weeks(block["weeks"], box, recap)
+    add_meets(block["h2h"], games)
+    lasts = last_places(games, season["season"])
+    add_tape(block["teams"], games, champs, lasts)
+    b = book(fx, games, block["teams"], lasts)
+    block["book"] = {k: _named(v, names) for k, v in b.items()}
+    return block
 
 
 def _yahoo_past(pods, owners):
