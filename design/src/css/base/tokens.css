@@ -161,6 +161,13 @@
 
   --nav-h:48px;         /* the phone nav row; the view tabs stick under it (responsive/760.css) */
 
+  /* Page width (2026-09-27): one frame for every view, so the nav bar, the content and the footer
+     share their edges and never jump on a tab change. It was 1180, with the Digest alone widening
+     to 1680. A view that is one list caps the list at --list-w, left-aligned on the frame's edge. */
+  --page-w:1680px;      /* the frame: .wrap, so the nav row, every view and the footer */
+  --page-pad:26px;      /* the frame's side gutter; 40px from 1100px (below) */
+  --list-w:1128px;      /* one list's column (Ranks, News): the content width the 1180 frame gave */
+
   --ease:cubic-bezier(.16,1,.3,1);
   --ease-flight:cubic-bezier(.3,.1,.25,1);      /* the football's pass across the hero */
   /* Springs (2026-09-25), sampled from a damped spring of mass 1 the way motion.dev computes its

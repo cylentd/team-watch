@@ -49,8 +49,8 @@
 }
 
 @media (min-width:960px){
-  .mu{grid-template-columns:440px minmax(0,1fr);column-gap:24px;align-items:start;max-width:1180px;
-    margin:0 auto;padding:20px 26px 40px}
+  .mu{grid-template-columns:440px minmax(0,1fr);column-gap:24px;align-items:start;max-width:var(--page-w);
+    margin:0 auto;padding:20px var(--page-pad) 40px}
   .mu-rec,.filters.mu-pos,.mu-foot{grid-column:1 / -1}
   /* The bars stop at 560px: a score bar a thousand pixels long reads as a progress bar. */
   .mu-rec{grid-template-columns:auto minmax(0,560px) auto;justify-content:start;column-gap:20px;

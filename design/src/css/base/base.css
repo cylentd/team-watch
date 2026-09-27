@@ -47,7 +47,8 @@ body{
 ::-webkit-scrollbar-thumb:hover{background:var(--lime)}
 html{scrollbar-color:var(--line-2) var(--void)}
 
-.wrap{max-width:1180px;margin:0 auto;padding:0 26px}
+@media (min-width:1100px){ :root{--page-pad:40px} }
+.wrap{max-width:var(--page-w);margin:0 auto;padding:0 var(--page-pad)}
 .bleed{width:100%}
 
 /* The mono label. On the scale since 2026-09-23: it was 11px, the one size the type scale does not

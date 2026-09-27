@@ -1,7 +1,7 @@
 /* ============================== HERO ============================== */
 .hero{position:relative;padding:44px 0 34px;overflow:hidden}
 .numghost{
-  position:absolute;left:calc(max(0px, (100vw - 1180px) / 2) - 34px);top:-46px;z-index:0;
+  position:absolute;left:calc(max(0px, (100vw - var(--page-w)) / 2) - 34px);top:-46px;z-index:0;
   font-family:var(--disp);font-weight:800;font-size:var(--t-ghost);line-height:1;
   color:transparent;-webkit-text-stroke:1.5px rgb(var(--lime-rgb) / .09);
   pointer-events:none;user-select:none;letter-spacing:-.05em;
@@ -19,12 +19,11 @@
    them, nowhere near a real edge. It read as centered/floating because it wasn't aligned to
    anything the eye could see. Pinning it absolute to .hero-in (the wrap itself, already the
    positioning context) puts it on the same edge the topbar's pills and the signals column sit
-   on -- right:26px, not right:0, because an absolutely positioned child's offset is measured
-   from the containing block's OUTER padding edge, while .wrap's own padding (26px, only ever
-   this value above the 960px breakpoint this rule is scoped to) is where normal-flow content
-   like the signals column actually stops. right:0 here would land 26px past every other edge
-   on the page, not on top of them. */
-.hero-eyebrow .teamswitch{position:absolute;top:0;right:26px;margin-left:0}
+   on -- right:var(--page-pad), not right:0, because an absolutely positioned child's offset is
+   measured from the containing block's OUTER padding edge, while .wrap's own padding is where
+   normal-flow content like the signals column actually stops. right:0 here would land a gutter
+   past every other edge on the page, not on top of them. */
+.hero-eyebrow .teamswitch{position:absolute;top:0;right:var(--page-pad);margin-left:0}
 .league-mark{width:8px;height:8px;border-radius:99px;background:var(--tint)}
 .hero h1{
   font-family:var(--disp);font-weight:800;

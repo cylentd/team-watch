@@ -41,6 +41,25 @@ projection at every width; the rest are read elsewhere:
 
 None of the three sources is backtested. The verdict word is watch's own; the page adds none.
 
+## Page width (2026-09-27)
+
+Every view sits in one frame, so a tab change never moves the nav bar's edges.
+
+| Token | Value | What it sets |
+|---|---|---|
+| `--page-w` | 1680px | the frame: `.wrap`, so the nav row, the view tabs, every view and the footer |
+| `--page-pad` | 26px, 40px from 1100px | the frame's side gutter |
+| `--list-w` | 1128px | a view that is one list (Ranks, News): the list's column, left on the frame's edge |
+
+- **One width, in `base/tokens.css`.** A view never sets its own `max-width` on the frame. A
+  view built outside `.wrap` (`.dg`, `.mu`) takes `var(--page-w)` and `var(--page-pad)`.
+- **Fill the width** (STYLE.md). A view with columns (Roster, Waivers, League, Grid, the Digest
+  wall) grows into it. A single list stops at `--list-w`, because a row with its number 1,400px
+  from its name reads as two rows.
+- **Why 1680:** the Digest wall was the one view designed for a wide screen, and at 1920 it cut the
+  side margin from ~370px to 120px. Superseded: the 1180px frame with the Digest alone widening to
+  1680 (2026-09-26), which moved the nav bar on every tab change into or out of This week.
+
 ## Phone layout (2026-09-24)
 
 Storyboard: https://claude.ai/artifact/1S2qLgCTvmMxASpaUZK4q3. Every list row answers one
@@ -370,8 +389,8 @@ group and Digest the default leaf, except on a Tuesday, when Waivers leads.
 
   A panel's head is its title (label + count; no line, no chevron, not a toggle); the day's topic
   keeps the lime title. Hurt gives each questionable player a line, since the panel has the room.
-  The page, the nav bar and the footer widen to 1680px together so their edges line up; 1920 went
-  from ~790px of margin to 240px. Phone and tablet are unchanged.
+  The wall fills the page frame (`--page-w`, 1680px since 2026-09-27 for every view; see Page
+  width). Phone and tablet are unchanged.
 
 Not backtested: Weather, Stock and Gems. Each says "Not backtested." in amber on its opened foot,
 never on the closed line: the closed line is the fact, the caveat is for whoever reads on. Lead copy
@@ -420,7 +439,7 @@ the season record (`model.season.grade`). The page computes nothing.
 - **Desktop (960px+):** the record and chips span the width (bars capped at 560px, so a score never
   reads as a progress bar); the lead is a 440px sticky column; the calls sit beside it, ours and
   Pitcher List's side by side once their column is 600px wide (a container query on the lists, not
-  the window), stacked below that. The page caps at 1180px.
+  the window), stacked below that. The page caps at `--page-w` (1180px until 2026-09-27, now 1680px).
 
 Not backtested: the calls. The foot says so, and names the record as the test.
 

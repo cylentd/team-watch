@@ -5,6 +5,7 @@
 /* News tab: a wire bulletin -- timestamp/team/category on their own line, then the headline,
    then the scanner's own read on what it means (.nimpact). Severity is the kind word's colour
    and icon; the red and amber side stripes that repeated it went on 2026-09-24. */
+.newslist,.newslead{max-width:var(--list-w)}
 .newslist{border:1px solid var(--line);background:var(--panel)}
 .newsrow{display:block;position:relative;padding:15px 16px;border-bottom:1px solid var(--line);
   text-decoration:none;color:inherit;transition:background .15s var(--ease)}

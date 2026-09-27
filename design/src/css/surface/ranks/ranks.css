@@ -8,7 +8,7 @@
 .rk-headline{margin:14px 0 0}
 .rk-headline h2{margin:0;font-family:var(--disp);font-size:var(--t-4);font-weight:800;color:var(--ink)}
 .rk-headline p{margin:2px 0 0;font-size:var(--t-1);color:var(--ink-3);max-width:70ch}
-.rk-list{display:grid;gap:10px;margin-top:12px}
+.rk-list{display:grid;gap:10px;margin-top:12px;max-width:var(--list-w)}
 .rk-group{border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden;padding-bottom:4px}
 .rk-tier{display:flex;align-items:center;gap:10px;padding:10px 16px 6px}
 /* --tier-c runs lime -> the quiet grey; the top three tiers step fast (sqrt), so Tier 1, 2 and 3

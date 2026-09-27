@@ -179,6 +179,13 @@
 
   --nav-h:48px;         /* the phone nav row; the view tabs stick under it (responsive/760.css) */
 
+  /* Page width (2026-09-27): one frame for every view, so the nav bar, the content and the footer
+     share their edges and never jump on a tab change. It was 1180, with the Digest alone widening
+     to 1680. A view that is one list caps the list at --list-w, left-aligned on the frame's edge. */
+  --page-w:1680px;      /* the frame: .wrap, so the nav row, every view and the footer */
+  --page-pad:26px;      /* the frame's side gutter; 40px from 1100px (below) */
+  --list-w:1128px;      /* one list's column (Ranks, News): the content width the 1180 frame gave */
+
   --ease:cubic-bezier(.16,1,.3,1);
   --ease-flight:cubic-bezier(.3,.1,.25,1);      /* the football's pass across the hero */
   /* Springs (2026-09-25), sampled from a damped spring of mass 1 the way motion.dev computes its
@@ -247,7 +254,8 @@ body{
 ::-webkit-scrollbar-thumb:hover{background:var(--lime)}
 html{scrollbar-color:var(--line-2) var(--void)}
 
-.wrap{max-width:1180px;margin:0 auto;padding:0 26px}
+@media (min-width:1100px){ :root{--page-pad:40px} }
+.wrap{max-width:var(--page-w);margin:0 auto;padding:0 var(--page-pad)}
 .bleed{width:100%}
 
 /* The mono label. On the scale since 2026-09-23: it was 11px, the one size the type scale does not
@@ -374,7 +382,7 @@ html{scrollbar-color:var(--line-2) var(--void)}
 /* ============================== HERO ============================== */
 .hero{position:relative;padding:44px 0 34px;overflow:hidden}
 .numghost{
-  position:absolute;left:calc(max(0px, (100vw - 1180px) / 2) - 34px);top:-46px;z-index:0;
+  position:absolute;left:calc(max(0px, (100vw - var(--page-w)) / 2) - 34px);top:-46px;z-index:0;
   font-family:var(--disp);font-weight:800;font-size:var(--t-ghost);line-height:1;
   color:transparent;-webkit-text-stroke:1.5px rgb(var(--lime-rgb) / .09);
   pointer-events:none;user-select:none;letter-spacing:-.05em;
@@ -392,12 +400,11 @@ html{scrollbar-color:var(--line-2) var(--void)}
    them, nowhere near a real edge. It read as centered/floating because it wasn't aligned to
    anything the eye could see. Pinning it absolute to .hero-in (the wrap itself, already the
    positioning context) puts it on the same edge the topbar's pills and the signals column sit
-   on -- right:26px, not right:0, because an absolutely positioned child's offset is measured
-   from the containing block's OUTER padding edge, while .wrap's own padding (26px, only ever
-   this value above the 960px breakpoint this rule is scoped to) is where normal-flow content
-   like the signals column actually stops. right:0 here would land 26px past every other edge
-   on the page, not on top of them. */
-.hero-eyebrow .teamswitch{position:absolute;top:0;right:26px;margin-left:0}
+   on -- right:var(--page-pad), not right:0, because an absolutely positioned child's offset is
+   measured from the containing block's OUTER padding edge, while .wrap's own padding is where
+   normal-flow content like the signals column actually stops. right:0 here would land a gutter
+   past every other edge on the page, not on top of them. */
+.hero-eyebrow .teamswitch{position:absolute;top:0;right:var(--page-pad);margin-left:0}
 .league-mark{width:8px;height:8px;border-radius:99px;background:var(--tint)}
 .hero h1{
   font-family:var(--disp);font-weight:800;
@@ -508,6 +515,7 @@ html{scrollbar-color:var(--line-2) var(--void)}
 /* News tab: a wire bulletin -- timestamp/team/category on their own line, then the headline,
    then the scanner's own read on what it means (.nimpact). Severity is the kind word's colour
    and icon; the red and amber side stripes that repeated it went on 2026-09-24. */
+.newslist,.newslead{max-width:var(--list-w)}
 .newslist{border:1px solid var(--line);background:var(--panel)}
 .newsrow{display:block;position:relative;padding:15px 16px;border-bottom:1px solid var(--line);
   text-decoration:none;color:inherit;transition:background .15s var(--ease)}
@@ -3148,8 +3156,8 @@ body:has(.connect:not([hidden])){overflow:hidden}
 }
 
 @media (min-width:960px){
-  .mu{grid-template-columns:440px minmax(0,1fr);column-gap:24px;align-items:start;max-width:1180px;
-    margin:0 auto;padding:20px 26px 40px}
+  .mu{grid-template-columns:440px minmax(0,1fr);column-gap:24px;align-items:start;max-width:var(--page-w);
+    margin:0 auto;padding:20px var(--page-pad) 40px}
   .mu-rec,.filters.mu-pos,.mu-foot{grid-column:1 / -1}
   /* The bars stop at 560px: a score bar a thousand pixels long reads as a progress bar. */
   .mu-rec{grid-template-columns:auto minmax(0,560px) auto;justify-content:start;column-gap:20px;
@@ -3170,7 +3178,7 @@ body:has(.connect:not([hidden])){overflow:hidden}
 .rk-headline{margin:14px 0 0}
 .rk-headline h2{margin:0;font-family:var(--disp);font-size:var(--t-4);font-weight:800;color:var(--ink)}
 .rk-headline p{margin:2px 0 0;font-size:var(--t-1);color:var(--ink-3);max-width:70ch}
-.rk-list{display:grid;gap:10px;margin-top:12px}
+.rk-list{display:grid;gap:10px;margin-top:12px;max-width:var(--list-w)}
 .rk-group{border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden;padding-bottom:4px}
 .rk-tier{display:flex;align-items:center;gap:10px;padding:10px 16px 6px}
 /* --tier-c runs lime -> the quiet grey; the top three tiers step fast (sqrt), so Tier 1, 2 and 3
@@ -3406,8 +3414,8 @@ body:has(.connect:not([hidden])){overflow:hidden}
 .dg{display:grid;grid-template-columns:minmax(0,1fr)}
 
 @media (min-width:960px){
-  .dg{grid-template-columns:440px minmax(0,1fr);column-gap:28px;align-items:start;max-width:1180px;
-    margin:0 auto;padding:20px 26px 40px}
+  .dg{grid-template-columns:440px minmax(0,1fr);column-gap:28px;align-items:start;max-width:var(--page-w);
+    margin:0 auto;padding:20px var(--page-pad) 40px}
 }
 /* ── css/surface/digest/ticker.css ── */
 /* ============================== DIGEST: THE TICKER ==============================
@@ -3563,12 +3571,8 @@ body:has(.connect:not([hidden])){overflow:hidden}
 .dg-qlines{display:none}
 
 @media (min-width:1100px){
-  .dg{grid-template-columns:minmax(0,1fr);row-gap:22px;max-width:1680px;padding:24px 40px 56px}
-  /* The bar and the footer take the wall's width while it is on screen, so their edges line up
-     with its panels instead of sitting 250px inside them on a 1920 screen. */
-  body:has(.dg) .navrow,body:has(.dg) .foot{max-width:1680px}
-  body:has(.dg) .navrow{padding-inline:40px}
-  body:has(.dg) > .wrap{max-width:1680px;padding-inline:40px}
+  /* The frame's width and gutter (base/tokens.css), so the wall's panels share the nav bar's edges. */
+  .dg{grid-template-columns:minmax(0,1fr);row-gap:22px;max-width:var(--page-w);padding:24px var(--page-pad) 56px}
 
   /* The lead band. */
   .dg > .dg-lead,.dg > .dg-lead.has-photo{

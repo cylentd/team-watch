@@ -5,6 +5,6 @@
 .dg{display:grid;grid-template-columns:minmax(0,1fr)}
 
 @media (min-width:960px){
-  .dg{grid-template-columns:440px minmax(0,1fr);column-gap:28px;align-items:start;max-width:1180px;
-    margin:0 auto;padding:20px 26px 40px}
+  .dg{grid-template-columns:440px minmax(0,1fr);column-gap:28px;align-items:start;max-width:var(--page-w);
+    margin:0 auto;padding:20px var(--page-pad) 40px}
 }
