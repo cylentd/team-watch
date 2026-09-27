@@ -211,6 +211,13 @@ def load_league():
     return read_first(DWR / "espn_league.json"), read_first(DWR / "espn_league_history.json")
 
 
+def load_league_yahoo():
+    """(this season, past seasons, owner map) of the Yahoo league, from ff-jarvis's model.clients.yahoo_league.
+    The owner map joins a past team to today's team of the same manager; it holds no names."""
+    return (read_first(DWR / "yahoo_league.json"), read_first(DWR / "yahoo_league_history.json"),
+            read_first(DWR / "yahoo_league_owners.json"))
+
+
 def load_recap(season, week):
     """ff-jarvis's weekly recap (model.season.recap): per player `actual` and pregame `proj`,
     half-PPR, keyed by norm_name. No DST or K rows. None when the week has none yet."""

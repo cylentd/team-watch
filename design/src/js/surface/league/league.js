@@ -3,6 +3,8 @@
    history (history.js). One column on a phone; beside each other from 960px. */
 
 function leagueHTML(team){
+  const L = lgOf(team);
+  if (L !== LG){ LG = L; LG_WEEK = null; }   // the other league's weeks are its own
   if (!LG) return `<p class="lg-none">${t("league.none")}</p>`;
   const id = lgIdOf(team);
   return `<div class="lg">

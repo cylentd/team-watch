@@ -24,7 +24,8 @@ function lgYoursHTML(w, id){
   const m = lgPts(Math.abs(mine - theirs));
   const res = mine > theirs ? t("league.yours.won", {m}) : mine < theirs ? t("league.yours.lost", {m}) : t("league.yours.tied");
   const h = lgH2H(id, opp);
-  const series = h ? (h.t ? t("league.yours.seriesTies", {w: h.w, l: h.l, t: h.t, team: lgName(opp)})
+  // All-time only: Yahoo's series is this season's (LG.scope), which the line above already says.
+  const series = h && LG.scope !== "season" ? (h.t ? t("league.yours.seriesTies", {w: h.w, l: h.l, t: h.t, team: lgName(opp)})
     : t("league.yours.series", {w: h.w, l: h.l, team: lgName(opp)})) : "";
   const row = (tid, pts, win) => `<span class="${win ? "w" : "l"}">${lgName(tid)}</span><span class="lg-pts${win ? "" : " l"}">${lgPts(pts)}</span>`;
   return `<div class="lg-yours"><span class="lg-lbl">${t("league.yours.label")}</span>

@@ -110,9 +110,14 @@ What a leaguemate sees stays fun and shared, never advice.
 
 ## League (sub-tab of My teams, 2026-09-26)
 
-The ESPN league's own story, for the team on screen. Storyboard:
-https://claude.ai/artifact/Lf17QZYMoNJvmVHCT45xUJ. ESPN teams only; a Yahoo team has no tab until
-Yahoo approves the API.
+Each league's own story, for the team on screen. Storyboard:
+https://claude.ai/artifact/Lf17QZYMoNJvmVHCT45xUJ. ESPN since 2026-09-26; Yahoo the same day, read
+off the fantasy website (`model.clients.yahoo_league`, the API is still unapproved) as
+`LIVE_LEAGUE_YAHOO`. `lgOf(team)` picks the league; a connected league has no tab.
+
+Yahoo gives every team a new id each season and hides managers, so its block has `scope`
+"season": head-to-head is this season's, there are no all-time records, and champions come from the
+All Time tab under the name each won with (a default "Team X" name is dropped).
 
 | Part | Where |
 |---|---|

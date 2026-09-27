@@ -10,7 +10,7 @@ from conftest import REPO
 sys.path.insert(0, str(REPO / "design"))
 sys.path.insert(0, str(REPO / "api"))
 import contract                              # noqa: E402
-from league_recap import live_league         # noqa: E402
+from league_recap import live_league, live_league_yahoo   # noqa: E402
 from _espn import slugify                    # noqa: E402
 
 FIX = REPO / "tests" / "fixtures" / "data"
@@ -70,6 +70,57 @@ def test_no_past_name_ships(league):
         assert old not in text
 
 
+@pytest.fixture(scope="module")
+def yahoo():
+    read = lambda n: json.loads((FIX / n).read_text(encoding="utf-8"))
+    b = live_league_yahoo(read("yahoo_league.json"), read("yahoo_league_history.json"), read("yahoo_league_owners.json"),
+                          read("league_rosters.json"), slugify)
+    contract.validate("LIVE_LEAGUE_YAHOO", b)
+    return b
+
+
+def test_yahoo_keys_scope_and_record(yahoo):
+    keys = {t["id"]: t["key"] for t in yahoo["teams"]}
+    assert keys[9] == "yahoo" and keys[10] == "yahoo-jaxon-the-box"
+    assert yahoo["scope"] == "all" and yahoo["since"] == 2024
+    me = next(t for t in yahoo["teams"] if t["id"] == 9)
+    assert (me["w"], me["l"]) == (1, 1)
+
+
+def test_yahoo_head_to_head_joins_past_seasons_by_owner(yahoo):
+    """2025's team 10 is today's 9 and 2025's team 2 is today's 7 (the owner map), so their 2025
+    games count toward 9 v 7; 2025's team 9 has left (former-1) and counts toward no one today."""
+    assert yahoo["h2h"]["9"]["7"] == {"w": 1, "l": 1, "t": 0, "since": 2025, "big": {"v": 10.0, "y": 2025, "wk": 1},
+                                      "last": {"y": 2025, "wk": 2, "won": False, "tie": False}}
+    assert yahoo["h2h"]["9"]["10"]["since"] == 2026
+    assert yahoo["now"] == [{"a": 9, "b": 3}, {"a": 10, "b": 7}]
+
+
+def test_yahoo_champions_carry_that_years_name_and_todays_team(yahoo):
+    assert [(c["y"], c["id"], c["name"]) for c in yahoo["champs"]] == [(2025, 10, "Am I COOKed?"), (2024, 3, None)]
+
+
+def test_yahoo_records_name_a_past_team_as_it_was_that_year(yahoo):
+    """A record from a past season carries that year's name and, when the manager is still here,
+    today's id (the page adds "now ..."); a manager who left has no id, and a default-shaped name
+    ("Team Smith") ships as nothing."""
+    f = {x["k"]: x for x in yahoo["facts"]}
+    assert f["high"] == {"k": "high", "id": 10, "name": "Am I COOKed?", "v": 170.0, "y": 2025, "wk": 1}
+    assert f["low"]["id"] is None and f["low"]["name"] is None           # former-1 was "Team Smith", 30.0
+    assert (f["blow"]["id"], f["blow"]["name"], f["blow"]["opp"], f["blow"]["v"]) == (10, "Am I COOKed?", None, 140.0)
+    assert (f["pf"]["id"], f["pf"]["v"]) == (10, 290.0)
+    assert "titles" not in f and "Team Smith" not in json.dumps(yahoo)
+
+
+def test_yahoo_without_an_owner_map_stays_this_season():
+    read = lambda n: json.loads((FIX / n).read_text(encoding="utf-8"))
+    b = live_league_yahoo(read("yahoo_league.json"), read("yahoo_league_history.json"), None,
+                          read("league_rosters.json"), slugify)
+    assert b["scope"] == "season" and b["h2h"]["9"].get("7") is None
+    assert {x["k"]: x for x in b["facts"]}["high"]["id"] is None
+
+
 def test_no_season_file_is_none():
+    assert live_league_yahoo(None, None, None, None, slugify) is None
     assert live_league(None, None, None, slugify) is None
     contract.validate("LIVE_LEAGUE", None)

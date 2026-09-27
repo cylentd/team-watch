@@ -8,7 +8,7 @@ const P = (n, pos, team, slug, o) => Object.assign({n, pos, team, slug}, o);
 const TEAMS = {
   yahoo: {
     key:"yahoo", plat:"Yahoo", tint:"var(--yahoo)", slot:12,
-    name:"Chat Take the Wheel", record:"",   // no source has the Yahoo record; blank beats a false 0–0
+    name:"Chat Take the Wheel", record:"",   // data/league.js fills it from Yahoo's standings
     meta:["12-team", "half PPR", "slot 12", "1 QB / 2 RB / 3 WR / TE / FLEX / DEF"],
     roster:[
       P("Matthew Stafford","QB","LAR","matthew-stafford",{slot:"QB",start:1}),

@@ -44,6 +44,7 @@
 .lg-y,.lg-r{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);font-variant-numeric:tabular-nums}
 .lg-y{font-weight:700}
 .lg-cn{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lg-now{margin-left:6px;font-size:var(--t-1);color:var(--ink-3)}
 
 @media (min-width:960px){
   .lg{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px;padding-top:24px}

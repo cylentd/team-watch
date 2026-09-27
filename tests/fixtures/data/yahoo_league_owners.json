@@ -1,0 +1,8 @@
+{
+ "made": "test fixture",
+ "note": "season -> team id -> today's team id of the same manager, or former-N. No names.",
+ "seasons": {
+  "2024": {"12": 3, "2": 7, "4": 10},
+  "2025": {"7": 10, "9": "former-1", "10": 9, "2": 7}
+ }
+}

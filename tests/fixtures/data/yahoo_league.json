@@ -1,0 +1,108 @@
+{
+ "generated": "2026-09-12T06:00",
+ "league_id": 75203,
+ "season": 2026,
+ "league": "The Madden Curse",
+ "week": 3,
+ "regular_weeks": null,
+ "playoff_teams": null,
+ "bonus": null,
+ "teams": {
+  "9": {
+   "name": "Chat Take the Wheel",
+   "w": 1,
+   "l": 1,
+   "t": 0,
+   "pf": 228.58,
+   "pa": 252.18,
+   "seed": 4,
+   "final": null
+  },
+  "10": {
+   "name": "Jaxon The Box",
+   "w": 2,
+   "l": 0,
+   "t": 0,
+   "pf": 277.8,
+   "pa": 225.96,
+   "seed": 2,
+   "final": null
+  },
+  "3": {
+   "name": "WE SELL EXTENDED WARREN-TY",
+   "w": 2,
+   "l": 0,
+   "t": 0,
+   "pf": 292.08,
+   "pa": 201.22,
+   "seed": 1,
+   "final": null
+  },
+  "7": {
+   "name": "Honey Bijan",
+   "w": 0,
+   "l": 2,
+   "t": 0,
+   "pf": 195.66,
+   "pa": 290.82,
+   "seed": 10,
+   "final": null
+  }
+ },
+ "games": [
+  {
+   "week": 1,
+   "home": 9,
+   "away": 10,
+   "hp": 113.9,
+   "ap": 163.56,
+   "winner": "away",
+   "tier": null
+  },
+  {
+   "week": 1,
+   "home": 3,
+   "away": 7,
+   "hp": 145.46,
+   "ap": 99.2,
+   "winner": "home",
+   "tier": null
+  },
+  {
+   "week": 2,
+   "home": 7,
+   "away": 3,
+   "hp": 96.46,
+   "ap": 146.62,
+   "winner": "away",
+   "tier": null
+  },
+  {
+   "week": 2,
+   "home": 10,
+   "away": 9,
+   "hp": 114.24,
+   "ap": 114.68,
+   "winner": "away",
+   "tier": null
+  },
+  {
+   "week": 3,
+   "home": 9,
+   "away": 3,
+   "hp": null,
+   "ap": null,
+   "winner": null,
+   "tier": null
+  },
+  {
+   "week": 3,
+   "home": 10,
+   "away": 7,
+   "hp": null,
+   "ap": null,
+   "winner": null,
+   "tier": null
+  }
+ ]
+}

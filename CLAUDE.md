@@ -85,7 +85,7 @@ question; `SURFACE` is always the **leaf**, never the group, and the group is de
 | group | views |
 |---|---|
 | This week (id `week`, since 2026-09-26) | Digest (leaf `digest`, the default page except Tuesday, when Waivers leads): the league-wide week as a lead plus one-line rows, from ff-jarvis `weekly_digest.json`; Weather (leaf `weather`, since 2026-09-26): the games whose forecast moves scoring (proven positions only, from ff-jarvis's `weather_backtest.json`) with who they hit (each side's top QB, WRs and TE from the projections; no roster, the page is public), then every other game as one row |
-| My teams | Roster, Waivers, League (ESPN teams only, since 2026-09-26: the week's recap and awards, the rivalry with this week's opponent, records and champions since 2014, from ff-jarvis `espn_league*.json` via `design/league_recap.py`) |
+| My teams | Roster, Waivers, League (since 2026-09-26: the week's recap and awards, the rivalry with this week's opponent, champions; ESPN all-time since 2014 with records, Yahoo this season plus champions since 2018; from ff-jarvis `espn_league*.json` and `yahoo_league*.json` via `design/league_recap.py`) |
 | Players (id `scouting`, was "Scouting" until 2026-09-25) | Ranks (this week's projected rank per position and FLEX, in tiers; since 2026-09-26), Leaders (leaf `board`: who leads each stat, the #1's card then a list paged to one screen), Movers (whose role is growing, by team), Matchups (start or sit, ours beside Pitcher List's, with the record), Grid (weekly usage), News |
 | Bets | Parlay, DFS |
 | Gameday | Live |

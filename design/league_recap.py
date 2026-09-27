@@ -1,16 +1,19 @@
-"""LIVE_LEAGUE: the ESPN league's week-by-week recap and all-time history, for My teams > League.
+"""LIVE_LEAGUE and LIVE_LEAGUE_YAHOO: each league's week-by-week recap and history, My teams > League.
 
-Reads ff-jarvis's model.clients.espn_league files: espn_league.json (this season, refreshed daily)
-and espn_league_history.json (2014 on, tracked). Every number the view shows is computed here, so
-the page only picks which team is on screen and draws.
+Reads ff-jarvis's model.clients.espn_league and yahoo_league files: the season file (refreshed daily,
+one shape for both sites) and the history file (tracked). Every number the view shows is computed
+here, so the page only picks which team is on screen and draws.
 
-A team is an ESPN team id across seasons, named by what it is called today. Early seasons' names
+ESPN: a team is its ESPN id across seasons, named by what it is called today. Early seasons' names
 are ESPN's default "Team <surname>", and the page is on a public URL, so a past name never ships.
 A team that has since left the league has no id in `teams`; its records draw as a former team.
+Yahoo: a new id every season and hidden managers, so the past is champions only, under that year's
+name, and a default-shaped name ("Team X") is dropped the same way.
 
 Nothing here advises anyone: results, awards and history are already public inside the league
 (memory feedback_no_edge_for_leaguemates).
 """
+import re
 
 AWARDS = ("top", "low", "blow", "close", "luck", "unluck")
 
@@ -88,7 +91,7 @@ def champions(history):
     for y, s in sorted(history.items(), reverse=True):
         for tid, t in s["teams"].items():
             if t["final"] == 1:
-                out.append({"y": int(y), "id": int(tid), "w": t["w"], "l": t["l"], "t": t["t"]})
+                out.append({"y": int(y), "id": int(tid), "name": None, "w": t["w"], "l": t["l"], "t": t["t"]})
     return out
 
 
@@ -134,29 +137,110 @@ def facts(games, champs, history):
     return out
 
 
+def _teams(season, rosters, slugify, league):
+    """Today's teams, keyed as the team switch keys them: David's is the league's own key ("espn",
+    "yahoo"), every other one as design/mates.py keys it. w/l/t is the site's own standing (ESPN's
+    counts this league's top-half bonus win each week)."""
+    me = (rosters or {}).get("me")
+    return [{"id": int(i), "name": t["name"], "key": league if t["name"] == me else f"{league}-{slugify(t['name'])}",
+             "w": t["w"], "l": t["l"], "t": t["t"]}
+            for i, t in season["teams"].items()]
+
+
+def _block(season, teams, games, champs, facts_, since, scope):
+    now = [{"a": g["home"], "b": g["away"]} for g in season["games"] if g["week"] == season["week"]]
+    return {"league": season["league"], "season": season["season"], "week": season["week"], "since": since,
+            "scope": scope, "teams": teams, "weeks": weeks(season), "now": now,
+            "h2h": head_to_head(games, [t["id"] for t in teams]), "champs": champs, "facts": facts_}
+
+
 def live_league(season, history, rosters, slugify):
-    """LIVE_LEAGUE, or None when ff-jarvis has not written this season's file. `rosters` is
-    espn_rosters.json (its `me` names David's team, keyed "espn" on the page; every other team
-    is keyed as design/mates.py keys it)."""
+    """LIVE_LEAGUE (ESPN), or None when ff-jarvis has not written this season's file. `rosters` is
+    espn_rosters.json. Head-to-head and records run all-time: ESPN keeps a team's id every season."""
     if not season or not season.get("teams"):
         return None
     past = (history or {}).get("seasons") or {}
-    me = (rosters or {}).get("me")
-    # w/l/t is ESPN's own standing, which counts this league's top-half bonus win each week.
-    teams = [{"id": int(i), "name": t["name"], "key": "espn" if t["name"] == me else f"espn-{slugify(t['name'])}",
-              "w": t["w"], "l": t["l"], "t": t["t"]}
-             for i, t in season["teams"].items()]
     games = _all_games(season, past)
     champs = champions(past)
-    now = [{"a": g["home"], "b": g["away"]} for g in season["games"] if g["week"] == season["week"]]
-    return {"league": season["league"], "season": season["season"], "week": season["week"],
-            "since": min([int(y) for y in past] + [season["season"]]), "teams": teams,
-            "weeks": weeks(season), "now": now, "h2h": head_to_head(games, [t["id"] for t in teams]),
-            "champs": champs, "facts": facts(games, champs, past)}
+    return _block(season, _teams(season, rosters, slugify, "espn"), games, champs, facts(games, champs, past),
+                  min([int(y) for y in past] + [season["season"]]), "all")
 
 
-def report(league):
+def _past_name(name):
+    """A past Yahoo team's name, or None for a site default that may carry a surname ("Team Smith")."""
+    return None if not name or re.fullmatch(r"Team \S+", name.strip()) else name
+
+
+FORMER = 1000   # a manager who has left: 1000 + N, never one of today's ids (1-12)
+
+
+def _owner(owners, y, tid):
+    """Today's team id of the manager who ran team `tid` in season `y` (ff-jarvis's owner map), 1000+N
+    for a manager who has left, or a season-scoped id (y*100+tid, never joined) when the map lacks it."""
+    o = (((owners or {}).get("seasons") or {}).get(str(y)) or {}).get(str(tid))
+    if o is None:
+        return int(y) * 100 + int(tid)
+    return int(o) if not str(o).startswith("former-") else FORMER + int(str(o).split("-")[1])
+
+
+def live_league_yahoo(season, history, owners, rosters, slugify):
+    """LIVE_LEAGUE_YAHOO, or None. Yahoo re-ids every team each season and hides managers from the
+    cookie, so past teams join today's through `owners` (ff-jarvis yahoo_league_owners.json, no names).
+    With every past season mapped, head-to-head and titles run all-time (`scope` "all"); without, this
+    season only. A past team keeps the name it had that year (`name`); `id` says who it is today.
+    `rosters` is league_rosters.json."""
+    if not season or not season.get("teams"):
+        return None
+    pods = (history or {}).get("seasons") or {}
+    mapped = all(str(y) in ((owners or {}).get("seasons") or {}) for y, s in pods.items() if s.get("games"))
+    champs = []
+    for y, s in sorted(pods.items(), reverse=True):
+        if s.get("podium"):
+            oid = _owner(owners, y, s["podium"][0]["id"])
+            champs.append({"y": int(y), "id": oid if oid < FORMER else None, "name": _past_name(s["podium"][0]["name"]),
+                           "w": None, "l": None, "t": None})
+    now = _all_games(season, {})
+    past, names, totals = _yahoo_past(pods, owners)
+    everything = sorted(past + now, key=lambda g: (g["y"], g["week"]))
+    fx = _named(facts(everything, [c for c in champs if c["id"]] if mapped else [], totals), names)
+    return _block(season, _teams(season, rosters, slugify, "yahoo"), everything if mapped else now, champs, fx,
+                  min([int(y) for y in pods] + [season["season"]]), "all" if mapped else "season")
+
+
+def _yahoo_past(pods, owners):
+    """Past Yahoo seasons' games with each team as its manager's id (_owner), each (season, id)'s name
+    that year, and each season's regular-season points in facts()'s history shape."""
+    games, names, totals = [], {}, {}
+    for y, s in pods.items():
+        oid = lambda tid: _owner(owners, y, tid)
+        for g in s.get("games") or []:
+            games.append({**g, "home": oid(g["home"]), "away": oid(g["away"]), "y": int(y)})
+        names.update({(int(y), oid(tid)): _past_name(n) for tid, n in (s.get("names") or {}).items()})
+        pf = {}
+        for g in s.get("games") or []:
+            if g["tier"] is None:
+                for tid, pts in ((g["home"], g["hp"]), (g["away"], g["ap"])):
+                    pf[oid(tid)] = round(pf.get(oid(tid), 0) + pts, 2)
+        if pf:
+            totals[y] = {"teams": {str(k): {"pf": v} for k, v in pf.items()}}
+    return games, names, totals
+
+
+def _named(fx, names):
+    """A fact from a past season names the team as it was that year (`name`, `oppname`); its `id`
+    stays when it is one of today's teams (the page adds "now ..."), and is dropped for a manager who
+    has left or an unmapped team."""
+    for f in fx:
+        for key, label in (("id", "name"), ("opp", "oppname")):
+            if f.get(key) is not None and "y" in f and (f["y"], f[key]) in names:
+                f[label] = names[(f["y"], f[key])]
+            if f.get(key) is not None and f[key] >= FORMER:
+                f[key] = None
+    return fx
+
+
+def report(league, site="ESPN"):
     if not league:
-        return "League: none (ff-jarvis espn_league.json missing)"
-    return (f"League: {league['league']} {league['season']}, {len(league['weeks'])} weeks decided, "
+        return f"League ({site}): none (ff-jarvis {site.lower()}_league.json missing)"
+    return (f"League ({site}): {league['league']} {league['season']}, {len(league['weeks'])} weeks decided, "
             f"{len(league['champs'])} champions since {league['since']}")

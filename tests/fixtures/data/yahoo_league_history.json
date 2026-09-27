@@ -1,0 +1,85 @@
+{
+ "generated": "2026-09-12T06:00",
+ "league_id": 75203,
+ "seasons": {
+  "2024": {
+   "league_id": 451758,
+   "podium": [
+    {
+     "id": 12,
+     "name": "Team Smith"
+    },
+    {
+     "id": 2,
+     "name": "B"
+    },
+    {
+     "id": 4,
+     "name": "C"
+    }
+   ]
+  },
+  "2025": {
+   "league_id": 28070,
+   "podium": [
+    {
+     "id": 7,
+     "name": "Am I COOKed?"
+    },
+    {
+     "id": 9,
+     "name": "Gibbs Me TDs"
+    },
+    {
+     "id": 10,
+     "name": "Zay It Ain't So"
+    }
+   ],
+   "weeks": 2,
+   "names": {
+    "7": "Am I COOKed?",
+    "9": "Team Smith",
+    "10": "Zay It Ain't So",
+    "2": "Bower"
+   },
+   "games": [
+    {
+     "week": 1,
+     "home": 7,
+     "away": 9,
+     "hp": 170.0,
+     "ap": 30.0,
+     "winner": "home",
+     "tier": null
+    },
+    {
+     "week": 1,
+     "home": 10,
+     "away": 2,
+     "hp": 100.0,
+     "ap": 90.0,
+     "winner": "home",
+     "tier": null
+    },
+    {
+     "week": 2,
+     "home": 9,
+     "away": 7,
+     "hp": 80.0,
+     "ap": 120.0,
+     "winner": "away",
+     "tier": null
+    },
+    {
+     "week": 2,
+     "home": 2,
+     "away": 10,
+     "hp": 95.0,
+     "ap": 94.0,
+     "winner": "home",
+     "tier": null
+    }
+   ]
+  }
+ }
+}
