@@ -33,7 +33,7 @@ async function pkTurn(S, el, big){
     const a = pkAnim(S, inner, [
       {rotate: "y 180deg", scale: "1"},
       {rotate: "y 90deg", scale: big ? "1.12" : "1.07", offset: .45},
-      {rotate: "y 0deg", scale: "1"}], {duration: big ? 900 : 620, easing: pkSpring(el), fill: "forwards"});
+      {rotate: "y 0deg", scale: "1"}], {duration: big ? 700 : 480, easing: pkSpring(el), fill: "forwards"});
     await a.finished;
     a.cancel();
   }
@@ -48,7 +48,7 @@ async function pkSign(S, el){
   if (!S.skip){
     packBuzz([10, 40, 10]);
     await pkAnim(S, ink, [{clipPath: "inset(-20% 100% -20% -5%)"}, {clipPath: "inset(-20% -5% -20% -5%)"}],
-      {duration: 1100, easing: "cubic-bezier(.45,.05,.4,1)", fill: "forwards"}).finished;
+      {duration: 850, easing: "cubic-bezier(.45,.05,.4,1)", fill: "forwards"}).finished;
     const r = ink.getBoundingClientRect();
     packBurst(r.right - r.width * .12, r.top + r.height / 2, {n: 26, tier: "ur", spread: .6});
   }
@@ -71,7 +71,7 @@ async function pkToPile(S, el, k){
     const a = pkAnim(S, el, [
       {translate: "0 0", scale: "1", rotate: "0deg"},
       {translate: "0 -18px", scale: ".96", rotate: "0deg", offset: .18},
-      to], {duration: 560, easing: "cubic-bezier(.5,0,.25,1)", fill: "forwards"});
+      to], {duration: 440, easing: "cubic-bezier(.5,0,.25,1)", fill: "forwards"});
     await a.finished;
     a.cancel();
   }
@@ -87,11 +87,11 @@ async function pkOutOfPack(S, el){
   if (S.skip){ pack.remove(); return; }
   el.style.zIndex = "2";                          // behind the pack (z 3) until it is out
   el.style.translate = `0 ${Math.round(h * .12)}px`; el.style.scale = ".88";
-  await pkMove(S, el, {translate: `0 ${Math.round(-h * .62)}px`, scale: ".9"}, 620, "cubic-bezier(.3,.8,.3,1)");
+  await pkMove(S, el, {translate: `0 ${Math.round(-h * .62)}px`, scale: ".9"}, 480, "cubic-bezier(.3,.8,.3,1)");
   el.style.zIndex = "";
   pkAnim(S, pack, [{translate: "-50% -50%", opacity: 1}, {translate: "-50% 10%", opacity: 0}],
-    {duration: 420, easing: "cubic-bezier(.5,0,.75,0)", fill: "forwards"}).finished.then(() => pack.remove());
-  await pkMove(S, el, {translate: "0 0", scale: "1"}, 520);
+    {duration: 340, easing: "cubic-bezier(.5,0,.75,0)", fill: "forwards"}).finished.then(() => pack.remove());
+  await pkMove(S, el, {translate: "0 0", scale: "1"}, 400);
 }
 
 async function pkDeal(S){
@@ -115,57 +115,90 @@ async function pkDeal(S){
     if (S.pack) await pkOutOfPack(S, el);
     else {
       el.style.translate = "0 70px"; el.style.scale = ".7";
-      await pkMove(S, el, {translate: "0 0", scale: "1"}, 360);
+      await pkMove(S, el, {translate: "0 0", scale: "1"}, 280);
     }
     if (last){ await pkHero(S, el, c); break; }
-    await pkSleep(S, 120);
+    await pkSleep(S, 70);
     await pkTurn(S, el, false);
     pkLight(S, cardTier(c.rank));                 // the room takes the card's tier colour
     // The label once the face has settled, never while it is still face down.
-    await pkSleep(S, 60);
+    await pkSleep(S, 40);
     // .deal: a card's caption is a headline; the intro sentence the slot held before stays body size.
     if (!S.skip){ const m = S.st.querySelector(".pk-msg"); m.classList.add("deal"); m.innerHTML = pkLabel(c); }
     await pkSign(S, el);
-    await pkSleep(S, 700);
+    await pkSleep(S, 480);
     pkLight(S, null);
     await pkToPile(S, el, k);
   }
 }
 
-/* The best card's moment, in the centre: rays behind it, shake, flash, a burst, a size up. */
+/* The best card's moment, in the centre (reworked 2026-09-26, packshow.css "The best card's
+   reveal"): the charge, a line running round the face-down card faster each lap while it shakes
+   harder; then a flash, a shock ring and a burst, the turn a size up, two lines circling the card
+   and a sheen across its face, and a second fall of foil from above. */
+const PK_CHARGE = 1100;
 async function pkHero(S, el, c){
   S.st.classList.add("pk-dim", `pk-best-${S.best}`);
   S.st.querySelector(".pk-msg").innerHTML = "";
+  el.insertAdjacentHTML("beforeend", `<i class="pk-aura"></i><span class="pk-ring"><i></i></span><span class="pk-sheen"></span>`);
+  const ring = el.querySelector(".pk-ring"), aura = el.querySelector(".pk-aura");
   packBuzz([30, 60, 30]);
-  if (!S.skip) await pkAnim(S, el, [0, -4, 4, -5, 5, -3, 3, 0].map(x => ({translate: `${x}px 0`})), {duration: 560}).finished;
+  let orbit = null;
   if (!S.skip){
-    pkAnim(S, S.st.querySelector(".pk-flash"), [{opacity: 0}, {opacity: .85, offset: .25}, {opacity: 0}], {duration: 700, easing: "ease-out"});
+    // The line starts slow and ends at three laps a second; the shake grows with it.
+    orbit = pkAnim(S, ring.firstElementChild, [{rotate: "0deg"}, {rotate: "360deg"}], {duration: 900, iterations: Infinity});
+    pkAnim(S, ring, [{opacity: 0}, {opacity: 1}], {duration: 250});
+    const t0 = performance.now(), speed = () => {
+      if (!ring.isConnected || ring.classList.contains("lit")) return;
+      orbit.updatePlaybackRate((S.rush ? PK_RUSH : 1) * (1 + 2.2 * Math.min(1, (performance.now() - t0) / PK_CHARGE)));
+      requestAnimationFrame(speed);
+    };
+    requestAnimationFrame(speed);
+    pkAnim(S, aura, [{opacity: 0}, {opacity: .9}], {duration: PK_CHARGE, easing: "ease-in", fill: "forwards"});
+    await pkAnim(S, el, [0, -1, 1, -2, 2, -3, 3, -4, 4, -5, 5, 0].map(x => ({translate: `${x}px 0`})),
+      {duration: PK_CHARGE, easing: "ease-in"}).finished;
+    packBuzz([20, 30, 40]);
+    pkAnim(S, S.st.querySelector(".pk-flash"), [{opacity: 0}, {opacity: .9, offset: .2}, {opacity: 0}], {duration: 650, easing: "ease-out"});
+    pkAnim(S, S.st.querySelector(".pk-wave"), [{scale: ".6", opacity: .9}, {scale: "3.2", opacity: 0}], {duration: 750, easing: "cubic-bezier(.2,.8,.3,1)"});
     const r = el.getBoundingClientRect();
     packBurst(r.left + r.width / 2, r.top + r.height / 2, {n: S.best === "one" ? 110 : 70, tier: S.best, spread: 2});
   }
-  await pkMove(S, el, {translate: "0 0", scale: "1.16"}, 500);
+  // The size up, then the turn: run together, the two scales at once left the photo painted small
+  // and stretched until the turn ended.
+  await pkMove(S, el, {translate: "0 0", scale: "1.16"}, 320);
+  el.classList.add("pk-turning");
   await pkTurn(S, el, true);
+  el.classList.remove("pk-turning");
+  ring.classList.add("lit");
+  orbit?.updatePlaybackRate(1.2);                 // two lines at an even pace once it is face up
   pkLight(S, S.best);
+  if (!S.skip){
+    el.querySelector(".pk-sheen").classList.add("go");
+    pkAnim(S, aura, [{opacity: .9}, {opacity: .45}], {duration: 1200, direction: "alternate", iterations: Infinity, easing: "ease-in-out"});
+    // The foil falls a second time, from above the card's two top corners.
+    const r = el.getBoundingClientRect();
+    [r.left + r.width * .1, r.right - r.width * .1].forEach(x => packBurst(x, r.top, {n: 24, tier: S.best, spread: .8}));
+  }
   await pkSign(S, el);
   const top = S.cards[S.cards.length - 1];
   S.st.querySelector(".pk-msg").innerHTML = t("teams.pack.done", {name: esc(nameInitial(top.p.n)), rank: top.rank, pos: esc(top.p.pos)});
   // Long enough to read the line above it (it was 1.5s); a tap anywhere goes on sooner. A tap that
   // hurried the reveal does not also skip the line.
   S.rush = false;
-  await Promise.race([pkSleep(S, 3400), new Promise(r => S.st.addEventListener("click", r, {once: true}))]);
+  await Promise.race([pkSleep(S, 3000), new Promise(r => S.st.addEventListener("click", r, {once: true}))]);
 }
 
 /* The stage fades to the roster and every card flies from where it is into its empty slot. The
    best card, in the centre, goes first and the pile follows it 60ms apart (2026-09-25): it went
    last, after every pile card's stagger, and read as a card stuck on the screen. */
-const PK_HOME_STEP = 60;
+const PK_HOME_STEP = 45;
 async function pkHome(S){
   S.homing = true; S.rush = false;
   S.st.classList.add("pk-home");
   const view = document.getElementById("view");
   view.querySelector(".cards")?.scrollIntoView({block: "start", behavior: "instant"});
   window.scrollBy(0, -90);
-  await pkSleep(S, 260);
+  await pkSleep(S, 200);
   await Promise.all(S.shown.map(async (el, k) => {
     const slot = view.querySelector(`.cards .tc[data-pk="${k}"]`);
     if (slot && !S.skip){
@@ -175,7 +208,7 @@ async function pkHome(S){
       const [tx, ty] = (el.style.translate || "0 0").split(" ").map(parseFloat);
       await pkSleep(S, k === S.shown.length - 1 ? 0 : (k + 1) * PK_HOME_STEP);
       await pkMove(S, el, {translate: `${tx + (b.left + b.width / 2) - (a.left + a.width / 2)}px ${ty + (b.top + b.height / 2) - (a.top + a.height / 2)}px`,
-        scale: String(b.width / el.offsetWidth), rotate: "0deg"}, 620, "cubic-bezier(.3,.7,.25,1)");
+        scale: String(b.width / el.offsetWidth), rotate: "0deg"}, 520, "cubic-bezier(.3,.7,.25,1)");
     }
     slot?.classList.remove("pk-slot");
     el.remove();

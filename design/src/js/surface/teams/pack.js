@@ -55,8 +55,11 @@ function packArtSVG(wk){
 }
 function packSealHTML(team, wk, cards){
   const best = cardTier(cards[cards.length - 1].rank);
-  return `<div class="pack-glow tease-${best}"><button class="pack-seal" type="button" aria-label="${t("teams.pack.open")}">
-      <span class="pack-foil">${packArtSVG(wk)}</span>
+  // The rear and the side walls give the pack its body (pack.css); only the front is a control.
+  return `<div class="pack-glow tease-${best}"><span class="pack-rear" aria-hidden="true"><b>TEAM<i>//</i>WATCH</b></span>
+    <i class="pack-wall l" aria-hidden="true"></i><i class="pack-wall r" aria-hidden="true"></i>
+    <button class="pack-seal" type="button" aria-label="${t("teams.pack.open")}">
+      <span class="pack-foil">${packArtSVG(wk)}<i class="pack-bulge"></i></span>
       <span class="pack-top"><i class="pt-mouth"></i><i class="pt-base"></i><i class="pt-flap"></i><i class="pt-edge"></i></span>
       <b>TEAM<i class="slashes" aria-hidden="true"><b></b><b></b></i>WATCH</b>
       <span class="pack-n">${cards.length}<small>${t("teams.pack.cards")}</small></span>

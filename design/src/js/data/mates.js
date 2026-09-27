@@ -36,3 +36,24 @@ function myTeamLoad(){
 function myTeamSave(k){
   try { localStorage.setItem(MY_TEAM, k); } catch (e) {}
 }
+
+/* The teams a reader follows (2026-09-26): the team switch lists only these, and every other team
+   in the two leagues sits behind "Leaguemates", one tap further. Kept in this browser. Unset, it is
+   David's two teams, or the leaguemate's own team if they had already picked it. A connected
+   league is always followed: adding it was the follow. */
+const FOLLOW = "tw-follow";
+let FOLLOW_MEM = null;        // this load's list, for a browser that refuses storage
+function followLoad(){
+  if (FOLLOW_MEM) return FOLLOW_MEM.filter(k => TEAMS[k]);
+  try {
+    const got = JSON.parse(localStorage.getItem(FOLLOW));
+    if (Array.isArray(got)) return got.filter(k => TEAMS[k] && !TEAMS[k].connected);
+  } catch (e) { /* unreadable: the default below */ }
+  const mine = myTeamLoad();
+  return mine && TEAMS[mine].mate ? [mine] : ["yahoo", "espn"];
+}
+function followToggle(k){
+  const now = followLoad(), next = now.includes(k) ? now.filter(x => x !== k) : [...now, k];
+  FOLLOW_MEM = next;
+  try { localStorage.setItem(FOLLOW, JSON.stringify(next)); } catch (e) { /* this load only */ }
+}

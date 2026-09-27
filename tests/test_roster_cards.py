@@ -62,9 +62,17 @@ def cards_page(browser, page_file, viewport=(360, 660), keep_stage=False):
 
 
 def rip(page, part=.9):
-    """Drag along the stage pack's strip, `part` of its width. A tap no longer rips (2026-09-25)."""
+    """Drag along the stage pack's strip, `part` of its width. A tap no longer rips (2026-09-25).
+    With motion on, the pack spins in first (2026-09-26); a finger waits for it to land. The pack
+    stands turned, so its box is wider than its strip: the grip is the first point from the left
+    that is on the strip."""
+    page.wait_for_function("!document.querySelector('.pk-center .pack-glow')?.getAnimations().length")
     box = page.locator(".pk-stage .pack-seal").bounding_box()
-    y, x = box["y"] + 14, box["x"] + 10
+    y = box["y"] + box["height"] * .07
+    x = page.evaluate("""([l, w, y]) => { for (let f = .02; f < .5; f += .02){
+      const e = document.elementFromPoint(l + w * f, y); if (e && e.closest('.pack-top')) return l + w * (f + .02); } return l + w * .15; }""",
+      [box["x"], box["width"], y])
+    part = min(part, .8)
     page.mouse.move(x, y)
     page.mouse.down()
     for k in range(1, 7):

@@ -54,7 +54,7 @@ function packShow(team, wk){
   const st = document.createElement("div");
   st.className = "pk-stage";
   st.setAttribute("role", "dialog"); st.setAttribute("aria-modal", "true"); st.setAttribute("aria-label", t("teams.pack.stage"));
-  st.innerHTML = `<div class="pk-back"></div><div class="pk-light"></div><div class="pk-floor"></div><div class="pk-rays"></div><div class="pk-flash"></div>
+  st.innerHTML = `<div class="pk-back"></div><div class="pk-light"></div><div class="pk-floor"></div><div class="pk-rays"></div><div class="pk-flash"></div><div class="pk-wave"></div>
     <button class="pk-close" type="button" aria-label="${t("teams.pack.closeLabel")}">✕</button>
     <p class="pk-msg" aria-live="polite">${t("teams.pack.lead", {wk, n: cards.length})}</p>
     <div class="pk-center">${packSealHTML(team, wk, cards)}</div>
@@ -78,7 +78,12 @@ function packShow(team, wk){
     (e, nudge) => pkTilt(S, e, nudge));
   pkAim(S);
   render();                     // the page drops its own copy of the pack while the stage holds it
-  if (!REDUCED()) st.animate([{opacity: 0}, {opacity: 1}], {duration: 260});
+  if (!REDUCED()){
+    st.animate([{opacity: 0}, {opacity: 1}], {duration: 260});
+    // The pack spins in to its lean, back first, so it arrives as a thing with two sides and a body.
+    st.querySelector(".pk-center .pack-glow").animate([{transform: "rotateX(14deg) rotateY(-376deg) scale(.6)"}, {transform: "rotateX(6deg) rotateY(-22deg)"}],
+      {duration: 850, easing: "cubic-bezier(.2,.9,.3,1.04)"});
+  }
 }
 
 /* The sealed pack leans toward the mouse and its foil's shine follows it (--mx/--my). The lean is
@@ -98,7 +103,9 @@ function pkAim(S){
   S.st.addEventListener("pointermove", e => {
     if (e.pointerType !== "mouse" || S.ripped || S.st.classList.contains("pk-drag")) return;
     const c = S.st.querySelector(".pk-center"), seal = c && c.querySelector(".pack-seal");
-    if (!seal || seal.classList.contains("tearing")) return;
+    // Over the strip it holds still (2026-09-26): leaning away from a pointer about to grab the
+    // strip turned the strip out from under it, and the press landed on the empty stage.
+    if (!seal || seal.classList.contains("tearing") || e.target.closest?.(".pack-top")) return;
     const r = c.getBoundingClientRect(), clamp = v => Math.max(-1, Math.min(1, v));
     S.st.classList.add("pk-aim");
     pkLean(S, clamp((e.clientX - (r.left + r.width / 2)) / r.width), clamp((e.clientY - (r.top + r.height / 2)) / r.height));
@@ -184,9 +191,9 @@ async function pkRip(S){
         {transform: "translate3d(0,0,0) rotateX(0) rotateZ(0)", opacity: 1},
         {transform: "translate3d(40px,-46px,40px) rotateX(40deg) rotateZ(-10deg)", opacity: 1, offset: .35},
         {transform: "translate3d(150px,-170px,90px) rotateX(120deg) rotateZ(-38deg)", opacity: 0}],
-        {duration: 520, easing: out, fill: "forwards"}).finished,
+        {duration: 440, easing: out, fill: "forwards"}).finished,
       center.querySelector(".pack-glow").animate([{transform: "rotateX(16deg) rotateY(0deg)"}],
-        {duration: 460, easing: out, fill: "forwards"}).finished]);
+        {duration: 380, easing: out, fill: "forwards"}).finished]);
     S.pack = center;
   }
   await pkDeal(S);

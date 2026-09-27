@@ -39,6 +39,30 @@
   text-decoration:underline;text-underline-offset:3px}
 .ts-ask:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 .ts-discord{color:var(--discord);text-decoration:none;--tint:var(--discord)}
+/* A followed or followable team (2026-09-26): the name to view it, a star to follow it. The row
+   carries the divider, so the star's cell lines up with the name's. */
+.ts-row{display:flex;align-items:stretch;border-bottom:1px solid var(--line)}
+.ts-row:has(.ts-item[aria-selected="true"]){background:rgb(var(--lime-rgb) / .06)}
+/* One width, open or closed Leaguemates, so opening it never moves the menu sideways. */
+.ts-menu{width:min(300px, calc(100vw - 32px))}
+.ts-row .ts-item{flex:1;min-width:0;border-bottom:0}
+.ts-item small{display:block;margin-top:2px;font-size:var(--t-1);color:var(--ink-3)}
+.ts-star{flex-shrink:0;width:44px;appearance:none;border:0;background:none;cursor:pointer;display:grid;place-items:center;color:var(--ink-3)}
+.ts-star svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linejoin:round}
+.ts-star[aria-pressed="true"]{color:var(--lime)}
+.ts-star[aria-pressed="true"] svg{fill:currentColor}
+.ts-star:hover{color:var(--ink)}
+.ts-star:focus-visible{outline:2px solid var(--lime);outline-offset:-4px}
+.ts-empty{margin:0;padding:11px 13px;font-family:var(--ui);font-size:var(--t-2);color:var(--ink-3);border-bottom:1px solid var(--line)}
+/* The way to every other team: closed by default, so the menu is the reader's own teams. */
+.ts-more{display:flex;align-items:center;justify-content:space-between;width:100%;appearance:none;cursor:pointer;
+  padding:9px 13px;border:0;border-bottom:1px solid var(--line);background:var(--panel-3);
+  font-family:var(--ui);font-size:var(--t-2);font-weight:600;color:var(--ink-2)}
+.ts-more:hover{color:var(--ink)}
+.ts-more:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+.ts-more .ts-chev{width:22px;height:22px}
+.ts-more[aria-expanded="true"] .ts-chev{transform:rotate(180deg);color:var(--lime)}
+.ts-head.sub{position:static;background:var(--panel-2);color:var(--ink-3)}
 .ts-item:hover{background:var(--panel-3);color:var(--ink);border-left-color:var(--tint)}
 .ts-item[aria-selected="true"]{color:var(--ink);background:rgb(var(--lime-rgb) / .06);border-left-color:var(--tint)}
 
