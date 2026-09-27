@@ -3042,6 +3042,24 @@ body:has(.connect:not([hidden])){overflow:hidden}
   .bd-hero{min-height:208px}
 }
 
+/* From 1100px (storyboard B, 2026-09-27): the #1 is a 440px column on every page and the page
+   reads down two lists beside it, so a 1920x1080 screen shows #1-43 of 64 instead of #1-16. The
+   hero keeps a fixed height (the day-long side-by-side of 2026-09-26 stretched it to the list's
+   full height); the lists keep the phone's row, so a bar is never longer than half the page. */
+@media (min-width:1100px){
+  .bd-card{display:grid;grid-template-columns:440px minmax(0,1fr);column-gap:24px;align-items:start;
+    max-width:none;border:0;border-radius:0;background:none;overflow:visible}
+  /* 440px, less on a short window: the card starts ~210px down and must end above the edge too. */
+  .bd-hero{min-height:min(440px,calc(100dvh - 230px));border:1px solid var(--line);border-radius:14px}
+  .bd-hero-img{max-height:280px}
+  .bd-hero-txt{padding:20px 24px 24px}
+  .bd-side{grid-column:2;display:grid;gap:12px}
+  .bd-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;align-items:start}
+  .bd-cols > .bd-list,.bd-side > .bd-pinned{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:4px 0}
+  .bd-side > .bd-pinned .bd-gap{display:none}
+  .bd-pager{padding:0;border-top:0}
+}
+
 /* Type comes from .note (base.css): a source line is a sentence, not a label. */
 .bd-foot{margin:10px 0 4px}
 
@@ -12102,11 +12120,18 @@ function bdBoardHTML(pos, picks){
         `${esc(nameInitial(r.n))} ${usageFmt(r.v[sel], a.fmt)} (${t("board.foot.games", {g: r.g || 0})})`).join(", ")}) : "")
     + (thin.length ? " " + t("board.foot.thin", {floor: a.floor, list: thin.map(r =>
         `${esc(nameInitial(r.n))} ${usageFmt(r.v[sel], a.fmt)} (${esc(sampleShort(r, a))})`).join(", ")}) : "");
+  // From 1100px the #1 is a column beside the list on every page, and the page reads down two
+  // lists (storyboard B, 2026-09-27); narrower, he heads page 1 only.
+  const half = Math.ceil(shown.length / 2);
+  const list = BD_WIDE.matches
+    ? `<div class="bd-cols"><div class="bd-list">${shown.slice(0, half).map(row).join("")}</div
+        ><div class="bd-list">${shown.slice(half).map(row).join("")}</div></div>`
+    : `<div class="bd-list">${shown.map(row).join("")}</div>`;
   return `${bdTabsHTML(axes, sel)}
     <div class="bd-card" data-bdswipe>
-      ${bdPageOf(ranked) === 1 ? bdHeroHTML(a, ranked[0], ranked.length, slugs.includes(ranked[0].slug)) : ""}
+      ${bdPageOf(ranked) === 1 || BD_WIDE.matches ? bdHeroHTML(a, ranked[0], ranked.length, slugs.includes(ranked[0].slug)) : ""}
       <div class="bd-side">
-        <div class="bd-list">${shown.map(row).join("")}</div>
+        ${list}
         ${pinned ? `<div class="bd-list bd-pinned"><div class="bd-gap" aria-hidden="true"></div>${pinned}</div>` : ""}
         ${bdPagerHTML(ranked)}
       </div>
@@ -12119,6 +12144,8 @@ function bdBoardHTML(pos, picks){
    counts in the reader's browser and resets them; 7 and 12 are only the first render's guesses
    (a 360x740 phone). Pages count from 1. */
 let BD_FIRST_SIZE = 7, BD_PAGE_SIZE = 12;
+// The wide layout: the #1 beside two lists. Every page then has the same shape, so both counts match.
+const BD_WIDE = matchMedia("(min-width:1100px)");
 function bdPageCount(ranked){ return 1 + Math.max(0, Math.ceil((ranked.length - 1 - BD_FIRST_SIZE) / BD_PAGE_SIZE)); }
 const bdPageOf = ranked => Math.min(BD_PAGE, bdPageCount(ranked));
 // Where a page starts in `ranked` (0 is the hero), and how many rows it holds.
@@ -12169,23 +12196,34 @@ function bdMeasureFit(){
   if (!rows.length) return null;
   const rowH = Math.max(...rows.map(r => r.offsetHeight));
   const top = rows[0].getBoundingClientRect().top + window.scrollY;
-  const under = card.getBoundingClientRect().bottom - rows[rows.length - 1].getBoundingClientRect().bottom;
+  // The lowest row, not the last: from 1100px the page is two lists side by side.
+  const under = card.getBoundingClientRect().bottom - Math.max(...rows.map(r => r.getBoundingClientRect().bottom));
   // A pager that is not drawn yet (one page at the guessed size) will be once the list is cut.
   const pager = card.querySelector(".bd-pager") ? 0 : 56;
   const n = Math.floor((window.innerHeight - bdBottomChromeH() - top - under - pager - 8) / rowH);
-  return Math.max(BD_FIT_MIN, Math.min(BD_FIT_MAX, n));
+  return Math.max(BD_FIT_MIN, Math.min(BD_FIT_MAX, n)) * (BD_WIDE.matches ? 2 : 1);
 }
 
 /* After a render: size the page on screen to the screen. Page 1 (under the hero) and the pages
    after it have their own counts, each set the first time it is shown. Renders again only when
-   the count changes, so it settles in one pass. */
+   the count changes, so it settles in one pass. From 1100px every page has the #1 beside it, so
+   one count serves both. */
 function bdFitPage(){
   const n = bdMeasureFit();
+  if (!n) return;
+  if (BD_WIDE.matches){
+    if (n === BD_FIRST_SIZE && n === BD_PAGE_SIZE) return;
+    BD_FIRST_SIZE = BD_PAGE_SIZE = n;
+    return render();
+  }
   const first = !!document.querySelector(".bd-card > .bd-hero");
-  if (!n || n === (first ? BD_FIRST_SIZE : BD_PAGE_SIZE)) return;
+  if (n === (first ? BD_FIRST_SIZE : BD_PAGE_SIZE)) return;
   if (first) BD_FIRST_SIZE = n; else BD_PAGE_SIZE = n;
   render();
 }
+
+// Crossing 1100px changes the page's shape, so it is drawn and measured again.
+BD_WIDE.addEventListener("change", () => { if (document.querySelector(".bd-card")) render(); });
 /* ── js/surface/board/label.js ── */
 /* ------------------------------------------------------------------
    THE BOARD — the two words under the picks: what he is asked to do, and what he does with it.

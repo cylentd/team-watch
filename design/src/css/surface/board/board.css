@@ -221,6 +221,24 @@
   .bd-hero{min-height:208px}
 }
 
+/* From 1100px (storyboard B, 2026-09-27): the #1 is a 440px column on every page and the page
+   reads down two lists beside it, so a 1920x1080 screen shows #1-43 of 64 instead of #1-16. The
+   hero keeps a fixed height (the day-long side-by-side of 2026-09-26 stretched it to the list's
+   full height); the lists keep the phone's row, so a bar is never longer than half the page. */
+@media (min-width:1100px){
+  .bd-card{display:grid;grid-template-columns:440px minmax(0,1fr);column-gap:24px;align-items:start;
+    max-width:none;border:0;border-radius:0;background:none;overflow:visible}
+  /* 440px, less on a short window: the card starts ~210px down and must end above the edge too. */
+  .bd-hero{min-height:min(440px,calc(100dvh - 230px));border:1px solid var(--line);border-radius:14px}
+  .bd-hero-img{max-height:280px}
+  .bd-hero-txt{padding:20px 24px 24px}
+  .bd-side{grid-column:2;display:grid;gap:12px}
+  .bd-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;align-items:start}
+  .bd-cols > .bd-list,.bd-side > .bd-pinned{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:4px 0}
+  .bd-side > .bd-pinned .bd-gap{display:none}
+  .bd-pager{padding:0;border-top:0}
+}
+
 /* Type comes from .note (base.css): a source line is a sentence, not a label. */
 .bd-foot{margin:10px 0 4px}
 

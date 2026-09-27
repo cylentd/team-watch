@@ -25,20 +25,31 @@ function bdMeasureFit(){
   if (!rows.length) return null;
   const rowH = Math.max(...rows.map(r => r.offsetHeight));
   const top = rows[0].getBoundingClientRect().top + window.scrollY;
-  const under = card.getBoundingClientRect().bottom - rows[rows.length - 1].getBoundingClientRect().bottom;
+  // The lowest row, not the last: from 1100px the page is two lists side by side.
+  const under = card.getBoundingClientRect().bottom - Math.max(...rows.map(r => r.getBoundingClientRect().bottom));
   // A pager that is not drawn yet (one page at the guessed size) will be once the list is cut.
   const pager = card.querySelector(".bd-pager") ? 0 : 56;
   const n = Math.floor((window.innerHeight - bdBottomChromeH() - top - under - pager - 8) / rowH);
-  return Math.max(BD_FIT_MIN, Math.min(BD_FIT_MAX, n));
+  return Math.max(BD_FIT_MIN, Math.min(BD_FIT_MAX, n)) * (BD_WIDE.matches ? 2 : 1);
 }
 
 /* After a render: size the page on screen to the screen. Page 1 (under the hero) and the pages
    after it have their own counts, each set the first time it is shown. Renders again only when
-   the count changes, so it settles in one pass. */
+   the count changes, so it settles in one pass. From 1100px every page has the #1 beside it, so
+   one count serves both. */
 function bdFitPage(){
   const n = bdMeasureFit();
+  if (!n) return;
+  if (BD_WIDE.matches){
+    if (n === BD_FIRST_SIZE && n === BD_PAGE_SIZE) return;
+    BD_FIRST_SIZE = BD_PAGE_SIZE = n;
+    return render();
+  }
   const first = !!document.querySelector(".bd-card > .bd-hero");
-  if (!n || n === (first ? BD_FIRST_SIZE : BD_PAGE_SIZE)) return;
+  if (n === (first ? BD_FIRST_SIZE : BD_PAGE_SIZE)) return;
   if (first) BD_FIRST_SIZE = n; else BD_PAGE_SIZE = n;
   render();
 }
+
+// Crossing 1100px changes the page's shape, so it is drawn and measured again.
+BD_WIDE.addEventListener("change", () => { if (document.querySelector(".bd-card")) render(); });

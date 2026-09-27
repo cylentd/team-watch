@@ -132,11 +132,18 @@ function bdBoardHTML(pos, picks){
         `${esc(nameInitial(r.n))} ${usageFmt(r.v[sel], a.fmt)} (${t("board.foot.games", {g: r.g || 0})})`).join(", ")}) : "")
     + (thin.length ? " " + t("board.foot.thin", {floor: a.floor, list: thin.map(r =>
         `${esc(nameInitial(r.n))} ${usageFmt(r.v[sel], a.fmt)} (${esc(sampleShort(r, a))})`).join(", ")}) : "");
+  // From 1100px the #1 is a column beside the list on every page, and the page reads down two
+  // lists (storyboard B, 2026-09-27); narrower, he heads page 1 only.
+  const half = Math.ceil(shown.length / 2);
+  const list = BD_WIDE.matches
+    ? `<div class="bd-cols"><div class="bd-list">${shown.slice(0, half).map(row).join("")}</div
+        ><div class="bd-list">${shown.slice(half).map(row).join("")}</div></div>`
+    : `<div class="bd-list">${shown.map(row).join("")}</div>`;
   return `${bdTabsHTML(axes, sel)}
     <div class="bd-card" data-bdswipe>
-      ${bdPageOf(ranked) === 1 ? bdHeroHTML(a, ranked[0], ranked.length, slugs.includes(ranked[0].slug)) : ""}
+      ${bdPageOf(ranked) === 1 || BD_WIDE.matches ? bdHeroHTML(a, ranked[0], ranked.length, slugs.includes(ranked[0].slug)) : ""}
       <div class="bd-side">
-        <div class="bd-list">${shown.map(row).join("")}</div>
+        ${list}
         ${pinned ? `<div class="bd-list bd-pinned"><div class="bd-gap" aria-hidden="true"></div>${pinned}</div>` : ""}
         ${bdPagerHTML(ranked)}
       </div>
@@ -149,6 +156,8 @@ function bdBoardHTML(pos, picks){
    counts in the reader's browser and resets them; 7 and 12 are only the first render's guesses
    (a 360x740 phone). Pages count from 1. */
 let BD_FIRST_SIZE = 7, BD_PAGE_SIZE = 12;
+// The wide layout: the #1 beside two lists. Every page then has the same shape, so both counts match.
+const BD_WIDE = matchMedia("(min-width:1100px)");
 function bdPageCount(ranked){ return 1 + Math.max(0, Math.ceil((ranked.length - 1 - BD_FIRST_SIZE) / BD_PAGE_SIZE)); }
 const bdPageOf = ranked => Math.min(BD_PAGE, bdPageCount(ranked));
 // Where a page starts in `ranked` (0 is the hero), and how many rows it holds.

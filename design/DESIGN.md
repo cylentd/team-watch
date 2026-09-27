@@ -55,7 +55,8 @@ Every view sits in one frame, so a tab change never moves the nav bar's edges.
   view built outside `.wrap` (`.dg`, `.mu`) takes `var(--page-w)` and `var(--page-pad)`.
 - **Fill the width** (STYLE.md). A view with columns (Roster, Waivers, League, Grid, the Digest
   wall) grows into it. A single list stops at `--list-w`, because a row with its number 1,400px
-  from its name reads as two rows.
+  from its name reads as two rows. Leaders splits instead: the #1 beside two lists (2026-09-27,
+  "Leaders on a wide screen").
 - **Why 1680:** the Digest wall was the one view designed for a wide screen, and at 1920 it cut the
   side margin from ~370px to 120px. Superseded: the 1180px frame with the Digest alone widening to
   1680 (2026-09-26), which moved the nav bar on every tab change into or out of This week.
@@ -359,6 +360,24 @@ the signed share change, or role share before one exists. The rest is the drawer
 
 On a phone the chart draws to a taller, narrower geometry sized close to 1:1 with the screen,
 per-dot names dropped (the list below names every player); dots stay tappable into the drawer.
+
+### Leaders on a wide screen (2026-09-27)
+
+Storyboard: https://claude.ai/artifact/GZzBAiovV45XPYSCzu7Tzr (option B, David's pick). From
+1100px the #1 is a 440px column on every page and the page reads down two lists beside it
+(`.bd-cols`); below 1100px it is the single 900px card, the #1 on page 1 only.
+
+| RB workload, 64 players, live data 2026-09-27 | before | after |
+|---|---|---|
+| 1920×1080, page 1 | #1–16, 700px empty | #1–41 |
+| 1440×900, page 1 | #1–11, 460px empty | #1–33 |
+| pages to see all 64 at 1920 | about 4 | 2 |
+
+- **Every page has the same shape**, so `fit.js` sets one count for page 1 and the rest: rows per
+  list, times two. Crossing 1100px re-renders and re-measures.
+- **The #1 card keeps a fixed height** (440px, less on a window under ~670px tall so it still ends
+  above the edge). The side-by-side tried on 2026-09-26 stretched it to the list's full height.
+- **A bar is half the page at most**: each list keeps the phone's row, so bars stay comparable.
 
 ## Digest (This week, 2026-09-26)
 

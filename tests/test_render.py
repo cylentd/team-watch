@@ -165,8 +165,10 @@ STATES = [
     # fixture-built page at all, and is checked against the live build instead.
     ("board-qb", go("board") + [("click", "[data-bdpos='QB']")] + bdpick("burrow")),
     ("board-wr", go("board") + [("click", "[data-bdpos='WR']")]),
-    # The list's second page: the pager turns it in place (a list since 2026-09-26).
-    ("board-wr-page2", go("board") + [("click", "[data-bdpos='WR']"), ("click", ".bd-pager [data-bdpage='2']")]),
+    # The list's second page: the pager turns it in place (a list since 2026-09-26). From 1100px the
+    # fixture's WRs fit one page of two lists (2026-09-27), so the desk golden records that page.
+    ("board-wr-page2", go("board") + [("click", "[data-bdpos='WR']"),
+                                      ("eval", "document.querySelector(\".bd-pager [data-bdpage='2']\")?.click()")]),
     # Players > Ranks (2026-09-26): a position's tiers, and FLEX with its "RB3" per row.
     ("ranks", go("ranks")),
     ("ranks-flex", go("ranks") + [("click", "[data-rkpos='FLEX']")]),
@@ -464,6 +466,35 @@ def test_leaders_page_fits_the_screen(browser, page_file, w, h):
         if page.locator(".bd-pager [data-bdpage='2']:not([disabled])").count():
             page.locator(".bd-pager [data-bdpage='2']").click()
             assert page.evaluate(fits)
+    finally:
+        ctx.close()
+
+
+@pytest.mark.parametrize("w,h", [(1100, 640), (1920, 1080)])
+def test_leaders_wide_is_the_one_beside_two_lists(browser, page_file, w, h):
+    """From 1100px (storyboard B, 2026-09-27) the #1 is a 440px column on every page, the page reads
+    down two lists beside it, and the whole of it still ends above the bottom edge. Below 1100px it
+    is the single card (test_leaders_page_fits_the_screen)."""
+    ctx = browser.new_context(viewport={"width": w, "height": h}, reduced_motion="reduce")
+    page = ctx.new_page()
+    page.set_default_timeout(5000)
+    page.route(re.compile(r"^https?://"), lambda route: route.abort())
+    page.add_init_script(SEED)
+    shape = """(() => { const c = document.querySelector('.bd-card'), h = c.querySelector(':scope > .bd-hero');
+      const lists = [...c.querySelectorAll('.bd-cols > .bd-list')].map(l => l.getBoundingClientRect());
+      return {hero: h ? Math.round(h.getBoundingClientRect().width) : 0, lists: lists.length,
+              sideBySide: lists.length === 2 && Math.abs(lists[0].top - lists[1].top) < 1 && lists[1].left > lists[0].right,
+              fits: scrollY === 0 && c.getBoundingClientRect().bottom <= innerHeight}; })()"""
+    try:
+        page.goto(page_file.as_uri() + "#board")
+        page.wait_for_function("document.getElementById('view').children.length > 0")
+        page.locator("[data-bdpos='WR']").click()
+        s = page.evaluate(shape)
+        assert s == {"hero": 440, "lists": 2, "sideBySide": True, "fits": True}, s
+        assert page.evaluate("BD_FIRST_SIZE === BD_PAGE_SIZE"), "every page has the same shape"
+        if page.locator(".bd-pager [data-bdpage='2']:not([disabled])").count():
+            page.locator(".bd-pager [data-bdpage='2']").click()
+            assert page.evaluate(shape)["hero"] == 440, "the #1 stays beside page 2"
     finally:
         ctx.close()
 
