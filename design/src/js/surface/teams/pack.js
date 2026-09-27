@@ -108,7 +108,7 @@ function packReplay(team){
    registered properties' transitions, not a jump. A touch anywhere else goes to onBody (the stage
    turns the pack with it, packshow.js pkTilt), which tugs the strip when it was only a tap.
    Enter or Space on the focused pack tears it at once. */
-const RIP_STEPS = 8, RIP_DONE = .55;
+const RIP_STEPS = 8, RIP_DONE = .55, RIP_EDGE = .3;
 function wireRip(seal, onRip, onTick, onBody){
   let s = null, tear = 0, step = 0, done = false;
   const put = (a, b, end, dir, p) => {
@@ -131,7 +131,10 @@ function wireRip(seal, onRip, onTick, onBody){
     if (done) return;
     const r = seal.getBoundingClientRect();
     if (e.clientY - r.top > r.height * .3) return onBody ? onBody(e, nudge) : nudge();   // the strip, and a thumb's width under it
+    // A grip near either end starts the tear at that end (2026-09-27): a finger never lands on the
+    // very edge, and the tear then left a stub of strip standing beside it.
     s = frac(e); step = 0;
+    if (s < RIP_EDGE) s = 0; else if (s > 1 - RIP_EDGE) s = 1;
     seal.classList.add("tearing"); seal.setPointerCapture?.(e.pointerId);
     put(s, s, s, 1, 0);                          // closed, at the finger, before it moves
   });

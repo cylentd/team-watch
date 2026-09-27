@@ -186,5 +186,6 @@ async function pkHero(S, el, c){
   // Long enough to read the line above it (it was 1.5s); a tap anywhere goes on sooner, and only
   // from here: the reveal itself cannot be hurried.
   S.hero = false;
-  await Promise.race([pkSleep(S, 3000), new Promise(r => S.st.addEventListener("click", r, {once: true}))]);
+  // 2.2s since 2026-09-27 (it was 3s; with the signature before it, the card sat still for 4s).
+  await Promise.race([pkSleep(S, 2200), new Promise(r => S.st.addEventListener("click", r, {once: true}))]);
 }

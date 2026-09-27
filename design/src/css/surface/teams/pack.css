@@ -105,10 +105,14 @@
 @property --te{syntax:"<number>";inherits:true;initial-value:0}
 .pack-seal{--tdir:1;transition:--tear .42s var(--spring),--ta .42s var(--spring),--tb .42s var(--spring),--te .42s var(--spring)}
 .pack-seal.tearing{transition:none}
-.pack-top{position:absolute;z-index:2;left:0;right:0;top:0;height:30px}
+/* Its own layer (2026-09-27): drawn as part of the turned pack, its masked crimp came out with a
+   faint line joining the zigzag's tips, an outline over the pack's top. Its own layer draws clean. */
+.pack-top{position:absolute;z-index:2;left:0;right:0;top:0;height:30px;will-change:transform}
 /* The pack's mouth, under the strip: dark inside, the top edges of the cards at the bottom of it,
-   seen only where the strip is torn away. */
-.pt-mouth{position:absolute;inset:0;
+   seen only where the strip is torn away. Not drawn at all until the tear starts (2026-09-27): the
+   strip covers it, but the cards' light top edges bled past the strip's foot as a white line
+   along the whole pack. */
+.pt-mouth{position:absolute;inset:0;opacity:calc(var(--tear) * 40);
   background:linear-gradient(0deg,rgb(var(--ink-rgb) / .5) 0 1px,transparent 1px 3px,rgb(var(--ink-rgb) / .3) 3px 4px,transparent 4px) bottom/100% 7px no-repeat,
     linear-gradient(180deg,var(--void),var(--panel-2))}
 .pt-base,.pt-flap{position:absolute;inset:0;overflow:hidden;

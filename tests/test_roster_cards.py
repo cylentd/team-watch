@@ -397,6 +397,24 @@ def test_the_tear_starts_under_the_finger_and_runs_its_way(browser, page_file):
 
 
 @pytest.mark.render
+def test_a_grip_near_the_end_tears_from_the_very_edge(browser, page_file):
+    """2026-09-27: a finger never lands on the edge itself, and the tear left a stub of strip."""
+    ctx, page, errors = cards_page(browser, page_file, keep_stage=True)
+    if page.locator(".pk-stage").count() == 0:
+        pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
+    box = page.locator(".pk-stage .pack-seal").bounding_box()
+    y = box["y"] + box["height"] * .07
+    page.mouse.move(box["x"] + box["width"] * .2, y)
+    page.mouse.down()
+    page.mouse.move(box["x"] + box["width"] * .4, y)
+    ta = page.evaluate("parseFloat(getComputedStyle(document.querySelector('.pk-stage .pack-seal')).getPropertyValue('--ta'))")
+    page.mouse.up()
+    assert ta == 0
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
 def test_a_stage_card_is_its_roster_card_scaled_up_whole(browser, page_file):
     ctx, page, errors = motion_page(browser, page_file)
     try:

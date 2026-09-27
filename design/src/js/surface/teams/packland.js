@@ -15,14 +15,15 @@ async function pkHome(S){
   S.st.classList.add("pk-home");
   S.st.querySelectorAll(".pk-ring,.pk-aura,.pk-sheen").forEach(x => {
     if (S.skip) return x.remove();
-    x.animate([{opacity: getComputedStyle(x).opacity}, {opacity: 0}], {duration: 200, fill: "forwards"}).finished.then(() => x.remove());
+    x.animate([{opacity: getComputedStyle(x).opacity}, {opacity: 0}], {duration: 150, fill: "forwards"}).finished.then(() => x.remove());
   });
-  await pkSleep(S, 250);
+  // The best card leaves at once, as the room starts to fade; the pile follows once it has gone
+  // (2026-09-27: it waited out the fade in the middle of the screen and read as stuck).
   const last = S.shown.length - 1, order = [last, ...S.shown.keys()].filter((k, i) => i === 0 || k !== last);
   await Promise.all(order.map(async (k, i) => {
     const el = S.shown[k], slot = view.querySelector(`.cards .tc[data-pk="${k}"]`);
     if (slot && !S.skip){
-      await pkSleep(S, i * PK_LAND_STEP);
+      await pkSleep(S, i ? 250 + i * PK_LAND_STEP : 0);
       await pkLand(S, el, slot);
     }
     slot?.classList.remove("pk-slot");
@@ -39,9 +40,19 @@ async function pkLand(S, el, slot){
   const [tx, ty] = (el.style.translate || "0 0").split(" ").map(parseFloat);
   const s = b.width / el.offsetWidth, x = tx + (b.left + b.width / 2) - (a.left + a.width / 2), y = ty + (b.top + b.height / 2) - (a.top + a.height / 2);
   const at = `${x}px ${y}px`;
-  await pkMove(S, el, {translate: `${x}px ${y - b.height * .6}px`, scale: String(s * 1.3), rotate: "0deg"}, 360, "cubic-bezier(.3,.7,.3,1)");
-  await pkMove(S, el, {translate: at, scale: String(s)}, 140, "cubic-bezier(.6,0,1,.6)");   // the drop gathers speed
   if (S.skip) return;
+  // One arc, never at rest (2026-09-27: a rise that eased to a stop above the slot, then a separate
+  // drop, left every card hanging there for a beat, which read as stuck). The top of the arc is
+  // short of the slot, so the card is still travelling across as it falls, and neither half ends
+  // at a standstill; the fall gathers speed into the slot.
+  const from = {translate: el.style.translate || "0 0", scale: el.style.scale || "1", rotate: el.style.rotate || "0deg"};
+  const fx = parseFloat(from.translate) || 0;
+  await pkAnim(S, el, [
+    {...from, easing: "cubic-bezier(.25,.55,.5,.9)"},
+    {translate: `${fx + (x - fx) * .85}px ${y - b.height * .6}px`, scale: String(s * 1.3), rotate: "0deg", offset: .72, easing: "cubic-bezier(.45,.25,1,.7)"},
+    {translate: at, scale: String(s), rotate: "0deg"}], {duration: 500, fill: "forwards"}).finished;
+  Object.assign(el.style, {translate: at, scale: String(s), rotate: "0deg"});
+  el.getAnimations().forEach(a => a.cancel());
   packBuzz(14);
   packPuff(b.left + b.width / 2, b.bottom - 2, b.width);
   pkKnock(S, slot);

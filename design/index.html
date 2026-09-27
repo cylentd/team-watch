@@ -1088,10 +1088,14 @@ html{scrollbar-color:var(--line-2) var(--void)}
 @property --te{syntax:"<number>";inherits:true;initial-value:0}
 .pack-seal{--tdir:1;transition:--tear .42s var(--spring),--ta .42s var(--spring),--tb .42s var(--spring),--te .42s var(--spring)}
 .pack-seal.tearing{transition:none}
-.pack-top{position:absolute;z-index:2;left:0;right:0;top:0;height:30px}
+/* Its own layer (2026-09-27): drawn as part of the turned pack, its masked crimp came out with a
+   faint line joining the zigzag's tips, an outline over the pack's top. Its own layer draws clean. */
+.pack-top{position:absolute;z-index:2;left:0;right:0;top:0;height:30px;will-change:transform}
 /* The pack's mouth, under the strip: dark inside, the top edges of the cards at the bottom of it,
-   seen only where the strip is torn away. */
-.pt-mouth{position:absolute;inset:0;
+   seen only where the strip is torn away. Not drawn at all until the tear starts (2026-09-27): the
+   strip covers it, but the cards' light top edges bled past the strip's foot as a white line
+   along the whole pack. */
+.pt-mouth{position:absolute;inset:0;opacity:calc(var(--tear) * 40);
   background:linear-gradient(0deg,rgb(var(--ink-rgb) / .5) 0 1px,transparent 1px 3px,rgb(var(--ink-rgb) / .3) 3px 4px,transparent 4px) bottom/100% 7px no-repeat,
     linear-gradient(180deg,var(--void),var(--panel-2))}
 .pt-base,.pt-flap{position:absolute;inset:0;overflow:hidden;
@@ -1179,13 +1183,13 @@ body.pk-open{overflow:hidden}
 .pk-dim .pk-msg.deal{top:calc(45% - var(--pkw) * .82 - 86px)}
 .pk-msg .pk-signed-tag{font-style:normal;font-family:var(--sig);font-size:var(--t-4);color:var(--gold-2)}
 .pk-msg.deal .pk-signed-tag{font-size:var(--t-6);font-weight:400}
-/* The sealed pack in 3D: at rest it stands at a slight lean; it leans toward the mouse, turns with
-   a drag on its body (--prx/--pry, packshow.js pkLean), and springs back when let go. Its strip
-   flies off in 3D (the seal's own perspective) and the pack tips back as the first card rises out
-   of it. It no longer sways by itself on a phone (2026-09-25): nothing to hold, and the reader
+/* The sealed pack in 3D: at rest it stands at a slight lean; it turns toward the mouse, spins with
+   a drag on its body (--pry, packshow.js pkLean), and settles when let go. Side to side only since
+   2026-09-27. Its strip flies off in 3D (the seal's own perspective) and the pack turns to face the
+   reader as the first card rises out of it. It no longer sways by itself on a phone (2026-09-25): nothing to hold, and the reader
    saw a dark box swinging across the foil as it swayed. */
 .pk-center{position:absolute;z-index:3;left:50%;top:45%;translate:-50% -50%;perspective:900px}
-.pk-center .pack-glow{--pkd:20px;transform:rotateX(var(--prx, 6deg)) rotateY(var(--pry, -22deg));transition:transform var(--dur-pop) var(--spring-pop)}
+.pk-center .pack-glow{--pkd:20px;transform:rotateX(6deg) rotateY(var(--pry, -22deg));transition:transform var(--dur-pop) var(--spring-pop)}
 .pk-drag .pk-center .pack-glow{transition:none}
 .pk-aim:not(.pk-drag) .pk-center .pack-glow{transition:transform .5s cubic-bezier(.25,1,.5,1)}
 /* Larger than the cards inside it, as a real pack is: 1.06x the card on 2026-09-26, 1.22x since
@@ -6949,7 +6953,7 @@ function packReplay(team){
    registered properties' transitions, not a jump. A touch anywhere else goes to onBody (the stage
    turns the pack with it, packshow.js pkTilt), which tugs the strip when it was only a tap.
    Enter or Space on the focused pack tears it at once. */
-const RIP_STEPS = 8, RIP_DONE = .55;
+const RIP_STEPS = 8, RIP_DONE = .55, RIP_EDGE = .3;
 function wireRip(seal, onRip, onTick, onBody){
   let s = null, tear = 0, step = 0, done = false;
   const put = (a, b, end, dir, p) => {
@@ -6972,7 +6976,10 @@ function wireRip(seal, onRip, onTick, onBody){
     if (done) return;
     const r = seal.getBoundingClientRect();
     if (e.clientY - r.top > r.height * .3) return onBody ? onBody(e, nudge) : nudge();   // the strip, and a thumb's width under it
+    // A grip near either end starts the tear at that end (2026-09-27): a finger never lands on the
+    // very edge, and the tear then left a stub of strip standing beside it.
     s = frac(e); step = 0;
+    if (s < RIP_EDGE) s = 0; else if (s > 1 - RIP_EDGE) s = 1;
     seal.classList.add("tearing"); seal.setPointerCapture?.(e.pointerId);
     put(s, s, s, 1, 0);                          // closed, at the finger, before it moves
   });
@@ -7196,51 +7203,52 @@ function packShow(team, wk){
   }
 }
 
-/* The sealed pack leans toward the mouse and its foil's shine follows it (--mx/--my). The lean is
-   measured against the pack, not the window: the pointer a pack's width from its centre is the
-   full 16° up or down and 26° across (it was the window's half, so a big screen needed a long
-   reach for 14°, 2026-09-25). */
-const PK_AIM_X = 16, PK_AIM_Y = 26;
-function pkLean(S, dx, dy, ax = PK_AIM_X, ay = PK_AIM_Y){
+/* The sealed pack turns toward the mouse and its foil's shine follows it (--mx/--my). It turns
+   side to side only (2026-09-27): it used to tip up and down too, and a mouse coming at the strip
+   from above tipped it back, away from the tear. The turn is measured against the pack, not the
+   window: the pointer a pack's width from its centre is the full 26°. */
+const PK_AIM = 26, PK_REST = -22;          // degrees; PK_REST is packshow.css's resting turn
+function pkLean(S, deg, shine){
   const c = S.st.querySelector(".pk-center"), seal = c && c.querySelector(".pack-seal");
   if (!seal) return;
-  c.style.setProperty("--prx", `${(-dy * ax).toFixed(1)}deg`);
-  c.style.setProperty("--pry", `${(dx * ay).toFixed(1)}deg`);
-  seal.style.setProperty("--mx", `${Math.round(50 + Math.max(-1, Math.min(1, dx)) * 40)}%`);
-  seal.style.setProperty("--my", `${Math.round(50 + Math.max(-1, Math.min(1, dy)) * 40)}%`);
+  c.style.setProperty("--pry", `${deg.toFixed(1)}deg`);
+  seal.style.setProperty("--mx", `${Math.round(50 + Math.max(-1, Math.min(1, shine)) * 40)}%`);
 }
 function pkAim(S){
   S.st.addEventListener("pointermove", e => {
     if (e.pointerType !== "mouse" || S.ripped || S.st.classList.contains("pk-drag")) return;
     const c = S.st.querySelector(".pk-center"), seal = c && c.querySelector(".pack-seal");
-    // Over the strip it holds still (2026-09-26): leaning away from a pointer about to grab the
+    // Over the strip it holds still (2026-09-26): turning away from a pointer about to grab the
     // strip turned the strip out from under it, and the press landed on the empty stage.
     if (!seal || seal.classList.contains("tearing") || e.target.closest?.(".pack-top")) return;
-    const r = c.getBoundingClientRect(), clamp = v => Math.max(-1, Math.min(1, v));
+    const r = c.getBoundingClientRect(), dx = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / r.width));
     S.st.classList.add("pk-aim");
-    pkLean(S, clamp((e.clientX - (r.left + r.width / 2)) / r.width), clamp((e.clientY - (r.top + r.height / 2)) / r.height));
+    pkLean(S, dx * PK_AIM, dx);
   });
 }
 
-/* A drag on the pack's body (below the strip) turns it with the finger or the mouse, the foil's
-   shine going with it; let go and it springs back to rest (the transition in packshow.css). Since
-   2026-09-27 a drag turns it far enough to show its side and its back: 120° across and 30° up or
-   down for a drag of the pack's own width or height (it stopped at ~40°, where the depth barely
-   read). A tap that did not move tugs the strip instead, to say where to tear. */
-const PK_TILT_X = 30, PK_TILT_Y = 120;
+/* A drag on the pack's body (below the strip) spins it with the finger or the mouse, as far round
+   as the drag goes: a drag of the pack's width is three quarters of a turn, so its side, its back and its front
+   again come round (2026-09-27; it stopped at 120° and a phone's short drag never reached the
+   back). Let go and it settles, on the spring in packshow.css, at its resting turn nearest to
+   where it was, so a spin that got most of the way round carries on to the front instead of
+   unwinding. Then the whole turns are dropped while no transition runs, which changes nothing on
+   screen. A tap that did not move tugs the strip instead, to say where to tear. */
+const PK_SPIN = 270;                       // degrees per pack width dragged: one swipe across a phone is a full turn
 function pkTilt(S, e, nudge){
   const c = S.st.querySelector(".pk-center"), seal = c && c.querySelector(".pack-seal");
   if (!seal || S.ripped) return;
-  const x0 = e.clientX, y0 = e.clientY, r = seal.getBoundingClientRect();
-  const clamp = v => Math.max(-1, Math.min(1, v));
-  let moved = false;
+  const x0 = e.clientX, y0 = e.clientY, w = seal.getBoundingClientRect().width;
+  const from = parseFloat(c.style.getPropertyValue("--pry")) || PK_REST;
+  let moved = false, deg = from;
   seal.setPointerCapture?.(e.pointerId);
   S.st.classList.add("pk-drag");
   const move = ev => {
-    const dx = ev.clientX - x0, dy = ev.clientY - y0;
-    if (!moved && Math.hypot(dx, dy) < 6) return;
+    const dx = ev.clientX - x0;
+    if (!moved && Math.hypot(dx, ev.clientY - y0) < 6) return;
     moved = true;
-    pkLean(S, clamp(dx / r.width), clamp(dy / r.height), PK_TILT_X, PK_TILT_Y);
+    deg = from + dx / w * PK_SPIN;
+    pkLean(S, deg, Math.sin((deg - PK_REST) * Math.PI / 180));
   };
   const up = () => {
     seal.removeEventListener("pointermove", move);
@@ -7249,8 +7257,18 @@ function pkTilt(S, e, nudge){
     S.st.classList.remove("pk-drag");
     if (!moved) return nudge();
     S.st.classList.remove("pk-aim");
-    ["--prx", "--pry"].forEach(k => c.style.removeProperty(k));
-    ["--mx", "--my"].forEach(k => seal.style.removeProperty(k));
+    const turns = Math.round((deg - PK_REST) / 360);
+    pkLean(S, PK_REST + turns * 360, 0);
+    seal.style.removeProperty("--mx");
+    if (!turns) return c.style.removeProperty("--pry");
+    const glow = c.querySelector(".pack-glow");
+    glow.addEventListener("transitionend", () => {
+      if (S.st.classList.contains("pk-drag")) return;          // a new drag has begun from here
+      glow.style.transition = "none";
+      c.style.removeProperty("--pry");
+      void glow.offsetWidth;
+      glow.style.transition = "";
+    }, {once: true});
   };
   seal.addEventListener("pointermove", move);
   seal.addEventListener("pointerup", up);
@@ -7286,7 +7304,8 @@ async function pkRip(S){
   const center = S.st.querySelector(".pk-center"), seal = center.querySelector(".pack-seal");
   if (REDUCED()){ center.remove(); S.skip = true; }
   else {
-    // The strip flies off in 3D, turning over as it goes, while the pack tips back to open its mouth.
+    // The strip flies off in 3D, turning over as it goes, while the pack turns to face the reader
+    // (it tipped back as well until 2026-09-27, which read as the pack pulling away from the tear).
     const r = seal.getBoundingClientRect();
     packBurst(r.left + r.width / 2, r.top + 16, {n: 46, tier: S.best});
     seal.querySelector(".slashes")?.classList.add("morph");   // the logo's // crosses into an X, as the header's does
@@ -7297,7 +7316,7 @@ async function pkRip(S){
         {transform: "translate3d(40px,-46px,40px) rotateX(40deg) rotateZ(-10deg)", opacity: 1, offset: .35},
         {transform: "translate3d(150px,-170px,90px) rotateX(120deg) rotateZ(-38deg)", opacity: 0}],
         {duration: 440, easing: out, fill: "forwards"}).finished,
-      center.querySelector(".pack-glow").animate([{transform: "rotateX(16deg) rotateY(0deg)"}],
+      center.querySelector(".pack-glow").animate([{transform: "rotateX(6deg) rotateY(0deg)"}],
         {duration: 380, easing: out, fill: "forwards"}).finished]);
     S.pack = center;
   }
@@ -7493,7 +7512,8 @@ async function pkHero(S, el, c){
   // Long enough to read the line above it (it was 1.5s); a tap anywhere goes on sooner, and only
   // from here: the reveal itself cannot be hurried.
   S.hero = false;
-  await Promise.race([pkSleep(S, 3000), new Promise(r => S.st.addEventListener("click", r, {once: true}))]);
+  // 2.2s since 2026-09-27 (it was 3s; with the signature before it, the card sat still for 4s).
+  await Promise.race([pkSleep(S, 2200), new Promise(r => S.st.addEventListener("click", r, {once: true}))]);
 }
 /* ── js/surface/teams/packland.js ── */
 /* The pack's cards going home to their roster slots (split from packdeal.js 2026-09-27). */
@@ -7513,14 +7533,15 @@ async function pkHome(S){
   S.st.classList.add("pk-home");
   S.st.querySelectorAll(".pk-ring,.pk-aura,.pk-sheen").forEach(x => {
     if (S.skip) return x.remove();
-    x.animate([{opacity: getComputedStyle(x).opacity}, {opacity: 0}], {duration: 200, fill: "forwards"}).finished.then(() => x.remove());
+    x.animate([{opacity: getComputedStyle(x).opacity}, {opacity: 0}], {duration: 150, fill: "forwards"}).finished.then(() => x.remove());
   });
-  await pkSleep(S, 250);
+  // The best card leaves at once, as the room starts to fade; the pile follows once it has gone
+  // (2026-09-27: it waited out the fade in the middle of the screen and read as stuck).
   const last = S.shown.length - 1, order = [last, ...S.shown.keys()].filter((k, i) => i === 0 || k !== last);
   await Promise.all(order.map(async (k, i) => {
     const el = S.shown[k], slot = view.querySelector(`.cards .tc[data-pk="${k}"]`);
     if (slot && !S.skip){
-      await pkSleep(S, i * PK_LAND_STEP);
+      await pkSleep(S, i ? 250 + i * PK_LAND_STEP : 0);
       await pkLand(S, el, slot);
     }
     slot?.classList.remove("pk-slot");
@@ -7537,9 +7558,19 @@ async function pkLand(S, el, slot){
   const [tx, ty] = (el.style.translate || "0 0").split(" ").map(parseFloat);
   const s = b.width / el.offsetWidth, x = tx + (b.left + b.width / 2) - (a.left + a.width / 2), y = ty + (b.top + b.height / 2) - (a.top + a.height / 2);
   const at = `${x}px ${y}px`;
-  await pkMove(S, el, {translate: `${x}px ${y - b.height * .6}px`, scale: String(s * 1.3), rotate: "0deg"}, 360, "cubic-bezier(.3,.7,.3,1)");
-  await pkMove(S, el, {translate: at, scale: String(s)}, 140, "cubic-bezier(.6,0,1,.6)");   // the drop gathers speed
   if (S.skip) return;
+  // One arc, never at rest (2026-09-27: a rise that eased to a stop above the slot, then a separate
+  // drop, left every card hanging there for a beat, which read as stuck). The top of the arc is
+  // short of the slot, so the card is still travelling across as it falls, and neither half ends
+  // at a standstill; the fall gathers speed into the slot.
+  const from = {translate: el.style.translate || "0 0", scale: el.style.scale || "1", rotate: el.style.rotate || "0deg"};
+  const fx = parseFloat(from.translate) || 0;
+  await pkAnim(S, el, [
+    {...from, easing: "cubic-bezier(.25,.55,.5,.9)"},
+    {translate: `${fx + (x - fx) * .85}px ${y - b.height * .6}px`, scale: String(s * 1.3), rotate: "0deg", offset: .72, easing: "cubic-bezier(.45,.25,1,.7)"},
+    {translate: at, scale: String(s), rotate: "0deg"}], {duration: 500, fill: "forwards"}).finished;
+  Object.assign(el.style, {translate: at, scale: String(s), rotate: "0deg"});
+  el.getAnimations().forEach(a => a.cancel());
   packBuzz(14);
   packPuff(b.left + b.width / 2, b.bottom - 2, b.width);
   pkKnock(S, slot);

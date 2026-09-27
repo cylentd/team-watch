@@ -87,51 +87,52 @@ function packShow(team, wk){
   }
 }
 
-/* The sealed pack leans toward the mouse and its foil's shine follows it (--mx/--my). The lean is
-   measured against the pack, not the window: the pointer a pack's width from its centre is the
-   full 16° up or down and 26° across (it was the window's half, so a big screen needed a long
-   reach for 14°, 2026-09-25). */
-const PK_AIM_X = 16, PK_AIM_Y = 26;
-function pkLean(S, dx, dy, ax = PK_AIM_X, ay = PK_AIM_Y){
+/* The sealed pack turns toward the mouse and its foil's shine follows it (--mx/--my). It turns
+   side to side only (2026-09-27): it used to tip up and down too, and a mouse coming at the strip
+   from above tipped it back, away from the tear. The turn is measured against the pack, not the
+   window: the pointer a pack's width from its centre is the full 26°. */
+const PK_AIM = 26, PK_REST = -22;          // degrees; PK_REST is packshow.css's resting turn
+function pkLean(S, deg, shine){
   const c = S.st.querySelector(".pk-center"), seal = c && c.querySelector(".pack-seal");
   if (!seal) return;
-  c.style.setProperty("--prx", `${(-dy * ax).toFixed(1)}deg`);
-  c.style.setProperty("--pry", `${(dx * ay).toFixed(1)}deg`);
-  seal.style.setProperty("--mx", `${Math.round(50 + Math.max(-1, Math.min(1, dx)) * 40)}%`);
-  seal.style.setProperty("--my", `${Math.round(50 + Math.max(-1, Math.min(1, dy)) * 40)}%`);
+  c.style.setProperty("--pry", `${deg.toFixed(1)}deg`);
+  seal.style.setProperty("--mx", `${Math.round(50 + Math.max(-1, Math.min(1, shine)) * 40)}%`);
 }
 function pkAim(S){
   S.st.addEventListener("pointermove", e => {
     if (e.pointerType !== "mouse" || S.ripped || S.st.classList.contains("pk-drag")) return;
     const c = S.st.querySelector(".pk-center"), seal = c && c.querySelector(".pack-seal");
-    // Over the strip it holds still (2026-09-26): leaning away from a pointer about to grab the
+    // Over the strip it holds still (2026-09-26): turning away from a pointer about to grab the
     // strip turned the strip out from under it, and the press landed on the empty stage.
     if (!seal || seal.classList.contains("tearing") || e.target.closest?.(".pack-top")) return;
-    const r = c.getBoundingClientRect(), clamp = v => Math.max(-1, Math.min(1, v));
+    const r = c.getBoundingClientRect(), dx = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / r.width));
     S.st.classList.add("pk-aim");
-    pkLean(S, clamp((e.clientX - (r.left + r.width / 2)) / r.width), clamp((e.clientY - (r.top + r.height / 2)) / r.height));
+    pkLean(S, dx * PK_AIM, dx);
   });
 }
 
-/* A drag on the pack's body (below the strip) turns it with the finger or the mouse, the foil's
-   shine going with it; let go and it springs back to rest (the transition in packshow.css). Since
-   2026-09-27 a drag turns it far enough to show its side and its back: 120° across and 30° up or
-   down for a drag of the pack's own width or height (it stopped at ~40°, where the depth barely
-   read). A tap that did not move tugs the strip instead, to say where to tear. */
-const PK_TILT_X = 30, PK_TILT_Y = 120;
+/* A drag on the pack's body (below the strip) spins it with the finger or the mouse, as far round
+   as the drag goes: a drag of the pack's width is three quarters of a turn, so its side, its back and its front
+   again come round (2026-09-27; it stopped at 120° and a phone's short drag never reached the
+   back). Let go and it settles, on the spring in packshow.css, at its resting turn nearest to
+   where it was, so a spin that got most of the way round carries on to the front instead of
+   unwinding. Then the whole turns are dropped while no transition runs, which changes nothing on
+   screen. A tap that did not move tugs the strip instead, to say where to tear. */
+const PK_SPIN = 270;                       // degrees per pack width dragged: one swipe across a phone is a full turn
 function pkTilt(S, e, nudge){
   const c = S.st.querySelector(".pk-center"), seal = c && c.querySelector(".pack-seal");
   if (!seal || S.ripped) return;
-  const x0 = e.clientX, y0 = e.clientY, r = seal.getBoundingClientRect();
-  const clamp = v => Math.max(-1, Math.min(1, v));
-  let moved = false;
+  const x0 = e.clientX, y0 = e.clientY, w = seal.getBoundingClientRect().width;
+  const from = parseFloat(c.style.getPropertyValue("--pry")) || PK_REST;
+  let moved = false, deg = from;
   seal.setPointerCapture?.(e.pointerId);
   S.st.classList.add("pk-drag");
   const move = ev => {
-    const dx = ev.clientX - x0, dy = ev.clientY - y0;
-    if (!moved && Math.hypot(dx, dy) < 6) return;
+    const dx = ev.clientX - x0;
+    if (!moved && Math.hypot(dx, ev.clientY - y0) < 6) return;
     moved = true;
-    pkLean(S, clamp(dx / r.width), clamp(dy / r.height), PK_TILT_X, PK_TILT_Y);
+    deg = from + dx / w * PK_SPIN;
+    pkLean(S, deg, Math.sin((deg - PK_REST) * Math.PI / 180));
   };
   const up = () => {
     seal.removeEventListener("pointermove", move);
@@ -140,8 +141,18 @@ function pkTilt(S, e, nudge){
     S.st.classList.remove("pk-drag");
     if (!moved) return nudge();
     S.st.classList.remove("pk-aim");
-    ["--prx", "--pry"].forEach(k => c.style.removeProperty(k));
-    ["--mx", "--my"].forEach(k => seal.style.removeProperty(k));
+    const turns = Math.round((deg - PK_REST) / 360);
+    pkLean(S, PK_REST + turns * 360, 0);
+    seal.style.removeProperty("--mx");
+    if (!turns) return c.style.removeProperty("--pry");
+    const glow = c.querySelector(".pack-glow");
+    glow.addEventListener("transitionend", () => {
+      if (S.st.classList.contains("pk-drag")) return;          // a new drag has begun from here
+      glow.style.transition = "none";
+      c.style.removeProperty("--pry");
+      void glow.offsetWidth;
+      glow.style.transition = "";
+    }, {once: true});
   };
   seal.addEventListener("pointermove", move);
   seal.addEventListener("pointerup", up);
@@ -177,7 +188,8 @@ async function pkRip(S){
   const center = S.st.querySelector(".pk-center"), seal = center.querySelector(".pack-seal");
   if (REDUCED()){ center.remove(); S.skip = true; }
   else {
-    // The strip flies off in 3D, turning over as it goes, while the pack tips back to open its mouth.
+    // The strip flies off in 3D, turning over as it goes, while the pack turns to face the reader
+    // (it tipped back as well until 2026-09-27, which read as the pack pulling away from the tear).
     const r = seal.getBoundingClientRect();
     packBurst(r.left + r.width / 2, r.top + 16, {n: 46, tier: S.best});
     seal.querySelector(".slashes")?.classList.add("morph");   // the logo's // crosses into an X, as the header's does
@@ -188,7 +200,7 @@ async function pkRip(S){
         {transform: "translate3d(40px,-46px,40px) rotateX(40deg) rotateZ(-10deg)", opacity: 1, offset: .35},
         {transform: "translate3d(150px,-170px,90px) rotateX(120deg) rotateZ(-38deg)", opacity: 0}],
         {duration: 440, easing: out, fill: "forwards"}).finished,
-      center.querySelector(".pack-glow").animate([{transform: "rotateX(16deg) rotateY(0deg)"}],
+      center.querySelector(".pack-glow").animate([{transform: "rotateX(6deg) rotateY(0deg)"}],
         {duration: 380, easing: out, fill: "forwards"}).finished]);
     S.pack = center;
   }

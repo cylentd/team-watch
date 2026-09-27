@@ -29,13 +29,13 @@ body.pk-open{overflow:hidden}
 .pk-dim .pk-msg.deal{top:calc(45% - var(--pkw) * .82 - 86px)}
 .pk-msg .pk-signed-tag{font-style:normal;font-family:var(--sig);font-size:var(--t-4);color:var(--gold-2)}
 .pk-msg.deal .pk-signed-tag{font-size:var(--t-6);font-weight:400}
-/* The sealed pack in 3D: at rest it stands at a slight lean; it leans toward the mouse, turns with
-   a drag on its body (--prx/--pry, packshow.js pkLean), and springs back when let go. Its strip
-   flies off in 3D (the seal's own perspective) and the pack tips back as the first card rises out
-   of it. It no longer sways by itself on a phone (2026-09-25): nothing to hold, and the reader
+/* The sealed pack in 3D: at rest it stands at a slight lean; it turns toward the mouse, spins with
+   a drag on its body (--pry, packshow.js pkLean), and settles when let go. Side to side only since
+   2026-09-27. Its strip flies off in 3D (the seal's own perspective) and the pack turns to face the
+   reader as the first card rises out of it. It no longer sways by itself on a phone (2026-09-25): nothing to hold, and the reader
    saw a dark box swinging across the foil as it swayed. */
 .pk-center{position:absolute;z-index:3;left:50%;top:45%;translate:-50% -50%;perspective:900px}
-.pk-center .pack-glow{--pkd:20px;transform:rotateX(var(--prx, 6deg)) rotateY(var(--pry, -22deg));transition:transform var(--dur-pop) var(--spring-pop)}
+.pk-center .pack-glow{--pkd:20px;transform:rotateX(6deg) rotateY(var(--pry, -22deg));transition:transform var(--dur-pop) var(--spring-pop)}
 .pk-drag .pk-center .pack-glow{transition:none}
 .pk-aim:not(.pk-drag) .pk-center .pack-glow{transition:transform .5s cubic-bezier(.25,1,.5,1)}
 /* Larger than the cards inside it, as a real pack is: 1.06x the card on 2026-09-26, 1.22x since
