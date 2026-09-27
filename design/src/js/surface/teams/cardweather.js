@@ -21,8 +21,17 @@ function cardSky(w){
 function cardWeatherFx(w, pos){
   const s = cardSky(w);
   if (!s) return "";
-  const wind = s.wind && pos !== "RB" ? `<i class="tc-wx wind" style="--wx-s:${Math.max(0.5, 2.4 - s.wind / 12).toFixed(2)}s"></i>` : "";
+  const wind = s.wind && pos !== "RB" ? `<i class="tc-wx wind" style="--wx-s:${wxGustS(s.wind)}s"></i>` : "";
   return wind + (s.fall ? `<i class="tc-wx ${s.fall}"></i>` : "");
+}
+
+/* The points ff-jarvis already moved in his projection for this game's weather ("−0.5", from `wx`
+   on his LIVE_PROJECTIONS row, 2026-09-26), or "" when it moved none. */
+function cardWxAdj(p){
+  const row = typeof LIVE_PROJECTIONS !== "undefined" && LIVE_PROJECTIONS && p && p.slug ? LIVE_PROJECTIONS.players[p.slug] : null;
+  const a = row && row.wx && row.wx.adj;
+  if (typeof a !== "number" || Math.abs(a) < 0.05) return "";
+  return (a > 0 ? "+" : "−") + Math.abs(a).toFixed(1);
 }
 
 /* What touches him, three ways: `what` for the front's chip ("RAIN 60%"), `kind` for the back's

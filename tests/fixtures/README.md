@@ -19,9 +19,10 @@ Jahmyr Gibbs) across CIN/SF/DET, plus Ja'Marr Chase as a TD-only, headshot-less,
 | `data/pl_startsit.json` | `load_startsit()` — Pitcher List's calls, same week: one agrees with ours (Purdy), one contradicts it (Higgins) |
 | `data/grades/2026-w2.json` | `load_startsit()` — the season record, ours behind Pitcher List's |
 | `data/history/games/*.jsonl` | `load_schedule()` — week 2 (the pinned clock's week): DET @ SEA, WAS @ LA, MIA @ NE, JAX @ IND; week 3 KC @ SF; a row with no kickoff and a malformed line |
-| `data/weather.json` | `load_weather()` — This week > Weather's four cases in week 2: LA a dome, IND retractable with a forecast, NE windy and wet, SEA outdoor with no forecast yet |
-| `data/player_projections.json` `weather_adjust` | Weather's "Already in our projections?": wind QB and TE and precip WR in since 2026-09-26 (feed block and file), so wind WR reads "not yet" and kickers "we don't project kickers" |
-| `data/weather_backtest.json` | `load_weather_backtest()` — Weather's history lines, both arms: dome not proven (K fails on year-to-year only), wind proven for QB and K but not RB, cold K proven on arm a and not on arm b |
+| `data/weather.json` | `load_weather()` — This week > Weather's four cases in week 2: LA a dome, IND retractable with a calm forecast, SEA windy (15 to 22 mph) and wet (70%), NE outdoor with no forecast yet. St. Brown's roster card (next game at SEA) shows the wind chip with his wx |
+| `data/player_projections.json` `wx` | Amon-Ra St. Brown carries `wx: {adj: -1.06}` (feed block and file): Weather's "Who it hits" for DET @ SEA and his roster card's "−1.1 in his projection" |
+| `data/player_projections.json` `weather_adjust` | Weather's "Already counted in our projections": wind QB, WR and TE and precip WR in since 2026-09-26 (feed block and file), the same cells as the live run; kickers "we don't project kickers" |
+| `data/weather_backtest.json` | `load_weather_backtest()` — Weather's effects, arm a from the 2026-09-26 run: dome not proven, wind proven for QB, WR, TE and K but not RB, rain for WR and K, cold for K only (so NE reads QBs 1.5 · WRs 1 · TEs 0.5 · kickers 1.5 fewer) |
 | `data/cache/roster_2026.parquet` | `nfl_roster()` — resolves Ja'Marr Chase's TD-only position |
 | `heads/*.webp` | inlined headshots; Ja'Marr Chase has none (tests the missing-headshot path) |
 | `feed.json` | `TEAM_WATCH_FEED` — feed-first copy of every block above |

@@ -209,12 +209,17 @@ CONTRACT = {
         "keys": ["generated", "teams"],
         "map": ("teams", ["roof"]),
     },
-    # design/wx_history.py: ff-jarvis's weather backtest, one summary per condition. `top` is null
-    # when some position passed; `inproj` ({yes, no, kickers}) and `since` are null without the
-    # projections' weather_adjust block. `matters` and `why` rows carry pos, mean, n, lo, hi.
+    # design/wx_history.py: ff-jarvis's weather backtest, one summary per condition. `inproj`
+    # ({yes, no, kickers}) and `since` are null without the projections' weather_adjust block.
+    # `matters` rows carry pos and mean; `tested` lists every position with a cell.
     "LIVE_WX_HISTORY": {
         "keys": ["seasons", "thresholds", "since", "conditions"],
-        "map": ("conditions", ["matters", "unproven", "top", "inproj", "why"]),
+        "map": ("conditions", ["matters", "tested", "inproj"]),
+    },
+    # design/wx_hits.py: per team, the top QB, two WRs and TE by projected points, not-playing
+    # skipped, each with `wx` ({adj, cond}) or null. Weather's "Who it hits"; never a roster.
+    "LIVE_WX_HITS": {
+        "keys": ["teams"],
     },
     # design/lines.py: each team's implied points from the DFS lobby's game lines. The roster's
     # defense card reads the opponent's; kicker and defense cards read `opp`.

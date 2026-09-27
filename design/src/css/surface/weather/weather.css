@@ -1,42 +1,41 @@
 /* ============================== WEATHER ============================== */
-/* This week > Weather (js/surface/weather/weather.js, 2026-09-26). One panel per game: matchup and
-   kickoff, the roof, the forecast as three icon cells, its age, then the reader's players in it.
-   Facts only, so nothing here is coloured by what the weather might do: every number is --ink,
-   every label --ink-3, and positions are typographic like every other row on the page. */
-.wt-headline{margin:14px 0 0}
-.wt-headline h2{margin:0;font-family:var(--disp);font-size:var(--t-4);font-weight:800;color:var(--ink)}
-.wt-headline p{margin:2px 0 0;font-size:var(--t-1);color:var(--ink-3);max-width:70ch}
+/* This week > Weather (js/surface/weather/weather.js, 2026-09-26; reworked the same day to say only
+   what matters). The games whose weather moves scoring are cards (card.css); every other game is a
+   compact row; "How we know" is the one disclosure, at the bottom.
+   Colour map: --sky marks weather that moves scoring and nothing else; --amber a stale forecast;
+   every other number is --ink and every label --ink-3. No colour says good or bad. */
+.wt-title{margin:14px 0 0;font-family:var(--disp);font-size:var(--t-4);font-weight:800;color:var(--ink)}
 .wt-sec{margin-top:14px}
+/* The long heading wraps on a phone rather than push its count off the edge; the count is words. */
+.wt .rule h2{white-space:normal}
+.wt-n{font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
 .wt-grid{display:grid;gap:10px;margin-top:8px}
-.wt-game{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:12px 14px;display:grid;gap:8px;align-content:start}
+.wt-calm{margin:10px 0 0;font-size:var(--t-3);color:var(--ink-2)}
 .wt-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-.wt-match{font-family:var(--mono);font-size:var(--t-3);font-weight:700;color:var(--ink);letter-spacing:.02em}
+.wt-match{font-family:var(--mono);font-size:var(--t-3);font-weight:700;color:var(--ink);letter-spacing:.02em;white-space:nowrap}
 .wt-kick{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
-.wt-roof{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:var(--t-1);color:var(--ink-2)}
-.wt-roof em{font-style:normal;color:var(--ink-3)}
-.wt-roof em::before{content:"· "}
-.wt-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.wt-f{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:6px;align-items:center;color:var(--ink-3)}
-.wt-f .pf-wx-i{grid-row:span 2}
-.wt-f b{font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink);white-space:nowrap}
-/* The sky phrase wraps rather than cut: "Rain Showers" is the fact, "Rain Show..." is not. */
-.wt-f em{font-style:normal;font-size:var(--t-1);color:var(--ink-3);line-height:1.25;overflow-wrap:break-word}
-.wt-age,.wt-nofc,.wt-none-mine{margin:0;font-size:var(--t-1);color:var(--ink-3)}
-.wt-nofc{color:var(--ink-2)}
-.wt-mine{list-style:none;margin:0;padding:8px 0 0;border-top:1px solid var(--line);display:grid;gap:2px}
-.wt-none-mine{padding-top:8px;border-top:1px solid var(--line)}
-.wt-p{appearance:none;border:0;background:none;color:inherit;font:inherit;cursor:pointer;text-align:left;
-  display:grid;grid-template-columns:36px minmax(0,1fr) auto auto;gap:8px;align-items:center;width:100%;min-height:36px;padding:2px 4px;border-radius:8px}
-.wt-p:hover{background:var(--panel-2)}
-.wt-p:active{transform:scale(var(--press))}
-.wt-p:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
-.wt-pos{font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink-2);border:1px solid var(--line);border-radius:6px;text-align:center;padding:1px 0}
-.wt-nm{font-size:var(--t-2);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* "wx −1.1": what ff-jarvis already moved in his projection for the weather. Neutral grey, no
-   colour for the sign: it is a fact about the number, not a call. */
-.wt-adj{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2);white-space:nowrap;font-variant-numeric:tabular-nums}
-.wt-lg{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
-/* A desktop fills its width: the games as a grid of equal panels, three across at full width. */
+
+/* Everything else: one row a game. Matchup over kickoff, then the sky in brief. The rows share
+   one set of columns (subgrid), so the sky lines up down the list. */
+.wt-rows{list-style:none;margin:4px 0 0;padding:0;display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:14px}
+.wt-row{grid-column:1/-1;display:grid;grid-template-columns:subgrid;grid-template-rows:auto auto;align-items:center;padding:7px 2px;border-bottom:1px solid var(--line)}
+.wt-row .wt-match{grid-column:1;grid-row:1;font-size:var(--t-2)}
+.wt-row .wt-kick{grid-column:1;grid-row:2}
+.wt-rs{grid-column:2;grid-row:1/3;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.wt-played{margin:12px 0 0;font-size:var(--t-1);color:var(--ink-3)}
+
+/* How we know: the method, what showed nothing, the forecast's source. It opens with a height
+   ease (the grid-rows trick; @starting-style gives the opening frame), and closes at once. */
+.wt-how{margin:20px 0 0;padding-top:10px;border-top:1px solid var(--line)}
+.wt-how summary{cursor:pointer;width:max-content;min-height:32px;display:flex;align-items:center;font-size:var(--t-2);font-weight:600;color:var(--ink-2)}
+.wt-how summary:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.wt-how-body{display:grid;grid-template-rows:1fr;transition:grid-template-rows var(--dur-spring) var(--ease)}
+.wt-how-body>div{overflow:hidden}
+@starting-style{.wt-how[open] .wt-how-body{grid-template-rows:0fr}}
+.wt-how p{margin:6px 0 0;font-size:var(--t-1);line-height:1.45;color:var(--ink-3);max-width:70ch}
+
+/* A desktop fills its width: the cards three across at full width, the two lists side by side. */
 @media (min-width:760px){
-  .wt-grid{grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+  .wt-grid{grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
+  .wt-rest{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 28px;align-items:start}
 }

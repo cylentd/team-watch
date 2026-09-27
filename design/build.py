@@ -45,6 +45,7 @@ from sources import (                                    # design/sources.py: th
     load_draft_pedigree, load_weather, load_weather_backtest, load_routes, load_startsit, load_digest, load_league,
 )
 from wx_history import live_wx_history, report as wx_history_report  # Weather's backtest lines
+from wx_hits import live_wx_hits  # Weather's "Who it hits", from the projections, never a roster
 
 # One slug for one name across the page and the functions: api/league.py slugs a connected
 # league's players at request time with this same function (api/_espn.py).
@@ -726,6 +727,7 @@ def render():
         "LIVE_INJURY": live_injury(load_status(), slugify, wanted_set),
         "LIVE_WEATHER": load_weather(),
         "LIVE_WX_HISTORY": live_wx_history(load_weather_backtest(), load_player_proj()),
+        "LIVE_WX_HITS": live_wx_hits(load_player_proj(), slugify, load_status()),
         "LIVE_LINES": live_lines(load_dfs_pool(), TEAM_FIX),
         "LIVE_ROUTES": live_routes(load_routes(), slugify, wanted_set),
         "LIVE_ARCHETYPE": live_archetype(load_archetype(FEED, DWR), wanted_set),

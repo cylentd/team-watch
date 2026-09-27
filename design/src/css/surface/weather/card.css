@@ -1,0 +1,53 @@
+/* A game whose weather moves scoring (js/surface/weather/card.js, 2026-09-26). The conditions lead
+   in --sky, the one mark for weather that moves scoring; what it does follows in --ink, numbers in
+   mono; whether it is already counted is fine print. Who it hits is typographic, like every row. */
+.wt-card{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:12px 14px;display:grid;gap:8px;align-content:start}
+.wt-cond{margin:0;display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;font-size:var(--t-3);color:var(--ink-2)}
+.wt-c{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.wt-c.on{color:var(--sky);font-weight:600}
+.wt-dot{color:var(--ink-3);white-space:pre}
+.wt-fx{margin:0;font-size:var(--t-3);line-height:1.45;color:var(--ink)}
+.wt-fx .wt-dot{white-space:normal}
+.wt-e{white-space:nowrap}
+.wt-fx b{font-family:var(--mono);font-weight:700;font-variant-numeric:tabular-nums}
+.wt-proj{margin:0;font-size:var(--t-1);color:var(--ink-3)}
+.wt-age{margin:0;font-size:var(--t-1);color:var(--amber)}
+
+.wt-hits{padding-top:8px;border-top:1px solid var(--line)}
+.wt-hits h3{margin:0 0 2px;display:flex;justify-content:space-between;gap:10px;font-size:var(--t-1);font-weight:600;color:var(--ink-3)}
+.wt-hits h3 span{font-weight:400}
+.wt-hits ul{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+/* A row: the profile button (position, name, team), then the number or the odds label beside it. */
+.wt-hits li{display:grid;grid-template-columns:minmax(0,1fr) 78px;align-items:center;gap:4px}
+.wt-hits li>:last-child{justify-self:end}
+.wt-p{appearance:none;border:0;background:none;color:inherit;font:inherit;cursor:pointer;text-align:left;
+  display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:8px;align-items:center;width:100%;min-height:36px;padding:2px 4px;border-radius:8px;
+  transition:transform var(--dur-spring) var(--spring),background-color .15s var(--ease)}
+.wt-p:hover{background:var(--panel-2)}
+.wt-p:active{transform:scale(var(--press));background:var(--panel-3);transition-duration:.06s}
+.wt-p:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+.wt-pos{font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink-2);border:1px solid var(--line);border-radius:6px;text-align:center;padding:1px 0}
+.wt-nm{font-size:var(--t-2);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wt-tm{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
+.wt-adj{min-width:5ch;padding-right:4px;font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink);white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
+/* "in the odds": muted, dotted underline to say it opens; its why in a popover panel. */
+.wt-odds{appearance:none;border:0;background:none;font:inherit;cursor:pointer;min-height:32px;padding:0 4px;font-size:var(--t-1);color:var(--ink-3);white-space:nowrap;text-decoration:underline dotted;text-underline-offset:3px}
+.wt-odds:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
+.wt-tip{max-width:min(300px,calc(100vw - 32px));margin:auto;padding:12px 14px;border:1px solid var(--line-2);border-radius:12px;background:var(--panel-2);color:var(--ink);font-size:var(--t-2);line-height:1.45}
+.wt-tip::backdrop{background:rgb(var(--void-rgb) / .5)}
+
+/* The condition's icon (card.js wtSky): the site's own wind and rain icons, each stroke its own
+   path, so a still frame or reduced motion shows the plain icon. With motion allowed the strokes
+   move and nothing else does: the wind's lines gust the way it blows at --wx-s a gust (faster in a
+   stronger wind, ui/weather.js wxGustS); the drops fall, as many as the rain is likely. */
+.wt-sky{width:20px;height:20px;overflow:visible}
+.wt-sky.west{transform:scaleX(-1)}
+.wt-sky path{transform-box:fill-box}
+@media (prefers-reduced-motion:no-preference){
+  .wt-gust{animation:wt-gust var(--wx-s, 1.4s) var(--ease) infinite;animation-delay:calc(var(--i) * var(--wx-s, 1.4s) / -3)}
+  .wt-drop{animation:wt-drop .8s linear infinite;animation-delay:calc(var(--i) * -.27s)}
+  .wt-sky.snow .wt-drop{animation-duration:2.2s;animation-delay:calc(var(--i) * -.7s)}
+}
+/* Each keyframe passes through the drawn position at full opacity, so any frame reads as the icon. */
+@keyframes wt-gust{0%{transform:translateX(-3px);opacity:.35}40%,60%{transform:none;opacity:1}100%{transform:translateX(3px);opacity:.35}}
+@keyframes wt-drop{0%{transform:translateY(-3px);opacity:.3}35%,55%{transform:none;opacity:1}100%{transform:translateY(3px);opacity:0}}

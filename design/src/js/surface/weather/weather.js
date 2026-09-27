@@ -1,94 +1,79 @@
 /* ------------------------------------------------------------------
-   WEATHER — This week > Weather (2026-09-26). Every game of this week with the forecast at kickoff
-   and the reader's own players in it, so he can weigh kickers, receivers and backs himself.
+   WEATHER — This week > Weather (2026-09-26; reworked the same day to say only what matters).
+   A reader setting a lineup on a phone gets, first, the games whose weather moves scoring and what
+   it does (card.js); every other game is one compact row; how we know sits in one disclosure at
+   the bottom, with the forecast's source. No verdict word about a player, no good or bad colour.
 
-   Facts only: no verdict word, no tilt tag, no good or bad colour. What a condition has done in the
-   past is ff-jarvis's backtest, printed as it stands with whether it held (history.js); the reader
-   decides. The one ordering (indoors, then by wind) is named as an ordering in its heading.
-
-   Data: data/weather.js wtRows(). The icons are ui/weather.js, shared with the profile and cards.
+   Data: data/weather.js wtRows(), data/wxhistory.js. Icons: ui/weather.js.
 ------------------------------------------------------------------ */
 const wtKick = iso => new Date(iso).toLocaleString([], {weekday: "short", hour: "numeric", minute: "2-digit"});
 
-/* How old the forecast is, from its `as_of` against the reader's clock. */
-function wtAge(fc){
-  const at = Date.parse(fc.as_of || "");
-  if (!Number.isFinite(at)) return "";
-  const h = Math.max(0, Math.floor((Date.now() - at) / 3600e3));
-  return h < 1 ? t("weather.age.new") : h < 48 ? t("weather.age.hours", {h}) : t("weather.age.days", {d: Math.floor(h / 24)});
+/* One compact row: matchup, kickoff, the sky in brief. */
+function wtRowHTML(r){
+  const fc = r.fc;
+  const sky = r.roof === "dome" ? "" : fc ? `${t("profile.weather.temp", {n: fc.temp_f})} · ${esc(fc.wind || "")}`
+    : t("weather.row.nofc");
+  return `<li class="wt-row"><b class="wt-match">${esc(r.g.away)} @ ${esc(r.g.home)}</b>
+    <span class="wt-kick">${wtKick(r.g.kickoff)}</span><span class="wt-rs">${sky}</span></li>`;
 }
 
-function wtRoof(roof){
-  if (roof === "dome") return `${wxIcon("dome")}<span>${t("profile.weather.dome")}</span>`;
-  if (roof === "retractable") return `${wxIcon("dome")}<span>${t("weather.roof.retractable")}</span><em>${t("profile.weather.retractable")}</em>`;
-  return `${wxIcon("sun")}<span>${roof === "outdoor" ? t("weather.roof.outdoor") : t("weather.roof.unknown")}</span>`;
+/* A section rule; the count is said in words ("3 games"), so it never reads as a section number. */
+const wtRule = (label, n) => `<div class="rule"><h2>${label}</h2><span class="wt-n">${n === 1 ? t("weather.count.one") : t("weather.count.many", {n})}</span><span class="hair"></span></div>`;
+
+/* "Games where weather lowers scoring", from the sign of every effect on the page. */
+function wtMovesTitle(moves){
+  const way = wtWay(moves.flatMap(r => r.effects));
+  return way === "lower" ? t("weather.moves.lower") : way === "raise" ? t("weather.moves.raise") : t("weather.moves.mixed");
 }
 
-function wtFactsHTML(fc){
-  const cell = (icon, v, l) => `<span class="wt-f">${icon}<b>${v}</b><em>${l}</em></span>`;
-  const pct = fc.precip_pct === null || fc.precip_pct === undefined ? "—" : t("weather.precip.pct", {n: fc.precip_pct});
-  return `<div class="wt-facts">
-      ${cell(wxIcon(wxKind(fc.short)), t("profile.weather.temp", {n: fc.temp_f}), esc(fc.short || ""))}
-      ${cell(wxIcon("wind"), esc(fc.wind || "—"), fc.wind_dir ? t("profile.weather.windFrom", {dir: esc(fc.wind_dir)}) : t("profile.weather.wind"))}
-      ${cell(wxIcon("drop"), pct, t("weather.precip.label"))}
-    </div>`;
+function wtRestHTML(label, rows){
+  return rows.length ? `<section class="wt-sec">${wtRule(label, rows.length)}<ul class="wt-rows">${rows.map(wtRowHTML).join("")}</ul></section>` : "";
 }
 
-/* The points ff-jarvis already moved in his projection for this game's weather ({adj, cond} on his
-   LIVE_PROJECTIONS row), as a small "wx −1.1" note; "" when none. What it means is said in Why. */
-function wtAdjHTML(p){
-  const row = typeof LIVE_PROJECTIONS !== "undefined" && LIVE_PROJECTIONS && p.slug ? LIVE_PROJECTIONS.players[p.slug] : null;
-  const wx = row && row.wx;
-  if (!wx || typeof wx.adj !== "number") return "";
-  return `<span class="wt-adj" title="${t("weather.mine.adjTip", {n: wtSigned(wx.adj)})}">${t("weather.mine.adj", {n: wtSigned(wx.adj)})}</span>`;
+/* "Tested with no effect: domes, running backs, and cold weather except for kickers." */
+function wtNoneLine(){
+  const n = wtNoEffect();
+  const cond = c => ({dome: t("weather.how.dome"), wind: t("weather.how.wind"), cold: t("weather.how.cold"), precip: t("weather.how.precip")})[c] || esc(c);
+  const pos = p => ({QB: t("weather.how.pos.qb"), RB: t("weather.how.pos.rb"), WR: t("weather.how.pos.wr"),
+    TE: t("weather.how.pos.te"), K: t("weather.how.pos.k")})[p] || esc(p);
+  const items = n.none.map(cond).concat(n.pos.map(pos), n.kOnly.map(c => t("weather.how.kOnly", {cond: cond(c)})));
+  if (!items.length) return "";
+  const and = t("weather.how.and"), last = items[items.length - 1];
+  const list = items.length === 1 ? last : items.length === 2 ? `${items[0]} ${and} ${last}`
+    : `${items.slice(0, -1).join(", ")}, ${and} ${last}`;
+  return `<p>${t("weather.how.none", {list})}</p>`;
 }
 
-/* A player opens his profile; `data-wt` is "<game>:<player>" into wtAll(), rebuilt on the tap. */
-function wtMineHTML(mine, gi){
-  if (!mine.length) return `<p class="wt-none-mine">${t("weather.mine.none")}</p>`;
-  return `<ul class="wt-mine">${mine.map(({p, leagues}, pi) => `<li><button type="button" class="wt-p" data-wt="${gi}:${pi}">
-      <span class="wt-pos">${esc(p.pos)}</span><span class="wt-nm">${esc(nameInitial(p.n))}</span>
-      ${wtAdjHTML(p) || "<span></span>"}<span class="wt-lg">${leagues.map(esc).join(" · ")}</span></button></li>`).join("")}</ul>`;
+/* The one disclosure: method, what showed nothing, and the forecast's source. */
+function wtHowHTML(){
+  const s = wtHistOk() ? LIVE_WX_HISTORY.seasons || [] : [];
+  const method = wtHistOk() ? `<p>${t("weather.how.method", {from: s[0] || "", to: s[s.length - 1] || ""})}</p>${wtNoneLine()}` : "";
+  return `<details class="wt-how"><summary>${t("weather.how.title")}</summary>
+    <div class="wt-how-body"><div>${method}<p>${t("weather.how.source")}</p></div></div></details>`;
 }
-
-function wtGameHTML(r, gi){
-  // A game already under way has no forecast: LIVE_WEATHER has moved on to the next home kickoff.
-  const started = Date.parse(r.g.kickoff) <= Date.now();
-  const body = r.fc ? wtFactsHTML(r.fc) + `<div class="wt-age">${wtAge(r.fc)}</div>`
-    : r.roof === "dome" ? "" : `<p class="wt-nofc">${started ? t("weather.fc.started") : t("weather.fc.none")}</p>`;
-  // History: ff-jarvis's weather backtest for each condition this game meets (history.js). With
-  // no backtest file it is "", and no number is ever written into this file by hand.
-  const history = wtHistHTML(r);
-  return `<article class="wt-game">
-    <div class="wt-top"><b class="wt-match">${esc(r.g.away)} @ ${esc(r.g.home)}</b><span class="wt-kick">${wtKick(r.g.kickoff)}</span></div>
-    <div class="wt-roof">${wtRoof(r.roof)}</div>
-    ${body}${history}
-    ${wtMineHTML(r.mine, gi)}
-  </article>`;
-}
-
-/* Both groups in page order, so a game's index is the same when drawn and when tapped. */
-const wtAll = d => d.indoor.concat(d.open);
 
 function wtViewHTML(){
   const d = wtRows();
-  if (!wtAll(d).length) return `<div class="wrap"><div class="state-empty" style="min-height:220px">
+  if (!d.moves.length && !d.indoor.length && !d.open.length && !d.played.length) return `<div class="wrap"><div class="state-empty" style="min-height:220px">
     <div><b>${t("weather.empty.title")}</b><span>${t("weather.empty.sub")}</span></div></div></div>`;
-  const rule = (label, n) => `<div class="rule"><h2>${label}</h2><span class="count">${String(n).padStart(2, "0")}</span><span class="hair"></span></div>`;
-  const group = (label, rows, from) => rows.length ? `<section class="wt-sec">${rule(label, rows.length)}
-    <div class="wt-grid">${rows.map((r, i) => wtGameHTML(r, from + i)).join("")}</div></section>` : "";
+  const moves = d.moves.length
+    ? `<section class="wt-sec">${wtRule(wtMovesTitle(d.moves), d.moves.length)}
+        <div class="wt-grid">${d.moves.map(wtCardHTML).join("")}</div></section>`
+    : `<p class="wt-calm">${t("weather.moves.none")}</p>`;
+  const played = d.played.length
+    ? `<p class="wt-played">${t("weather.played", {list: d.played.map(r => `${esc(r.g.away)} @ ${esc(r.g.home)}`).join(", ")})}</p>` : "";
   return `<div class="wrap wt">
-    <div class="wt-headline"><h2>${t("weather.head.title", {week: d.week})}</h2><p>${t("weather.head.sub")}</p></div>
-    ${group(t("weather.group.indoor"), d.indoor, 0)}
-    ${group(t("weather.group.open"), d.open, d.indoor.length)}
-    ${wtHistFootHTML()}
+    <h2 class="wt-title">${t("weather.head.title", {week: d.week})}</h2>
+    ${moves}
+    <div class="wt-rest">${wtRestHTML(t("weather.group.open"), d.open)}${wtRestHTML(t("weather.group.indoor"), d.indoor)}</div>
+    ${played}${wtHowHTML()}
   </div>`;
 }
 
 function wireWeather(v){
   v.querySelectorAll("[data-wt]").forEach(el => el.addEventListener("click", () => {
     const [gi, pi] = el.dataset.wt.split(":").map(Number);
-    const r = wtAll(wtRows())[gi], m = r && r.mine[pi];
-    if (m) openProfile(m.p, el);
+    const r = wtRows().moves[gi], h = r && r.hits[pi];
+    if (h) openProfile({n: h.n, pos: h.pos, team: h.team, slug: h.slug}, el);
   }));
 }

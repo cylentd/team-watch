@@ -68,7 +68,10 @@ function cardFront(p, tier, g, rank){
   const tip = rank ? ` title="${t("teams.card.rank", {n: rank, pos: esc(p.pos)})}"` : "";
   // Weather that touches him: moving over the art, and its chip in the photo's top corner.
   const w = inj && inj.s === "OUT" ? null : cardWeather(g), wx = cardWeatherNote(w, p.pos);
-  const sky = wx ? `${cardWeatherFx(w, p.pos)}<span class="tc-chip wx" title="${t("teams.card.wxTip", wx)}"><span class="wx-long">${wx.what}</span><span class="wx-short">${wx.kind}</span></span>` : "";
+  // With it, what ff-jarvis already took off his projection for it ("−0.5"), when it took any.
+  const adj = wx ? cardWxAdj(p) : "";
+  const adjHTML = adj ? `<span class="wx-adj" title="${t("teams.card.wxAdjTip", {n: adj})}">${t("teams.card.wxAdj", {n: adj})}</span>` : "";
+  const sky = wx ? `${cardWeatherFx(w, p.pos)}<span class="tc-chip wx" title="${t("teams.card.wxTip", wx)}"><span class="wx-long">${wx.what}</span><span class="wx-short">${wx.kind}</span>${adjHTML}</span>` : "";
   return `<div class="tc-face tc-front">
       <div class="tc-top"><span class="tc-pos"${tip}>${label}</span><span class="tc-num${projOut(p) ? " out" : ""}">${pts !== null ? pts.toFixed(1) : projOut(p) ? t("teams.card.out") : projDone(p) ? projDoneWord(projDone(p)) : "—"}</span></div>
       <div class="tc-art pos-${esc(p.pos)}">${foil}${sky}
@@ -108,7 +111,7 @@ function cardBack(p, rank, teamKey, i, g){
   const stats = cardStats(p), inj = injFor(p);
   const wx = inj && inj.s === "OUT" ? null : cardWeatherNote(cardWeather(g), p.pos);
   const sub = inj ? `<span class="bk-inj ${inj.s.toLowerCase()}" title="${injLabel(inj)}">${injLabel(inj)}</span>`
-    : wx ? `<span class="bk-wx" title="${t("teams.card.wxTip", wx)}">${t("teams.card.wxNote", wx)}</span>`
+    : wx ? `<span class="bk-wx" title="${t("teams.card.wxTip", wx)}">${t("teams.card.wxNote", wx)}${cardWxAdj(p) ? ` · ${t("teams.card.wxAdjBack", {n: cardWxAdj(p)})}` : ""}</span>`
     : `<span>${stats ? t("teams.card.roleWeek", {wk: stats.wk}) : t("teams.card.thisWeek")}</span>`;
   return `<div class="tc-face tc-back pos-${esc(p.pos)}">
       <div class="bk-why"><b>${rank ? t("teams.card.rank", {n: rank, pos: esc(p.pos)}) : esc(p.pos)}</b>${sub}</div>

@@ -8,6 +8,9 @@
    sweat). Thin streaks, four sizes scattered by tiling at odd pitches so no grid shows, fall on a
    slant, each size at its own speed; under them a cool sheen and a darker foot say "wet". */
 .tc-wx{position:absolute;inset:0;pointer-events:none}
+/* In the chip, after the weather: what is already in his projection for it ("−0.5"), in ink, since
+   it is his number and not the weather's (2026-09-26). */
+.tc-chip.wx .wx-adj{margin-left:4px;color:var(--ink);font-variant-numeric:tabular-nums}
 .tc-wx.wind{background:repeating-linear-gradient(180deg,transparent 0 9px,rgb(var(--ink-rgb) / .2) 9px 10px,transparent 10px 23px) 0 0/100% 23px;
   -webkit-mask:repeating-linear-gradient(90deg,transparent 0 12px,var(--shadow) 12px 40px,transparent 40px 70px);
           mask:repeating-linear-gradient(90deg,transparent 0 12px,var(--shadow) 12px 40px,transparent 40px 70px)}

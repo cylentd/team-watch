@@ -21,3 +21,7 @@ function wxKind(short){
 }
 /* The top of a forecast's wind range: "5 to 10 mph" is 10. */
 const wxWindMph = w => w && w.wind ? Math.max(...(w.wind.match(/\d+/g) || ["0"]).map(Number)) : 0;
+/* Seconds one wind streak takes to cross, faster the harder it blows (roster card art, Weather). */
+const wxGustS = mph => Math.max(0.5, 2.4 - mph / 12).toFixed(2);
+/* Which way the wind blows across the screen: -1 for a wind from the east (it blows west), else 1. */
+const wxWindSide = dir => /E/.test(dir || "") && !/W/.test(dir || "") ? -1 : 1;

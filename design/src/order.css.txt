@@ -55,7 +55,7 @@ surface/matchups/matchups.css
 # pin: ranks.css after pool.css -- its position row is pool.css's .setrow and .chip.
 surface/ranks/ranks.css
 surface/weather/weather.css
-surface/weather/history.css
+surface/weather/card.css
 surface/matchups/lead.css
 surface/matchups/rows.css
 # pin: digest/bodies.css after ticker.css -- its `.dg-ico` size yields to lead.css's `.dg-glyph .dg-ico`

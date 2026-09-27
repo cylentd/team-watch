@@ -424,41 +424,36 @@ defense by position), the storyboard's second view.
 
 ## Weather (This week, 2026-09-26)
 
-Every game of this week (`schedWeek`, the pack's week) with the forecast at kickoff and the reader's
-own players in it, both leagues, kickers included. `LIVE_WEATHER` is joined on the home club through
+Every game of this week (`schedWeek`, the pack's week) with the forecast at kickoff. League-wide
+and public, so it reads no roster (decided 2026-09-26): the players named are the projections' own
+(`LIVE_WX_HITS`), and a reader's own players carry their weather on the Roster cards. `LIVE_WEATHER` is joined on the home club through
 the schedule's alias (LA is LAR there); a forecast counts only when its `kickoff` is this game's.
 It sat in Players for its first hours; it moved to This week (after Digest) the same day, which
 put Players back to six views and let the 7-tab phone rule go.
 
+**Reworked 2026-09-26 (same day): say only what moves scoring.** The reader is a casual player
+setting a lineup on a phone; a condition with no proven effect is noise, so it is not mentioned
+on a card. Superseded: the per-game "Does it matter? / Already in our projections? / Why" lines.
+
 | part | what it shows |
 |---|---|
-| Head | "Week N weather", the source (National Weather Service, hour of kickoff) |
-| Indoors | every dome, kickoff order: matchup, kickoff, "Dome, no weather" |
-| Outdoors, most wind first | open air and retractable roofs, by the top of the wind range: temperature and sky, wind and direction, precip %, the forecast's age. A retractable roof adds "roof may close". No forecast says so; a game under way says none is kept |
-| History | per condition the game meets: "Does it matter?" and "Already in our projections?" |
-| Mine | position chip, name, a "wx −1.1" note when ff-jarvis moved his projection for the weather, league(s); a tap opens the profile |
+| Games where weather lowers scoring ("raises"/"changes" from the effects' sign; the count in words, "3 games") | one card per game whose forecast meets a proven condition, most points moved first: matchup, kickoff; the conditions in `--sky` ("22 mph wind · 75% chance of rain · 64°F", "roof may close" for a retractable roof); what it does, proven positions only, summed across conditions and rounded to 0.5 ("QBs about 1.5 fewer points · WRs about 1 fewer"); once, "Our projections already subtract this." (and "Kickers aren't projected on this site." when kickers are named; fresh-reader fix, 2026-09-26: without it a reader concluded "bench them"); the forecast's age only past 12h, in amber; "Who it hits": per side the top-projected QB, two WRs and TE (`design/wx_hits.py`, Sleeper's out-list skipped), away side first, each with team and what is already in his projection (`wx.adj`, "−0.5"; a book-priced row, `src: "line"`, says "in the odds" and a tap opens why: the sportsbook line already prices the forecast), under a plain column label; a tap opens the profile. None this week: one plain line |
+| Outdoors, Indoors | every other game as one row: matchup over kickoff, temperature and wind (none for a dome). Outdoors first, since only those rows carry a forecast |
+| Played | one muted line naming the games already kicked off |
+| How we know | the one disclosure: the method (2011–2025, points against his recent games and opponent, arm a, METHODOLOGY 12.53/12.54), what was tested with no effect (built from the data: "domes, running backs, and cold weather except for kickers"), the forecast source |
 
-- **Facts only.** No verdict word about a player, no colour by effect. The sort is the one ordering
-  and its heading names it.
-- **History lines:** `LIVE_WX_HISTORY` (`design/wx_history.py`) summarises ff-jarvis's weather
-  backtest (`data/weather_backtest.json`, METHODOLOGY 12.53) per condition at build time. A dome
-  gets the dome line; an open-air game with a forecast gets wind and cold at the backtest's own
-  thresholds, and rain or snow at a 50% forecast chance (the line says the history is rain that
-  fell). A retractable roof gets none. Casual wording, no stats talk on the card (2026-09-26):
-  - *Does it matter?* vs his recent games and opponent (arm a). "Yes. Players score fewer points
-    than usual: QB −1.5 · K −0.7 · WR −0.5. RBs: no clear effect." One position: "Yes. Kickers score
-    about 0.8 fewer points than usual." None: "No clear effect." plus the closest position and why:
-    "Kickers score a bit more indoors, but it doesn't hold up season to season" (rolling only) or
-    "The numbers are too mixed to tell."
-  - *Already in our projections?* From the projections' `weather_adjust` block (ff-jarvis, since
-    2026-09-26): "Yes, since Sep 26." / "Not yet." / "We don't project kickers.", per position when
-    they differ. No block: the question is not asked.
-  - n, the 95% range and one sentence on what the projections start from sit behind "Why". One
-    footnote names the seasons. No backtest file: no lines, no footnote, no build failure.
-- **Player rows:** only ff-jarvis's own adjustment (`wx` on his `LIVE_PROJECTIONS` row) shows, as a
-  small grey "wx −1.1"; the backtest's position numbers stay in the line above the list.
-- **First data:** the first game at 200px on a 360x800 phone (live data, 2026-09-26). Desktop is a
-  grid of equal panels, three across at 1400px.
+- **Conditions** (`data/wxhistory.js`): wind and cold at the backtest's thresholds, rain at the
+  projections' `weather_adjust.thresholds.precip_pct`; a condition counts only with a passing
+  position. `LIVE_WX_HISTORY` (`design/wx_history.py`) ships per condition `matters` (pos, mean),
+  `tested` and `inproj`. No adjust block: rain never applies. No backtest file: rows only.
+- **Motion:** the condition icon is the site's own wind or rain icon, each stroke its own path, so
+  a still frame reads as the icon; with motion allowed only those strokes move: the wind's lines gust
+  the way it blows (`wxWindSide`) at the roster cards' speed (`wxGustS`, shared), rain drops
+  one per 25% chance. The one idle loop, allowed because the motion is the forecast; reduced
+  motion shows the still icon (`test_the_sky_moves_only_with_motion_allowed`). Player rows press
+  on the spring; How we know opens with a height ease (grid rows, `@starting-style`).
+- **First data:** the first card at 188px on a 360x800 phone (live data, 2026-09-26). Desktop: cards
+  three across at 1400px, the two lists side by side.
 
 ## Parlay and DFS
 
