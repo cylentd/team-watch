@@ -62,13 +62,18 @@
 .bp-miss b{font-family:var(--mono);color:var(--amber)}
 .bp-proj{margin:0;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
 
-/* superlatives */
+/* superlatives: the award as a stamp in its colour, the number big, the team, one line of proof */
 .bp-sups{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.bp-su{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 11px;display:grid;gap:2px;align-content:start;min-width:0}
-.bp-suk{font-family:var(--tab);font-size:var(--t-2);font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
-.bp-sut{font-size:var(--t-2);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bp-suv{font-family:var(--mono);font-size:var(--t-4);font-weight:700;font-variant-numeric:tabular-nums}
+.bp-su{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 11px 10px;display:grid;gap:4px;align-content:start;min-width:0}
+.bp-suk{justify-self:start;font-family:var(--tab);font-size:var(--t-3);font-weight:900;letter-spacing:.05em;text-transform:uppercase;line-height:1;
+  color:var(--ink-2);border:2px solid currentColor;border-radius:5px;padding:3px 6px 1px;margin-bottom:4px;transform:rotate(-5deg);transform-origin:left center;white-space:nowrap}
+.bp-suk.g{color:var(--up)}
+.bp-suk.r{color:var(--down)}
+.bp-suk.a{color:var(--amber)}
+.bp-suv{font-family:var(--tab);font-size:var(--t-6);font-weight:900;line-height:.9;font-variant-numeric:tabular-nums}
+.bp-sut{font-size:var(--t-2);font-weight:700;line-height:1.25;overflow-wrap:anywhere}
 .bp-sud{font-size:var(--t-1);line-height:1.35;color:var(--ink-2)}
+.bp-sud b{font-family:var(--mono);font-weight:700;color:var(--ink)}
 
 /* this week's grudge: the series record, one sentence, the last meetings as W/L chips */
 .bp-gcard{background:var(--panel);border:1px solid var(--line-2);border-radius:12px;padding:14px;display:grid;gap:12px}
@@ -84,6 +89,28 @@
   background:rgb(var(--up-rgb) / .15);color:var(--up)}
 .bp-gchips i.l{background:rgb(var(--down-rgb) / .15);color:var(--down)}
 .bp-gchips small{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+/* the margins, on a tap: one bar per meeting from the middle line, up green when the left team won */
+.bp-gm{display:grid;gap:4px}
+.bp-gmk{font-size:var(--t-1);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bp-gmp,.bp-gmy{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:4px}
+.bp-gmp{position:relative;height:96px}
+.bp-gmp::before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:var(--line-2)}
+.bp-gmp i{position:relative}
+.bp-gmp i::after{content:"";position:absolute;left:0;right:0;height:var(--h);border-radius:2px;background:var(--up);bottom:50%}
+.bp-gmp i.l::after{bottom:auto;top:50%;background:var(--down)}
+/* one-sided: half the height, the line on the edge the bars grow from */
+.bp-gmp.up,.bp-gmp.down{height:56px}
+.bp-gmp.up::before{top:auto;bottom:0}
+.bp-gmp.up i.w::after{bottom:0}
+.bp-gmp.down::before{top:0}
+.bp-gmp.down i.l::after{top:0}
+.bp-gmy{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);text-align:center}
+.bp-gfacts{margin:0;padding-top:10px;border-top:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;font-size:var(--t-2);color:var(--ink-2)}
+.bp-gfacts dd{margin:0;text-align:right;font-family:var(--mono);font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+/* a tap draws the bars out of the middle line (Draw beat); reduced motion: responsive/motion.css */
+.bp-gmp i::after{transform-origin:bottom;animation:mi-grow-y var(--dur-spring) var(--ease) backwards}
+.bp-gmp i.l::after{transform-origin:top}
+@keyframes mi-grow-y{from{transform:scaleY(0)}}
 
 /* Arrival, once per new week (league.js drops .bp-in on the first tap): the dots drop onto the
    strip, the cards rise in order, each loser is struck through, then the stamps slam.

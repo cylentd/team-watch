@@ -39,9 +39,20 @@ def test_record_is_espns_own_standing(league):
 def test_week_awards(league):
     assert [w["week"] for w in league["weeks"]] == [1, 2]
     a = league["weeks"][0]["awards"]
-    assert a["top"] == {"id": 14, "v": 137.35} and a["low"] == {"id": 12, "v": 101.35}
-    assert a["blow"] == {"id": 14, "opp": 15, "v": 26.45} and a["close"] == {"id": 1, "opp": 12, "v": 16.05}
-    assert a["luck"] == {"id": 1, "v": 117.4} and a["unluck"] == {"id": 15, "v": 110.9}
+    pick = lambda d, *k: {x: d[x] for x in k}
+    assert pick(a["top"], "id", "v") == {"id": 14, "v": 137.35} and pick(a["low"], "id", "v") == {"id": 12, "v": 101.35}
+    assert pick(a["blow"], "id", "opp", "v") == {"id": 14, "opp": 15, "v": 26.45}
+    assert pick(a["close"], "id", "opp", "v") == {"id": 1, "opp": 12, "v": 16.05}
+    assert pick(a["luck"], "id", "v") == {"id": 1, "v": 117.4} and pick(a["unluck"], "id", "v") == {"id": 15, "v": 110.9}
+
+
+def test_awards_carry_their_proof(league):
+    """Each superlative carries what its proof line says: the opponent, the margin, the rank."""
+    a = league["weeks"][0]["awards"]
+    top, low = a["top"], a["low"]
+    assert top["rank"] == 1 and low["rank"] == low["of"] == 4
+    assert (a["luck"]["m"], a["luck"]["rank"]) == (16.05, 2) and (a["unluck"]["m"], a["unluck"]["rank"]) == (-26.45, 3)
+    assert round(a["close"]["p"] - a["close"]["op"], 2) == a["close"]["v"]
 
 
 def test_this_weeks_pairings_and_head_to_head(league):

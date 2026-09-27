@@ -130,6 +130,12 @@ STATES = [
     ("records-yahoo", go("records")),
     ("myrecap-yahoo", go("myrecap")),
     ("myrecap-yahoo-week1", go("myrecap") + [("click", "[data-lgweek='1']")]),
+    # The fixture's week-3 pairings never met, so this seeds three meetings before the view draws.
+    ("myrecap-yahoo-margins", [("eval", "() => { const m = [[2024, 3, 12.5, 0], [2025, 6, -30.25, 0], [2025, 14, 4.1, 1]];"
+                                        " LGS.yahoo.h2h['9']['3'] = {w: 2, l: 1, t: 0, since: 2024, big: {v: 12.5, y: 2024, wk: 3}, m};"
+                                        " LGS.yahoo.h2h['3']['9'] = {w: 1, l: 2, t: 0, since: 2024, big: {v: 30.25, y: 2025, wk: 6},"
+                                        " m: m.map(x => [x[0], x[1], -x[2], x[3]])}; }")]
+                               + go("myrecap") + [("click", "[data-lgmargins]")]),
     ("waivers-folds", go("waivers") + [("click", "summary.wvfold-s >> nth=0"),
                                        ("click", "summary.wvfold-s >> nth=1")]),   # spec + stash open
     # The modal is panes since 2026-09-22, so each one is its own state: the tab bar only renders

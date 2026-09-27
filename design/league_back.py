@@ -51,7 +51,7 @@ def enrich_weeks(weeks, box, recap):
                      beats=said.get("beats") or [], stamp=said.get("stamp"), box=slim_box(b) if b else None)
             for tid, m in zip((g["a"], g["b"]), g["box"]["left"] if g["box"] else ()):
                 if m and (not best or m["lost"] > best["v"]):
-                    best = {"id": tid, "v": m["lost"], "name": m["benched"]}
+                    best = {"id": tid, "v": m["lost"], "name": m["benched"], "bp": m["bp"], "started": m["started"], "sp": m["sp"]}
         if best:
             wk["awards"]["bench"] = best
     return weeks

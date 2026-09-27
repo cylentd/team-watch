@@ -35,20 +35,23 @@ def _sides(g):
 
 def awards(games):
     """The week's six awards over its decided games: top and bottom score, the biggest and the
-    smallest margin (by the winner), the lowest score that won and the highest that lost."""
-    scores = [(g["home"], g["hp"]) for g in games] + [(g["away"], g["ap"]) for g in games]
+    smallest margin (by the winner), the lowest score that won and the highest that lost.
+    A score award carries its proof: the opponent, its own margin `m` (negative lost) and its rank
+    among the week's `of` scores; a margin award carries both scores."""
+    scores = [(g["home"], g["hp"], g["away"], g["ap"]) for g in games] + [(g["away"], g["ap"], g["home"], g["hp"]) for g in games]
     won = [s for s in map(_sides, games) if s]
     if not scores:
         return {}
-    top, low = max(scores, key=lambda s: s[1]), min(scores, key=lambda s: s[1])
-    out = {"top": {"id": top[0], "v": top[1]}, "low": {"id": low[0], "v": low[1]}}
+    row = lambda s: {"id": s[0], "v": s[1], "opp": s[2], "m": round(s[1] - s[3], 2),
+                     "rank": 1 + sum(x[1] > s[1] for x in scores), "of": len(scores)}
+    out = {"top": row(max(scores, key=lambda s: s[1])), "low": row(min(scores, key=lambda s: s[1]))}
     if won:
         m = lambda s: round(s[2] - s[3], 2)
         blow, close = max(won, key=m), min(won, key=m)
         luck, unluck = min(won, key=lambda s: s[2]), max(won, key=lambda s: s[3])
-        out.update(blow={"id": blow[0], "opp": blow[1], "v": m(blow)},
-                   close={"id": close[0], "opp": close[1], "v": m(close)},
-                   luck={"id": luck[0], "v": luck[2]}, unluck={"id": unluck[1], "v": unluck[3]})
+        edge = lambda s: {"id": s[0], "opp": s[1], "v": m(s), "p": s[2], "op": s[3]}
+        out.update(blow=edge(blow), close=edge(close),
+                   luck=row((luck[0], luck[2], luck[1], luck[3])), unluck=row((unluck[1], unluck[3], unluck[0], unluck[2])))
     return out
 
 

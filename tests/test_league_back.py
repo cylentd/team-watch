@@ -65,7 +65,7 @@ def test_box_is_slim_and_keeps_empty_slots_and_the_mistake(back):
 
 
 def test_bench_award_is_the_weeks_biggest_mistake(back):
-    assert back["weeks"][1]["awards"]["bench"] == {"id": 10, "v": 9.0, "name": "Rico Dowdle"}
+    assert back["weeks"][1]["awards"]["bench"] == {"id": 10, "v": 9.0, "name": "Rico Dowdle", "bp": 15.5, "started": "Jaylen Warren", "sp": 6.5}
     assert "bench" not in back["weeks"][0]["awards"]
 
 

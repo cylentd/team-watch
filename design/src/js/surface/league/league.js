@@ -25,16 +25,21 @@ function renderLeague(v, team){
 
 /* One listener on the view's own container (rebuilt on every render, so it never stacks), for every
    league page. Each control redraws only its own part in place, so nothing above it moves: a week
-   chip the week section (`weekHTML`, the page's own), a box toggle its one card. The arrival motion
+   chip the week section (`weekHTML`, the page's own), a box toggle its one card, the margins toggle
+   its grudge card. The arrival motion
    is for a new week only, so any tap first takes it off. */
 function wireLeague(v, id, weekHTML){
   const root = v.querySelector(".lg");
   if (!root) return;
   root.addEventListener("click", e => {
-    const b = e.target.closest("[data-lgweek],[data-lgbox]");
+    const b = e.target.closest("[data-lgweek],[data-lgbox],[data-lgmargins]");
     if (!b) return;
     root.querySelector(".bp-in")?.classList.remove("bp-in");
-    if (b.dataset.lgweek){
+    if (b.hasAttribute("data-lgmargins")){
+      const card = b.closest(".bp-gcard");
+      LG_MARGINS = !LG_MARGINS;
+      card.outerHTML = lgGrudgeCardHTML(Number(card.dataset.a), Number(card.dataset.b));
+    } else if (b.dataset.lgweek){
       LG_WEEK = Number(b.dataset.lgweek); LG_OPEN = null;
       b.closest(".lg-sec").outerHTML = weekHTML();
     } else {

@@ -31,18 +31,52 @@ function lgGrudgeLine(id, opp, h, m){
 /* The team on screen against this week's opponent (My recap). */
 const lgGrudgeHTML = id => lgPairGrudgeHTML(id, id ? lgOpp(id) : null, t("league.grudge.title"));
 
-/* One pairing's grudge card, from `id`'s side: My recap's own, or the league page's biggest one. */
-function lgPairGrudgeHTML(id, opp, title){
-  if (!LG.teams.some(x => x.id === id) || !LG.teams.some(x => x.id === opp)) return "";
+/* Whether the grudge cards show each meeting's margin instead of W/L chips: the reader's tap, kept
+   for the session so a redraw keeps it. */
+let LG_MARGINS = false;
+const LG_MEETS = 12;
+
+/* Each of the last meetings as a bar from the middle line: up and green when `id` won, down and red
+   when it lost, its height the margin against the biggest shown. Then the point difference and each
+   side's biggest win. */
+function lgMarginsHTML(id, opp, h, o, m){
+  const shown = m.slice(-LG_MEETS), top = Math.max(...shown.map(x => Math.abs(x[2]))) || 1;
+  // A one-sided series draws only its own half: no empty half under a shutout.
+  const up = shown.some(x => x[2] > 0), down = shown.some(x => x[2] < 0), half = up && down ? 50 : 100;
+  const side = up && down ? "" : up ? " up" : " down";
+  const bars = shown.map(x => `<i class="${x[2] > 0 ? "w" : "l"}" style="--h:${(half * Math.abs(x[2]) / top).toFixed(1)}%"></i>`).join("");
+  const yrs = shown.map(x => `<span>'${String(x[0]).slice(2)}</span>`).join("");
+  const diff = m.reduce((s, x) => s + x[2], 0);
+  const big = (side, tid) => side && side.big ? `<dt>${t("league.grudge.bigWin", {team: lgName(tid), y: side.big.y, wk: side.big.wk})}</dt><dd>+${lgPts(side.big.v)}</dd>` : "";
+  return `<div class="bp-gm">
+      ${up ? `<span class="bp-gmk">${t("league.grudge.wonBy", {team: lgName(id)})}</span>` : ""}
+      <div class="bp-gmp${side}" style="--n:${shown.length}" role="img" aria-label="${t("league.grudge.marginsAria", {n: shown.length, team: lgName(id)})}">${bars}</div>
+      <div class="bp-gmy" style="--n:${shown.length}" aria-hidden="true">${yrs}</div>
+      ${down ? `<span class="bp-gmk">${t("league.grudge.wonBy", {team: lgName(opp)})}</span>` : ""}
+    </div>
+    <dl class="bp-gfacts"><dt>${t("league.grudge.diff", {team: lgName(diff >= 0 ? id : opp)})}</dt><dd>+${lgPts(Math.abs(diff))}</dd>${big(h, id)}${big(o, opp)}</dl>`;
+}
+
+/* The inside of a grudge card, redrawn alone by its margins toggle (wireLeague). */
+function lgGrudgeCardHTML(id, opp){
   const h = lgH2H(id, opp) || {w: 0, l: 0, t: 0, m: []}, m = h.m || [];
   const chips = m.slice(-10).map(x => `<span><i class="${x[2] > 0 ? "w" : "l"}">${x[2] > 0 ? t("league.grudge.w") : t("league.grudge.l")}</i>
     <small>'${String(x[0]).slice(2)}</small></span>`).join("");
-  return `<section class="lg-sec bp-grudge" aria-label="${title}">
-    <h3 class="bp-hd">${title}<span>${t("league.tape.sub", {n: LG.week})}</span></h3>
-    <div class="bp-gcard">
+  const body = !m.length ? "" : LG_MARGINS ? lgMarginsHTML(id, opp, h, lgH2H(opp, id), m)
+    : `<div class="bp-gchips" role="img" aria-label="${t("league.grudge.chipsAria", {n: Math.min(10, m.length)})}">${chips}</div>`;
+  return `<div class="bp-gcard" data-a="${id}" data-b="${opp}">
       <div class="bp-gvs"><span>${lgName(id)}</span><b>${h.t ? `${h.w}–${h.l}–${h.t}` : `${h.w}–${h.l}`}</b><span>${lgName(opp)}</span></div>
       <p class="bp-gline">${lgGrudgeLine(id, opp, h, m)}</p>
-      ${chips ? `<div class="bp-gchips" role="img" aria-label="${t("league.grudge.chipsAria", {n: Math.min(10, m.length)})}">${chips}</div>` : ""}
-    </div>
+      ${body}
+      ${m.length ? `<button class="bp-open" data-lgmargins aria-pressed="${LG_MARGINS}">${LG_MARGINS ? t("league.grudge.hideMargins") : t("league.grudge.showMargins")}</button>` : ""}
+    </div>`;
+}
+
+/* One pairing's grudge card, from `id`'s side: My recap's own, or the league page's biggest one. */
+function lgPairGrudgeHTML(id, opp, title){
+  if (!LG.teams.some(x => x.id === id) || !LG.teams.some(x => x.id === opp)) return "";
+  return `<section class="lg-sec bp-grudge" aria-label="${title}">
+    <h3 class="bp-hd">${title}<span>${t("league.tape.sub", {n: LG.week})}</span></h3>
+    ${lgGrudgeCardHTML(id, opp)}
   </section>`;
 }

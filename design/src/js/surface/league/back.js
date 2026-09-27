@@ -64,18 +64,40 @@ function lgTableHTML(w){
       <span>${t("league.table.rec")}</span><span>${t("league.table.pf")}</span><span>${t("league.table.move")}</span></li>${rows}</ol>`;
 }
 
-/* Six superlatives, two to a row at every width. Each label spelled out for assemble.py --check. */
-const lgSupLabel = k => ({top: t("league.sup.top"), low: t("league.sup.low"), unluck: t("league.sup.unluck"),
-  luck: t("league.sup.luck"), bench: t("league.sup.bench"), close: t("league.sup.close")})[k];
+/* Six superlatives as the back page's stamps, two to a row at every width: the award in its colour
+   (green a good week, red a bad one, amber a bench mistake), the number, the team, and one line of
+   proof. A close game is a nail-biter only under 10 points. Each key spelled out for assemble.py --check. */
+const LG_NAILBITER = 10;
+const lgSupTone = {top: "g", luck: "g", low: "r", unluck: "r", bench: "a", close: "n"};
+
+function lgSupLabel(k, a){
+  if (k === "close") return a.v < LG_NAILBITER ? t("league.sup.close") : t("league.sup.closest");
+  return {top: t("league.sup.top"), low: t("league.sup.low"), unluck: t("league.sup.unluck"),
+    luck: t("league.sup.luck"), bench: t("league.sup.bench")}[k];
+}
+
+/* The proof line: numbers in <b>, so the eye lands on them. */
+function lgSupProof(k, a){
+  const b = v => `<b>${lgPts(v)}</b>`, opp = a.opp != null ? lgName(a.opp) : "";
+  const vs = () => a.m >= 0 ? t("league.sup.beat", {opp, m: b(a.m)}) : t("league.sup.lostTo", {opp, m: b(-a.m)});
+  switch (k){
+    case "top": case "low": return vs();
+    case "luck": return t("league.sup.luckWhy", {rank: ordinal(a.rank), of: a.of, m: b(a.m)});
+    case "unluck": return t("league.sup.unluckWhy", {rank: ordinal(a.rank), of: a.of, m: b(-a.m)});
+    case "close": return t("league.sup.closeWhy", {p: b(a.p), opp, op: b(a.op)});
+    case "bench": return a.started ? t("league.sup.benchWhy", {started: esc(nameInitial(a.started)), sp: b(a.sp),
+      name: esc(nameInitial(a.name)), bp: b(a.bp)}) : "";
+  }
+  return "";
+}
 
 function lgSupHTML(k, a, i){
   if (!a) return "";
-  const note = {unluck: t("league.sup.unluckNote"), luck: t("league.sup.luckNote"),
-    bench: a.name ? t("league.sup.benchNote", {name: esc(nameInitial(a.name))}) : "",
-    close: t("league.sup.closeNote", {opp: lgName(a.opp)})}[k] || "";
-  return `<div class="bp-su" style="--i:${i}"><span class="bp-suk">${lgSupLabel(k)}</span>
-    <span class="bp-sut">${lgName(a.id)}</span><span class="bp-suv">${k === "close" ? "+" : ""}${lgPts(a.v)}</span>
-    ${note ? `<span class="bp-sud">${note}</span>` : ""}</div>`;
+  const v = k === "bench" ? `−${lgPts(a.v)}` : k === "close" ? `+${lgPts(a.v)}` : lgPts(a.v);
+  const proof = lgSupProof(k, a);
+  return `<div class="bp-su" style="--i:${i}"><span class="bp-suk ${lgSupTone[k]}">${lgSupLabel(k, a)}</span>
+    <span class="bp-suv">${v}</span><span class="bp-sut">${lgName(a.id)}</span>
+    ${proof ? `<span class="bp-sud">${proof}</span>` : ""}</div>`;
 }
 
 /* The week section: redrawn whole by a week chip (wireLeague). */
