@@ -36,6 +36,30 @@ def test_rip_again_is_over_the_cards_and_the_switch_holds_still(browser, page_fi
 
 
 @pytest.mark.render
+@pytest.mark.parametrize("motion", [False, True])
+def test_an_empty_pack_still_opens_and_says_so(browser, page_file, motion):
+    """2026-09-27: a week where nobody on the roster is top 12 gets a pack with nothing in it."""
+    ctx, page, errors = motion_page(browser, page_file) if motion else cards_page(browser, page_file)
+    page.wait_for_timeout(500)
+    if page.locator(".pk-stage").count():
+        page.keyboard.press("Escape")
+    page.evaluate("""Object.values(LIVE_PROJECTIONS.players).forEach(r => { if (r.rank) r.rank = 40; });
+      if (typeof LIVE_SIGNED !== 'undefined' && LIVE_SIGNED) LIVE_SIGNED.players = {};
+      render()""")
+    if page.locator(".pack .pack-seal").count() == 0:
+        pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
+    assert page.evaluate("packCards(TEAMS.espn).length") == 0
+    page.click(".pack .pack-seal")
+    rip(page)
+    page.wait_for_function("document.querySelector('.pk-msg')?.textContent.startsWith('Empty')", timeout=6000)
+    assert page.text_content(".pk-count").startswith("0 ")
+    page.wait_for_selector(".pk-stage", state="detached", timeout=6000)
+    assert page.locator(".cards .rule [data-rerip]").count() == 1, "an empty pack can be ripped again too"
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
 def test_a_drag_on_the_pack_turns_it_and_it_springs_back(browser, page_file):
     ctx, page, errors = cards_page(browser, page_file, keep_stage=True)
     if page.locator(".pk-stage").count() == 0:

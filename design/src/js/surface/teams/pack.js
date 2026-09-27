@@ -31,10 +31,17 @@ function packCards(team){
     .sort((a, b) => b.rank - a.rank);
 }
 
-/* This week's pack has been opened and still holds cards: the Sheet / Cards row offers it again. */
+/* There is a pack this week when the projections rank anyone on the roster, even if none of them
+   makes it in (2026-09-27): an empty pack is a bad week, and a bad week gets its pack too. With no
+   ranks at all (no projections yet) there is nothing to open. */
+const packHas = team => team.roster.some(p => cardRank(p));
+/* The best card's tier, which the pack glows in; "none" for an empty pack, which does not glow. */
+const packBest = cards => cards.length ? cardTier(cards[cards.length - 1].rank) : "none";
+
+/* This week's pack has been opened: the Sheet / Cards row offers it again, empty or not. */
 function packReplayable(team){
   const wk = schedWeek();
-  return !!wk && packOpened(team, wk) && packCards(team).length > 0 && !packShowing();
+  return !!wk && packOpened(team, wk) && packHas(team) && !packShowing();
 }
 
 /* The sealed pack (art reworked 2026-09-25: it was a plain gradient with a dark band for a strip).
@@ -55,7 +62,7 @@ function packArtSVG(wk){
     </svg>`;
 }
 function packSealHTML(team, wk, cards){
-  const best = cardTier(cards[cards.length - 1].rank);
+  const best = packBest(cards);
   // The rear and the side walls give the pack its body (pack.css); only the front is a control.
   return `<div class="pack-glow tease-${best}"><span class="pack-rear" aria-hidden="true"><b>TEAM<i>//</i>WATCH</b></span>
     <i class="pack-wall l" aria-hidden="true"></i><i class="pack-wall r" aria-hidden="true"></i>
@@ -75,7 +82,7 @@ function packSeason(){
 /* On the page: the unopened pack, small, as the way onto the stage. */
 function packHTML(team){
   const wk = schedWeek(), cards = packCards(team);
-  if (!wk || !cards.length || packOpened(team, wk) || packShowing()) return "";
+  if (!wk || !packHas(team) || packOpened(team, wk) || packShowing()) return "";
   return `<div class="pack" data-pack="${wk}">
     <p class="pack-msg">${t("teams.pack.lead", {wk})}</p>
     ${packSealHTML(team, wk, cards)}

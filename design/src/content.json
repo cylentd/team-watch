@@ -1052,6 +1052,7 @@
  "teams.pack.closeLabel": "Close",
  "teams.pack.count": "{n} PULLED",
  "teams.pack.done": "<b>{name}</b> is the #{rank} {pos} this week.",
+ "teams.pack.empty": "Empty. Nobody on your roster cracked the top 12 this week.",
  "teams.pack.faster": "TAP TO GO FASTER",
  "teams.pack.hint": "DRAG ACROSS THE TOP TO RIP",
  "teams.pack.lead": "Week {wk} is in. Inside: your top-12 players this week, and anyone who signed.",

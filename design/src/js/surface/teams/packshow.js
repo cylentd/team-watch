@@ -50,7 +50,7 @@ function pkHurry(S){
 function packShow(team, wk){
   if (PACK_SHOW || !wk) return;
   const cards = packCards(team);
-  if (!cards.length) return;
+  if (!packHas(team)) return;
   PACK_SHOW = {key: `${team.key}-${wk}`, order: new Map(cards.map((c, k) => [c.i, k]))};
   const st = document.createElement("div");
   st.className = "pk-stage";
@@ -62,7 +62,7 @@ function packShow(team, wk){
     <p class="pk-hint">${t("teams.pack.hint")}</p><p class="pk-count" aria-hidden="true"></p>`;
   document.body.appendChild(st);
   document.body.classList.add("pk-open");
-  const S = {st, team, wk, cards, ripped: false, skip: false, rush: false, homing: false, wake: new Set(), shown: [], best: cardTier(cards[cards.length - 1].rank)};
+  const S = {st, team, wk, cards, ripped: false, skip: false, rush: false, homing: false, wake: new Set(), shown: [], best: packBest(cards)};
   st.addEventListener("click", e => { if (!e.target.closest(".pk-close")) pkHurry(S); });
   S.cw = () => document.querySelector("#view .cards .tc")?.offsetWidth || 114;   // a roster card's width, read when dealt
   // The pack's photos, the sharpest size cut, loaded and decoded while the reader tears.
@@ -168,7 +168,7 @@ function pkBestHead(p){
 /* ✕, Escape or Back. Before the rip the pack goes back on the page; after it, straight to the end. */
 function pkQuit(S, fromBack){
   if (!fromBack) layerDone("pack");
-  if (S.ripped){ S.skip = true; S.st.getAnimations({subtree: true}).forEach(a => { if (a.effect.getTiming().iterations !== Infinity) a.finish(); }); return; }
+  if (S.ripped){ S.skip = true; [...S.wake].forEach(done => done()); S.st.getAnimations({subtree: true}).forEach(a => { if (a.effect.getTiming().iterations !== Infinity) a.finish(); }); return; }
   pkClose(S);
 }
 function pkClose(S){
@@ -204,6 +204,7 @@ async function pkRip(S){
         {duration: 380, easing: out, fill: "forwards"}).finished]);
     S.pack = center;
   }
+  if (!S.cards.length) return pkEmpty(S);
   await pkDeal(S);
   await pkHome(S);
 }

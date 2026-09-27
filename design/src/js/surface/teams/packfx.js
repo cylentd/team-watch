@@ -14,6 +14,7 @@ const PACK_FX_COLOURS = {
   sig: ["--epic-1", "--epic-2", "--iri-2", "--ink"],
 
   ur: ["--gold-1", "--gold-2"],
+  none: ["--ink-3", "--line-2"],                  // an empty pack's foil: grey, nothing to celebrate
 };
 
 function packBuzz(pattern){
