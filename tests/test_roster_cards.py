@@ -360,7 +360,7 @@ def test_the_stage_opens_by_itself_and_its_cards_fly_home_to_their_slots(browser
 
 
 @pytest.mark.render
-def test_the_first_card_comes_out_of_the_pack_and_the_light_takes_its_tier(browser, page_file):
+def test_the_first_card_comes_out_of_the_pack_and_the_pile_counts_it(browser, page_file):
     ctx, page, errors = motion_page(browser, page_file)
     try:
         page.wait_for_selector(".pk-stage", timeout=2000)
@@ -371,8 +371,9 @@ def test_the_first_card_comes_out_of_the_pack_and_the_light_takes_its_tier(brows
     # The pack is still on the stage while its first card rises out of it, then it goes.
     assert page.locator(".pk-center").count() == 1
     page.wait_for_selector(".pk-center", state="detached", timeout=4000)
-    # Once a card turns, the room's light is its tier's, stronger than the plain room.
-    page.wait_for_function("parseFloat(getComputedStyle(document.querySelector('.pk-stage')).getPropertyValue('--pa')) > .2", timeout=8000)
+    # Nothing says the pack's size before the rip (2026-09-27); the pile counts each card as it lands.
+    assert page.locator(".pack-n").count() == 0
+    page.wait_for_function("document.querySelector('.pk-count')?.textContent.startsWith('1 ')", timeout=8000)
     assert errors == []
     ctx.close()
 

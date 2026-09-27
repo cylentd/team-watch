@@ -40,7 +40,8 @@ function pkAnim(S, el, frames, opts){
   return a;
 }
 function pkHurry(S){
-  if (!S.ripped || S.homing || S.skip || S.rush) return;
+  // Not during the best card's reveal (2026-09-27): it is the payoff, and a stray tap skipped it.
+  if (!S.ripped || S.homing || S.skip || S.rush || S.hero) return;
   S.rush = true;
   S.st.getAnimations({subtree: true}).forEach(a => { if (a.effect.getTiming().iterations !== Infinity) a.updatePlaybackRate(PK_RUSH); });
   [...S.wake].forEach(done => done());
@@ -54,11 +55,11 @@ function packShow(team, wk){
   const st = document.createElement("div");
   st.className = "pk-stage";
   st.setAttribute("role", "dialog"); st.setAttribute("aria-modal", "true"); st.setAttribute("aria-label", t("teams.pack.stage"));
-  st.innerHTML = `<div class="pk-back"></div><div class="pk-light"></div><div class="pk-floor"></div><div class="pk-rays"></div><div class="pk-flash"></div><div class="pk-wave"></div>
+  st.innerHTML = `<div class="pk-back"></div><div class="pk-rays"></div><div class="pk-flash"></div><div class="pk-wave"></div>
     <button class="pk-close" type="button" aria-label="${t("teams.pack.closeLabel")}">✕</button>
-    <p class="pk-msg" aria-live="polite">${t("teams.pack.lead", {wk, n: cards.length})}</p>
+    <p class="pk-msg" aria-live="polite">${t("teams.pack.lead", {wk})}</p>
     <div class="pk-center">${packSealHTML(team, wk, cards)}</div>
-    <p class="pk-hint">${t("teams.pack.hint")}</p>`;
+    <p class="pk-hint">${t("teams.pack.hint")}</p><p class="pk-count" aria-hidden="true"></p>`;
   document.body.appendChild(st);
   document.body.classList.add("pk-open");
   const S = {st, team, wk, cards, ripped: false, skip: false, rush: false, homing: false, wake: new Set(), shown: [], best: cardTier(cards[cards.length - 1].rank)};
@@ -91,13 +92,13 @@ function packShow(team, wk){
    full 16° up or down and 26° across (it was the window's half, so a big screen needed a long
    reach for 14°, 2026-09-25). */
 const PK_AIM_X = 16, PK_AIM_Y = 26;
-function pkLean(S, dx, dy){
+function pkLean(S, dx, dy, ax = PK_AIM_X, ay = PK_AIM_Y){
   const c = S.st.querySelector(".pk-center"), seal = c && c.querySelector(".pack-seal");
   if (!seal) return;
-  c.style.setProperty("--prx", `${(-dy * PK_AIM_X).toFixed(1)}deg`);
-  c.style.setProperty("--pry", `${(dx * PK_AIM_Y).toFixed(1)}deg`);
-  seal.style.setProperty("--mx", `${Math.round(50 + dx * 40)}%`);
-  seal.style.setProperty("--my", `${Math.round(50 + dy * 40)}%`);
+  c.style.setProperty("--prx", `${(-dy * ax).toFixed(1)}deg`);
+  c.style.setProperty("--pry", `${(dx * ay).toFixed(1)}deg`);
+  seal.style.setProperty("--mx", `${Math.round(50 + Math.max(-1, Math.min(1, dx)) * 40)}%`);
+  seal.style.setProperty("--my", `${Math.round(50 + Math.max(-1, Math.min(1, dy)) * 40)}%`);
 }
 function pkAim(S){
   S.st.addEventListener("pointermove", e => {
@@ -112,14 +113,17 @@ function pkAim(S){
   });
 }
 
-/* A drag on the pack's body (below the strip) turns it with the finger or the mouse, up to 1.6x
-   the hover lean, the foil's shine going with it; let go and it springs back to rest (the
-   transition in packshow.css). A tap that did not move tugs the strip instead, to say where to tear. */
+/* A drag on the pack's body (below the strip) turns it with the finger or the mouse, the foil's
+   shine going with it; let go and it springs back to rest (the transition in packshow.css). Since
+   2026-09-27 a drag turns it far enough to show its side and its back: 120° across and 30° up or
+   down for a drag of the pack's own width or height (it stopped at ~40°, where the depth barely
+   read). A tap that did not move tugs the strip instead, to say where to tear. */
+const PK_TILT_X = 30, PK_TILT_Y = 120;
 function pkTilt(S, e, nudge){
   const c = S.st.querySelector(".pk-center"), seal = c && c.querySelector(".pack-seal");
   if (!seal || S.ripped) return;
   const x0 = e.clientX, y0 = e.clientY, r = seal.getBoundingClientRect();
-  const clamp = v => Math.max(-1.6, Math.min(1.6, v));
+  const clamp = v => Math.max(-1, Math.min(1, v));
   let moved = false;
   seal.setPointerCapture?.(e.pointerId);
   S.st.classList.add("pk-drag");
@@ -127,7 +131,7 @@ function pkTilt(S, e, nudge){
     const dx = ev.clientX - x0, dy = ev.clientY - y0;
     if (!moved && Math.hypot(dx, dy) < 6) return;
     moved = true;
-    pkLean(S, clamp(dx / (r.width * .6)), clamp(dy / (r.height * .6)));
+    pkLean(S, clamp(dx / r.width), clamp(dy / r.height), PK_TILT_X, PK_TILT_Y);
   };
   const up = () => {
     seal.removeEventListener("pointermove", move);
@@ -148,14 +152,6 @@ function pkTilt(S, e, nudge){
 function pkBestHead(p){
   const pick = m => typeof m !== "undefined" && m && p.slug ? m[p.slug] : null;
   return pick(typeof HEADS_XL !== "undefined" ? HEADS_XL : null) || pick(typeof HEADS_LG !== "undefined" ? HEADS_LG : null) || pick(HEADS);
-}
-
-/* The stage's light: a card's tier colour, stronger the rarer (null: the room's plain low light). */
-const PK_LIGHT = {c: ["--ink-rgb", .12], r: ["--uncommon-2-rgb", .3], ur: ["--gold-2-rgb", .38], sig: ["--epic-2-rgb", .48], one: ["--holo-3-rgb", .6]};
-function pkLight(S, tier){
-  const [rgb, a] = PK_LIGHT[tier] || ["--ink-rgb", .08];
-  S.st.style.setProperty("--pl", `var(${rgb})`);
-  S.st.style.setProperty("--pa", String(a));
 }
 
 /* ✕, Escape or Back. Before the rip the pack goes back on the page; after it, straight to the end. */

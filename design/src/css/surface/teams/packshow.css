@@ -5,29 +5,20 @@
    centre. .pk-home fades the stage away to the roster while the cards fly into their slots.
 
    The room, reworked the same evening (it was a flat near-black): the roster stays behind it,
-   blurred and dimmed past reading, darkening to near-black at the edges, so the eye goes to the
-   one lit place. That light is the only colour on the stage and it means something: each card's
-   tier as it turns (--pl, the colour; --pa, how strong), brightest for the best. A pool of it on
-   the floor under the card puts the card in a space instead of on a flat colour. */
-@property --pa{syntax:"<number>";inherits:true;initial-value:0}
+   blurred and dimmed past reading, darkening to near-black at the edges. The tier-coloured light
+   behind each card and its pool on the floor went on 2026-09-27: the card, its flakes and the
+   best card's rays already say the tier, and the light read as a spotlight saying it again. */
 body.pk-open{overflow:hidden}
-.pk-stage{--pkw:clamp(200px,min(58vw,38vh),320px);--pl:var(--ink-rgb);--pa:.08;
-  position:fixed;inset:0;z-index:57;-webkit-tap-highlight-color:transparent;transition:--pa .6s var(--ease)}
+.pk-stage{--pkw:clamp(200px,min(58vw,38vh),320px);
+  position:fixed;inset:0;z-index:57;-webkit-tap-highlight-color:transparent}
 .pk-back{position:absolute;inset:0;opacity:1;transition:opacity .5s var(--ease);
   -webkit-backdrop-filter:blur(18px) saturate(.5);backdrop-filter:blur(18px) saturate(.5);
   background:radial-gradient(ellipse 70% 60% at 50% 45%,rgb(var(--void-rgb) / .78),rgb(var(--void-rgb) / .93) 60%,rgb(var(--void-rgb) / .99))}
-/* The light behind the centre card, and its pool on the floor under it. */
-.pk-light{position:absolute;z-index:1;left:50%;top:45%;width:calc(var(--pkw) * 3.2);aspect-ratio:1;translate:-50% -50%;pointer-events:none;
-  background:radial-gradient(circle,rgb(var(--pl) / var(--pa)) 0,rgb(var(--pl) / calc(var(--pa) * .35)) 30%,transparent 62%)}
-.pk-floor{position:absolute;z-index:1;left:50%;top:calc(45% + var(--pkw) * .7 + 8px);width:calc(var(--pkw) * 1.5);height:calc(var(--pkw) * .22);
-  translate:-50% -50%;pointer-events:none;
-  background:radial-gradient(ellipse closest-side,rgb(var(--pl) / calc(var(--pa) * 1.1)),transparent),
-    radial-gradient(ellipse closest-side,rgb(var(--shadow-rgb) / .7),transparent 80%)}
 .pk-close{position:absolute;z-index:4;top:calc(env(safe-area-inset-top, 0px) + 12px);right:14px;width:40px;height:40px;
   border-radius:99px;border:1px solid var(--line-2);background:var(--panel-2);color:var(--ink-2);font-size:var(--t-3);cursor:pointer}
 .pk-close:hover{color:var(--ink)}
 .pk-close:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
-.pk-msg{position:absolute;z-index:4;left:16px;right:16px;top:calc(45% - var(--pkw) * .74 - 64px);margin:0;text-align:center;
+.pk-msg{position:absolute;z-index:4;left:16px;right:16px;top:calc(45% - var(--pkw) * .86 - 60px);margin:0;text-align:center;
   font-size:var(--t-3);color:var(--ink-2);text-wrap:balance}
 .pk-msg b{color:var(--ink);margin-right:4px}
 /* The caption over each card as it is dealt, "#3 RB · Signature" (.deal, packdeal.js): headline
@@ -47,12 +38,19 @@ body.pk-open{overflow:hidden}
 .pk-center .pack-glow{--pkd:20px;transform:rotateX(var(--prx, 6deg)) rotateY(var(--pry, -22deg));transition:transform var(--dur-pop) var(--spring-pop)}
 .pk-drag .pk-center .pack-glow{transition:none}
 .pk-aim:not(.pk-drag) .pk-center .pack-glow{transition:transform .5s cubic-bezier(.25,1,.5,1)}
-/* A touch larger than the cards inside it, as a real pack is (2026-09-26: it was smaller). */
-.pk-center .pack-seal{width:calc(var(--pkw) * 1.06);height:calc(var(--pkw) * 1.48);perspective:700px}
-.pk-hint{position:absolute;z-index:4;left:16px;right:16px;top:calc(45% + var(--pkw) * .74 + 26px);margin:0;text-align:center;
+/* Larger than the cards inside it, as a real pack is: 1.06x the card on 2026-09-26, 1.22x since
+   2026-09-27 (~255px wide on a 360px phone), so the pack is the thing on the screen. */
+.pk-center .pack-seal{width:calc(var(--pkw) * 1.22);height:calc(var(--pkw) * 1.7);perspective:700px}
+.pk-hint{position:absolute;z-index:4;left:16px;right:16px;top:calc(45% + var(--pkw) * .85 + 22px);margin:0;text-align:center;
   font-family:var(--mono);font-size:var(--t-1);letter-spacing:.14em;color:var(--ink-3)}
 @media (prefers-reduced-motion:no-preference){ .pk-hint{animation:pk-blink 1.4s ease-in-out infinite alternate} }
 @keyframes pk-blink{to{opacity:.35}}
+/* The best card's reveal cannot be hurried (packshow.js pkHurry), so it does not offer to be. */
+.pk-dim .pk-hint,.pk-home .pk-hint{animation:none;opacity:0;transition:opacity .3s var(--ease)}   /* the blink's opacity would win otherwise */
+/* The pile's count, over the pile, going up as each card lands in it: the only place the pack's
+   size shows (2026-09-27). */
+.pk-count{position:absolute;z-index:4;left:0;right:0;bottom:calc(18px + var(--pkw) * .42 + 10px);margin:0;text-align:center;
+  font-family:var(--mono);font-size:var(--t-1);letter-spacing:.14em;color:var(--ink-3)}
 
 /* A card on the stage: a wrapper centred by its margins, placed by translate, scale and rotate
    (packdeal.js pkMove), with perspective for the turn. Inside, .pk-inner turns in 3D with two faces
@@ -129,7 +127,7 @@ body.pk-open{overflow:hidden}
 
 /* Home: the stage fades to the roster; only the flying cards stay. */
 .pk-home{pointer-events:none}
-.pk-home :is(.pk-back,.pk-rays,.pk-msg,.pk-hint,.pk-close,.pk-light,.pk-floor){opacity:0;transition:opacity .5s var(--ease)}
+.pk-home :is(.pk-back,.pk-rays,.pk-msg,.pk-hint,.pk-close,.pk-count){opacity:0;transition:opacity .5s var(--ease)}
 /* A slot waiting for its card: kept in place so the grid does not move, invisible until it lands. */
 .tc.pk-slot{visibility:hidden}
 

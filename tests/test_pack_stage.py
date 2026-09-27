@@ -21,6 +21,10 @@ def test_rip_again_is_over_the_cards_and_the_switch_holds_still(browser, page_fi
     page.click(".pack .pack-seal")
     rip(page)
     page.wait_for_selector(".pk-stage", state="detached")
+    page.wait_for_timeout(100)
+    # The page stays on the cards that just landed (2026-09-27: closing the stage threw it to the top).
+    top = page.evaluate("document.querySelector('#view .cards').getBoundingClientRect().top")
+    assert page.evaluate("scrollY") > 0 and top < page.viewport_size["height"] / 2, top
     assert page.locator(".cards .rule [data-rerip]").count() == 1
     assert page.locator(".rmode [data-rerip]").count() == 0
     in_cards = chips(page)
@@ -46,6 +50,24 @@ def test_a_drag_on_the_pack_turns_it_and_it_springs_back(browser, page_file):
     assert turned > 10, "the pack turns with the drag"
     assert page.evaluate("document.querySelector('.pk-center').style.getPropertyValue('--pry')") == "", "and springs back"
     assert page.locator(".pk-stage .pack-seal").count() == 1, "a drag on the body does not rip"
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_a_tap_does_not_hurry_the_best_cards_reveal(browser, page_file):
+    """2026-09-27: the last card is the payoff; a tap during it changes nothing."""
+    ctx, page, errors = motion_page(browser, page_file)
+    try:
+        page.wait_for_selector(".pk-stage", timeout=2000)
+    except Exception:
+        pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
+    rip(page)
+    page.wait_for_selector(".pk-stage.pk-dim", timeout=30000)
+    page.mouse.click(20, 400)
+    rates = page.evaluate("""document.querySelector('.pk-stage').getAnimations({subtree: true})
+      .filter(a => a.effect.getTiming().iterations !== Infinity).map(a => a.playbackRate)""")
+    assert rates and all(r == 1 for r in rates), rates
     assert errors == []
     ctx.close()
 

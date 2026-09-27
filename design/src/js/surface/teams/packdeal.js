@@ -33,7 +33,7 @@ async function pkTurn(S, el, big){
     const a = pkAnim(S, inner, [
       {rotate: "y 180deg", scale: "1"},
       {rotate: "y 90deg", scale: big ? "1.12" : "1.07", offset: .45},
-      {rotate: "y 0deg", scale: "1"}], {duration: big ? 700 : 480, easing: pkSpring(el), fill: "forwards"});
+      {rotate: "y 0deg", scale: "1"}], {duration: big ? 700 : 560, easing: pkSpring(el), fill: "forwards"});
     await a.finished;
     a.cancel();
   }
@@ -76,6 +76,7 @@ async function pkToPile(S, el, k){
     a.cancel();
   }
   Object.assign(el.style, to);
+  if (!S.skip) S.st.querySelector(".pk-count").textContent = t("teams.pack.count", {n: k + 1});
 }
 
 /* The first card comes out of the pack (2026-09-25; the pack used to fade and the cards appear
@@ -120,14 +121,13 @@ async function pkDeal(S){
     if (last){ await pkHero(S, el, c); break; }
     await pkSleep(S, 70);
     await pkTurn(S, el, false);
-    pkLight(S, cardTier(c.rank));                 // the room takes the card's tier colour
     // The label once the face has settled, never while it is still face down.
     await pkSleep(S, 40);
     // .deal: a card's caption is a headline; the intro sentence the slot held before stays body size.
     if (!S.skip){ const m = S.st.querySelector(".pk-msg"); m.classList.add("deal"); m.innerHTML = pkLabel(c); }
     await pkSign(S, el);
-    await pkSleep(S, 480);
-    pkLight(S, null);
+    // Held face up long enough to read (2026-09-27: 0.5s read as rushed); a tap still hurries it.
+    await pkSleep(S, 1000);
     await pkToPile(S, el, k);
   }
 }
@@ -138,6 +138,8 @@ async function pkDeal(S){
    and a sheen across its face, and a second fall of foil from above. */
 const PK_CHARGE = 1100;
 async function pkHero(S, el, c){
+  S.hero = true;                                 // taps wait until its line is up (packshow.js pkHurry)
+  S.rush = false;
   S.st.classList.add("pk-dim", `pk-best-${S.best}`);
   S.st.querySelector(".pk-msg").innerHTML = "";
   el.insertAdjacentHTML("beforeend", `<i class="pk-aura"></i><span class="pk-ring"><i></i></span><span class="pk-sheen"></span>`);
@@ -171,7 +173,6 @@ async function pkHero(S, el, c){
   el.classList.remove("pk-turning");
   ring.classList.add("lit");
   orbit?.updatePlaybackRate(1.2);                 // two lines at an even pace once it is face up
-  pkLight(S, S.best);
   if (!S.skip){
     el.querySelector(".pk-sheen").classList.add("go");
     pkAnim(S, aura, [{opacity: .9}, {opacity: .45}], {duration: 1200, direction: "alternate", iterations: Infinity, easing: "ease-in-out"});
@@ -182,37 +183,8 @@ async function pkHero(S, el, c){
   await pkSign(S, el);
   const top = S.cards[S.cards.length - 1];
   S.st.querySelector(".pk-msg").innerHTML = t("teams.pack.done", {name: esc(nameInitial(top.p.n)), rank: top.rank, pos: esc(top.p.pos)});
-  // Long enough to read the line above it (it was 1.5s); a tap anywhere goes on sooner. A tap that
-  // hurried the reveal does not also skip the line.
-  S.rush = false;
+  // Long enough to read the line above it (it was 1.5s); a tap anywhere goes on sooner, and only
+  // from here: the reveal itself cannot be hurried.
+  S.hero = false;
   await Promise.race([pkSleep(S, 3000), new Promise(r => S.st.addEventListener("click", r, {once: true}))]);
-}
-
-/* The stage fades to the roster and every card flies from where it is into its empty slot. The
-   best card, in the centre, goes first and the pile follows it 60ms apart (2026-09-25): it went
-   last, after every pile card's stagger, and read as a card stuck on the screen. */
-const PK_HOME_STEP = 45;
-async function pkHome(S){
-  S.homing = true; S.rush = false;
-  S.st.classList.add("pk-home");
-  const view = document.getElementById("view");
-  view.querySelector(".cards")?.scrollIntoView({block: "start", behavior: "instant"});
-  window.scrollBy(0, -90);
-  await pkSleep(S, 200);
-  await Promise.all(S.shown.map(async (el, k) => {
-    const slot = view.querySelector(`.cards .tc[data-pk="${k}"]`);
-    if (slot && !S.skip){
-      // Centres from the boxes (a leaning card's box is wider than the card; its centre is not
-      // moved), the width from the layout, so the lean does not skew the scale. It straightens on the way.
-      const a = el.getBoundingClientRect(), b = slot.getBoundingClientRect();
-      const [tx, ty] = (el.style.translate || "0 0").split(" ").map(parseFloat);
-      await pkSleep(S, k === S.shown.length - 1 ? 0 : (k + 1) * PK_HOME_STEP);
-      await pkMove(S, el, {translate: `${tx + (b.left + b.width / 2) - (a.left + a.width / 2)}px ${ty + (b.top + b.height / 2) - (a.top + a.height / 2)}px`,
-        scale: String(b.width / el.offsetWidth), rotate: "0deg"}, 520, "cubic-bezier(.3,.7,.25,1)");
-    }
-    slot?.classList.remove("pk-slot");
-    el.remove();
-  }));
-  layerDone("pack");
-  pkClose(S);
 }

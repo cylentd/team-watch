@@ -1,6 +1,7 @@
 /* The week's pack (2026-09-25): once per league per week, the Cards view holds a sealed pack of the
-   players who rank in the top 12 at their position this week (cards.js cardTier "ur" and up), so
-   how many cards it holds is itself the news. Opening is remembered in localStorage, which can
+   players who rank in the top 12 at their position this week (cards.js cardTier "ur" and up). How
+   many it holds is news too, so since 2026-09-27 nothing says it before the rip (a "1 card" pack
+   gave the week away); the stage counts the cards up as they land in the pile. Opening is remembered in localStorage, which can
    refuse: then the pack simply shows again next load.
 
    The first time the Cards view draws an unopened pack in a page load, the pack opens on its own
@@ -41,7 +42,7 @@ function packReplayable(team){
    art is drawn as SVG so it scales with the pack: the brand's // as two lime stripes across it,
    faint yard lines, and the week's number, huge and embossed under a small WEEK (a printed
    "WEEK 3" line as well said it twice). The logo at the top, its // the header's two bars, which
-   cross into an X as the pack opens; the card count in a round holo badge, the season up the side.
+   cross into an X as the pack opens, and the season up the side. No card count (2026-09-27).
    Under the strip is the pack's open mouth, dark with the cards' top edges, so a tear shows an
    opening rather than more foil. The glow is the best tier: how good, never who. */
 function packArtSVG(wk){
@@ -62,7 +63,6 @@ function packSealHTML(team, wk, cards){
       <span class="pack-foil">${packArtSVG(wk)}<i class="pack-bulge"></i></span>
       <span class="pack-top"><i class="pt-mouth"></i><i class="pt-base"></i><i class="pt-flap"></i><i class="pt-edge"></i></span>
       <b>TEAM<i class="slashes" aria-hidden="true"><b></b><b></b></i>WATCH</b>
-      <span class="pack-n">${cards.length}<small>${t("teams.pack.cards")}</small></span>
       <span class="pack-side">${t("teams.pack.side", {season: packSeason()})}</span>
     </button></div>`;
 }
@@ -77,7 +77,7 @@ function packHTML(team){
   const wk = schedWeek(), cards = packCards(team);
   if (!wk || !cards.length || packOpened(team, wk) || packShowing()) return "";
   return `<div class="pack" data-pack="${wk}">
-    <p class="pack-msg">${t("teams.pack.lead", {wk, n: cards.length})}</p>
+    <p class="pack-msg">${t("teams.pack.lead", {wk})}</p>
     ${packSealHTML(team, wk, cards)}
     <p class="pack-hint">${t("teams.pack.tapOpen")}</p>
   </div>`;

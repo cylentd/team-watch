@@ -16,7 +16,7 @@
    glow behind it is pushed back in depth instead of down a z-index. On the page it stands at a
    lean so the depth shows; the stage turns it with the hand (packshow.css). */
 .pack-glow{--pkd:10px;transform-style:preserve-3d}
-.pack-seal{translate:0 0 calc(var(--pkd) / 2)}
+.pack-seal{translate:0 0 calc(var(--pkd) / 2);backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .pack-rear,.pack-wall{position:absolute;pointer-events:none}
 .pack-rear{inset:0;translate:0 0 calc(var(--pkd) / -2);rotate:y 180deg;backface-visibility:hidden;-webkit-backface-visibility:hidden;
   background:
@@ -83,8 +83,8 @@
 .pa-slash{fill:rgb(var(--void-rgb) / .28);stroke:rgb(var(--lime-rgb) / .55);stroke-width:.35}
 .pa-wk{font-family:var(--disp);font-weight:800;letter-spacing:-.04em;fill:rgb(var(--ink-rgb) / .06);stroke:rgb(var(--ink-rgb) / .38);stroke-width:.45}
 .pa-wl{font-family:var(--mono);font-weight:700;letter-spacing:.35em;fill:rgb(var(--ink-rgb) / .55)}
-/* The print: the logo under the strip, the count in a holo badge, the season up the side. */
-.pack-seal > b,.pack-n,.pack-side{position:absolute;z-index:1}
+/* The print: the logo under the strip, the season up the side. */
+.pack-seal > b,.pack-side{position:absolute;z-index:1}
 .pack-seal > b{left:0;right:0;top:19%;text-align:center;font-family:var(--disp);font-weight:800;font-size:var(--t-5);line-height:1;
   text-shadow:0 1px 2px rgb(var(--shadow-rgb) / .6)}
 /* Its // is the header's two lime bars (chrome/motion.css), crossing into an X as the pack opens. */
@@ -92,13 +92,8 @@
 .pack-seal > b .slashes b{display:block;width:.1em;height:100%;background:var(--lime);transform:rotate(22deg)}
 .pack-seal > b .slashes.morph b:first-child{animation:slash-a .72s var(--ease) both}
 .pack-seal > b .slashes.morph b:last-child{animation:slash-b .72s var(--ease) both}
-.pack-n{right:9%;bottom:10%;width:46px;aspect-ratio:1;border-radius:50%;display:grid;place-content:center;text-align:center;
-  font-family:var(--disp);font-weight:800;font-size:var(--t-4);line-height:.9;color:var(--ink);background:rgb(var(--void-rgb) / .72);
-  box-shadow:0 0 0 2px var(--void),0 0 0 3.5px var(--holo-2)}
-.pack-n small{font-family:var(--mono);font-weight:700;font-size:var(--t-1);letter-spacing:.08em;color:var(--ink-3);transform:scale(.8)}
 .pack-side{left:5px;top:50%;writing-mode:vertical-rl;rotate:180deg;translate:0 -50%;white-space:nowrap;
   font-family:var(--mono);font-size:var(--t-1);letter-spacing:.24em;color:var(--ink-3);opacity:.7}
-@container (min-height:270px){ .pack-n{width:58px} }
 /* The strip tears where the finger is (pack.js wireRip): the torn stretch, --ta to --tb, is a flap
    that lifts at the finger (--te, going --tdir), the rest stays on either side, and a lit edge marks
    the tear. It is the same foil as the pack, ridged like a heat seal, with a line of perforations
@@ -148,6 +143,7 @@
    filter, repainted every frame, which with the sway made the pack stutter (2026-09-25). */
 .pack-glow{position:relative;width:max-content;margin:0 auto}
 .pack-glow::before{content:"";position:absolute;inset:calc(var(--glow-r, 0px) * -1.6);translate:0 0 -30px;border-radius:18px;pointer-events:none;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;   /* turned past 90°, it would sit in front of the back */
   background:radial-gradient(closest-side,var(--glow, transparent) 55%,transparent);opacity:.75}
 .pack-glow.tease-ur{--glow:rgb(var(--gold-2-rgb) / .55);--glow-r:10px}
 .pack-glow.tease-sig{--glow:rgb(var(--epic-2-rgb) / .7);--glow-r:14px}
