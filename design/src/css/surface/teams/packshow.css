@@ -35,7 +35,7 @@ body.pk-open{overflow:hidden}
    reader as the first card rises out of it. It no longer sways by itself on a phone (2026-09-25): nothing to hold, and the reader
    saw a dark box swinging across the foil as it swayed. */
 .pk-center{position:absolute;z-index:3;left:50%;top:45%;translate:-50% -50%;perspective:900px}
-.pk-center .pack-glow{--pkd:36px;transform:rotateX(6deg) rotateY(var(--pry, -22deg));transition:transform var(--dur-pop) var(--spring-pop)}
+.pk-center .pack-glow{--pkd:14px;transform:rotateX(6deg) rotateY(var(--pry, -22deg));transition:transform var(--dur-pop) var(--spring-pop)}
 .pk-drag .pk-center .pack-glow{transition:none}
 /* The tier glow stays behind the pack as it spins (2026-09-27): drawn on the turning pack, it
    was a plane that showed edge-on as a coloured line beside the pack's side. */

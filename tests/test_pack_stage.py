@@ -60,14 +60,14 @@ def test_an_empty_pack_still_opens_and_says_so(browser, page_file, motion):
 
 
 @pytest.mark.render
-def test_the_packs_edge_slices_are_never_clipped(browser, page_file):
-    """2026-09-27: a clip-path on the 12 edge slices dropped the spin to 16 fps on a throttled CPU
-    (53 without). The edge narrows by slice height instead."""
+def test_the_packs_side_seams_are_never_clipped(browser, page_file):
+    """2026-09-27: a clip-path on the pack's turned edge slices dropped the spin to 16 fps on a
+    throttled CPU (53 without). The side seams are shaped by border-radius instead."""
     ctx, page, errors = cards_page(browser, page_file, keep_stage=True)
     if page.locator(".pk-stage").count() == 0:
         pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
     clips = page.evaluate("[...document.querySelectorAll('.pk-stage .pack-wall')].map(w => getComputedStyle(w).clipPath)")
-    assert len(clips) == 12 and set(clips) == {"none"}, clips
+    assert len(clips) == 2 and set(clips) == {"none"}, clips
     assert errors == []
     ctx.close()
 

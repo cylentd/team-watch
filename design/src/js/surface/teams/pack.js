@@ -67,7 +67,6 @@ function packArtSVG(wk){
 const PACK_CREASES = "M18 5L24 22M34 5L33 17M52 5L57 19M70 5L66 21M86 5L80 18"
   + "M16 135L22 118M36 135L35 122M56 135L61 117M74 135L69 120M88 135L82 121"
   + "M5 44Q26 48 40 64M95 72Q72 80 60 98M8 104Q22 99 32 112M92 30Q80 36 74 48";
-const PACK_EDGE = [0, 1, 2, 3, 4, 5];            // slices per side of the rounded edge (pack.css --n)
 function packRearHTML(){
   return `<span class="pack-rear" aria-hidden="true"><i class="pack-bulge"></i><i class="pr-fin"></i>
     <svg class="pr-creases" viewBox="0 0 100 140" preserveAspectRatio="none"><path class="dip" d="${PACK_CREASES}" vector-effect="non-scaling-stroke"/>
@@ -78,10 +77,9 @@ function packRearHTML(){
 }
 function packSealHTML(team, wk, cards){
   const best = packBest(cards);
-  // The rear and the rounded edges give the pack its body (pack.css); only the front is a control.
-  // No wrapper around the slices: an element between them and .pack-glow would flatten them.
-  const edge = side => PACK_EDGE.map(k => `<i class="pack-wall ${side}" style="--k:${k}" aria-hidden="true"></i>`).join("");
-  return `<div class="pack-glow tease-${best}">${packRearHTML()}${edge("l")}${edge("r")}
+  // The rear and the side seams give the pack its body (pack.css); only the front is a control.
+  // No wrapper around the seams: an element between them and .pack-glow would flatten them.
+  return `<div class="pack-glow tease-${best}">${packRearHTML()}<i class="pack-wall l" aria-hidden="true"></i><i class="pack-wall r" aria-hidden="true"></i>
     <button class="pack-seal" type="button" aria-label="${t("teams.pack.open")}">
       <span class="pack-foil">${packArtSVG(wk)}<i class="pack-bulge"></i></span>
       <span class="pack-top"><i class="pt-mouth"></i><i class="pt-base"></i><i class="pt-flap"></i><i class="pt-edge"></i></span>

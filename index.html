@@ -1007,13 +1007,13 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .pack-seal{position:relative;display:block;width:200px;height:280px;margin:0 auto;padding:0;border:0;cursor:pointer;
   color:var(--ink);font:inherit;background:none;container-type:size}
 /* A pack with a body (2026-09-26, "like an actual booster pack"): the front (.pack-seal) and a back
-   (.pack-rear) stand --pkd apart in one 3D context, joined along each side by a rounded edge
-   (.pack-wall, 2026-09-27: it was one flat wall and the turned pack read as a sheet). The
+   (.pack-rear) stand --pkd apart in one 3D context, joined along each side by a seam
+   (.pack-wall). The
    wrapper keeps the context, so it carries no isolation, filter or opacity, any of which would
    flatten the pack to one plane; the glow behind it is pushed back in depth instead of down a
    z-index. On the page it stands at a lean so the depth shows; the stage turns it with the hand
    (packshow.css). */
-.pack-glow{--pkd:18px;transform-style:preserve-3d}
+.pack-glow{--pkd:10px;transform-style:preserve-3d}
 .pack-seal{translate:0 0 calc(var(--pkd) / 2);backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .pack-rear,.pack-wall{position:absolute;pointer-events:none}
 /* The back (2026-09-27, it was flat dark plastic beside a holo front): the same foil and pillow
@@ -1049,21 +1049,19 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .pr-code{right:12%;bottom:11%;width:26%;height:7%;border-radius:2px;
   background:repeating-linear-gradient(90deg,var(--void) 0 1px,transparent 1px 3px,var(--void) 3px 5px,transparent 5px 6px,var(--void) 6px 7px,transparent 7px 10px) 3px 3px/calc(100% - 6px) calc(100% - 6px) no-repeat,
     rgb(var(--ink-rgb) / .8)}
-/* The rounded edge: --n slices on each side, each turned a step further round a half circle of
-   radius --pkd / 2 whose ends meet the front and the back, so the side bulges like a stuffed pack.
-   Foil like the rest of the wrapper (2026-09-27; it was dark panel): the same iridescent bands, each
-   slice showing a different stretch of them so the edge shimmers as it turns, under a shade for how
-   far the slice faces away from the front (cos of its turn). It narrows toward the crimps by its
-   outer slices being shorter (sin of the turn), never by a clip-path: clipped, the twelve slices
-   dropped the spin to 16 frames a second on a throttled CPU, against 53 without. */
-.pack-wall{--n:6;--r:calc(var(--pkd) / 2);--a:calc((var(--k) + .5) * 180deg / var(--n));--w:calc(var(--r) * 2 * sin(90deg / var(--n)) + 1px);
-  --cut:calc(3% + 4% * sin(var(--a)));
-  top:var(--cut);bottom:var(--cut);width:var(--w);left:calc(100% - var(--w) / 2);
-  transform:rotateY(var(--a)) translateZ(var(--r));
-  --dim:rgb(var(--shadow-rgb) / calc(.5 + .25 * (1 - cos(var(--a)))));
-  background:linear-gradient(var(--dim),var(--dim)),
-    linear-gradient(180deg,var(--holo-1),var(--holo-2) 30%,var(--holo-1) 55%,var(--holo-2) 80%,var(--holo-1)) 0 calc(var(--k) * 14%)/100% 300%}
-.pack-wall.l{left:calc(var(--w) / -2);transform:rotateY(calc(var(--a) * -1)) translateZ(var(--r))}
+/* The side seam: one per side, the sealed fold of the wrapper (2026-09-27, third try). A real pack
+   is thin at the sides; its stuffed look is the face bulging, which the face shading carries. A
+   thick edge of any shape read as a book's spine: a flat 20px wall, then a 36px rounded edge of
+   12 slices. So the side is a narrow foil band, the crimp's ridges running across it, a fold line
+   down its middle, pinched at both ends. Never a clip-path on a turned slice: it cost a
+   throttled CPU two thirds of its frames. */
+.pack-wall{top:3%;bottom:3%;width:var(--pkd);left:calc(100% - var(--pkd) / 2);transform:rotateY(90deg);border-radius:50% / 5%;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;   /* the far seam, seen from inside, drew as an outline */
+  background:repeating-linear-gradient(0deg,rgb(var(--ink-rgb) / .1) 0 1px,transparent 1px 3px),
+    linear-gradient(90deg,rgb(var(--shadow-rgb) / .55),transparent 35%,rgb(var(--ink-rgb) / .14) 50%,transparent 65%,rgb(var(--shadow-rgb) / .55)),
+    linear-gradient(rgb(var(--shadow-rgb) / .45),rgb(var(--shadow-rgb) / .45)),
+    linear-gradient(180deg,var(--holo-1),var(--holo-2) 30%,var(--holo-1) 55%,var(--holo-2) 80%,var(--holo-1))}
+.pack-wall.l{left:calc(var(--pkd) / -2);transform:rotateY(-90deg)}
 .pack .pack-glow{transform:rotateX(5deg) rotateY(-16deg)}
 .pack{perspective:900px}
 /* The pillow: the foil bulges, so its sides fall into shadow, a highlight runs down it where the
@@ -1237,7 +1235,7 @@ body.pk-open{overflow:hidden}
    reader as the first card rises out of it. It no longer sways by itself on a phone (2026-09-25): nothing to hold, and the reader
    saw a dark box swinging across the foil as it swayed. */
 .pk-center{position:absolute;z-index:3;left:50%;top:45%;translate:-50% -50%;perspective:900px}
-.pk-center .pack-glow{--pkd:36px;transform:rotateX(6deg) rotateY(var(--pry, -22deg));transition:transform var(--dur-pop) var(--spring-pop)}
+.pk-center .pack-glow{--pkd:14px;transform:rotateX(6deg) rotateY(var(--pry, -22deg));transition:transform var(--dur-pop) var(--spring-pop)}
 .pk-drag .pk-center .pack-glow{transition:none}
 /* The tier glow stays behind the pack as it spins (2026-09-27): drawn on the turning pack, it
    was a plane that showed edge-on as a coloured line beside the pack's side. */
@@ -7136,7 +7134,6 @@ function packArtSVG(wk){
 const PACK_CREASES = "M18 5L24 22M34 5L33 17M52 5L57 19M70 5L66 21M86 5L80 18"
   + "M16 135L22 118M36 135L35 122M56 135L61 117M74 135L69 120M88 135L82 121"
   + "M5 44Q26 48 40 64M95 72Q72 80 60 98M8 104Q22 99 32 112M92 30Q80 36 74 48";
-const PACK_EDGE = [0, 1, 2, 3, 4, 5];            // slices per side of the rounded edge (pack.css --n)
 function packRearHTML(){
   return `<span class="pack-rear" aria-hidden="true"><i class="pack-bulge"></i><i class="pr-fin"></i>
     <svg class="pr-creases" viewBox="0 0 100 140" preserveAspectRatio="none"><path class="dip" d="${PACK_CREASES}" vector-effect="non-scaling-stroke"/>
@@ -7147,10 +7144,9 @@ function packRearHTML(){
 }
 function packSealHTML(team, wk, cards){
   const best = packBest(cards);
-  // The rear and the rounded edges give the pack its body (pack.css); only the front is a control.
-  // No wrapper around the slices: an element between them and .pack-glow would flatten them.
-  const edge = side => PACK_EDGE.map(k => `<i class="pack-wall ${side}" style="--k:${k}" aria-hidden="true"></i>`).join("");
-  return `<div class="pack-glow tease-${best}">${packRearHTML()}${edge("l")}${edge("r")}
+  // The rear and the side seams give the pack its body (pack.css); only the front is a control.
+  // No wrapper around the seams: an element between them and .pack-glow would flatten them.
+  return `<div class="pack-glow tease-${best}">${packRearHTML()}<i class="pack-wall l" aria-hidden="true"></i><i class="pack-wall r" aria-hidden="true"></i>
     <button class="pack-seal" type="button" aria-label="${t("teams.pack.open")}">
       <span class="pack-foil">${packArtSVG(wk)}<i class="pack-bulge"></i></span>
       <span class="pack-top"><i class="pt-mouth"></i><i class="pt-base"></i><i class="pt-flap"></i><i class="pt-edge"></i></span>
