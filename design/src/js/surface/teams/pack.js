@@ -72,6 +72,8 @@ function packRearHTML(){
   return `<span class="pack-rear" aria-hidden="true"><i class="pack-bulge"></i><i class="pr-fin"></i>
     <svg class="pr-creases" viewBox="0 0 100 140" preserveAspectRatio="none"><path class="dip" d="${PACK_CREASES}" vector-effect="non-scaling-stroke"/>
       <path class="rise" d="${PACK_CREASES}" transform="translate(.6 .4)" vector-effect="non-scaling-stroke"/></svg>
+    <svg class="pr-mark" viewBox="0 0 40 40"><circle class="ring" cx="20" cy="20" r="18.5"/><circle class="in" cx="20" cy="20" r="15"/>
+      <path class="bars" d="M13.5 29.5L20 10.5h3.4l-6.5 19zM20.6 29.5l6.5-19h3.4l-6.5 19z"/></svg>
     <b>TEAM<i>//</i>WATCH</b><small>${t("teams.pack.backLine", {season: packSeason()})}</small><i class="pr-code"></i></span>`;
 }
 function packSealHTML(team, wk, cards){
