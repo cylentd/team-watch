@@ -152,13 +152,17 @@ function galGroupName(w){
 /* A below-the-bar card is never the star. */
 const bestCard = cards => cards.reduce((a,c) => !c.low && (!a || c.metric > a.metric) ? c : a, null);
 
-/* One card per window x scope with at least two legs, deduped (mix often reproduces yards or
+/* An Underdog slip with a receptions leg needs three legs: the lower-65% rule hit 55.9% on 2024
+   (ff-jarvis 12.56), above a 3-leg 6x's 55.0% break-even and below a 2-leg 3x's 57.7%. */
+const minLegs = (book, legs) => book === "underdog" && legs.some(i => PROPS[i].mkt === "RECS") ? 3 : 2;
+/* One card per window x scope with at least minLegs legs, deduped (mix often reproduces yards or
    tds exactly). No whole-slate card -- that would reintroduce the cross-date bug this fixes.
    Computed once per book: PROPS never mutates, and toggling the cart must not re-roll the
    gallery. Both books' galleries are built up front so switching PARLAY_BOOK is instant. */
 function buildGallery(book){
   const scopes = galleryScopes(book).filter(([k]) => k !== "all");
   const metric = legMetric(book);
+  const short = legs => legs.length < minLegs(book, legs);
   const out = [], seen = new Set();
   /* A near copy is a copy (2026-09-25): a slip of 3 or more that shares all but one leg with a
      kept slip of its own kind is dropped (a 3-pick inside a 5-pick is a different bet: 6x, not
@@ -184,8 +188,8 @@ function buildGallery(book){
       .map(legs => { seen.add(`qb:${legs[0]}`); return card(s, label, w, legs, false); });
     let legs = bestSlipIn(s, w, book), low = false;
     if (s === "long") return legs.length >= 4 ? [card(s, label, w, legs, false)] : [];
-    if (legs.length < 2){ legs = slipFrom(legLowInBook, s, w, book); low = true; }
-    return legs.length < 2 ? [] : [card(s, label, w, legs, low)];
+    if (short(legs)){ legs = slipFrom(legLowInBook, s, w, book); low = true; }
+    return short(legs) ? [] : [card(s, label, w, legs, low)];
   });
   const windows = GAL_GROUPS.filter(g => !g.wins);
   windows.forEach(w => windowCards(w).forEach(add));
@@ -197,7 +201,7 @@ function buildGallery(book){
     const bar = Math.max(-Infinity, ...out.filter(c => d.wins.includes(c.win.k) && !c.low).map(c => c.metric));
     const top = bestCard(scopes.filter(([s]) => s !== "stack").map(([s, label]) => {
       const legs = bestSlipIn(s, d, book);
-      return legs.length >= (s === "long" ? 4 : 2) ? card(s, label, d, legs, false) : null;
+      return (s === "long" ? legs.length >= 4 : !short(legs)) ? card(s, label, d, legs, false) : null;
     }).filter(Boolean));
     if (top && top.metric > bar && (book !== "underdog" || top.metric >= 1.25)) add(top);
   });

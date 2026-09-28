@@ -217,6 +217,17 @@ def test_a_near_copy_slip_is_dropped(browser, page_file):
     ctx.close()
 
 
+def test_an_underdog_receptions_slip_has_three_legs(browser, page_file):
+    """Receptions lower at 65%+ hit 55.9% on 2024 (ff-jarvis 12.56): a 3-leg 6x clears, a 2-leg 3x
+    does not (2026-09-27)."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    two = page.evaluate("""GALLERIES.underdog.filter(c => c.scope !== 'stack' && c.legs.length < 3
+        && c.legs.some(i => PROPS[i].mkt === 'RECS')).map(c => c.legs.map(i => PROPS[i].n))""")
+    assert two == []
+    assert errors == []
+    ctx.close()
+
+
 def test_the_typed_payout_decides_the_verdict(browser, page_file):
     """The sheet takes the multiplier the Underdog app quotes (2026-09-25): it starts at the
     standard board, the verdict follows what is typed without the field losing focus, and the
