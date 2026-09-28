@@ -68,6 +68,7 @@ surface/digest/bodies.css
 surface/digest/wall.css
 surface/league/league.css
 surface/league/back.css
+surface/league/front.css
 surface/league/records.css
 surface/league/pages.css
 surface/chat/chat.css

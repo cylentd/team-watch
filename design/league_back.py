@@ -34,10 +34,36 @@ def slim_box(b):
             "left": [mistake(left.get("a")), mistake(left.get("b"))]}
 
 
-def enrich_weeks(weeks, box, recap):
+FLOP = 0.5   # a pictured player under half the projection is drawn faded, like an OUT headshot
+
+
+def photo_of(b, name, slugify):
+    """The lead's photo: {name, slug, pts, flop} for `name` among the box's starters and benches, or None.
+    `flop` fades the headshot: at most zero, or under FLOP of the projection."""
+    if not b or not name:
+        return None
+    people = [s[k] for s in b["slots"] for k in ("a", "b") if s.get(k)] + [p for k in ("a", "b") for p in (b.get("bench") or {}).get(k) or []]
+    p = next((x for x in people if x.get("name") == name), None)
+    if not p or p.get("pts") is None:
+        return None
+    proj = p.get("proj") or 0
+    return {"name": name, "slug": slugify(name), "pts": p["pts"], "flop": p["pts"] <= 0 or (proj > 0 and p["pts"] < FLOP * proj)}
+
+
+def _lead_key(wk, said):
+    """The roast's lead game, or the week's biggest margin when the roast named none (weeks written
+    before 2026-09-27) or skipped the week."""
+    keys = {f"{g['a']}-{g['b']}" for g in wk["games"]}
+    if said in keys:
+        return said
+    g = max(wk["games"], key=lambda g: abs(g["ap"] - g["bp"]))
+    return f"{g['a']}-{g['b']}"
+
+
+def enrich_weeks(weeks, box, recap, slugify=None):
     """league_recap.weeks() rows (every decided week, oldest first), each game with both records after
     that week, its punchline, facts, stamp and box, each week with its headline and dek (None when the roast skipped
-    it) and the bench award."""
+    it), the bench award, the lead game's key and its photo (the player the lead's punch is about)."""
     boxes = {(int(w), g["home"], g["away"]): g for w, gs in ((box or {}).get("weeks") or {}).items() for g in gs}
     words = (recap or {}).get("weeks") or {}
     tally = {}
@@ -58,6 +84,9 @@ def enrich_weeks(weeks, box, recap):
                     best = {"id": tid, "v": m["lost"], "name": m["benched"], "bp": m["bp"], "started": m["started"], "sp": m["sp"]}
         if best:
             wk["awards"]["bench"] = best
+        wk["lead"] = _lead_key(wk, r.get("lead"))
+        a, b = (int(x) for x in wk["lead"].split("-"))
+        wk["photo"] = photo_of(boxes.get((wk["week"], a, b)), r.get("photo"), slugify) if slugify else None
     return weeks
 
 

@@ -102,6 +102,25 @@ def test_next_grudge_is_the_most_lopsided_pairing(back):
     assert back["grudge"] is None                              # the fixture's pairings met at most twice
 
 
+def test_the_lead_photo_is_found_in_the_box_and_greyed_when_the_player_flopped():
+    from league_back import photo_of
+    p = lambda n, pts, proj: {"name": n, "pts": pts, "proj": proj}
+    box = {"slots": [{"a": p("Josh Allen", 40.82, 22.0), "b": p("DJ Moore", -0.1, 12.0)},
+                     {"a": p("Colston Loveland", 0.0, 7.5), "b": p("Jaxon Smith-Njigba", 12.0, 16.0)}],
+           "bench": {"a": [p("Rico Dowdle", 3.0, 9.0)], "b": []}}
+    slug = lambda n: n.lower().replace(" ", "-")
+    assert photo_of(box, "Josh Allen", slug) == {"name": "Josh Allen", "slug": "josh-allen", "pts": 40.82, "flop": False}
+    assert photo_of(box, "DJ Moore", slug)["flop"] and photo_of(box, "Colston Loveland", slug)["flop"]
+    assert not photo_of(box, "Jaxon Smith-Njigba", slug)["flop"]             # 12 of 16 is a quiet day, not a flop
+    assert photo_of(box, "Rico Dowdle", slug)["flop"]                          # the bench counts too
+    assert photo_of(box, "Nobody", slug) is None and photo_of(None, "Josh Allen", slug) is None
+
+
+def test_every_week_names_its_lead_game(back):
+    for w in back["weeks"]:
+        assert w["lead"] in {f"{g['a']}-{g['b']}" for g in w["games"]}
+
+
 def test_a_private_pair_leaves_the_page_and_draws_without_names():
     from league_back import classify, next_grudge
     rec = lambda w, l, m: {"w": w, "l": l, "t": 0, "m": m}

@@ -36,6 +36,8 @@ const lgIdOf = team => ((LG && team && LG.teams.find(x => x.key === team.key)) |
 /* Today's name for an id. A team that has left the league has no name on the page: ESPN's early
    seasons carry its default "Team <surname>", and the page is public. */
 const lgName = id => { const x = LG && LG.teams.find(tm => tm.id === id); return x ? esc(x.name) : t("league.former"); };
+/* The manager's first name where the league has one (Yahoo, since 2026-09-27), else the team's name. */
+const lgMgr = id => { const x = LG && LG.teams.find(tm => tm.id === id); return x ? esc(x.mgr || x.name) : t("league.former"); };
 
 const lgWeek = () => (LG && LG.weeks.find(w => w.week === LG_WEEK)) || (LG && LG.weeks[LG.weeks.length - 1]) || null;
 

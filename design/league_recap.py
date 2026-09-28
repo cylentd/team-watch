@@ -226,7 +226,7 @@ def live_league_yahoo(season, history, owners, rosters, slugify, box=None, recap
     teams = [{**t, "mgr": mgr(t["id"])} for t in _teams(season, rosters, slugify, "yahoo")]
     block = _block(season, teams, games, champs, fx,
                    min([int(y) for y in pods] + [season["season"]]), "all" if mapped else "season")
-    enrich_weeks(block["weeks"], box, recap)
+    enrich_weeks(block["weeks"], box, recap, slugify)
     add_standings(block["weeks"], [t["id"] for t in block["teams"]])
     add_meets(block["h2h"], games)
     block["classified"] = classify(block["h2h"], private_pairs())

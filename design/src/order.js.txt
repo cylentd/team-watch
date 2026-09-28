@@ -85,6 +85,7 @@ surface/league/history.js
 surface/league/slate.js
 surface/league/back.js
 surface/league/tape.js
+surface/league/lead.js
 surface/league/records.js
 surface/league/myrecap.js
 surface/league/league.js

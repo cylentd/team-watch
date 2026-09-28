@@ -67,10 +67,3 @@ function lgGameHTML(g, id, i){
   </article>`;
 }
 
-/* The story order: the team on screen's game first when there is one (My recap), then the stamped
-   games (the week's blowout and its lowest score), then the rest by margin, biggest first. */
-function lgSlateHTML(w, id){
-  const margin = g => Math.abs(g.ap - g.bp), mine = g => g.a === id || g.b === id;
-  const games = [...w.games].sort((x, y) => (mine(y) - mine(x)) || (!!y.stamp - !!x.stamp) || margin(y) - margin(x));
-  return games.map((g, i) => lgGameHTML(g, id, i)).join("");
-}

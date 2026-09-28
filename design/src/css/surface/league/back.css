@@ -12,14 +12,6 @@
   font-family:var(--tab);font-size:var(--t-5);font-weight:900;line-height:1;text-transform:uppercase}
 .bp-hd span{font-family:var(--ui);font-size:var(--t-1);font-weight:500;text-transform:none;color:var(--ink-3)}
 
-/* the week strip */
-.bp-strip{display:grid;gap:4px}
-.bp-axis{position:relative;height:22px;margin:0 7px;background:linear-gradient(var(--line-2),var(--line-2)) center/100% 1px no-repeat}
-.bp-dot{position:absolute;top:5px;width:12px;height:12px;margin-left:-6px;border-radius:50%;border:2px solid var(--void);background:var(--down)}
-.bp-dot.w{background:var(--up)}
-.bp-dot.me{box-shadow:0 0 0 2px var(--lime);z-index:1}
-.bp-ends{display:flex;justify-content:space-between;gap:8px;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
-.bp-rank{margin:2px 0 0;font-size:var(--t-2);color:var(--ink-2)}
 
 /* the slate */
 .bp-slate{display:grid;gap:8px}
@@ -118,7 +110,6 @@
 /* Arrival, once per new week (league.js drops .bp-in on the first tap): the dots drop onto the
    strip, the cards rise in order, each loser is struck through, then the stamps slam.
    Reduced motion: responsive/motion.css. */
-.bp-in .bp-dot{animation:mi-rise var(--dur-spring) var(--spring) calc(var(--i,0) * var(--enter-step)) backwards}
 .bp-in .bp-game,.bp-in .bp-su{animation:mi-rise var(--dur-spring) var(--spring) calc(var(--i,0) * 70ms) backwards}
 .bp-in .bp-t.lo::after{animation:mi-ink .42s var(--ease) calc(.3s + var(--i,0) * 70ms) backwards}
 .bp-in .bp-stamp{animation:wv-slam var(--dur-stamp) var(--spring-pop) .75s backwards}

@@ -19,9 +19,9 @@ function lgGrudgeLine(id, opp, h, m){
   const lead = h.w > h.l ? id : h.l > h.w ? opp : null;
   // A shutout series is the whole story: nothing else in the line competes with it.
   if (m.length >= 3 && (!h.w || !h.l) && !h.t)
-    return t("league.grudge.never", {lead: `<b>${lgName(lead)}</b>`, other: `<b>${lgName(lead === id ? opp : id)}</b>`, n: m.length});
+    return t("league.grudge.never", {lead: `<b>${lgMgr(lead)}</b>`, other: `<b>${lgMgr(lead === id ? opp : id)}</b>`, n: m.length});
   const run = lgRun(m), hot = run && run[1] >= 2 ? (run[0] === "W" ? id : opp) : null;
-  const at = {lead: `<b>${lgName(lead)}</b>`, other: `<b>${lgName(hot)}</b>`, n: run && run[1]};
+  const at = {lead: `<b>${lgMgr(lead)}</b>`, other: `<b>${lgMgr(hot)}</b>`, n: run && run[1]};
   if (lead && hot && hot !== lead) return t("league.grudge.ownsBut", at);
   if (lead && hot) return t("league.grudge.ownsAnd", at);
   if (lead) return t("league.grudge.owns", at);
@@ -47,14 +47,14 @@ function lgMarginsHTML(id, opp, h, o, m){
   const bars = shown.map(x => `<i class="${x[2] > 0 ? "w" : "l"}" style="--h:${(half * Math.abs(x[2]) / top).toFixed(1)}%"></i>`).join("");
   const yrs = shown.map(x => `<span>'${String(x[0]).slice(2)}</span>`).join("");
   const diff = m.reduce((s, x) => s + x[2], 0);
-  const big = (side, tid) => side && side.big ? `<dt>${t("league.grudge.bigWin", {team: lgName(tid), y: side.big.y, wk: side.big.wk})}</dt><dd>+${lgPts(side.big.v)}</dd>` : "";
+  const big = (side, tid) => side && side.big ? `<dt>${t("league.grudge.bigWin", {team: lgMgr(tid), y: side.big.y, wk: side.big.wk})}</dt><dd>+${lgPts(side.big.v)}</dd>` : "";
   return `<div class="bp-gm">
-      ${up ? `<span class="bp-gmk">${t("league.grudge.wonBy", {team: lgName(id)})}</span>` : ""}
-      <div class="bp-gmp${side}" style="--n:${shown.length}" role="img" aria-label="${t("league.grudge.marginsAria", {n: shown.length, team: lgName(id)})}">${bars}</div>
+      ${up ? `<span class="bp-gmk">${t("league.grudge.wonBy", {team: lgMgr(id)})}</span>` : ""}
+      <div class="bp-gmp${side}" style="--n:${shown.length}" role="img" aria-label="${t("league.grudge.marginsAria", {n: shown.length, team: lgMgr(id)})}">${bars}</div>
       <div class="bp-gmy" style="--n:${shown.length}" aria-hidden="true">${yrs}</div>
-      ${down ? `<span class="bp-gmk">${t("league.grudge.wonBy", {team: lgName(opp)})}</span>` : ""}
+      ${down ? `<span class="bp-gmk">${t("league.grudge.wonBy", {team: lgMgr(opp)})}</span>` : ""}
     </div>
-    <dl class="bp-gfacts"><dt>${t("league.grudge.diff", {team: lgName(diff >= 0 ? id : opp)})}</dt><dd>+${lgPts(Math.abs(diff))}</dd>${big(h, id)}${big(o, opp)}</dl>`;
+    <dl class="bp-gfacts"><dt>${t("league.grudge.diff", {team: lgMgr(diff >= 0 ? id : opp)})}</dt><dd>+${lgPts(Math.abs(diff))}</dd>${big(h, id)}${big(o, opp)}</dl>`;
 }
 
 /* The inside of a grudge card, redrawn alone by its margins toggle (wireLeague). */
@@ -62,7 +62,7 @@ function lgGrudgeCardHTML(id, opp){
   const h = lgH2H(id, opp) || {w: 0, l: 0, t: 0, m: []}, m = h.m || [];
   const body = !m.length ? "" : LG_MARGINS ? lgMarginsHTML(id, opp, h, lgH2H(opp, id), m) : lgChipsHTML(m);
   return `<div class="bp-gcard" data-a="${id}" data-b="${opp}">
-      <div class="bp-gvs"><span>${lgName(id)}</span><b>${h.t ? `${h.w}–${h.l}–${h.t}` : `${h.w}–${h.l}`}</b><span>${lgName(opp)}</span></div>
+      <div class="bp-gvs"><span>${lgMgr(id)}</span><b>${h.t ? `${h.w}–${h.l}–${h.t}` : `${h.w}–${h.l}`}</b><span>${lgMgr(opp)}</span></div>
       <p class="bp-gline">${lgGrudgeLine(id, opp, h, m)}</p>
       ${body}
       ${m.length ? `<button class="bp-open" data-lgmargins aria-pressed="${LG_MARGINS}">${LG_MARGINS ? t("league.grudge.hideMargins") : t("league.grudge.showMargins")}</button>` : ""}

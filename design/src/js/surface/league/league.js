@@ -32,10 +32,12 @@ function wireLeague(v, id, weekHTML){
   const root = v.querySelector(".lg");
   if (!root) return;
   root.addEventListener("click", e => {
-    const b = e.target.closest("[data-lgweek],[data-lgbox],[data-lgmargins]");
+    const b = e.target.closest("[data-lgweek],[data-lgbox],[data-lgmargins],[data-lgsheet]");
     if (!b) return;
     root.querySelector(".bp-in")?.classList.remove("bp-in");
-    if (b.hasAttribute("data-lgmargins")){
+    if (b.dataset.lgsheet){
+      lgOpenGameSheet(lgWeek().games.find(x => lgKey(x) === b.dataset.lgsheet), b);
+    } else if (b.hasAttribute("data-lgmargins")){
       const card = b.closest(".bp-gcard");
       LG_MARGINS = !LG_MARGINS;
       card.outerHTML = lgGrudgeCardHTML(Number(card.dataset.a), Number(card.dataset.b));

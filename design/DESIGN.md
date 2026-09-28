@@ -161,8 +161,9 @@ https://claude.ai/artifact/LBKkjFWgJ1rLZGrKtQ1Fn3. ESPN is David's work league a
 | Headline, dek, per game a punchline, 1-3 facts and a stamp: `claude -p`, R-rated, checked against the facts | ff-jarvis `model.season.league_roast` |
 | Box scores (starters, bench, the one bench mistake per side) | ff-jarvis `model.clients.yahoo_box` |
 | Records after each week, the bench award, meetings, tape fields, the record book | `design/league_back.py` |
-| Masthead, week strip, superlatives | `surface/league/back.js` |
-| Game cards and box scores (the winner's side on the left) | `surface/league/slate.js` |
+| Masthead, superlatives, the page's layout | `surface/league/back.js` |
+| The lead, the briefs, the agate standings, a game's sheet | `surface/league/lead.js` |
+| Game cards (My recap) and box scores (the winner's side on the left) | `surface/league/slate.js` |
 | This week's grudge: series record, one sentence, last meetings as W/L chips | `surface/league/tape.js` |
 | Records tab: trophy case, Hall of Fame, Hall of Shame | `surface/league/records.js` |
 
@@ -196,6 +197,29 @@ bend toward whoever is picked. **Superseded:** the League leaf and Records under
   `data/yahoo_league_managers.json`, keyed like the owner map; the two Crystals carry last initials
   (W., H.). Team names change every season and managers do not, so a record is filed under the manager
   with the team it was then underneath, and former managers keep their records by name.
+
+**This week > League became a newspaper back page, the same day** (storyboard
+https://claude.ai/artifact/5Sj3BRZqyfaVWkvCXCjgFV). David: "not presentable", the right side empty, the
+standings not worth their space. **Superseded:** the standings table, the week strip and the six-card slate above.
+
+| Measure (1440x900, week 2) | Before | After |
+|---|---|---|
+| Page height | 2,959px | ends 865px (week 1: 886px), under the fold |
+| First game starts | 1,023px | 264px |
+| Right column | 91% empty | the briefs |
+
+- **One lead, five briefs** (`surface/league/lead.js`): the lead is the game the roast's headline is
+  about (`lead`, else the biggest margin) with the photo of the player its joke is about (`photo`),
+  greyed like an OUT headshot when the player flopped (at most 0, or under half the projection:
+  `league_back.photo_of`). Briefs are one line of names and scores plus the joke; tapping one opens its
+  facts and box score in the modal, so no card grows.
+- **Managers carry the score lines**, the superlatives, the grudges and the standings; team names appear
+  inside the jokes, where the puns need them.
+- **Standings in agate**: rank, manager, record, two columns of six. No move arrows, no LUCKY/ROBBED.
+- **Private pairs** (`design/league_private.json`): a series a manager asked to hide draws as a
+  Classified grudge every week, names blacked out, no ids in the page.
+- **Fold budget** is pinned by `test_league_back_page_fits_one_desktop_screen`; the phone order is the
+  story, the lead, the briefs, the superlatives, then the grudges and the standings.
 
 - **Voice:** Big Shoulders Display (`--tab`) for the headline, stamps and section heads, in this view
   only. The masthead rule is the league's colour.

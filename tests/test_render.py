@@ -126,7 +126,7 @@ STATES = [
     # teams > My recap for David's team, week 2 (his box open) and week 1.
     ("recap-yahoo", go("recap")),
     ("recap-yahoo-week1", go("recap") + [("click", "[data-lgweek='1']")]),
-    ("recap-yahoo-boxopen", go("recap") + [("click", "[data-lgbox='10-9']")]),
+    ("recap-yahoo-sheet", go("recap") + [("click", "[data-lgsheet='10-9']")]),
     ("records-yahoo", go("records")),
     ("myrecap-yahoo", go("myrecap")),
     ("myrecap-yahoo-week1", go("myrecap") + [("click", "[data-lgweek='1']")]),
@@ -495,6 +495,29 @@ def test_leaders_page_fits_the_screen(browser, page_file, w, h):
         if page.locator(".bd-pager [data-bdpage='2']:not([disabled])").count():
             page.locator(".bd-pager [data-bdpage='2']").click()
             assert page.evaluate(fits)
+    finally:
+        ctx.close()
+
+
+def test_league_back_page_fits_one_desktop_screen(browser, page_file):
+    """This week > League on a 1440x900 screen (storyboard 2026-09-27): the masthead, the lead, the
+    briefs, the grudges, the standings and all six superlatives end above the bottom edge, every week.
+    It ran to 3.3 screens before. On a phone the order is the story, the lead, the briefs, then the rest."""
+    ctx = browser.new_context(viewport={"width": 1440, "height": 900}, reduced_motion="reduce")
+    page = ctx.new_page()
+    page.set_default_timeout(5000)
+    page.route(re.compile(r"^https?://"), lambda route: route.abort())
+    page.add_init_script(SEED)
+    bottom = "Math.max(...[...document.querySelectorAll('.bp2 > *, .bp2-main > *')].map(e => e.getBoundingClientRect().bottom))"
+    try:
+        page.goto(page_file.as_uri() + "#recap")
+        page.wait_for_function("document.getElementById('view').children.length > 0")
+        for wk in page.evaluate("LGS.yahoo.weeks.map(w => w.week)"):
+            page.locator(f"[data-lgweek='{wk}']").click()
+            assert page.evaluate(bottom) <= 900, f"week {wk} runs past the fold"
+        page.set_viewport_size({"width": 360, "height": 740})
+        order = page.evaluate("['.bp2-mast', '.bp2-lead', '.bp2-briefs', '.bp2-sups', '.bp2-under'].map(q => document.querySelector(q).getBoundingClientRect().top)")
+        assert order == sorted(order), order
     finally:
         ctx.close()
 
