@@ -85,9 +85,9 @@
   .dg-row .dg-pad{height:100%;display:flex;flex-direction:column;gap:2px;padding:0 22px 6px}
   .dg-row .dg-foot{margin-top:auto}
 
-  .dg-row[data-dgrow="news"] .dg-pad{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:44px}
-  .dg-row[data-dgrow="news"] .dg-news:nth-last-of-type(2){border-bottom:0}
-  .dg-row[data-dgrow="news"] .dg-foot{grid-column:1 / -1}
+  /* News stays one column on the wall too: two columns read left to right in a list ordered by
+     importance, so nobody could tell which way it ran (2026-09-28). */
+  .dg-row[data-dgrow="news"] .dg-news{max-width:84ch}
 
   .dg-qlines{display:contents}
   .dg-row[data-dgrow="hurt"] .dg-also{display:none}

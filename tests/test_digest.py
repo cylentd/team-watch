@@ -46,6 +46,11 @@ def test_results_cut_to_finals_stars_and_busts():
     assert b["pending"] == 2
     assert [(r["pos"], r["n"], r["actual"]) for r in b["stars"]] == [("QB", "Josh Allen", 24.6), ("RB", "James Cook", 19.4)]
     assert b["busts"][0]["slug"] == slugify("De'Von Achane")
+    assert [(r["n"], r["diff"]) for r in b["smashed"]] == [("Khalil Shakir", 9.7)]
+    # A tagged headline gives the injury; an untagged one loses his name, suffix and all.
+    assert [(r["n"], r["injury"], r["rest"]) for r in b["left"]] == [
+        ("Tua Tagovailoa", "concussion", "ruled out for the remainder"),
+        ("Travis Etienne", None, "exits early Sunday")]
     assert b["asof_words"] == "Fri 10:40 PM"
 
 
@@ -78,6 +83,15 @@ def test_headline_splits_at_its_tag_and_takes_a_news_kind():
     assert news[0]["when"] == "8:31 AM" and news[0]["kind"] == "injury"
     assert news[7]["kind"] == "out"                         # "Josh Simmons (back) ruled out for Sunday"
     assert news[0]["slugs"][0] == "jaylen-wright"
+
+
+def test_an_untagged_headline_does_not_say_his_name_twice():
+    """The Monday 2026-09-28 page read "Travis Etienne Travis Etienne Jr. exits early Sunday"."""
+    p = json.loads(json.dumps(load_digest()))
+    p["news"] = [{"created": "2026-09-27 20:47:00", "headline": "Travis Etienne Jr. exits early Sunday",
+                  "key": "travis etienne", "name": "Travis Etienne"}]
+    it = live_digest(p, slugify)["news"][0]
+    assert (it["n"], it["rest"]) == ("Travis Etienne", "exits early Sunday")
 
 
 def test_top5_flattens_by_position():

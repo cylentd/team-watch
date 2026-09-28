@@ -77,7 +77,7 @@ function dgTop5Body(d){
 
 function dgStockBody(d){
   const n = Math.max(d.up.length, d.down.length), cell = (r, cls) => r
-    ? `<div class="dg-mv"><span>${esc(r.n)}</span><em class="${cls}">${dgSigned(r.d_pts, 1)}</em></div>` : `<div class="dg-mv"></div>`;
+    ? `<div class="dg-mv"><span>${esc(dgShort(r.n))}</span><em class="${cls}">${dgSigned(r.d_pts, 1)}</em></div>` : `<div class="dg-mv"></div>`;
   const rows = Array.from({length: n}, (_, i) => cell(d.up[i], "up") + cell(d.down[i], "dn")).join("");
   return `<div class="dg-two"><h4>${t("digest.st.up")}</h4><h4>${t("digest.st.down")}</h4>${rows}</div>`
     + dgFootHTML(t("digest.foot.st"), "movers", t("digest.go.movers"), true);
@@ -99,17 +99,22 @@ function dgNewsBody(d){
 /* "1 game" / "15 games": both spelled out, since assemble.py --check finds a key only as a literal. */
 const dgGames = n => n === 1 ? t("digest.res.game") : t("digest.res.games", {n});
 
-/* Results: the recap's standouts per position (Top 5's columns, points scored), then the busts,
-   each against the projection showing at kickoff. */
+/* One short list in Top 5's shape: a head, then "K. Mumpfield" and one number per line. */
+function dgResList(title, rows, num){
+  return rows.length ? `<div><h4>${title}</h4><ol>${rows.map(r => `<li><span class="dg-hd sm">${avatarHTML(r)}</span>`
+    + `<span>${esc(dgShort(r.n))}</span>${num(r)}</li>`).join("")}</ol></div>` : "";
+}
+
+/* Results (2026-09-28): the top scores per position, then who smashed his projection, who busted
+   (both in points against the projection showing at kickoff) and who left his game hurt. */
 function dgResBody(d){
-  const cols = DG_POS.map(pos => {
-    const rows = d.stars.filter(r => r.pos === pos);
-    return rows.length ? `<div><h4>${pos}</h4><ol>${rows.map(r => `<li><span class="dg-hd sm">${avatarHTML(r)}</span><span>${esc(r.n)}</span><em>${r.actual.toFixed(1)}</em></li>`).join("")}</ol></div>` : "";
-  }).join("");
-  const busts = d.busts.map(r => dgLnHTML(r, t("digest.res.meta", {pos: esc(r.pos), team: esc(r.team),
-    proj: r.proj != null ? r.proj.toFixed(1) : "—"}), `<span class="dn">${r.actual.toFixed(1)}</span>`)).join("");
+  const pts = r => `<em>${r.actual.toFixed(1)}</em>`;
+  const top = DG_POS.map(pos => dgResList(pos, d.stars.filter(r => r.pos === pos), pts)).join("");
+  const more = dgResList(t("digest.res.smashed"), d.smashed, r => `<em class="up">${dgSigned(r.diff, 1)}</em>`)
+    + dgResList(t("digest.res.busts"), d.busts, r => `<em class="dn">${dgSigned(r.diff, 1)}</em>`)
+    + dgResList(t("digest.res.left"), d.left, r => `<em class="q">${r.injury ? esc(r.injury) : t("digest.res.leftEarly")}</em>`);
   const foot = d.pending ? t("digest.foot.resPending", {n: dgGames(d.finals.length), left: d.pending}) : t("digest.foot.res", {n: dgGames(d.finals.length)});
-  return (cols ? `<div class="dg-t5">${cols}</div>` : "") + (busts ? `<h4 class="dg-sub">${t("digest.res.busts")}</h4>${busts}` : "")
+  return (top ? `<div class="dg-t5">${top}</div>` : "") + (more ? `<div class="dg-t5 dg-res">${more}</div>` : "")
     + dgFootHTML(foot, "", "");
 }
 

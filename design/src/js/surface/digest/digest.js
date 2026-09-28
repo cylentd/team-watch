@@ -129,7 +129,7 @@ function wireDigest(v){
   }));
   const d = dgD();
   v.querySelectorAll("[data-dgslug]").forEach(el => el.addEventListener("click", () => {
-    const p = [...d.hurt, ...d.best, ...d.adds, ...d.gems, ...d.stars, ...d.busts].find(x => x.slug === el.dataset.dgslug);
+    const p = [...d.hurt, ...d.best, ...d.adds, ...d.gems, ...d.stars, ...d.smashed, ...d.busts, ...d.left].find(x => x.slug === el.dataset.dgslug);
     if (p) openProfile({n: p.n, pos: p.pos, team: p.team, slug: p.slug}, el);
   }));
   // The day's open row arrives open; its bars still grow once, from last week to this week.

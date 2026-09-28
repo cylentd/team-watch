@@ -87,7 +87,28 @@ def _results(r, slugify):
     return {"finals": [{k: g.get(k) for k in ("away", "home", "away_pts", "home_pts")} for g in r.get("games") or []],
             "pending": len(r.get("pending") or []),
             "stars": [row(x) for pos in POS for x in (r.get("top") or {}).get(pos) or []],
-            "busts": [row(x) for x in r.get("busts") or []]}
+            "smashed": [row(x) for x in r.get("smashed") or []],
+            "busts": [row(x) for x in r.get("busts") or []],
+            "left": [_left(x, slugify) for x in r.get("left_hurt") or []]}
+
+
+def _rest(headline, name):
+    """A headline without his name at its front: after the injury tag when there is one ("Baker
+    Mayfield (thumb) exits early" -> "exits early"), else past his name, suffix and all ("Travis
+    Etienne Jr. exits early" -> "exits early"), so a row that already names him never says it twice."""
+    h = (headline or "").strip()
+    if "(" in h and ")" in h:
+        return h.split(")", 1)[1].strip()
+    base = (name or "").replace(" Jr.", "")
+    lead = next((n for n in (base + " Jr.", base) if base and h.startswith(n)), "")
+    return h[len(lead):].strip() if lead else h
+
+
+def _left(x, slugify):
+    """"Baker Mayfield (thumb) exits early Sunday" -> injury "thumb"; an untagged headline has none."""
+    h = (x.get("headline") or "").strip()
+    injury = h[h.find("(") + 1:h.find(")")] if "(" in h and ")" in h else None
+    return {**_player(x, slugify, "pos", "team"), "injury": injury, "rest": _rest(h, x["name"])}
 
 
 def _news(it):
@@ -96,10 +117,10 @@ def _news(it):
     its words whole in `rest` and has no name."""
     headline = it.get("headline") or ""
     name, slugs = news_player(headline)
-    rest = headline.split(")", 1)[1].strip() if name and ")" in headline else headline
+    n = it.get("name") or name
     t = _local(it.get("created"))
     return {"when": _clock(t) if t else None, "headline": headline, "kind": news_kind({"title": headline}),
-            "n": it.get("name") or name, "rest": rest, "slugs": slugs}
+            "n": n, "rest": _rest(headline, n), "slugs": slugs}
 
 
 def live_digest(p, slugify, schedule=None):

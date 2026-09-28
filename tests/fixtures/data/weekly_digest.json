@@ -29,7 +29,12 @@
    "QB": [{"key": "josh allen", "name": "Josh Allen", "pos": "QB", "team": "BUF", "actual": 24.6, "proj": 22.1, "diff": 2.5}],
    "RB": [{"key": "james cook", "name": "James Cook", "pos": "RB", "team": "BUF", "actual": 19.4, "proj": 15.2, "diff": 4.2}]
   },
-  "busts": [{"key": "de'von achane", "name": "De'Von Achane", "pos": "RB", "team": "MIA", "actual": 6.1, "proj": 15.0, "diff": -8.9}]
+  "smashed": [{"key": "khalil shakir", "name": "Khalil Shakir", "pos": "WR", "team": "BUF", "actual": 17.8, "proj": 8.1, "diff": 9.7}],
+  "busts": [{"key": "de'von achane", "name": "De'Von Achane", "pos": "RB", "team": "MIA", "actual": 6.1, "proj": 15.0, "diff": -8.9}],
+  "left_hurt": [
+   {"key": "tua tagovailoa", "name": "Tua Tagovailoa", "pos": "QB", "team": "MIA", "headline": "Tua Tagovailoa (concussion) ruled out for the remainder", "created": "2026-09-25 02:10:00"},
+   {"key": "travis etienne", "name": "Travis Etienne", "pos": "RB", "team": "JAX", "headline": "Travis Etienne Jr. exits early Sunday", "created": "2026-09-25 01:40:00"}
+  ]
  },
  "hurt": [
   {

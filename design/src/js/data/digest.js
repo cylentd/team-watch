@@ -84,8 +84,13 @@ const dgSigned = (v, dp) => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toF
 const dgPct = v => (v >= 99.5 && v < 100 ? v.toFixed(1) : Math.round(v).toFixed(0));
 /* "LA @ DEN", escaped: the game as every row writes it. */
 const dgGame = g => `${esc(g.away)} @ ${esc(g.home)}`;
-/* "D. Smith": the Q list and other one-line name runs. */
-const dgShort = name => { const w = String(name || "").split(/\s+/); return w.length > 1 ? `${w[0][0]}. ${dgLast(name)}` : name; };
+/* "D. Smith", "A. St. Brown": the first initial and the whole surname, suffix dropped; the Q list
+   and the Results lists. The surname is every word after the first, not the last one alone. */
+function dgShort(name){
+  const w = String(name || "").split(/\s+/).filter(Boolean);
+  while (w.length > 2 && DG_SUFFIX.test(w[w.length - 1])) w.pop();
+  return w.length > 1 ? `${w[0][0]}. ${w.slice(1).join(" ")}` : name;
+}
 
 /* Which bar a game crossed, wind or rain, for the word a row leads with: the packet's own `bar`, so
    no threshold is copied here (ff-jarvis weekly_digest_schema owns them, in LIVE_DIGEST.rules). */
