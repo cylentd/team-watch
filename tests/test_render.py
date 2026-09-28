@@ -357,24 +357,46 @@ def drive(page, steps):
     page.wait_for_timeout(50)
 
 
+def area_of(state):
+    """The impact area a golden state belongs to (tests/impact.json): its name's first word."""
+    first = state.split("-")[0]
+    return {"teams": "roster", "profile": "profile"}.get(first, first)
+
+
+AREAS = sorted({area_of(s) for s, _ in STATES})
+
+
+def by_area(values, area=lambda v: v):
+    """Parametrize over values, each marked with its area so `--areas` can pick it (conftest)."""
+    return [pytest.param(v, marks=pytest.mark.area(area(v)), id=v) for v in values]
+
+
 @pytest.fixture(scope="module")
 def snapshot(browser, page_file):
-    """{viewport: {state: probe}} plus every console/page error seen on the way."""
-    out, errors = {}, {}
-    for vp_name, vp in VIEWPORTS.items():
-        out[vp_name] = {}
-        for state, steps in STATES:
-            ctx, page, errs = open_page(browser, page_file, vp)
-            drive(page, steps)
-            out[vp_name][state] = page.evaluate(PROBE, PROPS)
-            if errs:
-                errors[f"{vp_name}/{state}"] = errs
-            ctx.close()
-    return out, errors
+    """snapshot(area) -> ({viewport: {state: probe}}, errors) for that area's states, taken once."""
+    taken = {}
+
+    def take(area):
+        if area not in taken:
+            out, errors = {vp: {} for vp in VIEWPORTS}, {}
+            for vp_name, vp in VIEWPORTS.items():
+                for state, steps in STATES:
+                    if area_of(state) != area:
+                        continue
+                    ctx, page, errs = open_page(browser, page_file, vp)
+                    drive(page, steps)
+                    out[vp_name][state] = page.evaluate(PROBE, PROPS)
+                    if errs:
+                        errors[f"{vp_name}/{state}"] = errs
+                    ctx.close()
+            taken[area] = out, errors
+        return taken[area]
+    return take
 
 
-def test_no_console_errors(snapshot):
-    _, errors = snapshot
+@pytest.mark.parametrize("area", by_area(AREAS))
+def test_no_console_errors(snapshot, area):
+    _, errors = snapshot(area)
     assert errors == {}
 
 
@@ -435,6 +457,7 @@ def test_a_head_fills_its_circle(browser, page_file, hash):
         ctx.close()
 
 
+@pytest.mark.area("board")
 @pytest.mark.parametrize("hash", ["#movers", "#pool"])
 def test_movers_hash_opens_movers(browser, page_file, hash):
     """Movers is a view beside Leaders (2026-09-25; a mode of the Board for a few hours before,
@@ -483,6 +506,7 @@ def test_nav_row_fits_a_narrow_desktop(browser, page_file, w):
         ctx.close()
 
 
+@pytest.mark.area("board")
 @pytest.mark.parametrize("w,h", [(360, 740), (1280, 1080)])
 def test_leaders_page_fits_the_screen(browser, page_file, w, h):
     """Leaders opens on the #1's card with the list running on under it, and a page is one screen
@@ -510,6 +534,7 @@ def test_leaders_page_fits_the_screen(browser, page_file, w, h):
         ctx.close()
 
 
+@pytest.mark.area("recap")
 def test_league_back_page_fits_one_desktop_screen(browser, page_file):
     """This week > League on a 1440x900 screen (storyboard 2026-09-27): the masthead, the lead, the
     briefs, the grudges, the standings and all six superlatives end above the bottom edge, every week.
@@ -533,6 +558,7 @@ def test_league_back_page_fits_one_desktop_screen(browser, page_file):
         ctx.close()
 
 
+@pytest.mark.area("board")
 @pytest.mark.parametrize("w,h", [(1100, 640), (1920, 1080)])
 def test_leaders_wide_is_the_one_beside_two_lists(browser, page_file, w, h):
     """From 1100px (storyboard B, 2026-09-27) the #1 is a 440px column on every page, the page reads
@@ -595,9 +621,9 @@ def test_tuesday_opens_waivers(browser, page_file, day, hash, surface, first):
         ctx.close()
 
 
-@pytest.mark.parametrize("state", [s for s, _ in STATES])
+@pytest.mark.parametrize("state", by_area([s for s, _ in STATES], area_of))
 def test_state_renders_something(snapshot, state):
-    out, _ = snapshot
+    out, _ = snapshot(area_of(state))
     for vp in VIEWPORTS:
         assert len(out[vp][state]["view"]) > 200, f"{vp}/{state}: #view is empty"
     if state.endswith("drawer"):
@@ -612,10 +638,11 @@ def test_state_renders_something(snapshot, state):
             assert len(out[vp][state]["chat"]) > 100
 
 
+@pytest.mark.area("chat")
 def test_chat_panel_survives_a_surface_change(snapshot):
     """The whole reason it is a floating panel: open it, switch surface, and it is still there
     with the page behind it changed. As a tab, asking about a player meant leaving his row."""
-    out, _ = snapshot
+    out, _ = snapshot("chat")
     over_pool = out["desk"]["chat-over-movers"]
     assert over_pool["chatOpen"], "the panel closed when the surface changed"
     assert "chatinput" in over_pool["chat"], "the composer is gone"
@@ -627,7 +654,7 @@ def test_chat_panel_survives_a_surface_change(snapshot):
 def diff(golden, now, limit=25):
     lines = []
     for vp in VIEWPORTS:
-        for state, _ in STATES:
+        for state in now[vp]:
             g, n = golden.get(vp, {}).get(state), now[vp][state]
             if g is None:
                 lines.append(f"{vp}/{state}: no golden yet")
@@ -650,14 +677,21 @@ def diff(golden, now, limit=25):
     return lines
 
 
-def test_matches_golden(snapshot, update_golden):
+@pytest.mark.parametrize("area", by_area(AREAS))
+def test_matches_golden(snapshot, update_golden, area):
+    """One area's states against the golden. An update rewrites that area's states only, and drops
+    states that no longer exist, so `--areas x --update-golden` leaves every other area as it was."""
     from conftest import GOLDEN
-    out, _ = snapshot
+    out, _ = snapshot(area)
     path = GOLDEN / GOLDEN_FILE
+    golden = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
     if update_golden or not path.exists():
+        names = {s for s, _ in STATES}
+        for vp in VIEWPORTS:
+            kept = {s: p for s, p in golden.get(vp, {}).items() if s in names and area_of(s) != area}
+            golden[vp] = {**kept, **out[vp]}
         path.parent.mkdir(exist_ok=True)
-        path.write_text(json.dumps(out, indent=0, sort_keys=True), encoding="utf-8", newline="\n")
-        pytest.skip(f"golden written: {path.relative_to(GOLDEN.parents[1])}")
-    golden = json.loads(path.read_text(encoding="utf-8"))
+        path.write_text(json.dumps(golden, indent=0, sort_keys=True), encoding="utf-8", newline="\n")
+        pytest.skip(f"golden written for {area}: {path.relative_to(GOLDEN.parents[1])}")
     d = diff(golden, out)
     assert d == [], "rendered page differs from tests/golden/render.json (pytest --update-golden if intended):\n" + "\n".join(d)

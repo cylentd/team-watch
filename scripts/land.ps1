@@ -25,11 +25,13 @@
   .\scripts\land.ps1 -DryRun          # say what would happen, change nothing
   .\scripts\land.ps1                  # docs/tests-only diff: lands unattended
   .\scripts\land.ps1 -Yes             # live-page diff, after asking the user
+  .\scripts\land.ps1 -Yes -Full       # the same, testing everything rather than what the diff touches
 #>
 param(
     [switch]$DryRun,
     [string]$Base = "main",
-    [switch]$Yes
+    [switch]$Yes,
+    [switch]$Full     # every test, not only the ones this diff can break (scripts/impact.py)
 )
 
 $ErrorActionPreference = "Stop"
@@ -144,12 +146,26 @@ for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
     if ($LASTEXITCODE -eq 0) { $parallel = @("-n", "auto", "--dist", "loadfile") }
     else { Write-Host "  pytest-xdist missing (pip install pytest-xdist) -- running serially" -ForegroundColor Yellow }
 
+    # Only the tests this diff can break (scripts/impact.py, tests/impact.json): a change fenced to one
+    # view runs that view's tests plus the core. Anything the map does not claim runs everything, and
+    # so does -Full. The scheduled rebuild runs the whole suite twice a day either way.
+    $selected = @()
+    if (-not $Full) {
+        $impact = (& python (Join-Path $PSScriptRoot "impact.py") --base "origin/$Base") | ConvertFrom-Json
+        if ($impact.all) {
+            Write-Host "  whole suite: $($impact.why -join '; ')" -ForegroundColor DarkGray
+        } else {
+            $selected = @($impact.files)
+            if ($impact.areas.Count -gt 0) { $selected += @("--areas", ($impact.areas -join ",")) }
+        }
+    }
+
     Write-Host "testing" -ForegroundColor Cyan
-    Write-Host "  python -m pytest $($parallel -join ' ')" -ForegroundColor DarkGray
+    Write-Host "  python -m pytest $($parallel -join ' ') $($selected -join ' ')" -ForegroundColor DarkGray
     if (-not $DryRun) {
         Push-Location $repo
         try {
-            & python -m pytest @parallel
+            & python -m pytest @parallel @selected
             if ($LASTEXITCODE -ne 0) { throw "tests failed ($LASTEXITCODE) -- nothing landed" }
         } finally { Pop-Location }
     }

@@ -1,0 +1,116 @@
+{
+  "core": [
+    "tests/test_assemble.py",
+    "tests/test_budgets.py",
+    "tests/test_build.py",
+    "tests/test_js_syntax.py",
+    "tests/test_lint.py",
+    "tests/test_scope.py",
+    "tests/test_style_rules.py",
+    "tests/test_impact.py"
+  ],
+  "areas": {
+    "digest": {
+      "paths": ["design/src/js/surface/digest/", "design/src/css/surface/digest/", "design/src/js/data/digest.js", "design/digest.py"],
+      "tests": ["tests/test_digest.py"],
+      "render": ["digest"]
+    },
+    "weather": {
+      "paths": ["design/src/js/surface/weather/", "design/src/css/surface/weather/", "design/src/js/data/weather.js",
+                "design/src/js/data/wxhistory.js", "design/wx_history.py", "design/wx_hits.py"],
+      "tests": ["tests/test_weather.py"],
+      "render": ["weather"]
+    },
+    "league": {
+      "paths": ["design/src/js/surface/league/", "design/src/css/surface/league/", "design/src/js/data/league.js",
+                "design/league_back.py", "design/league_recap.py"],
+      "tests": ["tests/test_league_back.py", "tests/test_league_recap.py"],
+      "render": ["league", "myrecap", "recap", "records"]
+    },
+    "live": {
+      "paths": ["design/src/js/surface/live/", "design/src/css/surface/live/", "design/src/js/data/schedule.js",
+                "api/live.py", "design/schedule.py"],
+      "tests": ["tests/test_live.py", "tests/test_schedule.py"],
+      "render": ["live"]
+    },
+    "matchups": {
+      "paths": ["design/src/js/surface/matchups/", "design/src/css/surface/matchups/", "design/src/js/data/startsit.js",
+                "design/startsit.py"],
+      "tests": ["tests/test_startsit.py"],
+      "render": ["matchups"]
+    },
+    "news": {
+      "paths": ["design/src/js/surface/news/", "design/src/css/surface/news/", "design/src/js/data/news.js", "design/news.py"],
+      "tests": ["tests/test_news_kind.py"],
+      "render": ["news"]
+    },
+    "ranks": {
+      "paths": ["design/src/js/surface/ranks/", "design/src/css/surface/ranks/", "design/ranks.py"],
+      "tests": ["tests/test_ranks.py"],
+      "render": ["ranks"]
+    },
+    "usage": {
+      "paths": ["design/src/js/surface/usage/", "design/src/css/surface/usage/", "design/src/js/data/usage.js", "design/usage.py"],
+      "tests": [],
+      "render": ["usage"]
+    },
+    "board": {
+      "paths": ["design/src/js/surface/board/", "design/src/js/surface/pool/", "design/src/js/data/pool.js", "design/pool.py"],
+      "tests": ["tests/test_pool.py"],
+      "render": ["board"]
+    },
+    "profile": {
+      "paths": ["design/src/js/surface/profile/", "design/src/css/surface/profile/", "design/pedigree.py", "design/gamelog.py",
+                "design/routes.py", "design/archetype.py"],
+      "tests": ["tests/test_profile.py"],
+      "render": ["profile"]
+    },
+    "teams": {
+      "paths": ["design/src/js/surface/teams/", "design/src/css/surface/teams/", "design/src/js/data/waiver.js",
+                "design/src/js/data/wire.js", "design/src/js/data/mates.js", "design/waiver.py", "design/wire_watch.py",
+                "design/injury.py", "design/mates.py"],
+      "tests": ["tests/test_brief.py", "tests/test_injury.py", "tests/test_mates.py", "tests/test_mates_page.py",
+                "tests/test_pack_stage.py", "tests/test_render_waivers.py", "tests/test_roster_cards.py",
+                "tests/test_roster_sheet.py", "tests/test_teamswitch.py", "tests/test_waiver.py",
+                "tests/test_wire_watch.py", "tests/test_yahoo_lineup.py"],
+      "render": ["roster", "waivers"]
+    },
+    "bets": {
+      "paths": ["design/src/js/surface/parlay/", "design/src/js/surface/dfs/", "design/src/js/builder/",
+                "design/src/css/surface/builder/", "design/src/css/surface/dfs/", "design/src/js/data/dfs.js",
+                "design/src/js/data/market.js", "design/dfs_backtest.py", "design/slate.py", "design/defense.py"],
+      "tests": ["tests/test_dfs_backtest.py", "tests/test_dfs_pool.py", "tests/test_dfs_solver.py", "tests/test_legsheet.py",
+                "tests/test_parlay_grid.py"],
+      "render": ["build", "dfs", "parlay"]
+    },
+    "chat": {
+      "paths": ["design/src/js/surface/chat/", "design/src/css/surface/chat/", "api/chat.py"],
+      "tests": ["tests/test_chat.py"],
+      "render": ["chat"]
+    },
+    "search": {
+      "paths": ["design/src/js/data/search.js", "design/src/js/chrome/search.js"],
+      "tests": ["tests/test_search.py"],
+      "render": ["search"]
+    },
+    "strip": {
+      "paths": ["design/src/js/surface/strip/", "api/game.py", "design/pbp.py"],
+      "tests": ["tests/test_strip.py", "tests/test_game.py", "tests/test_pbp.py"],
+      "render": []
+    },
+    "connect": {
+      "paths": ["design/src/js/data/connect.js", "design/src/js/chrome/connect.js", "api/league.py"],
+      "tests": ["tests/test_league.py", "tests/test_render_connect.py"],
+      "render": []
+    },
+    "land": {
+      "paths": ["scripts/land-queue.ps1", "scripts/land.ps1", "scripts/impact.py"],
+      "tests": ["tests/test_land_queue.py"],
+      "render": []
+    }
+  },
+  "full_only": {
+    "tests/test_render.py": "the golden; an area's slice runs through --areas",
+    "tests/test_signals.py": "signals feed the roster, Movers and News at once"
+  }
+}

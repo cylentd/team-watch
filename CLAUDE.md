@@ -32,8 +32,17 @@ python design/build.py      # rebuild both outputs
 python -m pytest tests/test_<area>.py         # while working: the files for what you touched, seconds
 python -m pytest -n auto --dist loadfile      # everything, ~65 s parallel (~195 s serial), 2026-09-27
 python -m pytest -m "not render"              # no browser, ~30 s
-.\scripts\land.ps1          # rebase, test, rebuild, fold into the commit, land
+python -m pytest tests/test_render.py --areas ranks   # one area's golden slice, ~10 s
+.\scripts\land.ps1          # rebase, test what the diff can break, rebuild, fold into the commit, land
+.\scripts\land.ps1 -Full    # the same, testing everything
 ```
+
+Land tests by impact (2026-09-27). `scripts/impact.py` maps the branch's paths to areas through
+`tests/impact.json`: a change fenced to one view runs that view's tests, the core and its golden
+slice (a Ranks change: ~14 s, against ~65 s for everything). A path no area claims, shared CSS,
+and shared test setup run everything. The scheduled rebuild runs the whole suite twice a day, the
+net for whatever the map misses. A new test file must be listed in `tests/impact.json`
+(`test_impact.py` fails otherwise); a new golden state belongs to the area its name starts with.
 
 The build fails on a lint error (`design/lint_css.py`), a contract violation (`design/contract.py`:
 an injected block missing a field the JS reads), or a part the manifests do not agree on. The

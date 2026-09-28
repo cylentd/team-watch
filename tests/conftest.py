@@ -27,6 +27,26 @@ sys.path.insert(0, str(DESIGN))
 def pytest_addoption(parser):
     parser.addoption("--update-golden", action="store_true", default=False,
                      help="rewrite tests/golden/*.json from the current render")
+    parser.addoption("--areas", default="",
+                     help="comma-separated impact areas (tests/impact.json): a test marked "
+                          "@pytest.mark.area runs only when its area is listed; unmarked tests always run")
+
+
+def pytest_configure(config):
+    config.addinivalue_line("markers", "area(name): the impact area a test covers (scripts/impact.py)")
+
+
+def pytest_collection_modifyitems(config, items):
+    areas = {a for a in config.getoption("--areas").split(",") if a}
+    if not areas:
+        return
+    keep, drop = [], []
+    for item in items:
+        marked = {a for m in item.iter_markers("area") for a in m.args}
+        (keep if not marked or marked & areas else drop).append(item)
+    if drop:
+        config.hook.pytest_deselected(items=drop)
+        items[:] = keep
 
 
 @pytest.fixture(scope="session")
