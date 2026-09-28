@@ -1,0 +1,5 @@
+{
+ "note": "Managers who hold no record on Records (league_back.record_skip), keyed like ff-jarvis yahoo_league_managers.json. Their games still count for everyone else; the last-place case keeps them.",
+ "managers": [{"key": "former-2", "asked": "2026-09-27", "keeps": "2018 last place"},
+              {"key": "former-4", "asked": "2026-09-27"}]
+}

@@ -158,6 +158,35 @@ def test_the_spoon_case_names_each_last_place(back):
     assert [s["y"] for s in back["spoons"]] == sorted((s["y"] for s in back["spoons"]), reverse=True)
 
 
+def test_a_skipped_manager_holds_no_record_and_the_next_one_down_does():
+    from league_back import book
+    from league_recap import facts
+    g = lambda y, wk, h, a, hp, ap, tier=None: {"y": y, "week": wk, "home": h, "away": a, "hp": hp, "ap": ap,
+                                                  "winner": "home" if hp > ap else "away", "tier": tier}
+    games = [g(2018, 1, 1002, 1, 30.0, 90.0), g(2018, 2, 1002, 2, 40.0, 95.0), g(2018, 3, 1, 2, 60.0, 80.0)]
+    low = lambda fx: next(f for f in fx if f["k"] == "low")
+    assert low(facts(games, [], {}))["id"] == 1002
+    assert low(facts(games, [], {}, frozenset({1002})))["id"] == 1 and low(facts(games, [], {}, frozenset({1002})))["v"] == 60.0
+    teams = [{"id": 1, "all": [1, 1, 0]}, {"id": 2, "all": [2, 0, 0]}]
+    shame = book([], games, teams, {}, frozenset({1002}))["shame"]
+    assert all(f.get("id") != 1002 for f in shame)
+
+
+def test_the_record_skip_file_names_no_one():
+    """design/league_record_skip.json holds manager keys and dates, never a name."""
+    import json, pathlib
+    raw = json.loads((pathlib.Path(__file__).parents[1] / "design" / "league_record_skip.json").read_text(encoding="utf-8"))
+    assert all(set(m) <= {"key", "asked", "keeps"} and m["key"].startswith("former-") for m in raw["managers"])
+
+
+def test_meetings_say_their_kind():
+    from league_back import add_meets
+    h2h = {"1": {"2": {"w": 0, "l": 0, "t": 0}}, "2": {"1": {"w": 0, "l": 0, "t": 0}}}
+    g = lambda wk, tier: {"y": 2024, "week": wk, "home": 1, "away": 2, "hp": 90.0, "ap": 80.0, "tier": tier}
+    add_meets(h2h, [g(1, None), g(15, "playoff"), g(16, "consolation")])
+    assert [x[3] for x in h2h["1"]["2"]["m"]] == [0, 1, 2]
+
+
 def test_the_private_file_names_no_one():
     """design/league_private.json holds ids and dates only: the repo is not the place for the story."""
     import json, pathlib

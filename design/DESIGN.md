@@ -247,6 +247,12 @@ and the briefs, all in display caps, were hard to read:
   Yahoo's final 12th (ff-jarvis `yahoo_league finals`, which counts the consolation bracket); a season it
   was never read for (2018) falls back to the worst regular season, dimmed, and says so.
 - **The halls** drop titles and last places, which the shelves already show.
+- **A pair's sheet splits the record by kind** (regular season, playoffs, consolation bracket; each
+  meeting's 4th field, `league_back.MEET_KIND`), under the grudge card. The series itself counts
+  every game: Lateef and Theo's 16 read as a mistake until the 2 playoff games showed.
+- **A manager can be kept out of the book** (`design/league_record_skip.json`, `record_skip`):
+  jstncno (former-2) gave up and left, so he holds no record and the next one down holds each; his
+  games still count for his opponents, and he keeps his 2018 last place. David, 2026-09-27.
 
 - **Voice:** Big Shoulders Display (`--tab`) for the headline, stamps and section heads, in this view
   only. The masthead rule is the league's colour.

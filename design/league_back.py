@@ -141,6 +141,19 @@ def private_pairs(path=PRIVATE):
     return [(p["a"], p["b"]) for p in json.load(open(path, encoding="utf-8")).get("pairs", [])]
 
 
+SKIP = os.path.join(os.path.dirname(__file__), "league_record_skip.json")
+
+
+def record_skip(path=SKIP, former=1000):
+    """Owner ids (league_recap's FORMER + N for "former-N") of managers who hold no record on Records
+    (design/league_record_skip.json). David, 2026-09-27: a manager who gave up and left pollutes the
+    book; he keeps only his last place (the spoon case reads Yahoo's final places, not this)."""
+    if not os.path.exists(path):
+        return frozenset()
+    keys = [m["key"] for m in json.load(open(path, encoding="utf-8")).get("managers", [])]
+    return frozenset(former + int(k.split("-")[1]) if k.startswith("former-") else int(k) for k in keys)
+
+
 def withhold(h2h, pairs):
     """Take each private pair's head-to-head out of `h2h` (both ways), so its record never ships, and
     return the pairs [[a, b]]: Records draws the row with the record blacked out rather than drop it,
@@ -154,14 +167,19 @@ def withhold(h2h, pairs):
     return out
 
 
+MEET_KIND = {"playoff": 1, "consolation": 2}
+
+
 def add_meets(h2h, games):
     """h2h[a][b]["m"]: every meeting of two of today's teams, oldest first, as [season, week, a's margin,
-    playoff 1/0]. Consolation games count as meetings but not as playoffs."""
+    kind]: MEET_KIND, 0 regular season, 1 playoff, 2 consolation. Every kind counts in the series; Records'
+    sheet splits the record by kind (2026-09-27, David: Lateef and Theo's 16 read as a mistake until
+    the 2 playoff games were visible). Until then the flag was playoff 1/0, consolation folded into 0."""
     for g in games:
         for me, them, mine, theirs in ((g["home"], g["away"], g["hp"], g["ap"]), (g["away"], g["home"], g["ap"], g["hp"])):
             row = h2h.get(str(me), {}).get(str(them))
             if row is not None:
-                row.setdefault("m", []).append([g["y"], g["week"], round(mine - theirs, 2), int(g.get("tier") == "playoff")])
+                row.setdefault("m", []).append([g["y"], g["week"], round(mine - theirs, 2), MEET_KIND.get(g.get("tier"), 0)])
     return h2h
 
 
@@ -220,13 +238,15 @@ def add_tape(teams, games, champs, lasts):
     return teams
 
 
-def _streak(games, want):
+def _streak(games, want, skip=frozenset()):
     """Longest run inside one regular season of wins (want True) or losses: (id, length, season)."""
     best, run = (None, 0, None), {}
     for g in games:
         if g.get("tier") is not None:
             continue
         for tid, won in ((g["home"], g["winner"] == "home"), (g["away"], g["winner"] == "away")):
+            if tid in skip:
+                continue
             key = (g["y"], tid)
             run[key] = run.get(key, 0) + 1 if won == want else 0
             if run[key] > best[1]:
@@ -234,8 +254,9 @@ def _streak(games, want):
     return best
 
 
-def book(facts, games, teams, lasts):
-    """{fame, shame}: league_recap.facts() split, plus the records only the back page shows."""
+def book(facts, games, teams, lasts, skip=frozenset()):
+    """{fame, shame}: league_recap.facts() split, plus the records only the back page shows. A manager
+    in `skip` (record_skip) holds none of the records added here either."""
     by = {f["k"]: f for f in facts}
     fame = [by[k] for k in ("high", "blow", "streak", "titles", "pf") if k in by]
     shame = [by[k] for k in ("low",) if k in by]
@@ -248,12 +269,15 @@ def book(facts, games, teams, lasts):
     # (game, winner id, winner pts, loser id, loser pts) for every game somebody won.
     won = [(g, g["home"], g["hp"], g["away"], g["ap"]) if g["winner"] == "home" else (g, g["away"], g["ap"], g["home"], g["hp"])
            for g in games if g["winner"] in ("home", "away")]
-    if won:
-        g, _, _, loser, pts = max(won, key=lambda x: x[4])
+    lost_by = [x for x in won if x[3] not in skip]
+    won_by = [x for x in won if x[1] not in skip]
+    if lost_by:
+        g, _, _, loser, pts = max(lost_by, key=lambda x: x[4])
         shame.append({"k": "robbed", "id": loser, "v": pts, "y": g["y"], "wk": g["week"]})
-        g, winner, pts, _, _ = min(won, key=lambda x: x[2])
+    if won_by:
+        g, winner, pts, _, _ = min(won_by, key=lambda x: x[2])
         shame.append({"k": "stole", "id": winner, "v": pts, "y": g["y"], "wk": g["week"]})
-    tid, n, y = _streak(games, False)
+    tid, n, y = _streak(games, False, skip)
     if n >= 3:
         shame.append({"k": "lstreak", "id": tid, "n": n, "y": y})
     if rec:

@@ -16,7 +16,7 @@ Nothing here advises anyone: results, awards and history are already public insi
 import re
 
 from league_back import (add_meets, add_standings, add_streaks, add_tape, book, enrich_weeks, last_places, next_grudge,
-                         private_pairs, withhold)
+                         private_pairs, record_skip, withhold)
 
 AWARDS = ("top", "low", "blow", "close", "luck", "unluck")
 
@@ -101,13 +101,15 @@ def champions(history):
     return out
 
 
-def _streak(games):
+def _streak(games, skip=frozenset()):
     """Longest run of regular-season wins inside one season: (team id, length, season)."""
     best, run = (None, 0, None), {}
     for g in games:
         if g["tier"] is not None:
             continue
         for tid, won in ((g["home"], g["winner"] == "home"), (g["away"], g["winner"] == "away")):
+            if tid in skip:
+                continue
             key = (g["y"], tid)
             run[key] = run.get(key, 0) + 1 if won else 0
             if run[key] > best[1]:
@@ -115,19 +117,21 @@ def _streak(games):
     return best
 
 
-def facts(games, champs, history):
-    """The all-time records, a fixed list in a fixed order (nothing rotates on its own)."""
+def facts(games, champs, history, skip=frozenset()):
+    """The all-time records, a fixed list in a fixed order (nothing rotates on its own). A manager in
+    `skip` (league_back.record_skip) holds none of them; the next one down holds each instead."""
     if not games:
         return []
-    side = [(g["home"], g["hp"], g) for g in games] + [(g["away"], g["ap"], g) for g in games]
+    side = [(g["home"], g["hp"], g) for g in games if g["home"] not in skip] + \
+           [(g["away"], g["ap"], g) for g in games if g["away"] not in skip]
     hi, lo = max(side, key=lambda s: s[1]), min(side, key=lambda s: s[1])
-    won = [(s, g) for g in games for s in [_sides(g)] if s]
+    won = [(s, g) for g in games for s in [_sides(g)] if s and s[0] not in skip]
     blow_s, blow_g = max(won, key=lambda x: x[0][2] - x[0][3])
     out = [{"k": "high", "id": hi[0], "v": hi[1], "y": hi[2]["y"], "wk": hi[2]["week"]},
            {"k": "low", "id": lo[0], "v": lo[1], "y": lo[2]["y"], "wk": lo[2]["week"]},
            {"k": "blow", "id": blow_s[0], "opp": blow_s[1], "v": round(blow_s[2] - blow_s[3], 2),
             "y": blow_g["y"], "wk": blow_g["week"]}]
-    tid, n, y = _streak(games)
+    tid, n, y = _streak(games, skip)
     if n >= 3:
         out.append({"k": "streak", "id": tid, "n": n, "y": y})
     titles = {}
@@ -136,7 +140,7 @@ def facts(games, champs, history):
     if titles and max(titles.values()) >= 2:
         most = max(titles.values())
         out.append({"k": "titles", "ids": sorted(i for i, c in titles.items() if c == most), "n": most})
-    pf = [(int(t_id), t["pf"], int(y)) for y, s in history.items() for t_id, t in s["teams"].items()]
+    pf = [(int(t_id), t["pf"], int(y)) for y, s in history.items() for t_id, t in s["teams"].items() if int(t_id) not in skip]
     if pf:
         best = max(pf, key=lambda r: r[1])
         out.append({"k": "pf", "id": best[0], "v": best[1], "y": best[2]})
@@ -222,7 +226,8 @@ def live_league_yahoo(season, history, owners, rosters, slugify, box=None, recap
     now = _all_games(season, {})
     past, names, totals = _yahoo_past(pods, owners)
     everything = sorted(past + now, key=lambda g: (g["y"], g["week"]))
-    fx = _named(facts(everything, [c for c in champs if c["id"]] if mapped else [], totals), names, mgr)
+    skip = record_skip(former=FORMER)
+    fx = _named(facts(everything, [c for c in champs if c["id"]] if mapped else [], totals, skip), names, mgr)
     games = everything if mapped else now
     teams = [{**t, "mgr": mgr(t["id"])} for t in _teams(season, rosters, slugify, "yahoo")]
     block = _block(season, teams, games, champs, fx,
@@ -239,7 +244,7 @@ def live_league_yahoo(season, history, owners, rosters, slugify, box=None, recap
     block["spoons"] = [{"y": y, "id": oid if oid < FORMER else None, "name": names.get((y, oid)), "mgr": mgr(oid),
                         "final": y in finals} for y, oid in sorted(lasts.items(), reverse=True)] if mapped else []
     add_tape(block["teams"], games, champs, lasts)
-    b = book(fx, games, block["teams"], lasts)
+    b = book(fx, games, block["teams"], lasts, skip)
     block["book"] = {k: _named(v, names, mgr) for k, v in b.items()}
     return block
 

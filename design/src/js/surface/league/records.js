@@ -146,13 +146,28 @@ function lgRecordsPageHTML(){
   </div></div>`;
 }
 
+/* The series split by kind of game, from `a`'s side: regular season, playoffs, consolation, each only
+   when they met in it (league_back.MEET_KIND). A long series reads as a mistake until the playoff
+   games in it are visible (David, 2026-09-27: Lateef and Theo, 16 meetings). */
+function rcSplitHTML(a, b){
+  const m = (lgH2H(a, b) || {}).m || [];
+  const kinds = [[0, t("records.split.reg")], [1, t("records.split.po")], [2, t("records.split.cons")]];
+  const rows = kinds.map(([k, label]) => {
+    const g = m.filter(x => (x[3] || 0) === k);
+    if (!g.length) return "";
+    const w = g.filter(x => x[2] > 0).length, l = g.filter(x => x[2] < 0).length, tie = g.length - w - l;
+    return `<dt>${label}</dt><dd>${tie ? `${w}–${l}–${tie}` : `${w}–${l}`}</dd>`;
+  }).join("");
+  return rows ? `<div class="rc-split"><p>${t("records.split.head", {a: lgMgr(a)})}</p><dl>${rows}</dl></div>` : "";
+}
+
 /* A pair's grudge card in the sheet, its margins toggle redrawing the card in place. */
 function rcOpenPair(a, b, originEl){
   const d = document.getElementById("modal");
   d.innerHTML = `<div class="dr-head">
       <button type="button" class="dr-close" aria-label="${t("common.action.close")}">✕</button>
       <h3 id="rc-sheet-title" class="bp2-sheet-t">${t("records.h2h.sheet", {a: lgMgr(a), b: lgMgr(b)})}</h3>
-    </div><div class="dr-body bp2-sheet rc-sheet">${lgGrudgeCardHTML(a, b)}</div>`;
+    </div><div class="dr-body bp2-sheet rc-sheet">${lgGrudgeCardHTML(a, b)}${rcSplitHTML(a, b)}</div>`;
   d.querySelector(".rc-sheet").addEventListener("click", e => {
     const btn = e.target.closest("[data-lgmargins]");
     if (!btn) return;
