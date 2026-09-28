@@ -43,8 +43,9 @@ const UD_MIN = 58;
    of 2025 under this exact filter): lower picks hit 56.3% (n 567), higher picks 42.3% (n 71), and
    lower at 65%+ hits 57.3% (n 281, CI 51-63) against a 57.7% break-even on a 2-leg 3x board and
    55.0% on a 3-leg 6x. The old rule gated on week 5 instead, which let the losing side through
-   from week 5 on and blocked the winning side before it. In-sample: the split was found in the
-   same 2025 data, and no other season's closing lines are on disk to check it against. */
+   from week 5 on and blocked the winning side before it. The split was found in 2025; on 2024's
+   closing lines (12.56, 2026-09-27, weeks 1-13) the same rule hit 55.9% (n 202, CI 49-63) and TDs
+   at 50%+ hit 58.8% (n 51): enough for a 3-leg 6x, not a 2-leg 3x. */
 const HIT_RECS = 65, HIT_TD = 50;
 /* A leg's graded chance, the payout board and stacks live in builder/grade.js. */
 const legOKInBook = (p, s, book) => {
