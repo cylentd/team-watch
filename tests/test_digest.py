@@ -11,13 +11,42 @@ import pytest  # noqa: E402
 
 from _espn import slugify  # noqa: E402
 import contract  # noqa: E402
-from digest import live_digest, report  # noqa: E402
+from digest import kicks, live_digest, report  # noqa: E402
 from sources import load_digest  # noqa: E402
-from test_render import browser, open_page  # noqa: E402,F401  (the suite's one Chromium)
+from test_render import browser, go, open_page  # noqa: E402,F401  (the suite's one Chromium)
 
 
-def _block():
-    return live_digest(load_digest(), slugify)
+def _block(schedule=None):
+    return live_digest(load_digest(), slugify, schedule)
+
+
+SCHEDULE = {"alias": {"LA": "LAR", "WAS": "WSH"}, "games": [
+    {"home": "DEN", "away": "LAR", "kickoff": "2026-09-28T00:20:00Z", "week": 3},
+    {"home": "WSH", "away": "SEA", "kickoff": "2026-09-27T17:00:00Z", "week": 3},
+    {"home": "HOU", "away": "LAR", "kickoff": "2026-10-04T17:00:00Z", "week": 4}]}
+
+
+def test_kicks_answers_in_both_dialects_for_the_packets_week():
+    ko = kicks(SCHEDULE, 3)
+    assert ko["LA"] == ko["LAR"] == "2026-09-28T00:20:00Z"
+    assert ko["WAS"] == ko["WSH"] == "2026-09-27T17:00:00Z"
+    assert "HOU" not in ko and kicks(None, 3) == {}
+
+
+def test_game_rows_carry_their_kickoff_for_the_browser():
+    b = _block(SCHEDULE)
+    assert b["hurt"][0]["game"]["ko"] == "2026-09-28T00:20:00Z"
+    assert b["wx"][0]["ko"] == "2026-09-27T17:00:00Z"
+    assert all(r["ko"] is None or r["ko"].endswith("Z") for r in b["best"] + b["top5"])
+
+
+def test_results_cut_to_finals_stars_and_busts():
+    b = _block()
+    assert b["finals"] == [{"away": "MIA", "home": "BUF", "away_pts": 17.0, "home_pts": 27.0}]
+    assert b["pending"] == 2
+    assert [(r["pos"], r["n"], r["actual"]) for r in b["stars"]] == [("QB", "Josh Allen", 24.6), ("RB", "James Cook", 19.4)]
+    assert b["busts"][0]["slug"] == slugify("De'Von Achane")
+    assert b["asof_words"] == "Fri 10:40 PM"
 
 
 def test_fixture_block_is_whole():
@@ -30,7 +59,8 @@ def test_fixture_block_is_whole():
 
 def test_kickoffs_are_pacific_words():
     b = _block()
-    assert b["hurt"][0]["game"] == {"away": "LA", "home": "DEN", "kick": "Sun 5:20 PM"}   # 00:20 UTC Monday
+    assert b["hurt"][0]["game"] == {"away": "LA", "home": "DEN", "kick": "Sun 5:20 PM",   # 00:20 UTC Monday
+                                    "ko": "2026-09-28T00:20:00Z"}
     assert b["wx"][0]["kick"] == "Sun 10:00 AM"
     assert b["hurt"][4]["game"] is None                                                    # Dart, on IR
 
@@ -64,6 +94,30 @@ def test_empty_sections_are_empty_lists_not_errors():
     b = live_digest(p, slugify)
     contract.validate("LIVE_DIGEST", b)
     assert b["lead"] is None and b["near"] is None and b["best"] == [] and b["record"] is None
+
+
+@pytest.mark.render
+def test_a_started_game_drops_its_rows_live_and_the_lead_gives_way(browser, page_file):
+    """The Friday packet read on Monday morning: nothing about a Sunday game survives in the
+    browser, the lead falls to the week's results, and the stamp says how old the packet is."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    page.goto(page_file.as_uri())
+    page.evaluate('Date.now = () => Date.parse("2026-09-28T13:00:00Z")')   # after load: the page pins its own
+    for _, sel in go("digest"):
+        page.click(sel)
+    page.wait_for_selector(".dg-row")
+    assert page.locator(".dg-lead-h").inner_text() == "Josh Allen scored 24.6"
+    assert page.locator(".dg-lead-when").inner_text() == "Week 3 · updated Fri 10:40 PM"
+    assert page.locator(".dg-row[data-dgrow='res'][data-open]").count() == 1
+    left = page.evaluate("dgD().hurt.map(r => r.game && r.game.away + '@' + r.game.home)")
+    assert "LA@DEN" not in left
+    # The fixture schedule holds one week-3 game, so give one top-5 row a Sunday kickoff by hand.
+    n = page.evaluate("dgD().top5.length")
+    page.evaluate("LIVE_DIGEST.top5.find(r => !r.ko).ko = '2026-09-27T17:00:00Z'; DG_CUT = null")
+    assert page.evaluate("dgD().top5.length") == n - 1
+    assert page.locator(".dg-row[data-dgrow='res'] .dg-foot").inner_text().startswith("1 game final, 2 to play.")
+    assert errors == []
+    ctx.close()
 
 
 def test_no_packet_is_no_block():

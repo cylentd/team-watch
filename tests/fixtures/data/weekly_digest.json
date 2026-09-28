@@ -21,6 +21,16 @@
   "rule": "hurt",
   "index": 0
  },
+ "results": {
+  "complete": false,
+  "pending": ["2026_03_SEA_WAS", "2026_03_LA_DEN"],
+  "games": [{"away": "MIA", "home": "BUF", "away_pts": 17.0, "home_pts": 27.0}],
+  "top": {
+   "QB": [{"key": "josh allen", "name": "Josh Allen", "pos": "QB", "team": "BUF", "actual": 24.6, "proj": 22.1, "diff": 2.5}],
+   "RB": [{"key": "james cook", "name": "James Cook", "pos": "RB", "team": "BUF", "actual": 19.4, "proj": 15.2, "diff": 4.2}]
+  },
+  "busts": [{"key": "de'von achane", "name": "De'Von Achane", "pos": "RB", "team": "MIA", "actual": 6.1, "proj": 15.0, "diff": -8.9}]
+ },
  "hurt": [
   {
    "key": "puka nacua",

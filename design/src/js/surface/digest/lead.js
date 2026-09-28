@@ -1,7 +1,7 @@
 /* ============================== DIGEST: THE LEAD ==============================
    One fact leads the week: a headline, one fact line, a photo. ff-jarvis picks it by rule (the
-   packet's `lead`: a hurt starter first, then a game in bad weather, then the top headline); this
-   file only writes it. No stats row and no "leads because" line (David, 2026-09-26): the fact is
+   packet's `lead`: a hurt starter first, then a game in bad weather, then the week's results once
+   half of it is final, then the top headline); this file only writes it. No stats row and no "leads because" line (David, 2026-09-26): the fact is
    the lead, and the rows under it carry the numbers. */
 
 const DG_STATUS = {
@@ -41,7 +41,18 @@ function dgLeadWx(g){
           fact: [g.kick ? esc(g.kick) + "." : "", sky ? sky + "." : ""].filter(Boolean).join(" ")};
 }
 
-/* Rule 3: the headline itself, a size down because it is a sentence, not a name. */
+/* Rule 3 (2026-09-28): once half the week is final, the week's top score among the recap's
+   standouts. "Jahmyr Gibbs scored 37.9" / "RB, DET. Week 3's top score. Projected 18.8." */
+function dgLeadRes(d){
+  const r = [...d.stars].sort((a, b) => b.actual - a.actual)[0];
+  if (!r) return {tone: "go", photo: "", head: t("digest.lead.res.none", {week: d.week}), fact: ""};
+  const vs = r.proj != null ? t("digest.lead.res.proj", {proj: r.proj.toFixed(1)}) : "";
+  return {tone: "go", photo: dgPhotoHTML(r.slug), ghost: r.actual.toFixed(1),
+          head: t("digest.lead.res.head", {name: esc(r.n), pts: `<em class="dg-em go">${r.actual.toFixed(1)}</em>`}),
+          fact: [t("digest.lead.res.who", {pos: esc(r.pos), team: esc(r.team), week: d.week}), vs].filter(Boolean).join(" ")};
+}
+
+/* Rule 4: the headline itself, a size down because it is a sentence, not a name. */
 function dgLeadNews(it){
   return {tone: it.kind === "out" ? "out" : it.kind === "injury" ? "q" : "", photo: dgPhotoHTML(it.slugs), long: true,
           head: esc(it.headline), fact: it.when ? t("digest.lead.news.fact", {when: esc(it.when)}) : t("digest.lead.news.src")};
@@ -51,18 +62,21 @@ function dgLead(){
   const d = dgD();
   if (!d) return {tone: "quiet", photo: "", head: t("digest.empty.head"), fact: t("digest.empty.sub")};
   const l = d.lead;
+  if (l && l.rule === "results") return dgLeadRes(d);
   const row = l && {hurt: d.hurt, weather: d.wx, news: d.news}[l.rule] ? {hurt: d.hurt, weather: d.wx, news: d.news}[l.rule][l.index] : null;
   if (!row) return {tone: "quiet", photo: "", head: t("digest.lead.quiet.head"), fact: t("digest.lead.quiet.sub")};
   return l.rule === "hurt" ? dgLeadHurt(row) : l.rule === "weather" ? dgLeadWx(row) : dgLeadNews(row);
 }
 
 function dgLeadHTML(){
-  const L = dgLead();
+  const L = dgLead(), d = dgD();
   /* The ghost is the reason he leads (his rank, the wind), set huge and faint behind the photo on
-     a wide screen; aria-hidden, since the fact line already says it. */
+     a wide screen; aria-hidden, since the fact line already says it. The stamp above the head says
+     which week and how old the packet is, so a stale page reads as stale (2026-09-28). */
+  const stamp = d && d.asof_words ? `<p class="dg-lead-when">${t("digest.lead.when", {week: d.week, when: esc(d.asof_words)})}</p>` : "";
   return `<article class="dg-lead ${L.tone}${L.photo ? " has-photo" : ""}">
     ${L.ghost ? `<span class="dg-ghost" aria-hidden="true">${L.ghost}</span>` : ""}
-    <div class="dg-lead-txt"><h2 class="dg-lead-h${L.long ? " long" : ""}">${L.head}</h2>
+    <div class="dg-lead-txt">${stamp}<h2 class="dg-lead-h${L.long ? " long" : ""}">${L.head}</h2>
       <p class="dg-lead-fact">${L.fact}</p></div>
     ${L.photo}
   </article>`;

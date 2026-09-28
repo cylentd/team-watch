@@ -96,5 +96,22 @@ function dgNewsBody(d){
   return rows + dgFootHTML(t("digest.foot.news"), "news", t("digest.go.news"));
 }
 
-const DG_BODY = {hurt: dgHurtBody, mu: dgMuBody, wx: dgWxBody, adds: dgAddsBody, t5: dgTop5Body,
+/* "1 game" / "15 games": both spelled out, since assemble.py --check finds a key only as a literal. */
+const dgGames = n => n === 1 ? t("digest.res.game") : t("digest.res.games", {n});
+
+/* Results: the recap's standouts per position (Top 5's columns, points scored), then the busts,
+   each against the projection showing at kickoff. */
+function dgResBody(d){
+  const cols = DG_POS.map(pos => {
+    const rows = d.stars.filter(r => r.pos === pos);
+    return rows.length ? `<div><h4>${pos}</h4><ol>${rows.map(r => `<li><span class="dg-hd sm">${avatarHTML(r)}</span><span>${esc(r.n)}</span><em>${r.actual.toFixed(1)}</em></li>`).join("")}</ol></div>` : "";
+  }).join("");
+  const busts = d.busts.map(r => dgLnHTML(r, t("digest.res.meta", {pos: esc(r.pos), team: esc(r.team),
+    proj: r.proj != null ? r.proj.toFixed(1) : "—"}), `<span class="dn">${r.actual.toFixed(1)}</span>`)).join("");
+  const foot = d.pending ? t("digest.foot.resPending", {n: dgGames(d.finals.length), left: d.pending}) : t("digest.foot.res", {n: dgGames(d.finals.length)});
+  return (cols ? `<div class="dg-t5">${cols}</div>` : "") + (busts ? `<h4 class="dg-sub">${t("digest.res.busts")}</h4>${busts}` : "")
+    + dgFootHTML(foot, "", "");
+}
+
+const DG_BODY = {res: dgResBody, hurt: dgHurtBody, mu: dgMuBody, wx: dgWxBody, adds: dgAddsBody, t5: dgTop5Body,
                  st: dgStockBody, gems: dgGemsBody, news: dgNewsBody};

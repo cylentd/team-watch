@@ -139,6 +139,10 @@ STATES = [
     # pinned in tests/test_digest.py instead.
     ("digest", [("eval", 'Date.now = () => Date.parse("2026-09-25T12:00:00Z")')] + go("digest")),
     ("digest-tuesday", [("eval", 'Date.now = () => Date.parse("2026-09-22T12:00:00Z")')] + go("digest")),
+    # Monday 06:00 Pacific, the same Friday packet: every Sunday game has kicked off, so its hurt,
+    # weather, best-spot and top-5 rows are gone in the browser, Puka's lead gives way to the
+    # results, and Monday opens Results (2026-09-28).
+    ("digest-monday", [("eval", 'Date.now = () => Date.parse("2026-09-28T13:00:00Z")')] + go("digest")),
     ("digest-top5", go("digest") + [("click", "[data-dgrow='t5'] .dg-head")]),
     ("digest-empty", [("eval", "Object.assign(LIVE_DIGEST, {lead: null, hurt: [], calls: 0, record: null, best: [],"
                                " wx: [], near: null, adds: [], top5: [], up: [], down: [], gems: [], news: []})")]

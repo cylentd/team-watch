@@ -300,20 +300,25 @@ CONTRACT = {
     },
     # design/digest.py, the Digest view (This week). `lead`, `record` and `near` may be null, and a
     # hurt row's `game`; `rank`, `rostered`, `injury`, `was`, `why`, `opp`, `temp_f`, `short`,
-    # `when` and a headline's `n` may be null too. Every list may be empty: that is "nothing new".
+    # `when`, a headline's `n`, `ko` (a kickoff the schedule lacks) and a result's `proj`/`diff` may
+    # be null too. Every list may be empty: that is "nothing new".
     "LIVE_DIGEST": {
-        "keys": ["season", "week", "asof", "lead", "rules", "hurt", "calls", "record", "best", "wx", "near",
-                 "adds_weeks", "adds", "top5", "up", "down", "gems", "news"],
+        "keys": ["season", "week", "asof", "asof_words", "lead", "rules", "hurt", "calls", "record", "best", "wx",
+                 "near", "adds_weeks", "adds", "top5", "up", "down", "gems", "news", "finals", "pending", "stars",
+                 "busts"],
         "rows": [("hurt", ["n", "slug", "pos", "team", "status", "was", "injury", "new", "rank", "rostered", "game"]),
-                 ("best", ["n", "slug", "pos", "team", "opp", "home", "pts", "why"]),
-                 ("wx", ["away", "home", "kick", "temp_f", "wind_mph", "precip_pct", "short", "lead", "bar"]),
+                 ("best", ["n", "slug", "pos", "team", "opp", "home", "pts", "why", "ko"]),
+                 ("wx", ["away", "home", "kick", "ko", "temp_f", "wind_mph", "precip_pct", "short", "lead", "bar"]),
                  ("adds", ["n", "slug", "pos", "team", "was", "now", "delta"]),
-                 ("top5", ["pos", "n", "slug", "team", "opp", "pts"]),
+                 ("top5", ["pos", "n", "slug", "team", "opp", "pts", "ko"]),
                  ("up", ["n", "slug", "pos", "team", "d_pts", "pts"]),
                  ("down", ["n", "slug", "pos", "team", "d_pts", "pts"]),
                  ("gems", ["n", "slug", "pos", "team", "usage", "metric", "ecr", "rostered"]),
-                 ("news", ["when", "headline", "kind", "n", "rest", "slugs"])],
-        "row_objs": [("hurt", "game", ["away", "home", "kick"])],
+                 ("news", ["when", "headline", "kind", "n", "rest", "slugs"]),
+                 ("finals", ["away", "home", "away_pts", "home_pts"]),
+                 ("stars", ["n", "slug", "pos", "team", "actual", "proj", "diff"]),
+                 ("busts", ["n", "slug", "pos", "team", "actual", "proj", "diff"])],
+        "row_objs": [("hurt", "game", ["away", "home", "kick", "ko"])],
     },
     # design/league_recap.py: each league's recap and history, My teams > League. `h2h` is
     # {team id: {opponent id: record}}, all-time or this season only by `scope`; each week's

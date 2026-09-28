@@ -45,6 +45,16 @@
       "t5   t5   t5   t5   t5   t5   t5   t5   gems gems gems gems"
       "news news news news news news news news news news news news";
   }
+  /* Once a game is final, the week's results take a full-width band above the rest. */
+  .dg-ticker:has(.dg-row[data-dgrow="res"]){
+    grid-template-areas:
+      "res  res  res  res  res  res  res  res  res  res  res  res"
+      "hurt hurt hurt hurt hurt mu   mu   mu   mu   wx   wx   wx"
+      "hurt hurt hurt hurt hurt adds adds adds adds st   st   st"
+      "t5   t5   t5   t5   t5   t5   t5   t5   gems gems gems gems"
+      "news news news news news news news news news news news news";
+  }
+  .dg-row[data-dgrow="res"]{grid-area:res}
   .dg-row[data-dgrow="hurt"]{grid-area:hurt}
   .dg-row[data-dgrow="mu"]{grid-area:mu}
   .dg-row[data-dgrow="wx"]{grid-area:wx}

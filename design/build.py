@@ -737,7 +737,7 @@ def render():
         "LIVE_ARCHETYPE": live_archetype(load_archetype(FEED, DWR), wanted_set),
         "LIVE_TRENCHES": live_trenches(load_trenches(FEED, DWR)),
         "LIVE_STARTSIT": live_startsit(*load_startsit(), slugify),
-        "LIVE_DIGEST": live_digest(load_digest(), slugify),
+        "LIVE_DIGEST": live_digest(load_digest(), slugify, load_schedule(DWR)),
         "LIVE_LEAGUE": live_league(*load_league(), roster_file(ESPN_ROSTERS), slugify),
         "LIVE_LEAGUE_YAHOO": live_league_yahoo(*load_league_yahoo(), roster_file(YAHOO_ROSTERS), slugify, *load_league_back()),
         "LIVE_DEFENSE": live_defense(load_defense(), TEAM_FIX),

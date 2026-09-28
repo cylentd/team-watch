@@ -2,8 +2,9 @@
    ranks every row and writes the same packet the morning Discord post renders; the page only
    decides which one row lies open. */
 
-/* The ticker, top to bottom. Each id is one topic and one row. */
-const DG_ROWS = ["hurt", "mu", "wx", "adds", "t5", "st", "gems", "news"];
+/* The ticker, top to bottom. Each id is one topic and one row. Results shows only once a game is
+   final (2026-09-28): an empty "Results" row all week would be noise. */
+const DG_ROWS = ["res", "hurt", "mu", "wx", "adds", "t5", "st", "gems", "news"];
 const DG_POS = ["QB", "RB", "WR", "TE"];
 
 /* The row the reader opened by hand ("" when he closed it); null until the first tap, and while
@@ -11,18 +12,50 @@ const DG_POS = ["QB", "RB", "WR", "TE"];
 let DG_OPEN = null;
 
 /* The signature: the day picks the open row. Claims are Tuesday and Wednesday, so the wire's
-   adds lead; Sunday is game day, so who is hurt, then the weather if nobody new is; every other
-   day, who is hurt. The reader's local day, from Date.now(), which the render suite pins. */
-const DG_DAY = {0: ["hurt", "wx"], 2: ["adds"], 3: ["adds"]};
+   adds lead; Sunday is game day, so who is hurt, then the weather if nobody new is; Monday, the
+   week's results; every other day, who is hurt. The reader's local day, from Date.now(), which
+   the render suite pins. */
+const DG_DAY = {0: ["hurt", "wx"], 1: ["res", "hurt"], 2: ["adds"], 3: ["adds"]};
 
-const dgD = () => (typeof LIVE_DIGEST !== "undefined" ? LIVE_DIGEST : null);
+/* A game that has kicked off takes its pre-game rows with it, here in the browser: the packet was
+   cut at build time, and a tab stays open across a Sunday. ff-jarvis drops the same rows at build
+   (weekly_digest_played); this only catches up with the clock since. */
+function dgCut(d, now){
+  const gone = ko => !!ko && Date.parse(ko) <= now;
+  const c = {...d, hurt: d.hurt.filter(r => !(r.game && gone(r.game.ko))), best: d.best.filter(r => !gone(r.ko)),
+             wx: d.wx.filter(r => !gone(r.ko)), near: d.near && gone(d.near.ko) ? null : d.near,
+             top5: d.top5.filter(r => !gone(r.ko))};
+  c.lead = dgLeadAfter(d, c);
+  return c;
+}
+
+/* The lead keeps its row, found again by reference in the cut lists. One whose game has started
+   gives way to the week's results, then to the top headline: the packet's own order of rules. */
+function dgLeadAfter(d, c){
+  const L = d.lead;
+  if (L && L.rule === "results") return c.finals.length ? L : null;
+  const was = L && ({hurt: d.hurt, weather: d.wx, news: d.news}[L.rule] || [])[L.index];
+  const at = was ? ({hurt: c.hurt, weather: c.wx, news: c.news}[L.rule]).indexOf(was) : -1;
+  if (at >= 0) return {rule: L.rule, index: at};
+  return c.finals.length ? {rule: "results", index: 0} : c.news.length ? {rule: "news", index: 0} : null;
+}
+
+/* Cut once per half minute, not once per row: every row asks dgD() several times a render. */
+let DG_CUT = null, DG_CUT_AT = 0;
+function dgD(){
+  if (typeof LIVE_DIGEST === "undefined" || !LIVE_DIGEST) return null;
+  const now = Date.now();
+  if (!DG_CUT || Math.abs(now - DG_CUT_AT) > 30000){ DG_CUT = dgCut(LIVE_DIGEST, now); DG_CUT_AT = now; }
+  return DG_CUT;
+}
 
 /* Does the section hold anything at all. An empty one says "nothing new" and cannot open. */
 function dgHas(id){
   const d = dgD();
   if (!d) return false;
-  return {hurt: d.hurt.length, mu: d.best.length || d.calls, wx: d.wx.length || d.near, adds: d.adds.length,
-          t5: d.top5.length, st: d.up.length || d.down.length, gems: d.gems.length, news: d.news.length}[id] ? true : false;
+  return {res: d.finals.length || d.stars.length, hurt: d.hurt.length, mu: d.best.length || d.calls,
+          wx: d.wx.length || d.near, adds: d.adds.length, t5: d.top5.length, st: d.up.length || d.down.length,
+          gems: d.gems.length, news: d.news.length}[id] ? true : false;
 }
 
 /* Is there news in it, which is what earns the day's open: a hurt row changed in the last 24
