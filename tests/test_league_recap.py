@@ -42,8 +42,18 @@ def test_week_awards(league):
     pick = lambda d, *k: {x: d[x] for x in k}
     assert pick(a["top"], "id", "v") == {"id": 14, "v": 137.35} and pick(a["low"], "id", "v") == {"id": 12, "v": 101.35}
     assert pick(a["blow"], "id", "opp", "v") == {"id": 14, "opp": 15, "v": 26.45}
-    assert pick(a["close"], "id", "opp", "v") == {"id": 1, "opp": 12, "v": 16.05}
+    # Two games: Stole one and Robbed name both, so no nail-biter is left to tell either again.
+    assert "close" not in a
     assert pick(a["luck"], "id", "v") == {"id": 1, "v": 117.4} and pick(a["unluck"], "id", "v") == {"id": 15, "v": 110.9}
+
+
+def test_the_nail_biter_is_never_the_game_robbed_or_stole_one_names():
+    from league_recap import awards
+    g = lambda h, a, hp, ap: {"home": h, "away": a, "hp": hp, "ap": ap, "winner": "home" if hp > ap else "away"}
+    # 1-2: the highest losing score (2 robbed by 2.18) is also the closest game; 5-6 is the next closest.
+    a = awards([g(1, 2, 114.24, 112.06), g(3, 4, 146.62, 96.46), g(5, 6, 101.0, 95.5), g(7, 8, 80.0, 60.0)])
+    assert (a["unluck"]["id"], a["unluck"]["opp"]) == (2, 1)
+    assert (a["close"]["id"], a["close"]["opp"], a["close"]["v"]) == (5, 6, 5.5)
 
 
 def test_awards_carry_their_proof(league):
@@ -52,7 +62,7 @@ def test_awards_carry_their_proof(league):
     top, low = a["top"], a["low"]
     assert top["rank"] == 1 and low["rank"] == low["of"] == 4
     assert (a["luck"]["m"], a["luck"]["rank"]) == (16.05, 2) and (a["unluck"]["m"], a["unluck"]["rank"]) == (-26.45, 3)
-    assert round(a["close"]["p"] - a["close"]["op"], 2) == a["close"]["v"]
+    assert round(a["blow"]["p"] - a["blow"]["op"], 2) == a["blow"]["v"]
 
 
 def test_this_weeks_pairings_and_head_to_head(league):
