@@ -337,6 +337,15 @@ CONTRACT = {
     # keys (surface/league/history.js). A champion has an `id` (ESPN) or a past `name` (Yahoo).
     "LIVE_LEAGUE": LEAGUE_SPEC,
     "LIVE_LEAGUE_YAHOO": LEAGUE_YAHOO_SPEC,
+    # design/league_trades.py: League > Trades. A trade's `win`/`lose` side is {m, got, tree, par, after,
+    # via}, pinned in tests/test_league_trades.py since a row spec is one level; each `decided` line is
+    # {k, m, seed, without}; a curse's `moves` are {season, week, from, to, lost, margin, open}.
+    "LIVE_TRADES": {
+        "keys": ["since", "through", "n", "names", "ranking", "trades", "heists", "decided", "curses"],
+        "rows": [("ranking", ["m", "trades", "won", "lost", "per_trade", "lo", "hi", "shrunk", "few"]),
+                 ("trades", ["id", "season", "week", "open", "margin", "win", "lose", "held", "decided"]),
+                 ("curses", ["player", "surname", "kind", "n", "moves"])],
+    },
 }
 
 

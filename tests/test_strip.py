@@ -516,7 +516,8 @@ def test_a_name_on_the_live_board_opens_his_clubs_game(browser, page_file, shape
     become a control that does nothing."""
     page, ctx, errors, calls = served(browser, page_file, shaped)
     page.evaluate(LIVE_REPLY)
-    page.click(".navitem[data-s='gameday']")
+    page.click(".navitem[data-s='week']")        # Live is This week's since 2026-09-28
+    page.click("[data-leaf='live']")
     page.wait_for_selector(".gdcell")
     opens = page.evaluate("""() => [...document.querySelectorAll(".gdcell:not(.empty)")]
       .map(c => [c.querySelector(".gdclub") && c.querySelector(".gdclub").textContent,

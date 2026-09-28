@@ -86,10 +86,10 @@ GD_CATCHUP = {swing: {me: 21.5, opp: 3.0}, movers: [
 # out here (rather than trusting the group button's "return me to where I was") keeps a state
 # reachable in the same way no matter which state ran before it.
 GROUP = {"digest": "week", "roster": "teams", "waivers": "teams", "league": "teams", "myrecap": "teams",
-         "recap": "week", "records": "week",
+         "recap": "league", "records": "league", "trades": "league",
          "ranks": "scouting", "board": "scouting", "movers": "scouting", "matchups": "scouting", "usage": "scouting", "news": "scouting",
-         "weather": "week",
-         "parlay": "bets", "build": "bets", "dfs": "bets", "live": "gameday"}
+         "weather": "week", "live": "week",
+         "parlay": "bets", "build": "bets", "dfs": "bets"}
 
 
 def go(leaf):
@@ -181,6 +181,10 @@ STATES = [
     ("records-yahoo", go("records")),
     # Records' head to head for another manager (its chip), then that manager's first row as the grudge sheet.
     ("records-yahoo-pair", go("records") + [("click", "[data-rcmgr='3']"), ("click", "[data-rcpair] >> nth=0")]),
+    # League > Trades (2026-09-28): the page, then Lateef's trades open (a 2026 one still open, a trade
+    # whose tree verdict differs, the seasons it decided) and every "decided a season" card shown.
+    ("trades", go("trades")),
+    ("trades-open", go("trades") + [("click", "[data-trmgr='6']"), ("click", "[data-trall]")]),
     ("myrecap-yahoo", go("myrecap")),
     ("myrecap-yahoo-week1", go("myrecap") + [("click", "[data-lgweek='1']")]),
     # The fixture's week-3 pairings never met, so this seeds three meetings before the view draws.
@@ -536,6 +540,8 @@ def test_no_fenced_rule_misses_its_element(snapshot, area):
     ("waivers", "teams", "WAIVERS"),
     ("parlay", "bets", "SLIPS"),        # the leaf is still `parlay`, so its bookmarks land
     ("build", "bets", "BUILD"),
+    ("records", "league", "RECORDS"),   # League became a group of its own on 2026-09-28
+    ("trades", "league", "TRADES"),
 ])
 def test_a_hash_opens_its_view(browser, page_file, leaf, group, label):
     """The view lives in the hash so a reload lands where you were reading. Renaming a leaf, or

@@ -38,12 +38,13 @@ from startsit import live_startsit, report as startsit_report  # design/startsit
 from mates import espn_rows, yahoo_rows, live_mates, slugs as mate_slugs, report as mates_report  # every team in both leagues
 from digest import live_digest, report as digest_report        # design/digest.py: the Digest view
 from league_recap import live_league, live_league_yahoo, report as league_report  # My teams > League
+from league_trades import live_trades, report as trades_report  # League > Trades
 from sources import (                                    # design/sources.py: the ff-jarvis adapter
     ROOT, REPO, DWR, FEED, ESPN_ROSTERS, YAHOO_ROSTERS, DFS_POOL,
     feed_block, read_first, load_status, load_props_raw, load_model_raw,
     load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
     load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_startsit, load_digest, load_league,
-    load_league_yahoo, load_league_back, load_defense,
+    load_league_yahoo, load_league_back, load_defense, load_trades,
 )
 from defense import live_defense, report as defense_report  # design/defense.py: the leg sheet's matchup line
 from wx_history import live_wx_history, report as wx_history_report  # Weather's backtest lines
@@ -741,6 +742,7 @@ def render():
         "LIVE_LEAGUE": live_league(*load_league(), roster_file(ESPN_ROSTERS), slugify),
         "LIVE_LEAGUE_YAHOO": live_league_yahoo(*load_league_yahoo(), roster_file(YAHOO_ROSTERS), slugify, *load_league_back()),
         "LIVE_DEFENSE": live_defense(load_defense(), TEAM_FIX),
+        "LIVE_TRADES": live_trades(load_trades(), load_league_back()[2]),
     }
     blocks["LIVE_SIGNED"] = live_signed(load_gamelog_weekly(), blocks["LIVE_SCHEDULE"], slugify, wanted_set)
     add_market_stock(blocks, report)
@@ -751,6 +753,7 @@ def render():
                report_trenches(blocks["LIVE_TRENCHES"]), lines_report(blocks["LIVE_LINES"]),
                injury_report(blocks["LIVE_INJURY"]), startsit_report(blocks["LIVE_STARTSIT"]),
                wx_history_report(blocks["LIVE_WX_HISTORY"]), defense_report(blocks["LIVE_DEFENSE"]),
+               trades_report(blocks["LIVE_TRADES"]),
                f"Weather: {len(blocks['LIVE_WEATHER']['teams'])} teams" if blocks["LIVE_WEATHER"] else "Weather: none"]
     for name, obj in blocks.items():
         contract.validate(name, obj)   # a missing field fails the build, not the page

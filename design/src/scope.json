@@ -28,6 +28,7 @@
     "surface/league/pages.css": ["league", "myrecap", "recap", "records", "#modal"],
     "surface/league/records.css": ["league", "myrecap", "recap", "records", "#modal"],
     "surface/live/live.css": ["live"],
+    "surface/trades/trades.css": ["trades"],
     "surface/matchups/lead.css": ["matchups"],
     "surface/matchups/matchups.css": ["matchups"],
     "surface/matchups/rows.css": ["matchups"],

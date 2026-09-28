@@ -93,6 +93,8 @@ surface/league/lead.js
 surface/league/records.js
 surface/league/myrecap.js
 surface/league/league.js
+surface/trades/cards.js
+surface/trades/trades.js
 # pin: board/* after data/usage.js -- bdRows memoises off USAGE.sheet, and after
 #      surface/profile/sheet.js, whose sheetValues() is the one definition of who counts on an
 #      axis. leaders.js before board.js is readability, not load order: both are functions.

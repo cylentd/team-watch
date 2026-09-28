@@ -91,16 +91,17 @@ and the main checkout stays on `main`, unedited. Notes that cost time to learn:
 
 ## Navigation
 
-Two levels since 2026-09-21. Four groups in the nav bar, each holding the views that answer one
+Two levels since 2026-09-21. Five groups in the nav bar, each holding the views that answer one
 question; `SURFACE` is always the **leaf**, never the group, and the group is derived from it.
+A group with no view to show (League without the Yahoo league) draws no button.
 
 | group | views |
 |---|---|
-| This week (id `week`, since 2026-09-26) | Digest (leaf `digest`, the default page except Tuesday, when Waivers leads): the league-wide week as a lead plus one-line rows, from ff-jarvis `weekly_digest.json`; Weather (leaf `weather`, since 2026-09-26): the games whose forecast moves scoring (proven positions only, from ff-jarvis's `weather_backtest.json`) with who they hit (each side's top QB, WRs and TE from the projections; no roster, the page is public), then every other game as one row; League (leaf `recap`, since 2026-09-27) and Records (leaf `records`): the Yahoo league's week and all-time book, the same for every reader whatever team is picked (Claude's weekly roast, standings, every game with its box score, next week's grudge; trophy case and Halls of Fame and Shame by manager) |
+| This week (id `week`, since 2026-09-26) | Digest (leaf `digest`, the default page except Tuesday, when Waivers leads): the league-wide week as a lead plus one-line rows, from ff-jarvis `weekly_digest.json`; Weather (leaf `weather`, since 2026-09-26): the games whose forecast moves scoring (proven positions only, from ff-jarvis's `weather_backtest.json`) with who they hit (each side's top QB, WRs and TE from the projections; no roster, the page is public), then every other game as one row; Live (leaf `live`; its own Gameday group until 2026-09-28) |
+| League (id `league`, since 2026-09-28; was two leaves of This week) | Recap (leaf `recap`) and Records (leaf `records`): the Yahoo league's week and all-time book, the same for every reader whatever team is picked (Claude's weekly roast, standings, every game with its box score, next week's grudge; trophy case and Halls of Fame and Shame by manager); Trades (leaf `trades`): who won every trade 2018 on, from ff-jarvis `yahoo_trade_verdicts.json` via `design/league_trades.py`, drawn by `surface/trades/`; DESIGN.md "Trades" |
 | My teams | Roster, Waivers, then the team's league page: League (ESPN teams: the week's recap and awards, the rivalry with this week's opponent, all-time records and champions since 2014) or My recap (leaf `myrecap`, Yahoo teams, since 2026-09-27: the team's own result, box score, standing, grudge and record-book lines). All from ff-jarvis `espn_league*.json` / `yahoo_league*.json` via `design/league_recap.py` and `design/league_back.py`, drawn by `surface/league/`; DESIGN.md "League" |
 | Players (id `scouting`, was "Scouting" until 2026-09-25) | Ranks (this week's projected rank per position and FLEX, in tiers; since 2026-09-26), Leaders (leaf `board`: who leads each stat, the #1's card then a list paged to one screen), Movers (whose role is growing, by team), Matchups (start or sit, ours beside Pitcher List's, with the record), Grid (weekly usage), News |
 | Bets | Parlay, DFS |
-| Gameday | Live |
 
 The view is in the hash (`#usage`, `#roster`), so a reload, a bookmark and Back all land where they
 point; the group is derived from the leaf, and only the view is in the URL (the grid's position and

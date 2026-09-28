@@ -78,6 +78,7 @@ surface/league/back.css
 surface/league/front.css
 surface/league/records.css
 surface/league/pages.css
+surface/trades/trades.css
 surface/chat/chat.css
 surface/live/live.css
 surface/strip/field.css

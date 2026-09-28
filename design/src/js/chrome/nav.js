@@ -7,7 +7,7 @@ const NAV_ICON = {
   teams: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="7" r="2.4" opacity=".55"/><path d="M15.5 14.2c2.6.4 4.5 2.2 4.5 5.3" opacity=".55"/></svg>`,
   scouting: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><circle cx="9" cy="14" r="1.6" fill="currentColor" stroke="none"/><circle cx="14" cy="9" r="1.6" fill="currentColor" stroke="none"/><circle cx="18" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg>`,
   bets: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.8"/><path d="M6 9.5v5M18 9.5v5"/></svg>`,
-  gameday: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/><path d="M8.1 8.1a5.5 5.5 0 0 0 0 7.8"/><path d="M15.9 15.9a5.5 5.5 0 0 0 0-7.8"/><path d="M5.2 5.2a9.6 9.6 0 0 0 0 13.6" opacity=".55"/><path d="M18.8 18.8a9.6 9.6 0 0 0 0-13.6" opacity=".55"/></svg>`,
+  league: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v4a5 5 0 0 1-10 0z"/><path d="M7 5.5H4.5a2.5 2.5 0 0 0 2.8 3.4M17 5.5h2.5a2.5 2.5 0 0 1-2.8 3.4"/><path d="M12 13v3.5M8.5 20h7M9.5 16.5h5"/></svg>`,
 };
 /* Four groups, each holding the views that answer one question. Seven flat tabs fitted no phone
    and, worse, implied seven peers: Board and Grid are two readings of the same usage data, and
@@ -17,15 +17,17 @@ const NAV_ICON = {
    and Movers answer different questions, which is what a view is. "Board" reads Leaders now; its
    leaf and hash stay `board`, so bookmarks still land. Parlay split the same way that day: Slips
    (leaf `parlay`, so its bookmarks land) and Build.
-   Gameday holds one view today and exists as a group because that is where a live surface grows.
    Each leaf's label is its own key, so a rename here never silently changes a heading elsewhere.
-   "This week" (2026-09-26) leads: the Digest, what changed league-wide this week, is the front page. */
+   "This week" (2026-09-26) leads: the Digest, what changed league-wide this week, is the front page.
+   League (2026-09-28, storyboard https://claude.ai/artifact/EhbDwDUZ7ERb2iNfAqaKjn): the Yahoo league's
+   recap, record book and trades left This week, which is about this week's games, for a group of their
+   own. It took Gameday's slot on the bar, and Live joined This week: a live game is this week's. */
 const NAV = [
-  ["week",     ["digest", "weather", "recap", "records"]],
+  ["week",     ["digest", "weather", "live"]],
   ["teams",    ["roster", "waivers", "league", "myrecap"]],
   ["scouting", ["ranks", "board", "movers", "matchups", "usage", "news"]],
+  ["league",   ["recap", "records", "trades"]],
   ["bets",     ["parlay", "build", "dfs"]],
-  ["gameday",  ["live"]],
 ];
 
 /* Every key spelled out, never built from a variable. assemble.py --check proves no copy key is
@@ -33,7 +35,7 @@ const NAV = [
    it -- the build would pass while the label rendered blank. */
 const navLabel = leaf => ({
   digest: t("nav.tab.digest"), roster: t("nav.tab.roster"), waivers: t("nav.tab.waivers"), league: t("nav.tab.league"),
-  records: t("nav.tab.records"), recap: t("nav.tab.recap"), myrecap: t("nav.tab.myrecap"),
+  records: t("nav.tab.records"), recap: t("nav.tab.recap"), myrecap: t("nav.tab.myrecap"), trades: t("nav.tab.trades"),
   ranks: t("nav.tab.ranks"),
   board: t("nav.tab.board"), movers: t("nav.tab.movers"),
   matchups: t("nav.tab.matchups"), usage: t("nav.tab.grid"), news: t("nav.tab.news"),
@@ -43,10 +45,10 @@ const navLabel = leaf => ({
 
 const navGroupLabel = (group, short) => (short ? {
   week: t("nav.group.week.short"), teams: t("nav.group.teams.short"), scouting: t("nav.group.scouting.short"),
-  bets: t("nav.group.bets.short"), gameday: t("nav.group.gameday.short"),
+  league: t("nav.group.league.short"), bets: t("nav.group.bets.short"),
 } : {
   week: t("nav.group.week.full"), teams: t("nav.group.teams.full"), scouting: t("nav.group.scouting.full"),
-  bets: t("nav.group.bets.full"), gameday: t("nav.group.gameday.full"),
+  league: t("nav.group.league.full"), bets: t("nav.group.bets.full"),
 })[group] || group;
 
 /* Claims are placed Tuesday and clear midweek, so on a Tuesday (the reader's local day) the wire
@@ -68,7 +70,7 @@ function navTabsOf(group){
   const tm = TEAMS[VIEW], leagueWide = !!LGS.yahoo;
   const tabs = all.filter(k => (k !== "waivers" || hasWaivers(tm))
     && (k !== "league" || (hasLeague(tm) && !hasRecords(tm))) && (k !== "myrecap" || hasRecords(tm))
-    && ((k !== "recap" && k !== "records") || leagueWide));
+    && ((k !== "recap" && k !== "records") || leagueWide) && (k !== "trades" || (leagueWide && !!trData())));
   return navWaiverDay() && tabs.includes("waivers") ? ["waivers", ...tabs.filter(k => k !== "waivers")] : tabs;
 }
 
@@ -131,7 +133,8 @@ function buildNav(){
   const n = document.getElementById("nav");
   // Two labels per group, same pattern as the topbar pills' full/abbr swap: four fit a phone
   // where seven did not, but "Gameday" still needs a short form at 430px ("Players" is its own).
-  n.innerHTML = NAV.map(([g]) =>
+  // A group with no view to show draws no button: League without the Yahoo league.
+  n.innerHTML = NAV.filter(([g]) => navTabsOf(g).length).map(([g]) =>
     `<button class="navitem" data-s="${g}" aria-current="${navGroupOf(SURFACE) === g}">
       <span class="ix">${NAV_ICON[g]}</span><span class="full">${navGroupLabel(g, false)}</span
       ><span class="abbr">${navGroupLabel(g, true)}</span></button>`).join("");

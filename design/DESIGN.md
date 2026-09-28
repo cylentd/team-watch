@@ -274,6 +274,34 @@ and the briefs, all in display caps, were hard to read:
   redraws only its own part.
 - **A week the roast skipped** (two rejected replies) draws scores, boxes and superlatives without words.
 
+## Trades (League group, 2026-09-28)
+
+Storyboard https://claude.ai/artifact/EhbDwDUZ7ERb2iNfAqaKjn. **League became a nav group** (Recap,
+Records, Trades): those pages are about the league and its history, not this week's games. It took
+Gameday's slot; Live joined This week. On a phone "League" is 23px wider than "Live", so the bar's
+labels went from 5px to 2px sides (8px clear of the search icon at 360px, measured).
+
+| Block | Answers | Basis |
+|---|---|---|
+| Best / worst | who trades best and worst, and whether it is proven (a 90% range clear of 0) | held weeks, per trade |
+| Trader ranking | each manager's W–L, the dot (average PAR a trade) and its range; a row opens their trades | held weeks |
+| The 3 biggest heists | the best and worst trade ever (each heist is both) | trade tree |
+| Trades that decided a season | the title, then every playoff spot or bye a trade moved | trade tree + the swing check |
+| Curses | players whose sender lost every trade (Godwin 3 of 3, Chase 2 of 2); hot potatoes the reverse | trade tree |
+
+- **Every number is ff-jarvis's** (`model.season.trade_verdicts`): points above replacement (QB12,
+  RB30, WR30, TE12 that week, floor 0) from the trade to season's end; `design/league_trades.py` only
+  names, shortens and orders. David's calls on 2026-09-28: judge a trade on its **trade tree** ("the
+  most honest"); split a flip's return by what each player sent earned, not 1/n; drops are fine to ignore.
+- **One basis per row:** a manager's W–L, dot and trade list count held weeks only, so a row never
+  disagrees with itself; a trade whose tree verdict differs says so in the list ("Trade tree: … won it").
+- **Margins are numbers** (PAR). Words ("the biggest ever") on the top three were recommended and are
+  not built; David has not chosen yet (2026-09-28). 2026 trades show in the lists as open and stay out
+  of the ranking (David's call).
+- **First data at 218px on a phone** (budget ~200): the league name wraps to two lines, as on Records.
+- The fixture lifts Andrew's range clear of 0 so the green "proven good" track has an element; the real
+  data has no proven-good trader.
+
 ## Waivers (sub-tab of My Teams, 2026-09-16)
 
 A Roster | Waivers toggle under the team name, not a sixth nav tab: waivers are per league like

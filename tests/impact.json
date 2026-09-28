@@ -27,6 +27,11 @@
       "tests": ["tests/test_league_back.py", "tests/test_league_recap.py"],
       "render": ["league", "myrecap", "recap", "records"]
     },
+    "trades": {
+      "paths": ["design/src/js/surface/trades/", "design/src/css/surface/trades/", "design/league_trades.py"],
+      "tests": ["tests/test_league_trades.py"],
+      "render": ["trades"]
+    },
     "live": {
       "paths": ["design/src/js/surface/live/", "design/src/css/surface/live/", "design/src/js/data/schedule.js",
                 "api/live.py", "design/schedule.py"],

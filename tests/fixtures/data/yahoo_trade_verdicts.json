@@ -1,0 +1,4571 @@
+{
+ "generated": "2026-09-28T13:17",
+ "repl": {
+  "QB": 12,
+  "RB": 30,
+  "WR": 30,
+  "TE": 12
+ },
+ "trades": [
+  {
+   "season": 2018,
+   "when": "2018-10-17T17:27-04:00",
+   "week": 7,
+   "open": false,
+   "sides": [
+    {
+     "team": 8,
+     "name": "RIP JIMMY G 👼🏽",
+     "manager": 2,
+     "par": 16.8,
+     "par_reg": 16.8,
+     "par_po": 0.0,
+     "pts": 117.7,
+     "players": [
+      {
+       "name": "Calvin Ridley",
+       "pos": "WR",
+       "par_reg": 14.0,
+       "par_po": 0.0,
+       "pts": 55.2,
+       "games": 6
+      },
+      {
+       "name": "Andy Dalton",
+       "pos": "QB",
+       "par_reg": 2.8,
+       "par_po": 0.0,
+       "pts": 62.5,
+       "games": 5
+      }
+     ],
+     "before": "2-4",
+     "after": "3-4",
+     "swung": [
+      {
+       "week": 12,
+       "kind": "regular",
+       "margin": 2.0,
+       "net": 5.1
+      }
+     ],
+     "cost": [],
+     "tree": 16.8,
+     "via": []
+    },
+    {
+     "team": 12,
+     "name": "Lateef's Bold Team",
+     "manager": 6,
+     "par": 1.1,
+     "par_reg": 1.1,
+     "par_po": 0.0,
+     "pts": 27.5,
+     "players": [
+      {
+       "name": "Corey Clement",
+       "pos": "RB",
+       "par_reg": 1.1,
+       "par_po": 0.0,
+       "pts": 27.5,
+       "games": 6
+      }
+     ],
+     "before": "1-5",
+     "after": "2-5",
+     "swung": [],
+     "cost": [],
+     "tree": 1.1,
+     "via": []
+    }
+   ],
+   "winner": 2,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 15.7
+  },
+  {
+   "season": 2018,
+   "when": "2018-10-17T00:47-04:00",
+   "week": 7,
+   "open": false,
+   "sides": [
+    {
+     "team": 3,
+     "name": "TitleOfYourSexTape",
+     "manager": 3,
+     "par": 95.6,
+     "par_reg": 95.6,
+     "par_po": 0.0,
+     "pts": 184.6,
+     "players": [
+      {
+       "name": "Ezekiel Elliott",
+       "pos": "RB",
+       "par_reg": 81.6,
+       "par_po": 0.0,
+       "pts": 127.0,
+       "games": 6
+      },
+      {
+       "name": "Jarvis Landry",
+       "pos": "WR",
+       "par_reg": 14.0,
+       "par_po": 0.0,
+       "pts": 57.6,
+       "games": 6
+      }
+     ],
+     "before": "2-4",
+     "after": "2-5",
+     "swung": [
+      {
+       "week": 13,
+       "kind": "regular",
+       "margin": 7.9,
+       "net": 14.3
+      }
+     ],
+     "cost": [],
+     "tree": 95.6,
+     "via": []
+    },
+    {
+     "team": 12,
+     "name": "Lateef's Bold Team",
+     "manager": 6,
+     "par": 50.5,
+     "par_reg": 50.5,
+     "par_po": 0.0,
+     "pts": 146.3,
+     "players": [
+      {
+       "name": "DeAndre Hopkins",
+       "pos": "WR",
+       "par_reg": 32.1,
+       "par_po": 0.0,
+       "pts": 91.8,
+       "games": 6
+      },
+      {
+       "name": "Cooper Kupp",
+       "pos": "WR",
+       "par_reg": 8.5,
+       "par_po": 0.0,
+       "pts": 23.8,
+       "games": 2
+      },
+      {
+       "name": "Will Fuller V",
+       "pos": "WR",
+       "par_reg": 9.9,
+       "par_po": 0.0,
+       "pts": 30.7,
+       "games": 2
+      }
+     ],
+     "before": "1-5",
+     "after": "2-5",
+     "swung": [
+      {
+       "week": 9,
+       "kind": "regular",
+       "margin": 7.8,
+       "net": 15.0
+      }
+     ],
+     "cost": [],
+     "tree": 50.5,
+     "via": []
+    }
+   ],
+   "winner": 3,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 45.1
+  },
+  {
+   "season": 2018,
+   "when": "2018-09-26T17:58-04:00",
+   "week": 4,
+   "open": false,
+   "sides": [
+    {
+     "team": 7,
+     "name": "Scott’s Tots",
+     "manager": 7,
+     "par": 40.0,
+     "par_reg": 40.0,
+     "par_po": 0.0,
+     "pts": 102.0,
+     "players": [
+      {
+       "name": "Lamar Miller",
+       "pos": "RB",
+       "par_reg": 40.0,
+       "par_po": 0.0,
+       "pts": 102.0,
+       "games": 8
+      }
+     ],
+     "before": "3-0",
+     "after": "3-7",
+     "swung": [],
+     "cost": [
+      {
+       "week": 4,
+       "kind": "regular",
+       "margin": -1.4,
+       "net": -5.7
+      },
+      {
+       "week": 10,
+       "kind": "regular",
+       "margin": -11.2,
+       "net": -22.3
+      }
+     ],
+     "tree": 40.0,
+     "via": []
+    },
+    {
+     "team": 3,
+     "name": "TitleOfYourSexTape",
+     "manager": 3,
+     "par": 64.8,
+     "par_reg": 64.8,
+     "par_po": 0.0,
+     "pts": 134.3,
+     "players": [
+      {
+       "name": "Aaron Jones Sr.",
+       "pos": "RB",
+       "par_reg": 64.8,
+       "par_po": 0.0,
+       "pts": 134.3,
+       "games": 9
+      }
+     ],
+     "before": "1-2",
+     "after": "3-7",
+     "swung": [],
+     "cost": [],
+     "tree": 64.8,
+     "via": []
+    }
+   ],
+   "winner": 3,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {
+     "7": {
+      "seed": 7,
+      "without": 4
+     }
+    }
+   },
+   "margin": 24.8
+  },
+  {
+   "season": 2019,
+   "when": "2019-11-06T03:37-05:00",
+   "week": 10,
+   "open": false,
+   "sides": [
+    {
+     "team": 5,
+     "name": "Hooked on a Thielen",
+     "manager": 9,
+     "par": 28.3,
+     "par_reg": 28.3,
+     "par_po": 0.0,
+     "pts": 63.5,
+     "players": [
+      {
+       "name": "Chris Godwin Jr.",
+       "pos": "WR",
+       "par_reg": 28.3,
+       "par_po": 0.0,
+       "pts": 63.5,
+       "games": 4
+      },
+      {
+       "name": "Bills",
+       "pos": "DEF",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 0.0,
+       "games": 0,
+       "unscored": true
+      }
+     ],
+     "before": "3-6",
+     "after": "2-2",
+     "swung": [],
+     "cost": [],
+     "tree": 28.3,
+     "via": []
+    },
+    {
+     "team": 4,
+     "name": "WHERE IS A A RON",
+     "manager": 12,
+     "par": 21.1,
+     "par_reg": 18.7,
+     "par_po": 2.4,
+     "pts": 49.0,
+     "players": [
+      {
+       "name": "DeAndre Hopkins",
+       "pos": "WR",
+       "par_reg": 18.7,
+       "par_po": 2.4,
+       "pts": 49.0,
+       "games": 3
+      }
+     ],
+     "before": "7-2",
+     "after": "3-1",
+     "swung": [
+      {
+       "week": 13,
+       "kind": "regular",
+       "margin": 0.8,
+       "net": 1.6
+      }
+     ],
+     "cost": [],
+     "tree": 21.1,
+     "via": []
+    }
+   ],
+   "winner": 9,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 7.2
+  },
+  {
+   "season": 2019,
+   "when": "2019-10-08T17:09-04:00",
+   "week": 6,
+   "open": false,
+   "sides": [
+    {
+     "team": 11,
+     "name": "New Team Who Dis",
+     "manager": 11,
+     "par": 16.7,
+     "par_reg": 16.7,
+     "par_po": 0.0,
+     "pts": 141.7,
+     "players": [
+      {
+       "name": "Hollywood Brown",
+       "pos": "WR",
+       "par_reg": 15.6,
+       "par_po": 0.0,
+       "pts": 44.9,
+       "games": 5
+      },
+      {
+       "name": "Philip Rivers",
+       "pos": "QB",
+       "par_reg": 1.1,
+       "par_po": 0.0,
+       "pts": 96.8,
+       "games": 7
+      }
+     ],
+     "before": "2-3",
+     "after": "3-5",
+     "swung": [],
+     "cost": [],
+     "tree": 16.7,
+     "via": []
+    },
+    {
+     "team": 10,
+     "name": "*Chubby Chasers*",
+     "manager": 4,
+     "par": 27.6,
+     "par_reg": 27.6,
+     "par_po": 0.0,
+     "pts": 177.5,
+     "players": [
+      {
+       "name": "Dak Prescott",
+       "pos": "QB",
+       "par_reg": 27.6,
+       "par_po": 0.0,
+       "pts": 147.3,
+       "games": 7
+      },
+      {
+       "name": "Nelson Agholor",
+       "pos": "WR",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 30.2,
+       "games": 6
+      }
+     ],
+     "before": "3-2",
+     "after": "3-5",
+     "swung": [],
+     "cost": [
+      {
+       "week": 14,
+       "kind": "playoff",
+       "margin": -2.0,
+       "net": -4.7
+      }
+     ],
+     "tree": 27.6,
+     "via": []
+    }
+   ],
+   "winner": 4,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 10.9
+  },
+  {
+   "season": 2019,
+   "when": "2019-10-03T00:19-04:00",
+   "week": 5,
+   "open": false,
+   "sides": [
+    {
+     "team": 11,
+     "name": "New Team Who Dis",
+     "manager": 11,
+     "par": 33.5,
+     "par_reg": 33.5,
+     "par_po": 0.0,
+     "pts": 92.0,
+     "players": [
+      {
+       "name": "Todd Gurley",
+       "pos": "RB",
+       "par_reg": 33.5,
+       "par_po": 0.0,
+       "pts": 87.0,
+       "games": 7
+      },
+      {
+       "name": "Wayne Gallman",
+       "pos": "RB",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 5.0,
+       "games": 5
+      }
+     ],
+     "before": "1-3",
+     "after": "4-5",
+     "swung": [],
+     "cost": [],
+     "tree": 33.5,
+     "via": []
+    },
+    {
+     "team": 5,
+     "name": "Hooked on a Thielen",
+     "manager": 9,
+     "par": 26.1,
+     "par_reg": 26.1,
+     "par_po": 0.0,
+     "pts": 95.1,
+     "players": [
+      {
+       "name": "Kerryon Johnson",
+       "pos": "RB",
+       "par_reg": 4.6,
+       "par_po": 0.0,
+       "pts": 15.4,
+       "games": 2
+      },
+      {
+       "name": "Mark Andrews",
+       "pos": "TE",
+       "par_reg": 21.5,
+       "par_po": 0.0,
+       "pts": 79.7,
+       "games": 8
+      }
+     ],
+     "before": "2-2",
+     "after": "3-6",
+     "swung": [],
+     "cost": [],
+     "tree": 26.1,
+     "via": []
+    }
+   ],
+   "winner": 11,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 7.4
+  },
+  {
+   "season": 2019,
+   "when": "2019-10-02T00:45-04:00",
+   "week": 5,
+   "open": false,
+   "sides": [
+    {
+     "team": 4,
+     "name": "WHERE IS A A RON",
+     "manager": 12,
+     "par": 30.8,
+     "par_reg": 30.8,
+     "par_po": 0.0,
+     "pts": 66.8,
+     "players": [
+      {
+       "name": "Chris Godwin Jr.",
+       "pos": "WR",
+       "par_reg": 30.8,
+       "par_po": 0.0,
+       "pts": 66.8,
+       "games": 4,
+       "held_to": 9
+      }
+     ],
+     "before": "3-1",
+     "after": "7-2",
+     "swung": [],
+     "cost": [],
+     "tree": 51.9,
+     "via": [
+      {
+       "player": "Chris Godwin Jr.",
+       "when": "2019-11-06T03:37-05:00",
+       "share": 1.0,
+       "par": 21.1,
+       "for": [
+        "DeAndre Hopkins"
+       ]
+      }
+     ]
+    },
+    {
+     "team": 7,
+     "name": "Can You Diggs It?",
+     "manager": 7,
+     "par": 17.5,
+     "par_reg": 17.5,
+     "par_po": 0.0,
+     "pts": 84.4,
+     "players": [
+      {
+       "name": "Brandin Cooks",
+       "pos": "WR",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 26.4,
+       "games": 6
+      },
+      {
+       "name": "Matt Breida",
+       "pos": "RB",
+       "par_reg": 17.5,
+       "par_po": 0.0,
+       "pts": 58.0,
+       "games": 6
+      }
+     ],
+     "before": "2-2",
+     "after": "3-6",
+     "swung": [],
+     "cost": [
+      {
+       "week": 6,
+       "kind": "regular",
+       "margin": -3.7,
+       "net": -11.7
+      }
+     ],
+     "tree": 17.5,
+     "via": []
+    }
+   ],
+   "winner": 12,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 34.4
+  },
+  {
+   "season": 2019,
+   "when": "2019-09-17T03:12-04:00",
+   "week": 3,
+   "open": false,
+   "sides": [
+    {
+     "team": 5,
+     "name": "Hooked on a Thielen",
+     "manager": 9,
+     "par": 51.2,
+     "par_reg": 51.2,
+     "par_po": 0.0,
+     "pts": 129.4,
+     "players": [
+      {
+       "name": "Adam Thielen",
+       "pos": "WR",
+       "par_reg": 32.8,
+       "par_po": 0.0,
+       "pts": 72.9,
+       "games": 6
+      },
+      {
+       "name": "Marquez Valdes-Scantling",
+       "pos": "WR",
+       "par_reg": 18.4,
+       "par_po": 0.0,
+       "pts": 56.5,
+       "games": 10
+      },
+      {
+       "name": "Cam Newton",
+       "pos": "QB",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 0.0,
+       "games": 0
+      }
+     ],
+     "before": "1-1",
+     "after": "4-7",
+     "swung": [],
+     "cost": [],
+     "tree": 51.2,
+     "via": []
+    },
+    {
+     "team": 3,
+     "name": "Bell Cows",
+     "manager": "former-3",
+     "par": 81.1,
+     "par_reg": 81.1,
+     "par_po": 0.0,
+     "pts": 356.7,
+     "players": [
+      {
+       "name": "Calvin Ridley",
+       "pos": "WR",
+       "par_reg": 39.5,
+       "par_po": 0.0,
+       "pts": 114.5,
+       "games": 10
+      },
+      {
+       "name": "LeSean McCoy",
+       "pos": "RB",
+       "par_reg": 27.1,
+       "par_po": 0.0,
+       "pts": 84.6,
+       "games": 9
+      },
+      {
+       "name": "Tom Brady",
+       "pos": "QB",
+       "par_reg": 14.5,
+       "par_po": 0.0,
+       "pts": 157.6,
+       "games": 10
+      }
+     ],
+     "before": "0-2",
+     "after": "6-5",
+     "swung": [
+      {
+       "week": 13,
+       "kind": "regular",
+       "margin": 6.4,
+       "net": 7.6
+      }
+     ],
+     "cost": [],
+     "tree": 81.1,
+     "via": []
+    }
+   ],
+   "winner": "former-3",
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 29.9
+  },
+  {
+   "season": 2020,
+   "when": "2020-10-27T16:57-04:00",
+   "week": 8,
+   "open": false,
+   "sides": [
+    {
+     "team": 9,
+     "name": "The Bunny Hopkins 🐰",
+     "manager": 4,
+     "par": 19.2,
+     "par_reg": 19.2,
+     "par_po": 0.0,
+     "pts": 62.0,
+     "players": [
+      {
+       "name": "Damien Harris",
+       "pos": "RB",
+       "par_reg": 19.2,
+       "par_po": 0.0,
+       "pts": 62.0,
+       "games": 6
+      }
+     ],
+     "before": "7-0",
+     "after": "2-4",
+     "swung": [],
+     "cost": [],
+     "tree": 19.2,
+     "via": []
+    },
+    {
+     "team": 6,
+     "name": "Russell Sprouts 🌳",
+     "manager": 7,
+     "par": 1.0,
+     "par_reg": 1.0,
+     "par_po": 0.0,
+     "pts": 15.0,
+     "players": [
+      {
+       "name": "A.J. Green",
+       "pos": "WR",
+       "par_reg": 1.0,
+       "par_po": 0.0,
+       "pts": 15.0,
+       "games": 5
+      }
+     ],
+     "before": "4-3",
+     "after": "2-4",
+     "swung": [],
+     "cost": [],
+     "tree": 1.0,
+     "via": []
+    }
+   ],
+   "winner": 4,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 18.2
+  },
+  {
+   "season": 2020,
+   "when": "2020-10-24T12:56-04:00",
+   "week": 7,
+   "open": false,
+   "sides": [
+    {
+     "team": 10,
+     "name": "Team Mahomie",
+     "manager": 11,
+     "par": 10.2,
+     "par_reg": 10.2,
+     "par_po": 0.0,
+     "pts": 49.3,
+     "players": [
+      {
+       "name": "Jerry Jeudy",
+       "pos": "WR",
+       "par_reg": 10.2,
+       "par_po": 0.0,
+       "pts": 49.3,
+       "games": 7
+      }
+     ],
+     "before": "2-4",
+     "after": "2-5",
+     "swung": [],
+     "cost": [],
+     "tree": 10.2,
+     "via": []
+    },
+    {
+     "team": 8,
+     "name": "Boats N Younghoes ⛵️",
+     "manager": 5,
+     "par": 25.0,
+     "par_reg": 25.0,
+     "par_po": 0.0,
+     "pts": 67.6,
+     "players": [
+      {
+       "name": "Jamaal Williams",
+       "pos": "RB",
+       "par_reg": 25.0,
+       "par_po": 0.0,
+       "pts": 67.6,
+       "games": 6
+      }
+     ],
+     "before": "3-3",
+     "after": "2-5",
+     "swung": [],
+     "cost": [],
+     "tree": 25.0,
+     "via": []
+    }
+   ],
+   "winner": 5,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 14.8
+  },
+  {
+   "season": 2020,
+   "when": "2020-10-22T16:46-04:00",
+   "week": 7,
+   "open": false,
+   "sides": [
+    {
+     "team": 8,
+     "name": "Boats N Younghoes ⛵️",
+     "manager": 5,
+     "par": 42.9,
+     "par_reg": 42.9,
+     "par_po": 0.0,
+     "pts": 143.4,
+     "players": [
+      {
+       "name": "Mecole Hardman Jr.",
+       "pos": "WR",
+       "par_reg": 8.3,
+       "par_po": 0.0,
+       "pts": 41.3,
+       "games": 6
+      },
+      {
+       "name": "A.J. Brown",
+       "pos": "WR",
+       "par_reg": 34.6,
+       "par_po": 0.0,
+       "pts": 102.1,
+       "games": 7
+      }
+     ],
+     "before": "3-3",
+     "after": "2-5",
+     "swung": [],
+     "cost": [
+      {
+       "week": 11,
+       "kind": "regular",
+       "margin": -1.9,
+       "net": -5.0
+      }
+     ],
+     "tree": 42.9,
+     "via": []
+    },
+    {
+     "team": 3,
+     "name": "COOKie MonSTARS 🍪",
+     "manager": 3,
+     "par": 71.8,
+     "par_reg": 55.6,
+     "par_po": 16.2,
+     "pts": 142.2,
+     "players": [
+      {
+       "name": "Darren Waller",
+       "pos": "TE",
+       "par_reg": 43.3,
+       "par_po": 16.2,
+       "pts": 96.2,
+       "games": 7
+      },
+      {
+       "name": "DJ Chark",
+       "pos": "WR",
+       "par_reg": 12.3,
+       "par_po": 0.0,
+       "pts": 46.0,
+       "games": 5
+      }
+     ],
+     "before": "5-1",
+     "after": "5-2",
+     "swung": [],
+     "cost": [],
+     "tree": 71.8,
+     "via": []
+    }
+   ],
+   "winner": 3,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {
+     "5": {
+      "seed": 8,
+      "without": 6
+     }
+    }
+   },
+   "margin": 28.9
+  },
+  {
+   "season": 2020,
+   "when": "2020-10-21T14:17-04:00",
+   "week": 7,
+   "open": false,
+   "sides": [
+    {
+     "team": 8,
+     "name": "Boats N Younghoes ⛵️",
+     "manager": 5,
+     "par": 15.7,
+     "par_reg": 15.7,
+     "par_po": 0.0,
+     "pts": 48.4,
+     "players": [
+      {
+       "name": "Cam Akers",
+       "pos": "RB",
+       "par_reg": 15.7,
+       "par_po": 0.0,
+       "pts": 48.4,
+       "games": 5
+      }
+     ],
+     "before": "3-3",
+     "after": "2-5",
+     "swung": [],
+     "cost": [],
+     "tree": 15.7,
+     "via": []
+    },
+    {
+     "team": 4,
+     "name": "KAMARAHAMEHA ☄️",
+     "manager": 12,
+     "par": 21.9,
+     "par_reg": 19.0,
+     "par_po": 2.9,
+     "pts": 58.9,
+     "players": [
+      {
+       "name": "Latavius Murray",
+       "pos": "RB",
+       "par_reg": 19.0,
+       "par_po": 2.9,
+       "pts": 58.9,
+       "games": 7
+      }
+     ],
+     "before": "6-0",
+     "after": "4-3",
+     "swung": [],
+     "cost": [],
+     "tree": 21.9,
+     "via": []
+    }
+   ],
+   "winner": 12,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 6.2
+  },
+  {
+   "season": 2020,
+   "when": "2020-10-14T16:33-04:00",
+   "week": 6,
+   "open": false,
+   "sides": [
+    {
+     "team": 4,
+     "name": "KAMARAHAMEHA ☄️",
+     "manager": 12,
+     "par": 95.2,
+     "par_reg": 75.5,
+     "par_po": 19.7,
+     "pts": 157.9,
+     "players": [
+      {
+       "name": "Adam Thielen",
+       "pos": "WR",
+       "par_reg": 33.3,
+       "par_po": 9.1,
+       "pts": 85.7,
+       "games": 6
+      },
+      {
+       "name": "Nick Chubb",
+       "pos": "RB",
+       "par_reg": 42.2,
+       "par_po": 10.6,
+       "pts": 72.2,
+       "games": 4
+      }
+     ],
+     "before": "5-0",
+     "after": "5-3",
+     "swung": [],
+     "cost": [],
+     "tree": 95.2,
+     "via": []
+    },
+    {
+     "team": 9,
+     "name": "The Bunny Hopkins 🐰",
+     "manager": 4,
+     "par": 136.3,
+     "par_reg": 133.4,
+     "par_po": 2.9,
+     "pts": 251.7,
+     "players": [
+      {
+       "name": "James Robinson",
+       "pos": "RB",
+       "par_reg": 73.1,
+       "par_po": 2.9,
+       "pts": 125.7,
+       "games": 7
+      },
+      {
+       "name": "Justin Jefferson",
+       "pos": "WR",
+       "par_reg": 60.3,
+       "par_po": 0.0,
+       "pts": 126.0,
+       "games": 7
+      }
+     ],
+     "before": "5-0",
+     "after": "4-4",
+     "swung": [
+      {
+       "week": 6,
+       "kind": "regular",
+       "margin": 1.2,
+       "net": 28.6
+      }
+     ],
+     "cost": [],
+     "tree": 136.3,
+     "via": []
+    }
+   ],
+   "winner": 4,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 41.1
+  },
+  {
+   "season": 2020,
+   "when": "2020-10-14T12:09-04:00",
+   "week": 6,
+   "open": false,
+   "sides": [
+    {
+     "team": 12,
+     "name": "Breesma & Gronk🦙",
+     "manager": 8,
+     "par": 12.5,
+     "par_reg": 12.5,
+     "par_po": 0.0,
+     "pts": 51.7,
+     "players": [
+      {
+       "name": "Darrell Henderson Jr.",
+       "pos": "RB",
+       "par_reg": 12.5,
+       "par_po": 0.0,
+       "pts": 51.7,
+       "games": 7
+      }
+     ],
+     "before": "0-5",
+     "after": "5-3",
+     "swung": [],
+     "cost": [],
+     "tree": 12.5,
+     "via": []
+    },
+    {
+     "team": 8,
+     "name": "Boats N Younghoes ⛵️",
+     "manager": 5,
+     "par": 0.0,
+     "par_reg": 0.0,
+     "par_po": 0.0,
+     "pts": 0.0,
+     "players": [
+      {
+       "name": "Steelers",
+       "pos": "DEF",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 0.0,
+       "games": 0,
+       "unscored": true
+      }
+     ],
+     "before": "2-3",
+     "after": "3-5",
+     "swung": [],
+     "cost": [],
+     "tree": 0.0,
+     "via": []
+    }
+   ],
+   "winner": 8,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 12.5
+  },
+  {
+   "season": 2020,
+   "when": "2020-09-30T17:33-04:00",
+   "week": 4,
+   "open": false,
+   "sides": [
+    {
+     "team": 6,
+     "name": "Russell Sprouts 🌳",
+     "manager": 7,
+     "par": 78.3,
+     "par_reg": 78.3,
+     "par_po": 0.0,
+     "pts": 196.7,
+     "players": [
+      {
+       "name": "Todd Gurley",
+       "pos": "RB",
+       "par_reg": 47.1,
+       "par_po": 0.0,
+       "pts": 100.2,
+       "games": 8
+      },
+      {
+       "name": "Corey Davis",
+       "pos": "WR",
+       "par_reg": 31.2,
+       "par_po": 0.0,
+       "pts": 96.5,
+       "games": 7
+      }
+     ],
+     "before": "1-2",
+     "after": "5-5",
+     "swung": [
+      {
+       "week": 8,
+       "kind": "regular",
+       "margin": 6.8,
+       "net": 12.9
+      }
+     ],
+     "cost": [],
+     "tree": 78.3,
+     "via": []
+    },
+    {
+     "team": 3,
+     "name": "COOKie MonSTARS 🍪",
+     "manager": 3,
+     "par": 19.8,
+     "par_reg": 13.4,
+     "par_po": 6.4,
+     "pts": 66.3,
+     "players": [
+      {
+       "name": "Devin Singletary",
+       "pos": "RB",
+       "par_reg": 13.4,
+       "par_po": 6.4,
+       "pts": 66.3,
+       "games": 9
+      }
+     ],
+     "before": "3-0",
+     "after": "7-3",
+     "swung": [],
+     "cost": [
+      {
+       "week": 5,
+       "kind": "regular",
+       "margin": -7.4,
+       "net": -15.8
+      }
+     ],
+     "tree": 19.8,
+     "via": []
+    }
+   ],
+   "winner": 7,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 58.5
+  },
+  {
+   "season": 2020,
+   "when": "2020-09-30T16:31-04:00",
+   "week": 4,
+   "open": false,
+   "sides": [
+    {
+     "team": 4,
+     "name": "KAMARAHAMEHA ☄️",
+     "manager": 12,
+     "par": 49.9,
+     "par_reg": 27.1,
+     "par_po": 22.8,
+     "pts": 80.9,
+     "players": [
+      {
+       "name": "Justin Jefferson",
+       "pos": "WR",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 16.1,
+       "games": 2,
+       "held_to": 5
+      },
+      {
+       "name": "Myles Gaskin",
+       "pos": "RB",
+       "par_reg": 27.1,
+       "par_po": 22.8,
+       "pts": 64.8,
+       "games": 5
+      }
+     ],
+     "before": "3-0",
+     "after": "7-3",
+     "swung": [],
+     "cost": [
+      {
+       "week": 12,
+       "kind": "regular",
+       "margin": -20.1,
+       "net": -21.8
+      }
+     ],
+     "tree": 92.0,
+     "via": [
+      {
+       "player": "Justin Jefferson",
+       "when": "2020-10-14T16:33-04:00",
+       "share": 0.44,
+       "par": 42.1,
+       "for": [
+        "Adam Thielen",
+        "Nick Chubb"
+       ]
+      }
+     ]
+    },
+    {
+     "team": 5,
+     "name": "One Moore Drake ☝️",
+     "manager": 9,
+     "par": 50.6,
+     "par_reg": 50.6,
+     "par_po": 0.0,
+     "pts": 133.8,
+     "players": [
+      {
+       "name": "Will Fuller V",
+       "pos": "WR",
+       "par_reg": 50.6,
+       "par_po": 0.0,
+       "pts": 133.8,
+       "games": 8
+      }
+     ],
+     "before": "2-1",
+     "after": "5-5",
+     "swung": [
+      {
+       "week": 12,
+       "kind": "regular",
+       "margin": 6.5,
+       "net": 9.6
+      }
+     ],
+     "cost": [
+      {
+       "week": 5,
+       "kind": "regular",
+       "margin": -3.5,
+       "net": -7.2
+      },
+      {
+       "week": 6,
+       "kind": "regular",
+       "margin": -6.4,
+       "net": -21.2
+      }
+     ],
+     "tree": 50.6,
+     "via": []
+    }
+   ],
+   "winner": 12,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 41.4
+  },
+  {
+   "season": 2020,
+   "when": "2020-09-30T13:24-04:00",
+   "week": 4,
+   "open": false,
+   "sides": [
+    {
+     "team": 6,
+     "name": "Russell Sprouts 🌳",
+     "manager": 7,
+     "par": 6.6,
+     "par_reg": 6.6,
+     "par_po": 0.0,
+     "pts": 58.2,
+     "players": [
+      {
+       "name": "Devin Singletary",
+       "pos": "RB",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 0.0,
+       "games": 0,
+       "held_to": 3
+      },
+      {
+       "name": "Hayden Hurst",
+       "pos": "TE",
+       "par_reg": 6.6,
+       "par_po": 0.0,
+       "pts": 58.2,
+       "games": 9
+      }
+     ],
+     "before": "1-2",
+     "after": "5-5",
+     "swung": [],
+     "cost": [
+      {
+       "week": 4,
+       "kind": "regular",
+       "margin": -3.3,
+       "net": -10.8
+      }
+     ],
+     "tree": 84.9,
+     "via": [
+      {
+       "player": "Devin Singletary",
+       "when": "2020-09-30T17:33-04:00",
+       "share": 1.0,
+       "par": 78.3,
+       "for": [
+        "Todd Gurley",
+        "Corey Davis"
+       ]
+      }
+     ]
+    },
+    {
+     "team": 5,
+     "name": "One Moore Drake ☝️",
+     "manager": 9,
+     "par": 33.1,
+     "par_reg": 27.3,
+     "par_po": 5.8,
+     "pts": 73.0,
+     "players": [
+      {
+       "name": "Mark Andrews",
+       "pos": "TE",
+       "par_reg": 27.3,
+       "par_po": 5.8,
+       "pts": 73.0,
+       "games": 7
+      }
+     ],
+     "before": "2-1",
+     "after": "5-5",
+     "swung": [
+      {
+       "week": 11,
+       "kind": "regular",
+       "margin": 1.9,
+       "net": 7.9
+      }
+     ],
+     "cost": [],
+     "tree": 33.1,
+     "via": []
+    }
+   ],
+   "winner": 7,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {
+     "7": {
+      "seed": 7,
+      "without": 6
+     },
+     "9": {
+      "seed": 6,
+      "without": 8
+     }
+    }
+   },
+   "margin": 51.8
+  },
+  {
+   "season": 2021,
+   "when": "2021-12-15T02:01-05:00",
+   "week": 15,
+   "open": false,
+   "sides": [
+    {
+     "team": 4,
+     "name": "SUPREME KAMARAHAMEHA 💨",
+     "manager": 12,
+     "par": 0.0,
+     "par_reg": 0.0,
+     "par_po": 0.0,
+     "pts": 0.0,
+     "players": [
+      {
+       "name": "Dawson Knox",
+       "pos": "TE",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 0.0,
+       "games": 0
+      }
+     ],
+     "before": "7-7",
+     "after": "0-0",
+     "swung": [],
+     "cost": [],
+     "tree": 0.0,
+     "via": []
+    },
+    {
+     "team": 1,
+     "name": "Knox Knox No One Here",
+     "manager": 1,
+     "par": 0.0,
+     "par_reg": 0.0,
+     "par_po": 0.0,
+     "pts": 0.0,
+     "players": [
+      {
+       "name": "Taysom Hill",
+       "pos": "QB",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 0.0,
+       "games": 0
+      }
+     ],
+     "before": "5-9",
+     "after": "0-0",
+     "swung": [],
+     "cost": [],
+     "tree": 0.0,
+     "via": []
+    }
+   ],
+   "winner": 12,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 0.0
+  },
+  {
+   "season": 2021,
+   "when": "2021-12-03T15:34-05:00",
+   "week": 13,
+   "open": false,
+   "sides": [
+    {
+     "team": 5,
+     "name": "One Punch Toney 🥊",
+     "manager": 9,
+     "par": 0.0,
+     "par_reg": 0.0,
+     "par_po": 0.0,
+     "pts": 11.0,
+     "players": [
+      {
+       "name": "Christian Kirk",
+       "pos": "WR",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 11.0,
+       "games": 2
+      }
+     ],
+     "before": "7-5",
+     "after": "1-1",
+     "swung": [],
+     "cost": [
+      {
+       "week": 13,
+       "kind": "regular",
+       "margin": -0.2,
+       "net": -10.8
+      }
+     ],
+     "tree": 0.0,
+     "via": []
+    },
+    {
+     "team": 1,
+     "name": "Knox Knox No One Here",
+     "manager": 1,
+     "par": 12.6,
+     "par_reg": 12.6,
+     "par_po": 0.0,
+     "pts": 27.9,
+     "players": [
+      {
+       "name": "Devonta Freeman",
+       "pos": "RB",
+       "par_reg": 12.6,
+       "par_po": 0.0,
+       "pts": 27.9,
+       "games": 2
+      }
+     ],
+     "before": "3-9",
+     "after": "2-0",
+     "swung": [],
+     "cost": [],
+     "tree": 12.6,
+     "via": []
+    }
+   ],
+   "winner": 1,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 12.6
+  },
+  {
+   "season": 2021,
+   "when": "2021-10-27T23:10-04:00",
+   "week": 8,
+   "open": false,
+   "sides": [
+    {
+     "team": 6,
+     "name": "I Pitty The Fool",
+     "manager": 7,
+     "par": 57.0,
+     "par_reg": 57.0,
+     "par_po": 0.0,
+     "pts": 200.9,
+     "players": [
+      {
+       "name": "Zack Moss",
+       "pos": "RB",
+       "par_reg": 0.2,
+       "par_po": 0.0,
+       "pts": 25.7,
+       "games": 5
+      },
+      {
+       "name": "Damien Harris",
+       "pos": "RB",
+       "par_reg": 19.8,
+       "par_po": 0.0,
+       "pts": 59.6,
+       "games": 5
+      },
+      {
+       "name": "Aaron Rodgers",
+       "pos": "QB",
+       "par_reg": 37.0,
+       "par_po": 0.0,
+       "pts": 115.6,
+       "games": 5
+      }
+     ],
+     "before": "3-4",
+     "after": "4-3",
+     "swung": [
+      {
+       "week": 13,
+       "kind": "regular",
+       "margin": 0.2,
+       "net": 5.9
+      }
+     ],
+     "cost": [
+      {
+       "week": 10,
+       "kind": "regular",
+       "margin": -0.9,
+       "net": -2.7
+      }
+     ],
+     "tree": 57.0,
+     "via": []
+    },
+    {
+     "team": 11,
+     "name": "Smol Diggs Energy 🍆",
+     "manager": 5,
+     "par": 19.9,
+     "par_reg": 19.9,
+     "par_po": 0.0,
+     "pts": 142.8,
+     "players": [
+      {
+       "name": "Derek Carr",
+       "pos": "QB",
+       "par_reg": 7.7,
+       "par_po": 0.0,
+       "pts": 81.1,
+       "games": 6
+      },
+      {
+       "name": "Mike Williams",
+       "pos": "WR",
+       "par_reg": 12.2,
+       "par_po": 0.0,
+       "pts": 61.7,
+       "games": 7
+      }
+     ],
+     "before": "3-4",
+     "after": "4-3",
+     "swung": [],
+     "cost": [
+      {
+       "week": 11,
+       "kind": "regular",
+       "margin": -1.5,
+       "net": -7.2
+      }
+     ],
+     "tree": 19.9,
+     "via": []
+    }
+   ],
+   "winner": 7,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {
+     "5": {
+      "seed": 8,
+      "without": 2
+     }
+    }
+   },
+   "margin": 37.1
+  },
+  {
+   "season": 2021,
+   "when": "2021-10-26T17:03-04:00",
+   "week": 8,
+   "open": false,
+   "sides": [
+    {
+     "team": 11,
+     "name": "Smol Diggs Energy 🍆",
+     "manager": 5,
+     "par": 21.6,
+     "par_reg": 21.6,
+     "par_po": 0.0,
+     "pts": 62.2,
+     "players": [
+      {
+       "name": "David Montgomery",
+       "pos": "RB",
+       "par_reg": 21.6,
+       "par_po": 0.0,
+       "pts": 60.3,
+       "games": 5
+      },
+      {
+       "name": "Damien Williams",
+       "pos": "RB",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 1.9,
+       "games": 2
+      },
+      {
+       "name": "Aaron Rodgers",
+       "pos": "QB",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 0.0,
+       "games": 0,
+       "held_to": 7
+      }
+     ],
+     "before": "3-4",
+     "after": "4-3",
+     "swung": [],
+     "cost": [],
+     "tree": 34.5,
+     "via": [
+      {
+       "player": "Aaron Rodgers",
+       "when": "2021-10-27T23:10-04:00",
+       "share": 0.65,
+       "par": 12.9,
+       "for": [
+        "Derek Carr",
+        "Mike Williams"
+       ]
+      }
+     ]
+    },
+    {
+     "team": 3,
+     "name": "'21 STREAM TEAM",
+     "manager": 3,
+     "par": 42.9,
+     "par_reg": 42.9,
+     "par_po": 0.0,
+     "pts": 115.4,
+     "players": [
+      {
+       "name": "A.J. Brown",
+       "pos": "WR",
+       "par_reg": 15.7,
+       "par_po": 0.0,
+       "pts": 43.3,
+       "games": 4
+      },
+      {
+       "name": "Darrel Williams",
+       "pos": "RB",
+       "par_reg": 27.2,
+       "par_po": 0.0,
+       "pts": 72.1,
+       "games": 6
+      }
+     ],
+     "before": "3-4",
+     "after": "4-3",
+     "swung": [],
+     "cost": [
+      {
+       "week": 11,
+       "kind": "regular",
+       "margin": -3.6,
+       "net": -15.8
+      }
+     ],
+     "tree": 42.9,
+     "via": []
+    }
+   ],
+   "winner": 3,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {
+     "5": {
+      "seed": 8,
+      "without": 6
+     },
+     "3": {
+      "seed": 7,
+      "without": 2
+     }
+    }
+   },
+   "margin": 8.4
+  },
+  {
+   "season": 2021,
+   "when": "2021-10-13T16:45-04:00",
+   "week": 6,
+   "open": false,
+   "sides": [
+    {
+     "team": 4,
+     "name": "SUPREME KAMARAHAMEHA 💨",
+     "manager": 12,
+     "par": 85.6,
+     "par_reg": 81.9,
+     "par_po": 3.7,
+     "pts": 174.7,
+     "players": [
+      {
+       "name": "Terry McLaurin",
+       "pos": "WR",
+       "par_reg": 21.0,
+       "par_po": 0.0,
+       "pts": 70.0,
+       "games": 8
+      },
+      {
+       "name": "Antonio Brown",
+       "pos": "WR",
+       "par_reg": 9.5,
+       "par_po": 3.7,
+       "pts": 19.8,
+       "games": 1
+      },
+      {
+       "name": "Alvin Kamara",
+       "pos": "RB",
+       "par_reg": 51.4,
+       "par_po": 0.0,
+       "pts": 84.9,
+       "games": 4
+      }
+     ],
+     "before": "3-2",
+     "after": "4-5",
+     "swung": [
+      {
+       "week": 7,
+       "kind": "regular",
+       "margin": 18.3,
+       "net": 21.6
+      }
+     ],
+     "cost": [
+      {
+       "week": 16,
+       "kind": "playoff",
+       "margin": -10.3,
+       "net": -13.5
+      }
+     ],
+     "tree": 85.6,
+     "via": []
+    },
+    {
+     "team": 1,
+     "name": "Knox Knox No One Here",
+     "manager": 1,
+     "par": 118.8,
+     "par_reg": 118.8,
+     "par_po": 0.0,
+     "pts": 271.3,
+     "players": [
+      {
+       "name": "Chris Godwin Jr.",
+       "pos": "WR",
+       "par_reg": 47.1,
+       "par_po": 0.0,
+       "pts": 118.2,
+       "games": 8
+      },
+      {
+       "name": "Darrell Henderson Jr.",
+       "pos": "RB",
+       "par_reg": 37.1,
+       "par_po": 0.0,
+       "pts": 82.1,
+       "games": 6
+      },
+      {
+       "name": "Nick Chubb",
+       "pos": "RB",
+       "par_reg": 34.6,
+       "par_po": 0.0,
+       "pts": 71.0,
+       "games": 5
+      }
+     ],
+     "before": "1-4",
+     "after": "4-5",
+     "swung": [
+      {
+       "week": 9,
+       "kind": "regular",
+       "margin": 6.4,
+       "net": 10.9
+      }
+     ],
+     "cost": [],
+     "tree": 118.8,
+     "via": []
+    }
+   ],
+   "winner": 1,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {
+     "12": {
+      "seed": 4,
+      "without": 11
+     }
+    }
+   },
+   "margin": 33.2
+  },
+  {
+   "season": 2021,
+   "when": "2021-10-07T15:32-04:00",
+   "week": 5,
+   "open": false,
+   "sides": [
+    {
+     "team": 6,
+     "name": "I Pitty The Fool",
+     "manager": 7,
+     "par": 63.5,
+     "par_reg": 63.5,
+     "par_po": 0.0,
+     "pts": 169.2,
+     "players": [
+      {
+       "name": "Diontae Johnson",
+       "pos": "WR",
+       "par_reg": 41.5,
+       "par_po": 0.0,
+       "pts": 133.0,
+       "games": 9
+      },
+      {
+       "name": "Mike Williams",
+       "pos": "WR",
+       "par_reg": 22.0,
+       "par_po": 0.0,
+       "pts": 36.2,
+       "games": 2,
+       "held_to": 7
+      }
+     ],
+     "before": "2-2",
+     "after": "5-5",
+     "swung": [
+      {
+       "week": 13,
+       "kind": "regular",
+       "margin": 0.2,
+       "net": 16.8
+      }
+     ],
+     "cost": [
+      {
+       "week": 9,
+       "kind": "regular",
+       "margin": -6.4,
+       "net": -8.9
+      },
+      {
+       "week": 10,
+       "kind": "regular",
+       "margin": -0.9,
+       "net": -1.5
+      }
+     ],
+     "tree": 98.4,
+     "via": [
+      {
+       "player": "Mike Williams",
+       "when": "2021-10-27T23:10-04:00",
+       "share": 0.61,
+       "par": 34.9,
+       "for": [
+        "Zack Moss",
+        "Damien Harris",
+        "Aaron Rodgers"
+       ]
+      }
+     ]
+    },
+    {
+     "team": 5,
+     "name": "One Punch Toney 🥊",
+     "manager": 9,
+     "par": 109.9,
+     "par_reg": 78.8,
+     "par_po": 31.1,
+     "pts": 196.5,
+     "players": [
+      {
+       "name": "Davante Adams",
+       "pos": "WR",
+       "par_reg": 69.2,
+       "par_po": 31.1,
+       "pts": 148.6,
+       "games": 8
+      },
+      {
+       "name": "Nyheim Miller-Hines",
+       "pos": "RB",
+       "par_reg": 9.6,
+       "par_po": 0.0,
+       "pts": 47.9,
+       "games": 9
+      }
+     ],
+     "before": "2-2",
+     "after": "6-4",
+     "swung": [
+      {
+       "week": 7,
+       "kind": "regular",
+       "margin": 1.0,
+       "net": 6.9
+      },
+      {
+       "week": 17,
+       "kind": "final",
+       "margin": 6.5,
+       "net": 9.2
+      }
+     ],
+     "cost": [
+      {
+       "week": 13,
+       "kind": "regular",
+       "margin": -0.2,
+       "net": -20.6
+      }
+     ],
+     "tree": 109.9,
+     "via": []
+    }
+   ],
+   "winner": 9,
+   "won_title": 9,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {
+     "7": {
+      "seed": 9,
+      "without": 3
+     }
+    }
+   },
+   "margin": 11.5
+  },
+  {
+   "season": 2021,
+   "when": "2021-09-28T13:44-04:00",
+   "week": 4,
+   "open": false,
+   "sides": [
+    {
+     "team": 4,
+     "name": "SUPREME KAMARAHAMEHA 💨",
+     "manager": 12,
+     "par": 165.9,
+     "par_reg": 144.2,
+     "par_po": 21.7,
+     "pts": 414.3,
+     "players": [
+      {
+       "name": "Jalen Hurts",
+       "pos": "QB",
+       "par_reg": 36.1,
+       "par_po": 13.1,
+       "pts": 183.8,
+       "games": 9
+      },
+      {
+       "name": "Justin Jefferson",
+       "pos": "WR",
+       "par_reg": 77.7,
+       "par_po": 8.6,
+       "pts": 171.9,
+       "games": 10
+      },
+      {
+       "name": "Christian McCaffrey",
+       "pos": "RB",
+       "par_reg": 30.4,
+       "par_po": 0.0,
+       "pts": 58.6,
+       "games": 4
+      }
+     ],
+     "before": "3-0",
+     "after": "4-7",
+     "swung": [
+      {
+       "week": 15,
+       "kind": "playoff",
+       "margin": 7.2,
+       "net": 17.5
+      }
+     ],
+     "cost": [],
+     "tree": 165.9,
+     "via": []
+    },
+    {
+     "team": 10,
+     "name": "New Team Same 💩",
+     "manager": 6,
+     "par": 179.6,
+     "par_reg": 179.6,
+     "par_po": 0.0,
+     "pts": 494.7,
+     "players": [
+      {
+       "name": "Tom Brady",
+       "pos": "QB",
+       "par_reg": 54.2,
+       "par_po": 0.0,
+       "pts": 218.7,
+       "games": 10
+      },
+      {
+       "name": "Adam Thielen",
+       "pos": "WR",
+       "par_reg": 39.4,
+       "par_po": 0.0,
+       "pts": 108.2,
+       "games": 9
+      },
+      {
+       "name": "Najee Harris",
+       "pos": "RB",
+       "par_reg": 86.0,
+       "par_po": 0.0,
+       "pts": 167.8,
+       "games": 10
+      }
+     ],
+     "before": "0-3",
+     "after": "7-4",
+     "swung": [
+      {
+       "week": 12,
+       "kind": "regular",
+       "margin": 3.3,
+       "net": 9.4
+      }
+     ],
+     "cost": [
+      {
+       "week": 15,
+       "kind": "playoff",
+       "margin": -7.2,
+       "net": -17.5
+      }
+     ],
+     "tree": 179.6,
+     "via": []
+    }
+   ],
+   "winner": 6,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {
+     "6": {
+      "seed": 5,
+      "without": 11
+     }
+    }
+   },
+   "margin": 13.7
+  },
+  {
+   "season": 2021,
+   "when": "2021-09-28T03:10-04:00",
+   "week": 4,
+   "open": false,
+   "sides": [
+    {
+     "team": 10,
+     "name": "New Team Same 💩",
+     "manager": 6,
+     "par": 49.1,
+     "par_reg": 49.1,
+     "par_po": 0.0,
+     "pts": 142.3,
+     "players": [
+      {
+       "name": "Ja'Marr Chase",
+       "pos": "WR",
+       "par_reg": 49.1,
+       "par_po": 0.0,
+       "pts": 142.3,
+       "games": 10
+      }
+     ],
+     "before": "0-3",
+     "after": "7-4",
+     "swung": [],
+     "cost": [],
+     "tree": 49.1,
+     "via": []
+    },
+    {
+     "team": 2,
+     "name": "BarkSide of the Mooney",
+     "manager": 10,
+     "par": 0.3,
+     "par_reg": 0.3,
+     "par_po": 0.0,
+     "pts": 37.7,
+     "players": [
+      {
+       "name": "Allen Robinson",
+       "pos": "WR",
+       "par_reg": 0.3,
+       "par_po": 0.0,
+       "pts": 37.7,
+       "games": 7
+      }
+     ],
+     "before": "2-1",
+     "after": "5-6",
+     "swung": [],
+     "cost": [],
+     "tree": 0.3,
+     "via": []
+    }
+   ],
+   "winner": 6,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {
+     "6": {
+      "seed": 5,
+      "without": 9
+     }
+    }
+   },
+   "margin": 48.8
+  },
+  {
+   "season": 2021,
+   "when": "2021-09-14T16:45-04:00",
+   "week": 2,
+   "open": false,
+   "sides": [
+    {
+     "team": 3,
+     "name": "'21 STREAM TEAM",
+     "manager": 3,
+     "par": 20.3,
+     "par_reg": 20.3,
+     "par_po": 0.0,
+     "pts": 137.6,
+     "players": [
+      {
+       "name": "Aaron Rodgers",
+       "pos": "QB",
+       "par_reg": 20.3,
+       "par_po": 0.0,
+       "pts": 137.6,
+       "games": 6,
+       "held_to": 7
+      }
+     ],
+     "before": "1-0",
+     "after": "6-7",
+     "swung": [],
+     "cost": [
+      {
+       "week": 11,
+       "kind": "regular",
+       "margin": -3.6,
+       "net": -12.8
+      }
+     ],
+     "tree": 36.3,
+     "via": [
+      {
+       "player": "Aaron Rodgers",
+       "when": "2021-10-26T17:03-04:00",
+       "share": 0.37,
+       "par": 16.0,
+       "for": [
+        "A.J. Brown",
+        "Darrel Williams"
+       ]
+      }
+     ]
+    },
+    {
+     "team": 10,
+     "name": "New Team Same 💩",
+     "manager": 6,
+     "par": 13.4,
+     "par_reg": 13.4,
+     "par_po": 0.0,
+     "pts": 121.3,
+     "players": [
+      {
+       "name": "Jalen Hurts",
+       "pos": "QB",
+       "par_reg": 2.0,
+       "par_po": 0.0,
+       "pts": 42.3,
+       "games": 2,
+       "held_to": 3
+      },
+      {
+       "name": "Odell Beckham Jr.",
+       "pos": "WR",
+       "par_reg": 11.4,
+       "par_po": 0.0,
+       "pts": 79.0,
+       "games": 10
+      }
+     ],
+     "before": "0-1",
+     "after": "7-6",
+     "swung": [],
+     "cost": [
+      {
+       "week": 7,
+       "kind": "regular",
+       "margin": -1.0,
+       "net": -5.3
+      },
+      {
+       "week": 15,
+       "kind": "playoff",
+       "margin": -7.2,
+       "net": -9.3
+      }
+     ],
+     "tree": 66.7,
+     "via": [
+      {
+       "player": "Jalen Hurts",
+       "when": "2021-09-28T13:44-04:00",
+       "share": 0.3,
+       "par": 53.3,
+       "for": [
+        "Tom Brady",
+        "Adam Thielen",
+        "Najee Harris"
+       ]
+      }
+     ]
+    }
+   ],
+   "winner": 6,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {
+     "3": {
+      "seed": 7,
+      "without": 1
+     }
+    }
+   },
+   "margin": 30.4
+  },
+  {
+   "season": 2022,
+   "when": "2022-11-17T10:03-05:00",
+   "week": 11,
+   "open": false,
+   "sides": [
+    {
+     "team": 3,
+     "name": "Waddle Waddle",
+     "manager": 10,
+     "par": 21.5,
+     "par_reg": 14.4,
+     "par_po": 7.1,
+     "pts": 56.3,
+     "players": [
+      {
+       "name": "Keenan Allen",
+       "pos": "WR",
+       "par_reg": 14.4,
+       "par_po": 7.1,
+       "pts": 56.3,
+       "games": 4
+      }
+     ],
+     "before": "7-3",
+     "after": "3-1",
+     "swung": [],
+     "cost": [],
+     "tree": 21.5,
+     "via": []
+    },
+    {
+     "team": 6,
+     "name": "Headed to the Champion 💩",
+     "manager": 6,
+     "par": 29.7,
+     "par_reg": 29.7,
+     "par_po": 0.0,
+     "pts": 61.0,
+     "players": [
+      {
+       "name": "Christian Watson",
+       "pos": "WR",
+       "par_reg": 29.7,
+       "par_po": 0.0,
+       "pts": 61.0,
+       "games": 3
+      }
+     ],
+     "before": "6-4",
+     "after": "3-1",
+     "swung": [],
+     "cost": [],
+     "tree": 29.7,
+     "via": []
+    }
+   ],
+   "winner": 6,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 8.2
+  },
+  {
+   "season": 2022,
+   "when": "2022-11-15T15:27-05:00",
+   "week": 11,
+   "open": false,
+   "sides": [
+    {
+     "team": 3,
+     "name": "Waddle Waddle",
+     "manager": 10,
+     "par": 7.3,
+     "par_reg": 7.3,
+     "par_po": 0.0,
+     "pts": 28.2,
+     "players": [
+      {
+       "name": "JuJu Smith-Schuster",
+       "pos": "WR",
+       "par_reg": 7.3,
+       "par_po": 0.0,
+       "pts": 28.2,
+       "games": 3
+      }
+     ],
+     "before": "7-3",
+     "after": "3-1",
+     "swung": [],
+     "cost": [],
+     "tree": 7.3,
+     "via": []
+    },
+    {
+     "team": 9,
+     "name": "Koopa Troopa Kupp 🏁",
+     "manager": 5,
+     "par": 2.8,
+     "par_reg": 2.8,
+     "par_po": 0.0,
+     "pts": 12.7,
+     "players": [
+      {
+       "name": "Allen Robinson",
+       "pos": "WR",
+       "par_reg": 2.8,
+       "par_po": 0.0,
+       "pts": 12.7,
+       "games": 1
+      }
+     ],
+     "before": "6-4",
+     "after": "1-3",
+     "swung": [],
+     "cost": [],
+     "tree": 2.8,
+     "via": []
+    }
+   ],
+   "winner": 10,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 4.5
+  },
+  {
+   "season": 2022,
+   "when": "2022-11-15T14:32-05:00",
+   "week": 11,
+   "open": false,
+   "sides": [
+    {
+     "team": 3,
+     "name": "Waddle Waddle",
+     "manager": 10,
+     "par": 6.8,
+     "par_reg": 6.8,
+     "par_po": 0.0,
+     "pts": 25.9,
+     "players": [
+      {
+       "name": "Kyler Murray",
+       "pos": "QB",
+       "par_reg": 6.8,
+       "par_po": 0.0,
+       "pts": 25.9,
+       "games": 2
+      },
+      {
+       "name": "Cooper Kupp",
+       "pos": "WR",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 0.0,
+       "games": 0
+      }
+     ],
+     "before": "7-3",
+     "after": "3-1",
+     "swung": [],
+     "cost": [],
+     "tree": 6.8,
+     "via": []
+    },
+    {
+     "team": 9,
+     "name": "Koopa Troopa Kupp 🏁",
+     "manager": 5,
+     "par": 0.0,
+     "par_reg": 0.0,
+     "par_po": 0.0,
+     "pts": 0.0,
+     "players": [
+      {
+       "name": "JuJu Smith-Schuster",
+       "pos": "WR",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 0.0,
+       "games": 0,
+       "held_to": 10
+      }
+     ],
+     "before": "6-4",
+     "after": "1-3",
+     "swung": [],
+     "cost": [],
+     "tree": 2.8,
+     "via": [
+      {
+       "player": "JuJu Smith-Schuster",
+       "when": "2022-11-15T15:27-05:00",
+       "share": 1.0,
+       "par": 2.8,
+       "for": [
+        "Allen Robinson"
+       ]
+      }
+     ]
+    }
+   ],
+   "winner": 10,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 4.0
+  },
+  {
+   "season": 2022,
+   "when": "2022-10-11T22:55-04:00",
+   "week": 6,
+   "open": false,
+   "sides": [
+    {
+     "team": 2,
+     "name": "Urban Meyer's Fantasy Team",
+     "manager": 3,
+     "par": 38.5,
+     "par_reg": 33.9,
+     "par_po": 4.6,
+     "pts": 98.0,
+     "players": [
+      {
+       "name": "Najee Harris",
+       "pos": "RB",
+       "par_reg": 33.9,
+       "par_po": 4.6,
+       "pts": 98.0,
+       "games": 8
+      }
+     ],
+     "before": "2-3",
+     "after": "6-3",
+     "swung": [],
+     "cost": [],
+     "tree": 38.5,
+     "via": []
+    },
+    {
+     "team": 7,
+     "name": "Sutton Deez 🏈",
+     "manager": 9,
+     "par": 48.9,
+     "par_reg": 48.9,
+     "par_po": 0.0,
+     "pts": 95.9,
+     "players": [
+      {
+       "name": "Travis Etienne Jr.",
+       "pos": "RB",
+       "par_reg": 48.9,
+       "par_po": 0.0,
+       "pts": 95.9,
+       "games": 8
+      }
+     ],
+     "before": "4-1",
+     "after": "3-6",
+     "swung": [],
+     "cost": [],
+     "tree": 48.9,
+     "via": []
+    }
+   ],
+   "winner": 9,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 10.4
+  },
+  {
+   "season": 2023,
+   "when": "2023-11-14T03:24-05:00",
+   "week": 11,
+   "open": false,
+   "sides": [
+    {
+     "team": 7,
+     "name": "Cee Deez Nutz 🌰",
+     "manager": 9,
+     "par": 4.6,
+     "par_reg": 0.0,
+     "par_po": 4.6,
+     "pts": 1.9,
+     "players": [
+      {
+       "name": "Rashid Shaheed",
+       "pos": "WR",
+       "par_reg": 0.0,
+       "par_po": 4.6,
+       "pts": 1.9,
+       "games": 1
+      }
+     ],
+     "before": "8-2",
+     "after": "1-3",
+     "swung": [],
+     "cost": [],
+     "tree": 4.6,
+     "via": []
+    },
+    {
+     "team": 5,
+     "name": "Riceconomics 📉",
+     "manager": 5,
+     "par": 0.0,
+     "par_reg": 0.0,
+     "par_po": 0.0,
+     "pts": 0.0,
+     "players": [
+      {
+       "name": "Noah Brown",
+       "pos": "WR",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 0.0,
+       "games": 2
+      }
+     ],
+     "before": "3-7",
+     "after": "2-2",
+     "swung": [],
+     "cost": [],
+     "tree": 0.0,
+     "via": []
+    }
+   ],
+   "winner": 9,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 4.6
+  },
+  {
+   "season": 2023,
+   "when": "2023-10-26T19:21-04:00",
+   "week": 8,
+   "open": false,
+   "sides": [
+    {
+     "team": 2,
+     "name": "Le-GM",
+     "manager": 6,
+     "par": 43.9,
+     "par_reg": 37.3,
+     "par_po": 6.6,
+     "pts": 161.2,
+     "players": [
+      {
+       "name": "D'Andre Swift",
+       "pos": "RB",
+       "par_reg": 19.9,
+       "par_po": 6.6,
+       "pts": 55.8,
+       "games": 6
+      },
+      {
+       "name": "Jordan Addison",
+       "pos": "WR",
+       "par_reg": 6.6,
+       "par_po": 0.0,
+       "pts": 51.0,
+       "games": 6
+      },
+      {
+       "name": "Kareem Hunt",
+       "pos": "RB",
+       "par_reg": 10.8,
+       "par_po": 0.0,
+       "pts": 54.4,
+       "games": 7
+      }
+     ],
+     "before": "4-3",
+     "after": "5-2",
+     "swung": [
+      {
+       "week": 11,
+       "kind": "regular",
+       "margin": 3.0,
+       "net": 11.7
+      }
+     ],
+     "cost": [],
+     "tree": 43.9,
+     "via": []
+    },
+    {
+     "team": 7,
+     "name": "Cee Deez Nutz 🌰",
+     "manager": 9,
+     "par": 33.9,
+     "par_reg": 33.9,
+     "par_po": 0.0,
+     "pts": 85.9,
+     "players": [
+      {
+       "name": "A.J. Brown",
+       "pos": "WR",
+       "par_reg": 33.9,
+       "par_po": 0.0,
+       "pts": 85.9,
+       "games": 6
+      },
+      {
+       "name": "Dustin Hopkins",
+       "pos": "K",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 0.0,
+       "games": 0,
+       "unscored": true
+      }
+     ],
+     "before": "5-2",
+     "after": "4-3",
+     "swung": [],
+     "cost": [],
+     "tree": 33.9,
+     "via": []
+    }
+   ],
+   "winner": 6,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {
+     "6": {
+      "seed": 2,
+      "without": 5
+     }
+    }
+   },
+   "margin": 10.0
+  },
+  {
+   "season": 2023,
+   "when": "2023-10-24T20:35-04:00",
+   "week": 8,
+   "open": false,
+   "sides": [
+    {
+     "team": 5,
+     "name": "Riceconomics 📉",
+     "manager": 5,
+     "par": 119.8,
+     "par_reg": 119.8,
+     "par_po": 0.0,
+     "pts": 253.7,
+     "players": [
+      {
+       "name": "Evan Engram",
+       "pos": "TE",
+       "par_reg": 28.7,
+       "par_po": 0.0,
+       "pts": 73.0,
+       "games": 6
+      },
+      {
+       "name": "Derrick Henry",
+       "pos": "RB",
+       "par_reg": 57.5,
+       "par_po": 0.0,
+       "pts": 101.5,
+       "games": 7
+      },
+      {
+       "name": "Nico Collins",
+       "pos": "WR",
+       "par_reg": 33.6,
+       "par_po": 0.0,
+       "pts": 79.2,
+       "games": 6
+      }
+     ],
+     "before": "2-5",
+     "after": "3-4",
+     "swung": [],
+     "cost": [],
+     "tree": 119.8,
+     "via": []
+    },
+    {
+     "team": 2,
+     "name": "Le-GM",
+     "manager": 6,
+     "par": 70.4,
+     "par_reg": 61.2,
+     "par_po": 9.2,
+     "pts": 194.8,
+     "players": [
+      {
+       "name": "Jonathan Taylor",
+       "pos": "RB",
+       "par_reg": 29.6,
+       "par_po": 1.7,
+       "pts": 60.7,
+       "games": 4
+      },
+      {
+       "name": "Davante Adams",
+       "pos": "WR",
+       "par_reg": 9.5,
+       "par_po": 0.0,
+       "pts": 54.9,
+       "games": 6
+      },
+      {
+       "name": "Chris Olave",
+       "pos": "WR",
+       "par_reg": 22.1,
+       "par_po": 7.5,
+       "pts": 79.2,
+       "games": 6
+      }
+     ],
+     "before": "4-3",
+     "after": "5-2",
+     "swung": [
+      {
+       "week": 11,
+       "kind": "regular",
+       "margin": 3.0,
+       "net": 7.7
+      }
+     ],
+     "cost": [
+      {
+       "week": 13,
+       "kind": "regular",
+       "margin": -13.3,
+       "net": -44.6
+      }
+     ],
+     "tree": 70.4,
+     "via": []
+    }
+   ],
+   "winner": 5,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 49.4
+  },
+  {
+   "season": 2023,
+   "when": "2023-10-01T12:27-04:00",
+   "week": 4,
+   "open": false,
+   "sides": [
+    {
+     "team": 1,
+     "name": "Roxy’s Sacred Panties ⛩️",
+     "manager": 1,
+     "par": 55.3,
+     "par_reg": 38.3,
+     "par_po": 17.0,
+     "pts": 110.0,
+     "players": [
+      {
+       "name": "Sam LaPorta",
+       "pos": "TE",
+       "par_reg": 38.3,
+       "par_po": 17.0,
+       "pts": 110.0,
+       "games": 10
+      }
+     ],
+     "before": "2-1",
+     "after": "6-5",
+     "swung": [
+      {
+       "week": 8,
+       "kind": "regular",
+       "margin": 3.5,
+       "net": 3.7
+      },
+      {
+       "week": 13,
+       "kind": "regular",
+       "margin": 4.8,
+       "net": 9.8
+      },
+      {
+       "week": 15,
+       "kind": "playoff",
+       "margin": 15.1,
+       "net": 17.0
+      }
+     ],
+     "cost": [
+      {
+       "week": 11,
+       "kind": "regular",
+       "margin": -0.2,
+       "net": -4.4
+      }
+     ],
+     "tree": 55.3,
+     "via": []
+    },
+    {
+     "team": 12,
+     "name": "Seppuka",
+     "manager": 10,
+     "par": 34.2,
+     "par_reg": 34.2,
+     "par_po": 0.0,
+     "pts": 103.7,
+     "players": [
+      {
+       "name": "Jerome Ford",
+       "pos": "RB",
+       "par_reg": 34.2,
+       "par_po": 0.0,
+       "pts": 103.7,
+       "games": 10
+      }
+     ],
+     "before": "1-2",
+     "after": "7-4",
+     "swung": [],
+     "cost": [
+      {
+       "week": 15,
+       "kind": "playoff",
+       "margin": -15.1,
+       "net": -17.0
+      }
+     ],
+     "tree": 34.2,
+     "via": []
+    }
+   ],
+   "winner": 1,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 21.1
+  },
+  {
+   "season": 2023,
+   "when": "2023-09-28T13:45-04:00",
+   "week": 4,
+   "open": false,
+   "sides": [
+    {
+     "team": 6,
+     "name": "I ain’t no Wallerback girl 📣",
+     "manager": 8,
+     "par": 20.2,
+     "par_reg": 20.2,
+     "par_po": 0.0,
+     "pts": 80.6,
+     "players": [
+      {
+       "name": "Alexander Mattison",
+       "pos": "RB",
+       "par_reg": 20.2,
+       "par_po": 0.0,
+       "pts": 80.6,
+       "games": 10
+      }
+     ],
+     "before": "2-1",
+     "after": "5-6",
+     "swung": [],
+     "cost": [],
+     "tree": 20.2,
+     "via": []
+    },
+    {
+     "team": 1,
+     "name": "Roxy’s Sacred Panties ⛩️",
+     "manager": 1,
+     "par": 54.1,
+     "par_reg": 54.1,
+     "par_po": 0.0,
+     "pts": 132.9,
+     "players": [
+      {
+       "name": "DeAndre Hopkins",
+       "pos": "WR",
+       "par_reg": 54.1,
+       "par_po": 0.0,
+       "pts": 132.9,
+       "games": 10
+      }
+     ],
+     "before": "2-1",
+     "after": "6-5",
+     "swung": [
+      {
+       "week": 8,
+       "kind": "regular",
+       "margin": 3.5,
+       "net": 21.5
+      },
+      {
+       "week": 13,
+       "kind": "regular",
+       "margin": 4.8,
+       "net": 6.5
+      }
+     ],
+     "cost": [],
+     "tree": 54.1,
+     "via": []
+    }
+   ],
+   "winner": 1,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {
+     "8": {
+      "seed": 7,
+      "without": 6
+     },
+     "1": {
+      "seed": 5,
+      "without": 9
+     }
+    }
+   },
+   "margin": 33.9
+  },
+  {
+   "season": 2023,
+   "when": "2023-09-21T16:56-04:00",
+   "week": 3,
+   "open": false,
+   "sides": [
+    {
+     "team": 6,
+     "name": "I ain’t no Wallerback girl 📣",
+     "manager": 8,
+     "par": 32.0,
+     "par_reg": 32.0,
+     "par_po": 0.0,
+     "pts": 132.9,
+     "players": [
+      {
+       "name": "Justin Fields",
+       "pos": "QB",
+       "par_reg": 32.0,
+       "par_po": 0.0,
+       "pts": 132.9,
+       "games": 7
+      }
+     ],
+     "before": "2-0",
+     "after": "5-7",
+     "swung": [],
+     "cost": [],
+     "tree": 32.0,
+     "via": []
+    },
+    {
+     "team": 5,
+     "name": "Riceconomics 📉",
+     "manager": 5,
+     "par": 23.6,
+     "par_reg": 23.6,
+     "par_po": 0.0,
+     "pts": 101.8,
+     "players": [
+      {
+       "name": "Jake Ferguson",
+       "pos": "TE",
+       "par_reg": 23.6,
+       "par_po": 0.0,
+       "pts": 101.8,
+       "games": 11
+      }
+     ],
+     "before": "1-1",
+     "after": "4-8",
+     "swung": [],
+     "cost": [],
+     "tree": 23.6,
+     "via": []
+    }
+   ],
+   "winner": 8,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 8.4
+  },
+  {
+   "season": 2024,
+   "when": "2024-10-03T09:41-04:00",
+   "week": 5,
+   "open": false,
+   "sides": [
+    {
+     "team": 7,
+     "name": "Le-GM",
+     "manager": 6,
+     "par": 50.5,
+     "par_reg": 50.5,
+     "par_po": 0.0,
+     "pts": 156.9,
+     "players": [
+      {
+       "name": "Zach Charbonnet",
+       "pos": "RB",
+       "par_reg": 29.7,
+       "par_po": 0.0,
+       "pts": 73.7,
+       "games": 9
+      },
+      {
+       "name": "Jaylen Waddle",
+       "pos": "WR",
+       "par_reg": 20.8,
+       "par_po": 0.0,
+       "pts": 83.2,
+       "games": 9
+      }
+     ],
+     "before": "1-3",
+     "after": "3-7",
+     "swung": [
+      {
+       "week": 12,
+       "kind": "regular",
+       "margin": 7.5,
+       "net": 8.2
+      }
+     ],
+     "cost": [],
+     "tree": 50.5,
+     "via": []
+    },
+    {
+     "team": 2,
+     "name": "U Jahmyrin Brah? 😎",
+     "manager": 12,
+     "par": 59.4,
+     "par_reg": 56.1,
+     "par_po": 3.3,
+     "pts": 119.1,
+     "players": [
+      {
+       "name": "Puka Nacua",
+       "pos": "WR",
+       "par_reg": 56.1,
+       "par_po": 3.3,
+       "pts": 119.1,
+       "games": 7
+      }
+     ],
+     "before": "3-1",
+     "after": "5-5",
+     "swung": [],
+     "cost": [
+      {
+       "week": 12,
+       "kind": "regular",
+       "margin": -7.5,
+       "net": -8.2
+      }
+     ],
+     "tree": 59.4,
+     "via": []
+    }
+   ],
+   "winner": 12,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 8.9
+  },
+  {
+   "season": 2024,
+   "when": "2024-09-25T09:20-04:00",
+   "week": 4,
+   "open": false,
+   "sides": [
+    {
+     "team": 7,
+     "name": "Le-GM",
+     "manager": 6,
+     "par": 46.7,
+     "par_reg": 46.7,
+     "par_po": 0.0,
+     "pts": 162.2,
+     "players": [
+      {
+       "name": "Dallas Goedert",
+       "pos": "TE",
+       "par_reg": 3.6,
+       "par_po": 0.0,
+       "pts": 42.7,
+       "games": 6
+      },
+      {
+       "name": "Aaron Jones Sr.",
+       "pos": "RB",
+       "par_reg": 43.1,
+       "par_po": 0.0,
+       "pts": 119.5,
+       "games": 10
+      }
+     ],
+     "before": "0-3",
+     "after": "4-7",
+     "swung": [
+      {
+       "week": 12,
+       "kind": "regular",
+       "margin": 7.5,
+       "net": 12.0
+      }
+     ],
+     "cost": [
+      {
+       "week": 7,
+       "kind": "regular",
+       "margin": -0.9,
+       "net": -2.0
+      }
+     ],
+     "tree": 46.7,
+     "via": []
+    },
+    {
+     "team": 2,
+     "name": "U Jahmyrin Brah? 😎",
+     "manager": 12,
+     "par": 80.7,
+     "par_reg": 55.9,
+     "par_po": 24.8,
+     "pts": 148.5,
+     "players": [
+      {
+       "name": "Amon-Ra St. Brown",
+       "pos": "WR",
+       "par_reg": 55.9,
+       "par_po": 24.8,
+       "pts": 148.5,
+       "games": 10
+      }
+     ],
+     "before": "2-1",
+     "after": "6-5",
+     "swung": [],
+     "cost": [
+      {
+       "week": 12,
+       "kind": "regular",
+       "margin": -7.5,
+       "net": -12.0
+      }
+     ],
+     "tree": 80.7,
+     "via": []
+    }
+   ],
+   "winner": 12,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 34.0
+  },
+  {
+   "season": 2024,
+   "when": "2024-09-18T23:33-04:00",
+   "week": 3,
+   "open": false,
+   "sides": [
+    {
+     "team": 8,
+     "name": "Purdy Barkley 🦴",
+     "manager": 5,
+     "par": 88.7,
+     "par_reg": 61.9,
+     "par_po": 26.8,
+     "pts": 215.2,
+     "players": [
+      {
+       "name": "Khalil Shakir",
+       "pos": "WR",
+       "par_reg": 19.9,
+       "par_po": 0.0,
+       "pts": 104.6,
+       "games": 10
+      },
+      {
+       "name": "Tee Higgins",
+       "pos": "WR",
+       "par_reg": 42.0,
+       "par_po": 26.8,
+       "pts": 110.6,
+       "games": 8
+      }
+     ],
+     "before": "1-1",
+     "after": "11-1",
+     "swung": [
+      {
+       "week": 14,
+       "kind": "regular",
+       "margin": 5.9,
+       "net": 7.4
+      }
+     ],
+     "cost": [],
+     "tree": 88.7,
+     "via": []
+    },
+    {
+     "team": 2,
+     "name": "U Jahmyrin Brah? 😎",
+     "manager": 12,
+     "par": 45.5,
+     "par_reg": 26.7,
+     "par_po": 18.8,
+     "pts": 165.1,
+     "players": [
+      {
+       "name": "Sam LaPorta",
+       "pos": "TE",
+       "par_reg": 15.7,
+       "par_po": 10.5,
+       "pts": 83.7,
+       "games": 10
+      },
+      {
+       "name": "Tank Dell",
+       "pos": "WR",
+       "par_reg": 11.0,
+       "par_po": 8.3,
+       "pts": 81.4,
+       "games": 10
+      }
+     ],
+     "before": "1-1",
+     "after": "7-5",
+     "swung": [],
+     "cost": [],
+     "tree": 45.5,
+     "via": []
+    }
+   ],
+   "winner": 5,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 43.2
+  },
+  {
+   "season": 2024,
+   "when": "2024-09-18T11:18-04:00",
+   "week": 3,
+   "open": false,
+   "sides": [
+    {
+     "team": 4,
+     "name": "Team No Wins",
+     "manager": 11,
+     "par": 23.3,
+     "par_reg": 23.3,
+     "par_po": 0.0,
+     "pts": 89.3,
+     "players": [
+      {
+       "name": "Davante Adams",
+       "pos": "WR",
+       "par_reg": 23.3,
+       "par_po": 0.0,
+       "pts": 89.3,
+       "games": 8
+      }
+     ],
+     "before": "0-2",
+     "after": "2-10",
+     "swung": [],
+     "cost": [
+      {
+       "week": 10,
+       "kind": "regular",
+       "margin": -6.6,
+       "net": -42.1
+      }
+     ],
+     "tree": 23.3,
+     "via": []
+    },
+    {
+     "team": 9,
+     "name": "Won’t you be my Nabers?",
+     "manager": 10,
+     "par": 153.4,
+     "par_reg": 144.5,
+     "par_po": 8.9,
+     "pts": 256.2,
+     "players": [
+      {
+       "name": "Ja'Marr Chase",
+       "pos": "WR",
+       "par_reg": 144.5,
+       "par_po": 8.9,
+       "pts": 256.2,
+       "games": 11
+      }
+     ],
+     "before": "2-0",
+     "after": "11-1",
+     "swung": [
+      {
+       "week": 5,
+       "kind": "regular",
+       "margin": 14.3,
+       "net": 25.2
+      },
+      {
+       "week": 10,
+       "kind": "regular",
+       "margin": 39.8,
+       "net": 42.1
+      }
+     ],
+     "cost": [],
+     "tree": 153.4,
+     "via": []
+    }
+   ],
+   "winner": 10,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 130.1
+  },
+  {
+   "season": 2025,
+   "when": "2025-10-29T23:52-04:00",
+   "week": 9,
+   "open": false,
+   "sides": [
+    {
+     "team": 5,
+     "name": "Butman & Dobbins",
+     "manager": 4,
+     "par": 13.9,
+     "par_reg": 13.9,
+     "par_po": 0.0,
+     "pts": 76.4,
+     "players": [
+      {
+       "name": "Oronde Gadsden",
+       "pos": "TE",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 21.6,
+       "games": 5
+      },
+      {
+       "name": "Chris Olave",
+       "pos": "WR",
+       "par_reg": 13.9,
+       "par_po": 0.0,
+       "pts": 54.8,
+       "games": 5
+      }
+     ],
+     "before": "3-5",
+     "after": "4-2",
+     "swung": [],
+     "cost": [],
+     "tree": 13.9,
+     "via": []
+    },
+    {
+     "team": 2,
+     "name": "Bower Movements 💩",
+     "manager": 3,
+     "par": 6.5,
+     "par_reg": 6.5,
+     "par_po": 0.0,
+     "pts": 103.5,
+     "players": [
+      {
+       "name": "Justin Herbert",
+       "pos": "QB",
+       "par_reg": 6.5,
+       "par_po": 0.0,
+       "pts": 70.7,
+       "games": 5
+      },
+      {
+       "name": "Xavier Worthy",
+       "pos": "WR",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 32.8,
+       "games": 5
+      }
+     ],
+     "before": "5-3",
+     "after": "2-4",
+     "swung": [],
+     "cost": [],
+     "tree": 6.5,
+     "via": []
+    }
+   ],
+   "winner": 4,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 7.4
+  },
+  {
+   "season": 2025,
+   "when": "2025-10-17T20:10-04:00",
+   "week": 7,
+   "open": false,
+   "sides": [
+    {
+     "team": 9,
+     "name": "Gibbs Me TDs",
+     "manager": 5,
+     "par": 0.0,
+     "par_reg": 0.0,
+     "par_po": 0.0,
+     "pts": 43.7,
+     "players": [
+      {
+       "name": "Rachaad White",
+       "pos": "RB",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 43.7,
+       "games": 7
+      }
+     ],
+     "before": "2-4",
+     "after": "6-2",
+     "swung": [],
+     "cost": [],
+     "tree": 0.0,
+     "via": []
+    },
+    {
+     "team": 3,
+     "name": "Toilet Bowl Contender 🚽",
+     "manager": 9,
+     "par": 30.0,
+     "par_reg": 30.0,
+     "par_po": 0.0,
+     "pts": 81.1,
+     "players": [
+      {
+       "name": "Michael Pittman Jr.",
+       "pos": "WR",
+       "par_reg": 30.0,
+       "par_po": 0.0,
+       "pts": 81.1,
+       "games": 7
+      }
+     ],
+     "before": "2-4",
+     "after": "3-5",
+     "swung": [],
+     "cost": [],
+     "tree": 30.0,
+     "via": []
+    }
+   ],
+   "winner": 9,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {}
+   },
+   "margin": 30.0
+  },
+  {
+   "season": 2025,
+   "when": "2025-08-22T18:58-04:00",
+   "week": 1,
+   "open": false,
+   "sides": [
+    {
+     "team": 8,
+     "name": "No This Is Patrick",
+     "manager": 7,
+     "par": 147.4,
+     "par_reg": 140.5,
+     "par_po": 6.9,
+     "pts": 244.4,
+     "players": [
+      {
+       "name": "De'Von Achane",
+       "pos": "RB",
+       "par_reg": 140.5,
+       "par_po": 6.9,
+       "pts": 244.4,
+       "games": 13
+      }
+     ],
+     "before": "0-0",
+     "after": "8-6",
+     "swung": [
+      {
+       "week": 10,
+       "kind": "regular",
+       "margin": 8.7,
+       "net": 20.3
+      },
+      {
+       "week": 11,
+       "kind": "regular",
+       "margin": 8.5,
+       "net": 10.4
+      }
+     ],
+     "cost": [],
+     "tree": 147.4,
+     "via": []
+    },
+    {
+     "team": 11,
+     "name": "~ Drake & Josh ~",
+     "manager": 12,
+     "par": 100.8,
+     "par_reg": 100.8,
+     "par_po": 0.0,
+     "pts": 192.3,
+     "players": [
+      {
+       "name": "Josh Jacobs",
+       "pos": "RB",
+       "par_reg": 100.8,
+       "par_po": 0.0,
+       "pts": 192.3,
+       "games": 12
+      }
+     ],
+     "before": "0-0",
+     "after": "8-6",
+     "swung": [],
+     "cost": [
+      {
+       "week": 10,
+       "kind": "regular",
+       "margin": -5.0,
+       "net": -20.3
+      }
+     ],
+     "tree": 100.8,
+     "via": []
+    }
+   ],
+   "winner": 7,
+   "won_title": null,
+   "playoffs": {
+    "n": 6,
+    "byes": 2,
+    "changed": {
+     "7": {
+      "seed": 3,
+      "without": 9
+     }
+    }
+   },
+   "margin": 46.6
+  },
+  {
+   "season": 2026,
+   "when": "2026-09-18T14:39-04:00",
+   "week": 2,
+   "open": true,
+   "sides": [
+    {
+     "team": 5,
+     "name": "Gibbs Me TDs",
+     "manager": 5,
+     "par": 16.9,
+     "par_reg": 16.9,
+     "par_po": 0.0,
+     "pts": 73.3,
+     "players": [
+      {
+       "name": "Trevor Lawrence",
+       "pos": "QB",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 25.9,
+       "games": 2
+      },
+      {
+       "name": "Parker Washington",
+       "pos": "WR",
+       "par_reg": 5.0,
+       "par_po": 0.0,
+       "pts": 24.8,
+       "games": 2
+      },
+      {
+       "name": "Brock Bowers",
+       "pos": "TE",
+       "par_reg": 11.9,
+       "par_po": 0.0,
+       "pts": 22.6,
+       "games": 1
+      }
+     ],
+     "before": "1-0",
+     "after": "0-1",
+     "swung": [],
+     "cost": [],
+     "tree": 16.9,
+     "via": []
+    },
+    {
+     "team": 6,
+     "name": "Le-GM",
+     "manager": 6,
+     "par": 0.0,
+     "par_reg": 0.0,
+     "par_po": 0.0,
+     "pts": 19.9,
+     "players": [
+      {
+       "name": "A.J. Brown",
+       "pos": "WR",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 0.0,
+       "games": 0
+      },
+      {
+       "name": "Isaiah Likely",
+       "pos": "TE",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 8.1,
+       "games": 2
+      },
+      {
+       "name": "Drake Maye",
+       "pos": "QB",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 11.8,
+       "games": 2
+      },
+      {
+       "name": "Rams",
+       "pos": "DEF",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 0.0,
+       "games": 0,
+       "unscored": true
+      }
+     ],
+     "before": "0-1",
+     "after": "0-1",
+     "swung": [],
+     "cost": [
+      {
+       "week": 2,
+       "kind": "regular",
+       "margin": -2.2,
+       "net": -4.0
+      }
+     ],
+     "tree": 0.0,
+     "via": []
+    }
+   ],
+   "winner": 5,
+   "won_title": null,
+   "playoffs": null,
+   "margin": 16.9
+  },
+  {
+   "season": 2026,
+   "when": "2026-09-16T21:40-04:00",
+   "week": 2,
+   "open": true,
+   "sides": [
+    {
+     "team": 12,
+     "name": "Sausage Egg McCaffrey 🍳",
+     "manager": 12,
+     "par": 19.7,
+     "par_reg": 19.7,
+     "par_po": 0.0,
+     "pts": 44.9,
+     "players": [
+      {
+       "name": "Malik Nabers",
+       "pos": "WR",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 5.7,
+       "games": 2
+      },
+      {
+       "name": "George Kittle",
+       "pos": "TE",
+       "par_reg": 19.7,
+       "par_po": 0.0,
+       "pts": 39.2,
+       "games": 2
+      }
+     ],
+     "before": "1-0",
+     "after": "0-1",
+     "swung": [],
+     "cost": [],
+     "tree": 19.7,
+     "via": []
+    },
+    {
+     "team": 6,
+     "name": "Le-GM",
+     "manager": 6,
+     "par": 4.9,
+     "par_reg": 4.9,
+     "par_po": 0.0,
+     "pts": 34.0,
+     "players": [
+      {
+       "name": "Deebo Samuel Sr.",
+       "pos": "WR",
+       "par_reg": 4.9,
+       "par_po": 0.0,
+       "pts": 20.4,
+       "games": 2
+      },
+      {
+       "name": "Ladd McConkey",
+       "pos": "WR",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 13.6,
+       "games": 2
+      }
+     ],
+     "before": "0-1",
+     "after": "0-1",
+     "swung": [],
+     "cost": [
+      {
+       "week": 2,
+       "kind": "regular",
+       "margin": -2.2,
+       "net": -7.2
+      }
+     ],
+     "tree": 4.9,
+     "via": []
+    }
+   ],
+   "winner": 12,
+   "won_title": null,
+   "playoffs": null,
+   "margin": 14.8
+  },
+  {
+   "season": 2026,
+   "when": "2026-09-15T09:26-04:00",
+   "week": 2,
+   "open": true,
+   "sides": [
+    {
+     "team": 3,
+     "name": "WE SELL EXTENDED WARREN-TY",
+     "manager": 3,
+     "par": 23.5,
+     "par_reg": 23.5,
+     "par_po": 0.0,
+     "pts": 43.3,
+     "players": [
+      {
+       "name": "Ja'Marr Chase",
+       "pos": "WR",
+       "par_reg": 23.5,
+       "par_po": 0.0,
+       "pts": 43.3,
+       "games": 2
+      }
+     ],
+     "before": "1-0",
+     "after": "1-0",
+     "swung": [],
+     "cost": [],
+     "tree": 23.5,
+     "via": []
+    },
+    {
+     "team": 6,
+     "name": "Le-GM",
+     "manager": 6,
+     "par": 9.9,
+     "par_reg": 9.9,
+     "par_po": 0.0,
+     "pts": 24.5,
+     "players": [
+      {
+       "name": "Parker Washington",
+       "pos": "WR",
+       "par_reg": 0.0,
+       "par_po": 0.0,
+       "pts": 0.0,
+       "games": 0,
+       "held_to": 1
+      },
+      {
+       "name": "Stefon Diggs",
+       "pos": "WR",
+       "par_reg": 9.9,
+       "par_po": 0.0,
+       "pts": 24.5,
+       "games": 2
+      }
+     ],
+     "before": "0-1",
+     "after": "0-1",
+     "swung": [],
+     "cost": [
+      {
+       "week": 2,
+       "kind": "regular",
+       "margin": -2.2,
+       "net": -3.8
+      }
+     ],
+     "tree": 9.9,
+     "via": [
+      {
+       "player": "Parker Washington",
+       "when": "2026-09-18T14:39-04:00",
+       "share": 0.3,
+       "par": 0.0,
+       "for": [
+        "A.J. Brown",
+        "Isaiah Likely",
+        "Drake Maye",
+        "Rams"
+       ]
+      }
+     ]
+    }
+   ],
+   "winner": 3,
+   "won_title": null,
+   "playoffs": null,
+   "margin": 13.6
+  }
+ ],
+ "managers": {
+  "2": {
+   "trades": 1,
+   "won": 1,
+   "lost": 0,
+   "net": 15.7,
+   "per_trade": 15.7,
+   "lo": -38.7,
+   "hi": 70.1,
+   "shrunk": 1.4
+  },
+  "6": {
+   "trades": 10,
+   "won": 4,
+   "lost": 6,
+   "net": -79.3,
+   "per_trade": -7.9,
+   "lo": -25.1,
+   "hi": 9.3,
+   "shrunk": -3.9
+  },
+  "3": {
+   "trades": 8,
+   "won": 5,
+   "lost": 3,
+   "net": 50.7,
+   "per_trade": 6.3,
+   "lo": -12.9,
+   "hi": 25.6,
+   "shrunk": 2.8
+  },
+  "7": {
+   "trades": 8,
+   "won": 3,
+   "lost": 5,
+   "net": 13.0,
+   "per_trade": 1.6,
+   "lo": -17.6,
+   "hi": 20.9,
+   "shrunk": 0.7
+  },
+  "9": {
+   "trades": 11,
+   "won": 7,
+   "lost": 4,
+   "net": 65.9,
+   "per_trade": 6.0,
+   "lo": -10.4,
+   "hi": 22.4,
+   "shrunk": 3.1
+  },
+  "12": {
+   "trades": 12,
+   "won": 4,
+   "lost": 7,
+   "net": -123.3,
+   "per_trade": -10.3,
+   "lo": -26.0,
+   "hi": 5.4,
+   "shrunk": -5.5
+  },
+  "11": {
+   "trades": 4,
+   "won": 1,
+   "lost": 3,
+   "net": -148.4,
+   "per_trade": -37.1,
+   "lo": -64.3,
+   "hi": -9.9,
+   "shrunk": -10.4
+  },
+  "4": {
+   "trades": 4,
+   "won": 4,
+   "lost": 0,
+   "net": 77.6,
+   "per_trade": 19.4,
+   "lo": -7.8,
+   "hi": 46.6,
+   "shrunk": 5.4
+  },
+  "former-3": {
+   "trades": 1,
+   "won": 1,
+   "lost": 0,
+   "net": 29.9,
+   "per_trade": 29.9,
+   "lo": -24.5,
+   "hi": 84.3,
+   "shrunk": 2.6
+  },
+  "5": {
+   "trades": 13,
+   "won": 3,
+   "lost": 10,
+   "net": -52.9,
+   "per_trade": -4.1,
+   "lo": -19.2,
+   "hi": 11.0,
+   "shrunk": -2.3
+  },
+  "8": {
+   "trades": 3,
+   "won": 2,
+   "lost": 1,
+   "net": -13.0,
+   "per_trade": -4.3,
+   "lo": -35.8,
+   "hi": 27.1,
+   "shrunk": -1.0
+  },
+  "1": {
+   "trades": 5,
+   "won": 4,
+   "lost": 0,
+   "net": 100.8,
+   "per_trade": 20.2,
+   "lo": 2.0,
+   "hi": 44.5,
+   "shrunk": 6.6
+  },
+  "10": {
+   "trades": 6,
+   "won": 3,
+   "lost": 3,
+   "net": 63.3,
+   "per_trade": 10.5,
+   "lo": -11.7,
+   "hi": 32.8,
+   "shrunk": 3.9
+  }
+ },
+ "curses": [
+  {
+   "player": "Chris Godwin Jr.",
+   "kind": "curse",
+   "n": 3,
+   "moves": [
+    {
+     "season": 2019,
+     "week": 5,
+     "from": 7,
+     "to": 12,
+     "sender_lost": true,
+     "margin": 34.4,
+     "open": false
+    },
+    {
+     "season": 2019,
+     "week": 10,
+     "from": 12,
+     "to": 9,
+     "sender_lost": true,
+     "margin": 7.2,
+     "open": false
+    },
+    {
+     "season": 2021,
+     "week": 6,
+     "from": 12,
+     "to": 1,
+     "sender_lost": true,
+     "margin": 33.2,
+     "open": false
+    }
+   ]
+  },
+  {
+   "player": "Ja'Marr Chase",
+   "kind": "curse",
+   "n": 2,
+   "moves": [
+    {
+     "season": 2021,
+     "week": 4,
+     "from": 10,
+     "to": 6,
+     "sender_lost": true,
+     "margin": 48.8,
+     "open": false
+    },
+    {
+     "season": 2024,
+     "week": 3,
+     "from": 11,
+     "to": 10,
+     "sender_lost": true,
+     "margin": 130.1,
+     "open": false
+    },
+    {
+     "season": 2026,
+     "week": 2,
+     "from": 6,
+     "to": 3,
+     "sender_lost": true,
+     "margin": 13.6,
+     "open": true
+    }
+   ]
+  },
+  {
+   "player": "Todd Gurley",
+   "kind": "curse",
+   "n": 2,
+   "moves": [
+    {
+     "season": 2019,
+     "week": 5,
+     "from": 9,
+     "to": 11,
+     "sender_lost": true,
+     "margin": 7.4,
+     "open": false
+    },
+    {
+     "season": 2020,
+     "week": 4,
+     "from": 3,
+     "to": 7,
+     "sender_lost": true,
+     "margin": 58.5,
+     "open": false
+    }
+   ]
+  },
+  {
+   "player": "Damien Harris",
+   "kind": "curse",
+   "n": 2,
+   "moves": [
+    {
+     "season": 2020,
+     "week": 8,
+     "from": 7,
+     "to": 4,
+     "sender_lost": true,
+     "margin": 18.2,
+     "open": false
+    },
+    {
+     "season": 2021,
+     "week": 8,
+     "from": 5,
+     "to": 7,
+     "sender_lost": true,
+     "margin": 37.1,
+     "open": false
+    }
+   ]
+  },
+  {
+   "player": "Darrell Henderson Jr.",
+   "kind": "curse",
+   "n": 2,
+   "moves": [
+    {
+     "season": 2020,
+     "week": 6,
+     "from": 5,
+     "to": 8,
+     "sender_lost": true,
+     "margin": 12.5,
+     "open": false
+    },
+    {
+     "season": 2021,
+     "week": 6,
+     "from": 12,
+     "to": 1,
+     "sender_lost": true,
+     "margin": 33.2,
+     "open": false
+    }
+   ]
+  },
+  {
+   "player": "Calvin Ridley",
+   "kind": "curse",
+   "n": 2,
+   "moves": [
+    {
+     "season": 2018,
+     "week": 7,
+     "from": 6,
+     "to": 2,
+     "sender_lost": true,
+     "margin": 15.7,
+     "open": false
+    },
+    {
+     "season": 2019,
+     "week": 3,
+     "from": 9,
+     "to": "former-3",
+     "sender_lost": true,
+     "margin": 29.9,
+     "open": false
+    }
+   ]
+  },
+  {
+   "player": "Tom Brady",
+   "kind": "curse",
+   "n": 2,
+   "moves": [
+    {
+     "season": 2019,
+     "week": 3,
+     "from": 9,
+     "to": "former-3",
+     "sender_lost": true,
+     "margin": 29.9,
+     "open": false
+    },
+    {
+     "season": 2021,
+     "week": 4,
+     "from": 12,
+     "to": 6,
+     "sender_lost": true,
+     "margin": 13.7,
+     "open": false
+    }
+   ]
+  },
+  {
+   "player": "Will Fuller V",
+   "kind": "potato",
+   "n": 2,
+   "moves": [
+    {
+     "season": 2018,
+     "week": 7,
+     "from": 3,
+     "to": 6,
+     "sender_lost": false,
+     "margin": 45.1,
+     "open": false
+    },
+    {
+     "season": 2020,
+     "week": 4,
+     "from": 12,
+     "to": 9,
+     "sender_lost": false,
+     "margin": 41.4,
+     "open": false
+    }
+   ]
+  },
+  {
+   "player": "Mark Andrews",
+   "kind": "potato",
+   "n": 2,
+   "moves": [
+    {
+     "season": 2019,
+     "week": 5,
+     "from": 11,
+     "to": 9,
+     "sender_lost": false,
+     "margin": 7.4,
+     "open": false
+    },
+    {
+     "season": 2020,
+     "week": 4,
+     "from": 7,
+     "to": 9,
+     "sender_lost": false,
+     "margin": 51.8,
+     "open": false
+    }
+   ]
+  },
+  {
+   "player": "Allen Robinson",
+   "kind": "potato",
+   "n": 2,
+   "moves": [
+    {
+     "season": 2021,
+     "week": 4,
+     "from": 6,
+     "to": 10,
+     "sender_lost": false,
+     "margin": 48.8,
+     "open": false
+    },
+    {
+     "season": 2022,
+     "week": 11,
+     "from": 10,
+     "to": 5,
+     "sender_lost": false,
+     "margin": 4.5,
+     "open": false
+    }
+   ]
+  },
+  {
+   "player": "Mike Williams",
+   "kind": "potato",
+   "n": 2,
+   "moves": [
+    {
+     "season": 2021,
+     "week": 5,
+     "from": 9,
+     "to": 7,
+     "sender_lost": false,
+     "margin": 11.5,
+     "open": false
+    },
+    {
+     "season": 2021,
+     "week": 8,
+     "from": 7,
+     "to": 5,
+     "sender_lost": false,
+     "margin": 37.1,
+     "open": false
+    }
+   ]
+  }
+ ]
+}

@@ -249,6 +249,12 @@ def load_league_back():
             read_first(DWR / "yahoo_league_managers.json"))
 
 
+def load_trades():
+    """ff-jarvis's trade verdicts (model.season.trade_verdicts): every Yahoo trade 2018 on, who won it by
+    points above replacement, the games and playoff spots it decided, curses. A file, not a feed block."""
+    return read_first(DWR / "yahoo_trade_verdicts.json")
+
+
 def load_recap(season, week):
     """ff-jarvis's weekly recap (model.season.recap): per player `actual` and pregame `proj`,
     half-PPR, keyed by norm_name. No DST or K rows. None when the week has none yet."""
