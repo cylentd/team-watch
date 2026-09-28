@@ -43,7 +43,7 @@ def test_the_render_areas_are_the_goldens():
     (["tests/test_ranks.py"], {"all": False, "areas": [], "extra": ["tests/test_ranks.py"]}),
     (["CLAUDE.md"], {"all": False, "areas": [], "extra": []}),
     (["scripts/land.ps1"], {"all": False, "areas": [], "extra": ["tests/test_land_queue.py"]}),
-    (["design/src/css/surface/strip/field.css"], {"all": True}), # shared CSS styles any view
+    (["design/src/css/surface/strip/panel.css"], {"all": True}), # shared CSS styles any view
     (["design/src/css/component/pool.css"], {"all": True}),      # so does a component
     (["design/src/js/chrome/nav.js"], {"all": True}),            # no area owns chrome
     (["design/build.py"], {"all": True}),

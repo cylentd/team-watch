@@ -94,7 +94,7 @@
       "render": ["search"]
     },
     "strip": {
-      "paths": ["design/src/js/surface/strip/", "api/game.py", "design/pbp.py"],
+      "paths": ["design/src/js/surface/strip/", "design/src/css/surface/strip/", "api/game.py", "design/pbp.py"],
       "tests": ["tests/test_strip.py", "tests/test_game.py", "tests/test_pbp.py"],
       "render": ["strip"]
     },

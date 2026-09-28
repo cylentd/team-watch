@@ -46,7 +46,7 @@ finish the rebase, then rebuild.
 
 ```
 python -m pytest tests/test_ranks.py          # the files for what you changed, about 2 s
-python -m pytest -n auto --dist loadfile       # everything, about 65 s (pip install pytest-xdist)
+python -m pytest -n auto --dist loadgroup      # everything, about 50 s (pip install pytest-xdist)
 python -m pytest -m "not render"               # no browser, about 30 s
 python -m pytest --update-golden               # after an intended visual change
 ```

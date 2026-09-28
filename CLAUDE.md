@@ -30,7 +30,8 @@ Never hand-edit the generated files. The pages are ~2.6 MB each (all live data i
 ```
 python design/build.py      # rebuild both outputs
 python -m pytest tests/test_<area>.py         # while working: the files for what you touched, seconds
-python -m pytest -n auto --dist loadfile      # everything, ~65 s parallel (~195 s serial), 2026-09-27
+python -m pytest -n auto --dist loadgroup     # everything, ~50 s parallel (~200 s serial), 2026-09-27
+python -m pytest --update-golden              # never with -n: every area rewrites the one golden file
 python -m pytest -m "not render"              # no browser, ~30 s
 python -m pytest tests/test_render.py --areas ranks   # one area's golden slice, ~10 s
 .\scripts\land.ps1          # rebase, test what the diff can break, rebuild, fold into the commit, land

@@ -2,7 +2,7 @@
 a failure is a change in this repo, not in tonight's data.
 
     pytest tests/test_x.py     # the files for what you changed, seconds
-    pytest -n auto --dist loadfile   # everything in parallel, about 65 s (serial about 195 s)
+    pytest -n auto --dist loadgroup  # everything in parallel, about 50 s (serial about 200 s)
     pytest -m "not render"     # no browser, about 30 s
     pytest --update-golden     # rewrite tests/golden/render.json after an intended visual change
 """
@@ -36,7 +36,16 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "area(name): the impact area a test covers (scripts/impact.py)")
 
 
+@pytest.hookimpl(tryfirst=True)
 def pytest_collection_modifyitems(config, items):
+    # `-n auto --dist loadgroup` (land.ps1) keeps a file on one worker, so its module fixtures (a
+    # browser, a built page) are made once, except that each area's golden slice is its own group:
+    # test_render.py's areas run side by side instead of one after another. Runs before xdist's own
+    # hook, which is the one that reads the marker.
+    for item in items:
+        area = next((m.args[0] for m in item.iter_markers("area")), None)
+        group = f"render:{area}" if area and item.path.name == "test_render.py" else item.path.name
+        item.add_marker(pytest.mark.xdist_group(group))
     areas = {a for a in config.getoption("--areas").split(",") if a}
     if not areas:
         return

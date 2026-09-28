@@ -11,6 +11,7 @@ Deterministic by construction: fixture inputs, Math.random seeded and Date.now p
 (Google Fonts) blocked so fallback fonts always apply, reduced-motion so no animation is mid-flight.
 """
 import json
+import os
 import re
 
 import pytest
@@ -396,6 +397,9 @@ def drive(page, steps):
         else:
             page.evaluate(arg)
     page.wait_for_timeout(50)
+    # Scroll events (the header hiding, hidebar.js) fire in the next rendering step, not after any
+    # fixed time: on a loaded machine 50 ms passed without one (2026-09-27, run in parallel).
+    page.evaluate("new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))")
 
 
 def area_of(state):
@@ -412,14 +416,57 @@ def by_area(values, area=lambda v: v):
     return [pytest.param(v, marks=pytest.mark.area(area(v)), id=v) for v in values]
 
 
+def fenced_selectors():
+    """[css file, source selector, its fence's roots] for every rule design/src/scope.json fences.
+    State pseudo-classes and pseudo-elements are dropped: `.a:hover` is checked as `.a`."""
+    import assemble
+    import scope_css
+    state = re.compile(r"::?(hover|focus-visible|focus-within|focus|active|visited|before|after|placeholder"
+                       r"|selection|backdrop|marker|-webkit-[\w-]+|-moz-[\w-]+)(\([^)]*\))?")
+    out = []
+    for rel, names in scope_css.load(assemble.SCOPE)["fenced"].items():
+        roots = ", ".join(scope_css.roots(names))
+        text = (assemble.SRC / "css" / rel).read_text(encoding="utf-8")
+        for sels in {p for _, _, p in scope_css.rules(text)}:
+            for sel in scope_css.split_selectors(sels):
+                sel = state.sub("", re.sub(r"/\*.*?\*/", "", sel, flags=re.S)).strip()
+                if sel:
+                    out.append([rel, sel, roots])
+    return out
+
+
+# Every element a fenced rule was written for but that sits outside the fence, so the rule no
+# longer reaches it: the leg sheet's OUT tag rendered grey for this reason (2026-09-27).
+OUTSIDE_FENCE = """
+(fences) => {
+  const byFile = new Map();
+  for (const [rel, sel, roots] of fences) {
+    if (!byFile.has(rel)) byFile.set(rel, {roots, sels: []});
+    byFile.get(rel).sels.push(sel);
+  }
+  const miss = (sel, roots) => { let els; try { els = document.querySelectorAll(sel); } catch (e) { return false; }
+                                 for (const el of els) if (!el.closest(roots)) return true; return false; };
+  const out = [];
+  for (const [rel, {roots, sels}] of byFile) {
+    /* one query per file; only a file that misses is asked selector by selector, to name it */
+    let whole; try { whole = [...document.querySelectorAll(sels.join(","))].some(el => !el.closest(roots)); }
+    catch (e) { whole = true; }
+    if (whole) for (const s of sels) if (miss(s, roots)) out.push(`${rel}: ${s}`);
+  }
+  return out.sort();
+}
+"""
+
+
 @pytest.fixture(scope="module")
 def snapshot(browser, page_file):
-    """snapshot(area) -> ({viewport: {state: probe}}, errors) for that area's states, taken once."""
-    taken = {}
+    """snapshot(area) -> ({viewport: {state: probe}}, errors) for that area's states, taken once.
+    snapshot.outside[area] holds, per state, the fenced rules that miss an element (OUTSIDE_FENCE)."""
+    taken, fences = {}, fenced_selectors()
 
     def take(area):
         if area not in taken:
-            out, errors = {vp: {} for vp in VIEWPORTS}, {}
+            out, errors, outside = {vp: {} for vp in VIEWPORTS}, {}, {}
             for vp_name, vp in VIEWPORTS.items():
                 for state, steps in STATES:
                     if area_of(state) != area:
@@ -427,11 +474,16 @@ def snapshot(browser, page_file):
                     ctx, page, errs = open_page(browser, page_file, vp)
                     drive(page, steps)
                     out[vp_name][state] = page.evaluate(PROBE, PROPS)
+                    missed = page.evaluate(OUTSIDE_FENCE, fences)
                     if errs:
                         errors[f"{vp_name}/{state}"] = errs
+                    if missed:
+                        outside[f"{vp_name}/{state}"] = missed
                     ctx.close()
             taken[area] = out, errors
+            take.outside[area] = outside
         return taken[area]
+    take.outside = {}
     return take
 
 
@@ -439,6 +491,14 @@ def snapshot(browser, page_file):
 def test_no_console_errors(snapshot, area):
     _, errors = snapshot(area)
     assert errors == {}
+
+
+@pytest.mark.parametrize("area", by_area(AREAS))
+def test_no_fenced_rule_misses_its_element(snapshot, area):
+    """A class a fenced file styles, drawn outside that file's fence, gets none of the style.
+    Either the fence lists the new place (design/src/scope.json) or the file is shared."""
+    snapshot(area)
+    assert snapshot.outside[area] == {}
 
 
 @pytest.mark.parametrize("leaf,group,label", [
@@ -730,6 +790,8 @@ def test_matches_golden(snapshot, update_golden, area):
     path = GOLDEN / GOLDEN_FILE
     golden = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
     if update_golden or not path.exists():
+        if os.environ.get("PYTEST_XDIST_WORKER"):
+            pytest.fail("--update-golden runs without -n: areas on two workers would each rewrite the one file")
         names = {s for s, _ in STATES}
         for vp in VIEWPORTS:
             kept = {s: p for s, p in golden.get(vp, {}).items() if s in names and area_of(s) != area}

@@ -139,11 +139,12 @@ for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
         GitRun "rebase origin/$Base" | Out-Null
     }
 
-    # One file per worker (loadfile), so a module's browser and snapshot fixtures are built once.
-    # About 65 s instead of 195 s on 20 cores (2026-09-27); without pytest-xdist it runs serially.
+    # One group per worker (loadgroup; tests/conftest.py makes each file a group, and each golden
+    # area its own), so a module's browser and snapshot fixtures are built once. About 50 s instead
+    # of 200 s on 20 cores (2026-09-27); without pytest-xdist it runs serially.
     $parallel = @()
     & python -c "import xdist" 2>$null
-    if ($LASTEXITCODE -eq 0) { $parallel = @("-n", "auto", "--dist", "loadfile") }
+    if ($LASTEXITCODE -eq 0) { $parallel = @("-n", "auto", "--dist", "loadgroup") }
     else { Write-Host "  pytest-xdist missing (pip install pytest-xdist) -- running serially" -ForegroundColor Yellow }
 
     # Only the tests this diff can break (scripts/impact.py, tests/impact.json): a change fenced to one
