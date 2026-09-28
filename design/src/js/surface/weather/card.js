@@ -103,9 +103,9 @@ function wtHitsHTML(hits, gi){
 }
 
 function wtCardHTML(r, gi){
-  return `<article class="wt-card">
-    <div class="wt-top"><b class="wt-match">${esc(r.g.away)} @ ${esc(r.g.home)}</b><span class="wt-kick">${wtKick(r.g.kickoff)}</span></div>
-    ${wtCondHTML(r)}${wtFxHTML(r.effects)}${wtProjHTML(r)}${wtAgeHTML(r.fc)}
+  return `<article class="wt-card${r.done ? " done" : ""}">
+    <div class="wt-top"><b class="wt-match">${esc(r.g.away)} @ ${esc(r.g.home)}</b><span class="wt-kick">${wtKickLabel(r)}</span></div>
+    ${wtCondHTML(r)}${wtFxHTML(r.effects)}${wtProjHTML(r)}${r.done ? "" : wtAgeHTML(r.fc)}
     ${wtHitsHTML(r.hits, gi)}
   </article>`;
 }

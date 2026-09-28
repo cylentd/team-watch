@@ -1289,6 +1289,7 @@
  "weather.cond.wind": "{wind} wind",
  "weather.count.many": "{n} games",
  "weather.count.one": "1 game",
+ "weather.done": "{kick} · kicked off",
  "weather.empty.sub": "The schedule has no game left to show this week.",
  "weather.empty.title": "NO GAMES THIS WEEK",
  "weather.fx.fewer": "{who} about {n} fewer",
@@ -1328,11 +1329,11 @@
  "weather.moves.mixed": "Games where weather changes scoring",
  "weather.moves.none": "The weather won't move scoring in any game this week.",
  "weather.moves.raise": "Games where weather raises scoring",
- "weather.played": "Played: {list}",
  "weather.pos.k": "kickers",
  "weather.pos.qb": "QBs",
  "weather.pos.rb": "RBs",
  "weather.pos.te": "TEs",
  "weather.pos.wr": "WRs",
- "weather.row.nofc": "No forecast yet"
+ "weather.row.nofc": "No forecast yet",
+ "weather.row.nosaved": "No forecast saved"
 }

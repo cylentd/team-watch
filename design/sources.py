@@ -164,6 +164,18 @@ def load_weather():
     return feed_block(("weather",), "teams") or read_first(WEATHER)
 
 
+def load_weather_history(days=8):
+    """The last `days` files of ff-jarvis's history kind `weather` (one per date, every forecast fetch),
+    as rows. design/wx_kicked.py keeps the last forecast before each kickoff; eight days covers a week
+    from Thursday night to Monday night."""
+    rows = []
+    for path in sorted((DWR / "history" / "weather").glob("*.jsonl"))[-days:]:
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                rows.append(json.loads(line))
+    return rows
+
+
 def load_weather_backtest():
     """ff-jarvis's weather backtest (model/season/weather_backtest.py), the file only: it is
     rerun by hand, not by the scheduled refresh, so no feed block carries it. None when absent;

@@ -22,7 +22,9 @@
 .wt-row .wt-match{grid-column:1;grid-row:1;font-size:var(--t-2)}
 .wt-row .wt-kick{grid-column:1;grid-row:2}
 .wt-rs{grid-column:2;grid-row:1/3;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2);font-variant-numeric:tabular-nums}
-.wt-played{margin:12px 0 0;font-size:var(--t-1);color:var(--ink-3)}
+/* A game already kicked off: still there with the forecast it had, dimmed, after the games to come.
+   Its card's players still open their profile, so the dim is opacity, never pointer-events. */
+.wt-card.done,.wt-row.done{opacity:.5}
 
 /* How we know: the method, what showed nothing, the forecast's source. It opens with a height
    ease (the grid-rows trick; @starting-style gives the opening frame), and closes at once. */

@@ -42,12 +42,13 @@ from sources import (                                    # design/sources.py: th
     ROOT, REPO, DWR, FEED, ESPN_ROSTERS, YAHOO_ROSTERS, DFS_POOL,
     feed_block, read_first, load_status, load_props_raw, load_model_raw,
     load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
-    load_draft_pedigree, load_weather, load_weather_backtest, load_routes, load_startsit, load_digest, load_league,
+    load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_startsit, load_digest, load_league,
     load_league_yahoo, load_league_back, load_defense,
 )
 from defense import live_defense, report as defense_report  # design/defense.py: the leg sheet's matchup line
 from wx_history import live_wx_history, report as wx_history_report  # Weather's backtest lines
 from wx_hits import live_wx_hits  # Weather's "Who it hits", from the projections, never a roster
+from wx_kicked import kicked as wx_kicked  # Weather's forecast for a game already kicked off
 
 # One slug for one name across the page and the functions: api/league.py slugs a connected
 # league's players at request time with this same function (api/_espn.py).
@@ -728,7 +729,7 @@ def render():
         "LIVE_PROJECTIONS": live_projections(load_player_proj(), slugify, wanted_set, load_status(), load_schedule(DWR)),
         "LIVE_RANKS": live_ranks(load_player_proj(), slugify, load_status(), load_schedule(DWR)),
         "LIVE_INJURY": live_injury(load_status(), slugify, wanted_set),
-        "LIVE_WEATHER": load_weather(),
+        "LIVE_WEATHER": {**w, "kicked": wx_kicked(load_weather_history())} if (w := load_weather()) else None,
         "LIVE_WX_HISTORY": live_wx_history(load_weather_backtest(), load_player_proj()),
         "LIVE_WX_HITS": live_wx_hits(load_player_proj(), slugify, load_status()),
         "LIVE_LINES": live_lines(load_dfs_pool(), TEAM_FIX),

@@ -17,8 +17,8 @@
     },
     "weather": {
       "paths": ["design/src/js/surface/weather/", "design/src/css/surface/weather/", "design/src/js/data/weather.js",
-                "design/src/js/data/wxhistory.js", "design/wx_history.py", "design/wx_hits.py"],
-      "tests": ["tests/test_weather.py"],
+                "design/src/js/data/wxhistory.js", "design/wx_history.py", "design/wx_hits.py", "design/wx_kicked.py"],
+      "tests": ["tests/test_weather.py", "tests/test_wx_kicked.py"],
       "render": ["weather"]
     },
     "league": {

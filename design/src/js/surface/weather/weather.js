@@ -7,14 +7,16 @@
    Data: data/weather.js wtRows(), data/wxhistory.js. Icons: ui/weather.js.
 ------------------------------------------------------------------ */
 const wtKick = iso => new Date(iso).toLocaleString([], {weekday: "short", hour: "numeric", minute: "2-digit"});
+/* A game already under way or over says so where its kickoff time was: the card is dimmed, not gone. */
+const wtKickLabel = r => r.done ? t("weather.done", {kick: wtKick(r.g.kickoff)}) : wtKick(r.g.kickoff);
 
 /* One compact row: matchup, kickoff, the sky in brief. */
 function wtRowHTML(r){
   const fc = r.fc;
   const sky = r.roof === "dome" ? "" : fc ? `${t("profile.weather.temp", {n: fc.temp_f})} · ${esc(fc.wind || "")}`
-    : t("weather.row.nofc");
-  return `<li class="wt-row"><b class="wt-match">${esc(r.g.away)} @ ${esc(r.g.home)}</b>
-    <span class="wt-kick">${wtKick(r.g.kickoff)}</span><span class="wt-rs">${sky}</span></li>`;
+    : r.done ? t("weather.row.nosaved") : t("weather.row.nofc");
+  return `<li class="wt-row${r.done ? " done" : ""}"><b class="wt-match">${esc(r.g.away)} @ ${esc(r.g.home)}</b>
+    <span class="wt-kick">${wtKickLabel(r)}</span><span class="wt-rs">${sky}</span></li>`;
 }
 
 /* A section rule; the count is said in words ("3 games"), so it never reads as a section number. */
@@ -54,19 +56,17 @@ function wtHowHTML(){
 
 function wtViewHTML(){
   const d = wtRows();
-  if (!d.moves.length && !d.indoor.length && !d.open.length && !d.played.length) return `<div class="wrap"><div class="state-empty" style="min-height:220px">
+  if (!d.moves.length && !d.indoor.length && !d.open.length) return `<div class="wrap"><div class="state-empty" style="min-height:220px">
     <div><b>${t("weather.empty.title")}</b><span>${t("weather.empty.sub")}</span></div></div></div>`;
   const moves = d.moves.length
     ? `<section class="wt-sec">${wtRule(wtMovesTitle(d.moves), d.moves.length)}
         <div class="wt-grid">${d.moves.map(wtCardHTML).join("")}</div></section>`
     : `<p class="wt-calm">${t("weather.moves.none")}</p>`;
-  const played = d.played.length
-    ? `<p class="wt-played">${t("weather.played", {list: d.played.map(r => `${esc(r.g.away)} @ ${esc(r.g.home)}`).join(", ")})}</p>` : "";
   return `<div class="wrap wt">
     <h2 class="wt-title">${t("weather.head.title", {week: d.week})}</h2>
     ${moves}
     <div class="wt-rest">${wtRestHTML(t("weather.group.open"), d.open)}${wtRestHTML(t("weather.group.indoor"), d.indoor)}</div>
-    ${played}${wtHowHTML()}
+    ${wtHowHTML()}
   </div>`;
 }
 

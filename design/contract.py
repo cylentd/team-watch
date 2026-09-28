@@ -232,8 +232,10 @@ CONTRACT = {
     # by team. `roof` is the only key guaranteed present -- a dome has nothing else, and an
     # outdoor/retractable team missing a live forecast (a miss the client already prints and
     # skips) has only that too.
+    # `kicked` (design/wx_kicked.py, 2026-09-27): per team, the last forecast before each recent
+    # kickoff, so a game already played keeps its forecast on Weather, dimmed.
     "LIVE_WEATHER": {
-        "keys": ["generated", "teams"],
+        "keys": ["generated", "teams", "kicked"],
         "map": ("teams", ["roof"]),
     },
     # design/wx_history.py: ff-jarvis's weather backtest, one summary per condition. `inproj`
