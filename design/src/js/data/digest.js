@@ -104,6 +104,13 @@ function dgLast(name){
   return w[w.length - 1] || "";
 }
 
+/* A big count as the eye reads it: 4,039,301 -> "4.0M", 832,977 -> "833K", 950 -> "950". */
+const dgBig = n => n >= 1e6 ? (n / 1e6).toFixed(1) + "M" : n >= 1e3 ? Math.round(n / 1e3) + "K" : String(n);
+
+/* "4.0M adds": a Sleeper-sourced add's number (2026-09-28), shared by the Digest row and Waivers'
+   Most added. The ESPN fallback keeps each reader's own % wording. */
+const dgAddCount = a => t("digest.adds.count", {n: dgBig(a.count)});
+
 /* A signed number with a true minus: +3.7, −4.3. */
 const dgSigned = (v, dp) => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toFixed(dp);
 /* A percentage as a whole number, except that 99.9 stays 99.9: "100% rostered" would be false. */

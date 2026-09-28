@@ -22,7 +22,8 @@ function dgCount(id, d){
   if (id === "hurt") return [d.hurt.length, "out"];
   if (id === "mu") return [d.calls || "", ""];
   if (id === "wx") return [d.wx.length || "", "sky"];
-  if (id === "adds") return [d.adds.length ? dgSigned(Math.round(d.adds[0].delta), 0) : "", "go"];
+  if (id === "adds") return [!d.adds.length ? "" : d.adds_source === "sleeper" ? dgBig(d.adds[0].count)
+    : dgSigned(Math.round(d.adds[0].delta), 0), "go"];
   if (id === "gems") return [d.gems.length, ""];
   if (id === "news") return [d.news.length, ""];
   return ["", ""];
@@ -68,7 +69,8 @@ function dgLine(id, d){
   const it = d.news[0], a = d.adds[0], up = d.up[0], dn = d.down[0];
   return {
     res: () => dgResLine(d), hurt: () => dgHurtLine(d), mu: () => dgMuLine(d), wx: () => dgWxLine(d),
-    adds: () => t("digest.line.adds", {name: esc(a.n), was: dgPct(a.was), now: dgPct(a.now)}),
+    adds: () => d.adds_source === "sleeper" ? `<b>${esc(a.n)}</b> ${dgAddCount(a)}`
+      : t("digest.line.adds", {name: esc(a.n), was: dgPct(a.was), now: dgPct(a.now)}),
     t5: () => DG_POS.map(top).filter(Boolean).map(r => `<b>${esc(dgLast(r.n))}</b>`).join(" · "),
     st: () => [up ? `<b>${esc(dgLast(up.n))}</b> <span class="up">${dgSigned(up.d_pts, 1)}</span>` : "",
                dn ? `<b>${esc(dgLast(dn.n))}</b> <span class="dn">${dgSigned(dn.d_pts, 1)}</span>` : ""].filter(Boolean).join(" · "),

@@ -163,8 +163,11 @@ def live_digest(p, slugify, schedule=None):
                  for pos in POS if best.get(pos)],
         "wx": [_wx(g) for g in wx.get("games") or []],
         "near": _wx(wx["near"]) if wx.get("near") else None,
+        # Sleeper's adds over the last `adds_hours` since 2026-09-28; "espn" is the fallback cut
+        # (ESPN % rostered, week over week), and a packet from before that date has no source.
+        "adds_source": adds.get("source") or "espn", "adds_hours": adds.get("hours"),
         "adds_weeks": adds.get("weeks") or [],
-        "adds": [_player(r, slugify, "pos", "team", "was", "now", "delta") for r in adds.get("rows") or []],
+        "adds": [_player(r, slugify, "pos", "team", "count", "was", "now", "delta") for r in adds.get("rows") or []],
         "top5": [{"pos": pos, **_player(r, slugify, "team", "opp", "pts"), "ko": ko.get(r["team"])}
                  for pos in POS for r in (p.get("top5") or {}).get(pos) or []],
         **_results(p.get("results"), slugify),

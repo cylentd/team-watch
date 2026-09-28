@@ -58,8 +58,17 @@ function dgWxBody(d){
     + dgFootHTML(t("digest.foot.wx", d.rules.wx_list),"roster", t("digest.go.roster"), true);
 }
 
-/* Each bar grows from last week's % rostered to this week's when the row opens (adds.css). */
+/* Each bar grows when the row opens (adds.css): from last week's % rostered to this week's on the
+   ESPN fallback, and from nothing to his share of the top count on Sleeper's (2026-09-28). */
 function dgAddsBody(d){
+  if (d.adds_source === "sleeper"){
+    const top = Math.max(1, ...d.adds.map(a => a.count || 0));
+    const lines = d.adds.map((a, i) => dgLnHTML(a, a.now != null
+      ? t("digest.adds.metaEspn", {pos: esc(a.pos), team: esc(a.team), pct: dgPct(a.now)}) : `${esc(a.pos)} · ${esc(a.team)}`,
+      `<span class="dg-plus">${dgBig(a.count)}</span>`,
+      `<span class="dg-bar" style="--a:0%;--b:${(100 * a.count / top).toFixed(1)}%;--i:${i}"><i></i><u></u></span>`)).join("");
+    return lines + dgFootHTML(t("digest.foot.addsSleeper", {h: d.adds_hours}), "waivers", t("digest.go.waivers"));
+  }
   const lines = d.adds.map((a, i) => dgLnHTML(a, t("digest.adds.meta", {pos: esc(a.pos), team: esc(a.team), was: dgPct(a.was), now: dgPct(a.now)}),
     `<span class="dg-plus">${dgSigned(Math.round(a.delta), 0)}</span>`,
     `<span class="dg-bar" style="--a:${a.was}%;--b:${a.now}%;--i:${i}"><i></i><u></u></span>`)).join("");

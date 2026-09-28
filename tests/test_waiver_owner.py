@@ -27,6 +27,19 @@ def test_a_visitor_gets_most_added_and_none_of_davids_advice(browser, page_file)
     ctx.close()
 
 
+def test_most_added_reads_sleepers_count_when_that_is_the_source(browser, page_file):
+    """Since 2026-09-28 the Digest's adds are Sleeper's adds over the last day; Most added says so."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    page.evaluate("""Object.assign(LIVE_DIGEST, {adds_source: "sleeper", adds_hours: 24, adds_weeks: [], adds: [
+        {n: "Ollie Gordon II", slug: "ollie-gordon-ii", pos: "RB", team: "MIA", count: 4039301, was: null, now: null,
+         delta: null}]}); DG_CUT = null""")
+    _as_visitor(page)
+    assert page.locator(".wv-hot-pct").all_inner_texts() == ["4.0M adds"]
+    assert page.locator(".wv-hot-sub").inner_text() == "Adds on Sleeper, the last 24 hours."
+    assert errors == []
+    ctx.close()
+
+
 def test_a_visitors_roster_has_no_waiver_line(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     _as_visitor(page, "roster")

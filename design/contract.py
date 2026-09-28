@@ -301,15 +301,16 @@ CONTRACT = {
     # design/digest.py, the Digest view (This week). `lead`, `record` and `near` may be null, and a
     # hurt row's `game`; `rank`, `rostered`, `injury`, `was`, `why`, `opp`, `temp_f`, `short`,
     # `when`, a headline's `n`, `ko` (a kickoff the schedule lacks) and a result's `proj`/`diff` may
-    # be null too, and a left row's `injury` (a headline with no tag). Every list may be empty: that is "nothing new".
+    # be null too, and a left row's `injury` (a headline with no tag), and an add's `count` (espn) or
+# `was`/`now`/`delta` (sleeper, `now` when the experts do not have him), and `adds_hours` (espn). Every list may be empty: that is "nothing new".
     "LIVE_DIGEST": {
         "keys": ["season", "week", "asof", "asof_words", "lead", "rules", "hurt", "calls", "record", "best", "wx",
-                 "near", "adds_weeks", "adds", "top5", "up", "down", "gems", "news", "finals", "pending", "stars",
+                 "near", "adds_source", "adds_hours", "adds_weeks", "adds", "top5", "up", "down", "gems", "news", "finals", "pending", "stars",
                  "smashed", "busts", "left", "tonight", "tonight_last"],
         "rows": [("hurt", ["n", "slug", "pos", "team", "status", "was", "injury", "new", "rank", "rostered", "game"]),
                  ("best", ["n", "slug", "pos", "team", "opp", "home", "pts", "why", "ko"]),
                  ("wx", ["away", "home", "kick", "ko", "temp_f", "wind_mph", "precip_pct", "short", "lead", "bar"]),
-                 ("adds", ["n", "slug", "pos", "team", "was", "now", "delta"]),
+                 ("adds", ["n", "slug", "pos", "team", "count", "was", "now", "delta"]),
                  ("top5", ["pos", "n", "slug", "team", "opp", "pts", "ko"]),
                  ("up", ["n", "slug", "pos", "team", "d_pts", "pts"]),
                  ("down", ["n", "slug", "pos", "team", "d_pts", "pts"]),

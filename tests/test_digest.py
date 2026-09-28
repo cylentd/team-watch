@@ -122,6 +122,44 @@ def test_monday_night_is_one_card_and_the_preview_rows_go(browser, page_file):
     ctx.close()
 
 
+SLEEPER_ADDS = {"source": "sleeper", "hours": 24, "fetched": "2026-09-28 05:52", "weeks": [], "rows": [
+    {"key": "ollie gordon", "name": "Ollie Gordon II", "pos": "RB", "team": "MIA", "count": 4039301,
+     "was": None, "now": None, "delta": None},
+    {"key": "kenyon sadiq", "name": "Kenyon Sadiq", "pos": "TE", "team": "NYJ", "count": 832977,
+     "was": None, "now": 35.2, "delta": None}]}
+
+
+def test_sleeper_adds_carry_their_source_and_count():
+    b = live_digest({**load_digest(), "adds": SLEEPER_ADDS}, slugify)
+    contract.validate("LIVE_DIGEST", b)
+    assert (b["adds_source"], b["adds_hours"], b["adds_weeks"]) == ("sleeper", 24, [])
+    assert [(r["n"], r["count"], r["now"]) for r in b["adds"]] == [("Ollie Gordon II", 4039301, None),
+                                                                  ("Kenyon Sadiq", 832977, 35.2)]
+    # A packet from before 2026-09-28 has no source: it was the ESPN cut.
+    old = {**load_digest(), "adds": {"weeks": [2, 3], "rows": []}}
+    assert live_digest(old, slugify)["adds_source"] == "espn"
+
+
+@pytest.mark.render
+def test_sleeper_adds_read_as_counts_on_the_digest(browser, page_file):
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    page.goto(page_file.as_uri())
+    page.evaluate("""Object.assign(LIVE_DIGEST, {adds_source: "sleeper", adds_hours: 24, adds_weeks: [], adds: [
+        {n: "Ollie Gordon II", slug: "ollie-gordon-ii", pos: "RB", team: "MIA", count: 4039301, was: null, now: null, delta: null},
+        {n: "Kenyon Sadiq", slug: "kenyon-sadiq", pos: "TE", team: "NYJ", count: 832977, was: null, now: 35.2, delta: null}]});
+        DG_CUT = null; Date.now = () => Date.parse("2026-09-22T12:00:00Z")""")   # a Tuesday: adds lies open
+    for _, sel in go("digest"):
+        page.click(sel)
+    page.wait_for_selector(".dg-row[data-dgrow='adds']")
+    row = page.locator(".dg-row[data-dgrow='adds']")
+    assert row.locator(".dg-n").inner_text() == "4.0M"
+    assert row.locator(".dg-s").inner_text() == "Ollie Gordon II 4.0M adds"
+    assert "Sleeper trending" in row.locator(".dg-foot").inner_text()
+    assert row.locator(".dg-plus").all_inner_texts() == ["4.0M", "833K"]
+    assert errors == []
+    ctx.close()
+
+
 def test_an_untagged_headline_does_not_say_his_name_twice():
     """The Monday 2026-09-28 page read "Travis Etienne Travis Etienne Jr. exits early Sunday"."""
     p = json.loads(json.dumps(load_digest()))

@@ -23,53 +23,248 @@
  },
  "results": {
   "complete": false,
-  "pending": ["2026_03_SEA_WAS", "2026_03_LA_DEN"],
-  "games": [{"away": "MIA", "home": "BUF", "away_pts": 17.0, "home_pts": 27.0}],
+  "pending": [
+   "2026_03_SEA_WAS",
+   "2026_03_LA_DEN"
+  ],
+  "games": [
+   {
+    "away": "MIA",
+    "home": "BUF",
+    "away_pts": 17.0,
+    "home_pts": 27.0
+   }
+  ],
   "top": {
-   "QB": [{"key": "josh allen", "name": "Josh Allen", "pos": "QB", "team": "BUF", "actual": 24.6, "proj": 22.1, "diff": 2.5}],
-   "RB": [{"key": "james cook", "name": "James Cook", "pos": "RB", "team": "BUF", "actual": 19.4, "proj": 15.2, "diff": 4.2}]
+   "QB": [
+    {
+     "key": "josh allen",
+     "name": "Josh Allen",
+     "pos": "QB",
+     "team": "BUF",
+     "actual": 24.6,
+     "proj": 22.1,
+     "diff": 2.5
+    }
+   ],
+   "RB": [
+    {
+     "key": "james cook",
+     "name": "James Cook",
+     "pos": "RB",
+     "team": "BUF",
+     "actual": 19.4,
+     "proj": 15.2,
+     "diff": 4.2
+    }
+   ]
   },
-  "smashed": [{"key": "khalil shakir", "name": "Khalil Shakir", "pos": "WR", "team": "BUF", "actual": 17.8, "proj": 8.1, "diff": 9.7}],
-  "busts": [{"key": "de'von achane", "name": "De'Von Achane", "pos": "RB", "team": "MIA", "actual": 6.1, "proj": 15.0, "diff": -8.9}],
+  "smashed": [
+   {
+    "key": "khalil shakir",
+    "name": "Khalil Shakir",
+    "pos": "WR",
+    "team": "BUF",
+    "actual": 17.8,
+    "proj": 8.1,
+    "diff": 9.7
+   }
+  ],
+  "busts": [
+   {
+    "key": "de'von achane",
+    "name": "De'Von Achane",
+    "pos": "RB",
+    "team": "MIA",
+    "actual": 6.1,
+    "proj": 15.0,
+    "diff": -8.9
+   }
+  ],
   "left_hurt": [
-   {"key": "tua tagovailoa", "name": "Tua Tagovailoa", "pos": "QB", "team": "MIA", "headline": "Tua Tagovailoa (concussion) ruled out for the remainder", "created": "2026-09-25 02:10:00"},
-   {"key": "travis etienne", "name": "Travis Etienne", "pos": "RB", "team": "JAX", "headline": "Travis Etienne Jr. exits early Sunday", "created": "2026-09-25 01:40:00"}
+   {
+    "key": "tua tagovailoa",
+    "name": "Tua Tagovailoa",
+    "pos": "QB",
+    "team": "MIA",
+    "headline": "Tua Tagovailoa (concussion) ruled out for the remainder",
+    "created": "2026-09-25 02:10:00"
+   },
+   {
+    "key": "travis etienne",
+    "name": "Travis Etienne",
+    "pos": "RB",
+    "team": "JAX",
+    "headline": "Travis Etienne Jr. exits early Sunday",
+    "created": "2026-09-25 01:40:00"
+   }
   ]
  },
  "tonight": {
   "last": true,
-  "games": [{
-   "away": "PHI", "home": "CHI", "kickoff": "2026-09-29 00:15:00",
-   "wx": {"roof": "outdoor", "temp_f": 64, "precip_pct": 1, "short": "Mostly Clear", "wind_mph": 5},
-   "out": [
-    {"key": "caleb williams", "name": "Caleb Williams", "pos": "QB", "team": "CHI", "status": "Out", "injury": "Hamstring"},
-    {"key": "dallas goedert", "name": "Dallas Goedert", "pos": "TE", "team": "PHI", "status": "Out", "injury": "Knee - MCL"},
-    {"key": "marquise brown", "name": "Marquise Brown", "pos": "WR", "team": "PHI", "status": "Out", "injury": "Ankle"}
-   ],
-   "next_up": [{"for": "caleb williams", "key": "case keenum", "name": "Case Keenum", "pos": "QB", "team": "CHI", "pts": 11.17}],
-   "groups": [
-    {"team": "CHI", "group": "pass", "d_pts": -9.8}, {"team": "CHI", "group": "rb", "d_pts": 0.1},
-    {"team": "PHI", "group": "pass", "d_pts": 0.9}, {"team": "PHI", "group": "qb", "d_pts": 0.0},
-    {"team": "PHI", "group": "rb", "d_pts": -0.6}
-   ],
-   "moved": [
-    {"key": "colston loveland", "name": "Colston Loveland", "pos": "TE", "team": "CHI", "d_pts": -3.97},
-    {"key": "luther burden", "name": "Luther Burden", "pos": "WR", "team": "CHI", "d_pts": -3.21},
-    {"key": "rome odunze", "name": "Rome Odunze", "pos": "WR", "team": "CHI", "d_pts": -1.7},
-    {"key": "cole kmet", "name": "Cole Kmet", "pos": "TE", "team": "CHI", "d_pts": -0.82}
-   ],
-   "calls": [
-    {"key": "saquon barkley", "name": "Saquon Barkley", "pos": "RB", "team": "PHI", "pts": 11.6, "call": "BEST"},
-    {"key": "devonta smith", "name": "DeVonta Smith", "pos": "WR", "team": "PHI", "pts": 10.3, "call": "BEST"},
-    {"key": "luther burden", "name": "Luther Burden III", "pos": "WR", "team": "CHI", "pts": 8.1, "call": "START"}
-   ],
-   "projected": [
-    {"key": "jalen hurts", "name": "Jalen Hurts", "pos": "QB", "team": "PHI", "pts": 17.08},
-    {"key": "dandre swift", "name": "D'Andre Swift", "pos": "RB", "team": "CHI", "pts": 12.77},
-    {"key": "saquon barkley", "name": "Saquon Barkley", "pos": "RB", "team": "PHI", "pts": 11.55},
-    {"key": "case keenum", "name": "Case Keenum", "pos": "QB", "team": "CHI", "pts": 11.17}
-   ]
-  }]
+  "games": [
+   {
+    "away": "PHI",
+    "home": "CHI",
+    "kickoff": "2026-09-29 00:15:00",
+    "wx": {
+     "roof": "outdoor",
+     "temp_f": 64,
+     "precip_pct": 1,
+     "short": "Mostly Clear",
+     "wind_mph": 5
+    },
+    "out": [
+     {
+      "key": "caleb williams",
+      "name": "Caleb Williams",
+      "pos": "QB",
+      "team": "CHI",
+      "status": "Out",
+      "injury": "Hamstring"
+     },
+     {
+      "key": "dallas goedert",
+      "name": "Dallas Goedert",
+      "pos": "TE",
+      "team": "PHI",
+      "status": "Out",
+      "injury": "Knee - MCL"
+     },
+     {
+      "key": "marquise brown",
+      "name": "Marquise Brown",
+      "pos": "WR",
+      "team": "PHI",
+      "status": "Out",
+      "injury": "Ankle"
+     }
+    ],
+    "next_up": [
+     {
+      "for": "caleb williams",
+      "key": "case keenum",
+      "name": "Case Keenum",
+      "pos": "QB",
+      "team": "CHI",
+      "pts": 11.17
+     }
+    ],
+    "groups": [
+     {
+      "team": "CHI",
+      "group": "pass",
+      "d_pts": -9.8
+     },
+     {
+      "team": "CHI",
+      "group": "rb",
+      "d_pts": 0.1
+     },
+     {
+      "team": "PHI",
+      "group": "pass",
+      "d_pts": 0.9
+     },
+     {
+      "team": "PHI",
+      "group": "qb",
+      "d_pts": 0.0
+     },
+     {
+      "team": "PHI",
+      "group": "rb",
+      "d_pts": -0.6
+     }
+    ],
+    "moved": [
+     {
+      "key": "colston loveland",
+      "name": "Colston Loveland",
+      "pos": "TE",
+      "team": "CHI",
+      "d_pts": -3.97
+     },
+     {
+      "key": "luther burden",
+      "name": "Luther Burden",
+      "pos": "WR",
+      "team": "CHI",
+      "d_pts": -3.21
+     },
+     {
+      "key": "rome odunze",
+      "name": "Rome Odunze",
+      "pos": "WR",
+      "team": "CHI",
+      "d_pts": -1.7
+     },
+     {
+      "key": "cole kmet",
+      "name": "Cole Kmet",
+      "pos": "TE",
+      "team": "CHI",
+      "d_pts": -0.82
+     }
+    ],
+    "calls": [
+     {
+      "key": "saquon barkley",
+      "name": "Saquon Barkley",
+      "pos": "RB",
+      "team": "PHI",
+      "pts": 11.6,
+      "call": "BEST"
+     },
+     {
+      "key": "devonta smith",
+      "name": "DeVonta Smith",
+      "pos": "WR",
+      "team": "PHI",
+      "pts": 10.3,
+      "call": "BEST"
+     },
+     {
+      "key": "luther burden",
+      "name": "Luther Burden III",
+      "pos": "WR",
+      "team": "CHI",
+      "pts": 8.1,
+      "call": "START"
+     }
+    ],
+    "projected": [
+     {
+      "key": "jalen hurts",
+      "name": "Jalen Hurts",
+      "pos": "QB",
+      "team": "PHI",
+      "pts": 17.08
+     },
+     {
+      "key": "dandre swift",
+      "name": "D'Andre Swift",
+      "pos": "RB",
+      "team": "CHI",
+      "pts": 12.77
+     },
+     {
+      "key": "saquon barkley",
+      "name": "Saquon Barkley",
+      "pos": "RB",
+      "team": "PHI",
+      "pts": 11.55
+     },
+     {
+      "key": "case keenum",
+      "name": "Case Keenum",
+      "pos": "QB",
+      "team": "CHI",
+      "pts": 11.17
+     }
+    ]
+   }
+  ]
  },
  "hurt": [
   {
@@ -362,6 +557,9 @@
   }
  },
  "adds": {
+  "source": "espn",
+  "hours": null,
+  "fetched": null,
   "weeks": [
    2,
    3
@@ -372,6 +570,7 @@
     "name": "Denzel Boston",
     "pos": "WR",
     "team": "CLE",
+    "count": null,
     "was": 26.4,
     "now": 53.1,
     "delta": 26.7
@@ -381,6 +580,7 @@
     "name": "Bryce Young",
     "pos": "QB",
     "team": "CAR",
+    "count": null,
     "was": 33.3,
     "now": 58.3,
     "delta": 25.0
@@ -390,6 +590,7 @@
     "name": "Dalton Schultz",
     "pos": "TE",
     "team": "HOU",
+    "count": null,
     "was": 20.1,
     "now": 42.8,
     "delta": 22.7
@@ -399,6 +600,7 @@
     "name": "Tyler Shough",
     "pos": "QB",
     "team": "NO",
+    "count": null,
     "was": 49.8,
     "now": 66.8,
     "delta": 17.0
@@ -408,6 +610,7 @@
     "name": "Jonah Coleman",
     "pos": "RB",
     "team": "DEN",
+    "count": null,
     "was": 22,
     "now": 36.8,
     "delta": 14.8
@@ -417,6 +620,7 @@
     "name": "Emanuel Wilson",
     "pos": "RB",
     "team": "SEA",
+    "count": null,
     "was": 0.4,
     "now": 14.7,
     "delta": 14.3
