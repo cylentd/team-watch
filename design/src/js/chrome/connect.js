@@ -108,6 +108,7 @@ async function connectSubmit(teamId){
   else if (got.league){
     connectClose();
     VIEW = got.league.key;
+    myTeamSave(VIEW);   // a connected league is the reader's pick, so My teams does not ask again
     SURFACE = "roster";
     paintSubnav(); render();
     return;

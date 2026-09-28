@@ -18,6 +18,9 @@ import pytest
 pytestmark = pytest.mark.render
 
 GOLDEN_FILE = "render.json"
+# My teams asks whose team first (teamswitch.js pickHTML, 2026-09-27). Every page here reads as David
+# on his own Yahoo team unless a test picked another; the picker's own tests clear it (test_picker.py).
+PICKED = 'try { if (!localStorage.getItem("tw-team")) localStorage.setItem("tw-team", "yahoo"); } catch (e) {}\n'
 VIEWPORTS = {"desk": (1400, 900), "phone": (390, 844)}
 PROPS = ["color", "background-color", "border-top-color", "border-top-style", "border-top-width",
          "padding-top", "padding-left", "margin-top", "gap", "font-family", "font-size",
@@ -127,6 +130,8 @@ STATES = [
                      + go("digest")),
     # The page opens on the Digest since 2026-09-26, so the roster states navigate there.
     ("teams-yahoo", go("roster")),
+    # A first visit: no team picked in this browser, so My teams asks whose team first.
+    ("teams-pick", [("eval", "localStorage.removeItem('tw-team')")] + go("roster")),
     ("teams-espn", [("eval", "VIEW='espn'; render()")] + go("roster")),
     ("teams-modal", go("roster") + [("click", ".row")]),   # Joe Burrow: no matchup profile, the quiet state
     # One league at a time since v2: the team on screen picks the cards, tiers, hero and rail.
@@ -317,7 +322,7 @@ STATES = [
 SEED = """
 (() => { let s = 0x2f6e2b1; Math.random = () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; })();
 Date.now = () => Date.parse("2026-09-12T12:00:00Z");   // before every fixture kickoff, forever
-"""
+""" + PICKED
 
 PROBE = """
 (props) => {

@@ -46,10 +46,41 @@ function teamSwitchHTML(){
     <div class="ts-menu" data-tsmenu role="listbox" hidden>${tsMenuHTML()}</div>
   </div>`;
 }
-/* Until a reader picks a team, the roster asks once, under the team's name: a leaguemate lands on
-   David's team and would otherwise never learn theirs is one tap away. Gone after any pick. */
-function heroAskHTML(){
-  return MATES.length && !myTeamLoad() ? `<button class="ts-ask" type="button" data-tsask>${t("chrome.teamswitch.ask")}</button>` : "";
+/* My teams asks first (2026-09-27, David: "build the picker"). Until a reader picks, every My teams
+   view draws this instead of a team: all 24 teams by league, no "none", since each view is about one
+   team. It replaced a "Not your team? Pick yours" nudge under David's team name, which left every
+   leaguemate on David's roster and his claim advice. The pick is kept in this browser (tw-team). */
+function pickHTML(){
+  const group = lg => `<section class="tp-lg" aria-labelledby="tp-${lg}"><h2 id="tp-${lg}">${tsLeagueName(lg)}</h2>
+    <ul>${[lg, ...mateKeys(lg)].sort(tsByName).map(k => `<li><button type="button" class="tp-team" data-pick="${esc(k)}"
+      style="--tint:${TEAMS[k].tint}">${esc(TEAMS[k].name)}</button></li>`).join("")}</ul></section>`;
+  return `<div class="wrap tp"><h1>${t("chrome.pick.title")}</h1><p class="tp-sub">${t("chrome.pick.sub")}</p>
+    <div class="tp-grid">${TS_LEAGUES.map(group).join("")}</div>
+    <button type="button" class="tp-add" data-tpadd>${t("chrome.pick.add")}</button></div>`;
+}
+function wirePick(v){
+  v.querySelectorAll("[data-pick]").forEach(b => b.addEventListener("click", () => pickTeam(b.dataset.pick)));
+  v.querySelector("[data-tpadd]")?.addEventListener("click", () => connectOpen());
+}
+/* Whether My teams must ask first: leaguemates are on the page and this browser has no pick. */
+const needsPick = () => MATES.length > 0 && !myTeamLoad();
+
+/* A reader's pick, from the picker or the team switch: saved, then the view it lands on is fixed up
+   for what that team has. */
+function pickTeam(k){
+  const changed = VIEW !== k;
+  VIEW = k;
+  myTeamSave(VIEW);    // the reader's pick opens next time too (data/mates.js)
+  SEARCH_INDEX = null; // a leaguemate's roster counts as "yours" in search only while on screen
+  // A connected league has no Waivers (ff-jarvis builds David's two leagues only).
+  if (!hasWaivers(TEAMS[VIEW]) && SURFACE === "waivers") SURFACE = "roster";
+  // A team's league page follows its league: My recap for Yahoo, League for ESPN, none when connected.
+  if (SURFACE === "league" && hasRecords(TEAMS[VIEW])) SURFACE = "myrecap";
+  if (SURFACE === "myrecap" && !hasRecords(TEAMS[VIEW])) SURFACE = hasLeague(TEAMS[VIEW]) ? "league" : "roster";
+  if (SURFACE === "league" && !hasLeague(TEAMS[VIEW])) SURFACE = "roster";
+  render();
+  paintSubnav();       // the Waivers count is per league, and a connected league has none
+  if (changed) zipFootball();
 }
 /* A phone hides the bar's Discord link (760.css), and this menu is the one every reader opens.
    The address is read from the bar's link, so the invite lives in shell.html only. The item is
@@ -69,13 +100,6 @@ function wireTeamSwitch(v){
     menu.hidden = !open;
     btn.setAttribute("aria-expanded", String(open));
   });
-  // The first-visit nudge (heroAskHTML) opens the same menu, with the leaguemates showing: a
-  // leaguemate's own team is among them.
-  v.querySelectorAll("[data-tsask]").forEach(a => a.addEventListener("click", e => {
-    e.stopPropagation();
-    if (!TS_MORE){ TS_MORE = true; menu.innerHTML = tsMenuHTML(); wireTsMenu(sw, menu); }
-    btn.click();
-  }));
   wireTsMenu(sw, menu);
 }
 /* The menu's own controls. A star or the Leaguemates toggle redraws the menu in place, open; each
@@ -98,21 +122,7 @@ function wireTsMenu(sw, menu){
     menu.hidden = true;
     connectOpen();
   });
-  menu.querySelectorAll(".ts-item[data-k]").forEach(b=>b.addEventListener("click", ()=>{
-    // No scroll: the switch sits in the hero, and a smooth scroll on top of a re-render was
-    // half of the jump. The title keeps one line (fitTitle), so the height holds too.
-    const changed = VIEW !== b.dataset.k;
-    VIEW = b.dataset.k;
-    myTeamSave(VIEW);    // the reader's pick opens next time too (data/mates.js)
-    SEARCH_INDEX = null; // a leaguemate's roster counts as "yours" in search only while on screen
-    // A connected league has no Waivers (ff-jarvis builds David's two leagues only).
-    if (!hasWaivers(TEAMS[VIEW]) && SURFACE === "waivers") SURFACE = "roster";
-    // A team's league page follows its league: My recap for Yahoo, League for ESPN, none when connected.
-    if (SURFACE === "league" && hasRecords(TEAMS[VIEW])) SURFACE = "myrecap";
-    if (SURFACE === "myrecap" && !hasRecords(TEAMS[VIEW])) SURFACE = hasLeague(TEAMS[VIEW]) ? "league" : "roster";
-    if (SURFACE === "league" && !hasLeague(TEAMS[VIEW])) SURFACE = "roster";
-    render();
-    paintSubnav();       // the Waivers count is per league, and a connected league has none
-    if (changed) zipFootball();
-  }));
+  // No scroll: the switch sits in the hero, and a smooth scroll on top of a re-render was half of
+  // the jump. The title keeps one line (fitTitle), so the height holds too.
+  menu.querySelectorAll(".ts-item[data-k]").forEach(b => b.addEventListener("click", () => pickTeam(b.dataset.k)));
 }

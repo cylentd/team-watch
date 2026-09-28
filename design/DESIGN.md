@@ -125,6 +125,12 @@ Phase 2 (2026-09-26):
 | Live: their own ESPN matchup | `api/live.py ?team=<name>`, one memoized ESPN read for all; `surface/live/follow.js` |
 | Live, Yahoo league: a line saying Live follows ESPN only | `gdYahooMate()` |
 
+**My teams asks first (2026-09-27).** With no pick in this browser (`tw-team`), every My teams view
+draws "Which team is yours?": all 24 teams by league, 48px buttons, and "Add your ESPN league"; no
+"none", since each view is about one team. The Waivers count stays off the sub-row until a pick. It
+replaced the "Not your team? Pick yours" nudge under David's team name, which left every leaguemate on
+David's roster and claim advice by default. Connecting a league counts as the pick.
+
 Phase 3 (per-team waiver advice) is shelved, 2026-09-26: it would help leaguemates beat David.
 What a leaguemate sees stays fun and shared, never advice.
 

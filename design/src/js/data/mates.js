@@ -27,7 +27,7 @@ const waiverKey = team => team && team.mate ? team.league : team && team.key;
 
 /* The reader's own team, remembered in this browser only; a key that no longer exists (a renamed
    team, a league gone) falls back to David's Yahoo team. Unset means the reader has not picked
-   yet, and the roster's hero asks them to (heroPickHTML). */
+   yet, and My teams asks first (teamswitch.js pickHTML). */
 const MY_TEAM = "tw-team";
 function myTeamLoad(){
   try { const k = localStorage.getItem(MY_TEAM); return k && TEAMS[k] ? k : null; }

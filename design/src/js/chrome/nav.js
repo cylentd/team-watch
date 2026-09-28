@@ -76,8 +76,8 @@ function navTabsOf(group){
    league on screen. It is the only count that changes what you would do next, so it is the only
    one worth a badge. A team switch repaints it (teamswitch.js). */
 function navCount(leaf){
-  // A leaguemate's count would be David's claim list, so theirs has none.
-  if (leaf !== "waivers" || !WAIVER || notMine(TEAMS[VIEW])) return "";
+  // A leaguemate's count would be David's claim list, so theirs has none, nor a reader yet to pick.
+  if (leaf !== "waivers" || !WAIVER || notMine(TEAMS[VIEW]) || needsPick()) return "";
   return ` <span class="tabcount">${waiverIn(VIEW).filter(([r]) => waiverTier(r, VIEW) !== "stash").length}</span>`;
 }
 

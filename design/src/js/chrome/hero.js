@@ -26,7 +26,6 @@ function heroHTML(team, side = ""){
           <span class="hero-rec">${rec}</span>
           <button class="leaguechip">${esc(team.meta[team.meta.length-1])} <span class="lc-info">ⓘ</span></button>
         </div>
-        ${heroAskHTML()}
       </div>
       ${wire ? `<div>${waiverHeroHTML(team)}</div>` : side ? `<div class="hero-side">${side}</div>` : ""}
     </div>

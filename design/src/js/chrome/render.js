@@ -71,9 +71,9 @@ function render(){
     nudgeScrollers(v);
     return;
   }
+  if (needsPick()){ v.dataset.view = "pick"; v.innerHTML = pickHTML(); wirePick(v); return; }   // teamswitch.js
   const team = TEAMS[VIEW] || TEAMS.yahoo;
-  // My recap (Yahoo) and League (ESPN): the team switch stays on top, so a leaguemate finds their own.
-  // A stale #league on a Yahoo team opens My recap; a team without either draws its roster.
+  // My recap (Yahoo), League (ESPN); a stale #league on a Yahoo team opens My recap, neither draws the roster.
   if ((SURFACE === "myrecap" || SURFACE === "league") && hasRecords(team)){ v.dataset.view = "myrecap"; return renderMyRecap(v, team); }
   if (SURFACE === "league" && hasLeague(team)) return renderLeague(v, team);
   // A connected league has no Waivers (nav.js hides the tab); a stale #waivers draws its roster.

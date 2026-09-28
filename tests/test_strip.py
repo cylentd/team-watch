@@ -23,6 +23,8 @@ import re
 
 import pytest
 
+from test_render import PICKED   # noqa: E402  (My teams asks whose team first; these pages are David's)
+
 pytestmark = pytest.mark.render
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
@@ -82,6 +84,7 @@ def open_strip(browser, page_file, shaped, drive, viewport=DESK, who=None):
     headshots -- the strip must place a figure whether or not his picture ever arrives."""
     ctx = browser.new_context(viewport={"width": viewport[0], "height": viewport[1]})
     page = ctx.new_page()
+    page.add_init_script(PICKED)
     page.set_default_timeout(5000)
     errors = []
     page.on("pageerror", lambda e: errors.append(str(e)))
@@ -431,6 +434,7 @@ def served(browser, page_file, shaped):
     exercises the same code path a deployed page takes."""
     ctx = browser.new_context(viewport={"width": 1400, "height": 900})
     page = ctx.new_page()
+    page.add_init_script(PICKED)
     page.set_default_timeout(5000)
     errors = []
     page.on("pageerror", lambda e: errors.append(str(e)))

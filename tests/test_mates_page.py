@@ -7,21 +7,24 @@ from test_render import browser, open_page  # noqa: F401  (browser is a fixture)
 
 
 def test_a_leaguemate_picks_their_team_and_it_sticks(browser, page_file):
+    """My teams asks first (2026-09-27): with no pick in this browser, every My teams view is the
+    picker, all 24 teams by league and no "none", never David's roster."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
-    page.evaluate("SURFACE='roster'; render()")
     mates = page.evaluate("MATES.map(m => m.key)")
     if not mates:
         pytest.skip("the fixture's roster files hold no other team")
-    assert page.locator("[data-tsask]").count() == 1, "a reader who has not picked is asked once"
-    page.click("[data-tsask]")
-    heads = page.locator(".ts-head").all_inner_texts()
-    assert len(heads) >= 1 and page.locator(".ts-item[data-k]").count() == len(mates) + 2
-    page.locator(f".ts-item[data-k='{mates[0]}']").click()
+    for leaf in ("roster", "waivers", "myrecap"):
+        page.evaluate(f"localStorage.removeItem('tw-team'); SURFACE='{leaf}'; render()")
+        assert page.locator("#view[data-view='pick'] .tp-team").count() == len(mates) + 2, f"{leaf} asks first"
+        assert page.locator("#view .row").count() == 0, "no roster until a pick"
+    assert page.locator(".tp-lg").count() == 2, "one list per league"
+    page.locator(f".tp-team[data-pick='{mates[0]}']").click()
     assert page.evaluate("VIEW") == mates[0]
     assert page.evaluate("localStorage.getItem('tw-team')") == mates[0]
-    assert page.locator("[data-tsask]").count() == 0, "asked only until a pick"
+    assert page.locator("#view[data-view='pick']").count() == 0, "asked only until a pick"
     assert "Waivers" in page.locator("#subnav").inner_text(), "their league's rail (phase 2)"
     assert page.locator("#subnav .tabcount").count() == 0, "but no claim count: that list is David's"
+    page.evaluate("SURFACE='roster'; render()")
     assert page.locator("#view .row").count() > 0, "the leaguemate's roster draws"
     page.reload()
     page.wait_for_function("document.getElementById('view').children.length > 0")
