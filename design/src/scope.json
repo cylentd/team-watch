@@ -51,7 +51,6 @@
     "surface/builder/deal.css": "its cards fly on <body>, outside every view",
     "surface/builder/legsheet.css": "the leg sheet and its scrim sit on <body>, outside every view, and a body:has() rule locks the scroll",
     "surface/builder/ud-row.css": "matched in no golden state, so a fence would be unproven",
-    "surface/pool/pool.css": "its chips and rows are used by 14 views: a component in a view's folder",
     "surface/profile/sheet.css": "the profile modal and Weather",
     "surface/strip/field.css": "matched in no golden state, so a fence would be unproven",
     "surface/strip/figure.css": "matched in no golden state, so a fence would be unproven",
@@ -63,7 +62,6 @@
     "surface/teams/cardweather.css": "the pack stage draws cards on <body>, outside every view",
     "surface/teams/pack.css": "the pack stage draws cards on <body>, outside every view",
     "surface/teams/packshow.css": "the pack stage draws cards on <body>, outside every view",
-    "surface/teams/roster.css": "roster rows in Search, the modal, Waivers and Bets",
     "surface/teams/wire.css": "the Bets sub-row, Bets and Waivers"
   }
 }

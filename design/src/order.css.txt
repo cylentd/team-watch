@@ -16,7 +16,10 @@ chrome/motion.css
 surface/news/ticker.css
 component/rule.css
 component/vpill.css
-surface/teams/roster.css
+# pin: component/roster.css keeps the roster's place in the cascade: the teams files after it
+#      restyle its rows at equal specificity. A component since 2026-09-27 (Search, the modal,
+#      Waivers and Bets all draw its rows), but it stays here, not with the other components.
+component/roster.css
 surface/teams/cards.css
 surface/teams/cardweather.css
 surface/teams/injury.css
@@ -42,7 +45,9 @@ chrome/footer.css
 chrome/nav.css
 chrome/search.css
 chrome/connect.css
-surface/pool/pool.css
+# pin: component/pool.css (a component since 2026-09-27: its chips and rows are in 14 views) keeps
+#      its old place, before every view file that builds on its .filters, .chip and .xf-head.
+component/pool.css
 surface/usage/usage.css
 # pin: board.css after pool.css -- the Board's controls are pool.css's .filters and .chip, and
 #      this file only adds beside them. It defines no selector either of them owns.

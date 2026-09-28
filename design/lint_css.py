@@ -37,7 +37,7 @@ Finding = namedtuple("Finding", "rule level file line text")
 LEVEL = {
     "hex-outside-tokens": "error",     # backlog cleared: every hex literal now has a role token
     "rgba-token-triple": "error",      # backlog cleared: every rgba() spelling a token is now rgb(var(--x-rgb) / a)
-    "font-family-literal": "error",    # backlog cleared: surface/pool/pool.css literals are now var(--mono/--ui/--disp)
+    "font-family-literal": "error",    # backlog cleared: component/pool.css literals are now var(--mono/--ui/--disp)
     "font-size-literal": "error",      # 2026-09-21: 217 px literals moved onto --t-1..7 in one pass; none left
     "breakpoint": "error",
     "inline-colour-in-js": "error",
