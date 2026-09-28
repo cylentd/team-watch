@@ -78,6 +78,7 @@ def scratch_tree(tmp_path, monkeypatch):
     monkeypatch.setattr(assemble, "SHELL", src / "shell.html")
     monkeypatch.setattr(assemble, "KINDS", {"css": src / "order.css.txt", "js": src / "order.js.txt"})
     monkeypatch.setattr(assemble, "CONTENT", src / "content.json")
+    monkeypatch.setattr(assemble, "SCOPE", src / "scope.json")
     return src
 
 
@@ -138,7 +139,7 @@ def test_line_map_accounts_for_the_injected_copy():
     out = assemble.assemble(banners=True).split("\n")
     for name, start, end in assemble.line_map(banners=True):
         kind, rel = name.split("/", 1)
-        body = (assemble.SRC / kind / rel).read_text(encoding="utf-8").split("\n")
+        body = assemble.part_text(kind, rel).split("\n")
         assert out[start - 1] == body[0], name
         assert out[end - 1] == body[-2], name
 

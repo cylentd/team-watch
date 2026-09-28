@@ -35,10 +35,13 @@ import pathlib
 import re
 import sys
 
+import scope_css
+
 ROOT = pathlib.Path(__file__).resolve().parent
 SRC = ROOT / "src"
 SHELL = SRC / "shell.html"
 CONTENT = SRC / "content.json"
+SCOPE = SRC / "scope.json"   # css/surface file -> the views it is fenced to (scope_css.py)
 KINDS = {"css": SRC / "order.css.txt", "js": SRC / "order.js.txt"}
 PLACEHOLDER = {"css": "/*{{css}}*/\n", "js": "/*{{js}}*/\n"}
 COPY_CALL_RE = re.compile(r'\bt\(\s*"([^"\\]+)"')
@@ -92,12 +95,24 @@ def shell_html():
                             SHELL.read_text(encoding="utf-8"))
 
 
+def part_text(kind, rel, fences=None):
+    """A part as it lands in the output: a view's CSS is fenced to the views that use it.
+    Fencing rewrites selectors in place, so every line stays where the source has it."""
+    text = (SRC / kind / rel).read_text(encoding="utf-8")
+    if fences is None:
+        fences = scope_css.load(SCOPE)["fenced"] if kind == "css" else {}
+    if rel in fences:
+        text = scope_css.fence(text, scope_css.roots(fences[rel]))
+    return text
+
+
 def concat(kind, banners=True):
     chunks = [copy_decl()] if kind == "js" else []
+    fences = scope_css.load(SCOPE)["fenced"] if kind == "css" else {}
     for rel in manifest(kind):
         if banners:
             chunks.append(banner(kind, rel))
-        chunks.append((SRC / kind / rel).read_text(encoding="utf-8"))
+        chunks.append(part_text(kind, rel, fences))
     return "".join(chunks)
 
 
@@ -126,9 +141,24 @@ def check():
         n = shell.count(PLACEHOLDER[kind])
         if n != 1:
             problems.append(f"shell.html holds {PLACEHOLDER[kind].strip()} {n} times, want 1")
+    problems += scope_problems()
     if shell.count("/*__HEADS__*/") != 1:
         problems.append("shell.html must hold /*__HEADS__*/ exactly once")
     problems += copy_problems(shell)
+    return problems
+
+
+def scope_problems():
+    """Every css/surface file is decided: fenced to its views, or shared with a reason."""
+    if not SCOPE.exists():
+        return [f"missing src/{SCOPE.name}"]
+    scope = scope_css.load(SCOPE)
+    fenced, shared = scope.get("fenced", {}), scope.get("shared", {})
+    surface = {p.relative_to(SRC / "css").as_posix() for p in (SRC / "css" / "surface").rglob("*.css")}
+    problems = [f"scope.json: {rel} is both fenced and shared" for rel in sorted(set(fenced) & set(shared))]
+    problems += [f"scope.json: {rel} is no css/surface file" for rel in sorted((set(fenced) | set(shared)) - surface)]
+    problems += [f"scope.json: {rel} is neither fenced nor shared" for rel in sorted(surface - set(fenced) - set(shared))]
+    problems += [f"scope.json: {rel} is shared with no reason" for rel, why in shared.items() if not why]
     return problems
 
 

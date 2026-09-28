@@ -15,6 +15,7 @@ Every new or changed view passes `design/STYLE.md` (controls, layout, motion) be
 | `design/src/content.json` | **source** — every user-facing string, `area.component.slot` -> text; the JS says `t("key")` and `--check` fails on a missing or unreferenced one |
 | `design/src/css/**`, `design/src/js/**` | **source** — one concern per file, none over ~200 lines |
 | `design/src/order.css.txt`, `order.js.txt` | the only order authority; `# pin:` lines say why an order is load-bearing |
+| `design/src/scope.json` | **source** — every `css/surface/` file is `fenced` to the views that use it (`design/scope_css.py` rewrites its selectors at assembly, so it cannot style another view) or `shared` with the reason. A new surface file fails `--check` until it is one or the other (since 2026-09-27) |
 | `design/assemble.py` | joins the parts into the template string; `--check` fails on an unlisted or missing part |
 | `design/build.py` | inlines live data into the assembled template, writes both outputs, copies headshots to `heads/` |
 | `heads/` | **generated** — every ff-jarvis headshot, `<slug>.webp` (96px); the page names them by path (since 2026-09-24). `heads/lg/` holds the 256px ones ff-jarvis cuts for its board players (~230); the trading cards use those (since 2026-09-25) |

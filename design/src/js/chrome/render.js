@@ -33,6 +33,7 @@ function paintBadge(){
 
 function render(){
   const v = document.getElementById("view");
+  v.dataset.view = SURFACE;   // the view drawn, which its CSS is fenced to (design/scope_css.py)
   paintBadge();
   markEnter(v);
 
@@ -70,14 +71,14 @@ function render(){
     nudgeScrollers(v);
     return;
   }
-
   const team = TEAMS[VIEW] || TEAMS.yahoo;
   // My recap (Yahoo) and League (ESPN): the team switch stays on top, so a leaguemate finds their own.
   // A stale #league on a Yahoo team opens My recap; a team without either draws its roster.
-  if ((SURFACE === "myrecap" || SURFACE === "league") && hasRecords(team)) return renderMyRecap(v, team);
+  if ((SURFACE === "myrecap" || SURFACE === "league") && hasRecords(team)){ v.dataset.view = "myrecap"; return renderMyRecap(v, team); }
   if (SURFACE === "league" && hasLeague(team)) return renderLeague(v, team);
   // A connected league has no Waivers (nav.js hides the tab); a stale #waivers draws its roster.
   const wire = SURFACE === "waivers" && hasWaivers(team);
+  v.dataset.view = wire ? "waivers" : "roster";
   // The deal and the rail's "new" flash are taken once per page load, on the first Waivers render.
   v.innerHTML = wire
     ? heroHTML(team) + `<div class="wrap">${waiverHTML(wvMotionTake())}</div>`
