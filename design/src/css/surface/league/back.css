@@ -5,8 +5,6 @@
    red lost (the strike through a loser, the stamp); lime is the team on screen; amber a bench mistake. */
 .bp-mast{display:grid;gap:6px;padding:12px 0 14px;border-top:3px solid var(--yahoo);border-bottom:1px solid var(--line-2)}
 .bp-kick{margin:0;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--yahoo)}
-.bp-hl{margin:0;font-family:var(--tab);font-size:var(--t-6);font-weight:900;line-height:.95;text-transform:uppercase;text-wrap:balance;overflow-wrap:anywhere}
-.bp-dek{margin:0;font-size:var(--t-3);line-height:1.45;color:var(--ink-2)}
 
 .bp-hd{margin:10px 0 0;display:flex;justify-content:space-between;align-items:baseline;gap:8px;
   font-family:var(--tab);font-size:var(--t-5);font-weight:900;line-height:1;text-transform:uppercase}
@@ -114,10 +112,6 @@
 .bp-in .bp-t.lo::after{animation:mi-ink .42s var(--ease) calc(.3s + var(--i,0) * 70ms) backwards}
 .bp-in .bp-stamp{animation:wv-slam var(--dur-stamp) var(--spring-pop) .75s backwards}
 
-/* The headline steps up once a line holds more than a phone's few words. */
-@media (min-width:760px){
-  .bp-hl{font-size:var(--t-7)}
-}
 /* Beside the week, the grudge card is one short block: it stays in view while the slate scrolls. */
 @media (min-width:960px){
   .lg.bp > .lg-col:last-child{position:sticky;top:var(--page-pad);align-self:start}

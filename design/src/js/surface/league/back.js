@@ -29,14 +29,14 @@ function lgArrive(page, w){
   return fresh;
 }
 
-/* The masthead: the league and the week in the kicker, the week chips beside it, the dek. No headline
-   of its own since 2026-09-27: it told the lead game's story a second time, right above the lead card,
-   so the lead's joke is the page's one headline (lead.js). */
+/* The masthead: the league and the week in the kicker, the week chips beside it. No headline since
+   2026-09-27 (it told the lead game's story a second time, so the lead's joke is the page's one
+   headline, lead.js), and no dek since the same evening: without a headline it read as a stray
+   sentence, and it retold what the lead and the briefs already say. The roast still writes both. */
 function lgMastHTML(w){
   return `<header class="bp-mast bp2-mast">
     <p class="bp-kick">${t("league.back.kick", {league: esc(LG.league), n: w.week})}</p>
     ${lgWeekChips(w)}
-    ${w.dek ? `<p class="bp-dek">${esc(w.dek)}</p>` : ""}
   </header>`;
 }
 

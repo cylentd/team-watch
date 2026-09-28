@@ -17,7 +17,6 @@
 .bp2-mast{grid-area:mast;grid-template-columns:minmax(0,1fr) auto;align-items:start;column-gap:16px}
 .bp2-mast .bp-kick{grid-column:1}
 .bp2-mast .lg-weeks{grid-column:2;grid-row:1;margin:0}
-.bp2-mast .bp-hl,.bp2-mast .bp-dek{grid-column:1/-1}
 .bp2-briefs{grid-area:briefs;display:grid;align-content:start;min-width:0}
 .bp2-sups{grid-area:sups}
 .bp2-under{display:grid;gap:14px;align-content:start}
