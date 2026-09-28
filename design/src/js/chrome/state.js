@@ -10,5 +10,5 @@ let VIEW = myTeamLoad() || "yahoo";
    position you had picked survive, so the tab is where you left it. */
 let LAST_LEAF = {};
 /* How the roster draws: "sheet" (the lineup sheet) or "cards" (surface/teams/cards.js). Remembered
-   per phone (cardmotion.js rosterModeLoad); the sheet is the default. */
+   per phone (cardmotion.js rosterModeLoad); cards is the default since 2026-09-28. */
 let ROSTER_MODE = rosterModeLoad();

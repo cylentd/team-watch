@@ -30,7 +30,11 @@ def _owner_hash():
 
 
 OWNER_HASH = _owner_hash()
+# The reader has also chosen Sheet (2026-09-28: Cards became the default, and its pack would open a
+# stage over every roster state). test_roster_cards.py FRESH is the reader who never chose.
+CHOSE_SHEET = ' if (!localStorage.getItem("tw-roster-mode")) localStorage.setItem("tw-roster-mode", "sheet");'
 PICKED = ('try { if (!localStorage.getItem("tw-team")) localStorage.setItem("tw-team", "yahoo");'
+          + CHOSE_SHEET +
           f' if (localStorage.getItem("tw-owner") === null) localStorage.setItem("tw-owner", "{OWNER_HASH}"); }} catch (e) {{}}\n')
 VIEWPORTS = {"desk": (1400, 900), "phone": (390, 844)}
 PROPS = ["color", "background-color", "border-top-color", "border-top-style", "border-top-width",

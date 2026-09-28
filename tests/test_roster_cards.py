@@ -111,6 +111,54 @@ def test_cards_draw_every_player_and_the_choice_survives_a_reload(browser, page_
     ctx.close()
 
 
+def fresh_page(browser, page_file):
+    """A reader who never touched the Sheet / Cards switch, on their team's roster (Yahoo)."""
+    from test_render import CHOSE_SHEET, SEED
+    ctx = browser.new_context(viewport={"width": 390, "height": 844}, reduced_motion="reduce")
+    page = ctx.new_page()
+    errors = []
+    page.on("pageerror", lambda e: errors.append(str(e)))
+    page.route(re.compile(r"^https?://"), lambda route: route.abort())
+    page.add_init_script(SEED.replace(CHOSE_SHEET, ""))
+    page.goto(page_file.as_uri() + "#roster")
+    page.wait_for_function("document.getElementById('view').children.length > 0")
+    return ctx, page, errors
+
+
+@pytest.mark.render
+def test_a_new_reader_gets_cards_and_one_pack_stage_a_week(browser, page_file):
+    """2026-09-28: Cards is the default, so a new reader meets the pack. Only the first unopened pack
+    of the week opens by itself; a leaguemate's, opened next, waits sealed for a tap."""
+    ctx, page, errors = fresh_page(browser, page_file)
+    if not page.evaluate("packHas(TEAMS.yahoo) && packHas(TEAMS.espn)"):
+        pytest.skip("the fixture has no pack for both teams")
+    assert page.evaluate("ROSTER_MODE") == "cards"
+    assert page.evaluate("localStorage.getItem('tw-roster-mode')") is None, "a default is not a choice"
+    page.wait_for_selector(".pk-stage")
+    page.keyboard.press("Escape")
+    wk = page.evaluate("schedWeek()")
+    assert page.evaluate(f"localStorage.getItem('tw-pack-auto-{wk}')") == "1"
+    page.evaluate("VIEW='espn'; render()")
+    page.wait_for_timeout(450)
+    assert page.locator(".pk-stage").count() == 0, "a second team's pack does not open by itself"
+    assert page.locator(".pack .pack-seal").count() == 1, "it waits on the page, sealed"
+    page.click(".pack .pack-seal")
+    page.wait_for_selector(".pk-stage")
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_a_stored_sheet_wins_over_the_default(browser, page_file):
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    drive(page, go("roster"))
+    assert page.evaluate("ROSTER_MODE") == "sheet"
+    page.wait_for_timeout(450)
+    assert page.locator(".pk-stage").count() == 0
+    assert errors == []
+    ctx.close()
+
+
 @pytest.mark.render
 def test_a_tier_is_the_rank_and_support_cards_have_none(browser, page_file):
     ctx, page, errors = cards_page(browser, page_file)

@@ -4,13 +4,26 @@
    gave the week away); the stage counts the cards up as they land in the pile. Opening is remembered in localStorage, which can
    refuse: then the pack simply shows again next load.
 
-   The first time the Cards view draws an unopened pack in a page load, the pack opens on its own
-   black stage, centred (packshow.js). Closing the stage leaves the pack on the page as the way
+   The first unopened pack a reader meets in a week opens on its own black stage, centred
+   (packshow.js). Only that one: since 2026-09-28 anyone can open any of the 24 teams, and a reader
+   browsing leaguemates would otherwise sit through a stage per team; the rest wait sealed for a
+   tap. Remembered per week in localStorage, and per load when it refuses. Closing the stage leaves the pack on the page as the way
    back in; "Rip again" on the Sheet / Cards row puts an opened pack back on the stage. The sealed
    pack glows in the colour of the best card inside: how good, never who. */
 const PACK_TIERS = ["ur", "sig", "one"];
 let PACK_REPLAY = null;          // "<league>-<week>" while a replayed pack is waiting to be ripped
-const PACK_AUTO_SEEN = new Set(); // "<league>-<week>" whose stage already opened on its own this load
+const PACK_AUTO_SEEN = new Set(); // weeks whose stage already opened on its own this load
+
+/* Has a pack already opened on its own this week, for any team? */
+const packAutoKey = wk => `tw-pack-auto-${wk}`;
+function packAutoDone(wk){
+  if (PACK_AUTO_SEEN.has(wk)) return true;
+  try { return localStorage.getItem(packAutoKey(wk)) === "1"; } catch (e) { return false; }
+}
+function packAutoMark(wk){
+  PACK_AUTO_SEEN.add(wk);
+  try { localStorage.setItem(packAutoKey(wk), "1"); } catch (e) { /* the Set keeps it for this load */ }
+}
 
 /* The pack's week is the schedule's this-week (data/schedule.js schedWeek). */
 const packKey = (team, wk) => `tw-pack-${team.key}-${wk}`;
@@ -107,11 +120,11 @@ function packHTML(team){
 function wirePack(v, team){
   const box = v.querySelector(".pack"), seal = box && box.querySelector(".pack-seal");
   if (!seal) return;
-  const wk = +box.dataset.pack, key = `${team.key}-${wk}`;
+  const wk = +box.dataset.pack;
   seal.addEventListener("click", e => { e.stopPropagation(); packShow(team, wk); });
-  if (!PACK_AUTO_SEEN.has(key)){
-    PACK_AUTO_SEEN.add(key);
-    setTimeout(() => { if (document.body.contains(seal)) packShow(team, wk); }, 350);
+  if (!packAutoDone(wk)){
+    PACK_AUTO_SEEN.add(wk);      // at once, so a re-render inside the delay does not queue a second
+    setTimeout(() => { if (document.body.contains(seal)){ packAutoMark(wk); packShow(team, wk); } }, 350);
   }
 }
 function packReplay(team){

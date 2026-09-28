@@ -36,9 +36,10 @@ function wireCards(v){
   }));
 }
 
-/* Sheet or Cards: one choice per phone, kept in localStorage, which can be missing or refuse. */
+/* Sheet or Cards: one choice per phone, kept in localStorage, which can be missing or refuse.
+   Cards is the default since 2026-09-28, so a new reader meets the week's pack; a stored Sheet wins. */
 function rosterModeLoad(){
-  try { return localStorage.getItem("tw-roster-mode") === "cards" ? "cards" : "sheet"; } catch (e) { return "sheet"; }
+  try { return localStorage.getItem("tw-roster-mode") === "sheet" ? "sheet" : "cards"; } catch (e) { return "cards"; }
 }
 function rosterModeSave(m){
   try { localStorage.setItem("tw-roster-mode", m); } catch (e) { /* a private window keeps it for this load */ }
