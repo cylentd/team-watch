@@ -33,8 +33,7 @@
 .dg-mv em.up{color:var(--up)}
 .dg-mv em.dn{color:var(--down)}
 
-/* Results: Top 5's columns twice, the top scores, then smashed / busts / left hurt under them. */
-.dg-res{margin-top:14px}
+/* A short list's number in its colour: Tonight's moves and who is out. */
 .dg-t5 li em.up{color:var(--up)}
 .dg-t5 li em.dn{color:var(--down)}
 .dg-t5 li em.q{color:var(--amber);font-family:var(--ui);font-size:var(--t-1)}

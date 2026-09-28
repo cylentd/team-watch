@@ -79,6 +79,7 @@ surface/weather/card.js
 surface/weather/weather.js
 data/digest.js
 surface/digest/lead.js
+surface/digest/results.js
 surface/digest/rows.js
 surface/digest/tonight.js
 surface/digest/digest.js

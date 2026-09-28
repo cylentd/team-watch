@@ -317,15 +317,18 @@ CONTRACT = {
                  ("gems", ["n", "slug", "pos", "team", "usage", "metric", "ecr", "rostered"]),
                  ("news", ["when", "headline", "kind", "n", "rest", "slugs"]),
                  ("finals", ["away", "home", "away_pts", "home_pts"]),
-                 ("stars", ["n", "slug", "pos", "team", "actual", "proj", "diff"]),
-                 ("smashed", ["n", "slug", "pos", "team", "actual", "proj", "diff"]),
-                 ("busts", ["n", "slug", "pos", "team", "actual", "proj", "diff"]),
-                 ("left", ["n", "slug", "pos", "team", "injury", "rest"]),
+                 ("stars", ["n", "slug", "pos", "team", "actual", "proj", "diff", "why"]),
+                 ("smashed", ["n", "slug", "pos", "team", "actual", "proj", "diff", "why"]),
+                 ("busts", ["n", "slug", "pos", "team", "actual", "proj", "diff", "why"]),
+                 # `proj`, `actual` and `later` (no headline since) may be null.
+                 ("left", ["n", "slug", "pos", "team", "proj", "actual", "injury", "rest", "later"]),
                  # A Tonight card's game; its lists (out, next_up, groups, moved, tcalls, projected)
                  # are pinned field by field in tests/test_digest.py, since a row spec is one level.
                  ("tonight", ["away", "home", "kick", "ko", "wx", "out", "next_up", "groups", "moved", "tcalls",
                               "projected"])],
         "row_objs": [("hurt", "game", ["away", "home", "kick", "ko"]),
+                     ("smashed", "why", ["kind", "luck", "expected", "stat", "share", "delta"]),
+                     ("busts", "why", ["kind", "luck", "expected", "stat", "share", "delta"]),
                      ("tonight", "wx", ["roof", "temp_f", "wind_mph", "precip_pct", "short"])],
     },
     # design/league_recap.py: each league's recap and history, My teams > League. `h2h` is

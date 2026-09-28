@@ -83,7 +83,7 @@ def _asof(stamp):
 def _results(r, slugify):
     """The week so far: finals, the recap's standouts (per position, its order) and busts."""
     r = r or {}
-    row = lambda x: _player(x, slugify, "pos", "team", "actual", "proj", "diff")
+    row = lambda x: {**_player(x, slugify, "pos", "team", "actual", "proj", "diff"), "why": _why(x.get("why"))}
     return {"finals": [{k: g.get(k) for k in ("away", "home", "away_pts", "home_pts")} for g in r.get("games") or []],
             "pending": len(r.get("pending") or []),
             "stars": [row(x) for pos in POS for x in (r.get("top") or {}).get(pos) or []],
@@ -104,11 +104,26 @@ def _rest(headline, name):
     return h[len(lead):].strip() if lead else h
 
 
+def _why(w):
+    """The producer's reason, rounded as the row says it: {kind, luck, expected, stat, share, delta}.
+    The rule that picked it is ff-jarvis's (weekly_digest_played.why_of); the page only words it."""
+    w = w or {}
+    rnd = lambda v: None if v is None else round(v)
+    return {"kind": w.get("kind") or "earned", "luck": rnd(w.get("luck")), "expected": rnd(w.get("expected")),
+            "stat": w.get("stat"), "share": rnd(w.get("share")), "delta": rnd(w.get("delta"))}
+
+
+def _tag(h):
+    return h[h.find("(") + 1:h.find(")")] if "(" in h and ")" in h else None
+
+
 def _left(x, slugify):
-    """"Baker Mayfield (thumb) exits early Sunday" -> injury "thumb"; an untagged headline has none."""
-    h = (x.get("headline") or "").strip()
-    injury = h[h.find("(") + 1:h.find(")")] if "(" in h and ")" in h else None
-    return {**_player(x, slugify, "pos", "team"), "injury": injury, "rest": _rest(h, x["name"])}
+    """"Baker Mayfield (thumb) exits early Sunday" -> injury "thumb"; an untagged headline has none.
+    His newest headline since, when there is one, is the fresher word: its tag wins ("(quad)" the
+    next day over "(thigh)" in-game) and its words are `later` ("suffers season-ending torn ACL")."""
+    h, u = (x.get("headline") or "").strip(), (x.get("update") or "").strip()
+    return {**_player(x, slugify, "pos", "team", "proj", "actual"), "injury": _tag(u) or _tag(h),
+            "rest": _rest(h, x["name"]), "later": _rest(u, x["name"]) if u else None}
 
 
 def _news(it):

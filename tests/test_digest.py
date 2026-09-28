@@ -48,10 +48,44 @@ def test_results_cut_to_finals_stars_and_busts():
     assert b["busts"][0]["slug"] == slugify("De'Von Achane")
     assert [(r["n"], r["diff"]) for r in b["smashed"]] == [("Khalil Shakir", 9.7)]
     # A tagged headline gives the injury; an untagged one loses his name, suffix and all.
-    assert [(r["n"], r["injury"], r["rest"]) for r in b["left"]] == [
-        ("Tua Tagovailoa", "concussion", "ruled out for the remainder"),
-        ("Travis Etienne", None, "exits early Sunday")]
+    # His newest headline since, when there is one, is `later`, without his name or tag.
+    assert [(r["n"], r["injury"], r["rest"], r["later"]) for r in b["left"]] == [
+        ("Tua Tagovailoa", "concussion", "ruled out for the remainder", None),
+        ("De'Von Achane", "knee", "questionable to return", "suffers season-ending torn ACL"),
+        ("Travis Etienne", None, "exits early Sunday", None)]
     assert b["asof_words"] == "Fri 10:40 PM"
+
+
+def test_a_reason_is_rounded_as_the_row_says_it():
+    b = _block()
+    assert b["smashed"][0]["why"] == {"kind": "role", "luck": 5, "expected": 12, "stat": "targets",
+                                      "share": 31, "delta": 10}
+    assert [r["why"]["kind"] for r in b["busts"]] == ["hurt", "luck"]
+
+
+@pytest.mark.render
+def test_results_reads_as_the_storyboard(browser, page_file):
+    """The badge counts games still to play; each smashed or busted line says why and shows
+    "proj → actual"; a bust who left hurt borrows Left hurt's freshest word."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    page.goto(page_file.as_uri())
+    for _, sel in go("digest"):
+        page.click(sel)
+    got = page.evaluate("""() => {
+      const d = dgD(), host = document.createElement('div');
+      host.innerHTML = dgResBody(d);
+      const lines = [...host.querySelectorAll('.dg-rl .dg-ln')].map(b => b.innerText.replace(/\\s+/g, ' ').trim());
+      return {badge: dgCount('res', d)[0], lines};
+    }""")
+    assert errors == []
+    ctx.close()
+    assert got["badge"] == "2 to play"
+    assert "31% of targets, +10 on his usual · 5 pts of TD luck" in got["lines"][0]
+    assert got["lines"][0].endswith("proj 8.1 →17.8+9.7")          # flex cells: innerText has no gaps
+    assert "Left hurt · knee · suffers season-ending torn ACL" in got["lines"][1]
+    assert "6 pts under expected" in got["lines"][2]
+    assert "concussion" in got["lines"][3] and got["lines"][3].endswith("proj 18.4 →3.2")
+    assert "left early" in got["lines"][5]
 
 
 def test_fixture_block_is_whole():

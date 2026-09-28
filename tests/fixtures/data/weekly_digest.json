@@ -44,7 +44,15 @@
      "team": "BUF",
      "actual": 24.6,
      "proj": 22.1,
-     "diff": 2.5
+     "diff": 2.5,
+     "why": {
+      "kind": "earned",
+      "luck": 1.0,
+      "expected": 23.2,
+      "stat": null,
+      "share": null,
+      "delta": null
+     }
     }
    ],
    "RB": [
@@ -55,7 +63,15 @@
      "team": "BUF",
      "actual": 19.4,
      "proj": 15.2,
-     "diff": 4.2
+     "diff": 4.2,
+     "why": {
+      "kind": "earned",
+      "luck": 2.1,
+      "expected": 17.0,
+      "stat": null,
+      "share": null,
+      "delta": null
+     }
     }
    ]
   },
@@ -67,7 +83,15 @@
     "team": "BUF",
     "actual": 17.8,
     "proj": 8.1,
-    "diff": 9.7
+    "diff": 9.7,
+    "why": {
+     "kind": "role",
+     "luck": 5.4,
+     "expected": 12.1,
+     "stat": "targets",
+     "share": 31.2,
+     "delta": 10.4
+    }
    }
   ],
   "busts": [
@@ -78,7 +102,32 @@
     "team": "MIA",
     "actual": 6.1,
     "proj": 15.0,
-    "diff": -8.9
+    "diff": -8.9,
+    "why": {
+     "kind": "hurt",
+     "luck": -1.0,
+     "expected": 6.9,
+     "stat": null,
+     "share": null,
+     "delta": null
+    }
+   },
+   {
+    "key": "tyreek hill",
+    "name": "Tyreek Hill",
+    "pos": "WR",
+    "team": "MIA",
+    "actual": 4.2,
+    "proj": 13.5,
+    "diff": -9.3,
+    "why": {
+     "kind": "luck",
+     "luck": -6.2,
+     "expected": 10.4,
+     "stat": null,
+     "share": null,
+     "delta": null
+    }
    }
   ],
   "left_hurt": [
@@ -88,7 +137,21 @@
     "pos": "QB",
     "team": "MIA",
     "headline": "Tua Tagovailoa (concussion) ruled out for the remainder",
-    "created": "2026-09-25 02:10:00"
+    "created": "2026-09-25 02:10:00",
+    "proj": 18.4,
+    "actual": 3.2,
+    "update": null
+   },
+   {
+    "key": "de'von achane",
+    "name": "De'Von Achane",
+    "pos": "RB",
+    "team": "MIA",
+    "headline": "De'Von Achane (knee) questionable to return",
+    "created": "2026-09-25 01:20:00",
+    "proj": 15.0,
+    "actual": 6.1,
+    "update": "De'Von Achane (knee) suffers season-ending torn ACL"
    },
    {
     "key": "travis etienne",
@@ -96,7 +159,10 @@
     "pos": "RB",
     "team": "JAX",
     "headline": "Travis Etienne Jr. exits early Sunday",
-    "created": "2026-09-25 01:40:00"
+    "created": "2026-09-25 01:40:00",
+    "proj": 11.0,
+    "actual": 8.0,
+    "update": null
    }
   ]
  },

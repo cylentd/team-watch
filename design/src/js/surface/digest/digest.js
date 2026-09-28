@@ -18,7 +18,8 @@ const dgLabel = id => ({res: t("digest.row.res"), hurt: t("digest.row.hurt"), mu
 /* The closed row's count and its pill's colour: red for who is hurt, sky for weather, lime for
    the wire. Top 5 and Stock are lists, not counts, so they carry none. */
 function dgCount(id, d){
-  if (id === "res") return [d.finals.length || "", "go"];
+  // Results counts what is still to play, not what is final: "15" said nothing the footer did not.
+  if (id === "res") return [d.pending ? t("digest.res.toPlay", {n: d.pending}) : "", "go"];
   if (id === "hurt") return [d.hurt.length, "out"];
   if (id === "mu") return [d.calls || "", ""];
   if (id === "wx") return [d.wx.length || "", "sky"];

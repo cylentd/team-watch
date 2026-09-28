@@ -1,0 +1,47 @@
+/* ============================== DIGEST: RESULTS ==============================
+   The top scores as a 2x2 of short lists, then Smashed, Busts and Left hurt as player lines whose
+   meta is the reason and whose number is "proj 2.4 → 17.3 +14.9". A phone stacks the four blocks;
+   the wall sets them two by two, the top scores beside Smashed (storyboard, 2026-09-28). */
+
+.dg-rs{display:grid;gap:16px;padding-top:6px}
+.dg-rs h4{margin:0 0 4px;font-size:var(--t-1);font-weight:600;line-height:1;letter-spacing:.07em;color:var(--ink-3)}
+
+.dg-rtop{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px}
+.dg-rtop ol{margin:0;padding:0;list-style:none;display:grid;gap:2px}
+.dg-rtop li{display:grid;grid-template-columns:20px minmax(0,1fr) auto;align-items:center;gap:6px;min-height:28px;font-size:var(--t-2)}
+.dg-rtop li > span:nth-child(2){white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dg-rtop .dg-hd.sm{width:20px;height:20px}
+.dg-rtop li em{font-style:normal;font-family:var(--mono);color:var(--ink-2);font-variant-numeric:tabular-nums}
+
+/* The count is words ("1 to play"), wider than the other rows' 40px number column. */
+.dg-row[data-dgrow="res"] .dg-head{grid-template-columns:86px auto minmax(0,1fr) 18px}
+.dg-row[data-dgrow="res"] .dg-n{white-space:nowrap}
+
+/* A phone line: name and "proj → actual" on the first line, the reason across the whole second
+   (squeezed beside the numbers it ran to three lines at 360px). */
+.dg-rl .dg-ln{grid-template-columns:32px minmax(0,1fr) auto;grid-template-areas:"hd n r" "hd w w";row-gap:2px;padding:6px 0}
+.dg-rl .dg-ln-t{display:contents}
+.dg-rl .dg-hd{grid-area:hd;align-self:start}
+.dg-rl .dg-ln-t b{grid-area:n}
+.dg-rl .dg-ln-r{grid-area:r}
+.dg-rl .dg-ln-t > span{grid-area:w;white-space:normal;line-height:1.3;color:var(--ink-2)}
+.dg-rl .q{color:var(--amber)}
+.dg-rn{display:flex;align-items:baseline;justify-content:flex-end;gap:6px;white-space:nowrap}
+.dg-ln-r .dg-rn small{display:inline;margin:0;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.dg-rn b{font-weight:500}
+.dg-rn em{font-style:normal;font-size:var(--t-2);min-width:5ch;text-align:right}
+.dg-rn em.up{color:var(--up)}
+.dg-rn em.dn{color:var(--down)}
+
+@media (min-width:1100px){
+  .dg-rs{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 48px;align-items:start}
+  .dg-rtop{column-gap:32px;row-gap:18px}
+  .dg-rtop li{grid-template-columns:24px minmax(0,1fr) auto;gap:10px;min-height:32px}
+  .dg-rtop .dg-hd.sm{width:24px;height:24px}
+  /* The wall has the width for one line: name, reason, numbers. */
+  .dg-rl .dg-ln{grid-template-columns:24px minmax(0,1fr) auto;grid-template-areas:none;min-height:36px;padding:0}
+  .dg-rl .dg-hd{grid-area:auto;align-self:center;width:24px;height:24px}
+  .dg-rl .dg-ln-t{display:grid;grid-template-columns:130px minmax(0,1fr);align-items:baseline;column-gap:12px}
+  .dg-rl .dg-ln-t b,.dg-rl .dg-ln-r{grid-area:auto}
+  .dg-rl .dg-ln-t > span{grid-area:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}

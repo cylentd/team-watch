@@ -105,27 +105,12 @@ function dgNewsBody(d){
   return rows + dgFootHTML(t("digest.foot.news"), "news", t("digest.go.news"));
 }
 
-/* "1 game" / "15 games": both spelled out, since assemble.py --check finds a key only as a literal. */
-const dgGames = n => n === 1 ? t("digest.res.game") : t("digest.res.games", {n});
-
-/* One short list in Top 5's shape: a head, then "K. Mumpfield" and one number per line. */
+/* One short list in Top 5's shape: a head, then "K. Mumpfield" and one number per line (Tonight's lists). */
 function dgResList(title, rows, num){
   return rows.length ? `<div><h4>${title}</h4><ol>${rows.map(r => `<li><span class="dg-hd sm">${avatarHTML(r)}</span>`
     + `<span>${esc(dgShort(r.n))}</span>${num(r)}</li>`).join("")}</ol></div>` : "";
 }
 
-/* Results (2026-09-28): the top scores per position, then who smashed his projection, who busted
-   (both in points against the projection showing at kickoff) and who left his game hurt. */
-function dgResBody(d){
-  const pts = r => `<em>${r.actual.toFixed(1)}</em>`;
-  const top = DG_POS.map(pos => dgResList(pos, d.stars.filter(r => r.pos === pos), pts)).join("");
-  const more = dgResList(t("digest.res.smashed"), d.smashed, r => `<em class="up">${dgSigned(r.diff, 1)}</em>`)
-    + dgResList(t("digest.res.busts"), d.busts, r => `<em class="dn">${dgSigned(r.diff, 1)}</em>`)
-    + dgResList(t("digest.res.left"), d.left, r => `<em class="q">${r.injury ? esc(r.injury) : t("digest.res.leftEarly")}</em>`);
-  const foot = d.pending ? t("digest.foot.resPending", {n: dgGames(d.finals.length), left: d.pending}) : t("digest.foot.res", {n: dgGames(d.finals.length)});
-  return (top ? `<div class="dg-t5">${top}</div>` : "") + (more ? `<div class="dg-t5 dg-res">${more}</div>` : "")
-    + dgFootHTML(foot, "", "");
-}
-
+/* Results' body is results.js's (dgResBody). */
 const DG_BODY = {res: dgResBody, hurt: dgHurtBody, mu: dgMuBody, wx: dgWxBody, adds: dgAddsBody, t5: dgTop5Body,
                  st: dgStockBody, gems: dgGemsBody, news: dgNewsBody};
