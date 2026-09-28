@@ -95,6 +95,8 @@ surface/builder/grid.css
 surface/builder/payout.css
 surface/builder/explain.css
 surface/builder/bets.css
+surface/builder/legsheet.css
+surface/builder/tdboard.css
 surface/dfs/table.css
 chrome/feed.css
 surface/dfs/lineup.css

@@ -96,6 +96,12 @@
   </div>
 </div>
 
+<!-- The leg sheet (js/surface/parlay/legsheet.js): one bet read in one screen, from a slip's pick,
+     a Build line's info button or a TD board row. Outside #view, so a render() behind it (a pick
+     added to the tray) never rebuilds it under the reader. -->
+<div class="ls-scrim" id="legsheet-scrim"></div>
+<section class="legsheet" id="legsheet" role="dialog" aria-modal="true" aria-labelledby="ls-title" aria-hidden="true"></section>
+
 <script>
 /*__HEADS__*/
 

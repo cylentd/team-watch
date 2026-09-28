@@ -3,12 +3,11 @@
    screen shows twice the players it did as a list. .pgrid holds Underdog's player cards
    (underdog-list.css), .lgrid DraftKings' one-line cards (legs.css). Each rule here is a class
    deeper than the list rule it reshapes, so it wins over responsive/760.css, which comes later.
-   Opening a line's chevron (the game log) widens its card to the whole row: a chart needs room. */
+   A line's ⓘ opens its leg sheet over the page (2026-09-27), so no card ever widens. */
 /* Cards in a row share their top and bottom edges (STYLE.md, audit 2026-09-25): a two-call card
    beside a three-call one stretches, its calls on top and the spare room under them, so the row
    reads as one row rather than a ragged edge with gaps under the short cards. */
 .pgrid,.lgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:stretch}
-.pgrid > .pcard:has(.legx),.lgrid > .leg:has(.legx){grid-column:1/-1}
 
 /* Underdog: who and when on top, then one small block per call. */
 .pgrid .pcard{display:flex;flex-direction:column;min-width:0}
@@ -33,7 +32,6 @@
 .pgrid .udline .pct{grid-area:pct;align-self:center;font-size:var(--t-4)}
 .pgrid .udline .more{grid-area:more;align-self:center}
 .pgrid .udline .meter{grid-area:meter;margin-top:5px}
-.pgrid .udline .legx{grid-column:1/-1;grid-row:4}
 
 /* DraftKings: the player and the line, then the price and the chevron on one foot row. */
 .lgrid .leg{grid-template-columns:32px minmax(0,1fr) 22px;grid-template-areas:"av txt txt" "o o more";
@@ -44,7 +42,6 @@
 .lgrid .leg .book{font-size:var(--t-1);margin-top:3px}
 .lgrid .leg .o{grid-area:o;justify-self:start;padding:5px 9px}
 .lgrid .leg .more{grid-area:more;align-self:center}
-.lgrid .leg .legx{grid-column:1/-1;grid-row:3}
 
 @media (min-width:760px){
   .pgrid,.lgrid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}

@@ -633,10 +633,45 @@ share a game (correlated legs are one bet, not two).
 
 The market is a card grid (2026-09-25, `css/surface/builder/grid.css`): two cards to a row on a
 phone, as many 220px cards as fit from 760px up, so a screen holds twice the players the list did.
-Opening a line's chevron widens its card to the whole row. Page sizes are multiples of 2 and 3
+~~Opening a line's chevron widens its card to the whole row.~~ Superseded 2026-09-27: the chevron
+is an ⓘ that opens the leg sheet (below). Page sizes are multiples of 2 and 3
 (12 players, 24 lines) so a page ends on a full row. ~~The gallery slip's paper was toned down the
 same day (`--paper` #f1efe8 → #cbc4b4); it glowed against the dark page.~~ Superseded the same day:
 the slip went dark (below).
+
+### The leg sheet and the TD board (2026-09-27)
+
+One bet, read in one screen, from the bottom edge (`surface/parlay/legsheet.js`, numbers in
+`legdata.js`, tiles in `legtiles.js`). Storyboard "Leg Sheet Storyboard", option B + C, then slimmed
+the same day ("too much, not scannable"). Measured at 360x780 on live data: a receptions sheet is
+475px tall, a TD sheet 424px, so neither scrolls.
+
+| Block | What | Hidden when |
+|---|---|---|
+| Header | face, "D. Metcalf", pos · team vs opp · kickoff, the call and book, the model's % | never |
+| Model line | "Model 3.4 · line 4.5 · book 56%": the model's mean, the line, the book's own chance of the pick's side (Underdog's under/over price; DraftKings' over for a TD) | each part without data |
+| Bars | last 10 games vs the line, lime where the pick's side hit (a lower bar under the line is lime); one row under them of the stat that drives the bet (targets, carries, RZ touches), per game | the row without `u` |
+| Tiles | three per market: RECS targets/gm, target share, catch rate (read "≈ 4 catches a game", "deep aDOT 14" from 12); REC targets/gm, yards/target, aDOT; RUSH carries/gm, snap %, RZ touches/gm; TD RZ touches/gm, GL carries, team RZ share (TDs in last 10 without `u`); PASS attempts, dropbacks, RZ attempts a game | a tile with no number |
+| Matchup | "vs CIN · allows 0.83× WR receptions · 2 starters out" (names on a tap) | no `opp_f` and no defense data |
+| Add to slip | the Build tap's own path (`betsToggleLeg`, builder/wire.js); the sheet steps aside so the pick's flight to the tray is seen | never |
+
+- **Where it opens.** A pick on a slip: the whole row, since a slip's pick had only a one-line
+  note to open. A Build line: the ⓘ at the row's end, because the row is the slip toggle and that
+  has to stay one tap; the ⓘ is the chevron's old slot. A TD board row: the whole row.
+- **Sources.** The log (`LIVE_MARKET.logs`, `u` optional), this season's usage grid when `u` is
+  absent, and `LIVE_DEFENSE` (`design/defense.py`: points allowed by position, starters out, team
+  codes on the page's LAR spelling). A number neither has is not drawn; never a dash.
+- **Matchup is context, not a price** (ff-jarvis METHODOLOGY 12.29): the line says what the defense
+  allows and nothing about the bet, so no caveat paragraph sits on the sheet.
+- **Overlay.** Outside `#view` (`shell.html`), so a render behind it never rebuilds it; one history
+  entry (`chrome/layers.js`), so Back closes it before the view; focus goes to its handle and back
+  to the pick. Escape and the scrim close it too.
+
+**TD board** (`tdboard.js`): on Slips' TDs chip, under the TD slips, every anytime-TD line still to
+play at the chosen kickoff and playing (not out, Q, backup, stale or moved), ranked by the model's
+P(score). Columns: player, model, book (DraftKings' over), RZ touches a game, games with a score in
+the last 10. Top 20, then "Show all". Under the slips, not behind a toggle: a toggle is a second row
+of controls above the data (STYLE.md), and the TDs chip already asks "who scores".
 
 **DFS**: a swipeable rail of precomputed lineups per strategy (an equal-width segmented control,
 greedy = max points, non-chalk = for GPPs) each with a "Load into my lineup" button, then nine

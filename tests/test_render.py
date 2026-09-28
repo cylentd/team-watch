@@ -227,6 +227,12 @@ STATES = [
     ("build-underdog", go("build")),
     ("build-panel", go("build") + [("click", "[data-betspanel]")]),
     ("parlay-sheet", go("parlay") + [("click", "[data-loadslip]"), ("click", "[data-tray]")]),
+    # The leg sheet (2026-09-27): a slip's first pick tapped, and Tee Higgins' receptions, whose
+    # log carries per-game usage and whose opponent (NYJ) has two starters out. The TDs chip adds
+    # the TD board under the TD slips.
+    ("parlay-legsheet", go("parlay") + [("click", ".ticket .tk-leg")]),
+    ("parlay-legsheet-recs", go("parlay") + [("eval", "legSheetOpen(PROPS.findIndex(p => p.n === 'Tee Higgins' && p.mkt === 'RECS'))")]),
+    ("parlay-tds", go("parlay") + [("click", "[data-scope='tds']")]),
     ("dfs-yahoo", go("dfs")),
     # DFS since 2026-09-25: the strategy as the bar's chips, the site and "how this works" in the
     # panel its last chip opens.
@@ -309,6 +315,9 @@ PROBE = """
           // The search sheet is outside #view for the same reason.
           search: strip(document.getElementById("search-list").innerHTML),
           searchOpen: !document.getElementById("search").hidden,
+          // The leg sheet too (2026-09-27).
+          legsheet: strip(document.getElementById("legsheet").innerHTML),
+          legsheetOpen: document.getElementById("legsheet").classList.contains("on"),
           styles: out};
 }
 """

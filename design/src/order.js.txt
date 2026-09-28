@@ -124,6 +124,12 @@ surface/parlay/tray.js
 surface/parlay/flight.js
 surface/parlay/deal.js
 surface/parlay/masonry.js
+# pin: legsheet.js binds its listeners at load, so it needs #legsheet (shell.html, above the
+#      script) and nothing declared below it outside a function body.
+surface/parlay/legdata.js
+surface/parlay/legtiles.js
+surface/parlay/legsheet.js
+surface/parlay/tdboard.js
 surface/dfs/dfs.js
 chrome/state.js
 surface/live/live.js

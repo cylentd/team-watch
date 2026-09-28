@@ -23,6 +23,8 @@ Jahmyr Gibbs) across CIN/SF/DET, plus Ja'Marr Chase as a TD-only, headshot-less,
 | `data/player_projections.json` `wx` | Amon-Ra St. Brown carries `wx: {adj: -1.06}` (feed block and file): Weather's "Who it hits" for DET @ SEA and his roster card's "−1.1 in his projection" |
 | `data/player_projections.json` `weather_adjust` | Weather's "Already counted in our projections": wind QB, WR and TE and precip WR in since 2026-09-26 (feed block and file), the same cells as the live run; kickers "we don't project kickers" |
 | `data/weather_backtest.json` | `load_weather_backtest()` — Weather's effects, arm a from the 2026-09-26 run: dome not proven, wind proven for QB, WR, TE and K but not RB, rain for WR and K, cold for K only (so NE reads QBs 1.5 · WRs 1 · TEs 0.5 · kickers 1.5 fewer) |
+| `data/props_model.json` `logs` | the leg sheet's bars: Tee Higgins (11 games, the sheet keeps 10) and Chase Brown carry per-game usage `u` (one Higgins target null); St. Brown and Gibbs have none, the path without it (file and feed block) |
+| `data/defense_form.json`, `data/sleeper_defense.json` | `load_defense()` — file only, no feed block: NYJ, SEA, GB (no prior season) and LA (the page's LAR); NYJ has two starters out plus a questionable starter and a hurt backup, which are dropped |
 | `data/cache/roster_2026.parquet` | `nfl_roster()` — resolves Ja'Marr Chase's TD-only position |
 | `heads/*.webp` | inlined headshots; Ja'Marr Chase has none (tests the missing-headshot path) |
 | `feed.json` | `TEAM_WATCH_FEED` — feed-first copy of every block above |

@@ -12,7 +12,7 @@ BLOCKS = ["HEADS", "LIVE_ESPN", "LIVE_YAHOO", "LIVE_MATES", "LIVE_FEED", "LIVE_N
           "LIVE_PROFILES", "LIVE_WAIVER", "LIVE_WIRE", "LIVE_POOL", "LIVE_USAGE", "LIVE_MARKET_STOCK",
           "LIVE_SIGNALS", "LIVE_SCHEDULE", "LIVE_PEDIGREE", "LIVE_GAMELOG", "LIVE_PROJECTIONS",
           "LIVE_RANKS", "LIVE_INJURY", "LIVE_SIGNED", "LIVE_WEATHER", "LIVE_WX_HISTORY", "LIVE_WX_HITS","LIVE_LINES", "LIVE_ROUTES", "LIVE_ARCHETYPE", "LIVE_TRENCHES",
-          "LIVE_STARTSIT", "LIVE_DIGEST", "LIVE_LEAGUE", "LIVE_LEAGUE_YAHOO"]
+          "LIVE_STARTSIT", "LIVE_DIGEST", "LIVE_LEAGUE", "LIVE_LEAGUE_YAHOO", "LIVE_DEFENSE"]
 
 
 def injected(fragment):
@@ -37,6 +37,20 @@ def test_injected_blocks_parse(built):
     assert d["LIVE_DFS_YAHOO"]["players"]
     assert d["LIVE_NEWS"]["items"]
     assert d["LIVE_FEED"]["fetched"]["espn"]
+
+
+def test_defense_speaks_the_pages_team_codes(built):
+    """LIVE_DEFENSE (the leg sheet's matchup line, 2026-09-27): nflverse's LA is the page's LAR, the
+    same spelling a prop's `opp` now carries, and only starters who will not play are kept (NYJ's
+    questionable starter and its hurt backup are not)."""
+    d = injected(built.fragment)
+    D = d["LIVE_DEFENSE"]
+    assert "LAR" in D["form"] and "LA" not in D["form"] and D["out"]["LAR"][0]["name"] == "Jared Verse"
+    assert [o["name"] for o in D["out"]["NYJ"]] == ["Sauce Gardner", "Quinnen Williams"]
+    assert D["form"]["GB"]["prior"] is None
+    assert {p["opp"] for p in d["LIVE_PROPS"]["props"] if p.get("opp")} <= set(D["form"])
+    assert set(d["LIVE_PROPS"]["logs"]["tee-higgins"]["u"]) >= {"tgt", "rz_tgt", "team_rz"}
+    assert "u" not in d["LIVE_PROPS"]["logs"]["jahmyr-gibbs"], "a log without usage still passes"
 
 
 def test_injected_blocks_meet_the_contract(built):

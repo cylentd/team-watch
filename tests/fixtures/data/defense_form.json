@@ -1,0 +1,24 @@
+{
+ "generated": "2026-09-10 07:30",
+ "season": "2026",
+ "through_week": "1",
+ "teams": {
+  "NYJ": {
+   "current": {"games": 1, "pos": {"QB": {"pts_pg": 21.4, "rank": 28}, "RB": {"pts_pg": 24.0, "rank": 26}, "WR": {"pts_pg": 31.2, "rank": 27}, "TE": {"pts_pg": 6.1, "rank": 7}}, "epa_db": 0.21, "epa_rank": 29},
+   "prior": {"season": 2025, "games": 17, "pos": {"QB": {"pts_pg": 17.9, "rank": 19}, "RB": {"pts_pg": 21.3, "rank": 22}, "WR": {"pts_pg": 27.5, "rank": 24}, "TE": {"pts_pg": 9.8, "rank": 15}}, "epa_db": 0.08, "epa_rank": 20}
+  },
+  "SEA": {
+   "current": {"games": 1, "pos": {"QB": {"pts_pg": 12.0, "rank": 6}, "RB": {"pts_pg": 14.2, "rank": 5}, "WR": {"pts_pg": 18.8, "rank": 4}, "TE": {"pts_pg": 11.5, "rank": 22}}, "epa_db": -0.12, "epa_rank": 5},
+   "prior": {"season": 2025, "games": 17, "pos": {"QB": {"pts_pg": 15.1, "rank": 11}, "RB": {"pts_pg": 18.0, "rank": 9}, "WR": {"pts_pg": 22.4, "rank": 8}, "TE": {"pts_pg": 10.2, "rank": 17}}, "epa_db": -0.02, "epa_rank": 10}
+  },
+  "GB": {
+   "current": {"games": 1, "pos": {"QB": {"pts_pg": 16.3, "rank": 15}, "RB": {"pts_pg": 19.9, "rank": 16}, "WR": {"pts_pg": 25.0, "rank": 15}, "TE": {"pts_pg": 9.0, "rank": 13}}, "epa_db": 0.01, "epa_rank": 16},
+   "prior": null
+  },
+  "LA": {
+   "current": {"games": 1, "pos": {"QB": {"pts_pg": 14.0, "rank": 9}, "RB": {"pts_pg": 17.1, "rank": 10}, "WR": {"pts_pg": 20.2, "rank": 7}, "TE": {"pts_pg": 7.4, "rank": 9}}, "epa_db": -0.05, "epa_rank": 8},
+   "prior": {"season": 2025, "games": 17, "pos": {"QB": {"pts_pg": 16.0, "rank": 14}, "RB": {"pts_pg": 19.2, "rank": 14}, "WR": {"pts_pg": 24.1, "rank": 13}, "TE": {"pts_pg": 9.1, "rank": 11}}, "epa_db": 0.0, "epa_rank": 14}
+  }
+ },
+ "league": {"current": {"QB": 16.5, "RB": 19.3, "TE": 10.4, "WR": 25.1, "epa_db": 0.0}, "prior": {"QB": 16.0, "RB": 20.0, "TE": 10.7, "WR": 25.1, "epa_db": 0.0}}
+}

@@ -130,14 +130,17 @@ function wireBets(v){
     const y = window.scrollY; render(); window.scrollTo(0, y);
     betsPour(from, SLIP.map(k => PROPS[k].n));
   }));
-  // A pick opens its details in place (2026-09-25): only its own slip grows, and its column
-  // re-packs under it.
   slipMasonry(v);
-  v.querySelectorAll("[data-legmore]").forEach(el => {
-    const flip = () => { el.setAttribute("aria-expanded", String(el.classList.toggle("open"))); slipMasonry(el.closest(".tk-group") || v); };
-    el.addEventListener("click", flip);
-    el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); flip(); } });
+  // A pick on a slip, a Build line's ⓘ, a TD board row: each opens its leg sheet (legsheet.js).
+  v.querySelectorAll("[data-legsheet]").forEach(el => {
+    const open = e => { e.stopPropagation(); legSheetOpen(+el.dataset.legsheet, el); };
+    el.addEventListener("click", open);
+    if (el.tagName !== "BUTTON") el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); open(e); } });
   });
+  v.querySelectorAll("[data-tdall]").forEach(b => b.addEventListener("click", () => {
+    TD_ALL = !TD_ALL;
+    const y = window.scrollY; render(); window.scrollTo(0, y);
+  }));
   wireDeal(v);
   v.querySelectorAll("[data-tray]").forEach(b => b.addEventListener("click", betsSheetOpen));
   v.querySelectorAll("[data-sheetclose]").forEach(b => b.addEventListener("click", betsSheetClose));

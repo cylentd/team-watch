@@ -1,0 +1,73 @@
+/* ============================================================
+   THE LEG SHEET (2026-09-27, js/surface/parlay/legsheet.js)
+   One bet from the bottom edge: who and the call, the last ten
+   games against the line, three tiles, the matchup, Add. Sized
+   to fit a 360x780 phone without a scroll for a receptions leg.
+   Over the slip sheet (45) and under search (59).
+   ============================================================ */
+.ls-scrim{position:fixed;inset:0;z-index:48;background:rgb(var(--shadow-rgb) / .55);opacity:0;pointer-events:none;
+  transition:opacity .25s var(--ease)}
+.ls-scrim.on{opacity:1;pointer-events:auto}
+.legsheet{
+  position:fixed;left:0;right:0;bottom:0;z-index:49;margin:0 auto;max-width:560px;max-height:92vh;overflow-y:auto;
+  background:var(--panel);border:1px solid var(--line-2);border-bottom:0;border-radius:20px 20px 0 0;
+  padding:6px 16px calc(16px + env(safe-area-inset-bottom, 0px));display:grid;gap:12px;
+  transform:translateY(105%);visibility:hidden;
+  transition:transform var(--dur-spring) var(--spring),visibility 0s linear var(--dur-spring);
+}
+.legsheet.on{transform:none;visibility:visible;transition:transform var(--dur-spring) var(--spring)}
+body:has(.legsheet.on){overflow:hidden}
+
+/* ---- 1. who, the call, the chance ---- */
+.ls-head{display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:12px;align-items:center}
+.ls-who{min-width:0;display:flex;flex-direction:column;gap:2px}
+.ls-who h3{margin:0;font-family:var(--disp);font-weight:800;font-size:var(--t-4);letter-spacing:-.01em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ls-meta{font-size:var(--t-1);color:var(--ink-3)}
+.ls-call{font-size:var(--t-2);color:var(--ink-2)}
+.ls-pct{display:grid;justify-items:end;font-family:var(--mono);font-size:var(--t-5);font-weight:700;line-height:1}
+.ls-pct span{white-space:nowrap}
+.ls-pct i{font-style:normal;font-size:var(--t-2);color:var(--ink-3)}
+.ls-pct small{font-family:var(--ui);font-weight:500;font-size:var(--t-1);color:var(--ink-3);margin-top:4px}
+.ls-model{margin:-4px 0 0;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2)}
+
+/* ---- 2. the last ten games: one grid, so a number sits under its own bar ---- */
+.ls-cap{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.ls-cap b{font-size:var(--t-2);font-weight:600;color:var(--ink)}
+.ls-cap span{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.ls-grid{display:grid;grid-template-columns:30px repeat(var(--n),minmax(0,1fr));column-gap:4px;row-gap:3px;align-items:center}
+.ls-plot{grid-column:2 / -1;display:grid;grid-template-columns:subgrid;align-items:end;position:relative;height:88px}
+.ls-bar{position:relative;display:block;height:var(--h);border-radius:3px 3px 0 0;background:var(--line-2)}
+.ls-bar.hit{background:var(--lime)}
+.ls-bar em{position:absolute;left:0;right:0;bottom:100%;margin-bottom:2px;text-align:center;font-style:normal;
+  font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2);line-height:1}
+.ls-rule{position:absolute;left:0;right:0;bottom:var(--y);border-top:1px dashed var(--amber);pointer-events:none}
+.ls-lab{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);text-align:right}
+/* The line's number beside its rule: the label cell is as tall as the plot, the number at --y. */
+.ls-lab.ls-line{position:relative;align-self:stretch;color:var(--amber)}
+.ls-lab.ls-line i{position:absolute;right:0;bottom:var(--y);transform:translateY(50%);font-style:normal}
+.ls-cell{text-align:center;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.ls-cell.drv{color:var(--ink)}
+
+/* ---- 3. three tiles ---- */
+.ls-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.ls-tile{display:flex;flex-direction:column;gap:3px;padding:9px 10px;border-radius:10px;background:var(--panel-2);min-width:0}
+.ls-tile span{font-size:var(--t-1);color:var(--ink-3)}
+.ls-tile b{font-family:var(--mono);font-size:var(--t-4);font-weight:700;color:var(--ink)}
+.ls-tile em{font-style:normal;font-size:var(--t-1);line-height:1.35;color:var(--ink-3)}
+
+/* ---- 4. the matchup, one line; starters out on a tap ---- */
+.ls-match{margin:0;font-size:var(--t-2);color:var(--ink-2)}
+.ls-match summary{cursor:pointer;list-style:none}
+.ls-match summary::-webkit-details-marker{display:none}
+.ls-match summary u{text-decoration:underline dotted;text-underline-offset:3px;color:var(--ink)}
+.ls-match ul{margin:6px 0 0;padding:0;list-style:none;display:grid;gap:3px;font-size:var(--t-1)}
+.ls-match li span{color:var(--ink-3)}
+
+/* ---- 5. Add: lime is the slip, as on the tray ---- */
+.ls-add{appearance:none;border:0;border-radius:12px;padding:12px 16px;cursor:pointer;
+  background:var(--lime);color:var(--on-lime);font-family:var(--ui);font-weight:700;font-size:var(--t-3);
+  transition:transform .12s var(--ease)}
+.ls-add.in{background:var(--panel-3);color:var(--ink)}
+.ls-add:active{transform:scale(var(--press))}
+.ls-add:focus-visible{outline:2px solid var(--ink);outline-offset:2px}

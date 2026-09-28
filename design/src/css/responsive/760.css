@@ -140,14 +140,6 @@
   .udline .pct{font-size:var(--t-4)}
   .udcall{min-width:56px} .udcall .num{font-size:var(--t-4)}
   .udconf{width:44px} .udconf b{font-size:var(--t-4)}
-  .leg .legx{gap:10px 16px}
-  .probwrap span,.edgecell .ebar{display:none}
-  .probwrap{display:flex;align-items:baseline;gap:6px}
-  .edgecell{display:flex;align-items:baseline;gap:6px}
-  .probwrap b::after{content:" MODEL";font-size:var(--t-1);color:var(--ink-3);letter-spacing:.14em}
-  .probwrap.implied b::after{content:" BOOK IMPLIED"}
-  .edgecell b::after{content:" EDGE";font-size:var(--t-1);color:var(--ink-3);letter-spacing:.14em}
-  .edgecell.pending b::after{content:""} .edgecell.pending span{display:inline}
   .dfs{grid-template-columns:repeat(2,minmax(0,1fr))}
   .salrow{gap:16px}
   .feed{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}

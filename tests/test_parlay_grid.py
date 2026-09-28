@@ -20,11 +20,10 @@ def test_the_market_is_two_cards_a_row_on_a_phone(browser, page_file, book, grid
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     page.evaluate(f"SURFACE='build'; PARLAY_BOOK='{book}'; MKT_PAGE=1; render()")
     assert columns(page, grid) == 2
-    card = page.locator(f"{grid} > *").first
-    card.locator(".more").first.click()
-    page.wait_for_timeout(50)
-    opened = page.locator(f"{grid} > *:has(.legx)").first
-    assert opened.bounding_box()["width"] > 300, "an open card spans the row"
+    width = page.locator(f"{grid} > *").first.bounding_box()["width"]
+    page.locator(f"{grid} > *").first.locator(".more").first.click()
+    assert page.locator("#legsheet.on").count() == 1, "a line's info button opens its leg sheet"
+    assert page.locator(f"{grid} > *").first.bounding_box()["width"] == width, "no card widens under it"
     assert errors == []
     ctx.close()
 
@@ -51,8 +50,7 @@ def test_a_new_view_enters_once_and_a_tap_pops_only_its_line(browser, page_file)
 @pytest.mark.parametrize("book", ["underdog", "dk"])
 def test_a_slip_is_one_row_per_pick_read_as_a_sentence(browser, page_file, book):
     """A pick'em entry (2026-09-25): one row per pick, two lines -- his face on his team's colour,
-    his name, the call. The why, the game and the kickoff open under the pick on a tap, and only
-    that pick's slip grows."""
+    his name, the call. A tap opens that pick's leg sheet (2026-09-27), and no slip moves."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     page.evaluate(f"SURFACE='parlay'; PARLAY_BOOK='{book}'; render()")
     slip = page.locator(".ticket").first
@@ -64,15 +62,17 @@ def test_a_slip_is_one_row_per_pick_read_as_a_sentence(browser, page_file, book)
     call = legs.first.locator(".tk-call").inner_text()
     assert call != call.upper(), "the call is sentence case, not capitals"
     i = int(slip.get_attribute("data-card").split(":")[1])
-    game = page.evaluate(f"PROPS[GALLERIES['{book}'][{i}].legs[0]].game")
-    more = legs.first.locator(".tk-more")
-    assert not more.is_visible(), "the details wait for a tap"
+    first = page.evaluate(f"GALLERIES['{book}'][{i}].legs[0]")
+    assert int(legs.first.get_attribute("data-legsheet")) == first
     others = page.locator(".ticket").nth(1).bounding_box() if page.locator(".ticket").count() > 1 else None
     legs.first.click()
-    assert more.is_visible() and game in more.inner_text(), "the tap opens the pick's game"
-    assert legs.first.get_attribute("aria-expanded") == "true"
+    assert page.evaluate("LEG_SHEET") == first, "the tap opens that pick's sheet"
+    name = page.evaluate(f"nameInitial(PROPS[{first}].n)")
+    assert page.locator("#legsheet #ls-title").inner_text() == name
     if others:
         assert page.locator(".ticket").nth(1).bounding_box()["x"] == others["x"], "nothing beside it moves sideways"
+    page.keyboard.press("Escape")
+    page.wait_for_function("LEG_SHEET === null")
     assert slip.locator(".tk-stub .tk-head b").inner_text().strip() not in ("", "—")
     assert slip.locator(".tk-stub [data-loadslip]").count() == 1, "Load sits on the stub"
     assert errors == []
@@ -188,7 +188,7 @@ def test_deal_me_3_deals_from_the_kickoff_and_keeps_the_models_pick(browser, pag
 def test_slips_pack_their_columns_with_no_holes(browser, page_file, book):
     """A grid row used to be as tall as its tallest slip, so a 4-pick under a 5-pick left a
     card-sized hole beside it (2026-09-25). Packed, the space under any slip is the grid's 14px
-    gap, before and after a pick opens."""
+    gap. A pick opens its leg sheet over the page (2026-09-27), so no slip grows."""
     ctx, page, errors = open_page(browser, page_file, (1280, 900))
     page.evaluate(f"SURFACE='parlay'; PARLAY_BOOK='{book}'; render()")
     if page.locator(".ticket").count() < 2:
@@ -198,8 +198,6 @@ def test_slips_pack_their_columns_with_no_holes(browser, page_file, book):
       return r.map(a => { const below = r.filter(b => Math.abs(b.left - a.left) < 2 && b.top > a.top);
         return below.length ? Math.min(...below.map(b => b.top)) - a.bottom : 0; }); }))"""
     assert page.evaluate(holes) <= 16
-    page.locator(".ticket .tk-leg").first.click()
-    assert page.evaluate(holes) <= 16, "an opened pick re-packs its column"
     assert errors == []
     ctx.close()
 

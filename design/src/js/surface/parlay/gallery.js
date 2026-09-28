@@ -1,18 +1,5 @@
 /* One compact card per gallery slip -- not the full slipHTML() payout block, since there can be
    a dozen or more of these in one rail. */
-/* Why this leg, in one line under it: the history the model's chance rests on -- his per-game
-   rate and how many games. A 70% resting on a rate the line sits far from is the leg to doubt,
-   so the rate is never hidden. Underdog's confidence is already the number beside the leg, so
-   its why is only the rate (or, for a model-read TD, where the chance comes from). DK's adds
-   the model against the price. The kickoff is the game header's, never the leg's. */
-function legWhy(l, book){
-  const rate = typeof l.mu === "number"
-    ? t("parlay.why.rate", {rate: l.mkt === "RECS" ? l.mu.toFixed(1) : Math.round(l.mu), unit: MKT_SHORT[l.mkt].toLowerCase(), games: l.games}) : "";
-  if (book === "underdog") return udPick(l).synthetic ? t("parlay.why.tdUsage") : rate;
-  return [t("parlay.why.dk", {model: l.model, implied: Math.round(amToProb(overPrice(l)) * 100)}), l.mkt === "TD" ? "" : rate]
-    .filter(Boolean).join(" · ");
-}
-
 /* A leg read as a sentence, the way the book's own app prints it: "Lower 4.5 Receptions". The
    direction is a small tinted chip (2026-09-25), the way every pick'em slip marks it; nothing is
    in capitals. */
@@ -52,16 +39,15 @@ function slipMeterHTML(p, x){
    the stub holds what this page adds: the chance to hit all, the meter, and Load. One row per pick
    because nearly every pick is its own game: the game header per leg cost 31px each.
    A pick is two lines since 2026-09-25 ("too busy and it's small"): his face on his team's colour,
-   his name, the call. The why, the game and the kickoff open under it on a tap. */
-function legRowHTML(l, book){
+   his name, the call. A tap opens the leg sheet (legsheet.js, 2026-09-27): the why, the game and
+   the last ten games, which a one-line note under the pick used to half-say. */
+function legRowHTML(l, book, i){
   const ud = book === "underdog", u = ud ? udPick(l) : null;
   const team = (TEAM_COLOURS[l.team] || [])[0];
-  const more = [u && u.synthetic ? t("parlay.gallery.modelTag") : "", legWhy(l, book)].filter(Boolean).join(" · ");
-  return `<div class="tk-leg" role="button" tabindex="0" aria-expanded="false" data-legmore>
+  return `<div class="tk-leg" role="button" tabindex="0" aria-haspopup="dialog" data-legsheet="${i}">
       <span class="tk-face" data-slug="${esc(l.slug)}"${team ? ` style="--team:${team}"` : ""}>${avatarHTML(l)}</span>
       <div class="tk-who"><b>${esc(nameInitial(l.n))}</b><span class="tk-call">${legCall(l, book)}</span></div>
       <span class="tk-num">${ud ? `${u.conf}<i>%</i>` : esc(fmtAm(overPrice(l)))}</span>
-      <div class="tk-more">${more ? `<span>${esc(more)}</span>` : ""}<span>${esc([l.game, l.kick].filter(Boolean).join(" · "))}</span></div>
     </div>`;
 }
 /* `deal` (surface/parlay/deal.js) draws a dealt slip: {load, pill, tone} -- its own load key and a
@@ -101,7 +87,7 @@ function presetCard(card, best, groupName, deal){
   const load = deal ? `data-loaddeal="${esc(deal.load)}"` : `data-loadslip="${card.book}:${card.i}"`;
   return `<div class="ticket ${best ? "best" : ""} ${deal ? `dealt ${deal.tone}` : ""}" data-card="${card.book}:${esc(String(card.i))}">
     <div class="tk-top"><span class="tk-kind">${t("parlay.slip.pickCount", {n})}<span>${esc(card.scopeLabel)}</span></span>${pill}${pays ? `<span class="tk-pays">${pays}</span>` : ""}</div>
-    ${legs.map(l => legRowHTML(l, card.book)).join("")}
+    ${legs.map((l, k) => legRowHTML(l, card.book, card.legs[k])).join("")}
     <div class="ticket-tear"></div>
     <div class="tk-stub">
       <div class="tk-head">${head}<button class="ticket-cta" ${load}>${t("parlay.gallery.loadSlip")}</button></div>
@@ -131,7 +117,9 @@ function galleryHTML(){
       <div class="tk-grid">${ordered.map(c => presetCard(c, c === best, name)).join("")}</div>
     </section>`;
   }).join("");
-  return cards.length
+  // The TDs chip also lists every anytime-TD line under its slips (tdboard.js).
+  const board = SLIP_SCOPE === "tds" ? tdBoardHTML() : "";
+  return (cards.length
     ? groups
     : (() => {
           // How close it came: the legs that pass every gate in what is filtered, so "1 line,
@@ -140,6 +128,6 @@ function galleryHTML(){
           const win = GAL_WINDOWS.find(w => w.k === GAL_WIN);
           const ok = PROPS.filter(p => legOKInBook(p, s, PARLAY_BOOK) && inWin(p, win)).length;
           return `<div class="state-empty" style="margin:14px 0;min-height:110px"><div><b>${ok}</b><span>${t("parlay.gallery.empty", {s: ok === 1 ? "" : "S"})}</span></div></div>`;
-        })();
+        })()) + board;
 }
 

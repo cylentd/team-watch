@@ -4,10 +4,11 @@ const propLabel = p => p.line === null ? MKT[p.mkt] : `${MKT[p.mkt]} o${p.line}`
    applies, in the order legOKInBook would trip on it. A row can fail three gates at once (a
    backup, at a moved line, on a thin number) and three pills say "no" three times -- one is the
    answer. `u` is the Underdog pick when in that mode, for the line-size floor. */
-/* The chevron that expands a line: every book's price and the game log. One helper for the
-   three card shapes (DK card, Underdog card, Underdog line) so the tooltip cannot drift. */
-function moreButtonHTML(i, open, log){
-  return `<button class="more" data-more="${i}" aria-expanded="${open}" title="${log ? t("parlay.more.log", {n: log.g.length}) : t("parlay.more.plain")}" tabindex="-1">${open ? "▴" : "▾"}</button>`;
+/* The ⓘ that opens a line's leg sheet (legsheet.js, 2026-09-27). The row itself stays the slip
+   toggle, the one thing a Build tap has always done, so the sheet takes its own small target at
+   the row's end rather than the row. One helper for the three card shapes. */
+function moreButtonHTML(i){
+  return `<button type="button" class="more" data-legsheet="${i}" aria-haspopup="dialog" aria-label="${t("parlay.more.sheet")}">i</button>`;
 }
 function whyNotSlip(p, u){
   if (p.flag === "out") return `<span class="tag t-out">${t("parlay.tag.out")}${p.injury_note ? " · " + esc(p.injury_note) : ""}</span>`;
@@ -38,8 +39,6 @@ function udPropCard(p, i){
   // No MODEL pill per row: it would sit on every TD row (Underdog prices none), which is
   // noise, not information. The list header says it once; the cart still marks the leg.
   const tag = whyNotSlip(p, u) + roleNoteTagHTML(p);
-  const log = LIVE_MARKET && LIVE_MARKET.logs && p.slug ? LIVE_MARKET.logs[p.slug] : (LIVE_MARKET && LIVE_MARKET.logs ? LIVE_MARKET.logs[slugOf(p.n)] : null);
-  const open = EXPANDED.has(i);
   // The call is one unit: "▼ LOWER / 1.5 REC". The stat lives here, not in the name line, so
   // the eye reads name, call, confidence, and nothing twice.
   const call = u.pick
@@ -48,18 +47,14 @@ function udPropCard(p, i){
   const conf = typeof u.conf === "number"
     ? `<div class="udconf ${u.conf >= UD_MIN ? "" : "weak"}"><b>${u.conf}<i>%</i></b><div class="meter"><i style="transform:scaleX(${Math.max(0, Math.min(1, (u.conf - 50) / 50)).toFixed(2)})"></i></div></div>`
     : `<div class="udconf pending"><b>${t("parlay.call.pending")}</b></div>`;
-  return `<div class="leg ud ${p.mine?"mine":""} ${inSlip?"inslip":""} ${p.flag==="out"?"isout":""} ${open?"open":""}" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">
+  return `<div class="leg ud ${p.mine?"mine":""} ${inSlip?"inslip":""} ${p.flag==="out"?"isout":""}" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">
     ${avatarHTML(p)}
     <div>
       <div class="prop">${esc(p.n)}${tag ? " " + tag : ""}</div>
       <div class="book">${esc(p.pos)} · ${esc(p.game)}${p.kick ? ` · ${esc(p.kick)}` : ""}</div>
     </div>
     ${call}${conf}
-    ${moreButtonHTML(i, open, log)}
-    ${open ? `<div class="legx">
-      <div class="booklines">${esc(bookLine(p))}</div>
-      ${log ? gameLogHTML(p, log) : ""}
-    </div>` : ""}
+    ${moreButtonHTML(i)}
   </div>`;
 }
 
@@ -73,21 +68,19 @@ function lineTag(p, u){
   return "";
 }
 function udLine(p, i, headerSaysNo){
-  const u = udPick(p), inSlip = SLIP.includes(i), open = EXPANDED.has(i);
+  const u = udPick(p), inSlip = SLIP.includes(i);
   const hasConf = typeof u.conf === "number";
   const fill = hasConf ? Math.max(0, Math.min(1, (u.conf - 50) / 50)).toFixed(2) : 0;
   // Colour is the confidence: grey under the 58% floor, then amber at the floor blending to
   // lime at 100%, so 62% and 94% differ in hue as well as length.
   const heat = hasConf && u.conf >= UD_MIN ? Math.round((u.conf - UD_MIN) / (100 - UD_MIN) * 100) : null;
   const fillColor = heat === null ? "var(--ink-3)" : `color-mix(in oklab, var(--lime) ${heat}%, var(--amber))`;
-  const log = LIVE_MARKET && LIVE_MARKET.logs && p.slug ? LIVE_MARKET.logs[p.slug] : (LIVE_MARKET && LIVE_MARKET.logs ? LIVE_MARKET.logs[slugOf(p.n)] : null);
   return `<div class="udline ${u.pick||""} ${hasConf && u.conf < UD_MIN ? "weak" : ""}" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">
     <span class="dir">${u.pick === "higher" ? t("parlay.call.higher") : u.pick === "lower" ? t("parlay.call.lower") : t("parlay.call.none")}</span>
     <span class="ln"><b>${u.line !== null ? u.line : t("parlay.call.td")}</b><small>${u.line !== null ? MKT_SHORT[p.mkt] : t("parlay.call.anytime")}</small>${headerSaysNo ? "" : lineTag(p, u)}</span>
     <span class="meter"><i style="transform:scaleX(${fill});background:${fillColor}"></i></span>
     ${hasConf ? `<span class="pct">${u.conf}<i>%</i></span>` : `<span class="pct pending">${t("parlay.call.pending")}</span>`}
-    ${moreButtonHTML(i, open, log)}
-    ${open ? `<div class="legx"><div class="booklines">${esc(bookLine(p))}</div>${log ? gameLogHTML(p, log) : ""}</div>` : ""}
+    ${moreButtonHTML(i)}
   </div>`;
 }
 function udPlayerCard(rows){
@@ -111,42 +104,16 @@ const UD_PAGE_SIZE = 12;
 function propCard(p, i){
   if (PARLAY_BOOK === "underdog") return udPropCard(p, i);
   const inSlip = SLIP.includes(i);
-  const hasModel = typeof p.model === "number";
-  const implied = overPrice(p) !== null ? Math.round(amToProb(overPrice(p)) * 100) : null;
-  let detail;
-  if (hasModel){
-    const pos = p.edge >= 0;
-    const w = Math.min(50, Math.abs(p.edge) * 4.4);
-    detail = `<div class="probwrap"><b>${p.model}%</b><span>${t("parlay.detail.model")}</span></div>
-    <div class="edgecell">
-      <b class="${pos?"pos":"neg"}">${pos?"+":""}${p.edge.toFixed(1)}</b>
-      <div class="ebar"><i class="${pos?"":"neg"}" style="${pos?`left:50%;width:${w}%`:`left:${50-w}%;width:${w}%`}"></i></div>
-    </div>`;
-  } else {
-    detail = `<div class="probwrap implied"><b>${implied === null ? "—" : implied + "%"}</b><span>${t("parlay.detail.bookImplied")}</span></div>
-    <div class="edgecell pending"><b>—</b><span>${t("parlay.detail.modelPending")}</span></div>`;
-  }
-  if (p.flag === "out") detail = `<div class="probwrap implied"><b>—</b><span>${t("parlay.detail.notPlaying")}</span></div>
-    <div class="edgecell pending"><b>${t("parlay.tag.out")}</b><span>${esc((p.injury_note||p.injury||"").toUpperCase())}</span></div>`;
-  else if (p.norole) detail = `<div class="probwrap implied"><b>—</b><span>${t("parlay.detail.noYardsLine")}</span></div>
-    <div class="edgecell pending"><b>—</b><span>${t("parlay.detail.noRolePriced")}</span></div>`;
   const tag = whyNotSlip(p, null) + roleNoteTagHTML(p)
     + (p.cb ? `<span class="tag ${p.cb.v === "upgrade" ? "t-cbup" : "t-cbdn"}" title="${t("parlay.tag.cbTitle", {week: LIVE_MARKET && LIVE_MARKET.wrcb ? LIVE_MARKET.wrcb.week : "", v: esc(p.cb.v), cb: esc(p.cb.cb), why: esc(p.cb.why)})}">${t("parlay.tag.cb", {dir: p.cb.v === "upgrade" ? "↑" : "↓", name: esc(lastName(p.cb.cb))})}</span>` : "");
-  const log = LIVE_MARKET && LIVE_MARKET.logs && p.slug ? LIVE_MARKET.logs[p.slug] : (LIVE_MARKET && LIVE_MARKET.logs ? LIVE_MARKET.logs[slugOf(p.n)] : null);
-  const open = EXPANDED.has(i);
-  return `<div class="leg ${p.mine?"mine":""} ${inSlip?"inslip":""} ${p.flag==="out"?"isout":""} ${open?"open":""}" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">
+  return `<div class="leg ${p.mine?"mine":""} ${inSlip?"inslip":""} ${p.flag==="out"?"isout":""}" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">
     ${avatarHTML(p)}
     <div>
       <div class="prop">${esc(p.n)}<span class="pl">${esc(propLabel(p))}</span>${tag ? " " + tag : ""}</div>
       <div class="book">${esc(p.pos)} · ${esc(p.game)}${p.kick ? `<span class="kick">${esc(p.kick)}</span>` : ""}</div>
     </div>
     <div class="o">${esc(fmtAm(overPrice(p)))}</div>
-    ${moreButtonHTML(i, open, log)}
-    ${open ? `<div class="legx">
-      ${detail}
-      <div class="booklines">${esc(bookLine(p))}</div>
-      ${log ? gameLogHTML(p, log) : ""}
-    </div>` : ""}
+    ${moreButtonHTML(i)}
   </div>`;
 }
 

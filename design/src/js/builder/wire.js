@@ -110,23 +110,21 @@ function wireBuilder(v){
     render();
   }));
   v.querySelectorAll("[data-prop]").forEach(el=>{
-    const toggle = ()=>{
-      const i = +el.dataset.prop, from = el.getBoundingClientRect(), was = betsSlipPct();
-      SLIP = SLIP.includes(i) ? SLIP.filter(x=>x!==i) : SLIP.concat(i);
-      SLIP_MODE = "custom";
-      const y = window.scrollY; render(); window.scrollTo(0, y);
-      popLeg(v, i, SLIP.includes(i));
-      // An added pick flies to the tray; a removed one needs no flight, the tray just re-counts.
-      if (SLIP.includes(i)) betsFly(from, PROPS[i].n, was); else betsLand(SLIP.length, was);
-    };
-    el.addEventListener("click", e=>{ if (e.target.closest(".more, .gl, .legx")) return; toggle(); });
-    el.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();toggle();} });
+    const toggle = ()=>betsToggleLeg(v, +el.dataset.prop, el.getBoundingClientRect());
+    // The ⓘ at the row's end opens the leg sheet instead (wireBets).
+    el.addEventListener("click", e=>{ if (e.target.closest(".more")) return; toggle(); });
+    el.addEventListener("keydown", e=>{ if (e.target !== el) return; if(e.key==="Enter"||e.key===" "){e.preventDefault();toggle();} });
   });
-  v.querySelectorAll("[data-more]").forEach(b=>b.addEventListener("click", e=>{
-    e.stopPropagation();
-    const i = +b.dataset.more;
-    if (EXPANDED.has(i)) EXPANDED.delete(i); else EXPANDED.add(i);
-    const y = window.scrollY; render(); window.scrollTo(0, y);
-  }));
+}
+
+/* A line into the slip or out of it: a Build tap, and the leg sheet's Add button. An added pick
+   flies from `from` to the tray; a removed one needs no flight, the tray just re-counts. */
+function betsToggleLeg(v, i, from){
+  const was = betsSlipPct();
+  SLIP = SLIP.includes(i) ? SLIP.filter(x=>x!==i) : SLIP.concat(i);
+  SLIP_MODE = "custom";
+  const y = window.scrollY; render(); window.scrollTo(0, y);
+  popLeg(v, i, SLIP.includes(i));
+  if (SLIP.includes(i)) betsFly(from, PROPS[i].n, was); else betsLand(SLIP.length, was);
 }
 

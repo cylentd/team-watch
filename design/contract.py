@@ -101,9 +101,19 @@ CONTRACT = {
         "keys": ["fetched", "events", "books", "players", "windows", "days", "model", "props", "wrcb", "logs"],
         "rows": ("props", ["n", "slug", "pos", "team", "mkt", "game", "commence", "kick", "line",
                            "book", "books", "mine", "win"]),
-        # logs[slug] = {g: [[year, week, opp], ...], v: {MKT: [value per game]}} -- gamelog.js
-        # indexes both, so a log missing either is a crash on expand, not a blank chart.
+        # logs[slug] = {g: [[year, week, opp], ...], v: {MKT: [value per game]}} -- the leg sheet
+        # (parlay/legdata.js) indexes both, so a log missing either is a crash on open, not a blank
+        # chart. `u` (ff-jarvis, 2026-09-27) is optional: per-game usage arrays aligned with `g`,
+        # ints or null; when present it carries every key below.
         "map": ("logs", ["g", "v"]),
+        "nested": [("logs", "u", ["tgt", "car", "snap", "team_tgt", "rz_tgt", "rz_car", "gl_car", "team_rz"])],
+    },
+    # design/defense.py: per team the points allowed by position (this season and last, rank 1 the
+    # fewest) and its starters who will not play. The whole block is optional (None without either
+    # ff-jarvis file); `current` or `prior` may be null for a team with no games in that season.
+    "LIVE_DEFENSE": {
+        "keys": ["form", "out", "fetched"],
+        "map": ("form", ["current", "prior"]),
     },
     "LIVE_DFS_YAHOO": {
         "keys": ["fetched", "modeled", "lined", "players"],

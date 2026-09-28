@@ -186,6 +186,17 @@ def load_dfs_pool():
     return feed_block(("market", "dfs"), "players") or read_first(DFS_POOL)
 
 
+def load_defense():
+    """{form, injured, fetched} for the leg sheet's matchup line: the feed block `defense` first,
+    else ff-jarvis's defense_form.json (points allowed by position) and sleeper_defense.json (hurt
+    defenders) read directly. Either half may be None; design/defense.py cuts both."""
+    block = feed_block(("defense",), "form")
+    if block:
+        return block
+    form, hurt = read_first(DWR / "defense_form.json"), read_first(DWR / "sleeper_defense.json")
+    return {"form": form, "injured": hurt, "fetched": None} if form or hurt else None
+
+
 def load_startsit():
     """(our calls, Pitcher List's calls, the newest grade file carrying a start/sit record), each
     None when ff-jarvis has not written it. Files only: none of the three is a feed block."""

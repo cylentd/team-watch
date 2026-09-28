@@ -1,0 +1,15 @@
+{
+ "generated": "2026-09-10 07:31",
+ "teams": {
+  "NYJ": [
+   {"key": "sauce gardner", "name": "Sauce Gardner", "pos": "CB", "injury": "Out", "injury_note": "Hamstring", "practice": "DNP", "depth": 1},
+   {"key": "quinnen williams", "name": "Quinnen Williams", "pos": "DT", "injury": "IR", "injury_note": "Knee", "practice": null, "depth": 1},
+   {"key": "jamien sherwood", "name": "Jamien Sherwood", "pos": "LB", "injury": "Questionable", "injury_note": "Ankle", "practice": "LP", "depth": 1},
+   {"key": "brandon stephens", "name": "Brandon Stephens", "pos": "CB", "injury": "Out", "injury_note": "Groin", "practice": "DNP", "depth": 2}
+  ],
+  "LA": [
+   {"key": "jared verse", "name": "Jared Verse", "pos": "DE", "injury": "Doubtful", "injury_note": "Foot", "practice": "DNP", "depth": 1}
+  ],
+  "GB": []
+ }
+}
