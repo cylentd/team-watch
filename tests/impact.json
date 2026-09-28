@@ -96,7 +96,7 @@
     "strip": {
       "paths": ["design/src/js/surface/strip/", "api/game.py", "design/pbp.py"],
       "tests": ["tests/test_strip.py", "tests/test_game.py", "tests/test_pbp.py"],
-      "render": []
+      "render": ["strip"]
     },
     "connect": {
       "paths": ["design/src/js/data/connect.js", "design/src/js/chrome/connect.js", "api/league.py"],

@@ -92,6 +92,27 @@ def bdpick(q):
 
 MOVERS = go("movers")
 
+
+def _strip_game():
+    """The fixture ESPN summary, shaped by api/game.py exactly as the endpoint serves it."""
+    import importlib.util
+    from conftest import FIXTURES, REPO
+    spec = importlib.util.spec_from_file_location("game_fn", REPO / "api" / "game.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod.shape(json.loads((FIXTURES / "data" / "espn_summary.json").read_text(encoding="utf-8")))
+
+
+# performance.now() is pinned because the strip writes it into --ph, the clock its loops run on.
+STRIP_OPEN = """(() => { const D = %s; performance.now = () => 1000;
+  openStrip({id: "golden", away: D.away.abbr, home: D.home.abbr, week: D.week || 2}, "", null);
+  stripMount(document.querySelector("#stripmodal .stbody"), D, null, null); })()""" % json.dumps(_strip_game())
+STRIP_SEEK = """(() => { const s = document.querySelector("#stripmodal .stslider");
+  s.value = 6; s.dispatchEvent(new Event("input")); })()"""
+WAIT_STAGE = "new Promise(r => setTimeout(r, 450))"
+CLOSE_STAGE = """(() => { document.body.dispatchEvent(new KeyboardEvent("keydown", {key: "Escape", bubbles: true}));
+  return new Promise(r => setTimeout(r, 450)); })()"""
+
 STATES = [
     # The Digest (This week, 2026-09-26), the page's default: the day picks the open row. Friday
     # opens Hurt (the fixture leads with a doubtful Puka Nacua), Tuesday opens Waiver adds, a tap
@@ -280,6 +301,17 @@ STATES = [
     # test_no_console_errors -- which is the point of it.
     ("live-unserved", [("eval", "GD_DATA = null; GD_ERR = ''; GD_BUSY = false; GD_AT = 0;")]
                       + go("live")),
+    # The play strip (2026-09-27): the real dialog, which from file:// says it cannot fetch, then
+    # the fixture game mounted into it with the real stripMount. A finished game opens at kickoff
+    # and never plays by itself, so the frame is fixed; -seek moves the scrubber to play 6.
+    ("strip-kickoff", go("roster") + [("eval", STRIP_OPEN)]),
+    ("strip-seek", go("roster") + [("eval", STRIP_OPEN), ("eval", STRIP_SEEK)]),
+    # The pack (2026-09-27): Cards opens the week's pack on its own stage, on <body>; Escape puts
+    # it back on the page above the dealt cards.
+    ("teams-cards-stage", [("eval", "VIEW='espn'; render()")] + go("roster")
+                          + [("click", "[data-rmode='cards']"), ("eval", WAIT_STAGE)]),
+    ("teams-cards", [("eval", "VIEW='espn'; render()")] + go("roster")
+                    + [("click", "[data-rmode='cards']"), ("eval", WAIT_STAGE), ("eval", CLOSE_STAGE)]),
 ]
 
 SEED = """
@@ -318,6 +350,10 @@ PROBE = """
           // The leg sheet too (2026-09-27).
           legsheet: strip(document.getElementById("legsheet").innerHTML),
           legsheetOpen: document.getElementById("legsheet").classList.contains("on"),
+          // The play strip's dialog and the pack's stage (2026-09-27): the stage hangs off <body>,
+          // outside every root above, and the strip's CSS was proven by no state until these.
+          strip: strip(document.getElementById("stripmodal").innerHTML),
+          stage: strip(document.querySelector(".pk-stage")?.outerHTML || ""),
           styles: out};
 }
 """
@@ -659,8 +695,11 @@ def diff(golden, now, limit=25):
             if g is None:
                 lines.append(f"{vp}/{state}: no golden yet")
                 continue
-            for key in ("view", "drawer", "modal", "chat", "search"):
-                if g[key] != n[key]:
+            for key in ("view", "drawer", "modal", "chat", "search", "legsheet", "strip", "stage"):
+                if g.get(key) != n[key]:
+                    if key not in g:
+                        lines.append(f"{vp}/{state}: #{key} has no golden yet")
+                        continue
                     i = next((i for i, (a, b) in enumerate(zip(g[key], n[key])) if a != b), min(len(g[key]), len(n[key])))
                     lines.append(f"{vp}/{state}: #{key} differs at char {i}: ...{n[key][max(0, i-40):i+60]!r}")
             for cls in sorted(set(g["styles"]) | set(n["styles"])):
