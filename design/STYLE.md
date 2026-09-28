@@ -34,6 +34,11 @@ names the reason in its `DESIGN.md` section.
   centred inside a taller one reads as a mistake. (Leaders card, 2026-09-25.)
 - **Desktop fills the width it has.** A 3x3 grid, a hero beside its list; never one stretched
   column with bars a thousand pixels long.
+- **Rows, not columns.** A desktop page of sections pairs them in rows of like height (ranking
+  beside heists) and gives a long section the full width with its cards two across. Never split the
+  sections into a left and a right column by kind: the columns end ~1000px apart and the short one
+  leaves a hole. Check: sections side by side end within 150px of each other. (Trades, 2026-09-28:
+  1730px beside 705px; `test_trades_desktop_rows_end_level`.)
 
 ## Motion: feedback that shows the change
 

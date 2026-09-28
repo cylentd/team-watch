@@ -67,10 +67,12 @@ function trPageHTML(){
   const D = trData();
   if (!D || !lgUseYahoo()) return `<div class="wrap"><p class="tr-none">${t("trades.none")}</p></div>`;
   // The answer first (best and worst), then what PAR means: the first data ends above ~200px on a phone.
+  // The sections are siblings in one grid, not two columns: on a desktop each row pairs sections of like
+  // height (ranking beside heists) and the long ones take the full width, so no column runs on alone.
   return `<div class="wrap"><div class="tr"><header class="tr-head"><h1>${esc(LG.league)}</h1>
       <p class="tr-kick">${t("trades.page.kick", {a: D.since, b: D.through, n: D.n})}</p></header>
-    ${trLeadHTML()}<p class="tr-what">${t("trades.page.what")}</p><div class="tr-cols"><div class="tr-col">${trRankHTML()}</div>
-    <div class="tr-col">${trHeistsHTML()}${trDecidedBlockHTML()}${trCursesHTML()}</div></div></div></div>`;
+    ${trLeadHTML()}<p class="tr-what">${t("trades.page.what")}</p>
+    <div class="tr-body">${trRankHTML()}${trHeistsHTML()}${trDecidedBlockHTML()}${trCursesHTML()}</div></div></div>`;
 }
 
 /* A manager row opens their trades under it (closing any other); Show all opens the rest of the cards.

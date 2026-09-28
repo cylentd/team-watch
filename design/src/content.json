@@ -1256,7 +1256,7 @@
  "trades.potato.line": "Hot potatoes, whoever got him lost every time: {list}.",
  "trades.rank.aria": "{m}: {n} a trade, {wl}. Show their trades",
  "trades.rank.few": "Too few trades to rank fairly.",
- "trades.rank.key": "Dot: average per trade. Line: where the true number likely sits (90%). A line crossing 0 isn't proven yet; red is proven below 0, green proven above.",
+ "trades.rank.key": "Dot: average per trade. Line: how sure that is (90%). Fewer trades, or wilder ones, make it longer. A line crossing 0 could still be luck; red is proven below 0, green above.",
  "trades.rank.sub": "PAR per trade · W–L",
  "trades.rank.title": "Trader ranking",
  "trades.res.l": "L",

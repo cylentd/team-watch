@@ -689,6 +689,31 @@ def test_league_back_page_fits_one_desktop_screen(browser, page_file):
         ctx.close()
 
 
+@pytest.mark.area("trades")
+def test_trades_desktop_rows_end_level(browser, page_file):
+    """League > Trades at 1440px (STYLE.md "Rows, not columns", 2026-09-28): the ranking sits beside the
+    heists and they end within 150px of each other; the long sections take the full width. Two columns
+    by kind left the ranking ending ~1000px above its neighbour. On a phone it is still one strip."""
+    ctx = browser.new_context(viewport={"width": 1440, "height": 900}, reduced_motion="reduce")
+    page = ctx.new_page()
+    page.set_default_timeout(5000)
+    page.route(re.compile(r"^https?://"), lambda route: route.abort())
+    page.add_init_script(SEED)
+    box = "q => { const r = document.querySelector(q).getBoundingClientRect(); return [r.left, r.top, r.width, r.bottom]; }"
+    try:
+        page.goto(page_file.as_uri() + "#trades")
+        page.wait_for_function("document.getElementById('view').children.length > 0")
+        rank, heists, dec, body = (page.evaluate(box, q) for q in (".tr-rank", ".tr-heists", ".tr-decided", ".tr-body"))
+        assert heists[0] > rank[0] and abs(heists[1] - rank[1]) < 1, "heists beside the ranking"
+        assert abs(heists[3] - rank[3]) <= 150, f"ranking ends {rank[3]:.0f}, heists {heists[3]:.0f}"
+        assert abs(dec[2] - body[2]) < 1, "the decided trades take the full width"
+        page.set_viewport_size({"width": 360, "height": 740})
+        lefts = {round(page.evaluate(box, q)[0]) for q in (".tr-rank", ".tr-heists", ".tr-decided", ".tr-curses")}
+        assert len(lefts) == 1, f"one strip on a phone: {lefts}"
+    finally:
+        ctx.close()
+
+
 @pytest.mark.area("board")
 @pytest.mark.parametrize("w,h", [(1100, 640), (1920, 1080)])
 def test_leaders_wide_is_the_one_beside_two_lists(browser, page_file, w, h):

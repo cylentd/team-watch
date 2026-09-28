@@ -6,9 +6,9 @@
 .tr-head h1{margin:0;font-family:var(--disp);font-size:var(--t-6);font-weight:800;line-height:1.05}
 .tr-kick{margin:0;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
 .tr-what{margin:-10px 0 0;font-size:var(--t-1);color:var(--ink-3);max-width:62ch}
-.tr-cols{display:grid;gap:26px}
-.tr-col{display:grid;gap:26px;align-content:start;min-width:0}
+.tr-body{display:grid;gap:26px;align-items:start}
 .tr-sec{display:grid;gap:10px;min-width:0}
+.tr-grid{display:grid;gap:10px;align-items:start}
 .tr-hd{margin:0;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 8px;
   font-family:var(--tab);font-size:var(--t-5);font-weight:900;line-height:1;text-transform:uppercase}
 .tr-hd span{font-family:var(--ui);font-size:var(--t-1);font-weight:500;text-transform:none;color:var(--ink-3)}
@@ -67,7 +67,7 @@
 .tr-dec li::before{content:"◆ "}
 
 /* heists and the trades that decided a season */
-.tr-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:8px}
+.tr-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:8px;align-content:start}
 .tr-card.title{border-color:rgb(var(--gold-2-rgb) / .55);background:linear-gradient(180deg,rgb(var(--gold-2-rgb) / .09),var(--panel) 70%)}
 .tr-card h3{margin:0;font-family:var(--disp);font-size:var(--t-3);font-weight:700;line-height:1.3;min-width:0}
 .tr-card h3 small{display:block;font-family:var(--mono);font-size:var(--t-1);font-weight:500;color:var(--ink-3);margin-top:2px}
@@ -99,6 +99,21 @@
 .tr-chain span.dn{color:var(--down)}
 .tr-chain span.live{color:var(--amber)}
 
+/* Desktop (2026-09-28, second pass): rows, not columns. Two columns split by kind left the ranking
+   (705px) beside a 1730px stack, ~1000px of nothing under it, and best/worst held to 640px of a
+   1360px row. Now the ranking pairs with the heists, the two long sections take the full width with
+   their cards two across, and every card column sits on the same two tracks as the row above. */
 @media (min-width:960px){
-  .tr-cols{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px}
+  .tr-lead{max-width:none;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:40px}
+  .tr-lead .tr-note{grid-column:1 / -1}
+  .tr-body,.tr-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:40px}
+  .tr-body{row-gap:36px}
+  .tr-decided,.tr-curses{grid-column:1 / -1}
+  /* across 1360px a subhead pushed to the far edge reads as belonging to nothing */
+  :is(.tr-decided,.tr-curses) .tr-hd{justify-content:start;column-gap:14px}
+  .tr-decided .tr-grid{row-gap:12px;align-items:stretch}
+}
+/* With a mouse the ranking's rows need no 44px touch height; tighter, it ends level with the heists. */
+@media (min-width:960px) and (pointer:fine){
+  .tr-mgr{min-height:34px;padding:5px 2px}
 }

@@ -43,7 +43,7 @@ function trHeistsHTML(){
     <p class="tr-after">${t("trades.heist.after", {a: trName(tr.win.m), ra: tr.win.after, b: trName(tr.lose.m), rb: tr.lose.after})}</p>
     ${trDecidedHTML(tr)}
   </article>`).join("");
-  return `<section class="tr-sec"><h2 class="tr-hd">${t("trades.heist.title")}<span>${t("trades.heist.sub")}</span></h2>${cards}</section>`;
+  return `<section class="tr-sec tr-heists"><h2 class="tr-hd">${t("trades.heist.title")}<span>${t("trades.heist.sub")}</span></h2>${cards}</section>`;
 }
 
 /* The title trade first, then every playoff spot or bye a trade moved; four show, the rest behind one tap. */
@@ -65,7 +65,7 @@ function trDecidedBlockHTML(){
   }).join("");
   const more = !TR_ALL && ids.length > TR_SHOWN ? `<button type="button" class="tr-more" data-trall>${t("trades.dec.more", {n: ids.length})}</button>` : "";
   return `<section class="tr-sec tr-decided"><h2 class="tr-hd">${t("trades.dec.block")}<span>${t("trades.dec.sub", {n: ids.length})}</span></h2>
-    ${cards}${more}<p class="tr-note">${t("trades.dec.note")}</p></section>`;
+    <div class="tr-grid">${cards}</div>${more}<p class="tr-note">${t("trades.dec.note")}</p></section>`;
 }
 
 function trCurseHTML(c){
@@ -82,8 +82,8 @@ function trCursesHTML(){
   const all = trData().curses, curses = all.filter(c => c.kind === "curse"), potatoes = all.filter(c => c.kind === "potato");
   if (!all.length) return "";
   const rest = curses.slice(2);
-  return `<section class="tr-sec"><h2 class="tr-hd">${t("trades.curse.title")}<span>${t("trades.curse.sub")}</span></h2>
-    ${curses.slice(0, 2).map(trCurseHTML).join("")}
+  return `<section class="tr-sec tr-curses"><h2 class="tr-hd">${t("trades.curse.title")}<span>${t("trades.curse.sub")}</span></h2>
+    <div class="tr-grid">${curses.slice(0, 2).map(trCurseHTML).join("")}</div>
     ${rest.length ? `<p class="tr-note">${t("trades.curse.also", {list: trList(rest.map(c => c.player))})}</p>` : ""}
     ${potatoes.length ? `<p class="tr-note">${t("trades.potato.line", {list: trList(potatoes.map(c => c.player))})}</p>` : ""}
   </section>`;
