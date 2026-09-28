@@ -1,8 +1,9 @@
 """Every test builds against tests/fixtures, never against ff-jarvis: the inputs are pinned, so
 a failure is a change in this repo, not in tonight's data.
 
-    pytest                     # everything, about 5 s
-    pytest -m "not render"     # no browser, under a second
+    pytest tests/test_x.py     # the files for what you changed, seconds
+    pytest -n auto --dist loadfile   # everything in parallel, about 65 s (serial about 195 s)
+    pytest -m "not render"     # no browser, about 30 s
     pytest --update-golden     # rewrite tests/golden/render.json after an intended visual change
 """
 import os

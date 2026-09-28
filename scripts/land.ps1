@@ -137,12 +137,19 @@ for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
         GitRun "rebase origin/$Base" | Out-Null
     }
 
+    # One file per worker (loadfile), so a module's browser and snapshot fixtures are built once.
+    # About 65 s instead of 195 s on 20 cores (2026-09-27); without pytest-xdist it runs serially.
+    $parallel = @()
+    & python -c "import xdist" 2>$null
+    if ($LASTEXITCODE -eq 0) { $parallel = @("-n", "auto", "--dist", "loadfile") }
+    else { Write-Host "  pytest-xdist missing (pip install pytest-xdist) -- running serially" -ForegroundColor Yellow }
+
     Write-Host "testing" -ForegroundColor Cyan
-    Write-Host "  python -m pytest" -ForegroundColor DarkGray
+    Write-Host "  python -m pytest $($parallel -join ' ')" -ForegroundColor DarkGray
     if (-not $DryRun) {
         Push-Location $repo
         try {
-            & python -m pytest
+            & python -m pytest @parallel
             if ($LASTEXITCODE -ne 0) { throw "tests failed ($LASTEXITCODE) -- nothing landed" }
         } finally { Pop-Location }
     }

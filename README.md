@@ -45,10 +45,13 @@ finish the rebase, then rebuild.
 ## Test
 
 ```
-python -m pytest                   # everything, about 7 s
-python -m pytest -m "not render"   # no browser, under a second
-python -m pytest --update-golden   # after an intended visual change
+python -m pytest tests/test_ranks.py          # the files for what you changed, about 2 s
+python -m pytest -n auto --dist loadfile       # everything, about 65 s (pip install pytest-xdist)
+python -m pytest -m "not render"               # no browser, about 30 s
+python -m pytest --update-golden               # after an intended visual change
 ```
+
+Timings measured 2026-09-27 on 20 cores. Serially the full suite takes about 195 s.
 
 The suite builds the page against `tests/fixtures/` (7 players, 3 games, every live path) and
 checks: the parts assemble and the manifests agree; every injected block parses and meets the

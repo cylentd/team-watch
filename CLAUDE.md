@@ -28,8 +28,9 @@ Never hand-edit the generated files. The pages are ~2.6 MB each (all live data i
 
 ```
 python design/build.py      # rebuild both outputs
-python -m pytest            # 7 s: assembler, build against fixtures, lint, budgets, rendered golden
-python -m pytest -m "not render"   # under a second, no browser
+python -m pytest tests/test_<area>.py         # while working: the files for what you touched, seconds
+python -m pytest -n auto --dist loadfile      # everything, ~65 s parallel (~195 s serial), 2026-09-27
+python -m pytest -m "not render"              # no browser, ~30 s
 .\scripts\land.ps1          # rebase, test, rebuild, fold into the commit, land
 ```
 
