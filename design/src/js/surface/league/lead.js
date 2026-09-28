@@ -26,15 +26,16 @@ function lgPhotoHTML(p){
     <figcaption>${esc(nameInitial(p.name))} <b>${lgPts(p.pts)}</b></figcaption></figure>`;
 }
 
-/* The lead: the game the headline is about (w.lead), drawn big. */
+/* The lead: the week's biggest game (w.lead), drawn big. Its joke is the page's one headline (since
+   2026-09-27; the roast's own headline told the same game twice), else the roast's headline. */
 function lgLeadHTML(w){
   const g = w.games.find(x => lgKey(x) === w.lead) || w.games[0];
-  const photo = lgPhotoHTML(w.photo);
+  const photo = lgPhotoHTML(w.photo), hl = g.punch || w.head;
   return `<article class="bp2-lead${photo ? " has-photo" : ""}">
     ${photo}
     <div class="bp2-lbody">
       <div class="bp2-score">${lgScoreLineHTML(g)}</div>
-      ${g.punch ? `<p class="bp2-punch">${esc(g.punch)}</p>` : ""}
+      ${hl ? `<h2 class="bp2-punch">${esc(hl)}</h2>` : ""}
       ${lgBeatsHTML(g)}
       ${g.box ? `<button class="bp2-more" data-lgsheet="${lgKey(g)}">${t("league.box.show")}</button>` : ""}
     </div>

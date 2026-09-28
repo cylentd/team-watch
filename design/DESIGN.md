@@ -165,7 +165,7 @@ https://claude.ai/artifact/LBKkjFWgJ1rLZGrKtQ1Fn3. ESPN is David's work league a
 | The lead, the briefs, the agate standings, a game's sheet | `surface/league/lead.js` |
 | Game cards (My recap) and box scores (the winner's side on the left) | `surface/league/slate.js` |
 | This week's grudge: series record, one sentence, last meetings as W/L chips | `surface/league/tape.js` |
-| Records tab: trophy case, Hall of Fame, Hall of Shame | `surface/league/records.js` |
+| Records tab: head to head, trophy case, last-place case, Hall of Fame, Hall of Shame | `surface/league/records.js` |
 
 **Revised the same day** (storyboard https://claude.ai/artifact/JAp2FLPRYAXSVxnNtR8HKU), on David's read
 that it had too much data everywhere and the point got lost:
@@ -217,9 +217,30 @@ standings not worth their space. **Superseded:** the standings table, the week s
   inside the jokes, where the puns need them.
 - **Standings in agate**: rank, manager, record, two columns of six. No move arrows, no LUCKY/ROBBED.
 - **Private pairs** (`design/league_private.json`): a series a manager asked to hide draws as a
-  Classified grudge every week, names blacked out, no ids in the page.
+  Classified grudge every week, names blacked out, no ids in the page. **Superseded 2026-09-27:** David
+  cut the card as too obvious; the pair's record still never ships, and Records draws its row blacked out.
 - **Fold budget** is pinned by `test_league_back_page_fits_one_desktop_screen`; the phone order is the
   story, the lead, the briefs, the superlatives, then the grudges and the standings.
+
+**Revised again the same evening**, on David's read that the headline and the lead said the same thing
+and the briefs, all in display caps, were hard to read:
+- **One headline:** the lead's joke is the page's headline (an `h2` on the lead card); the roast's own
+  headline shows only when the lead game has no joke. The masthead keeps the kicker, the week chips, the dek.
+- **Briefs in sentence case**, Archivo 500, 15px on a phone and 18px on a desktop. Display caps stay on the
+  one headline, the stamps and the section heads.
+- **Streaks** replace the Classified grudge: the two longest winning and losing runs going into next
+  week, counted across seasons and playoffs (`league_back.add_streaks`, weeks' `streaks`).
+
+**Records became head to head and two shelves** (same storyboard, its Records section):
+- **Head to head:** a chip per manager (default: the team picked, when it is in the league), then every
+  leaguemate best to worst by win share, then points, as a W-L bar, the record and the point difference.
+  A row opens that pair's grudge card, with Show margins, in the modal. A private pair's row stays, its
+  record blacked out, and always sorts last so its place gives nothing away.
+- **Trophy case and last-place case:** drawn cups and wooden spoons (`--gold-2`, `--wood`), one per
+  season, with the manager and the team it was that year, a tally line for multiple titles. Last place is
+  Yahoo's final 12th (ff-jarvis `yahoo_league finals`, which counts the consolation bracket); a season it
+  was never read for (2018) falls back to the worst regular season, dimmed, and says so.
+- **The halls** drop titles and last places, which the shelves already show.
 
 - **Voice:** Big Shoulders Display (`--tab`) for the headline, stamps and section heads, in this view
   only. The masthead rule is the league's colour.

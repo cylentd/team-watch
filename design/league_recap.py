@@ -15,7 +15,8 @@ Nothing here advises anyone: results, awards and history are already public insi
 """
 import re
 
-from league_back import add_meets, add_standings, add_tape, book, classify, enrich_weeks, last_places, next_grudge, private_pairs
+from league_back import (add_meets, add_standings, add_streaks, add_tape, book, enrich_weeks, last_places, next_grudge,
+                         private_pairs, withhold)
 
 AWARDS = ("top", "low", "blow", "close", "luck", "unluck")
 
@@ -229,9 +230,14 @@ def live_league_yahoo(season, history, owners, rosters, slugify, box=None, recap
     enrich_weeks(block["weeks"], box, recap, slugify)
     add_standings(block["weeks"], [t["id"] for t in block["teams"]])
     add_meets(block["h2h"], games)
-    block["classified"] = classify(block["h2h"], private_pairs())
+    ids = {t["id"] for t in block["teams"]}
+    add_streaks(block["weeks"], games, ids)
+    block["withheld"] = withhold(block["h2h"], private_pairs())
     block["grudge"] = next_grudge(block["now"], block["h2h"])
-    lasts = last_places(games, season["season"])
+    finals = _yahoo_finals(pods, owners) if mapped else {}
+    lasts = last_places(games, season["season"], finals)
+    block["spoons"] = [{"y": y, "id": oid if oid < FORMER else None, "name": names.get((y, oid)), "mgr": mgr(oid),
+                        "final": y in finals} for y, oid in sorted(lasts.items(), reverse=True)] if mapped else []
     add_tape(block["teams"], games, champs, lasts)
     b = book(fx, games, block["teams"], lasts)
     block["book"] = {k: _named(v, names, mgr) for k, v in b.items()}
@@ -255,6 +261,17 @@ def _yahoo_past(pods, owners):
         if pf:
             totals[y] = {"teams": {str(k): {"pf": v} for k, v in pf.items()}}
     return games, names, totals
+
+
+def _yahoo_finals(pods, owners):
+    """{season: the owner id Yahoo placed last}, from each season's `final` (ff-jarvis yahoo_league
+    finals: that season's team id -> final place, consolation bracket counted)."""
+    out = {}
+    for y, s in pods.items():
+        f = s.get("final") or {}
+        if f:
+            out[int(y)] = _owner(owners, y, max(f, key=lambda tid: f[tid]))
+    return out
 
 
 def _named(fx, names, mgr=None):

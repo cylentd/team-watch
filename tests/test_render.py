@@ -128,6 +128,8 @@ STATES = [
     ("recap-yahoo-week1", go("recap") + [("click", "[data-lgweek='1']")]),
     ("recap-yahoo-sheet", go("recap") + [("click", "[data-lgsheet='10-9']")]),
     ("records-yahoo", go("records")),
+    # Records' head to head for another manager (its chip), then that manager's first row as the grudge sheet.
+    ("records-yahoo-pair", go("records") + [("click", "[data-rcmgr='3']"), ("click", "[data-rcpair] >> nth=0")]),
     ("myrecap-yahoo", go("myrecap")),
     ("myrecap-yahoo-week1", go("myrecap") + [("click", "[data-lgweek='1']")]),
     # The fixture's week-3 pairings never met, so this seeds three meetings before the view draws.

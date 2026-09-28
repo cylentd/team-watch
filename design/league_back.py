@@ -141,17 +141,16 @@ def private_pairs(path=PRIVATE):
     return [(p["a"], p["b"]) for p in json.load(open(path, encoding="utf-8")).get("pairs", [])]
 
 
-def classify(h2h, pairs):
-    """Take each private pair's head-to-head out of `h2h` (both ways), so no name ships with it, and
-    return the series without names: [{w, l, t, m}] from the side that leads it. The page draws each as a
-    grudge card with the names withheld, every week, so the week the two play gives nothing away."""
+def withhold(h2h, pairs):
+    """Take each private pair's head-to-head out of `h2h` (both ways), so its record never ships, and
+    return the pairs [[a, b]]: Records draws the row with the record blacked out rather than drop it,
+    because a missing row would say more than a blacked-out one. (Until 2026-09-27 the League page
+    also drew the series as a "Classified grudge" card every week; David cut it as too obvious.)"""
     out = []
     for a, b in pairs:
-        ra = (h2h.get(str(a)) or {}).pop(str(b), None)
-        rb = (h2h.get(str(b)) or {}).pop(str(a), None)
-        lead = ra if ra and rb and ra["w"] >= rb["w"] else rb
-        if lead and lead["w"] + lead["l"] + lead["t"]:
-            out.append({k: lead[k] for k in ("w", "l", "t")} | {"m": lead.get("m", [])})
+        (h2h.get(str(a)) or {}).pop(str(b), None)
+        (h2h.get(str(b)) or {}).pop(str(a), None)
+        out.append([a, b])
     return out
 
 
@@ -166,9 +165,12 @@ def add_meets(h2h, games):
     return h2h
 
 
-def last_places(games, season):
-    """{season: the manager id with the worst finished regular season} for every past season: fewest
-    wins net of losses, then fewest points."""
+def last_places(games, season, finals=None):
+    """{season: the manager id who finished last} for every past season. `finals` ({season: id}, Yahoo's
+    own final place, which counts the consolation bracket) wins where it exists; a season without it
+    falls back to the worst regular season: fewest wins net of losses, then fewest points. The two
+    disagree (2019: the worst record was not last), so the fallback is only for a season Yahoo's
+    standings could not be read for."""
     by = {}
     for g in games:
         if g["y"] >= season or g.get("tier") is not None:
@@ -177,7 +179,32 @@ def last_places(games, season):
             r = by.setdefault(g["y"], {}).setdefault(tid, [0, 0.0])
             r[0] += 1 if won else -1
             r[1] += pts
-    return {y: min(t, key=lambda tid: (t[tid][0], t[tid][1])) for y, t in by.items()}
+    return {y: min(t, key=lambda tid: (t[tid][0], t[tid][1])) for y, t in by.items()} | dict(finals or {})
+
+
+def add_streaks(weeks, games, ids):
+    """Each week's `streaks`: every one of today's teams' run going into the next week, counted across
+    seasons and playoffs, as {id, n, w (1 a win streak, 0 a losing one), y, wk (where it began)}, longest
+    first. A tie ends a run and starts none."""
+    order = sorted((g for g in games if g.get("winner")), key=lambda g: (g["y"], g["week"]))
+    now = order[-1]["y"] if order else None
+    for wk in weeks:
+        run = {}
+        for g in order:
+            if g["y"] == now and g["week"] > wk["week"]:
+                break
+            for tid, side in ((g["home"], "home"), (g["away"], "away")):
+                if tid not in ids:
+                    continue
+                if g["winner"] == "tie":
+                    run.pop(tid, None)
+                    continue
+                won = int(g["winner"] == side)
+                r = run.get(tid)
+                run[tid] = {"id": tid, "n": r["n"] + 1, "w": won, "y": r["y"], "wk": r["wk"]} if r and r["w"] == won \
+                    else {"id": tid, "n": 1, "w": won, "y": g["y"], "wk": g["week"]}
+        wk["streaks"] = sorted(run.values(), key=lambda r: (-r["n"], r["id"]))
+    return weeks
 
 
 def add_tape(teams, games, champs, lasts):

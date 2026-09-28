@@ -29,14 +29,32 @@ function lgArrive(page, w){
   return fresh;
 }
 
-/* The masthead: the league and the week in the kicker, the week chips beside it, the headline, the dek. */
+/* The masthead: the league and the week in the kicker, the week chips beside it, the dek. No headline
+   of its own since 2026-09-27: it told the lead game's story a second time, right above the lead card,
+   so the lead's joke is the page's one headline (lead.js). */
 function lgMastHTML(w){
   return `<header class="bp-mast bp2-mast">
     <p class="bp-kick">${t("league.back.kick", {league: esc(LG.league), n: w.week})}</p>
     ${lgWeekChips(w)}
-    ${w.head ? `<h2 class="bp-hl">${esc(w.head)}</h2>` : ""}
     ${w.dek ? `<p class="bp-dek">${esc(w.dek)}</p>` : ""}
   </header>`;
+}
+
+/* Streaks going into next week, across seasons (league_back.add_streaks): the two longest winning runs
+   and the two longest losing ones, two games or more. It took the Classified grudge's place on
+   2026-09-27. */
+const LG_STREAK_MIN = 2;
+
+function lgStreaksHTML(w){
+  const all = (w.streaks || []).filter(r => r.n >= LG_STREAK_MIN);
+  const rows = [...all.filter(r => r.w).slice(0, 2), ...all.filter(r => !r.w).slice(0, 2)];
+  if (!rows.length) return "";
+  const row = r => `<li><span class="bp2-sk ${r.w ? "hot" : "cold"}">${r.w ? t("league.streak.w", {n: r.n}) : t("league.streak.l", {n: r.n})}</span>
+    <b>${lgMgr(r.id)}</b><small>${t("league.streak.since", {y: r.y, wk: r.wk})}</small></li>`;
+  return `<section class="lg-sec bp2-streaks" aria-label="${t("league.streak.title")}">
+    <h3 class="bp-hd">${t("league.streak.title")}<span>${t("league.streak.sub", {n: w.week + 1})}</span></h3>
+    <ul>${rows.map(row).join("")}</ul>
+  </section>`;
 }
 
 /* Six superlatives as the back page's stamps, two to a row at every width: the award in its colour
@@ -89,7 +107,7 @@ function lgBackWeekHTML(){
       ${lgLeadHTML(w)}
       <div class="bp2-under">
         ${g ? lgPairGrudgeHTML(g.a, g.b, t("league.grudge.next"), null) : ""}
-        ${(LG.classified || []).map(lgClassifiedHTML).join("")}
+        ${lgStreaksHTML(w)}
         ${lgAgateHTML(w, null)}
       </div>
     </div>

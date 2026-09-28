@@ -74,21 +74,6 @@ const lgChipsHTML = m => m.length ? `<div class="bp-gchips" role="img" aria-labe
   m.slice(-10).map(x => `<span><i class="${x[2] > 0 ? "w" : "l"}">${x[2] > 0 ? t("league.grudge.w") : t("league.grudge.l")}</i>
     <small>'${String(x[0]).slice(2)}</small></span>`).join("")}</div>` : "";
 
-/* A private pair's series (design/league_private.json): the same card with both names blacked out, drawn
-   every week so the week the two play gives nothing away. The build ships no id with it. */
-function lgClassifiedHTML(c){
-  const bar = `<span class="bp-redact" aria-label="${t("league.classified.name")}"></span>`;
-  const line = !c.l && !c.t ? t("league.classified.never", {n: c.w}) : t("league.classified.owns");
-  return `<section class="lg-sec bp-grudge" aria-label="${t("league.classified.title")}">
-    <h3 class="bp-hd">${t("league.classified.title")}<span>${t("league.classified.sub")}</span></h3>
-    <div class="bp-gcard">
-      <div class="bp-gvs">${bar}<b>${c.t ? `${c.w}–${c.l}–${c.t}` : `${c.w}–${c.l}`}</b>${bar}</div>
-      <p class="bp-gline">${line}</p>
-      ${lgChipsHTML(c.m)}
-    </div>
-  </section>`;
-}
-
 /* One pairing's grudge card, from `id`'s side: My recap's own, or the league page's biggest one. */
 function lgPairGrudgeHTML(id, opp, title){
   if (!LG.teams.some(x => x.id === id) || !LG.teams.some(x => x.id === opp)) return "";

@@ -121,14 +121,41 @@ def test_every_week_names_its_lead_game(back):
         assert w["lead"] in {f"{g['a']}-{g['b']}" for g in w["games"]}
 
 
-def test_a_private_pair_leaves_the_page_and_draws_without_names():
-    from league_back import classify, next_grudge
+def test_a_private_pairs_record_never_ships():
+    from league_back import withhold, next_grudge
     rec = lambda w, l, m: {"w": w, "l": l, "t": 0, "m": m}
     h2h = {"3": {"4": rec(0, 3, [[2024, 1, -5.0, 0]] * 3), "5": rec(1, 0, [])}, "4": {"3": rec(3, 0, [[2024, 1, 5.0, 0]] * 3)}}
-    hidden = classify(h2h, [(3, 4)])
-    assert hidden == [{"w": 3, "l": 0, "t": 0, "m": [[2024, 1, 5.0, 0]] * 3}]    # the leader's side, no ids
+    assert withhold(h2h, [(3, 4)]) == [[3, 4]]                                 # the pair, never its record
     assert "4" not in h2h["3"] and "3" not in h2h["4"] and "5" in h2h["3"]     # gone both ways, the rest kept
     assert next_grudge([{"a": 3, "b": 4}], h2h) is None                        # nor can it be next week's grudge
+
+
+def test_streaks_run_across_seasons_and_a_tie_ends_one():
+    from league_back import add_streaks
+    g = lambda y, wk, h, a, win: {"y": y, "week": wk, "home": h, "away": a, "winner": win}
+    games = [g(2025, 16, 1, 2, "home"), g(2025, 17, 1, 3, "home"), g(2026, 1, 1, 2, "home"), g(2026, 1, 3, 4, "tie"),
+             g(2026, 2, 1, 3, "away")]
+    weeks = add_streaks([{"week": 1}, {"week": 2}], games, {1, 2, 3, 4})
+    w1 = {r["id"]: r for r in weeks[0]["streaks"]}
+    assert w1[1] == {"id": 1, "n": 3, "w": 1, "y": 2025, "wk": 16}             # three straight, begun last season
+    assert w1[2]["n"] == 2 and w1[2]["w"] == 0 and 3 not in w1 and 4 not in w1  # the tie left 3 and 4 with no run
+    w2 = {r["id"]: r for r in weeks[1]["streaks"]}
+    assert w2[1] == {"id": 1, "n": 1, "w": 0, "y": 2026, "wk": 2} and weeks[1]["streaks"][0]["id"] == 2
+
+
+def test_last_place_is_yahoos_final_place_where_read():
+    from league_back import last_places
+    g = lambda y, h, a, win: {"y": y, "week": 1, "home": h, "away": a, "hp": 90.0, "ap": 80.0, "winner": win, "tier": None}
+    games = [g(2019, 1, 2, "home"), g(2020, 1, 2, "home")]
+    assert last_places(games, 2026) == {2019: 2, 2020: 2}                      # the worst record, as a fallback
+    assert last_places(games, 2026, {2019: 1}) == {2019: 1, 2020: 2}           # the consolation bracket counts
+
+
+def test_the_spoon_case_names_each_last_place(back):
+    assert all({"y", "id", "name", "mgr", "final"} <= set(s) for s in back["spoons"])
+    # 2025's final places are Yahoo's: 4th of the fixture's four was team 2 then, Crystal W. (7) today.
+    assert back["spoons"][0] == {"y": 2025, "id": 7, "name": "Bower", "mgr": "Crystal W.", "final": True}
+    assert [s["y"] for s in back["spoons"]] == sorted((s["y"] for s in back["spoons"]), reverse=True)
 
 
 def test_the_private_file_names_no_one():
