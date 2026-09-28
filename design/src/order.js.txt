@@ -80,6 +80,7 @@ surface/weather/weather.js
 data/digest.js
 surface/digest/lead.js
 surface/digest/rows.js
+surface/digest/tonight.js
 surface/digest/digest.js
 data/league.js
 surface/league/recap.js

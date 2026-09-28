@@ -305,7 +305,7 @@ CONTRACT = {
     "LIVE_DIGEST": {
         "keys": ["season", "week", "asof", "asof_words", "lead", "rules", "hurt", "calls", "record", "best", "wx",
                  "near", "adds_weeks", "adds", "top5", "up", "down", "gems", "news", "finals", "pending", "stars",
-                 "smashed", "busts", "left"],
+                 "smashed", "busts", "left", "tonight", "tonight_last"],
         "rows": [("hurt", ["n", "slug", "pos", "team", "status", "was", "injury", "new", "rank", "rostered", "game"]),
                  ("best", ["n", "slug", "pos", "team", "opp", "home", "pts", "why", "ko"]),
                  ("wx", ["away", "home", "kick", "ko", "temp_f", "wind_mph", "precip_pct", "short", "lead", "bar"]),
@@ -319,8 +319,13 @@ CONTRACT = {
                  ("stars", ["n", "slug", "pos", "team", "actual", "proj", "diff"]),
                  ("smashed", ["n", "slug", "pos", "team", "actual", "proj", "diff"]),
                  ("busts", ["n", "slug", "pos", "team", "actual", "proj", "diff"]),
-                 ("left", ["n", "slug", "pos", "team", "injury", "rest"])],
-        "row_objs": [("hurt", "game", ["away", "home", "kick", "ko"])],
+                 ("left", ["n", "slug", "pos", "team", "injury", "rest"]),
+                 # A Tonight card's game; its lists (out, next_up, groups, moved, tcalls, projected)
+                 # are pinned field by field in tests/test_digest.py, since a row spec is one level.
+                 ("tonight", ["away", "home", "kick", "ko", "wx", "out", "next_up", "groups", "moved", "tcalls",
+                              "projected"])],
+        "row_objs": [("hurt", "game", ["away", "home", "kick", "ko"]),
+                     ("tonight", "wx", ["roof", "temp_f", "wind_mph", "precip_pct", "short"])],
     },
     # design/league_recap.py: each league's recap and history, My teams > League. `h2h` is
     # {team id: {opponent id: record}}, all-time or this season only by `scope`; each week's

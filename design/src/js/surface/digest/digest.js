@@ -92,8 +92,10 @@ function dgRowHTML(id, d, open){
 
 function digestHTML(){
   const d = dgD(), open = dgOpenRow();
-  const rows = DG_ROWS.filter(id => id !== "res" || dgHas(id));
-  const ticker = d ? `<section class="dg-ticker" aria-label="${t("digest.ticker.label")}">${rows.map(id => dgRowHTML(id, d, open)).join("")}</section>`
+  const rows = DG_ROWS.filter(dgShown);
+  // The wall's layout names which bands exist (wall.css): results, tonight's card, the last slot.
+  const cls = d ? [dgHas("res") ? "has-res" : "", d.tn.length ? "has-tn" : "", d.tnLast ? "tn-last" : ""].filter(Boolean).join(" ") : "";
+  const ticker = d ? `<section class="dg-ticker${cls ? " " + cls : ""}" aria-label="${t("digest.ticker.label")}">${dgTonightHTML(d)}${rows.map(id => dgRowHTML(id, d, open)).join("")}</section>`
     : `<p class="dg-none">${t("digest.empty.ticker")}</p>`;
   return `<div class="dg">${dgLeadHTML()}${ticker}</div>`;
 }

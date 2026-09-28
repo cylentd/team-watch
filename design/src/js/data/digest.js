@@ -25,8 +25,11 @@ function dgCut(d, now){
   const c = {...d, hurt: d.hurt.filter(r => !(r.game && gone(r.game.ko))), best: d.best.filter(r => !gone(r.ko)),
              wx: d.wx.filter(r => !gone(r.ko)), near: d.near && gone(d.near.ko) ? null : d.near,
              top5: d.top5.filter(r => !gone(r.ko))};
+  // The lead is found before tonight's rows move into the card, so a Thursday lead about a player
+  // out tonight still leads; lead.js reads its row from these lists, not the ticker's.
+  c.leadRows = {hurt: c.hurt, weather: c.wx, news: c.news};
   c.lead = dgLeadAfter(d, c);
-  return c;
+  return dgTonightCut(c, now);
 }
 
 /* The lead keeps its row, found again by reference in the cut lists. One whose game has started
@@ -35,9 +38,24 @@ function dgLeadAfter(d, c){
   const L = d.lead;
   if (L && L.rule === "results") return c.finals.length ? L : null;
   const was = L && ({hurt: d.hurt, weather: d.wx, news: d.news}[L.rule] || [])[L.index];
-  const at = was ? ({hurt: c.hurt, weather: c.wx, news: c.news}[L.rule]).indexOf(was) : -1;
+  const at = was ? (c.leadRows[L.rule] || []).indexOf(was) : -1;
   if (at >= 0) return {rule: L.rule, index: at};
   return c.finals.length ? {rule: "results", index: 0} : c.news.length ? {rule: "news", index: 0} : null;
+}
+
+/* Tonight's card (2026-09-28, storyboard JSPwg21i9YaTSzhYqAEnQZ) shows from 18 hours before its
+   kickoff until 4 hours after, so a packet cut Friday for Monday night waits for Monday, and a tab
+   left open overnight lets it go. While it shows, its teams' rows live in the card, not the ticker;
+   when its games are all the week has left (`tonight_last`), the week's preview rows go too. */
+const DG_TN_BEFORE = 18 * 3600e3, DG_TN_AFTER = 4 * 3600e3;
+const DG_TN_ROWS = ["hurt", "mu", "wx", "t5", "st"];
+function dgTonightCut(c, now){
+  const tn = (c.tonight || []).filter(g => { const k = Date.parse(g.ko); return now >= k - DG_TN_BEFORE && now < k + DG_TN_AFTER; });
+  if (!tn.length) return {...c, tn: [], tnLast: false};
+  const teams = new Set(tn.flatMap(g => [g.away, g.home]));
+  const off = r => !teams.has(r.team), offGame = g => !teams.has(g.home) && !teams.has(g.away);
+  return {...c, tn, tnLast: !!c.tonight_last, hurt: c.hurt.filter(off), best: c.best.filter(off), top5: c.top5.filter(off),
+          up: c.up.filter(off), down: c.down.filter(off), wx: c.wx.filter(offGame), near: c.near && offGame(c.near) ? c.near : null};
 }
 
 /* Cut once per half minute, not once per row: every row asks dgD() several times a render. */
@@ -67,7 +85,15 @@ function dgNew(id){
   return dgHas(id);
 }
 
-const dgDayRow = () => (DG_DAY[new Date(Date.now()).getDay()] || ["hurt"]).find(dgNew) || null;
+/* Is the row drawn at all: Results once a game is final, and the week's preview rows unless
+   tonight's card holds everything the week has left. */
+function dgShown(id){
+  const d = dgD();
+  if (id === "res") return dgHas(id);
+  return !(d && d.tnLast && DG_TN_ROWS.includes(id));
+}
+
+const dgDayRow = () => (DG_DAY[new Date(Date.now()).getDay()] || ["hurt"]).find(id => dgShown(id) && dgNew(id)) || null;
 const dgOpenRow = () => DG_OPEN === null ? dgDayRow() : DG_OPEN;
 
 /* A surname for the one-line rows ("Smith-Njigba", "Walker"): the last word that is not a suffix. */

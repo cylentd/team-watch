@@ -85,6 +85,43 @@ def test_headline_splits_at_its_tag_and_takes_a_news_kind():
     assert news[0]["slugs"][0] == "jaylen-wright"
 
 
+def test_tonight_carries_the_card_facts_with_slugs_and_kickoff():
+    b = _block()
+    assert b["tonight_last"] is True
+    g = b["tonight"][0]
+    assert (g["away"], g["home"], g["kick"], g["ko"]) == ("PHI", "CHI", "Mon 5:15 PM", "2026-09-29T00:15:00Z")
+    assert g["wx"] == {"roof": "outdoor", "temp_f": 64, "wind_mph": 5, "precip_pct": 1, "short": "Mostly Clear"}
+    assert [(r["n"], r["status"], r["injury"]) for r in g["out"]][0] == ("Caleb Williams", "Out", "Hamstring")
+    assert g["next_up"][0]["for"] == "Caleb Williams" and g["next_up"][0]["n"] == "Case Keenum"
+    assert {"team": "CHI", "group": "pass", "d_pts": -9.8} in g["groups"]
+    assert [r["call"] for r in g["tcalls"]] == ["BEST", "BEST", "START"]
+    assert g["projected"][0]["slug"] == slugify("Jalen Hurts") and g["moved"][0]["d_pts"] == -3.97
+    assert live_digest({**load_digest(), "tonight": {"games": [], "last": False}}, slugify)["tonight"] == []
+
+
+@pytest.mark.render
+def test_monday_night_is_one_card_and_the_preview_rows_go(browser, page_file):
+    """Monday 6 AM Pacific, PHI @ CHI tonight and all the week has left: the card says who is out and
+    what the books moved, its rows leave the ticker, and the five preview rows go (2026-09-28)."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    page.goto(page_file.as_uri())
+    page.evaluate('Date.now = () => Date.parse("2026-09-28T13:00:00Z")')
+    for _, sel in go("digest"):
+        page.click(sel)
+    page.wait_for_selector(".dg-tn")
+    story = page.locator(".dg-tn-story").inner_text()
+    assert story.startswith("Caleb Williams is out (hamstring). Case Keenum is CHI's projected QB.")
+    assert "CHI's pass catchers −9.8 combined: C. Loveland −4.0, L. Burden −3.2, R. Odunze −1.7." in story
+    assert story.endswith("PHI is flat (+0.3).")
+    rows = page.evaluate("[...document.querySelectorAll('.dg-row')].map(r => r.dataset.dgrow)")
+    assert not {"hurt", "mu", "wx", "t5", "st"} & set(rows) and "adds" in rows
+    # After kickoff the card is one line and the way to the live board.
+    page.evaluate('Date.now = () => Date.parse("2026-09-29T00:30:00Z"); DG_CUT = null; render()')
+    assert page.locator(".dg-tn.on [data-dggo='live']").count() == 1
+    assert errors == []
+    ctx.close()
+
+
 def test_an_untagged_headline_does_not_say_his_name_twice():
     """The Monday 2026-09-28 page read "Travis Etienne Travis Etienne Jr. exits early Sunday"."""
     p = json.loads(json.dumps(load_digest()))

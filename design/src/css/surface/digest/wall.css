@@ -45,8 +45,10 @@
       "t5   t5   t5   t5   t5   t5   t5   t5   gems gems gems gems"
       "news news news news news news news news news news news news";
   }
-  /* Once a game is final, the week's results take a full-width band above the rest. */
-  .dg-ticker:has(.dg-row[data-dgrow="res"]){
+  /* The bands that come and go, named by the ticker's classes (digest.js): once a game is final
+     the week's results take a full-width band; tonight's card takes one above them; and when
+     tonight is all the week has left, the preview panels are gone and adds sit beside gems. */
+  .dg-ticker.has-res{
     grid-template-areas:
       "res  res  res  res  res  res  res  res  res  res  res  res"
       "hurt hurt hurt hurt hurt mu   mu   mu   mu   wx   wx   wx"
@@ -54,6 +56,38 @@
       "t5   t5   t5   t5   t5   t5   t5   t5   gems gems gems gems"
       "news news news news news news news news news news news news";
   }
+  .dg-ticker.has-tn{
+    grid-template-areas:
+      "tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn"
+      "hurt hurt hurt hurt hurt mu   mu   mu   mu   wx   wx   wx"
+      "hurt hurt hurt hurt hurt adds adds adds adds st   st   st"
+      "t5   t5   t5   t5   t5   t5   t5   t5   gems gems gems gems"
+      "news news news news news news news news news news news news";
+  }
+  .dg-ticker.has-tn.has-res{
+    grid-template-areas:
+      "tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn"
+      "res  res  res  res  res  res  res  res  res  res  res  res"
+      "hurt hurt hurt hurt hurt mu   mu   mu   mu   wx   wx   wx"
+      "hurt hurt hurt hurt hurt adds adds adds adds st   st   st"
+      "t5   t5   t5   t5   t5   t5   t5   t5   gems gems gems gems"
+      "news news news news news news news news news news news news";
+  }
+  .dg-ticker.tn-last.has-res{
+    grid-template-areas:
+      "tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn"
+      "res  res  res  res  res  res  res  res  res  res  res  res"
+      "adds adds adds adds adds adds gems gems gems gems gems gems"
+      "news news news news news news news news news news news news";
+  }
+  .dg-ticker.tn-last:not(.has-res){
+    grid-template-areas:
+      "tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn"
+      "adds adds adds adds adds adds gems gems gems gems gems gems"
+      "news news news news news news news news news news news news";
+  }
+  .dg-tns{grid-area:tn;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:20px}
+  .dg-tns .dg-tn{margin:0}
   .dg-row[data-dgrow="res"]{grid-area:res}
   .dg-row[data-dgrow="hurt"]{grid-area:hurt}
   .dg-row[data-dgrow="mu"]{grid-area:mu}

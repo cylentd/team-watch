@@ -63,7 +63,7 @@ function dgLead(){
   if (!d) return {tone: "quiet", photo: "", head: t("digest.empty.head"), fact: t("digest.empty.sub")};
   const l = d.lead;
   if (l && l.rule === "results") return dgLeadRes(d);
-  const row = l && {hurt: d.hurt, weather: d.wx, news: d.news}[l.rule] ? {hurt: d.hurt, weather: d.wx, news: d.news}[l.rule][l.index] : null;
+  const row = l && d.leadRows[l.rule] ? d.leadRows[l.rule][l.index] : null;
   if (!row) return {tone: "quiet", photo: "", head: t("digest.lead.quiet.head"), fact: t("digest.lead.quiet.sub")};
   return l.rule === "hurt" ? dgLeadHurt(row) : l.rule === "weather" ? dgLeadWx(row) : dgLeadNews(row);
 }

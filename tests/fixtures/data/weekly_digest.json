@@ -36,6 +36,41 @@
    {"key": "travis etienne", "name": "Travis Etienne", "pos": "RB", "team": "JAX", "headline": "Travis Etienne Jr. exits early Sunday", "created": "2026-09-25 01:40:00"}
   ]
  },
+ "tonight": {
+  "last": true,
+  "games": [{
+   "away": "PHI", "home": "CHI", "kickoff": "2026-09-29 00:15:00",
+   "wx": {"roof": "outdoor", "temp_f": 64, "precip_pct": 1, "short": "Mostly Clear", "wind_mph": 5},
+   "out": [
+    {"key": "caleb williams", "name": "Caleb Williams", "pos": "QB", "team": "CHI", "status": "Out", "injury": "Hamstring"},
+    {"key": "dallas goedert", "name": "Dallas Goedert", "pos": "TE", "team": "PHI", "status": "Out", "injury": "Knee - MCL"},
+    {"key": "marquise brown", "name": "Marquise Brown", "pos": "WR", "team": "PHI", "status": "Out", "injury": "Ankle"}
+   ],
+   "next_up": [{"for": "caleb williams", "key": "case keenum", "name": "Case Keenum", "pos": "QB", "team": "CHI", "pts": 11.17}],
+   "groups": [
+    {"team": "CHI", "group": "pass", "d_pts": -9.8}, {"team": "CHI", "group": "rb", "d_pts": 0.1},
+    {"team": "PHI", "group": "pass", "d_pts": 0.9}, {"team": "PHI", "group": "qb", "d_pts": 0.0},
+    {"team": "PHI", "group": "rb", "d_pts": -0.6}
+   ],
+   "moved": [
+    {"key": "colston loveland", "name": "Colston Loveland", "pos": "TE", "team": "CHI", "d_pts": -3.97},
+    {"key": "luther burden", "name": "Luther Burden", "pos": "WR", "team": "CHI", "d_pts": -3.21},
+    {"key": "rome odunze", "name": "Rome Odunze", "pos": "WR", "team": "CHI", "d_pts": -1.7},
+    {"key": "cole kmet", "name": "Cole Kmet", "pos": "TE", "team": "CHI", "d_pts": -0.82}
+   ],
+   "calls": [
+    {"key": "saquon barkley", "name": "Saquon Barkley", "pos": "RB", "team": "PHI", "pts": 11.6, "call": "BEST"},
+    {"key": "devonta smith", "name": "DeVonta Smith", "pos": "WR", "team": "PHI", "pts": 10.3, "call": "BEST"},
+    {"key": "luther burden", "name": "Luther Burden III", "pos": "WR", "team": "CHI", "pts": 8.1, "call": "START"}
+   ],
+   "projected": [
+    {"key": "jalen hurts", "name": "Jalen Hurts", "pos": "QB", "team": "PHI", "pts": 17.08},
+    {"key": "dandre swift", "name": "D'Andre Swift", "pos": "RB", "team": "CHI", "pts": 12.77},
+    {"key": "saquon barkley", "name": "Saquon Barkley", "pos": "RB", "team": "PHI", "pts": 11.55},
+    {"key": "case keenum", "name": "Case Keenum", "pos": "QB", "team": "CHI", "pts": 11.17}
+   ]
+  }]
+ },
  "hurt": [
   {
    "key": "puka nacua",

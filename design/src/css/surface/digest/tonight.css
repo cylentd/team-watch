@@ -1,0 +1,24 @@
+/* ============================== DIGEST: TONIGHT ==============================
+   The one bordered, lit object above the ticker: a standalone slot's game (surface/digest/tonight.js).
+   Sky, the colour the Digest already gives a game's conditions; its lists reuse Top 5's shape. */
+/* One card per game, side by side on the wall when Monday has two. */
+.dg-tns{display:grid}
+.dg-tn{margin:12px 10px;border:1px solid rgb(var(--sky-rgb) / .45);border-radius:16px;background:var(--panel);overflow:hidden}
+.dg-tn-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:14px 16px 2px}
+.dg-tn-h b{font-family:var(--disp);font-size:var(--t-5);font-weight:700;letter-spacing:-.01em;line-height:1.1}
+.dg-tn-h time{font-family:var(--mono);font-size:var(--t-1);color:var(--sky);white-space:nowrap}
+.dg-tn-sky{margin:0;padding:0 16px 10px;font-size:var(--t-1);color:var(--ink-3)}
+.dg-tn-story{margin:0 16px 12px;padding:10px 12px;border-radius:10px;background:var(--panel-2);font-size:var(--t-2);line-height:1.45;text-wrap:pretty}
+.dg-tn-story .dn{color:var(--down);font-family:var(--mono)}
+.dg-tn-story .up{color:var(--up);font-family:var(--mono)}
+.dg-tn-lists{padding:0 16px 4px}
+.dg-tn .dg-foot{padding:0 16px 12px}
+/* After kickoff: one line and the way to the live board. */
+.dg-tn.on{border-color:var(--line)}
+.dg-tn-on{margin:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 16px;font-size:var(--t-2);color:var(--ink-2)}
+.dg-tn-on b{color:var(--ink)}
+.dg-tn-on .dg-go{margin-left:auto}
+
+@media (min-width:960px){
+  .dg-tn{margin:0 0 16px}
+}

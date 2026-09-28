@@ -123,6 +123,25 @@ def _news(it):
             "n": n, "rest": _rest(headline, n), "slugs": slugs}
 
 
+def _tonight(t, slugify):
+    """Tonight's standalone game(s), as ff-jarvis cut them (weekly_digest_tonight): every player gets
+    a slug, `next_up` names who he replaces by name, the kickoff comes as words and as ISO UTC."""
+    games = []
+    for g in (t or {}).get("games") or []:
+        out = [{**_player(r, slugify, "pos", "team", "status", "injury")} for r in g.get("out") or []]
+        names = {r["key"]: r["name"] for r in g.get("out") or []}
+        games.append({"away": g["away"], "home": g["home"], "kick": _kick(g.get("kickoff")), "ko": _ko(g.get("kickoff")),
+                      "wx": {k: (g.get("wx") or {}).get(k) for k in ("roof", "temp_f", "wind_mph", "precip_pct", "short")},
+                      "out": out,
+                      "next_up": [{**_player(r, slugify, "pos", "team", "pts"), "for": names.get(r["for"])}
+                                  for r in g.get("next_up") or []],
+                      "groups": [{k: r.get(k) for k in ("team", "group", "d_pts")} for r in g.get("groups") or []],
+                      "moved": [_player(r, slugify, "pos", "team", "d_pts") for r in g.get("moved") or []],
+                      "tcalls": [_player(r, slugify, "pos", "team", "pts", "call") for r in g.get("calls") or []],
+                      "projected": [_player(r, slugify, "pos", "team", "pts") for r in g.get("projected") or []]})
+    return {"tonight": games, "tonight_last": bool((t or {}).get("last"))}
+
+
 def live_digest(p, slugify, schedule=None):
     """None when ff-jarvis has written no packet: the view then says so instead of guessing.
     `schedule` is LIVE_SCHEDULE, for each best-spot and top-5 row's kickoff (`ko`)."""
@@ -149,6 +168,7 @@ def live_digest(p, slugify, schedule=None):
         "top5": [{"pos": pos, **_player(r, slugify, "team", "opp", "pts"), "ko": ko.get(r["team"])}
                  for pos in POS for r in (p.get("top5") or {}).get(pos) or []],
         **_results(p.get("results"), slugify),
+        **_tonight(p.get("tonight"), slugify),
         "up": [_player(r, slugify, "pos", "team", "d_pts", "pts") for r in stock.get("up") or []],
         "down": [_player(r, slugify, "pos", "team", "d_pts", "pts") for r in stock.get("down") or []],
         "gems": [_player(r, slugify, "pos", "team", "usage", "metric", "ecr", "rostered") for r in p.get("gems") or []],
