@@ -121,7 +121,7 @@ function lgLeaguePageHTML(){
   const g = LG.grudge;
   return `<div class="wrap">${lgPageHead(t("league.page.sub", {y: LG.since}))}<div class="lg bp">
     <div class="lg-col">${lgBackWeekHTML()}</div>
-    <div class="lg-col">${g ? lgPairGrudgeHTML(g.a, g.b, t("league.grudge.next"), null) : ""}</div>
+    <div class="lg-col">${g ? lgPairGrudgeHTML(g.a, g.b, t("league.grudge.next"), null) : ""}${(LG.classified || []).map(lgClassifiedHTML).join("")}</div>
   </div></div>`;
 }
 

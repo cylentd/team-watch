@@ -102,6 +102,23 @@ def test_next_grudge_is_the_most_lopsided_pairing(back):
     assert back["grudge"] is None                              # the fixture's pairings met at most twice
 
 
+def test_a_private_pair_leaves_the_page_and_draws_without_names():
+    from league_back import classify, next_grudge
+    rec = lambda w, l, m: {"w": w, "l": l, "t": 0, "m": m}
+    h2h = {"3": {"4": rec(0, 3, [[2024, 1, -5.0, 0]] * 3), "5": rec(1, 0, [])}, "4": {"3": rec(3, 0, [[2024, 1, 5.0, 0]] * 3)}}
+    hidden = classify(h2h, [(3, 4)])
+    assert hidden == [{"w": 3, "l": 0, "t": 0, "m": [[2024, 1, 5.0, 0]] * 3}]    # the leader's side, no ids
+    assert "4" not in h2h["3"] and "3" not in h2h["4"] and "5" in h2h["3"]     # gone both ways, the rest kept
+    assert next_grudge([{"a": 3, "b": 4}], h2h) is None                        # nor can it be next week's grudge
+
+
+def test_the_private_file_names_no_one():
+    """design/league_private.json holds ids and dates only: the repo is not the place for the story."""
+    import json, pathlib
+    raw = json.loads((pathlib.Path(__file__).parents[1] / "design" / "league_private.json").read_text(encoding="utf-8"))
+    assert all(set(p) <= {"a", "b", "asked"} for p in raw["pairs"])
+
+
 def test_without_box_or_roast_the_block_still_draws():
     b = live_league_yahoo(read("yahoo_league.json"), read("yahoo_league_history.json"), read("yahoo_league_owners.json"),
                           read("league_rosters.json"), slugify)

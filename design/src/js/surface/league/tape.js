@@ -60,16 +60,33 @@ function lgMarginsHTML(id, opp, h, o, m){
 /* The inside of a grudge card, redrawn alone by its margins toggle (wireLeague). */
 function lgGrudgeCardHTML(id, opp){
   const h = lgH2H(id, opp) || {w: 0, l: 0, t: 0, m: []}, m = h.m || [];
-  const chips = m.slice(-10).map(x => `<span><i class="${x[2] > 0 ? "w" : "l"}">${x[2] > 0 ? t("league.grudge.w") : t("league.grudge.l")}</i>
-    <small>'${String(x[0]).slice(2)}</small></span>`).join("");
-  const body = !m.length ? "" : LG_MARGINS ? lgMarginsHTML(id, opp, h, lgH2H(opp, id), m)
-    : `<div class="bp-gchips" role="img" aria-label="${t("league.grudge.chipsAria", {n: Math.min(10, m.length)})}">${chips}</div>`;
+  const body = !m.length ? "" : LG_MARGINS ? lgMarginsHTML(id, opp, h, lgH2H(opp, id), m) : lgChipsHTML(m);
   return `<div class="bp-gcard" data-a="${id}" data-b="${opp}">
       <div class="bp-gvs"><span>${lgName(id)}</span><b>${h.t ? `${h.w}–${h.l}–${h.t}` : `${h.w}–${h.l}`}</b><span>${lgName(opp)}</span></div>
       <p class="bp-gline">${lgGrudgeLine(id, opp, h, m)}</p>
       ${body}
       ${m.length ? `<button class="bp-open" data-lgmargins aria-pressed="${LG_MARGINS}">${LG_MARGINS ? t("league.grudge.hideMargins") : t("league.grudge.showMargins")}</button>` : ""}
     </div>`;
+}
+
+/* The last meetings as W/L chips over their years, from the leading side. */
+const lgChipsHTML = m => m.length ? `<div class="bp-gchips" role="img" aria-label="${t("league.grudge.chipsAria", {n: Math.min(10, m.length)})}">${
+  m.slice(-10).map(x => `<span><i class="${x[2] > 0 ? "w" : "l"}">${x[2] > 0 ? t("league.grudge.w") : t("league.grudge.l")}</i>
+    <small>'${String(x[0]).slice(2)}</small></span>`).join("")}</div>` : "";
+
+/* A private pair's series (design/league_private.json): the same card with both names blacked out, drawn
+   every week so the week the two play gives nothing away. The build ships no id with it. */
+function lgClassifiedHTML(c){
+  const bar = `<span class="bp-redact" aria-label="${t("league.classified.name")}"></span>`;
+  const line = !c.l && !c.t ? t("league.classified.never", {n: c.w}) : t("league.classified.owns");
+  return `<section class="lg-sec bp-grudge" aria-label="${t("league.classified.title")}">
+    <h3 class="bp-hd">${t("league.classified.title")}<span>${t("league.classified.sub")}</span></h3>
+    <div class="bp-gcard">
+      <div class="bp-gvs">${bar}<b>${c.t ? `${c.w}–${c.l}–${c.t}` : `${c.w}–${c.l}`}</b>${bar}</div>
+      <p class="bp-gline">${line}</p>
+      ${lgChipsHTML(c.m)}
+    </div>
+  </section>`;
 }
 
 /* One pairing's grudge card, from `id`'s side: My recap's own, or the league page's biggest one. */

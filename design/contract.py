@@ -51,7 +51,7 @@ LEAGUE_SPEC = {
 # last-place seasons (the tape), each week's headline and dek (null when the roast skipped it), and
 # the record book.
 LEAGUE_YAHOO_SPEC = {
-    "keys": LEAGUE_SPEC["keys"] + ["book", "grudge"],
+    "keys": LEAGUE_SPEC["keys"] + ["book", "grudge", "classified"],
     "rows": [("teams", ["id", "name", "key", "w", "l", "t", "all", "titles", "lasts"]),
              ("weeks", ["week", "games", "awards", "head", "dek", "table"])] + LEAGUE_SPEC["rows"][2:],
 }

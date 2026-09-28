@@ -15,7 +15,7 @@ Nothing here advises anyone: results, awards and history are already public insi
 """
 import re
 
-from league_back import add_meets, add_standings, add_tape, book, enrich_weeks, last_places, next_grudge
+from league_back import add_meets, add_standings, add_tape, book, classify, enrich_weeks, last_places, next_grudge, private_pairs
 
 AWARDS = ("top", "low", "blow", "close", "luck", "unluck")
 
@@ -229,6 +229,7 @@ def live_league_yahoo(season, history, owners, rosters, slugify, box=None, recap
     enrich_weeks(block["weeks"], box, recap)
     add_standings(block["weeks"], [t["id"] for t in block["teams"]])
     add_meets(block["h2h"], games)
+    block["classified"] = classify(block["h2h"], private_pairs())
     block["grudge"] = next_grudge(block["now"], block["h2h"])
     lasts = last_places(games, season["season"])
     add_tape(block["teams"], games, champs, lasts)

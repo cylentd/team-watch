@@ -11,7 +11,11 @@ what LIVE_LEAGUE_YAHOO carries on top of league_recap's recap and history.
 
 ESPN's league is David's work league and keeps the plain view, so none of this is built for it.
 Everything here is results the league already knows (memory feedback_no_edge_for_leaguemates).
+- private pairs (design/league_private.json): a pair's head-to-head leaves the page, and the series
+  draws as a "classified" grudge card with both names withheld (a manager's ask, 2026-09-27).
 """
+import json
+import os
 
 
 def _rec(r):
@@ -96,6 +100,30 @@ def next_grudge(now, h2h):
         if not best or key > best[0]:
             best = (key, {"a": g["a"], "b": g["b"]} if r["w"] >= r["l"] else {"a": g["b"], "b": g["a"]})
     return best[1] if best else None
+
+
+PRIVATE = os.path.join(os.path.dirname(__file__), "league_private.json")
+
+
+def private_pairs(path=PRIVATE):
+    """[(a, b)]: the Yahoo pairs a manager asked to keep off the page (design/league_private.json)."""
+    if not os.path.exists(path):
+        return []
+    return [(p["a"], p["b"]) for p in json.load(open(path, encoding="utf-8")).get("pairs", [])]
+
+
+def classify(h2h, pairs):
+    """Take each private pair's head-to-head out of `h2h` (both ways), so no name ships with it, and
+    return the series without names: [{w, l, t, m}] from the side that leads it. The page draws each as a
+    grudge card with the names withheld, every week, so the week the two play gives nothing away."""
+    out = []
+    for a, b in pairs:
+        ra = (h2h.get(str(a)) or {}).pop(str(b), None)
+        rb = (h2h.get(str(b)) or {}).pop(str(a), None)
+        lead = ra if ra and rb and ra["w"] >= rb["w"] else rb
+        if lead and lead["w"] + lead["l"] + lead["t"]:
+            out.append({k: lead[k] for k in ("w", "l", "t")} | {"m": lead.get("m", [])})
+    return out
 
 
 def add_meets(h2h, games):

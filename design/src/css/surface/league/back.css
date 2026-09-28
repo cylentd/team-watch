@@ -82,6 +82,9 @@
 .bp-gvs span:last-child{text-align:right;color:var(--ink-2)}
 .bp-gvs b{font-family:var(--tab);font-size:var(--t-7);font-weight:900;line-height:1;font-variant-numeric:tabular-nums}
 .bp-gline{margin:0;font-size:var(--t-3);line-height:1.45}
+/* a name withheld on request: a black censor bar, as on a redacted document */
+.bp-redact{display:block;height:1.1em;width:100%;max-width:120px;border-radius:2px;background:var(--ink);transform:rotate(-1.5deg)}
+.bp-gvs .bp-redact:last-child{justify-self:end;transform:rotate(1.5deg)}
 .bp-gline b{color:var(--ink);font-weight:800}
 .bp-gchips{display:flex;gap:5px}
 .bp-gchips span{flex:1;display:grid;gap:3px;text-align:center;min-width:0}
