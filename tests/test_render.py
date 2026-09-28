@@ -143,7 +143,11 @@ STATES = [
     # weather, best-spot and top-5 rows are gone in the browser, Puka's lead gives way to the
     # results, and Monday opens Results (2026-09-28).
     ("digest-monday", [("eval", 'Date.now = () => Date.parse("2026-09-28T13:00:00Z")')] + go("digest")),
-    ("digest-top5", go("digest") + [("click", "[data-dgrow='t5'] .dg-head")]),
+    # Top 5 sits below Results on a phone: opening it scrolls, and whether the header had slid away
+    # by the snapshot was timing (the rebuild job's run 2026-09-28 caught it both ways). Back to the
+    # top, instantly, the header is always shown.
+    ("digest-top5", go("digest") + [("click", "[data-dgrow='t5'] .dg-head"),
+                                    ("eval", "window.scrollTo({top: 0, behavior: 'instant'})")]),
     ("digest-empty", [("eval", "Object.assign(LIVE_DIGEST, {lead: null, hurt: [], calls: 0, record: null, best: [],"
                                " wx: [], near: null, adds: [], top5: [], up: [], down: [], gems: [], news: []})")]
                      + go("digest")),
