@@ -77,7 +77,7 @@ function navTabsOf(group){
    one worth a badge. A team switch repaints it (teamswitch.js). */
 function navCount(leaf){
   // A leaguemate's count would be David's claim list, so theirs has none, nor a reader yet to pick.
-  if (leaf !== "waivers" || !WAIVER || notMine(TEAMS[VIEW]) || needsPick()) return "";
+  if (leaf !== "waivers" || !WAIVER || notMine(TEAMS[VIEW]) || needsPick() || !isOwner()) return "";
   return ` <span class="tabcount">${waiverIn(VIEW).filter(([r]) => waiverTier(r, VIEW) !== "stash").length}</span>`;
 }
 

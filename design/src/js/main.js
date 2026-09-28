@@ -12,4 +12,11 @@ buildFresh();  // is /build.json still ours? asked on a tab click and on returni
 buildChat();   // the chat panel: outside #view, so it is wired once rather than per render
 buildLive();   // one poll timer for the life of the page, inert unless the Live tab is on screen
 buildConnect(); // a #connect=... hash from the ESPN bookmark opens the sheet and connects
+// David's #owner-<token> link makes this browser his (data/owner.js), then opens his Waivers.
+ownerClaim().then(ok => {
+  if (!ok) return;
+  if (!myTeamLoad()) myTeamSave("yahoo");
+  VIEW = myTeamLoad(); SURFACE = "waivers"; SEARCH_INDEX = null;
+  render(); paintSubnav();
+});
 connectLoad();  // leagues this browser connected before (api/league.py), added to TEAMS

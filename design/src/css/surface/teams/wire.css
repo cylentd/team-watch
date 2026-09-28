@@ -22,6 +22,20 @@
 /* A leaguemate's Waivers (2026-09-26): the rail, then one line where the cards would be. */
 .wv-mate{margin:24px 0;padding:14px 16px;border:1px dashed var(--line-2);border-radius:12px;
   font-size:var(--t-2);line-height:1.5;color:var(--ink-2);max-width:60ch}
+/* Waivers for anyone but David (hot.js, 2026-09-27): the league-wide Most added list, one row a
+   player: the name opens the profile, the rostered % moves from last week to this one. */
+.wv-hot{margin-top:18px}
+.wv-hot-sub{margin:6px 0 4px;font-size:var(--t-1);color:var(--ink-3)}
+.wv-hot ol{margin:0;padding:0;list-style:none}
+.wv-hot li{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line)}
+.wv-hot-p{flex:1;min-width:0;min-height:48px;display:grid;gap:1px;padding:8px 0;appearance:none;background:none;border:0;
+  color:var(--ink);font-family:var(--ui);text-align:left;cursor:pointer}
+.wv-hot-p b{font-size:var(--t-3);font-weight:700}
+.wv-hot-p span{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.wv-hot-p:hover b{color:var(--lime)}
+.wv-hot-p:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.wv-hot-pct{flex:none;font-family:var(--mono);font-size:var(--t-2);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.wv-hot-pct b{color:var(--up)}
 /* "Must claim · 1": the count sits against its title, not out on the rule's gap. */
 .rule .wv-count{margin-left:-8px;letter-spacing:.06em}
 .tabcount{margin-left:5px;color:var(--ink-3)}

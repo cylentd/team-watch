@@ -21,7 +21,17 @@ pytestmark = pytest.mark.render
 GOLDEN_FILE = "render.json"
 # My teams asks whose team first (teamswitch.js pickHTML, 2026-09-27). Every page here reads as David
 # on his own Yahoo team unless a test picked another; the picker's own tests clear it (test_picker.py).
-PICKED = 'try { if (!localStorage.getItem("tw-team")) localStorage.setItem("tw-team", "yahoo"); } catch (e) {}\n'
+# And as David's own browser (data/owner.js): his Waivers, not the Most added list, unless a test
+# clears tw-owner. The hash is read from owner.js, so a new token never needs a test edit.
+def _owner_hash():
+    import pathlib
+    src = (pathlib.Path(__file__).parents[1] / "design" / "src" / "js" / "data" / "owner.js").read_text(encoding="utf-8")
+    return re.search(r'OWNER_HASH = "([0-9a-f]{64})"', src).group(1)
+
+
+OWNER_HASH = _owner_hash()
+PICKED = ('try { if (!localStorage.getItem("tw-team")) localStorage.setItem("tw-team", "yahoo");'
+          f' if (localStorage.getItem("tw-owner") === null) localStorage.setItem("tw-owner", "{OWNER_HASH}"); }} catch (e) {{}}\n')
 VIEWPORTS = {"desk": (1400, 900), "phone": (390, 844)}
 PROPS = ["color", "background-color", "border-top-color", "border-top-style", "border-top-width",
          "padding-top", "padding-left", "margin-top", "gap", "font-family", "font-size",
@@ -139,6 +149,8 @@ STATES = [
     # SEED is a Saturday, so these are wire-watch mode (the rail leads, every row shown).
     ("waivers-espn", [("eval", "VIEW='espn'; render()")] + go("waivers")),
     ("waivers-yahoo", go("waivers")),
+    # Anyone but David (data/owner.js): the league-wide Most added list in place of his advice.
+    ("waivers-visitor", [("eval", "localStorage.setItem('tw-owner', '')")] + go("waivers")),
     ("waivers-claimday", [("eval", 'Date.now = () => Date.parse("2026-09-22T12:00:00Z")')] + go("waivers")),
     # The first card that flips: on a phone the Must claim, on a desktop (where a Must claim lies
     # open with no flip) the first Worth a claim.

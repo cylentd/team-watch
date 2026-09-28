@@ -132,6 +132,16 @@ replaced the "Not your team? Pick yours" nudge under David's team name, which le
 David's roster and claim advice by default. Connecting a league counts as the pick.
 
 Phase 3 (per-team waiver advice) is shelved, 2026-09-26: it would help leaguemates beat David.
+(Built on 2026-09-27 and tabled the same night, unlanded: ff-jarvis branch `waiver-teams`, team-watch
+branch `worktree-waiver-teams`.)
+
+**David's waiver advice is his browser's alone (2026-09-27).** `data/owner.js`: a browser that opened
+`#owner-<token>` once (the page ships only its SHA-256; the link is wiped from the address bar) is
+David's. Anyone else, whatever team is picked, David's included, gets Waivers as the league-wide
+**Most added** list (`surface/teams/hot.js`, the Digest's `adds`), a hero with the day and clear time
+only, no tab count, no waiver line in the roster brief, and no waiver rows in search. The advice is
+still in the page source (LIVE_WAIVER): hidden from the screen, not from DevTools, David's choice
+over encrypting it. Tests seed the owner key (`test_render.PICKED`); `test_waiver_owner.py` clears it.
 What a leaguemate sees stays fun and shared, never advice.
 
 ## League (sub-tab of My teams, 2026-09-26)

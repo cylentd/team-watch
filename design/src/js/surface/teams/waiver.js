@@ -38,6 +38,8 @@ function wvCardsHTML(key){
 /* `motion` is wvMotionTake()'s {deal, since}: whether the cards are dealt, and which rail rows
    are new. The markup is otherwise the same on every render. */
 function waiverHTML(motion){
+  // Anyone but David (data/owner.js) gets the league-wide Most added list, whatever team is on screen.
+  if (!isOwner()) return wvHotHTML();
   if (!WAIVER) return `<div class="state-empty wv-empty"><div><b>—</b><span>${t("waiver.empty.noPacket")}</span></div></div>`;
   const team = TEAMS[VIEW], key = waiverKey(team), mate = notMine(team);
   if (!waiverMeta()[key]) return `<div class="state-empty wv-empty"><div><b>—</b><span>${t("waiver.hero.none")}</span></div></div>`;
@@ -54,7 +56,7 @@ function waiverHTML(motion){
 /* The hero on Waivers, one line for the league on screen: which day of the week it is for the
    wire, when its claims clear, how many must-claims are open there, and what is left to bid. */
 function waiverHeroHTML(team){
-  const key = waiverKey(team), mate = notMine(team);
+  const key = waiverKey(team), mate = notMine(team) || !isOwner();   // David's numbers are his browser's alone
   const meta = waiverMeta()[key];
   if (!meta) return `<p class="wvhero empty">${t("waiver.hero.none")}</p>`;
   const when = waiverWhen(meta.clears || (WAIVER && WAIVER.clears));

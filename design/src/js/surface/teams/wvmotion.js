@@ -62,4 +62,5 @@ function wvLive(card){
 function wireWaivers(v){
   v.querySelectorAll(".wvc-flip").forEach(b => b.addEventListener("click", () => wvFlip(b.closest(".wvc"))));
   wvDesk(v);
+  wireHot(v);   // the Most added list, for anyone but David (hot.js)
 }

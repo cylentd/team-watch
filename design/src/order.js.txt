@@ -17,6 +17,7 @@ data/connect.js
 data/mates.js
 data/news.js
 data/stock.js
+data/owner.js
 data/waiver.js
 data/wire.js
 data/teamcolors.js
@@ -45,6 +46,7 @@ surface/teams/wback.js
 surface/teams/rail.js
 surface/teams/wvmotion.js
 surface/teams/wdesk.js
+surface/teams/hot.js
 surface/teams/waiver.js
 surface/profile/facts.js
 surface/profile/tags.js

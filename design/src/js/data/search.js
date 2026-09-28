@@ -20,7 +20,7 @@ function searchSources(){
     ...mine,
     ...live(!!LIVE_MARKET, PROPS),
     ...live(!!LIVE_YAHOO_DFS, DFSPOOL_YAHOO),
-    ...live(!!WAIVER, waiverPlayers()),
+    ...live(!!WAIVER && isOwner(), waiverPlayers()),   // David's claim list is his browser's alone
     ...live(typeof LIVE_POOL !== "undefined" && !!LIVE_POOL, POOL),
     ...grid.map(p => [p, "grid"]),
   ];
