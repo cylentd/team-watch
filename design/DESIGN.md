@@ -690,7 +690,16 @@ already inside the projection. The WR effect tests null, so a WR never gets one.
 | Foot | what makes a take, and the 1 / 0.5 / 0 scale (week 1 counts half) |
 
 - **The record leads.** It is the trust question. Through week 2 of 2026 ours read 0.32 against
-  Pitcher List's 0.67 (2026-09-25), and the strip says so without softening.
+  Pitcher List's 0.67 (2026-09-25), and the strip says so without softening. FantasyPros joined it
+  2026-09-29, scored on our takes (the other call on each disagreement).
+- **v2 from week 4** (ff-jarvis METHODOLOGY 12.64 + Amendment 1, 2026-09-29; David: "we can miss,
+  that's fine, but let's learn from it"). Every rank-gap take counts, each marked Backed (a reason
+  points its way: work up 1.5+ a game over his last 2, a matchup worth 0.5+, a top- or bottom-8
+  team total, the player ahead of him out) or Gut. Once a v2 week is graded the bars are v2's on
+  the clean set (a take an injury decided is left out, "that's just bad luck"), the line under them
+  splits backed against gut and keeps v1's weeks 1-3 small, and "Week N: how the takes did" lists
+  every take with Hit / Close / Miss and, for a miss, its cause: injury (dimmed, left out), his
+  role shrank, touchdowns flipped a call right on yards, or a wrong read.
 - **Rows open in place**, one open across both lists. Ours opens to up to four evidence chips
   (green for, amber "but ..." against), the projection's source and a link to the profile.
   Pitcher List's opens to their own words (clamped to five lines) and a link to the column.

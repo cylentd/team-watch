@@ -8,10 +8,13 @@
 const MU_ARROW = `<svg class="mu-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5L12 8l-3.5 3.5"/></svg>`;
 const muTag = tag => tag === "sit" ? t("matchups.call.sit") : t("matchups.call.start");
 
-/* "CIN @ PIT · Sun 10:00 AM", or the game alone when the schedule does not hold it. */
+/* "CIN @ PIT · Sun 10:00 AM", or the game alone when the schedule does not hold it. Our takes add
+   whether a reason backs them (v2), so a gut call is visible before the row is opened. */
 function muMeta(r){
   const kick = muKick(r);
-  return kick ? t("matchups.row.meta", {game: muVs(r), kick: esc(kick)}) : muVs(r);
+  const base = kick ? t("matchups.row.meta", {game: muVs(r), kick: esc(kick)}) : muVs(r);
+  if (!("backed" in r)) return base;
+  return `${base} · <span class="mu-bk${r.backed ? " yes" : ""}">${r.backed ? t("matchups.row.backed") : t("matchups.row.gut")}</span>`;
 }
 
 function muRowHTML(key, r, tag, right, body){
@@ -28,8 +31,11 @@ function muRowHTML(key, r, tag, right, body){
    would make the page and the record disagree. */
 function muCallHTML(r){
   const ecr = r.ecr == null ? "—" : r.ecr;
-  const unbacked = r.why.length ? "" : `<span class="mu-ev con">${t("matchups.row.unbacked")}</span>`;
-  const body = `<div class="mu-evs">${unbacked}${muEvidence(r, 4)}</div>
+  // v2 (week 4 on): the reasons pointing the take's way lead; with none it is a gut call, said once.
+  const reasons = (r.reasons || []).length
+    ? `<p class="mu-why"><b>${t("matchups.row.backed")}</b> ${r.reasons.map(w => esc(w.t)).join(" · ")}</p>`
+    : `<p class="mu-why gut"><b>${t("matchups.row.gut")}</b> ${t("matchups.row.gutWhy")}</p>`;
+  const body = `${reasons}<div class="mu-evs">${muEvidence(r, 4)}</div>
     <p class="mu-src"><span>${t("matchups.row.src", {pts: r.pts.toFixed(1)})}</span>
       <button type="button" class="mu-go" data-muslug="${esc(r.slug)}">${t("matchups.row.profile")}${MU_ARROW}</button></p>`;
   const tag = `<span class="mu-tag pos ${esc(r.pos.toLowerCase())}">${esc(r.pos)}</span>`;

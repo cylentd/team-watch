@@ -9,7 +9,7 @@
    ], "sit": [], "counts": {"projected": 40, "start": 1, "sit": 0}},
   "RB": {"best": {"key": "jahmyr gibbs", "name": "Jahmyr Gibbs", "pos": "RB", "team": "DET", "opp": "CHI", "game": "CHI @ DET", "kickoff": "2026-09-27 17:00:00", "pts": 19.4, "rank": 2, "ecr": 2, "own": 99.8, "why": [["vol", 1, "19 touches a game, 64% snaps"], ["mx", 1, "CHI run D: 2nd softest"]], "but": []},
    "start": [
-    {"key": "chase brown", "name": "Chase Brown", "gap_n": 1.33, "pos": "RB", "team": "CIN", "opp": "PIT", "game": "CIN @ PIT", "kickoff": "2026-09-27 17:00:00", "pts": 11.8, "rank": 27, "ecr": 35, "own": 88.0, "why": [["vol", 1, "16 touches a game, 70% snaps"], ["rz", 1, "4 red-zone touches in 2 games"]], "but": []}
+    {"key": "chase brown", "name": "Chase Brown", "gap_n": 1.33, "pos": "RB", "team": "CIN", "opp": "PIT", "game": "CIN @ PIT", "kickoff": "2026-09-27 17:00:00", "pts": 11.8, "rank": 27, "ecr": 35, "own": 88.0, "why": [["vol", 1, "16 touches a game, 70% snaps"], ["rz", 1, "4 red-zone touches in 2 games"]], "but": [], "reasons": [{"k": "script", "text": "Team total 27.5, 3rd of 32"}, {"k": "role", "text": "Work up 2.1 a game over his last 2"}]}
    ], "sit": [], "counts": {"projected": 90, "start": 1, "sit": 0}},
   "WR": {"best": null, "start": [
     {"key": "tee higgins", "name": "Tee Higgins", "gap_n": 1.33, "pos": "WR", "team": "CIN", "opp": "PIT", "game": "CIN @ PIT", "kickoff": "2026-09-27 17:00:00", "pts": 11.1, "rank": 28, "ecr": 36, "own": 90.1, "why": [["vol", 1, "24% target share"], ["mx", 1, "PIT D vs WRs: 3rd softest"]], "but": [["rz", -1, "No red-zone targets in 2 games"]]}

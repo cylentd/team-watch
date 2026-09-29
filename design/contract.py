@@ -292,12 +292,12 @@ CONTRACT = {
                           "ol_starters_out_reason"]),
     },
     # design/startsit.py, the Takes view (leaf `matchups`). `tag` is start|sit; `ecr`, `own` and
-    # `gap` may be null (`gap` on calls written before 2026-09-29). `record` is null until a week is
-    # graded; `pl` is empty when Pitcher List's column is not this week's, and `article` null with it.
+    # `gap` may be null (`gap` on calls written before 2026-09-29); `reasons` may be empty (a gut
+    # call). `record` is null until a week is graded, its `v2` and `review` until a v2 week (4+) is; `pl` is empty when Pitcher List's column is not this week's, and `article` null with it.
     "LIVE_STARTSIT": {
-        "keys": ["week", "experts_week", "generated", "calls", "pl", "article", "record"],
+        "keys": ["week", "experts_week", "generated", "calls", "pl", "article", "record", "review"],
         "rows": [("calls", ["tag", "n", "slug", "pos", "team", "opp", "home", "pts", "rank", "ecr", "own",
-                            "gap", "why", "but"]),
+                            "gap", "why", "but", "reasons", "backed"]),
                  ("pl", ["call", "pos", "n", "slug", "team", "opp", "home", "rationale"])],
     },
     # design/role.py, Players > Role (leaf `movers`). A row's `prev` is null when he played under 4

@@ -48,6 +48,7 @@ function matchupsHTML(){
   return `<div class="mu">
     ${muRecordHTML()}
     <div class="mu-cols"><div class="mu-cols-in">${muOursHTML()}${muPlHTML()}</div></div>
+    ${muReviewHTML()}
     <p class="mu-foot">${t("matchups.foot")} ${t("matchups.record.scale")}</p>
   </div>`;
 }

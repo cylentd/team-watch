@@ -28,7 +28,11 @@ def _call(r, tag, slugify):
             "opp": r["opp"], "home": _home(r), "pts": r["pts"], "rank": r["rank"], "ecr": r.get("ecr"),
             "gap": r.get("gap_n"),
             "own": r.get("own"), "why": [{"k": w[0], "t": w[2]} for w in r.get("why") or []],
-            "but": [w[2] for w in r.get("but") or []]}
+            "but": [w[2] for w in r.get("but") or []],
+            # v2 (METHODOLOGY 12.64 + Amendment 1, from week 4): the reasons pointing the same way
+            # (role, mx, script, door); a take with none is a gut call, graded all the same.
+            "reasons": [{"k": w["k"], "t": w["text"]} for w in r.get("reasons") or []],
+            "backed": bool(r.get("reasons"))}
 
 
 def _pl(c, slugify):
@@ -45,7 +49,34 @@ def _record(grade):
     # the other call. Null in a grade file written before ff-jarvis graded that side.
     fp = rec.get("fantasypros")
     return {"through": grade["week"], "weeks": rec["weeks"], "ours": side(rec.get("ours") or {}),
-            "pl": side(rec.get("pitcherlist") or {}), "fp": side(fp) if fp else None}
+            "pl": side(rec.get("pitcherlist") or {}), "fp": side(fp) if fp else None, "v2": _v2(rec)}
+
+
+def _v2(rec):
+    """The v2 record (week 4 on), or None until a v2 week is graded. `clean` leaves out the takes an
+    injury decided (ruled out after the call, or left early and on the injury report), David's
+    'that's just bad luck'; `backed` and `gut` split the takes by whether a reason came with them."""
+    ours, fp = rec.get("ours_v2") or {}, rec.get("fantasypros_v2") or {}
+    if not ours.get("n"):
+        return None
+    ns = lambda s: {"n": (s or {}).get("n", 0), "score": (s or {}).get("score")}
+    causes = ours.get("causes") or {}
+    return {"ours": {**ns(ours), "clean": ns(ours.get("clean")), "backed": ns(ours.get("backed")),
+                     "gut": ns(ours.get("gut")), "causes": {k: causes.get(k, 0) for k in ("injury", "role", "td", "read")}},
+            "fp": {**ns(fp), "clean": ns(fp.get("clean"))}}
+
+
+def _review(grade, slugify):
+    """Last graded week's v2 takes, each with its result and, for a miss, why: the page's 'learn
+    from it' list. None before a v2 week is graded."""
+    rows = (((grade or {}).get("startsit") or {}).get("ours_v2") or {}).get("calls") or []
+    if not rows:
+        return None
+    return {"week": grade["week"], "rows": [
+        {"n": r["name"], "slug": slugify(r["name"]), "pos": r["pos"], "team": r.get("team"),
+         "call": (r.get("call") or "").lower(), "score": r.get("score"), "cause": r.get("cause"),
+         "note": r.get("cause_note"), "backed": bool(r.get("backed")), "finish": r.get("finish")}
+        for r in rows]}
 
 
 def live_startsit(calls, pl, grade, slugify):
@@ -64,7 +95,8 @@ def live_startsit(calls, pl, grade, slugify):
     experts = (calls.get("inputs") or {}).get("expert_week")
     return {"week": calls["week"], "experts_week": experts, "generated": calls.get("generated"), "calls": rows,
             "pl": [_pl(c, slugify) for c in pl["calls"]] if same_week else [],
-            "article": pl.get("article") if same_week else None, "record": _record(grade)}
+            "article": pl.get("article") if same_week else None, "record": _record(grade),
+            "review": _review(grade, slugify)}
 
 
 def report(block):

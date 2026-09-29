@@ -283,6 +283,18 @@ STATES = [
     # The record with FantasyPros graded on our takes (2026-09-29): three bars, the best lime.
     ("matchups-fp", [("eval", "LIVE_STARTSIT.record.fp = {n: 31, score: 0.676, score_no_dnp: 0.663}")]
                     + go("matchups")),
+    # Takes v2 graded (week 4 on, METHODOLOGY 12.64): the clean bars with the backed/gut line, and
+    # last week's takes with their causes; an injury miss dimmed, left out of the score.
+    ("matchups-v2", [("eval", """Object.assign(LIVE_STARTSIT.record, {v2: {
+        ours: {n: 16, score: .47, clean: {n: 15, score: .5}, backed: {n: 6, score: .58}, gut: {n: 10, score: .4},
+               causes: {injury: 1, role: 2, td: 3, read: 3}},
+        fp: {n: 16, score: .53, clean: {n: 15, score: .5}}}, weeks: [1, 2, 3, 4], through: 4});
+      LIVE_STARTSIT.review = {week: 4, rows: [
+        {n: 'Chase Brown', slug: 'chase-brown', pos: 'RB', team: 'CIN', call: 'start', score: 1, cause: 'hit', note: null, backed: true, finish: 14},
+        {n: 'Tee Higgins', slug: 'tee-higgins', pos: 'WR', team: 'CIN', call: 'start', score: 0, cause: 'injury', note: 'did not play', backed: false, finish: null},
+        {n: 'Amon-Ra St. Brown', slug: 'amon-ra-st-brown', pos: 'WR', team: 'DET', call: 'sit', score: 0, cause: 'td', note: 'finish without TDs 31', backed: false, finish: 9},
+        {n: 'Brock Purdy', slug: 'brock-purdy', pos: 'QB', team: 'SF', call: 'start', score: .5, cause: 'read', note: null, backed: true, finish: 16}]};""")]
+                    + go("matchups")),
     ("matchups-early",[("eval", "Object.assign(LIVE_STARTSIT, {calls: [], experts_week: LIVE_STARTSIT.week - 1})")]
                        + go("matchups")),
     ("usage", go("usage")),
