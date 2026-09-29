@@ -195,20 +195,27 @@ def match(pg):
 def test_the_slate_lists_every_game_by_window(page):
     wins = page.evaluate("""() => [...document.querySelectorAll('.pv-win')].map(w => [
         w.querySelector('.pv-wh span').textContent, [...w.querySelectorAll('.pv-rm')].map(r => r.textContent)])""")
-    assert wins == [["Thu night", ["PIT @ CLE"]], ["Sun morning", ["JAX @ LA"]], ["Sun early", ["DET @ CAR"]],
-                    ["Sun late", ["SF @ NYJ"]], ["Mon night", ["ATL @ NO"]]]
+    assert wins == [["Thursday night", ["PIT @ CLE"]], ["Sunday morning", ["JAX @ LA"]], ["Sunday early", ["DET @ CAR"]],
+                    ["Sunday late", ["SF @ NYJ"]], ["Monday night", ["ATL @ NO"]]]
     assert page.inner_text(".pv-wh em >> nth=0") .upper() == "8:15 PM ET"
     assert not is_open(page) and not page.is_visible(".pv-dz")
 
 
 @pytest.mark.render
-def test_a_row_is_the_call_then_the_headline_and_one_flag(page):
+def test_a_row_is_the_call_then_the_headline(page):
     """Storyboard option C (2026-09-29, David: "super busy"): two lines, like a newspaper's index.
-    Win %, the score and the total live in the game's box score, not on the slate."""
-    flags = page.evaluate("""() => [...document.querySelectorAll('.pv-row')].map(r => {
-        const f = r.querySelector('.pv-flag'); return f ? f.innerText.trim() : null; })""")
-    assert flags == ["Short week", "UPSET", "Rain 56%", "UPSET", None]  # the producer's first flag only
-    assert page.locator(".pv-slate .pv-pb, .pv-slate .pv-key, .pv-slate .pv-meta").count() == 0
+    Win %, the score and the total live in the game's box score, not on the slate. Option B (the
+    same day, "too many things screaming for attention"): no flags, and lime only on the game on
+    screen and a confident pick."""
+    assert page.locator(".pv-slate .pv-pb, .pv-slate .pv-key, .pv-slate .pv-meta, .pv-slate .pv-f").count() == 0
+    lime = page.evaluate("""() => { const lime = getComputedStyle(document.documentElement).getPropertyValue('--lime').trim();
+        const probe = document.createElement('i'); probe.style.color = lime; document.body.append(probe);
+        const rgb = getComputedStyle(probe).color; probe.remove();
+        return [...document.querySelectorAll('.pv-slate *')].filter(e => e.children.length === 0 &&
+          (getComputedStyle(e).color === rgb || getComputedStyle(e).backgroundColor === rgb)).map(e => e.innerText.trim()); }""")
+    assert lime == ["Very confident", "Confident"]                      # the phone has no game on screen
+    wh = page.evaluate("getComputedStyle(document.querySelector('.pv-wh')).fontFamily")
+    assert wh.startswith("Newsreader")                                   # the day reads as a section head
     assert page.evaluate("getComputedStyle(document.querySelector('.pv-rh')).fontFamily").startswith("Newsreader")
     assert "Claude's call arrives" in page.inner_text("[data-pvopen='4']")
 
@@ -219,7 +226,7 @@ def texts(pg, sel):
 
 @pytest.mark.render
 def test_a_row_carries_claudes_side_and_its_chip(page):
-    assert texts(page, ".pv-ats") == ["NO EDGE", "JAX getting 3 STRONG", "DET giving 3.5 SOLID", "SF getting 1.5 LEAN"]
+    assert texts(page, ".pv-ats") == ["No pick", "JAX getting 3 Very confident", "DET giving 3.5 Confident", "SF getting 1.5 Slight"]
     chips = page.evaluate("() => [...document.querySelectorAll('.pv-row .pv-conf')].map(c => c.className)")
     assert chips == ["pv-conf none", "pv-conf strong", "pv-conf solid", "pv-conf lean"]
     assert page.locator("[data-pvopen='4'] .pv-ats").count() == 0      # no take, no chip
@@ -260,12 +267,12 @@ def test_the_game_page_reads_like_a_newspaper(page):
     assert box == ["win", "lines", "matchup", "inj", "wx", "rest"]
     assert page.evaluate("getComputedStyle(document.querySelector('.pv-head')).fontFamily").startswith("Newsreader")
     call = page.inner_text(".pvn-call").replace("\n", " ")
-    for want in ("The call.", "DET giving 3.5", "SOLID", "Carolina without Coker",
+    for want in ("The call.", "DET giving 3.5", "Confident", "Carolina without Coker",
                  "Claude before seeing the line: DET by 1.5, total 48.5"):
         assert want in call, want
     assert "moved it to 11" in page.inner_text(".pvn-call .pv-vsb")
     lines = page.inner_text(".pva.lines").replace("\n", " ")
-    assert "Claude's total Under LEAN" in lines and "50.5" in lines
+    assert "Claude's total Under Slight" in lines and "50.5" in lines
     assert texts(page, ".pv-notes li") == ["Carolina has allowed 5.1 yards a carry since week 1. espn.com",
                                            "Gibbs took 11 of Detroit's 14 red-zone carries last week. play-by-play",
                                            "Coker was ruled out Friday."]
@@ -293,8 +300,8 @@ def open_record(pg):
 @pytest.mark.render
 def test_the_record_card_opens_every_week_and_back_closes_it(page):
     card = page.inner_text("[data-pvrec]").replace("\n", " ")
-    for want in ("CLAUDE VS THE SPREAD", "EVERY WEEK", "4–2–1", "VS SPREAD", "67% hit", "STRONG 1–0–1", "SOLID 1–1",
-                 "LEAN 2–1", "Win % closer than the market's on 4 of 7", "Blind number vs spread 4–3",
+    for want in ("CLAUDE VS THE SPREAD", "EVERY WEEK", "4–2–1", "VS SPREAD", "67% hit", "Very confident 1–0–1", "Confident 1–1",
+                 "Slight 2–1", "Win % closer than the market's on 4 of 7", "Blind number vs spread 4–3",
                  "Margin error: blind 9.1, market 8.4"):
         assert want in card, want
     assert page.locator(".pv-rec").evaluate("e => e.getBoundingClientRect().top") < page.locator(".pv-win").first.evaluate(
@@ -312,7 +319,7 @@ def test_the_record_card_opens_every_week_and_back_closes_it(page):
     assert opened == [True, False]                                       # the newest week open
     assert texts(page, ".pv-rw[open] .pv-hit") == ["MISS", "PUSH", "HIT", "MISS"]
     assert page.locator(".pv-rw[open] .pv-hit.hit").count() == 1 and page.locator(".pv-rw[open] .pv-hit.miss").count() == 2
-    assert texts(page, ".pv-rw[open] .pv-rg-a")[:2] == ["NYJ giving 1.5 SOLID", "LA giving 3 STRONG"]
+    assert texts(page, ".pv-rw[open] .pv-rg-a")[:2] == ["NYJ giving 1.5 Confident", "LA giving 3 Very confident"]
     assert "NE 20–13" in page.inner_text(".pv-rw[open] .pv-rg >> nth=0")
     page.go_back()
     page.wait_for_function("!document.querySelector('.pv').classList.contains('rec')")

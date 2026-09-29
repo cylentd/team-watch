@@ -731,7 +731,7 @@ roster is read, and the players named are the ones ff-jarvis's `game_preview` pi
 | part | what it shows |
 |---|---|
 | Slate | every game by kickoff window (Thu night, Sun morning, Sun early, Sun late, Sun night, Mon night, else the weekday), headed with its Eastern times from the data (`design/preview.py` `_slot`). ~~A row: AWAY @ HOME, Claude's winner (`--lime`) and score, the headline, then the spread in words, the total and at most two flags~~ (two lines since 2026-09-29, "Front page") |
-| Flags | by priority: UPSET (Claude's winner is not the market favourite, `--lime`), Line flipped / Line moved n (3+ points, `--amber`), Rain n% (50%+) or Wind n mph (15+, `--sky`), "J. Coker out" (the highest-average Out/IR player at 10+ points a game, `--down`), Short week (`--ink-2`). Computed in `preview.py` `_flags` |
+| Flags | ~~drawn on the slate~~ (off the slate since 2026-09-29, "Quiet slate"; `_flags` still ships them) by priority: UPSET (Claude's winner is not the market favourite, `--lime`), Line flipped / Line moved n (3+ points, `--amber`), Rain n% (50%+) or Wind n mph (15+, `--sky`), "J. Coker out" (the highest-average Out/IR player at 10+ points a game, `--down`), Short week (`--ink-2`). Computed in `preview.py` `_flags` |
 | Dossier header | "‹ All games" (a phone), ‹ AWAY @ HOME › and the kickoff. Arrows and a sideways swipe walk the games in kickoff order |
 | Claude's call | headline and lean, the full width; then the call row (below, "Confidence and record"). ~~Claude's score over the market's implied score, how the two differ~~ (folded into the call row 2026-09-29; a take written before confidence still draws it) |
 | Lines | spread in words ("ARI by 1.5", "opened NYG by 7"; even is "Even"), total ("opened 45.5"). Never a signed spread (David: "-1.5" was "kinda funky"). ~~Claude's margin and total~~ (the call row's Score, 2026-09-29) |
@@ -771,7 +771,7 @@ moved to the box score.
 
 | part | what it shows |
 |---|---|
-| Slate row | two lines: AWAY @ HOME with Claude's side and chip, then the headline in serif (`--news`, Newsreader) with the producer's first flag trailing it after a dot. Win %, the bar, the score, the total and the spread moved to the box score |
+| Slate row | two lines: AWAY @ HOME with Claude's side and chip, then the headline in serif (`--news`, Newsreader) ~~with the producer's first flag trailing it after a dot~~ (no flags since "Quiet slate"). Win %, the bar, the score, the total and the spread moved to the box score |
 | Headline and dek | the take's `head` in serif at `--t-6` (`--t-5` under 760px), the `lean` under it as the dek, a rule below |
 | Story | words, each part led by a bold run-in: "The call." (side, chip, the edge sentence), Claude before the line, "Research notes.", "Players.", "What could go wrong." |
 | Box score | every number, small type, hairlines, no boxes, each section under a plain bold name: Win chance (Claude's win % in `--lime` over the market's, the bar, his score over the market's implied one, the base rate), Lines (spread, total, Claude's total with its chip), Defense rank, Injuries, Weather, Rest & travel |
@@ -786,6 +786,25 @@ moved to the box score.
 - Tests: `test_a_row_is_the_call_then_the_headline_and_one_flag`, `test_the_game_page_reads_like_a_newspaper`
   (part order, box score sections, run-ins, no uppercase labels), the desktop test's box-beside-call check.
 
+### Quiet slate (2026-09-29, night)
+
+Few things are loud on the slate: the kickoff window, then the matchup. Storyboard option B (David,
+2026-09-29: "too many things screaming for attention. Keep only a few things highlighted", and "I
+don't even see the Sun early"; https://claude.ai/artifact/MpjMnKmnJDKaJij6XLfiUc). Option A kept the
+flags in grey; David picked no flags.
+
+| part | what it shows |
+|---|---|
+| Window | a section head: "Sunday early" spelled out in bold serif on a 2px `--ink-2` rule, its kickoff times small and grey on the same line |
+| Row | the matchup bold, 15px mono; Claude's side grey, regular; how sure he is in words; the headline in grey serif (white on the game on screen) |
+| Lime | only the game on screen, Confident (text) and Very confident (fill) |
+| Words | no jargon (David: "don't use jargons and terminology that the reader is not familiar with"). The confidence Claude gives itself in ff-jarvis's prompt ("slight", "clear reason", "would stake the record on it") reads Slight, Confident, Very confident; no side reads No pick. UPSET left with the flags |
+
+- **Measured 2026-09-29, week 4, 360x800:** 10 boxed chips and 9 coloured flags on one screen became
+  0 and 0; lime marks 7 became 2-3; rows 62-81px became 61-62px; the slate 1,400px became 1,354px.
+- Tests: `test_a_row_is_the_call_then_the_headline` (no flags, lime only on the confident picks, the
+  window head in serif), the plain words in the chip, game page and record tests.
+
 ### Confidence and record (2026-09-29)
 
 Every take says how sure it is against the spread, and a record keeps score. Storyboard option A
@@ -797,7 +816,7 @@ cover in 14 of 14; favourites cover 48% (2011–2025, n 3,915).
 |---|---|
 | Slate row | right of the matchup: Claude's side against the spread and a chip. No edge: the NO EDGE chip and no side. ~~Under it "IND wins 27–19 · market 62% · Claude 71%" and the bar~~ (moved to the box score's Win chance, "Front page" above, 2026-09-29) |
 | Side words | never signed: "CLE getting 2.5" (underdog), "IND giving 3.5" (favourite), "CLE, even" (pick'em); `pvSideWords` in `data/preview.js` |
-| Chips | STRONG (lime fill), SOLID (lime outline), LEAN (grey outline), NO EDGE (grey) |
+| Chips | Very confident (lime fill), Confident (lime text), Slight and No pick (grey text), no boxes. ~~STRONG, SOLID, LEAN, NO EDGE~~ (plain words since 2026-09-29, "Quiet slate") |
 | Record card | atop the slate, one tap target: "4–2–1 vs spread", hit % (pushes out), by confidence, "Win % closer than the market's on 4 of 7" (per game, whose win % was nearer the result: a Brier score), and once graded the blind number's record and margin error. Before a graded game: one line, "Claude's record against the spread starts once week 4 is final", never zeros |
 | Every week | a tap on the card: in the slate's place on a phone (a layer, so Back closes it), the dossier's on a desktop (a click on a game, or the card again, closes it). A table (week, vs spread, STRONG, fav picks, win % closer, a Season row), what each column means, then each week's games, the newest open: matchup, final, HIT (`--up`) / MISS (`--down`) / PUSH / PASS, Claude's side and chip |
 | Call row (game page) | after the headline: side and chip, the edge sentence, Win % (Claude beside the market), Total (over/under the line and its chip), Score (Claude's beside the market's implied), "Claude before seeing the line: WAS by 1.5, total 48.5" and how the final call moved from it, then the spread's base rate ("A 3.5-point favorite, 2011–2025: wins 67%, covers 49%, n 1,314") and research notes, each with a small source (the site, or "play-by-play") |

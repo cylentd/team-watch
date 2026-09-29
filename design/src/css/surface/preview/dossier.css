@@ -25,7 +25,7 @@
 .pv-blind{margin:12px 0 0;font-size:var(--t-3);font-weight:600;line-height:1.5;color:var(--ink)}
 .pv-vsb{margin:4px 0 0;font-size:var(--t-3);line-height:1.5;color:var(--ink-2)}
 .pv-nh{margin:12px 0 4px;font-size:var(--t-3)}
-.pv-notes{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px;font-size:var(--t-3);line-height:1.5;color:var(--ink)}
+.pv-notes{margin:0 0 14px;padding-left:18px;display:flex;flex-direction:column;gap:5px;font-size:var(--t-3);line-height:1.5;color:var(--ink)}
 .pv-src{margin-left:4px;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
 a.pv-src{text-decoration:underline;text-underline-offset:2px}
 a.pv-src:hover{color:var(--ink)}

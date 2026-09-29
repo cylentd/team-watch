@@ -12,37 +12,34 @@
 /* The slate: a window heading, then one row per game. */
 .pv-slate{display:flex;flex-direction:column}
 .pv-win ul{list-style:none;margin:0;padding:0}
-.pv-wh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0;padding:14px 2px 6px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
-.pv-win:first-child .pv-wh{padding-top:4px}
-.pv-wh em{font-style:normal;font-weight:500;letter-spacing:.04em;color:var(--ink-3);white-space:nowrap}
+/* A window is a section head (2026-09-29, storyboard option B; David: "I don't even see the Sun early"):
+   its name in bold serif on a 2px rule, the kickoff times small and grey on the same line. The rule
+   marks where a window starts, so the first row under it drops its own. */
+.pv-win{margin-top:22px}
+.pv-win:first-of-type{margin-top:4px}
+.pv-wh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0;padding:8px 2px;border-top:2px solid var(--ink-2);font-family:var(--news);font-size:var(--t-4);font-weight:700;line-height:1.2;color:var(--ink)}
+.pv-wh em{font-family:var(--ui);font-size:var(--t-1);font-style:normal;font-weight:400;color:var(--ink-3);white-space:nowrap}
+.pv-win li:first-child .pv-row{border-top:0}
 /* A row is two lines, like a newspaper's index (2026-09-29, storyboard option C): the matchup and
-   Claude's side, then the serif headline with its one flag trailing it. */
+   Claude's side, then the serif headline. Only the matchup is loud (option B). */
 .pv-row{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 10px;align-items:center;padding:9px 2px;border:0;border-top:1px solid var(--line);background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
 .pv-row:hover{background:var(--panel)}
 .pv-row:focus-visible,.pv-back:focus-visible,.pv-arrow:focus-visible,.pv-p:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
-.pv-rm{font-family:var(--mono);font-size:var(--t-2);font-weight:700;letter-spacing:.02em;color:var(--ink);white-space:nowrap}
+.pv-rm{font-family:var(--mono);font-size:var(--t-3);font-weight:700;letter-spacing:.02em;color:var(--ink);white-space:nowrap}
 .pv-rs{font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 .pv-rs i{font-style:normal;color:var(--lime)}
 .pv-rh{grid-column:1/-1;font-family:var(--news);font-size:var(--t-3);font-weight:500;line-height:1.3;color:var(--ink-2);text-wrap:pretty}
 .pv-row.cur .pv-rh{color:var(--ink)}
 .pv-row.done .pv-rm,.pv-row.done .pv-rs,.pv-row.done .pv-rh{color:var(--ink-3)}
-.pv-flag{font-family:var(--ui);font-size:var(--t-1);white-space:nowrap}
-.pv-flag::before{content:"· ";color:var(--ink-3)}
-.pv-f{font-weight:600}
-.pv-f.upset{font-weight:700;letter-spacing:.06em;color:var(--lime)}
-.pv-f.moved{color:var(--amber)}
-.pv-f.wx{color:var(--sky)}
-.pv-f.out{color:var(--down)}
-.pv-f.short{color:var(--ink-2)}
-
-/* Confidence (2026-09-29): Claude's side against the spread and its chip, right of the matchup. The
-   chip says its word; lime is Claude: STRONG filled, SOLID outlined, LEAN and NO EDGE grey. */
-.pv-ats{display:flex;align-items:center;justify-content:flex-end;gap:6px;white-space:nowrap}
+/* How sure Claude is (2026-09-29), in plain words (David: "don't use jargon"): Slight and No pick
+   grey, Confident lime text, Very confident a lime fill. Lime is Claude, and only the confident
+   picks earn it. On the slate the side is grey; on the game page it keeps its weight. */
+.pv-ats{display:flex;align-items:baseline;justify-content:flex-end;gap:6px;white-space:nowrap}
 .pv-side{font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink);white-space:nowrap}
-.pv-conf{display:inline-block;padding:3px 6px;border:1px solid var(--line-2);border-radius:4px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.06em;line-height:1;color:var(--ink-2);white-space:nowrap}
-.pv-conf.strong{background:var(--lime);border-color:var(--lime);color:var(--on-lime)}
-.pv-conf.solid{border-color:var(--lime);color:var(--lime)}
-.pv-conf.none{color:var(--ink-3)}
+.pv-row .pv-side{font-weight:400;color:var(--ink-3)}
+.pv-conf{display:inline-block;padding:2px 0;border-radius:4px;font-family:var(--ui);font-size:var(--t-1);font-weight:500;line-height:1;color:var(--ink-3);white-space:nowrap}
+.pv-conf.strong{padding-inline:6px;background:var(--lime);color:var(--on-lime);font-weight:700}
+.pv-conf.solid{color:var(--lime);font-weight:700}
 /* The win % bar (the box score's Win chance): grey tick the market, lime dot Claude, the gap between
    them filled faintly. Its own --mk / --cl / --lo / --gap place the marks. */
 .pv-pb{display:block;position:relative;height:12px;margin:6px 5px 8px}
