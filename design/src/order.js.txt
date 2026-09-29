@@ -57,6 +57,8 @@ surface/profile/season.js
 surface/profile/owners.js
 surface/profile/teamshare.js
 surface/profile/props.js
+surface/profile/archglyphs.js
+surface/profile/archetype.js
 surface/profile/sample.js
 surface/profile/sheet.js
 surface/profile/statcard.js

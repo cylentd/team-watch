@@ -19,7 +19,7 @@ const PF_TABS = [
   {id: "season", label: () => t("profile.tab.season"),
    body: (prof, p) => { const s = seasonHTML(p, prof); return s ? s + projectionHTML(p) : ""; }},
   {id: "usage", label: () => t("profile.tab.usage"),
-   body: (prof, p) => teamShareHTML(p)
+   body: (prof, p) => teamShareHTML(p) + archBlockHTML(p)
      + (prof ? roleHTML(prof) + redZoneHTML(prof) + (pfReceiver(prof) ? sidesHTML(prof) : "") : "")},
   {id: "props", label: () => t("profile.tab.props"), body: (prof, p) => propsHTML(p)},
   {id: "matchup", label: () => t("profile.tab.matchup"), body: (prof, p) => !prof ? "" : matchupPaneHTML(prof)},
@@ -85,6 +85,14 @@ function wireTabs(d, prof, p){
     pane.className = pfPaneClass(b.dataset.pftab);
     pane.innerHTML = PF_TABS.find(tb => tb.id === b.dataset.pftab).body(prof, p);
   };
+  // A head archetype tag (archetype.js) opens Usage on the block that explains it.
+  d.querySelectorAll("[data-pfarch]").forEach(tag => tag.addEventListener("click", () => {
+    const u = tabs.find(x => x.dataset.pftab === "usage");
+    if (!u) return;
+    open(u);
+    const sec = pane.querySelector(".pf-sec-arch");
+    if (sec) sec.scrollIntoView({block: "start", behavior: REDUCED() ? "auto" : "smooth"});
+  }));
   tabs.forEach((b, i) => {
     b.addEventListener("click", () => open(b));
     b.addEventListener("keydown", e => {

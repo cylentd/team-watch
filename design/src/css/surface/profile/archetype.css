@@ -1,0 +1,44 @@
+/* ============================== PROFILE · ARCHETYPE ==============================
+   The two words as skill tiles (archetype.js): a bar under his name in the head, and the same tile
+   beside each word in Usage's block (which borrows the Leaders card's .bd-fld). The stone is the
+   only colour: steel for a Role word, bronze for a Style word (tokens.css --arch-*), so which kind
+   of word it is reads before the word does. The glyph is ink, engraved with a one-pixel shadow. */
+.pf-sk{--hi:var(--arch-role);--hi-rgb:var(--arch-role-rgb);
+  display:inline-grid;place-items:center;flex:none;width:48px;height:48px;border-radius:11px;
+  background:radial-gradient(120% 90% at 30% 18%,rgb(var(--hi-rgb) / .62) 0%,rgb(var(--hi-rgb) / .16) 62%,rgb(var(--void-rgb) / .9) 100%),
+    var(--panel-2);
+  box-shadow:inset 0 1px 0 rgb(var(--hi-rgb) / .75),inset 0 -2px 0 rgb(var(--void-rgb) / .55),
+    0 0 0 1px rgb(var(--hi-rgb) / .45),0 2px 6px rgb(var(--void-rgb) / .6)}
+.pf-sk-style{--hi:var(--arch-style);--hi-rgb:var(--arch-style-rgb)}
+.pf-sk svg{width:72%;height:72%;fill:var(--ink);filter:drop-shadow(0 1px 0 rgb(var(--void-rgb) / .7))}
+
+/* The head's chips (storyboard v4, 2026-09-29): a 36px round tile with the word beside it. The big
+   48-56px tiles of v3 read as a block of art; this size keeps the glyph legible and reads as a
+   badge. Desktop: stacked beside the sphere, so the name block stays name, team, verdict. Phone:
+   under the name, where the chips stack in the 170px column. */
+.pf-arch{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.pf-arch-in{display:none}
+.pf-arch-side{flex:none;align-self:center;margin:0 0 0 auto}
+.pf-arch-side + .pf-orb{margin-left:24px}
+.pf-arch-slot{display:inline-flex;align-items:center;gap:9px;margin:0;padding:3px 13px 3px 3px;
+  border:1px solid var(--line-2);border-radius:999px;background:var(--panel-2);color:var(--ink);
+  cursor:pointer;-webkit-tap-highlight-color:transparent;transition:border-color .15s var(--ease),background .15s var(--ease)}
+.pf-arch-slot span{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;line-height:1.2;white-space:nowrap}
+.pf-arch .pf-sk{width:36px;height:36px;border-radius:999px}
+.pf-arch-slot:hover{border-color:var(--ink-3);background:var(--panel-3)}
+.pf-arch-slot:focus{outline:none}
+.pf-arch-slot:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+@media (max-width:760px){
+  .pf-arch-in{display:flex;margin-top:10px}
+  .pf-arch-side{display:none}
+}
+
+/* A head tile scrolls Usage to this block; the tab bar is sticky over the pane, so the block stops
+   below it rather than under it with its heading hidden. */
+.pf-sec-arch{scroll-margin-top:64px}
+/* In Usage the word leads its field at the Leaders size, its tile beside it. */
+.pf-sec-arch .bd-word{display:inline-flex;align-items:center;gap:10px}
+.pf-sec-arch .bd-word .pf-sk{width:36px;height:36px;border-radius:9px}
+/* What the word means, one clause under it, before the numbers that produced it. */
+.bd-mean{margin:3px 0 0;font-size:var(--t-2);line-height:1.4;color:var(--ink-2)}

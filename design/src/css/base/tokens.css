@@ -63,6 +63,14 @@
   --pos-wr-rgb:255 111 216;
   --pos-te-rgb:63 216 194;
 
+  /* The archetype's skill-tile stones (2026-09-29): steel for a Role word (this season's job),
+     bronze for a Style word (his career). Muted on purpose, and off the position hues above, so a
+     tile never reads as a position. Profile head and Usage only (profile/archetype.css). */
+  --arch-role:#7a95bd;
+  --arch-style:#c8905a;
+  --arch-role-rgb:122 149 189;
+  --arch-style-rgb:200 144 90;
+
   /* Role-named tokens for the hex literals the lint backlog found. Named by what they're for,
      not by colour, so a reader doesn't have to decode a swatch. */
   --discord:#5865f2;       /* Discord's own brand colour, topbar.css .discordlink:hover */

@@ -109,7 +109,7 @@ function bdFieldHTML(f){
     <div class="bd-fld-h"><span class="lbl">${f.label}</span
       >${meta ? `<span class="lbl bd-win">${meta}</span>` : ""}</div>
     <div class="bd-line">${f.word ? `<b class="bd-word">${f.word}</b>`
-      : `<span class="bd-why">${esc(f.why || "")}</span>`}${f.flag || ""}</div>
+      : `<span class="bd-why">${esc(f.why || "")}</span>`}${f.flag || ""}</div>${f.say ? `<p class="bd-mean">${f.say}</p>` : ""}
     ${line ? `<p class="note bd-ev">${line}</p>` : ""}
   </div>`;
 }

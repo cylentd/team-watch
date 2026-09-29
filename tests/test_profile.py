@@ -402,6 +402,46 @@ def test_an_owner_pill_opens_that_teams_roster(browser, page_file):
 
 
 @pytest.mark.render
+def test_the_archetype_sits_in_the_head_and_explains_itself_in_usage(browser, page_file):
+    """2026-09-29, David: the archetype "should be on the player profile" (it showed only under a
+    Leaders comparison pick). His two words are tags with an icon in the head; a tap opens Usage
+    on the block that says what each means and the numbers that produced it. A word the model
+    withholds is no tag, and its reason stands in its place in Usage."""
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    who = page.evaluate("""(() => {
+      const arch = (LIVE_ARCHETYPE && LIVE_ARCHETYPE.players) || {};
+      const row = slug => LIVE_GAMELOG.rows.find(r => r.slug === slug);
+      const pick = f => { const s = Object.keys(arch).find(k => f(arch[k]) && row(k)); if (!s) return null;
+        const r = row(s); return {n: r.n, pos: r.pos, team: r.team, slug: s, role: arch[s].role, style: arch[s].style,
+                                  role_null: arch[s].role_null}; };
+      return {both: pick(a => a.role && a.style), one: pick(a => !a.role && a.style)};
+    })()""")
+    assert who["both"], "the fixture needs a player with both words"
+    page.evaluate("p => openProfile(p)", who["both"])
+    # A desktop shows the chips beside the sphere; the copy under the name is the phone's.
+    tags = page.locator("#modal .pf-head .pf-arch-side .pf-arch-slot")
+    assert tags.count() == 2 and tags.first.is_visible()
+    assert not page.locator("#modal .pf-head .pf-arch-in").is_visible()
+    assert tags.nth(0).locator(".pf-sk-role svg").count() == 1            # a tile on every chip, stone by field
+    assert tags.nth(1).locator(".pf-sk-style svg").count() == 1
+    role_word = page.evaluate("v => bdRoleWord(v)", who["both"]["role"])
+    assert tags.nth(0).inner_text().strip().upper() == role_word.upper()
+    tags.nth(1).click()
+    assert page.locator("#modal [data-pftab='usage']").get_attribute("aria-selected") == "true"
+    block = page.locator("#modal .pf-sec-arch")
+    assert block.count() == 1
+    assert block.locator(".bd-mean").count() == 2                         # each word says what it means
+    assert block.locator(".bd-ev").count() >= 1                           # and what produced it
+    if who["one"]:
+        page.evaluate("p => openProfile(p)", who["one"])
+        assert page.locator("#modal .pf-head .pf-arch-side .pf-arch-slot").count() == 1
+        tab(page, "usage")
+        assert who["one"]["role_null"] in page.locator("#modal .pf-sec-arch .bd-why").first.inner_text()
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
 def test_props_draws_his_last_games_against_the_line(browser, page_file):
     """2026-09-29, David: "see his receptions, yds, tds as bar chart in the past X games". A player
     with a market log gets a Props tab: one chart per market he records, the leg sheet's bars, lime
@@ -1001,7 +1041,7 @@ def test_no_profiles_renders_dashes_and_a_quiet_panel(browser, monkeypatch, tmp_
     assert page.locator("#modal .pf-season").count() == 1
     assert page.locator("#modal .pf-sec").count() == 1         # the projection
     tab(page, "usage")
-    assert [s.get_attribute("class").split()[-1] for s in page.locator("#modal .pf-tabpane > section").all()] == ["pf-sec-team"]
+    assert [s.get_attribute("class").split()[-1] for s in page.locator("#modal .pf-tabpane > section").all()] == ["pf-sec-team", "pf-sec-arch"]
     sheet(page)
     assert page.locator("#modal .pf-radar").count() == 1
     assert errors == []
