@@ -321,6 +321,17 @@ labels went from 5px to 2px sides (8px clear of the search icon at 360px, measur
   heists, each heist headed "Heist #n" then who robbed whom; the ranking pairs with the curses; the
   decided trades run three across. No luck sentence on best/worst: the strip holds the record, the
   ranking's line says how sure. A tied trade (0.0 both ways) shows as T and a record as W–L–T.
+- **One story per card** (David chose B, the back page, 2026-09-29, storyboard
+  https://claude.ai/artifact/PxyR3tAZs9LeaioEPEz9Gq): every card is strip (what, when), headline (the
+  story in `--tab` caps), deck (its numbers), proof (the trade's two sides), payoff (only a
+  consequence, in ink). Best and worst carry their defining trade as proof, so the top row matches by
+  content. Headlines never brag for the winner of a decided trade ("The trade that decided 2021") and
+  root for the worst trader ("Chanel is due": David, "trading is healthy, we should promote it"). The
+  curse's count lives in its skulls and deck, not the strip. Superseded: the "a trade" lead card and
+  the grey "After:" footnote.
+- **Ranking, second pass** (2026-09-29): place, manager, per-trade number beside the name, likely range,
+  W–L–T, under column heads instead of a legend; sorted by the number shown (David: "sort by shown"),
+  not ff-jarvis's shrunk figure. PAR's meaning moved under the page title, before the first number.
 - **Phone: swipe rows** (2026-09-28): the top row, the decided cards and the curses each scroll
   sideways one card wide with the next peeking in, a "1 of 5 · swipe" pager over each; ~4,600px became
   ~2,400px at 390px. A phone shows every decided card, with no shuffle and no Show all.

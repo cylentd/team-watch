@@ -1,16 +1,18 @@
 /* League > Trades (2026-09-28, storyboard https://claude.ai/artifact/EhbDwDUZ7ERb2iNfAqaKjn). Fenced to
    the view by scope.json. The Records voice: section heads in --tab caps, gold for what decided a
    season, green and red only for won and lost. Every card is one box score (storyboard
-   https://claude.ai/artifact/57FSz4b4TrAxrb79EJJXjp, David chose A): a header strip, a body, a footnote. */
+   https://claude.ai/artifact/57FSz4b4TrAxrb79EJJXjp, David chose A) that tells one story (storyboard
+   https://claude.ai/artifact/PxyR3tAZs9LeaioEPEz9Gq, David chose B, the back page): strip, headline, proof,
+   payoff. */
 .tr{display:grid;gap:22px;padding:16px 0 32px}
 .tr-head{display:grid;gap:4px;padding-top:2px}
 .tr-head h1{margin:0;font-family:var(--disp);font-size:var(--t-6);font-weight:800;line-height:1.05}
 .tr-kick{margin:0;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
-.tr-what{margin:-10px 0 0;font-size:var(--t-2);line-height:1.45;color:var(--ink-2);max-width:62ch}
+.tr-what{margin:4px 0 0;font-size:var(--t-2);line-height:1.45;color:var(--ink-2);max-width:62ch}
 .tr-body{display:grid;gap:26px;align-items:start}
 .tr-sec{display:grid;gap:10px;min-width:0}
 .tr-grid{display:grid;gap:10px;align-items:start}
-.tr-hd{margin:0;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 8px;
+.tr-hd{margin:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;
   font-family:var(--tab);font-size:var(--t-5);font-weight:900;line-height:1;text-transform:uppercase}
 .tr-hd span{font-family:var(--ui);font-size:var(--t-2);font-weight:500;text-transform:none;color:var(--ink-3)}
 .tr-note{margin:0;font-size:var(--t-2);line-height:1.45;color:var(--ink-3)}
@@ -30,7 +32,7 @@
 .tr-bx.title .tr-bx-hd{background:rgb(var(--gold-2-rgb) / .12)}
 .tr-bx.title .tr-bx-t{color:var(--gold-2)}
 .tr-rk{color:var(--gold-2)}
-.tr-bx-ft{display:grid;gap:5px;padding:10px 12px;border-top:1px dashed var(--line-2);font-size:var(--t-2);line-height:1.4;color:var(--ink-2)}
+.tr-bx-ft{display:grid;gap:5px;padding:10px 12px;border-top:1px dashed var(--line-2);font-size:var(--t-2);line-height:1.4;color:var(--ink);font-weight:600}
 .tr-bx-ft p{margin:0}
 .tr-bx-in{padding:10px 12px}
 
@@ -64,25 +66,32 @@
 .tr-more{all:unset;cursor:pointer;justify-self:start;font-family:var(--ui);font-size:var(--t-2);font-weight:600;color:var(--lime);padding:6px 0;min-height:32px}
 .tr-more:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 
-/* best and worst: the icon and label in the strip, the manager with his number beside him */
+/* the headline: the card's one story in the page's condensed caps, its numbers in the deck under it */
+.tr-hl{display:grid;gap:6px;padding:12px 12px 10px;min-width:0}
+.tr-hl h3{margin:0;font-family:var(--tab);font-size:var(--t-6);font-weight:900;line-height:.95;letter-spacing:.01em;
+  text-transform:uppercase;text-wrap:balance;color:var(--ink)}
+.tr-deck{margin:0;font-size:var(--t-2);line-height:1.4;color:var(--ink-2)}
+.tr-deck b{font-family:var(--mono);font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.tr-hl + .tr-sc{border-top:1px solid var(--line)}
+.tr-bx.title .tr-hl h3{color:var(--gold-2)}
+/* best and worst: the icon and label in the strip */
 .tr-lead-ic{display:inline-grid;place-items:center}
 .best .tr-lead-ic{color:var(--lime)}
 .worst .tr-lead-ic{color:var(--down)}
-.tr-lead-in{display:grid;gap:4px;padding:12px}
-.tr-lead-who{margin:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
-.tr-lead-who b{font-family:var(--disp);font-size:var(--t-5);font-weight:800;line-height:1}
-.tr-lead-who span{font-family:var(--mono);font-size:var(--t-5);font-weight:700;font-variant-numeric:tabular-nums}
-.tr-lead-who small{font-size:var(--t-2);color:var(--ink-3)}
-.tr-def-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
-.tr-def-row > b{font-family:var(--mono);font-size:var(--t-3);font-weight:700;font-variant-numeric:tabular-nums}
 
-/* the ranking: a row per manager, the dot and its range on one scale, a dashed 0 */
+/* the ranking: a row per manager, its place, the number beside the name, the range on one scale, the record */
 .tr-mgrs{list-style:none;margin:0;padding:0}
 .tr-mgrs > li{border-bottom:1px solid var(--line)}
 .tr-mgrs > li.few .tr-mgr{opacity:.5}
 .tr-mgrs > li.tr-fewhd{padding:16px 2px 6px;font-size:var(--t-2);color:var(--ink-3)}
-.tr-mgr{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:grid;grid-template-columns:84px minmax(0,1fr) 52px 12px;
-  gap:8px;align-items:center;padding:8px 2px;min-height:44px}
+.tr-mgr{all:unset;box-sizing:border-box;cursor:pointer;width:100%;min-height:44px}
+.tr-mgr,.tr-rkh{display:grid;grid-template-columns:18px 80px 62px minmax(0,1fr) 50px 12px;gap:8px;align-items:center;padding:8px 2px}
+.tr-rkh{align-items:end;padding-block:0 6px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:var(--t-1);
+  font-weight:600;letter-spacing:.06em;line-height:1.25;text-transform:uppercase;color:var(--ink-3)}   /* a phone's ~70px range column wraps its label to two lines, bottoms level */
+.tr-rkh span:nth-child(3),.tr-rkh span:nth-child(5){text-align:right}
+.tr-rkh span:nth-child(4){text-align:center}
+.tr-i{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.tr-v{font-family:var(--mono);font-size:var(--t-3);font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
 .tr-mgr:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
 .tr-mgr b{font-size:var(--t-3);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tr-wl{font-family:var(--mono);font-size:var(--t-2);text-align:right;font-variant-numeric:tabular-nums}
@@ -94,9 +103,6 @@
 .tr-zero{left:var(--z);top:0;bottom:0;border-left:1.5px dashed var(--ink-3)}
 .tr-range{left:var(--lo);right:calc(100% - var(--hi));top:8px;height:2px;background:currentColor;opacity:.7}
 .tr-dot{left:var(--x);top:4px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:currentColor}
-.tr-scale{display:grid;grid-template-columns:84px minmax(0,1fr) 52px 12px;gap:8px;padding:0 2px}
-.tr-ticks{position:relative;height:14px}
-.tr-ticks i{position:absolute;left:var(--x);transform:translateX(-50%);font-style:normal;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
 
 /* a manager's trades, under his row: each a small box score, got in ink and gave dimmed */
 .tr-mine{list-style:none;margin:0;padding:2px 0 12px;display:grid;gap:8px}
@@ -133,8 +139,6 @@
 }
 @keyframes tr-drop{from{opacity:0;transform:translateY(-6px)}}
 
-/* a heist's headline: who robbed whom, first thing under "Heist #n" */
-.tr-bx-hl{margin:0;padding:10px 12px;border-bottom:1px solid var(--line);font-family:var(--disp);font-size:var(--t-3);font-weight:800;line-height:1.25;color:var(--ink)}
 
 /* Phone: the card sections are swipe rows, one card wide, the next peeking in from the right edge, so
    ~5 screens of stacked cards became ~3 (David, 2026-09-28). The row runs to the screen edges and snaps
@@ -177,8 +181,10 @@
   .tr-curses{grid-column:2;grid-row:1}
   .tr-decided{grid-column:1 / -1;grid-row:2}
   .tr-decided .tr-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:stretch}
-  /* across 1360px a subhead pushed to the far edge reads as belonging to nothing */
-  .tr-decided .tr-hd{justify-content:start;column-gap:14px}
+  /* a card stretched to its row's tallest pins its payoff to the bottom edge, so the payoffs share a
+     line across the row and the spare height sits above them, not under everything (2026-09-29) */
+  :is(.tr-top-row,.tr-decided .tr-grid) > .tr-bx{display:flex;flex-direction:column}
+  :is(.tr-top-row,.tr-decided .tr-grid) > .tr-bx > .tr-bx-ft{margin-top:auto}
 }
 @media (min-width:1100px){
   .tr-top-row{grid-template-columns:repeat(5,minmax(0,1fr))}

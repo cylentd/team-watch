@@ -56,6 +56,12 @@ const trPlayersHTML = (names, slugs) => names.length
 /* The box: a header strip (left what, right when or how many), the body, a footnote when there is one. */
 const trBox = (cls, left, right, body, foot = "") => `<article class="tr-bx ${cls}">
   <div class="tr-bx-hd"><span class="tr-bx-t">${left}</span><span>${right}</span></div>${body}${foot ? `<div class="tr-bx-ft">${foot}</div>` : ""}</article>`;
+/* Every card tells one story (David chose B, the back page, 2026-09-29, storyboard
+   https://claude.ai/artifact/PxyR3tAZs9LeaioEPEz9Gq): the strip says what and when, the headline is the
+   story in the page's condensed caps, the deck under it holds its numbers, then the proof (the trade's
+   two sides), then a payoff only when there is a consequence. */
+const trHead = (h, deck = "") => `<div class="tr-hl"><h3>${h}</h3>${deck ? `<p class="tr-deck">${deck}</p>` : ""}</div>`;
+const trB = (v, cls = "") => `<b${cls ? ` class="${cls}"` : ""}>${v}</b>`;
 /* A trade's two sides as rows, winner first: the manager, what he got, his score in the right column. */
 const trScoreRows = tr => `<table class="tr-sc">${[[tr.win, "tr-w"], [tr.lose, "tr-l"]].map(([s, k]) => `<tr class="${k}">
   <th scope="row">${trName(s.m)}</th><td>${trPlayersHTML(s.got, s.slugs)}${trFlips(s)}</td><td class="tr-n">${trPar(s.tree)}</td></tr>`).join("")}</table>`;
@@ -67,13 +73,14 @@ const TR_PHONE = "not all and (min-width: 960px)";   // trades.css's desktop lin
 const trPagerHTML = n => n > 1 ? `<p class="tr-pager" aria-hidden="true">${t("trades.swipe.pos", {i: 1, n})}</p>` : "";
 
 /* The heists ride in the top row beside best and worst (trades.js, trTopHTML; David, 2026-09-28: "fit 5
-   cards on the top"), so each says what it is: "Heist #1" in the strip, then who robbed whom as its
-   headline, before the rows. */
+   cards on the top"). The story: who robbed whom, then how each season went after it. */
 function trHeistCardsHTML(){
-  return trData().heists.map(trById).map((tr, i) => trBox("tr-heist", `<b class="tr-rk">${t("trades.heist.rank", {n: i + 1})}</b>`,
-    t("trades.when", {y: tr.season, w: tr.week}),
-    `<h3 class="tr-bx-hl">${t("trades.heist.head", {a: trName(tr.win.m), b: trName(tr.lose.m), n: trPar(tr.margin)})}</h3>${trScoreRows(tr)}`,
-    `<p>${t("trades.heist.after", {a: trName(tr.win.m), ra: tr.win.after, b: trName(tr.lose.m), rb: tr.lose.after})}</p>${trDecidedHTML(tr)}`)).join("");
+  return trData().heists.map(trById).map((tr, i) => {
+    const a = trName(tr.win.m), b = trName(tr.lose.m);
+    return trBox("tr-heist", `<b class="tr-rk">${t("trades.heist.rank", {n: i + 1})}</b>`, t("trades.when", {y: tr.season, w: tr.week}),
+      trHead(t("trades.heist.head", {a, b}), t("trades.heist.deck", {a, b, n: trB(trPar(tr.margin)), ra: trB(tr.win.after), rb: trB(tr.lose.after)}))
+      + trScoreRows(tr), trDecidedHTML(tr));
+  }).join("");
 }
 
 /* The title trade stays first; the other slots shuffle through every playoff spot or bye a trade moved,
@@ -98,12 +105,15 @@ function trDecidedBlockHTML(fresh = false){
   const ids = trData().decided;
   if (!ids.length) return "";
   const {show, rotating} = trDecidedShown();
+  // The headline names the season, never the winner (David, 2026-09-29: "seems like a self brag"); the
+  // payoff lines say who it helped and who it hurt.
+  const head = tr => tr.decided.some(d => d.k === "title") ? t("trades.dec.head", {y: tr.season})
+    : tr.decided.some(d => d.k === "in" || d.k === "out") ? t("trades.dec.headPo", {y: tr.season}) : t("trades.dec.headBye", {y: tr.season});
   const cards = show.map(trById).map((tr, i) => {
     const title = tr.decided.some(d => d.k === "title");
     return trBox(`${title ? "title" : ""}${fresh && !title ? " tr-fresh" : ""}`,
       title ? `${TR_ICON.title}${t("trades.dec.tag")}` : t("trades.when", {y: tr.season, w: tr.week}),
-      title ? t("trades.when", {y: tr.season, w: tr.week}) : "", trScoreRows(tr),
-      `<p>${t("trades.dec.won", {m: trName(tr.win.m), n: trPar(tr.margin)})}</p>${trDecidedHTML(tr)}`)
+      title ? t("trades.when", {y: tr.season, w: tr.week}) : "", trHead(head(tr)) + trScoreRows(tr), trDecidedHTML(tr))
       .replace("<article", `<article style="--i:${i}"`);
   }).join("");
   const more = !TR_ALL && show.length < ids.length ? `<button type="button" class="tr-more" data-trall>${t("trades.dec.more", {n: ids.length})}</button>` : "";
@@ -139,9 +149,10 @@ function trCurseHTML(c, i){
     <th scope="row">${t("trades.curse.step", {a: trName(m.from), b: trName(m.to)})}</th>
     <td class="tr-n ${m.open ? "live" : m.lost ? "dn" : "up"}">${m.open ? t("trades.curse.trails", {n: trPar(m.margin)})
       : m.lost ? t("trades.curse.lost", {n: trPar(m.margin)}) : t("trades.curse.won", {n: trPar(m.margin)})}</td></tr>`).join("");
-  return trBox("tr-curse", `${TR_ICON.flame}${t("trades.curse.hd")}`,
-    open ? t("trades.curse.countOpen", {n: c.n}) : t("trades.curse.count", {n: c.n}),
-    `<div class="tr-curse-top">${trMarkHTML(c, i)}<div><h3>${t("trades.curse.name", {s: esc(c.surname)})}</h3><p>${line}</p></div></div>
+  // The count lives in the skulls and the deck, not the strip too (it was said three times).
+  const a = c.moves[0].season, b = c.moves[c.moves.length - 1].season;
+  return trBox("tr-curse", `${TR_ICON.flame}${t("trades.curse.hd")}`, a === b ? a : t("trades.curse.years", {a, b}),
+    `<div class="tr-curse-top">${trMarkHTML(c, i)}${trHead(t("trades.curse.name", {s: esc(c.surname)}), line)}</div>
      <table class="tr-sc tr-chain">${rows}</table>`);
 }
 

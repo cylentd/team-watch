@@ -3,8 +3,9 @@
 /* curses: the mark and its name, then each trade of him a row, the sender's loss in the right column */
 .tr-curse .tr-bx-t svg{color:var(--hex-rim)}
 .tr-curse-top{display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;align-items:center;padding:12px 12px 8px}
-.tr-curse h3{margin:0;font-family:var(--disp);font-size:var(--t-4);font-weight:800;color:var(--gold-2)}
-.tr-curse p{margin:0;font-size:var(--t-2);line-height:1.4;color:var(--ink-2)}
+/* the curse's name is its headline, in the fire's violet; the deck says the count once */
+.tr-curse .tr-hl{padding:0}
+.tr-curse .tr-hl h3{color:var(--hex-rim)}
 .tr-chain{border-top:1px solid var(--line)}
 .tr-chain th,.tr-chain td{padding:8px 12px}
 .tr-chain .tr-y{width:1%;font-family:var(--mono);font-size:var(--t-2);color:var(--ink-3)}
@@ -49,7 +50,7 @@
 .tr-curse{position:relative;overflow:visible;border-color:rgb(var(--hex-rim-rgb) / .5)}
 .tr-curse > *{position:relative;z-index:1}
 .tr-curse .tr-bx-hd{border-radius:11px 11px 0 0;background:rgb(var(--hex-2-rgb) / .7);border-bottom-color:rgb(var(--hex-rim-rgb) / .25)}
-.tr-curse::before{content:"";position:absolute;z-index:-1;inset:-26px -22px;pointer-events:none;filter:blur(14px);
+.tr-curse::before{content:"";position:absolute;z-index:-1;inset:-26px -16px;pointer-events:none;filter:blur(14px);
   background:radial-gradient(34% 30% at 8% 88%,rgb(var(--hex-rim-rgb) / .5),transparent 70%),
              radial-gradient(30% 34% at 94% 70%,rgb(var(--hex-rim-rgb) / .42),transparent 70%),
              radial-gradient(40% 28% at 60% 100%,rgb(var(--hex-1-rgb) / .95),transparent 72%),
@@ -71,7 +72,7 @@
   .tr-curse::before{animation:tr-haunt 11s ease-in-out infinite alternate}
   .tr-curse + .tr-curse::before{animation-delay:-5s}
 }
-@keyframes tr-haunt{50%{transform:translate(8px,-6px) scale(1.04);opacity:.8}100%{transform:translate(-6px,4px) scale(.98);opacity:1}}
+@keyframes tr-haunt{50%{transform:translate(6px,-6px);opacity:.75}100%{transform:translate(-6px,4px);opacity:1}}   /* no scale: a transform counts toward the page's width, and 16 + 6px stays inside a 40px gutter */
 @keyframes tr-flare{40%{transform:scale(1.1);filter:brightness(1.6)}}
 @keyframes tr-pop{from{transform:scale(0)}60%{transform:scale(1.25)}}
 @keyframes tr-mist{35%{transform:scaleY(1.35);filter:brightness(1.5)}}
