@@ -69,8 +69,22 @@ def _latest_per_game(rows):
     return best.values()
 
 
+def page_week(rows):
+    """The week the page is on: the week of the first game with no final score that kicks off
+    after the last game that has one, or None when every game is final.
+
+    The data decides, not the reader's clock (2026-09-28). The clock turned the pack to week 4 the
+    moment Monday night kicked off, while the recap, roast and projections built that morning were
+    still week 3's. A score only arrives with a refresh, so the whole page turns together, at the
+    first build after Monday night is final (the Tuesday 2:40am rebuild). A game postponed with no
+    score is stepped over as soon as a later game has one, so it cannot hold the page back."""
+    last = max((r["kickoff"] for r in rows if r["final"]), default="")
+    ahead = [r for r in rows if not r["final"] and r["kickoff"] > last and r["week"] is not None]
+    return min(ahead, key=lambda r: r["kickoff"])["week"] if ahead else None
+
+
 def load_schedule(dwr):
-    """-> {"games": [{home, away, kickoff, week, espn}], "alias": {...}} , or None when the log
+    """-> {"games": [{home, away, kickoff, week, espn}], "alias": {...}, "week": int|None}, or None when the log
     is not there.
 
     `kickoff` is normalized to ISO-8601 UTC with a trailing Z, which Date.parse reads directly
@@ -89,7 +103,7 @@ def load_schedule(dwr):
     if not games_dir.is_dir():
         return None
 
-    out = []
+    out, played = [], []
     for r in _latest_per_game(_rows(games_dir)):
         try:
             when = datetime.datetime.fromisoformat(str(r["kickoff"]).replace("Z", "+00:00"))
@@ -107,6 +121,8 @@ def load_schedule(dwr):
                         "+00:00", "Z"),
                     "week": int(week) if isinstance(week, (int, float)) else None,
                     "espn": str(r["espn"]) if r.get("espn") else None})
+        played.append({"kickoff": out[-1]["kickoff"], "week": out[-1]["week"],
+                       "final": r.get("home_score") is not None and r.get("away_score") is not None})
 
     if not out:
         return None
@@ -116,7 +132,7 @@ def load_schedule(dwr):
     # so looking a club up in `games` above silently found nothing for the Rams and the Commanders.
     # Writing {"LA": "LAR"} again in JavaScript would be the same table in two places; sending it
     # keeps it in one. ESPN's own codes are not keys here, so they pass through untouched.
-    return {"games": out, "alias": dict(TO_ESPN)}
+    return {"games": out, "alias": dict(TO_ESPN), "week": page_week(played)}
 
 
 def report(block):

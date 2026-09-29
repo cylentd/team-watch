@@ -97,6 +97,30 @@ def test_no_build_clock_is_consulted(block):
         "a week-3 game dropped out, so something is filtering by date after all"
 
 
+def _g(kickoff, week, final):
+    return {"kickoff": kickoff, "week": week, "final": final}
+
+
+def test_the_week_waits_for_monday_nights_score():
+    """2026-09-28: Monday night kicked off, and a clock turned the pack to week 4 while the recap and
+    projections were week 3's. The page's week turns only when that game's score is in the data."""
+    sunday, monday, thursday = "2026-09-27T17:00:00Z", "2026-09-29T00:15:00Z", "2026-10-02T00:15:00Z"
+    assert schedule.page_week([_g(sunday, 3, True), _g(monday, 3, False), _g(thursday, 4, False)]) == 3
+    assert schedule.page_week([_g(sunday, 3, True), _g(monday, 3, True), _g(thursday, 4, False)]) == 4
+
+
+def test_a_postponed_game_cannot_hold_the_week_back():
+    """A game with no score that kicked off before a scored one was not played; the week moves on."""
+    rows = [_g("2026-09-27T17:00:00Z", 3, False), _g("2026-09-29T00:15:00Z", 3, True),
+            _g("2026-10-02T00:15:00Z", 4, False)]
+    assert schedule.page_week(rows) == 4
+
+
+def test_a_finished_season_has_no_week():
+    assert schedule.page_week([_g("2027-01-10T18:00:00Z", 18, True)]) is None
+    assert schedule.page_week([]) is None
+
+
 def test_report_says_when_there_is_nothing(tmp_path):
     assert "no live file" in schedule.report(None)
     assert "5 games" in schedule.report(schedule.load_schedule(FIXTURE))

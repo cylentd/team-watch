@@ -94,7 +94,7 @@ CONTRACT = {
     # event id /api/game wants; `espn` may be null (an older history row), and the strip then has
     # no game to open rather than a wrong one.
     "LIVE_SCHEDULE": {
-        "keys": ["games", "alias"],
+        "keys": ["games", "alias", "week"],
         "rows": ("games", ["id", "home", "away", "kickoff", "week", "espn"]),
     },
     "LIVE_PROPS": {

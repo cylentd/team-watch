@@ -19,14 +19,10 @@ function schedTeamRow(block, team){
   return block.teams[team] || block.teams[alias[team]] || (plain ? block.teams[plain] : null) || null;
 }
 
-/* The week of the next kickoff on the schedule, or null when there is none to name. */
-function schedWeek(){
-  if (!schedOk()) return null;
-  const now = Date.now() - SCHED_GRACE_MS;
-  const next = LIVE_SCHEDULE.games.filter(g => Date.parse(g.kickoff) > now)
-    .sort((a, b) => Date.parse(a.kickoff) - Date.parse(b.kickoff))[0];
-  return next ? next.week : null;
-}
+/* The page's week, decided by the build from the scores in its data (design/schedule.py page_week),
+   never by the reader's clock: since 2026-09-28 the pack, the brief and Weather turn the week at the
+   same build as the recap and the projections, not the moment Monday night kicks off. */
+const schedWeek = () => schedOk() ? LIVE_SCHEDULE.week ?? null : null;
 
 /* Every game of a week, in kickoff order. */
 const schedGamesOf = wk => !schedOk() || wk === null ? [] : LIVE_SCHEDULE.games
