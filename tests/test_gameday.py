@@ -7,6 +7,7 @@ league's rules must give the official number, which is the whole claim the Live 
 """
 import json
 import pathlib
+import re
 import sys
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
@@ -128,6 +129,30 @@ def test_the_page_scores_week_2_as_both_leagues_did(browser, page_file):
 
 
 @pytest.mark.render
+def test_the_bench_is_scored_but_never_counted_and_proj_adds_who_is_left(browser, page_file):
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    got = page.evaluate("""(fix) => {
+      const lg = fix.espn, id = Object.keys(lg.teams)[0], final = {};
+      for (const tm of Object.values(lg.teams)) for (const r of tm.lineup) final[r.team] = "complete";
+      const s = gdSide(lg, id, fix.stats, final);
+      const starters = s.rows.reduce((a, r) => a + r.pts, 0), bench = s.bench.reduce((a, r) => a + r.pts, 0);
+      const mixed = {rows: [{state: "complete", pts: 10}, {state: "in_game", pts: 4}, {state: "in_game", pts: 20},
+                            {state: "pre_game", pts: null}, {state: "pre_game", pts: null}]};
+      const proj = [null, 12, 15, 9, null];
+      let i = 0;
+      return {total: s.total, starters, benchTotal: s.benchTotal, bench, nBench: s.bench.length,
+              benchSlots: s.bench.every(r => GD_BENCH.includes(r.slot)),
+              proj: gdProj(mixed, () => proj[i++])};
+    }""", FIX)
+    ctx.close()
+    assert got["nBench"] > 0 and got["benchSlots"]
+    assert abs(got["total"] - got["starters"]) < 0.011
+    assert abs(got["benchTotal"] - got["bench"]) < 0.011
+    assert got["proj"] == 10 + 12 + 20 + 9 + 0     # done as scored; mid-game the larger; unplayed projected
+    assert errors == []
+
+
+@pytest.mark.render
 def test_the_board_says_where_each_game_is_and_a_row_opens_his_profile(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     page.evaluate(plant())
@@ -139,16 +164,22 @@ def test_the_board_says_where_each_game_is_and_a_row_opens_his_profile(browser, 
     by_team = dict(states)
     assert by_team.get("SF") == "PLAYING" and by_team.get("DET") == "PROJ"
     assert "FINAL" in by_team.values()
-    assert page.locator(".gd-median").count() == 1                     # ESPN pays the top half
+    assert page.locator(".gd-median:not(.quiet)").count() == 1         # ESPN pays the top half
+    assert page.locator(".gd-bx-foot small").count() > 0               # so its games say TOP/BOT
+    # my game says who leads in words; the bench is drawn, dimmed, and left out of the total
+    assert re.match(r"^(UP|DOWN) \d+\.\d$|^TIED$", page.locator(".gd-lead").inner_text())
+    assert page.locator(".gd-lineup.mine .gd-row.bn").count() > 0
     page.locator(".gd-lineup.mine .gd-row").first.click()
     page.wait_for_selector("#modal.on")
     page.keyboard.press("Escape")
     page.click("[data-gdleague='yahoo']")
-    assert page.locator(".gd-median").count() == 0                     # Yahoo does not
+    assert page.locator(".gd-median.quiet").count() == 1               # Yahoo ranks for bragging
+    assert page.locator(".gd-bx-foot small").count() == 0              # and tags no one
     assert "Chat Take the Wheel" in page.locator(".gd-head").inner_text()
-    # another game in the league opens its two lineups
+    # another game in the league opens its two lineups, and its chip names no side
     other = page.locator(".gd-g:not(.mine)").first
     other.click()
     assert "Chat Take the Wheel" not in page.locator(".gd-head").inner_text()
+    assert re.match(r"^BY \d+\.\d$|^TIED$", page.locator(".gd-lead").inner_text())
     ctx.close()
     assert errors == []

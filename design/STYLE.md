@@ -75,7 +75,9 @@ loads. A new curve or duration is a new token, never a literal in a component.
 3. Page, filter and tap through it: nothing jumps, and every motion ends where its thing lives.
 4. Every interaction has a render test (`tests/test_render.py`), and the golden diff shows only
    this view.
-5. `tests/test_style_rules.py` passes: nothing scrolls sideways at 360px (Leaders' faded stat
+5. Its cards pass Material Design's rule (`DESIGN.md`, "Cards"): one card per subject, rows
+   inside it, never a card in a card.
+6. `tests/test_style_rules.py` passes: nothing scrolls sideways at 360px (Leaders' faded stat
    tabs are the one exception) and nothing loops while the page is idle.
 
 The playable motion reference is the Bets storyboard, published 2026-09-25:

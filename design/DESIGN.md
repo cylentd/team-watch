@@ -910,6 +910,25 @@ so a run of profiles reads QB/RB/WR/TE at a glance. Rows, cells and badges stay 
 Type: Bricolage Grotesque (display), Archivo (UI),
 JetBrains Mono (all numerals).
 
+### Cards: Material Design's rule (decided 2026-09-28)
+
+Every view follows Material Design 3's guidance on containers. A card holds content and actions
+about **one subject**; items of one kind that the reader scans and compares are a **list**. The
+source is m3.material.io, Components > Cards and Lists; this wording is from memory (the site
+renders in script and did not load for a check), so re-read it there before bending a rule.
+
+| Rule | Here |
+|---|---|
+| One card per subject | Live: the score, each team's lineup, the league's games, the ranking |
+| Rows inside a card stay rows, divided by a 1px `--line` | a lineup's players, the ranking's teams |
+| A card never holds a card | a nested block uses a filled box (`--panel-2`), no second border radius stack |
+| A card is one tap target, or holds its own buttons, never both | a game box opens the game; a lineup row opens the player |
+| One card style: `--panel` fill, 1px `--line` border, 16px radius; no shadow (the console is flat) | a filled box inside a card: `--panel-2`, 10px radius |
+| Big-number tiles only when the number is the point | Live's score card; not the ranking |
+
+A new or changed view names its cards against this table before it lands (`STYLE.md`, "Before a
+view lands").
+
 ## Theme rules
 
 `design/lint_css.py` fails the build on any of these (`python design/lint_css.py`):

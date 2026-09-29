@@ -61,18 +61,34 @@ function gdLine(row, s){
 const GD_BENCH = ["BE", "BN", "IR"];
 const gdStarter = r => !GD_BENCH.includes(r.slot);
 
-/* A team's starters scored: [{...row, pts, line, state}] and its total. `states` is Sleeper's
-   {team: pre_game|in_game|complete}; a row whose team has no state yet reads as not started. */
+const gdSum = rows => Math.round(rows.reduce((a, r) => a + (r.pts || 0), 0) * 100) / 100;
+
+/* A team scored: its starters and its bench as [{...row, pts, line, state}], the starters' total
+   (the only one that counts) and the bench's. `states` is Sleeper's {team: pre_game|in_game|complete};
+   a row whose team has no state yet reads as not started. */
 function gdSide(league, id, stats, states){
-  const rows = league.teams[id].lineup.filter(gdStarter).map(r => {
+  const all = league.teams[id].lineup.map(r => {
     const s = r.sid && stats ? stats[r.sid] : null, state = states[r.team] || "pre_game";
     const pts = state === "pre_game" ? null : gdPts(league.rules, r, s || {});
     return {...r, pts, line: state === "pre_game" ? "" : gdLine(r, s || {}), state};
   });
-  const total = Math.round(rows.reduce((a, r) => a + (r.pts || 0), 0) * 100) / 100;
+  const rows = all.filter(gdStarter), bench = all.filter(r => !gdStarter(r));
   const count = st => rows.filter(r => r.state === st).length;
-  return {id, name: league.teams[id].name, rows, total,
+  return {id, name: league.teams[id].name, rows, bench, total: gdSum(rows), benchTotal: gdSum(bench),
           done: count("complete"), playing: count("in_game"), left: count("pre_game")};
+}
+
+/* Where a side should finish: what the finished have, the projection of who hasn't played, and for a
+   man mid-game the larger of the two (no game clock to prorate by, so he is taken to reach his
+   projection unless he already passed it). `projOf(row)` is a number or null. */
+function gdProj(side, projOf){
+  const p = side.rows.reduce((a, r) => {
+    const pr = projOf(r);
+    if (r.state === "complete") return a + (r.pts || 0);
+    if (r.state === "in_game") return a + Math.max(r.pts || 0, pr || 0);
+    return a + (pr || 0);
+  }, 0);
+  return Math.round(p * 100) / 100;
 }
 
 /* Every team's total, best first, with the median between the two halves (ESPN's top-half win). */
