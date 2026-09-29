@@ -25,8 +25,13 @@ function bdMeasureFit(){
   if (!rows.length) return null;
   const rowH = Math.max(...rows.map(r => r.offsetHeight));
   const top = rows[0].getBoundingClientRect().top + window.scrollY;
-  // The lowest row, not the last: from 1100px the page is two lists side by side.
-  const under = card.getBoundingClientRect().bottom - Math.max(...rows.map(r => r.getBoundingClientRect().bottom));
+  // The lowest row, not the last: from 1100px the page is two lists side by side. From 1100px the
+  // #1 shares the lists' grid row and can stand taller than a short last page; that slack is not
+  // under the rows, and counting it shrank the page, which grew the slack: a render loop (2026-09-29).
+  const rowsBottom = Math.max(...rows.map(r => r.getBoundingClientRect().bottom));
+  const hero = card.querySelector(":scope > .bd-hero");
+  const slack = BD_WIDE.matches && hero ? Math.max(0, hero.getBoundingClientRect().bottom - rowsBottom) : 0;
+  const under = card.getBoundingClientRect().bottom - rowsBottom - slack;
   const room = window.innerHeight - bdBottomChromeH() - top - under - 8;
   const fit = px => Math.max(BD_FIT_MIN, Math.min(BD_FIT_MAX, Math.floor(px / rowH))) * (BD_WIDE.matches ? 2 : 1);
   // No pager means every row is on screen. That stands if they fit without one; only a list that

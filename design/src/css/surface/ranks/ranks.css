@@ -47,3 +47,16 @@
   .rk-pts{text-align:right}
   .rk-tier{padding:12px 20px 6px}
 }
+/* From 1100px the tiers flow down two columns (2026-09-29): one 1128px row put the name and the
+   points ~1,000px apart, and the RB list ran four screens. A tier never splits across columns, so
+   its label stays with its rows; order reads down the left column, then the right. A column under
+   600px (a window under ~1280) has no room for the stat line, so it goes, as on a phone. */
+@media (min-width:1100px){
+  .rk-list{display:block;columns:2;column-gap:16px;max-width:none}
+  .rk-group{break-inside:avoid;margin-bottom:10px;container-type:inline-size}
+  .rk-row{grid-template-columns:28px 34px minmax(150px,1fr) max-content 56px}
+  @container (max-width:599px){
+    .rk-row{grid-template-columns:28px 34px minmax(0,1fr) 56px}
+    .rk-mu{display:none}
+  }
+}

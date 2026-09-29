@@ -3474,15 +3474,21 @@ body:has(.connect:not([hidden])){overflow:hidden}
 /* From 1100px (storyboard B, 2026-09-27): the #1 is a 440px column on every page and the page
    reads down two lists beside it, so a 1920x1080 screen shows #1-43 of 64 instead of #1-16. The
    hero keeps a fixed height (the day-long side-by-side of 2026-09-26 stretched it to the list's
-   full height); the lists keep the phone's row, so a bar is never longer than half the page. */
+   full height); the lists keep the phone's row, so a bar is never longer than half the page.
+   Since 2026-09-29 .bd-side dissolves into the card's grid, so the hero shares the lists' row and
+   ends where they end (a fixed 440px left ~190px of empty page under it). The rows are fitted to
+   the window (fit.js), which bounds the stretch. */
 @media (min-width:1100px){
-  .bd-card{display:grid;grid-template-columns:440px minmax(0,1fr);column-gap:24px;align-items:start;
+  .bd-card{display:grid;grid-template-columns:440px minmax(0,1fr);column-gap:24px;row-gap:12px;align-items:start;
     max-width:none;border:0;border-radius:0;background:none;overflow:visible}
-  /* 440px, less on a short window: the card starts ~210px down and must end above the edge too. */
-  .bd-hero{min-height:min(440px,calc(100dvh - 230px));border:1px solid var(--line);border-radius:14px}
+  /* Its height is the lists' (fitted to the window); the floor only holds a short last page. A
+     440px floor pushed the pager past the bottom edge of a 640px window. */
+  .bd-hero{grid-column:1;grid-row:1;align-self:stretch;
+    min-height:260px;border:1px solid var(--line);border-radius:14px}
   .bd-hero-img{max-height:280px}
   .bd-hero-txt{padding:20px 24px 24px}
-  .bd-side{grid-column:2;display:grid;gap:12px}
+  .bd-side{display:contents}
+  .bd-side > *{grid-column:2}
   .bd-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;align-items:start}
   .bd-cols > .bd-list,.bd-side > .bd-pinned{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:4px 0}
   .bd-side > .bd-pinned .bd-gap{display:none}
@@ -3676,6 +3682,19 @@ body:has(.connect:not([hidden])){overflow:hidden}
   .rk-mu:where(#view[data-view="ranks"], #view[data-view="ranks"] *){display:block}
   .rk-pts:where(#view[data-view="ranks"], #view[data-view="ranks"] *){text-align:right}
   .rk-tier:where(#view[data-view="ranks"], #view[data-view="ranks"] *){padding:12px 20px 6px}
+}
+/* From 1100px the tiers flow down two columns (2026-09-29): one 1128px row put the name and the
+   points ~1,000px apart, and the RB list ran four screens. A tier never splits across columns, so
+   its label stays with its rows; order reads down the left column, then the right. A column under
+   600px (a window under ~1280) has no room for the stat line, so it goes, as on a phone. */
+@media (min-width:1100px){
+  .rk-list:where(#view[data-view="ranks"], #view[data-view="ranks"] *){display:block;columns:2;column-gap:16px;max-width:none}
+  .rk-group:where(#view[data-view="ranks"], #view[data-view="ranks"] *){break-inside:avoid;margin-bottom:10px;container-type:inline-size}
+  .rk-row:where(#view[data-view="ranks"], #view[data-view="ranks"] *){grid-template-columns:28px 34px minmax(150px,1fr) max-content 56px}
+  @container (max-width:599px){
+    .rk-row:where(#view[data-view="ranks"], #view[data-view="ranks"] *){grid-template-columns:28px 34px minmax(0,1fr) 56px}
+    .rk-mu:where(#view[data-view="ranks"], #view[data-view="ranks"] *){display:none}
+  }
 }
 /* ── css/surface/weather/weather.css ── */
 /* ============================== WEATHER ============================== */
@@ -16346,8 +16365,13 @@ function bdMeasureFit(){
   if (!rows.length) return null;
   const rowH = Math.max(...rows.map(r => r.offsetHeight));
   const top = rows[0].getBoundingClientRect().top + window.scrollY;
-  // The lowest row, not the last: from 1100px the page is two lists side by side.
-  const under = card.getBoundingClientRect().bottom - Math.max(...rows.map(r => r.getBoundingClientRect().bottom));
+  // The lowest row, not the last: from 1100px the page is two lists side by side. From 1100px the
+  // #1 shares the lists' grid row and can stand taller than a short last page; that slack is not
+  // under the rows, and counting it shrank the page, which grew the slack: a render loop (2026-09-29).
+  const rowsBottom = Math.max(...rows.map(r => r.getBoundingClientRect().bottom));
+  const hero = card.querySelector(":scope > .bd-hero");
+  const slack = BD_WIDE.matches && hero ? Math.max(0, hero.getBoundingClientRect().bottom - rowsBottom) : 0;
+  const under = card.getBoundingClientRect().bottom - rowsBottom - slack;
   const room = window.innerHeight - bdBottomChromeH() - top - under - 8;
   const fit = px => Math.max(BD_FIT_MIN, Math.min(BD_FIT_MAX, Math.floor(px / rowH))) * (BD_WIDE.matches ? 2 : 1);
   // No pager means every row is on screen. That stands if they fit without one; only a list that
