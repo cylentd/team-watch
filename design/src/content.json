@@ -302,6 +302,7 @@
  "digest.line.doubtful": "doubtful",
  "digest.line.gemTgt": "<b>{name}</b> {usage}% of targets, experts {pos}{ecr}",
  "digest.line.gemTouch": "<b>{name}</b> {usage} touches, experts {pos}{ecr}",
+ "digest.line.hurtNext": "Week {week}'s injury report is still in the trainer's room",
  "digest.line.ir": "to IR",
  "digest.line.mu": "Best spot: <b>{name}</b> {vs}",
  "digest.line.muCalls": "{n} calls this week",

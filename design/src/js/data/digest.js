@@ -67,6 +67,14 @@ function dgD(){
   return DG_CUT;
 }
 
+/* Every game of the packet's week has kicked off (LIVE_SCHEDULE): its injury list is moot and next
+   week's is not written until Tuesday's run, so an empty Hurt row says so (David, 2026-09-29). */
+function dgWeekDone(d){
+  const games = typeof LIVE_SCHEDULE !== "undefined" && LIVE_SCHEDULE ? LIVE_SCHEDULE.games.filter(g => g.week === d.week) : [];
+  const now = Date.now();
+  return games.length > 0 && games.every(g => Date.parse(g.kickoff) <= now);
+}
+
 /* Does the section hold anything at all. An empty one says "nothing new" and cannot open. */
 function dgHas(id){
   const d = dgD();

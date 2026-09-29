@@ -156,6 +156,23 @@ def test_the_call_picks_its_verb_from_his_day(browser, page_file):
     assert got["again"] == c[0] and got["weeks"] > 1        # fixed for his week, fresh across weeks
 
 
+@pytest.mark.render
+def test_an_empty_hurt_row_says_next_weeks_report_is_not_in_yet(browser, page_file):
+    """Once every game of the packet's week has kicked off (the fixture's week 3 ends with KC @ SF,
+    2026-09-21), an empty Hurt row says next week's report is not written; before that, "Nothing new"."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    page.goto(page_file.as_uri())
+    for _, sel in go("digest"):
+        page.click(sel)
+    page.wait_for_selector(".dg-row")
+    line = lambda at: page.evaluate("""(at) => { Date.now = () => Date.parse(at); LIVE_DIGEST.hurt = []; DG_CUT = null; render();
+      return document.querySelector('.dg-row[data-dgrow="hurt"] .dg-s').textContent.trim(); }""", at)
+    assert line("2026-09-20T12:00:00Z") == "Nothing new"
+    assert line("2026-09-22T12:00:00Z") == "Week 4's injury report is still in the trainer's room"
+    ctx.close()
+    assert errors == []
+
+
 def test_fixture_block_is_whole():
     b = _block()
     contract.validate("LIVE_DIGEST", b)

@@ -83,7 +83,8 @@ function dgLine(id, d){
 function dgRowHTML(id, d, open){
   const has = dgHas(id);
   const [n, tone] = has ? dgCount(id, d) : ["", ""];
-  const line = has ? dgLine(id, d) : t("digest.line.nothing");
+  const line = has ? dgLine(id, d)
+    : id === "hurt" && d && dgWeekDone(d) ? t("digest.line.hurtNext", {week: d.week + 1}) : t("digest.line.nothing");
   const on = has && open === id;
   return `<div class="dg-row${has ? "" : " empty"}" data-dgrow="${id}"${on ? " data-open data-today" : ""}>
     <button type="button" class="dg-head" aria-expanded="${on}"${has ? ` aria-controls="dg-b-${id}"` : " disabled"}>
