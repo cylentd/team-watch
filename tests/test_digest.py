@@ -219,6 +219,33 @@ def test_a_finished_week_folds_the_preview_rows_into_the_wait(browser, page_file
 
 
 @pytest.mark.render
+def test_every_wall_row_has_its_area(browser, page_file):
+    """On a desktop the ticker is a grid of named bands, and a band set per state (wall.css). A row whose
+    area the state's template lacks makes the grid invent columns for it, and every band shrinks to a
+    sliver: the Starters row and the finished-week wait card landed on two branches, each passing, and
+    together broke the wall (2026-09-29). So every state the fixture week reaches, from before its first
+    game to after its last, and with each band that comes and goes: each row's area is in the template."""
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    drive(page, go("digest"))
+    seen = {}
+    for at in ("2026-09-10T12:00:00Z", "2026-09-14T18:00:00Z", "2026-09-17T12:00:00Z", "2026-09-18T12:00:00Z",
+               "2026-09-21T20:00:00Z", "2026-09-22T00:30:00Z", "2026-09-22T12:00:00Z", "2026-09-24T12:00:00Z"):
+        got = page.evaluate("""(at) => { Date.now = () => Date.parse(at); DG_CUT = null; render();
+          const tk = document.querySelector('.dg-ticker'), cs = getComputedStyle(tk);
+          const names = new Set(cs.gridTemplateAreas.replace(/"/g, ' ').split(/\\s+/).filter(Boolean));
+          const rows = [...tk.children].filter(e => getComputedStyle(e).display !== 'none');
+          return {cls: tk.className, missing: rows.map(e => [e.dataset.dgrow || e.className, getComputedStyle(e).gridRowStart])
+            .filter(([, a]) => !names.has(a)), cols: cs.gridTemplateColumns.split(' ').length}; }""", at)
+        seen[got["cls"]] = at
+        assert got["missing"] == [], f"{at} ({got['cls']}): rows with no area in the template: {got['missing']}"
+        assert got["cols"] == 12, f"{at} ({got['cls']}): {got['cols']} columns, the wall has 12"
+    # The fixture week must reach the finished-week layout, or the check above never saw it.
+    assert any("wk-done" in c for c in seen), seen
+    ctx.close()
+    assert errors == []
+
+
+@pytest.mark.render
 def test_every_player_opens_his_profile(browser, page_file):
     """A lead about one player and a name in Risers & fallers open his profile, like every other
     Digest row (2026-09-29, David: "should we be able to click on players to open their profile?")."""

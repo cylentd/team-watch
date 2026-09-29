@@ -81,7 +81,12 @@ button.cs-slot:active .cs-ico{transform:scale(var(--press))}
 .cs-note{margin:10px 0 0;font-size:var(--t-2);line-height:1.45;color:var(--ink-2)}
 .cs-note b{color:var(--ink);font-weight:700}
 
-/* a season's roster in the sheet: slot, player and team, points; starters, then the bench */
+/* a season's roster in the sheet: slot, player and team, points; starters, then the bench. The sheet is
+   as wide as a lineup, not the profile's 1240px: at that width the points sat ~1,700 screen pixels
+   from the names (David, 2026-09-29: "too wide"). A phone keeps the full-screen sheet. */
+@media (min-width:430px){
+  .modal:has(.cs-roster){width:min(460px,96vw);height:auto;max-height:90vh}
+}
 .cs-roster{display:grid;gap:14px}
 .cs-roster-hd{display:flex;align-items:center;gap:12px}
 .cs-roster-hd .cs-ico{width:40px;height:53px;flex:none}

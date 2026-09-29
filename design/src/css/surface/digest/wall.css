@@ -94,15 +94,20 @@
      panels that still have something say it in one row of four, all about as tall. Given Hurt's
      tall slot it stood half empty (2026-09-29). Tonight's card, while it shows, comes first, so the
      wait never meets it (dgWaiting). */
+  /* Every row the ticker can draw needs its area here: a row whose area is missing makes the grid
+     invent columns for it, and every band shrinks to a sliver (Starters, 2026-09-29: the wait card's
+     branch predated the row). test_every_wall_row_has_its_area checks each state. */
   .dg-ticker.wk-done{
     grid-template-areas:
       "wait wait wait adds adds adds st   st   st   gems gems gems"
+      "start start start start start start start start start start start start"
       "news news news news news news news news news news news news";
   }
   .dg-ticker.wk-done.has-res{
     grid-template-areas:
       "res  res  res  res  res  res  res  res  res  res  res  res"
       "wait wait wait adds adds adds st   st   st   gems gems gems"
+      "start start start start start start start start start start start start"
       "news news news news news news news news news news news news";
   }
   .dg-tns{grid-area:tn;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:20px}
