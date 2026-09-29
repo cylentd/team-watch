@@ -276,7 +276,10 @@ STATES = [
                        + go("matchups")),
     # No takes on a Tuesday: the experts have not ranked the week yet, and Blip (bored) says when
     # they will (2026-09-29). matchups-empty above is the other reason: the experts are in, we agree.
-    ("matchups-early", [("eval", "Object.assign(LIVE_STARTSIT, {calls: [], experts_week: LIVE_STARTSIT.week - 1})")]
+    # The record with FantasyPros graded on our takes (2026-09-29): three bars, the best lime.
+    ("matchups-fp", [("eval", "LIVE_STARTSIT.record.fp = {n: 31, score: 0.676, score_no_dnp: 0.663}")]
+                    + go("matchups")),
+    ("matchups-early",[("eval", "Object.assign(LIVE_STARTSIT, {calls: [], experts_week: LIVE_STARTSIT.week - 1})")]
                        + go("matchups")),
     ("usage", go("usage")),
     ("usage-panel", go("usage") + [("click", "[data-upanel]")]),

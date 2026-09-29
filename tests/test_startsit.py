@@ -39,7 +39,16 @@ def test_row_keeps_reason_text_and_places_home_by_the_opponent():
 def test_record_comes_from_the_newest_graded_week():
     assert _block()["record"] == {"through": 2, "weeks": [1, 2],
                                   "ours": {"n": 31, "score": 0.324, "score_no_dnp": 0.337},
-                                  "pl": {"n": 12, "score": 0.667, "score_no_dnp": 0.667}}
+                                  "pl": {"n": 12, "score": 0.667, "score_no_dnp": 0.667},
+                                  "fp": None}   # a grade file from before ff-jarvis graded FantasyPros
+
+
+def test_fantasypros_side_comes_through_when_graded():
+    """FantasyPros on our takes (2026-09-29): the other call on each, so its n is ours."""
+    calls, pl, grade = load_startsit()
+    g = json.loads(json.dumps(grade))
+    g["startsit_record"]["fantasypros"] = {"n": 31, "score": 0.676, "score_no_dnp": 0.663}
+    assert live_startsit(calls, pl, g, slugify)["record"]["fp"] == {"n": 31, "score": 0.676, "score_no_dnp": 0.663}
 
 
 def test_last_weeks_pitcher_list_column_is_dropped():

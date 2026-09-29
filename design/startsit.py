@@ -41,8 +41,11 @@ def _record(grade):
     if not rec or not rec.get("weeks"):
         return None
     side = lambda s: {"n": s.get("n", 0), "score": s.get("score"), "score_no_dnp": s.get("score_no_dnp")}
+    # FantasyPros (2026-09-29) is graded on our takes: each one is a disagreement, so FantasyPros made
+    # the other call. Null in a grade file written before ff-jarvis graded that side.
+    fp = rec.get("fantasypros")
     return {"through": grade["week"], "weeks": rec["weeks"], "ours": side(rec.get("ours") or {}),
-            "pl": side(rec.get("pitcherlist") or {})}
+            "pl": side(rec.get("pitcherlist") or {}), "fp": side(fp) if fp else None}
 
 
 def live_startsit(calls, pl, grade, slugify):

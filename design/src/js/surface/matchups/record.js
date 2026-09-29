@@ -20,11 +20,15 @@ function muRecordHTML(){
   const r = LIVE_STARTSIT.record;
   if (!r) return `<div class="mu-rec none"><span class="mu-rec-l">${t("matchups.record.label")}</span>
     <span class="mu-rec-none">${t("matchups.record.none")}</span></div>`;
-  const us = r.ours.score != null && r.pl.score != null && r.ours.score >= r.pl.score;
-  const them = r.pl.score != null && !us;
+  // The best score is lime, ties to ours. FantasyPros' bar (2026-09-29) is graded on our takes, the
+  // other side of each; it is drawn only once ff-jarvis has graded that side.
+  const sides = [["pl", t("matchups.record.pl")], ["fp", t("matchups.record.fp")], ["ours", t("matchups.record.ours")]]
+    .filter(([k]) => r[k]);
+  const top = Math.max(...sides.map(([k]) => r[k].score ?? -1));
+  const lead = k => r[k].score != null && r[k].score === top && (k === "ours" || r.ours.score !== top);
   return `<div class="mu-rec" role="group" aria-label="${t("matchups.record.aria", {wk: r.through})}">
     <span class="mu-rec-l">${t("matchups.record.label")}<small>${t("matchups.record.weeks", {wk: muWeeks(r.weeks)})}</small></span>
-    <span class="mu-rec-bars">${muBarHTML(t("matchups.record.pl"), r.pl, them)}${muBarHTML(t("matchups.record.ours"), r.ours, us)}</span>
+    <span class="mu-rec-bars">${sides.map(([k, label]) => muBarHTML(label, r[k], lead(k))).join("")}</span>
   </div>`;
 }
 

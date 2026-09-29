@@ -322,7 +322,7 @@ def test_top_5_links_to_ranks_and_one_call_is_singular(browser, page_file):
     got = page.evaluate("""() => { LIVE_DIGEST.calls = 1; LIVE_DIGEST.best = []; DG_CUT = null; render();
       return [document.querySelector('.dg-row[data-dgrow="mu"] [data-dggo]').textContent.trim(),
               document.querySelector('.dg-row[data-dgrow="mu"] .dg-s').textContent.trim()]; }""")
-    assert got == ["1 take vs the experts", "1 call this week"]   # Matchups became Takes, 2026-09-29
+    assert got == ["1 take vs FantasyPros", "1 call this week"]   # Matchups became Takes, 2026-09-29
     ctx.close()
     assert errors == []
 
