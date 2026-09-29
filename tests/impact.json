@@ -21,6 +21,12 @@
       "tests": ["tests/test_weather.py", "tests/test_wx_kicked.py"],
       "render": ["weather"]
     },
+    "preview": {
+      "paths": ["design/src/js/surface/preview/", "design/src/css/surface/preview/", "design/src/js/data/preview.js",
+                "design/preview.py"],
+      "tests": ["tests/test_preview.py"],
+      "render": ["preview"]
+    },
     "league": {
       "paths": ["design/src/js/surface/league/", "design/src/css/surface/league/", "design/src/js/data/league.js",
                 "design/league_back.py", "design/league_recap.py"],

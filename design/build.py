@@ -37,13 +37,14 @@ from archetype import (load_archetype, load_trenches, live_archetype, live_trenc
 from startsit import live_startsit, report as startsit_report  # design/startsit.py: the Matchups view
 from mates import espn_rows, yahoo_rows, live_mates, slugs as mate_slugs, report as mates_report  # every team in both leagues
 from digest import live_digest, report as digest_report        # design/digest.py: the Digest view
+from preview import live_preview, report as preview_report     # design/preview.py: This week > Preview
 from league_recap import live_league, live_league_yahoo, report as league_report  # My teams > League
 from league_trades import live_trades, report as trades_report  # League > Trades
 from sources import (                                    # design/sources.py: the ff-jarvis adapter
     ROOT, REPO, DWR, FEED, ESPN_ROSTERS, YAHOO_ROSTERS, DFS_POOL,
     feed_block, read_first, load_status, load_props_raw, load_model_raw,
     load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
-    load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_startsit, load_digest, load_league,
+    load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_startsit, load_digest, load_game_preview, load_league,
     load_league_yahoo, load_league_back, load_case_rosters, load_defense, load_trades, load_kickers,
 )
 from gameday import live_gameday, report as gameday_report  # This week > Live: every matchup, scored live
@@ -740,6 +741,7 @@ def render():
         "LIVE_TRENCHES": live_trenches(load_trenches(FEED, DWR)),
         "LIVE_STARTSIT": live_startsit(*load_startsit(), slugify),
         "LIVE_DIGEST": live_digest(load_digest(), slugify, load_schedule(DWR)),
+        "LIVE_PREVIEW": live_preview(load_game_preview(), slugify),
         "LIVE_LEAGUE": live_league(*load_league(), roster_file(ESPN_ROSTERS), slugify),
         "LIVE_LEAGUE_YAHOO": live_league_yahoo(*load_league_yahoo(), roster_file(YAHOO_ROSTERS), slugify, *load_league_back(),
                                                cases=load_case_rosters()),
@@ -752,6 +754,7 @@ def render():
     blocks["LIVE_SIGNED"] = live_signed(load_gamelog_weekly(), blocks["LIVE_SCHEDULE"], slugify, wanted_set)
     add_market_stock(blocks, report)
     report += [schedule_report(blocks["LIVE_SCHEDULE"]), signed_report(blocks["LIVE_SIGNED"]), digest_report(blocks["LIVE_DIGEST"]),
+               preview_report(blocks["LIVE_PREVIEW"]),
                pedigree_report(blocks["LIVE_PEDIGREE"]), gamelog_report(blocks["LIVE_GAMELOG"]),
                projections_report(blocks["LIVE_PROJECTIONS"]), ranks_report(blocks["LIVE_RANKS"]),
                routes_report(blocks["LIVE_ROUTES"]), report_archetype(blocks["LIVE_ARCHETYPE"]),

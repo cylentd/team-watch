@@ -725,6 +725,34 @@ Not backtested: the calls. The foot says so, and names the record as the test.
 Not built yet: Bets > Games (every game with its implied totals and each offense against the other
 defense by position), the storyboard's second view.
 
+## Preview (This week, 2026-09-29)
+
+One game a screen, for every game of the week, in kickoff order. Storyboard option C, picked by David
+over a slate of rows and a stacked program (https://claude.ai/artifact/A5QvueyLecBFdFyYCcZbEH):
+"It fits all one screen", plus swipe and a Thursday / Sunday / Monday marker. League-wide and public:
+no roster is read, and the players named are the ones ff-jarvis's `game_preview` picked per side.
+
+| part | what it shows |
+|---|---|
+| Day marker | one button per day (the reader's own weekday), one dot per game, the game on screen lit `--lime`; a tap jumps to that day's first game |
+| Header | ‹ AWAY @ HOME › and the kickoff; "kicked off" once it has. The arrows turn the game, so there is no pager row |
+| Claude's call | headline, lean, then Claude's score over the market's implied score (two rows on one set of columns), how the two differ, rain at 50%+ in `--sky`, who is out in one line, the risk |
+| Players | 3-4 rows: face, call (▲ `--up` beats his projection, ▼ `--down` falls short, ● lands near it), "D. Swift", position and team, our projection, why. A tap opens the profile |
+| Footer | once: whose call it is, that every number in it is checked, that it is opinion, not a tested model, and the key to the three marks |
+
+- **Fits one screen (measured 2026-09-29, week 4's 16 real takes):** the card ends at 703-772px on a
+  360x800 phone and 420-489px on a 1400x900 desktop. To get there the ff-jarvis writer's limits came
+  down (4 players, lean 180, market 110, why 70, risk 100 characters; it was 6 / 240 / 160 / 120 / 160,
+  and the card ran to 877px), the pager row moved into the header, and three "Out" chips became one line.
+  `test_every_game_fits_one_screen` holds it on the fixture.
+- **Swipe:** the Board's touch delta (`board.js`), not scroll-snap: STYLE.md forbids sideways
+  scroll inside a page that scrolls down. More than 48px and mostly sideways turns the game; past
+  either end nothing happens. The new card slides 28px in from that side on the spring; reduced
+  motion draws it in place.
+- **No take yet** (a failed write, or before the first run): the header and "Claude's call on this game
+  arrives with the next refresh.", with rain and who is out.
+- **Opens on** the next game to kick off, not the first of the week.
+
 ## Weather (This week, 2026-09-26)
 
 Every game of this week (`schedWeek`, the pack's week) with the forecast at kickoff. League-wide

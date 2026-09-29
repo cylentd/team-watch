@@ -86,6 +86,8 @@ data/weather.js
 data/wxhistory.js
 surface/weather/card.js
 surface/weather/weather.js
+data/preview.js
+surface/preview/preview.js
 data/digest.js
 data/gameday/score.js
 data/gameday/espn.js

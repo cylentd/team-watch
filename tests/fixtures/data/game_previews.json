@@ -1,0 +1,69 @@
+{
+ "season": 2026,
+ "week": 2,
+ "asof": "2026-09-12T09:00:00Z",
+ "games": {
+  "2026_02_PIT_CLE": {
+   "facts": {
+    "key": "2026_02_PIT_CLE", "week": 2, "kickoff": "2026-09-18T00:15:00Z", "home": "CLE", "away": "PIT",
+    "line": {"spread_home": 2.5, "total": 38.5, "favorite": "PIT", "by": 2.5, "implied": {"CLE": 18.0, "PIT": 20.5}},
+    "weather": {"roof": "outdoor", "temp_f": 75, "wind_mph": 8, "precip_pct": 15, "sky": "Slight Chance Rain Showers"},
+    "teams": {
+     "CLE": {"players": [{"key": "quinshon judkins", "name": "Quinshon Judkins", "pos": "RB", "proj": 9.5},
+                         {"key": "harold fannin", "name": "Harold Fannin Jr.", "pos": "TE", "proj": 9.2}],
+             "missing": [], "defense_faced": null},
+     "PIT": {"players": [{"key": "dk metcalf", "name": "DK Metcalf", "pos": "WR", "proj": 8.1},
+                         {"key": "jaylen warren", "name": "Jaylen Warren", "pos": "RB", "proj": 12.5}],
+             "missing": [], "defense_faced": null}
+    }
+   },
+   "material": "a1", "take_material": "a1", "written": "2026-09-12T09:00:00Z", "model": "opus/high",
+   "take": {
+    "headline": "Steelers win through the air vs soft Browns WR D",
+    "lean": "Pittsburgh wins through the air. Cleveland runs the ball to stay close but cannot match the passing edge.",
+    "pick": {"winner": "PIT", "score": {"CLE": 17, "PIT": 23}},
+    "vs_market": "Near the market. PIT's 20.5 rises to 23 on the WR matchup.",
+    "risk": "A quiet Metcalf and a Browns run game that wins a low-scoring grind at home.",
+    "players": [{"key": "dk metcalf", "call": "up", "why": "Cleveland allows the 26th-most WR points."},
+                {"key": "jaylen warren", "call": "down", "why": "A top-10 run defense caps each carry."},
+                {"key": "quinshon judkins", "call": "hold", "why": "Volume lands him near his 9.5."}]
+   }
+  },
+  "2026_02_DET_CAR": {
+   "facts": {
+    "key": "2026_02_DET_CAR", "week": 2, "kickoff": "2026-09-20T17:00:00Z", "home": "CAR", "away": "DET",
+    "line": {"spread_home": 3.5, "total": 50.5, "favorite": "DET", "by": 3.5, "implied": {"CAR": 23.5, "DET": 27.0}},
+    "weather": {"roof": "outdoor", "temp_f": 70, "wind_mph": 5, "precip_pct": 56, "sky": "Rain Showers Likely"},
+    "teams": {
+     "CAR": {"players": [{"key": "bryce young", "name": "Bryce Young", "pos": "QB", "proj": 17.6}],
+             "missing": [{"key": "jalen coker", "name": "Jalen Coker", "pos": "WR", "injury": "Out", "avg": 14.4}],
+             "defense_faced": null},
+     "DET": {"players": [{"key": "jahmyr gibbs", "name": "Jahmyr Gibbs", "pos": "RB", "proj": 18.8},
+                         {"key": "amonra st brown", "name": "Amon-Ra St. Brown", "pos": "WR", "proj": 16.0}],
+             "missing": [], "defense_faced": null}
+    }
+   },
+   "material": "b1", "take_material": "b1", "written": "2026-09-12T09:00:00Z", "model": "opus/high",
+   "take": {
+    "headline": "Gibbs carries Detroit through the rain",
+    "lean": "Rain keeps it on the ground, and Carolina allows the second-most RB points.",
+    "pick": {"winner": "DET", "score": {"CAR": 19, "DET": 30}},
+    "vs_market": "Detroit clears its 27.0; Carolina stays under 23.5 without Coker.",
+    "risk": "Young's legs keep drives alive and the rain slows Detroit too.",
+    "players": [{"key": "jahmyr gibbs", "call": "up", "why": "The rain and the matchup both point to carries."},
+                {"key": "amonra st brown", "call": "down", "why": "Wet ball, fewer throws."},
+                {"key": "bryce young", "call": "down", "why": "No Coker, rain, and a deficit."}]
+   }
+  },
+  "2026_02_ATL_NO": {
+   "facts": {
+    "key": "2026_02_ATL_NO", "week": 2, "kickoff": "2026-09-22T00:15:00Z", "home": "NO", "away": "ATL",
+    "line": {"spread_home": -2.5, "total": 48.5, "favorite": "NO", "by": 2.5, "implied": {"NO": 25.5, "ATL": 23.0}},
+    "weather": {"roof": "dome"},
+    "teams": {"NO": {"players": [], "missing": [], "defense_faced": null},
+              "ATL": {"players": [], "missing": [], "defense_faced": null}}
+   },
+   "material": "c1"
+  }
+ }
+}

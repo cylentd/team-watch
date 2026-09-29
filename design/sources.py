@@ -241,6 +241,12 @@ def load_digest():
     return feed_block(("weekly_digest",), "week") or read_first(DWR / "weekly_digest.json")
 
 
+def load_game_preview():
+    """Each game of the week's facts and Claude's take (model.season.game_preview), feed block
+    `game_preview` first, the file second. design/preview.py cuts it for This week > Preview."""
+    return feed_block(("game_preview",), "games") or read_first(DWR / "game_previews.json")
+
+
 def load_league():
     """(this season, every past season) of the ESPN league, from ff-jarvis's model.clients.espn_league.
     Files only: neither is a feed block. design/league_recap.py cuts them for My teams > League."""

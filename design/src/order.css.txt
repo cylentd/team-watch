@@ -67,6 +67,7 @@ surface/matchups/matchups.css
 surface/ranks/ranks.css
 surface/weather/weather.css
 surface/weather/card.css
+surface/preview/preview.css
 surface/matchups/lead.css
 surface/matchups/rows.css
 # pin: digest/bodies.css after ticker.css -- its `.dg-ico` size yields to lead.css's `.dg-glyph .dg-ico`

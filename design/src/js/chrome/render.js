@@ -58,7 +58,7 @@ function render(){
   }
   /* Views that are one HTML function and one wiring function, nothing else. */
   const plain = {ranks: [ranksHTML, wireRanks], digest: [digestHTML, wireDigest], matchups: [matchupsHTML, wireMatchups],
-    weather: [wtViewHTML, wireWeather], recap: [lgLeaguePageHTML, wireLeaguePage], records: [lgRecordsPageHTML, wireRecords], trades: [trPageHTML, wireTrades]}[SURFACE];
+    weather: [wtViewHTML, wireWeather], preview: [pvViewHTML, wirePreview], recap: [lgLeaguePageHTML, wireLeaguePage], records: [lgRecordsPageHTML, wireRecords], trades: [trPageHTML, wireTrades]}[SURFACE];
   if (plain){ v.innerHTML = plain[0](); plain[1](v); return; }
   if (SURFACE === "usage"){
     v.innerHTML = usageHTML(); wireUsage(v); nudgeScrollers(v);

@@ -67,7 +67,7 @@ def LIVE_PLANT(states=None):
 GROUP = {"digest": "week", "roster": "teams", "waivers": "teams", "league": "teams", "myrecap": "teams",
          "recap": "league", "records": "league", "trades": "league",
          "ranks": "scouting", "board": "scouting", "movers": "scouting", "matchups": "scouting", "usage": "scouting", "news": "scouting",
-         "weather": "week", "live": "week",
+         "weather": "week", "preview": "week", "live": "week",
          "parlay": "bets", "build": "bets", "dfs": "bets"}
 
 
@@ -234,6 +234,10 @@ STATES = [
     # This week > Weather (2026-09-26): week 2's four games, the dome first, then the rest by wind
     # (NE windy, IND retractable, SEA with no forecast yet); DET's players listed under DET @ SEA.
     ("weather", go("weather")),
+    # This week > Preview (2026-09-29): the fixture's Thursday game (the first to kick off after SEED),
+    # then Monday's, which has no take yet and shows its facts alone.
+    ("preview", go("preview")),
+    ("preview-notake", go("preview") + [("click", ".pv-day:last-child")]),
     # Movers, the Board's second mode since 2026-09-25 (a view of its own before): the fixture
     # falls back to the sample pool, which has share moves, so it sorts on them; -wait blanks every
     # move to reach the week-1 path, where the list ranks by share under one line saying why.
@@ -519,6 +523,7 @@ def test_no_fenced_rule_misses_its_element(snapshot, area):
     ("usage", "scouting", "GRID"),
     ("matchups", "scouting", "MATCHUPS"),
     ("weather", "week", "WEATHER"),
+    ("preview", "week", "PREVIEW"),
     ("waivers", "teams", "WAIVERS"),
     ("parlay", "bets", "SLIPS"),        # the leaf is still `parlay`, so its bookmarks land
     ("build", "bets", "BUILD"),

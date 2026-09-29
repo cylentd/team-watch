@@ -23,7 +23,7 @@ const NAV_ICON = {
    recap, record book and trades left This week, which is about this week's games, for a group of their
    own. It took Gameday's slot on the bar, and Live joined This week: a live game is this week's. */
 const NAV = [
-  ["week",     ["digest", "weather", "live"]],
+  ["week",     ["digest", "preview", "weather", "live"]],
   ["teams",    ["roster", "waivers", "league", "myrecap"]],
   ["scouting", ["ranks", "board", "movers", "matchups", "usage", "news"]],
   ["league",   ["recap", "records", "trades"]],
@@ -39,7 +39,7 @@ const navLabel = leaf => ({
   ranks: t("nav.tab.ranks"),
   board: t("nav.tab.board"), movers: t("nav.tab.movers"),
   matchups: t("nav.tab.matchups"), usage: t("nav.tab.grid"), news: t("nav.tab.news"),
-  weather: t("nav.tab.weather"),
+  weather: t("nav.tab.weather"), preview: t("nav.tab.preview"),
   parlay: t("nav.tab.parlay"), build: t("nav.tab.build"), dfs: t("nav.tab.dfs"), live: t("nav.tab.live"),
 }[leaf] || leaf);
 

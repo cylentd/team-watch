@@ -298,6 +298,12 @@ CONTRACT = {
                             "why", "but"]),
                  ("pl", ["call", "pos", "n", "slug", "team", "opp", "home", "rationale"])],
     },
+    # design/preview.py, This week > Preview. A game's `take` is null before Claude has written it;
+    # `implied`, `fav`, `by`, `total` are null for a game with no line, `rain` below 50%.
+    "LIVE_PREVIEW": {
+        "keys": ["season", "week", "asof", "games"],
+        "rows": [("games", ["key", "home", "away", "kickoff", "implied", "fav", "by", "total", "rain", "out", "take"])],
+    },
     # design/digest.py, the Digest view (This week). `lead`, `record` and `near` may be null, and a
     # hurt row's `game`; `rank`, `rostered`, `injury`, `was`, `why`, `opp`, `temp_f`, `short`,
     # `when`, a headline's `n`, `ko` (a kickoff the schedule lacks) and a result's `proj`/`diff` may
