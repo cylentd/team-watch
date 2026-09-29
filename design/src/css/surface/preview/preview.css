@@ -1,23 +1,37 @@
 /* ============================== PREVIEW ============================== */
-/* This week > Preview (js/surface/preview/preview.js, 2026-09-29, storyboard option C). One game a
-   screen: the day marker, the card, Prev / Next. On a phone the card is one column in reading order;
-   on a desktop Claude's call sits left and the players right, so the whole game is one screen there too.
-   Colour map: --up / --down a player's call, --sky rain that moves scoring, --down an out player,
-   --lime the game on screen in the day marker. No other colour carries meaning. */
-.pv{display:flex;flex-direction:column;gap:8px;padding-top:8px}
+/* This week > Preview (js/surface/preview/, 2026-09-29, storyboard option A). The slate and the
+   dossier. A phone shows one at a time (`.pv.open` is the dossier); from 960px the slate is a rail
+   beside the dossier. Colour map in slate.js and dossier.js; this file adds none of its own. */
+.pv{padding-top:8px}
+.pv .pv-dz{display:none}
+.pv.open .pv-slate{display:none}
+.pv.open .pv-dz{display:flex}
 
-/* The day marker: one button a day, a dot a game, the game on screen lit. */
-.pv-days{display:flex;gap:6px}
-.pv-day{display:flex;align-items:center;gap:7px;min-height:36px;padding:0 10px;border:1px solid var(--line);border-radius:999px;background:none;color:var(--ink-3);cursor:pointer}
-.pv-day b{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.06em;text-transform:uppercase}
-.pv-day.on{border-color:var(--line-2);color:var(--ink)}
-.pv-day:focus-visible,.pv-arrow:focus-visible,.pv-p:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
-.pv-dots{display:flex;gap:4px}
-.pv-dots i{width:6px;height:6px;border-radius:50%;background:var(--line-2)}
-.pv-dots i.on{background:var(--lime)}
+/* The slate: a window heading, then one row per game. */
+.pv-slate{display:flex;flex-direction:column}
+.pv-win ul{list-style:none;margin:0;padding:0}
+.pv-wh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0;padding:14px 2px 6px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.pv-win:first-child .pv-wh{padding-top:4px}
+.pv-wh em{font-style:normal;font-weight:500;letter-spacing:.04em;color:var(--ink-3);white-space:nowrap}
+.pv-row{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 10px;padding:10px 2px;border:0;border-top:1px solid var(--line);background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.pv-row:hover{background:var(--panel)}
+.pv-row:focus-visible,.pv-back:focus-visible,.pv-arrow:focus-visible,.pv-p:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+.pv-rm{font-family:var(--mono);font-size:var(--t-3);font-weight:700;letter-spacing:.02em;color:var(--ink);white-space:nowrap}
+.pv-rs{font-family:var(--mono);font-size:var(--t-3);font-weight:700;color:var(--ink);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.pv-rs i{font-style:normal;color:var(--lime)}
+.pv-rh{grid-column:1/-1;font-size:var(--t-2);line-height:1.35;color:var(--ink-2)}
+.pv-row.done .pv-rm,.pv-row.done .pv-rs{color:var(--ink-3)}
+.pv-meta{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 12px;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.pv-f{font-weight:600}
+.pv-f.upset{font-weight:700;letter-spacing:.06em;color:var(--lime)}
+.pv-f.moved{color:var(--amber)}
+.pv-f.wx{color:var(--sky)}
+.pv-f.out{color:var(--down)}
+.pv-f.short{color:var(--ink-2)}
 
-.pv-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 12px 4px;display:grid;gap:8px;touch-action:pan-y}
-.pv-call-side{display:flex;flex-direction:column;gap:6px;min-width:0}
+/* The dossier's frame: back, the header, the card, the footer. */
+.pv-dz{flex-direction:column;gap:8px;min-width:0}
+.pv-back{align-self:flex-start;min-height:40px;padding:0 8px 0 0;border:0;background:none;color:var(--ink-2);font-size:var(--t-2);font-weight:600;cursor:pointer}
 /* ‹ PIT @ CLE ›  ·  Thu 5:15 PM: the arrows are 40px wide and the row's full height, so they stay a thumb target. */
 .pv-top{display:flex;align-items:center;gap:2px;min-height:40px}
 .pv-arrow{flex:none;width:40px;min-height:40px;border:0;border-radius:8px;background:none;color:var(--ink);font-family:var(--mono);font-size:var(--t-5);font-weight:700;line-height:1;cursor:pointer}
@@ -25,56 +39,26 @@
 .pv-arrow:disabled{color:var(--line-2);cursor:default}
 .pv-mt{font-family:var(--mono);font-size:var(--t-4);font-weight:700;letter-spacing:.02em;color:var(--ink);white-space:nowrap}
 .pv-ko{margin-left:auto;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
-.pv-head{margin:0;font-family:var(--disp);font-size:var(--t-4);font-weight:800;line-height:1.2;color:var(--ink);text-wrap:balance}
-.pv-lean,.pv-vs,.pv-none{margin:0;font-size:var(--t-2);line-height:1.45;color:var(--ink)}
-.pv-vs{color:var(--ink-2)}
+.pv-foot{margin:0;font-size:var(--t-1);line-height:1.45;color:var(--ink-3)}
 
-/* Claude's score over the market's: two rows on one set of columns, so the numbers line up. */
-.pv-score{display:grid;grid-template-columns:auto 1fr 1fr;row-gap:4px;column-gap:12px;align-items:baseline}
-.pv-sc{display:contents}
-.pv-sc span{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
-.pv-sc b{font-family:var(--mono);font-size:var(--t-4);font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
-.pv-sc.mk b{font-size:var(--t-2);font-weight:500;color:var(--ink-2)}
-
-.pv-chips{display:flex;flex-wrap:wrap;gap:6px}
-.pv-chip{font-family:var(--mono);font-size:var(--t-1);font-weight:600;border:1px solid var(--line-2);border-radius:999px;padding:3px 8px;color:var(--ink-2)}
-.pv-chip.rain{color:var(--sky);border-color:var(--sky)}
-.pv-out{align-self:center;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2)}
-.pv-out b{margin-right:8px;font-weight:700;color:var(--down);text-transform:uppercase;letter-spacing:.06em}
-.pv-risk{margin:0;display:grid;grid-template-columns:auto 1fr;gap:8px;font-size:var(--t-1);line-height:1.45;color:var(--ink-2);background:var(--panel-2);border-radius:8px;padding:5px 10px}
-.pv-risk b{font-family:var(--mono);font-weight:700;color:var(--amber);letter-spacing:.06em;text-transform:uppercase}
-
-/* One row a player: face, call, name, projection; why under the name. The whole row opens him. */
-.pv-pl{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
-.pv-pl li+li{border-top:1px solid var(--line)}
-.pv-p{width:100%;display:grid;grid-template-columns:30px 14px minmax(0,1fr) auto;column-gap:8px;row-gap:1px;align-items:center;padding:5px 0;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
-.pv-face{grid-row:1/3;width:30px;height:30px;border-radius:50%;overflow:hidden;background:var(--panel-3);align-self:start}
-.pv-face img,.pv-face .fallback{width:100%;height:100%;object-fit:cover;display:grid;place-items:center;font-size:var(--t-1);color:var(--ink-3)}
-.pv-call{font-family:var(--mono);font-size:var(--t-1);font-weight:700;text-align:center}
-.pv-call.up{color:var(--up)}
-.pv-call.down{color:var(--down)}
-.pv-call.hold{color:var(--ink-3)}
-.pv-pn{font-size:var(--t-2);font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pv-pn small{margin-left:6px;font-family:var(--mono);font-size:var(--t-1);font-weight:500;color:var(--ink-3)}
-.pv-pj{font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
-.pv-pw{grid-column:2/-1;font-size:var(--t-1);line-height:1.4;color:var(--ink-2)}
-
-.pv-foot{margin:0;font-size:var(--t-1);color:var(--ink-3)}
-
-/* A turn: the new card arrives from the side it was swiped from and stops in place. */
+/* A turn: the new dossier arrives from the side it was swiped from and stops in place. */
 @media (prefers-reduced-motion:no-preference){
-  .pv-card.in-r{animation:pv-in-r var(--dur-spring) var(--spring)}
-  .pv-card.in-l{animation:pv-in-l var(--dur-spring) var(--spring)}
+  .pvd-card.in-r{animation:pv-in-r var(--dur-spring) var(--spring)}
+  .pvd-card.in-l{animation:pv-in-l var(--dur-spring) var(--spring)}
   @keyframes pv-in-r{from{transform:translateX(28px);opacity:.4}}
   @keyframes pv-in-l{from{transform:translateX(-28px);opacity:.4}}
 }
 
-/* A desktop: Claude's call left, the players right, one screen with no scroll. */
-@media (min-width:760px){
-  .pv>*{width:100%;max-width:var(--list-w)}   /* capped on the frame's left edge, like Ranks and News */
-  .pv>.pv-days{width:auto}
-  .pv-card{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:28px;padding:10px 20px 8px}
-  .pv-head{font-size:var(--t-5)}
-  .pv-lean{font-size:var(--t-3)}
-  .pv-pl{border-top:0;align-self:center}
+/* A desktop: the slate is a rail that keeps its place, the dossier beside it; no Back, no toggle. */
+@media (min-width:960px){
+  .pv{display:grid;grid-template-columns:330px minmax(0,1fr);column-gap:24px;align-items:start}
+  .pv .pv-dz,.pv.open .pv-dz{display:flex}
+  .pv.open .pv-slate{display:flex}
+  .pv-slate{position:sticky;top:8px;max-height:calc(100vh - 16px);overflow-y:auto;overscroll-behavior:contain;border-right:1px solid var(--line);padding-right:12px}
+  .pv-back{display:none}
+  .pv-row{padding:10px 10px}
+  .pv-wh{padding-inline:10px}
+  .pv-row.cur{background:var(--panel-2)}
+  .pv-row.cur .pv-rm{color:var(--lime)}
+  .pv-dz{max-width:var(--list-w)}
 }

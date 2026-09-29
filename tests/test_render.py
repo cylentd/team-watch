@@ -245,10 +245,11 @@ STATES = [
     # This week > Weather (2026-09-26): week 2's four games, the dome first, then the rest by wind
     # (NE windy, IND retractable, SEA with no forecast yet); DET's players listed under DET @ SEA.
     ("weather", go("weather")),
-    # This week > Preview (2026-09-29): the fixture's Thursday game (the first to kick off after SEED),
-    # then Monday's, which has no take yet and shows its facts alone.
+    # This week > Preview (2026-09-29, slate and dossier): the slate (a phone) or the rail beside the
+    # Thursday game (a desktop); DET @ CAR's dossier, the fullest; Monday's, with no take yet.
     ("preview", go("preview")),
-    ("preview-notake", go("preview") + [("click", ".pv-day:last-child")]),
+    ("preview-dossier", go("preview") + [("click", "[data-pvopen='2']")]),
+    ("preview-notake", go("preview") + [("click", "[data-pvopen='4']")]),
     # Movers, the Board's second mode since 2026-09-25 (a view of its own before): the fixture
     # falls back to the sample pool, which has share moves, so it sorts on them; -wait blanks every
     # move to reach the week-1 path, where the list ranks by share under one line saying why.

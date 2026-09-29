@@ -300,11 +300,22 @@ CONTRACT = {
                             "gap", "why", "but"]),
                  ("pl", ["call", "pos", "n", "slug", "team", "opp", "home", "rationale"])],
     },
-    # design/preview.py, This week > Preview. A game's `take` is null before Claude has written it;
-    # `implied`, `fav`, `by`, `total` are null for a game with no line, `rain` below 50%.
+    # design/preview.py, This week > Preview (slate and dossier, 2026-09-29). A game's `take` is null
+    # before Claude has written it; `line`, `matchup`, `wx`, `rest`, `travel`, `site` are null when
+    # ff-jarvis has none (the row is not drawn), a line's `fav` null at even and `open` null with no
+    # first line. `inj` is {team: [{n, slug, pos, s, avg}]} and `flags` [{k, ...}], pinned in
+    # tests/test_preview.py since a row spec is one level.
     "LIVE_PREVIEW": {
         "keys": ["season", "week", "asof", "games"],
-        "rows": [("games", ["key", "home", "away", "kickoff", "implied", "fav", "by", "total", "rain", "out", "take"])],
+        "rows": [("games", ["key", "home", "away", "kickoff", "slot", "et", "day", "line", "matchup", "wx",
+                            "inj", "rest", "travel", "site", "flags", "take"])],
+        "row_objs": [("games", "line", ["fav", "by", "total", "implied", "open", "move"]),
+                     ("games", "wx", ["roof", "temp", "wind", "precip", "sky"]),
+                     ("games", "site", ["stadium", "neutral"]),
+                     ("games", "take", ["head", "lean", "vs", "risk", "pick", "players"])],
+        "row_maps": [("games", "matchup", ["games", "epa", "pos"], {}),
+                     ("games", "rest", ["days", "short", "bye"], {}),
+                     ("games", "travel", ["zones", "body", "miles"], {})],
     },
     # design/digest.py, the Digest view (This week). `lead`, `record` and `near` may be null, and a
     # hurt row's `game`; `rank`, `rostered`, `injury`, `was`, `why`, `opp`, `temp_f`, `short`,

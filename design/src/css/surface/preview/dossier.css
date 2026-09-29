@@ -1,0 +1,87 @@
+/* ============================== PREVIEW DOSSIER ============================== */
+/* One game's card (js/surface/preview/dossier.js, research.js, 2026-09-29). One card, rows inside,
+   divided by 1px --line (DESIGN.md "Cards"): the card's own fill shows through a 1px grid gap. From
+   1100px the rows pair two across, so a pair shares its top and bottom edge; players and risk span. */
+.pvd-card{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden;touch-action:pan-y}
+.pvd-row{background:var(--panel);padding:12px 14px;min-width:0}
+.pvd-rt{margin:0 0 8px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.pvd-rt em{font-style:normal;font-weight:500;letter-spacing:.04em;text-transform:none}
+.pv-note,.pv-nil{margin:6px 0 0;font-size:var(--t-1);line-height:1.4;color:var(--ink-3)}
+.pv-nil{margin:0}
+
+/* Claude's call. */
+.pvd-row.call{display:flex;flex-direction:column;gap:8px}
+.pv-head{margin:0;font-family:var(--disp);font-size:var(--t-5);font-weight:800;line-height:1.15;color:var(--ink);text-wrap:balance}
+.pv-lean,.pv-vs,.pv-none{margin:0;font-size:var(--t-2);line-height:1.45;color:var(--ink)}
+.pv-vs{color:var(--ink-2)}
+.pv-score{display:grid;grid-template-columns:auto 1fr 1fr;row-gap:4px;column-gap:12px;align-items:baseline}
+.pv-sc{display:contents}
+.pv-sc span{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
+.pv-sc b{font-family:var(--mono);font-size:var(--t-4);font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.pv-sc.mk b{font-size:var(--t-2);font-weight:500;color:var(--ink-2)}
+
+/* Label / value rows: Lines, Rest & travel. */
+.pv-kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px;align-items:baseline}
+.pv-k{font-family:var(--mono);font-size:var(--t-1);font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.pv-v{font-family:var(--mono);font-size:var(--t-2);color:var(--ink);font-variant-numeric:tabular-nums}
+.pv-v small{margin-left:4px;font-family:var(--ui);font-size:var(--t-1);color:var(--ink-2)}
+.pv-site{margin:0 0 8px;font-size:var(--t-2);color:var(--ink)}
+
+/* Matchup: each offense against the defense it faces; the rank, points allowed small beside it. */
+.pv-mx{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:var(--t-2);font-variant-numeric:tabular-nums}
+.pv-mx th{padding:0 0 6px 12px;font-size:var(--t-1);font-weight:500;letter-spacing:.03em;line-height:1.25;color:var(--ink-3);text-align:right}
+.pv-mx th:first-child,.pv-mx th[scope]{text-align:left}
+.pv-mx td,.pv-mx th[scope]{padding:5px 0;border-top:1px solid var(--line)}
+.pv-mx td{text-align:right;color:var(--ink)}
+.pv-mx th[scope]{padding-left:0;font-size:var(--t-2);color:var(--ink-2);white-space:nowrap}
+.pv-mx td small{margin-left:6px;font-size:var(--t-1);color:var(--ink-3)}
+.pv-mx td.pv-soft{color:var(--up)}
+.pv-mx td.pv-tough{color:var(--down)}
+.pv-mx tr.dim td,.pv-mx tr.dim th{opacity:.45}
+
+/* Injuries: the two teams side by side, each a tag and a name. */
+.pv-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.pv-team{margin:0 0 4px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.04em;color:var(--ink)}
+.pv-inj{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:var(--t-2);line-height:1.35;color:var(--ink)}
+.pv-inj small{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.pv-tag{display:inline-block;margin-right:6px;padding:1px 5px;border-radius:4px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.04em}
+.pv-tag.out{background:rgb(var(--down-rgb) / .16);color:var(--down)}
+.pv-tag.d,.pv-tag.q,.pv-tag.short{background:rgb(var(--amber-rgb) / .16);color:var(--amber)}
+.pv-tag.bye{background:var(--panel-3);color:var(--ink-2)}
+.pv-kv .pv-tag{margin:0}
+
+/* Weather: the forecast, then the backtest's effects when a condition is met. */
+.pv-fc{margin:0;font-family:var(--mono);font-size:var(--t-2);color:var(--ink)}
+.pv-fc.moves{color:var(--sky)}
+.pv-fc small{margin-left:6px;font-family:var(--ui);font-size:var(--t-1);color:var(--ink-2)}
+.pv-eff{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:4px;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2)}
+.pv-eff li{display:flex;flex-wrap:wrap;gap:4px 12px}
+.pv-eff b{color:var(--sky);font-weight:700}
+
+/* Player calls: face, call, name, projection; why under the name. The whole row opens him. */
+.pv-pl{list-style:none;margin:0;padding:0}
+.pv-pl li+li{border-top:1px solid var(--line)}
+.pv-p{width:100%;display:grid;grid-template-columns:30px 14px minmax(0,1fr) auto;column-gap:8px;row-gap:1px;align-items:center;padding:7px 0;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.pv-face{grid-row:1/3;width:30px;height:30px;border-radius:50%;overflow:hidden;background:var(--panel-3);align-self:start}
+.pv-face img,.pv-face .fallback{width:100%;height:100%;object-fit:cover;display:grid;place-items:center;font-size:var(--t-1);color:var(--ink-3)}
+.pv-call{font-family:var(--mono);font-size:var(--t-1);font-weight:700;text-align:center}
+.pv-call.up{color:var(--up)}
+.pv-call.down{color:var(--down)}
+.pv-call.hold{color:var(--ink-3)}
+.pv-pn{font-size:var(--t-2);font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pv-pn small{margin-left:6px;font-family:var(--mono);font-size:var(--t-1);font-weight:500;color:var(--ink-3)}
+.pv-pj{font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.pv-pw{grid-column:2/-1;font-size:var(--t-1);line-height:1.4;color:var(--ink-2)}
+
+.pv-risk{margin:0;display:grid;grid-template-columns:auto 1fr;gap:8px;font-size:var(--t-2);line-height:1.45;color:var(--ink-2)}
+.pv-risk b{font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--amber);letter-spacing:.06em;text-transform:uppercase;line-height:1.9}
+
+/* From 1100px the rows pair two across; players' rows go two across too. */
+@media (min-width:1100px){
+  .pvd-card{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .pvd-row{padding:14px 18px}
+  .pvd-row.full{grid-column:1/-1}
+  .pv-pl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:28px}
+  .pv-pl li+li{border-top:0}
+  .pv-pl li:nth-child(n+3){border-top:1px solid var(--line)}
+}

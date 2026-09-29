@@ -719,7 +719,47 @@ Not backtested: the calls. The foot says so, and names the record as the test.
 Not built yet: Bets > Games (every game with its implied totals and each offense against the other
 defense by position), the storyboard's second view.
 
-## Preview (This week, 2026-09-29)
+## Preview (This week, 2026-09-29; slate and dossier since the same day)
+
+A slate of every game, then one game's dossier. Storyboard option A (David, 2026-09-29), superseding
+option C of that morning: David asked for "more research and evaluation of this matchup" and to
+"show all slates so it's easy to find and click one", plus lines, matchup ranks, injuries, weather,
+travel, rest and short weeks. One screen per game could not hold that. League-wide and public: no
+roster is read, and the players named are the ones ff-jarvis's `game_preview` picked per side.
+
+| part | what it shows |
+|---|---|
+| Slate | every game by kickoff window (Thu night, Sun morning, Sun early, Sun late, Sun night, Mon night, else the weekday), headed with its Eastern times from the data (`design/preview.py` `_slot`). A row: AWAY @ HOME, Claude's winner (`--lime`) and score, the headline, then the spread in words, the total and at most two flags |
+| Flags | by priority: UPSET (Claude's winner is not the market favourite, `--lime`), Line flipped / Line moved n (3+ points, `--amber`), Rain n% (50%+) or Wind n mph (15+, `--sky`), "J. Coker out" (the highest-average Out/IR player at 10+ points a game, `--down`), Short week (`--ink-2`). Computed in `preview.py` `_flags` |
+| Dossier header | "‹ All games" (a phone), ‹ AWAY @ HOME › and the kickoff. Arrows and a sideways swipe walk the games in kickoff order |
+| Claude's call | headline, lean, Claude's score over the market's implied score, how the two differ |
+| Lines | spread in words ("ARI by 1.5", "opened NYG by 7"; even is "Even"), total ("opened 45.5"), Claude's margin and total. Never a signed spread (David: "-1.5" was "kinda funky") |
+| Matchup | each offense against the defense it faces, rank with points allowed small beside; bottom 8 `--up` (soft), top 8 `--down` (tough); the WR row faded with the reason (the backtest finds the WR matchup moves nothing, QB/RB/TE 8-18%); pass EPA rank; "after N games" |
+| Injuries | both teams: OUT / IR tags `--down` with the player's average, D / Q `--amber` |
+| Weather | the stadium and roof, the forecast, and only the backtest's proven effects for the conditions met, read from `LIVE_WX_HISTORY` (the Weather view's cells and thresholds, so the numbers are never ours); a dome, or a forecast under every threshold, says it moves nothing |
+| Rest & travel | facts: days since the last game, SHORT WEEK, OFF A BYE, zones travelled and the body-clock kickoff, miles, a neutral site. One line says the effect is not tested yet |
+| Player calls, Risk | every call (up to 8), a tap opens the profile; the risk |
+
+- **One card, rows inside** (DESIGN.md "Cards"): the rows are divided by the card's 1px `--line`
+  showing through a grid gap. A row whose data is absent is not drawn.
+- **Back:** opening a dossier on a phone pushes a URL-less history entry (`chrome/layers.js`), so Back
+  returns to the slate at the scroll it left (`test_a_tap_opens_the_dossier_and_back_returns_...`).
+- **The game is not in the hash.** Only the view is in the URL (CLAUDE.md, Navigation); a reload lands
+  on the slate, one tap from any game, and a game key in the hash would be a second thing to keep in
+  step with Back, the swipe and the week turning over.
+- **Desktop (960px+):** the slate is a sticky 330px rail beside the dossier, the game on screen on
+  `--panel-2` with its matchup in `--lime`; a click only changes the game, no history entry. From
+  1100px the dossier's rows pair two across (like-height pairs, STYLE.md "Rows, not columns"); an odd
+  one out and the player calls take the full width.
+- **Measured 2026-09-29, week 4's 16 real games:** at 360x800 the first slate row starts at 112px and
+  7 rows are on the first screen; any game is one tap away; a dossier is 1,468-1,585px (about two
+  screens). `test_every_game_fits_one_screen` and the day marker are retired with option C.
+- **Opens on** the slate; once the week has begun the phone slate scrolls to the next game to kick
+  off, and the desktop dossier shows it.
+- **No take yet:** the slate row says the call arrives with the next refresh; the dossier keeps every
+  research row.
+
+### Option C, one game a screen (2026-09-29, superseded the same day)
 
 One game a screen, for every game of the week, in kickoff order. Storyboard option C, picked by David
 over a slate of rows and a stacked program (https://claude.ai/artifact/A5QvueyLecBFdFyYCcZbEH):
@@ -734,11 +774,11 @@ no roster is read, and the players named are the ones ff-jarvis's `game_preview`
 | Players | 3-4 rows: face, call (▲ `--up` beats his projection, ▼ `--down` falls short, ● lands near it), "D. Swift", position and team, our projection, why. A tap opens the profile |
 | Footer | once: whose call it is, that every number in it is checked, that it is opinion, not a tested model, and the key to the three marks |
 
-- **Fits one screen (measured 2026-09-29, week 4's 16 real takes):** the card ends at 703-772px on a
+- ~~**Fits one screen (measured 2026-09-29, week 4's 16 real takes):** the card ends at 703-772px on a
   360x800 phone and 420-489px on a 1400x900 desktop. To get there the ff-jarvis writer's limits came
   down (4 players, lean 180, market 110, why 70, risk 100 characters; it was 6 / 240 / 160 / 120 / 160,
   and the card ran to 877px), the pager row moved into the header, and three "Out" chips became one line.
-  `test_every_game_fits_one_screen` holds it on the fixture.
+  `test_every_game_fits_one_screen` held it on the fixture.~~ (retired)
 - **Swipe:** the Board's touch delta (`board.js`), not scroll-snap: STYLE.md forbids sideways
   scroll inside a page that scrolls down. More than 48px and mostly sideways turns the game; past
   either end nothing happens. The new card slides 28px in from that side on the spring; reduced

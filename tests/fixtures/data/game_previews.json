@@ -6,15 +6,21 @@
   "2026_02_PIT_CLE": {
    "facts": {
     "key": "2026_02_PIT_CLE", "week": 2, "kickoff": "2026-09-18T00:15:00Z", "home": "CLE", "away": "PIT",
-    "line": {"spread_home": 2.5, "total": 38.5, "favorite": "PIT", "by": 2.5, "implied": {"CLE": 18.0, "PIT": 20.5}},
+    "line": {"spread_home": 2.5, "total": 38.5, "favorite": "PIT", "by": 2.5, "implied": {"CLE": 18.0, "PIT": 20.5},
+             "first_seen": {"spread_home": 2.5, "total": 39.5}},
     "weather": {"roof": "outdoor", "temp_f": 75, "wind_mph": 8, "precip_pct": 15, "sky": "Slight Chance Rain Showers"},
+    "site": {"stadium": "Huntington Bank Field", "neutral": false, "tz": "America/New_York", "lat": 41.506, "lon": -81.7},
     "teams": {
      "CLE": {"players": [{"key": "quinshon judkins", "name": "Quinshon Judkins", "pos": "RB", "proj": 9.5},
                          {"key": "harold fannin", "name": "Harold Fannin Jr.", "pos": "TE", "proj": 9.2}],
-             "missing": [], "defense_faced": null},
+             "missing": [], "defense_faced": null,
+             "rest": {"days": 4, "prev_kickoff": "2026-09-13T17:00:00Z", "off_bye": false, "short_week": true},
+             "travel": {"home_tz": "America/New_York", "zones": 0, "body_kickoff": "20:15", "miles": 0}},
      "PIT": {"players": [{"key": "dk metcalf", "name": "DK Metcalf", "pos": "WR", "proj": 8.1},
                          {"key": "jaylen warren", "name": "Jaylen Warren", "pos": "RB", "proj": 12.5}],
-             "missing": [], "defense_faced": null}
+             "missing": [], "defense_faced": null,
+             "rest": {"days": 4, "prev_kickoff": "2026-09-13T17:00:00Z", "off_bye": false, "short_week": true},
+             "travel": {"home_tz": "America/New_York", "zones": 0, "body_kickoff": "20:15", "miles": 115}}
     }
    },
    "material": "a1", "take_material": "a1", "written": "2026-09-12T09:00:00Z", "model": "opus/high",
@@ -29,18 +35,58 @@
                 {"key": "quinshon judkins", "call": "hold", "why": "Volume lands him near his 9.5."}]
    }
   },
+  "2026_02_JAX_LA": {
+   "facts": {
+    "key": "2026_02_JAX_LA", "week": 2, "kickoff": "2026-09-20T13:30:00Z", "home": "LA", "away": "JAX",
+    "line": {"spread_home": -3.0, "total": 46.5, "favorite": "LA", "by": 3.0, "implied": {"LA": 24.75, "JAX": 21.75},
+             "first_seen": {"spread_home": -3.0, "total": 46.5}},
+    "weather": {"roof": "outdoor", "temp_f": 58, "wind_mph": 17, "precip_pct": 20, "sky": "Breezy"},
+    "site": {"stadium": "Wembley Stadium", "neutral": true, "tz": "Europe/London", "lat": 51.556, "lon": -0.28},
+    "teams": {
+     "LA": {"players": [{"key": "puka nacua", "name": "Puka Nacua", "pos": "WR", "proj": 17.1}],
+            "missing": [], "defense_faced": null,
+            "rest": {"days": 13, "prev_kickoff": "2026-09-07T00:20:00Z", "off_bye": true, "short_week": false},
+            "travel": {"home_tz": "America/Los_Angeles", "zones": 8, "body_kickoff": "06:30", "miles": 5440}},
+     "JAX": {"players": [{"key": "travis etienne", "name": "Travis Etienne Jr.", "pos": "RB", "proj": 13.4}],
+             "missing": [], "defense_faced": null,
+             "rest": {"days": 7, "prev_kickoff": "2026-09-13T17:00:00Z", "off_bye": false, "short_week": false},
+             "travel": {"home_tz": "America/New_York", "zones": 5, "body_kickoff": "09:30", "miles": 4200}}
+    }
+   },
+   "material": "d1", "take_material": "d1", "written": "2026-09-12T09:00:00Z", "model": "opus/high",
+   "take": {
+    "headline": "Jaguars run through a jet-lagged Rams side",
+    "lean": "Wind at Wembley keeps the ball on the ground, and Jacksonville's backs wear down a Rams front that flew eight zones.",
+    "pick": {"winner": "JAX", "score": {"LA": 20, "JAX": 23}},
+    "vs_market": "Against the market: LA is favoured by 3; the wind trims Stafford's passing.",
+    "risk": "Nacua beats the wind on short throws and the Rams lead early.",
+    "players": [{"key": "travis etienne", "call": "up", "why": "Wind and a soft run D point to carries."},
+                {"key": "puka nacua", "call": "hold", "why": "Short targets survive the wind."}]
+   }
+  },
   "2026_02_DET_CAR": {
    "facts": {
     "key": "2026_02_DET_CAR", "week": 2, "kickoff": "2026-09-20T17:00:00Z", "home": "CAR", "away": "DET",
-    "line": {"spread_home": 3.5, "total": 50.5, "favorite": "DET", "by": 3.5, "implied": {"CAR": 23.5, "DET": 27.0}},
+    "line": {"spread_home": 3.5, "total": 50.5, "favorite": "DET", "by": 3.5, "implied": {"CAR": 23.5, "DET": 27.0},
+             "first_seen": {"spread_home": 3.0, "total": 49.5}},
     "weather": {"roof": "outdoor", "temp_f": 70, "wind_mph": 5, "precip_pct": 56, "sky": "Rain Showers Likely"},
+    "site": {"stadium": "Bank of America Stadium", "neutral": false, "tz": "America/New_York", "lat": 35.226, "lon": -80.853},
     "teams": {
-     "CAR": {"players": [{"key": "bryce young", "name": "Bryce Young", "pos": "QB", "proj": 17.6}],
+     "CAR": {"players": [{"key": "bryce young", "name": "Bryce Young", "pos": "QB", "proj": 17.6, "injury": null}],
              "missing": [{"key": "jalen coker", "name": "Jalen Coker", "pos": "WR", "injury": "Out", "avg": 14.4}],
-             "defense_faced": null},
-     "DET": {"players": [{"key": "jahmyr gibbs", "name": "Jahmyr Gibbs", "pos": "RB", "proj": 18.8},
-                         {"key": "amonra st brown", "name": "Amon-Ra St. Brown", "pos": "WR", "proj": 16.0}],
-             "missing": [], "defense_faced": null}
+             "defense_faced": {"games": 1, "pos": {"QB": {"pts_pg": 14.2, "rank": 6}, "RB": {"pts_pg": 18.0, "rank": 17},
+                                                  "WR": {"pts_pg": 31.5, "rank": 27}, "TE": {"pts_pg": 4.1, "rank": 2}},
+                               "pass_epa_rank": 9},
+             "rest": {"days": 7, "prev_kickoff": "2026-09-13T17:00:00Z", "off_bye": false, "short_week": false},
+             "travel": {"home_tz": "America/New_York", "zones": 0, "body_kickoff": "13:00", "miles": 0}},
+     "DET": {"players": [{"key": "jahmyr gibbs", "name": "Jahmyr Gibbs", "pos": "RB", "proj": 18.8, "injury": null},
+                         {"key": "amonra st brown", "name": "Amon-Ra St. Brown", "pos": "WR", "proj": 16.0, "injury": "Questionable"}],
+             "missing": [],
+             "defense_faced": {"games": 1, "pos": {"QB": {"pts_pg": 21.9, "rank": 26}, "RB": {"pts_pg": 29.4, "rank": 31},
+                                                  "WR": {"pts_pg": 22.0, "rank": 9}, "TE": {"pts_pg": 9.0, "rank": 16}},
+                               "pass_epa_rank": 25},
+             "rest": {"days": 7, "prev_kickoff": "2026-09-13T17:00:00Z", "off_bye": false, "short_week": false},
+             "travel": {"home_tz": "America/Detroit", "zones": 0, "body_kickoff": "13:00", "miles": 505}}
     }
    },
    "material": "b1", "take_material": "b1", "written": "2026-09-12T09:00:00Z", "model": "opus/high",
@@ -53,6 +99,35 @@
     "players": [{"key": "jahmyr gibbs", "call": "up", "why": "The rain and the matchup both point to carries."},
                 {"key": "amonra st brown", "call": "down", "why": "Wet ball, fewer throws."},
                 {"key": "bryce young", "call": "down", "why": "No Coker, rain, and a deficit."}]
+   }
+  },
+  "2026_02_SF_NYJ": {
+   "facts": {
+    "key": "2026_02_SF_NYJ", "week": 2, "kickoff": "2026-09-20T20:25:00Z", "home": "NYJ", "away": "SF",
+    "line": {"spread_home": -1.5, "total": 41.5, "favorite": "NYJ", "by": 1.5, "implied": {"NYJ": 21.5, "SF": 20.0},
+             "first_seen": {"spread_home": 3.0, "total": 43.5}},
+    "weather": {"roof": "outdoor", "temp_f": 68, "wind_mph": 6, "precip_pct": 10, "sky": "Sunny"},
+    "site": {"stadium": "MetLife Stadium", "neutral": false, "tz": "America/New_York", "lat": 40.813, "lon": -74.074},
+    "teams": {
+     "NYJ": {"players": [{"key": "garrett wilson", "name": "Garrett Wilson", "pos": "WR", "proj": 14.2}],
+             "missing": [], "defense_faced": null,
+             "rest": {"days": 7, "prev_kickoff": "2026-09-13T17:00:00Z", "off_bye": false, "short_week": false},
+             "travel": {"home_tz": "America/New_York", "zones": 0, "body_kickoff": "16:25", "miles": 0}},
+     "SF": {"players": [{"key": "christian mccaffrey", "name": "Christian McCaffrey", "pos": "RB", "proj": 19.3}],
+            "missing": [], "defense_faced": null,
+            "rest": {"days": 7, "prev_kickoff": "2026-09-13T20:25:00Z", "off_bye": false, "short_week": false},
+            "travel": {"home_tz": "America/Los_Angeles", "zones": 3, "body_kickoff": "13:25", "miles": 2570}}
+    }
+   },
+   "material": "e1", "take_material": "e1", "written": "2026-09-12T09:00:00Z", "model": "opus/high",
+   "take": {
+    "headline": "McCaffrey outlasts the Jets in the Meadowlands",
+    "lean": "The line flipped to the Jets on the QB news, but San Francisco's run game travels and New York's front is thin.",
+    "pick": {"winner": "SF", "score": {"NYJ": 17, "SF": 24}},
+    "vs_market": "SF clears its 20.0; the Jets stay under 21.5.",
+    "risk": "Wilson wins the one-on-ones and the Jets turn it into a shootout.",
+    "players": [{"key": "christian mccaffrey", "call": "up", "why": "Volume against a thin front."},
+                {"key": "garrett wilson", "call": "hold", "why": "Targets hold, efficiency does not."}]
    }
   },
   "2026_02_ATL_NO": {
