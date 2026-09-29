@@ -202,14 +202,14 @@ def test_the_slate_lists_every_game_by_window(page):
 
 
 @pytest.mark.render
-def test_a_row_says_the_spread_in_words_and_its_flags(page):
-    metas = page.evaluate("() => [...document.querySelectorAll('.pv-meta')].map(m => m.innerText.replace(/\\s+/g, ' '))")
-    assert metas[0] == "PIT by 2.5 Total 38.5 Short week"                # no edge: the spread stays in the meta
-    assert metas[1] == "Total 46.5 UPSET Wind 17 mph"                    # a side says the spread ("JAX getting 3")
-    assert metas[2] == "Total 50.5 Rain 56% J. Coker out"
-    assert metas[3] == "Total 41.5 UPSET Line flipped"
-    assert metas[4] == "NO by 2.5 Total 48.5"                             # no take
-    assert not any(re.search(r"[-−]\d", m) for m in metas)
+def test_a_row_is_the_call_then_the_headline_and_one_flag(page):
+    """Storyboard option C (2026-09-29, David: "super busy"): two lines, like a newspaper's index.
+    Win %, the score and the total live in the game's box score, not on the slate."""
+    flags = page.evaluate("""() => [...document.querySelectorAll('.pv-row')].map(r => {
+        const f = r.querySelector('.pv-flag'); return f ? f.innerText.trim() : null; })""")
+    assert flags == ["Short week", "UPSET", "Rain 56%", "UPSET", None]  # the producer's first flag only
+    assert page.locator(".pv-slate .pv-pb, .pv-slate .pv-key, .pv-slate .pv-meta").count() == 0
+    assert page.evaluate("getComputedStyle(document.querySelector('.pv-rh')).fontFamily").startswith("Newsreader")
     assert "Claude's call arrives" in page.inner_text("[data-pvopen='4']")
 
 
@@ -226,41 +226,63 @@ def test_a_row_carries_claudes_side_and_its_chip(page):
     assert page.locator("[data-pvopen='0'] .pv-side").count() == 0     # no edge: no side text
 
 
+def open_game(pg, i):
+    pg.evaluate(f"() => {{ PV_I = {i}; PV_OPEN = true; render(); }}")
+
+
 @pytest.mark.render
 def test_the_win_bar_needs_the_markets_win_pct(page):
-    has_bar = [page.locator(f"[data-pvopen='{i}'] .pv-pb").count() for i in range(5)]
+    has_bar = []
+    for i in range(5):
+        open_game(page, i)
+        has_bar.append(page.locator(".pva.win .pv-pb").count())
     assert has_bar == [1, 1, 1, 0, 0]                                    # SF @ NYJ: no moneyline; ATL @ NO: no take
-    assert texts(page, "[data-pvopen='2'] .pv-key") == ["DET wins 30–19 market 64% · Claude 74%"]
-    assert texts(page, "[data-pvopen='3'] .pv-key") == ["SF wins 24–17 Claude 60%"]
-    style = page.get_attribute("[data-pvopen='1'] .pv-pb", "style")
+    open_game(page, 2)
+    win = page.inner_text(".pva.win").replace("\n", " ")
+    for want in ("Win chance", "DET, Claude 74%", "DET, market 64%", "Score, Claude DET 30, CAR 19",
+                 "Score, market DET 27, CAR 23.5", "A 3.5-point favorite, 2011–2025: wins 67%, covers 49%, n 1,314."):
+        assert want in win, want
+    open_game(page, 3)
+    assert "SF, Claude 60%" in page.inner_text(".pva.win").replace("\n", " ") and "market" not in page.inner_text(".pva.win").split("Score")[0]
+    open_game(page, 1)
+    style = page.get_attribute(".pva.win .pv-pb", "style")
     assert "--mk:41.7%" in style and "--cl:54%" in style                 # JAX, the underdog Claude picks
 
 
 @pytest.mark.render
-def test_the_game_page_leads_with_claudes_call(page):
+def test_the_game_page_reads_like_a_newspaper(page):
+    """Storyboard option C (2026-09-29): headline and dek, the call, the box score, then the rest of
+    the story. Section names are run-in words and plain bold names, never all-caps label rows."""
     page.click("[data-pvopen='2']")                                      # DET @ CAR
-    rows = page.evaluate("() => [...document.querySelectorAll('.pvd-row')].map(r => r.classList[1])")
-    assert rows[:3] == ["call", "pick", "lines"]
-    pick = page.inner_text(".pvd-row.pick").replace("\n", " ")
-    for want in ("CLAUDE'S CALL", "DET giving 3.5", "SOLID", "Carolina without Coker", "DET 74%", "market 64%",
-                 "Under 50.5", "LEAN", "DET 30, CAR 19", "market DET 27, CAR 23.5",
-                 "A 3.5-point favorite, 2011–2025: wins 67%, covers 49%, n 1,314."):
-        assert want in pick, want
-    assert "Claude before seeing the line: DET by 1.5, total 48.5" in pick
-    assert "moved it to 11" in page.inner_text(".pvd-row.pick .pv-vsb")
+    parts = page.evaluate("() => [...document.querySelector('.pvn').children].map(e => e.className)")
+    assert parts == ["pvn-head", "pvn-call", "pvn-box", "pvn-story"]
+    box = page.evaluate("() => [...document.querySelectorAll('.pva')].map(r => r.classList[1])")
+    assert box == ["win", "lines", "matchup", "inj", "wx", "rest"]
+    assert page.evaluate("getComputedStyle(document.querySelector('.pv-head')).fontFamily").startswith("Newsreader")
+    call = page.inner_text(".pvn-call").replace("\n", " ")
+    for want in ("The call.", "DET giving 3.5", "SOLID", "Carolina without Coker",
+                 "Claude before seeing the line: DET by 1.5, total 48.5"):
+        assert want in call, want
+    assert "moved it to 11" in page.inner_text(".pvn-call .pv-vsb")
+    lines = page.inner_text(".pva.lines").replace("\n", " ")
+    assert "Claude's total Under LEAN" in lines and "50.5" in lines
     assert texts(page, ".pv-notes li") == ["Carolina has allowed 5.1 yards a carry since week 1. espn.com",
                                            "Gibbs took 11 of Detroit's 14 red-zone carries last week. play-by-play",
                                            "Coker was ruled out Friday."]
+    assert page.locator(".pvn-story .pv-notes").count() == 1             # after the box score on a phone
     links = page.evaluate("() => [...document.querySelectorAll('.pv-notes a')].map(a => [a.href, a.target, a.rel])")
     assert links == [["https://www.espn.com/nfl/story/_/id/1", "_blank", "noopener noreferrer"]]
-    assert page.inner_text(".pv-nh") == "RESEARCH NOTES"
-    assert "Claude" not in page.inner_text(".pvd-row.lines")             # the score folded into the call row
+    assert page.inner_text(".pv-nh") == "Research notes."
+    assert page.inner_text(".pv-risk").startswith("What could go wrong.")
+    caps = page.evaluate("""() => [...document.querySelectorAll('.pvn .pva-h, .pvn .pv-rin, .pvn .pv-k')]
+        .filter(e => getComputedStyle(e).textTransform === 'uppercase').length""")
+    assert caps == 0
     assert page.locator(".pv-score").count() == 0 and page.locator(".pv-vs").count() == 0
     page.click("[data-pvstep='-1']")
     assert page.locator(".pv-blind").count() == 0 and page.locator(".pv-notes").count() == 0   # JAX @ LA: no research
     page.click("[data-pvstep='-1']")                                     # PIT @ CLE: no edge
-    assert page.locator(".pvd-row.pick .pv-edge").count() == 0 and page.locator(".pvd-row.pick .pv-side").count() == 0
-    assert page.locator(".pvd-row.pick .pv-conf.none").count() == 2      # the side and the total
+    assert page.locator(".pvn-call .pv-side").count() == 0
+    assert page.locator(".pvn-call .pv-conf.none").count() == 1 and page.locator(".pva.lines .pv-conf.none").count() == 1
 
 
 def open_record(pg):
@@ -322,7 +344,7 @@ def test_no_signed_spread_anywhere_in_the_preview(page):
     seen = [page.inner_text(".pv-slate")]
     for i in range(5):
         page.evaluate(f"() => {{ PV_I = {i}; PV_OPEN = true; render(); }}")
-        seen += texts(page, ".pvd-row.call, .pvd-row.pick, .pvd-row.lines")
+        seen += texts(page, ".pvn-head, .pvn-call, .pva.win, .pva.lines")
     page.evaluate("() => { PV_OPEN = false; render(); }")
     open_record(page)
     page.evaluate("() => document.querySelectorAll('.pv-rw').forEach(d => d.open = true)")
@@ -340,9 +362,9 @@ def test_a_tap_opens_the_dossier_and_back_returns_to_the_slate_where_it_was(page
     assert is_open(page) and match(page) == "SF @ NYJ"
     assert not page.is_visible(".pv-slate")
     assert page.evaluate("location.hash") == "#preview"          # the game is not in the URL
-    lines = page.inner_text(".pvd-row.lines")
+    lines = page.inner_text(".pva.lines")
     assert "NYJ by 1.5" in lines and "opened SF by 3" in lines and "opened 43.5" in lines
-    assert "+3 zones east · kicks off at 1:25 PM body time" in page.inner_text(".pvd-row.rest")
+    assert "+3 zones east · kicks off at 1:25 PM body time" in page.inner_text(".pva.rest")
     page.go_back()
     page.wait_for_function("!document.querySelector('.pv').classList.contains('open')")
     page.wait_for_timeout(50)
@@ -361,10 +383,12 @@ def test_the_all_games_button_closes_the_dossier(page):
 
 @pytest.mark.render
 def test_optional_rows_are_absent_without_data(page):
-    rows = lambda: page.evaluate("() => [...document.querySelectorAll('.pvd-row')].map(r => r.classList[1])")
+    rows = lambda: page.evaluate("() => [...document.querySelectorAll('.pva')].map(r => r.classList[1])")
     page.click("[data-pvopen='4']")                              # ATL @ NO: dome, no take, no rest
-    assert rows() == ["call", "lines", "inj", "wx"]              # no matchup, rest, players or risk
-    assert "Dome" in page.inner_text(".pvd-row.wx")
+    assert rows() == ["lines", "inj", "wx"]                      # no win chance, matchup or rest
+    assert page.locator(".pvn-call").count() == 0 and page.locator(".pvn-story").count() == 0
+    assert "Claude's call on this game arrives" in page.inner_text(".pvn-head")
+    assert "Dome" in page.inner_text(".pva.wx")
     assert page.locator(".pv-pl").count() == 0 and page.locator(".pv-risk").count() == 0
     page.click("[data-pvstep='-1']")
     page.click("[data-pvstep='-1']")                             # DET @ CAR: the one with defense ranks
@@ -377,10 +401,10 @@ def test_optional_rows_are_absent_without_data(page):
 @pytest.mark.render
 def test_neutral_site_and_short_week(page):
     page.click("[data-pvopen='1']")
-    assert "Neutral site: Wembley Stadium" in page.inner_text(".pvd-row.rest")
-    assert "OFF A BYE" in page.inner_text(".pvd-row.rest")
+    assert "Neutral site: Wembley Stadium" in page.inner_text(".pva.rest")
+    assert "OFF A BYE" in page.inner_text(".pva.rest")
     page.click("[data-pvstep='-1']")
-    assert page.locator(".pvd-row.rest .pv-tag.short").count() == 2
+    assert page.locator(".pva.rest .pv-tag.short").count() == 2
 
 
 def swipe(pg, dx):
@@ -424,6 +448,10 @@ def test_a_desktop_shows_the_rail_beside_the_dossier(browser, page_file):
         slate, dz = pg.evaluate("""() => [document.querySelector('.pv-slate'), document.querySelector('.pv-dz')]
             .map(e => e.getBoundingClientRect().left)""")
         assert slate < dz
+        # The box score is a column right of the call, the two sharing a top edge (storyboard option C).
+        call, box = pg.evaluate("""() => ['.pvn-call', '.pvn-box'].map(s => {
+            const b = document.querySelector(s).getBoundingClientRect(); return [b.left, b.top, b.right]; })""")
+        assert box[0] > call[2] and abs(box[1] - call[1]) < 2
         # The record opens in the dossier's place, the rail stays; a game (or the card again) closes it.
         open_record(pg)
         assert pg.is_visible(".pv-slate") and pg.is_visible(".pv-rz") and pg.locator(".pv-dz").count() == 0

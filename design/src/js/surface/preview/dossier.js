@@ -1,19 +1,23 @@
 /* ------------------------------------------------------------------
-   PREVIEW's dossier (2026-09-29, storyboard option A): one game, one card, rows inside (DESIGN.md
-   "Cards"). The headline, Claude's call (side and confidence, win % beside the market's, the total,
-   the score, the spread's base rate; 2026-09-29, storyboard option A), Lines, Matchup, then the
-   research rows (research.js), the player calls and the risk. A row whose data is absent is not
-   drawn. On a desktop the rows pair two across.
+   PREVIEW's dossier: one game, printed like a sports page (2026-09-29, storyboard option C; David:
+   "make it clean so that it reads like a newspaper"). The story is words: the serif headline and dek,
+   Claude's call, the player calls, what could go wrong, each led by a bold run-in word. Every number
+   sits in the box score beside it (small type, hairline rules, no boxes): Win chance, Lines,
+   Defense rank, then the research sections (research.js). A section whose data is absent is not
+   drawn. A desktop from 1100px sets the box score as a column right of the story; a phone prints it
+   under the call, so the numbers come before the player calls.
 
-   Colour map: --up / --down a player's call and a soft / tough defense rank; --lime Claude (his
-   winner, the STRONG / SOLID chips); the market is grey.
+   Colour map: --up / --down a player's call and a soft / tough defense rank; --lime Claude (his win
+   %, the bar's dot, the STRONG / SOLID chips); the market is grey.
 ------------------------------------------------------------------ */
 /* Eastern time, as the slate's windows say it: a reader's local clock ("Sun 10:00 AM" in Seattle) read as
    the body-clock time the travel row shows beside it (2026-09-29). */
 const pvKick = g => t("preview.kick", {day: esc(g.day), et: esc(g.et)});
 const PV_CALL = {up: "▲", down: "▼", hold: "●"};
 const pvCallWord = c => ({up: t("preview.call.up"), down: t("preview.call.down"), hold: t("preview.call.hold")})[c];
-const pvRow = (cls, title, body) => `<section class="pvd-row ${cls}">${title ? `<h3 class="pvd-rt">${title}</h3>` : ""}${body}</section>`;
+/* One box-score section: a plain bold name, then its rows. */
+const pvRow = (cls, title, body) => `<section class="pva ${cls}"><h3 class="pva-h">${title}</h3>${body}</section>`;
+const pvRunIn = key => `<b class="pv-rin">${key}</b>`;
 
 /* Claude's score over the market's, winner first; the market row is the implied totals. */
 function pvScoreHTML(g){
@@ -22,14 +26,22 @@ function pvScoreHTML(g){
   return `<div class="pv-score"><div class="pv-sc"><span>${t("preview.claude")}</span><b>${esc(w)} ${p.score[w]}</b><b>${esc(l)} ${p.score[l]}</b></div>${mk}</div>`;
 }
 
-/* The headline and the lean, the full width. A take from before confidence (no `ats`) keeps its old
-   score block and market line here, since it has no call row to fold them into. */
-function pvCallRow(g){
+/* The headline and the dek, the full width. */
+function pvHeadHTML(g){
   const k = g.take;
-  if (!k) return pvRow("call full", "", `<p class="pv-none">${t("preview.notake")}</p>`);
-  if (!k.ats) return pvRow("call full", "", `<h2 class="pv-head">${esc(k.head)}</h2><p class="pv-lean">${esc(k.lean)}</p>
-    ${pvScoreHTML(g)}<p class="pv-vs">${esc(k.vs)}</p>`);
-  return pvRow("call full", "", `<h2 class="pv-head">${esc(k.head)}</h2><p class="pv-lean">${esc(k.lean)}</p>`);
+  if (!k) return `<header class="pvn-head"><p class="pv-none">${t("preview.notake")}</p></header>`;
+  return `<header class="pvn-head"><h2 class="pv-head">${esc(k.head)}</h2><p class="pv-dek">${esc(k.lean)}</p></header>`;
+}
+
+/* The call: "The call. PIT giving 2.5 [LEAN] CLE allows ...", then Claude before the line and the
+   research notes. A take from before confidence (no `ats`) keeps its old score block here. */
+function pvCallHTML(g){
+  const k = g.take;
+  if (!k) return "";
+  if (!k.ats) return `<div class="pvn-call">${pvScoreHTML(g)}<p class="pv-vs">${esc(k.vs)}</p></div>`;
+  const a = k.ats;
+  return `<div class="pvn-call"><p class="pv-callp">${pvRunIn(t("preview.run.call"))} <span class="pv-callline">${pvAtsHTML(g, a)}</span>${
+    a.edge ? ` ${esc(a.edge)}` : ""}</p>${pvBlindHTML(k)}</div>`;
 }
 
 /* "A 3.5-point favorite, 2011–2025: wins 67%, covers 49%, n 1,314." (a pick'em: the home side's wins). */
@@ -42,21 +54,27 @@ function pvBaseHTML(g){
   return `<p class="pv-note">${t("preview.base.fav", {by: pvNum(l.by), wins: b.wins, covers: b.covers, n})}</p>`;
 }
 
-/* Claude's call (A2): the side and its chip, the edge, win % beside the market's, the total's call,
-   the score beside the market's implied one, then how favourites of this spread have done. */
-function pvPickRow(g){
+/* The bar under the win %: grey tick the market, lime dot Claude, the gap between them filled faintly. */
+function pvBarHTML(mk, cl){
+  const r1 = n => Math.round(n * 10) / 10;
+  return `<span class="pv-pb" aria-hidden="true" style="--mk:${r1(mk)}%;--cl:${r1(cl)}%;--lo:${r1(Math.min(mk, cl))}%;--gap:${r1(Math.abs(cl - mk))}%">
+    <i class="pv-pbt"></i><i class="pv-pbf"></i><i class="pv-pbm"></i><i class="pv-pbc"></i></span>`;
+}
+
+/* Win chance: Claude's win % for his winner over the market's, the bar, his score over the market's
+   implied one, then how favourites of this spread have done. No market win %, no bar. */
+function pvWinRow(g){
   const k = g.take;
   if (!k || !k.ats) return "";
-  const a = k.ats, w = k.pick.winner, lo = w === g.home ? g.away : g.home, l = g.line || {};
-  const mk = g.market_win && g.market_win[w], imp = l.implied, tc = k.total;
+  const w = k.pick.winner, lo = w === g.home ? g.away : g.home, imp = g.line && g.line.implied;
+  const cl = k.win && k.win[w], mk = g.market_win && g.market_win[w];
   let kv = "";
-  if (k.win && k.win[w] != null) kv += pvKV(t("preview.pick.win"), `${esc(w)} ${k.win[w]}%${mk != null ? ` <small>${t("preview.odds.market", {n: Math.round(mk)})}</small>` : ""}`);
-  if (tc) kv += pvKV(t("preview.line.totalk"), tc.call
-    ? `${tc.call === "over" ? t("preview.pick.over") : t("preview.pick.under")}${l.total != null ? " " + pvNum(l.total) : ""} ${pvConfHTML(tc.conf)}` : pvConfHTML(null));
-  kv += pvKV(t("preview.pick.score"), t("preview.pick.pair", {w: esc(w), a: k.pick.score[w], l: esc(lo), b: k.pick.score[lo]})
-    + (imp ? ` <small>${t("preview.pick.market", {s: t("preview.pick.pair", {w: esc(w), a: imp[w], l: esc(lo), b: imp[lo]})})}</small>` : ""));
-  return pvRow("pick", t("preview.row.pick"), `<p class="pv-callline">${pvAtsHTML(g, a)}</p>
-    ${a.edge ? `<p class="pv-edge">${esc(a.edge)}</p>` : ""}<div class="pv-kv">${kv}</div>${pvBlindHTML(k)}${pvBaseHTML(g)}${pvNotesHTML(k.notes)}`);
+  if (cl != null) kv += pvKV(t("preview.chance.claude", {team: esc(w)}), `<b class="pv-cl">${cl}%</b>`);
+  if (mk != null) kv += pvKV(t("preview.chance.market", {team: esc(w)}), `${Math.round(mk)}%`);
+  const bar = cl != null && mk != null ? pvBarHTML(mk, cl) : "";
+  let sc = pvKV(t("preview.pick.score"), t("preview.pick.pair", {w: esc(w), a: k.pick.score[w], l: esc(lo), b: k.pick.score[lo]}));
+  if (imp) sc += pvKV(t("preview.chance.mscore"), t("preview.pick.pair", {w: esc(w), a: imp[w], l: esc(lo), b: imp[lo]}));
+  return pvRow("win", t("preview.row.win"), `${kv ? `<div class="pv-kv">${kv}</div>` : ""}${bar}<div class="pv-kv">${sc}</div>${pvBaseHTML(g)}`);
 }
 
 /* The research pass (2026-09-29): "Claude before seeing the line: WAS by 1.5, total 48.5", in words
@@ -74,20 +92,23 @@ function pvNotesHTML(notes){
   if (!notes || !notes.length) return "";
   const src = s => s === "pbp" ? `<span class="pv-src">${t("preview.notes.pbp")}</span>`
     : s && pvHost(s) ? `<a class="pv-src" href="${esc(s)}" target="_blank" rel="noopener noreferrer">${esc(pvHost(s))}</a>` : "";
-  return `<h4 class="pv-nh">${t("preview.notes.title")}</h4><ul class="pv-notes">${notes.map(n =>
+  return `<p class="pv-nh">${pvRunIn(t("preview.notes.title"))}</p><ul class="pv-notes">${notes.map(n =>
     `<li>${esc(n.text)} ${src(n.source)}</li>`).join("")}</ul>`;
 }
 
 const pvKV = (k, v) => `<span class="pv-k">${k}</span><span class="pv-v">${v}</span>`;
 
+/* Lines: the spread and the total, each with where it opened when it moved, then Claude's total. */
 function pvLinesRow(g){
-  const l = g.line;
+  const l = g.line, tc = g.take && g.take.ats ? g.take.total : null;
   if (!l) return "";
   const o = l.open, small = s => s ? ` <small>${s}</small>` : "";
   const moved = o && (o.fav !== l.fav || o.by !== l.by);
   const tMoved = o && o.total != null && o.total !== l.total;
   let rows = pvKV(t("preview.line.spread"), pvSpread(l.fav, l.by) + small(moved ? t("preview.line.opened", {line: pvSpread(o.fav, o.by)}) : ""));
   if (l.total != null) rows += pvKV(t("preview.line.totalk"), pvNum(l.total) + small(tMoved ? t("preview.line.openedn", {n: pvNum(o.total)}) : ""));
+  if (tc) rows += pvKV(t("preview.line.claude"), tc.call
+    ? `${tc.call === "over" ? t("preview.pick.over") : t("preview.pick.under")} ${pvConfHTML(tc.conf)}` : pvConfHTML(null));
   return pvRow("lines", t("preview.row.lines"), `<div class="pv-kv">${rows}</div>`);
 }
 
@@ -104,7 +125,7 @@ function pvMatchupRow(g){
   const a = m[g.away], h = m[g.home], n = Math.max((a || {}).games || 0, (h || {}).games || 0);
   const tr = (pos, label, dim) => `<tr${dim ? ` class="dim"` : ""}><th scope="row">${label}</th>${pvMatchupCell(a, pos)}${pvMatchupCell(h, pos)}</tr>`;
   return pvRow("matchup", t("preview.row.matchup"), `<table class="pv-mx">
-    <thead><tr><th></th><th>${t("preview.mx.side", {off: esc(g.away), def: esc(g.home)})}</th><th>${t("preview.mx.side", {off: esc(g.home), def: esc(g.away)})}</th></tr></thead>
+    <thead><tr><th></th><th>${t("preview.mx.side", {off: esc(g.away)})}</th><th>${t("preview.mx.side", {off: esc(g.home)})}</th></tr></thead>
     <tbody>${tr("QB", "QB")}${tr("RB", "RB")}${tr("TE", "TE")}${tr("WR", "WR", true)}${tr("epa", t("preview.mx.epa"))}</tbody></table>
     <p class="pv-note">${t("preview.mx.note", {n})}</p><p class="pv-note">${t("preview.mx.wr")}</p>`);
 }
@@ -118,13 +139,15 @@ function pvPlayerHTML(p, j){
     <span class="pv-pw">${esc(p.why)}</span></button></li>`;
 }
 
-function pvPlayersRow(g){
-  const ps = g.take ? g.take.players : [];
-  if (!ps.length) return "";
-  return pvRow("players full", t("preview.row.players", {n: ps.length}), `<ul class="pv-pl">${ps.map(pvPlayerHTML).join("")}</ul>`);
+/* The rest of the story, after the box score on a phone: research notes, the player calls, then what
+   could go wrong. */
+function pvStoryHTML(g){
+  const k = g.take, ps = k ? k.players : [];
+  const notes = k ? pvNotesHTML(k.notes) : "";
+  const pl = ps.length ? `<p class="pv-plh">${pvRunIn(t("preview.run.players"))}</p><ul class="pv-pl">${ps.map(pvPlayerHTML).join("")}</ul>` : "";
+  const risk = k ? `<p class="pv-risk">${pvRunIn(t("preview.risk"))} ${esc(k.risk)}</p>` : "";
+  return notes || pl || risk ? `<div class="pvn-story">${notes}${pl}${risk}</div>` : "";
 }
-
-const pvRiskRow = g => g.take ? pvRow("risk full", "", `<p class="pv-risk"><b>${t("preview.risk")}</b><span>${esc(g.take.risk)}</span></p>`) : "";
 
 /* The header: back to the slate (a phone), ‹ AWAY @ HOME ›, the kickoff. */
 function pvTopHTML(g, i, n){
@@ -138,11 +161,8 @@ function pvTopHTML(g, i, n){
 }
 
 function pvDossierHTML(g, i, n, enter){
-  /* The headline spans; Claude's call and the research rows pair two across on a desktop, an odd one
-     out taking the full width. */
-  const pair = [pvPickRow(g), pvLinesRow(g), pvMatchupRow(g), pvInjRow(g), pvWxRow(g), pvRestRow(g)].filter(Boolean);
-  if (pair.length % 2) pair[pair.length - 1] = pair[pair.length - 1].replace(/^<section class="pvd-row ([^"]*)"/, '<section class="pvd-row $1 full"');
+  const box = [pvWinRow(g), pvLinesRow(g), pvMatchupRow(g), pvInjRow(g), pvWxRow(g), pvRestRow(g)].join("");
   return `<div class="pv-dz">${pvTopHTML(g, i, n)}
-    <article class="pvd-card${enter}" data-pvswipe>${pvCallRow(g)}${pair.join("")}${pvPlayersRow(g)}${pvRiskRow(g)}</article>
+    <article class="pvn${enter}" data-pvswipe>${pvHeadHTML(g)}${pvCallHTML(g)}${box ? `<aside class="pvn-box">${box}</aside>` : ""}${pvStoryHTML(g)}</article>
     <p class="pv-foot">${t("preview.foot")}</p></div>`;
 }

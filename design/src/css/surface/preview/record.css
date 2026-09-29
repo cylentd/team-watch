@@ -15,8 +15,12 @@
 .pv-rec-t .pv-rec-more{letter-spacing:.04em;color:var(--ink-2)}
 .pv-rec0{margin:0;padding:6px 2px 2px;font-size:var(--t-1);line-height:1.4;color:var(--ink-3)}
 
-/* Every week: back, then the card. */
+/* Every week: back, then the card. One card, rows inside, divided by 1px --line: the card's own fill
+   shows through a 1px grid gap (the dossier drew the same card until 2026-09-29). */
 .pv-rz{display:flex;flex-direction:column;gap:8px;min-width:0}
+.pvd-card{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.pvd-row{background:var(--panel);padding:12px 14px;min-width:0}
+.pvd-rt{margin:0 0 8px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
 .pv-rt{width:100%;max-width:640px;border-collapse:collapse;font-family:var(--mono);font-size:var(--t-2);font-variant-numeric:tabular-nums}
 .pv-rt thead th{padding:0 0 6px 8px;font-size:var(--t-1);font-weight:500;letter-spacing:.04em;line-height:1.25;text-transform:uppercase;color:var(--ink-3);text-align:right;vertical-align:bottom}
 .pv-rt thead th:first-child{padding-left:0;text-align:left}
@@ -44,5 +48,5 @@
   .pv-rz{max-width:720px}
 }
 @media (min-width:1100px){
-  .pv-rcard{grid-template-columns:minmax(0,1fr)}
+  .pvd-row{padding:14px 18px}
 }

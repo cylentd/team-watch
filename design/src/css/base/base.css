@@ -1,6 +1,9 @@
   --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
   --disp:"Bricolage Grotesque","Archivo",sans-serif;
   --ui:"Archivo","Segoe UI",sans-serif;
+  /* Preview's newspaper voice (surface/preview/, 2026-09-29, storyboard option C): the game's
+     headline and dek, and each slate row's headline. Serif, in that view only. */
+  --news:"Newsreader",Georgia,"Times New Roman",serif;
   /* The Yahoo League back page's tabloid voice (surface/league/back.css): headline, stamps, section
      heads. Condensed and heavy, in that view only. */
   --tab:"Big Shoulders Display","Bricolage Grotesque",Impact,sans-serif;

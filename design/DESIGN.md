@@ -730,7 +730,7 @@ roster is read, and the players named are the ones ff-jarvis's `game_preview` pi
 
 | part | what it shows |
 |---|---|
-| Slate | every game by kickoff window (Thu night, Sun morning, Sun early, Sun late, Sun night, Mon night, else the weekday), headed with its Eastern times from the data (`design/preview.py` `_slot`). A row: AWAY @ HOME, Claude's winner (`--lime`) and score, the headline, then the spread in words, the total and at most two flags |
+| Slate | every game by kickoff window (Thu night, Sun morning, Sun early, Sun late, Sun night, Mon night, else the weekday), headed with its Eastern times from the data (`design/preview.py` `_slot`). ~~A row: AWAY @ HOME, Claude's winner (`--lime`) and score, the headline, then the spread in words, the total and at most two flags~~ (two lines since 2026-09-29, "Front page") |
 | Flags | by priority: UPSET (Claude's winner is not the market favourite, `--lime`), Line flipped / Line moved n (3+ points, `--amber`), Rain n% (50%+) or Wind n mph (15+, `--sky`), "J. Coker out" (the highest-average Out/IR player at 10+ points a game, `--down`), Short week (`--ink-2`). Computed in `preview.py` `_flags` |
 | Dossier header | "‹ All games" (a phone), ‹ AWAY @ HOME › and the kickoff. Arrows and a sideways swipe walk the games in kickoff order |
 | Claude's call | headline and lean, the full width; then the call row (below, "Confidence and record"). ~~Claude's score over the market's implied score, how the two differ~~ (folded into the call row 2026-09-29; a take written before confidence still draws it) |
@@ -741,17 +741,18 @@ roster is read, and the players named are the ones ff-jarvis's `game_preview` pi
 | Rest & travel | facts: days since the last game, SHORT WEEK, OFF A BYE, zones travelled and the body-clock kickoff, miles, a neutral site. One line says the backtest found no edge past the line (ff-jarvis METHODOLOGY 12.62, 2026-09-29: 0 of 23 cells pass; it said "not tested yet" before) |
 | Player calls, Risk | every call (up to 8), a tap opens the profile; the risk |
 
-- **One card, rows inside** (DESIGN.md "Cards"): the rows are divided by the card's 1px `--line`
-  showing through a grid gap. A row whose data is absent is not drawn.
+- ~~**One card, rows inside**: the rows are divided by the card's 1px `--line` showing through a grid
+  gap.~~ (Superseded 2026-09-29 by "Front page": no card, a story and a box score.) A row whose data
+  is absent is not drawn.
 - **Back:** opening a dossier on a phone pushes a URL-less history entry (`chrome/layers.js`), so Back
   returns to the slate at the scroll it left (`test_a_tap_opens_the_dossier_and_back_returns_...`).
 - **The game is not in the hash.** Only the view is in the URL (CLAUDE.md, Navigation); a reload lands
   on the slate, one tap from any game, and a game key in the hash would be a second thing to keep in
   step with Back, the swipe and the week turning over.
 - **Desktop (960px+):** the slate is a sticky 330px rail beside the dossier, the game on screen on
-  `--panel-2` with its matchup in `--lime`; a click only changes the game, no history entry. From
-  1100px the dossier's rows pair two across (like-height pairs, STYLE.md "Rows, not columns"); an odd
-  one out and the player calls take the full width.
+  `--panel-2` with its matchup in `--lime`; a click only changes the game, no history entry. ~~From
+  1100px the dossier's rows pair two across~~ (superseded 2026-09-29: the box score is a column
+  beside the story, "Front page").
 - **Measured 2026-09-29, week 4's 16 real games:** at 360x800 the first slate row starts at 112px and
   7 rows are on the first screen; any game is one tap away; a dossier is 1,468-1,585px (about two
   screens). `test_every_game_fits_one_screen` and the day marker are retired with option C.
@@ -759,6 +760,31 @@ roster is read, and the players named are the ones ff-jarvis's `game_preview` pi
   off, and the desktop dossier shows it.
 - **No take yet:** the slate row says the call arrives with the next refresh; the dossier keeps every
   research row.
+
+### Front page (2026-09-29, evening)
+
+The slate and the game page read like a newspaper. Storyboard option C (David, 2026-09-29: "the left
+side is super busy ... the right side has a lot of data. Make it clean so it reads like a newspaper or
+newsletter"; https://claude.ai/artifact/8m6221CCeTerrxpwLVxTxy). Option A, a one-line index, lost the
+headline; option B, one reading column, left ~500px empty on a desktop. No number was dropped: each
+moved to the box score.
+
+| part | what it shows |
+|---|---|
+| Slate row | two lines: AWAY @ HOME with Claude's side and chip, then the headline in serif (`--news`, Newsreader) with the producer's first flag trailing it after a dot. Win %, the bar, the score, the total and the spread moved to the box score |
+| Headline and dek | the take's `head` in serif at `--t-6` (`--t-5` under 760px), the `lean` under it as the dek, a rule below |
+| Story | words, each part led by a bold run-in: "The call." (side, chip, the edge sentence), Claude before the line, "Research notes.", "Players.", "What could go wrong." |
+| Box score | every number, small type, hairlines, no boxes, each section under a plain bold name: Win chance (Claude's win % in `--lime` over the market's, the bar, his score over the market's implied one, the base rate), Lines (spread, total, Claude's total with its chip), Defense rank, Injuries, Weather, Rest & travel |
+| Order | a phone: headline, the call, the box score, the story (numbers by ~710px on a 360 phone). From 1100px the box score is a 340px column right of the call and the story; the story's grid row takes the slack so the call keeps its height |
+
+- **One new face:** Newsreader, in Preview only, for the headlines and the dek (`--news` in `base.css`).
+- **No card.** The game sits on the page's ground; the record sheet keeps its card (`record.css` now
+  holds `.pvd-card`).
+- **Measured 2026-09-29, week 4's 16 real games, 360x800:** slate rows 115px became 62–81px; the slate
+  2,084px became 1,400px. The game page: 8 boxed rows and 13 all-caps labels became 0 of each. At
+  1440x900 the rail shows about 8 games, was 6; the story and the box score end level (1,279px each for PIT @ CLE).
+- Tests: `test_a_row_is_the_call_then_the_headline_and_one_flag`, `test_the_game_page_reads_like_a_newspaper`
+  (part order, box score sections, run-ins, no uppercase labels), the desktop test's box-beside-call check.
 
 ### Confidence and record (2026-09-29)
 
@@ -769,7 +795,7 @@ cover in 14 of 14; favourites cover 48% (2011–2025, n 3,915).
 
 | part | what it shows |
 |---|---|
-| Slate row | right of the matchup: Claude's side against the spread and a chip. Under it "IND wins 27–19 · market 62% · Claude 71%" and the bar: grey tick the market's win %, lime dot Claude's, the gap filled faintly. No moneyline (`market_win` null): the line without the market and no bar. No edge: the NO EDGE chip and no side. The meta drops the spread when the side already says it |
+| Slate row | right of the matchup: Claude's side against the spread and a chip. No edge: the NO EDGE chip and no side. ~~Under it "IND wins 27–19 · market 62% · Claude 71%" and the bar~~ (moved to the box score's Win chance, "Front page" above, 2026-09-29) |
 | Side words | never signed: "CLE getting 2.5" (underdog), "IND giving 3.5" (favourite), "CLE, even" (pick'em); `pvSideWords` in `data/preview.js` |
 | Chips | STRONG (lime fill), SOLID (lime outline), LEAN (grey outline), NO EDGE (grey) |
 | Record card | atop the slate, one tap target: "4–2–1 vs spread", hit % (pushes out), by confidence, "Win % closer than the market's on 4 of 7" (per game, whose win % was nearer the result: a Brier score), and once graded the blind number's record and margin error. Before a graded game: one line, "Claude's record against the spread starts once week 4 is final", never zeros |
