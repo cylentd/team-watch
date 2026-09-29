@@ -43,6 +43,12 @@ function dgHurtLine(d){
 }
 
 /* Matchups' one name is the best spot at WR (the position Matchups opens on), else the next. */
+/* No new starter: Blip asleep and one of three lines, the same one all week (David, 2026-09-29). */
+function dgStartNone(d){
+  const line = dgPick([t("digest.line.startNone1"), t("digest.line.startNone2"), t("digest.line.startNone3")], `start|${d.week}`);
+  return `<span class="dg-blip">${blipSVG(null, "asleep")}</span>${line}`;
+}
+
 function dgMuLine(d){
   const b = ["WR", "RB", "TE", "QB"].map(p => d.best.find(r => r.pos === p)).find(Boolean);
   if (b) return t("digest.line.mu", {name: esc(b.n), vs: dgVs(b)});
@@ -88,7 +94,8 @@ function dgRowHTML(id, d, open){
   const has = dgHas(id);
   const [n, tone] = has ? dgCount(id, d) : ["", ""];
   const line = has ? dgLine(id, d)
-    : id === "hurt" && d && dgWeekDone(d) ? t("digest.line.hurtNext", {week: d.week + 1}) : t("digest.line.nothing");
+    : id === "hurt" && d && dgWeekDone(d) ? t("digest.line.hurtNext", {week: d.week + 1})
+    : id === "start" && d ? dgStartNone(d) : t("digest.line.nothing");
   const on = has && open === id;
   return `<div class="dg-row${has ? "" : " empty"}" data-dgrow="${id}"${on ? " data-open data-today" : ""}>
     <button type="button" class="dg-head" aria-expanded="${on}"${has ? ` aria-controls="dg-b-${id}"` : " disabled"}>

@@ -138,6 +138,8 @@
   .dg-row[data-today] .dg-l{color:var(--lime)}
   .dg-row.empty .dg-head{padding-bottom:20px}
   .dg-row.empty .dg-s{display:block;grid-column:1 / -1;white-space:normal}
+  /* A panel has the room: Blip sits above the line at full size instead of beside it. */
+  .dg-row.empty .dg-blip{display:block;width:88px;height:88px;margin:16px 0 12px}
 
   .dg-row .dg-body{flex:1;grid-template-rows:1fr}
   .dg-in{background:none}

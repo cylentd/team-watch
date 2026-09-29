@@ -22,6 +22,9 @@
 .dg-sk-up{stroke:var(--up)}
 .dg-sk-mv{stroke:var(--sky)}
 .dg-day{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+/* Nothing new: Blip asleep ahead of the line, the height of a capital. */
+.dg-blip{display:inline-block;width:1.6em;height:1.6em;margin:-.3em 6px -.3em 0;vertical-align:middle}
+.dg-blip .blip{width:100%;height:100%}
 
 /* Top 5: four short lists, five rows each, two across on a phone and four on a desktop. */
 .dg-t5{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 14px;padding-top:6px}

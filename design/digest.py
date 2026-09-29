@@ -160,7 +160,7 @@ def _starter(r, slugify, schedule):
     team's next kickoff after the game it is measured from (`since`), when the page drops it."""
     o = r.get("over")
     day = dt.date.fromisoformat(r["changed"]).strftime("%a") if r.get("changed") else None
-    return {**_player(r, slugify, "pos", "team", "proj", "from"), "day": day,
+    return {**_player(r, slugify, "pos", "team", "proj", "from", "depth"), "day": day,
             "ko": next_kick(schedule, r.get("team"), r.get("since")),
             "over": {"n": o["name"], "slug": slugify(o["name"]), "status": o.get("status")} if o else None}
 

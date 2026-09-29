@@ -580,7 +580,7 @@ group and Digest the default leaf, except on a Tuesday, when Waivers leads.
 |---|---|
 | Lead | ff-jarvis's pick (`lead.rule`): a hurt starter, else a game in bad weather, else the top headline. A headline, one fact line ("The WR2 this week. Hip. LA @ DEN, Sun 5:20 PM."), the photo; weather draws its wind or rain mark instead. No stats row |
 | Hurt | red count; the next two who will likely sit, then how many are questionable |
-| Starters | count; the newest new #1 on Sleeper's depth chart ("Keenum QB1 over Williams") or team move ("MIN → NYG"). Opened: each with a green up mark (new #1, the old one's status in brackets) or sky arrows (new team), the weekday at the right. The foot quotes `rules.starters`. On the wall it sits under Hurt. Since 2026-09-29 |
+| Starters | count; the newest new #1 on Sleeper's depth chart ("Keenum QB1 over Williams") or team move with his new depth ("MIN → NYG · QB3"); empty, Blip asleep and one of three short lines (`surface/digest/blip.js`, pose "asleep", 2026-09-29). Opened: each with a green up mark (new #1, the old one's status in brackets) or sky arrows (new team), the weekday at the right. The foot quotes `rules.starters`. On the wall it sits under Hurt. Since 2026-09-29 |
 | Matchups | the call count; the best spot at WR, else RB, TE, QB |
 | Weather | sky count; the first game past the bar, in mph or % rain |
 | Waiver adds | lime pill: the biggest rise in ESPN % rostered |

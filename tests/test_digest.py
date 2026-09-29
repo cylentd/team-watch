@@ -298,12 +298,15 @@ def test_starters_row_names_the_new_one_and_who_he_replaced(browser, page_file):
               metas: [...row.querySelectorAll('.dg-ln-t > span')].map(s => s.textContent.trim()),
               days: [...row.querySelectorAll('.dg-day')].map(s => s.textContent)}; }""")
     assert got["line"] == "Watson QB1 over Sanders" and got["n"] == "4"
-    assert got["metas"] == ["QB1 over S. Sanders", "QB1 over J. Daniels (Out)", "MIN → NYG", "RB1 over J. Mason"]
+    assert got["metas"] == ["QB1 over S. Sanders", "QB1 over J. Daniels (Out)", "MIN → NYG · QB3", "RB1 over J. Mason"]
     assert got["days"] == ["Tue", "Tue", "Mon", "Mon"]
     gone = page.evaluate("""() => { LIVE_DIGEST.starters.forEach(r => { r.ko = "2026-09-20T17:00:00Z"; });
       Date.now = () => Date.parse("2026-09-20T17:01:00Z"); DG_CUT = null; render();
       return document.querySelector('.dg-row[data-dgrow="start"]').classList.contains('empty'); }""")
     assert gone, "a started game takes its starter rows"
+    empty = page.evaluate("""() => { const s = document.querySelector('.dg-row[data-dgrow="start"] .dg-s');
+      return {blip: !!s.querySelector('.dg-blip svg.blip'), text: s.textContent.trim()}; }""")
+    assert empty["blip"] and "Blip" in empty["text"], "an empty Starters row is Blip asleep with a line, not Nothing new"
     ctx.close()
     assert errors == []
 

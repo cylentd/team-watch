@@ -43,7 +43,9 @@ function dgStartWhat(r, name, bare){
   const o = r.over;
   const v = o && {pos: esc(r.pos), name: esc(name(o.n)), status: esc(o.status || "")};
   const over = !o ? "" : o.status && !bare ? t("digest.start.overStatus", v) : t("digest.start.over", v);
-  const moved = r.from ? t("digest.start.moved", {from: esc(r.from), team: esc(r.team)}) : "";
+  // A move says where he stands on the new chart (McCarthy: the Giants' QB3); a new #1 already said it.
+  const m = {from: esc(r.from), team: esc(r.team), pos: esc(r.pos), depth: r.depth};
+  const moved = !r.from ? "" : !o && r.depth ? t("digest.start.movedDepth", m) : t("digest.start.moved", m);
   return [over, moved].filter(Boolean).join(", ");
 }
 
