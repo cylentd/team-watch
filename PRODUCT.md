@@ -33,8 +33,8 @@ backtested say so. Neighbouring apps publish rankings and opinion with no record
 - **From Discord:** a tap through from the morning `ff-digest` post, which leads with the top news and
   links to the page.
 
-The data refreshes once a day (the morning job) plus the 6:30 and 15:00 page rebuilds; weeks turn on
-Tuesday. Waivers clear Wednesday 12am in both leagues.
+The page rebuilds right after each refresh (since 2026-09-28): 5:50am daily after the digest,
+2:30pm daily after the injury run, and Tuesday 2am, which turns the week once Monday night is final. Waivers clear Wednesday 12am in both leagues.
 
 ## Capabilities and Constraints
 

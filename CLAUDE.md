@@ -80,8 +80,8 @@ and the main checkout stays on `main`, unedited. Notes that cost time to learn:
   `ExitWorktree` with `remove` puts the session back in the main checkout, and the session goes on.
 - Lands queue (`scripts/land-queue.ps1`, since 2026-09-26): a ticket in `.git/land-queue`, shared by
   every worktree, holds `main` from the first fetch to the push, so a second land waits, printing
-  whose it is behind, then rebases onto the first. The page-rebuild job (6:30 and 15:00 daily,
-  plus 2:40 Tuesday after a 2:00 refresh, in agent-config) takes the same queue. A dead session's ticket clears itself; a wait over 20 min
+  whose it is behind, then rebases onto the first. The scheduled rebuild (the last step of the 5:50
+  and 14:30 daily jobs and Tuesday's 2:00 week turn, in agent-config) takes the same queue. A dead session's ticket clears itself; a wait over 20 min
   gives up with nothing landed. A push from outside the queue still gets exit 2 from `git land`,
   and `land.ps1` rebases, rebuilds and retries once.
 - A fresh worktree has no `data/feed.json` (untracked). The build falls back to reading
@@ -145,7 +145,7 @@ naming the new week when there is one. Only over http(s); from `file://` there i
 
 The page's week is data, not the reader's clock (2026-09-28): `LIVE_SCHEDULE.week` is the week of
 the next game with no final score (`design/schedule.py` `page_week`), and `schedWeek()` returns it.
-So the pack, the brief and Weather turn with the recap and projections, at the Tuesday 2:40 rebuild.
+So the pack, the brief and Weather turn with the recap and projections, at the Tuesday 2:00 week-turn rebuild.
 
 ## Data
 
