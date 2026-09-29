@@ -10,8 +10,15 @@
 .pf-say{margin:0 0 10px;font-size:var(--t-2);line-height:1.45;color:var(--ink)}
 .pf-blend{margin:14px 0 0;padding-top:14px;border-top:1px solid var(--line);color:var(--ink-3)}
 
-.pf-metrics{display:flex;flex-direction:column;gap:14px}
-.pf-metric-h{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:var(--t-2);color:var(--ink-2)}
+/* One opponent rate: its name and number on one line, the bar under them with the league's tick,
+   and the league's number written under the bar. The bar's own value and gap columns are
+   dropped here -- the head already carries the number. */
+.pf-metrics{display:flex;flex-direction:column;gap:16px}
+.pf-metric-h{display:flex;align-items:baseline;gap:8px;margin-bottom:8px;font-size:var(--t-3);color:var(--ink-2)}
+.pf-metric-h > b{margin-left:auto;font-family:var(--mono);font-size:var(--t-4);font-weight:700;color:var(--ink)}
+.pf-metric .pf-bar.bare{grid-template-columns:minmax(0,1fr)}
+.pf-metric .pf-bar-v,.pf-metric .pf-bar-d{display:none}
+.pf-metric-f{margin-top:6px;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);text-align:right}
 .pf-stale{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.12em;color:var(--amber);border:1px solid rgb(var(--amber-rgb) / .4);background:rgb(var(--amber-rgb) / .08);padding:2px 5px;border-radius:2px;cursor:help}
 
 .pf-factor{display:flex;align-items:baseline;gap:10px;margin-top:14px;font-size:var(--t-2);color:var(--ink-2)}

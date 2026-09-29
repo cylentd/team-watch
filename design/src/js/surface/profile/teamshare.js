@@ -48,22 +48,23 @@ function teamShareListHTML(d, slug){
   return `<div class="pf-team">${shown.map(row).join("")}${others}</div>`;
 }
 
-function teamShareBlockHTML(p, key, sub){
+/* One section per stat (2026-09-29): a back's carries and targets sit side by side on a desktop
+   instead of one long column the reader scrolls. The head names the stat, so the lead line only
+   has to say where he stands. */
+function teamShareBlockHTML(p, key){
   const d = teamShareRows(p.team, key);
   const i = d.rows.findIndex(r => r.slug === p.slug);
   if (i < 0 || !d.total) return "";
   const noun = TEAM_SHARE_NOUN[key]();
   const lead = leadHTML(Math.round(d.rows[i].v / d.total * 100) + "%",
-    t("profile.team.lead", {noun, team: esc(p.team), rank: ordinal(i + 1), n: d.rows[i].v, total: d.total}), sub ? "sub" : "");
-  return lead + teamShareListHTML(d, p.slug);
+    t("profile.team.lead", {noun, rank: ordinal(i + 1), n: d.rows[i].v, total: d.total}));
+  return secHTML(t("profile.team.label", {team: esc(p.team), noun}), lead + teamShareListHTML(d, p.slug),
+    "", "pf-sec-team", winText(d.weeks));
 }
 
 function teamShareHTML(p){
   const keys = p && p.team ? TEAM_SHARE_KEYS[p.pos] : null;
-  if (!keys) return "";
-  const body = keys.map((k, i) => teamShareBlockHTML(p, k, i > 0)).join("");
-  if (!body) return "";
-  return secHTML(t("profile.team.label", {team: esc(p.team)}), body, "", "pf-sec-team", winText(teamShareRows(p.team, keys[0]).weeks));
+  return keys ? keys.map(k => teamShareBlockHTML(p, k)).join("") : "";
 }
 
 /* A teammate's row opens his profile in place of this one; Back still closes the profile. */

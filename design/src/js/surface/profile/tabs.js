@@ -22,16 +22,30 @@ const PF_TABS = [
    body: (prof, p) => teamShareHTML(p)
      + (prof ? roleHTML(prof) + redZoneHTML(prof) + (pfReceiver(prof) ? sidesHTML(prof) : "") : "")},
   {id: "props", label: () => t("profile.tab.props"), body: (prof, p) => propsHTML(p)},
-  {id: "matchup", label: () => t("profile.tab.matchup"),
-   body: (prof, p) => !prof ? "" : headlineHTML(prof) + opponentHTML(prof) + lineHTML(prof)
-     + (pfReceiver(prof) ? zoneReadHTML(prof) + coverageHTML(prof) : "")
-     + marketHTML(prof) + blendedHTML(prof)},
+  {id: "matchup", label: () => t("profile.tab.matchup"), body: (prof, p) => !prof ? "" : matchupPaneHTML(prof)},
   /* Last, and the only pane that needs no profile and no usage row: it reads LIVE_PEDIGREE
      alone, so a player the model knows nothing about still has one tab worth opening. */
   {id: "bio", label: () => t("profile.tab.bio"), body: (prof, p) => bioBlockHTML(p)},
 ];
 
 function pfReceiver(prof){ return prof.pos === "WR" || prof.pos === "TE"; }
+
+/* The matchup in the order it is read (2026-09-29, David: "should fit without scrolling"): the
+   verdict across the top, then up to three columns under it -- the two lines that meet (their
+   defense, his blockers), where he is thrown to against it and what the market says, and how he
+   fares against its looks. A desktop reads them side by side, each about 370px wide instead of
+   bars 1,000px long, and of about equal height; a phone stacks them in the same order. */
+function matchupPaneHTML(prof){
+  const col = h => h.trim() ? `<div class="pf-col">${h}</div>` : "";
+  const rec = pfReceiver(prof);
+  const cols = col(opponentHTML(prof) + lineHTML(prof))
+    + col((rec ? zoneReadHTML(prof) : "") + marketHTML(prof))
+    + col(rec ? coverageHTML(prof) : "");
+  return headlineHTML(prof) + (cols ? `<div class="pf-cols">${cols}</div>` : "") + blendedHTML(prof);
+}
+
+// The pane's class names the tab, so each pane lays itself out (panel.css) without a wrapper.
+const pfPaneClass = id => `pf-tabpane pf-pane-${id}`;
 
 function pfPanes(prof, p){
   return PF_TABS.map(tb => ({id: tb.id, label: tb.label(), html: tb.body(prof, p)}))
@@ -56,7 +70,7 @@ function tabsHTML(prof, p){
       ${panes.map(x => `<button class="mode-sub" type="button" role="tab" data-pftab="${esc(x.id)}"
         aria-selected="${x.id === on}">${x.label}</button>`).join("")}
     </div>`;
-  return none + bar + `<div class="pf-tabpane" role="tabpanel">${panes[0].html}</div>`;
+  return none + bar + `<div class="${pfPaneClass(on)}" role="tabpanel">${panes[0].html}</div>`;
 }
 
 /* Arrow keys move along the row and open as they go, which is what role="tablist" promises. */
@@ -68,6 +82,7 @@ function wireTabs(d, prof, p){
   const open = b => {
     if (b.getAttribute("aria-selected") === "true") return;
     tabs.forEach(x => x.setAttribute("aria-selected", x === b));
+    pane.className = pfPaneClass(b.dataset.pftab);
     pane.innerHTML = PF_TABS.find(tb => tb.id === b.dataset.pftab).body(prof, p);
   };
   tabs.forEach((b, i) => {

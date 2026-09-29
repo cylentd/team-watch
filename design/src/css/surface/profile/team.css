@@ -3,10 +3,11 @@
    teammates who take the rest. One row per player, the same three columns on every row, so the
    bars start on one line and the shares end on one. A teammate's row is a button to that
    teammate's profile. */
-.pf-sec-team .pf-lead.sub{margin-top:18px}
-.pf-team{display:grid;gap:2px;margin-top:10px;max-width:560px}
+.pf-team{display:grid;gap:2px;margin-top:10px}
+/* 30px rows on a desktop, where a pointer needs less than a thumb: seven rows then fit beside the
+   other column with no scroll (2026-09-29). */
 .pf-tm{display:grid;grid-template-columns:minmax(0,9.5em) minmax(0,1fr) 3.2em;gap:12px;align-items:center;
-  min-height:36px;padding:2px 6px;margin:0 -6px;border:0;border-radius:6px;background:none;
+  min-height:30px;padding:1px 6px;margin:0 -6px;border:0;border-radius:6px;background:none;
   font:inherit;font-family:var(--ui);color:var(--ink-2);text-align:left;-webkit-tap-highlight-color:transparent}
 button.pf-tm{cursor:pointer}
 button.pf-tm:hover{background:var(--panel-2);color:var(--ink)}
@@ -23,10 +24,17 @@ button.pf-tm:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
 .pf-tm.me .pf-tm-bar i{background:var(--ink)}
 .pf-tm.me > b{color:var(--ink)}
 .pf-tm.rest .pf-tm-n,.pf-tm.rest > b{font-weight:500;color:var(--ink-3)}
-/* The Props tab (props.js) draws the leg sheet's bars (legsheet.css), which are sized for a
-   560px sheet: on a desktop pane twelve bars ran 1,100px wide, each a slab. */
-.pf-sec-prop .ls-bars{max-width:620px}
+/* The Props tab (props.js) draws the leg sheet's bars (legsheet.css), two markets to a row on a
+   desktop (panel.css), each about the 560px sheet they were sized for. The market's name is the
+   chart's title, set in the display face at the size of a secondary number (2026-09-29, David:
+   "make the prop title more visible"); as a letter-spaced 12px label it read as a caption. */
+.pf-sec-prop .pf-sechead{margin-bottom:10px}
+.pf-sec-prop .pf-sechead .lbl{font-family:var(--disp);font-size:var(--t-4);font-weight:800;
+  letter-spacing:.01em;color:var(--ink)}
 
+@media (max-width:760px){
+  .pf-tm{min-height:36px;padding:2px 6px}
+}
 @media (max-width:430px){
   .pf-tm{grid-template-columns:minmax(0,8.2em) minmax(0,1fr) 3em;gap:10px}
 }

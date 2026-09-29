@@ -42,16 +42,16 @@
 .pf-lede-l{font-family:var(--mono);font-size:var(--t-1);font-weight:600;letter-spacing:.1em;
   text-transform:uppercase;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* Who has him (owners.js): one pill per league, the league's own colour on its tag. The reader's
-   own team is lime, the page's "this is yours" colour; a free agent is green, the page's "up". */
+/* Who has him (owners.js): one pill per league. The reader's own team is lime, the page's "this is
+   yours" colour; a free agent is green, the page's "up". The league's tag is grey, not Yahoo purple
+   or ESPN red (2026-09-29, David: "super bright and distracting"): the word already names the
+   league, and two brand colours were the loudest thing under the strip. */
 .pf-owners{display:flex;flex-wrap:wrap;gap:6px;padding:11px 0 12px}
 .pf-own{display:inline-flex;align-items:center;gap:7px;max-width:100%;padding:3px 10px 3px 3px;
   border:1px solid var(--line-2);border-radius:99px;background:var(--panel-2);
   font-size:var(--t-2);font-weight:600;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pf-own-l{flex:none;padding:2px 7px;border-radius:99px;font-family:var(--mono);font-size:var(--t-1);
-  font-style:normal;font-weight:700;letter-spacing:.06em;color:var(--ink)}
-.pf-own-l.yahoo{background:var(--yahoo)}
-.pf-own-l.espn{background:var(--espn)}
+  font-style:normal;font-weight:700;letter-spacing:.06em;color:var(--ink-2);background:var(--panel-3)}
 .pf-own.mine{color:var(--lime);border-color:rgb(var(--lime-rgb) / .45)}
 .pf-own.free{color:var(--up)}
 /* A team's pill is a button to its roster; the chevron says so on a phone, where there is no hover. */
@@ -81,9 +81,37 @@ button.pf-own:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
   .pf-tabs{gap:4px}
   .pf-tabs .mode-sub{flex:1 1 auto;padding-left:5px;padding-right:5px;letter-spacing:.08em}
 }
-/* A pane arrives as one thing, not as a stack of separately-animating sections. */
+/* A pane arrives as one thing, not as a stack of separately-animating sections. It opens 16px
+   under the tabs whatever its first block is (2026-09-29, David: Season "looks cramped", its
+   column heads sat 6px under the tabs while Usage's first block had 26px of its own). */
 @keyframes pf-pane{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.pf-tabpane{animation:pf-pane .26s var(--ease)}
+.pf-tabpane{padding-top:16px;animation:pf-pane .26s var(--ease)}
+.pf-tabpane > :first-child{padding-top:0}
+
+/* A desktop lays a pane's blocks side by side (2026-09-29, David: Usage and Matchup "should fit
+   without scrolling", and bars ran 1,000px wide). Usage and Props: two columns, blocks flowing
+   into them; a block that holds two parts (a back's red zone) takes the whole row. Matchup: the
+   verdict across the top, then its three columns (tabs.js matchupPaneHTML). A column's blocks
+   are divided by space, not rules: a rule under a block that ends mid-row read as a broken table. */
+.pf-cols{display:grid;grid-template-columns:minmax(0,1fr)}
+.pf-col > :last-child{border-bottom:0}
+.pf-rz-parts{display:grid;gap:18px}
+@media not all and (max-width:760px){
+  .pf-pane-usage,.pf-pane-props{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    column-gap:48px;align-items:start}
+  .pf-tabpane.pf-pane-usage > *,.pf-tabpane.pf-pane-props > *{min-width:0;padding:0 0 24px;border-bottom:0}
+  .pf-pane-usage > .pf-sec-rz.two{grid-column:1 / -1}
+  .pf-sec-rz.two .pf-rz-parts{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:48px}
+  .pf-cols{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);column-gap:40px;
+    padding-top:18px;border-top:1px solid var(--line)}
+  .pf-col{min-width:0}
+  .pf-cols .pf-col > *{padding:0 0 20px;border-bottom:0}
+  /* The verdict and its strip on one line: the sentence says it, the strip shows where. */
+  .pf-pane-matchup > .pf-sec:first-child{display:grid;grid-template-columns:max-content minmax(0,560px);
+    column-gap:36px;align-items:center;padding-bottom:18px;border-bottom:0}
+  .pf-pane-matchup > .pf-sec:first-child > :not(.pf-rank):not(.pf-strip){grid-column:1 / -1}
+  .pf-pane-matchup .pf-strip{margin-top:0}
+}
 
 .pf-sechead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}
 .pf-sechead-r{display:inline-flex;align-items:baseline;gap:14px;flex-shrink:0}
@@ -100,9 +128,7 @@ button.pf-own:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 .pf-lead b{font-family:var(--mono);font-size:var(--t-6);font-weight:700;letter-spacing:-.03em;line-height:1;color:var(--ink)}
 .pf-lead span{font-size:var(--t-3);color:var(--ink-2);line-height:1.4}
 .pf-lead:last-child{margin-bottom:0}
-.pf-lead.sub{margin-top:-2px}
 .pf-lead.rz b{font-size:var(--t-5)}
-.pf-lead.sub b{font-size:var(--t-4)}
 
 .pf-bars{display:flex;flex-direction:column;gap:9px}
 .pf-bar{display:grid;grid-template-columns:96px minmax(0,1fr) 42px 30px;gap:10px;align-items:center;min-height:20px}

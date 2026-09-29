@@ -96,9 +96,9 @@ function roleHTML(prof){
 }
 
 /* Counts while the team total is under 10 ("1 of 5"), a share with its counts from 10 up. */
-function rzLineHTML(n, team, share, nouns, second){
+function rzLineHTML(n, team, share, nouns){
   const noun = team === 1 ? nouns[0] : nouns[1];
-  const cls = second ? "rz sub" : "rz";
+  const cls = "rz";
   if (team === null || team === undefined) return leadHTML(pfPct(share), noun, cls);
   const num = team < 10 ? t("profile.rz.count", {n, team}) : t("profile.rz.share", {pct: pfPct(share), n, team});
   return leadHTML(num, noun, cls);
@@ -112,11 +112,13 @@ function redZoneHTML(prof){
   // A passer has no red-zone role of either kind: no block at all, rather than a dash and a noun.
   if ((r.team_targets ?? null) === null && (r.team_carries ?? null) === null) return "";
   const back = r.carries !== null && r.carries !== undefined, others = r.others || [];
-  const targets = rzLineHTML(r.targets ?? 0, r.team_targets, r.target_share,
-      [t("profile.rz.teamTarget"), t("profile.rz.teamTargets")], back)
-    + rzSplitHTML(r.targets ?? 0, r.team_targets, others, "targets", prof.n);
+  // Each line and its split is one part, so a back's two sit side by side on a desktop (panel.css).
+  const part = h => `<div class="pf-rz-part">${h}</div>`;
+  const targets = part(rzLineHTML(r.targets ?? 0, r.team_targets, r.target_share,
+      [t("profile.rz.teamTarget"), t("profile.rz.teamTargets")])
+    + rzSplitHTML(r.targets ?? 0, r.team_targets, others, "targets", prof.n));
   const carries = back
-    ? rzLineHTML(r.carries, r.team_carries, r.carry_share, [t("profile.rz.teamCarry"), t("profile.rz.teamCarries")], false)
-      + rzSplitHTML(r.carries, r.team_carries, others, "carries", prof.n) : "";
-  return secHTML(t("profile.rz.label"), carries + targets, "", "", winText(r.weeks));
+    ? part(rzLineHTML(r.carries, r.team_carries, r.carry_share, [t("profile.rz.teamCarry"), t("profile.rz.teamCarries")])
+      + rzSplitHTML(r.carries, r.team_carries, others, "carries", prof.n)) : "";
+  return secHTML(t("profile.rz.label"), `<div class="pf-rz-parts">${carries + targets}</div>`, "", back ? "pf-sec-rz two" : "pf-sec-rz", winText(r.weeks));
 }

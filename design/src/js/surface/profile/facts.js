@@ -83,8 +83,14 @@ function leaguePickText(fd, mine){
    three: a reader with five leagues gets his first three here, not a wall of picks. */
 function leagueFactRows(fd){
   return Object.keys(TEAMS).slice(0, 3)
-    .map(k => [esc(TEAMS[k].name), leaguePickText(fd[k], TEAMS[k].name)])
+    .map(k => [esc(TEAMS[k].name), leaguePickText(fd[k], TEAMS[k].name), leagueTag(k)])
     .filter(c => c[1] !== null);
+}
+
+/* The league's name as the owner pills print it (owners.js), so a draft row and a pill say the
+   same thing the same way. A league key that is neither gets no tag. */
+function leagueTag(k){
+  return k === "espn" ? t("profile.own.espn") : k === "yahoo" ? t("profile.own.yahoo") : "";
 }
 
 /* Sleeper stores height as bare inches in a string ("73"). Nobody reads a receiver's height in
@@ -186,8 +192,13 @@ function bioBlockHTML(p){
     [t("profile.fact.exp"), pedHas(b.years_exp)
       ? (b.years_exp === 0 ? t("profile.fact.rookie") : t("profile.fact.years", {n: b.years_exp})) : null],
   ].filter(c => c[1] !== null);
-  const wide = (nfl ? [[t("profile.fact.nfl"), nfl]] : []).concat(leagueFactRows(b.fantasy_draft || {}));
+  /* Two kinds of fact, set two ways (2026-09-29, David: "use bigger font, I can't really read a
+     lot of the text"). The measurables are numbers, so they read like the strip under his name:
+     big, one per cell. The drafts are a list, one row each -- where the NFL took him, then each of
+     my leagues with its tag -- so the eye runs down one column of picks. */
+  const wide = (nfl ? [[t("profile.fact.nfl"), nfl, ""]] : []).concat(leagueFactRows(b.fantasy_draft || {}));
   if (!half.length && !wide.length) return ath;
-  const cell = (k, v, cls) => `<div${cls ? ` class="${cls}"` : ""}><dt>${k}</dt><dd>${v}</dd></div>`;
-  return `<dl class="pf-facts">${half.map(([k, v]) => cell(k, v)).join("")}${wide.map(([k, v]) => cell(k, v, "wide")).join("")}</dl>` + ath;
+  const cell = (k, v) => `<div><dt>${k}</dt><dd>${v}</dd></div>`;
+  const draft = (k, v, tag) => `<div class="wide"><dt${tag ? ` data-league="${esc(tag)}"` : ""}>${k}</dt><dd>${v}</dd></div>`;
+  return `<dl class="pf-facts">${half.map(([k, v]) => cell(k, v)).join("")}${wide.map(([k, v, tag]) => draft(k, v, tag)).join("")}</dl>` + ath;
 }

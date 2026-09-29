@@ -53,22 +53,22 @@ function opponentHTML(prof){
   if (!nx) return "";
   const stale = nx.dc_same === false
     ? `<span class="pf-stale" title="${t("profile.next.staleTip", {season: nx.man_season})}">${t("profile.next.stale")}</span>` : "";
-  const man = nx.man_pct === null || nx.man_pct === undefined ? "" : `
+  /* The rate beside its name and the league's written under the bar (2026-09-29, David: "easier
+     to read"). The tick still marks the league on the bar, but a code in a legend at the top of
+     the block, and a "-9" in a column of its own, were two things to decode for one comparison. */
+  const metric = (label, share, avg, extra) => `
     <div class="pf-metric">
-      <div class="pf-metric-h"><span>${t("profile.next.man", {season: nx.man_season})}</span>${stale}</div>
-      ${shareBarHTML("", nx.man_pct, nx.man_pct_league, false)}
+      <div class="pf-metric-h"><span>${label}</span>${extra}<b>${pfPct(share)}</b></div>
+      ${shareBarHTML("", share, avg, false)}
+      ${avg === null || avg === undefined ? "" : `<div class="pf-metric-f">${t("profile.next.league", {pct: pfPct(avg)})}</div>`}
     </div>`;
-  const rz = !nx.rz ? "" : `
-    <div class="pf-metric">
-      <div class="pf-metric-h"><span>${t("profile.next.rz", {n: nx.rz.faced})}</span></div>
-      ${shareBarHTML("", nx.rz.rate, nx.rz.league_rate, false)}
-    </div>`;
+  const man = nx.man_pct === null || nx.man_pct === undefined ? ""
+    : metric(t("profile.next.man", {season: nx.man_season}), nx.man_pct, nx.man_pct_league, stale);
+  const rz = !nx.rz ? "" : metric(t("profile.next.rz", {n: nx.rz.faced}), nx.rz.rate, nx.rz.league_rate, "");
   const f = nx.factor;
   const factor = !f ? "" : `<div class="pf-factor"><span>${t("profile.next.factor")}</span><b>${Number(f.factor).toFixed(2)}x</b></div>`
     + (nx.tested ? `<p class="pf-cap pf-fine">${esc(nx.method)}</p>` : "");
-  return subHTML(t("profile.next.opponent", {opp: esc(nx.opp)}),
-    `<div class="pf-metrics">${man}${rz}</div>` + factor,
-    `<span class="pf-legend"><i></i>${t("profile.next.legend")}</span>`);
+  return subHTML(t("profile.next.opponent", {opp: esc(nx.opp)}), `<div class="pf-metrics">${man}${rz}</div>` + factor);
 }
 
 /* His own team's offensive line this week, from LIVE_TRENCHES. `ol_starters_out` is the lead

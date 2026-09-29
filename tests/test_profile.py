@@ -352,6 +352,31 @@ def test_owners_name_each_leagues_team(browser, page_file):
 
 
 @pytest.mark.render
+def test_desktop_panes_sit_side_by_side_and_a_phone_stacks_them(browser, page_file):
+    """2026-09-29, David: Usage and Matchup "should fit without scrolling", Props two to a row. On
+    a desktop the blocks share a top edge; on a phone the same blocks stack in the same order. The
+    league tags are grey, not the leagues' brand colours, and a played week carries no play mark."""
+    tops = lambda sel: page.evaluate(  # noqa: E731
+        f"[...document.querySelectorAll({sel!r})].map(e => [e.getBoundingClientRect().top, e.getBoundingClientRect().bottom])")
+    for w, h, side in [(1400, 900, True), (360, 800, False)]:
+        ctx, page, errors = open_page(browser, page_file, (w, h))
+        row(page, "Amon-Ra St. Brown").click()
+        tab(page, "usage")
+        a, b = tops("#modal .pf-tabpane > *")[:2]
+        assert (a[0] == b[0]) if side else (b[0] >= a[1])
+        tab(page, "matchup")
+        cols = tops("#modal .pf-cols > .pf-col")
+        assert len(cols) >= 2
+        assert (cols[0][0] == cols[1][0]) if side else (cols[1][0] >= cols[0][1])
+        bgs = page.locator("#modal .pf-own-l").evaluate_all("els => els.map(e => getComputedStyle(e).backgroundColor)")
+        assert len(bgs) == 2 and bgs[0] == bgs[1]                  # one grey for both leagues, no brand colour
+        tab(page, "season")
+        assert page.locator("#modal .ss-row svg").count() == 0
+        assert errors == []
+        ctx.close()
+
+
+@pytest.mark.render
 def test_an_owner_pill_opens_that_teams_roster(browser, page_file):
     """A team's pill is a way to that team's roster (2026-09-28, for looking up a trade). It is a
     look, not a pick: the reader's own team is still theirs afterwards, and Back returns to the
@@ -424,6 +449,7 @@ def test_usage_opens_on_his_share_of_his_own_team(browser, page_file):
       return {me, v: d.rows[me].v, total: d.total, n: d.rows.length}; })()""")
     lead = sec.locator(".pf-lead").first.inner_text()
     assert f"{want['v']} of {want['total']}" in lead and "targets" in lead
+    assert sec.locator(".lbl").inner_text() == "DET TARGETS"                # the head names the stat
     pcts = [int(b.inner_text().rstrip("%")) for b in sec.locator(".pf-tm > b").all()]
     assert abs(sum(pcts) - 100) <= len(pcts)                  # the rows are the whole team, give or take rounding
     named = sec.locator(".pf-tm:not(.rest) > b").all()
@@ -532,9 +558,12 @@ def test_facts_show_pedigree_and_fantasy_draft(browser, page_file):
         == ["Age 27", "Size 6′1″ · 210 lb", "Exp 5 yr pro"]
     # One row per league I have a team in, labelled by my team's name there (uppercase in the
     # render); "by X" only when someone else took him.
-    labels = [d.inner_text() for d in page.locator("#modal .pf-facts dt").all()]
+    labels = [d.inner_text().upper() for d in page.locator("#modal .pf-facts dt").all()]
     assert page.evaluate("TEAMS.yahoo.name").upper() in labels
     assert page.evaluate("TEAMS.espn.name").upper() in labels
+    # Each league's row leads with its tag, the owner pills' own word (2026-09-29).
+    assert page.locator("#modal .pf-facts dt[data-league='Yahoo']").count() == 1
+    assert page.locator("#modal .pf-facts dt[data-league='ESPN']").count() == 1
     assert "Rd 1.01 · by Big Salty" in facts
     assert "Rd 1.02 · by Team Minh" in facts
     page.keyboard.press("Escape")
@@ -542,7 +571,7 @@ def test_facts_show_pedigree_and_fantasy_draft(browser, page_file):
     tab(page, "bio")
     facts = page.locator("#modal .pf-tabpane .pf-facts").inner_text()
     assert "Rd 3.07 · by Big Salty" in facts
-    assert page.evaluate("TEAMS.yahoo.name").upper() not in [d.inner_text() for d in page.locator("#modal .pf-facts dt").all()]
+    assert page.evaluate("TEAMS.yahoo.name").upper() not in [d.inner_text().upper() for d in page.locator("#modal .pf-facts dt").all()]
     page.keyboard.press("Escape")
     assert errors == []
     ctx.close()
@@ -742,7 +771,7 @@ def test_every_block_says_how_many_weeks_it_covers(browser, page_file):
     tab(page, "usage")
     wins = {w.locator("xpath=ancestor::section").locator(".lbl").inner_text(): w.inner_text()
             for w in page.locator("#modal .pf-win").all()}
-    assert wins == {"SHARE OF DET": "2 wk", "TARGET DEPTH": "2 wk", "RED ZONE": "2 wk"}   # .lbl uppercases in the render
+    assert wins == {"DET TARGETS": "2 wk", "TARGET DEPTH": "2 wk", "RED ZONE": "2 wk"}   # .lbl uppercases in the render
     # And per stat, in its ladder row's fold. Three states, because the fixture has no weekly rows
     # for the sheet stats and that is itself one of them.
     sheet(page)

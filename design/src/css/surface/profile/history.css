@@ -1,9 +1,6 @@
 /* ============================== PROFILE · HISTORY ==============================
-   The projection's component-mean chips under the Season table, and the play mark a week with a
-   replay carries (the button itself is strip/panel.css's). The weekly table itself became the
-   Season table on 2026-09-28 (season.css). */
-.pf-wk .gl-play{width:7px;height:9px;margin-right:6px;fill:currentColor;vertical-align:0}
-
+   The projection's component-mean chips under the Season table. The weekly table itself became
+   the Season table on 2026-09-28 (season.css). */
 .pf-mu-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:0}
 .pf-mu{display:flex;flex-direction:column;gap:3px;font-family:var(--mono);font-size:var(--t-1);
   border:1px solid var(--line);padding:6px 9px;min-width:56px}

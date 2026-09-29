@@ -44,9 +44,11 @@ function glSum(rows, key){
    on the Live board. The whole row is the target (2026-09-26: the week number alone was a 9px
    target nobody found); the week stays a real button inside it, so the keyboard and a screen
    reader still have one control per row. A plain number and a plain row when the schedule has no
-   ESPN id for the game (an older history row): a control that does nothing is worse than none. */
-const GL_PLAY = '<svg class="gl-play" viewBox="0 0 8 10" aria-hidden="true"><path d="M1 1l6 4-6 4z"/></svg>';
+   ESPN id for the game (an older history row): a control that does nothing is worse than none.
 
+   No play mark since 2026-09-29 (David: "I don't think we need carrots for the week"). Three lime
+   marks on the played weeks competed with the lime row that says which game is next, and lime on
+   this table means "now". The row still lights under a pointer and presses under a thumb. */
 function weekOpens(p, r){
   const club = r.team || p.team;
   return typeof stGameFor === "function" && stGameFor(club, r.wk) ? club : null;
@@ -54,7 +56,7 @@ function weekOpens(p, r){
 
 function weekCell(p, r){
   if (!weekOpens(p, r)) return r.wk;
-  return `<button type="button" class="pf-wk" aria-label="${esc(t("strip.open.week", {n: r.wk}))}">${GL_PLAY}${r.wk}</button>`;
+  return `<button type="button" class="pf-wk" aria-label="${esc(t("strip.open.week", {n: r.wk}))}">${r.wk}</button>`;
 }
 
 /* The producer's own mu keys, spelled out so a reader is not left deciding whether REC is
