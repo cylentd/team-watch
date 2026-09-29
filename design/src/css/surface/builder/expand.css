@@ -1,7 +1,0 @@
-/* The ⓘ at a Build line's end: it opens the leg sheet (legsheet.css, 2026-09-27). Until then it
-   was a chevron that opened the game log under the row. The row itself stays the slip toggle. */
-.leg .more,.udline .more{appearance:none;background:none;border:1px solid var(--line-2);color:var(--ink-2);width:22px;height:22px;
-  border-radius:99px;cursor:pointer;font-family:var(--mono);font-size:var(--t-1);font-weight:700;font-style:italic;
-  display:grid;place-items:center;justify-self:end;transition:all .15s var(--ease)}
-.leg .more:hover,.udline .more:hover{color:var(--ink);border-color:var(--ink-3)}
-.leg .more:focus-visible,.udline .more:focus-visible{outline:2px solid var(--lime);outline-offset:2px}

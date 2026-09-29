@@ -15,15 +15,73 @@ def columns(page, sel):
     return len(page.evaluate(f"getComputedStyle(document.querySelector('{sel}')).gridTemplateColumns").split())
 
 
-@pytest.mark.parametrize("book, grid", [("underdog", ".pgrid"), ("dk", ".lgrid")])
-def test_the_market_is_two_cards_a_row_on_a_phone(browser, page_file, book, grid):
-    ctx, page, errors = open_page(browser, page_file, (390, 844))
+@pytest.mark.parametrize("book", ["underdog", "dk"])
+def test_build_is_one_column_of_lines_that_fits_a_phone(browser, page_file, book):
+    """Build (2026-09-29): one column under a heading per kickoff, a row per line -- the line, his
+    games against it, the call. At 360px the six chips and every row stay on screen; the line and
+    its bars open the leg sheet, the call adds the pick."""
+    ctx, page, errors = open_page(browser, page_file, (360, 780))
     page.evaluate(f"SURFACE='build'; PARLAY_BOOK='{book}'; MKT_PAGE=1; render()")
-    assert columns(page, grid) == 2
-    width = page.locator(f"{grid} > *").first.bounding_box()["width"]
-    page.locator(f"{grid} > *").first.locator(".more").first.click()
-    assert page.locator("#legsheet.on").count() == 1, "a line's info button opens its leg sheet"
-    assert page.locator(f"{grid} > *").first.bounding_box()["width"] == width, "no card widens under it"
+    assert page.locator(".blist .bplayer").count() > 0
+    right = page.evaluate("Math.max(...[...document.querySelectorAll('.bets-bar > *, .bline')].map(e => e.getBoundingClientRect().right))")
+    assert right <= 360
+    assert page.locator(".bets-bar > *").count() <= 6, "STYLE.md: up to ~6 siblings in the row"
+    lefts = page.evaluate("[...document.querySelectorAll('.bline .bl-call')].map(e => Math.round(e.getBoundingClientRect().left))")
+    assert len(set(lefts)) == 1, "every call sits in one column"
+    page.locator(".bline[data-prop] .bl-ev").first.click()
+    assert page.locator("#legsheet.on").count() == 1 and page.evaluate("SLIP.length") == 0
+    page.keyboard.press("Escape")
+    page.wait_for_function("LEG_SHEET === null")
+    page.locator(".bline[data-prop] .bl-call").first.click()
+    assert page.evaluate("SLIP.length") == 1
+    assert errors == []
+    ctx.close()
+
+
+def test_a_moved_line_shows_no_chance_and_sorts_last(browser, page_file):
+    """A line the book moved far from the model (build.py `stale`) shows "Line moved", no chance,
+    and adds nothing on a tap: on 2026-09-29 every Underdog pick at 80%+ was one."""
+    ctx, page, errors = open_page(browser, page_file, (360, 780))
+    page.evaluate("""SURFACE='build'; PARLAY_BOOK='underdog'; MKT_SORT='conf'; MKT_PAGE=1;
+      const p = PROPS.filter(p => udPick(p) && !udPick(p).synthetic).sort(SORTS.conf)[0];
+      p.books.Underdog.stale = 1; window._moved = PROPS.indexOf(p); render()""")
+    i = page.evaluate("_moved")
+    lines = page.evaluate("buildLines().map(p => PROPS.indexOf(p))")
+    assert lines.index(i) > 0 and all(page.evaluate(f"lineMoved(PROPS[{j}], 'underdog')") for j in lines[lines.index(i):]), \
+        "the top of the confidence sort sinks below every unmoved line"
+    page.evaluate("buildLines = () => [PROPS[_moved]]; render()")
+    row = page.locator(".bline")
+    assert row.count() == 1 and "moved" in row.get_attribute("class")
+    assert "%" not in row.inner_text() and row.get_attribute("data-prop") is None
+    row.locator(".bl-call").click()
+    assert page.evaluate("LEG_SHEET") == i and page.evaluate("SLIP.length") == 0
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.parametrize("book", ["underdog", "dk"])
+def test_best_odds_keeps_only_lines_that_pay_more(browser, page_file, book):
+    """Best odds (2026-09-29): Underdog keeps a pick paying better than its -107 on the model's
+    side, or at a line easier than DraftKings'; DraftKings keeps an over easier than the
+    BettingPros consensus. Each kept row prints why."""
+    ctx, page, errors = open_page(browser, page_file, (360, 780))
+    page.evaluate(f"SURFACE='build'; PARLAY_BOOK='{book}'; MKT_BEST=true; MKT_PAGE=1; render()")
+    kept = page.evaluate(f"""buildLines().map(p => {{
+      const u = p.books && p.books.Underdog, d = p.books && p.books.DraftKings, r = p.ref;
+      if ('{book}' === 'underdog') {{
+        const lo = u.pick === 'lower', price = lo ? u.under : u.over;
+        return !u.stale && (price > -107 || (d && d.line != null && (lo ? u.line > d.line : u.line < d.line)));
+      }}
+      return !p.stale && !!r && (d.line < r.line || (d.line === r.line && d.over > r.over));
+    }})""")
+    assert all(kept)
+    everyone = page.evaluate("(MKT_BEST=false, buildLines().length)")
+    assert len(kept) < everyone
+    page.evaluate("MKT_BEST=true; render()")
+    if kept:
+        assert page.locator(".bline").count() == page.locator(".bline .bl-ln em").count(), "every kept row says why"
+    else:
+        assert page.locator(".state-empty").count() == 1
     assert errors == []
     ctx.close()
 
@@ -38,9 +96,9 @@ def test_a_new_view_enters_once_and_a_tap_pops_only_its_line(browser, page_file)
     page.goto(page_file.as_uri() + "#build")
     page.wait_for_function("document.getElementById('view').children.length > 0")
     assert page.evaluate("document.getElementById('view').classList.contains('enter')")
-    page.locator(".pgrid .udline").first.click()
+    page.locator(".bline[data-prop] .bl-call").first.click()
     assert not page.evaluate("document.getElementById('view').classList.contains('enter')")
-    assert page.locator(".udline.just").count() == 1
+    assert page.locator(".bline.just").count() == 1
     assert page.locator(".slip .sliphead .pill.bump").count() == 1
     page.wait_for_function("document.querySelector('.tray .tray-n').textContent === '1'")
     assert errors == []
@@ -273,8 +331,8 @@ def test_reduced_motion_never_marks_an_entrance(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     page.evaluate("SURFACE='build'; render()")
     assert not page.evaluate("document.getElementById('view').classList.contains('enter')")
-    page.locator(".pgrid .udline").first.click()
-    assert page.locator(".udline.just").count() == 0
+    page.locator(".bline[data-prop] .bl-call").first.click()
+    assert page.locator(".bline.just").count() == 0
     assert errors == []
     ctx.close()
 

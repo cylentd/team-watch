@@ -133,6 +133,7 @@ builder/state.js
 builder/solve.js
 builder/lineups.js
 surface/parlay/props.js
+surface/parlay/lines.js
 surface/parlay/gamelog.js
 surface/dfs/rows.js
 builder/explain.js

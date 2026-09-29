@@ -3,13 +3,8 @@ const propLabel = p => p.line === null ? MKT[p.mkt] : `${MKT[p.mkt]} o${p.line}`
 /* Why a row the sort put on top is not on any gallery card: one pill, the first reason that
    applies, in the order legOKInBook would trip on it. A row can fail three gates at once (a
    backup, at a moved line, on a thin number) and three pills say "no" three times -- one is the
-   answer. `u` is the Underdog pick when in that mode, for the line-size floor. */
-/* The ⓘ that opens a line's leg sheet (legsheet.js, 2026-09-27). The row itself stays the slip
-   toggle, the one thing a Build tap has always done, so the sheet takes its own small target at
-   the row's end rather than the row. One helper for the three card shapes. */
-function moreButtonHTML(i){
-  return `<button type="button" class="more" data-legsheet="${i}" aria-haspopup="dialog" aria-label="${t("parlay.more.sheet")}">i</button>`;
-}
+   answer. `u` is the Underdog pick when in that mode, for the line-size floor. Build's rows
+   (lines.js, 2026-09-29) put it on the player and say a moved line on the line itself. */
 function whyNotSlip(p, u){
   if (p.flag === "out") return `<span class="tag t-out">${t("parlay.tag.out")}${p.injury_note ? " · " + esc(p.injury_note) : ""}</span>`;
   if (p.flag === "q") return `<span class="tag t-q">${t("parlay.tag.q")}${p.injury_note ? " · " + esc(p.injury_note) : ""}</span>`;
@@ -28,92 +23,3 @@ function roleNoteTagHTML(p){
   return p.role_note
     ? `<span class="tag t-role" title="${esc(p.role_note)}">${t("parlay.tag.role")}</span>` : "";
 }
-
-/* Underdog's whole pitch is one stat, one tap: higher or lower. Skip the DK-only model%/edge
-   detail (there is no "book implied" the same way against a flat-multiplier payout) and lead
-   the row with the pick itself -- that IS the primary info here, not noise the way it is for a
-   priced-against-a-vig DK line. */
-function udPropCard(p, i){
-  const inSlip = SLIP.includes(i);
-  const u = udPick(p);
-  // No MODEL pill per row: it would sit on every TD row (Underdog prices none), which is
-  // noise, not information. The list header says it once; the cart still marks the leg.
-  const tag = whyNotSlip(p, u) + roleNoteTagHTML(p);
-  // The call is one unit: "▼ LOWER / 1.5 REC". The stat lives here, not in the name line, so
-  // the eye reads name, call, confidence, and nothing twice.
-  const call = u.pick
-    ? `<div class="udcall ${u.pick}"><span class="dir">${u.pick === "higher" ? t("parlay.call.higher") : t("parlay.call.lower")}</span><span class="num">${u.line !== null ? u.line : t("parlay.call.td")}</span><span class="stat">${u.line !== null ? MKT_SHORT[p.mkt] : t("parlay.call.anytime")}</span></div>`
-    : `<div class="udcall"><span class="dir">${t("parlay.call.none")}</span><span class="num">—</span><span class="stat">${MKT_SHORT[p.mkt]}</span></div>`;
-  const conf = typeof u.conf === "number"
-    ? `<div class="udconf ${u.conf >= UD_MIN ? "" : "weak"}"><b>${u.conf}<i>%</i></b><div class="meter"><i style="transform:scaleX(${Math.max(0, Math.min(1, (u.conf - 50) / 50)).toFixed(2)})"></i></div></div>`
-    : `<div class="udconf pending"><b>${t("parlay.call.pending")}</b></div>`;
-  return `<div class="leg ud ${p.mine?"mine":""} ${inSlip?"inslip":""} ${p.flag==="out"?"isout":""}" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">
-    ${avatarHTML(p)}
-    <div>
-      <div class="prop">${esc(p.n)}${tag ? " " + tag : ""}</div>
-      <div class="book">${esc(p.pos)} · ${esc(p.game)}${p.kick ? ` · ${esc(p.kick)}` : ""}</div>
-    </div>
-    ${call}${conf}
-    ${moreButtonHTML(i)}
-  </div>`;
-}
-
-/* One card per player in Underdog mode: the header says who and when once, then one line per
-   market. Player-level reasons (OUT, Q, depth, NEW TEAM, too few games) sit on the header;
-   line-level ones (ROLE?, THIN LINE) sit on the line they belong to. `rows` arrive in list
-   order, so the first row is the player's strongest call and the lines keep the sort. */
-function lineTag(p, u){
-  if (u.stale) return `<span class="tag t-role" title="${t("parlay.tag.staleTitle")}">${t("parlay.tag.stale")}</span>`;
-  if (!u.synthetic && u.line !== null && (p.mkt === "RECS" ? u.line < 2.5 : u.line < 15)) return `<span class="tag t-bk" title="${t("parlay.tag.thinTitle")}">${t("parlay.tag.thin")}</span>`;
-  return "";
-}
-function udLine(p, i, headerSaysNo){
-  const u = udPick(p), inSlip = SLIP.includes(i);
-  const hasConf = typeof u.conf === "number";
-  const fill = hasConf ? Math.max(0, Math.min(1, (u.conf - 50) / 50)).toFixed(2) : 0;
-  // Colour is the confidence: grey under the 58% floor, then amber at the floor blending to
-  // lime at 100%, so 62% and 94% differ in hue as well as length.
-  const heat = hasConf && u.conf >= UD_MIN ? Math.round((u.conf - UD_MIN) / (100 - UD_MIN) * 100) : null;
-  const fillColor = heat === null ? "var(--ink-3)" : `color-mix(in oklab, var(--lime) ${heat}%, var(--amber))`;
-  return `<div class="udline ${u.pick||""} ${hasConf && u.conf < UD_MIN ? "weak" : ""}" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">
-    <span class="dir">${u.pick === "higher" ? t("parlay.call.higher") : u.pick === "lower" ? t("parlay.call.lower") : t("parlay.call.none")}</span>
-    <span class="ln"><b>${u.line !== null ? u.line : t("parlay.call.td")}</b><small>${u.line !== null ? MKT_SHORT[p.mkt] : t("parlay.call.anytime")}</small>${headerSaysNo ? "" : lineTag(p, u)}</span>
-    <span class="meter"><i style="transform:scaleX(${fill});background:${fillColor}"></i></span>
-    ${hasConf ? `<span class="pct">${u.conf}<i>%</i></span>` : `<span class="pct pending">${t("parlay.call.pending")}</span>`}
-    ${moreButtonHTML(i)}
-  </div>`;
-}
-function udPlayerCard(rows){
-  const p = rows[0];
-  const tag = whyNotSlip({...p, stale: 0, norole: 0}, null) + roleNoteTagHTML(p);
-  return `<div class="pcard ${p.mine ? "mine" : ""} ${p.flag === "out" ? "isout" : ""}">
-    <div class="phead2">
-      ${avatarHTML(p)}
-      <div>
-        <div class="prop">${esc(p.n)}${tag ? " " + tag : ""}</div>
-        <div class="book">${esc(p.pos)} · ${esc(p.game)}${p.kick ? `<span class="kick">${esc(p.kick)}</span>` : ""}</div>
-      </div>
-    </div>
-    ${rows.map(r => udLine(r, PROPS.indexOf(r), !!tag)).join("")}
-  </div>`;
-}
-// Players per page in Underdog mode, a multiple of two and three so the card grid ends on a full
-// row at either width (builder/grid.css); MKT_PAGE_SIZE counts lines in DK mode.
-const UD_PAGE_SIZE = 12;
-
-function propCard(p, i){
-  if (PARLAY_BOOK === "underdog") return udPropCard(p, i);
-  const inSlip = SLIP.includes(i);
-  const tag = whyNotSlip(p, null) + roleNoteTagHTML(p)
-    + (p.cb ? `<span class="tag ${p.cb.v === "upgrade" ? "t-cbup" : "t-cbdn"}" title="${t("parlay.tag.cbTitle", {week: LIVE_MARKET && LIVE_MARKET.wrcb ? LIVE_MARKET.wrcb.week : "", v: esc(p.cb.v), cb: esc(p.cb.cb), why: esc(p.cb.why)})}">${t("parlay.tag.cb", {dir: p.cb.v === "upgrade" ? "↑" : "↓", name: esc(lastName(p.cb.cb))})}</span>` : "");
-  return `<div class="leg ${p.mine?"mine":""} ${inSlip?"inslip":""} ${p.flag==="out"?"isout":""}" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">
-    ${avatarHTML(p)}
-    <div>
-      <div class="prop">${esc(p.n)}<span class="pl">${esc(propLabel(p))}</span>${tag ? " " + tag : ""}</div>
-      <div class="book">${esc(p.pos)} · ${esc(p.game)}${p.kick ? `<span class="kick">${esc(p.kick)}</span>` : ""}</div>
-    </div>
-    <div class="o">${esc(fmtAm(overPrice(p)))}</div>
-    ${moreButtonHTML(i)}
-  </div>`;
-}
-

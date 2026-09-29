@@ -2,6 +2,8 @@
    when a lineup card is phone-narrow. */
 .sliphead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px;padding:13px 15px;border-bottom:1px solid var(--line);background:var(--panel-2)}
 .sliphead .lbl{white-space:nowrap}
+.presets{display:flex;flex-wrap:wrap;gap:6px;padding:10px 15px;border-bottom:1px solid var(--line)}
+.presets .chip{padding:5px 9px;font-size:var(--t-1)}
 .slipleg{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:11px 15px;border-bottom:1px solid var(--line)}
 .legremove{appearance:none;background:none;border:1px solid var(--line-2);color:var(--ink-3);
   width:24px;height:24px;border-radius:2px;cursor:pointer;font-size:var(--t-1);display:grid;place-items:center;

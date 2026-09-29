@@ -1,11 +1,11 @@
-let MKT_POS = "ALL", MKT_KIND = "ALL", MKT_MINE = false, DFS_POS = "ALL";   // kickoff is GAL_WIN (slips.js)
+let MKT_POS = "ALL", MKT_KIND = "ALL", MKT_MINE = false, MKT_BEST = false, DFS_POS = "ALL";   // kickoff is GAL_WIN (slips.js)
 /* The pool can run to 700+ rows (a full Yahoo slate), so it's paginated — nobody, least of all on
    mobile, wants to scroll past hundreds of rows to reach the lineup or the optimizer. */
 let DFS_PAGE = 1;
 const DFS_PAGE_SIZE = 25;
-/* The full props board can run to 900+ lines across every market and player, so it's paginated too. */
+/* The full props board can run to 900+ lines across every market and player, so it's paginated
+   too, by player (BUILD_PAGE_SIZE, surface/parlay/lines.js). */
 let MKT_PAGE = 1;
-const MKT_PAGE_SIZE = 24;   // lines per page in DK mode: whole rows of the two- or three-wide grid
 /* Card order. "edge" ranks by what the price leaves on the table; "model" by the model's chance
    alone ("who scores?" on a touchdown list). The choice sticks until changed: a market chip
    never moves it. Unmodelled rows go last either way, mine first among them. */

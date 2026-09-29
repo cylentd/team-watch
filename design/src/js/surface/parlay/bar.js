@@ -1,7 +1,8 @@
 /* The Bets bar: the one row of controls above the data (design/STYLE.md), and the settings panel
    it opens.
 
-   Slips' row is its legs filter as tabs; Build's is its position chips. Both end in the same chip,
+   Slips' row is its legs filter as tabs; Build's is Best odds and its position chips (no "All"
+   since 2026-09-29: a pressed position tapped again clears it, so six chips fit 360px). Both end in the same chip,
    which names the book and the kickoff in force and opens the panel: book and kickoff there are
    one setting for both views, and Build adds its market, sort and "my players" beside them. What
    used to be three filter bars on one page is one row, and a panel you open when you want it. */
@@ -18,7 +19,8 @@ function betsBarHTML(build){
   const set = `<button type="button" class="chip bets-set" data-betspanel aria-expanded="${BETS_PANEL}"
     aria-label="${t("parlay.bar.settings")}">${betsSettingLabel()}<span class="bets-caret" aria-hidden="true"></span></button>`;
   if (build) return `<div class="filters bets-bar">
-    ${["ALL","QB","RB","WR","TE"].map(p=>`<button class="chip" data-mpos="${p}" aria-pressed="${MKT_POS===p}">${p === "ALL" ? t("parlay.option.all") : p}</button>`).join("")}
+    <button class="chip bets-best" data-mbest aria-pressed="${MKT_BEST}">${t("parlay.bar.best")}</button>
+    ${["QB","RB","WR","TE"].map(p=>`<button class="chip" data-mpos="${p}" aria-pressed="${MKT_POS===p}">${p}</button>`).join("")}
     ${set}</div>`;
   return `<div class="bets-bar bets-tabsrow">
     <div class="bd-tabs" role="tablist" aria-label="${t("parlay.gallery.legsLabel")}">${galleryScopes(PARLAY_BOOK)

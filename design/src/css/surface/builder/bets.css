@@ -27,7 +27,9 @@
   .bets-set .full{display:none} .bets-set .abbr{display:inline}
   .bets-set{padding-left:10px;padding-right:10px;gap:5px}
   .bets-tabsrow .bd-tab{padding-left:6px;padding-right:6px}
-  .bets-bar.filters .chip:not(.bets-set){padding-left:11px;padding-right:11px}
+  /* Build's row is Best odds, four positions and the book (2026-09-29): six chips in 330px. */
+  .bets-bar.filters{gap:6px}
+  .bets-bar.filters .chip:not(.bets-set){padding-left:9px;padding-right:9px}
 }
 
 /* ---- the settings panel: book, kickoff, and Build's own three ---- */

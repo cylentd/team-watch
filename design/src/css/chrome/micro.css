@@ -25,8 +25,8 @@
   .chip,.btn,.mode-sub{transition:all .18s var(--ease),transform var(--dur-spring) var(--spring)}
   .navitem{transition:color .2s var(--ease),background .2s var(--ease),transform var(--dur-spring) var(--spring)}
   .ticket-cta,.bk-open{transition:background .15s var(--ease),color .15s var(--ease),transform var(--dur-spring) var(--spring)}
-  .leg .more,.udline .more,.legremove{transition:all .15s var(--ease),transform var(--dur-spring) var(--spring)}
-  :is(.chip,.btn,.mode-sub,.navitem,.ticket-cta,.bk-open,.leg .more,.udline .more,.legremove):active{
+  .bl-call,.legremove{transition:all .15s var(--ease),transform var(--dur-spring) var(--spring)}
+  :is(.chip,.btn,.mode-sub,.navitem,.ticket-cta,.bk-open,.bline .bl-call,.legremove):active{
     transform:scale(var(--press));transition-duration:.18s,.08s}
   .navitem:active{transition-duration:.2s,.2s,.08s}
   /* A card tilts by transform, so its press is the separate `scale`, which the tilt never touches. */
@@ -35,13 +35,9 @@
   .tc:active{scale:.97}
   /* The turn overshoots a few degrees and settles, like a card flicked over on a table. */
   .tc-flip{transition:transform .7s var(--spring)}
-  .udline,.leg{transition:background .2s var(--ease),border-color .2s var(--ease),scale var(--dur-spring) var(--spring)}
-  .udline:active,.leg:active{transform:none;scale:.98}
 
   /* Lift, only where there is a pointer to lift under. */
   @media (hover:hover){
-    .pcard{transition:border-color .2s var(--ease),translate var(--dur-spring) var(--spring),box-shadow .3s var(--ease)}
-    .pcard:hover{translate:0 var(--lift);box-shadow:0 10px 24px rgb(var(--shadow-rgb) / .35)}
     .ticket{transition:transform var(--dur-spring) var(--spring)}
   }
 
@@ -49,14 +45,12 @@
      list never waits on its tail. The meters fill from empty on the same beat. */
   #view.enter :is(.cardgrid,.legs,.railscroll,.tk-grid,.lu-grid) > *{
     animation:mi-rise var(--dur-spring) var(--spring) both;animation-delay:calc(var(--i, 0) * var(--enter-step))}
-  #view.enter .udline .meter i,#view.enter .udconf .meter i{
-    animation:mi-fill var(--dur-pop) var(--spring) both;animation-delay:calc(var(--i, 0) * var(--enter-step) + .12s)}
   /* The active tab's underline draws itself in from the middle. */
   .navitem[aria-current="true"]::after{animation:mi-ink var(--dur-spring) var(--spring) both}
 
   /* Land: the tapped line flashes lime and its number pops; the slip's count ticks. */
-  .udline.just,.leg.just{animation:mi-flash .6s var(--ease)}
-  .udline.just .pct,.leg.just .udconf b,.leg.just .o{animation:mi-pop var(--dur-pop) var(--spring-pop)}
+  .bline.just .bl-call{animation:mi-flash .6s var(--ease)}
+  .bline.just .bl-call b{animation:mi-pop var(--dur-pop) var(--spring-pop)}
   .slip .sliphead .pill.bump{animation:mi-pop var(--dur-pop) var(--spring-pop)}
   .slip .slipleg.just{animation:mi-slide var(--dur-spring) var(--spring) both}
 }

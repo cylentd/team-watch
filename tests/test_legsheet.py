@@ -103,11 +103,11 @@ def test_the_td_board_ranks_by_the_model_and_opens_the_sheet(browser, page_file)
 def test_builds_info_button_opens_the_sheet_and_the_row_still_adds(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, PHONE)
     page.evaluate("SURFACE='build'; render()")
-    page.locator(".pgrid .udline .more").first.click()
+    page.locator(".bline[data-prop] .bl-ev").first.click()
     assert page.locator("#legsheet.on").count() == 1 and page.evaluate("SLIP.length") == 0
     page.keyboard.press("Escape")
     page.wait_for_function("LEG_SHEET === null")
-    page.locator(".pgrid .udline").first.click()
+    page.locator(".bline[data-prop] .bl-call").first.click()
     assert page.evaluate("SLIP.length") == 1
     assert errors == []
     ctx.close()

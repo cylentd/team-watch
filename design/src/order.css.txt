@@ -102,15 +102,12 @@ surface/strip/moments.css
 surface/strip/phone.css
 surface/builder/modes.css
 surface/builder/legs.css
-surface/builder/expand.css
-surface/builder/underdog-list.css
 surface/builder/strategy.css
 surface/builder/side.css
 surface/builder/ticket.css
 surface/builder/deal.css
 surface/builder/slip.css
-surface/builder/ud-row.css
-surface/builder/grid.css
+surface/builder/lines.css
 surface/builder/payout.css
 surface/builder/explain.css
 surface/builder/bets.css

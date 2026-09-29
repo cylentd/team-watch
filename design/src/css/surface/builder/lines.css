@@ -1,0 +1,44 @@
+/* ============================== BUILD: LINES (2026-09-29) ==============================
+   One column under a heading per kickoff (the Slips view's .tk-when), one block per player, one
+   row per line: the line, his last games against it, the call. Few marks, all of them data:
+   lime bars are games that cleared the call's side, faded bars are an earlier season, the dashed
+   rule is the line. The call is the slip toggle; the line and its bars open the leg sheet. */
+.blist{display:flex;flex-direction:column;max-width:600px}   /* wider, twelve bars stop reading as one row */
+.bl-when{padding:18px 0 8px;border-bottom:1px solid var(--line)}
+
+.bplayer{padding:10px 0 4px;border-bottom:1px solid var(--line)}
+.bplayer.isout{opacity:.55}
+.bp-who{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;min-width:0}
+.bp-who img,.bp-who .fallback{width:28px;height:28px;border-radius:99px;object-fit:cover;border:1px solid var(--line-2);background:var(--panel-3)}
+.bp-who .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink-3)}
+.bplayer.mine .bp-who :is(img,.fallback){border-color:var(--lime)}
+.bp-name{font-size:var(--t-3);font-weight:700;letter-spacing:-.01em}
+.bp-meta{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+
+.bline{display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:12px;align-items:center;padding:6px 0}
+.bl-ev{appearance:none;background:none;border:0;padding:0;color:inherit;font:inherit;text-align:left;cursor:pointer;
+  display:grid;grid-template-columns:70px minmax(0,1fr);gap:10px;align-items:center;min-width:0}
+.bl-ev:focus-visible,.bl-call:focus-visible,.bline:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.bl-ln{display:flex;flex-direction:column;gap:2px;min-width:0}
+.bl-ln b{font-family:var(--mono);font-size:var(--t-4);font-weight:700;letter-spacing:-.02em;line-height:1}
+.bl-ln small{font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
+.bl-ln em{font-style:normal;font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink);white-space:nowrap}
+
+/* His games: equal columns, heights to a scale that tops out at twice the line (lines.js). */
+.bl-g{position:relative;display:flex;align-items:flex-end;gap:2px;height:30px}
+.bl-g i{flex:1;height:var(--h);min-height:3px;border-radius:2px 2px 0 0;background:var(--line-2)}
+.bl-g i.hit{background:var(--lime)}
+.bl-g i.old{opacity:.4}
+.bl-g::after{content:"";position:absolute;left:0;right:0;bottom:var(--y);border-top:1px dashed var(--ink-2)}
+.bl-g:not([style])::after{content:none}
+
+.bl-call{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;border:1px solid var(--line-2);border-radius:8px;
+  font-size:var(--t-2);font-weight:600;cursor:pointer;transition:background .2s var(--ease),border-color .2s var(--ease)}
+.bl-call.higher{color:var(--up)} .bl-call.lower{color:var(--down)}
+.bl-call b{font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink)}
+.bl-call b i{font-style:normal;font-weight:500;color:var(--ink-3)}
+.bline[aria-pressed="true"] .bl-call{border-color:var(--lime);background:rgb(var(--lime-rgb) / .1)}
+.bline:hover .bl-call{border-color:var(--ink-3)}
+/* No chance to show: amber, the page's caution colour, and it opens the sheet instead. */
+button.bl-call{appearance:none;background:none;font:inherit;font-size:var(--t-1);font-weight:600}
+.bline.moved .bl-call{color:var(--amber);border-style:dashed;font-size:var(--t-1)}

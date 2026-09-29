@@ -3,7 +3,7 @@
    matching nodes (data-dfspage and data-mktpage already worked this way before the split). */
 function wireBuilder(v){
   v.querySelectorAll("[data-mpos]").forEach(b=>b.addEventListener("click",()=>{
-    MKT_POS = b.dataset.mpos; MKT_PAGE = 1; render();
+    MKT_POS = MKT_POS === b.dataset.mpos ? "ALL" : b.dataset.mpos; MKT_PAGE = 1; render();
   }));
   v.querySelectorAll("[data-dpos]").forEach(b=>b.addEventListener("click",()=>{
     DFS_POS = b.dataset.dpos; DFS_PAGE = 1; PICK_ERR = null; render();
@@ -70,8 +70,8 @@ function wireBuilder(v){
     ACTIVE_SLOT = null; PICK_ERR = null;
     const y = window.scrollY; render(); window.scrollTo(0, y);
   }));
-  v.querySelectorAll("[data-mine]").forEach(b=>b.addEventListener("click",()=>{
-    MKT_MINE = !MKT_MINE; MKT_PAGE = 1; render();
+  v.querySelectorAll("[data-mine],[data-mbest]").forEach(b=>b.addEventListener("click",()=>{
+    if ("mbest" in b.dataset) MKT_BEST = !MKT_BEST; else MKT_MINE = !MKT_MINE; MKT_PAGE = 1; render();
   }));
   v.querySelectorAll("[data-msel]").forEach(sel=>sel.addEventListener("change",()=>{
     const val = sel.value;

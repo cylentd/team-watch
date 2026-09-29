@@ -790,6 +790,18 @@ the cart's footer caption, never shown as an Underdog price. Switching the toggl
 by hand; the cart warns when two legs
 share a game (correlated legs are one bet, not two).
 
+**Superseded 2026-09-29: Build is a list of lines** (`surface/parlay/lines.js`, `builder/lines.css`;
+storyboard v2 option A, picked over a copy of Underdog's layout). One column under a heading per
+kickoff, one block per player, one row per line: the line, his last 12 games against it, the call.
+Lime bars cleared the call's side, faded bars are an earlier season, the dashed rule is the line.
+The line and bars open the leg sheet; the call adds the pick. A line the book moved far from the
+model (`stale`) shows "Line moved" and no chance, sorts last and adds nothing: on 2026-09-29 all 21
+Underdog picks at 80%+ were moved lines, the model's rate leaning on last season's role. **Best
+odds** is the row's first chip (`bestOdds`, `lib/odds.js`): Underdog keeps a pick paying better
+than −107 on the model's side or at a line easier than DraftKings' (68 of 467 that day);
+DraftKings keeps an over easier than the consensus. Each kept row prints why. "All" left the row
+so six chips fit 360px: a pressed position tapped again clears it.
+
 The market is a card grid (2026-09-25, `css/surface/builder/grid.css`): two cards to a row on a
 phone, as many 220px cards as fit from 760px up, so a screen holds twice the players the list did.
 ~~Opening a line's chevron widens its card to the whole row.~~ Superseded 2026-09-27: the chevron

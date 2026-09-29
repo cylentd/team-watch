@@ -22,3 +22,31 @@ function udPick(p){
   return null;
 }
 
+/* A line the book set far from the model (build.py's `stale`), in the book in force. The model's
+   rate still leans on games from another season or role (props_model.py names it a v1 blind
+   spot): on 2026-09-29 every Underdog pick at 80%+ was one of these. Build shows no chance for it. */
+const lineMoved = (p, book) => !!(book === "underdog" ? ud(p) && ud(p).stale : p.stale);
+
+/* Best odds (2026-09-29): the line pays more than usual on the model's side, or sets an easier
+   number than another book. Underdog: a price better than its standard -107, or its line easier
+   than DraftKings'. DraftKings, always the over: an easier line or a better price than the
+   BettingPros consensus. Returns the reason for the row to print, or null. A moved line never
+   counts: its model side is the number Build no longer trusts. */
+const UD_STD = -107;
+function bestOdds(p, book){
+  if (lineMoved(p, book)) return null;
+  const num = x => typeof x === "number";
+  if (book === "underdog"){
+    const u = ud(p);
+    if (!u || !u.pick) return null;
+    const lo = u.pick === "lower", price = lo ? u.under : u.over, dk = p.books.DraftKings;
+    if (num(price) && price > UD_STD) return fmtAm(price);
+    const gap = dk && num(dk.line) && num(u.line) ? (lo ? u.line - dk.line : dk.line - u.line) : 0;
+    return gap > 0 ? t("parlay.best.easier", {n: +gap.toFixed(1), book: ABBR.DraftKings}) : null;
+  }
+  const dk = p.books && p.books.DraftKings, r = p.ref;
+  if (!dk || !r || !num(dk.over)) return null;
+  if (num(dk.line) && num(r.line) && dk.line < r.line) return t("parlay.best.easier", {n: +(r.line - dk.line).toFixed(1), book: t("parlay.best.market")});
+  return dk.line === r.line && num(r.over) && dk.over > r.over ? t("parlay.best.beats", {p: fmtAm(r.over)}) : null;
+}
+
