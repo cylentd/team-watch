@@ -1,0 +1,468 @@
+{
+ "season": 2026,
+ "through": 3,
+ "generated": "2026-09-29T04:25",
+ "rules": {
+  "min_games": 2,
+  "prev_min_games": 4,
+  "note": "expected = opportunities x the position's league half-PPR points per opportunity, the recap's number"
+ },
+ "players": [
+  {
+   "key": "jahmyr gibbs",
+   "name": "Jahmyr Gibbs",
+   "pos": "RB",
+   "team": "DET",
+   "g": 3,
+   "xfp_g": 20.5,
+   "pts_g": 29.8,
+   "gap_g": 9.3,
+   "td": 6,
+   "td_g": 2.0,
+   "work": {
+    "tgt_g": 7.0,
+    "car_g": 21.7,
+    "att_g": 0.0,
+    "air_g": 11.3,
+    "rz_g": 7.7,
+    "gl_g": 2.3,
+    "snap": 75.3
+   },
+   "last": {
+    "week": 3,
+    "xfp": 18.8,
+    "pts": 37.9
+   },
+   "prev": {
+    "season": 2025,
+    "g": 17,
+    "xfp_g": 14.5,
+    "pts_g": 19.3,
+    "gap_g": 4.8
+   }
+  },
+  {
+   "key": "brock bowers",
+   "name": "Brock Bowers",
+   "pos": "TE",
+   "team": "LV",
+   "g": 1,
+   "xfp_g": 19.8,
+   "pts_g": 22.6,
+   "gap_g": 2.8,
+   "td": 1,
+   "td_g": 1.0,
+   "work": {
+    "tgt_g": 13.0,
+    "car_g": 0.0,
+    "att_g": 0.0,
+    "air_g": 106.0,
+    "rz_g": 3.0,
+    "gl_g": 1.0,
+    "snap": 79.0
+   },
+   "last": {
+    "week": 3,
+    "xfp": 19.8,
+    "pts": 22.6
+   },
+   "prev": {
+    "season": 2025,
+    "g": 12,
+    "xfp_g": 10.2,
+    "pts_g": 12.0,
+    "gap_g": 1.8
+   }
+  },
+  {
+   "key": "kenneth walker",
+   "name": "Kenneth Walker III",
+   "pos": "RB",
+   "team": "KC",
+   "g": 3,
+   "xfp_g": 19.6,
+   "pts_g": 24.6,
+   "gap_g": 4.9,
+   "td": 4,
+   "td_g": 1.3,
+   "work": {
+    "tgt_g": 6.0,
+    "car_g": 21.7,
+    "att_g": 0.0,
+    "air_g": 1.3,
+    "rz_g": 6.7,
+    "gl_g": 2.3,
+    "snap": 74.3
+   },
+   "last": {
+    "week": 3,
+    "xfp": 13.4,
+    "pts": 20.3
+   },
+   "prev": {
+    "season": 2025,
+    "g": 17,
+    "xfp_g": 11.1,
+    "pts_g": 10.4,
+    "gap_g": -0.7
+   }
+  },
+  {
+   "key": "ashton jeanty",
+   "name": "Ashton Jeanty",
+   "pos": "RB",
+   "team": "LV",
+   "g": 3,
+   "xfp_g": 18.7,
+   "pts_g": 16.3,
+   "gap_g": -2.5,
+   "td": 2,
+   "td_g": 0.7,
+   "work": {
+    "tgt_g": 5.3,
+    "car_g": 21.0,
+    "att_g": 0.0,
+    "air_g": 11.0,
+    "rz_g": 6.7,
+    "gl_g": 2.3,
+    "snap": 79.7
+   },
+   "last": {
+    "week": 3,
+    "xfp": 14.8,
+    "pts": 10.8
+   },
+   "prev": {
+    "season": 2025,
+    "g": 17,
+    "xfp_g": 14.6,
+    "pts_g": 12.8,
+    "gap_g": -1.8
+   }
+  },
+  {
+   "key": "jaxon smithnjigba",
+   "name": "Jaxon Smith-Njigba",
+   "pos": "WR",
+   "team": "SEA",
+   "g": 3,
+   "xfp_g": 17.7,
+   "pts_g": 30.2,
+   "gap_g": 12.5,
+   "td": 6,
+   "td_g": 2.0,
+   "work": {
+    "tgt_g": 12.0,
+    "car_g": 0.0,
+    "att_g": 0.3,
+    "air_g": 116.0,
+    "rz_g": 3.0,
+    "gl_g": 0.7,
+    "snap": 81.3
+   },
+   "last": {
+    "week": 3,
+    "xfp": 21.4,
+    "pts": 30.4
+   },
+   "prev": {
+    "season": 2025,
+    "g": 17,
+    "xfp_g": 13.8,
+    "pts_g": 17.7,
+    "gap_g": 3.8
+   }
+  },
+  {
+   "key": "trey mcbride",
+   "name": "Trey McBride",
+   "pos": "TE",
+   "team": "ARI",
+   "g": 3,
+   "xfp_g": 17.3,
+   "pts_g": 15.4,
+   "gap_g": -2.0,
+   "td": 2,
+   "td_g": 0.7,
+   "work": {
+    "tgt_g": 11.3,
+    "car_g": 0.0,
+    "att_g": 0.0,
+    "air_g": 60.7,
+    "rz_g": 2.7,
+    "gl_g": 1.0,
+    "snap": 86.3
+   },
+   "last": {
+    "week": 3,
+    "xfp": 16.8,
+    "pts": 12.0
+   },
+   "prev": {
+    "season": 2025,
+    "g": 17,
+    "xfp_g": 14.0,
+    "pts_g": 14.9,
+    "gap_g": 0.9
+   }
+  },
+  {
+   "key": "derrick henry",
+   "name": "Derrick Henry",
+   "pos": "RB",
+   "team": "BAL",
+   "g": 3,
+   "xfp_g": 16.8,
+   "pts_g": 24.1,
+   "gap_g": 7.3,
+   "td": 6,
+   "td_g": 2.0,
+   "work": {
+    "tgt_g": 1.7,
+    "car_g": 22.0,
+    "att_g": 0.0,
+    "air_g": -6.3,
+    "rz_g": 6.7,
+    "gl_g": 3.0,
+    "snap": 58.0
+   },
+   "last": {
+    "week": 3,
+    "xfp": 18.1,
+    "pts": 21.4
+   },
+   "prev": {
+    "season": 2025,
+    "g": 17,
+    "xfp_g": 14.2,
+    "pts_g": 16.0,
+    "gap_g": 1.8
+   }
+  },
+  {
+   "key": "amonra st brown",
+   "name": "Amon-Ra St. Brown",
+   "pos": "WR",
+   "team": "DET",
+   "g": 3,
+   "xfp_g": 16.7,
+   "pts_g": 21.4,
+   "gap_g": 4.7,
+   "td": 5,
+   "td_g": 1.7,
+   "work": {
+    "tgt_g": 11.7,
+    "car_g": 0.0,
+    "att_g": 0.0,
+    "air_g": 91.7,
+    "rz_g": 3.0,
+    "gl_g": 1.0,
+    "snap": 86.3
+   },
+   "last": {
+    "week": 3,
+    "xfp": 11.4,
+    "pts": 9.9
+   },
+   "prev": {
+    "season": 2025,
+    "g": 17,
+    "xfp_g": 14.3,
+    "pts_g": 15.6,
+    "gap_g": 1.3
+   }
+  },
+  {
+   "key": "brock purdy",
+   "name": "Brock Purdy",
+   "pos": "QB",
+   "team": "SF",
+   "g": 3,
+   "xfp_g": 14.9,
+   "pts_g": 27.0,
+   "gap_g": 12.1,
+   "td": 1,
+   "td_g": 0.3,
+   "work": {
+    "tgt_g": 0.0,
+    "car_g": 3.3,
+    "att_g": 27.7,
+    "air_g": 0.0,
+    "rz_g": 0.3,
+    "gl_g": 0.3,
+    "snap": 95.0
+   },
+   "last": {
+    "week": 3,
+    "xfp": 13.7,
+    "pts": 31.3
+   },
+   "prev": {
+    "season": 2025,
+    "g": 9,
+    "xfp_g": 15.8,
+    "pts_g": 19.7,
+    "gap_g": 3.9
+   }
+  },
+  {
+   "key": "chase brown",
+   "name": "Chase Brown",
+   "pos": "RB",
+   "team": "CIN",
+   "g": 3,
+   "xfp_g": 14.7,
+   "pts_g": 11.3,
+   "gap_g": -3.4,
+   "td": 1,
+   "td_g": 0.3,
+   "work": {
+    "tgt_g": 4.3,
+    "car_g": 16.3,
+    "att_g": 0.0,
+    "air_g": -9.3,
+    "rz_g": 2.3,
+    "gl_g": 1.0,
+    "snap": 70.7
+   },
+   "last": {
+    "week": 3,
+    "xfp": 10.1,
+    "pts": 7.9
+   },
+   "prev": {
+    "season": 2025,
+    "g": 17,
+    "xfp_g": 13.7,
+    "pts_g": 14.6,
+    "gap_g": 0.8
+   }
+  },
+  {
+   "key": "ceedee lamb",
+   "name": "CeeDee Lamb",
+   "pos": "WR",
+   "team": "DAL",
+   "g": 3,
+   "xfp_g": 12.4,
+   "pts_g": 20.3,
+   "gap_g": 7.9,
+   "td": 3,
+   "td_g": 1.0,
+   "work": {
+    "tgt_g": 8.3,
+    "car_g": 0.3,
+    "att_g": 0.0,
+    "air_g": 103.7,
+    "rz_g": 1.3,
+    "gl_g": 1.0,
+    "snap": 79.3
+   },
+   "last": {
+    "week": 3,
+    "xfp": 11.4,
+    "pts": 16.7
+   },
+   "prev": {
+    "season": 2025,
+    "g": 13,
+    "xfp_g": 12.4,
+    "pts_g": 12.6,
+    "gap_g": 0.2
+   }
+  },
+  {
+   "key": "kc concepcion",
+   "name": "KC Concepcion",
+   "pos": "WR",
+   "team": "CLE",
+   "g": 3,
+   "xfp_g": 11.4,
+   "pts_g": 4.3,
+   "gap_g": -7.1,
+   "td": 0,
+   "td_g": 0.0,
+   "work": {
+    "tgt_g": 6.7,
+    "car_g": 1.3,
+    "att_g": 0.0,
+    "air_g": 37.0,
+    "rz_g": 0.7,
+    "gl_g": 0.0,
+    "snap": 73.7
+   },
+   "last": {
+    "week": 3,
+    "xfp": 12.8,
+    "pts": 1.9
+   },
+   "prev": null
+  },
+  {
+   "key": "tee higgins",
+   "name": "Tee Higgins",
+   "pos": "WR",
+   "team": "CIN",
+   "g": 3,
+   "xfp_g": 11.0,
+   "pts_g": 12.5,
+   "gap_g": 1.5,
+   "td": 1,
+   "td_g": 0.3,
+   "work": {
+    "tgt_g": 7.7,
+    "car_g": 0.0,
+    "att_g": 0.0,
+    "air_g": 100.7,
+    "rz_g": 0.3,
+    "gl_g": 0.0,
+    "snap": 79.0
+   },
+   "last": {
+    "week": 3,
+    "xfp": 10.0,
+    "pts": 18.0
+   },
+   "prev": {
+    "season": 2025,
+    "g": 15,
+    "xfp_g": 9.0,
+    "pts_g": 12.1,
+    "gap_g": 3.1
+   }
+  },
+  {
+   "key": "george kittle",
+   "name": "George Kittle",
+   "pos": "TE",
+   "team": "SF",
+   "g": 3,
+   "xfp_g": 8.2,
+   "pts_g": 13.8,
+   "gap_g": 5.6,
+   "td": 3,
+   "td_g": 1.0,
+   "work": {
+    "tgt_g": 5.3,
+    "car_g": 0.0,
+    "att_g": 0.0,
+    "air_g": 47.3,
+    "rz_g": 1.7,
+    "gl_g": 0.0,
+    "snap": 59.7
+   },
+   "last": {
+    "week": 3,
+    "xfp": 10.7,
+    "pts": 23.2
+   },
+   "prev": {
+    "season": 2025,
+    "g": 11,
+    "xfp_g": 9.0,
+    "pts_g": 12.1,
+    "gap_g": 3.1
+   }
+  }
+ ]
+}

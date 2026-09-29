@@ -1,6 +1,7 @@
 /* ------------------------------------------------------------------
-   THE POOL — every player who logged a snap, ranked on usage, not points. Drawn by the
-   Board's Movers mode (surface/pool/pool.js).
+   THE POOL — every player who logged a snap, ranked on usage, not points. The Movers view that
+   drew it became Role on 2026-09-29 (surface/role/role.js, its own data); the profile still reads
+   the pool (its points-per-game rank, profile/facts.js and lede.js).
    dShare is the change in snap/target share; dPts the change in points.
    The gap between them is the whole product.
 ------------------------------------------------------------------ */
@@ -29,7 +30,4 @@ const SAMPLE_POOL = [
 const POOL = (typeof LIVE_POOL !== "undefined" && LIVE_POOL && LIVE_POOL.players.length)
   ? LIVE_POOL.players
   : SAMPLE_POOL.map(r => ({...r, opp: null, why: "", leagues: {espn: null, yahoo: null}}));
-/* Movers draws one card per team (surface/pool/pool.js); how many to a page is its poolPageSize.
-   The position filter is the Board's BD_POS. */
-let POOL_PAGE = 1;
 

@@ -241,6 +241,13 @@ def load_digest():
     return feed_block(("weekly_digest",), "week") or read_first(DWR / "weekly_digest.json")
 
 
+def load_role_board():
+    """Each player's season so far: what his work is worth against what he scored, and last
+    season's same gap (model.season.role_board, 2026-09-29), feed block `role_board` first, the
+    file second. design/role.py cuts it for Players > Role; None when neither exists."""
+    return feed_block(("role_board",), "players") or read_first(DWR / "role_board.json")
+
+
 def load_game_preview():
     """Each game of the week's facts and Claude's take (model.season.game_preview), feed block
     `game_preview` first, the file second. design/preview.py cuts it for This week > Preview."""

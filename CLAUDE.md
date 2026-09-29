@@ -100,16 +100,17 @@ A group with no view to show (League without the Yahoo league) draws no button.
 | This week (id `week`, since 2026-09-26) | Digest (leaf `digest`, the default page except Tuesday, when Waivers leads): the league-wide week as a lead plus one-line rows, from ff-jarvis `weekly_digest.json`; Preview (leaf `preview`, since 2026-09-29): a slate of every game by kickoff window, a tap opens the game's dossier (Claude's take, opus/high, lines, matchup ranks, injuries, weather, rest and travel), the slate a rail beside it on a desktop, from ff-jarvis `game_previews.json` via `design/preview.py`; DESIGN.md "Preview"; Weather (leaf `weather`, since 2026-09-26): the games whose forecast moves scoring (proven positions only, from ff-jarvis's `weather_backtest.json`) with who they hit (each side's top QB, WRs and TE from the projections; no roster, the page is public), then every other game as one row; Live (leaf `live`; its own Gameday group until 2026-09-28) |
 | League (id `league`, since 2026-09-28; was two leaves of This week) | Recap (leaf `recap`) and Records (leaf `records`): the Yahoo league's week and all-time book, the same for every reader whatever team is picked (Claude's weekly roast, standings, every game with its box score, next week's grudge; trophy case and Halls of Fame and Shame by manager); Trades (leaf `trades`): who won every trade 2018 on, from ff-jarvis `yahoo_trade_verdicts.json` via `design/league_trades.py`, drawn by `surface/trades/`; DESIGN.md "Trades" |
 | My teams | Roster, Waivers, then the team's league page: League (ESPN teams: the week's recap and awards, the rivalry with this week's opponent, all-time records and champions since 2014) or My recap (leaf `myrecap`, Yahoo teams, since 2026-09-27: the team's own result, box score, standing, grudge and record-book lines). All from ff-jarvis `espn_league*.json` / `yahoo_league*.json` via `design/league_recap.py` and `design/league_back.py`, drawn by `surface/league/`; DESIGN.md "League" |
-| Players (id `scouting`, was "Scouting" until 2026-09-25) | Ranks (this week's projected rank per position and FLEX, in tiers; since 2026-09-26), Leaders (leaf `board`: who leads each stat, the #1's card then a list paged to one screen), Movers (whose role is growing, by team), Takes (leaf `matchups`, renamed 2026-09-29: where we rank a player higher or lower than the experts, every position in one list, beside Pitcher List's calls, with the record; the matchup itself is a tag on the Ranks row), Grid (weekly usage), News |
+| Players (id `scouting`, was "Scouting" until 2026-09-25) | Ranks (this week's projected rank per position and FLEX, in tiers; since 2026-09-26), Leaders (leaf `board`: who leads each stat, the #1's card then a list paged to one screen), Role (leaf `movers`, was Movers until 2026-09-29: RB/WR/TE ranked by what their work is worth, beside what they scored and last season's same gap, from ff-jarvis `role_board.json` via `design/role.py`), Takes (leaf `matchups`, renamed 2026-09-29: where we rank a player higher or lower than the experts, every position in one list, beside Pitcher List's calls, with the record; the matchup itself is a tag on the Ranks row), Grid (weekly usage), News |
 | Bets | Parlay, DFS |
 
 The view is in the hash (`#usage`, `#roster`), so a reload, a bookmark and Back all land where they
 point; the group is derived from the leaf, and only the view is in the URL (the grid's position and
 week reset on purpose). `tests/test_render.py::test_a_hash_opens_its_view` pins it. Old names still
-land: `#pool` opens Movers (`NAV_ALIAS`), and Leaders keeps the leaf and hash `board`. Leaders and
-Movers share one surface (`js/surface/board/`, which reads `BD_MODE` from the view), since they
-share the position chip; they became views on 2026-09-25 because a Leaders/Movers switch was a
-fifth row of controls above the data on a phone (`test_movers_hash_opens_movers`).
+land: `#pool` opens Role (leaf `movers`, `NAV_ALIAS`), `#takes` opens Takes (leaf `matchups`), and
+Leaders keeps the leaf and hash `board`. Role has its own surface (`js/surface/role/`) since
+2026-09-29; before that Movers was a mode of the Board (`test_movers_hash_opens_role`).
+Every part shares one script scope, so a view's function names must be unique
+(`test_js_syntax.py::test_no_top_level_function_is_declared_twice`).
 
 With no hash, `navDefaultLeaf` in `js/chrome/nav.js` opens the Digest (the week league-wide; it was
 Leaders, then briefly Ranks, on 2026-09-26) except on a Tuesday, when Waivers still leads.

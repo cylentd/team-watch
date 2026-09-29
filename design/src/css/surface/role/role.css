@@ -1,0 +1,60 @@
+/* ============================== ROLE ==============================
+   Players > Role (js/surface/role/role.js, 2026-09-29). One list, one row per player: face, name,
+   position, the two numbers; a dumbbell on one shared scale (hollow = what an average player with
+   his work scores, filled = what he scored, green over, red under); the work; last season's gap.
+   Colour keeps its jobs: green and red are over and under, the position tint names the position. */
+.rv-head{margin:14px 0 0}
+.rv-head h2{margin:0;font-family:var(--disp);font-size:var(--t-4);font-weight:800;color:var(--ink)}
+.rv-head p{margin:2px 0 0;font-size:var(--t-1);color:var(--ink-3);max-width:70ch}
+.rv-key{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px}
+.rv-key span{display:inline-flex;align-items:center;gap:6px}
+.rv-key i{display:inline-block;width:10px;height:10px;border-radius:50%}
+.rv-key i.x{border:2px solid var(--ink-2)}
+.rv-key i.p{background:var(--ink-2)}
+
+.rv-list{margin-top:12px;border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden;max-width:var(--list-w)}
+.rv-row{
+  appearance:none;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;
+  display:grid;gap:5px;width:100%;padding:10px 16px 11px;
+}
+.rv-row + .rv-row{border-top:1px solid var(--line)}
+.rv-row:hover{background:var(--panel-2)}
+.rv-row:active{transform:scale(var(--press))}
+.rv-row:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+.rv-top{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:center}
+.rv-face{width:28px;height:28px}
+.rv-nm{display:flex;align-items:baseline;gap:8px;min-width:0}
+.rv-nm b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rv-pos{font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--tint)}
+.rv-pos.rb{--tint:var(--pos-rb)}
+.rv-pos.wr{--tint:var(--pos-wr)}
+.rv-pos.te{--tint:var(--pos-te)}
+.rv-v{font-family:var(--mono);font-size:var(--t-3);font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rv-v small{margin-left:6px;font-size:var(--t-2);font-weight:500;color:var(--ink-2)}
+
+/* The dumbbell: a track, the segment between the two dots in the gap's colour, the hollow dot at
+   the work's worth, the filled dot at what he scored. Indented to the name so it reads as his. */
+.rv-db{position:relative;height:12px;margin-left:38px}
+.rv-db::before{content:"";position:absolute;left:0;right:0;top:5px;height:2px;border-radius:1px;background:var(--panel-3)}
+.rv-db .seg{position:absolute;top:5px;height:2px;left:var(--lo);width:calc(var(--hi) - var(--lo))}
+.rv-db .x,.rv-db .p{position:absolute;top:1px;width:10px;height:10px;margin-left:-5px;border-radius:50%}
+.rv-db .x{left:var(--x);border:2px solid var(--ink-2);background:var(--panel)}
+.rv-db .p{left:var(--p)}
+.rv-db.up .seg,.rv-db.up .p{background:var(--up)}
+.rv-db.dn .seg,.rv-db.dn .p{background:var(--down)}
+/* The UI face, not mono: in mono the work line wrapped to two lines at 360px, and a row cost 120px. */
+.rv-work{margin-left:38px;font-size:var(--t-1);line-height:1.35;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.rv-prev{margin-left:38px;font-size:var(--t-1);line-height:1.35;color:var(--ink-3)}
+.rv-prev.none{font-style:italic}
+
+/* From 1100px the rows flow down two columns, as Ranks' tiers do: one 1128px row stretched the
+   dumbbell into a line the eye could not hold. Order reads down the left column, then the right. */
+@media (min-width:1100px){
+  /* Every row draws its top rule, pulled 1px up so the rule at a column's head is clipped under
+     the list's own border instead of doubling it. */
+  .rv-list{columns:2;column-gap:0;column-rule:1px solid var(--line);max-width:none}
+  .rv-row{break-inside:avoid;border-top:1px solid var(--line);margin-top:-1px}
+}
+
+.rv-more{margin-top:12px}
+.rv-foot{margin:14px 0 4px;max-width:72ch}

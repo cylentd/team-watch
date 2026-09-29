@@ -75,7 +75,7 @@ surface/profile/tabs.js
 surface/profile/panel.js
 surface/news/news.js
 data/pool.js
-surface/pool/pool.js
+surface/role/role.js
 data/usage.js
 surface/usage/usage.js
 data/startsit.js

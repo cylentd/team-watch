@@ -46,6 +46,7 @@
     "surface/profile/season.css": ["#modal"],
     "surface/profile/team.css": ["#modal"],
     "surface/ranks/ranks.css": ["ranks"],
+    "surface/role/role.css": ["movers"],
     "surface/teams/brief.css": ["roster", "waivers"],
     "surface/teams/injury.css": ["roster", "waivers"],
     "surface/teams/matchup.css": ["roster", "waivers", "#modal"],
@@ -67,7 +68,7 @@
     "surface/teams/pack.css": ["roster", "waivers", ".pk-stage"]
   },
   "shared": {
-    "surface/board/board.css": "Leaders, Movers and Slips",
+    "surface/board/board.css": "Leaders and Slips",
     "surface/builder/legsheet.css": "the leg sheet and its scrim sit on <body>, outside every view, and a body:has() rule locks the scroll",
     "surface/live/gamesheet.css": "the game sheet and its scrim sit on <body>, outside every view, and a body:has() rule locks the scroll",
     "surface/profile/sheet.css": "the profile modal and Weather",

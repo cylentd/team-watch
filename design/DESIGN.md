@@ -501,45 +501,37 @@ The lane head is two fixed rows at every width: letting it wrap
 fitted 360px, but only the lanes whose axis publishes a threshold wrapped, so three heads were one
 line and three were two and the six stopped sharing a baseline down the card.
 
-### Two modes: Leaders · Movers (2026-09-25)
+### Role (leaf `movers`, 2026-09-29; superseded: Movers, share cards by team)
 
-Movers was its own view (the old Pool, `#pool`) until 2026-09-25. It is now the Board's second
-mode: two readings of one position, so they share the position chip.
+Movers showed whose target or carry share moved, one card per team. Superseded 2026-09-29 (David:
+"target share is just half the story"; the profile already carries share). The quadrant with
+"buy low / sell high" corners described here before that was retired even earlier: METHODOLOGY
+12.41 found buy-low no edge, and 12.44 that the gap does not beat our projection.
 
-| Mode | What it answers | Controls under the chip |
-|---|---|---|
-| Leaders | who leads each stat (the lanes above) | "+ Add player", the picks |
-| Movers | whose role is growing, week on week | the pager; a row opens the drawer |
+Role (storyboard https://claude.ai/artifact/DQK7e9SEqgdmLL8joh1fYu, option A) ranks RB/WR/TE by
+what their work is worth a game: what an average player at the position scores with the same
+targets, carries and passes (ff-jarvis `role_board.json`, the recap's expected points). `LIVE_ROLE`
+(`design/role.py`) keeps 2+ games and 5+ a game; `js/surface/role/role.js` draws it.
 
-- **The switch** sits directly under the position chips. It is the builder's `.modes-sub.dock`,
-  the same control Parlay and DFS switch books with: a full-width segmented pill on a phone, the
-  mono boxed toggle on a desktop.
-- **One filter.** Movers has no chips and no ALL of its own; the Board's chip filters it. A chip
-  is offered when the mode has something to draw for it.
-- **The hash** is the one exception to "only the view is in the URL": Movers is `#movers`, and
-  the old `#pool` still opens it, so a bookmark survives. Leaders is `#board`. A switch writes the
-  hash, so Back undoes it.
+| Row part | What it shows |
+|---|---|
+| Top line | face, name, position (tint), "20.5 → 29.8": the work's worth, then what he scored |
+| Dumbbell | both on one scale shared by every row on screen; hollow = worth, filled = scored, green over, red under |
+| Work | carries, targets, air yards, then scoring chances (inside the 5, else red zone) beside his TDs |
+| Last season | the same gap in 2025, or "no 2025 season": the line that separates skill (JSN +3.8 in 2025) from a hot month |
 
-**Movers, the mode.** Ranked on usage, never points: the rows sort by share change, largest rise
-first, a row with no move below every row with one. The anchor is a quadrant scatter: **x =
-change in snap/target share, y = points still owed (luck, sign flipped).** Best is top-right,
-worst bottom-left; plotting luck itself put the sells on top and read as an upside-down V.
+- **Descriptive only.** No row says buy, sell or luck (`test_role.py` checks the words). The rank,
+  his workload, is what carries forward; the gap has not predicted points better than the projection.
+- **Touchdowns sit beside their chances**, not split out as luck: a goal-line back's TDs are his
+  job (David, 2026-09-29: "TDs isn't always lucky").
+- **The expected points price every target alike** (a flat rate per position); where a touch
+  happens is not in the number yet, so the work line shows it. Weighting it is an ff-jarvis change
+  that needs its own backtest.
+- **Layout.** A phone: one list, 20 rows then "Show all". From 1100px, two columns read down then
+  across, as Ranks' tiers do. `#movers` and the old `#pool` open it.
 
-| Quadrant | Meaning | Action |
-|---|---|---|
-| upper right (green wash) | role growing, points not caught up | **buy low** |
-| lower right | role and box score agree | confirmed, hold |
-| upper left | role shrinking, points were unlucky anyway | fade |
-| lower left (red wash) | points ran ahead of a shrinking role | sell high |
-
-**Before a second week.** A share move needs two weeks. While no row anywhere has one, there is
-no chart, the list ranks by role share, and one plain line above it says so (`pool.wait.line`).
-
-**Live since 2026-09-17** (`LIVE_POOL`, `design/pool.py`): watch.json's league-wide pool, every
-back and quarterback with 8+ opportunities and every receiver with 4+. The share a row shows is the
-one watch's verdict reads (carries for a back, targets for a receiver or tight end, snaps for a
-quarterback). "Free in" comes from watch's `rostered_by`: Mine, Both, ESPN, Yahoo, or a dash. The
-16 hand-typed rows in `data/pool.js` are only the fallback when watch.json is missing.
+**The pool stays** (`LIVE_POOL`, `design/pool.py`, `data/pool.js`): the profile's points-per-game
+rank reads it.
 
 Dot size is snaps; a lime ring means he is on one of my rosters. The list pages 10 at a time. A
 desktop row has every column: snaps, Δ snaps, share, Δ share, verdict, free in. A phone row is

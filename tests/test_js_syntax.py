@@ -29,6 +29,15 @@ def test_script_parses(tmp_path):
     assert r.returncode == 0, r.stderr
 
 
+def test_no_top_level_function_is_declared_twice():
+    """Every part shares one script scope, and a second `function x(` silently replaces the first:
+    Role's roleHTML (2026-09-29) replaced the profile's, and the Target depth block vanished with
+    no error anywhere. A const or let twice already fails the parse above; a function does not."""
+    names = re.findall(r"^function\s+([A-Za-z_$][\w$]*)\s*\(", script_text(), re.M)
+    dupes = sorted({n for n in names if names.count(n) > 1})
+    assert dupes == [], f"declared more than once: {dupes}"
+
+
 def test_style_block_braces_balance():
     """Cheap CSS sanity: an unclosed rule swallows every rule after it, silently."""
     html = assemble.assemble()

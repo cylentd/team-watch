@@ -51,13 +51,13 @@ function render(){
     wireLive(v);
     return;
   }
-  if (SURFACE === "board" || SURFACE === "movers"){
-    BD_MODE = SURFACE === "movers" ? "movers" : "leaders";
+  if (SURFACE === "board"){
     v.innerHTML = bdViewHTML(); wireBd(v);
     return;
   }
-  /* Views that are one HTML function and one wiring function, nothing else. */
+  /* Views that are one HTML function and one wiring function. `movers` is Role (2026-09-29). */
   const plain = {ranks: [ranksHTML, wireRanks], digest: [digestHTML, wireDigest], matchups: [matchupsHTML, wireMatchups],
+    movers: [rvViewHTML, wireRv],
     weather: [wtViewHTML, wireWeather], preview: [pvViewHTML, wirePreview], recap: [lgLeaguePageHTML, wireLeaguePage], records: [lgRecordsPageHTML, wireRecords], trades: [trPageHTML, wireTrades]}[SURFACE];
   if (plain){ v.innerHTML = plain[0](); plain[1](v); return; }
   if (SURFACE === "usage"){

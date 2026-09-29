@@ -250,13 +250,12 @@ STATES = [
     ("preview", go("preview")),
     ("preview-dossier", go("preview") + [("click", "[data-pvopen='2']")]),
     ("preview-notake", go("preview") + [("click", "[data-pvopen='4']")]),
-    # Movers, the Board's second mode since 2026-09-25 (a view of its own before): the fixture
-    # falls back to the sample pool, which has share moves, so it sorts on them; -wait blanks every
-    # move to reach the week-1 path, where the list ranks by share under one line saying why.
-    ("board-movers", MOVERS),
-    ("board-movers-wait", [("eval", "POOL.forEach(r => { r.dShare = null; })")] + MOVERS),
-    # A mover opens the player's profile, the same modal the Leaders board opens (2026-09-25).
-    ("board-movers-modal", MOVERS + [("click", "[data-poolslug]")]),
+    # Role, leaf `movers` (2026-09-29; Movers' share cards before): the fixture's role board, all
+    # positions, one position, every row shown, no board at all, and a row opening the profile.
+    ("role", MOVERS),
+    ("role-wr", MOVERS + [("click", "[data-rvpos='WR']")]),
+    ("role-empty", [("eval", "LIVE_ROLE.rows.splice(0)")] + MOVERS),
+    ("role-modal", MOVERS + [("click", "[data-rvopen]")]),
     # The usage grid: the default RB level view on the newest week most teams have played, the
     # same grid as week-over-week change (the mode the level view cannot show; the week and the
     # reading sit in the panel the bar's last chip opens since 2026-09-25), a QB grid because its
@@ -531,8 +530,8 @@ def test_no_fenced_rule_misses_its_element(snapshot, area):
 @pytest.mark.parametrize("leaf,group,label", [
     ("ranks", "scouting", "RANKS"),
     ("board", "scouting", "LEADERS"),  # the leaf is still `board`, so its bookmarks land
-    ("movers", "scouting", "MOVERS"),  # a view beside Leaders since 2026-09-25
-    ("pool", "scouting", "MOVERS"),    # the old Movers view's hash, kept for bookmarks
+    ("movers", "scouting", "ROLE"),    # Movers until 2026-09-29; the leaf kept its name
+    ("pool", "scouting", "ROLE"),      # the old Movers view's hash, kept for bookmarks
     ("usage", "scouting", "GRID"),
     ("matchups", "scouting", "TAKES"),  # Matchups became Takes on 2026-09-29; the leaf stayed
     ("takes", "scouting", "TAKES"),
@@ -589,12 +588,12 @@ def test_a_head_fills_its_circle(browser, page_file, hash):
         ctx.close()
 
 
-@pytest.mark.area("board")
+@pytest.mark.area("role")
 @pytest.mark.parametrize("hash", ["#movers", "#pool"])
-def test_movers_hash_opens_movers(browser, page_file, hash):
-    """Movers is a view beside Leaders (2026-09-25; a mode of the Board for a few hours before,
-    and the `pool` view before that): its hash, old or new, must open it with its tab pressed, the
-    Leaders tab must write #board, and Back must return to Movers."""
+def test_movers_hash_opens_role(browser, page_file, hash):
+    """Role is the leaf `movers` (2026-09-29; Movers' share cards before, and the `pool` view before
+    that): its hash, old or new, must open it with its tab pressed, the Leaders tab must write
+    #board, and Back must return to Role."""
     ctx = browser.new_context(viewport={"width": 390, "height": 844}, reduced_motion="reduce")
     page = ctx.new_page()
     page.set_default_timeout(5000)
@@ -603,16 +602,15 @@ def test_movers_hash_opens_movers(browser, page_file, hash):
     try:
         page.goto(page_file.as_uri() + hash)
         page.wait_for_function("document.getElementById('view').children.length > 0")
-        assert page.evaluate("[SURFACE, BD_MODE]") == ["movers", "movers"]
+        assert page.evaluate("SURFACE") == "movers"
         assert page.locator("#subnav [data-leaf='movers'][aria-pressed='true']").count() == 1
-        assert page.locator("[data-bdmode]").count() == 0, "the Leaders/Movers switch row is gone"
         assert page.locator("[data-bdadd]").count() == 0, "+ Compare belongs to Leaders only"
         page.locator("#subnav [data-leaf='board']").click()
         page.wait_for_timeout(120)
-        assert page.evaluate("[location.hash, SURFACE, BD_MODE]") == ["#board", "board", "leaders"]
+        assert page.evaluate("[location.hash, SURFACE]") == ["#board", "board"]
         page.go_back()
         page.wait_for_function("SURFACE === 'movers'")
-        assert page.locator("[data-poolslug]").count() > 0
+        assert page.locator("[data-rvopen]").count() > 0
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
     finally:
         ctx.close()
@@ -837,9 +835,9 @@ def test_chat_panel_survives_a_surface_change(snapshot):
     over_pool = out["desk"]["chat-over-movers"]
     assert over_pool["chatOpen"], "the panel closed when the surface changed"
     assert "chatinput" in over_pool["chat"], "the composer is gone"
-    # #view is Movers, not the chat -- the panel is over the page, not instead of it.
-    assert "data-poolslug" in over_pool["view"], \
-        "#view is not Movers; the panel replaced the surface instead of floating over it"
+    # #view is Role (leaf movers), not the chat -- the panel is over the page, not instead of it.
+    assert "data-rvopen" in over_pool["view"], \
+        "#view is not Role; the panel replaced the surface instead of floating over it"
 
 
 def diff(golden, now, limit=25):

@@ -12,9 +12,6 @@
 ------------------------------------------------------------------ */
 const BD_POSITIONS = ["QB", "RB", "WR", "TE"];
 let BD_POS = "RB";
-/* Which view is drawing: "leaders" (#board) or "movers" (#movers, surface/pool/pool.js). Set from
-   SURFACE by render(); the two views share the position chip, so they share this surface. */
-let BD_MODE = "leaders";
 let BD_STAT = null;  // the axis on screen; null is the position's default (bdStatOf)
 let BD_PAGE = 1;     // the list's page, from 1 (leaders.js)
 let BD_PICKS = [];   // slugs, newest last, at most two
@@ -61,21 +58,19 @@ function bdChipsHTML(picks){
         aria-label="${t("board.action.remove", {name: esc(p.n)})}">✕</button></span>`).join("")}</div>`;
 }
 
-/* A position is offered when this view has something to draw for it: lanes, or movers. A pick
-   is a Leaders idea, so "+ Compare" is too. */
+/* A position is offered when it has lanes to draw. (Movers shared this row until 2026-09-29, when
+   it became Role, a surface of its own.) */
 function bdControlsHTML(){
-  const has = BD_MODE === "movers" ? p => POOL.some(r => r.pos === p) : p => bdAxes(p).length;
   // .setrow, not .filters: the chips fit a phone, so the row never scrolls (STYLE.md audit).
   return `<div class="setrow" role="group" aria-label="${t("board.filter.position")}">
-    ${BD_POSITIONS.filter(has).map(p =>
+    ${BD_POSITIONS.filter(p => bdAxes(p).length).map(p =>
       `<button class="chip" data-bdpos="${p}" aria-pressed="${BD_POS === p}">${p}</button>`).join("")}
-    ${BD_MODE === "movers" ? "" : `<span style="flex:1"></span>
-    <button class="chip bd-add" data-bdadd>${t("board.action.add")}</button>`}
+    <span style="flex:1"></span>
+    <button class="chip bd-add" data-bdadd>${t("board.action.add")}</button>
   </div>`;
 }
 
 function bdViewHTML(){
-  if (BD_MODE === "movers") return `<div class="wrap">${bdControlsHTML()}${poolHTML(BD_POS)}</div>`;
   const axes = bdAxes(BD_POS);
   if (!axes.length) return `<div class="wrap"><div class="state-empty" style="min-height:220px">
     <div><b>${t("board.empty.noSheetTitle")}</b><span>${t("board.empty.noSheetSub")}</span></div></div></div>`;
@@ -118,7 +113,7 @@ function bdAdd(p){
 function wireBd(v){
   const set = (sel, fn) => v.querySelectorAll(sel).forEach(b => b.addEventListener("click", () => { fn(b); render(); }));
   // Switching position drops the picks: they are rows of the position that just left the screen.
-  set("[data-bdpos]", b => { BD_NOTE = ""; POOL_PAGE = 1; if (b.dataset.bdpos !== BD_POS){ BD_POS = b.dataset.bdpos; BD_PICKS = []; BD_STAT = null; BD_PAGE = 1; } });
+  set("[data-bdpos]", b => { BD_NOTE = ""; if (b.dataset.bdpos !== BD_POS){ BD_POS = b.dataset.bdpos; BD_PICKS = []; BD_STAT = null; BD_PAGE = 1; } });
   // A new stat is a new ranking, so the list starts over: page 3 of TPRR is nobody's page 3 of YPRR.
   set("[data-bdstat]", b => { BD_NOTE = ""; BD_STAT = b.dataset.bdstat; BD_PAGE = 1; });
   // Turning a page keeps the reader where he is: the page is sized to fit from the top.
@@ -137,6 +132,5 @@ function wireBd(v){
   set("[data-bddrop]", b => { BD_NOTE = ""; BD_PICKS = BD_PICKS.filter(s => s !== b.dataset.bddrop); });
   // The picker is the app's own search sheet, handed a slot to fill instead of a profile to open.
   v.querySelectorAll("[data-bdadd]").forEach(b => b.addEventListener("click", () => searchOpen(bdAdd)));
-  if (BD_MODE === "movers") wirePool(v);
-  else bdFitPage();   // the page holds what the screen shows (fit.js); re-renders once if it must
+  bdFitPage();   // the page holds what the screen shows (fit.js); re-renders once if it must
 }

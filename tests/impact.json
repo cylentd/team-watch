@@ -72,9 +72,14 @@
       "render": ["usage"]
     },
     "board": {
-      "paths": ["design/src/js/surface/board/", "design/src/js/surface/pool/", "design/src/js/data/pool.js", "design/pool.py"],
+      "paths": ["design/src/js/surface/board/", "design/src/js/data/pool.js", "design/pool.py"],
       "tests": ["tests/test_pool.py"],
       "render": ["board"]
+    },
+    "role": {
+      "paths": ["design/src/js/surface/role/", "design/src/css/surface/role/", "design/role.py"],
+      "tests": ["tests/test_role.py"],
+      "render": ["role"]
     },
     "profile": {
       "paths": ["design/src/js/surface/profile/", "design/src/css/surface/profile/", "design/pedigree.py", "design/gamelog.py",

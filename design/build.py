@@ -38,13 +38,14 @@ from startsit import live_startsit, report as startsit_report  # design/startsit
 from mates import espn_rows, yahoo_rows, live_mates, slugs as mate_slugs, report as mates_report  # every team in both leagues
 from digest import live_digest, report as digest_report        # design/digest.py: the Digest view
 from preview import live_preview, report as preview_report     # design/preview.py: This week > Preview
+from role import live_role, report as role_report              # design/role.py: Players > Role
 from league_recap import live_league, live_league_yahoo, report as league_report  # My teams > League
 from league_trades import live_trades, report as trades_report  # League > Trades
 from sources import (                                    # design/sources.py: the ff-jarvis adapter
     ROOT, REPO, DWR, FEED, ESPN_ROSTERS, YAHOO_ROSTERS, DFS_POOL,
     feed_block, read_first, load_status, load_props_raw, load_model_raw,
     load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
-    load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_startsit, load_digest, load_game_preview, load_league,
+    load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_startsit, load_digest, load_game_preview, load_league, load_role_board,
     load_league_yahoo, load_league_back, load_case_rosters, load_defense, load_trades, load_kickers,
 )
 from gameday import live_gameday, report as gameday_report  # This week > Live: every matchup, scored live
@@ -740,6 +741,7 @@ def render():
         "LIVE_ARCHETYPE": live_archetype(load_archetype(FEED, DWR), wanted_set),
         "LIVE_TRENCHES": live_trenches(load_trenches(FEED, DWR)),
         "LIVE_STARTSIT": live_startsit(*load_startsit(), slugify),
+        "LIVE_ROLE": live_role(load_role_board(), slugify),
         "LIVE_DIGEST": live_digest(load_digest(), slugify, load_schedule(DWR)),
         "LIVE_PREVIEW": live_preview(load_game_preview(), slugify),
         "LIVE_LEAGUE": live_league(*load_league(), roster_file(ESPN_ROSTERS), slugify),
@@ -759,7 +761,7 @@ def render():
                projections_report(blocks["LIVE_PROJECTIONS"]), ranks_report(blocks["LIVE_RANKS"]),
                routes_report(blocks["LIVE_ROUTES"]), report_archetype(blocks["LIVE_ARCHETYPE"]),
                report_trenches(blocks["LIVE_TRENCHES"]), lines_report(blocks["LIVE_LINES"]),
-               injury_report(blocks["LIVE_INJURY"]), startsit_report(blocks["LIVE_STARTSIT"]),
+               injury_report(blocks["LIVE_INJURY"]), startsit_report(blocks["LIVE_STARTSIT"]), role_report(blocks["LIVE_ROLE"]),
                wx_history_report(blocks["LIVE_WX_HISTORY"]), defense_report(blocks["LIVE_DEFENSE"]),
                trades_report(blocks["LIVE_TRADES"]), gameday_report(blocks["LIVE_GAMEDAY"]),
                f"Weather: {len(blocks['LIVE_WEATHER']['teams'])} teams" if blocks["LIVE_WEATHER"] else "Weather: none"]
