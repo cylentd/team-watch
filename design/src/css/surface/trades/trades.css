@@ -32,7 +32,6 @@
 .tr-rk{color:var(--gold-2)}
 .tr-bx-ft{display:grid;gap:5px;padding:10px 12px;border-top:1px dashed var(--line-2);font-size:var(--t-2);line-height:1.4;color:var(--ink-2)}
 .tr-bx-ft p{margin:0}
-.tr-bx-say{color:var(--ink);font-weight:600}
 .tr-bx-in{padding:10px 12px}
 
 /* a trade's two sides as rows: the manager, what he got, his score in one right-hand column */
@@ -66,7 +65,6 @@
 .tr-more:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 
 /* best and worst: the icon and label in the strip, the manager with his number beside him */
-.tr-lead{display:grid;gap:10px}
 .tr-lead-ic{display:inline-grid;place-items:center}
 .best .tr-lead-ic{color:var(--lime)}
 .worst .tr-lead-ic{color:var(--down)}
@@ -75,7 +73,6 @@
 .tr-lead-who b{font-family:var(--disp);font-size:var(--t-5);font-weight:800;line-height:1}
 .tr-lead-who span{font-family:var(--mono);font-size:var(--t-5);font-weight:700;font-variant-numeric:tabular-nums}
 .tr-lead-who small{font-size:var(--t-2);color:var(--ink-3)}
-.tr-lead-luck{margin:0;font-size:var(--t-2);color:var(--ink-2)}
 .tr-def-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
 .tr-def-row > b{font-family:var(--mono);font-size:var(--t-3);font-weight:700;font-variant-numeric:tabular-nums}
 
@@ -84,7 +81,7 @@
 .tr-mgrs > li{border-bottom:1px solid var(--line)}
 .tr-mgrs > li.few .tr-mgr{opacity:.5}
 .tr-mgrs > li.tr-fewhd{padding:16px 2px 6px;font-size:var(--t-2);color:var(--ink-3)}
-.tr-mgr{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:grid;grid-template-columns:84px minmax(0,1fr) 40px 12px;
+.tr-mgr{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:grid;grid-template-columns:84px minmax(0,1fr) 52px 12px;
   gap:8px;align-items:center;padding:8px 2px;min-height:44px}
 .tr-mgr:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
 .tr-mgr b{font-size:var(--t-3);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -97,7 +94,7 @@
 .tr-zero{left:var(--z);top:0;bottom:0;border-left:1.5px dashed var(--ink-3)}
 .tr-range{left:var(--lo);right:calc(100% - var(--hi));top:8px;height:2px;background:currentColor;opacity:.7}
 .tr-dot{left:var(--x);top:4px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:currentColor}
-.tr-scale{display:grid;grid-template-columns:84px minmax(0,1fr) 40px 12px;gap:8px;padding:0 2px}
+.tr-scale{display:grid;grid-template-columns:84px minmax(0,1fr) 52px 12px;gap:8px;padding:0 2px}
 .tr-ticks{position:relative;height:14px}
 .tr-ticks i{position:absolute;left:var(--x);transform:translateX(-50%);font-style:normal;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
 
@@ -115,50 +112,10 @@
 .tr-io .tr-pls{gap:4px 12px}
 .tr-io .tr-pls b{font-size:var(--t-2)}
 
-/* curses: the mark and its name, then each trade of him a row, the sender's loss in the right column */
-.tr-curse .tr-bx-t svg{color:var(--hex-rim)}
-.tr-curse-top{display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;align-items:center;padding:12px 12px 8px}
-.tr-curse h3{margin:0;font-family:var(--disp);font-size:var(--t-4);font-weight:800;color:var(--gold-2)}
-.tr-curse p{margin:0;font-size:var(--t-2);line-height:1.4;color:var(--ink-2)}
-.tr-chain{border-top:1px solid var(--line)}
-.tr-chain th,.tr-chain td{padding:8px 12px}
-.tr-chain .tr-y{width:1%;font-family:var(--mono);font-size:var(--t-2);color:var(--ink-3)}
-.tr-chain th{width:auto}
-.tr-chain .tr-n{font-size:var(--t-3)}
-/* the mark: his face drained of colour in front of black fire, one skull per trade under it. The fire
-   rises ~17px above its box, so the mark starts that far down. */
-.tr-mark{display:grid;justify-items:center;gap:4px;padding-top:18px}
-.tr-fire{position:relative;width:96px;height:96px;display:grid;place-items:center}
-.tr-fire svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.tr-fire .s1{stop-color:var(--hex-1)}
-.tr-fire .s2{stop-color:var(--hex-2)}
-.tr-fire .s3{stop-color:var(--hex-3)}
-.tr-fire .rim{stroke:var(--hex-rim);stroke-width:.9;stroke-linejoin:round}
-.tr-fire .mid{fill:var(--hex-mid)}
-.tr-fire .core{fill:var(--hex-core)}
-.tr-fire .tr-face{width:64px;height:64px;border:0}
-.tr-fire img{filter:grayscale(1) brightness(.85) contrast(1.15)}
-.tr-fire .tr-face::after{content:"";position:absolute;inset:0;border-radius:50%;
-  background:radial-gradient(circle,transparent 52%,rgb(var(--shadow-rgb) / .75) 100%)}
-.tr-skulls{display:flex;gap:4px}
-.tr-skull{width:18px;height:18px;color:var(--down)}
-.tr-skull.live{color:var(--amber)}
-.tr-skull .bone{fill:currentColor;stroke:currentColor;stroke-width:1.3}
-.tr-skull .eye{fill:var(--void)}
-.tr-skull .teeth{fill:none;stroke:var(--void);stroke-width:1}
-.tr-skull.live .bone{fill:none}
-.tr-skull.live .eye{fill:currentColor}
-.tr-skull.live .teeth{stroke:currentColor}
-.tr-rest .tr-face{width:28px;height:28px}
-.tr-rest img{filter:grayscale(1)}
-.tr-rest .tr-pls b{font-size:var(--t-2);color:var(--ink-2)}
-.tr-rest .tr-bx-hd > span:last-child{text-transform:none;letter-spacing:0;font-family:var(--ui);font-weight:500}
 
 /* Motion answers a tap (STYLE.md), never plays on its own (David, 2026-09-28: "readability first, then
    fun sprinkled in"). A manager's trades drop in one after another from his row; tapping a curse's fire
    flares it and pops its skulls in one by one, counting the curse out. */
-.tr-mark{all:unset;box-sizing:border-box;cursor:pointer;border-radius:12px}
-.tr-mark:focus-visible{outline:2px solid var(--hex-rim);outline-offset:2px}
 /* A ranking row says it opens: lit under a mouse, or while it crosses the middle of a phone screen
    (alive.js), the chevron nudged toward what opens; a tap presses it in. */
 .tr-mgr{transition:background .2s var(--ease),transform var(--dur-spring) var(--spring)}
@@ -170,43 +127,64 @@
   .tr-mgr:hover .tr-chev{color:var(--lime);transform:translateX(3px)}
 }
 .tr-mgr[aria-expanded="true"] .tr-chev{transform:rotate(90deg)}
-/* The curse card haunts: a violet edge and a mist banked along its bottom, still until the fire is
-   tapped, when it swells with the flare. Low enough that the rows over it stay ink on dark. */
-.tr-curse{position:relative;border-color:rgb(var(--hex-rim-rgb) / .45)}
-.tr-curse .tr-bx-hd{background:rgb(var(--hex-2-rgb) / .7);border-bottom-color:rgb(var(--hex-rim-rgb) / .25)}
-.tr-curse::after{content:"";position:absolute;inset:auto 0 0;height:60%;pointer-events:none;opacity:.75;
-  background:radial-gradient(60% 70% at 18% 100%,rgb(var(--hex-1-rgb) / .28),transparent 70%),
-             radial-gradient(55% 60% at 82% 105%,rgb(var(--hex-rim-rgb) / .12),transparent 70%)}
-/* the shuffle: a bar fills over the 10 s before the non-title cards swap */
-.tr-shuffle{height:2px;background:var(--line);border-radius:2px;overflow:hidden}
-.tr-shuffle i{display:block;height:100%;background:var(--gold-2);transform:scaleX(var(--p,0));transform-origin:left;transition:transform .1s linear}
 @media (prefers-reduced-motion:no-preference){
   .tr-mine > li{animation:tr-drop .28s var(--ease) both;animation-delay:calc(var(--i) * 40ms)}
   .tr-fresh{animation:tr-drop .36s var(--ease) both;animation-delay:calc(var(--i) * 70ms)}
-  .tr-mark.stir .tr-fire svg{animation:tr-flare .6s var(--ease)}
-  .tr-mark.stir .tr-skull{animation:tr-pop var(--dur-spring) var(--spring) both;animation-delay:calc(var(--i) * 110ms)}
-  .tr-curse:has(.tr-mark.stir)::after{animation:tr-mist 1.4s var(--ease)}
 }
 @keyframes tr-drop{from{opacity:0;transform:translateY(-6px)}}
-@keyframes tr-flare{40%{transform:scale(1.1);filter:brightness(1.6)}}
-@keyframes tr-pop{from{transform:scale(0)}60%{transform:scale(1.25)}}
-@keyframes tr-mist{35%{transform:translateY(-10%) scaleY(1.25);opacity:1}}
 
-/* Desktop (2026-09-28, second pass): rows, not columns. Two columns split by kind left the ranking
-   (705px) beside a 1730px stack, ~1000px of nothing under it, and best/worst held to 640px of a
-   1360px row. Now the ranking pairs with the heists, the two long sections take the full width with
-   their cards two across, and every card column sits on the same two tracks as the row above. */
-@media (min-width:960px){
-  .tr-lead{max-width:none;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:40px}
-  .tr-what{max-width:none}   /* one sentence, the key to every number: one line where it fits */
-  .tr-body,.tr-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:40px}
-  .tr-body{row-gap:36px}
-  .tr-decided,.tr-curses{grid-column:1 / -1}
-  /* across 1360px a subhead pushed to the far edge reads as belonging to nothing */
-  :is(.tr-decided,.tr-curses) .tr-hd{justify-content:start;column-gap:14px}
-  .tr-decided .tr-grid,.tr-curses .tr-grid{row-gap:12px;align-items:stretch}
+/* a heist's headline: who robbed whom, first thing under "Heist #n" */
+.tr-bx-hl{margin:0;padding:10px 12px;border-bottom:1px solid var(--line);font-family:var(--disp);font-size:var(--t-3);font-weight:800;line-height:1.25;color:var(--ink)}
+
+/* Phone: the card sections are swipe rows, one card wide, the next peeking in from the right edge, so
+   ~5 screens of stacked cards became ~3 (David, 2026-09-28). The row runs to the screen edges and snaps
+   each card back to the page gutter. */
+.tr{--tr-gut:14px}
+@media (min-width:760px){ .tr{--tr-gut:var(--page-pad)} }
+.tr-swipe{display:grid;grid-auto-flow:column;grid-auto-columns:min(calc(100% - 20px),420px);gap:10px;align-items:start;
+  overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scrollbar-width:none;
+  margin-inline:calc(-1 * var(--tr-gut));padding-inline:var(--tr-gut);scroll-padding-inline:var(--tr-gut)}
+.tr-swipe::-webkit-scrollbar{display:none}
+.tr-swipe > *{scroll-snap-align:start}
+/* ~340px a card on a phone, ~260px in the desktop's top row: a long name wraps rather than push the
+   score out of the card */
+@media not all and (min-width:960px){
+  .tr-swipe .tr-sc th,.tr-swipe .tr-sc td{padding-inline:10px}
+  .tr-swipe .tr-pls b,.tr-swipe .tr-sc th{white-space:normal}
+  .tr-swipe .tr-sc th{width:auto}   /* 1% would squeeze every name to its longest word */
 }
-/* With a mouse the ranking's rows need no 44px touch height; tighter, it ends level with the heists. */
+.tr-pager{margin:0;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+
+/* Desktop (2026-09-28, third pass): the top row is five cards, best, worst and the three heists (David:
+   "fit 5 cards on the top"); the ranking pairs with the curses; the decided trades take the full width,
+   three across (two across left each card half empty). */
+@media (min-width:960px){
+  .tr-swipe{grid-auto-flow:row;grid-auto-columns:auto;overflow:visible;scroll-snap-type:none;margin-inline:0;padding-inline:0}
+  .tr-pager{display:none}
+  .tr-what{max-width:none}   /* one sentence, the key to every number: one line where it fits */
+  /* two, then three: best and worst over the heists until five fit */
+  .tr-top-row{grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;align-items:stretch}
+  .tr-top-row > :nth-child(-n+2){grid-column:span 3}
+  .tr-top-row > :nth-child(n+3){grid-column:span 2}
+  /* ~260px a card: the manager above his faces, the score beside them, so no name breaks */
+  .tr-top-row .tr-sc tr{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;border-bottom:1px solid var(--line)}
+  .tr-top-row .tr-sc tr:last-child{border-bottom:0}
+  .tr-top-row .tr-sc :is(th,td){border-bottom:0;padding:8px 10px}
+  .tr-top-row .tr-sc th{grid-column:1 / -1;width:auto;padding-bottom:0}
+  .tr-top-row .tr-sc .tr-n{width:auto}
+  .tr-body{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:40px;row-gap:36px}
+  .tr-rank{grid-column:1;grid-row:1}
+  .tr-curses{grid-column:2;grid-row:1}
+  .tr-decided{grid-column:1 / -1;grid-row:2}
+  .tr-decided .tr-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:stretch}
+  /* across 1360px a subhead pushed to the far edge reads as belonging to nothing */
+  .tr-decided .tr-hd{justify-content:start;column-gap:14px}
+}
+@media (min-width:1100px){
+  .tr-top-row{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tr-top-row > :nth-child(n){grid-column:auto}
+}
+/* With a mouse the ranking's rows need no 44px touch height. */
 @media (min-width:960px) and (pointer:fine){
   .tr-mgr{min-height:34px;padding:5px 2px}
 }

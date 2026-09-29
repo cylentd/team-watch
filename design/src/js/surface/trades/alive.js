@@ -4,7 +4,8 @@
      reads as tappable (a mouse gets the same from hover, in CSS);
    - the trades that decided a season shuffle a new set in every 10 s (cards.js, trDecidedShown), only
      while that section is on screen, never while a finger or pointer is on it, never under reduced
-     motion or after Show all. A bar fills over the 10 s, so a swap is announced, never sudden. */
+     motion or after Show all. The bar that filled over the 10 s is gone (David, 2026-09-28: "too
+     distracting"); the new cards drop in one after another, so a swap still reads as a swap. */
 const TR_TICK = 100, TR_EVERY = 10000, TR_HOLD = 8000;   // ms: timer step, one shuffle, a touch's pause
 let TR_IO = null;
 
@@ -17,6 +18,26 @@ function trWatchRows(root){
   root.querySelectorAll(".tr-mgr").forEach(b => TR_IO.observe(b));
 }
 
+/* A phone's swipe rows (cards.js): the pager under each follows the card nearest the left edge. Crossing
+   the phone/desktop line redraws the decided cards, which show all on a phone and shuffle on a desktop. */
+function trSwipes(root){
+  root.addEventListener("scroll", e => {
+    const row = e.target;
+    if (!row.classList?.contains("tr-swipe")) return;
+    const pager = row.parentElement.querySelector(":scope > .tr-pager"), card = row.firstElementChild;   // the pager sits over its row
+    if (!pager || !card) return;
+    const step = card.getBoundingClientRect().width + parseFloat(getComputedStyle(row).columnGap || 0);
+    const n = row.children.length, i = Math.min(n, Math.round(row.scrollLeft / step) + 1);
+    pager.textContent = t("trades.swipe.pos", {i, n});
+  }, true);   // scroll does not bubble; capture sees every row's, including a redrawn one
+  const mq = matchMedia(TR_PHONE);
+  mq.addEventListener?.("change", () => {
+    if (!root.isConnected) return;
+    const sec = root.querySelector(".tr-decided");
+    if (sec) sec.outerHTML = trDecidedBlockHTML();
+  });
+}
+
 function trShuffle(root){
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   // A mouse over the section is read from :hover at each tick (it survives the swap replacing the cards
@@ -27,13 +48,12 @@ function trShuffle(root){
   root.addEventListener("focusin", e => { if (inside(e)) holdUntil = Date.now() + TR_HOLD; });
   const timer = setInterval(() => {
     if (!root.isConnected) return clearInterval(timer);
-    const sec = root.querySelector(".tr-decided"), bar = sec?.querySelector(".tr-shuffle i");
-    if (!bar || TR_ALL) return;
+    const sec = root.querySelector(".tr-decided[data-trrot]");
+    if (!sec || TR_ALL) return;
     const r = sec.getBoundingClientRect();
     const live = !document.hidden && !sec.matches(":hover") && Date.now() > holdUntil && r.top < innerHeight && r.bottom > 0;
     if (!live) return;
     spent += TR_TICK;
-    bar.style.setProperty("--p", Math.min(1, spent / TR_EVERY));
     if (spent < TR_EVERY) return;
     spent = 0;
     TR_ROT += trDecidedShown().n;

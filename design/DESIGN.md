@@ -313,7 +313,17 @@ labels went from 5px to 2px sides (8px clear of the search icon at 360px, measur
   manager's trades all use it.
 - **Alive, with guards** (`alive.js`): the ranking row crossing the middle of a phone screen lights;
   a tapped curse fire flares, its skulls pop in one by one and the card's mist swells; a manager's
-  trades drop in on open; the decided cards shuffle every 10 s (STYLE.md rule 1's dated exception).
+  trades drop in on open; the decided cards shuffle every 10 s on a desktop, with no progress bar
+  (STYLE.md rule 1's dated exception). A curse card wears purple mist around it, off every edge,
+  drifting slowly behind its panel (the second exception), plus a violet mist inside along its bottom
+  that swells on a tap. The first mist, `--hex-1` at .28 inside the card, was invisible on the panel.
+- **Layout, third pass** (2026-09-28, David): the top row is five cards, best, worst and the three
+  heists, each heist headed "Heist #n" then who robbed whom; the ranking pairs with the curses; the
+  decided trades run three across. No luck sentence on best/worst: the strip holds the record, the
+  ranking's line says how sure. A tied trade (0.0 both ways) shows as T and a record as W–L–T.
+- **Phone: swipe rows** (2026-09-28): the top row, the decided cards and the curses each scroll
+  sideways one card wide with the next peeking in, a "1 of 5 · swipe" pager over each; ~4,600px became
+  ~2,400px at 390px. A phone shows every decided card, with no shuffle and no Show all.
 - **The curse mark** (David picked E of five, storyboard v7): the face drained of colour before black
   fire (`--hex-*` tokens), and one skull per trade under it, red lost, hollow amber still open.
 

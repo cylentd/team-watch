@@ -60,25 +60,36 @@ const trBox = (cls, left, right, body, foot = "") => `<article class="tr-bx ${cl
 const trScoreRows = tr => `<table class="tr-sc">${[[tr.win, "tr-w"], [tr.lose, "tr-l"]].map(([s, k]) => `<tr class="${k}">
   <th scope="row">${trName(s.m)}</th><td>${trPlayersHTML(s.got, s.slugs)}${trFlips(s)}</td><td class="tr-n">${trPar(s.tree)}</td></tr>`).join("")}</table>`;
 
-function trHeistsHTML(){
-  const cards = trData().heists.map(trById).map((tr, i) => trBox("", `<b class="tr-rk">${t("trades.heist.rank", {n: i + 1})}</b>`,
-    t("trades.when", {y: tr.season, w: tr.week}), trScoreRows(tr),
-    `<p class="tr-bx-say">${t("trades.heist.head", {a: trName(tr.win.m), b: trName(tr.lose.m), n: trPar(tr.margin)})}</p>
-     <p>${t("trades.heist.after", {a: trName(tr.win.m), ra: tr.win.after, b: trName(tr.lose.m), rb: tr.lose.after})}</p>${trDecidedHTML(tr)}`)).join("");
-  return `<section class="tr-sec tr-heists"><h2 class="tr-hd">${t("trades.heist.title")}<span>${t("trades.heist.sub")}</span></h2>${cards}</section>`;
+/* On a phone the card sections are swipe rows, one card wide with the next peeking in (David, 2026-09-28:
+   "that's a lot to scroll"; ~4,600px became ~2,800px at 390px). The pager over a row says where the reader is
+   (alive.js keeps it current); on a desktop the row is the grid and the pager is hidden. */
+const TR_PHONE = "not all and (min-width: 960px)";   // trades.css's desktop line, negated
+const trPagerHTML = n => n > 1 ? `<p class="tr-pager" aria-hidden="true">${t("trades.swipe.pos", {i: 1, n})}</p>` : "";
+
+/* The heists ride in the top row beside best and worst (trades.js, trTopHTML; David, 2026-09-28: "fit 5
+   cards on the top"), so each says what it is: "Heist #1" in the strip, then who robbed whom as its
+   headline, before the rows. */
+function trHeistCardsHTML(){
+  return trData().heists.map(trById).map((tr, i) => trBox("tr-heist", `<b class="tr-rk">${t("trades.heist.rank", {n: i + 1})}</b>`,
+    t("trades.when", {y: tr.season, w: tr.week}),
+    `<h3 class="tr-bx-hl">${t("trades.heist.head", {a: trName(tr.win.m), b: trName(tr.lose.m), n: trPar(tr.margin)})}</h3>${trScoreRows(tr)}`,
+    `<p>${t("trades.heist.after", {a: trName(tr.win.m), ra: tr.win.after, b: trName(tr.lose.m), rb: tr.lose.after})}</p>${trDecidedHTML(tr)}`)).join("");
 }
 
 /* The title trade stays first; the other slots shuffle through every playoff spot or bye a trade moved,
    a new set every 10 s while the section is on screen and nobody is touching it (wireTrades). David,
    2026-09-28: "make the page feel alive", an exception to STYLE.md's no-timers rule, with its guards.
-   Show all lays every card out and stops the shuffle. */
-const TR_SHOWN = 4;
+   No progress bar: it drew the eye all 10 s (David: "too distracting"); the new cards drop in instead.
+   Two rows of three on a desktop. Show all lays every card out and stops the shuffle. */
+const TR_SHOWN = 6;
 let TR_ALL = false;
 let TR_ROT = 0;   // where the shuffle's window over the non-title cards starts
 
 function trDecidedShown(){
   const ids = trData().decided, title = ids.filter(id => trById(id).decided.some(d => d.k === "title"));
   const rest = ids.filter(id => !title.includes(id)), n = Math.max(0, TR_SHOWN - title.length);
+  // A phone swipes through every card: no shuffle, no Show all.
+  if (matchMedia(TR_PHONE).matches) return {show: [...title, ...rest], rotating: false, n};
   if (TR_ALL || rest.length <= n) return {show: TR_ALL ? ids : [...title, ...rest], rotating: false, n};
   return {show: [...title, ...Array.from({length: n}, (_, k) => rest[(TR_ROT + k) % rest.length])], rotating: true, n};
 }
@@ -95,9 +106,9 @@ function trDecidedBlockHTML(fresh = false){
       `<p>${t("trades.dec.won", {m: trName(tr.win.m), n: trPar(tr.margin)})}</p>${trDecidedHTML(tr)}`)
       .replace("<article", `<article style="--i:${i}"`);
   }).join("");
-  const more = !TR_ALL && ids.length > TR_SHOWN ? `<button type="button" class="tr-more" data-trall>${t("trades.dec.more", {n: ids.length})}</button>` : "";
-  return `<section class="tr-sec tr-decided"><h2 class="tr-hd">${t("trades.dec.block")}<span>${t("trades.dec.sub", {n: ids.length})}</span></h2>
-    ${rotating ? `<div class="tr-shuffle" aria-hidden="true"><i></i></div>` : ""}<div class="tr-grid">${cards}</div>${more}<p class="tr-note">${t("trades.dec.note")}</p></section>`;
+  const more = !TR_ALL && show.length < ids.length ? `<button type="button" class="tr-more" data-trall>${t("trades.dec.more", {n: ids.length})}</button>` : "";
+  return `<section class="tr-sec tr-decided"${rotating ? " data-trrot" : ""}><h2 class="tr-hd">${t("trades.dec.block")}<span>${t("trades.dec.sub", {n: ids.length})}</span></h2>
+    ${trPagerHTML(show.length)}<div class="tr-grid tr-swipe">${cards}</div>${more}<p class="tr-note">${t("trades.dec.note")}</p></section>`;
 }
 
 /* The curse's mark (David chose it from five, 2026-09-28): his face drained of colour in front of black
@@ -141,7 +152,7 @@ function trCursesHTML(){
   const rest = curses.slice(2);
   const faces = (left, right, cs) => trBox("tr-rest", left, right, `<div class="tr-bx-in">${trPlayersHTML(cs.map(c => c.player), cs.map(c => c.slug))}</div>`);
   return `<section class="tr-sec tr-curses"><h2 class="tr-hd">${t("trades.curse.title")}<span>${t("trades.curse.sub")}</span></h2>
-    <div class="tr-grid">${curses.slice(0, 2).map(trCurseHTML).join("")}
-      ${rest.length ? faces(t("trades.curse.also"), rest.length, rest) : ""}${potatoes.length ? faces(t("trades.potato.hd"), t("trades.potato.line"), potatoes) : ""}</div>
-  </section>`;
+    ${trPagerHTML(Math.min(2, curses.length) + (rest.length ? 1 : 0) + (potatoes.length ? 1 : 0))}
+    <div class="tr-grid tr-swipe">${curses.slice(0, 2).map(trCurseHTML).join("")}
+      ${rest.length ? faces(t("trades.curse.also"), rest.length, rest) : ""}${potatoes.length ? faces(t("trades.potato.hd"), t("trades.potato.line"), potatoes) : ""}</div></section>`;
 }

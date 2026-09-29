@@ -47,9 +47,13 @@ information; if it says nothing a still frame does not, cut it.
 
 1. **Nothing moves on its own.** No idle loops, no timers. The one exception is data arriving.
    Exception (David, 2026-09-28): League > Trades shuffles its decided-a-season cards every 10 s,
-   only on screen, paused under a pointer or after a touch, announced by a filling bar, off under
-   reduced motion and after Show all (`surface/trades/alive.js`). Rule 4 still holds: the swap never
-   happens under a hand.
+   only on screen, paused under a pointer or after a touch, off under reduced motion, after Show all
+   and on a phone (which swipes instead) (`surface/trades/alive.js`). Rule 4 still holds: the swap
+   never happens under a hand. The filling bar that announced it is gone (David: "too distracting"),
+   superseded 2026-09-28; the new cards drop in one after another instead.
+   Exception (David, 2026-09-28: "I was imagining mist around the card"): the purple mist around
+   each Trades curse card drifts on an 11 s loop. It sits behind the card's panel, so it moves no
+   text; off under reduced motion.
 2. **A motion ends at the thing's new home.** A pick flies to the tray; a loaded slip's legs drop
    in one by one; a page's cards slide in from the side the page turned.
 3. **The motion is the data change.** A bar grows from the old value to the new one; a percentage

@@ -167,9 +167,10 @@ STATES = [
     # Records' head to head for another manager (its chip), then that manager's first row as the grudge sheet.
     ("records-yahoo-pair", go("records") + [("click", "[data-rcmgr='3']"), ("click", "[data-rcpair] >> nth=0")]),
     # League > Trades (2026-09-28): the page, then Lateef's trades open (a 2026 one still open, a trade
-    # whose tree verdict differs, the seasons it decided) and every "decided a season" card shown.
+    # whose tree verdict differs, the seasons it decided) and every "decided a season" card shown (a
+    # phone swipes through all of them and has no Show all).
     ("trades", go("trades")),
-    ("trades-open", go("trades") + [("click", "[data-trmgr='6']"), ("click", "[data-trall]")]),
+    ("trades-open", go("trades") + [("click", "[data-trmgr='6']"), ("eval", "document.querySelector('[data-trall]')?.click()")]),
     ("myrecap-yahoo", go("myrecap")),
     ("myrecap-yahoo-week1", go("myrecap") + [("click", "[data-lgweek='1']")]),
     # The fixture's week-3 pairings never met, so this seeds three meetings before the view draws.
@@ -665,9 +666,10 @@ def test_league_back_page_fits_one_desktop_screen(browser, page_file):
 
 @pytest.mark.area("trades")
 def test_trades_desktop_rows_end_level(browser, page_file):
-    """League > Trades at 1440px (STYLE.md "Rows, not columns", 2026-09-28): the ranking sits beside the
-    heists and they end within 150px of each other; the long sections take the full width. Two columns
-    by kind left the ranking ending ~1000px above its neighbour. On a phone it is still one strip."""
+    """League > Trades at 1440px (STYLE.md "Rows, not columns", 2026-09-28): five cards on top, the ranking
+    beside the curses (ending within 250px of them), the decided trades full width, three across. Two
+    columns by kind left the ranking ending ~1000px above its neighbour. On a phone it is one strip, its
+    card sections swipe rows."""
     ctx = browser.new_context(viewport={"width": 1440, "height": 900}, reduced_motion="reduce")
     page = ctx.new_page()
     page.set_default_timeout(5000)
@@ -677,10 +679,15 @@ def test_trades_desktop_rows_end_level(browser, page_file):
     try:
         page.goto(page_file.as_uri() + "#trades")
         page.wait_for_function("document.getElementById('view').children.length > 0")
-        rank, heists, dec, body = (page.evaluate(box, q) for q in (".tr-rank", ".tr-heists", ".tr-decided", ".tr-body"))
-        assert heists[0] > rank[0] and abs(heists[1] - rank[1]) < 1, "heists beside the ranking"
-        assert abs(heists[3] - rank[3]) <= 150, f"ranking ends {rank[3]:.0f}, heists {heists[3]:.0f}"
+        rank, curses, dec, body = (page.evaluate(box, q) for q in (".tr-rank", ".tr-curses", ".tr-decided", ".tr-body"))
+        assert curses[0] > rank[0] and abs(curses[1] - rank[1]) < 1, "curses beside the ranking"
+        assert abs(curses[3] - rank[3]) <= 250, f"ranking ends {rank[3]:.0f}, curses {curses[3]:.0f}"
         assert abs(dec[2] - body[2]) < 1, "the decided trades take the full width"
+        # The top row (2026-09-28, David: "fit 5 cards on the top"): best, worst and the three heists on one line.
+        tops = page.evaluate("() => [...document.querySelectorAll('.tr-top-row > *')].map(c => Math.round(c.getBoundingClientRect().top))")
+        assert len(tops) == 5 and len(set(tops)) == 1, f"five cards in the top row: {tops}"
+        cols = page.evaluate("() => new Set([...document.querySelectorAll('.tr-decided .tr-grid > *')].map(c => Math.round(c.getBoundingClientRect().left))).size")
+        assert cols == 3, f"decided cards three across: {cols}"
         # A trade's box score (2026-09-28): the two sides are rows, and their scores share one right-hand
         # column, so the eye compares them straight down; and the players start on one left edge.
         skew = page.evaluate("""() => [...document.querySelectorAll('.tr-sc:not(.tr-chain):not(.tr-io)')].map(t => {
@@ -689,8 +696,17 @@ def test_trades_desktop_rows_end_level(browser, page_file):
             return n.length === 2 && p.length === 2 ? Math.max(Math.abs(n[0] - n[1]), Math.abs(p[0] - p[1])) : 99; })""")
         assert skew and max(skew) < 1, f"a box score's columns are out of line by {max(skew):.0f}px"
         page.set_viewport_size({"width": 360, "height": 740})
-        lefts = {round(page.evaluate(box, q)[0]) for q in (".tr-rank", ".tr-heists", ".tr-decided", ".tr-curses")}
+        lefts = {round(page.evaluate(box, q)[0]) for q in (".tr-rank", ".tr-top", ".tr-decided", ".tr-curses")}
         assert len(lefts) == 1, f"one strip on a phone: {lefts}"
+        # On a phone the card sections swipe sideways, one card wide (2026-09-28: ~4,600px became ~2,800px),
+        # inside rows of their own: the page itself never scrolls sideways, and no card clips its content.
+        phone = page.evaluate("""() => ({page: document.documentElement.scrollWidth, vw: innerWidth,
+            rows: [...document.querySelectorAll('.tr-swipe')].map(r => r.scrollWidth > r.clientWidth),
+            clipped: [...document.querySelectorAll('.tr-swipe > .tr-bx')].filter(c => [...c.querySelectorAll('*')]
+              .some(e => e.getBoundingClientRect().right > c.getBoundingClientRect().right + 0.5)).length})""")
+        assert phone["page"] == phone["vw"], f"the page scrolls sideways: {phone['page']} > {phone['vw']}"
+        assert phone["rows"] and all(phone["rows"]), f"every card section swipes: {phone['rows']}"
+        assert phone["clipped"] == 0, f"{phone['clipped']} cards clip their content"
     finally:
         ctx.close()
 

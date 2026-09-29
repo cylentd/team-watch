@@ -1,0 +1,77 @@
+/* League > Trades: the curses (split from trades.css 2026-09-28, its 250-line budget). The mark, the
+   box score of each trade of him, the faces boxes, and the haunt: purple mist around each card. */
+/* curses: the mark and its name, then each trade of him a row, the sender's loss in the right column */
+.tr-curse .tr-bx-t svg{color:var(--hex-rim)}
+.tr-curse-top{display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;align-items:center;padding:12px 12px 8px}
+.tr-curse h3{margin:0;font-family:var(--disp);font-size:var(--t-4);font-weight:800;color:var(--gold-2)}
+.tr-curse p{margin:0;font-size:var(--t-2);line-height:1.4;color:var(--ink-2)}
+.tr-chain{border-top:1px solid var(--line)}
+.tr-chain th,.tr-chain td{padding:8px 12px}
+.tr-chain .tr-y{width:1%;font-family:var(--mono);font-size:var(--t-2);color:var(--ink-3)}
+.tr-chain th{width:auto}
+.tr-chain .tr-n{font-size:var(--t-3)}
+/* the mark: his face drained of colour in front of black fire, one skull per trade under it. The fire
+   rises ~17px above its box, so the mark starts that far down. */
+.tr-mark{display:grid;justify-items:center;gap:4px;padding-top:18px}
+.tr-fire{position:relative;width:96px;height:96px;display:grid;place-items:center}
+.tr-fire svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.tr-fire .s1{stop-color:var(--hex-1)}
+.tr-fire .s2{stop-color:var(--hex-2)}
+.tr-fire .s3{stop-color:var(--hex-3)}
+.tr-fire .rim{stroke:var(--hex-rim);stroke-width:.9;stroke-linejoin:round}
+.tr-fire .mid{fill:var(--hex-mid)}
+.tr-fire .core{fill:var(--hex-core)}
+.tr-fire .tr-face{width:64px;height:64px;border:0}
+.tr-fire img{filter:grayscale(1) brightness(.85) contrast(1.15)}
+.tr-fire .tr-face::after{content:"";position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle,transparent 52%,rgb(var(--shadow-rgb) / .75) 100%)}
+.tr-skulls{display:flex;gap:4px}
+.tr-skull{width:18px;height:18px;color:var(--down)}
+.tr-skull.live{color:var(--amber)}
+.tr-skull .bone{fill:currentColor;stroke:currentColor;stroke-width:1.3}
+.tr-skull .eye{fill:var(--void)}
+.tr-skull .teeth{fill:none;stroke:var(--void);stroke-width:1}
+.tr-skull.live .bone{fill:none}
+.tr-skull.live .eye{fill:currentColor}
+.tr-skull.live .teeth{stroke:currentColor}
+.tr-rest .tr-face{width:28px;height:28px}
+.tr-rest img{filter:grayscale(1)}
+.tr-rest .tr-pls b{font-size:var(--t-2);color:var(--ink-2)}
+.tr-rest .tr-bx-hd > span:last-child{text-transform:none;letter-spacing:0;font-family:var(--ui);font-weight:500}
+
+.tr-mark{all:unset;box-sizing:border-box;cursor:pointer;border-radius:12px}
+.tr-mark:focus-visible{outline:2px solid var(--hex-rim);outline-offset:2px}
+/* The curse card haunts: purple mist around it, off every edge, drifting slowly (David, 2026-09-28: "I
+   was imagining mist around the card"; "purple mist is creepy"), and a mist banked inside along its
+   bottom, behind the rows so they stay ink on dark. The outer mist is behind the card's own panel, so
+   it never crosses a word; the inner one swells when the fire is tapped. The card lets its mist out
+   (overflow visible), so its strip rounds its own corners. */
+.tr-curse{position:relative;overflow:visible;border-color:rgb(var(--hex-rim-rgb) / .5)}
+.tr-curse > *{position:relative;z-index:1}
+.tr-curse .tr-bx-hd{border-radius:11px 11px 0 0;background:rgb(var(--hex-2-rgb) / .7);border-bottom-color:rgb(var(--hex-rim-rgb) / .25)}
+.tr-curse::before{content:"";position:absolute;z-index:-1;inset:-26px -22px;pointer-events:none;filter:blur(14px);
+  background:radial-gradient(34% 30% at 8% 88%,rgb(var(--hex-rim-rgb) / .5),transparent 70%),
+             radial-gradient(30% 34% at 94% 70%,rgb(var(--hex-rim-rgb) / .42),transparent 70%),
+             radial-gradient(40% 28% at 60% 100%,rgb(var(--hex-1-rgb) / .95),transparent 72%),
+             radial-gradient(36% 26% at 30% 2%,rgb(var(--hex-1-rgb) / .8),transparent 72%),
+             radial-gradient(28% 30% at 88% 8%,rgb(var(--hex-rim-rgb) / .22),transparent 70%)}
+.tr-curses{isolation:isolate}   /* the mist's -1 stays above the page's own backgrounds */
+.tr-curses .tr-grid{row-gap:30px}   /* room for each card's mist */
+/* a phone's swipe row clips at its edges; padding gives the mist room without moving the cards */
+.tr-curses .tr-swipe{padding-block:26px;margin-block:-26px}
+.tr-curse::after{content:"";position:absolute;z-index:0;inset:auto 0 0;height:75%;pointer-events:none;transform-origin:bottom;border-radius:0 0 11px 11px;
+  background:radial-gradient(70% 60% at 15% 100%,rgb(var(--hex-rim-rgb) / .22),transparent 70%),
+             radial-gradient(60% 55% at 85% 100%,rgb(var(--hex-1-rgb) / .7),transparent 72%),
+             linear-gradient(to top,rgb(var(--hex-1-rgb) / .45),transparent 55%)}
+@media (prefers-reduced-motion:no-preference){
+  .tr-mark.stir .tr-fire svg{animation:tr-flare .6s var(--ease)}
+  .tr-mark.stir .tr-skull{animation:tr-pop var(--dur-spring) var(--spring) both;animation-delay:calc(var(--i) * 110ms)}
+  .tr-curse:has(.tr-mark.stir)::after{animation:tr-mist 1.4s var(--ease)}
+  /* STYLE.md rule 1's second dated exception: the mist drifts on its own, slowly, and moves no text */
+  .tr-curse::before{animation:tr-haunt 11s ease-in-out infinite alternate}
+  .tr-curse + .tr-curse::before{animation-delay:-5s}
+}
+@keyframes tr-haunt{50%{transform:translate(8px,-6px) scale(1.04);opacity:.8}100%{transform:translate(-6px,4px) scale(.98);opacity:1}}
+@keyframes tr-flare{40%{transform:scale(1.1);filter:brightness(1.6)}}
+@keyframes tr-pop{from{transform:scale(0)}60%{transform:scale(1.25)}}
+@keyframes tr-mist{35%{transform:scaleY(1.35);filter:brightness(1.5)}}
