@@ -13,7 +13,20 @@ function muSectionHTML(title, rows, empty, key){
   return `<h3 class="mu-grp">${title}${key ? `<span>${t("matchups.calls.cols")}</span>` : ""}</h3>${body}`;
 }
 
+/* No takes at all: Blip says why, and when that changes (2026-09-29, David: "ask Blip the mascot
+   since we have no Takes"). Two reasons, told apart by the data: the experts have not ranked this
+   week yet (every Tuesday, until Wednesday's 8 AM fetch and the 2:30 PM refresh), or they have and
+   we agree with them on every starter. */
+function muBlipHTML(){
+  const d = LIVE_STARTSIT, early = d.experts_week != null && d.experts_week < d.week;
+  const say = early ? t("matchups.blip.early", {week: d.week}) : t("matchups.blip.agree");
+  const when = early ? t("matchups.blip.earlyWhen") : t("matchups.blip.agreeWhen");
+  return `<section class="mu-list"><div class="mu-blip">${blipSVG(t("matchups.blip.name"), early ? "bored" : "awake")}
+    <div><q>${say}</q><p>${when}</p></div></div></section>`;
+}
+
 function muOursHTML(){
+  if (!LIVE_STARTSIT.calls.length) return muBlipHTML();
   return `<section class="mu-list">
     ${muSectionHTML(t("matchups.calls.higher"), muCalls("start"), t("matchups.calls.emptyHigher"), true)}
     ${muSectionHTML(t("matchups.calls.lower"), muCalls("sit"), t("matchups.calls.emptyLower"), false)}

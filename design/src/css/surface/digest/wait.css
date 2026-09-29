@@ -1,7 +1,7 @@
 /* ============================== DIGEST: THE WAIT ==============================
    The card that stands in for the week's preview rows once every game has kicked off (wait.js):
    Blip and one line per section. A card like Tonight's on a phone, a wall panel on a desktop
-   (wall.css places it). Blip is drawn from these classes, so it takes the tokens. */
+   (wall.css places it). Blip himself is drawn by component/blip.css. */
 .dg-wait{margin:12px 10px;padding:16px 16px 14px;border:1px solid var(--line);border-radius:16px;background:var(--panel);
   display:grid;gap:14px}
 .dg-wait-h{margin:0;font-size:var(--t-1);font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
@@ -12,18 +12,6 @@
 .dg-wait-l li{display:grid;grid-template-columns:86px minmax(0,1fr);gap:10px;align-items:baseline;
   padding:9px 0;border-top:1px solid var(--line);font-size:var(--t-2);line-height:1.45;color:var(--ink-2)}
 .dg-wait-l b{font-size:var(--t-1);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
-
-/* Blip: a case, a screen, lime eyes and mouth, legs. */
-.blip-ink{fill:none;stroke:var(--ink);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-.blip-bulb,.blip-eye{fill:var(--lime)}
-.blip-case{fill:var(--panel-3);stroke:var(--ink);stroke-width:2.5}
-.blip-screen{fill:var(--void)}
-.blip-mouth{fill:none;stroke:var(--lime);stroke-width:3;stroke-linecap:round}
-/* Asleep (blip.js): shut eyes, a dimmed mouth, a z or two. */
-.blip-mouth.dim{opacity:.6}
-.blip-z{font:700 16px var(--mono);fill:var(--ink-3)}
-.blip-z.sm{font:700 11px var(--mono)}
-.blip{overflow:visible}
 
 @media (min-width:1100px){
   .dg-wait{grid-area:wait;margin:0;padding:20px 22px 18px;align-content:start;gap:18px}

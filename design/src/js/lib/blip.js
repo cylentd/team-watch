@@ -6,12 +6,15 @@
    Drawn in code, from classes (wait.css), so it takes the tokens like everything else. A sketch:
    public-launch art would replace these shapes and keep the classes. Still, no idle motion.
 
-   Poses: awake (the wait card) and "asleep", eyes shut and a z or two, for a Digest row with
-   nothing new (the empty Starters row, 2026-09-29). No label = decoration, when the words beside
-   it already name him. */
+   Poses: awake (the wait card), "asleep", eyes shut and a z or two, for a Digest row with
+   nothing new (the empty Starters row, 2026-09-29), and "bored", eyes rolled up to the corner and a
+   flat mouth, for Takes with no experts to argue with yet (2026-09-29). No label = decoration,
+   when the words beside it already name him. Shared by every view since then (lib/, not digest/). */
 const BLIP_FACE = {
   awake: `<circle class="blip-eye" cx="47" cy="52" r="5"/><circle class="blip-eye" cx="73" cy="52" r="5"/>
     <path class="blip-mouth" d="M50 64q10 6 20 0"/>`,
+  bored: `<circle class="blip-eye" cx="51" cy="46" r="4"/><circle class="blip-eye" cx="77" cy="46" r="4"/>
+    <path class="blip-mouth" d="M49 64h22"/>`,
   asleep: `<path class="blip-mouth" d="M40 52h13M67 52h13"/><path class="blip-mouth dim" d="M54 64h12"/>
     <text class="blip-z" x="90" y="16">z</text><text class="blip-z sm" x="102" y="6">z</text>`,
 };

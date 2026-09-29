@@ -2,6 +2,7 @@
  "generated": "2026-09-25 21:00",
  "season": 2026,
  "week": 3,
+ "inputs": {"expert_week": 3, "expert_fetched": "2026-09-23 08:00"},
  "positions": {
   "QB": {"best": null, "start": [
     {"key": "brock purdy", "name": "Brock Purdy", "gap_n": 1.67, "pos": "QB", "team": "SF", "opp": "ARI", "game": "SF @ ARI", "kickoff": "2026-09-27 20:25:00", "pts": 16.2, "rank": 19, "ecr": 24, "own": 61.0, "why": [], "but": [["tot", -1, "Team total 20.5, 19th of 26"]]}

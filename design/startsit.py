@@ -56,7 +56,10 @@ def live_startsit(calls, pl, grade, slugify):
         rows += [_call(r, "start", slugify) for r in d.get("start") or []]
         rows += [_call(r, "sit", slugify) for r in d.get("sit") or []]
     same_week = pl and pl.get("week") == calls["week"]
-    return {"week": calls["week"], "generated": calls.get("generated"), "calls": rows,
+    # The week of the FantasyPros ranks the calls were measured against. Behind `week` (Tuesday,
+    # before Wednesday's 8 AM fetch) there is nobody to disagree with, and the view says so.
+    experts = (calls.get("inputs") or {}).get("expert_week")
+    return {"week": calls["week"], "experts_week": experts, "generated": calls.get("generated"), "calls": rows,
             "pl": [_pl(c, slugify) for c in pl["calls"]] if same_week else [],
             "article": pl.get("article") if same_week else None, "record": _record(grade)}
 

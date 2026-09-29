@@ -274,6 +274,10 @@ STATES = [
                                          ("click", ".mu-call[data-open] [data-muslug]")]),
     ("matchups-empty", [("eval", "Object.assign(LIVE_STARTSIT, {calls: [], pl: [], article: null, record: null})")]
                        + go("matchups")),
+    # No takes on a Tuesday: the experts have not ranked the week yet, and Blip (bored) says when
+    # they will (2026-09-29). matchups-empty above is the other reason: the experts are in, we agree.
+    ("matchups-early", [("eval", "Object.assign(LIVE_STARTSIT, {calls: [], experts_week: LIVE_STARTSIT.week - 1})")]
+                       + go("matchups")),
     ("usage", go("usage")),
     ("usage-panel", go("usage") + [("click", "[data-upanel]")]),
     ("usage-change", go("usage") + [("click", "[data-upanel]"), ("click", "[data-umode='change']")]),

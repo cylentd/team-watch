@@ -1,0 +1,13 @@
+/* Blip, the page's mascot (lib/blip.js), drawn from these classes so it takes the tokens: a case,
+   a screen, lime eyes and mouth, legs. Shared since 2026-09-29, when Takes' empty state joined the
+   Digest's wait card and Starters row; the Digest's wait.css keeps only its own placement. */
+.blip-ink{fill:none;stroke:var(--ink);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.blip-bulb,.blip-eye{fill:var(--lime)}
+.blip-case{fill:var(--panel-3);stroke:var(--ink);stroke-width:2.5}
+.blip-screen{fill:var(--void)}
+.blip-mouth{fill:none;stroke:var(--lime);stroke-width:3;stroke-linecap:round}
+/* Asleep: shut eyes, a dimmed mouth, a z or two. */
+.blip-mouth.dim{opacity:.6}
+.blip-z{font:700 16px var(--mono);fill:var(--ink-3)}
+.blip-z.sm{font:700 11px var(--mono)}
+.blip{overflow:visible}

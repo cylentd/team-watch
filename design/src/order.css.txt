@@ -34,6 +34,7 @@ surface/teams/rail.css
 # pin: wdesk.css after wcard/wback/rail/wire -- it overrides their phone rules at equal specificity.
 surface/teams/wdesk.css
 component/empty.css
+component/blip.css
 chrome/drawer.css
 chrome/modal.css
 surface/profile/panel.css

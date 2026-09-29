@@ -295,7 +295,7 @@ CONTRACT = {
     # `gap` may be null (`gap` on calls written before 2026-09-29). `record` is null until a week is
     # graded; `pl` is empty when Pitcher List's column is not this week's, and `article` null with it.
     "LIVE_STARTSIT": {
-        "keys": ["week", "generated", "calls", "pl", "article", "record"],
+        "keys": ["week", "experts_week", "generated", "calls", "pl", "article", "record"],
         "rows": [("calls", ["tag", "n", "slug", "pos", "team", "opp", "home", "pts", "rank", "ecr", "own",
                             "gap", "why", "but"]),
                  ("pl", ["call", "pos", "n", "slug", "team", "opp", "home", "rationale"])],

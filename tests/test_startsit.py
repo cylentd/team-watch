@@ -50,6 +50,19 @@ def test_last_weeks_pitcher_list_column_is_dropped():
     assert b["pl"] == [] and b["article"] is None
 
 
+def test_experts_week_rides_along_so_the_page_can_tell_early_from_agreed():
+    """Tuesday the calls are next week's and the expert ranks last week's: no takes because nobody
+    has ranked yet, which Blip says differently from 'we agree with the experts' (2026-09-29)."""
+    b = _block()
+    assert (b["week"], b["experts_week"]) == (3, 3)
+    calls, pl, grade = load_startsit()
+    early = json.loads(json.dumps(calls))
+    early["inputs"]["expert_week"] = 2
+    assert live_startsit(early, pl, grade, slugify)["experts_week"] == 2
+    early.pop("inputs")
+    assert live_startsit(early, pl, grade, slugify)["experts_week"] is None
+
+
 def test_no_calls_file_is_no_block():
     assert live_startsit(None, None, None, slugify) is None
     contract.validate("LIVE_STARTSIT", None)
