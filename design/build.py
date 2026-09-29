@@ -11,8 +11,9 @@ import os
 import pathlib
 import re
 import sys
+from urllib.parse import quote
 
-import contract                 # design/contract.py: the shape each LIVE_* block must have
+import contract                # design/contract.py: the shape each LIVE_* block must have
 import pbp                      # design/pbp.py: nflverse play-by-play -> games/<id>.json
 import lint_css                 # design/lint_css.py: theme rules; an error fails the build
 from assemble import assemble   # design/assemble.py: design/src/** -> the page template
@@ -661,11 +662,8 @@ def document_head():
     phone browser's own bar (theme-color) both come from here."""
     void = re.search(r"--void:(#[0-9a-fA-F]{6});",
                      (ROOT / "src" / "css" / "base" / "tokens.css").read_text(encoding="utf-8")).group(1)
-    favicon = (
-        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E"
-        f"%3Crect width='32' height='32' fill='%23{void[1:]}'/%3E"
-        "%3Crect x='11' y='6' width='10' height='20' fill='%23c8ff2e'/%3E%3C/svg%3E"
-    )
+    # Smug Blip (2026-09-29), cut from lib/blip.js by design/icons.py. Inlined, so file:// has it too.
+    favicon = "data:image/svg+xml," + quote((REPO / "icons" / "favicon.svg").read_text(encoding="utf-8").strip())
     return "\n".join([
         "<!doctype html>",
         '<html lang="en">',
@@ -673,7 +671,8 @@ def document_head():
         '<meta charset="utf-8">',
         '<meta name="viewport" content="width=device-width, initial-scale=1">',
         '<meta name="description" content="Team Watch - roster console for two fantasy football teams.">',
-        f'<link rel="icon" href="{favicon}">',
+        f'<link rel="icon" type="image/svg+xml" href="{favicon}">',
+        '<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">',
         f'<meta name="theme-color" content="{void}">',
         f"<style>html{{background:{void};color-scheme:dark}}body{{margin:0}}"
         "img{max-width:100%}[hidden]{display:none!important}</style>",

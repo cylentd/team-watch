@@ -11,3 +11,9 @@
 .blip-z{font:700 16px var(--mono);fill:var(--ink-3)}
 .blip-z.sm{font:700 11px var(--mono)}
 .blip{overflow:visible}
+/* Smug, the logo mark (2026-09-29): the screen lit lime, the face drawn in the page ground. */
+.blip.smug .blip-screen{fill:var(--lime)}
+.blip.smug .blip-eye{fill:var(--void)}
+.blip.smug .blip-mouth{stroke:var(--void);stroke-width:4.8}
+.blip.smug-16 .blip-mouth{stroke-width:8}
+.blip-ground{fill:var(--void)}

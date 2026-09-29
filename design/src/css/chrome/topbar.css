@@ -1,12 +1,14 @@
 /* ============================== BAR: BRAND, PILLS, DISCORD ============================== */
 /* The brand row went on 2026-09-25: brand, groups and tools share one bar (nav.css). This file
    keeps what the brand row carried -- the mark, the pills and the Discord link. */
-.brand{display:flex;align-items:center;gap:9px;flex-shrink:0;margin-right:14px}
-.brand-mark{width:9px;height:19px;background:var(--lime)}
-/* The mark stands still (2026-09-25, STYLE.md motion rule 1), and lost its glow the same day:
-   the lime block already says "brand", and the halo said it again. */
+.brand{display:flex;align-items:center;gap:.36em;flex-shrink:0;margin-right:14px;font-size:var(--t-brand)}
+/* The mark is Smug Blip since 2026-09-29 (per David; lib/blip.js pose "smug", painted by
+   paintBrand), sized off the wordmark beside it: its head about the caps, the // antenna above.
+   The lime block before it said only "brand". The mark stands still (STYLE.md motion rule 1). */
+.brand-mark{display:block;flex:none;width:1.38em;height:1.38em;position:relative;top:-.16em}
+.brand-mark .blip{display:block;width:100%;height:100%}
 .brand-name{
-  font-family:var(--disp); font-weight:800; font-size:var(--t-3);
+  font-family:var(--disp); font-weight:800; font-size:var(--t-brand);
   letter-spacing:-.02em; text-transform:uppercase; white-space:nowrap;
 }
 .brand-name i{color:var(--lime);font-style:normal}

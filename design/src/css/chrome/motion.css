@@ -4,13 +4,14 @@
 /* An emoji in a team name renders taller than text; a fixed line keeps the switch the same height. */
 .teamswitch .ts-team{display:inline-block;height:1.3em;line-height:1.3em}
 
-/* The // in TEAM//WATCH: two lime bars that cross into an X and back on a tab switch. */
-.brand-name .slashes{display:inline-flex;align-items:center;gap:3px;margin:0 3px;height:.8em;vertical-align:-.04em}
-.brand-name .slashes b{display:block;width:2.5px;height:100%;background:var(--lime);transform:rotate(22deg)}
+/* The // in TEAM//WATCH: two lime bars that cross into an X and back on a tab switch. In em since
+   2026-09-29, so the bars keep their weight as the wordmark grew from 15px to 22px. */
+.brand-name .slashes{display:inline-flex;align-items:center;gap:.2em;margin:0 .2em;height:.8em;vertical-align:-.04em}
+.brand-name .slashes b{display:block;width:.167em;height:100%;background:var(--lime);transform:rotate(22deg)}
 .slashes.morph b:first-child{animation:slash-a .72s var(--ease) both}
 .slashes.morph b:last-child{animation:slash-b .72s var(--ease) both}
-@keyframes slash-a{0%,100%{transform:rotate(22deg)}40%,62%{transform:translateX(2.75px) rotate(45deg)}}
-@keyframes slash-b{0%,100%{transform:rotate(22deg)}40%,62%{transform:translateX(-2.75px) rotate(-45deg)}}
+@keyframes slash-a{0%,100%{transform:rotate(22deg)}40%,62%{transform:translateX(.183em) rotate(45deg)}}
+@keyframes slash-b{0%,100%{transform:rotate(22deg)}40%,62%{transform:translateX(-.183em) rotate(-45deg)}}
 
 /* A football across the hero on a team switch: a spiral, a slight arc, a fading streak. */
 .zip{position:absolute;left:0;top:44%;z-index:2;pointer-events:none;

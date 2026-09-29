@@ -130,7 +130,16 @@ function navGo(leaf, fromHash){
   if (typeof freshCheck === "function") freshCheck();
 }
 
+/* The mark before TEAM//WATCH is Smug Blip (2026-09-29, per David), the one drawing in lib/blip.js.
+   The shell is static markup and the drawing lives in JS, so it is painted here, once. Decoration:
+   the wordmark beside it carries the name. */
+function paintBrand(){
+  const m = document.querySelector(".navbar .brand-mark");
+  if (m) m.innerHTML = blipSVG("", "smug");
+}
+
 function buildNav(){
+  paintBrand();
   const n = document.getElementById("nav");
   // Two labels per group, same pattern as the topbar pills' full/abbr swap: four fit a phone
   // where seven did not, but "Gameday" still needs a short form at 430px ("Players" is its own).

@@ -1287,6 +1287,14 @@ teammates, averages and the defense stay grey.
 Type: Bricolage Grotesque (display), Archivo (UI),
 JetBrains Mono (all numerals).
 
+Mark (2026-09-29, per David: "Let's just keep the original [wordmark]... Let's just add the smug
+blip"): the lime block before TEAM//WATCH is Smug Blip, `lib/blip.js` pose "smug" (lit lime screen,
+half-lidded eyes, one brow up at the slash angle, a sideways smirk, the wordmark's // leaning forward
+as its antenna), 1.38em square beside the wordmark, still at rest. The wordmark is unchanged in
+design and grew from 15px to `--t-brand` (22px), so it leads the 18px tabs. The favicon (pose
+"smug-16": no antenna or brow) and the 180px apple-touch icon (pose "smug-app") are cut from the same
+drawing by `design/icons.py` into `icons/`; the connect sheet carries the same brand at 18px.
+
 ### Cards: Material Design's rule (decided 2026-09-28)
 
 Every view follows Material Design 3's guidance on containers. A card holds content and actions

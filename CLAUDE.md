@@ -19,6 +19,7 @@ Every new or changed view passes `design/STYLE.md` (controls, layout, motion) be
 | `design/assemble.py` | joins the parts into the template string; `--check` fails on an unlisted or missing part |
 | `design/build.py` | inlines live data into the assembled template, writes both outputs, copies headshots to `heads/` |
 | `heads/` | **generated** — every ff-jarvis headshot, `<slug>.webp` (96px); the page names them by path (since 2026-09-24). `heads/lg/` holds the 256px ones ff-jarvis cuts for its board players (~230); the trading cards use those (since 2026-09-25) |
+| `icons/` | **generated**, committed — the favicon and apple-touch icon, cut from Smug Blip (`lib/blip.js`) by `python design/icons.py`; rerun it after a change to the smug poses or the colour tokens (since 2026-09-29) |
 | `index.html` | **generated** — full document, what Vercel serves |
 | `design/index.html` | **generated** — fragment, what the Artifact publisher takes |
 

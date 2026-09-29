@@ -143,3 +143,16 @@ def test_lint_error_fails_the_build(monkeypatch):
     monkeypatch.setattr(lint_css, "lint", lambda: [lint_css.Finding("breakpoint", "error", "x.css", 1, "500px")])
     with pytest.raises(SystemExit, match="lint: x.css:1 breakpoint 500px"):
         build.render()
+
+
+def test_site_icon_is_smug_blip(built):
+    """The favicon is Smug Blip (2026-09-29), cut from lib/blip.js by design/icons.py and inlined;
+    the apple-touch icon is its 180px PNG, a file the page names by path, as served."""
+    from urllib.parse import quote, unquote
+    svg = (build.REPO / "icons" / "favicon.svg").read_text(encoding="utf-8").strip()
+    m = re.search(r'<link rel="icon" type="image/svg\+xml" href="data:image/svg\+xml,([^"]+)">', built.page)
+    assert m and m.group(1) == quote(svg), "the favicon link is not icons/favicon.svg"
+    assert 'fill="#c8ff2e"' in unquote(m.group(1))       # the lit lime screen, not the old block
+    assert '<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">' in built.page
+    png = (build.REPO / "icons" / "apple-touch-icon.png").read_bytes()
+    assert png[1:4] == b"PNG" and png[16:24] == (180).to_bytes(4, "big") * 2   # a 180x180 PNG

@@ -278,6 +278,7 @@
   --t-5:24px;    /* lead numbers, the matchup line, section titles */
   --t-6:34px;    /* hero numbers */
   --t-7:40px;    /* a player's name */
+  --t-brand:22px;  /* the TEAM//WATCH wordmark in the nav bar, one step over its 18px tabs (2026-09-29) */
   --t-lead:clamp(56px,15vw,84px);     /* the Board's #1 number, its one headline */
   --t-hero:clamp(38px,6.4vw,80px);    /* the hero headline, fluid with the viewport */
   --t-hero-sm:clamp(30px,8.6vw,80px); /* the same at phone width */
@@ -338,12 +339,14 @@ html{scrollbar-color:var(--line-2) var(--void)}
 /* ============================== BAR: BRAND, PILLS, DISCORD ============================== */
 /* The brand row went on 2026-09-25: brand, groups and tools share one bar (nav.css). This file
    keeps what the brand row carried -- the mark, the pills and the Discord link. */
-.brand{display:flex;align-items:center;gap:9px;flex-shrink:0;margin-right:14px}
-.brand-mark{width:9px;height:19px;background:var(--lime)}
-/* The mark stands still (2026-09-25, STYLE.md motion rule 1), and lost its glow the same day:
-   the lime block already says "brand", and the halo said it again. */
+.brand{display:flex;align-items:center;gap:.36em;flex-shrink:0;margin-right:14px;font-size:var(--t-brand)}
+/* The mark is Smug Blip since 2026-09-29 (per David; lib/blip.js pose "smug", painted by
+   paintBrand), sized off the wordmark beside it: its head about the caps, the // antenna above.
+   The lime block before it said only "brand". The mark stands still (STYLE.md motion rule 1). */
+.brand-mark{display:block;flex:none;width:1.38em;height:1.38em;position:relative;top:-.16em}
+.brand-mark .blip{display:block;width:100%;height:100%}
 .brand-name{
-  font-family:var(--disp); font-weight:800; font-size:var(--t-3);
+  font-family:var(--disp); font-weight:800; font-size:var(--t-brand);
   letter-spacing:-.02em; text-transform:uppercase; white-space:nowrap;
 }
 .brand-name i{color:var(--lime);font-style:normal}
@@ -532,13 +535,14 @@ html{scrollbar-color:var(--line-2) var(--void)}
 /* An emoji in a team name renders taller than text; a fixed line keeps the switch the same height. */
 .teamswitch .ts-team{display:inline-block;height:1.3em;line-height:1.3em}
 
-/* The // in TEAM//WATCH: two lime bars that cross into an X and back on a tab switch. */
-.brand-name .slashes{display:inline-flex;align-items:center;gap:3px;margin:0 3px;height:.8em;vertical-align:-.04em}
-.brand-name .slashes b{display:block;width:2.5px;height:100%;background:var(--lime);transform:rotate(22deg)}
+/* The // in TEAM//WATCH: two lime bars that cross into an X and back on a tab switch. In em since
+   2026-09-29, so the bars keep their weight as the wordmark grew from 15px to 22px. */
+.brand-name .slashes{display:inline-flex;align-items:center;gap:.2em;margin:0 .2em;height:.8em;vertical-align:-.04em}
+.brand-name .slashes b{display:block;width:.167em;height:100%;background:var(--lime);transform:rotate(22deg)}
 .slashes.morph b:first-child{animation:slash-a .72s var(--ease) both}
 .slashes.morph b:last-child{animation:slash-b .72s var(--ease) both}
-@keyframes slash-a{0%,100%{transform:rotate(22deg)}40%,62%{transform:translateX(2.75px) rotate(45deg)}}
-@keyframes slash-b{0%,100%{transform:rotate(22deg)}40%,62%{transform:translateX(-2.75px) rotate(-45deg)}}
+@keyframes slash-a{0%,100%{transform:rotate(22deg)}40%,62%{transform:translateX(.183em) rotate(45deg)}}
+@keyframes slash-b{0%,100%{transform:rotate(22deg)}40%,62%{transform:translateX(-.183em) rotate(-45deg)}}
 
 /* A football across the hero on a team switch: a spiral, a slight arc, a fading streak. */
 .zip{position:absolute;left:0;top:44%;z-index:2;pointer-events:none;
@@ -1789,6 +1793,12 @@ body.pk-open{overflow:hidden}
 .blip-z{font:700 16px var(--mono);fill:var(--ink-3)}
 .blip-z.sm{font:700 11px var(--mono)}
 .blip{overflow:visible}
+/* Smug, the logo mark (2026-09-29): the screen lit lime, the face drawn in the page ground. */
+.blip.smug .blip-screen{fill:var(--lime)}
+.blip.smug .blip-eye{fill:var(--void)}
+.blip.smug .blip-mouth{stroke:var(--void);stroke-width:4.8}
+.blip.smug-16 .blip-mouth{stroke-width:8}
+.blip-ground{fill:var(--void)}
 /* ── css/chrome/drawer.css ── */
 /* ============================== DRAWER ============================== */
 .scrim{position:fixed;inset:0;background:rgba(4,4,6,.62);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .35s var(--ease);z-index:50}
@@ -2719,10 +2729,13 @@ button.pf-tm:focus-visible:where(#modal, #modal *){outline:2px solid var(--lime)
   border-bottom:1px solid var(--line);background:var(--void);
 }
 .navrow{display:flex;align-items:center;gap:6px;height:56px}
-.nav{display:flex;align-self:stretch;min-width:0;gap:4px}
+/* The groups' side padding eases from 12px at 1280 to 7px at 1100 (the narrow desktop below takes
+   8px), so the row still fits beside the 22px wordmark (2026-09-29: 34px of overlap at 1100 with a
+   fixed 12px, 5px with an 8px floor). */
+.nav{display:flex;align-self:stretch;min-width:0;gap:4px;--nav-pad:clamp(7px,calc(2.78vw - 23.56px),12px)}
 .navitem{
   position:relative;appearance:none;background:none;cursor:pointer;border:0;
-  padding:0 12px;display:flex;align-items:center;gap:10px;color:var(--ink-3);
+  padding:0 var(--nav-pad,12px);display:flex;align-items:center;gap:10px;color:var(--ink-3);
   font-family:var(--disp);font-weight:700;font-size:var(--t-4);letter-spacing:-.01em;white-space:nowrap;
   transition:color .2s var(--ease);
 }
@@ -2731,7 +2744,7 @@ button.pf-tm:focus-visible:where(#modal, #modal *){outline:2px solid var(--lime)
 .navitem .ix{display:none}
 .navitem:hover{color:var(--ink-2)}
 .navitem[aria-current="true"]{color:var(--ink)}
-.navitem[aria-current="true"]::after{content:"";position:absolute;left:12px;right:12px;bottom:-1px;height:2px;background:var(--lime)}
+.navitem[aria-current="true"]::after{content:"";position:absolute;left:var(--nav-pad,12px);right:var(--nav-pad,12px);bottom:-1px;height:2px;background:var(--lime)}
 .navitem:active{transform:scale(var(--press))}
 
 /* ---- a narrow desktop: the row gives up width before the groups do ---- */
@@ -2883,7 +2896,8 @@ body:has(.connect:not([hidden])){overflow:hidden}
   box-shadow:0 40px 80px rgb(var(--shadow-rgb) / .55);animation:search-in .22s var(--ease);
 }
 .cn-top{display:flex;align-items:center;justify-content:space-between}
-.cn-top .brand-name{font-size:var(--t-4)}
+/* The brand as in the nav bar (Smug Blip and the wordmark), one step down: a phone hides the bar's. */
+.cn-top .brand,.cn-top .brand-name{font-size:var(--t-4)}
 .cn-close{appearance:none;background:none;border:0;color:var(--ink-3);font-size:var(--t-4);cursor:pointer;
   width:40px;height:40px;border-radius:99px}
 .cn-close:hover{color:var(--ink);background:var(--panel-3)}
@@ -8278,8 +8292,28 @@ const BLIP_FACE = {
   asleep: `<path class="blip-mouth" d="M40 52h13M67 52h13"/><path class="blip-mouth dim" d="M54 64h12"/>
     <text class="blip-z" x="90" y="16">z</text><text class="blip-z sm" x="102" y="6">z</text>`,
 };
+/* Smug (2026-09-29, per David; logo storyboard round 2): the logo mark. The head alone and lit: a
+   lime screen, half-lidded eyes, one brow raised at the slash angle, a sideways smirk, and the
+   wordmark's // for an antenna, leaning forward 22deg like .brand-name .slashes. On a 100 box.
+   "smug-app" sets it in its case on the page ground (the 180px apple-touch icon); "smug-16" is the
+   favicon, where the antenna and brow drop and the lids and smirk grow. design/icons.py cuts both
+   icon files from these, so the icons are this drawing too. Still at rest, like every pose. */
+const BLIP_SMUG_ANT = `<path class="blip-bulb" d="M35.65 29.5H42.15L51.85 5.5H45.35ZM48.15 29.5H54.65L64.35 5.5H57.85Z"/>`;
+const BLIP_SMUG_FACE = `<g transform="translate(50 62.5)"><path class="blip-eye" d="M-26 -1A10 10 0 0 0 -6 -1Z"/>
+    <path class="blip-eye" d="M6 -1A10 10 0 0 0 26 -1Z"/><path class="blip-mouth" d="M7 -14.6L26 -22.3"/>
+    <path class="blip-mouth" d="M-10 15.5Q4 18.5 13 10"/></g>`;
+const BLIP_SMUG = {
+  smug: `${BLIP_SMUG_ANT}<rect class="blip-screen" x="4" y="30" width="92" height="65" rx="17"/>${BLIP_SMUG_FACE}`,
+  "smug-app": `<rect class="blip-ground" width="100" height="100"/><g transform="translate(13 13) scale(.74)">${BLIP_SMUG_ANT}
+    <rect class="blip-case" x="1.5" y="27" width="97" height="70" rx="20"/>
+    <rect class="blip-screen" x="8" y="33" width="84" height="58" rx="13"/>${BLIP_SMUG_FACE}</g>`,
+  "smug-16": `<rect class="blip-screen" x="1" y="12" width="98" height="76" rx="21"/><g transform="translate(50 50)">
+    <path class="blip-eye" d="M-33 -5A14 14 0 0 0 -5 -5Z"/><path class="blip-eye" d="M5 -5A14 14 0 0 0 33 -5Z"/>
+    <path class="blip-mouth" d="M-12 20Q6 23 18 12"/></g>`,
+};
 function blipSVG(label, pose){
   const a11y = label ? `role="img" aria-label="${esc(label)}"` : `aria-hidden="true"`;
+  if (BLIP_SMUG[pose]) return `<svg class="blip smug ${pose}" viewBox="0 0 100 100" ${a11y}>${BLIP_SMUG[pose]}</svg>`;
   return `<svg class="blip" viewBox="0 0 120 120" ${a11y}>
     <path class="blip-ink" d="M60 20V10"/><circle class="blip-bulb" cx="60" cy="7" r="4"/>
     <rect class="blip-case" x="18" y="20" width="84" height="66" rx="15"/>
@@ -22501,7 +22535,8 @@ function connectPickHTML(){
 function connectHTML(){
   return `<div class="cn-in">
     <div class="cn-top">
-      <div class="brand-name" aria-hidden="true">Team<i class="slashes"><b></b><b></b></i>Watch</div>
+      <div class="brand" aria-hidden="true"><span class="brand-mark">${blipSVG("", "smug")}</span
+        ><div class="brand-name">Team<i class="slashes"><b></b><b></b></i>Watch</div></div>
       <button class="cn-close" data-cnclose aria-label="${t("common.action.close")}">✕</button>
     </div>
     <h2 class="cn-title">${t("connect.title")}</h2>
@@ -23222,7 +23257,16 @@ function navGo(leaf, fromHash){
   if (typeof freshCheck === "function") freshCheck();
 }
 
+/* The mark before TEAM//WATCH is Smug Blip (2026-09-29, per David), the one drawing in lib/blip.js.
+   The shell is static markup and the drawing lives in JS, so it is painted here, once. Decoration:
+   the wordmark beside it carries the name. */
+function paintBrand(){
+  const m = document.querySelector(".navbar .brand-mark");
+  if (m) m.innerHTML = blipSVG("", "smug");
+}
+
 function buildNav(){
+  paintBrand();
   const n = document.getElementById("nav");
   // Two labels per group, same pattern as the topbar pills' full/abbr swap: four fit a phone
   // where seven did not, but "Gameday" still needs a short form at 430px ("Players" is its own).

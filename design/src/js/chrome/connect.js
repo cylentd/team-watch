@@ -57,7 +57,8 @@ function connectPickHTML(){
 function connectHTML(){
   return `<div class="cn-in">
     <div class="cn-top">
-      <div class="brand-name" aria-hidden="true">Team<i class="slashes"><b></b><b></b></i>Watch</div>
+      <div class="brand" aria-hidden="true"><span class="brand-mark">${blipSVG("", "smug")}</span
+        ><div class="brand-name">Team<i class="slashes"><b></b><b></b></i>Watch</div></div>
       <button class="cn-close" data-cnclose aria-label="${t("common.action.close")}">✕</button>
     </div>
     <h2 class="cn-title">${t("connect.title")}</h2>

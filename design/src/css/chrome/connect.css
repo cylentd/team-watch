@@ -15,7 +15,8 @@ body:has(.connect:not([hidden])){overflow:hidden}
   box-shadow:0 40px 80px rgb(var(--shadow-rgb) / .55);animation:search-in .22s var(--ease);
 }
 .cn-top{display:flex;align-items:center;justify-content:space-between}
-.cn-top .brand-name{font-size:var(--t-4)}
+/* The brand as in the nav bar (Smug Blip and the wordmark), one step down: a phone hides the bar's. */
+.cn-top .brand,.cn-top .brand-name{font-size:var(--t-4)}
 .cn-close{appearance:none;background:none;border:0;color:var(--ink-3);font-size:var(--t-4);cursor:pointer;
   width:40px;height:40px;border-radius:99px}
 .cn-close:hover{color:var(--ink);background:var(--panel-3)}

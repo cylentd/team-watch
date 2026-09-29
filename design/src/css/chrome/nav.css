@@ -7,10 +7,13 @@
   border-bottom:1px solid var(--line);background:var(--void);
 }
 .navrow{display:flex;align-items:center;gap:6px;height:56px}
-.nav{display:flex;align-self:stretch;min-width:0;gap:4px}
+/* The groups' side padding eases from 12px at 1280 to 7px at 1100 (the narrow desktop below takes
+   8px), so the row still fits beside the 22px wordmark (2026-09-29: 34px of overlap at 1100 with a
+   fixed 12px, 5px with an 8px floor). */
+.nav{display:flex;align-self:stretch;min-width:0;gap:4px;--nav-pad:clamp(7px,calc(2.78vw - 23.56px),12px)}
 .navitem{
   position:relative;appearance:none;background:none;cursor:pointer;border:0;
-  padding:0 12px;display:flex;align-items:center;gap:10px;color:var(--ink-3);
+  padding:0 var(--nav-pad,12px);display:flex;align-items:center;gap:10px;color:var(--ink-3);
   font-family:var(--disp);font-weight:700;font-size:var(--t-4);letter-spacing:-.01em;white-space:nowrap;
   transition:color .2s var(--ease);
 }
@@ -19,7 +22,7 @@
 .navitem .ix{display:none}
 .navitem:hover{color:var(--ink-2)}
 .navitem[aria-current="true"]{color:var(--ink)}
-.navitem[aria-current="true"]::after{content:"";position:absolute;left:12px;right:12px;bottom:-1px;height:2px;background:var(--lime)}
+.navitem[aria-current="true"]::after{content:"";position:absolute;left:var(--nav-pad,12px);right:var(--nav-pad,12px);bottom:-1px;height:2px;background:var(--lime)}
 .navitem:active{transform:scale(var(--press))}
 
 /* ---- a narrow desktop: the row gives up width before the groups do ---- */

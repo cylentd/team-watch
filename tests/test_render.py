@@ -671,6 +671,33 @@ def test_nav_row_fits_a_narrow_desktop(browser, page_file, w):
         ctx.close()
 
 
+@pytest.mark.parametrize("w,shown", [(1400, True), (1100, True), (390, False)])
+def test_the_mark_is_smug_blip(browser, page_file, w, shown):
+    """The mark before TEAM//WATCH is Smug Blip (2026-09-29, per David): lib/blip.js pose "smug",
+    about the wordmark's cap height plus its // antenna, the wordmark at --t-brand (22px), over the
+    18px tabs. A phone hides the brand, as before."""
+    ctx = browser.new_context(viewport={"width": w, "height": 800}, reduced_motion="reduce")
+    page = ctx.new_page()
+    page.route(re.compile(r"^https?://"), lambda route: route.abort())
+    page.add_init_script(SEED)
+    try:
+        page.goto(page_file.as_uri() + "#board")
+        page.wait_for_function("document.getElementById('view').children.length > 0")
+        got = page.evaluate("""(() => { const m = document.querySelector('.navbar .brand-mark svg.blip.smug'),
+            n = document.querySelector('.navbar .brand-name'), bar = document.querySelector('.navbar');
+          const r = m && m.getBoundingClientRect();
+          return {smug: !!m, eyes: m ? m.querySelectorAll('.blip-eye').length : 0,
+            size: r ? Math.round(r.width) : 0, font: getComputedStyle(n).fontSize,
+            bar: Math.round(bar.getBoundingClientRect().height)}; })()""")
+        assert got["smug"] and got["eyes"] == 2, got
+        if shown:
+            assert got["size"] == 30 and got["font"] == "22px" and got["bar"] == 57, got
+        else:
+            assert got["size"] == 0, got
+    finally:
+        ctx.close()
+
+
 @pytest.mark.area("board")
 @pytest.mark.parametrize("w,h", [(360, 740), (1280, 1080)])
 def test_leaders_page_fits_the_screen(browser, page_file, w, h):
