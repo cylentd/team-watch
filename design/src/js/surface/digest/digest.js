@@ -146,9 +146,10 @@ function wireDigest(v){
   }));
   dgSyncWall(v);
   DG_WALL.onchange = () => { const cur = document.querySelector(".dg"); if (cur) dgSyncWall(cur.parentElement); };
-  /* A Results list opens in place on a phone (results.js dgResCol) and stays so across repaints. */
+  /* A Results list opens in place at every width, the wall too (results.js dgResCol), and stays so
+     across repaints. The wall's lists fold as well since 2026-09-29; a leftover wall guard here kept
+     them shut on a desktop. */
   v.querySelectorAll("[data-dgfold]").forEach(b => b.addEventListener("click", () => {
-    if (DG_WALL.matches) return;
     const col = b.parentElement, open = !col.hasAttribute("data-open"), key = b.dataset.dgfold;
     col.toggleAttribute("data-open", open);
     b.setAttribute("aria-expanded", String(open));

@@ -103,6 +103,11 @@ function dgLead(){
   return l.rule === "hurt" ? dgLeadHurt(row) : l.rule === "weather" ? dgLeadWx(row) : dgLeadNews(row);
 }
 
+/* The ghost one character to a box, each knowing its place (--i), so a hover can flip them in turn
+   like a scoreboard's split-flap (wall.css). The ghost arrives escaped: an entity stays one box. */
+const dgGhostChars = s => (s.match(/&[^;\s]+;|\s|./gu) || [])
+  .map((c, i) => c.trim() ? `<i style="--i:${i}">${c}</i>` : c).join("");
+
 function dgLeadHTML(){
   const L = dgLead(), d = dgD();
   /* The ghost is the reason he leads (his rank, the wind), set huge and faint behind the photo on
@@ -115,7 +120,7 @@ function dgLeadHTML(){
   const go = L.slug ? `<button type="button" class="dg-lead-go" data-dgslug="${esc(L.slug)}"
     aria-label="${esc(t("digest.lead.open", {n: L.name || ""}))}"></button>` : "";
   return `<article class="dg-lead ${L.tone}${L.photo ? " has-photo" : ""}${go ? " opens" : ""}"${L.team ? " " + teamColourStyle(L.team) : ""}>
-    ${go}${L.ghost ? `<span class="dg-ghost" aria-hidden="true">${L.ghost}</span>` : ""}
+    ${go}${L.ghost ? `<span class="dg-ghost" aria-hidden="true">${dgGhostChars(L.ghost)}</span>` : ""}
     <div class="dg-lead-txt">${stamp}<h2 class="dg-lead-h${L.long ? " long" : ""}">${L.head}</h2>
       <div class="dg-lead-fact">${L.fact}</div></div>
     ${L.photo}

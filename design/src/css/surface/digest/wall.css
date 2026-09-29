@@ -23,15 +23,26 @@
   .dg > .dg-lead .dg-lead-h.long{font-size:var(--t-6);max-width:22ch;line-height:1.1}
   .dg > .dg-lead .dg-lead-fact{font-size:var(--t-4);line-height:1.45;max-width:36ch}
   .dg > .dg-lead.has-photo .dg-photo{
-    position:absolute;right:7%;bottom:0;height:100%;width:auto;max-width:none;margin:0;z-index:1;
+    position:absolute;right:7%;bottom:0;height:100%;width:auto;max-width:none;margin:0;z-index:0;
   }
   .dg > .dg-lead .dg-glyph{right:9%;bottom:auto;top:50%;transform:translateY(-50%);width:220px;height:220px}
+  /* In the gap between the headline and the photo, over the photo's edge rather than behind his head
+     (2026-09-29, David: "DET is behind the headshot so it's covered"). */
   .dg-ghost{
-    display:block;position:absolute;right:3%;top:50%;z-index:0;transform:translateY(-54%);
-    font-family:var(--disp);font-size:var(--t-ghost);font-weight:800;line-height:.8;letter-spacing:-.05em;
-    white-space:nowrap;pointer-events:none;user-select:none;
+    display:block;position:absolute;left:56%;top:50%;z-index:1;transform:translate(-50%,-54%);
+    font-family:var(--disp);font-size:var(--t-ghost-fit);font-weight:800;line-height:.8;letter-spacing:-.05em;
+    white-space:nowrap;pointer-events:none;user-select:none;perspective:900px;
     color:transparent;-webkit-text-stroke:1.5px rgb(var(--ink-rgb) / .13);
   }
+  /* A hover flips the letters in turn, a split-flap scoreboard turning over to his team, and fills
+     them with its colour; leaving flips them back. Reduced motion keeps the fill, not the flip. */
+  .dg-ghost i{display:inline-block;font-style:normal;transform-origin:50% 55%;
+    transition:transform .9s var(--ease) calc(var(--i) * 90ms),color .5s var(--ease) calc(var(--i) * 90ms)}
+  @media (hover:hover){
+    .dg-lead:hover .dg-ghost i{transform:rotateX(360deg);color:rgb(var(--ink-rgb) / .06)}
+    .dg-lead.team:hover .dg-ghost i{color:color-mix(in srgb,color-mix(in srgb,var(--team) 60%,var(--ink)) 40%,transparent)}
+  }
+  @media (prefers-reduced-motion:reduce){ .dg-ghost i{transition:color .3s var(--ease)} .dg-lead:hover .dg-ghost i{transform:none} }
   .dg-lead.out .dg-ghost{-webkit-text-stroke-color:rgb(var(--down-rgb) / .3)}
   .dg-lead.q .dg-ghost{-webkit-text-stroke-color:rgb(var(--amber-rgb) / .3)}
   .dg-lead.sky .dg-ghost{-webkit-text-stroke-color:rgb(var(--sky-rgb) / .3)}

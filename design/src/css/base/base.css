@@ -26,6 +26,7 @@
   --t-hero-sm:clamp(30px,8.6vw,80px); /* the same at phone width */
   --t-ghost:270px;    /* the hero's background numeral */
   --t-ghost-sm:150px; /* the same at phone width */
+  --t-ghost-fit:min(270px,15vw);  /* the Digest lead's ghost, which sits between headline and photo */
 }
 
 *{box-sizing:border-box}

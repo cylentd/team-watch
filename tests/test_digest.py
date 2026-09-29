@@ -147,8 +147,13 @@ def test_results_on_the_wall_keep_each_number_by_its_name(browser, page_file):
       return {tiles: cols('.dg-tiles'), board: cols('.dg-bd'), low: cols('.dg-rlow'), rows,
               listRows: shown('.dg-rlow .dg-rr'), chevs: shown('.dg-rsum .dg-chev')};
     }""")
+    # A tap opens a list on the wall too (2026-09-29, David: "the dropdown doesnt expand").
+    page.locator(".dg-rsum").first.click()
+    opened = page.locator(".dg-rcol.fold[data-open] .dg-rr").evaluate_all("els => els.filter(e => e.offsetParent !== null).length")
+    smashed = page.evaluate("dgD().smashed.length")
     ctx.close()
     assert errors == []
+    assert opened == smashed > 0
     assert (got["tiles"], got["board"], got["low"]) == (4, 4, 3)
     assert got["rows"] and max(r["gap"] for r in got["rows"]) < 350
     assert {r["face"] for r in got["rows"]} == {36} and {r["day"] for r in got["rows"]} == {"block"}
