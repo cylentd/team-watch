@@ -166,6 +166,12 @@ def test_the_board_says_where_each_game_is_and_a_row_opens_his_profile(browser, 
     assert "FINAL" in by_team.values()
     assert page.locator(".gd-median:not(.quiet)").count() == 1         # ESPN pays the top half
     assert page.locator(".gd-bx-foot small").count() > 0               # so its games say TOP/BOT
+    # each game states itself as a tag, and each box has one meter slot per starter
+    tags = page.locator(".gd-gs").all_inner_texts()
+    assert tags and all(re.match(r"^(LIVE · \d+ LEFT|\d+ LEFT|LOCKED)$", s.strip()) for s in tags)
+    assert page.locator(".gd-g.mine .gd-bx").first.locator(".gd-meter i").count() == \
+        page.locator(".gd-lineup.mine .gd-row:not(.bn)").count()
+    assert page.locator(".gd-row").evaluate_all("rs => rs.every(r => getComputedStyle(r).backgroundColor === 'rgba(0, 0, 0, 0)')")
     # my game says who leads in words; the bench is drawn, dimmed, and left out of the total
     assert re.match(r"^(UP|DOWN) \d+\.\d$|^TIED$", page.locator(".gd-lead").inner_text())
     assert page.locator(".gd-lineup.mine .gd-row.bn").count() > 0

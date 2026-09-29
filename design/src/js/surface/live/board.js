@@ -44,7 +44,7 @@ function gdLineupHTML(side, mine){
     ${side.bench.map(r => gdRowHTML(r, true)).join("")}` : "";
   return `<div class="gd-lineup${mine ? " mine" : ""}">
     <h3><span>${mine ? t("live.yours") : esc(side.name)}</span><span>${gdNum(side.total)}</span></h3>
-    ${side.rows.map(gdRowHTML).join("")}${bench}</div>`;
+    ${side.rows.map(r => gdRowHTML(r)).join("")}${bench}</div>`;
 }
 
 /* "3 playing · 2 to play", zeros left out so it fits beside a score on a phone. */

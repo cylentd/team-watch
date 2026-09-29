@@ -75,17 +75,22 @@ def test_results_reads_as_the_storyboard(browser, page_file):
       const d = dgD(), host = document.createElement('div');
       host.innerHTML = dgResBody(d);
       const lines = [...host.querySelectorAll('.dg-rl .dg-ln')].map(b => b.innerText.replace(/\\s+/g, ' ').trim());
-      return {badge: dgCount('res', d)[0], lines};
+      const pill = s => { const h = document.createElement('div'); h.innerHTML = dgOutPill(s); return h.textContent; };
+      return {badge: dgCount('res', d)[0], lines,
+              pills: {season: [...host.querySelectorAll('.dg-pill.out')].filter(p => p.textContent === 'Season').length,
+                      weeks: pill('Baker Mayfield expected to miss three weeks')}};
     }""")
     assert errors == []
     ctx.close()
     assert got["badge"] == "2 to play"
-    assert "31% of targets, +10 on his usual · 5 pts of TD luck" in got["lines"][0]
-    assert got["lines"][0].endswith("proj 8.1 →17.8+9.7")          # flex cells: innerText has no gaps
-    assert "Left hurt · knee · suffers season-ending torn ACL" in got["lines"][1]
-    assert "6 pts under expected" in got["lines"][2]
-    assert "concussion" in got["lines"][3] and got["lines"][3].endswith("proj 18.4 →3.2")
-    assert "left early" in got["lines"][5]
+    # every reason is a pill (DESIGN.md "Say it in a shape"); innerText has no gaps between flex cells
+    assert "31% tgt +10" in got["lines"][0] and "TD luck +5" in got["lines"][0]
+    assert got["lines"][0].endswith("8.1 →17.8+9.7")
+    assert "Hurt · Knee" in got["lines"][1]
+    assert "TD luck −6" in got["lines"][2]
+    assert "Concussion" in got["lines"][3] and got["lines"][3].endswith("18.4 →3.2")
+    assert "Left early" in got["lines"][5]
+    assert got["pills"]["season"] == 1 and got["pills"]["weeks"] == "Out 3 wks"
 
 
 def test_fixture_block_is_whole():

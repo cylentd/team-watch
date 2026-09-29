@@ -929,6 +929,23 @@ renders in script and did not load for a check), so re-read it there before bend
 A new or changed view names its cards against this table before it lands (`STYLE.md`, "Before a
 view lands").
 
+### Say it in a shape (decided 2026-09-28)
+
+A reader on a phone scans; a sentence has to be read. So a state or a reason is a shape with a
+word on it, and the prose lives one tap away in the profile.
+
+| Rule | Why | Where it was learned |
+|---|---|---|
+| Every visual code is named on the screen, by a word on the thing or one key under the list. A tint, colour or mark nobody explains is removed. | An unexplained tint reads as a bug ("why is the QB row lit?"). | Live's in-game row tint, removed 2026-09-28 |
+| A state is a tag plus a picture of it: LIVE / n LEFT / a drawn lock and LOCKED, and a meter with one slot per player. Never a sentence to parse ("2 still to play or playing"). | The meter also shows which side still has a man going. | Live's league games |
+| A reason is a pill: a kind and a number ("TD luck +6", "16% tgt +10", "Out 3 wks"). The producer stores the kind and the number; the page only labels them. | 23 lines of prose in one card was the busy part of Results. | Digest Results |
+| One colour means one thing inside a set of pills: green helped, red hurt, amber injury, filled red how long he is out, grey his role. | A reader learns it once for the whole card. | Digest Results |
+| A feed is grouped by its subject, newest line first, not kept as a log. | A log repeats the same player; a group says the story once. | Digest News, 10 headlines to 7 players |
+| Desktop fills its width with more of the same subject (cards across), never with wider lines. | One 560px column in a 1,120px card left half empty. | Digest News |
+| Icons are drawn (inline SVG in `currentColor`), never emoji or Unicode glyphs. | A glyph renders differently per platform and reads as decoration. | Live's lock |
+
+A new or changed view is checked against this table too (`STYLE.md`, "Before a view lands").
+
 ## Theme rules
 
 `design/lint_css.py` fails the build on any of these (`python design/lint_css.py`):

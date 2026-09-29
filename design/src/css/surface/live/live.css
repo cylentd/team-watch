@@ -59,7 +59,6 @@
 .gd-row:last-child{border-bottom:0}
 .gd-row:active{transform:scale(var(--press))}
 .gd-row:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
-.gd-row.on{background:var(--panel-2)}
 .gd-row.bn{opacity:.62}
 .gd-row.bn .gd-pts{font-weight:500}
 .gd-slot{font:700 var(--t-1)/1 var(--mono);color:var(--ink-3)}
@@ -105,7 +104,21 @@
 .gd-bx-foot b{font:700 var(--t-3)/1 var(--mono);font-variant-numeric:tabular-nums}
 .gd-bx-foot small{font:700 10px/1 var(--mono);color:var(--ink-3)}
 .gd-bx-foot small.top{color:var(--lime)}
-.gd-g-left{grid-column:1 / -1;font-size:var(--t-1);color:var(--ink-3);padding-left:2px}
+/* Each box's meter: one slot per starter, done / playing / to play. */
+.gd-meter{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:2px}
+.gd-meter i{height:4px;border-radius:2px;background:var(--ink-3)}
+.gd-meter i.on{background:var(--lime)}
+.gd-meter i.pre{background:none;box-shadow:inset 0 0 0 1px var(--line-2)}
+/* The game's state under its two boxes: LIVE (lime, with a dot), n LEFT, or a lock and LOCKED. */
+.gd-gs{grid-column:1 / -1;display:flex;align-items:center;gap:6px;padding-left:2px;font:700 10px/1.2 var(--mono);letter-spacing:.04em;color:var(--ink-3)}
+.gd-gs.live{color:var(--lime)}
+.gd-gs.live::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--lime)}
+.gd-gs svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:1.4}
+.gd-key{margin:2px 0 0;display:flex;flex-wrap:wrap;gap:14px;font-size:var(--t-1);color:var(--ink-3)}
+.gd-key span{display:flex;align-items:center;gap:6px}
+.gd-key i{width:14px;height:4px;border-radius:2px;background:var(--ink-3)}
+.gd-key i.on{background:var(--lime)}
+.gd-key i.pre{background:none;box-shadow:inset 0 0 0 1px var(--line-2)}
 
 .gd-ladder{display:grid}
 .gd-l{display:grid;grid-template-columns:22px minmax(0,1fr) auto auto;gap:10px;align-items:center;min-height:34px;padding:0 8px;border-radius:8px}

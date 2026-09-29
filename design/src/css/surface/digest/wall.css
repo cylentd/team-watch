@@ -119,9 +119,12 @@
   .dg-row .dg-pad{height:100%;display:flex;flex-direction:column;gap:2px;padding:0 22px 6px}
   .dg-row .dg-foot{margin-top:auto}
 
-  /* News stays one column on the wall too: two columns read left to right in a list ordered by
-     importance, so nobody could tell which way it ran (2026-09-28). */
-  .dg-row[data-dgrow="news"] .dg-news{max-width:84ch}
+  /* News on the wall: one card per player, three across, read row by row like any card grid
+     (2026-09-28; superseded the one 84ch column, which left half the panel empty). Inside the News
+     card each is a filled box, never a bordered card in a card (DESIGN.md "Cards"). Boxes in a row
+     share its height. */
+  .dg-row[data-dgrow="news"] .dg-nws{grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;padding-top:4px}
+  .dg-row[data-dgrow="news"] .dg-nw{border:0;border-radius:10px;background:var(--panel-2);padding:12px}
 
   .dg-qlines{display:contents}
   .dg-row[data-dgrow="hurt"] .dg-also{display:none}

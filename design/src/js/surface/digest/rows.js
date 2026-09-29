@@ -98,11 +98,36 @@ function dgGemsBody(d){
   return lines + dgFootHTML(t("digest.foot.gems", d.rules.gems),"usage", t("digest.go.grid"), true);
 }
 
+/* News by player, not as a log (2026-09-28): one block per player, in the order his newest line
+   ranks, his lines newest first; a headline naming no player is a block of its own. The name keeps
+   the colour of his newest line's severity. A block opens his profile. The wall lays the blocks out
+   as cards three across (wall.css); a phone reads them as one list. */
 const DG_KIND = {out: "out", injury: "q"};
+function dgNewsGroups(news){
+  const groups = [], by = new Map();
+  /* Keyed by name: one headline can carry his slug and the next not. */
+  for (const it of news){
+    let g = it.n && by.get(it.n);
+    if (!g){ g = {key: null, n: it.n, kind: it.kind, lines: []}; groups.push(g); if (it.n) by.set(it.n, g); }
+    g.key = g.key || (it.slugs && it.slugs[0]) || (it.n ? slugOf(it.n) : null);
+    g.lines.push(it);
+  }
+  return groups;
+}
+
 function dgNewsBody(d){
-  const rows = d.news.map(it => `<div class="dg-news"><time>${esc(it.when || "")}</time><span>${it.n
-    ? `<b class="${DG_KIND[it.kind] || ""}">${esc(it.n)}</b> ${esc(it.rest)}` : esc(it.headline)}</span></div>`).join("");
-  return rows + dgFootHTML(t("digest.foot.news"), "news", t("digest.go.news"));
+  const who = typeof searchIndex === "function" ? new Map(searchIndex().map(e => [e.slug, e])) : new Map();
+  const line = it => `<li><time>${esc(it.when || "")}</time><span>${esc(it.n ? dgCap(it.rest) : it.headline)}</span></li>`;
+  const blocks = dgNewsGroups(d.news).map(g => {
+    if (!g.key) return `<div class="dg-nw"><ul>${g.lines.map(line).join("")}</ul></div>`;
+    const e = who.get(g.key), p = {n: g.n, slug: g.key, pos: e && e.pos, team: e && e.team};
+    const meta = [p.pos, p.team].filter(Boolean).map(esc).join(" · ");
+    return `<button type="button" class="dg-nw" data-dgslug="${esc(g.key)}">
+      <span class="dg-hd">${avatarHTML(p)}</span>
+      <span class="dg-nw-t"><span class="dg-nw-who"><b class="${DG_KIND[g.kind] || ""}">${esc(g.n)}</b><small>${meta}</small></span>
+      <ul>${g.lines.map(line).join("")}</ul></span></button>`;
+  }).join("");
+  return `<div class="dg-nws">${blocks}</div>` + dgFootHTML(t("digest.foot.news"), "news", t("digest.go.news"));
 }
 
 /* One short list in Top 5's shape: a head, then "K. Mumpfield" and one number per line (Tonight's lists). */

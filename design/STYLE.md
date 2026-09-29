@@ -76,7 +76,8 @@ loads. A new curve or duration is a new token, never a literal in a component.
 4. Every interaction has a render test (`tests/test_render.py`), and the golden diff shows only
    this view.
 5. Its cards pass Material Design's rule (`DESIGN.md`, "Cards"): one card per subject, rows
-   inside it, never a card in a card.
+   inside it, never a card in a card. Its states and reasons pass "Say it in a shape" (the same
+   file): tags, meters and pills, every code named on screen, no prose where a pill fits.
 6. `tests/test_style_rules.py` passes: nothing scrolls sideways at 360px (Leaders' faded stat
    tabs are the one exception) and nothing loops while the page is idle.
 

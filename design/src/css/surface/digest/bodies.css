@@ -38,13 +38,29 @@
 .dg-t5 li em.dn{color:var(--down)}
 .dg-t5 li em.q{color:var(--amber);font-family:var(--ui);font-size:var(--t-1)}
 
-/* News: the time, then the headline with its player named first, red when he is out. */
-.dg-news{display:grid;grid-template-columns:62px minmax(0,1fr);gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:var(--t-2)}
-.dg-news:last-of-type{border-bottom:0}
-.dg-news time{font-family:var(--mono);font-size:var(--t-1);line-height:1.6;color:var(--ink-3);font-variant-numeric:tabular-nums}
-.dg-news b{font-weight:600}
-.dg-news b.out{color:var(--down)}
-.dg-news b.q{color:var(--amber)}
+/* News by player: his face, his name (red when out, amber when hurt) over his position, then his
+   lines newest first, each after its time. A phone lists the blocks; the wall makes them cards. */
+.dg-nws{display:grid}
+.dg-nw{
+  appearance:none;border:0;border-bottom:1px solid var(--line);background:none;color:inherit;font:inherit;
+  text-align:left;cursor:pointer;width:100%;padding:10px 0;
+  display:grid;grid-template-columns:32px minmax(0,1fr);gap:10px;align-items:start;
+  transition:transform var(--dur-spring) var(--spring);
+}
+div.dg-nw{cursor:default;grid-template-columns:minmax(0,1fr)}
+.dg-nw:last-child{border-bottom:0}
+button.dg-nw:active{transform:scale(var(--press))}
+.dg-nw:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.dg-nw-t{display:grid;gap:4px;min-width:0}
+.dg-nw-who{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.dg-nw-who b{font-weight:600;font-size:var(--t-2)}
+.dg-nw-who b.out{color:var(--down)}
+.dg-nw-who b.q{color:var(--amber)}
+.dg-nw-who small{font:500 var(--t-1)/1 var(--mono);color:var(--ink-3);white-space:nowrap}
+.dg-nw ul{margin:0;padding:0;list-style:none;display:grid;gap:3px}
+.dg-nw li{display:grid;grid-template-columns:62px minmax(0,1fr);gap:8px;font-size:var(--t-2);line-height:1.35;color:var(--ink-2)}
+.dg-nw li:first-child{color:var(--ink)}
+.dg-nw time{font-family:var(--mono);font-size:var(--t-1);line-height:1.6;color:var(--ink-3);font-variant-numeric:tabular-nums}
 
 /* Weather: the mark, the game over its kickoff and sky, the number that put it on the list. */
 .dg-wx{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:10px;align-items:center;min-height:46px}
