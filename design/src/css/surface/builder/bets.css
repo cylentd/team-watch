@@ -40,18 +40,6 @@
 .bets-panel .filters{margin:0;padding:0;flex-wrap:wrap;overflow:visible;row-gap:10px}
 .bets-book{max-width:320px}
 
-/* ---- the slips, stacked: one column on a phone ---- */
-.tk-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;margin-top:14px;align-items:start}
-@media (min-width:760px){ .tk-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
-@media (min-width:960px){ .tk-grid{grid-template-columns:repeat(3,minmax(0,1fr))} }
-/* A slip ends where its picks end (2026-09-25): stretched to its row, a 2-pick slip beside a
-   5-pick one carried 395px of empty card. */
-.tk-grid .ticket{width:auto;align-self:start}
-/* Packed (js/surface/parlay/masonry.js): 2px rows, each slip spanning its measured height plus
-   the gap, so the vertical gap moves from the grid onto the slip. */
-.tk-grid.masonry{grid-auto-rows:2px;row-gap:0}
-.tk-grid.masonry > .ticket{margin-bottom:14px}
-
 .bets .legs{margin-top:14px}
 .bets-pager{margin-top:12px}
 .bets-foot{margin:16px 0 0}

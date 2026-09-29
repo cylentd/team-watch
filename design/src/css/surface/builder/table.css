@@ -1,0 +1,82 @@
+/* The deal table (2026-09-29; js/surface/parlay/table.js). The slip is a ticket (ticket.css) with
+   its kind and length on its top row; the kept slips and the pool are plain cards beside it on a
+   desktop, under it on a phone. Lime is "the one to pick": the pressed segment, Keep, a lock. */
+.dt{display:grid;gap:14px;margin-top:12px}
+.dt > *{min-width:0}
+.dt-kept-empty{display:none}
+@media (min-width:960px){
+  .dt{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch}
+  .dt-kept-empty{display:block}
+  .dt-pool{grid-column:1 / -1}
+  .dt-picks{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:24px;padding-inline:0}
+}
+.dt-kept-none{margin:4px 14px 8px;font-size:var(--t-2);color:var(--ink-3)}
+
+/* Kind and length: two segmented rows side by side, one row on a phone. */
+.dt-ctl{display:flex;gap:8px;padding:12px 14px 6px;flex-wrap:wrap}
+.dt-seg{display:flex;gap:2px;padding:3px;border-radius:10px;background:var(--panel-2);flex:1 1 auto}
+.dt-seg.dt-n{flex:0 1 auto}
+.dt-seg-b{appearance:none;flex:1;min-width:32px;border:0;border-radius:8px;cursor:pointer;background:none;
+  padding:7px 10px;font-family:var(--ui);font-weight:700;font-size:var(--t-2);color:var(--ink-3);
+  transition:background .15s var(--ease),color .15s var(--ease),transform var(--dur-spring) var(--spring)}
+.dt-seg-b[aria-pressed="true"]{background:var(--panel-3);color:var(--ink)}
+.dt-seg-b:active{transform:scale(var(--press))}
+.dt-seg-b:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+
+/* A pick on the slip ends in its lock. */
+.dt-slip .tk-leg{grid-template-columns:46px minmax(0,1fr) auto 34px}
+.dt-lock{appearance:none;display:grid;place-items:center;width:34px;height:34px;border-radius:99px;cursor:pointer;
+  background:none;border:1px solid var(--line-2);color:var(--ink-3);padding:0;
+  transition:background .15s var(--ease),color .15s var(--ease),border-color .15s var(--ease)}
+.dt-lock svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
+.dt-lock[aria-pressed="true"],.dt-pick[aria-pressed="true"] .dt-lock{background:var(--lime);border-color:var(--lime);color:var(--on-lime)}
+.dt-lock[aria-pressed="true"] svg,.dt-pick[aria-pressed="true"] .dt-lock svg{fill:currentColor}
+.dt-lock:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.dt-short{margin:4px 14px 0;font-size:var(--t-1);color:var(--ink-3)}
+.dt-none{margin:10px 14px 14px;min-height:100px}
+
+.dt-acts{display:flex;gap:8px}
+.dt-again{appearance:none;flex:1;border:1px solid var(--line-2);border-radius:8px;cursor:pointer;background:none;
+  color:var(--ink);font-family:var(--ui);font-weight:700;font-size:var(--t-2);padding:9px 14px;
+  transition:background .15s var(--ease),transform var(--dur-spring) var(--spring)}
+.dt-again:hover{background:var(--panel-3)}
+.dt-again:active,.dt-keep:active{transform:scale(var(--press))}
+.dt-again:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.dt-keep{flex:1;margin-left:0;background:var(--lime);color:var(--on-lime);transition:filter .15s var(--ease),transform var(--dur-spring) var(--spring)}
+.dt-keep:hover{background:var(--lime);filter:brightness(1.08)}
+
+/* Kept and pool: one card each, rows inside. */
+.dt-card{background:var(--panel);border:1px solid var(--line-2);border-radius:14px;padding:6px 0 8px;min-width:0}
+.dt-head{display:flex;align-items:baseline;gap:10px;padding:8px 14px 6px;flex-wrap:wrap}
+.dt-head h3{margin:0;font-family:var(--disp);font-weight:800;font-size:var(--t-4);letter-spacing:-.01em}
+.dt-head span{font-size:var(--t-1);color:var(--ink-3)}
+
+.dt-kept-row{display:flex;align-items:center;border-top:1px solid var(--line)}
+.dt-kept-load{appearance:none;flex:1;min-width:0;display:grid;grid-template-columns:auto minmax(0,1fr) auto;column-gap:10px;
+  align-items:center;border:0;background:none;cursor:pointer;color:var(--ink);text-align:left;padding:10px 4px 10px 14px;
+  font-family:var(--ui);font-size:var(--t-2)}
+.dt-kept-load:hover{background:rgb(var(--ink-rgb) / .03)}
+.dt-kept-load:focus-visible,.dt-kept-drop:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+.dt-kept-kind{font-weight:600;white-space:nowrap}
+.dt-kept-kind b{font-family:var(--disp);font-weight:800;font-size:var(--t-3)}
+.dt-kept-kind i{font-style:normal;color:var(--ink-3);margin-left:6px}
+.dt-kept-who{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dt-kept-odds{font-family:var(--mono);font-weight:700;white-space:nowrap}
+.dt-kept-drop{appearance:none;flex:none;width:40px;align-self:stretch;border:0;background:none;cursor:pointer;
+  color:var(--ink-3);font-size:var(--t-4);line-height:1}
+.dt-kept-drop:hover{color:var(--down)}
+
+/* A pool pick: tap to lock it onto the slip. The ones on the slip now are brighter. */
+.dt-pick{appearance:none;width:100%;display:grid;grid-template-columns:34px minmax(0,1fr) auto 34px;column-gap:10px;
+  align-items:center;border:0;border-top:1px solid var(--line);background:none;cursor:pointer;text-align:left;
+  color:var(--ink-2);padding:7px 14px;font-family:var(--ui)}
+.dt-pick:hover{background:rgb(var(--ink-rgb) / .03)}
+.dt-pick:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+.dt-pick .tk-face{width:34px;height:34px}
+.dt-pick .tk-who b{font-size:var(--t-2)}
+.dt-pick .tk-call{font-size:var(--t-1)}
+.dt-pick .tk-num{font-size:var(--t-3)}
+.dt-pick.dealt{color:var(--ink)}
+.dt-pick:not(.dealt) .tk-face{opacity:.7}
+.dt-pick .dt-lock{width:28px;height:28px}
+.dt-more{margin:8px 14px 0}

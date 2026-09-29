@@ -11,7 +11,7 @@ function parlayHTML(){
   return `<div class="wrap bets">
     ${betsBarHTML(build)}
     ${betsPanelHTML(build)}
-    ${build ? buildHTML() : galleryHTML()}
+    ${build ? buildHTML() : tableHTML()}
     <p class="note bets-foot">${build ? "" : `${t("parlay.gallery.sub")} · `}${SLATE_WEEK ? t("parlay.hero.eyebrow", {n: PROPS.length, week: SLATE_WEEK}) : t("parlay.hero.eyebrowNoWeek", {n: PROPS.length})}</p>
   </div>
   ${trayHTML()}${sheetHTML()}`;

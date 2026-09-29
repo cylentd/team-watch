@@ -63,49 +63,6 @@ const legOKInBook = (p, s, book) => {
     : p.mkt === "RECS" && !u.synthetic && u.pick === "lower" && u.conf >= HIT_RECS && u.line >= 2.5)
     && (p.games||0) >= 8 && playing(p) && !u.stale && scopeOK(p, s);
 };
-/* The non-TD scope is "yards" inside (scopeOK), but on Underdog it only ever holds receptions. */
-/* Underdog adds Long (4-5 picks, 2026-09-25: a long slip is worth it when every leg is, and the
-   payout grows faster than the chance falls) and Stacks (a QB with his receivers, grade.js). */
-const galleryScopes = book => [["all",t("parlay.scope.all")],
-  ["yards", book === "underdog" ? t("parlay.scope.recs") : t("parlay.scope.yards")],
-  ["tds",t("parlay.scope.tds")],["mix",t("parlay.scope.mix")],
-  ...(book === "underdog" ? [["long",t("parlay.scope.long")],["stack",t("parlay.scope.stack")]] : [])];
-const LONG_LEGS = 5;
-/* Underdog legs rank by graded chance, the model's confidence breaking ties. */
-const legMetric = (book) => book === "underdog" ? (p => legHit(p) + udPick(p).conf / 1000) : (p => p.edge);
-function pickLegs(cands, key, allowSameGame, n = SLIP_LEGS){
-  const seenG = new Set(), seenP = new Set(), out = [];
-  cands.sort((a,b) => key(b[0]) - key(a[0])).forEach(([p,i]) => {
-    if (out.length < n && (allowSameGame || !seenG.has(p.game)) && !seenP.has(p.n)){
-      seenG.add(p.game); seenP.add(p.n); out.push(i);
-    }
-  });
-  return out;
-}
-/* The fallback when no slip at a kickoff clears the gates above: the best of what is on the
-   board, so every window and scope still shows a card. The gates that say "this number is wrong"
-   stay (started, out, backup, stale or moved line, no model number, a synthetic Underdog yards
-   line); the gates that say "this number is too low" go (edge, chance floors, price bands, the
-   8-game floor, the Underdog side and confidence floors). The card is tagged so it never reads
-   as a pick. */
-const legLowInBook = (p, s, book) => {
-  if (!upcoming(p) || !playing(p) || !scopeOK(p, s) || typeof p.model !== "number") return false;
-  if (book !== "underdog") return p.book === "DraftKings" && overPrice(p) !== null && typeof p.edge === "number";
-  const u = udPick(p);
-  // Non-TD stays receptions-only: the Underdog scope chip is labelled receptions.
-  return !!u && !u.stale && (p.mkt === "TD" || (p.mkt === "RECS" && !u.synthetic));
-};
-function slipFrom(ok, scope, win, book){
-  // A long card draws from the mix pool, five picks, one per game, never a same-game fallback.
-  const long = scope === "long";
-  const cands = PROPS.map((p,i)=>[p,i]).filter(([p]) => ok(p, long ? "mix" : scope, book) && inWin(p, win));
-  const games = new Set(cands.map(([p]) => p.game)).size;
-  // A single-game window (a Thu/Sun/Mon night with one game on the slate) can never fill three
-  // legs under the one-leg-per-game rule -- allow it there; the `.corr` warning already tells
-  // the reader it is a same-game parlay and to price it as one.
-  return pickLegs(cands, legMetric(book), !long && games > 0 && games < SLIP_LEGS, long ? LONG_LEGS : SLIP_LEGS);
-}
-const bestSlipIn = (scope, win, book) => slipFrom(legOKInBook, scope, win, book);
 function mineSlip(book){
   if (!LIVE_MARKET) return [1,2,5];
   const seen = new Set(), out = [];
@@ -118,8 +75,8 @@ function presetSlip(k, book){
   if (k === "mine") return mineSlip(book);
   return [];
 }
-/* The cart starts empty -- the gallery below answers "what does the model like", the cart is
-   the user's own, built one leg at a time, cart-style. */
+/* The cart starts empty -- the deal table (table.js) answers "what could I play", the cart is
+   the user's own, built one leg at a time or loaded from a kept slip. */
 let SLIP_MODE = "blank";
 let SLIP = [];
 /* DraftKings (over/price) or Underdog (higher/lower + confidence) -- a page-level toggle, same
@@ -127,10 +84,8 @@ let SLIP = [];
    different cart payout entirely, not just a different price column. */
 let PARLAY_BOOK = "underdog";
 
-/* The gallery is grouped by kickoff (2026-09-25: David bets heaviest on Thursday, Sunday morning
-   and Monday, and asked which slip is best for each). A group is one window; a whole day is a
-   group of its own only when its best slip is really good (dayWorthIt below). Groups run in
-   kickoff order, a day just ahead of its first window. */
+/* Kickoff groups for Build's headings (lines.js): windows in kickoff order, a day just ahead of
+   its first window. Slips picks one kickoff at a time from the bar instead (bar.js KICK_CHIPS). */
 const GAL_GROUPS = (() => {
   const out = [], days = new Set();
   WINDOWS.filter(w => GAL_WINDOWS.includes(w)).forEach(w => {
@@ -149,71 +104,6 @@ function galGroupName(w){
   return name.split(" ").map((s, i) => i && !/day$/.test(s) ? s.toLowerCase() : s).join(" ");
 }
 
-/* A below-the-bar card is never the star. */
-const bestCard = cards => cards.reduce((a,c) => !c.low && (!a || c.metric > a.metric) ? c : a, null);
-
-/* An Underdog slip with a receptions leg needs three legs: the lower-65% rule hit 55.9% on 2024
-   (ff-jarvis 12.56), above a 3-leg 6x's 55.0% break-even and below a 2-leg 3x's 57.7%. */
-const minLegs = (book, legs) => book === "underdog" && legs.some(i => PROPS[i].mkt === "RECS") ? 3 : 2;
-/* One card per window x scope with at least minLegs legs, deduped (mix often reproduces yards or
-   tds exactly). No whole-slate card -- that would reintroduce the cross-date bug this fixes.
-   Computed once per book: PROPS never mutates, and toggling the cart must not re-roll the
-   gallery. Both books' galleries are built up front so switching PARLAY_BOOK is instant. */
-function buildGallery(book){
-  const scopes = galleryScopes(book).filter(([k]) => k !== "all");
-  const metric = legMetric(book);
-  const short = legs => legs.length < minLegs(book, legs);
-  const out = [], seen = new Set();
-  /* A near copy is a copy (2026-09-25): a slip of 3 or more that shares all but one leg with a
-     kept slip of its own kind is dropped (a 3-pick inside a 5-pick is a different bet: 6x, not
-     20x). Windows are built first, so the window's slip stays and the day's copy goes. */
-  const nearCopy = (s, legs) => legs.length >= 3 && out.some(c =>
-    c.scope === s && legs.filter(i => c.legs.includes(i)).length >= legs.length - 1);
-  // The star goes to the best return, not the safest slip: on Underdog the graded chance times
-  // the payout (David, 2026-09-25: the point is the edge, not the hit rate). A stack's payout is
-  // unknown until the app quotes it, so a stack is never the star.
-  const card = (s, label, w, legs, low) => {
-    const ps = legs.map(i => PROPS[i]), x = s === "stack" ? null : udPayout(ps.length);
-    return {book, scope: s, scopeLabel: label, win: w, legs, low,
-            metric: book !== "underdog" ? ps.reduce((a,p)=>a+metric(p), 0) / ps.length
-              : x ? udChance(ps) * x : -1};
-  };
-  const add = c => {
-    const sig = c.legs.slice().sort((a,b)=>a-b).join(",");
-    if (seen.has(sig) || (c.scope !== "stack" && nearCopy(c.scope, c.legs))) return false;
-    seen.add(sig); out.push(c); return true;
-  };
-  const windowCards = w => scopes.flatMap(([s, label]) => {
-    if (s === "stack") return stackCards(w).filter(legs => !seen.has(`qb:${legs[0]}`))
-      .map(legs => { seen.add(`qb:${legs[0]}`); return card(s, label, w, legs, false); });
-    let legs = bestSlipIn(s, w, book), low = false;
-    if (s === "long") return legs.length >= 4 ? [card(s, label, w, legs, false)] : [];
-    if (short(legs)){ legs = slipFrom(legLowInBook, s, w, book); low = true; }
-    return short(legs) ? [] : [card(s, label, w, legs, low)];
-  });
-  const windows = GAL_GROUPS.filter(g => !g.wins);
-  windows.forEach(w => windowCards(w).forEach(add));
-  /* A whole-day slip mixes kickoffs, so it shows only when it is really good (David, 2026-09-25:
-     "only if it's a really good slip"): it clears a quarter over its payout's break-even on
-     Underdog, and it returns more than the best slip of every window in that day. One per day,
-     its best; no stacks (a stack already sits in its own window). */
-  GAL_GROUPS.filter(g => g.wins).forEach(d => {
-    const bar = Math.max(-Infinity, ...out.filter(c => d.wins.includes(c.win.k) && !c.low).map(c => c.metric));
-    const top = bestCard(scopes.filter(([s]) => s !== "stack").map(([s, label]) => {
-      const legs = bestSlipIn(s, d, book);
-      return (s === "long" ? legs.length >= 4 : !short(legs)) ? card(s, label, d, legs, false) : null;
-    }).filter(Boolean));
-    if (top && top.metric > bar && (book !== "underdog" || top.metric >= 1.25)) add(top);
-  });
-  // Grouped in GAL_GROUPS order, build order inside a group. `i` is assigned after, because
-  // data-loadslip indexes this sorted array.
-  const at = c => GAL_GROUPS.indexOf(c.win);
-  return out.map((c, n) => ({c, n})).sort((a, b) => at(a.c) - at(b.c) || a.n - b.n)
-    .map(({c}, i) => ({...c, i}));
-}
-const GALLERIES = {dk: buildGallery("dk"), underdog: buildGallery("underdog")};
-/* The gallery's own filter -- not fed into legOKInBook/bestSlipIn, which already ran once above. */
-let SLIP_SCOPE = "all";
 /* The one kickoff filter for both Bets views (2026-09-25): Slips filters its cards by it, Build its
    lines. Two selects used to set two variables, so a reader who picked Sunday for the slips saw
    Thursday's lines under them. */

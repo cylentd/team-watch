@@ -119,29 +119,18 @@ function betsSheetClose(){
 
 function wireBets(v){
   v.querySelectorAll("[data-betspanel]").forEach(b => b.addEventListener("click", () => { BETS_PANEL = !BETS_PANEL; render(); }));
-  v.querySelectorAll("[data-scope]").forEach(b => b.addEventListener("click", () => { SLIP_SCOPE = b.dataset.scope; betsFlip(render); }));
-  // The legs leave the ticket for the tray one by one, counted as they land.
-  v.querySelectorAll("[data-loadslip]").forEach(b => b.addEventListener("click", () => {
-    const [book, i] = b.dataset.loadslip.split(":");
-    const card = GALLERIES[book] && GALLERIES[book][+i];
-    if (!card) return;
-    const from = [...b.closest(".ticket").querySelectorAll(".tk-leg")].map(el => el.getBoundingClientRect());
-    SLIP = card.legs.slice(); SLIP_MODE = "custom";
+  // A kickoff chip on Slips: the table deals for the new kickoff (table.js tableEnsure).
+  v.querySelectorAll("[data-gwin]").forEach(b => b.addEventListener("click", () => {
+    GAL_WIN = b.dataset.gwin; MKT_PAGE = 1;
     const y = window.scrollY; render(); window.scrollTo(0, y);
-    betsPour(from, SLIP.map(k => PROPS[k].n));
   }));
-  slipMasonry(v);
-  // A pick on a slip, a Build line's ⓘ, a TD board row: each opens its leg sheet (legsheet.js).
+  // A pick on a slip, a Build line's ⓘ: each opens its leg sheet (legsheet.js).
   v.querySelectorAll("[data-legsheet]").forEach(el => {
     const open = e => { e.stopPropagation(); legSheetOpen(+el.dataset.legsheet, el); };
     el.addEventListener("click", open);
     if (el.tagName !== "BUTTON") el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); open(e); } });
   });
-  v.querySelectorAll("[data-tdall]").forEach(b => b.addEventListener("click", () => {
-    TD_ALL = !TD_ALL;
-    const y = window.scrollY; render(); window.scrollTo(0, y);
-  }));
-  wireDeal(v);
+  wireTable(v);
   v.querySelectorAll("[data-tray]").forEach(b => b.addEventListener("click", betsSheetOpen));
   v.querySelectorAll("[data-sheetclose]").forEach(b => b.addEventListener("click", betsSheetClose));
   // The typed payout belongs to this exact slip; only the verdict redraws, so the field keeps focus.

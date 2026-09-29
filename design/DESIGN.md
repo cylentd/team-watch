@@ -818,6 +818,29 @@ the cart's footer caption, never shown as an Underdog price. Switching the toggl
 by hand; the cart warns when two legs
 share a game (correlated legs are one bet, not two).
 
+**Superseded 2026-09-29: Slips is a deal table** (`builder/table.js`, `surface/parlay/table.js`,
+`builder/table.css`; storyboard "Slips Redesign Storyboard", option C, with Keep added because
+David builds several slips a kickoff). The gallery, its category tabs (All, Receptions, TDs, Long,
+Stacks), Deal me 3 and the TD board are gone. The gallery showed 15 cards for the week because only
+15 of 268 playable legs passed its gates (TD 50%+, receptions lower 65%+), one leg per game.
+
+| Part | What |
+|---|---|
+| Bar | kickoff tabs `Thu · Sun · AM · PM · Night · Mon` (a day of several windows is its weekday, then its parts; "Sun AM" labels ran 82px over 360px), then the book chip |
+| Slip | kind (TDs, Safe, Mix) and length (3-6) on its top row; a pick per row with a lock; stub: "1 in N" of the graded chance, the board's payout and verdict, Deal again, Keep |
+| Kept | the slips kept this slate week, on this device (`localStorage`, legs as slug and market); a tap loads one into the tray; hidden on a phone until the first Keep |
+| Pool | what it deals from, top 10 then Show all; a tap locks the pick onto the slip |
+
+- **Floors** (David, 2026-09-29): a TD at 30%+ P(score); a yards or receptions leg at Underdog's
+  own line, called lower at 58%+, receptions at 2.5+. Only TD 50%+ and receptions lower 65%+ are
+  backtested; the stub's chance stays graded (`legHit`), so a looser pool never reads better than
+  it grades. Live on 2026-09-29: 18 TDs and 57 yards legs on Sunday morning, 2 TDs on Thursday.
+- **Dealing:** one leg per player; a game of its own per leg while games last, then any game (a
+  one-game kickoff still deals); Mix is half TDs, rounding down, and its pool alternates TDs and
+  yards so the TDs are not buried under 60-70% yards legs. An Underdog entry gets two teams.
+- **Desktop:** the slip beside Kept, the pool under both, two picks across (TDs left, yards right in
+  Mix). Measured at 360x800: the first pick starts at 206px.
+
 **Superseded 2026-09-29: Build is a list of lines** (`surface/parlay/lines.js`, `builder/lines.css`;
 storyboard v2 option A, picked over a copy of Underdog's layout). One column under a heading per
 kickoff, one block per player, one row per line: the line, his last 12 games against it, the call.
@@ -892,7 +915,7 @@ the same day ("too much, not scannable"). Measured at 360x780 on live data: a re
   entry (`chrome/layers.js`), so Back closes it before the view; focus goes to its handle and back
   to the pick. Escape and the scrim close it too.
 
-**TD board** (`tdboard.js`): on Slips' TDs chip, under the TD slips, every anytime-TD line still to
+~~**TD board**~~ (superseded 2026-09-29 by the deal table's pool) (`tdboard.js`): on Slips' TDs chip, under the TD slips, every anytime-TD line still to
 play at the chosen kickoff and playing (not out, Q, backup, stale or moved), ranked by the model's
 P(score). Columns: player, model, book (DraftKings' over), RZ touches a game, games with a score in
 the last 10. Top 20, then "Show all". Under the slips, not behind a toggle: a toggle is a second row

@@ -1,11 +1,11 @@
-"""The leg sheet and the TD board (2026-09-27). A pick on a slip, a Build line's info button or a
-TD board row opens one bet from the bottom edge: the last ten games against the line, three
+"""The leg sheet (2026-09-27). A pick on a slip or a Build line's info button opens one bet from
+the bottom edge: the last ten games against the line, three
 tiles, the matchup as one line, and Add. Back closes it before it changes the view. The fixture
 gives Tee Higgins and Chase Brown per-game usage (`u`) and Amon-Ra St. Brown none, and a defense
 block in which NYJ has two starters out."""
 import pytest
 
-from test_render import browser, open_page  # noqa: F401  (browser is a fixture)
+from test_render import OPEN_POOL, browser, open_page  # noqa: F401  (browser is a fixture)
 
 pytestmark = pytest.mark.render
 
@@ -23,9 +23,10 @@ def no_sideways(page):
 def test_a_slip_pick_opens_its_sheet_and_back_closes_it(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, PHONE)
     page.evaluate("SURFACE='parlay'; PARLAY_BOOK='underdog'; render()")
+    page.evaluate(OPEN_POOL)
     legs = page.locator(".ticket .tk-leg[data-legsheet]")
     if legs.count() == 0:
-        pytest.skip("the fixture's market builds no gallery slip")
+        pytest.skip("the fixture's market deals no slip")
     k = page.evaluate("[...document.querySelectorAll('.ticket .tk-leg')].findIndex(el => legLog(PROPS[+el.dataset.legsheet]))")
     assert k >= 0, "some slip pick has a game log"
     before = page.evaluate("location.href")
@@ -78,26 +79,6 @@ def test_a_sheet_without_usage_draws_what_it_has(browser, page_file):
     assert errors == []
     ctx.close()
 
-
-def test_the_td_board_ranks_by_the_model_and_opens_the_sheet(browser, page_file):
-    ctx, page, errors = open_page(browser, page_file, PHONE)
-    page.evaluate("SURFACE='parlay'; PARLAY_BOOK='underdog'; render()")
-    page.locator("[data-scope='tds']").click()
-    rows = page.locator(".tdb-row[data-legsheet]")
-    assert rows.count() >= 2
-    model = [int(x.rstrip("%")) for x in page.locator(".tdb-row[data-legsheet] .tdb-model").all_inner_texts()]
-    assert model == sorted(model, reverse=True)
-    assert page.evaluate("[...document.querySelectorAll('.tdb-row[data-legsheet]')].every(el => { const p = PROPS[+el.dataset.legsheet]; return p.mkt === 'TD' && playing(p) && upcoming(p); })")
-    assert no_sideways(page)
-    rows.first.click()
-    sheet = page.locator("#legsheet.on")
-    assert sheet.count() == 1 and sheet.locator(".ls-cap b").inner_text().startswith("Scored in ")
-    i = int(rows.first.get_attribute("data-legsheet"))
-    sheet.locator("[data-legadd]").click()
-    page.wait_for_function("LEG_SHEET === null")
-    assert page.evaluate("SLIP") == [i], "Add is the Build tap's own path into the slip"
-    assert errors == []
-    ctx.close()
 
 
 def test_builds_info_button_opens_the_sheet_and_the_row_still_adds(browser, page_file):

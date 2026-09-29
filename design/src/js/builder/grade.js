@@ -51,19 +51,3 @@ function betsPayout(legs){
   if (BETS_PAY && BETS_PAY.sig === slipSig()) return BETS_PAY.x;
   return stackIn(legs) ? null : udPayout(legs.length);
 }
-
-/* The gallery's stack cards: per kickoff window, each team whose QB and top two receivers are all
-   called lower by the model and pass the leg gates, plus the best other-game leg, since an entry
-   needs two teams. */
-function stackCards(win){
-  const ok = p => upcoming(p) && playing(p) && (p.games||0) >= 8 && isLower(p) && inWin(p, win);
-  const out = [];
-  PROPS.filter(p => p.mkt === "PASS" && ok(p)).forEach(qb => {
-    const s = stackOf(qb);
-    if (!s || !s.every(ok)) return;
-    const other = PROPS.map((p, i) => [p, i]).filter(([p]) => p.game !== qb.game && legOKInBook(p, "mix", "underdog") && inWin(p, win))
-      .sort((a, b) => legHit(b[0]) - legHit(a[0]))[0];
-    if (other) out.push([...s.map(l => PROPS.indexOf(l)), other[1]]);
-  });
-  return out;
-}

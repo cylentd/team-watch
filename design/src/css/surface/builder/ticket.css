@@ -1,33 +1,13 @@
-/* Gallery slip: a pick'em entry with a tear-off stub (2026-09-25). Underdog's navy share card
-   before it was the one surface off the slate palette, spent 103px per pick on a game header plus
-   a boxed well, and stretched to its row's tallest neighbour; printed paper before that glared.
-   Now: the page's own panel, one row per pick, a perforation with a bite out of each edge, and a
-   stub one step lighter holding the chance, the meter and Load. A slip is as tall as its picks. */
+/* A slip: a pick'em entry with a tear-off stub (2026-09-25; the deal table's since 2026-09-29).
+   The page's own panel, one row per pick, a perforation with a bite out of each edge, and a stub
+   one step lighter holding the chance and what to do with it. A slip is as tall as its picks. */
 .ticket{position:relative;display:flex;flex-direction:column;overflow:hidden;
-  background:var(--panel);color:var(--ink);border:1px solid var(--line-2);border-radius:14px;
-  transition:transform .2s var(--ease),border-color .2s var(--ease)}
-.ticket.best{border-color:rgb(var(--lime-rgb) / .55)}
-.ticket:hover{transform:translateY(var(--lift));border-color:var(--ink-3)}
-.ticket.best:hover{border-color:var(--lime)}
+  background:var(--panel);color:var(--ink);border:1px solid var(--line-2);border-radius:14px}
 
-/* The entry: what it is, and what it pays. */
-.tk-top{display:flex;align-items:center;gap:10px;padding:12px 14px 6px}
-.tk-kind{font-family:var(--disp);font-weight:700;font-size:var(--t-3);color:var(--ink)}
-.tk-kind span{margin-left:8px;font-family:var(--ui);font-weight:500;font-size:var(--t-2);color:var(--ink-3)}
-.tk-pays{margin-left:auto;flex:none;font-family:var(--mono);font-weight:700;font-size:var(--t-2);
-  background:var(--panel-3);border-radius:99px;padding:3px 10px}
-/* The best slip at its kickoff wears the pill; lime is the page's "the one to pick" colour. */
-.tk-bestpill{margin-left:auto;flex:none;font-weight:700;font-size:var(--t-1);white-space:nowrap;
-  background:var(--lime);color:var(--on-lime);border-radius:99px;padding:3px 10px}
-.tk-bestpill + .tk-pays{margin-left:0}
-
-/* A heading per kickoff: what the reader scrolls to. */
-.tk-group{margin-top:26px}
-.tk-group:first-child{margin-top:14px}
+/* A heading per kickoff (Build's line list). */
 .tk-when{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .tk-when h3{margin:0;font-family:var(--disp);font-weight:800;font-size:var(--t-4);letter-spacing:-.01em}
 .tk-when span{font-size:var(--t-1);color:var(--ink-3)}
-.tk-group .tk-grid{margin-top:10px}
 
 /* One row per pick, two lines (2026-09-25, "too busy and it's small"): his face on his team's
    colour, his name, the call, the one number. A tap opens the leg sheet (legsheet.css). */
@@ -64,14 +44,7 @@
   background:var(--panel-3);color:var(--ink);font-family:var(--ui);font-weight:700;font-size:var(--t-2);padding:8px 14px;
   transition:background .15s var(--ease),color .15s var(--ease)}
 .ticket-cta:hover{background:var(--line-2)}
-.ticket.best .ticket-cta{background:var(--lime);color:var(--on-lime)}
-.ticket.best .ticket-cta:hover{background:var(--lime);filter:brightness(1.08)}
 .ticket-cta:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
-.tk-meter{position:relative;height:6px;border-radius:3px;background:var(--panel-3)}
-.tk-meter i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--ink-3)}
-.tk-meter i.up{background:var(--up)}
-.tk-meter i.down{background:var(--down)}
-.tk-meter u{position:absolute;top:-4px;bottom:-4px;width:2px;margin-left:-1px;border-radius:1px;background:var(--ink)}
 .tk-note{display:flex;align-items:baseline;gap:10px;font-size:var(--t-1);color:var(--ink-3)}
 .tk-note > span:last-child{margin-left:auto;text-align:right}
 .tk-note b{font-weight:700;color:var(--ink)}

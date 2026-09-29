@@ -106,14 +106,13 @@ surface/builder/legs.css
 surface/builder/strategy.css
 surface/builder/side.css
 surface/builder/ticket.css
-surface/builder/deal.css
+surface/builder/table.css
 surface/builder/slip.css
 surface/builder/lines.css
 surface/builder/payout.css
 surface/builder/explain.css
 surface/builder/bets.css
 surface/builder/legsheet.css
-surface/builder/tdboard.css
 surface/dfs/table.css
 chrome/feed.css
 surface/dfs/lineup.css

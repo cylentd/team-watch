@@ -115,6 +115,17 @@ GAME_SHEET = """(() => { gsOpen({event: "1", away: "DET", home: "BUF"}, null);
 WAIT_STAGE = "new Promise(r => setTimeout(r, 450))"
 CLOSE_STAGE = """(() => { document.body.dispatchEvent(new KeyboardEvent("keydown", {key: "Escape", bubbles: true}));
   return new Promise(r => setTimeout(r, 450)); })()"""
+# The fixture slate's picks sit under the deal table's floors (a 35% TD is a backup, no yards leg
+# is called lower at 58%+), so Slips' tests open its pool to every Underdog-priced pick at the
+# kickoff, TDs and yards kept apart as the real pool keeps them.
+OPEN_POOL = """
+tablePool = (kind = TABLE.kind) => {
+  const w = tableWin(), at = PROPS.map((p, i) => i).filter(i => udPick(PROPS[i]) && inWin(PROPS[i], w));
+  const td = at.filter(i => PROPS[i].mkt === 'TD'), safe = at.filter(i => PROPS[i].mkt !== 'TD');
+  return kind === 'td' ? td : kind === 'safe' ? safe : [...td, ...safe];
+};
+TABLE.sig = ''; render();
+"""
 
 STATES = [
     # The Digest (This week, 2026-09-26), the page's default: the day picks the open row. Friday
@@ -278,13 +289,16 @@ STATES = [
                                        ("click", "[data-tray]"), ("click", "[data-preset='mine']")]),
     ("build-underdog", go("build")),
     ("build-panel", go("build") + [("click", "[data-betspanel]")]),
-    ("parlay-sheet", go("parlay") + [("click", "[data-loadslip]"), ("click", "[data-tray]")]),
+    # The deal table (2026-09-29) on an opened pool (OPEN_POOL): a kept slip loaded into the sheet,
+    # a Safe deal with a lock and a kept slip, and the Sunday tab.
+    ("parlay-sheet", go("parlay") + [("eval", OPEN_POOL), ("click", "[data-tkeep]"), ("click", ".dt-kept-load"), ("click", "[data-tray]")]),
+    ("parlay-safe", go("parlay") + [("eval", OPEN_POOL), ("click", "[data-tkind='safe']"), ("click", "[data-tlegs='3']"),
+                                    ("click", ".dt-slip .dt-lock"), ("click", "[data-tkeep]")]),
+    ("parlay-day", go("parlay") + [("click", ".bets-tabsrow [data-gwin]")]),
     # The leg sheet (2026-09-27): a slip's first pick tapped, and Tee Higgins' receptions, whose
-    # log carries per-game usage and whose opponent (NYJ) has two starters out. The TDs chip adds
-    # the TD board under the TD slips.
-    ("parlay-legsheet", go("parlay") + [("click", ".ticket .tk-leg")]),
+    # log carries per-game usage and whose opponent (NYJ) has two starters out.
+    ("parlay-legsheet", go("parlay") + [("eval", OPEN_POOL), ("click", ".ticket .tk-leg .tk-who")]),
     ("parlay-legsheet-recs", go("parlay") + [("eval", "legSheetOpen(PROPS.findIndex(p => p.n === 'Tee Higgins' && p.mkt === 'RECS'))")]),
-    ("parlay-tds", go("parlay") + [("click", "[data-scope='tds']")]),
     ("dfs-yahoo", go("dfs")),
     # DFS since 2026-09-25: the strategy as the bar's chips, the site and "how this works" in the
     # panel its last chip opens.

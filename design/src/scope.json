@@ -9,7 +9,7 @@
     "surface/builder/side.css": ["parlay", "build", "dfs"],
     "surface/builder/slip.css": ["parlay", "build", "dfs"],
     "surface/builder/strategy.css": ["parlay", "build", "dfs"],
-    "surface/builder/tdboard.css": ["parlay", "build", "dfs"],
+    "surface/builder/table.css": ["parlay"],
     "surface/builder/ticket.css": ["parlay", "build", "dfs", "#legsheet"],
     "surface/chat/chat.css": ["#chatdock", ".navbar"],
     "surface/dfs/lineup.css": ["dfs"],
@@ -67,7 +67,6 @@
   },
   "shared": {
     "surface/board/board.css": "Leaders, Movers and Slips",
-    "surface/builder/deal.css": "its cards fly on <body>, outside every view",
     "surface/builder/legsheet.css": "the leg sheet and its scrim sit on <body>, outside every view, and a body:has() rule locks the scroll",
     "surface/live/gamesheet.css": "the game sheet and its scrim sit on <body>, outside every view, and a body:has() rule locks the scroll",
     "surface/profile/sheet.css": "the profile modal and Weather",
