@@ -950,6 +950,11 @@ word on it, and the prose lives one tap away in the profile.
 | One colour means one thing inside a set of pills: green helped, red hurt, amber injury, filled red how long he is out, grey his role. | A reader learns it once for the whole card. | Digest Results |
 | A feed is grouped by its subject, newest line first, not kept as a log. | A log repeats the same player; a group says the story once. | Digest News, 10 headlines to 7 players |
 | Desktop fills its width with more of the same subject (cards across), never with wider lines. | One 560px column in a 1,120px card left half empty. | Digest News |
+| A repeated item (a box, a row) carries two things; anything more moves to the card that owns it. | Six marks per box fought for attention; TOP/BOT already had the ranking card. | Live's league games, name and score only |
+| Inside one card a colour means one thing. Lime on Live's games: LIVE, the trophy, the game on screen. | Lime meant four things in one card, so none of them stood out. | Live's league games |
+| A label sits above what it labels, and the space between groups is wider than the space inside one. | A state line under its game read as the next game's header. | Live's league games, 6px inside, 16px between |
+| Every item in a list has the same parts: if one game has a state line, all do. | One shape learned once scans faster than a list of exceptions. | FINAL on finished games |
+| A highlight marks what is on screen now, and moves when the reader picks another; one outline per item, never one per part. | A fixed outline on your own game stayed lit while another game was open, and drew twice. | Live's picked game |
 | Icons are drawn (inline SVG in `currentColor`), never emoji or Unicode glyphs. | A glyph renders differently per platform and reads as decoration. | Live's lock |
 
 A new or changed view is checked against this table too (`STYLE.md`, "Before a view lands").

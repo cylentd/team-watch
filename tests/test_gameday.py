@@ -165,12 +165,14 @@ def test_the_board_says_where_each_game_is_and_a_row_opens_his_profile(browser, 
     assert by_team.get("SF") == "PLAYING" and by_team.get("DET") == "PROJ"
     assert "FINAL" in by_team.values()
     assert page.locator(".gd-median:not(.quiet)").count() == 1         # ESPN pays the top half
-    assert page.locator(".gd-bx-foot small").count() > 0               # so its games say TOP/BOT
-    # each game states itself as a tag, and each box has one meter slot per starter
+    # every game states itself on the line above its boxes; a box is a name and a score, and only a
+    # finished game's winner carries the trophy
     tags = page.locator(".gd-gs").all_inner_texts()
-    assert tags and all(re.match(r"^(LIVE · \d+ LEFT|\d+ LEFT|LOCKED)$", s.strip()) for s in tags)
-    assert page.locator(".gd-g.mine .gd-bx").first.locator(".gd-meter i").count() == \
-        page.locator(".gd-lineup.mine .gd-row:not(.bn)").count()
+    assert len(tags) == page.locator(".gd-g").count()
+    assert all(re.match(r"^(LIVE · \d+ LEFT|\d+ LEFT|FINAL)$", s.strip()) for s in tags)
+    assert page.locator(".gd-g").evaluate_all("gs => gs.every(g => g.firstElementChild.classList.contains('gd-gs'))")
+    assert page.locator(".gd-cup").count() == sum(1 for s in tags if s.strip() == "FINAL")
+    assert page.locator(".gd-g.on").count() == 1 and page.locator(".gd-g.mine.on").count() == 1
     assert page.locator(".gd-row").evaluate_all("rs => rs.every(r => getComputedStyle(r).backgroundColor === 'rgba(0, 0, 0, 0)')")
     # my game says who leads in words; the bench is drawn, dimmed, and left out of the total
     assert re.match(r"^(UP|DOWN) \d+\.\d$|^TIED$", page.locator(".gd-lead").inner_text())
@@ -180,12 +182,13 @@ def test_the_board_says_where_each_game_is_and_a_row_opens_his_profile(browser, 
     page.keyboard.press("Escape")
     page.click("[data-gdleague='yahoo']")
     assert page.locator(".gd-median.quiet").count() == 1               # Yahoo ranks for bragging
-    assert page.locator(".gd-bx-foot small").count() == 0              # and tags no one
     assert "Chat Take the Wheel" in page.locator(".gd-head").inner_text()
-    # another game in the league opens its two lineups, and its chip names no side
+    # another game in the league opens its two lineups, takes the outline from mine, and its chip
+    # names no side
     other = page.locator(".gd-g:not(.mine)").first
     other.click()
     assert "Chat Take the Wheel" not in page.locator(".gd-head").inner_text()
+    assert page.locator(".gd-g.on").count() == 1 and page.locator(".gd-g.mine.on").count() == 0
     assert re.match(r"^BY \d+\.\d$|^TIED$", page.locator(".gd-lead").inner_text())
     ctx.close()
     assert errors == []
