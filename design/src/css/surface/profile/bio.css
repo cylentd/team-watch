@@ -1,0 +1,56 @@
+/* ============================== PROFILE · BIO ==============================
+   The Bio pane (facts.js bioBlockHTML). No heading of its own: the tab above it is one.
+
+     the measurables  age, size, experience: a big number over a small label, one per cell, rules
+                      between -- the strip under his name, read the same way
+     Drafted          the NFL's pick, then each of my leagues' picks, the league's tag leading
+     Athletic profile his combine percentiles and drills
+
+   Redrawn 2026-09-29 (David: "use bigger font, I can't really read a lot of the text"), then again
+   the same day ("on desktop we stretch out info"): a draft row ran the full 1,200px, the league at
+   one edge and its pick at the other. A desktop now sets Drafted and the athletic profile side by
+   side, each half the pane, so no label is more than ~560px from its value. */
+.pf-meas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:0 0 20px}
+.pf-meas > div{display:flex;flex-direction:column-reverse;justify-content:flex-end;gap:4px;min-width:0;
+  padding:0 12px 0 0}
+.pf-meas > div + div{border-left:1px solid var(--line);padding-left:16px}
+.pf-meas dt{font-family:var(--mono);font-size:var(--t-1);font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-3)}
+.pf-meas dd{margin:0;font-family:var(--mono);font-size:var(--t-5);font-weight:700;
+  letter-spacing:-.03em;line-height:1.1;color:var(--ink)}
+
+/* Drafted: one pick a row. The row's name and pick sit together at the left, not at the two edges. */
+.pf-facts{margin:0}
+.pf-facts > div{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 16px;min-width:0;
+  padding:11px 0;border-top:1px solid var(--line)}
+.pf-facts > div:first-child{border-top:0;padding-top:0}
+.pf-facts dt{display:inline-flex;align-items:baseline;gap:9px;min-width:0;flex:0 1 15em;
+  font-size:var(--t-3);font-weight:600;color:var(--ink)}
+/* The league's tag, as the owner pills print it (panel.css .pf-own-l). */
+.pf-facts dt[data-league]::before{content:attr(data-league);flex:none;padding:2px 7px;border-radius:99px;
+  background:var(--panel-3);font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.06em;color:var(--ink-2)}
+.pf-facts dd{margin:0;font-family:var(--mono);font-size:var(--t-3);font-weight:700;color:var(--ink);white-space:nowrap}
+
+/* The athletic profile, one step up the scale from the usage bars it shares (panel.css .pf-bar):
+   its drills and its note are the pane's reading, not fine print. His percentiles are his, so
+   they wear his colour (panel.css .pf-body --tint). */
+.pf-pane-bio .pf-bar-l,.pf-pane-bio .pf-bar-v{font-size:var(--t-3)}
+.pf-pane-bio .pf-bar{grid-template-columns:84px minmax(0,1fr) 48px 0;min-height:26px}
+.pf-pane-bio .pf-track i{background:var(--tint)}
+.pf-pane-bio .pf-cap{font-size:var(--t-3);color:var(--ink-2)}
+.pf-pane-bio .pf-cap.pf-quiet{color:var(--ink-3)}
+
+.pf-pane-bio > .pf-sec{border-bottom:0}
+@media not all and (max-width:760px){
+  .pf-pane-bio{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:48px;align-items:start}
+  .pf-pane-bio > .pf-meas{grid-column:1 / -1}
+  .pf-tabpane.pf-pane-bio > .pf-sec{padding:4px 0 0}
+}
+@media (max-width:760px){
+  /* Size is the long one ("5′9″ · 202 lb"): age and experience take their width, it takes the rest. */
+  .pf-meas{grid-template-columns:auto minmax(0,1fr) auto}
+  .pf-meas dd{font-size:var(--t-4)}
+  .pf-meas > div + div{padding-left:10px}
+  /* A phone's row is ~310px, under the desktop's 15em name column plus the pick. */
+  .pf-facts dt{flex:1 1 auto}
+}

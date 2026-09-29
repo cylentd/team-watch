@@ -220,8 +220,10 @@ def test_panes_split_the_blocks_and_only_one_is_in_the_dom(browser, page_file):
     tab(page, "matchup")
     assert modal.locator(".pf-rank").inner_text().strip() == "9th easiest of 32 for WRs"
     assert modal.locator(".pf-zones").count() == 0                         # usage is gone, not hidden
-    assert modal.locator(".pf-tag", has_text="UNTESTED").first.inner_text().strip() == "UNTESTED"
-    assert modal.inner_text().count("METHODOLOGY") == 1
+    # The pane presents the numbers (2026-09-29, David: "untested is not needed"): no amber tag,
+    # no methodology citation, one card per subject.
+    assert "UNTESTED" not in modal.inner_text() and "METHODOLOGY" not in modal.inner_text()
+    assert modal.locator(".pf-cols > .pf-col").count() == 3
     page.keyboard.press("Escape")
     assert "on" not in modal.get_attribute("class")
     assert page.evaluate("document.activeElement.classList.contains('row')")
@@ -364,6 +366,10 @@ def test_desktop_panes_sit_side_by_side_and_a_phone_stacks_them(browser, page_fi
         tab(page, "usage")
         a, b = tops("#modal .pf-tabpane > *")[:2]
         assert (a[0] == b[0]) if side else (b[0] >= a[1])
+        # His bar wears his position's colour; his teammates' stay grey (2026-09-29).
+        bar = "e => getComputedStyle(e).backgroundColor"
+        assert page.locator("#modal .pf-tm.me .pf-tm-bar i").evaluate(bar) \
+            != page.locator("#modal button.pf-tm .pf-tm-bar i").first.evaluate(bar)
         tab(page, "matchup")
         cols = tops("#modal .pf-cols > .pf-col")
         assert len(cols) >= 2
@@ -372,6 +378,14 @@ def test_desktop_panes_sit_side_by_side_and_a_phone_stacks_them(browser, page_fi
         assert len(bgs) == 2 and bgs[0] == bgs[1]                  # one grey for both leagues, no brand colour
         tab(page, "season")
         assert page.locator("#modal .ss-row svg").count() == 0
+        # A draft pick sits by the league it belongs to, not at the far edge of the pane (David,
+        # 2026-09-29: "on desktop we stretch out info").
+        page.keyboard.press("Escape")
+        row(page, "Chase Brown").click()
+        tab(page, "bio")
+        gap = page.evaluate("""(() => { const r = document.querySelector('#modal .pf-facts > div');
+          return r.querySelector('dd').getBoundingClientRect().right - r.querySelector('dt').getBoundingClientRect().left; })()""")
+        assert gap <= 560
         assert errors == []
         ctx.close()
 
@@ -943,7 +957,7 @@ def test_market_row_shows_priced_numbers(browser, page_file):
     modal = page.locator("#modal")
     tab(page, "matchup")
     text = modal.inner_text()
-    assert "UNTESTED" in text
+    assert "UNTESTED" not in text                             # tags cut 2026-09-29 (David)
     assert "17.8 pts" in text and "role 18.2 pts" in text
     assert "WR rank #5" in text and "z 0.82" in text
     assert "Priced: REC" in text
@@ -960,7 +974,7 @@ def test_market_row_falls_back_to_model_pts(browser, page_file):
     modal = page.locator("#modal")
     tab(page, "matchup")
     text = modal.inner_text()
-    assert "UNTESTED" in text
+    assert "UNTESTED" not in text                             # tags cut 2026-09-29 (David)
     assert "13.1 pts, the model's number" in text
     assert "No market priced yet." in text
     page.keyboard.press("Escape")
@@ -995,7 +1009,7 @@ def test_market_row_partial_markets_shows_priced_not_no_market(browser, page_fil
     modal = page.locator("#modal")
     tab(page, "matchup")
     text = modal.inner_text()
-    assert "UNTESTED" in text
+    assert "UNTESTED" not in text                             # tags cut 2026-09-29 (David)
     assert "11.2 pts, the model's number" in text
     assert "Priced: REC" in text
     assert "No market priced yet." not in text

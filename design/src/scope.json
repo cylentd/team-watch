@@ -38,6 +38,7 @@
     "surface/matchups/rows.css": ["matchups"],
     "surface/news/ticker.css": ["news"],
     "surface/profile/archetype.css": ["#modal"],
+    "surface/profile/bio.css": ["#modal"],
     "surface/profile/details.css": ["#modal"],
     "surface/profile/history.css": ["#modal"],
     "surface/profile/ladder.css": ["#modal"],

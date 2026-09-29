@@ -19,10 +19,13 @@ button.pf-tm:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
 .pf-tm-bar i{position:absolute;inset:0 auto 0 0;width:var(--w);background:var(--ink-3);
   animation:pf-widen .5s var(--ease) calc(.08s + var(--i,0) * 50ms) backwards}
 .pf-tm > b{font-family:var(--mono);font-size:var(--t-2);font-weight:700;text-align:right;color:var(--ink-2);font-variant-numeric:tabular-nums}
-/* Bright ink for him and grey for the rest, the red-zone split's code right under it. */
+/* His position's colour for him and grey for the rest (panel.css .pf-body sets --tint), the
+   red-zone split's code right under it. */
 .pf-tm.me{color:var(--ink)}
-.pf-tm.me .pf-tm-bar i{background:var(--ink)}
+.pf-tm.me .pf-tm-bar i{background:var(--tint)}
 .pf-tm.me > b{color:var(--ink)}
+/* Usage's other bars (middle vs outside) are his shares too, so they wear his colour. */
+.pf-pane-usage .pf-track i{background:var(--tint)}
 .pf-tm.rest .pf-tm-n,.pf-tm.rest > b{font-weight:500;color:var(--ink-3)}
 /* The Props tab (props.js) draws the leg sheet's bars (legsheet.css), two markets to a row on a
    desktop (panel.css), each about the 560px sheet they were sized for. The market's name is the

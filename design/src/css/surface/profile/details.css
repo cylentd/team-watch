@@ -1,14 +1,12 @@
 /* ============================== PROFILE · FINER READS ==============================
-   The blocks a pane composes below its headline section: zone read (with its amber UNTESTED
-   tag), coverage split, middle vs outside, the opponent's rates against the league tick, raw
-   factor. Same rhythm as .dr-sec -- 20px and a rule below, never a rule above -- because a pane
-   mixes the two kinds and two adjacent borders drew as one 2px line. */
+   The blocks a pane composes below its headline section: zone read, coverage split, middle vs
+   outside, the opponent's rates against the league tick, raw factor. Same rhythm as .dr-sec --
+   20px and a rule below, never a rule above -- because a pane mixes the two kinds and two
+   adjacent borders drew as one 2px line. */
 .pf-dsec{padding:20px 0;border-bottom:1px solid var(--line)}
 .pf-dsec:last-of-type{border-bottom:0}
-.pf-tag{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.14em;line-height:1;color:var(--amber);background:rgb(var(--amber-rgb) / .06);border:1px dashed rgb(var(--amber-rgb) / .55);padding:4px 6px;border-radius:2px}
 .pf-fine{margin-top:8px;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.02em;color:var(--ink-3)}
-.pf-say{margin:0 0 10px;font-size:var(--t-2);line-height:1.45;color:var(--ink)}
-.pf-blend{margin:14px 0 0;padding-top:14px;border-top:1px solid var(--line);color:var(--ink-3)}
+.pf-say{margin:0 0 10px;font-size:var(--t-3);line-height:1.45;color:var(--ink)}
 
 /* One opponent rate: its name and number on one line, the bar under them with the league's tick,
    and the league's number written under the bar. The bar's own value and gap columns are
@@ -21,9 +19,8 @@
 .pf-metric-f{margin-top:6px;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);text-align:right}
 .pf-stale{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.12em;color:var(--amber);border:1px solid rgb(var(--amber-rgb) / .4);background:rgb(var(--amber-rgb) / .08);padding:2px 5px;border-radius:2px;cursor:help}
 
-.pf-factor{display:flex;align-items:baseline;gap:10px;margin-top:14px;font-size:var(--t-2);color:var(--ink-2)}
-.pf-factor b{font-family:var(--mono);font-size:var(--t-3);font-weight:700;color:var(--ink)}
-.pf-factor + .pf-fine{margin-top:4px}
+.pf-factor{display:flex;align-items:baseline;gap:10px;margin-top:16px;font-size:var(--t-3);color:var(--ink-2)}
+.pf-factor b{margin-left:auto;font-family:var(--mono);font-size:var(--t-4);font-weight:700;color:var(--ink)}
 
 /* His team's offensive line: the weather row's cells (sheet.css), under a head of its own. */
 .pf-wx.pf-line{margin-top:0}

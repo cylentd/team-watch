@@ -28,6 +28,15 @@
   font-size:var(--t-2);color:var(--ink-3)}
 .pf-tags .tag.verdict{color:var(--ink-2);border:1px solid var(--line-2)}
 .pf-body{padding:0 26px 30px}
+/* His marks in the panes -- his bar among his teammates', his depth bars, his red-zone segment --
+   carry his position's colour, the one the sphere in the head already wears (2026-09-29, David:
+   Usage was "too black and white"). One meaning: coloured is him; teammates and averages stay
+   grey. A position with no colour (K, DST) keeps plain ink. DESIGN.md "Direction" records it. */
+.pf-body{--tint:var(--ink);--tint-rgb:var(--ink-rgb)}
+.pf-body.pos-qb{--tint:var(--pos-qb);--tint-rgb:var(--pos-qb-rgb)}
+.pf-body.pos-rb{--tint:var(--pos-rb);--tint-rgb:var(--pos-rb-rgb)}
+.pf-body.pos-wr{--tint:var(--pos-wr);--tint-rgb:var(--pos-wr-rgb)}
+.pf-body.pos-te{--tint:var(--pos-te);--tint-rgb:var(--pos-te-rgb)}
 .pf-empty{margin-top:22px;min-height:120px}
 
 /* The strip (lede.js): four numbers in one row, rules between them and nothing around them -- boxes
@@ -91,10 +100,16 @@ button.pf-own:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 /* A desktop lays a pane's blocks side by side (2026-09-29, David: Usage and Matchup "should fit
    without scrolling", and bars ran 1,000px wide). Usage and Props: two columns, blocks flowing
    into them; a block that holds two parts (a back's red zone) takes the whole row. Matchup: the
-   verdict across the top, then its three columns (tabs.js matchupPaneHTML). A column's blocks
-   are divided by space, not rules: a rule under a block that ends mid-row read as a broken table. */
-.pf-cols{display:grid;grid-template-columns:minmax(0,1fr)}
-.pf-col > :last-child{border-bottom:0}
+   verdict across the top, then its subjects as cards (tabs.js matchupPaneHTML).
+
+   Cards since 2026-09-29 (David: Matchup was "very busy, should we use cards?"). One card per
+   subject -- their defense, him against it, his side -- in DESIGN.md's one card style, and the
+   reads inside a card are rows divided by a 1px rule. The cards, not rules and small labels,
+   are what separate the subjects; a phone stacks them. */
+.pf-cols{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.pf-col{min-width:0;padding:14px 18px;background:var(--panel);border:1px solid var(--line);border-radius:16px}
+.pf-cols .pf-col > *{padding:0;border-bottom:0}
+.pf-cols .pf-col > * + *{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
 .pf-rz-parts{display:grid;gap:18px}
 @media not all and (max-width:760px){
   .pf-pane-usage,.pf-pane-props{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
@@ -102,15 +117,16 @@ button.pf-own:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
   .pf-tabpane.pf-pane-usage > *,.pf-tabpane.pf-pane-props > *{min-width:0;padding:0 0 24px;border-bottom:0}
   .pf-pane-usage > .pf-sec-rz.two{grid-column:1 / -1}
   .pf-sec-rz.two .pf-rz-parts{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:48px}
-  .pf-cols{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);column-gap:40px;
-    padding-top:18px;border-top:1px solid var(--line)}
-  .pf-col{min-width:0}
-  .pf-cols .pf-col > *{padding:0 0 20px;border-bottom:0}
-  /* The verdict and its strip on one line: the sentence says it, the strip shows where. */
-  .pf-pane-matchup > .pf-sec:first-child{display:grid;grid-template-columns:max-content minmax(0,560px);
-    column-gap:36px;align-items:center;padding-bottom:18px;border-bottom:0}
-  .pf-pane-matchup > .pf-sec:first-child > :not(.pf-rank):not(.pf-strip){grid-column:1 / -1}
-  .pf-pane-matchup .pf-strip{margin-top:0}
+  .pf-cols{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:16px}
+  /* The verdict and its strip on one line: the sentence says it, the strip shows where. The
+     forecast rides the week's label line, at its right, instead of taking a row of its own. */
+  .pf-pane-matchup > .pf-sec:first-child{display:grid;grid-template-columns:max-content minmax(0,560px) 1fr;
+    grid-template-areas:"lbl lbl wx" "rank strip strip";column-gap:36px;align-items:center;
+    padding-bottom:12px;border-bottom:0}
+  .pf-pane-matchup > .pf-sec:first-child > .pf-sechead{grid-area:lbl}
+  .pf-pane-matchup > .pf-sec:first-child > .pf-rank{grid-area:rank}
+  .pf-pane-matchup > .pf-sec:first-child > .pf-strip{grid-area:strip;margin-top:0;max-width:560px}
+  .pf-pane-matchup > .pf-sec:first-child > .pf-wx{grid-area:wx;justify-self:end;margin:0 0 14px}
 }
 
 .pf-sechead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}
@@ -144,8 +160,6 @@ button.pf-own:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 
 .pf-cap{margin:12px 0 0;font-size:var(--t-2);line-height:1.5;color:var(--ink-2)}
 .pf-quiet{margin-top:0;color:var(--ink-3)}
-.pf-caution{display:flex;gap:8px;align-items:baseline;color:var(--ink-3)}
-.pf-caution::before{content:"";flex-shrink:0;width:6px;height:6px;border-radius:99px;background:var(--amber);transform:translateY(-1px)}
 
 .pf-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:var(--t-2)}
 .pf-table th,.pf-table td{padding:7px 0;border-bottom:1px solid var(--line);text-align:right;font-weight:500}

@@ -36,7 +36,7 @@ function openProfile(p, originEl){
       </div>
       ${p.note ? `<div class="dr-note">${esc(p.note)}</div>` : ""}
     </div>
-    <div class="dr-body pf-body">
+    <div class="dr-body pf-body pos-${esc(String(prof ? prof.pos : p.pos || "").toLowerCase())}">
       ${ledeHTML(p, prof)}
       ${ownersHTML(p)}
       ${tabsHTML(prof, p)}

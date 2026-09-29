@@ -1073,6 +1073,10 @@ Signal Desk — a dark trading-terminal console.
 Positions are typographic, never coloured, with one exception decided 2026-09-21: the profile
 modal's stat sheet (radar, its chips, the stat card) is tinted by position (`--pos-qb/rb/wr/te`),
 so a run of profiles reads QB/RB/WR/TE at a glance. Rows, cells and badges stay typographic.
+Extended 2026-09-29 (David: Usage "too black and white"): inside the profile, his own marks wear
+the same tint -- his bar among his teammates', his depth bars, his red-zone segment, his middle and
+outside shares, his combine percentiles (`.pf-body` sets `--tint`). One meaning: coloured is him;
+teammates, averages and the defense stay grey.
 Type: Bricolage Grotesque (display), Archivo (UI),
 JetBrains Mono (all numerals).
 

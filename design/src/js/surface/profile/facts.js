@@ -196,9 +196,15 @@ function bioBlockHTML(p){
      lot of the text"). The measurables are numbers, so they read like the strip under his name:
      big, one per cell. The drafts are a list, one row each -- where the NFL took him, then each of
      my leagues with its tag -- so the eye runs down one column of picks. */
+  /* On a desktop the drafts sit beside the athletic profile (sheet.css), each in half the pane:
+     a pick at the far edge of a 1,200px row from the league it belongs to read as two facts
+     (2026-09-29, David: "on desktop we stretch out info"). */
   const wide = (nfl ? [[t("profile.fact.nfl"), nfl, ""]] : []).concat(leagueFactRows(b.fantasy_draft || {}));
   if (!half.length && !wide.length) return ath;
   const cell = (k, v) => `<div><dt>${k}</dt><dd>${v}</dd></div>`;
-  const draft = (k, v, tag) => `<div class="wide"><dt${tag ? ` data-league="${esc(tag)}"` : ""}>${k}</dt><dd>${v}</dd></div>`;
-  return `<dl class="pf-facts">${half.map(([k, v]) => cell(k, v)).join("")}${wide.map(([k, v, tag]) => draft(k, v, tag)).join("")}</dl>` + ath;
+  const draft = (k, v, tag) => `<div><dt${tag ? ` data-league="${esc(tag)}"` : ""}>${k}</dt><dd>${v}</dd></div>`;
+  const meas = half.length ? `<dl class="pf-meas">${half.map(([k, v]) => cell(k, v)).join("")}</dl>` : "";
+  const drafts = wide.length ? secHTML(t("profile.fact.drafted"),
+    `<dl class="pf-facts">${wide.map(([k, v, tag]) => draft(k, v, tag)).join("")}</dl>`, "", "pf-sec-drafts") : "";
+  return meas + drafts + ath;
 }

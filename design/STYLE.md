@@ -34,6 +34,11 @@ names the reason in its `DESIGN.md` section.
   centred inside a taller one reads as a mistake. (Leaders card, 2026-09-25.)
 - **Desktop fills the width it has.** A 3x3 grid, a hero beside its list; never one stretched
   column with bars a thousand pixels long.
+- **A label stays within 560px of its value.** A row that pins its name to one edge and its number
+  to the other (`space-between`, a `flex:1` label, a `1fr` track) reads as two facts on a desktop.
+  A wide pane gets columns, or the row a max-width. (Profile, 2026-09-29, flagged twice in one day:
+  usage bars 988px wide, then Bio draft picks 1,100px from their league;
+  `test_desktop_panes_sit_side_by_side_and_a_phone_stacks_them`.)
 - **Rows, not columns.** A desktop page of sections pairs them in rows of like height (ranking
   beside heists) and gives a long section the full width with its cards two across. Never split the
   sections into a left and a right column by kind: the columns end ~1000px apart and the short one
@@ -83,7 +88,8 @@ loads. A new curve or duration is a new token, never a literal in a component.
 
 ## Before a view lands
 
-1. Screenshot it at 360px, then desktop, including the next page and an empty state.
+1. Screenshot it at 360px, then desktop, including the next page and an empty state. On the
+   desktop shot, check every row whose label and value sit at opposite edges (Layout, above).
 2. Measure where the first data starts; it is ~200px or less, or the reason is written down.
 3. Page, filter and tap through it: nothing jumps, and every motion ends where its thing lives.
 4. Every interaction has a render test (`tests/test_render.py`), and the golden diff shows only

@@ -31,17 +31,17 @@ const PF_TABS = [
 function pfReceiver(prof){ return prof.pos === "WR" || prof.pos === "TE"; }
 
 /* The matchup in the order it is read (2026-09-29, David: "should fit without scrolling"): the
-   verdict across the top, then up to three columns under it -- the two lines that meet (their
-   defense, his blockers), where he is thrown to against it and what the market says, and how he
-   fares against its looks. A desktop reads them side by side, each about 370px wide instead of
-   bars 1,000px long, and of about equal height; a phone stacks them in the same order. */
+   verdict across the top, then one card per subject under it (2026-09-29, cards): their defense,
+   him against its looks (a receiver's zone read and coverage split), and his side (his blockers
+   and the market's number). A desktop reads them side by side, each about 370px wide instead of
+   bars 1,000px long; a phone stacks them in the same order. */
 function matchupPaneHTML(prof){
-  const col = h => h.trim() ? `<div class="pf-col">${h}</div>` : "";
+  const card = h => h.trim() ? `<div class="pf-col">${h}</div>` : "";
   const rec = pfReceiver(prof);
-  const cols = col(opponentHTML(prof) + lineHTML(prof))
-    + col((rec ? zoneReadHTML(prof) : "") + marketHTML(prof))
-    + col(rec ? coverageHTML(prof) : "");
-  return headlineHTML(prof) + (cols ? `<div class="pf-cols">${cols}</div>` : "") + blendedHTML(prof);
+  const cards = card(opponentHTML(prof))
+    + card(rec ? zoneReadHTML(prof) + coverageHTML(prof) : "")
+    + card(lineHTML(prof) + marketHTML(prof));
+  return headlineHTML(prof) + (cards ? `<div class="pf-cols">${cards}</div>` : "");
 }
 
 // The pane's class names the tab, so each pane lays itself out (panel.css) without a wrapper.

@@ -23,16 +23,14 @@ function marketPricedText(markets){
 function marketHTML(prof){
   const m = stockFor(prof);
   if (!m) return "";
-  /* Same tag, same wording, as details.js's zone-read "UNTESTED" -- one name for "this block
-     hasn't cleared a backtest," not two. */
-  const tag = `<span class="pf-tag">${t("profile.zoneRead.untested")}</span>`;
+  // No UNTESTED tag since 2026-09-29 (details.js zoneReadHTML says why).
   const priced = (m.markets && m.markets.length)
     ? `<p class="pf-cap pf-fine">${t("profile.market.priced", {markets: esc(marketPricedText(m.markets))})}</p>`
     : `<p class="pf-cap pf-quiet">${t("profile.market.noMarket")}</p>`;
   if (m.no_market || m.src !== "market"){
     return subHTML(t("profile.market.label"), `
       <p class="pf-cap">${t("profile.market.model", {pts: pfNum(m.pts, 1)})}</p>
-      ${priced}`, tag);
+      ${priced}`);
   }
   /* d_rank of exactly 0 (or null) gets no marker: "#2 — 0" beside a rank reads as a range, not
      as "no change." z describes the same role move as role_pts, so it sits on that line; the
@@ -41,5 +39,5 @@ function marketHTML(prof){
     <p class="pf-cap">${t("profile.market.line.pts", {pts: pfNum(m.pts, 1)})}${pfDelta(m.d_pts, 1)}</p>
     <p class="pf-cap">${t("profile.market.line.role", {role: pfNum(m.role_pts, 1)})}${pfDelta(m.d_role_pts, 1)} · ${t("profile.market.line.z", {z: pfNum(m.z, 2)})}</p>
     <p class="pf-cap">${t("profile.market.line.rank", {pos: esc(m.pos), rank: m.rank ?? "—"})}${m.d_rank ? pfDelta(m.d_rank, 0) : ""}</p>
-    ${priced}`, tag);
+    ${priced}`);
 }

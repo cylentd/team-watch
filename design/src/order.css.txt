@@ -45,6 +45,7 @@ surface/profile/ladder.css
 surface/profile/radar.css
 surface/profile/team.css
 surface/profile/archetype.css
+surface/profile/bio.css
 surface/profile/orb.css
 chrome/footer.css
 chrome/nav.css

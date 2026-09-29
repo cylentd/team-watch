@@ -128,36 +128,6 @@
 .pf-radar-l:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 .pf-sheet .pf-cap{text-align:center;font-family:var(--mono);letter-spacing:.06em}
 
-/* The Bio pane (facts.js). No heading of its own: the tab above it is one. Redrawn 2026-09-29
-   (David: "use bigger font, I can't really read a lot of the text"): the measurables read like
-   the strip under his name -- a big number over a small label, one per cell, rules between -- and
-   the drafts are a list under them, one pick a row, the league's tag leading. */
-.pf-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:0}
-.pf-facts > div{min-width:0}
-.pf-facts > div:not(.wide){display:flex;flex-direction:column-reverse;justify-content:flex-end;gap:4px;
-  padding:0 12px 16px 0}
-.pf-facts > div:not(.wide) + div:not(.wide){border-left:1px solid var(--line);padding-left:16px}
-.pf-facts > div:not(.wide) dt{font-family:var(--mono);font-size:var(--t-1);font-weight:600;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--ink-3)}
-.pf-facts > div:not(.wide) dd{margin:0;font-family:var(--mono);font-size:var(--t-5);font-weight:700;
-  letter-spacing:-.03em;line-height:1.1;color:var(--ink)}
-.pf-facts .wide{grid-column:1 / -1;display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 16px;
-  padding:12px 0;border-top:1px solid var(--line)}
-.pf-facts .wide:last-child{border-bottom:1px solid var(--line)}
-.pf-facts .wide dt{display:inline-flex;align-items:baseline;gap:9px;min-width:0;flex:1 1 12em;
-  font-size:var(--t-3);font-weight:600;color:var(--ink)}
-/* The league's tag, as the owner pills print it (panel.css .pf-own-l). */
-.pf-facts dt[data-league]::before{content:attr(data-league);flex:none;padding:2px 7px;border-radius:99px;
-  background:var(--panel-3);font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.06em;color:var(--ink-2)}
-.pf-facts .wide dd{margin:0;font-family:var(--mono);font-size:var(--t-3);font-weight:700;color:var(--ink);white-space:nowrap}
-/* The athletic profile under the facts, one step up the scale from the usage bars it shares
-   (panel.css .pf-bar): its drills and its note are the pane's reading, not fine print. */
-.pf-pane-bio .pf-bar-l,.pf-pane-bio .pf-bar-v{font-size:var(--t-3)}
-.pf-pane-bio .pf-bar{grid-template-columns:96px minmax(0,1fr) 48px 0;min-height:26px}
-.pf-pane-bio .pf-bars{max-width:640px}
-.pf-pane-bio .pf-cap{font-size:var(--t-3);color:var(--ink-2)}
-.pf-pane-bio .pf-cap.pf-quiet{color:var(--ink-3)}
-
 /* The matchup rank as a strip of every defence: one cell per rank, his opponent's lit. */
 .pf-strip{margin-top:14px}
 .pf-strip-cells{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:2px;height:10px}
@@ -188,7 +158,7 @@
   animation:pf-widen .55s var(--ease) calc(.12s + var(--i,0) * 60ms) backwards}
 /* The team's touches fill left to right in the order the key names them, his first. */
 @keyframes pf-widen{from{width:0}to{width:var(--w)}}
-.pf-split-bar i.me{background:var(--ink)}
+.pf-split-bar i.me{background:var(--tint,var(--ink))}
 .pf-split-key{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
 .pf-split-key b{color:var(--ink);font-weight:700}
 
@@ -203,7 +173,9 @@
 .pf-zone-bars{grid-area:bars;display:flex;align-items:flex-end;gap:3px;height:56px;margin-bottom:6px;border-bottom:1px solid var(--line)}
 .pf-zone-bars i{display:block;width:16px;height:var(--h);min-height:2px;background:var(--ink-2)}
 .pf-zone-bars i.avg{background:rgb(var(--ink-3-rgb) / .45)}
-.pf-zone.top .pf-zone-bars i.me{background:var(--ink)}
+/* His bars in his position's colour, brightest in the zone he is thrown to most. */
+.pf-zone-bars i.me{background:rgb(var(--tint-rgb,var(--ink-rgb)) / .55)}
+.pf-zone.top .pf-zone-bars i.me{background:var(--tint,var(--ink))}
 .pf-zone em{grid-area:em;font-style:normal;font-size:var(--t-2);line-height:1.25;color:var(--ink-3);
   align-self:start;overflow-wrap:anywhere}
 .pf-zone b{grid-area:b;font-family:var(--mono);font-size:var(--t-4);font-weight:700;color:var(--ink-2)}
@@ -224,12 +196,6 @@
    absorb and they go back to being a centring device. */
 @media (max-width:960px){
   .pf-sheet{width:100%;max-width:420px;margin:0 auto}
-}
-@media (max-width:760px){
-  /* Size is the long one ("5′9″ · 202 lb"): age and experience take their width, it takes the rest. */
-  .pf-facts{grid-template-columns:auto minmax(0,1fr) auto}
-  .pf-facts > div:not(.wide) dd{font-size:var(--t-4)}
-  .pf-facts > div:not(.wide) + div:not(.wide){padding-left:10px}
 }
 @media (max-width:430px){
   .pf-zones{column-gap:8px}
