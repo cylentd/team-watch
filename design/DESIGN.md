@@ -332,6 +332,13 @@ labels went from 5px to 2px sides (8px clear of the search icon at 360px, measur
 - **Ranking, second pass** (2026-09-29): place, manager, per-trade number beside the name, likely range,
   W–L–T, under column heads instead of a legend; sorted by the number shown (David: "sort by shown"),
   not ff-jarvis's shrunk figure. PAR's meaning moved under the page title, before the first number.
+- **Aligned cards** (2026-09-29, David: "the top part should be bigger", "the body section should
+  align"): the strip's label is `--t-3` with an 18px icon, every card kind has one (the heists a gold
+  burglar mask); on a desktop each row's cards share four subgrid tracks (strip, headline, proof,
+  payoff), so trade rows start on one line and payoffs share the bottom. A curse shows only with 3+
+  trades of its player (2 of 2 happens 1 time in 4 by chance), so "Also cursed" and "Hot potatoes"
+  are gone. The fire mark's button reset now comes before its grid, which had left the skulls off
+  centre.
 - **Phone: swipe rows** (2026-09-28): the top row, the decided cards and the curses each scroll
   sideways one card wide with the next peeking in, a "1 of 5 · swipe" pager over each; ~4,600px became
   ~2,400px at 390px. A phone shows every decided card, with no shuffle and no Show all.

@@ -29,6 +29,8 @@ const TR_ICON = {
   up: `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   dn: `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3.5 8.5 8 13l4.5-4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   flame: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3-1-3 0-6 1-9z" fill="currentColor"/></svg>`,
+  // a burglar's mask, the eyes cut out: every card kind has its icon in the strip, the heists had none
+  mask: `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M2 9.5C2 7.8 3.6 6.8 5.6 6.8c2.6 0 4 1.5 6.4 1.5s3.8-1.5 6.4-1.5c2 0 3.6 1 3.6 2.7 0 3.9-2.5 6.7-5.4 6.7-2 0-3.3-1.7-4.6-1.7s-2.6 1.7-4.6 1.7C4.5 16.2 2 13.4 2 9.5zM5.4 10.6a2.2 1.5 0 1 0 4.4 0a2.2 1.5 0 1 0-4.4 0zM14.2 10.6a2.2 1.5 0 1 0 4.4 0a2.2 1.5 0 1 0-4.4 0z"/></svg>`,
 };
 const TR_DEC_DIR = {title: "title", in: "up", bye: "up", out: "dn", nobye: "dn"};
 
@@ -77,7 +79,7 @@ const trPagerHTML = n => n > 1 ? `<p class="tr-pager" aria-hidden="true">${t("tr
 function trHeistCardsHTML(){
   return trData().heists.map(trById).map((tr, i) => {
     const a = trName(tr.win.m), b = trName(tr.lose.m);
-    return trBox("tr-heist", `<b class="tr-rk">${t("trades.heist.rank", {n: i + 1})}</b>`, t("trades.when", {y: tr.season, w: tr.week}),
+    return trBox("tr-heist", `${TR_ICON.mask}<b class="tr-rk">${t("trades.heist.rank", {n: i + 1})}</b>`, t("trades.when", {y: tr.season, w: tr.week}),
       trHead(t("trades.heist.head", {a, b}), t("trades.heist.deck", {a, b, n: trB(trPar(tr.margin)), ra: trB(tr.win.after), rb: trB(tr.lose.after)}))
       + trScoreRows(tr), trDecidedHTML(tr));
   }).join("");
@@ -144,7 +146,9 @@ function trMarkHTML(c, i){
    right column (red, or amber for the one still open). */
 function trCurseHTML(c, i){
   const open = c.moves.find(m => m.open);
-  const line = open ? t("trades.curse.lineOpen", {p: esc(c.player), n: c.n, y: open.season}) : t("trades.curse.line", {p: esc(c.player), n: c.n});
+  const v = {p: esc(c.player), n: c.n, y: open?.season};   // two reads "Both", not "All 2"
+  const line = c.n === 2 ? (open ? t("trades.curse.lineOpen2", v) : t("trades.curse.line2", v))
+    : open ? t("trades.curse.lineOpen", v) : t("trades.curse.line", v);
   const rows = c.moves.map(m => `<tr><td class="tr-y">${m.season}</td>
     <th scope="row">${t("trades.curse.step", {a: trName(m.from), b: trName(m.to)})}</th>
     <td class="tr-n ${m.open ? "live" : m.lost ? "dn" : "up"}">${m.open ? t("trades.curse.trails", {n: trPar(m.margin)})
@@ -156,14 +160,13 @@ function trCurseHTML(c, i){
      <table class="tr-sc tr-chain">${rows}</table>`);
 }
 
-/* The two strongest curses as boxes; the rest, and the hot potatoes, as faces in a box each under them. */
+/* A curse shows only when its player was traded away 3 or more times, the open one counted (David,
+   2026-09-29: "remove them if it wasn't significant"). Two trades both lost happens 1 time in 4 by
+   chance, so the 2-for-2 "also cursed" and "hot potatoes" boxes (9 players, every one 2 of 2) went. */
+const TR_CURSE_MIN = 3;
 function trCursesHTML(){
-  const all = trData().curses, curses = all.filter(c => c.kind === "curse"), potatoes = all.filter(c => c.kind === "potato");
-  if (!all.length) return "";
-  const rest = curses.slice(2);
-  const faces = (left, right, cs) => trBox("tr-rest", left, right, `<div class="tr-bx-in">${trPlayersHTML(cs.map(c => c.player), cs.map(c => c.slug))}</div>`);
+  const curses = trData().curses.filter(c => c.kind === "curse" && c.moves.length >= TR_CURSE_MIN);
+  if (!curses.length) return "";
   return `<section class="tr-sec tr-curses"><h2 class="tr-hd">${t("trades.curse.title")}<span>${t("trades.curse.sub")}</span></h2>
-    ${trPagerHTML(Math.min(2, curses.length) + (rest.length ? 1 : 0) + (potatoes.length ? 1 : 0))}
-    <div class="tr-grid tr-swipe">${curses.slice(0, 2).map(trCurseHTML).join("")}
-      ${rest.length ? faces(t("trades.curse.also"), rest.length, rest) : ""}${potatoes.length ? faces(t("trades.potato.hd"), t("trades.potato.line"), potatoes) : ""}</div></section>`;
+    ${trPagerHTML(curses.length)}<div class="tr-grid tr-swipe">${curses.map(trCurseHTML).join("")}</div></section>`;
 }

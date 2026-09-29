@@ -686,6 +686,9 @@ def test_trades_desktop_rows_end_level(browser, page_file):
         # The top row (2026-09-28, David: "fit 5 cards on the top"): best, worst and the three heists on one line.
         tops = page.evaluate("() => [...document.querySelectorAll('.tr-top-row > *')].map(c => Math.round(c.getBoundingClientRect().top))")
         assert len(tops) == 5 and len(set(tops)) == 1, f"five cards in the top row: {tops}"
+        # Their bodies align (subgrid, 2026-09-29): every card's trade rows start on one line.
+        body = page.evaluate("() => [...document.querySelectorAll('.tr-top-row > * > .tr-sc')].map(t => Math.round(t.getBoundingClientRect().top))")
+        assert len(set(body)) == 1, f"top-row trade rows start at {body}"
         # The ranking's order is the number it shows (David, 2026-09-29: "sort by shown"), not ff-jarvis's shrunk one.
         shown = page.evaluate("() => [...document.querySelectorAll('.tr-mgrs > li:not(.few) .tr-v')].map(e => parseFloat(e.textContent.replace('−', '-')))")
         assert shown and shown == sorted(shown, reverse=True), f"ranking out of order: {shown}"

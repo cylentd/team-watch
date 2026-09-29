@@ -1,5 +1,5 @@
 /* League > Trades: the curses (split from trades.css 2026-09-28, its 250-line budget). The mark, the
-   box score of each trade of him, the faces boxes, and the haunt: purple mist around each card. */
+   box score of each trade of him, and the haunt: purple mist around each card. */
 /* curses: the mark and its name, then each trade of him a row, the sender's loss in the right column */
 .tr-curse .tr-bx-t svg{color:var(--hex-rim)}
 .tr-curse-top{display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;align-items:center;padding:12px 12px 8px}
@@ -11,9 +11,10 @@
 .tr-chain .tr-y{width:1%;font-family:var(--mono);font-size:var(--t-2);color:var(--ink-3)}
 .tr-chain th{width:auto}
 .tr-chain .tr-n{font-size:var(--t-3)}
-/* the mark: his face drained of colour in front of black fire, one skull per trade under it. The fire
-   rises ~17px above its box, so the mark starts that far down. */
-.tr-mark{display:grid;justify-items:center;gap:4px;padding-top:18px}
+/* the mark: his face drained of colour in front of black fire, one skull per trade centred under it. The
+   fire rises ~17px above its box, so the mark starts that far down. A button, so its reset comes first:
+   after the grid it wiped the centring and left the skulls hard left (David, 2026-09-29). */
+.tr-mark{all:unset;box-sizing:border-box;cursor:pointer;border-radius:12px;display:grid;justify-items:center;gap:4px;padding-top:18px}
 .tr-fire{position:relative;width:96px;height:96px;display:grid;place-items:center}
 .tr-fire svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .tr-fire .s1{stop-color:var(--hex-1)}
@@ -35,12 +36,7 @@
 .tr-skull.live .bone{fill:none}
 .tr-skull.live .eye{fill:currentColor}
 .tr-skull.live .teeth{stroke:currentColor}
-.tr-rest .tr-face{width:28px;height:28px}
-.tr-rest img{filter:grayscale(1)}
-.tr-rest .tr-pls b{font-size:var(--t-2);color:var(--ink-2)}
-.tr-rest .tr-bx-hd > span:last-child{text-transform:none;letter-spacing:0;font-family:var(--ui);font-weight:500}
 
-.tr-mark{all:unset;box-sizing:border-box;cursor:pointer;border-radius:12px}
 .tr-mark:focus-visible{outline:2px solid var(--hex-rim);outline-offset:2px}
 /* The curse card haunts: purple mist around it, off every edge, drifting slowly (David, 2026-09-28: "I
    was imagining mist around the card"; "purple mist is creepy"), and a mist banked inside along its
