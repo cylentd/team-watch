@@ -1270,7 +1270,6 @@
  "trades.dec.when": "{y} · week {w} · {m} won the trade by {n}",
  "trades.former": "A former manager",
  "trades.heist.after": "After: {a} {ra} · {b} {rb}",
- "trades.heist.got": "{m} got",
  "trades.heist.head": "{a} robbed {b} by {n}",
  "trades.heist.sub": "points above replacement",
  "trades.heist.title": "The 3 biggest heists",

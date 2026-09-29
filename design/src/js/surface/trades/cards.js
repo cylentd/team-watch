@@ -49,10 +49,11 @@ const trFace = (name, slug) => `<span class="tr-face">${slug && HEADS[slug] ? he
 const trPlayersHTML = (names, slugs) => names.length
   ? `<ul class="tr-pls">${names.map((n, i) => `<li>${trFace(n, slugs[i])}<b>${esc(n)}</b></li>`).join("")}</ul>`
   : `<p class="tr-none-got">${t("trades.nothing")}</p>`;
-/* One side of a card: who got what, the players as faces, and what it earned them. */
+/* One side of a card, read like a matchup (2026-09-28): the manager and his score, then what he got
+   as faces. "David got 109.9" read as if the number were the thing received. */
 const trSideHTML = (side, cls) => `<div class="tr-side">
-  <p class="tr-side-hd"><span>${t("trades.heist.got", {m: trName(side.m)})}</span><b class="${cls}">${trPar(side.tree)}</b></p>
-  ${trPlayersHTML(side.got, side.slugs)}${trFlips(side)}</div>`;
+  <p class="tr-side-hd"><span>${trName(side.m)}</span><b class="${cls}">${trPar(side.tree)}</b></p>
+  <div class="tr-got"><span>${t("trades.row.got")}</span>${trPlayersHTML(side.got, side.slugs)}</div>${trFlips(side)}</div>`;
 
 function trHeistsHTML(){
   const cards = trData().heists.map(trById).map((tr, i) => `<article class="tr-card">

@@ -106,8 +106,12 @@
 .tr-side{display:grid;gap:6px;align-content:start}   /* beside a taller side it stretches; its rows stay packed at the top */
 .tr-side + .tr-side{border-top:1px dashed var(--line-2);padding-top:8px}
 /* the total beside its label, not at the far edge (2026-09-28): one number per half is no column to scan */
-.tr-side-hd{margin:0;display:flex;align-items:baseline;gap:8px;font-size:var(--t-2);font-weight:600;color:var(--ink-2)}
-.tr-side-hd b{font-family:var(--mono);font-size:var(--t-3);font-weight:700;font-variant-numeric:tabular-nums}
+.tr-side-hd{margin:0;display:flex;align-items:baseline;gap:10px}
+.tr-side-hd span{font-family:var(--disp);font-size:var(--t-3);font-weight:700;color:var(--ink)}
+.tr-side-hd b{font-family:var(--mono);font-size:var(--t-4);font-weight:700;font-variant-numeric:tabular-nums}
+/* "Got" beside the faces it labels, level with the first row of them */
+.tr-got{display:grid;grid-template-columns:32px minmax(0,1fr);gap:8px;align-items:start}
+.tr-got > span{font-size:var(--t-2);line-height:40px;color:var(--ink-3)}
 .tr-side-hd b.up{color:var(--up)}
 .tr-side-hd b.dn{color:var(--down)}
 .tr-pair{display:grid;gap:8px}
