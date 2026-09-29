@@ -225,6 +225,16 @@ def test_starters_row_names_the_new_one_and_who_he_replaced(browser, page_file):
     assert errors == []
 
 
+def test_a_starter_row_leaves_at_the_teams_next_kickoff_after_its_game():
+    """ff-jarvis measures a row from the team's latest game (`since`); the page drops it at the next
+    one, in the schedule's dialect whatever the packet's (LA is LAR there)."""
+    from digest import next_kick
+    assert next_kick(SCHEDULE, "LA", "2026-09-20 17:00:00") == "2026-09-28T00:20:00Z"
+    assert next_kick(SCHEDULE, "LA", "2026-09-28 00:20:00") == "2026-10-04T17:00:00Z", "Monday night's trade waits for week 4"
+    assert next_kick(SCHEDULE, "WAS", "2026-09-27 17:00:00") is None
+    assert next_kick(None, "LA", "2026-09-20 17:00:00") is None
+
+
 def test_fixture_block_is_whole():
     b = _block()
     contract.validate("LIVE_DIGEST", b)

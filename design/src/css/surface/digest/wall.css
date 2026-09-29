@@ -50,7 +50,8 @@
   }
   /* The bands that come and go, named by the ticker's classes (digest.js): once a game is final
      the week's results take a full-width band; tonight's card takes one above them; and when
-     tonight is all the week has left, the preview panels are gone and adds sit beside gems. */
+     tonight is all the week has left, the preview panels are gone and starters, adds and gems
+     share a band. */
   .dg-ticker.has-res{
     grid-template-areas:
       "res  res  res  res  res  res  res  res  res  res  res  res"
@@ -80,13 +81,13 @@
     grid-template-areas:
       "tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn"
       "res  res  res  res  res  res  res  res  res  res  res  res"
-      "adds adds adds adds adds adds gems gems gems gems gems gems"
+      "start start start start adds adds adds adds gems gems gems gems"
       "news news news news news news news news news news news news";
   }
   .dg-ticker.tn-last:not(.has-res){
     grid-template-areas:
       "tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn"
-      "adds adds adds adds adds adds gems gems gems gems gems gems"
+      "start start start start adds adds adds adds gems gems gems gems"
       "news news news news news news news news news news news news";
   }
   .dg-tns{grid-area:tn;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:20px}

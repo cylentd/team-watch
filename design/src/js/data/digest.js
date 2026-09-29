@@ -48,13 +48,14 @@ function dgLeadAfter(d, c){
    left open overnight lets it go. While it shows, its teams' rows live in the card, not the ticker;
    when its games are all the week has left (`tonight_last`), the week's preview rows go too. */
 const DG_TN_BEFORE = 18 * 3600e3, DG_TN_AFTER = 4 * 3600e3;
-const DG_TN_ROWS = ["hurt", "start", "mu", "wx", "t5", "st"];
+/* Starters stays: a change after a team's game is next week's news, not this slot's preview. */
+const DG_TN_ROWS = ["hurt", "mu", "wx", "t5", "st"];
 function dgTonightCut(c, now){
   const tn = (c.tonight || []).filter(g => { const k = Date.parse(g.ko); return now >= k - DG_TN_BEFORE && now < k + DG_TN_AFTER; });
   if (!tn.length) return {...c, tn: [], tnLast: false};
   const teams = new Set(tn.flatMap(g => [g.away, g.home]));
   const off = r => !teams.has(r.team), offGame = g => !teams.has(g.home) && !teams.has(g.away);
-  return {...c, tn, tnLast: !!c.tonight_last, hurt: c.hurt.filter(off), starters: c.starters.filter(off),
+  return {...c, tn, tnLast: !!c.tonight_last, hurt: c.hurt.filter(off),
           best: c.best.filter(off), top5: c.top5.filter(off),
           up: c.up.filter(off), down: c.down.filter(off), wx: c.wx.filter(offGame), near: c.near && offGame(c.near) ? c.near : null};
 }

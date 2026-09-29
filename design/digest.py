@@ -61,6 +61,19 @@ def kicks(schedule, week):
     return out
 
 
+def next_kick(schedule, team, since):
+    """The team's first kickoff (ISO UTC) after `since` ("YYYY-MM-DD HH:MM:SS" UTC, the game a starters
+    row is measured from), in either dialect; None without a schedule or a game after it."""
+    if not schedule or not since:
+        return None
+    alias = schedule.get("alias") or {}
+    names = {team, alias.get(team, team)}
+    after = dt.datetime.fromisoformat(since.replace(" ", "T")).replace(tzinfo=UTC)
+    ks = [g["kickoff"] for g in schedule.get("games") or [] if names & {g["home"], g["away"]}
+          and dt.datetime.fromisoformat(g["kickoff"].replace("Z", "+00:00")) > after]
+    return min(ks) if ks else None
+
+
 def _game(g):
     return {"away": g["away"], "home": g["home"], "kick": _kick(g.get("kickoff")), "ko": _ko(g.get("kickoff"))} if g else None
 
@@ -141,12 +154,14 @@ def _news(it):
             "n": n, "rest": _rest(headline, n), "slugs": slugs}
 
 
-def _starter(r, slugify, ko):
+def _starter(r, slugify, schedule):
     """A new #1 on Sleeper's depth chart or a player on a new team (ff-jarvis weekly_digest_starters):
-    `over` is the #1 he replaced, `from` his old team, `day` the weekday it happened ("Tue")."""
+    `over` is the #1 he replaced, `from` his old team, `day` the weekday it happened ("Tue"), `ko` the
+    team's next kickoff after the game it is measured from (`since`), when the page drops it."""
     o = r.get("over")
     day = dt.date.fromisoformat(r["changed"]).strftime("%a") if r.get("changed") else None
-    return {**_player(r, slugify, "pos", "team", "proj", "from"), "day": day, "ko": ko.get(r.get("team")),
+    return {**_player(r, slugify, "pos", "team", "proj", "from"), "day": day,
+            "ko": next_kick(schedule, r.get("team"), r.get("since")),
             "over": {"n": o["name"], "slug": slugify(o["name"]), "status": o.get("status")} if o else None}
 
 
@@ -204,7 +219,7 @@ def live_digest(p, slugify, schedule=None):
         "gems": [_player(r, slugify, "pos", "team", "usage", "metric", "ecr", "rostered") for r in p.get("gems") or []],
         "news": [_news(it) for it in p.get("news") or []],
         # Since 2026-09-29; a packet from before has no `starters` and the row says nothing new.
-        "starters": [_starter(r, slugify, ko) for r in p.get("starters") or []],
+        "starters": [_starter(r, slugify, schedule) for r in p.get("starters") or []],
     }
 
 

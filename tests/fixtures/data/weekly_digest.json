@@ -1081,6 +1081,7 @@
    "pos": "QB",
    "team": "CLE",
    "changed": "2026-09-22",
+   "since": "2026-09-15 12:00:00",
    "proj": 14.1,
    "over": {
     "key": "shedeur sanders",
@@ -1095,6 +1096,7 @@
    "pos": "QB",
    "team": "WAS",
    "changed": "2026-09-22",
+   "since": "2026-09-15 12:00:00",
    "proj": 13.45,
    "over": {
     "key": "jayden daniels",
@@ -1109,6 +1111,7 @@
    "pos": "QB",
    "team": "NYG",
    "changed": "2026-09-21",
+   "since": "2026-09-15 12:00:00",
    "proj": 13.85,
    "over": null,
    "from": "MIN"
@@ -1119,6 +1122,7 @@
    "pos": "RB",
    "team": "MIN",
    "changed": "2026-09-21",
+   "since": "2026-09-15 12:00:00",
    "proj": 11.21,
    "over": {
     "key": "jordan mason",
