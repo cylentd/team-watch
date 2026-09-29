@@ -32,8 +32,9 @@ def surname(name):
     return parts[-1] if parts else name
 
 
-def _side(s):
-    return {"m": str(s["manager"]), "got": [short(p["name"]) for p in s["players"]], "tree": s["tree"],
+def _side(s, slugify=None):
+    return {"m": str(s["manager"]), "got": [short(p["name"]) for p in s["players"]],
+            "slugs": [slugify(p["name"]) if slugify else None for p in s["players"]], "tree": s["tree"],
             "par": s["par"], "after": s["after"], "via": [short(x["player"]) for x in s.get("via", [])]}
 
 
@@ -50,23 +51,24 @@ def _decided(t):
     return out
 
 
-def _trade(i, t):
+def _trade(i, t, slugify=None):
     a, b = t["sides"]
     win, lose = (a, b) if a["tree"] >= b["tree"] else (b, a)
     hw, hl = (a, b) if a["par"] >= b["par"] else (b, a)
     return {"id": i, "season": t["season"], "week": t["week"], "open": t["open"], "margin": t["margin"],
-            "win": _side(win), "lose": _side(lose),
+            "win": _side(win, slugify), "lose": _side(lose, slugify),
             "held": {"win": str(hw["manager"]), "margin": round(hw["par"] - hl["par"], 1)},
             "decided": _decided(t)}
 
 
-def live_trades(verdicts, managers, skip=None):
-    """The LIVE_TRADES block, or None without the verdicts file."""
+def live_trades(verdicts, managers, skip=None, slugify=None):
+    """The LIVE_TRADES block, or None without the verdicts file. `slugify` names each traded and cursed
+    player's headshot (heads/<slug>.webp); the page draws initials when there is none."""
     if not verdicts or not verdicts.get("trades"):
         return None
     skip = skip_keys() if skip is None else skip
     names = (managers or {}).get("managers", {})
-    trades = [_trade(i, t) for i, t in enumerate(verdicts["trades"])]
+    trades = [_trade(i, t, slugify) for i, t in enumerate(verdicts["trades"])]
     closed = [t for t in trades if not t["open"]]
     ranking = [{"m": k, **{f: s[f] for f in ("trades", "won", "lost", "per_trade", "lo", "hi", "shrunk")},
                 "few": s["trades"] < FEW}
@@ -75,6 +77,7 @@ def live_trades(verdicts, managers, skip=None):
     decided = sorted((t for t in closed if t["decided"]),
                      key=lambda t: (not any(d["k"] == "title" for d in t["decided"]), -t["season"], -t["margin"]))
     curses = [{"player": short(c["player"]), "surname": surname(c["player"]), "kind": c["kind"], "n": c["n"],
+               "slug": slugify(c["player"]) if slugify else None,
                "moves": [{"season": m["season"], "week": m["week"], "from": str(m["from"]), "to": str(m["to"]),
                           "lost": m["sender_lost"], "margin": m["margin"], "open": m["open"]} for m in c["moves"]]}
               for c in verdicts.get("curses", [])]

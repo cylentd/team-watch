@@ -11,13 +11,16 @@ sys.path.insert(0, str(ROOT / "design"))
 import contract            # noqa: E402
 import league_trades as T  # noqa: E402
 
+sys.path.insert(0, str(ROOT / "api"))
+from _espn import slugify  # noqa: E402
+
 FIX = ROOT / "tests" / "fixtures" / "data"
 
 
 def block(skip=frozenset()):
     verdicts = json.loads((FIX / "yahoo_trade_verdicts.json").read_text(encoding="utf-8"))
     managers = json.loads((FIX / "yahoo_league_managers.json").read_text(encoding="utf-8"))
-    return T.live_trades(verdicts, managers, skip)
+    return T.live_trades(verdicts, managers, skip, slugify)
 
 
 def test_the_block_passes_its_contract_and_every_side_is_whole():
@@ -25,7 +28,8 @@ def test_the_block_passes_its_contract_and_every_side_is_whole():
     assert contract.problems("LIVE_TRADES", b) == []
     for tr in b["trades"]:
         for side in (tr["win"], tr["lose"]):
-            assert set(side) == {"m", "got", "tree", "par", "after", "via"}
+            assert set(side) == {"m", "got", "slugs", "tree", "par", "after", "via"}
+            assert len(side["slugs"]) == len(side["got"])
         for d in tr["decided"]:
             assert set(d) == {"k", "m", "seed", "without"} and d["k"] in {"title", "in", "out", "bye", "nobye"}
 
@@ -50,7 +54,10 @@ def test_players_go_by_initial_and_a_curse_by_surname():
     b = block()
     chase = next(c for c in b["curses"] if c["player"] == "J. Chase")
     assert chase["surname"] == "Chase" and chase["kind"] == "curse" and chase["moves"][-1]["open"] is True
-    assert next(c for c in b["curses"] if c["player"] == "C. Godwin Jr.")["surname"] == "Godwin"
+    godwin = next(c for c in b["curses"] if c["player"] == "C. Godwin Jr.")
+    assert godwin["surname"] == "Godwin"
+    # the headshot's slug is the full name's, suffix dropped: heads/jamarr-chase.webp, heads/chris-godwin.webp
+    assert (chase["slug"], godwin["slug"]) == ("jamarr-chase", "chris-godwin")
     assert T.short("Bills") == "Bills"
 
 

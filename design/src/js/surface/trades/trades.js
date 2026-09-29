@@ -41,7 +41,8 @@ function trMineHTML(key){
     const tree = !tr.open && tr.win.m !== tr.held.win ? `<span class="tr-flip">${t("trades.row.tree", {m: trName(tr.win.m), n: trPar(tr.margin)})}</span>` : "";
     return `<li class="tr-row">${res}<div>
       <p class="tr-when">${tr.open ? t("trades.row.whenOpen", {y: tr.season, w: tr.week, m: trName(them.m)}) : t("trades.row.when", {y: tr.season, w: tr.week, m: trName(them.m)})}</p>
-      <p>${t("trades.row.got", {list: trList(me.got)})}</p><p class="tr-gave">${t("trades.row.gave", {list: trList(them.got)})}</p>
+      <div class="tr-io"><span>${t("trades.row.got")}</span>${trPlayersHTML(me.got, me.slugs)}</div>
+      <div class="tr-io tr-gave"><span>${t("trades.row.gave")}</span>${trPlayersHTML(them.got, them.slugs)}</div>
       ${tree}${trDecidedHTML(tr)}</div>
       <b class="tr-by ${tr.open ? "open" : won ? "up" : "dn"}">${won ? "+" : "−"}${trPar(tr.held.margin)}</b></li>`;
   }).join("");

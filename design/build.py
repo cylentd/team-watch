@@ -742,7 +742,7 @@ def render():
         "LIVE_LEAGUE": live_league(*load_league(), roster_file(ESPN_ROSTERS), slugify),
         "LIVE_LEAGUE_YAHOO": live_league_yahoo(*load_league_yahoo(), roster_file(YAHOO_ROSTERS), slugify, *load_league_back()),
         "LIVE_DEFENSE": live_defense(load_defense(), TEAM_FIX),
-        "LIVE_TRADES": live_trades(load_trades(), load_league_back()[2]),
+        "LIVE_TRADES": live_trades(load_trades(), load_league_back()[2], slugify=slugify),
     }
     blocks["LIVE_SIGNED"] = live_signed(load_gamelog_weekly(), blocks["LIVE_SCHEDULE"], slugify, wanted_set)
     add_market_stock(blocks, report)

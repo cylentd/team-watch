@@ -301,6 +301,14 @@ labels went from 5px to 2px sides (8px clear of the search icon at 360px, measur
 - **First data at 218px on a phone** (budget ~200): the league name wraps to two lines, as on Records.
 - The fixture lifts Andrew's range clear of 0 so the green "proven good" track has an element; the real
   data has no proven-good trader.
+- **Players are faces** (2026-09-28, David: "hard to see who got traded"): every traded player is a
+  headshot and his name in the display face; 93 of 152 have a head, the retired rest show initials in
+  the same circle. Slugs come from the build (`live_trades(..., slugify)`).
+- **Readability rule** (2026-09-28): no sentence below `--t-2` and none in mono; mono is for numbers
+  and labels of a word or two. A decided line leads with a trophy (title, gold), an arrow up (a spot or
+  bye gained, green) or down (lost, red).
+- **The curse mark** (David picked E of five, storyboard v7): the face drained of colour before black
+  fire (`--hex-*` tokens), and one skull per trade under it, red lost, hollow amber still open.
 
 ## Waivers (sub-tab of My Teams, 2026-09-16)
 

@@ -160,6 +160,20 @@
   --holo-4-rgb:255 214 107;
   --holo-5:#7dffb2;
   --holo-5-rgb:125 255 178;
+  /* The curse's black fire (League > Trades, 2026-09-28): violet at the rim and base, black at the
+     tips and the core, so it reads as dark fire on the dark page. */
+  --hex-rim:#c3a0ff;
+  --hex-rim-rgb:195 160 255;
+  --hex-1:#5a2a98;
+  --hex-1-rgb:90 42 152;
+  --hex-2:#241240;
+  --hex-2-rgb:36 18 64;
+  --hex-3:#0c0714;
+  --hex-3-rgb:12 7 20;
+  --hex-mid:#1a0d2e;
+  --hex-mid-rgb:26 13 46;
+  --hex-core:#030206;
+  --hex-core-rgb:3 2 6;
 
   --nav-h:48px;         /* the phone nav row; the view tabs stick under it (responsive/760.css) */
 

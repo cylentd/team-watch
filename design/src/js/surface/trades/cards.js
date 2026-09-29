@@ -20,6 +20,15 @@ const trNth = n => n + ((n % 100 >= 11 && n % 100 <= 13) ? "th" : ({1: "st", 2: 
 
 /* What a trade decided, one line each: the title, then each playoff spot or bye it moved. Keys are spelled
    out so assemble.py --check sees every one. */
+/* Each line leads with what it did to that manager: a trophy for the title, an arrow up for a playoff
+   spot or bye gained, down for one lost (2026-09-28: a gold diamond on every line read the same). */
+const TR_DEC_ICON = {
+  title: `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2h8v3a4 4 0 0 1-8 0zM4 3H2v1.5A2.5 2.5 0 0 0 4.5 7M12 3h2v1.5A2.5 2.5 0 0 1 11.5 7M8 9v3M5 14h6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  up: `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  dn: `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3.5 8.5 8 13l4.5-4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+};
+const TR_DEC_DIR = {title: "title", in: "up", bye: "up", out: "dn", nobye: "dn"};
+
 function trDecidedHTML(tr){
   if (!tr.decided.length) return "";
   const line = d => {
@@ -27,19 +36,29 @@ function trDecidedHTML(tr){
     return {title: t("trades.dec.title", v), in: t("trades.dec.in", v), out: t("trades.dec.out", v),
             bye: t("trades.dec.bye", v), nobye: t("trades.dec.nobye", v)}[d.k];
   };
-  return `<ul class="tr-dec">${tr.decided.map(d => `<li>${line(d)}</li>`).join("")}</ul>`;
+  return `<ul class="tr-dec">${tr.decided.map(d => `<li class="${TR_DEC_DIR[d.k]}">${TR_DEC_ICON[TR_DEC_DIR[d.k]]}<span>${line(d)}</span></li>`).join("")}</ul>`;
 }
 
 const trFlips = side => side.via.length ? `<span class="tr-flip">${t("trades.row.via", {list: trList(side.via)})}</span>` : "";
+
+/* A traded player is a face and a name, so who moved reads before any number (David, 2026-09-28:
+   "hard to see who got traded"). The head where ff-jarvis has one (~60% of traded players; the
+   retired ones have none), else his initials in the same circle. */
+const trFace = (name, slug) => `<span class="tr-face">${slug && HEADS[slug] ? headImgHTML(HEADS[slug], initials(name), slug, 40)
+  : `<span class="fallback">${esc(initials(name))}</span>`}</span>`;
+const trPlayersHTML = (names, slugs) => names.length
+  ? `<ul class="tr-pls">${names.map((n, i) => `<li>${trFace(n, slugs[i])}<b>${esc(n)}</b></li>`).join("")}</ul>`
+  : `<p class="tr-none-got">${t("trades.nothing")}</p>`;
+/* One side of a card: who got what, the players as faces, and what it earned them. */
+const trSideHTML = (side, cls) => `<div class="tr-side">
+  <p class="tr-side-hd"><span>${t("trades.heist.got", {m: trName(side.m)})}</span><b class="${cls}">${trPar(side.tree)}</b></p>
+  ${trPlayersHTML(side.got, side.slugs)}${trFlips(side)}</div>`;
 
 function trHeistsHTML(){
   const cards = trData().heists.map(trById).map((tr, i) => `<article class="tr-card">
     <div class="tr-card-top"><span class="tr-rk">${i + 1}</span><h3>${t("trades.heist.head", {a: trName(tr.win.m), b: trName(tr.lose.m), n: trPar(tr.margin)})}
       <small>${t("trades.when", {y: tr.season, w: tr.week})}</small></h3></div>
-    <dl class="tr-sides">
-      <dt>${t("trades.heist.got", {m: trName(tr.win.m), list: trList(tr.win.got)})} ${trFlips(tr.win)}</dt><dd class="up">${trPar(tr.win.tree)}</dd>
-      <dt>${t("trades.heist.got", {m: trName(tr.lose.m), list: trList(tr.lose.got)})}</dt><dd class="dn">${trPar(tr.lose.tree)}</dd>
-    </dl>
+    <div class="tr-pair">${trSideHTML(tr.win, "up")}${trSideHTML(tr.lose, "dn")}</div>
     <p class="tr-after">${t("trades.heist.after", {a: trName(tr.win.m), ra: tr.win.after, b: trName(tr.lose.m), rb: tr.lose.after})}</p>
     ${trDecidedHTML(tr)}
   </article>`).join("");
@@ -59,7 +78,7 @@ function trDecidedBlockHTML(){
       ${title ? `<span class="tr-tag">${t("trades.dec.tag")}</span>` : ""}
       <h3>${t("trades.dec.head", {a: trName(tr.win.m), b: trName(tr.lose.m)})}
         <small>${t("trades.dec.when", {y: tr.season, w: tr.week, m: trName(tr.win.m), n: trPar(tr.margin)})}</small></h3>
-      <p class="tr-swap">${t("trades.heist.got", {m: trName(tr.win.m), list: trList(tr.win.got)})} · ${t("trades.heist.got", {m: trName(tr.lose.m), list: trList(tr.lose.got)})}</p>
+      <div class="tr-pair">${trSideHTML(tr.win, "up")}${trSideHTML(tr.lose, "dn")}</div>
       ${trDecidedHTML(tr)}
     </article>`;
   }).join("");
@@ -68,13 +87,32 @@ function trDecidedBlockHTML(){
     <div class="tr-grid">${cards}</div>${more}<p class="tr-note">${t("trades.dec.note")}</p></section>`;
 }
 
-function trCurseHTML(c){
+/* The curse's mark (David chose it from five, 2026-09-28): his face drained of colour in front of black
+   fire, and under it one skull per trade of him, red where the sender lost, hollow amber for the one
+   still open, so "3 of 3" is counted without reading. The fire is one outline drawn three times,
+   smaller and darker toward its core; every sender of a curse lost, so there is no third skull. */
+const TR_FIRE = `M14 84 C6 68 12 55 20 46 C20 55 23 59 27 58 C22 44 26 29 36 17 C36 28 39 33 43 34
+  C41 22 45 11 51 2 C54 13 58 23 61 30 C63 23 67 17 74 12 C72 25 70 35 72 44 C75 40 79 38 85 33
+  C90 49 88 67 82 84 Z`;
+const trSkull = m => `<svg class="tr-skull${m.open ? " live" : ""}" viewBox="0 0 18 18" aria-hidden="true">
+  <path class="bone" d="M9 1.6c-4 0-6.5 2.7-6.5 6.1 0 2 1 3.4 2.3 4.2V15h8.4v-3.1c1.3-.8 2.3-2.2 2.3-4.2 0-3.4-2.5-6.1-6.5-6.1z"/>
+  <circle class="eye" cx="6.5" cy="8" r="1.7"/><circle class="eye" cx="11.5" cy="8" r="1.7"/><path class="teeth" d="M7.6 15v-2.2M10.4 15v-2.2"/></svg>`;
+function trMarkHTML(c, i){
+  const layer = (s, cls, fill = "") => `<path class="${cls}"${fill} d="${TR_FIRE}" transform="translate(48 92) scale(${s}) translate(-48 -86)"/>`;
+  return `<div class="tr-mark"><div class="tr-fire"><svg viewBox="0 0 96 96" aria-hidden="true">
+      <defs><linearGradient id="tr-fire-${i}" x1="0" y1="1" x2="0" y2="0"><stop class="s1" offset="0"/><stop class="s2" offset=".6"/><stop class="s3" offset="1"/></linearGradient></defs>
+      ${layer(1.3, "rim", ` fill="url(#tr-fire-${i})"`)}${layer(1.05, "mid")}${layer(.82, "core")}</svg>
+    ${trFace(c.player, c.slug)}</div><div class="tr-skulls">${c.moves.map(trSkull).join("")}</div></div>`;
+}
+
+function trCurseHTML(c, i){
   const open = c.moves.find(m => m.open);
   const line = open ? t("trades.curse.lineOpen", {p: esc(c.player), n: c.n, y: open.season}) : t("trades.curse.line", {p: esc(c.player), n: c.n});
   const steps = c.moves.map(m => `<li class="${m.open ? "open" : ""}"><b>${t("trades.curse.step", {y: m.season, a: trName(m.from), b: trName(m.to)})}</b>
     <span class="${m.open ? "live" : m.lost ? "dn" : ""}">${m.open ? t("trades.curse.trails", {m: trName(m.from), n: trPar(m.margin)})
       : m.lost ? t("trades.curse.lost", {m: trName(m.from), n: trPar(m.margin)}) : t("trades.curse.won", {m: trName(m.from), n: trPar(m.margin)})}</span></li>`).join("");
-  return `<div class="tr-curse"><h3>${t("trades.curse.name", {s: esc(c.surname)})}</h3><p>${line}</p><ol class="tr-chain">${steps}</ol></div>`;
+  return `<div class="tr-curse"><div class="tr-curse-top">${trMarkHTML(c, i)}<div><h3>${t("trades.curse.name", {s: esc(c.surname)})}</h3>
+    <p>${line}</p></div></div><ol class="tr-chain">${steps}</ol></div>`;
 }
 
 /* The two strongest curses drawn as chains; the rest, and the hot potatoes, as one line each. */
@@ -84,7 +122,7 @@ function trCursesHTML(){
   const rest = curses.slice(2);
   return `<section class="tr-sec tr-curses"><h2 class="tr-hd">${t("trades.curse.title")}<span>${t("trades.curse.sub")}</span></h2>
     <div class="tr-grid">${curses.slice(0, 2).map(trCurseHTML).join("")}</div>
-    ${rest.length ? `<p class="tr-note">${t("trades.curse.also", {list: trList(rest.map(c => c.player))})}</p>` : ""}
+    ${rest.length ? `<div class="tr-also"><p class="tr-note">${t("trades.curse.also")}</p>${trPlayersHTML(rest.map(c => c.player), rest.map(c => c.slug))}</div>` : ""}
     ${potatoes.length ? `<p class="tr-note">${t("trades.potato.line", {list: trList(potatoes.map(c => c.player))})}</p>` : ""}
   </section>`;
 }

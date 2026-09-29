@@ -5,14 +5,14 @@
 .tr-head{display:grid;gap:4px;padding-top:2px}
 .tr-head h1{margin:0;font-family:var(--disp);font-size:var(--t-6);font-weight:800;line-height:1.05}
 .tr-kick{margin:0;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
-.tr-what{margin:-10px 0 0;font-size:var(--t-1);color:var(--ink-3);max-width:62ch}
+.tr-what{margin:-10px 0 0;font-size:var(--t-2);line-height:1.45;color:var(--ink-2);max-width:62ch}
 .tr-body{display:grid;gap:26px;align-items:start}
 .tr-sec{display:grid;gap:10px;min-width:0}
 .tr-grid{display:grid;gap:10px;align-items:start}
 .tr-hd{margin:0;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 8px;
   font-family:var(--tab);font-size:var(--t-5);font-weight:900;line-height:1;text-transform:uppercase}
-.tr-hd span{font-family:var(--ui);font-size:var(--t-1);font-weight:500;text-transform:none;color:var(--ink-3)}
-.tr-note{margin:0;font-size:var(--t-1);color:var(--ink-3)}
+.tr-hd span{font-family:var(--ui);font-size:var(--t-2);font-weight:500;text-transform:none;color:var(--ink-3)}
+.tr-note{margin:0;font-size:var(--t-2);line-height:1.45;color:var(--ink-3)}
 .tr-note b{color:var(--ink-2)}
 
 /* best and worst */
@@ -33,8 +33,8 @@
 .tr-mgr{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:grid;grid-template-columns:84px minmax(0,1fr) 40px 12px;
   gap:8px;align-items:center;padding:8px 2px;min-height:44px}
 .tr-mgr:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
-.tr-mgr b{font-size:var(--t-2);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tr-wl{font-family:var(--mono);font-size:var(--t-1);text-align:right;font-variant-numeric:tabular-nums}
+.tr-mgr b{font-size:var(--t-3);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tr-wl{font-family:var(--mono);font-size:var(--t-2);text-align:right;font-variant-numeric:tabular-nums}
 .tr-chev{color:var(--ink-3);font-family:var(--mono);transition:transform .2s var(--ease)}
 .tr-mgr[aria-expanded="true"] .tr-chev{transform:rotate(90deg)}
 .tr-track{position:relative;height:18px;color:var(--ink-2)}
@@ -52,7 +52,7 @@
 .tr-mine{list-style:none;margin:0;padding:0 0 10px;display:grid;gap:6px}
 .tr-row{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:8px;align-items:start;background:var(--panel);border-radius:8px;padding:8px 10px;font-size:var(--t-2)}
 .tr-row p{margin:0}
-.tr-when{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.tr-when{font-size:var(--t-2);color:var(--ink-2)}
 .tr-gave{color:var(--ink-3)}
 .tr-res{font-family:var(--mono);font-size:var(--t-1);font-weight:700;text-align:center;border-radius:4px;padding:1px 0}
 .tr-res.up{background:rgb(var(--up-rgb) / .16);color:var(--up)}
@@ -62,42 +62,93 @@
 .tr-by.up{color:var(--up)}
 .tr-by.dn{color:var(--down)}
 .tr-by.open{color:var(--amber)}
-.tr-flip{display:block;font-family:var(--mono);font-size:var(--t-1);color:var(--amber)}
-.tr-dec{list-style:none;margin:4px 0 0;padding:0;display:grid;gap:2px;font-size:var(--t-1);font-weight:600;color:var(--gold-2)}
-.tr-dec li::before{content:"◆ "}
+.tr-flip{display:block;font-size:var(--t-2);color:var(--amber)}
+.tr-dec{list-style:none;margin:4px 0 0;padding:0;display:grid;gap:4px;font-size:var(--t-2);font-weight:600;line-height:1.35;color:var(--ink)}
+.tr-dec li{display:grid;grid-template-columns:16px minmax(0,1fr);gap:6px;align-items:start}
+.tr-dec svg{width:16px;height:16px;margin-top:1px}
+.tr-dec li.up svg{color:var(--up)}
+.tr-dec li.dn svg{color:var(--down)}
+.tr-dec li.title{color:var(--gold-2)}
 
 /* heists and the trades that decided a season */
 .tr-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:8px;align-content:start}
 .tr-card.title{border-color:rgb(var(--gold-2-rgb) / .55);background:linear-gradient(180deg,rgb(var(--gold-2-rgb) / .09),var(--panel) 70%)}
 .tr-card h3{margin:0;font-family:var(--disp);font-size:var(--t-3);font-weight:700;line-height:1.3;min-width:0}
-.tr-card h3 small{display:block;font-family:var(--mono);font-size:var(--t-1);font-weight:500;color:var(--ink-3);margin-top:2px}
+.tr-card h3 small{display:block;font-family:var(--ui);font-size:var(--t-2);font-weight:500;color:var(--ink-2);margin-top:2px}
 .tr-card-top{display:flex;gap:10px;align-items:baseline}
 .tr-rk{font-family:var(--disp);font-size:var(--t-5);font-weight:800;line-height:1;color:var(--gold-2)}
 .tr-card .tr-tag{background:var(--gold-2);color:var(--void)}
-.tr-sides{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 8px;margin:0;font-size:var(--t-2)}
-.tr-sides dt{min-width:0}
-.tr-sides dd{margin:0;font-family:var(--mono);font-weight:700;font-variant-numeric:tabular-nums}
-.tr-sides dd.up{color:var(--up)}
-.tr-sides dd.dn{color:var(--down)}
-.tr-after{margin:0;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);border-top:1px dashed var(--line-2);padding-top:6px}
-.tr-swap{margin:0;font-size:var(--t-1);color:var(--ink-2)}
-.tr-more{all:unset;cursor:pointer;justify-self:start;font-family:var(--mono);font-size:var(--t-1);font-weight:600;color:var(--lime);padding:6px 0;min-height:32px}
+.tr-after{margin:0;font-size:var(--t-2);color:var(--ink-2);border-top:1px dashed var(--line-2);padding-top:6px}
+
+/* a traded player: a face and a name in the display face, so who moved reads first */
+.tr-pls{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px 14px}
+.tr-pls li{display:flex;align-items:center;gap:8px;min-width:0}
+.tr-pls b{font-family:var(--disp);font-size:var(--t-3);font-weight:700;white-space:nowrap}
+.tr-face{position:relative;flex:none;width:40px;height:40px;border-radius:50%;overflow:hidden;display:grid;grid-template:100% / 100%;place-items:center;
+  background:var(--panel-3);border:1px solid var(--line-2)}
+.tr-face img{width:100%;height:100%;object-fit:cover;object-position:top}
+.tr-face .fallback{font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink-3)}
+.tr-none-got{margin:0;font-size:var(--t-2);color:var(--ink-3)}
+.tr-side{display:grid;gap:6px}
+.tr-side + .tr-side{border-top:1px dashed var(--line-2);padding-top:8px}
+.tr-side-hd{margin:0;display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:var(--t-2);font-weight:600;color:var(--ink-2)}
+.tr-side-hd b{font-family:var(--mono);font-size:var(--t-3);font-weight:700;font-variant-numeric:tabular-nums}
+.tr-side-hd b.up{color:var(--up)}
+.tr-side-hd b.dn{color:var(--down)}
+.tr-pair{display:grid;gap:8px}
+/* in a manager's list, smaller: got in ink, gave dimmed */
+.tr-io{display:grid;grid-template-columns:36px minmax(0,1fr);gap:8px;align-items:start;margin-top:5px}
+.tr-io > span{font-size:var(--t-2);line-height:28px;color:var(--ink-2)}   /* level with the first face */
+.tr-io .tr-face{width:28px;height:28px}
+.tr-io .tr-pls{gap:4px 12px}
+.tr-io .tr-pls b{font-size:var(--t-2)}
+.tr-gave .tr-pls b{color:var(--ink-2);font-weight:600}
+.tr-more{all:unset;cursor:pointer;justify-self:start;font-family:var(--ui);font-size:var(--t-2);font-weight:600;color:var(--lime);padding:6px 0;min-height:32px}
 .tr-more:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 
 /* curses: a chain of trades, each sender's loss in red, the one still open in amber */
 .tr-curse{display:grid;gap:4px}
 .tr-curse h3{margin:0;font-family:var(--disp);font-size:var(--t-4);font-weight:800;color:var(--gold-2)}
-.tr-curse p{margin:0;font-size:var(--t-1);color:var(--ink-2)}
+.tr-curse p{margin:0;font-size:var(--t-2);line-height:1.4;color:var(--ink-2)}
 .tr-chain{list-style:none;margin:6px 0 0;padding:0}
 .tr-chain li{position:relative;padding:0 0 12px 22px;display:grid;gap:1px}
 .tr-chain li::before{content:"";position:absolute;left:3px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--gold-2)}
 .tr-chain li::after{content:"";position:absolute;left:7px;top:16px;bottom:0;width:2px;background:var(--line-2)}
 .tr-chain li:last-child::after{display:none}
 .tr-chain li.open::before{background:var(--amber)}
-.tr-chain b{font-family:var(--disp);font-size:var(--t-2);font-weight:700}
-.tr-chain span{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.tr-chain b{font-family:var(--disp);font-size:var(--t-3);font-weight:700}
+.tr-chain span{font-size:var(--t-2);color:var(--ink-2)}
 .tr-chain span.dn{color:var(--down)}
 .tr-chain span.live{color:var(--amber)}
+/* the mark: his face drained of colour in front of black fire, one skull per trade under it. The fire
+   rises ~17px above its box, so the mark starts that far down. */
+.tr-curse-top{display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;align-items:center}
+.tr-mark{display:grid;justify-items:center;gap:4px;padding-top:18px}
+.tr-fire{position:relative;width:96px;height:96px;display:grid;place-items:center}
+.tr-fire svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.tr-fire .s1{stop-color:var(--hex-1)}
+.tr-fire .s2{stop-color:var(--hex-2)}
+.tr-fire .s3{stop-color:var(--hex-3)}
+.tr-fire .rim{stroke:var(--hex-rim);stroke-width:.9;stroke-linejoin:round}
+.tr-fire .mid{fill:var(--hex-mid)}
+.tr-fire .core{fill:var(--hex-core)}
+.tr-fire .tr-face{width:64px;height:64px;border:0}
+.tr-fire img{filter:grayscale(1) brightness(.85) contrast(1.15)}
+.tr-fire .tr-face::after{content:"";position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle,transparent 52%,rgb(var(--shadow-rgb) / .75) 100%)}
+.tr-skulls{display:flex;gap:4px}
+.tr-skull{width:18px;height:18px;color:var(--down)}
+.tr-skull.live{color:var(--amber)}
+.tr-skull .bone{fill:currentColor;stroke:currentColor;stroke-width:1.3}
+.tr-skull .eye{fill:var(--void)}
+.tr-skull .teeth{fill:none;stroke:var(--void);stroke-width:1}
+.tr-skull.live .bone{fill:none}
+.tr-skull.live .eye{fill:currentColor}
+.tr-skull.live .teeth{stroke:currentColor}
+.tr-also{display:grid;gap:6px}
+.tr-also .tr-face{width:32px;height:32px}
+.tr-also img{filter:grayscale(1)}
+.tr-also .tr-pls b{font-size:var(--t-2);color:var(--ink-2)}
 
 /* Desktop (2026-09-28, second pass): rows, not columns. Two columns split by kind left the ranking
    (705px) beside a 1730px stack, ~1000px of nothing under it, and best/worst held to 640px of a
@@ -112,6 +163,8 @@
   /* across 1360px a subhead pushed to the far edge reads as belonging to nothing */
   :is(.tr-decided,.tr-curses) .tr-hd{justify-content:start;column-gap:14px}
   .tr-decided .tr-grid{row-gap:12px;align-items:stretch}
+  .tr-pair{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:16px}
+  .tr-pair .tr-side + .tr-side{border-top:0;padding-top:0}
 }
 /* With a mouse the ranking's rows need no 44px touch height; tighter, it ends level with the heists. */
 @media (min-width:960px) and (pointer:fine){
