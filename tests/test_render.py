@@ -707,6 +707,12 @@ def test_trades_desktop_rows_end_level(browser, page_file):
         assert heists[0] > rank[0] and abs(heists[1] - rank[1]) < 1, "heists beside the ranking"
         assert abs(heists[3] - rank[3]) <= 150, f"ranking ends {rank[3]:.0f}, heists {heists[3]:.0f}"
         assert abs(dec[2] - body[2]) < 1, "the decided trades take the full width"
+        # A trade's two sides share a top: each side's first player sits level with the other's, even
+        # when one side is taller (heist #3, 2026-09-28: M. Andrews sank to the middle of his side).
+        skew = page.evaluate("""() => [...document.querySelectorAll('.tr-pair')].map(p => {
+            const t = [...p.querySelectorAll(':scope > .tr-side .tr-pls li:first-child')].map(l => l.getBoundingClientRect().top);
+            return t.length === 2 ? Math.abs(t[0] - t[1]) : 0; })""")
+        assert skew and max(skew) < 1, f"sides out of line by {max(skew):.0f}px"
         page.set_viewport_size({"width": 360, "height": 740})
         lefts = {round(page.evaluate(box, q)[0]) for q in (".tr-rank", ".tr-heists", ".tr-decided", ".tr-curses")}
         assert len(lefts) == 1, f"one strip on a phone: {lefts}"

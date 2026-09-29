@@ -12,17 +12,38 @@ const trWL = r => `${r.won}–${r.lost}`;
 const trSigned = n => `${n > 0 ? "+" : n < 0 ? "−" : ""}${trPar(Math.abs(n))}`;
 let TR_OPEN = null;   // the manager whose trades are open; one at a time, kept for the session
 
-/* Best and worst: the top and bottom of the ranking among managers with enough trades, and whether
-   either is proven (a range that stays clear of 0). */
+/* Best and worst: the top and bottom of the ranking among managers with enough trades. Second pass
+   (2026-09-28): the plain title cards stretched ~450px of nothing across a desktop half. Each card is
+   now the verdict icon, the manager and his number, his track from the ranking with whether it is
+   proven (a range clear of 0), and the trade that defines him as faces: the best manager's biggest win
+   (what he got), the worst's biggest loss (what he gave). Held weeks, like his row. */
+const TR_LEAD_ICON = {
+  best: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 8.5 8 12.5 12 5l4 7.5 4.5-4-1.8 9.5H5.3z M5.5 20h13" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>`,
+  worst: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7l6 6 4-4 8 8M21 11v6h-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+};
+function trDefining(key, best){
+  const mine = trData().trades.filter(x => !x.open && (x.win.m === key || x.lose.m === key) && (x.held.win === key) === best);
+  if (!mine.length) return null;
+  const tr = mine.reduce((a, b) => b.held.margin > a.held.margin ? b : a);
+  const me = tr.win.m === key ? tr.win : tr.lose, them = tr.win.m === key ? tr.lose : tr.win;
+  return {tr, them, side: best ? me : them};
+}
+function trLeadCardHTML(r, k){
+  const best = k === "best", sure = best ? r.lo > 0 : r.hi < 0, d = trDefining(r.m, best);
+  const trade = d ? `<div class="tr-lead-trade"><p>${best ? t("trades.lead.bestTrade", {y: d.tr.season, m: trName(d.them.m)})
+      : t("trades.lead.worstTrade", {y: d.tr.season, m: trName(d.them.m)})}</p>
+    ${trPlayersHTML(d.side.got, d.side.slugs)}<b class="${best ? "up" : "dn"}">${best ? "+" : "−"}${trPar(d.tr.held.margin)}</b></div>` : "";
+  return `<article class="tr-lead-card ${k}">
+    <div class="tr-lead-top"><span class="tr-lead-ic">${TR_LEAD_ICON[k]}</span>
+      <div class="tr-lead-who"><span class="tr-tag ${k}">${best ? t("trades.lead.best") : t("trades.lead.worst")}</span><b>${trName(r.m)}</b></div>
+      <span class="tr-lead-n">${trSigned(r.per_trade)}<small>${t("trades.lead.per", {wl: trWL(r)})}</small></span></div>
+    <div class="tr-lead-sure"><span class="${sure ? (best ? "up" : "dn") : ""}">${sure ? t("trades.lead.sure") : t("trades.lead.luck")}</span>${trTrackHTML(r)}</div>
+    ${trade}</article>`;
+}
 function trLeadHTML(){
   const rows = trData().ranking.filter(r => !r.few);
   if (!rows.length) return "";
-  const best = rows[0], worst = rows[rows.length - 1];
-  const row = (r, k) => `<div class="tr-lead-row"><span class="tr-tag ${k}">${k === "best" ? t("trades.lead.best") : t("trades.lead.worst")}</span>
-    <b>${trName(r.m)}</b><span class="tr-lead-n">${trSigned(r.per_trade)}<small>${t("trades.lead.per", {wl: trWL(r)})}</small></span></div>`;
-  const proven = [best.lo > 0 && best, worst.hi < 0 && worst].filter(Boolean);
-  const note = proven.length ? t("trades.lead.proven", {m: proven.map(r => trName(r.m)).join(" & ")}) : t("trades.lead.none");
-  return `<section class="tr-lead">${row(best, "best")}${row(worst, "worst")}<p class="tr-note">${note}</p></section>`;
+  return `<section class="tr-lead">${trLeadCardHTML(rows[0], "best")}${trLeadCardHTML(rows[rows.length - 1], "worst")}</section>`;
 }
 
 function trTrackHTML(r){
@@ -52,13 +73,18 @@ function trMineHTML(key){
 function trRankHTML(){
   const scale = `<div class="tr-scale" aria-hidden="true"><span></span><span class="tr-ticks">${[-50, 0, 50]
     .map(v => `<i style="--x:${trX(v)}%">${trSigned(v).replace(".0", "")}</i>`).join("")}</span><span></span></div>`;
-  const rows = trData().ranking.map(r => {
+  // Managers with too few trades sit under their own divider (2026-09-28): the list is sorted with luck
+  // taken out, so Larry's one-trade dot right of the leader's read as a mistake among the rest.
+  const R = trData().ranking, few = R.filter(r => r.few);
+  const row = r => {
     const open = TR_OPEN === r.m;
     return `<li class="${r.few ? "few" : ""}"><button type="button" class="tr-mgr" data-trmgr="${esc(r.m)}" aria-expanded="${open}"
         aria-label="${t("trades.rank.aria", {m: trName(r.m), n: trSigned(r.per_trade), wl: trWL(r)})}">
       <b>${trName(r.m)}</b>${trTrackHTML(r)}<span class="tr-wl">${trWL(r)}</span><span class="tr-chev" aria-hidden="true">›</span></button>
-      ${open ? `${r.few ? `<p class="tr-note">${t("trades.rank.few")}</p>` : ""}${trMineHTML(r.m)}` : ""}</li>`;
-  }).join("");
+      ${open ? trMineHTML(r.m) : ""}</li>`;
+  };
+  const rows = R.filter(r => !r.few).map(row).join("")
+    + (few.length ? `<li class="tr-fewhd">${t("trades.rank.few")}</li>${few.map(row).join("")}` : "");
   return `<section class="tr-sec tr-rank"><h2 class="tr-hd">${t("trades.rank.title")}<span>${t("trades.rank.sub")}</span></h2>
     ${scale}<ol class="tr-mgrs">${rows}</ol>${scale}<p class="tr-note">${t("trades.rank.key")}</p></section>`;
 }
