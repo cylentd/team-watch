@@ -729,7 +729,7 @@ roster is read, and the players named are the ones ff-jarvis's `game_preview` pi
 | Matchup | each offense against the defense it faces, rank with points allowed small beside; bottom 8 `--up` (soft), top 8 `--down` (tough); the WR row faded with the reason (the backtest finds the WR matchup moves nothing, QB/RB/TE 8-18%); pass EPA rank; "after N games" |
 | Injuries | both teams: OUT / IR tags `--down` with the player's average, D / Q `--amber` |
 | Weather | the stadium and roof, the forecast, and only the backtest's proven effects for the conditions met, read from `LIVE_WX_HISTORY` (the Weather view's cells and thresholds, so the numbers are never ours); a dome, or a forecast under every threshold, says it moves nothing |
-| Rest & travel | facts: days since the last game, SHORT WEEK, OFF A BYE, zones travelled and the body-clock kickoff, miles, a neutral site. One line says the effect is not tested yet |
+| Rest & travel | facts: days since the last game, SHORT WEEK, OFF A BYE, zones travelled and the body-clock kickoff, miles, a neutral site. One line says the backtest found no edge past the line (ff-jarvis METHODOLOGY 12.62, 2026-09-29: 0 of 23 cells pass; it said "not tested yet" before) |
 | Player calls, Risk | every call (up to 8), a tap opens the profile; the risk |
 
 - **One card, rows inside** (DESIGN.md "Cards"): the rows are divided by the card's 1px `--line`

@@ -926,7 +926,7 @@
  "preview.rest.bye": "OFF A BYE",
  "preview.rest.days": "{n} days' rest",
  "preview.rest.short": "SHORT WEEK",
- "preview.rest.untested": "Effect on the result: not tested yet. It shows here once a backtest proves it, as weather's did.",
+ "preview.rest.tested": "Tested 2011–2025: no edge past the line. The spread already prices rest and travel.",
  "preview.risk": "Risk",
  "preview.row.inj": "Injuries",
  "preview.row.lines": "Lines",

@@ -68,5 +68,5 @@ function pvRestRow(g){
   if (!g.rest && !g.travel) return "";
   const site = g.site && g.site.neutral ? `<p class="pv-site">${t("preview.travel.neutral", {where: esc(g.site.stadium || "")})}</p>` : "";
   return pvRow("rest", t("preview.row.rest"), `${site}<div class="pv-kv">${pvRestLine(g.away, g)}${pvRestLine(g.home, g)}</div>
-    <p class="pv-note">${t("preview.rest.untested")}</p>`);
+    <p class="pv-note">${t("preview.rest.tested")}</p>`);
 }
