@@ -121,7 +121,8 @@
 .tr-more:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 
 /* curses: a chain of trades, each sender's loss in red, the one still open in amber */
-.tr-curse{display:grid;gap:4px}
+.tr-curse{gap:6px}   /* a .tr-card, like the heists; the fire rises inside its padding */
+.tr-rest{gap:14px}
 .tr-curse h3{margin:0;font-family:var(--disp);font-size:var(--t-4);font-weight:800;color:var(--gold-2)}
 .tr-curse p{margin:0;font-size:var(--t-2);line-height:1.4;color:var(--ink-2)}
 .tr-chain{list-style:none;margin:6px 0 0;padding:0}
@@ -177,6 +178,9 @@
   /* across 1360px a subhead pushed to the far edge reads as belonging to nothing */
   :is(.tr-decided,.tr-curses) .tr-hd{justify-content:start;column-gap:14px}
   .tr-decided .tr-grid{row-gap:12px;align-items:stretch}
+  .tr-curses .tr-grid{align-items:stretch}
+  /* 64px = the 40px between the cards above plus their 2 x 12px padding, so each half starts under a card's text */
+  .tr-rest{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:64px}
   .tr-pair{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:16px}
   .tr-pair .tr-side + .tr-side{border-top:0;padding-top:0}
 }

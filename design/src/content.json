@@ -1277,7 +1277,7 @@
  "trades.nothing": "nothing that scored",
  "trades.page.kick": "Trades · {a}–{b} · {n} trades",
  "trades.page.what": "PAR: points a player scored above a waiver-wire player that week, from the trade to season’s end.",
- "trades.potato.line": "Hot potatoes, whoever got him lost every time: {list}.",
+ "trades.potato.line": "Hot potatoes: whoever got him lost every time",
  "trades.rank.aria": "{m}: {n} a trade, {wl}. Show their trades",
  "trades.rank.few": "Too few trades to rank",
  "trades.rank.key": "Dot: average per trade. Line: how sure that is (90%). Fewer trades, or wilder ones, make it longer. A line crossing 0 could still be luck; red is proven below 0, green above.",

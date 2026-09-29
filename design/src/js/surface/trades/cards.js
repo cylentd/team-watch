@@ -111,18 +111,20 @@ function trCurseHTML(c, i){
   const steps = c.moves.map(m => `<li class="${m.open ? "open" : ""}"><b>${t("trades.curse.step", {y: m.season, a: trName(m.from), b: trName(m.to)})}</b>
     <span class="${m.open ? "live" : m.lost ? "dn" : ""}">${m.open ? t("trades.curse.trails", {m: trName(m.from), n: trPar(m.margin)})
       : m.lost ? t("trades.curse.lost", {m: trName(m.from), n: trPar(m.margin)}) : t("trades.curse.won", {m: trName(m.from), n: trPar(m.margin)})}</span></li>`).join("");
-  return `<div class="tr-curse"><div class="tr-curse-top">${trMarkHTML(c, i)}<div><h3>${t("trades.curse.name", {s: esc(c.surname)})}</h3>
+  return `<div class="tr-curse tr-card"><div class="tr-curse-top">${trMarkHTML(c, i)}<div><h3>${t("trades.curse.name", {s: esc(c.surname)})}</h3>
     <p>${line}</p></div></div><ol class="tr-chain">${steps}</ol></div>`;
 }
 
-/* The two strongest curses drawn as chains; the rest, and the hot potatoes, as one line each. */
+/* The two strongest curses as cards with their chains; the rest, and the hot potatoes, as faces in one
+   card under them (2026-09-28: cards like the rest of the page, not loose text). */
 function trCursesHTML(){
   const all = trData().curses, curses = all.filter(c => c.kind === "curse"), potatoes = all.filter(c => c.kind === "potato");
   if (!all.length) return "";
   const rest = curses.slice(2);
+  const faces = (label, cs) => `<div class="tr-also"><p class="tr-note">${label}</p>${trPlayersHTML(cs.map(c => c.player), cs.map(c => c.slug))}</div>`;
+  const more = (rest.length ? faces(t("trades.curse.also"), rest) : "") + (potatoes.length ? faces(t("trades.potato.line"), potatoes) : "");
   return `<section class="tr-sec tr-curses"><h2 class="tr-hd">${t("trades.curse.title")}<span>${t("trades.curse.sub")}</span></h2>
     <div class="tr-grid">${curses.slice(0, 2).map(trCurseHTML).join("")}</div>
-    ${rest.length ? `<div class="tr-also"><p class="tr-note">${t("trades.curse.also")}</p>${trPlayersHTML(rest.map(c => c.player), rest.map(c => c.slug))}</div>` : ""}
-    ${potatoes.length ? `<p class="tr-note">${t("trades.potato.line", {list: trList(potatoes.map(c => c.player))})}</p>` : ""}
+    ${more ? `<div class="tr-card tr-rest">${more}</div>` : ""}
   </section>`;
 }
