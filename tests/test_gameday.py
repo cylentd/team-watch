@@ -176,12 +176,23 @@ def test_the_board_says_where_each_game_is_and_a_row_opens_his_profile(browser, 
     # each row's game line: a lime LIVE while it is on, a lock and "Final" once done, the kickoff
     # before (and no stat line, and a dash for points); the second number is his projection, unlabelled
     states = page.evaluate("""() => [...document.querySelectorAll('.gd-lineup.mine .gd-row')].map(r =>
-      [r.dataset.gdteam, r.querySelector('.gd-live') ? 'LIVE' : r.querySelector('.gd-game svg') ? 'FINAL'
-        : !r.querySelector('.gd-stat') && r.querySelector('.gd-pts').textContent === '—' ? 'PRE' : '?',
+      [r.dataset.gdteam, r.classList.contains('on') ? 'LIVE' : r.classList.contains('pre') ? 'PRE' : 'FINAL',
        !!r.querySelector('.gd-slot.locked')])""")
     by_team = {team: (st, locked) for team, st, locked in states}
     assert by_team.get("SF") == ("LIVE", True) and by_team.get("DET") == ("PRE", False)
-    assert ("FINAL", True) in by_team.values() and "?" not in {s for s, _ in by_team.values()}
+    assert ("FINAL", True) in by_team.values()
+    # the lock is the slot's alone: the game line never repeats it, nor says LIVE or FINAL
+    assert page.locator(".gd-game svg").count() == 0
+    assert not any(re.search(r"\b(LIVE|FINAL)\b", s) for s in page.locator(".gd-game").all_inner_texts())
+    # lime points mean his game is on, and nothing else; the fire means he passed his projection
+    lime = page.evaluate("getComputedStyle(document.body).getPropertyValue('--lime').trim()")
+    rows = page.evaluate("""() => [...document.querySelectorAll('.gd-row')].map(r => ({on: r.classList.contains('on'),
+      lime: getComputedStyle(r.querySelector('.gd-pts')).color, fire: !!r.querySelector('.gd-face .gd-hot'),
+      pts: parseFloat(r.querySelector('.gd-pts').textContent), proj: parseFloat(r.querySelector('.gd-proj').textContent)}))""")
+    lime_rgb = page.evaluate("(c) => { const d = document.createElement('i'); d.style.color = c; document.body.append(d); const v = getComputedStyle(d).color; d.remove(); return v; }", lime)
+    assert all((r["lime"] == lime_rgb) == r["on"] for r in rows)
+    assert all(r["fire"] == (r["proj"] == r["proj"] and r["pts"] == r["pts"] and r["pts"] > r["proj"]) for r in rows)
+    assert any(r["fire"] for r in rows)
     assert all(re.match(r"^(\d+\.\d)?$", s) for s in page.locator(".gd-lineup.mine .gd-proj").all_inner_texts())
     assert page.locator(".gd-median:not(.quiet)").count() == 1         # ESPN pays the top half
     # every game states itself on the line above its boxes; a box is a name and a score, and only a
@@ -192,10 +203,12 @@ def test_the_board_says_where_each_game_is_and_a_row_opens_his_profile(browser, 
     assert page.locator(".gd-g").evaluate_all("gs => gs.every(g => g.firstElementChild.classList.contains('gd-gs'))")
     assert page.locator(".gd-cup").count() == sum(1 for s in tags if s.strip() == "FINAL")
     assert page.locator(".gd-g.on").count() == 1 and page.locator(".gd-g.mine.on").count() == 1
-    # rows are shaded every other one and by nothing else: no row is lit for what it holds
+    # rows are shaded every other one, and a row whose game is on is tinted; nothing else lights a row
     assert page.locator(".gd-lineup").evaluate_all("""ls => ls.every(l => {
-      const rs = [...l.querySelectorAll('.gd-row')].map(r => getComputedStyle(r).backgroundColor);
-      return rs.every((c, i) => c === rs[i % 2]) && rs[0] !== rs[1]; })""")
+      const all = [...l.querySelectorAll('.gd-row')], bg = r => getComputedStyle(r).backgroundColor;
+      const rest = all.map((r, i) => [r, i]).filter(([r]) => !r.classList.contains('on'));
+      const shade = i => bg(rest.find(([, j]) => j % 2 === i % 2)[0]);
+      return rest.every(([r, i]) => bg(r) === shade(i)) && all.filter(r => r.classList.contains('on')).every(r => bg(r) !== shade(0) && bg(r) !== shade(1)); })""")
     # my game says who leads in words; the bench is drawn, dimmed, and left out of the total
     assert re.match(r"^(UP|DOWN) \d+\.\d$|^TIED$", page.locator(".gd-lead").inner_text())
     assert page.locator(".gd-lineup.mine .gd-row.bn").count() > 0
