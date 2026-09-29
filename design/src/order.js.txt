@@ -8,8 +8,8 @@
 # pin: chrome/state.js (SURFACE, VIEW) precedes every render function; main.js is last and is
 #      the only file with side effects on the page.
 # pin: surface/live/live.js sits after chrome/state.js because gdOnScreen() reads SURFACE, and
-#      before its own markup files, whose builders read GD_DATA, GD_PULSE and GD_WP declared
-#      there. board.js precedes header.js for the same reason: gdNum/gdPct/gdSign/gdShort.
+#      before its own markup files, whose builders read GD, GD_STATS and GD_PULSE declared there;
+#      data/gameday/score.js (gdSide, gdLadder) precedes all three.
 data/teams.js
 data/signals.js
 data/hydrate.js
@@ -78,6 +78,7 @@ data/wxhistory.js
 surface/weather/card.js
 surface/weather/weather.js
 data/digest.js
+data/gameday/score.js
 surface/digest/lead.js
 surface/digest/results.js
 surface/digest/rows.js
@@ -139,10 +140,8 @@ surface/parlay/tdboard.js
 surface/dfs/dfs.js
 chrome/state.js
 surface/live/live.js
-surface/live/follow.js
-surface/live/memory.js
 surface/live/board.js
-surface/live/header.js
+surface/live/league.js
 # pin: the strip loads bottom-up -- art and easing are pure, scene reads them, pose reads scene,
 #      strip reads pose, and transport/game are the only files with listeners or a fetch. Each
 #      file may only name things declared above it (one scope, so the temporal dead zone applies).

@@ -1,9 +1,9 @@
 """LIVE_SCHEDULE: this week's NFL kickoffs, so the Live surface knows when to poll and when not to.
 
-The Live board reads /api/live, which costs an ESPN request whenever the edge cache has expired.
+The Live board reads /api/stats (Sleeper's live stats, since 2026-09-28; /api/live read ESPN before).
 Without a schedule the page would poll at full rate at 9am on a Sunday with nothing kicked off,
 and again at midnight with everything final. With one it polls only while a game involving
-somebody in the matchup is actually being played, and the rest of the week costs nothing.
+somebody in the league is actually being played, and the rest of the week costs nothing.
 
 Source: ff-jarvis's `data/history/games/<date>.jsonl`, written by `model.clients.results` from
 nflverse. That is the schedule itself, not a by-product of one: the obvious alternative is the
@@ -16,9 +16,9 @@ second reader instead.
 The files are an append-only log: every pull re-states the whole season, so one game_id appears
 in several files and several times within one. The latest `asof` per game_id wins.
 
-Team codes come out in ESPN's spelling (LAR, WSH), not nflverse's (LA, WAS), because the only
-consumer joins them against the club codes /api/live returns, which are ESPN's own. A block that
-exists for one reader should speak that reader's dialect rather than make it translate.
+Team codes come out in ESPN's spelling (LAR, WSH), not nflverse's (LA, WAS): the drive strip joins
+them against ESPN's game ids. Live, which speaks Sleeper's codes (LAR, WAS), looks a club up in both
+spellings through `alias`.
 
 The whole season ships, not a window around the build. A window would have to be measured from
 "now", which makes the build's own output depend on the day it ran -- and this repo pins its
@@ -34,7 +34,7 @@ UTC = datetime.timezone.utc
 
 # nflverse -> ESPN, and only where they disagree. Not `build.TEAM_FIX` (which targets the book's
 # spelling) and not ff-jarvis's `team_norm` (which targets nflverse's): a third seam, because the
-# join at the other end is against ESPN's table in api/live.py.
+# join at the other end is against ESPN's own codes (api/_espn.py PRO).
 TO_ESPN = {"LA": "LAR", "WAS": "WSH"}
 
 

@@ -53,20 +53,8 @@ def test_a_leaguemates_waivers_is_their_leagues_rail_without_davids_advice(brows
     ctx.close()
 
 
-def test_live_follows_a_leaguemates_espn_team_and_says_so_for_yahoo(browser, page_file):
-    ctx, page, errors = open_page(browser, page_file, (390, 844))
-    mate = page.evaluate("(MATES.find(m => m.league === 'espn') || {}).key")
-    if not mate:
-        pytest.skip("no ESPN leaguemate in the fixture")
-    assert page.evaluate("gdTeamName()") is None, "David's own board asks /api/live plain"
-    page.evaluate(f"VIEW = '{mate}'")
-    assert page.evaluate("gdTeamName()") == page.evaluate(f"TEAMS['{mate}'].name")
-    assert page.evaluate("GD_MEM_KEY(3)") != "tw-live-espn-w3", "a leaguemate's memory is kept apart"
-    page.evaluate("""TEAMS['yahoo-test'] = Object.assign({}, TEAMS.yahoo, {key: 'yahoo-test', mate: true, league: 'yahoo'});
-      VIEW = 'yahoo-test'; SURFACE = 'live'; render()""")
-    assert "Yahoo league" in page.locator("#view").inner_text()
-    assert errors == []
-    ctx.close()
+# Live followed a leaguemate's ESPN board until 2026-09-28; it now shows every matchup in both
+# leagues to everyone (tests/test_gameday.py), so there is nothing per-team left to follow.
 
 
 def test_owner_names_never_reach_the_page(page_file):

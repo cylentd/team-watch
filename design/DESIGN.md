@@ -122,8 +122,7 @@ Phase 2 (2026-09-26):
 |---|---|
 | Trend and news on their rows and Cards | `design/signals.py` reads every LIVE_MATES roster too |
 | Waivers: their league's Breaking rail, no status rows, no verdicts, no cards | `waiverKey(team)` is the league; `wvMateEvents` (rail.js) |
-| Live: their own ESPN matchup | `api/live.py ?team=<name>`, one memoized ESPN read for all; `surface/live/follow.js` |
-| Live, Yahoo league: a line saying Live follows ESPN only | `gdYahooMate()` |
+| Live: every matchup in both leagues, theirs included (superseded the per-team follow, 2026-09-28) | `design/gameday.py`, `api/stats.py`; the design is in `js/surface/live/live.js`'s header |
 
 **My teams asks first (2026-09-27).** With no pick in this browser (`tw-team`), every My teams view
 draws "Which team is yours?": all 24 teams by league, 48px buttons, and "Add your ESPN league"; no

@@ -335,6 +335,13 @@ CONTRACT = {
     # {team id: {opponent id: record}}, all-time or this season only by `scope`; each week's
     # `awards` may lack the winner-only four in a week of ties. A fact carries `k` and its kind's own
     # keys (surface/league/history.js). A champion has an `id` (ESPN) or a past `name` (Yahoo).
+    # design/gameday.py, This week > Live. A league's `me` may be null (my team not found by name);
+    # `teams` is {id: {name, lineup [{slot, n, slug, pos, team, sid}]}} and a row's `sid` may be null
+    # (no Sleeper id: he scores nothing). The lineup rows are pinned in tests/test_gameday.py.
+    "LIVE_GAMEDAY": {
+        "keys": ["season", "leagues"],
+        "rows": [("leagues", ["key", "name", "week", "median", "me", "rules", "teams", "games"])],
+    },
     "LIVE_LEAGUE": LEAGUE_SPEC,
     "LIVE_LEAGUE_YAHOO": LEAGUE_YAHOO_SPEC,
     # design/league_trades.py: League > Trades. A trade's `win`/`lose` side is {m, got, slugs, tree, par,

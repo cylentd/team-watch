@@ -1,7 +1,7 @@
 """What every ESPN read in this repo shares: the host, the id maps, the one GET, and the name slug.
 
-Underscore-prefixed, so Vercel does not turn it into an endpoint; api/live.py and api/league.py
-import it, and design/build.py imports `slugify` from it so the page and the functions compute
+Underscore-prefixed, so Vercel does not turn it into an endpoint; api/league.py imports it (api/live.py
+did too, until Live moved to Sleeper's stats on 2026-09-28), and design/build.py imports `slugify` from it so the page and the functions compute
 one slug for one name. It was three copies of the maps and two of the slug before 2026-09-24.
 """
 

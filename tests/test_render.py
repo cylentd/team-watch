@@ -12,6 +12,7 @@ Deterministic by construction: fixture inputs, Math.random seeded and Date.now p
 """
 import json
 import os
+import pathlib
 import re
 
 import pytest
@@ -44,42 +45,20 @@ PROPS = ["color", "background-color", "border-top-color", "border-top-style", "b
 
 # (state name, how to reach it from a fresh load). Each is a list of steps: ("click", selector) or
 # ("eval", js). The nav is clicked, not set, so the wiring is exercised too.
-# A reply planted rather than fetched. No server runs in this test, and SEED pins Date.now(), so
-# GD_AT is always fresh and gdEnsure() never reaches for the network. The rows are chosen to
-# cover what the markup branches on: played against not-yet, a designation badge, and a bench.
-LIVE_REPLY = """
-GD_DATA = {
-  league: "espn", week: 2, asof: "2026-09-20T17:04:00+00:00",
-  me: {team: "Purdy Big in Japan", live: 31.5, projected: 131.7, winPct: 0.76, lineup: [
-    {slot:"QB", starter:true,  name:"Brock Purdy",       team:"SF",  actual:null, projected:25.7, started:false, injury:"ACTIVE"},
-    {slot:"WR", starter:true,  name:"Amon-Ra St. Brown", team:"DET", actual:31.5, projected:16.0, started:true,  injury:"ACTIVE"},
-    {slot:"RB", starter:true,  name:"De'Von Achane",     team:"MIA", actual:null, projected:14.9, started:false, injury:"QUESTIONABLE"},
-    {slot:"D/ST", starter:true,name:"Seahawks D/ST",     team:"SEA", actual:null, projected:9.2,  started:false, injury:"ACTIVE"},
-    {slot:"BE", starter:false, name:"Jared Goff",        team:"DET", actual:37.8, projected:23.2, started:true,  injury:"ACTIVE"},
-    {slot:"BE", starter:false, name:"Jordan Mason",      team:"MIN", actual:null, projected:0.0,  started:false, injury:"OUT"}]},
-  opponent: {team: "TeamMinh", live: -2.0, projected: 92.7, winPct: 0.24, lineup: [
-    {slot:"QB", starter:true,  name:"Justin Herbert",    team:"LAC", actual:null, projected:24.3, started:false, injury:"ACTIVE"},
-    {slot:"WR", starter:true,  name:"Jaxon Smith-Njigba",team:"SEA", actual:null, projected:15.0, started:false, injury:"ACTIVE"},
-    {slot:"RB", starter:true,  name:"Chase Brown",       team:"CIN", actual:null, projected:12.4, started:false, injury:"ACTIVE"},
-    {slot:"D/ST", starter:true,name:"Lions D/ST",        team:"DET", actual:-2.0, projected:5.1,  started:true,  injury:"ACTIVE"},
-    {slot:"BE", starter:false, name:"Drake Maye",        team:"NE",  actual:null, projected:22.4, started:false, injury:"ACTIVE"}]}
-};
-GD_AT = Date.now();
-/* SEED pins Date.now, so these three points are the same every run -- enough for the trace to
-   draw a shape without making the golden depend on when it was taken. */
-GD_WP = [[Date.now() - 900000, 0.38], [Date.now() - 450000, 0.61], [Date.now(), 0.76]];
-"""
+GAMEDAY_FIX = pathlib.Path(__file__).resolve().parent / "fixtures" / "gameday.json"
+# SF's game is on, DET's has not started; every other game is final.
+LIVE_STATES = {"SF": "in_game", "DET": "pre_game"}
 
-# Points landing while you watch: the row lights and the delta takes the projection's slot.
-LIVE_MOVED = "GD_PULSE = {'Amon-Ra St. Brown': 13.5, 'Lions D/ST': -2.0};"
 
-# And the same news after time away, which is stated once instead of chipped onto every row.
-LIVE_AWAY = """
-GD_CATCHUP = {swing: {me: 21.5, opp: 3.0}, movers: [
-  {name: "Amon-Ra St. Brown", delta: 13.5},
-  {name: "Cam Skattebo", delta: 12.4},
-  {name: "Lions D/ST", delta: -2.0}]};
-"""
+def LIVE_PLANT(states=None):
+    """JS that swaps the page's leagues for week 2 of both (tests/fixtures/gameday.json) and plants a
+    /api/stats reply, so nothing fetches. SEED pins Date.now(), so GD_AT is fresh on every run."""
+    fix = json.loads(GAMEDAY_FIX.read_text(encoding="utf-8"))
+    teams = {r["team"] for lg in (fix["espn"], fix["yahoo"]) for tm in lg["teams"].values() for r in tm["lineup"]}
+    games = {tm: (states or LIVE_STATES).get(tm, "complete") for tm in sorted(teams)}
+    reply = {"week": 2, "asof": "2026-09-12T12:00:00+00:00", "updated": None, "games": games, "stats": fix["stats"]}
+    return (f"GD.leagues.splice(0, GD.leagues.length, {json.dumps(fix['espn'])}, {json.dumps(fix['yahoo'])});"
+            f"GD_STATS = {json.dumps(reply)}; GD_AT = Date.now(); GD_ERR = '';")
 
 # The nav is two levels since 2026-09-21: a group, then the view. Reaching a view is therefore
 # two clicks, not one, except in a group of one where no sub-row is drawn at all. Spelling both
@@ -308,32 +287,19 @@ STATES = [
     ("search-idle", [("click", "#navsearch")]),
     ("search-typed", [("click", "#navsearch"),
                       ("eval", "document.getElementById('search-q').value = 'brwon'; searchPaint()")]),
-    ("live-board", [("eval", LIVE_REPLY)] + go("live")),
-    ("live-moved", [("eval", LIVE_REPLY + LIVE_MOVED)] + go("live")),
-    ("live-away", [("eval", LIVE_REPLY + LIVE_AWAY)] + go("live")),
-    # Both states plant a reply so gdEnsure() finds it fresh and never reaches the network:
-    # there is no server behind this test, and a failed fetch would land whenever it landed.
-    # The expired-cookie message is the one failure worth seeing drawn, because it is the one
-    # the reader can act on -- and it must appear OVER the last good board, not instead of it.
-    ("live-expired", [("eval", LIVE_REPLY
-                       + "GD_ERR = 'ESPN cookies have expired. Re-copy SWID and espn_s2.';")]
-                     + go("live")),
-    # Nothing has ever loaded and the first call failed: the one path where the board has no
-    # numbers to keep, so the retry has to be drawn or a reload is the only way out.
-    # A first-ever visit, before any reply has been stored: the skeleton holds the rows' space
-    # so nothing jumps when the numbers land. GD_BUSY pins it, as below.
-    ("live-skeleton", [("eval", "GD_DATA = null; GD_BUSY = true;")] + go("live")),
-    # GD_BUSY pins it: with no data, gdEnsure() would otherwise start a fetch that fails
-    # whenever it fails and overwrites the message mid-snapshot.
-    ("live-cold-error", [("eval", "GD_BUSY = true;"
-                          " GD_ERR = 'ESPN cookies have expired. Re-copy SWID and espn_s2.';")]
-                         + go("live")),
-    # The only state that lets gdFetch actually run. Every other live state pins GD_DATA or
-    # GD_BUSY, so the fetch never fires and nothing here noticed that opening the page from a
-    # file logged "URL scheme file is not supported" on every attempt. This suite runs over
-    # file://, so without the PAGE_SERVED guard this state puts that error in
-    # test_no_console_errors -- which is the point of it.
-    ("live-unserved", [("eval", "GD_DATA = null; GD_ERR = ''; GD_BUSY = false; GD_AT = 0;")]
+    # Live plants week 2 of both leagues (tests/fixtures/gameday.json) and a reply, so nothing
+    # fetches: SF's game on, DET's not started, the rest final.
+    ("live-board", [("eval", LIVE_PLANT())] + go("live")),
+    # A score that just moved wears its "+6.0" for a few seconds.
+    ("live-moved", [("eval", LIVE_PLANT() + "GD_PULSE = {'8183': 6.0};")] + go("live")),
+    ("live-yahoo", [("eval", LIVE_PLANT())] + go("live") + [("click", "[data-gdleague='yahoo']")]),
+    # Sleeper stopped answering: the last good board stays, the stamp says how old it is.
+    ("live-stale", [("eval", LIVE_PLANT() + "GD_ERR = 'Could not reach Sleeper. Trying again.'; GD_BUSY = true;")]
+                   + go("live")),
+    # A first visit before any reply: lineups with projections, a line saying it is reading.
+    ("live-loading", [("eval", LIVE_PLANT() + "GD_STATS = null; GD_BUSY = true;")] + go("live")),
+    # The only state that lets gdFetch run: from file:// it must say so once, never log an error.
+    ("live-unserved", [("eval", LIVE_PLANT() + "GD_STATS = null; GD_ERR = ''; GD_BUSY = false; GD_AT = 0;")]
                       + go("live")),
     # The play strip (2026-09-27): the real dialog, which from file:// says it cannot fetch, then
     # the fixture game mounted into it with the real stripMount. A finished game opens at kickoff

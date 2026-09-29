@@ -1,138 +1,84 @@
-/* ------------------------------------------------------------------
-   LIVE BOARD — the rows, pure. Every function here takes the payload /api/live returned and
-   gives back a string; nothing fetches, nothing touches the DOM.
+/* ============================== LIVE: THE MATCHUP ==============================
+   One game of the league on screen: both scores, then both lineups in slot order the way ESPN and
+   Yahoo draw them. Each row says where his game is -- PLAYING, FINAL, or its kickoff with his
+   projection -- and how he earned his points ("6/7 rec · 82 yds · 2 TD"). A row opens his profile. */
 
-   Globals are GD_*, never LIVE_*. The assembler injects the build-time data blocks as
-   LIVE_TEAMS, LIVE_NEWS, LIVE_MARKET and friends (order.js.txt, line 2), so a surface that also
-   owned LIVE_* names would read as if it were one of them. GD is for gameday.
------------------------------------------------------------------- */
+const gdNum = v => (Math.round(v * 10) / 10).toFixed(1);
+const gdSigned = v => (v >= 0 ? "+" : "−") + gdNum(Math.abs(v));
+/* "B. Purdy"; a defense keeps its name ("Seahawks D/ST"). */
+const gdShort = (r) => r.pos === "DEF" ? r.n : r.n.replace(/^(\S)\S*\s+/, "$1. ");
+const gdClock = ms => new Date(ms).toLocaleString("en-US", {weekday: "short", hour: "numeric", minute: "2-digit"});
 
-/* ESPN sends no actual stat row at all for a player whose game has not kicked off, which is the
-   only game-state signal in the payload. A dot says "nothing yet" where a 0.0 would claim he
-   played and scored nothing. */
-const GD_DOT = "·";
-const GD_HEALTHY = ["ACTIVE", "NORMAL"];
-
-const gdNum = v => (v === null || v === undefined) ? GD_DOT : (Math.round(v * 10) / 10).toFixed(1);
-const gdPct = v => Math.round((v || 0) * 100);
-/* A movement, always signed. A stat correction that takes points away is stated as readily as a
-   touchdown -- it moved, and hiding the direction would be the only dishonest option. */
-const gdSign = n => (n > 0 ? "+" : "") + n.toFixed(1);
-
-function gdBadge(row){
-  const s = String(row.injury || "").toUpperCase();
-  if (!s || GD_HEALTHY.includes(s)) return "";
-  return `<span class="gdbadge ${s === "OUT" ? "out" : "q"}">${esc(s[0])}</span>`;
-}
-
-/* Two spellings of a name, the same full/abbr swap the nav tabs and topbar pills use: at 430px
-   two lineups share the width and "De'Von Achane" truncates to "De'Von …", which names nobody.
-   A defence keeps its whole name: since the phone cell went to two lines (2026-09-24) there is
-   room, and on the bench the slot column says BE, so "Bengals" alone read as a person. */
-function gdShort(name){
-  const s = String(name);
-  return /\sD\/ST$/.test(s) ? s : nameInitial(s);
-}
-
-/* Three states, not two. "9.2" against a name means something different depending on whether
-   his game is over, underway, or has not started, and until now the board drew all three the
-   same way. `started` comes from the payload; the rest comes from the kickoff we already hold. */
-function gdState(row, now){
-  if (!row.started) return "waiting";
-  const kick = gdKickOf(row.team);
-  return (kick !== undefined && now > kick + GD_GAME_MS) ? "final" : "playing";
-}
-
-function gdCellHTML(row, side, now){
-  if (!row) return `<div class="gdcell ${side} empty"></div>`;
-  const name = row.name || t("live.unnamed");
-  const moved = GD_PULSE[name];
-  /* The delta takes the projection's place rather than sitting beside it. Same grid cell, so
-     nothing shifts under the reader when it arrives or leaves -- and for those few seconds the
-     projection is the least interesting number on the row. */
-  const trailing = moved === undefined
-    ? `<span class="gdproj">${gdNum(row.projected)}</span>`
-    : `<span class="gddelta ${moved < 0 ? "down" : "up"}">${esc(gdSign(moved))}</span>`;
-  /* Tapping a name opens his club's game at the drive he was last on the field for -- the first
-     of the drive strip's two ways in. Only when the schedule has an ESPN id for that game; a
-     player on a bye, or a game whose history row predates the id, stays a plain row. */
-  const game = typeof stGameFor === "function" ? stGameFor(row.team) : null;
-  const opens = game
-    ? ` role="button" tabindex="0" data-gdopen="${esc(row.team)}" data-gdname="${esc(name)}"`
-      + ` aria-label="${esc(t("strip.open.player", {name}))}"`
-    : "";
-  return `<div class="gdcell ${side} ${gdState(row, now)}${moved === undefined ? "" : " moved"}${game ? " opens" : ""}"${opens}>
-    <span class="gdname"><span class="gdnametxt">${esc(name)}</span><span
-      class="gdnameshort">${esc(gdShort(name))}</span>${gdBadge(row)}</span>
-    <span class="gdclub">${esc(row.team || "")}</span>
-    <span class="gdnow">${gdNum(row.actual)}</span>
-    ${trailing}
-  </div>`;
-}
-
-/* Both lineups arrive sorted the same way (starters first, then slot, then name) out of the same
-   league's settings, so index pairing puts like slot against like slot. When it somehow does not,
-   the row says so rather than quietly implying a QB is lined up against a tight end. */
-function gdRowHTML(mine, theirs, now){
-  const slot = (mine || theirs || {}).slot || "";
-  const other = (theirs || {}).slot || "";
-  const label = (mine && theirs && other !== slot) ? `${slot}/${other}` : slot;
-  return `<li class="gdrow">
-    ${gdCellHTML(mine, "mine", now)}
-    <span class="gdslot">${esc(label)}</span>
-    ${gdCellHTML(theirs, "theirs", now)}
-  </li>`;
-}
-
-function gdGroupHTML(mine, theirs, heading, now){
-  const n = Math.max(mine.length, theirs.length);
-  if (!n) return "";
-  const rows = [];
-  for (let i = 0; i < n; i++) rows.push(gdRowHTML(mine[i], theirs[i], now));
-  return `<h3 class="gdgroup">${heading}</h3><ol class="gdrows">${rows.join("")}</ol>`;
-}
-
-/* Only a first-ever visit reaches this: after one reply there is always a board in memory to
-   paint. Nine rows because that is this league's starting lineup, and the point is to hold the
-   space the numbers are about to land in -- reserving it is the whole job, so nothing jumps
-   when they do. It claims nothing; every cell is empty. */
-const GD_SKELETON_ROWS = 9;
-
-function gdSkeletonHTML(){
-  const rows = [];
-  for (let i = 0; i < GD_SKELETON_ROWS; i++){
-    rows.push(`<li class="gdrow">
-      <div class="gdcell mine skel"></div>
-      <span class="gdslot skel"></span>
-      <div class="gdcell theirs skel"></div>
-    </li>`);
+function gdRightHTML(r){
+  const pulse = r.sid && GD_PULSE[r.sid] !== undefined ? `<em class="up">${gdSigned(GD_PULSE[r.sid])}</em>` : "";
+  if (r.state === "pre_game"){
+    const p = projFor(r);
+    return `<span class="gd-pts pre">${p === null ? "—" : gdNum(p)}</span><span class="gd-st pre">${t("live.st.proj")}</span>`;
   }
-  return `<p class="gdwait">${t("live.loading")}</p>
-    <ol class="gdrows">${rows.join("")}</ol>`;
+  if (r.state === "in_game"){
+    return `<span class="gd-pts">${pulse}${gdNum(r.pts || 0)}</span><span class="gd-st on">${t("live.st.playing")}</span>`;
+  }
+  const p = projFor(r), d = p === null ? "" : `<b class="${r.pts >= p ? "up" : "dn"}">${gdSigned((r.pts || 0) - p)}</b>`;
+  return `<span class="gd-pts">${pulse}${gdNum(r.pts || 0)}</span><span class="gd-st">${t("live.st.final")} ${d}</span>`;
 }
 
-/* Bench is sorted by what a player actually scored, biggest first, and says nothing about
-   whether he should have started: the payload carries no slot eligibility, so any such claim
-   would be a guess dressed as advice. The number is the point. */
+function gdMetaHTML(r){
+  if (r.state !== "pre_game") return r.line ? esc(r.line) : t("live.line.none");
+  const k = gdKickOf(r.team);
+  return k === undefined ? "" : t("live.kick", {when: esc(gdClock(k))});
+}
+
+function gdRowHTML(r){
+  return `<button type="button" class="gd-row ${r.state === "in_game" ? "on" : r.state === "pre_game" ? "pre" : ""}"
+    data-gdslug="${esc(r.slug)}" data-gdn="${esc(r.n)}" data-gdpos="${esc(r.pos)}" data-gdteam="${esc(r.team)}">
+    <span class="gd-slot">${esc(r.slot)}</span>
+    <span class="gd-hd">${avatarHTML(r)}</span>
+    <span class="gd-who"><b>${esc(gdShort(r))} <small>${esc(r.team)}</small></b><span>${gdMetaHTML(r)}</span></span>
+    <span class="gd-right">${gdRightHTML(r)}</span></button>`;
+}
+
+function gdLineupHTML(side, mine){
+  return `<div class="gd-lineup${mine ? " mine" : ""}">
+    <h3><span>${mine ? t("live.yours") : esc(side.name)}</span><span>${gdNum(side.total)}</span></h3>
+    ${side.rows.map(gdRowHTML).join("")}</div>`;
+}
+
+/* "3 playing · 2 to play", zeros left out so it fits beside a score on a phone. */
+const gdCounts = s => [s.playing ? t("live.count.playing", {n: s.playing}) : "",
+  s.left ? t("live.count.left", {n: s.left}) : "", s.done && !s.playing && !s.left ? t("live.count.done", {n: s.done}) : ""]
+  .filter(Boolean).join(" · ");
+
+function gdHeadHTML(a, b, lg){
+  const lead = a.total >= b.total ? a : b, share = a.total + b.total ? 100 * a.total / (a.total + b.total) : 50;
+  const mine = x => x.id === lg.me;
+  const side = (s, cls) => `<div class="gd-side ${cls}${mine(s) ? " mine" : ""}${s === lead && s.total ? " lead" : ""}">
+      <span>${esc(s.name)}</span><b>${gdNum(s.total)}</b><small>${gdCounts(s)}</small></div>`;
+  return `<div class="gd-head">${side(a, "a")}<span class="gd-vs">${t("live.vs")}</span>${side(b, "b")}
+    <div class="gd-bar" aria-hidden="true"><i style="--s:${(share / 100).toFixed(3)}"></i></div></div>`;
+}
+
+function gdStampHTML(){
+  const now = Date.now();
+  if (GD_ERR && GD_STATS) return `<p class="gd-stamp warn">${t("live.stamp.stale", {when: esc(gdClock(GD_AT))})}</p>`;
+  if (GD_ERR) return `<p class="gd-stamp warn">${esc(GD_ERR)}</p>`;
+  if (!GD_STATS) return `<p class="gd-stamp">${t("live.stamp.loading")}</p>`;
+  const at = new Date(GD_AT).toLocaleTimeString("en-US", {hour: "numeric", minute: "2-digit", second: "2-digit"});
+  if (gdPlaying(now)) return `<p class="gd-stamp on">${t("live.stamp.live", {at: esc(at)})}</p>`;
+  const next = gdNextKick(now);
+  return `<p class="gd-stamp">${next === undefined ? t("live.stamp.done", {at: esc(at)})
+    : t("live.stamp.next", {at: esc(at), when: esc(gdClock(next))})}</p>`;
+}
+
 function gdBoardHTML(){
-  /* A failed poll is a banner over the last good board, never a replacement for it. Games do
-     not stop because the connection did, and blanking a scoreboard someone is reading loses
-     more than the stale numbers were costing. */
-  const banner = GD_ERR ? `<p class="gderr">${esc(GD_ERR)}</p>` : "";
-  if (!GD_DATA){
-    /* Nothing to fall back to. The retry still has to be here, or an expired cookie leaves the
-       page with no way out but a reload. */
-    return banner
-      ? banner + `<p class="gdasof">${gdRestHTML(Date.now())}
-          <button class="gdlink" data-gdrefresh>${t("live.refresh")}</button></p>`
-      : gdSkeletonHTML();
-  }
-
-  const d = GD_DATA, now = Date.now();
-  const start = rows => rows.filter(r => r.starter);
-  const bench = rows => rows.filter(r => !r.starter)
-    .slice().sort((a, b) => (b.actual || 0) - (a.actual || 0));
-  return banner + gdHeadHTML(d)
-    + gdGroupHTML(start(d.me.lineup), start(d.opponent.lineup), t("live.starters"), now)
-    + gdGroupHTML(bench(d.me.lineup), bench(d.opponent.lineup), t("live.bench"), now);
+  const lg = gdLeague();
+  if (!lg) return `<div class="state-empty"><div><b>—</b><span>${t("live.none")}</span></div></div>`;
+  const stats = GD_STATS && GD_STATS.stats, states = (GD_STATS && GD_STATS.games) || {};
+  const sides = Object.fromEntries(Object.keys(lg.teams).map(id => [id, gdSide(lg, id, stats, states)]));
+  const game = gdGame(lg);
+  let [a, b] = game ? [sides[game[0]], sides[game[1]]] : [];
+  if (b && b.id === lg.me) [a, b] = [b, a];
+  return gdLeaguesHTML(lg)
+    + (a && b ? gdHeadHTML(a, b, lg) + `<div class="gd-lineups">${gdLineupHTML(a, a.id === lg.me)}${gdLineupHTML(b, false)}</div>` : "")
+    + `<div class="gd-league">${gdGamesHTML(lg, sides, game)}${lg.median ? gdLadderHTML(lg, sides) : ""}</div>`
+    + gdStampHTML();
 }

@@ -53,6 +53,19 @@ def load_status():
     return {}
 
 
+def load_kickers():
+    """norm_name -> Sleeper id for every rostered kicker (sleeper_status.json `kickers`, 2026-09-28),
+    feed first, the file as a fallback; {} before ff-jarvis writes it."""
+    try:
+        block = (json.loads(FEED.read_text(encoding="utf-8")).get("status") or {}).get("data") or {}
+        if block.get("kickers"):
+            return block["kickers"]
+    except (OSError, json.JSONDecodeError):
+        pass
+    d = read_first(SLEEPER_STATUS) or {}
+    return d.get("kickers") or {}
+
+
 def load_props_raw():
     """The BettingPros pull, preferring the feed (`market.props_bp`) so the page shows what the
     scheduled refresh saw. A feed older than the props step lacks the block; then the file the

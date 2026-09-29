@@ -493,48 +493,6 @@ def test_a_week_in_the_game_log_opens_that_game_over_the_profile(browser, page_f
     assert after["profile"] and not after["strip"], "Escape closed the profile too"
 
 
-# A board covering all three cases in the fixture schedule: clubs with a game that carries an
-# ESPN id (DET and SEA play each other in week 2; SF hosts KC in week 3), a club whose only game
-# has no id because its history row predates ff-jarvis carrying the column (LAR), and a club with
-# no game at all (LAC). Planted rather than fetched: no /api/live behind this.
-LIVE_REPLY = """
-GD_DATA = {league:"espn", week:2, me:{team:"Mine", live:0, projected:0, winPct:.5, lineup:[
-    {slot:"WR", starter:true, name:"Amon-Ra St. Brown", team:"DET", actual:31.5, projected:16, started:true, injury:"ACTIVE"},
-    {slot:"QB", starter:true, name:"Brock Purdy", team:"SF", actual:null, projected:25, started:false, injury:"ACTIVE"},
-    {slot:"RB", starter:true, name:"Kimani Vidal", team:"LAC", actual:null, projected:8, started:false, injury:"ACTIVE"}]},
-  opponent:{team:"Theirs", live:0, projected:0, winPct:.5, lineup:[
-    {slot:"WR", starter:true, name:"Jaxon Smith-Njigba", team:"SEA", actual:null, projected:15, started:false, injury:"ACTIVE"},
-    {slot:"QB", starter:true, name:"Matthew Stafford", team:"LAR", actual:null, projected:19, started:false, injury:"ACTIVE"},
-    {slot:"RB", starter:true, name:"Kyren Williams", team:"LAR", actual:null, projected:14, started:false, injury:"ACTIVE"}]}};
-GD_AT = Date.now();
-"""
-
-
-def test_a_name_on_the_live_board_opens_his_clubs_game(browser, page_file, shaped):
-    """The first way in. Only a club with a game the schedule has an ESPN id for gets the
-    affordance -- a game with no id, and a club with no game, both stay plain rows rather than
-    become a control that does nothing."""
-    page, ctx, errors, calls = served(browser, page_file, shaped)
-    page.evaluate(LIVE_REPLY)
-    page.click(".navitem[data-s='week']")        # Live is This week's since 2026-09-28
-    page.click("[data-leaf='live']")
-    page.wait_for_selector(".gdcell")
-    opens = page.evaluate("""() => [...document.querySelectorAll(".gdcell:not(.empty)")]
-      .map(c => [c.querySelector(".gdclub") && c.querySelector(".gdclub").textContent,
-                 c.hasAttribute("data-gdopen")])""")
-    page.click("[data-gdopen='DET']")
-    page.wait_for_selector("#stripmodal .stturf")
-    lit = page.evaluate('() => document.querySelectorAll("#stripmodal .strow.cur").length')
-    ctx.close()
-    assert not errors, errors
-    assert calls, "the strip never asked /api/game"
-    assert dict(opens) == {"DET": True, "SEA": True, "SF": True,   # a game, with an id
-                           "LAR": False,                            # a game, but no id yet
-                           "LAC": False}                            # no game at all
-    # the play on the field is the one lit in the list
-    assert lit == 1, f"{lit} rows lit"
-
-
 def test_anywhere_on_a_week_row_opens_that_game(browser, page_file, shaped):
     """The week number alone was a target nobody found (2026-09-26); the whole row opens the game.
     Clicked on a stat cell at the far end of the row, not on the week."""
