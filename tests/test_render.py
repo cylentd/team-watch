@@ -270,8 +270,6 @@ STATES = [
     ("matchups", go("matchups")),
     ("matchups-open", go("matchups") + [("click", "[data-mukey^='c:'] .mu-call-h")]),
     ("matchups-pl-open", go("matchups") + [("click", "[data-mukey^='p:'] .mu-call-h")]),
-    ("matchups-qb", go("matchups") + [("click", "[data-mupos='QB']")]),
-    ("matchups-rb", go("matchups") + [("click", "[data-mupos='RB']")]),
     ("matchups-modal", go("matchups") + [("click", "[data-mukey^='c:'] .mu-call-h"),
                                          ("click", ".mu-call[data-open] [data-muslug]")]),
     ("matchups-empty", [("eval", "Object.assign(LIVE_STARTSIT, {calls: [], pl: [], article: null, record: null})")]
@@ -535,7 +533,8 @@ def test_no_fenced_rule_misses_its_element(snapshot, area):
     ("movers", "scouting", "MOVERS"),  # a view beside Leaders since 2026-09-25
     ("pool", "scouting", "MOVERS"),    # the old Movers view's hash, kept for bookmarks
     ("usage", "scouting", "GRID"),
-    ("matchups", "scouting", "MATCHUPS"),
+    ("matchups", "scouting", "TAKES"),  # Matchups became Takes on 2026-09-29; the leaf stayed
+    ("takes", "scouting", "TAKES"),
     ("weather", "week", "WEATHER"),
     ("preview", "week", "PREVIEW"),
     ("waivers", "teams", "WAIVERS"),

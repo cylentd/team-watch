@@ -1,8 +1,8 @@
-"""LIVE_STARTSIT: the Matchups view (Players > Matchups), from three ff-jarvis files.
+"""LIVE_STARTSIT: the Takes view (Players > Takes, leaf `matchups`), from three ff-jarvis files.
 
-- `startsit_calls.json` (model.season.startsit_calls): per position the best spot, our START calls
-  outside the obvious starters and our SIT calls on players usually started, each with its signed
-  reasons. The page shows exactly what ff-jarvis froze, so the view and the graded record agree.
+- `startsit_calls.json` (model.season.startsit_calls): per position our START calls outside the
+  obvious starters and our SIT calls on players usually started, each with its signed reasons.
+  The page lists them across positions as one list, higher and lower than the experts. The page shows exactly what ff-jarvis froze, so the view and the graded record agree.
 - `pl_startsit.json` (model.clients.pitcherlist): Pitcher List's six calls, the benchmark. Kept only
   when it is the same week as ours; last week's column is not this week's.
 - `grades/<season>-w<week>.json` (model.season.grade): `startsit_record`, the season so far, from
@@ -22,8 +22,11 @@ def _home(r):
 
 
 def _call(r, tag, slugify):
+    # gap: ff-jarvis's gap_n, the rank gap in units of the position's own threshold, so one list
+    # can order takes across positions. Null on calls written before 2026-09-29.
     return {"tag": tag, "n": r["name"], "slug": slugify(r["name"]), "pos": r["pos"], "team": r["team"],
             "opp": r["opp"], "home": _home(r), "pts": r["pts"], "rank": r["rank"], "ecr": r.get("ecr"),
+            "gap": r.get("gap_n"),
             "own": r.get("own"), "why": [{"k": w[0], "t": w[2]} for w in r.get("why") or []],
             "but": [w[2] for w in r.get("but") or []]}
 
@@ -49,7 +52,7 @@ def live_startsit(calls, pl, grade, slugify):
     rows = []
     for pos in POS:
         d = calls["positions"].get(pos) or {}
-        rows += [_call(d["best"], "best", slugify)] if d.get("best") else []
+        # The best spot (d["best"]) is not a take: the matchup is a Ranks tag since 2026-09-29.
         rows += [_call(r, "start", slugify) for r in d.get("start") or []]
         rows += [_call(r, "sit", slugify) for r in d.get("sit") or []]
     same_week = pl and pl.get("week") == calls["week"]

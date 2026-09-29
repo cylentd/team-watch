@@ -1,4 +1,4 @@
-"""design/startsit.py: the Matchups block, from ff-jarvis's calls, Pitcher List's and the record."""
+"""design/startsit.py: the Takes block, from ff-jarvis's calls, Pitcher List's and the record."""
 import json
 import pathlib
 import sys
@@ -17,12 +17,14 @@ def _block():
     return live_startsit(*load_startsit(), slugify)
 
 
-def test_fixture_block_is_whole_and_ordered_by_position_then_tag():
+def test_fixture_block_is_whole_and_holds_takes_only():
+    """The best spot is not a take (2026-09-29: the matchup is a Ranks tag), so Gibbs and Kittle,
+    the fixture's two best spots, are gone; the page orders the rest across positions by `gap`."""
     b = _block()
     contract.validate("LIVE_STARTSIT", b)
-    assert [(r["pos"], r["tag"], r["n"]) for r in b["calls"]] == [
-        ("QB", "start", "Brock Purdy"), ("RB", "best", "Jahmyr Gibbs"), ("RB", "start", "Chase Brown"),
-        ("WR", "start", "Tee Higgins"), ("WR", "sit", "Amon-Ra St. Brown"), ("TE", "best", "George Kittle")]
+    assert [(r["pos"], r["tag"], r["n"], r["gap"]) for r in b["calls"]] == [
+        ("QB", "start", "Brock Purdy", 1.67), ("RB", "start", "Chase Brown", 1.33),
+        ("WR", "start", "Tee Higgins", 1.33), ("WR", "sit", "Amon-Ra St. Brown", 1.67)]
 
 
 def test_row_keeps_reason_text_and_places_home_by_the_opponent():
@@ -30,7 +32,7 @@ def test_row_keeps_reason_text_and_places_home_by_the_opponent():
     assert rows["Tee Higgins"]["why"][1] == {"k": "mx", "t": "PIT D vs WRs: 3rd softest"}
     assert rows["Tee Higgins"]["but"] == ["No red-zone targets in 2 games"]
     assert rows["Tee Higgins"]["home"] is False              # "CIN @ PIT"
-    assert rows["Jahmyr Gibbs"]["home"] is True              # "CHI @ DET"
+    assert rows["Amon-Ra St. Brown"]["home"] is True         # "CHI @ DET"
     assert rows["Amon-Ra St. Brown"]["slug"] == slugify("Amon-Ra St. Brown")
 
 

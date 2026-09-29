@@ -675,50 +675,44 @@ replaced about 1,000px of desktop panels saying "Nothing new". Storyboard:
 https://claude.ai/artifact/UDoWgLMrzUHup5tX53zaue (option B). Top 5 links to Ranks, the same
 projections for every player (it linked to Leaders until then).
 
-## Matchups (Players, redesigned 2026-09-26)
+## Takes (Players; was Matchups, redesigned 2026-09-26, renamed and made one list 2026-09-29)
 
-Start or sit, for the players past the obvious starters, in the Digest's language (storyboard
-frames 4 and 5, same link). `LIVE_STARTSIT` (`design/startsit.py`) carries ff-jarvis's own calls as
-frozen for the record (`model.season.startsit_calls`), Pitcher List's column for the same week, and
-the season record (`model.season.grade`). The page computes nothing.
+Where we disagree with the experts, every position in one list (storyboard
+https://claude.ai/artifact/8TaM9sZ21JjS2oLThGyFfr, David picked B plus "compare hot takes against
+the experts"). The leaf and hash stay `matchups`; `#takes` lands too. `LIVE_STARTSIT`
+(`design/startsit.py`) carries ff-jarvis's own calls as frozen for the record
+(`model.season.startsit_calls`), Pitcher List's column for the same week, and the season record
+(`model.season.grade`). The page computes nothing.
+
+The matchup itself left this page for Ranks: a signed tag under the points (`mx`, from ff-jarvis
+`matchup.pts`, QB/RB/TE only, shown from ±0.5). A defense is worth at most about 2 points a week
+(week 4 of 2026: +2.0 to −1.5, 11 of 104 QB/RB/TE move 1+), too little to lead a page, and it is
+already inside the projection. The WR effect tests null, so a WR never gets one.
 
 | part | what it shows |
 |---|---|
 | Record strip | Pitcher List and ours through the last graded week: one bar each, filled to the score (0 to 1), each count on its own bar ("0.67 · 12 calls"); the higher one lime |
-| Position chips | QB RB WR TE, the one control row; WR opens |
-| Lead | the best spot at the position, the shared lead panel: "Start" + his name in lime, a facts line (our rank, the experts', the projection), up to three evidence chips, the photo, a foot naming the game and kickoff. A position with none says so |
-| Our calls | one line per call, starts then sits: tag, head, name over game and kickoff, ours / experts, projection |
-| Pitcher List | their calls at the position, a PL mark where our ranks sit |
-| Foot | what makes a call, and the 1 / 0.5 / 0 scale (week 1 counts half) |
+| Higher than the experts | our START calls across positions, biggest disagreement first (`gap`, ff-jarvis `gap_n`: the rank gap over the position's own threshold); each row leads with its position in the position tint |
+| Lower than the experts | our SIT calls, same order |
+| Pitcher List | their calls, all positions, START/SIT tag, the position where our ranks sit |
+| Foot | what makes a take, and the 1 / 0.5 / 0 scale (week 1 counts half) |
 
 - **The record leads.** It is the trust question. Through week 2 of 2026 ours read 0.32 against
   Pitcher List's 0.67 (2026-09-25), and the strip says so without softening.
-- **The lead keeps its facts line**, unlike the Digest's: our rank beside the experts' is what the
-  page is for.
-- **Rows open in place**, one open across both lists, kept across a position change. Ours opens to
-  up to four evidence chips (green for; the defense-vs-position chip dashed, because ff-jarvis's
-  backtest found no such effect; amber "but ..." against), the projection's source and a link to the
-  profile. Pitcher List's opens to their own words (clamped to five lines) and a link to the column.
+- **Rows open in place**, one open across both lists. Ours opens to up to four evidence chips
+  (green for, amber "but ..." against), the projection's source and a link to the profile.
+  Pitcher List's opens to their own words (clamped to five lines) and a link to the column.
   Nothing on the closed line argues.
 - **Every graded call is shown.** A call with no backing stat says "No stat this season backs this
   call" in amber rather than being hidden: hiding it would make the page and the record disagree.
 - **Kickoff times come from `LIVE_SCHEDULE`** (matched through its club-code alias). The meta line
   wraps to a second line rather than cut the time; the name stays one line. No schedule row: the
   game alone. A Pitcher List row with no opponent shows the team, never "vs null".
-- **Measured first data (2026-09-26, fixture, WR, 360x800):**
-
-  | element | top |
-  |---|---|
-  | Record strip | 89px |
-  | Lead | 204px |
-  | First call | 335px |
-
-  Over the 200px budget for the first call, on purpose: a call read before the record is a call
-  trusted without the one number that says whether to.
-- **Desktop (960px+):** the record and chips span the width (bars capped at 560px, so a score never
-  reads as a progress bar); the lead is a 440px sticky column; the calls sit beside it, ours and
-  Pitcher List's side by side once their column is 600px wide (a container query on the lists, not
-  the window), stacked below that. The page caps at `--page-w` (1180px until 2026-09-27, now 1680px).
+- **First data (2026-09-29, fixture, 360x800):** the first take starts ~185px down, under the
+  record strip. It was 335px with the position chips and the best-spot lead (2026-09-26).
+- **Desktop (960px+):** the record spans the width (bars capped at 560px, so a score never reads as
+  a progress bar); ours and Pitcher List's sit side by side once the lists are 760px wide (a
+  container query on the lists, not the window), capped at `--list-w` like Ranks and News.
 
 Not backtested: the calls. The foot says so, and names the record as the test.
 

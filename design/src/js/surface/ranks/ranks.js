@@ -43,6 +43,21 @@ function rkMakeup(r){
   ].filter(Boolean).join(" · ");
 }
 
+/* The matchup, under the points (2026-09-29; it was the Matchups view): what this defense adds or
+   takes against an average one, ff-jarvis's calibrated number. Part of it is already in the
+   projection (`mxp`), and the tooltip says how much; ff-jarvis kept its own pricing because the
+   full effect made the projection's error worse (METHODOLOGY 12.61). Beside the game it pushed the
+   kickoff off a 360px row. Shown from half a point: 27 of 104 QB/RB/TE in week 4. Never on a WR. */
+const RK_MX_MIN = .5;
+const rkSigned = v => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toFixed(1);
+function rkMatchupHTML(r){
+  if (r.mx == null || Math.abs(r.mx) < RK_MX_MIN) return "";
+  const n = rkSigned(r.mx);
+  const say = r.mxp == null ? t("ranks.row.mx", {n, opp: esc(r.opp || "")})
+    : t("ranks.row.mxPriced", {n, opp: esc(r.opp || ""), p: rkSigned(r.mxp)});
+  return `<span class="rk-mx ${r.mx > 0 ? "up" : "dn"}" title="${say}" aria-label="${say}">${n}</span>`;
+}
+
 function rkRowHTML(r, place, mine, flex){
   const inj = r.inj ? `<span class="rk-inj ${r.inj.toLowerCase()}">${r.inj === "Q" ? t("ranks.inj.q") : t("ranks.inj.d")}</span>` : "";
   // On FLEX the position and its own rank lead the game line, the card's "RB3".
@@ -53,7 +68,7 @@ function rkRowHTML(r, place, mine, flex){
     <span class="rk-who"><span class="rk-nm">${esc(nameInitial(r.n))}${mine ? `<i class="rk-mine">${t("ranks.row.mine")}</i>` : ""}</span>
       <span class="rk-game">${pos}<span>${rkGame(r)}</span>${inj}</span></span>
     <span class="rk-mu">${rkMakeup(r)}</span>
-    <span class="rk-pts">${r.pts.toFixed(1)}</span>
+    <span class="rk-pts">${r.pts.toFixed(1)}${rkMatchupHTML(r)}</span>
   </button>`;
 }
 

@@ -13,8 +13,10 @@ sample -- but a block that is present must be whole. Null values are fine; absen
 # "unknown" (the scrape could not tell) is a real answer, and the card says so rather than
 # guessing FA (data/waiver.js waiverListed). A league's `lane` is why that league's screen listed
 # him (usage, role, open, insure, starter, injured), null where it did not (waiver.py _set_lane).
-# design/ranks.py: one row of Players > Ranks. `home`, `kick`, `inj` and `mu` may be null.
-RANK_ROW = ["slug", "n", "pos", "team", "opp", "home", "kick", "inj", "mu", "pts", "rank", "tier"]
+# design/ranks.py: one row of Players > Ranks. `home`, `kick`, `inj`, `mu`, `mx` and `mxp` may be
+# null; `mx` (the points the defense adds or takes, ff-jarvis `matchup.pts`) and `mxp` (the part of
+# it already in `pts`, `matchup.priced`) are null for every WR.
+RANK_ROW = ["slug", "n", "pos", "team", "opp", "home", "kick", "inj", "mu", "mx", "mxp", "pts", "rank", "tier"]
 WAIVER_ROW = ["n", "slug", "pos", "team", "opp", "home", "tier", "weeks", "injury", "injury_note",
               "practice", "news_latest", "news_count", "leagues", "summary"]
 # One league's view of a candidate (waiver.py `_league`). `verdict` and `drop` may be null; when
@@ -289,13 +291,13 @@ CONTRACT = {
                           "ol_starters_out", "ol_starters_out_of", "ol_starters_out_names",
                           "ol_starters_out_reason"]),
     },
-    # design/startsit.py, the Matchups view. `tag` is best|start|sit; `ecr` and `own` may be null
-    # (no expert rank for the best spot). `record` is null until a week is graded; `pl` is empty
-    # when Pitcher List's column is not this week's, and `article` null with it.
+    # design/startsit.py, the Takes view (leaf `matchups`). `tag` is start|sit; `ecr`, `own` and
+    # `gap` may be null (`gap` on calls written before 2026-09-29). `record` is null until a week is
+    # graded; `pl` is empty when Pitcher List's column is not this week's, and `article` null with it.
     "LIVE_STARTSIT": {
         "keys": ["week", "generated", "calls", "pl", "article", "record"],
         "rows": [("calls", ["tag", "n", "slug", "pos", "team", "opp", "home", "pts", "rank", "ecr", "own",
-                            "why", "but"]),
+                            "gap", "why", "but"]),
                  ("pl", ["call", "pos", "n", "slug", "team", "opp", "home", "rationale"])],
     },
     # design/preview.py, This week > Preview. A game's `take` is null before Claude has written it;

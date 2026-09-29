@@ -106,8 +106,9 @@ function paintSubnav(){
    roster -- which matters more now that there are eight views instead of one. Only the view: the
    grid's position and week reset, and that is a deliberate line, because every control that
    learns the URL is another thing to keep in step with it. */
-/* Old names that still land: Movers was the `pool` view until 2026-09-25, and bookmarks point at it. */
-const NAV_ALIAS = {pool: "movers"};
+/* Old names that still land: Movers was the `pool` view until 2026-09-25, and bookmarks point at it.
+   Takes kept Matchups' leaf `matchups` (2026-09-29), so #takes is the new name's way in. */
+const NAV_ALIAS = {pool: "movers", takes: "matchups"};
 const navHash = () => (location.hash || "").replace(/^#\/?/, "");
 const navFromHash = () => {
   const leaf = NAV_ALIAS[navHash()] || navHash();

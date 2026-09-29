@@ -1,0 +1,11 @@
+/* ============================== TAKES: EVIDENCE ==============================
+   The chips an opened take shows: green argues it, amber argues against it. The dashed defense
+   chip went on 2026-09-29 with the WR defense signal it marked; the QB/RB/TE matchup chip is
+   calibrated now (ff-jarvis `matchup`), so it is evidence like the rest. */
+.mu-evs{display:flex;flex-wrap:wrap;gap:6px}
+.mu-ev{
+  font-size:var(--t-1);font-weight:500;line-height:1.25;padding:4px 8px;border-radius:12px;
+  border:1px solid var(--line-2);color:var(--ink-2);
+}
+.mu-ev.pro{border-color:rgb(var(--up-rgb) / .45);color:var(--up)}
+.mu-ev.con{border-color:rgb(var(--amber-rgb) / .5);color:var(--amber)}

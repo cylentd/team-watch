@@ -38,6 +38,12 @@
 .rk-pts{font-family:var(--mono);font-size:var(--t-3);font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink)}
 .rk-row.mine .rk-nm{color:var(--lime)}
 .rk-mine{margin-left:6px;font-style:normal;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.1em;color:var(--lime)}
+/* The matchup: signed points under the projection, green for a soft defense, red for a tough one,
+   the way a delta sits under a price. */
+.rk-mx{display:block;margin-top:2px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;
+  font-variant-numeric:tabular-nums;text-align:right}
+.rk-mx.up{color:var(--up)}
+.rk-mx.dn{color:var(--down)}
 .rk-inj{flex:none;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.04em;color:var(--amber)}
 .rk-inj.d{color:var(--down)}
 /* A desktop has the width for what the points are made of, between the name and the number. */

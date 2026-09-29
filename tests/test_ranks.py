@@ -105,6 +105,42 @@ def test_no_projections_is_no_block():
     assert live_ranks({}, slug) is None
 
 
+def test_matchup_rides_on_qb_rb_te_never_wr():
+    """`mx` is ff-jarvis's `matchup.pts` (2026-09-29), the points a defense adds or takes. The WR
+    effect tests null, so a WR carries none even if a file ever gave him one."""
+    raw = {"players": [
+        {"name": "A Back", "pos": "RB", "team": "ATL", "game": "ATL @ NO", "pts": 19.7, "matchup": {"pts": 1.74, "opp": "NO", "priced": 0.66}},
+        {"name": "A Wideout", "pos": "WR", "team": "SEA", "game": "SEA @ LAR", "pts": 17.6, "matchup": {"pts": 1.0, "opp": "LAR"}},
+        {"name": "A Passer", "pos": "QB", "team": "BUF", "game": "NE @ BUF", "pts": 21.8},
+    ]}
+    got = {x["slug"]: (x["mx"], x["mxp"]) for x in live_ranks(raw, slug)["rows"]}
+    assert got == {"a-back": (1.7, 0.7), "a-wideout": (None, None), "a-passer": (None, None)}
+
+
+@pytest.mark.render
+def test_ranks_tags_a_matchup_from_half_a_point(browser, page_file):
+    """The fixture gives Chase Brown +1.4, Joe Burrow -0.9, George Kittle -0.3 (under the half
+    point) and a WR +1.0 (never shown)."""
+    ctx = browser.new_context(viewport={"width": 360, "height": 740}, reduced_motion="reduce")
+    page = ctx.new_page()
+    page.set_default_timeout(5000)
+    page.route(re.compile(r"^https?://"), lambda route: route.abort())
+    page.add_init_script(SEED)
+    try:
+        page.goto(page_file.as_uri() + "#ranks")
+        page.wait_for_function("document.querySelectorAll('.rk-row').length > 0")
+        page.locator("[data-rkpos='FLEX']").click()
+        tags = page.evaluate("""Object.fromEntries([...document.querySelectorAll('.rk-row')].map(r =>
+          [r.dataset.rkopen, (r.querySelector('.rk-mx') || {}).textContent || null]))""")
+        assert tags.get(slug("Chase Brown")) == "+1.4"
+        assert tags.get(slug("George Kittle")) is None and tags.get(slug("Amon-Ra St. Brown")) is None
+        page.locator("[data-rkpos='QB']").click()
+        assert page.locator(f"[data-rkopen='{slug('Joe Burrow')}'] .rk-mx.dn").inner_text() == "−0.9"
+        assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+    finally:
+        ctx.close()
+
+
 @pytest.mark.render
 def test_ranks_draws_tiers_and_opens_a_profile(browser, page_file):
     ctx = browser.new_context(viewport={"width": 360, "height": 740}, reduced_motion="reduce")

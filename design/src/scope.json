@@ -31,7 +31,7 @@
     "surface/live/live.css": ["live"],
     "surface/trades/trades.css": ["trades"],
     "surface/trades/curses.css": ["trades"],
-    "surface/matchups/lead.css": ["matchups"],
+    "surface/matchups/record.css": ["matchups"],
     "surface/matchups/matchups.css": ["matchups"],
     "surface/matchups/rows.css": ["matchups"],
     "surface/news/ticker.css": ["news"],

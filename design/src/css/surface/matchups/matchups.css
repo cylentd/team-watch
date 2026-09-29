@@ -1,9 +1,8 @@
-/* ============================== MATCHUPS ==============================
-   The Digest's language on the Players side: a record strip, the position chips, the lead, then
-   one-line rows. A phone stacks them full-bleed; from 960px the record and chips span the width,
-   the lead is a 440px sticky column and the calls sit beside it, ours and Pitcher List's in two
-   columns from 1100px. Green and red keep their one job, start and sit; lime is the better record
-   and the best spot. */
+/* ============================== TAKES ==============================
+   The Digest's language on the Players side: a record strip, then one-line rows, every position in
+   one list (2026-09-29; the position chips and the best-spot lead are gone). A phone stacks them
+   full-bleed; wider, ours and Pitcher List's sit side by side. Green and red keep their one job,
+   start and sit; lime is the better record. */
 .mu{display:grid;grid-template-columns:minmax(0,1fr);padding-bottom:28px}
 
 /* The record is the view's first data and its trust question, so it leads, as a strip. */
@@ -25,38 +24,30 @@
 .mu-rec.none{grid-template-columns:auto minmax(0,1fr)}
 .mu-rec-none{font-size:var(--t-2);color:var(--ink-2)}
 
-/* The one control row. */
-.filters.mu-pos{margin:0;padding:10px 14px;border-bottom:1px solid var(--line)}
-
 /* A list's header: what it is on the left, what its numbers are on the right. */
 .mu-list{min-width:0}
 .mu-grp{
   display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0;padding:14px 14px 6px;
   font-size:var(--t-1);font-weight:600;line-height:1;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);
 }
-.mu-grp span{font-family:var(--mono);font-weight:500;letter-spacing:0;text-transform:none}
+.mu-grp span{font-family:var(--mono);font-weight:500;letter-spacing:0;text-transform:none;white-space:nowrap}
 .mu-empty{margin:4px 14px 0;padding:12px 14px;border:1px dashed var(--line-2);border-radius:10px;color:var(--ink-3);font-size:var(--t-2)}
 .mu-foot{margin:22px 14px 0;max-width:72ch;font-size:var(--t-1);line-height:1.5;color:var(--ink-3)}
 
-/* The two lists go side by side once each can hold a row whose name is not cut to initials:
-   measured on the lists' own width, not the window's, because the sticky lead takes 440px of it.
-   Desktop's column now caps at 664px (the app's own gutter, matching Digest's .wrap), so the
-   threshold sits under that instead of the old 720px, which never fired once the cap landed. */
+/* The two lists go side by side once each can hold a row whose name is not cut to initials,
+   measured on the lists' own width. The lists stop at --list-w, like Ranks and News. */
 .mu-cols{min-width:0;container-type:inline-size}
-@container (min-width:600px){
-  .mu-cols-in{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+@container (min-width:760px){
+  .mu-cols-in{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
   .mu-cols-in > .mu-list + .mu-list{border-left:1px solid var(--line)}
 }
 
 @media (min-width:960px){
-  .mu{grid-template-columns:440px minmax(0,1fr);column-gap:24px;align-items:start;max-width:var(--page-w);
-    margin:0 auto;padding:20px var(--page-pad) 40px}
-  .mu-rec,.filters.mu-pos,.mu-foot{grid-column:1 / -1}
+  .mu{max-width:var(--page-w);margin:0 auto;padding:20px var(--page-pad) 40px}
   /* The bars stop at 560px: a score bar a thousand pixels long reads as a progress bar. */
   .mu-rec{grid-template-columns:auto minmax(0,560px) auto;justify-content:start;column-gap:20px;
-    border:1px solid var(--line);border-radius:12px;padding:12px 18px}
+    border:1px solid var(--line);border-radius:12px;padding:12px 18px;margin-bottom:12px}
   .mu-rb{grid-template-columns:96px minmax(0,1fr) auto}
-  .filters.mu-pos{padding:14px 0 18px;border-bottom:0}
-  .mu-cols{border-top:1px solid var(--line)}
+  .mu-cols{max-width:var(--list-w);border-top:1px solid var(--line)}
   .mu-foot{margin:28px 0 0}
 }

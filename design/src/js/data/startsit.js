@@ -1,13 +1,16 @@
-/* The Matchups view's state and its one cut of LIVE_STARTSIT (design/startsit.py). The calls are
-   ff-jarvis's, frozen there before each kickoff and graded there; the page only shows them. */
-let MU_POS = "WR";
-const MU_POSITIONS = ["QB", "RB", "WR", "TE"];
-/* The one open row, across both lists ("c:<slug>" ours, "p:<slug>" Pitcher List's), "" for none.
-   Kept across a position change, so coming back finds the row where it was left. */
+/* The Takes view's state and its one cut of LIVE_STARTSIT (design/startsit.py). The calls are
+   ff-jarvis's, frozen there before each kickoff and graded there; the page only shows them.
+   One list across positions since 2026-09-29 (it was a QB/RB/WR/TE chip row): a take is ordered by
+   how far we sit from the experts, in units of that position's own threshold (`gap`, ff-jarvis's
+   gap_n), so a 3-spot QB take and a 6-spot RB take weigh the same. */
+
+/* The one open row, across both lists ("c:<slug>" ours, "p:<slug>" Pitcher List's), "" for none. */
 let MU_OPEN = "";
 
-const muCalls = (pos, tag) => (LIVE_STARTSIT ? LIVE_STARTSIT.calls : []).filter(r => r.pos === pos && r.tag === tag);
-const muPl = pos => (LIVE_STARTSIT ? LIVE_STARTSIT.pl : []).filter(r => r.pos === pos);
+const muGap = r => r.gap == null ? -Infinity : r.gap;
+const muCalls = tag => (LIVE_STARTSIT ? LIVE_STARTSIT.calls : []).filter(r => r.tag === tag)
+  .sort((a, b) => muGap(b) - muGap(a) || b.pts - a.pts);
+const muPl = () => LIVE_STARTSIT ? LIVE_STARTSIT.pl : [];
 const muScore = x => x == null ? "—" : x.toFixed(2);
 
 /* The kickoff, from the season schedule (LIVE_SCHEDULE, ESPN's club codes), matched on the call's

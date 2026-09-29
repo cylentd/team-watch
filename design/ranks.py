@@ -86,9 +86,19 @@ def _makeup(mu, pos):
     return out or None
 
 
+def _matchup(p, key="pts"):
+    """The points this week's defense adds or takes against an average one: ff-jarvis's calibrated
+    `matchup.pts` (2026-09-29), QB/RB/TE only (the WR effect tests null, so a WR has none), and with
+    key="priced" the part of it already inside `pts` (METHODOLOGY 12.61 kept the projection's own
+    pricing: the full effect made its MAE worse). Null when ff-jarvis wrote none. The page decides
+    what is big enough to show."""
+    v = (p.get("matchup") or {}).get(key)
+    return round(v, 1) if isinstance(v, (int, float)) and p.get("pos") != "WR" else None
+
+
 def live_ranks(raw, slugify, status=None, schedule=None):
     """LIVE_RANKS: {scoring, week, off, rows, flex}, or None when ff-jarvis has not written the file.
-    Both lists hold {slug, n, pos, team, opp, home, kick, inj, mu, pts, rank, tier}, best first:
+    Both lists hold {slug, n, pos, team, opp, home, kick, inj, mu, mx, mxp, pts, rank, tier}, best first:
     `rows` is every position's list one after another, each tiered on its own; `flex` is RB/WR/TE
     together, tiered together. `rank` is the place at the position in this week's list, on a FLEX
     row too; a FLEX row's own place is its index.
@@ -109,7 +119,8 @@ def live_ranks(raw, slugify, status=None, schedule=None):
         if prev is None or p["pts"] > prev["pts"]:
             rows[slug] = {"slug": slug, "n": p.get("name"), "pos": p.get("pos"), "team": p.get("team"),
                           "opp": p.get("opp"), "home": _home(p), "kick": kick_iso(p), "inj": INJ.get(p.get("injury")),
-                          "mu": _makeup(p.get("mu"), p.get("pos")), "pts": round(p["pts"], 2), "rank": None, "tier": None}
+                          "mu": _makeup(p.get("mu"), p.get("pos")), "mx": _matchup(p), "mxp": _matchup(p, "priced"),
+                          "pts": round(p["pts"], 2), "rank": None, "tier": None}
     off = sorted({rows[s]["team"] for s in done if s in rows})
     live = [r for r in rows.values() if r["slug"] not in done]
     lists, place = {}, {}
