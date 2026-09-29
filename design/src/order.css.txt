@@ -41,7 +41,9 @@ surface/profile/details.css
 surface/profile/history.css
 surface/profile/season.css
 surface/profile/sheet.css
+surface/profile/ladder.css
 surface/profile/radar.css
+surface/profile/team.css
 surface/profile/orb.css
 chrome/footer.css
 chrome/nav.css

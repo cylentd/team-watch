@@ -70,43 +70,12 @@ function eliteGapHTML(v, a){
   const n = {gap: usageFmt(Math.abs(gap), a.fmt), bar: usageFmt(a.elite, a.fmt)};
   // Two literal t() calls, not one built from a ternary: assemble.py --check finds a copy key by
   // scanning for the literal form, and a key assembled at runtime reads to it as an orphan.
-  return gap >= 0
-    ? `<small class="pf-stat-d up">${t("profile.stat.overElite", n)}</small>`
-    : `<small class="pf-stat-d down">${t("profile.stat.underElite", n)}</small>`;
-}
-
-/* The card under the sheet for one stat: what it measures, what a high one gets you, his season
-   number, the bar it has to clear, and the weeks as a line. No rank, deliberately. The rank had
-   three homes on one screen -- the lede at hero size, the radar's own axis label, and here --
-   and three copies of one number read as three numbers. */
-function statDetailHTML(s, axis){
-  const a = s.axes.find(x => x.id === axis) || s.axes[0];
-  const slug = s.row.slug, v = s.row.v[a.id];
   /* The gap, not the threshold. "elite >= 0.00" printed in red said the elite bar was the bad
      thing; what is actually red is him being 0.42 under it. So the line states the distance and
-     which side of the bar he is on, and the colour agrees with the sign instead of contradicting
-     a number nobody was being asked to judge. The bar itself still appears, because "0.42 short"
-     of what is not a number. */
-  // Not under the sample floor either: "over the elite bar" on 12 routes is the claim it can't make.
-  const thin = sheetThin(s.row, a.id);
-  const bar = a.elite === null || a.elite === undefined || v === null || v === undefined || thin ? ""
-    : eliteGapHTML(v, a);
-  const wk = statWeeks(slug, a.id);
-  // The spark is read against the same bar, so a week above it is visibly a week above it.
-  const line = wk.length ? sparkHTML(wk.map(r => r.v[a.id]), 160, 30, a.elite) : "";
-  /* The window comes from the stat's own weeks, not from his games played. "2 gm · wk 1-1" was
-     a contradiction on every route-derived stat: he played two games, but heatradar has only
-     published week 1, so TPRR, YPRR, 1D/RR and Route% are a one-week number sitting on the same
-     chart as two-week ones. The card says which, per stat. */
-  const span = !wk.length ? "" : wk.length === 1 || wk[0].wk === wk[wk.length - 1].wk
-    ? t("profile.stat.week", {n: wk[0].wk})
-    : t("profile.stat.weeks", {a: wk[0].wk, b: wk[wk.length - 1].wk});
-  const meta = [statMetaText(s, a.id, !span)].concat(span ? [span] : []).filter(Boolean).join(" · ");
-  const weeks = `<span class="pf-stat-wk">${meta}</span>`;
-  const def = AXIS_DEF[a.id]
-    ? `<p class="pf-stat-def">${AXIS_DEF[a.id]()}${AXIS_WHY[a.id] ? `<span class="pf-stat-why">${AXIS_WHY[a.id]()}</span>` : ""}</p>` : "";
-  return `<div class="pf-stat-h"><span class="pf-stat-l">${esc(axisName(a))}</span>${weeks}</div>
-    ${def}<b${thin ? ` class="thin"` : ""}>${usageFmt(v, a.fmt)}</b><span class="pf-stat-side">${sampleHTML(s.row, a)}${bar}</span>${line}`;
+     which side of the bar he is on, and the colour agrees with the sign. */
+  return gap >= 0
+    ? `<small class="pf-lr-d up">${t("profile.stat.overElite", n)}</small>`
+    : `<small class="pf-lr-d down">${t("profile.stat.underElite", n)}</small>`;
 }
 
 /* Each stat's name in plain words, 2026-09-25. ff-jarvis's labels are the analyst's shorthand
@@ -135,33 +104,11 @@ const AXIS_NAME = {
 };
 const axisName = a => AXIS_NAME[a.id] ? AXIS_NAME[a.id]() : a.label;
 
-/* Tapping a stat on the sheet swaps the card under it and moves the highlight. One `data-col`
-   sweep lights the label, its spoke, its vertex and its elite tick together, so the chart and
-   the card are visibly the same stat; the ring fires at the vertex to mark the change, and the
-   card replays its entrance so the number reads as changed rather than as always having been
-   that. */
-/* Hold the tallest of the six, so picking a stat never moves what is under it.
-
-   Both blocks change height with the axis. The card's definition runs one line for "Targets per
-   route run." and three for WOPR's, which moved it by up to 63px on a tap; the caption carries
-   that axis's own denominator, and "Out of 120 WRs" wraps where "Out of 20 WRs" does not, for
-   another 21px on a phone. Either one shoves the tab bar and the whole pane down while the
-   reader is looking at them.
-
-   Measured here rather than guessed in CSS: the height depends on the font, the column width and
-   where each sentence happens to wrap, so a hard-coded reservation is wrong on the first phone
-   that disagrees. Two elements, six layouts each, once, before the modal animates in. A resize
-   while the modal is open leaves the reservation stale -- the next open measures again. */
-function reserveTallest(el, axes, render){
-  const keep = el.innerHTML;
-  let tallest = 0;
-  axes.forEach(a => {
-    el.innerHTML = render(a.id);
-    tallest = Math.max(tallest, el.offsetHeight);
-  });
-  el.innerHTML = keep;
-  if (tallest) el.style.minHeight = tallest + "px";
-}
+/* One stat lit on the chart and the ladder at once. One `data-col` sweep lights the label, its
+   vertex, its elite arc and its ladder row together, so the chart and the list are visibly the
+   same stat; the ring fires at the vertex to mark the change. A label tap also opens that row's
+   fold, which is where the card's definition went; a drag across the dial (radartouch.js) only
+   moves the light, since folds opening and shutting under a moving finger would jump the list. */
 
 /* `o.grow` false skips the vertices' entrance: the sphere's morph (orb.js) has already brought the
    shape in, and a second arrival on top of the first would be the chart arriving twice. */
@@ -170,15 +117,13 @@ function wireSheet(d, o = {}){
   if (!el) return;
   const s = sheetFor({slug: el.dataset.slug});
   if (!s) return;
-  const card = el.querySelector(".pf-stat");
-  reserveTallest(card, s.axes, id => statDetailHTML(s, id));
   const ping = el.querySelector(".pf-radar-ping"), mark = el.querySelector(".pf-radar-mark");
+  let cur = sheetDefaultAxis(s);
   const pick = node => {
     const col = node.dataset.col;
+    if (col === cur) return;
+    cur = col;
     el.querySelectorAll("[data-col]").forEach(x => x.classList.toggle("on", x.dataset.col === col));
-    card.innerHTML = statDetailHTML(s, col);
-    card.classList.remove("swap"); void card.offsetWidth; card.classList.add("swap");
-    countUp(card.querySelector(".pf-stat > b"));
     const dot = el.querySelector(`.pf-radar-dot[data-col="${col}"]`);
     if (!dot) return;
     [mark, ping].forEach(c => {
@@ -190,10 +135,16 @@ function wireSheet(d, o = {}){
     ping.classList.remove("on"); void ping.getBoundingClientRect(); ping.classList.add("on");
   };
   // Buttons: Enter and Space already arrive as a click.
-  el.querySelectorAll(".pf-radar-l").forEach(node => node.addEventListener("click", () => pick(node)));
+  el.querySelectorAll(".pf-radar-l").forEach(node => node.addEventListener("click", () => {
+    pick(node);
+    const row = el.querySelector(`.pf-lr[data-col="${node.dataset.col}"]`);
+    if (!row || row.open) return;
+    row.open = true;
+    row.scrollIntoView({block: "nearest", behavior: REDUCED() ? "auto" : "smooth"});
+  }));
+  el.querySelectorAll(".pf-lr").forEach(row => row.addEventListener("toggle", () => { if (row.open) pick(row); }));
   const g = radarGeo(el);
   if (!g) return;
   if (o.grow !== false) radarGrow(g);
-  countUp(card.querySelector(".pf-stat > b"), 380);
   wireRadarTouch(el, s, g, pick);
 }

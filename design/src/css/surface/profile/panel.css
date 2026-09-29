@@ -10,7 +10,9 @@
    started. */
 .pf-head .dr-close{width:44px;height:44px;top:12px;right:12px;font-size:var(--t-3)}
 .pf-head .dr-id{padding-right:46px;gap:18px}
-.pf-head .dr-id img,.pf-head .dr-id .fallback{width:84px;height:84px}
+/* 120px on a desktop since 2026-09-28 (David: "make the headshot bigger since we have the space"):
+   the head is as tall as the sphere beside the name now, and an 84px face sat small in it. */
+.pf-head .dr-id img,.pf-head .dr-id .fallback{width:120px;height:120px}
 .pf-head h3{font-size:var(--t-7);margin-bottom:8px}
 .pf-head .dr-close:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 .modal .lbl{font-size:var(--t-1);font-weight:600;letter-spacing:.16em;color:var(--ink-2)}
@@ -52,6 +54,12 @@
 .pf-own-l.espn{background:var(--espn)}
 .pf-own.mine{color:var(--lime);border-color:rgb(var(--lime-rgb) / .45)}
 .pf-own.free{color:var(--up)}
+/* A team's pill is a button to its roster; the chevron says so on a phone, where there is no hover. */
+button.pf-own{font-family:var(--ui);cursor:pointer;transition:border-color .15s var(--ease),background-color .15s var(--ease)}
+@media (hover:hover){ button.pf-own:hover{border-color:var(--ink-3);background:var(--panel-3)} }
+button.pf-own:active{transform:scale(var(--press))}
+button.pf-own:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.pf-own-go{flex:none;width:6px;height:10px;margin-left:1px;fill:none;stroke:currentColor;stroke-width:1.6;opacity:.7}
 
 /* The panes' tab bar: .modes-sub, the app's sub-tab component (nav.css names the rule -- a
    third caller is a component; this is the fourth). Full-width columns rather than content-width
@@ -66,6 +74,13 @@
 .pf-tabs .mode-sub[aria-selected="true"]:hover{background:var(--panel-3);color:var(--lime);
   border-color:var(--lime);position:relative;z-index:1}
 .pf-tabs .mode-sub:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+/* Five tabs on a phone (Props joined 2026-09-29): equal columns gave MATCHUP 62px for 80px of
+   letters, so it ran into BIO. Each tab takes its word's width plus a share of what is left, and
+   the letters close up a little. */
+@media (max-width:430px){
+  .pf-tabs{gap:4px}
+  .pf-tabs .mode-sub{flex:1 1 auto;padding-left:5px;padding-right:5px;letter-spacing:.08em}
+}
 /* A pane arrives as one thing, not as a stack of separately-animating sections. */
 @keyframes pf-pane{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .pf-tabpane{animation:pf-pane .26s var(--ease)}
@@ -118,6 +133,7 @@
 /* A phone. The strip's four cells are about 80px each at 360px, so the gutters come in and the
    numbers step down one size; the labels stay whole ("CARRIES", seven letters, is the longest). */
 @media (max-width:760px){
+  .pf-head .dr-id img,.pf-head .dr-id .fallback{width:84px;height:84px}
   .pf-lede-c{padding-right:6px}
   .pf-lede-c + .pf-lede-c{padding-left:9px}
   .pf-lede-c b{font-size:var(--t-4)}

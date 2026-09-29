@@ -1,0 +1,50 @@
+/* ============================== PROFILE · STAT LADDER ==============================
+/* The ladder under the chart (ladder.js): every stat, best first, one row each. Each row is its
+   own grid (a <details> cannot share a parent's tracks), so the number and rank columns are sized
+   in mono character widths every row agrees on: 5 for "0.71", 8 for "17 of 20". The storyboard's
+   72px rank column is what "17 of 20 routes" overflowed; the rank's unit sits on its own line. */
+.pf-ladder{margin-top:12px;border-top:1px solid var(--line)}
+.pf-lr{border-bottom:1px solid var(--line)}
+.pf-lr summary{list-style:none;display:grid;grid-template-columns:minmax(0,1.1fr) 3.3em minmax(36px,1fr) 4.9em;
+  gap:10px;align-items:center;min-height:44px;padding:6px 2px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.pf-lr summary::-webkit-details-marker{display:none}
+.pf-lr summary:focus{outline:none}
+.pf-lr summary:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+/* The lit stat's name underlined in the tint, the same mark its radar label carries. */
+.pf-lr-n{font-size:var(--t-2);font-weight:600;color:var(--ink-2);line-height:1.2;overflow-wrap:anywhere;
+  text-decoration:underline 2px transparent;text-underline-offset:4px;transition:color .15s var(--ease),text-decoration-color .15s var(--ease)}
+.pf-lr summary:hover .pf-lr-n,.pf-lr[open] .pf-lr-n{color:var(--ink)}
+.pf-lr.on .pf-lr-n{color:var(--ink);text-decoration-color:var(--tint)}
+.pf-lr-v{font-family:var(--mono);font-size:var(--t-3);font-weight:700;color:var(--ink);text-align:right;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+/* Below its floor the number is true but unranked, so it recedes like an unranked radar label. */
+.pf-lr-v.dim{color:var(--ink-3)}
+.pf-lr-bar{position:relative;height:8px;background:var(--line);overflow:hidden}
+.pf-lr-bar i{position:absolute;inset:0 auto 0 0;width:var(--w);background:var(--ink-3);
+  animation:pf-widen .5s var(--ease) calc(.1s + var(--i,0) * 50ms) backwards}
+.pf-lr-bar i.top{background:var(--tint)}
+.pf-lr-bar i.low{background:var(--line-2)}
+/* Unranked: a dashed track, filled as far as his sample has reached toward the floor. */
+.pf-lr-bar.thin{background:repeating-linear-gradient(90deg,var(--line) 0 4px,transparent 4px 7px)}
+.pf-lr-bar.thin i{background:var(--line-2)}
+.pf-lr-rk{display:grid;justify-items:end;line-height:1.15;font-family:var(--mono);text-align:right}
+.pf-lr-rk b{font-size:var(--t-3);font-weight:700;color:var(--ink);white-space:nowrap}
+.pf-lr-rk b.dim{font-size:var(--t-2);color:var(--ink-3)}
+.pf-lr-rk small{font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
+/* The fold: the sample, the gap to the elite bar and the window on one mono line, then what the
+   stat is and why it is on the chart, then the weeks as a line.
+   A flex column, not a grid: Chromium 151 crashes the tab resolving grid-template-columns for a
+   grid inside a closed <details> once other styles have been read (the golden probe does exactly
+   that, 2026-09-29). A column of blocks looks the same either way. */
+.pf-lr-more{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:0 2px 12px}
+.pf-lr-facts{display:flex;flex-wrap:wrap;gap:3px 14px;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.pf-lr-d.up{color:var(--up)}
+.pf-lr-d.down{color:var(--down)}
+.pf-lr-floor{margin:0;font-size:var(--t-2);line-height:1.35;color:var(--ink)}
+.pf-lr-def{margin:0;font-size:var(--t-2);line-height:1.35;color:var(--ink-2)}
+/* What it is, then what to do with it, dimmer and on its own line: a reader who already knows the
+   stat skips it without having to read past it. */
+.pf-lr-why{display:block;margin-top:3px;color:var(--ink-3)}
+.pf-lr .spark{width:160px;height:30px}
+@keyframes pf-fold{from{opacity:0;transform:translateY(-4px)}}
+.pf-lr[open] .pf-lr-more{animation:pf-fold .24s var(--ease)}

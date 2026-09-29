@@ -19,7 +19,9 @@ const PF_TABS = [
   {id: "season", label: () => t("profile.tab.season"),
    body: (prof, p) => { const s = seasonHTML(p, prof); return s ? s + projectionHTML(p) : ""; }},
   {id: "usage", label: () => t("profile.tab.usage"),
-   body: (prof, p) => prof ? roleHTML(prof) + redZoneHTML(prof) + (pfReceiver(prof) ? sidesHTML(prof) : "") : ""},
+   body: (prof, p) => teamShareHTML(p)
+     + (prof ? roleHTML(prof) + redZoneHTML(prof) + (pfReceiver(prof) ? sidesHTML(prof) : "") : "")},
+  {id: "props", label: () => t("profile.tab.props"), body: (prof, p) => propsHTML(p)},
   {id: "matchup", label: () => t("profile.tab.matchup"),
    body: (prof, p) => !prof ? "" : headlineHTML(prof) + opponentHTML(prof) + lineHTML(prof)
      + (pfReceiver(prof) ? zoneReadHTML(prof) + coverageHTML(prof) : "")

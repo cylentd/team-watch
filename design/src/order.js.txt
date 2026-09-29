@@ -55,9 +55,12 @@ surface/profile/sections.js
 surface/profile/history.js
 surface/profile/season.js
 surface/profile/owners.js
+surface/profile/teamshare.js
+surface/profile/props.js
 surface/profile/sample.js
 surface/profile/sheet.js
 surface/profile/statcard.js
+surface/profile/ladder.js
 surface/profile/radarmotion.js
 surface/profile/radartouch.js
 surface/profile/orb.js

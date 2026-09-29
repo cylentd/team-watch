@@ -44,12 +44,3 @@ function sampleShort(row, a){
   if (!smp || smp[1] === null) return "";
   return a.fmt === "pct" && smp[0] !== null ? `${smp[0]}/${smp[1]}` : sampleText(row, a);
 }
-
-/* The card's side column: the sample, and under it why there is no rank when there is none. */
-function sampleHTML(row, a){
-  const say = sampleText(row, a);
-  if (!say) return "";
-  const thin = sheetThin(row, a.id)
-    ? `<small class="pf-stat-thin">${t("profile.sample.thin", {floor: a.floor})}</small>` : "";
-  return `<small class="pf-stat-smp">${say}</small>${thin}`;
-}

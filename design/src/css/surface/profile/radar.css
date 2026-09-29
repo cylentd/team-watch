@@ -28,5 +28,5 @@
 /* The spark's end point lands after the line has wiped in (roster.css), with the pop spring:
    this week is the point the reader looks for. */
 @keyframes pf-cap{from{transform:scale(0)}to{transform:scale(1)}}
-.pf-stat .spark .cap{transform-box:fill-box;transform-origin:center;
-  animation:pf-cap var(--dur-spring) var(--spring-pop) .75s backwards}
+.pf-lr .spark .cap{transform-box:fill-box;transform-origin:center;
+  animation:pf-cap var(--dur-spring) var(--spring-pop) .2s backwards}

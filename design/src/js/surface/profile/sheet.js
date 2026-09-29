@@ -114,7 +114,7 @@ function radarHTML(p){
       <circle class="pf-radar-hub" cx="${cx}" cy="${cy}" r="2"/></svg>
     <div class="pf-radar-hit" style="${hit}"></div>
     ${axisLabelsHTML(s, ranks, k, sel, ang, xy, at, R)}</div>
-    <div class="pf-stat">${statDetailHTML(s, sel)}</div></div>`;
+    ${ladderHTML(s, sel)}</div>`;
 }
 
 /* Two gradients, both anchored to the chart's own centre rather than to a bounding box, so the
@@ -226,24 +226,4 @@ function axisLabelsHTML(s, ranks, k, sel, ang, xy, at, R){
     return `<button type="button" class="pf-radar-l at-${side}${cls}" style="${at(x, y)};--i:${i}" data-col="${esc(a.id)}"
       ><b class="pf-radar-v">${rk}</b><span class="pf-radar-n">${esc(axisName(a))}</span></button>`;
   }).join("");
-}
-
-/* The caption's denominator is the opening axis's own, not the largest across all six: those
-   differ (everyone with a target, but only those with routes), and one caption cannot be right
-   for six. The card carries each axis's exact "of N" as the reader taps through. */
-/* The denominator and the sample, per axis, for the card's header line -- not a caption under
-   the chart. It was a paragraph of its own saying "Out of 120 WRs · 2 games", which repeated the
-   lede's own "of 120" a hundred pixels below it and cost the left column 20px it did not have:
-   24 of 30 players overflowed the modal by exactly the height of that block and its neighbours.
-   In the header it costs nothing, sits beside the stat it belongs to, and still follows a pick,
-   which matters because a receiver ranks among everyone with a target on one stat and only among
-   those with routes on the next. */
-function statMetaText(s, sel, withGames){
-  // Unranked on this stat (sheetThin): "of 0" would be a number that is not one.
-  const rk = sheetRank(s.pos, sel, s.row.slug);
-  if (!rk) return withGames ? t("profile.sheet.games", {g: s.row.g}) : "";
-  const of = rk[1];
-  // Games played only when the stat has no weekly rows to name a window with; otherwise the
-  // window says the sample and "2 gm" beside "wk 1" would be two different counts of it.
-  return withGames ? t("profile.sheet.metaGames", {of, g: s.row.g}) : t("profile.sheet.meta", {of});
 }

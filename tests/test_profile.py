@@ -206,7 +206,7 @@ def test_panes_split_the_blocks_and_only_one_is_in_the_dom(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
     modal = page.locator("#modal")
     row(page, "Amon-Ra St. Brown").click()
-    assert [b.inner_text() for b in modal.locator("[data-pftab]").all()] == ["SEASON", "USAGE", "MATCHUP"]
+    assert [b.inner_text() for b in modal.locator("[data-pftab]").all()] == ["SEASON", "USAGE", "PROPS", "MATCHUP"]
     # Season opens first (2026-09-28): his points and his schedule, nothing from another pane.
     assert modal.locator(".pf-season").count() == 1
     assert "PROJECTION" in modal.inner_text()
@@ -226,11 +226,11 @@ def test_panes_split_the_blocks_and_only_one_is_in_the_dom(browser, page_file):
     assert "on" not in modal.get_attribute("class")
     assert page.evaluate("document.activeElement.classList.contains('row')")
     row(page, "Chase Brown").click()
-    # Four tabs for him, three for St. Brown above: Bio reads LIVE_PEDIGREE alone, and the
+    # Five tabs for him, four for St. Brown above: Bio reads LIVE_PEDIGREE alone, and the
     # fixture has a pedigree record for this back and none for that receiver. A pane with
     # nothing in it draws no button rather than opening on an empty panel. The last pane read
     # (Matchup, above) is not carried over: every player opens on Season.
-    assert [b.inner_text() for b in modal.locator("[data-pftab]").all()] == ["SEASON", "USAGE", "MATCHUP", "BIO"]
+    assert [b.inner_text() for b in modal.locator("[data-pftab]").all()] == ["SEASON", "USAGE", "PROPS", "MATCHUP", "BIO"]
     assert modal.locator("[data-pftab='season']").get_attribute("aria-selected") == "true"
     tab(page, "usage")
     text = modal.inner_text()
@@ -294,8 +294,13 @@ def test_season_lists_every_week_played_and_to_come(browser, page_file):
     assert rows.nth(1).locator(".ss-pts").inner_text() == "12.1"
     nxt = season.locator(".ss-next")
     assert nxt.locator(".ss-opp").inner_text() == "KC"
-    assert nxt.locator(".ss-when").inner_text() == "Mon 1:25 PM"
-    assert re.sub(r"\s+", " ", nxt.locator(".ss-pts").inner_text()) == "13.6 proj · TE1"
+    assert nxt.locator(".ss-date").inner_text() == "Mon 1:25 PM"
+    assert nxt.locator(".ss-pts").inner_text() == "13.6"
+    assert nxt.locator(".ss-note").inner_text() == "projected · TE1 this week"
+    # The When column is one column for every row: the dates played line up with the kickoffs.
+    lefts = page.evaluate("""() => [...document.querySelectorAll('#modal .pf-season .ss-date')]
+      .map(e => Math.round(e.getBoundingClientRect().left))""")
+    assert len(set(lefts)) == 1, lefts
     assert season.locator(".ss-total .ss-pts").inner_text() == "21.5"
     page.keyboard.press("Escape")
     page.evaluate("VIEW='yahoo'; render()")
@@ -347,6 +352,99 @@ def test_owners_name_each_leagues_team(browser, page_file):
 
 
 @pytest.mark.render
+def test_an_owner_pill_opens_that_teams_roster(browser, page_file):
+    """A team's pill is a way to that team's roster (2026-09-28, for looking up a trade). It is a
+    look, not a pick: the reader's own team is still theirs afterwards, and Back returns to the
+    view they came from. A free agent's pill goes nowhere."""
+    ctx, page, errors = open_any_page(browser, page_file, (1400, 900))
+    drive(page, go("usage"))                                  # somewhere that is not a roster
+    page.evaluate("openProfile({n: 'Chase Brown', pos: 'RB', team: 'CIN', slug: 'chase-brown'})")
+    pill = page.locator("#modal button.pf-own", has_text="ESPN")   # the ESPN team, not the one in view
+    assert pill.count() == 1
+    key = pill.get_attribute("data-ownteam")
+    assert key.startswith("espn") and page.evaluate("VIEW") == "yahoo"
+    pill.click()
+    page.wait_for_function("location.hash === '#roster'")
+    assert "on" not in page.locator("#modal").get_attribute("class")
+    assert page.evaluate("VIEW") == key
+    assert page.evaluate("myTeamLoad()") == "yahoo"           # the reader's pick is untouched
+    page.go_back()
+    page.wait_for_function("location.hash === '#usage'")
+    page.evaluate("openProfile({n: 'Amon-Ra St. Brown', pos: 'WR', team: 'DET', slug: 'amonra-st-brown'})")
+    assert page.locator("#modal span.pf-own.free").count() == 1   # free agent: not a button
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_props_draws_his_last_games_against_the_line(browser, page_file):
+    """2026-09-29, David: "see his receptions, yds, tds as bar chart in the past X games". A player
+    with a market log gets a Props tab: one chart per market he records, the leg sheet's bars, lime
+    where he went over this week's line -- the over, whatever side the model picks. No log, no tab."""
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    who = page.evaluate("""(() => {
+      const logs = (LIVE_MARKET && LIVE_MARKET.logs) || {};
+      const p = PROPS.find(r => ['WR', 'TE', 'RB'].includes(r.pos) && r.mkt !== 'TD' && logs[r.slug || slugOf(r.n)]);
+      const none = LIVE_GAMELOG.rows.find(r => !logs[r.slug] && r.pos !== 'QB');
+      return {p: {n: p.n, pos: p.pos, team: p.team, slug: p.slug || slugOf(p.n)}, mkt: p.mkt,
+              line: legSide(p).line, vals: logs[p.slug || slugOf(p.n)].v[p.mkt],
+              none: none && {n: none.n, pos: none.pos, team: none.team, slug: none.slug}};
+    })()""")
+    page.evaluate("p => openProfile(p)", who["p"])
+    tab(page, "props")
+    heads = [s.inner_text() for s in page.locator("#modal .pf-sec-prop .lbl").all()]
+    mkt_name = page.evaluate("m => MKT[m]", who["mkt"]).upper()
+    assert mkt_name in heads
+    sec = page.locator("#modal .pf-sec-prop", has=page.locator(".lbl", has_text=re.compile(f"^{re.escape(mkt_name)}$", re.I)))
+    assert sec.locator(".ls-bar").count() == len(who["vals"])
+    over = sum(1 for v in who["vals"] if v > who["line"])
+    assert sec.locator(".ls-bar.hit").count() == over
+    assert sec.locator(".ls-cap b").inner_text().startswith(f"Over {who['line']} in {over}/{len(who['vals'])}")
+    if who["none"]:
+        page.evaluate("p => openProfile(p)", who["none"])
+        assert page.locator("#modal [data-pftab='props']").count() == 0
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_usage_opens_on_his_share_of_his_own_team(browser, page_file):
+    """2026-09-29, David: usage "should have his teammates there for comparison". Usage leads with
+    his share of his team's targets (a back: carries, then targets) from the game log, the top five
+    by volume with him among them, the rest as one row. A teammate's row opens that profile; a
+    passer gets no block."""
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page.evaluate("openProfile({n: 'Amon-Ra St. Brown', pos: 'WR', team: 'DET', slug: 'amonra-st-brown'})")
+    tab(page, "usage")
+    sec = page.locator("#modal .pf-sec-team")
+    assert sec.count() == 1
+    assert page.locator("#modal .pf-tabpane > section").first.get_attribute("class").endswith("pf-sec-team")
+    want = page.evaluate("""(() => { const d = teamShareRows('DET', 'tgt');
+      const me = d.rows.findIndex(r => r.slug === 'amonra-st-brown');
+      return {me, v: d.rows[me].v, total: d.total, n: d.rows.length}; })()""")
+    lead = sec.locator(".pf-lead").first.inner_text()
+    assert f"{want['v']} of {want['total']}" in lead and "targets" in lead
+    pcts = [int(b.inner_text().rstrip("%")) for b in sec.locator(".pf-tm > b").all()]
+    assert abs(sum(pcts) - 100) <= len(pcts)                  # the rows are the whole team, give or take rounding
+    named = sec.locator(".pf-tm:not(.rest) > b").all()
+    vals = [int(b.inner_text().rstrip("%")) for b in named]
+    assert vals == sorted(vals, reverse=True)
+    assert sec.locator(".pf-tm.me").count() == 1
+    assert sec.locator(".pf-tm.me").evaluate("e => e.tagName") == "DIV"   # his own row goes nowhere
+    mate = sec.locator("button.pf-tm").first
+    slug = mate.get_attribute("data-tmslug")
+    mate.click()
+    name = page.evaluate("s => LIVE_GAMELOG.rows.find(r => r.slug === s).n", slug)
+    assert page.locator("#pf-title").inner_text().upper() == name.upper()
+    page.evaluate("openProfile({n: 'Josh Allen', pos: 'QB', team: 'BUF', slug: 'josh-allen'})")
+    if page.locator("#modal [data-pftab='usage']").count():
+        tab(page, "usage")
+    assert page.locator("#modal .pf-sec-team").count() == 0
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
 def test_the_sphere_turns_rests_and_stops(browser, page_file):
     """STYLE.md rule 1 as rewritten on 2026-09-28: a tap cue may move, slowly, only while it can be
     seen, resting where its data reads, and never under reduced motion. The sphere opens at rest on
@@ -387,7 +485,7 @@ def test_the_sphere_opens_the_sheet_over_the_profile(browser, page_file):
     tab(page, "usage")
     sheet(page)
     assert page.locator("#modal .pf-orblayer .pf-radar").count() == 1
-    assert page.locator("#modal .pf-orbsheet .pf-stat-l").inner_text() == "TARGET SHARE"
+    assert page.locator("#modal .pf-orbsheet .pf-lr.on .pf-lr-n").inner_text() == "Target share"
     page.keyboard.press("Escape")
     assert page.locator("#modal .pf-orblayer").count() == 0
     assert "on" in page.locator("#modal").get_attribute("class")
@@ -538,20 +636,27 @@ def test_a_rate_under_its_floor_shows_its_sample_and_no_rank(browser, page_file)
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
     got = page.evaluate("""(() => {
       const s = sheetFor({slug: 'lamar-jackson'}), a = s.axes.find(x => x.id === 'gl_pct');
-      const d = document.createElement('div'); d.innerHTML = statDetailHTML(s, 'gl_pct');
-      const allen = sheetFor({slug: 'josh-allen'});
-      const d2 = document.createElement('div'); d2.innerHTML = statDetailHTML(allen, 'gl_pct');
+      const lad = (who) => { const d = document.createElement('div'); d.innerHTML = ladderHTML(who, 'gl_pct'); return d; };
+      const d = lad(s), row = d.querySelector('[data-col="gl_pct"]');
+      const d2 = lad(sheetFor({slug: 'josh-allen'})), row2 = d2.querySelector('[data-col="gl_pct"]');
+      const ranked = [...d.querySelectorAll('.pf-lr')].map(r => !!sheetRank('QB', r.dataset.col, 'lamar-jackson'));
       return {rank: sheetRank('QB', 'gl_pct', 'lamar-jackson'), allen: sheetRank('QB', 'gl_pct', 'josh-allen'),
-              smp: d.querySelector('.pf-stat-smp').textContent, thin: d.querySelector('.pf-stat-thin').textContent,
-              dim: d.querySelector('b').className, meta: d.querySelector('.pf-stat-wk').textContent,
-              allenSmp: d2.querySelector('.pf-stat-smp').textContent, allenThin: d2.querySelectorAll('.pf-stat-thin').length,
-              held: bdThinOut('QB', 'gl_pct', -1).map(r => sampleShort(r, a)), floor: a.floor};
+              facts: row.querySelector('.pf-lr-facts').textContent, floor: row.querySelector('.pf-lr-floor').textContent,
+              dim: row.querySelector('.pf-lr-v').className, have: row.querySelector('.pf-lr-rk').textContent,
+              last: ranked.slice(ranked.indexOf(false)).every(x => !x),
+              allenFacts: row2.querySelector('.pf-lr-facts').textContent, allenFloor: row2.querySelectorAll('.pf-lr-floor').length,
+              allenRk: row2.querySelector('.pf-lr-rk b').textContent,
+              held: bdThinOut('QB', 'gl_pct', -1).map(r => sampleShort(r, a))};
     })()""")
     assert got["rank"] is None and got["allen"] is not None
-    assert got["smp"] == "1 of 4 team carries inside the 5"
-    assert got["thin"] == "Too few to rank (needs 5)" and got["dim"] == "thin"
-    assert "of " not in got["meta"]                       # no "of 0" for a rank that is not one
-    assert got["allenSmp"] == "3 of 5 team carries inside the 5" and got["allenThin"] == 0
+    assert "1 of 4 team carries inside the 5" in got["facts"]
+    # Why there is no rank, in words: the floor, and what a rate on fewer would be.
+    assert got["floor"] == "Ranked from 5 team carries inside the 5: a rate on fewer is one game's noise, not a season."
+    assert got["dim"] == "pf-lr-v dim"
+    assert got["have"] == "4 of 5team carries inside the 5"   # his sample against the floor, not a rank
+    assert got["last"]                                       # unranked rows sit under every ranked one
+    assert "3 of 5 team carries inside the 5" in got["allenFacts"] and got["allenFloor"] == 0
+    assert got["allenRk"].startswith("#")
     assert got["held"] == ["3/4", "2/3", "1/4"]           # C. Ward 75%, T. Shough 66.7%, L. Jackson 25%
     assert not errors
     ctx.close()
@@ -560,10 +665,9 @@ def test_a_rate_under_its_floor_shows_its_sample_and_no_rank(browser, page_file)
 def test_stat_sheet_draws_the_positions_own_axes(browser, page_file):
     """ff-jarvis's `sheet.axes` drives the shape: six for a receiver, none of them a raw count
     the Grid already shows. Every number is his season rank among the position ("#3", "#3*" on a
-    tie), first place at the rim. Each label is a button; the card under the sheet shows that
-    stat's number, its elite bar and the weeks as a line, and the caption under the chart carries
-    that axis's own "of N" -- the rank itself is the lede's and the radar label's, not the
-    card's, so one number has one home."""
+    tie), first place at the rim. Each label is a button, and the ladder under the chart lists
+    every stat best first; a label and its row light together, and the row folds out the
+    definition and the elite gap."""
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
     row(page, "Amon-Ra St. Brown").click()
     sheet(page)
@@ -584,34 +688,42 @@ def test_stat_sheet_draws_the_positions_own_axes(browser, page_file):
     assert "*" not in radar.text_content()
     # Rank first, then the stat's plain name (HTML labels over the chart since 2026-09-25).
     assert f"{mark}Target share" in page.locator("#modal .pf-radar-box").text_content()
-    # The denominator lives on the card's header line, not in a caption under the chart: it
-    # repeated the lede's own "of 120" and cost the left column height it did not have.
-    assert f"of {of}" in page.locator("#modal .pf-stat-wk").inner_text()
     assert page.locator("#modal .pf-sheet .pf-cap").count() == 0
-    # The card opens on the first axis and follows a tap on another.
-    card = page.locator("#modal .pf-stat")
-    assert card.count() == 1
-    assert card.locator(".pf-stat-l").inner_text() == "TARGET SHARE"
-    assert card.locator(".pf-stat-r").count() == 0             # the rank is the label's and the sphere's
+    # The ladder under the chart (2026-09-29): every stat at once, best first, each row with its
+    # own denominator (everyone with a target, but only those with routes).
+    rows = page.locator("#modal .pf-lr")
+    assert rows.count() == len(axes)
+    order = [r.get_attribute("data-col") for r in rows.all()]
+    pct = page.evaluate("""cols => cols.map(c => { const rk = sheetRank('WR', c, 'amonra-st-brown');
+      return rk ? ladderPct(rk) : -1; })""", order)
+    assert pct == sorted(pct, reverse=True)
+    wopr = page.locator("#modal .pf-lr[data-col='wopr']")
+    assert "on" in wopr.get_attribute("class")
+    assert wopr.locator(".pf-lr-rk").inner_text().split() == [mark, "of", str(of)]
+    # Folded: the definition is a tap away, not a paragraph in the way of the numbers.
+    assert not wopr.locator(".pf-lr-def").is_visible()
+    wopr.locator("summary").click()
     # The gap, not the threshold: "elite >= 0.00" printed in red said the elite bar was the bad
-    # thing, when what is red is him being under it. The colour now agrees with the sign.
-    assert card.locator(".pf-stat-d").inner_text() == "0.11 over the elite bar (0.70)"
-    assert card.locator(".pf-stat-d").get_attribute("class").endswith("up")
+    # thing, when what is red is him being under it. The colour agrees with the sign.
+    assert wopr.locator(".pf-lr-d").inner_text() == "0.11 over the elite bar (0.70)"
+    assert wopr.locator(".pf-lr-d").get_attribute("class").endswith("up")
     # And the initials are defined, with a second clause on what to do with the number.
-    assert "air yards" in card.locator(".pf-stat-def").inner_text()
-    assert "predictor" in card.locator(".pf-stat-why").inner_text()
+    assert "air yards" in wopr.locator(".pf-lr-def").inner_text()
+    assert "predictor" in wopr.locator(".pf-lr-why").inner_text()
     assert "on" in page.locator("#modal .pf-radar-l", has_text="Target share").get_attribute("class")
-    # A pick moves three things at once, so the chart and the card are visibly the same stat.
     assert radar.locator("circle.pf-radar-dot.on").get_attribute("data-col") == "wopr"
+    # A label tap lights the chart and the row together and opens that row alone.
     page.locator("#modal .pf-radar-l", has_text="Yds/route").click()
-    assert card.locator(".pf-stat-l").inner_text() == "YDS/ROUTE"
-    assert "on" in page.locator("#modal .pf-radar-l", has_text="Yds/route").get_attribute("class")
+    yprr = page.locator("#modal .pf-lr[data-col='yprr']")
+    assert "on" in yprr.get_attribute("class") and yprr.get_attribute("open") is not None
+    assert wopr.get_attribute("open") is None
     assert "on" not in page.locator("#modal .pf-radar-l", has_text="Target share").get_attribute("class")
     assert radar.locator("circle.pf-radar-dot.on").get_attribute("data-col") == "yprr"
-    # Each axis has its own denominator (everyone with a target, but only those with routes),
-    # so the header follows the pick rather than freezing on the opening axis's.
     yprr_of = page.evaluate("sheetRank('WR', 'yprr', 'amonra-st-brown')")[1]
-    assert f"of {yprr_of}" in page.locator("#modal .pf-stat-wk").inner_text()
+    assert yprr.locator(".pf-lr-rk small").inner_text() == f"of {yprr_of}"
+    # And a row tap moves the chart.
+    page.locator("#modal .pf-lr[data-col='rz_tgt'] summary").click()
+    page.wait_for_selector("#modal circle.pf-radar-dot.on[data-col='rz_tgt']", timeout=2000)   # toggle fires a task later
     assert "pctl" not in page.locator("#modal").inner_text()
     page.keyboard.press("Escape")
     assert errors == []
@@ -630,28 +742,23 @@ def test_every_block_says_how_many_weeks_it_covers(browser, page_file):
     tab(page, "usage")
     wins = {w.locator("xpath=ancestor::section").locator(".lbl").inner_text(): w.inner_text()
             for w in page.locator("#modal .pf-win").all()}
-    assert wins == {"TARGET DEPTH": "2 wk", "RED ZONE": "2 wk"}   # .lbl uppercases in the render
-    # And per stat, on the card. Three states, because the fixture has no weekly rows for the
-    # sheet stats and that is itself one of them.
+    assert wins == {"SHARE OF DET": "2 wk", "TARGET DEPTH": "2 wk", "RED ZONE": "2 wk"}   # .lbl uppercases in the render
+    # And per stat, in its ladder row's fold. Three states, because the fixture has no weekly rows
+    # for the sheet stats and that is itself one of them.
     sheet(page)
-    radar = page.locator("#modal .pf-radar")
-    meta = page.locator("#modal .pf-stat-wk")
-    of = page.evaluate("sheetRank('WR', 'yprr', 'amonra-st-brown')")[1]
     page.locator("#modal .pf-radar-l", has_text="Yds/route").click()
-    assert meta.inner_text() == f"2 gm · of {of}"          # no weekly rows: games, no window
+    facts = page.locator("#modal .pf-lr[data-col='yprr'] .pf-lr-facts span").last
+    assert facts.inner_text() == "2 gm"                     # no weekly rows: games, no window
     plant = """(weeks) => {
       const row = USAGE.rows.find(r => r.slug === 'amonra-st-brown');
       USAGE.rows = USAGE.rows.filter(r => r.slug !== 'amonra-st-brown');
       weeks.forEach(wk => USAGE.rows.push({...row, wk, v: {...row.v, yprr: 1.5 + wk}}));
+      const s = sheetFor({slug: 'amonra-st-brown'});
+      return ladderWindow(s, statWeeks('amonra-st-brown', 'yprr'));
     }"""
-    page.evaluate(plant, [1, 2])
-    page.locator("#modal .pf-radar-l", has_text="Yds/route").click()
-    assert meta.inner_text() == f"of {of} · wk 1–2"         # two weeks: the range, no games
+    assert page.evaluate(plant, [1, 2]) == "wk 1–2"         # two weeks: the range, no games
     # Now as heatradar actually publishes it: week 1 only, while his other stats have two.
-    page.evaluate(plant, [1])
-    page.locator("#modal .pf-radar-l", has_text="Yds/route").click()
-    assert meta.inner_text() == f"of {of} · wk 1"
-    assert "gm" not in meta.inner_text()                    # never both counts of one sample
+    assert page.evaluate(plant, [1]) == "wk 1"
     assert errors == []
     ctx.close()
 
@@ -856,13 +963,16 @@ def test_no_profiles_renders_dashes_and_a_quiet_panel(browser, monkeypatch, tmp_
     assert page.locator(".match .mu-n").count() == 0
     row(page, "Amon-Ra St. Brown").click()
     assert page.locator("#modal .pf-empty").count() == 1
-    # The usage and matchup panes need LIVE_PROFILES, so neither draws a tab and the notice says
-    # why once. The Season table, the projection and the stat sheet each read their own source
+    # The matchup pane needs LIVE_PROFILES, so it draws no tab and the notice says why once. The
+    # Season table, the projection, the team share and the stat sheet each read their own source
     # (LIVE_GAMELOG/LIVE_PROJECTIONS/LIVE_USAGE) and still render -- a player with no matchup
     # profile is not blank.
-    assert page.locator("#modal [data-pftab]").count() == 0
+    tabs = [b.get_attribute("data-pftab") for b in page.locator("#modal [data-pftab]").all()]
+    assert tabs == ["season", "usage", "props"]
     assert page.locator("#modal .pf-season").count() == 1
     assert page.locator("#modal .pf-sec").count() == 1         # the projection
+    tab(page, "usage")
+    assert [s.get_attribute("class").split()[-1] for s in page.locator("#modal .pf-tabpane > section").all()] == ["pf-sec-team"]
     sheet(page)
     assert page.locator("#modal .pf-radar").count() == 1
     assert errors == []

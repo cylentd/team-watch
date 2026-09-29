@@ -68,6 +68,10 @@ function seasonLineHead(pos){
 }
 
 const seasonKick = iso => MU_KICK_FMT.format(new Date(iso)).replace(",", "");
+/* A played week's date, "Sep 14", in the same Pacific wall clock as the kickoffs, so the When
+   column reads as one timeline down the season. */
+const SS_DAY_FMT = new Intl.DateTimeFormat("en-US", {timeZone: "America/Los_Angeles", month: "short", day: "numeric"});
+const seasonDay = iso => SS_DAY_FMT.format(new Date(iso));
 
 /* One row. `kind` is ss-played / ss-next / ss-later / ss-bye / ss-total / ss-head. Prefixed: a bare
    `head` class picked up a global grid-row rule and put the header under week 1 (2026-09-28). */
@@ -99,15 +103,19 @@ function seasonWeeks(p, rows){
   return {shown, isBye: wk => byeWk !== null ? wk === byeWk : (clubs[wk] ? clubs[wk].size : 0) >= 24};
 }
 
-/* The projection, with its rank at his position under it. It is his next game's, so it only sits
-   on that row when the profile agrees which week that is (a Monday game not yet in the log). */
-function seasonProjCell(p, prof, pos, wk){
+/* The projection and what it is. It is his next game's, so it only sits on that row when the
+   profile agrees which week that is (a Monday game not yet in the log). Two homes for the label,
+   one per layout: a phone hangs "proj · RB3" under the number (the small), a desktop writes it out
+   across the stat columns that row has no numbers for (the note). */
+function seasonProj(p, prof, pos, wk){
   const proj = projFor(p);
   const projWeek = prof && prof.next ? prof.next.week : null;
-  if (proj === null || (projWeek !== null && projWeek !== wk)) return "";
+  if (proj === null || (projWeek !== null && projWeek !== wk)) return {pts: "", note: ""};
   const pr = typeof LIVE_PROJECTIONS !== "undefined" && LIVE_PROJECTIONS ? LIVE_PROJECTIONS.players[p.slug] : null;
-  const sub = pr && pr.rank ? t("profile.season.projRank", {rank: rankText(pos, [pr.rank])}) : t("profile.season.proj");
-  return `${proj.toFixed(1)}<small>${sub}</small>`;
+  const rank = pr && pr.rank ? rankText(pos, [pr.rank]) : null;
+  const sub = rank ? t("profile.season.projRank", {rank}) : t("profile.season.proj");
+  const note = rank ? t("profile.season.projNote", {rank}) : t("profile.season.projNoteBare");
+  return {pts: `${proj.toFixed(1)}<small>${sub}</small>`, note};
 }
 
 function seasonTotalHTML(pos, rows, stats){
@@ -115,13 +123,13 @@ function seasonTotalHTML(pos, rows, stats){
     .map(k => [k, glSum(rows, k)]));
   return seasonRowHTML("ss-total",
     ssCell("ss-wk", t("profile.history.total")) + ssCell("ss-opp-c", t("profile.history.games", {n: rows.length}))
-    + ssCell("ss-pts", tot.pts) + ssCell("ss-line", seasonLine(pos, tot)) + stats(c => tot[c.id]));
+    + ssCell("ss-date", "") + ssCell("ss-pts", tot.pts) + ssCell("ss-line", seasonLine(pos, tot)) + stats(c => tot[c.id]));
 }
 
 function seasonHeadHTML(pos, cols){
   return seasonRowHTML("ss-head",
     ssHead("ss-wk", t("profile.history.colWeek")) + ssHead("ss-opp-c", t("profile.season.colOpp", {pos: esc(pos)}))
-    + ssHead("ss-pts", t("profile.history.colPts")) + ssHead("ss-line", seasonLineHead(pos))
+    + ssHead("ss-date", t("profile.season.colWhen")) + ssHead("ss-pts", t("profile.history.colPts")) + ssHead("ss-line", seasonLineHead(pos))
     + cols.map(c => ssHead("ss-stat", c.label())).join(""));
 }
 
@@ -148,6 +156,7 @@ function seasonHTML(p, prof){
       const open = seasonOpens(p, r);
       body.push(seasonRowHTML("ss-played" + open.cls,
         ssCell("ss-wk", r ? weekCell(p, r) : wk) + ssCell("ss-opp-c", opp)
+        + ssCell("ss-date", g ? seasonDay(g.kickoff) : "")
         + ssCell("ss-pts", r ? glNum(r.pts) : "—")
         + ssCell("ss-line", r ? seasonLine(pos, r) : t("profile.season.noStats"))
         + stats(c => r ? glNum(r[c.id]) : "—"),
@@ -156,9 +165,11 @@ function seasonHTML(p, prof){
     }
     const isNext = !nextDone; nextDone = true;       // the first week still to come
     const when = Date.parse(g.kickoff) < now ? t("profile.season.live") : seasonKick(g.kickoff);
+    const proj = isNext ? seasonProj(p, prof, pos, wk) : {pts: "", note: ""};
     body.push(seasonRowHTML(isNext ? "ss-next" : "ss-later",
-      ssCell("ss-wk", wk) + ssCell("ss-opp-c", opp)
-      + ssCell("ss-pts", isNext ? seasonProjCell(p, prof, pos, wk) : "") + ssCell("ss-line ss-when", when)));
+      ssCell("ss-wk", wk) + ssCell("ss-opp-c", opp) + ssCell("ss-date", when)
+      + ssCell("ss-pts", proj.pts) + ssCell("ss-line ss-when", when)
+      + (proj.note ? ssCell("ss-note", proj.note) : "")));
   }
   if (rows.length) body.push(seasonTotalHTML(pos, rows, stats));
   return `<div class="pf-season" role="table" aria-label="${t("profile.season.label")}" style="--ss-n:${Math.max(1, cols.length)}">`

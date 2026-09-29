@@ -26,7 +26,19 @@ function flipFrom(el, from, reverse){
 }
 
 /* The camera move, drawn on a canvas laid exactly over the flat chart's disc (.pf-radar-hit is that
-   box, in the viewBox's own percentages). `back` runs it from overhead down to the badge's view. */
+   box, in the viewBox's own percentages). `back` runs it from overhead down to the badge's view.
+
+   The hand-over happens while it moves, not after (2026-09-29, David: "it flickers towards the end").
+   The solid, lit crystal and the flat chart's translucent fill are not the same picture even when
+   their outlines agree, and a cross-fade started once the camera stopped read as the shape
+   blinking. So the canvas fades over the last third of the swing (ORB_HANDOVER) as the crystal
+   flattens onto the chart under it, and is gone the moment it lands. Its first frame is drawn at
+   once, too: a blank canvas for one frame showed the flat chart before the crystal. */
+const ORB_HANDOVER = .35;
+/* By the clock, not by the eased position: ease-out has the crystal 65% flat a third of the way in,
+   and a fade keyed to that would start while it is still a sphere. `u` is the share of the time
+   gone; opening fades out at the end, closing fades in at the start. */
+const orbAlpha = (u, back) => Math.max(0, Math.min(1, (back ? u : 1 - u) / ORB_HANDOVER));
 function orbMorph(layer, btn, p, back, ms, done){
   const box = layer.querySelector(".pf-radar-box"), hit = box && box.querySelector(".pf-radar-hit");
   const geo = orbGeo(p);
@@ -38,16 +50,19 @@ function orbMorph(layer, btn, p, back, ms, done){
     ["left", "top", "width", "height"].forEach(k => { cv.style[k] = hit.style[k]; });
     box.appendChild(cv);
   }
-  cv.classList.remove("gone");
   const col = orbColors(layer.querySelector(".pf-sheet"));
   const y0 = (ORB_STATE.get(btn) || {yaw: 0}).yaw, yHome = y0 > Math.PI ? ORB_TAU : 0;
-  const at = e => orbDraw(cv, geo, col, y0 + (yHome - y0) * e, ORB_PITCH + (ORB_TOP - ORB_PITCH) * e, cv.clientWidth / 2);
+  const at = u => {
+    const s = back ? 1 - u : u, e = 1 - Math.pow(1 - s, 3);
+    cv.style.opacity = orbAlpha(u, back);
+    orbDraw(cv, geo, col, y0 + (yHome - y0) * e, ORB_PITCH + (ORB_TOP - ORB_PITCH) * e, cv.clientWidth / 2);
+  };
+  at(0);
   const t0 = performance.now();
   const step = now => {
-    const u = Math.min(1, (now - t0) / ms), s = back ? 1 - u : u;
-    at(1 - Math.pow(1 - s, 3));
+    const u = Math.min(1, (now - t0) / ms);
+    at(u);
     if (u < 1){ requestAnimationFrame(step); return; }
-    if (!back) cv.classList.add("gone");
     if (done) done();
   };
   requestAnimationFrame(step);
@@ -64,6 +79,9 @@ function orbOpen(d, p, btn){
         <span class="lbl">${t("profile.orb.sub", {pos: esc(s.pos)})}</span></div>
         <button type="button" class="dr-close pf-orb-x" aria-label="${t("profile.orb.close")}">✕</button></div>
       ${radarHTML(p)}</div>`;
+  // The crystal is this sheet's entrance: the flat shape's own grow-in (sheet.css, .74s) stands
+  // down before it can start, or it would still be growing when the crystal lands on it.
+  layer.querySelector(".pf-sheet").classList.add("js-grow");
   d.appendChild(layer);
   [...d.children].forEach(c => { if (c !== layer) c.inert = true; });
   btn.dataset.open = "1";

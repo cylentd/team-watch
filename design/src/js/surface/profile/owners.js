@@ -27,9 +27,33 @@ function ownersHTML(p){
   const pills = OWN_LEAGUES.filter(l => TEAMS[l.key]).map(l => {
     const tm = ownerOf(l.key, slug);
     if (!tm && !mateKeys(l.key).length) return "";
-    const cls = !tm ? " free" : ownIsMine(tm) ? " mine" : "";
-    const who = !tm ? t("profile.own.free") : ownIsMine(tm) ? t("profile.own.yours") : esc(tm.name);
-    return `<span class="pf-own${cls}"><i class="pf-own-l ${l.key}">${l.tag()}</i>${who}</span>`;
+    const tag = `<i class="pf-own-l ${l.key}">${l.tag()}</i>`;
+    if (!tm) return `<span class="pf-own free">${tag}${t("profile.own.free")}</span>`;
+    const mine = ownIsMine(tm);
+    return `<button type="button" class="pf-own${mine ? " mine" : ""}" data-ownteam="${esc(tm.key)}"
+      aria-label="${esc(t("profile.own.open", {team: tm.name}))}">${tag}${mine ? t("profile.own.yours") : esc(tm.name)}${OWN_GO}</button>`;
   }).join("");
   return pills ? `<div class="pf-owners" role="group" aria-label="${t("profile.own.label")}">${pills}</div>` : "";
 }
+
+/* A team's pill opens that team's roster (2026-09-28, David: "good if people want to look up
+   trades"). A look, not a pick: VIEW changes and myTeamSave does not, so "Yours", the team switch's
+   own team and the next visit all stay the reader's. The profile closes first, and the roster opens
+   once the profile's history entry is gone, so Back from the roster lands where the reader was
+   rather than on a dead entry. */
+const OWN_GO = '<svg class="pf-own-go" viewBox="0 0 6 10" aria-hidden="true"><path d="M1 1l4 4-4 4"/></svg>';
+
+function ownOpenRoster(key){
+  if (!TEAMS[key]) return;
+  const go = () => { VIEW = key; SEARCH_INDEX = null; navGo("roster"); };
+  const d = document.getElementById("modal");
+  if (history.state && history.state.layer === d.id){
+    window.addEventListener("popstate", () => setTimeout(go), {once: true});
+    closeModal(d);
+  } else { closeModal(d); go(); }
+}
+
+document.getElementById("modal").addEventListener("click", e => {
+  const b = e.target.closest("[data-ownteam]");
+  if (b) ownOpenRoster(b.dataset.ownteam);
+});

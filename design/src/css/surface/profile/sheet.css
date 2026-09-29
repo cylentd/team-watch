@@ -128,43 +128,6 @@
 .pf-radar-l:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 .pf-sheet .pf-cap{text-align:center;font-family:var(--mono);letter-spacing:.06em}
 
-/* The card under the sheet for the chosen stat: this week's value, his rank on it, the change
-   on last week, the weeks as a line. */
-.pf-stat{display:grid;grid-template-columns:minmax(0,1fr) auto;
-  /* The number leads and the definition supports it, never the other way round: a reader who
-     already knows what WOPR is should not have to read past a sentence to reach 0.81. */
-  grid-template-areas:"h h" "v side" "def def" "s s";
-  gap:3px 12px;margin-top:10px;padding:10px 14px 8px;border:1px solid var(--line);
-  border-left:2px solid var(--tint);background:var(--panel-2)}
-.pf-stat-h{grid-area:h;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-.pf-stat-l{font-family:var(--mono);font-size:var(--t-1);font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--tint)}
-/* What the stat is, in the reader's words, under the initials it has to be labelled with. */
-.pf-stat-def{grid-area:def;margin:6px 0 0;font-size:var(--t-2);line-height:1.35;color:var(--ink-2)}
-/* What it is, then what to do with it. The second clause is dimmer and on its own line: a
-   reader who already knows the stat skips it without having to read past it. */
-.pf-stat-why{display:block;margin-top:4px;color:var(--ink-3)}
-.pf-stat-wk{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
-.pf-stat > b{grid-area:v;font-family:var(--mono);font-size:var(--t-6);font-weight:700;line-height:1;color:var(--ink);align-self:end;
-  font-variant-numeric:tabular-nums}
-.pf-stat-side{grid-area:side;display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end;gap:3px;font-family:var(--mono);font-size:var(--t-2);white-space:nowrap}
-.pf-stat-r{font-weight:700;color:var(--ink)}
-.pf-stat-d{color:var(--ink-3)}
-.pf-stat-d.up{color:var(--up)}
-.pf-stat-d.down{color:var(--down)}
-/* What the rate is out of (sample.js). It may wrap: "1 of 3 team carries inside the 5" is wider
-   than the side column on a 360px phone, and the column's nowrap would push it off the card. */
-.pf-stat-smp,.pf-stat-thin{white-space:normal;text-align:right;color:var(--ink-3)}
-.pf-stat-thin{font-style:italic}
-/* Below its floor the number is true but unranked, so it recedes like an unranked radar label. */
-.pf-stat > b.thin{color:var(--ink-3)}
-.pf-stat .spark{grid-area:s;width:100%;height:30px;margin-top:6px}
-/* Replayed on every stat swap (sheet.js): the number is a different number now, and a silent
-   substitution reads as if it had always said that. */
-@keyframes pf-swap{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-.pf-stat.swap > b,.pf-stat.swap .pf-stat-side,.pf-stat.swap .pf-stat-h,
-.pf-stat.swap .pf-stat-def{animation:pf-swap .3s var(--ease) backwards}
-.pf-stat.swap .pf-stat-side{animation-delay:.05s}
-
 /* The Bio pane's grid. No heading and no rule of its own: the tab above it is both. */
 .pf-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px;margin:4px 0 0}
 .pf-facts > div{min-width:0}
