@@ -45,7 +45,8 @@ function dgHurtLine(d){
 /* Matchups' one name is the best spot at WR (the position Matchups opens on), else the next. */
 function dgMuLine(d){
   const b = ["WR", "RB", "TE", "QB"].map(p => d.best.find(r => r.pos === p)).find(Boolean);
-  return b ? t("digest.line.mu", {name: esc(b.n), vs: dgVs(b)}) : t("digest.line.muCalls", {n: d.calls});
+  if (b) return t("digest.line.mu", {name: esc(b.n), vs: dgVs(b)});
+  return d.calls === 1 ? t("digest.line.muCallsOne") : t("digest.line.muCalls", {n: d.calls});
 }
 
 function dgWxLine(d){
@@ -100,9 +101,14 @@ function dgRowHTML(id, d, open){
 function digestHTML(){
   const d = dgD(), open = dgOpenRow();
   const rows = DG_ROWS.filter(dgShown);
-  // The wall's layout names which bands exist (wall.css): results, tonight's card, the last slot.
-  const cls = d ? [dgHas("res") ? "has-res" : "", d.tn.length ? "has-tn" : "", d.tnLast ? "tn-last" : ""].filter(Boolean).join(" ") : "";
-  const ticker = d ? `<section class="dg-ticker${cls ? " " + cls : ""}" aria-label="${t("digest.ticker.label")}">${dgTonightHTML(d)}${rows.map(id => dgRowHTML(id, d, open)).join("")}</section>`
+  const wait = dgWaiting(d);
+  // The wall's layout names which bands exist (wall.css): results, tonight's card, the last slot,
+  // the wait. The wait card sits where the preview rows it stands for were, right after Results.
+  const cls = d ? [dgHas("res") ? "has-res" : "", d.tn.length ? "has-tn" : "", d.tnLast ? "tn-last" : "",
+    wait ? "wk-done" : ""].filter(Boolean).join(" ") : "";
+  const body = rows.map(id => dgRowHTML(id, d, open));
+  if (wait) body.splice(rows[0] === "res" ? 1 : 0, 0, dgWaitHTML(d));
+  const ticker = d ? `<section class="dg-ticker${cls ? " " + cls : ""}" aria-label="${t("digest.ticker.label")}">${dgTonightHTML(d)}${body.join("")}</section>`
     : `<p class="dg-none">${t("digest.empty.ticker")}</p>`;
   return `<div class="dg">${dgLeadHTML()}${ticker}</div>`;
 }
@@ -147,7 +153,8 @@ function wireDigest(v){
   const d = dgD();
   v.querySelectorAll("[data-dgslug]").forEach(el => el.addEventListener("click", () => {
     const slug = el.dataset.dgslug;
-    const p = [...d.hurt, ...d.starters, ...d.best, ...d.adds, ...d.gems, ...d.stars, ...d.smashed, ...d.busts, ...d.left].find(x => x.slug === slug);
+    const p = [...d.hurt, ...d.starters, ...d.best, ...d.adds, ...d.gems, ...d.stars, ...d.smashed, ...d.busts, ...d.left, ...d.up, ...d.down]
+      .find(x => x.slug === slug);
     if (p) return openProfile({n: p.n, pos: p.pos, team: p.team, slug: p.slug}, el);
     // A News player need not be in any list above: search's index knows everyone on the page.
     const e = searchIndex().find(x => x.slug === slug);

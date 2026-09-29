@@ -10,3 +10,11 @@
   .dg{grid-template-columns:440px minmax(0,1fr);column-gap:28px;align-items:start;max-width:var(--page-w);
     margin:0 auto;padding:20px var(--page-pad) 40px}
 }
+
+/* A lead about one player opens his profile (lead.js): a clear button over the whole band, above the
+   text, so the band is one target. The photo lifts a little under a pointer to say so. */
+.dg-lead-go{position:absolute;inset:0;z-index:3;padding:0;border:0;border-radius:inherit;background:none;cursor:pointer}
+.dg-lead-go:focus-visible{outline:2px solid var(--lime);outline-offset:-3px}
+.dg-lead.opens .dg-photo{transition:transform var(--dur-spring) var(--spring)}
+@media (hover:hover){ .dg-lead.opens:hover .dg-photo:not(.dg-glyph){transform:scale(1.03)} }
+.dg-lead.opens:active .dg-photo:not(.dg-glyph){transform:scale(var(--press))}

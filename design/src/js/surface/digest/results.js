@@ -67,9 +67,16 @@ function dgWhy(r, left){
 const dgResNum = r => `<span class="dg-rv"><b>${r.actual != null ? r.actual.toFixed(1) : ""}</b>`
   + `${r.proj != null ? `<span>${r.proj.toFixed(1)}</span>` : ""}</span>`;
 
-/* One result row: face, name over its reason pills, points over projection. Opens the profile. */
-const dgResRow = (r, pills, num) => `<button type="button" class="dg-rr" data-dgslug="${esc(r.slug)}">
-    <span class="dg-hd">${avatarHTML(r)}</span>
+/* One result row: name over its reason pills, points over projection. Opens the profile.
+
+   Only a position's leader wears a face (2026-09-29, David: "doesn't it look weird to see so many
+   headshots"): 35 faces made a wall where none stood out. Four say "these led the week"; every other
+   row is text. The face is cropped to the head, drawn at 150% so it fills the circle instead of
+   the chest-up frame, and `96` asks the srcset for a file sharp at that size. */
+const dgResFace = r => HEADS[r.slug] ? headImgHTML(HEADS[r.slug], initials(r.n), r.slug, 96)
+  : `<div class="fallback">${esc(initials(r.n))}</div>`;
+const dgResRow = (r, pills, num, face) => `<button type="button" class="dg-rr${face ? " has-face" : ""}" data-dgslug="${esc(r.slug)}">
+    ${face ? `<span class="dg-hd">${dgResFace(r)}</span>` : ""}
     <span class="dg-rr-n"><b>${esc(dgShort(r.n))}</b>${pills ? `<span>${pills}</span>` : ""}</span>${num}</button>`;
 
 /* --half: rows in the first of two columns, for a list the wall splits (Left hurt), read down.
@@ -88,7 +95,7 @@ const dgResCol = (title, rows, row, cls, fold) => {
 
 function dgResTop(d){
   const cols = DG_POS.map(p => dgResCol(p, d.stars.filter(r => r.pos === p),
-    r => dgResRow(r, "", `<span class="dg-rv"><b>${r.actual.toFixed(1)}</b></span>`))).join("");
+    (r, i) => dgResRow(r, "", `<span class="dg-rv"><b>${r.actual.toFixed(1)}</b></span>`, i === 0))).join("");
   return cols ? `<div class="dg-rtop">${cols}</div>` : "";
 }
 

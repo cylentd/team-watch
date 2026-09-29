@@ -14,7 +14,7 @@ from _espn import slugify  # noqa: E402
 import contract  # noqa: E402
 from digest import kicks, live_digest, report  # noqa: E402
 from sources import load_digest  # noqa: E402
-from test_render import browser, go, open_page  # noqa: E402,F401  (the suite's one Chromium)
+from test_render import browser, drive, go, open_page  # noqa: E402,F401  (the suite's one Chromium)
 
 
 def _block(schedule=None):
@@ -129,7 +129,8 @@ def test_a_phone_folds_the_results_lists_and_a_tap_opens_one(browser, page_file)
 def test_results_on_the_wall_keep_each_number_by_its_name(browser, page_file):
     """On a desktop the top scores and the lists share four columns, Left hurt spanning two
     (2026-09-29), so a row is one column wide: its number sits within 330px of its name at the
-    1,680px frame, and its face is 80px."""
+    1,680px frame. Only each position's leader has a face, 64px (2026-09-29: a face on all 35 rows
+    was a wall where none stood out)."""
     ctx, page, errors = open_page(browser, page_file, (1705, 1000))
     page.goto(page_file.as_uri())
     for _, sel in go("digest"):
@@ -139,15 +140,20 @@ def test_results_on_the_wall_keep_each_number_by_its_name(browser, page_file):
       const cols = s => getComputedStyle(document.querySelector(s)).gridTemplateColumns.split(' ').length;
       const rows = [...document.querySelectorAll('.dg-rr')].map(r => {
         const n = r.querySelector('.dg-rr-n b').getBoundingClientRect(), v = r.querySelector('.dg-rv').getBoundingClientRect();
-        return {gap: v.left - n.left, face: r.querySelector('.dg-hd').getBoundingClientRect().width};
+        const f = r.querySelector('.dg-hd');
+        return {gap: v.left - n.left, face: f ? f.getBoundingClientRect().width : 0};
       });
-      return {top: cols('.dg-rtop'), low: cols('.dg-rlow'), rows};
+      const leaders = [...document.querySelectorAll('.dg-rtop .dg-rcol')].map(c => c.querySelector('.dg-rr').classList.contains('has-face'));
+      return {top: cols('.dg-rtop'), low: cols('.dg-rlow'), rows, leaders};
     }""")
     ctx.close()
     assert errors == []
     assert (got["top"], got["low"]) == (4, 4)
-    assert got["rows"] and max(r["gap"] for r in got["rows"]) < 330
-    assert all(r["face"] == 80 for r in got["rows"])      # big enough to see the player (2026-09-29)
+    # 350, not 330, since the rows lost their faces (2026-09-29): the name now starts at the column's
+    # left edge instead of 78px in, so the same column puts the number 335px from it.
+    assert got["rows"] and max(r["gap"] for r in got["rows"]) < 350
+    faces = [r["face"] for r in got["rows"] if r["face"]]
+    assert faces == [64] * len(got["leaders"]) and all(got["leaders"])   # one face per position, its leader
 
 
 @pytest.mark.render
@@ -184,18 +190,68 @@ def test_the_call_picks_its_verb_from_his_day(browser, page_file):
 
 
 @pytest.mark.render
-def test_an_empty_hurt_row_says_next_weeks_report_is_not_in_yet(browser, page_file):
+def test_a_finished_week_folds_the_preview_rows_into_the_wait(browser, page_file):
     """Once every game of the packet's week has kicked off (the fixture's week 3 ends with KC @ SF,
-    2026-09-21), an empty Hurt row says next week's report is not written; before that, "Nothing new"."""
+    2026-09-21), Hurt, Matchups, Weather and Top 5 have nothing left to preview and next week's are not
+    written: they leave the ticker for one card, Blip's, with a line each (2026-09-29, storyboard
+    UDoWgLMrzUHup5tX53zaue option B). Before that, an empty Hurt row still says "Nothing new"."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     page.goto(page_file.as_uri())
     for _, sel in go("digest"):
         page.click(sel)
     page.wait_for_selector(".dg-row")
-    line = lambda at: page.evaluate("""(at) => { Date.now = () => Date.parse(at); LIVE_DIGEST.hurt = []; DG_CUT = null; render();
-      return document.querySelector('.dg-row[data-dgrow="hurt"] .dg-s').textContent.trim(); }""", at)
-    assert line("2026-09-20T12:00:00Z") == "Nothing new"
-    assert line("2026-09-22T12:00:00Z") == "Week 4's injury report is still in the trainer's room"
+    at = lambda when: page.evaluate("""(at) => { Date.now = () => Date.parse(at); LIVE_DIGEST.hurt = []; DG_CUT = null; render();
+      return [...document.querySelectorAll('.dg-ticker > [data-dgrow]')].map(e => e.dataset.dgrow); }""", when)
+    before = at("2026-09-20T12:00:00Z")
+    assert "wait" not in before and "hurt" in before
+    assert page.locator('.dg-row[data-dgrow="hurt"] .dg-s').inner_text() == "Nothing new"
+    after = at("2026-09-22T12:00:00Z")
+    assert "wait" in after and not {"hurt", "mu", "wx", "t5"} & set(after)
+    card = page.locator(".dg-wait")
+    assert card.locator(".dg-wait-h").inner_text().upper() == "WAITING ON WEEK 4"
+    assert card.locator("svg.blip").count() == 1
+    lines = {li.locator("b").inner_text().upper(): li.locator("span").inner_text() for li in card.locator("li").all()}
+    assert list(lines) == ["HURT", "MATCHUPS", "WEATHER", "TOP 5"]
+    assert lines["HURT"] == "Week 4's injury report is still in the trainer's room."
+    assert lines["MATCHUPS"].startswith("Week 4's calls land Tuesday. Our record")
+    ctx.close()
+    assert errors == []
+
+
+@pytest.mark.render
+def test_every_player_opens_his_profile(browser, page_file):
+    """A lead about one player and a name in Risers & fallers open his profile, like every other
+    Digest row (2026-09-29, David: "should we be able to click on players to open their profile?")."""
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page.evaluate("Date.now = () => Date.parse('2026-09-18T12:00:00Z')")   # inside the fixture week
+    drive(page, go("digest"))
+    lead = page.locator(".dg-lead-go")
+    assert lead.count() == 1
+    slug = lead.get_attribute("data-dgslug")
+    lead.click()
+    assert "on" in page.locator("#modal").get_attribute("class")
+    assert page.evaluate("document.querySelector('#modal .pf-orb, #modal #pf-title') !== null")
+    page.keyboard.press("Escape")
+    mover = page.locator("button.dg-mv").first
+    name = mover.locator("span").inner_text()
+    mover.click()
+    assert name.split(". ")[-1].upper() in page.locator("#pf-title").inner_text().upper()
+    assert slug
+    ctx.close()
+    assert errors == []
+
+
+@pytest.mark.render
+def test_top_5_links_to_ranks_and_one_call_is_singular(browser, page_file):
+    """Top 5 is next week's projections, so it goes to Ranks, the same projections for every player
+    (2026-09-29; it went to Leaders, the season's stat leaders). A lone call reads "1 call"."""
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    drive(page, go("digest"))
+    assert page.locator('.dg-row[data-dgrow="t5"] [data-dggo]').get_attribute("data-dggo") == "ranks"
+    got = page.evaluate("""() => { LIVE_DIGEST.calls = 1; LIVE_DIGEST.best = []; DG_CUT = null; render();
+      return [document.querySelector('.dg-row[data-dgrow="mu"] [data-dggo]').textContent.trim(),
+              document.querySelector('.dg-row[data-dgrow="mu"] .dg-s').textContent.trim()]; }""")
+    assert got == ["1 call in Matchups", "1 call this week"]
     ctx.close()
     assert errors == []
 

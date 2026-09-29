@@ -122,11 +122,14 @@ STATES = [
     # moves the one open row to Top 5, and a packet with every section empty says "nothing new" on
     # each row with nothing open. LIVE_DIGEST is a const, so the null block (no packet file) is
     # pinned in tests/test_digest.py instead.
-    ("digest", [("eval", 'Date.now = () => Date.parse("2026-09-25T12:00:00Z")')] + go("digest")),
+    # Friday is 2026-09-18, inside the fixture's week 3 (its last game is KC @ SF, 2026-09-21): the
+    # 25th, which it was until 2026-09-29, is after the week, where the preview rows fold into the wait.
+    ("digest", [("eval", 'Date.now = () => Date.parse("2026-09-18T12:00:00Z")')] + go("digest")),
+    # Tuesday and Monday are after the fixture week: the wait card stands in for Hurt, Matchups,
+    # Weather and Top 5 (surface/digest/wait.js, 2026-09-29).
     ("digest-tuesday", [("eval", 'Date.now = () => Date.parse("2026-09-22T12:00:00Z")')] + go("digest")),
-    # Monday 06:00 Pacific, the same Friday packet: every Sunday game has kicked off, so its hurt,
-    # weather, best-spot and top-5 rows are gone in the browser, Puka's lead gives way to the
-    # results, and Monday opens Results (2026-09-28).
+    # Monday 06:00 Pacific, the same Friday packet: every game has kicked off, so its preview rows
+    # are in the wait card, Puka's lead gives way to the results, and Monday opens Results.
     ("digest-monday", [("eval", 'Date.now = () => Date.parse("2026-09-28T13:00:00Z")')] + go("digest")),
     # Top 5 sits below Results on a phone: opening it scrolls, and whether the header had slid away
     # by the snapshot was timing (the rebuild job's run 2026-09-28 caught it both ways). Back to the

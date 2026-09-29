@@ -26,7 +26,7 @@ function dgLeadHurt(r){
   const who = r.rank != null ? t("digest.lead.rank", {pos: esc(r.pos), rank: r.rank})
     : r.rostered != null ? t("digest.lead.rostered", {pct: dgPct(r.rostered)}) : "";
   const game = r.game ? t("digest.lead.game", {game: dgGame(r.game) + (r.game.kick ? ", " + esc(r.game.kick) : "")}) : "";
-  return {tone: cls, photo: dgPhotoHTML(r.slug), ghost: r.rank != null ? esc(r.pos) + r.rank : "",
+  return {tone: cls, slug: r.slug, name: r.n, photo: dgPhotoHTML(r.slug), ghost: r.rank != null ? esc(r.pos) + r.rank : "",
           head: t("digest.lead.hurt", {name: esc(r.n), status: `<em class="dg-em ${cls}">${word()}</em>`}),
           fact: [who, r.injury ? esc(r.injury) + "." : "", game].filter(Boolean).join(" ")};
 }
@@ -83,13 +83,13 @@ function dgBoxPills(r){
 function dgLeadRes(d){
   const r = [...d.stars].sort((a, b) => b.actual - a.actual)[0];
   if (!r) return {tone: "go", photo: "", head: t("digest.lead.res.none", {week: d.week}), fact: ""};
-  return {tone: "go team", team: r.team, photo: dgPhotoHTML(r.slug), ghost: esc(r.team),
+  return {tone: "go team", team: r.team, slug: r.slug, name: r.n, photo: dgPhotoHTML(r.slug), ghost: esc(r.team),
           head: dgCall(r, d.week), fact: `<span class="dg-lead-pills">${dgBoxPills(r)}</span>`};
 }
 
 /* Rule 4: the headline itself, a size down because it is a sentence, not a name. */
 function dgLeadNews(it){
-  return {tone: it.kind === "out" ? "out" : it.kind === "injury" ? "q" : "", photo: dgPhotoHTML(it.slugs), long: true,
+  return {tone: it.kind === "out" ? "out" : it.kind === "injury" ? "q" : "", photo: dgPhotoHTML(it.slugs), long: true, slug: [].concat(it.slugs || [])[0], name: it.n,
           head: esc(it.headline), fact: it.when ? t("digest.lead.news.fact", {when: esc(it.when)}) : t("digest.lead.news.src")};
 }
 
@@ -109,8 +109,13 @@ function dgLeadHTML(){
      a wide screen; aria-hidden, since the fact line already says it. The stamp above the head says
      which week and how old the packet is, so a stale page reads as stale (2026-09-28). */
   const stamp = d && d.asof_words ? `<p class="dg-lead-when">${t("digest.lead.when", {week: d.week, when: esc(d.asof_words)})}</p>` : "";
-  return `<article class="dg-lead ${L.tone}${L.photo ? " has-photo" : ""}"${L.team ? " " + teamColourStyle(L.team) : ""}>
-    ${L.ghost ? `<span class="dg-ghost" aria-hidden="true">${L.ghost}</span>` : ""}
+  /* A lead about one player opens his profile from anywhere on the band (2026-09-29, David: "should
+     we be able to click on players to open their profile?"). A button laid over the band, not the
+     band made a button, so the headline stays a heading. */
+  const go = L.slug ? `<button type="button" class="dg-lead-go" data-dgslug="${esc(L.slug)}"
+    aria-label="${esc(t("digest.lead.open", {n: L.name || ""}))}"></button>` : "";
+  return `<article class="dg-lead ${L.tone}${L.photo ? " has-photo" : ""}${go ? " opens" : ""}"${L.team ? " " + teamColourStyle(L.team) : ""}>
+    ${go}${L.ghost ? `<span class="dg-ghost" aria-hidden="true">${L.ghost}</span>` : ""}
     <div class="dg-lead-txt">${stamp}<h2 class="dg-lead-h${L.long ? " long" : ""}">${L.head}</h2>
       <div class="dg-lead-fact">${L.fact}</div></div>
     ${L.photo}

@@ -1,11 +1,11 @@
 /* ============================== DIGEST: RESULTS ==============================
    The top scores by position, then Smashed, Busts and Left hurt. Every row is one shape (2026-09-29,
-   storyboard https://claude.ai/artifact/7gsPHebT4xTdo36N1QqqWD, option B): a face, the name over its
-   reason, the points over the projection, the stack Live's rows use. Faces are 80px, big enough to
-   see the player (David, storyboard https://claude.ai/artifact/S2fqkyWck5jtR4P6KFWdQi). A phone sets
-   the top scores two by two as tiles (face over name over points: a row beside an 80px face would
-   leave the name no room) and stacks the three lists; the wall sets both on four columns (Left hurt
-   spans two), so no column is wider than its rows and a number sits by its name. */
+   storyboard https://claude.ai/artifact/7gsPHebT4xTdo36N1QqqWD, option B): the name over its reason,
+   the points over the projection, the stack Live's rows use. Only each position's leader has a face
+   (2026-09-29, superseding 80px faces on every row: 35 of them made a wall, David: "doesn't it look
+   weird"), 64px and cropped to the head. A phone sets each position's leader as a tile (face over name
+   over points) with its next two as rows under it, and stacks the three lists; the wall sets both on
+   four columns (Left hurt spans two), so no column is wider than its rows and a number sits by its name. */
 
 .dg-rs{display:grid;gap:20px;padding-top:6px}
 .dg-rs h4{margin:0 0 2px;font-size:var(--t-1);font-weight:600;line-height:1;letter-spacing:.07em;color:var(--ink-3)}
@@ -19,20 +19,24 @@
 
 .dg-rr{
   appearance:none;border:0;border-bottom:1px solid var(--line);background:none;color:inherit;font:inherit;text-align:left;
-  cursor:pointer;width:100%;display:grid;grid-template-columns:80px minmax(0,1fr) auto;gap:14px;align-items:center;
-  min-height:96px;padding:8px 0;transition:transform var(--dur-spring) var(--spring);
+  cursor:pointer;width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;
+  min-height:48px;padding:7px 0;transition:transform var(--dur-spring) var(--spring);
 }
+.dg-rr.has-face{grid-template-columns:64px minmax(0,1fr) auto;min-height:80px}
 .dg-rr:last-child{border-bottom:0}
 .dg-rr:active{transform:scale(var(--press))}
 .dg-rr:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
-.dg-rr .dg-hd{width:80px;height:80px}
+.dg-rr .dg-hd{position:relative;width:64px;height:64px;border-radius:50%;overflow:hidden}
+/* Cropped to the head: the cut-out is chest-up, so drawn to fit, the face was a third of the circle. */
+.dg-rr .dg-hd img{position:absolute;left:-25%;top:-6%;width:150%;height:150%;max-width:none}
 .dg-rr-n{display:grid;gap:5px;min-width:0}
 .dg-rr-n b{font-weight:600;font-size:var(--t-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dg-rr-n > span{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px}
-/* A phone's top scores: two tiles a row, the face over the name over the points. */
-.dg-rtop .dg-rr{grid-template-columns:minmax(0,1fr);justify-items:center;text-align:center;gap:6px;min-height:0;padding:10px 0}
+/* A phone's top scores: each position's leader a tile, the face over the name over the points; the
+   next two are rows under it. */
+.dg-rtop .dg-rr.has-face{grid-template-columns:minmax(0,1fr);justify-items:center;text-align:center;gap:6px;min-height:0;padding:10px 0}
 .dg-rtop .dg-rr-n b{font-size:var(--t-2)}
-.dg-rtop .dg-rv{justify-items:center}
+.dg-rtop .dg-rr.has-face .dg-rv{justify-items:center}
 .dg-rv{display:grid;justify-items:end;gap:3px;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
 .dg-rv b{font-size:var(--t-4);font-weight:700;line-height:1}
 .dg-rv span{font-size:var(--t-2);line-height:1;color:var(--ink-3)}
@@ -76,7 +80,7 @@
   .dg-rsum > span:first-child{color:var(--ink-3)}
   .dg-rsum .dg-chev{display:none}
   /* The wall's top scores are rows again, the same shape as the lists under them. */
-  .dg-rtop .dg-rr{grid-template-columns:80px minmax(0,1fr) auto;justify-items:stretch;text-align:left;gap:14px;min-height:96px;padding:8px 0}
+  .dg-rtop .dg-rr.has-face{grid-template-columns:64px minmax(0,1fr) auto;justify-items:stretch;text-align:left;gap:14px;min-height:80px;padding:8px 0}
   .dg-rtop .dg-rr-n b{font-size:var(--t-3)}
-  .dg-rtop .dg-rv{justify-items:end}
+  .dg-rtop .dg-rr.has-face .dg-rv{justify-items:end}
 }

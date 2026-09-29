@@ -654,6 +654,14 @@ Not backtested: Weather, Stock and Gems. Each says "Not backtested." in amber on
 never on the closed line: the closed line is the fact, the caveat is for whoever reads on. Lead copy
 for the weather and news rules has no real week yet (2026-09-26).
 
+**The wait (2026-09-29).** Once every game of the packet's week has kicked off and Tonight's card is
+gone, Hurt, Matchups, Weather and Top 5 have nothing left to preview until Tuesday's run. They leave
+the ticker for one card, "Waiting on week N", with Blip (the mascot, `surface/digest/blip.js`) and one
+deadpan line each; on the wall it sits in one row with Waiver adds, Risers & fallers and Gems. It
+replaced about 1,000px of desktop panels saying "Nothing new". Storyboard:
+https://claude.ai/artifact/UDoWgLMrzUHup5tX53zaue (option B). Top 5 links to Ranks, the same
+projections for every player (it linked to Leaders until then).
+
 ## Matchups (Players, redesigned 2026-09-26)
 
 Start or sit, for the players past the obvious starters, in the Digest's language (storyboard

@@ -95,11 +95,17 @@ function dgNew(id){
   return dgHas(id);
 }
 
+/* The week's preview rows, and whether they are waiting on next week: every game has kicked off
+   and tonight's card is gone. They then leave the ticker for one card (surface/digest/wait.js). */
+const DG_WAIT_ROWS = ["hurt", "mu", "wx", "t5"];
+const dgWaiting = d => !!d && !d.tn.length && dgWeekDone(d);
+
 /* Is the row drawn at all: Results once a game is final, and the week's preview rows unless
-   tonight's card holds everything the week has left. */
+   tonight's card holds everything the week has left, or the week is over and they wait. */
 function dgShown(id){
   const d = dgD();
   if (id === "res") return dgHas(id);
+  if (dgWaiting(d) && DG_WAIT_ROWS.includes(id)) return false;
   return !(d && d.tnLast && DG_TN_ROWS.includes(id));
 }
 

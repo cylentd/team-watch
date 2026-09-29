@@ -90,6 +90,21 @@
       "start start start start adds adds adds adds gems gems gems gems"
       "news news news news news news news news news news news news";
   }
+  /* The week is over and its preview panels wait on the next (wait.js): the wait card and the three
+     panels that still have something say it in one row of four, all about as tall. Given Hurt's
+     tall slot it stood half empty (2026-09-29). Tonight's card, while it shows, comes first, so the
+     wait never meets it (dgWaiting). */
+  .dg-ticker.wk-done{
+    grid-template-areas:
+      "wait wait wait adds adds adds st   st   st   gems gems gems"
+      "news news news news news news news news news news news news";
+  }
+  .dg-ticker.wk-done.has-res{
+    grid-template-areas:
+      "res  res  res  res  res  res  res  res  res  res  res  res"
+      "wait wait wait adds adds adds st   st   st   gems gems gems"
+      "news news news news news news news news news news news news";
+  }
   .dg-tns{grid-area:tn;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:20px}
   .dg-tns .dg-tn{margin:0}
   .dg-row[data-dgrow="res"]{grid-area:res}

@@ -60,7 +60,7 @@ function dgMuBody(d){
   const rec = r ? t("digest.foot.mu", {us: r.ours.score == null ? "—" : r.ours.score.toFixed(2),
                                         pl: r.pl.score == null ? "—" : r.pl.score.toFixed(2), wk: r.through})
     : t("digest.foot.muNone");
-  return lines + dgFootHTML(rec, "matchups", t("digest.go.matchups", {n: d.calls}));
+  return lines + dgFootHTML(rec, "matchups", d.calls === 1 ? t("digest.go.matchupsOne") : t("digest.go.matchups", {n: d.calls}));
 }
 
 function dgWxLnHTML(g, near){
@@ -100,12 +100,13 @@ function dgTop5Body(d){
     const rows = d.top5.filter(r => r.pos === pos);
     return rows.length ? `<div><h4>${pos}</h4><ol>${rows.map(r => `<li><span class="dg-hd sm">${avatarHTML(r)}</span><span>${esc(r.n)}</span><em>${r.pts.toFixed(1)}</em></li>`).join("")}</ol></div>` : "";
   }).join("");
-  return `<div class="dg-t5">${cols}</div>` + dgFootHTML(t("digest.foot.t5"), "board", t("digest.go.board"));
+  return `<div class="dg-t5">${cols}</div>` + dgFootHTML(t("digest.foot.t5"), "ranks", t("digest.go.ranks"));   // the same projections, every player (2026-09-29; was Leaders)
 }
 
 function dgStockBody(d){
   const n = Math.max(d.up.length, d.down.length), cell = (r, cls) => r
-    ? `<div class="dg-mv"><span>${esc(dgShort(r.n))}</span><em class="${cls}">${dgSigned(r.d_pts, 1)}</em></div>` : `<div class="dg-mv"></div>`;
+    ? `<button type="button" class="dg-mv" data-dgslug="${esc(r.slug)}"><span>${esc(dgShort(r.n))}</span><em class="${cls}">${dgSigned(r.d_pts, 1)}</em></button>`
+    : `<div class="dg-mv"></div>`;   // a name opens his profile, like every other Digest row (2026-09-29)
   const rows = Array.from({length: n}, (_, i) => cell(d.up[i], "up") + cell(d.down[i], "dn")).join("");
   return `<div class="dg-two"><h4>${t("digest.st.up")}</h4><h4>${t("digest.st.down")}</h4>${rows}</div>`
     + dgFootHTML(t("digest.foot.st"), "movers", t("digest.go.movers"), true);
