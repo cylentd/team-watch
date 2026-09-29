@@ -59,6 +59,7 @@
     "surface/weather/weather.css": ["weather"],
     "surface/preview/preview.css": ["preview"],
     "surface/preview/dossier.css": ["preview"],
+    "surface/preview/record.css": ["preview"],
     "surface/strip/field.css": [".stpanel"],
     "surface/strip/figure.css": [".stpanel"],
     "surface/strip/moments.css": [".stpanel"],

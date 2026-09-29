@@ -1,0 +1,63 @@
+{
+ "season": 2026,
+ "generated": "2026-09-12T09:00:00Z",
+ "through_week": 2,
+ "totals": {
+  "n": 8, "su": "5-3", "ats": "4-2-1", "ats_pass": 1, "total": "5-1-0",
+  "by_conf": {"lean": "2-1-0", "solid": "1-1-0", "strong": "1-0-1"},
+  "brier": {"claude": 0.2410, "market": 0.2486, "n": 7},
+  "fav_pick_pct": 75.0, "fav_cover_pct": 12.5,
+  "blind": {"n": 7, "ats": "4-3-0", "ats_pass": 1, "margin_mae": {"blind": 9.1, "market": 8.4, "final": 8.9},
+            "total_mae": {"blind": 10.2, "market": 9.6}}
+ },
+ "weeks": [
+  {
+   "week": 1, "n": 4, "su": "3-1", "ats": "3-0-0", "ats_pass": 1, "total": "2-1-0",
+   "by_conf": {"lean": "1-0-0", "solid": "1-0-0", "strong": "1-0-0"},
+   "brier": {"claude": 0.2458, "market": 0.2568, "n": 4},
+   "fav_pick_pct": 75.0, "fav_cover_pct": 25.0,
+   "games": [
+    {"key": "2026_01_BUF_MIA", "week": 1, "away": "BUF", "home": "MIA", "pick": "BUF", "win": {"BUF": 68},
+     "market_win": {"BUF": 64.0, "MIA": 36.0}, "spread_home": 3.5, "total_line": 48.5, "ats_side": "BUF", "ats_conf": "strong",
+     "total_call": "over", "total_conf": "lean", "result": {"home": 20, "away": 31}, "su_hit": true, "ats_hit": "hit",
+     "total_hit": "hit", "brier_claude": 0.1024, "brier_market": 0.1296, "fav_pick": true, "fav_covered": true},
+    {"key": "2026_01_CHI_GB", "week": 1, "away": "CHI", "home": "GB", "pick": "GB", "win": {"GB": 60},
+     "market_win": {"GB": 66.5, "CHI": 33.5}, "spread_home": -4.5, "total_line": 44.5, "ats_side": "CHI", "ats_conf": "solid",
+     "total_call": "under", "total_conf": "solid", "result": {"home": 24, "away": 21}, "su_hit": true, "ats_hit": "hit",
+     "total_hit": "miss", "brier_claude": 0.16, "brier_market": 0.1122, "fav_pick": true, "fav_covered": false},
+    {"key": "2026_01_DAL_PHI", "week": 1, "away": "DAL", "home": "PHI", "pick": "PHI", "win": {"PHI": 72},
+     "market_win": {"PHI": 70.2, "DAL": 29.8}, "spread_home": -6.5, "total_line": 47.5, "ats_side": null, "ats_conf": null,
+     "total_call": null, "total_conf": null, "result": {"home": 20, "away": 24}, "su_hit": false, "ats_hit": null,
+     "total_hit": null, "brier_claude": 0.5184, "brier_market": 0.4928, "fav_pick": true, "fav_covered": false},
+    {"key": "2026_01_KC_LAC", "week": 1, "away": "KC", "home": "LAC", "pick": "LAC", "win": {"LAC": 55},
+     "market_win": {"KC": 54.1, "LAC": 45.9}, "spread_home": 1.5, "total_line": 45.5, "ats_side": "LAC", "ats_conf": "lean",
+     "total_call": "over", "total_conf": "lean", "result": {"home": 27, "away": 23}, "su_hit": true, "ats_hit": "hit",
+     "total_hit": "hit", "brier_claude": 0.2025, "brier_market": 0.2927, "fav_pick": false, "fav_covered": false}
+   ]
+  },
+  {
+   "week": 2, "n": 4, "su": "2-2", "ats": "1-2-1", "ats_pass": 0, "total": "3-0-0",
+   "by_conf": {"lean": "1-1-0", "solid": "0-1-0", "strong": "0-0-1"},
+   "brier": {"claude": 0.2346, "market": 0.2376, "n": 3},
+   "fav_pick_pct": 75.0, "fav_cover_pct": 0.0,
+   "games": [
+    {"key": "2026_02_NE_NYJ", "week": 2, "away": "NE", "home": "NYJ", "pick": "NYJ", "win": {"NYJ": 58},
+     "market_win": {"NYJ": 55.0, "NE": 45.0}, "spread_home": -1.5, "total_line": 42.5, "ats_side": "NYJ", "ats_conf": "solid",
+     "total_call": "under", "total_conf": "lean", "result": {"home": 13, "away": 20}, "su_hit": false, "ats_hit": "miss",
+     "total_hit": "hit", "brier_claude": 0.3364, "brier_market": 0.3025, "fav_pick": true, "fav_covered": false},
+    {"key": "2026_02_SEA_LA", "week": 2, "away": "SEA", "home": "LA", "pick": "LA", "win": {"LA": 63},
+     "market_win": {"LA": 61.5, "SEA": 38.5}, "spread_home": -3.0, "total_line": 46.5, "ats_side": "LA", "ats_conf": "strong",
+     "total_call": "over", "total_conf": "solid", "result": {"home": 27, "away": 24}, "su_hit": true, "ats_hit": "push",
+     "total_hit": "hit", "brier_claude": 0.1369, "brier_market": 0.1482, "fav_pick": true, "fav_covered": false},
+    {"key": "2026_02_HOU_JAX", "week": 2, "away": "HOU", "home": "JAX", "pick": "HOU", "win": {"HOU": 52},
+     "market_win": {"HOU": 48.8, "JAX": 51.2}, "spread_home": -1.5, "total_line": 44.5, "ats_side": "HOU", "ats_conf": "lean",
+     "total_call": null, "total_conf": null, "result": {"home": 17, "away": 23}, "su_hit": true, "ats_hit": "hit",
+     "total_hit": null, "brier_claude": 0.2304, "brier_market": 0.2621, "fav_pick": false, "fav_covered": false},
+    {"key": "2026_02_TB_ATL", "week": 2, "away": "TB", "home": "ATL", "pick": "TB", "win": {"TB": 57},
+     "market_win": null, "spread_home": 2.5, "total_line": 49.5, "ats_side": "TB", "ats_conf": "lean",
+     "total_call": "over", "total_conf": "lean", "result": {"home": 30, "away": 27}, "su_hit": false, "ats_hit": "miss",
+     "total_hit": "hit", "brier_claude": 0.3249, "brier_market": null, "fav_pick": true, "fav_covered": false}
+   ]
+  }
+ ]
+}

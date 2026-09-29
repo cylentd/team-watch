@@ -1,0 +1,48 @@
+/* ============================== PREVIEW RECORD ============================== */
+/* Claude's record (js/surface/preview/record.js, 2026-09-29). The card atop the slate is one tap
+   target (DESIGN.md "Cards"); every week is one card, rows inside: the table, then each week's
+   games. --up / --down mark only a graded HIT / MISS. */
+.pv-rec{width:100%;display:flex;flex-direction:column;gap:4px;margin:0 0 4px;padding:10px 12px;border:1px solid var(--line);border-radius:16px;background:var(--panel);color:inherit;font:inherit;text-align:left;cursor:pointer}
+.pv-rec:hover,.pv-rec.cur{background:var(--panel-2)}
+.pv-rec:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+.pv-rec-t{display:flex;justify-content:space-between;gap:10px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.pv-rec-big{display:flex;align-items:baseline;gap:8px;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.pv-rec-big b{font-size:var(--t-5);font-weight:700;color:var(--ink)}
+.pv-rec-big small{font-size:var(--t-1);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.pv-rec-big em{margin-left:auto;font-style:normal;font-size:var(--t-3);font-weight:700;color:var(--ink)}
+.pv-rec-row{display:flex;flex-wrap:wrap;gap:2px 14px;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2)}
+.pv-rec-row b{font-weight:700;color:var(--ink)}
+.pv-rec-t .pv-rec-more{letter-spacing:.04em;color:var(--ink-2)}
+.pv-rec0{margin:0;padding:6px 2px 2px;font-size:var(--t-1);line-height:1.4;color:var(--ink-3)}
+
+/* Every week: back, then the card. */
+.pv-rz{display:flex;flex-direction:column;gap:8px;min-width:0}
+.pv-rt{width:100%;max-width:640px;border-collapse:collapse;font-family:var(--mono);font-size:var(--t-2);font-variant-numeric:tabular-nums}
+.pv-rt thead th{padding:0 0 6px 8px;font-size:var(--t-1);font-weight:500;letter-spacing:.04em;line-height:1.25;text-transform:uppercase;color:var(--ink-3);text-align:right;vertical-align:bottom}
+.pv-rt thead th:first-child{padding-left:0;text-align:left}
+.pv-rt td,.pv-rt th[scope]{padding:6px 0 6px 8px;border-top:1px solid var(--line);text-align:right;color:var(--ink);white-space:nowrap}
+.pv-rt th[scope]{padding-left:0;font-weight:500;text-align:left;color:var(--ink-2)}
+.pv-rt tfoot td,.pv-rt tfoot th[scope]{border-top-color:var(--line-2);font-weight:700;color:var(--ink)}
+
+/* A week's games: matchup, final, the tag; Claude's side and chip under them. */
+.pv-rw summary{cursor:pointer;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.pv-rw summary:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.pv-rgl{list-style:none;margin:8px 0 0;padding:0}
+.pv-rg{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:3px 10px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line)}
+.pv-rg-m{font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink);white-space:nowrap}
+.pv-rg-f{font-family:var(--mono);font-size:var(--t-2);color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pv-rg-a{grid-column:1/-1;display:flex;align-items:center;gap:6px}
+.pv-rg-a .pv-side{font-size:var(--t-1)}
+.pv-hit{min-width:44px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.06em;text-align:right}
+.pv-hit.hit{color:var(--up)}
+.pv-hit.miss{color:var(--down)}
+.pv-hit.push,.pv-hit.pass{color:var(--ink-3)}
+
+/* A desktop: no Back (a click on a game or the card closes it). One column, 720px at most, so a
+   game's HIT sits within reach of its matchup (STYLE.md, a label within 560px of its value). */
+@media (min-width:960px){
+  .pv-rz{max-width:720px}
+}
+@media (min-width:1100px){
+  .pv-rcard{grid-template-columns:minmax(0,1fr)}
+}

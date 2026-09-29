@@ -724,8 +724,8 @@ roster is read, and the players named are the ones ff-jarvis's `game_preview` pi
 | Slate | every game by kickoff window (Thu night, Sun morning, Sun early, Sun late, Sun night, Mon night, else the weekday), headed with its Eastern times from the data (`design/preview.py` `_slot`). A row: AWAY @ HOME, Claude's winner (`--lime`) and score, the headline, then the spread in words, the total and at most two flags |
 | Flags | by priority: UPSET (Claude's winner is not the market favourite, `--lime`), Line flipped / Line moved n (3+ points, `--amber`), Rain n% (50%+) or Wind n mph (15+, `--sky`), "J. Coker out" (the highest-average Out/IR player at 10+ points a game, `--down`), Short week (`--ink-2`). Computed in `preview.py` `_flags` |
 | Dossier header | "‹ All games" (a phone), ‹ AWAY @ HOME › and the kickoff. Arrows and a sideways swipe walk the games in kickoff order |
-| Claude's call | headline, lean, Claude's score over the market's implied score, how the two differ |
-| Lines | spread in words ("ARI by 1.5", "opened NYG by 7"; even is "Even"), total ("opened 45.5"), Claude's margin and total. Never a signed spread (David: "-1.5" was "kinda funky") |
+| Claude's call | headline and lean, the full width; then the call row (below, "Confidence and record"). ~~Claude's score over the market's implied score, how the two differ~~ (folded into the call row 2026-09-29; a take written before confidence still draws it) |
+| Lines | spread in words ("ARI by 1.5", "opened NYG by 7"; even is "Even"), total ("opened 45.5"). Never a signed spread (David: "-1.5" was "kinda funky"). ~~Claude's margin and total~~ (the call row's Score, 2026-09-29) |
 | Matchup | each offense against the defense it faces, rank with points allowed small beside; bottom 8 `--up` (soft), top 8 `--down` (tough); the WR row faded with the reason (the backtest finds the WR matchup moves nothing, QB/RB/TE 8-18%); pass EPA rank; "after N games" |
 | Injuries | both teams: OUT / IR tags `--down` with the player's average, D / Q `--amber` |
 | Weather | the stadium and roof, the forecast, and only the backtest's proven effects for the conditions met, read from `LIVE_WX_HISTORY` (the Weather view's cells and thresholds, so the numbers are never ours); a dome, or a forecast under every threshold, says it moves nothing |
@@ -750,6 +750,36 @@ roster is read, and the players named are the ones ff-jarvis's `game_preview` pi
   off, and the desktop dossier shows it.
 - **No take yet:** the slate row says the call arrives with the next refresh; the dossier keeps every
   research row.
+
+### Confidence and record (2026-09-29)
+
+Every take says how sure it is against the spread, and a record keeps score. Storyboard option A
+(David, 2026-09-29); option B, best bets first, was rejected because it breaks kickoff order. David's
+reason: "going with safe is just saying we go with Vegas". Week 4's takes picked the favourite to
+cover in 14 of 14; favourites cover 48% (2011–2025, n 3,915).
+
+| part | what it shows |
+|---|---|
+| Slate row | right of the matchup: Claude's side against the spread and a chip. Under it "IND wins 27–19 · market 62% · Claude 71%" and the bar: grey tick the market's win %, lime dot Claude's, the gap filled faintly. No moneyline (`market_win` null): the line without the market and no bar. No edge: the NO EDGE chip and no side. The meta drops the spread when the side already says it |
+| Side words | never signed: "CLE getting 2.5" (underdog), "IND giving 3.5" (favourite), "CLE, even" (pick'em); `pvSideWords` in `data/preview.js` |
+| Chips | STRONG (lime fill), SOLID (lime outline), LEAN (grey outline), NO EDGE (grey) |
+| Record card | atop the slate, one tap target: "4–2–1 vs spread", hit % (pushes out), by confidence, "Win % closer than the market's on 4 of 7" (per game, whose win % was nearer the result: a Brier score), and once graded the blind number's record and margin error. Before a graded game: one line, "Claude's record against the spread starts once week 4 is final", never zeros |
+| Every week | a tap on the card: in the slate's place on a phone (a layer, so Back closes it), the dossier's on a desktop (a click on a game, or the card again, closes it). A table (week, vs spread, STRONG, fav picks, win % closer, a Season row), what each column means, then each week's games, the newest open: matchup, final, HIT (`--up`) / MISS (`--down`) / PUSH / PASS, Claude's side and chip |
+| Call row (game page) | after the headline: side and chip, the edge sentence, Win % (Claude beside the market), Total (over/under the line and its chip), Score (Claude's beside the market's implied), "Claude before seeing the line: WAS by 1.5, total 48.5" and how the final call moved from it, then the spread's base rate ("A 3.5-point favorite, 2011–2025: wins 67%, covers 49%, n 1,314") and research notes, each with a small source (the site, or "play-by-play") |
+
+- **Colour map:** lime is Claude (the dot, his win %, STRONG's fill, SOLID's outline); grey is the
+  market; `--up` / `--down` only a graded HIT / MISS in the record.
+- **Data:** per game `market_win`, `base`, and a take's `win`, `ats`, `total`, `blind`, `vs_blind`,
+  `notes` (`design/preview.py`); every field null (or []) from a producer written before it, and the
+  row draws nothing then. The record is `LIVE_PREVIEW.record`, from ff-jarvis `preview_record`
+  (`design/sources.py` `load_preview_record`, feed first). It lives inside LIVE_PREVIEW because only
+  Preview reads it and it has no page without the week's games.
+- **Measured 2026-09-29 at 360x800**, week 4's 16 real games with confidence injected (the producer
+  had not written it yet): the first data starts at 86px (the record line); slate rows 81px to 115px,
+  so 7 rows on the first screen became 5; a game page 1,932–2,173px became 2,067–2,290px.
+- Tests: `tests/test_preview.py` (the chip and side words, the bar with and without a market, the
+  record's empty state and graded weeks, every week opening and Back closing it, no signed spread
+  anywhere); golden states `preview-record`, `preview-record-empty`.
 
 ### Option C, one game a screen (2026-09-29, superseded the same day)
 

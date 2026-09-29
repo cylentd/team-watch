@@ -254,6 +254,13 @@ def load_game_preview():
     return feed_block(("game_preview",), "games") or read_first(DWR / "game_previews.json")
 
 
+def load_preview_record():
+    """Claude's graded previews (every take against the final score, the spread and the market's win %),
+    feed block `preview_record` first, the file second. design/preview.py cuts it into LIVE_PREVIEW.record;
+    None when neither exists. `weeks` is [] until the first previewed week is final."""
+    return feed_block(("preview_record",), "season") or read_first(DWR / "preview_record.json")
+
+
 def load_league():
     """(this season, every past season) of the ESPN league, from ff-jarvis's model.clients.espn_league.
     Files only: neither is a feed block. design/league_recap.py cuts them for My teams > League."""

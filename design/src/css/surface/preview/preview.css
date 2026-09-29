@@ -1,7 +1,9 @@
 /* ============================== PREVIEW ============================== */
 /* This week > Preview (js/surface/preview/, 2026-09-29, storyboard option A). The slate and the
    dossier. A phone shows one at a time (`.pv.open` is the dossier); from 960px the slate is a rail
-   beside the dossier. Colour map in slate.js and dossier.js; this file adds none of its own. */
+   beside the dossier. Colour map in slate.js, dossier.js and record.js; this file adds none of its
+   own. The confidence chip and the win % bar (2026-09-29) are here because the slate, the dossier
+   and the record all draw them. */
 .pv{padding-top:8px}
 .pv .pv-dz{display:none}
 .pv.open .pv-slate{display:none}
@@ -29,6 +31,29 @@
 .pv-f.out{color:var(--down)}
 .pv-f.short{color:var(--ink-2)}
 
+/* Confidence (2026-09-29): Claude's side against the spread and its chip, right of the matchup. The
+   chip says its word; lime is Claude: STRONG filled, SOLID outlined, LEAN and NO EDGE grey. */
+.pv-ats{display:flex;align-items:center;justify-content:flex-end;gap:6px;white-space:nowrap}
+.pv-side{font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink);white-space:nowrap}
+.pv-conf{display:inline-block;padding:3px 6px;border:1px solid var(--line-2);border-radius:4px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.06em;line-height:1;color:var(--ink-2);white-space:nowrap}
+.pv-conf.strong{background:var(--lime);border-color:var(--lime);color:var(--on-lime)}
+.pv-conf.solid{border-color:var(--lime);color:var(--lime)}
+.pv-conf.none{color:var(--ink-3)}
+/* "IND wins 27–19 · market 62% · Claude 71%", then the bar: grey tick the market, lime dot Claude,
+   the gap between them filled faintly. The row's own --mk / --cl / --lo / --gap place the marks. */
+.pv-key{grid-column:1/-1;display:flex;justify-content:space-between;gap:10px;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);font-variant-numeric:tabular-nums}
+.pv-key b{font-weight:700;color:var(--lime)}
+.pv-pb{grid-column:1/-1;position:relative;height:12px;margin:0 5px}
+.pv-pb i{position:absolute;display:block}
+.pv-pbt{left:0;right:0;top:5px;height:2px;background:var(--line-2)}
+.pv-pbf{left:var(--lo);width:var(--gap);top:4px;height:4px;background:rgb(var(--lime-rgb) / .35)}
+.pv-pbm{left:var(--mk);top:0;width:2px;height:12px;margin-left:-1px;background:var(--ink-2)}
+.pv-pbc{left:var(--cl);top:1px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--lime)}
+.pv-row.done .pv-pb{opacity:.5}
+
+/* The every-week record takes the slate's place on a phone (record.css draws it). */
+.pv.rec .pv-slate{display:none}
+
 /* The dossier's frame: back, the header, the card, the footer. */
 .pv-dz{flex-direction:column;gap:8px;min-width:0}
 .pv-back{align-self:flex-start;min-height:40px;padding:0 8px 0 0;border:0;background:none;color:var(--ink-2);font-size:var(--t-2);font-weight:600;cursor:pointer}
@@ -53,7 +78,7 @@
 @media (min-width:960px){
   .pv{display:grid;grid-template-columns:330px minmax(0,1fr);column-gap:24px;align-items:start}
   .pv .pv-dz,.pv.open .pv-dz{display:flex}
-  .pv.open .pv-slate{display:flex}
+  .pv.open .pv-slate,.pv.rec .pv-slate{display:flex}
   .pv-slate{position:sticky;top:8px;max-height:calc(100vh - 16px);overflow-y:auto;overscroll-behavior:contain;border-right:1px solid var(--line);padding-right:12px}
   .pv-back{display:none}
   .pv-row{padding:10px 10px}

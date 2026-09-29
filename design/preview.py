@@ -13,6 +13,19 @@ Per game, cut to what the page reads:
 - `flags`: at most two reasons to open the game, by priority (FLAG_ORDER).
 - `take`: Claude's call (headline, lean, its score, how it sits against the market, the player calls,
   the risk), null before the first write. A player is named by the slug every other view uses.
+  Since 2026-09-29 (storyboard option A, confidence and record; David: "going with safe is just
+  saying we go with Vegas") it also carries `win` {winner: 50-99}, `ats` {side, conf, edge} (side
+  null = no edge) and `total` {call, conf}, each null on a take written before them. With the
+  research pass (ff-jarvis preview-research, same day): `blind` {fav, by, total}, Claude's number
+  before seeing the line, said like the line; `vs_blind`, how the final call moved from it; `notes`
+  [{text, source}], source a link, "pbp" or null. Null / [] when absent.
+- `market_win`: {team: win %} from the moneylines, vig removed; null without both prices.
+- `base`: how favourites of this spread did 2011-2025, as whole percentages: {n, wins, covers, home};
+  a pick'em has `home` (the home side's win %) and null `wins` / `covers`.
+
+`record` (the block's own key, not a game's): Claude's graded season from ff-jarvis's
+`preview_record` (design/sources.py `load_preview_record`), cut by `_record`; its `weeks` are [] until
+the first week is final.
 """
 import datetime
 import zoneinfo
@@ -32,12 +45,61 @@ def _player(r, team, slugify):
     return {"n": r["name"], "slug": slugify(r["name"]), "pos": r["pos"], "team": team, "proj": r["proj"]}
 
 
-def _take(take, names):
+CONF = ("lean", "solid", "strong")
+
+
+def _ats(a):
+    """{side, conf, edge}; a side without a known confidence, or a confidence without a side, is no edge."""
+    if not a:
+        return None
+    side = a.get("side") or None
+    conf = a.get("conf") if side and a.get("conf") in CONF else None
+    return {"side": side if conf else None, "conf": conf, "edge": (a.get("edge") or None) if conf else None}
+
+
+def _total(tc):
+    if not tc:
+        return None
+    call = tc.get("call") if tc.get("call") in ("over", "under") else None
+    conf = tc.get("conf") if call and tc.get("conf") in CONF else None
+    return {"call": call if conf else None, "conf": conf}
+
+
+def _blind(b, home, away):
+    """Claude's number before seeing the line, as the line is said: {fav, by, total}. ff-jarvis's
+    `margin_home` is home minus away, so above 0 the home side wins; 0 is even (fav None)."""
+    if not b or b.get("margin_home") is None:
+        return None
+    m = b["margin_home"]
+    return {"fav": home if m > 0 else away if m < 0 else None, "by": abs(m), "total": b.get("total")}
+
+
+def _notes(notes):
+    """Research notes, each with its source: a web link, "pbp" (play-by-play), else none."""
+    def src(s):
+        return s if s == "pbp" or (isinstance(s, str) and s.startswith(("https://", "http://"))) else None
+    return [{"text": n["text"], "source": src(n.get("source"))} for n in notes or [] if n.get("text")]
+
+
+def _take(take, names, home, away):
     if not take:
         return None
     return {"head": take["headline"], "lean": take["lean"], "vs": take["vs_market"], "risk": take["risk"],
-            "pick": take["pick"],
+            "pick": take["pick"], "win": take.get("win") or None, "ats": _ats(take.get("ats")),
+            "total": _total(take.get("total")),
+            "blind": _blind(take.get("blind"), home, away), "vs_blind": take.get("vs_blind") or None,
+            "notes": _notes(take.get("notes")),
             "players": [{**names[p["key"]], "call": p["call"], "why": p["why"]} for p in take["players"] if p["key"] in names]}
+
+
+def _base(b):
+    """The spread's base rate as whole percentages. ff-jarvis's preview_market writes percentages to one
+    decimal (0.5-3: fav_wins 54.8, fav_covers 46.5); a pick'em carries home_wins and null fav_* fields."""
+    if not b or not b.get("n"):
+        return None
+    pct = lambda k: None if b.get(k) is None else round(b[k])
+    out = {"n": b["n"], "wins": pct("fav_wins"), "covers": pct("fav_covers"), "home": pct("home_wins")}
+    return out if any(out[k] is not None for k in ("wins", "covers", "home")) else None
 
 
 def _slot(kickoff):
@@ -148,20 +210,78 @@ def _game(g, slugify):
            "rest": _per_team(teams, "rest", _rest),
            "travel": _per_team(teams, "travel", _travel),
            "site": {"stadium": site.get("stadium"), "neutral": bool(site.get("neutral"))} if site else None,
-           "take": _take(g.get("take"), names)}
+           "market_win": (f.get("line") or {}).get("market_win") or None,
+           "base": _base((f.get("line") or {}).get("base")),
+           "take": _take(g.get("take"), names, f["home"], f["away"])}
     out["flags"] = _flags(out)
     return out
 
 
-def live_preview(raw, slugify):
+def _closer(games):
+    """(games where Claude's win % scored closer to the result than the market's, games both were scored)."""
+    both = [g for g in games if g.get("brier_claude") is not None and g.get("brier_market") is not None]
+    return sum(1 for g in both if g["brier_claude"] < g["brier_market"]), len(both)
+
+
+def _favs(games):
+    """(games Claude picked the favourite to win, games that had one)."""
+    had = [g for g in games if g.get("fav_pick") is not None]
+    return sum(1 for g in had if g["fav_pick"]), len(had)
+
+
+def _record_game(g):
+    return {"away": g["away"], "home": g["home"], "pick": g.get("pick"), "side": g.get("ats_side"),
+            "conf": g.get("ats_conf"), "spread_home": g.get("spread_home"), "result": g.get("result"),
+            "hit": g.get("ats_hit")}
+
+
+def _record_week(w):
+    games = w.get("games") or []
+    closer, graded = _closer(games)
+    fav, fav_of = _favs(games)
+    return {"week": w["week"], "n": w.get("n") or len(games), "ats": w["ats"],
+            "strong": (w.get("by_conf") or {}).get("strong"), "closer": closer, "graded": graded,
+            "fav": fav, "fav_of": fav_of, "games": [_record_game(g) for g in games]}
+
+
+def _record_blind(b):
+    """The blind number's own record: {n, ats, mae_blind, mae_market} (margin error in points), None
+    before it has a graded game."""
+    if not b or not b.get("n"):
+        return None
+    mae = b.get("margin_mae") or {}
+    return {"n": b["n"], "ats": b.get("ats"), "mae_blind": mae.get("blind"), "mae_market": mae.get("market")}
+
+
+def _record(raw):
+    """Claude's season against the spread: the totals, win % closer than the market's on N of M, and each
+    graded week newest first with its games. None without the file; `weeks` [] before the first final week."""
+    if not raw:
+        return None
+    weeks = sorted(raw.get("weeks") or [], key=lambda w: w["week"])
+    games = [g for w in weeks for g in w.get("games") or []]
+    tot = raw.get("totals") or {}
+    closer, graded = _closer(games)
+    fav, fav_of = _favs(games)
+    covered = sum(1 for g in games if g.get("fav_covered"))
+    return {"season": raw.get("season"), "through": raw.get("through_week"), "n": tot.get("n") or 0,
+            "ats": tot.get("ats"), "by_conf": tot.get("by_conf") or {}, "closer": closer, "graded": graded,
+            "fav": fav, "fav_of": fav_of, "covered": covered, "blind": _record_blind(tot.get("blind")),
+            "weeks": [_record_week(w) for w in reversed(weeks)]}
+
+
+def live_preview(raw, slugify, record=None):
     if not raw or not raw.get("games"):
         return None
     games = sorted((_game(g, slugify) for g in raw["games"].values()), key=lambda g: (g["kickoff"], g["key"]))
-    return {"season": raw.get("season"), "week": raw.get("week"), "asof": raw.get("asof"), "games": games}
+    return {"season": raw.get("season"), "week": raw.get("week"), "asof": raw.get("asof"), "games": games,
+            "record": _record(record)}
 
 
 def report(block):
     if not block:
         return "Preview: no game_previews.json, so the view says so"
     taken = sum(1 for g in block["games"] if g["take"])
-    return f"Preview: week {block['week']}, {len(block['games'])} games, {taken} with a take, as of {block['asof']}"
+    rec = block.get("record")
+    graded = f"record {rec['ats']} vs spread through week {rec['through']}" if rec and rec["weeks"] else "no graded week yet"
+    return f"Preview: week {block['week']}, {len(block['games'])} games, {taken} with a take, {graded}, as of {block['asof']}"

@@ -311,14 +311,25 @@ CONTRACT = {
     # ff-jarvis has none (the row is not drawn), a line's `fav` null at even and `open` null with no
     # first line. `inj` is {team: [{n, slug, pos, s, avg}]} and `flags` [{k, ...}], pinned in
     # tests/test_preview.py since a row spec is one level.
+    # Confidence and record (2026-09-29): a game's `market_win` and `base`, and a take's `win`, `ats` and
+    # `total`, are null from a producer written before them; `ats.side` null is no edge. The research pass
+    # adds a take's `blind` and `vs_blind` (null) and `notes` ([]), and the record's `blind` (null before
+    # it has a graded game); their shapes are pinned in tests/test_preview.py. `record` is null
+    # without ff-jarvis's preview_record and its `weeks` [] before the first final week; a week's games
+    # are pinned in tests/test_preview.py.
     "LIVE_PREVIEW": {
-        "keys": ["season", "week", "asof", "games"],
+        "keys": ["season", "week", "asof", "games", "record"],
         "rows": [("games", ["key", "home", "away", "kickoff", "slot", "et", "day", "line", "matchup", "wx",
-                            "inj", "rest", "travel", "site", "flags", "take"])],
+                            "inj", "rest", "travel", "site", "flags", "market_win", "base", "take"])],
         "row_objs": [("games", "line", ["fav", "by", "total", "implied", "open", "move"]),
                      ("games", "wx", ["roof", "temp", "wind", "precip", "sky"]),
                      ("games", "site", ["stadium", "neutral"]),
-                     ("games", "take", ["head", "lean", "vs", "risk", "pick", "players"])],
+                     ("games", "base", ["n", "wins", "covers", "home"]),
+                     ("games", "take", ["head", "lean", "vs", "risk", "pick", "win", "ats", "total", "blind",
+                                        "vs_blind", "notes", "players"])],
+        "objs": [("record", ["season", "through", "n", "ats", "by_conf", "closer", "graded", "fav", "fav_of",
+                             "covered", "blind", "weeks"])],
+        "sub_rows": [("record", "weeks", ["week", "n", "ats", "strong", "closer", "graded", "fav", "fav_of", "games"])],
         "row_maps": [("games", "matchup", ["games", "epa", "pos"], {}),
                      ("games", "rest", ["days", "short", "bye"], {}),
                      ("games", "travel", ["zones", "body", "miles"], {})],
@@ -407,6 +418,9 @@ def problems(name, obj, limit=8):
                 out += [f"{name}.{field}[{i}].{k}" for k in keys if k not in row]
                 if len(out) >= limit:
                     break
+    for field, keys in spec.get("objs", []):
+        if isinstance(obj.get(field), dict):
+            out += [f"{name}.{field}.{k}" for k in keys if k not in obj[field]]
     for field, sub, keys in spec.get("sub_rows", []):
         inner = (obj.get(field) or {}).get(sub)
         if isinstance(inner, list):

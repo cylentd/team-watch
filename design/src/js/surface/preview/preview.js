@@ -19,9 +19,10 @@ function pvViewHTML(){
   if (!gs.length) return `<div class="wrap"><div class="state-empty" style="min-height:220px">
     <div><b>${t("preview.empty.title")}</b><span>${t("preview.empty.sub")}</span></div></div></div>`;
   const i = pvIndex();
-  const html = `<div class="wrap pv${PV_OPEN ? " open" : ""}">
-    ${pvSlateHTML(i)}
-    ${pvDossierHTML(gs[i], i, gs.length, PV_ENTER)}
+  const rec = PV_REC && pvRecord() && pvRecord().weeks.length;
+  const html = `<div class="wrap pv${PV_OPEN ? " open" : ""}${rec ? " rec" : ""}">
+    ${pvSlateHTML(rec ? -1 : i)}
+    ${rec ? pvRecSheetHTML() : pvDossierHTML(gs[i], i, gs.length, PV_ENTER)}
   </div>`;
   PV_ENTER = "";
   return html;
@@ -38,7 +39,11 @@ function pvTurn(d){
 /* The dossier opens over the slate on a phone, as a layer Back closes. */
 function pvOpen(i){
   PV_I = i;
-  if (pvWide()){ render(); return; }
+  if (pvWide()){
+    if (PV_REC){ PV_REC = false; layerDone("pvrecord"); }   // a desktop: a game takes the record's place
+    render();
+    return;
+  }
   PV_Y = window.scrollY;
   PV_OPEN = true;
   layerPush("preview", pvClose);
@@ -55,9 +60,28 @@ function pvClose(){
   requestAnimationFrame(() => window.scrollTo(0, PV_Y));
 }
 
+/* The every-week record opens as a layer Back closes: over the slate on a phone, in the dossier's
+   place on a desktop. */
+function pvRecOpen(){
+  PV_Y = window.scrollY;
+  PV_REC = true;
+  layerPush("pvrecord", pvRecClose);
+  render();
+  if (!pvWide()) window.scrollTo(0, 0);
+}
+
+function pvRecClose(){
+  PV_REC = false;
+  if (SURFACE !== "preview") return;
+  render();
+  if (pvWide()) return;
+  window.scrollTo(0, PV_Y);
+  requestAnimationFrame(() => window.scrollTo(0, PV_Y));
+}
+
 /* Once the week has begun, the slate opens scrolled to the next game to kick off. */
 function pvScrollToNext(v){
-  if (PV_SCROLLED || PV_OPEN || pvWide()) return;
+  if (PV_SCROLLED || PV_OPEN || PV_REC || pvWide()) return;
   PV_SCROLLED = true;
   const gs = pvGames(), next = gs.findIndex(g => !pvDone(g));
   if (next > 0) v.querySelector(`[data-pvopen="${next}"]`)?.scrollIntoView({block: "start"});
@@ -67,6 +91,9 @@ function wirePreview(v){
   v.querySelectorAll("[data-pvopen]").forEach(b => b.addEventListener("click", () => pvOpen(+b.dataset.pvopen)));
   v.querySelectorAll("[data-pvstep]").forEach(b => b.addEventListener("click", () => pvTurn(+b.dataset.pvstep)));
   v.querySelector("[data-pvback]")?.addEventListener("click", () => { pvClose(); layerDone("preview"); });
+  const recShut = () => { pvRecClose(); layerDone("pvrecord"); };
+  v.querySelector("[data-pvrec]")?.addEventListener("click", () => PV_REC ? recShut() : pvRecOpen());   // a desktop's card toggles
+  v.querySelector("[data-pvrecback]")?.addEventListener("click", recShut);
   const g = pvGames()[pvIndex()];
   v.querySelectorAll("[data-pvp]").forEach(el => el.addEventListener("click", () => {
     const p = g && g.take && g.take.players[+el.dataset.pvp];

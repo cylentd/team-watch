@@ -250,6 +250,10 @@ STATES = [
     ("preview", go("preview")),
     ("preview-dossier", go("preview") + [("click", "[data-pvopen='2']")]),
     ("preview-notake", go("preview") + [("click", "[data-pvopen='4']")]),
+    # Claude's record (2026-09-29, confidence): every week open (the fixture's two graded weeks), and
+    # the slate before any graded week, when the card is one line.
+    ("preview-record", go("preview") + [("click", "[data-pvrec]")]),
+    ("preview-record-empty", [("eval", "LIVE_PREVIEW.record.weeks.splice(0)")] + go("preview")),
     # Role, leaf `movers` (2026-09-29; Movers' share cards before): the fixture's role board, all
     # positions, one position, every row shown, no board at all, and a row opening the profile.
     ("role", MOVERS),

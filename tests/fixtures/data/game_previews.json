@@ -7,7 +7,9 @@
    "facts": {
     "key": "2026_02_PIT_CLE", "week": 2, "kickoff": "2026-09-18T00:15:00Z", "home": "CLE", "away": "PIT",
     "line": {"spread_home": 2.5, "total": 38.5, "favorite": "PIT", "by": 2.5, "implied": {"CLE": 18.0, "PIT": 20.5},
-             "first_seen": {"spread_home": 2.5, "total": 39.5}},
+             "first_seen": {"spread_home": 2.5, "total": 39.5},
+             "ml": {"PIT": -135, "CLE": 115}, "market_win": {"PIT": 55.9, "CLE": 44.1},
+             "base": {"bucket": "2.5", "n": 402, "fav_wins": 55.2, "fav_covers": 47.8, "dog_wins": 44.5, "push": 1.0}},
     "weather": {"roof": "outdoor", "temp_f": 75, "wind_mph": 8, "precip_pct": 15, "sky": "Slight Chance Rain Showers"},
     "site": {"stadium": "Huntington Bank Field", "neutral": false, "tz": "America/New_York", "lat": 41.506, "lon": -81.7},
     "teams": {
@@ -28,6 +30,9 @@
     "headline": "Steelers win through the air vs soft Browns WR D",
     "lean": "Pittsburgh wins through the air. Cleveland runs the ball to stay close but cannot match the passing edge.",
     "pick": {"winner": "PIT", "score": {"CLE": 17, "PIT": 23}},
+    "win": {"PIT": 58},
+    "ats": {"side": null, "conf": null, "edge": null},
+    "total": {"call": null, "conf": null},
     "vs_market": "Near the market. PIT's 20.5 rises to 23 on the WR matchup.",
     "risk": "A quiet Metcalf and a Browns run game that wins a low-scoring grind at home.",
     "players": [{"key": "dk metcalf", "call": "up", "why": "Cleveland allows the 26th-most WR points."},
@@ -39,7 +44,9 @@
    "facts": {
     "key": "2026_02_JAX_LA", "week": 2, "kickoff": "2026-09-20T13:30:00Z", "home": "LA", "away": "JAX",
     "line": {"spread_home": -3.0, "total": 46.5, "favorite": "LA", "by": 3.0, "implied": {"LA": 24.75, "JAX": 21.75},
-             "first_seen": {"spread_home": -3.0, "total": 46.5}},
+             "first_seen": {"spread_home": -3.0, "total": 46.5},
+             "ml": {"LA": -150, "JAX": 130}, "market_win": {"LA": 58.3, "JAX": 41.7},
+             "base": {"bucket": "3", "n": 1076, "fav_wins": 59.1, "fav_covers": 46.8, "dog_wins": 40.6, "push": 9.2}},
     "weather": {"roof": "outdoor", "temp_f": 58, "wind_mph": 17, "precip_pct": 20, "sky": "Breezy"},
     "site": {"stadium": "Wembley Stadium", "neutral": true, "tz": "Europe/London", "lat": 51.556, "lon": -0.28},
     "teams": {
@@ -58,6 +65,10 @@
     "headline": "Jaguars run through a jet-lagged Rams side",
     "lean": "Wind at Wembley keeps the ball on the ground, and Jacksonville's backs wear down a Rams front that flew eight zones.",
     "pick": {"winner": "JAX", "score": {"LA": 20, "JAX": 23}},
+    "win": {"JAX": 54},
+    "ats": {"side": "JAX", "conf": "strong",
+            "edge": "Wind and eight time zones cut the Rams' passing; the line still prices a normal Stafford day."},
+    "total": {"call": "under", "conf": "solid"},
     "vs_market": "Against the market: LA is favoured by 3; the wind trims Stafford's passing.",
     "risk": "Nacua beats the wind on short throws and the Rams lead early.",
     "players": [{"key": "travis etienne", "call": "up", "why": "Wind and a soft run D point to carries."},
@@ -68,7 +79,9 @@
    "facts": {
     "key": "2026_02_DET_CAR", "week": 2, "kickoff": "2026-09-20T17:00:00Z", "home": "CAR", "away": "DET",
     "line": {"spread_home": 3.5, "total": 50.5, "favorite": "DET", "by": 3.5, "implied": {"CAR": 23.5, "DET": 27.0},
-             "first_seen": {"spread_home": 3.0, "total": 49.5}},
+             "first_seen": {"spread_home": 3.0, "total": 49.5},
+             "ml": {"DET": -185, "CAR": 155}, "market_win": {"DET": 64.4, "CAR": 35.6},
+             "base": {"bucket": "3.5", "n": 1314, "fav_wins": 67.0, "fav_covers": 49.0, "dog_wins": 32.8, "push": 0.0}},
     "weather": {"roof": "outdoor", "temp_f": 70, "wind_mph": 5, "precip_pct": 56, "sky": "Rain Showers Likely"},
     "site": {"stadium": "Bank of America Stadium", "neutral": false, "tz": "America/New_York", "lat": 35.226, "lon": -80.853},
     "teams": {
@@ -90,10 +103,21 @@
     }
    },
    "material": "b1", "take_material": "b1", "written": "2026-09-12T09:00:00Z", "model": "opus/high",
+   "research": {"tool_calls": 9, "seconds": 74},
    "take": {
     "headline": "Gibbs carries Detroit through the rain",
     "lean": "Rain keeps it on the ground, and Carolina allows the second-most RB points.",
     "pick": {"winner": "DET", "score": {"CAR": 19, "DET": 30}},
+    "win": {"DET": 74},
+    "ats": {"side": "DET", "conf": "solid",
+            "edge": "Carolina without Coker scores in the teens, and the rain takes away its one answer, Young's arm."},
+    "total": {"call": "under", "conf": "lean"},
+    "blind": {"margin_home": -1.5, "total": 48.5, "win": {"DET": 55},
+              "keys": ["Carolina run defense", "Coker status"], "sources": ["https://www.espn.com/nfl/story/_/id/1"]},
+    "vs_blind": "The blind number had DET by 1.5; Coker's absence and the rain moved it to 11.",
+    "notes": [{"text": "Carolina has allowed 5.1 yards a carry since week 1.", "source": "https://www.espn.com/nfl/story/_/id/1"},
+              {"text": "Gibbs took 11 of Detroit's 14 red-zone carries last week.", "source": "pbp"},
+              {"text": "Coker was ruled out Friday.", "source": "javascript:alert(1)"}],
     "vs_market": "Detroit clears its 27.0; Carolina stays under 23.5 without Coker.",
     "risk": "Young's legs keep drives alive and the rain slows Detroit too.",
     "players": [{"key": "jahmyr gibbs", "call": "up", "why": "The rain and the matchup both point to carries."},
@@ -105,7 +129,9 @@
    "facts": {
     "key": "2026_02_SF_NYJ", "week": 2, "kickoff": "2026-09-20T20:25:00Z", "home": "NYJ", "away": "SF",
     "line": {"spread_home": -1.5, "total": 41.5, "favorite": "NYJ", "by": 1.5, "implied": {"NYJ": 21.5, "SF": 20.0},
-             "first_seen": {"spread_home": 3.0, "total": 43.5}},
+             "first_seen": {"spread_home": 3.0, "total": 43.5},
+             "ml": null, "market_win": null,
+             "base": {"bucket": "1.5", "n": 604, "fav_wins": 52.3, "fav_covers": 50.2, "dog_wins": 47.4, "push": 0.0}},
     "weather": {"roof": "outdoor", "temp_f": 68, "wind_mph": 6, "precip_pct": 10, "sky": "Sunny"},
     "site": {"stadium": "MetLife Stadium", "neutral": false, "tz": "America/New_York", "lat": 40.813, "lon": -74.074},
     "teams": {
@@ -124,6 +150,9 @@
     "headline": "McCaffrey outlasts the Jets in the Meadowlands",
     "lean": "The line flipped to the Jets on the QB news, but San Francisco's run game travels and New York's front is thin.",
     "pick": {"winner": "SF", "score": {"NYJ": 17, "SF": 24}},
+    "win": {"SF": 60},
+    "ats": {"side": "SF", "conf": "lean", "edge": "The flip priced the Jets' QB news twice over; San Francisco's run game does not need a good day."},
+    "total": {"call": "under", "conf": "lean"},
     "vs_market": "SF clears its 20.0; the Jets stay under 21.5.",
     "risk": "Wilson wins the one-on-ones and the Jets turn it into a shootout.",
     "players": [{"key": "christian mccaffrey", "call": "up", "why": "Volume against a thin front."},
@@ -133,7 +162,9 @@
   "2026_02_ATL_NO": {
    "facts": {
     "key": "2026_02_ATL_NO", "week": 2, "kickoff": "2026-09-22T00:15:00Z", "home": "NO", "away": "ATL",
-    "line": {"spread_home": -2.5, "total": 48.5, "favorite": "NO", "by": 2.5, "implied": {"NO": 25.5, "ATL": 23.0}},
+    "line": {"spread_home": -2.5, "total": 48.5, "favorite": "NO", "by": 2.5, "implied": {"NO": 25.5, "ATL": 23.0},
+             "ml": {"NO": -140, "ATL": 120}, "market_win": {"NO": 57.4, "ATL": 42.6},
+             "base": {"bucket": "2.5", "n": 402, "fav_wins": 55.2, "fav_covers": 47.8, "dog_wins": 44.5, "push": 1.0}},
     "weather": {"roof": "dome"},
     "teams": {"NO": {"players": [], "missing": [], "defense_faced": null},
               "ATL": {"players": [], "missing": [], "defense_faced": null}}
