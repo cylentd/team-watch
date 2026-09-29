@@ -637,6 +637,19 @@ top scores become tiles (face over name over points), since a row beside 80px le
 Reasons lost their boxes the same day: thirty outlined pills made the card busy, so a reason is
 coloured words parted by a dot, and only how long he is out keeps a filled red box.
 
+**Results became headlines (2026-09-29, storyboard https://claude.ai/artifact/FYQES3vMxJ8ukZm7gLNNih,
+option B; supersedes the top-scores grid above).** David: "I don't like it". The card said scores with
+no reason and two grids with two meanings.
+- **Four tiles:** Top score, Out of nowhere (the biggest smash), Dud (the biggest bust), Carted off (the
+  left-hurt player out longest). Each is a filled box with a face, one number, the name and one line
+  of why. A player is in one tile at most, and when the banner is the week's top score the first tile
+  is the Runner-up (David, 2026-09-29), so the page never says Gibbs twice.
+- **The board:** each position's top three. A phone gives each position one line (name and points); the
+  wall gives it a column of rows with a 36px face and the player's day ("297 yds · 4 TD · 34 rush").
+- **The lists stay folded on the wall too:** Smashed, Busts and Left hurt three across, each a toggle.
+  The tiles tell the week; the lists are the detail.
+- Measured: desktop card 612px -> 499px; a phone's opened card 841px -> 803px.
+
 **The results lead, called like a game (2026-09-29, storyboard
 https://claude.ai/artifact/BvceuqtTkqyvzgjiHPGK7g).** The week's top score is an announcer's call on
 his real box line (ff-jarvis `results.*[].line`, from the cached play-by-play): "Gibbs rumbles for 164

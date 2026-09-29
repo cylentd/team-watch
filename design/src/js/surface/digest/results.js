@@ -1,8 +1,8 @@
 /* ============================== DIGEST: RESULTS ==============================
-   The week so far (2026-09-28): the top scores per position as a 2x2, then who smashed his
-   projection, who busted and who left his game hurt. A smashed or busted row says why as a pill:
-   ff-jarvis picks the reason (weekly_digest_played.why_of), the page only labels it. On the
-   wall the four blocks sit two by two (results.css); a phone stacks them. */
+   The week so far (2026-09-28): four headline tiles and each position's top three (headlines.js,
+   since 2026-09-29), then who smashed his projection, who busted and who left his game hurt, folded.
+   A smashed or busted row says why as a pill: ff-jarvis picks the reason
+   (weekly_digest_played.why_of), the page only labels it. */
 
 /* "1 game" / "15 games": both spelled out, since assemble.py --check finds a key only as a literal. */
 const dgGames = n => n === 1 ? t("digest.res.game") : t("digest.res.games", {n});
@@ -67,43 +67,33 @@ function dgWhy(r, left){
 const dgResNum = r => `<span class="dg-rv"><b>${r.actual != null ? r.actual.toFixed(1) : ""}</b>`
   + `${r.proj != null ? `<span>${r.proj.toFixed(1)}</span>` : ""}</span>`;
 
-/* One result row: name over its reason pills, points over projection. Opens the profile.
-
-   Only a position's leader wears a face (2026-09-29, David: "doesn't it look weird to see so many
-   headshots"): 35 faces made a wall where none stood out. Four say "these led the week"; every other
-   row is text. The face is cropped to the head, drawn at 150% so it fills the circle instead of
-   the chest-up frame, and `96` asks the srcset for a file sharp at that size. */
+/* A face cropped to the head, drawn at 150% so it fills the circle instead of the chest-up frame;
+   `96` asks the srcset for a file sharp at that size. The tiles and the wall's board wear it
+   (headlines.js); a list row is text. */
 const dgResFace = r => HEADS[r.slug] ? headImgHTML(HEADS[r.slug], initials(r.n), r.slug, 96)
   : `<div class="fallback">${esc(initials(r.n))}</div>`;
-const dgResRow = (r, pills, num, face) => `<button type="button" class="dg-rr${face ? " has-face" : ""}" data-dgslug="${esc(r.slug)}">
-    ${face ? `<span class="dg-hd">${dgResFace(r)}</span>` : ""}
+/* One list row: name over its reason pills, points over projection. Opens the profile. */
+const dgResRow = (r, pills, num) => `<button type="button" class="dg-rr" data-dgslug="${esc(r.slug)}">
     <span class="dg-rr-n"><b>${esc(dgShort(r.n))}</b>${pills ? `<span>${pills}</span>` : ""}</span>${num}</button>`;
 
-/* --half: rows in the first of two columns, for a list the wall splits (Left hurt), read down.
-   A folded list (Smashed, Busts, Left hurt; 2026-09-29, 80px rows made the phone's card ~3,400px)
-   heads with a button, its name, count and chevron, and on a phone its rows show only once tapped
-   open (digest.js). The wall has the room and shows every list open; there the button is a title. */
+/* A folded list (Smashed, Busts, Left hurt; 2026-09-29, 80px rows made the phone's card ~3,400px)
+   heads with a button, its name, count and chevron; its rows show once tapped open (digest.js). On the
+   wall too since the headlines (2026-09-29): the tiles already tell the week, the lists are the detail. */
 const DG_FOLD = new Set();
-const dgResCol = (title, rows, row, cls, fold) => {
+const dgResCol = (title, rows, row, cls) => {
   if (!rows.length) return "";
-  const key = fold ? cls || title : "";
-  const head = fold ? `<button type="button" class="dg-rsum" data-dgfold="${esc(key)}" aria-expanded="${DG_FOLD.has(key)}">
-      <span>${title}</span><span class="dg-rcount">${rows.length}</span>${DG_CHEV}</button>` : `<h4>${title}</h4>`;
-  return `<div class="dg-rcol${cls ? " " + cls : ""}${fold ? " fold" : ""}"${fold && DG_FOLD.has(key) ? " data-open" : ""}
-    style="--half:${Math.ceil(rows.length / 2)}">${head}${rows.map(row).join("")}</div>`;
+  const key = cls || title;
+  return `<div class="dg-rcol ${cls} fold"${DG_FOLD.has(key) ? " data-open" : ""}>
+    <button type="button" class="dg-rsum" data-dgfold="${esc(key)}" aria-expanded="${DG_FOLD.has(key)}">
+      <span>${title}</span><span class="dg-rcount">${rows.length}</span>${DG_CHEV}</button>${rows.map(row).join("")}</div>`;
 };
 
-function dgResTop(d){
-  const cols = DG_POS.map(p => dgResCol(p, d.stars.filter(r => r.pos === p),
-    (r, i) => dgResRow(r, "", `<span class="dg-rv"><b>${r.actual.toFixed(1)}</b></span>`, i === 0))).join("");
-  return cols ? `<div class="dg-rtop">${cols}</div>` : "";
-}
-
+/* The four tiles, each position's top three, then the three lists folded. */
 function dgResBody(d){
   const why = r => dgResRow(r, dgWhy(r, d.left), dgResNum(r));
-  const low = dgResCol(t("digest.res.smashed"), d.smashed, why, "smashed", true) + dgResCol(t("digest.res.busts"), d.busts, why, "busts", true)
-    + dgResCol(t("digest.res.left"), d.left, r => dgResRow(r, dgLeftPills(r), dgResNum(r)), "left", true);
-  const blocks = dgResTop(d) + (low ? `<div class="dg-rlow">${low}</div>` : "");
+  const low = dgResCol(t("digest.res.smashed"), d.smashed, why, "smashed") + dgResCol(t("digest.res.busts"), d.busts, why, "busts")
+    + dgResCol(t("digest.res.left"), d.left, r => dgResRow(r, dgLeftPills(r), dgResNum(r)), "left");
+  const blocks = dgTilesHTML(d) + dgBoardHTML(d) + (low ? `<div class="dg-rlow">${low}</div>` : "");
   const foot = d.pending ? t("digest.foot.resPending", {n: dgGames(d.finals.length), left: d.pending}) : t("digest.foot.res", {n: dgGames(d.finals.length)});
   return (blocks ? `<div class="dg-rs">${blocks}</div>` : "") + dgFootHTML(foot, "", "");
 }

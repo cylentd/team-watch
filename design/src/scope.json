@@ -21,6 +21,7 @@
     "surface/digest/ticker.css": ["digest"],
     "surface/digest/tonight.css": ["digest"],
     "surface/digest/results.css": ["digest"],
+    "surface/digest/headlines.css": ["digest"],
     "surface/digest/wait.css": ["digest"],
     "surface/digest/wall.css": ["digest"],
     "surface/league/back.css": ["league", "myrecap", "recap", "records", "#modal"],

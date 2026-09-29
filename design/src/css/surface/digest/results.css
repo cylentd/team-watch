@@ -1,16 +1,13 @@
 /* ============================== DIGEST: RESULTS ==============================
-   The top scores by position, then Smashed, Busts and Left hurt. Every row is one shape (2026-09-29,
-   storyboard https://claude.ai/artifact/7gsPHebT4xTdo36N1QqqWD, option B): the name over its reason,
-   the points over the projection, the stack Live's rows use. Only each position's leader has a face
-   (2026-09-29, superseding 80px faces on every row: 35 of them made a wall, David: "doesn't it look
-   weird"), 64px and cropped to the head. A phone sets each position's leader as a tile (face over name
-   over points) with its next two as rows under it, and stacks the three lists; the wall sets both on
-   four columns (Left hurt spans two), so no column is wider than its rows and a number sits by its name. */
+   The four tiles and the board are headlines.css (2026-09-29, storyboard
+   https://claude.ai/artifact/FYQES3vMxJ8ukZm7gLNNih, option B). Here: the card's spacing and the three
+   folded lists under them. Every list row is one shape (2026-09-29, storyboard
+   https://claude.ai/artifact/7gsPHebT4xTdo36N1QqqWD, option B): the name over its reason, the points
+   over the projection, the stack Live's rows use. A phone stacks the lists; the wall sets them three
+   across, each still folded (the tiles tell the week, the lists are the detail). */
 
-.dg-rs{display:grid;gap:20px;padding-top:6px}
-.dg-rs h4{margin:0 0 2px;font-size:var(--t-1);font-weight:600;line-height:1;letter-spacing:.07em;color:var(--ink-3)}
-.dg-rtop{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
-.dg-rlow{display:grid;gap:20px}
+.dg-rs{display:grid;gap:18px;padding-top:6px}
+.dg-rlow{display:grid;gap:0}
 .dg-rcol{display:grid;align-content:start;min-width:0}
 
 /* The count is words ("1 to play"), wider than the other rows' 40px number column. */
@@ -22,32 +19,26 @@
   cursor:pointer;width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;
   min-height:48px;padding:7px 0;transition:transform var(--dur-spring) var(--spring);
 }
-.dg-rr.has-face{grid-template-columns:64px minmax(0,1fr) auto;min-height:80px}
 .dg-rr:last-child{border-bottom:0}
 .dg-rr:active{transform:scale(var(--press))}
 .dg-rr:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
-.dg-rr .dg-hd{position:relative;width:64px;height:64px;border-radius:50%;overflow:hidden}
-/* Cropped to the head: the cut-out is chest-up, so drawn to fit, the face was a third of the circle. */
-.dg-rr .dg-hd img{position:absolute;left:-25%;top:-6%;width:150%;height:150%;max-width:none}
 .dg-rr-n{display:grid;gap:5px;min-width:0}
 .dg-rr-n b{font-weight:600;font-size:var(--t-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dg-rr-n > span{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px}
-/* A phone's top scores: each position's leader a tile, the face over the name over the points; the
-   next two are rows under it. */
-.dg-rtop .dg-rr.has-face{grid-template-columns:minmax(0,1fr);justify-items:center;text-align:center;gap:6px;min-height:0;padding:10px 0}
-.dg-rtop .dg-rr-n b{font-size:var(--t-2)}
-.dg-rtop .dg-rr.has-face .dg-rv{justify-items:center}
 .dg-rv{display:grid;justify-items:end;gap:3px;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
 .dg-rv b{font-size:var(--t-4);font-weight:700;line-height:1}
 .dg-rv span{font-size:var(--t-2);line-height:1;color:var(--ink-3)}
 
-/* A folded list's head: its name, how many, a chevron. Closed on a phone until tapped. */
+/* A folded list's head: its name, how many, a chevron. Closed until tapped. */
 .dg-rsum{
   appearance:none;border:0;border-bottom:1px solid var(--line);background:none;color:inherit;font:inherit;cursor:pointer;
-  width:100%;min-height:48px;padding:0;display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:10px;text-align:left;
+  width:100%;min-height:44px;padding:0;display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:10px;text-align:left;
 }
 .dg-rsum > span:first-child{font-size:var(--t-1);font-weight:600;line-height:1;letter-spacing:.07em;color:var(--ink-2)}
-.dg-rcount{font:700 var(--t-1)/1 var(--mono);color:var(--ink-3)}
+.dg-rcount{font:700 var(--t-1)/1 var(--mono)}
+.dg-rcol.smashed .dg-rcount{color:var(--up)}
+.dg-rcol.busts .dg-rcount{color:var(--down)}
+.dg-rcol.left .dg-rcount{color:var(--amber)}
 /* Pointing down while closed, whatever the open Results row around it does to its own chevron. */
 .dg-rcol.fold .dg-rsum .dg-chev{justify-self:end;transform:none;transition:transform var(--dur-spring) var(--spring)}
 .dg-rsum:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
@@ -66,21 +57,9 @@
 .dg-pill.out::before{display:none}
 
 @media (min-width:1100px){
-  .dg-rs{gap:28px}
-  .dg-rtop{grid-template-columns:repeat(4,minmax(0,1fr));gap:0 32px}
-  /* The lists take the same four columns as the top scores, so both rows line up; Left hurt, the
-     longest, spans two and runs its rows down both. */
-  .dg-rlow{grid-template-columns:repeat(4,minmax(0,1fr));gap:0 32px;align-items:start}
-  .dg-rcol.left{grid-column:span 2;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:32px;
-    grid-template-rows:auto repeat(var(--half),auto);grid-auto-flow:column}
-  .dg-rcol.left > .dg-rsum{grid-column:1 / -1;grid-row:1}
-  /* The wall shows every list open: its head is a title, not a toggle. */
-  .dg-rcol.fold:not([data-open]) > .dg-rr{display:grid}
-  .dg-rsum{min-height:0;padding:0 0 6px;cursor:default;pointer-events:none}
-  .dg-rsum > span:first-child{color:var(--ink-3)}
-  .dg-rsum .dg-chev{display:none}
-  /* The wall's top scores are rows again, the same shape as the lists under them. */
-  .dg-rtop .dg-rr.has-face{grid-template-columns:64px minmax(0,1fr) auto;justify-items:stretch;text-align:left;gap:14px;min-height:80px;padding:8px 0}
-  .dg-rtop .dg-rr-n b{font-size:var(--t-3)}
-  .dg-rtop .dg-rr.has-face .dg-rv{justify-items:end}
+  .dg-rs{gap:22px}
+  /* Three lists side by side, each opening down its own column. Their chevrons stay: the wall hides the
+     rows' own (wall.css), since a wall row is always open, but a list here still folds. */
+  .dg-rlow{grid-template-columns:repeat(3,minmax(0,1fr));gap:0 32px;align-items:start}
+  .dg-rcol.fold .dg-rsum .dg-chev{display:block}
 }

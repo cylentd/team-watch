@@ -81,7 +81,7 @@ def test_results_reads_as_the_storyboard(browser, page_file):
       const nums = rows.map(b => [...b.querySelectorAll('.dg-rv > *')].map(x => x.textContent));
       const pill = s => { const h = document.createElement('div'); h.innerHTML = dgOutPill(s); return h.textContent; };
       return {badge: dgCount('res', d)[0], lines, nums,
-              pills: {season: [...host.querySelectorAll('.dg-pill.out')].filter(p => p.textContent === 'Season').length,
+              pills: {season: [...host.querySelectorAll('.dg-rlow .dg-pill.out')].filter(p => p.textContent === 'Season').length,
                       weeks: pill('Baker Mayfield expected to miss three weeks')}};
     }""")
     assert errors == []
@@ -112,7 +112,7 @@ def test_a_phone_folds_the_results_lists_and_a_tap_opens_one(browser, page_file)
         page.wait_for_timeout(600)
     visible = lambda sel: page.locator(sel).evaluate_all("els => els.filter(e => e.offsetParent !== null).length")
     heads = page.locator(".dg-rsum")
-    assert heads.count() == 3 and visible(".dg-rlow .dg-rr") == 0 and visible(".dg-rtop .dg-rr") > 0
+    assert heads.count() == 3 and visible(".dg-rlow .dg-rr") == 0 and visible(".dg-tile") > 0
     assert heads.first.locator(".dg-rcount").inner_text() == str(page.evaluate("dgD().smashed.length"))
     turn = lambda: heads.first.locator(".dg-chev").evaluate("c => getComputedStyle(c).transform")
     assert turn() == "none"                                  # closed: points down
@@ -127,10 +127,10 @@ def test_a_phone_folds_the_results_lists_and_a_tap_opens_one(browser, page_file)
 
 @pytest.mark.render
 def test_results_on_the_wall_keep_each_number_by_its_name(browser, page_file):
-    """On a desktop the top scores and the lists share four columns, Left hurt spanning two
-    (2026-09-29), so a row is one column wide: its number sits within 330px of its name at the
-    1,680px frame. Only each position's leader has a face, 64px (2026-09-29: a face on all 35 rows
-    was a wall where none stood out)."""
+    """On a desktop (2026-09-29, storyboard FYQES3vMxJ8ukZm7gLNNih option B) the four tiles sit in a
+    row, the board in four position columns with a 36px face and the player's day on every row, and
+    the three lists three across, still folded. A board row is one column wide, so its points sit
+    within 350px of its name at the 1,680px frame."""
     ctx, page, errors = open_page(browser, page_file, (1705, 1000))
     page.goto(page_file.as_uri())
     for _, sel in go("digest"):
@@ -138,22 +138,43 @@ def test_results_on_the_wall_keep_each_number_by_its_name(browser, page_file):
     page.wait_for_selector(".dg-rs")
     got = page.evaluate("""() => {
       const cols = s => getComputedStyle(document.querySelector(s)).gridTemplateColumns.split(' ').length;
-      const rows = [...document.querySelectorAll('.dg-rr')].map(r => {
-        const n = r.querySelector('.dg-rr-n b').getBoundingClientRect(), v = r.querySelector('.dg-rv').getBoundingClientRect();
-        const f = r.querySelector('.dg-hd');
-        return {gap: v.left - n.left, face: f ? f.getBoundingClientRect().width : 0};
+      const rows = [...document.querySelectorAll('.dg-bd-r')].map(r => {
+        const n = r.querySelector('b').getBoundingClientRect(), v = r.querySelector('i').getBoundingClientRect();
+        return {gap: v.left - n.left, face: r.querySelector('.dg-hd').getBoundingClientRect().width,
+                day: getComputedStyle(r.querySelector('.dg-bd-s')).display};
       });
-      const leaders = [...document.querySelectorAll('.dg-rtop .dg-rcol')].map(c => c.querySelector('.dg-rr').classList.contains('has-face'));
-      return {top: cols('.dg-rtop'), low: cols('.dg-rlow'), rows, leaders};
+      const shown = s => [...document.querySelectorAll(s)].filter(e => e.offsetParent !== null).length;
+      return {tiles: cols('.dg-tiles'), board: cols('.dg-bd'), low: cols('.dg-rlow'), rows,
+              listRows: shown('.dg-rlow .dg-rr'), chevs: shown('.dg-rsum .dg-chev')};
     }""")
     ctx.close()
     assert errors == []
-    assert (got["top"], got["low"]) == (4, 4)
-    # 350, not 330, since the rows lost their faces (2026-09-29): the name now starts at the column's
-    # left edge instead of 78px in, so the same column puts the number 335px from it.
+    assert (got["tiles"], got["board"], got["low"]) == (4, 4, 3)
     assert got["rows"] and max(r["gap"] for r in got["rows"]) < 350
-    faces = [r["face"] for r in got["rows"] if r["face"]]
-    assert faces == [64] * len(got["leaders"]) and all(got["leaders"])   # one face per position, its leader
+    assert {r["face"] for r in got["rows"]} == {36} and {r["day"] for r in got["rows"]} == {"block"}
+    assert got["listRows"] == 0 and got["chevs"] == 3          # folded, and they look it
+
+
+@pytest.mark.render
+def test_the_tiles_never_repeat_the_banner_or_each_other(browser, page_file):
+    """When the banner is the week's top score, the first tile is the runner-up (David, 2026-09-29);
+    when something else leads, it is the top score. A player is in one tile at most."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    page.goto(page_file.as_uri())
+    got = page.evaluate("""() => {
+      const d = dgD(), top = [...d.stars].sort((a, b) => b.actual - a.actual);
+      const read = lead => { const h = document.createElement('div'); h.innerHTML = dgTilesHTML({...d, lead});
+        return [...h.querySelectorAll('.dg-tile')].map(t => [t.querySelector('.dg-tile-k').textContent, t.dataset.dgslug]); };
+      return {top: top.map(r => r.slug), res: read({rule: 'results', index: 0}), news: read({rule: 'news', index: 0})};
+    }""")
+    ctx.close()
+    assert errors == []
+    assert got["res"][0] == ["Runner-up", got["top"][1]]
+    assert got["news"][0] == ["Top score", got["top"][0]]
+    for tiles in (got["res"], got["news"]):
+        slugs = [s for _, s in tiles]
+        assert len(slugs) == len(set(slugs))
+    assert got["top"][0] not in [s for _, s in got["res"]]
 
 
 @pytest.mark.render
