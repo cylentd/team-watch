@@ -43,6 +43,15 @@ function gdClubScore(club, other){
   return d ? +(d.pts_allow || 0) : null;
 }
 
+/* A club's game this week: its kickoff, whether it is at home, and the other club. */
+function gdGameOf(club){
+  if (!club) return null;
+  const g = gdWeekGames().find(x => gdSameClub(x.home, club) || gdSameClub(x.away, club));
+  if (!g) return null;
+  const home = gdSameClub(g.home, club);
+  return {kickoff: g.kickoff, home, opp: home ? g.away : g.home};
+}
+
 /* How many of my starters, in the league on screen, play in it. */
 function gdMineIn(g, lg){
   const tm = lg && lg.teams[lg.me];

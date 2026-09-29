@@ -9,31 +9,51 @@ const gdSigned = v => (v >= 0 ? "+" : "−") + gdNum(Math.abs(v));
 const gdShort = (r) => r.pos === "DEF" ? r.n : r.n.replace(/^(\S)\S*\s+/, "$1. ");
 const gdClock = ms => new Date(ms).toLocaleString("en-US", {weekday: "short", hour: "numeric", minute: "2-digit"});
 
+/* Points over his projection, ESPN's way (2026-09-28, storyboard
+   https://claude.ai/artifact/WxBrEw9K8CTNu8KftYvPYQ, option B). The second number carries no label:
+   under the points it can only be the projection. The points go lime once he has passed it. */
 function gdRightHTML(r){
   const pulse = r.sid && GD_PULSE[r.sid] !== undefined ? `<em class="up">${gdSigned(GD_PULSE[r.sid])}</em>` : "";
+  const p = projFor(r), proj = `<span class="gd-proj">${p === null ? "" : gdNum(p)}</span>`;
+  if (r.state === "pre_game") return `<span class="gd-pts pre">—</span>${proj}`;
+  const beat = p !== null && (r.pts || 0) > p;
+  return `<span class="gd-pts${beat ? " beat" : ""}">${pulse}${gdNum(r.pts || 0)}</span>${proj}`;
+}
+
+/* His game in one line: a lime LIVE and the score from his side while it is on, a lock and W/L
+   once it is final, the kickoff before. The score is Sleeper's (nflnow.js gdClubScore). */
+function gdGameHTML(r){
+  /* A club missing from the schedule still says where its game is, without the score or opponent. */
+  const g = gdGameOf(r.team);
+  const opp = !g ? "" : g.home ? t("live.game.vs", {opp: esc(g.opp)}) : t("live.game.at", {opp: esc(g.opp)});
   if (r.state === "pre_game"){
-    const p = projFor(r);
-    return `<span class="gd-pts pre">${p === null ? "—" : gdNum(p)}</span><span class="gd-st pre">${t("live.st.proj")}</span>`;
+    const k = g ? Date.parse(g.kickoff) : gdKickOf(r.team);
+    return [k === undefined || isNaN(k) ? "" : esc(gdClock(k)), opp].filter(Boolean).join(" ");
   }
+  const a = g ? gdClubScore(r.team, g.opp) : null, b = g ? gdClubScore(g.opp, r.team) : null;
+  const known = a !== null && b !== null && a !== undefined && b !== undefined;
+  const tail = (sc) => [sc, opp].filter(Boolean).join(" ");
   if (r.state === "in_game"){
-    return `<span class="gd-pts">${pulse}${gdNum(r.pts || 0)}</span><span class="gd-st on">${t("live.st.playing")}</span>`;
+    const sc = !known ? "" : a > b ? t("live.game.up", {a, b}) : a < b ? t("live.game.down", {a, b}) : t("live.game.tied", {a, b});
+    const rest = tail(sc);
+    return `<span class="gd-live">${t("live.now.live")}</span>${rest ? ` · ${rest}` : ""}`;
   }
-  const p = projFor(r), d = p === null ? "" : `<b class="${r.pts >= p ? "up" : "dn"}">${gdSigned((r.pts || 0) - p)}</b>`;
-  return `<span class="gd-pts">${pulse}${gdNum(r.pts || 0)}</span><span class="gd-st">${t("live.st.final")} ${d}</span>`;
+  const sc = !known ? "" : a > b ? t("live.game.won", {a, b}) : a < b ? t("live.game.lost", {a, b}) : t("live.game.tie", {a, b});
+  const rest = tail(sc);
+  return `${GD_LOCK}${t("live.state.final")}${rest ? ` · ${rest}` : ""}`;
 }
 
-function gdMetaHTML(r){
-  if (r.state !== "pre_game") return r.line ? esc(r.line) : t("live.line.none");
-  const k = gdKickOf(r.team);
-  return k === undefined ? "" : t("live.kick", {when: esc(gdClock(k))});
-}
-
+/* A row: the slot as a pill (locked once his game kicks off), his face, name over his game over his
+   stats, points over projection. Every other row is shaded, so no rule sits between them. */
 function gdRowHTML(r, bench){
+  const lock = r.state === "pre_game" ? "" : GD_LOCK;
   return `<button type="button" class="gd-row ${r.state === "in_game" ? "on" : r.state === "pre_game" ? "pre" : ""}${bench ? " bn" : ""}"
     data-gdslug="${esc(r.slug)}" data-gdn="${esc(r.n)}" data-gdpos="${esc(r.pos)}" data-gdteam="${esc(r.team)}">
-    <span class="gd-slot">${esc(r.slot)}</span>
+    <span class="gd-slot${lock ? " locked" : ""}">${lock}${esc(r.slot)}</span>
     <span class="gd-hd">${avatarHTML(r)}</span>
-    <span class="gd-who"><b>${esc(gdShort(r))} <small>${esc(r.team)}</small></b><span>${gdMetaHTML(r)}</span></span>
+    <span class="gd-who"><b>${esc(r.pos === "DEF" ? r.n.replace(/\s*D\/ST$/, "") : gdShort(r))} <small>${esc(r.team)} ${esc(r.pos === "DEF" ? r.slot : r.pos)}</small></b>
+      <span class="gd-game">${gdGameHTML(r)}</span>
+      ${r.state === "pre_game" ? "" : `<span class="gd-stat">${r.line ? esc(r.line) : t("live.line.none")}</span>`}</span>
     <span class="gd-right">${gdRightHTML(r)}</span></button>`;
 }
 

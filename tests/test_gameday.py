@@ -173,11 +173,16 @@ def test_the_board_says_where_each_game_is_and_a_row_opens_his_profile(browser, 
     for kind, sel in go("live"):
         page.click(sel)
     page.wait_for_selector(".gd-row")
+    # each row's game line: a lime LIVE while it is on, a lock and "Final" once done, the kickoff
+    # before (and no stat line, and a dash for points); the second number is his projection, unlabelled
     states = page.evaluate("""() => [...document.querySelectorAll('.gd-lineup.mine .gd-row')].map(r =>
-      [r.dataset.gdteam, r.querySelector('.gd-st').textContent.trim().split(' ')[0]])""")
-    by_team = dict(states)
-    assert by_team.get("SF") == "PLAYING" and by_team.get("DET") == "PROJ"
-    assert "FINAL" in by_team.values()
+      [r.dataset.gdteam, r.querySelector('.gd-live') ? 'LIVE' : r.querySelector('.gd-game svg') ? 'FINAL'
+        : !r.querySelector('.gd-stat') && r.querySelector('.gd-pts').textContent === '—' ? 'PRE' : '?',
+       !!r.querySelector('.gd-slot.locked')])""")
+    by_team = {team: (st, locked) for team, st, locked in states}
+    assert by_team.get("SF") == ("LIVE", True) and by_team.get("DET") == ("PRE", False)
+    assert ("FINAL", True) in by_team.values() and "?" not in {s for s, _ in by_team.values()}
+    assert all(re.match(r"^(\d+\.\d)?$", s) for s in page.locator(".gd-lineup.mine .gd-proj").all_inner_texts())
     assert page.locator(".gd-median:not(.quiet)").count() == 1         # ESPN pays the top half
     # every game states itself on the line above its boxes; a box is a name and a score, and only a
     # finished game's winner carries the trophy
@@ -187,7 +192,10 @@ def test_the_board_says_where_each_game_is_and_a_row_opens_his_profile(browser, 
     assert page.locator(".gd-g").evaluate_all("gs => gs.every(g => g.firstElementChild.classList.contains('gd-gs'))")
     assert page.locator(".gd-cup").count() == sum(1 for s in tags if s.strip() == "FINAL")
     assert page.locator(".gd-g.on").count() == 1 and page.locator(".gd-g.mine.on").count() == 1
-    assert page.locator(".gd-row").evaluate_all("rs => rs.every(r => getComputedStyle(r).backgroundColor === 'rgba(0, 0, 0, 0)')")
+    # rows are shaded every other one and by nothing else: no row is lit for what it holds
+    assert page.locator(".gd-lineup").evaluate_all("""ls => ls.every(l => {
+      const rs = [...l.querySelectorAll('.gd-row')].map(r => getComputedStyle(r).backgroundColor);
+      return rs.every((c, i) => c === rs[i % 2]) && rs[0] !== rs[1]; })""")
     # my game says who leads in words; the bench is drawn, dimmed, and left out of the total
     assert re.match(r"^(UP|DOWN) \d+\.\d$|^TIED$", page.locator(".gd-lead").inner_text())
     assert page.locator(".gd-lineup.mine .gd-row.bn").count() > 0
