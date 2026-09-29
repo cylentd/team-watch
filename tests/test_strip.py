@@ -461,9 +461,7 @@ def test_a_week_in_the_game_log_opens_that_game_over_the_profile(browser, page_f
     page, ctx, errors, calls = served(browser, page_file, shaped)
     open_roster(page)
     page.click(".row:has-text('Jahmyr Gibbs')")
-    # The game log is the Log pane since the modal went to tabs (2026-09-22); it is one tap in,
-    # not on screen at open.
-    page.click("#modal [data-pftab='log']")
+    # The game log is the Season pane, the one the profile opens on (2026-09-28).
     week = page.locator("#modal .pf-wk").first
     assert week.count(), "no week in the game log opens a game"
     week.click()
@@ -499,8 +497,7 @@ def test_anywhere_on_a_week_row_opens_that_game(browser, page_file, shaped):
     page, ctx, errors, calls = served(browser, page_file, shaped)
     open_roster(page)
     page.click(".row:has-text('Jahmyr Gibbs')")
-    page.click("#modal [data-pftab='log']")
-    page.locator("#modal .pf-table-wk tr.gl-open td:last-child").first.click()
+    page.locator("#modal .pf-season .ss-row.gl-open > div:last-child").first.click()
     page.wait_for_selector("#stripmodal .stturf")
     opened = page.evaluate('() => document.getElementById("stripmodal").classList.contains("on")')
     ctx.close()
@@ -514,7 +511,6 @@ def test_the_same_game_is_only_fetched_once(browser, page_file, shaped):
     page, ctx, errors, calls = served(browser, page_file, shaped)
     open_roster(page)
     page.click(".row:has-text('Jahmyr Gibbs')")
-    page.click("#modal [data-pftab='log']")      # the game log is the Log pane now
     for _ in range(2):
         page.locator("#modal .pf-wk").first.click()
         page.wait_for_selector("#stripmodal .stturf")

@@ -1,7 +1,7 @@
-/* The two history blocks LIVE_GAMELOG/LIVE_PROJECTIONS add to the modal: the weekly box score
-   (a points sparkline over the table) and the projected-vs-actual line with the model's
-   component means. Each renders nothing when its source has no row for this slug -- a deep
-   bench player with real matchup data still opens cleanly with just that. */
+/* What LIVE_GAMELOG and LIVE_PROJECTIONS give the modal: the weekly box-score rows and their
+   columns (read by the Season table, season.js, since 2026-09-28; the old Log table and its
+   sparkline are gone), the replay link a played week carries, and the projection's component
+   means. Each renders nothing when its source has no row for this slug. */
 function glNum(v){ return v === null || v === undefined ? "—" : v; }
 
 function gamelogRows(slug){
@@ -57,46 +57,6 @@ function weekCell(p, r){
   return `<button type="button" class="pf-wk" aria-label="${esc(t("strip.open.week", {n: r.wk}))}">${GL_PLAY}${r.wk}</button>`;
 }
 
-const weekRowAttrs = (p, r) => {
-  const club = weekOpens(p, r);
-  return club ? ` class="gl-open" data-stripclub="${esc(club)}" data-stripwk="${r.wk}" data-stripname="${esc(p.n)}"` : "";
-};
-
-/* Every cell carries its own column name in `data-c`. On a phone the header row is dropped and
-   each week becomes a block of labelled chips (history.css): at eighteen weeks and ten columns
-   the alternative is a sideways drag, and a stat table you have to drag is one you do not read.
-   The season total is a foot row rather than a block of its own, because it is the same columns,
-   and it is the row that matters most once the season is long. */
-function weeklyHistoryHTML(p){
-  const rows = gamelogRows(p.slug);
-  if (!rows.length) return "";
-  const cols = gamelogCols(rows);
-  const pts = rows.map(r => r.pts ?? 0);
-  const spark = `<div class="pf-spark-row">${sparkHTML(pts, 220, 44)}
-    <span class="pf-spark-v">${glNum(rows[rows.length - 1].pts)}<em>${t("profile.history.pts")}</em></span></div>`;
-  const head = [t("profile.history.colWeek"), t("profile.history.colOpp"), t("profile.history.colPts")]
-    .concat(cols.map(c => c.label()));
-  const cell = (v, i, cls) => `<td class="${cls || ""}" data-c="${esc(head[i])}">${v}</td>`;
-  /* Week, opponent and points are named classes, not positions: on a phone the block needs one
-     thing the eye lands on per week, and that is the points. */
-  const row = (wk, opp, ptsCell, get, attrs = "") => `<tr${attrs}><th scope="row" class="gl-wk" data-c="${esc(head[0])}">${wk}</th>${cell(opp, 1, "gl-opp")}${cell(ptsCell, 2, "gl-pts")}
-      ${cols.map((c, i) => cell(get(c), i + 3)).join("")}</tr>`;
-  // weekCell, not r.wk: the row opens that game's replay when the schedule has an ESPN id for it
-  // (panel.js binds the click, because openProfile rebuilds #modal every open).
-  const body = rows.map(r => row(weekCell(p, r), esc(r.opp || "—"), glNum(r.pts), c => glNum(r[c.id]),
-    weekRowAttrs(p, r))).join("");
-  const foot = row(t("profile.history.total"), t("profile.history.games", {n: rows.length}),
-    glSum(rows, "pts"), c => glSum(rows, c.id));
-  /* Week and opponent are who-and-when, fixed and together on the left; every stat column shares
-     what is left equally. With automatic widths the browser handed the spare width to whichever
-     column it liked, and it landed between the week and the opponent. */
-  const colgroup = `<colgroup><col class="gl-c-wk"><col class="gl-c-opp">${"<col>".repeat(cols.length + 1)}</colgroup>`;
-  const table = `<div class="pf-table-scroll"><table class="pf-table pf-table-wk">${colgroup}
-    <thead><tr>${head.map(h => `<th>${h}</th>`).join("")}</tr></thead>
-    <tbody>${body}</tbody><tfoot>${foot}</tfoot></table></div>`;
-  return secHTML(t("profile.history.label"), spark + table);
-}
-
 /* The producer's own mu keys, spelled out so a reader is not left deciding whether REC is
    catches or yards -- it is yards, and RECS is catches. An unmapped key passes through as it
    came, so a new component shows up rather than disappearing. */
@@ -108,7 +68,7 @@ const MU_LABEL = {
   TD: () => t("profile.projection.muTd"),
 };
 
-/* Lives in the Log pane, under the weekly table: next week's number against the weeks behind it.
+/* Lives in the Season pane, under the table: what the lime row's projection is made of.
 
    It used to open "17.8 pts projected next game, 16.2 last game (wk 2)", which is the lede's own
    number and the sparkline's last point restated as a sentence -- nothing a reader who had

@@ -39,8 +39,10 @@ chrome/modal.css
 surface/profile/panel.css
 surface/profile/details.css
 surface/profile/history.css
+surface/profile/season.css
 surface/profile/sheet.css
 surface/profile/radar.css
+surface/profile/orb.css
 chrome/footer.css
 chrome/nav.css
 chrome/search.css

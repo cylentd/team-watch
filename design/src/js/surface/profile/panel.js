@@ -2,16 +2,19 @@
    roster row, a waiver target, or a usage row. `p` needs n/pos/team/slug; `originEl` is the
    clicked element, for the scale-from-row motion.
 
-   Three tiers, and the order is the answer to "what do I do with him this week":
+   In the order a reader asks about a player (2026-09-28, David): what did he score, who does he
+   play next, how much does he play, who has him, is he good.
 
-     1. the lede -- three numbers, nothing else in the modal is this large (lede.js)
-     2. the stat sheet -- his shape against his position, and the card under it (sheet.js)
-     3. the panes -- usage, matchup, log, bio, one at a time (tabs.js)
+     the head    name, the bye, and the sphere: his stat sheet as a solid (orb.js), a tap from
+                 the full radar (orbsheet.js)
+     the strip   rank by points per game, ppg, role share, snap share (lede.js)
+     the owners  one pill per league: yours, a leaguemate's team, or free (owners.js)
+     the panes   Season first -- every week, played and to come -- then usage, matchup, bio
 
-   Desktop puts 2 and 3 side by side; a phone stacks them (panel.css). Every block reads its own
-   source and renders nothing without one, so a player ff-jarvis has no matchup profile for still
-   opens with whatever else the page knows; when that is nothing at all, the pane area says so
-   once instead of four times. */
+   One column at every width since the radar moved into the sphere: the table is the widest thing
+   in here and gets the whole modal. Every block reads its own source and renders nothing without
+   one, so a player ff-jarvis has no matchup profile for still opens with whatever else the page
+   knows; when that is nothing at all, the pane area says so once instead of four times. */
 function openProfile(p, originEl){
   if (!p) return;
   searchRemember(p);   // the search sheet's "recent" list (chrome/search.js)
@@ -27,29 +30,26 @@ function openProfile(p, originEl){
           <div class="lbl">${identityHTML(p, prof)}</div>
           ${sheetTagsHTML(p)}
         </div>
+        ${orbBadgeHTML(p)}
       </div>
       ${p.note ? `<div class="dr-note">${esc(p.note)}</div>` : ""}
     </div>
     <div class="dr-body pf-body">
       ${ledeHTML(p, prof)}
-      <div class="pf-cols">
-        <div class="pf-side">${radarHTML(p)}</div>
-        <div class="pf-main">${tabsHTML(prof, p)}</div>
-      </div>
+      ${ownersHTML(p)}
+      ${tabsHTML(prof, p)}
     </div>`;
-  wireSheet(d);
+  wireOrbSheet(d, p);
   wireTabs(d, prof, p);
   showModal(d, originEl, "pf-title");
 }
 
-/* A week in the game log opens that game's drive strip, over this profile rather than instead of
-   it (shell.html has a second dialog for exactly this).
+/* A week in the Season table opens that game's drive strip, over this profile rather than instead
+   of it (shell.html has a second dialog for exactly this).
 
-   Delegated from #modal, and bound once at load rather than per button inside openProfile. The
-   game log lives in the Log pane, and tabs.js renders a pane only when the reader opens that tab,
-   so a one-shot querySelectorAll at open time finds no buttons at all -- the default pane is
-   Usage. Delegation also survives every later re-render without stacking a second listener on an
-   element openProfile keeps and refills. */
+   Delegated from #modal, and bound once at load rather than per button inside openProfile: tabs.js
+   renders a pane only when the reader opens that tab, and openProfile refills #modal every open,
+   so delegation is the one binding that survives every re-render without stacking listeners. */
 document.getElementById("modal").addEventListener("click", e => {
   const b = e.target.closest("[data-stripwk]");
   if (!b) return;

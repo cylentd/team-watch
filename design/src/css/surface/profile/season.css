@@ -1,0 +1,67 @@
+/* ============================== PROFILE · SEASON ==============================
+   The Season pane's table (season.js): one row per week, played, next, later or bye, then the
+   season total. The table is one grid and every row a subgrid of it, so a column is as wide as its
+   widest cell in any row and the rows still line up -- which separate grids per row did not: each
+   sized "@ATL 30th" for itself and the heads drifted off their columns (2026-09-28). The phone and
+   the desktop lay the same cells out differently:
+
+     desktop  wk · opponent · pts · a column per stat           a future week's kickoff spans the stats
+     phone    wk · opponent · the box-score line · pts          the stat columns are the line
+
+   Both show every number; the phone reads the stats as "24-144-3 · 1-19" in one cell, which is
+   how a box score prints them, instead of splitting each week onto a block of labelled chips. */
+.pf-season{display:grid;grid-template-columns:auto auto auto repeat(var(--ss-n),minmax(0,1fr));column-gap:14px;
+  font-family:var(--mono);font-size:var(--t-3);font-variant-numeric:tabular-nums;margin-bottom:22px}
+.ss-row{display:grid;grid-column:1 / -1;grid-template-columns:subgrid;align-items:baseline;
+  padding:9px 6px;border-bottom:1px solid var(--line)}
+.ss-row > div{min-width:0;white-space:nowrap}
+.ss-pts,.ss-stat{text-align:right}
+.ss-line{display:none;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis}
+
+.ss-row.ss-head{padding-top:0;border-bottom-color:var(--line-2);font-size:var(--t-1);letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-3)}
+.ss-row.ss-head > div{white-space:normal;align-self:end;line-height:1.3}
+
+.ss-wk{color:var(--ink-3)}
+.ss-opp{font-weight:700;color:var(--ink)}
+/* The defence's rank against his position, counted from the easy end. Coloured only at the
+   extremes, the eight easiest and the eight toughest, the call matchupClass makes everywhere. */
+.ss-rk{margin-left:7px;font-size:var(--t-1);color:var(--ink-3)}
+.ss-rk.mu-easy{color:var(--up)}
+.ss-rk.mu-hard{color:var(--down)}
+
+.ss-row.ss-played .ss-pts{font-size:var(--t-4);font-weight:700;color:var(--ink)}
+
+/* Next week: the one row that is about now. Lime, the page's "this is live" colour, on the week and
+   the projection; the row itself steps up a surface. The projection's rank hangs under the number,
+   out of the flow, so "proj · RB3" never widens the points column past the points in it. */
+.ss-row.ss-next{background:var(--panel-2);border-top:1px solid var(--lime);border-bottom-color:var(--lime);
+  margin-top:-1px;padding-bottom:22px}
+.ss-row.ss-next .ss-wk,.ss-row.ss-next .ss-pts{color:var(--lime)}
+.ss-row.ss-next .ss-pts{position:relative;font-size:var(--t-4);font-weight:700}
+.ss-pts small{position:absolute;right:0;top:100%;margin-top:2px;font-size:var(--t-1);font-weight:500;
+  letter-spacing:.06em;white-space:nowrap;color:var(--ink-3)}
+.ss-row.ss-later{color:var(--ink-3)}
+.ss-row.ss-later .ss-opp{color:var(--ink-2)}
+.ss-row.ss-next .ss-when,.ss-row.ss-later .ss-when{display:block;grid-column:4 / -1}
+.ss-row.ss-bye .ss-opp-c{grid-column:2 / -1;color:var(--ink-3)}
+
+.ss-row.ss-total{border-bottom:0;border-top:1px solid var(--line-2);margin-top:-1px;font-weight:700;color:var(--ink-2)}
+.ss-row.ss-total .ss-wk{font-size:var(--t-1);letter-spacing:.12em;text-transform:uppercase}
+.ss-row.ss-total .ss-pts{color:var(--ink)}
+
+/* A played week with a replay: the whole row opens it (panel.js). The play mark by the week says
+   what it opens, on a phone too, where there is no hover to say so. */
+.ss-row.gl-open{cursor:pointer;transition:background-color .15s var(--ease)}
+@media (hover:hover){ .ss-row.gl-open:hover{background:var(--panel-2)} }
+.ss-row.gl-open:active{background:var(--panel-3)}
+
+@media (max-width:760px){
+  .pf-season{grid-template-columns:auto auto minmax(0,1fr) auto;column-gap:9px;font-size:var(--t-2)}
+  .ss-row{padding:9px 2px}
+  .ss-stat{display:none}
+  .ss-line{display:block;order:1;font-size:var(--t-1)}
+  .ss-pts{order:2}
+  .ss-row.ss-next .ss-when,.ss-row.ss-later .ss-when{grid-column:auto}
+  .ss-row.ss-played .ss-pts,.ss-row.ss-next .ss-pts{font-size:var(--t-3)}
+}

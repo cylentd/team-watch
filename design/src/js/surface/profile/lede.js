@@ -1,53 +1,39 @@
-/* The three numbers the modal opens on, above the charts and above the tabs: what he scores,
-   who he plays, and whether the role backs it up. Nothing else in the modal is set this large.
+/* The strip under the head: is he good, and how much does he play. Four numbers, one row, from
+   LIVE_POOL (every player who logged a snap, watch's own numbers): his rank at his position by
+   points per game, the points per game, his role share and his snap share.
 
-   Numbers, never a word. DESIGN.md's market rule is the reason: METHODOLOGY 12.46 failed its
-   backtest, so the page prices nothing in verdicts -- no START, no BUY. Choosing three numbers
-   and sizing them is the compliant way to answer "what do I do with him", and it is a better
-   answer anyway, because the reader can disagree with a number.
+   It replaced the three-number lede on 2026-09-28. The lede's projection and matchup now sit on the
+   Season table's lime row, where they belong to a week, and its usage rank sits under the sphere
+   in the head. What the lede never answered -- how good he has been -- is the first cell here.
 
-   A cell whose source has nothing for this player is left out, not dashed: two numbers across a
-   row read as two numbers, while a dash reads as a number that failed. The row itself is gone
-   when no cell survives. */
-function ledeCellHTML(value, label, sub, cls){
-  return `<div class="pf-lede-c${cls ? " " + cls : ""}"><b>${value}</b>
-    <span class="pf-lede-l">${label}</span><span class="pf-lede-s">${sub}</span></div>`;
+   Numbers, never a word (DESIGN.md's market rule: the page prices nothing in verdicts). A cell with
+   no source is left out, not dashed; the row is gone when none survives. */
+function ledeCellHTML(value, label){
+  return `<div class="pf-lede-c"><b>${value}</b><span class="pf-lede-l">${label}</span></div>`;
 }
 
-function ledeProjHTML(p){
-  const pts = projFor(p);
-  if (pts === null) return "";
-  return ledeCellHTML(pts.toFixed(1), t("profile.lede.proj"), t("profile.lede.projSub"));
+function poolRow(slug){
+  return typeof LIVE_POOL !== "undefined" && LIVE_POOL ? LIVE_POOL.players.find(r => r.slug === slug) || null : null;
 }
 
-/* The rank counted from whichever end is nearer, the same call matchupRankText makes: "20th
-   easiest" reads as easy at a glance when the strip has him on the tough side. A bye is the one
-   place a dash earns its keep -- the cell is the week, and the answer for the week is "none". */
-function ledeMatchupHTML(prof){
-  if (!prof) return "";
-  const nx = prof.next;
-  if (!nx) return ledeCellHTML("—", t("profile.lede.matchup"), t("profile.lede.bye"));
-  const n = easiestRank(nx.factor);
-  if (n === null) return "";
-  const easy = n <= nx.factor.of / 2;
-  return ledeCellHTML(ordinal(easy ? n : nx.factor.of - n + 1),
-    easy ? t("profile.lede.easiest") : t("profile.lede.toughest"),
-    t("profile.lede.ofPos", {of: nx.factor.of, pos: esc(prof.pos)}),
-    matchupClass(n, nx.factor.of));
+/* The share is the one pool.py plots for his position: carries for a back, targets for a
+   receiver, and for a passer his snaps -- which the snap cell already says, so he gets no share. */
+function ledeShareLabel(pos){
+  return pos === "RB" ? t("profile.lede.carries") : pos === "WR" || pos === "TE" ? t("profile.lede.targets") : null;
 }
 
-/* His rank on the stat the Grid ranks his position by -- the same axis the radar opens on and
-   the card under it starts on, so the lede and the chart are never two different readings. */
-function ledeUsageHTML(p){
-  const s = sheetFor(p);
-  if (!s) return "";
-  const axis = s.axes.find(a => a.id === sheetDefaultAxis(s)) || s.axes[0];
-  const rk = sheetRank(s.pos, axis.id, p.slug);
-  if (!rk) return "";
-  return ledeCellHTML(rankMark(rk), esc(axisName(axis)), t("profile.lede.ofN", {of: rk[1]}));
-}
+const ledePct = v => v === null || v === undefined ? null : Math.round(v) + "%";
 
 function ledeHTML(p, prof){
-  const cells = ledeProjHTML(p) + ledeMatchupHTML(prof) + ledeUsageHTML(p);
+  const pos = prof ? prof.pos : p.pos;
+  const row = poolRow(p.slug);
+  const rk = ppgRank({slug: p.slug, pos});
+  const share = ledeShareLabel(pos);
+  const cells = [
+    rk ? ledeCellHTML(rankText(pos, rk), t("profile.lede.rank")) : "",
+    row && row.ppg !== null && row.ppg !== undefined ? ledeCellHTML(Number(row.ppg).toFixed(1), t("profile.lede.ppg")) : "",
+    row && share && ledePct(row.share) ? ledeCellHTML(ledePct(row.share), share) : "",
+    row && ledePct(row.snaps) ? ledeCellHTML(ledePct(row.snaps), t("profile.lede.snaps")) : "",
+  ].join("");
   return cells ? `<div class="pf-lede">${cells}</div>` : "";
 }

@@ -50,9 +50,8 @@ function ppgRank(p){
   return rankAmong(PPG_BY[pos], p.slug);
 }
 
-/* "WR · DET · WR28 · BYE 9" under the name: what he is, who he plays for, his fantasy rank at
-   his position the way a fantasy reader says it, and the one week he cannot be started. Any
-   clause with no source drops out rather than dashing.
+/* "WR · DET · BYE 9" under the name: what he is, who he plays for, and the one week he cannot
+   be started. Any clause with no source drops out rather than dashing.
 
    The bye is here rather than on a line of its own because it is the only static fact about him
    that changes a decision -- everything else the head used to carry (age, size, years) is
@@ -61,14 +60,13 @@ function ppgRank(p){
 
    One separator for the whole page: " · ". Never a mixture, and never a vertical bar as a second
    kind of divider -- there is no second meaning for it to carry, and the page already spells
-   this separator 26 times in copy and 13 more in joins like this one. The line groups itself by
-   weight instead: the rank is the bright thing, the bye the quiet one. */
+   this separator 26 times in copy and 13 more in joins like this one. The bye is the quiet clause. */
 function identityHTML(p, prof){
   const pos = prof ? prof.pos : p.pos;
-  const rk = ppgRank({slug: p.slug, pos});
   const b = pedigreeFor(p);
+  // The rank left this line on 2026-09-28 for the strip's first cell (lede.js), set at the
+  // strip's size: "RB6" twice, 60px apart, said it once too often.
   return [esc(pos), esc(prof ? prof.team : p.team),
-    rk ? `<b class="pf-id-rank">${rankText(pos, rk)}</b>` : "",
     b && pedHas(b.bye) ? `<span class="pf-id-bye">${t("profile.bio.bye", {n: b.bye})}</span>` : "",
   ].filter(Boolean).join(" · ");
 }

@@ -1,0 +1,63 @@
+/* ============================== PROFILE · SPHERE ==============================
+   The sphere in the profile head (orb.js) and the stat sheet it opens (orbsheet.js).
+
+   The badge is a real button: the canvas is its face and the default stat's rank its caption, so
+   what it opens is named before it is tapped. The layer covers the whole modal (the modal is
+   fixed and only its body scrolls, so inset:0 is the dialog's own box) and the sheet sits in its
+   middle, sized to the flat radar and its card. */
+.pf-orb{--tint-rgb:var(--ink-2-rgb);flex:none;align-self:center;display:flex;flex-direction:column;
+  align-items:center;gap:3px;margin:0 0 0 auto;padding:0;border:0;border-radius:12px;background:none;
+  color:var(--ink-2);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.pf-orb.pos-qb{--tint-rgb:var(--pos-qb-rgb)}
+.pf-orb.pos-rb{--tint-rgb:var(--pos-rb-rgb)}
+.pf-orb.pos-wr{--tint-rgb:var(--pos-wr-rgb)}
+.pf-orb.pos-te{--tint-rgb:var(--pos-te-rgb)}
+.pf-orb canvas{display:block;width:92px;height:92px;transition:transform var(--dur-spring) var(--spring)}
+@media (hover:hover){ .pf-orb:hover canvas{transform:scale(1.05)} }
+.pf-orb:active canvas{transform:scale(var(--press))}
+.pf-orb:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+/* The caption is two short lines, the rank over the stat, so the badge is as wide as the sphere
+   and not as wide as "TARGET SHARE" -- one line of it took 100px from the name on a phone and
+   broke "DERRICK" after the C. */
+.pf-orb{width:96px}
+.pf-orb-l{display:flex;flex-direction:column;align-items:center;font-family:var(--mono);font-size:var(--t-1);
+  letter-spacing:.04em;line-height:1.25;text-align:center;text-transform:uppercase}
+.pf-orb-l b{color:var(--ink)}
+/* Under the close button, which sits over the head's top-right corner, so the name needs no room
+   kept for it as well. */
+.pf-head .pf-orb{margin-top:34px}
+.pf-head .dr-id:has(.pf-orb){padding-right:0}
+
+.pf-orblayer{position:absolute;inset:0;z-index:5}
+.pf-orbscrim{position:absolute;inset:0;background:rgb(var(--void-rgb) / .74);animation:pf-orb-fade .3s var(--ease) both}
+.pf-orblayer.closing .pf-orbscrim{animation:pf-orb-fade .3s var(--ease) reverse both}
+@keyframes pf-orb-fade{from{opacity:0}}
+.pf-orbsheet{position:absolute;inset:0;margin:auto;width:min(520px,calc(100% - 24px));height:fit-content;
+  max-height:calc(100% - 24px);overflow:auto;padding:16px 18px 18px;border:1px solid var(--line-2);border-radius:14px;
+  background:var(--panel-3);transform-origin:0 0;scrollbar-width:thin;scrollbar-color:var(--line-2) var(--panel-3)}
+.pf-orbsheet-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:4px}
+.pf-orbsheet-h h4{margin:0 0 4px;font-family:var(--disp);font-size:var(--t-5);font-weight:800;line-height:1.05;
+  text-transform:uppercase;color:var(--ink)}
+.pf-orbsheet-h .dr-close{position:static;flex:none;width:40px;height:40px}
+
+/* The morph's canvas lies exactly over the flat chart's disc (orbsheet.js copies .pf-radar-hit's
+   box), under the labels and above the SVG, and fades once the crystal has landed on the shape. */
+.pf-orb-morph{position:absolute;pointer-events:none;transition:opacity .28s var(--ease)}
+.pf-orb-morph.gone{opacity:0}
+/* While the camera swings, only the shape is there: the labels, elite arcs and their tags arrive
+   after it lands, one axis after another. */
+.pf-orbsheet.morph .pf-radar-l,.pf-orbsheet.morph .pf-radar-bar,.pf-orbsheet.morph .pf-radar-bartag{opacity:0}
+.pf-orbsheet.shown .pf-radar-l{animation:pf-orb-fade .32s var(--ease) both;animation-delay:calc(var(--i, 0) * var(--enter-step))}
+.pf-orbsheet.shown .pf-radar-bar,.pf-orbsheet.shown .pf-radar-bartag{animation:pf-orb-fade .4s var(--ease) .12s both}
+
+@media (max-width:760px){
+  .pf-orb{width:76px}
+  .pf-orb canvas{width:66px;height:66px}
+  .pf-head .pf-orb{margin-top:40px}
+  .pf-orbsheet{padding:14px 12px 16px}
+}
+/* A phone's name steps down one size beside the sphere: at t-6 the column left for it (about 170px)
+   is narrower than "MCCAFFREY", and a name broken mid-word reads as a rendering fault. */
+@media (max-width:430px){
+  .pf-head .dr-id:has(.pf-orb) h3{font-size:var(--t-5)}
+}

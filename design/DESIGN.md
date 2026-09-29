@@ -854,10 +854,46 @@ Enter fires only when what the view shows changed (`markEnter` in `js/chrome/mot
 a tap that only adds a leg, because `render()` rebuilds the whole view on every tap.
 `tests/test_parlay_grid.py` pins both halves.
 
-## The profile modal (rebuilt 2026-09-22)
+## The profile modal (rebuilt 2026-09-22; points first 2026-09-28)
+
+### Points first (2026-09-28)
+
+The order is the reader's five questions, in David's order: what did he score, who does he play
+next, how much does he play, who has him, is he good. Storyboarded before it was built
+(https://claude.ai/artifact/QXvtS37egxdAaPydDbStsa, the sphere at
+https://claude.ai/artifact/HjEA4x7r7DRz3Z7Xes4u62).
+
+| Block | Answers | Where |
+|---|---|---|
+| **Head** | name, bye, and the sphere: the stat sheet as a solid, a tap from the flat radar | `orb.js`, `orbsheet.js` |
+| **Strip** | is he good, how much he plays: rank by ppg, ppg, role share, snaps | `lede.js` |
+| **Owners** | who has him: one pill per league, "Yours", a team name, or free agent | `owners.js` |
+| **Season** (first tab, always the default) | points per played week, next week's projection, every later opponent | `season.js` |
+
+| At 360x800 | Before | After |
+|---|---|---|
+| First fantasy points on screen | 880px, behind a tap on Log | 440px, on open |
+| Next week's matchup | lede, as a rank | the lime row, with kickoff and projection |
+| Ownership | "On 2 of your teams" | each league's team by name |
+
+- **The Season table never grows.** One row per week from week 1, played or still to come, so it
+  is ~18 rows in week 1 and in week 18. The opponent's rank is LIVE_DEFENSE's points allowed to his
+  position, counted from the easy end (1st allows the most); it is the one measure that exists for
+  every week. The model's matchup factor stays in the Matchup pane, for next week only.
+- **The rows are a subgrid**, so a phone and a desktop lay out one DOM: a phone reads each week as
+  box-score shorthand (`24-144-3 · 1-19`), a desktop gets a column per stat.
+- **The sphere** is his radar as a crystal in a glass sphere, drawn on a canvas: each stat a vertex
+  on the equator at his rank's radius, poles at his mean reach. It turns once in 14 s and rests 2 s
+  at the radar's own angle (STYLE.md rule 1, rewritten for it). The tap swings the camera overhead,
+  where the crystal *is* the flat radar, and hands over to it.
+- **Game results and past-week projections are not in the data** (Yahoo shows both). Adding them is
+  ff-jarvis work.
+
+### The 2026-09-22 build (superseded 2026-09-28 where marked)
 
 Eleven blocks at one weight is a wall. Three tiers, and the order is the answer to "what do I do
-with him this week":
+with him this week" (superseded 2026-09-28: the lede became the strip, the sheet moved into the
+sphere, and Season replaced Log as the first pane):
 
 | Tier | What | Where |
 |---|---|---|
@@ -877,7 +913,8 @@ insert, so a hidden pane would finish its entrance unseen. A pane that renders n
 tab at all: a back has no target depth, a passer no red zone, a player with no pedigree no Bio.
 The bar is sticky inside the scrolling body, because the Matchup pane runs 1,200px and the way
 back to the other two should not be a scroll to the top. `PF_TAB` survives an open, so reading two
-players against each other opens the same pane twice.
+players against each other opens the same pane twice. (Superseded 2026-09-28: every open starts on
+Season.)
 
 **The Bio pane carries the athletic profile** (2026-09-23), beside the pedigree it already shows:
 three percentiles as bars — Speed from the forty against his weight, Burst from vertical plus broad,
@@ -963,7 +1000,8 @@ Measured on the WR fixture, 360×780 phone and 1400px desktop:
 
 The weekly log is built for eighteen weeks: a column group with nothing in it is never drawn (a
 back had two columns of passing zeros), the head is sticky, the season total is a foot row, and
-on a phone each week becomes a block of labelled chips rather than a sideways drag. Verified
+on a phone each week becomes a block of labelled chips rather than a sideways drag. (Superseded
+2026-09-28 by the Season table: one line per week on a phone, no sticky head.) Verified
 against a fabricated 18-week season at 360px and 1400px — `tableScrolls: false` at both.
 
 ## News severity (2026-09-16)

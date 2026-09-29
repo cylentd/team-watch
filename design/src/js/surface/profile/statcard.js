@@ -163,7 +163,9 @@ function reserveTallest(el, axes, render){
   if (tallest) el.style.minHeight = tallest + "px";
 }
 
-function wireSheet(d){
+/* `o.grow` false skips the vertices' entrance: the sphere's morph (orb.js) has already brought the
+   shape in, and a second arrival on top of the first would be the chart arriving twice. */
+function wireSheet(d, o = {}){
   const el = d.querySelector(".pf-sheet");
   if (!el) return;
   const s = sheetFor({slug: el.dataset.slug});
@@ -191,7 +193,7 @@ function wireSheet(d){
   el.querySelectorAll(".pf-radar-l").forEach(node => node.addEventListener("click", () => pick(node)));
   const g = radarGeo(el);
   if (!g) return;
-  radarGrow(g);
+  if (o.grow !== false) radarGrow(g);
   countUp(card.querySelector(".pf-stat > b"), 380);
   wireRadarTouch(el, s, g, pick);
 }

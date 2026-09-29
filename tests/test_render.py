@@ -183,12 +183,13 @@ STATES = [
                                        ("click", "summary.wvfold-s >> nth=1")]),   # spec + stash open
     # The modal is panes since 2026-09-22, so each one is its own state: the tab bar only renders
     # the pane that is open, and a pane that renders nothing is dropped from the bar entirely (a
-    # back has no target depth, a passer no red zone, a player with no pedigree no Bio). PF_TAB is
-    # module state that survives an open, so every state below spells out the tab it wants rather
-    # than trusting whichever one ran before it.
-    ("profile-wr-modal", go("roster") + [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#modal [data-pftab='usage']")]),
+    # back has no target depth, a passer no red zone, a player with no pedigree no Bio). Every
+    # open lands on Season since 2026-09-28, so the plain open is that pane; the radar is its own
+    # state, opened from the sphere in the head.
+    ("profile-wr-modal", go("roster") + [("click", ".row:has-text('Amon-Ra St. Brown')")]),
+    ("profile-wr-usage-modal", go("roster") + [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#modal [data-pftab='usage']")]),
     ("profile-wr-matchup-modal", go("roster") + [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#modal [data-pftab='matchup']")]),
-    ("profile-wr-log-modal", go("roster") + [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#modal [data-pftab='log']")]),
+    ("profile-wr-sheet-modal", go("roster") + [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#modal .pf-orb")]),
     ("profile-rb-modal", go("roster") + [("click", ".row:has-text('Chase Brown')"), ("click", "#modal [data-pftab='matchup']")]),
     ("profile-rb-bio-modal", go("roster") + [("click", ".row:has-text('Chase Brown')"), ("click", "#modal [data-pftab='bio']")]),
     # SF's starters-out count is null (no snap-count release yet) -- the shape live data shows

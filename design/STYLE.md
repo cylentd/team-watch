@@ -45,7 +45,12 @@ names the reason in its `DESIGN.md` section.
 Every motion answers the reader's hand and ends where the thing now lives. The motion carries the
 information; if it says nothing a still frame does not, cut it.
 
-1. **Nothing moves on its own.** No idle loops, no timers. The one exception is data arriving.
+1. **Nothing moves on its own, except data arriving and a tap cue.** No idle loops, no timers.
+   Rewritten 2026-09-28 (David found "nothing moves on its own" too restrictive): a thing the reader
+   can tap may move slowly to say so. It runs only while it is on screen and the tab is visible,
+   rests regularly where its data reads, never moves text, and is still under reduced motion. The
+   first is the profile's sphere (`surface/profile/orb.js`): one turn in 14 s, then 2 s at rest.
+   The Trades loops below predate this rule and stay as dated exceptions.
    Exception (David, 2026-09-28): League > Trades shuffles its decided-a-season cards every 10 s,
    only on screen, paused under a pointer or after a touch, off under reduced motion, after Show all
    and on a phone (which swipes instead) (`surface/trades/alive.js`). Rule 4 still holds: the swap
