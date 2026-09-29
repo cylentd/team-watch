@@ -8,9 +8,12 @@
 
 /* The column key ("ours / experts · pts") heads the first section only: the second's rows sit in
    the same columns, and two keys beside two long titles wrapped both on a phone. */
-function muSectionHTML(title, rows, empty, key){
-  const body = rows.length ? rows.map(muCallHTML).join("") : `<p class="mu-empty">${empty}</p>`;
-  return `<h3 class="mu-grp">${title}${key ? `<span>${t("matchups.calls.cols")}</span>` : ""}</h3>${body}`;
+/* A paused take type (Amendment 2) leaves the list; its line stands where its takes would be, at the
+   end of its section, and a section holding only paused takes says that instead of "no takes". */
+function muSectionHTML(title, tag, empty, key){
+  const rows = muCalls(tag), paused = muPausedHTML(tag);
+  const body = rows.length ? rows.map(r => muCallHTML(r)).join("") : paused ? "" : `<p class="mu-empty">${empty}</p>`;
+  return `<h3 class="mu-grp">${title}${key ? `<span>${t("matchups.calls.cols")}</span>` : ""}</h3>${body}${paused}`;
 }
 
 /* No takes at all: Blip says why, and when that changes (2026-09-29, David: "ask Blip the mascot
@@ -26,10 +29,10 @@ function muBlipHTML(){
 }
 
 function muOursHTML(){
-  if (!LIVE_STARTSIT.calls.length) return muBlipHTML();
+  if (!LIVE_STARTSIT.calls.length && !(LIVE_STARTSIT.shadow || []).length) return muBlipHTML();
   return `<section class="mu-list">
-    ${muSectionHTML(t("matchups.calls.higher"), muCalls("start"), t("matchups.calls.emptyHigher"), true)}
-    ${muSectionHTML(t("matchups.calls.lower"), muCalls("sit"), t("matchups.calls.emptyLower"), false)}
+    ${muSectionHTML(t("matchups.calls.higher"), "start", t("matchups.calls.emptyHigher"), true)}
+    ${muSectionHTML(t("matchups.calls.lower"), "sit", t("matchups.calls.emptyLower"), false)}
   </section>`;
 }
 
@@ -68,7 +71,8 @@ function wireMatchups(v){
     v.querySelectorAll(".mu-call").forEach(r => muSetOpen(r, r.dataset.mukey === MU_OPEN));
   }));
   v.querySelectorAll("[data-muslug]").forEach(el => el.addEventListener("click", () => {
-    const r = LIVE_STARTSIT.calls.find(x => x.slug === el.dataset.muslug);
+    const r = [...LIVE_STARTSIT.calls, ...(LIVE_STARTSIT.shadow || [])].find(x => x.slug === el.dataset.muslug);
     if (r) openProfile({n: r.n, pos: r.pos, team: r.team, slug: r.slug}, el);
   }));
+  wireMuSplits(v);
 }

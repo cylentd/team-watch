@@ -711,11 +711,45 @@ already inside the projection. The WR effect tests null, so a WR never gets one.
   game alone. A Pitcher List row with no opponent shows the team, never "vs null".
 - **First data (2026-09-29, fixture, 360x800):** the first take starts ~185px down, under the
   record strip. It was 335px with the position chips and the best-spot lead (2026-09-26).
+  (Superseded the same day: 258px with the FantasyPros bar, the record's first data at ~99px; see
+  "Confidence, splits" below.)
 - **Desktop (960px+):** the record spans the width (bars capped at 560px, so a score never reads as
   a progress bar); ours and Pitcher List's sit side by side once the lists are 760px wide (a
   container query on the lists, not the window), capped at `--list-w` like Ranks and News.
 
 Not backtested: the calls. The foot says so, and names the record as the test.
+
+### Confidence, splits, the pause rule and Claude's read (2026-09-29)
+
+ff-jarvis METHODOLOGY 12.64 Amendment 2. David: "keep track of our track record and try to improve it
+week to week", "same goes for our hot takes". Weeks 1-3 (v1): START 0.241 on 29 against FantasyPros
+0.759; SIT 0.621 on 19; a wider rank gap did not score better (lean 0.367, solid 0.386, strong 0.350).
+
+| part | what it shows |
+|---|---|
+| Tier chip | LEAN / SOLID / STRONG under the take's two ranks, the gap it measures (ff-jarvis `tier` from `gap_n`: under 1.5, 1.5 to 2.5, 2.5+). Preview's chips: STRONG lime fill, SOLID lime outline, LEAN grey. The foot names them |
+| Splits | a "Splits" button on the record's last line opens a table in place: Call (START, SIT), Position, Confidence, each ours, FantasyPros on the same takes, and the count. The same population as the bars: v1's weeks 1-3 on every take, then v2's clean set once a v2 week is graded |
+| The rule | under the splits, once: "A take type is paused after 40 graded takes if it trails FantasyPros; it comes back when its shadow takes beat them." While nothing is paused and the week is under 11: "None can pause before week 11." |
+| Paused line | a paused type's takes leave the list; one line stands at the end of its section: "Paused: our START TE takes (0.21 vs FantasyPros 0.79 on 42). Still tracked." The numbers are the ones that paused it. "See n" opens this week's shadow takes in place, on the panel fill |
+| Claude's read | heads "Week N: how the takes did" in a filled box: "Claude's read of week N, not advice", the note, up to 3 patterns, up to 3 take types to watch with their own clean split. On a desktop the note and the watch list pair side by side |
+
+- **Why the splits hide behind a tap:** they are reference detail; the bars stay the answer. A layer
+  (Preview's record) earns Back handling for a long list of weeks; nine rows open in place, like a
+  take row, on the house spring. Closed, the button costs no height.
+- **Colour:** in the splits the higher score of each row is lime, the bars' own rule (one meaning: who
+  scored better); a tie or an empty cell is plain. `--up` / `--down` stay the graded Hit / Miss.
+- **Absent states:** an older producer sends no `tier` (no chip), no `rule` (no paused line, no rule
+  sentence), no `splits` (no button); `review.read` is null until Claude's review of that very week
+  is written (an older week's read is dropped), and then nothing is drawn.
+- **Data:** `design/startsit.py` cuts `calls` (tier), `shadow` (rows with `paused`), `rule`
+  (`calls.v2.rule`, paused types with their pause entry), `record.splits`, and `review.read` from ff-jarvis
+  `startsit_review` (`design/sources.py` `load_startsit_review`, feed block first).
+- **Measured 2026-09-29 at 360x800** (fixture): a take row is 52px before and after the chip. The first
+  take starts at 258px, 237px before; the 21px is FantasyPros' bar, which the fixture's real weeks 1-3
+  record carries. The record strip is 125px with or without the Splits button; open, 566px.
+- Tests: `tests/test_startsit.py` (tier, shadow and rule, v1 and v2 splits, the read kept or dropped, the
+  loader feed first, and the rendered chip, paused line, splits, rule sentence, read and 360 overflow);
+  golden states `matchups-splits`, `matchups-paused`, `matchups-read`, `matchups-nofp`.
 
 Not built yet: Bets > Games (every game with its implied totals and each offense against the other
 defense by position), the storyboard's second view.

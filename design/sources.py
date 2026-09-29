@@ -235,6 +235,13 @@ def load_startsit():
     return read_first(DWR / "startsit_calls.json"), read_first(DWR / "pl_startsit.json"), newest
 
 
+def load_startsit_review():
+    """Claude's read of the newest graded v2 week of takes (model.season.startsit_review, METHODOLOGY
+    12.64 Amendment 2), feed block `startsit_review` first, the file second. None before a v2 week
+    (4+) is graded; design/startsit.py keeps it only when it is the graded week the page shows."""
+    return feed_block(("startsit_review",), "note") or read_first(DWR / "startsit_review.json")
+
+
 def load_digest():
     """The league-wide week packet (model.season.weekly_digest), feed block `weekly_digest` first,
     the file second. design/digest.py cuts it for the Digest view; None when neither exists."""

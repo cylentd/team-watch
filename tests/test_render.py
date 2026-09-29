@@ -276,13 +276,17 @@ STATES = [
     ("matchups-pl-open", go("matchups") + [("click", "[data-mukey^='p:'] .mu-call-h")]),
     ("matchups-modal", go("matchups") + [("click", "[data-mukey^='c:'] .mu-call-h"),
                                          ("click", ".mu-call[data-open] [data-muslug]")]),
-    ("matchups-empty", [("eval", "Object.assign(LIVE_STARTSIT, {calls: [], pl: [], article: null, record: null})")]
+    ("matchups-empty", [("eval", "Object.assign(LIVE_STARTSIT, {calls: [], shadow: [], rule: null, pl: [], article: null, record: null})")]
                        + go("matchups")),
     # No takes on a Tuesday: the experts have not ranked the week yet, and Blip (bored) says when
     # they will (2026-09-29). matchups-empty above is the other reason: the experts are in, we agree.
-    # The record with FantasyPros graded on our takes (2026-09-29): three bars, the best lime.
-    ("matchups-fp", [("eval", "LIVE_STARTSIT.record.fp = {n: 31, score: 0.676, score_no_dnp: 0.663}")]
-                    + go("matchups")),
+    # The fixture's record carries FantasyPros (ff-jarvis's real weeks 1-3); a grade file from before
+    # ff-jarvis graded that side draws two bars.
+    ("matchups-nofp", [("eval", "LIVE_STARTSIT.record.fp = null")] + go("matchups")),
+    # Amendment 2 (2026-09-29): the splits open under the record, and the paused START TE line opens
+    # to its shadow take.
+    ("matchups-splits", go("matchups") + [("click", "[data-musplits]")]),
+    ("matchups-paused", go("matchups") + [("click", "[data-mups] > .mu-ps-h")]),
     # Takes v2 graded (week 4 on, METHODOLOGY 12.64): the clean bars with the backed/gut line, and
     # last week's takes with their causes; an injury miss dimmed, left out of the score.
     ("matchups-v2", [("eval", """Object.assign(LIVE_STARTSIT.record, {v2: {
@@ -295,7 +299,15 @@ STATES = [
         {n: 'Amon-Ra St. Brown', slug: 'amon-ra-st-brown', pos: 'WR', team: 'DET', call: 'sit', score: 0, cause: 'td', note: 'finish without TDs 31', backed: false, finish: 9},
         {n: 'Brock Purdy', slug: 'brock-purdy', pos: 'QB', team: 'SF', call: 'start', score: .5, cause: 'read', note: null, backed: true, finish: 16}]};""")]
                     + go("matchups")),
-    ("matchups-early",[("eval", "Object.assign(LIVE_STARTSIT, {calls: [], experts_week: LIVE_STARTSIT.week - 1})")]
+    # The same week with Claude's read of it (ff-jarvis startsit_review): note, patterns, watch list.
+    ("matchups-read", [("eval", """Object.assign(LIVE_STARTSIT.record, {weeks: [1, 2, 3, 4], through: 4});
+      LIVE_STARTSIT.review = {week: 4, read: {model: 'opus',
+        note: 'Week 4 split down the middle on the clean set: ours 0.5 on 15 takes, FantasyPros 0.5 on the same 15.',
+        patterns: ['3 of 9 misses came on touchdowns: the call was right on yards', '2 of 3 START-WR takes missed on read'],
+        watch: [{type: 'START-WR', tag: 'start', pos: 'WR', text: '2 of 3 missed on read in week 4', status: 'active', n: 3, ours: .167, fp: .833}]},
+        rows: [{n: 'Chase Brown', slug: 'chase-brown', pos: 'RB', team: 'CIN', call: 'start', score: 1, cause: 'hit', note: null, backed: true, finish: 14}]};""")]
+                      + go("matchups")),
+    ("matchups-early",[("eval", "Object.assign(LIVE_STARTSIT, {calls: [], shadow: [], rule: null, experts_week: LIVE_STARTSIT.week - 1})")]
                        + go("matchups")),
     ("usage", go("usage")),
     ("usage-panel", go("usage") + [("click", "[data-upanel]")]),

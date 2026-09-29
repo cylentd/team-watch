@@ -45,7 +45,7 @@ from sources import (                                    # design/sources.py: th
     ROOT, REPO, DWR, FEED, ESPN_ROSTERS, YAHOO_ROSTERS, DFS_POOL,
     feed_block, read_first, load_status, load_props_raw, load_model_raw,
     load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
-    load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_startsit, load_digest, load_game_preview, load_preview_record, load_league, load_role_board,
+    load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_startsit, load_startsit_review, load_digest, load_game_preview, load_preview_record, load_league, load_role_board,
     load_league_yahoo, load_league_back, load_case_rosters, load_defense, load_trades, load_kickers,
 )
 from gameday import live_gameday, report as gameday_report  # This week > Live: every matchup, scored live
@@ -740,7 +740,7 @@ def render():
         "LIVE_ROUTES": live_routes(load_routes(), slugify, wanted_set),
         "LIVE_ARCHETYPE": live_archetype(load_archetype(FEED, DWR), wanted_set),
         "LIVE_TRENCHES": live_trenches(load_trenches(FEED, DWR)),
-        "LIVE_STARTSIT": live_startsit(*load_startsit(), slugify),
+        "LIVE_STARTSIT": live_startsit(*load_startsit(), slugify, load_startsit_review()),
         "LIVE_ROLE": live_role(load_role_board(), slugify),
         "LIVE_DIGEST": live_digest(load_digest(), slugify, load_schedule(DWR)),
         "LIVE_PREVIEW": live_preview(load_game_preview(), slugify, load_preview_record()),

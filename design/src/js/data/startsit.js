@@ -30,3 +30,11 @@ function muKick(r){
 
 /* "wk 1–2", or "wk 1" after one graded week. */
 const muWeeks = w => w.length > 1 ? `${Math.min(...w)}–${Math.max(...w)}` : String(w[0]);
+
+/* Amendment 2 (2026-09-29). The splits panel under the record, and the one paused take type whose
+   shadow takes are showing ("" for none); both open in place, never by re-render. */
+let MU_SPLITS = false;
+let MU_SHADOW = "";
+const muShadow = (tag, pos) => (LIVE_STARTSIT && LIVE_STARTSIT.shadow || []).filter(r => r.tag === tag && r.pos === pos)
+  .sort((a, b) => muGap(b) - muGap(a) || b.pts - a.pts);
+const muPaused = tag => ((LIVE_STARTSIT && LIVE_STARTSIT.rule || {}).paused || []).filter(p => p.tag === tag);

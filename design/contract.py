@@ -68,6 +68,8 @@ WIRE_SUBS = {"path": {"because": WIRE_BECAUSE, "verdict": WIRE_VERDICT}, "drop":
 WAIVER_VERDICT = ["kind", "over", "slot", "margin"]
 WAIVER_DROP = ["name", "pos", "pts"]
 WAIVER_META = ["label", "faab_left", "faab_budget", "clears", "needs"]
+STARTSIT_ROW = ["tag", "n", "slug", "pos", "team", "opp", "home", "pts", "rank", "ecr", "own", "gap", "why", "but",
+                "reasons", "backed", "tier"]   # one take, LIVE_STARTSIT `calls` and `shadow`
 
 CONTRACT = {
     "LIVE_ESPN": {
@@ -291,14 +293,14 @@ CONTRACT = {
                           "ol_starters_out", "ol_starters_out_of", "ol_starters_out_names",
                           "ol_starters_out_reason"]),
     },
-    # design/startsit.py, the Takes view (leaf `matchups`). `tag` is start|sit; `ecr`, `own` and
-    # `gap` may be null (`gap` on calls written before 2026-09-29); `reasons` may be empty (a gut
-    # call). `record` is null until a week is graded, its `v2` and `review` until a v2 week (4+) is; `pl` is empty when Pitcher List's column is not this week's, and `article` null with it.
+    # design/startsit.py, the Takes view (leaf `matchups`). `tag` is start|sit; `ecr`, `own`, `gap` (before 2026-09-29) may be null; `reasons` empty (a gut call).
+    # `record` is null until a week is graded, its `v2` and `review` until a v2 week (4+) is; `pl` is empty when Pitcher List's column is not this week's, and `article` null with it.
+    # Amendment 2 (2026-09-29): `tier`, `rule`, the record's `splits` (shape pinned in test_startsit.py) and the review's `read` (Claude's) may be null; `shadow` is [] with nothing paused.
     "LIVE_STARTSIT": {
-        "keys": ["week", "experts_week", "generated", "calls", "pl", "article", "record", "review"],
-        "rows": [("calls", ["tag", "n", "slug", "pos", "team", "opp", "home", "pts", "rank", "ecr", "own",
-                            "gap", "why", "but", "reasons", "backed"]),
-                 ("pl", ["call", "pos", "n", "slug", "team", "opp", "home", "rationale"])],
+        "keys": ["week", "experts_week", "generated", "calls", "shadow", "rule", "pl", "article", "record", "review"],
+        "rows": [("calls", STARTSIT_ROW), ("shadow", STARTSIT_ROW), ("pl", ["call", "pos", "n", "slug", "team", "opp", "home", "rationale"])],
+        "objs": [("rule", ["min_n", "paused"]), ("record", ["through", "weeks", "ours", "pl", "fp", "v2", "splits"]), ("review", ["week", "read", "rows"])],
+        "sub_rows": [("rule", "paused", ["type", "tag", "pos", "n", "ours", "fp", "since"])],
     },
     # design/role.py, Players > Role (leaf `movers`). A row's `prev` is null when he played under 4
     # games last season; `work` values may be null where ff-jarvis had no number.

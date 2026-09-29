@@ -27,9 +27,14 @@ function muRowHTML(key, r, tag, right, body){
   </div>`;
 }
 
-/* Our take. One no stat backs is shown anyway and says so: the record grades it, and hiding it
-   would make the page and the record disagree. */
-function muCallHTML(r){
+/* How far apart the two ranks are (Amendment 2, ff-jarvis's tier from gap_n), under the ranks it
+   measures: STRONG filled, SOLID outlined lime, LEAN grey, Preview's chips. Null draws nothing. */
+const MU_TIER = () => ({lean: t("matchups.tier.lean"), solid: t("matchups.tier.solid"), strong: t("matchups.tier.strong")});
+const muTierHTML = r => MU_TIER()[r.tier] ? `<span class="mu-cf ${r.tier}">${MU_TIER()[r.tier]}</span>` : "";
+
+/* Our take ("c:" in the list, "s:" a paused type's shadow take). One no stat backs is shown anyway
+   and says so: the record grades it, and hiding it would make the page and the record disagree. */
+function muCallHTML(r, pre = "c:"){
   const ecr = r.ecr == null ? "—" : r.ecr;
   // v2 (week 4 on): the reasons pointing the take's way lead; with none it is a gut call, said once.
   const reasons = (r.reasons || []).length
@@ -39,7 +44,8 @@ function muCallHTML(r){
     <p class="mu-src"><span>${t("matchups.row.src", {pts: r.pts.toFixed(1)})}</span>
       <button type="button" class="mu-go" data-muslug="${esc(r.slug)}">${t("matchups.row.profile")}${MU_ARROW}</button></p>`;
   const tag = `<span class="mu-tag pos ${esc(r.pos.toLowerCase())}">${esc(r.pos)}</span>`;
-  return muRowHTML("c:" + r.slug, r, tag, `<span class="mu-rk"><b>${r.rank}</b> / ${ecr}</span><span class="mu-pt">${r.pts.toFixed(1)}</span>`, body);
+  return muRowHTML(pre + r.slug, r, tag, `<span class="mu-rk"><span><b>${r.rank}</b> / ${ecr}</span>${muTierHTML(r)}</span
+    ><span class="mu-pt">${r.pts.toFixed(1)}</span>`, body);
 }
 
 /* Pitcher List's call: their mark where our ranks sit, their words (clamped) when opened. */

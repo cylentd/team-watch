@@ -73,6 +73,7 @@ surface/matchups/record.css
 surface/preview/dossier.css
 surface/preview/record.css
 surface/matchups/rows.css
+surface/matchups/splits.css
 # pin: digest/bodies.css after ticker.css -- its `.dg-ico` size yields to lead.css's `.dg-glyph .dg-ico`
 #      on specificity, and its bar rules sit inside rows that ticker.css lays out.
 surface/digest/lead.css

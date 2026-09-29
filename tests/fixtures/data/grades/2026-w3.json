@@ -1,0 +1,58 @@
+{
+ "season": 2026,
+ "week": 3,
+ "complete": true,
+ "startsit": {},
+ "startsit_record": {
+  "weeks": [1, 2, 3],
+  "ours": {"n": 48, "dnp": 1, "score": 0.371, "score_no_dnp": 0.38},
+  "pitcherlist": {"n": 18, "dnp": 0, "score": 0.633, "score_no_dnp": 0.633},
+  "fantasypros": {"n": 48, "dnp": 1, "score": 0.629, "score_no_dnp": 0.62},
+  "splits": {
+   "v2": {
+    "by_call": {"START": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "SIT": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}},
+    "by_pos": {"QB": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "RB": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "WR": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "TE": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}},
+    "by_tier": {"lean": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "solid": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "strong": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}},
+    "by_type": {"START-QB": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "START-RB": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "START-WR": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "START-TE": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "SIT-QB": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "SIT-RB": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "SIT-WR": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "SIT-TE": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}}
+   },
+   "shadow_v2": {
+    "by_call": {"START": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "SIT": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}},
+    "by_pos": {"QB": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "RB": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "WR": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "TE": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}},
+    "by_tier": {"lean": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "solid": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "strong": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}},
+    "by_type": {"START-QB": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "START-RB": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "START-WR": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "START-TE": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "SIT-QB": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "SIT-RB": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "SIT-WR": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}, "SIT-TE": {"all": {"n": 0, "ours": null, "fp": null}, "clean": {"n": 0, "ours": null, "fp": null}}}
+   },
+   "v1": {
+    "by_call": {
+     "START": {"all": {"n": 29, "ours": 0.241, "fp": 0.759}, "clean": {"n": 28, "ours": 0.25, "fp": 0.75}},
+     "SIT": {"all": {"n": 19, "ours": 0.621, "fp": 0.379}, "clean": {"n": 19, "ours": 0.621, "fp": 0.379}}
+    },
+    "by_pos": {
+     "QB": {"all": {"n": 12, "ours": 0.357, "fp": 0.643}, "clean": {"n": 12, "ours": 0.357, "fp": 0.643}},
+     "RB": {"all": {"n": 4, "ours": 0.071, "fp": 0.929}, "clean": {"n": 4, "ours": 0.071, "fp": 0.929}},
+     "WR": {"all": {"n": 18, "ours": 0.391, "fp": 0.609}, "clean": {"n": 18, "ours": 0.391, "fp": 0.609}},
+     "TE": {"all": {"n": 14, "ours": 0.44, "fp": 0.56}, "clean": {"n": 13, "ours": 0.478, "fp": 0.522}}
+    },
+    "by_tier": {
+     "lean": {"all": {"n": 17, "ours": 0.367, "fp": 0.633}, "clean": {"n": 17, "ours": 0.367, "fp": 0.633}},
+     "solid": {"all": {"n": 19, "ours": 0.386, "fp": 0.614}, "clean": {"n": 18, "ours": 0.409, "fp": 0.591}},
+     "strong": {"all": {"n": 12, "ours": 0.35, "fp": 0.65}, "clean": {"n": 12, "ours": 0.35, "fp": 0.65}}
+    },
+    "by_type": {
+     "START-QB": {"all": {"n": 9, "ours": 0.344, "fp": 0.656}, "clean": {"n": 9, "ours": 0.344, "fp": 0.656}},
+     "START-RB": {"all": {"n": 2, "ours": 0.0, "fp": 1.0}, "clean": {"n": 2, "ours": 0.0, "fp": 1.0}},
+     "START-WR": {"all": {"n": 11, "ours": 0.227, "fp": 0.773}, "clean": {"n": 11, "ours": 0.227, "fp": 0.773}},
+     "START-TE": {"all": {"n": 7, "ours": 0.214, "fp": 0.786}, "clean": {"n": 6, "ours": 0.25, "fp": 0.75}},
+     "SIT-QB": {"all": {"n": 3, "ours": 0.4, "fp": 0.6}, "clean": {"n": 3, "ours": 0.4, "fp": 0.6}},
+     "SIT-RB": {"all": {"n": 2, "ours": 0.167, "fp": 0.833}, "clean": {"n": 2, "ours": 0.167, "fp": 0.833}},
+     "SIT-WR": {"all": {"n": 7, "ours": 0.75, "fp": 0.25}, "clean": {"n": 7, "ours": 0.75, "fp": 0.25}},
+     "SIT-TE": {"all": {"n": 7, "ours": 0.727, "fp": 0.273}, "clean": {"n": 7, "ours": 0.727, "fp": 0.273}}
+    }
+   }
+  },
+  "rule": {
+   "rules": {"unit": "call type (direction x position)", "min_n": 40, "z": 1.2816, "bound": "one-sided 90%", "pause": "mean(ours - fp) + z * sd / sqrt(n) < 0", "reinstate": "mean(ours - fp) - z * sd / sqrt(n) > 0", "window": "restarts at each change", "clean": "injury takes left out", "methodology": "12.64 amendment 2"},
+   "through": null,
+   "types": [{"type": "START-QB", "status": "active", "n": 0, "ours": null, "fp": null, "since_week": 4, "history": []}, {"type": "START-RB", "status": "active", "n": 0, "ours": null, "fp": null, "since_week": 4, "history": []}, {"type": "START-WR", "status": "active", "n": 0, "ours": null, "fp": null, "since_week": 4, "history": []}, {"type": "START-TE", "status": "active", "n": 0, "ours": null, "fp": null, "since_week": 4, "history": []}, {"type": "SIT-QB", "status": "active", "n": 0, "ours": null, "fp": null, "since_week": 4, "history": []}, {"type": "SIT-RB", "status": "active", "n": 0, "ours": null, "fp": null, "since_week": 4, "history": []}, {"type": "SIT-WR", "status": "active", "n": 0, "ours": null, "fp": null, "since_week": 4, "history": []}, {"type": "SIT-TE", "status": "active", "n": 0, "ours": null, "fp": null, "since_week": 4, "history": []}]
+  }
+ }
+}

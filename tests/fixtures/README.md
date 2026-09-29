@@ -15,9 +15,10 @@ Jahmyr Gibbs) across CIN/SF/DET, plus Ja'Marr Chase as a TD-only, headshot-less,
 | `data/dfs_pool.json` | `load_dfs_pool()` — Yahoo DFS pool, incl. an FPPG-fallback row |
 | `data/wrcb.json` | `load_wrcb()` — WR/CB upgrade/downgrade tags |
 | `data/breaking_news.json` | `load_news()` — 5 items, one with an unparseable date |
-| `data/startsit_calls.json` | `load_startsit()` — Matchups: a backed and an unbacked start, a sit, two best spots, one without an expert rank |
+| `data/startsit_calls.json` | `load_startsit()` — Takes: a backed and an unbacked start, a sit, two best spots, one without an expert rank; tiers (2026-09-29: Purdy and St. Brown solid, Brown and Higgins lean), and START-TE paused by the rule (staged: 42 takes at 0.214, which cannot really happen before week 11) with Tucker Kraft (strong, no headshot) as its shadow take |
 | `data/pl_startsit.json` | `load_startsit()` — Pitcher List's calls, same week: one agrees with ours (Purdy), one contradicts it (Higgins) |
-| `data/grades/2026-w2.json` | `load_startsit()` — the season record, ours behind Pitcher List's |
+| `data/grades/2026-w3.json` | `load_startsit()` — ff-jarvis's real weeks 1-3 record and v1 splits (2026-09-29, generated with the producer's `record()`): ours 0.371 on 48, Pitcher List 0.633 on 18, FantasyPros 0.629; START 0.241 on 29, SIT 0.621 on 19; no v2 week yet (was `2026-w2.json`, through week 2) |
+| `data/startsit_review.json` | `load_startsit_review()` — Claude's read of week 4 (file only, no feed block); the default grade is week 3, so the page draws it only when a test grades week 4 |
 | `data/history/games/*.jsonl` | `load_schedule()` — week 2 (the pinned clock's week): DET @ SEA, WAS @ LA, MIA @ NE, JAX @ IND; week 3 KC @ SF; a row with no kickoff and a malformed line |
 | `data/weather.json` | `load_weather()` — This week > Weather's four cases in week 2: LA a dome, IND retractable with a calm forecast, SEA windy (15 to 22 mph) and wet (70%), NE outdoor with no forecast yet. St. Brown's roster card (next game at SEA) shows the wind chip with his wx |
 | `data/player_projections.json` `wx` | Amon-Ra St. Brown carries `wx: {adj: -1.06}` (feed block and file): Weather's "Who it hits" for DET @ SEA and his roster card's "−1.1 in his projection" |

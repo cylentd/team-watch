@@ -46,8 +46,24 @@ function muRecordHTML(){
   return `<div class="mu-rec" role="group" aria-label="${t("matchups.record.aria", {wk: r.through})}">
     <span class="mu-rec-l">${t("matchups.record.label")}<small>${t("matchups.record.weeks", {wk: muWeeks(weeks.length ? weeks : r.weeks)})}</small></span>
     <span class="mu-rec-bars">${sides.map(([k, label]) => muBarHTML(label, bars[k], lead(k))).join("")}</span>
-    ${muV2Line(r)}
+    <div class="mu-rec-f">${muV2Line(r)}${muSplitsToggle(r)}${muSplitsHTML(r)}</div>
   </div>`;
+}
+
+/* Claude's read of the graded week (ff-jarvis startsit_review, opus): a note, up to three patterns
+   named with their counts, and up to three take types to watch with their own split numbers. Words
+   about what happened, labelled as Claude's and not advice; it moves no rule. Absent draws nothing. */
+function muReadHTML(v){
+  const d = v.read;
+  if (!d) return "";
+  const pats = d.patterns.length ? `<ul class="mu-read-p">${d.patterns.map(p => `<li>${esc(p)}</li>`).join("")}</ul>` : "";
+  const watch = d.watch.length ? `<p class="mu-read-h">${t("matchups.read.watch")}</p><ul class="mu-read-w">${d.watch.map(w => `<li>
+      <span class="mu-read-t">${muTag(w.tag)} ${esc(w.pos)}${w.status === "paused" ? ` · ${t("matchups.read.paused")}` : ""}</span>
+      <span class="mu-read-x">${esc(w.text)}</span>
+      ${w.n ? `<em>${t("matchups.read.nums", {ours: muScore(w.ours), fp: muScore(w.fp), n: w.n})}</em>` : ""}</li>`).join("")}</ul>` : "";
+  // Two groups, so a desktop pairs them side by side instead of stretching the note 1,000px wide.
+  return `<div class="mu-read"><p class="mu-read-l">${t("matchups.read.label", {week: v.week})}</p>
+    <div class="mu-read-a"><p class="mu-read-n">${esc(d.note)}</p>${pats}</div>${watch ? `<div class="mu-read-b">${watch}</div>` : ""}</div>`;
 }
 
 /* Last graded v2 week, take by take: the result, and for a miss its cause in plain words. A miss an
@@ -64,7 +80,7 @@ function muReviewHTML(){
       <span class="mu-rv-n"><b>${esc(nameInitial(r.n))}</b> <i>${esc(r.pos)} · ${esc(muTag(r.call))}${r.backed ? "" : ` · ${t("matchups.row.gut")}`}</i></span>
       <span class="mu-rv-w">${why}${r.note ? ` <small>${esc(r.note)}</small>` : ""}</span></li>`;
   }).join("");
-  return `<section class="mu-review"><h3 class="mu-grp">${t("matchups.review.title", {week: v.week})}</h3><ul>${rows}</ul></section>`;
+  return `<section class="mu-review"><h3 class="mu-grp">${t("matchups.review.title", {week: v.week})}</h3>${muReadHTML(v)}<ul class="mu-rvs">${rows}</ul></section>`;
 }
 
 /* Up to `max` chips: what argues the take (green), then what argues against it (amber, "but ..."). */
