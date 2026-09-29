@@ -1,6 +1,7 @@
 /* League > Trades (2026-09-28, storyboard https://claude.ai/artifact/EhbDwDUZ7ERb2iNfAqaKjn). Fenced to
-   the view by scope.json. The Records voice: section heads in --tab caps, a card per story, gold for what
-   decided a season, green and red only for won and lost. */
+   the view by scope.json. The Records voice: section heads in --tab caps, gold for what decided a
+   season, green and red only for won and lost. Every card is one box score (storyboard
+   https://claude.ai/artifact/57FSz4b4TrAxrb79EJJXjp, David chose A): a header strip, a body, a footnote. */
 .tr{display:grid;gap:22px;padding:16px 0 32px}
 .tr-head{display:grid;gap:4px;padding-top:2px}
 .tr-head h1{margin:0;font-family:var(--disp);font-size:var(--t-6);font-weight:800;line-height:1.05}
@@ -13,31 +14,70 @@
   font-family:var(--tab);font-size:var(--t-5);font-weight:900;line-height:1;text-transform:uppercase}
 .tr-hd span{font-family:var(--ui);font-size:var(--t-2);font-weight:500;text-transform:none;color:var(--ink-3)}
 .tr-note{margin:0;font-size:var(--t-2);line-height:1.45;color:var(--ink-3)}
-.tr-note b{color:var(--ink-2)}
+.tr :is(span,b,td).up{color:var(--up)}
+.tr :is(span,b,td).dn{color:var(--down)}
+.tr :is(span,b,td).live{color:var(--amber)}
 
-/* best and worst */
+/* ---- the box: every card on the page ---- */
+.tr-bx{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:grid;align-content:start}
+.tr-bx-hd{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:36px;padding:7px 12px;
+  background:var(--panel-2);border-bottom:1px solid var(--line);font-family:var(--mono);font-size:var(--t-1);
+  font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.tr-bx-hd b{font-weight:700}
+.tr-bx-t{display:flex;align-items:center;gap:8px;min-width:0;color:var(--ink)}
+.tr-bx-t svg{width:16px;height:16px;flex:none}
+.tr-bx.title{border-color:rgb(var(--gold-2-rgb) / .55)}
+.tr-bx.title .tr-bx-hd{background:rgb(var(--gold-2-rgb) / .12)}
+.tr-bx.title .tr-bx-t{color:var(--gold-2)}
+.tr-rk{color:var(--gold-2)}
+.tr-bx-ft{display:grid;gap:5px;padding:10px 12px;border-top:1px dashed var(--line-2);font-size:var(--t-2);line-height:1.4;color:var(--ink-2)}
+.tr-bx-ft p{margin:0}
+.tr-bx-say{color:var(--ink);font-weight:600}
+.tr-bx-in{padding:10px 12px}
+
+/* a trade's two sides as rows: the manager, what he got, his score in one right-hand column */
+.tr-sc{width:100%;border-collapse:collapse}
+.tr-sc th,.tr-sc td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle;text-align:left}
+.tr-sc tr:last-child > *{border-bottom:0}
+.tr-sc th{width:1%;white-space:nowrap;font-family:var(--disp);font-size:var(--t-3);font-weight:700;color:var(--ink)}
+.tr-sc .tr-n{width:1%;white-space:nowrap;text-align:right;font-family:var(--mono);font-size:var(--t-4);font-weight:700;font-variant-numeric:tabular-nums}
+.tr-sc tr.tr-w .tr-n{color:var(--up)}
+.tr-sc tr.tr-l .tr-n{color:var(--down)}
+.tr-sc tr.tr-l th{color:var(--ink-2)}
+.tr-flip{display:block;margin:4px 0 0;font-size:var(--t-2);color:var(--amber)}
+.tr-dec{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-weight:600;color:var(--ink)}
+.tr-dec li{display:grid;grid-template-columns:16px minmax(0,1fr);gap:6px;align-items:start}
+.tr-dec svg{width:16px;height:16px;margin-top:1px}
+.tr-dec li.up svg{color:var(--up)}
+.tr-dec li.dn svg{color:var(--down)}
+.tr-dec li.title{color:var(--gold-2)}
+
+/* a traded player: a face and a name in the display face, so who moved reads first */
+.tr-pls{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px 14px}
+.tr-pls li{display:flex;align-items:center;gap:8px;min-width:0}
+.tr-pls b{font-family:var(--disp);font-size:var(--t-3);font-weight:700;white-space:nowrap}
+.tr-sc tr.tr-l .tr-pls b{color:var(--ink-2)}
+.tr-face{position:relative;flex:none;width:32px;height:32px;border-radius:50%;overflow:hidden;display:grid;grid-template:100% / 100%;place-items:center;
+  background:var(--panel-3);border:1px solid var(--line-2)}
+.tr-face img{width:100%;height:100%;object-fit:cover;object-position:top}
+.tr-face .fallback{font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink-3)}
+.tr-none-got{margin:0;font-size:var(--t-2);color:var(--ink-3)}
+.tr-more{all:unset;cursor:pointer;justify-self:start;font-family:var(--ui);font-size:var(--t-2);font-weight:600;color:var(--lime);padding:6px 0;min-height:32px}
+.tr-more:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+
+/* best and worst: the icon and label in the strip, the manager with his number beside him */
 .tr-lead{display:grid;gap:10px}
-.tr-lead-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:10px;align-content:start}
-.tr-lead-top{display:grid;grid-template-columns:40px auto auto;justify-content:start;gap:12px 16px;align-items:center}
-.tr-lead-ic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center}
-.tr-lead-ic svg{width:22px;height:22px}
-.best .tr-lead-ic{background:rgb(var(--lime-rgb) / .14);color:var(--lime)}
-.worst .tr-lead-ic{background:rgb(var(--down-rgb) / .14);color:var(--down)}
-.tr-lead-who{display:grid;gap:4px;justify-items:start;min-width:0}
-.tr-lead-who b{font-family:var(--disp);font-size:var(--t-5);font-weight:800;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.tr-lead-n{font-family:var(--mono);font-size:var(--t-4);font-weight:700;font-variant-numeric:tabular-nums}
-.tr-lead-sure{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center;font-size:var(--t-2);color:var(--ink-2)}
-.tr-lead-sure .up{color:var(--up);font-weight:600}
-.tr-lead-sure .dn{color:var(--down);font-weight:600}
-.tr-lead-trade{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;border-top:1px dashed var(--line-2);padding-top:10px}
-.tr-lead-trade p{flex-basis:100%;margin:0;font-size:var(--t-2);color:var(--ink-2)}
-.tr-lead-trade > b{font-family:var(--mono);font-size:var(--t-3);font-weight:700;font-variant-numeric:tabular-nums}
-.tr-lead-trade > b.up{color:var(--up)}
-.tr-lead-trade > b.dn{color:var(--down)}
-.tr-lead-n small{display:block;font-size:var(--t-1);font-weight:500;color:var(--ink-3)}
-.tr-tag{justify-self:start;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 6px;border-radius:4px}
-.tr-tag.best{background:var(--lime);color:var(--on-lime)}
-.tr-tag.worst{background:var(--down);color:var(--void)}
+.tr-lead-ic{display:inline-grid;place-items:center}
+.best .tr-lead-ic{color:var(--lime)}
+.worst .tr-lead-ic{color:var(--down)}
+.tr-lead-in{display:grid;gap:4px;padding:12px}
+.tr-lead-who{margin:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+.tr-lead-who b{font-family:var(--disp);font-size:var(--t-5);font-weight:800;line-height:1}
+.tr-lead-who span{font-family:var(--mono);font-size:var(--t-5);font-weight:700;font-variant-numeric:tabular-nums}
+.tr-lead-who small{font-size:var(--t-2);color:var(--ink-3)}
+.tr-lead-luck{margin:0;font-size:var(--t-2);color:var(--ink-2)}
+.tr-def-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
+.tr-def-row > b{font-family:var(--mono);font-size:var(--t-3);font-weight:700;font-variant-numeric:tabular-nums}
 
 /* the ranking: a row per manager, the dot and its range on one scale, a dashed 0 */
 .tr-mgrs{list-style:none;margin:0;padding:0}
@@ -50,7 +90,6 @@
 .tr-mgr b{font-size:var(--t-3);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tr-wl{font-family:var(--mono);font-size:var(--t-2);text-align:right;font-variant-numeric:tabular-nums}
 .tr-chev{color:var(--ink-3);font-family:var(--mono);transition:transform .2s var(--ease)}
-.tr-mgr[aria-expanded="true"] .tr-chev{transform:rotate(90deg)}
 .tr-track{position:relative;height:18px;color:var(--ink-2)}
 .tr-track.up{color:var(--up)}
 .tr-track.dn{color:var(--down)}
@@ -62,87 +101,32 @@
 .tr-ticks{position:relative;height:14px}
 .tr-ticks i{position:absolute;left:var(--x);transform:translateX(-50%);font-style:normal;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
 
-/* a manager's trades, under their row */
-.tr-mine{list-style:none;margin:0;padding:0 0 10px;display:grid;gap:6px}
-.tr-row{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:8px;align-items:start;background:var(--panel);border-radius:8px;padding:8px 10px;font-size:var(--t-2)}
-.tr-row p{margin:0}
-.tr-when{font-size:var(--t-2);color:var(--ink-2)}
-.tr-gave{color:var(--ink-3)}
-.tr-res{font-family:var(--mono);font-size:var(--t-1);font-weight:700;text-align:center;border-radius:4px;padding:1px 0}
+/* a manager's trades, under his row: each a small box score, got in ink and gave dimmed */
+.tr-mine{list-style:none;margin:0;padding:2px 0 12px;display:grid;gap:8px}
+.tr-row .tr-bx-hd{text-transform:none;letter-spacing:0;font-family:var(--ui);font-size:var(--t-2);font-weight:600}
+.tr-row .tr-bx-hd b{font-family:var(--mono);font-size:var(--t-3)}
+.tr-res{font-family:var(--mono);font-size:var(--t-1);font-weight:700;border-radius:4px;padding:1px 6px}
 .tr-res.up{background:rgb(var(--up-rgb) / .16);color:var(--up)}
 .tr-res.dn{background:rgb(var(--down-rgb) / .14);color:var(--down)}
 .tr-res.open{background:var(--panel-3);color:var(--amber)}
-.tr-by{font-family:var(--mono);font-size:var(--t-2);white-space:nowrap;font-variant-numeric:tabular-nums}
-.tr-by.up{color:var(--up)}
-.tr-by.dn{color:var(--down)}
-.tr-by.open{color:var(--amber)}
-.tr-flip{display:block;font-size:var(--t-2);color:var(--amber)}
-.tr-dec{list-style:none;margin:4px 0 0;padding:0;display:grid;gap:4px;font-size:var(--t-2);font-weight:600;line-height:1.35;color:var(--ink)}
-.tr-dec li{display:grid;grid-template-columns:16px minmax(0,1fr);gap:6px;align-items:start}
-.tr-dec svg{width:16px;height:16px;margin-top:1px}
-.tr-dec li.up svg{color:var(--up)}
-.tr-dec li.dn svg{color:var(--down)}
-.tr-dec li.title{color:var(--gold-2)}
-
-/* heists and the trades that decided a season */
-.tr-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:8px;align-content:start}
-.tr-card.title{border-color:rgb(var(--gold-2-rgb) / .55);background:linear-gradient(180deg,rgb(var(--gold-2-rgb) / .09),var(--panel) 70%)}
-.tr-card h3{margin:0;font-family:var(--disp);font-size:var(--t-3);font-weight:700;line-height:1.3;min-width:0}
-.tr-card h3 small{display:block;font-family:var(--ui);font-size:var(--t-2);font-weight:500;color:var(--ink-2);margin-top:2px}
-.tr-card-top{display:flex;gap:10px;align-items:baseline}
-.tr-rk{font-family:var(--disp);font-size:var(--t-5);font-weight:800;line-height:1;color:var(--gold-2)}
-.tr-card .tr-tag{background:var(--gold-2);color:var(--void)}
-.tr-after{margin:0;font-size:var(--t-2);color:var(--ink-2);border-top:1px dashed var(--line-2);padding-top:6px}
-
-/* a traded player: a face and a name in the display face, so who moved reads first */
-.tr-pls{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px 14px}
-.tr-pls li{display:flex;align-items:center;gap:8px;min-width:0}
-.tr-pls b{font-family:var(--disp);font-size:var(--t-3);font-weight:700;white-space:nowrap}
-.tr-face{position:relative;flex:none;width:40px;height:40px;border-radius:50%;overflow:hidden;display:grid;grid-template:100% / 100%;place-items:center;
-  background:var(--panel-3);border:1px solid var(--line-2)}
-.tr-face img{width:100%;height:100%;object-fit:cover;object-position:top}
-.tr-face .fallback{font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink-3)}
-.tr-none-got{margin:0;font-size:var(--t-2);color:var(--ink-3)}
-.tr-side{display:grid;gap:6px;align-content:start}   /* beside a taller side it stretches; its rows stay packed at the top */
-.tr-side + .tr-side{border-top:1px dashed var(--line-2);padding-top:8px}
-/* the total beside its label, not at the far edge (2026-09-28): one number per half is no column to scan */
-.tr-side-hd{margin:0;display:flex;align-items:baseline;gap:10px}
-.tr-side-hd span{font-family:var(--disp);font-size:var(--t-3);font-weight:700;color:var(--ink)}
-.tr-side-hd b{font-family:var(--mono);font-size:var(--t-4);font-weight:700;font-variant-numeric:tabular-nums}
-/* "Got" beside the faces it labels, level with the first row of them */
-.tr-got{display:grid;grid-template-columns:32px minmax(0,1fr);gap:8px;align-items:start}
-.tr-got > span{font-size:var(--t-2);line-height:40px;color:var(--ink-3)}
-.tr-side-hd b.up{color:var(--up)}
-.tr-side-hd b.dn{color:var(--down)}
-.tr-pair{display:grid;gap:8px}
-/* in a manager's list, smaller: got in ink, gave dimmed */
-.tr-io{display:grid;grid-template-columns:36px minmax(0,1fr);gap:8px;align-items:start;margin-top:5px}
-.tr-io > span{font-size:var(--t-2);line-height:28px;color:var(--ink-2)}   /* level with the first face */
-.tr-io .tr-face{width:28px;height:28px}
+.tr-io th,.tr-io td{padding:7px 12px}
+.tr-io th{font-family:var(--ui);font-size:var(--t-2);font-weight:500;color:var(--ink-3)}
+.tr-io .tr-face{width:26px;height:26px}
 .tr-io .tr-pls{gap:4px 12px}
 .tr-io .tr-pls b{font-size:var(--t-2)}
-.tr-gave .tr-pls b{color:var(--ink-2);font-weight:600}
-.tr-more{all:unset;cursor:pointer;justify-self:start;font-family:var(--ui);font-size:var(--t-2);font-weight:600;color:var(--lime);padding:6px 0;min-height:32px}
-.tr-more:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 
-/* curses: a chain of trades, each sender's loss in red, the one still open in amber */
-.tr-curse{gap:6px}   /* a .tr-card, like the heists; the fire rises inside its padding */
-.tr-rest{gap:14px}
+/* curses: the mark and its name, then each trade of him a row, the sender's loss in the right column */
+.tr-curse .tr-bx-t svg{color:var(--hex-rim)}
+.tr-curse-top{display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;align-items:center;padding:12px 12px 8px}
 .tr-curse h3{margin:0;font-family:var(--disp);font-size:var(--t-4);font-weight:800;color:var(--gold-2)}
 .tr-curse p{margin:0;font-size:var(--t-2);line-height:1.4;color:var(--ink-2)}
-.tr-chain{list-style:none;margin:6px 0 0;padding:0}
-.tr-chain li{position:relative;padding:0 0 12px 22px;display:grid;gap:1px}
-.tr-chain li::before{content:"";position:absolute;left:3px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--gold-2)}
-.tr-chain li::after{content:"";position:absolute;left:7px;top:16px;bottom:0;width:2px;background:var(--line-2)}
-.tr-chain li:last-child::after{display:none}
-.tr-chain li.open::before{background:var(--amber)}
-.tr-chain b{font-family:var(--disp);font-size:var(--t-3);font-weight:700}
-.tr-chain span{font-size:var(--t-2);color:var(--ink-2)}
-.tr-chain span.dn{color:var(--down)}
-.tr-chain span.live{color:var(--amber)}
+.tr-chain{border-top:1px solid var(--line)}
+.tr-chain th,.tr-chain td{padding:8px 12px}
+.tr-chain .tr-y{width:1%;font-family:var(--mono);font-size:var(--t-2);color:var(--ink-3)}
+.tr-chain th{width:auto}
+.tr-chain .tr-n{font-size:var(--t-3)}
 /* the mark: his face drained of colour in front of black fire, one skull per trade under it. The fire
    rises ~17px above its box, so the mark starts that far down. */
-.tr-curse-top{display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;align-items:center}
 .tr-mark{display:grid;justify-items:center;gap:4px;padding-top:18px}
 .tr-fire{position:relative;width:96px;height:96px;display:grid;place-items:center}
 .tr-fire svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
@@ -165,10 +149,48 @@
 .tr-skull.live .bone{fill:none}
 .tr-skull.live .eye{fill:currentColor}
 .tr-skull.live .teeth{stroke:currentColor}
-.tr-also{display:grid;gap:6px}
-.tr-also .tr-face{width:32px;height:32px}
-.tr-also img{filter:grayscale(1)}
-.tr-also .tr-pls b{font-size:var(--t-2);color:var(--ink-2)}
+.tr-rest .tr-face{width:28px;height:28px}
+.tr-rest img{filter:grayscale(1)}
+.tr-rest .tr-pls b{font-size:var(--t-2);color:var(--ink-2)}
+.tr-rest .tr-bx-hd > span:last-child{text-transform:none;letter-spacing:0;font-family:var(--ui);font-weight:500}
+
+/* Motion answers a tap (STYLE.md), never plays on its own (David, 2026-09-28: "readability first, then
+   fun sprinkled in"). A manager's trades drop in one after another from his row; tapping a curse's fire
+   flares it and pops its skulls in one by one, counting the curse out. */
+.tr-mark{all:unset;box-sizing:border-box;cursor:pointer;border-radius:12px}
+.tr-mark:focus-visible{outline:2px solid var(--hex-rim);outline-offset:2px}
+/* A ranking row says it opens: lit under a mouse, or while it crosses the middle of a phone screen
+   (alive.js), the chevron nudged toward what opens; a tap presses it in. */
+.tr-mgr{transition:background .2s var(--ease),transform var(--dur-spring) var(--spring)}
+.tr-mgr.hot{background:var(--panel-2)}
+.tr-mgr.hot .tr-chev{color:var(--lime);transform:translateX(3px)}
+.tr-mgr:active{transform:scale(var(--press))}
+@media (hover:hover){
+  .tr-mgr:hover{background:var(--panel-2)}
+  .tr-mgr:hover .tr-chev{color:var(--lime);transform:translateX(3px)}
+}
+.tr-mgr[aria-expanded="true"] .tr-chev{transform:rotate(90deg)}
+/* The curse card haunts: a violet edge and a mist banked along its bottom, still until the fire is
+   tapped, when it swells with the flare. Low enough that the rows over it stay ink on dark. */
+.tr-curse{position:relative;border-color:rgb(var(--hex-rim-rgb) / .45)}
+.tr-curse .tr-bx-hd{background:rgb(var(--hex-2-rgb) / .7);border-bottom-color:rgb(var(--hex-rim-rgb) / .25)}
+.tr-curse::after{content:"";position:absolute;inset:auto 0 0;height:60%;pointer-events:none;opacity:.75;
+  background:radial-gradient(60% 70% at 18% 100%,rgb(var(--hex-1-rgb) / .28),transparent 70%),
+             radial-gradient(55% 60% at 82% 105%,rgb(var(--hex-rim-rgb) / .12),transparent 70%)}
+/* the shuffle: a bar fills over the 10 s before the non-title cards swap */
+.tr-shuffle{height:2px;background:var(--line);border-radius:2px;overflow:hidden}
+.tr-shuffle i{display:block;height:100%;background:var(--gold-2);transform:scaleX(var(--p,0));transform-origin:left;transition:transform .1s linear}
+@media (prefers-reduced-motion:no-preference){
+  .tr-mine > li{animation:tr-drop .28s var(--ease) both;animation-delay:calc(var(--i) * 40ms)}
+  .tr-fresh{animation:tr-drop .36s var(--ease) both;animation-delay:calc(var(--i) * 70ms)}
+  .tr-mark.stir .tr-fire svg{animation:tr-flare .6s var(--ease)}
+  .tr-mark.stir .tr-skull{animation:tr-pop var(--dur-spring) var(--spring) both;animation-delay:calc(var(--i) * 110ms)}
+  .tr-curse:has(.tr-mark.stir)::after{animation:tr-mist 1.4s var(--ease)}
+}
+@keyframes tr-drop{from{opacity:0;transform:translateY(-6px)}}
+@keyframes tr-flare{40%{transform:scale(1.1);filter:brightness(1.6)}}
+@keyframes tr-pop{from{transform:scale(0)}60%{transform:scale(1.25)}}
+@keyframes tr-mist{35%{transform:translateY(-10%) scaleY(1.25);opacity:1}}
 
 /* Desktop (2026-09-28, second pass): rows, not columns. Two columns split by kind left the ranking
    (705px) beside a 1730px stack, ~1000px of nothing under it, and best/worst held to 640px of a
@@ -182,12 +204,7 @@
   .tr-decided,.tr-curses{grid-column:1 / -1}
   /* across 1360px a subhead pushed to the far edge reads as belonging to nothing */
   :is(.tr-decided,.tr-curses) .tr-hd{justify-content:start;column-gap:14px}
-  .tr-decided .tr-grid{row-gap:12px;align-items:stretch}
-  .tr-curses .tr-grid{align-items:stretch}
-  /* 64px = the 40px between the cards above plus their 2 x 12px padding, so each half starts under a card's text */
-  .tr-rest{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:64px}
-  .tr-pair{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:16px}
-  .tr-pair .tr-side + .tr-side{border-top:0;padding-top:0}
+  .tr-decided .tr-grid,.tr-curses .tr-grid{row-gap:12px;align-items:stretch}
 }
 /* With a mouse the ranking's rows need no 44px touch height; tighter, it ends level with the heists. */
 @media (min-width:960px) and (pointer:fine){

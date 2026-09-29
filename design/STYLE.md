@@ -46,6 +46,10 @@ Every motion answers the reader's hand and ends where the thing now lives. The m
 information; if it says nothing a still frame does not, cut it.
 
 1. **Nothing moves on its own.** No idle loops, no timers. The one exception is data arriving.
+   Exception (David, 2026-09-28): League > Trades shuffles its decided-a-season cards every 10 s,
+   only on screen, paused under a pointer or after a touch, announced by a filling bar, off under
+   reduced motion and after Show all (`surface/trades/alive.js`). Rule 4 still holds: the swap never
+   happens under a hand.
 2. **A motion ends at the thing's new home.** A pick flies to the tray; a loaded slip's legs drop
    in one by one; a page's cards slide in from the side the page turned.
 3. **The motion is the data change.** A bar grows from the old value to the new one; a percentage

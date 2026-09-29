@@ -306,6 +306,14 @@ labels went from 5px to 2px sides (8px clear of the search icon at 360px, measur
 - **Readability rule** (2026-09-28): no sentence below `--t-2` and none in mono; mono is for numbers
   and labels of a word or two. A decided line leads with a trophy (title, gold), an arrow up (a spot or
   bye gained, green) or down (lost, red).
+- **One card system, the box score** (David chose A of two, 2026-09-28, storyboard
+  https://claude.ai/artifact/57FSz4b4TrAxrb79EJJXjp): every card is a header strip, a body and a
+  footnote (`trBox`, cards.js). A trade's body is its two sides as rows with the scores in one right
+  column; a card with one number keeps it beside its label. Best/worst, heists, decided, curses and a
+  manager's trades all use it.
+- **Alive, with guards** (`alive.js`): the ranking row crossing the middle of a phone screen lights;
+  a tapped curse fire flares, its skulls pop in one by one and the card's mist swells; a manager's
+  trades drop in on open; the decided cards shuffle every 10 s (STYLE.md rule 1's dated exception).
 - **The curse mark** (David picked E of five, storyboard v7): the face drained of colour before black
   fire (`--hex-*` tokens), and one skull per trade under it, red lost, hollow amber still open.
 
