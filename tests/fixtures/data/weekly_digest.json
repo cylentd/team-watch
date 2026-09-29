@@ -15,6 +15,9 @@
    "usage_top_pct": 40,
    "rostered_max": 40,
    "weeks": 2
+  },
+  "smashed": {
+   "min": 8.0
   }
  },
  "lead": {

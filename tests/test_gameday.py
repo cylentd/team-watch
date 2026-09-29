@@ -184,15 +184,20 @@ def test_the_board_says_where_each_game_is_and_a_row_opens_his_profile(browser, 
     # the lock is the slot's alone: the game line never repeats it, nor says LIVE or FINAL
     assert page.locator(".gd-game svg").count() == 0
     assert not any(re.search(r"\b(LIVE|FINAL)\b", s) for s in page.locator(".gd-game").all_inner_texts())
-    # lime points mean his game is on, and nothing else; the fire means he passed his projection
+    # lime points mean his game is on, and nothing else; a flame beside the points means he passed his
+    # projection, and a fire ring on his face that he passed it by the Digest's own Smashed margin
     lime = page.evaluate("getComputedStyle(document.body).getPropertyValue('--lime').trim()")
     rows = page.evaluate("""() => [...document.querySelectorAll('.gd-row')].map(r => ({on: r.classList.contains('on'),
-      lime: getComputedStyle(r.querySelector('.gd-pts')).color, fire: !!r.querySelector('.gd-face .gd-hot'),
+      lime: getComputedStyle(r.querySelector('.gd-pts')).color, fire: !!r.querySelector('.gd-pts .gd-flame'),
+      ring: r.querySelector('.gd-hd').classList.contains('smashed'),
       pts: parseFloat(r.querySelector('.gd-pts').textContent), proj: parseFloat(r.querySelector('.gd-proj').textContent)}))""")
     lime_rgb = page.evaluate("(c) => { const d = document.createElement('i'); d.style.color = c; document.body.append(d); const v = getComputedStyle(d).color; d.remove(); return v; }", lime)
+    smash = page.evaluate("LIVE_DIGEST.rules.smashed.min")
+    known = lambda r: r["proj"] == r["proj"] and r["pts"] == r["pts"]
     assert all((r["lime"] == lime_rgb) == r["on"] for r in rows)
-    assert all(r["fire"] == (r["proj"] == r["proj"] and r["pts"] == r["pts"] and r["pts"] > r["proj"]) for r in rows)
-    assert any(r["fire"] for r in rows)
+    assert all(r["fire"] == (known(r) and r["pts"] > r["proj"]) for r in rows)
+    assert all(r["ring"] == (known(r) and r["pts"] - r["proj"] >= smash) for r in rows)
+    assert any(r["fire"] and not r["ring"] for r in rows) and any(r["ring"] for r in rows)
     assert all(re.match(r"^(\d+\.\d)?$", s) for s in page.locator(".gd-lineup.mine .gd-proj").all_inner_texts())
     assert page.locator(".gd-median:not(.quiet)").count() == 1         # ESPN pays the top half
     # every game states itself on the line above its boxes; a box is a name and a score, and only a

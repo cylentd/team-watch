@@ -12,25 +12,37 @@ const gdClock = ms => new Date(ms).toLocaleString("en-US", {weekday: "short", ho
 /* Points over his projection, ESPN's way (2026-09-28, storyboard
    https://claude.ai/artifact/WxBrEw9K8CTNu8KftYvPYQ, option B). The second number carries no label:
    under the points it can only be the projection. Lime points mean one thing, his game is on (David,
-   2026-09-29: lime for "beat his projection" read as "active"); beating it pins a flame badge on his
-   face's corner, where ESPN pins IR (David picked it over a burning face, which read as cartoony). */
+   2026-09-29: lime for "beat his projection" read as "active"). Past his projection, a small flame
+   sits beside the points, next to the two numbers it compares; past it by the Digest's own
+   "Smashed" margin, his face is ringed in fire too (David, 2026-09-29). */
+const GD_FLAME = `<path class="o" d="M12 1.5c.7 3.4 3.6 5 5 7.9 1.5 3 1 6.8-1.5 9.1A6.6 6.6 0 0 1 5.3 15.6c-.3-2.4.7-4.4 2.2-5.8.1 1.8.9 2.8 2 3.3-.8-3.7.4-8 2.5-11.6z"/>
+  <path class="i" d="M12.3 11.2c.5 1.6 2.1 2.6 2.4 4.3a3 3 0 0 1-5.9 1.1c-.2-1.3.4-2.4 1.2-3.1.1.8.5 1.2 1 1.4-.2-1.4.4-2.7 1.3-3.7z"/>`;
+/* The margin the Digest calls Smashed, from ff-jarvis (weekly_digest_schema.SMASH_MIN, carried out
+   as rules.smashed.min); without it nobody is ringed, never a guessed number. */
+const gdSmashMin = () => {
+  const m = typeof LIVE_DIGEST !== "undefined" && LIVE_DIGEST && ((LIVE_DIGEST.rules || {}).smashed || {}).min;
+  return typeof m === "number" ? m : null;
+};
+/* How far past his projection he is: 0 not at all, 1 beat it, 2 smashed it. */
+function gdHeat(r){
+  const p = projFor(r);
+  if (r.state === "pre_game" || p === null || (r.pts || 0) <= p) return 0;
+  const m = gdSmashMin();
+  return m !== null && (r.pts || 0) - p >= m ? 2 : 1;
+}
+
 function gdRightHTML(r){
   const pulse = r.sid && GD_PULSE[r.sid] !== undefined ? `<em class="up">${gdSigned(GD_PULSE[r.sid])}</em>` : "";
   const p = projFor(r), proj = `<span class="gd-proj">${p === null ? "" : gdNum(p)}</span>`;
   if (r.state === "pre_game") return `<span class="gd-pts pre">—</span>${proj}`;
-  return `<span class="gd-pts">${pulse}${gdNum(r.pts || 0)}</span>${proj}`;
+  const heat = gdHeat(r);
+  const flame = !heat ? "" : `<svg class="gd-flame" viewBox="0 0 24 24" role="img"
+      aria-label="${heat === 2 ? t("live.row.smashed") : t("live.row.hot")}">${GD_FLAME}</svg>`;
+  return `<span class="gd-pts">${pulse}${flame}${gdNum(r.pts || 0)}</span>${proj}`;
 }
-const gdHot = r => { const p = projFor(r); return r.state !== "pre_game" && p !== null && (r.pts || 0) > p; };
 
-/* His face, with the flame badge when he is past his projection: an outer flame in orange and an
-   inner one in yellow, so it reads as fire at 12px. */
-function gdFaceHTML(r){
-  const face = `<span class="gd-hd">${avatarHTML(r)}</span>`;
-  if (!gdHot(r)) return face;
-  return `<span class="gd-face">${face}<span class="gd-hot"><svg viewBox="0 0 24 24" role="img" aria-label="${t("live.row.hot")}">
-      <path class="o" d="M12 1.5c.7 3.4 3.6 5 5 7.9 1.5 3 1 6.8-1.5 9.1A6.6 6.6 0 0 1 5.3 15.6c-.3-2.4.7-4.4 2.2-5.8.1 1.8.9 2.8 2 3.3-.8-3.7.4-8 2.5-11.6z"/>
-      <path class="i" d="M12.3 11.2c.5 1.6 2.1 2.6 2.4 4.3a3 3 0 0 1-5.9 1.1c-.2-1.3.4-2.4 1.2-3.1.1.8.5 1.2 1 1.4-.2-1.4.4-2.7 1.3-3.7z"/></svg></span></span>`;
-}
+/* His face; ringed in fire when he smashed his projection. */
+const gdFaceHTML = r => `<span class="gd-hd${gdHeat(r) === 2 ? " smashed" : ""}">${avatarHTML(r)}</span>`;
 
 /* His game in one line: the score from his side while it is on ("up 24-17 vs NYJ"), W/L once it is
    final ("W 36-30 vs ARI"), the kickoff before. The row's tint says it is on and the slot's lock says
