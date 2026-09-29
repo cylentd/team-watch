@@ -65,8 +65,9 @@ def test_a_reason_is_rounded_as_the_row_says_it():
 
 @pytest.mark.render
 def test_results_reads_as_the_storyboard(browser, page_file):
-    """The badge counts games still to play; each smashed or busted line says why and shows
-    "proj → actual"; a bust who left hurt borrows Left hurt's freshest word."""
+    """The badge counts games still to play; each smashed or busted line says why and shows its
+    points over its projection, no gap (2026-09-29); a bust who left hurt borrows Left hurt's
+    freshest word."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     page.goto(page_file.as_uri())
     for _, sel in go("digest"):
@@ -74,9 +75,11 @@ def test_results_reads_as_the_storyboard(browser, page_file):
     got = page.evaluate("""() => {
       const d = dgD(), host = document.createElement('div');
       host.innerHTML = dgResBody(d);
-      const lines = [...host.querySelectorAll('.dg-rl .dg-ln')].map(b => b.innerText.replace(/\\s+/g, ' ').trim());
+      const rows = [...host.querySelectorAll('.dg-rlow .dg-rr')];
+      const lines = rows.map(b => b.querySelector('.dg-rr-n').textContent.replace(/\\s+/g, ' ').trim());
+      const nums = rows.map(b => [...b.querySelectorAll('.dg-rv > *')].map(x => x.textContent));
       const pill = s => { const h = document.createElement('div'); h.innerHTML = dgOutPill(s); return h.textContent; };
-      return {badge: dgCount('res', d)[0], lines,
+      return {badge: dgCount('res', d)[0], lines, nums,
               pills: {season: [...host.querySelectorAll('.dg-pill.out')].filter(p => p.textContent === 'Season').length,
                       weeks: pill('Baker Mayfield expected to miss three weeks')}};
     }""")
@@ -85,12 +88,38 @@ def test_results_reads_as_the_storyboard(browser, page_file):
     assert got["badge"] == "2 to play"
     # every reason is a pill (DESIGN.md "Say it in a shape"); innerText has no gaps between flex cells
     assert "31% tgt +10" in got["lines"][0] and "TD luck +5" in got["lines"][0]
-    assert got["lines"][0].endswith("8.1 →17.8+9.7")
+    assert got["nums"][0] == ["17.8", "8.1"]                   # points over projection, no gap
+    assert all(len(n) <= 2 for n in got["nums"])
     assert "Hurt · Knee" in got["lines"][1]
     assert "TD luck −6" in got["lines"][2]
-    assert "Concussion" in got["lines"][3] and got["lines"][3].endswith("18.4 →3.2")
+    assert "Concussion" in got["lines"][3] and got["nums"][3] == ["3.2", "18.4"]
     assert "Left early" in got["lines"][5]
     assert got["pills"]["season"] == 1 and got["pills"]["weeks"] == "Out 3 wks"
+
+
+@pytest.mark.render
+def test_results_on_the_wall_keep_each_number_by_its_name(browser, page_file):
+    """On a desktop the top scores and the lists share four columns, Left hurt spanning two
+    (2026-09-29), so a row is one column wide: its number sits within 330px of its name at the
+    1,680px frame, and its face is 40px."""
+    ctx, page, errors = open_page(browser, page_file, (1705, 1000))
+    page.goto(page_file.as_uri())
+    for _, sel in go("digest"):
+        page.click(sel)
+    page.wait_for_selector(".dg-rs")
+    got = page.evaluate("""() => {
+      const cols = s => getComputedStyle(document.querySelector(s)).gridTemplateColumns.split(' ').length;
+      const rows = [...document.querySelectorAll('.dg-rr')].map(r => {
+        const n = r.querySelector('.dg-rr-n b').getBoundingClientRect(), v = r.querySelector('.dg-rv').getBoundingClientRect();
+        return {gap: v.left - n.left, face: r.querySelector('.dg-hd').getBoundingClientRect().width};
+      });
+      return {top: cols('.dg-rtop'), low: cols('.dg-rlow'), rows};
+    }""")
+    ctx.close()
+    assert errors == []
+    assert (got["top"], got["low"]) == (4, 4)
+    assert got["rows"] and max(r["gap"] for r in got["rows"]) < 330
+    assert all(r["face"] == 40 for r in got["rows"])
 
 
 def test_fixture_block_is_whole():

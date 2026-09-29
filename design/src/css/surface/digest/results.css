@@ -1,30 +1,39 @@
 /* ============================== DIGEST: RESULTS ==============================
-   The top scores as a 2x2 of short lists, then Smashed, Busts and Left hurt as player lines whose
-   meta is the reason as pills and whose number is "2.4 → 17.3 +14.9". A phone stacks the four blocks;
-   the wall sets them two by two, the top scores beside Smashed (storyboard, 2026-09-28). */
+   The top scores by position, then Smashed, Busts and Left hurt. Every row is one shape (2026-09-29,
+   storyboard https://claude.ai/artifact/7gsPHebT4xTdo36N1QqqWD, option B): a face, the name over its
+   reason pills, the points over the projection, the stack Live's rows use. A phone sets the top
+   scores two by two and stacks the three lists; the wall sets both on four columns (Left hurt
+   spans two), so no column is wider than its rows and a number sits by its name. */
 
-.dg-rs{display:grid;gap:16px;padding-top:6px}
-.dg-rs h4{margin:0 0 4px;font-size:var(--t-1);font-weight:600;line-height:1;letter-spacing:.07em;color:var(--ink-3)}
-
-.dg-rtop{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px}
-.dg-rtop ol{margin:0;padding:0;list-style:none;display:grid;gap:2px}
-.dg-rtop li{display:grid;grid-template-columns:20px minmax(0,1fr) auto;align-items:center;gap:6px;min-height:28px;font-size:var(--t-2)}
-.dg-rtop li > span:nth-child(2){white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dg-rtop .dg-hd.sm{width:20px;height:20px}
-.dg-rtop li em{font-style:normal;font-family:var(--mono);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.dg-rs{display:grid;gap:20px;padding-top:6px}
+.dg-rs h4{margin:0 0 2px;font-size:var(--t-1);font-weight:600;line-height:1;letter-spacing:.07em;color:var(--ink-3)}
+.dg-rtop{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.dg-rlow{display:grid;gap:20px}
+.dg-rcol{display:grid;align-content:start;min-width:0}
 
 /* The count is words ("1 to play"), wider than the other rows' 40px number column. */
 .dg-row[data-dgrow="res"] .dg-head{grid-template-columns:86px auto minmax(0,1fr) 18px}
 .dg-row[data-dgrow="res"] .dg-n{white-space:nowrap}
 
-/* A phone line: name and "proj → actual" on the first line, the reason across the whole second
-   (squeezed beside the numbers it ran to three lines at 360px). */
-.dg-rl .dg-ln{grid-template-columns:32px minmax(0,1fr) auto;grid-template-areas:"hd n r" "hd w w";row-gap:2px;padding:6px 0}
-.dg-rl .dg-ln-t{display:contents}
-.dg-rl .dg-hd{grid-area:hd;align-self:start}
-.dg-rl .dg-ln-t b{grid-area:n}
-.dg-rl .dg-ln-r{grid-area:r}
-.dg-rl .dg-ln-t > span{grid-area:w;display:flex;flex-wrap:wrap;gap:4px;white-space:normal;line-height:1.3;color:var(--ink-2)}
+.dg-rr{
+  appearance:none;border:0;border-bottom:1px solid var(--line);background:none;color:inherit;font:inherit;text-align:left;
+  cursor:pointer;width:100%;display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;
+  min-height:56px;padding:8px 0;transition:transform var(--dur-spring) var(--spring);
+}
+.dg-rr:last-child{border-bottom:0}
+.dg-rr:active{transform:scale(var(--press))}
+.dg-rr:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.dg-rr .dg-hd{width:40px;height:40px}
+.dg-rr-n{display:grid;gap:5px;min-width:0}
+.dg-rr-n b{font-weight:600;font-size:var(--t-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dg-rr-n > span{display:flex;flex-wrap:wrap;gap:4px}
+/* The top scores sit two to a row on a phone: a smaller face leaves the name its room. */
+.dg-rtop .dg-rr{grid-template-columns:32px minmax(0,1fr) auto;gap:8px;min-height:48px}
+.dg-rtop .dg-rr .dg-hd{width:32px;height:32px}
+.dg-rv{display:grid;justify-items:end;gap:3px;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.dg-rv b{font-size:var(--t-3);font-weight:700;line-height:1}
+.dg-rv span{font-size:var(--t-1);line-height:1;color:var(--ink-3)}
+
 /* A reason as a pill: grey is his role, green TD luck that helped, red TD luck that hurt, amber an
    injury, filled red how long he is out. */
 .dg-pill{
@@ -35,22 +44,16 @@
 .dg-pill.unlucky{border-color:rgb(var(--down-rgb) / .45);color:var(--down)}
 .dg-pill.hurt{border-color:rgb(var(--amber-rgb) / .5);color:var(--amber)}
 .dg-pill.out{border-color:transparent;background:rgb(var(--down-rgb) / .14);color:var(--down)}
-.dg-rn{display:flex;align-items:baseline;justify-content:flex-end;gap:6px;white-space:nowrap}
-.dg-ln-r .dg-rn small{display:inline;margin:0;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
-.dg-rn b{font-weight:500}
-.dg-rn em{font-style:normal;font-size:var(--t-2);min-width:5ch;text-align:right}
-.dg-rn em.up{color:var(--up)}
-.dg-rn em.dn{color:var(--down)}
 
 @media (min-width:1100px){
-  .dg-rs{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 48px;align-items:start}
-  .dg-rtop{column-gap:32px;row-gap:18px}
-  .dg-rtop li{grid-template-columns:24px minmax(0,1fr) auto;gap:10px;min-height:32px}
-  .dg-rtop .dg-hd.sm{width:24px;height:24px}
-  /* The wall has the width for one line: name, reason, numbers. */
-  .dg-rl .dg-ln{grid-template-columns:24px minmax(0,1fr) auto;grid-template-areas:none;min-height:36px;padding:0}
-  .dg-rl .dg-hd{grid-area:auto;align-self:center;width:24px;height:24px}
-  .dg-rl .dg-ln-t{display:grid;grid-template-columns:130px minmax(0,1fr);align-items:baseline;column-gap:12px}
-  .dg-rl .dg-ln-t b,.dg-rl .dg-ln-r{grid-area:auto}
-  .dg-rl .dg-ln-t > span{grid-area:auto;flex-wrap:nowrap;overflow:hidden}
+  .dg-rs{gap:28px}
+  .dg-rtop{grid-template-columns:repeat(4,minmax(0,1fr));gap:0 32px}
+  /* The lists take the same four columns as the top scores, so both rows line up; Left hurt, the
+     longest, spans two and runs its rows down both. */
+  .dg-rlow{grid-template-columns:repeat(4,minmax(0,1fr));gap:0 32px;align-items:start}
+  .dg-rcol.left{grid-column:span 2;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:32px;
+    grid-template-rows:auto repeat(var(--half),auto);grid-auto-flow:column}
+  .dg-rcol.left > h4{grid-column:1 / -1;grid-row:1}
+  .dg-rtop .dg-rr{grid-template-columns:40px minmax(0,1fr) auto;gap:12px;min-height:56px}
+  .dg-rtop .dg-rr .dg-hd{width:40px;height:40px}
 }

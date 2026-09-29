@@ -605,6 +605,13 @@ group and Digest the default leaf, except on a Tuesday, when Waivers leads.
   The wall fills the page frame (`--page-w`, 1680px since 2026-09-27 for every view; see Page
   width). Phone and tablet are unchanged.
 
+**Results (2026-09-29, storyboard https://claude.ai/artifact/7gsPHebT4xTdo36N1QqqWD, option B).**
+Every row is one shape: a 40px face, the name over its reason pills, the points over the projection
+(Live's stack). The gap ("+14.9") is not printed: the list's name says which way, the pill says why.
+The wall puts the top scores and the lists on the same four columns, Left hurt spanning two and read
+down, so a number sits within ~300px of its name; before, two half-page lists put it ~600px away.
+A phone sets the top scores two by two and stacks the lists.
+
 Not backtested: Weather, Stock and Gems. Each says "Not backtested." in amber on its opened foot,
 never on the closed line: the closed line is the fact, the caveat is for whoever reads on. Lead copy
 for the weather and news rules has no real week yet (2026-09-26).

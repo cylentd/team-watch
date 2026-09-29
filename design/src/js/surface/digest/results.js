@@ -60,34 +60,32 @@ function dgWhy(r, left){
   return dgPill(up ? t("digest.pill.earned", {n: w.expected}) : t("digest.pill.expected", {n: w.expected}));
 }
 
-/* "2.4 → 17.3", then the gap in its colour when there is one. */
-function dgProjTo(r, diff){
-  const from = r.proj != null ? `<small>${t("digest.res.proj", {n: r.proj.toFixed(1)})}</small>` : "";
-  const to = r.actual != null ? r.actual.toFixed(1) : "";
-  const gap = diff ? `<em class="${r.diff > 0 ? "up" : "dn"}">${dgSigned(r.diff, 1)}</em>` : "";
-  return `<span class="dg-rn">${from}<b>${to}</b>${gap}</span>`;
-}
+/* Points over his projection, the stack Live's rows use (2026-09-29, storyboard
+   https://claude.ai/artifact/7gsPHebT4xTdo36N1QqqWD, option B). The gap is not printed: the list's
+   name says which way he went and the pill says why, so a row carries two things. */
+const dgResNum = r => `<span class="dg-rv"><b>${r.actual != null ? r.actual.toFixed(1) : ""}</b>`
+  + `${r.proj != null ? `<span>${r.proj.toFixed(1)}</span>` : ""}</span>`;
 
-function dgResLines(title, rows, meta, diff, cls){
-  if (!rows.length) return "";
-  return `<div class="dg-rl${cls ? " " + cls : ""}"><h4>${title}</h4>`
-    + rows.map(r => dgLnHTML({...r, n: dgShort(r.n)}, meta(r), dgProjTo(r, diff))).join("") + `</div>`;
-}
+/* One result row: face, name over its reason pills, points over projection. Opens the profile. */
+const dgResRow = (r, pills, num) => `<button type="button" class="dg-rr" data-dgslug="${esc(r.slug)}">
+    <span class="dg-hd">${avatarHTML(r)}</span>
+    <span class="dg-rr-n"><b>${esc(dgShort(r.n))}</b>${pills ? `<span>${pills}</span>` : ""}</span>${num}</button>`;
+
+/* --half: rows in the first of two columns, for a list the wall splits (Left hurt), read down. */
+const dgResCol = (title, rows, row, cls) => rows.length
+  ? `<div class="dg-rcol${cls ? " " + cls : ""}" style="--half:${Math.ceil(rows.length / 2)}"><h4>${title}</h4>${rows.map(row).join("")}</div>` : "";
 
 function dgResTop(d){
-  const pos = DG_POS.map(p => {
-    const rows = d.stars.filter(r => r.pos === p);
-    return rows.length ? `<div><h4>${p}</h4><ol>${rows.map(r => `<li><span class="dg-hd sm">${avatarHTML(r)}</span>`
-      + `<span>${esc(dgShort(r.n))}</span><em>${r.actual.toFixed(1)}</em></li>`).join("")}</ol></div>` : "";
-  }).join("");
-  return pos ? `<div class="dg-rtop">${pos}</div>` : "";
+  const cols = DG_POS.map(p => dgResCol(p, d.stars.filter(r => r.pos === p),
+    r => dgResRow(r, "", `<span class="dg-rv"><b>${r.actual.toFixed(1)}</b></span>`))).join("");
+  return cols ? `<div class="dg-rtop">${cols}</div>` : "";
 }
 
 function dgResBody(d){
-  const blocks = dgResTop(d)
-    + dgResLines(t("digest.res.smashed"), d.smashed, r => dgWhy(r, d.left), true)
-    + dgResLines(t("digest.res.busts"), d.busts, r => dgWhy(r, d.left), true)
-    + dgResLines(t("digest.res.left"), d.left, dgLeftPills, false, "left");
+  const why = r => dgResRow(r, dgWhy(r, d.left), dgResNum(r));
+  const low = dgResCol(t("digest.res.smashed"), d.smashed, why) + dgResCol(t("digest.res.busts"), d.busts, why)
+    + dgResCol(t("digest.res.left"), d.left, r => dgResRow(r, dgLeftPills(r), dgResNum(r)), "left");
+  const blocks = dgResTop(d) + (low ? `<div class="dg-rlow">${low}</div>` : "");
   const foot = d.pending ? t("digest.foot.resPending", {n: dgGames(d.finals.length), left: d.pending}) : t("digest.foot.res", {n: dgGames(d.finals.length)});
   return (blocks ? `<div class="dg-rs">${blocks}</div>` : "") + dgFootHTML(foot, "", "");
 }
