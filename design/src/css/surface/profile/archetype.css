@@ -14,12 +14,9 @@
 
 /* The head's chips (storyboard v4, 2026-09-29): a 36px round tile with the word beside it. The big
    48-56px tiles of v3 read as a block of art; this size keeps the glyph legible and reads as a
-   badge. Desktop: stacked beside the sphere, so the name block stays name, team, verdict. Phone:
-   under the name, where the chips stack in the 170px column. */
-.pf-arch{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
-.pf-arch-in{display:none}
-.pf-arch-side{flex:none;align-self:center;margin:0 0 0 auto}
-.pf-arch-side + .pf-orb{margin-left:24px}
+   badge. Under the name at every width (David: beside the sphere "feels off"): one row on a
+   desktop, stacked on a phone, where the name column is 170px. */
+.pf-arch{display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px;margin-top:12px}
 .pf-arch-slot{display:inline-flex;align-items:center;gap:9px;margin:0;padding:3px 13px 3px 3px;
   border:1px solid var(--line-2);border-radius:999px;background:var(--panel-2);color:var(--ink);
   cursor:pointer;-webkit-tap-highlight-color:transparent;transition:border-color .15s var(--ease),background .15s var(--ease)}
@@ -30,8 +27,17 @@
 .pf-arch-slot:focus{outline:none}
 .pf-arch-slot:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 @media (max-width:760px){
-  .pf-arch-in{display:flex;margin-top:10px}
-  .pf-arch-side{display:none}
+  .pf-arch{flex-direction:column;margin-top:10px}
+}
+
+/* Usage on a desktop: when the block starts a row (a back's two team blocks fill the one above),
+   it takes the whole row and its Role and Style sit side by side, as the red zone's two parts do
+   (panel.css). Beside a receiver's one team block it keeps the right column, fields stacked. */
+@media not all and (max-width:760px){
+  .pf-pane-usage > .pf-sec-arch:nth-child(odd){grid-column:1 / -1}
+  .pf-pane-usage > .pf-sec-arch:nth-child(odd) .pf-arch-two{display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));column-gap:48px}
+  .pf-pane-usage > .pf-sec-arch:nth-child(odd) .bd-fld + .bd-fld{margin-top:0;padding-top:0;border-top:0}
 }
 
 /* A head tile scrolls Usage to this block; the tab bar is sticky over the pane, so the block stops

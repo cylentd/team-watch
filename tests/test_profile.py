@@ -432,10 +432,10 @@ def test_the_archetype_sits_in_the_head_and_explains_itself_in_usage(browser, pa
     })()""")
     assert who["both"], "the fixture needs a player with both words"
     page.evaluate("p => openProfile(p)", who["both"])
-    # A desktop shows the chips beside the sphere; the copy under the name is the phone's.
-    tags = page.locator("#modal .pf-head .pf-arch-side .pf-arch-slot")
+    # The chips sit under his name, in one row on a desktop.
+    tags = page.locator("#modal .pf-who .pf-arch .pf-arch-slot")
     assert tags.count() == 2 and tags.first.is_visible()
-    assert not page.locator("#modal .pf-head .pf-arch-in").is_visible()
+    assert tags.nth(0).bounding_box()["y"] == tags.nth(1).bounding_box()["y"]
     assert tags.nth(0).locator(".pf-sk-role svg").count() == 1            # a tile on every chip, stone by field
     assert tags.nth(1).locator(".pf-sk-style svg").count() == 1
     role_word = page.evaluate("v => bdRoleWord(v)", who["both"]["role"])
@@ -446,9 +446,13 @@ def test_the_archetype_sits_in_the_head_and_explains_itself_in_usage(browser, pa
     assert block.count() == 1
     assert block.locator(".bd-mean").count() == 2                         # each word says what it means
     assert block.locator(".bd-ev").count() >= 1                           # and what produced it
+    # Starting a row, it takes the whole row with Role and Style side by side; beside a block, stacked.
+    starts_row = block.evaluate("e => [...e.parentNode.children].indexOf(e) % 2 === 0")
+    fields = block.locator(".pf-arch-two > .bd-fld")
+    assert (fields.nth(0).bounding_box()["y"] == fields.nth(1).bounding_box()["y"]) == starts_row
     if who["one"]:
         page.evaluate("p => openProfile(p)", who["one"])
-        assert page.locator("#modal .pf-head .pf-arch-side .pf-arch-slot").count() == 1
+        assert page.locator("#modal .pf-head .pf-arch .pf-arch-slot").count() == 1
         tab(page, "usage")
         assert who["one"]["role_null"] in page.locator("#modal .pf-sec-arch .bd-why").first.inner_text()
     assert errors == []

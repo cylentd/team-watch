@@ -43,32 +43,30 @@ const ARCH_MEAN = {
 };
 const archMean = (v, pos) => ARCH_MEAN[v] ? ARCH_MEAN[v](pos) : "";
 
-/* The head's chips: one per word he has, role first, each a button to the Usage block. Drawn twice,
-   `where` "in" (under the name) and "side" (beside the sphere), and the CSS shows one per width
-   (storyboard v4, 2026-09-29): beside the sphere on a desktop, where under the name read as busy,
-   and under the name on a phone, which has no room beside its sphere. The hidden copy is
-   display:none, so it is out of the tab order and the accessibility tree. */
-function archTagsHTML(p, where){
+/* The head's chips: one per word he has, role first, each a button to the Usage block, under his
+   name at every width (2026-09-29, David: beside the sphere "feels off"). */
+function archTagsHTML(p){
   const a = bdArch(p.slug);
   if (!a || (!a.role && !a.style)) return "";
   const slot = (field, v, word) => `<button type="button" class="pf-arch-slot" data-pfarch="${field}"
     aria-label="${field === "role" ? t("profile.arch.roleIs", {w: word}) : t("profile.arch.styleIs", {w: word})}"
     >${archTileHTML(v, field)}<span>${word}</span></button>`;
-  return `<div class="pf-arch pf-arch-${where}">${a.role ? slot("role", a.role, bdRoleWord(a.role)) : ""}${a.style ? slot("style", a.style, bdStyleWord(a.style)) : ""}</div>`;
+  return `<div class="pf-arch">${a.role ? slot("role", a.role, bdRoleWord(a.role)) : ""}${a.style ? slot("style", a.style, bdStyleWord(a.style)) : ""}</div>`;
 }
 
 /* Usage: the Leaders card's two fields, each word on its tile, the clause it means, and the
-   numbers behind it. The caveat closes it when there is a style, as it does on Leaders. */
+   numbers behind it; side by side on a desktop (David, 2026-09-29: "there's enough space"). The
+   caveat closes it when there is a style, as it does on Leaders. */
 function archBlockHTML(p){
   const a = bdArch(p.slug);
   if (!a) return "";
   const word = (v, w) => v ? `${archTileHTML(v, v === a.role ? "role" : "style")}${w}` : "";
-  const body = bdFieldHTML({field: "role", pos: a.pos, label: t("board.label.role"),
+  const body = `<div class="pf-arch-two">` + bdFieldHTML({field: "role", pos: a.pos, label: t("board.label.role"),
       word: word(a.role, a.role ? bdRoleWord(a.role) : ""), why: a.role_null, ev: a.role_evidence,
       nums: bdRoleNums(a.pos), say: a.role ? archMean(a.role, a.pos) : ""})
     + bdFieldHTML({field: "style", pos: a.pos, label: t("board.label.style"),
       word: word(a.style, a.style ? bdStyleWord(a.style) : ""), why: a.style_null, ev: a.style_evidence,
-      nums: bdStyleNums(a.pos), flag: bdFlagsHTML(a.flags), say: a.style ? archMean(a.style, a.pos) : ""})
+      nums: bdStyleNums(a.pos), flag: bdFlagsHTML(a.flags), say: a.style ? archMean(a.style, a.pos) : ""}) + `</div>`
     + (a.style ? `<p class="note bd-say">${t("board.label.caveat")}</p>` : "");
   return secHTML(t("profile.arch.label"), body, "", "pf-sec-arch");
 }

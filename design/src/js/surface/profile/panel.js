@@ -28,10 +28,9 @@ function openProfile(p, originEl){
         <div class="pf-who">
           <h3 id="pf-title">${esc(p.n)}</h3>
           <div class="lbl">${identityHTML(p, prof)}</div>
-          ${archTagsHTML(p, "in")}
+          ${archTagsHTML(p)}
           ${sheetTagsHTML(p)}
         </div>
-        ${archTagsHTML(p, "side")}
         ${orbBadgeHTML(p)}
       </div>
       ${p.note ? `<div class="dr-note">${esc(p.note)}</div>` : ""}
