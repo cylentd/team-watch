@@ -156,6 +156,24 @@ def test_results_on_the_wall_keep_each_number_by_its_name(browser, page_file):
 
 
 @pytest.mark.render
+def test_two_players_one_team_one_short_name_keep_their_first_names(browser, page_file):
+    """ATL has Bijan and Brian Robinson (2026-09-29, David: "two B. Robinson on ATL ... confusing"):
+    a short form two players on one team share keeps the first name; one on two teams stays short."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    page.goto(page_file.as_uri())
+    got = page.evaluate("""() => {
+      SEARCH_INDEX = [...searchIndex(),
+        {n: 'Bijan Robinson', slug: 'bijan-robinson', team: 'ATL'}, {n: 'Brian Robinson Jr.', slug: 'brian-robinson', team: 'ATL'},
+        {n: 'Zed Quill', slug: 'zed-quill', team: 'SF'}, {n: 'Zack Quill', slug: 'zack-quill', team: 'NYJ'}];
+      DG_CLASH = null;
+      return [dgShort('Bijan Robinson'), dgShort('Brian Robinson Jr.'), dgShort('Zed Quill')];
+    }""")
+    ctx.close()
+    assert errors == []
+    assert got == ["Bijan Robinson", "Brian Robinson", "Z. Quill"]
+
+
+@pytest.mark.render
 def test_the_tiles_never_repeat_the_banner_or_each_other(browser, page_file):
     """When the banner is the week's top score, the first tile is the runner-up (David, 2026-09-29);
     when something else leads, it is the top score. A player is in one tile at most."""

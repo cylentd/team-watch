@@ -134,11 +134,34 @@ const dgPct = v => (v >= 99.5 && v < 100 ? v.toFixed(1) : Math.round(v).toFixed(
 /* "LA @ DEN", escaped: the game as every row writes it. */
 const dgGame = g => `${esc(g.away)} @ ${esc(g.home)}`;
 /* "D. Smith", "A. St. Brown": the first initial and the whole surname, suffix dropped; the Q list
-   and the Results lists. The surname is every word after the first, not the last one alone. */
+   and the Results lists. The surname is every word after the first, not the last one alone. A short
+   form two players on one NFL team share keeps the first name: ATL has Bijan and Brian Robinson, and
+   "B. Robinson" could be either (David, 2026-09-29). */
 function dgShort(name){
   const w = String(name || "").split(/\s+/).filter(Boolean);
   while (w.length > 2 && DG_SUFFIX.test(w[w.length - 1])) w.pop();
-  return w.length > 1 ? `${w[0][0]}. ${w.slice(1).join(" ")}` : name;
+  if (w.length < 2) return name;
+  const short = `${w[0][0]}. ${w.slice(1).join(" ")}`;
+  return dgClashes().has(short) ? w.join(" ") : short;
+}
+
+/* The short forms two players on one team share, from every player the page carries (search.js's
+   index, joined by slug). Read once: the teams do not change while the page is open. */
+let DG_CLASH = null;
+function dgClashes(){
+  if (DG_CLASH) return DG_CLASH;
+  const seen = new Map(), clash = new Set();
+  for (const e of searchIndex()){
+    const w = String(e.n || "").split(/\s+/).filter(Boolean);
+    while (w.length > 2 && DG_SUFFIX.test(w[w.length - 1])) w.pop();
+    if (w.length < 2 || !e.team) continue;
+    const short = `${w[0][0]}. ${w.slice(1).join(" ")}`, key = `${short}|${e.team}`;
+    const first = seen.get(key);
+    if (first && first !== e.slug) clash.add(short);
+    else seen.set(key, e.slug);
+  }
+  DG_CLASH = clash;
+  return clash;
 }
 
 /* Which bar a game crossed, wind or rain, for the word a row leads with: the packet's own `bar`, so
