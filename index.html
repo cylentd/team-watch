@@ -3786,8 +3786,10 @@ button.dg-nw:active:where(#view[data-view="digest"], #view[data-view="digest"] *
 /* ============================== DIGEST: RESULTS ==============================
    The top scores by position, then Smashed, Busts and Left hurt. Every row is one shape (2026-09-29,
    storyboard https://claude.ai/artifact/7gsPHebT4xTdo36N1QqqWD, option B): a face, the name over its
-   reason pills, the points over the projection, the stack Live's rows use. A phone sets the top
-   scores two by two and stacks the three lists; the wall sets both on four columns (Left hurt
+   reason, the points over the projection, the stack Live's rows use. Faces are 80px, big enough to
+   see the player (David, storyboard https://claude.ai/artifact/S2fqkyWck5jtR4P6KFWdQi). A phone sets
+   the top scores two by two as tiles (face over name over points: a row beside an 80px face would
+   leave the name no room) and stacks the three lists; the wall sets both on four columns (Left hurt
    spans two), so no column is wider than its rows and a number sits by its name. */
 
 .dg-rs:where(#view[data-view="digest"], #view[data-view="digest"] *){display:grid;gap:20px;padding-top:6px}
@@ -3802,33 +3804,47 @@ button.dg-nw:active:where(#view[data-view="digest"], #view[data-view="digest"] *
 
 .dg-rr:where(#view[data-view="digest"], #view[data-view="digest"] *){
   appearance:none;border:0;border-bottom:1px solid var(--line);background:none;color:inherit;font:inherit;text-align:left;
-  cursor:pointer;width:100%;display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;
-  min-height:56px;padding:8px 0;transition:transform var(--dur-spring) var(--spring);
+  cursor:pointer;width:100%;display:grid;grid-template-columns:80px minmax(0,1fr) auto;gap:14px;align-items:center;
+  min-height:96px;padding:8px 0;transition:transform var(--dur-spring) var(--spring);
 }
 .dg-rr:last-child:where(#view[data-view="digest"], #view[data-view="digest"] *){border-bottom:0}
 .dg-rr:active:where(#view[data-view="digest"], #view[data-view="digest"] *){transform:scale(var(--press))}
 .dg-rr:focus-visible:where(#view[data-view="digest"], #view[data-view="digest"] *){outline:2px solid var(--lime);outline-offset:2px}
-.dg-rr:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-hd{width:40px;height:40px}
+.dg-rr:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-hd{width:80px;height:80px}
 .dg-rr-n:where(#view[data-view="digest"], #view[data-view="digest"] *){display:grid;gap:5px;min-width:0}
-.dg-rr-n:where(#view[data-view="digest"], #view[data-view="digest"] *) b{font-weight:600;font-size:var(--t-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dg-rr-n:where(#view[data-view="digest"], #view[data-view="digest"] *) > span{display:flex;flex-wrap:wrap;gap:4px}
-/* The top scores sit two to a row on a phone: a smaller face leaves the name its room. */
-.dg-rtop:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-rr{grid-template-columns:32px minmax(0,1fr) auto;gap:8px;min-height:48px}
-.dg-rtop:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-rr .dg-hd{width:32px;height:32px}
+.dg-rr-n:where(#view[data-view="digest"], #view[data-view="digest"] *) b{font-weight:600;font-size:var(--t-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dg-rr-n:where(#view[data-view="digest"], #view[data-view="digest"] *) > span{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px}
+/* A phone's top scores: two tiles a row, the face over the name over the points. */
+.dg-rtop:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-rr{grid-template-columns:minmax(0,1fr);justify-items:center;text-align:center;gap:6px;min-height:0;padding:10px 0}
+.dg-rtop:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-rr-n b{font-size:var(--t-2)}
+.dg-rtop:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-rv{justify-items:center}
 .dg-rv:where(#view[data-view="digest"], #view[data-view="digest"] *){display:grid;justify-items:end;gap:3px;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
-.dg-rv:where(#view[data-view="digest"], #view[data-view="digest"] *) b{font-size:var(--t-3);font-weight:700;line-height:1}
-.dg-rv:where(#view[data-view="digest"], #view[data-view="digest"] *) span{font-size:var(--t-1);line-height:1;color:var(--ink-3)}
+.dg-rv:where(#view[data-view="digest"], #view[data-view="digest"] *) b{font-size:var(--t-4);font-weight:700;line-height:1}
+.dg-rv:where(#view[data-view="digest"], #view[data-view="digest"] *) span{font-size:var(--t-2);line-height:1;color:var(--ink-3)}
 
-/* A reason as a pill: grey is his role, green TD luck that helped, red TD luck that hurt, amber an
-   injury, filled red how long he is out. */
-.dg-pill:where(#view[data-view="digest"], #view[data-view="digest"] *){
-  font:600 var(--t-1)/1 var(--ui);font-style:normal;white-space:nowrap;
-  padding:4px 8px;border-radius:999px;border:1px solid var(--line-2);color:var(--ink-2);
+/* A folded list's head: its name, how many, a chevron. Closed on a phone until tapped. */
+.dg-rsum:where(#view[data-view="digest"], #view[data-view="digest"] *){
+  appearance:none;border:0;border-bottom:1px solid var(--line);background:none;color:inherit;font:inherit;cursor:pointer;
+  width:100%;min-height:48px;padding:0;display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:10px;text-align:left;
 }
-.dg-pill.luck:where(#view[data-view="digest"], #view[data-view="digest"] *){border-color:rgb(var(--up-rgb) / .45);color:var(--up)}
-.dg-pill.unlucky:where(#view[data-view="digest"], #view[data-view="digest"] *){border-color:rgb(var(--down-rgb) / .45);color:var(--down)}
-.dg-pill.hurt:where(#view[data-view="digest"], #view[data-view="digest"] *){border-color:rgb(var(--amber-rgb) / .5);color:var(--amber)}
-.dg-pill.out:where(#view[data-view="digest"], #view[data-view="digest"] *){border-color:transparent;background:rgb(var(--down-rgb) / .14);color:var(--down)}
+.dg-rsum:where(#view[data-view="digest"], #view[data-view="digest"] *) > span:first-child{font-size:var(--t-1);font-weight:600;line-height:1;letter-spacing:.07em;color:var(--ink-2)}
+.dg-rcount:where(#view[data-view="digest"], #view[data-view="digest"] *){font:700 var(--t-1)/1 var(--mono);color:var(--ink-3)}
+/* Pointing down while closed, whatever the open Results row around it does to its own chevron. */
+.dg-rcol.fold:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-rsum .dg-chev{justify-self:end;transform:none;transition:transform var(--dur-spring) var(--spring)}
+.dg-rsum:focus-visible:where(#view[data-view="digest"], #view[data-view="digest"] *){outline:2px solid var(--lime);outline-offset:2px}
+.dg-rcol.fold[data-open]:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-rsum .dg-chev{transform:rotate(180deg)}
+.dg-rcol.fold:not([data-open]):where(#view[data-view="digest"], #view[data-view="digest"] *) > .dg-rr{display:none}
+
+/* A reason is coloured words, not a box (2026-09-29: thirty outlined pills made the card busy):
+   grey is his role, green TD luck that helped, red TD luck that hurt, amber an injury. Only how
+   long he is out keeps a filled red box, the one warning in the card. A dot parts two reasons. */
+.dg-pill:where(#view[data-view="digest"], #view[data-view="digest"] *){font:600 var(--t-1)/1.2 var(--ui);font-style:normal;white-space:nowrap;color:var(--ink-3)}
+.dg-pill:where(#view[data-view="digest"], #view[data-view="digest"] *) + .dg-pill::before{content:"·";margin-right:6px;color:var(--ink-3);font-weight:400}
+.dg-pill.luck:where(#view[data-view="digest"], #view[data-view="digest"] *){color:var(--up)}
+.dg-pill.unlucky:where(#view[data-view="digest"], #view[data-view="digest"] *){color:var(--down)}
+.dg-pill.hurt:where(#view[data-view="digest"], #view[data-view="digest"] *){color:var(--amber)}
+.dg-pill.out:where(#view[data-view="digest"], #view[data-view="digest"] *){color:var(--down);background:rgb(var(--down-rgb) / .14);border-radius:999px;padding:3px 8px}
+.dg-pill.out:where(#view[data-view="digest"], #view[data-view="digest"] *)::before{display:none}
 
 @media (min-width:1100px){
   .dg-rs:where(#view[data-view="digest"], #view[data-view="digest"] *){gap:28px}
@@ -3838,9 +3854,16 @@ button.dg-nw:active:where(#view[data-view="digest"], #view[data-view="digest"] *
   .dg-rlow:where(#view[data-view="digest"], #view[data-view="digest"] *){grid-template-columns:repeat(4,minmax(0,1fr));gap:0 32px;align-items:start}
   .dg-rcol.left:where(#view[data-view="digest"], #view[data-view="digest"] *){grid-column:span 2;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:32px;
     grid-template-rows:auto repeat(var(--half),auto);grid-auto-flow:column}
-  .dg-rcol.left:where(#view[data-view="digest"], #view[data-view="digest"] *) > h4{grid-column:1 / -1;grid-row:1}
-  .dg-rtop:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-rr{grid-template-columns:40px minmax(0,1fr) auto;gap:12px;min-height:56px}
-  .dg-rtop:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-rr .dg-hd{width:40px;height:40px}
+  .dg-rcol.left:where(#view[data-view="digest"], #view[data-view="digest"] *) > .dg-rsum{grid-column:1 / -1;grid-row:1}
+  /* The wall shows every list open: its head is a title, not a toggle. */
+  .dg-rcol.fold:not([data-open]):where(#view[data-view="digest"], #view[data-view="digest"] *) > .dg-rr{display:grid}
+  .dg-rsum:where(#view[data-view="digest"], #view[data-view="digest"] *){min-height:0;padding:0 0 6px;cursor:default;pointer-events:none}
+  .dg-rsum:where(#view[data-view="digest"], #view[data-view="digest"] *) > span:first-child{color:var(--ink-3)}
+  .dg-rsum:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-chev{display:none}
+  /* The wall's top scores are rows again, the same shape as the lists under them. */
+  .dg-rtop:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-rr{grid-template-columns:80px minmax(0,1fr) auto;justify-items:stretch;text-align:left;gap:14px;min-height:96px;padding:8px 0}
+  .dg-rtop:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-rr-n b{font-size:var(--t-3)}
+  .dg-rtop:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-rv{justify-items:end}
 }
 /* ── css/surface/digest/wall.css ── */
 /* ============================== DIGEST: THE WALL (1100px and up) ==============================
@@ -13049,9 +13072,10 @@ function dgLeadHTML(){
 /* "1 game" / "15 games": both spelled out, since assemble.py --check finds a key only as a literal. */
 const dgGames = n => n === 1 ? t("digest.res.game") : t("digest.res.games", {n});
 
-/* Reasons are pills, not sentences (2026-09-28, DESIGN.md "Say it in a shape"). One colour, one
-   meaning: green = TD luck that helped, red = TD luck that hurt, amber = an injury, filled red =
-   how long he is out, grey = his role. Tapping the row opens the profile with the full news. */
+/* Reasons are short coloured words, not sentences (2026-09-28, DESIGN.md "Say it in a shape"; boxes
+   dropped 2026-09-29, only how long he is out keeps one). One colour, one meaning: green = TD luck
+   that helped, red = TD luck that hurt, amber = an injury, filled red = how long he is out, grey =
+   his role. Tapping the row opens the profile with the full news. */
 const dgPill = (text, cls) => `<i class="dg-pill${cls ? " " + cls : ""}">${text}</i>`;
 const dgCap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 
@@ -13113,9 +13137,19 @@ const dgResRow = (r, pills, num) => `<button type="button" class="dg-rr" data-dg
     <span class="dg-hd">${avatarHTML(r)}</span>
     <span class="dg-rr-n"><b>${esc(dgShort(r.n))}</b>${pills ? `<span>${pills}</span>` : ""}</span>${num}</button>`;
 
-/* --half: rows in the first of two columns, for a list the wall splits (Left hurt), read down. */
-const dgResCol = (title, rows, row, cls) => rows.length
-  ? `<div class="dg-rcol${cls ? " " + cls : ""}" style="--half:${Math.ceil(rows.length / 2)}"><h4>${title}</h4>${rows.map(row).join("")}</div>` : "";
+/* --half: rows in the first of two columns, for a list the wall splits (Left hurt), read down.
+   A folded list (Smashed, Busts, Left hurt; 2026-09-29, 80px rows made the phone's card ~3,400px)
+   heads with a button, its name, count and chevron, and on a phone its rows show only once tapped
+   open (digest.js). The wall has the room and shows every list open; there the button is a title. */
+const DG_FOLD = new Set();
+const dgResCol = (title, rows, row, cls, fold) => {
+  if (!rows.length) return "";
+  const key = fold ? cls || title : "";
+  const head = fold ? `<button type="button" class="dg-rsum" data-dgfold="${esc(key)}" aria-expanded="${DG_FOLD.has(key)}">
+      <span>${title}</span><span class="dg-rcount">${rows.length}</span>${DG_CHEV}</button>` : `<h4>${title}</h4>`;
+  return `<div class="dg-rcol${cls ? " " + cls : ""}${fold ? " fold" : ""}"${fold && DG_FOLD.has(key) ? " data-open" : ""}
+    style="--half:${Math.ceil(rows.length / 2)}">${head}${rows.map(row).join("")}</div>`;
+};
 
 function dgResTop(d){
   const cols = DG_POS.map(p => dgResCol(p, d.stars.filter(r => r.pos === p),
@@ -13125,8 +13159,8 @@ function dgResTop(d){
 
 function dgResBody(d){
   const why = r => dgResRow(r, dgWhy(r, d.left), dgResNum(r));
-  const low = dgResCol(t("digest.res.smashed"), d.smashed, why) + dgResCol(t("digest.res.busts"), d.busts, why)
-    + dgResCol(t("digest.res.left"), d.left, r => dgResRow(r, dgLeftPills(r), dgResNum(r)), "left");
+  const low = dgResCol(t("digest.res.smashed"), d.smashed, why, "smashed", true) + dgResCol(t("digest.res.busts"), d.busts, why, "busts", true)
+    + dgResCol(t("digest.res.left"), d.left, r => dgResRow(r, dgLeftPills(r), dgResNum(r)), "left", true);
   const blocks = dgResTop(d) + (low ? `<div class="dg-rlow">${low}</div>` : "");
   const foot = d.pending ? t("digest.foot.resPending", {n: dgGames(d.finals.length), left: d.pending}) : t("digest.foot.res", {n: dgGames(d.finals.length)});
   return (blocks ? `<div class="dg-rs">${blocks}</div>` : "") + dgFootHTML(foot, "", "");
@@ -13473,6 +13507,14 @@ function wireDigest(v){
   }));
   dgSyncWall(v);
   DG_WALL.onchange = () => { const cur = document.querySelector(".dg"); if (cur) dgSyncWall(cur.parentElement); };
+  /* A Results list opens in place on a phone (results.js dgResCol) and stays so across repaints. */
+  v.querySelectorAll("[data-dgfold]").forEach(b => b.addEventListener("click", () => {
+    if (DG_WALL.matches) return;
+    const col = b.parentElement, open = !col.hasAttribute("data-open"), key = b.dataset.dgfold;
+    col.toggleAttribute("data-open", open);
+    b.setAttribute("aria-expanded", String(open));
+    if (open) DG_FOLD.add(key); else DG_FOLD.delete(key);
+  }));
   v.querySelectorAll("[data-dggo]").forEach(b => b.addEventListener("click", () => {
     morphLogo(); navGo(b.dataset.dggo); window.scrollTo({top: 0});
   }));

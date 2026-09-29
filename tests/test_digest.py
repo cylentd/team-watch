@@ -99,10 +99,37 @@ def test_results_reads_as_the_storyboard(browser, page_file):
 
 
 @pytest.mark.render
+def test_a_phone_folds_the_results_lists_and_a_tap_opens_one(browser, page_file):
+    """80px rows made the phone's Results ~3,400px (2026-09-29): Smashed, Busts and Left hurt start
+    folded to a head each (name, count), the top scores stay open, and a tap opens one list."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    page.goto(page_file.as_uri())
+    for _, sel in go("digest"):
+        page.click(sel)
+    page.wait_for_selector(".dg-rsum")
+    if page.locator(".dg-row[data-dgrow='res'][data-open]").count() == 0:
+        page.click(".dg-row[data-dgrow='res'] .dg-head")
+        page.wait_for_timeout(600)
+    visible = lambda sel: page.locator(sel).evaluate_all("els => els.filter(e => e.offsetParent !== null).length")
+    heads = page.locator(".dg-rsum")
+    assert heads.count() == 3 and visible(".dg-rlow .dg-rr") == 0 and visible(".dg-rtop .dg-rr") > 0
+    assert heads.first.locator(".dg-rcount").inner_text() == str(page.evaluate("dgD().smashed.length"))
+    turn = lambda: heads.first.locator(".dg-chev").evaluate("c => getComputedStyle(c).transform")
+    assert turn() == "none"                                  # closed: points down
+    heads.first.click()
+    assert visible(".dg-rcol.fold[data-open] .dg-rr") == page.evaluate("dgD().smashed.length")
+    page.wait_for_timeout(600)
+    assert turn() != "none"                                  # open: turned over
+    assert heads.first.get_attribute("aria-expanded") == "true"
+    ctx.close()
+    assert errors == []
+
+
+@pytest.mark.render
 def test_results_on_the_wall_keep_each_number_by_its_name(browser, page_file):
     """On a desktop the top scores and the lists share four columns, Left hurt spanning two
     (2026-09-29), so a row is one column wide: its number sits within 330px of its name at the
-    1,680px frame, and its face is 40px."""
+    1,680px frame, and its face is 80px."""
     ctx, page, errors = open_page(browser, page_file, (1705, 1000))
     page.goto(page_file.as_uri())
     for _, sel in go("digest"):
@@ -120,7 +147,7 @@ def test_results_on_the_wall_keep_each_number_by_its_name(browser, page_file):
     assert errors == []
     assert (got["top"], got["low"]) == (4, 4)
     assert got["rows"] and max(r["gap"] for r in got["rows"]) < 330
-    assert all(r["face"] == 40 for r in got["rows"])
+    assert all(r["face"] == 80 for r in got["rows"])      # big enough to see the player (2026-09-29)
 
 
 @pytest.mark.render

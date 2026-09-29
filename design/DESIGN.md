@@ -610,7 +610,11 @@ Every row is one shape: a 40px face, the name over its reason pills, the points 
 (Live's stack). The gap ("+14.9") is not printed: the list's name says which way, the pill says why.
 The wall puts the top scores and the lists on the same four columns, Left hurt spanning two and read
 down, so a number sits within ~300px of its name; before, two half-page lists put it ~600px away.
-A phone sets the top scores two by two and stacks the lists.
+A phone sets the top scores two by two and stacks the lists. Faces went to 80px the same day (storyboard
+https://claude.ai/artifact/S2fqkyWck5jtR4P6KFWdQi: at 40px you saw a jersey, not a player); a phone's
+top scores become tiles (face over name over points), since a row beside 80px leaves a name no room.
+Reasons lost their boxes the same day: thirty outlined pills made the card busy, so a reason is
+coloured words parted by a dot, and only how long he is out keeps a filled red box.
 
 **The results lead, called like a game (2026-09-29, storyboard
 https://claude.ai/artifact/BvceuqtTkqyvzgjiHPGK7g).** The week's top score is an announcer's call on
@@ -1058,7 +1062,7 @@ word on it, and the prose lives one tap away in the profile.
 |---|---|---|
 | Every visual code is named on the screen, by a word on the thing or one key under the list. A tint, colour or mark nobody explains is removed. | An unexplained tint reads as a bug ("why is the QB row lit?"). | Live's in-game row tint, removed 2026-09-28 |
 | A state is a tag plus a picture of it: LIVE / n LEFT / a drawn lock and LOCKED, and a meter with one slot per player. Never a sentence to parse ("2 still to play or playing"). | The meter also shows which side still has a man going. | Live's league games |
-| A reason is a pill: a kind and a number ("TD luck +6", "16% tgt +10", "Out 3 wks"). The producer stores the kind and the number; the page only labels them. | 23 lines of prose in one card was the busy part of Results. | Digest Results |
+| A reason is a short coloured label: a kind and a number ("TD luck +6", "16% tgt +10"), two parted by a dot. Only the one warning in a card gets a filled box ("Out 3 wks"). The producer stores the kind and the number; the page only labels them. ~~A reason is a pill~~ (superseded 2026-09-29: thirty outlined pills in one card were busy). | 23 lines of prose in one card was the busy part of Results; then 30 boxes were. | Digest Results |
 | One colour means one thing inside a set of pills: green helped, red hurt, amber injury, filled red how long he is out, grey his role. | A reader learns it once for the whole card. | Digest Results |
 | A feed is grouped by its subject, newest line first, not kept as a log. | A log repeats the same player; a group says the story once. | Digest News, 10 headlines to 7 players |
 | Desktop fills its width with more of the same subject (cards across), never with wider lines. | One 560px column in a 1,120px card left half empty. | Digest News |

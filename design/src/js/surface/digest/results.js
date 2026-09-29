@@ -7,9 +7,10 @@
 /* "1 game" / "15 games": both spelled out, since assemble.py --check finds a key only as a literal. */
 const dgGames = n => n === 1 ? t("digest.res.game") : t("digest.res.games", {n});
 
-/* Reasons are pills, not sentences (2026-09-28, DESIGN.md "Say it in a shape"). One colour, one
-   meaning: green = TD luck that helped, red = TD luck that hurt, amber = an injury, filled red =
-   how long he is out, grey = his role. Tapping the row opens the profile with the full news. */
+/* Reasons are short coloured words, not sentences (2026-09-28, DESIGN.md "Say it in a shape"; boxes
+   dropped 2026-09-29, only how long he is out keeps one). One colour, one meaning: green = TD luck
+   that helped, red = TD luck that hurt, amber = an injury, filled red = how long he is out, grey =
+   his role. Tapping the row opens the profile with the full news. */
 const dgPill = (text, cls) => `<i class="dg-pill${cls ? " " + cls : ""}">${text}</i>`;
 const dgCap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 
@@ -71,9 +72,19 @@ const dgResRow = (r, pills, num) => `<button type="button" class="dg-rr" data-dg
     <span class="dg-hd">${avatarHTML(r)}</span>
     <span class="dg-rr-n"><b>${esc(dgShort(r.n))}</b>${pills ? `<span>${pills}</span>` : ""}</span>${num}</button>`;
 
-/* --half: rows in the first of two columns, for a list the wall splits (Left hurt), read down. */
-const dgResCol = (title, rows, row, cls) => rows.length
-  ? `<div class="dg-rcol${cls ? " " + cls : ""}" style="--half:${Math.ceil(rows.length / 2)}"><h4>${title}</h4>${rows.map(row).join("")}</div>` : "";
+/* --half: rows in the first of two columns, for a list the wall splits (Left hurt), read down.
+   A folded list (Smashed, Busts, Left hurt; 2026-09-29, 80px rows made the phone's card ~3,400px)
+   heads with a button, its name, count and chevron, and on a phone its rows show only once tapped
+   open (digest.js). The wall has the room and shows every list open; there the button is a title. */
+const DG_FOLD = new Set();
+const dgResCol = (title, rows, row, cls, fold) => {
+  if (!rows.length) return "";
+  const key = fold ? cls || title : "";
+  const head = fold ? `<button type="button" class="dg-rsum" data-dgfold="${esc(key)}" aria-expanded="${DG_FOLD.has(key)}">
+      <span>${title}</span><span class="dg-rcount">${rows.length}</span>${DG_CHEV}</button>` : `<h4>${title}</h4>`;
+  return `<div class="dg-rcol${cls ? " " + cls : ""}${fold ? " fold" : ""}"${fold && DG_FOLD.has(key) ? " data-open" : ""}
+    style="--half:${Math.ceil(rows.length / 2)}">${head}${rows.map(row).join("")}</div>`;
+};
 
 function dgResTop(d){
   const cols = DG_POS.map(p => dgResCol(p, d.stars.filter(r => r.pos === p),
@@ -83,8 +94,8 @@ function dgResTop(d){
 
 function dgResBody(d){
   const why = r => dgResRow(r, dgWhy(r, d.left), dgResNum(r));
-  const low = dgResCol(t("digest.res.smashed"), d.smashed, why) + dgResCol(t("digest.res.busts"), d.busts, why)
-    + dgResCol(t("digest.res.left"), d.left, r => dgResRow(r, dgLeftPills(r), dgResNum(r)), "left");
+  const low = dgResCol(t("digest.res.smashed"), d.smashed, why, "smashed", true) + dgResCol(t("digest.res.busts"), d.busts, why, "busts", true)
+    + dgResCol(t("digest.res.left"), d.left, r => dgResRow(r, dgLeftPills(r), dgResNum(r)), "left", true);
   const blocks = dgResTop(d) + (low ? `<div class="dg-rlow">${low}</div>` : "");
   const foot = d.pending ? t("digest.foot.resPending", {n: dgGames(d.finals.length), left: d.pending}) : t("digest.foot.res", {n: dgGames(d.finals.length)});
   return (blocks ? `<div class="dg-rs">${blocks}</div>` : "") + dgFootHTML(foot, "", "");

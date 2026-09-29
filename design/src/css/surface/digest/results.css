@@ -1,8 +1,10 @@
 /* ============================== DIGEST: RESULTS ==============================
    The top scores by position, then Smashed, Busts and Left hurt. Every row is one shape (2026-09-29,
    storyboard https://claude.ai/artifact/7gsPHebT4xTdo36N1QqqWD, option B): a face, the name over its
-   reason pills, the points over the projection, the stack Live's rows use. A phone sets the top
-   scores two by two and stacks the three lists; the wall sets both on four columns (Left hurt
+   reason, the points over the projection, the stack Live's rows use. Faces are 80px, big enough to
+   see the player (David, storyboard https://claude.ai/artifact/S2fqkyWck5jtR4P6KFWdQi). A phone sets
+   the top scores two by two as tiles (face over name over points: a row beside an 80px face would
+   leave the name no room) and stacks the three lists; the wall sets both on four columns (Left hurt
    spans two), so no column is wider than its rows and a number sits by its name. */
 
 .dg-rs{display:grid;gap:20px;padding-top:6px}
@@ -17,33 +19,47 @@
 
 .dg-rr{
   appearance:none;border:0;border-bottom:1px solid var(--line);background:none;color:inherit;font:inherit;text-align:left;
-  cursor:pointer;width:100%;display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;
-  min-height:56px;padding:8px 0;transition:transform var(--dur-spring) var(--spring);
+  cursor:pointer;width:100%;display:grid;grid-template-columns:80px minmax(0,1fr) auto;gap:14px;align-items:center;
+  min-height:96px;padding:8px 0;transition:transform var(--dur-spring) var(--spring);
 }
 .dg-rr:last-child{border-bottom:0}
 .dg-rr:active{transform:scale(var(--press))}
 .dg-rr:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
-.dg-rr .dg-hd{width:40px;height:40px}
+.dg-rr .dg-hd{width:80px;height:80px}
 .dg-rr-n{display:grid;gap:5px;min-width:0}
-.dg-rr-n b{font-weight:600;font-size:var(--t-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dg-rr-n > span{display:flex;flex-wrap:wrap;gap:4px}
-/* The top scores sit two to a row on a phone: a smaller face leaves the name its room. */
-.dg-rtop .dg-rr{grid-template-columns:32px minmax(0,1fr) auto;gap:8px;min-height:48px}
-.dg-rtop .dg-rr .dg-hd{width:32px;height:32px}
+.dg-rr-n b{font-weight:600;font-size:var(--t-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dg-rr-n > span{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px}
+/* A phone's top scores: two tiles a row, the face over the name over the points. */
+.dg-rtop .dg-rr{grid-template-columns:minmax(0,1fr);justify-items:center;text-align:center;gap:6px;min-height:0;padding:10px 0}
+.dg-rtop .dg-rr-n b{font-size:var(--t-2)}
+.dg-rtop .dg-rv{justify-items:center}
 .dg-rv{display:grid;justify-items:end;gap:3px;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
-.dg-rv b{font-size:var(--t-3);font-weight:700;line-height:1}
-.dg-rv span{font-size:var(--t-1);line-height:1;color:var(--ink-3)}
+.dg-rv b{font-size:var(--t-4);font-weight:700;line-height:1}
+.dg-rv span{font-size:var(--t-2);line-height:1;color:var(--ink-3)}
 
-/* A reason as a pill: grey is his role, green TD luck that helped, red TD luck that hurt, amber an
-   injury, filled red how long he is out. */
-.dg-pill{
-  font:600 var(--t-1)/1 var(--ui);font-style:normal;white-space:nowrap;
-  padding:4px 8px;border-radius:999px;border:1px solid var(--line-2);color:var(--ink-2);
+/* A folded list's head: its name, how many, a chevron. Closed on a phone until tapped. */
+.dg-rsum{
+  appearance:none;border:0;border-bottom:1px solid var(--line);background:none;color:inherit;font:inherit;cursor:pointer;
+  width:100%;min-height:48px;padding:0;display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:10px;text-align:left;
 }
-.dg-pill.luck{border-color:rgb(var(--up-rgb) / .45);color:var(--up)}
-.dg-pill.unlucky{border-color:rgb(var(--down-rgb) / .45);color:var(--down)}
-.dg-pill.hurt{border-color:rgb(var(--amber-rgb) / .5);color:var(--amber)}
-.dg-pill.out{border-color:transparent;background:rgb(var(--down-rgb) / .14);color:var(--down)}
+.dg-rsum > span:first-child{font-size:var(--t-1);font-weight:600;line-height:1;letter-spacing:.07em;color:var(--ink-2)}
+.dg-rcount{font:700 var(--t-1)/1 var(--mono);color:var(--ink-3)}
+/* Pointing down while closed, whatever the open Results row around it does to its own chevron. */
+.dg-rcol.fold .dg-rsum .dg-chev{justify-self:end;transform:none;transition:transform var(--dur-spring) var(--spring)}
+.dg-rsum:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.dg-rcol.fold[data-open] .dg-rsum .dg-chev{transform:rotate(180deg)}
+.dg-rcol.fold:not([data-open]) > .dg-rr{display:none}
+
+/* A reason is coloured words, not a box (2026-09-29: thirty outlined pills made the card busy):
+   grey is his role, green TD luck that helped, red TD luck that hurt, amber an injury. Only how
+   long he is out keeps a filled red box, the one warning in the card. A dot parts two reasons. */
+.dg-pill{font:600 var(--t-1)/1.2 var(--ui);font-style:normal;white-space:nowrap;color:var(--ink-3)}
+.dg-pill + .dg-pill::before{content:"·";margin-right:6px;color:var(--ink-3);font-weight:400}
+.dg-pill.luck{color:var(--up)}
+.dg-pill.unlucky{color:var(--down)}
+.dg-pill.hurt{color:var(--amber)}
+.dg-pill.out{color:var(--down);background:rgb(var(--down-rgb) / .14);border-radius:999px;padding:3px 8px}
+.dg-pill.out::before{display:none}
 
 @media (min-width:1100px){
   .dg-rs{gap:28px}
@@ -53,7 +69,14 @@
   .dg-rlow{grid-template-columns:repeat(4,minmax(0,1fr));gap:0 32px;align-items:start}
   .dg-rcol.left{grid-column:span 2;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:32px;
     grid-template-rows:auto repeat(var(--half),auto);grid-auto-flow:column}
-  .dg-rcol.left > h4{grid-column:1 / -1;grid-row:1}
-  .dg-rtop .dg-rr{grid-template-columns:40px minmax(0,1fr) auto;gap:12px;min-height:56px}
-  .dg-rtop .dg-rr .dg-hd{width:40px;height:40px}
+  .dg-rcol.left > .dg-rsum{grid-column:1 / -1;grid-row:1}
+  /* The wall shows every list open: its head is a title, not a toggle. */
+  .dg-rcol.fold:not([data-open]) > .dg-rr{display:grid}
+  .dg-rsum{min-height:0;padding:0 0 6px;cursor:default;pointer-events:none}
+  .dg-rsum > span:first-child{color:var(--ink-3)}
+  .dg-rsum .dg-chev{display:none}
+  /* The wall's top scores are rows again, the same shape as the lists under them. */
+  .dg-rtop .dg-rr{grid-template-columns:80px minmax(0,1fr) auto;justify-items:stretch;text-align:left;gap:14px;min-height:96px;padding:8px 0}
+  .dg-rtop .dg-rr-n b{font-size:var(--t-3)}
+  .dg-rtop .dg-rv{justify-items:end}
 }
