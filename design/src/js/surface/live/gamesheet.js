@@ -1,0 +1,131 @@
+/* ============================== LIVE: THE GAME SHEET ==============================
+   One NFL game, for following it without watching (2026-09-28, storyboard
+   https://claude.ai/artifact/7dtFfrweZG7mYE6oWSjmFb). The NFL now card on Live opens it from the
+   bottom edge, the way the leg sheet opens; Back, Escape, the scrim and the grab close it
+   (chrome/layers.js). It lives outside #view (shell.html), so a render() never rebuilds it.
+
+   When it asks, and why:
+     open                         ESPN's summary (the reader's browser, espn.js) and /api/stats for
+                                  the two clubs, at once: two hosts, one request each.
+     open, the game on, visible   both again every 30 s, one of each in flight at most.
+     closed, tab hidden, final    never. */
+
+let GS = null;            /* {event, away, home} on screen, ESPN's codes; null = closed */
+let GS_GAME = null;       /* gsShape of the last good ESPN summary */
+let GS_BOX = null;        /* the last good /api/stats?teams= reply */
+let GS_ERR = "";          /* why ESPN did not answer, above the plays */
+let GS_BOX_ERR = "";
+let GS_BUSY = false;
+let GS_TEAM = null;       /* the club the box score shows */
+let GS_OPEN = new Map();  /* drive key -> open, as the reader left it */
+let GS_RETURN = null;
+const gsEl = () => document.getElementById("gamesheet");
+
+function gsOpen(game, origin){
+  const d = gsEl();
+  if (!d) return;
+  GS = game; GS_GAME = null; GS_BOX = null; GS_ERR = ""; GS_BOX_ERR = ""; GS_TEAM = null; GS_OPEN = new Map();
+  GS_RETURN = origin || document.activeElement;
+  gsPaint();
+  d.scrollTop = 0;
+  d.classList.add("on");
+  d.setAttribute("aria-hidden", "false");
+  document.getElementById("gamesheet-scrim").classList.add("on");
+  d.querySelector("[data-gsclose]").focus({preventScroll: true});
+  layerPush("gamesheet", gsShut);
+  gsPoll();
+}
+
+/* The close itself; gsClose also takes back the history entry (layers.js). */
+function gsShut(){
+  const d = gsEl();
+  if (!d || !GS) return;
+  GS = null;
+  d.classList.remove("on");
+  d.setAttribute("aria-hidden", "true");
+  document.getElementById("gamesheet-scrim").classList.remove("on");
+  const back = GS_RETURN;
+  GS_RETURN = null;
+  if (back && back.focus && back.isConnected) back.focus({preventScroll: true});
+}
+function gsClose(){ gsShut(); layerDone("gamesheet"); }
+
+function gsPaint(){
+  const d = gsEl();
+  if (d && GS) d.innerHTML = gsSheetHTML();
+}
+
+/* The two clubs in every spelling, sorted, so every reader of one game shares one cached reply. */
+function gsBoxUrl(){
+  const week = (GD.leagues[0] || {}).week, codes = new Set([...gdCodes(GS.away), ...gdCodes(GS.home)]);
+  return `/api/stats?week=${week}&teams=${[...codes].sort().join(",")}`;
+}
+
+/* Sleeper directly when our endpoint cannot answer, cut the way api/stats.py box() cuts it. */
+async function gsBoxDirect(){
+  const week = (GD.leagues[0] || {}).week, rows = await fetch(`https://api.sleeper.com/stats/nfl/${GD.season}/${week}?season_type=regular`).then(r => r.ok ? r.json() : null);
+  if (!rows) return null;
+  const box = {};
+  for (const r of rows){
+    const p = r.player || {}, s = r.stats || {};
+    if (!["QB", "RB", "WR", "TE", "K"].includes(p.position) || !(gdSameClub(GS.away, r.team) || gdSameClub(GS.home, r.team))) continue;
+    if (Object.values(s).some(Boolean)) box[String(r.player_id)] = {n: `${p.first_name || ""} ${p.last_name || ""}`.trim(), pos: p.position, team: r.team, s};
+  }
+  return {box};
+}
+
+async function gsBoxFetch(){
+  let reply = null;
+  try {
+    const res = await fetch(gsBoxUrl(), {headers: {"Accept": "application/json"}});
+    reply = res.ok ? await res.json() : null;
+  } catch (e) { /* Sleeper directly, below */ }
+  if (!(reply && reply.box)) { try { reply = await gsBoxDirect(); } catch (e) { reply = null; } }
+  if (reply && reply.box){ GS_BOX = reply; GS_BOX_ERR = ""; } else GS_BOX_ERR = t("live.sheet.noSleeper");
+}
+
+async function gsEspnFetch(){
+  if (!GS.event) return;
+  try {
+    const shaped = gsShape(await gsFetchSummary(GS.event));
+    if (shaped){ GS_GAME = shaped; GS_ERR = ""; } else GS_ERR = t("live.sheet.espnDown");
+  } catch (e) { GS_ERR = t("live.sheet.espnDown"); }
+}
+
+async function gsPoll(){
+  if (!GS || GS_BUSY) return;
+  if (!PAGE_SERVED()){ GS_ERR = t("live.error.notServed"); gsPaint(); return; }
+  GS_BUSY = true;
+  const at = GS;
+  await Promise.all([gsEspnFetch(), gsBoxFetch()]);
+  GS_BUSY = false;
+  if (GS === at) gsPaint();
+}
+
+const gsLive = () => GS && document.visibilityState === "visible" && (GS_GAME ? GS_GAME.state !== "post" : gsSleeperState() !== "post");
+
+/* Bound once: the sheet's markup is replaced on every paint, its listeners are not. */
+(() => {
+  const d = gsEl();
+  if (!d) return;
+  d.addEventListener("click", e => {
+    if (e.target.closest("[data-gsclose]")) return gsClose();
+    const team = e.target.closest("[data-gsteam]");
+    if (team){ GS_TEAM = team.dataset.gsteam; gsPaint(); }
+  });
+  /* A drive the reader opened or closed stays that way through the next poll. */
+  d.addEventListener("toggle", e => {
+    const drv = e.target.closest && e.target.closest("[data-gsdrive]");
+    if (drv) GS_OPEN.set(drv.dataset.gsdrive, drv.open);
+  }, true);
+  d.addEventListener("keydown", e => {
+    if (e.key !== "Tab") return;
+    const f = [...d.querySelectorAll("button, summary")];
+    if (e.shiftKey && document.activeElement === f[0]){ e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && document.activeElement === f[f.length - 1]){ e.preventDefault(); f[0].focus(); }
+  });
+  document.getElementById("gamesheet-scrim").addEventListener("click", gsClose);
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && GS) gsClose(); });
+  setInterval(() => { if (gsLive()) gsPoll(); }, GD_POLL_MS);
+  document.addEventListener("visibilitychange", () => { if (gsLive()) gsPoll(); });
+})();

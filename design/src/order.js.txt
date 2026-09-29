@@ -79,6 +79,7 @@ surface/weather/card.js
 surface/weather/weather.js
 data/digest.js
 data/gameday/score.js
+data/gameday/espn.js
 surface/digest/lead.js
 surface/digest/results.js
 surface/digest/rows.js
@@ -143,6 +144,11 @@ chrome/state.js
 surface/live/live.js
 surface/live/board.js
 surface/live/league.js
+surface/live/nflnow.js
+surface/live/gamecards.js
+# pin: gamesheet.js binds its listeners and its poll timer at load: it needs #gamesheet (shell.html)
+#      and GD_POLL_MS (live.js, above).
+surface/live/gamesheet.js
 # pin: the strip loads bottom-up -- art and easing are pure, scene reads them, pose reads scene,
 #      strip reads pose, and transport/game are the only files with listeners or a fetch. Each
 #      file may only name things declared above it (one scope, so the temporal dead zone applies).

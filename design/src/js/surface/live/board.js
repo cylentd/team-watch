@@ -89,7 +89,7 @@ function gdBoardHTML(){
   const game = gdGame(lg);
   let [a, b] = game ? [sides[game[0]], sides[game[1]]] : [];
   if (b && b.id === lg.me) [a, b] = [b, a];
-  return gdLeaguesHTML(lg)
+  return gdNowHTML(lg) + gdLeaguesHTML(lg)
     + (a && b ? `<div class="gd-match">${gdHeadHTML(a, b, lg)}
         <div class="gd-lineups">${gdLineupHTML(a, a.id === lg.me)}${gdLineupHTML(b, false)}</div></div>` : "")
     + `<div class="gd-league">${gdGamesHTML(lg, sides, game)}${gdLadderHTML(lg, sides)}</div>`

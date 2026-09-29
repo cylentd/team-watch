@@ -122,7 +122,7 @@ Phase 2 (2026-09-26):
 |---|---|
 | Trend and news on their rows and Cards | `design/signals.py` reads every LIVE_MATES roster too |
 | Waivers: their league's Breaking rail, no status rows, no verdicts, no cards | `waiverKey(team)` is the league; `wvMateEvents` (rail.js) |
-| Live: every matchup in both leagues, theirs included (superseded the per-team follow, 2026-09-28) | `design/gameday.py`, `api/stats.py`; the design is in `js/surface/live/live.js`'s header |
+| Live: every matchup in both leagues, theirs included (superseded the per-team follow, 2026-09-28) | `design/gameday.py`, `api/stats.py`; the design is in `js/surface/live/live.js`'s header; its game sheet under "The game sheet" below |
 
 **My teams asks first (2026-09-27).** With no pick in this browser (`tw-team`), every My teams view
 draws "Which team is yours?": all 24 teams by league, 48px buttons, and "Add your ESPN league"; no
@@ -703,6 +703,32 @@ is an ⓘ that opens the leg sheet (below). Page sizes are multiples of 2 and 3
 (12 players, 24 lines) so a page ends on a full row. ~~The gallery slip's paper was toned down the
 same day (`--paper` #f1efe8 → #cbc4b4); it glowed against the dark page.~~ Superseded the same day:
 the slip went dark (below).
+
+### The game sheet (2026-09-28)
+
+One NFL game, for following it without watching (`surface/live/gamesheet.js`, cards in
+`gamecards.js`, ESPN shaping in `data/gameday/espn.js`). Storyboard "Follow a Game"; this is part 1.
+Live's **NFL now** card (`nflnow.js`) lists the games on now, else the next kickoff's, each drawn
+like a league game (its state over two boxes, club and score), and a tap opens the sheet.
+
+| Card | Source | Notes |
+|---|---|---|
+| Scoreboard | ESPN summary, else Sleeper | on a live game: who has the ball, down and distance, a strip from the away goal line (left) to the home one |
+| Plays | ESPN summary | drives newest first; the newest open, the rest one line each and kept open through a poll; timeouts and ends of quarters left out |
+| Top scorers | Sleeper (`/api/stats?teams=`) | five, in the league on screen's own scoring; mine bold with lime points |
+| Box score | Sleeper (`/api/stats?teams=`) | one club at a time: passing, rushing, receiving, most yards first |
+
+- **ESPN from the reader's browser only.** It answers a browser and refuses servers and headless
+  browsers (403), so nothing server-side asks it; the tests shape the saved game instead.
+- **Either source can go quiet.** ESPN down: a line above the plays, every other card keeps updating.
+- **The NFL now score** is Sleeper's: a club's defense row counts the points it allowed. Live's one
+  shared poll carries every club of the week for it, so the card costs no request.
+- **Polling.** Open, the game not final, the tab visible: both sources every 30 s, one request per
+  host in flight. Closed: never.
+- **Overlay**, as the leg sheet's: outside `#view`, one history entry, Escape and the scrim close it.
+  From 960px the plays take the tall left column.
+- **Part 2 (not built):** follow a player from this sheet with his Underdog lines as bars; replay
+  a drive in the strip.
 
 ### The leg sheet and the TD board (2026-09-27)
 

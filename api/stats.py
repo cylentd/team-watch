@@ -12,6 +12,10 @@ number of readers. Errors are never cached: a cached "Sleeper is down" would out
 
 A reply: {week, asof, updated (newest Sleeper row, ms), games {TEAM: "pre_game"|"in_game"|"complete"},
 stats {id: {key: value}}}. An id Sleeper has no row for yet (before kickoff) is simply absent.
+
+`teams=CHI,PHI` (2026-09-28, the game sheet) adds `box {id: {n, pos, team, s}}`: every player of
+those clubs with a stat, named, so the sheet can draw a box score and top scorers for players on
+nobody's roster. `ids` may then be left out.
 """
 import datetime
 import gzip
@@ -35,7 +39,10 @@ SWR_S = 15
 STATS_MEMO_S = 10     # a warm instance's own window on Sleeper's stats
 SCHEDULE_MEMO_S = 60  # game states change at kickoff and the final whistle, not every play
 IDS_MAX = 600
+TEAMS_MAX = 2
 ID = re.compile(r"^(\d{1,8}|[A-Z]{2,3})$")
+TEAM = re.compile(r"^[A-Z]{2,3}$")
+BOX_POS = ("QB", "RB", "WR", "TE", "K")
 
 # What a stat line shows beside what the rules score.
 LINE = ("pass_att", "pass_cmp", "pass_yd", "pass_td", "pass_int", "rush_att", "rush_yd", "rush_td",
@@ -94,6 +101,22 @@ def trim(rows, ids):
     return out, newest
 
 
+def box(rows, teams):
+    """Every player of `teams` with a kept stat -> {id: {n, pos, team, s}}. Defenses are left out:
+    the box score is the players', and a defense's line is the other club's score."""
+    out = {}
+    for r in rows or []:
+        p = r.get("player") or {}
+        pos = p.get("position")
+        if r.get("team") not in teams or pos not in BOX_POS:
+            continue
+        s = {k: v for k, v in (r.get("stats") or {}).items() if k in KEEP and v}
+        if s:
+            name = f"{p.get('first_name') or ''} {p.get('last_name') or ''}".strip()
+            out[str(r.get("player_id"))] = {"n": name, "pos": pos, "team": r["team"], "s": s}
+    return out
+
+
 def states(games, week):
     """{team: status} for the week's games; each team once."""
     out = {}
@@ -105,17 +128,21 @@ def states(games, week):
     return out
 
 
-def live_stats(week, ids):
+def live_stats(week, ids, teams=frozenset()):
     season = season_of()
     rows = _memoized("stats", (season, week), STATS_MEMO_S, STATS.format(season=season, week=week))
     sched = _memoized("schedule", season, SCHEDULE_MEMO_S, SCHEDULE.format(season=season))
-    stats, newest = trim(rows, ids)
-    return {"week": week, "asof": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
-            "updated": newest or None, "games": states(sched, week), "stats": stats}
+    stats, newest = trim(rows, ids | teams)
+    out = {"week": week, "asof": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
+           "updated": newest or None, "games": states(sched, week), "stats": stats}
+    if teams:
+        out["box"] = box(rows, teams)
+    return out
 
 
 def parse(query):
-    """(week, ids) from the query, or a reason it is not one."""
+    """(week, ids, teams) from the query, or a reason it is not one. A club's own row (its defense,
+    whose points allowed are the other side's score) comes with `teams` at no extra cost."""
     q = parse_qs(query)
     try:
         week = int((q.get("week") or [""])[0])
@@ -124,9 +151,12 @@ def parse(query):
     if not 1 <= week <= 22:
         return None, "week must be 1-22"
     ids = [i for i in (q.get("ids") or [""])[0].split(",") if i]
-    if not ids or len(ids) > IDS_MAX or not all(ID.match(i) for i in ids):
+    teams = [i for i in (q.get("teams") or [""])[0].split(",") if i]
+    if len(teams) > TEAMS_MAX or not all(TEAM.match(i) for i in teams):
+        return None, "teams must be at most two team codes, comma-separated"
+    if (not ids and not teams) or len(ids) > IDS_MAX or not all(ID.match(i) for i in ids):
         return None, "ids must be Sleeper ids or team codes, comma-separated"
-    return (week, frozenset(ids)), None
+    return (week, frozenset(ids), frozenset(teams)), None
 
 
 class handler(BaseHTTPRequestHandler):

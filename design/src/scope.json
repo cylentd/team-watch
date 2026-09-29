@@ -60,6 +60,7 @@
     "surface/board/board.css": "Leaders, Movers and Slips",
     "surface/builder/deal.css": "its cards fly on <body>, outside every view",
     "surface/builder/legsheet.css": "the leg sheet and its scrim sit on <body>, outside every view, and a body:has() rule locks the scroll",
+    "surface/live/gamesheet.css": "the game sheet and its scrim sit on <body>, outside every view, and a body:has() rule locks the scroll",
     "surface/builder/ud-row.css": "matched in no golden state, so a fence would be unproven",
     "surface/profile/sheet.css": "the profile modal and Weather",
     "surface/strip/panel.css": "the strip's dialog chrome, the profile modal and Live",

@@ -89,10 +89,24 @@ def test_a_defense_and_a_kicker_find_their_sleeper_ids():
 # --------------------------------------------------------------------------- the trimmed endpoint
 
 def test_stats_query_is_checked_before_sleeper_is_asked():
-    assert api_stats.parse("week=3&ids=8183,SEA")[0] == (3, frozenset({"8183", "SEA"}))
+    assert api_stats.parse("week=3&ids=8183,SEA")[0] == (3, frozenset({"8183", "SEA"}), frozenset())
+    assert api_stats.parse("week=3&teams=CHI,PHI")[0] == (3, frozenset(), frozenset({"CHI", "PHI"}))
     assert api_stats.parse("week=30&ids=1")[0] is None
     assert api_stats.parse("week=3&ids=1;drop")[0] is None
     assert api_stats.parse("week=3")[0] is None
+    assert api_stats.parse("week=3&teams=1234")[0] is None
+    assert api_stats.parse("week=3&teams=" + ",".join(["CHI"] * (api_stats.TEAMS_MAX + 1)))[0] is None
+
+
+def test_the_box_is_every_player_of_the_two_clubs_named_and_no_defense():
+    rows = [{"player_id": "1", "team": "CHI", "player": {"first_name": "D'Andre", "last_name": "Swift", "position": "RB"},
+             "stats": {"rush_att": 6, "rush_yd": 22, "gp": 1}},
+            {"player_id": "2", "team": "CHI", "player": {"position": "OL"}, "stats": {"gp": 1}},
+            {"player_id": "CHI", "team": "CHI", "player": {"position": "DEF"}, "stats": {"pts_allow": 7}},
+            {"player_id": "3", "team": "GB", "player": {"position": "WR"}, "stats": {"rec": 2}},
+            {"player_id": "4", "team": "PHI", "player": {"first_name": "A", "last_name": "B", "position": "WR"}, "stats": {"gp": 1}}]
+    assert api_stats.box(rows, frozenset({"CHI", "PHI"})) == {
+        "1": {"n": "D'Andre Swift", "pos": "RB", "team": "CHI", "s": {"rush_att": 6, "rush_yd": 22}}}
 
 
 def test_stats_keep_only_wanted_players_and_scored_fields():
@@ -190,5 +204,75 @@ def test_the_board_says_where_each_game_is_and_a_row_opens_his_profile(browser, 
     assert "Chat Take the Wheel" not in page.locator(".gd-head").inner_text()
     assert page.locator(".gd-g.on").count() == 1 and page.locator(".gd-g.mine.on").count() == 0
     assert re.match(r"^BY \d+\.\d$|^TIED$", page.locator(".gd-lead").inner_text())
+    ctx.close()
+    assert errors == []
+
+
+# --------------------------------------------------------------------------- the game sheet
+
+SUMMARY = json.loads((REPO / "tests" / "fixtures" / "data" / "espn_summary.json").read_text(encoding="utf-8"))
+BOX = json.loads((REPO / "tests" / "fixtures" / "data" / "sleeper_box.json").read_text(encoding="utf-8"))
+
+
+@pytest.mark.render
+def test_where_the_ball_is_reads_as_espn_writes_it(browser, page_file):
+    """gsWhere, from down, distance and yards to go, says what ESPN's own downDistanceText says, on
+    every play of the saved game: it is the fallback when a live summary leaves the text out.
+    Timeouts carry a stale text and no yards to go; the sheet drops them, so the test does too."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    got = page.evaluate("""(s) => {
+      const cs = s.header.competitions[0].competitors, abbrOf = {};
+      for (const c of cs) abbrOf[c.team.id] = c.team.abbreviation;
+      const other = a => cs.map(c => c.team.abbreviation).find(x => x !== a);
+      const out = [];
+      for (const d of s.drives.previous) for (const p of d.plays)
+        if (p.start && p.start.downDistanceText && !GS_NOT_PLAY.test(p.text) && !GS_NOT_PLAY.test(p.type.text)) out.push([gsWhere(p.start, abbrOf, other), p.start.downDistanceText]);
+      return out;
+    }""", SUMMARY)
+    ctx.close()
+    assert len(got) > 30
+    assert [g for g in got if g[0] != g[1]] == []
+    assert errors == []
+
+
+@pytest.mark.render
+def test_the_game_sheet_opens_from_nfl_now_and_draws_four_cards(browser, page_file):
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    page.evaluate(plant({"DET": "in_game", "SEA": "in_game"}))
+    for kind, sel in go("live"):
+        page.click(sel)
+    page.wait_for_selector(".gd-row")
+    # the card lists the games on now, each drawn like a league game: its state over two clubs
+    tile = page.locator(".gd-now [data-gdnfl]")
+    assert tile.count() == 1 and tile.get_attribute("data-gdnfl") == "401871234,DET,SEA"
+    assert tile.locator(".gd-gs.live").inner_text().startswith("LIVE")
+    tile.click()
+    page.wait_for_selector("#gamesheet.on")
+    page.evaluate("""([s, b]) => { GS = {event: "1", away: "DET", home: "BUF"}; GS_GAME = gsShape(s); GS_BOX = {box: b}; GS_ERR = ""; gsPaint(); }""",
+                  [SUMMARY, BOX])
+    sheet = page.locator("#gamesheet")
+    assert sheet.locator(".gs-card").count() == 4
+    assert sheet.locator(".gs-t.behind b").inner_text() == "31"            # DET 31, BUF 41: final
+    # drives newest first, the newest open, the rest one line each; no "END QUARTER" rows
+    drives = sheet.locator(".gs-drv")
+    assert drives.count() == 5 and drives.first.get_attribute("open") is not None
+    assert sheet.locator(".gs-drv[open]").count() == 1
+    assert drives.first.locator(".gs-tm").inner_text() == "DET" and drives.first.locator("summary b.sc").count() == 1
+    assert not any(t.startswith("END ") for t in sheet.locator(".gs-pl > span:last-child").all_inner_texts())
+    # an earlier drive opened by hand stays open through the next poll's repaint
+    drives.nth(2).locator("summary").click()
+    page.evaluate("new Promise(r => setTimeout(() => { gsPaint(); r(); }, 0))")    # "toggle" is a task after the click
+    assert sheet.locator(".gs-drv[open]").count() == 2
+    # top scorers, best first, in the league's own scoring
+    pts = [float(x) for x in sheet.locator(".gs-sc > b").all_inner_texts()]
+    assert len(pts) == 5 and pts == sorted(pts, reverse=True)
+    # the box score shows one club at a time
+    assert sheet.locator(".gs-seg [aria-pressed='true']").inner_text() == "Lions"
+    sheet.locator(".gs-seg button").nth(1).click()
+    assert sheet.locator(".gs-seg [aria-pressed='true']").inner_text() == "Bills"
+    assert sheet.locator(".gs-tbl").count() >= 2
+    page.keyboard.press("Escape")
+    page.wait_for_selector("#gamesheet:not(.on)", state="attached")
+    assert page.evaluate("GS") is None
     ctx.close()
     assert errors == []

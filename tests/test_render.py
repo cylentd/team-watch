@@ -106,6 +106,12 @@ STRIP_OPEN = """(() => { const D = %s; performance.now = () => 1000;
   stripMount(document.querySelector("#stripmodal .stbody"), D, null, null); })()""" % json.dumps(_strip_game())
 STRIP_SEEK = """(() => { const s = document.querySelector("#stripmodal .stslider");
   s.value = 6; s.dispatchEvent(new Event("input")); })()"""
+# The game sheet (2026-09-28): the fixture game shaped by the page's own gsShape, and a real Sleeper
+# box for its two clubs. From file:// the sheet cannot fetch, so both are planted after it opens.
+GAME_SUMMARY = (GAMEDAY_FIX.parent / "data" / "espn_summary.json").read_text(encoding="utf-8")
+GAME_BOX = (GAMEDAY_FIX.parent / "data" / "sleeper_box.json").read_text(encoding="utf-8")
+GAME_SHEET = """(() => { gsOpen({event: "1", away: "DET", home: "BUF"}, null);
+  GS_GAME = gsShape(%s); GS_BOX = {box: %s}; GS_ERR = ""; gsPaint(); })()""" % (GAME_SUMMARY, GAME_BOX)
 WAIT_STAGE = "new Promise(r => setTimeout(r, 450))"
 CLOSE_STAGE = """(() => { document.body.dispatchEvent(new KeyboardEvent("keydown", {key: "Escape", bubbles: true}));
   return new Promise(r => setTimeout(r, 450)); })()"""
@@ -301,6 +307,8 @@ STATES = [
     # The only state that lets gdFetch run: from file:// it must say so once, never log an error.
     ("live-unserved", [("eval", LIVE_PLANT() + "GD_STATS = null; GD_ERR = ''; GD_BUSY = false; GD_AT = 0;")]
                       + go("live")),
+    # The game sheet over Live: the fixture game's scoreboard, plays by drive, top scorers, box score.
+    ("live-game", [("eval", LIVE_PLANT())] + go("live") + [("eval", GAME_SHEET)]),
     # The play strip (2026-09-27): the real dialog, which from file:// says it cannot fetch, then
     # the fixture game mounted into it with the real stripMount. A finished game opens at kickoff
     # and never plays by itself, so the frame is fixed; -seek moves the scrubber to play 6.

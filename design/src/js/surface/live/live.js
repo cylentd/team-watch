@@ -73,9 +73,11 @@ function gdKickOf(club){
 function gdClubs(){
   const out = new Set();
   for (const lg of GD.leagues) for (const tm of Object.values(lg.teams)) for (const r of tm.lineup) if (r.team) out.add(r.team);
+  /* Every club of the week too, so the NFL now card's scores keep moving in a game none of ours is in. */
+  for (const g of gdWeekGames()) out.add(g.home).add(g.away);
   return out;
 }
-/* A game with one of our players in it is being played. Sleeper saying every such game is
+/* A game of the week is being played. Sleeper saying every such game is
    complete ends the window early; its "in_game" keeps it open past the padding. */
 function gdPlaying(now){
   const states = (GD_STATS && GD_STATS.games) || {};
@@ -98,10 +100,12 @@ function gdNextKick(now){
 /* ---------------------------------------------------------------- fetching */
 
 /* One URL for every reader of this page: every player in every league, sorted, so the edge
-   caches a single reply for all of them. */
+   caches a single reply for all of them. Every club of the week rides along in both spellings:
+   its defense row is the other club's score on the NFL now card (nflnow.js). */
 function gdUrl(){
   const ids = new Set();
   for (const lg of GD.leagues) for (const tm of Object.values(lg.teams)) for (const r of tm.lineup) if (r.sid) ids.add(r.sid);
+  for (const g of GD_GAMES) if (g.week === (GD.leagues[0] || {}).week) for (const c of [g.home, g.away]) gdCodes(c).forEach(x => ids.add(x));
   const week = (GD.leagues[0] || {}).week;
   return week && ids.size ? `/api/stats?week=${week}&ids=${[...ids].sort().join(",")}` : null;
 }
@@ -186,6 +190,11 @@ function wireLive(host){
   host.querySelectorAll("[data-gdgame]").forEach(b => b.addEventListener("click", () => {
     GD_PICK = b.dataset.gdgame.split(","); paintLive();
     host.querySelector(".gd-head")?.scrollIntoView({block: "start", behavior: "smooth"});
+  }));
+  /* An NFL game opens the game sheet (gamesheet.js). */
+  host.querySelectorAll("[data-gdnfl]").forEach(b => b.addEventListener("click", () => {
+    const [event, away, home] = b.dataset.gdnfl.split(",");
+    gsOpen({event, away, home}, b);
   }));
   /* A player opens his profile, the view search and the Digest open (surface/profile/panel.js). */
   host.querySelectorAll("[data-gdslug]").forEach(b => b.addEventListener("click", () => {
