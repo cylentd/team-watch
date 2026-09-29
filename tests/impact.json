@@ -10,6 +10,11 @@
     "tests/test_impact.py"
   ],
   "areas": {
+    "gestures": {
+      "paths": ["design/src/js/lib/swipe.js", "tests/test_gestures.py"],
+      "tests": ["tests/test_gestures.py"],
+      "render": []
+    },
     "digest": {
       "paths": ["design/src/js/surface/digest/", "design/src/css/surface/digest/", "design/src/js/data/digest.js", "design/digest.py"],
       "tests": ["tests/test_digest.py"],

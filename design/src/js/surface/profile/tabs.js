@@ -74,6 +74,20 @@ function tabsHTML(prof, p){
 }
 
 /* Arrow keys move along the row and open as they go, which is what role="tablist" promises. */
+/* A sideways swipe on the open profile turns its tab (2026-09-29): on a phone the tab bar is at the top,
+   a thumb's stretch away. It walks the tabs drawn, not PF_TABS, since an empty pane draws none, and stops
+   at either end. The pane slides in from the side the swipe came from. chrome/modal.js binds it once. */
+function pfSwipeTab(d, step){
+  const tabs = [...d.querySelectorAll(".pf-tabs [data-pftab]")];
+  const i = tabs.findIndex(b => b.getAttribute("aria-selected") === "true"), next = tabs[i + step];
+  if (i < 0 || !next) return;
+  next.click();
+  const pane = d.querySelector(".pf-tabpane");
+  if (pane && !REDUCED()) pane.classList.add(step > 0 ? "in-r" : "in-l");
+}
+/* Touches the profile's gestures leave alone: the radar owns its drag, the tab bar and the orb sheet their own taps. */
+const pfOwnsTouch = el => !!(el.closest && el.closest(".pf-radar-hit, .pf-tabs, .pf-orbsheet"));
+
 function wireTabs(d, prof, p){
   const bar = d.querySelector(".pf-tabs");
   if (!bar) return;

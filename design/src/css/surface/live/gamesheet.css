@@ -16,7 +16,18 @@
   transform:translateY(105%);visibility:hidden;
   transition:transform var(--dur-spring) var(--spring),visibility 0s linear var(--dur-spring);
 }
-.gamesheet.on{transform:none;visibility:visible;transition:transform var(--dur-spring) var(--spring)}
+.gamesheet.on{transform:translateY(var(--pull,0px));visibility:visible;transition:transform var(--dur-spring) var(--spring)}
+/* A pull down (lib/swipe.js): the sheet rides the finger through --pull, then springs home or closes;
+   overscroll contain, so the pull never reloads the page under it. */
+.gamesheet{overscroll-behavior-y:contain}
+.gamesheet.pulling{transition:none}
+/* A sideways swipe to the next game: the new game's cards come in from the side it came from. */
+@media (prefers-reduced-motion:no-preference){
+  .gamesheet.turn-r>*{animation:gs-turn-r var(--dur-spring) var(--spring)}
+  .gamesheet.turn-l>*{animation:gs-turn-l var(--dur-spring) var(--spring)}
+  @keyframes gs-turn-r{from{transform:translateX(28px);opacity:.4}}
+  @keyframes gs-turn-l{from{transform:translateX(-28px);opacity:.4}}
+}
 body:has(.gamesheet.on){overflow:hidden}
 .gs-grab{appearance:none;border:0;justify-self:center;width:44px;height:18px;padding:0;cursor:pointer;
   background:linear-gradient(var(--line-2),var(--line-2)) center / 44px 4px no-repeat;border-radius:4px}

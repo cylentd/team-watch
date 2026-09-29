@@ -126,6 +126,8 @@ function buildSearch(){
   });
   // The sheet's own backdrop (desktop, around the panel) closes it, like a modal's scrim.
   s.addEventListener("click", e => { if (e.target === s) searchClose(); });
+  // A pull down from the top of the results closes it too, the phone's way to put a sheet away (lib/swipe.js).
+  onPullDown(s, () => searchEl("search-list").scrollTop <= 0, () => !s.hidden, searchClose);
   s.addEventListener("keydown", e => {
     if (e.key === "Escape" && !modalOpen().length) searchClose();
     // Two stops, the input and Cancel; results are reached with the arrow keys, not Tab.

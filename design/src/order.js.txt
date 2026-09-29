@@ -24,6 +24,7 @@ data/teamcolors.js
 data/schedule.js
 lib/escape.js
 lib/served.js
+lib/swipe.js
 ui/player.js
 ui/matchup.js
 ui/weather.js

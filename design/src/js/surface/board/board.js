@@ -128,20 +128,12 @@ function wireBd(v){
     if (r) openProfile({n: r.n, pos: r.pos, team: r.team, slug: r.slug}, el);
   }));
   // A horizontal swipe on the card moves one stat; a mostly-vertical drag is a scroll and is left alone.
-  v.querySelectorAll("[data-bdswipe]").forEach(el => {
-    let x0 = null, y0 = 0;
-    el.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, {passive: true});
-    el.addEventListener("touchend", e => {
-      if (x0 === null) return;
-      const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
-      x0 = null;
-      if (Math.abs(dx) > 48 && Math.abs(dx) > 1.5 * Math.abs(dy) && bdStep(dx < 0 ? 1 : -1)){
-        BD_NOTE = ""; render();
-        const tab = document.querySelector(".bd-tab[aria-selected=true]");
-        if (tab) tab.scrollIntoView({block: "nearest", inline: "center"});
-      }
-    }, {passive: true});
-  });
+  v.querySelectorAll("[data-bdswipe]").forEach(el => onSwipeX(el, step => {
+    if (!bdStep(step)) return;
+    BD_NOTE = ""; render();
+    const tab = document.querySelector(".bd-tab[aria-selected=true]");
+    if (tab) tab.scrollIntoView({block: "nearest", inline: "center"});
+  }));
   set("[data-bddrop]", b => { BD_NOTE = ""; BD_PICKS = BD_PICKS.filter(s => s !== b.dataset.bddrop); });
   // The picker is the app's own search sheet, handed a slot to fill instead of a profile to open.
   v.querySelectorAll("[data-bdadd]").forEach(b => b.addEventListener("click", () => searchOpen(bdAdd)));

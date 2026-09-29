@@ -52,6 +52,18 @@ function modalShut(d){
   if (back && back.focus && back.isConnected) back.focus({preventScroll: true});
 }
 
+/* The profile's touch gestures (2026-09-29, lib/swipe.js), bound once: every openProfile replaces
+   #modal's contents, never #modal. Sideways turns the tab; down from the top of the body closes it.
+   The drive strip's dialog, stacked on top, takes neither. */
+(() => {
+  const d = document.getElementById("modal");
+  if (!d) return;
+  const up = () => d.classList.contains("on") && !document.querySelector(".stripmodal.on");
+  onSwipeX(d, step => { if (up()) pfSwipeTab(d, step); }, pfOwnsTouch);
+  onPullDown(d, () => { const b = d.querySelector(".dr-body"); return !b || b.scrollTop <= 0; },
+    el => up() && !(el.closest && el.closest(".pf-radar-hit, .pf-orbsheet")), () => closeModal(d));
+})();
+
 document.querySelectorAll(".modal-scrim").forEach(s => s.addEventListener("click", () => {
   closeModal([...document.querySelectorAll(".modal.on")].find(d => d.dataset.scrim === s.id));
 }));

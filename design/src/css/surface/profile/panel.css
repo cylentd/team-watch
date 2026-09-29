@@ -96,6 +96,11 @@ button.pf-own:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 @keyframes pf-pane{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .pf-tabpane{padding-top:16px;animation:pf-pane .26s var(--ease)}
 .pf-tabpane > :first-child{padding-top:0}
+/* A swiped tab (tabs.js pfSwipeTab, 2026-09-29) comes in from the side the finger went, not up. */
+@keyframes pf-in-r{from{opacity:0;transform:translateX(28px)}}
+@keyframes pf-in-l{from{opacity:0;transform:translateX(-28px)}}
+.pf-tabpane.in-r{animation:pf-in-r var(--dur-spring) var(--spring)}
+.pf-tabpane.in-l{animation:pf-in-l var(--dur-spring) var(--spring)}
 
 /* A desktop lays a pane's blocks side by side (2026-09-29, David: Usage and Matchup "should fit
    without scrolling", and bars ran 1,000px wide). Usage and Props: two columns, blocks flowing

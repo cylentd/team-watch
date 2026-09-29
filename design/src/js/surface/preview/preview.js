@@ -100,15 +100,7 @@ function wirePreview(v){
     const p = g && g.take && g.take.players[+el.dataset.pvp];
     if (p) openProfile({n: p.n, pos: p.pos, team: p.team, slug: p.slug}, el);
   }));
-  // A horizontal swipe turns the game; a mostly-vertical drag is a scroll and is left alone (board.js).
+  // A horizontal swipe turns the game; a mostly-vertical drag is a scroll and is left alone (lib/swipe.js).
   const card = v.querySelector("[data-pvswipe]");
-  if (!card) return;
-  let x0 = null, y0 = 0;
-  card.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, {passive: true});
-  card.addEventListener("touchend", e => {
-    if (x0 === null) return;
-    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
-    x0 = null;
-    if (Math.abs(dx) > 48 && Math.abs(dx) > 1.5 * Math.abs(dy)) pvTurn(dx < 0 ? 1 : -1);
-  });
+  if (card) onSwipeX(card, pvTurn);
 }

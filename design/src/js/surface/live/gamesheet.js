@@ -55,41 +55,62 @@ function gsPaint(){
   if (d && GS) d.innerHTML = gsSheetHTML();
 }
 
+/* A sideways swipe walks the week's games in kickoff order (2026-09-29, lib/swipe.js), the sheet staying
+   up: every NFL game, not only the NFL now card's. It stops at either end. */
+function gsWeekOrder(){
+  return gdWeekGames().slice().sort((a, b) => a.kickoff.localeCompare(b.kickoff) || a.away.localeCompare(b.away));
+}
+function gsStep(step){
+  if (!GS) return;
+  const games = gsWeekOrder();
+  const i = games.findIndex(g => (GS.event && g.espn === GS.event) || (g.away === GS.away && g.home === GS.home));
+  const g = games[i + step];
+  if (i < 0 || !g) return;
+  gsOpen({event: g.espn || "", away: g.away, home: g.home}, GS_RETURN);   // layerPush keeps the one entry
+  const d = gsEl();
+  if (d && !REDUCED()){
+    d.classList.remove("turn-r", "turn-l"); void d.offsetWidth;
+    d.classList.add(step > 0 ? "turn-r" : "turn-l");
+  }
+}
+
 /* The two clubs in every spelling, sorted, so every reader of one game shares one cached reply. */
-function gsBoxUrl(){
-  const week = (GD.leagues[0] || {}).week, codes = new Set([...gdCodes(GS.away), ...gdCodes(GS.home)]);
+function gsBoxUrl(at){
+  const week = (GD.leagues[0] || {}).week, codes = new Set([...gdCodes(at.away), ...gdCodes(at.home)]);
   return `/api/stats?week=${week}&teams=${[...codes].sort().join(",")}`;
 }
 
 /* Sleeper directly when our endpoint cannot answer, cut the way api/stats.py box() cuts it. */
-async function gsBoxDirect(){
+async function gsBoxDirect(at){
   const week = (GD.leagues[0] || {}).week, rows = await fetch(`https://api.sleeper.com/stats/nfl/${GD.season}/${week}?season_type=regular`).then(r => r.ok ? r.json() : null);
   if (!rows) return null;
   const box = {};
   for (const r of rows){
     const p = r.player || {}, s = r.stats || {};
-    if (!["QB", "RB", "WR", "TE", "K"].includes(p.position) || !(gdSameClub(GS.away, r.team) || gdSameClub(GS.home, r.team))) continue;
+    if (!["QB", "RB", "WR", "TE", "K"].includes(p.position) || !(gdSameClub(at.away, r.team) || gdSameClub(at.home, r.team))) continue;
     if (Object.values(s).some(Boolean)) box[String(r.player_id)] = {n: `${p.first_name || ""} ${p.last_name || ""}`.trim(), pos: p.position, team: r.team, s};
   }
   return {box};
 }
 
-async function gsBoxFetch(){
+/* Both fetches are for game `at`, and write nothing if the reader has swiped to another meanwhile. */
+async function gsBoxFetch(at){
   let reply = null;
   try {
-    const res = await fetch(gsBoxUrl(), {headers: {"Accept": "application/json"}});
+    const res = await fetch(gsBoxUrl(at), {headers: {"Accept": "application/json"}});
     reply = res.ok ? await res.json() : null;
   } catch (e) { /* Sleeper directly, below */ }
-  if (!(reply && reply.box)) { try { reply = await gsBoxDirect(); } catch (e) { reply = null; } }
+  if (!(reply && reply.box)) { try { reply = await gsBoxDirect(at); } catch (e) { reply = null; } }
+  if (GS !== at) return;
   if (reply && reply.box){ GS_BOX = reply; GS_BOX_ERR = ""; } else GS_BOX_ERR = t("live.sheet.noSleeper");
 }
 
-async function gsEspnFetch(){
-  if (!GS.event) return;
-  try {
-    const shaped = gsShape(await gsFetchSummary(GS.event));
-    if (shaped){ GS_GAME = shaped; GS_ERR = ""; } else GS_ERR = t("live.sheet.espnDown");
-  } catch (e) { GS_ERR = t("live.sheet.espnDown"); }
+async function gsEspnFetch(at){
+  if (!at.event) return;
+  let shaped = null;
+  try { shaped = gsShape(await gsFetchSummary(at.event)); } catch (e) { shaped = null; }
+  if (GS !== at) return;
+  if (shaped){ GS_GAME = shaped; GS_ERR = ""; } else GS_ERR = t("live.sheet.espnDown");
 }
 
 async function gsPoll(){
@@ -97,9 +118,9 @@ async function gsPoll(){
   if (!PAGE_SERVED()){ GS_ERR = t("live.error.notServed"); gsPaint(); return; }
   GS_BUSY = true;
   const at = GS;
-  await Promise.all([gsEspnFetch(), gsBoxFetch()]);
+  await Promise.all([gsEspnFetch(at), gsBoxFetch(at)]);
   GS_BUSY = false;
-  if (GS === at) gsPaint();
+  if (GS === at) gsPaint(); else if (GS) gsPoll();   // swiped to another game mid-fetch: fetch that one
 }
 
 const gsLive = () => GS && document.visibilityState === "visible" && (GS_GAME ? GS_GAME.state !== "post" : gsSleeperState() !== "post");
@@ -125,6 +146,9 @@ const gsLive = () => GS && document.visibilityState === "visible" && (GS_GAME ? 
     else if (!e.shiftKey && document.activeElement === f[f.length - 1]){ e.preventDefault(); f[0].focus(); }
   });
   document.getElementById("gamesheet-scrim").addEventListener("click", gsClose);
+  /* Bound on the sheet itself, which a paint never replaces: sideways walks the games, down closes. */
+  onSwipeX(d, gsStep);
+  onPullDown(d, () => d.scrollTop <= 0, () => !!GS, gsClose);
   document.addEventListener("keydown", e => { if (e.key === "Escape" && GS) gsClose(); });
   setInterval(() => { if (gsLive()) gsPoll(); }, GD_POLL_MS);
   document.addEventListener("visibilitychange", () => { if (gsLive()) gsPoll(); });

@@ -1854,12 +1854,16 @@ body.pk-open{overflow:hidden}
   transition:transform .42s var(--ease),opacity .28s var(--ease);
 }
 .modal.on{
-  transform:translate(-50%,-50%) translate(0,0) scale(1);opacity:1;pointer-events:auto;
+  transform:translate(-50%,-50%) translate(0,var(--pull,0px)) scale(1);opacity:1;pointer-events:auto;
   box-shadow:0 50px 100px rgb(var(--shadow-rgb) / .6);
 }
+/* A pull down (lib/swipe.js) moves the sheet with the finger through --pull, so no transition while
+   the finger is on it; let go and it springs home or closes from where it is. */
+.modal.pulling{transition:none}
 /* The body's own scrollbar: thin, dark, no arrows. Set here rather than inherited from html,
-   since scrollbar-color on the root does not always reach a nested scroller. */
-.modal .dr-body{scrollbar-width:thin;scrollbar-color:var(--line-2) var(--panel)}
+   since scrollbar-color on the root does not always reach a nested scroller. overscroll contain:
+   a pull at the top closes the profile, never reloads the page underneath. */
+.modal .dr-body{scrollbar-width:thin;scrollbar-color:var(--line-2) var(--panel);overscroll-behavior-y:contain}
 
 /* The strip's dialog sits OVER the profile's, and wants width rather than height: a drive is
    120 yards laid end to end, and every pixel taken off the field is a yard the reader squints
@@ -1976,6 +1980,11 @@ button.pf-own:focus-visible:where(#modal, #stripmodal, #modal *, #stripmodal *){
 @keyframes pf-pane{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .pf-tabpane:where(#modal, #stripmodal, #modal *, #stripmodal *){padding-top:16px;animation:pf-pane .26s var(--ease)}
 .pf-tabpane:where(#modal, #stripmodal, #modal *, #stripmodal *) > :first-child{padding-top:0}
+/* A swiped tab (tabs.js pfSwipeTab, 2026-09-29) comes in from the side the finger went, not up. */
+@keyframes pf-in-r{from{opacity:0;transform:translateX(28px)}}
+@keyframes pf-in-l{from{opacity:0;transform:translateX(-28px)}}
+.pf-tabpane.in-r:where(#modal, #stripmodal, #modal *, #stripmodal *){animation:pf-in-r var(--dur-spring) var(--spring)}
+.pf-tabpane.in-l:where(#modal, #stripmodal, #modal *, #stripmodal *){animation:pf-in-l var(--dur-spring) var(--spring)}
 
 /* A desktop lays a pane's blocks side by side (2026-09-29, David: Usage and Matchup "should fit
    without scrolling", and bars ran 1,000px wide). Usage and Props: two columns, blocks flowing
@@ -2776,7 +2785,10 @@ body:has(.search:not([hidden])) .chatfab{display:none}
   background:var(--panel);border:1px solid var(--line-2);
   box-shadow:0 50px 100px rgb(var(--shadow-rgb) / .6);
   animation:search-in .22s var(--ease);
+  /* A pull down from the top of the results (lib/swipe.js) carries the panel with the finger. */
+  transform:translateY(var(--pull,0px));transition:transform var(--dur-spring) var(--spring);
 }
+.search.pulling .search-in{transition:none}
 @keyframes search-in{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
 @keyframes search-up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 
@@ -2797,7 +2809,7 @@ body:has(.search:not([hidden])) .chatfab{display:none}
 .search-x:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 
 .search-list{
-  list-style:none;margin:0;padding:6px 0;max-height:60vh;overflow-y:auto;
+  list-style:none;margin:0;padding:6px 0;max-height:60vh;overflow-y:auto;overscroll-behavior-y:contain;
   display:flex;flex-direction:column;
   scrollbar-width:thin;scrollbar-color:var(--line-2) var(--panel);
 }
@@ -5573,7 +5585,18 @@ button.cs-slot:active:where(#view[data-view="records"], #modal, #view[data-view=
   transform:translateY(105%);visibility:hidden;
   transition:transform var(--dur-spring) var(--spring),visibility 0s linear var(--dur-spring);
 }
-.gamesheet.on{transform:none;visibility:visible;transition:transform var(--dur-spring) var(--spring)}
+.gamesheet.on{transform:translateY(var(--pull,0px));visibility:visible;transition:transform var(--dur-spring) var(--spring)}
+/* A pull down (lib/swipe.js): the sheet rides the finger through --pull, then springs home or closes;
+   overscroll contain, so the pull never reloads the page under it. */
+.gamesheet{overscroll-behavior-y:contain}
+.gamesheet.pulling{transition:none}
+/* A sideways swipe to the next game: the new game's cards come in from the side it came from. */
+@media (prefers-reduced-motion:no-preference){
+  .gamesheet.turn-r>*{animation:gs-turn-r var(--dur-spring) var(--spring)}
+  .gamesheet.turn-l>*{animation:gs-turn-l var(--dur-spring) var(--spring)}
+  @keyframes gs-turn-r{from{transform:translateX(28px);opacity:.4}}
+  @keyframes gs-turn-l{from{transform:translateX(-28px);opacity:.4}}
+}
 body:has(.gamesheet.on){overflow:hidden}
 .gs-grab{appearance:none;border:0;justify-self:center;width:44px;height:18px;padding:0;cursor:pointer;
   background:linear-gradient(var(--line-2),var(--line-2)) center / 44px 4px no-repeat;border-radius:4px}
@@ -7824,6 +7847,69 @@ const t = (k, v) => { const s = COPY[k]; if (s === undefined) throw new Error("c
    Shared rather than repeated. Two callers ask it today (the live board and the build-freshness
    check) and the answer is one fact about the page, not two coincidentally similar checks. */
 const PAGE_SERVED = () => location.protocol === "http:" || location.protocol === "https:";
+/* ── js/lib/swipe.js ── */
+/* ------------------------------------------------------------------
+   SWIPE — the page's two touch gestures, one definition each (2026-09-29).
+   A sideways swipe turns to the next thing in a set the reader already pages with buttons: the
+   Leaders card's stat, Preview's game, the profile's tab, the game sheet's game. A pull down from
+   the top closes a sheet: the profile, search, the game sheet. One meaning per surface, never a
+   swipe between views, since those surfaces already own the sideways swipe.
+   Board and Preview each carried their own copy of the arithmetic; the third caller made it this file.
+------------------------------------------------------------------ */
+const SWIPE_MIN = 48;      // px sideways before a drag is a swipe
+const SWIPE_RATIO = 1.5;   // and this many times more sideways than down: a mostly-vertical drag is a scroll
+const PULL_MIN = 96;       // px down, from the top of the sheet's scroll, before a pull closes it
+const PULL_FOLLOW = .6;    // how far the sheet follows the finger: it lags, so it reads as weight
+
+/* step(+1) on a swipe left (the next one), step(-1) on a swipe right. `skip(target)` true means the
+   touch began on something with its own drag (the radar, the orb sheet): that touch is left alone. */
+function onSwipeX(el, step, skip){
+  let x0 = null, y0 = 0;
+  el.addEventListener("touchstart", e => {
+    const ok = e.touches.length === 1 && !(skip && skip(e.target));
+    x0 = ok ? e.touches[0].clientX : null;
+    y0 = ok ? e.touches[0].clientY : 0;
+  }, {passive: true});
+  el.addEventListener("touchend", e => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+    x0 = null;
+    if (Math.abs(dx) > SWIPE_MIN && Math.abs(dx) > SWIPE_RATIO * Math.abs(dy)) step(dx < 0 ? 1 : -1);
+  });
+  el.addEventListener("touchcancel", () => { x0 = null; });
+}
+
+/* A pull down closes `sheet`. The sheet follows the finger through --pull, which its CSS adds to its
+   own transform, and springs back when let go short of PULL_MIN. A pull counts only from the top of
+   the content (`atTop()`), so scrolling back up a long pane never closes it; `live(target)` false
+   (the sheet is shut, or the touch began on something with its own drag) leaves the touch alone. */
+function onPullDown(sheet, atTop, live, close){
+  let y0 = null, x0 = 0, dy = 0;
+  const reset = () => { sheet.classList.remove("pulling"); sheet.style.removeProperty("--pull"); y0 = null; dy = 0; };
+  sheet.addEventListener("touchstart", e => {
+    const ok = e.touches.length === 1 && live(e.target) && atTop();
+    y0 = ok ? e.touches[0].clientY : null;
+    x0 = ok ? e.touches[0].clientX : 0;
+    dy = 0;
+  }, {passive: true});
+  sheet.addEventListener("touchmove", e => {
+    if (y0 === null) return;
+    const d = e.touches[0].clientY - y0, side = Math.abs(e.touches[0].clientX - x0);
+    if (!dy){
+      if (Math.max(Math.abs(d), side) < 8) return;          // too small yet to tell which way it goes
+      if (d <= 0 || side > d){ reset(); return; }            // up or sideways first: a scroll or a swipe
+    }
+    dy = Math.max(0, d);                                     // back above the start: nothing to close
+    if (!REDUCED()){ sheet.classList.add("pulling"); sheet.style.setProperty("--pull", `${Math.round(dy * PULL_FOLLOW)}px`); }
+  }, {passive: true});
+  sheet.addEventListener("touchend", () => {
+    if (y0 === null) return;
+    const shut = dy > PULL_MIN;
+    reset();
+    if (shut) close();
+  });
+  sheet.addEventListener("touchcancel", reset);
+}
 /* ── js/ui/player.js ── */
 /* Headshot or initials, the fragment every card starts with. `label` overrides the initials
    (a lineup slot shows the position abbreviation instead). headHTML below is the roster-board
@@ -12241,6 +12327,20 @@ function tabsHTML(prof, p){
 }
 
 /* Arrow keys move along the row and open as they go, which is what role="tablist" promises. */
+/* A sideways swipe on the open profile turns its tab (2026-09-29): on a phone the tab bar is at the top,
+   a thumb's stretch away. It walks the tabs drawn, not PF_TABS, since an empty pane draws none, and stops
+   at either end. The pane slides in from the side the swipe came from. chrome/modal.js binds it once. */
+function pfSwipeTab(d, step){
+  const tabs = [...d.querySelectorAll(".pf-tabs [data-pftab]")];
+  const i = tabs.findIndex(b => b.getAttribute("aria-selected") === "true"), next = tabs[i + step];
+  if (i < 0 || !next) return;
+  next.click();
+  const pane = d.querySelector(".pf-tabpane");
+  if (pane && !REDUCED()) pane.classList.add(step > 0 ? "in-r" : "in-l");
+}
+/* Touches the profile's gestures leave alone: the radar owns its drag, the tab bar and the orb sheet their own taps. */
+const pfOwnsTouch = el => !!(el.closest && el.closest(".pf-radar-hit, .pf-tabs, .pf-orbsheet"));
+
 function wireTabs(d, prof, p){
   const bar = d.querySelector(".pf-tabs");
   if (!bar) return;
@@ -13576,17 +13676,9 @@ function wirePreview(v){
     const p = g && g.take && g.take.players[+el.dataset.pvp];
     if (p) openProfile({n: p.n, pos: p.pos, team: p.team, slug: p.slug}, el);
   }));
-  // A horizontal swipe turns the game; a mostly-vertical drag is a scroll and is left alone (board.js).
+  // A horizontal swipe turns the game; a mostly-vertical drag is a scroll and is left alone (lib/swipe.js).
   const card = v.querySelector("[data-pvswipe]");
-  if (!card) return;
-  let x0 = null, y0 = 0;
-  card.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, {passive: true});
-  card.addEventListener("touchend", e => {
-    if (x0 === null) return;
-    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
-    x0 = null;
-    if (Math.abs(dx) > 48 && Math.abs(dx) > 1.5 * Math.abs(dy)) pvTurn(dx < 0 ? 1 : -1);
-  });
+  if (card) onSwipeX(card, pvTurn);
 }
 /* ── js/data/digest.js ── */
 /* The Digest's state and its reading of LIVE_DIGEST (design/digest.py). ff-jarvis picks the lead,
@@ -16552,20 +16644,12 @@ function wireBd(v){
     if (r) openProfile({n: r.n, pos: r.pos, team: r.team, slug: r.slug}, el);
   }));
   // A horizontal swipe on the card moves one stat; a mostly-vertical drag is a scroll and is left alone.
-  v.querySelectorAll("[data-bdswipe]").forEach(el => {
-    let x0 = null, y0 = 0;
-    el.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, {passive: true});
-    el.addEventListener("touchend", e => {
-      if (x0 === null) return;
-      const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
-      x0 = null;
-      if (Math.abs(dx) > 48 && Math.abs(dx) > 1.5 * Math.abs(dy) && bdStep(dx < 0 ? 1 : -1)){
-        BD_NOTE = ""; render();
-        const tab = document.querySelector(".bd-tab[aria-selected=true]");
-        if (tab) tab.scrollIntoView({block: "nearest", inline: "center"});
-      }
-    }, {passive: true});
-  });
+  v.querySelectorAll("[data-bdswipe]").forEach(el => onSwipeX(el, step => {
+    if (!bdStep(step)) return;
+    BD_NOTE = ""; render();
+    const tab = document.querySelector(".bd-tab[aria-selected=true]");
+    if (tab) tab.scrollIntoView({block: "nearest", inline: "center"});
+  }));
   set("[data-bddrop]", b => { BD_NOTE = ""; BD_PICKS = BD_PICKS.filter(s => s !== b.dataset.bddrop); });
   // The picker is the app's own search sheet, handed a slot to fill instead of a profile to open.
   v.querySelectorAll("[data-bdadd]").forEach(b => b.addEventListener("click", () => searchOpen(bdAdd)));
@@ -19871,41 +19955,62 @@ function gsPaint(){
   if (d && GS) d.innerHTML = gsSheetHTML();
 }
 
+/* A sideways swipe walks the week's games in kickoff order (2026-09-29, lib/swipe.js), the sheet staying
+   up: every NFL game, not only the NFL now card's. It stops at either end. */
+function gsWeekOrder(){
+  return gdWeekGames().slice().sort((a, b) => a.kickoff.localeCompare(b.kickoff) || a.away.localeCompare(b.away));
+}
+function gsStep(step){
+  if (!GS) return;
+  const games = gsWeekOrder();
+  const i = games.findIndex(g => (GS.event && g.espn === GS.event) || (g.away === GS.away && g.home === GS.home));
+  const g = games[i + step];
+  if (i < 0 || !g) return;
+  gsOpen({event: g.espn || "", away: g.away, home: g.home}, GS_RETURN);   // layerPush keeps the one entry
+  const d = gsEl();
+  if (d && !REDUCED()){
+    d.classList.remove("turn-r", "turn-l"); void d.offsetWidth;
+    d.classList.add(step > 0 ? "turn-r" : "turn-l");
+  }
+}
+
 /* The two clubs in every spelling, sorted, so every reader of one game shares one cached reply. */
-function gsBoxUrl(){
-  const week = (GD.leagues[0] || {}).week, codes = new Set([...gdCodes(GS.away), ...gdCodes(GS.home)]);
+function gsBoxUrl(at){
+  const week = (GD.leagues[0] || {}).week, codes = new Set([...gdCodes(at.away), ...gdCodes(at.home)]);
   return `/api/stats?week=${week}&teams=${[...codes].sort().join(",")}`;
 }
 
 /* Sleeper directly when our endpoint cannot answer, cut the way api/stats.py box() cuts it. */
-async function gsBoxDirect(){
+async function gsBoxDirect(at){
   const week = (GD.leagues[0] || {}).week, rows = await fetch(`https://api.sleeper.com/stats/nfl/${GD.season}/${week}?season_type=regular`).then(r => r.ok ? r.json() : null);
   if (!rows) return null;
   const box = {};
   for (const r of rows){
     const p = r.player || {}, s = r.stats || {};
-    if (!["QB", "RB", "WR", "TE", "K"].includes(p.position) || !(gdSameClub(GS.away, r.team) || gdSameClub(GS.home, r.team))) continue;
+    if (!["QB", "RB", "WR", "TE", "K"].includes(p.position) || !(gdSameClub(at.away, r.team) || gdSameClub(at.home, r.team))) continue;
     if (Object.values(s).some(Boolean)) box[String(r.player_id)] = {n: `${p.first_name || ""} ${p.last_name || ""}`.trim(), pos: p.position, team: r.team, s};
   }
   return {box};
 }
 
-async function gsBoxFetch(){
+/* Both fetches are for game `at`, and write nothing if the reader has swiped to another meanwhile. */
+async function gsBoxFetch(at){
   let reply = null;
   try {
-    const res = await fetch(gsBoxUrl(), {headers: {"Accept": "application/json"}});
+    const res = await fetch(gsBoxUrl(at), {headers: {"Accept": "application/json"}});
     reply = res.ok ? await res.json() : null;
   } catch (e) { /* Sleeper directly, below */ }
-  if (!(reply && reply.box)) { try { reply = await gsBoxDirect(); } catch (e) { reply = null; } }
+  if (!(reply && reply.box)) { try { reply = await gsBoxDirect(at); } catch (e) { reply = null; } }
+  if (GS !== at) return;
   if (reply && reply.box){ GS_BOX = reply; GS_BOX_ERR = ""; } else GS_BOX_ERR = t("live.sheet.noSleeper");
 }
 
-async function gsEspnFetch(){
-  if (!GS.event) return;
-  try {
-    const shaped = gsShape(await gsFetchSummary(GS.event));
-    if (shaped){ GS_GAME = shaped; GS_ERR = ""; } else GS_ERR = t("live.sheet.espnDown");
-  } catch (e) { GS_ERR = t("live.sheet.espnDown"); }
+async function gsEspnFetch(at){
+  if (!at.event) return;
+  let shaped = null;
+  try { shaped = gsShape(await gsFetchSummary(at.event)); } catch (e) { shaped = null; }
+  if (GS !== at) return;
+  if (shaped){ GS_GAME = shaped; GS_ERR = ""; } else GS_ERR = t("live.sheet.espnDown");
 }
 
 async function gsPoll(){
@@ -19913,9 +20018,9 @@ async function gsPoll(){
   if (!PAGE_SERVED()){ GS_ERR = t("live.error.notServed"); gsPaint(); return; }
   GS_BUSY = true;
   const at = GS;
-  await Promise.all([gsEspnFetch(), gsBoxFetch()]);
+  await Promise.all([gsEspnFetch(at), gsBoxFetch(at)]);
   GS_BUSY = false;
-  if (GS === at) gsPaint();
+  if (GS === at) gsPaint(); else if (GS) gsPoll();   // swiped to another game mid-fetch: fetch that one
 }
 
 const gsLive = () => GS && document.visibilityState === "visible" && (GS_GAME ? GS_GAME.state !== "post" : gsSleeperState() !== "post");
@@ -19941,6 +20046,9 @@ const gsLive = () => GS && document.visibilityState === "visible" && (GS_GAME ? 
     else if (!e.shiftKey && document.activeElement === f[f.length - 1]){ e.preventDefault(); f[0].focus(); }
   });
   document.getElementById("gamesheet-scrim").addEventListener("click", gsClose);
+  /* Bound on the sheet itself, which a paint never replaces: sideways walks the games, down closes. */
+  onSwipeX(d, gsStep);
+  onPullDown(d, () => d.scrollTop <= 0, () => !!GS, gsClose);
   document.addEventListener("keydown", e => { if (e.key === "Escape" && GS) gsClose(); });
   setInterval(() => { if (gsLive()) gsPoll(); }, GD_POLL_MS);
   document.addEventListener("visibilitychange", () => { if (gsLive()) gsPoll(); });
@@ -22585,6 +22693,18 @@ function modalShut(d){
   if (back && back.focus && back.isConnected) back.focus({preventScroll: true});
 }
 
+/* The profile's touch gestures (2026-09-29, lib/swipe.js), bound once: every openProfile replaces
+   #modal's contents, never #modal. Sideways turns the tab; down from the top of the body closes it.
+   The drive strip's dialog, stacked on top, takes neither. */
+(() => {
+  const d = document.getElementById("modal");
+  if (!d) return;
+  const up = () => d.classList.contains("on") && !document.querySelector(".stripmodal.on");
+  onSwipeX(d, step => { if (up()) pfSwipeTab(d, step); }, pfOwnsTouch);
+  onPullDown(d, () => { const b = d.querySelector(".dr-body"); return !b || b.scrollTop <= 0; },
+    el => up() && !(el.closest && el.closest(".pf-radar-hit, .pf-orbsheet")), () => closeModal(d));
+})();
+
 document.querySelectorAll(".modal-scrim").forEach(s => s.addEventListener("click", () => {
   closeModal([...document.querySelectorAll(".modal.on")].find(d => d.dataset.scrim === s.id));
 }));
@@ -22725,6 +22845,8 @@ function buildSearch(){
   });
   // The sheet's own backdrop (desktop, around the panel) closes it, like a modal's scrim.
   s.addEventListener("click", e => { if (e.target === s) searchClose(); });
+  // A pull down from the top of the results closes it too, the phone's way to put a sheet away (lib/swipe.js).
+  onPullDown(s, () => searchEl("search-list").scrollTop <= 0, () => !s.hidden, searchClose);
   s.addEventListener("keydown", e => {
     if (e.key === "Escape" && !modalOpen().length) searchClose();
     // Two stops, the input and Cancel; results are reached with the arrow keys, not Tab.

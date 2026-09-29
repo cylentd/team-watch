@@ -22,12 +22,16 @@
   transition:transform .42s var(--ease),opacity .28s var(--ease);
 }
 .modal.on{
-  transform:translate(-50%,-50%) translate(0,0) scale(1);opacity:1;pointer-events:auto;
+  transform:translate(-50%,-50%) translate(0,var(--pull,0px)) scale(1);opacity:1;pointer-events:auto;
   box-shadow:0 50px 100px rgb(var(--shadow-rgb) / .6);
 }
+/* A pull down (lib/swipe.js) moves the sheet with the finger through --pull, so no transition while
+   the finger is on it; let go and it springs home or closes from where it is. */
+.modal.pulling{transition:none}
 /* The body's own scrollbar: thin, dark, no arrows. Set here rather than inherited from html,
-   since scrollbar-color on the root does not always reach a nested scroller. */
-.modal .dr-body{scrollbar-width:thin;scrollbar-color:var(--line-2) var(--panel)}
+   since scrollbar-color on the root does not always reach a nested scroller. overscroll contain:
+   a pull at the top closes the profile, never reloads the page underneath. */
+.modal .dr-body{scrollbar-width:thin;scrollbar-color:var(--line-2) var(--panel);overscroll-behavior-y:contain}
 
 /* The strip's dialog sits OVER the profile's, and wants width rather than height: a drive is
    120 yards laid end to end, and every pixel taken off the field is a yard the reader squints

@@ -18,7 +18,10 @@ body:has(.search:not([hidden])) .chatfab{display:none}
   background:var(--panel);border:1px solid var(--line-2);
   box-shadow:0 50px 100px rgb(var(--shadow-rgb) / .6);
   animation:search-in .22s var(--ease);
+  /* A pull down from the top of the results (lib/swipe.js) carries the panel with the finger. */
+  transform:translateY(var(--pull,0px));transition:transform var(--dur-spring) var(--spring);
 }
+.search.pulling .search-in{transition:none}
 @keyframes search-in{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
 @keyframes search-up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 
@@ -39,7 +42,7 @@ body:has(.search:not([hidden])) .chatfab{display:none}
 .search-x:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 
 .search-list{
-  list-style:none;margin:0;padding:6px 0;max-height:60vh;overflow-y:auto;
+  list-style:none;margin:0;padding:6px 0;max-height:60vh;overflow-y:auto;overscroll-behavior-y:contain;
   display:flex;flex-direction:column;
   scrollbar-width:thin;scrollbar-color:var(--line-2) var(--panel);
 }
