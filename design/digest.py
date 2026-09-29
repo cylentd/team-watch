@@ -83,7 +83,10 @@ def _asof(stamp):
 def _results(r, slugify):
     """The week so far: finals, the recap's standouts (per position, its order) and busts."""
     r = r or {}
-    row = lambda x: {**_player(x, slugify, "pos", "team", "actual", "proj", "diff"), "why": _why(x.get("why"))}
+    # `line`: his box score from ff-jarvis's play-by-play (2026-09-29), null until it publishes; the
+    # lead banner calls the top score from it.
+    row = lambda x: {**_player(x, slugify, "pos", "team", "actual", "proj", "diff"), "why": _why(x.get("why")),
+                     "line": x.get("line")}
     return {"finals": [{k: g.get(k) for k in ("away", "home", "away_pts", "home_pts")} for g in r.get("games") or []],
             "pending": len(r.get("pending") or []),
             "stars": [row(x) for pos in POS for x in (r.get("top") or {}).get(pos) or []],

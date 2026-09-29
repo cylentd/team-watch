@@ -612,6 +612,19 @@ The wall puts the top scores and the lists on the same four columns, Left hurt s
 down, so a number sits within ~300px of its name; before, two half-page lists put it ~600px away.
 A phone sets the top scores two by two and stacks the lists.
 
+**The results lead, called like a game (2026-09-29, storyboard
+https://claude.ai/artifact/BvceuqtTkqyvzgjiHPGK7g).** The week's top score is an announcer's call on
+his real box line (ff-jarvis `results.*[].line`, from the cached play-by-play): "Gibbs rumbles for 164
+yards and 3 TDs". The kind of call follows his day: 10+ throws is a passer, more rushing than
+receiving a runner, else a catcher; three or more TDs on under 80 yards a goal-line day. Each kind
+has four phrasings in `content.json` (`digest.call.*`: slings, airs it out, carves them up, lights it
+up; rumbles, runs wild, bulldozes, churns out; ...), picked by his name and the week, so a reload
+never reshuffles and next week reads fresh. A Claude-written line is the next step if these repeat. His box line sits under it as
+pills (points, passing, rushing, receiving). The band is washed in his team's colour and the team's
+code sits outlined behind him on a wide screen: a colour and a code, never a logo, so it survives a
+public site. No projection, no TD luck, no "RB, DET" (David: the headline celebrates). Without a box
+line yet it says "Allen scores 24.6".
+
 Not backtested: Weather, Stock and Gems. Each says "Not backtested." in amber on its opened foot,
 never on the closed line: the closed line is the fact, the caveat is for whoever reads on. Lead copy
 for the weather and news rules has no real week yet (2026-09-26).

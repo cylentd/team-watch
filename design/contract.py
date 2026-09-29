@@ -317,7 +317,7 @@ CONTRACT = {
                  ("gems", ["n", "slug", "pos", "team", "usage", "metric", "ecr", "rostered"]),
                  ("news", ["when", "headline", "kind", "n", "rest", "slugs"]),
                  ("finals", ["away", "home", "away_pts", "home_pts"]),
-                 ("stars", ["n", "slug", "pos", "team", "actual", "proj", "diff", "why"]),
+                 ("stars", ["n", "slug", "pos", "team", "actual", "proj", "diff", "why", "line"]),
                  ("smashed", ["n", "slug", "pos", "team", "actual", "proj", "diff", "why"]),
                  ("busts", ["n", "slug", "pos", "team", "actual", "proj", "diff", "why"]),
                  # `proj`, `actual` and `later` (no headline since) may be null.

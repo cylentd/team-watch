@@ -35,6 +35,9 @@
   .dg-lead.out .dg-ghost{-webkit-text-stroke-color:rgb(var(--down-rgb) / .3)}
   .dg-lead.q .dg-ghost{-webkit-text-stroke-color:rgb(var(--amber-rgb) / .3)}
   .dg-lead.sky .dg-ghost{-webkit-text-stroke-color:rgb(var(--sky-rgb) / .3)}
+  /* The top score's team code, in his team's colour lifted toward the ink so a dark kit still reads. */
+  .dg-lead.team .dg-ghost{-webkit-text-stroke:2px color-mix(in srgb,var(--team) 55%,var(--ink));opacity:.55}
+  .dg > .dg-lead .dg-lpill{font-size:var(--t-2);padding:8px 12px}
 
   /* The wall. */
   .dg-ticker{

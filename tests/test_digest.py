@@ -1,6 +1,7 @@
 """design/digest.py: the Digest block, from ff-jarvis's weekly_digest.json."""
 import json
 import pathlib
+import re
 import sys
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
@@ -120,6 +121,39 @@ def test_results_on_the_wall_keep_each_number_by_its_name(browser, page_file):
     assert (got["top"], got["low"]) == (4, 4)
     assert got["rows"] and max(r["gap"] for r in got["rows"]) < 330
     assert all(r["face"] == 40 for r in got["rows"])
+
+
+@pytest.mark.render
+def test_the_call_picks_its_verb_from_his_day(browser, page_file):
+    """Week 3's real lines (Sleeper and nflverse agree, 2026-09-29): the verb follows what his day was
+    made of, the TDs ride at the end, a receiver's one throw does not make him a passer, and with no
+    box line yet it says the score."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    got = page.evaluate("""() => {
+      const box = (o) => ({car: 0, rush_yd: 0, rec: 0, rec_yd: 0, td: 0, cmp: null, att: null, pass_yd: null, pass_td: null, int: null, ...o});
+      const call = (n, line, week, actual) => { const h = document.createElement('i'); h.innerHTML = dgCall({n, line, actual: actual || 30}, week); return h.textContent; };
+      const gibbs = box({car: 20, rush_yd: 99, rec: 7, rec_yd: 65, td: 3});
+      return {calls: [call('Jahmyr Gibbs', gibbs, 3),
+                      call('Jaxon Smith-Njigba', box({rec: 10, rec_yd: 128, td: 2, cmp: 1, att: 1, pass_yd: 14, pass_td: 0}), 3),
+                      call('Brock Purdy', box({car: 2, rush_yd: 34, cmp: 15, att: 27, pass_yd: 297, pass_td: 4}), 3),
+                      call('Konata Mumpfield', box({rec: 4, rec_yd: 93, td: 1}), 3),
+                      call('Kyren Williams', box({car: 9, rush_yd: 31, td: 3}), 3),
+                      call('Travis Etienne Jr.', null, 3, 21.4)],
+              again: call('Jahmyr Gibbs', gibbs, 3),
+              weeks: [...new Set([1, 2, 3, 4, 5, 6, 7, 8].map(w => call('Jahmyr Gibbs', gibbs, w)))].length};
+    }""")
+    ctx.close()
+    assert errors == []
+    rush, rec, pas, short = (r"(rumbles for|runs wild for|bulldozes for|churns out)", r"(hauls in \d+ for|reels in \d+ for|torches them for|racks up)",
+                             r"(slings|airs it out for|carves them up for|lights it up for)", r"(punches in|plunges in for|cashes in|owns the goal line:)")
+    c = got["calls"]
+    assert re.match(rf"^Gibbs {rush} 164 yards and 3 TDs$", c[0]), c[0]
+    assert re.match(rf"^Smith-Njigba {rec} 128 yards and 2 TDs$", c[1]), c[1]      # one throw is not a passer
+    assert re.match(rf"^Purdy {pas} 297 yards and 4 TDs$", c[2]), c[2]
+    assert re.match(rf"^Mumpfield {rec} 93 yards and a TD$", c[3]), c[3]
+    assert re.match(rf"^Williams {short} 3 TDs$", c[4]), c[4]
+    assert c[5] == "Etienne scores 21.4"
+    assert got["again"] == c[0] and got["weeks"] > 1        # fixed for his week, fresh across weeks
 
 
 def test_fixture_block_is_whole():
@@ -263,7 +297,12 @@ def test_a_started_game_drops_its_rows_live_and_the_lead_gives_way(browser, page
     for _, sel in go("digest"):
         page.click(sel)
     page.wait_for_selector(".dg-row")
-    assert page.locator(".dg-lead-h").inner_text() == "Josh Allen scored 24.6"
+    # the week's top score, called like a game on his box line, washed in his team's colour
+    assert re.match(r"^Allen (slings|airs it out for|carves them up for|lights it up for) 204 yards and 2 TDs$",
+                    page.locator(".dg-lead-h").inner_text())
+    assert page.locator(".dg-lead .dg-lpill").all_inner_texts() == ["24.6 pts", "16/26 · 204 yds", "8 car · 22 yds"]
+    assert "--team:#00338d" in page.locator(".dg-lead").get_attribute("style")
+    assert page.locator(".dg-lead .dg-ghost").inner_text() == "BUF"
     assert page.locator(".dg-lead-when").inner_text() == "Week 3 · updated Fri 10:40 PM"
     assert page.locator(".dg-row[data-dgrow='res'][data-open]").count() == 1
     left = page.evaluate("dgD().hurt.map(r => r.game && r.game.away + '@' + r.game.home)")

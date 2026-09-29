@@ -42,14 +42,49 @@ function dgLeadWx(g){
 }
 
 /* Rule 3 (2026-09-28): once half the week is final, the week's top score among the recap's
-   standouts. "Jahmyr Gibbs scored 37.9" / "RB, DET. Week 3's top score. Projected 18.8." */
+   standouts, called like a game (David, 2026-09-29, storyboard
+   https://claude.ai/artifact/BvceuqtTkqyvzgjiHPGK7g): "Gibbs rumbles for 164 yards and 3 TDs", his
+   box line as pills, the banner washed in his team's colour with its code huge behind him. The
+   headline celebrates: no projection, no luck, nothing the Results list under it already says. */
+const dgSurname = n => n.replace(/\s+(Jr\.?|Sr\.?|II|III|IV|V)$/i, "").split(" ").slice(1).join(" ") || n;
+
+/* The announcer's call, picked by what his day was made of, never invented: a passer (10+ throws),
+   a runner (more rushing than receiving yards), a catcher, or a day of short scores (3+ TDs on under
+   80 yards). Each kind has four phrasings (David, 2026-09-29: "a couple of words or phrases"); which
+   one is fixed by his name and the week, so a reload never reshuffles it and next week reads fresh.
+   The touchdowns ride at the end in lime. Without a box line (play-by-play not out yet) it says the
+   score. */
+const dgPick = (list, seed) => list[[...seed].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7) % list.length];
+function dgCall(r, week){
+  const b = r.line, name = esc(dgSurname(r.n));
+  if (!b) return t("digest.call.scores", {name, pts: `<em class="dg-em go">${r.actual.toFixed(1)}</em>`});
+  const yds = b.rush_yd + b.rec_yd, pass = b.att >= 10, tds = b.td + (pass ? b.pass_td || 0 : 0);
+  const td = `<em class="dg-em go">${tds === 1 ? t("digest.call.td1") : t("digest.call.tds", {n: tds})}</em>`;
+  const seed = `${r.n}|${week || ""}`;
+  if (!pass && b.td >= 3 && yds < 80) return dgPick([
+    t("digest.call.punches", {name, td}), t("digest.call.plunges", {name, td}),
+    t("digest.call.cashes", {name, td}), t("digest.call.goalLine", {name, td})], seed);
+  const v = {name, yds: pass ? b.pass_yd : yds, rec: b.rec};
+  const call = dgPick(pass ? [t("digest.call.slings", v), t("digest.call.airs", v), t("digest.call.carves", v), t("digest.call.lights", v)]
+    : b.car && b.rush_yd >= b.rec_yd ? [t("digest.call.rumbles", v), t("digest.call.runsWild", v), t("digest.call.bulldozes", v), t("digest.call.churns", v)]
+    : [t("digest.call.hauls", v), t("digest.call.reels", v), t("digest.call.torches", v), t("digest.call.racks", v)], seed);
+  return tds ? t("digest.call.and", {call, td}) : call;
+}
+
+/* His box line, once each: the points, then passing, rushing and receiving where he had any. */
+function dgBoxPills(r){
+  const b = r.line || {}, pill = s => `<span class="dg-lpill">${s}</span>`;
+  return [pill(t("digest.call.pts", {n: r.actual.toFixed(1)})),
+    b.att >= 10 ? pill(t("digest.call.passLine", {c: b.cmp, a: b.att, y: b.pass_yd})) : "",
+    b.car ? pill(t("digest.call.rushLine", {n: b.car, y: b.rush_yd})) : "",
+    b.rec ? pill(t("digest.call.recLine", {n: b.rec, y: b.rec_yd})) : ""].join("");
+}
+
 function dgLeadRes(d){
   const r = [...d.stars].sort((a, b) => b.actual - a.actual)[0];
   if (!r) return {tone: "go", photo: "", head: t("digest.lead.res.none", {week: d.week}), fact: ""};
-  const vs = r.proj != null ? t("digest.lead.res.proj", {proj: r.proj.toFixed(1)}) : "";
-  return {tone: "go", photo: dgPhotoHTML(r.slug), ghost: r.actual.toFixed(1),
-          head: t("digest.lead.res.head", {name: esc(r.n), pts: `<em class="dg-em go">${r.actual.toFixed(1)}</em>`}),
-          fact: [t("digest.lead.res.who", {pos: esc(r.pos), team: esc(r.team), week: d.week}), vs].filter(Boolean).join(" ")};
+  return {tone: "go team", team: r.team, photo: dgPhotoHTML(r.slug), ghost: esc(r.team),
+          head: dgCall(r, d.week), fact: `<span class="dg-lead-pills">${dgBoxPills(r)}</span>`};
 }
 
 /* Rule 4: the headline itself, a size down because it is a sentence, not a name. */
@@ -74,10 +109,10 @@ function dgLeadHTML(){
      a wide screen; aria-hidden, since the fact line already says it. The stamp above the head says
      which week and how old the packet is, so a stale page reads as stale (2026-09-28). */
   const stamp = d && d.asof_words ? `<p class="dg-lead-when">${t("digest.lead.when", {week: d.week, when: esc(d.asof_words)})}</p>` : "";
-  return `<article class="dg-lead ${L.tone}${L.photo ? " has-photo" : ""}">
+  return `<article class="dg-lead ${L.tone}${L.photo ? " has-photo" : ""}"${L.team ? " " + teamColourStyle(L.team) : ""}>
     ${L.ghost ? `<span class="dg-ghost" aria-hidden="true">${L.ghost}</span>` : ""}
     <div class="dg-lead-txt">${stamp}<h2 class="dg-lead-h${L.long ? " long" : ""}">${L.head}</h2>
-      <p class="dg-lead-fact">${L.fact}</p></div>
+      <div class="dg-lead-fact">${L.fact}</div></div>
     ${L.photo}
   </article>`;
 }

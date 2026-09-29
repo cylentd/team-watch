@@ -48,6 +48,7 @@
      "actual": 24.6,
      "proj": 22.1,
      "diff": 2.5,
+     "line": {"car": 8, "rush_yd": 22, "rec": 0, "rec_yd": 0, "td": 2, "cmp": 16, "att": 26, "pass_yd": 204, "pass_td": 0, "int": 2},
      "why": {
       "kind": "earned",
       "luck": 1.0,
@@ -67,6 +68,7 @@
      "actual": 19.4,
      "proj": 15.2,
      "diff": 4.2,
+     "line": {"car": 24, "rush_yd": 154, "rec": 0, "rec_yd": 0, "td": 1, "cmp": null, "att": null, "pass_yd": null, "pass_td": null, "int": null},
      "why": {
       "kind": "earned",
       "luck": 2.1,

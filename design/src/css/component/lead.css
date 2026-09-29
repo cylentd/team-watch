@@ -13,6 +13,12 @@
 .dg-lead.q{background:linear-gradient(180deg,rgb(var(--amber-rgb) / .08),transparent 70%),var(--panel)}
 .dg-lead.sky{background:linear-gradient(180deg,rgb(var(--sky-rgb) / .09),transparent 70%),var(--panel)}
 .dg-lead.go{background:linear-gradient(180deg,rgb(var(--lime-rgb) / .07),transparent 70%),var(--panel)}
+/* The week's top score (2026-09-29): washed in his team's colour (data/teamcolors.js, --team), the
+   team's code outlined behind him on a wide screen; a colour and a code, never a logo. */
+.dg-lead.team{background:linear-gradient(125deg,color-mix(in srgb,var(--team) 62%,transparent),transparent 78%),var(--panel)}
+.dg-lead-pills{display:flex;flex-wrap:wrap;gap:6px}
+.dg-lpill{font:600 var(--t-1)/1 var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--ink);
+  padding:6px 10px;border-radius:999px;background:rgb(var(--shadow-rgb) / .35);border:1px solid rgb(var(--ink-rgb) / .14)}
 /* Nothing to lead with (no packet, or a quiet week): one short statement, not a 200px band of
    panel with nothing in it, so the rows start right under it. */
 .dg-lead.quiet{min-height:0;padding-top:16px}
