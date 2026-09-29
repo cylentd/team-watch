@@ -18,19 +18,19 @@
 /* best and worst */
 .tr-lead{display:grid;gap:10px}
 .tr-lead-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:10px;align-content:start}
-.tr-lead-top{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center}
+.tr-lead-top{display:grid;grid-template-columns:40px auto auto;justify-content:start;gap:12px 16px;align-items:center}
 .tr-lead-ic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center}
 .tr-lead-ic svg{width:22px;height:22px}
 .best .tr-lead-ic{background:rgb(var(--lime-rgb) / .14);color:var(--lime)}
 .worst .tr-lead-ic{background:rgb(var(--down-rgb) / .14);color:var(--down)}
 .tr-lead-who{display:grid;gap:4px;justify-items:start;min-width:0}
 .tr-lead-who b{font-family:var(--disp);font-size:var(--t-5);font-weight:800;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.tr-lead-n{font-family:var(--mono);font-size:var(--t-4);font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.tr-lead-n{font-family:var(--mono);font-size:var(--t-4);font-weight:700;font-variant-numeric:tabular-nums}
 .tr-lead-sure{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center;font-size:var(--t-2);color:var(--ink-2)}
 .tr-lead-sure .up{color:var(--up);font-weight:600}
 .tr-lead-sure .dn{color:var(--down);font-weight:600}
-.tr-lead-trade{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;align-items:center;border-top:1px dashed var(--line-2);padding-top:10px}
-.tr-lead-trade p{grid-column:1 / -1;margin:0;font-size:var(--t-2);color:var(--ink-2)}
+.tr-lead-trade{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;border-top:1px dashed var(--line-2);padding-top:10px}
+.tr-lead-trade p{flex-basis:100%;margin:0;font-size:var(--t-2);color:var(--ink-2)}
 .tr-lead-trade > b{font-family:var(--mono);font-size:var(--t-3);font-weight:700;font-variant-numeric:tabular-nums}
 .tr-lead-trade > b.up{color:var(--up)}
 .tr-lead-trade > b.dn{color:var(--down)}
@@ -105,7 +105,8 @@
 .tr-none-got{margin:0;font-size:var(--t-2);color:var(--ink-3)}
 .tr-side{display:grid;gap:6px;align-content:start}   /* beside a taller side it stretches; its rows stay packed at the top */
 .tr-side + .tr-side{border-top:1px dashed var(--line-2);padding-top:8px}
-.tr-side-hd{margin:0;display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:var(--t-2);font-weight:600;color:var(--ink-2)}
+/* the total beside its label, not at the far edge (2026-09-28): one number per half is no column to scan */
+.tr-side-hd{margin:0;display:flex;align-items:baseline;gap:8px;font-size:var(--t-2);font-weight:600;color:var(--ink-2)}
 .tr-side-hd b{font-family:var(--mono);font-size:var(--t-3);font-weight:700;font-variant-numeric:tabular-nums}
 .tr-side-hd b.up{color:var(--up)}
 .tr-side-hd b.dn{color:var(--down)}

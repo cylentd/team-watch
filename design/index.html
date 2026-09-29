@@ -4297,19 +4297,19 @@ button.rc-h:focus-visible:where(#view[data-view="league"], #view[data-view="myre
 /* best and worst */
 .tr-lead:where(#view[data-view="trades"], #view[data-view="trades"] *){display:grid;gap:10px}
 .tr-lead-card:where(#view[data-view="trades"], #view[data-view="trades"] *){background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:10px;align-content:start}
-.tr-lead-top:where(#view[data-view="trades"], #view[data-view="trades"] *){display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center}
+.tr-lead-top:where(#view[data-view="trades"], #view[data-view="trades"] *){display:grid;grid-template-columns:40px auto auto;justify-content:start;gap:12px 16px;align-items:center}
 .tr-lead-ic:where(#view[data-view="trades"], #view[data-view="trades"] *){width:40px;height:40px;border-radius:50%;display:grid;place-items:center}
 .tr-lead-ic:where(#view[data-view="trades"], #view[data-view="trades"] *) svg{width:22px;height:22px}
 .best:where(#view[data-view="trades"], #view[data-view="trades"] *) .tr-lead-ic{background:rgb(var(--lime-rgb) / .14);color:var(--lime)}
 .worst:where(#view[data-view="trades"], #view[data-view="trades"] *) .tr-lead-ic{background:rgb(var(--down-rgb) / .14);color:var(--down)}
 .tr-lead-who:where(#view[data-view="trades"], #view[data-view="trades"] *){display:grid;gap:4px;justify-items:start;min-width:0}
 .tr-lead-who:where(#view[data-view="trades"], #view[data-view="trades"] *) b{font-family:var(--disp);font-size:var(--t-5);font-weight:800;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.tr-lead-n:where(#view[data-view="trades"], #view[data-view="trades"] *){font-family:var(--mono);font-size:var(--t-4);font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.tr-lead-n:where(#view[data-view="trades"], #view[data-view="trades"] *){font-family:var(--mono);font-size:var(--t-4);font-weight:700;font-variant-numeric:tabular-nums}
 .tr-lead-sure:where(#view[data-view="trades"], #view[data-view="trades"] *){display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center;font-size:var(--t-2);color:var(--ink-2)}
 .tr-lead-sure:where(#view[data-view="trades"], #view[data-view="trades"] *) .up{color:var(--up);font-weight:600}
 .tr-lead-sure:where(#view[data-view="trades"], #view[data-view="trades"] *) .dn{color:var(--down);font-weight:600}
-.tr-lead-trade:where(#view[data-view="trades"], #view[data-view="trades"] *){display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;align-items:center;border-top:1px dashed var(--line-2);padding-top:10px}
-.tr-lead-trade:where(#view[data-view="trades"], #view[data-view="trades"] *) p{grid-column:1 / -1;margin:0;font-size:var(--t-2);color:var(--ink-2)}
+.tr-lead-trade:where(#view[data-view="trades"], #view[data-view="trades"] *){display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;border-top:1px dashed var(--line-2);padding-top:10px}
+.tr-lead-trade:where(#view[data-view="trades"], #view[data-view="trades"] *) p{flex-basis:100%;margin:0;font-size:var(--t-2);color:var(--ink-2)}
 .tr-lead-trade:where(#view[data-view="trades"], #view[data-view="trades"] *) > b{font-family:var(--mono);font-size:var(--t-3);font-weight:700;font-variant-numeric:tabular-nums}
 .tr-lead-trade:where(#view[data-view="trades"], #view[data-view="trades"] *) > b.up{color:var(--up)}
 .tr-lead-trade:where(#view[data-view="trades"], #view[data-view="trades"] *) > b.dn{color:var(--down)}
@@ -4384,7 +4384,8 @@ button.rc-h:focus-visible:where(#view[data-view="league"], #view[data-view="myre
 .tr-none-got:where(#view[data-view="trades"], #view[data-view="trades"] *){margin:0;font-size:var(--t-2);color:var(--ink-3)}
 .tr-side:where(#view[data-view="trades"], #view[data-view="trades"] *){display:grid;gap:6px;align-content:start}   /* beside a taller side it stretches; its rows stay packed at the top */
 .tr-side:where(#view[data-view="trades"], #view[data-view="trades"] *) + .tr-side{border-top:1px dashed var(--line-2);padding-top:8px}
-.tr-side-hd:where(#view[data-view="trades"], #view[data-view="trades"] *){margin:0;display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:var(--t-2);font-weight:600;color:var(--ink-2)}
+/* the total beside its label, not at the far edge (2026-09-28): one number per half is no column to scan */
+.tr-side-hd:where(#view[data-view="trades"], #view[data-view="trades"] *){margin:0;display:flex;align-items:baseline;gap:8px;font-size:var(--t-2);font-weight:600;color:var(--ink-2)}
 .tr-side-hd:where(#view[data-view="trades"], #view[data-view="trades"] *) b{font-family:var(--mono);font-size:var(--t-3);font-weight:700;font-variant-numeric:tabular-nums}
 .tr-side-hd:where(#view[data-view="trades"], #view[data-view="trades"] *) b.up{color:var(--up)}
 .tr-side-hd:where(#view[data-view="trades"], #view[data-view="trades"] *) b.dn{color:var(--down)}
