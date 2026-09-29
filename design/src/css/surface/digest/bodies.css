@@ -17,6 +17,12 @@
 .dg-row[data-open].hold .dg-bar u{transform:scaleX(0);transition:none}
 .dg-plus{color:var(--lime)}
 
+/* Starters: green up = he is now #1, sky arrows = he changed teams; the day it happened at the right. */
+.dg-sk{width:12px;height:12px;margin-right:5px;vertical-align:-1px;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.dg-sk-up{stroke:var(--up)}
+.dg-sk-mv{stroke:var(--sky)}
+.dg-day{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+
 /* Top 5: four short lists, five rows each, two across on a phone and four on a desktop. */
 .dg-t5{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 14px;padding-top:6px}
 .dg-t5 h4,.dg-two h4{margin:0 0 4px;font-size:var(--t-1);font-weight:600;line-height:1;letter-spacing:.07em;color:var(--ink-3)}

@@ -34,6 +34,25 @@ function dgHurtBody(d){
   return lines + also + dgFootHTML(t("digest.foot.hurt"), "news", t("digest.go.news"));
 }
 
+/* Starters (2026-09-29, storyboard JBN1kirnN6jMZNdZK7EmbF): "QB1 over Sanders", "MIN → NYG", or both
+   when a traded player starts. `name` shortens the old #1 as the line around it does; the closed
+   line (`bare`) leaves out his status, which the phone would cut mid-word. */
+const DG_UP = `<svg class="dg-sk dg-sk-up" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4"/></svg>`;
+const DG_SWAP = `<svg class="dg-sk dg-sk-mv" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 5h9l-2.5-2.5M13 11H4l2.5 2.5"/></svg>`;
+function dgStartWhat(r, name, bare){
+  const o = r.over;
+  const v = o && {pos: esc(r.pos), name: esc(name(o.n)), status: esc(o.status || "")};
+  const over = !o ? "" : o.status && !bare ? t("digest.start.overStatus", v) : t("digest.start.over", v);
+  const moved = r.from ? t("digest.start.moved", {from: esc(r.from), team: esc(r.team)}) : "";
+  return [over, moved].filter(Boolean).join(", ");
+}
+
+function dgStartBody(d){
+  const lines = d.starters.map(r => dgLnHTML(r, `${r.over ? DG_UP : DG_SWAP}${dgStartWhat(r, dgShort)}`,
+    `<span class="dg-day">${esc(r.day || "")}</span>`)).join("");
+  return lines + dgFootHTML(t("digest.foot.start", d.rules.starters || {}), null, "", true);
+}
+
 function dgMuBody(d){
   const lines = d.best.map(b => dgLnHTML(b, [esc(b.pos), dgVs(b), b.why ? esc(b.why) : ""].filter(Boolean).join(" · "),
     b.pts.toFixed(1))).join("");
@@ -137,5 +156,5 @@ function dgResList(title, rows, num){
 }
 
 /* Results' body is results.js's (dgResBody). */
-const DG_BODY = {res: dgResBody, hurt: dgHurtBody, mu: dgMuBody, wx: dgWxBody, adds: dgAddsBody, t5: dgTop5Body,
+const DG_BODY = {res: dgResBody, hurt: dgHurtBody, start: dgStartBody, mu: dgMuBody, wx: dgWxBody, adds: dgAddsBody, t5: dgTop5Body,
                  st: dgStockBody, gems: dgGemsBody, news: dgNewsBody};

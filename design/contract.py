@@ -306,7 +306,7 @@ CONTRACT = {
     "LIVE_DIGEST": {
         "keys": ["season", "week", "asof", "asof_words", "lead", "rules", "hurt", "calls", "record", "best", "wx",
                  "near", "adds_source", "adds_hours", "adds_weeks", "adds", "top5", "up", "down", "gems", "news", "finals", "pending", "stars",
-                 "smashed", "busts", "left", "tonight", "tonight_last"],
+                 "smashed", "busts", "left", "tonight", "tonight_last", "starters"],
         "rows": [("hurt", ["n", "slug", "pos", "team", "status", "was", "injury", "new", "rank", "rostered", "game"]),
                  ("best", ["n", "slug", "pos", "team", "opp", "home", "pts", "why", "ko"]),
                  ("wx", ["away", "home", "kick", "ko", "temp_f", "wind_mph", "precip_pct", "short", "lead", "bar"]),
@@ -316,6 +316,8 @@ CONTRACT = {
                  ("down", ["n", "slug", "pos", "team", "d_pts", "pts"]),
                  ("gems", ["n", "slug", "pos", "team", "usage", "metric", "ecr", "rostered"]),
                  ("news", ["when", "headline", "kind", "n", "rest", "slugs"]),
+                 # `over` (a team move alone), `from` (a new #1 alone), `proj`, `day` and `ko` may be null.
+                 ("starters", ["n", "slug", "pos", "team", "proj", "from", "day", "ko", "over"]),
                  ("finals", ["away", "home", "away_pts", "home_pts"]),
                  ("stars", ["n", "slug", "pos", "team", "actual", "proj", "diff", "why", "line"]),
                  ("smashed", ["n", "slug", "pos", "team", "actual", "proj", "diff", "why"]),
@@ -327,6 +329,7 @@ CONTRACT = {
                  ("tonight", ["away", "home", "kick", "ko", "wx", "out", "next_up", "groups", "moved", "tcalls",
                               "projected"])],
         "row_objs": [("hurt", "game", ["away", "home", "kick", "ko"]),
+                     ("starters", "over", ["n", "slug", "status"]),
                      ("smashed", "why", ["kind", "luck", "expected", "stat", "share", "delta"]),
                      ("busts", "why", ["kind", "luck", "expected", "stat", "share", "delta"]),
                      ("tonight", "wx", ["roof", "temp_f", "wind_mph", "precip_pct", "short"])],

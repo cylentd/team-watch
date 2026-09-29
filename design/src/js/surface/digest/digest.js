@@ -11,7 +11,8 @@ const DG_WIND = `<svg class="dg-ico" viewBox="0 0 24 24" aria-hidden="true"><pat
 const DG_RAIN = `<svg class="dg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 15a4 4 0 0 1 .5-8 5.5 5.5 0 0 1 10.3 1.5A3.5 3.5 0 0 1 17.5 15H7zM9 18l-1 3M13 18l-1 3M17 18l-1 3"/></svg>`;
 
 /* Every label spelled out: assemble.py --check finds a copy key only as a literal lookup. */
-const dgLabel = id => ({res: t("digest.row.res"), hurt: t("digest.row.hurt"), mu: t("digest.row.mu"), wx: t("digest.row.wx"),
+const dgLabel = id => ({res: t("digest.row.res"), hurt: t("digest.row.hurt"), start: t("digest.row.start"),
+  mu: t("digest.row.mu"), wx: t("digest.row.wx"),
   adds: t("digest.row.adds"), t5: t("digest.row.t5"), st: t("digest.row.st"), gems: t("digest.row.gems"),
   news: t("digest.row.news")})[id];
 
@@ -21,6 +22,7 @@ function dgCount(id, d){
   // Results counts what is still to play, not what is final: "15" said nothing the footer did not.
   if (id === "res") return [d.pending ? t("digest.res.toPlay", {n: d.pending}) : "", "go"];
   if (id === "hurt") return [d.hurt.length, "out"];
+  if (id === "start") return [d.starters.length, ""];
   if (id === "mu") return [d.calls || "", ""];
   if (id === "wx") return [d.wx.length || "", "sky"];
   if (id === "adds") return [!d.adds.length ? "" : d.adds_source === "sleeper" ? dgBig(d.adds[0].count)
@@ -69,7 +71,8 @@ function dgLine(id, d){
   const top = pos => d.top5.find(r => r.pos === pos);
   const it = d.news[0], a = d.adds[0], up = d.up[0], dn = d.down[0];
   return {
-    res: () => dgResLine(d), hurt: () => dgHurtLine(d), mu: () => dgMuLine(d), wx: () => dgWxLine(d),
+    res: () => dgResLine(d), hurt: () => dgHurtLine(d), start: () => `<b>${esc(dgLast(d.starters[0].n))}</b> ${dgStartWhat(d.starters[0], dgLast, true)}`,
+    mu: () => dgMuLine(d), wx: () => dgWxLine(d),
     adds: () => d.adds_source === "sleeper" ? `<b>${esc(a.n)}</b> ${dgAddCount(a)}`
       : t("digest.line.adds", {name: esc(a.n), was: dgPct(a.was), now: dgPct(a.now)}),
     t5: () => DG_POS.map(top).filter(Boolean).map(r => `<b>${esc(dgLast(r.n))}</b>`).join(" · "),
@@ -144,7 +147,7 @@ function wireDigest(v){
   const d = dgD();
   v.querySelectorAll("[data-dgslug]").forEach(el => el.addEventListener("click", () => {
     const slug = el.dataset.dgslug;
-    const p = [...d.hurt, ...d.best, ...d.adds, ...d.gems, ...d.stars, ...d.smashed, ...d.busts, ...d.left].find(x => x.slug === slug);
+    const p = [...d.hurt, ...d.starters, ...d.best, ...d.adds, ...d.gems, ...d.stars, ...d.smashed, ...d.busts, ...d.left].find(x => x.slug === slug);
     if (p) return openProfile({n: p.n, pos: p.pos, team: p.team, slug: p.slug}, el);
     // A News player need not be in any list above: search's index knows everyone on the page.
     const e = searchIndex().find(x => x.slug === slug);

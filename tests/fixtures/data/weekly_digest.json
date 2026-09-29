@@ -18,6 +18,10 @@
   },
   "smashed": {
    "min": 8.0
+  },
+  "starters": {
+   "min": 8.0,
+   "moved_min": 5.0
   }
  },
  "lead": {
@@ -48,7 +52,18 @@
      "actual": 24.6,
      "proj": 22.1,
      "diff": 2.5,
-     "line": {"car": 8, "rush_yd": 22, "rec": 0, "rec_yd": 0, "td": 2, "cmp": 16, "att": 26, "pass_yd": 204, "pass_td": 0, "int": 2},
+     "line": {
+      "car": 8,
+      "rush_yd": 22,
+      "rec": 0,
+      "rec_yd": 0,
+      "td": 2,
+      "cmp": 16,
+      "att": 26,
+      "pass_yd": 204,
+      "pass_td": 0,
+      "int": 2
+     },
      "why": {
       "kind": "earned",
       "luck": 1.0,
@@ -68,7 +83,18 @@
      "actual": 19.4,
      "proj": 15.2,
      "diff": 4.2,
-     "line": {"car": 24, "rush_yd": 154, "rec": 0, "rec_yd": 0, "td": 1, "cmp": null, "att": null, "pass_yd": null, "pass_td": null, "int": null},
+     "line": {
+      "car": 24,
+      "rush_yd": 154,
+      "rec": 0,
+      "rec_yd": 0,
+      "td": 1,
+      "cmp": null,
+      "att": null,
+      "pass_yd": null,
+      "pass_td": null,
+      "int": null
+     },
      "why": {
       "kind": "earned",
       "luck": 2.1,
@@ -1046,6 +1072,60 @@
    "headline": "John Simpson (groin) available to play Sunday",
    "key": null,
    "name": null
+  }
+ ],
+ "starters": [
+  {
+   "key": "deshaun watson",
+   "name": "Deshaun Watson",
+   "pos": "QB",
+   "team": "CLE",
+   "changed": "2026-09-22",
+   "proj": 14.1,
+   "over": {
+    "key": "shedeur sanders",
+    "name": "Shedeur Sanders",
+    "status": null
+   },
+   "from": null
+  },
+  {
+   "key": "marcus mariota",
+   "name": "Marcus Mariota",
+   "pos": "QB",
+   "team": "WAS",
+   "changed": "2026-09-22",
+   "proj": 13.45,
+   "over": {
+    "key": "jayden daniels",
+    "name": "Jayden Daniels",
+    "status": "Out"
+   },
+   "from": null
+  },
+  {
+   "key": "jj mccarthy",
+   "name": "J.J. McCarthy",
+   "pos": "QB",
+   "team": "NYG",
+   "changed": "2026-09-21",
+   "proj": 13.85,
+   "over": null,
+   "from": "MIN"
+  },
+  {
+   "key": "aaron jones",
+   "name": "Aaron Jones",
+   "pos": "RB",
+   "team": "MIN",
+   "changed": "2026-09-21",
+   "proj": 11.21,
+   "over": {
+    "key": "jordan mason",
+    "name": "Jordan Mason",
+    "status": null
+   },
+   "from": null
   }
  ]
 }

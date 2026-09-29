@@ -141,6 +141,15 @@ def _news(it):
             "n": n, "rest": _rest(headline, n), "slugs": slugs}
 
 
+def _starter(r, slugify, ko):
+    """A new #1 on Sleeper's depth chart or a player on a new team (ff-jarvis weekly_digest_starters):
+    `over` is the #1 he replaced, `from` his old team, `day` the weekday it happened ("Tue")."""
+    o = r.get("over")
+    day = dt.date.fromisoformat(r["changed"]).strftime("%a") if r.get("changed") else None
+    return {**_player(r, slugify, "pos", "team", "proj", "from"), "day": day, "ko": ko.get(r.get("team")),
+            "over": {"n": o["name"], "slug": slugify(o["name"]), "status": o.get("status")} if o else None}
+
+
 def _tonight(t, slugify):
     """Tonight's standalone game(s), as ff-jarvis cut them (weekly_digest_tonight): every player gets
     a slug, `next_up` names who he replaces by name, the kickoff comes as words and as ISO UTC."""
@@ -194,6 +203,8 @@ def live_digest(p, slugify, schedule=None):
         "down": [_player(r, slugify, "pos", "team", "d_pts", "pts") for r in stock.get("down") or []],
         "gems": [_player(r, slugify, "pos", "team", "usage", "metric", "ecr", "rostered") for r in p.get("gems") or []],
         "news": [_news(it) for it in p.get("news") or []],
+        # Since 2026-09-29; a packet from before has no `starters` and the row says nothing new.
+        "starters": [_starter(r, slugify, ko) for r in p.get("starters") or []],
     }
 
 

@@ -200,6 +200,31 @@ def test_an_empty_hurt_row_says_next_weeks_report_is_not_in_yet(browser, page_fi
     assert errors == []
 
 
+def test_starters_row_names_the_new_one_and_who_he_replaced(browser, page_file):
+    """Sleeper's new #1s and team moves (2026-09-29): the closed line is the newest by surname, each
+    opened line says QB1 over whom (with his status) or the two teams, and the row goes with the
+    team's kickoff."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    page.goto(page_file.as_uri())
+    for _, sel in go("digest"):
+        page.click(sel)
+    page.wait_for_selector(".dg-row")
+    got = page.evaluate("""() => { Date.now = () => Date.parse("2026-09-17T12:00:00Z"); DG_CUT = null; DG_OPEN = "start"; render();
+      const row = document.querySelector('.dg-row[data-dgrow="start"]');
+      return {line: row.querySelector('.dg-s').textContent.trim(), n: row.querySelector('.dg-n').textContent.trim(),
+              metas: [...row.querySelectorAll('.dg-ln-t > span')].map(s => s.textContent.trim()),
+              days: [...row.querySelectorAll('.dg-day')].map(s => s.textContent)}; }""")
+    assert got["line"] == "Watson QB1 over Sanders" and got["n"] == "4"
+    assert got["metas"] == ["QB1 over S. Sanders", "QB1 over J. Daniels (Out)", "MIN → NYG", "RB1 over J. Mason"]
+    assert got["days"] == ["Tue", "Tue", "Mon", "Mon"]
+    gone = page.evaluate("""() => { LIVE_DIGEST.starters.forEach(r => { r.ko = "2026-09-20T17:00:00Z"; });
+      Date.now = () => Date.parse("2026-09-20T17:01:00Z"); DG_CUT = null; render();
+      return document.querySelector('.dg-row[data-dgrow="start"]').classList.contains('empty'); }""")
+    assert gone, "a started game takes its starter rows"
+    ctx.close()
+    assert errors == []
+
+
 def test_fixture_block_is_whole():
     b = _block()
     contract.validate("LIVE_DIGEST", b)

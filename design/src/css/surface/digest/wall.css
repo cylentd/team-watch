@@ -44,7 +44,7 @@
     display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:20px;border-top:0;
     grid-template-areas:
       "hurt hurt hurt hurt hurt mu   mu   mu   mu   wx   wx   wx"
-      "hurt hurt hurt hurt hurt adds adds adds adds st   st   st"
+      "start start start start start adds adds adds adds st st st"
       "t5   t5   t5   t5   t5   t5   t5   t5   gems gems gems gems"
       "news news news news news news news news news news news news";
   }
@@ -55,7 +55,7 @@
     grid-template-areas:
       "res  res  res  res  res  res  res  res  res  res  res  res"
       "hurt hurt hurt hurt hurt mu   mu   mu   mu   wx   wx   wx"
-      "hurt hurt hurt hurt hurt adds adds adds adds st   st   st"
+      "start start start start start adds adds adds adds st st st"
       "t5   t5   t5   t5   t5   t5   t5   t5   gems gems gems gems"
       "news news news news news news news news news news news news";
   }
@@ -63,7 +63,7 @@
     grid-template-areas:
       "tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn"
       "hurt hurt hurt hurt hurt mu   mu   mu   mu   wx   wx   wx"
-      "hurt hurt hurt hurt hurt adds adds adds adds st   st   st"
+      "start start start start start adds adds adds adds st st st"
       "t5   t5   t5   t5   t5   t5   t5   t5   gems gems gems gems"
       "news news news news news news news news news news news news";
   }
@@ -72,7 +72,7 @@
       "tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn"
       "res  res  res  res  res  res  res  res  res  res  res  res"
       "hurt hurt hurt hurt hurt mu   mu   mu   mu   wx   wx   wx"
-      "hurt hurt hurt hurt hurt adds adds adds adds st   st   st"
+      "start start start start start adds adds adds adds st st st"
       "t5   t5   t5   t5   t5   t5   t5   t5   gems gems gems gems"
       "news news news news news news news news news news news news";
   }
@@ -93,6 +93,7 @@
   .dg-tns .dg-tn{margin:0}
   .dg-row[data-dgrow="res"]{grid-area:res}
   .dg-row[data-dgrow="hurt"]{grid-area:hurt}
+  .dg-row[data-dgrow="start"]{grid-area:start}
   .dg-row[data-dgrow="mu"]{grid-area:mu}
   .dg-row[data-dgrow="wx"]{grid-area:wx}
   .dg-row[data-dgrow="adds"]{grid-area:adds}

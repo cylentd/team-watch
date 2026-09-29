@@ -4,7 +4,7 @@
 
 /* The ticker, top to bottom. Each id is one topic and one row. Results shows only once a game is
    final (2026-09-28): an empty "Results" row all week would be noise. */
-const DG_ROWS = ["res", "hurt", "mu", "wx", "adds", "t5", "st", "gems", "news"];
+const DG_ROWS = ["res", "hurt", "start", "mu", "wx", "adds", "t5", "st", "gems", "news"];
 const DG_POS = ["QB", "RB", "WR", "TE"];
 
 /* The row the reader opened by hand ("" when he closed it); null until the first tap, and while
@@ -24,7 +24,7 @@ function dgCut(d, now){
   const gone = ko => !!ko && Date.parse(ko) <= now;
   const c = {...d, hurt: d.hurt.filter(r => !(r.game && gone(r.game.ko))), best: d.best.filter(r => !gone(r.ko)),
              wx: d.wx.filter(r => !gone(r.ko)), near: d.near && gone(d.near.ko) ? null : d.near,
-             top5: d.top5.filter(r => !gone(r.ko))};
+             top5: d.top5.filter(r => !gone(r.ko)), starters: (d.starters || []).filter(r => !gone(r.ko))};
   // The lead is found before tonight's rows move into the card, so a Thursday lead about a player
   // out tonight still leads; lead.js reads its row from these lists, not the ticker's.
   c.leadRows = {hurt: c.hurt, weather: c.wx, news: c.news};
@@ -48,13 +48,14 @@ function dgLeadAfter(d, c){
    left open overnight lets it go. While it shows, its teams' rows live in the card, not the ticker;
    when its games are all the week has left (`tonight_last`), the week's preview rows go too. */
 const DG_TN_BEFORE = 18 * 3600e3, DG_TN_AFTER = 4 * 3600e3;
-const DG_TN_ROWS = ["hurt", "mu", "wx", "t5", "st"];
+const DG_TN_ROWS = ["hurt", "start", "mu", "wx", "t5", "st"];
 function dgTonightCut(c, now){
   const tn = (c.tonight || []).filter(g => { const k = Date.parse(g.ko); return now >= k - DG_TN_BEFORE && now < k + DG_TN_AFTER; });
   if (!tn.length) return {...c, tn: [], tnLast: false};
   const teams = new Set(tn.flatMap(g => [g.away, g.home]));
   const off = r => !teams.has(r.team), offGame = g => !teams.has(g.home) && !teams.has(g.away);
-  return {...c, tn, tnLast: !!c.tonight_last, hurt: c.hurt.filter(off), best: c.best.filter(off), top5: c.top5.filter(off),
+  return {...c, tn, tnLast: !!c.tonight_last, hurt: c.hurt.filter(off), starters: c.starters.filter(off),
+          best: c.best.filter(off), top5: c.top5.filter(off),
           up: c.up.filter(off), down: c.down.filter(off), wx: c.wx.filter(offGame), near: c.near && offGame(c.near) ? c.near : null};
 }
 
@@ -79,7 +80,7 @@ function dgWeekDone(d){
 function dgHas(id){
   const d = dgD();
   if (!d) return false;
-  return {res: d.finals.length || d.stars.length, hurt: d.hurt.length, mu: d.best.length || d.calls,
+  return {res: d.finals.length || d.stars.length, hurt: d.hurt.length, start: d.starters.length, mu: d.best.length || d.calls,
           wx: d.wx.length || d.near, adds: d.adds.length, t5: d.top5.length, st: d.up.length || d.down.length,
           gems: d.gems.length, news: d.news.length}[id] ? true : false;
 }
