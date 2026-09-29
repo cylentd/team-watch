@@ -1,14 +1,15 @@
 /* ============================== RECORDS (This week, Yahoo) ==============================
    The all-time book, apart from the week. Same voice as the back page (--tab for heads and record
    numbers). Colour map: green a winning series or points ahead, red a losing one and the Hall of
-   Shame's head; gold is a title, wood a last place; dimmed is a season read from the record, not
-   Yahoo's final place. Head to head and the shelves side by side from 960px; the halls below. */
+   Shame's head; the two cases have their own file and materials (cases.css). Head to head and the
+   cases side by side from 960px; the halls below. */
 .rc .bp-hd{margin-top:0}
 .rc-shame .bp-hd{color:var(--down)}
 .rc-halls{display:grid;gap:18px;min-width:0}
 
-/* head to head: a manager chip row, then one row per leaguemate */
-.rc-mgrs{flex-wrap:wrap;margin:0 0 8px}
+/* head to head: a manager select, then one row per leaguemate */
+.rc-pick{margin:0 0 6px}
+.rc-pick .msel{min-height:40px;font-size:var(--t-2)}
 .rc-list{margin:0;padding:0;list-style:none}
 .rc-h{display:grid;grid-template-columns:minmax(64px,1fr) minmax(48px,1.4fr) 44px 64px;gap:10px;align-items:center;
   width:100%;min-height:44px;padding:6px 0;border:0;border-bottom:1px solid var(--line);background:none;color:inherit;
@@ -27,27 +28,16 @@ button.rc-h:focus-visible{outline:2px solid var(--lime);outline-offset:2px;borde
 .rc-h.wh .bp-redact{max-width:none;height:10px}
 .rc-h.wh .bp-redact:last-child{transform:rotate(1deg)}
 
-/* the two cases: a shelf of drawn icons, one season each */
-.rc-shelf{margin:0;padding:14px 10px 10px;list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 6px;
-  border:1px solid var(--line);border-radius:12px;background:var(--panel);box-shadow:inset 0 -6px 0 var(--panel-2)}
-.rc-item{display:grid;justify-items:center;gap:1px;text-align:center;min-width:0}
-.rc-ico{width:34px;height:34px;margin-bottom:2px}
-.rc-ico.cup{fill:var(--gold-2)}
-.rc-ico.spoon{fill:var(--wood)}
-.rc-item b{font-family:var(--mono);font-size:var(--t-1);font-weight:500;color:var(--ink-3)}
-.rc-item span{max-width:100%;font-size:var(--t-2);font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rc-item small{max-width:100%;font-size:var(--t-1);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rc-item.est{opacity:.55}
-.rc-tally{margin:8px 0 0;display:flex;flex-wrap:wrap;gap:4px 14px;font-size:var(--t-2);line-height:1.5;color:var(--ink-2)}
-.rc-tally b{color:var(--ink)}
-
 /* the sheet's split by kind of game, under the grudge card: label left, record right */
 .rc-split p{margin:0 0 6px;font-size:var(--t-1);color:var(--ink-3)}
 .rc-split dl{margin:0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 16px;font-size:var(--t-2)}
 .rc-split dt{color:var(--ink-2)}
 .rc-split dd{margin:0;font-family:var(--mono);font-weight:700;text-align:right}
 
+/* a hall's first record is its headline, two columns wide: five cards then fill two across (1 + 2 + 2)
+   and three across (2 + 1, then 3) with no card left alone on a row */
 .rc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rc-grid > :first-child{grid-column:span 2}
 .rc-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 11px 11px;display:grid;gap:1px;align-content:start;min-width:0}
 .rc-k{font-family:var(--tab);font-size:var(--t-2);font-weight:800;letter-spacing:.07em;text-transform:uppercase;line-height:1.2;color:var(--ink-3)}
 .rc-v{margin-top:2px;font-family:var(--tab);font-size:var(--t-6);font-weight:900;line-height:1.05;font-variant-numeric:tabular-nums}
@@ -55,10 +45,17 @@ button.rc-h:focus-visible{outline:2px solid var(--lime);outline-offset:2px;borde
 .rc-card.me .rc-t{color:var(--lime)}
 .rc-d{font-size:var(--t-1);line-height:1.35;color:var(--ink-3)}
 
+/* Desktop in two rows of like height (STYLE.md, "Rows, not columns"): the two cases side by side, then
+   head to head beside the halls stacked. With head to head beside both cases the columns ended ~500px
+   apart (2026-09-28). A phone keeps the reading order: head to head, the cases, the halls. */
 @media (min-width:960px){
-  .rc-halls{grid-column:1 / -1}
+  .rc{grid-template-areas:"trophy last" "h2h halls"}
+  .rc > .lg-sec{align-content:start}   /* a shorter neighbour keeps its heading on its case, the space goes below */
+  .rc-hh{grid-area:h2h}
+  .rc-trophy{grid-area:trophy}
+  .rc-last{grid-area:last}
+  .rc-halls{grid-area:halls;align-content:start}
 }
 @media (min-width:1100px){
   .rc-grid{grid-template-columns:repeat(3,1fr)}
-  .rc-halls{grid-template-columns:1fr 1fr;gap:24px}
 }

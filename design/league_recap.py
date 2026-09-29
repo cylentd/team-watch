@@ -183,8 +183,15 @@ def live_league(season, history, rosters, slugify):
                   min([int(y) for y in past] + [season["season"]]), "all")
 
 
+# Names shaped like a site default that a manager chose: a pun, not a surname (Chanel's 2020 last place,
+# checked 2026-09-28).
+CHOSEN_NAMES = {"Team Mahomie"}
+
+
 def _past_name(name):
     """A past Yahoo team's name, or None for a site default that may carry a surname ("Team Smith")."""
+    if name and name.strip() in CHOSEN_NAMES:
+        return name
     return None if not name or re.fullmatch(r"Team \S+", name.strip()) else name
 
 
@@ -211,7 +218,23 @@ def _mgr_of(managers):
     return name
 
 
-def live_league_yahoo(season, history, owners, rosters, slugify, box=None, recap=None, managers=None):
+def case_rosters(raw, champs, spoons):
+    """{season: {"champ"|"last": {week, players}}} for the seasons on Records' two shelves, from ff-jarvis
+    yahoo_case_rosters.json; a season or side it could not read is left out, and its slot does not open.
+    Players keep the five fields the sheet draws."""
+    keep = ("name", "pos", "nfl", "slot", "pts")
+    shelves = {"champ": {c["y"] for c in champs}, "last": {s["y"] for s in spoons}}
+    out = {}
+    for y, s in ((raw or {}).get("seasons") or {}).items():
+        for kind in ("champ", "last"):
+            side = (s or {}).get(kind)
+            if int(y) in shelves[kind] and side and side.get("players"):
+                out.setdefault(str(y), {})[kind] = {"week": side.get("week"),
+                                                    "players": [{k: p.get(k) for k in keep} for p in side["players"]]}
+    return out
+
+
+def live_league_yahoo(season, history, owners, rosters, slugify, box=None, recap=None, managers=None, cases=None):
     """LIVE_LEAGUE_YAHOO, or None. Yahoo re-ids every team each season and hides managers from the
     cookie, so past teams join today's through `owners` (ff-jarvis yahoo_league_owners.json, no names).
     With every past season mapped, head-to-head and titles run all-time (`scope` "all"); without, this
@@ -250,6 +273,7 @@ def live_league_yahoo(season, history, owners, rosters, slugify, box=None, recap
     lasts = last_places(games, season["season"], finals)
     block["spoons"] = [{"y": y, "id": oid if oid < FORMER else None, "name": names.get((y, oid)), "mgr": mgr(oid),
                         "final": y in finals} for y, oid in sorted(lasts.items(), reverse=True)] if mapped else []
+    block["rosters"] = case_rosters(cases, champs, block["spoons"])
     add_tape(block["teams"], games, champs, lasts)
     b = book(fx, games, block["teams"], lasts, skip)
     block["book"] = {k: _named(v, names, mgr) for k, v in b.items()}

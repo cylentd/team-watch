@@ -1,0 +1,105 @@
+/* ============================== RECORDS: THE TWO CASES ==============================
+   2026-09-28, storyboard https://claude.ai/artifact/8un5qeN8s5LwMaEKTfXGmV (option A, David's pick).
+   The trophy case is a walnut cabinet behind glass: a velvet back, a downlight over each cup, a glass
+   shelf, a brass plate with the year. The last-place case is the same cabinet bought cheap: laminate,
+   a cracked pane, a porcelain toilet on each shelf, the year on masking tape. The one exception to the
+   flat console (DESIGN.md "Cards"): every gradient here is a material, and the tokens are named so. */
+
+.cs-defs{position:absolute;width:0;height:0;overflow:hidden}
+.cs-defs .s-gold-lo{stop-color:var(--gold-1)}
+.cs-defs .s-gold{stop-color:var(--gold-2)}
+.cs-defs .s-gold-hi{stop-color:var(--gold-hi)}
+.cs-defs .s-gold-mid{stop-color:var(--gold-mid)}
+.cs-defs .s-plinth{stop-color:var(--plinth)}
+.cs-defs .s-plinth-lo{stop-color:var(--plinth-lo)}
+.cs-defs .s-porc-lo{stop-color:var(--porc-lo)}
+.cs-defs .s-porc-hi{stop-color:var(--porc-hi)}
+.cs-defs .s-porc{stop-color:var(--porc)}
+.cs-defs .s-chrome{stop-color:var(--chrome)}
+.cs-defs .s-grime{stop-color:var(--grime)}
+
+/* the cabinet: a walnut frame, the pane inside it, a rail at the foot */
+.cs{position:relative;border-radius:14px;padding:6px 5px 0;
+  background:linear-gradient(160deg,var(--walnut-hi),var(--walnut) 40%,var(--walnut-lo));
+  box-shadow:0 14px 30px rgb(var(--shadow-rgb) / .45),inset 0 1px 0 rgb(var(--white-rgb) / .12)}
+.cs-pane{position:relative;border-radius:6px;overflow:hidden;padding:4px 3px 0;margin:0;list-style:none;
+  background:radial-gradient(120% 70% at 50% 0%,var(--velvet-2),var(--velvet) 70%);
+  box-shadow:inset 0 0 0 1px rgb(var(--shadow-rgb) / .6),inset 0 10px 24px rgb(var(--shadow-rgb) / .6)}
+/* the glass: two diagonal reflections, over everything and never in the way of a tap */
+.cs-pane::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg,transparent 18%,rgb(var(--white-rgb) / .09) 22%,rgb(var(--white-rgb) / .02) 30%,transparent 34%,
+    transparent 62%,rgb(var(--white-rgb) / .05) 66%,transparent 70%)}
+.cs-rail{height:12px;margin:6px -5px 0;border-radius:0 0 14px 14px;background:linear-gradient(var(--walnut-lo),var(--walnut))}
+
+/* a shelf of four: a pool of light over each slot, a glass plate under them */
+.cs-shelf{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;padding:20px 0 14px;position:relative;margin:0;list-style:none}
+.cs-shelf::before{content:"";position:absolute;inset:0 0 8px;pointer-events:none;
+  background:radial-gradient(30% 90% at 12.5% 0%,rgb(var(--lamp-rgb) / .16),transparent 70%),
+    radial-gradient(30% 90% at 37.5% 0%,rgb(var(--lamp-rgb) / .16),transparent 70%),
+    radial-gradient(30% 90% at 62.5% 0%,rgb(var(--lamp-rgb) / .16),transparent 70%),
+    radial-gradient(30% 90% at 87.5% 0%,rgb(var(--lamp-rgb) / .16),transparent 70%)}
+.cs-shelf::after{content:"";position:absolute;left:-6px;right:-6px;bottom:0;height:5px;opacity:.55;
+  background:linear-gradient(var(--white),rgb(var(--white-rgb) / .25) 40%,rgb(var(--white-rgb) / .05));
+  box-shadow:0 6px 10px rgb(var(--shadow-rgb) / .5)}
+
+/* one season: the object, its plate, the manager, the team it was */
+.cs-slot{position:relative;z-index:1;display:grid;justify-items:center;align-content:start;gap:5px;min-width:0;width:100%;
+  padding:0;border:0;background:none;color:inherit;font:inherit;text-align:center}
+button.cs-slot{cursor:pointer}
+button.cs-slot:focus-visible{outline:2px solid var(--lime);outline-offset:3px;border-radius:6px}
+.cs-ico{display:block;width:44px;height:59px;transition:transform var(--dur-spring) var(--spring)}
+.cs-plate{margin-top:2px;padding:4px 6px 3px;border-radius:2px;white-space:nowrap;
+  font-family:var(--mono);font-size:var(--t-1);font-weight:700;line-height:1;letter-spacing:.04em;color:var(--engrave);
+  background:linear-gradient(var(--brass-hi),var(--brass-lo));
+  box-shadow:0 1px 0 rgb(var(--shadow-rgb) / .5),inset 0 1px 0 rgb(var(--white-rgb) / .5)}
+.cs-mgr{max-width:100%;font-size:var(--t-2);font-weight:800;line-height:1.15;letter-spacing:-.01em;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.cs-team{max-width:100%;min-height:2.5em;font-size:var(--t-1);line-height:1.25;letter-spacing:-.01em;color:var(--ink-2);
+  hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cs-slot.est{opacity:.55}
+@media (hover:hover){
+  button.cs-slot:hover .cs-ico{transform:translateY(var(--lift))}
+  button.cs-slot:hover .cs-mgr{color:var(--lime)}
+}
+button.cs-slot:active .cs-ico{transform:scale(var(--press))}
+
+/* the cheap one: laminate, a dark board behind, a flat shelf, a crack in the corner, tape for brass */
+.cs.cheap{border-radius:4px;background:linear-gradient(170deg,var(--laminate),var(--laminate-2) 60%,var(--laminate-lo))}
+.cs.cheap .cs-pane{border-radius:2px;background:linear-gradient(var(--cheap-back),var(--cheap-back-2))}
+.cs.cheap .cs-shelf::before{background:none}
+.cs.cheap .cs-shelf::after{background:var(--laminate-2);opacity:1;height:6px}
+.cs.cheap .cs-rail{border-radius:0 0 4px 4px;background:var(--laminate-lo)}
+.cs-crack{position:absolute;top:0;right:0;width:34%;height:70px;pointer-events:none;z-index:2}
+.cs-crack path{fill:none;stroke:rgb(var(--white-rgb) / .35);stroke-width:1}
+.cs.cheap .cs-plate{font-family:var(--hand);font-weight:400;letter-spacing:0;color:var(--marker);
+  background:var(--tape);box-shadow:0 1px 2px rgb(var(--shadow-rgb) / .4);transform:rotate(-3deg)}
+.cs.cheap li:nth-child(2n) .cs-plate{transform:rotate(2.5deg)}
+.cs.cheap li:nth-child(3n) .cs-plate{transform:rotate(-1deg)}
+
+/* under a case: the multi-title line and who never won, one line each */
+.cs-note{margin:10px 0 0;font-size:var(--t-2);line-height:1.45;color:var(--ink-2)}
+.cs-note b{color:var(--ink);font-weight:700}
+
+/* a season's roster in the sheet: slot, player and team, points; starters, then the bench */
+.cs-roster{display:grid;gap:14px}
+.cs-roster-hd{display:flex;align-items:center;gap:12px}
+.cs-roster-hd .cs-ico{width:40px;height:53px;flex:none}
+.cs-roster-hd p{margin:0;font-size:var(--t-2);color:var(--ink-2)}
+.cs-roster-hd b{display:block;font-size:var(--t-3);color:var(--ink)}
+.cs-list{margin:0;padding:0;list-style:none}
+.cs-list li{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line)}
+.cs-list .cs-sl{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.cs-list .cs-nm{font-size:var(--t-2);font-weight:700;min-width:0;overflow-wrap:anywhere}
+.cs-list .cs-nm small{margin-left:6px;font-family:var(--mono);font-size:var(--t-1);font-weight:400;color:var(--ink-3)}
+.cs-list .cs-pt{font-family:var(--mono);font-size:var(--t-2);font-weight:700;text-align:right}
+.cs-list li.tot{border-bottom:0}
+.cs-list li.tot .cs-nm{color:var(--ink-2);font-weight:400}
+.cs-bench{margin:4px 0 0;font-family:var(--tab);font-size:var(--t-2);font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+
+@media (min-width:960px){
+  .cs-ico{width:54px;height:72px}
+}
+@media (prefers-reduced-motion:reduce){
+  .cs-ico{transition:none}
+}

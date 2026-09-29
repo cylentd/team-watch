@@ -4,6 +4,7 @@
   /* The Yahoo League back page's tabloid voice (surface/league/back.css): headline, stamps, section
      heads. Condensed and heavy, in that view only. */
   --tab:"Big Shoulders Display","Bricolage Grotesque",Impact,sans-serif;
+  --hand:"Permanent Marker","Comic Sans MS",cursive;   /* marker on masking tape: Records' last-place case only */
   /* The signature card's ink (surface/teams/cards.css): a player's name in a script face, never
      presented as his real autograph. Mixed case only. */
   --sig:"Mrs Saint Delafield","Brush Script MT",cursive;

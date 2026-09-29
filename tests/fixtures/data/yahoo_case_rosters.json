@@ -1,0 +1,23 @@
+{
+  "generated": "2026-09-28T16:00",
+  "source": "yahoo web team page (final lineup)",
+  "seasons": {
+    "2025": {
+      "champ": {"id": 7, "name": "Am I COOKed?", "week": 17, "players": [
+        {"name": "Joe Burrow", "pos": "QB", "nfl": "CIN", "slot": "QB", "pts": 20.4},
+        {"name": "Amon-Ra St. Brown", "pos": "WR", "nfl": "DET", "slot": "WR", "pts": 10.8},
+        {"name": "Mike Evans", "pos": "WR", "nfl": "SF", "slot": "WR", "pts": 10.6},
+        {"name": "Jonathan Taylor", "pos": "RB", "nfl": "IND", "slot": "RB", "pts": 15.9},
+        {"name": "James Cook III", "pos": "RB", "nfl": "BUF", "slot": "RB", "pts": 8.2},
+        {"name": "Dallas Goedert", "pos": "TE", "nfl": "PHI", "slot": "TE", "pts": 8.3},
+        {"name": "Javonte Williams", "pos": "RB", "nfl": "DAL", "slot": "W/R/T", "pts": 11.4},
+        {"name": "Ka'imi Fairbairn", "pos": "K", "nfl": "HOU", "slot": "K", "pts": 10.5},
+        {"name": "Titans", "pos": "DEF", "nfl": "TEN", "slot": "DEF", "pts": 5.35},
+        {"name": "Rome Odunze", "pos": "WR", "nfl": "CHI", "slot": "BN", "pts": 7.1},
+        {"name": "Tyjae Spears", "pos": "RB", "nfl": "TEN", "slot": "BN", "pts": null}
+      ]},
+      "last": null
+    },
+    "2024": {"champ": null, "last": null, "why": "fixture: one side only"}
+  }
+}

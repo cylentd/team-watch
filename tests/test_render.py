@@ -165,7 +165,9 @@ STATES = [
     ("recap-yahoo-sheet", go("recap") + [("click", "[data-lgsheet='10-9']")]),
     ("records-yahoo", go("records")),
     # Records' head to head for another manager (its chip), then that manager's first row as the grudge sheet.
-    ("records-yahoo-pair", go("records") + [("click", "[data-rcmgr='3']"), ("click", "[data-rcpair] >> nth=0")]),
+    ("records-yahoo-pair", go("records") + [("eval", "const s = document.querySelector('[data-rcmgr]'); s.value = '3'; s.dispatchEvent(new Event('change', {bubbles: true}))"),
+                                            ("click", "[data-rcpair] >> nth=0")]),
+    ("records-yahoo-roster", go("records") + [("click", "[data-csroster='2025:champ']")]),
     # League > Trades (2026-09-28): the page, then Lateef's trades open (a 2026 one still open, a trade
     # whose tree verdict differs, the seasons it decided) and every "decided a season" card shown (a
     # phone swipes through all of them and has no Show all).

@@ -81,6 +81,7 @@ surface/league/league.css
 surface/league/back.css
 surface/league/front.css
 surface/league/records.css
+surface/league/cases.css
 surface/league/pages.css
 surface/trades/trades.css
 surface/trades/curses.css

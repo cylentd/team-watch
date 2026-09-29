@@ -49,44 +49,40 @@ function rcRowHTML(id, r){
 }
 
 /* Head to head: pick a manager, then every leaguemate best to worst (win share, then points). Withheld
-   rows go last, whatever the record, so their place in the order gives nothing away. */
+   rows go last, whatever the record, so their place in the order gives nothing away. The pick is a
+   select, not a chip row: twelve chips wrapped to four rows and put the first record at 404px on a
+   phone (STYLE.md: a dropdown is for many options changed rarely; 2026-09-28). */
 function rcHeadToHeadHTML(){
   const id = rcPicked();
   const rows = LG.teams.filter(x => x.id !== id).map(x => rcRow(id, x.id));
   const open = rows.filter(r => !rcWithheld(id, r.opp)).sort((a, b) => (b.n > 0) - (a.n > 0) || b.pct - a.pct || b.diff - a.diff);
-  const chips = rcManagers().map(x => `<button type="button" class="chip" data-rcmgr="${x.id}" aria-pressed="${x.id === id}">${lgMgr(x.id)}</button>`).join("");
+  const opts = rcManagers().map(x => `<option value="${x.id}"${x.id === id ? " selected" : ""}>${lgMgr(x.id)}</option>`).join("");
   return `<section class="lg-sec rc-hh" aria-label="${t("records.h2h.title")}">
     <h2 class="bp-hd">${t("records.h2h.title")}<span>${t("records.h2h.sub")}</span></h2>
-    <div class="setrow rc-mgrs" role="group" aria-label="${t("records.h2h.pick")}">${chips}</div>
+    <label class="selwrap rc-pick"><span class="lbl">${t("records.h2h.pick")}</span>
+      <select class="msel" data-rcmgr>${opts}</select></label>
     <ol class="rc-list">${[...open, ...rows.filter(r => rcWithheld(id, r.opp))].map(r => rcRowHTML(id, r)).join("")}</ol>
   </section>`;
 }
-
-/* A drawn trophy and a drawn wooden spoon, one path each. */
-const RC_CUP = `<svg class="rc-ico cup" viewBox="0 0 32 32" aria-hidden="true"><path d="M9 4h14v7a7 7 0 0 1-14 0zM9 6H4v3a5 5 0 0 0 5 5v-2a3 3 0 0 1-3-3V8h3M23 6h5v3a5 5 0 0 1-5 5v-2a3 3 0 0 0 3-3V8h-3M14 18h4v5h-4zM10 24h12v3H10z"/></svg>`;
-const RC_SPOON = `<svg class="rc-ico spoon" viewBox="0 0 32 32" aria-hidden="true"><path transform="rotate(-20 16 16)" d="M16 3c4 0 6 3 6 6.5S20 16 16 16s-6-3-6-6.5S12 3 16 3zM14.6 15.5h2.8L17 29h-2z"/></svg>`;
-
-/* One season on a shelf: the icon, the year, the manager, the team it was that year. */
-const rcShelfItem = (ico, r) => `<li class="rc-item${r.final === false ? " est" : ""}">${ico}<b>${r.y}</b>
-  <span>${lgHolder(r.mgr, r.id, r.name)}</span>${r.name ? `<small>${esc(r.name.trim())}</small>` : ""}</li>`;
 
 /* Titles counted by manager, for the line under the trophies: everyone with two or more. */
 function rcTally(){
   const n = new Map();
   LG.champs.forEach(c => { const k = c.mgr || c.name; n.set(k, (n.get(k) || 0) + 1); });
   return [...n].filter(([, c]) => c >= 2).sort((a, b) => b[1] - a[1])
-    .map(([k, c]) => `<span>${t("records.trophy.tally", {mgr: `<b>${esc(k)}</b>`, n: c})}</span>`).join("");
+    .map(([k, c]) => t("records.trophy.tally", {mgr: `<b>${esc(k)}</b>`, n: c})).join(", ");
 }
 
+/* The trophy case (cases.js draws it), then who holds more than one and who holds none. */
 function rcTrophyHTML(){
   const won = new Set(LG.champs.map(c => c.id).filter(x => x != null));
   const zero = LG.teams.filter(x => !won.has(x.id)).map(x => esc(x.mgr || x.name));
   const tally = rcTally();
-  return `<section class="lg-sec" aria-label="${t("records.trophy.title")}">
+  return `<section class="lg-sec rc-trophy" aria-label="${t("records.trophy.title")}">${CS_DEFS}
     <h2 class="bp-hd">${t("records.trophy.title")}<span>${t("records.trophy.sub", {n: LG.champs.length})}</span></h2>
-    <ul class="rc-shelf">${LG.champs.map(c => rcShelfItem(RC_CUP, c)).join("")}</ul>
-    ${tally ? `<p class="rc-tally">${tally}</p>` : ""}
-    ${zero.length ? `<p class="rc-tally"><span>${t("records.trophy.zero", {teams: zero.join(", ")})}</span></p>` : ""}
+    ${csCaseHTML("champ", LG.champs)}
+    ${tally ? `<p class="cs-note">${tally}</p>` : ""}
+    ${zero.length ? `<p class="cs-note">${t("records.trophy.zero", {teams: zero.join(", ")})}</p>` : ""}
   </section>`;
 }
 
@@ -96,10 +92,10 @@ function rcSpoonHTML(){
   const s = LG.spoons || [];
   if (!s.length) return "";
   const est = s.filter(x => !x.final).map(x => x.y);
-  return `<section class="lg-sec" aria-label="${t("records.spoon.title")}">
+  return `<section class="lg-sec rc-last" aria-label="${t("records.spoon.title")}">
     <h2 class="bp-hd">${t("records.spoon.title")}<span>${t("records.spoon.sub")}</span></h2>
-    <ul class="rc-shelf spoons">${s.map(x => rcShelfItem(RC_SPOON, x)).join("")}</ul>
-    ${est.length ? `<p class="rc-tally"><span>${t("records.spoon.est", {ys: est.join(", ")})}</span></p>` : ""}
+    ${csCaseHTML("last", s)}
+    ${est.length ? `<p class="cs-note">${t("records.spoon.est", {ys: est.join(", ")})}</p>` : ""}
   </section>`;
 }
 
@@ -140,8 +136,8 @@ function lgHallHTML(kind, id){
 function lgRecordsPageHTML(){
   if (!lgUseYahoo()) return `<div class="wrap"><p class="lg-none">${t("league.none")}</p></div>`;
   return `<div class="wrap">${lgPageHead(t("league.page.sub", {y: LG.since}))}<div class="lg rc">
-    <div class="lg-col">${rcHeadToHeadHTML()}</div>
-    <div class="lg-col">${rcTrophyHTML()}${rcSpoonHTML()}</div>
+    ${rcHeadToHeadHTML()}
+    ${rcTrophyHTML()}${rcSpoonHTML()}
     <div class="rc-halls">${lgHallHTML("fame", null)}${lgHallHTML("shame", null)}</div>
   </div></div>`;
 }
@@ -178,17 +174,22 @@ function rcOpenPair(a, b, originEl){
   showModal(d, originEl, "rc-sheet-title");
 }
 
-/* A manager chip redraws the head to head alone, so the shelves beside it never move. */
+/* The manager select redraws the head to head alone, so the cases beside it never move. A row opens
+   the pair's sheet; a trophy or a toilet opens that season's final lineup. */
 function wireRecords(v){
   const root = v.querySelector(".rc");
   if (!root) return;
+  root.addEventListener("change", e => {
+    if (!e.target.matches("[data-rcmgr]")) return;
+    RC_MGR = Number(e.target.value);
+    root.querySelector(".rc-hh").outerHTML = rcHeadToHeadHTML();
+    root.querySelector("[data-rcmgr]")?.focus();
+  });
   root.addEventListener("click", e => {
-    const b = e.target.closest("[data-rcmgr],[data-rcpair]");
+    const b = e.target.closest("[data-rcpair],[data-csroster]");
     if (!b) return;
-    if (b.dataset.rcmgr){
-      RC_MGR = Number(b.dataset.rcmgr);
-      root.querySelector(".rc-hh").outerHTML = rcHeadToHeadHTML();
-      root.querySelector(`[data-rcmgr="${RC_MGR}"]`)?.focus();
-    } else rcOpenPair(rcPicked(), Number(b.dataset.rcpair), b);
+    if (b.dataset.rcpair) return rcOpenPair(rcPicked(), Number(b.dataset.rcpair), b);
+    const [y, kind] = b.dataset.csroster.split(":");
+    csOpenRoster(Number(y), kind, b);
   });
 }

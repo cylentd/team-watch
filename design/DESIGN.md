@@ -251,10 +251,30 @@ and the briefs, all in display caps, were hard to read:
   leaguemate best to worst by win share, then points, as a W-L bar, the record and the point difference.
   A row opens that pair's grudge card, with Show margins, in the modal. A private pair's row stays, its
   record blacked out, and always sorts last so its place gives nothing away.
-- **Trophy case and last-place case:** drawn cups and wooden spoons (`--gold-2`, `--wood`), one per
-  season, with the manager and the team it was that year, a tally line for multiple titles. Last place is
-  Yahoo's final 12th (ff-jarvis `yahoo_league finals`, which counts the consolation bracket); a season it
-  was never read for (2018) falls back to the worst regular season, dimmed, and says so.
+- ~~**Trophy case and last-place case:** drawn cups and wooden spoons (`--gold-2`, `--wood`)~~ (superseded
+  2026-09-28, below). One per season, with the manager and the team it was that year, a tally line for
+  multiple titles. Last place is Yahoo's final 12th (ff-jarvis `yahoo_league finals`, which counts the
+  consolation bracket); a season it was never read for falls back to the worst regular season, dimmed.
+
+**The cases became cabinets (2026-09-28, storyboard https://claude.ai/artifact/8un5qeN8s5LwMaEKTfXGmV,
+option A):** David found the flat panels didn't look like a case.
+- **Trophy case:** a walnut cabinet behind glass, a downlight over each gold cup, a glass shelf of four, a
+  brass plate with the year. **Last-place case:** the same cabinet bought cheap: laminate, a cracked pane,
+  a porcelain toilet (David: "instead of spoon use a toilet"), the year on masking tape in marker.
+- **The one exception to the flat console ("Cards" below):** shadows and gradients, each a material,
+  from tokens named for it (`--walnut`, `--brass-*`, `--porc-*`, `--laminate-*`). `surface/league/cases.css`
+  and `cases.js`, fenced to Records and the sheet.
+- **A trophy or a toilet opens that season's final lineup** in the sheet: starters with points and their
+  total, then the bench. From ff-jarvis `yahoo_case_rosters.json` (Yahoo's past team page, the season's
+  last week). The team shown is the position only: Yahoo gives a moved player's team today, not then.
+  2018's pages need a fresh Yahoo login, so its two slots draw the same shape and do not open.
+- **Team names wrap to two lines**, never "…" (15 of 31 labels were cut at 360px).
+- **Head to head's manager pick is a select** (12 chips wrapped to 4 rows; first record 404px -> 274px).
+- **Desktop in two rows:** the cases side by side, then head to head beside the halls stacked (the case
+  column had ended ~500px below head to head). A hall's first record spans two columns, so five fill
+  the grid with no card alone on a row.
+- **"Team Mahomie"** (Chanel's 2020 last place) is a chosen pun, kept past the rule that drops
+  "Team <surname>" site defaults (`league_recap.CHOSEN_NAMES`).
 - **The halls** drop titles and last places, which the shelves already show.
 - **A pair's sheet splits the record by kind** (regular season, playoffs, consolation bracket; each
   meeting's 4th field, `league_back.MEET_KIND`), under the grudge card. The series itself counts

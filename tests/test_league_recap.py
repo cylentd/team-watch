@@ -10,7 +10,7 @@ from conftest import REPO
 sys.path.insert(0, str(REPO / "design"))
 sys.path.insert(0, str(REPO / "api"))
 import contract                              # noqa: E402
-from league_recap import live_league, live_league_yahoo   # noqa: E402
+from league_recap import live_league, live_league_yahoo, case_rosters, _past_name   # noqa: E402
 from _espn import slugify                    # noqa: E402
 
 FIX = REPO / "tests" / "fixtures" / "data"
@@ -146,3 +146,20 @@ def test_no_season_file_is_none():
     assert live_league_yahoo(None, None, None, None, slugify) is None
     assert live_league(None, None, None, slugify) is None
     contract.validate("LIVE_LEAGUE", None)
+
+
+def test_case_rosters_keep_only_the_shelves_seasons_and_the_sheets_fields():
+    p = {"name": "Joe Burrow", "pos": "QB", "nfl": "CIN", "slot": "QB", "pts": 20.4, "yahoo_id": 1}
+    raw = {"seasons": {"2025": {"champ": {"week": 17, "players": [p]}, "last": {"week": 17, "players": []}},
+                       "2018": {"champ": None, "last": None},
+                       "2017": {"champ": {"week": 16, "players": [p]}}}}
+    out = case_rosters(raw, [{"y": 2025}, {"y": 2018}], [{"y": 2025}])
+    # 2025's empty last-place side and 2018's unread one stay out, so their slots do not open;
+    # 2017 is on no shelf.
+    assert out == {"2025": {"champ": {"week": 17, "players": [{k: p[k] for k in ("name", "pos", "nfl", "slot", "pts")}]}}}
+    assert case_rosters(None, [{"y": 2025}], []) == {}
+
+
+def test_a_chosen_name_shaped_like_the_site_default_is_kept():
+    assert _past_name("Team Mahomie") == "Team Mahomie"
+    assert _past_name("Team Smith") is None

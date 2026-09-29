@@ -262,6 +262,13 @@ def load_league_back():
             read_first(DWR / "yahoo_league_managers.json"))
 
 
+def load_case_rosters():
+    """Each Yahoo season's champion and last-place team as their final lineups (ff-jarvis
+    data/yahoo_case_rosters.json, 2026-09-28), for Records' two cases. None without it; the cases draw
+    without it, their slots just do not open."""
+    return read_first(DWR / "yahoo_case_rosters.json")
+
+
 def load_trades():
     """ff-jarvis's trade verdicts (model.season.trade_verdicts): every Yahoo trade 2018 on, who won it by
     points above replacement, the games and playoff spots it decided, curses. A file, not a feed block."""

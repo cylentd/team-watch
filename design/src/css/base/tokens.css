@@ -127,8 +127,36 @@
   --gold-1-rgb:138 106 31;
   --gold-2:#f5d77a;
   --gold-2-rgb:245 215 122;
-  --wood:#a0764a;          /* the last-place case's wooden spoon, records.css */
-  --wood-rgb:160 118 74;
+  /* Records' two cases (2026-09-28, surface/league/cases.css), named by material: each gradient there
+     is a metal, a wood, porcelain or glass, so the only colours it may use are these. The trophy case
+     is a walnut cabinet with a velvet back and brass plates; the last-place case is the same cabinet
+     in laminate, holding porcelain toilets labelled with masking tape. */
+  --gold-hi:#fff3c4; --gold-hi-rgb:255 243 196;  /* the lit edge of a cup */
+  --gold-mid:#d9a93a; --gold-mid-rgb:217 169 58;
+  --walnut-hi:#5a3a24; --walnut-hi-rgb:90 58 36;
+  --walnut:#3d2616; --walnut-rgb:61 38 22;
+  --walnut-lo:#24160c; --walnut-lo-rgb:36 22 12;
+  --velvet:#1a1020; --velvet-rgb:26 16 32;
+  --velvet-2:#241631; --velvet-2-rgb:36 22 49;
+  --brass-hi:#e9cf8a; --brass-hi-rgb:233 207 138;
+  --brass-lo:#9c7a33; --brass-lo-rgb:156 122 51;
+  --engrave:#3a2a08; --engrave-rgb:58 42 8;  /* the year cut into a brass plate */
+  --plinth:#2a2320; --plinth-rgb:42 35 32;  /* a cup's black base */
+  --plinth-lo:#0f0c0a; --plinth-lo-rgb:15 12 10;
+  --lamp:#ffecb4; --lamp-rgb:255 236 180;  /* the downlight over each trophy */
+  --white:#ffffff; --white-rgb:255 255 255;  /* pure white, only ever at low alpha: the cases' glass, the DFS pool's empty-slot hatching */
+  --laminate:#6d6a63; --laminate-rgb:109 106 99;
+  --laminate-2:#57544e; --laminate-2-rgb:87 84 78;
+  --laminate-lo:#3c3a36; --laminate-lo-rgb:60 58 54;
+  --cheap-back:#26241f; --cheap-back-rgb:38 36 31;  /* the cheap cabinet's back board */
+  --cheap-back-2:#1c1a17; --cheap-back-2-rgb:28 26 23;
+  --porc-hi:#fffdf6; --porc-hi-rgb:255 253 246;  /* porcelain */
+  --porc:#e4e2da; --porc-rgb:228 226 218;
+  --porc-lo:#8f8c83; --porc-lo-rgb:143 140 131;
+  --chrome:#b9c0c9; --chrome-rgb:185 192 201;  /* a toilet's flush handle */
+  --grime:#7a6a3a; --grime-rgb:122 106 58;
+  --tape:#e8dfb8; --tape-rgb:232 223 184;  /* masking tape under a marker year */
+  --marker:#1b1b1b; --marker-rgb:27 27 27;
   --iri-1:#9fe3f5;
   --iri-1-rgb:159 227 245;
   --iri-2:#c7b3f2;

@@ -44,7 +44,7 @@ from sources import (                                    # design/sources.py: th
     feed_block, read_first, load_status, load_props_raw, load_model_raw,
     load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
     load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_startsit, load_digest, load_league,
-    load_league_yahoo, load_league_back, load_defense, load_trades, load_kickers,
+    load_league_yahoo, load_league_back, load_case_rosters, load_defense, load_trades, load_kickers,
 )
 from gameday import live_gameday, report as gameday_report  # This week > Live: every matchup, scored live
 from defense import live_defense, report as defense_report  # design/defense.py: the leg sheet's matchup line
@@ -741,7 +741,8 @@ def render():
         "LIVE_STARTSIT": live_startsit(*load_startsit(), slugify),
         "LIVE_DIGEST": live_digest(load_digest(), slugify, load_schedule(DWR)),
         "LIVE_LEAGUE": live_league(*load_league(), roster_file(ESPN_ROSTERS), slugify),
-        "LIVE_LEAGUE_YAHOO": live_league_yahoo(*load_league_yahoo(), roster_file(YAHOO_ROSTERS), slugify, *load_league_back()),
+        "LIVE_LEAGUE_YAHOO": live_league_yahoo(*load_league_yahoo(), roster_file(YAHOO_ROSTERS), slugify, *load_league_back(),
+                                               cases=load_case_rosters()),
         "LIVE_DEFENSE": live_defense(load_defense(), TEAM_FIX),
         "LIVE_TRADES": live_trades(load_trades(), load_league_back()[2], slugify=slugify),
         "LIVE_GAMEDAY": live_gameday(load_league()[0], roster_file(ESPN_ROSTERS), load_league_yahoo()[0],
