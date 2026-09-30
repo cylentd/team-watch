@@ -24,6 +24,8 @@
    normal-flow content like the signals column actually stops. right:0 here would land a gutter
    past every other edge on the page, not on top of them. */
 .hero-eyebrow .teamswitch{position:absolute;top:0;right:var(--page-pad);margin-left:0}
+/* Waivers' team name, plain: the h1 says it on a wide screen, so it shows only on a phone (760.css). */
+.hero-team{display:none}
 .league-mark{width:8px;height:8px;border-radius:99px;background:var(--tint)}
 .hero h1{
   font-family:var(--disp);font-weight:800;

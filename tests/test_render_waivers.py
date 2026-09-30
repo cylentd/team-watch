@@ -39,8 +39,7 @@ def open_waivers(browser, page_file):
         page.goto(page_file.as_uri() + "#waivers")
         page.wait_for_function("document.querySelector('#view .wv')")
         if view != "yahoo":
-            page.locator("[data-tsbtn]").click()
-            page.locator(f".ts-item[data-k='{view}']").click()
+            _pick_on_roster(page, view)
         page.errors = errors
         return page
 
@@ -49,12 +48,30 @@ def open_waivers(browser, page_file):
         c.close()
 
 
+def _pick_on_roster(page, view):
+    """Waivers has no team switch since 2026-09-29: the reader picks on Roster and comes back."""
+    page.locator("#subnav [data-leaf='roster']").click()
+    page.locator("[data-tsbtn]").click()
+    page.locator(f".ts-item[data-k='{view}']").click()
+    page.locator("#subnav [data-leaf='waivers']").click()
+    page.wait_for_function("document.querySelector('#view .wv')")
+
 def _cards(page):
     return page.evaluate("""[...document.querySelectorAll('.wv-cards .wvc')].map(c =>
         [c.querySelector('h3').textContent, c.querySelector('.wvc-stamp').textContent])""")
 
 
-def test_the_league_filter_follows_the_team_switch(open_waivers):
+def test_waivers_draws_no_team_switch(open_waivers):
+    """2026-09-29: the switch's menu opened clipped under Waivers' full hero on a phone and could
+    not be tapped. Waivers names the team, plain, and the pick is made on Roster."""
+    page = open_waivers("espn", width=390)
+    assert page.locator("#view [data-tsbtn]").count() == 0
+    name = page.locator(".hero-team")
+    assert name.is_visible() and name.inner_text() == page.evaluate("TEAMS.espn.name")
+    assert page.errors == []
+
+
+def test_the_league_filter_follows_the_team_pick(open_waivers):
     """Parker Washington is rostered in Yahoo, so he is an ESPN card only; Emanuel Wilson is
     Must claim in ESPN and Worth a claim in Yahoo (the packet's per-league tier)."""
     page = open_waivers("espn")
@@ -62,9 +79,8 @@ def test_the_league_filter_follows_the_team_switch(open_waivers):
     assert espn["Emanuel Wilson"] == "Must claim" and "Parker Washington" in espn
     assert page.locator(".wvr-row").count() == 5
     assert "2 must-claims" in page.locator(".wvhero").inner_text()
-    # Switch in place, the way a reader does.
-    page.locator("[data-tsbtn]").click()
-    page.locator(".ts-item[data-k='yahoo']").click()
+    # Pick on Roster, the way a reader does, and come back.
+    _pick_on_roster(page, "yahoo")
     yahoo = dict(_cards(page))
     assert yahoo["Emanuel Wilson"] == "Worth a claim" and "Parker Washington" not in yahoo
     assert page.locator(".wvr-row").count() == 4

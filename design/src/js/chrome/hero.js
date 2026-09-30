@@ -5,7 +5,10 @@
    (trending up, trending down, news) went on 2026-09-24: each counted something the rows below
    already show on their own, and on a phone they cost a screen-third before the first player.
    Since 2026-09-25 the roster's hero is the phone's one line at every width (.hero.team, hero.css):
-   the team switch is the title. Waivers keeps the full hero, which carries its FAAB and claims. */
+   the team switch is the title. Waivers keeps the full hero, which carries its FAAB and claims.
+   Since 2026-09-29 Waivers has no team switch (David: "I don't even think it should be there"):
+   its menu opened clipped under the full hero on a phone and could not be tapped. The team is
+   picked on Roster; Waivers names it, plain (.hero-team, a phone's title since its h1 is hidden). */
 /* `side` sits at the hero's right end: the roster's Sheet / Cards switch (2026-09-25), moved up out
    of the rows' column so the starters, the bench and "This week" share one top edge. */
 function heroHTML(team, side = ""){
@@ -19,7 +22,7 @@ function heroHTML(team, side = ""){
         <div class="hero-eyebrow" style="--tint:${team.tint}">
           <span class="league-mark"></span>
           <span class="lbl">${rec}</span>
-          ${teamSwitchHTML()}
+          ${wire ? `<span class="hero-team">${esc(team.name)}</span>` : teamSwitchHTML()}
         </div>
         <h1 class="fit">${esc(team.name)}</h1>
         <div class="hero-sub">
