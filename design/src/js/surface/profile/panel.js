@@ -31,6 +31,7 @@ function openProfile(p, originEl){
           ${pfInjuryHTML(p)}
           ${archTagsHTML(p)}
           ${sheetTagsHTML(p)}
+          ${cmpButtonHTML()}
         </div>
         ${orbBadgeHTML(p)}
       </div>
@@ -41,6 +42,7 @@ function openProfile(p, originEl){
       ${ownersHTML(p)}
       ${tabsHTML(prof, p)}
     </div>`;
+  CMP.base = p;   // whom the head's Compare button sets others beside (cmp.js)
   wireOrbSheet(d, p);
   wireTabs(d, prof, p);
   showModal(d, originEl, "pf-title");

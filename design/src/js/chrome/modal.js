@@ -58,8 +58,9 @@ function modalShut(d){
 (() => {
   const d = document.getElementById("modal");
   if (!d) return;
-  // The stat sheet's layer (orbsheet.js) sits over the profile: neither gesture reaches under it.
-  const up = () => d.classList.contains("on") && !document.querySelector(".stripmodal.on") && !d.querySelector(".pf-orblayer");
+  // The stat sheet's layer (orbsheet.js) and Compare's (cmp.js) sit over the profile: neither
+  // gesture reaches under them.
+  const up = () => d.classList.contains("on") && !document.querySelector(".stripmodal.on") && !d.querySelector(".pf-orblayer, .cmp-layer");
   onSwipeX(d, step => { if (up()) pfSwipeTab(d, step); }, pfOwnsTouch);
   onPullDown(d, () => { const b = d.querySelector(".dr-body"); return !b || b.scrollTop <= 0; },
     el => up() && !(el.closest && el.closest(".pf-radar-hit, .pf-orbsheet")), () => closeModal(d));

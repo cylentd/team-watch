@@ -1,0 +1,96 @@
+/* ============================== PROFILE · COMPARE ==============================
+   The Compare layer over the profile (cmp.js): the picker, then the sheet. It covers the modal as
+   the stat sheet's layer does (orb.css), and its sheet is a phone-first column: the tray on the
+   bottom edge of the picker (STYLE.md: what the reader builds lives there), the chips, the radar
+   and the rows on the sheet.
+
+   Each player keeps one series colour from tray to radar to row: the order he was taken in. Three
+   hues off the semantic ones (green up, red down, amber caution): lime (the profile's own player,
+   the brand's active colour), sky and pink. */
+.cmp-s0{--c:var(--lime);--c-rgb:var(--lime-rgb)}
+.cmp-s1{--c:var(--sky);--c-rgb:var(--sky-rgb)}
+.cmp-s2{--c:var(--holo-3);--c-rgb:var(--holo-3-rgb)}
+
+.cmp-open{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:7px 12px;border:1px solid var(--line-2);
+  border-radius:8px;background:var(--panel-2);color:var(--ink);font-family:var(--ui);font-size:var(--t-2);font-weight:600;
+  cursor:pointer;transition:transform var(--dur-spring) var(--spring)}
+.cmp-open::before{content:"⇄";color:var(--lime)}
+.cmp-open:active{transform:scale(var(--press))}
+.cmp-open:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+
+.cmp-layer{position:absolute;inset:0;z-index:5}
+.cmp-scrim{position:absolute;inset:0;background:rgb(var(--void-rgb) / .74);animation:cmp-fade .3s var(--ease) both}
+@keyframes cmp-fade{from{opacity:0}}
+.cmp-sheet{position:absolute;inset:0;margin:auto;width:min(520px,calc(100% - 24px));height:fit-content;
+  max-height:calc(100% - 24px);overflow:auto;overscroll-behavior:contain;padding:14px 16px 0;border:1px solid var(--line-2);
+  border-radius:14px;background:var(--panel-3);scrollbar-width:thin;scrollbar-color:var(--line-2) var(--panel-3)}
+.cmp-h{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.cmp-h h4{margin:0;flex:1;min-width:0;font-family:var(--disp);font-size:var(--t-4);font-weight:800;line-height:1.1;
+  text-transform:uppercase;color:var(--ink)}
+.cmp-h .dr-close{position:static;flex:none;width:40px;height:40px}
+.cmp-change{flex:none;padding:6px 10px;border:1px solid var(--line-2);border-radius:8px;background:none;color:var(--ink-2);
+  font-family:var(--ui);font-size:var(--t-1);font-weight:600;cursor:pointer}
+
+/* Picker */
+.cmp-q{width:100%;padding:10px 12px;border:1px solid var(--line-2);border-radius:8px;background:var(--panel-2);
+  color:var(--ink);font-family:var(--ui);font-size:var(--t-3)}
+.cmp-q:focus-visible{outline:2px solid var(--lime);outline-offset:1px}
+.cmp-cap{padding:14px 2px 6px}
+.cmp-group{list-style:none;margin:0;padding:0}
+.cmp-row{display:flex;align-items:center;gap:10px;width:100%;padding:8px 2px;border:0;border-top:1px solid var(--line);
+  background:none;color:var(--ink);font-family:var(--ui);text-align:left;cursor:pointer}
+.cmp-row:disabled{opacity:.45;cursor:default}
+.cmp-row:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+.cmp-check{flex:none;width:20px;height:20px;border:1.5px solid var(--line-2);border-radius:5px;display:grid;place-items:center}
+.cmp-row.on .cmp-check{background:var(--lime);border-color:var(--lime)}
+.cmp-row.on .cmp-check::after{content:"✓";color:var(--void);font-size:var(--t-1);font-weight:700}
+.cmp-head{flex:none;display:block;width:34px;height:34px;border-radius:50%;overflow:hidden;background:var(--panel-2)}
+.cmp-head img,.cmp-head .fallback,.cmp-head .dst{display:grid;place-items:center;width:100%;height:100%;object-fit:cover;
+  font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2)}
+.cmp-who{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.cmp-who b{font-size:var(--t-2);font-weight:600}
+.cmp-pts{flex:none;text-align:right;font-family:var(--mono);font-size:var(--t-2);font-variant-numeric:tabular-nums}
+.cmp-pts small{display:block;font-size:var(--t-1);color:var(--ink-3)}
+.cmp-empty,.cmp-note{margin:12px 2px;color:var(--ink-2);font-size:var(--t-2)}
+.cmp-tray{position:sticky;bottom:0;display:flex;align-items:center;gap:10px;margin:12px -16px 0;padding:10px 16px 14px;
+  border-top:1px solid var(--line-2);background:var(--panel-3)}
+.cmp-heads{display:flex}
+.cmp-tray .cmp-head{width:30px;height:30px;margin-right:-8px;box-shadow:0 0 0 2px var(--c)}
+.cmp-count{margin-left:8px}
+.cmp-go{margin-left:auto;padding:9px 16px;border:0;border-radius:8px;background:var(--lime);color:var(--void);
+  font-family:var(--ui);font-size:var(--t-2);font-weight:700;cursor:pointer}
+.cmp-go:disabled{background:var(--panel-2);color:var(--ink-3);cursor:default}
+
+/* Sheet */
+.cmp-chips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.cmp-chip{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0;padding:8px 4px;border:1px solid var(--line);
+  border-radius:10px;background:var(--panel-2);text-align:center}
+.cmp-chip .cmp-head{width:44px;height:44px;box-shadow:0 0 0 2.5px var(--c)}
+.cmp-chip b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--t-2)}
+.cmp-chip.add{justify-content:center;border-style:dashed;color:var(--ink-3);font-size:var(--t-5);cursor:pointer}
+.cmp-inj{padding:1px 6px;border-radius:4px;background:rgb(var(--amber-rgb) / .16);color:var(--amber);font-family:var(--mono);
+  font-size:var(--t-1)}
+.cmp-radar{display:block;width:100%;max-width:420px;margin:10px auto 0}
+.cmp-ring{fill:none;stroke:var(--line-2);stroke-width:1}
+.cmp-axis{fill:var(--ink-3);font-family:var(--mono);font-size:var(--t-1)}
+.cmp-shape{fill:rgb(var(--c-rgb) / .1);stroke:var(--c);stroke-width:2;stroke-linejoin:round}
+.cmp-dot{fill:var(--c)}
+.cmp-scale{text-align:center;margin:2px 0 4px}
+.cmp-rows{padding-bottom:14px}
+.cmp-stat{padding:9px 0;border-top:1px solid var(--line)}
+.cmp-stat-h{display:flex;justify-content:space-between;gap:8px;margin-bottom:5px}
+.cmp-vals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.cmp-v{display:flex;align-items:baseline;gap:5px;min-width:0;font-family:var(--mono);font-size:var(--t-3);
+  font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.cmp-v::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:var(--c);transform:translateY(-1px)}
+.cmp-v small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--t-1);color:var(--ink-3)}
+.cmp-v.best{color:var(--ink);font-weight:700}
+.cmp-v.best small{color:var(--lime)}
+.cmp-v.none{color:var(--ink-3)}
+.cmp-spark{align-items:flex-end}
+.cmp-spark i{display:block;width:7px;border-radius:1px;background:var(--c)}
+@media (max-width:430px){
+  .cmp-sheet{padding:12px 12px 0}
+  .cmp-tray{margin-inline:-12px;padding-inline:12px}
+  .cmp-v{flex-wrap:wrap;row-gap:0}
+}

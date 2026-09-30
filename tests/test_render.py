@@ -215,6 +215,10 @@ STATES = [
     ("profile-wr-matchup-modal", go("roster") + [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#modal [data-pftab='matchup']")]),
     ("profile-wr-props-modal", go("roster") + [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#modal [data-pftab='props']")]),
     ("profile-wr-sheet-modal", go("roster") + [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#modal .pf-orb")]),
+    # Compare (2026-09-30): the picker from the head's button, then the sheet with two picks ticked.
+    ("profile-wr-compare-picker-modal", go("roster") + [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#modal [data-compare]")]),
+    ("profile-wr-compare-modal", go("roster") + [("click", ".row:has-text('Amon-Ra St. Brown')"), ("click", "#modal [data-compare]"),
+        ("click", "#modal .cmp-row >> nth=0"), ("click", "#modal .cmp-row >> nth=1"), ("click", "#modal [data-cmp=go]")]),
     ("profile-rb-modal", go("roster") + [("click", ".row:has-text('Chase Brown')"), ("click", "#modal [data-pftab='matchup']")]),
     ("profile-rb-bio-modal", go("roster") + [("click", ".row:has-text('Chase Brown')"), ("click", "#modal [data-pftab='bio']")]),
     # SF's starters-out count is null (no snap-count release yet) -- the shape live data shows

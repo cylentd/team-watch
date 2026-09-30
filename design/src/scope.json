@@ -47,6 +47,7 @@
     "surface/profile/history.css": ["#modal"],
     "surface/profile/ladder.css": ["#modal"],
     "surface/profile/orb.css": ["#modal"],
+    "surface/profile/compare.css": ["#modal"],
     "surface/profile/panel.css": ["#modal", "#stripmodal"],
     "surface/profile/radar.css": ["#modal"],
     "surface/profile/season.css": ["#modal"],

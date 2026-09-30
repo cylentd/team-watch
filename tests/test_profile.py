@@ -1151,3 +1151,52 @@ def test_no_profiles_renders_dashes_and_a_quiet_panel(browser, monkeypatch, tmp_
     assert page.locator("#modal .pf-radar").count() == 1
     assert errors == []
     ctx.close()
+
+
+@pytest.mark.render
+def test_compare_picks_from_the_profile_and_draws_one_radar(browser, page_file):
+    """Compare (2026-09-30): the head's button opens the picker over the profile with the reader's
+    own team first; two ticks and Compare draw three chips, one shape each on one radar, and the
+    rows; Back closes the whole layer and leaves the profile open."""
+    ctx, page, errors = open_page(browser, page_file, (360, 800))
+    row(page, "Amon-Ra St. Brown").click()
+    page.locator("#modal [data-compare]").click()
+    assert page.locator("#modal .cmp-layer").count() == 1
+    rows = page.locator("#modal .cmp-row")
+    assert rows.count() >= 2
+    assert page.locator("#modal .cmp-go").is_disabled()
+    rows.nth(0).click()
+    rows = page.locator("#modal .cmp-row")
+    rows.nth(1).click()
+    assert page.locator("#modal .cmp-row.on").count() == 2
+    page.locator("#modal [data-cmp=go]").click()
+    assert page.locator("#modal .cmp-chip:not(.add)").count() == 3
+    assert page.locator("#modal .cmp-stat").count() == 5
+    shapes = page.locator("#modal .cmp-shape").count()
+    assert shapes == 3 or page.locator("#modal .cmp-note").count() == 1
+    assert page.evaluate("!!document.activeElement.closest('.cmp-sheet')")
+    page.go_back()
+    page.wait_for_timeout(200)
+    assert page.locator("#modal .cmp-layer").count() == 0
+    assert page.locator("#modal.on").count() == 1
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_compare_search_reaches_any_player(browser, page_file):
+    """A search pick joins the set and the lists come back; the box never keeps a stale query."""
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    row(page, "Amon-Ra St. Brown").click()
+    page.locator("#modal [data-compare]").click()
+    page.locator("#cmp-q").fill("kittle")
+    hit = page.locator("#modal .cmp-row", has_text="Kittle")
+    assert hit.count() == 1
+    hit.click()
+    assert page.locator("#cmp-q").input_value() == ""
+    assert page.locator("#modal .cmp-row.on", has_text="Kittle").count() == 1
+    page.keyboard.press("Escape")
+    assert page.locator("#modal .cmp-layer").count() == 0
+    assert page.locator("#modal.on").count() == 1
+    assert errors == []
+    ctx.close()

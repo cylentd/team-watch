@@ -75,6 +75,10 @@ surface/profile/details.js
 surface/profile/lede.js
 surface/profile/tabs.js
 surface/profile/panel.js
+surface/profile/cmp.js
+surface/profile/cmppick.js
+surface/profile/cmpshow.js
+surface/profile/cmprows.js
 surface/news/news.js
 data/pool.js
 surface/role/role.js

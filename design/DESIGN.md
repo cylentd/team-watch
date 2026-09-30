@@ -1214,6 +1214,27 @@ https://claude.ai/artifact/HjEA4x7r7DRz3Z7Xes4u62).
 - **Game results and past-week projections are not in the data** (Yahoo shows both). Adding them is
   ff-jarvis work.
 
+### Compare (2026-09-30)
+
+Storyboard: https://claude.ai/artifact/LR2pMmjnZdSfcVsq6Qzt3o (David picked option A). A layer over
+the profile, like the stat sheet's, opened by the head's **Compare** button (`cmp.js`). One history
+entry: Back closes the layer and leaves the profile.
+
+| Stage | What it holds | File |
+|---|---|---|
+| Picker | His team at this position, other FLEX spots on it, waivers (owner only), each by projection; search reaches anyone; a search pick shows under Picked; the tray on the bottom edge | `cmppick.js` |
+| Sheet | Chips, one radar with a shape per player (the profile's rank scale), then rows: projection, matchup (the Season table's ordinal, 1st allows the most), team share, red zone share, last 3 weeks | `cmpshow.js`, `cmprows.js` |
+
+- **One position per radar.** A position's six axes are its own, so a mixed set (RB beside WR) keeps
+  the rows and drops the radar with a note.
+- **Series colour follows the pick order:** lime is the profile's player, then sky, then pink, from
+  tray to radar to row. Off green, red and amber, which keep their meanings.
+- **Red zone share** is of the team's red-zone plays (targets + carries) where the profile carries
+  both team totals, else of targets, and the cell names which. Receivers' profiles have no team
+  carries yet (ff-jarvis `red_zone.team_carries` is null for WR/TE), so today they read targets.
+- **The best of each row is lit.** Nothing says whom to start: the rows are the page's numbers side
+  by side.
+
 ### The 2026-09-22 build (superseded 2026-09-28 where marked)
 
 Eleven blocks at one weight is a wall. Three tiers, and the order is the answer to "what do I do
