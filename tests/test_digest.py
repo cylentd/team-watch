@@ -408,7 +408,9 @@ def test_need_to_know_leads_with_new_starters_then_who_sits(browser, page_file):
               faces: [...need.querySelectorAll('.dg-nd')].every(b => b.firstElementChild.classList.contains('dg-hd')),
               more: (need.querySelector('.dg-nd-more') || {}).textContent || '',
               total: d.starters.length + hurt.filter(r => r.status !== 'Questionable').length,
-              q: hurt.some(r => r.status === 'Questionable'), also: !!need.querySelector('.dg-also'),
+              q: hurt.some(r => r.status === 'Questionable'), also: !!need.querySelector('.dg-q'),
+              // Each questionable name is its own tap to his profile (2026-09-30).
+              qTaps: [...need.querySelectorAll('.dg-q-p')].every(b => b.dataset.dgslug),
               newsStarts: document.querySelectorAll('.dg-nw.start').length}; }""")
     assert got["tags"][:4] == ["New QB1", "New QB1", "New team", "New RB1"]
     # The tag says "New QB1", so the line starts at "over" (2026-09-29); every line leads with a face.
@@ -416,7 +418,7 @@ def test_need_to_know_leads_with_new_starters_then_who_sits(browser, page_file):
     assert got["faces"]
     assert len(got["tags"]) == min(5, got["total"])
     assert got["more"] == (f"{got['total'] - 5} more" if got["total"] > 5 else "")
-    assert got["also"] == got["q"] and got["newsStarts"] == 0
+    assert got["also"] == got["q"] and got["qTaps"] and got["newsStarts"] == 0
     gone = page.evaluate("""() => { LIVE_DIGEST.starters.forEach(r => { r.ko = "2026-09-20T17:00:00Z"; });
       Date.now = () => Date.parse("2026-09-20T17:01:00Z"); DG_CUT = null; render();
       return [...document.querySelectorAll('.dg-need .dg-nw-tag')].length; }""")

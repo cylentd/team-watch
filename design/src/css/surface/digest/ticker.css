@@ -61,8 +61,6 @@
 .dg-st.out{background:var(--down);color:var(--void)}
 .dg-st.d{color:var(--down);box-shadow:inset 0 0 0 1px var(--down)}
 .dg-st.q{color:var(--amber);box-shadow:inset 0 0 0 1px rgb(var(--amber-rgb) / .6)}
-.dg-also{margin:0;padding:8px 0 0;font-size:var(--t-2);color:var(--ink-2)}
-.dg-also b{margin-right:6px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--amber)}
 
 .dg-foot{
   display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:10px;padding-top:2px;

@@ -25,6 +25,7 @@
 .dg-nd-t b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dg-nd-t > span{display:flex;align-items:center;gap:6px;font-size:var(--t-1);color:var(--ink-3);white-space:nowrap;overflow:hidden}
 .dg-nd .dg-nw-tag,.dg-nd .dg-st{flex:none}
+.dg-nd-w{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .dg-nd i{font:500 var(--t-1)/1 var(--mono);font-style:normal;font-variant-numeric:tabular-nums;color:var(--ink-2)}
 .dg-nd-more{
   appearance:none;border:0;background:none;font:inherit;cursor:pointer;justify-self:start;
@@ -32,6 +33,17 @@
 }
 .dg-nd-more:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
 .dg-nd-none{margin:0;padding:6px 0;font-size:var(--t-2);color:var(--ink-3)}
+.dg-nd-list{display:grid;gap:4px;min-width:0}
+
+/* Questionable. A phone: the tag, then the names as one run of text, as before, each name a tap to
+   his profile. The wall: a chip per player, face and name, wrapping to fill the panel. */
+.dg-q{padding:8px 0 4px;font-size:var(--t-2);line-height:1.5;color:var(--ink-2)}
+.dg-q > .dg-st{margin-right:6px}
+.dg-q-p{appearance:none;border:0;background:none;color:inherit;font:inherit;cursor:pointer;padding:0}
+.dg-q-p:not(:last-child)::after{content:","}
+.dg-q-p:not(:first-of-type){margin-left:4px}
+.dg-q-p:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
+.dg-q-p > .dg-hd{display:none}
 
 /* A fact tile is the Results tile's shape (headlines.css) plus the view it opens, in lime. */
 .dg-fact .dg-tile-v{font-size:var(--t-4)}
@@ -46,8 +58,35 @@
 @media (min-width:1100px){
   .dg-need,.dg-facts{border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:20px 22px 8px}
   .dg-facts{padding-bottom:20px}
-  .dg-need{grid-area:need;align-content:start}
-  .dg-facts{grid-area:facts;align-content:start}
+  /* Need to know fills its panel (2026-09-30): the lines are tiles two across, the size of the
+     Highlights tiles beside it, and the foot sits at the panel's bottom edge whatever the band's height. */
+  .dg-need{grid-area:need;display:flex;flex-direction:column;gap:6px}
+  .dg-need > .dg-foot{margin-top:auto}
+  .dg-nd-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .dg-nd{
+    grid-template-columns:48px minmax(0,1fr);align-items:start;min-height:0;padding:12px;
+    border-radius:12px;background:var(--panel-2);
+  }
+  .dg-nd > .dg-hd{width:48px;height:48px}
+  .dg-nd-t{gap:6px}
+  /* The tag, then what happened on a line of its own, so every tile reads the same way. */
+  .dg-nd-t > span{flex-direction:column;align-items:start;gap:5px;white-space:normal;line-height:1.35}
+  /* An odd last tile spans the row, so the grid never ends on a hole. */
+  .dg-nd-list > :last-child:nth-child(odd){grid-column:1/-1}
+  .dg-nd-more{justify-self:stretch;min-height:0;border-radius:12px;background:var(--panel-2)}
+  .dg-q{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-top:10px}
+  .dg-q-p{
+    display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 10px 0 3px;margin:0;
+    border:1px solid var(--line-2);border-radius:99px;font-size:var(--t-1);
+  }
+  .dg-q-p:not(:first-of-type){margin-left:0}
+  .dg-q-p:not(:last-child)::after{content:none}
+  .dg-q-p:hover{color:var(--ink);border-color:var(--ink-3)}
+  .dg-q-p > .dg-hd{display:block;position:relative;width:24px;height:24px;flex:none}
+  .dg-q-p > .dg-hd img{position:absolute;left:-25%;top:-6%;width:150%;height:150%;max-width:none}
+  .dg-facts{grid-area:facts;display:flex;flex-direction:column;gap:4px}
+  .dg-facts > .dg-foot{margin-top:auto}
+  .dg-facts > .dg-tiles{margin-bottom:10px}
   .dg-facts .dg-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
   .dg-sec{font-size:var(--t-2);letter-spacing:.08em;color:var(--ink)}
 }

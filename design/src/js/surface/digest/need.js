@@ -21,7 +21,7 @@ function dgNeedLine(r, tag, what){
   const rank = dgNeedRank(r.slug);
   return `<button type="button" class="dg-nd" data-dgslug="${esc(r.slug)}">
     <span class="dg-hd">${avatarHTML(r)}</span>
-    <span class="dg-nd-t"><b>${esc(dgShort(r.n))}</b><span>${tag}${what}${rank ? ` · <i>${rank}</i>` : ""}</span></span></button>`;
+    <span class="dg-nd-t"><b>${esc(dgShort(r.n))}</b><span>${tag}<span class="dg-nd-w">${what}${rank ? ` · <i>${rank}</i>` : ""}</span></span></span></button>`;
 }
 
 /* A new starter: "New QB1" and over whom (the tag already says QB1); a moved player, "New team". */
@@ -51,8 +51,12 @@ function dgNeedHTML(d){
   const shown = DG_NEED_ALL ? lines : lines.slice(0, DG_NEED_FIRST);
   const more = lines.length > shown.length
     ? `<button type="button" class="dg-nd-more" data-dgneedall>${t("digest.need.more", {n: lines.length - shown.length})}</button>` : "";
-  const also = q.length ? `<p class="dg-also"><b>${t("digest.tag.q")}</b>${q.map(r => esc(dgShort(r.n))).join(", ")}</p>` : "";
-  const body = lines.length || q.length ? shown.join("") + more + also
+  // Questionable: a chip each, his face and name, so the list is as tappable as the lines above it
+  // and wraps to fill the panel's width (2026-09-30, David: "fill the box better").
+  const also = q.length ? `<div class="dg-q"><span class="dg-st q">${t("digest.tag.q")}</span>${q.map(r =>
+    `<button type="button" class="dg-q-p" data-dgslug="${esc(r.slug)}"><span class="dg-hd">${avatarHTML(r)}</span>${esc(dgShort(r.n))}</button>`).join("")}</div>` : "";
+  const list = shown.length ? `<div class="dg-nd-list">${shown.join("")}${more}</div>` : "";
+  const body = lines.length || q.length ? list + also
     : `<p class="dg-nd-none">${dgWaiting(d) ? t("digest.line.hurtNext", {week: d.week + 1}) + "." : t("digest.need.none")}</p>`;
   return `<section class="dg-need" aria-labelledby="dg-need-h">
     <h3 class="dg-sec" id="dg-need-h">${t("digest.need.title")}</h3>${body}
