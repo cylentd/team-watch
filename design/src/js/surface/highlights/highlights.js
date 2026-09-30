@@ -16,11 +16,30 @@ const hlViewName = view => ({ranks: t("highlights.view.ranks"), leaders: t("high
 /* Its own arrow: the Digest's DG_ARROW is styled in the Digest's fenced ticker.css. */
 const HL_ARROW = `<svg class="hl-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5L12 8l-3.5 3.5"/></svg>`;
 
-/* A face cropped to the head, drawn at 150% as the Digest's are (the files are chest-up). */
-const hlLineHTML = r => `<button type="button" class="hl-ln" data-hlopen="${esc(r.slug)}">
-    <span class="hl-hd">${avatarHTML(r)}</span>
-    <b class="hl-n">${esc(r.num || "")}</b>
+/* The number's unit, from the line's kind (ff-jarvis's candidate id, `view.kind`). Every key spelled
+   out for the same reason as above; an unknown kind draws no unit rather than a wrong one. */
+const hlUnit = r => ({
+  "ranks.jump": t("highlights.unit.jump"), "ranks.clear": t("highlights.unit.clear"), "ranks.top": t("highlights.unit.top"),
+  "leaders.multi": t("highlights.unit.multi"), "leaders.axis": t("highlights.unit.axis", {pos: r.pos}),
+  "role.over": t("highlights.unit.over"), "role.under": t("highlights.unit.under"), "role.work": t("highlights.unit.work"),
+  "grid.tgt": t("highlights.unit.tgt"), "grid.snap": t("highlights.unit.snap"),
+})[r.kind] || "";
+
+/* Up is green and down is red, as everywhere on the page; a number with no sign is plain ink. */
+const hlTone = num => /^\+/.test(num) ? " up" : /^[-−]/.test(num) ? " down" : "";
+
+/* The Reel (storyboard https://claude.ai/artifact/Adzka79DUskrYurWBzhuvB, option A, David 2026-09-30):
+   one card per line. The number is the headline beside the player on his club's colour, and the
+   sentence runs the card's full width underneath. The whole card opens the profile. */
+function hlLineHTML(r){
+  const art = HEADS[r.slug] ? headImgHTML(HEADS[r.slug], initials(r.n), r.slug, 170) : `<div class="fallback">${esc(initials(r.n))}</div>`;
+  const unit = hlUnit(r);
+  return `<button type="button" class="hl-ln" data-hlopen="${esc(r.slug)}" ${teamColourStyle(r.team)}>
+    <span class="hl-txt"><b class="hl-n${hlTone(r.num || "")}">${esc(r.num || "")}</b>${unit ? `<span class="hl-u">${esc(unit)}</span>` : ""}
+    <span class="hl-nm">${esc(r.n)} <span class="hl-u">${esc(r.pos)} · ${esc(r.team)}</span></span></span>
+    <span class="hl-art">${art}</span>
     <span class="hl-t">${esc(r.line)}</span></button>`;
+}
 
 function hlViewHTML(){
   const H = typeof LIVE_HIGHLIGHTS !== "undefined" ? LIVE_HIGHLIGHTS : null;
@@ -30,6 +49,7 @@ function hlViewHTML(){
     <div class="hl-head"><h2>${t("nav.tab.highlights")}</h2>${sub}</div>
     <div class="state-empty" style="min-height:220px;margin-top:16px">
     <div><b>${t("highlights.empty.title")}</b><span>${t("highlights.empty.sub")}</span></div></div></div>`;
+  // One column of cards per view: stacked on a phone, side by side on a desktop.
   const cards = H.views.map(v => `<section class="hl-v" aria-labelledby="hl-h-${v.view}">
     <h3 id="hl-h-${v.view}"><button type="button" class="hl-go" data-hlgo="${v.leaf}">${hlViewName(v.view)}${HL_ARROW}</button></h3>
     ${v.rows.map(hlLineHTML).join("")}</section>`).join("");

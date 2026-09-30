@@ -55,7 +55,7 @@ function dgFactsFromHighlights(d){
   if (!tiles.length) return "";
   return `<section class="dg-facts" aria-labelledby="dg-facts-h">
     <h3 class="dg-sec" id="dg-facts-h">${t("digest.fact.title")}</h3><div class="dg-tiles">${tiles.join("")}</div>
-    ${dgFootHTML("", "highlights", t("digest.fact.more"))}</section>`;
+    ${dgFootHTML("", "highlights", t("digest.fact.more", {n: H.views.reduce((s, v) => s + v.rows.length, 0)}))}</section>`;
 }
 
 function dgFactsHTML(d){

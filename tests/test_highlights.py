@@ -20,7 +20,8 @@ def test_block_keeps_the_tabs_order_and_each_views_leaf():
     assert [(v["view"], v["leaf"]) for v in b["views"]] == list(VIEWS)
     assert all(1 <= len(v["rows"]) <= 2 for v in b["views"])
     row = b["views"][0]["rows"][0]
-    assert set(row) == {"slug", "n", "pos", "team", "num", "line"}
+    assert set(row) == {"slug", "n", "pos", "team", "num", "line", "kind"}
+    assert row["kind"] == "ranks.jump", "the kind is the candidate id's view and kind, ff-jarvis's contract"
 
 
 def test_a_line_with_no_text_and_a_view_with_no_lines_drop():
@@ -55,7 +56,15 @@ def test_highlights_leads_players_and_each_card_opens_its_view(browser, page_fil
         heads = [h.strip() for h in page.locator(".hl-go").all_inner_texts()]
         assert heads == ["Ranks", "Leaders", "Role", "Grid"]
         assert page.locator(".hl-ln").count() == 8
-        assert page.locator(".hl-ln .hl-hd").count() == 8, "every line leads with a face"
+        assert page.locator(".hl-ln .hl-art :is(img, .fallback)").count() == 8, "every card shows the player"
+        # The Reel (2026-09-30): every number has its unit, and a sign says up or down in colour.
+        cards = page.evaluate("""() => [...document.querySelectorAll('.hl-ln')].map(c => ({
+          num: c.querySelector('.hl-n').textContent, cls: c.querySelector('.hl-n').className,
+          unit: (c.querySelector('.hl-txt > .hl-u') || {}).textContent || ''}))""")
+        assert all(c["unit"] for c in cards), cards
+        for c in cards:
+            want = " up" if c["num"].startswith("+") else " down" if c["num"].startswith("-") else ""
+            assert c["cls"] == "hl-n" + want, c
         text = page.locator("#view").inner_text().lower()
         assert not re.search(r"\b(buy|sell|start him|sit him)\b", text), "the tab describes; it does not advise"
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
@@ -81,6 +90,7 @@ def test_worth_knowing_is_each_views_first_line_never_the_banners(browser, page_
         assert [s for s, _ in got["tiles"]] == [s for s in got["want"] if s]
         assert [g for _, g in got["tiles"]] == got["leaves"][:len(got["tiles"])]
         assert got["banner"] not in [s for s, _ in got["tiles"]]
-        assert "More in Highlights" in got["more"]
+        assert "All 8 highlights" in got["more"]
+        assert page.locator("#dg-facts-h").text_content() == "Highlights", "one name for one list (David, 2026-09-30)"
     finally:
         ctx.close()

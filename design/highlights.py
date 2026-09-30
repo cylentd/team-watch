@@ -15,12 +15,20 @@ VIEWS = (("ranks", "ranks"), ("leaders", "board"), ("role", "movers"), ("grid", 
 FIELDS = ("slug", "n", "pos", "team", "num", "line")
 
 
+def _row(r):
+    """The row the page reads, plus `kind` ("ranks.jump"): the candidate id's first two parts, ff-jarvis's
+    contract (`view.kind.key`). The page words the number's unit from it (2026-09-30, the Reel)."""
+    row = {k: r.get(k) for k in FIELDS}
+    row["kind"] = ".".join((r.get("id") or "").split(".")[:2])
+    return row
+
+
 def live_highlights(raw):
     """None when ff-jarvis has written no packet: the tab then says so."""
     views = (raw or {}).get("views") or {}
     out = []
     for view, leaf in VIEWS:
-        rows = [{k: r.get(k) for k in FIELDS} for r in views.get(view) or [] if r.get("line")]
+        rows = [_row(r) for r in views.get(view) or [] if r.get("line")]
         if rows:
             out.append({"view": view, "leaf": leaf, "rows": rows})
     if not out:
