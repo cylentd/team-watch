@@ -1,7 +1,7 @@
 /* ------------------------------------------------------------------
    PREVIEW's slate (2026-09-29, storyboard option A): every game of the week, grouped by kickoff
-   window, one row each: AWAY @ HOME and Claude's side against the spread with how sure he is, then
-   the headline. Claude's record card heads the slate (record.js). A tap opens the game's dossier.
+   window, one row each: AWAY @ HOME, "Confident" / "Very confident" when Claude is, then the
+   headline. Claude's record card heads the slate (record.js). A tap opens the game's dossier.
    On a desktop the slate is the rail beside the dossier.
 
    Quiet since 2026-09-29 (storyboard option B, https://claude.ai/artifact/MpjMnKmnJDKaJij6XLfiUc;
@@ -16,14 +16,30 @@ const pvWinLabel = w => ({
   sunlate: t("preview.win.sunlate"), sunnight: t("preview.win.sunnight"), mon: t("preview.win.mon"),
 }[w.slot] || esc(w.day));
 
-/* A row reads like a newspaper's index: the matchup and Claude's side with how sure he is, then the
-   serif headline. A take from before confidence keeps its winner and score right of the matchup. */
+/* The face a row leads with (storyboard option C, 2026-09-29): the player the headline is about, the
+   first of Claude's player calls whose first or last name the headline says ("Dak outguns ...",
+   "Love's arm ..."); failing that, his first call. No take, no face: the slot stays empty. */
+function pvFacePlayer(k){
+  if (!k || !k.players.length) return null;
+  const words = k.head.toLowerCase().match(/[a-z]+/g) || [];
+  const at = p => { const ns = p.n.toLowerCase().match(/[a-z]+/g) || [];
+    const hits = [ns[0], ns[ns.length - 1]].map(n => words.indexOf(n)).filter(i => i >= 0);
+    return hits.length ? Math.min(...hits) : Infinity; };
+  return k.players.reduce((best, p) => at(p) < at(best) ? p : best, k.players[0]);
+}
+
+/* A row reads like a newspaper's index: the matchup and a confident pick's word, then the serif
+   headline. A take from before confidence keeps its winner and score right of the matchup. */
 function pvRowHTML(g, i, cur){
-  const k = g.take, a = k && k.ats;
-  const right = a ? `<span class="pv-ats">${pvAtsHTML(g, a)}</span>`
+  /* Only a confident pick speaks on the slate (David, 2026-09-29: drop the "JAX getting 2.5"): its
+     word in lime. A slight pick or no pick draws nothing here; the game page says both. */
+  const k = g.take, a = k && k.ats, sure = a && a.side && (a.conf === "solid" || a.conf === "strong");
+  const right = a ? (sure ? `<span class="pv-ats">${pvConfHTML(a.conf)}</span>` : "")
     : k ? `<span class="pv-rs"><i>${esc(k.pick.winner)}</i> ${k.pick.score[k.pick.winner]}–${
       k.pick.score[k.pick.winner === g.home ? g.away : g.home]}</span>` : "";
+  const face = pvFacePlayer(k);
   return `<li><button class="pv-row${cur ? " cur" : ""}${pvDone(g) ? " done" : ""}" data-pvopen="${i}"${cur ? ` aria-current="true"` : ""}>
+    <span class="pv-hs" aria-hidden="true">${face ? headHTML(face) : ""}</span>
     <span class="pv-rm">${esc(g.away)} @ ${esc(g.home)}</span>${right}
     <span class="pv-rh">${k ? esc(k.head) : t("preview.slate.notake")}</span></button></li>`;
 }

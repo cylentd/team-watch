@@ -263,6 +263,31 @@
   --dur-flip:.55s;      /* a waiver card turning over */
   --dur-stamp:.4s;      /* the Must-claim stamp slam; the Worth mark reuses it, quieter */
   --dur-flash:1.8s;     /* a Breaking row new since the last visit, lit once */
+/* ── css/base/newsprint.css ── */
+  /* Newsprint (2026-09-29, Preview only, surface/preview/preview.css): a warm charcoal-brown ground,
+     cream type and warm greys, so Preview reads as a newspaper and not a console (David: "very
+     clinical, so much black and white"). Preview maps the page's own surface and ink tokens onto
+     these; lime and the signal colours keep their jobs. On the ground: cream 14.9:1, --np-ink-2
+     9.9:1, --np-ink-3 6.4:1 (5.5:1 on --np-panel-2), each above AA like the tokens they stand in for.
+     Still inside tokens.css's :root, which base.css closes (order.css.txt). */
+  --np-ground:#17140f;
+  --np-ground-rgb:23 20 15;
+  --np-panel:#1f1a14;
+  --np-panel-rgb:31 26 20;
+  --np-panel-2:#282219;
+  --np-panel-2-rgb:40 34 25;
+  --np-panel-3:#30291f;
+  --np-panel-3-rgb:48 41 31;
+  --np-line:#342d23;
+  --np-line-rgb:52 45 35;
+  --np-line-2:#4a4034;
+  --np-line-2-rgb:74 64 52;
+  --np-ink:#f1e7d0;
+  --np-ink-rgb:241 231 208;
+  --np-ink-2:#c9bda3;
+  --np-ink-2-rgb:201 189 163;
+  --np-ink-3:#a2977f;
+  --np-ink-3-rgb:162 151 127;
 /* ── css/base/base.css ── */
   --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
   --disp:"Bricolage Grotesque","Archivo",sans-serif;
@@ -3922,7 +3947,23 @@ body:has(.connect:not([hidden])){overflow:hidden}
    beside the dossier. Colour map in slate.js, dossier.js and record.js; this file adds none of its
    own. The confidence chip and the win % bar (2026-09-29) are here because the slate, the dossier
    and the record all draw them. */
-.pv:where(#view[data-view="preview"], #view[data-view="preview"] *){padding-top:8px}
+/* Newsprint (2026-09-29, storyboard option C of https://claude.ai/artifact/U5vPm4p1QXxXYVzsCxrBcC):
+   Preview maps the page's surfaces and inks onto the warm --np-* tokens, so every rule below, the
+   game page and the record included, prints on paper without naming a colour of its own. The
+   ground is painted by a border-image fill that bleeds to both screen edges and on down past the
+   footer: ink overflow, so nothing scrolls sideways and the page grows no taller. */
+.pv:where(#view[data-view="preview"], #view[data-view="preview"] *){padding-top:8px;
+  --void:var(--np-ground);--void-rgb:var(--np-ground-rgb);
+  --panel:var(--np-panel);--panel-rgb:var(--np-panel-rgb);
+  --panel-2:var(--np-panel-2);--panel-2-rgb:var(--np-panel-2-rgb);
+  --panel-3:var(--np-panel-3);--panel-3-rgb:var(--np-panel-3-rgb);
+  --line:var(--np-line);--line-rgb:var(--np-line-rgb);
+  --line-2:var(--np-line-2);--line-2-rgb:var(--np-line-2-rgb);
+  --ink:var(--np-ink);--ink-rgb:var(--np-ink-rgb);
+  --ink-2:var(--np-ink-2);--ink-2-rgb:var(--np-ink-2-rgb);
+  --ink-3:var(--np-ink-3);--ink-3-rgb:var(--np-ink-3-rgb);
+  color:var(--ink);
+  border-image:conic-gradient(var(--np-ground) 0 0) fill 0 / 0 / 0 100vmax 100vmax}
 .pv:where(#view[data-view="preview"], #view[data-view="preview"] *) .pv-dz{display:none}
 .pv.open:where(#view[data-view="preview"], #view[data-view="preview"] *) .pv-slate{display:none}
 .pv.open:where(#view[data-view="preview"], #view[data-view="preview"] *) .pv-dz{display:flex}
@@ -3938,23 +3979,26 @@ body:has(.connect:not([hidden])){overflow:hidden}
 .pv-wh:where(#view[data-view="preview"], #view[data-view="preview"] *){display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0;padding:8px 2px;border-top:2px solid var(--ink-2);font-family:var(--news);font-size:var(--t-4);font-weight:700;line-height:1.2;color:var(--ink)}
 .pv-wh:where(#view[data-view="preview"], #view[data-view="preview"] *) em{font-family:var(--ui);font-size:var(--t-1);font-style:normal;font-weight:400;color:var(--ink-3);white-space:nowrap}
 .pv-win:where(#view[data-view="preview"], #view[data-view="preview"] *) li:first-child .pv-row{border-top:0}
-/* A row is two lines, like a newspaper's index (2026-09-29, storyboard option C): the matchup and
-   Claude's side, then the serif headline. Only the matchup is loud (option B). */
-.pv-row:where(#view[data-view="preview"], #view[data-view="preview"] *){width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 10px;align-items:center;padding:9px 2px;border:0;border-top:1px solid var(--line);background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+/* A row is two lines, like a newspaper's index (2026-09-29, storyboard option C): a face, the
+   matchup and a confident pick's word, then the serif headline. Only the matchup is loud. */
+.pv-row:where(#view[data-view="preview"], #view[data-view="preview"] *){width:100%;display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:2px 10px;align-items:baseline;padding:9px 2px;border:0;border-top:1px solid var(--line);background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
 .pv-row:hover:where(#view[data-view="preview"], #view[data-view="preview"] *){background:var(--panel)}
 .pv-row:focus-visible:where(#view[data-view="preview"], #view[data-view="preview"] *),.pv-back:focus-visible:where(#view[data-view="preview"], #view[data-view="preview"] *),.pv-arrow:focus-visible:where(#view[data-view="preview"], #view[data-view="preview"] *),.pv-p:focus-visible:where(#view[data-view="preview"], #view[data-view="preview"] *){outline:2px solid var(--lime);outline-offset:-2px}
-.pv-rm:where(#view[data-view="preview"], #view[data-view="preview"] *){font-family:var(--mono);font-size:var(--t-3);font-weight:700;letter-spacing:.02em;color:var(--ink);white-space:nowrap}
+/* The face: the player the headline is about, 40px round, beside both lines. */
+.pv-hs:where(#view[data-view="preview"], #view[data-view="preview"] *){grid-row:1/3;grid-column:1;align-self:center;width:40px;height:40px;border-radius:50%;overflow:hidden;background:var(--panel-2)}
+.pv-hs:where(#view[data-view="preview"], #view[data-view="preview"] *) img,.pv-hs:where(#view[data-view="preview"], #view[data-view="preview"] *) .fallback{width:100%;height:100%;object-fit:cover;display:grid;place-items:center;font-size:var(--t-1);color:var(--ink-3)}
+.pv-row.done:where(#view[data-view="preview"], #view[data-view="preview"] *) .pv-hs{opacity:.6}
+.pv-rm:where(#view[data-view="preview"], #view[data-view="preview"] *){grid-row:1;grid-column:2;font-family:var(--mono);font-size:var(--t-3);font-weight:700;letter-spacing:.02em;color:var(--ink);white-space:nowrap}
 .pv-rs:where(#view[data-view="preview"], #view[data-view="preview"] *){font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 .pv-rs:where(#view[data-view="preview"], #view[data-view="preview"] *) i{font-style:normal;color:var(--lime)}
-.pv-rh:where(#view[data-view="preview"], #view[data-view="preview"] *){grid-column:1/-1;font-family:var(--news);font-size:var(--t-3);font-weight:500;line-height:1.3;color:var(--ink-2);text-wrap:pretty}
+.pv-rh:where(#view[data-view="preview"], #view[data-view="preview"] *){grid-row:2;grid-column:2/-1;font-family:var(--news);font-size:var(--t-3);font-weight:500;line-height:1.3;color:var(--ink-2);text-wrap:pretty}
 .pv-row.cur:where(#view[data-view="preview"], #view[data-view="preview"] *) .pv-rh{color:var(--ink)}
 .pv-row.done:where(#view[data-view="preview"], #view[data-view="preview"] *) .pv-rm,.pv-row.done:where(#view[data-view="preview"], #view[data-view="preview"] *) .pv-rs,.pv-row.done:where(#view[data-view="preview"], #view[data-view="preview"] *) .pv-rh{color:var(--ink-3)}
 /* How sure Claude is (2026-09-29), in plain words (David: "don't use jargon"): Slight and No pick
    grey, Confident lime text, Very confident a lime fill. Lime is Claude, and only the confident
-   picks earn it. On the slate the side is grey; on the game page it keeps its weight. */
+   picks earn it, and only they show on the slate (no side there since 2026-09-29). */
 .pv-ats:where(#view[data-view="preview"], #view[data-view="preview"] *){display:flex;align-items:baseline;justify-content:flex-end;gap:6px;white-space:nowrap}
 .pv-side:where(#view[data-view="preview"], #view[data-view="preview"] *){font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink);white-space:nowrap}
-.pv-row:where(#view[data-view="preview"], #view[data-view="preview"] *) .pv-side{font-weight:400;color:var(--ink-3)}
 .pv-conf:where(#view[data-view="preview"], #view[data-view="preview"] *){display:inline-block;padding:2px 0;border-radius:4px;font-family:var(--ui);font-size:var(--t-1);font-weight:500;line-height:1;color:var(--ink-3);white-space:nowrap}
 .pv-conf.strong:where(#view[data-view="preview"], #view[data-view="preview"] *){padding-inline:6px;background:var(--lime);color:var(--on-lime);font-weight:700}
 .pv-conf.solid:where(#view[data-view="preview"], #view[data-view="preview"] *){color:var(--lime);font-weight:700}
@@ -14185,8 +14229,8 @@ const pvHit = s => { const [w = 0, l = 0] = String(s || "0-0").split("-").map(Nu
 /* ── js/surface/preview/slate.js ── */
 /* ------------------------------------------------------------------
    PREVIEW's slate (2026-09-29, storyboard option A): every game of the week, grouped by kickoff
-   window, one row each: AWAY @ HOME and Claude's side against the spread with how sure he is, then
-   the headline. Claude's record card heads the slate (record.js). A tap opens the game's dossier.
+   window, one row each: AWAY @ HOME, "Confident" / "Very confident" when Claude is, then the
+   headline. Claude's record card heads the slate (record.js). A tap opens the game's dossier.
    On a desktop the slate is the rail beside the dossier.
 
    Quiet since 2026-09-29 (storyboard option B, https://claude.ai/artifact/MpjMnKmnJDKaJij6XLfiUc;
@@ -14201,14 +14245,30 @@ const pvWinLabel = w => ({
   sunlate: t("preview.win.sunlate"), sunnight: t("preview.win.sunnight"), mon: t("preview.win.mon"),
 }[w.slot] || esc(w.day));
 
-/* A row reads like a newspaper's index: the matchup and Claude's side with how sure he is, then the
-   serif headline. A take from before confidence keeps its winner and score right of the matchup. */
+/* The face a row leads with (storyboard option C, 2026-09-29): the player the headline is about, the
+   first of Claude's player calls whose first or last name the headline says ("Dak outguns ...",
+   "Love's arm ..."); failing that, his first call. No take, no face: the slot stays empty. */
+function pvFacePlayer(k){
+  if (!k || !k.players.length) return null;
+  const words = k.head.toLowerCase().match(/[a-z]+/g) || [];
+  const at = p => { const ns = p.n.toLowerCase().match(/[a-z]+/g) || [];
+    const hits = [ns[0], ns[ns.length - 1]].map(n => words.indexOf(n)).filter(i => i >= 0);
+    return hits.length ? Math.min(...hits) : Infinity; };
+  return k.players.reduce((best, p) => at(p) < at(best) ? p : best, k.players[0]);
+}
+
+/* A row reads like a newspaper's index: the matchup and a confident pick's word, then the serif
+   headline. A take from before confidence keeps its winner and score right of the matchup. */
 function pvRowHTML(g, i, cur){
-  const k = g.take, a = k && k.ats;
-  const right = a ? `<span class="pv-ats">${pvAtsHTML(g, a)}</span>`
+  /* Only a confident pick speaks on the slate (David, 2026-09-29: drop the "JAX getting 2.5"): its
+     word in lime. A slight pick or no pick draws nothing here; the game page says both. */
+  const k = g.take, a = k && k.ats, sure = a && a.side && (a.conf === "solid" || a.conf === "strong");
+  const right = a ? (sure ? `<span class="pv-ats">${pvConfHTML(a.conf)}</span>` : "")
     : k ? `<span class="pv-rs"><i>${esc(k.pick.winner)}</i> ${k.pick.score[k.pick.winner]}–${
       k.pick.score[k.pick.winner === g.home ? g.away : g.home]}</span>` : "";
+  const face = pvFacePlayer(k);
   return `<li><button class="pv-row${cur ? " cur" : ""}${pvDone(g) ? " done" : ""}" data-pvopen="${i}"${cur ? ` aria-current="true"` : ""}>
+    <span class="pv-hs" aria-hidden="true">${face ? headHTML(face) : ""}</span>
     <span class="pv-rm">${esc(g.away)} @ ${esc(g.home)}</span>${right}
     <span class="pv-rh">${k ? esc(k.head) : t("preview.slate.notake")}</span></button></li>`;
 }

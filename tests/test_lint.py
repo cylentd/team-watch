@@ -19,7 +19,8 @@ def test_hex_outside_tokens_fires():
 
 
 def test_hex_in_tokens_file_is_allowed():
-    assert lint_css.lint_css_text(lint_css.TOKENS, ":root{--lime:#c8ff2e}", TRIPLES) == []
+    for f in lint_css.TOKEN_FILES:                                       # tokens.css and newsprint.css
+        assert lint_css.lint_css_text(f, ":root{--lime:#c8ff2e}", TRIPLES) == [], f
 
 
 def test_hex_in_comment_or_data_uri_is_prose():

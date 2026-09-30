@@ -220,17 +220,34 @@ def test_a_row_is_the_call_then_the_headline(page):
     assert "Claude's call arrives" in page.inner_text("[data-pvopen='4']")
 
 
+@pytest.mark.render
+def test_the_slate_prints_on_newsprint_with_a_face_per_game(page):
+    """Storyboard option C (2026-09-29, David: "very clinical, so much black and white"): Preview maps
+    the page's inks onto the warm --np-* tokens, and each row leads with the face the headline is
+    about."""
+    colours = page.evaluate("""() => ['.pv-rm', "[data-pvopen='1'] .pv-rh"].map(s => getComputedStyle(document.querySelector(s)).color)""")
+    assert colours == ["rgb(241, 231, 208)", "rgb(201, 189, 163)"]      # --np-ink, --np-ink-2
+    faces = [page.locator(f"[data-pvopen='{i}'] .pv-hs img, [data-pvopen='{i}'] .pv-hs .fallback").count() for i in range(5)]
+    assert faces == [1, 1, 1, 1, 0]                                      # ATL @ NO: no take, no face
+    pick = page.evaluate("""() => [
+        pvFacePlayer({head: "Dak outguns a Collins-less Texans team", players: [{n: "Nico Collins"}, {n: "Dak Prescott"}]}).n,
+        pvFacePlayer({head: "Love's arm carries GB", players: [{n: "Josh Jacobs"}, {n: "Jordan Love"}]}).n,
+        pvFacePlayer({head: "Defense rules the day", players: [{n: "Josh Jacobs"}, {n: "Jordan Love"}]}).n]""")
+    assert pick == ["Dak Prescott", "Jordan Love", "Josh Jacobs"]       # first name, last name, else his first call
+
+
 def texts(pg, sel):
     return pg.evaluate("s => [...document.querySelectorAll(s)].map(e => e.innerText.replace(/\\s+/g, ' ').trim())", sel)
 
 
 @pytest.mark.render
-def test_a_row_carries_claudes_side_and_its_chip(page):
-    assert texts(page, ".pv-ats") == ["No pick", "JAX getting 3 Very confident", "DET giving 3.5 Confident", "SF getting 1.5 Slight"]
-    chips = page.evaluate("() => [...document.querySelectorAll('.pv-row .pv-conf')].map(c => c.className)")
-    assert chips == ["pv-conf none", "pv-conf strong", "pv-conf solid", "pv-conf lean"]
-    assert page.locator("[data-pvopen='4'] .pv-ats").count() == 0      # no take, no chip
-    assert page.locator("[data-pvopen='0'] .pv-side").count() == 0     # no edge: no side text
+def test_a_row_shows_only_a_confident_pick(page):
+    """David, 2026-09-29: drop the "JAX getting 2.5" from the slate; only Confident and Very
+    confident speak there. A slight pick, no pick and no take draw nothing right of the matchup."""
+    has = [page.locator(f"[data-pvopen='{i}'] .pv-ats").count() for i in range(5)]
+    assert has == [0, 1, 1, 0, 0]                                        # no pick, strong, solid, slight, no take
+    assert texts(page, ".pv-ats") == ["Very confident", "Confident"]
+    assert page.locator(".pv-row .pv-side").count() == 0
 
 
 def open_game(pg, i):

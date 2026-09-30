@@ -4,7 +4,23 @@
    beside the dossier. Colour map in slate.js, dossier.js and record.js; this file adds none of its
    own. The confidence chip and the win % bar (2026-09-29) are here because the slate, the dossier
    and the record all draw them. */
-.pv{padding-top:8px}
+/* Newsprint (2026-09-29, storyboard option C of https://claude.ai/artifact/U5vPm4p1QXxXYVzsCxrBcC):
+   Preview maps the page's surfaces and inks onto the warm --np-* tokens, so every rule below, the
+   game page and the record included, prints on paper without naming a colour of its own. The
+   ground is painted by a border-image fill that bleeds to both screen edges and on down past the
+   footer: ink overflow, so nothing scrolls sideways and the page grows no taller. */
+.pv{padding-top:8px;
+  --void:var(--np-ground);--void-rgb:var(--np-ground-rgb);
+  --panel:var(--np-panel);--panel-rgb:var(--np-panel-rgb);
+  --panel-2:var(--np-panel-2);--panel-2-rgb:var(--np-panel-2-rgb);
+  --panel-3:var(--np-panel-3);--panel-3-rgb:var(--np-panel-3-rgb);
+  --line:var(--np-line);--line-rgb:var(--np-line-rgb);
+  --line-2:var(--np-line-2);--line-2-rgb:var(--np-line-2-rgb);
+  --ink:var(--np-ink);--ink-rgb:var(--np-ink-rgb);
+  --ink-2:var(--np-ink-2);--ink-2-rgb:var(--np-ink-2-rgb);
+  --ink-3:var(--np-ink-3);--ink-3-rgb:var(--np-ink-3-rgb);
+  color:var(--ink);
+  border-image:conic-gradient(var(--np-ground) 0 0) fill 0 / 0 / 0 100vmax 100vmax}
 .pv .pv-dz{display:none}
 .pv.open .pv-slate{display:none}
 .pv.open .pv-dz{display:flex}
@@ -20,23 +36,26 @@
 .pv-wh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0;padding:8px 2px;border-top:2px solid var(--ink-2);font-family:var(--news);font-size:var(--t-4);font-weight:700;line-height:1.2;color:var(--ink)}
 .pv-wh em{font-family:var(--ui);font-size:var(--t-1);font-style:normal;font-weight:400;color:var(--ink-3);white-space:nowrap}
 .pv-win li:first-child .pv-row{border-top:0}
-/* A row is two lines, like a newspaper's index (2026-09-29, storyboard option C): the matchup and
-   Claude's side, then the serif headline. Only the matchup is loud (option B). */
-.pv-row{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 10px;align-items:center;padding:9px 2px;border:0;border-top:1px solid var(--line);background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+/* A row is two lines, like a newspaper's index (2026-09-29, storyboard option C): a face, the
+   matchup and a confident pick's word, then the serif headline. Only the matchup is loud. */
+.pv-row{width:100%;display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:2px 10px;align-items:baseline;padding:9px 2px;border:0;border-top:1px solid var(--line);background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
 .pv-row:hover{background:var(--panel)}
 .pv-row:focus-visible,.pv-back:focus-visible,.pv-arrow:focus-visible,.pv-p:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
-.pv-rm{font-family:var(--mono);font-size:var(--t-3);font-weight:700;letter-spacing:.02em;color:var(--ink);white-space:nowrap}
+/* The face: the player the headline is about, 40px round, beside both lines. */
+.pv-hs{grid-row:1/3;grid-column:1;align-self:center;width:40px;height:40px;border-radius:50%;overflow:hidden;background:var(--panel-2)}
+.pv-hs img,.pv-hs .fallback{width:100%;height:100%;object-fit:cover;display:grid;place-items:center;font-size:var(--t-1);color:var(--ink-3)}
+.pv-row.done .pv-hs{opacity:.6}
+.pv-rm{grid-row:1;grid-column:2;font-family:var(--mono);font-size:var(--t-3);font-weight:700;letter-spacing:.02em;color:var(--ink);white-space:nowrap}
 .pv-rs{font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 .pv-rs i{font-style:normal;color:var(--lime)}
-.pv-rh{grid-column:1/-1;font-family:var(--news);font-size:var(--t-3);font-weight:500;line-height:1.3;color:var(--ink-2);text-wrap:pretty}
+.pv-rh{grid-row:2;grid-column:2/-1;font-family:var(--news);font-size:var(--t-3);font-weight:500;line-height:1.3;color:var(--ink-2);text-wrap:pretty}
 .pv-row.cur .pv-rh{color:var(--ink)}
 .pv-row.done .pv-rm,.pv-row.done .pv-rs,.pv-row.done .pv-rh{color:var(--ink-3)}
 /* How sure Claude is (2026-09-29), in plain words (David: "don't use jargon"): Slight and No pick
    grey, Confident lime text, Very confident a lime fill. Lime is Claude, and only the confident
-   picks earn it. On the slate the side is grey; on the game page it keeps its weight. */
+   picks earn it, and only they show on the slate (no side there since 2026-09-29). */
 .pv-ats{display:flex;align-items:baseline;justify-content:flex-end;gap:6px;white-space:nowrap}
 .pv-side{font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink);white-space:nowrap}
-.pv-row .pv-side{font-weight:400;color:var(--ink-3)}
 .pv-conf{display:inline-block;padding:2px 0;border-radius:4px;font-family:var(--ui);font-size:var(--t-1);font-weight:500;line-height:1;color:var(--ink-3);white-space:nowrap}
 .pv-conf.strong{padding-inline:6px;background:var(--lime);color:var(--on-lime);font-weight:700}
 .pv-conf.solid{color:var(--lime);font-weight:700}

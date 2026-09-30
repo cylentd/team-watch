@@ -8,7 +8,7 @@ token triples the rgba rule looks for are read from base/tokens.css, so adding a
 is enough to have its literal form flagged everywhere else.
 
 Rules:
-    hex-outside-tokens     a colour literal anywhere but base/tokens.css
+    hex-outside-tokens     a colour literal anywhere but the token files (TOKEN_FILES)
     rgba-token-triple      rgba(r,g,b,...) spelling out a token's own channels
     font-family-literal    font-family not a var() (fonts are tokens too)
     font-size-literal      font-size not a var() of the type scale in base/base.css
@@ -28,6 +28,9 @@ from collections import namedtuple
 ROOT = pathlib.Path(__file__).resolve().parent
 SRC = ROOT / "src"
 TOKENS = "base/tokens.css"
+# Every part that holds colour tokens. newsprint.css (2026-09-29) is more of tokens.css's :root,
+# split out when tokens.css passed its 250-line budget; a hex is at home in either.
+TOKEN_FILES = (TOKENS, "base/newsprint.css")
 BASE = "base/base.css"       # the type scale lives here, so its px values are the tokens
 # 1100 is Waivers' wide layout only (surface/teams/wdesk.css): the rail as a right-hand column.
 BREAKPOINTS = {1100, 960, 760, 430}
@@ -105,7 +108,7 @@ def token_triple_agreement(tokens_css):
 def lint_css_text(rel, text, triples):
     """Findings for one CSS part. Pure, so the tests can feed it snippets."""
     found = []
-    is_tokens = rel == TOKENS
+    is_tokens = rel in TOKEN_FILES
     for n, line in enumerate(text.split("\n"), 1):
         code = re.sub(r"/\*.*?\*/", "", line)          # a hex in a comment is prose
         code = re.sub(r"url\([^)]*\)", "url()", code)  # a data: URI is not a colour
@@ -155,8 +158,7 @@ def duplicate_selectors(parts, acknowledged):
 
 
 def lint(src=SRC):
-    tokens_path = src / "css" / TOKENS
-    tokens_text = tokens_path.read_text(encoding="utf-8") if tokens_path.exists() else ""
+    tokens_text = "\n".join(p.read_text(encoding="utf-8") for p in (src / "css" / f for f in TOKEN_FILES) if p.exists())
     triples = token_triples(tokens_text)
     css = [(p.relative_to(src).as_posix().split("/", 1)[1], p.read_text(encoding="utf-8"))
            for p in sorted(q for q in (src / "css").rglob("*.css"))]
