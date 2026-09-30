@@ -187,6 +187,10 @@
   .tr-curses{grid-column:2;grid-row:1}
   .tr-decided{grid-column:1 / -1;grid-row:2}
   .tr-decided .tr-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:stretch}
+  /* A league with no curse to show (AYO, 2026-09-29) left the ranking's partner column empty: the
+     decided trades take it instead, one card per row (David chose this over lowering the curse bar). */
+  .tr-body:not(:has(.tr-curses)) .tr-decided{grid-column:2;grid-row:1}
+  .tr-body:not(:has(.tr-curses)) .tr-decided .tr-grid{grid-template-columns:minmax(0,1fr)}
   /* Every card in a row shares its row's four tracks, strip, headline, proof, payoff (subgrid): the
      tallest headline sets the track, so every card's trade rows start on one line, and the payoffs
      sit on one line at the bottom (David, 2026-09-29: "the body section should align"). */

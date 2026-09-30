@@ -54,7 +54,9 @@ def test_each_yahoo_league_names_its_blocks_and_files():
     assert leagues.blocks("ayo") == ("LIVE_AYO", "LIVE_LEAGUE_AYO", "LIVE_TRADES_AYO")
     assert leagues.file("ayo", "rosters") == "ayo_rosters.json" and leagues.file("yahoo", "rosters") == "league_rosters.json"
     assert leagues.private_file("yahoo").name == "league_private.json"
-    assert not leagues.private_file("ayo").exists(), "AYO has no private pairs yet"
+    assert leagues.private_file("ayo").name == "league_private_ayo.json"
+    # An empty list, not a missing file (David, 2026-09-29): missing withholds every series from the roast.
+    assert json.loads(leagues.private_file("ayo").read_text(encoding="utf-8"))["pairs"] == []
 
 
 # ---------------------------------------------------------------- (f) the contract covers the new blocks
