@@ -28,9 +28,9 @@
   transition:background .15s var(--ease),color .15s var(--ease),border-color .15s var(--ease);
 }
 .ts-item:last-child{border-bottom:0}
-/* 24 teams since 2026-09-25 (data/mates.js): the menu scrolls inside itself, a league's name
-   heads its twelve. */
-.ts-menu{max-height:min(62vh,460px);overflow-y:auto;overscroll-behavior:contain}
+/* A league's twelve on one screen (2026-09-29): Back, the league's name and 12 rows are ~530px, so
+   at 360 x 740 the cap is 76vh (562px). Shorter screens scroll inside the menu. */
+.ts-menu{max-height:min(76vh,580px);overflow-y:auto;overscroll-behavior:contain}
 .ts-head{position:sticky;top:0;z-index:1;padding:8px 13px 6px;background:var(--panel-3);
   font-family:var(--ui);font-size:var(--t-1);font-weight:700;color:var(--ink-2);border-bottom:1px solid var(--line)}
 /* My teams' first screen until a pick (teamswitch.js pickHTML): each league's twelve as a column of
@@ -57,9 +57,12 @@
    carries the divider, so the star's cell lines up with the name's. */
 .ts-row{display:flex;align-items:stretch;border-bottom:1px solid var(--line)}
 .ts-row:has(.ts-item[aria-selected="true"]){background:rgb(var(--lime-rgb) / .06)}
-/* One width, open or closed Leaguemates, so opening it never moves the menu sideways. */
+/* One width on every screen of the menu, so drilling into a league never moves it sideways. */
 .ts-menu{width:min(300px, calc(100vw - 32px))}
 .ts-row .ts-item{flex:1;min-width:0;border-bottom:0}
+/* The row carries the wash, star cell included; a second one on the name drew a box inside it. */
+.ts-row .ts-item[aria-selected="true"],.ts-row .ts-item:hover{background:none}
+.ts-row:has(.ts-item:hover){background:var(--panel-3)}
 .ts-item small{display:block;margin-top:2px;font-size:var(--t-1);color:var(--ink-3)}
 .ts-star{flex-shrink:0;width:44px;appearance:none;border:0;background:none;cursor:pointer;display:grid;place-items:center;color:var(--ink-3)}
 .ts-star svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linejoin:round}
@@ -68,15 +71,20 @@
 .ts-star:hover{color:var(--ink)}
 .ts-star:focus-visible{outline:2px solid var(--lime);outline-offset:-4px}
 .ts-empty{margin:0;padding:11px 13px;font-family:var(--ui);font-size:var(--t-2);color:var(--ink-3);border-bottom:1px solid var(--line)}
-/* The way to every other team: closed by default, so the menu is the reader's own teams. */
-.ts-more{display:flex;align-items:center;justify-content:space-between;width:100%;appearance:none;cursor:pointer;
-  padding:9px 13px;border:0;border-bottom:1px solid var(--line);background:var(--panel-3);
-  font-family:var(--ui);font-size:var(--t-2);font-weight:600;color:var(--ink-2)}
-.ts-more:hover{color:var(--ink)}
-.ts-more:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
-.ts-more .ts-chev{width:22px;height:22px}
-.ts-more[aria-expanded="true"] .ts-chev{transform:rotate(180deg);color:var(--lime)}
-.ts-head.sub{position:static;background:var(--panel-2);color:var(--ink-3)}
+/* The way to every other team (2026-09-29, option A): a row per league, and a tap swaps the menu for
+   that league's twelve. Back returns to the first screen. */
+.ts-league,.ts-back{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;appearance:none;cursor:pointer;
+  padding:10px 13px;border:0;border-bottom:1px solid var(--line);background:none;text-align:left;
+  font-family:var(--ui);font-size:var(--t-2);font-weight:600;color:var(--ink);
+  transition:background .15s var(--ease),color .15s var(--ease)}
+.ts-league:hover,.ts-back:hover{background:var(--panel-3)}
+.ts-league:focus-visible,.ts-back:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+.ts-lg-name{flex:1;min-width:0}
+.ts-lg-n{font-family:var(--mono);font-size:var(--t-1);font-weight:400;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.ts-go{flex-shrink:0;width:14px;height:14px;color:var(--ink-3)}
+.ts-back{position:sticky;top:0;z-index:2;background:var(--panel-2);color:var(--lime)}
+.ts-back .ts-go{color:currentColor}
+.ts-back + .ts-head{position:static}
 .ts-item:hover{background:var(--panel-3);color:var(--ink);border-left-color:var(--tint)}
 .ts-item[aria-selected="true"]{color:var(--ink);background:rgb(var(--lime-rgb) / .06);border-left-color:var(--tint)}
 

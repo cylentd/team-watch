@@ -26,25 +26,59 @@ def test_every_league_in_the_menu_is_on_top_where_a_finger_taps(browser, page_fi
     ctx.close()
 
 
-def test_the_menu_lists_followed_teams_and_leaguemates_on_request(browser, page_file):
-    """2026-09-26: the menu is the reader's own teams; every other team waits behind Leaguemates,
-    and a star moves one across, the menu staying open."""
+SHOWN = "[...document.querySelectorAll('.ts-menu .ts-item[data-k]')].map(b => b.dataset.k)"
+
+
+def test_the_menu_lists_followed_teams_and_a_league_on_request(browser, page_file):
+    """2026-09-26: the menu is the reader's own teams. Since 2026-09-29 every other team waits
+    behind its league's row (storyboard option A), and a star follows one, the menu staying open."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     drive(page, go("roster"))
     page.click("[data-tsbtn]")
-    shown = lambda: page.evaluate("[...document.querySelectorAll('.ts-menu .ts-item[data-k]')].map(b => b.dataset.k)")
-    assert sorted(shown()) == ["espn", "yahoo"], "unset, the list is David's two teams"
-    mates = page.evaluate("MATES.map(m => m.key)")
-    if not mates:
+    assert sorted(page.evaluate(SHOWN)) == ["espn", "yahoo"], "unset, the list is David's two teams"
+    lg = page.evaluate("MATES[0]?.league || null")
+    if not lg:
         pytest.skip("the fixture has no leaguemates")
-    page.click("[data-tsmore]")
-    assert set(shown()) == {"espn", "yahoo", *mates}
+    mates = page.evaluate(f"mateKeys('{lg}').sort(tsByName)")
+    page.click(f"[data-tsleague='{lg}']")
+    assert page.evaluate(SHOWN) == [lg, *mates], "David's team first, then by name"
     page.click(f"[data-follow='{mates[0]}']")
     assert page.locator("[data-tsmenu]").is_visible(), "a star keeps the menu open"
-    followed = page.evaluate("[...document.querySelectorAll('.ts-star[aria-pressed=true]')].map(b => b.dataset.follow)")
-    assert followed == ["yahoo", "espn", mates[0]]
+    page.click("[data-tsback]")
+    assert page.evaluate(SHOWN) == ["yahoo", "espn", mates[0]], "Back shows the first screen, the new follow in it"
+    assert page.evaluate("document.activeElement.dataset.tsleague") == lg, "focus returns to the league's row"
     page.click("[data-follow='yahoo']")
-    assert page.get_attribute("[data-follow='yahoo']", "aria-pressed") == "false", "unfollowed, it moves down to Leaguemates"
+    assert "yahoo" not in page.evaluate(SHOWN), "unfollowed, it leaves Following"
     assert page.evaluate("JSON.parse(localStorage.getItem('tw-follow'))") == ["espn", mates[0]]
+    assert errors == []
+    ctx.close()
+
+
+def test_a_whole_league_fits_the_menu_on_a_phone(browser, page_file):
+    """Option A's point: a league's twelve on screen without scrolling the menu, at 360 x 740."""
+    ctx, page, errors = open_page(browser, page_file, (360, 740))
+    drive(page, go("roster"))
+    page.click("[data-tsbtn]")
+    if not page.locator("[data-tsleague]").count():
+        pytest.skip("the fixture has no leaguemates")
+    page.click("[data-tsleague]")
+    over = page.evaluate("(m => m.scrollHeight - m.clientHeight)(document.querySelector('[data-tsmenu]'))")
+    assert over <= 1, f"the league's list scrolls {over}px inside the menu"
+    assert page.evaluate("document.activeElement.matches('[data-tsback]')"), "focus moves to Back"
+    assert errors == []
+    ctx.close()
+
+
+def test_the_menu_opens_on_the_league_of_an_unfollowed_team(browser, page_file):
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    drive(page, go("roster"))
+    mate = page.evaluate("MATES.map(m => m.key)[0] || null")
+    if not mate:
+        pytest.skip("the fixture has no leaguemates")
+    # Viewed, not picked: a pick follows the team by default (data/mates.js followLoad).
+    page.evaluate(f"VIEW = '{mate}'; render()")
+    page.click("[data-tsbtn]")
+    assert page.locator("[data-tsback]").is_visible()
+    assert page.get_attribute(f".ts-item[data-k='{mate}']", "aria-selected") == "true"
     assert errors == []
     ctx.close()

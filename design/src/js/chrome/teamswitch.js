@@ -1,11 +1,15 @@
 /* The team switch. It used to live in the navbar next to the tabs, crowding them on mobile; now
    it rides the hero's own eyebrow line, which already has the room and is where a reader looks
    first to confirm which team they're on. Since 2026-09-26 it lists the teams the reader follows
-   (data/mates.js followLoad) and the leagues they connected (data/connect.js); every other team
-   in David's two leagues waits behind "Leaguemates", under each league's name, with a star to
-   follow it. Then "Add a league" for a team in another league. */
-const TS_LEAGUES = ["yahoo", "espn"];
-let TS_MORE = false;          // the Leaguemates list is open
+   (data/mates.js followLoad) and the leagues they connected (data/connect.js). Under them, one row
+   per league of David's (2026-09-29, storyboard option A, for a third league): a tap swaps the
+   menu for that league's twelve, each with a star to follow it, and a Back row. Then "Add a
+   league" for a team in another league. */
+let TS_LEAGUE = null;         // the league the menu is showing, or null for the first screen
+/* David's leagues, keyed by his team in each: every TEAMS entry that is neither a leaguemate nor
+   connected. Read when drawn, since data/mates.js adds the leaguemates to TEAMS at load. */
+const tsLeagues = () => Object.keys(TEAMS).filter(k => !TEAMS[k].mate && !TEAMS[k].connected);
+const tsLeagueOf = k => TEAMS[k].mate ? TEAMS[k].league : k;
 const tsByName = (a, b) => TEAMS[a].name.localeCompare(TEAMS[b].name, undefined, {sensitivity: "base"});
 const tsLeagueName = k => esc(TEAMS[k].meta[TEAMS[k].meta.length - 1]);
 const tsFollowed = () => [...followLoad(), ...connectedKeys()];
@@ -13,29 +17,42 @@ const TS_STAR = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.8l1.9
 
 /* One team: tap the name to view it, the star to follow or unfollow. A connected league has no
    star; the Add a league sheet removes it. The league's name under the team only in Following,
-   which mixes leagues; under Leaguemates the heading already says it. */
-function tsRowHTML(k, followed){
-  const lg = followed ? `<small>${tsLeagueName(k)}</small>` : "";
+   which mixes leagues; in a league's list the heading already says it. */
+function tsRowHTML(k, followed, showLeague = followed){
+  const lg = showLeague ? `<small>${tsLeagueName(k)}</small>` : "";
   const tm = TEAMS[k], star = tm.connected ? "" : `<button class="ts-star" type="button" data-follow="${esc(k)}" aria-pressed="${followed}"
     aria-label="${followed ? t("chrome.teamswitch.unfollow", {team: esc(tm.name)}) : t("chrome.teamswitch.follow", {team: esc(tm.name)})}">${TS_STAR}</button>`;
   return `<div class="ts-row" style="--tint:${tm.tint}"><button class="ts-item" role="option" data-k="${esc(k)}" aria-selected="${k === VIEW}">${esc(tm.name)}${lg}</button>${star}</div>`;
 }
 function tsMenuHTML(){
-  const mine = tsFollowed(), rest = TS_LEAGUES.map(lg => [lg, [lg, ...mateKeys(lg)].filter(k => !mine.includes(k)).sort(tsByName)]);
-  const n = rest.reduce((s, [, ks]) => s + ks.length, 0);
+  return TS_LEAGUE ? tsLeagueHTML(TS_LEAGUE) : tsRootHTML();
+}
+/* The first screen: the reader's teams, then a row per league. A league row only when it has
+   leaguemates on the page; with none, David's team there is the whole league. */
+function tsRootHTML(){
+  const mine = tsFollowed(), lgs = tsLeagues().filter(lg => mateKeys(lg).length);
   return `<div class="ts-head" role="presentation">${t("chrome.teamswitch.following")}</div>
     ${mine.length ? mine.map(k => tsRowHTML(k, true)).join("") : `<p class="ts-empty">${t("chrome.teamswitch.empty")}</p>`}
-    ${n ? `<button class="ts-more" type="button" data-tsmore aria-expanded="${TS_MORE}">${t("chrome.teamswitch.mates", {n})}<span class="ts-chev">${TS_CHEV}</span></button>` : ""}
-    ${TS_MORE ? rest.filter(([, ks]) => ks.length).map(([lg, ks]) => `<div class="ts-head sub" role="presentation">${tsLeagueName(lg)}</div>
-      ${ks.map(k => tsRowHTML(k, false)).join("")}`).join("") : ""}
+    ${lgs.length ? `<div class="ts-head" role="presentation">${t("chrome.teamswitch.leagues")}</div>
+    ${lgs.map(lg => `<button class="ts-league" type="button" data-tsleague="${esc(lg)}">
+      <span class="ts-lg-name">${tsLeagueName(lg)}</span><span class="ts-lg-n">${1 + mateKeys(lg).length}</span>${TS_NEXT}</button>`).join("")}` : ""}
     <button class="ts-item ts-add" data-tsadd>${t("connect.add")}</button>
     ${discordItemHTML()}`;
+}
+/* One league: all its teams, David's first, then by name, each starred when followed. */
+function tsLeagueHTML(lg){
+  const mine = tsFollowed(), ks = [lg, ...mateKeys(lg).sort(tsByName)];
+  return `<button class="ts-back" type="button" data-tsback>${TS_BACK}${t("chrome.teamswitch.back")}</button>
+    <div class="ts-head" role="presentation">${tsLeagueName(lg)}</div>
+    ${ks.map(k => tsRowHTML(k, mine.includes(k), false)).join("")}`;
 }
 
 /* The chevron sits in its own round well (2026-09-25): a bare ▾ after a long team name read as
    punctuation, so readers never found the switch. The league dot before the name went the same
    day: "YAHOO" is spelled out on the line under it, so the dot was a colour code saying it again. */
 const TS_CHEV = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const TS_NEXT = `<svg class="ts-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const TS_BACK = `<svg class="ts-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 4L6 8l4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 function teamSwitchHTML(){
   const cur = TEAMS[VIEW] || TEAMS.yahoo;
   return `<div class="teamswitch" id="switch" style="--tint:${cur.tint}">
@@ -55,7 +72,7 @@ function pickHTML(){
     <ul>${[lg, ...mateKeys(lg)].sort(tsByName).map(k => `<li><button type="button" class="tp-team" data-pick="${esc(k)}"
       style="--tint:${TEAMS[k].tint}">${esc(TEAMS[k].name)}</button></li>`).join("")}</ul></section>`;
   return `<div class="wrap tp"><h1>${t("chrome.pick.title")}</h1><p class="tp-sub">${t("chrome.pick.sub")}</p>
-    <div class="tp-grid">${TS_LEAGUES.map(group).join("")}</div>
+    <div class="tp-grid">${tsLeagues().map(group).join("")}</div>
     <button type="button" class="tp-add" data-tpadd>${t("chrome.pick.add")}</button></div>`;
 }
 function wirePick(v){
@@ -97,20 +114,37 @@ function wireTeamSwitch(v){
   btn.addEventListener("click", e=>{
     e.stopPropagation();
     const open = menu.hidden;
+    if (open){
+      // It opens where the team on screen is: the first screen, or its league when not followed.
+      TS_LEAGUE = VIEW in TEAMS && !TEAMS[VIEW].connected && !tsFollowed().includes(VIEW) ? tsLeagueOf(VIEW) : null;
+      menu.innerHTML = tsMenuHTML();
+      menu.scrollTop = 0;
+      wireTsMenu(sw, menu);
+    }
     menu.hidden = !open;
     btn.setAttribute("aria-expanded", String(open));
   });
   wireTsMenu(sw, menu);
 }
-/* The menu's own controls. A star or the Leaguemates toggle redraws the menu in place, open; each
-   stops its click, because the document's close-on-outside listener (nav.js) would otherwise see
-   a target the redraw has already detached and close the menu. */
+/* The menu's own controls. A star, a league or Back redraws the menu in place, open; each stops
+   its click, because the document's close-on-outside listener (nav.js) would otherwise see a
+   target the redraw has already detached and close the menu. Focus lands where the eye goes:
+   Back after drilling in, the league's row after coming out. */
 function wireTsMenu(sw, menu){
   const redraw = () => { menu.innerHTML = tsMenuHTML(); wireTsMenu(sw, menu); };
-  menu.querySelector("[data-tsmore]")?.addEventListener("click", e => {
+  menu.querySelectorAll("[data-tsleague]").forEach(b => b.addEventListener("click", e => {
     e.stopPropagation();
-    TS_MORE = !TS_MORE;
+    TS_LEAGUE = b.dataset.tsleague;
     redraw();
+    menu.scrollTop = 0;
+    menu.querySelector("[data-tsback]")?.focus();
+  }));
+  menu.querySelector("[data-tsback]")?.addEventListener("click", e => {
+    e.stopPropagation();
+    const from = TS_LEAGUE;
+    TS_LEAGUE = null;
+    redraw();
+    menu.querySelector(`[data-tsleague="${CSS.escape(from)}"]`)?.focus();
   });
   menu.querySelectorAll("[data-follow]").forEach(b => b.addEventListener("click", e => {
     e.stopPropagation();
@@ -118,7 +152,7 @@ function wireTsMenu(sw, menu){
     redraw();
     menu.querySelector(`[data-follow="${CSS.escape(b.dataset.follow)}"]`)?.focus();
   }));
-  menu.querySelector("[data-tsadd]").addEventListener("click", () => {
+  menu.querySelector("[data-tsadd]")?.addEventListener("click", () => {
     menu.hidden = true;
     connectOpen();
   });
