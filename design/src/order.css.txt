@@ -62,6 +62,8 @@ surface/usage/usage.css
 # pin: board.css after pool.css -- the Board's controls are pool.css's .filters and .chip, and
 #      this file only adds beside them. It defines no selector either of them owns.
 surface/board/board.css
+# pin: board/hero.css after board.css -- it overrides the wall's .bd-hero-img and .bd-hero-txt.
+surface/board/hero.css
 component/lead.css
 # pin: matchups.css after pool.css -- its rows reuse .xf-head, and its controls .filters and .chip.
 surface/matchups/matchups.css

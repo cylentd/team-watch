@@ -1,0 +1,32 @@
+/* ============================== LEADERS: THE #1 ON THE WALL ==============================
+   2026-09-29 (David: "fix this on desktop for all the Players > Leaders tabs"). From 1100px the #1's
+   card is as tall as the two lists beside it (board.css), and its number and name standing on the
+   floor beside a 280px photo left ~500px of empty gradient above them at 1920x1080.
+
+   It reads top down now: the rank, the number, the name, then where he ranks on his position's
+   other stats (leaders.js bdHeroAlsoHTML); the photo takes what is left of the card's height, in a
+   row of its own, so no text sits on it. The card is a size container: the lists set its height
+   (fit.js), never its contents, and the other stats show only in a card with room for them and a
+   photo (600px+). A phone's 156px card draws neither. */
+
+.bd-hero-also{display:none}
+
+@media (min-width:1100px){
+  .bd-hero{container-type:size;grid-template-rows:auto minmax(0,1fr)}
+  .bd-hero-txt{grid-row:1;padding:20px 24px 8px;max-width:none}
+  .bd-hero-txt > .bd-hero-rk{margin-bottom:6px}
+  /* Up to 420px tall: the 512px cut (headSrcset) keeps it sharp. */
+  .bd-hero-img{position:relative;right:auto;grid-row:2;justify-self:end;align-self:end;
+    height:100%;max-height:420px;min-height:0;width:auto;margin-right:-12px}
+  .bd-hero-also-h{font-size:var(--t-1);font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+  .bd-hero-also ul{margin:0;padding:0;list-style:none;display:grid}
+  .bd-hero-also li{display:grid;grid-template-columns:minmax(0,1fr) auto 52px;gap:8px;align-items:baseline;
+    padding:7px 0;border-bottom:1px solid var(--line);font-size:var(--t-2);color:var(--ink-2)}
+  .bd-hero-also li:last-child{border-bottom:0}
+  .bd-hero-also li b{font:700 var(--t-3)/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+  .bd-hero-also li small{font:500 var(--t-1)/1 var(--mono);color:var(--ink-3)}
+}
+/* After the name (order): the #1's own number leads. */
+@container (min-height:600px){
+  .bd-hero-also{display:grid;gap:6px;margin-top:18px;order:1}
+}

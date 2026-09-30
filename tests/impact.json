@@ -73,7 +73,7 @@
       "render": ["usage"]
     },
     "board": {
-      "paths": ["design/src/js/surface/board/", "design/src/js/data/pool.js", "design/pool.py"],
+      "paths": ["design/src/js/surface/board/", "design/src/css/surface/board/hero.css", "design/src/js/data/pool.js", "design/pool.py"],
       "tests": ["tests/test_pool.py"],
       "render": ["board"]
     },

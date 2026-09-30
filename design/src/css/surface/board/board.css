@@ -235,8 +235,7 @@
      440px floor pushed the pager past the bottom edge of a 640px window. */
   .bd-hero{grid-column:1;grid-row:1;align-self:stretch;
     min-height:260px;border:1px solid var(--line);border-radius:14px}
-  .bd-hero-img{max-height:280px}
-  .bd-hero-txt{padding:20px 24px 24px}
+  /* The card's inside on the wall is hero.css's (2026-09-29). */
   .bd-side{display:contents}
   .bd-side > *{grid-column:2}
   .bd-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;align-items:start}

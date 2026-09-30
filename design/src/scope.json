@@ -14,6 +14,7 @@
     "surface/chat/chat.css": ["#chatdock", ".navbar"],
     "surface/dfs/lineup.css": ["dfs"],
     "surface/dfs/table.css": ["dfs"],
+    "surface/board/hero.css": ["board"],
     "surface/digest/bodies.css": ["digest"],
     "surface/digest/lead.css": ["digest"],
     "surface/digest/ticker.css": ["digest"],

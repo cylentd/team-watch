@@ -68,6 +68,19 @@ function bdTabsHTML(axes, sel){
 /* The photo names every size cut (headSrcset): the hero draws it up to ~220px tall, so a 2x or 3x
    screen takes the 512px file, and the 96px one stretched to that was visibly soft. Above the fold,
    so not lazy, and so it states its size rather than sizes="auto". */
+/* Where the #1 ranks on every other stat of his position, in the tabs' order (2026-09-29, David:
+   "fix this on desktop"). From 1100px the card is as tall as the two lists beside it, and the
+   number and the name standing on its floor left ~500px of empty gradient above them at 1920x1080;
+   this is the flip through the tabs a reader would otherwise do by hand. Text, not links: the card
+   is one button. A phone's 156px card does not draw it (board.css). */
+function bdHeroAlsoHTML(top, cur){
+  const rows = bdAxes(top.pos).filter(a => a.id !== cur).map(a => {
+    const ranked = bdRanked(top.pos, a.id), i = ranked.findIndex(r => r.slug === top.slug);
+    return i < 0 ? "" : `<li><span>${esc(axisName(a))}</span><b>${t("board.hero.alsoRank", {n: i + 1})}</b><small>${t("board.hero.alsoOf", {n: ranked.length})}</small></li>`;
+  }).join("");
+  return rows ? `<span class="bd-hero-also"><span class="bd-hero-also-h">${t("board.hero.also")}</span><ul>${rows}</ul></span>` : "";
+}
+
 function bdHeroHTML(a, top, n, picked){
   const lg = typeof HEADS_LG !== "undefined" && HEADS_LG ? HEADS_LG[top.slug] : null;
   const src = lg || HEADS[top.slug], set = headSrcset(top.slug);
@@ -78,6 +91,7 @@ function bdHeroHTML(a, top, n, picked){
     ${head}
     <span class="bd-hero-txt">
       <span class="bd-hero-rk">${t("board.hero.rank", {n})}</span>
+      ${bdHeroAlsoHTML(top, a.id)}
       <span class="bd-hero-v">${usageFmt(top.val, a.fmt)}<small>${esc(a.label)}</small></span>
       <span class="bd-hero-who"><b>${esc(top.n)}</b><span>${t("board.hero.meta", {team: esc(top.team || ""), g: top.g || 0})}</span></span>
       ${elite}
