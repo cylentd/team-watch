@@ -86,6 +86,8 @@ surface/digest/tonight.css
 surface/digest/results.css
 surface/digest/headlines.css
 surface/digest/wait.css
+surface/digest/tabs.css
+surface/digest/ahead.css
 # pin: digest/wall.css after lead.css, ticker.css, bodies.css and tonight.css -- it rearranges all four from
 #      1100px up, and component/lead.css's 960px sticky column is what it undoes.
 surface/digest/wall.css

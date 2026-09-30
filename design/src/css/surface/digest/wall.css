@@ -55,7 +55,7 @@
     display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:20px;border-top:0;
     grid-template-areas:
       "hurt hurt hurt hurt hurt mu   mu   mu   mu   wx   wx   wx"
-      "start start start start start adds adds adds adds st st st"
+      "start start start start start start adds adds adds adds adds adds"
       "t5   t5   t5   t5   t5   t5   t5   t5   gems gems gems gems"
       "news news news news news news news news news news news news";
   }
@@ -67,7 +67,7 @@
     grid-template-areas:
       "res  res  res  res  res  res  res  res  res  res  res  res"
       "hurt hurt hurt hurt hurt mu   mu   mu   mu   wx   wx   wx"
-      "start start start start start adds adds adds adds st st st"
+      "start start start start start start adds adds adds adds adds adds"
       "t5   t5   t5   t5   t5   t5   t5   t5   gems gems gems gems"
       "news news news news news news news news news news news news";
   }
@@ -75,7 +75,7 @@
     grid-template-areas:
       "tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn"
       "hurt hurt hurt hurt hurt mu   mu   mu   mu   wx   wx   wx"
-      "start start start start start adds adds adds adds st st st"
+      "start start start start start start adds adds adds adds adds adds"
       "t5   t5   t5   t5   t5   t5   t5   t5   gems gems gems gems"
       "news news news news news news news news news news news news";
   }
@@ -84,7 +84,7 @@
       "tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn"
       "res  res  res  res  res  res  res  res  res  res  res  res"
       "hurt hurt hurt hurt hurt mu   mu   mu   mu   wx   wx   wx"
-      "start start start start start adds adds adds adds st st st"
+      "start start start start start start adds adds adds adds adds adds"
       "t5   t5   t5   t5   t5   t5   t5   t5   gems gems gems gems"
       "news news news news news news news news news news news news";
   }
@@ -101,23 +101,25 @@
       "start start start start adds adds adds adds gems gems gems gems"
       "news news news news news news news news news news news news";
   }
-  /* The week is over and its preview panels wait on the next (wait.js): the wait card and the three
-     panels that still have something say it in one row of four, all about as tall. Given Hurt's
-     tall slot it stood half empty (2026-09-29). Tonight's card, while it shows, comes first, so the
-     wait never meets it (dgWaiting). */
+  /* The week is over and its preview panels wait on the next (wait.js). Tonight's card, while it
+     shows, comes first, so the wait never meets it (dgWaiting). */
   /* Every row the ticker can draw needs its area here: a row whose area is missing makes the grid
      invent columns for it, and every band shrinks to a sliver (Starters, 2026-09-29: the wait card's
      branch predated the row). test_every_wall_row_has_its_area checks each state. */
+  /* Top 5 and Weather stay out of the wait since 2026-09-29 (they read next week's data), so they
+     share its row: the wait, next week's Top 5, the weather ahead. */
   .dg-ticker.wk-done{
     grid-template-areas:
-      "wait wait wait adds adds adds st   st   st   gems gems gems"
+      "wait wait wait wait t5   t5   t5   t5   wx   wx   wx   wx"
+      "adds adds adds adds adds adds gems gems gems gems gems gems"
       "start start start start start start start start start start start start"
       "news news news news news news news news news news news news";
   }
   .dg-ticker.wk-done.has-res{
     grid-template-areas:
       "res  res  res  res  res  res  res  res  res  res  res  res"
-      "wait wait wait adds adds adds st   st   st   gems gems gems"
+      "wait wait wait wait t5   t5   t5   t5   wx   wx   wx   wx"
+      "adds adds adds adds adds adds gems gems gems gems gems gems"
       "start start start start start start start start start start start start"
       "news news news news news news news news news news news news";
   }
@@ -129,7 +131,6 @@
   .dg-row[data-dgrow="mu"]{grid-area:mu}
   .dg-row[data-dgrow="wx"]{grid-area:wx}
   .dg-row[data-dgrow="adds"]{grid-area:adds}
-  .dg-row[data-dgrow="st"]{grid-area:st}
   .dg-row[data-dgrow="t5"]{grid-area:t5}
   .dg-row[data-dgrow="gems"]{grid-area:gems}
   .dg-row[data-dgrow="news"]{grid-area:news}

@@ -667,6 +667,26 @@ replaced about 1,000px of desktop panels saying "Nothing new". Storyboard:
 https://claude.ai/artifact/UDoWgLMrzUHup5tX53zaue (option B). Top 5 links to Ranks, the same
 projections for every player (it linked to Leaders until then).
 
+**Six fixes (2026-09-29, storyboard https://claude.ai/artifact/Ms6FbdvynVPoRTKEidPGAz; David picked
+1B 2A 3A 5A 6A, and cut 4).**
+- **Risers & fallers cut (4):** its move (the books' implied points against his last game) cleared its
+  0.5 bar for 45 of 64 priced players in week 4, only 11 moved past one sector's usual wobble, part
+  of every move was the opponent changing, and it failed its backtest (ff-jarvis METHODOLOGY 12.46).
+  The Stock row in the table above is superseded; Role reads a changing role from the work itself.
+- **Board (1B):** each position a display heading (`--t-5`, `--t-6` on the wall) over rows of name, his
+  day and points; no faces (the tiles keep them). Two positions a row on a phone, four on the wall.
+  K and DST would take the same shape; ff-jarvis's results carry QB-TE only.
+- **Lists (2A):** Smashed, Busts and Left hurt are one panel under one tab bar (`tabs.js`), counts in
+  each list's colour; two columns on the wall. Three toggles side by side read as one panel.
+- **Icons (3A):** a 16px drawn icon before every topic's label (`icons.js`), stroked in the label's colour.
+- **Top 5 (5A):** reads `LIVE_RANKS`, the rows Ranks draws, under QB RB WR TE FLEX tabs: place, name
+  over his game, injury tag, tier, projection. The packet's top5 emptied once its week began, so the
+  wait card said "projections land Tuesday" while Ranks already had next week.
+- **Weather (6A):** reads the Weather view (`wtRows().moves`, games still to come): "Rain in 4 games",
+  each game opened, a link to Weather. A calm week draws no row on a phone and one sentence on the wall.
+  The packet's 15 mph / 50% list was a second rule beside the tab's backtested one.
+- Top 5 and Weather left the wait card; on the wall they share its row.
+
 ## Takes (Players; was Matchups, redesigned 2026-09-26, renamed and made one list 2026-09-29)
 
 Where we disagree with the experts, every position in one list (storyboard

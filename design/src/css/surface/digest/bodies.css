@@ -28,24 +28,11 @@
 
 /* Top 5: four short lists, five rows each, two across on a phone and four on a desktop. */
 .dg-t5{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 14px;padding-top:6px}
-.dg-t5 h4,.dg-two h4{margin:0 0 4px;font-size:var(--t-1);font-weight:600;line-height:1;letter-spacing:.07em;color:var(--ink-3)}
+.dg-t5 h4{margin:0 0 4px;font-size:var(--t-1);font-weight:600;line-height:1;letter-spacing:.07em;color:var(--ink-3)}
 .dg-t5 ol{margin:0;padding:0;list-style:none;display:grid;gap:3px}
 .dg-t5 li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;font-size:var(--t-2)}
 .dg-t5 li span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dg-t5 li em{font-style:normal;font-family:var(--mono);color:var(--ink-2);font-variant-numeric:tabular-nums}
-
-/* Stock: who rose beside who fell, one row each. */
-.dg-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 14px;padding-top:6px}
-.dg-mv{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center;min-height:26px;font-size:var(--t-2)}
-/* A name is a button to his profile (2026-09-29): the row's look, a button's behaviour. */
-button.dg-mv{width:100%;padding:0 4px;margin:0 -4px;border:0;border-radius:6px;background:none;color:inherit;
-  font-family:var(--ui);text-align:left;cursor:pointer;transition:background-color .15s var(--ease)}
-@media (hover:hover){ button.dg-mv:hover{background:var(--panel-2)} }
-button.dg-mv:focus-visible{outline:2px solid var(--lime);outline-offset:1px}
-.dg-mv span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dg-mv em{font-style:normal;font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums}
-.dg-mv em.up{color:var(--up)}
-.dg-mv em.dn{color:var(--down)}
 
 /* A short list's number in its colour: Tonight's moves and who is out. */
 .dg-t5 li em.up{color:var(--up)}

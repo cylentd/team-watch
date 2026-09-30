@@ -4,7 +4,7 @@
 
 /* The ticker, top to bottom. Each id is one topic and one row. Results shows only once a game is
    final (2026-09-28): an empty "Results" row all week would be noise. */
-const DG_ROWS = ["res", "hurt", "start", "mu", "wx", "adds", "t5", "st", "gems", "news"];
+const DG_ROWS = ["res", "hurt", "start", "mu", "wx", "adds", "t5", "gems", "news"];
 const DG_POS = ["QB", "RB", "WR", "TE"];
 
 /* The row the reader opened by hand ("" when he closed it); null until the first tap, and while
@@ -49,15 +49,14 @@ function dgLeadAfter(d, c){
    when its games are all the week has left (`tonight_last`), the week's preview rows go too. */
 const DG_TN_BEFORE = 18 * 3600e3, DG_TN_AFTER = 4 * 3600e3;
 /* Starters stays: a change after a team's game is next week's news, not this slot's preview. */
-const DG_TN_ROWS = ["hurt", "mu", "wx", "t5", "st"];
+const DG_TN_ROWS = ["hurt", "mu", "wx", "t5"];
 function dgTonightCut(c, now){
   const tn = (c.tonight || []).filter(g => { const k = Date.parse(g.ko); return now >= k - DG_TN_BEFORE && now < k + DG_TN_AFTER; });
   if (!tn.length) return {...c, tn: [], tnLast: false};
   const teams = new Set(tn.flatMap(g => [g.away, g.home]));
   const off = r => !teams.has(r.team), offGame = g => !teams.has(g.home) && !teams.has(g.away);
   return {...c, tn, tnLast: !!c.tonight_last, hurt: c.hurt.filter(off),
-          best: c.best.filter(off), top5: c.top5.filter(off),
-          up: c.up.filter(off), down: c.down.filter(off), wx: c.wx.filter(offGame), near: c.near && offGame(c.near) ? c.near : null};
+          best: c.best.filter(off), top5: c.top5.filter(off), wx: c.wx.filter(offGame), near: c.near && offGame(c.near) ? c.near : null};
 }
 
 /* Cut once per half minute, not once per row: every row asks dgD() several times a render. */
@@ -77,12 +76,29 @@ function dgWeekDone(d){
   return games.length > 0 && games.every(g => Date.parse(g.kickoff) <= now);
 }
 
+/* Top 5 is Ranks' own rows (2026-09-29, storyboard https://claude.ai/artifact/Ms6FbdvynVPoRTKEidPGAz,
+   5A; David: "it's supposed to be forward looking"). The packet's top5 is cut from the week the
+   digest was written, so it emptied once that week's games began, and the wait card said
+   "projections land Tuesday" while Ranks already showed next week's. Reading LIVE_RANKS, the two can
+   never disagree. A game under way leaves, and so do tonight's teams, whose card holds them. */
+const DG_T5_POS = ["QB", "RB", "WR", "TE", "FLEX"];
+function dgTop5(d, pos){
+  const now = Date.now(), tn = new Set((d.tn || []).flatMap(g => [g.away, g.home]));
+  return rkList(pos).filter(r => !(r.kick && Date.parse(r.kick) <= now) && !tn.has(r.team)).slice(0, 5);
+}
+
+/* Weather is the Weather view's own reading (2026-09-29, the same storyboard, 6A; David: "the next
+   tab over is the weather and it's actually already live"): only a forecast that meets a condition
+   the backtest proved (data/weather.js wtRows), and only for a game still to come. The packet's
+   15 mph / 50% list was a second rule that disagreed with the tab beside it. */
+const dgWxMoves = () => wtRows().moves.filter(r => !r.done);
+
 /* Does the section hold anything at all. An empty one says "nothing new" and cannot open. */
 function dgHas(id){
   const d = dgD();
   if (!d) return false;
   return {res: d.finals.length || d.stars.length, hurt: d.hurt.length, start: d.starters.length, mu: d.best.length || d.calls,
-          wx: d.wx.length || d.near, adds: d.adds.length, t5: d.top5.length, st: d.up.length || d.down.length,
+          wx: dgWxMoves().length, adds: d.adds.length, t5: dgTop5(d, "QB").length,
           gems: d.gems.length, news: d.news.length}[id] ? true : false;
 }
 
@@ -91,13 +107,13 @@ function dgHas(id){
 function dgNew(id){
   const d = dgD();
   if (id === "hurt") return !!d && d.hurt.some(r => r.new);
-  if (id === "wx") return !!d && d.wx.length > 0;
   return dgHas(id);
 }
 
 /* The week's preview rows, and whether they are waiting on next week: every game has kicked off
-   and tonight's card is gone. They then leave the ticker for one card (surface/digest/wait.js). */
-const DG_WAIT_ROWS = ["hurt", "mu", "wx", "t5"];
+   and tonight's card is gone. They then leave the ticker for one card (surface/digest/wait.js).
+   Weather and Top 5 no longer wait (2026-09-29): both read next week's data the page already has. */
+const DG_WAIT_ROWS = ["hurt", "mu"];
 const dgWaiting = d => !!d && !d.tn.length && dgWeekDone(d);
 
 /* Is the row drawn at all: Results once a game is final, and the week's preview rows unless

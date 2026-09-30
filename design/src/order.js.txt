@@ -98,10 +98,13 @@ surface/preview/preview.js
 data/digest.js
 data/gameday/score.js
 data/gameday/espn.js
+surface/digest/icons.js
+surface/digest/tabs.js
 surface/digest/lead.js
 surface/digest/results.js
 surface/digest/headlines.js
 surface/digest/rows.js
+surface/digest/ahead.js
 surface/digest/tonight.js
 surface/digest/wait.js
 surface/digest/digest.js

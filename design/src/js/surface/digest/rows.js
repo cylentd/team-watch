@@ -65,20 +65,6 @@ function dgMuBody(d){
   return lines + dgFootHTML(rec, "matchups", d.calls === 1 ? t("digest.go.matchupsOne") : t("digest.go.matchups", {n: d.calls}));
 }
 
-function dgWxLnHTML(g, near){
-  const kind = dgWxKind(g);
-  const meta = near ? t("digest.wx.near", {kick: esc(g.kick || "")})
-    : [g.kick ? esc(g.kick) : "", g.temp_f != null ? t("digest.lead.wx.temp", {f: g.temp_f}) : "", g.short ? esc(g.short) : ""].filter(Boolean).join(" · ");
-  const num = kind === "wind" ? t("digest.wx.mph", {n: g.wind_mph}) : t("digest.wx.pct", {n: g.precip_pct});
-  return `<div class="dg-wx${near ? " near" : ""}">${kind === "wind" ? DG_WIND : DG_RAIN}
-    <span class="dg-ln-t"><b>${dgGame(g)}</b><span>${meta}</span></span><span class="dg-ln-r">${num}</span></div>`;
-}
-
-function dgWxBody(d){
-  return d.wx.map(g => dgWxLnHTML(g, false)).join("") + (d.near ? dgWxLnHTML(d.near, true) : "")
-    + dgFootHTML(t("digest.foot.wx", d.rules.wx_list),"roster", t("digest.go.roster"), true);
-}
-
 /* Each bar grows when the row opens (adds.css): from last week's % rostered to this week's on the
    ESPN fallback, and from nothing to his share of the top count on Sleeper's (2026-09-28). */
 function dgAddsBody(d){
@@ -97,22 +83,13 @@ function dgAddsBody(d){
   return lines + dgFootHTML(a != null ? t("digest.foot.adds", {a, b}) : t("digest.foot.addsNoWeeks"), "waivers", t("digest.go.waivers"));
 }
 
-function dgTop5Body(d){
-  const cols = DG_POS.map(pos => {
-    const rows = d.top5.filter(r => r.pos === pos);
-    return rows.length ? `<div><h4>${pos}</h4><ol>${rows.map(r => `<li><span class="dg-hd sm">${avatarHTML(r)}</span><span>${esc(r.n)}</span><em>${r.pts.toFixed(1)}</em></li>`).join("")}</ol></div>` : "";
-  }).join("");
-  return `<div class="dg-t5">${cols}</div>` + dgFootHTML(t("digest.foot.t5"), "ranks", t("digest.go.ranks"));   // the same projections, every player (2026-09-29; was Leaders)
-}
+/* Top 5 and Weather open to ahead.js's bodies (2026-09-29). */
 
-function dgStockBody(d){
-  const n = Math.max(d.up.length, d.down.length), cell = (r, cls) => r
-    ? `<button type="button" class="dg-mv" data-dgslug="${esc(r.slug)}"><span>${esc(dgShort(r.n))}</span><em class="${cls}">${dgSigned(r.d_pts, 1)}</em></button>`
-    : `<div class="dg-mv"></div>`;   // a name opens his profile, like every other Digest row (2026-09-29)
-  const rows = Array.from({length: n}, (_, i) => cell(d.up[i], "up") + cell(d.down[i], "dn")).join("");
-  return `<div class="dg-two"><h4>${t("digest.st.up")}</h4><h4>${t("digest.st.down")}</h4>${rows}</div>`
-    + dgFootHTML(t("digest.foot.st"), "movers", t("digest.go.movers"), true);
-}
+/* Risers & fallers left the Digest on 2026-09-29 (David: "is a +-1 move significant?"). Its move was
+   the books' implied points against his last game: 45 of 64 priced players cleared its 0.5 bar in
+   week 4, 11 moved more than one sector's usual week-to-week wobble, part of every move was only the
+   opponent changing, and the signal failed its backtest (ff-jarvis METHODOLOGY 12.46). Role, from the
+   work itself, is where a changing role is read. */
 
 function dgGemsBody(d){
   const lines = d.gems.map(g => dgLnHTML(g, t("digest.gems.meta", {pos: esc(g.pos), team: esc(g.team), pct: dgPct(g.rostered)}),
@@ -160,4 +137,4 @@ function dgResList(title, rows, num){
 
 /* Results' body is results.js's (dgResBody). */
 const DG_BODY = {res: dgResBody, hurt: dgHurtBody, start: dgStartBody, mu: dgMuBody, wx: dgWxBody, adds: dgAddsBody, t5: dgTop5Body,
-                 st: dgStockBody, gems: dgGemsBody, news: dgNewsBody};
+                 gems: dgGemsBody, news: dgNewsBody};

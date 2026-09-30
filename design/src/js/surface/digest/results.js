@@ -76,23 +76,21 @@ const dgResFace = r => HEADS[r.slug] ? headImgHTML(HEADS[r.slug], initials(r.n),
 const dgResRow = (r, pills, num) => `<button type="button" class="dg-rr" data-dgslug="${esc(r.slug)}">
     <span class="dg-rr-n"><b>${esc(dgShort(r.n))}</b>${pills ? `<span>${pills}</span>` : ""}</span>${num}</button>`;
 
-/* A folded list (Smashed, Busts, Left hurt; 2026-09-29, 80px rows made the phone's card ~3,400px)
-   heads with a button, its name, count and chevron; its rows show once tapped open (digest.js). On the
-   wall too since the headlines (2026-09-29): the tiles already tell the week, the lists are the detail. */
-const DG_FOLD = new Set();
-const dgResCol = (title, rows, row, cls) => {
-  if (!rows.length) return "";
-  const key = cls || title;
-  return `<div class="dg-rcol ${cls} fold"${DG_FOLD.has(key) ? " data-open" : ""}>
-    <button type="button" class="dg-rsum" data-dgfold="${esc(key)}" aria-expanded="${DG_FOLD.has(key)}">
-      <span>${title}</span><span class="dg-rcount">${rows.length}</span>${DG_CHEV}</button>${rows.map(row).join("")}</div>`;
-};
-
-/* The four tiles, each position's top three, then the three lists folded. */
-function dgResBody(d){
+/* The three lists as one panel under one tab bar (tabs.js; 2026-09-29, 2A), the count on each tab in
+   its list's colour. A list with no one in it draws no tab. On the wall the rows run two columns across
+   the card (results.css), so Left hurt's ten take five rows, not ten. */
+function dgResTabs(d){
   const why = r => dgResRow(r, dgWhy(r, d.left), dgResNum(r));
-  const low = dgResCol(t("digest.res.smashed"), d.smashed, why, "smashed") + dgResCol(t("digest.res.busts"), d.busts, why, "busts")
-    + dgResCol(t("digest.res.left"), d.left, r => dgResRow(r, dgLeftPills(r), dgResNum(r)), "left");
+  const tab = (key, label, rows, row, tone) => rows.length
+    ? {key, label, count: rows.length, tone, body: `<div class="dg-rlist">${rows.map(row).join("")}</div>`} : null;
+  return dgTabsHTML("res", [tab("smashed", t("digest.res.smashed"), d.smashed, why, "up"),
+    tab("busts", t("digest.res.busts"), d.busts, why, "dn"),
+    tab("left", t("digest.res.left"), d.left, r => dgResRow(r, dgLeftPills(r), dgResNum(r)), "am")].filter(Boolean));
+}
+
+/* The four tiles, each position's top three, then the three lists under their tabs. */
+function dgResBody(d){
+  const low = dgResTabs(d);
   const blocks = dgTilesHTML(d) + dgBoardHTML(d) + (low ? `<div class="dg-rlow">${low}</div>` : "");
   const foot = d.pending ? t("digest.foot.resPending", {n: dgGames(d.finals.length), left: d.pending}) : t("digest.foot.res", {n: dgGames(d.finals.length)});
   return (blocks ? `<div class="dg-rs">${blocks}</div>` : "") + dgFootHTML(foot, "", "");

@@ -21,6 +21,8 @@
     "surface/digest/results.css": ["digest"],
     "surface/digest/headlines.css": ["digest"],
     "surface/digest/wait.css": ["digest"],
+    "surface/digest/tabs.css": ["digest"],
+    "surface/digest/ahead.css": ["digest"],
     "surface/digest/wall.css": ["digest"],
     "surface/league/back.css": ["league", "myrecap", "recap", "records", "#modal"],
     "surface/league/front.css": ["league", "myrecap", "recap", "records", "#modal"],

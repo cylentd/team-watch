@@ -1,0 +1,30 @@
+/* ============================== DIGEST: TABS ==============================
+   One bar over one panel (tabs.js; 2026-09-29, storyboard https://claude.ai/artifact/Ms6FbdvynVPoRTKEidPGAz):
+   Results' three lists and Top 5's positions. A filled track with the picked tab raised and underlined
+   in lime, the underline being the one mark of "this is showing". Counts keep their list's colour. */
+.dg-tabset{display:grid;gap:6px;min-width:0}
+.dg-tabs{display:flex;gap:4px;padding:3px;border-radius:10px;background:var(--panel-2)}
+.dg-tab{
+  appearance:none;border:0;background:none;color:var(--ink-2);font:600 var(--t-2)/1 var(--ui);cursor:pointer;
+  flex:1;min-width:0;min-height:40px;padding:0 6px;border-radius:8px;white-space:nowrap;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  transition:background .2s var(--ease),color .2s var(--ease),transform var(--dur-spring) var(--spring);
+}
+.dg-tab:active{transform:scale(var(--press))}
+.dg-tab:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+@media (hover:hover){ .dg-tab:hover{color:var(--ink)} }
+.dg-tab[aria-selected="true"]{background:var(--panel-3);color:var(--ink);box-shadow:inset 0 -2px 0 var(--lime)}
+.dg-tab-n{font:700 var(--t-1)/1 var(--mono)}
+.dg-tab-n.up{color:var(--up)}
+.dg-tab-n.dn{color:var(--down)}
+.dg-tab-n.am{color:var(--amber)}
+.dg-tabp{min-width:0}
+.dg-tabp[hidden]{display:none}
+
+/* Results' list under its tabs: one column on a phone, two across the wall's card. */
+.dg-rlist{display:grid}
+@media (min-width:1100px){
+  .dg-tabs{align-self:start;max-width:520px}
+  .dg-rlist{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:32px}
+  .dg-rlist .dg-rr:nth-last-child(2):nth-child(odd){border-bottom:0}
+}

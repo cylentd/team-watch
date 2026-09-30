@@ -13,7 +13,7 @@ const DG_RAIN = `<svg class="dg-ico" viewBox="0 0 24 24" aria-hidden="true"><pat
 /* Every label spelled out: assemble.py --check finds a copy key only as a literal lookup. */
 const dgLabel = id => ({res: t("digest.row.res"), hurt: t("digest.row.hurt"), start: t("digest.row.start"),
   mu: t("digest.row.mu"), wx: t("digest.row.wx"),
-  adds: t("digest.row.adds"), t5: t("digest.row.t5"), st: t("digest.row.st"), gems: t("digest.row.gems"),
+  adds: t("digest.row.adds"), t5: t("digest.row.t5"), gems: t("digest.row.gems"),
   news: t("digest.row.news")})[id];
 
 /* The closed row's count and its pill's colour: red for who is hurt, sky for weather, lime for
@@ -24,7 +24,7 @@ function dgCount(id, d){
   if (id === "hurt") return [d.hurt.length, "out"];
   if (id === "start") return [d.starters.length, ""];
   if (id === "mu") return [d.calls || "", ""];
-  if (id === "wx") return [d.wx.length || "", "sky"];
+  if (id === "wx") return [dgWxMoves().length || "", "sky"];
   if (id === "adds") return [!d.adds.length ? "" : d.adds_source === "sleeper" ? dgBig(d.adds[0].count)
     : dgSigned(Math.round(d.adds[0].delta), 0), "go"];
   if (id === "gems") return [d.gems.length, ""];
@@ -55,11 +55,14 @@ function dgMuLine(d){
   return d.calls === 1 ? t("digest.line.muCallsOne") : t("digest.line.muCalls", {n: d.calls});
 }
 
-function dgWxLine(d){
-  const g = d.wx[0];
-  if (!g) return t("digest.line.wxNone");
-  return dgWxKind(g) === "wind" ? t("digest.line.wind", {game: dgGame(g), mph: g.wind_mph})
-    : t("digest.line.rain", {game: dgGame(g), pct: g.precip_pct});
+/* "Rain in 4 games": what the weather is, when every game shares it, and how many. The cause a
+   game counts under is its first proven condition, wind before rain before cold. */
+const dgWxCond = r => ["wind", "precip", "cold"].find(c => r.conds.includes(c));
+function dgWxLine(){
+  const moves = dgWxMoves(), kinds = new Set(moves.map(dgWxCond)), games = dgGames(moves.length);
+  const k = kinds.size === 1 ? [...kinds][0] : "";
+  return k === "wind" ? t("digest.line.wxWind", {games}) : k === "precip" ? t("digest.line.wxRain", {games})
+    : k === "cold" ? t("digest.line.wxCold", {games}) : t("digest.line.wxMixed", {games});
 }
 
 function dgGemLine(g){
@@ -75,16 +78,14 @@ function dgResLine(d){
 }
 
 function dgLine(id, d){
-  const top = pos => d.top5.find(r => r.pos === pos);
-  const it = d.news[0], a = d.adds[0], up = d.up[0], dn = d.down[0];
+  const top = pos => dgTop5(d, pos)[0];
+  const it = d.news[0], a = d.adds[0];
   return {
     res: () => dgResLine(d), hurt: () => dgHurtLine(d), start: () => `<b>${esc(dgLast(d.starters[0].n))}</b> ${dgStartWhat(d.starters[0], dgLast, true)}`,
     mu: () => dgMuLine(d), wx: () => dgWxLine(d),
     adds: () => d.adds_source === "sleeper" ? `<b>${esc(a.n)}</b> ${dgAddCount(a)}`
       : t("digest.line.adds", {name: esc(a.n), was: dgPct(a.was), now: dgPct(a.now)}),
     t5: () => DG_POS.map(top).filter(Boolean).map(r => `<b>${esc(dgLast(r.n))}</b>`).join(" · "),
-    st: () => [up ? `<b>${esc(dgLast(up.n))}</b> <span class="up">${dgSigned(up.d_pts, 1)}</span>` : "",
-               dn ? `<b>${esc(dgLast(dn.n))}</b> <span class="dn">${dgSigned(dn.d_pts, 1)}</span>` : ""].filter(Boolean).join(" · "),
     gems: () => dgGemLine(d.gems[0]),
     news: () => it.n ? `<b>${esc(it.n)}</b> ${esc(it.rest)}` : esc(it.headline),
   }[id]();
@@ -95,11 +96,11 @@ function dgRowHTML(id, d, open){
   const [n, tone] = has ? dgCount(id, d) : ["", ""];
   const line = has ? dgLine(id, d)
     : id === "hurt" && d && dgWeekDone(d) ? t("digest.line.hurtNext", {week: d.week + 1})
-    : id === "start" && d ? dgStartNone(d) : t("digest.line.nothing");
+    : id === "start" && d ? dgStartNone(d) : id === "wx" ? t("digest.line.wxCalm") : t("digest.line.nothing");
   const on = has && open === id;
   return `<div class="dg-row${has ? "" : " empty"}" data-dgrow="${id}"${on ? " data-open data-today" : ""}>
     <button type="button" class="dg-head" aria-expanded="${on}"${has ? ` aria-controls="dg-b-${id}"` : " disabled"}>
-      <span class="dg-l">${dgLabel(id)}</span><span class="dg-n ${n === "" ? "none" : tone}">${n}</span>
+      <span class="dg-l">${dgIcon(id)}${dgLabel(id)}</span><span class="dg-n ${n === "" ? "none" : tone}">${n}</span>
       <span class="dg-s">${line}</span>${has ? DG_CHEV : ""}</button>
     ${has ? `<div class="dg-body" id="dg-b-${id}"${on ? "" : " inert"}><div class="dg-in"><div class="dg-pad">${DG_BODY[id](d)}</div></div></div>` : ""}
   </div>`;
@@ -146,22 +147,16 @@ function wireDigest(v){
   }));
   dgSyncWall(v);
   DG_WALL.onchange = () => { const cur = document.querySelector(".dg"); if (cur) dgSyncWall(cur.parentElement); };
-  /* A Results list opens in place at every width, the wall too (results.js dgResCol), and stays so
-     across repaints. The wall's lists fold as well since 2026-09-29; a leftover wall guard here kept
-     them shut on a desktop. */
-  v.querySelectorAll("[data-dgfold]").forEach(b => b.addEventListener("click", () => {
-    const col = b.parentElement, open = !col.hasAttribute("data-open"), key = b.dataset.dgfold;
-    col.toggleAttribute("data-open", open);
-    b.setAttribute("aria-expanded", String(open));
-    if (open) DG_FOLD.add(key); else DG_FOLD.delete(key);
-  }));
+  /* A set of tabs (Results' lists, Top 5's positions) swaps its panel in place, and the pick is kept
+     across repaints (DG_TAB, tabs.js). */
+  v.querySelectorAll("[data-dgtab]").forEach(b => b.addEventListener("click", () => dgTabPick(b)));
   v.querySelectorAll("[data-dggo]").forEach(b => b.addEventListener("click", () => {
     morphLogo(); navGo(b.dataset.dggo); window.scrollTo({top: 0});
   }));
   const d = dgD();
   v.querySelectorAll("[data-dgslug]").forEach(el => el.addEventListener("click", () => {
     const slug = el.dataset.dgslug;
-    const p = [...d.hurt, ...d.starters, ...d.best, ...d.adds, ...d.gems, ...d.stars, ...d.smashed, ...d.busts, ...d.left, ...d.up, ...d.down]
+    const p = [...d.hurt, ...d.starters, ...d.best, ...d.adds, ...d.gems, ...d.stars, ...d.smashed, ...d.busts, ...d.left]
       .find(x => x.slug === slug);
     if (p) return openProfile({n: p.n, pos: p.pos, team: p.team, slug: p.slug}, el);
     // A News player need not be in any list above: search's index knows everyone on the page.

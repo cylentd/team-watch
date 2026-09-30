@@ -62,13 +62,16 @@ function dgTilesHTML(d){
   return html ? `<div class="dg-tiles">${html}</div>` : "";
 }
 
-/* Each position's top three. The same buttons on both sizes: a phone lays them on one line and hides
-   the face and the day (results.css); the wall stacks them in four columns with both. */
+/* Each position's top three, as a table: the position as a heading, then name over his day, points at
+   the right (2026-09-29, storyboard https://claude.ai/artifact/Ms6FbdvynVPoRTKEidPGAz, 1B; David: "should
+   the categories be bigger? Should we consider not using headshots?"). No faces: the tiles above keep
+   them, where one player is the subject, and a list scans by name. It is also the shape a kicker or a
+   defense can take, which has no face to show. Two positions a row on a phone, four on the wall. */
 function dgBoardHTML(d){
   const pos = DG_POS.map(p => {
     const rows = d.stars.filter(r => r.pos === p);
-    return rows.length ? `<div class="dg-bd-pos"><span class="dg-bd-p">${p}</span><span class="dg-bd-ns">${rows.map(r =>
-      `<button type="button" class="dg-bd-r" data-dgslug="${esc(r.slug)}"><span class="dg-hd">${dgResFace(r)}</span>
+    return rows.length ? `<div class="dg-bd-pos"><h4 class="dg-bd-p">${p}</h4><span class="dg-bd-ns">${rows.map(r =>
+      `<button type="button" class="dg-bd-r" data-dgslug="${esc(r.slug)}">
         <b>${esc(dgShort(r.n))}</b><span class="dg-bd-s">${dgStatLine(r)}</span><i>${r.actual.toFixed(1)}</i></button>`).join("")}</span></div>` : "";
   }).join("");
   return pos ? `<div class="dg-bd">${pos}</div>` : "";

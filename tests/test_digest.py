@@ -99,65 +99,69 @@ def test_results_reads_as_the_storyboard(browser, page_file):
 
 
 @pytest.mark.render
-def test_a_phone_folds_the_results_lists_and_a_tap_opens_one(browser, page_file):
-    """80px rows made the phone's Results ~3,400px (2026-09-29): Smashed, Busts and Left hurt start
-    folded to a head each (name, count), the top scores stay open, and a tap opens one list."""
-    ctx, page, errors = open_page(browser, page_file, (390, 844))
+@pytest.mark.parametrize("viewport", [(390, 844), (1705, 1000)])
+def test_the_results_lists_are_one_panel_under_tabs(browser, page_file, viewport):
+    """2026-09-29, storyboard Ms6FbdvynVPoRTKEidPGAz 2A (David: "clicking on smashed, busts, and left hurt
+    opens up all 3 panels anyways ... just opens a big panel"): one tab bar, each tab its list's count,
+    one list showing. A tap swaps the list in place, and the pick survives a repaint."""
+    ctx, page, errors = open_page(browser, page_file, viewport)
     page.goto(page_file.as_uri())
-    for _, sel in go("digest"):
-        page.click(sel)
-    page.wait_for_selector(".dg-rsum")
+    drive(page, go("digest"))
+    page.wait_for_selector(".dg-row[data-dgrow='res']")
     if page.locator(".dg-row[data-dgrow='res'][data-open]").count() == 0:
         page.click(".dg-row[data-dgrow='res'] .dg-head")
         page.wait_for_timeout(600)
     visible = lambda sel: page.locator(sel).evaluate_all("els => els.filter(e => e.offsetParent !== null).length")
-    heads = page.locator(".dg-rsum")
-    assert heads.count() == 3 and visible(".dg-rlow .dg-rr") == 0 and visible(".dg-tile") > 0
-    assert heads.first.locator(".dg-rcount").inner_text() == str(page.evaluate("dgD().smashed.length"))
-    turn = lambda: heads.first.locator(".dg-chev").evaluate("c => getComputedStyle(c).transform")
-    assert turn() == "none"                                  # closed: points down
-    heads.first.click()
-    assert visible(".dg-rcol.fold[data-open] .dg-rr") == page.evaluate("dgD().smashed.length")
-    page.wait_for_timeout(600)
-    assert turn() != "none"                                  # open: turned over
-    assert heads.first.get_attribute("aria-expanded") == "true"
+    tabs = page.locator("[data-dgset='res'] .dg-tab")
+    n = page.evaluate("(() => { const d = dgD(); return [d.smashed.length, d.busts.length, d.left.length]; })()")
+    assert tabs.count() == 3
+    assert [tabs.nth(i).locator(".dg-tab-n").inner_text() for i in range(3)] == [str(x) for x in n]
+    assert tabs.first.get_attribute("aria-selected") == "true"
+    assert visible("[data-dgset='res'] .dg-rr") == n[0]
+    tabs.nth(2).click()
+    assert tabs.nth(2).get_attribute("aria-selected") == "true" and tabs.first.get_attribute("aria-selected") == "false"
+    assert visible("[data-dgset='res'] .dg-rr") == n[2]
+    page.evaluate("render()")
+    assert page.locator("[data-dgset='res'] .dg-tab").nth(2).get_attribute("aria-selected") == "true"
     ctx.close()
     assert errors == []
 
 
 @pytest.mark.render
 def test_results_on_the_wall_keep_each_number_by_its_name(browser, page_file):
-    """On a desktop (2026-09-29, storyboard FYQES3vMxJ8ukZm7gLNNih option B) the four tiles sit in a
-    row, the board in four position columns with a 36px face and the player's day on every row, and
-    the three lists three across, still folded. A board row is one column wide, so its points sit
-    within 350px of its name at the 1,680px frame."""
-    ctx, page, errors = open_page(browser, page_file, (1705, 1000))
-    page.goto(page_file.as_uri())
-    for _, sel in go("digest"):
-        page.click(sel)
-    page.wait_for_selector(".dg-rs")
-    got = page.evaluate("""() => {
-      const cols = s => getComputedStyle(document.querySelector(s)).gridTemplateColumns.split(' ').length;
-      const rows = [...document.querySelectorAll('.dg-bd-r')].map(r => {
-        const n = r.querySelector('b').getBoundingClientRect(), v = r.querySelector('i').getBoundingClientRect();
-        return {gap: v.left - n.left, face: r.querySelector('.dg-hd').getBoundingClientRect().width,
-                day: getComputedStyle(r.querySelector('.dg-bd-s')).display};
-      });
-      const shown = s => [...document.querySelectorAll(s)].filter(e => e.offsetParent !== null).length;
-      return {tiles: cols('.dg-tiles'), board: cols('.dg-bd'), low: cols('.dg-rlow'), rows,
-              listRows: shown('.dg-rlow .dg-rr'), chevs: shown('.dg-rsum .dg-chev')};
-    }""")
-    # A tap opens a list on the wall too (2026-09-29, David: "the dropdown doesnt expand").
-    page.locator(".dg-rsum").first.click()
-    opened = page.locator(".dg-rcol.fold[data-open] .dg-rr").evaluate_all("els => els.filter(e => e.offsetParent !== null).length")
-    smashed = page.evaluate("dgD().smashed.length")
-    ctx.close()
-    assert errors == []
-    assert opened == smashed > 0
-    assert (got["tiles"], got["board"], got["low"]) == (4, 4, 3)
-    assert got["rows"] and max(r["gap"] for r in got["rows"]) < 350
-    assert {r["face"] for r in got["rows"]} == {36} and {r["day"] for r in got["rows"]} == {"block"}
-    assert got["listRows"] == 0 and got["chevs"] == 3          # folded, and they look it
+    """On a desktop the four tiles sit in a row and the board in four position columns, each a heading
+    over rows of name, his day and points, with no face (2026-09-29, storyboard Ms6FbdvynVPoRTKEidPGAz
+    1B: "should the categories be bigger? Should we consider not using headshots?"). The list under the
+    tabs runs two columns. A board row is one column wide, so its points sit within 350px of its name at
+    the 1,680px frame. A phone sets the board two positions a row."""
+    got = {}
+    for size in ((1705, 1000), (360, 740)):
+        ctx, page, errors = open_page(browser, page_file, size)
+        page.goto(page_file.as_uri())
+        drive(page, go("digest"))
+        if page.locator(".dg-row[data-dgrow='res'][data-open]").count() == 0:
+            page.click(".dg-row[data-dgrow='res'] .dg-head")
+        page.wait_for_selector(".dg-rs")
+        got[size[0]] = page.evaluate("""() => {
+          const cols = s => getComputedStyle(document.querySelector(s)).gridTemplateColumns.split(' ').length;
+          const rows = [...document.querySelectorAll('.dg-bd-r')].map(r => {
+            const n = r.querySelector('b').getBoundingClientRect(), v = r.querySelector('i').getBoundingClientRect();
+            return {gap: v.left - n.left, day: getComputedStyle(r.querySelector('.dg-bd-s')).display};
+          });
+          const head = document.querySelector('.dg-bd-p'), name = document.querySelector('.dg-bd-r b');
+          return {tiles: cols('.dg-tiles'), board: cols('.dg-bd'), list: cols('.dg-rlist'), rows,
+                  faces: document.querySelectorAll('.dg-bd .dg-hd').length,
+                  headPx: parseFloat(getComputedStyle(head).fontSize), namePx: parseFloat(getComputedStyle(name).fontSize)};
+        }""")
+        ctx.close()
+        assert errors == []
+    wall, phone = got[1705], got[360]
+    assert (wall["tiles"], wall["board"], wall["list"]) == (4, 4, 2)
+    assert wall["rows"] and max(r["gap"] for r in wall["rows"]) < 350
+    assert {r["day"] for r in wall["rows"]} == {"block"}
+    assert wall["faces"] == 0 and phone["faces"] == 0
+    assert wall["headPx"] > wall["namePx"] and phone["headPx"] > phone["namePx"]   # the position leads
+    assert (phone["board"], phone["list"]) == (2, 1)
 
 
 @pytest.mark.render
@@ -236,9 +240,11 @@ def test_the_call_picks_its_verb_from_his_day(browser, page_file):
 @pytest.mark.render
 def test_a_finished_week_folds_the_preview_rows_into_the_wait(browser, page_file):
     """Once every game of the packet's week has kicked off (the fixture's week 3 ends with KC @ SF,
-    2026-09-21), Hurt, Matchups, Weather and Top 5 have nothing left to preview and next week's are not
-    written: they leave the ticker for one card, Blip's, with a line each (2026-09-29, storyboard
-    UDoWgLMrzUHup5tX53zaue option B). Before that, an empty Hurt row still says "Nothing new"."""
+    2026-09-21), Hurt and Matchups have nothing left to preview and next week's are not written: they
+    leave the ticker for one card, Blip's, with a line each (2026-09-29, storyboard
+    UDoWgLMrzUHup5tX53zaue option B). Weather and Top 5 read next week's data and stay out of the wait
+    since 2026-09-29 (storyboard Ms6FbdvynVPoRTKEidPGAz 5A, 6A). Before that, an empty Hurt row still
+    says "Nothing new"."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     page.goto(page_file.as_uri())
     for _, sel in go("digest"):
@@ -250,12 +256,12 @@ def test_a_finished_week_folds_the_preview_rows_into_the_wait(browser, page_file
     assert "wait" not in before and "hurt" in before
     assert page.locator('.dg-row[data-dgrow="hurt"] .dg-s').inner_text() == "Nothing new"
     after = at("2026-09-22T12:00:00Z")
-    assert "wait" in after and not {"hurt", "mu", "wx", "t5"} & set(after)
+    assert "wait" in after and not {"hurt", "mu"} & set(after)
     card = page.locator(".dg-wait")
     assert card.locator(".dg-wait-h").inner_text().upper() == "WAITING ON WEEK 4"
     assert card.locator("svg.blip").count() == 1
     lines = {li.locator("b").inner_text().upper(): li.locator("span").inner_text() for li in card.locator("li").all()}
-    assert list(lines) == ["HURT", "MATCHUPS", "WEATHER", "TOP 5"]
+    assert list(lines) == ["HURT", "MATCHUPS"]
     assert lines["HURT"] == "Week 4's injury report is still in the trainer's room."
     assert lines["MATCHUPS"].startswith("Week 4's calls land Tuesday. Our record")
     ctx.close()
@@ -291,8 +297,9 @@ def test_every_wall_row_has_its_area(browser, page_file):
 
 @pytest.mark.render
 def test_every_player_opens_his_profile(browser, page_file):
-    """A lead about one player and a name in Risers & fallers open his profile, like every other
-    Digest row (2026-09-29, David: "should we be able to click on players to open their profile?")."""
+    """A lead about one player and a name in Top 5 open his profile, like every other Digest row
+    (2026-09-29, David: "should we be able to click on players to open their profile?"). Top 5 took
+    this from Risers & fallers, which left the Digest the same day."""
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
     page.evaluate("Date.now = () => Date.parse('2026-09-18T12:00:00Z')")   # inside the fixture week
     drive(page, go("digest"))
@@ -303,8 +310,9 @@ def test_every_player_opens_his_profile(browser, page_file):
     assert "on" in page.locator("#modal").get_attribute("class")
     assert page.evaluate("document.querySelector('#modal .pf-orb, #modal #pf-title') !== null")
     page.keyboard.press("Escape")
-    mover = page.locator("button.dg-mv").first
-    name = mover.locator("span").inner_text()
+    page.evaluate(EARLY)                                                   # Ranks' fixture week is ahead of it
+    mover = page.locator(".dg-rk").first
+    name = mover.locator(".dg-rk-t b").inner_text()
     mover.click()
     assert name.split(". ")[-1].upper() in page.locator("#pf-title").inner_text().upper()
     assert slug
@@ -546,3 +554,80 @@ def test_the_wall_opens_every_panel_and_a_head_is_not_a_toggle(browser, page_fil
     assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
     assert errors == []
     ctx.close()
+
+
+# The clock before the fixture's first ranked kickoff, so every Ranks row is still ahead of it.
+EARLY = """(() => { const ks = LIVE_RANKS.rows.map(r => Date.parse(r.kick)).filter(Boolean);
+  const at = Math.min(...ks) - 3600e3; Date.now = () => at; DG_CUT = null; render(); return at; })()"""
+
+
+@pytest.mark.render
+def test_top_5_is_ranks_own_rows_under_position_tabs(browser, page_file):
+    """2026-09-29, storyboard Ms6FbdvynVPoRTKEidPGAz 5A (David: "it's supposed to be forward looking ...
+    like a mini feed of our rankings"): Top 5 reads LIVE_RANKS, the rows Ranks draws, never the packet,
+    so the two cannot disagree. A tab per position and FLEX, five rows each, a tap swaps them."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    page.goto(page_file.as_uri())
+    drive(page, go("digest"))
+    page.wait_for_selector(".dg-row")
+    page.evaluate(EARLY)
+    page.click(".dg-row[data-dgrow='t5'] .dg-head")
+    want = page.evaluate("""Object.fromEntries(DG_T5_POS.map(p => [p, rkList(p).slice(0, 5).map(r => r.slug)])
+      .filter(([, s]) => s.length))""")
+    tabs = page.locator("[data-dgset='t5'] .dg-tab")
+    assert [tabs.nth(i).inner_text() for i in range(tabs.count())] == list(want)
+    for i, pos in enumerate(want):
+        tabs.nth(i).click()
+        shown = page.locator(f"[data-dgset='t5'] [data-dgpanel='{pos}']:not([hidden]) .dg-rk")
+        assert shown.evaluate_all("els => els.map(e => e.dataset.dgslug)") == want[pos], pos
+    first = page.evaluate("rkList('QB')[0].pts.toFixed(1)")
+    tabs.first.click()
+    assert page.locator("[data-dgpanel='QB'] .dg-rk .dg-rk-p").first.inner_text() == first
+    assert page.locator(".dg-row[data-dgrow='t5'] .dg-go").get_attribute("data-dggo") == "ranks"
+    ctx.close()
+    assert errors == []
+
+
+@pytest.mark.render
+def test_weather_is_the_weather_tabs_own_games(browser, page_file):
+    """2026-09-29, 6A (David: "the next tab over is the weather and it's actually already live"): the
+    row counts the games the Weather view says move scoring (wtRows().moves, still to kick off) and
+    links there. A calm week draws no row on a phone and one quiet sentence on the wall."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    page.goto(page_file.as_uri())
+    drive(page, go("digest"))
+    page.wait_for_selector(".dg-row")
+    page.evaluate(EARLY)
+    page.evaluate("""(() => { const g = LIVE_SCHEDULE.games.find(x => Date.parse(x.kickoff) > Date.now());
+      wtRows = () => ({week: 4, moves: [{g, done: false, conds: ['precip'], effects: [{pos: 'WR', pts: -0.5}],
+        fc: {precip_pct: 60, temp_f: 65}, mph: 6}], indoor: [], open: []}); DG_CUT = null; render(); })()""")
+    row = page.locator(".dg-row[data-dgrow='wx']")
+    assert row.locator(".dg-n").inner_text() == "1"
+    assert row.locator(".dg-s").inner_text() == "Rain in 1 game"
+    row.locator(".dg-head").click()
+    assert row.locator(".dg-wx").count() == 1 and row.locator(".dg-wx .dg-ln-r").inner_text() == "60%"
+    assert row.locator(".dg-go").get_attribute("data-dggo") == "weather"
+    page.evaluate("wtRows = () => ({week: 4, moves: [], indoor: [], open: []}); DG_CUT = null; render()")
+    assert page.locator(".dg-row[data-dgrow='wx']").evaluate("e => getComputedStyle(e).display") == "none"
+    page.set_viewport_size({"width": 1400, "height": 900})
+    calm = page.locator(".dg-row[data-dgrow='wx']")
+    assert calm.evaluate("e => getComputedStyle(e).display") != "none"
+    assert calm.locator(".dg-s").inner_text() == "No game's weather moves scoring"
+    ctx.close()
+    assert errors == []
+
+
+@pytest.mark.render
+def test_every_topic_label_carries_its_icon(browser, page_file):
+    """2026-09-29, 3A: a drawn icon beside every topic's label, stroked in the label's own colour."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    page.goto(page_file.as_uri())
+    drive(page, go("digest"))
+    page.wait_for_selector(".dg-row")
+    got = page.evaluate("""[...document.querySelectorAll('.dg-row')].map(r => {
+      const l = r.querySelector('.dg-l'), i = l.querySelector('svg.dg-lico');
+      return [r.dataset.dgrow, !!i && getComputedStyle(i).stroke === getComputedStyle(l).color];
+    })""")
+    assert got and all(ok for _, ok in got), got
+    ctx.close()
+    assert errors == []
