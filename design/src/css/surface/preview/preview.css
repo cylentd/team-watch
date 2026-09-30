@@ -6,8 +6,9 @@
    and the record all draw them. */
 /* Warm type on the site's ground (2026-09-29, storyboard option A of
    https://claude.ai/artifact/517bzHZ7Cc24n2p4U7keZF; superseded the same day's brown newsprint ground,
-   David: "too brown"). The day heads and the game's headline are cream (--np-ink), the headlines and
-   the dek a warm grey (--np-ink-2); every surface, line and other ink is the site's. */
+   David: "too brown"). The serif stays; its colour is the site's ink since 2026-09-29 (David: "a weird
+   brown glow ... the text color of each slate's title"): the newsprint cream (--np-ink) on the dark
+   ground fringed brown around every serif letter. */
 .pv{padding-top:8px}
 .pv .pv-dz{display:none}
 .pv.open .pv-slate{display:none}
@@ -21,7 +22,7 @@
    marks where a window starts, so the first row under it drops its own. */
 .pv-win{margin-top:22px}
 .pv-win:first-of-type{margin-top:4px}
-.pv-wh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0;padding:8px 2px;border-top:2px solid var(--ink-2);font-family:var(--news);font-size:var(--t-4);font-weight:700;line-height:1.2;color:var(--np-ink)}
+.pv-wh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0;padding:8px 2px;border-top:2px solid var(--ink-2);font-family:var(--news);font-size:var(--t-4);font-weight:700;line-height:1.2;color:var(--ink)}
 .pv-wh em{font-family:var(--ui);font-size:var(--t-1);font-style:normal;font-weight:400;color:var(--ink-3);white-space:nowrap}
 .pv-win li:first-child .pv-row{border-top:0}
 /* A row is two lines, like a newspaper's index (2026-09-29, storyboard option C): a face, the
@@ -36,8 +37,8 @@
 .pv-rm{grid-row:1;grid-column:2;font-family:var(--mono);font-size:var(--t-3);font-weight:700;letter-spacing:.02em;color:var(--ink);white-space:nowrap}
 .pv-rs{font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 .pv-rs i{font-style:normal;color:var(--lime)}
-.pv-rh{grid-row:2;grid-column:2/-1;font-family:var(--news);font-size:var(--t-3);font-weight:500;line-height:1.3;color:var(--np-ink-2);text-wrap:pretty}
-.pv-row.cur .pv-rh{color:var(--np-ink)}
+.pv-rh{grid-row:2;grid-column:2/-1;font-family:var(--news);font-size:var(--t-3);font-weight:500;line-height:1.3;color:var(--ink-2);text-wrap:pretty}
+.pv-row.cur .pv-rh{color:var(--ink)}
 .pv-row.done .pv-rm,.pv-row.done .pv-rs,.pv-row.done .pv-rh{color:var(--ink-3)}
 /* How sure Claude is (2026-09-29), in plain words (David: "don't use jargon"): Slight and No pick
    grey, Confident lime text, Very confident a lime fill. Lime is Claude, and only the confident
