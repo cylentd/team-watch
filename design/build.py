@@ -44,7 +44,7 @@ from league_recap import live_league, live_league_yahoo, report as league_report
 from league_trades import live_trades, report as trades_report  # League > Trades
 from sources import (                                    # design/sources.py: the ff-jarvis adapter
     ROOT, REPO, DWR, FEED, ESPN_ROSTERS, YAHOO_ROSTERS, DFS_POOL,
-    feed_block, read_first, load_status, load_props_raw, load_model_raw,
+    feed_block, read_first, warn_if_stale, load_status, load_props_raw, load_model_raw,
     load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
     load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_startsit, load_startsit_review, load_digest, load_game_preview, load_preview_record, load_league, load_role_board,
     load_league_yahoo, load_league_back, load_case_rosters, load_defense, load_trades, load_kickers,
@@ -811,8 +811,8 @@ def main():
         written, skipped = pbp.write_games(pathlib.Path(DWR) / "cache", sched, REPO / "games")
         print(f"Games: {written} drive strips written to games/" +
               (f", {skipped} not played yet" if isinstance(skipped, int) else f" ({skipped})"))
-    for line in b.report:
-        print(line)
+    print(*b.report, sep="\n")
+    warn_if_stale()
 
 
 if __name__ == "__main__":

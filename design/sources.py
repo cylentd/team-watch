@@ -32,6 +32,30 @@ WEATHER_BACKTEST = DWR / "weather_backtest.json"
 ROUTES = DWR / "routes_run.json"
 
 
+def ff_jarvis_behind():
+    """How many commits the ff-jarvis checkout DWR lives in is behind its origin/main, as of its last
+    fetch; None when DWR is not a checkout's data/ (the test fixtures) or git cannot say.
+    Why (2026-09-29): landed ff-jarvis data (the 2018 Records lineups) sat on origin while the main
+    checkout, which the jobs write into, could not fast-forward; the page built from the old copy.
+    build.py warns on it and scripts/land.ps1 refuses it. The fix is ff-jarvis's scripts/sync-main.py."""
+    import subprocess
+    repo = DWR.parent
+    if not (repo / ".git").exists():
+        return None
+    r = subprocess.run(["git", "-C", str(repo), "rev-list", "--count", "HEAD..origin/main"],
+                       capture_output=True, text=True)
+    out = r.stdout.strip()
+    return int(out) if r.returncode == 0 and out.isdigit() else None
+
+
+def warn_if_stale():
+    """build.py's last line: say so when this build came from a stale ff-jarvis checkout."""
+    behind = ff_jarvis_behind()
+    if behind:
+        print(f"WARNING: built from an ff-jarvis checkout {behind} commit(s) behind origin/main; "
+              f"run python {DWR.parent / 'scripts' / 'sync-main.py'} and rebuild")
+
+
 def load_status():
     """norm_name -> Sleeper record (ff-jarvis's model.clients.sleeper), the canonical injury/depth
     read every feature should prefer over deriving its own. Feed-first (what the scheduled refresh
@@ -338,3 +362,13 @@ def load_dfs_history(season, week):
             if row.get("season") == season and row.get("week") == week:
                 rows.append(row)
     return rows
+
+
+if __name__ == "__main__":
+    # scripts/land.ps1: `python design/sources.py --fetch` fetches the ff-jarvis checkout, then prints
+    # how far behind it is and where it is; "None" when DWR is not a checkout.
+    import subprocess
+    import sys
+    if "--fetch" in sys.argv and (DWR.parent / ".git").exists():
+        subprocess.run(["git", "-C", str(DWR.parent), "fetch", "--quiet", "origin", "main"])
+    print(ff_jarvis_behind(), DWR.parent)

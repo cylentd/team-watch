@@ -85,6 +85,10 @@ and the main checkout stays on `main`, unedited. Notes that cost time to learn:
   and 14:30 daily jobs and Tuesday's 2:00 week turn, in agent-config) takes the same queue. A dead session's ticket clears itself; a wait over 20 min
   gives up with nothing landed. A push from outside the queue still gets exit 2 from `git land`,
   and `land.ps1` rebases, rebuilds and retries once.
+- `land.ps1` fetches the ff-jarvis checkout and refuses to build when it is behind origin/main
+  (2026-09-29: the 2018 Records lineups landed in ff-jarvis and a build shipped without them). Fix it
+  with ff-jarvis's `python scripts/sync-main.py`; `-AllowStaleData` builds anyway. `build.py` prints a
+  WARNING line for the same case (`sources.ff_jarvis_behind`), so the scheduled rebuild's log shows it.
 - A fresh worktree has no `data/feed.json` (untracked). The build falls back to reading
   `ff-jarvis` directly, so it still works; copy the file in if you want the freshness badges.
 - Before touching a file the other session may hold, ask it. `git stash show --name-only` is the

@@ -7,7 +7,8 @@
     "tests/test_lint.py",
     "tests/test_scope.py",
     "tests/test_style_rules.py",
-    "tests/test_impact.py"
+    "tests/test_impact.py",
+    "tests/test_sources_behind.py"
   ],
   "areas": {
     "gestures": {

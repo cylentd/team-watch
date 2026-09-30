@@ -31,7 +31,8 @@ param(
     [switch]$DryRun,
     [string]$Base = "main",
     [switch]$Yes,
-    [switch]$Full     # every test, not only the ones this diff can break (scripts/impact.py)
+    [switch]$Full,    # every test, not only the ones this diff can break (scripts/impact.py)
+    [switch]$AllowStaleData   # build even when the ff-jarvis checkout is behind its origin/main
 )
 
 $ErrorActionPreference = "Stop"
@@ -176,6 +177,19 @@ for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
     if ($notQuiet.Count -eq 0) {
         Write-Host "docs/tests only -- no rebuild" -ForegroundColor DarkGray
     } else {
+        # The page is built from the ff-jarvis checkout's data/, which the jobs write into; after an
+        # ff-jarvis land it can sit behind origin/main (2026-09-29: the 2018 Records lineups landed
+        # and this built without them). Fetch it, and refuse a stale one unless told otherwise.
+        if (-not $DryRun) {
+            Push-Location $repo
+            try { $ffjBehind, $ffj = (& python design/sources.py --fetch).Trim() -split ' ', 2 } finally { Pop-Location }
+            if ($ffjBehind -match '^\d+$' -and [int]$ffjBehind -gt 0) {
+                $msg = "ff-jarvis ($ffj) is $ffjBehind commit(s) behind origin/main, so this build would ship stale data. Run: python $ffj\scripts\sync-main.py"
+                if ($AllowStaleData) { Write-Host "$msg (-AllowStaleData: building anyway)" -ForegroundColor Yellow }
+                else { throw "$msg -- then re-run. -AllowStaleData builds anyway." }
+            }
+        }
+
         Write-Host "building" -ForegroundColor Cyan
         Write-Host "  python design/build.py" -ForegroundColor DarkGray
         if (-not $DryRun) {
