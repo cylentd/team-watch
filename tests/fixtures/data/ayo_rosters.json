@@ -1,0 +1,21 @@
+{
+ "me": "Taylor Made for Sundays",
+ "league_key": null,
+ "league_id": "35362",
+ "league": "AYO Fantasy Football",
+ "source": "Yahoo website scrape (model.clients.yahoo_web); the API is pending approval",
+ "updated": "2026-09-10",
+ "detail": {
+  "Taylor Made for Sundays": [
+   {"id": "11", "name": "Brock Purdy", "team": "SF", "pos": "QB", "slot": "QB"},
+   {"id": "12", "name": "Jahmyr Gibbs", "team": "DET", "pos": "RB", "slot": "RB"},
+   {"id": "13", "name": "Chase Brown", "team": "CIN", "pos": "RB", "slot": "RB"},
+   {"id": "14", "name": "Tee Higgins", "team": "CIN", "pos": "WR", "slot": "WR"},
+   {"id": "15", "name": "Justin Jefferson", "team": "MIN", "pos": "WR", "slot": "BN"}
+  ],
+  "Don Wick": [
+   {"id": "21", "name": "Derrick Henry", "team": "BAL", "pos": "RB", "slot": "RB"},
+   {"id": "22", "name": "Puka Nacua", "team": "LAR", "pos": "WR", "slot": "WR"}
+  ]
+ }
+}

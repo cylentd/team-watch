@@ -299,6 +299,23 @@ option A):** David found the flat panels didn't look like a case.
   redraws only its own part.
 - **A week the roast skipped** (two rejected replies) draws scores, boxes and superlatives without words.
 
+**A third league, AYO (2026-09-29, David: "Everything"; for the League group "a switch on the page").**
+AYO is a second Yahoo login in the first Yahoo league's shape, read from ff-jarvis's `ayo_<kind>.json`.
+
+| Part | Where |
+|---|---|
+| The league list (key, platform, label, file names, blocks), held to ff-jarvis's `model/common/registry.py` | `design/leagues.py`, `tests/test_leagues.py` |
+| Each Yahoo league's roster, League and Trades blocks (`LIVE_AYO`, `LIVE_LEAGUE_AYO`, `LIVE_TRADES_AYO`) | `design/myteams.py` |
+| The team: third in the switch, tint `--ayo` (cyan, 9.1:1 on the slate); gone from TEAMS without `LIVE_AYO` | `js/data/teams.js`, `hydrate.js` |
+| Madden Curse / AYO chips above Recap, Records and Trades; kept in `localStorage` `tw-league` (the hash stays the view's); hidden with one Yahoo league | `surface/league/switch.js` |
+
+- **Records** needs a past-seasons file (`history` on the block). AYO's arrived as podiums only: the
+  trophy case names each champion by the team it won as, once; head to head is this season's. With
+  no history file, Records says so under the switch. **Trades** without a verdicts file says the same.
+- **First data** moves down one chip row (~50px on a phone) on the three League views when the switch
+  shows. It is the one row of controls STYLE.md allows, and the page must say which league it is.
+- The back page's rule and kicker take the picked league's colour (`--lg-tint`).
+
 ## Trades (League group, 2026-09-28)
 
 Storyboard https://claude.ai/artifact/EhbDwDUZ7ERb2iNfAqaKjn. **League became a nav group** (Recap,

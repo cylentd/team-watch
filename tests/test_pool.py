@@ -23,8 +23,8 @@ def test_ranked_by_role_share_with_the_verdicts_own_share_move(built):
 def test_availability_comes_from_rostered_by(built):
     rows = {r["n"]: r for r in _pool(built)["players"]}
     assert rows["Chase Brown"]["mine"] is True
-    assert rows["Kalif Raymond"]["leagues"] == {"espn": None, "yahoo": None}
-    assert rows["Dontayvion Wicks"]["leagues"] == {"espn": "Team 3", "yahoo": None}
+    assert rows["Kalif Raymond"]["leagues"] == {"espn": None, "yahoo": None, "ayo": None}   # every league, AYO since 2026-09-29
+    assert rows["Dontayvion Wicks"]["leagues"] == {"espn": "Team 3", "yahoo": None, "ayo": None}
     assert rows["Dontayvion Wicks"]["mine"] is False
 
 

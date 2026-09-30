@@ -44,7 +44,9 @@ const csRoster = (y, kind) => ((LG.rosters || {})[y] || {})[kind] || null;
 
 /* One season: `kind` is "champ" or "last". A button when its lineup is in, else the same shape. */
 function csSlotHTML(kind, r){
-  const who = lgHolder(r.mgr, r.id, r.name), team = r.name ? esc(r.name.trim()) : "";
+  // The team line only when it says something the holder line does not: a league with no managers
+  // file (AYO's podiums, 2026-09-29) names each champion by the team it won as, once.
+  const who = lgHolder(r.mgr, r.id, r.name), named = r.name ? esc(r.name.trim()) : "", team = named === who ? "" : named;
   const inner = `${kind === "champ" ? CS_CUP : CS_TOILET}<span class="cs-plate">${r.y}</span>
     <span class="cs-mgr">${who}</span><span class="cs-team">${team}</span>`;
   const est = r.final === false ? " est" : "";

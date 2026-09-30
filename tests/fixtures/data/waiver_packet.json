@@ -5,7 +5,8 @@
  "clears": "2026-09-23T03:00:00-04:00",
  "leagues_meta": {
   "espn": {"label": "ESPN", "faab_left": 64, "faab_budget": 100, "clears": "2026-09-23T03:00:00-04:00", "needs": ["TE"]},
-  "yahoo": {"label": "Yahoo", "faab_left": 88, "faab_budget": 100, "clears": "2026-09-24T00:00:00-04:00", "needs": []}
+  "yahoo": {"label": "Yahoo", "faab_left": 88, "faab_budget": 100, "clears": "2026-09-24T00:00:00-04:00", "needs": []},
+  "ayo": {"label": "AYO", "faab_left": 99, "faab_budget": 100, "clears": "2026-09-24T00:00:00-04:00", "needs": []}
  },
  "leagues": {
   "espn": {
@@ -130,6 +131,23 @@
      "game": {"opponent": "ARI", "home": true}, "tier": "must", "weeks": 2,
      "injury": null, "injury_note": null, "practice": null, "news_latest": null, "news_count": 1,
      "leagues": {}, "summary": null}
+   ],
+   "stash": []
+  },
+  "ayo": {
+   "team": "Taylor Made for Sundays",
+   "waiver": {"type": "faab", "budget_left": 99, "priority": null},
+   "lineup_unknown": false,
+   "wire": [
+    {"key": "jaylen warren", "name": "Jaylen Warren", "pos": "RB", "team": "PIT", "availability": "active", "pts": 9.4,
+     "game": {"opponent": "CLE", "home": false}, "tier": "worth", "weeks": 1,
+     "injury": null, "injury_note": null, "practice": null, "news_latest": null, "news_count": 0,
+     "leagues": {
+      "ayo": {"tier": "worth", "status": "fa", "clears": null,
+              "verdict": {"kind": "bench", "over": "Justin Jefferson", "over_key": "justin jefferson", "slot": "BN", "margin": 1.5},
+              "need": false, "drop": {"name": "Justin Jefferson", "key": "justin jefferson", "pos": "WR", "pts": 5.0}}
+     },
+     "summary": null}
    ],
    "stash": []
   }

@@ -25,12 +25,18 @@ hydrateEspn();
    back to inferring them, by filling the league's 9-man lineup in roster order: QB, 2 RB, 2 WR,
    TE, one W/R/T flex, K, DST. */
 const YAHOO_LINEUP = [["QB",1],["RB",2],["WR",2],["TE",1],["K",1],["DST",1]];
-function hydrateYahoo(){
-  if (typeof LIVE_YAHOO === "undefined" || !LIVE_YAHOO) return;
-  const roster = LIVE_YAHOO.roster.every(p => p.slot) ? espnRows(LIVE_YAHOO.roster) : inferYahoo(LIVE_YAHOO.roster);
-  TEAMS.yahoo.name = LIVE_YAHOO.name;
-  TEAMS.yahoo.meta = ["12-team","half PPR","slot 12", LIVE_YAHOO.league];
-  TEAMS.yahoo.roster = roster;
+/* Each Yahoo league's roster block by league key (AYO's LIVE_AYO since 2026-09-29), named literally:
+   a top-level const cannot be looked up by a string. A league's block is null when the build had none. */
+const YAHOO_ROSTER_BLOCKS = {
+  yahoo: (typeof LIVE_YAHOO !== "undefined" && LIVE_YAHOO) || null,
+  ayo: (typeof LIVE_AYO !== "undefined" && LIVE_AYO) || null,
+};
+function hydrateYahoo(key){
+  const L = YAHOO_ROSTER_BLOCKS[key], tm = TEAMS[key];
+  if (!L || !tm) return;
+  tm.name = L.name;
+  tm.meta = ["12-team", "half PPR", ...(tm.slot ? [`slot ${tm.slot}`] : []), L.league];
+  tm.roster = L.roster.every(p => p.slot) ? espnRows(L.roster) : inferYahoo(L.roster);
 }
 function inferYahoo(rows){
   const need = {}; YAHOO_LINEUP.forEach(([p,n]) => need[p] = n);
@@ -49,15 +55,17 @@ function inferYahoo(rows){
     return Object.assign(row, signalsFor(row));
   });
 }
-if (typeof LIVE_YAHOO === "undefined" || !LIVE_YAHOO)
+if (!YAHOO_ROSTER_BLOCKS.yahoo)
   TEAMS.yahoo.roster.forEach(p => Object.assign(p, signalsFor(p)));   // the sample roster, same cells
-else hydrateYahoo();
+Object.keys(YAHOO_ROSTER_BLOCKS).forEach(hydrateYahoo);
+// A league the build had no roster for leaves TEAMS: no sample, so no team switch row, no owner pill.
+Object.keys(YAHOO_ROSTER_BLOCKS).forEach(k => { if (k !== "yahoo" && !YAHOO_ROSTER_BLOCKS[k]) delete TEAMS[k]; });
 
-/* A player on both rosters gets the "2 leagues" tag — computed, never hand-listed. */
+/* A player on more than one of David's rosters gets `dual`, the count of his teams (2 or 3 since the
+   third league, 2026-09-29) — computed, never hand-listed. */
 (function markDual(){
-  const y = new Set(TEAMS.yahoo.roster.map(p=>p.n));
-  const e = new Set(TEAMS.espn.roster.map(p=>p.n));
-  TEAMS.yahoo.roster.forEach(p=>{ if (e.has(p.n)) p.dual = 1; });
-  TEAMS.espn.roster.forEach(p=>{ if (y.has(p.n)) p.dual = 1; });
+  const mine = myLeagueKeys().map(k => TEAMS[k]), n = {};
+  mine.forEach(tm => new Set(tm.roster.map(p => p.n)).forEach(name => { n[name] = (n[name] || 0) + 1; }));
+  mine.forEach(tm => tm.roster.forEach(p => { if (n[p.n] > 1) p.dual = n[p.n]; }));
 })();
 

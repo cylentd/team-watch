@@ -6,9 +6,8 @@
    menu for that league's twelve, each with a star to follow it, and a Back row. Then "Add a
    league" for a team in another league. */
 let TS_LEAGUE = null;         // the league the menu is showing, or null for the first screen
-/* David's leagues, keyed by his team in each: every TEAMS entry that is neither a leaguemate nor
-   connected. Read when drawn, since data/mates.js adds the leaguemates to TEAMS at load. */
-const tsLeagues = () => Object.keys(TEAMS).filter(k => !TEAMS[k].mate && !TEAMS[k].connected);
+/* David's leagues, keyed by his team in each (data/teams.js myLeagueKeys; three since 2026-09-29). */
+const tsLeagues = () => myLeagueKeys();
 const tsLeagueOf = k => TEAMS[k].mate ? TEAMS[k].league : k;
 const tsByName = (a, b) => TEAMS[a].name.localeCompare(TEAMS[b].name, undefined, {sensitivity: "base"});
 const tsLeagueName = k => esc(TEAMS[k].meta[TEAMS[k].meta.length - 1]);

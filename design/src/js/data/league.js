@@ -6,7 +6,32 @@
 const LGS = {
   espn: (typeof LIVE_LEAGUE !== "undefined" && LIVE_LEAGUE) || null,
   yahoo: (typeof LIVE_LEAGUE_YAHOO !== "undefined" && LIVE_LEAGUE_YAHOO) || null,
+  ayo: (typeof LIVE_LEAGUE_AYO !== "undefined" && LIVE_LEAGUE_AYO) || null,   // the third league, 2026-09-29
 };
+/* Each Yahoo league's Trades block (design/league_trades.py), by the same keys: AYO has none until
+   ff-jarvis grades its trades, and Trades says so. */
+const LG_TRADES = {
+  yahoo: (typeof LIVE_TRADES !== "undefined" && LIVE_TRADES) || null,
+  ayo: (typeof LIVE_TRADES_AYO !== "undefined" && LIVE_TRADES_AYO) || null,
+};
+
+/* The League group's league (Recap, Records, Trades; 2026-09-29, David: "a switch on the page"): one
+   of David's Yahoo leagues with a League block, in the team switch's order, so the Madden Curse
+   first. The reader's pick is kept in this browser (`tw-league`), like the roster's Sheet / Cards,
+   so a reload keeps it; the hash stays the view's alone. */
+const LG_PICK = "tw-league";
+let LG_PICK_MEM = null;       // this load's pick, for a browser that refuses storage
+const lgLeagueKeys = () => myLeagueKeys().filter(k => TEAMS[k].site === "yahoo" && LGS[k]);
+function lgLeagueKey(){
+  const ks = lgLeagueKeys();
+  let k = LG_PICK_MEM;
+  try { k = k || localStorage.getItem(LG_PICK); } catch (e) { /* no storage: the default */ }
+  return ks.includes(k) ? k : ks[0] || null;
+}
+function lgLeagueSave(k){
+  LG_PICK_MEM = k;
+  try { localStorage.setItem(LG_PICK, k); } catch (e) { /* this load only */ }
+}
 
 /* The league of a team: David's own two by key, a leaguemate's by its league. A connected league has
    none. */

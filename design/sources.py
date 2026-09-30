@@ -12,7 +12,9 @@ import os
 import pathlib
 import re
 
-ROOT = pathlib.Path(__file__).resolve().parent
+import leagues                 # design/leagues.py: David's leagues and their ff-jarvis file names
+
+ROOT =pathlib.Path(__file__).resolve().parent
 REPO = ROOT.parent
 
 # The three input roots. Each can be pointed elsewhere by env var so a build can run against a
@@ -303,32 +305,35 @@ def load_league():
     return read_first(DWR / "espn_league.json"), read_first(DWR / "espn_league_history.json")
 
 
-def load_league_yahoo():
-    """(this season, past seasons, owner map) of the Yahoo league, from ff-jarvis's model.clients.yahoo_league.
+def league_path(key, kind):
+    """One league's ff-jarvis data file (design/leagues.py names it), read or not."""
+    return DWR / leagues.file(key, kind)
+
+
+def load_league_yahoo(key="yahoo"):
+    """(this season, past seasons, owner map) of a Yahoo league, from ff-jarvis's model.clients.yahoo_league.
     The owner map joins a past team to today's team of the same manager; it holds no names."""
-    return (read_first(DWR / "yahoo_league.json"), read_first(DWR / "yahoo_league_history.json"),
-            read_first(DWR / "yahoo_league_owners.json"))
+    return tuple(read_first(league_path(key, k)) for k in ("league", "league_history", "league_owners"))
 
 
-def load_league_back():
-    """(box scores, weekly roast, manager names) of the Yahoo league for its back page and Records, from
+def load_league_back(key="yahoo"):
+    """(box scores, weekly roast, manager names) of a Yahoo league for its back page and Records, from
     ff-jarvis's model.clients.yahoo_box, model.season.league_roast and data/yahoo_league_managers.json (first
     names, David's call for Records, 2026-09-27). Any may be missing; the pages draw without them."""
-    return (read_first(DWR / "yahoo_league_box.json"), read_first(DWR / "yahoo_league_recap.json"),
-            read_first(DWR / "yahoo_league_managers.json"))
+    return tuple(read_first(league_path(key, k)) for k in ("league_box", "league_recap", "league_managers"))
 
 
-def load_case_rosters():
+def load_case_rosters(key="yahoo"):
     """Each Yahoo season's champion and last-place team as their final lineups (ff-jarvis
     data/yahoo_case_rosters.json, 2026-09-28), for Records' two cases. None without it; the cases draw
     without it, their slots just do not open."""
-    return read_first(DWR / "yahoo_case_rosters.json")
+    return read_first(league_path(key, "case_rosters"))
 
 
-def load_trades():
+def load_trades(key="yahoo"):
     """ff-jarvis's trade verdicts (model.season.trade_verdicts): every Yahoo trade 2018 on, who won it by
     points above replacement, the games and playoff spots it decided, curses. A file, not a feed block."""
-    return read_first(DWR / "yahoo_trade_verdicts.json")
+    return read_first(league_path(key, "trade_verdicts"))
 
 
 def load_recap(season, week):

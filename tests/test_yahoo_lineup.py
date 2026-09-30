@@ -9,6 +9,7 @@ import json
 import pytest
 
 import build
+import myteams
 from test_render import browser, open_page  # noqa: F401  (browser is a fixture)
 
 # The shape of ff-jarvis's league_rosters.json, one row per Yahoo slot the league uses.
@@ -27,7 +28,7 @@ def slotted(tmp_path, monkeypatch):
     f = tmp_path / "league_rosters.json"
     f.write_text(json.dumps({"me": "Mine", "league": "L", "league_id": "1", "updated": "2026-09-25",
                              "detail": {"Mine": detail}}), encoding="utf-8")
-    monkeypatch.setattr(build, "YAHOO_ROSTERS", f)
+    monkeypatch.setattr(myteams, "YAHOO_ROSTERS", f)   # design/myteams.py reads David's Yahoo teams since 2026-09-29
 
 
 def test_the_scrape_slot_is_passed_through_in_the_page_names(slotted):

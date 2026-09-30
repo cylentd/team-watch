@@ -13,7 +13,7 @@ def _waiver(built):
 def test_block_carries_league_meta_in_packet_order(built):
     w = _waiver(built)
     assert w["week"] == 3 and w["clears"] == "2026-09-23T03:00:00-04:00"
-    assert list(w["leagues_meta"]) == ["espn", "yahoo"]
+    assert list(w["leagues_meta"]) == ["espn", "yahoo", "ayo"]   # AYO, the third league, since 2026-09-29
     assert w["leagues_meta"]["espn"] == {"label": "ESPN", "faab_left": 64, "faab_budget": 100,
                                         "clears": "2026-09-23T03:00:00-04:00", "needs": ["TE"]}
 
@@ -24,7 +24,8 @@ def test_one_card_per_player_grouped_by_tier(built):
     rows = _waiver(built)["players"]
     names = [r["n"] for r in rows]
     assert names.count("Emanuel Wilson") == 1
-    assert [r["tier"] for r in rows] == ["must", "must", "worth", "worth", "watch", "watch", "watch", "spec",
+    # Jaylen Warren is AYO's alone (2026-09-29): the third worth.
+    assert [r["tier"] for r in rows] == ["must", "must", "worth", "worth", "worth", "watch", "watch", "watch", "spec",
                                          "stash", "stash"]
     wilson = rows[0]
     assert wilson["slug"] == "emanuel-wilson" and set(wilson["leagues"]) == {"espn", "yahoo"}

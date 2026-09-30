@@ -13,11 +13,12 @@ def test_a_leaguemate_picks_their_team_and_it_sticks(browser, page_file):
     mates = page.evaluate("MATES.map(m => m.key)")
     if not mates:
         pytest.skip("the fixture's roster files hold no other team")
+    mine = page.evaluate("myLeagueKeys().length")   # David's team per league: three since AYO, 2026-09-29
     for leaf in ("roster", "waivers", "myrecap"):
         page.evaluate(f"localStorage.removeItem('tw-team'); SURFACE='{leaf}'; render()")
-        assert page.locator("#view[data-view='pick'] .tp-team").count() == len(mates) + 2, f"{leaf} asks first"
+        assert page.locator("#view[data-view='pick'] .tp-team").count() == len(mates) + mine, f"{leaf} asks first"
         assert page.locator("#view .row").count() == 0, "no roster until a pick"
-    assert page.locator(".tp-lg").count() == 2, "one list per league"
+    assert page.locator(".tp-lg").count() == mine == 3, "one list per league"
     page.locator(f".tp-team[data-pick='{mates[0]}']").click()
     assert page.evaluate("VIEW") == mates[0]
     assert page.evaluate("localStorage.getItem('tw-team')") == mates[0]

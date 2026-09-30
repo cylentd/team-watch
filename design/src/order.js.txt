@@ -119,6 +119,7 @@ surface/league/records.js
 surface/league/cases.js
 surface/league/myrecap.js
 surface/league/league.js
+surface/league/switch.js
 surface/trades/cards.js
 surface/trades/trades.js
 surface/trades/alive.js

@@ -1,5 +1,5 @@
 /* Who rosters him, one pill per league (2026-09-28, the profile's fourth question). Read from TEAMS
-   by slug: David's two teams plus every leaguemate's (data/mates.js), so a league whose twelve
+   by slug: David's own teams (three since 2026-09-29) plus every leaguemate's (data/mates.js), so a league whose twelve
    rosters are all here can also say "free agent". A league with only David's own team loaded (no
    LIVE_MATES) cannot, and draws no pill rather than a wrong one.
 
@@ -10,6 +10,7 @@
 const OWN_LEAGUES = [
   {key: "yahoo", tag: () => t("profile.own.yahoo")},
   {key: "espn", tag: () => t("profile.own.espn")},
+  {key: "ayo", tag: () => t("profile.own.ayo")},      // the third league, 2026-09-29
 ];
 
 function ownerOf(league, slug){

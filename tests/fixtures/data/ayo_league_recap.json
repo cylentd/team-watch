@@ -1,0 +1,15 @@
+{
+ "season": 2026,
+ "weeks": {
+  "2": {
+   "headline": "TAYLOR MADE STAYS PERFECT",
+   "dek": "Taylor Made for Sundays beat Don Wick by 10.0 and sits alone at 2-0.",
+   "lead": "12-2",
+   "games": {
+    "12-2": {"punch": "Don Wick benched Puka Nacua's 21 and lost by 10.", "beats": ["Puka Nacua on the bench: 21.0", "Lost by 10.0"], "stamp": null},
+    "4-6": {"punch": "ayoooo is 0-2 and out of excuses.", "beats": ["Lost by 10.5"], "stamp": null}
+   },
+   "written": "2026-09-27T01:27"
+  }
+ }
+}

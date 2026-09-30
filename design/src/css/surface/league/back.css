@@ -3,8 +3,10 @@
    (--tab: headline, stamps, section heads); body stays Archivo, numbers JetBrains Mono.
    Colour map: the league's own colour rules the masthead (which league you are reading); green won,
    red lost (the strike through a loser, the stamp); lime is the team on screen; amber a bench mistake. */
-.bp-mast{display:grid;gap:6px;padding:12px 0 14px;border-top:3px solid var(--yahoo);border-bottom:1px solid var(--line-2)}
-.bp-kick{margin:0;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--yahoo)}
+/* The rule and the kicker wear the league's colour: --lg-tint is set by the League switch's page
+   (back.js; the Madden Curse violet, AYO cyan since 2026-09-29). */
+.bp-mast{display:grid;gap:6px;padding:12px 0 14px;border-top:3px solid var(--lg-tint, var(--yahoo));border-bottom:1px solid var(--line-2)}
+.bp-kick{margin:0;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--lg-tint, var(--yahoo))}
 
 .bp-hd{margin:10px 0 0;display:flex;justify-content:space-between;align-items:baseline;gap:8px;
   font-family:var(--tab);font-size:var(--t-5);font-weight:900;line-height:1;text-transform:uppercase}

@@ -340,14 +340,14 @@ def test_owners_name_each_leagues_team(browser, page_file):
     row(page, "Amon-Ra St. Brown").click()
     pills = page.locator("#modal .pf-own")
     text = lambda: [re.sub(r"\s+", " ", p.inner_text()).strip() for p in pills.all()]  # noqa: E731
-    assert text() == ["Yahoo Yours", "ESPN Free agent"]
+    assert text() == ["Yahoo Yours", "ESPN Free agent", "AYO Free agent"]   # the third league, 2026-09-29
     assert "mine" in pills.first.get_attribute("class")
     assert "free" in pills.nth(1).get_attribute("class")
     page.keyboard.press("Escape")
     # A leaguemate's browser: no owner link, no team picked. The same pill names the team.
     page.evaluate("localStorage.setItem('tw-owner', ''); localStorage.removeItem('tw-team')")
     row(page, "Amon-Ra St. Brown").click()
-    assert text() == ["Yahoo Chat Take the Wheel", "ESPN Free agent"]
+    assert text() == ["Yahoo Chat Take the Wheel", "ESPN Free agent", "AYO Free agent"]
     assert "mine" not in pills.first.get_attribute("class")
     assert errors == []
     ctx.close()
@@ -375,7 +375,7 @@ def test_desktop_panes_sit_side_by_side_and_a_phone_stacks_them(browser, page_fi
         assert len(cols) >= 2
         assert (cols[0][0] == cols[1][0]) if side else (cols[1][0] >= cols[0][1])
         bgs = page.locator("#modal .pf-own-l").evaluate_all("els => els.map(e => getComputedStyle(e).backgroundColor)")
-        assert len(bgs) == 2 and bgs[0] == bgs[1]                  # one grey for both leagues, no brand colour
+        assert len(bgs) == 3 and len(set(bgs)) == 1                # one grey for every league (AYO the third), no brand colour
         tab(page, "season")
         assert page.locator("#modal .ss-row svg").count() == 0
         # A draft pick sits by the league it belongs to, not at the far edge of the pane (David,
@@ -410,7 +410,7 @@ def test_an_owner_pill_opens_that_teams_roster(browser, page_file):
     page.go_back()
     page.wait_for_function("location.hash === '#usage'")
     page.evaluate("openProfile({n: 'Amon-Ra St. Brown', pos: 'WR', team: 'DET', slug: 'amonra-st-brown'})")
-    assert page.locator("#modal span.pf-own.free").count() == 1   # free agent: not a button
+    assert page.locator("#modal span.pf-own.free").count() == 2   # free agent in ESPN and AYO: not a button
     assert errors == []
     ctx.close()
 

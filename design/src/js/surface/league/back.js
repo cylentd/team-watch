@@ -10,9 +10,11 @@
    data arriving is the one thing that moves on its own); redrawing the same week does not. */
 let LG_DRAWN = null;
 
-/* The league-wide pages (League, Records) always show the Yahoo league, whatever team is on screen. */
-function lgUseYahoo(){
-  if (LG !== LGS.yahoo){ LG = LGS.yahoo; LG_WEEK = null; LG_OPEN = null; }
+/* The league-wide pages (Recap, Records, Trades) show the League switch's Yahoo league (data/league.js
+   lgLeagueKey; the Madden Curse unless the reader picked AYO), whatever team is on screen. */
+function lgUsePicked(){
+  const L = LGS[lgLeagueKey()] || null;
+  if (LG !== L){ LG = L; LG_WEEK = null; LG_OPEN = null; }
   return LG;
 }
 
@@ -118,8 +120,8 @@ function lgBackWeekHTML(){
 
 /* This week > League: the back page, no page head (the league's name is in the kicker). */
 function lgLeaguePageHTML(){
-  if (!lgUseYahoo()) return `<div class="wrap"><p class="lg-none">${t("league.none")}</p></div>`;
-  return `<div class="wrap"><div class="lg lg-one">${lgBackWeekHTML()}</div></div>`;
+  if (!lgUsePicked()) return `<div class="wrap"><p class="lg-none">${t("league.none")}</p></div>`;
+  return `<div class="wrap" style="--lg-tint:${lgTint()}">${lgSwitchHTML()}<div class="lg lg-one">${lgBackWeekHTML()}</div></div>`;
 }
 
-function wireLeaguePage(v){ wireLeague(v, null, lgBackWeekHTML); }
+function wireLeaguePage(v){ wireLeague(v, null, lgBackWeekHTML); wireLgSwitch(v); }

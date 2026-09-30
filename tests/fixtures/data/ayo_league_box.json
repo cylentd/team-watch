@@ -1,0 +1,18 @@
+{
+ "generated": "2026-09-27T01:20",
+ "season": 2026,
+ "weeks": {
+  "2": [
+   {"home": 12, "away": 2,
+    "slots": [
+     {"slot": "QB", "a": {"name": "Brock Purdy", "nfl": "SF", "pos": "QB", "pts": 24.1, "proj": 19.0, "line": "3 Pass TD"},
+                    "b": {"name": "Jared Goff", "nfl": "DET", "pos": "QB", "pts": 12.3, "proj": 18.2, "line": "1 Pass TD"}},
+     {"slot": "RB", "a": {"name": "Jahmyr Gibbs", "nfl": "DET", "pos": "RB", "pts": 18.4, "proj": 16.0, "line": "102 Rush Yds"},
+                    "b": {"name": "Derrick Henry", "nfl": "BAL", "pos": "RB", "pts": 9.1, "proj": 15.5, "line": "61 Rush Yds"}}
+    ],
+    "bench": {"a": [], "b": [{"name": "Puka Nacua", "nfl": "LAR", "pos": "WR", "pts": 21.0, "proj": 14.0, "line": "9 Rec"}]},
+    "proj": {"a": 118.0, "b": 121.4},
+    "left": {"a": null, "b": null}}
+  ]
+ }
+}

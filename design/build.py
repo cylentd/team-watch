@@ -36,18 +36,21 @@ from routes import live_routes, report as routes_report          # design/routes
 from archetype import (load_archetype, load_trenches, live_archetype, live_trenches,  # role/style labels + OL context
                        report_archetype, report_trenches)
 from startsit import live_startsit, report as startsit_report  # design/startsit.py: the Matchups view
-from mates import espn_rows, yahoo_rows, live_mates, slugs as mate_slugs, report as mates_report  # every team in both leagues
+from mates import espn_rows, live_mates, slugs as mate_slugs, report as mates_report  # every team in David's leagues
 from digest import live_digest, report as digest_report        # design/digest.py: the Digest view
 from preview import live_preview, report as preview_report     # design/preview.py: This week > Preview
 from role import live_role, report as role_report              # design/role.py: Players > Role
-from league_recap import live_league, live_league_yahoo, report as league_report  # My teams > League
-from league_trades import live_trades, report as trades_report  # League > Trades
+from league_recap import live_league, report as league_report  # My teams > League
+from league_trades import report as trades_report  # League > Trades
+import leagues                 # design/leagues.py: David's leagues, their files and blocks
+from myteams import (live_yahoo, roster_file, roster_index, yahoo_rosters,  # noqa: F401 (live_yahoo: tests)
+                     yahoo_gameday, yahoo_league_blocks)                    # every Yahoo league's blocks
 from sources import (                                    # design/sources.py: the ff-jarvis adapter
-    ROOT, REPO, DWR, FEED, ESPN_ROSTERS, YAHOO_ROSTERS, DFS_POOL,
+    ROOT, REPO, DWR, FEED, ESPN_ROSTERS, DFS_POOL,
     feed_block, read_first, warn_if_stale, load_status, load_props_raw, load_model_raw,
     load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
     load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_startsit, load_startsit_review, load_digest, load_game_preview, load_preview_record, load_league, load_role_board,
-    load_league_yahoo, load_league_back, load_case_rosters, load_defense, load_trades, load_kickers,
+    load_defense, load_kickers,
 )
 from gameday import live_gameday, report as gameday_report  # This week > Live: every matchup, scored live
 from defense import live_defense, report as defense_report  # design/defense.py: the leg sheet's matchup line
@@ -200,10 +203,6 @@ def status_badge():
     return badge
 
 
-def roster_file(path):
-    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
-
-
 def live_feed():
     """What `python -m model.refresh` last wrote. Drives the status strip, so the page reports
     the real state of each source instead of a hardcoded banner. Only the provenance is taken —
@@ -224,8 +223,7 @@ def live_feed():
         "usage_note": usage.get("note"),
         "pool_size": len(usage.get("pool") or []),
         "fetched": {
-            "espn": ((d.get("rosters") or {}).get("espn") or {}).get("fetched"),
-            "yahoo": ((d.get("rosters") or {}).get("yahoo") or {}).get("fetched"),
+            **{k: ((d.get("rosters") or {}).get(k) or {}).get("fetched") for k in leagues.KEYS},   # espn, yahoo, ayo
             "props": ((market.get("props") or {}).get("fetched")),
             "props_bp": ((market.get("props_bp") or {}).get("fetched")),
             "props_model": ((market.get("props_model") or {}).get("fetched")),
@@ -472,30 +470,6 @@ def live_props(available, rosters):
     }
 
 
-def roster_index(*sources):
-    """slug -> {pos, team, leagues} across my teams, for the builder's `mine` flag."""
-    idx = {}
-    for key, src in sources:
-        if not src:
-            continue
-        for p in src["roster"]:
-            slug = slugify(p["n"])
-            e = idx.setdefault(slug, {"pos": p["pos"], "team": p["team"], "leagues": []})
-            e["leagues"].append(key)
-    return idx
-
-
-def live_yahoo(available):
-    """Yahoo comes from a website scrape with no injury status. Since 2026-09 the scrape carries
-    each player's lineup slot, which is passed through (mates.YAHOO_SLOT); a scrape without one
-    gives slot None, and the template falls back to inferring the lineup."""
-    if not YAHOO_ROSTERS.exists():
-        return None
-    d = json.loads(YAHOO_ROSTERS.read_text(encoding="utf-8"))
-    return {"name": d["me"], "league": d["league"], "league_id": d["league_id"],
-            "updated": d["updated"], "roster": yahoo_rows(d["detail"][d["me"]], available, slugify)}
-
-
 def model_points():
     """slug -> (points, source) for every player ff-jarvis projects this week.
 
@@ -590,11 +564,11 @@ class Build:
         self.stamp = stamp or {}
 
 
-def wanted_slugs(live, liveY, props, dfs, waiver, pool):
+def wanted_slugs(mine, props, dfs, waiver, pool):
     """Every slug the page can draw a headshot for, in first-seen order is not needed: render()
-    dedupes. Split out of render() for its line budget."""
+    dedupes. `mine` is David's roster blocks, one per league. Split out of render() for its line budget."""
     wanted = list(SLUGS) + waiver_slugs(waiver) + [p["slug"] for p in (pool or {}).get("players", []) if p["slug"]]
-    for src in (live, liveY):
+    for src in mine:
         if src:
             wanted += [p["slug"] for p in src["roster"] if p["slug"]]
     if props:
@@ -612,19 +586,21 @@ def add_market_stock(blocks, report):
     blocks["LIVE_MARKET_STOCK"] = stock
     report.append(f"Market stock: {len(stock['players'])} players" if stock
                   else "Market stock: none, so no market row")
-    blocks["LIVE_SIGNALS"] = live_signals(FEED, DWR, (blocks["LIVE_ESPN"], blocks["LIVE_YAHOO"],
-                                                      *(blocks["LIVE_MATES"] or {}).get("teams", [])), slugify)
+    mine = [blocks["LIVE_ESPN"]] + [blocks[leagues.blocks(k).roster] for k in leagues.YAHOO]
+    blocks["LIVE_SIGNALS"] = live_signals(FEED, DWR, (*mine, *(blocks["LIVE_MATES"] or {}).get("teams", [])), slugify)
     report += [signals_report(blocks["LIVE_SIGNALS"]), waiver_report(blocks["LIVE_WAIVER"]),
                wire_report(blocks["LIVE_WIRE"]), pool_report(blocks["LIVE_POOL"]), usage_report(blocks["LIVE_USAGE"]),
-               mates_report(blocks["LIVE_MATES"]), league_report(blocks["LIVE_LEAGUE"]),
-               league_report(blocks["LIVE_LEAGUE_YAHOO"], "Yahoo")]
+               mates_report(blocks["LIVE_MATES"]), league_report(blocks["LIVE_LEAGUE"])]
+    for lg in (x for x in leagues.LEAGUES if x.key in leagues.YAHOO):
+        report += [league_report(blocks[leagues.blocks(lg.key).league], lg.label),
+                   trades_report(blocks[leagues.blocks(lg.key).trades], lg.key)]
 
 
-def report_sources(report, live, liveY, props, liveDfsYahoo, news, profiles, missing):
+def report_sources(report, mine, props, liveDfsYahoo, news, profiles, missing):
     """The per-source lines of render()'s summary -- split out to keep render() under its
     110-line budget (tests/test_budgets.py's PY_BACKLOG ratchet). Mutates `report` in place,
-    same convention as add_market_stock()."""
-    for label, src in (("ESPN", live), ("Yahoo", liveY)):
+    same convention as add_market_stock(). `mine` is (label, David's roster block) per league."""
+    for label, src in mine:
         if src:
             report.append(f"{label}: {len(src['roster'])} players, {src['league']}, pulled {src['updated']}")
         else:
@@ -689,19 +665,20 @@ def render():
         raise SystemExit("lint: " + "; ".join(f"{f.file}:{f.line} {f.rule} {f.text}" for f in bad))
 
     available = {p.stem for p in HEADS_SRC.glob("*.webp")}
-    live = live_espn(available)
-    liveY = live_yahoo(available)
-    mates = live_mates(roster_file(ESPN_ROSTERS), roster_file(YAHOO_ROSTERS), available, status_badge(), slugify)
+    live, yb = live_espn(available), yahoo_league_blocks(available)
+    mine = [("espn", live)] + [(k, yb[leagues.blocks(k).roster]) for k in leagues.YAHOO]   # David's team per league
+    yr = yahoo_rosters()          # {yahoo: file, ayo: file}: the first is live_mates' own argument, the rest `more`
+    mates = live_mates(roster_file(ESPN_ROSTERS), yr.pop("yahoo"), available, status_badge(), slugify, **yr)
     liveDfsYahoo = live_dfs_yahoo(available)
     news = load_news(FEED, DWR)
 
-    props = live_props(available, roster_index(("espn", live), ("yahoo", liveY)))
+    props = live_props(available, roster_index(*mine))
 
     waiver, pool = live_waiver(FEED, DWR, slugify), live_pool(load_usage(FEED, DWR), slugify)
     # Usage is deliberately not in wanted_slugs: the grid runs 80 rows a position and draws no
     # portrait, so inlining one per name would add megabytes for a column that does not exist.
     usage = live_usage(load_grid(FEED, DWR), slugify)
-    wanted = wanted_slugs(live, liveY, props, liveDfsYahoo, waiver, pool) + mate_slugs(mates)
+    wanted = wanted_slugs([src for _, src in mine], props, liveDfsYahoo, waiver, pool) + mate_slugs(mates)
     wanted_set = set(wanted)
 
     # Every head ff-jarvis has, not only the wanted ones: a connected league's players are read at
@@ -715,7 +692,7 @@ def render():
     report = []
     blocks = {
         "LIVE_ESPN": live,
-        "LIVE_YAHOO": liveY,
+        **yb,                    # LIVE_YAHOO, LIVE_LEAGUE_YAHOO, LIVE_TRADES and each other Yahoo league's
         "LIVE_MATES": mates,
         "LIVE_FEED": live_feed(),
         "LIVE_NEWS": news,
@@ -744,13 +721,10 @@ def render():
         "LIVE_DIGEST": live_digest(load_digest(), slugify, load_schedule(DWR)),
         "LIVE_PREVIEW": live_preview(load_game_preview(), slugify, load_preview_record()),
         "LIVE_LEAGUE": live_league(*load_league(), roster_file(ESPN_ROSTERS), slugify),
-        "LIVE_LEAGUE_YAHOO": live_league_yahoo(*load_league_yahoo(), roster_file(YAHOO_ROSTERS), slugify, *load_league_back(),
-                                               cases=load_case_rosters()),
         "LIVE_DEFENSE": live_defense(load_defense(), TEAM_FIX),
-        "LIVE_TRADES": live_trades(load_trades(), load_league_back()[2], slugify=slugify),
-        "LIVE_GAMEDAY": live_gameday(load_league()[0], roster_file(ESPN_ROSTERS), load_league_yahoo()[0],
-                                     roster_file(YAHOO_ROSTERS), read_first(DWR / "yahoo_settings.json"),
-                                     load_status(), load_kickers(), slugify, norm_name),
+        "LIVE_GAMEDAY": live_gameday(load_league()[0], roster_file(ESPN_ROSTERS), *yahoo_gameday("yahoo"),
+                                     load_status(), load_kickers(), slugify, norm_name,
+                                     more=[(k, *yahoo_gameday(k)) for k in leagues.YAHOO[1:]]),
     }
     blocks["LIVE_SIGNED"] = live_signed(load_gamelog_weekly(), blocks["LIVE_SCHEDULE"], slugify, wanted_set)
     add_market_stock(blocks, report)
@@ -762,7 +736,7 @@ def render():
                report_trenches(blocks["LIVE_TRENCHES"]), lines_report(blocks["LIVE_LINES"]),
                injury_report(blocks["LIVE_INJURY"]), startsit_report(blocks["LIVE_STARTSIT"]), role_report(blocks["LIVE_ROLE"]),
                wx_history_report(blocks["LIVE_WX_HISTORY"]), defense_report(blocks["LIVE_DEFENSE"]),
-               trades_report(blocks["LIVE_TRADES"]), gameday_report(blocks["LIVE_GAMEDAY"]),
+               gameday_report(blocks["LIVE_GAMEDAY"]),
                f"Weather: {len(blocks['LIVE_WEATHER']['teams'])} teams" if blocks["LIVE_WEATHER"] else "Weather: none"]
     for name, obj in blocks.items():
         contract.validate(name, obj)   # a missing field fails the build, not the page
@@ -789,7 +763,8 @@ def render():
     # is the same page as a fragment (no doctype/head), which is what the Artifact publisher wants.
     page = f"{document_head()}\n{body}\n</body>\n</html>\n"
 
-    report_sources(report, live, liveY, props, liveDfsYahoo, news, blocks["LIVE_PROFILES"], missing)
+    labels = {lg.key: lg.label for lg in leagues.LEAGUES}
+    report_sources(report, [(labels[k], src) for k, src in mine], props, liveDfsYahoo, news, blocks["LIVE_PROFILES"], missing)
     return Build(page, body, report, heads, missing, stamp)
 
 

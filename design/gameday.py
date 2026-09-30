@@ -56,14 +56,17 @@ def _league(key, season, rosters, rules, ids, slugify, norm):
             "rules": rules, "teams": teams, "games": games}
 
 
-def live_gameday(espn, espn_rosters, yahoo, yahoo_rosters, yahoo_settings, status, kickers, slugify, norm):
+def live_gameday(espn, espn_rosters, yahoo, yahoo_rosters, yahoo_settings, status, kickers, slugify, norm, more=()):
     """LIVE_GAMEDAY: {season, leagues [LEAGUE]}; a league without its files is left out. `status` is
-    sleeper_status.json's players (skill positions), `kickers` its kicker map: together, every id."""
+    sleeper_status.json's players (skill positions), `kickers` its kicker map: together, every id.
+    `more` is every other Yahoo league as (key, season, rosters, settings) (AYO, 2026-09-29), each
+    scored by its own settings file's rules: AYO's kicking is not the first league's."""
     ids = {**{k: (r or {}).get("sleeper_id") for k, r in (status or {}).items()}, **(kickers or {})}
+    yahoo_like = [("yahoo", yahoo, yahoo_rosters, yahoo_settings), *more]
     leagues = [
         _league("espn", espn, espn_rosters, _scoring.espn_rules((espn or {}).get("scoring")), ids, slugify, norm),
-        _league("yahoo", yahoo, yahoo_rosters, _scoring.yahoo_rules((yahoo_settings or {}).get("scoring")),
-                ids, slugify, norm),
+        *(_league(k, s, r, _scoring.yahoo_rules((st or {}).get("scoring")), ids, slugify, norm)
+          for k, s, r, st in yahoo_like),
     ]
     leagues = [lg for lg in leagues if lg]
     return {"season": (espn or yahoo or {}).get("season"), "leagues": leagues}

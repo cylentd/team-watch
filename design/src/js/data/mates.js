@@ -8,10 +8,11 @@ const MATES = (typeof LIVE_MATES !== "undefined" && LIVE_MATES) ? LIVE_MATES.tea
 
 MATES.forEach(m => {
   const home = TEAMS[m.league];
+  if (!home) return;   // a league whose own roster the build lacked (hydrate.js dropped it)
   TEAMS[m.key] = {
     key: m.key, plat: home.plat, tint: home.tint, slot: "", name: m.name, record: "",
     meta: home.meta.slice(), league: m.league, mate: true,
-    roster: m.league === "yahoo" && !m.roster.every(p => p.slot) ? inferYahoo(m.roster) : espnRows(m.roster),
+    roster: home.site === "yahoo" && !m.roster.every(p => p.slot) ? inferYahoo(m.roster) : espnRows(m.roster),
   };
 });
 const mateKeys = league => MATES.filter(m => m.league === league).map(m => m.key);
@@ -38,9 +39,9 @@ function myTeamSave(k){
 }
 
 /* The teams a reader follows (2026-09-26): the team switch lists only these, and every other team
-   in the two leagues sits behind "Leaguemates", one tap further. Kept in this browser. Unset, it is
-   David's two teams, or the leaguemate's own team if they had already picked it. A connected
-   league is always followed: adding it was the follow. */
+   in David's leagues sits behind its league's row, one tap further. Kept in this browser. Unset, it
+   is David's own teams (three since 2026-09-29), or the leaguemate's own team if they had already
+   picked it. A connected league is always followed: adding it was the follow. */
 const FOLLOW = "tw-follow";
 let FOLLOW_MEM = null;        // this load's list, for a browser that refuses storage
 function followLoad(){
@@ -50,7 +51,7 @@ function followLoad(){
     if (Array.isArray(got)) return got.filter(k => TEAMS[k] && !TEAMS[k].connected);
   } catch (e) { /* unreadable: the default below */ }
   const mine = myTeamLoad();
-  return mine && TEAMS[mine].mate ? [mine] : ["yahoo", "espn"];
+  return mine && TEAMS[mine].mate ? [mine] : myLeagueKeys();
 }
 function followToggle(k){
   const now = followLoad(), next = now.includes(k) ? now.filter(x => x !== k) : [...now, k];

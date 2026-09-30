@@ -1,13 +1,12 @@
 """The shape each injected data block must have, checked where the data enters the page.
 
-build.py injects seven `const LIVE_*` blocks. The JS reads fixed field names off them (see
-src/js/data/*.js); a field renamed or dropped on the Python side used to show up as a blank
-panel or a console error on the deployed page. Now it fails the build.
-
-The lists below are the fields the JS dereferences (top-level keys, then the keys read off each
-row). A block may be None -- that is "source not available", and the page falls back to its
-sample -- but a block that is present must be whole. Null values are fine; absent keys are not.
+The JS reads fixed field names off each `const LIVE_*` block build.py injects; a field renamed or
+dropped on the Python side used to show up as a blank panel on the deployed page. Now it fails the
+build. The lists below are the fields the JS dereferences (top-level keys, then the keys read off
+each row). A block may be None ("source not available"), but a block that is present must be
+whole. Null values are fine; absent keys are not.
 """
+import leagues
 
 # A league's `status` is fa | waiver | rostered | mine | unknown -- no value is enforced here:
 # "unknown" (the scrape could not tell) is a real answer, and the card says so rather than
@@ -49,11 +48,10 @@ LEAGUE_SPEC = {
              ("champs", ["y", "id", "name", "w", "l", "t"]),
              ("facts", ["k"])],
 }
-# The Yahoo back page (design/league_back.py) reads more: each team's all-time record, title and
-# last-place seasons (the tape), each week's headline and dek (null when the roast skipped it), and
-# the record book.
+# The Yahoo back page (design/league_back.py) reads more: each team's record, titles and last places, each week's
+# headline and dek (null when the roast skipped it), the book, and `history` (a past-seasons file was read).
 LEAGUE_YAHOO_SPEC = {
-    "keys": LEAGUE_SPEC["keys"] + ["book", "grudge", "withheld", "spoons"],
+    "keys": LEAGUE_SPEC["keys"] + ["book", "grudge", "withheld", "spoons", "history"],
     "rows": [("teams", ["id", "name", "key", "w", "l", "t", "all", "titles", "lasts"]),
              ("weeks", ["week", "games", "awards", "head", "dek", "table", "lead", "photo", "blip", "streaks"]),
              ("spoons", ["y", "id", "name", "mgr", "final"])] + LEAGUE_SPEC["rows"][2:],
@@ -395,6 +393,8 @@ CONTRACT = {
                  ("curses", ["player", "surname", "kind", "n", "slug", "moves"])],
     },
 }
+# Every other Yahoo league's blocks (design/leagues.py blocks(); AYO since 2026-09-29) are the first one's shape.
+CONTRACT.update({b: CONTRACT[a] for key in leagues.YAHOO for a, b in zip(leagues.blocks("yahoo"), leagues.blocks(key))})
 
 
 class ContractError(SystemExit):

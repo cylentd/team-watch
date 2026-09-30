@@ -134,8 +134,12 @@ function lgHallHTML(kind, id){
 
 /* This week > Records: the same page for every reader. */
 function lgRecordsPageHTML(){
-  if (!lgUseYahoo()) return `<div class="wrap"><p class="lg-none">${t("league.none")}</p></div>`;
-  return `<div class="wrap">${lgPageHead(t("league.page.sub", {y: LG.since}))}<div class="lg rc">
+  if (!lgUsePicked()) return `<div class="wrap"><p class="lg-none">${t("league.none")}</p></div>`;
+  // A league with no past seasons read (AYO until ff-jarvis backfills it, 2026-09-29) has no book to
+  // show: one season's games are This week's, not a record. The switch stays, so the reader can go back.
+  if (!LG.history) return `<div class="wrap">${lgSwitchHTML()}${lgPageHead(t("records.empty.sub"))}
+    <p class="lg-none rc-empty">${t("records.empty.body")}</p></div>`;
+  return `<div class="wrap">${lgSwitchHTML()}${lgPageHead(t("league.page.sub", {y: LG.since}))}<div class="lg rc">
     ${rcHeadToHeadHTML()}
     ${rcTrophyHTML()}${rcSpoonHTML()}
     <div class="rc-halls">${lgHallHTML("fame", null)}${lgHallHTML("shame", null)}</div>
@@ -177,6 +181,7 @@ function rcOpenPair(a, b, originEl){
 /* The manager select redraws the head to head alone, so the cases beside it never move. A row opens
    the pair's sheet; a trophy or a toilet opens that season's final lineup. */
 function wireRecords(v){
+  wireLgSwitch(v);
   const root = v.querySelector(".rc");
   if (!root) return;
   root.addEventListener("change", e => {

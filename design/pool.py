@@ -3,6 +3,7 @@ usage), cut to the fields the page draws. Every number is watch's own: the share
 is the one verdict() read (carries for a back, targets for a receiver, snaps for a quarterback).
 
 Self-contained like signals.py: the usage block and slugify come in as arguments."""
+import leagues
 
 # The share that says a player's role, by position; a quarterback has no carry or target share
 # that means anything, so his role is his snaps.
@@ -14,8 +15,9 @@ def _r1(v):
 
 
 def _leagues(rostered_by, mine):
-    """{"espn": team or None, "yahoo": team or None} and whether one of those teams is mine."""
-    out = {"espn": None, "yahoo": None}
+    """{league key: team or None} for each of David's leagues (a watch label lowercased is its key: ESPN,
+    Yahoo, AYO) and whether one of those teams is mine."""
+    out = dict.fromkeys(leagues.KEYS)
     for tag in rostered_by or []:
         label, _, team = tag.partition(":")
         if label.lower() in out:

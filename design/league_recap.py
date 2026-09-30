@@ -15,6 +15,7 @@ Nothing here advises anyone: results, awards and history are already public insi
 """
 import re
 
+import leagues
 from league_back import (add_meets, add_standings, add_streaks, add_tape, book, enrich_weeks, last_places, next_grudge,
                          private_pairs, record_skip, withhold)
 
@@ -234,8 +235,11 @@ def case_rosters(raw, champs, spoons):
     return out
 
 
-def live_league_yahoo(season, history, owners, rosters, slugify, box=None, recap=None, managers=None, cases=None):
-    """LIVE_LEAGUE_YAHOO, or None. Yahoo re-ids every team each season and hides managers from the
+def live_league_yahoo(season, history, owners, rosters, slugify, box=None, recap=None, managers=None, cases=None,
+                      key="yahoo"):
+    """LIVE_LEAGUE_YAHOO (or another Yahoo league's block, by `key`: its team keys, private pairs and
+    record skip are its own; `history` says whether a past-seasons file was read, which Records needs), or
+    None. Yahoo re-ids every team each season and hides managers from the
     cookie, so past teams join today's through `owners` (ff-jarvis yahoo_league_owners.json, no names).
     With every past season mapped, head-to-head and titles run all-time (`scope` "all"); without, this
     season only. A past team keeps the name it had that year (`name`); `id` says who it is today.
@@ -256,18 +260,19 @@ def live_league_yahoo(season, history, owners, rosters, slugify, box=None, recap
     now = _all_games(season, {})
     past, names, totals = _yahoo_past(pods, owners)
     everything = sorted(past + now, key=lambda g: (g["y"], g["week"]))
-    skip = record_skip(former=FORMER)
+    skip = record_skip(leagues.skip_file(key), former=FORMER)
     fx = _named(facts(everything, [c for c in champs if c["id"]] if mapped else [], totals, skip), names, mgr)
     games = everything if mapped else now
-    teams = [{**t, "mgr": mgr(t["id"])} for t in _teams(season, rosters, slugify, "yahoo")]
+    teams = [{**t, "mgr": mgr(t["id"])} for t in _teams(season, rosters, slugify, key)]
     block = _block(season, teams, games, champs, fx,
                    min([int(y) for y in pods] + [season["season"]]), "all" if mapped else "season")
+    block["history"] = bool(pods)
     enrich_weeks(block["weeks"], box, recap, slugify)
     add_standings(block["weeks"], [t["id"] for t in block["teams"]])
     add_meets(block["h2h"], games)
     ids = {t["id"] for t in block["teams"]}
     add_streaks(block["weeks"], games, ids)
-    block["withheld"] = withhold(block["h2h"], private_pairs())
+    block["withheld"] = withhold(block["h2h"], private_pairs(leagues.private_file(key)))
     block["grudge"] = next_grudge(block["now"], block["h2h"])
     finals = _yahoo_finals(pods, owners) if mapped else {}
     lasts = last_places(games, season["season"], finals)

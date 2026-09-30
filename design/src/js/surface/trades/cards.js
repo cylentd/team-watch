@@ -7,8 +7,9 @@
    https://claude.ai/artifact/57FSz4b4TrAxrb79EJJXjp): a header strip (what and when), a body, a footnote.
    A trade's body is its two sides as rows, the scores in one right-hand column where they compare. */
 
-/* A declaration, not a const: the nav asks for it (navTabsOf) and must never meet it uninitialised. */
-function trData(){ return typeof LIVE_TRADES !== "undefined" ? LIVE_TRADES : null; }
+/* A declaration, not a const: the nav asks for it (navTabsOf) and must never meet it uninitialised.
+   The League switch's league's trades (data/league.js LG_TRADES), null when ff-jarvis has none for it. */
+function trData(){ return LG_TRADES[lgLeagueKey()] || null; }
 /* A manager by name; a key that is today's team id falls back to lgMgr (the league's name for him, else
    the team's), and a former manager without a name reads as one. */
 const trName = key => {

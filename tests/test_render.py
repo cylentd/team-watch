@@ -155,11 +155,14 @@ STATES = [
     # A first visit: no team picked in this browser, so My teams asks whose team first.
     ("teams-pick", [("eval", "localStorage.removeItem('tw-team')")] + go("roster")),
     ("teams-espn", [("eval", "VIEW='espn'; render()")] + go("roster")),
+    # The third league (2026-09-29): AYO, a second Yahoo login, the first Yahoo team's shape.
+    ("teams-ayo", [("eval", "VIEW='ayo'; render()")] + go("roster")),
     ("teams-modal", go("roster") + [("click", ".row")]),   # Joe Burrow: no matchup profile, the quiet state
     # One league at a time since v2: the team on screen picks the cards, tiers, hero and rail.
     # SEED is a Saturday, so these are wire-watch mode (the rail leads, every row shown).
     ("waivers-espn", [("eval", "VIEW='espn'; render()")] + go("waivers")),
     ("waivers-yahoo", go("waivers")),
+    ("waivers-ayo", [("eval", "VIEW='ayo'; render()")] + go("waivers")),
     # Anyone but David (data/owner.js): the league-wide Most added list in place of his advice.
     ("waivers-visitor", [("eval", "localStorage.setItem('tw-owner', '')")] + go("waivers")),
     ("waivers-claimday", [("eval", 'Date.now = () => Date.parse("2026-09-22T12:00:00Z")')] + go("waivers")),
@@ -182,12 +185,17 @@ STATES = [
     ("records-yahoo-pair", go("records") + [("eval", "const s = document.querySelector('[data-rcmgr]'); s.value = '3'; s.dispatchEvent(new Event('change', {bubbles: true}))"),
                                             ("click", "[data-rcpair] >> nth=0")]),
     ("records-yahoo-roster", go("records") + [("click", "[data-csroster='2025:champ']")]),
+    # The League switch (2026-09-29): AYO's week 2, its Records and Trades, which have no history yet.
+    ("recap-ayo", go("recap") + [("click", "[data-lgpick='ayo']")]),
+    ("records-ayo", go("records") + [("click", "[data-lgpick='ayo']")]),
+    ("trades-ayo", go("trades") + [("click", "[data-lgpick='ayo']")]),
     # League > Trades (2026-09-28): the page, then Lateef's trades open (a 2026 one still open, a trade
     # whose tree verdict differs, the seasons it decided) and every "decided a season" card shown (a
     # phone swipes through all of them and has no Show all).
     ("trades", go("trades")),
     ("trades-open", go("trades") + [("click", "[data-trmgr='6']"), ("eval", "document.querySelector('[data-trall]')?.click()")]),
     ("myrecap-yahoo", go("myrecap")),
+    ("myrecap-ayo", [("eval", "VIEW='ayo'; render()")] + go("myrecap")),
     ("myrecap-yahoo-week1", go("myrecap") + [("click", "[data-lgweek='1']")]),
     # The fixture's week-3 pairings never met, so this seeds three meetings before the view draws.
     ("myrecap-yahoo-margins", [("eval", "() => { const m = [[2024, 3, 12.5, 0], [2025, 6, -30.25, 0], [2025, 14, 4.1, 1]];"

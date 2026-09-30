@@ -8,6 +8,7 @@ Jahmyr Gibbs) across CIN/SF/DET, plus Ja'Marr Chase as a TD-only, headshot-less,
 |---|---|
 | `data/espn_rosters.json` | `live_espn()` — read directly, no feed fallback |
 | `data/league_rosters.json` | `live_yahoo()` — read directly, no feed fallback |
+| `data/ayo_*.json` | the third league, AYO (2026-09-29), the first Yahoo league's shapes: `ayo_rosters` (Taylor Made for Sundays: Chase Brown on all three of David's teams, Gibbs Yahoo too, Purdy and Higgins ESPN too, Jefferson AYO only; one leaguemate, Don Wick), `ayo_settings` (the real AYO scoring: kicking 3/3/3/4/5, no misses), `ayo_league` (4 teams, weeks 1-2 decided), `ayo_league_box`, `ayo_league_recap` (week 2). No history, owners, managers, trades or case rosters: Records and Trades draw their empty state. `waiver_packet.json` carries an AYO league with Jaylen Warren on its wire alone |
 | `data/sleeper_status.json` | `load_status()` — injury/depth badges |
 | `data/bettingpros_props.json` | `load_props_raw()` — prop lines, 3 games/2 books |
 | `data/props_model.json` | `load_model_raw()` — P(over), edge, stale/moved/norole |

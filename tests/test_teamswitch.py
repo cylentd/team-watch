@@ -35,7 +35,7 @@ def test_the_menu_lists_followed_teams_and_a_league_on_request(browser, page_fil
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     drive(page, go("roster"))
     page.click("[data-tsbtn]")
-    assert sorted(page.evaluate(SHOWN)) == ["espn", "yahoo"], "unset, the list is David's two teams"
+    assert page.evaluate(SHOWN) == ["yahoo", "espn", "ayo"], "unset, the list is David's teams (three since 2026-09-29)"
     lg = page.evaluate("MATES[0]?.league || null")
     if not lg:
         pytest.skip("the fixture has no leaguemates")
@@ -45,11 +45,11 @@ def test_the_menu_lists_followed_teams_and_a_league_on_request(browser, page_fil
     page.click(f"[data-follow='{mates[0]}']")
     assert page.locator("[data-tsmenu]").is_visible(), "a star keeps the menu open"
     page.click("[data-tsback]")
-    assert page.evaluate(SHOWN) == ["yahoo", "espn", mates[0]], "Back shows the first screen, the new follow in it"
+    assert page.evaluate(SHOWN) == ["yahoo", "espn", "ayo", mates[0]], "Back shows the first screen, the new follow in it"
     assert page.evaluate("document.activeElement.dataset.tsleague") == lg, "focus returns to the league's row"
     page.click("[data-follow='yahoo']")
     assert "yahoo" not in page.evaluate(SHOWN), "unfollowed, it leaves Following"
-    assert page.evaluate("JSON.parse(localStorage.getItem('tw-follow'))") == ["espn", mates[0]]
+    assert page.evaluate("JSON.parse(localStorage.getItem('tw-follow'))") == ["espn", "ayo", mates[0]]
     assert errors == []
     ctx.close()
 

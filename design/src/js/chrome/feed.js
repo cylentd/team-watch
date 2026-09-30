@@ -7,6 +7,8 @@ function buildFeed(){
   const cells = [
     [t("chrome.feed.espn"),  f.espn  ? ["ok", f.espn]  : ["off", t("chrome.feed.neverPulled")]],
     [t("chrome.feed.yahoo"), f.yahoo ? ["ok", f.yahoo] : ["off", t("chrome.feed.neverPulled")]],
+    // The third league's roster (2026-09-29), only once the page carries its team.
+    ...(TEAMS.ayo ? [[t("chrome.feed.ayo"), f.ayo ? ["ok", f.ayo] : ["off", t("chrome.feed.neverPulled")]]] : []),
     [t("chrome.feed.usage"), F && F.usage_ready ? ["ok", t("chrome.feed.poolSize", {n: F.pool_size})]
             : ["wait", t("chrome.feed.waiting")]],
     [t("chrome.feed.props"), f.props_bp ? ["ok", f.props_bp] : (f.props ? ["ok", f.props] : ["off", t("chrome.feed.notPulled")])],

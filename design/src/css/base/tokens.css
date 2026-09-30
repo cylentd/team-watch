@@ -30,6 +30,9 @@
   --amber:#ffb020;
   --yahoo:#8b5cff;
   --espn:#ff2d2d;
+  /* The third league, AYO (2026-09-29): cyan, off Yahoo's violet, ESPN's red, lime, and the green and
+     red that mean up and down. Readable as text on the slate (--void) at 9.1:1. */
+  --ayo:#1fc8e0;
 
   /* Channel triples, one per colour token above and below: rgba() needs bare r,g,b channels,
      and rgb(var(--x-rgb) / a) reproduces the exact legacy-rgba computed value an alpha literal
@@ -50,6 +53,7 @@
   --amber-rgb:255 176 32;
   --yahoo-rgb:139 92 255;
   --espn-rgb:255 45 45;
+  --ayo-rgb:31 200 224;
 
   /* Position tints (2026-09-21), the one exception to "positions are typographic": the profile's
      stat sheet is tinted by position so a run of profiles reads QB/RB/WR/TE at a glance. The Board

@@ -1,0 +1,174 @@
+{
+ "generated": "2026-09-29",
+ "type": "faab",
+ "budget_left": 99,
+ "priority": null,
+ "clears": "FAB w/ Continual rolling list tiebreak",
+ "scoring": [
+  [
+   "Offense",
+   "Passing Yards",
+   "25 yards per point"
+  ],
+  [
+   "Offense",
+   "Passing Touchdowns",
+   "4"
+  ],
+  [
+   "Offense",
+   "Interceptions",
+   "-1"
+  ],
+  [
+   "Offense",
+   "Rushing Yards",
+   "10 yards per point"
+  ],
+  [
+   "Offense",
+   "Rushing Touchdowns",
+   "6"
+  ],
+  [
+   "Offense",
+   "Receptions",
+   "0.5"
+  ],
+  [
+   "Offense",
+   "Receiving Yards",
+   "10 yards per point"
+  ],
+  [
+   "Offense",
+   "Receiving Touchdowns",
+   "6"
+  ],
+  [
+   "Offense",
+   "Return Touchdowns",
+   "6"
+  ],
+  [
+   "Offense",
+   "2-Point Conversions",
+   "2"
+  ],
+  [
+   "Offense",
+   "Fumbles Lost",
+   "-2"
+  ],
+  [
+   "Offense",
+   "Offensive Fumble Return TD",
+   "6"
+  ],
+  [
+   "Kickers",
+   "Field Goals 0-19 Yards",
+   "3"
+  ],
+  [
+   "Kickers",
+   "Field Goals 20-29 Yards",
+   "3"
+  ],
+  [
+   "Kickers",
+   "Field Goals 30-39 Yards",
+   "3"
+  ],
+  [
+   "Kickers",
+   "Field Goals 40-49 Yards",
+   "4"
+  ],
+  [
+   "Kickers",
+   "Field Goals 50+ Yards",
+   "5"
+  ],
+  [
+   "Kickers",
+   "Point After Attempt Made",
+   "1"
+  ],
+  [
+   "Defense/Special Teams",
+   "Sack",
+   "1"
+  ],
+  [
+   "Defense/Special Teams",
+   "Interception",
+   "2"
+  ],
+  [
+   "Defense/Special Teams",
+   "Fumble Recovery",
+   "2"
+  ],
+  [
+   "Defense/Special Teams",
+   "Touchdown",
+   "6"
+  ],
+  [
+   "Defense/Special Teams",
+   "Safety",
+   "2"
+  ],
+  [
+   "Defense/Special Teams",
+   "Block Kick",
+   "2"
+  ],
+  [
+   "Defense/Special Teams",
+   "Kickoff and Punt Return Touchdowns",
+   "6"
+  ],
+  [
+   "Defense/Special Teams",
+   "Points Allowed 0 points",
+   "10"
+  ],
+  [
+   "Defense/Special Teams",
+   "Points Allowed 1-6 points",
+   "7"
+  ],
+  [
+   "Defense/Special Teams",
+   "Points Allowed 7-13 points",
+   "4"
+  ],
+  [
+   "Defense/Special Teams",
+   "Points Allowed 14-20 points",
+   "1"
+  ],
+  [
+   "Defense/Special Teams",
+   "Points Allowed 21-27 points",
+   "0"
+  ],
+  [
+   "Defense/Special Teams",
+   "Points Allowed 28-34 points",
+   "-1"
+  ],
+  [
+   "Defense/Special Teams",
+   "Points Allowed 35+ points",
+   "-4"
+  ],
+  [
+   "Defense/Special Teams",
+   "Extra Point Returned",
+   "2"
+  ]
+ ]
+}

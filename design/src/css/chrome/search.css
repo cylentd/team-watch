@@ -71,6 +71,7 @@ body:has(.search:not([hidden])) .chatfab{display:none}
 .sr-tags{display:flex;gap:5px}
 .sr-lg.sr-espn{color:var(--espn);border:1px solid rgb(var(--espn-rgb) / .4)}
 .sr-lg.sr-yahoo{color:var(--yahoo-tint);border:1px solid rgb(var(--yahoo-rgb) / .45)}
+.sr-lg.sr-ayo{color:var(--ayo);border:1px solid rgb(var(--ayo-rgb) / .45)}
 
 /* What the idle list is (Recent, or Your roster). Last in the markup; on a desktop it leads. */
 .sr-cap{

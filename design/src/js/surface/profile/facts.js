@@ -87,10 +87,11 @@ function leagueFactRows(fd){
     .filter(c => c[1] !== null);
 }
 
-/* The league's name as the owner pills print it (owners.js), so a draft row and a pill say the
-   same thing the same way. A league key that is neither gets no tag. */
+/* The league's name as the owner pills print it (owners.js OWN_LEAGUES, the one list), so a draft row
+   and a pill say the same thing the same way. A league key with no pill gets no tag. */
 function leagueTag(k){
-  return k === "espn" ? t("profile.own.espn") : k === "yahoo" ? t("profile.own.yahoo") : "";
+  const l = OWN_LEAGUES.find(x => x.key === k);
+  return l ? l.tag() : "";
 }
 
 /* Sleeper stores height as bare inches in a string ("73"). Nobody reads a receiver's height in

@@ -1,4 +1,4 @@
-"""Every team in David's two leagues, so a leaguemate can pick theirs (leaguemates phase 1,
+"""Every team in David's leagues (three since 2026-09-29), so a leaguemate can pick theirs (leaguemates phase 1,
 2026-09-25).
 
 ff-jarvis already pulls all twelve rosters per league into espn_rosters.json and
@@ -65,14 +65,16 @@ def lineup_order(rows):
     return sorted(rows, key=rank)
 
 
-def live_mates(espn, yahoo, available, badge, slugify):
+def live_mates(espn, yahoo, available, badge, slugify, **more):
     """LIVE_MATES: {teams: [{key, league, name, roster}]}, every team but David's in each league,
-    by name. `espn` / `yahoo` are the parsed roster files, or None. The key is the league plus the
-    team name's slug: a renamed team gets a new key, and a reader who picked it falls back to
-    David's team (data/mates.js)."""
+    by name. `espn` / `yahoo` are the parsed roster files, or None; `more` is every other Yahoo
+    league's (ayo=..., 2026-09-29), in list order. The key is the league plus the team name's slug:
+    a renamed team gets a new key, and a reader who picked it falls back to David's team
+    (data/mates.js)."""
     teams = []
+    yrows = lambda r: yahoo_rows(r, available, slugify)
     for league, d, rows in (("espn", espn, lambda r: espn_rows(r, available, badge, slugify)),
-                            ("yahoo", yahoo, lambda r: yahoo_rows(r, available, slugify))):
+                            ("yahoo", yahoo, yrows), *((k, v, yrows) for k, v in more.items())):
         if not d:
             continue
         for name in sorted(d["detail"], key=str.lower):

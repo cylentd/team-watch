@@ -64,13 +64,14 @@ function navTabsOf(group){
   const all = (NAV.find(([g]) => g === group) || NAV[0])[1];
   // A connected league has no Waivers: ff-jarvis builds the packet for David's two leagues only.
   // A leaguemate's team has its league's rail (data/mates.js hasWaivers).
-  // The Yahoo league (the one David's friends read) has This week > League and Records, the same for
+  // The Yahoo leagues (the ones David's friends read) have League > Recap and Records, the same for
   // every reader, and My teams > My recap for the team on screen (hasRecords). ESPN keeps its own
-  // League leaf (hasLeague and no record book); a connected league has neither.
-  const tm = TEAMS[VIEW], leagueWide = !!LGS.yahoo;
+  // League leaf (hasLeague and no record book); a connected league has neither. Trades shows when any
+  // Yahoo league has trades: the League switch picks which, and a league without says so on the page.
+  const tm = TEAMS[VIEW], leagueWide = lgLeagueKeys().length > 0;
   const tabs = all.filter(k => (k !== "waivers" || hasWaivers(tm))
     && (k !== "league" || (hasLeague(tm) && !hasRecords(tm))) && (k !== "myrecap" || hasRecords(tm))
-    && ((k !== "recap" && k !== "records") || leagueWide) && (k !== "trades" || (leagueWide && !!trData())));
+    && ((k !== "recap" && k !== "records") || leagueWide) && (k !== "trades" || lgLeagueKeys().some(x => LG_TRADES[x])));
   return navWaiverDay() && tabs.includes("waivers") ? ["waivers", ...tabs.filter(k => k !== "waivers")] : tabs;
 }
 

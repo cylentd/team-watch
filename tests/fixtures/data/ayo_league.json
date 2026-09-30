@@ -1,0 +1,24 @@
+{
+ "generated": "2026-09-12T06:00",
+ "league_id": "35362",
+ "season": 2026,
+ "league": "AYO Fantasy Football",
+ "week": 3,
+ "regular_weeks": null,
+ "playoff_teams": null,
+ "bonus": null,
+ "teams": {
+  "12": {"name": "Taylor Made for Sundays", "w": 2, "l": 0, "t": 0, "pf": 251.4, "pa": 200.1, "seed": 1, "final": null},
+  "2": {"name": "Don Wick", "w": 1, "l": 1, "t": 0, "pf": 230.2, "pa": 220.5, "seed": 2, "final": null},
+  "6": {"name": "Big Brain Dave", "w": 1, "l": 1, "t": 0, "pf": 210.9, "pa": 215.0, "seed": 3, "final": null},
+  "4": {"name": "ayoooo", "w": 0, "l": 2, "t": 0, "pf": 190.3, "pa": 247.2, "seed": 4, "final": null}
+ },
+ "games": [
+  {"week": 1, "home": 12, "away": 6, "hp": 131.2, "ap": 98.6, "winner": "home", "tier": null},
+  {"week": 1, "home": 2, "away": 4, "hp": 120.0, "ap": 88.5, "winner": "home", "tier": null},
+  {"week": 2, "home": 12, "away": 2, "hp": 120.2, "ap": 110.2, "winner": "home", "tier": null},
+  {"week": 2, "home": 4, "away": 6, "hp": 101.8, "ap": 112.3, "winner": "away", "tier": null},
+  {"week": 3, "home": 12, "away": 4, "hp": null, "ap": null, "winner": null, "tier": null},
+  {"week": 3, "home": 2, "away": 6, "hp": null, "ap": null, "winner": null, "tier": null}
+ ]
+}

@@ -9,7 +9,9 @@ lines ship as {k, m, seed, without}, and the JS words them.
 import json
 import os
 
-SKIP = os.path.join(os.path.dirname(__file__), "league_record_skip.json")
+import leagues
+
+SKIP =os.path.join(os.path.dirname(__file__), "league_record_skip.json")
 FEW = 4          # fewer trades than this and a manager's row is dimmed: too few to rank fairly
 HEISTS = 3
 SUFFIX = ("Jr.", "Jr", "Sr.", "Sr", "II", "III", "IV", "V")
@@ -61,12 +63,13 @@ def _trade(i, t, slugify=None):
             "decided": _decided(t)}
 
 
-def live_trades(verdicts, managers, skip=None, slugify=None):
-    """The LIVE_TRADES block, or None without the verdicts file. `slugify` names each traded and cursed
-    player's headshot (heads/<slug>.webp); the page draws initials when there is none."""
+def live_trades(verdicts, managers, skip=None, slugify=None, key="yahoo"):
+    """The LIVE_TRADES block (or another Yahoo league's, by `key`, which picks its record-skip file), or
+    None without the verdicts file. `slugify` names each traded and cursed player's headshot
+    (heads/<slug>.webp); the page draws initials when there is none."""
     if not verdicts or not verdicts.get("trades"):
         return None
-    skip = skip_keys() if skip is None else skip
+    skip = skip_keys(leagues.skip_file(key)) if skip is None else skip
     names = (managers or {}).get("managers", {})
     trades = [_trade(i, t, slugify) for i, t in enumerate(verdicts["trades"])]
     closed = [t for t in trades if not t["open"]]
@@ -89,8 +92,9 @@ def live_trades(verdicts, managers, skip=None, slugify=None):
             "decided": [t["id"] for t in decided], "curses": curses}
 
 
-def report(block):
+def report(block, key="yahoo"):
+    head = "Trades" if key == "yahoo" else f"Trades ({key})"
     if not block:
-        return "Trades: none (no ff-jarvis yahoo_trade_verdicts.json)"
-    return (f"Trades: {len(block['trades'])} trades, {block['n']} closed {block['since']}-{block['through']}, "
+        return f"{head}: none (no ff-jarvis {leagues.file(key, 'trade_verdicts')})"
+    return (f"{head}: {len(block['trades'])} trades, {block['n']} closed {block['since']}-{block['through']}, "
             f"{len(block['ranking'])} managers ranked, {len(block['curses'])} curses")
