@@ -21,26 +21,42 @@
 .dg-tabps{display:grid;min-width:0}
 .dg-tabp{min-width:0}
 .dg-tabp[data-off]{display:none}
+/* A panel's own heading shows only where the wall lays the set open (below); the tab says it elsewhere. */
+.dg-tabh{display:none}
 
 /* Results' list under its tabs: one column on a phone. */
 .dg-rlist{display:grid}
 @media (min-width:1100px){
   .dg-tabs{align-self:start;max-width:520px}
-  /* A fixed box (2026-09-29, David: "clicking on the tabs expand and shrinks the container. Fixed
-     container makes things less jarring"): every panel sits in the same cell, the hidden ones kept
-     in the layout but unseen, so the box is the tallest panel's height, measured by the browser, and a
-     tab swaps what is in it without moving the page. A phone keeps each panel its own height: there
-     ten Left hurt rows over two Busts would leave ~380px of nothing under Busts. */
-  /* `data-off`, not `hidden`, which the page's reset pins to display:none !important (tabs.js). */
+  /* Top 5 keeps its tabs on the wall, in a fixed box: every panel in the same cell, the off ones in
+     the layout but unseen, so a tab never resizes it (2026-09-29, David: "fixed container makes things
+     less jarring"). `data-off`, not `hidden`, which the page's reset pins to display:none !important. */
   .dg-tabp{grid-area:1 / 1}
   .dg-tabp[data-off]{display:block;visibility:hidden}
-  /* Five across, each a compact entry with the points first and the name beside them (2026-09-29,
-     David, twice: "it's too wide. The name and the number gap", then "still think it looks weird").
-     Four columns with the number at each column's right edge still left it ~240px from its name, and
-     five smashed ran four and one. Leading with the number puts it against the name at any width, and
-     five across sets Smashed in one row and Left hurt's ten in two. No row rules: a grid of entries
-     needs its gaps, not lines, and a 4+1 row's lone rule was half the "weird". */
-  .dg-rlist{grid-template-columns:repeat(5,minmax(0,1fr));gap:14px 28px;align-content:start;padding-top:6px}
+
+  /* Results' lists open, no tabs (2026-09-29, David: "I still feel the tab list to be awkward"). A
+     1,600px card has room for all seventeen, so a bar hiding twelve of them solved a phone's problem
+     on a desktop, and a five-across grid under a four-column board floated its entries in space. So
+     the three lists sit on the board's own columns, each under a heading in the board's type and its
+     list's colour: Smashed under QB, Busts under RB, Left hurt across WR and TE, read down. Nothing
+     hidden, nothing to tap, nothing moves; the tallest list sets the height. */
+  [data-dgset="res"] > .dg-tabs{display:none}
+  [data-dgset="res"] .dg-tabps{grid-template-columns:repeat(4,minmax(0,1fr));column-gap:32px;align-items:start}
+  [data-dgset="res"] .dg-tabp,[data-dgset="res"] .dg-tabp[data-off]{grid-area:auto;display:block;visibility:visible}
+  [data-dgset="res"] .dg-tabp[data-dgpanel="smashed"]{grid-column:1}
+  [data-dgset="res"] .dg-tabp[data-dgpanel="busts"]{grid-column:2}
+  [data-dgset="res"] .dg-tabp[data-dgpanel="left"]{grid-column:3 / span 2}
+  [data-dgset="res"] .dg-tabh{display:flex;align-items:baseline;gap:8px;margin:0 0 8px;
+    font:800 var(--t-5)/1 var(--disp);letter-spacing:-.01em}
+  [data-dgset="res"] .dg-tabh b{font:700 var(--t-2)/1 var(--mono)}
+  .dg-tabh.up{color:var(--up)}
+  .dg-tabh.dn{color:var(--down)}
+  .dg-tabh.am{color:var(--amber)}
+  /* A list is one column of entries, the points first and the name beside them (David: "the name and
+     the number gap"); Left hurt reads down two, half its rows each (--rows, results.js). */
+  .dg-rlist{gap:12px;align-content:start}
+  [data-dgpanel="left"] .dg-rlist{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(var(--rows, 5), auto);
+    grid-auto-flow:column;column-gap:32px}
   .dg-rlist .dg-rr{grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;border-bottom:0;min-height:0;padding:0}
   .dg-rlist .dg-rv{order:-1;justify-items:start;min-width:44px}
 }

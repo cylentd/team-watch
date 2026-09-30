@@ -99,15 +99,11 @@ def test_results_reads_as_the_storyboard(browser, page_file):
 
 
 @pytest.mark.render
-@pytest.mark.parametrize("viewport", [(390, 844), (1705, 1000)])
-def test_the_results_lists_are_one_panel_under_tabs(browser, page_file, viewport):
+def test_the_results_lists_are_one_panel_under_tabs_on_a_phone(browser, page_file):
     """2026-09-29, storyboard Ms6FbdvynVPoRTKEidPGAz 2A (David: "clicking on smashed, busts, and left hurt
-    opens up all 3 panels anyways ... just opens a big panel"): one tab bar, each tab its list's count,
-    one list showing. A tap swaps the list in place, and the pick survives a repaint.
-    On the wall the box keeps one height whatever tab is up (David: "clicking on the tabs expand and
-    shrinks the container"), and a list runs five across with the points leading, right against the
-    name ("it's too wide. The name and the number gap", then "still think it looks weird")."""
-    ctx, page, errors = open_page(browser, page_file, viewport)
+    opens up all 3 panels anyways ... just opens a big panel"): on a phone one tab bar, each tab its
+    list's count, one list showing. A tap swaps the list in place, and the pick survives a repaint."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
     page.goto(page_file.as_uri())
     drive(page, go("digest"))
     page.wait_for_selector(".dg-row[data-dgrow='res']")
@@ -115,25 +111,16 @@ def test_the_results_lists_are_one_panel_under_tabs(browser, page_file, viewport
         page.click(".dg-row[data-dgrow='res'] .dg-head")
         page.wait_for_timeout(600)
     visible = lambda sel: page.locator(sel).evaluate_all("els => els.filter(e => e.checkVisibility({visibilityProperty: true})).length")
-    box = lambda: page.locator("[data-dgset='res'] .dg-tabps").evaluate("e => e.getBoundingClientRect().height")
-    gap = lambda: page.evaluate("""Math.max(...[...document.querySelectorAll('[data-dgset="res"] .dg-rr')]
-      .filter(e => e.checkVisibility({visibilityProperty: true}))
-      .map(r => r.querySelector('.dg-rr-n').getBoundingClientRect().left - r.querySelector('.dg-rv').getBoundingClientRect().right))""")
     tabs = page.locator("[data-dgset='res'] .dg-tab")
     n = page.evaluate("(() => { const d = dgD(); return [d.smashed.length, d.busts.length, d.left.length]; })()")
     assert tabs.count() == 3
     assert [tabs.nth(i).locator(".dg-tab-n").inner_text() for i in range(3)] == [str(x) for x in n]
     assert tabs.first.get_attribute("aria-selected") == "true"
     assert visible("[data-dgset='res'] .dg-rr") == n[0]
-    heights = [box()]
-    for i in (1, 2):
-        tabs.nth(i).click()
-        heights.append(box())
+    assert visible("[data-dgset='res'] .dg-tabh") == 0          # the tab names the list; no second heading
+    tabs.nth(2).click()
     assert tabs.nth(2).get_attribute("aria-selected") == "true" and tabs.first.get_attribute("aria-selected") == "false"
     assert visible("[data-dgset='res'] .dg-rr") == n[2]
-    if viewport[0] >= 1100:
-        assert max(heights) - min(heights) < 1, heights
-        assert 0 <= gap() <= 24                      # the points lead, right against the name
     page.evaluate("render()")
     assert page.locator("[data-dgset='res'] .dg-tab").nth(2).get_attribute("aria-selected") == "true"
     ctx.close()
@@ -141,11 +128,49 @@ def test_the_results_lists_are_one_panel_under_tabs(browser, page_file, viewport
 
 
 @pytest.mark.render
+def test_the_wall_opens_all_three_results_lists_on_the_boards_columns(browser, page_file):
+    """2026-09-29 (David: "I still feel the tab list to be awkward"): on the wall no tab bar; Smashed,
+    Busts and Left hurt all open, each under its own heading with its count, on the board's four columns
+    (Smashed under QB, Busts under RB, Left hurt across WR and TE, read down two). Every row can be
+    tapped, and each leads with its points right against the name."""
+    ctx, page, errors = open_page(browser, page_file, (1705, 1000))
+    page.goto(page_file.as_uri())
+    drive(page, go("digest"))
+    page.wait_for_selector(".dg-rs")
+    got = page.evaluate("""(() => {
+      const set = document.querySelector('[data-dgset="res"]'), vis = e => e.checkVisibility({visibilityProperty: true});
+      // The board's four column lefts, from its grid (the fixture fills fewer than four positions).
+      const bd = document.querySelector('.dg-bd'), cs = getComputedStyle(bd), w = cs.gridTemplateColumns.split(' ').map(parseFloat);
+      const col = w.map((_, i) => Math.round(bd.getBoundingClientRect().left + w.slice(0, i).reduce((a, b) => a + b, 0) + i * parseFloat(cs.columnGap)));
+      const panels = [...set.querySelectorAll('.dg-tabp')].map(p => ({key: p.dataset.dgpanel, shown: vis(p),
+        left: Math.round(p.getBoundingClientRect().left), width: Math.round(p.getBoundingClientRect().width),
+        head: [p.querySelector('.dg-tabh').firstChild.textContent.trim(), p.querySelector('.dg-tabh b').textContent].join(' '), rows: p.querySelectorAll('.dg-rr').length}));
+      const rows = [...set.querySelectorAll('.dg-rr')];
+      return {bar: vis(set.querySelector('.dg-tabs')), col, panels,
+              gap: Math.max(...rows.map(r => r.querySelector('.dg-rr-n').getBoundingClientRect().left - r.querySelector('.dg-rv').getBoundingClientRect().right)),
+              leftCols: getComputedStyle(set.querySelector('[data-dgpanel="left"] .dg-rlist')).gridTemplateColumns.split(' ').length,
+              top: document.elementFromPoint(...(r => [r.left + 8, r.top + 8])(rows.at(-1).getBoundingClientRect())) === rows.at(-1)
+                   || rows.at(-1).contains(document.elementFromPoint(...(r => [r.left + 8, r.top + 8])(rows.at(-1).getBoundingClientRect())))};
+    })()""")
+    n = page.evaluate("(() => { const d = dgD(); return {smashed: d.smashed.length, busts: d.busts.length, left: d.left.length}; })()")
+    ctx.close()
+    assert errors == []
+    assert not got["bar"]
+    by = {p["key"]: p for p in got["panels"]}
+    assert all(p["shown"] for p in got["panels"])
+    assert {k: p["rows"] for k, p in by.items()} == n
+    assert by["smashed"]["head"] == f"Smashed {n['smashed']}" and by["left"]["head"] == f"Left hurt {n['left']}"
+    assert by["smashed"]["left"] == got["col"][0] and by["busts"]["left"] == got["col"][1] and by["left"]["left"] == got["col"][2]
+    assert by["left"]["width"] > 1.8 * by["smashed"]["width"] and got["leftCols"] == 2
+    assert 0 <= got["gap"] <= 24                      # the points lead, right against the name
+    assert got["top"], "a row on the wall is tappable, not covered or inert"
+
+
+@pytest.mark.render
 def test_results_on_the_wall_keep_each_number_by_its_name(browser, page_file):
     """On a desktop the four tiles sit in a row and the board in four position columns, each a heading
     over rows of name, his day and points, with no face (2026-09-29, storyboard Ms6FbdvynVPoRTKEidPGAz
-    1B: "should the categories be bigger? Should we consider not using headshots?"). The list under the
-    tabs runs two columns. A board row is one column wide, so its points sit within 350px of its name at
+    1B: "should the categories be bigger? Should we consider not using headshots?"). A board row is one column wide, so its points sit within 350px of its name at
     the 1,680px frame. A phone sets the board two positions a row."""
     got = {}
     for size in ((1705, 1000), (360, 740)):
@@ -169,7 +194,7 @@ def test_results_on_the_wall_keep_each_number_by_its_name(browser, page_file):
         ctx.close()
         assert errors == []
     wall, phone = got[1705], got[360]
-    assert (wall["tiles"], wall["board"], wall["list"]) == (4, 4, 5)
+    assert (wall["tiles"], wall["board"], wall["list"]) == (4, 4, 1)   # Smashed: one column, under QB
     assert wall["rows"] and max(r["gap"] for r in wall["rows"]) < 350
     assert {r["day"] for r in wall["rows"]} == {"block"}
     assert wall["faces"] == 0 and phone["faces"] == 0

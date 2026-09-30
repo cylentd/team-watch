@@ -682,12 +682,14 @@ projections for every player (it linked to Leaders until then).
 - **Board (1B):** each position a display heading (`--t-5`, `--t-6` on the wall) over rows of name, his
   day and points; no faces (the tiles keep them). Two positions a row on a phone, four on the wall.
   K and DST would take the same shape; ff-jarvis's results carry QB-TE only.
-- **Lists (2A):** Smashed, Busts and Left hurt are one panel under one tab bar (`tabs.js`), counts in
-  each list's colour. Three toggles side by side read as one panel. On the wall (same day, David: "too
-  wide", "expand and shrinks the container") the panels share one box as tall as the tallest, so a tab
-  never resizes it, and a list runs five across as compact entries, points first and the name beside
-  them, no row rules (after four columns with the number at each edge still "looks weird"). A phone
-  keeps each panel its own height and the number at the right.
+- **Lists (2A):** on a phone Smashed, Busts and Left hurt are one panel under one tab bar (`tabs.js`),
+  counts in each list's colour; three toggles side by side read as one panel. On the wall, after three
+  rounds the same day ("too wide", "expand and shrinks the container", "still looks weird", "the tab
+  list to be awkward"), there are no tabs: all three lists are open on the board's four columns, each
+  under a heading in the board's type and its list's colour (Smashed under QB, Busts under RB, Left
+  hurt across WR and TE, read down two), entries leading with the points. A 1,600px card has room for
+  all of them, so tabs there hid twelve of seventeen to solve a phone's problem. Top 5 keeps its tabs,
+  in a fixed box.
 - **Top 5 tiers** wear Ranks' colours: Tier 1 filled lime, lower tiers an outline stepping to grey.
 - **Matchups with nothing to call** says one of three deadpan lines (`digest.wait.mu1-3`), not the record.
 - **Starters folded into News** (David: "merge starters"): a new #1 or a team move is a News block before

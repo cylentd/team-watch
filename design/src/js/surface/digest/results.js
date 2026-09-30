@@ -76,13 +76,15 @@ const dgResFace = r => HEADS[r.slug] ? headImgHTML(HEADS[r.slug], initials(r.n),
 const dgResRow = (r, pills, num) => `<button type="button" class="dg-rr" data-dgslug="${esc(r.slug)}">
     <span class="dg-rr-n"><b>${esc(dgShort(r.n))}</b>${pills ? `<span>${pills}</span>` : ""}</span>${num}</button>`;
 
-/* The three lists as one panel under one tab bar (tabs.js; 2026-09-29, 2A), the count on each tab in
-   its list's colour. A list with no one in it draws no tab. On the wall the rows run four across,
-   under the board's columns, in one fixed box (tabs.css), so Left hurt's ten take three rows. */
+/* The three lists: on a phone one panel under one tab bar (tabs.js; 2026-09-29, 2A), the count on each
+   tab in its list's colour; on the wall all three open on the board's four columns, each under its own
+   heading, Left hurt across two (tabs.css). A list with no one in it draws no tab and no column. */
 function dgResTabs(d){
   const why = r => dgResRow(r, dgWhy(r, d.left), dgResNum(r));
+  // `--rows`: a list the wall sets in two columns reads down them, half its rows each (tabs.css).
   const tab = (key, label, rows, row, tone) => rows.length
-    ? {key, label, count: rows.length, tone, body: `<div class="dg-rlist">${rows.map(row).join("")}</div>`} : null;
+    ? {key, label, count: rows.length, tone,
+       body: `<div class="dg-rlist" style="--rows:${Math.ceil(rows.length / 2)}">${rows.map(row).join("")}</div>`} : null;
   return dgTabsHTML("res", [tab("smashed", t("digest.res.smashed"), d.smashed, why, "up"),
     tab("busts", t("digest.res.busts"), d.busts, why, "dn"),
     tab("left", t("digest.res.left"), d.left, r => dgResRow(r, dgLeftPills(r), dgResNum(r)), "am")].filter(Boolean));
