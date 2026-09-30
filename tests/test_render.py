@@ -66,7 +66,7 @@ def LIVE_PLANT(states=None):
 # reachable in the same way no matter which state ran before it.
 GROUP = {"digest": "week", "roster": "teams", "waivers": "teams", "league": "teams", "myrecap": "teams",
          "recap": "league", "records": "league", "trades": "league",
-         "ranks": "scouting", "board": "scouting", "movers": "scouting", "matchups": "scouting", "usage": "scouting",
+         "ranks": "scouting", "board": "scouting", "movers": "scouting", "matchups": "week", "usage": "scouting",
          "news": "week", "weather": "week", "preview": "week", "live": "week",
          "parlay": "bets", "build": "bets", "dfs": "bets"}
 
@@ -576,8 +576,8 @@ def test_no_fenced_rule_misses_its_element(snapshot, area):
     ("movers", "scouting", "ROLE"),    # Movers until 2026-09-29; the leaf kept its name
     ("pool", "scouting", "ROLE"),      # the old Movers view's hash, kept for bookmarks
     ("usage", "scouting", "GRID"),
-    ("matchups", "scouting", "TAKES"),  # Matchups became Takes on 2026-09-29; the leaf stayed
-    ("takes", "scouting", "TAKES"),
+    ("matchups", "week", "TAKES"),  # Matchups became Takes on 2026-09-29; the leaf stayed; This week since that day
+    ("takes", "week", "TAKES"),
     ("news", "week", "NEWS"),           # Players until 2026-09-29; the leaf and hash stayed
     ("weather", "week", "WEATHER"),
     ("preview", "week", "PREVIEW"),

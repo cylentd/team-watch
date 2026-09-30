@@ -9,19 +9,23 @@
 .dg-facts{padding-bottom:14px}
 .dg-sec{margin:0 0 4px;font-size:var(--t-1);font-weight:600;line-height:1.1;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
 
-/* One line: the tag, the name over what happened, next week's rank. */
+/* One line: his face, then his name over the tag, what happened and next week's rank, all against
+   the face (2026-09-29): no column stands apart, so no gap opens across a wide panel. The face is
+   drawn at 150% so the head fills it, as the News blocks' are. */
 .dg-nd{
   appearance:none;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;
-  width:100%;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;
-  min-height:46px;padding:0;border-radius:8px;transition:transform var(--dur-spring) var(--spring);
+  width:100%;display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;align-items:center;
+  min-height:52px;padding:0;border-radius:8px;transition:transform var(--dur-spring) var(--spring);
 }
 .dg-nd:active{transform:scale(var(--press))}
 .dg-nd:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
-.dg-nd .dg-nw-tag,.dg-nd .dg-st{justify-self:start;white-space:nowrap}
-.dg-nd-t{min-width:0;display:grid;gap:1px}
+.dg-nd > .dg-hd{position:relative;width:40px;height:40px}
+.dg-nd > .dg-hd img{position:absolute;left:-25%;top:-6%;width:150%;height:150%;max-width:none}
+.dg-nd-t{min-width:0;display:grid;gap:3px}
 .dg-nd-t b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dg-nd-t > span{font-size:var(--t-1);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dg-nd i{font:500 var(--t-2)/1 var(--mono);font-style:normal;font-variant-numeric:tabular-nums;color:var(--ink-3)}
+.dg-nd-t > span{display:flex;align-items:center;gap:6px;font-size:var(--t-1);color:var(--ink-3);white-space:nowrap;overflow:hidden}
+.dg-nd .dg-nw-tag,.dg-nd .dg-st{flex:none}
+.dg-nd i{font:500 var(--t-1)/1 var(--mono);font-style:normal;font-variant-numeric:tabular-nums;color:var(--ink-2)}
 .dg-nd-more{
   appearance:none;border:0;background:none;font:inherit;cursor:pointer;justify-self:start;
   min-height:44px;padding:0;color:var(--lime);font-size:var(--t-2);font-weight:600;

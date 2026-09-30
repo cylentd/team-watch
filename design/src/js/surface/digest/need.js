@@ -14,20 +14,32 @@ function dgNeedRank(slug){
   return r ? `${esc(r.pos)}${r.rank}` : "";
 }
 
-const dgNeedLine = (slug, tag, name, what) => `<button type="button" class="dg-nd" data-dgslug="${esc(slug)}">
-    ${tag}<span class="dg-nd-t"><b>${esc(dgShort(name))}</b><span>${what}</span></span><i>${dgNeedRank(slug)}</i></button>`;
+/* A line: his face, his name, then the tag and what happened, with next week's rank at its end
+   (2026-09-29, David: "either add headshots or lessen the wide gap"; the rank sat alone at the far
+   right of a 550px panel, and the tag stood in a column of its own). */
+function dgNeedLine(r, tag, what){
+  const rank = dgNeedRank(r.slug);
+  return `<button type="button" class="dg-nd" data-dgslug="${esc(r.slug)}">
+    <span class="dg-hd">${avatarHTML(r)}</span>
+    <span class="dg-nd-t"><b>${esc(dgShort(r.n))}</b><span>${tag}${what}${rank ? ` · <i>${rank}</i>` : ""}</span></span></button>`;
+}
 
-/* A new starter: "New QB1" and over whom; a moved player, "New team". */
+/* A new starter: "New QB1" and over whom (the tag already says QB1); a moved player, "New team". */
 function dgNeedStart(r){
   const tag = `<span class="dg-nw-tag ${r.over ? "up" : "mv"}">${r.over ? t("digest.nw.newStarter", {pos: esc(r.pos)}) : t("digest.nw.newTeam")}</span>`;
-  return dgNeedLine(r.slug, tag, r.n, dgStartWhat(r, dgShort));
+  const o = r.over, v = o && {name: esc(dgShort(o.n)), status: esc(o.status || "")};
+  const over = !o ? "" : o.status ? t("digest.need.overStatus", v) : t("digest.need.over", v);
+  // A move with no one displaced keeps Starters' own words, which name his spot on the new chart.
+  if (!o) return dgNeedLine(r, tag, dgStartWhat(r, dgShort));
+  const moved = r.from ? t("digest.start.moved", {from: esc(r.from), team: esc(r.team)}) : "";
+  return dgNeedLine(r, tag, [over, moved].filter(Boolean).join(" · "));
 }
 
 /* Out, IR or doubtful: the tag, then the injury and the game. */
 function dgNeedHurt(r){
   const [cls, word] = DG_TAG[r.status] || ["q", () => esc(r.status)];
   const what = [r.injury ? esc(dgCap(r.injury)) : "", r.game ? dgGame(r.game) : esc(r.team)].filter(Boolean).join(" · ");
-  return dgNeedLine(r.slug, `<span class="dg-st ${cls}">${word()}</span>`, r.n, what);
+  return dgNeedLine(r, `<span class="dg-st ${cls}">${word()}</span>`, what);
 }
 
 /* The banner's own player is not repeated here, as the Hurt row's line skipped him. */

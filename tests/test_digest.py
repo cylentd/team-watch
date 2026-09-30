@@ -398,14 +398,20 @@ def test_need_to_know_leads_with_new_starters_then_who_sits(browser, page_file):
     got = page.evaluate("""() => { Date.now = () => Date.parse("2026-09-17T12:00:00Z"); DG_CUT = null; DG_NEED_ALL = false; render();
       const need = document.querySelector('.dg-need'), d = dgD(), lead = d.lead && d.lead.rule === 'hurt' ? d.hurt[d.lead.index] : null;
       const hurt = d.hurt.filter(r => r !== lead);
-      return {tags: [...need.querySelectorAll('.dg-nd')].map(b => b.firstElementChild.textContent.trim()),
-              lines: [...need.querySelectorAll('.dg-nd-t > span')].map(s => s.textContent.trim()),
+      // A line's second row: the tag, what happened, then " · QB21" when Ranks carries him.
+      const what = s => { const c = s.cloneNode(true); c.firstElementChild.remove(); c.querySelectorAll('i').forEach(i => i.remove());
+        return c.textContent.replace(/\\s*·\\s*$/, '').trim(); };
+      return {tags: [...need.querySelectorAll('.dg-nd-t > span')].map(s => s.firstElementChild.textContent.trim()),
+              lines: [...need.querySelectorAll('.dg-nd-t > span')].map(what),
+              faces: [...need.querySelectorAll('.dg-nd')].every(b => b.firstElementChild.classList.contains('dg-hd')),
               more: (need.querySelector('.dg-nd-more') || {}).textContent || '',
               total: d.starters.length + hurt.filter(r => r.status !== 'Questionable').length,
               q: hurt.some(r => r.status === 'Questionable'), also: !!need.querySelector('.dg-also'),
               newsStarts: document.querySelectorAll('.dg-nw.start').length}; }""")
     assert got["tags"][:4] == ["New QB1", "New QB1", "New team", "New RB1"]
-    assert got["lines"][:4] == ["QB1 over S. Sanders", "QB1 over J. Daniels (Out)", "MIN → NYG · QB3", "RB1 over J. Mason"]
+    # The tag says "New QB1", so the line starts at "over" (2026-09-29); every line leads with a face.
+    assert got["lines"][:4] == ["over S. Sanders", "over J. Daniels (Out)", "MIN → NYG · QB3", "over J. Mason"]
+    assert got["faces"]
     assert len(got["tags"]) == min(5, got["total"])
     assert got["more"] == (f"{got['total'] - 5} more" if got["total"] > 5 else "")
     assert got["also"] == got["q"] and got["newsStarts"] == 0

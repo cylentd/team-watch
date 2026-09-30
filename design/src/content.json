@@ -329,6 +329,8 @@
  "digest.nb": "Not backtested.",
  "digest.need.more": "{n} more",
  "digest.need.none": "Nobody new is out since Tuesday.",
+ "digest.need.over": "over {name}",
+ "digest.need.overStatus": "over {name} ({status})",
  "digest.need.title": "Need to know",
  "digest.nw.newStarter": "New {pos}1",
  "digest.nw.newTeam": "New team",

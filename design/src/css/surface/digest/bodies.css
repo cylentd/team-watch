@@ -47,6 +47,12 @@
   transition:transform var(--dur-spring) var(--spring);
 }
 div.dg-nw{cursor:default;grid-template-columns:minmax(0,1fr)}
+/* The face, 48px and cropped to the head (2026-09-29, David: "super small right now and i cant make
+   it out"): the files are chest-up, so a 32px circle held a face a third its size. Drawn at 150% as
+   the Results tiles were. */
+button.dg-nw{grid-template-columns:48px minmax(0,1fr);gap:12px}
+.dg-nw > .dg-hd{position:relative;width:48px;height:48px}
+.dg-nw > .dg-hd img{position:absolute;left:-25%;top:-6%;width:150%;height:150%;max-width:none}
 .dg-nw:last-child{border-bottom:0}
 button.dg-nw:active{transform:scale(var(--press))}
 .dg-nw:focus-visible{outline:2px solid var(--lime);outline-offset:2px}

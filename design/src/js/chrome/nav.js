@@ -25,9 +25,11 @@ const NAV_ICON = {
 const NAV = [
   // News moved from Players to This week on 2026-09-29 (storyboard 96B1dMss6vfyhhsQLUSK4x): it is
   // this week's, not research, and it was the sixth of six sub-tabs. Its leaf and hash stay `news`.
-  ["week",     ["digest", "news", "preview", "weather", "live"]],
+  // Takes (leaf `matchups`) joined them the same day: our weekly calls against the experts are this
+  // week's, not research. Its leaf and both hashes stay.
+  ["week",     ["digest", "news", "matchups", "preview", "weather", "live"]],
   ["teams",    ["roster", "waivers", "league", "myrecap"]],
-  ["scouting", ["ranks", "board", "movers", "matchups", "usage"]],
+  ["scouting", ["ranks", "board", "movers", "usage"]],
   ["league",   ["recap", "records", "trades"]],
   ["bets",     ["parlay", "build", "dfs"]],
 ];
