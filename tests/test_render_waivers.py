@@ -39,7 +39,7 @@ def open_waivers(browser, page_file):
         page.goto(page_file.as_uri() + "#waivers")
         page.wait_for_function("document.querySelector('#view .wv')")
         if view != "yahoo":
-            _pick_on_roster(page, view)
+            _switch(page, view)
         page.errors = errors
         return page
 
@@ -48,30 +48,45 @@ def open_waivers(browser, page_file):
         c.close()
 
 
-def _pick_on_roster(page, view):
-    """Waivers has no team switch since 2026-09-29: the reader picks on Roster and comes back."""
-    page.locator("#subnav [data-leaf='roster']").click()
+def _switch(page, view):
     page.locator("[data-tsbtn]").click()
     page.locator(f".ts-item[data-k='{view}']").click()
-    page.locator("#subnav [data-leaf='waivers']").click()
     page.wait_for_function("document.querySelector('#view .wv')")
+
+
+ON_TOP = """[...document.querySelectorAll('.ts-menu .ts-item, .ts-menu .ts-league')].map(b => {
+  const r = b.getBoundingClientRect(), hit = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+  return hit && b.contains(hit) ? null : (b.dataset.k || b.dataset.tsleague || 'add') + ' under ' + (hit ? hit.className : 'nothing');
+}).filter(Boolean)"""
 
 def _cards(page):
     return page.evaluate("""[...document.querySelectorAll('.wv-cards .wvc')].map(c =>
         [c.querySelector('h3').textContent, c.querySelector('.wvc-stamp').textContent])""")
 
 
-def test_waivers_draws_no_team_switch(open_waivers):
-    """2026-09-29: the switch's menu opened clipped under Waivers' full hero on a phone and could
-    not be tapped. Waivers names the team, plain, and the pick is made on Roster."""
-    page = open_waivers("espn", width=390)
-    assert page.locator("#view [data-tsbtn]").count() == 0
-    name = page.locator(".hero-team")
-    assert name.is_visible() and name.inner_text() == page.evaluate("TEAMS.espn.name")
+@pytest.mark.parametrize("width", [360, 390])
+def test_the_waivers_switch_opens_on_a_phone(open_waivers, width):
+    """2026-09-29: the menu opened as a sliver under Waivers' full hero (overflow hidden) and a tap
+    could not reach a team. Every row is on top where a finger taps, inside the screen, and a tap
+    changes the league on the page."""
+    page = open_waivers("yahoo", width=width)
+    page.locator("[data-tsbtn]").click()
+    menu = page.locator(".ts-menu")
+    assert menu.is_visible()
+    box = menu.bounding_box()
+    assert box["height"] > 120, "a real list, not a sliver"
+    assert box["x"] >= 0 and box["x"] + box["width"] <= width
+    assert page.evaluate(ON_TOP) == []
+    page.locator(".ts-item[data-k='espn']").click()
+    assert page.evaluate("VIEW") == "espn" and page.locator(".ts-menu").is_hidden()
+    assert "Parker Washington" in dict(_cards(page)), "the ESPN wire"
+    # And back, from the same place.
+    _switch(page, "yahoo")
+    assert "Parker Washington" not in dict(_cards(page))
     assert page.errors == []
 
 
-def test_the_league_filter_follows_the_team_pick(open_waivers):
+def test_the_league_filter_follows_the_team_switch(open_waivers):
     """Parker Washington is rostered in Yahoo, so he is an ESPN card only; Emanuel Wilson is
     Must claim in ESPN and Worth a claim in Yahoo (the packet's per-league tier)."""
     page = open_waivers("espn")
@@ -79,8 +94,8 @@ def test_the_league_filter_follows_the_team_pick(open_waivers):
     assert espn["Emanuel Wilson"] == "Must claim" and "Parker Washington" in espn
     assert page.locator(".wvr-row").count() == 5
     assert "2 must-claims" in page.locator(".wvhero").inner_text()
-    # Pick on Roster, the way a reader does, and come back.
-    _pick_on_roster(page, "yahoo")
+    # Switch in place, the way a reader does.
+    _switch(page, "yahoo")
     yahoo = dict(_cards(page))
     assert yahoo["Emanuel Wilson"] == "Worth a claim" and "Parker Washington" not in yahoo
     assert page.locator(".wvr-row").count() == 4

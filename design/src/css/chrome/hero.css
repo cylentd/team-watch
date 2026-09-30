@@ -24,8 +24,6 @@
    normal-flow content like the signals column actually stops. right:0 here would land a gutter
    past every other edge on the page, not on top of them. */
 .hero-eyebrow .teamswitch{position:absolute;top:0;right:var(--page-pad);margin-left:0}
-/* Waivers' team name, plain: the h1 says it on a wide screen, so it shows only on a phone (760.css). */
-.hero-team{display:none}
 .league-mark{width:8px;height:8px;border-radius:99px;background:var(--tint)}
 .hero h1{
   font-family:var(--disp);font-weight:800;
@@ -54,6 +52,8 @@
    never widen the page, but hiding it vertically cut the team menu off under the title: it opened
    as a sliver, and a tap meant for ESPN landed on the Sheet / Cards chips below. */
 .hero.team{padding:28px 0 4px;overflow:clip visible;z-index:5}
+/* Waivers' full hero, the same fix (2026-09-29): its menu opened as a sliver on a phone. */
+.hero.wire{overflow:clip visible;z-index:5}
 .hero.team .numghost,.hero.team h1.fit,.hero.team .league-mark,.hero.team .hero-eyebrow .lbl{display:none}
 .hero.team .hero-in{grid-template-columns:minmax(0,1fr) auto;gap:4px 20px;align-items:end}
 /* The Sheet / Cards switch at the header's right end, on the league line's baseline. */

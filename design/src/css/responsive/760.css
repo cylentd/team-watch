@@ -65,10 +65,11 @@
   .hero:not(.slim) .ts-btn{background:none;border:0;padding:4px 0;min-width:0;gap:8px}
   .hero:not(.slim) .ts-team{font-family:var(--disp);font-size:var(--t-5);font-weight:700;max-width:none;
     overflow:hidden;text-overflow:ellipsis}
-  .hero:not(.slim) .hero-team{display:block;order:1;min-width:0;padding:4px 0;font-family:var(--disp);
-    font-size:var(--t-5);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .hero:not(.slim) .ts-chev{width:28px;height:28px}
   .hero:not(.slim) .ts-menu{left:auto;right:0}   /* under the chevron (hero.css) */
+  /* Waivers' switch is a short name at the left edge, so a menu hung from its right end ran 22px
+     off the screen (2026-09-29); it hangs from the left instead. */
+  .hero.wire .ts-menu{left:0;right:auto}
   .leaguechip{border:0;padding:0;letter-spacing:.06em;color:var(--ink-3)}
   .hero-rec + .leaguechip::before{content:"·";margin-right:10px;color:var(--ink-3)}
   .hero h1{margin-bottom:8px}

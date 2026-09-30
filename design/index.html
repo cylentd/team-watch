@@ -499,8 +499,6 @@ html{scrollbar-color:var(--line-2) var(--void)}
    normal-flow content like the signals column actually stops. right:0 here would land a gutter
    past every other edge on the page, not on top of them. */
 .hero-eyebrow .teamswitch{position:absolute;top:0;right:var(--page-pad);margin-left:0}
-/* Waivers' team name, plain: the h1 says it on a wide screen, so it shows only on a phone (760.css). */
-.hero-team{display:none}
 .league-mark{width:8px;height:8px;border-radius:99px;background:var(--tint)}
 .hero h1{
   font-family:var(--disp);font-weight:800;
@@ -529,6 +527,8 @@ html{scrollbar-color:var(--line-2) var(--void)}
    never widen the page, but hiding it vertically cut the team menu off under the title: it opened
    as a sliver, and a tap meant for ESPN landed on the Sheet / Cards chips below. */
 .hero.team{padding:28px 0 4px;overflow:clip visible;z-index:5}
+/* Waivers' full hero, the same fix (2026-09-29): its menu opened as a sliver on a phone. */
+.hero.wire{overflow:clip visible;z-index:5}
 .hero.team .numghost,.hero.team h1.fit,.hero.team .league-mark,.hero.team .hero-eyebrow .lbl{display:none}
 .hero.team .hero-in{grid-template-columns:minmax(0,1fr) auto;gap:4px 20px;align-items:end}
 /* The Sheet / Cards switch at the header's right end, on the league line's baseline. */
@@ -7523,10 +7523,11 @@ body:has(.legsheet.on){overflow:hidden}
   .hero:not(.slim) .ts-btn{background:none;border:0;padding:4px 0;min-width:0;gap:8px}
   .hero:not(.slim) .ts-team{font-family:var(--disp);font-size:var(--t-5);font-weight:700;max-width:none;
     overflow:hidden;text-overflow:ellipsis}
-  .hero:not(.slim) .hero-team{display:block;order:1;min-width:0;padding:4px 0;font-family:var(--disp);
-    font-size:var(--t-5);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .hero:not(.slim) .ts-chev{width:28px;height:28px}
   .hero:not(.slim) .ts-menu{left:auto;right:0}   /* under the chevron (hero.css) */
+  /* Waivers' switch is a short name at the left edge, so a menu hung from its right end ran 22px
+     off the screen (2026-09-29); it hangs from the left instead. */
+  .hero.wire .ts-menu{left:0;right:auto}
   .leaguechip{border:0;padding:0;letter-spacing:.06em;color:var(--ink-3)}
   .hero-rec + .leaguechip::before{content:"·";margin-right:10px;color:var(--ink-3)}
   .hero h1{margin-bottom:8px}
@@ -23139,23 +23140,24 @@ function buildConnect(){
    already show on their own, and on a phone they cost a screen-third before the first player.
    Since 2026-09-25 the roster's hero is the phone's one line at every width (.hero.team, hero.css):
    the team switch is the title. Waivers keeps the full hero, which carries its FAAB and claims.
-   Since 2026-09-29 Waivers has no team switch (David: "I don't even think it should be there"):
-   its menu opened clipped under the full hero on a phone and could not be tapped. The team is
-   picked on Roster; Waivers names it, plain (.hero-team, a phone's title since its h1 is hidden). */
+   Waivers' switch opened clipped under its full hero on a phone and could not be tapped; it was
+   taken off on 2026-09-29 and put back the same day (David: "If I want to look at waivers for
+   multiple league quickly, I guess I need the dropdown back"), with .hero.wire clipping sideways
+   only, the Roster's own fix (hero.css). test_the_waivers_switch_opens_on_a_phone pins it. */
 /* `side` sits at the hero's right end: the roster's Sheet / Cards switch (2026-09-25), moved up out
    of the rows' column so the starters, the bench and "This week" share one top edge. */
 function heroHTML(team, side = ""){
   const wire = SURFACE === "waivers" && hasWaivers(team);
   // Every ESPN team's record comes from its standings (data/league.js); Yahoo has no source, so none.
   const rec = team.record ? `${team.plat} · ${team.record}` : team.plat;
-  return `<section class="hero${wire ? "" : " team"}">
+  return `<section class="hero ${wire ? "wire" : "team"}">
     <div class="numghost">${team.slot}</div>
     <div class="wrap hero-in">
       <div>
         <div class="hero-eyebrow" style="--tint:${team.tint}">
           <span class="league-mark"></span>
           <span class="lbl">${rec}</span>
-          ${wire ? `<span class="hero-team">${esc(team.name)}</span>` : teamSwitchHTML()}
+          ${teamSwitchHTML()}
         </div>
         <h1 class="fit">${esc(team.name)}</h1>
         <div class="hero-sub">

@@ -6,23 +6,24 @@
    already show on their own, and on a phone they cost a screen-third before the first player.
    Since 2026-09-25 the roster's hero is the phone's one line at every width (.hero.team, hero.css):
    the team switch is the title. Waivers keeps the full hero, which carries its FAAB and claims.
-   Since 2026-09-29 Waivers has no team switch (David: "I don't even think it should be there"):
-   its menu opened clipped under the full hero on a phone and could not be tapped. The team is
-   picked on Roster; Waivers names it, plain (.hero-team, a phone's title since its h1 is hidden). */
+   Waivers' switch opened clipped under its full hero on a phone and could not be tapped; it was
+   taken off on 2026-09-29 and put back the same day (David: "If I want to look at waivers for
+   multiple league quickly, I guess I need the dropdown back"), with .hero.wire clipping sideways
+   only, the Roster's own fix (hero.css). test_the_waivers_switch_opens_on_a_phone pins it. */
 /* `side` sits at the hero's right end: the roster's Sheet / Cards switch (2026-09-25), moved up out
    of the rows' column so the starters, the bench and "This week" share one top edge. */
 function heroHTML(team, side = ""){
   const wire = SURFACE === "waivers" && hasWaivers(team);
   // Every ESPN team's record comes from its standings (data/league.js); Yahoo has no source, so none.
   const rec = team.record ? `${team.plat} · ${team.record}` : team.plat;
-  return `<section class="hero${wire ? "" : " team"}">
+  return `<section class="hero ${wire ? "wire" : "team"}">
     <div class="numghost">${team.slot}</div>
     <div class="wrap hero-in">
       <div>
         <div class="hero-eyebrow" style="--tint:${team.tint}">
           <span class="league-mark"></span>
           <span class="lbl">${rec}</span>
-          ${wire ? `<span class="hero-team">${esc(team.name)}</span>` : teamSwitchHTML()}
+          ${teamSwitchHTML()}
         </div>
         <h1 class="fit">${esc(team.name)}</h1>
         <div class="hero-sub">
