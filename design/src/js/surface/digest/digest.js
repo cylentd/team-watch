@@ -11,7 +11,7 @@ const DG_WIND = `<svg class="dg-ico" viewBox="0 0 24 24" aria-hidden="true"><pat
 const DG_RAIN = `<svg class="dg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 15a4 4 0 0 1 .5-8 5.5 5.5 0 0 1 10.3 1.5A3.5 3.5 0 0 1 17.5 15H7zM9 18l-1 3M13 18l-1 3M17 18l-1 3"/></svg>`;
 
 /* Every label spelled out: assemble.py --check finds a copy key only as a literal lookup. */
-const dgLabel = id => ({res: t("digest.row.res"), hurt: t("digest.row.hurt"), start: t("digest.row.start"),
+const dgLabel = id => ({res: t("digest.row.res"), hurt: t("digest.row.hurt"),
   mu: t("digest.row.mu"), wx: t("digest.row.wx"),
   adds: t("digest.row.adds"), t5: t("digest.row.t5"), gems: t("digest.row.gems"),
   news: t("digest.row.news")})[id];
@@ -22,13 +22,12 @@ function dgCount(id, d){
   // Results counts what is still to play, not what is final: "15" said nothing the footer did not.
   if (id === "res") return [d.pending ? t("digest.res.toPlay", {n: d.pending}) : "", "go"];
   if (id === "hurt") return [d.hurt.length, "out"];
-  if (id === "start") return [d.starters.length, ""];
   if (id === "mu") return [d.calls || "", ""];
   if (id === "wx") return [dgWxMoves().length || "", "sky"];
   if (id === "adds") return [!d.adds.length ? "" : d.adds_source === "sleeper" ? dgBig(d.adds[0].count)
     : dgSigned(Math.round(d.adds[0].delta), 0), "go"];
   if (id === "gems") return [d.gems.length, ""];
-  if (id === "news") return [d.news.length, ""];
+  if (id === "news") return [d.starters.length + d.news.length, ""];   // new starters are News blocks too
   return ["", ""];
 }
 
@@ -43,12 +42,6 @@ function dgHurtLine(d){
 }
 
 /* Matchups' one name is the best spot at WR (the position Matchups opens on), else the next. */
-/* No new starter: Blip asleep and one of three lines, the same one all week (David, 2026-09-29). */
-function dgStartNone(d){
-  const line = dgPick([t("digest.line.startNone1"), t("digest.line.startNone2"), t("digest.line.startNone3")], `start|${d.week}`);
-  return `<span class="dg-blip">${blipSVG(null, "asleep")}</span>${line}`;
-}
-
 function dgMuLine(d){
   const b = ["WR", "RB", "TE", "QB"].map(p => d.best.find(r => r.pos === p)).find(Boolean);
   if (b) return t("digest.line.mu", {name: esc(b.n), vs: dgVs(b)});
@@ -79,15 +72,17 @@ function dgResLine(d){
 
 function dgLine(id, d){
   const top = pos => dgTop5(d, pos)[0];
-  const it = d.news[0], a = d.adds[0];
+  const it = d.news[0], a = d.adds[0], s = d.starters[0];
   return {
-    res: () => dgResLine(d), hurt: () => dgHurtLine(d), start: () => `<b>${esc(dgLast(d.starters[0].n))}</b> ${dgStartWhat(d.starters[0], dgLast, true)}`,
+    res: () => dgResLine(d), hurt: () => dgHurtLine(d),
     mu: () => dgMuLine(d), wx: () => dgWxLine(d),
     adds: () => d.adds_source === "sleeper" ? `<b>${esc(a.n)}</b> ${dgAddCount(a)}`
       : t("digest.line.adds", {name: esc(a.n), was: dgPct(a.was), now: dgPct(a.now)}),
     t5: () => DG_POS.map(top).filter(Boolean).map(r => `<b>${esc(dgLast(r.n))}</b>`).join(" · "),
     gems: () => dgGemLine(d.gems[0]),
-    news: () => it.n ? `<b>${esc(it.n)}</b> ${esc(it.rest)}` : esc(it.headline),
+    // A new starter leads News, as its block does (rows.js dgStartNewsHTML).
+    news: () => s ? `<b>${esc(dgLast(s.n))}</b> ${dgStartWhat(s, dgLast, true)}`
+      : it.n ? `<b>${esc(it.n)}</b> ${esc(it.rest)}` : esc(it.headline),
   }[id]();
 }
 
@@ -96,7 +91,8 @@ function dgRowHTML(id, d, open){
   const [n, tone] = has ? dgCount(id, d) : ["", ""];
   const line = has ? dgLine(id, d)
     : id === "hurt" && d && dgWeekDone(d) ? t("digest.line.hurtNext", {week: d.week + 1})
-    : id === "start" && d ? dgStartNone(d) : id === "wx" ? t("digest.line.wxCalm") : t("digest.line.nothing");
+    : id === "wx" ? t("digest.line.wxCalm")
+    : id === "mu" && d ? dgMuNone(dgWeekDone(d) ? d.week + 1 : d.week) : t("digest.line.nothing");
   const on = has && open === id;
   return `<div class="dg-row${has ? "" : " empty"}" data-dgrow="${id}"${on ? " data-open data-today" : ""}>
     <button type="button" class="dg-head" aria-expanded="${on}"${has ? ` aria-controls="dg-b-${id}"` : " disabled"}>

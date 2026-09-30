@@ -8,12 +8,14 @@
    The card is not a row: it has no count and does not open. Tonight's card, while it shows, still
    holds the last game's rows, so the wait waits for it (dgWaiting, data/digest.js). */
 
+/* Matchups with nothing to call says so in Blip's voice, one of three lines, the same one all week
+   (2026-09-29, David: "we can say something funny if we dont have stuff instead of boring stats").
+   The record it used to quote lives on Takes, where it has its splits beside it. */
+const dgMuNone = next => dgPick([t("digest.wait.mu1", {week: next}), t("digest.wait.mu2"), t("digest.wait.mu3")], `mu|${next}`);
+
 function dgWaitLine(id, d, next){
   if (id === "hurt") return t("digest.line.hurtNext", {week: next}) + ".";   // the ticker's line has no stop; a list of sentences does
-  const r = d.record;
-  const rec = r ? " " + t("digest.foot.mu", {us: r.ours.score == null ? "—" : r.ours.score.toFixed(2),
-    pl: r.pl.score == null ? "—" : r.pl.score.toFixed(2), wk: r.through}) : "";
-  return t("digest.wait.mu", {week: next}) + rec;
+  return dgMuNone(next);
 }
 
 function dgWaitHTML(d){

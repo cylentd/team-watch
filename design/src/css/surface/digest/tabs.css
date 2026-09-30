@@ -34,11 +34,13 @@
   /* `data-off`, not `hidden`, which the page's reset pins to display:none !important (tabs.js). */
   .dg-tabp{grid-area:1 / 1}
   .dg-tabp[data-off]{display:block;visibility:hidden}
-  /* Four across, the board's own columns (headlines.css), so a list reads under QB RB WR TE and a
-     number sits one column (~290px) from its name, not half a card (David: "it's too wide. The name
-     and the number gap"). The last row drops its rule: the first of the last four, on a 4n+1 slot,
-     and every row after it. */
-  .dg-rlist{grid-template-columns:repeat(4,minmax(0,1fr));column-gap:32px;align-content:start}
-  .dg-rlist .dg-rr:nth-child(4n+1):nth-last-child(-n+4),
-  .dg-rlist .dg-rr:nth-child(4n+1):nth-last-child(-n+4) ~ .dg-rr{border-bottom:0}
+  /* Five across, each a compact entry with the points first and the name beside them (2026-09-29,
+     David, twice: "it's too wide. The name and the number gap", then "still think it looks weird").
+     Four columns with the number at each column's right edge still left it ~240px from its name, and
+     five smashed ran four and one. Leading with the number puts it against the name at any width, and
+     five across sets Smashed in one row and Left hurt's ten in two. No row rules: a grid of entries
+     needs its gaps, not lines, and a 4+1 row's lone rule was half the "weird". */
+  .dg-rlist{grid-template-columns:repeat(5,minmax(0,1fr));gap:14px 28px;align-content:start;padding-top:6px}
+  .dg-rlist .dg-rr{grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;border-bottom:0;min-height:0;padding:0}
+  .dg-rlist .dg-rv{order:-1;justify-items:start;min-width:44px}
 }

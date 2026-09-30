@@ -55,28 +55,25 @@
     display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:20px;border-top:0;
     grid-template-areas:
       "hurt hurt hurt hurt hurt mu   mu   mu   mu   wx   wx   wx"
-      "start start start start start start adds adds adds adds adds adds"
-      "t5   t5   t5   t5   t5   t5   t5   t5   gems gems gems gems"
+      "adds adds adds adds t5   t5   t5   t5   t5   gems gems gems"
       "news news news news news news news news news news news news";
   }
   /* The bands that come and go, named by the ticker's classes (digest.js): once a game is final
      the week's results take a full-width band; tonight's card takes one above them; and when
-     tonight is all the week has left, the preview panels are gone and starters, adds and gems
+     tonight is all the week has left, the preview panels are gone and adds and gems
      share a band. */
   .dg-ticker.has-res{
     grid-template-areas:
       "res  res  res  res  res  res  res  res  res  res  res  res"
       "hurt hurt hurt hurt hurt mu   mu   mu   mu   wx   wx   wx"
-      "start start start start start start adds adds adds adds adds adds"
-      "t5   t5   t5   t5   t5   t5   t5   t5   gems gems gems gems"
+      "adds adds adds adds t5   t5   t5   t5   t5   gems gems gems"
       "news news news news news news news news news news news news";
   }
   .dg-ticker.has-tn{
     grid-template-areas:
       "tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn"
       "hurt hurt hurt hurt hurt mu   mu   mu   mu   wx   wx   wx"
-      "start start start start start start adds adds adds adds adds adds"
-      "t5   t5   t5   t5   t5   t5   t5   t5   gems gems gems gems"
+      "adds adds adds adds t5   t5   t5   t5   t5   gems gems gems"
       "news news news news news news news news news news news news";
   }
   .dg-ticker.has-tn.has-res{
@@ -84,21 +81,20 @@
       "tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn"
       "res  res  res  res  res  res  res  res  res  res  res  res"
       "hurt hurt hurt hurt hurt mu   mu   mu   mu   wx   wx   wx"
-      "start start start start start start adds adds adds adds adds adds"
-      "t5   t5   t5   t5   t5   t5   t5   t5   gems gems gems gems"
+      "adds adds adds adds t5   t5   t5   t5   t5   gems gems gems"
       "news news news news news news news news news news news news";
   }
   .dg-ticker.tn-last.has-res{
     grid-template-areas:
       "tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn"
       "res  res  res  res  res  res  res  res  res  res  res  res"
-      "start start start start adds adds adds adds gems gems gems gems"
+      "adds adds adds adds adds adds gems gems gems gems gems gems"
       "news news news news news news news news news news news news";
   }
   .dg-ticker.tn-last:not(.has-res){
     grid-template-areas:
       "tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn"
-      "start start start start adds adds adds adds gems gems gems gems"
+      "adds adds adds adds adds adds gems gems gems gems gems gems"
       "news news news news news news news news news news news news";
   }
   /* The week is over and its preview panels wait on the next (wait.js). Tonight's card, while it
@@ -112,7 +108,6 @@
     grid-template-areas:
       "wait wait wait wait t5   t5   t5   t5   wx   wx   wx   wx"
       "adds adds adds adds adds adds gems gems gems gems gems gems"
-      "start start start start start start start start start start start start"
       "news news news news news news news news news news news news";
   }
   .dg-ticker.wk-done.has-res{
@@ -120,14 +115,12 @@
       "res  res  res  res  res  res  res  res  res  res  res  res"
       "wait wait wait wait t5   t5   t5   t5   wx   wx   wx   wx"
       "adds adds adds adds adds adds gems gems gems gems gems gems"
-      "start start start start start start start start start start start start"
       "news news news news news news news news news news news news";
   }
   .dg-tns{grid-area:tn;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:20px}
   .dg-tns .dg-tn{margin:0}
   .dg-row[data-dgrow="res"]{grid-area:res}
   .dg-row[data-dgrow="hurt"]{grid-area:hurt}
-  .dg-row[data-dgrow="start"]{grid-area:start}
   .dg-row[data-dgrow="mu"]{grid-area:mu}
   .dg-row[data-dgrow="wx"]{grid-area:wx}
   .dg-row[data-dgrow="adds"]{grid-area:adds}
@@ -150,8 +143,6 @@
   .dg-row[data-today] .dg-l{color:var(--lime)}
   .dg-row.empty .dg-head{padding-bottom:20px}
   .dg-row.empty .dg-s{display:block;grid-column:1 / -1;white-space:normal}
-  /* A panel has the room: Blip sits above the line at full size instead of beside it. */
-  .dg-row.empty .dg-blip{display:block;width:88px;height:88px;margin:16px 0 12px}
 
   .dg-row .dg-body{flex:1;grid-template-rows:1fr}
   .dg-in{background:none}

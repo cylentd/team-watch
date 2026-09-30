@@ -105,8 +105,8 @@ def test_the_results_lists_are_one_panel_under_tabs(browser, page_file, viewport
     opens up all 3 panels anyways ... just opens a big panel"): one tab bar, each tab its list's count,
     one list showing. A tap swaps the list in place, and the pick survives a repaint.
     On the wall the box keeps one height whatever tab is up (David: "clicking on the tabs expand and
-    shrinks the container"), and a list runs four across, so no number sits more than one column from
-    its name ("it's too wide. The name and the number gap")."""
+    shrinks the container"), and a list runs five across with the points leading, right against the
+    name ("it's too wide. The name and the number gap", then "still think it looks weird")."""
     ctx, page, errors = open_page(browser, page_file, viewport)
     page.goto(page_file.as_uri())
     drive(page, go("digest"))
@@ -118,7 +118,7 @@ def test_the_results_lists_are_one_panel_under_tabs(browser, page_file, viewport
     box = lambda: page.locator("[data-dgset='res'] .dg-tabps").evaluate("e => e.getBoundingClientRect().height")
     gap = lambda: page.evaluate("""Math.max(...[...document.querySelectorAll('[data-dgset="res"] .dg-rr')]
       .filter(e => e.checkVisibility({visibilityProperty: true}))
-      .map(r => r.querySelector('.dg-rv b').getBoundingClientRect().left - r.querySelector('.dg-rr-n').getBoundingClientRect().left))""")
+      .map(r => r.querySelector('.dg-rr-n').getBoundingClientRect().left - r.querySelector('.dg-rv').getBoundingClientRect().right))""")
     tabs = page.locator("[data-dgset='res'] .dg-tab")
     n = page.evaluate("(() => { const d = dgD(); return [d.smashed.length, d.busts.length, d.left.length]; })()")
     assert tabs.count() == 3
@@ -133,7 +133,7 @@ def test_the_results_lists_are_one_panel_under_tabs(browser, page_file, viewport
     assert visible("[data-dgset='res'] .dg-rr") == n[2]
     if viewport[0] >= 1100:
         assert max(heights) - min(heights) < 1, heights
-        assert gap() < 350
+        assert 0 <= gap() <= 24                      # the points lead, right against the name
     page.evaluate("render()")
     assert page.locator("[data-dgset='res'] .dg-tab").nth(2).get_attribute("aria-selected") == "true"
     ctx.close()
@@ -169,7 +169,7 @@ def test_results_on_the_wall_keep_each_number_by_its_name(browser, page_file):
         ctx.close()
         assert errors == []
     wall, phone = got[1705], got[360]
-    assert (wall["tiles"], wall["board"], wall["list"]) == (4, 4, 4)
+    assert (wall["tiles"], wall["board"], wall["list"]) == (4, 4, 5)
     assert wall["rows"] and max(r["gap"] for r in wall["rows"]) < 350
     assert {r["day"] for r in wall["rows"]} == {"block"}
     assert wall["faces"] == 0 and phone["faces"] == 0
@@ -276,7 +276,9 @@ def test_a_finished_week_folds_the_preview_rows_into_the_wait(browser, page_file
     lines = {li.locator("b").inner_text().upper(): li.locator("span").inner_text() for li in card.locator("li").all()}
     assert list(lines) == ["HURT", "MATCHUPS"]
     assert lines["HURT"] == "Week 4's injury report is still in the trainer's room."
-    assert lines["MATCHUPS"].startswith("Week 4's calls land Tuesday. Our record")
+    # Blip's voice, not the record (2026-09-29, David: "say something funny ... instead of boring stats")
+    jokes = page.evaluate("[t('digest.wait.mu1', {week: 4}), t('digest.wait.mu2'), t('digest.wait.mu3')]")
+    assert lines["MATCHUPS"] in jokes and not re.search(r"\d\.\d", lines["MATCHUPS"])
     ctx.close()
     assert errors == []
 
@@ -348,30 +350,33 @@ def test_top_5_links_to_ranks_and_one_call_is_singular(browser, page_file):
     assert errors == []
 
 
-def test_starters_row_names_the_new_one_and_who_he_replaced(browser, page_file):
-    """Sleeper's new #1s and team moves (2026-09-29): the closed line is the newest by surname, each
-    opened line says QB1 over whom (with his status) or the two teams, and the row goes with the
-    team's kickoff."""
+def test_new_starters_lead_news_and_name_who_they_replaced(browser, page_file):
+    """Sleeper's new #1s and team moves are News since 2026-09-29 (David: "merge starters"; the row of
+    its own sat empty most days). Each is a block before the headlines, tagged "New QB1" or "New team",
+    its line QB1 over whom (with his status) or the two teams; the closed line leads with the newest,
+    News counts them, and they go with the team's kickoff. No Starters row is drawn."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     page.goto(page_file.as_uri())
     for _, sel in go("digest"):
         page.click(sel)
     page.wait_for_selector(".dg-row")
-    got = page.evaluate("""() => { Date.now = () => Date.parse("2026-09-17T12:00:00Z"); DG_CUT = null; DG_OPEN = "start"; render();
-      const row = document.querySelector('.dg-row[data-dgrow="start"]');
+    got = page.evaluate("""() => { Date.now = () => Date.parse("2026-09-17T12:00:00Z"); DG_CUT = null; DG_OPEN = "news"; render();
+      const row = document.querySelector('.dg-row[data-dgrow="news"]'), s = [...row.querySelectorAll('.dg-nw.start')];
       return {line: row.querySelector('.dg-s').textContent.trim(), n: row.querySelector('.dg-n').textContent.trim(),
-              metas: [...row.querySelectorAll('.dg-ln-t > span')].map(s => s.textContent.trim()),
-              days: [...row.querySelectorAll('.dg-day')].map(s => s.textContent)}; }""")
-    assert got["line"] == "Watson QB1 over Sanders" and got["n"] == "4"
-    assert got["metas"] == ["QB1 over S. Sanders", "QB1 over J. Daniels (Out)", "MIN → NYG · QB3", "RB1 over J. Mason"]
+              first: row.querySelector('.dg-nws').firstElementChild.classList.contains('start'),
+              tags: s.map(b => b.querySelector('.dg-nw-tag').textContent.trim()),
+              lines: s.map(b => b.querySelector('li span').textContent.trim()),
+              days: s.map(b => b.querySelector('time').textContent),
+              news: dgD().news.length, startRow: !!document.querySelector('.dg-row[data-dgrow="start"]')}; }""")
+    assert got["line"] == "Watson QB1 over Sanders" and got["n"] == str(4 + got["news"])
+    assert got["first"] and not got["startRow"]
+    assert got["tags"] == ["New QB1", "New QB1", "New team", "New RB1"]
+    assert got["lines"] == ["QB1 over S. Sanders", "QB1 over J. Daniels (Out)", "MIN → NYG · QB3", "RB1 over J. Mason"]
     assert got["days"] == ["Tue", "Tue", "Mon", "Mon"]
     gone = page.evaluate("""() => { LIVE_DIGEST.starters.forEach(r => { r.ko = "2026-09-20T17:00:00Z"; });
       Date.now = () => Date.parse("2026-09-20T17:01:00Z"); DG_CUT = null; render();
-      return document.querySelector('.dg-row[data-dgrow="start"]').classList.contains('empty'); }""")
-    assert gone, "a started game takes its starter rows"
-    empty = page.evaluate("""() => { const s = document.querySelector('.dg-row[data-dgrow="start"] .dg-s');
-      return {blip: !!s.querySelector('.dg-blip svg.blip'), text: s.textContent.trim()}; }""")
-    assert empty["blip"] and "Blip" in empty["text"], "an empty Starters row is Blip asleep with a line, not Nothing new"
+      return document.querySelectorAll('.dg-nw.start').length; }""")
+    assert gone == 0, "a started game takes its starters out of News"
     ctx.close()
     assert errors == []
 
@@ -597,6 +602,14 @@ def test_top_5_is_ranks_own_rows_under_position_tabs(browser, page_file):
     tabs.first.click()
     assert page.locator("[data-dgpanel='QB'] .dg-rk .dg-rk-p").first.inner_text() == first
     assert page.locator(".dg-row[data-dgrow='t5'] .dg-go").get_attribute("data-dggo") == "ranks"
+    # Tiers in Ranks' colours (2026-09-29, David: "colors for T1, T2, T3 so it's easily scannable"):
+    # Tier 1 filled lime, a lower tier an outline, a different colour per tier.
+    tiers = page.evaluate("""(() => { const p = document.querySelector('[data-dgset="t5"] [data-dgpanel]:not([data-off])');
+      return [...p.querySelectorAll('.dg-rk-tier')].map(e => [e.textContent, getComputedStyle(e).backgroundColor, getComputedStyle(e).color]); })()""")
+    lime = page.evaluate("getComputedStyle(document.documentElement).getPropertyValue('--lime-rgb').trim().split(/\\s+/).join(', ')")
+    assert all(bg == f"rgb({lime})" for name, bg, _ in tiers if name == "T1")
+    colours = {name: c for name, _, c in tiers if name != "T1"}
+    assert len(set(colours.values())) == len(colours)
     ctx.close()
     assert errors == []
 

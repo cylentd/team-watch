@@ -684,9 +684,16 @@ projections for every player (it linked to Leaders until then).
   K and DST would take the same shape; ff-jarvis's results carry QB-TE only.
 - **Lists (2A):** Smashed, Busts and Left hurt are one panel under one tab bar (`tabs.js`), counts in
   each list's colour. Three toggles side by side read as one panel. On the wall (same day, David: "too
-  wide", "expand and shrinks the container") a list runs four across, the board's columns, so a number
-  is one column from its name, and the panels share one box as tall as the tallest, so a tab never
-  resizes it. A phone keeps each panel its own height.
+  wide", "expand and shrinks the container") the panels share one box as tall as the tallest, so a tab
+  never resizes it, and a list runs five across as compact entries, points first and the name beside
+  them, no row rules (after four columns with the number at each edge still "looks weird"). A phone
+  keeps each panel its own height and the number at the right.
+- **Top 5 tiers** wear Ranks' colours: Tier 1 filled lime, lower tiers an outline stepping to grey.
+- **Matchups with nothing to call** says one of three deadpan lines (`digest.wait.mu1-3`), not the record.
+- **Starters folded into News** (David: "merge starters"): a new #1 or a team move is a News block before
+  the headlines, tagged "New QB1" (green) or "New team" (sky), its line over whom; News counts it and its
+  closed line leads with it. The Starters row, empty most days (a full-width Blip-asleep panel on the
+  wall), is gone; the Starters row in the table above is superseded.
 - **Icons (3A):** a 16px drawn icon before every topic's label (`icons.js`), stroked in the label's colour.
 - **Top 5 (5A):** reads `LIVE_RANKS`, the rows Ranks draws, under QB RB WR TE FLEX tabs: place, name
   over his game, injury tag, tier, projection. The packet's top5 emptied once its week began, so the

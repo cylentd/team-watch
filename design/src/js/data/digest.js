@@ -4,7 +4,9 @@
 
 /* The ticker, top to bottom. Each id is one topic and one row. Results shows only once a game is
    final (2026-09-28): an empty "Results" row all week would be noise. */
-const DG_ROWS = ["res", "hurt", "start", "mu", "wx", "adds", "t5", "gems", "news"];
+/* Starters folded into News on 2026-09-29 (rows.js dgStartNewsHTML): a new #1 is news, and the row
+   of its own sat empty most days. */
+const DG_ROWS = ["res", "hurt", "mu", "wx", "adds", "t5", "gems", "news"];
 const DG_POS = ["QB", "RB", "WR", "TE"];
 
 /* The row the reader opened by hand ("" when he closed it); null until the first tap, and while
@@ -97,9 +99,9 @@ const dgWxMoves = () => wtRows().moves.filter(r => !r.done);
 function dgHas(id){
   const d = dgD();
   if (!d) return false;
-  return {res: d.finals.length || d.stars.length, hurt: d.hurt.length, start: d.starters.length, mu: d.best.length || d.calls,
+  return {res: d.finals.length || d.stars.length, hurt: d.hurt.length, mu: d.best.length || d.calls,
           wx: dgWxMoves().length, adds: d.adds.length, t5: dgTop5(d, "QB").length,
-          gems: d.gems.length, news: d.news.length}[id] ? true : false;
+          gems: d.gems.length, news: d.news.length || d.starters.length}[id] ? true : false;
 }
 
 /* Is there news in it, which is what earns the day's open: a hurt row changed in the last 24

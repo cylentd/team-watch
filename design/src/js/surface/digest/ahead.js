@@ -5,10 +5,14 @@
    data/digest.js dgTop5 and dgWxMoves pick the rows. */
 
 /* One ranked row: place, name over his game, an injury tag, the tier, the projection. FLEX names the
-   position before the game. Opens the profile. */
-function dgT5Row(r, i, flex){
+   position before the game. Opens the profile.
+   The tier wears Ranks' own colour (2026-09-29, David: "let's have colors for T1, T2, T3 so it's easily
+   scannable"): Tier 1 filled lime, then an outline stepping from lime to grey by `--k`, 0 at the top
+   tier and 1 at the position's last (ranks.css .rk-group), so T1 on the Digest is T1 on Ranks. */
+function dgT5Row(r, i, flex, last){
   const inj = r.inj ? `<span class="dg-rk-inj ${r.inj === "Q" ? "q" : "d"}">${r.inj === "Q" ? t("digest.t5.q") : t("digest.t5.d")}</span>` : "";
-  const tier = r.tier ? `<span class="dg-rk-tier">${t("digest.t5.tier", {n: r.tier})}</span>` : "";
+  const k = last > 1 ? ((r.tier - 1) / (last - 1)).toFixed(2) : "0";
+  const tier = r.tier ? `<span class="dg-rk-tier${r.tier === 1 ? " top" : ""}" style="--k:${k}">${t("digest.t5.tier", {n: r.tier})}</span>` : "";
   return `<button type="button" class="dg-rk" data-dgslug="${esc(r.slug)}"><span class="dg-rk-n">${i + 1}</span>
     <span class="dg-rk-t"><b>${esc(nameInitial(r.n))}${inj}</b><span>${flex ? esc(r.pos) + " · " : ""}${dgVs(r)}</span></span>
     ${tier}<span class="dg-rk-p">${r.pts.toFixed(1)}</span></button>`;
@@ -16,9 +20,9 @@ function dgT5Row(r, i, flex){
 
 function dgTop5Body(d){
   const tabs = DG_T5_POS.map(pos => {
-    const rows = dgTop5(d, pos);
+    const rows = dgTop5(d, pos), all = rkList(pos), last = all.length ? all[all.length - 1].tier || 1 : 1;
     return rows.length ? {key: pos, label: pos === "FLEX" ? t("digest.t5.flex") : pos,
-      body: `<div class="dg-rks">${rows.map((r, i) => dgT5Row(r, i, pos === "FLEX")).join("")}</div>`} : null;
+      body: `<div class="dg-rks">${rows.map((r, i) => dgT5Row(r, i, pos === "FLEX", last)).join("")}</div>`} : null;
   }).filter(Boolean);
   const week = typeof LIVE_RANKS !== "undefined" && LIVE_RANKS && LIVE_RANKS.week;
   return dgTabsHTML("t5", tabs)

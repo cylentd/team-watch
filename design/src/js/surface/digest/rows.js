@@ -49,10 +49,18 @@ function dgStartWhat(r, name, bare){
   return [over, moved].filter(Boolean).join(", ");
 }
 
-function dgStartBody(d){
-  const lines = d.starters.map(r => dgLnHTML(r, `${r.over ? DG_UP : DG_SWAP}${dgStartWhat(r, dgShort)}`,
-    `<span class="dg-day">${esc(r.day || "")}</span>`)).join("");
-  return lines + dgFootHTML(t("digest.foot.start", d.rules.starters || {}), null, "", true);
+/* A new starter is a News block of its own, first in the list (2026-09-29, David: "merge starters";
+   it was a row of its own, empty most days and a full-width panel of Blip asleep on the wall). The
+   block wears a green tag, "New QB1" or "New team", and its line says over whom or which teams, on
+   the day Sleeper's chart changed. The source differs from the headlines' (Sleeper's depth chart, not
+   FantasyPros), and the foot names both. */
+function dgStartNewsHTML(r){
+  const tag = r.over ? t("digest.nw.newStarter", {pos: esc(r.pos)}) : t("digest.nw.newTeam");
+  return `<button type="button" class="dg-nw start" data-dgslug="${esc(r.slug)}">
+    <span class="dg-hd">${avatarHTML(r)}</span>
+    <span class="dg-nw-t"><span class="dg-nw-who"><b>${esc(r.n)}</b><small>${esc(r.pos)} · ${esc(r.team)}</small></span>
+    <span class="dg-nw-tag ${r.over ? "up" : "mv"}">${r.over ? DG_UP : DG_SWAP}${tag}</span>
+    <ul><li><time>${esc(r.day || "")}</time><span>${dgStartWhat(r, dgShort)}</span></li></ul></span></button>`;
 }
 
 function dgMuBody(d){
@@ -126,7 +134,9 @@ function dgNewsBody(d){
       <span class="dg-nw-t"><span class="dg-nw-who"><b class="${DG_KIND[g.kind] || ""}">${esc(g.n)}</b><small>${meta}</small></span>
       <ul>${g.lines.map(line).join("")}</ul></span></button>`;
   }).join("");
-  return `<div class="dg-nws">${blocks}</div>` + dgFootHTML(t("digest.foot.news"), "news", t("digest.go.news"));
+  const start = d.starters.map(dgStartNewsHTML).join("");
+  return `<div class="dg-nws">${start}${blocks}</div>`
+    + dgFootHTML(d.starters.length ? t("digest.foot.newsStart") : t("digest.foot.news"), "news", t("digest.go.news"));
 }
 
 /* One short list in Top 5's shape: a head, then "K. Mumpfield" and one number per line (Tonight's lists). */
@@ -136,5 +146,5 @@ function dgResList(title, rows, num){
 }
 
 /* Results' body is results.js's (dgResBody). */
-const DG_BODY = {res: dgResBody, hurt: dgHurtBody, start: dgStartBody, mu: dgMuBody, wx: dgWxBody, adds: dgAddsBody, t5: dgTop5Body,
+const DG_BODY = {res: dgResBody, hurt: dgHurtBody, mu: dgMuBody, wx: dgWxBody, adds: dgAddsBody, t5: dgTop5Body,
                  gems: dgGemsBody, news: dgNewsBody};
