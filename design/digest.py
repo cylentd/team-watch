@@ -151,7 +151,9 @@ def _news(it):
     n = it.get("name") or name
     t = _local(it.get("created"))
     return {"when": _clock(t) if t else None, "headline": headline, "kind": news_kind({"title": headline}),
-            "n": n, "rest": _rest(headline, n), "slugs": slugs}
+            "n": n, "rest": _rest(headline, n), "slugs": slugs,
+            # The story's own page (ff-jarvis, 2026-09-30); null for a row stored before it kept one.
+            "link": it.get("link")}
 
 
 def _starter(r, slugify, schedule):

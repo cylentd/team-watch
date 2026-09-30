@@ -387,6 +387,29 @@ def test_top_5_links_to_ranks_and_one_call_is_singular(browser, page_file):
     assert errors == []
 
 
+def test_every_news_line_opens_its_story(browser, page_file):
+    """2026-09-30 (David: "For the news on the digest, it should link to the news source"): each line is
+    a link to its story in a new tab, the story's own page when ff-jarvis kept one, else a search for the
+    headline; the face and name still open the profile, and no link sits inside a button."""
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page.goto(page_file.as_uri())
+    for _, sel in go("digest"):
+        page.click(sel)
+    page.wait_for_selector(".dg-nws")
+    got = page.evaluate("""() => {
+      const lines = [...document.querySelectorAll('.dg-nws li')];
+      const links = lines.map(li => li.querySelector('a'));
+      const d = dgD(), want = d.news.map(it => it.link || 'https://www.google.com/search?tbm=nws&q=' + encodeURIComponent(it.headline));
+      return {n: lines.length, all: links.every(a => a && a.target === '_blank' && /noopener/.test(a.rel)),
+              hrefs: links.map(a => a.getAttribute('href')), want,
+              nested: document.querySelectorAll('.dg-nws button a, .dg-nws a button').length,
+              names: [...document.querySelectorAll('.dg-nw.who .dg-nw-who')].every(b => b.dataset.dgslug)}; }""")
+    assert got["n"] > 0 and got["all"] and got["nested"] == 0 and got["names"]
+    assert sorted(got["hrefs"]) == sorted(got["want"])
+    ctx.close()
+    assert errors == []
+
+
 def test_need_to_know_leads_with_new_starters_then_who_sits(browser, page_file):
     """Need to know (2026-09-29, storyboard 96B1dMss6vfyhhsQLUSK4x B) lies open under the banner: Sleeper's
     new #1s and team moves first, tagged "New QB1" or "New team" with over whom (with his status), then

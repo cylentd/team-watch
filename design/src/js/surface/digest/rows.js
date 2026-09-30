@@ -96,17 +96,27 @@ function dgNewsGroups(news){
   return groups;
 }
 
+/* The small out-arrow a line wears to say it leaves the page for the story. */
+const DG_EXT = `<svg class="dg-out" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3h7v7M13 3L5 11"/></svg>`;
+
 function dgNewsBody(d){
   const who = typeof searchIndex === "function" ? new Map(searchIndex().map(e => [e.slug, e])) : new Map();
-  const line = it => `<li><time>${esc(it.when || "")}</time><span>${esc(it.n ? dgCap(it.rest) : it.headline)}</span></li>`;
+  /* Each line opens its story (2026-09-30, David: "it should link to the news source"): the story's own
+     page, or a search for the headline when the row predates ff-jarvis keeping the link, as the News tab
+     does. The face and name still open his profile, so the block is a div holding both kinds of tap. */
+  const line = it => {
+    const href = it.link || `https://www.google.com/search?tbm=nws&q=${encodeURIComponent(it.headline)}`;
+    return `<li><a href="${esc(href)}" target="_blank" rel="noopener noreferrer"><time>${esc(it.when || "")}</time>
+      <span>${esc(it.n ? dgCap(it.rest) : it.headline)}${DG_EXT}</span></a></li>`;
+  };
   const blocks = dgNewsGroups(d.news).map(g => {
     if (!g.key) return `<div class="dg-nw"><ul>${g.lines.map(line).join("")}</ul></div>`;
     const e = who.get(g.key), p = {n: g.n, slug: g.key, pos: e && e.pos, team: e && e.team};
     const meta = [p.pos, p.team].filter(Boolean).map(esc).join(" · ");
-    return `<button type="button" class="dg-nw" data-dgslug="${esc(g.key)}">
-      <span class="dg-hd">${avatarHTML(p)}</span>
-      <span class="dg-nw-t"><span class="dg-nw-who"><b class="${DG_KIND[g.kind] || ""}">${esc(g.n)}</b><small>${meta}</small></span>
-      <ul>${g.lines.map(line).join("")}</ul></span></button>`;
+    return `<div class="dg-nw who">
+      <button type="button" class="dg-hd" data-dgslug="${esc(g.key)}" tabindex="-1" aria-hidden="true">${avatarHTML(p)}</button>
+      <span class="dg-nw-t"><button type="button" class="dg-nw-who" data-dgslug="${esc(g.key)}"><b class="${DG_KIND[g.kind] || ""}">${esc(g.n)}</b><small>${meta}</small></button>
+      <ul>${g.lines.map(line).join("")}</ul></span></div>`;
   }).join("");
   return `<div class="dg-nws">${blocks}</div>` + dgFootHTML(t("digest.foot.news"), "news", t("digest.go.news"));
 }

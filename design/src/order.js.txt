@@ -51,6 +51,7 @@ surface/teams/wdesk.js
 surface/teams/hot.js
 surface/teams/waiver.js
 surface/profile/facts.js
+surface/profile/injury.js
 surface/profile/tags.js
 surface/profile/blocks.js
 surface/profile/sections.js

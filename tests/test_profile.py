@@ -199,6 +199,41 @@ def test_head_carries_the_verdict(browser, page_file):
 
 
 @pytest.mark.render
+def test_head_carries_his_injury_status(browser, page_file):
+    """2026-09-30 (David: "should injured players have their status on the player profile?"): the head
+    says the level and Sleeper's reason, from the same injFor() the roster cards read; a healthy player
+    shows nothing. A desktop keeps it in the head's row; a phone gives it a row of its own, and the
+    sphere stays beside the name."""
+    for size in ((1400, 900), (360, 800)):
+        ctx, page, errors = open_page(browser, page_file, size)
+        got = page.evaluate("""() => {
+          const hurt = Object.entries(LIVE_INJURY.players).map(([slug, r]) => ({slug, r}))
+            .map(x => ({...x, e: searchIndex().find(e => e.slug === x.slug)})).find(x => x.e);
+          openProfile(searchPlayer(hurt.e));
+          const box = document.querySelector('#modal .pf-inj');
+          const want = injFor({slug: hurt.slug});
+          const out = {has: !!box, cls: box && box.className, word: box && box.querySelector('.pf-inj-s').textContent.trim(),
+                       note: (box && box.querySelector('.pf-inj-n') || {}).textContent || null, want,
+                       orbTop: (document.querySelector('#modal .pf-orb') || {getBoundingClientRect: () => ({top: 0})}).getBoundingClientRect().top,
+                       nameTop: document.querySelector('#modal .pf-who').getBoundingClientRect().top,
+                       injTop: box.getBoundingClientRect().top};
+          const well = searchIndex().find(e => !injFor({slug: e.slug}) && !e.status);
+          openProfile(searchPlayer(well));
+          out.healthy = document.querySelectorAll('#modal .pf-inj').length;
+          return out; }""")
+        assert got["has"], got
+        assert got["cls"].endswith({"OUT": "out", "D": "d", "Q": "q"}[got["want"]["s"]])
+        assert got["note"] == got["want"]["note"]
+        assert got["healthy"] == 0
+        if size[0] < 760:
+            assert got["injTop"] > got["nameTop"], "a phone: a row of its own under the head"
+            assert got["orbTop"] < got["injTop"], "the sphere stays up beside the name"
+        assert page.evaluate("document.documentElement.scrollWidth") <= size[0]
+        assert errors == []
+        ctx.close()
+
+
+@pytest.mark.render
 def test_panes_split_the_blocks_and_only_one_is_in_the_dom(browser, page_file):
     """Three panes since 2026-09-22, replacing eleven stacked blocks and the Details disclosure
     nested inside them. Each block still renders exactly as before; what changed is which pane

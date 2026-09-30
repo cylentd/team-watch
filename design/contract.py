@@ -351,7 +351,7 @@ CONTRACT = {
                  ("up", ["n", "slug", "pos", "team", "d_pts", "pts"]),
                  ("down", ["n", "slug", "pos", "team", "d_pts", "pts"]),
                  ("gems", ["n", "slug", "pos", "team", "usage", "metric", "ecr", "rostered"]),
-                 ("news", ["when", "headline", "kind", "n", "rest", "slugs"]),
+                 ("news", ["when", "headline", "kind", "n", "rest", "slugs", "link"]),
                  # `over` (a team move alone), `from` (a new #1 alone), `proj`, `depth`, `day` and `ko` may be null.
                  ("starters", ["n", "slug", "pos", "team", "proj", "from", "depth", "day", "ko", "over"]),
                  ("finals", ["away", "home", "away_pts", "home_pts"]),

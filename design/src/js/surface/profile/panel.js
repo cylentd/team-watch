@@ -31,6 +31,7 @@ function openProfile(p, originEl){
           ${archTagsHTML(p)}
           ${sheetTagsHTML(p)}
         </div>
+        ${pfInjuryHTML(p)}
         ${orbBadgeHTML(p)}
       </div>
       ${p.note ? `<div class="dr-note">${esc(p.note)}</div>` : ""}
