@@ -22,8 +22,8 @@
 .nchip.out{color:var(--down)}
 .nchip.injury{color:var(--amber)}
 /* The player's head leads the row, beside the kind line, so a scan finds "my guy" by face before
-   reading. A row with no player keeps the full width; the text column of every other row lines up. */
-.newsrow.has-head{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;align-items:start}
+   reading. A row with no player keeps the slot empty, so every row's text starts on one edge. */
+.newsrow{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;align-items:start}
 .nhead img,.nhead .fallback{width:40px;height:40px;border-radius:99px;object-fit:cover;border:1px solid var(--line-2);background:var(--panel-3)}
 .nhead .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink-3)}
 .newsrow:last-child{border-bottom:0}
@@ -48,4 +48,21 @@
 .livedot{width:7px;height:7px;border-radius:99px;background:var(--down);flex-shrink:0;
   box-shadow:0 0 8px rgb(var(--down-rgb) / .8);animation:livedot 1.4s var(--ease) 3}
 @keyframes livedot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+
+/* The wall (2026-09-29, David: "the news section lands weirdly on desktop"): one 1,128px column
+   pinned left left a quarter of a 1,440px screen empty, and each story was a short line in a wide
+   box. From 1100px the page frame's whole width holds a story per card, as the Digest's News
+   panel lays them out, read row by row, newest first; a row of cards shares its height. The lead
+   stays a full-width band above the filter, its text held to a readable measure. */
+@media (min-width:1100px){
+  .newslist,.newslead{max-width:none}
+  .newslead{border-radius:16px}
+  .newslead .nbody{max-width:76ch}
+  .newslist{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;border:0;background:none}
+  .newslist .newsrow{border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+  .newslist .newsrow:last-child{border-bottom:1px solid var(--line)}
+  /* A card is its own column, so a story with no face needs no empty slot to line up with. */
+  .newslist .newsrow:has(.nhead:empty){grid-template-columns:minmax(0,1fr)}
+  .newslist .nhead:empty{display:none}
+}
 

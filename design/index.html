@@ -629,8 +629,8 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .nchip.out:where(#view[data-view="news"], #view[data-view="news"] *){color:var(--down)}
 .nchip.injury:where(#view[data-view="news"], #view[data-view="news"] *){color:var(--amber)}
 /* The player's head leads the row, beside the kind line, so a scan finds "my guy" by face before
-   reading. A row with no player keeps the full width; the text column of every other row lines up. */
-.newsrow.has-head:where(#view[data-view="news"], #view[data-view="news"] *){display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;align-items:start}
+   reading. A row with no player keeps the slot empty, so every row's text starts on one edge. */
+.newsrow:where(#view[data-view="news"], #view[data-view="news"] *){display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;align-items:start}
 .nhead:where(#view[data-view="news"], #view[data-view="news"] *) img,.nhead:where(#view[data-view="news"], #view[data-view="news"] *) .fallback{width:40px;height:40px;border-radius:99px;object-fit:cover;border:1px solid var(--line-2);background:var(--panel-3)}
 .nhead:where(#view[data-view="news"], #view[data-view="news"] *) .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink-3)}
 .newsrow:last-child:where(#view[data-view="news"], #view[data-view="news"] *){border-bottom:0}
@@ -655,6 +655,23 @@ html{scrollbar-color:var(--line-2) var(--void)}
 .livedot:where(#view[data-view="news"], #view[data-view="news"] *){width:7px;height:7px;border-radius:99px;background:var(--down);flex-shrink:0;
   box-shadow:0 0 8px rgb(var(--down-rgb) / .8);animation:livedot 1.4s var(--ease) 3}
 @keyframes livedot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+
+/* The wall (2026-09-29, David: "the news section lands weirdly on desktop"): one 1,128px column
+   pinned left left a quarter of a 1,440px screen empty, and each story was a short line in a wide
+   box. From 1100px the page frame's whole width holds a story per card, as the Digest's News
+   panel lays them out, read row by row, newest first; a row of cards shares its height. The lead
+   stays a full-width band above the filter, its text held to a readable measure. */
+@media (min-width:1100px){
+  .newslist:where(#view[data-view="news"], #view[data-view="news"] *),.newslead:where(#view[data-view="news"], #view[data-view="news"] *){max-width:none}
+  .newslead:where(#view[data-view="news"], #view[data-view="news"] *){border-radius:16px}
+  .newslead:where(#view[data-view="news"], #view[data-view="news"] *) .nbody{max-width:76ch}
+  .newslist:where(#view[data-view="news"], #view[data-view="news"] *){display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;border:0;background:none}
+  .newslist:where(#view[data-view="news"], #view[data-view="news"] *) .newsrow{border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+  .newslist:where(#view[data-view="news"], #view[data-view="news"] *) .newsrow:last-child{border-bottom:1px solid var(--line)}
+  /* A card is its own column, so a story with no face needs no empty slot to line up with. */
+  .newslist:where(#view[data-view="news"], #view[data-view="news"] *) .newsrow:has(.nhead:empty){grid-template-columns:minmax(0,1fr)}
+  .newslist:where(#view[data-view="news"], #view[data-view="news"] *) .nhead:empty{display:none}
+}
 
 /* ── css/component/rule.css ── */
 /* ============================== SECTION RULE ============================== */
@@ -13186,11 +13203,12 @@ function newsKindTag(kind){
 }
 
 /* The player the story leads with: a head when HEADS has one of the build's candidate slugs,
-   initials when the title names the player but no head exists, nothing for a story with no player.
-   The build parses the name; the page picks the slug, because only HEADS knows which exist. */
+   initials when the title names the player but no head exists, an empty slot for a story with no
+   player, so every row's text starts on one edge (2026-09-29: rows without a head ran 52px left of
+   the rest). The build parses the name; the page picks the slug, because only HEADS knows which exist. */
 function newsHeadHTML(it){
   const slug = (it.slugs || []).find(s => HEADS[s]);
-  if (!slug && !it.player) return "";
+  if (!slug && !it.player) return `<div class="nhead"></div>`;
   return `<div class="nhead">${avatarHTML({n: it.player || "", slug})}</div>`;
 }
 
@@ -13198,7 +13216,7 @@ function newsRowHTML(it, featured, i){
   const href = it.link || `https://www.google.com/search?tbm=nws&q=${encodeURIComponent(it.title)}`;
   const kind = newsKind(it);
   const head = newsHeadHTML(it);
-  return `<a class="newsrow ${kind} ${featured ? "featured" : ""} ${head ? "has-head" : ""}" style="animation-delay:${Math.min(i || 0, 14) * 30}ms" href="${esc(href)}" target="_blank" rel="noopener noreferrer">
+  return `<a class="newsrow ${kind} ${featured ? "featured" : ""}" style="animation-delay:${Math.min(i || 0, 14) * 30}ms" href="${esc(href)}" target="_blank" rel="noopener noreferrer">
     ${head}<div class="nbody">
     <div class="newstop">
       ${featured ? `<span class="livedot"></span>` : ""}
