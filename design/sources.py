@@ -17,7 +17,12 @@ REPO = ROOT.parent
 
 # The three input roots. Each can be pointed elsewhere by env var so a build can run against a
 # pinned snapshot (the regression suite) instead of whatever ff-jarvis holds right now.
-DWR = pathlib.Path(os.environ.get("TEAM_WATCH_DATA", "C:/Users/David/Github/ff-jarvis/data"))
+# Since fix 3 (2026-09-29) the ff-jarvis jobs write into their own checkout, not the main one; the
+# page reads it once ff-jarvis's scripts/move-jobs-data.py has left its marker. The same path as
+# ff-jarvis's model.JOBS_DATA (tests/test_sources_behind.py checks the two agree).
+JOBS_DATA = pathlib.Path.home() / ".ff-jarvis-history" / "data"
+FF_JARVIS_DATA = JOBS_DATA if (JOBS_DATA / ".jobs-data").exists() else pathlib.Path("C:/Users/David/Github/ff-jarvis/data")
+DWR = pathlib.Path(os.environ.get("TEAM_WATCH_DATA", FF_JARVIS_DATA))
 FEED = pathlib.Path(os.environ.get("TEAM_WATCH_FEED", REPO / "data" / "feed.json"))
 ESPN_ROSTERS = DWR / "espn_rosters.json"
 YAHOO_ROSTERS = DWR / "league_rosters.json"

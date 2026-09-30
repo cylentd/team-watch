@@ -85,6 +85,9 @@ and the main checkout stays on `main`, unedited. Notes that cost time to learn:
   and 14:30 daily jobs and Tuesday's 2:00 week turn, in agent-config) takes the same queue. A dead session's ticket clears itself; a wait over 20 min
   gives up with nothing landed. A push from outside the queue still gets exit 2 from `git land`,
   and `land.ps1` rebases, rebuilds and retries once.
+- Since fix 3 (2026-09-29) the build reads ff-jarvis's jobs' data checkout, `~/.ff-jarvis-history/data`
+  (`sources.JOBS_DATA`, held to ff-jarvis's `model.JOBS_DATA` by a test), once its `.jobs-data` marker
+  exists; before that, and with `TEAM_WATCH_DATA` set, the old path.
 - `land.ps1` fetches the ff-jarvis checkout and refuses to build when it is behind origin/main
   (2026-09-29: the 2018 Records lineups landed in ff-jarvis and a build shipped without them). Fix it
   with ff-jarvis's `python scripts/sync-main.py`; `-AllowStaleData` builds anyway. `build.py` prints a
