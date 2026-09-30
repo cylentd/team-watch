@@ -847,13 +847,13 @@ Option A, team colours on every code, was loud again; option B was the faces alo
 
 | part | what it shows |
 |---|---|
-| Palette | `--np-*` in `tokens.css`: a warm charcoal-brown ground, cream type, warm greys. `.pv` maps `--void`, `--panel*`, `--line*`, `--ink*` (and their `-rgb` triples) onto them, so the slate, the game page and the record all change with no colour of their own. The ground bleeds to both screen edges and past the footer through a `border-image` fill (ink overflow: no sideways scroll, no extra height). Lime and the signal colours keep their jobs. Contrast on the ground: cream 14.9:1, `--np-ink-3` 6.4:1 |
+| Palette | The site's own ground, surfaces and lines; the warmth is in the type (option A of https://claude.ai/artifact/517bzHZ7Cc24n2p4U7keZF, the same evening; David: the brown was "too brown", and it clashed with the site header above it). `--np-ink` (cream) on the day heads, the current row's headline and the game's headline; `--np-ink-2` (warm grey) on the slate headlines and the dek. Both in `base/newsprint.css`. On `--void`: cream 15.0:1, warm grey 12.1:1. ~~A warm charcoal-brown ground, `.pv` remapping every surface and ink, painted to the edges by a `border-image` fill~~ (superseded the same day) |
 | Face | 40px round, left of both lines: the first of Claude's player calls whose first or last name the headline says ("Dak outguns ...", "Love's arm ..."), else his first call (`pvFacePlayer`). No photo: initials. No take: an empty slot |
 | Right of the matchup | only a confident pick: "Confident" in lime text, "Very confident" a lime fill. ~~The side ("JAX getting 2.5") and Slight / No pick~~ (off the slate 2026-09-29, David: drop the getting/giving; the game page keeps both) |
 
 - **Measured 2026-09-29, week 4, 360x800:** rows 61-62px became 60-80px (the face's column wraps
   some headlines); the slate 1,354px became 1,494px.
-- Tests: `test_the_slate_prints_on_newsprint_with_a_face_per_game`, `test_a_row_shows_only_a_confident_pick`.
+- Tests: `test_the_slate_has_warm_type_on_the_site_ground_and_a_face_per_game`, `test_a_row_shows_only_a_confident_pick`.
 
 ### Confidence and record (2026-09-29)
 

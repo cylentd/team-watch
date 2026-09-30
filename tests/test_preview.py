@@ -221,12 +221,15 @@ def test_a_row_is_the_call_then_the_headline(page):
 
 
 @pytest.mark.render
-def test_the_slate_prints_on_newsprint_with_a_face_per_game(page):
-    """Storyboard option C (2026-09-29, David: "very clinical, so much black and white"): Preview maps
-    the page's inks onto the warm --np-* tokens, and each row leads with the face the headline is
-    about."""
-    colours = page.evaluate("""() => ['.pv-rm', "[data-pvopen='1'] .pv-rh"].map(s => getComputedStyle(document.querySelector(s)).color)""")
-    assert colours == ["rgb(241, 231, 208)", "rgb(201, 189, 163)"]      # --np-ink, --np-ink-2
+def test_the_slate_has_warm_type_on_the_site_ground_and_a_face_per_game(page):
+    """David, 2026-09-29: "very clinical, so much black and white", then the brown ground was "too
+    brown". Option A: the site's own ground; the day heads cream, the headlines a warm grey, the
+    matchup the site's ink. Each row leads with the face the headline is about."""
+    colours = page.evaluate("""() => ['.pv-wh', "[data-pvopen='1'] .pv-rh", '.pv-rm']
+        .map(s => getComputedStyle(document.querySelector(s)).color)""")
+    assert colours == ["rgb(241, 231, 208)", "rgb(217, 208, 189)", "rgb(243, 241, 234)"]   # --np-ink, --np-ink-2, --ink
+    ground = page.evaluate("getComputedStyle(document.querySelector('.pv')).borderImageSource")
+    assert ground == "none"                                              # no painted ground of its own
     faces = [page.locator(f"[data-pvopen='{i}'] .pv-hs img, [data-pvopen='{i}'] .pv-hs .fallback").count() for i in range(5)]
     assert faces == [1, 1, 1, 1, 0]                                      # ATL @ NO: no take, no face
     pick = page.evaluate("""() => [

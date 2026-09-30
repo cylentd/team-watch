@@ -1,24 +1,9 @@
-  /* Newsprint (2026-09-29, Preview only, surface/preview/preview.css): a warm charcoal-brown ground,
-     cream type and warm greys, so Preview reads as a newspaper and not a console (David: "very
-     clinical, so much black and white"). Preview maps the page's own surface and ink tokens onto
-     these; lime and the signal colours keep their jobs. On the ground: cream 14.9:1, --np-ink-2
-     9.9:1, --np-ink-3 6.4:1 (5.5:1 on --np-panel-2), each above AA like the tokens they stand in for.
+  /* Newsprint type (2026-09-29, Preview only, surface/preview/): cream for Preview's section and story
+     heads, a warm grey for its headlines, on the site's own slate ground. The warmth is in the type, not
+     the ground (David, the same day: the brown ground was "too brown"; storyboard option A of
+     https://claude.ai/artifact/517bzHZ7Cc24n2p4U7keZF). On --void: cream 15.0:1, warm grey 12.1:1 (10.4:1 on --panel-2).
      Still inside tokens.css's :root, which base.css closes (order.css.txt). */
-  --np-ground:#17140f;
-  --np-ground-rgb:23 20 15;
-  --np-panel:#1f1a14;
-  --np-panel-rgb:31 26 20;
-  --np-panel-2:#282219;
-  --np-panel-2-rgb:40 34 25;
-  --np-panel-3:#30291f;
-  --np-panel-3-rgb:48 41 31;
-  --np-line:#342d23;
-  --np-line-rgb:52 45 35;
-  --np-line-2:#4a4034;
-  --np-line-2-rgb:74 64 52;
   --np-ink:#f1e7d0;
   --np-ink-rgb:241 231 208;
-  --np-ink-2:#c9bda3;
-  --np-ink-2-rgb:201 189 163;
-  --np-ink-3:#a2977f;
-  --np-ink-3-rgb:162 151 127;
+  --np-ink-2:#d9d0bd;
+  --np-ink-2-rgb:217 208 189;
