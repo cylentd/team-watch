@@ -1,0 +1,96 @@
+{
+ "season": 2026,
+ "week": 4,
+ "generated": "2026-09-29T23:15",
+ "llm": "ok",
+ "views": {
+  "ranks": [
+   {
+    "id": "ranks.jump.jeremiyah-love",
+    "slug": "jeremiyah-love",
+    "n": "Jeremiyah Love",
+    "pos": "RB",
+    "team": "ARI",
+    "num": "+19",
+    "line": "Jeremiyah Love rockets 19 spots, from RB33 to RB14 for week 4, projected for 12.2 points.",
+    "source": "claude"
+   },
+   {
+    "id": "ranks.clear.TE",
+    "slug": "trey-mcbride",
+    "n": "Trey McBride",
+    "pos": "TE",
+    "team": "ARI",
+    "num": "+1.8",
+    "line": "Trey McBride stands alone atop week 4 tight ends at 13.5 projected points, 1.8 clear of the next.",
+    "source": "claude"
+   }
+  ],
+  "leaders": [
+   {
+    "id": "leaders.multi.jaxon-smithnjigba",
+    "slug": "jaxon-smithnjigba",
+    "n": "Jaxon Smith-Njigba",
+    "pos": "WR",
+    "team": "SEA",
+    "num": "#1 in 4",
+    "line": "Jaxon Smith-Njigba leads all receivers in 4 stats, including a best-in-class 5.54 yards per route run.",
+    "source": "claude"
+   },
+   {
+    "id": "leaders.axis.RB.opp_pct",
+    "slug": "james-cook",
+    "n": "James Cook",
+    "pos": "RB",
+    "team": "BUF",
+    "num": "91.7%",
+    "line": "James Cook has handled 91.7% of Buffalo's backfield carries and targets, the most of any running back.",
+    "source": "claude"
+   }
+  ],
+  "role": [
+   {
+    "id": "role.work.jahmyr-gibbs",
+    "slug": "jahmyr-gibbs",
+    "n": "Jahmyr Gibbs",
+    "pos": "RB",
+    "team": "DET",
+    "num": "20.5",
+    "line": "Jahmyr Gibbs's work is worth 20.5 points a game, most among backs, receivers and tight ends; he's scoring 29.8.",
+    "source": "claude"
+   },
+   {
+    "id": "role.under.kc-concepcion",
+    "slug": "kc-concepcion",
+    "n": "KC Concepcion",
+    "pos": "WR",
+    "team": "CLE",
+    "num": "-7.1",
+    "line": "KC Concepcion's work has been worth 11.4 points a game, but he's averaging just 4.3 with no touchdowns.",
+    "source": "claude"
+   }
+  ],
+  "grid": [
+   {
+    "id": "grid.tgt.drake-london",
+    "slug": "drake-london",
+    "n": "Drake London",
+    "pos": "WR",
+    "team": "ATL",
+    "num": "43.5%",
+    "line": "Drake London's target share soared from 16.1% in week 2 to 43.5% in week 3.",
+    "source": "claude"
+   },
+   {
+    "id": "grid.snap.christian-mccaffrey",
+    "slug": "christian-mccaffrey",
+    "n": "Christian McCaffrey",
+    "pos": "RB",
+    "team": "SF",
+    "num": "83.0%",
+    "line": "Christian McCaffrey's snap share jumped from 52.0% in week 2 to 83.0% in week 3.",
+    "source": "claude"
+   }
+  ]
+ }
+}

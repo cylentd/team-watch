@@ -40,6 +40,7 @@ from mates import espn_rows, live_mates, slugs as mate_slugs, report as mates_re
 from digest import live_digest, report as digest_report        # design/digest.py: the Digest view
 from preview import live_preview, report as preview_report     # design/preview.py: This week > Preview
 from role import live_role, report as role_report              # design/role.py: Players > Role
+from highlights import live_highlights, report as highlights_report  # design/highlights.py: Players > Highlights
 from league_recap import live_league, report as league_report  # My teams > League
 from league_trades import report as trades_report  # League > Trades
 import leagues                 # design/leagues.py: David's leagues, their files and blocks
@@ -49,7 +50,7 @@ from sources import (                                    # design/sources.py: th
     ROOT, REPO, DWR, FEED, ESPN_ROSTERS, DFS_POOL,
     feed_block, read_first, warn_if_stale, load_status, load_props_raw, load_model_raw,
     load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
-    load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_startsit, load_startsit_review, load_digest, load_game_preview, load_preview_record, load_league, load_role_board,
+    load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_startsit, load_startsit_review, load_digest, load_game_preview, load_preview_record, load_league, load_role_board, load_highlights,
     load_defense, load_kickers,
 )
 from gameday import live_gameday, report as gameday_report  # This week > Live: every matchup, scored live
@@ -717,7 +718,7 @@ def render():
         "LIVE_ARCHETYPE": live_archetype(load_archetype(FEED, DWR), wanted_set),
         "LIVE_TRENCHES": live_trenches(load_trenches(FEED, DWR)),
         "LIVE_STARTSIT": live_startsit(*load_startsit(), slugify, load_startsit_review()),
-        "LIVE_ROLE": live_role(load_role_board(), slugify),
+        "LIVE_ROLE": live_role(load_role_board(), slugify), "LIVE_HIGHLIGHTS": live_highlights(load_highlights()),
         "LIVE_DIGEST": live_digest(load_digest(), slugify, load_schedule(DWR)),
         "LIVE_PREVIEW": live_preview(load_game_preview(), slugify, load_preview_record()),
         "LIVE_LEAGUE": live_league(*load_league(), roster_file(ESPN_ROSTERS), slugify),
@@ -729,14 +730,13 @@ def render():
     blocks["LIVE_SIGNED"] = live_signed(load_gamelog_weekly(), blocks["LIVE_SCHEDULE"], slugify, wanted_set)
     add_market_stock(blocks, report)
     report += [schedule_report(blocks["LIVE_SCHEDULE"]), signed_report(blocks["LIVE_SIGNED"]), digest_report(blocks["LIVE_DIGEST"]),
-               preview_report(blocks["LIVE_PREVIEW"]),
-               pedigree_report(blocks["LIVE_PEDIGREE"]), gamelog_report(blocks["LIVE_GAMELOG"]),
+               preview_report(blocks["LIVE_PREVIEW"]), pedigree_report(blocks["LIVE_PEDIGREE"]), gamelog_report(blocks["LIVE_GAMELOG"]),
                projections_report(blocks["LIVE_PROJECTIONS"]), ranks_report(blocks["LIVE_RANKS"]),
                routes_report(blocks["LIVE_ROUTES"]), report_archetype(blocks["LIVE_ARCHETYPE"]),
                report_trenches(blocks["LIVE_TRENCHES"]), lines_report(blocks["LIVE_LINES"]),
                injury_report(blocks["LIVE_INJURY"]), startsit_report(blocks["LIVE_STARTSIT"]), role_report(blocks["LIVE_ROLE"]),
-               wx_history_report(blocks["LIVE_WX_HISTORY"]), defense_report(blocks["LIVE_DEFENSE"]),
-               gameday_report(blocks["LIVE_GAMEDAY"]),
+               highlights_report(blocks["LIVE_HIGHLIGHTS"]), wx_history_report(blocks["LIVE_WX_HISTORY"]),
+               defense_report(blocks["LIVE_DEFENSE"]), gameday_report(blocks["LIVE_GAMEDAY"]),
                f"Weather: {len(blocks['LIVE_WEATHER']['teams'])} teams" if blocks["LIVE_WEATHER"] else "Weather: none"]
     for name, obj in blocks.items():
         contract.validate(name, obj)   # a missing field fails the build, not the page

@@ -66,7 +66,7 @@ def LIVE_PLANT(states=None):
 # reachable in the same way no matter which state ran before it.
 GROUP = {"digest": "week", "roster": "teams", "waivers": "teams", "league": "teams", "myrecap": "teams",
          "recap": "league", "records": "league", "trades": "league",
-         "ranks": "scouting", "board": "scouting", "movers": "scouting", "matchups": "week", "usage": "scouting",
+         "highlights": "scouting", "ranks": "scouting", "board": "scouting", "movers": "scouting", "matchups": "week", "usage": "scouting",
          "news": "week", "weather": "week", "preview": "week", "live": "week",
          "parlay": "bets", "build": "bets", "dfs": "bets"}
 
@@ -268,6 +268,9 @@ STATES = [
     ("role-wr", MOVERS + [("click", "[data-rvpos='WR']")]),
     ("role-empty", [("eval", "LIVE_ROLE.rows.splice(0)")] + MOVERS),
     ("role-modal", MOVERS + [("click", "[data-rvopen]")]),
+    # Players > Highlights (2026-09-29): the fixture is the real week 4 run's packet; empty says so.
+    ("highlights", go("highlights")),
+    ("highlights-empty", [("eval", "LIVE_HIGHLIGHTS.views.splice(0)")] + go("highlights")),
     # The usage grid: the default RB level view on the newest week most teams have played, the
     # same grid as week-over-week change (the mode the level view cannot show; the week and the
     # reading sit in the panel the bar's last chip opens since 2026-09-25), a QB grid because its
@@ -574,6 +577,7 @@ def test_no_fenced_rule_misses_its_element(snapshot, area):
     ("ranks", "scouting", "RANKS"),
     ("board", "scouting", "LEADERS"),  # the leaf is still `board`, so its bookmarks land
     ("movers", "scouting", "ROLE"),    # Movers until 2026-09-29; the leaf kept its name
+    ("highlights", "scouting", "HIGHLIGHTS"),
     ("pool", "scouting", "ROLE"),      # the old Movers view's hash, kept for bookmarks
     ("usage", "scouting", "GRID"),
     ("matchups", "week", "TAKES"),  # Matchups became Takes on 2026-09-29; the leaf stayed; This week since that day

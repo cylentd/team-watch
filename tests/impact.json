@@ -82,6 +82,12 @@
       "tests": ["tests/test_role.py"],
       "render": ["role"]
     },
+    "highlights": {
+      "paths": ["design/src/js/surface/highlights/", "design/src/css/surface/highlights/", "design/highlights.py",
+                "tests/fixtures/data/highlights.json"],
+      "tests": ["tests/test_highlights.py"],
+      "render": ["highlights"]
+    },
     "profile": {
       "paths": ["design/src/js/surface/profile/", "design/src/css/surface/profile/", "design/pedigree.py", "design/gamelog.py",
                 "design/routes.py", "design/archetype.py"],

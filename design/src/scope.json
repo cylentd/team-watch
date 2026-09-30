@@ -52,6 +52,7 @@
     "surface/profile/season.css": ["#modal"],
     "surface/profile/team.css": ["#modal"],
     "surface/ranks/ranks.css": ["ranks"],
+    "surface/highlights/highlights.css": ["highlights"],
     "surface/role/role.css": ["movers"],
     "surface/teams/brief.css": ["roster", "waivers"],
     "surface/teams/injury.css": ["roster", "waivers"],

@@ -302,10 +302,10 @@ CONTRACT = {
     },
     # design/role.py, Players > Role (leaf `movers`). A row's `prev` is null when he played under 4
     # games last season; `work` values may be null where ff-jarvis had no number.
-    "LIVE_ROLE": {
-        "keys": ["season", "through", "min_games", "rows"],
-        "rows": [("rows", ["slug", "n", "pos", "team", "g", "xfp", "pts", "gap", "td", "work", "prev"])],
-    },
+    "LIVE_ROLE": {"keys": ["season", "through", "min_games", "rows"],
+                  "rows": [("rows", ["slug", "n", "pos", "team", "g", "xfp", "pts", "gap", "td", "work", "prev"])]},
+    # design/highlights.py, Players > Highlights (2026-09-29); a view's rows are pinned in tests/test_highlights.py.
+    "LIVE_HIGHLIGHTS": {"keys": ["season", "week", "generated", "views"], "rows": [("views", ["view", "leaf", "rows"])]},
     # design/preview.py, This week > Preview (slate and dossier, 2026-09-29). A game's `take` is null
     # before Claude has written it; `line`, `matchup`, `wx`, `rest`, `travel`, `site` are null when
     # ff-jarvis has none (the row is not drawn), a line's `fav` null at even and `open` null with no

@@ -226,10 +226,12 @@ def test_two_players_one_team_one_short_name_keep_their_first_names(browser, pag
 def test_worth_knowing_never_repeats_the_banner_or_itself(browser, page_file):
     """Worth knowing (2026-09-29, storyboard 96B1dMss6vfyhhsQLUSK4x B): one fact from each Players view,
     a tap opens that view. The banner's player is never a tile, a player is in one tile at most, and
-    when the most over-performing player leads the banner, the next one takes his tile."""
+    when the most over-performing player leads the banner, the next one takes his tile. This is the
+    fallback for a build without a Highlights packet (test_highlights.py covers the packet's tiles)."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     page.goto(page_file.as_uri())
     got = page.evaluate("""() => {
+      LIVE_HIGHLIGHTS.views.splice(0);
       const d = dgD(), over = [...LIVE_ROLE.rows].sort((a, b) => b.gap - a.gap);
       const read = dd => { const h = document.createElement('div'); h.innerHTML = dgFactsHTML(dd);
         return [...h.querySelectorAll('.dg-fact')].map(t => [t.dataset.dgfact, t.dataset.dggo]); };

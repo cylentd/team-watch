@@ -85,6 +85,7 @@ surface/matchups/rows.js
 surface/matchups/splits.js
 surface/matchups/matchups.js
 surface/ranks/ranks.js
+surface/highlights/highlights.js
 data/weather.js
 data/wxhistory.js
 surface/weather/card.js

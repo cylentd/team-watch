@@ -39,7 +39,28 @@ function dgLeadSlug(d){
   return null;
 }
 
+/* From Highlights (2026-09-29, David: "yes"): one tile per Players view, its first line, or its second
+   when the first names the banner's player. One producer feeds both, so the Digest and the tab can
+   never disagree; a foot leads to the tab. Without the packet the Digest keeps its own picks below. */
+function dgFactsFromHighlights(d){
+  const H = typeof LIVE_HIGHLIGHTS !== "undefined" ? LIVE_HIGHLIGHTS : null;
+  if (!H) return "";
+  const used = new Set([dgLeadSlug(d)].filter(Boolean));
+  const tiles = H.views.map(v => {
+    const r = v.rows.find(x => !used.has(x.slug));
+    if (!r) return "";
+    used.add(r.slug);
+    return dgFactTile("", hlViewName(v.view), r, esc(r.num || ""), esc(r.line), v.leaf);
+  }).filter(Boolean);
+  if (!tiles.length) return "";
+  return `<section class="dg-facts" aria-labelledby="dg-facts-h">
+    <h3 class="dg-sec" id="dg-facts-h">${t("digest.fact.title")}</h3><div class="dg-tiles">${tiles.join("")}</div>
+    ${dgFootHTML("", "highlights", t("digest.fact.more"))}</section>`;
+}
+
 function dgFactsHTML(d){
+  const fromHl = dgFactsFromHighlights(d);
+  if (fromHl) return fromHl;
   const used = new Set([dgLeadSlug(d)].filter(Boolean));
   const free = list => list.find(r => !used.has(r.slug)) || null;
   const take = r => { if (r) used.add(r.slug); return r; };

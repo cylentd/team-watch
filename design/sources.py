@@ -279,6 +279,13 @@ def load_digest():
     return feed_block(("weekly_digest",), "week") or read_first(DWR / "weekly_digest.json")
 
 
+def load_highlights():
+    """Players > Highlights: two Claude-written, number-checked lines per Players view
+    (model.season.highlights, 2026-09-29), feed block `highlights` first, the file second. None when
+    neither exists."""
+    return feed_block(("highlights",), "views") or read_first(DWR / "highlights.json")
+
+
 def load_role_board():
     """Each player's season so far: what his work is worth against what he scored, and last
     season's same gap (model.season.role_board, 2026-09-29), feed block `role_board` first, the

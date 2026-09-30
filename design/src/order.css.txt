@@ -69,6 +69,7 @@ component/lead.css
 surface/matchups/matchups.css
 # pin: ranks.css after pool.css -- its position row is pool.css's .setrow and .chip.
 surface/ranks/ranks.css
+surface/highlights/highlights.css
 # pin: role.css after pool.css -- its rows reuse .xf-head and its chips .setrow and .chip.
 surface/role/role.css
 surface/weather/weather.css

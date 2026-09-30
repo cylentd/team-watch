@@ -29,7 +29,9 @@ const NAV = [
   // week's, not research. Its leaf and both hashes stay.
   ["week",     ["digest", "news", "matchups", "preview", "weather", "live"]],
   ["teams",    ["roster", "waivers", "league", "myrecap"]],
-  ["scouting", ["ranks", "board", "movers", "usage"]],
+  // Highlights (2026-09-29) leads Players: two lines from each view below it, so Players opens on
+  // the summary and the research is one tap further (storyboard W5ty9RzT4XWSRfSjtdKEAk, option A).
+  ["scouting", ["highlights", "ranks", "board", "movers", "usage"]],
   ["league",   ["recap", "records", "trades"]],
   ["bets",     ["parlay", "build", "dfs"]],
 ];
@@ -40,7 +42,7 @@ const NAV = [
 const navLabel = leaf => ({
   digest: t("nav.tab.digest"), roster: t("nav.tab.roster"), waivers: t("nav.tab.waivers"), league: t("nav.tab.league"),
   records: t("nav.tab.records"), recap: t("nav.tab.recap"), myrecap: t("nav.tab.myrecap"), trades: t("nav.tab.trades"),
-  ranks: t("nav.tab.ranks"),
+  highlights: t("nav.tab.highlights"), ranks: t("nav.tab.ranks"),
   board: t("nav.tab.board"), movers: t("nav.tab.movers"),
   matchups: t("nav.tab.matchups"), usage: t("nav.tab.grid"), news: t("nav.tab.news"),
   weather: t("nav.tab.weather"), preview: t("nav.tab.preview"),
