@@ -1,5 +1,6 @@
 /* ---------------------------- helpers ---------------------------- */
-const initials = n => n.split(/\s+/).slice(0,2).map(w=>w[0]).join("");
+// Null-safe: a row with no name draws blank initials rather than throwing and blanking its whole view.
+const initials = n => String(n || "").split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join("");
 /* The app's one spelling of a name used inline, not as a title: "B. Allen". The full name is a
    heading's job. Everything after the first word stays, so a suffix rides with the surname
    ("H. Fannin Jr.") and so does a two-word surname ("A. St. Brown"). A first name that is already

@@ -682,3 +682,26 @@ def test_every_topic_label_carries_its_icon(browser, page_file):
     assert got and all(ok for _, ok in got), got
     ctx.close()
     assert errors == []
+
+
+@pytest.mark.render
+def test_a_headline_naming_no_player_keeps_the_digest_up(browser, page_file):
+    """2026-09-29, David: "the digest is broken". A defender's IR move came through with a slug and no
+    name; News keyed a block to the slug, avatarHTML read the missing name, and the throw blanked the
+    whole Digest. A headline naming no player is a plain block of its own, whatever it carries."""
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page.goto(page_file.as_uri())
+    drive(page, go("digest"))
+    page.wait_for_selector(".dg-row")
+    got = page.evaluate("""(() => {
+      LIVE_DIGEST.news = [{n: null, rest: null, headline: 'Jalen Davis placed on IR', slugs: ['jalen-davis'], when: '9:08 PM', kind: 'out'},
+                          ...LIVE_DIGEST.news];
+      DG_CUT = null; render();
+      const row = document.querySelector('.dg-row[data-dgrow="news"]');
+      const first = row && [...row.querySelectorAll('.dg-nw')].find(b => b.textContent.includes('Jalen Davis'));
+      return {rows: document.querySelectorAll('.dg-row').length, tag: first && first.tagName,
+              text: first && first.textContent.trim()}; })()""")
+    ctx.close()
+    assert errors == []
+    assert got["rows"] > 0
+    assert got["tag"] == "DIV" and "Jalen Davis placed on IR" in got["text"]   # a plain block, not a profile button

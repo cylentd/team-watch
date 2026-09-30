@@ -116,7 +116,9 @@ function dgNewsGroups(news){
   for (const it of news){
     let g = it.n && by.get(it.n);
     if (!g){ g = {key: null, n: it.n, kind: it.kind, lines: []}; groups.push(g); if (it.n) by.set(it.n, g); }
-    g.key = g.key || (it.slugs && it.slugs[0]) || (it.n ? slugOf(it.n) : null);
+    /* Only a named headline opens a profile. One naming no player can still carry a slug (a defender's
+       IR move, 2026-09-29), and a block keyed to it with no name broke the whole Digest in avatarHTML. */
+    g.key = g.key || (it.n ? (it.slugs && it.slugs[0]) || slugOf(it.n) : null);
     g.lines.push(it);
   }
   return groups;
