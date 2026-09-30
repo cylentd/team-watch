@@ -26,11 +26,20 @@ function lgPhotoHTML(p){
     <figcaption>${esc(nameInitial(p.name))} <b>${lgPts(p.pts)}</b></figcaption></figure>`;
 }
 
+/* No player to picture: Blip in the photo's place, reacting once to the game (w.blip, blip_of). */
+const LG_BLIP_LABEL = {wince: () => t("league.lead.blip.wince"), flatline: () => t("league.lead.blip.flatline"),
+  ko: () => t("league.lead.blip.ko"), sweat: () => t("league.lead.blip.sweat"), laugh: () => t("league.lead.blip.laugh")};
+function lgBlipHTML(pose, stamped){
+  if (!LG_BLIP_LABEL[pose]) return "";
+  // A stamped game reacts as the stamp lands (back.css slams it at .75s), an unstamped one sooner.
+  return `<figure class="bp2-photo bp2-blip${stamped ? " late" : ""}">${blipReactSVG(LG_BLIP_LABEL[pose](), pose)}</figure>`;
+}
+
 /* The lead: the week's biggest game (w.lead), drawn big. Its joke is the page's one headline (since
    2026-09-27; the roast's own headline told the same game twice), else the roast's headline. */
 function lgLeadHTML(w){
   const g = w.games.find(x => lgKey(x) === w.lead) || w.games[0];
-  const photo = lgPhotoHTML(w.photo), hl = g.punch || w.head;
+  const photo = lgPhotoHTML(w.photo) || lgBlipHTML(w.blip, !!g.stamp), hl = g.punch || w.head;
   return `<article class="bp2-lead${photo ? " has-photo" : ""}">
     ${photo}
     <div class="bp2-lbody">

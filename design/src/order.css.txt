@@ -94,6 +94,7 @@ surface/digest/wall.css
 surface/league/league.css
 surface/league/back.css
 surface/league/front.css
+surface/league/blip-lead.css
 surface/league/records.css
 surface/league/cases.css
 surface/league/pages.css

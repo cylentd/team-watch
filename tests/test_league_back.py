@@ -116,6 +116,26 @@ def test_the_lead_photo_is_found_in_the_box_and_greyed_when_the_player_flopped()
     assert photo_of(box, "Nobody", slug) is None and photo_of(None, "Josh Allen", slug) is None
 
 
+def test_blip_reacts_to_the_lead_games_place_in_the_week():
+    """2026's real weeks 1 and 3 (a, b, a's points, b's points)."""
+    from league_back import blip_of
+    wk = lambda lead, games: {"lead": lead, "games": [{"a": a, "b": b, "ap": ap, "bp": bp} for a, b, ap, bp in games]}
+    w1 = [(1, 6, 117.66, 76.42), (2, 4, 123.96, 76.84), (3, 11, 145.46, 104.76),
+          (5, 8, 128.12, 70.66), (7, 12, 99.2, 144.2), (9, 10, 113.9, 163.56)]
+    w3 = [(1, 7, 91.44, 118.64), (2, 12, 73.74, 126.28), (3, 8, 120.56, 103.58),
+          (4, 10, 85.08, 108.38), (5, 9, 141.28, 86.6), (6, 11, 78.62, 138.84)]
+    assert blip_of(wk("5-8", w1)) == "ko"          # won by 57.46, Michelle's 70.66 the week's worst
+    assert blip_of(wk("6-11", w3)) == "wince"      # won by 60.22
+    assert blip_of(wk("2-12", w3)) == "flatline"   # Victoria's 73.74
+    assert blip_of(wk("3-8", w3)) == "sweat"       # 16.98, the week's closest
+    assert blip_of(wk("1-7", w3)) == "laugh"
+
+
+def test_blip_fills_only_a_lead_with_no_photo(back):
+    assert all((w["blip"] is None) == bool(w["photo"]) for w in back["weeks"])
+    assert all(w["blip"] in (None, "ko", "wince", "flatline", "sweat", "laugh") for w in back["weeks"])
+
+
 def test_every_week_names_its_lead_game(back):
     for w in back["weeks"]:
         assert w["lead"] in {f"{g['a']}-{g['b']}" for g in w["games"]}

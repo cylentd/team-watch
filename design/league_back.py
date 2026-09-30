@@ -50,6 +50,23 @@ def photo_of(b, name, slugify):
     return {"name": name, "slug": slugify(name), "pts": p["pts"], "flop": p["pts"] <= 0 or (proj > 0 and p["pts"] < FLOP * proj)}
 
 
+def blip_of(wk):
+    """Blip's pose on the lead when its joke names no player (2026-09-29, storyboard
+    https://claude.ai/artifact/RKkFYVa7asD65uWfvLMVLU), from the lead game's place in the week, first that fits:
+    biggest margin and lowest score "ko", biggest margin "wince", lowest score "flatline", closest game
+    "sweat", else "laugh"."""
+    key = lambda g: f"{g['a']}-{g['b']}"
+    margin = lambda g: abs(g["ap"] - g["bp"])
+    games = wk["games"]
+    big = key(max(games, key=margin))
+    low = key(min(games, key=lambda g: min(g["ap"], g["bp"])))
+    close = key(min(games, key=margin))
+    lead = wk["lead"]
+    if lead == big and lead == low:
+        return "ko"
+    return "wince" if lead == big else "flatline" if lead == low else "sweat" if lead == close else "laugh"
+
+
 def _lead_key(wk, said):
     """The roast's lead game, or the week's biggest margin when the roast named none (weeks written
     before 2026-09-27) or skipped the week."""
@@ -63,7 +80,8 @@ def _lead_key(wk, said):
 def enrich_weeks(weeks, box, recap, slugify=None):
     """league_recap.weeks() rows (every decided week, oldest first), each game with both records after
     that week, its punchline, facts, stamp and box, each week with its headline and dek (None when the roast skipped
-    it), the bench award, the lead game's key and its photo (the player the lead's punch is about)."""
+    it), the bench award, the lead game's key and its photo (the player the lead's punch is about), or Blip's
+    pose in its place."""
     boxes = {(int(w), g["home"], g["away"]): g for w, gs in ((box or {}).get("weeks") or {}).items() for g in gs}
     words = (recap or {}).get("weeks") or {}
     tally = {}
@@ -87,6 +105,7 @@ def enrich_weeks(weeks, box, recap, slugify=None):
         wk["lead"] = _lead_key(wk, r.get("lead"))
         a, b = (int(x) for x in wk["lead"].split("-"))
         wk["photo"] = photo_of(boxes.get((wk["week"], a, b)), r.get("photo"), slugify) if slugify else None
+        wk["blip"] = None if wk["photo"] else blip_of(wk)
     return weeks
 
 

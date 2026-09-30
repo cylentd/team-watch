@@ -228,6 +228,12 @@ standings not worth their space. **Superseded:** the standings table, the week s
   greyed like an OUT headshot when the player flopped (at most 0, or under half the projection:
   `league_back.photo_of`). Briefs are one line of names and scores plus the joke; tapping one opens its
   facts and box score in the modal, so no card grows.
+- **Blip when the joke names no player** (2026-09-29, David kept all five; storyboard
+  https://claude.ai/artifact/RKkFYVa7asD65uWfvLMVLU): Blip takes the photo slot (`blip`, from
+  `league_back.blip_of`), first that fits: biggest margin and lowest score KO (tips over, stars),
+  biggest margin Wince, lowest score Flatline (NO SIGNAL), closest game Sweat, else Laugh. One reaction
+  on the week's arrival (`.bp-in`), with the stamp on a stamped game, then still
+  (`surface/league/blip-lead.css`, poses in `lib/blip.js` `blipReactSVG`).
 - **Managers carry the score lines**, the superlatives, the grudges and the standings; team names appear
   inside the jokes, where the puns need them.
 - **Standings in agate**: rank, manager, record, two columns of six. No move arrows, no LUCKY/ROBBED.

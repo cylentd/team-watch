@@ -37,6 +37,36 @@ const BLIP_SMUG = {
     <path class="blip-eye" d="M-33 -5A14 14 0 0 0 -5 -5Z"/><path class="blip-eye" d="M5 -5A14 14 0 0 0 33 -5Z"/>
     <path class="blip-mouth" d="M-12 20Q6 23 18 12"/></g>`,
 };
+/* Reactions (2026-09-29, storyboard https://claude.ai/artifact/RKkFYVa7asD65uWfvLMVLU, all five kept by
+   David): the League recap's lead when its joke names no player. Each holds the awake face (.br-f0)
+   and the reaction (.br-f1) so the swap can play once; at rest only the reaction shows. The build
+   picks the pose (design/league_back.py blip_of) from the lead game's place in the week.
+   Drawn and played by css/surface/league/blip-lead.css. */
+const BLIP_REACT = {
+  wince: `<path class="blip-mouth" d="M41 46l8 6-8 6M79 46l-8 6 8 6"/><path class="blip-mouth" d="M46 67l4-3 4 3 4-3 4 3 4-3 4 3"/>`,
+  flatline: `<g class="br-ekg"><path class="blip-mouth" pathLength="100" d="M31 50h13l3-10 5 20 4-14 3 4h32"/></g>
+    <text class="br-nosig" x="60" y="70">NO SIGNAL</text>`,
+  ko: `<path class="blip-mouth" d="M42 47l10 10M52 47l-10 10M68 47l10 10M78 47l-10 10"/><path class="blip-mouth" d="M49 68q3.5-4 7 0t7 0 7 0"/>`,
+  sweat: `<circle class="blip-mouth" cx="47" cy="52" r="7"/><circle class="blip-mouth" cx="73" cy="52" r="7"/>
+    <g class="br-pup"><circle class="blip-eye" cx="47" cy="52" r="2.8"/><circle class="blip-eye" cx="73" cy="52" r="2.8"/></g>
+    <path class="blip-mouth" d="M47 68q3-3 6 0t6 0 6 0 6 0"/>`,
+  laugh: `<path class="blip-mouth" d="M41 55q6-9 12 0M67 55q6-9 12 0"/><path class="blip-eye" d="M47 61h26q-1 12-13 12t-13-12z"/>`,
+};
+const blipStar = (x, y, s) => `<g transform="translate(${x} ${y}) scale(${s})"><path class="br-star" d="M0-6L1.5-1.5 6 0 1.5 1.5 0 6-1.5 1.5-6 0-1.5-1.5Z"/></g>`;
+const BLIP_REACT_OUT = {
+  ko: blipStar(34, 14, 1) + blipStar(88, 8, .8) + blipStar(100, 26, .6),
+  sweat: `<path class="br-drop" d="M105 24q5 7 0 11q-5-4 0-11z"/>`,
+};
+function blipReactSVG(label, pose){
+  const a11y = label ? `role="img" aria-label="${esc(label)}"` : `aria-hidden="true"`;
+  return `<svg class="blip br br-${pose}" viewBox="0 0 120 120" ${a11y}><g class="br-bod">
+    <path class="blip-ink" d="M60 20V10"/><circle class="blip-bulb" cx="60" cy="7" r="4"/>
+    <rect class="blip-case" x="18" y="20" width="84" height="66" rx="15"/>
+    <rect class="blip-screen" x="27" y="28" width="66" height="48" rx="10"/>
+    <g class="br-f0">${BLIP_FACE.awake}</g><g class="br-f1">${BLIP_REACT[pose]}</g>
+    <path class="blip-ink" d="M44 86l-4 22M76 86l4 22M32 110h14M74 110h14"/></g>${BLIP_REACT_OUT[pose] || ""}</svg>`;
+}
+
 function blipSVG(label, pose){
   const a11y = label ? `role="img" aria-label="${esc(label)}"` : `aria-hidden="true"`;
   if (BLIP_SMUG[pose]) return `<svg class="blip smug ${pose}" viewBox="0 0 100 100" ${a11y}>${BLIP_SMUG[pose]}</svg>`;

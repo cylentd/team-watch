@@ -26,6 +26,7 @@
     "surface/digest/wall.css": ["digest"],
     "surface/league/back.css": ["league", "myrecap", "recap", "records", "#modal"],
     "surface/league/front.css": ["league", "myrecap", "recap", "records", "#modal"],
+    "surface/league/blip-lead.css": ["league", "myrecap", "recap", "records"],
     "surface/league/league.css": ["league", "myrecap", "recap", "records", "#modal"],
     "surface/league/pages.css": ["league", "myrecap", "recap", "records", "#modal"],
     "surface/league/records.css": ["league", "myrecap", "recap", "records", "#modal"],
