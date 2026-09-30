@@ -14,8 +14,9 @@ function dgTabsHTML(set, tabs){
     aria-controls="${id(x)}-p" aria-selected="${x.key === on}" tabindex="${x.key === on ? 0 : -1}">${x.label}${x.count != null
       ? `<b class="dg-tab-n${x.tone ? " " + x.tone : ""}">${x.count}</b>` : ""}</button>`).join("");
   const panels = tabs.map(x => `<div class="dg-tabp" role="tabpanel" id="${id(x)}-p" aria-labelledby="${id(x)}-t"
-    data-dgpanel="${esc(x.key)}"${x.key === on ? "" : " hidden"}>${x.body}</div>`).join("");
-  return `<div class="dg-tabset" data-dgset="${set}"><div class="dg-tabs" role="tablist">${bar}</div>${panels}</div>`;
+    data-dgpanel="${esc(x.key)}"${x.key === on ? "" : " data-off inert"}>${x.body}</div>`).join("");
+  // The panels share one box (tabs.css), which is as tall as the tallest, so a tab never resizes it.
+  return `<div class="dg-tabset" data-dgset="${set}"><div class="dg-tabs" role="tablist">${bar}</div><div class="dg-tabps">${panels}</div></div>`;
 }
 
 function dgTabPick(b){
@@ -25,7 +26,13 @@ function dgTabPick(b){
     x.setAttribute("aria-selected", String(x === b));
     x.tabIndex = x === b ? 0 : -1;
   });
-  set.querySelectorAll("[data-dgpanel]").forEach(p => { p.hidden = p.dataset.dgpanel !== key; });
+  // Not `hidden`: the page's reset makes [hidden] display:none !important, and the wall keeps an off
+  // panel in the layout (tabs.css). `inert` takes it out of focus and the accessibility tree instead.
+  set.querySelectorAll("[data-dgpanel]").forEach(p => {
+    const off = p.dataset.dgpanel !== key;
+    p.toggleAttribute("data-off", off);
+    p.inert = off;
+  });
 }
 
 /* Left and Right walk the bar, as a tablist does. */

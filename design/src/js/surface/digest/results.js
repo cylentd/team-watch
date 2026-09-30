@@ -77,8 +77,8 @@ const dgResRow = (r, pills, num) => `<button type="button" class="dg-rr" data-dg
     <span class="dg-rr-n"><b>${esc(dgShort(r.n))}</b>${pills ? `<span>${pills}</span>` : ""}</span>${num}</button>`;
 
 /* The three lists as one panel under one tab bar (tabs.js; 2026-09-29, 2A), the count on each tab in
-   its list's colour. A list with no one in it draws no tab. On the wall the rows run two columns across
-   the card (results.css), so Left hurt's ten take five rows, not ten. */
+   its list's colour. A list with no one in it draws no tab. On the wall the rows run four across,
+   under the board's columns, in one fixed box (tabs.css), so Left hurt's ten take three rows. */
 function dgResTabs(d){
   const why = r => dgResRow(r, dgWhy(r, d.left), dgResNum(r));
   const tab = (key, label, rows, row, tone) => rows.length

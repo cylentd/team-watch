@@ -683,7 +683,10 @@ projections for every player (it linked to Leaders until then).
   day and points; no faces (the tiles keep them). Two positions a row on a phone, four on the wall.
   K and DST would take the same shape; ff-jarvis's results carry QB-TE only.
 - **Lists (2A):** Smashed, Busts and Left hurt are one panel under one tab bar (`tabs.js`), counts in
-  each list's colour; two columns on the wall. Three toggles side by side read as one panel.
+  each list's colour. Three toggles side by side read as one panel. On the wall (same day, David: "too
+  wide", "expand and shrinks the container") a list runs four across, the board's columns, so a number
+  is one column from its name, and the panels share one box as tall as the tallest, so a tab never
+  resizes it. A phone keeps each panel its own height.
 - **Icons (3A):** a 16px drawn icon before every topic's label (`icons.js`), stroked in the label's colour.
 - **Top 5 (5A):** reads `LIVE_RANKS`, the rows Ranks draws, under QB RB WR TE FLEX tabs: place, name
   over his game, injury tag, tier, projection. The packet's top5 emptied once its week began, so the

@@ -18,13 +18,27 @@
 .dg-tab-n.up{color:var(--up)}
 .dg-tab-n.dn{color:var(--down)}
 .dg-tab-n.am{color:var(--amber)}
+.dg-tabps{display:grid;min-width:0}
 .dg-tabp{min-width:0}
-.dg-tabp[hidden]{display:none}
+.dg-tabp[data-off]{display:none}
 
-/* Results' list under its tabs: one column on a phone, two across the wall's card. */
+/* Results' list under its tabs: one column on a phone. */
 .dg-rlist{display:grid}
 @media (min-width:1100px){
   .dg-tabs{align-self:start;max-width:520px}
-  .dg-rlist{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:32px}
-  .dg-rlist .dg-rr:nth-last-child(2):nth-child(odd){border-bottom:0}
+  /* A fixed box (2026-09-29, David: "clicking on the tabs expand and shrinks the container. Fixed
+     container makes things less jarring"): every panel sits in the same cell, the hidden ones kept
+     in the layout but unseen, so the box is the tallest panel's height, measured by the browser, and a
+     tab swaps what is in it without moving the page. A phone keeps each panel its own height: there
+     ten Left hurt rows over two Busts would leave ~380px of nothing under Busts. */
+  /* `data-off`, not `hidden`, which the page's reset pins to display:none !important (tabs.js). */
+  .dg-tabp{grid-area:1 / 1}
+  .dg-tabp[data-off]{display:block;visibility:hidden}
+  /* Four across, the board's own columns (headlines.css), so a list reads under QB RB WR TE and a
+     number sits one column (~290px) from its name, not half a card (David: "it's too wide. The name
+     and the number gap"). The last row drops its rule: the first of the last four, on a 4n+1 slot,
+     and every row after it. */
+  .dg-rlist{grid-template-columns:repeat(4,minmax(0,1fr));column-gap:32px;align-content:start}
+  .dg-rlist .dg-rr:nth-child(4n+1):nth-last-child(-n+4),
+  .dg-rlist .dg-rr:nth-child(4n+1):nth-last-child(-n+4) ~ .dg-rr{border-bottom:0}
 }

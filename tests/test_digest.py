@@ -103,7 +103,10 @@ def test_results_reads_as_the_storyboard(browser, page_file):
 def test_the_results_lists_are_one_panel_under_tabs(browser, page_file, viewport):
     """2026-09-29, storyboard Ms6FbdvynVPoRTKEidPGAz 2A (David: "clicking on smashed, busts, and left hurt
     opens up all 3 panels anyways ... just opens a big panel"): one tab bar, each tab its list's count,
-    one list showing. A tap swaps the list in place, and the pick survives a repaint."""
+    one list showing. A tap swaps the list in place, and the pick survives a repaint.
+    On the wall the box keeps one height whatever tab is up (David: "clicking on the tabs expand and
+    shrinks the container"), and a list runs four across, so no number sits more than one column from
+    its name ("it's too wide. The name and the number gap")."""
     ctx, page, errors = open_page(browser, page_file, viewport)
     page.goto(page_file.as_uri())
     drive(page, go("digest"))
@@ -111,16 +114,26 @@ def test_the_results_lists_are_one_panel_under_tabs(browser, page_file, viewport
     if page.locator(".dg-row[data-dgrow='res'][data-open]").count() == 0:
         page.click(".dg-row[data-dgrow='res'] .dg-head")
         page.wait_for_timeout(600)
-    visible = lambda sel: page.locator(sel).evaluate_all("els => els.filter(e => e.offsetParent !== null).length")
+    visible = lambda sel: page.locator(sel).evaluate_all("els => els.filter(e => e.checkVisibility({visibilityProperty: true})).length")
+    box = lambda: page.locator("[data-dgset='res'] .dg-tabps").evaluate("e => e.getBoundingClientRect().height")
+    gap = lambda: page.evaluate("""Math.max(...[...document.querySelectorAll('[data-dgset="res"] .dg-rr')]
+      .filter(e => e.checkVisibility({visibilityProperty: true}))
+      .map(r => r.querySelector('.dg-rv b').getBoundingClientRect().left - r.querySelector('.dg-rr-n').getBoundingClientRect().left))""")
     tabs = page.locator("[data-dgset='res'] .dg-tab")
     n = page.evaluate("(() => { const d = dgD(); return [d.smashed.length, d.busts.length, d.left.length]; })()")
     assert tabs.count() == 3
     assert [tabs.nth(i).locator(".dg-tab-n").inner_text() for i in range(3)] == [str(x) for x in n]
     assert tabs.first.get_attribute("aria-selected") == "true"
     assert visible("[data-dgset='res'] .dg-rr") == n[0]
-    tabs.nth(2).click()
+    heights = [box()]
+    for i in (1, 2):
+        tabs.nth(i).click()
+        heights.append(box())
     assert tabs.nth(2).get_attribute("aria-selected") == "true" and tabs.first.get_attribute("aria-selected") == "false"
     assert visible("[data-dgset='res'] .dg-rr") == n[2]
+    if viewport[0] >= 1100:
+        assert max(heights) - min(heights) < 1, heights
+        assert gap() < 350
     page.evaluate("render()")
     assert page.locator("[data-dgset='res'] .dg-tab").nth(2).get_attribute("aria-selected") == "true"
     ctx.close()
@@ -156,7 +169,7 @@ def test_results_on_the_wall_keep_each_number_by_its_name(browser, page_file):
         ctx.close()
         assert errors == []
     wall, phone = got[1705], got[360]
-    assert (wall["tiles"], wall["board"], wall["list"]) == (4, 4, 2)
+    assert (wall["tiles"], wall["board"], wall["list"]) == (4, 4, 4)
     assert wall["rows"] and max(r["gap"] for r in wall["rows"]) < 350
     assert {r["day"] for r in wall["rows"]} == {"block"}
     assert wall["faces"] == 0 and phone["faces"] == 0
@@ -578,7 +591,7 @@ def test_top_5_is_ranks_own_rows_under_position_tabs(browser, page_file):
     assert [tabs.nth(i).inner_text() for i in range(tabs.count())] == list(want)
     for i, pos in enumerate(want):
         tabs.nth(i).click()
-        shown = page.locator(f"[data-dgset='t5'] [data-dgpanel='{pos}']:not([hidden]) .dg-rk")
+        shown = page.locator(f"[data-dgset='t5'] [data-dgpanel='{pos}']:not([data-off]) .dg-rk")
         assert shown.evaluate_all("els => els.map(e => e.dataset.dgslug)") == want[pos], pos
     first = page.evaluate("rkList('QB')[0].pts.toFixed(1)")
     tabs.first.click()

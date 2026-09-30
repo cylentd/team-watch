@@ -4722,15 +4722,29 @@ button.dg-nw:active:where(#view[data-view="digest"], #view[data-view="digest"] *
 .dg-tab-n.up:where(#view[data-view="digest"], #view[data-view="digest"] *){color:var(--up)}
 .dg-tab-n.dn:where(#view[data-view="digest"], #view[data-view="digest"] *){color:var(--down)}
 .dg-tab-n.am:where(#view[data-view="digest"], #view[data-view="digest"] *){color:var(--amber)}
+.dg-tabps:where(#view[data-view="digest"], #view[data-view="digest"] *){display:grid;min-width:0}
 .dg-tabp:where(#view[data-view="digest"], #view[data-view="digest"] *){min-width:0}
-.dg-tabp[hidden]:where(#view[data-view="digest"], #view[data-view="digest"] *){display:none}
+.dg-tabp[data-off]:where(#view[data-view="digest"], #view[data-view="digest"] *){display:none}
 
-/* Results' list under its tabs: one column on a phone, two across the wall's card. */
+/* Results' list under its tabs: one column on a phone. */
 .dg-rlist:where(#view[data-view="digest"], #view[data-view="digest"] *){display:grid}
 @media (min-width:1100px){
   .dg-tabs:where(#view[data-view="digest"], #view[data-view="digest"] *){align-self:start;max-width:520px}
-  .dg-rlist:where(#view[data-view="digest"], #view[data-view="digest"] *){grid-template-columns:repeat(2,minmax(0,1fr));column-gap:32px}
-  .dg-rlist:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-rr:nth-last-child(2):nth-child(odd){border-bottom:0}
+  /* A fixed box (2026-09-29, David: "clicking on the tabs expand and shrinks the container. Fixed
+     container makes things less jarring"): every panel sits in the same cell, the hidden ones kept
+     in the layout but unseen, so the box is the tallest panel's height, measured by the browser, and a
+     tab swaps what is in it without moving the page. A phone keeps each panel its own height: there
+     ten Left hurt rows over two Busts would leave ~380px of nothing under Busts. */
+  /* `data-off`, not `hidden`, which the page's reset pins to display:none !important (tabs.js). */
+  .dg-tabp:where(#view[data-view="digest"], #view[data-view="digest"] *){grid-area:1 / 1}
+  .dg-tabp[data-off]:where(#view[data-view="digest"], #view[data-view="digest"] *){display:block;visibility:hidden}
+  /* Four across, the board's own columns (headlines.css), so a list reads under QB RB WR TE and a
+     number sits one column (~290px) from its name, not half a card (David: "it's too wide. The name
+     and the number gap"). The last row drops its rule: the first of the last four, on a 4n+1 slot,
+     and every row after it. */
+  .dg-rlist:where(#view[data-view="digest"], #view[data-view="digest"] *){grid-template-columns:repeat(4,minmax(0,1fr));column-gap:32px;align-content:start}
+  .dg-rlist:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-rr:nth-child(4n+1):nth-last-child(-n+4),
+  .dg-rlist:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-rr:nth-child(4n+1):nth-last-child(-n+4) ~ .dg-rr{border-bottom:0}
 }
 /* ── css/surface/digest/ahead.css ── */
 /* ============================== DIGEST: WHAT'S AHEAD ==============================
@@ -15247,8 +15261,9 @@ function dgTabsHTML(set, tabs){
     aria-controls="${id(x)}-p" aria-selected="${x.key === on}" tabindex="${x.key === on ? 0 : -1}">${x.label}${x.count != null
       ? `<b class="dg-tab-n${x.tone ? " " + x.tone : ""}">${x.count}</b>` : ""}</button>`).join("");
   const panels = tabs.map(x => `<div class="dg-tabp" role="tabpanel" id="${id(x)}-p" aria-labelledby="${id(x)}-t"
-    data-dgpanel="${esc(x.key)}"${x.key === on ? "" : " hidden"}>${x.body}</div>`).join("");
-  return `<div class="dg-tabset" data-dgset="${set}"><div class="dg-tabs" role="tablist">${bar}</div>${panels}</div>`;
+    data-dgpanel="${esc(x.key)}"${x.key === on ? "" : " data-off inert"}>${x.body}</div>`).join("");
+  // The panels share one box (tabs.css), which is as tall as the tallest, so a tab never resizes it.
+  return `<div class="dg-tabset" data-dgset="${set}"><div class="dg-tabs" role="tablist">${bar}</div><div class="dg-tabps">${panels}</div></div>`;
 }
 
 function dgTabPick(b){
@@ -15258,7 +15273,13 @@ function dgTabPick(b){
     x.setAttribute("aria-selected", String(x === b));
     x.tabIndex = x === b ? 0 : -1;
   });
-  set.querySelectorAll("[data-dgpanel]").forEach(p => { p.hidden = p.dataset.dgpanel !== key; });
+  // Not `hidden`: the page's reset makes [hidden] display:none !important, and the wall keeps an off
+  // panel in the layout (tabs.css). `inert` takes it out of focus and the accessibility tree instead.
+  set.querySelectorAll("[data-dgpanel]").forEach(p => {
+    const off = p.dataset.dgpanel !== key;
+    p.toggleAttribute("data-off", off);
+    p.inert = off;
+  });
 }
 
 /* Left and Right walk the bar, as a tablist does. */
@@ -15480,8 +15501,8 @@ const dgResRow = (r, pills, num) => `<button type="button" class="dg-rr" data-dg
     <span class="dg-rr-n"><b>${esc(dgShort(r.n))}</b>${pills ? `<span>${pills}</span>` : ""}</span>${num}</button>`;
 
 /* The three lists as one panel under one tab bar (tabs.js; 2026-09-29, 2A), the count on each tab in
-   its list's colour. A list with no one in it draws no tab. On the wall the rows run two columns across
-   the card (results.css), so Left hurt's ten take five rows, not ten. */
+   its list's colour. A list with no one in it draws no tab. On the wall the rows run four across,
+   under the board's columns, in one fixed box (tabs.css), so Left hurt's ten take three rows. */
 function dgResTabs(d){
   const why = r => dgResRow(r, dgWhy(r, d.left), dgResNum(r));
   const tab = (key, label, rows, row, tone) => rows.length
