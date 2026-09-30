@@ -5,6 +5,12 @@
    rule is the line. The call is the slip toggle; the line and its bars open the leg sheet. */
 .blist{display:flex;flex-direction:column;max-width:600px}   /* wider, twelve bars stop reading as one row */
 .bl-when{padding:18px 0 8px;border-bottom:1px solid var(--line)}
+/* A desktop has the width: two players to a row under each kickoff, each column still ~600px. */
+@media (min-width:960px){
+  .blist{max-width:none}
+  .bl-group{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:32px}
+  .bl-when{grid-column:1 / -1}
+}
 
 .bplayer{padding:10px 0 4px;border-bottom:1px solid var(--line)}
 .bplayer.isout{opacity:.55}

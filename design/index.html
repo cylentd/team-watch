@@ -6882,6 +6882,12 @@ body:has(.gamesheet.on){overflow:hidden}
    rule is the line. The call is the slip toggle; the line and its bars open the leg sheet. */
 .blist:where(#view[data-view="build"], #view[data-view="build"] *){display:flex;flex-direction:column;max-width:600px}   /* wider, twelve bars stop reading as one row */
 .bl-when:where(#view[data-view="build"], #view[data-view="build"] *){padding:18px 0 8px;border-bottom:1px solid var(--line)}
+/* A desktop has the width: two players to a row under each kickoff, each column still ~600px. */
+@media (min-width:960px){
+  .blist:where(#view[data-view="build"], #view[data-view="build"] *){max-width:none}
+  .bl-group:where(#view[data-view="build"], #view[data-view="build"] *){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:32px}
+  .bl-when:where(#view[data-view="build"], #view[data-view="build"] *){grid-column:1 / -1}
+}
 
 .bplayer:where(#view[data-view="build"], #view[data-view="build"] *){padding:10px 0 4px;border-bottom:1px solid var(--line)}
 .bplayer.isout:where(#view[data-view="build"], #view[data-view="build"] *){opacity:.55}
