@@ -20,25 +20,11 @@ const dgVs = r => r.home ? t("digest.vs.home", {team: esc(r.team), opp: esc(r.op
 const DG_TAG = {Out: ["out", () => t("digest.tag.out")], IR: ["out", () => t("digest.tag.ir")],
                 Doubtful: ["d", () => t("digest.tag.d")], Questionable: ["q", () => t("digest.tag.q")]};
 
-function dgHurtBody(d){
-  const q = d.hurt.filter(r => r.status === "Questionable");
-  const line = r => {
-    const [cls, word] = DG_TAG[r.status] || ["q", () => esc(r.status)];
-    const meta = [esc(r.pos), r.game ? dgGame(r.game) : esc(r.team), r.injury ? esc(r.injury) : ""].filter(Boolean).join(" · ");
-    return dgLnHTML(r, meta, `<span class="dg-st ${cls}">${word()}</span>`);
-  };
-  // The questionable get a line each on the wall, where the panel has the room; a phone keeps the one-line list.
-  const lines = d.hurt.filter(r => r.status !== "Questionable").map(line).join("")
-    + (q.length ? `<div class="dg-qlines">${q.map(line).join("")}</div>` : "");
-  const also = q.length ? `<p class="dg-also"><b>${t("digest.tag.q")}</b>${q.map(r => esc(dgShort(r.n))).join(", ")}</p>` : "";
-  return lines + also + dgFootHTML(t("digest.foot.hurt"), "news", t("digest.go.news"));
-}
+/* Hurt's body left with its row on 2026-09-29: Need to know (need.js) draws the same packet list. */
 
 /* Starters (2026-09-29, storyboard JBN1kirnN6jMZNdZK7EmbF): "QB1 over Sanders", "MIN → NYG", or both
-   when a traded player starts. `name` shortens the old #1 as the line around it does; the closed
-   line (`bare`) leaves out his status, which the phone would cut mid-word. */
-const DG_UP = `<svg class="dg-sk dg-sk-up" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4"/></svg>`;
-const DG_SWAP = `<svg class="dg-sk dg-sk-mv" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 5h9l-2.5-2.5M13 11H4l2.5 2.5"/></svg>`;
+   when a traded player starts. `name` shortens the old #1 as the line around it does; `bare` leaves
+   out his status. Need to know (need.js) draws them since 2026-09-29. */
 function dgStartWhat(r, name, bare){
   const o = r.over;
   const v = o && {pos: esc(r.pos), name: esc(name(o.n)), status: esc(o.status || "")};
@@ -47,20 +33,6 @@ function dgStartWhat(r, name, bare){
   const m = {from: esc(r.from), team: esc(r.team), pos: esc(r.pos), depth: r.depth};
   const moved = !r.from ? "" : !o && r.depth ? t("digest.start.movedDepth", m) : t("digest.start.moved", m);
   return [over, moved].filter(Boolean).join(", ");
-}
-
-/* A new starter is a News block of its own, first in the list (2026-09-29, David: "merge starters";
-   it was a row of its own, empty most days and a full-width panel of Blip asleep on the wall). The
-   block wears a green tag, "New QB1" or "New team", and its line says over whom or which teams, on
-   the day Sleeper's chart changed. The source differs from the headlines' (Sleeper's depth chart, not
-   FantasyPros), and the foot names both. */
-function dgStartNewsHTML(r){
-  const tag = r.over ? t("digest.nw.newStarter", {pos: esc(r.pos)}) : t("digest.nw.newTeam");
-  return `<button type="button" class="dg-nw start" data-dgslug="${esc(r.slug)}">
-    <span class="dg-hd">${avatarHTML(r)}</span>
-    <span class="dg-nw-t"><span class="dg-nw-who"><b>${esc(r.n)}</b><small>${esc(r.pos)} · ${esc(r.team)}</small></span>
-    <span class="dg-nw-tag ${r.over ? "up" : "mv"}">${r.over ? DG_UP : DG_SWAP}${tag}</span>
-    <ul><li><time>${esc(r.day || "")}</time><span>${dgStartWhat(r, dgShort)}</span></li></ul></span></button>`;
 }
 
 function dgMuBody(d){
@@ -136,9 +108,7 @@ function dgNewsBody(d){
       <span class="dg-nw-t"><span class="dg-nw-who"><b class="${DG_KIND[g.kind] || ""}">${esc(g.n)}</b><small>${meta}</small></span>
       <ul>${g.lines.map(line).join("")}</ul></span></button>`;
   }).join("");
-  const start = d.starters.map(dgStartNewsHTML).join("");
-  return `<div class="dg-nws">${start}${blocks}</div>`
-    + dgFootHTML(d.starters.length ? t("digest.foot.newsStart") : t("digest.foot.news"), "news", t("digest.go.news"));
+  return `<div class="dg-nws">${blocks}</div>` + dgFootHTML(t("digest.foot.news"), "news", t("digest.go.news"));
 }
 
 /* One short list in Top 5's shape: a head, then "K. Mumpfield" and one number per line (Tonight's lists). */
@@ -148,5 +118,5 @@ function dgResList(title, rows, num){
 }
 
 /* Results' body is results.js's (dgResBody). */
-const DG_BODY = {res: dgResBody, hurt: dgHurtBody, mu: dgMuBody, wx: dgWxBody, adds: dgAddsBody, t5: dgTop5Body,
+const DG_BODY = {res: dgResBody, mu: dgMuBody, wx: dgWxBody, adds: dgAddsBody, t5: dgTop5Body,
                  gems: dgGemsBody, news: dgNewsBody};

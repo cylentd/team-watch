@@ -23,9 +23,11 @@ const NAV_ICON = {
    recap, record book and trades left This week, which is about this week's games, for a group of their
    own. It took Gameday's slot on the bar, and Live joined This week: a live game is this week's. */
 const NAV = [
-  ["week",     ["digest", "preview", "weather", "live"]],
+  // News moved from Players to This week on 2026-09-29 (storyboard 96B1dMss6vfyhhsQLUSK4x): it is
+  // this week's, not research, and it was the sixth of six sub-tabs. Its leaf and hash stay `news`.
+  ["week",     ["digest", "news", "preview", "weather", "live"]],
   ["teams",    ["roster", "waivers", "league", "myrecap"]],
-  ["scouting", ["ranks", "board", "movers", "matchups", "usage", "news"]],
+  ["scouting", ["ranks", "board", "movers", "matchups", "usage"]],
   ["league",   ["recap", "records", "trades"]],
   ["bets",     ["parlay", "build", "dfs"]],
 ];

@@ -1,6 +1,5 @@
 /* ============================== DIGEST: RESULTS ==============================
-   The week so far (2026-09-28): four headline tiles and each position's top three (headlines.js,
-   since 2026-09-29), then who smashed his projection, who busted and who left his game hurt, folded.
+   The week so far (2026-09-28): each position's top three (headlines.js, since 2026-09-29), then who smashed his projection, who busted and who left his game hurt, folded.
    A smashed or busted row says why as a pill: ff-jarvis picks the reason
    (weekly_digest_played.why_of), the page only labels it. */
 
@@ -68,8 +67,8 @@ const dgResNum = r => `<span class="dg-rv"><b>${r.actual != null ? r.actual.toFi
   + `${r.proj != null ? `<span>${r.proj.toFixed(1)}</span>` : ""}</span>`;
 
 /* A face cropped to the head, drawn at 150% so it fills the circle instead of the chest-up frame;
-   `96` asks the srcset for a file sharp at that size. The tiles and the wall's board wear it
-   (headlines.js); a list row is text. */
+   `96` asks the srcset for a file sharp at that size. Worth knowing's tiles wear it (facts.js); a
+   list row is text. */
 const dgResFace = r => HEADS[r.slug] ? headImgHTML(HEADS[r.slug], initials(r.n), r.slug, 96)
   : `<div class="fallback">${esc(initials(r.n))}</div>`;
 /* One list row: name over its reason pills, points over projection. Opens the profile. */
@@ -90,10 +89,12 @@ function dgResTabs(d){
     tab("left", t("digest.res.left"), d.left, r => dgResRow(r, dgLeftPills(r), dgResNum(r)), "am")].filter(Boolean));
 }
 
-/* The four tiles, each position's top three, then the three lists under their tabs. */
+/* Each position's top three, then the three lists under their tabs. The four tiles above them left
+   on 2026-09-29: each was only the first row of a list below it (Worth knowing, facts.js, took
+   their place above the rows). */
 function dgResBody(d){
   const low = dgResTabs(d);
-  const blocks = dgTilesHTML(d) + dgBoardHTML(d) + (low ? `<div class="dg-rlow">${low}</div>` : "");
+  const blocks = dgBoardHTML(d) + (low ? `<div class="dg-rlow">${low}</div>` : "");
   const foot = d.pending ? t("digest.foot.resPending", {n: dgGames(d.finals.length), left: d.pending}) : t("digest.foot.res", {n: dgGames(d.finals.length)});
   return (blocks ? `<div class="dg-rs">${blocks}</div>` : "") + dgFootHTML(foot, "", "");
 }

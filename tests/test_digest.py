@@ -146,6 +146,7 @@ def test_the_wall_opens_all_three_results_lists_on_the_boards_columns(browser, p
         left: Math.round(p.getBoundingClientRect().left), width: Math.round(p.getBoundingClientRect().width),
         head: [p.querySelector('.dg-tabh').firstChild.textContent.trim(), p.querySelector('.dg-tabh b').textContent].join(' '), rows: p.querySelectorAll('.dg-rr').length}));
       const rows = [...set.querySelectorAll('.dg-rr')];
+          rows.at(-1).scrollIntoView({block: 'center'});   // below the fold since Need to know took the first band
       return {bar: vis(set.querySelector('.dg-tabs')), col, panels,
               gap: Math.max(...rows.map(r => r.querySelector('.dg-rr-n').getBoundingClientRect().left - r.querySelector('.dg-rv').getBoundingClientRect().right)),
               leftCols: getComputedStyle(set.querySelector('[data-dgpanel="left"] .dg-rlist')).gridTemplateColumns.split(' ').length,
@@ -168,7 +169,7 @@ def test_the_wall_opens_all_three_results_lists_on_the_boards_columns(browser, p
 
 @pytest.mark.render
 def test_results_on_the_wall_keep_each_number_by_its_name(browser, page_file):
-    """On a desktop the four tiles sit in a row and the board in four position columns, each a heading
+    """On a desktop the board sits in four position columns, each a heading
     over rows of name, his day and points, with no face (2026-09-29, storyboard Ms6FbdvynVPoRTKEidPGAz
     1B: "should the categories be bigger? Should we consider not using headshots?"). A board row is one column wide, so its points sit within 350px of its name at
     the 1,680px frame. A phone sets the board two positions a row."""
@@ -187,14 +188,15 @@ def test_results_on_the_wall_keep_each_number_by_its_name(browser, page_file):
             return {gap: v.left - n.left, day: getComputedStyle(r.querySelector('.dg-bd-s')).display};
           });
           const head = document.querySelector('.dg-bd-p'), name = document.querySelector('.dg-bd-r b');
-          return {tiles: cols('.dg-tiles'), board: cols('.dg-bd'), list: cols('.dg-rlist'), rows,
+          return {tiles: document.querySelectorAll('.dg-rs .dg-tiles').length, board: cols('.dg-bd'), list: cols('.dg-rlist'), rows,
                   faces: document.querySelectorAll('.dg-bd .dg-hd').length,
                   headPx: parseFloat(getComputedStyle(head).fontSize), namePx: parseFloat(getComputedStyle(name).fontSize)};
         }""")
         ctx.close()
         assert errors == []
     wall, phone = got[1705], got[360]
-    assert (wall["tiles"], wall["board"], wall["list"]) == (4, 4, 1)   # Smashed: one column, under QB
+    # No tiles in Results since 2026-09-29: each restated a list's first row. Smashed: one column, under QB.
+    assert (wall["tiles"], wall["board"], wall["list"]) == (0, 4, 1)
     assert wall["rows"] and max(r["gap"] for r in wall["rows"]) < 350
     assert {r["day"] for r in wall["rows"]} == {"block"}
     assert wall["faces"] == 0 and phone["faces"] == 0
@@ -221,25 +223,31 @@ def test_two_players_one_team_one_short_name_keep_their_first_names(browser, pag
 
 
 @pytest.mark.render
-def test_the_tiles_never_repeat_the_banner_or_each_other(browser, page_file):
-    """When the banner is the week's top score, the first tile is the runner-up (David, 2026-09-29);
-    when something else leads, it is the top score. A player is in one tile at most."""
+def test_worth_knowing_never_repeats_the_banner_or_itself(browser, page_file):
+    """Worth knowing (2026-09-29, storyboard 96B1dMss6vfyhhsQLUSK4x B): one fact from each Players view,
+    a tap opens that view. The banner's player is never a tile, a player is in one tile at most, and
+    when the most over-performing player leads the banner, the next one takes his tile."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     page.goto(page_file.as_uri())
     got = page.evaluate("""() => {
-      const d = dgD(), top = [...d.stars].sort((a, b) => b.actual - a.actual);
-      const read = lead => { const h = document.createElement('div'); h.innerHTML = dgTilesHTML({...d, lead});
-        return [...h.querySelectorAll('.dg-tile')].map(t => [t.querySelector('.dg-tile-k').textContent, t.dataset.dgslug]); };
-      return {top: top.map(r => r.slug), res: read({rule: 'results', index: 0}), news: read({rule: 'news', index: 0})};
+      const d = dgD(), over = [...LIVE_ROLE.rows].sort((a, b) => b.gap - a.gap);
+      const read = dd => { const h = document.createElement('div'); h.innerHTML = dgFactsHTML(dd);
+        return [...h.querySelectorAll('.dg-fact')].map(t => [t.dataset.dgfact, t.dataset.dggo]); };
+      const plain = read({...d, lead: null});
+      // The banner as the top score, made the top over-performer's own row.
+      const star = {...d.stars[0], slug: over[0].slug, actual: 99};
+      const led = read({...d, stars: [star, ...d.stars.slice(1)], lead: {rule: 'results', index: 0}});
+      return {over: over.slice(0, 2).map(r => r.slug), plain, led};
     }""")
     ctx.close()
     assert errors == []
-    assert got["res"][0] == ["Runner-up", got["top"][1]]
-    assert got["news"][0] == ["Top score", got["top"][0]]
-    for tiles in (got["res"], got["news"]):
-        slugs = [s for _, s in tiles]
+    assert got["plain"] and got["plain"][0] == [got["over"][0], "movers"]
+    assert got["led"][0] == [got["over"][1], "movers"]
+    for tiles in (got["plain"], got["led"]):
+        slugs = [s for s, _ in tiles]
         assert len(slugs) == len(set(slugs))
-    assert got["top"][0] not in [s for _, s in got["res"]]
+        assert {v for _, v in tiles} <= {"movers", "usage", "matchups"}
+    assert got["over"][0] not in [s for s, _ in got["led"]]
 
 
 @pytest.mark.render
@@ -281,20 +289,22 @@ def test_a_finished_week_folds_the_preview_rows_into_the_wait(browser, page_file
     2026-09-21), Hurt and Matchups have nothing left to preview and next week's are not written: they
     leave the ticker for one card, Blip's, with a line each (2026-09-29, storyboard
     UDoWgLMrzUHup5tX53zaue option B). Weather and Top 5 read next week's data and stay out of the wait
-    since 2026-09-29 (storyboard Ms6FbdvynVPoRTKEidPGAz 5A, 6A). Before that, an empty Hurt row still
-    says "Nothing new"."""
+    since 2026-09-29 (storyboard Ms6FbdvynVPoRTKEidPGAz 5A, 6A). Hurt is Need to know since 2026-09-29,
+    above the rows: with nobody hurt it says so, and once the week is over it waits on next week's report."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     page.goto(page_file.as_uri())
     for _, sel in go("digest"):
         page.click(sel)
     page.wait_for_selector(".dg-row")
-    at = lambda when: page.evaluate("""(at) => { Date.now = () => Date.parse(at); LIVE_DIGEST.hurt = []; DG_CUT = null; render();
+    at = lambda when: page.evaluate("""(at) => { Date.now = () => Date.parse(at); LIVE_DIGEST.hurt = []; LIVE_DIGEST.starters = [];
+      DG_CUT = null; render();
       return [...document.querySelectorAll('.dg-ticker > [data-dgrow]')].map(e => e.dataset.dgrow); }""", when)
     before = at("2026-09-20T12:00:00Z")
-    assert "wait" not in before and "hurt" in before
-    assert page.locator('.dg-row[data-dgrow="hurt"] .dg-s').inner_text() == "Nothing new"
+    assert "wait" not in before and "mu" in before and "hurt" not in before
+    assert page.locator(".dg-need .dg-nd-none").inner_text() == "Nobody new is out since Tuesday."
     after = at("2026-09-22T12:00:00Z")
     assert "wait" in after and not {"hurt", "mu"} & set(after)
+    assert page.locator(".dg-need .dg-nd-none").inner_text() == "Week 4's injury report is still in the trainer's room."
     card = page.locator(".dg-wait")
     assert card.locator(".dg-wait-h").inner_text().upper() == "WAITING ON WEEK 4"
     assert card.locator("svg.blip").count() == 1
@@ -375,33 +385,34 @@ def test_top_5_links_to_ranks_and_one_call_is_singular(browser, page_file):
     assert errors == []
 
 
-def test_new_starters_lead_news_and_name_who_they_replaced(browser, page_file):
-    """Sleeper's new #1s and team moves are News since 2026-09-29 (David: "merge starters"; the row of
-    its own sat empty most days). Each is a block before the headlines, tagged "New QB1" or "New team",
-    its line QB1 over whom (with his status) or the two teams; the closed line leads with the newest,
-    News counts them, and they go with the team's kickoff. No Starters row is drawn."""
+def test_need_to_know_leads_with_new_starters_then_who_sits(browser, page_file):
+    """Need to know (2026-09-29, storyboard 96B1dMss6vfyhhsQLUSK4x B) lies open under the banner: Sleeper's
+    new #1s and team moves first, tagged "New QB1" or "New team" with over whom (with his status), then
+    the packet's out, IR and doubtful, then one line of the questionable. Five lines, then "N more".
+    News no longer carries the starters, and they go with the team's kickoff."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     page.goto(page_file.as_uri())
     for _, sel in go("digest"):
         page.click(sel)
-    page.wait_for_selector(".dg-row")
-    got = page.evaluate("""() => { Date.now = () => Date.parse("2026-09-17T12:00:00Z"); DG_CUT = null; DG_OPEN = "news"; render();
-      const row = document.querySelector('.dg-row[data-dgrow="news"]'), s = [...row.querySelectorAll('.dg-nw.start')];
-      return {line: row.querySelector('.dg-s').textContent.trim(), n: row.querySelector('.dg-n').textContent.trim(),
-              first: row.querySelector('.dg-nws').firstElementChild.classList.contains('start'),
-              tags: s.map(b => b.querySelector('.dg-nw-tag').textContent.trim()),
-              lines: s.map(b => b.querySelector('li span').textContent.trim()),
-              days: s.map(b => b.querySelector('time').textContent),
-              news: dgD().news.length, startRow: !!document.querySelector('.dg-row[data-dgrow="start"]')}; }""")
-    assert got["line"] == "Watson QB1 over Sanders" and got["n"] == str(4 + got["news"])
-    assert got["first"] and not got["startRow"]
-    assert got["tags"] == ["New QB1", "New QB1", "New team", "New RB1"]
-    assert got["lines"] == ["QB1 over S. Sanders", "QB1 over J. Daniels (Out)", "MIN → NYG · QB3", "RB1 over J. Mason"]
-    assert got["days"] == ["Tue", "Tue", "Mon", "Mon"]
+    page.wait_for_selector(".dg-need")
+    got = page.evaluate("""() => { Date.now = () => Date.parse("2026-09-17T12:00:00Z"); DG_CUT = null; DG_NEED_ALL = false; render();
+      const need = document.querySelector('.dg-need'), d = dgD(), lead = d.lead && d.lead.rule === 'hurt' ? d.hurt[d.lead.index] : null;
+      const hurt = d.hurt.filter(r => r !== lead);
+      return {tags: [...need.querySelectorAll('.dg-nd')].map(b => b.firstElementChild.textContent.trim()),
+              lines: [...need.querySelectorAll('.dg-nd-t > span')].map(s => s.textContent.trim()),
+              more: (need.querySelector('.dg-nd-more') || {}).textContent || '',
+              total: d.starters.length + hurt.filter(r => r.status !== 'Questionable').length,
+              q: hurt.some(r => r.status === 'Questionable'), also: !!need.querySelector('.dg-also'),
+              newsStarts: document.querySelectorAll('.dg-nw.start').length}; }""")
+    assert got["tags"][:4] == ["New QB1", "New QB1", "New team", "New RB1"]
+    assert got["lines"][:4] == ["QB1 over S. Sanders", "QB1 over J. Daniels (Out)", "MIN → NYG · QB3", "RB1 over J. Mason"]
+    assert len(got["tags"]) == min(5, got["total"])
+    assert got["more"] == (f"{got['total'] - 5} more" if got["total"] > 5 else "")
+    assert got["also"] == got["q"] and got["newsStarts"] == 0
     gone = page.evaluate("""() => { LIVE_DIGEST.starters.forEach(r => { r.ko = "2026-09-20T17:00:00Z"; });
       Date.now = () => Date.parse("2026-09-20T17:01:00Z"); DG_CUT = null; render();
-      return document.querySelectorAll('.dg-nw.start').length; }""")
-    assert gone == 0, "a started game takes its starters out of News"
+      return [...document.querySelectorAll('.dg-need .dg-nw-tag')].length; }""")
+    assert gone == 0, "a started game takes its starters out of Need to know"
     ctx.close()
     assert errors == []
 
@@ -591,8 +602,8 @@ def test_the_wall_opens_every_panel_and_a_head_is_not_a_toggle(browser, page_fil
     page.wait_for_selector(".dg-row")
     rows = page.locator(".dg-row:not(.empty)")
     assert rows.count() == page.locator(".dg-row[data-open]").count() > 0
-    page.locator(".dg-row[data-dgrow='hurt'] .dg-head").click()
-    assert page.locator(".dg-row[data-dgrow='hurt'][data-open]").count() == 1
+    page.locator(".dg-row[data-dgrow='adds'] .dg-head").click()
+    assert page.locator(".dg-row[data-dgrow='adds'][data-open]").count() == 1
     assert page.locator(".dg-ghost").inner_text() == "WR2"
     assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
     assert errors == []

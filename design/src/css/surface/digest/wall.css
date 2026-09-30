@@ -1,13 +1,12 @@
 /* ============================== DIGEST: THE WALL (1100px and up) ==============================
    A desktop has room for the whole week at once (2026-09-26), so the phone's ticker becomes a wall:
-   the lead as a full-width band, then every topic as an open panel on a 12-column grid. Hurt runs
-   tall beside the matchups, weather, adds and stock it affects; Top 5 and Gems share a row; News
+   the lead as a full-width band, then every topic as an open panel on a 12-column grid. Need to know
+   and Worth knowing share the first band (since 2026-09-29); Top 5 and Gems share a row; News
    closes the page in two columns. The day's topic keeps the lime title the phone gives its open
    row. Behind the lead's photo sits the reason he leads (his rank, the wind), huge and faint. */
 
 .dg-ghost{display:none}
 .dg-t5 .dg-hd.sm{display:none}
-.dg-qlines{display:none}
 
 @media (min-width:1100px){
   /* The frame's width and gutter (base/tokens.css), so the wall's panels share the nav bar's edges. */
@@ -51,10 +50,13 @@
   .dg > .dg-lead .dg-lpill{font-size:var(--t-2);padding:8px 12px}
 
   /* The wall. */
+  /* Need to know and Worth knowing share the first band under the lead (need.css, 2026-09-29); the
+     Hurt panel that stood beside the matchups is gone, so matchups and weather split its row. */
   .dg-ticker{
     display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:20px;border-top:0;
     grid-template-areas:
-      "hurt hurt hurt hurt hurt mu   mu   mu   mu   wx   wx   wx"
+      "need need need need need facts facts facts facts facts facts facts"
+      "mu   mu   mu   mu   mu   mu   wx   wx   wx   wx   wx   wx"
       "adds adds adds adds t5   t5   t5   t5   t5   gems gems gems"
       "news news news news news news news news news news news news";
   }
@@ -64,29 +66,33 @@
      share a band. */
   .dg-ticker.has-res{
     grid-template-areas:
+      "need need need need need facts facts facts facts facts facts facts"
       "res  res  res  res  res  res  res  res  res  res  res  res"
-      "hurt hurt hurt hurt hurt mu   mu   mu   mu   wx   wx   wx"
+      "mu   mu   mu   mu   mu   mu   wx   wx   wx   wx   wx   wx"
       "adds adds adds adds t5   t5   t5   t5   t5   gems gems gems"
       "news news news news news news news news news news news news";
   }
   .dg-ticker.has-tn{
     grid-template-areas:
       "tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn"
-      "hurt hurt hurt hurt hurt mu   mu   mu   mu   wx   wx   wx"
+      "need need need need need facts facts facts facts facts facts facts"
+      "mu   mu   mu   mu   mu   mu   wx   wx   wx   wx   wx   wx"
       "adds adds adds adds t5   t5   t5   t5   t5   gems gems gems"
       "news news news news news news news news news news news news";
   }
   .dg-ticker.has-tn.has-res{
     grid-template-areas:
       "tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn"
+      "need need need need need facts facts facts facts facts facts facts"
       "res  res  res  res  res  res  res  res  res  res  res  res"
-      "hurt hurt hurt hurt hurt mu   mu   mu   mu   wx   wx   wx"
+      "mu   mu   mu   mu   mu   mu   wx   wx   wx   wx   wx   wx"
       "adds adds adds adds t5   t5   t5   t5   t5   gems gems gems"
       "news news news news news news news news news news news news";
   }
   .dg-ticker.tn-last.has-res{
     grid-template-areas:
       "tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn"
+      "need need need need need facts facts facts facts facts facts facts"
       "res  res  res  res  res  res  res  res  res  res  res  res"
       "adds adds adds adds adds adds gems gems gems gems gems gems"
       "news news news news news news news news news news news news";
@@ -94,6 +100,7 @@
   .dg-ticker.tn-last:not(.has-res){
     grid-template-areas:
       "tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn   tn"
+      "need need need need need facts facts facts facts facts facts facts"
       "adds adds adds adds adds adds gems gems gems gems gems gems"
       "news news news news news news news news news news news news";
   }
@@ -106,12 +113,14 @@
      share its row: the wait, next week's Top 5, the weather ahead. */
   .dg-ticker.wk-done{
     grid-template-areas:
+      "need need need need need facts facts facts facts facts facts facts"
       "wait wait wait wait t5   t5   t5   t5   wx   wx   wx   wx"
       "adds adds adds adds adds adds gems gems gems gems gems gems"
       "news news news news news news news news news news news news";
   }
   .dg-ticker.wk-done.has-res{
     grid-template-areas:
+      "need need need need need facts facts facts facts facts facts facts"
       "res  res  res  res  res  res  res  res  res  res  res  res"
       "wait wait wait wait t5   t5   t5   t5   wx   wx   wx   wx"
       "adds adds adds adds adds adds gems gems gems gems gems gems"
@@ -120,7 +129,6 @@
   .dg-tns{grid-area:tn;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:20px}
   .dg-tns .dg-tn{margin:0}
   .dg-row[data-dgrow="res"]{grid-area:res}
-  .dg-row[data-dgrow="hurt"]{grid-area:hurt}
   .dg-row[data-dgrow="mu"]{grid-area:mu}
   .dg-row[data-dgrow="wx"]{grid-area:wx}
   .dg-row[data-dgrow="adds"]{grid-area:adds}
@@ -156,8 +164,6 @@
   .dg-row[data-dgrow="news"] .dg-nws{grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;padding-top:4px}
   .dg-row[data-dgrow="news"] .dg-nw{border:0;border-radius:10px;background:var(--panel-2);padding:12px}
 
-  .dg-qlines{display:contents}
-  .dg-row[data-dgrow="hurt"] .dg-also{display:none}
   .dg > .dg-lead .dg-lead-fact{max-width:46ch}
 
   .dg-t5{column-gap:28px}

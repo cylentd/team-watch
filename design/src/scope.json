@@ -20,6 +20,7 @@
     "surface/digest/tonight.css": ["digest"],
     "surface/digest/results.css": ["digest"],
     "surface/digest/headlines.css": ["digest"],
+    "surface/digest/need.css": ["digest"],
     "surface/digest/wait.css": ["digest"],
     "surface/digest/tabs.css": ["digest"],
     "surface/digest/ahead.css": ["digest"],

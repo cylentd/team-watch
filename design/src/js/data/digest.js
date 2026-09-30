@@ -6,7 +6,9 @@
    final (2026-09-28): an empty "Results" row all week would be noise. */
 /* Starters folded into News on 2026-09-29 (rows.js dgStartNewsHTML): a new #1 is news, and the row
    of its own sat empty most days. */
-const DG_ROWS = ["res", "hurt", "mu", "wx", "adds", "t5", "gems", "news"];
+/* Hurt left the rows on 2026-09-29 for Need to know (surface/digest/need.js), which lies open above
+   them; its id stays for the wait card's line. */
+const DG_ROWS = ["res", "mu", "wx", "adds", "t5", "gems", "news"];
 const DG_POS = ["QB", "RB", "WR", "TE"];
 
 /* The row the reader opened by hand ("" when he closed it); null until the first tap, and while
@@ -14,10 +16,10 @@ const DG_POS = ["QB", "RB", "WR", "TE"];
 let DG_OPEN = null;
 
 /* The signature: the day picks the open row. Claims are Tuesday and Wednesday, so the wire's
-   adds lead; Sunday is game day, so who is hurt, then the weather if nobody new is; Monday, the
-   week's results; every other day, who is hurt. The reader's local day, from Date.now(), which
-   the render suite pins. */
-const DG_DAY = {0: ["hurt", "wx"], 1: ["res", "hurt"], 2: ["adds"], 3: ["adds"]};
+   adds lead; Sunday is game day, so the weather; Monday, the week's results; any other day no row
+   opens, since who is hurt already lies open in Need to know (2026-09-29). The reader's local day,
+   from Date.now(), which the render suite pins. */
+const DG_DAY = {0: ["wx"], 1: ["res"], 2: ["adds"], 3: ["adds"]};
 
 /* A game that has kicked off takes its pre-game rows with it, here in the browser: the packet was
    cut at build time, and a tab stays open across a Sunday. ff-jarvis drops the same rows at build
@@ -101,16 +103,11 @@ function dgHas(id){
   if (!d) return false;
   return {res: d.finals.length || d.stars.length, hurt: d.hurt.length, mu: d.best.length || d.calls,
           wx: dgWxMoves().length, adds: d.adds.length, t5: dgTop5(d, "QB").length,
-          gems: d.gems.length, news: d.news.length || d.starters.length}[id] ? true : false;
+          gems: d.gems.length, news: d.news.length}[id] ? true : false;
 }
 
-/* Is there news in it, which is what earns the day's open: a hurt row changed in the last 24
-   hours, a game past the weather bar; any other section, anything at all. */
-function dgNew(id){
-  const d = dgD();
-  if (id === "hurt") return !!d && d.hurt.some(r => r.new);
-  return dgHas(id);
-}
+/* Is there news in it, which is what earns the day's open: anything at all. */
+const dgNew = id => dgHas(id);
 
 /* The week's preview rows, and whether they are waiting on next week: every game has kicked off
    and tonight's card is gone. They then leave the ticker for one card (surface/digest/wait.js).
@@ -127,7 +124,7 @@ function dgShown(id){
   return !(d && d.tnLast && DG_TN_ROWS.includes(id));
 }
 
-const dgDayRow = () => (DG_DAY[new Date(Date.now()).getDay()] || ["hurt"]).find(id => dgShown(id) && dgNew(id)) || null;
+const dgDayRow = () => (DG_DAY[new Date(Date.now()).getDay()] || []).find(id => dgShown(id) && dgNew(id)) || null;
 const dgOpenRow = () => DG_OPEN === null ? dgDayRow() : DG_OPEN;
 
 /* A surname for the one-line rows ("Smith-Njigba", "Walker"): the last word that is not a suffix. */

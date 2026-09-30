@@ -21,24 +21,13 @@ const dgLabel = id => ({res: t("digest.row.res"), hurt: t("digest.row.hurt"),
 function dgCount(id, d){
   // Results counts what is still to play, not what is final: "15" said nothing the footer did not.
   if (id === "res") return [d.pending ? t("digest.res.toPlay", {n: d.pending}) : "", "go"];
-  if (id === "hurt") return [d.hurt.length, "out"];
   if (id === "mu") return [d.calls || "", ""];
   if (id === "wx") return [dgWxMoves().length || "", "sky"];
   if (id === "adds") return [!d.adds.length ? "" : d.adds_source === "sleeper" ? dgBig(d.adds[0].count)
     : dgSigned(Math.round(d.adds[0].delta), 0), "go"];
   if (id === "gems") return [d.gems.length, ""];
-  if (id === "news") return [d.starters.length + d.news.length, ""];   // new starters are News blocks too
+  if (id === "news") return [d.news.length, ""];
   return ["", ""];
-}
-
-/* Hurt's line names the next two who will likely sit (the lead is already the first), then how
-   many are questionable. */
-function dgHurtLine(d){
-  const lead = d.lead && d.lead.rule === "hurt" ? d.hurt[d.lead.index] : null;
-  const word = {Out: () => t("digest.line.out"), IR: () => t("digest.line.ir"), Doubtful: () => t("digest.line.doubtful")};
-  const sit = d.hurt.filter(r => r !== lead && word[r.status]).slice(0, 2).map(r => `<b>${esc(dgLast(r.n))}</b> ${word[r.status]()}`);
-  const q = d.hurt.filter(r => r.status === "Questionable").length;
-  return [...sit, q ? t("digest.line.q", {n: q}) : ""].filter(Boolean).join(", ");
 }
 
 /* Matchups' one name is the best spot at WR (the position Matchups opens on), else the next. */
@@ -63,26 +52,21 @@ function dgGemLine(g){
     : t("digest.line.gemTouch", {name: esc(g.n), usage: g.usage.toFixed(1), pos: esc(g.pos), ecr: g.ecr});
 }
 
-/* Results' line: the week's three top scores so far, surname and points. */
-function dgResLine(d){
-  const top = [...d.stars].sort((a, b) => b.actual - a.actual).slice(0, 3);
-  return top.map(r => `<b>${esc(dgLast(r.n))}</b> ${r.actual.toFixed(1)}`).join(" · ")
-    || t("digest.line.resGames", {n: dgGames(d.finals.length)});
-}
+/* Results' line: how many games are final. It named the top three scores until 2026-09-29, the
+   banner's and the board's names a third time. */
+const dgResLine = d => t("digest.line.resGames", {n: dgGames(d.finals.length)});
 
 function dgLine(id, d){
   const top = pos => dgTop5(d, pos)[0];
-  const it = d.news[0], a = d.adds[0], s = d.starters[0];
+  const it = d.news[0], a = d.adds[0];
   return {
-    res: () => dgResLine(d), hurt: () => dgHurtLine(d),
+    res: () => dgResLine(d),
     mu: () => dgMuLine(d), wx: () => dgWxLine(d),
     adds: () => d.adds_source === "sleeper" ? `<b>${esc(a.n)}</b> ${dgAddCount(a)}`
       : t("digest.line.adds", {name: esc(a.n), was: dgPct(a.was), now: dgPct(a.now)}),
     t5: () => DG_POS.map(top).filter(Boolean).map(r => `<b>${esc(dgLast(r.n))}</b>`).join(" · "),
     gems: () => dgGemLine(d.gems[0]),
-    // A new starter leads News, as its block does (rows.js dgStartNewsHTML).
-    news: () => s ? `<b>${esc(dgLast(s.n))}</b> ${dgStartWhat(s, dgLast, true)}`
-      : it.n ? `<b>${esc(it.n)}</b> ${esc(it.rest)}` : esc(it.headline),
+    news: () => it.n ? `<b>${esc(it.n)}</b> ${esc(it.rest)}` : esc(it.headline),
   }[id]();
 }
 
@@ -112,7 +96,8 @@ function digestHTML(){
     wait ? "wk-done" : ""].filter(Boolean).join(" ") : "";
   const body = rows.map(id => dgRowHTML(id, d, open));
   if (wait) body.splice(rows[0] === "res" ? 1 : 0, 0, dgWaitHTML(d));
-  const ticker = d ? `<section class="dg-ticker${cls ? " " + cls : ""}" aria-label="${t("digest.ticker.label")}">${dgTonightHTML(d)}${body.join("")}</section>`
+  // Need to know and Worth knowing lie open above the rows (need.js, facts.js; 2026-09-29).
+  const ticker = d ? `<section class="dg-ticker${cls ? " " + cls : ""}" aria-label="${t("digest.ticker.label")}">${dgTonightHTML(d)}${dgNeedHTML(d)}${dgFactsHTML(d)}${body.join("")}</section>`
     : `<p class="dg-none">${t("digest.empty.ticker")}</p>`;
   return `<div class="dg">${dgLeadHTML()}${ticker}</div>`;
 }
@@ -146,6 +131,9 @@ function wireDigest(v){
   /* A set of tabs (Results' lists, Top 5's positions) swaps its panel in place, and the pick is kept
      across repaints (DG_TAB, tabs.js). */
   v.querySelectorAll("[data-dgtab]").forEach(b => b.addEventListener("click", () => dgTabPick(b)));
+  v.querySelectorAll("[data-dgneedall]").forEach(b => b.addEventListener("click", () => {
+    const y = window.scrollY; DG_NEED_ALL = true; render(); window.scrollTo(0, y);
+  }));
   v.querySelectorAll("[data-dggo]").forEach(b => b.addEventListener("click", () => {
     morphLogo(); navGo(b.dataset.dggo); window.scrollTo({top: 0});
   }));
