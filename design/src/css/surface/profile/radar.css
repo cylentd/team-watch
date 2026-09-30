@@ -25,6 +25,11 @@
 @keyframes pf-hit{0%{stroke:var(--tint);stroke-width:3.5;opacity:1}100%{stroke-width:1.5}}
 .pf-radar-bar.hit{animation:pf-hit .7s var(--ease) backwards}
 
+/* Elite (sheetElite): the rank and its vertex glow in the tint, the same aura the ladder row
+   carries. Still: nothing here loops (STYLE.md). It beats `low`: over the bar is over the bar. */
+.pf-radar-l.elite .pf-radar-v,.pf-radar-l.elite.low .pf-radar-v{color:var(--tint);text-shadow:0 0 12px rgb(var(--tint-rgb) / .6)}
+.pf-radar-dot.elite{filter:drop-shadow(0 0 4px rgb(var(--tint-rgb) / .95))}
+
 /* The spark's end point lands after the line has wiped in (roster.css), with the pop spring:
    this week is the point the reader looks for. */
 @keyframes pf-cap{from{transform:scale(0)}to{transform:scale(1)}}

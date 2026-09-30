@@ -17,7 +17,7 @@ function ladderOrder(s){
   return s.axes.map(a => {
     const rk = sheetRank(s.pos, a.id, s.row.slug), v = s.row.v[a.id];
     const band = rk ? 0 : v !== null && v !== undefined ? 1 : 2;
-    return {a, rk, v, band, pct: rk ? ladderPct(rk) : 0};
+    return {a, rk, v, band, pct: rk ? ladderPct(rk) : 0, elite: sheetElite(s, a, rk)};
   }).sort((x, y) => x.band - y.band || y.pct - x.pct);
 }
 
@@ -70,7 +70,7 @@ function ladderMoreHTML(s, x){
 /* `name` makes the rows one accordion natively: opening one closes the last, so the list never
    grows more than one fold longer than it was. */
 function ladderHTML(s, sel){
-  return `<div class="pf-ladder">${ladderOrder(s).map((x, i) => `<details class="pf-lr${x.a.id === sel ? " on" : ""}" name="pf-ladder" data-col="${esc(x.a.id)}" style="--i:${i}">
+  return `<div class="pf-ladder">${ladderOrder(s).map((x, i) => `<details class="pf-lr${x.a.id === sel ? " on" : ""}${x.elite ? " elite" : ""}" name="pf-ladder" data-col="${esc(x.a.id)}" style="--i:${i}">
     <summary><span class="pf-lr-n">${esc(axisName(x.a))}</span><b class="pf-lr-v${x.band ? " dim" : ""}">${usageFmt(x.v, x.a.fmt)}</b>${ladderBarHTML(s, x)}<span class="pf-lr-rk">${ladderRankHTML(s, x)}</span></summary>
     ${ladderMoreHTML(s, x)}</details>`).join("")}</div>`;
 }

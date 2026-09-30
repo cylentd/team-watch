@@ -50,6 +50,14 @@ function sheetValues(pos, axis){
 
 function sheetRank(pos, axis, slug){ return rankAmong(sheetValues(pos, axis), slug); }
 
+/* Elite: ranked, and at or over the position's published bar. The rank matters because a thin
+   sample over the bar is the claim eliteGapHTML refuses to make; the null check because
+   `null >= 0` is true. This is what the radar's labels and the ladder's rows glow for. */
+function sheetElite(s, a, rk){
+  const v = s.row.v[a.id];
+  return !!rk && a.elite !== null && a.elite !== undefined && v !== null && v !== undefined && v >= a.elite;
+}
+
 /* Where an axis's elite bar falls on a radius drawn from rank: the radius a player sitting
    exactly on the threshold would take. Null when the axis has no published bar. */
 function eliteRadius(pos, axis, elite){
@@ -157,7 +165,8 @@ function shapeHTML(s, ranks, k, xy, sel, cx, cy){
      Without it the highlight moved on the label and the shape never answered. */
   const dots = idx.map(i => {
     const [x, y] = xy(i, k(i));
-    return `<circle class="pf-radar-dot${s.axes[i].id === sel ? " on" : ""}" data-col="${esc(s.axes[i].id)}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5"/>`;
+    const cls = (s.axes[i].id === sel ? " on" : "") + (sheetElite(s, s.axes[i], ranks[i]) ? " elite" : "");
+    return `<circle class="pf-radar-dot${cls}" data-col="${esc(s.axes[i].id)}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5"/>`;
   }).join("");
   /* Two rings at the selected vertex, both moved by wireSheet on a pick. `mark` is the resting
      state -- a target on the point being read, which is where the number it describes actually
@@ -222,7 +231,7 @@ function axisLabelsHTML(s, ranks, k, sel, ang, xy, at, R){
     const side = sn < -.7 ? "n" : sn > .7 ? "s" : c > 0 ? "e" : "w";
     const [x, y] = xy(i, 1 + (side === "n" || side === "s" ? 8 : 10) / R);   // units clear of the rim
     const rk = ranks[i] ? rankMark(ranks[i]) : "—";
-    const cls = (a.id === sel ? " on" : "") + (!ranks[i] || k(i) < .5 ? " low" : "");
+    const cls = (a.id === sel ? " on" : "") + (!ranks[i] || k(i) < .5 ? " low" : "") + (sheetElite(s, a, ranks[i]) ? " elite" : "");
     return `<button type="button" class="pf-radar-l at-${side}${cls}" style="${at(x, y)};--i:${i}" data-col="${esc(a.id)}"
       ><b class="pf-radar-v">${rk}</b><span class="pf-radar-n">${esc(axisName(a))}</span></button>`;
   }).join("");

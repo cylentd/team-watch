@@ -68,6 +68,29 @@ function orbMorph(layer, btn, p, back, ms, done){
   requestAnimationFrame(step);
 }
 
+/* Centred once, then held (2026-09-29, David: tapping a stat "will expand the shape of the
+   container which causes the content to jump"). A centred box re-centres on every fold, so the
+   chart moved up by half of each fold's height under the reader's finger. Its top is pinned where
+   it opened, and a fold grows it downward only, to the layer's edge, then the sheet scrolls. */
+function orbPin(sheet){
+  const top = sheet.offsetTop;
+  sheet.style.top = `${top}px`;
+  sheet.style.bottom = "auto";
+  sheet.style.maxHeight = `calc(100% - ${top + 12}px)`;
+}
+
+/* The layer keeps the reader's scroll and swipe (2026-09-29, David: "scrolling or swiping on this
+   modal will move the content behind it"). A wheel or a touch drag reaches the profile or the page
+   under the layer whenever the sheet has nothing to scroll or the finger is on the scrim, because
+   `inert` stops focus and clicks, not scroll chaining. So both are cancelled unless they land in
+   the sheet while it can scroll; overscroll-behavior (orb.css) holds the sheet's own ends. The
+   profile's swipe gestures stand down while the layer is up (modal.js). */
+function orbHoldScroll(layer, sheet){
+  const hold = e => { if (!sheet.contains(e.target) || sheet.scrollHeight <= sheet.clientHeight) e.preventDefault(); };
+  layer.addEventListener("wheel", hold, {passive: false});
+  layer.addEventListener("touchmove", hold, {passive: false});
+}
+
 function orbOpen(d, p, btn){
   if (d.querySelector(".pf-orblayer") || !sheetFor(p)) return;
   const s = sheetFor(p);
@@ -87,6 +110,8 @@ function orbOpen(d, p, btn){
   btn.dataset.open = "1";
   wireSheet(layer, {grow: false});
   const sheet = layer.querySelector(".pf-orbsheet");
+  orbPin(sheet);
+  orbHoldScroll(layer, sheet);
   const shut = () => orbClose(d, true);
   layer.querySelector(".pf-orb-x").addEventListener("click", shut);
   layer.querySelector(".pf-orbscrim").addEventListener("click", shut);

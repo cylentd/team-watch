@@ -24,6 +24,12 @@
   animation:pf-widen .5s var(--ease) calc(.1s + var(--i,0) * 50ms) backwards}
 .pf-lr-bar i.top{background:var(--tint)}
 .pf-lr-bar i.low{background:var(--line-2)}
+/* Elite (sheetElite: ranked and over the bar): the bar and its number glow in the tint, still.
+   The track stops clipping so the glow can reach past it. Top tenth is a rank; elite is the bar
+   the producer publishes, so a #4 can glow and a #2 on a stat with no bar cannot. */
+.pf-lr.elite .pf-lr-bar{overflow:visible}
+.pf-lr.elite .pf-lr-bar i{background:var(--tint);box-shadow:0 0 2px rgb(var(--tint-rgb) / .9),0 0 12px rgb(var(--tint-rgb) / .6)}
+.pf-lr.elite .pf-lr-v{color:var(--tint);text-shadow:0 0 10px rgb(var(--tint-rgb) / .55)}
 /* Unranked: a dashed track, filled as far as his sample has reached toward the floor. */
 .pf-lr-bar.thin{background:repeating-linear-gradient(90deg,var(--line) 0 4px,transparent 4px 7px)}
 .pf-lr-bar.thin i{background:var(--line-2)}

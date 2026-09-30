@@ -588,6 +588,60 @@ def test_the_sphere_opens_the_sheet_over_the_profile(browser, page_file):
 
 
 @pytest.mark.render
+@pytest.mark.parametrize("viewport", [(360, 740), (1400, 900)])
+def test_the_sheet_holds_still_under_a_tap_and_a_scroll(browser, page_file, viewport):
+    """2026-09-29, David: tapping a stat "will expand the shape of the container which causes the
+    content to jump", and "scrolling or swiping on this modal will move the content behind it".
+    The sheet opens centred and keeps that top (orbsheet.js orbPin), so a fold grows it downward;
+    a wheel on the scrim or on a sheet with nothing to scroll moves neither the profile nor the page."""
+    ctx, page, errors = open_page(browser, page_file, viewport)
+    row(page, "Amon-Ra St. Brown").click()
+    sheet(page)
+    radar = page.locator("#modal .pf-orbsheet .pf-radar")
+    top = radar.bounding_box()["y"]
+    page.locator("#modal .pf-orbsheet .pf-lr summary").last.click()
+    assert page.locator("#modal .pf-orbsheet .pf-lr[open]").count() == 1
+    assert radar.bounding_box()["y"] == pytest.approx(top, abs=1)
+    under = "[document.querySelector('#modal .dr-body').scrollTop, scrollY]"
+    before = page.evaluate(under)
+    box = page.locator("#modal .pf-orbscrim").bounding_box()
+    page.mouse.move(box["x"] + 4, box["y"] + 4)
+    page.mouse.wheel(0, 600)
+    page.wait_for_timeout(100)
+    assert page.evaluate(under) == before
+    # A sideways swipe on the scrim leaves the profile's tab where it was (modal.js up()).
+    selected = "document.querySelector('#modal [data-pftab][aria-selected=true]').dataset.pftab"
+    was = page.evaluate(selected)
+    page.evaluate("""(() => { const el = document.querySelector('#modal .pf-orbscrim');
+      const at = x => [new Touch({identifier: 1, target: el, clientX: x, clientY: 20})];
+      el.dispatchEvent(new TouchEvent('touchstart', {bubbles: true, touches: at(300), changedTouches: at(300)}));
+      el.dispatchEvent(new TouchEvent('touchend', {bubbles: true, touches: [], changedTouches: at(120)})); })()""")
+    assert page.evaluate(selected) == was
+    assert page.locator("#modal .pf-orblayer").count() == 1
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_an_elite_stat_glows(browser, page_file):
+    """Ranked and over the position's elite bar (sheet.js sheetElite): the ladder row and the radar
+    label and vertex carry `elite`, and nothing else does."""
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    row(page, "Amon-Ra St. Brown").click()
+    sheet(page)
+    want = page.evaluate("""(() => { const s = sheetFor({slug: 'amonra-st-brown'});
+      return s.axes.filter(a => sheetElite(s, a, sheetRank(s.pos, a.id, s.row.slug))).map(a => a.id).sort(); })()""")
+    assert want, "the fixture needs an elite stat for this receiver"
+    for sel in (".pf-lr.elite", ".pf-radar-l.elite", ".pf-radar-dot.elite"):
+        got = sorted(page.eval_on_selector_all(f"#modal .pf-orbsheet {sel}", "els => els.map(e => e.dataset.col)"))
+        assert got == want, sel
+    glow = page.eval_on_selector("#modal .pf-orbsheet .pf-lr.elite .pf-lr-bar i", "e => getComputedStyle(e).boxShadow")
+    assert glow != "none"
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
 def test_facts_show_pedigree_and_fantasy_draft(browser, page_file):
     """tests/fixtures/data/pedigree.json: Jahmyr Gibbs was 1.12 (pick 12 overall) in the real
     2023 NFL draft, drafted 1.01 by my ESPN team and 1.02 in Yahoo; Chase Brown has an ESPN pick

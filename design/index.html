@@ -2443,6 +2443,12 @@ button.pf-own:focus-visible:where(#modal, #stripmodal, #modal *, #stripmodal *){
   animation:pf-widen .5s var(--ease) calc(.1s + var(--i,0) * 50ms) backwards}
 .pf-lr-bar:where(#modal, #modal *) i.top{background:var(--tint)}
 .pf-lr-bar:where(#modal, #modal *) i.low{background:var(--line-2)}
+/* Elite (sheetElite: ranked and over the bar): the bar and its number glow in the tint, still.
+   The track stops clipping so the glow can reach past it. Top tenth is a rank; elite is the bar
+   the producer publishes, so a #4 can glow and a #2 on a stat with no bar cannot. */
+.pf-lr.elite:where(#modal, #modal *) .pf-lr-bar{overflow:visible}
+.pf-lr.elite:where(#modal, #modal *) .pf-lr-bar i{background:var(--tint);box-shadow:0 0 2px rgb(var(--tint-rgb) / .9),0 0 12px rgb(var(--tint-rgb) / .6)}
+.pf-lr.elite:where(#modal, #modal *) .pf-lr-v{color:var(--tint);text-shadow:0 0 10px rgb(var(--tint-rgb) / .55)}
 /* Unranked: a dashed track, filled as far as his sample has reached toward the floor. */
 .pf-lr-bar.thin:where(#modal, #modal *){background:repeating-linear-gradient(90deg,var(--line) 0 4px,transparent 4px 7px)}
 .pf-lr-bar.thin:where(#modal, #modal *) i{background:var(--line-2)}
@@ -2494,6 +2500,11 @@ button.pf-own:focus-visible:where(#modal, #stripmodal, #modal *, #stripmodal *){
    settles back to its resting dash. Once, at the crossing, never again. */
 @keyframes pf-hit{0%{stroke:var(--tint);stroke-width:3.5;opacity:1}100%{stroke-width:1.5}}
 .pf-radar-bar.hit:where(#modal, #modal *){animation:pf-hit .7s var(--ease) backwards}
+
+/* Elite (sheetElite): the rank and its vertex glow in the tint, the same aura the ladder row
+   carries. Still: nothing here loops (STYLE.md). It beats `low`: over the bar is over the bar. */
+.pf-radar-l.elite:where(#modal, #modal *) .pf-radar-v,.pf-radar-l.elite.low:where(#modal, #modal *) .pf-radar-v{color:var(--tint);text-shadow:0 0 12px rgb(var(--tint-rgb) / .6)}
+.pf-radar-dot.elite:where(#modal, #modal *){filter:drop-shadow(0 0 4px rgb(var(--tint-rgb) / .95))}
 
 /* The spark's end point lands after the line has wiped in (roster.css), with the pop spring:
    this week is the point the reader looks for. */
@@ -2690,7 +2701,7 @@ button.pf-tm:focus-visible:where(#modal, #modal *){outline:2px solid var(--lime)
 .pf-orblayer.closing:where(#modal, #modal *) .pf-orbscrim{animation:pf-orb-fade .3s var(--ease) reverse both}
 @keyframes pf-orb-fade{from{opacity:0}}
 .pf-orbsheet:where(#modal, #modal *){position:absolute;inset:0;margin:auto;width:min(520px,calc(100% - 24px));height:fit-content;
-  max-height:calc(100% - 24px);overflow:auto;padding:16px 18px 18px;border:1px solid var(--line-2);border-radius:14px;
+  max-height:calc(100% - 24px);overflow:auto;overscroll-behavior:contain;padding:16px 18px 18px;border:1px solid var(--line-2);border-radius:14px;
   background:var(--panel-3);transform-origin:0 0;scrollbar-width:thin;scrollbar-color:var(--line-2) var(--panel-3)}
 .pf-orbsheet-h:where(#modal, #modal *){display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:4px}
 .pf-orbsheet-h:where(#modal, #modal *) h4{margin:0 0 4px;font-family:var(--disp);font-size:var(--t-5);font-weight:800;line-height:1.05;
@@ -11642,6 +11653,14 @@ function sheetValues(pos, axis){
 
 function sheetRank(pos, axis, slug){ return rankAmong(sheetValues(pos, axis), slug); }
 
+/* Elite: ranked, and at or over the position's published bar. The rank matters because a thin
+   sample over the bar is the claim eliteGapHTML refuses to make; the null check because
+   `null >= 0` is true. This is what the radar's labels and the ladder's rows glow for. */
+function sheetElite(s, a, rk){
+  const v = s.row.v[a.id];
+  return !!rk && a.elite !== null && a.elite !== undefined && v !== null && v !== undefined && v >= a.elite;
+}
+
 /* Where an axis's elite bar falls on a radius drawn from rank: the radius a player sitting
    exactly on the threshold would take. Null when the axis has no published bar. */
 function eliteRadius(pos, axis, elite){
@@ -11749,7 +11768,8 @@ function shapeHTML(s, ranks, k, xy, sel, cx, cy){
      Without it the highlight moved on the label and the shape never answered. */
   const dots = idx.map(i => {
     const [x, y] = xy(i, k(i));
-    return `<circle class="pf-radar-dot${s.axes[i].id === sel ? " on" : ""}" data-col="${esc(s.axes[i].id)}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5"/>`;
+    const cls = (s.axes[i].id === sel ? " on" : "") + (sheetElite(s, s.axes[i], ranks[i]) ? " elite" : "");
+    return `<circle class="pf-radar-dot${cls}" data-col="${esc(s.axes[i].id)}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5"/>`;
   }).join("");
   /* Two rings at the selected vertex, both moved by wireSheet on a pick. `mark` is the resting
      state -- a target on the point being read, which is where the number it describes actually
@@ -11814,7 +11834,7 @@ function axisLabelsHTML(s, ranks, k, sel, ang, xy, at, R){
     const side = sn < -.7 ? "n" : sn > .7 ? "s" : c > 0 ? "e" : "w";
     const [x, y] = xy(i, 1 + (side === "n" || side === "s" ? 8 : 10) / R);   // units clear of the rim
     const rk = ranks[i] ? rankMark(ranks[i]) : "—";
-    const cls = (a.id === sel ? " on" : "") + (!ranks[i] || k(i) < .5 ? " low" : "");
+    const cls = (a.id === sel ? " on" : "") + (!ranks[i] || k(i) < .5 ? " low" : "") + (sheetElite(s, a, ranks[i]) ? " elite" : "");
     return `<button type="button" class="pf-radar-l at-${side}${cls}" style="${at(x, y)};--i:${i}" data-col="${esc(a.id)}"
       ><b class="pf-radar-v">${rk}</b><span class="pf-radar-n">${esc(axisName(a))}</span></button>`;
   }).join("");
@@ -11990,7 +12010,7 @@ function ladderOrder(s){
   return s.axes.map(a => {
     const rk = sheetRank(s.pos, a.id, s.row.slug), v = s.row.v[a.id];
     const band = rk ? 0 : v !== null && v !== undefined ? 1 : 2;
-    return {a, rk, v, band, pct: rk ? ladderPct(rk) : 0};
+    return {a, rk, v, band, pct: rk ? ladderPct(rk) : 0, elite: sheetElite(s, a, rk)};
   }).sort((x, y) => x.band - y.band || y.pct - x.pct);
 }
 
@@ -12043,7 +12063,7 @@ function ladderMoreHTML(s, x){
 /* `name` makes the rows one accordion natively: opening one closes the last, so the list never
    grows more than one fold longer than it was. */
 function ladderHTML(s, sel){
-  return `<div class="pf-ladder">${ladderOrder(s).map((x, i) => `<details class="pf-lr${x.a.id === sel ? " on" : ""}" name="pf-ladder" data-col="${esc(x.a.id)}" style="--i:${i}">
+  return `<div class="pf-ladder">${ladderOrder(s).map((x, i) => `<details class="pf-lr${x.a.id === sel ? " on" : ""}${x.elite ? " elite" : ""}" name="pf-ladder" data-col="${esc(x.a.id)}" style="--i:${i}">
     <summary><span class="pf-lr-n">${esc(axisName(x.a))}</span><b class="pf-lr-v${x.band ? " dim" : ""}">${usageFmt(x.v, x.a.fmt)}</b>${ladderBarHTML(s, x)}<span class="pf-lr-rk">${ladderRankHTML(s, x)}</span></summary>
     ${ladderMoreHTML(s, x)}</details>`).join("")}</div>`;
 }
@@ -12450,6 +12470,29 @@ function orbMorph(layer, btn, p, back, ms, done){
   requestAnimationFrame(step);
 }
 
+/* Centred once, then held (2026-09-29, David: tapping a stat "will expand the shape of the
+   container which causes the content to jump"). A centred box re-centres on every fold, so the
+   chart moved up by half of each fold's height under the reader's finger. Its top is pinned where
+   it opened, and a fold grows it downward only, to the layer's edge, then the sheet scrolls. */
+function orbPin(sheet){
+  const top = sheet.offsetTop;
+  sheet.style.top = `${top}px`;
+  sheet.style.bottom = "auto";
+  sheet.style.maxHeight = `calc(100% - ${top + 12}px)`;
+}
+
+/* The layer keeps the reader's scroll and swipe (2026-09-29, David: "scrolling or swiping on this
+   modal will move the content behind it"). A wheel or a touch drag reaches the profile or the page
+   under the layer whenever the sheet has nothing to scroll or the finger is on the scrim, because
+   `inert` stops focus and clicks, not scroll chaining. So both are cancelled unless they land in
+   the sheet while it can scroll; overscroll-behavior (orb.css) holds the sheet's own ends. The
+   profile's swipe gestures stand down while the layer is up (modal.js). */
+function orbHoldScroll(layer, sheet){
+  const hold = e => { if (!sheet.contains(e.target) || sheet.scrollHeight <= sheet.clientHeight) e.preventDefault(); };
+  layer.addEventListener("wheel", hold, {passive: false});
+  layer.addEventListener("touchmove", hold, {passive: false});
+}
+
 function orbOpen(d, p, btn){
   if (d.querySelector(".pf-orblayer") || !sheetFor(p)) return;
   const s = sheetFor(p);
@@ -12469,6 +12512,8 @@ function orbOpen(d, p, btn){
   btn.dataset.open = "1";
   wireSheet(layer, {grow: false});
   const sheet = layer.querySelector(".pf-orbsheet");
+  orbPin(sheet);
+  orbHoldScroll(layer, sheet);
   const shut = () => orbClose(d, true);
   layer.querySelector(".pf-orb-x").addEventListener("click", shut);
   layer.querySelector(".pf-orbscrim").addEventListener("click", shut);
@@ -23644,7 +23689,8 @@ function modalShut(d){
 (() => {
   const d = document.getElementById("modal");
   if (!d) return;
-  const up = () => d.classList.contains("on") && !document.querySelector(".stripmodal.on");
+  // The stat sheet's layer (orbsheet.js) sits over the profile: neither gesture reaches under it.
+  const up = () => d.classList.contains("on") && !document.querySelector(".stripmodal.on") && !d.querySelector(".pf-orblayer");
   onSwipeX(d, step => { if (up()) pfSwipeTab(d, step); }, pfOwnsTouch);
   onPullDown(d, () => { const b = d.querySelector(".dr-body"); return !b || b.scrollTop <= 0; },
     el => up() && !(el.closest && el.closest(".pf-radar-hit, .pf-orbsheet")), () => closeModal(d));
