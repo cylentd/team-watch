@@ -1208,7 +1208,8 @@ https://claude.ai/artifact/HjEA4x7r7DRz3Z7Xes4u62).
   box-score shorthand (`24-144-3 · 1-19`), a desktop gets a column per stat.
 - **The sphere** is his radar as a crystal in a glass sphere, drawn on a canvas: each stat a vertex
   on the equator at his rank's radius, poles at his mean reach. It turns once in 14 s and rests 2 s
-  at the radar's own angle (STYLE.md rule 1, rewritten for it). The tap swings the camera overhead,
+  at the radar's own angle (STYLE.md rule 1, rewritten for it). Since 2026-09-30 it starts turning
+  as the profile opens: the 2 s it used to hold still first read as a stall. The tap swings the camera overhead,
   where the crystal *is* the flat radar, and hands over to it.
 - **Game results and past-week projections are not in the data** (Yahoo shows both). Adding them is
   ff-jarvis work.

@@ -564,14 +564,14 @@ def test_usage_opens_on_his_share_of_his_own_team(browser, page_file):
 @pytest.mark.render
 def test_the_sphere_turns_rests_and_stops(browser, page_file):
     """STYLE.md rule 1 as rewritten on 2026-09-28: a tap cue may move, slowly, only while it can be
-    seen, resting where its data reads, and never under reduced motion. The sphere opens at rest on
-    the radar's own orientation (yaw 0) for 2 s, then turns; a shut profile stops it."""
+    seen, resting where its data reads, and never under reduced motion. The sphere starts turning as
+    the profile opens (2026-09-30; it used to hold still 2 s first) and rests after the turn; a shut
+    profile stops it."""
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
     page.emulate_media(reduced_motion="no-preference")
     row(page, "Amon-Ra St. Brown").click()
     yaw = "ORB_STATE.get(document.querySelector('#modal .pf-orb')).yaw"
-    assert page.evaluate(yaw) == 0
-    page.wait_for_timeout(2600)
+    page.wait_for_timeout(600)
     a = page.evaluate(yaw)
     page.wait_for_timeout(400)
     assert 0 < a < page.evaluate(yaw)

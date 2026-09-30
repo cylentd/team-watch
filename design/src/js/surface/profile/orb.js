@@ -160,7 +160,9 @@ function wireOrb(btn, p){
   const draw = () => orbDraw(cv, geo, col, st.yaw, ORB_PITCH, cv.clientWidth / 2 * .92);
   draw();
   if (REDUCED()) return;
-  let seen = true, run = ORB_TURN_MS, last = null;   // start in the rest: the flat shape first
+  // Turns from the first frame (2026-09-30: a still shape at an angle told the reader nothing, and the
+  // 2 s it held first read as a stall); the rest comes after the first turn.
+  let seen = true, run = 0, last = null;
   const io = new IntersectionObserver(e => { seen = e[e.length - 1].isIntersecting; });
   io.observe(btn);
   const frame = now => {
