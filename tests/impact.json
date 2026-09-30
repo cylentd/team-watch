@@ -59,7 +59,7 @@
     },
     "news": {
       "paths": ["design/src/js/surface/news/", "design/src/css/surface/news/", "design/src/js/data/news.js", "design/news.py"],
-      "tests": ["tests/test_news_kind.py"],
+      "tests": ["tests/test_news_kind.py", "tests/test_news_tab.py"],
       "render": ["news"]
     },
     "ranks": {

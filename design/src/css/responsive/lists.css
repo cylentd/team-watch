@@ -67,6 +67,8 @@
   /* Its five chips carry counts and need ~590px, so they wrap to two lines rather than scroll a
      third of themselves off the edge (STYLE.md, 2026-09-25): two short rows, every kind in view. */
   .newswrap > .filters{order:-1;margin-top:4px!important;flex-wrap:wrap;overflow:visible;row-gap:8px}
+  /* The search takes the filter row's first line, full width, above the chips. */
+  .newswrap .nsearch{flex:1 1 100%;max-width:none;margin-left:0;order:-1;min-height:44px}
   .newswrap > .newslead{margin-top:10px}
   .newswrap > .newslist{margin-top:0!important}
   .newslead,.newslist{border:0;background:none;box-shadow:none}

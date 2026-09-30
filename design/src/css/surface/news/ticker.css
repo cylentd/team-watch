@@ -39,7 +39,21 @@
 .newstop .when{font-family:var(--mono);font-size:var(--t-1);letter-spacing:.1em;color:var(--ink-3);text-transform:uppercase}
 .nteam{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.08em;color:var(--ink-2);
   border:1px solid var(--line-2);padding:1px 6px;border-radius:2px}
-.ntitle{font-size:var(--t-3);font-weight:700;color:var(--ink);line-height:1.4}
+/* The player's name is the bright, heavy part of the headline, the rest a step quieter, so a scan down
+   the cards reads names first (2026-09-30). */
+.ntitle{font-size:var(--t-3);font-weight:600;color:var(--ink-2);line-height:1.4}
+.nname{font-weight:800;color:var(--ink)}
+.newsrow[hidden],.newslead[hidden]{display:none}
+
+/* The search: a box at the end of the filter row that narrows the stories to a player, team or word. */
+.nsearch{
+  display:flex;align-items:center;gap:8px;flex:1 1 220px;max-width:320px;margin-left:auto;min-height:36px;padding:0 12px;
+  border:1px solid var(--line-2);border-radius:99px;background:var(--panel);color:var(--ink-3);
+}
+.nsearch:focus-within{border-color:var(--lime);color:var(--ink-2)}
+.nsearch svg{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round}
+.nsearch input{flex:1;min-width:0;border:0;background:none;outline:0;color:var(--ink);font:inherit;font-size:var(--t-2)}
+.nsearch input::placeholder{color:var(--ink-3)}
 .ndesc{margin-top:4px;font-size:var(--t-2);color:var(--ink-2);line-height:1.5}
 .nimpact{margin-top:9px;font-size:var(--t-2);color:var(--ink-2);line-height:1.55}
 

@@ -37,7 +37,10 @@
 .hl-nm .hl-u{white-space:nowrap}
 /* The club's colour behind the photo, the page's panel where the club has none (teamColourStyle). */
 .hl-art{grid-area:art;position:relative;height:128px;overflow:hidden;background:var(--team,var(--panel-3))}
-.hl-art img{position:absolute;bottom:0;left:50%;transform:translateX(-50%);height:118%;width:auto;max-width:none}
+/* Square by rule, not by the file: with a srcset and sizes="auto" Chromium sized width:auto from the
+   chosen file's density (300px) against a 151px height, and drew every head at 2:1 (2026-09-30,
+   David: "players are still stretched"). The aspect-ratio makes width follow the height. */
+.hl-art img{position:absolute;bottom:0;left:50%;transform:translateX(-50%);height:118%;width:auto;aspect-ratio:1/1;object-fit:cover;max-width:none}
 .hl-art .fallback{width:100%;height:100%;display:grid;place-items:center;font:800 var(--t-4)/1 var(--disp);color:var(--on-team,var(--ink-3))}
 .hl-t{grid-area:t;padding:12px 16px 14px;border-top:1px solid var(--line);font-size:var(--t-2);line-height:1.4;color:var(--ink-2)}
 

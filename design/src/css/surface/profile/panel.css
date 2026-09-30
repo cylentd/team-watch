@@ -22,11 +22,10 @@
    the rank is the bright thing on the line, the bye the quiet one. */
 .pf-who .lbl{letter-spacing:.05em}
 .pf-id-bye{color:var(--ink-3)}
-/* His injury status (profile/injury.js, 2026-09-30). A desktop: centred in the head's open middle,
-   the level over Sleeper's reason. A phone (panel.css below 760px): a row of its own under the head.
-   Colours are the tags' own: filled red out, outlined red doubtful, amber questionable. */
-.pf-inj{flex:none;margin-inline:auto;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;max-width:220px}
-.pf-inj-s{font:700 var(--t-3)/1 var(--mono);letter-spacing:.06em;padding:7px 12px;border-radius:8px}
+/* His injury status (profile/injury.js, 2026-09-30): a line of the name block, the level's tag then
+   Sleeper's reason. Colours are the tags' own: filled red out, outlined red doubtful, amber questionable. */
+.pf-inj{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:10px}
+.pf-inj-s{font:700 var(--t-1)/1 var(--mono);letter-spacing:.06em;padding:5px 8px;border-radius:6px}
 .pf-inj.out .pf-inj-s{background:var(--down);color:var(--void)}
 .pf-inj.d .pf-inj-s{color:var(--down);box-shadow:inset 0 0 0 1.5px var(--down)}
 .pf-inj.q .pf-inj-s{color:var(--amber);box-shadow:inset 0 0 0 1.5px rgb(var(--amber-rgb) / .7)}
@@ -192,10 +191,4 @@ button.pf-own:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
   .pf-lede-c + .pf-lede-c{padding-left:9px}
   .pf-lede-c b{font-size:var(--t-4)}
   .pf-lede-l{letter-spacing:.04em}
-  /* The injury takes a row of its own under the face, name and sphere: the tag, then the reason. */
-  .pf-head .dr-id:has(.pf-inj){flex-wrap:wrap}
-  /* The name shrinks rather than wrap the sphere onto a line of its own, as it does without a row. */
-  .pf-head .dr-id:has(.pf-inj) .pf-who{flex:1 1 0}
-  .pf-inj{order:1;flex-basis:100%;max-width:none;margin:0;flex-direction:row;align-items:center;gap:10px;text-align:left}
-  .pf-inj-s{font-size:var(--t-2);padding:6px 10px}
 }

@@ -2,8 +2,9 @@
    the player profile? There's actually nice area to put it"). The level in the tag colours the page
    already uses (filled red out, outlined red doubtful, amber questionable) and Sleeper's reason
    beside it. The same injFor() the roster cards and Need to know read, so the three never disagree.
-   A healthy player draws nothing. On a desktop it stands in the head's open middle; on a phone,
-   a row of its own under the name (panel.css). */
+   A healthy player draws nothing. A line of the name block, under "WR · LV · BYE 13", at every width:
+   it is a fact about him, and alone in the head's middle it read as a stray (2026-09-30, David: "this
+   placement looks awkward"). */
 const PF_INJ_CLS = {OUT: "out", D: "d", Q: "q"};
 
 function pfInjuryHTML(p){

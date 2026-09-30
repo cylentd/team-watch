@@ -810,6 +810,8 @@
  "news.kind.news": "Other",
  "news.kind.out": "Out",
  "news.kind.practice": "Practice",
+ "news.search.none": "No stories match “{q}”",
+ "news.search.placeholder": "Search a player or team",
  "parlay.bar.best": "Best odds",
  "parlay.bar.dk": "DraftKings",
  "parlay.bar.dkShort": "DK",

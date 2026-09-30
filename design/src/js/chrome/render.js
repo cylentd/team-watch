@@ -39,9 +39,7 @@ function render(){
 
   if (SURFACE === "news"){
     v.innerHTML = newsHTML();
-    v.querySelectorAll("[data-newscat]").forEach(b=>b.addEventListener("click",()=>{
-      NEWS_CAT = b.dataset.newscat; render();
-    }));
+    wireNews(v);
     return;
   }
   if (SURFACE === "live"){

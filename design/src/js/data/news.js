@@ -32,3 +32,4 @@ const NEWS_KINDS = [
 const NEWS_KIND = Object.fromEntries(NEWS_KINDS.map(k => [k.k, k]));
 const newsKind = it => NEWS_KIND[it.kind] ? it.kind : "news";
 let NEWS_CAT = "all";
+let NEWS_Q = "";   // the News search box's text, kept across a chip's re-render (surface/news/news.js)

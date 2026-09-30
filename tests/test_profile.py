@@ -202,8 +202,8 @@ def test_head_carries_the_verdict(browser, page_file):
 def test_head_carries_his_injury_status(browser, page_file):
     """2026-09-30 (David: "should injured players have their status on the player profile?"): the head
     says the level and Sleeper's reason, from the same injFor() the roster cards read; a healthy player
-    shows nothing. A desktop keeps it in the head's row; a phone gives it a row of its own, and the
-    sphere stays beside the name."""
+    shows nothing. It is a line of the name block, under the identity line, at every width (moved there
+    the same day: alone in the head's middle it looked stray)."""
     for size in ((1400, 900), (360, 800)):
         ctx, page, errors = open_page(browser, page_file, size)
         got = page.evaluate("""() => {
@@ -212,11 +212,11 @@ def test_head_carries_his_injury_status(browser, page_file):
           openProfile(searchPlayer(hurt.e));
           const box = document.querySelector('#modal .pf-inj');
           const want = injFor({slug: hurt.slug});
+          const lbl = document.querySelector('#modal .pf-who .lbl');
           const out = {has: !!box, cls: box && box.className, word: box && box.querySelector('.pf-inj-s').textContent.trim(),
                        note: (box && box.querySelector('.pf-inj-n') || {}).textContent || null, want,
-                       orbTop: (document.querySelector('#modal .pf-orb') || {getBoundingClientRect: () => ({top: 0})}).getBoundingClientRect().top,
-                       nameTop: document.querySelector('#modal .pf-who').getBoundingClientRect().top,
-                       injTop: box.getBoundingClientRect().top};
+                       inWho: !!box.closest('.pf-who'), afterId: lbl.nextElementSibling === box,
+                       belowId: box.getBoundingClientRect().top >= lbl.getBoundingClientRect().bottom};
           const well = searchIndex().find(e => !injFor({slug: e.slug}) && !e.status);
           openProfile(searchPlayer(well));
           out.healthy = document.querySelectorAll('#modal .pf-inj').length;
@@ -225,9 +225,7 @@ def test_head_carries_his_injury_status(browser, page_file):
         assert got["cls"].endswith({"OUT": "out", "D": "d", "Q": "q"}[got["want"]["s"]])
         assert got["note"] == got["want"]["note"]
         assert got["healthy"] == 0
-        if size[0] < 760:
-            assert got["injTop"] > got["nameTop"], "a phone: a row of its own under the head"
-            assert got["orbTop"] < got["injTop"], "the sphere stays up beside the name"
+        assert got["inWho"] and got["afterId"] and got["belowId"], "a line of the name block, under the identity"
         assert page.evaluate("document.documentElement.scrollWidth") <= size[0]
         assert errors == []
         ctx.close()
