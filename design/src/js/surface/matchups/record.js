@@ -16,17 +16,16 @@ function muBarHTML(label, side, lead){
     ><em>${t("matchups.record.line", {score: muScore(side.score), n: side.n})}</em></span>`;
 }
 
-/* From week 4 the bars are v2's (METHODOLOGY 12.64): our takes and FantasyPros' other side, each
-   on the clean set (a take an injury decided is left out: David, "that's just bad luck"), beside
-   Pitcher List's own calls. Before a v2 week is graded the strip is v1's. No line says which
-   (2026-09-30): the version is bookkeeping, not something a reader acts on. */
+/* The bars are v2's (METHODOLOGY 12.64): our takes and FantasyPros' other side, each on the clean
+   set (a take an injury decided is left out: David, "that's just bad luck"), beside Pitcher List's
+   own calls over the same weeks. The record restarts at week 4 (David, 2026-09-30): no strip until
+   week 4 is graded, and weeks 1-3 are never shown. */
 function muRecordHTML(){
   const r = LIVE_STARTSIT.record;
   if (!r) return `<div class="mu-rec none"><span class="mu-rec-l">${t("matchups.record.label")}</span>
     <span class="mu-rec-none">${t("matchups.record.none")}</span></div>`;
   const v = r.v2;
-  const bars = v ? {pl: r.pl, fp: v.fp.clean, ours: v.ours.clean} : {pl: r.pl, fp: r.fp, ours: r.ours};
-  const weeks = v ? r.weeks.filter(w => w >= 4) : r.weeks;
+  const bars = {pl: r.pl, fp: v.fp.clean, ours: v.ours.clean};
   // The best score is lime, ties to ours. FantasyPros is graded on our takes, the other side of each;
   // its bar is drawn only once ff-jarvis has graded that side.
   const sides = [["pl", t("matchups.record.pl")], ["fp", t("matchups.record.fp")], ["ours", t("matchups.record.ours")]]
@@ -34,7 +33,7 @@ function muRecordHTML(){
   const top = Math.max(...sides.map(([k]) => bars[k].score ?? -1));
   const lead = k => bars[k].score != null && bars[k].score === top && (k === "ours" || bars.ours.score !== top);
   return `<div class="mu-rec" role="group" aria-label="${t("matchups.record.aria", {wk: r.through})}">
-    <span class="mu-rec-l">${t("matchups.record.label")}<small>${t("matchups.record.weeks", {wk: muWeeks(weeks.length ? weeks : r.weeks)})}</small></span>
+    <span class="mu-rec-l">${t("matchups.record.label")}<small>${t("matchups.record.weeks", {wk: muWeeks(r.weeks)})}</small></span>
     <span class="mu-rec-bars">${sides.map(([k, label]) => muBarHTML(label, bars[k], lead(k))).join("")}</span>
     <div class="mu-rec-f">${muSplitsToggle(r)}${muSplitsHTML(r)}</div>
   </div>`;

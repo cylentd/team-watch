@@ -35,8 +35,7 @@ function muSplitsToggle(r){
 function muSplitsHTML(r){
   const s = r.splits;
   if (!s) return "";
-  const weeks = s.set === "v2" ? r.weeks.filter(w => w >= 4) : r.weeks.filter(w => w < 4);
-  const cap = t("matchups.splits.cap", {wk: muWeeks(weeks.length ? weeks : r.weeks)});
+  const cap = t("matchups.splits.cap", {wk: muWeeks(r.weeks)});
   return `<div class="mu-sp" id="mu-sp"${MU_SPLITS ? " data-open" : ""}><div class="mu-sp-in"${MU_SPLITS ? "" : " inert"}><div class="mu-sp-pad">
     <table class="mu-spt"><caption>${cap}</caption>
       <thead><tr><td></td><th scope="col">${t("matchups.record.ours")}</th><th scope="col">${t("matchups.record.fp")}</th><th scope="col">${t("matchups.splits.n")}</th></tr></thead>

@@ -127,6 +127,35 @@ tablePool = (kind = TABLE.kind) => {
 TABLE.sig = ''; render();
 """
 
+
+def mu_graded_js():
+    """Takes with week 4 graded, the first week its record counts (2026-09-30). The fixture holds weeks
+    1-3 only, so the page has no record; this grades a week 4 through design/startsit.py itself, the
+    splits being the fixture's real v1 numbers moved to v2's clean set so the table has values."""
+    import sys
+    root = pathlib.Path(__file__).resolve().parents[1]
+    for p in ("design", "api"):
+        if str(root / p) not in sys.path:
+            sys.path.insert(0, str(root / p))
+    from _espn import slugify
+    from sources import load_startsit
+    from startsit import live_startsit
+    calls, pl, grade = load_startsit()
+    g = json.loads(json.dumps(grade))
+    g["week"] = 4
+    r = g["startsit_record"]
+    r["weeks"] = [1, 2, 3, 4]
+    r["ours_v2"] = {"n": 16, "score": 0.47, "clean": {"n": 15, "score": 0.5}, "backed": {"n": 6, "score": 0.58},
+                    "gut": {"n": 10, "score": 0.4}, "causes": {"injury": 1, "role": 2, "td": 3, "read": 3}}
+    r["fantasypros_v2"] = {"n": 16, "score": 0.53, "clean": {"n": 15, "score": 0.5}}
+    r["pitcherlist_v2"] = {"n": 6, "score": 0.5, "score_no_dnp": 0.5}
+    r["splits"]["v2"] = {grp: {k: {**c, "clean": c["all"]} for k, c in cells.items()}
+                         for grp, cells in r["splits"]["v1"].items()}
+    return "LIVE_STARTSIT.record = " + json.dumps(live_startsit(calls, pl, g, slugify)["record"]) + ";"
+
+
+MU_GRADED = mu_graded_js()
+
 STATES = [
     # The Digest (This week, 2026-09-26), the page's default: the day picks the open row. Friday
     # opens Hurt (the fixture leads with a doubtful Puka Nacua), Tuesday opens Waiver adds, a tap
@@ -295,19 +324,15 @@ STATES = [
                        + go("matchups")),
     # No takes on a Tuesday: the experts have not ranked the week yet, and Blip (bored) says when
     # they will (2026-09-29). matchups-empty above is the other reason: the experts are in, we agree.
-    # The fixture's record carries FantasyPros (ff-jarvis's real weeks 1-3); a grade file from before
-    # ff-jarvis graded that side draws two bars.
-    ("matchups-nofp", [("eval", "LIVE_STARTSIT.record.fp = null")] + go("matchups")),
+    # The fixture's record is weeks 1-3 only, so `matchups` shows no record (it restarts at week 4,
+    # 2026-09-30); the states below grade a week 4 first (MU_GRADED).
     # Amendment 2 (2026-09-29): the splits open under the record, and the paused START TE line opens
     # to its shadow take.
-    ("matchups-splits", go("matchups") + [("click", "[data-musplits]")]),
+    ("matchups-splits", [("eval", MU_GRADED)] + go("matchups") + [("click", "[data-musplits]")]),
     ("matchups-paused", go("matchups") + [("click", "[data-mups] > .mu-ps-h")]),
     # Takes v2 graded (week 4 on, METHODOLOGY 12.64): the clean bars with the backed/gut line, and
     # last week's takes with their causes; an injury miss dimmed, left out of the score.
-    ("matchups-v2", [("eval", """Object.assign(LIVE_STARTSIT.record, {v2: {
-        ours: {n: 16, score: .47, clean: {n: 15, score: .5}, backed: {n: 6, score: .58}, gut: {n: 10, score: .4},
-               causes: {injury: 1, role: 2, td: 3, read: 3}},
-        fp: {n: 16, score: .53, clean: {n: 15, score: .5}}}, weeks: [1, 2, 3, 4], through: 4});
+    ("matchups-v2", [("eval", MU_GRADED + """
       LIVE_STARTSIT.review = {week: 4, rows: [
         {n: 'Chase Brown', slug: 'chase-brown', pos: 'RB', team: 'CIN', call: 'start', score: 1, cause: 'hit', note: null, backed: true, finish: 14},
         {n: 'Tee Higgins', slug: 'tee-higgins', pos: 'WR', team: 'CIN', call: 'start', score: 0, cause: 'injury', note: 'did not play', backed: false, finish: null},
@@ -315,7 +340,7 @@ STATES = [
         {n: 'Brock Purdy', slug: 'brock-purdy', pos: 'QB', team: 'SF', call: 'start', score: .5, cause: 'read', note: null, backed: true, finish: 16}]};""")]
                     + go("matchups")),
     # The same week with Claude's read of it (ff-jarvis startsit_review): note, patterns, watch list.
-    ("matchups-read", [("eval", """Object.assign(LIVE_STARTSIT.record, {weeks: [1, 2, 3, 4], through: 4});
+    ("matchups-read", [("eval", MU_GRADED + """
       LIVE_STARTSIT.review = {week: 4, read: {model: 'opus',
         note: 'Week 4 split down the middle on the clean set: ours 0.5 on 15 takes, FantasyPros 0.5 on the same 15.',
         patterns: ['3 of 9 misses came on touchdowns: the call was right on yards', '2 of 3 START-WR takes missed on read'],

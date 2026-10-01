@@ -48,7 +48,8 @@ def _pl(c, slugify):
             "team": c["team"], "opp": c["opp"], "home": bool(c.get("home")), "rationale": c.get("rationale") or ""}
 
 
-def _record(grade):
+def _record(grade, since):
+    """`since`: the first week v2 counts, from the calls file's own rules (ff-jarvis startsit_v2.SINCE)."""
     rec = (grade or {}).get("startsit_record")
     if not rec or not rec.get("weeks"):
         return None
@@ -57,24 +58,29 @@ def _record(grade):
     # the other call. Null in a grade file written before ff-jarvis graded that side.
     fp = rec.get("fantasypros")
     v2 = _v2(rec)
-    return {"through": grade["week"], "weeks": rec["weeks"], "ours": side(rec.get("ours") or {}),
-            "pl": side(rec.get("pitcherlist") or {}), "fp": side(fp) if fp else None, "v2": v2,
-            "splits": _splits(rec, v2 is not None)}
+    # The record restarts at week 4 (David, 2026-09-30): no strip until a v2 week is graded, and Pitcher
+    # List over the same weeks (ff-jarvis `pitcherlist_v2`). Weeks 1-3 stay in the grade files.
+    if v2 is None:
+        return None
+    pl = rec.get("pitcherlist_v2")
+    return {"through": grade["week"], "weeks": [w for w in rec["weeks"] if w >= since],
+            "ours": side(rec.get("ours") or {}),
+            "pl": side(pl) if pl and pl.get("n") else None, "fp": side(fp) if fp else None, "v2": v2,
+            "splits": _splits(rec)}
 
 
 SPLITS = (("by_call", ("START", "SIT")), ("by_pos", POS), ("by_tier", ("lean", "solid", "strong")))
 
 
-def _splits(rec, v2):
+def _splits(rec):
     """The record split by call, position and tier (Amendment 2), ours beside FantasyPros on the same
-    takes. The same population as the bars above them: v2's clean set once a v2 week is graded, else
-    v1's weeks 1-3, all takes. None from a grade file written before the splits."""
-    s = (rec.get("splits") or {}).get("v2" if v2 else "v1")
+    takes: v2's clean set, the population of the bars above them. None from a grade file written
+    before the splits."""
+    s = (rec.get("splits") or {}).get("v2")
     if not s:
         return None
-    part = "clean" if v2 else "all"
-    cell = lambda c: {k: ((c or {}).get(part) or {}).get(k) for k in ("n", "ours", "fp")}
-    return {"set": "v2" if v2 else "v1",
+    cell = lambda c: {k: ((c or {}).get("clean") or {}).get(k) for k in ("n", "ours", "fp")}
+    return {"set": "v2",
             **{grp: [{"k": k, **cell((s.get(grp) or {}).get(k))} for k in keys] for grp, keys in SPLITS}}
 
 
@@ -155,10 +161,11 @@ def live_startsit(calls, pl, grade, slugify, review=None):
     # The week of the FantasyPros ranks the calls were measured against. Behind `week` (Tuesday,
     # before Wednesday's 8 AM fetch) there is nobody to disagree with, and the view says so.
     experts = (calls.get("inputs") or {}).get("expert_week")
+    since = (((calls.get("v2") or {}).get("rules") or {}).get("since") or {}).get("week") or 0
     return {"week": calls["week"], "experts_week": experts, "generated": calls.get("generated"), "calls": rows,
             "shadow": shadow, "rule": _rule(calls),
             "pl": [_pl(c, slugify) for c in pl["calls"]] if same_week else [],
-            "article": pl.get("article") if same_week else None, "record": _record(grade),
+            "article": pl.get("article") if same_week else None, "record": _record(grade, since),
             "review": _review(grade, slugify, review)}
 
 

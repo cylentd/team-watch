@@ -23,6 +23,7 @@
  },
  "calls": [],
  "v2": {
+  "rules": {"since": {"season": 2026, "week": 4}},
   "shadow": [
    {"key": "tucker kraft", "name": "Tucker Kraft", "call": "START", "pos": "TE", "team": "GB", "gap_n": 2.67, "rank": 8, "ecr": 16, "tier": "strong", "backed": true, "reasons": [{"k": "role", "text": "Work up 1.8 a game over his last 2"}]}
   ],

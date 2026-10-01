@@ -14,7 +14,7 @@ from _espn import slugify  # noqa: E402
 import contract  # noqa: E402
 from sources import load_startsit  # noqa: E402
 from startsit import live_startsit  # noqa: E402
-from test_render import SEED, browser  # noqa: E402,F401  (browser is a fixture)
+from test_render import MU_GRADED, SEED, browser  # noqa: E402,F401  (browser is a fixture)
 
 
 def _block():
@@ -40,20 +40,26 @@ def test_row_keeps_reason_text_and_places_home_by_the_opponent():
     assert rows["Amon-Ra St. Brown"]["slug"] == slugify("Amon-Ra St. Brown")
 
 
-def test_record_comes_from_the_newest_graded_week():
-    """The fixture is ff-jarvis's real weeks 1-3 record (2026-09-29), before any v2 week (4+)."""
-    rec = _block()["record"]
-    assert {k: v for k, v in rec.items() if k != "splits"} == {
-        "through": 3, "weeks": [1, 2, 3],
-        "ours": {"n": 48, "score": 0.371, "score_no_dnp": 0.38},
-        "pl": {"n": 18, "score": 0.633, "score_no_dnp": 0.633},
-        "fp": {"n": 48, "score": 0.629, "score_no_dnp": 0.62},
-        "v2": None}
+def test_weeks_1_to_3_show_no_record():
+    """The record restarts at week 4 (David, 2026-09-30). The fixture is ff-jarvis's real weeks 1-3
+    record (2026-09-29), so the strip says no week is graded yet."""
+    assert _block()["record"] is None
+
+
+def test_the_record_counts_from_week_4_with_pitcher_list_over_the_same_weeks():
+    calls, pl, g = _v2_grade()
+    g["startsit_record"]["weeks"] = [1, 2, 3, 4]
+    g["startsit_record"]["pitcherlist_v2"] = {"n": 6, "score": 0.5, "score_no_dnp": 0.5}
+    rec = live_startsit(calls, pl, g, slugify)["record"]
+    assert (rec["through"], rec["weeks"]) == (4, [4])
+    assert rec["pl"] == {"n": 6, "score": 0.5, "score_no_dnp": 0.5}
+    # a grade file from before ff-jarvis split Pitcher List by week draws no Pitcher List bar
+    g["startsit_record"].pop("pitcherlist_v2")
+    assert live_startsit(calls, pl, g, slugify)["record"]["pl"] is None
 
 
 def test_a_grade_file_from_before_fantasypros_and_the_splits_reads_null():
-    calls, pl, grade = load_startsit()
-    g = json.loads(json.dumps(grade))
+    calls, pl, g = _v2_grade()
     for k in ("fantasypros", "splits"):
         g["startsit_record"].pop(k)
     rec = live_startsit(calls, pl, g, slugify)["record"]
@@ -62,8 +68,7 @@ def test_a_grade_file_from_before_fantasypros_and_the_splits_reads_null():
 
 def test_fantasypros_side_comes_through_when_graded():
     """FantasyPros on our takes (2026-09-29): the other call on each, so its n is ours."""
-    calls, pl, grade = load_startsit()
-    g = json.loads(json.dumps(grade))
+    calls, pl, g = _v2_grade()
     g["startsit_record"]["fantasypros"] = {"n": 31, "score": 0.676, "score_no_dnp": 0.663}
     assert live_startsit(calls, pl, g, slugify)["record"]["fp"] == {"n": 31, "score": 0.676, "score_no_dnp": 0.663}
 
@@ -109,7 +114,7 @@ def test_v2_record_and_review_come_through_once_a_v2_week_is_graded():
     """From week 4 (METHODOLOGY 12.64): the clean, backed/gut and causes split, and last week's takes
     with their causes, David's 'let's learn from it'. None before a v2 week is graded."""
     calls, pl, grade = load_startsit()
-    assert _block()["record"]["v2"] is None and _block()["review"] is None
+    assert _block()["record"] is None and _block()["review"] is None
     g = json.loads(json.dumps(grade))
     g["week"] = 4
     g["startsit_record"].update(V2)
@@ -170,24 +175,8 @@ def test_a_producer_before_the_rule_has_no_rule_and_no_shadow():
     assert b["rule"] is None and b["shadow"] == [] and "Tucker Kraft" in [r["n"] for r in b["calls"]]
 
 
-def test_splits_before_v2_are_v1s_weeks_1_to_3_on_every_take():
-    """ff-jarvis's real reference numbers (2026-09-29): START 0.241 on 29, SIT 0.621 on 19; a wider rank
-    gap did not score better (lean 0.367, solid 0.386, strong 0.350). FantasyPros is 1 minus ours."""
-    s = _block()["record"]["splits"]
-    assert s["set"] == "v1"
-    assert s["by_call"] == [{"k": "START", "n": 29, "ours": 0.241, "fp": 0.759},
-                            {"k": "SIT", "n": 19, "ours": 0.621, "fp": 0.379}]
-    assert [(c["k"], c["n"], c["ours"]) for c in s["by_tier"]] == [
-        ("lean", 17, 0.367), ("solid", 19, 0.386), ("strong", 12, 0.35)]
-    assert [c["k"] for c in s["by_pos"]] == ["QB", "RB", "WR", "TE"]
-    assert s["by_pos"][3] == {"k": "TE", "n": 14, "ours": 0.44, "fp": 0.56}     # all, not clean (13)
-
-
-def test_splits_after_a_v2_week_are_v2s_clean_set():
-    calls, pl, grade = load_startsit()
-    g = json.loads(json.dumps(grade))
-    g["week"] = 4
-    g["startsit_record"].update(V2)
+def test_splits_are_v2s_clean_set():
+    calls, pl, g = _v2_grade()
     g["startsit_record"]["splits"]["v2"]["by_call"]["START"] = {"all": {"n": 10, "ours": 0.4, "fp": 0.6},
                                                                "clean": {"n": 9, "ours": 0.444, "fp": 0.556}}
     s = live_startsit(calls, pl, g, slugify)["record"]["splits"]
@@ -286,8 +275,21 @@ def test_a_paused_type_is_one_line_and_a_tap_shows_its_shadow_takes(page):
     assert page.locator(".mu-ps[data-open]").count() == 0
 
 
+@pytest.fixture
+def graded(browser, page_file):
+    ctx, pg = open_takes(browser, page_file, js=MU_GRADED)
+    yield pg
+    ctx.close()
+
+
 @pytest.mark.render
-def test_the_splits_open_in_place_under_the_record(page):
+def test_the_page_says_no_week_is_graded_before_week_4(page):
+    assert page.inner_text(".mu-rec.none .mu-rec-none") == "No week graded yet."
+
+
+@pytest.mark.render
+def test_the_splits_open_in_place_under_the_record(graded):
+    page = graded
     assert page.locator(".mu-sp[data-open]").count() == 0
     page.click("[data-musplits]")
     rows = page.evaluate("""() => [...document.querySelectorAll('.mu-spt tbody tr:not(.mu-spg)')].map(r =>
@@ -295,12 +297,13 @@ def test_the_splits_open_in_place_under_the_record(page):
     assert rows[:2] == [["START", "0.24", "0.76*", "29"], ["SIT", "0.62*", "0.38", "19"]]
     assert [r[0] for r in rows] == ["START", "SIT", "QB", "RB", "WR", "TE", "LEAN", "SOLID", "STRONG"]
     assert rows[8] == ["STRONG", "0.35", "0.65*", "12"]
-    assert page.inner_text(".mu-spt caption") == "Ours vs FantasyPros, wk 1–3"
+    assert page.inner_text(".mu-spt caption") == "Ours vs FantasyPros, wk 4"
 
 
 @pytest.mark.render
-def test_takes_print_no_method_rule_or_version_notes(page):
+def test_takes_print_no_method_rule_or_version_notes(graded):
     """Show, don't tell (2026-09-30): the record, the takes and their reasons; no how-it-works prose."""
+    page = graded
     page.click("[data-musplits]")
     page.evaluate("() => document.querySelectorAll('.mu-call').forEach(r => muSetOpen(r, true))")
     text = page.inner_text("#view")
@@ -310,7 +313,7 @@ def test_takes_print_no_method_rule_or_version_notes(page):
     assert page.locator(".mu-foot, .mu-rule, .mu-rec-sub").count() == 0
 
 
-V2_JS = """Object.assign(LIVE_STARTSIT.record, {weeks: [1, 2, 3, 4], through: 4, v2: {
+V2_JS = MU_GRADED + """ Object.assign(LIVE_STARTSIT.record, {weeks: [4], through: 4, v2: {
   ours: {n: 16, score: .47, clean: {n: 15, score: .5}, backed: {n: 6, score: .58}, gut: {n: 10, score: .4},
          causes: {injury: 1, role: 2, td: 3, read: 3}}, fp: {n: 16, score: .53, clean: {n: 15, score: .5}}}});
   LIVE_STARTSIT.review = {week: 4, read: null, rows: [
