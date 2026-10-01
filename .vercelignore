@@ -1,0 +1,12 @@
+# Allowlist: Vercel serves every uploaded file, so anything not named here stays off the site.
+# Without this, /design/league_private.json, the source, tests and docs were all public (2026-09-30).
+/*
+!index.html
+!build.json
+!robots.txt
+!heads
+!icons
+!games
+!api
+!requirements.txt
+!vercel.json
