@@ -66,14 +66,14 @@
 /* Sheet: the cards. A small stacked card centres its contents (STYLE.md "Alignment"); the leader
    by projection sits on a filled box; the player in focus on the graph is edged in his colour. */
 .cmp-band{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:6px}
-.cmp-card{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;padding:10px 4px;border:1px solid transparent;
+.cmp-card{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;padding:8px 4px;border:1px solid transparent;
   border-radius:10px;background:none;color:var(--ink);font-family:var(--ui);text-align:center;cursor:pointer;
   transition:border-color .2s var(--ease)}
 .cmp-card.lead{background:var(--panel-2)}
 .cmp-card.on{border-color:var(--c)}
 .cmp-card:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
-.cmp-face{display:block;width:56px;height:56px;border-radius:50%;overflow:hidden;background:var(--panel-2);
-  box-shadow:0 0 0 2.5px var(--c);margin-bottom:4px}
+.cmp-face{display:block;width:48px;height:48px;border-radius:50%;overflow:hidden;background:var(--panel-2);
+  box-shadow:0 0 0 2.5px var(--c);margin-bottom:2px}
 .cmp-card b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--t-2)}
 .cmp-proj{font-family:var(--mono);font-size:var(--t-6);font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
 .cmp-rank{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
@@ -92,7 +92,7 @@
 .cmp-dot{fill:var(--c)}
 
 /* Sheet: the strips. One bar per stat on the cards' columns, its name above it. */
-.cmp-strips{display:grid;gap:12px;padding:6px 0 16px}
+.cmp-strips{display:grid;gap:8px;padding:6px 0 14px}
 .cmp-l{display:block;margin:0 0 5px 2px;font-size:var(--t-1);color:var(--ink-3)}
 .cmp-strip{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));border-radius:10px;overflow:hidden;
   background:var(--panel-2)}
@@ -104,6 +104,19 @@
 .cmp-v.none{color:var(--ink-3)}
 .cmp-spark{display:flex;align-items:flex-end;gap:3px;height:20px;align-self:flex-end}
 .cmp-spark i{display:block;width:7px;border-radius:1px 1px 0 0;background:var(--c)}
+/* A desktop fills its width instead of scrolling (STYLE.md "Desktop fills the width it has";
+   David, 2026-09-30: "it should open up without having to scroll"): the cards across the top, the
+   graph and the strips side by side under them. A mixed set has no graph; the strips take the row.
+   Stacked, the desktop sheet ran 850px: 68px over at 1400x900, 230px over at 1280x720. */
+@media (min-width:960px){
+  .cmp-sheet:has(.cmp-body){width:min(880px,calc(100% - 24px))}
+  .cmp-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:center}
+  .cmp-body:has(.cmp-graph-box:empty){grid-template-columns:minmax(0,1fr)}
+  .cmp-body .cmp-strips{padding-top:0}
+  /* radar.css crops 28px off both ends of the profile's dial on a desktop; here the bottom one is
+     the sheet's last row, so cropping it put "Yds/route" 28px past the sheet's edge. */
+  .cmp-body .pf-radar-box{margin-bottom:0}
+}
 @media (max-width:430px){
   .cmp-sheet{padding:12px 12px 0}
   .cmp-tray{margin-inline:-12px;padding-inline:12px}

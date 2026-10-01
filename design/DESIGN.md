@@ -1239,7 +1239,7 @@ storyboard v5, https://claude.ai/artifact/BLusCqR3ZToXGQ8Kr3nVZM, built as drawn
 | Stage | What it holds | File |
 |---|---|---|
 | Picker | His team at this position, other FLEX spots on it, waivers (owner only), each by projection; search reaches anyone; a search pick shows under Picked; the tray on the bottom edge | `cmppick.js` |
-| Cards | One centred card per player: face (56px, ringed in his colour), name, this week's projection, the gap to the leader as a signed number, his rank. The leader sits on a filled box; the card in focus is edged in its colour. A card is the button that moves the graph's focus | `cmpshow.js` |
+| Cards | One centred card per player: face (48px, ringed in his colour), name, this week's projection, the gap to the leader as a signed number (his position rank was cut 2026-09-30, David: it is already in the profile). The leader sits on a filled box; the card in focus is edged in its colour. A card is the button that moves the graph's focus | `cmpshow.js` |
 | Graph | The profile's own graph (`radarkit.js`, `sheet.js`): disc, rings, ticks, elite arcs, "#rank over the stat" labels. One shaded shape per player; the one in focus brighter, his ranks on the labels. Opens on the profile's player | `cmpgraph.js` |
 | Strips | One bar per stat on the cards' columns, its name above: Matchup (the Season table's ordinal, 1st allows the most), Target or Carry share, Red zone, Last 3. Best of a strip bold | `cmprows.js` |
 
@@ -1249,6 +1249,9 @@ storyboard v5, https://claude.ai/artifact/BLusCqR3ZToXGQ8Kr3nVZM, built as drawn
   Never lime, which kept its job on the controls; on the first player it read as "the winner".
 - **One position per graph.** A position's six axes are its own, so a mixed set (RB beside WR)
   keeps the cards and the strips and draws no graph.
+- **Opens without scrolling** (David, 2026-09-30). A desktop (960px and up) puts the graph beside
+  the strips under the cards: 534px tall, fits 1024x768 and 1280x720 (stacked, it ran 850px). A 360x800 phone fits the
+  stacked sheet. `test_compare_sheet_opens_without_scrolling` holds both.
 - **Red zone** is the share of the team's red-zone plays (targets + carries) where the profile
   carries both team totals, else of targets. Receivers' profiles have no team carries yet (ff-jarvis
   `red_zone.team_carries` is null for WR/TE), so today they read targets.

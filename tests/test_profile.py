@@ -1261,3 +1261,22 @@ def test_compare_card_tap_moves_the_graph_focus(browser, page_file):
     assert page.locator("#modal .cmp-graph button").count() == 0   # labels choose nothing here
     assert errors == []
     ctx.close()
+
+
+@pytest.mark.render
+@pytest.mark.parametrize("size", [(1280, 720), (1400, 900), (360, 800)])
+def test_compare_sheet_opens_without_scrolling(browser, page_file, size):
+    """David, 2026-09-30: "it should open up without having to scroll". A desktop puts the graph
+    beside the strips; a 360x800 phone fits the stacked sheet."""
+    ctx, page, errors = open_page(browser, page_file, size)
+    row(page, "Amon-Ra St. Brown").click()
+    page.locator("#modal [data-compare]").click()
+    page.locator("#cmp-q").fill("wr")
+    page.locator("#modal .cmp-row", has_text="WR").nth(0).click()
+    page.locator("#cmp-q").fill("wr")
+    page.locator("#modal .cmp-row:not(.on)", has_text="WR").nth(0).click()
+    page.locator("#modal [data-cmp=go]").click()
+    sh, ch = page.locator("#modal .cmp-sheet").evaluate("e => [e.scrollHeight, e.clientHeight]")
+    assert sh <= ch, f"the Compare sheet scrolls {sh - ch}px at {size}"
+    assert errors == []
+    ctx.close()

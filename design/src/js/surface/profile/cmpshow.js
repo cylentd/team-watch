@@ -11,22 +11,21 @@ function cmpShowHTML(){
       <button type="button" class="cmp-change" data-cmp="change">${t("profile.compare.change")}</button>
       <button type="button" class="dr-close cmp-x" data-cmp="close" aria-label="${t("profile.compare.close")}">✕</button></div>
     <div class="cmp-band" style="--n:${ps.length}">${cmpCardsHTML(ps)}</div>
-    <div class="cmp-graph-box">${cmpGraphHTML(ps, CMP.on)}</div>
-    ${cmpStripsHTML(ps)}`;
+    <div class="cmp-body"><div class="cmp-graph-box">${cmpGraphHTML(ps, CMP.on)}</div>
+    ${cmpStripsHTML(ps)}</div>`;
 }
 
 function cmpCardsHTML(ps){
   const pts = ps.map(projFor), top = Math.max(...pts.filter(v => v !== null));
   return ps.map((p, i) => {
-    const v = pts[i], rk = cmpRankRow(p), lead = v !== null && v === top;
+    const v = pts[i], lead = v !== null && v === top;
     const gap = v !== null && !lead ? `<span class="cmp-gap">−${(top - v).toFixed(1)}</span>` : "";
-    const rank = rk ? `${esc(rk.pos)}${rk.rank}` : esc(p.pos || "");
     const src = HEADS[p.slug];
     const face = src && p.pos !== "DST" ? headImgHTML(src, initials(p.n), p.slug, 56) : headHTML(p);
     return `<button type="button" class="cmp-card cmp-s${i}${lead ? " lead" : ""}${CMP.on === i ? " on" : ""}" data-cmp="focus" data-i="${i}" aria-pressed="${CMP.on === i}">
       <span class="cmp-face">${face}</span><b>${shortName(p.n)}</b>
       <span class="cmp-proj">${v === null ? "—" : v.toFixed(1)}</span>
-      <span class="cmp-rank">${gap}${gap ? " · " : ""}${rank}</span></button>`;
+      <span class="cmp-rank">${gap}</span></button>`;
   }).join("");
 }
 
