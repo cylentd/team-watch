@@ -8,10 +8,11 @@
 .pv-note,.pv-nil{margin:6px 0 0;font-size:var(--t-1);line-height:1.4;color:var(--ink-3)}
 .pv-nil{margin:0}
 
-/* The headline and the dek. */
+/* The headline, the dek, then the story's body paragraphs: the same serif, one step down. */
 .pvn-head{padding-bottom:14px;border-bottom:1px solid var(--line-2)}
 .pv-head{margin:0 0 10px;font-family:var(--news);font-weight:700;line-height:1.08;letter-spacing:-.01em;color:var(--ink);text-wrap:balance}
 .pv-dek{margin:0;max-width:62ch;font-family:var(--news);font-weight:500;line-height:1.45;color:var(--ink-2)}
+.pv-body{margin:12px 0 0;max-width:66ch;font-family:var(--news);font-size:var(--t-3);line-height:1.6;color:var(--ink-2);text-wrap:pretty}
 .pv-none{margin:0;font-size:var(--t-3);line-height:1.45;color:var(--ink)}
 
 /* A bold run-in word leads each part of the story: "The call.", "Players.", "What could go wrong." */

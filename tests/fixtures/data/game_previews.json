@@ -106,7 +106,7 @@
    "research": {"tool_calls": 9, "seconds": 74},
    "take": {
     "headline": "Gibbs carries Detroit through the rain",
-    "lean": "Rain keeps it on the ground, and Carolina allows the second-most RB points.",
+    "lean": "Rain keeps it on the ground, and Carolina allows the second-most RB points.\n\nGibbs gets the carries early and Detroit leans on him once it leads.\n\nWith Coker out, Young has one target he trusts, and the passing game stalls.",
     "pick": {"winner": "DET", "score": {"CAR": 19, "DET": 30}},
     "win": {"DET": 74},
     "ats": {"side": "DET", "conf": "solid",
