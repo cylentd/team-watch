@@ -18,18 +18,8 @@ function muBarHTML(label, side, lead){
 
 /* From week 4 the bars are v2's (METHODOLOGY 12.64): our takes and FantasyPros' other side, each
    on the clean set (a take an injury decided is left out: David, "that's just bad luck"), beside
-   Pitcher List's own calls. The line under them is the lesson: backed takes against gut ones, how
-   many injuries were left out, and v1's weeks 1-3 score, kept small. Before a v2 week is graded
-   the strip is v1's, and the line says when v2 starts. */
-function muV2Line(r){
-  const v = r.v2;
-  if (!v) return `<span class="mu-rec-sub">${t("matchups.record.v2Soon")}</span>`;
-  const o = v.ours;
-  return `<span class="mu-rec-sub">${t("matchups.record.v2Split", {
-    b: muScore(o.backed.score), bn: o.backed.n, g: muScore(o.gut.score), gn: o.gut.n,
-    inj: o.causes.injury, v1: muScore(r.ours.score)})}</span>`;
-}
-
+   Pitcher List's own calls. Before a v2 week is graded the strip is v1's. No line says which
+   (2026-09-30): the version is bookkeeping, not something a reader acts on. */
 function muRecordHTML(){
   const r = LIVE_STARTSIT.record;
   if (!r) return `<div class="mu-rec none"><span class="mu-rec-l">${t("matchups.record.label")}</span>
@@ -46,13 +36,13 @@ function muRecordHTML(){
   return `<div class="mu-rec" role="group" aria-label="${t("matchups.record.aria", {wk: r.through})}">
     <span class="mu-rec-l">${t("matchups.record.label")}<small>${t("matchups.record.weeks", {wk: muWeeks(weeks.length ? weeks : r.weeks)})}</small></span>
     <span class="mu-rec-bars">${sides.map(([k, label]) => muBarHTML(label, bars[k], lead(k))).join("")}</span>
-    <div class="mu-rec-f">${muV2Line(r)}${muSplitsToggle(r)}${muSplitsHTML(r)}</div>
+    <div class="mu-rec-f">${muSplitsToggle(r)}${muSplitsHTML(r)}</div>
   </div>`;
 }
 
 /* Claude's read of the graded week (ff-jarvis startsit_review, opus): a note, up to three patterns
    named with their counts, and up to three take types to watch with their own split numbers. Words
-   about what happened, labelled as Claude's and not advice; it moves no rule. Absent draws nothing. */
+   about what happened, labelled as Claude's; it moves no rule. Absent draws nothing. */
 function muReadHTML(v){
   const d = v.read;
   if (!d) return "";

@@ -10,7 +10,6 @@
 .wt-fx .wt-dot{white-space:normal}
 .wt-e{white-space:nowrap}
 .wt-fx b{font-family:var(--mono);font-weight:700;font-variant-numeric:tabular-nums}
-.wt-proj{margin:0;font-size:var(--t-1);color:var(--ink-3)}
 .wt-age{margin:0;font-size:var(--t-1);color:var(--amber)}
 
 .wt-hits{padding-top:8px;border-top:1px solid var(--line)}

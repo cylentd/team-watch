@@ -277,7 +277,7 @@ def test_a_paused_type_is_one_line_and_a_tap_shows_its_shadow_takes(page):
     assert "Tucker Kraft" not in [n for n, _ in list_rows(page)]
     line = page.locator(".mu-ps-h").first
     assert line.inner_text().replace("\n", " ").startswith(
-        "Paused: our START TE takes (0.21 vs FantasyPros 0.79 on 42). Still tracked.")
+        "Paused: our START TE takes, 0.21 vs FantasyPros 0.79 on 42")
     assert page.locator(".mu-ps-b").first.evaluate("e => e.inert") is True
     line.click()
     assert page.locator(".mu-ps[data-open] [data-mukey='s:tucker-kraft'] .mu-cf").inner_text() == "STRONG"
@@ -295,20 +295,19 @@ def test_the_splits_open_in_place_under_the_record(page):
     assert rows[:2] == [["START", "0.24", "0.76*", "29"], ["SIT", "0.62*", "0.38", "19"]]
     assert [r[0] for r in rows] == ["START", "SIT", "QB", "RB", "WR", "TE", "LEAN", "SOLID", "STRONG"]
     assert rows[8] == ["STRONG", "0.35", "0.65*", "12"]
-    assert "wk 1–3 (v1, every take)" in page.inner_text(".mu-spt caption")
-    assert page.inner_text(".mu-rule") == ("A take type is paused after 40 graded takes if it trails FantasyPros; "
-                                           "it comes back when its shadow takes beat them.")
+    assert page.inner_text(".mu-spt caption") == "Ours vs FantasyPros, wk 1–3"
 
 
 @pytest.mark.render
-def test_with_nothing_paused_the_rule_says_not_before_week_11(browser, page_file):
-    ctx, pg = open_takes(browser, page_file, js="LIVE_STARTSIT.rule.paused = []; LIVE_STARTSIT.shadow = []")
-    try:
-        assert pg.locator(".mu-ps").count() == 0
-        pg.click("[data-musplits]")
-        assert pg.inner_text(".mu-rule").endswith("None can pause before week 11.")
-    finally:
-        ctx.close()
+def test_takes_print_no_method_rule_or_version_notes(page):
+    """Show, don't tell (2026-09-30): the record, the takes and their reasons; no how-it-works prose."""
+    page.click("[data-musplits]")
+    page.evaluate("() => document.querySelectorAll('.mu-call').forEach(r => muSetOpen(r, true))")
+    text = page.inner_text("#view")
+    for gone in ("A take is where", "Not backtested", "scores 1 for the right call", "v2 starts", "v1",
+                 "paused after", "None can pause", "Still tracked", "half-PPR", "full-PPR", "rank gap alone", "not advice"):
+        assert gone not in text, gone
+    assert page.locator(".mu-foot, .mu-rule, .mu-rec-sub").count() == 0
 
 
 V2_JS = """Object.assign(LIVE_STARTSIT.record, {weeks: [1, 2, 3, 4], through: 4, v2: {
@@ -330,7 +329,7 @@ def test_claudes_read_heads_the_graded_week_and_its_absence_draws_nothing(browse
         ctx.close()
     ctx, pg = open_takes(browser, page_file, js=V2_JS + READ_JS)
     try:
-        assert pg.inner_text(".mu-read-l").lower() == "claude's read of week 4, not advice"
+        assert pg.inner_text(".mu-read-l").lower() == "claude's read of week 4"
         assert pg.inner_text(".mu-read-n") == "Week 4 split down the middle."
         assert pg.inner_text(".mu-read-p li") == "3 of 9 misses came on touchdowns"
         assert pg.inner_text(".mu-read-t") == "START WR · paused"

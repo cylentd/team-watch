@@ -1,8 +1,8 @@
 /* ============================== TAKES: SPLITS AND THE PAUSE RULE ==============================
    ff-jarvis METHODOLOGY 12.64 Amendment 2 (2026-09-29). David: "keep track of our track record and
    try to improve it week to week". The record splits by call, position and confidence, each ours
-   beside FantasyPros on the same takes; the rule that pauses a take type trailing them; and, in the
-   list, one line where a paused type's takes would be. The page computes nothing: every number is
+   beside FantasyPros on the same takes; and, in the list, one line where a paused type's takes
+   would be. The pause rule itself is not printed (2026-09-30: show, don't tell). The page computes nothing: every number is
    ff-jarvis's (design/startsit.py). */
 
 const MU_CHEV = `<svg class="mu-chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>`;
@@ -24,15 +24,6 @@ function muSplitGroup(title, rows){
   return `<tbody><tr class="mu-spg"><th scope="rowgroup" colspan="4">${title}</th></tr>${rows.map(muSplitRow).join("")}</tbody>`;
 }
 
-/* The rule, said once. While nothing is paused and the season is young it adds when the first
-   pause could come: 40 graded takes of one type take until about week 11. */
-function muRuleHTML(){
-  const rule = LIVE_STARTSIT.rule;
-  if (!rule || rule.min_n == null) return "";
-  const soon = !rule.paused.length && LIVE_STARTSIT.week < 11 ? ` ${t("matchups.rule.soon")}` : "";
-  return `<p class="mu-rule">${t("matchups.rule.text", {n: rule.min_n})}${soon}</p>`;
-}
-
 /* The button that sits on the record's last line, and the panel it opens in place. Reference
    detail, so it may wait behind a tap; the bars above stay the answer. */
 function muSplitsToggle(r){
@@ -45,13 +36,12 @@ function muSplitsHTML(r){
   const s = r.splits;
   if (!s) return "";
   const weeks = s.set === "v2" ? r.weeks.filter(w => w >= 4) : r.weeks.filter(w => w < 4);
-  const cap = s.set === "v2" ? t("matchups.splits.capV2", {wk: muWeeks(weeks.length ? weeks : r.weeks)})
-    : t("matchups.splits.capV1", {wk: muWeeks(weeks.length ? weeks : r.weeks)});
+  const cap = t("matchups.splits.cap", {wk: muWeeks(weeks.length ? weeks : r.weeks)});
   return `<div class="mu-sp" id="mu-sp"${MU_SPLITS ? " data-open" : ""}><div class="mu-sp-in"${MU_SPLITS ? "" : " inert"}><div class="mu-sp-pad">
     <table class="mu-spt"><caption>${cap}</caption>
       <thead><tr><td></td><th scope="col">${t("matchups.record.ours")}</th><th scope="col">${t("matchups.record.fp")}</th><th scope="col">${t("matchups.splits.n")}</th></tr></thead>
       ${muSplitGroup(t("matchups.splits.call"), s.by_call)}${muSplitGroup(t("matchups.splits.pos"), s.by_pos)}${muSplitGroup(t("matchups.splits.tier"), s.by_tier)}
-    </table>${muRuleHTML()}</div></div></div>`;
+    </table></div></div></div>`;
 }
 
 /* Where a paused type's takes would be: one line with the numbers that paused it, and a tap that

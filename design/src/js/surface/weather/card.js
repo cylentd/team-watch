@@ -56,16 +56,6 @@ function wtFxHTML(effects){
   return `<p class="wt-fx">${items.join('<span class="wt-dot">&nbsp;· </span>')}</p>`;
 }
 
-/* Once per card: whether the projections already carry it, and kickers apart when they are named. */
-function wtProjHTML(r){
-  const way = wtWay(r.effects);
-  const yes = way === "lower" ? t("weather.inproj.yesLower") : way === "raise" ? t("weather.inproj.yesRaise") : t("weather.inproj.yesMixed");
-  const said = {yes, part: t("weather.inproj.part"), no: t("weather.inproj.no")}[wtCounted(r.conds, r)];
-  const k = r.effects.some(e => e.pos === "K") && wtKickers(r.conds) ? t("weather.inproj.kickers") : "";
-  const line = [said, k].filter(Boolean).join(" ");
-  return line ? `<p class="wt-proj">${line}</p>` : "";
-}
-
 /* How old the forecast is, only once it is old enough to doubt. */
 function wtAgeHTML(fc){
   const at = Date.parse(fc.as_of || "");
@@ -105,7 +95,7 @@ function wtHitsHTML(hits, gi){
 function wtCardHTML(r, gi){
   return `<article class="wt-card${r.done ? " done" : ""}">
     <div class="wt-top"><b class="wt-match">${esc(r.g.away)} @ ${esc(r.g.home)}</b><span class="wt-kick">${wtKickLabel(r)}</span></div>
-    ${wtCondHTML(r)}${wtFxHTML(r.effects)}${wtProjHTML(r)}${r.done ? "" : wtAgeHTML(r.fc)}
+    ${wtCondHTML(r)}${wtFxHTML(r.effects)}${r.done ? "" : wtAgeHTML(r.fc)}
     ${wtHitsHTML(r.hits, gi)}
   </article>`;
 }

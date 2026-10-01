@@ -1,8 +1,8 @@
 /* ------------------------------------------------------------------
    WEATHER — This week > Weather (2026-09-26; reworked the same day to say only what matters).
    A reader setting a lineup on a phone gets, first, the games whose weather moves scoring and what
-   it does (card.js); every other game is one compact row; how we know sits in one disclosure at
-   the bottom, with the forecast's source. No verdict word about a player, no good or bad colour.
+   it does (card.js); every other game is one compact row. No verdict word about a player, no good
+   or bad colour. No method note or "How we know" (2026-09-30, David: show, don't tell).
 
    Data: data/weather.js wtRows(), data/wxhistory.js. Icons: ui/weather.js.
 ------------------------------------------------------------------ */
@@ -32,28 +32,6 @@ function wtRestHTML(label, rows){
   return rows.length ? `<section class="wt-sec">${wtRule(label, rows.length)}<ul class="wt-rows">${rows.map(wtRowHTML).join("")}</ul></section>` : "";
 }
 
-/* "Tested with no effect: domes, running backs, and cold weather except for kickers." */
-function wtNoneLine(){
-  const n = wtNoEffect();
-  const cond = c => ({dome: t("weather.how.dome"), wind: t("weather.how.wind"), cold: t("weather.how.cold"), precip: t("weather.how.precip")})[c] || esc(c);
-  const pos = p => ({QB: t("weather.how.pos.qb"), RB: t("weather.how.pos.rb"), WR: t("weather.how.pos.wr"),
-    TE: t("weather.how.pos.te"), K: t("weather.how.pos.k")})[p] || esc(p);
-  const items = n.none.map(cond).concat(n.pos.map(pos), n.kOnly.map(c => t("weather.how.kOnly", {cond: cond(c)})));
-  if (!items.length) return "";
-  const and = t("weather.how.and"), last = items[items.length - 1];
-  const list = items.length === 1 ? last : items.length === 2 ? `${items[0]} ${and} ${last}`
-    : `${items.slice(0, -1).join(", ")}, ${and} ${last}`;
-  return `<p>${t("weather.how.none", {list})}</p>`;
-}
-
-/* The one disclosure: method, what showed nothing, and the forecast's source. */
-function wtHowHTML(){
-  const s = wtHistOk() ? LIVE_WX_HISTORY.seasons || [] : [];
-  const method = wtHistOk() ? `<p>${t("weather.how.method", {from: s[0] || "", to: s[s.length - 1] || ""})}</p>${wtNoneLine()}` : "";
-  return `<details class="wt-how"><summary>${t("weather.how.title")}</summary>
-    <div class="wt-how-body"><div>${method}<p>${t("weather.how.source")}</p></div></div></details>`;
-}
-
 function wtViewHTML(){
   const d = wtRows();
   if (!d.moves.length && !d.indoor.length && !d.open.length) return `<div class="wrap"><div class="state-empty" style="min-height:220px">
@@ -66,7 +44,6 @@ function wtViewHTML(){
     <h2 class="wt-title">${t("weather.head.title", {week: d.week})}</h2>
     ${moves}
     <div class="wt-rest">${wtRestHTML(t("weather.group.open"), d.open)}${wtRestHTML(t("weather.group.indoor"), d.indoor)}</div>
-    ${wtHowHTML()}
   </div>`;
 }
 

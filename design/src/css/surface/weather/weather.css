@@ -26,15 +26,6 @@
    Its card's players still open their profile, so the dim is opacity, never pointer-events. */
 .wt-card.done,.wt-row.done{opacity:.5}
 
-/* How we know: the method, what showed nothing, the forecast's source. It opens with a height
-   ease (the grid-rows trick; @starting-style gives the opening frame), and closes at once. */
-.wt-how{margin:20px 0 0;padding-top:10px;border-top:1px solid var(--line)}
-.wt-how summary{cursor:pointer;width:max-content;min-height:32px;display:flex;align-items:center;font-size:var(--t-2);font-weight:600;color:var(--ink-2)}
-.wt-how summary:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
-.wt-how-body{display:grid;grid-template-rows:1fr;transition:grid-template-rows var(--dur-spring) var(--ease)}
-.wt-how-body>div{overflow:hidden}
-@starting-style{.wt-how[open] .wt-how-body{grid-template-rows:0fr}}
-.wt-how p{margin:6px 0 0;font-size:var(--t-1);line-height:1.45;color:var(--ink-3);max-width:70ch}
 
 /* A desktop fills its width: the cards three across at full width, the two lists side by side. */
 @media (min-width:760px){

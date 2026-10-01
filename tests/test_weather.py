@@ -42,8 +42,7 @@ def cards(page):
     return page.evaluate("""() => [...document.querySelectorAll('.wt-card')].map(g => ({
         match: g.querySelector('.wt-match').textContent,
         cond: g.querySelector('.wt-cond').textContent.replace(/\\s+/g, ' ').trim(),
-        fx: g.querySelector('.wt-fx').textContent.replace(/\\s+/g, ' ').trim(),
-        proj: (g.querySelector('.wt-proj') || {}).textContent || '', text: g.textContent}))""")
+        fx: g.querySelector('.wt-fx').textContent.replace(/\\s+/g, ' ').trim(), text: g.textContent}))""")
 
 
 def rows(page):
@@ -67,8 +66,13 @@ def test_the_card_says_only_what_moves(page):
         assert gone not in text, gone
 
 
-def test_projections_are_said_once(page):
-    assert cards(page)[0]["proj"] == "Our projections already subtract this. Kickers aren't projected on this site."
+def test_no_method_notes(page):
+    """Show, don't tell (2026-09-30): no projection note, no "How we know", no method or source line."""
+    text = page.inner_text("#view")
+    for gone in ("Our projections", "Not in our projections", "Kickers aren't projected", "How we know",
+                 "Tested with no effect", "METHODOLOGY", "National Weather Service"):
+        assert gone not in text, gone
+    assert page.locator("#view details").count() == 0
 
 
 def test_the_heading_says_which_way_and_counts_in_words(page):
@@ -91,19 +95,6 @@ def test_a_week_with_no_qualifying_game_says_so_plainly(page):
         f.wind = '8 mph'; f.precip_pct = 10; const h = wtViewHTML(); [f.wind, f.precip_pct] = keep; return h; }""")
     assert "The weather won't move scoring in any game this week." in html
     assert 'class="wt-card"' not in html
-
-
-def test_how_we_know_is_the_one_disclosure_and_names_what_showed_nothing(page):
-    how = page.locator("details.wt-how")
-    assert how.count() == 1 and page.locator("#view details").count() == 1
-    text = how.evaluate("d => d.textContent.replace(/\\s+/g, ' ')")
-    assert "Tested with no effect: domes, running backs, and cold weather except for kickers." in text
-    assert "2011–2025" in text and "METHODOLOGY 12.53 and 12.54" in text
-    assert "National Weather Service" in text
-
-
-def test_the_source_is_not_on_the_cards(page):
-    assert "National Weather Service" not in page.locator(".wt-grid").inner_text()
 
 
 def test_who_it_hits_is_the_projections_top_qb_wr_te_with_wx(page):
@@ -175,12 +166,12 @@ def test_the_roster_card_shows_what_is_in_his_projection(browser, page_file):
         ctx.close()
 
 
-def test_a_retractable_roof_says_it_may_close_and_is_not_counted(page):
+def test_a_retractable_roof_says_it_may_close(page):
     said = page.evaluate("""() => { const r = wtRows().open.find(x => x.g.home === 'IND');
         const fc = Object.assign({}, r.fc, {wind: '20 mph', precip_pct: 0});
         const x = Object.assign({}, r, {fc, mph: 20}); x.conds = wtConditions(x); x.effects = wtEffects(x.conds);
-        return [wtCondHTML(x), wtCounted(x.conds, x)]; }""")
-    assert "roof may close" in said[0] and said[1] == "no"
+        return wtCondHTML(x); }""")
+    assert "roof may close" in said
 
 
 def test_projection_rows_pass_wx_through():

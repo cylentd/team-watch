@@ -25,28 +25,3 @@ function wtEffects(conds){
   conds.forEach(c => LIVE_WX_HISTORY.conditions[c].matters.forEach(m => sum.set(m.pos, (sum.get(m.pos) || 0) + m.mean)));
   return [...sum].map(([pos, v]) => ({pos, pts: Math.round(v * 2) / 2})).filter(e => e.pts !== 0);
 }
-
-/* Whether this game's weather is already in the projections: "yes" when every projected position
-   it moves has a cell for every condition met, "part", "no", or "" without an adjust block. A roof
-   the projections do not adjust for (a retractable one) is "no". Kickers are said apart. */
-function wtCounted(conds, r){
-  const th = LIVE_WX_HISTORY.thresholds || {};
-  const ins = conds.map(c => LIVE_WX_HISTORY.conditions[c].inproj);
-  if (!ins.length || ins.some(p => !p)) return "";
-  if (th.roof && r.roof !== th.roof) return "no";
-  const yes = ins.flatMap(p => p.yes), no = ins.flatMap(p => p.no);
-  if (!yes.length && !no.length) return "";
-  return !no.length ? "yes" : yes.length ? "part" : "no";
-}
-const wtKickers = conds => conds.some(c => (LIVE_WX_HISTORY.conditions[c].inproj || {}).kickers);
-
-/* What was tested and showed nothing, for the one line in "How we know": the conditions with no
-   proven position, those proven for kickers only, and the positions proven nowhere. */
-function wtNoEffect(){
-  const cs = LIVE_WX_HISTORY.conditions, names = Object.keys(cs);
-  const none = names.filter(n => !cs[n].matters.length);
-  const kOnly = names.filter(n => cs[n].matters.length && cs[n].matters.every(m => m.pos === "K"));
-  const tested = [...new Set(names.flatMap(n => cs[n].tested))];
-  const pos = tested.filter(p => !names.some(n => cs[n].matters.some(m => m.pos === p)));
-  return {none, kOnly, pos};
-}

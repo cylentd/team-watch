@@ -36,12 +36,12 @@ const muTierHTML = r => MU_TIER()[r.tier] ? `<span class="mu-cf ${r.tier}">${MU_
    and says so: the record grades it, and hiding it would make the page and the record disagree. */
 function muCallHTML(r, pre = "c:"){
   const ecr = r.ecr == null ? "—" : r.ecr;
-  // v2 (week 4 on): the reasons pointing the take's way lead; with none it is a gut call, said once.
+  // v2 (week 4 on): the reasons pointing the take's way lead; a gut call has none, and its row's
+  // meta already says "Gut".
   const reasons = (r.reasons || []).length
-    ? `<p class="mu-why"><b>${t("matchups.row.backed")}</b> ${r.reasons.map(w => esc(w.t)).join(" · ")}</p>`
-    : `<p class="mu-why gut"><b>${t("matchups.row.gut")}</b> ${t("matchups.row.gutWhy")}</p>`;
+    ? `<p class="mu-why"><b>${t("matchups.row.backed")}</b> ${r.reasons.map(w => esc(w.t)).join(" · ")}</p>` : "";
   const body = `${reasons}<div class="mu-evs">${muEvidence(r, 4)}</div>
-    <p class="mu-src"><span>${t("matchups.row.src", {pts: r.pts.toFixed(1)})}</span>
+    <p class="mu-src"><span></span>
       <button type="button" class="mu-go" data-muslug="${esc(r.slug)}">${t("matchups.row.profile")}${MU_ARROW}</button></p>`;
   const tag = `<span class="mu-tag pos ${esc(r.pos.toLowerCase())}">${esc(r.pos)}</span>`;
   return muRowHTML(pre + r.slug, r, tag, `<span class="mu-rk"><span><b>${r.rank}</b> / ${ecr}</span>${muTierHTML(r)}</span

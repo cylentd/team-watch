@@ -4,7 +4,8 @@
    list: where we rank a player higher than the FantasyPros experts, where lower, then Pitcher
    List's calls. A phone stacks them; wider, ours and Pitcher List's sit side by side. The page
    computes nothing: every take and the record are ff-jarvis's (record.js, rows.js). The matchup
-   itself moved to Ranks, a tag on the row, since it is worth at most about 2 points. */
+   itself moved to Ranks, a tag on the row, since it is worth at most about 2 points. No method
+   footer, scoring rules or version notes (2026-09-30, David: show, don't tell). */
 
 /* The column key ("ours / experts · pts") heads the first section only: the second's rows sit in
    the same columns, and two keys beside two long titles wrapped both on a phone. */
@@ -23,9 +24,9 @@ function muSectionHTML(title, tag, empty, key){
 function muBlipHTML(){
   const d = LIVE_STARTSIT, early = d.experts_week != null && d.experts_week < d.week;
   const say = early ? t("matchups.blip.early", {week: d.week}) : t("matchups.blip.agree");
-  const when = early ? t("matchups.blip.earlyWhen") : t("matchups.blip.agreeWhen");
+  const when = early ? `<p>${t("matchups.blip.earlyWhen")}</p>` : "";
   return `<section class="mu-list"><div class="mu-blip">${blipSVG(t("matchups.blip.name"), early ? "bored" : "awake")}
-    <div><q>${say}</q><p>${when}</p></div></div></section>`;
+    <div><q>${say}</q>${when}</div></div></section>`;
 }
 
 function muOursHTML(){
@@ -52,7 +53,6 @@ function matchupsHTML(){
     ${muRecordHTML()}
     <div class="mu-cols"><div class="mu-cols-in">${muOursHTML()}${muPlHTML()}</div></div>
     ${muReviewHTML()}
-    <p class="mu-foot">${t("matchups.foot")} ${t("matchups.record.scale")}</p>
   </div>`;
 }
 
