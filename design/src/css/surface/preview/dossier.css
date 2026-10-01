@@ -21,14 +21,6 @@
 .pv-vs{margin-top:8px;color:var(--ink-2)}
 .pv-callline{display:inline-flex;align-items:center;gap:6px;margin-right:2px;vertical-align:1px}
 .pv-callline .pv-side{font-size:var(--t-3)}
-/* Before the line, and the research notes, each with a small source. */
-.pv-blind{margin:12px 0 0;font-size:var(--t-3);font-weight:600;line-height:1.5;color:var(--ink)}
-.pv-vsb{margin:4px 0 0;font-size:var(--t-3);line-height:1.5;color:var(--ink-2)}
-.pv-nh{margin:12px 0 4px;font-size:var(--t-3)}
-.pv-notes{margin:0 0 14px;padding-left:18px;display:flex;flex-direction:column;gap:5px;font-size:var(--t-3);line-height:1.5;color:var(--ink)}
-.pv-src{margin-left:4px;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
-a.pv-src{text-decoration:underline;text-underline-offset:2px}
-a.pv-src:hover{color:var(--ink)}
 /* A take from before confidence: Claude's score over the market's. */
 .pv-score{display:grid;grid-template-columns:auto auto auto;justify-content:start;row-gap:4px;column-gap:14px;align-items:baseline}
 .pv-sc{display:contents}

@@ -270,7 +270,7 @@ def test_the_win_bar_needs_the_markets_win_pct(page):
     open_game(page, 2)
     win = page.inner_text(".pva.win").replace("\n", " ")
     for want in ("Win chance", "DET, Claude 74%", "DET, market 64%", "Score, Claude DET 30, CAR 19",
-                 "Score, market DET 27, CAR 23.5", "A 3.5-point favorite, 2011–2025: wins 67%, covers 49%, n 1,314."):
+                 "Score, market DET 27, CAR 23.5"):
         assert want in win, want
     open_game(page, 3)
     assert "SF, Claude 60%" in page.inner_text(".pva.win").replace("\n", " ") and "market" not in page.inner_text(".pva.win").split("Score")[0]
@@ -290,26 +290,22 @@ def test_the_game_page_reads_like_a_newspaper(page):
     assert box == ["win", "lines", "matchup", "inj", "wx", "rest"]
     assert page.evaluate("getComputedStyle(document.querySelector('.pv-head')).fontFamily").startswith("Newsreader")
     call = page.inner_text(".pvn-call").replace("\n", " ")
-    for want in ("The call.", "DET giving 3.5", "Confident", "Carolina without Coker",
-                 "Claude before seeing the line: DET by 1.5, total 48.5"):
+    for want in ("The call.", "DET giving 3.5", "Confident", "Carolina without Coker"):
         assert want in call, want
-    assert "moved it to 11" in page.inner_text(".pvn-call .pv-vsb")
     lines = page.inner_text(".pva.lines").replace("\n", " ")
     assert "Claude's total Under Slight" in lines and "50.5" in lines
-    assert texts(page, ".pv-notes li") == ["Carolina has allowed 5.1 yards a carry since week 1. espn.com",
-                                           "Gibbs took 11 of Detroit's 14 red-zone carries last week. play-by-play",
-                                           "Coker was ruled out Friday."]
-    assert page.locator(".pvn-story .pv-notes").count() == 1             # after the box score on a phone
-    links = page.evaluate("() => [...document.querySelectorAll('.pv-notes a')].map(a => [a.href, a.target, a.rel])")
-    assert links == [["https://www.espn.com/nfl/story/_/id/1", "_blank", "noopener noreferrer"]]
-    assert page.inner_text(".pv-nh") == "Research notes."
     assert page.inner_text(".pv-risk").startswith("What could go wrong.")
+    # Show, don't tell (2026-09-30): no research notes, no before-the-line process, no footnotes.
+    dz = page.inner_text(".pv-dz")
+    for gone in ("before seeing the line", "moved it to 11", "Research notes", "5.1 yards a carry", "2011–2025",
+                 "Opinion, not a tested model", "WR is faded", "1 gives up the fewest", "backtest"):
+        assert gone not in dz, gone
+    assert page.locator(".pv-dz .pv-note, .pv-foot").count() == 0
     caps = page.evaluate("""() => [...document.querySelectorAll('.pvn .pva-h, .pvn .pv-rin, .pvn .pv-k')]
         .filter(e => getComputedStyle(e).textTransform === 'uppercase').length""")
     assert caps == 0
     assert page.locator(".pv-score").count() == 0 and page.locator(".pv-vs").count() == 0
     page.click("[data-pvstep='-1']")
-    assert page.locator(".pv-blind").count() == 0 and page.locator(".pv-notes").count() == 0   # JAX @ LA: no research
     page.click("[data-pvstep='-1']")                                     # PIT @ CLE: no edge
     assert page.locator(".pvn-call .pv-side").count() == 0
     assert page.locator(".pvn-call .pv-conf.none").count() == 1 and page.locator(".pva.lines .pv-conf.none").count() == 1
@@ -324,9 +320,9 @@ def open_record(pg):
 def test_the_record_card_opens_every_week_and_back_closes_it(page):
     card = page.inner_text("[data-pvrec]").replace("\n", " ")
     for want in ("CLAUDE VS THE SPREAD", "EVERY WEEK", "4–2–1", "VS SPREAD", "67% hit", "Very confident 1–0–1", "Confident 1–1",
-                 "Slight 2–1", "Win % closer than the market's on 4 of 7", "Blind number vs spread 4–3",
-                 "Margin error: blind 9.1, market 8.4"):
+                 "Slight 2–1", "Win % closer than the market's on 4 of 7"):
         assert want in card, want
+    assert "Blind number" not in card and "Margin error" not in card      # off the page since 2026-09-30
     assert page.locator(".pv-rec").evaluate("e => e.getBoundingClientRect().top") < page.locator(".pv-win").first.evaluate(
         "e => e.getBoundingClientRect().top")                             # the card heads the slate
     page.evaluate("window.scrollTo(0, 60)")
@@ -415,10 +411,9 @@ def test_the_all_games_button_closes_the_dossier(page):
 def test_optional_rows_are_absent_without_data(page):
     rows = lambda: page.evaluate("() => [...document.querySelectorAll('.pva')].map(r => r.classList[1])")
     page.click("[data-pvopen='4']")                              # ATL @ NO: dome, no take, no rest
-    assert rows() == ["lines", "inj", "wx"]                      # no win chance, matchup or rest
+    assert rows() == ["lines", "inj"]                            # no win chance, matchup or rest; a dome, no weather
     assert page.locator(".pvn-call").count() == 0 and page.locator(".pvn-story").count() == 0
     assert "Claude's call on this game arrives" in page.inner_text(".pvn-head")
-    assert "Dome" in page.inner_text(".pva.wx")
     assert page.locator(".pv-pl").count() == 0 and page.locator(".pv-risk").count() == 0
     page.click("[data-pvstep='-1']")
     page.click("[data-pvstep='-1']")                             # DET @ CAR: the one with defense ranks

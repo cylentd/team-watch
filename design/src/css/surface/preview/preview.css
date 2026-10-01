@@ -70,7 +70,6 @@
 .pv-arrow:disabled{color:var(--line-2);cursor:default}
 .pv-mt{font-family:var(--mono);font-size:var(--t-4);font-weight:700;letter-spacing:.02em;color:var(--ink);white-space:nowrap}
 .pv-ko{margin-left:auto;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
-.pv-foot{margin:0;font-size:var(--t-1);line-height:1.45;color:var(--ink-3)}
 
 /* A turn: the new dossier arrives from the side it was swiped from and stops in place. */
 @media (prefers-reduced-motion:no-preference){

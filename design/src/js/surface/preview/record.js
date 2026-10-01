@@ -22,13 +22,8 @@ function pvRecordHTML(){
     <span class="pv-rec-t"><span>${t("preview.rec.title")}</span><span class="pv-rec-more">${t("preview.rec.more")}</span></span>
     <span class="pv-rec-big"><b>${pvWL(r.ats)}</b><small>${t("preview.rec.vs")}</small>${hit != null ? `<em>${t("preview.rec.hit", {n: hit})}</em>` : ""}</span>
     <span class="pv-rec-row">${pvRecByConf(r)}</span>
-    ${r.graded ? `<span class="pv-rec-row">${t("preview.rec.closer", {n: r.closer, m: r.graded})}</span>` : ""}${pvRecBlind(r.blind)}</button>`;
+    ${r.graded ? `<span class="pv-rec-row">${t("preview.rec.closer", {n: r.closer, m: r.graded})}</span>` : ""}</button>`;
 }
-
-/* The blind number's line, once it has a graded game: its own record against the spread, and how far
-   its margin landed from the final beside the market's (points, on average). */
-const pvRecBlind = b => b ? `<span class="pv-rec-row"><span>${t("preview.rec.blind", {wl: `<b>${pvWL(b.ats)}</b>`})}</span>${
-  b.mae_blind != null && b.mae_market != null ? `<span>${t("preview.rec.mae", {b: b.mae_blind.toFixed(1), m: b.mae_market.toFixed(1)})}</span>` : ""}</span>` : "";
 
 const pvOf = (n, m) => m ? t("preview.rec.of", {n, m}) : "–";
 
@@ -54,7 +49,7 @@ function pvRecGame(g){
     <b class="pv-hit ${tag[0]}">${tag[1]}</b><span class="pv-rg-a">${side}${pvConfHTML(g.side ? g.conf : null)}</span></li>`;
 }
 
-/* Every week: the table, what "closer" means, then each week's games, the newest open. */
+/* Every week: the table, then each week's games, the newest open. */
 function pvRecSheetHTML(){
   const r = pvRecord();
   const weeks = r.weeks.map((w, j) => `<section class="pvd-row full"><details class="pv-rw"${j === 0 ? " open" : ""}>
@@ -64,7 +59,5 @@ function pvRecSheetHTML(){
     <button class="pv-back" data-pvrecback>${t("preview.back")}</button>
     <article class="pvd-card pv-rcard"><section class="pvd-row full"><h3 class="pvd-rt">${t("preview.rec.sheet", {n: r.through})}</h3>
       ${pvRecTable(r)}
-      <p class="pv-note">${t("preview.rec.favs", {n: r.fav, m: r.fav_of, c: r.covered, g: r.n})}</p>
-      <p class="pv-note">${t("preview.rec.explain")}</p>
-      ${r.blind ? `<p class="pv-note">${t("preview.rec.blindexplain")}</p>` : ""}</section>${weeks}</article></section>`;
+      <p class="pv-note">${t("preview.rec.favs", {n: r.fav, m: r.fav_of, c: r.covered, g: r.n})}</p></section>${weeks}</article></section>`;
 }

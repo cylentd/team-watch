@@ -2,7 +2,7 @@
    PREVIEW's research rows (2026-09-29): Injuries, Weather, Rest & travel. Facts only; an effect is
    printed only where a backtest proved it. Weather's effects come from LIVE_WX_HISTORY, the same
    backtest cells and thresholds the Weather view reads (data/wxhistory.js), never numbers of our own.
-   Rest and travel have no backtest yet, and the row says so.
+   No footnotes (2026-09-30): rest and travel are facts, and the row prints them bare.
 
    Colour map: --down Out / IR, --amber doubtful / questionable (tags with their word), --sky weather
    that moves scoring, --amber the Short week tag.
@@ -37,15 +37,13 @@ function pvWxRow(g){
   if (!w) return "";
   const where = g.site && g.site.stadium ? esc(g.site.stadium) + " · " : "";
   const title = t("preview.row.wx") + (where || w.roof ? ` <em>${where}${w.roof ? esc(w.roof) : ""}</em>` : "");
-  if (w.roof === "dome" || w.roof === "closed") return pvRow("wx", title, `<p class="pv-nil">${t("preview.wx.covered")}</p>`);
-  if (w.temp == null && w.wind == null) return pvRow("wx", title, `<p class="pv-nil">${t("preview.wx.nofc")}</p>`);
+  // A roof or no forecast: nothing to show, so no section (2026-09-30).
+  if (w.roof === "dome" || w.roof === "closed" || (w.temp == null && w.wind == null)) return "";
   const rain = w.precip != null ? t("preview.wx.pct", {n: w.precip}) : "";
   const fc = [w.temp != null ? `${w.temp}°` : "", w.wind != null ? t("preview.wx.mph", {n: w.wind}) : "", rain].filter(Boolean).join(" · ");
   const eff = pvWxEffects(w);
-  const s = wtHistOk() ? LIVE_WX_HISTORY.seasons || [] : [];
   return pvRow("wx", title, `<p class="pv-fc${eff.length ? " moves" : ""}">${fc}${w.sky ? ` <small>${esc(w.sky)}</small>` : ""}</p>
-    ${eff.length ? `<ul class="pv-eff">${eff.join("")}</ul><p class="pv-note">${t("preview.wx.unit")}</p>` : `<p class="pv-nil">${t("preview.wx.none")}</p>`}
-    ${s.length === 2 ? `<p class="pv-note">${t("preview.wx.src", {from: s[0], to: s[1]})}</p>` : ""}`);
+    ${eff.length ? `<ul class="pv-eff">${eff.join("")}</ul>` : ""}`);
 }
 
 /* "13:25" -> "1:25 PM": the body-clock kickoff as the reader's page writes times. */
@@ -67,6 +65,5 @@ function pvRestLine(team, g){
 function pvRestRow(g){
   if (!g.rest && !g.travel) return "";
   const site = g.site && g.site.neutral ? `<p class="pv-site">${t("preview.travel.neutral", {where: esc(g.site.stadium || "")})}</p>` : "";
-  return pvRow("rest", t("preview.row.rest"), `${site}<div class="pv-kv">${pvRestLine(g.away, g)}${pvRestLine(g.home, g)}</div>
-    <p class="pv-note">${t("preview.rest.tested")}</p>`);
+  return pvRow("rest", t("preview.row.rest"), `${site}<div class="pv-kv">${pvRestLine(g.away, g)}${pvRestLine(g.home, g)}</div>`);
 }
