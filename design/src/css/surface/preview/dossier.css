@@ -13,6 +13,10 @@
 .pv-head{margin:0 0 10px;font-family:var(--news);font-weight:700;line-height:1.08;letter-spacing:-.01em;color:var(--ink);text-wrap:balance}
 .pv-dek{margin:0;max-width:62ch;font-family:var(--news);font-weight:500;line-height:1.45;color:var(--ink-2);text-wrap:pretty}
 .pv-dek + .pv-dek{margin-top:12px}
+/* A player call's first mention: bold in the story's own face, a tap to his profile. */
+.pv-nm{appearance:none;border:0;padding:0;background:none;font:inherit;font-weight:700;color:var(--ink);cursor:pointer}
+.pv-nm:hover{text-decoration:underline;text-underline-offset:3px}
+.pv-nm:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:2px}
 .pv-none{margin:0;font-size:var(--t-3);line-height:1.45;color:var(--ink)}
 
 /* A bold run-in word leads each part of the story: "The call.", "Players.", "What could go wrong." */

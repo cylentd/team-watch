@@ -36,7 +36,36 @@ function pvHeadHTML(g){
   if (!k) return `<header class="pvn-head"><p class="pv-none">${t("preview.notake")}</p></header>`;
   const paras = k.lean.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean);
   return `<header class="pvn-head"><h2 class="pv-head">${esc(k.head)}</h2>${
-    paras.map(s => `<p class="pv-dek">${esc(s)}</p>`).join("")}</header>`;
+    pvNamesHTML(paras, k.players).map(h => `<p class="pv-dek">${h}</p>`).join("")}</header>`;
+}
+
+/* Each player call's first mention in the story, bold and a tap to his profile (David, 2026-09-30: "bold
+   them"). Only the calls under the story: linemen and coaches stay plain, they are not fantasy picks.
+   The full name first; the surname alone only when no other call in the game shares it (IND @ WAS has
+   two Warrens). `data-pvp` is the call's index, the same one the player rows use. */
+const pvRx = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function pvNamesHTML(paras, players){
+  const last = n => n.replace(/\s+(Jr\.?|Sr\.?|II|III|IV)$/, "").split(/\s+/).pop();
+  const spans = paras.map(() => []);
+  players.forEach((p, j) => {
+    const solo = players.filter(q => last(q.n) === last(p.n)).length === 1;
+    for (const name of solo ? [p.n, last(p.n)] : [p.n]){
+      const rx = new RegExp(`(?<![\\w'’])${pvRx(name)}(?![\\w’])`);
+      const i = paras.findIndex((s, pi) => { const m = rx.exec(s); return m && !spans[pi].some(x => m.index < x.e && m.index + name.length > x.s); });
+      if (i < 0) continue;
+      const at = rx.exec(paras[i]).index;
+      spans[i].push({s: at, e: at + name.length, j});
+      return;
+    }
+  });
+  return paras.map((s, i) => {
+    let out = "", at = 0;
+    spans[i].sort((a, b) => a.s - b.s).forEach(x => {
+      out += esc(s.slice(at, x.s)) + `<button type="button" class="pv-nm" data-pvp="${x.j}">${esc(s.slice(x.s, x.e))}</button>`;
+      at = x.e;
+    });
+    return out + esc(s.slice(at));
+  });
 }
 
 /* The call: "The call. PIT giving 2.5 [LEAN] CLE allows ...". A take from before confidence (no

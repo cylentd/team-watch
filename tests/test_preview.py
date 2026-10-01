@@ -295,6 +295,9 @@ def test_the_game_page_reads_like_a_newspaper(page):
                                                 "With Coker out, Young has one target he trusts, and the passing game stalls."]
     sizes = page.evaluate("() => [...document.querySelectorAll('.pvn-head .pv-dek')].map(p => getComputedStyle(p).font)")
     assert len(set(sizes)) == 1
+    # Each player call's first mention is bold and opens his profile (2026-09-30); St. Brown is not named.
+    assert texts(page, ".pvn-head .pv-nm") == ["Gibbs", "Young"]
+    assert page.evaluate("getComputedStyle(document.querySelector('.pv-nm')).fontWeight") == "700"
     call = page.inner_text(".pvn-call").replace("\n", " ")
     for want in ("The call.", "DET giving 3.5", "Confident", "Carolina without Coker"):
         assert want in call, want
@@ -466,6 +469,21 @@ def test_a_player_row_opens_his_profile(page):
     page.evaluate("() => { window.__opened = []; openProfile = p => window.__opened.push(p.slug); }")
     page.click(".pv-p >> nth=0")
     assert page.evaluate("window.__opened") == ["dk-metcalf"]
+
+
+@pytest.mark.render
+def test_a_bold_name_in_the_story_opens_his_profile(page):
+    page.click("[data-pvopen='2']")                                      # DET @ CAR
+    page.evaluate("() => { window.__opened = []; openProfile = p => window.__opened.push(p.slug); }")
+    page.click(".pv-nm >> text=Young")
+    assert page.evaluate("window.__opened") == ["bryce-young"]
+
+
+def test_a_shared_surname_is_never_bolded_alone(page):
+    """IND @ WAS has two Warrens: "Warren" alone could be either, so only a full name marks one."""
+    got = page.evaluate("""() => pvNamesHTML(["Warren runs. Tyler Warren catches. Then Warren again."],
+        [{n: "Jaylen Warren"}, {n: "Tyler Warren"}])""")
+    assert got == ['Warren runs. <button type="button" class="pv-nm" data-pvp="1">Tyler Warren</button> catches. Then Warren again.']
 
 
 @pytest.mark.render
