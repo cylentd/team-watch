@@ -93,34 +93,20 @@ function radarHTML(p){
      label block, and the flanks for a name up to about 90px wide at a 360px phone. R 114 in a
      468 x 392 box is what fits both: at 120, "Targets/route" and "Pts/dropback" ran 3px past the
      edge. The chart is centred, so the room is symmetric. */
-  const n = s.axes.length, cx = 200, cy = 196, R = 114, VW = 468, VH = 392;   // -34..434 x 0..392
+  const g = radarGeom(s.axes.length), {n, cx, cy, R, VW, VH, ang, xy, pc, at} = g;   // radarkit.js
   const sel = sheetDefaultAxis(s);
   const ranks = s.axes.map(a => sheetRank(s.pos, a.id, p.slug));
   const k = i => { const rk = ranks[i]; return rk && rk[1] > 1 ? Math.max(.04, 1 - (rk[0] - 1) / (rk[1] - 1)) : .04; };
-  const ang = i => -Math.PI / 2 + i * 2 * Math.PI / n;
-  const xy = (i, r) => [cx + Math.cos(ang(i)) * R * r, cy + Math.sin(ang(i)) * R * r];
-  const ring = (r, cls, i) => `<circle class="pf-radar-ring${cls}" style="--i:${i}" cx="${cx}" cy="${cy}" r="${(R * r).toFixed(1)}"/>`;
-  const rings = [.25, .5, .75].map((r, i) => ring(r, "", 2 - i)).join("") + ring(1, " rim", 0);
-  /* Ticks, not spokes. A full spoke's only job is to say where an axis is, and the label and the
-     vertex both already say that -- meanwhile six of them crossed the translucent shape, showing
-     through it and turning the fill muddy. The tick keeps the anchoring and leaves the middle of
-     the chart to the data. */
-  const spokes = s.axes.map((_, i) => {
-    const [x0, y0] = xy(i, .93), [x1, y1] = xy(i, 1);
-    return `<line class="pf-radar-axis" style="--i:${i}" x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}"/>`;
-  }).join("");
   /* The dial's touch target is an HTML circle over the disc, not the SVG itself: touch-action is
      only reliable on HTML boxes, and it has to be `none` on the dial (a drag scrubs the axes)
      while the label ring around it still scrolls the modal. Percentages of the viewBox, so it
      tracks the chart at every width. */
-  const pc = (a, b) => (a / b * 100).toFixed(2) + "%";
   const hit = `left:${pc(cx - R + 34, VW)};top:${pc(cy - R, VH)};width:${pc(2 * R, VW)};height:${pc(2 * R, VH)}`;
-  const at = (x, y) => `left:${pc(x + 34, VW)};top:${pc(y, VH)}`;
   return `<div class="pf-sheet pos-${esc(String(s.pos).toLowerCase())}" data-slug="${esc(p.slug)}"><div class="pf-radar-box">
     <svg class="pf-radar" viewBox="-34 0 ${VW} ${VH}" role="img" aria-label="${t("profile.sheet.label")}" data-cx="${cx}" data-cy="${cy}" data-r="${R}">
       ${radarDefsHTML(cx, cy, R)}
       <circle class="pf-radar-disc" cx="${cx}" cy="${cy}" r="${R}"/>
-      <g class="pf-radar-grid">${rings}${spokes}</g>
+      <g class="pf-radar-grid">${radarGridHTML(g)}</g>
       ${eliteBarsHTML(s, ang, xy, sel, cx, cy, R, n)}
       <g class="pf-radar-grow">${shapeHTML(s, ranks, k, xy, sel, cx, cy)}</g>
       <circle class="pf-radar-hub" cx="${cx}" cy="${cy}" r="2"/></svg>
@@ -235,14 +221,16 @@ function eliteBarsHTML(s, ang, xy, sel, cx, cy, R, n){
 
    A rank in the bottom half of the position is dimmed (`low`): six equally bright numbers gave
    #3 and #43 the same weight, and the weak spots should recede rather than compete. */
-function axisLabelsHTML(s, ranks, k, sel, ang, xy, at, R){
+function axisLabelsHTML(s, ranks, k, sel, ang, xy, at, R, tag = "button"){
+  // Compare draws the same labels as plain text (tag "span"): there they choose nothing.
+  const kind = tag === "button" ? ` type="button"` : "";
   return s.axes.map((a, i) => {
     const c = Math.cos(ang(i)), sn = Math.sin(ang(i));
     const side = sn < -.7 ? "n" : sn > .7 ? "s" : c > 0 ? "e" : "w";
     const [x, y] = xy(i, 1 + (side === "n" || side === "s" ? 8 : 10) / R);   // units clear of the rim
     const rk = ranks[i] ? rankMark(ranks[i]) : "—";
     const cls = (a.id === sel ? " on" : "") + (!ranks[i] || k(i) < .5 ? " low" : "") + (sheetElite(s, a, ranks[i]) ? " elite" : "");
-    return `<button type="button" class="pf-radar-l at-${side}${cls}" style="${at(x, y)};--i:${i}" data-col="${esc(a.id)}"
-      ><b class="pf-radar-v">${rk}</b><span class="pf-radar-n">${esc(axisName(a))}</span></button>`;
+    return `<${tag}${kind} class="pf-radar-l at-${side}${cls}" style="${at(x, y)};--i:${i}" data-col="${esc(a.id)}"
+      ><b class="pf-radar-v">${rk}</b><span class="pf-radar-n">${esc(axisName(a))}</span></${tag}>`;
   }).join("");
 }

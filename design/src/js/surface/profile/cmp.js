@@ -1,13 +1,15 @@
-/* Compare (2026-09-30, storyboard https://claude.ai/artifact/LR2pMmjnZdSfcVsq6Qzt3o, option A): a
-   layer over the profile, opened from the head's Compare button. The picker first (cmppick.js):
-   the reader's own team at this position, then waivers, then any player by search; then the sheet
-   (cmpshow.js): every player on one radar, a row of numbers under it.
+/* Compare (2026-09-30; redesigned the same day, storyboard v5,
+   https://claude.ai/artifact/BLusCqR3ZToXGQ8Kr3nVZM): a layer over the profile, opened from the
+   head's Compare button. The picker first (cmppick.js): the reader's own team at this position,
+   then waivers, then any player by search; then the sheet (cmpshow.js): the projections, the
+   profile's graph with every player on it (cmpgraph.js), and a strip per stat (cmprows.js).
+   `on` is the player in focus on the graph, the profile's own player when the sheet opens.
 
    One layer in #modal like the stat sheet's (orbsheet.js), with one history entry: Back closes the
    whole layer and leaves the profile where it was. Picker and sheet are two stages of it, not two
    entries, so Back never walks the reader through a list they already left. */
 const CMP_LAYER = "compare", CMP_MAX = 3;
-const CMP = {base: null, picks: [], stage: "pick", q: ""};
+const CMP = {base: null, picks: [], stage: "pick", q: "", on: 0};
 
 function cmpOpen(d){
   if (d.querySelector(".cmp-layer") || !CMP.base) return;
@@ -67,7 +69,8 @@ function cmpClick(d, e){
   if (!el) return;
   const act = el.dataset.cmp;
   if (act === "close") return cmpClose(d, true);
-  if (act === "go"){ if (CMP.picks.length){ CMP.stage = "show"; cmpPaint(d); } return; }
+  if (act === "go"){ if (CMP.picks.length){ CMP.stage = "show"; CMP.on = 0; cmpPaint(d); } return; }
+  if (act === "focus") return cmpFocus(d, +el.dataset.i);
   if (act === "change"){ CMP.stage = "pick"; cmpPaint(d); return; }
   if (act === "pick"){
     const p = CMP_ROWS[+el.dataset.i];

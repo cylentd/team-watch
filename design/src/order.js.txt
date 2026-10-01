@@ -63,6 +63,7 @@ surface/profile/props.js
 surface/profile/archglyphs.js
 surface/profile/archetype.js
 surface/profile/sample.js
+surface/profile/radarkit.js
 surface/profile/sheet.js
 surface/profile/statcard.js
 surface/profile/ladder.js
@@ -78,6 +79,7 @@ surface/profile/panel.js
 surface/profile/cmp.js
 surface/profile/cmppick.js
 surface/profile/cmpshow.js
+surface/profile/cmpgraph.js
 surface/profile/cmprows.js
 surface/news/news.js
 data/pool.js

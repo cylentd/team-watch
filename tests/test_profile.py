@@ -1170,10 +1170,13 @@ def test_compare_picks_from_the_profile_and_draws_one_radar(browser, page_file):
     rows.nth(1).click()
     assert page.locator("#modal .cmp-row.on").count() == 2
     page.locator("#modal [data-cmp=go]").click()
-    assert page.locator("#modal .cmp-chip:not(.add)").count() == 3
-    assert page.locator("#modal .cmp-stat").count() == 5
-    shapes = page.locator("#modal .cmp-shape").count()
-    assert shapes == 3 or page.locator("#modal .cmp-note").count() == 1
+    assert page.locator("#modal .cmp-card").count() == 3
+    assert page.locator("#modal .cmp-row-s").count() == 4
+    # One shape per player on the profile's graph, or no graph at all for a mixed-position set.
+    shapes, graph = page.locator("#modal .cmp-shape").count(), page.locator("#modal .cmp-graph").count()
+    assert (shapes, graph) in ((3, 1), (0, 0))
+    # It opens on the profile's own player, as his profile does.
+    assert page.locator("#modal .cmp-card.on").get_attribute("data-i") == "0"
     assert page.evaluate("!!document.activeElement.closest('.cmp-sheet')")
     page.go_back()
     page.wait_for_timeout(200)
@@ -1230,5 +1233,31 @@ def test_elite_reads_the_fluke_filter(browser, page_file):
     assert "published analyst standard" in tprr.inner_text()
     assert "prov" in page.locator("#modal .pf-radar-bar[data-col='tprr']").get_attribute("class")
     assert "prov" not in page.locator("#modal .pf-radar-bar[data-col='wopr']").get_attribute("class")
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_compare_card_tap_moves_the_graph_focus(browser, page_file):
+    """Three receivers on one graph (storyboard v5): the profile's player is in focus first, his
+    ranks on the labels; a tap on another card moves the focus and the labels follow it."""
+    ctx, page, errors = open_page(browser, page_file, (360, 800))
+    row(page, "Amon-Ra St. Brown").click()
+    page.locator("#modal [data-compare]").click()
+    page.locator("#cmp-q").fill("wr")
+    wrs = page.locator("#modal .cmp-row", has_text="WR")
+    wrs.nth(0).click()
+    page.locator("#cmp-q").fill("wr")
+    page.locator("#modal .cmp-row:not(.on)", has_text="WR").nth(0).click()
+    page.locator("#modal [data-cmp=go]").click()
+    assert page.locator("#modal .cmp-shape").count() == 3
+    before = page.locator("#modal .cmp-graph .pf-radar-v").all_inner_texts()
+    assert "cmp-s0" in page.locator("#modal .cmp-graph").get_attribute("class")
+    page.locator("#modal .cmp-card[data-i='1']").click()
+    assert page.locator("#modal .cmp-card.on").get_attribute("data-i") == "1"
+    assert "cmp-s1" in page.locator("#modal .cmp-graph").get_attribute("class")
+    assert page.locator("#modal .cmp-shape.front.cmp-s1").count() == 1
+    assert page.locator("#modal .cmp-graph .pf-radar-v").all_inner_texts() != before
+    assert page.locator("#modal .cmp-graph button").count() == 0   # labels choose nothing here
     assert errors == []
     ctx.close()

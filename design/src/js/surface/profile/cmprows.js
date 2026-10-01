@@ -1,53 +1,53 @@
-/* The Compare sheet's rows: one number per player per row, the best of each row lit. Each row
-   reads a source the profile already reads and shows a dash where a player has none, so a waiver
-   pickup with no profile still sits in every row he has data for.
+/* The Compare sheet's strips: one bar per stat, split into a cell per player on the cards' own
+   columns, the stat's name above it (STYLE.md "Alignment": a lane read across centres its value;
+   a label sits above what it labels). The best of a strip is bold. A player with no number for a
+   stat shows a dash, so a waiver pickup with no profile still sits in every strip he has data for.
 
-   The red zone is his share of the team's red-zone plays, targets and carries together, where the
+   Red zone is his share of the team's red-zone plays, targets and carries together, where the
    profile carries both team totals (David, 2026-09-30: a receiver on a team that runs near the goal
-   line looks good on targets alone). Where it carries only the targets, the share is of targets and
-   the cell says so. */
+   line looks good on targets alone); else of targets. */
 function cmpRz(p){
   const prof = profileFor(p), r = prof && prof.red_zone;
   if (!r) return null;
   const tt = r.team_targets, tc = r.team_carries;
-  if (typeof tt === "number" && typeof tc === "number" && tt + tc > 0){
-    const n = (r.targets || 0) + (r.carries || 0);
-    return {v: n / (tt + tc), n, of: tt + tc, unit: t("profile.compare.rzPlays")};
-  }
-  if (typeof tt === "number" && tt > 0) return {v: (r.targets || 0) / tt, n: r.targets || 0, of: tt, unit: t("profile.compare.rzTargets")};
-  return null;
+  if (typeof tt === "number" && typeof tc === "number" && tt + tc > 0) return ((r.targets || 0) + (r.carries || 0)) / (tt + tc);
+  return typeof tt === "number" && tt > 0 ? (r.targets || 0) / tt : null;
 }
 
-function cmpStatHTML(label, cells, best, note){
+function cmpStripHTML(label, cells, best){
   const vals = cells.map(c => c ? c.v : null).filter(v => v !== null);
-  const top = vals.length > 1 ? (best === "low" ? Math.min(...vals) : Math.max(...vals)) : null;
-  const cell = (c, i) => !c ? `<span class="cmp-v cmp-s${i} none">—</span>`
-    : `<span class="cmp-v cmp-s${i}${c.v === top ? " best" : ""}">${c.txt}${c.sub ? `<small>${c.sub}</small>` : ""}</span>`;
-  return `<div class="cmp-stat"><div class="cmp-stat-h lbl"><span>${label}</span>${note ? `<span>${note}</span>` : ""}</div>
-    <div class="cmp-vals">${cells.map(cell).join("")}</div></div>`;
+  const top = vals.length > 1 && best ? (best === "low" ? Math.min(...vals) : Math.max(...vals)) : null;
+  const cell = c => !c ? `<span class="cmp-v none">—</span>`
+    : `<span class="cmp-v${c.v === top ? " best" : ""}">${c.txt}</span>`;
+  return `<div class="cmp-row-s"><span class="cmp-l">${label}</span><div class="cmp-strip">${cells.map(cell).join("")}</div></div>`;
 }
 
-function cmpLastHTML(ps){
-  const logs = ps.map(p => gamelogRows(p.slug).slice(-3));
-  const hi = Math.max(1, ...logs.flat().map(r => r.pts || 0));
-  const cell = (rows, i) => !rows.length ? `<span class="cmp-v cmp-s${i} none">—</span>`
-    : `<span class="cmp-v cmp-s${i} cmp-spark">${rows.map(r => `<i style="height:${Math.max(2, Math.round((r.pts || 0) / hi * 22))}px" title="${t("profile.compare.week", {wk: r.wk, pts: (r.pts || 0).toFixed(1)})}"></i>`).join("")}<small>${(rows[rows.length - 1].pts || 0).toFixed(1)}</small></span>`;
-  return `<div class="cmp-stat"><div class="cmp-stat-h lbl"><span>${t("profile.compare.last")}</span><span>${t("profile.compare.lastNote")}</span></div>
-    <div class="cmp-vals">${logs.map(cell).join("")}</div></div>`;
+/* Whose share: targets for receivers, carries for backs, "team share" when the set is mixed. */
+function cmpShareLabel(ps){
+  const pos = new Set(ps.map(p => p.pos));
+  if (pos.size > 1) return t("profile.compare.share");
+  return [...pos][0] === "RB" ? t("profile.compare.shareCar") : t("profile.compare.shareTgt");
 }
 
-function cmpRowsHTML(ps){
-  const proj = ps.map(p => { const v = projFor(p), rk = cmpRankRow(p);
-    return v === null ? null : {v, txt: v.toFixed(1), sub: rk ? esc(rk.pos) + rk.rank : ""}; });
+function cmpStripsHTML(ps){
   const opp = ps.map(p => { const rk = cmpRankRow(p), d = rk && rk.opp ? seasonDefRank(rk.opp, p.pos) : null;
-    return d ? {v: d[0], txt: esc(rk.opp), sub: ordinal(d[0])} : null; });
-  const share = ps.map(p => { const r = poolRow(p.slug), lab = ledeShareLabel(p.pos);
-    return r && lab && typeof r.share === "number" ? {v: r.share, txt: Math.round(r.share) + "%", sub: esc(lab)} : null; });
-  const rz = ps.map(p => { const r = cmpRz(p);
-    return r ? {v: r.v, txt: Math.round(r.v * 100) + "%", sub: `${r.n}/${r.of} ${r.unit}`} : null; });
-  return cmpStatHTML(t("profile.compare.proj"), proj, "high", t("profile.compare.projNote"))
-    + cmpStatHTML(t("profile.compare.opp"), opp, "low", t("profile.compare.oppNote"))
-    + cmpStatHTML(t("profile.compare.share"), share, "high")
-    + cmpStatHTML(t("profile.compare.rz"), rz, "high")
-    + cmpLastHTML(ps);
+    return d ? {v: d[0], txt: `${ordinal(d[0])}<small>${esc(rk.opp)}</small>`} : null; });
+  const share = ps.map(p => { const r = poolRow(p.slug);
+    return r && ledeShareLabel(p.pos) && typeof r.share === "number" ? {v: r.share, txt: Math.round(r.share) + "%"} : null; });
+  const rz = ps.map(p => { const v = cmpRz(p); return v === null ? null : {v, txt: Math.round(v * 100) + "%"}; });
+  const last = ps.map((p, i) => { const rows = gamelogRows(p.slug).slice(-3);
+    return rows.length ? {v: null, txt: cmpSparkHTML(rows, i)} : null; });
+  return `<div class="cmp-strips" style="--n:${ps.length}">`
+    + cmpStripHTML(t("profile.compare.opp"), opp, "low")
+    + cmpStripHTML(cmpShareLabel(ps), share, "high")
+    + cmpStripHTML(t("profile.compare.rz"), rz, "high")
+    + cmpStripHTML(t("profile.compare.last"), last, null) + `</div>`;
+}
+
+/* The last three weeks as bars in his colour, on one scale across the sheet, his mean beside them. */
+function cmpSparkHTML(rows, i){
+  const all = cmpPlayers().flatMap(p => gamelogRows(p.slug).slice(-3).map(r => r.pts || 0));
+  const hi = Math.max(1, ...all), mean = rows.reduce((s, r) => s + (r.pts || 0), 0) / rows.length;
+  const bars = rows.map(r => `<i style="height:${Math.max(2, Math.round((r.pts || 0) / hi * 20))}px" title="${t("profile.compare.weekPts", {wk: r.wk, pts: (r.pts || 0).toFixed(1)})}"></i>`).join("");
+  return `<span class="cmp-spark cmp-s${i}">${bars}</span><small>${mean.toFixed(1)}</small>`;
 }

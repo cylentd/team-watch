@@ -58,8 +58,9 @@ Alignment follows the reading direction, not habit. Decided 2026-09-30, after th
 | A small card that stacks items: a face or icon over a name over a number | Centre | The round face is symmetric; left-aligned, the card leaves a lopsided gap on its right |
 | A lane per subject in a side-by-side compare, one short value per row, read across | Centre in its lane | The value sits on the lane's middle line, under its subject's header and card |
 
-A mixed block keeps each part's own rule: Compare's table centres the three player lanes and keeps
-the stat names in its first column left-aligned.
+A row of centred lanes takes its label on its own line above it, left-aligned, so the lanes keep
+the full width and line up with whatever sits above them (Compare's strips under its cards; a
+label column beside the lanes pushed them off the cards' and the graph's centre, 2026-09-30).
 
 ## Motion: feedback that shows the change
 
