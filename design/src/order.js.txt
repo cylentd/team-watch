@@ -75,6 +75,7 @@ surface/profile/market.js
 surface/profile/details.js
 surface/profile/lede.js
 surface/profile/tabs.js
+surface/profile/rail.js
 surface/profile/panel.js
 surface/profile/cmp.js
 surface/profile/cmppick.js

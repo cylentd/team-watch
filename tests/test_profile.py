@@ -465,8 +465,8 @@ def test_the_archetype_sits_in_the_head_and_explains_itself_in_usage(browser, pa
     })()""")
     assert who["both"], "the fixture needs a player with both words"
     page.evaluate("p => openProfile(p)", who["both"])
-    # The chips sit under his name, in one row on a desktop.
-    tags = page.locator("#modal .pf-who .pf-arch .pf-arch-slot")
+    # The tiles are the first medallions of the head rail (rail.js), in one row.
+    tags = page.locator("#modal .pf-head .pf-rail .pf-arch-slot")
     assert tags.count() == 2 and tags.first.is_visible()
     assert tags.nth(0).bounding_box()["y"] == tags.nth(1).bounding_box()["y"]
     assert tags.nth(0).locator(".pf-sk-role svg").count() == 1            # a tile on every chip, stone by field
@@ -485,7 +485,7 @@ def test_the_archetype_sits_in_the_head_and_explains_itself_in_usage(browser, pa
     assert (fields.nth(0).bounding_box()["y"] == fields.nth(1).bounding_box()["y"]) == starts_row
     if who["one"]:
         page.evaluate("p => openProfile(p)", who["one"])
-        assert page.locator("#modal .pf-head .pf-arch .pf-arch-slot").count() == 1
+        assert page.locator("#modal .pf-head .pf-rail .pf-arch-slot").count() == 1
         tab(page, "usage")
         assert who["one"]["role_null"] in page.locator("#modal .pf-sec-arch .bd-why").first.inner_text()
     assert errors == []
@@ -1278,5 +1278,40 @@ def test_compare_sheet_opens_without_scrolling(browser, page_file, size):
     page.locator("#modal [data-cmp=go]").click()
     sh, ch = page.locator("#modal .cmp-sheet").evaluate("e => [e.scrollHeight, e.clientHeight]")
     assert sh <= ch, f"the Compare sheet scrolls {sh - ch}px at {size}"
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_head_rail_orders_and_centres_what_he_has(browser, page_file):
+    """The head rail (2026-09-30, rail.js): role, style, the sphere and Compare, always in that
+    order, centred under the name on a phone, so a player with fewer has no hole; with nothing but
+    Compare there is no rail and Compare is a small button in the name block."""
+    ctx, page, errors = open_page(browser, page_file, (360, 800))
+    got = page.evaluate("""() => {
+      const kinds = () => [...document.querySelectorAll('#modal .pf-rail > *')].map(e =>
+        e.matches('[data-pfarch=role]') ? 'role' : e.matches('[data-pfarch=style]') ? 'style' : e.matches('.pf-orb') ? 'orb' : 'cmp');
+      const centred = () => { const r = document.querySelector('#modal .pf-rail'), k = [...r.children];
+        const a = k[0].getBoundingClientRect().left - r.getBoundingClientRect().left;
+        const b = r.getBoundingClientRect().right - k[k.length - 1].getBoundingClientRect().right;
+        return Math.abs(a - b) <= 2; };
+      const out = {};
+      for (const e of searchIndex().filter(e => ['RB', 'WR', 'TE', 'QB'].includes(e.pos))){
+        openProfile(searchPlayer(e));
+        const has = document.querySelector('#modal .pf-rail');
+        const key = has ? kinds().join(',') : 'none';
+        if (out[key]) continue;
+        out[key] = {centred: has ? centred() : null,
+                    smallCompare: !has && !!document.querySelector('#modal .pf-who > .cmp-open')};
+      }
+      return out; }""")
+    order = ["role", "style", "orb", "cmp"]
+    for key, v in got.items():
+        if key == "none":
+            assert v["smallCompare"], "no rail: Compare stays in the name block"
+            continue
+        kinds = key.split(",")
+        assert kinds[-1] == "cmp" and kinds == sorted(kinds, key=order.index), key
+        assert v["centred"], f"{key} is not centred"
     assert errors == []
     ctx.close()

@@ -52,6 +52,7 @@ surface/profile/archetype.css
 surface/profile/bio.css
 surface/profile/orb.css
 surface/profile/compare.css
+surface/profile/headrail.css
 chrome/footer.css
 chrome/nav.css
 chrome/search.css

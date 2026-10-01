@@ -94,5 +94,10 @@ document.getElementById("modal").addEventListener("click", e => {
   cmpOpen(document.getElementById("modal"));
 });
 
-const cmpButtonHTML = () =>
-  `<button type="button" class="cmp-open" data-compare aria-haspopup="dialog">${t("profile.compare.open")}</button>`;
+/* Two arrows passing, drawn (DESIGN.md: icons are drawn, never a Unicode glyph). */
+const CMP_ICON = `<svg class="cmp-ic-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h14l-3.5-3.5M20 16H6l3.5 3.5"/></svg>`;
+
+/* `medal`: the rail's medallion (rail.js); otherwise the small button a player with no rail keeps. */
+const cmpButtonHTML = medal => medal
+  ? `<button type="button" class="cmp-open medal" data-compare aria-haspopup="dialog"><span class="cmp-ic">${CMP_ICON}</span><span>${t("profile.compare.open")}</span></button>`
+  : `<button type="button" class="cmp-open" data-compare aria-haspopup="dialog">${CMP_ICON}<span>${t("profile.compare.open")}</span></button>`;

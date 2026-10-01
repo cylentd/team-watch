@@ -1189,7 +1189,7 @@ https://claude.ai/artifact/HjEA4x7r7DRz3Z7Xes4u62).
 
 | Block | Answers | Where |
 |---|---|---|
-| **Head** | name, bye, and the sphere: the stat sheet as a solid, a tap from the flat radar | `orb.js`, `orbsheet.js` |
+| **Head** | name, bye, injury, and the rail: role, style, the sphere (the stat sheet as a solid, a tap from the flat radar) and Compare as one row of medallions (2026-09-30) | `rail.js`, `orb.js`, `orbsheet.js`, `headrail.css` |
 | **Strip** | is he good, how much he plays: rank by ppg, ppg, role share, snaps | `lede.js` |
 | **Owners** | who has him: one pill per league, "Yours", a team name, or free agent | `owners.js` |
 | **Season** (first tab, always the default) | points per played week, next week's projection, every later opponent | `season.js` |
@@ -1213,6 +1213,29 @@ https://claude.ai/artifact/HjEA4x7r7DRz3Z7Xes4u62).
   where the crystal *is* the flat radar, and hands over to it.
 - **Game results and past-week projections are not in the data** (Yahoo shows both). Adding them is
   ff-jarvis work.
+
+### The head rail (2026-09-30)
+
+Storyboard: https://claude.ai/artifact/1q2rFmEudfwzyKdf5mgoCy (David: "build the rail, centred";
+option D of the same storyboard was dropped for stripping the tiles' look). On a phone the head
+stacked five things in one column between the face and the sphere: 259-302px. Now the name block
+holds the name, identity and injury, and one row under it holds role, style, the sphere and Compare
+as round medallions of one size, each label under its medallion, the sphere's own shape.
+
+| Player at 360px | Before | After |
+|---|---|---|
+| Zay Flowers (injured) | 289px | 226px |
+| Amon-Ra St. Brown (long name) | 259px | 222px |
+| Tee Higgins (signal line) | 302px | 245px |
+
+- **Always role, style, sphere, Compare, centred.** A player with fewer keeps the order and the
+  row centres, so a missing word is no hole (David chose centred over filled from either end).
+  Of 540 skill players on 2026-09-30: 171 have all four, 109 three, 18 two.
+- **Nothing but Compare, no rail.** A deep-bench player (227 of 540) keeps a small Compare button in
+  his name block.
+- **Desktop:** the rail sits right of the name. The sphere keeps its 148px at the rail's far right
+  with its caption beside it (David, 2026-09-30: "keep the big sphere on desktop"); role, style and
+  Compare are 56px medallions before it.
 
 ### Elite bars and the fluke filter (2026-09-30)
 

@@ -5,8 +5,8 @@
    In the order a reader asks about a player (2026-09-28, David): what did he score, who does he
    play next, how much does he play, who has him, is he good.
 
-     the head    name, the bye, and the sphere: his stat sheet as a solid (orb.js), a tap from
-                 the full radar (orbsheet.js)
+     the head    name, the bye, and the rail (rail.js): his words, the sphere -- his stat sheet
+                 as a solid (orb.js), a tap from the full radar (orbsheet.js) -- and Compare
      the strip   rank by points per game, ppg, role share, snap share (lede.js)
      the owners  one pill per league: yours, a leaguemate's team, or free (owners.js)
      the panes   Season first -- every week, played and to come -- then usage, matchup, bio
@@ -20,20 +20,21 @@ function openProfile(p, originEl){
   searchRemember(p);   // the search sheet's "recent" list (chrome/search.js)
   const prof = profileFor(p);
   const d = document.getElementById("modal");
+  // The rail (rail.js): his words, his sphere and Compare as one row; none for a deep-bench player.
+  const rail = pfRailHTML(p);
   d.innerHTML = `
     <div class="dr-head pf-head">
       <button type="button" class="dr-close" aria-label="${t("common.action.close")}">✕</button>
-      <div class="dr-id">
+      <div class="dr-id${rail ? " has-rail" : ""}">
         ${headHTML(p)}
         <div class="pf-who">
           <h3 id="pf-title">${esc(p.n)}</h3>
           <div class="lbl">${identityHTML(p, prof)}</div>
           ${pfInjuryHTML(p)}
-          ${archTagsHTML(p)}
-          ${sheetTagsHTML(p)}
-          ${cmpButtonHTML()}
+          ${rail ? "" : cmpButtonHTML(false)}
         </div>
-        ${orbBadgeHTML(p)}
+        ${rail}
+        ${sheetTagsHTML(p)}
       </div>
       ${p.note ? `<div class="dr-note">${esc(p.note)}</div>` : ""}
     </div>

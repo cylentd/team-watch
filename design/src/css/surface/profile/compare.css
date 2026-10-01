@@ -14,7 +14,7 @@
 .cmp-open{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:7px 12px;border:1px solid var(--line-2);
   border-radius:8px;background:var(--panel-2);color:var(--ink);font-family:var(--ui);font-size:var(--t-2);font-weight:600;
   cursor:pointer;transition:transform var(--dur-spring) var(--spring)}
-.cmp-open::before{content:"⇄";color:var(--lime)}
+.cmp-ic-svg{flex:none;width:16px;height:16px;fill:none;stroke:var(--lime);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .cmp-open:active{transform:scale(var(--press))}
 .cmp-open:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
 

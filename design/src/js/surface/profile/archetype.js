@@ -45,13 +45,14 @@ const archMean = (v, pos) => ARCH_MEAN[v] ? ARCH_MEAN[v](pos) : "";
 
 /* The head's chips: one per word he has, role first, each a button to the Usage block, under his
    name at every width (2026-09-29, David: beside the sphere "feels off"). */
-function archTagsHTML(p){
+/* His words as the head rail's first medallions (rail.js), role then style; none, one or both. */
+function archSlotsHTML(p){
   const a = bdArch(p.slug);
-  if (!a || (!a.role && !a.style)) return "";
+  if (!a) return [];
   const slot = (field, v, word) => `<button type="button" class="pf-arch-slot" data-pfarch="${field}"
     aria-label="${field === "role" ? t("profile.arch.roleIs", {w: word}) : t("profile.arch.styleIs", {w: word})}"
     >${archTileHTML(v, field)}<span>${word}</span></button>`;
-  return `<div class="pf-arch">${a.role ? slot("role", a.role, bdRoleWord(a.role)) : ""}${a.style ? slot("style", a.style, bdStyleWord(a.style)) : ""}</div>`;
+  return [a.role ? slot("role", a.role, bdRoleWord(a.role)) : "", a.style ? slot("style", a.style, bdStyleWord(a.style)) : ""].filter(Boolean);
 }
 
 /* Usage: the Leaders card's two fields, each word on its tile, the clause it means, and the

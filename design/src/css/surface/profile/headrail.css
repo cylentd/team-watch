@@ -1,0 +1,71 @@
+/* ============================== PROFILE · HEAD AND RAIL ==============================
+   The profile head as a grid (2026-09-30, storyboard https://claude.ai/artifact/1q2rFmEudfwzyKdf5mgoCy):
+   the face, the name block (name, identity, injury), the rail (rail.js) and watch's signal line.
+
+   On a phone the rail is its own row under the name, centred: role, style, the sphere and Compare
+   as round medallions of one size with the label under each, the sphere's own shape. It replaces a
+   column of five stacked things between the face and the sphere. On a desktop the rail sits to the
+   right of the name, where the sphere used to. Ordered after orb.css and archetype.css, whose
+   phone rules for the sphere and the tiles this file replaces inside the rail. */
+.pf-head > .dr-id{display:grid;grid-template-columns:auto minmax(0,1fr) auto;
+  grid-template-areas:"img who rail" "img tags rail";column-gap:18px;row-gap:0;align-items:center}
+.pf-head > .dr-id > img,.pf-head > .dr-id > .fallback,.pf-head > .dr-id > .dst{grid-area:img}
+.pf-head > .dr-id > .pf-who{grid-area:who;align-self:end}
+.pf-head > .dr-id > .pf-tags{grid-area:tags;align-self:start;margin-top:10px}
+.pf-head > .dr-id:not(:has(.pf-tags)) > .pf-who{align-self:center}
+
+.pf-rail{grid-area:rail;display:flex;justify-content:center;align-items:flex-start;gap:14px}
+.pf-rail > *{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;width:84px;
+  margin:0;padding:0;border:0;background:none;color:var(--ink-2);text-align:center;cursor:pointer;
+  -webkit-tap-highlight-color:transparent}
+.pf-rail > *:focus-visible{outline:2px solid var(--lime);outline-offset:3px;border-radius:10px}
+/* One size of medallion for all four. */
+.pf-rail .pf-sk,.pf-rail .cmp-ic{width:56px;height:56px;border-radius:999px;flex:none}
+.pf-rail .pf-orb canvas{width:56px;height:56px}
+.pf-rail .cmp-ic{display:grid;place-items:center;background:var(--panel-2);box-shadow:inset 0 0 0 1px var(--line-2)}
+.pf-rail .cmp-ic .cmp-ic-svg{width:24px;height:24px}
+/* The label under each: the sphere caption's own voice. */
+.pf-rail .pf-arch-slot > span:last-child,.pf-rail .pf-orb-l,.pf-rail .cmp-open > span:last-child{
+  display:block;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.03em;line-height:1.25;
+  text-transform:uppercase;color:var(--ink-2);white-space:normal;word-break:keep-all;overflow-wrap:normal}
+.pf-rail .pf-orb-l{align-items:center;text-align:center}
+.pf-rail .pf-orb-l b{display:block;font-size:var(--t-2);color:var(--ink)}
+.pf-rail .pf-orb{flex-direction:column;margin:0}
+@media (hover:hover){ .pf-rail > *:hover > :first-child{transform:scale(1.05)} }
+.pf-rail > * > :first-child{transition:transform var(--dur-spring) var(--spring)}
+.pf-rail > *:active > :first-child{transform:scale(var(--press))}
+
+/* A desktop keeps the big sphere (David, 2026-09-30: "keep the big sphere on desktop"): 148px at
+   the rail's far right, its caption beside it as orb.css draws it, the words and Compare as small
+   medallions before it. The phone's one-size row is below. */
+@media not all and (max-width:760px){
+  .pf-rail{align-items:center}
+  .pf-rail .pf-orb{order:9;width:auto;flex-direction:row-reverse;gap:16px;margin-left:10px}
+  .pf-rail .pf-orb canvas{width:148px;height:148px}
+  .pf-rail .pf-orb-l{display:flex;flex-direction:column;align-items:flex-end;text-align:right;letter-spacing:.06em;line-height:1.3}
+  .pf-rail .pf-orb-l b{font-size:var(--t-5);line-height:1.1}
+}
+
+/* The small Compare a player with no rail keeps, in his name block. */
+.pf-who > .cmp-open{margin-top:10px}
+
+@media (max-width:760px){
+  /* The name block clears the close button itself (padding-right below), so the rail keeps the
+     whole width; panel.css's and orb.css's right padding is for the desktop row. */
+  .pf-head > .dr-id{grid-template-columns:64px minmax(0,1fr);grid-template-areas:"img who" "rail rail" "tags tags";column-gap:12px;
+    padding-right:0}
+  /* Rows touch: responsive/430.css's 12px gap (one class more specific, and later) put 24px of air
+     round the rail, two rows of it. */
+  .dr-head.pf-head > .dr-id{row-gap:0}
+  .pf-head > .dr-id > .pf-who{align-self:center;padding-right:48px}
+  .pf-head > .dr-id h3{font-size:var(--t-5);margin-bottom:4px}
+  .pf-head > .dr-id .pf-inj{margin-top:6px}
+  .pf-head > .dr-id > img,.pf-head > .dr-id > .fallback{width:64px;height:64px}
+  .pf-rail{margin-top:10px;gap:0}
+  .pf-rail > *{width:25%}
+  .pf-rail .pf-sk,.pf-rail .cmp-ic,.pf-rail .pf-orb canvas{width:52px;height:52px}
+  /* Narrower than the slot, so two-word labels break onto two lines like the sphere's caption,
+     and neighbours never run into each other ("EVERY DOWN DEEP THREAT"). */
+  .pf-rail .pf-arch-slot > span:last-child,.pf-rail .pf-orb-l,.pf-rail .cmp-open > span:last-child{letter-spacing:0;max-width:72px}
+  .pf-head > .dr-id > .pf-tags{margin-top:8px}
+}
