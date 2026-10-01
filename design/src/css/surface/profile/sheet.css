@@ -73,6 +73,8 @@
 .pf-radar-bar{stroke:rgb(var(--ink-3-rgb) / .5);stroke-width:1.5;stroke-linecap:round;
   stroke-dasharray:4 4;transition:stroke .2s var(--ease)}
 .pf-radar-bar.on{stroke:rgb(var(--ink-3-rgb) / .9)}
+/* A provisional bar (no history behind it, sheet.js eliteBarsHTML): dotted. */
+.pf-radar-bar.prov{stroke-dasharray:1 4}
 /* The word on the thing, instead of a legend under the chart. Shown for the selected axis only;
    paint-order draws a panel-coloured halo behind the glyphs first, so it stays legible wherever
    the shape happens to pass under it. */

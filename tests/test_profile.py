@@ -1200,3 +1200,35 @@ def test_compare_search_reaches_any_player(browser, page_file):
     assert page.locator("#modal.on").count() == 1
     assert errors == []
     ctx.close()
+
+
+def test_the_sheet_keeps_the_fluke_filter():
+    """ff-jarvis's shrunk value and elite list (METHODOLOGY 12.68) reach the page; a row without
+    them keeps el null, which is how the page knows to fall back to the raw test."""
+    import usage
+    block = {"axes": {"WR": [{"id": "tprr", "elite": 25}]},
+             "rows": [{"name": "A B", "pos": "WR", "v": {"tprr": 30}, "ev": {"tprr": 24}, "el": []},
+                      {"name": "C D", "pos": "WR", "v": {"tprr": 30}}]}
+    rows = usage._sheet(block, lambda n: n.lower().replace(" ", "-"))["rows"]
+    assert (rows[0]["ev"], rows[0]["el"]) == ({"tprr": 24}, [])
+    assert (rows[1]["ev"], rows[1]["el"]) == ({}, None)
+
+
+@pytest.mark.render
+def test_elite_reads_the_fluke_filter(browser, page_file):
+    """St. Brown's fixture row clears the WOPR and TPRR bars raw, but the filter keeps WOPR only:
+    WOPR glows, TPRR does not and says the sample is too small, and a bar with no history behind
+    it is dotted and named."""
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    row(page, "Amon-Ra St. Brown").click()
+    sheet(page)
+    assert "elite" in page.locator("#modal .pf-lr[data-col='wopr']").get_attribute("class")
+    tprr = page.locator("#modal .pf-lr[data-col='tprr']")
+    assert "elite" not in tprr.get_attribute("class")
+    tprr.locator("summary").click()
+    assert "too few games" in tprr.inner_text()
+    assert "published analyst standard" in tprr.inner_text()
+    assert "prov" in page.locator("#modal .pf-radar-bar[data-col='tprr']").get_attribute("class")
+    assert "prov" not in page.locator("#modal .pf-radar-bar[data-col='wopr']").get_attribute("class")
+    assert errors == []
+    ctx.close()

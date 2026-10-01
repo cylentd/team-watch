@@ -54,9 +54,12 @@ function ladderWindow(s, wk){
 function ladderMoreHTML(s, x){
   const a = x.a, wk = statWeeks(s.row.slug, a.id), thin = x.band === 1;
   // Never "over the elite bar" on a sample too thin to rank: that is the claim it can't make.
-  const gap = a.elite === null || a.elite === undefined || x.band ? "" : eliteGapHTML(x.v, a);
+  const gap = a.elite === null || a.elite === undefined || x.band ? "" : eliteGapHTML(x.v, a, s.row);
   const smp = sampleText(s.row, a);
-  const facts = [smp ? `<span>${smp}</span>` : "", gap, `<span>${ladderWindow(s, wk)}</span>`].join("");
+  // Where the bar comes from, when it is not 2018-2025 history (ff-jarvis `elite_src`).
+  const src = !gap ? "" : a.elite_src === "season" ? `<span>${t("profile.stat.barSeason")}</span>`
+    : a.elite_src === "published" ? `<span>${t("profile.stat.barPublished")}</span>` : "";
+  const facts = [smp ? `<span>${smp}</span>` : "", gap, src, `<span>${ladderWindow(s, wk)}</span>`].join("");
   const unit = SAMPLE_UNIT[a.den];
   const floor = thin && unit ? `<p class="pf-lr-floor">${t("profile.ladder.floor", {floor: a.floor, unit: unit()})}</p>` : "";
   const def = AXIS_DEF[a.id]

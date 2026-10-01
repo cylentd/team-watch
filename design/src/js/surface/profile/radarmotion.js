@@ -69,7 +69,9 @@ function radarGrow(g){
   g.svg.querySelectorAll(".pf-radar-bar").forEach(b => { bars[b.dataset.col] = b; });
   g.dots.forEach((d, i) => {
     const bar = bars[d.dataset.col], len = Math.hypot(g.end[i][0], g.end[i][1]);
-    const r = bar ? +bar.dataset.r : Infinity;
+    // Only an arc the stat is elite on (sheet.js data-el): crossing it on a sample the fluke filter
+    // does not back is not the moment this marks.
+    const r = bar && bar.dataset.el ? +bar.dataset.r : Infinity;
     let lit = len < r || REDUCED();                      // never crosses, or no motion: nothing to light
     spring(0, 1, x => {
       g.f[i] = x;

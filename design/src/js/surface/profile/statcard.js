@@ -65,9 +65,13 @@ const AXIS_WHY = {
 
 /* How far he is from the position's elite bar, and which side of it. `usageFmt` formats the gap
    in the stat's own units, so a percentage reads as points and a rate as a rate. */
-function eliteGapHTML(v, a){
+function eliteGapHTML(v, a, row){
   const gap = v - a.elite;
   const n = {gap: usageFmt(Math.abs(gap), a.fmt), bar: usageFmt(a.elite, a.fmt)};
+  // Over the bar, but the fluke filter (sheet.js sheetElite) says his sample is too small to call
+  // it: the number stands, the claim waits. Neither green nor red.
+  if (gap >= 0 && row && Array.isArray(row.el) && !row.el.includes(a.id))
+    return `<small class="pf-lr-d">${t("profile.stat.overEarly", n)}</small>`;
   // Two literal t() calls, not one built from a ternary: assemble.py --check finds a copy key by
   // scanning for the literal form, and a key assembled at runtime reads to it as an orphan.
   /* The gap, not the threshold. "elite >= 0.00" printed in red said the elite bar was the bad

@@ -54,6 +54,10 @@ function sheetRank(pos, axis, slug){ return rankAmong(sheetValues(pos, axis), sl
    sample over the bar is the claim eliteGapHTML refuses to make; the null check because
    `null >= 0` is true. This is what the radar's labels and the ladder's rows glow for. */
 function sheetElite(s, a, rk){
+  /* The fluke filter (2026-09-30, METHODOLOGY 12.68): ff-jarvis pulls each value toward the
+     position mean by how small his sample is and lists the axes whose pulled value clears the bar.
+     Three hot weeks on a few routes no longer read as elite. Without the list, the raw test. */
+  if (Array.isArray(s.row.el)) return !!rk && s.row.el.includes(a.id);
   const v = s.row.v[a.id];
   return !!rk && a.elite !== null && a.elite !== undefined && v !== null && v !== undefined && v >= a.elite;
 }
@@ -203,7 +207,10 @@ function eliteBarsHTML(s, ang, xy, sel, cx, cy, R, n){
   return s.axes.map((a, i) => {
     const er = eliteRadius(s.pos, a.id, a.elite);
     if (er === null) return "";
-    const r = er * R, a0 = ang(i) - half, a1 = ang(i) + half, on = a.id === sel ? " on" : "";
+    const r = er * R, a0 = ang(i) - half, a1 = ang(i) + half;
+    // A bar with no 2018-2025 history behind it (this season's pool, or a published convention)
+    // is dotted rather than dashed: the same line, held more loosely.
+    const on = (a.id === sel ? " on" : "") + (a.elite_src && a.elite_src !== "history" ? " prov" : "");
     const pt = t2 => `${(cx + Math.cos(t2) * r).toFixed(1)},${(cy + Math.sin(t2) * r).toFixed(1)}`;
     /* At the arc's end, not its middle. The middle of the arc is the axis itself, which is
        exactly where that stat's own vertex sits -- on a stat whose bar is near the rim the tag
@@ -211,7 +218,10 @@ function eliteBarsHTML(s, ang, xy, sel, cx, cy, R, n){
        every vertex, and only one tag is ever shown so two cannot collide. */
     const tr = Math.min(r + 9, R - 7);
     const tx = cx + Math.cos(a1) * tr, ty = cy + Math.sin(a1) * tr;
-    return `<path class="pf-radar-bar${on}" data-col="${esc(a.id)}" data-r="${r.toFixed(1)}" fill="none" d="M ${pt(a0)} A ${r.toFixed(1)} ${r.toFixed(1)} 0 0 1 ${pt(a1)}"/>`
+    // data-el: elite by sheetElite (the fluke filter), so a vertex that crosses the arc on a raw
+    // rank the filter does not back never lights it (radarmotion.js radarGrow).
+    const el = sheetElite(s, a, sheetRank(s.pos, a.id, s.row.slug)) ? ` data-el="1"` : "";
+    return `<path class="pf-radar-bar${on}" data-col="${esc(a.id)}" data-r="${r.toFixed(1)}"${el} fill="none" d="M ${pt(a0)} A ${r.toFixed(1)} ${r.toFixed(1)} 0 0 1 ${pt(a1)}"/>`
       + `<text class="pf-radar-bartag${on}" data-col="${esc(a.id)}" x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="middle" dominant-baseline="middle">${t("profile.sheet.eliteTag")}</text>`;
   }).join("");
 }

@@ -1214,6 +1214,20 @@ https://claude.ai/artifact/HjEA4x7r7DRz3Z7Xes4u62).
 - **Game results and past-week projections are not in the data** (Yahoo shows both). Adding them is
   ff-jarvis work.
 
+### Elite bars and the fluke filter (2026-09-30)
+
+ff-jarvis 84c490b (METHODOLOGY 12.68) gives every radar stat a bar: the 90th percentile of
+2018-2025 full seasons, TE apart from WR (`elite_src` "history"); per-route stats with no history
+take this season's pool ("season") or keep the published 25% / 2.5 ("published"). Each row also
+carries `ev`, the value pulled toward the position mean by how small the sample is, and `el`, the
+stats whose pulled value clears the bar. David rejected a top-12 rank as the bar: three hot weeks
+are a rank, not a standard.
+
+- **Elite reads `el`** (`sheet.js sheetElite`): the label glow, the ladder row and the arc lit in
+  the grow-in. With no `el` (data from before 84c490b) it falls back to the raw value.
+- **Over the bar but filtered:** the ladder says so, neither green nor red.
+- **Provisional bars are dotted,** and the ladder names where the bar comes from.
+
 ### Compare (2026-09-30)
 
 Storyboard: https://claude.ai/artifact/LR2pMmjnZdSfcVsq6Qzt3o (David picked option A). A layer over

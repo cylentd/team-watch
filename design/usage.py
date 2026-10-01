@@ -66,7 +66,12 @@ def _sheet(block, slugify):
     move everyone's rank -- a receiver would read WR20 out of 80 on a page that kept 80 of 340.
 
     `s` is the producer's `n` renamed (here `n` is the name): per rate axis, [numerator,
-    denominator]. The page ranks nothing whose denominator is under the axis's `floor`."""
+    denominator]. The page ranks nothing whose denominator is under the axis's `floor`.
+
+    `ev` and `el` (ff-jarvis 84c490b, METHODOLOGY 12.68): the value pulled toward the position mean
+    by how small his sample is, and the axes whose pulled value clears the bar. `el` stays null when
+    the producer has not sent it, so the page can tell "elite on nothing" from "not computed" and
+    fall back to the raw test (sheet.js sheetElite)."""
     rows = (block or {}).get("rows") or []
     axes = (block or {}).get("axes") or {}
     if not rows or not axes:
@@ -74,7 +79,8 @@ def _sheet(block, slugify):
     return {"axes": axes,
             "rows": [{"n": r.get("name"), "slug": slugify(r.get("name") or ""),
                       "pos": r.get("pos"), "team": r.get("team"), "g": r.get("g"),
-                      "v": r.get("v") or {}, "s": r.get("n") or {}} for r in rows]}
+                      "v": r.get("v") or {}, "s": r.get("n") or {},
+                      "ev": r.get("ev") or {}, "el": r.get("el")} for r in rows]}
 
 
 def _row(r, slugify):
