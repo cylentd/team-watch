@@ -108,6 +108,9 @@
   .pvn{display:grid;grid-template-columns:minmax(0,1fr) 340px;grid-template-rows:auto auto 1fr;column-gap:36px;row-gap:16px;
     grid-template-areas:"head head" "call box" "story box"}
   .pvn-head{grid-area:head}
+  /* The story runs wider than a phone's measure here (David, 2026-09-30: "it shouldn't match the mobile
+     width"), still inside a readable line. */
+  .pv-dek{max-width:80ch}
   .pvn-call,.pvn-story{max-width:none}
   .pvn-call{grid-area:call}
   .pvn-box{grid-area:box;align-self:start;border-bottom:0}
