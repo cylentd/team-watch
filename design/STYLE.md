@@ -46,6 +46,21 @@ names the reason in its `DESIGN.md` section.
   leaves a hole. Check: sections side by side end within 150px of each other. (Trades, 2026-09-28:
   1730px beside 705px; `test_trades_desktop_rows_end_level`.)
 
+## Alignment: by what the reader does with it
+
+Alignment follows the reading direction, not habit. Decided 2026-09-30, after the Compare cards
+(a round photo over a left-aligned name and number) read as off-centre.
+
+| Content | Align | Why |
+|---|---|---|
+| Lists, rows, tables, paragraphs, labels down a column | Left | The eye returns to one left edge each line; centred lines are ragged on both sides |
+| A column of like numbers read downward (a stat column in a list) | One edge, the same every row | Digits line up so the column compares at a glance |
+| A small card that stacks items: a face or icon over a name over a number | Centre | The round face is symmetric; left-aligned, the card leaves a lopsided gap on its right |
+| A lane per subject in a side-by-side compare, one short value per row, read across | Centre in its lane | The value sits on the lane's middle line, under its subject's header and card |
+
+A mixed block keeps each part's own rule: Compare's table centres the three player lanes and keeps
+the stat names in its first column left-aligned.
+
 ## Motion: feedback that shows the change
 
 Every motion answers the reader's hand and ends where the thing now lives. The motion carries the
@@ -90,7 +105,8 @@ loads. A new curve or duration is a new token, never a literal in a component.
 ## Before a view lands
 
 1. Screenshot it at 360px, then desktop, including the next page and an empty state. On the
-   desktop shot, check every row whose label and value sit at opposite edges (Layout, above).
+   desktop shot, check every row whose label and value sit at opposite edges (Layout, above),
+   and every block against the Alignment table.
 2. Measure where the first data starts; it is ~200px or less, or the reason is written down.
 3. Page, filter and tap through it: nothing jumps, and every motion ends where its thing lives.
 4. Every interaction has a render test (`tests/test_render.py`), and the golden diff shows only
