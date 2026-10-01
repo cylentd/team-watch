@@ -4307,11 +4307,11 @@ body:has(.connect:not([hidden])){overflow:hidden}
 .pv-note:where(#view[data-view="preview"], #view[data-view="preview"] *),.pv-nil:where(#view[data-view="preview"], #view[data-view="preview"] *){margin:6px 0 0;font-size:var(--t-1);line-height:1.4;color:var(--ink-3)}
 .pv-nil:where(#view[data-view="preview"], #view[data-view="preview"] *){margin:0}
 
-/* The headline, the dek, then the story's body paragraphs: the same serif, one step down. */
+/* The headline, then the story: every paragraph set alike, a gap between them. */
 .pvn-head:where(#view[data-view="preview"], #view[data-view="preview"] *){padding-bottom:14px;border-bottom:1px solid var(--line-2)}
 .pv-head:where(#view[data-view="preview"], #view[data-view="preview"] *){margin:0 0 10px;font-family:var(--news);font-weight:700;line-height:1.08;letter-spacing:-.01em;color:var(--ink);text-wrap:balance}
-.pv-dek:where(#view[data-view="preview"], #view[data-view="preview"] *){margin:0;max-width:62ch;font-family:var(--news);font-weight:500;line-height:1.45;color:var(--ink-2)}
-.pv-body:where(#view[data-view="preview"], #view[data-view="preview"] *){margin:12px 0 0;max-width:66ch;font-family:var(--news);font-size:var(--t-3);line-height:1.6;color:var(--ink-2);text-wrap:pretty}
+.pv-dek:where(#view[data-view="preview"], #view[data-view="preview"] *){margin:0;max-width:62ch;font-family:var(--news);font-weight:500;line-height:1.45;color:var(--ink-2);text-wrap:pretty}
+.pv-dek:where(#view[data-view="preview"], #view[data-view="preview"] *) + .pv-dek{margin-top:12px}
 .pv-none:where(#view[data-view="preview"], #view[data-view="preview"] *){margin:0;font-size:var(--t-3);line-height:1.45;color:var(--ink)}
 
 /* A bold run-in word leads each part of the story: "The call.", "Players.", "What could go wrong." */
@@ -15373,14 +15373,14 @@ function pvScoreHTML(g){
 }
 
 /* The headline and the story, the full width. The story is 2-3 paragraphs split by a blank line
-   (ff-jarvis STORY_VERSION 1, 2026-09-30): the first is the dek, the rest the body under it. A take
-   from before that is one paragraph, a dek alone. */
+   (ff-jarvis STORY_VERSION 1, 2026-09-30), one voice, so every paragraph is set alike (David,
+   2026-09-30: a smaller second paragraph read as a different author). */
 function pvHeadHTML(g){
   const k = g.take;
   if (!k) return `<header class="pvn-head"><p class="pv-none">${t("preview.notake")}</p></header>`;
-  const [dek, ...body] = k.lean.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean);
-  return `<header class="pvn-head"><h2 class="pv-head">${esc(k.head)}</h2><p class="pv-dek">${esc(dek)}</p>${
-    body.map(s => `<p class="pv-body">${esc(s)}</p>`).join("")}</header>`;
+  const paras = k.lean.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean);
+  return `<header class="pvn-head"><h2 class="pv-head">${esc(k.head)}</h2>${
+    paras.map(s => `<p class="pv-dek">${esc(s)}</p>`).join("")}</header>`;
 }
 
 /* The call: "The call. PIT giving 2.5 [LEAN] CLE allows ...". A take from before confidence (no

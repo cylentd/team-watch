@@ -29,14 +29,14 @@ function pvScoreHTML(g){
 }
 
 /* The headline and the story, the full width. The story is 2-3 paragraphs split by a blank line
-   (ff-jarvis STORY_VERSION 1, 2026-09-30): the first is the dek, the rest the body under it. A take
-   from before that is one paragraph, a dek alone. */
+   (ff-jarvis STORY_VERSION 1, 2026-09-30), one voice, so every paragraph is set alike (David,
+   2026-09-30: a smaller second paragraph read as a different author). */
 function pvHeadHTML(g){
   const k = g.take;
   if (!k) return `<header class="pvn-head"><p class="pv-none">${t("preview.notake")}</p></header>`;
-  const [dek, ...body] = k.lean.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean);
-  return `<header class="pvn-head"><h2 class="pv-head">${esc(k.head)}</h2><p class="pv-dek">${esc(dek)}</p>${
-    body.map(s => `<p class="pv-body">${esc(s)}</p>`).join("")}</header>`;
+  const paras = k.lean.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean);
+  return `<header class="pvn-head"><h2 class="pv-head">${esc(k.head)}</h2>${
+    paras.map(s => `<p class="pv-dek">${esc(s)}</p>`).join("")}</header>`;
 }
 
 /* The call: "The call. PIT giving 2.5 [LEAN] CLE allows ...". A take from before confidence (no

@@ -289,10 +289,12 @@ def test_the_game_page_reads_like_a_newspaper(page):
     box = page.evaluate("() => [...document.querySelectorAll('.pva')].map(r => r.classList[1])")
     assert box == ["win", "lines", "matchup", "inj", "wx", "rest"]
     assert page.evaluate("getComputedStyle(document.querySelector('.pv-head')).fontFamily").startswith("Newsreader")
-    # The story's paragraphs (2026-09-30): the first is the dek, the rest body paragraphs under it.
-    assert page.inner_text(".pv-dek").startswith("Rain keeps it on the ground")
-    assert texts(page, ".pvn-head .pv-body") == ["Gibbs gets the carries early and Detroit leans on him once it leads.",
-                                                 "With Coker out, Young has one target he trusts, and the passing game stalls."]
+    # The story's paragraphs (2026-09-30), every one set alike: one voice, not a dek and smaller body copy.
+    assert texts(page, ".pvn-head .pv-dek") == ["Rain keeps it on the ground, and Carolina allows the second-most RB points.",
+                                                "Gibbs gets the carries early and Detroit leans on him once it leads.",
+                                                "With Coker out, Young has one target he trusts, and the passing game stalls."]
+    sizes = page.evaluate("() => [...document.querySelectorAll('.pvn-head .pv-dek')].map(p => getComputedStyle(p).font)")
+    assert len(set(sizes)) == 1
     call = page.inner_text(".pvn-call").replace("\n", " ")
     for want in ("The call.", "DET giving 3.5", "Confident", "Carolina without Coker"):
         assert want in call, want
