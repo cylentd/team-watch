@@ -20,10 +20,12 @@ function pvViewHTML(){
     <div><b>${t("preview.empty.title")}</b><span>${t("preview.empty.sub")}</span></div></div></div>`;
   const i = pvIndex();
   const rec = PV_REC && pvRecord() && pvRecord().weeks.length;
-  const html = `<div class="wrap pv${PV_OPEN ? " open" : ""}${rec ? " rec" : ""}">
+  // The slip's tray joins the page once a pick is in it (handoff.js), the same tray as Slips'.
+  const tray = SLIP.length || BETS_SHEET;
+  const html = `<div class="wrap pv${PV_OPEN ? " open" : ""}${rec ? " rec" : ""}${tray ? " pv-tray" : ""}">
     ${pvSlateHTML(rec ? -1 : i)}
     ${rec ? pvRecSheetHTML() : pvDossierHTML(gs[i], i, gs.length, PV_ENTER)}
-  </div>`;
+  </div>${tray ? trayHTML() + sheetHTML() : ""}`;
   PV_ENTER = "";
   return html;
 }
@@ -102,5 +104,7 @@ function wirePreview(v){
   // A horizontal swipe turns the game; a mostly-vertical drag is a scroll and is left alone (lib/swipe.js).
   const card = v.querySelector("[data-pvswipe]");
   if (card) onSwipeX(card, pvTurn);
+  if (PV_OPEN && history.state?.layer === "preview") layerAdopt("preview", pvClose);   // Back from Slips lands on the dossier
+  wirePvSlip(v);
   pvScrollToNext(v);
 }

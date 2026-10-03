@@ -80,6 +80,7 @@ surface/preview/preview.css
 surface/matchups/record.css
 surface/preview/dossier.css
 surface/preview/record.css
+surface/preview/handoff.css
 surface/matchups/rows.css
 surface/matchups/splits.css
 # pin: digest/bodies.css after ticker.css -- its `.dg-ico` size yields to lead.css's `.dg-glyph .dg-ico`
@@ -123,13 +124,15 @@ surface/builder/legs.css
 surface/builder/strategy.css
 surface/builder/side.css
 surface/builder/ticket.css
-surface/builder/table.css
+surface/builder/board.css
 surface/builder/slip.css
 surface/builder/lines.css
 surface/builder/payout.css
 surface/builder/explain.css
 surface/builder/bets.css
 surface/builder/legsheet.css
+surface/builder/lineitem.css
+surface/builder/playersheet.css
 surface/dfs/table.css
 chrome/feed.css
 surface/dfs/lineup.css

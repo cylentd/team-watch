@@ -1,0 +1,13 @@
+/* ============================================================
+   THE PLAYER SHEET (2026-10-03, js/surface/parlay/playersheet.js)
+   In the leg sheet's overlay: who, the reason, his work week by
+   week as a small table, then every line he has (lineitem.css).
+   ============================================================ */
+.ps-why{margin:-4px 0 0;font-size:var(--t-2);line-height:1.45;color:var(--ink-2)}
+.ps-use{display:grid;grid-template-columns:auto repeat(var(--n),minmax(0,1fr));gap:4px 10px;padding:10px 12px;
+  border-radius:10px;background:var(--panel-2);font-size:var(--t-1)}
+.ps-wk{text-align:right;font-family:var(--mono);color:var(--ink-3);white-space:nowrap}
+.ps-k{color:var(--ink-3)}
+.ps-v{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+.ps-wk.old,.ps-v.old{opacity:.55}
+.ps-lines .sl-ln:first-child{border-top:0}

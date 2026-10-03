@@ -5,13 +5,17 @@
 
 /* A leg's graded chance. A receptions pick counts at its side's graded rate (12.51: lower stated
    65.4, hit 56.3; lower at 65%+ hit 57.3; higher stated 61.9, hit 42.3), never above its own
-   confidence; a touchdown at its P(score), which grading found honest. */
+   confidence; a touchdown at its P(score), which grading found honest. The side is the one on the
+   slip (slipSide, 2026-10-03): against the model's call the chance is what the model leaves for it.
+   A market the model does not price (Longest reception) has no chance: null. */
 const GRADED = {lowerAtFloor: 57.3, lower: 56.3, higher: 42.3};
 function legHit(p){
   const u = udPick(p);
+  if (!u) return null;
   if (p.mkt === "TD" || u.synthetic) return u.conf;
-  const g = u.pick === "higher" ? GRADED.higher : u.conf >= HIT_RECS ? GRADED.lowerAtFloor : GRADED.lower;
-  return Math.min(u.conf, g);
+  const side = slipSideOf(p), conf = side === u.pick ? u.conf : 100 - u.conf;
+  const g = side === "higher" ? GRADED.higher : u.conf >= HIT_RECS && side === u.pick ? GRADED.lowerAtFloor : GRADED.lower;
+  return Math.min(conf, g);
 }
 
 /* Underdog's standard board. 3x, 6x and 10x were seen in the app; 20x for five is the published
@@ -25,7 +29,7 @@ const udPayout = n => UD_BOARD[n] || null;
    19.5-27.0) where three independent legs would hit 13.3%. Underdog pays less for it (8.18x for a
    4-pick on 2026-09-14), so a stack never gets the standard board. */
 const STACK_HIT = 23.1;
-const isLower = p => { const u = udPick(p); return !!u && !u.synthetic && u.pick === "lower"; };
+const isLower = p => { const u = udPick(p); return !!u && !u.synthetic && slipSideOf(p) === "lower"; };
 function stackOf(qb){
   const recs = PROPS.filter(p => p.mkt === "REC" && p.team === qb.team && p.game === qb.game && ud(p))
     .sort((a, b) => ud(b).line - ud(a).line).slice(0, 2);
@@ -39,14 +43,16 @@ function stackIn(legs){
   }
   return null;
 }
+/* Null when any leg has no chance (an unpriced market). */
 function udChance(legs){
-  const st = stackIn(legs);
-  return legs.filter(l => !st || !st.includes(l)).reduce((a, l) => a * legHit(l) / 100, st ? STACK_HIT / 100 : 1);
+  const st = stackIn(legs), rest = legs.filter(l => !st || !st.includes(l));
+  if (rest.some(l => legHit(l) === null)) return null;
+  return rest.reduce((a, l) => a * legHit(l) / 100, st ? STACK_HIT / 100 : 1);
 }
 /* What the slip pays: the app's number when the reader typed one for this exact slip, else the
    standard board, and nothing for a stack, whose discount only the app knows. */
 let BETS_PAY = null;   // {sig, x}
-const slipSig = () => SLIP.join(",");
+const slipSig = () => SLIP.map(i => `${i}${slipSide(i)}`).join(",");
 function betsPayout(legs){
   if (BETS_PAY && BETS_PAY.sig === slipSig()) return BETS_PAY.x;
   return stackIn(legs) ? null : udPayout(legs.length);

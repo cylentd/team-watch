@@ -8,10 +8,9 @@ whole. Null values are fine; absent keys are not.
 """
 import leagues
 
-# A league's `status` is fa | waiver | rostered | mine | unknown -- no value is enforced here:
-# "unknown" (the scrape could not tell) is a real answer, and the card says so rather than
-# guessing FA (data/waiver.js waiverListed). A league's `lane` is why that league's screen listed
-# him (usage, role, open, insure, starter, injured), null where it did not (waiver.py _set_lane).
+# A league's `status` is fa | waiver | rostered | mine | unknown -- no value is enforced here: "unknown"
+# (the scrape could not tell) is a real answer, and the card says so rather than guessing FA (data/waiver.js
+# waiverListed). A league's `lane` is why its screen listed him (usage, role, open, insure, starter, injured), else null.
 # design/ranks.py: one row of Players > Ranks. `home`, `kick`, `inj`, `mu`, `mx` and `mxp` may be
 # null; `mx` (the points the defense adds or takes, ff-jarvis `matchup.pts`) and `mxp` (the part of
 # it already in `pts`, `matchup.priced`) are null for every WR.
@@ -306,6 +305,7 @@ CONTRACT = {
                   "rows": [("rows", ["slug", "n", "pos", "team", "g", "xfp", "pts", "gap", "td", "work", "prev"])]},
     # design/highlights.py, Players > Highlights (2026-09-29); a view's rows are pinned in tests/test_highlights.py.
     "LIVE_HIGHLIGHTS": {"keys": ["season", "week", "generated", "views"], "rows": [("views", ["view", "leaf", "rows"])]},
+    "LIVE_REASONS": {"keys": [], "map": (".", ["why", "work", "tags"])},   # design/slips.py (2026-10-03): the block IS the map; `{}` without the file
     # design/preview.py, This week > Preview (slate and dossier, 2026-09-29). A game's `take` is null
     # before Claude has written it; `line`, `matchup`, `wx`, `rest`, `travel`, `site` are null when
     # ff-jarvis has none (the row is not drawn), a line's `fav` null at even and `open` null with no
@@ -431,9 +431,9 @@ def problems(name, obj, limit=8):
                 if len(out) >= limit:
                     break
     field, keys = spec.get("map", (None, []))
-    if field and isinstance(obj.get(field), dict):
-        for key, row in obj[field].items():
-            out += [f"{name}.{field}[{key!r}].{k}" for k in keys if not isinstance(row, dict) or k not in row]
+    if field and isinstance(obj if field == "." else obj.get(field), dict):   # "." is the block itself
+        for key, row in (obj if field == "." else obj[field]).items():
+            out += [f"{name}{'' if field == '.' else '.' + field}[{key!r}].{k}" for k in keys if not isinstance(row, dict) or k not in row]
             if len(out) >= limit:
                 break
     for field, sub, keys in spec.get("nested", []):

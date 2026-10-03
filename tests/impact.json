@@ -109,7 +109,7 @@
                 "design/src/css/surface/builder/", "design/src/css/surface/dfs/", "design/src/js/data/dfs.js",
                 "design/src/js/data/market.js", "design/dfs_backtest.py", "design/slate.py", "design/defense.py"],
       "tests": ["tests/test_dfs_backtest.py", "tests/test_dfs_pool.py", "tests/test_dfs_solver.py", "tests/test_legsheet.py",
-                "tests/test_parlay_grid.py"],
+                "tests/test_parlay_grid.py", "tests/test_slip_reasons.py"],
       "render": ["build", "dfs", "parlay"]
     },
     "chat": {

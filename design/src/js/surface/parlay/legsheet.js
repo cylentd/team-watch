@@ -11,8 +11,9 @@
      5. Add to slip -- the same path a tap on a Build line takes (builder/wire.js betsToggleLeg)
 
    It lives outside #view (shell.html), so render() never rebuilds it under the reader. It pushes
-   a history entry as it opens (chrome/layers.js), so the phone's Back closes it before the view. */
-let LEG_SHEET = null;    // the PROPS index on screen, or null
+   a history entry as it opens (chrome/layers.js), so the phone's Back closes it before the view.
+   Since 2026-10-03 the same overlay also holds the Slips board's player sheet (playersheet.js). */
+let LEG_SHEET = null;    // the PROPS index on screen, a player's slug for the player sheet, or null
 let LEG_RETURN = null;   // what had focus before it opened
 const legEl = () => document.getElementById("legsheet");
 
@@ -41,7 +42,8 @@ function legHeadHTML(p, s){
    a number sits under its own game at any width. The rule is the line; for a touchdown it sits
    at one score. */
 function legBarsHTML(p, s, log){
-  const vals = log.v[p.mkt] || [];
+  // Longest reception logs null for a game with no catch: it draws as an empty slot.
+  const vals = (log.v[p.mkt] || []).map(v => typeof v === "number" ? v : 0);
   if (!vals.length) return "";
   const td = p.mkt === "TD", line = td ? 1 : s.line, n = vals.length;
   // A fifth of headroom over the tallest bar holds its number.
@@ -83,11 +85,30 @@ function legSheetHTML(i){
 }
 
 function legSheetOpen(i, origin){
+  if (PROPS[i]) lsShow(i, legSheetHTML(i), origin);
+}
+/* The Slips board's player sheet: every line he has (playersheet.js). */
+function playerSheetOpen(slug, origin){
+  const html = playerSheetHTML(slug);
+  if (html) lsShow(slug, html, origin);
+}
+
+/* Redraw what is up in place, keeping its scroll, and give focus back to `sel` in it. */
+function lsRefresh(sel){
   const d = legEl();
-  if (!d || !PROPS[i]) return;
-  LEG_SHEET = i;
+  if (!d || LEG_SHEET === null) return;
+  const top = d.scrollTop;
+  d.innerHTML = typeof LEG_SHEET === "string" ? playerSheetHTML(LEG_SHEET) : legSheetHTML(LEG_SHEET);
+  d.scrollTop = top;
+  (sel && d.querySelector(sel) || d.querySelector("[data-legclose]")).focus({preventScroll: true});
+}
+
+function lsShow(key, html, origin){
+  const d = legEl();
+  if (!d) return;
+  LEG_SHEET = key;
   LEG_RETURN = origin || document.activeElement;
-  d.innerHTML = legSheetHTML(i);
+  d.innerHTML = html;
   d.scrollTop = 0;
   d.classList.add("on");
   d.setAttribute("aria-hidden", "false");
@@ -123,6 +144,8 @@ function legSheetAdd(i, btn){
   if (!d) return;
   d.addEventListener("click", e => {
     if (e.target.closest("[data-legclose]")) return legSheetClose();
+    const pick = e.target.closest("[data-slpick]");
+    if (pick) return slPick(pick);
     const add = e.target.closest("[data-legadd]");
     if (add) legSheetAdd(+add.dataset.legadd, add);
   });

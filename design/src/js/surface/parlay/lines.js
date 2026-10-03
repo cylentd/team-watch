@@ -36,7 +36,8 @@ function buildRowHTML(p){
     <button type="button" class="more bl-call" data-legsheet="${i}" title="${t("parlay.tag.staleTitle")}">${t("parlay.call.moved")}</button></div>`;
   const inSlip = SLIP.includes(i), lower = s.pick === "lower";
   const word = td ? t("parlay.call.scores") : PARLAY_BOOK === "dk" ? t("parlay.call.over") : lower ? t("parlay.call.lowerWord") : t("parlay.call.higherWord");
-  const pct = typeof s.pct === "number" ? `${s.pct}%` : t("parlay.call.pending");
+  // Longest reception is never priced (2026-10-03), so it is not "pending" either: no number.
+  const pct = typeof s.pct === "number" ? `${s.pct}%` : p.mkt === "LONG" ? "" : t("parlay.call.pending");
   const price = PARLAY_BOOK === "dk" ? ` <i>${esc(fmtAm(s.price))}</i>` : "";
   return `<div class="bline" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">${ev}
     <span class="bl-call ${lower ? "lower" : "higher"}">${word}<b>${pct}${price}</b></span></div>`;

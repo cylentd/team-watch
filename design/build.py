@@ -50,9 +50,10 @@ from sources import (                                    # design/sources.py: th
     ROOT, REPO, DWR, FEED, ESPN_ROSTERS, DFS_POOL,
     feed_block, read_first, warn_if_stale, load_status, load_props_raw, load_model_raw,
     load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
-    load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_startsit, load_startsit_review, load_digest, load_game_preview, load_preview_record, load_league, load_role_board, load_highlights,
+    load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_startsit, load_startsit_review, load_digest, load_game_preview, load_preview_record, load_league, load_role_board, load_highlights, load_slip_reasons,
     load_defense, load_kickers,
 )
+from slips import UNPRICED, carry_mean, live_reasons, null_prices, report as slips_report  # the Slips board's data
 from gameday import live_gameday, report as gameday_report  # This week > Live: every matchup, scored live
 from defense import live_defense, report as defense_report  # design/defense.py: the leg sheet's matchup line
 from wx_history import live_wx_history, report as wx_history_report  # Weather's backtest lines
@@ -137,7 +138,7 @@ def sleeper_flag(rec):
 BOOK_ORDER = ["DraftKings", "Underdog"]
 REFERENCE_BOOK = "Consensus"
 POS_ORDER = {"QB": 0, "RB": 1, "WR": 2, "TE": 3}
-MKT_ORDER = {"PASS": 0, "RUSH": 1, "REC": 2, "RECS": 3, "TD": 4}
+MKT_ORDER = {"PASS": 0, "RUSH": 1, "REC": 2, "RECS": 3, "TD": 4, "LONG": 5}
 # BettingPros team codes that differ from the ESPN/nflverse codes the rest of the page uses.
 TEAM_FIX = {"JAC": "JAX", "LA": "LAR"}   # the book's and the model's spellings, one canon
 # Where the model's rate sits relative to the book's line across the whole slate (week 1 2026:
@@ -382,6 +383,8 @@ def live_props(available, rosters):
     modeled = 0
     for p in out:
         slug = slugify(p["n"])
+        if p["mkt"] in UNPRICED:
+            null_prices(p)   # Longest reception: no P(over), so the price keys are null (design/slips.py)
         # Every book's own line gets its own P(over): Underdog often posts a different number, and
         # on Underdog the bet is a pick (higher or lower at their line), not a price, so the card
         # carries the pick and its confidence rather than an edge.
@@ -398,16 +401,16 @@ def live_props(available, rosters):
         r = priced.get((slug, p["mkt"], p["line"]))
         if r is None:
             continue
-        # This week's status rides with the price: OUT (Sleeper says he is not playing, the line
-        # is stale), Q (questionable, priced but not slip material), backup (depth chart), or
-        # no_role (a touchdown line on a player the book prices no yards for). role_note is a
-        # separate, hand-written signal (data/role_notes.json) already baked into this row's own
-        # p_over/edge -- it rides along only so the card can show why the number moved.
+        # This week's status rides with the price: OUT (Sleeper says he is not playing, the line is stale),
+        # Q (priced but not slip material), backup (depth chart), no_role (a TD line, no yards priced).
+        # role_note (data/role_notes.json, hand-written) is already in p_over/edge; it rides along so the card shows why.
         for k in ("flag", "injury", "injury_note", "depth", "role_note"):
             if r.get(k) is not None:
                 p[k] = r[k]
         if r.get("p_over") is None:
-            if p.get("flag") != "out":
+            if p["mkt"] in UNPRICED:
+                carry_mean(p, r, TEAM_FIX)
+            elif p.get("flag") != "out":
                 p["norole"] = 1   # a touchdown line on a player the book prices no yards for
             continue
         over = p["books"][p["book"]]["over"]
@@ -415,22 +418,18 @@ def live_props(available, rosters):
         p["edge"] = round((r["p_over"] - implied(over)) * 100, 1)
         p["mu"] = r["mu"]
         p["games"] = r["games"]   # how much of his own history the rate rests on
-        # New team. The model's `team` is the one on his last game log; the book's is this
-        # week's. When they differ, every game the rate rests on was in another offense, with
-        # another quarterback, and the model has no feature for that (props_model.py names it
-        # a v1 blind spot). The card says NEW TEAM and no preset will build a slip on it. `FA`
-        # from the book means it does not know either, so no verdict there.
+        # New team. The model's `team` is on his last game log, the book's is this week's. When they differ
+        # every game the rate rests on was in another offense, a v1 blind spot (props_model.py): the card
+        # says NEW TEAM and no preset builds on it. `FA` from the book means it does not know either.
         old = TEAM_FIX.get(r.get("team"), r.get("team"))
         if old and p.get("team") and p["team"] != "FA" and old != p["team"]:
             p["moved"] = old
         if r.get("opp_f"):
             p["opp"], p["opp_f"] = TEAM_FIX.get(r.get("opp"), r.get("opp")), r["opp_f"]   # the defense, and what it allows vs league
         modeled += 1
-        # Role check. The rate is last season's; the line is this week's. Across the slate the
-        # rate sits about 12% above a yards line (a mean over a median) and on top of a receptions
-        # line. A line far outside that band means the book knows the role changed -- a demoted
-        # starter, a back in a new committee -- and the gap is not an edge. The card says ROLE?
-        # and no preset will build a slip on it.
+        # Role check. The rate is last season's, the line this week's; across the slate it sits ~12% above
+        # a yards line and on a receptions line. Far outside that band the book knows the role changed
+        # (a demoted starter, a new committee), not an edge: the card says ROLE? and no preset builds on it.
         if p["mkt"] != "TD" and p["line"] and r["mu"] and is_stale(p["mkt"], r["mu"], p["line"]):
             p["stale"] = 1
 
@@ -441,13 +440,13 @@ def live_props(available, rosters):
         by_slug = {slugify(r["wr"]): r for r in wrcb.get("records", [])}
         for p in out:
             r = by_slug.get(slugify(p["n"]))
-            if r and p["mkt"] in ("REC", "RECS", "TD"):
+            if r and p["mkt"] in ("REC", "RECS", "TD", "LONG"):
                 p["cb"] = {"v": r["verdict"], "cb": r["cb"], "why": (r.get("rationale") or "")[:400],
                            "url": r.get("source_url")}
 
     windows = assign_windows(out)
     # Best edge first; unmodelled rows after, mine first, by kickoff; the not-playing last.
-    out.sort(key=lambda p: (0, -p["edge"]) if "edge" in p
+    out.sort(key=lambda p: (0, -p["edge"]) if p.get("edge") is not None
              else (2 if p.get("flag") == "out" else 1, not p["mine"], p["commence"] or "",
                    POS_ORDER.get(p["pos"], 9), p["n"]))
     return {
@@ -698,6 +697,7 @@ def render():
         "LIVE_FEED": live_feed(),
         "LIVE_NEWS": news,
         "LIVE_PROPS": props,
+        "LIVE_REASONS": live_reasons(load_slip_reasons(), props),
         "LIVE_DFS_YAHOO": liveDfsYahoo,
         "LIVE_PROFILES": load_profiles(),
         "LIVE_WAIVER": waiver,
@@ -729,7 +729,7 @@ def render():
     }
     blocks["LIVE_SIGNED"] = live_signed(load_gamelog_weekly(), blocks["LIVE_SCHEDULE"], slugify, wanted_set)
     add_market_stock(blocks, report)
-    report += [schedule_report(blocks["LIVE_SCHEDULE"]), signed_report(blocks["LIVE_SIGNED"]), digest_report(blocks["LIVE_DIGEST"]),
+    report += [slips_report(blocks["LIVE_REASONS"]),schedule_report(blocks["LIVE_SCHEDULE"]), signed_report(blocks["LIVE_SIGNED"]), digest_report(blocks["LIVE_DIGEST"]),
                preview_report(blocks["LIVE_PREVIEW"]), pedigree_report(blocks["LIVE_PEDIGREE"]), gamelog_report(blocks["LIVE_GAMELOG"]),
                projections_report(blocks["LIVE_PROJECTIONS"]), ranks_report(blocks["LIVE_RANKS"]),
                routes_report(blocks["LIVE_ROUTES"]), report_archetype(blocks["LIVE_ARCHETYPE"]),

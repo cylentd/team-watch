@@ -291,6 +291,11 @@ STATES = [
     ("preview", go("preview")),
     ("preview-dossier", go("preview") + [("click", "[data-pvopen='2']")]),
     ("preview-notake", go("preview") + [("click", "[data-pvopen='4']")]),
+    # From this game to your slip (2026-10-03): game 3 made the props slate's SEA @ SF, Kittle named
+    # in its take, his receiving yards tapped Higher, so the tray and the "on slip" mark show.
+    ("preview-slip", go("preview") + [("eval", """(() => { const g = LIVE_PREVIEW.games[3]; g.away = 'SEA'; g.home = 'SF';
+      g.take.players = [{n: 'George Kittle', slug: 'george-kittle', pos: 'TE', team: 'SF', proj: 9.1, call: 'up', why: 'Seattle allows the most TE points.'}];
+      PV_I = 3; PV_OPEN = true; render(); })()"""), ("click", ".pva.handoff [data-side='higher']")]),
     # Claude's record (2026-09-29, confidence): every week open (the fixture's two graded weeks), and
     # the slate before any graded week, when the card is one line.
     ("preview-record", go("preview") + [("click", "[data-pvrec]")]),
@@ -362,15 +367,19 @@ STATES = [
                                        ("click", "[data-tray]"), ("click", "[data-preset='mine']")]),
     ("build-underdog", go("build")),
     ("build-panel", go("build") + [("click", "[data-betspanel]")]),
-    # The deal table (2026-09-29) on an opened pool (OPEN_POOL): a kept slip loaded into the sheet,
-    # a Safe deal with a lock and a kept slip, and the Sunday tab.
-    ("parlay-sheet", go("parlay") + [("eval", OPEN_POOL), ("click", "[data-tkeep]"), ("click", ".dt-kept-load"), ("click", "[data-tray]")]),
-    ("parlay-safe", go("parlay") + [("eval", OPEN_POOL), ("click", "[data-tkind='safe']"), ("click", "[data-tlegs='3']"),
-                                    ("click", ".dt-slip .dt-lock"), ("click", "[data-tkeep]")]),
+    # The research board (2026-10-03; it replaced the deal table): the Sunday tab, Monday night's
+    # game on All, St. Brown's player sheet with two legs on, and the tray's sheet with a saved slip.
     ("parlay-day", go("parlay") + [("click", ".bets-tabsrow [data-gwin]")]),
-    # The leg sheet (2026-09-27): a slip's first pick tapped, and Tee Higgins' receptions, whose
-    # log carries per-game usage and whose opponent (NYJ) has two starters out.
-    ("parlay-legsheet", go("parlay") + [("eval", OPEN_POOL), ("click", ".ticket .tk-leg .tk-who")]),
+    ("parlay-board-mon", go("parlay") + [("eval", "GAL_WIN = 'evening-mon'; render()"), ("click", "[data-slchip='all']")]),
+    ("parlay-player", go("parlay") + [("eval", "GAL_WIN = 'evening-mon'; render()"), ("click", "[data-slchip='all']"),
+                                      ("click", ".sl-row[data-slplayer='amonra-st-brown']"),
+                                      ("click", "#legsheet [data-slpick][data-side='higher']"),
+                                      ("click", "#legsheet .sl-ln:nth-child(2) [data-side='lower']")]),
+    ("parlay-saved", go("parlay") + [("eval", "GAL_WIN = 'evening-mon'; render()"),
+                                     ("eval", "slipSet(PROPS.findIndex(p => p.slug === 'amonra-st-brown' && p.mkt === 'REC'), 'higher'); render()"),
+                                     ("click", "[data-slsave]"), ("click", "[data-tray]")]),
+    # The leg sheet (2026-09-27), from Build's ⓘ: Tee Higgins' receptions, whose log carries
+    # per-game usage and whose opponent (NYJ) has two starters out.
     ("parlay-legsheet-recs", go("parlay") + [("eval", "legSheetOpen(PROPS.findIndex(p => p.n === 'Tee Higgins' && p.mkt === 'RECS'))")]),
     ("dfs-yahoo", go("dfs")),
     # DFS since 2026-09-25: the strategy as the bar's chips, the site and "how this works" in the

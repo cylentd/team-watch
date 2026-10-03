@@ -1033,7 +1033,38 @@ the cart's footer caption, never shown as an Underdog price. Switching the toggl
 by hand; the cart warns when two legs
 share a game (correlated legs are one bet, not two).
 
-**Superseded 2026-09-29: Slips is a deal table** (`builder/table.js`, `surface/parlay/table.js`,
+**Superseded 2026-10-03: Slips is a research board** (`builder/board.js` reads, `surface/parlay/board.js`
+draws, `css/surface/builder/board.css`; storyboard "Slips research board", picked A + B,
+https://claude.ai/artifact/G1zpdnpWBDroeuwqkrVADX). David researches here and enters his slips on
+Underdog; Kept went unused. The page answers "who is getting the work", not "deal me a slip".
+
+| Part | What |
+|---|---|
+| Bar | the kickoff tabs, unchanged, then the book chip |
+| Game card | matchup and kickoff; each side's implied points as one bar (`LIVE_LINES`, else Preview's line); spread and total in words; Preview's headline and the first sentence of its story; chips Work rising · TE · Role guys · All N |
+| Player row | name, position · club, his work in his last three games as bars with the latest number (`LIVE_REASONS.work`, else the log's `u`), his snap share, ff-jarvis's `why`, "N lines". No line and no % on a row |
+| Player sheet | in the leg sheet's overlay (`playersheet.js`): his work week by week (snaps, targets, carries, RZ looks; an earlier season faded), then every line he has, Anytime TD included, then "Longest catch": his longest catch in each of the four games, history only (no line, no sides, no count; a game with no catch logged is a dash), because no source sells a Longest reception line we can read (plan update 2026-10-03) |
+| Line row | `lineitem.js`, shared with Preview: market and line, Higher / Lower (a TD: Yes), last four games vs today's line (lime cleared, earlier season faded), "N of 4", the model's % small at the end only when the model prices the line |
+| Tray | count, who, Save slip; its sheet: the slip, the payout box, copy, then the slips saved this week (`localStorage` `tw.slips.saved.<week>`, guarded), each a tap to load and an x to delete |
+
+- **Who shows:** every player with a line still to play, not out, his line not moved far from the
+  model (`lineMoved`). A WR3 or a backup back stays: David's wins on 2026-10-03 were role players.
+  Rising work sorts first; a game where nobody's work rose opens on All, never empty.
+- **Sides:** the reader picks the side (`SLIP_SIDE`); a Build tap still takes the model's call. A
+  leg's graded chance follows its side (`legHit`: higher at most 42.3%, lower 56.3%); a LONG prop
+  row, should one arrive, is no line on the board and has no chance, so a slip holding one (Build
+  can add it) shows none, never a wrong one. No side gate anywhere: the old
+  lower-only floor and the Safe/TDs/Mix deal are gone.
+- **"on slip":** a player on the tray's slip or a saved one, on his board row and in Preview.
+- **Preview hand-off:** the dossier's box score gains "From this game to your slip" (`preview/handoff.js`):
+  the take's players with lines, in the line row, into the same tray, then "All N players in Slips",
+  which opens Slips on that kickoff with the game's card in view.
+- **Budget:** the first row sits under the game card's head (matchup, bar, take, chips), so it starts
+  past STYLE.md's ~200px; the storyboard accepted ~330px for a game header first. Measured on
+  2026-10-03 against the live build at 360x800: the first row at 340px, no sideways scroll.
+
+~~**Slips is a deal table**~~ (superseded 2026-10-03 by the research board above; it superseded the
+gallery 2026-09-29) (`builder/table.js`, `surface/parlay/table.js`, both deleted 2026-10-03,
 `builder/table.css`; storyboard "Slips Redesign Storyboard", option C, with Keep added because
 David builds several slips a kickoff). The gallery, its category tabs (All, Receptions, TDs, Long,
 Stacks), Deal me 3 and the TD board are gone. The gallery showed 15 cards for the week because only

@@ -1,0 +1,32 @@
+{
+ "generated": "2026-09-10 07:35",
+ "season": 2026,
+ "week": 2,
+ "players": {
+  "tee-higgins": {
+   "why": "Targets 6, 9, 5 in his last 3 games. Chase (IR) frees targets.",
+   "work": {"key": "tgt", "last": [6, 9, 5], "trend": -1},
+   "tags": ["vacated", "trailing"]
+  },
+  "amonra-st-brown": {
+   "why": "Targets 7, 9, 11 in his last 3 games. Trailing by 3.5 means more passing.",
+   "work": {"key": "tgt", "last": [7, 9, 11], "trend": 4},
+   "tags": ["work_up", "trailing"]
+  },
+  "george-kittle": {
+   "why": "Targets 5, 6, 8 in his last 3 games.",
+   "work": {"key": "tgt", "last": [5, 6, 8], "trend": 3},
+   "tags": ["work_up"]
+  },
+  "jahmyr-gibbs": {
+   "why": "Carries 15, 13, 11 in his last 3 games.",
+   "work": {"key": "car", "last": [15, 13, 11], "trend": -4},
+   "tags": ["work_down", "leading"]
+  },
+  "lamar-jackson": {
+   "why": "Snaps 98, 100, 97 percent in his last 3 games.",
+   "work": {"key": "snap", "last": [98, 100, 97], "trend": -1},
+   "tags": []
+  }
+ }
+}

@@ -1,0 +1,11 @@
+/* PREVIEW's hand-off to Slips (2026-10-03, js/surface/preview/handoff.js): a box-score section, each
+   player the take names with his lines in the shared line row (builder/lineitem.css), then the way to
+   every player of the game in Slips. */
+.pv-sl + .pv-sl{margin-top:10px}
+.pv-slh{display:flex;align-items:baseline;gap:8px;margin:0;font-size:var(--t-3);color:var(--ink)}
+.pv-slh small{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.pv-slh .sl-on{margin-left:auto}
+.pv-slw{margin:2px 0 0;font-size:var(--t-2);line-height:1.45;color:var(--ink-2)}
+.pv-slgo{display:inline-flex;align-items:center;gap:6px;margin-top:12px}
+.pv-sln{display:inline-flex;align-items:center;gap:6px;margin-top:8px}
+.pv-slgo svg,.pv-sln svg{width:6px;height:10px;stroke:currentColor;stroke-width:1.8;fill:none}

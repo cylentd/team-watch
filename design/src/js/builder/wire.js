@@ -81,34 +81,14 @@ function wireBuilder(v){
     // A kickoff change on Slips keeps the cards that stay in view and slides them (flight.js).
     if (sel.dataset.msel === "gwin") betsFlip(render); else render();
   }));
-  v.querySelectorAll("[data-preset]").forEach(b=>b.addEventListener("click",()=>{
-    SLIP_MODE = b.dataset.preset; SLIP = presetSlip(SLIP_MODE, PARLAY_BOOK);
-    const y = window.scrollY; render(); window.scrollTo(0, y);
-  }));
+  // The slip's own controls (presets, copy, remove, save) are wired with the tray (traywire.js).
   v.querySelectorAll("[data-parlaybook]").forEach(b=>b.addEventListener("click",()=>{
     PARLAY_BOOK = b.dataset.parlaybook;
     MKT_PAGE = 1; MKT_SORT = MKT_KIND === "TD" ? "model" : (PARLAY_BOOK === "underdog" ? "conf" : "edge");
-    SLIP = []; SLIP_MODE = "blank";
+    SLIP = []; SLIP_SIDE = {}; SLIP_MODE = "blank";
     render();
-  }));
-  v.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click", async ()=>{
-    const text = slipText(b.dataset.copy === "picks");
-    let ok = false;
-    try { await navigator.clipboard.writeText(text); ok = true; }
-    catch (e) {
-      const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta);
-      ta.select(); try { ok = document.execCommand("copy"); } catch (e2) {} ta.remove();
-    }
-    const was = b.textContent; b.textContent = ok ? t("parlay.slip.copied") : t("parlay.slip.copyFailed");
-    setTimeout(()=>{ b.textContent = was; }, 1400);
   }));
   v.querySelectorAll("[data-explain]").forEach(el=>el.addEventListener("click",()=>openExplain(el.dataset.explain)));
-  v.querySelectorAll("[data-removeleg]").forEach(b=>b.addEventListener("click",()=>{
-    const i = +b.dataset.removeleg;
-    SLIP = SLIP.filter(x=>x!==i);
-    SLIP_MODE = "custom";
-    render();
-  }));
   v.querySelectorAll("[data-prop]").forEach(el=>{
     const toggle = ()=>betsToggleLeg(v, +el.dataset.prop, el.getBoundingClientRect());
     // The ⓘ at the row's end opens the leg sheet instead (wireBets).
@@ -117,14 +97,15 @@ function wireBuilder(v){
   });
 }
 
-/* A line into the slip or out of it: a Build tap, and the leg sheet's Add button. An added pick
-   flies from `from` to the tray; a removed one needs no flight, the tray just re-counts. */
+/* A line into the slip or out of it at the model's side: a Build tap, and the leg sheet's Add
+   button. An added pick flies from `from` to the tray; a removed one needs no flight, the tray just
+   re-counts. */
 function betsToggleLeg(v, i, from){
-  const was = betsSlipPct();
-  SLIP = SLIP.includes(i) ? SLIP.filter(x=>x!==i) : SLIP.concat(i);
+  if (SLIP.includes(i)){ SLIP = SLIP.filter(x=>x!==i); delete SLIP_SIDE[i]; }
+  else SLIP = SLIP.concat(i);
   SLIP_MODE = "custom";
   const y = window.scrollY; render(); window.scrollTo(0, y);
   popLeg(v, i, SLIP.includes(i));
-  if (SLIP.includes(i)) betsFly(from, PROPS[i].n, was); else betsLand(SLIP.length, was);
+  if (SLIP.includes(i)) betsFly(from, PROPS[i].n); else betsLand(SLIP.length);
 }
 

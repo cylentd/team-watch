@@ -18,6 +18,18 @@ function layerPush(id, close){
   history.pushState({layer: id}, "");
 }
 
+/* A layer whose view is left while it stays open (Preview's dossier, handed on to Slips): its entry
+   stays in the history and only the registration goes, so the Back that returns to it does not close
+   it. layerAdopt takes the registration up again once the view is back on that entry. */
+function layerForget(id){
+  const i = LAYERS.findIndex(l => l.id === id);
+  if (i >= 0) LAYERS.splice(i, 1);
+}
+
+function layerAdopt(id, close){
+  if (!LAYERS.some(l => l.id === id)) LAYERS.push({id, close});
+}
+
 function layerDone(id){
   const i = LAYERS.findIndex(l => l.id === id);
   if (i < 0) return;

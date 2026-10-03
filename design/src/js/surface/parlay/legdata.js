@@ -33,6 +33,10 @@ function legSide(p){
     const b = p.books.Underdog;
     return {book: "underdog", pick: u.pick, line: u.line, where: "Underdog", pct: u.conf, price: u.pick === "lower" ? b.under : b.over};
   }
+  // A line the model does not price (Longest reception): Underdog's own line, no chance, higher.
+  const own = PARLAY_BOOK === "underdog" && !u ? ud(p) : null;
+  if (own && typeof own.line === "number")
+    return {book: "underdog", pick: "higher", line: own.line, where: "Underdog", pct: null, price: own.over};
   const dk = p.books && p.books.DraftKings;
   const price = p.mkt === "TD" && dk ? dk.over : overPrice(p);
   return {book: u ? "underdog" : "dk", pick: "higher", line: p.mkt === "TD" ? null : p.line, synthetic: !!u,

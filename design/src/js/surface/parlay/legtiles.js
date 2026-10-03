@@ -9,7 +9,8 @@ const lsTile = (label, value, read) => value === null || value === undefined || 
 function legTilesFor(p, log){
   const rows = legWeeks(p), u = log && log.u;
   const grid = k => lsMean(legGrid(rows, k));
-  if (p.mkt === "RECS" || p.mkt === "REC"){
+  // Longest reception rests on the same three as yards: targets, yards a target, depth.
+  if (p.mkt === "RECS" || p.mkt === "REC" || p.mkt === "LONG"){
     const tg = legTargets(p, log), adot = legAdot(p);
     const pg = tg ? tg.pg : null;
     if (p.mkt === "RECS"){
@@ -62,7 +63,7 @@ function legTilesHTML(p, log){
 function legDriver(p, log){
   const u = log && log.u;
   if (!u) return null;
-  if (p.mkt === "RECS" || p.mkt === "REC") return {label: t("legsheet.bars.tgt"), vals: u.tgt};
+  if (p.mkt === "RECS" || p.mkt === "REC" || p.mkt === "LONG") return {label: t("legsheet.bars.tgt"), vals: u.tgt};
   if (p.mkt === "RUSH") return {label: t("legsheet.bars.car"), vals: u.car};
   if (p.mkt === "TD") return {label: t("legsheet.bars.rz"), vals: u.rz_tgt.map((v, k) => v == null && u.rz_car[k] == null ? null : (v || 0) + (u.rz_car[k] || 0))};
   return null;

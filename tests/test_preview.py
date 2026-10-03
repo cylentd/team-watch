@@ -287,7 +287,8 @@ def test_the_game_page_reads_like_a_newspaper(page):
     parts = page.evaluate("() => [...document.querySelector('.pvn').children].map(e => e.className)")
     assert parts == ["pvn-head", "pvn-call", "pvn-box", "pvn-story"]
     box = page.evaluate("() => [...document.querySelectorAll('.pva')].map(r => r.classList[1])")
-    assert box == ["win", "lines", "matchup", "inj", "wx", "rest"]
+    # "slip" since 2026-10-03: the take names Amon-Ra St. Brown, who has lines on the fixture's slate.
+    assert box == ["win", "lines", "matchup", "handoff", "inj", "wx", "rest"]
     assert page.evaluate("getComputedStyle(document.querySelector('.pv-head')).fontFamily").startswith("Newsreader")
     # The story's paragraphs (2026-09-30), every one set alike: one voice, not a dek and smaller body copy.
     assert texts(page, ".pvn-head .pv-dek") == ["Rain keeps it on the ground, and Carolina allows the second-most RB points.",
@@ -522,3 +523,46 @@ def test_nothing_scrolls_sideways_at_360(page):
     page.evaluate("() => { PV_OPEN = false; PV_REC = true; render(); document.querySelectorAll('.pv-rw').forEach(d => d.open = true); }")
     assert page.locator(".pv-rz").count() == 1
     assert page.evaluate("document.documentElement.scrollWidth") <= 360, "the record"
+
+
+# The fixture's preview games and its props slate are different games, so the hand-off test turns
+# game 3 into the props slate's SEA @ SF and names Kittle in its take.
+AS_SEA_SF = """() => { const g = LIVE_PREVIEW.games[3]; g.away = 'SEA'; g.home = 'SF';
+  g.take.players = [{n: 'George Kittle', slug: 'george-kittle', pos: 'TE', team: 'SF', proj: 9.1, call: 'up',
+                     why: 'Seattle allows the most TE points.'}];
+  PV_I = 3; PV_OPEN = true; render(); }"""
+
+
+@pytest.mark.render
+def test_the_dossier_hands_its_players_to_the_slip(page):
+    """From this game to your slip (2026-10-03): each player the take names with his lines in the
+    player sheet's row; a side tapped lands in the same tray as Slips', and he is marked on slip;
+    "All N players in Slips" opens Slips on the game's kickoff with its card."""
+    assert page.locator(".pva.handoff").count() == 0, "no game of the props slate is open"
+    page.evaluate(AS_SEA_SF)
+    page.evaluate("pvClose(); pvOpen(3)")   # the real open: it pushes the dossier's history entry
+    sec = page.locator(".pva.handoff")
+    assert sec.locator(".pva-h").inner_text() == "From this game to your slip"
+    assert sec.locator(".pv-sl").count() == 1 and sec.locator(".sl-ln").count() == 1, "one line each, his position's own (REC)"
+    assert sec.locator(".sl-mk").inner_text().startswith("Rec yds"), "the primary line is his yards market"
+    assert sec.locator("[data-slplayer]").inner_text().startswith("2 lines"), "TD and yards; LONG is no line"
+    assert page.locator(".tray").count() == 0, "no tray on Preview until a pick is in it"
+    rec = page.evaluate("PROPS.findIndex(p => p.slug === 'george-kittle' && p.mkt === 'REC')")
+    sec.locator(f"[data-slpick='{rec}'][data-side='higher']").click()
+    assert page.evaluate("SLIP") == [rec] and page.evaluate(f"slipSide({rec})") == "higher"
+    assert page.locator(".tray .tray-n").inner_text() == "1"
+    assert page.locator(".pva.handoff .sl-on").count() == 1
+    assert page.evaluate("document.documentElement.scrollWidth") <= 360
+    go = page.locator("[data-pvslips]")
+    n = page.evaluate("new Set(pvSlipRows(LIVE_PREVIEW.games[3]).map(([p]) => p.slug)).size")
+    assert go.inner_text().startswith(f"All {n} players in Slips")
+    go.click()
+    assert page.evaluate("SURFACE") == "parlay" and page.evaluate("GAL_WIN") == "evening-sun"
+    assert page.locator(".sl-game[data-slgamecard='SEA @ SF']").count() == 1
+    assert page.locator(".sl-row[data-slplayer='george-kittle'] .sl-on").count() == 1
+    # Back from Slips lands on the dossier it left, not the slate; Back again closes the dossier.
+    page.go_back()
+    page.wait_for_function("SURFACE === 'preview'")
+    assert page.evaluate("PV_OPEN") is True and page.locator(".pva.handoff").count() == 1
+    page.go_back()
+    page.wait_for_function("PV_OPEN === false")

@@ -1,21 +1,22 @@
 /* Bets motion (2026-09-25), the four moments of the storyboard, each ending where its thing now
    lives (design/STYLE.md, "Motion"):
-     a pick flies from its line to the tray, and the tray counts it and rolls the chance;
-     "Load slip" pours the ticket's legs into the tray one by one, counted as they land;
+     a pick flies from its line to the tray, and the tray counts it;
+     a saved slip pours its legs into the tray one by one, counted as they land;
      the tray grows into the sheet, the leg bars draw, then the all-hit bar, shorter;
      a filter slides the cards that stay and fades the ones that go.
    render() rebuilds #view on every tap, so each motion measures before the render and plays
-   after it. Under reduced motion every function jumps to its end state. */
+   after it. Under reduced motion every function jumps to its end state. The tray stopped rolling a
+   chance on 2026-10-03: it names who is on the slip instead, and the chance lives in its sheet. */
 const betsCss = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 const betsTray = () => document.querySelector(".tray");
 
-/* The tray's count and chance, set in place without a render, so they can change on landing. */
-function betsSetTray(n, pctText){
+/* The tray's count and names, set in place without a render, so they can change on landing. */
+function betsSetTray(n){
   const tray = betsTray();
   if (!tray) return;
   tray.classList.toggle("empty", !n);
   tray.querySelector(".tray-n").textContent = n;
-  tray.querySelector(".tray-pc").textContent = n ? pctText : t("parlay.tray.empty");
+  tray.querySelector(".tray-who").textContent = n ? trayWho(n) : t("slips.tray.empty");
 }
 
 function betsPop(){
@@ -24,20 +25,9 @@ function betsPop(){
     {duration: parseFloat(betsCss("--dur-pop")) * 1000 || 690, easing: betsCss("--spring-pop")});
 }
 
-/* The chance rolls from what it was to what it is, so the cost of a leg is seen, not inferred. */
-function betsLand(n, was){
-  const now = betsSlipPct();
-  betsSetTray(n, betsPctText(now));
+function betsLand(n){
+  betsSetTray(n);
   betsPop();
-  const pc = betsTray()?.querySelector(".tray-pc");
-  if (!pc || now === null || REDUCED()) return;
-  const from = was === null || was === undefined ? 100 : was, t0 = performance.now();
-  const step = at => {
-    const k = Math.min(1, (at - t0) / 460), e = 1 - Math.pow(1 - k, 3);
-    pc.textContent = betsPctText(from + (now - from) * e);
-    if (k < 1) requestAnimationFrame(step);
-  };
-  requestAnimationFrame(step);
 }
 
 /* A chip with the player's name, from where he was tapped to the tray. */
@@ -57,19 +47,20 @@ function betsChip(from, label){
   ], {duration: 520, easing: betsCss("--ease-flight") || "ease"}).finished.then(() => chip.remove());
 }
 
-function betsFly(from, name, was){
+function betsFly(from, name){
   const n = SLIP.length;
-  betsSetTray(n - 1, betsPctText(was ?? null));
-  betsChip(from, nameInitial(name)).then(() => betsLand(n, was));
+  if (REDUCED()) return betsLand(n);
+  betsSetTray(n - 1);
+  betsChip(from, nameInitial(name)).then(() => betsLand(n));
 }
 
 /* 70ms apart, so each leg is a separate landing a reader can count. */
 function betsPour(rects, names){
   const n = names.length;
-  if (REDUCED()) return betsLand(n, null);
-  betsSetTray(0, "");
+  if (REDUCED()) return betsLand(n);
+  betsSetTray(0);
   names.forEach((name, k) => setTimeout(() => betsChip(rects[k] || rects[0], nameInitial(name)).then(() => {
-    if (k < n - 1){ betsSetTray(k + 1, "…"); betsPop(); } else betsLand(n, null);
+    if (k < n - 1){ betsSetTray(k + 1); betsPop(); } else betsLand(n);
   }), k * 70));
 }
 
@@ -112,33 +103,25 @@ function betsSheetOpen(){
 
 function betsSheetClose(){
   const sheet = document.querySelector(".slipsheet");
-  const done = () => { BETS_SHEET = false; render(); betsTray()?.focus({preventScroll: true}); };
+  const done = () => { BETS_SHEET = false; render(); document.querySelector(".tray-open")?.focus({preventScroll: true}); };
   if (!sheet || REDUCED()) return done();
   sheet.animate([{transform: "translateY(0)"}, {transform: "translateY(100%)"}], {duration: 260, easing: "cubic-bezier(.4,0,1,1)"}).finished.then(done);
 }
 
 function wireBets(v){
   v.querySelectorAll("[data-betspanel]").forEach(b => b.addEventListener("click", () => { BETS_PANEL = !BETS_PANEL; render(); }));
-  // A kickoff chip on Slips: the table deals for the new kickoff (table.js tableEnsure).
+  // A kickoff tab on Slips: the board shows that kickoff's games (board.js).
   v.querySelectorAll("[data-gwin]").forEach(b => b.addEventListener("click", () => {
     GAL_WIN = b.dataset.gwin; MKT_PAGE = 1;
     const y = window.scrollY; render(); window.scrollTo(0, y);
   }));
-  // A pick on a slip, a Build line's ⓘ: each opens its leg sheet (legsheet.js).
+  // A Build line's ⓘ opens its leg sheet (legsheet.js).
   v.querySelectorAll("[data-legsheet]").forEach(el => {
     const open = e => { e.stopPropagation(); legSheetOpen(+el.dataset.legsheet, el); };
     el.addEventListener("click", open);
     if (el.tagName !== "BUTTON") el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); open(e); } });
   });
-  wireTable(v);
-  v.querySelectorAll("[data-tray]").forEach(b => b.addEventListener("click", betsSheetOpen));
-  v.querySelectorAll("[data-sheetclose]").forEach(b => b.addEventListener("click", betsSheetClose));
-  // The typed payout belongs to this exact slip; only the verdict redraws, so the field keeps focus.
-  v.querySelectorAll("[data-bpay]").forEach(el => el.addEventListener("input", () => {
-    const x = parseFloat(el.value.replace(",", "."));
-    BETS_PAY = x > 1 ? {sig: slipSig(), x} : {sig: slipSig(), x: null};
-    const out = v.querySelector("[data-bpayv]");
-    if (out) out.innerHTML = betsVerdictHTML(betsSlipLegs());
-  }));
+  wireSlBoard(v);
+  wireTray(v);
 }
 document.addEventListener("keydown", e => { if (e.key === "Escape" && BETS_SHEET) betsSheetClose(); });

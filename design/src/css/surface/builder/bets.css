@@ -40,25 +40,49 @@
 .bets-panel .filters{margin:0;padding:0;flex-wrap:wrap;overflow:visible;row-gap:10px}
 .bets-book{max-width:320px}
 
+/* Preview leaves the same room once its tray is up (preview/handoff.js). */
+.pv-tray{padding-bottom:92px}
 .bets .legs{margin-top:14px}
 .bets-pager{margin-top:12px}
 .bets-foot{margin:16px 0 0}
 
-/* ---- the tray, on the bottom edge where the thumb already is ---- */
+/* ---- the tray, on the bottom edge where the thumb already is (2026-10-03: the count, who is on
+   the slip, and Save; lime is the count once a pick is in, and Save while there is one to save) ---- */
 .tray{
   position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom, 0px));z-index:32;
-  margin:0 auto;max-width:560px;display:flex;justify-content:space-between;align-items:center;gap:12px;
-  appearance:none;border:0;border-radius:16px;padding:13px 16px;cursor:pointer;
-  background:var(--lime);color:var(--on-lime);font-family:var(--ui);font-size:var(--t-3);font-weight:700;
-  box-shadow:0 14px 30px -12px rgb(var(--shadow-rgb) / .9);
-  transition:background .2s var(--ease),color .2s var(--ease),transform .12s var(--ease);
+  margin:0 auto;max-width:560px;display:flex;align-items:center;gap:10px;padding:6px 6px 6px 4px;
+  border:1px solid var(--line-2);border-radius:16px;background:var(--panel-3);color:var(--ink);
+  font-family:var(--ui);box-shadow:0 14px 30px -12px rgb(var(--shadow-rgb) / .9);
 }
-.tray:active{transform:scale(var(--press))}
-.tray:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
-.tray.empty{background:var(--panel-3);color:var(--ink-2);box-shadow:0 10px 24px -14px rgb(var(--shadow-rgb) / .9)}
-.tray-n{display:inline-block;font-variant-numeric:tabular-nums}
-.tray-pc{font-family:var(--mono);font-size:var(--t-2);font-variant-numeric:tabular-nums;white-space:nowrap}
-.tray.empty .tray-pc{font-family:var(--ui);font-weight:500}
+.tray-open{appearance:none;flex:1 1 auto;min-width:0;display:flex;align-items:baseline;gap:10px;padding:8px 10px;
+  border:0;border-radius:12px;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;
+  transition:transform .12s var(--ease)}
+.tray-open:active{transform:scale(var(--press))}
+.tray-open:focus-visible{outline:2px solid var(--lime);outline-offset:1px}
+.tray-c{flex:none;font-size:var(--t-3);font-weight:700}
+.tray-n{display:inline-block;font-variant-numeric:tabular-nums;color:var(--lime)}
+.tray.empty .tray-n{color:var(--ink-2)}
+.tray-who{flex:1 1 auto;min-width:0;font-size:var(--t-1);color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tray-save{appearance:none;flex:none;border:0;border-radius:10px;padding:9px 14px;cursor:pointer;
+  background:var(--lime);color:var(--on-lime);font-family:var(--ui);font-size:var(--t-2);font-weight:700;
+  transition:transform .12s var(--ease)}
+.tray-save:active{transform:scale(var(--press))}
+.tray-save:disabled{background:var(--panel-2);color:var(--ink-3);cursor:default}
+.tray-save:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+/* ---- the slips saved this week, at the foot of the sheet ---- */
+.sv h3{margin:4px 0 6px;font-size:var(--t-2);font-weight:700;color:var(--ink-2)}
+.sv ul{margin:0;padding:0;list-style:none;border-top:1px solid var(--line)}
+.sv-row{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line)}
+.sv-load{appearance:none;flex:1 1 auto;min-width:0;display:flex;align-items:baseline;gap:10px;padding:10px 2px;
+  border:0;background:none;color:var(--ink);font-family:var(--ui);font-size:var(--t-2);text-align:left;cursor:pointer}
+.sv-load b{flex:none;font-weight:700}
+.sv-load span{min-width:0;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sv-drop{appearance:none;flex:none;display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:8px;
+  background:none;color:var(--ink-3);cursor:pointer}
+.sv-drop svg{width:12px;height:12px;stroke:currentColor;stroke-width:1.6;fill:none}
+.sv-drop:hover{color:var(--down)}
+.sv-load:focus-visible,.sv-drop:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
 
 /* the name that flies from a line to the tray */
 .bets-fly{position:fixed;z-index:70;pointer-events:none;white-space:nowrap;

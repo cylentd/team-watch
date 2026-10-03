@@ -1,12 +1,18 @@
-"""Bets (2026-09-25): Build as one column of lines; Slips as a deal table (2026-09-29: deal a slip
-of a kind and length from the kickoff's pool, lock picks, keep slips); the slip as a tray that
-counts what lands in it and opens into a sheet; one kickoff for both views. A new view's cards arrive once, and a tap that only adds a leg pops that line without
-replaying the arrival of everything else."""
+"""Bets (2026-09-25): Build as one column of lines; Slips as a research board (2026-10-03: per
+kickoff, a card per game, its players by work rising, a tap opens every line he has); the slip as a
+tray that counts what lands in it, saves it, and opens into a sheet; one kickoff for both views. A
+new view's cards arrive once, and a tap that only adds a leg pops that line without replaying the
+arrival of everything else.
+
+The fixture's slate: CIN @ NYJ in the morning (Tee Higgins out, Chase Brown questionable, Burrow),
+SEA @ SF on Sunday night (Kittle: TD, receiving yards, Longest reception; no game log), DET @ GB on
+Monday night (St. Brown: TD, yards, Longest reception, with a log; Gibbs a depth-2 back whose
+rushing line the book moved)."""
 import re
 
 import pytest
 
-from test_render import OPEN_POOL, SEED, browser, open_page  # noqa: F401  (browser is a fixture)
+from test_render import SEED, browser, open_page  # noqa: F401  (browser is a fixture)
 
 pytestmark = pytest.mark.render
 
@@ -105,164 +111,195 @@ def test_a_new_view_enters_once_and_a_tap_pops_only_its_line(browser, page_file)
     ctx.close()
 
 
-
-def slips(browser, page_file, size=(390, 844), book="underdog"):
+def board(browser, page_file, win, size=(390, 844), book="underdog"):
+    """Slips on one kickoff window ('morning', 'evening-sun', 'evening-mon' or a day)."""
     ctx, page, errors = open_page(browser, page_file, size)
-    page.evaluate(f"SURFACE='parlay'; PARLAY_BOOK='{book}'; GAL_WIN='ALL'; render()")
-    page.evaluate(OPEN_POOL)
+    page.evaluate(f"SURFACE='parlay'; PARLAY_BOOK='{book}'; GAL_WIN='{win}'; render()")
     return ctx, page, errors
 
 
-def dealt(page):
-    return page.evaluate("TABLE.legs.slice()")
+def names(page):
+    return page.locator(".sl-row .sl-who b").all_inner_texts()
 
 
-def test_the_pool_holds_tds_at_30_and_yards_called_lower_at_58(browser, page_file):
-    """David's floors (2026-09-29): an anytime TD at 30%+ P(score); a yards or receptions leg at
-    Underdog's own line, called lower at 58%+ (higher picks graded 42.3%), receptions at 2.5+. Each
-    fixture pick is tried as a starter with 8 games, before its kickoff."""
-    ctx, page, errors = open_page(browser, page_file, (390, 844))
-    bad = page.evaluate("""PROPS.map(p => ({...p, flag: null, stale: false, moved: false, games: 10})).filter(p => udPick(p)).filter(p => {
-      const u = udPick(p), td = p.mkt === 'TD';
-      const want = {td: td && u.conf >= 30,
-                    safe: !td && !u.synthetic && !u.stale && u.pick === 'lower' && u.conf >= 58 && (p.mkt !== 'RECS' || u.line >= 2.5)};
-      return ['td', 'safe'].some(k => tableLegOK(p, k, 'underdog') !== want[k]) || tableLegOK(p, 'mix', 'underdog') !== (want.td || want.safe);
-    }).map(p => p.n + ' ' + p.mkt)""")
-    assert bad == []
-    assert page.evaluate("PROPS.filter(p => tableLegOK({...p, flag: 'backup'}, 'mix', 'underdog')).length") == 0, "a backup is news, not a pick"
+def idx(page, name, mkt):
+    return page.evaluate(f"PROPS.findIndex(p => p.n === {name!r} && p.mkt === {mkt!r})")
+
+
+def test_the_board_is_games_of_players_with_no_line_and_no_chance(browser, page_file):
+    """A card per game at the kickoff; a row per player: name, position and club, his work, the
+    reason, "N lines" -- and no line, no side and no model % (those wait in the player sheet)."""
+    ctx, page, errors = board(browser, page_file, "day-2026-09-13")
+    assert page.locator(".sl-game").count() == 2, "Sunday: CIN @ NYJ and SEA @ SF"
+    assert page.locator(".sl-game h3").all_inner_texts() == ["CIN @ NYJ", "SEA @ SF"], "kickoff order"
+    rows = page.locator(".sl-row")
+    assert rows.count() > 0
+    assert page.locator(".sl-row [data-slpick], .sl-row .sl-md").count() == 0
+    for k in range(rows.count()):
+        slug = rows.nth(k).get_attribute("data-slplayer")
+        n = page.evaluate(f"slPlayerRows({slug!r}).length")
+        assert rows.nth(k).locator(".sl-go").inner_text().startswith(f"{n} line"), slug
+    assert "model" not in page.locator(".sl-board").inner_text()
     assert errors == []
     ctx.close()
 
 
-def test_a_deal_is_the_kind_and_length_asked_for(browser, page_file):
-    """TDs deals only TDs, Safe only yards, Mix splits them (the TDs rounding down); the length
-    runs 3 to 6; never two legs of one player; a game of its own for each leg while games last."""
-    ctx, page, errors = slips(browser, page_file)
-    kinds = page.evaluate("PROPS.map(p => p.mkt === 'TD')")
-    for kind in ("td", "safe", "mix"):
-        page.click(f"[data-tkind='{kind}']")
-        for n in (3, 4, 5, 6):
-            page.click(f"[data-tlegs='{n}']")
-            legs, pool = dealt(page), page.evaluate(f"tablePool('{kind}')")
-            assert len(legs) == min(n, len({page.evaluate(f'PROPS[{i}].n') for i in pool})), (kind, n)
-            assert set(legs) <= set(pool)
-            assert len({page.evaluate(f"PROPS[{i}].n") for i in legs}) == len(legs), "one leg per player"
-            if kind == "td":
-                assert all(kinds[i] for i in legs)
-            if kind == "safe":
-                assert not any(kinds[i] for i in legs)
-            if kind == "mix":
-                # Half TDs, rounding down, unless a player's TD and yards legs compete for his one seat.
-                tds = sum(kinds[i] for i in legs)
-                assert tds <= n // 2 or len(legs) - tds < n - n // 2, "mix: half TDs, rounding down"
-            assert page.locator(".dt-slip .tk-leg").count() == len(legs)
+def test_out_and_moved_lines_leave_the_board_and_a_backup_stays(browser, page_file):
+    """Out (Higgins) and a moved line (Gibbs' rushing yards) leave; a questionable starter (Chase
+    Brown) and a depth-2 back (Gibbs, on his touchdown line) stay -- David's wins were role players."""
+    ctx, page, errors = board(browser, page_file, "morning")
+    page.locator("[data-slchip='all']").first.click()
+    assert "T. Higgins" not in names(page) and "C. Brown" in names(page)
+    page.evaluate("GAL_WIN='evening-mon'; render()")
+    page.locator("[data-slchip='all']").first.click()
+    assert "J. Gibbs" in names(page)
+    gibbs = page.evaluate("slPlayerRows('jahmyr-gibbs').map(i => PROPS[i].mkt)")
+    assert gibbs == ["TD"], "his moved rushing line is not one of his lines"
+    assert page.evaluate("slPlayerRows('amonra-st-brown').map(i => PROPS[i].mkt)") == ["TD", "REC"], "a LONG row is no line"
+    page.locator("[data-slchip='role']").first.click()
+    assert names(page) == ["J. Gibbs"], "Role guys: a WR2 or deeper, a backup back"
+    page.locator("[data-slchip='te']").first.click()
+    assert page.locator(".sl-row").count() == 0 and page.locator(".sl-none").count() == 1
+    assert page.locator("[data-slchip='all']").first.inner_text() == "All 2"
     assert errors == []
     ctx.close()
 
 
-def test_a_locked_pick_stays_through_a_deal(browser, page_file):
-    """A lock keeps a pick on the slip through Deal again; a pool pick tapped locks it onto the
-    slip in a free leg's place; its lock does not open the leg sheet."""
-    ctx, page, errors = slips(browser, page_file)
-    page.click("[data-tkind='mix']")
-    page.click("[data-tlegs='3']")
-    first = dealt(page)[0]
-    page.click(f".dt-slip [data-tlock='{first}']")
-    assert page.evaluate("LEG_SHEET") is None, "the lock is not the row"
-    assert page.locator(f".dt-slip [data-tlock='{first}'][aria-pressed='true']").count() == 1
-    for _ in range(3):
-        page.click("[data-tdeal]")
-        assert first in dealt(page)
-    off = page.evaluate("tablePool('mix').find(i => !TABLE.legs.includes(i) && PROPS[i].n !== PROPS[TABLE.locks[0]].n)")
-    if off is None:
-        pytest.skip("the fixture pool has no pick off the slip")
-    page.click(f".dt-pick[data-tpool='{off}']")
-    legs = dealt(page)
-    assert off in legs and first in legs and len(legs) == 3
-    assert page.locator(f".dt-pick[data-tpool='{off}'][aria-pressed='true']").count() == 1
+def test_rising_work_comes_first_and_is_the_default(browser, page_file):
+    """Work rising is the chip a game opens on when anyone's work rose (ff-jarvis's reason, else the
+    log's usage); a game where nobody's did opens on All, never empty."""
+    ctx, page, errors = board(browser, page_file, "evening-mon")
+    rising = page.evaluate("slGames(slWin())[0].players.filter(slRising).map(x => x.slug)")
+    chip = page.locator("[aria-pressed='true'][data-slchip]").first.get_attribute("data-slchip")
+    assert chip == ("rise" if rising else "all")
+    if rising:
+        assert [r.get_attribute("data-slplayer") for r in page.locator(".sl-row").all()] == rising
+        assert page.locator(".sl-row .sl-why").count() >= 1, "ff-jarvis's reason prints under the work"
+        assert page.locator(".sl-row .sl-spark i").count() >= 3
     assert errors == []
     ctx.close()
 
 
-def test_the_stub_says_one_in_n_and_what_the_payout_needs(browser, page_file):
-    """The headline is "1 in N" of the graded chance (a 3% slip reads as zero in percent); the note
-    names Underdog's board and whether the slip beats it."""
-    ctx, page, errors = slips(browser, page_file)
-    page.click("[data-tkind='safe']")
-    page.click("[data-tlegs='3']")
-    p = page.evaluate("udChance(TABLE.legs.map(i => PROPS[i]))")
-    n = len(dealt(page))
-    assert page.locator(".dt-slip .tk-head b").inner_text() == f"1 in {max(1, round(1 / p))}"
-    x = {2: 3, 3: 6, 4: 10, 5: 20}[n]
-    want = "Beats it" if p * x >= 1.25 else "Near" if p * x >= 1 else "Short"
-    assert page.locator(".dt-slip .tk-note").inner_text() == f"Pays {x}x · needs 1 in {x} · {want}"
-    assert page.evaluate("PROPS.filter(p => p.mkt === 'RECS' && udPick(p)).every(p => legHit(p) <= 57.3)")
+def test_the_player_sheet_holds_every_line_with_its_last_four(browser, page_file):
+    """St. Brown's sheet: his touchdown (Yes) and receiving yards (Higher / Lower), each with his
+    last four games against today's line, "N of 4" and the model %; then his longest catch in those
+    games, history only (plan update 2026-10-03: no Longest reception line, so no sides, no count;
+    the fixture's LONG prop rows are ignored, a game with no catch logged is a dash). Two legs from
+    one sheet."""
+    ctx, page, errors = board(browser, page_file, "evening-mon")
+    page.evaluate("LIVE_MARKET.logs['amonra-st-brown'].v.LONG.splice(-1, 1, null); playerSheetOpen('amonra-st-brown')")
+    sheet = page.locator("#legsheet.on")
+    assert sheet.count() == 1 and page.evaluate("LEG_SHEET") == "amonra-st-brown"
+    lines = sheet.locator(".sl-ln:not(.sl-long)")
+    assert lines.count() == 2
+    mk = sheet.locator(".sl-ln:not(.sl-long) .sl-mk").all_inner_texts()
+    assert mk[0].startswith("Anytime TD") and mk[1].startswith(page.evaluate("MKT.REC"))
+    assert lines.nth(0).locator(".sl-side").all_inner_texts() == ["Yes"]
+    for k in range(2):
+        hist = lines.nth(k).locator(".sl-hist")
+        assert hist.locator("i").count() == 4 and re.fullmatch(r"\d of \d", hist.locator("em").inner_text())
+    assert sheet.locator(".sl-md").count() == 2
+    long = sheet.locator(".sl-long")
+    assert long.count() == 1 and long.locator(".sl-mk").inner_text() == "Longest catch"
+    assert long.locator(".sl-side, em, .sl-md").count() == 0, "history only"
+    cells = long.locator(".sl-hist i").all_inner_texts()
+    assert len(cells) == 4 and cells[-1] == "–", "no catch logged reads as a dash"
+    rec, tdi = idx(page, "Amon-Ra St. Brown", "REC"), idx(page, "Amon-Ra St. Brown", "TD")
+    sheet.locator(f"[data-slpick='{rec}'][data-side='higher']").click()
+    sheet.locator(f"[data-slpick='{tdi}'][data-side='higher']").click()
+    assert page.evaluate("SLIP.map(i => [i, slipSide(i)])") == [[rec, "higher"], [tdi, "higher"]]
+    assert page.locator("#legsheet.on").count() == 1, "the sheet stays up for the next leg"
+    assert sheet.locator(f"[data-slpick='{rec}'][data-side='higher'][aria-pressed='true']").count() == 1
+    sheet.locator(f"[data-slpick='{rec}'][data-side='lower']").click()
+    assert page.evaluate(f"slipSide({rec})") == "lower" and page.evaluate("SLIP.length") == 2, "the other side swaps it"
+    assert page.locator(".tray .tray-n").inner_text() == "2"
+    page.keyboard.press("Escape")
+    page.wait_for_function("LEG_SHEET === null")
+    assert page.locator(".sl-row[data-slplayer='amonra-st-brown'] .sl-on").count() == 1
     assert errors == []
     ctx.close()
 
 
-def test_kept_slips_list_load_and_survive_a_reload(browser, page_file):
-    """Keep adds the slip to Kept once; a kept slip loads into the tray, counted; the list is
-    stored on the device for the slate week, so a reload keeps it; the x drops it."""
-    ctx, page, errors = slips(browser, page_file)
-    page.click("[data-tlegs='3']")
-    legs = dealt(page)
-    assert page.locator(".dt-kept-row").count() == 0
-    page.click("[data-tkeep]")
-    page.click("[data-tkeep]")
-    assert page.locator(".dt-kept-row").count() == 1, "the same legs twice is one slip"
-    page.click("[data-tkind='safe']")
-    page.click("[data-tkeep]")
-    assert page.locator(".dt-kept-row").count() == 2
-    page.locator(".dt-kept-load").nth(1).click()
-    assert sorted(page.evaluate("SLIP")) == sorted(legs), "newest first: the TD slip is second"
-    page.wait_for_function(f"document.querySelector('.tray .tray-n').textContent === '{len(legs)}'")
+def test_a_board_row_opens_its_sheet_and_back_closes_it(browser, page_file):
+    ctx, page, errors = board(browser, page_file, "evening-sun", (360, 780))
+    before = page.evaluate("location.href")
+    page.locator("[data-slchip='all']").first.click()
+    page.locator(".sl-row[data-slplayer='george-kittle']").click()
+    assert page.locator("#legsheet.on .sl-ln").count() == 2, "Kittle: TD and yards; no log, so no longest-catch row"
+    assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth")
+    page.go_back()
+    page.wait_for_function("LEG_SHEET === null")
+    assert page.evaluate("location.href") == before and page.evaluate("SURFACE") == "parlay"
+    assert errors == []
+    ctx.close()
+
+
+def test_a_saved_slip_survives_a_reload_and_marks_its_players(browser, page_file):
+    """Save keeps the tray's slip on the device for the slate week; the same legs twice is one slip;
+    a reload keeps it and its players carry "on slip"; a saved slip loads back with its sides; the
+    x deletes it."""
+    ctx, page, errors = board(browser, page_file, "evening-mon")
+    rec = idx(page, "Amon-Ra St. Brown", "REC")
+    page.evaluate("playerSheetOpen('amonra-st-brown')")
+    page.locator(f"#legsheet [data-slpick='{rec}'][data-side='lower']").click()
+    page.keyboard.press("Escape")
+    page.wait_for_function("LEG_SHEET === null")
+    page.locator("[data-slsave]").click()
+    assert page.locator("[data-slsave]").is_disabled(), "saved: nothing new to save"
+    key = page.evaluate("SAVED_KEY")
+    assert key.startswith("tw.slips.saved.")
+    assert len(page.evaluate(f"JSON.parse(localStorage.getItem({key!r}))")) == 1
     page.reload()
-    page.evaluate("SURFACE='parlay'; render()")
-    assert page.locator(".dt-kept-row").count() == 2, "kept slips live on the device"
-    page.locator(".dt-kept-drop").first.click()
-    assert page.locator(".dt-kept-row").count() == 1
+    page.evaluate("SURFACE='parlay'; GAL_WIN='evening-mon'; render()")
+    assert page.evaluate("SLIP.length") == 0 and page.evaluate("SAVED.length") == 1
+    assert page.locator(".sl-row[data-slplayer='amonra-st-brown'] .sl-on").count() == 1
+    page.locator("[data-tray]").click()
+    assert page.locator(".slipsheet .sv-row").count() == 1
+    page.locator(".sv-load").click()
+    assert page.evaluate("SLIP.map(i => [i, slipSide(i)])") == [[rec, "lower"]]
+    assert page.locator(".slipsheet.on .slipleg").count() == 1, "the sheet stays up, the slip in it"
+    page.locator(".sv-drop").click()
+    assert page.evaluate("SAVED.length") == 0 and page.locator(".slipsheet .sv-row").count() == 0
     assert errors == []
     ctx.close()
 
 
-def test_a_slip_pick_is_a_sentence_and_opens_its_sheet(browser, page_file):
-    """A pick is two lines -- his face on his team's colour, his name, the call in sentence case --
-    and a tap opens its leg sheet."""
-    ctx, page, errors = slips(browser, page_file)
-    leg = page.locator(".dt-slip .tk-leg").first
-    assert leg.locator(".tk-face img, .tk-face .fallback").count() == 1, "every leg carries his photo"
-    call = leg.locator(".tk-call").inner_text()
-    assert call != call.upper(), "the call is sentence case, not capitals"
-    i = int(leg.get_attribute("data-legsheet"))
-    leg.locator(".tk-who").click()
-    assert page.evaluate("LEG_SHEET") == i
+def test_a_slip_with_longest_reception_has_no_chance_and_copies(browser, page_file):
+    """A LONG prop row is tolerated though never offered (Build can still add one from the fixture):
+    with no model chance, a slip holding it prints none rather than a wrong one, and its copied text
+    names the side and Underdog's line."""
+    ctx, page, errors = board(browser, page_file, "evening-mon")
+    long, rec = idx(page, "Amon-Ra St. Brown", "LONG"), idx(page, "Amon-Ra St. Brown", "REC")
+    page.evaluate(f"slipSet({rec}, 'higher'); slipSet({long}, 'higher'); render()")
+    assert page.evaluate("betsSlipPct()") is None
+    page.locator("[data-tray]").click()
+    assert page.locator(".slipsheet .odds-row").count() == 0
+    assert page.locator(".slipsheet .slipleg").count() == 2
+    text = page.evaluate("slipText()")
+    assert "Amon-Ra St. Brown Higher 28.5 Longest rec" in text and "Amon-Ra St. Brown Higher 75.5" in text
     assert errors == []
     ctx.close()
 
 
-def test_the_table_fits_a_phone_and_sits_beside_kept_on_a_desktop(browser, page_file):
-    """On a phone the slip, then the pool, one column; an empty Kept hides. On a desktop the slip
-    and Kept share a row and the pool runs under both, two picks across."""
-    ctx, page, errors = slips(browser, page_file, (360, 800))
+def test_the_board_fits_a_phone_and_spreads_on_a_desktop(browser, page_file):
+    """360px: nothing scrolls sideways and the first player sits on the first screen. 1280px: the
+    day's two games side by side, sharing a top edge."""
+    ctx, page, errors = board(browser, page_file, "day-2026-09-13", (360, 800))
     assert page.evaluate("document.documentElement.scrollWidth") <= 360
-    assert page.locator(".dt-kept").is_hidden()
+    y = page.evaluate("document.querySelector('.sl-row').getBoundingClientRect().top")
+    assert y < 800, f"first row at {y}px"
     ctx.close()
-    ctx, page, errors = slips(browser, page_file, (1280, 900))
-    slip = page.locator(".dt-slip").bounding_box()
-    kept = page.locator(".dt-kept").bounding_box()
-    pool = page.locator(".dt-pool")
-    assert abs(slip["y"] - kept["y"]) < 1 and kept["x"] > slip["x"] + slip["width"]
-    if pool.count():
-        assert pool.bounding_box()["y"] >= slip["y"] + slip["height"]
-        assert columns(page, ".dt-picks") == 2
+    ctx, page, errors = board(browser, page_file, "day-2026-09-13", (1280, 900))
+    a, b = (page.locator(".sl-game").nth(k).bounding_box() for k in (0, 1))
+    assert abs(a["y"] - b["y"]) < 1 and b["x"] > a["x"] + a["width"]
+    assert columns(page, ".sl-board") >= 2
     assert errors == []
     ctx.close()
 
 
-def test_the_kickoff_tabs_pick_what_the_table_deals_from(browser, page_file):
-    """Slips' kickoff is its row of tabs (a whole day by its weekday, then its parts); a tab deals
-    for that kickoff, and Build opens with it."""
+def test_the_kickoff_tabs_pick_what_the_board_shows(browser, page_file):
+    """Slips' kickoff is its row of tabs (a whole day by its weekday, then its parts); a tab shows
+    that kickoff's games, and Build opens with it."""
     ctx, page, errors = open_page(browser, page_file, (360, 800))
     page.evaluate("SURFACE='parlay'; render()")
     tabs = page.locator(".bets-tabsrow [data-gwin]")
@@ -271,7 +308,9 @@ def test_the_kickoff_tabs_pick_what_the_table_deals_from(browser, page_file):
     assert tabs.all_inner_texts() == page.evaluate("KICK_CHIPS.map(kickChipLabel)")
     k = tabs.nth(1).get_attribute("data-gwin")
     tabs.nth(1).click()
-    assert page.evaluate("GAL_WIN") == k and page.evaluate("TABLE.sig").split("|")[1] == k
+    assert page.evaluate("GAL_WIN") == k and page.evaluate("slWin().k") == k
+    games = page.evaluate("slGames(slWin()).map(g => g.game)")
+    assert page.locator(".sl-game h3").all_inner_texts() == games
     assert page.locator(f".bets-tabsrow [data-gwin='{k}'][aria-selected='true']").count() == 1
     assert page.evaluate("document.documentElement.scrollWidth") <= 360
     page.evaluate("SURFACE='build'; BETS_PANEL=true; render()")
@@ -284,12 +323,12 @@ def test_the_typed_payout_decides_the_verdict(browser, page_file):
     """The sheet takes the multiplier the Underdog app quotes (2026-09-25): it starts at the
     standard board, the verdict follows what is typed without the field losing focus, and the
     number belongs to that slip only."""
-    ctx, page, errors = slips(browser, page_file)
-    page.click("[data-tlegs='3']")
-    page.click("[data-tkeep]")
-    page.locator(".dt-kept-load").first.click()
-    page.locator("[data-tray]").click()
+    ctx, page, errors = board(browser, page_file, "morning")
+    page.evaluate("""PROPS.map((p, i) => [p, i]).filter(([p]) => udPick(p) && !udPick(p).synthetic && p.flag !== 'out' && p.mkt !== 'PASS')
+      .slice(0, 3).forEach(([p, i]) => slipSet(i, udPick(p).pick)); render()""")
     n = page.evaluate("SLIP.length")
+    assert n == 3
+    page.locator("[data-tray]").click()
     box = page.locator("[data-bpay]")
     assert box.input_value() == str({2: 3, 3: 6, 4: 10, 5: 20}[n])
     box.fill("1.5")
@@ -300,6 +339,24 @@ def test_the_typed_payout_decides_the_verdict(browser, page_file):
     page.evaluate("SLIP = SLIP.slice(0, -1)")
     assert page.evaluate("betsPayout(betsSlipLegs())") == {1: None, 2: 3, 3: 6, 4: 10}[n - 1], \
         "a changed slip goes back to the board"
+    assert errors == []
+    ctx.close()
+
+
+def test_a_leg_counts_at_the_graded_rate_of_its_side(browser, page_file):
+    """A higher pick counts at most 42.3% (ff-jarvis 12.51), a lower at most 56.3% (57.3% at the
+    model's own lower at 65%+); a pick against the model's call at what the model leaves for it."""
+    ctx, page, errors = board(browser, page_file, "morning")
+    got = page.evaluate("""(() => {
+      const i = PROPS.findIndex(p => udPick(p) && !udPick(p).synthetic && p.mkt !== 'TD');
+      const u = udPick(PROPS[i]);
+      slipSet(i, 'higher'); const hi = legHit(PROPS[i]);
+      slipSet(i, 'lower'); const lo = legHit(PROPS[i]);
+      return {hi, lo, conf: u.conf, pick: u.pick};
+    })()""")
+    conf_hi = got["conf"] if got["pick"] == "higher" else 100 - got["conf"]
+    assert got["hi"] == min(conf_hi, 42.3) and got["lo"] == min(100 - conf_hi, 56.3)
+    assert page.evaluate("legHit(PROPS.find(p => p.mkt === 'LONG'))") is None
     assert errors == []
     ctx.close()
 
@@ -332,16 +389,17 @@ def test_reduced_motion_never_marks_an_entrance(browser, page_file):
     ctx.close()
 
 
-def test_a_loaded_slip_opens_into_the_sheet(browser, page_file):
-    """A kept slip fills the tray with every leg, and the tray opens the sheet: one bar per leg,
-    then the all-hit bar, then the slip itself."""
-    ctx, page, errors = slips(browser, page_file)
-    page.click("[data-tlegs='4']")
-    legs = len(dealt(page))
-    page.click("[data-tkeep]")
-    page.locator(".dt-kept-load").first.click()
-    assert page.evaluate("SLIP.length") == legs
+def test_a_saved_slip_loads_into_the_sheet(browser, page_file):
+    """A saved slip fills the tray with every leg at its side, and the tray opens the sheet: one bar
+    per leg, then the all-hit bar, then the slip itself, then the saved list."""
+    ctx, page, errors = board(browser, page_file, "morning")
+    page.evaluate("PROPS.forEach((p, i) => { const u = udPick(p); if (u && !u.synthetic && p.flag !== 'out') slipSet(i, 'higher'); }); render()")
+    legs = page.evaluate("SLIP.length")
+    page.locator("[data-slsave]").click()
+    page.evaluate("SLIP = []; SLIP_SIDE = {}; render()")
     page.locator("[data-tray]").click()
+    page.locator(".sv-load").first.click()
+    assert page.evaluate("SLIP.length") == legs and page.evaluate("SLIP.every(i => slipSide(i) === 'higher')")
     assert page.locator(".slipsheet.on").count() == 1
     assert page.locator(".slipsheet .odds-row").count() == legs + 1
     assert page.locator(".slipsheet .slip .slipleg").count() == legs
@@ -349,5 +407,3 @@ def test_a_loaded_slip_opens_into_the_sheet(browser, page_file):
     page.wait_for_function("!BETS_SHEET")
     assert errors == []
     ctx.close()
-
-

@@ -3,8 +3,8 @@
 # is load order and the temporal dead zone applies: a file may only reference names declared in
 # files above it, or inside functions that run later.
 #
-# pin: data/* before anything that reads it; builder/table.js reads the kept slips at load, which
-#      needs PROPS and SLATE_WEEK (data/market.js) already declared.
+# pin: data/* before anything that reads it; builder/saved.js reads the saved slips at load, which
+#      needs SLATE_WEEK (data/market.js) and schedWeek (data/schedule.js) already declared.
 # pin: chrome/state.js (SURFACE, VIEW) precedes every render function; main.js is last and is
 #      the only file with side effects on the page.
 # pin: surface/live/live.js sits after chrome/state.js because gdOnScreen() reads SURFACE, and
@@ -103,6 +103,7 @@ surface/preview/slate.js
 surface/preview/record.js
 surface/preview/dossier.js
 surface/preview/research.js
+surface/preview/handoff.js
 surface/preview/preview.js
 data/digest.js
 data/gameday/score.js
@@ -149,7 +150,8 @@ data/market.js
 lib/odds.js
 builder/grade.js
 builder/slips.js
-builder/table.js
+builder/board.js
+builder/saved.js
 data/dfs.js
 data/search.js
 builder/state.js
@@ -167,8 +169,11 @@ surface/dfs/top.js
 surface/parlay/parlay.js
 surface/parlay/bar.js
 surface/parlay/tray.js
+surface/parlay/traywire.js
 surface/parlay/flight.js
-surface/parlay/table.js
+surface/parlay/lineitem.js
+surface/parlay/board.js
+surface/parlay/playersheet.js
 # pin: legsheet.js binds its listeners at load, so it needs #legsheet (shell.html, above the
 #      script) and nothing declared below it outside a function body.
 surface/parlay/legdata.js

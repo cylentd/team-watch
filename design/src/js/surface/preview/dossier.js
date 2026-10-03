@@ -164,7 +164,7 @@ function pvTopHTML(g, i, n){
 }
 
 function pvDossierHTML(g, i, n, enter){
-  const box = [pvWinRow(g), pvLinesRow(g), pvMatchupRow(g), pvInjRow(g), pvWxRow(g), pvRestRow(g)].join("");
+  const box = [pvWinRow(g), pvLinesRow(g), pvMatchupRow(g), pvSlipRow(g), pvInjRow(g), pvWxRow(g), pvRestRow(g)].join("");
   return `<div class="pv-dz">${pvTopHTML(g, i, n)}
     <article class="pvn${enter}" data-pvswipe>${pvHeadHTML(g)}${pvCallHTML(g)}${box ? `<aside class="pvn-box">${box}</aside>` : ""}${pvStoryHTML(g)}</article></div>`;
 }

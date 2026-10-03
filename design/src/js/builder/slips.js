@@ -57,16 +57,18 @@ const legOKInBook = (p, s, book) => {
                          : (p.model >= 35 && p.model <= 85 && overPrice(p) >= -300 && overPrice(p) <= 200));
   const u = udPick(p);
   // A receptions pick has to be at Underdog's own line (!synthetic), at 2.5+ (a 1.5-catch line is
-  // priced as a heavy favourite), on the lower side, and at the HIT_RECS floor; a touchdown pick
-  // is always synthetic and needs its P(score) at HIT_TD.
+  // priced as a heavy favourite), and at the HIT_RECS floor; a touchdown pick is always synthetic
+  // and needs its P(score) at HIT_TD. No side gate since 2026-10-03: David bets Higher, and the
+  // graded rate per side (grade.js legHit) already prices a higher pick down.
   return u && (p.mkt === "TD" ? u.conf >= HIT_TD
-    : p.mkt === "RECS" && !u.synthetic && u.pick === "lower" && u.conf >= HIT_RECS && u.line >= 2.5)
+    : p.mkt === "RECS" && !u.synthetic && u.conf >= HIT_RECS && u.line >= 2.5)
     && (p.games||0) >= 8 && playing(p) && !u.stale && scopeOK(p, s);
 };
 function mineSlip(book){
   if (!LIVE_MARKET) return [1,2,5];
   const seen = new Set(), out = [];
-  const ok = book === "underdog" ? p => !!udPick(p) : p => p.mkt !== "TD";
+  // Longest reception has no line to pick from (2026-10-03), so it is never a leg.
+  const ok = book === "underdog" ? p => !!udPick(p) && p.mkt !== "LONG" : p => p.mkt !== "TD" && p.mkt !== "LONG";
   PROPS.forEach((p,i) => { if (p.mine && ok(p) && !seen.has(p.game) && out.length < SLIP_LEGS){ seen.add(p.game); out.push(i); } });
   return out;
 }
@@ -75,10 +77,32 @@ function presetSlip(k, book){
   if (k === "mine") return mineSlip(book);
   return [];
 }
-/* The cart starts empty -- the deal table (table.js) answers "what could I play", the cart is
-   the user's own, built one leg at a time or loaded from a kept slip. */
+/* The cart starts empty: the reader builds it one leg at a time from the board's player sheet,
+   Build's lines or Preview, or loads a saved slip (builder/saved.js). SLIP holds PROPS indexes;
+   SLIP_SIDE the side the reader picked for each (2026-10-03, "higher" or "lower"; a touchdown is
+   "higher", shown as Yes). A leg with no side picked (a Build tap) takes the model's call. */
 let SLIP_MODE = "blank";
 let SLIP = [];
+let SLIP_SIDE = {};
+function slipSide(i){
+  if (SLIP_SIDE[i]) return SLIP_SIDE[i];
+  const u = PROPS[i] ? udPick(PROPS[i]) : null;
+  return u && u.pick ? u.pick : "higher";
+}
+/* The side of a leg named by its row, for the grading in grade.js; a row off the slip reads the
+   model's call, as before sides were picked. */
+const slipSideOf = p => { const i = PROPS.indexOf(p); return i >= 0 ? slipSide(i) : ((udPick(p) || {}).pick || "higher"); };
+/* Put leg i on the slip at `side`; the same side again takes it off. Returns whether it is on. */
+function slipSet(i, side){
+  if (SLIP.includes(i) && slipSide(i) === side){
+    SLIP = SLIP.filter(x => x !== i); delete SLIP_SIDE[i];
+  } else {
+    if (!SLIP.includes(i)) SLIP = SLIP.concat(i);
+    SLIP_SIDE[i] = side;
+  }
+  SLIP_MODE = "custom";
+  return SLIP.includes(i);
+}
 /* DraftKings (over/price) or Underdog (higher/lower + confidence) -- a page-level toggle, same
    pattern as DFS_SITE, because the two books need different rows, a different gallery, and a
    different cart payout entirely, not just a different price column. */

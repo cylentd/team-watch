@@ -4,9 +4,9 @@
 /* The market is every priced player in the league, not my roster. `mine` only decides whether a
    row gets a lime edge, and whether the "my players" filter keeps it. */
 const MKT = {RUSH:t("market.name.RUSH"), REC:t("market.name.REC"), RECS:t("market.name.RECS"),
-             PASS:t("market.name.PASS"), TD:t("market.name.TD")};
+             PASS:t("market.name.PASS"), TD:t("market.name.TD"), LONG:t("market.name.LONG")};
 const MKT_SHORT = {RUSH:t("market.short.RUSH"), REC:t("market.short.REC"), RECS:t("market.short.RECS"),
-                   PASS:t("market.short.PASS"), TD:t("market.short.TD")};
+                   PASS:t("market.short.PASS"), TD:t("market.short.TD"), LONG:t("market.short.LONG")};
 /* Sample rows: what the card looked like before a market existed. They render only when the
    build found no BettingPros pull; `model` and `edge` on them are invented numbers. */
 const PROPS_SAMPLE = [

@@ -1,11 +1,11 @@
-"""The leg sheet (2026-09-27). A pick on a slip or a Build line's info button opens one bet from
-the bottom edge: the last ten games against the line, three
-tiles, the matchup as one line, and Add. Back closes it before it changes the view. The fixture
-gives Tee Higgins and Chase Brown per-game usage (`u`) and Amon-Ra St. Brown none, and a defense
-block in which NYJ has two starters out."""
+"""The leg sheet (2026-09-27). A Build line's info button opens one bet from the bottom edge: the
+last ten games against the line, three tiles, the matchup as one line, and Add; since 2026-10-03 a
+Slips board row opens the player sheet in the same overlay. Back closes either before it changes
+the view. The fixture gives Tee Higgins and Chase Brown per-game usage (`u`) and Amon-Ra St. Brown
+none, and a defense block in which NYJ has two starters out."""
 import pytest
 
-from test_render import OPEN_POOL, browser, open_page  # noqa: F401  (browser is a fixture)
+from test_render import browser, open_page  # noqa: F401  (browser is a fixture)
 
 pytestmark = pytest.mark.render
 
@@ -20,25 +20,45 @@ def no_sideways(page):
     return page.evaluate("document.documentElement.scrollWidth <= window.innerWidth")
 
 
-def test_a_slip_pick_opens_its_sheet_and_back_closes_it(browser, page_file):
+def test_a_board_row_opens_the_player_sheet_and_back_closes_it(browser, page_file):
+    """The Slips board's player sheet (2026-10-03) lives in the leg sheet's overlay: Chase Brown's
+    work game by game (his log carries usage; his last four games are 2025's, faded only when the
+    model's season is a later one -- the fixture's model runs through 2025), then his touchdown and
+    rushing lines. Back closes it before the view."""
     ctx, page, errors = open_page(browser, page_file, PHONE)
-    page.evaluate("SURFACE='parlay'; PARLAY_BOOK='underdog'; render()")
-    page.evaluate(OPEN_POOL)
-    legs = page.locator(".ticket .tk-leg[data-legsheet]")
-    if legs.count() == 0:
-        pytest.skip("the fixture's market deals no slip")
-    k = page.evaluate("[...document.querySelectorAll('.ticket .tk-leg')].findIndex(el => legLog(PROPS[+el.dataset.legsheet]))")
-    assert k >= 0, "some slip pick has a game log"
+    page.evaluate("SURFACE='parlay'; PARLAY_BOOK='underdog'; GAL_WIN='morning'; render()")
+    page.locator("[data-slchip='all']").first.click()
     before = page.evaluate("location.href")
-    legs.nth(k).click()
+    page.locator(".sl-row[data-slplayer='chase-brown']").click()
     sheet = page.locator("#legsheet.on")
     assert sheet.count() == 1 and page.evaluate("document.activeElement.hasAttribute('data-legclose')")
-    assert sheet.locator(".ls-bar").count() >= 1 and sheet.locator(".ls-tiles .ls-tile").count() >= 1
+    old = page.evaluate("BUILD_SEASON") > 2025
+    want = [f"2025 W{w}" if old else f"W{w}" for w in (15, 16, 17, 18)]
+    assert sheet.locator(".ps-wk").all_inner_texts() == want
+    assert sheet.locator(".ps-k").all_inner_texts() == ["Snaps", "Targets", "Carries", "RZ looks"]
+    assert sheet.locator(".ps-v.old").count() == (16 if old else 0)
+    assert sheet.locator(".sl-mk").all_inner_texts()[0].startswith("Anytime TD") and sheet.locator(".sl-ln:not(.sl-long)").count() == 2
+    assert sheet.locator(".sl-long .sl-hist i").all_inner_texts() == ["9", "14", "7", "18"], "his longest catches, history only"
+    assert "—" not in sheet.inner_text(), "absent data is not drawn, never a dash"
     assert no_sideways(page)
     page.go_back()
     page.wait_for_function("LEG_SHEET === null")
     assert page.locator("#legsheet.on").count() == 0
     assert page.evaluate("location.href") == before and page.evaluate("SURFACE") == "parlay", "Back closed the sheet, not the view"
+    assert errors == []
+    ctx.close()
+
+
+def test_a_longest_reception_leg_sheet_draws_a_missing_catch_as_nothing(browser, page_file):
+    """Build's ⓘ on a Longest reception line: a game with no catch logged (null) is an empty bar,
+    never a crash, and no chance is printed for a line the model does not price."""
+    ctx, page, errors = open_page(browser, page_file, PHONE)
+    page.evaluate("SURFACE='build'; PARLAY_BOOK='underdog'; render()")
+    i = index(page, "Amon-Ra St. Brown", "LONG")
+    page.evaluate(f"LIVE_MARKET.logs['amonra-st-brown'].v.LONG[0] = null; legSheetOpen({i})")
+    sheet = page.locator("#legsheet.on")
+    assert sheet.locator(".ls-bar").count() >= 1 and sheet.locator(".ls-pct").count() == 0
+    assert "null" not in sheet.inner_text() and "NaN" not in sheet.inner_text()
     assert errors == []
     ctx.close()
 

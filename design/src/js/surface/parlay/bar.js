@@ -1,7 +1,7 @@
 /* The Bets bar: the one row of controls above the data (design/STYLE.md), and the settings panel
    it opens.
 
-   Slips' row is its kickoff as tabs (the deal table's kind and length sit on the slip itself); Build's is Best odds and its position chips (no "All"
+   Slips' row is its kickoff as tabs (each game's own chips sit in its card, board.js); Build's is Best odds and its position chips (no "All"
    since 2026-09-29: a pressed position tapped again clears it, so six chips fit 360px). Both end in the same chip,
    which names the book and the kickoff in force and opens the panel: book and kickoff there are
    one setting for both views, and Build adds its market, sort and "my players" beside them. What
@@ -22,7 +22,7 @@ function betsBarHTML(build){
     <button class="chip bets-best" data-mbest aria-pressed="${MKT_BEST}">${t("parlay.bar.best")}</button>
     ${["QB","RB","WR","TE"].map(p=>`<button class="chip" data-mpos="${p}" aria-pressed="${MKT_POS===p}">${p}</button>`).join("")}
     ${set}</div>`;
-  const on = tableWin();
+  const on = slWin();
   return `<div class="bets-bar bets-tabsrow">
     <div class="bd-tabs" role="tablist" aria-label="${t("parlay.filter.kickoff")}">${KICK_CHIPS.map(w =>
       `<button type="button" class="bd-tab" role="tab" data-gwin="${esc(w.k)}" aria-selected="${on === w}"

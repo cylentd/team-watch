@@ -12,6 +12,8 @@ Jahmyr Gibbs) across CIN/SF/DET, plus Ja'Marr Chase as a TD-only, headshot-less,
 | `data/sleeper_status.json` | `load_status()` — injury/depth badges |
 | `data/bettingpros_props.json` | `load_props_raw()` — prop lines, 3 games/2 books |
 | `data/props_model.json` | `load_model_raw()` — P(over), edge, stale/moved/norole |
+| `data/slip_reasons.json` | `load_slip_reasons()` — the Slips board's why (2026-10-03), file only: Higgins, St. Brown, Kittle and Gibbs have a line, Lamar Jackson has none and is cut from LIVE_REASONS |
+| `data/bettingpros_props.json`, `props_model.json`, `feed.json` LONG | Longest reception (2026-10-03): Higgins (DK 22.5, Underdog 23.5), St. Brown (27.5 / 28.5) and Kittle (DK 19.5 only) with `p_over: null`; `v.LONG` in all four logs (Kittle has no log) |
 | `data/player_projections.json` | `load_player_proj()` / `model_points()` — DFS projections |
 | `data/dfs_pool.json` | `load_dfs_pool()` — Yahoo DFS pool, incl. an FPPG-fallback row |
 | `data/wrcb.json` | `load_wrcb()` — WR/CB upgrade/downgrade tags |

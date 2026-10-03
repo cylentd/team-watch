@@ -293,6 +293,13 @@ def load_role_board():
     return feed_block(("role_board",), "players") or read_first(DWR / "role_board.json")
 
 
+def load_slip_reasons():
+    """Why each player with a line this week is worth a look (model.market.slip_reasons, 2026-10-03):
+    a one-line `why`, the work behind it and tags, keyed by slug. Feed block `slip_reasons` first, the
+    file second. build.py cuts it into LIVE_REASONS for the Slips board; None when neither exists."""
+    return feed_block(("slip_reasons",), "players") or read_first(DWR / "slip_reasons.json")
+
+
 def load_game_preview():
     """Each game of the week's facts and Claude's take (model.season.game_preview), feed block
     `game_preview` first, the file second. design/preview.py cuts it for This week > Preview."""

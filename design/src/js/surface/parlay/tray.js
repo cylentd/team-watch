@@ -1,28 +1,42 @@
-/* The slip, on the bottom edge (2026-09-25). The tray is always there on Slips and Build -- the
-   place a pick lands and the count you are building -- and a tap grows it into the sheet: why the
-   slip's chance is what it is, then the slip itself (slip.js) with its legs, payout and copy.
+/* The slip, on the bottom edge (2026-09-25; Save since 2026-10-03). The tray is always there on
+   Slips and Build, and on Preview once a pick is in it -- the place a pick lands, the count, who is
+   on it, and Save. A tap on the count grows it into the sheet: why the slip's chance is what it is,
+   the slip itself (slip.js) with its legs, payout and copy, then the slips saved this week
+   (builder/saved.js), each a tap from the tray again and an x from gone.
 
-   The chance is the one number the slip is for. Underdog: every leg's graded chance multiplied
-   (legHit, slips.js), the chance all of them hit. DK: the model's chance of the same, where every
-   leg is modelled. */
+   The chance: Underdog, every leg's graded chance at the side on the slip multiplied (legHit,
+   grade.js); DK, the model's chance of the same. A leg the model does not price has none, and the
+   slip then shows no chance at all rather than a wrong one. */
 function betsSlipLegs(){ return SLIP.map(i => PROPS[i]).filter(Boolean); }
 function betsLegChance(l){
-  if (PARLAY_BOOK === "underdog") return udPick(l) ? legHit(l) : null;
-  return typeof l.model === "number" ? l.model : null;
+  if (PARLAY_BOOK === "underdog") return legHit(l);
+  return typeof l.model === "number" ? (slipSideOf(l) === "lower" ? 100 - l.model : l.model) : null;
 }
 function betsSlipPct(){
   const c = betsSlipLegs().map(betsLegChance);
   return c.length && c.every(x => x !== null) ? c.reduce((a, x) => a * x / 100, 1) * 100 : null;
 }
-const betsPctText = p => p === null ? "—" : `${p.toFixed(1)}%`;
+
+/* One name per player, however many legs he has on the slip: "T. Higgins ×2". Two players who share
+   an initial and surname are told apart by their full names. Takes {n, slug} legs; plain text. */
+function trayNames(legs){
+  const by = new Map();
+  legs.forEach(l => { const k = l.slug || l.n; (by.get(k) || by.set(k, {n: l.n, c: 0}).get(k)).c++; });
+  const rows = [...by.values()], ini = rows.map(e => nameInitial(e.n));
+  return rows.map((e, k) => (ini.indexOf(ini[k]) === ini.lastIndexOf(ini[k]) ? ini[k] : e.n)
+    + (e.c > 1 ? t("slips.tray.times", {n: e.c}) : "")).join(", ");
+}
+const trayWho = (n = SLIP.length) => trayNames(SLIP.slice(0, n).map(i => ({n: PROPS[i].n, slug: slSlug(PROPS[i])})));
 
 function trayHTML(){
-  const n = SLIP.length, p = betsSlipPct();
-  return `<button type="button" class="tray${n ? "" : " empty"}" data-tray aria-expanded="${BETS_SHEET}">
-    <span>${t("parlay.tray.label")} · <span class="tray-n">${n}</span> ${PARLAY_BOOK === "underdog"
-      ? t("parlay.tray.picks", {s: n === 1 ? "" : "s"}) : t("parlay.tray.legs", {s: n === 1 ? "" : "s"})}</span>
-    <span class="tray-pc">${n ? betsPctText(p) : t("parlay.tray.empty")}</span>
-  </button>`;
+  const n = SLIP.length, saved = slipIsSaved();
+  return `<div class="tray${n ? "" : " empty"}">
+    <button type="button" class="tray-open" data-tray aria-expanded="${BETS_SHEET}">
+      <span class="tray-c">${t("slips.tray.label")} · <span class="tray-n">${n}</span></span>
+      <span class="tray-who">${n ? esc(trayWho()) : t("slips.tray.empty")}</span>
+    </button>
+    <button type="button" class="tray-save" data-slsave ${n && !saved ? "" : "disabled"}>${saved ? t("slips.tray.saved") : t("slips.tray.save")}</button>
+  </div>`;
 }
 
 /* Why three good legs make a worse slip: each leg's chance as a bar, then "all hit" as the last
@@ -37,12 +51,26 @@ function betsOddsHTML(){
     ${row(t("parlay.tray.allHit", {n: legs.length}), p, true)}</div>`;
 }
 
+const SV_X = `<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7"/></svg>`;
+
+/* The slips saved this week: how many legs, who, and an x. A tap loads one into the tray. */
+function savedHTML(){
+  if (!SAVED.length) return "";
+  const rows = SAVED.map((s, k) => `<li class="sv-row">
+      <button type="button" class="sv-load" data-slload="${k}"><b>${t("slips.saved.legs", {n: s.legs.length})}</b>
+        <span>${esc(trayNames(s.legs.map(l => ({n: l.n || l.slug, slug: l.slug}))))}</span></button>
+      <button type="button" class="sv-drop" data-sldrop="${k}" aria-label="${t("slips.saved.drop")}">${SV_X}</button>
+    </li>`).join("");
+  return `<section class="sv"><h3>${t("slips.saved.title", {n: SAVED.length})}</h3><ul>${rows}</ul></section>`;
+}
+
 function sheetHTML(){
   return `<div class="sheet-scrim${BETS_SHEET ? " on" : ""}" data-sheetclose></div>
   <section class="slipsheet${BETS_SHEET ? " on" : ""}" role="dialog" aria-modal="true" aria-hidden="${!BETS_SHEET}"
-    aria-label="${t("parlay.tray.label")}">
+    aria-label="${t("slips.tray.label")}">
     <button type="button" class="grab" data-sheetclose aria-label="${t("common.action.close")}"></button>
     ${betsOddsHTML()}
     ${slipHTML()}
+    ${savedHTML()}
   </section>`;
 }

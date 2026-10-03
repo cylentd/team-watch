@@ -1,6 +1,7 @@
 /* BETS -- Slips and Build, two views of one surface (2026-09-25).
 
-   Slips is the ready-made tickets; Build is the line market you pick from. They were one page with
+   Slips is the research board (board.js, 2026-10-03: games, their players by work, a sheet of every
+   line a player has); Build is the line market you pick from. They were one page with
    three sections and three filter bars, and every visit scrolled past the half it had not come
    for. Now each view is one job with one row of controls above its data (design/STYLE.md), and
    the slip both views fill is a tray on the bottom edge (tray.js) rather than a column mid-page.
@@ -11,8 +12,8 @@ function parlayHTML(){
   return `<div class="wrap bets">
     ${betsBarHTML(build)}
     ${betsPanelHTML(build)}
-    ${build ? buildHTML() : tableHTML()}
-    <p class="note bets-foot">${build ? "" : `${t("parlay.gallery.sub")} · `}${SLATE_WEEK ? t("parlay.hero.eyebrow", {n: PROPS.length, week: SLATE_WEEK}) : t("parlay.hero.eyebrowNoWeek", {n: PROPS.length})}</p>
+    ${build ? buildHTML() : slBoardHTML()}
+    <p class="note bets-foot">${build ? "" : `${t("slips.foot")} · `}${SLATE_WEEK ? t("parlay.hero.eyebrow", {n: PROPS.length, week: SLATE_WEEK}) : t("parlay.hero.eyebrowNoWeek", {n: PROPS.length})}</p>
   </div>
   ${trayHTML()}${sheetHTML()}`;
 }
@@ -24,8 +25,9 @@ function buildLines(){
   return PROPS.filter(p => (MKT_POS==="ALL"||p.pos===MKT_POS) && (MKT_KIND==="ALL"||p.mkt===MKT_KIND)
     && (GAL_WIN==="ALL"||inWin(p, win)) && (!MKT_MINE||p.mine)
     // A real Underdog price without a model rating yet has no higher/lower call to show; udPick
-    // covers that plus the TD rows Underdog has no line for at all.
-    && (PARLAY_BOOK !== "underdog" || udPick(p)) && (!MKT_BEST || bestOdds(p, PARLAY_BOOK)))
+    // covers that plus the TD rows Underdog has no line for at all. Longest reception has no line to
+    // pick from (2026-10-03), so Build never lists it.
+    && p.mkt !== "LONG" && (PARLAY_BOOK !== "underdog" || udPick(p)) && (!MKT_BEST || bestOdds(p, PARLAY_BOOK)))
     .sort((a, b) => lineMoved(a, PARLAY_BOOK) - lineMoved(b, PARLAY_BOOK) || SORTS[MKT_SORT](a, b));
 }
 
@@ -36,7 +38,7 @@ function buildHTML(){
   const {body, page, pages, players} = buildListHTML(all);
   return `<div class="blist">${body}</div>
   <div class="filters bets-pager">
-    <span class="lbl">${t("parlay.pager.lines", {n: all.length, s: all.length===1?"":"s"})} · ${t("parlay.pager.players", {n: players, s: players===1?"":"s"})}${ud && all.some(p => udPick(p).synthetic) ? ` · ${t("parlay.pager.tdNote")}` : ""}</span>
+    <span class="lbl">${t("parlay.pager.lines", {n: all.length, s: all.length===1?"":"s"})} · ${t("parlay.pager.players", {n: players, s: players===1?"":"s"})}${ud && all.some(p => (udPick(p) || {}).synthetic) ? ` · ${t("parlay.pager.tdNote")}` : ""}</span>
     <span style="flex:1"></span>
     <button class="chip" data-mktpage="prev" ${page<=1?"disabled":""}>${t("common.pager.prev")}</button>
     <span class="lbl">${t("common.pager.page", {page: page, pages: pages})}</span>
