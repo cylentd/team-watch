@@ -69,13 +69,19 @@ function legDriver(p, log){
   return null;
 }
 
-/* The matchup as one line: what this defense allows at his stat (the model's opp_f), else its rank
-   at his position, and its starters who will not play, named on a tap. No line without either. */
+/* The matchup as one line: what this defense allows at his stat against an average one (the model's
+   opp_f as a percent), else its rank at his position, and its starters who will not play, named on a
+   tap. A factor within 5% of average is noise and says nothing (0.98x read as a number to weigh,
+   David 2026-10-03). No line without either. */
+const LS_MATCH_MIN = 5;
 function legMatchupHTML(p){
   const opp = legOpp(p), d = legDefense(p);
   const bits = [];
-  if (typeof p.opp_f === "number") bits.push(t("legsheet.matchup.allows", {x: p.opp_f.toFixed(2), pos: esc(p.pos), stat: esc(MKT[p.mkt].toLowerCase())}));
-  else if (d && d.form && d.form.rank) bits.push(d.form.rank <= 16 ? t("legsheet.matchup.fewest", {rank: lsOrd(d.form.rank), pos: esc(p.pos)})
+  const pct = typeof p.opp_f === "number" ? Math.round((p.opp_f - 1) * 100) : null;
+  const stat = {pos: esc(p.pos), stat: esc(MKT[p.mkt].toLowerCase())};
+  if (pct != null) {
+    if (Math.abs(pct) >= LS_MATCH_MIN) bits.push(pct > 0 ? t("legsheet.matchup.more", {pct, ...stat}) : t("legsheet.matchup.fewer", {pct: -pct, ...stat}));
+  } else if (d && d.form && d.form.rank) bits.push(d.form.rank <= 16 ? t("legsheet.matchup.fewest", {rank: lsOrd(d.form.rank), pos: esc(p.pos)})
     : t("legsheet.matchup.most", {rank: lsOrd(33 - d.form.rank), pos: esc(p.pos)}));
   if (!opp || (!bits.length && !(d && d.out.length))) return "";
   const head = [t("legsheet.matchup.vs", {team: esc(opp)}), ...bits].join(" · ");

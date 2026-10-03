@@ -75,12 +75,24 @@ def test_a_receptions_sheet_with_usage_fits_one_phone_screen(browser, page_file)
     tiles = sheet.locator(".ls-tile span").all_inner_texts()
     assert tiles == ["Targets/gm", "Target share", "Catch rate"]
     match = sheet.locator("details.ls-match summary").inner_text()
-    assert match.startswith("vs NYJ · allows 0.95× WR receptions") and match.endswith("2 starters out")
+    assert match.startswith("vs NYJ · allows 5% fewer WR receptions than average") and match.endswith("2 starters out")
     assert not sheet.locator("details.ls-match ul").is_visible(), "the names wait for a tap"
     assert "—" not in sheet.inner_text(), "absent data is not drawn, never a dash"
     assert page.evaluate("document.getElementById('legsheet').getBoundingClientRect().height") <= PHONE[1]
     assert page.evaluate("document.getElementById('legsheet').scrollHeight <= document.getElementById('legsheet').clientHeight")
     assert no_sideways(page)
+    assert errors == []
+    ctx.close()
+
+
+def test_on_a_desktop_the_sheet_is_a_centred_dialog(browser, page_file):
+    """A desktop has no thumb at the bottom edge (David, 2026-10-03): the sheet sits mid-screen."""
+    ctx, page, errors = open_page(browser, page_file, (1280, 900))
+    page.evaluate("SURFACE='parlay'; PARLAY_BOOK='dk'; render()")
+    page.evaluate(f"legSheetOpen({index(page, 'Tee Higgins', 'RECS')})")
+    page.wait_for_timeout(700)
+    box = page.evaluate("(() => { const r = document.getElementById('legsheet').getBoundingClientRect(); return [r.top, r.bottom]; })()")
+    assert box[0] > 8 and abs((box[0] + box[1]) / 2 - 450) <= 2, box
     assert errors == []
     ctx.close()
 
@@ -94,7 +106,7 @@ def test_a_sheet_without_usage_draws_what_it_has(browser, page_file):
     assert sheet.locator(".ls-bar").count() == 4 and sheet.locator(".ls-cell.drv").count() == 0
     # Yards/target needs his yards in the grid's weeks, and his fixture log ends in 2025: no tile.
     assert sheet.locator(".ls-tile span").all_inner_texts() == ["Targets/gm", "aDOT"]
-    assert sheet.locator("p.ls-match").inner_text() == "vs GB · allows 1.02× WR rec yds", "GB has no starter out"
+    assert sheet.locator(".ls-match").count() == 0, "GB allows 2% more: noise, and no starter out, so no line"
     assert "—" not in sheet.inner_text()
     assert errors == []
     ctx.close()

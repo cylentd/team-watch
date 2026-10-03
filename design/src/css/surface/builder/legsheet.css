@@ -17,6 +17,15 @@
 }
 .legsheet.on{transform:none;visibility:visible;transition:transform var(--dur-spring) var(--spring)}
 body:has(.legsheet.on){overflow:hidden}
+/* A desktop has no thumb at the bottom edge: the sheet is a centred dialog there, rising a little
+   and fading in rather than travelling up the whole screen (David, 2026-10-03). */
+@media (min-width:760px){
+  .legsheet{top:50%;bottom:auto;max-height:86vh;border-bottom:1px solid var(--line-2);border-radius:20px;
+    padding-bottom:20px;opacity:0;transform:translateY(calc(-50% + 24px));
+    transition:transform var(--dur-spring) var(--spring),opacity .2s var(--ease),visibility 0s linear var(--dur-spring)}
+  .legsheet.on{opacity:1;transform:translateY(-50%);transition:transform var(--dur-spring) var(--spring),opacity .2s var(--ease)}
+  .legsheet > .grab{display:none}
+}
 
 /* ---- 1. who, the call, the chance ---- */
 .ls-head{display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:12px;align-items:center}
