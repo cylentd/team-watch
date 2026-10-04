@@ -34,9 +34,20 @@ function muBlipHTML(){
     <div><q>${say}</q>${when}</div></div></section>`;
 }
 
+/* Most confident (2026-10-03, David: "most confident picks"): the record's takes that a reason backs,
+   widest gap from FantasyPros first, START and SIT together. They stay in their sections below too;
+   the record grades them once, as the takes they are. None with a gap and a reason: no section. */
+const MU_TOP = 3;
+function muTopHTML(){
+  const top = [...muCalls("start"), ...muCalls("sit")].filter(r => r.graded !== false && r.backed && typeof r.gap === "number")
+    .sort((a, b) => b.gap - a.gap || b.pts - a.pts).slice(0, MU_TOP);
+  return top.length ? `<h3 class="mu-grp mu-top">${t("matchups.top.title")}</h3>${top.map(r => muCallHTML(r, "t:")).join("")}` : "";
+}
+
 function muOursHTML(){
   if (!LIVE_STARTSIT.calls.length && !(LIVE_STARTSIT.shadow || []).length) return muBlipHTML();
   return `<section class="mu-list">
+    ${muTopHTML()}
     ${muSectionHTML(t("matchups.calls.higher"), "start", t("matchups.calls.emptyHigher"), true)}
     ${muSectionHTML(t("matchups.calls.lower"), "sit", t("matchups.calls.emptyLower"), false)}
   </section>`;

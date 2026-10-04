@@ -51,6 +51,8 @@
   display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0;padding:14px 14px 6px;
   font-size:var(--t-1);font-weight:600;line-height:1;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);
 }
+/* Most confident heads the list in the brand lime: the one header that is a pick, not a bucket. */
+.mu-grp.mu-top{color:var(--lime)}
 .mu-grp span{font-family:var(--mono);font-weight:500;letter-spacing:0;text-transform:none;white-space:nowrap}
 /* The shown-not-graded takes' line (Amendment 3, 2026-10-03): quieter than a list's header, a rule above. */
 .mu-more{margin:8px 14px 0;padding:10px 0 4px;border-top:1px dashed var(--line-2);font-size:var(--t-1);font-weight:500;line-height:1;color:var(--ink-3)}

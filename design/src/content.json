@@ -743,6 +743,7 @@
  "matchups.tier.lean": "Small",
  "matchups.tier.solid": "Medium",
  "matchups.tier.strong": "Big",
+ "matchups.top.title": "Most confident",
  "matchups.vs.away": "{team} @ {opp}",
  "matchups.vs.home": "{team} vs {opp}",
  "myrecap.aria": "Your week",

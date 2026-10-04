@@ -257,8 +257,22 @@ def test_each_take_leads_with_start_or_sit_and_the_row_stays_52px(page):
     # START / SIT replaced the STRONG / SOLID / LEAN chip on 2026-10-03; no tier word is left on a row
     assert list_rows(page)[:4] == [["Brock Purdy", "START"], ["Chase Brown", "START"], ["Tee Higgins", "START"],
                                    ["Amon-Ra St. Brown", "SIT"]]
-    assert page.evaluate("[...document.querySelectorAll('.mu-list .mu-call-h')].map(e => e.offsetHeight)") == [52] * 7
+    assert page.evaluate("[...document.querySelectorAll('.mu-list .mu-call:not([data-mukey^=\"t:\"]) .mu-call-h')].map(e => e.offsetHeight)") == [52] * 7
     assert page.evaluate("document.querySelector('.mu-list').textContent.match(/STRONG|SOLID|LEAN/)") is None
+
+
+@pytest.mark.render
+def test_most_confident_leads_with_the_widest_backed_gaps(page):
+    # 2026-10-03, David: "most confident picks": backed, graded takes, widest gap first, at most 3
+    page.evaluate("""() => { LIVE_STARTSIT.calls.forEach((r, i) => { r.backed = true; r.graded = true; r.gap = i; });
+      LIVE_STARTSIT.calls[0].backed = false; LIVE_STARTSIT.calls[0].gap = 99;
+      if (LIVE_STARTSIT.calls[1]) LIVE_STARTSIT.calls[1].graded = false; render(); }""")
+    want = page.evaluate("""() => LIVE_STARTSIT.calls.filter(r => r.backed && r.graded).sort((a, b) => b.gap - a.gap).slice(0, 3).map(r => r.n)""")
+    got = page.evaluate("[...document.querySelectorAll('.mu-list [data-mukey^=\"t:\"] .mu-nm b')].map(e => e.textContent)")
+    assert got == want and 1 <= len(got) <= 3
+    assert page.inner_text(".mu-top") == "MOST CONFIDENT" or page.inner_text(".mu-top").lower() == "most confident"
+    page.evaluate("() => { LIVE_STARTSIT.calls.forEach(r => { r.backed = false; }); render(); }")
+    assert page.locator(".mu-top").count() == 0                       # no backed take: no section
 
 
 @pytest.mark.render
@@ -266,11 +280,11 @@ def test_takes_shown_but_not_graded_follow_their_own_line(page):
     # Amendment 3 (2026-10-03): week 4's rank-5+ takes are shown, not counted in the record
     page.set_viewport_size({"width": 360, "height": 800})
     page.evaluate("() => { LIVE_STARTSIT.calls[0].graded = false; render(); }")
-    order = page.evaluate("""() => [...document.querySelector('.mu-list').children].map(e =>
+    order = page.evaluate("""() => [...document.querySelector('.mu-list').children].filter(e => !(e.dataset.mukey || '').startsWith('t:')).map(e =>
         e.classList.contains('mu-more') ? 'MORE' : e.querySelector && e.querySelector('.mu-nm b') ? e.querySelector('.mu-nm b').textContent : null).filter(Boolean)""")
     assert order[:4] == ["Chase Brown", "Tee Higgins", "MORE", "Brock Purdy"]   # Purdy, the first START, moves under the line
     assert page.locator(".mu-more").count() == 1 and page.inner_text(".mu-more") == "More takes · not in the record"
-    assert page.evaluate("[...document.querySelectorAll('.mu-list .mu-call-h')].map(e => e.offsetHeight)") == [52] * 7
+    assert page.evaluate("[...document.querySelectorAll('.mu-list .mu-call:not([data-mukey^=\"t:\"]) .mu-call-h')].map(e => e.offsetHeight)") == [52] * 7
 
 
 @pytest.mark.render
