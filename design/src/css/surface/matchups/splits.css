@@ -1,13 +1,9 @@
 /* ============================== TAKES: CONFIDENCE, SPLITS, PAUSED, CLAUDE'S READ ==============================
-   ff-jarvis METHODOLOGY 12.64 Amendment 2 (2026-09-29). The tier chip under a take's ranks, in
-   Preview's language (STRONG filled lime, SOLID outlined lime, LEAN grey). The splits open in place
+   ff-jarvis METHODOLOGY 12.64 Amendment 2 (2026-09-29). The tier chip under a take's ranks left
+   the rows 2026-10-03 for START / SIT (David: the tiers confused). The splits open in place
    under the record on the house spring, like a row. In the splits the higher score is lime, as on
    the bars: the one colour there. A paused type's line stands in its section; its shadow takes open
    under it. Claude's read heads the graded week in a filled box, since the section is not a card. */
-.mu-cf{display:inline-block;padding:3px 5px;border:1px solid var(--line-2);border-radius:4px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.04em;line-height:1;color:var(--ink-3)}
-.mu-cf.solid{border-color:var(--lime);color:var(--lime)}
-.mu-cf.strong{background:var(--lime);border-color:var(--lime);color:var(--on-lime)}
-
 .mu-chev{width:14px;height:14px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform var(--dur-spring) var(--spring)}
 
 /* The record's last line: the Splits button on the right, under the scores, and the panel wrapped

@@ -1,7 +1,7 @@
 /* ============================== TAKES: THE ROWS ==============================
    One 52px line per take: a tag, a head, the name over his game, our rank over the experts', the
-   projection. Our takes lead with the position, since their section already says start or sit and
-   the list mixes positions; Pitcher List's lead with their call, since their list mixes both. A tap
+   projection. Every row leads with its call, START or SIT (2026-10-03); our rows put the position
+   in the meta line. A tap
    opens the row in place, one open at a time across both lists: ours opens to its evidence and a
    link to the profile, Pitcher List's to their own words and a link to the column. */
 
@@ -12,7 +12,8 @@ const muTag = tag => tag === "sit" ? t("matchups.call.sit") : t("matchups.call.s
    whether a reason backs them (v2), so a gut call is visible before the row is opened. */
 function muMeta(r){
   const kick = muKick(r);
-  const base = kick ? t("matchups.row.meta", {game: muVs(r), kick: esc(kick)}) : muVs(r);
+  const game = kick ? t("matchups.row.meta", {game: muVs(r), kick: esc(kick)}) : muVs(r);
+  const base = r.tag ? `${esc(r.pos)} · ${game}` : game;
   if (!("backed" in r)) return base;
   return `${base} · <span class="mu-bk${r.backed ? " yes" : ""}">${r.backed ? t("matchups.row.backed") : t("matchups.row.gut")}</span>`;
 }
@@ -27,11 +28,6 @@ function muRowHTML(key, r, tag, right, body){
   </div>`;
 }
 
-/* How far apart the two ranks are (Amendment 2, ff-jarvis's tier from gap_n), under the ranks it
-   measures: STRONG filled, SOLID outlined lime, LEAN grey, Preview's chips. Null draws nothing. */
-const MU_TIER = () => ({lean: t("matchups.tier.lean"), solid: t("matchups.tier.solid"), strong: t("matchups.tier.strong")});
-const muTierHTML = r => MU_TIER()[r.tier] ? `<span class="mu-cf ${r.tier}">${MU_TIER()[r.tier]}</span>` : "";
-
 /* Our take ("c:" in the list, "s:" a paused type's shadow take). One no stat backs is shown anyway
    and says so: the record grades it, and hiding it would make the page and the record disagree. */
 function muCallHTML(r, pre = "c:"){
@@ -43,8 +39,10 @@ function muCallHTML(r, pre = "c:"){
   const body = `${reasons}<div class="mu-evs">${muEvidence(r, 4)}</div>
     <p class="mu-src"><span></span>
       <button type="button" class="mu-go" data-muslug="${esc(r.slug)}">${t("matchups.row.profile")}${MU_ARROW}</button></p>`;
-  const tag = `<span class="mu-tag pos ${esc(r.pos.toLowerCase())}">${esc(r.pos)}</span>`;
-  return muRowHTML(pre + r.slug, r, tag, `<span class="mu-rk"><span><b>${r.rank}</b> / ${ecr}</span>${muTierHTML(r)}</span
+  // START / SIT leads, as on Pitcher List's rows (2026-10-03, David: the STRONG / SOLID / LEAN chip
+  // confused); the section title says why, the position joins the meta line.
+  const tag = `<span class="mu-tag ${esc(r.tag)}">${muTag(r.tag)}</span>`;
+  return muRowHTML(pre + r.slug, r, tag, `<span class="mu-rk"><span><b>${r.rank}</b> / ${ecr}</span></span
     ><span class="mu-pt">${r.pts.toFixed(1)}</span>`, body);
 }
 

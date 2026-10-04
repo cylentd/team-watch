@@ -249,16 +249,16 @@ def page(browser, page_file):
 
 def list_rows(pg):
     return pg.evaluate("""() => [...document.querySelectorAll('.mu-list [data-mukey^="c:"]')].map(r => [
-        r.querySelector('.mu-nm b').textContent, (r.querySelector('.mu-cf') || {}).textContent || null])""")
+        r.querySelector('.mu-nm b').textContent, r.querySelector('.mu-tag').textContent])""")
 
 
 @pytest.mark.render
-def test_each_take_shows_its_tier_under_the_ranks_and_the_row_stays_52px(page):
-    assert list_rows(page)[:4] == [["Brock Purdy", "SOLID"], ["Chase Brown", "LEAN"], ["Tee Higgins", "LEAN"],
-                                   ["Amon-Ra St. Brown", "SOLID"]]
-    # 52px before the chip too (measured 2026-09-29): 4 takes, the shadow take under its line, 2 Pitcher List
+def test_each_take_leads_with_start_or_sit_and_the_row_stays_52px(page):
+    # START / SIT replaced the STRONG / SOLID / LEAN chip on 2026-10-03; no tier word is left on a row
+    assert list_rows(page)[:4] == [["Brock Purdy", "START"], ["Chase Brown", "START"], ["Tee Higgins", "START"],
+                                   ["Amon-Ra St. Brown", "SIT"]]
     assert page.evaluate("[...document.querySelectorAll('.mu-list .mu-call-h')].map(e => e.offsetHeight)") == [52] * 7
-    assert page.evaluate("[...document.querySelectorAll('.mu-rk .mu-cf')].length") == 5
+    assert page.evaluate("document.querySelector('.mu-list').textContent.match(/STRONG|SOLID|LEAN/)") is None
 
 
 @pytest.mark.render
@@ -269,7 +269,7 @@ def test_a_paused_type_is_one_line_and_a_tap_shows_its_shadow_takes(page):
         "Paused: our START TE takes, 0.21 vs FantasyPros 0.79 on 42")
     assert page.locator(".mu-ps-b").first.evaluate("e => e.inert") is True
     line.click()
-    assert page.locator(".mu-ps[data-open] [data-mukey='s:tucker-kraft'] .mu-cf").inner_text() == "STRONG"
+    assert page.locator(".mu-ps[data-open] [data-mukey='s:tucker-kraft'] .mu-tag").inner_text() == "START"
     assert line.get_attribute("aria-expanded") == "true"
     line.click()
     assert page.locator(".mu-ps[data-open]").count() == 0
@@ -295,8 +295,8 @@ def test_the_splits_open_in_place_under_the_record(graded):
     rows = page.evaluate("""() => [...document.querySelectorAll('.mu-spt tbody tr:not(.mu-spg)')].map(r =>
         [...r.children].map(c => c.textContent.trim() + (c.classList.contains('mu-lead') ? '*' : '')))""")
     assert rows[:2] == [["START", "0.24", "0.76*", "29"], ["SIT", "0.62*", "0.38", "19"]]
-    assert [r[0] for r in rows] == ["START", "SIT", "QB", "RB", "WR", "TE", "LEAN", "SOLID", "STRONG"]
-    assert rows[8] == ["STRONG", "0.35", "0.65*", "12"]
+    assert [r[0] for r in rows] == ["START", "SIT", "QB", "RB", "WR", "TE", "Small", "Medium", "Big"]
+    assert rows[8] == ["Big","0.35", "0.65*", "12"]
     assert page.inner_text(".mu-spt caption") == "Ours vs FantasyPros, wk 4"
 
 
