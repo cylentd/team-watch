@@ -55,6 +55,8 @@
 .dg-ln-t{min-width:0;display:grid;gap:1px}
 .dg-ln-t b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dg-ln-t > span{font-size:var(--t-1);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Start of the week (2026-10-03) heads the Matchups card: the one pick, in the brand lime. */
+.dg-ln-t > span .dg-sotw{font-weight:600;color:var(--lime)}
 .dg-ln-r{font-family:var(--mono);font-size:var(--t-3);font-weight:500;line-height:1.1;font-variant-numeric:tabular-nums;text-align:right}
 .dg-ln-r small{display:block;margin-top:3px;font-family:var(--ui);font-size:var(--t-1);color:var(--ink-3)}
 .dg-st{font-family:var(--mono);font-size:var(--t-1);font-weight:700;line-height:1;padding:4px 6px;border-radius:5px;letter-spacing:.02em}

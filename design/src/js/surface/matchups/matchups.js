@@ -39,8 +39,7 @@ function muBlipHTML(){
    the record grades them once, as the takes they are. None with a gap and a reason: no section. */
 const MU_TOP = 3;
 function muTopHTML(){
-  const top = [...muCalls("start"), ...muCalls("sit")].filter(r => r.graded !== false && r.backed && typeof r.gap === "number")
-    .sort((a, b) => b.gap - a.gap || b.pts - a.pts).slice(0, MU_TOP);
+  const top = muConfident(["start", "sit"]).slice(0, MU_TOP);
   return top.length ? `<h3 class="mu-grp mu-top">${t("matchups.top.title")}</h3>${top.map(r => muCallHTML(r, "t:")).join("")}` : "";
 }
 

@@ -330,6 +330,7 @@
  "digest.line.wxMixed": "<b>Weather</b> in {games}",
  "digest.line.wxRain": "<b>Rain</b> in {games}",
  "digest.line.wxWind": "<b>Wind</b> in {games}",
+ "digest.mu.sotw": "Start of the week",
  "digest.nb": "Not backtested.",
  "digest.need.more": "{n} more",
  "digest.need.none": "Nobody new is out since Tuesday.",

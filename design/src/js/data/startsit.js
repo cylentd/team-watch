@@ -10,6 +10,10 @@ let MU_OPEN = "";
 const muGap = r => r.gap == null ? -Infinity : r.gap;
 const muCalls = tag => (LIVE_STARTSIT ? LIVE_STARTSIT.calls : []).filter(r => r.tag === tag)
   .sort((a, b) => muGap(b) - muGap(a) || b.pts - a.pts);
+/* Our most confident takes (2026-10-03): graded, backed by a reason, widest gap first. Start/Sit's
+   Most confident section shows the top three of both; the Digest's Start of the week is the first START. */
+const muConfident = tags => tags.flatMap(muCalls).filter(r => r.graded !== false && r.backed && typeof r.gap === "number")
+  .sort((a, b) => b.gap - a.gap || b.pts - a.pts);
 const muPl = () => LIVE_STARTSIT ? LIVE_STARTSIT.pl : [];
 const muScore = x => x == null ? "—" : x.toFixed(2);
 

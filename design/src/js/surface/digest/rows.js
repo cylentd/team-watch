@@ -35,8 +35,16 @@ function dgStartWhat(r, name, bare){
   return [over, moved].filter(Boolean).join(", ");
 }
 
+/* Start of the week (2026-10-03, David: yes): our most confident START, the take's own row on
+   Start/Sit, leading the card in lime. Ours against FantasyPros on the right, as the takes show it. */
+function dgSotwHTML(){
+  const s = muConfident(["start"])[0];
+  return s ? dgLnHTML(s, `<b class="dg-sotw">${t("digest.mu.sotw")}</b> · ${esc(s.pos)} · ${dgVs(s)}`,
+    `${s.rank} / ${s.ecr == null ? "—" : s.ecr}`) : "";
+}
+
 function dgMuBody(d){
-  const lines = d.best.map(b => dgLnHTML(b, [esc(b.pos), dgVs(b), b.why ? esc(b.why) : ""].filter(Boolean).join(" · "),
+  const lines = dgSotwHTML() + d.best.map(b => dgLnHTML(b, [esc(b.pos), dgVs(b), b.why ? esc(b.why) : ""].filter(Boolean).join(" · "),
     b.pts.toFixed(1))).join("");
   const r = d.record;
   const rec = r ? t("digest.foot.mu", {us: r.ours.score == null ? "—" : r.ours.score.toFixed(2),

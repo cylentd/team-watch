@@ -684,6 +684,31 @@ def test_top_5_is_ranks_own_rows_under_position_tabs(browser, page_file):
 
 
 @pytest.mark.render
+def test_start_of_the_week_heads_the_matchups_card(browser, page_file):
+    """2026-10-03, David: yes to a Start of the week: our most confident START (graded, backed,
+    widest gap), first in the Matchups card, ours / FantasyPros on the right. None: no row."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    page.goto(page_file.as_uri())
+    drive(page, go("digest"))
+    page.wait_for_selector(".dg-row")
+    page.evaluate("""(() => { LIVE_STARTSIT.calls.forEach((r, i) => { r.backed = true; r.graded = true; r.gap = i; });
+      const s = LIVE_STARTSIT.calls.filter(r => r.tag === 'start'); s[s.length - 1].gap = 50; s[0].gap = 99; s[0].backed = false;
+      DG_CUT = null; render(); })()""")
+    want = page.evaluate("""(() => { const s = LIVE_STARTSIT.calls.filter(r => r.tag === 'start'); return s[s.length - 1]; })()""")
+    row = page.locator(".dg-row[data-dgrow='mu']")
+    if row.locator(".dg-head").count():
+        row.locator(".dg-head").click()
+    first = row.locator(".dg-ln").first
+    assert first.locator(".dg-sotw").inner_text() == "Start of the week"
+    assert first.get_attribute("data-dgslug") == want["slug"]
+    assert first.locator(".dg-ln-r").inner_text() == f"{want['rank']} / {want['ecr'] if want['ecr'] is not None else '—'}"
+    page.evaluate("LIVE_STARTSIT.calls.forEach(r => { r.backed = false; }); DG_CUT = null; render()")
+    assert page.locator(".dg-sotw").count() == 0
+    assert not errors
+    ctx.close()
+
+
+@pytest.mark.render
 def test_weather_is_the_weather_tabs_own_games(browser, page_file):
     """2026-09-29, 6A (David: "the next tab over is the weather and it's actually already live"): the
     row counts the games the Weather view says move scoring (wtRows().moves, still to kick off) and
