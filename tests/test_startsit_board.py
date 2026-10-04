@@ -34,6 +34,20 @@ def hurt(slug, n, pos, s, avg):
     return {"n": n, "slug": slug, "pos": pos, "s": s, "avg": avg}
 
 
+def test_out_takes_sleepers_latest_status_over_the_previews():
+    # 2026-10-03: the previews said McLaurin was Questionable; Sleeper at 8:45 pm said Doubtful
+    ranks = {"rows": [row("diggs", "WR", "WAS", 9.6), row("mclaurin", "WR", "WAS", 9.35), row("newout", "TE", "WAS", 6.0),
+                      row("back", "RB", "WAS", 8.0)]}
+    preview = {"games": [{"inj": {"WAS": [hurt("mclaurin", "Terry McLaurin", "WR", "q", None),
+                                          hurt("back", "Back Healthy", "RB", "out", 8.5)]}}]}
+    status = {"terry mclaurin": {"name": "mclaurin", "injury": "Doubtful"},
+              "back healthy": {"name": "back", "injury": None},          # cleared since the previews
+              "new out": {"name": "newout", "injury": "IR"}}           # hurt since, only in the ranks
+    got = ssb._out(ranks, preview, status, slugify)
+    assert got["diggs"] == [{"n": "Terry McLaurin", "pos": "WR", "s": "Doubtful"}, {"n": "newout", "pos": "TE", "s": "IR"}]
+    assert ssb._out(ranks, preview)["diggs"] == [{"n": "Back Healthy", "pos": "RB", "s": "Out"}], "no status: the previews alone"
+
+
 def test_fp_is_the_position_rank_keyed_by_slug():
     raw = {"week": 4, "players": [
         {"player_name": "Josh Allen", "player_position_id": "QB", "pos_rank": "QB1"},

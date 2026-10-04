@@ -563,7 +563,7 @@ def add_market_stock(blocks, report):
 def add_start_sit_board(blocks, report):
     """LIVE_SSB, the Start / Sit picker and board, from blocks already built (ranks, schedule, preview)."""
     blocks["LIVE_SSB"] = live_ssb(blocks["LIVE_RANKS"], blocks["LIVE_SCHEDULE"], blocks["LIVE_PREVIEW"],
-                                  load_defense(), load_expert_ranks(), slugify)
+                                  load_defense(), load_expert_ranks(), slugify, load_status())
     report.append(ssb_report(blocks["LIVE_SSB"]))
 
 

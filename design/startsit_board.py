@@ -12,7 +12,7 @@
   A team with no game this week (a bye) has no row. Team codes are the projections' (LA, WAS), the
   same as LIVE_RANKS and defense_form.json; the schedule says LAR and WSH, which `alias` undoes.
 - `out`: for each QB/RB/WR/TE in LIVE_RANKS, the same-team QB/RB/WR/TE teammates who are Out, IR or
-  Doubtful this week (LIVE_PREVIEW's per-game `inj`), most-used first, at most MAX_OUT. A teammate
+  Doubtful this week (Sleeper's latest status over LIVE_PREVIEW's per-game `inj`), most-used first, at most MAX_OUT. A teammate
   whose usage is under MIN_AVG points, or unknown, is a deep backup and left out. Usage is his
   recorded average, else his projected points when he is still ranked (a Doubtful has no average).
   `n` is the full name ("Jalen Coker"; the page shortens it); `s` is Out, IR or Doubtful.
@@ -22,6 +22,8 @@ other cuts: the raw blocks and slugify come in as arguments, and `problems` is t
 contract.py runs on the result.
 """
 import re
+
+from projections import OUT_INJURY
 
 POS = ("QB", "RB", "WR", "TE")
 MATES = POS     # a starting QB out moves his receivers most (QB added 2026-10-03: J. Daniels, week 4)
@@ -75,11 +77,43 @@ def _board(defense, games):
     return out
 
 
-def _out(ranks, preview):
-    hurt = {}
+def _sits(code):
+    """A Sleeper injury code as Out / IR / Doubtful, or None when he plays (healthy, Questionable)."""
+    if code == "IR":
+        return "IR"
+    return "Out" if code in OUT_INJURY else "Doubtful" if code == "Doubtful" else None
+
+
+def _hurt(ranks, preview, status, slugify):
+    """team -> [{slug, n, pos, s, avg}]: who will not play. The status is Sleeper's latest (the
+    Saturday 8:45 pm run), which overrides the preview's, written once at midday (2026-10-03:
+    McLaurin went Questionable -> Doubtful that evening); the preview still gives team and usage."""
+    by = {}
     for g in (preview or {}).get("games") or []:
         for team, rows in (g.get("inj") or {}).items():
-            hurt.setdefault(team, []).extend(r for r in rows if r.get("s") in SITS and r.get("pos") in MATES)
+            for r in rows:
+                if r.get("pos") in MATES and r.get("slug"):
+                    by[r["slug"]] = {"slug": r["slug"], "n": r["n"], "pos": r["pos"], "team": team,
+                                     "s": SITS.get(r.get("s")), "avg": r.get("avg")}
+    if status:
+        ranked = {r["slug"]: r for r in (ranks or {}).get("rows") or []}
+        live = {slugify(v.get("name") or ""): v for v in status.values()}
+        for slug, m in by.items():
+            if slug in live:
+                m["s"] = _sits(live[slug].get("injury"))
+        for slug, v in live.items():
+            if slug not in by and slug in ranked and _sits(v.get("injury")) and ranked[slug]["pos"] in MATES:
+                r = ranked[slug]
+                by[slug] = {"slug": slug, "n": r["n"], "pos": r["pos"], "team": r["team"], "s": _sits(v["injury"]), "avg": None}
+    hurt = {}
+    for m in by.values():
+        if m["s"]:
+            hurt.setdefault(m["team"], []).append(m)
+    return hurt
+
+
+def _out(ranks, preview, status=None, slugify=None):
+    hurt = _hurt(ranks, preview, status, slugify)
     pts = {r["slug"]: r["pts"] for r in (ranks or {}).get("rows") or []}
     out = {}
     for r in (ranks or {}).get("rows") or []:
@@ -87,18 +121,20 @@ def _out(ranks, preview):
         for m in hurt.get(r["team"]) or []:
             use = m.get("avg") if m.get("avg") is not None else pts.get(m.get("slug"))
             if m.get("slug") != r["slug"] and use is not None and use >= MIN_AVG:
-                mates.append((-use, m["slug"], {"n": m["n"], "pos": m["pos"], "s": SITS[m["s"]]}))
+                mates.append((-use, m["slug"], {"n": m["n"], "pos": m["pos"], "s": m["s"]}))
         if mates:
             out[r["slug"]] = [m[2] for m in sorted(mates, key=lambda x: x[:2])[:MAX_OUT]]
     return out
 
 
-def live_ssb(ranks, schedule, preview, defense, experts, slugify):
-    """LIVE_SSB from LIVE_RANKS, LIVE_SCHEDULE, LIVE_PREVIEW, sources.load_defense()'s block and the raw
-    expert_ranks.json. Always a dict with all four keys; a source that is missing leaves its part empty."""
+def live_ssb(ranks, schedule, preview, defense, experts, slugify, status=None):
+    """LIVE_SSB from LIVE_RANKS, LIVE_SCHEDULE, LIVE_PREVIEW, sources.load_defense()'s block, the raw
+    expert_ranks.json and sources.load_status(). Always a dict with all four keys; a source that is
+    missing leaves its part empty."""
     week, games = _games(schedule)
     week = week if week is not None else (ranks or {}).get("week")
-    return {"week": week, "fp": _fp(experts, slugify, week), "board": _board(defense, games), "out": _out(ranks, preview)}
+    return {"week": week, "fp": _fp(experts, slugify, week), "board": _board(defense, games),
+            "out": _out(ranks, preview, status, slugify)}
 
 
 def report(ssb):
