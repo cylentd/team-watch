@@ -273,6 +273,13 @@ def load_startsit_review():
     return feed_block(("startsit_review",), "note") or read_first(DWR / "startsit_review.json")
 
 
+def load_expert_ranks():
+    """FantasyPros' consensus position rank for every player this week (ff-jarvis's expert_ranks.json:
+    `player_name`, `player_position_id`, `pos_rank` "WR14"). The file only, no feed block; None when it
+    is missing. design/startsit_board.py cuts it into LIVE_SSB.fp."""
+    return read_first(DWR / "expert_ranks.json")
+
+
 def load_digest():
     """The league-wide week packet (model.season.weekly_digest), feed block `weekly_digest` first,
     the file second. design/digest.py cuts it for the Digest view; None when neither exists."""

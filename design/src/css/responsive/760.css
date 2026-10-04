@@ -47,7 +47,8 @@
 
   /* The group's views: underline tabs, sticky under the groups, and away with them. */
   .subnav{position:sticky;top:var(--nav-h);z-index:38;transition:transform .28s var(--ease)}
-  .subnav .modes-sub{gap:20px;padding:0}
+  /* 16px, not 20: This week's six views, Start/Sit among them (2026-10-03), fit 332px at 360. */
+  .subnav .modes-sub{gap:16px;padding:0}
   body.hdr-away .navbar{transform:translateY(-100%)}
   body.hdr-away .subnav{transform:translateY(calc(-100% - var(--nav-h)))}
 

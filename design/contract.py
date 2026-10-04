@@ -6,7 +6,10 @@ build. The lists below are the fields the JS dereferences (top-level keys, then 
 each row). A block may be None ("source not available"), but a block that is present must be
 whole. Null values are fine; absent keys are not.
 """
+import contract_checks   # design/contract_checks.py: the rules that read a spec
 import leagues
+import startsit_board   # design/startsit_board.py: LIVE_SSB's nested shape check
+from contract_checks import WIRE_EVENT, WIRE_KIND, WIRE_KIND_OPTIONAL, WIRE_OPTIONAL, WIRE_SUBS  # noqa: F401  re-exported for wire_watch.py
 
 # A league's `status` is fa | waiver | rostered | mine | unknown -- no value is enforced here: "unknown"
 # (the scrape could not tell) is a real answer, and the card says so rather than guessing FA (data/waiver.js
@@ -23,22 +26,6 @@ WAIVER_ROW = ["n", "slug", "pos", "team", "opp", "home", "tier", "weeks", "injur
 # top-level `tier`, which ff-jarvis keeps as the best of the per-league ones.
 WAIVER_LEAGUE = ["status", "clears", "need", "tier", "lane", "verdict", "drop"]
 
-# ff-jarvis's wire_watch (design/wire_watch.py), the Breaking rail. Per league a list of events;
-# every event carries WIRE_EVENT and its kind's own keys. wire_watch.py cuts to exactly these and
-# never fills a required one, so a field the producer dropped fails here by name. `headline`,
-# `clears`, `practice`, `note` and the `over` of a need-drop may be null.
-WIRE_EVENT = ["kind", "at", "key", "name", "pos", "team", "headline"]
-WIRE_KIND = {
-    "path": ["status", "clears", "because", "verdict"],
-    "drop": ["by", "status", "clears", "verdict"],
-    "status": ["from", "to", "practice", "note", "mine"],
-    "adds": ["count"],
-}
-WIRE_BECAUSE = ["key", "name", "status", "practice", "note"]
-# A drop's verdict: kind bench|need; `start` true with a `slot` when he would start there (the
-# kind stays "bench"). An event's `status` may be "unknown", which the rail says as such.
-WIRE_VERDICT = ["kind", "start", "slot", "over", "over_key", "margin"]
-# Of the lists above, the keys a producer may leave out (wire_watch.py writes them as null).
 LEAGUE_SPEC = {
     "keys": ["league", "season", "week", "since", "scope", "teams", "weeks", "now", "h2h", "champs", "facts"],
     "rows": [("teams", ["id", "name", "key", "w", "l", "t"]),
@@ -55,13 +42,6 @@ LEAGUE_YAHOO_SPEC = {
              ("weeks", ["week", "games", "awards", "head", "dek", "table", "lead", "photo", "blip", "streaks"]),
              ("spoons", ["y", "id", "name", "mgr", "final"])] + LEAGUE_SPEC["rows"][2:],
 }
-WIRE_OPTIONAL = {"headline", "clears", "practice", "note", "over", "over_key", "start", "slot"}
-# Keys only one kind may leave out. A path's `verdict` (2026-09-23) is a drop's verdict shape,
-# what claiming the opened player does for my roster; a producer from before it sends none.
-# A drop's verdict stays required.
-WIRE_KIND_OPTIONAL = {"path": {"verdict"}}
-# Each kind's sub-objects and their keys; one listed in WIRE_KIND_OPTIONAL may be null.
-WIRE_SUBS = {"path": {"because": WIRE_BECAUSE, "verdict": WIRE_VERDICT}, "drop": {"verdict": WIRE_VERDICT}}
 WAIVER_VERDICT = ["kind", "over", "slot", "margin"]
 WAIVER_DROP = ["name", "pos", "pts"]
 WAIVER_META = ["label", "faab_left", "faab_budget", "clears", "needs"]
@@ -294,8 +274,8 @@ CONTRACT = {
     # `record` is null until a week is graded, its `v2` and `review` until a v2 week (4+) is; `pl` is empty when Pitcher List's column is not this week's, and `article` null with it.
     # Amendment 2 (2026-09-29): `tier`, `rule`, the record's `splits` (shape pinned in test_startsit.py) and the review's `read` (Claude's) may be null; `shadow` is [] with nothing paused.
     "LIVE_STARTSIT": {
-        "keys": ["week", "experts_week", "generated", "calls", "shadow", "rule", "pl", "article", "record", "review"],
-        "rows": [("calls", STARTSIT_ROW), ("shadow", STARTSIT_ROW), ("pl", ["call", "pos", "n", "slug", "team", "opp", "home", "rationale"])],
+        "keys": ["week", "experts_week", "generated", "calls", "shadow", "best", "rule", "pl", "article", "record", "review"],
+        "rows": [("calls", STARTSIT_ROW), ("shadow", STARTSIT_ROW), ("best", ["n", "slug", "pos", "team", "opp", "home", "pts", "why"]), ("pl", ["call", "pos", "n", "slug", "team", "opp", "home", "rationale"])],
         "objs": [("rule", ["min_n", "paused"]), ("record", ["through", "weeks", "ours", "pl", "fp", "v2", "splits"]), ("review", ["week", "read", "rows"])],
         "sub_rows": [("rule", "paused", ["type", "tag", "pos", "n", "ours", "fp", "since"])],
     },
@@ -303,6 +283,9 @@ CONTRACT = {
     # games last season; `work` values may be null where ff-jarvis had no number.
     "LIVE_ROLE": {"keys": ["season", "through", "min_games", "rows"],
                   "rows": [("rows", ["slug", "n", "pos", "team", "g", "xfp", "pts", "gap", "td", "work", "prev"])]},
+    # design/startsit_board.py, the Start / Sit picker and board (2026-10-03): `fp` {slug: {ecr, pos}}, `board` {POS: {avg, n, best, worst}}
+    # (rows {team, opp, pts, rank}), `out` {slug: [{n, pos, s}]}; each part may be empty. The nested shapes are checked by its `problems`.
+    "LIVE_SSB": {"keys": ["week", "fp", "board", "out"], "checks": [startsit_board.problems]},
     # design/highlights.py, Players > Highlights (2026-09-29); a view's rows are pinned in tests/test_highlights.py.
     "LIVE_HIGHLIGHTS": {"keys": ["season", "week", "generated", "views"], "rows": [("views", ["view", "leaf", "rows"])]},
     "LIVE_REASONS": {"keys": [], "map": (".", ["why", "work", "tags"])},   # design/slips.py (2026-10-03): the block IS the map; `{}` without the file
@@ -401,97 +384,9 @@ class ContractError(SystemExit):
     """Raised as SystemExit so `python design/build.py` exits non-zero with the message."""
 
 
-def _row_specs(spec):
-    """`rows` is one (field, keys) pair, or a list of them for a block with two row lists."""
-    if not spec:
-        return []
-    return list(spec) if isinstance(spec[0], (list, tuple)) else [spec]
-
-
 def problems(name, obj, limit=8):
-    """Missing fields as `LIVE_X.key` / `LIVE_X.rows[i].key`, at most `limit` of them."""
-    if obj is None:
-        return []
-    spec = CONTRACT[name]
-    out = [f"{name}.{k}" for k in spec["keys"] if k not in obj]
-    for field, keys in _row_specs(spec.get("rows")):
-        if field and isinstance(obj.get(field), list):
-            for i, row in enumerate(obj[field]):
-                out += [f"{name}.{field}[{i}].{k}" for k in keys if k not in row]
-                if len(out) >= limit:
-                    break
-    for field, keys in spec.get("objs", []):
-        if isinstance(obj.get(field), dict):
-            out += [f"{name}.{field}.{k}" for k in keys if k not in obj[field]]
-    for field, sub, keys in spec.get("sub_rows", []):
-        inner = (obj.get(field) or {}).get(sub)
-        if isinstance(inner, list):
-            for i, row in enumerate(inner):
-                out += [f"{name}.{field}.{sub}[{i}].{k}" for k in keys if k not in row]
-                if len(out) >= limit:
-                    break
-    field, keys = spec.get("map", (None, []))
-    if field and isinstance(obj if field == "." else obj.get(field), dict):   # "." is the block itself
-        for key, row in (obj if field == "." else obj[field]).items():
-            out += [f"{name}{'' if field == '.' else '.' + field}[{key!r}].{k}" for k in keys if not isinstance(row, dict) or k not in row]
-            if len(out) >= limit:
-                break
-    for field, sub, keys in spec.get("nested", []):
-        if not isinstance(obj.get(field), dict):
-            continue
-        for key, row in obj[field].items():
-            inner = row.get(sub) if isinstance(row, dict) else None
-            if isinstance(inner, dict):
-                out += [f"{name}.{field}[{key!r}].{sub}.{k}" for k in keys if k not in inner]
-    out += _row_children(name, obj, spec)
-    if spec.get("wire_events"):
-        out += _wire_events(name, obj)
-    return out[:limit]
-
-
-def _wire_events(name, obj):
-    """Each league's `events`, each event by its kind, and the kind's one sub-object."""
-    out = []
-    for lg, block in (obj.get("leagues") or {}).items():
-        at = f"{name}.leagues[{lg!r}]"
-        if not isinstance(block, dict) or not isinstance(block.get("events"), list):
-            out.append(f"{at}.events")
-            continue
-        for i, e in enumerate(block["events"]):
-            here = f"{at}.events[{i}]"
-            kind = e.get("kind")
-            if kind not in WIRE_KIND:
-                out.append(f"{here}.kind")
-                continue
-            out += [f"{here}.{k}" for k in WIRE_EVENT + WIRE_KIND[kind] if k not in e]
-            for sub, keys in WIRE_SUBS.get(kind, {}).items():
-                if isinstance(e.get(sub), dict):
-                    out += [f"{here}.{sub}.{k}" for k in keys if k not in e[sub]]
-                elif sub in e and not (e[sub] is None and sub in WIRE_KIND_OPTIONAL.get(kind, ())):
-                    out.append(f"{here}.{sub}")
-    return out
-
-
-def _row_children(name, obj, spec):
-    """Objects hanging off each row: `row_objs` is a nullable sub-object whose keys must all be
-    there when it is present; `row_maps` is a {key: object} map per row, each object checked,
-    and its own nullable sub-objects with it."""
-    out = []
-    for field, sub, keys in spec.get("row_objs", []):
-        for i, row in enumerate(obj.get(field) or []):
-            inner = row.get(sub)
-            if isinstance(inner, dict):
-                out += [f"{name}.{field}[{i}].{sub}.{k}" for k in keys if k not in inner]
-    for field, sub, keys, children in spec.get("row_maps", []):
-        for i, row in enumerate(obj.get(field) or []):
-            for key, inner in (row.get(sub) or {}).items():
-                at = f"{name}.{field}[{i}].{sub}[{key!r}]"
-                out += [f"{at}.{k}" for k in keys if not isinstance(inner, dict) or k not in inner]
-                for child, ckeys in children.items():
-                    c = inner.get(child) if isinstance(inner, dict) else None
-                    if isinstance(c, dict):
-                        out += [f"{at}.{child}.{k}" for k in ckeys if k not in c]
-    return out
+    """Missing fields as `LIVE_X.key` / `LIVE_X.rows[i].key`, at most `limit` of them (the rules: contract_checks.py)."""
+    return contract_checks.problems(name, obj, CONTRACT[name], limit) if obj is not None else []
 
 
 def validate(name, obj):

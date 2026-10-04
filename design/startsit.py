@@ -149,10 +149,16 @@ def live_startsit(calls, pl, grade, slugify, review=None):
     `review` is Claude's weekly review (startsit_review.json), None before one is written."""
     if not calls or "positions" not in calls:
         return None
-    rows, shadow = [], []
+    rows, shadow, best = [], [], []
     for pos in POS:
         d = calls["positions"].get(pos) or {}
-        # The best spot (d["best"]) is not a take: the matchup is a Ranks tag since 2026-09-29.
+        # The best spot is not a take (not graded): the starter with the softest matchup at his
+        # position, the Digest's Matchups card. Back on Start / Sit's board since 2026-10-03.
+        if d.get("best"):
+            b = d["best"]
+            best.append({"n": b["name"], "slug": slugify(b["name"]), "pos": b["pos"], "team": b["team"],
+                         "opp": b["opp"], "home": _home(b), "pts": b["pts"],
+                         "why": [w[2] for w in b.get("why") or []]})
         # A row of a paused take type (Amendment 2) is a shadow call: still graded, not a take.
         for tag in ("start", "sit"):
             for r in d.get(tag) or []:
@@ -163,7 +169,7 @@ def live_startsit(calls, pl, grade, slugify, review=None):
     experts = (calls.get("inputs") or {}).get("expert_week")
     since = (((calls.get("v2") or {}).get("rules") or {}).get("since") or {}).get("week") or 0
     return {"week": calls["week"], "experts_week": experts, "generated": calls.get("generated"), "calls": rows,
-            "shadow": shadow, "rule": _rule(calls),
+            "shadow": shadow, "best": best, "rule": _rule(calls),
             "pl": [_pl(c, slugify) for c in pl["calls"]] if same_week else [],
             "article": pl.get("article") if same_week else None, "record": _record(grade, since),
             "review": _review(grade, slugify, review)}

@@ -1,6 +1,7 @@
-/* ============================== TAKES ==============================
-   Players > Takes (leaf `matchups`, hash #matchups or #takes; was Matchups until 2026-09-29, per
-   David: "compare hot takes against the experts"). The record strip, then every position in one
+/* ============================== START / SIT ==============================
+   This week > Start/Sit (leaf `matchups`, hash #startsit, #matchups or #takes; was Takes until
+   2026-10-03 and Matchups until 2026-09-29, per David: "compare hot takes against the experts").
+   The picker and the matchup board lead; under them the Takes. The record strip, then every position in one
    list: where we rank a player higher than the FantasyPros experts, where lower, then Pitcher
    List's calls. A phone stacks them; wider, ours and Pitcher List's sit side by side. The page
    computes nothing: every take and the record are ff-jarvis's (record.js, rows.js). The matchup
@@ -46,10 +47,14 @@ function muPlHTML(){
   return `<section class="mu-list"><h3 class="mu-grp">${t("matchups.pl.title")}${n}</h3>${body}</section>`;
 }
 
+/* Start/Sit (2026-10-03): the picker and the matchup board lead (picker.js, board.js), then the
+   Takes as they were. No takes written yet leaves the picker and the board standing. */
 function matchupsHTML(){
-  if (!LIVE_STARTSIT) return `<div class="wrap"><div class="state-empty" style="margin:26px 0;min-height:120px"><div><b>0</b
+  const lead = `<div class="ssv">${ssPickHTML()}${ssBoardHTML()}</div>`;
+  if (!LIVE_STARTSIT) return `<div class="mu">${lead}<div class="state-empty" style="margin:26px 14px;min-height:120px"><div><b>0</b
     ><span>${t("matchups.empty.noCalls")}</span></div></div></div>`;
   return `<div class="mu">
+    ${lead}
     ${muRecordHTML()}
     <div class="mu-cols"><div class="mu-cols-in">${muOursHTML()}${muPlHTML()}</div></div>
     ${muReviewHTML()}
@@ -65,6 +70,9 @@ function muSetOpen(row, open){
 /* A row opens in place, never by re-render: its own spring is the motion, and the list must not
    be redrawn under the reader. One open at a time; a second tap closes it. */
 function wireMatchups(v){
+  ssWirePick(v);
+  ssWireBoard(v);
+  if (!LIVE_STARTSIT) return;
   v.querySelectorAll(".mu-call-h").forEach(h => h.addEventListener("click", () => {
     const key = h.parentElement.dataset.mukey;
     MU_OPEN = MU_OPEN === key ? "" : key;

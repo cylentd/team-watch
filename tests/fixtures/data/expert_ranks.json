@@ -1,0 +1,18 @@
+{
+ "week": 2,
+ "fetched": "2026-09-10 08:00",
+ "source": "FantasyPros consensus-rankings API",
+ "expert": "Fixture",
+ "scoring": "HALF",
+ "year": 2026,
+ "count": 7,
+ "players": [
+  {"player_name": "Joe Burrow", "player_team_id": "CIN", "player_position_id": "QB", "rank_ecr": 12, "pos_rank": "QB4"},
+  {"player_name": "Brock Purdy", "player_team_id": "SF", "player_position_id": "QB", "rank_ecr": 40, "pos_rank": "QB11"},
+  {"player_name": "Chase Brown", "player_team_id": "CIN", "player_position_id": "RB", "rank_ecr": 20, "pos_rank": "RB9"},
+  {"player_name": "Amon-Ra St. Brown", "player_team_id": "DET", "player_position_id": "WR", "rank_ecr": 8, "pos_rank": "WR3"},
+  {"player_name": "George Kittle", "player_team_id": "SF", "player_position_id": "TE", "rank_ecr": 30, "pos_rank": "TE2"},
+  {"player_name": "Jason Myers", "player_team_id": "SEA", "player_position_id": "K", "rank_ecr": 150, "pos_rank": "K5"},
+  {"player_name": "No Rank Listed", "player_team_id": "SEA", "player_position_id": "WR", "rank_ecr": 99, "pos_rank": null}
+ ]
+}

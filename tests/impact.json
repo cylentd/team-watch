@@ -53,8 +53,8 @@
     },
     "matchups": {
       "paths": ["design/src/js/surface/matchups/", "design/src/css/surface/matchups/", "design/src/js/data/startsit.js",
-                "design/startsit.py"],
-      "tests": ["tests/test_startsit.py"],
+                "design/startsit.py", "design/startsit_board.py"],
+      "tests": ["tests/test_startsit.py", "tests/test_startsit_board.py"],
       "render": ["matchups"]
     },
     "news": {

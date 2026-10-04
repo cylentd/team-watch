@@ -36,6 +36,7 @@ from routes import live_routes, report as routes_report          # design/routes
 from archetype import (load_archetype, load_trenches, live_archetype, live_trenches,  # role/style labels + OL context
                        report_archetype, report_trenches)
 from startsit import live_startsit, report as startsit_report  # design/startsit.py: the Matchups view
+from startsit_board import live_ssb, report as ssb_report      # design/startsit_board.py: its picker and board
 from mates import espn_rows, live_mates, slugs as mate_slugs, report as mates_report  # every team in David's leagues
 from digest import live_digest, report as digest_report        # design/digest.py: the Digest view
 from preview import live_preview, report as preview_report     # design/preview.py: This week > Preview
@@ -51,7 +52,7 @@ from sources import (                                    # design/sources.py: th
     feed_block, read_first, warn_if_stale, load_status, load_props_raw, load_model_raw,
     load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
     load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_startsit, load_startsit_review, load_digest, load_game_preview, load_preview_record, load_league, load_role_board, load_highlights, load_slip_reasons,
-    load_defense, load_kickers,
+    load_defense, load_kickers, load_expert_ranks,
 )
 from slips import UNPRICED, carry_mean, live_reasons, null_prices, report as slips_report  # the Slips board's data
 from gameday import live_gameday, report as gameday_report  # This week > Live: every matchup, scored live
@@ -59,49 +60,12 @@ from defense import live_defense, report as defense_report  # design/defense.py:
 from wx_history import live_wx_history, report as wx_history_report  # Weather's backtest lines
 from wx_hits import live_wx_hits  # Weather's "Who it hits", from the projections, never a roster
 from wx_kicked import kicked as wx_kicked  # Weather's forecast for a game already kicked off
+from heads import HEADS_SRC, HEADS_DIR, HEADS_LG, HEADS_XL, write_heads  # design/heads.py: the headshot files (TEAM_WATCH_HEADS)
 
 # One slug for one name across the page and the functions: api/league.py slugs a connected
 # league's players at request time with this same function (api/_espn.py).
 sys.path.insert(0, str(REPO / "api"))
 from _espn import slugify  # noqa: E402
-
-# Pointed elsewhere by env var so a build can run against a pinned snapshot (the regression
-# suite) instead of whatever ff-jarvis holds right now. The other input roots (DWR, FEED) live
-# in sources.py, which owns every ff-jarvis read; this one only ever feeds write_heads() here.
-HEADS_SRC = pathlib.Path(os.environ.get("TEAM_WATCH_HEADS", "C:/Users/David/Github/ff-jarvis/app/public/heads"))
-# Served next to the page, and the prefix of every HEADS url, so the two cannot disagree.
-HEADS_DIR = "heads"
-# The 256px heads (2026-09-25), which ff-jarvis cuts for its draft board's players only. The
-# 96px ones are sharp in a 40px row but blur when a trading card stretches them 2-3x, so the
-# cards (HEADS_LG) take the large file where there is one. About 230 players, 1.9 MB.
-HEADS_LG = "lg"
-HEADS_XL = "xl"   # 512px (2026-09-25); the page's srcset loads it only where 256px blurs (player.js)
-
-
-def _mirror(src_dir, out):
-    """Make <out> hold exactly src_dir's .webp files: copy what changed, drop what is gone."""
-    out.mkdir(parents=True, exist_ok=True)
-    src = {p.name: p for p in src_dir.glob("*.webp")}
-    for stale in out.glob("*.webp"):
-        if stale.name not in src:
-            stale.unlink()
-    for name, p in src.items():
-        target = out / name
-        data = p.read_bytes()
-        if not target.exists() or target.read_bytes() != data:
-            target.write_bytes(data)
-    return len(src)
-
-
-def write_heads(dest_root):
-    """Mirror HEADS_SRC into <dest_root>/heads/ (and its lg/ and xl/ into heads/lg/, heads/xl/),
-    dropping a head ff-jarvis no longer has, so each folder is exactly the set HEADS / HEADS_LG /
-    HEADS_XL names. Returns how many 96px heads were written."""
-    out = pathlib.Path(dest_root) / HEADS_DIR
-    n = _mirror(HEADS_SRC, out)
-    for sub in (HEADS_LG, HEADS_XL):
-        _mirror(HEADS_SRC / sub, out / sub)
-    return n
 
 # A depth-chart slot at or past this number, for the player's position, reads as "the backup."
 # Mirrors ff-jarvis's model.clients.sleeper.BACKUP_DEPTH.
@@ -596,6 +560,13 @@ def add_market_stock(blocks, report):
                    trades_report(blocks[leagues.blocks(lg.key).trades], lg.key)]
 
 
+def add_start_sit_board(blocks, report):
+    """LIVE_SSB, the Start / Sit picker and board, from blocks already built (ranks, schedule, preview)."""
+    blocks["LIVE_SSB"] = live_ssb(blocks["LIVE_RANKS"], blocks["LIVE_SCHEDULE"], blocks["LIVE_PREVIEW"],
+                                  load_defense(), load_expert_ranks(), slugify)
+    report.append(ssb_report(blocks["LIVE_SSB"]))
+
+
 def report_sources(report, mine, props, liveDfsYahoo, news, profiles, missing):
     """The per-source lines of render()'s summary -- split out to keep render() under its
     110-line budget (tests/test_budgets.py's PY_BACKLOG ratchet). Mutates `report` in place,
@@ -729,6 +700,7 @@ def render():
     }
     blocks["LIVE_SIGNED"] = live_signed(load_gamelog_weekly(), blocks["LIVE_SCHEDULE"], slugify, wanted_set)
     add_market_stock(blocks, report)
+    add_start_sit_board(blocks, report)
     report += [slips_report(blocks["LIVE_REASONS"]),schedule_report(blocks["LIVE_SCHEDULE"]), signed_report(blocks["LIVE_SIGNED"]), digest_report(blocks["LIVE_DIGEST"]),
                preview_report(blocks["LIVE_PREVIEW"]), pedigree_report(blocks["LIVE_PEDIGREE"]), gamelog_report(blocks["LIVE_GAMELOG"]),
                projections_report(blocks["LIVE_PROJECTIONS"]), ranks_report(blocks["LIVE_RANKS"]),

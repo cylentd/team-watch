@@ -1,0 +1,90 @@
+/* ============================== START / SIT: THE PICKER ==============================
+   One card for one subject, the choice between two or three players (DESIGN.md "Cards"): a header
+   with the add button, a lane per player (a filled box each, never a card in the card), the verdict
+   in a filled box, then one row per thing compared, its label on its own line above its lanes
+   (STYLE.md "Alignment"). The add list is a filled box that opens in the card. A phone stacks this
+   card over the board (board.css); from 960px they sit side by side and share their edges. The
+   cards' own box is here because the board wears it too. */
+.ssv{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin:12px 14px 0}
+.ssv-card{min-width:0;padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
+.ssv-h{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.ssv-pick .ssv-h{min-height:44px}
+.ssv-h h3{margin:0;flex:1;min-width:0;display:flex;align-items:baseline;gap:10px;font-family:var(--disp);font-size:var(--t-4);
+  font-weight:800;line-height:1.1;text-transform:uppercase;color:var(--ink)}
+.ssv-h .lbl{font-family:var(--mono);font-size:var(--t-1);font-weight:500}
+.ssv-ic{flex:none;width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.ssv-add{flex:none;display:inline-flex;align-items:center;gap:6px;height:44px;padding:0 14px;border:1px solid var(--line-2);
+  border-radius:10px;background:var(--panel-2);color:var(--ink);font-family:var(--ui);font-size:var(--t-2);font-weight:600;
+  cursor:pointer;transition:transform var(--dur-spring) var(--spring)}
+.ssv-add .ssv-ic{stroke:var(--lime)}
+.ssv-add:active{transform:scale(var(--press))}
+.ssv-add[aria-expanded="true"]{border-color:var(--lime);color:var(--lime)}
+.ssv-add:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+
+/* The add list: search, then his roster at the first pick's position. */
+.ssv-box{margin-bottom:12px;padding:10px;border-radius:10px;background:var(--panel-2)}
+.ssv-q{width:100%;height:44px;padding:0 12px;border:1px solid var(--line-2);border-radius:8px;background:var(--panel);
+  color:var(--ink);font-family:var(--ui);font-size:var(--t-3)}
+.ssv-q:focus-visible{outline:2px solid var(--lime);outline-offset:1px}
+.ssv-cap{padding:12px 2px 4px}
+.ssv-ol{list-style:none;margin:0;padding:0}
+.ssv-opt{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:6px 2px;border:0;border-top:1px solid var(--line);
+  background:none;color:var(--ink);font-family:var(--ui);text-align:left;cursor:pointer}
+.ssv-ol li:first-child .ssv-opt{border-top:0}
+.ssv-opt:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+@media (hover:hover){ .ssv-opt:hover{background:var(--panel-3)} }
+.ssv-hd{flex:none;display:block;width:34px;height:34px;border-radius:50%;overflow:hidden;background:var(--panel)}
+.ssv-hd img,.ssv-hd .fallback,.ssv-hd .dst,.ssv-face img,.ssv-face .fallback,.ssv-face .dst{display:grid;place-items:center;
+  width:100%;height:100%;object-fit:cover;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2)}
+.ssv-ow{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.ssv-ow b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--t-2);font-weight:600}
+.ssv-ow small{font-size:var(--t-1);color:var(--ink-3)}
+.ssv-op{flex:none;font-family:var(--mono);font-size:var(--t-2);font-variant-numeric:tabular-nums}
+.ssv-none,.ssv-prompt{margin:0;font-size:var(--t-2);color:var(--ink-2)}
+.ssv-none{padding:12px 2px}
+.ssv-prompt{margin-bottom:10px}
+
+/* A lane per player, in the order he was taken: sky, orange, violet, never lime (lime is the
+   site's "active" colour and on the first player read as the winner). The ring carries it. */
+.ssv-s0{--c:var(--sky)}
+.ssv-s1{--c:var(--pos-rb)}
+.ssv-s2{--c:var(--holo-2)}
+.ssv-band{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:6px}
+.ssv-who{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;padding:12px 4px 8px;
+  border-radius:10px;background:var(--panel-2);text-align:center}
+.ssv-face{display:block;width:48px;height:48px;margin:2px 0;border-radius:50%;overflow:hidden;background:var(--panel);
+  box-shadow:0 0 0 2.5px var(--c)}
+.ssv-who b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--t-2)}
+.ssv-who .lbl{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ssv-x{position:absolute;top:0;right:0;display:grid;place-items:center;width:36px;height:36px;padding:0;border:0;background:none;
+  color:var(--ink-3);cursor:pointer}
+.ssv-x .ssv-ic{width:14px;height:14px}
+.ssv-x:focus-visible{outline:2px solid var(--lime);outline-offset:-2px;border-radius:10px}
+@media (hover:hover){ .ssv-x:hover{color:var(--ink)} }
+
+/* The call: START is the Takes' own tag, green; a coin flip is neutral and names no player. */
+.ssv-verdict{display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--panel-2)}
+.ssv-verdict .mu-tag{flex:none;width:52px}
+.ssv-verdict b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--t-3)}
+.ssv-gain{flex:none;font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--up);font-variant-numeric:tabular-nums}
+.ssv-coin{padding:5px 10px;border:1px solid var(--line-2);border-radius:5px;font-family:var(--mono);font-size:var(--t-1);
+  font-weight:700;line-height:1;letter-spacing:.02em;color:var(--ink-2)}
+
+/* One row per thing compared: the label above, a centred value in each player's lane. */
+.ssv-row{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.ssv-lbl{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;margin-bottom:6px}
+.ssv-lbl em{font-family:var(--ui);font-style:normal;font-size:var(--t-1);font-weight:400;letter-spacing:normal;text-transform:none;color:var(--ink-3)}
+.ssv-lanes{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:6px}
+.ssv-v{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;text-align:center}
+.ssv-v b{font-family:var(--ui);font-size:var(--t-2);font-weight:600;overflow-wrap:anywhere}
+.ssv-v.big b{font-family:var(--mono);font-size:var(--t-5);font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.ssv-v small{font-size:var(--t-1);color:var(--ink-3)}
+.ssv-v.up b{color:var(--up)}
+.ssv-v.down b{color:var(--down)}
+.ssv-o{display:flex;flex-direction:column;align-items:center;gap:1px}
+
+@media (min-width:960px){
+  /* Side by side, one top and one bottom edge: the grid stretches the shorter card. */
+  .ssv{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;margin:0 0 12px}
+}

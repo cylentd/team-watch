@@ -722,7 +722,23 @@ projections for every player (it linked to Leaders until then).
   The packet's 15 mph / 50% list was a second rule beside the tab's backtested one.
 - Top 5 and Weather left the wait card; on the wall they share its row.
 
-## Takes (Players; was Matchups, redesigned 2026-09-26, renamed and made one list 2026-09-29)
+## Start/Sit (This week, 2026-10-03; was Takes)
+
+The weekly question, "A or B?", answered on one page (storyboard
+https://claude.ai/artifact/HUVUoVRF3wG6XCxQ3LxHuT, David picked option C). Three parts, top down:
+
+| part | what | data |
+|---|---|---|
+| Picker | 2-3 players; START for the higher projection, Coin flip within 0.5 pts (judged at the one decimal shown). Rows: projected, rank, defense vs his position, FantasyPros, teammate out, weather. Opens on the reader's closest bench-vs-starter call (`briefPairs`, shared with the brief). Picks kept for the week they were made in | `LIVE_RANKS`, `LIVE_DEFENSE`, `LIVE_SSB.fp/out`, `LIVE_PROJECTIONS.wx` |
+| Board | QB/RB/WR/TE tabs: each position's best spot (ff-jarvis `best`, the Digest's Matchups card), then the four offenses facing the softest and toughest defenses, a bar against the league average | `LIVE_STARTSIT.best`, `LIVE_SSB.board` |
+| Takes | unchanged, below; rows lead with START / SIT since 2026-10-03 | `LIVE_STARTSIT` |
+
+- One job per view still holds: every part answers "who do I start this week".
+- The WR defense row says it matters little for WRs (METHODOLOGY 12.29, 12.70: no WR effect in 8 seasons).
+- Teammate out is a reason only: giving a hurt teammate's targets to the others made the projection worse (METHODOLOGY 12.55, 12.71).
+- The This week sub-row's gap went 20px -> 16px at 760px and under, site-wide, so six views fit 332px at 360. Every phone golden state moved one key for it.
+
+## Takes (Players; was Matchups, redesigned 2026-09-26, renamed and made one list 2026-09-29; part of Start/Sit since 2026-10-03)
 
 Where we disagree with the experts, every position in one list (storyboard
 https://claude.ai/artifact/8TaM9sZ21JjS2oLThGyFfr, David picked B plus "compare hot takes against

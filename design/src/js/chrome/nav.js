@@ -26,7 +26,7 @@ const NAV = [
   // News moved from Players to This week on 2026-09-29 (storyboard 96B1dMss6vfyhhsQLUSK4x): it is
   // this week's, not research, and it was the sixth of six sub-tabs. Its leaf and hash stay `news`.
   // Takes (leaf `matchups`) joined them the same day: our weekly calls against the experts are this
-  // week's, not research. Its leaf and both hashes stay.
+  // week's, not research. Its leaf and both hashes stay. Labelled Start / Sit since 2026-10-03.
   ["week",     ["digest", "news", "matchups", "preview", "weather", "live"]],
   ["teams",    ["roster", "waivers", "league", "myrecap"]],
   // Highlights (2026-09-29) leads Players: two lines from each view below it, so Players opens on
@@ -114,8 +114,9 @@ function paintSubnav(){
    grid's position and week reset, and that is a deliberate line, because every control that
    learns the URL is another thing to keep in step with it. */
 /* Old names that still land: Movers was the `pool` view until 2026-09-25, and bookmarks point at it.
-   Takes kept Matchups' leaf `matchups` (2026-09-29), so #takes is the new name's way in. */
-const NAV_ALIAS = {pool: "movers", takes: "matchups"};
+   Takes kept Matchups' leaf `matchups` (2026-09-29), so #takes is the new name's way in. Start / Sit
+   (2026-10-03) is Takes with a picker and a matchup board above it: same leaf, #startsit its name. */
+const NAV_ALIAS = {pool: "movers", takes: "matchups", startsit: "matchups"};
 const navHash = () => (location.hash || "").replace(/^#\/?/, "");
 const navFromHash = () => {
   const leaf = NAV_ALIAS[navHash()] || navHash();

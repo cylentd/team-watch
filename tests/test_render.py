@@ -618,8 +618,9 @@ def test_no_fenced_rule_misses_its_element(snapshot, area):
     ("highlights", "scouting", "HIGHLIGHTS"),
     ("pool", "scouting", "ROLE"),      # the old Movers view's hash, kept for bookmarks
     ("usage", "scouting", "GRID"),
-    ("matchups", "week", "TAKES"),  # Matchups became Takes on 2026-09-29; the leaf stayed; This week since that day
-    ("takes", "week", "TAKES"),
+    ("matchups", "week", "START/SIT"),  # Matchups -> Takes 2026-09-29 -> Start/Sit 2026-10-03; the leaf stayed
+    ("takes", "week", "START/SIT"),
+    ("startsit", "week", "START/SIT"),
     ("news", "week", "NEWS"),           # Players until 2026-09-29; the leaf and hash stayed
     ("weather", "week", "WEATHER"),
     ("preview", "week", "PREVIEW"),

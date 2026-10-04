@@ -68,17 +68,28 @@ function briefFits(slot, pos){
    point (under that, a projection's own noise decides it). None is "set", and the second line
    names the closest call, or a bench player who projects higher but will likely sit. */
 const BRIEF_SWAP_PTS = 1;
-function briefLineup(team, at){
-  const starters = team.roster.filter(p => p.start && projFor(p) !== null);
-  const bench = team.roster.filter(p => !p.start && p.slot !== "OUT" && projFor(p) !== null);
-  let best = null, close = null, sitting = null;
+/* The bench-vs-starter pairs a lineup check weighs, judged by `pts(player)` (a number or null): the
+   largest gain a healthy bench player has on a starter he could replace, a full point or more
+   (best) or under it (close); the same for a bench player likely to sit (sitting); and, when no
+   healthy one gains, the pair with the smallest gap (near, gain <= 0). Each is {b, s, gain} or null.
+   The brief judges by projFor, the Start/Sit picker by the Ranks points. */
+function briefPairs(team, pts){
+  const starters = team.roster.filter(p => p.start && pts(p) !== null);
+  const bench = team.roster.filter(p => !p.start && p.slot !== "OUT" && pts(p) !== null);
+  let best = null, close = null, sitting = null, near = null;
   const keep = (cur, x) => !cur || x.gain > cur.gain ? x : cur;
-  bench.forEach(b => starters.filter(s => briefFits(s.slot, b.pos) && projFor(b) > projFor(s)).forEach(s => {
-    const x = {b, s, gain: projFor(b) - projFor(s)};
-    if (injSits(b)) sitting = keep(sitting, x);
+  bench.forEach(b => starters.filter(s => briefFits(s.slot, b.pos)).forEach(s => {
+    const x = {b, s, gain: pts(b) - pts(s)};
+    if (x.gain <= 0){ if (!injSits(b)) near = keep(near, x); }
+    else if (injSits(b)) sitting = keep(sitting, x);
     else if (x.gain >= BRIEF_SWAP_PTS) best = keep(best, x);
     else close = keep(close, x);
   }));
+  return {best, close, sitting, near};
+}
+function briefLineup(team, at){
+  const starters = team.roster.filter(p => p.start && projFor(p) !== null);
+  const {best, close, sitting} = briefPairs(team, projFor);
   const pts = p => projFor(p).toFixed(1);
   const pair = x => ({in: briefName(x.b), inPts: pts(x.b), out: briefName(x.s), outPts: pts(x.s)});
   if (best) return [{kind: "lu", tone: "lime", i: at(best.b), text: t("teams.brief.swap", pair(best)),

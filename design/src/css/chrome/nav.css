@@ -56,7 +56,7 @@
 .subnav .modes-sub{margin:0!important;gap:22px;border:0;background:none;padding:0}
 .subnav .mode-sub{
   background:none;border:0;border-radius:0;padding:10px 0 11px;min-height:0;
-  font-family:var(--ui);font-size:var(--t-2);font-weight:600;letter-spacing:0;text-transform:none;
+  font-family:var(--ui);font-size:var(--t-2);font-weight:600;letter-spacing:0;text-transform:none;white-space:nowrap;
   color:var(--ink-3);box-shadow:inset 0 -2px 0 transparent;
 }
 .subnav .mode-sub:hover{color:var(--ink-2);background:none}

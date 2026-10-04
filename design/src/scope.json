@@ -42,6 +42,8 @@
     "surface/matchups/matchups.css": ["matchups"],
     "surface/matchups/rows.css": ["matchups"],
     "surface/matchups/splits.css": ["matchups"],
+    "surface/matchups/picker.css": ["matchups"],
+    "surface/matchups/board.css": ["matchups"],
     "surface/news/ticker.css": ["news"],
     "surface/profile/archetype.css": ["#modal"],
     "surface/profile/bio.css": ["#modal"],

@@ -1,0 +1,37 @@
+/* ============================== START / SIT: THE MATCHUP BOARD ==============================
+   Best and Worst, four rows each, for one position. A bar is points allowed per game, drawn from
+   zero, with a tick at the league average; green is a defense that gives a lot (a good week for
+   that offense), red one that gives little. The two lists stack on a phone and sit side by side
+   once the card itself is 520px wide (a container query, so it holds in a half-width desktop card
+   and a full-width tablet one alike), which keeps a bar short enough to read against its number. */
+.ssv-board{container-type:inline-size}
+.ssv-board .setrow{margin-top:0}
+/* The best spot: one player row under the tabs, the Takes' head and name parts, the whole row a button. */
+.ssv-spot{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;gap:4px 10px;width:100%;margin-top:12px;
+  padding:10px 0;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.ssv-spot .lbl{grid-column:1 / -1}
+.ssv-spot .mu-nm span{white-space:normal;color:var(--ink-3);font-size:var(--t-1)}
+.ssv-spot em{font-family:var(--mono);font-size:var(--t-3);font-weight:700;font-style:normal;font-variant-numeric:tabular-nums}
+.ssv-spot:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+@media (hover:hover){ .ssv-spot:hover .mu-nm b{color:var(--lime)} }
+.ssv-bls{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;margin-top:12px}
+/* A list's head, as the Takes' lists have it: what it is on the left, what its numbers are on the right. */
+.ssv-bl h4{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0 0 4px;font-weight:500}
+.ssv-bl h4 span{letter-spacing:0;text-transform:none;white-space:nowrap}
+.ssv-bol{list-style:none;margin:0;padding:0}
+.ssv-br{display:grid;grid-template-columns:40px 58px minmax(0,1fr) 40px;align-items:center;gap:8px;min-height:40px;border-top:1px solid var(--line)}
+.ssv-bol li:first-child{border-top:0}
+.ssv-br.best{--c:var(--up)}
+.ssv-br.worst{--c:var(--down)}
+.ssv-bt{font-family:var(--mono);font-size:var(--t-2);font-weight:700}
+.ssv-bo{font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
+.ssv-bar{position:relative;height:8px;border-radius:4px;background:var(--panel-3)}
+.ssv-bar i{display:block;width:var(--w);height:100%;border-radius:4px;background:var(--c)}
+.ssv-bar::after{content:"";position:absolute;top:-3px;bottom:-3px;left:var(--avg);width:2px;margin-left:-1px;border-radius:1px;background:var(--ink)}
+.ssv-br em{font-family:var(--mono);font-size:var(--t-2);font-weight:700;font-style:normal;text-align:right;font-variant-numeric:tabular-nums}
+.ssv-key{display:flex;align-items:center;gap:8px;margin:12px 0 0;font-size:var(--t-1);color:var(--ink-3)}
+.ssv-key i{flex:none;width:2px;height:12px;border-radius:1px;background:var(--ink)}
+
+@container (min-width:520px){
+  .ssv-bls{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:24px}
+}
