@@ -46,7 +46,7 @@ WAIVER_VERDICT = ["kind", "over", "slot", "margin"]
 WAIVER_DROP = ["name", "pos", "pts"]
 WAIVER_META = ["label", "faab_left", "faab_budget", "clears", "needs"]
 STARTSIT_ROW = ["tag", "n", "slug", "pos", "team", "opp", "home", "pts", "rank", "ecr", "own", "gap", "why", "but",
-                "reasons", "backed", "tier"]   # one take, LIVE_STARTSIT `calls` and `shadow`
+                "reasons", "backed", "tier", "graded"]   # one take, LIVE_STARTSIT `calls` and `shadow`
 
 CONTRACT = {
     "LIVE_ESPN": {

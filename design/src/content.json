@@ -733,6 +733,7 @@
  "matchups.row.gut": "Gut",
  "matchups.row.meta": "{game} · {kick}",
  "matchups.row.profile": "Profile",
+ "matchups.row.ungraded": "More takes · not in the record",
  "matchups.splits.call": "Call",
  "matchups.splits.cap": "Ours vs FantasyPros, wk {wk}",
  "matchups.splits.n": "Takes",

@@ -13,8 +13,12 @@
 /* A paused take type (Amendment 2) leaves the list; its line stands where its takes would be, at the
    end of its section, and a section holding only paused takes says that instead of "no takes". */
 function muSectionHTML(title, tag, empty, key){
-  const rows = muCalls(tag), paused = muPausedHTML(tag);
-  const body = rows.length ? rows.map(r => muCallHTML(r)).join("") : paused ? "" : `<p class="mu-empty">${empty}</p>`;
+  const all = muCalls(tag), paused = muPausedHTML(tag);
+  // Takes shown but not counted in the record (week 4's rank-5+ additions, Amendment 3) follow
+  // under their own line, so a row keeps its one line and the record's takes stay together.
+  const rows = all.filter(r => r.graded !== false), more = all.filter(r => r.graded === false);
+  const extra = more.length ? `<h4 class="mu-more">${t("matchups.row.ungraded")}</h4>${more.map(r => muCallHTML(r)).join("")}` : "";
+  const body = all.length ? rows.map(r => muCallHTML(r)).join("") + extra : paused ? "" : `<p class="mu-empty">${empty}</p>`;
   return `<h3 class="mu-grp">${title}${key ? `<span>${t("matchups.calls.cols")}</span>` : ""}</h3>${body}${paused}`;
 }
 

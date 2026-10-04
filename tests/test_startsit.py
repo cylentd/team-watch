@@ -262,6 +262,18 @@ def test_each_take_leads_with_start_or_sit_and_the_row_stays_52px(page):
 
 
 @pytest.mark.render
+def test_takes_shown_but_not_graded_follow_their_own_line(page):
+    # Amendment 3 (2026-10-03): week 4's rank-5+ takes are shown, not counted in the record
+    page.set_viewport_size({"width": 360, "height": 800})
+    page.evaluate("() => { LIVE_STARTSIT.calls[0].graded = false; render(); }")
+    order = page.evaluate("""() => [...document.querySelector('.mu-list').children].map(e =>
+        e.classList.contains('mu-more') ? 'MORE' : e.querySelector && e.querySelector('.mu-nm b') ? e.querySelector('.mu-nm b').textContent : null).filter(Boolean)""")
+    assert order[:4] == ["Chase Brown", "Tee Higgins", "MORE", "Brock Purdy"]   # Purdy, the first START, moves under the line
+    assert page.locator(".mu-more").count() == 1 and page.inner_text(".mu-more") == "More takes · not in the record"
+    assert page.evaluate("[...document.querySelectorAll('.mu-list .mu-call-h')].map(e => e.offsetHeight)") == [52] * 7
+
+
+@pytest.mark.render
 def test_a_paused_type_is_one_line_and_a_tap_shows_its_shadow_takes(page):
     assert "Tucker Kraft" not in [n for n, _ in list_rows(page)]
     line = page.locator(".mu-ps-h").first

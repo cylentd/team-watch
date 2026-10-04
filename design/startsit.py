@@ -40,7 +40,10 @@ def _call(r, tag, slugify):
             "reasons": [{"k": w["k"], "t": w["text"]} for w in r.get("reasons") or []],
             "backed": bool(r.get("reasons")),
             # Amendment 2 (2026-09-29): lean / solid / strong from gap_n. Null from an older producer.
-            "tier": r.get("tier")}
+            "tier": r.get("tier"),
+            # Amendment 3 (2026-10-03): week 4's rank-5+ takes are shown, not graded (false); every
+            # other take counts (true, also from a producer older than the field).
+            "graded": r.get("graded", True) is not False}
 
 
 def _pl(c, slugify):
