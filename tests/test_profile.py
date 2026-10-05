@@ -1315,3 +1315,54 @@ def test_head_rail_orders_and_centres_what_he_has(browser, page_file):
         assert v["centred"], f"{key} is not centred"
     assert errors == []
     ctx.close()
+
+
+LIVE_SEASON_PLANT = """() => {
+  const g = LIVE_SCHEDULE.games.find(x => x.week === 3 && (x.home === 'SF' || x.away === 'SF'));
+  const kick = Date.parse(g.kickoff);
+  Date.now = () => kick + 3600000;
+  if (GD.leagues.length) GD.leagues[0].week = 3; else GD.leagues.push({key: 'espn', week: 3, teams: {}, games: [], rules: {off: [], dst: []}});
+  GD_CLOCK = {SF: {state: 'in', q: 3, clock: '4:12', half: false, detail: '', clubs: ['SF', 'KC']}};
+  GD_STATS = {week: 3, games: {SF: 'in_game', KC: 'in_game'}, stats: {},
+    lead: {'4881': {n: 'George Kittle', pos: 'TE', team: 'SF', pts: 16.2, s: {rec: 6, rec_tgt: 8, rec_yd: 82, rec_td: 1}}}};
+  GD_AT = Date.now(); GD_ERR = '';
+}"""
+
+
+def week3(page):
+    return page.locator("#modal .pf-season .ss-row", has=page.locator(".ss-wk", has_text="3")).first
+
+
+@pytest.mark.render
+def test_season_draws_this_weeks_row_from_live_stats(browser, page_file):
+    """2026-10-04: a profile said "No stats" for a player Live had already scored, because LIVE_GAMELOG is
+    baked at build time. Week 3 has no log row; the poll's league-wide leaders have Kittle. While SF is
+    on the clock the row is lime and says "Q3 4:12 · live"; when the poll says final it is a plain
+    played row that says "Final"; with no stats at all the row stays "No stats". A poll redraws the
+    open table in place, and one after the profile closes does nothing."""
+    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page.evaluate("VIEW='espn'; render()")
+    page.evaluate(LIVE_SEASON_PLANT)
+    row(page, "George Kittle").click()
+    assert "ss-live" in week3(page).get_attribute("class")
+    assert week3(page).locator(".ss-pts").evaluate("e => e.firstChild.textContent") == "16.2"
+    assert week3(page).locator(".ss-line").inner_text() == "6-82-1 · 8 tgt"
+    assert week3(page).locator(".ss-date").inner_text() == "Q3 4:12 · live"
+    assert page.locator("#modal .pf-season .ss-total .ss-pts").inner_text() == "21.5"   # played weeks only
+    # The next poll: the game is over, the row stays and is a played row.
+    page.evaluate("""() => { GD_CLOCK = {SF: {state: 'post', q: 4, clock: '0:00', half: false, detail: '', clubs: ['SF', 'KC']}};
+      GD_STATS.games = {SF: 'complete', KC: 'complete'}; document.dispatchEvent(new Event('gd:stats')); }""")
+    cls = week3(page).get_attribute("class")
+    assert "ss-live" not in cls and "ss-played" in cls
+    assert week3(page).locator(".ss-date").inner_text() == "Final"
+    assert week3(page).locator(".ss-line").inner_text() == "6-82-1 · 8 tgt"
+    # No stats for him: the row is what it was.
+    page.evaluate("""() => { const at = Date.now() + 36000000; Date.now = () => at;
+      GD_STATS.lead = {}; document.dispatchEvent(new Event('gd:stats')); }""")
+    assert week3(page).locator(".ss-line").inner_text() == "No stats"
+    # Closed: a poll leaves the dialog alone.
+    page.keyboard.press("Escape")
+    page.evaluate("() => document.dispatchEvent(new Event('gd:stats'))")
+    assert page.locator("#modal.on").count() == 0
+    assert errors == []
+    ctx.close()

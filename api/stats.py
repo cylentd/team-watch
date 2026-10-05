@@ -16,6 +16,9 @@ stats {id: {key: value}}}. An id Sleeper has no row for yet (before kickoff) is 
 `teams=CHI,PHI` (2026-09-28, the game sheet) adds `box {id: {n, pos, team, s}}`: every player of
 those clubs with a stat, named, so the sheet can draw a box score and top scorers for players on
 nobody's roster. `ids` may then be left out.
+
+`lead=1` (2026-10-04) adds `lead {id: {n, pos, team, s, pts}}`: every player with a touchdown and
+the week's top 25 by half-PPR, league-wide, for Live's TDs tab and the Digest's Right now.
 """
 import datetime
 import gzip
@@ -117,6 +120,41 @@ def box(rows, teams):
     return out
 
 
+LEAD_TOP = 25
+TD_KEYS = ("rush_td", "rec_td", "pass_td")
+
+
+def half_ppr(s):
+    """Sleeper's own half-PPR total when it carries one, else the standard sum. One yardstick for
+    "who leads the league right now", whatever each reader's league scores."""
+    if s.get("pts_half_ppr") is not None:
+        return round(float(s["pts_half_ppr"]), 1)
+    pts = (s.get("pass_yd", 0) * 0.04 + s.get("pass_td", 0) * 4 - s.get("pass_int", 0) * 2
+           + s.get("rush_yd", 0) * 0.1 + s.get("rush_td", 0) * 6 + s.get("rec", 0) * 0.5
+           + s.get("rec_yd", 0) * 0.1 + s.get("rec_td", 0) * 6 - s.get("fum_lost", 0) * 2)
+    return round(pts, 1)
+
+
+def lead(rows):
+    """League-wide, for Live's TDs tab and the Digest's Right now (2026-10-04): every player who has
+    scored a touchdown, plus the top LEAD_TOP by half-PPR points -> {id: {n, pos, team, s, pts}}."""
+    cand = []
+    for r in rows or []:
+        p = r.get("player") or {}
+        pos = p.get("position")
+        if pos not in BOX_POS or not r.get("team"):
+            continue
+        raw = r.get("stats") or {}
+        s = {k: v for k, v in raw.items() if k in KEEP and v}
+        if not s:
+            continue
+        name = f"{p.get('first_name') or ''} {p.get('last_name') or ''}".strip()
+        cand.append((str(r.get("player_id")), {"n": name, "pos": pos, "team": r["team"], "s": s,
+                                               "pts": half_ppr(raw)}))
+    top = {pid for pid, _ in sorted(cand, key=lambda c: -c[1]["pts"])[:LEAD_TOP]}
+    return {pid: v for pid, v in cand if pid in top or any(v["s"].get(k) for k in TD_KEYS)}
+
+
 def states(games, week):
     """{team: status} for the week's games; each team once."""
     out = {}
@@ -128,7 +166,7 @@ def states(games, week):
     return out
 
 
-def live_stats(week, ids, teams=frozenset()):
+def live_stats(week, ids, teams=frozenset(), want_lead=False):
     season = season_of()
     rows = _memoized("stats", (season, week), STATS_MEMO_S, STATS.format(season=season, week=week))
     sched = _memoized("schedule", season, SCHEDULE_MEMO_S, SCHEDULE.format(season=season))
@@ -137,6 +175,8 @@ def live_stats(week, ids, teams=frozenset()):
            "updated": newest or None, "games": states(sched, week), "stats": stats}
     if teams:
         out["box"] = box(rows, teams)
+    if want_lead:
+        out["lead"] = lead(rows)
     return out
 
 
@@ -156,7 +196,8 @@ def parse(query):
         return None, "teams must be at most two team codes, comma-separated"
     if (not ids and not teams) or len(ids) > IDS_MAX or not all(ID.match(i) for i in ids):
         return None, "ids must be Sleeper ids or team codes, comma-separated"
-    return (week, frozenset(ids), frozenset(teams)), None
+    want_lead = (q.get("lead") or [""])[0] == "1"
+    return (week, frozenset(ids), frozenset(teams), want_lead), None
 
 
 class handler(BaseHTTPRequestHandler):

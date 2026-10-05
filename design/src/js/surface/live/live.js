@@ -22,6 +22,9 @@ const GD_IDLE_MS = 900000;
 const GD_GAME_MS = 13500000;
 /* How long a "+6.0" stays beside a number that just moved. */
 const GD_PULSE_MS = 9000;
+/* The league-wide leaders api/stats.py returns as `lead` (lead=1): who, and how many. */
+const GD_LEAD_POS = ["QB", "RB", "WR", "TE", "K"];
+const GD_LEAD_TOP = 25;
 
 let GD_STATS = null;     /* the last good /api/stats reply */
 let GD_ERR = "";
@@ -35,7 +38,11 @@ const GD = typeof LIVE_GAMEDAY !== "undefined" && LIVE_GAMEDAY ? LIVE_GAMEDAY : 
 const GD_GAMES = (typeof LIVE_SCHEDULE !== "undefined" && LIVE_SCHEDULE && LIVE_SCHEDULE.games) || [];
 const GD_ALIAS = (typeof LIVE_SCHEDULE !== "undefined" && LIVE_SCHEDULE && LIVE_SCHEDULE.alias) || {};
 
-const gdOnScreen = () => SURFACE === "live" && document.visibilityState === "visible";
+/* The Digest reads the same poll after kickoff (2026-10-04): its headline and Right now are live. It counts
+   only once its week has kicked off (dgKicked, surface/digest), so a Tuesday's Digest asks neither
+   /api/stats nor ESPN. */
+const gdOnScreen = () => (SURFACE === "live" || (SURFACE === "digest" && typeof dgKicked === "function" && dgKicked()))
+  && document.visibilityState === "visible";
 
 /* ---------------------------------------------------------------- which league, which game */
 
@@ -107,7 +114,7 @@ function gdUrl(){
   for (const lg of GD.leagues) for (const tm of Object.values(lg.teams)) for (const r of tm.lineup) if (r.sid) ids.add(r.sid);
   for (const g of GD_GAMES) if (g.week === (GD.leagues[0] || {}).week) for (const c of [g.home, g.away]) gdCodes(c).forEach(x => ids.add(x));
   const week = (GD.leagues[0] || {}).week;
-  return week && ids.size ? `/api/stats?week=${week}&ids=${[...ids].sort().join(",")}` : null;
+  return week && ids.size ? `/api/stats?week=${week}&ids=${[...ids].sort().join(",")}&lead=1` : null;
 }
 
 /* Sleeper directly, when our endpoint cannot answer: the whole week file (about 277 KB) and the
@@ -119,10 +126,20 @@ async function gdDirect(){
     fetch(`https://api.sleeper.com/stats/nfl/${season}/${week}?season_type=regular`).then(r => r.ok ? r.json() : null),
     fetch(`https://api.sleeper.com/schedule/nfl/regular/${season}`).then(r => r.ok ? r.json() : null)]);
   if (!rows || !sched) return null;
-  const stats = {}, games = {};
-  for (const r of rows) stats[String(r.player_id)] = r.stats || {};
+  const stats = {}, games = {}, cand = [];
+  for (const r of rows){
+    const s = r.stats || {}, p = r.player || {};
+    stats[String(r.player_id)] = s;
+    if (GD_LEAD_POS.includes(p.position) && r.team && s.pts_half_ppr)
+      cand.push([String(r.player_id), {n: `${p.first_name || ""} ${p.last_name || ""}`.trim(), pos: p.position,
+                                       team: r.team, s, pts: Math.round(s.pts_half_ppr * 10) / 10}]);
+  }
   for (const g of sched) if (g.week === week){ games[g.home] = g.status; games[g.away] = g.status; }
-  return {week, stats, games, direct: true};
+  /* api/stats.py's `lead`, cut the same way: every TD and the top GD_LEAD_TOP. */
+  cand.sort((a, b) => b[1].pts - a[1].pts);
+  const top = new Set(cand.slice(0, GD_LEAD_TOP).map(c => c[0]));
+  const lead = Object.fromEntries(cand.filter(([id, v]) => top.has(id) || v.s.rush_td || v.s.rec_td || v.s.pass_td));
+  return {week, stats, games, lead, direct: true};
 }
 
 async function gdFetch(){
@@ -132,11 +149,14 @@ async function gdFetch(){
   if (!url) return;
   GD_BUSY = true;
   let payload = null, ok = false;
+  /* Every game's quarter and clock rides the same poll (data/gameday/clock.js); it never blocks the stats. */
+  const clock = gdClockFetch();
   try {
     const res = await fetch(url, {headers: {"Accept": "application/json"}});
     payload = await res.json().catch(() => null);
     ok = res.ok;
   } catch (e) { /* no response: Sleeper directly, below */ }
+  await clock;
   if (!(ok && payload && payload.stats)){
     try { payload = await gdDirect(); ok = !!payload; } catch (e) { ok = false; }
   }
@@ -172,6 +192,10 @@ function gdEnsure(){
 
 /* Repaints in place, never through render(): a poll must not rebuild the page under a thumb. */
 function paintLive(){
+  /* The Digest's live parts repaint in place too (surface/digest), when it is the view on screen. */
+  if (typeof paintDigestLive === "function") paintDigestLive();
+  /* Anything else that shows live numbers (the profile's season log) listens for this. */
+  document.dispatchEvent(new Event("gd:stats"));
   const host = document.querySelector("[data-gdboard]");
   if (!host) return;
   host.innerHTML = gdBoardHTML();
@@ -187,19 +211,30 @@ function wireLive(host){
   host.querySelectorAll("[data-gdleague]").forEach(b => b.addEventListener("click", () => {
     gdSetLeague(b.dataset.gdleague); paintLive();
   }));
+  /* The tabs (tabs.js) and the benches row repaint in place. */
+  host.querySelectorAll("[data-gdtab]").forEach(b => b.addEventListener("click", () => {
+    gdSetTab(b.dataset.gdtab); paintLive();
+  }));
+  host.querySelectorAll("[data-gdbench]").forEach(b => b.addEventListener("click", () => {
+    GD_BENCHES = !GD_BENCHES; paintLive();
+  }));
+  /* A league game (League tab) opens in the Matchup tab. */
   host.querySelectorAll("[data-gdgame]").forEach(b => b.addEventListener("click", () => {
-    GD_PICK = b.dataset.gdgame.split(","); paintLive();
+    GD_PICK = b.dataset.gdgame.split(","); gdSetTab("matchup"); paintLive();
     host.querySelector(".gd-head")?.scrollIntoView({block: "start", behavior: "smooth"});
   }));
-  /* An NFL game opens the game sheet (gamesheet.js). */
+  /* An NFL game opens the game sheet (gamesheet.js), on the player the reader came from if a row's
+     clock was tapped. */
   host.querySelectorAll("[data-gdnfl]").forEach(b => b.addEventListener("click", () => {
     const [event, away, home] = b.dataset.gdnfl.split(",");
-    gsOpen({event, away, home}, b);
+    gsOpen({event, away, home, slug: b.dataset.gdfocus}, b);
   }));
   /* A player opens his profile, the view search and the Digest open (surface/profile/panel.js). */
   host.querySelectorAll("[data-gdslug]").forEach(b => b.addEventListener("click", () => {
     openProfile({n: b.dataset.gdn, pos: b.dataset.gdpos, team: b.dataset.gdteam, slug: b.dataset.gdslug}, b);
   }));
+  /* The TDs tab is drawn by another file (surface/live/tds.js), which wires its own taps. */
+  if (gdTab() === "tds" && typeof wireTds === "function") wireTds(host);
 }
 
 /* One timer for the life of the page, inert unless Live is on screen. */

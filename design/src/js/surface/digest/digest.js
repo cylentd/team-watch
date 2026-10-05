@@ -87,19 +87,29 @@ function dgRowHTML(id, d, open){
 }
 
 function digestHTML(){
+  // After the week's first kickoff the Digest shares Live's poll (now.js); before it, nothing is asked.
+  // Asked after this render, not during it: the reply repaints the Digest, which must not render inside a render.
+  if (dgKicked()) queueMicrotask(gdEnsure);
   const d = dgD(), open = dgOpenRow();
   const rows = DG_ROWS.filter(dgShown);
   const wait = dgWaiting(d);
-  // The wall's layout names which bands exist (wall.css): results, tonight's card, the last slot,
-  // the wait. The wait card sits where the preview rows it stands for were, right after Results.
-  const cls = d ? [dgHas("res") ? "has-res" : "", d.tn.length ? "has-tn" : "", d.tnLast ? "tn-last" : "",
-    wait ? "wk-done" : ""].filter(Boolean).join(" ") : "";
+  const mnf = dgMnfHTML(), needOff = !!d && dgNeedEmpty(d);
+  // The wall's layout names which bands exist (wall.css): results, tonight's card (or the last game's,
+  // mnf.js), the last slot, the wait. The wait card sits where the preview rows it stands for were,
+  // right after Results. Need to know leaves the band to Right now when nothing in it is left to say.
+  const cls = d ? [dgHas("res") ? "has-res" : "", d.tn.length || mnf ? "has-tn" : "", d.tnLast ? "tn-last" : "",
+    wait ? "wk-done" : "", needOff ? "no-need" : ""].filter(Boolean).join(" ") : "";
   const body = rows.map(id => dgRowHTML(id, d, open));
   if (wait) body.splice(rows[0] === "res" ? 1 : 0, 0, dgWaitHTML(d));
-  // Need to know and Worth knowing lie open above the rows (need.js, facts.js; 2026-09-29).
-  const ticker = d ? `<section class="dg-ticker${cls ? " " + cls : ""}" aria-label="${t("digest.ticker.label")}">${dgTonightHTML(d)}${dgNeedHTML(d)}${dgFactsHTML(d)}${body.join("")}</section>`
+  // Need to know and Worth knowing lie open above the rows (need.js, facts.js; 2026-09-29); Right now
+  // takes Worth knowing's place from the first kickoff (now.js).
+  const now = d ? dgNowHTML() : "";
+  const lead = dgLeadHTML();
+  DG_LAST = {lead, now, mnf};
+  DG_DRAWN = dgPhaseKey();
+  const ticker = d ? `<section class="dg-ticker${cls ? " " + cls : ""}" aria-label="${t("digest.ticker.label")}">${dgTonightHTML(d, mnf)}${needOff ? "" : dgNeedHTML(d)}${now || dgFactsHTML(d)}${body.join("")}</section>`
     : `<p class="dg-none">${t("digest.empty.ticker")}</p>`;
-  return `<div class="dg">${dgLeadHTML()}${ticker}</div>`;
+  return `<div class="dg">${lead}${ticker}</div>`;
 }
 
 function dgSetOpen(row, open){
@@ -137,6 +147,9 @@ function wireDigest(v){
   v.querySelectorAll("[data-dggo]").forEach(b => b.addEventListener("click", () => {
     morphLogo(); navGo(b.dataset.dggo); window.scrollTo({top: 0});
   }));
+  // A live scorer, the touchdown count and the last game's link: one listener, so the parts a poll
+  // repaints in place need no wiring (now.js).
+  v.querySelector(".dg")?.addEventListener("click", dgLiveClick);
   const d = dgD();
   v.querySelectorAll("[data-dgslug]").forEach(el => el.addEventListener("click", () => {
     const slug = el.dataset.dgslug;

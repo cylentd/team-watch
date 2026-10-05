@@ -44,7 +44,8 @@ function dgNeedHurt(r){
 
 /* The banner's own player is not repeated here, as the Hurt row's line skipped him. */
 function dgNeedHTML(d){
-  const lead = d.lead && d.lead.rule === "hurt" ? d.hurt[d.lead.index] : null;
+  // Not the banner's own player, unless a live headline took the banner (now.js): then he is news here.
+  const lead = d.lead && d.lead.rule === "hurt" && !dgLeadLive(d) ? d.hurt[d.lead.index] : null;
   const hurt = d.hurt.filter(r => r !== lead);
   const sit = hurt.filter(r => r.status !== "Questionable"), q = hurt.filter(r => r.status === "Questionable");
   const lines = [...d.starters.map(dgNeedStart), ...sit.map(dgNeedHurt)];

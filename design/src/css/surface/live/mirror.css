@@ -1,0 +1,95 @@
+/* ---------------------------------------------------------------- LIVE: MIRRORED LINEUPS, GAME TILES
+   The Matchup tab's rows (js/surface/live/mirror.js) and the Games tab's tiles (nflnow.js), 2026-10-04.
+   A row is one line of two: my starter | the slot | theirs, each half a name over his game's clock,
+   points beside the name and the projection under them. 46px a row, so a score and nine starters
+   fit one phone screen. The slot pill wears the position's colour (--pos-*, tokens.css); FLEX, OP
+   and W/R/T stay neutral. Every other row is shaded, so no rule sits between rows; a half whose game
+   is on is tinted lime, and its points are lime (David, 2026-09-29: lime means his game is on). */
+
+.gd-mirror{display:grid;border-radius:14px;background:var(--panel);border:1px solid var(--line);overflow:hidden}
+.gd-mr{display:grid;grid-template-columns:minmax(0,1fr) 44px minmax(0,1fr);align-items:stretch;min-height:46px}
+.gd-mr:nth-child(even){background:var(--panel-2)}
+.gd-h.l{grid-column:1;grid-row:1}
+.gd-sl{grid-column:2;grid-row:1}
+.gd-h.r{grid-column:3;grid-row:1}
+
+.gd-sl{
+  align-self:center;justify-self:center;display:grid;place-items:center;min-width:36px;height:22px;padding:0 4px;
+  border-radius:999px;border:1px solid var(--line-2);color:var(--ink-3);font:700 10px/1 var(--mono);
+}
+.gd-sl.qb{--c:var(--pos-qb);--c-rgb:var(--pos-qb-rgb)}
+.gd-sl.rb{--c:var(--pos-rb);--c-rgb:var(--pos-rb-rgb)}
+.gd-sl.wr{--c:var(--pos-wr);--c-rgb:var(--pos-wr-rgb)}
+.gd-sl.te{--c:var(--pos-te);--c-rgb:var(--pos-te-rgb)}
+.gd-sl.k{--c:var(--pos-k);--c-rgb:var(--pos-k-rgb)}
+.gd-sl.def{--c:var(--pos-def);--c-rgb:var(--pos-def-rgb)}
+.gd-sl.qb,.gd-sl.rb,.gd-sl.wr,.gd-sl.te,.gd-sl.k,.gd-sl.def{color:var(--c);border-color:rgb(var(--c-rgb) / .45);background:rgb(var(--c-rgb) / .12)}
+
+.gd-h{display:grid;align-content:center;gap:1px;padding:4px 8px;min-width:0}
+.gd-h.on{background:rgb(var(--lime-rgb) / .09);box-shadow:inset 0 0 0 1px rgb(var(--lime-rgb) / .22)}
+.gd-h.pre .gd-nb b{color:var(--ink-2)}
+.gd-nb{
+  appearance:none;border:0;background:none;color:inherit;font:inherit;padding:0;cursor:pointer;text-align:left;
+  display:flex;align-items:baseline;justify-content:space-between;gap:6px;min-width:0;
+  transition:transform var(--dur-spring) var(--spring);
+}
+.gd-nb:active{transform:scale(var(--press))}
+.gd-nb b{min-width:0;font-weight:600;font-size:var(--t-2);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gd-h.r .gd-nb{flex-direction:row-reverse;text-align:right}
+.gd-pts{flex:none;display:flex;gap:4px;align-items:center;font:700 var(--t-2)/1.25 var(--mono);font-variant-numeric:tabular-nums}
+.gd-pts.pre{font-weight:500;color:var(--ink-3)}
+.gd-h.on .gd-pts{color:var(--lime)}
+.gd-pts em{font-style:normal;font-size:var(--t-1);color:var(--up)}
+/* Smashed his projection (the Digest's own margin): a small two-tone flame beside his points
+   (David, 2026-09-29). */
+.gd-flame{flex:none;width:13px;height:13px}
+.gd-flame .o{fill:var(--heat)}
+.gd-flame .i{fill:var(--heat-core)}
+
+.gd-sub{display:flex;align-items:baseline;justify-content:space-between;gap:6px;min-width:0}
+.gd-h.r .gd-sub{flex-direction:row-reverse}
+.gd-ck{
+  appearance:none;border:0;background:none;padding:0;min-width:0;text-align:left;cursor:default;color:var(--ink-3);
+  font:500 11px/1.3 var(--ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.gd-h.r .gd-ck{text-align:right}
+/* The clock line opens the game sheet: padding grows the tap target, the negative margin keeps the row 46px. */
+button.gd-ck{cursor:pointer;text-decoration:underline dotted var(--line-2);text-underline-offset:3px;padding-block:6px;margin-block:-6px}
+.gd-h.on .gd-ck{color:var(--ink-2)}
+.gd-proj{flex:none;font:500 11px/1.3 var(--mono);font-variant-numeric:tabular-nums;color:var(--ink-3)}
+.gd-nb:focus-visible,.gd-ck:focus-visible,.gd-bt:focus-visible,.gd-t:focus-visible{outline:2px solid var(--lime);outline-offset:1px}
+
+/* The benches, behind one row; dimmed, never in the total. */
+.gd-bt{
+  appearance:none;width:100%;min-height:40px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;
+  border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--ink-2);cursor:pointer;
+  font:600 var(--t-1)/1 var(--ui);letter-spacing:.07em;text-transform:uppercase;
+}
+.gd-bt svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:transform var(--dur-spring) var(--spring)}
+.gd-bt[aria-expanded="true"] svg{transform:rotate(180deg)}
+.gd-mirror.bn .gd-mr{opacity:.62}
+.gd-mirror.bn .gd-pts{font-weight:500}
+
+/* The Games tab: every NFL game of the week, two to a row. A tile is the game's clock over two
+   clubs and their scores; one that holds my starters has a lime edge and says how many. */
+.gd-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.gd-t{
+  appearance:none;font:inherit;color:inherit;text-align:left;cursor:pointer;display:grid;gap:4px;padding:9px 11px;
+  border-radius:12px;background:var(--panel);border:1px solid var(--line);
+  transition:transform var(--dur-spring) var(--spring);
+}
+.gd-t:active{transform:scale(var(--press))}
+.gd-t.mine{border-color:var(--lime)}
+.gd-ts{display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0;font:700 11px/1.2 var(--mono);letter-spacing:.03em;color:var(--ink-3)}
+.gd-ts > span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gd-ts em{flex:none;font-style:normal;color:var(--lime)}
+.gd-t.in .gd-ts > span{color:var(--lime)}
+.gd-t.in .gd-ts > span::before{content:"";display:inline-block;width:6px;height:6px;margin-right:6px;border-radius:50%;background:var(--lime);vertical-align:middle}
+.gd-tr{display:flex;align-items:baseline;justify-content:space-between;gap:6px;font:600 var(--t-2)/1.3 var(--ui)}
+.gd-tr b{font:700 var(--t-3)/1.2 var(--mono);font-variant-numeric:tabular-nums}
+.gd-tr.behind{color:var(--ink-3)}
+.gd-t.post .gd-ts{color:var(--ink-3)}
+
+@media (min-width:760px){
+  .gd-tiles{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+}

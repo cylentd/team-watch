@@ -6,6 +6,12 @@
 /* "Week 3 · updated Mon 5:58 AM": which week the packet is and how old, above the head. */
 .dg-lead-when{margin:0;font-size:var(--t-1);font-weight:600;line-height:1;letter-spacing:.07em;color:var(--ink-3)}
 
+/* The 200px floor is sized for the photo lead; a banner with no photo (Monday's matchup) sizes to its
+   text on a phone instead of leaving an empty band under the sub line. */
+@media not all and (min-width:960px){
+  .dg-lead:not(.has-photo){min-height:0}
+}
+
 @media (min-width:960px){
   .dg{grid-template-columns:440px minmax(0,1fr);column-gap:28px;align-items:start;max-width:var(--page-w);
     margin:0 auto;padding:20px var(--page-pad) 40px}

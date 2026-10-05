@@ -14,7 +14,10 @@ function gsScoreHTML(){
   const mid = st === "in" ? `<span class="gs-pill">${t("live.now.live")}</span>`
     : st === "post" ? `<span class="gs-final">${GD_LOCK}${t("live.state.final")}</span>`
     : `<span>${esc(gdClock(gdKickOf(GS.home) || 0))}</span>`;
-  const detail = g && st === "in" ? `<span>${esc(g.detail)}</span>` : "";
+  /* ESPN's summary says where the game is; until it loads, the scoreboard's clock does ("Q3 4:12", "Half"). */
+  const cl = g ? null : gdClockOf(GS.home);
+  const detail = g && st === "in" ? `<span>${esc(g.detail)}</span>`
+    : cl && cl.state === "in" ? `<span>${esc(cl.label)}</span>` : "";
   const now = g && g.now, x = now && typeof now.ytez === "number"
     ? (gdSameClub(GS.home, now.ball) ? now.ytez : 100 - now.ytez) : null;
   const sit = now ? `<p class="gs-sit">${t("live.sheet.ball", {club: esc(now.ball)})}${now.dd ? ` · ${esc(now.dd)}` : ""}</p>
@@ -39,10 +42,11 @@ function gsPlayHTML(p){
 /* Drives newest first. The newest is open; every earlier one is a single line that opens on a tap,
    and stays open through the next poll. */
 function gsPlaysHTML(){
-  const head = `<h3><span>${t("live.sheet.plays")}</span><em>${GS_ERR ? "" : GS_GAME && GS_GAME.state === "in" ? t("live.sheet.every") : ""}</em></h3>`;
+  const every = GS_ERR ? "" : GS_GAME && GS_GAME.state === "in" ? t("live.sheet.every") : "";
+  const head = every ? `<h3><em>${every}</em></h3>` : "";
   const warn = GS_ERR ? `<p class="gs-warn">${esc(GS_ERR)}</p>` : "";
-  if (!GS_GAME) return `<section class="gs-card gs-plays">${head}${warn || `<p class="gs-quiet">${GS.event ? t("live.sheet.loading") : t("live.sheet.noEspn")}</p>`}</section>`;
-  if (!GS_GAME.drives.length) return `<section class="gs-card gs-plays">${head}${warn}<p class="gs-quiet">${t("live.sheet.noPlays")}</p></section>`;
+  if (!GS_GAME) return `<section class="gs-card gs-plays" data-gsscroll>${head}${warn || `<p class="gs-quiet">${GS.event ? t("live.sheet.loading") : t("live.sheet.noEspn")}</p>`}</section>`;
+  if (!GS_GAME.drives.length) return `<section class="gs-card gs-plays" data-gsscroll>${head}${warn}<p class="gs-quiet">${t("live.sheet.noPlays")}</p></section>`;
   const n = GS_GAME.drives.length;
   const drives = GS_GAME.drives.map((d, i) => {
     const key = String(n - i), open = GS_OPEN.has(key) ? GS_OPEN.get(key) : i === 0;
@@ -50,22 +54,60 @@ function gsPlaysHTML(){
         <span class="gs-tm">${esc(d.team)}</span><span>${esc(d.line)}</span><b class="${d.sc ? "sc" : ""}">${esc(d.on ? t("live.sheet.onDrive") : d.res)}</b></summary>
       ${d.plays.map(gsPlayHTML).join("")}</details>`;
   }).join("");
-  return `<section class="gs-card gs-plays">${head}${warn}${drives}</section>`;
+  return `<section class="gs-card gs-plays" data-gsscroll>${head}${warn}${drives}</section>`;
 }
 
 /* The box's players, each scored by the league on screen, best first. */
 function gsScored(lg){
   const box = (GS_BOX && GS_BOX.box) || {};
   const mine = new Set(((lg && lg.teams[lg.me]) || {lineup: []}).lineup.map(r => r.sid));
-  return Object.entries(box).map(([sid, p]) => ({sid, ...p, pts: lg ? gdPts(lg.rules, p, p.s) : null, line: gdLine(p, p.s), mine: mine.has(sid)}))
+  return Object.entries(box).map(([sid, p]) => ({sid, id: sid, ...p, pts: lg ? gdPts(lg.rules, p, p.s) : null, line: gdLine(p, p.s), mine: mine.has(sid), fol: sid in GS_FOLLOW}))
     .sort((a, b) => (b.pts || 0) - (a.pts || 0));
+}
+
+/* A small flat star; filled while followed (CSS). One tap toggles the follow (gamesheet.js). */
+const GS_STAR = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.4l2.6 5.5 6 .8-4.4 4.2 1.1 6L12 17l-5.3 2.9 1.1-6-4.4-4.2 6-.8z"/></svg>`;
+function gsStar(p){
+  const name = gdShort(p), label = p.fol ? t("live.sheet.unfollow", {name}) : t("live.sheet.follow", {name});
+  return `<button type="button" class="gs-star" data-gsfollow="${esc(p.id)}" data-sid="${esc(p.sid || "")}" data-slug="${esc(p.slug || "")}"
+    data-n="${esc(p.n)}" data-pos="${esc(p.pos)}" data-team="${esc(p.team)}" aria-pressed="${!!p.fol}" aria-label="${esc(label)}">${GS_STAR}</button>`;
+}
+
+/* Every player of mine in this game, in every league, then everyone followed. The player the reader came
+   from (GS.slug) leads, wherever he is rostered, mine or an opponent's. Scored by the league on screen. */
+function gsYours(){
+  const lg = gdLeague(), seen = new Set(), out = [], box = (GS_BOX && GS_BOX.box) || {};
+  const pre = (GS_GAME ? GS_GAME.state : gsSleeperState()) === "pre";    // no stats are a zero before kickoff
+  const here = club => gdSameClub(GS.away, club) || gdSameClub(GS.home, club);
+  const add = r => {
+    const id = r.sid || r.slug;
+    if (!id || seen.has(id) || !here(r.team)) return;
+    seen.add(id);
+    const s = pre ? null : (GD_STATS &&GD_STATS.stats && GD_STATS.stats[r.sid]) || (box[r.sid] || {}).s || null;
+    out.push({id, sid: r.sid || "", slug: r.slug || "", n: r.n, pos: r.pos, team: r.team, line: gdLine(r, s), s,
+              pts: lg ? gdPts(lg.rules, r, s) : null, fol: id in GS_FOLLOW, focus: !!GS.slug && r.slug === GS.slug});
+  };
+  for (const l of GD.leagues) ((l.teams[l.me] || {}).lineup || []).forEach(add);
+  Object.values(GS_FOLLOW).forEach(add);
+  if (GS.slug && !out.some(r => r.focus))
+    for (const l of GD.leagues) for (const tm of Object.values(l.teams)) tm.lineup.filter(r => r.slug === GS.slug).forEach(add);
+  return out.sort((a, b) => b.focus - a.focus);
+}
+
+function gsYoursHTML(){
+  const rows = gsYours();
+  const list = rows.map(r => `<div class="gs-yr${r.focus ? " focus" : ""}">${gsStar(r)}
+      <span><b>${esc(gdShort(r))}</b> <i class="gs-pos" data-pos="${esc(r.pos)}">${esc(r.pos)}</i><em>${esc(r.line)}</em></span>
+      <b class="gs-pts">${r.pts === null ? "—" : gdNum(r.pts)}</b></div>`).join("");
+  return `<section class="gs-card gs-yours"><h3><span>${t("live.sheet.yours")}</span></h3>
+    ${rows.length ? `<div class="gs-yl" data-gsscroll>${list}</div>` : `<p class="gs-quiet">${t("live.sheet.yoursNone")}</p>`}</section>`;
 }
 
 function gsTopHTML(){
   const lg = gdLeague(), rows = gsScored(lg).slice(0, 5);
-  const head = `<h3><span>${t("live.sheet.top")}</span><em>${lg ? t("live.sheet.scoring", {name: esc(lg.name)}) : ""}</em></h3>`;
-  if (!rows.length) return `<section class="gs-card gs-top">${head}<p class="gs-quiet">${GS_BOX_ERR ? t("live.sheet.noSleeper") : GS_BOX ? t("live.sheet.noStats") : t("live.sheet.loading")}</p></section>`;
-  return `<section class="gs-card gs-top">${head}${rows.map(r => `<div class="gs-sc${r.mine ? " mine" : ""}">
+  const head = lg ? `<h3><em>${t("live.sheet.scoring", {name: esc(lg.name)})}</em></h3>` : "";
+  if (!rows.length) return `<section class="gs-card gs-top" data-gsscroll>${head}<p class="gs-quiet">${GS_BOX_ERR ? t("live.sheet.noSleeper") : GS_BOX ? t("live.sheet.noStats") : t("live.sheet.loading")}</p></section>`;
+  return `<section class="gs-card gs-top" data-gsscroll>${head}${rows.map(r => `<div class="gs-sc${r.mine ? " mine" : ""}">${gsStar(r)}
       <span><b>${esc(gdShort(r))}</b> <small>${esc(r.team)}</small><em>${esc(r.line)}</em></span><b>${gdNum(r.pts || 0)}</b></div>`).join("")}</section>`;
 }
 
@@ -88,9 +130,9 @@ function gsBoxHTML(){
     const rows = players.filter(p => p.s[has]).sort((a, b) => (b.s[sort] || 0) - (a.s[sort] || 0));
     if (!rows.length) return "";
     return `<table class="gs-tbl"><caption>${label}</caption><thead><tr><th></th>${cols.map(c => `<th>${c[0]}</th>`).join("")}</tr></thead>
-      <tbody>${rows.map(p => `<tr${p.mine ? ` class="mine"` : ""}><td>${esc(gdShort(p))}</td>${cols.map(c => `<td>${c[1](p.s)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+      <tbody>${rows.map(p => `<tr${p.mine ? ` class="mine"` : ""}><td>${gsStar(p)}${esc(gdShort(p))}</td>${cols.map(c => `<td>${c[1](p.s)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
   }).join("");
-  return `<section class="gs-card gs-box"><h3><span>${t("live.sheet.box")}</span></h3>${seg}${tables || `<p class="gs-quiet">${t("live.sheet.noStats")}</p>`}</section>`;
+  return `<section class="gs-card gs-box" data-gsscroll>${seg}${tables || `<p class="gs-quiet">${t("live.sheet.noStats")}</p>`}</section>`;
 }
 
 const gsClubName = c => {
@@ -98,8 +140,19 @@ const gsClubName = c => {
   return (side && side.name) || c;
 };
 
+/* Plays · Box score · Top scorers: taps only, the sideways swipe stays the game walker. From 960px the
+   plays sit beside the rest, so the tab that would show them shows the box instead. */
+function gsTabsHTML(tab){
+  const label = {plays: t("live.sheet.plays"), box: t("live.sheet.box"), top: t("live.sheet.top")};
+  return `<div class="gs-tabs" role="tablist" aria-label="${esc(t("live.sheet.tabs"))}">${GS_TABS.map(k =>
+    `<button type="button" role="tab" class="gs-tab" data-gstab="${k}" aria-selected="${k === tab}">${label[k]}</button>`).join("")}</div>`;
+}
+
 function gsSheetHTML(){
+  const tab = GS_WIDE.matches && GS_TAB === "plays" ? "box" : GS_TAB;
   return `<button type="button" class="gs-grab" data-gsclose aria-label="${t("common.action.close")}"></button>
-    <h2 class="gs-title" id="gs-title">${esc(t("live.sheet.title", {away: GS.away, home: GS.home}))}</h2>
-    <div class="gs-cols">${gsScoreHTML()}${gsPlaysHTML()}${gsTopHTML()}${gsBoxHTML()}</div>`;
+    <div class="gs-bar"><h2 class="gs-title" id="gs-title">${esc(t("live.sheet.title", {away: GS.away, home: GS.home}))}</h2>
+      <button type="button" class="gs-x" data-gsclose aria-label="${t("common.action.close")}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="gs-main" data-tab="${tab}"><div class="gs-side">${gsScoreHTML()}${gsYoursHTML()}${gsTabsHTML(tab)}</div>
+      <div class="gs-panes" data-gsscroll role="tabpanel">${gsPlaysHTML()}${gsBoxHTML()}${gsTopHTML()}</div></div>`;
 }

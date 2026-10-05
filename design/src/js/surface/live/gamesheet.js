@@ -10,7 +10,7 @@
      open, the game on, visible   both again every 30 s, one of each in flight at most.
      closed, tab hidden, final    never. */
 
-let GS = null;            /* {event, away, home} on screen, ESPN's codes; null = closed */
+let GS = null;            /* {event, away, home, slug?} on screen, ESPN's codes; slug = the player the reader came from; null = closed */
 let GS_GAME = null;       /* gsShape of the last good ESPN summary */
 let GS_BOX = null;        /* the last good /api/stats?teams= reply */
 let GS_ERR = "";          /* why ESPN did not answer, above the plays */
@@ -19,14 +19,24 @@ let GS_BUSY = false;
 let GS_TEAM = null;       /* the club the box score shows */
 let GS_OPEN = new Map();  /* drive key -> open, as the reader left it */
 let GS_RETURN = null;
+/* The pane the reader last chose, kept for the session in memory: Plays, Box score, Top scorers. */
+const GS_TABS = ["plays", "box", "top"];
+let GS_TAB = "box";
+/* Players followed this week: id (his Sleeper id, else his slug) -> {id, sid, slug, n, pos, team}. */
+let GS_FOLLOW = {};
+const GS_WIDE = window.matchMedia("(min-width:960px)");
+/* What can scroll: on a phone the whole body (.gs-main) and nothing inside it; from 960px the cards and
+   the pinned list (data-gsscroll). The scroll of each is put back after a repaint. */
+const GS_SCROLLERS = ".gs-main, [data-gsscroll]";
 const gsEl = () => document.getElementById("gamesheet");
 
 function gsOpen(game, origin){
   const d = gsEl();
   if (!d) return;
   GS = game; GS_GAME = null; GS_BOX = null; GS_ERR = ""; GS_BOX_ERR = ""; GS_TEAM = null; GS_OPEN = new Map();
+  GS_FOLLOW = gsFollowLoad();
   GS_RETURN = origin || document.activeElement;
-  gsPaint();
+  gsPaint(true);
   d.scrollTop = 0;
   d.classList.add("on");
   d.setAttribute("aria-hidden", "false");
@@ -50,9 +60,31 @@ function gsShut(){
 }
 function gsClose(){ gsShut(); layerDone("gamesheet"); }
 
-function gsPaint(){
+/* A repaint replaces the panes, so the scroll the reader is at is put back; `top` starts at the top. */
+function gsPaint(top){
   const d = gsEl();
-  if (d && GS) d.innerHTML = gsSheetHTML();
+  if (!d || !GS) return;
+  const at = [...d.querySelectorAll(GS_SCROLLERS)].map(el => el.scrollTop);
+  d.innerHTML = gsSheetHTML();
+  d.querySelectorAll(GS_SCROLLERS).forEach((el, i) => { el.scrollTop = top ? 0 : at[i] || 0; });
+}
+
+/* ---- followed players: this week only, on this device (not tw-follow, which is the team switch) ---- */
+const gsFollowKey = () => `tw-gs-follow.${(GD.leagues[0] || {}).week}`;
+function gsFollowLoad(){
+  try {
+    /* One key per week: the ones of other weeks are dead, so they go. */
+    for (let i = localStorage.length - 1; i >= 0; i--){
+      const k = localStorage.key(i);
+      if (k && k.startsWith("tw-gs-follow.") && k !== gsFollowKey()) localStorage.removeItem(k);
+    }
+    const v = JSON.parse(localStorage.getItem(gsFollowKey()) || "{}");
+    return v && typeof v === "object" && !Array.isArray(v) ? v : {};
+  } catch (e) { return {}; }
+}
+function gsFollowToggle(rec){
+  if (GS_FOLLOW[rec.id]) delete GS_FOLLOW[rec.id]; else GS_FOLLOW[rec.id] = rec;
+  try { localStorage.setItem(gsFollowKey(), JSON.stringify(GS_FOLLOW)); } catch (e) { /* kept for this open only */ }
 }
 
 /* A sideways swipe walks the week's games in kickoff order (2026-09-29, lib/swipe.js), the sheet staying
@@ -132,7 +164,20 @@ const gsLive = () => GS && document.visibilityState === "visible" && (GS_GAME ? 
   d.addEventListener("click", e => {
     if (e.target.closest("[data-gsclose]")) return gsClose();
     const team = e.target.closest("[data-gsteam]");
-    if (team){ GS_TEAM = team.dataset.gsteam; gsPaint(); }
+    if (team){ GS_TEAM = team.dataset.gsteam; gsPaint(); return; }
+    const tab = e.target.closest("[data-gstab]");
+    if (tab){
+      GS_TAB = tab.dataset.gstab; gsPaint(true);
+      d.querySelector(`[data-gstab="${GS_TAB}"]`)?.focus({preventScroll: true});
+      return;
+    }
+    const star = e.target.closest("[data-gsfollow]");
+    if (star){
+      const k = star.dataset;
+      gsFollowToggle({id: k.gsfollow, sid: k.sid, slug: k.slug, n: k.n, pos: k.pos, team: k.team});
+      gsPaint();
+      d.querySelector(`[data-gsfollow="${CSS.escape(k.gsfollow)}"]`)?.focus({preventScroll: true});
+    }
   });
   /* A drive the reader opened or closed stays that way through the next poll. */
   d.addEventListener("toggle", e => {
@@ -148,7 +193,9 @@ const gsLive = () => GS && document.visibilityState === "visible" && (GS_GAME ? 
   document.getElementById("gamesheet-scrim").addEventListener("click", gsClose);
   /* Bound on the sheet itself, which a paint never replaces: sideways walks the games, down closes. */
   onSwipeX(d, gsStep);
-  onPullDown(d, () => d.scrollTop <= 0, () => !!GS, gsClose);
+  /* The body scrolls, not the sheet: a pull closes it only from the top of everything that scrolls. */
+  onPullDown(d, () => d.scrollTop <= 0 && [...d.querySelectorAll(GS_SCROLLERS)].every(el => el.scrollTop <= 0), () => !!GS, gsClose);
+  GS_WIDE.addEventListener("change", () => gsPaint());
   document.addEventListener("keydown", e => { if (e.key === "Escape" && GS) gsClose(); });
   setInterval(() => { if (gsLive()) gsPoll(); }, GD_POLL_MS);
   document.addEventListener("visibilitychange", () => { if (gsLive()) gsPoll(); });

@@ -112,6 +112,67 @@ GAME_SUMMARY = (GAMEDAY_FIX.parent / "data" / "espn_summary.json").read_text(enc
 GAME_BOX = (GAMEDAY_FIX.parent / "data" / "sleeper_box.json").read_text(encoding="utf-8")
 GAME_SHEET = """(() => { gsOpen({event: "1", away: "DET", home: "BUF"}, null);
   GS_GAME = gsShape(%s); GS_BOX = {box: %s}; GS_ERR = ""; gsPaint(); })()""" % (GAME_SUMMARY, GAME_BOX)
+# Game day, 2026-10-04: league-wide leaders as GD_STATS.lead ({sleeperId: {n, pos, team, s, pts}}, what
+# api/stats.py serves with lead=1). Seven scorers: two rushing TDs, three receiving, a QB with 3 pass TDs.
+GD_LEAD = {
+    "7547": {"n": "Amon-Ra St. Brown", "pos": "WR", "team": "DET", "pts": 31.4,
+             "s": {"rec": 10, "rec_tgt": 12, "rec_yd": 180, "rec_td": 2}},
+    "9226": {"n": "De'Von Achane", "pos": "RB", "team": "MIA", "pts": 27.1,
+             "s": {"rush_att": 18, "rush_yd": 130, "rush_td": 1, "rec": 4, "rec_tgt": 5, "rec_yd": 40}},
+    "8183": {"n": "Brock Purdy", "pos": "QB", "team": "SF", "pts": 24.0,
+             "s": {"pass_cmp": 22, "pass_att": 30, "pass_yd": 290, "pass_td": 3}},
+    "12481": {"n": "Cam Skattebo", "pos": "RB", "team": "NYG", "pts": 19.2,
+              "s": {"rush_att": 20, "rush_yd": 90, "rush_td": 2}},
+    "6801": {"n": "Tee Higgins", "pos": "WR", "team": "CIN", "pts": 17.8,
+             "s": {"rec": 6, "rec_tgt": 8, "rec_yd": 98}},
+    "4217": {"n": "George Kittle", "pos": "TE", "team": "SF", "pts": 15.5,
+             "s": {"rec": 6, "rec_tgt": 7, "rec_yd": 85, "rec_td": 1}},
+    "12526": {"n": "Tetairoa McMillan", "pos": "WR", "team": "CAR", "pts": 12.0,
+              "s": {"rec": 5, "rec_tgt": 7, "rec_yd": 70}},
+}
+GD_LEAD_JS = f"GD_STATS.lead = {json.dumps(GD_LEAD)};"
+# Live's tabs: the choice is a click, so the control's wiring is exercised too.
+LIVE_TAB = lambda tab: [("click", f"[data-gdtab='{tab}']")]
+# The Digest on a game day. Plants the fixtures' week 2 of both leagues, keeps the ESPN one, and gives every
+# club a Sunday game (kickoff 12:00Z) except the Monday pair `mon` ([home, away], kickoff next day 15:00Z).
+# Date.now is pinned to cfg.at, so "during a game" is a clock inside a planted game's window, not the wall's.
+DG_WEEK = """(cfg) => {
+  @@PLANT@@
+  GD.leagues.splice(1);
+  const lineup = Object.values(GD.leagues[0].teams).flatMap(tm => tm.lineup.map(r => r.team));
+  const clubs = [...new Set(lineup)].filter(c => !cfg.mon.includes(c));
+  const games = clubs.map(c => ({home: c, away: 'O' + c, kickoff: '2026-10-04T12:00:00Z', week: 2}));
+  if (cfg.mon.length) games.push({home: cfg.mon[0], away: cfg.mon[1], kickoff: '2026-10-05T15:00:00Z', week: 2});
+  GD_GAMES.splice(0, GD_GAMES.length, ...games);
+  Date.now = () => Date.parse(cfg.at);
+  GD_STATS.games = {};
+  for (const g of games) for (const c of [g.home, g.away]) GD_STATS.games[c] = cfg.mon.includes(c) ? cfg.monState : cfg.sunState;
+  GD_STATS.lead = @@LEAD@@;
+  Object.assign(GD_STATS.stats, cfg.stats);
+  GD_AT = Date.now(); GD_CLOCK = cfg.clock;
+  if (cfg.noHurt) { LIVE_DIGEST.hurt = []; LIVE_DIGEST.starters = []; }
+  DG_CUT = null; render();
+}""".replace("@@LEAD@@", json.dumps(GD_LEAD)).replace("@@PLANT@@", LIVE_PLANT())
+
+
+def DG_WEEK_AT(**cfg):
+    base = {"at": "2026-10-04T14:00:00Z", "sunState": "in_game", "monState": "pre_game", "mon": [], "stats": {},
+            "clock": {}, "noHurt": False}
+    return "(%s)(%s)" % (DG_WEEK, json.dumps({**base, **cfg}))
+
+
+# A profile's Season tab with this week's row drawn from the poll: SF's game is on and George Kittle
+# has a line in the leaders, his week 3 having no log row (tests/test_profile.py LIVE_SEASON_PLANT).
+PROFILE_LIVE_PLANT = """(() => {
+  const g = LIVE_SCHEDULE.games.find(x => x.week === 3 && (x.home === 'SF' || x.away === 'SF'));
+  const kick = Date.parse(g.kickoff);
+  Date.now = () => kick + 3600000;
+  if (GD.leagues.length) GD.leagues[0].week = 3; else GD.leagues.push({key: 'espn', week: 3, teams: {}, games: [], rules: {off: [], dst: []}});
+  GD_CLOCK = {SF: {state: 'in', q: 3, clock: '4:12', half: false, detail: '', clubs: ['SF', 'KC']}};
+  GD_STATS = {week: 3, games: {SF: 'in_game', KC: 'in_game'}, stats: {},
+    lead: {'4881': {n: 'George Kittle', pos: 'TE', team: 'SF', pts: 16.2, s: {rec: 6, rec_tgt: 8, rec_yd: 82, rec_td: 1}}}};
+  GD_AT = Date.now(); GD_ERR = '';
+})()"""
 WAIT_STAGE = "new Promise(r => setTimeout(r, 450))"
 CLOSE_STAGE = """(() => { document.body.dispatchEvent(new KeyboardEvent("keydown", {key: "Escape", bubbles: true}));
   return new Promise(r => setTimeout(r, 450)); })()"""
@@ -417,6 +478,21 @@ STATES = [
                       + go("live")),
     # The game sheet over Live: the fixture game's scoreboard, plays by drive, top scorers, box score.
     ("live-game", [("eval", LIVE_PLANT())] + go("live") + [("eval", GAME_SHEET)]),
+    # Live's other tabs (2026-10-04): Games (every game of the week by state), TDs (who has scored, from
+    # the league-wide leaders: rush and rec TDs only, a QB's passing TDs do not count) and League.
+    ("live-games", [("eval", LIVE_PLANT() + GD_LEAD_JS)] + go("live") + LIVE_TAB("games")),
+    ("live-tds", [("eval", LIVE_PLANT() + GD_LEAD_JS)] + go("live") + LIVE_TAB("tds")),
+    ("live-league", [("eval", LIVE_PLANT())] + go("live") + LIVE_TAB("league")),
+    # The Digest on a game day (2026-10-04): Date.now inside the Sunday window with a game in progress, the
+    # banner is the top score and Right now lists five; then the day after, every game final but Monday
+    # night's (CHI @ DEN, none of the ESPN team's starters), which draws the Monday card.
+    ("digest-live", go("digest") + [("eval", DG_WEEK_AT(noHurt=True, clock={"DET": {
+        "state": "in", "q": 3, "clock": "4:12", "half": False, "detail": "", "clubs": ["DET"]}}))]),
+    ("digest-mnf", go("digest") + [("eval", DG_WEEK_AT(at="2026-10-05T09:00:00Z", sunState="complete",
+                                                       mon=["CHI", "DEN"], stats={"4217": {"rec": 5, "rec_yd": 600}}))]),
+    # A profile's Season tab, this week's row drawn live from the poll (week 3, SF on the clock).
+    ("profile-live", [("eval", "VIEW='espn'; render()")] + go("roster") + [("eval", PROFILE_LIVE_PLANT),
+                     ("click", ".row:has-text('George Kittle')")]),
     # The play strip (2026-09-27): the real dialog, which from file:// says it cannot fetch, then
     # the fixture game mounted into it with the real stripMount. A finished game opens at kickoff
     # and never plays by itself, so the frame is fixed; -seek moves the scrubber to play 6.

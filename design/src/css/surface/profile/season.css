@@ -46,6 +46,11 @@
 /* What the lime number is, written across the stat columns that row has no numbers for. Beside the
    number it set the points column's width for all eighteen rows, and hung left of it, it ran into
    the kickoff (2026-09-28). The small is the phone's version (below). */
+/* This week's game in progress, drawn from the live poll (season.js): the same lime on the week, the
+   clock and the points, over a faint lime wash so it reads as "now" beside the plain played weeks. */
+.ss-row.ss-live{background:color-mix(in srgb,var(--lime) 9%,var(--panel-2))}
+.ss-row.ss-live .ss-wk,.ss-row.ss-live .ss-pts,.ss-row.ss-live .ss-date{color:var(--lime)}
+.ss-row.ss-live .ss-pts{position:relative}
 .ss-note{grid-column:5 / -1;padding-left:4px;font-size:var(--t-2);color:var(--ink-3)}
 .ss-pts small{display:none}
 .ss-row.ss-later{color:var(--ink-3)}
@@ -72,6 +77,7 @@
      "proj · RB3" never widens the points column past the points in it. */
   .ss-row.ss-next{padding-bottom:22px}
   .ss-row.ss-next .ss-when{color:var(--lime)}
+  .ss-row.ss-live{padding-bottom:22px}
   .ss-note{display:none}
   .ss-pts small{display:block;position:absolute;right:0;top:100%;margin-top:2px;font-size:var(--t-1);font-weight:500;
     letter-spacing:.06em;white-space:nowrap;color:var(--ink-3)}

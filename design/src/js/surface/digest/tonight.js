@@ -60,7 +60,11 @@ function dgTnCard(g, now){
     ${dgFootHTML(t("digest.foot.tn"), "matchups", t("digest.go.matchupsAll"))}</section>`;
 }
 
-function dgTonightHTML(d){
-  const now = Date.now();
-  return d.tn && d.tn.length ? `<div class="dg-tns">${d.tn.map(g => dgTnCard(g, now)).join("")}</div>` : "";
+/* `mnf` is the last game's card (mnf.js) when one shows: it stands in for Tonight's card of the same
+   game, so that game's card is skipped here. */
+function dgTonightHTML(d, mnf){
+  const now = Date.now(), late = mnf ? dgMnfSlot(now) || [] : [];
+  const held = g => late.some(x => gdSameClub(x.g.home, g.home) || gdSameClub(x.g.away, g.home));
+  const cards = (d.tn || []).filter(g => !held(g)).map(g => dgTnCard(g, now)).join("");
+  return mnf || cards ? `<div class="dg-tns">${mnf || ""}${cards}</div>` : "";
 }

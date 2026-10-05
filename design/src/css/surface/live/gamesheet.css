@@ -1,8 +1,11 @@
 /* ============================================================
    THE GAME SHEET (2026-09-28, js/surface/live/gamesheet.js)
-   One NFL game from the bottom edge. A phone stacks the
-   scoreboard, the plays, top scorers, the box score; from 960px
-   the plays take the tall left column and the rest stack right.
+   One NFL game. A phone gets it full screen (2026-10-04, storyboard
+   https://claude.ai/artifact/JrM6hBMrAL2hjFzYPgKitV): the scoreboard,
+   the players of mine in it and the tabs are one scroll; the tabs stick
+   to its top while the pane under them (Plays, Box score, Top scorers)
+   goes by. From 960px
+   it is a bottom sheet again, the plays beside the rest.
    One card per subject; rows inside a card stay rows.
    Same layer as the leg sheet, which never opens from Live.
    ============================================================ */
@@ -10,9 +13,9 @@
   transition:opacity .25s var(--ease)}
 .gs-scrim.on{opacity:1;pointer-events:auto}
 .gamesheet{
-  position:fixed;left:0;right:0;bottom:0;z-index:49;margin:0 auto;max-width:560px;max-height:92vh;overflow-y:auto;
-  background:var(--void);border:1px solid var(--line-2);border-bottom:0;border-radius:20px 20px 0 0;
-  padding:6px 16px calc(16px + env(safe-area-inset-bottom, 0px));display:grid;gap:12px;align-content:start;
+  position:fixed;top:0;left:0;right:0;z-index:49;margin:0;height:100dvh;overflow:hidden;
+  display:flex;flex-direction:column;gap:8px;background:var(--void);
+  padding:max(6px,env(safe-area-inset-top,0px)) 16px calc(12px + env(safe-area-inset-bottom,0px));
   transform:translateY(105%);visibility:hidden;
   transition:transform var(--dur-spring) var(--spring),visibility 0s linear var(--dur-spring);
 }
@@ -29,18 +32,37 @@
   @keyframes gs-turn-l{from{transform:translateX(-28px);opacity:.4}}
 }
 body:has(.gamesheet.on){overflow:hidden}
-.gs-grab{appearance:none;border:0;justify-self:center;width:44px;height:18px;padding:0;cursor:pointer;
+.gs-grab{appearance:none;border:0;flex:none;align-self:center;width:44px;height:14px;padding:0;cursor:pointer;
   background:linear-gradient(var(--line-2),var(--line-2)) center / 44px 4px no-repeat;border-radius:4px}
 .gs-grab:focus-visible{outline:2px solid var(--lime)}
+.gs-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:none}
 .gs-title{margin:0;font:800 var(--t-4)/1.1 var(--disp);color:var(--ink)}
+.gs-x{appearance:none;border:0;background:none;width:44px;height:44px;margin:-6px -10px -6px 0;display:grid;place-items:center;
+  color:var(--ink-3);cursor:pointer;border-radius:10px}
+.gs-x svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.gs-x:focus-visible{outline:2px solid var(--lime)}
 
-.gs-cols{display:grid;gap:12px;align-items:start}
+/* The phone: one scroll for the whole body. Score, yours and the pane flow in .gs-main (.gs-side
+   dissolves into it), and the tabs stick to the top of that scroll while the pane goes by. */
+.gs-main{flex:1;min-height:0;display:grid;align-content:start;gap:10px;overflow-y:auto;overscroll-behavior:contain}
+.gs-side{display:contents}
+.gs-panes{display:grid;align-content:start}
+.gs-panes > .gs-card{display:none}
+.gs-main[data-tab="plays"] .gs-plays,.gs-main[data-tab="box"] .gs-box,.gs-main[data-tab="top"] .gs-top{display:grid}
 .gs-card{display:grid;gap:8px;padding:12px 14px;border-radius:16px;background:var(--panel);border:1px solid var(--line);min-width:0}
 .gs-card h3{display:flex;justify-content:space-between;gap:8px;margin:0;
   font:600 var(--t-1)/1.3 var(--ui);letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
-.gs-card h3 em{font-style:normal;font-weight:500;text-transform:none;letter-spacing:0;text-align:right}
+.gs-card h3 em{font-style:normal;font-weight:500;text-transform:none;letter-spacing:0;text-align:right;margin-left:auto}
 .gs-quiet{margin:0;font-size:var(--t-2);color:var(--ink-3)}
 .gs-warn{margin:0;font-size:var(--t-2);color:var(--amber)}
+
+/* ---- the tabs: three siblings, taps only ---- */
+.gs-tabs{position:sticky;top:0;z-index:1;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:3px;border-radius:10px;
+  background:var(--panel-2);box-shadow:0 0 0 3px var(--void)}
+.gs-tab{appearance:none;border:0;background:none;min-height:40px;border-radius:8px;cursor:pointer;
+  font:600 var(--t-1)/1 var(--ui);color:var(--ink-3)}
+.gs-tab[aria-selected="true"]{background:var(--panel-3);color:var(--ink)}
+.gs-tab:focus-visible{outline:2px solid var(--lime)}
 
 /* ---- the scoreboard: both scores, where the game is between them, who has the ball where ---- */
 .gs-score{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px}
@@ -58,6 +80,32 @@ body:has(.gamesheet.on){overflow:hidden}
 .gs-field i{position:absolute;top:-4px;width:4px;height:16px;margin-left:-2px;border-radius:2px;background:var(--lime)}
 .gs-ends{display:flex;justify-content:space-between;font:500 var(--t-1)/1 var(--mono);color:var(--ink-3)}
 
+/* ---- yours in this game: the star, who, how he is doing, the points. The player the reader came from has a lime edge ---- */
+.gs-yours{gap:4px;padding-block:8px}
+.gs-yr{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px;align-items:center;min-height:44px;
+  border-left:3px solid transparent;border-bottom:1px solid var(--line)}
+.gs-yr:last-child{border-bottom:0}
+.gs-yr.focus{border-left-color:var(--lime)}
+.gs-yr > span{min-width:0;font-size:var(--t-2)}
+.gs-yr > span b{font-weight:600}
+.gs-yr em{display:block;font-style:normal;font-size:var(--t-1);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gs-pts{font:700 var(--t-3)/1 var(--mono);font-variant-numeric:tabular-nums;padding-right:2px}
+.gs-yr.focus .gs-pts{color:var(--lime)}
+.gs-pos{font:700 10px/1 var(--mono);font-style:normal;color:var(--ink-3)}
+.gs-pos[data-pos="QB"]{color:var(--pos-qb)}
+.gs-pos[data-pos="RB"]{color:var(--pos-rb)}
+.gs-pos[data-pos="WR"]{color:var(--pos-wr)}
+.gs-pos[data-pos="TE"]{color:var(--pos-te)}
+.gs-pos[data-pos="K"]{color:var(--pos-k)}
+.gs-pos[data-pos="DEF"]{color:var(--pos-def)}
+/* The follow star: outline, filled while followed. */
+.gs-star{appearance:none;border:0;background:none;width:40px;height:40px;padding:0;display:inline-grid;place-items:center;
+  color:var(--ink-3);cursor:pointer;border-radius:8px}
+.gs-star svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
+.gs-star[aria-pressed="true"]{color:var(--amber)}
+.gs-star[aria-pressed="true"] svg{fill:currentColor}
+.gs-star:focus-visible{outline:2px solid var(--lime)}
+
 /* ---- the plays: a drive is one line (club, plays · yards · time, result); open, its plays newest first ---- */
 .gs-drv{border-top:1px solid var(--line)}
 .gs-drv:first-of-type{border-top:0}
@@ -73,8 +121,8 @@ body:has(.gamesheet.on){overflow:hidden}
 .gs-pl small{display:block;font:500 var(--t-1)/1.3 var(--mono);color:var(--ink-3);margin-top:2px}
 .gs-pl.sc > span:last-child{color:var(--ink);font-weight:600}
 
-/* ---- top scorers: name, club, how he earned it; the points. Mine bold, points lime ---- */
-.gs-sc{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+/* ---- top scorers: star, name, club, how he earned it; the points. Mine bold, points lime ---- */
+.gs-sc{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px;align-items:center;padding:2px 0;border-bottom:1px solid var(--line)}
 .gs-sc:last-child{border-bottom:0}
 .gs-sc > span{min-width:0;font-size:var(--t-2)}
 .gs-sc > span b{font-weight:500}
@@ -96,13 +144,25 @@ body:has(.gamesheet.on){overflow:hidden}
 .gs-tbl th:first-child,.gs-tbl td:first-child{text-align:left;padding-left:0}
 .gs-tbl th{font:600 10px/1.2 var(--mono);color:var(--ink-3)}
 .gs-tbl td{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--ink-2)}
-.gs-tbl td:first-child{font-family:var(--ui);color:var(--ink)}
+.gs-tbl td:first-child{font-family:var(--ui);color:var(--ink);white-space:nowrap}
+.gs-tbl td .gs-star{width:36px;height:36px;margin:-8px 0 -8px -8px;vertical-align:middle}
 .gs-tbl tr:last-child td{border-bottom:0}
 .gs-tbl tr.mine td:first-child{font-weight:700}
 
+/* From 960px: a bottom sheet, the plays tall on the left; scoreboard, yours, tabs and the box or top scorers on the right. */
 @media (min-width:960px){
-  .gamesheet{max-width:1040px;padding-inline:20px}
-  .gs-cols{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);grid-template-rows:auto auto 1fr}
-  .gs-plays{grid-column:1;grid-row:1 / 4}
-  .gs-sb,.gs-top,.gs-box{grid-column:2}
+  .gamesheet{top:auto;bottom:0;margin:0 auto;max-width:1040px;height:min(88dvh,860px);padding-inline:20px;
+    border:1px solid var(--line-2);border-bottom:0;border-radius:20px 20px 0 0}
+  .gs-main{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);gap:12px;
+    align-content:normal;overflow:visible}
+  .gs-side{display:grid;gap:8px;grid-column:2;grid-row:1}
+  .gs-panes{display:contents}
+  .gs-main .gs-panes > .gs-plays{display:grid;grid-column:1;grid-row:1 / 3}
+  .gs-main .gs-panes > .gs-box,.gs-main .gs-panes > .gs-top{grid-column:2;grid-row:2}
+  .gs-main[data-tab="top"] .gs-panes > .gs-box,.gs-main[data-tab="box"] .gs-panes > .gs-top{display:none}
+  .gs-main .gs-panes > .gs-card{overflow-y:auto;overscroll-behavior:contain;align-content:start;min-height:0}
+  .gs-main[data-tab="box"] .gs-box,.gs-main[data-tab="top"] .gs-top{display:grid}
+  .gs-tabs{grid-template-columns:1fr 1fr}
+  .gs-tab[data-gstab="plays"]{display:none}
+  .gs-yl{max-height:22dvh;overflow-y:auto;overscroll-behavior:contain}
 }

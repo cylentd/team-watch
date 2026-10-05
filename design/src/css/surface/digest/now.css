@@ -1,0 +1,83 @@
+/* ============================== DIGEST: AFTER KICKOFF ==============================
+   2026-10-04, storyboard https://claude.ai/artifact/JrM6hBMrAL2hjFzYPgKitV. Right now (surface/digest/now.js)
+   takes Worth knowing's panel from the first kickoff: the top five scorers as Need to know's lines, a
+   touchdown count under them. The last game's card (mnf.js) is Tonight's card in lime: the one thing
+   the week has left. Checked at 360px first: two columns of names, one sentence, nothing wider than the screen. */
+
+/* Right now */
+.dg-now-l{list-style:none;margin:0;padding:0;display:grid;gap:4px;min-width:0}
+.dg-now-r{
+  appearance:none;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;
+  width:100%;display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;
+  min-height:52px;padding:0;border-radius:8px;transition:transform var(--dur-spring) var(--spring);
+}
+.dg-now-r:active{transform:scale(var(--press))}
+.dg-now-r:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.dg-now-r > .dg-hd{position:relative;width:40px;height:40px}
+.dg-now-r > .dg-hd img{position:absolute;left:-25%;top:-6%;width:150%;height:150%;max-width:none}
+.dg-now-t{min-width:0;display:grid;gap:2px}
+.dg-now-t b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dg-now-m,.dg-now-s{font-size:var(--t-1);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dg-now-pos{font-weight:600;color:var(--ink-2)}
+.dg-now-p{font:600 var(--t-4)/1 var(--mono);font-style:normal;font-variant-numeric:tabular-nums;color:var(--lime)}
+.dg-now-td{justify-self:start;margin-top:6px}
+
+/* The last game's card */
+.dg-mnf{border-color:rgb(var(--lime-rgb) / .45)}
+.dg-mnf-h{margin:0;padding:14px 16px 8px;display:grid;gap:2px;min-width:0}
+.dg-mnf-h b{font-family:var(--disp);font-size:var(--t-5);font-weight:700;letter-spacing:-.01em;line-height:1.2;color:var(--ink)}
+.dg-mnf-sub{margin:0;display:flex;gap:0;min-width:0;font-size:var(--t-1);line-height:1.35;color:var(--ink-3);white-space:nowrap}
+.dg-mnf-sub time{flex:none;font-family:var(--mono);color:var(--lime)}
+.dg-mnf-sub i{flex:none;font-style:normal;white-space:pre}
+.dg-mnf-sub span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.dg-mnf-lg{display:grid;gap:10px;min-width:0;padding:12px 16px;border-top:1px solid var(--line)}
+.dg-mnf-top{display:flex;justify-content:space-between;align-items:center;gap:10px;min-width:0}
+.dg-mnf-top b{min-width:0;font-size:var(--t-2);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dg-mnf-lead{flex:none;padding:5px 9px;border:1px solid currentColor;border-radius:99px;font:700 var(--t-1)/1 var(--mono);letter-spacing:.04em;color:var(--ink-3)}
+.dg-mnf-lead.up{color:var(--up)}
+.dg-mnf-lead.dn{color:var(--down)}
+.dg-mnf-score{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.dg-mnf-score > span{display:grid;gap:2px;min-width:0;font-size:var(--t-1);color:var(--ink-3)}
+.dg-mnf-nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}   /* its own block: ellipsis never reaches a grid's loose text */
+.dg-mnf-score b{font:600 var(--t-5)/1.05 var(--mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+.dg-mnf-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.dg-mnf-c{min-width:0}
+.dg-mnf-c h4{margin:0 0 2px;font-size:var(--t-1);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.dg-mnf-c ul{list-style:none;margin:0;padding:0}
+.dg-mnf-c p{margin:0;font-size:var(--t-2);color:var(--ink-3)}
+.dg-mnf-p{
+  appearance:none;border:0;background:none;color:inherit;font:inherit;font-size:var(--t-2);text-align:left;cursor:pointer;
+  width:100%;min-height:36px;padding:0;display:flex;align-items:center;justify-content:space-between;gap:8px;
+}
+span.dg-mnf-p{cursor:default}
+.dg-mnf-p > span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dg-mnf-p > i{flex:none;font:500 var(--t-1)/1 var(--mono);font-style:normal;font-variant-numeric:tabular-nums;color:var(--ink-2)}
+button.dg-mnf-p:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
+.dg-mnf-say{margin:0;padding:10px 12px;border-radius:10px;background:var(--panel-2);font-size:var(--t-2);line-height:1.45;text-wrap:pretty}
+.dg-mnf-med{margin:0;font-size:var(--t-1);color:var(--ink-3)}
+/* A decided league: one line (name, score, won or lost, then the median gap if it has one). */
+.dg-mnf-lg.done{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.dg-mnf-lg.done .dg-mnf-nm{flex:1 1 8em;font-size:var(--t-2);font-weight:600}
+.dg-mnf-fin{flex:none;font:600 var(--t-3)/1.2 var(--mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+.dg-mnf-res{flex:none;font:700 var(--t-1)/1 var(--mono);letter-spacing:.04em;color:var(--ink-3)}
+.dg-mnf-res.up{color:var(--up)}
+.dg-mnf-res.dn{color:var(--down)}
+.dg-mnf-lg.done .dg-mnf-med{flex:0 1 auto;margin-left:auto}
+.dg-mnf > .dg-foot{padding:4px 16px 12px}
+
+/* Two leagues sit side by side once the card has the room. */
+@media (min-width:960px){
+  .dg-mnf{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr))}
+  .dg-mnf > .dg-mnf-h,.dg-mnf > .dg-foot{grid-column:1 / -1}
+}
+
+/* The wall: Right now is a panel beside Need to know, two tiles across; with Need to know gone it takes the band. */
+@media (min-width:1100px){
+  .dg-now-l{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .dg-now-r{grid-template-columns:48px minmax(0,1fr) auto;padding:12px;border-radius:12px;background:var(--panel-2)}
+  .dg-now-r > .dg-hd{width:48px;height:48px}
+  .dg-now-l > :last-child:nth-child(odd){grid-column:1 / -1}
+  .dg-ticker.no-need .dg-facts{grid-column:1 / -1}
+  .dg-ticker.no-need .dg-now-l{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .dg-ticker.no-need .dg-now-l > :last-child:nth-child(odd){grid-column:auto}
+}

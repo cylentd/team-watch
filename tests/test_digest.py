@@ -774,3 +774,290 @@ def test_a_headline_naming_no_player_keeps_the_digest_up(browser, page_file):
     assert errors == []
     assert got["rows"] > 0
     assert got["tag"] == "DIV" and "Jalen Davis placed on IR" in got["text"]   # a plain block, not a profile button
+
+
+# ---- the Digest after kickoff (2026-10-04, storyboard JrM6hBMrAL2hjFzYPgKitV) ----
+
+from test_render import LIVE_PLANT  # noqa: E402
+
+SUN, MON = "2026-10-04T12:00:00Z", "2026-10-05T15:00:00Z"
+
+
+def _scorer(n, pos, team, pts, **s):
+    return {"n": n, "pos": pos, "team": team, "pts": pts, "s": s}
+
+
+# Seven scorers, league-wide, as GD_STATS.lead (api/stats.py lead=1); five have TDs worth counting.
+LEAD = {
+    "7547": _scorer("Amon-Ra St. Brown", "WR", "DET", 31.4, rec=10, rec_tgt=12, rec_yd=180, rec_td=2),
+    "9226": _scorer("De'Von Achane", "RB", "MIA", 27.1, rush_att=18, rush_yd=130, rush_td=1, rec=4, rec_tgt=5, rec_yd=40),
+    "8183": _scorer("Brock Purdy", "QB", "SF", 24.0, pass_cmp=22, pass_att=30, pass_yd=290, pass_td=3),
+    "12481": _scorer("Cam Skattebo", "RB", "NYG", 19.2, rush_att=20, rush_yd=90, rush_td=2),
+    "6801": _scorer("Tee Higgins", "WR", "CIN", 17.8, rec=6, rec_tgt=8, rec_yd=98),
+    "4217": _scorer("George Kittle", "TE", "SF", 15.5, rec=6, rec_tgt=7, rec_yd=85, rec_td=1),
+    "12526": _scorer("Tetairoa McMillan", "WR", "CAR", 12.0, rec=5, rec_tgt=7, rec_yd=70),
+}
+
+# Plants week 2 of both leagues (tests/fixtures/gameday.json), keeps the ESPN one, and gives every club
+# a game: Sunday's, or the Monday pair `mon` ([home, away]). cfg: at, sunState, monState, mon, lead, stats, clock.
+PLANT_WEEK = """(cfg) => {
+  PLANT
+  GD.leagues.splice(1);
+  const lineup = Object.values(GD.leagues[0].teams).flatMap(tm => tm.lineup.map(r => r.team));
+  const clubs = [...new Set(lineup)].filter(c => !cfg.mon.includes(c));
+  const games = clubs.map(c => ({home: c, away: 'O' + c, kickoff: cfg.sun, week: 2}));
+  if (cfg.mon.length) games.push({home: cfg.mon[0], away: cfg.mon[1], kickoff: cfg.monKick, week: 2});
+  GD_GAMES.splice(0, GD_GAMES.length, ...games);
+  Date.now = () => Date.parse(cfg.at);
+  GD_STATS.games = {};
+  for (const g of games) for (const c of [g.home, g.away]) GD_STATS.games[c] = cfg.mon.includes(c) ? cfg.monState : cfg.sunState;
+  GD_STATS.lead = cfg.lead;
+  Object.assign(GD_STATS.stats, cfg.stats || {});
+  GD_AT = Date.now(); GD_CLOCK = cfg.clock || {};
+  if (cfg.noHurt) { LIVE_DIGEST.hurt = []; LIVE_DIGEST.starters = []; }
+  DG_CUT = null; render();
+}""".replace("PLANT", LIVE_PLANT())
+
+
+def _live_cfg(**over):
+    cfg = {"at": "2026-10-04T14:00:00Z", "sun": SUN, "monKick": MON, "mon": [], "sunState": "in_game",
+           "monState": "pre_game", "lead": LEAD, "stats": {}, "clock": {}, "noHurt": False}
+    cfg.update(over)
+    return cfg
+
+
+def _digest_page(browser, page_file, viewport=(390, 844)):
+    ctx, page, errors = open_page(browser, page_file, viewport)
+    drive(page, go("digest"))
+    page.wait_for_selector(".dg")
+    return ctx, page, errors
+
+
+@pytest.mark.render
+def test_during_a_game_the_headline_is_the_top_score_and_right_now_lists_five(browser, page_file):
+    """David, 2026-10-04: "Sometimes something big happens like injury or top scores. The headline should
+    change accordingly. Need to know and Highlights become old news on kickoff." With a game on, the banner
+    names the top scorer in GD_STATS.lead and says where his game is; Highlights becomes Right now, the top
+    five and a touchdown count that opens Live's TDs tab; Need to know, with nothing left in it, is gone."""
+    ctx, page, errors = _digest_page(browser, page_file)
+    page.evaluate(PLANT_WEEK, _live_cfg(noHurt=True, clock={"DET": {"state": "in", "q": 3, "clock": "4:12", "half": False, "detail": "", "clubs": ["DET"]}}))
+    assert page.locator(".dg-lead-h").inner_text() == "St. Brown has 31.4 points"
+    fact = page.locator(".dg-lead-fact").inner_text()
+    assert "180 yds" in fact and fact.endswith("Q3 4:12")
+    now = page.locator("[data-dgnow]")
+    assert now.locator(".dg-sec").text_content() == "Right now"
+    assert page.locator(".dg-facts").count() == 1                    # Right now stands where Highlights did
+    rows = now.locator(".dg-now-r")
+    assert rows.count() == 5
+    first = rows.first.inner_text().replace("\n", " ")
+    assert "A. St. Brown" in first and "WR" in first and "DET" in first and "Q3 4:12" in first and "31.4" in first
+    assert [rows.nth(i).locator(".dg-now-p").inner_text() for i in range(5)] == ["31.4", "27.1", "24.0", "19.2", "17.8"]
+    tds = sum(int(v["s"].get("rush_td", 0)) + int(v["s"].get("rec_td", 0)) for v in LEAD.values())
+    assert now.locator(".dg-now-td").inner_text() == f"{tds} touchdowns so far"
+    assert page.locator(".dg-need").count() == 0 and "no-need" in page.locator(".dg-ticker").get_attribute("class")
+    # A scorer opens his profile; the count opens Live's TDs tab.
+    rows.first.click()
+    assert "on" in page.locator("#modal").get_attribute("class")
+    page.keyboard.press("Escape")
+    page.locator(".dg-now-td").click()
+    assert page.evaluate("localStorage.getItem('tw-live-tab')") == "tds"
+    assert page.evaluate("location.hash") == "#live"
+    ctx.close()
+    assert errors == []
+
+
+@pytest.mark.render
+def test_a_poll_repaints_the_headline_in_place(browser, page_file):
+    """paintDigestLive swaps the banner and Right now when their words change and never rebuilds the page
+    under a thumb; off the Digest it does nothing."""
+    ctx, page, errors = _digest_page(browser, page_file)
+    page.evaluate(PLANT_WEEK, _live_cfg())
+    got = page.evaluate("""() => {
+      const root = document.querySelector('.dg'); root.dataset.keep = '1';
+      GD_STATS.lead['9226'].pts = 40.2; paintDigestLive();
+      const kept = document.querySelector('.dg').dataset.keep === '1';
+      const head = document.querySelector('.dg-lead-h').textContent;
+      const rows = [...document.querySelectorAll('.dg-now-p')].map(e => e.textContent);
+      SURFACE = 'ranks'; GD_STATS.lead['9226'].pts = 1.0; paintDigestLive(); SURFACE = 'digest';
+      return {kept, head, rows, still: document.querySelector('.dg-lead-h').textContent}; }""")
+    ctx.close()
+    assert errors == []
+    assert got["kept"] and got["head"] == "Achane has 40.2 points"
+    assert got["rows"][0] == "40.2" and got["still"] == got["head"]
+
+
+@pytest.mark.render
+def test_before_the_first_kickoff_the_digest_is_unchanged(browser, page_file):
+    """Nothing about the week's live data may change the Digest until a game starts."""
+    ctx, page, errors = _digest_page(browser, page_file)
+    page.evaluate(PLANT_WEEK, _live_cfg(at="2026-10-04T08:00:00Z", sunState="pre_game"))
+    drawn = page.evaluate("document.querySelector('.dg').outerHTML")
+    assert page.locator("[data-dgnow], [data-dgmnf]").count() == 0
+    head = page.locator(".dg-lead-h").inner_text()
+    assert "going into" not in head and "points" not in head
+    page.evaluate("(() => { GD_STATS.lead = {}; DG_CUT = null; render(); })()")
+    assert page.evaluate("document.querySelector('.dg').outerHTML") == drawn
+    ctx.close()
+    assert errors == []
+
+
+def _gap(page):
+    return page.evaluate("""() => { const lg = GD.leagues[0], g = lg.games.find(x => x.includes(lg.me));
+      const a = gdSide(lg, lg.me, GD_STATS.stats, GD_STATS.games), b = gdSide(lg, g[0] === lg.me ? g[1] : g[0], GD_STATS.stats, GD_STATS.games);
+      return Math.round((a.total - b.total) * 100) / 100; }""")
+
+
+@pytest.mark.render
+def test_the_last_game_is_its_own_card_and_the_headline_goes_into_it(browser, page_file):
+    """Every game but the Monday one is final: a card above the ticker holds my matchup in each league,
+    who is left on each side with their projections, and what the game needs. The banner reads "You're
+    up 1.6 going into Monday night". During the game the card stays and the banner is the top score."""
+    ctx, page, errors = _digest_page(browser, page_file)
+    n = lambda v: page.evaluate("v => dgN1(Math.abs(v))", v)      # the page's own rounding, not Python's
+    # Colston Loveland (theirs) plays Monday, none of my starters: ahead, "stay under".
+    page.evaluate(PLANT_WEEK, _live_cfg(at="2026-10-05T09:00:00Z", sunState="complete", mon=["CHI", "DEN"],
+                                         stats={"4217": {"rec": 5, "rec_yd": 600}}))
+    gap = _gap(page)
+    assert gap > 0
+    assert page.locator(".dg-lead-h").inner_text() == f"You're up {n(gap)} going into Monday night"
+    card = page.locator(".dg-mnf")
+    assert card.count() == 1 and "has-tn" in page.locator(".dg-ticker").get_attribute("class")
+    # The title is one line; the time and the game sit on a small second line (2026-10-04, 360px).
+    head = re.sub(r"\s+", " ", card.locator(".dg-mnf-h").inner_text()).strip()
+    assert re.fullmatch(r"Monday night \d{1,2}:\d\d [AP]M · DEN @ CHI", head)
+    assert card.locator(".dg-mnf-h b").bounding_box()["y"] < card.locator(".dg-mnf-sub").bounding_box()["y"]
+    assert card.locator(".dg-mnf-lead").inner_text() == f"UP {n(gap)}"
+    assert card.locator(".dg-mnf-say").inner_text() == f"To win, C. Loveland must score under {n(gap)}"
+    assert card.locator(".dg-mnf-lg.done").count() == 0                              # someone is left: the full block
+    assert page.locator(".dg-lead-fact").inner_text() == card.locator(".dg-mnf-say").inner_text()
+    assert card.locator(".dg-mnf-c").nth(1).locator(".dg-mnf-p").count() == 1       # theirs: one man to play
+    assert card.locator(".dg-mnf-c").nth(0).inner_text().endswith("Nobody left")     # mine: none
+    assert card.locator(".dg-mnf-med").count() == 1                                   # the ESPN league has a median
+    assert page.locator("[data-dgnow]").count() == 1
+    assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+    # Down, with one of mine (Cam Skattebo) still to play and none of theirs: "You need".
+    page.evaluate(PLANT_WEEK, _live_cfg(at="2026-10-05T09:00:00Z", sunState="complete", mon=["NYG", "DAL"],
+                                         stats={"9488": {"rec": 5, "rec_yd": 3000}}))
+    gap = _gap(page)
+    assert gap < 0
+    assert page.locator(".dg-lead-h").inner_text() == f"You're down {n(gap)} going into Monday night"
+    assert page.locator(".dg-mnf-lead").inner_text() == f"DOWN {n(gap)}"
+    assert page.locator(".dg-mnf-say").inner_text() == f"You need {n(gap)} from C. Skattebo"
+    # The game is on: the card stays, with its clock, and the top scorer has the banner back.
+    page.evaluate(PLANT_WEEK, _live_cfg(at="2026-10-05T15:30:00Z", sunState="complete", monState="in_game", mon=["NYG", "DAL"]))
+    assert page.locator(".dg-mnf").count() == 1
+    assert "going into" not in page.locator(".dg-lead-h").inner_text()
+    assert page.locator(".dg-mnf-h time").inner_text() == "Live"
+    page.set_viewport_size({"width": 1400, "height": 900})
+    assert page.locator(".dg-mnf").bounding_box()["width"] > 600
+    assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+    ctx.close()
+    assert errors == []
+
+
+# Three games on the last day make it the main slate, not the standalone last game: no card, and the
+# packet's own lead stands between windows.
+EXTRA_LATE = """() => {
+  for (const [h, a] of [['XA', 'XB'], ['XC', 'XD']]) GD_GAMES.push({home: h, away: a, kickoff: GD_GAMES[GD_GAMES.length - 1].kickoff, week: 2});
+  const h = LIVE_DIGEST.hurt[0];
+  h.game = {away: 'XA', home: 'XB', ko: '2026-10-06T00:30:00Z', kick: 'Mon 5:15 PM'};
+  LIVE_DIGEST.lead = {rule: 'hurt', index: 0};
+  DG_CUT = null; render();
+}"""
+BANNER_AT = """([at, state]) => {
+  Date.now = () => Date.parse(at);
+  for (const g of GD_GAMES) if (['NYG', 'DAL', 'XA', 'XB', 'XC', 'XD'].includes(g.home)) GD_STATS.games[g.home] = GD_STATS.games[g.away] = state;
+  paintDigestLive();
+}"""
+
+
+def _tap_banner(page):
+    page.locator(".dg-lead-go").click()
+    page.wait_for_selector("#modal.on")
+    page.keyboard.press("Escape")
+    page.wait_for_selector("#modal.on", state="detached")
+
+
+@pytest.mark.render
+def test_the_banner_opens_its_player_after_swapping_between_the_packets_lead_and_a_live_one(browser, page_file):
+    """The band is a data-dgslug button (wired once, when the page renders) or a data-dglv one (the page's
+    one listener). Between windows the packet's hurt lead stands; once a game is on the top scorer takes
+    it. The swap must render again, or the button swapped in is dead."""
+    ctx, page, errors = _digest_page(browser, page_file)
+    page.evaluate(PLANT_WEEK, _live_cfg(at="2026-10-05T09:00:00Z", sunState="complete", mon=["NYG", "DAL"]))
+    page.evaluate(EXTRA_LATE)
+    assert page.locator(".dg-lead-go[data-dgslug]").count() == 1 and page.locator(".dg-mnf").count() == 0
+    _tap_banner(page)
+    page.evaluate(BANNER_AT, ["2026-10-05T15:30:00Z", "in_game"])
+    assert page.locator(".dg-lead-go[data-dglv]").count() == 1 and "points" in page.locator(".dg-lead-h").inner_text()
+    _tap_banner(page)
+    page.evaluate(BANNER_AT, ["2026-10-05T09:00:00Z", "pre_game"])
+    assert page.locator(".dg-lead-go[data-dgslug]").count() == 1 and "points" not in page.locator(".dg-lead-h").inner_text()
+    _tap_banner(page)
+    ctx.close()
+    assert errors == []
+
+
+@pytest.mark.render
+def test_the_tds_link_opens_lives_tds_tab_even_when_storage_throws(browser, page_file):
+    ctx, page, errors = _digest_page(browser, page_file)
+    page.evaluate(PLANT_WEEK, _live_cfg(noHurt=True))
+    page.evaluate("() => { const no = () => { throw new Error('blocked'); }; Storage.prototype.setItem = no; Storage.prototype.getItem = no; }")
+    page.locator(".dg-now-td").click()
+    assert page.evaluate("location.hash") == "#live"
+    assert page.evaluate("gdTab()") == "tds"
+    ctx.close()
+    assert errors == []
+
+
+def test_the_digests_data_layer_calls_no_surface_function():
+    """model -> contract -> view: data/digest.js (dgWaiting reads the last game's slot) names nothing
+    that surface/digest/ declares, so it works with the surface files gone."""
+    src = pathlib.Path(__file__).resolve().parents[1] / "design" / "src" / "js"
+    data = (src / "data" / "digest.js").read_text(encoding="utf-8")
+    declared = set()
+    for f in (src / "surface" / "digest").glob("*.js"):
+        declared |= set(re.findall(r"^(?:function|const|let)\s+([A-Za-z_]\w*)", f.read_text(encoding="utf-8"), re.M))
+    code = re.sub(r"/\*.*?\*/|//[^\n]*", "", data, flags=re.S)
+    leaked = sorted(n for n in declared if re.search(rf"(?<![\w.]){n}\b", code)
+                    and not re.search(rf"^(?:function|const|let)\s+{n}\b", code, re.M))
+    assert leaked == []
+    assert "function dgMnfSlot" in data and "function dgWeek" in data
+
+
+@pytest.mark.render
+def test_a_league_with_nobody_left_is_one_line_and_one_with_a_player_left_is_the_block(browser, page_file):
+    """Monday's card (360px): a decided league collapses to its name, the score and won or lost (plus the
+    median gap); the full block is only for a league with someone still to play. A long team name ends in
+    an ellipsis and the title stays on one line."""
+    ctx, page, errors = _digest_page(browser, page_file, viewport=(360, 800))
+    # Neither side has anyone in the late game (two clubs no lineup holds): decided.
+    page.evaluate(PLANT_WEEK, _live_cfg(at="2026-10-05T09:00:00Z", sunState="complete", mon=["ZZA", "ZZB"]))
+    gap = _gap(page)
+    card = page.locator(".dg-mnf")
+    assert card.count() == 1
+    done = card.locator(".dg-mnf-lg")
+    assert done.count() == 1 and "done" in done.get_attribute("class")
+    assert card.locator(".dg-mnf-c, .dg-mnf-say, .dg-mnf-score").count() == 0
+    text = done.inner_text().replace("\n", " ")
+    assert re.search(r"\d+\.\d – \d+\.\d", text) and ("won" in text if gap > 0 else "lost" in text)
+    assert done.locator(".dg-mnf-med").count() == 1                                    # the ESPN league has a median
+    assert done.bounding_box()["height"] < 70
+    # Someone is left on a side, and the team names are long: the full block, ellipsized, inside the card.
+    page.evaluate(PLANT_WEEK, _live_cfg(at="2026-10-05T09:00:00Z", sunState="complete", mon=["CHI", "DEN"],
+                                         stats={"4217": {"rec": 5, "rec_yd": 600}}))
+    page.evaluate("""() => { for (const tm of Object.values(GD.leagues[0].teams)) tm.name = '\\u{1F3C8} The Very Long Team Name That Will Not Fit \\u{1F3C6}';
+      DG_CUT = null; render(); }""")
+    assert page.locator(".dg-mnf-lg:not(.done)").count() == 1 and page.locator(".dg-mnf-c").count() == 2
+    box = page.locator(".dg-mnf").bounding_box()
+    names = page.locator(".dg-mnf-score .dg-mnf-nm")
+    assert names.count() == 2
+    for i in range(2):
+        b = names.nth(i).bounding_box()
+        assert b["x"] + b["width"] <= box["x"] + box["width"]
+        assert names.nth(i).evaluate("e => getComputedStyle(e).textOverflow") == "ellipsis"
+        assert names.nth(i).evaluate("e => e.scrollWidth > e.clientWidth")
+    assert page.locator(".dg-mnf-h b").bounding_box()["height"] < 30                  # "Monday night" on one line
+    assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+    ctx.close()
+    assert errors == []

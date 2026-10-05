@@ -1,6 +1,7 @@
 /* ============================== LIVE: THE LEAGUE ==============================
-   Which league is on screen, every game in it as its state over a row of two boxes, one team each
-   (tap either to see both lineups), and every team's total against the week's median. Only a league
+   Which league is on screen, every game in it as its state over one row of two teams and their
+   scores (tap it to see both lineups in the Matchup tab), and every team's total against the
+   week's median. Only a league
    that pays the top half a second win (ESPN's WIN_BONUS_TOP_HALF) draws the line in lime; in the
    others the ranking is for bragging and the line is grey. */
 
@@ -23,18 +24,18 @@ function gdGameState(a, b){
   return `<small class="gd-gs">${GD_LOCK}${t("live.state.final")}</small>`;
 }
 
-/* Each box is a name and a score, nothing else (DESIGN.md "Say it in a shape": two things per
-   repeated item). The side behind is grey; a finished game's winner gets the trophy, which also
-   says the game is over. Who is top or bottom half is the ranking card's job, right below. */
+/* One compact row per game (2026-10-04): both team names and live scores, the leader bright, the
+   side behind grey; a finished game's winner gets the trophy, which also says the game is over.
+   A tap opens it in the Matchup tab (live.js wireLive). Who is top or bottom half is the ranking
+   card's job, right below. */
 function gdGamesHTML(lg, sides, on){
-  const box = (s, cls, cup) => `<span class="gd-bx${cls}">
-      <span class="gd-bx-n"><span>${esc(s.name)}</span>${cup ? GD_CUP : ""}</span><b>${gdNum(s.total)}</b></span>`;
+  const half = (s, o, cls, final) => `<span class="gd-gn ${cls}${s.total < o.total ? " behind" : ""}"><span>${esc(s.name)}</span>${final && s.total > o.total ? GD_CUP : ""}</span>
+      <b class="gd-gp ${cls}${s.total < o.total ? " behind" : ""}">${gdNum(s.total)}</b>`;
   const rows = lg.games.map(g => {
     const a = sides[g[0]], b = sides[g[1]], picked = on && on[0] === g[0] && on[1] === g[1];
     const final = !(a.playing + b.playing + a.left + b.left);
-    const side = (s, o) => box(s, s.total < o.total ? " behind" : "", final && s.total > o.total);
     return `<button type="button" class="gd-g${picked ? " on" : ""}${g.includes(lg.me) ? " mine" : ""}" data-gdgame="${esc(g.join(","))}"
-      aria-pressed="${!!picked}">${gdGameState(a, b)}${side(a, b)}${side(b, a)}</button>`;
+      aria-pressed="${!!picked}">${gdGameState(a, b)}${half(a, b, "a", final)}${half(b, a, "b", final)}</button>`;
   }).join("");
   return `<section class="gd-games gd-card"><h3>${t("live.games", {week: lg.week})}</h3>${rows}</section>`;
 }

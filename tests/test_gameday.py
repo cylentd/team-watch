@@ -100,8 +100,9 @@ def test_a_defense_and_a_kicker_find_their_sleeper_ids():
 # --------------------------------------------------------------------------- the trimmed endpoint
 
 def test_stats_query_is_checked_before_sleeper_is_asked():
-    assert api_stats.parse("week=3&ids=8183,SEA")[0] == (3, frozenset({"8183", "SEA"}), frozenset())
-    assert api_stats.parse("week=3&teams=CHI,PHI")[0] == (3, frozenset(), frozenset({"CHI", "PHI"}))
+    assert api_stats.parse("week=3&ids=8183,SEA")[0] == (3, frozenset({"8183", "SEA"}), frozenset(), False)
+    assert api_stats.parse("week=3&teams=CHI,PHI")[0] == (3, frozenset(), frozenset({"CHI", "PHI"}), False)
+    assert api_stats.parse("week=3&ids=1&lead=1")[0][3] is True
     assert api_stats.parse("week=30&ids=1")[0] is None
     assert api_stats.parse("week=3&ids=1;drop")[0] is None
     assert api_stats.parse("week=3")[0] is None
@@ -118,6 +119,19 @@ def test_the_box_is_every_player_of_the_two_clubs_named_and_no_defense():
             {"player_id": "4", "team": "PHI", "player": {"first_name": "A", "last_name": "B", "position": "WR"}, "stats": {"gp": 1}}]
     assert api_stats.box(rows, frozenset({"CHI", "PHI"})) == {
         "1": {"n": "D'Andre Swift", "pos": "RB", "team": "CHI", "s": {"rush_att": 6, "rush_yd": 22}}}
+
+
+def test_the_lead_is_every_touchdown_and_the_top_scorers_league_wide():
+    row = lambda pid, pos, s: {"player_id": pid, "team": "CHI", "stats": s,
+                               "player": {"first_name": "P", "last_name": pid, "position": pos}}
+    rows = [row(str(i), "WR", {"rec": 1, "rec_yd": 10 + i}) for i in range(api_stats.LEAD_TOP + 5)]
+    rows += [row("td", "TE", {"rec": 1, "rec_yd": 2, "rec_td": 1}), row("ol", "OL", {"rush_td": 1}),
+             row("half", "RB", {"rush_yd": 1, "pts_half_ppr": 99.04})]
+    got = api_stats.lead(rows)
+    assert got["td"]["s"]["rec_td"] == 1 and "ol" not in got           # a TD always rides; no linemen
+    assert got["half"]["pts"] == 99.0                                    # Sleeper's own half-PPR wins
+    assert "0" not in got and str(api_stats.LEAD_TOP + 4) in got         # the lowest scorers fall off
+    assert len(got) == api_stats.LEAD_TOP                                # the TD is already a top scorer here
 
 
 def test_stats_keep_only_wanted_players_and_scored_fields():
@@ -183,24 +197,22 @@ def test_the_board_says_where_each_game_is_and_a_row_opens_his_profile(browser, 
     page.evaluate(plant())
     for kind, sel in go("live"):
         page.click(sel)
-    page.wait_for_selector(".gd-row")
-    # each row's game line: a lime LIVE while it is on, a lock and "Final" once done, the kickoff
-    # before (and no stat line, and a dash for points); the second number is his projection, unlabelled
-    states = page.evaluate("""() => [...document.querySelectorAll('.gd-lineup.mine .gd-row')].map(r =>
-      [r.dataset.gdteam, r.classList.contains('on') ? 'LIVE' : r.classList.contains('pre') ? 'PRE' : 'FINAL',
-       !!r.querySelector('.gd-slot.locked')])""")
-    by_team = {team: (st, locked) for team, st, locked in states}
-    assert by_team.get("SF") == ("LIVE", True) and by_team.get("DET") == ("PRE", False)
-    assert ("FINAL", True) in by_team.values()
-    # the lock is the slot's alone: the game line never repeats it, nor says LIVE or FINAL
-    assert page.locator(".gd-game svg").count() == 0
-    assert not any(re.search(r"\b(LIVE|FINAL)\b", s) for s in page.locator(".gd-game").all_inner_texts())
+    page.wait_for_selector(".gd-mr")
+    # each of my halves (the left one of a mirrored row, tabs: surface/live/tabs.js): tinted while his
+    # game is on, the kickoff before (and a dash for points); the second number is his projection,
+    # unlabelled
+    states = page.evaluate("""() => [...document.querySelectorAll('.gd-mirror:not(.bn) .gd-h.l')].map(r =>
+      [r.querySelector('.gd-nb').dataset.gdteam, r.classList.contains('on') ? 'LIVE' : r.classList.contains('pre') ? 'PRE' : 'FINAL'])""")
+    by_team = dict(states)
+    assert by_team.get("SF") == "LIVE" and by_team.get("DET") == "PRE" and "FINAL" in by_team.values()
+    # a game's second line is its clock; a final game says so, and no lock sits in the row
+    assert page.locator(".gd-mirror svg:not(.gd-flame)").count() == 0
     # lime points mean his game is on, and nothing else; a flame beside the points means he passed his
     # projection by the Digest's own Smashed margin, and nothing marks his face
     lime = page.evaluate("getComputedStyle(document.body).getPropertyValue('--lime').trim()")
-    rows = page.evaluate("""() => [...document.querySelectorAll('.gd-row')].map(r => ({on: r.classList.contains('on'),
+    rows = page.evaluate("""() => [...document.querySelectorAll('.gd-h:not(.empty)')].map(r => ({on: r.classList.contains('on'),
       lime: getComputedStyle(r.querySelector('.gd-pts')).color, fire: !!r.querySelector('.gd-pts .gd-flame'),
-      ring: r.querySelector('.gd-hd').classList.contains('smashed'),
+      ring: false,
       pts: parseFloat(r.querySelector('.gd-pts').textContent), proj: parseFloat(r.querySelector('.gd-proj').textContent)}))""")
     lime_rgb = page.evaluate("(c) => { const d = document.createElement('i'); d.style.color = c; document.body.append(d); const v = getComputedStyle(d).color; d.remove(); return v; }", lime)
     smash = page.evaluate("LIVE_DIGEST.rules.smashed.min")
@@ -209,38 +221,43 @@ def test_the_board_says_where_each_game_is_and_a_row_opens_his_profile(browser, 
     assert all(r["fire"] == (known(r) and r["pts"] - r["proj"] >= smash) for r in rows)
     assert any(r["fire"] for r in rows) and not any(r["ring"] for r in rows)
     assert any(known(r) and 0 < r["pts"] - r["proj"] < smash for r in rows)    # a beat, not a smash: no flame
-    assert all(re.match(r"^(\d+\.\d)?$", s) for s in page.locator(".gd-lineup.mine .gd-proj").all_inner_texts())
-    assert page.locator(".gd-median:not(.quiet)").count() == 1         # ESPN pays the top half
-    # every game states itself on the line above its boxes; a box is a name and a score, and only a
-    # finished game's winner carries the trophy
+    assert all(re.match(r"^(\d+\.\d)?$", s) for s in page.locator(".gd-h.l .gd-proj").all_inner_texts())
+    # rows are shaded every other one; a half whose game is on is tinted over that
+    assert page.locator(".gd-mirror:not(.bn)").evaluate("""m => {
+      const bg = r => getComputedStyle(r).backgroundColor, rs = [...m.querySelectorAll('.gd-mr')];
+      return rs.every((r, i) => i < 2 || bg(r) === bg(rs[i - 2])) && bg(rs[0]) !== bg(rs[1]); }""")
+    assert page.locator(".gd-h.on").count() > 0 and page.locator(".gd-h.on").first.evaluate("e => getComputedStyle(e).backgroundColor") != "rgba(0, 0, 0, 0)"
+    # my game says who leads in words; the bench is drawn, dimmed, and left out of the total
+    assert re.match(r"^(UP|DOWN) \d+\.\d$|^TIED$", page.locator(".gd-lead").inner_text())
+    assert page.locator(".gd-mirror.bn").count() == 0                  # shut until the Benches row opens it
+    page.click("[data-gdbench]")
+    assert page.locator(".gd-mirror.bn .gd-mr").count() > 0
+    page.locator(".gd-mirror .gd-nb").first.click()
+    page.wait_for_selector("#modal.on")
+    page.keyboard.press("Escape")
+    page.click("[data-gdleague='yahoo']")
+    assert "Chat Take the Wheel" in page.locator(".gd-head").inner_text()
+    # the League tab: ESPN pays the top half, Yahoo ranks for bragging. Every game states itself on
+    # the line above its row; a row is two names and two scores, and only a finished game's winner
+    # carries the trophy
+    page.click("[data-gdleague='espn']")
+    page.click("[data-gdtab='league']")
+    assert page.locator(".gd-median:not(.quiet)").count() == 1
     tags = page.locator(".gd-gs").all_inner_texts()
     assert len(tags) == page.locator(".gd-g").count()
     assert all(re.match(r"^(LIVE · \d+ LEFT|\d+ LEFT|FINAL)$", s.strip()) for s in tags)
     assert page.locator(".gd-g").evaluate_all("gs => gs.every(g => g.firstElementChild.classList.contains('gd-gs'))")
     assert page.locator(".gd-cup").count() == sum(1 for s in tags if s.strip() == "FINAL")
     assert page.locator(".gd-g.on").count() == 1 and page.locator(".gd-g.mine.on").count() == 1
-    # rows are shaded every other one, and a row whose game is on is tinted; nothing else lights a row
-    assert page.locator(".gd-lineup").evaluate_all("""ls => ls.every(l => {
-      const all = [...l.querySelectorAll('.gd-row')], bg = r => getComputedStyle(r).backgroundColor;
-      const rest = all.map((r, i) => [r, i]).filter(([r]) => !r.classList.contains('on'));
-      const shade = i => bg(rest.find(([, j]) => j % 2 === i % 2)[0]);
-      return rest.every(([r, i]) => bg(r) === shade(i)) && all.filter(r => r.classList.contains('on')).every(r => bg(r) !== shade(0) && bg(r) !== shade(1)); })""")
-    # my game says who leads in words; the bench is drawn, dimmed, and left out of the total
-    assert re.match(r"^(UP|DOWN) \d+\.\d$|^TIED$", page.locator(".gd-lead").inner_text())
-    assert page.locator(".gd-lineup.mine .gd-row.bn").count() > 0
-    page.locator(".gd-lineup.mine .gd-row").first.click()
-    page.wait_for_selector("#modal.on")
-    page.keyboard.press("Escape")
     page.click("[data-gdleague='yahoo']")
     assert page.locator(".gd-median.quiet").count() == 1               # Yahoo ranks for bragging
-    assert "Chat Take the Wheel" in page.locator(".gd-head").inner_text()
-    # another game in the league opens its two lineups, takes the outline from mine, and its chip
-    # names no side
+    # another game in the league opens its two lineups in the Matchup tab, and its chip names no side
     other = page.locator(".gd-g:not(.mine)").first
     other.click()
     assert "Chat Take the Wheel" not in page.locator(".gd-head").inner_text()
-    assert page.locator(".gd-g.on").count() == 1 and page.locator(".gd-g.mine.on").count() == 0
     assert re.match(r"^BY \d+\.\d$|^TIED$", page.locator(".gd-lead").inner_text())
+    page.click("[data-gdtab='league']")
+    assert page.locator(".gd-g.on").count() == 1 and page.locator(".gd-g.mine.on").count() == 0
     ctx.close()
     assert errors == []
 
@@ -278,19 +295,21 @@ def test_the_game_sheet_opens_from_nfl_now_and_draws_four_cards(browser, page_fi
     page.evaluate(plant({"DET": "in_game", "SEA": "in_game"}))
     for kind, sel in go("live"):
         page.click(sel)
-    page.wait_for_selector(".gd-row")
-    # the card lists the games on now, each drawn like a league game: its state over two clubs
-    tile = page.locator(".gd-now [data-gdnfl]")
+    page.wait_for_selector(".gd-mr")
+    # the Games tab lists every game of the week, the one on now first: its clock over two clubs
+    page.click("[data-gdtab='games']")
+    tile = page.locator(".gd-tiles .gd-t.in")
     assert tile.count() == 1 and tile.get_attribute("data-gdnfl") == "401871234,DET,SEA"
-    assert tile.locator(".gd-gs.live").inner_text().startswith("LIVE")
+    assert tile.locator(".gd-ts span").inner_text() == "Live"
     tile.click()
     page.wait_for_selector("#gamesheet.on")
     page.evaluate("""([s, b]) => { GS = {event: "1", away: "DET", home: "BUF"}; GS_GAME = gsShape(s); GS_BOX = {box: b}; GS_ERR = ""; gsPaint(); }""",
                   [SUMMARY, BOX])
     sheet = page.locator("#gamesheet")
-    assert sheet.locator(".gs-card").count() == 4
+    assert sheet.locator(".gs-card").count() == 5        # scoreboard, yours, then a card per tab (one shows)
     assert sheet.locator(".gs-t.behind b").inner_text() == "31"            # DET 31, BUF 41: final
     # drives newest first, the newest open, the rest one line each; no "END QUARTER" rows
+    sheet.locator("[data-gstab='plays']").click()
     drives = sheet.locator(".gs-drv")
     assert drives.count() == 5 and drives.first.get_attribute("open") is not None
     assert sheet.locator(".gs-drv[open]").count() == 1
@@ -301,9 +320,11 @@ def test_the_game_sheet_opens_from_nfl_now_and_draws_four_cards(browser, page_fi
     page.evaluate("new Promise(r => setTimeout(() => { gsPaint(); r(); }, 0))")    # "toggle" is a task after the click
     assert sheet.locator(".gs-drv[open]").count() == 2
     # top scorers, best first, in the league's own scoring
-    pts = [float(x) for x in sheet.locator(".gs-sc > b").all_inner_texts()]
+    sheet.locator("[data-gstab='top']").click()
+    pts =[float(x) for x in sheet.locator(".gs-sc > b").all_inner_texts()]
     assert len(pts) == 5 and pts == sorted(pts, reverse=True)
     # the box score shows one club at a time
+    sheet.locator("[data-gstab='box']").click()
     assert sheet.locator(".gs-seg [aria-pressed='true']").inner_text() == "Lions"
     sheet.locator(".gs-seg button").nth(1).click()
     assert sheet.locator(".gs-seg [aria-pressed='true']").inner_text() == "Bills"

@@ -109,11 +109,47 @@ function dgHas(id){
 /* Is there news in it, which is what earns the day's open: anything at all. */
 const dgNew = id => dgHas(id);
 
+/* Where the week stands (2026-10-04; lived in surface/digest until the model-to-view direction was
+   restored). One game of the week is "pre", "live" or "final", from the clock the views share (ESPN's,
+   else Sleeper's) and then the time: past kickoff plus the padding live.js keeps for a game's length
+   with no word from either. */
+const DG_LATE_MAX = 2;      // a last day with more games than this is the main slate, not a standalone slot
+function dgGameState(g, now){
+  const c = gdClockOf(g.home).state;
+  if (c === "post") return "final";
+  if (c === "in") return "live";
+  const k = Date.parse(g.kickoff);
+  if (isNaN(k) || k > now) return "pre";
+  return now < k + GD_GAME_MS ? "live" : "final";
+}
+
+const dgDayKey = k => { const d = new Date(k); return d.getFullYear() * 10000 + d.getMonth() * 100 + d.getDate(); };
+
+/* `mnf` is the standalone last slot (Monday, or any last game on a day of its own) once every game
+   before its day is final and it is not: [{g, k, st}], else null. */
+function dgWeek(now){
+  const rows = gdWeekGames().map(g => ({g, k: Date.parse(g.kickoff), st: dgGameState(g, now)})).filter(r => !isNaN(r.k));
+  if (!rows.length) return {rows, started: false, done: false, mnf: null};
+  const last = Math.max(...rows.map(r => dgDayKey(r.k)));
+  const late = rows.filter(r => dgDayKey(r.k) === last), early = rows.filter(r => dgDayKey(r.k) < last);
+  const done = rows.every(r => r.st === "final");
+  const mnf = !done && early.length && late.length <= DG_LATE_MAX && early.every(r => r.st === "final")
+    && late.some(r => r.st !== "final") ? late : null;
+  return {rows, started: rows.some(r => r.st !== "pre"), done, mnf};
+}
+
+/* The late slot, once the poll has said where everyone stands: [{g, k, st}] or null. */
+function dgMnfSlot(now){
+  if (!GD_STATS || !GD.leagues.length) return null;
+  return dgWeek(now).mnf;
+}
+
 /* The week's preview rows, and whether they are waiting on next week: every game has kicked off
    and tonight's card is gone. They then leave the ticker for one card (surface/digest/wait.js).
    Weather and Top 5 no longer wait (2026-09-29): both read next week's data the page already has. */
 const DG_WAIT_ROWS = ["hurt", "mu"];
-const dgWaiting = d => !!d && !d.tn.length && dgWeekDone(d);
+/* The last game's card (surface/digest/mnf.js) is a card of the week, so the wait does not start under it. */
+const dgWaiting = d => !!d && !d.tn.length && dgWeekDone(d) && dgMnfSlot(Date.now()) === null;
 
 /* Is the row drawn at all: Results once a game is final, and the week's preview rows unless
    tonight's card holds everything the week has left, or the week is over and they wait. */

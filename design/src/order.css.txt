@@ -97,6 +97,7 @@ surface/digest/results.css
 surface/digest/headlines.css
 # pin: digest/need.css after headlines.css -- a fact tile's .dg-fact .dg-tile-v resizes the tile's number.
 surface/digest/need.css
+surface/digest/now.css
 surface/digest/wait.css
 surface/digest/tabs.css
 surface/digest/ahead.css
@@ -114,6 +115,8 @@ surface/trades/trades.css
 surface/trades/curses.css
 surface/chat/chat.css
 surface/live/live.css
+surface/live/mirror.css
+surface/live/tds.css
 surface/live/gamesheet.css
 surface/strip/field.css
 surface/strip/figure.css

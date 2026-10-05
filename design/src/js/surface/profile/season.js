@@ -118,6 +118,74 @@ function seasonProj(p, prof, pos, wk){
   return {pts: `${proj.toFixed(1)}<small>${sub}</small>`, note};
 }
 
+/* ------------------------------------------------------------------ this week, live (2026-10-04)
+   LIVE_GAMELOG is cut at build time and lags until the nightly rebuild: on a Sunday his profile said
+   "No stats" while Live had scored him. For the page's week, with no row in the log yet, the row is
+   drawn from the poll Live already runs (live.js). His stats come from, in order: his own row in the
+   poll (a player on one of my rosters, by Sleeper id), then the league-wide leaders (by name and
+   club). No Sleeper id and no leader row means no stats, and the row stays as it was. */
+const SEASON_LIVE_POS = ["QB", "RB", "WR", "TE"];
+let SEASON_OPEN = null, SEASON_LAST = "";       // the profile on screen, and the table last drawn for it
+
+const seasonNameKey = n => String(n || "").toLowerCase().replace(/\b(jr|sr|ii|iii|iv)\b/g, "").replace(/[^a-z]/g, "");
+/* The standard half-PPR sum, for a row Sleeper sent no total for. */
+const seasonHalfPpr = s => (s.pass_yd || 0) * 0.04 + (s.pass_td || 0) * 4 - (s.pass_int || 0) * 2
+  + (s.rush_yd || 0) * 0.1 + (s.rush_td || 0) * 6 + (s.rec || 0) * 0.5 + (s.rec_yd || 0) * 0.1
+  + (s.rec_td || 0) * 6 - (s.fum_lost || 0) * 2;
+
+function seasonSid(slug){
+  for (const lg of GD.leagues) for (const tm of Object.values(lg.teams)) for (const r of tm.lineup) if (r.slug === slug && r.sid) return r.sid;
+  return null;
+}
+
+function seasonLiveStats(p, team){
+  if (!GD_STATS) return null;
+  const sid = seasonSid(p.slug), own = sid && GD_STATS.stats ? GD_STATS.stats[sid] : null;
+  if (own && Object.keys(own).length) return {s: own};
+  return Object.values(GD_STATS.lead || {}).find(v => seasonNameKey(v.n) === seasonNameKey(p.n) && gdSameClub(team, v.team)) || null;
+}
+
+/* His live line in the log's own columns, and his points in the log's own scoring: half-PPR. */
+function seasonLiveShape(hit){
+  const s = hit.s, n = k => +(s[k] || 0);
+  const pts = s.pts_half_ppr ?? hit.pts ?? seasonHalfPpr(s);
+  return {pts: Math.round(pts * 10) / 10, car: n("rush_att"), rush_yds: n("rush_yd"), rush_td: n("rush_td"),
+    tgt: n("rec_tgt"), rec: n("rec"), rec_yds: n("rec_yd"), rec_td: n("rec_td"), pass_yds: n("pass_yd"), pass_td: n("pass_td")};
+}
+
+/* {wk, clock, row} for this week's game once it has kicked off, or null. `repaint` is a redraw from a
+   poll: only an opened profile asks for the poll, so a failed one cannot loop through gd:stats. */
+function seasonLive(p, team, pos, games, log, repaint){
+  const wk = (GD.leagues[0] || {}).week || (GD_STATS && GD_STATS.week), g = games[wk];
+  if (!g || log[wk] || !SEASON_LIVE_POS.includes(pos) || Date.parse(g.kickoff) > Date.now()) return null;
+  if (!repaint && PAGE_SERVED()) gdEnsure();
+  const clock = gdClockOf(team), hit = clock.state === "pre" ? null : seasonLiveStats(p, team);
+  return hit ? {wk, clock, row: seasonLiveShape(hit)} : null;
+}
+
+/* In progress: lime, "Q3 4:12 · live", the label under the number on a phone. Final: a played row. */
+function seasonLiveRowHTML(g, pos, live, stats){
+  const ck = live.clock, r = live.row;
+  const label = !ck.live || ck.label === t("live.clock.live") ? ck.label : t("profile.season.liveLabel", {clock: ck.label});
+  return seasonRowHTML("ss-played" + (ck.live ? " ss-live" : ""),
+    ssCell("ss-wk", g.week) + ssCell("ss-opp-c", seasonOppHTML(g, pos)) + ssCell("ss-date", esc(label))
+    + ssCell("ss-pts", glNum(r.pts) + (ck.live ? `<small>${esc(label)}</small>` : ""))
+    + ssCell("ss-line", seasonLine(pos, r)) + stats(c => glNum(r[c.id])));
+}
+
+/* Every poll redraws the open table in place; closed, or on another pane, it does nothing. */
+function seasonRepaint(){
+  const el = document.querySelector("#modal.on .pf-season");
+  if (!el || !SEASON_OPEN) return;
+  const was = SEASON_LAST, html = seasonHTML(SEASON_OPEN.p, SEASON_OPEN.prof, true);
+  if (html && html !== was) el.outerHTML = html;
+}
+document.addEventListener("gd:stats", seasonRepaint);
+/* Live and the Digest run the poll themselves; over any other view an open profile keeps it going. */
+setInterval(() => {
+  if (SEASON_OPEN && !gdOnScreen() && document.querySelector("#modal.on .pf-season") && PAGE_SERVED() && gdPlaying(Date.now())) gdEnsure();
+}, 30000);
+
 function seasonTotalHTML(pos, rows, stats){
   const tot = Object.fromEntries(["pts", "car", "rush_yds", "rush_td", "rec", "rec_yds", "rec_td", "tgt", "pass_yds", "pass_td"]
     .map(k => [k, glSum(rows, k)]));
@@ -133,13 +201,15 @@ function seasonHeadHTML(pos, cols){
     + cols.map(c => ssHead("ss-stat", c.label())).join(""));
 }
 
-function seasonHTML(p, prof){
-  const pos = prof ? prof.pos : p.pos;
-  const games = seasonGames(prof ? prof.team : p.team);
+function seasonHTML(p, prof, repaint){
+  const pos = prof ? prof.pos : p.pos, team = prof ? prof.team : p.team;
+  const games = seasonGames(team);
   const rows = gamelogRows(p.slug);
   if (!Object.keys(games).length && !rows.length) return "";
+  SEASON_OPEN = {p, prof};
   const log = Object.fromEntries(rows.map(r => [r.wk, r]));
-  const cols = gamelogCols(rows);
+  const live = seasonLive(p, team, pos, games, log, repaint);
+  const cols = gamelogCols(live ? [...rows, live.row] : rows);
   const {shown, isBye} = seasonWeeks(p, rows);
   const now = Date.now();
   const stats = get => cols.map(c => ssCell("ss-stat", get(c))).join("");
@@ -151,6 +221,7 @@ function seasonHTML(p, prof){
       if (isBye(wk)) body.push(seasonRowHTML("ss-bye", ssCell("ss-wk", wk) + ssCell("ss-opp-c", t("profile.season.bye"))));
       continue;
     }
+    if (live && wk === live.wk){ body.push(seasonLiveRowHTML(g, pos, live, stats)); continue; }
     const opp = g ? seasonOppHTML(g, pos) : `<span class="ss-opp">${esc(r.opp || "—")}</span>`;
     if (r || !g || Date.parse(g.kickoff) + SCHED_GRACE_MS < now){
       const open = seasonOpens(p, r);
@@ -172,6 +243,7 @@ function seasonHTML(p, prof){
       + (proj.note ? ssCell("ss-note", proj.note) : "")));
   }
   if (rows.length) body.push(seasonTotalHTML(pos, rows, stats));
-  return `<div class="pf-season" role="table" aria-label="${t("profile.season.label")}" style="--ss-n:${Math.max(1, cols.length)}">`
+  SEASON_LAST = `<div class="pf-season" role="table" aria-label="${t("profile.season.label")}" style="--ss-n:${Math.max(1, cols.length)}">`
     + seasonHeadHTML(pos, cols) + body.join("") + `</div>`;
+  return SEASON_LAST;
 }

@@ -96,6 +96,9 @@ function dgLeadNews(it){
 function dgLead(){
   const d = dgD();
   if (!d) return {tone: "quiet", photo: "", head: t("digest.empty.head"), fact: t("digest.empty.sub")};
+  // Once games are on, the banner is the day's top score (now.js), or the last game's matchup (mnf.js).
+  const live = dgLeadLive(d);
+  if (live) return live;
   const l = d.lead;
   if (l && l.rule === "results") return dgLeadRes(d);
   const row = l && d.leadRows[l.rule] ? d.leadRows[l.rule][l.index] : null;
@@ -117,7 +120,8 @@ function dgLeadHTML(){
   /* A lead about one player opens his profile from anywhere on the band (2026-09-29, David: "should
      we be able to click on players to open their profile?"). A button laid over the band, not the
      band made a button, so the headline stays a heading. */
-  const go = L.slug ? `<button type="button" class="dg-lead-go" data-dgslug="${esc(L.slug)}"
+  const who = L.live ? dgLvAttrs(L.live) : `data-dgslug="${esc(L.slug)}"`;   // a live scorer opens through now.js's one listener
+  const go = L.slug ? `<button type="button" class="dg-lead-go" ${who}
     aria-label="${esc(t("digest.lead.open", {n: L.name || ""}))}"></button>` : "";
   return `<article class="dg-lead ${L.tone}${L.photo ? " has-photo" : ""}${go ? " opens" : ""}"${L.team ? " " + teamColourStyle(L.team) : ""}>
     ${go}${L.ghost ? `<span class="dg-ghost" aria-hidden="true">${dgGhostChars(L.ghost)}</span>` : ""}

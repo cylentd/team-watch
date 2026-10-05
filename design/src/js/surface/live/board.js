@@ -1,7 +1,7 @@
 /* ============================== LIVE: THE MATCHUP ==============================
-   One game of the league on screen: both scores, then both lineups in slot order the way ESPN and
-   Yahoo draw them. Each row says where his game is -- PLAYING, FINAL, or its kickoff with his
-   projection -- and how he earned his points ("6/7 rec · 82 yds · 2 TD"). A row opens his profile. */
+   One game of the league on screen: both scores, the league median under them, then both lineups
+   mirrored slot by slot (mirror.js). The tabs above it (tabs.js) pick this or the Games, TDs and
+   League views; this file draws the Matchup one and assembles the page. */
 
 const gdNum = v => (Math.round(v * 10) / 10).toFixed(1);
 const gdSigned = v => (v >= 0 ? "+" : "−") + gdNum(Math.abs(v));
@@ -28,62 +28,6 @@ function gdSmashed(r){
   return r.state !== "pre_game" && p !== null && m !== null && (r.pts || 0) - p >= m;
 }
 
-function gdRightHTML(r){
-  const pulse = r.sid && GD_PULSE[r.sid] !== undefined ? `<em class="up">${gdSigned(GD_PULSE[r.sid])}</em>` : "";
-  const p = projFor(r), proj = `<span class="gd-proj">${p === null ? "" : gdNum(p)}</span>`;
-  if (r.state === "pre_game") return `<span class="gd-pts pre">—</span>${proj}`;
-  const flame = gdSmashed(r) ? `<svg class="gd-flame" viewBox="0 0 24 24" role="img" aria-label="${t("live.row.smashed")}">${GD_FLAME}</svg>` : "";
-  return `<span class="gd-pts">${pulse}${flame}${gdNum(r.pts || 0)}</span>${proj}`;
-}
-
-const gdFaceHTML = r => `<span class="gd-hd">${avatarHTML(r)}</span>`;
-
-/* His game in one line: the score from his side while it is on ("up 24-17 vs NYJ"), W/L once it is
-   final ("W 36-30 vs ARI"), the kickoff before. The row's tint says it is on and the slot's lock says
-   it has started, so the line names neither. The score is Sleeper's (nflnow.js gdClubScore). */
-function gdGameHTML(r){
-  /* A club missing from the schedule still says when its game is, without the score or opponent. */
-  const g = gdGameOf(r.team);
-  const opp = !g ? "" : g.home ? t("live.game.vs", {opp: esc(g.opp)}) : t("live.game.at", {opp: esc(g.opp)});
-  if (r.state === "pre_game"){
-    const k = g ? Date.parse(g.kickoff) : gdKickOf(r.team);
-    return [k === undefined || isNaN(k) ? "" : esc(gdClock(k)), opp].filter(Boolean).join(" ");
-  }
-  const a = g ? gdClubScore(r.team, g.opp) : null, b = g ? gdClubScore(g.opp, r.team) : null;
-  let sc = "";
-  if (a !== null && b !== null && a !== undefined && b !== undefined){
-    if (r.state === "in_game") sc = a > b ? t("live.game.up", {a, b}) : a < b ? t("live.game.down", {a, b}) : t("live.game.tied", {a, b});
-    else sc = a > b ? t("live.game.won", {a, b}) : a < b ? t("live.game.lost", {a, b}) : t("live.game.tie", {a, b});
-  }
-  return [sc, opp].filter(Boolean).join(" ");
-}
-
-/* A row: the slot as a pill (locked once his game kicks off), his face, name over his game over his
-   stats, points over projection. Every other row is shaded, so no rule sits between them; a row
-   whose game is on is tinted lime over that, and its points are lime. */
-function gdRowHTML(r, bench){
-  const lock = r.state === "pre_game" ? "" : GD_LOCK;
-  const game = gdGameHTML(r);
-  return `<button type="button" class="gd-row ${r.state === "in_game" ? "on" : r.state === "pre_game" ? "pre" : ""}${bench ? " bn" : ""}"
-    data-gdslug="${esc(r.slug)}" data-gdn="${esc(r.n)}" data-gdpos="${esc(r.pos)}" data-gdteam="${esc(r.team)}">
-    <span class="gd-slot${lock ? " locked" : ""}">${lock}${esc(r.slot)}</span>
-    ${gdFaceHTML(r)}
-    <span class="gd-who"><b>${esc(r.pos === "DEF" ? r.n.replace(/\s*D\/ST$/, "") : gdShort(r))} <small>${esc(r.team)} ${esc(r.pos === "DEF" ? r.slot : r.pos)}</small></b>
-      ${game ? `<span class="gd-game">${game}</span>` : ""}
-      ${r.state === "pre_game" ? "" : `<span class="gd-stat">${r.line ? esc(r.line) : t("live.line.none")}</span>`}</span>
-    <span class="gd-right">${gdRightHTML(r)}</span></button>`;
-}
-
-/* Starters, then the bench under its own line: dimmed, points shown, never in the total. */
-function gdLineupHTML(side, mine){
-  const bench = side.bench.length ? `<h4 class="gd-bench"><span>${t("live.bench")}</span>
-      <span>${t("live.benchTotal", {n: gdNum(side.benchTotal)})}</span></h4>
-    ${side.bench.map(r => gdRowHTML(r, true)).join("")}` : "";
-  return `<div class="gd-lineup${mine ? " mine" : ""}">
-    <h3><span>${mine ? t("live.yours") : esc(side.name)}</span><span>${gdNum(side.total)}</span></h3>
-    ${side.rows.map(r => gdRowHTML(r)).join("")}${bench}</div>`;
-}
-
 /* "3 playing · 2 to play", zeros left out so it fits beside a score on a phone. */
 const gdCounts = s => [s.playing ? t("live.count.playing", {n: s.playing}) : "",
   s.left ? t("live.count.left", {n: s.left}) : "", s.done && !s.playing && !s.left ? t("live.count.done", {n: s.done}) : ""]
@@ -106,6 +50,15 @@ function gdHeadHTML(a, b, lg){
   return `<div class="gd-head">${side(a, "a")}${gdLeadHTML(a, b, a.id === lg.me)}${side(b, "b")}</div>`;
 }
 
+/* Where I stand against the league's median, under the score: "League median 101.7 · you +3.3",
+   green above it, red below. Only a league that pays the top half draws it. */
+function gdMedianHTML(lg, sides){
+  if (!lg.median) return "";
+  const {median} = gdLadder(Object.values(sides)), me = sides[lg.me];
+  const you = me ? ` · ${t("live.med.you", {d: gdSigned(me.total - median)})}` : "";
+  return `<p class="gd-medline ${me && me.total < median ? "dn" : "up"}">${t("live.med.line", {n: gdNum(median)})}${you}</p>`;
+}
+
 function gdStampHTML(){
   const now = Date.now();
   if (GD_ERR && GD_STATS) return `<p class="gd-stamp warn">${t("live.stamp.stale", {when: esc(gdClock(GD_AT))})}</p>`;
@@ -118,17 +71,32 @@ function gdStampHTML(){
     : t("live.stamp.next", {at: esc(at), when: esc(gdClock(next))})}</p>`;
 }
 
+/* The Matchup tab: the game on screen (mine unless another was tapped in the League tab), its score
+   and the median under it, then the mirrored lineups. */
+function gdMatchupHTML(lg, sides){
+  const game = gdGame(lg);
+  let [a, b] = game ? [sides[game[0]], sides[game[1]]] : [];
+  if (b && b.id === lg.me) [a, b] = [b, a];
+  if (!(a && b)) return "";
+  return `<div class="gd-match">${gdHeadHTML(a, b, lg)}${gdMedianHTML(lg, sides)}${gdMirrorHTML(a, b)}</div>`;
+}
+
+/* The League tab: every matchup as one row, then the ranking. */
+const gdLeagueTabHTML = (lg, sides) => `<div class="gd-league">${gdGamesHTML(lg, sides, gdGame(lg))}${gdLadderHTML(lg, sides)}</div>`;
+
+/* The TDs tab is another file's (surface/live/tds.js); this one only hosts it. */
+const gdTdsTabHTML = lg => typeof gdTdsHTML === "function" ? gdTdsHTML(lg)
+  : `<div class="state-empty"><div><b>—</b><span>${t("live.tab.tdsEmpty")}</span></div></div>`;
+
 function gdBoardHTML(){
   const lg = gdLeague();
   if (!lg) return `<div class="state-empty"><div><b>—</b><span>${t("live.none")}</span></div></div>`;
   const stats = GD_STATS && GD_STATS.stats, states = (GD_STATS && GD_STATS.games) || {};
   const sides = Object.fromEntries(Object.keys(lg.teams).map(id => [id, gdSide(lg, id, stats, states)]));
-  const game = gdGame(lg);
-  let [a, b] = game ? [sides[game[0]], sides[game[1]]] : [];
-  if (b && b.id === lg.me) [a, b] = [b, a];
-  return gdNowHTML(lg) + gdLeaguesHTML(lg)
-    + (a && b ? `<div class="gd-match">${gdHeadHTML(a, b, lg)}
-        <div class="gd-lineups">${gdLineupHTML(a, a.id === lg.me)}${gdLineupHTML(b, false)}</div></div>` : "")
-    + `<div class="gd-league">${gdGamesHTML(lg, sides, game)}${gdLadderHTML(lg, sides)}</div>`
-    + gdStampHTML();
+  const tab = gdTab();
+  const body = tab === "games" ? gdGamesTabHTML(lg) : tab === "tds" ? gdTdsTabHTML(lg)
+    : tab === "league" ? gdLeagueTabHTML(lg, sides) : gdMatchupHTML(lg, sides);
+  /* The league chips pick a Yahoo or ESPN league: Games and TDs are NFL-wide, so they draw none. */
+  const chips = tab === "matchup" || tab === "league" ? gdLeaguesHTML(lg) : "";
+  return gdTabsHTML() + chips + body + gdStampHTML();
 }
