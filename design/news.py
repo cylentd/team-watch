@@ -43,6 +43,14 @@ KINDS = [
 ]
 KIND_RE = [(k, re.compile(p, re.I)) for k, p in KINDS]
 REST_DAY = re.compile(r"\(rest\b", re.I)
+# A later story that undoes an earlier `out` one: he is back, cleared, active or on the report no more.
+# `active` alone would match "inactive" and "active roster", so it is `active for` / `activated`.
+RETURN_RE = re.compile(
+    r"\bcleared\b|\bwill play\b|(?<!not )\bexpected to play\b|(?<!in)\bactive for\b|\bactivated\b|"
+    r"\bremoved from (?:the )?injury report\b|\boff (?:the )?injury report\b|"
+    r"\breturns\b|\breturned\b|\bgood to go\b|\bfull practice\b|\bfull participant\b", re.I)
+NOT_BACK_RE = re.compile(r"\bruled out\b|\bwon't play\b|\bwill not play\b|\bnot expected to play\b|"
+                         r"\bdoubtful\b|\bunlikely to play\b|\bnot cleared\b|\bsuspended\b|\bplaced on\b", re.I)
 
 
 def news_kind(it):
@@ -54,6 +62,26 @@ def news_kind(it):
                     return "practice" if REST_DAY.search(it.get("title") or "") else "injury"
                 return "practice" if kind == "cleared" else kind
     return "news"
+
+
+def is_return(it):
+    """True when the story says the player is back: a return pattern in its title (or, when the title is
+    silent, its desc and impact) and nothing in the same text that says he is still out."""
+    for text in (it.get("title") or "", " ".join(filter(None, (it.get("desc"), it.get("impact"))))):
+        if RETURN_RE.search(text):
+            return not NOT_BACK_RE.search(text)
+    return False
+
+
+def mark_superseded(items):
+    """Set `superseded` on every `out` story that a later story for the same player undoes. `items` run
+    newest first (load_news sorts them), so a story's later ones are those before it in the list. Two
+    stories are one player's when their slug candidates share one. The page's lead pin skips a
+    superseded story; the row stays in the list."""
+    for i, it in enumerate(items):
+        it["superseded"] = it["kind"] == "out" and (is_return(it) or any(
+            is_return(later) and set(later["slugs"]) & set(it["slugs"]) for later in items[:i]))
+    return items
 
 
 def news_player(title):
@@ -113,4 +141,4 @@ def load_news(feed_path, dwr_path):
             "categories": it.get("categories") or [], "link": it.get("link"), "when": when,
             "kind": news_kind(it), "player": player, "slugs": slugs,
         })
-    return {"items": items}
+    return {"items": mark_superseded(items)}

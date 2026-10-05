@@ -30,6 +30,8 @@ the first week is final.
 import datetime
 import zoneinfo
 
+from injury import level
+
 ET = zoneinfo.ZoneInfo("America/New_York")
 RAIN = 50       # precip % at which weather moves scoring (ff-jarvis METHODOLOGY 12.53: precipitation, WR/K)
 WIND = 15       # mph, the backtest's wind threshold (12.53: QB, WR, TE, K)
@@ -139,14 +141,53 @@ def _wx(w):
             "precip": w.get("precip_pct"), "sky": w.get("sky")}
 
 
-def _inj(teams, slugify):
-    """Per team, who is out (Out/IR, with his average) then doubtful and questionable, worst first."""
+def _s_of(code):
+    """Sleeper's injury code as a row status (out / ir / d / q), None for a healthy player."""
+    lv = level(code)
+    return "ir" if code == "IR" else {"OUT": "out", "D": "d", "Q": "q"}.get(lv)
+
+
+def _recheck(row, known, live):
+    """Fresh status wins (the take is written once at midday, Sleeper runs again by evening: Start/Sit
+    does the same in startsit_board._hurt, 2026-10-03). A changed row carries `changed` True (the page
+    words it: copy key preview.inj.changed); a player now healthy drops out only when the take saw a real designation on him
+    (a bare absence, a release or a trade, is not Sleeper's to clear). A player Sleeper does not list keeps
+    the take's row."""
+    if row["slug"] not in live:
+        return row
+    s = _s_of(live[row["slug"]])
+    if s is None:
+        return row if not known else None
+    if s == row["s"]:
+        return row
+    if s in ("out", "ir") and row["s"] in ("out", "ir"):
+        return {**row, "s": s}
+    return {**row, "s": s, "changed": True}
+
+
+def _newly_hurt(side, have, live, slugify):
+    """Players the take listed healthy (or not at all) whom Sleeper now has hurt."""
+    rows = []
+    for p in side.get("players") or []:
+        slug = slugify(p["name"])
+        s = _s_of(live.get(slug))
+        if s and slug not in have:
+            rows.append({"n": p["name"], "slug": slug, "pos": p["pos"], "s": s, "avg": None, "changed": True})
+    return rows
+
+
+def _inj(teams, slugify, status=None):
+    """Per team, who is out (Out/IR, with his average) then doubtful and questionable, worst first.
+    With Sleeper's `status`, each row is re-checked against it (see `_recheck`)."""
+    live = {slugify(v.get("name") or ""): v.get("injury") for v in (status or {}).values()}
     out = {}
     for t, side in teams.items():
-        rows = [{"n": m["name"], "slug": slugify(m["name"]), "pos": m["pos"], "s": INJ.get(m.get("injury"), "out"),
-                 "avg": m.get("avg")} for m in side.get("missing") or []]
-        rows += [{"n": p["name"], "slug": slugify(p["name"]), "pos": p["pos"], "s": INJ[p["injury"]], "avg": None}
+        rows = [({"n": m["name"], "slug": slugify(m["name"]), "pos": m["pos"], "s": INJ.get(m.get("injury"), "out"),
+                  "avg": m.get("avg")}, m.get("injury") in INJ) for m in side.get("missing") or []]
+        rows += [({"n": p["name"], "slug": slugify(p["name"]), "pos": p["pos"], "s": INJ[p["injury"]], "avg": None}, True)
                  for p in side.get("players") or [] if p.get("injury") in ("Doubtful", "Questionable")]
+        rows = [r for r in (_recheck(r, known, live) for r, known in rows) if r]
+        rows += _newly_hurt(side, {r["slug"] for r in rows}, live, slugify)
         out[t] = sorted(rows, key=lambda r: (INJ_ORDER[r["s"]], -(r["avg"] or 0)))
     return out
 
@@ -195,7 +236,7 @@ def _flags(g):
     return sorted(got, key=lambda f: FLAG_ORDER.index(f["k"]))[:2]
 
 
-def _game(g, slugify):
+def _game(g, slugify, status=None):
     f = g["facts"]
     teams = f["teams"]
     names = {r["key"]: _player(r, t, slugify) for t, side in teams.items() for r in side["players"]}
@@ -206,7 +247,7 @@ def _game(g, slugify):
            "line": _line(f.get("line"), f["home"], f["away"]),
            "matchup": _matchup(teams),
            "wx": _wx(f.get("weather")),
-           "inj": _inj(teams, slugify),
+           "inj": _inj(teams, slugify, status),
            "rest": _per_team(teams, "rest", _rest),
            "travel": _per_team(teams, "travel", _travel),
            "site": {"stadium": site.get("stadium"), "neutral": bool(site.get("neutral"))} if site else None,
@@ -270,10 +311,12 @@ def _record(raw):
             "weeks": [_record_week(w) for w in reversed(weeks)]}
 
 
-def live_preview(raw, slugify, record=None):
+def live_preview(raw, slugify, record=None, status=None):
+    """`status` is sources.load_status() (Sleeper's latest): each game's `inj` is re-checked against it,
+    so the dossier never says a player is out on the strength of a midday take alone."""
     if not raw or not raw.get("games"):
         return None
-    games = sorted((_game(g, slugify) for g in raw["games"].values()), key=lambda g: (g["kickoff"], g["key"]))
+    games = sorted((_game(g, slugify, status) for g in raw["games"].values()), key=lambda g: (g["kickoff"], g["key"]))
     return {"season": raw.get("season"), "week": raw.get("week"), "asof": raw.get("asof"), "games": games,
             "record": _record(record)}
 

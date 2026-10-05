@@ -63,8 +63,9 @@ function newsRowHTML(it, featured, i){
 function newsHTML(){
   const items = NEWS_ITEMS;
   // The freshest out story leads on its own above the filter: the one thing that changes a
-  // lineup today. Everything else, filtered or not, is chronological below it.
-  const lead = items.find(it => newsKind(it) === "out");
+  // lineup today. Everything else, filtered or not, is chronological below it. A story the build
+  // marked superseded (a later "cleared" for the same player) never pins: it would lead a stale out.
+  const lead = items.find(it => newsKind(it) === "out" && !it.superseded);
   const rest = lead ? items.filter(it => it !== lead) : items;
   const counts = {};
   rest.forEach(it => counts[newsKind(it)] = (counts[newsKind(it)] || 0) + 1);

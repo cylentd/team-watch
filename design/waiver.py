@@ -10,6 +10,8 @@ two league rows. The first league to list him wins, in the packet's own order. A
 Self-contained like news.py and signals.py: paths and slugify come in as arguments."""
 import json
 
+from injury import level
+
 TIERS = ("must", "worth", "watch", "spec", "stash")
 MAX_LEAGUES = 3
 
@@ -103,9 +105,36 @@ def _meta(packet):
             for k, m in list(meta.items())[:MAX_LEAGUES]}
 
 
-def live_waiver(feed_path, dwr_path, slugify):
+NOW_LABEL = {"Out": "O", "IR": "IR", "Doubtful": "D"}   # status_now -> the packet's own `injury` code
+ACT_TIERS = ("must", "worth")                             # tiers that say "go get him"
+
+
+def _fresh_label(code):
+    """Sleeper's injury code as Out / IR / Doubtful, or None (healthy, Questionable, unknown)."""
+    lv = level(code)
+    return "IR" if code == "IR" else "Out" if lv == "OUT" else "Doubtful" if lv == "D" else None
+
+
+def _overlay(rows, status, slugify):
+    """Fresh status on each card. The packet is built once in the morning, Sleeper runs again through the
+    day, so a card tiered must/worth can be out by the time it is read (2026-10-04 audit). `status_now` is
+    Sleeper's Out / IR / Doubtful for him, else None. A must/worth card whose packet `injury` does not
+    already say it gets `status_flag` too (that code, O / IR / D; the card words it with copy key
+    waiver.card.nowFlag), and sorts after its tier peers. The tier is ff-jarvis's and is
+    never recomputed here; with no status every card carries `status_now` None and the order is untouched."""
+    live = {slugify(v.get("name") or ""): v.get("injury") for v in (status or {}).values()}
+    for r in rows:
+        now = _fresh_label(live.get(r["slug"]))
+        r["status_now"] = now
+        stale = bool(now) and r["tier"] in ACT_TIERS and r.get("injury") != NOW_LABEL[now]
+        r["status_flag"] = NOW_LABEL[now] if stale else None
+    return rows
+
+
+def live_waiver(feed_path, dwr_path, slugify, status=None):
     """LIVE_WAIVER: {date, week, clears, leagues_meta, players}, or None when ff-jarvis has not
-    built a packet. `players` is one row per candidate, grouped by tier in TIERS order."""
+    built a packet. `players` is one row per candidate, grouped by tier in TIERS order. `status` is
+    sources.load_status() (Sleeper's latest) and overlays `status_now` / `status_flag` (see `_overlay`)."""
     packet = load_packet(feed_path, dwr_path)
     if not packet:
         return None
@@ -117,7 +146,9 @@ def live_waiver(feed_path, dwr_path, slugify):
             rows.append(seen[key])
         _set_lane(seen[key], p, league)
     order = {t: i for i, t in enumerate(TIERS)}
-    rows.sort(key=lambda r: order.get(r["tier"], len(TIERS)))   # stable: packet order within a tier
+    _overlay(rows, status, slugify)
+    # stable: packet order within a tier, a card flagged by fresh status after its peers
+    rows.sort(key=lambda r: (order.get(r["tier"], len(TIERS)), bool(r["status_flag"])))
     return {"date": packet.get("date"), "week": packet.get("week"), "clears": packet.get("clears"),
             "leagues_meta": _meta(packet), "players": rows}
 

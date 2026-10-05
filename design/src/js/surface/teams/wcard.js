@@ -34,6 +34,13 @@ function wvLaneHTML(lane){
   return `<span class="wvc-lane lane-${esc(lane)}" title="${esc(tip)}">${word}</span>`;
 }
 
+/* Sleeper has him hurt since the morning packet was cut (`status_flag`, design/waiver.py): a must or
+   worth card says so, in the lane tag's red, so nobody claims him blind. Not hidden on a phone. */
+function wvNowHTML(r){
+  const word = WV_INJURY[r.status_flag];
+  return word ? `<span class="wvc-now">${t("waiver.card.nowFlag", {s: word()})}</span>` : "";
+}
+
 /* A section header's count, "Must claim · 1": a plain count, never zero-padded, so it cannot be
    read as a section number. */
 const wvCountHTML = n => `<span class="count wv-count">${t("waiver.section.count", {n})}</span>`;
@@ -76,7 +83,7 @@ function wvFrontHTML(r, key, tier){
     <div class="wvc-top"><span class="wvc-stamp">${(WV_TIER[tier] || WV_TIER.watch)()}</span>
       <span class="wvc-st">${esc(r.pos)} · ${wvStatusText(lg, key)}</span></div>
     <div class="wvc-id"><div class="head">${headHTML(r)}</div>
-      <div class="wvc-who"><h3>${esc(r.n)}</h3><span class="wvc-team">${esc(r.team)} ${opp}</span>${wvUsageRankHTML(r)}${wvLaneHTML(lg.lane)}</div></div>
+      <div class="wvc-who"><h3>${esc(r.n)}</h3><span class="wvc-team">${esc(r.team)} ${opp}</span>${wvUsageRankHTML(r)}${wvLaneHTML(lg.lane)}${wvNowHTML(r)}</div></div>
     ${wvSwapHTML(r, lg)}
     ${first}
     ${wvProofHTML(r)}

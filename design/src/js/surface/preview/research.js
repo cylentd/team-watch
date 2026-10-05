@@ -11,7 +11,8 @@ const pvInjTag = s => ({out: t("preview.inj.out"), ir: t("preview.inj.ir"), d: t
 
 function pvInjTeam(team, rows){
   const list = rows.length ? rows.map(r => `<li><span class="pv-tag ${r.s === "ir" ? "out" : r.s}">${pvInjTag(r.s)}</span>${shortName(r.n)} <small>${esc(r.pos)}${
-    r.avg != null ? " · " + t("preview.inj.avg", {n: r.avg.toFixed(1)}) : ""}</small></li>`).join("")
+    r.avg != null ? " · " + t("preview.inj.avg", {n: r.avg.toFixed(1)}) : ""}${
+    r.changed ? " · " + t("preview.inj.changed") : ""}</small></li>`).join("")
     : `<li class="pv-nil">${t("preview.inj.none")}</li>`;
   return `<div><h4 class="pv-team">${esc(team)}</h4><ul class="pv-inj">${list}</ul></div>`;
 }

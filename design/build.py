@@ -637,7 +637,7 @@ def render():
 
     props = live_props(available, roster_index(*mine))
 
-    waiver, pool = live_waiver(FEED, DWR, slugify), live_pool(load_usage(FEED, DWR), slugify)
+    waiver, pool = live_waiver(FEED, DWR, slugify, status=load_status()), live_pool(load_usage(FEED, DWR), slugify)
     # Usage is deliberately not in wanted_slugs: the grid runs 80 rows a position and draws no
     # portrait, so inlining one per name would add megabytes for a column that does not exist.
     usage = live_usage(load_grid(FEED, DWR), slugify)
@@ -682,7 +682,7 @@ def render():
         "LIVE_TRENCHES": live_trenches(load_trenches(FEED, DWR)),
         "LIVE_ROLE": live_role(load_role_board(), slugify), "LIVE_HIGHLIGHTS": live_highlights(load_highlights()),
         "LIVE_DIGEST": live_digest(load_digest(), slugify, load_schedule(DWR)),
-        "LIVE_PREVIEW": live_preview(load_game_preview(), slugify, load_preview_record()),
+        "LIVE_PREVIEW": live_preview(load_game_preview(), slugify, load_preview_record(), status=load_status()),
         "LIVE_LEAGUE": live_league(*load_league(), roster_file(ESPN_ROSTERS), slugify),
         "LIVE_DEFENSE": live_defense(load_defense(), TEAM_FIX),
         "LIVE_GAMEDAY": live_gameday(load_league()[0], roster_file(ESPN_ROSTERS), *yahoo_gameday("yahoo"),
