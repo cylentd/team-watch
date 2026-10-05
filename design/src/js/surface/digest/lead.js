@@ -78,20 +78,37 @@ function dgCall(r, week){
    Big: 30+ points, 3+ touchdowns, 150+ yards (300+ passing); with a 10-point gap to the second score
    he "laps the field". Solid: 20+ points. Under that, the plain count. Each tier has two phrasings in
    the present (his game is on) and the past (it is not), picked by his slug so a poll never reshuffles
-   them. */
-const DG_BIG = {pts: 30, tds: 3, yds: 150, passYds: 300, lap: 10, solid: 20};
-function dgTopCall(top, on, name, pts){
+   them. Superseded in part 2026-10-05 (David: the headline "should use yards and TDs", every league
+   scores differently): the tier is still chosen by his points, but the points never print; the head
+   carries his real line (dgTopLine), yards and TDs first, catches only for a receiver with 10+. */
+const DG_BIG = {pts: 30, tds: 3, yds: 150, passYds: 300, lap: 10, solid: 20, catches: 10};
+
+/* "14 catches, 192 yards, 2 TDs": a passer's yards are his passing yards, anyone else's his rushing
+   plus receiving; a passer's TDs are his passing and rushing ones, anyone else's rushing and
+   receiving (a passing TD is the same score as the catch, counted once). Empty when there is
+   nothing to count (a kicker, a defense): the caller says it without a number. */
+function dgTopLine(s){
+  const n = k => +(s[k] || 0), pass = n("pass_yd") > n("rush_yd") + n("rec_yd");
+  const yds = pass ? n("pass_yd") : n("rush_yd") + n("rec_yd");
+  const tds = n("rush_td") + (pass ? n("pass_td") : n("rec_td"));
+  return [!pass && n("rec") >= DG_BIG.catches ? t("digest.live.line.catches", {n: n("rec")}) : "",
+    yds > 0 ? t("digest.live.line.yds", {n: Math.round(yds)}) : "",
+    tds ? (tds === 1 ? t("digest.live.line.td1") : t("digest.live.line.tds", {n: tds})) : ""].filter(Boolean).join(", ");
+}
+
+function dgTopCall(top, on, name){
   const s = top.s || {}, n = k => +(s[k] || 0), seed = slugOf(top.n);
   const second = dgLeaders()[1], gap = second ? top.pts - second.pts : 0;
   const big = top.pts >= DG_BIG.pts || n("rush_td") + n("rec_td") + n("pass_td") >= DG_BIG.tds
     || n("rush_yd") + n("rec_yd") >= DG_BIG.yds || n("pass_yd") >= DG_BIG.passYds;
-  const v = {name, pts};
+  const text = dgTopLine(s), line = text && `<em class="dg-em go">${text}</em>`, v = {name, line};
+  if (!line) return on ? t("digest.live.bare.on", {name}) : t("digest.live.bare.fin", {name});
   if (big && gap >= DG_BIG.lap) return on ? t("digest.live.lap.on", v) : t("digest.live.lap.fin", v);
   if (big) return dgPick(on ? [t("digest.live.big1.on", v), t("digest.live.big2.on", v)]
                             : [t("digest.live.big1.fin", v), t("digest.live.big2.fin", v)], seed);
   if (top.pts >= DG_BIG.solid) return dgPick(on ? [t("digest.live.solid1.on", v), t("digest.live.solid2.on", v)]
                                                 : [t("digest.live.solid1.fin", v), t("digest.live.solid2.fin", v)], seed);
-  return on ? t("digest.live.has", v) : t("digest.live.leads", v);
+  return t("digest.live.plain", v);
 }
 
 /* His box line, once each: the points, then passing, rushing and receiving where he had any. */

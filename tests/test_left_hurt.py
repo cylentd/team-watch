@@ -214,7 +214,7 @@ def test_names_are_every_projected_8_plus_player_not_my_starters(browser, page_f
 
 def test_hurt_starter_takes_the_headline_and_a_row_and_a_return_gives_it_back(browser, page_file):
     ctx, page, errors = digest(browser, page_file)
-    assert page.locator(".dg-lead-h").inner_text() == "St. Brown goes off: 31.4 points"
+    assert page.locator(".dg-lead-h").inner_text() == "St. Brown ERUPTS: 10 catches, 180 yards, 2 TDs"
     rows = page.locator(".dg-now-r").count()
     page.evaluate("(h) => { GD_HURT = {[h.slug]: h}; paintDigestLive(); }", PURDY)
     assert page.locator(".dg-lead-h").inner_text() == "B. Purdy left the game hurt"
@@ -235,7 +235,7 @@ def test_hurt_starter_takes_the_headline_and_a_row_and_a_return_gives_it_back(br
     assert page.locator(".dg-lead-go").get_attribute("data-n") == "Brock Purdy"
     # he comes back: the top scorer is the headline again and the extra row is gone
     page.evaluate("(h) => { GD_HURT = {[h.slug]: {...h, back: true}}; paintDigestLive(); }", PURDY)
-    assert page.locator(".dg-lead-h").inner_text() == "St. Brown goes off: 31.4 points"
+    assert page.locator(".dg-lead-h").inner_text() == "St. Brown ERUPTS: 10 catches, 180 yards, 2 TDs"
     assert page.locator(".dg-now-r.hurt").count() == 0 and page.locator(".dg-now-r").count() == rows
     ctx.close()
     assert errors == []

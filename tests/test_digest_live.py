@@ -90,7 +90,7 @@ def card_text(page):
 
 def test_during_a_game_the_digest_draws_no_league_team_or_opponent(browser, page_file):
     ctx, page, errors = digest(browser, page_file, mon=[], clock={"DET": {"state": "in", "q": 3, "clock": "4:12", "half": False, "detail": "", "clubs": ["DET"]}})
-    assert page.locator(".dg-lead-h").inner_text() == "St. Brown goes off: 31.4 points"
+    assert page.locator(".dg-lead-h").inner_text() == "St. Brown ERUPTS: 60 yards"
     assert page.locator("[data-dgnow] .dg-now-r").count() == 5
     assert_generic(page)
     # a player is hurt: the banner and a row name him, by his club, no team of mine
@@ -122,7 +122,7 @@ def test_monday_before_kickoff_is_the_game_its_projections_and_a_generic_headlin
     assert flat(cols.nth(1)) == "ATL B. Robinson 19.4 D. London 15.2"
     assert card.locator(".dg-mnf-score").count() == 0
     # the banner is the week's top scorer between windows, not a matchup
-    assert page.locator(".dg-lead-h").inner_text() == "St. Brown went off for 31.4 points"
+    assert page.locator(".dg-lead-h").inner_text() == "St. Brown went off for 60 yards"
     assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
     assert_generic(page)
     # a tap on a projected player opens his profile
@@ -148,7 +148,7 @@ def test_monday_during_the_game_is_the_score_the_clock_and_the_games_top_scorers
     # only this game's scorers, best first, none of Sunday's, no projections
     got = re.sub(r"\s+", " ", card.locator(".dg-mnf-c").inner_text()).strip()
     assert got == "TOP SCORERS B. Robinson 16.4 A. Kamara 11.8 K. Pitts 6.2"
-    assert page.locator(".dg-lead-h").inner_text() == "St. Brown went off for 31.4 points"    # the week's top score, on any field; his game is final, so the past
+    assert page.locator(".dg-lead-h").inner_text() == "St. Brown went off for 60 yards"    # the week's top score, on any field; his game is final, so the past
     assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
     assert_generic(page)
     page.set_viewport_size({"width": 1400, "height": 900})

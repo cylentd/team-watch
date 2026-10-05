@@ -41,16 +41,31 @@ function dgLiveMode(now){
 
 const dgLvAttrs = r => `data-dglv data-n="${esc(r.n)}" data-pos="${esc(r.pos)}" data-team="${esc(r.team)}" data-slug="${esc(r.slug || slugOf(r.n))}"`;
 
+/* What the by-line adds to a head that prints his yards, TDs and 10+ catches (2026-10-05): the rest of
+   his day (completions, carries, catches and targets, turnovers), never a number the head already
+   shows; a part that shares one with the head is dropped. A scorer the head has no numbers for (a
+   kicker, a defense) gets Live's whole line. */
+function dgTopBy(top){
+  const s = top.s || {}, n = k => +(s[k] || 0), head = dgTopLine(s);
+  if (!head) return gdLine({pos: top.pos}, s);
+  const seen = new Set(head.match(/\d+/g)), pass = n("pass_yd") > n("rush_yd") + n("rec_yd");
+  const catches = n("rec_tgt") ? (n("rec") >= DG_BIG.catches ? t("digest.live.by.tgt", {n: n("rec_tgt")}) : t("live.line.rec", {r: n("rec"), g: n("rec_tgt")})) : "";
+  const parts = pass ? [n("pass_att") ? t("live.line.cmp", {c: n("pass_cmp"), a: n("pass_att")}) : "",
+      n("pass_int") ? t("live.line.int", {n: n("pass_int")}) : "", n("rush_att") ? t("live.line.car", {n: n("rush_att"), y: n("rush_yd")}) : ""]
+    : [n("rush_att") ? t("live.line.carries", {n: n("rush_att")}) : "", catches];
+  if (n("fum_lost")) parts.push(t("live.line.fl", {n: n("fum_lost")}));
+  return parts.filter(p => p && !(p.match(/\d+/g) || []).some(x => seen.has(x))).join(" · ");
+}
+
 /* The banner while games are on: the top scorer, called like an announcer would (lead.js dgTopCall),
-   his line and the game's clock under it. Between windows the same man, in the past tense. */
+   what the call leaves out and the game's clock under it. Between windows the same man, in the past tense. */
 function dgLeadTop(top, playing){
   const slug = slugOf(top.n), name = esc(dgSurname(top.n));
-  const pts = `<em class="dg-em go">${dgN1(top.pts)}</em>`;
-  const by = [gdLine({pos: top.pos}, top.s), gdClockOf(top.team).label].filter(Boolean).map(esc).join(" · ");
+  const by = [dgTopBy(top), gdClockOf(top.team).label].filter(Boolean).map(esc).join(" · ");
   // Sleeper's code (LAR, WSH) is not always the colour table's (LA, WAS): take whichever spelling it has.
   const team = gdCodes(top.team).find(c => TEAM_COLOURS[c]) || top.team;
   return {tone: "go team", team, slug, name: top.n, live: {...top, slug}, photo: dgPhotoHTML(slug), ghost: esc(top.team),
-          head: dgTopCall(top, playing && gdClockOf(top.team).state !== "post", name, pts), fact: by};
+          head: dgTopCall(top, playing && gdClockOf(top.team).state !== "post", name), fact: by};
 }
 
 /* A player left a game hurt and is not back (data/gameday/hurt.js): "B. Purdy left the game hurt"

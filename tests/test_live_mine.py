@@ -140,7 +140,9 @@ def test_the_switch_still_lets_a_reader_with_nothing_followed_pick(browser, page
     assert page.locator(".ts-empty").count() == 1                      # nothing followed: the menu says so
     assert page.locator(".ts-league").count() >= 1                     # and every league is one tap away
     page.click(".ts-league[data-tsleague='espn']")
-    page.locator(".ts-menu .ts-item[data-k]").nth(1).click()
+    # The drill-in redraws the menu: wait for the league's own list, then take a team that is on screen
+    page.wait_for_selector(".ts-menu:not([hidden]) .ts-back")
+    page.locator(".ts-menu .ts-item[data-k^='espn-']:visible").first.click()
     assert page.evaluate("localStorage.getItem('tw-team')") != "yahoo"
     ctx.close()
     assert errors == []

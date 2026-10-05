@@ -841,9 +841,9 @@ def test_during_a_game_the_headline_is_the_top_score_and_right_now_lists_five(br
     five and a touchdown count that opens Live's TDs tab; Need to know, with nothing left in it, is gone."""
     ctx, page, errors = _digest_page(browser, page_file)
     page.evaluate(PLANT_WEEK, _live_cfg(noHurt=True, clock={"DET": {"state": "in", "q": 3, "clock": "4:12", "half": False, "detail": "", "clubs": ["DET"]}}))
-    assert page.locator(".dg-lead-h").inner_text() == "St. Brown goes off: 31.4 points"
+    assert page.locator(".dg-lead-h").inner_text() == "St. Brown ERUPTS: 10 catches, 180 yards, 2 TDs"
     fact = page.locator(".dg-lead-fact").inner_text()
-    assert "180 yds" in fact and fact.endswith("Q3 4:12")
+    assert fact == "12 tgt · Q3 4:12"                                # what the head (10 catches, 180 yards, 2 TDs) leaves out
     now = page.locator("[data-dgnow]")
     assert now.locator(".dg-sec").text_content() == "Right now"
     assert page.locator(".dg-facts").count() == 1                    # Right now stands where Highlights did
@@ -882,7 +882,7 @@ def test_a_poll_repaints_the_headline_in_place(browser, page_file):
       return {kept, head, rows, still: document.querySelector('.dg-lead-h').textContent}; }""")
     ctx.close()
     assert errors == []
-    assert got["kept"] and got["head"] == "Achane goes off: 40.2 points"
+    assert got["kept"] and got["head"] == "Achane ERUPTS: 170 yards, 1 TD"
     assert got["rows"][0] == "40.2" and got["still"] == got["head"]
 
 
@@ -935,7 +935,7 @@ def test_the_banner_opens_its_player_after_swapping_between_the_packets_lead_and
     assert page.locator(".dg-lead-go[data-dgslug]").count() == 1 and page.locator(".dg-mnf").count() == 0
     _tap_banner(page)
     page.evaluate(BANNER_AT, ["2026-10-05T15:30:00Z", "in_game"])
-    assert page.locator(".dg-lead-go[data-dglv]").count() == 1 and "points" in page.locator(".dg-lead-h").inner_text()
+    assert page.locator(".dg-lead-go[data-dglv]").count() == 1 and "yards" in page.locator(".dg-lead-h").inner_text()
     _tap_banner(page)
     page.evaluate(BANNER_AT, ["2026-10-05T09:00:00Z", "pre_game"])
     assert page.locator(".dg-lead-go[data-dgslug]").count() == 1 and "points" not in page.locator(".dg-lead-h").inner_text()
