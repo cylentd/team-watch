@@ -215,6 +215,8 @@ surface/live/gamecards.js
 #      and GD_POLL_MS (live.js, above).
 surface/live/gamesheet.js
 # pin: clipsheet.js binds its listeners at load, like gamesheet.js: it needs #clipsheet (shell.html).
+#      clipplayer.js first: it declares CP, which clipsheet.js reads, and clipsheet.js answers its calls.
+surface/teams/clipplayer.js
 surface/teams/clipsheet.js
 # pin: the strip loads bottom-up -- art and easing are pure, scene reads them, pose reads scene,
 #      strip reads pose, and transport/game are the only files with listeners or a fetch. Each

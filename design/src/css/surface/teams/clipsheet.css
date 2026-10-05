@@ -1,83 +1,91 @@
 /* ============================================================
-   THE CLIP SHEET (js/surface/teams/clipsheet.js)
-   A player's official clips: a bottom sheet on the game sheet's layer, a 16:9 stage that is a
-   thumbnail until the play button is pressed, then the clips he has, then who is next.
-   Unfenced: it sits on <body>, outside every view.
+   THE CLIP THEATER (js/surface/teams/clipsheet.js, clipplayer.js)
+   Full screen over the page, opaque. Top bar, the video centred in the space left, a one-line
+   caption, and one bottom row (previous, who is next, next). The box takes the clip's shape: a
+   Short is 9:16, anything else 16:9. Unfenced: it sits on <body>, outside every view.
    ============================================================ */
-.clip-scrim{position:fixed;inset:0;z-index:48;background:rgb(var(--shadow-rgb) / .55);opacity:0;pointer-events:none;
-  transition:opacity var(--dur-spring) var(--ease)}
-.clip-scrim.on{opacity:1;pointer-events:auto}
 .clipsheet{
-  position:fixed;left:0;right:0;bottom:0;z-index:49;margin:0 auto;width:100%;max-width:560px;max-height:92dvh;
-  overflow-y:auto;overscroll-behavior:contain;display:grid;gap:12px;align-content:start;
-  background:var(--void);border:1px solid var(--line);border-bottom:0;border-radius:18px 18px 0 0;
-  padding:6px 16px calc(14px + env(safe-area-inset-bottom,0px));
-  transform:translateY(105%);visibility:hidden;
-  transition:transform var(--dur-spring) var(--spring),visibility 0s linear var(--dur-spring);
+  position:fixed;inset:0;z-index:65;display:flex;flex-direction:column;background:var(--shadow);color:var(--ink);
+  opacity:0;visibility:hidden;pointer-events:none;overscroll-behavior:contain;
+  transform:scale(.97);
 }
-.clipsheet.on{transform:translateY(var(--pull,0px));visibility:visible;transition:transform var(--dur-spring) var(--spring)}
+.clipsheet.on{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(var(--pull,0px))}
 .clipsheet.pulling{transition:none}
+@media (prefers-reduced-motion:no-preference){
+  .clipsheet{transition:opacity var(--dur-spring) var(--ease),transform var(--dur-spring) var(--spring),
+    visibility 0s linear var(--dur-spring)}
+  .clipsheet.on{transition:opacity var(--dur-spring) var(--ease),transform var(--dur-spring) var(--spring)}
+}
 body:has(.clipsheet.on){overflow:hidden}
-.clip-grab{justify-self:center;width:44px;height:4px;margin:4px 0 0;border-radius:4px;background:var(--line-2)}
+.clipsheet [hidden]{display:none}
 
-/* The header: his head, name over position and club, close. */
-.clip-bar{display:flex;align-items:center;gap:12px;min-width:0}
-.clip-av{flex:none;width:40px;height:40px}
-.clip-av img,.clip-av .fallback,.clip-av .dst{width:40px;height:40px;display:grid;place-items:center;border-radius:99px;
-  object-fit:cover;background:var(--panel-3);border:1px solid var(--line-2);color:var(--ink-3);
-  font:600 var(--t-1)/1 var(--ui)}
-.clip-av .dst{border-radius:6px;font-family:var(--disp);font-weight:800;color:var(--ink-2)}
-.clip-who{display:grid;gap:2px;min-width:0;flex:1}
-.clip-name{margin:0;font:800 var(--t-4)/1.15 var(--disp);color:var(--ink);overflow-wrap:anywhere}
-.clip-who p{margin:0;font:500 var(--t-2)/1.2 var(--ui);color:var(--ink-3)}
-.clip-wk b{color:var(--ink);font-weight:700}
-.clip-x{appearance:none;border:0;background:none;flex:none;width:44px;height:44px;margin:-6px 0;display:grid;
-  place-items:center;color:var(--ink-3);cursor:pointer;border-radius:10px}
-.clip-x svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
-.clip-x:focus-visible{outline:2px solid var(--lime)}
+/* The top bar: the counter in the mono face, close. */
+.clip-top{flex:none;display:flex;align-items:center;justify-content:space-between;box-sizing:border-box;
+  height:calc(56px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) 6px 0 16px}
+.clip-count{font:600 var(--t-2)/1 var(--mono);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.clip-x{appearance:none;border:0;background:none;flex:none;width:44px;height:44px;display:grid;place-items:center;
+  color:var(--ink-2);cursor:pointer;border-radius:99px}
+.clip-x svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.clip-x:focus-visible,.clip-step:focus-visible,.clip-sound:focus-visible,.clip-linka:focus-visible,
+.clip-row:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 
-/* The stage: 16:9, the thumbnail and a play button; the embed takes its place on the tap. */
-.clip-stage{position:relative;aspect-ratio:16 / 9;border-radius:12px;overflow:hidden;background:var(--panel-2);
-  border:1px solid var(--line)}
-.clip-stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--void)}
-.clip-poster{appearance:none;border:0;padding:0;display:block;position:relative;width:100%;height:100%;
-  background:none;color:var(--ink);cursor:pointer;text-decoration:none}
-.clip-poster img{width:100%;height:100%;object-fit:cover;display:block}
-.clip-poster:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
-.clip-play{position:absolute;inset:0;margin:auto;width:56px;height:56px;border-radius:99px;display:grid;place-items:center;
-  background:rgb(var(--shadow-rgb) / .62);box-shadow:0 0 0 2px var(--lime);transition:transform var(--dur-spring) var(--spring)}
-.clip-play svg{width:24px;height:24px;fill:var(--lime);margin-left:3px}
-.clip-poster:active .clip-play{transform:scale(var(--press))}
-.clip-yt{position:absolute;left:8px;bottom:8px;padding:4px 8px;border-radius:6px;background:rgb(var(--shadow-rgb) / .7);
-  display:inline-flex;align-items:center;gap:6px;font:600 var(--t-1)/1 var(--ui);color:var(--ink)}
-/* YouTube's mark (clipYtMark): on a clip that opens YouTube, on the stage's link, in a list row, on the reel's badge. */
-.yt-mark{flex:none;width:18px;height:18px;fill:currentColor}
-.clip-yt .yt-mark{width:16px;height:16px}
+/* The space between the top bar and the bottom row: the video with its caption under it, the pair
+   centred, so a wide clip's caption does not sit 200px below it. It is a size container, so the box is
+   cut to what is measured here (cqw, cqh, less the caption's fixed height) and never to a guessed one. */
+.clip-main{flex:1;min-height:0;container-type:size;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.clip-box{flex:none;position:relative;aspect-ratio:16 / 9;width:min(calc(100cqw - 32px),calc((100cqh - 56px) * 16 / 9));
+  border-radius:12px;overflow:hidden;background:var(--shadow)}
+.clip-box.tall{aspect-ratio:9 / 16;width:min(328px,calc(100cqw - 32px),calc((100cqh - 56px) * 9 / 16))}
+.clip-box iframe,.clip-box>#clip-yt{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
 
-/* One bar per clip of his: done, now (lime), still to come. */
-.clip-bars{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px}
-.clip-bars i{height:4px;border-radius:2px;background:var(--line-2);transition:background-color var(--dur-spring) var(--ease)}
-.clip-bars i.done{background:var(--ink-3)}
-.clip-bars i.now{background:var(--lime)}
+/* A clip that does not play here: its box is the link to YouTube, the thumbnail behind. */
+.clip-link{position:absolute;inset:0;z-index:2;background:var(--shadow)}
+.clip-linka{display:block;position:relative;width:100%;height:100%;color:var(--ink);text-decoration:none}
+.clip-linka img{width:100%;height:100%;object-fit:cover;display:block}
+.clip-linka .clip-ytchip{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);padding:10px 16px;
+  background:rgb(var(--shadow-rgb) / .72);font-size:var(--t-2)}
 
-.clip-cap{display:grid;gap:4px;min-width:0}
-.clip-kick{display:flex;justify-content:space-between;gap:8px;font:600 var(--t-1)/1.3 var(--ui);letter-spacing:.07em;
-  text-transform:uppercase;color:var(--ink-3)}
-.clip-title{margin:0;font:600 var(--t-3)/1.3 var(--ui);color:var(--ink);overflow-wrap:anywhere}
+/* The browser blocked sound: a lime pill over the bottom of the video. */
+.clip-sound{appearance:none;border:0;position:absolute;left:50%;bottom:56px;z-index:3;transform:translateX(-50%);
+  min-height:44px;padding:0 18px;border-radius:99px;background:var(--lime);color:var(--void);cursor:pointer;
+  font:700 var(--t-2)/1 var(--ui);white-space:nowrap}
+.clip-sound:active{transform:translateX(-50%) scale(var(--press))}
 
-/* The rest of his clips. */
-.clip-list{list-style:none;margin:0;padding:0;display:grid}
-.clip-row{appearance:none;border:0;background:none;width:100%;min-height:56px;padding:8px 0;display:flex;align-items:center;
-  gap:12px;text-align:left;color:var(--ink);cursor:pointer;border-top:1px solid var(--line);border-radius:0}
-.clip-row:focus-visible,.clip-next:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
-.clip-thumb{flex:none;width:80px;aspect-ratio:16 / 9;border-radius:6px;overflow:hidden;background:var(--panel-2)}
+/* The caption: who, then the title on one line. */
+.clip-cap{flex:none;display:grid;gap:2px;padding:10px 16px 0;text-align:center;width:100%;min-width:0;height:56px;box-sizing:border-box}
+.clip-who{margin:0;font:500 var(--t-2)/1.3 var(--ui);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clip-who b{font-weight:800;font-size:var(--t-3);color:var(--ink);margin-right:6px}
+.clip-title{margin:0;font:500 var(--t-2)/1.3 var(--ui);color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clipsheet.end .clip-main,.clipsheet.end .clip-cap{visibility:hidden}
+
+/* The one row under the video. */
+.clip-nav{flex:none;display:grid;grid-template-columns:48px 1fr 48px;align-items:center;gap:12px;box-sizing:border-box;
+  height:calc(72px + env(safe-area-inset-bottom,0px));padding:0 16px env(safe-area-inset-bottom,0px)}
+.clip-step{appearance:none;border:1px solid var(--line-2);background:var(--panel-2);color:var(--ink);width:48px;height:48px;
+  border-radius:99px;display:grid;place-items:center;cursor:pointer;transition:transform var(--dur-spring) var(--spring)}
+.clip-step svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.clip-step:active:not(:disabled){transform:scale(var(--press))}
+.clip-step:disabled{opacity:.35;cursor:default}
+.clip-up{min-width:0;text-align:center;font:600 var(--t-2)/1.2 var(--ui);color:var(--ink-2);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+
+/* The end card: sits over the stage, above the bottom row. */
+.clip-end{position:absolute;left:0;right:0;z-index:4;overflow-y:auto;box-sizing:border-box;background:var(--shadow);
+  top:calc(56px + env(safe-area-inset-top,0px));bottom:calc(72px + env(safe-area-inset-bottom,0px));padding:8px 16px 16px}
+.clip-end>*{max-width:560px;margin-left:auto;margin-right:auto}
+.clip-done{margin:8px auto 12px;font:800 var(--t-5)/1.15 var(--disp);color:var(--ink)}
+.clip-ends{list-style:none;padding:0;display:grid}
+.clip-row{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 0;color:var(--ink);text-decoration:none;
+  border-top:1px solid var(--line)}
+.clip-thumb{flex:none;width:56px;height:56px;border-radius:8px;overflow:hidden;background:var(--panel-2)}
 .clip-thumb img{width:100%;height:100%;object-fit:cover;display:block}
-.clip-rt{flex:1;min-width:0;font:500 var(--t-2)/1.3 var(--ui);overflow-wrap:anywhere}
-.clip-row .yt-mark{color:var(--ink-3)}
-.clip-row b{flex:none;font:700 var(--t-1)/1 var(--mono);color:var(--ink-3);font-variant-numeric:tabular-nums}
+.clip-rw{flex:1;min-width:0;display:grid;gap:2px}
+.clip-rw b{font:700 var(--t-3)/1.2 var(--ui)}
+.clip-rw span{font:500 var(--t-2)/1.3 var(--ui);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* Who is next, when the sheet was opened from Play all. */
-.clip-next{appearance:none;width:100%;min-height:56px;padding:8px 12px;display:flex;align-items:center;gap:12px;
-  text-align:left;color:var(--ink);cursor:pointer;border-radius:12px;background:var(--panel);border:1px solid var(--line)}
-.clip-next .clip-who b{font:700 var(--t-3)/1.2 var(--ui)}
-.clip-next .clip-who small{font:500 var(--t-2)/1.2 var(--ui);color:var(--ink-3)}
+/* The "YouTube ↗" chip: the end card's rows, the link stage, and the rail's cards. */
+.clip-ytchip{flex:none;display:inline-flex;align-items:center;gap:4px;padding:6px 10px;border-radius:99px;
+  border:1px solid var(--line-2);color:var(--ink-2);font:600 var(--t-1)/1 var(--ui);white-space:nowrap}
+.clip-ytchip svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* YouTube's mark (clipYtMark): on the link stage, in the rail, on the reel's badge. */
+.yt-mark{flex:none;width:18px;height:18px;fill:currentColor}

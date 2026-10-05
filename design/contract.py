@@ -324,7 +324,7 @@ CONTRACT = {
     "LIVE_SSB": {"keys": ["week", "fp", "board", "out"], "checks": [startsit_board.problems]},
     # design/highlights.py, Players > Highlights (2026-09-29); a view's rows are pinned in tests/test_highlights.py.
     "LIVE_HIGHLIGHTS": {"keys": ["season", "week", "generated", "views"], "rows": [("views", ["view", "leaf", "rows"])]},
-    # design/clips.py, official YouTube clips (2026-10-05): `players` {slug: [{id, title, kind, secs, embed}]}, `games` {team: {id, title, secs, embed}}; null without ff-jarvis's file. Nested shapes are checked by its `problems`.
+    # design/clips.py, official YouTube clips (2026-10-05): `players` {slug: [{id, title, kind, secs, embed, shape}]}, `games` {team: {id, title, secs, embed, shape}}; null without ff-jarvis's file. Nested shapes are checked by its `problems`.
     "LIVE_CLIPS": {"keys": ["week", "players", "games", "alias"], "checks": [clips.problems]},
     "LIVE_REASONS": {"keys": [], "map": (".", ["why", "work", "tags"])},   # design/slips.py (2026-10-03): the block IS the map; `{}` without the file
     # design/preview.py, This week > Preview (slate and dossier, 2026-09-29). A game's `take` is null

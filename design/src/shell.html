@@ -113,10 +113,25 @@
 <div class="lbs-scrim tbs-scrim" id="tbsheet-scrim"></div>
 <section class="lbsheet tbsheet" id="tbsheet" role="dialog" aria-modal="true" aria-labelledby="tb-title" aria-hidden="true"></section>
 
-<!-- The clip sheet (js/surface/teams/clipsheet.js): a player's official clips, from the ring on a
-     roster head or the Week plays reel. Outside #view, like the game sheet. -->
-<div class="clip-scrim" id="clipsheet-scrim"></div>
-<section class="clipsheet" id="clipsheet" role="dialog" aria-modal="true" aria-label="{{copy:teams.clips.sheetLabel}}" aria-hidden="true"></section>
+<!-- The clip theater (js/surface/teams/clipsheet.js, clipplayer.js): a player's official clips, full screen,
+     from the ring on a roster head or the Week plays rail. Outside #view, like the game sheet. #clip-yt
+     becomes the one YouTube player; the script paints the counter, caption and bottom row. -->
+<section class="clipsheet" id="clipsheet" role="dialog" aria-modal="true" aria-label="{{copy:teams.clips.sheetLabel}}" aria-hidden="true">
+  <header class="clip-top"><span class="clip-count" data-clipcount></span>
+    <button type="button" class="clip-x" data-clipclose aria-label="{{copy:teams.clips.close}}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+  <div class="clip-main"><div class="clip-box" data-clipbox>
+    <div id="clip-yt"></div>
+    <div class="clip-link" data-cliplink hidden></div>
+    <button type="button" class="clip-sound" data-clipsound hidden>{{copy:teams.clips.sound}}</button>
+  </div>
+  <div class="clip-cap" data-clipcap></div></div>
+  <footer class="clip-nav">
+    <button type="button" class="clip-step" data-clipprev aria-label="{{copy:teams.clips.prevClip}}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <span class="clip-up" data-clipup></span>
+    <button type="button" class="clip-step" data-clipnext aria-label="{{copy:teams.clips.nextClip}}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+  </footer>
+  <div class="clip-end" data-clipend hidden></div>
+</section>
 
 <script>
 /*__HEADS__*/

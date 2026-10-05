@@ -9,7 +9,8 @@ from test_render import open_page  # noqa: F401
 VIEWS = ["roster", "waivers", "board", "movers", "usage", "news", "parlay", "build", "dfs", "weather", "teams"]
 SIDEWAYS = """[...document.querySelectorAll('#view *')].filter(e =>
   /(auto|scroll)/.test(getComputedStyle(e).overflowX) && e.scrollWidth > e.clientWidth + 4
-  && !e.matches('.bd-tabs:not(.bets-tabsrow .bd-tabs)')).map(e => String(e.className).slice(0, 40))"""
+  && !e.matches('.bd-tabs:not(.bets-tabsrow .bd-tabs), .reel-track')).map(e => String(e.className).slice(0, 40))"""
+# .reel-track is the Roster's clip rail, the STYLE.md exception for a one-row thumbnail rail (Roster clips, 2026-10-05).
 
 
 @pytest.mark.parametrize("leaf", VIEWS)

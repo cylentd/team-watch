@@ -1,298 +1,366 @@
-"""The ring on a roster head and the clip sheet it opens (roster clips, unit U5, 2026-10-05).
-Runs on the ESPN fixture: Purdy (3 clips), Kittle and C. Brown (1 each) have the ring; Higgins has
-none, but his club's game video is in LIVE_CLIPS. The page is a file here, where the embed cannot
-load, so a test that wants the embed turns it on (clipEmbedOk); every https request is aborted, so
-nothing leaves the machine."""
-import re
-
+"""The clip theater and the ring that opens it (Clips v2, unit U4, 2026-10-05).
+Runs on the ESPN fixture: Purdy (two clips YouTube refuses on other sites, then one tall that plays),
+Kittle (one refused) and C. Brown (a tall and a wide that play) have the ring; Higgins has none, but his
+club's game video is in LIVE_CLIPS. The page is a file here, where the embed cannot load, so a test that
+wants it on sets clipEmbedOk; every https request is aborted and `window.YT` is a stub that records what
+the page asks of the player and lets a test fire its events, so nothing leaves the machine."""
 import pytest
 
-from test_render import drive, go, open_page  # noqa: F401
+from test_render import drive, go, open_at
 
 RING = ".row .head[data-clips]"
-SHEET_OPEN = "document.getElementById('clipsheet').classList.contains('on')"
-PROFILE_OPEN = "document.getElementById('modal').classList.contains('on')"
-
-
-def roster(browser, page_file, viewport=(360, 780)):
-    ctx, page, errors = open_page(browser, page_file, viewport)
-    drive(page, go("roster"))
-    page.evaluate("VIEW='espn'; render()")
-    return ctx, page, errors
-
-
-def row_of(page, name):
-    return page.locator(".row", has=page.locator(".nm-full", has_text=name)).first
-
-
-def open_ring(page, name="Brock Purdy"):
-    row_of(page, name).locator(".head").click()
-    page.wait_for_function(SHEET_OPEN)
-
-
-@pytest.mark.render
-def test_a_head_with_clips_has_the_ring_and_the_count(browser, page_file):
-    ctx, page, errors = roster(browser, page_file)
-    purdy, higgins = row_of(page, "Brock Purdy").locator(".head"), row_of(page, "Tee Higgins").locator(".head")
-    assert purdy.get_attribute("data-clips") == "3"
-    assert purdy.locator(".clipn").inner_text() == "3"
-    assert purdy.get_attribute("role") == "button" and purdy.get_attribute("tabindex") == "0"
-    assert "3 clips" in purdy.get_attribute("aria-label")
-    assert row_of(page, "George Kittle").locator(".head").get_attribute("aria-label").endswith("1 clip")
-    assert higgins.get_attribute("data-clips") is None and higgins.locator(".clipn").count() == 0
-    assert higgins.get_attribute("role") is None
-    assert errors == []
-    ctx.close()
+OPEN = "document.getElementById('clipsheet').classList.contains('on')"
+STUB = """
+window.__yt = {players: [], calls: []};
+window.YT = {Player: class {
+  constructor(target, opts){ this.opts = opts; this.muted = false; __yt.players.push(this); __yt.calls.push(['new', target]); }
+  loadVideoById(id){ __yt.calls.push(['load', id]); }
+  cueVideoById(id){ __yt.calls.push(['cue', id]); }
+  stopVideo(){ __yt.calls.push(['stop']); }
+  playVideo(){ __yt.calls.push(['play']); }
+  mute(){ this.muted = true; __yt.calls.push(['mute']); }
+  unMute(){ this.muted = false; __yt.calls.push(['unmute']); }
+  isMuted(){ return this.muted; }
+}};
+"""
+STUB += "window.__YTSTUB = window.YT;"
+RESET = """() => { 'use strict';
+  if (CT) clipClose();
+  Object.assign(CP, {player: null, ready: false, load: null, muted: false, loud: false});
+  CLIP_API = ""; CLIP_WAIT = []; CLIP_BLOCKED = false;
+  window.YT = window.__YTSTUB;
+  __yt.players.length = 0; __yt.calls.length = 0;
+  clipEmbedOk = () => true;
+}"""
+# The rail's items for Purdy's three, Kittle's one (the touchdown pass is Purdy's second too: one item
+# naming both) and Chase Brown's two, plus a Short YouTube refuses.
+ITEMS = """() => {
+  const r = TEAMS.espn.roster, by = n => r.find(p => p.n === n), p = by('Brock Purdy');
+  const cards = ['Brock Purdy', 'George Kittle', 'Chase Brown'].map(n => ({p: by(n), clips: clipItemsOf(by(n))}));
+  window.__items = [...reelItems(cards),
+    {c: {id: 'tallblock01', title: 'A Short YouTube refuses', shape: 'tall', embed: false}, p, ps: [p]}];
+}"""
 
 
 @pytest.fixture(scope="module")
-def nosched_file(built, page_file):
-    """The same page built with no schedule: the build writes it as one `const LIVE_SCHEDULE = {...};` line."""
-    text, n = re.subn(r"^const LIVE_SCHEDULE = .*;$", "const LIVE_SCHEDULE = null;", built.page, count=1, flags=re.M)
-    assert n == 1
-    p = page_file.parent / "nosched.html"
-    p.write_text(text, encoding="utf-8")
-    return p
-
-
-@pytest.mark.render
-def test_a_club_finds_its_game_video_under_either_spelling_with_or_without_a_schedule(browser, page_file, nosched_file):
-    probe = "[clipGameOf('LA'), clipGameOf('LAR'), clipGameOf('WAS'), clipGameOf('SF'), clipGameOf('ZZZ')].map(g => g && g.id)"
-    for page_path, schedule in ((page_file, True), (nosched_file, False)):
-        ctx, page, errors = roster(browser, page_path)
-        assert page.evaluate("schedOk()") is schedule
-        page.evaluate("LIVE_CLIPS.games.WSH = {id: 'wwwwwwwwww1', title: 'Game Highlights', secs: 9}")
-        assert page.evaluate(probe) == ["cccccccccc1", "cccccccccc1", "wwwwwwwwww1", "cccccccccc1", None]
-        assert errors == []
-        ctx.close()
-
-
-@pytest.mark.render
-def test_the_sheet_header_carries_the_weeks_points_and_line_when_the_page_has_them(browser, page_file):
-    ctx, page, errors = roster(browser, page_file)
-    open_ring(page, "Chase Brown")
-    assert page.locator("#clipsheet .clip-who p").count() == 1, "no box score for the week yet: position and team only"
-    page.keyboard.press("Escape")
-    page.evaluate("LIVE_GAMELOG.rows.push({slug: 'chase-brown', pos: 'RB', wk: 4, pts: 30.2, car: 20, rush_yds: 100, rush_td: 0,"
-                  " rec: 2, rec_yds: 10, rec_td: 0, tgt: 3}); render()")
-    open_ring(page, "Chase Brown")
-    who = page.locator("#clipsheet .clip-who")
-    assert who.locator("p").first.inner_text() == "RB · CIN"
-    assert who.locator(".clip-wk").inner_text() == "30.2 · 20-100-0 · 2-10"
-    assert errors == []
+def theater(browser, page_file):
+    ctx, page, errors = open_at(browser, page_file, (360, 800), init=[STUB])
+    drive(page, go("roster"))
+    page.evaluate("VIEW='espn'; render()")
+    page.evaluate(ITEMS)
+    yield page, errors
     ctx.close()
 
 
-@pytest.mark.render
-def test_the_ring_changes_no_row_height(browser, page_file):
-    ctx, page, errors = roster(browser, page_file)
-    with_ring = page.evaluate("[...document.querySelectorAll('.row')].map(r => r.getBoundingClientRect().height)")
-    page.evaluate("document.querySelectorAll('.head[data-clips]').forEach(h => { h.removeAttribute('data-clips'); h.querySelector('.clipn').remove(); })")
-    without = page.evaluate("[...document.querySelectorAll('.row')].map(r => r.getBoundingClientRect().height)")
-    assert with_ring == without
-    assert errors == []
-    ctx.close()
+@pytest.fixture
+def pg(theater):
+    page, errors = theater
+    page.evaluate(RESET)
+    page.wait_for_function("LAYER_SKIP.length === 0")
+    page.evaluate("LAYERS.length = 0")
+    del errors[:]
+    yield page
+    assert errors == [], errors
 
 
-@pytest.mark.render
-def test_the_ring_opens_the_clip_sheet_and_the_rest_of_the_row_opens_the_profile(browser, page_file):
-    ctx, page, errors = roster(browser, page_file)
-    open_ring(page)
-    assert page.evaluate(SHEET_OPEN) and not page.evaluate(PROFILE_OPEN)
-    sheet = page.locator("#clipsheet")
-    assert sheet.get_attribute("role") == "dialog" and sheet.get_attribute("aria-hidden") == "false"
-    assert sheet.is_visible()
-    assert page.evaluate("document.getElementById('clipsheet').contains(document.activeElement)")
-    assert "Brock Purdy" in sheet.locator(".clip-name").inner_text()
-    page.keyboard.press("Escape")
-    row_of(page, "Brock Purdy").locator(".nm").click()
-    page.wait_for_function(PROFILE_OPEN)
-    assert not page.evaluate(SHEET_OPEN)
-    assert errors == []
-    ctx.close()
+def ev(page, name, *args):
+    """Fire one of the player's events, the way YouTube's script would."""
+    page.evaluate(f"(a) => __yt.players[0].opts.events.{name}(a)", args[0] if args else {})
 
 
-@pytest.mark.render
-def test_the_ring_answers_enter_and_space_without_opening_the_profile(browser, page_file):
-    ctx, page, errors = roster(browser, page_file)
-    head = row_of(page, "Brock Purdy").locator(".head")
-    for key in ("Enter", " "):
-        head.focus()
-        page.keyboard.press(key)
-        page.wait_for_function(SHEET_OPEN)
-        assert not page.evaluate(PROFILE_OPEN)
-        page.keyboard.press("Escape")
-        page.wait_for_function(f"!({SHEET_OPEN})")
-    assert errors == []
-    ctx.close()
+def state(page, code):
+    ev(page, "onStateChange", {"data": code})
 
 
-@pytest.mark.render
-@pytest.mark.parametrize("how", ["Escape", "close", "scrim"])
-def test_the_sheet_closes_and_focus_goes_back_to_the_head(browser, page_file, how):
-    ctx, page, errors = roster(browser, page_file)
-    open_ring(page)
-    if how == "Escape":
-        page.keyboard.press("Escape")
-    elif how == "close":
-        page.locator("#clipsheet .clip-x").click()
-    else:
-        page.mouse.click(180, 40)     # the scrim above the sheet
-    page.wait_for_function(f"!({SHEET_OPEN})")
-    assert page.evaluate("document.activeElement === document.querySelector('.head[data-clips]')")
-    assert page.evaluate("document.querySelector('#clipsheet').getAttribute('aria-hidden')") == "true"
-    assert errors == []
-    ctx.close()
+def play_all(page, start=2):
+    """Items 0-5: Purdy's three (the second also Kittle's), Brown's two, a Short; 2, 3 and 4 play."""
+    page.evaluate(f"clipTheaterOpen(__items, {start}, null)")
+    ev(page, "onReady")
 
 
-@pytest.mark.render
-def test_back_closes_the_sheet_before_it_changes_the_view(browser, page_file):
-    ctx, page, errors = roster(browser, page_file)
-    open_ring(page)
-    page.go_back()
-    page.wait_for_function(f"!({SHEET_OPEN})")
-    assert page.locator(".row").count() > 0, "still on the roster"
-    assert page.evaluate("location.hash") in ("#roster", "")
-    assert errors == []
-    ctx.close()
+def loads(page):
+    return page.evaluate("__yt.calls.filter(c => c[0] === 'load').map(c => c[1])")
 
 
-@pytest.mark.render
-def test_the_stage_is_a_thumbnail_until_play_then_the_nocookie_embed(browser, page_file):
-    ctx, page, errors = roster(browser, page_file)
+def box(page):
+    return page.evaluate("""(() => { const b = document.querySelector('[data-clipbox]').getBoundingClientRect(),
+      m = document.querySelector('.clip-main').getBoundingClientRect(), n = document.querySelector('.clip-nav').getBoundingClientRect(),
+      c = document.querySelector('.clip-cap').getBoundingClientRect();
+      return {w: b.width, h: b.height, top: b.top, bottom: b.bottom, mid: (m.top + m.bottom) / 2, mainMid: (b.top + c.bottom) / 2,
+        capTop: c.top, navTop: n.top, navH: n.height, vh: innerHeight, vw: innerWidth};
+    })()""")
+
+
+def test_one_player_plays_every_clip_and_ended_hands_on_to_the_next(pg):
+    play_all(pg)
+    assert pg.locator("[data-clipcount]").inner_text() == "1 / 3"
+    assert loads(pg) == ["aaaaaaaaaa3"]
+    state(pg, 0)
+    assert loads(pg) == ["aaaaaaaaaa3", "bbbbbbbbbb1"]
+    assert pg.locator("[data-clipcount]").inner_text() == "2 / 3"
+    assert "Chase Brown" in pg.locator(".clip-who").inner_text()
+    state(pg, 0)
+    assert loads(pg)[-1] == "bbbbbbbbbb2"
+    pg.locator("[data-clipprev]").click()
+    pg.locator("[data-clipnext]").click()
+    assert loads(pg)[-2:] == ["bbbbbbbbbb1", "bbbbbbbbbb2"]
+    assert pg.evaluate("__yt.players.length") == 1 and pg.evaluate("__yt.calls.filter(c => c[0] === 'new').length") == 1
+    assert pg.evaluate("document.querySelectorAll('#clipsheet iframe').length") == 0, "no iframe of ours: the one player is YouTube's"
+    state(pg, 0)       # the last one ended: the end card
+    assert pg.locator("[data-clipend]").is_visible()
+
+
+def test_the_end_card_lists_the_youtube_only_clips_as_links_with_shorts_and_watch_urls(pg):
+    play_all(pg)
+    for _ in range(3):
+        state(pg, 0)
+    assert pg.locator(".clip-done").inner_text() == "That's all 3"
+    rows = pg.locator(".clip-ends a")
+    assert [rows.nth(i).get_attribute("href") for i in range(rows.count())] == [
+        "https://www.youtube.com/watch?v=aaaaaaaaaa1", "https://www.youtube.com/watch?v=aaaaaaaaaa2",
+        "https://www.youtube.com/shorts/tallblock01"], "the shared touchdown pass is one row"
+    assert rows.nth(1).locator(".clip-rw b").inner_text() == "B. Purdy, G. Kittle"
+    row = rows.nth(2)
+    assert row.get_attribute("target") == "_blank" and "noopener" in row.get_attribute("rel")
+    assert "B. Purdy" in row.inner_text() and "A Short YouTube refuses" in row.inner_text() and "YouTube" in row.locator(".clip-ytchip").inner_text()
+    assert row.locator("img").get_attribute("src") == "https://i.ytimg.com/vi/tallblock01/oar2.jpg"
+    assert rows.nth(1).locator("img").get_attribute("src") == "https://i.ytimg.com/vi/aaaaaaaaaa2/hqdefault.jpg"
+    assert pg.locator("[data-clipnext]").is_disabled() and pg.locator("[data-clipprev]").is_enabled()
+    pg.locator("[data-clipprev]").click()      # back to the last clip that played
+    assert pg.locator(".clip-end").is_hidden() and loads(pg)[-1] == "bbbbbbbbbb2"
+
+
+def test_the_end_card_opens_when_nothing_plays_here_or_the_caller_asks_for_it(pg):
+    pg.evaluate("clipTheaterOpen(__items, -1, null)")
+    assert pg.locator("[data-clipend]").is_visible() and pg.locator(".clip-done").count() == 0
+    assert pg.locator(".clip-ends a").count() == 3
+    assert pg.evaluate("__yt.calls.filter(c => c[0] === 'load').length") == 0
+    pg.evaluate("clipClose()")
+    pg.evaluate("() => { CP.player = null; CP.ready = false; __yt.players.length = 0; }")
+    pg.evaluate("clipEmbedOk = () => false")      # a file, the Artifact frame: nothing plays
+    pg.wait_for_function("LAYER_SKIP.length === 0")
+    pg.evaluate("clipTheaterOpen(__items, 3, null)")
+    assert pg.locator("[data-clipend]").is_visible() and pg.locator(".clip-ends a").count() == 6
+    assert pg.evaluate("__yt.players.length") == 0, "no player is built where it cannot play"
+
+
+def test_a_tall_clip_is_a_9_16_box_no_wider_than_328_and_a_wide_clip_16_9(pg):
+    play_all(pg, 3)      # Brown's Short first
+    t = box(pg)
+    assert t["w"] <= 328.01 and abs(t["w"] / t["h"] - 9 / 16) < 0.01, t
+    assert t["bottom"] <= t["navTop"]
+    state(pg, 0)         # his wide one
+    w = box(pg)
+    assert abs(w["w"] - 328) < 1 and abs(w["w"] / w["h"] - 16 / 9) < 0.01, w
+    assert pg.evaluate("document.querySelector('[data-clipbox]').classList.contains('tall')") is False
+
+
+def test_the_video_and_its_caption_are_centred_together_with_nothing_to_tap_under_them(pg):
+    play_all(pg, 4)      # the wide one: the most room above and below
+    b = box(pg)
+    assert abs(b["mid"] - b["mainMid"]) < 1.5, b
+    assert abs(b["capTop"] - b["bottom"]) < 1, "the caption sits right under the video, not at the bottom edge"
+    assert b["navH"] == 72 and pg.evaluate("document.querySelector('.clip-top').getBoundingClientRect().height") == 56
+    taps = pg.evaluate("""(() => { const bx = document.querySelector('[data-clipbox]').getBoundingClientRect(),
+      nav = document.querySelector('.clip-nav');
+      return [...document.querySelectorAll('#clipsheet button, #clipsheet a[href], #clipsheet [tabindex]')]
+        .filter(e => e.getClientRects().length && !nav.contains(e) && e.getBoundingClientRect().top >= bx.bottom - 1)
+        .map(e => e.className); })()""")
+    assert taps == [], "only the bottom row sits under the video"
+    for sel, size in (("[data-clipprev]", 48), ("[data-clipnext]", 48), (".clip-x", 44)):
+        r = pg.locator(sel).bounding_box()
+        assert r["width"] == size and r["height"] == size, sel
+    assert pg.locator(".clip-up").inner_text() == "Last clip"
+    assert pg.evaluate("document.documentElement.scrollWidth") <= 360
+
+
+def test_the_caption_names_the_player_and_the_bottom_row_who_is_next(pg):
+    play_all(pg, 2)
+    cap = pg.locator("[data-clipcap]")
+    assert cap.locator(".clip-who b").inner_text() == "Brock Purdy" and "QB" in cap.locator(".clip-who").inner_text()
+    assert cap.locator(".clip-title").inner_text() == "Purdy scrambles for the first down"
+    assert pg.evaluate("getComputedStyle(document.querySelector('.clip-title')).whiteSpace") == "nowrap"
+    assert pg.locator(".clip-up").inner_text() == "Next: C. Brown"
+    assert pg.locator("[data-clipprev]").is_disabled()
+    assert pg.locator(".clip-bars, .clip-list, .clip-next").count() == 0
+
+
+def test_error_150_shows_the_link_stage_and_play_all_moves_on_after_two_seconds(pg):
+    play_all(pg, 3)
+    ev(pg, "onError", {"data": 150})
+    link = pg.locator("[data-cliplink] a")
+    assert link.get_attribute("href") == "https://www.youtube.com/shorts/bbbbbbbbbb1" and "Watch on YouTube" in link.inner_text()
+    assert pg.locator("[data-cliplink] img").get_attribute("src") == "https://i.ytimg.com/vi/bbbbbbbbbb1/oar2.jpg"
+    pg.wait_for_function("__yt.calls.some(c => c[0] === 'load' && c[1] === 'bbbbbbbbbb2')", timeout=4000)
+    assert pg.locator("[data-cliplink]").is_hidden() and pg.locator("[data-clipcount]").inner_text() == "3 / 3"
+
+
+def test_another_error_code_shows_the_link_stage_and_stays(pg):
+    play_all(pg, 3)
+    ev(pg, "onError", {"data": 5})
+    assert pg.locator("[data-cliplink] a").is_visible()
+    pg.wait_for_timeout(2400)
+    assert pg.locator("[data-clipcount]").inner_text() == "2 / 3" and loads(pg) == ["bbbbbbbbbb1"]
+    pg.locator("[data-clipnext]").click()
+    assert pg.locator("[data-cliplink]").is_hidden() and loads(pg)[-1] == "bbbbbbbbbb2"
+
+
+def test_blocked_autoplay_plays_muted_with_a_pill_and_a_tap_gives_the_sound_back_for_every_clip(pg):
+    play_all(pg, 3)
+    pill = pg.locator("[data-clipsound]")
+    assert pill.is_hidden()
+    ev(pg, "onAutoplayBlocked")
+    assert pill.is_visible() and pill.inner_text() == "Tap for sound"
+    assert pg.evaluate("__yt.calls.filter(c => c[0] === 'mute').length") == 1
+    assert pg.evaluate("getComputedStyle(document.querySelector('[data-clipsound]')).backgroundColor") == "rgb(200, 255, 46)"
+    state(pg, 0)         # still muted on the next clip: the pill stays
+    assert pill.is_visible()
+    pill.click()
+    assert pill.is_hidden() and pg.evaluate("__yt.calls.filter(c => c[0] === 'unmute').length") == 1
+    pg.locator("[data-clipprev]").click()
+    assert pill.is_hidden(), "later clips keep the sound"
+
+
+def test_a_start_the_browser_muted_shows_the_pill_too(pg):
+    play_all(pg, 3)
+    pg.evaluate("__yt.players[0].muted = true")
+    state(pg, 1)
+    assert pg.locator("[data-clipsound]").is_visible()
+
+
+def test_a_tap_that_comes_before_the_player_is_ready_plays_when_it_is(pg):
+    pg.evaluate("clipTheaterOpen(__items, 3, null)")
+    assert pg.evaluate("__yt.players.length") == 1 and loads(pg) == []
+    ev(pg, "onReady")
+    assert loads(pg) == ["bbbbbbbbbb1"]
+
+
+def test_warm_is_idempotent_and_builds_the_player_without_loading_or_cueing_a_clip(pg):
+    pg.evaluate("clipWarm(); clipWarm(); clipWarm()")
+    assert pg.evaluate("__yt.players.length") == 1
+    assert pg.evaluate("[...document.head.querySelectorAll('link[rel=preconnect]')].map(l => l.href)").count("https://i.ytimg.com/") == 1
+    hosts = pg.evaluate("[...document.head.querySelectorAll('link[rel=preconnect]')].map(l => l.href)")
+    assert "https://www.youtube-nocookie.com/" in hosts and "https://i.ytimg.com/" in hosts
+    ev(pg, "onReady")
+    assert pg.evaluate("__yt.calls.filter(c => c[0] === 'cue' || c[0] === 'load')") == []
+
+
+def test_a_tap_on_a_playable_rail_card_after_the_player_is_warm_sends_one_load_and_no_cue(pg):
+    """Real YouTube drops a loadVideoById that follows a cueVideoById, so a press must cue nothing."""
+    pg.evaluate("clipWarm()")
+    ev(pg, "onReady")
+    pg.evaluate("render()")
+    card = pg.locator("button.reel-card").first
+    card.scroll_into_view_if_needed()
+    box_ = card.bounding_box()
+    pg.mouse.move(box_["x"] + 20, box_["y"] + 20)
+    pg.mouse.down()
+    assert pg.evaluate("__yt.calls.filter(c => c[0] === 'cue').length") == 0, "the press cues nothing"
+    pg.mouse.up()
+    pg.wait_for_function(OPEN)
+    assert pg.evaluate("__yt.calls.filter(c => c[0] === 'cue' || c[0] === 'load')") == [["load", "aaaaaaaaaa3"]]
+
+
+def test_one_clip_credited_to_two_starters_is_one_item_naming_both(pg):
+    items = pg.evaluate("__items.map(it => [it.c.id, it.ps.map(p => p.n)])")
+    assert [i[0] for i in items] == ["aaaaaaaaaa1", "aaaaaaaaaa2", "aaaaaaaaaa3", "bbbbbbbbbb1", "bbbbbbbbbb2", "tallblock01"]
+    assert items[1][1] == ["Brock Purdy", "George Kittle"]
+    pg.evaluate("""() => { const x = __items[1]; x.c = {...x.c, embed: true}; clipTheaterOpen(__items, 1, null); }""")
+    ev(pg, "onReady")
+    assert pg.locator(".clip-who b").inner_text() == "B. Purdy, G. Kittle"
+    assert "QB/TE" in pg.locator(".clip-who").inner_text()
+    assert loads(pg) == ["aaaaaaaaaa2"] and pg.locator("[data-clipcount]").inner_text() == "1 / 4"
+    assert pg.locator(".clip-up").inner_text() == "Next: B. Purdy"
+    pg.evaluate("__items[1].c = {...__items[1].c, embed: false}")
+
+
+def test_a_failed_api_load_while_the_theater_waits_shows_the_youtube_links(pg):
+    pg.evaluate("delete window.YT")      # the page's iframe_api request is aborted: the script's onerror fires
+    pg.evaluate("clipTheaterOpen(__items, 3, null)")
+    pg.wait_for_selector("[data-cliplink] a", state="visible")
+    link = pg.locator("[data-cliplink] a")
+    assert link.get_attribute("href") == "https://www.youtube.com/shorts/bbbbbbbbbb1" and "Watch on YouTube" in link.inner_text()
+    assert pg.evaluate("CLIP_BLOCKED") is True and pg.evaluate("CP.load") is None
+    assert pg.evaluate("__yt.players.length") == 0 and loads(pg) == []
+
+
+def test_escape_back_and_the_close_button_shut_the_theater(pg):
+    play_all(pg)
+    pg.keyboard.press("Escape")
+    assert not pg.evaluate(OPEN) and pg.evaluate("__yt.calls.slice(-1)[0]") == ["stop"]
+    pg.wait_for_function("LAYER_SKIP.length === 0")
+    play_all(pg)
+    pg.go_back()
+    pg.wait_for_function(f"!({OPEN})")
+    assert pg.locator("#clipsheet").get_attribute("aria-hidden") == "true"
+    play_all(pg)
+    pg.locator(".clip-x").click()
+    assert not pg.evaluate(OPEN)
+    pg.wait_for_function("LAYER_SKIP.length === 0")
+
+
+def test_the_arrow_keys_step_and_the_counter_is_in_the_mono_face(pg):
+    play_all(pg)
+    pg.keyboard.press("ArrowRight")
+    assert pg.locator("[data-clipcount]").inner_text() == "2 / 3"
+    pg.keyboard.press("ArrowLeft")
+    assert pg.locator("[data-clipcount]").inner_text() == "1 / 3"
+    mono = pg.evaluate("""(() => { const s = document.createElement('span'); s.style.fontFamily = 'var(--mono)';
+      document.body.appendChild(s); const f = getComputedStyle(s).fontFamily; s.remove(); return f; })()""")
+    assert pg.evaluate("getComputedStyle(document.querySelector('[data-clipcount]')).fontFamily") == mono
+
+
+def test_the_theater_is_full_screen_and_opaque(pg):
+    play_all(pg)
+    r = pg.locator("#clipsheet").bounding_box()
+    assert r["x"] == 0 and r["y"] == 0 and r["width"] == 360 and r["height"] == 800
+    assert pg.evaluate("getComputedStyle(document.getElementById('clipsheet')).backgroundColor") == "rgb(0, 0, 0)"
+    assert pg.evaluate("document.elementFromPoint(180, 400).closest('#clipsheet') !== null")
+
+
+def test_the_ring_warms_the_player_on_pointerdown_and_opens_his_own_clips(pg):
+    pg.evaluate("render()")
+    head = pg.locator(".row", has=pg.locator(".nm-full", has_text="Chase Brown")).first.locator(".head")
+    head.dispatch_event("pointerdown")
+    assert pg.evaluate("__yt.players.length") == 1
+    head.click()
+    pg.wait_for_function(OPEN)
+    ev(pg, "onReady")
+    assert loads(pg) == ["bbbbbbbbbb1"] and pg.locator("[data-clipcount]").inner_text() == "1 / 2", "his own two clips, not the others"
+    assert pg.evaluate("document.getElementById('clipsheet').contains(document.activeElement)")
+    pg.keyboard.press("Escape")
+    pg.wait_for_function(f"!({OPEN})")
+    assert pg.evaluate("document.activeElement.matches('.head[data-clips]')"), "focus goes back to the ring"
+
+
+def test_a_ring_whose_clips_none_play_here_opens_the_end_card(pg):
+    pg.evaluate("render()")
+    pg.locator(".row", has=pg.locator(".nm-full", has_text="George Kittle")).first.locator(".head").click()
+    pg.wait_for_function(OPEN)
+    assert pg.locator("[data-clipend]").is_visible()
+    assert pg.locator(".clip-ends a").get_attribute("href") == "https://www.youtube.com/watch?v=aaaaaaaaaa2"
+    assert pg.evaluate("__yt.calls.filter(c => c[0] === 'load').length") == 0
+
+
+def test_a_player_with_no_clips_of_his_own_plays_his_games_highlight_link(pg):
+    pg.evaluate("""() => { const p = TEAMS.espn.roster.find(p => p.n === 'Tee Higgins');
+      const items = clipItemsOf(p).map(c => ({c, p})); clipTheaterOpen(items, -1, null); }""")
+    assert pg.locator(".clip-ends a").get_attribute("href") == "https://www.youtube.com/watch?v=cccccccccc2"
+    assert "Bengals vs. Bills" in pg.locator(".clip-ends").inner_text()
+
+
+def test_the_theater_fits_a_desktop_screen_by_height(browser, page_file):
+    ctx, page, errors = open_at(browser, page_file, (1280, 600), init=[STUB])
+    drive(page, go("roster"))
+    page.evaluate("VIEW='espn'; render()")
+    page.evaluate(ITEMS)
     page.evaluate("clipEmbedOk = () => true")
-    open_ring(page, "Chase Brown")      # his one clip plays here (embed true)
-    stage = page.locator("#clipsheet [data-clipstage]")
-    assert stage.locator("img").get_attribute("src") == "https://i.ytimg.com/vi/bbbbbbbbbb1/mqdefault.jpg"
-    assert stage.locator("iframe").count() == 0
-    ratio = stage.evaluate("e => e.getBoundingClientRect().width / e.getBoundingClientRect().height")
-    assert abs(ratio - 16 / 9) < 0.02, ratio
-    assert page.locator("#clipsheet script, script[src*='iframe_api']").count() == 0, "the API loads on the first play"
-    stage.locator("[data-clipplay]").click()
-    frame = stage.locator("iframe")
-    src = frame.get_attribute("src")
-    assert src.startswith("https://www.youtube-nocookie.com/embed/bbbbbbbbbb1?") and "enablejsapi=1" in src, src
-    assert "autoplay" in frame.get_attribute("allow") and frame.get_attribute("title")
-    assert page.locator("script[src*='iframe_api']").count() == 1
-    assert errors == []
-    ctx.close()
-
-
-@pytest.mark.render
-def test_where_the_embed_cannot_load_the_stage_is_a_link_to_youtube(browser, page_file):
-    ctx, page, errors = roster(browser, page_file)      # a file: the embed is off
-    open_ring(page)
-    link = page.locator("#clipsheet [data-clipstage] a")
-    assert link.get_attribute("href") == "https://www.youtube.com/watch?v=aaaaaaaaaa1"
-    assert "Watch on YouTube" in link.inner_text()
-    assert page.locator("#clipsheet iframe").count() == 0
-    assert errors == []
-    ctx.close()
-
-
-@pytest.mark.render
-def test_a_players_clips_are_bars_a_caption_and_a_list_and_a_tap_plays_one(browser, page_file):
-    ctx, page, errors = roster(browser, page_file)
-    page.evaluate("clipEmbedOk = () => true")
-    open_ring(page)
-    sheet = page.locator("#clipsheet")
-    assert sheet.locator(".clip-bars i").count() == 3 and sheet.locator(".clip-bars i.now").count() == 1
-    assert "Best plays" in sheet.locator(".clip-kick").text_content() and "1 of 3" in sheet.locator(".clip-kick").text_content()
-    assert sheet.locator(".clip-list .clip-row").count() == 2, "the rest of his clips"
-    assert sheet.locator(".clip-next").count() == 0, "opened from the ring: nothing is next"
-    sheet.locator(".clip-row").last.click()          # the clip that plays here (the other two are YouTube's)
-    assert "3 of 3" in sheet.locator(".clip-kick").text_content()
-    assert "aaaaaaaaaa3" in sheet.locator("iframe").get_attribute("src")
-    page.evaluate("clipAdvance()")
-    assert "3 of 3" in sheet.locator(".clip-kick").text_content(), "the last clip rests"
-    assert errors == []
-    ctx.close()
-
-
-@pytest.mark.render
-def test_a_clip_that_cannot_embed_is_the_youtube_link_from_the_start_and_never_an_iframe(browser, page_file):
-    ctx, page, errors = roster(browser, page_file)
-    page.evaluate("clipEmbedOk = () => true")       # the page could embed; YouTube refuses this clip
-    open_ring(page)                                 # Purdy's first clip: the NFL channel's best plays
-    sheet = page.locator("#clipsheet")
-    link = sheet.locator("[data-clipstage] a.clip-poster")
-    assert link.get_attribute("href") == "https://www.youtube.com/watch?v=aaaaaaaaaa1"
-    assert "Watch on YouTube" in link.inner_text() and link.locator(".yt-mark").count() == 1
-    assert sheet.locator(".clip-play, [data-clipplay]").count() == 0, "no play button for a clip that does not play here"
-    assert sheet.locator("iframe").count() == 0 and page.locator("script[src*='iframe_api']").count() == 0
-    assert "Watch on YouTube" in link.get_attribute("aria-label")
-    # The list marks the two he cannot play here and not the one he can; a tap on a marked row shows its link.
-    rows = sheet.locator(".clip-row")
-    assert [rows.nth(i).locator(".yt-mark").count() for i in range(2)] == [1, 0]
-    assert "Watch on YouTube" in rows.first.get_attribute("aria-label")
-    assert "aria-hidden" in rows.first.locator(".yt-mark").evaluate("e => e.getAttributeNames().join(' ')")
-    rows.first.click()
-    assert "2 of 3" in sheet.locator(".clip-kick").text_content()
-    assert sheet.locator("[data-clipstage] a.clip-poster").get_attribute("href") == "https://www.youtube.com/watch?v=aaaaaaaaaa2"
-    assert sheet.locator("iframe").count() == 0
-    # Kittle has only that clip: opened from his own ring it is the link too.
-    page.keyboard.press("Escape")
-    open_ring(page, "George Kittle")
-    assert page.locator("#clipsheet [data-clipstage] a.clip-poster").count() == 1 and page.locator("#clipsheet iframe").count() == 0
-    assert errors == []
-    ctx.close()
-
-
-@pytest.mark.render
-def test_play_all_starts_at_the_first_clip_that_plays_and_skips_the_ones_that_do_not(browser, page_file):
-    ctx, page, errors = roster(browser, page_file)
-    page.evaluate("clipEmbedOk = () => true;"
-                  "const r = TEAMS.espn.roster, by = n => r.find(p => p.n === n);"
-                  "window.__q = [by('George Kittle'), by('Brock Purdy'), by('Chase Brown')];"
-                  "clipSheetOpen(__q, 0, null, true)")
-    sheet = page.locator("#clipsheet")
-    assert "Brock Purdy" in sheet.locator(".clip-name").inner_text(), "Kittle has only blocked clips"
-    assert "3 of 3" in sheet.locator(".clip-kick").text_content(), "Purdy's first two are blocked"
-    nxt = sheet.locator(".clip-next")
-    assert "Next: C. Brown" in nxt.inner_text() and "1 play" in nxt.inner_text()
-    sheet.locator("[data-clipplay]").click()
-    assert "aaaaaaaaaa3" in sheet.locator("iframe").get_attribute("src")
-    page.evaluate("clipAdvance()")
-    assert "Chase Brown" in sheet.locator(".clip-name").inner_text()
-    assert "bbbbbbbbbb1" in sheet.locator("iframe").get_attribute("src")
-    # A player of only blocked clips is skipped by the walk, though his own ring still opens him.
-    page.evaluate("clipSheetOpen([__q[2], __q[0], __q[1]], 0, null, true)")
-    assert "Next: B. Purdy" in sheet.locator(".clip-next").inner_text(), "Kittle is passed over"
-    page.evaluate("clipAdvance()")
-    assert "Brock Purdy" in sheet.locator(".clip-name").inner_text() and "aaaaaaaaaa3" in sheet.locator("iframe").get_attribute("src")
-    # A queue with nothing that plays still opens, on its first entry's link.
-    page.evaluate("clipSheetOpen([__q[0]], 0, null, true)")
-    assert "George Kittle" in sheet.locator(".clip-name").inner_text() and sheet.locator("a.clip-poster").count() == 1
-    assert errors == []
-    ctx.close()
-
-
-@pytest.mark.render
-def test_a_queue_plays_game_highlights_for_a_player_with_no_clips_then_hands_on(browser, page_file):
-    ctx, page, errors = roster(browser, page_file)
-    page.evaluate("clipEmbedOk = () => true;"
-                  "const r = TEAMS.espn.roster; clipSheetOpen([r.find(p => p.n === 'Tee Higgins'), r.find(p => p.n === 'Brock Purdy')], 0, null)")
-    sheet = page.locator("#clipsheet")
-    assert "Game highlights" in sheet.locator(".clip-kick").text_content()
-    assert "Bengals vs. Bills" in sheet.locator(".clip-title").inner_text()
-    nxt = sheet.locator(".clip-next")
-    assert sheet.locator("a.clip-poster").count() == 1 and sheet.locator("iframe").count() == 0, "game highlights are YouTube's own link"
-    assert "Next: B. Purdy" in nxt.inner_text() and "1 play" in nxt.inner_text(), "only the clip that plays here counts"
-    nxt.click()
-    assert "Brock Purdy" in sheet.locator(".clip-name").inner_text()
-    assert "aaaaaaaaaa3" in sheet.locator("iframe").get_attribute("src"), "he starts at his first clip that plays"
-    assert sheet.locator(".clip-next").count() == 0, "Purdy is last"
-    assert errors == []
-    ctx.close()
-
-
-@pytest.mark.render
-def test_nothing_scrolls_sideways_with_the_sheet_open(browser, page_file):
-    ctx, page, errors = roster(browser, page_file)
-    open_ring(page)
-    wide = page.evaluate("""[document.documentElement, document.body, document.getElementById('clipsheet'),
-      ...document.querySelectorAll('#clipsheet *')].filter(e => e.scrollWidth > e.clientWidth + 1).map(e => e.className || e.tagName)""")
-    assert wide == []
-    assert page.evaluate("document.documentElement.scrollWidth") <= 360
+    page.evaluate("clipTheaterOpen(__items, 4, null)")
+    b = box(page)
+    assert b["bottom"] <= b["navTop"] and abs(b["w"] / b["h"] - 16 / 9) < 0.01 and abs(b["mid"] - b["mainMid"]) < 1.5, b
+    assert b["w"] < 1280 - 32, "cut to the height it has"
+    page.evaluate("clipTheaterOpen(__items, 3, null)")
+    b = box(page)
+    assert b["w"] <= 328.01 and b["bottom"] <= b["navTop"]
     assert errors == []
     ctx.close()

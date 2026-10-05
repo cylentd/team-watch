@@ -23,7 +23,7 @@ def test_block_keeps_clip_order_and_drops_the_decision_cache():
     assert b["week"] == 4
     purdy = b["players"]["brock-purdy"]
     assert [c["kind"] for c in purdy] == ["best_plays", "play", "play"], "best plays first, then plays, as ff-jarvis wrote them"
-    assert set(purdy[0]) == {"id", "title", "kind", "secs", "embed"}, "the raw channel code stays in ff-jarvis"
+    assert set(purdy[0]) == {"id", "title", "kind", "secs", "embed", "shape"}, "the raw channel code stays in ff-jarvis"
     assert [c["kind"] for c in b["players"]["george-kittle"]] == ["play"]
 
 
@@ -53,7 +53,7 @@ def test_embed_passes_through_on_clips_and_games():
     b = live_clips(load_clips())
     assert [c["embed"] for c in b["players"]["brock-purdy"]] == [False, False, True], "a mix: NFL channel clips blocked, a club's not"
     assert [c["embed"] for c in b["players"]["george-kittle"]] == [False]
-    assert [c["embed"] for c in b["players"]["chase-brown"]] == [True]
+    assert [c["embed"] for c in b["players"]["chase-brown"]] == [True, True]
     assert all(g["embed"] is False for g in b["games"].values())
 
 
@@ -64,6 +64,14 @@ def test_a_file_with_no_embed_field_plays():
     contract.validate("LIVE_CLIPS", b)
     assert b["players"]["a"][0]["embed"] is True
     assert b["games"]["SF"]["embed"] is True and b["games"]["LAR"]["embed"] is False
+
+
+def test_shape_passes_through_and_defaults_to_wide():
+    b = live_clips(load_clips())
+    assert [c["shape"] for c in b["players"]["brock-purdy"]] == ["wide", "wide", "tall"], "a Short is tall"
+    assert all(g["shape"] == "wide" for g in b["games"].values())
+    old = live_clips({"week": 4, "players": {"a": [{"id": "z", "title": "t", "kind": "play", "secs": 3, "shape": "odd"}]}})
+    assert old["players"]["a"][0]["shape"] == "wide", "missing or unknown reads as wide"
 
 
 def test_contract_names_a_missing_embed_field():

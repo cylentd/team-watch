@@ -96,7 +96,7 @@
     "surface/lboard/offers.css": "the trade builder sheet and its scrim sit on <body>, outside every view, and its button sits in the roster sheet's foot",
     "surface/lboard/tbedit.css": "the trade builder's edit state is drawn inside that sheet, which sits on <body>, outside every view",
     "surface/live/gamesheet.css": "the game sheet and its scrim sit on <body>, outside every view, and a body:has() rule locks the scroll",
-    "surface/teams/clipsheet.css": "the clip sheet and its scrim sit on <body>, outside every view, like the game sheet",
+    "surface/teams/clipsheet.css": "the clip theater sits on <body>, outside every view, like the game sheet",
     "surface/profile/sheet.css": "the profile modal and Weather",
     "surface/strip/panel.css": "the strip's dialog chrome, the profile modal and Live",
     "surface/teams/cardweather.css": "matched in no golden state, so a fence would be unproven",

@@ -1,26 +1,26 @@
-/* ============================== ROSTER: THE CLIP SHEET ==============================
-   A player's official clips (LIVE_CLIPS, design/clips.py), opened from the ring on his roster head or
-   from the Week plays reel (reel.js). It is the game sheet's shape (surface/live/gamesheet.js): outside
-   #view, Back, Escape, the scrim and a pull down close it (chrome/layers.js), focus goes back to
-   where it came from.
+/* ============================== ROSTER: THE CLIP THEATER ==============================
+   A player's official clips (LIVE_CLIPS, design/clips.py), played full screen over the page: opened by
+   the ring on a roster head (clipWireRings) or by the Week plays rail (reel.js). The player itself is
+   clipplayer.js, one YouTube player for every clip; this part is what is on screen around it.
 
-   The stage shows YouTube's own thumbnail and a play button, and loads nothing else. A tap swaps in
-   the nocookie embed, and only then does the IFrame API script load (it tells us a clip ended, so the
-   next one starts). Where the embed cannot load (a file, a published Artifact whose frame policy
-   refuses YouTube, a video that bans embedding) the stage is a plain link to youtube.com. A clip whose
-   `embed` is false (YouTube refuses it on other sites: the NFL channel, MIN, SEA, SF; error 150) starts
-   as that link, with a YouTube mark in the list; auto-advance and Play all skip it.
+   The theater plays the items that play here (clipCan) in order and lists the rest on its end card as
+   links to YouTube (YouTube refuses the NFL channel, MIN, SEA and SF on other sites: error 150). Where
+   the page cannot embed at all (a file, the Artifact frame) nothing plays and it opens on the end card.
+   Back, Escape, a pull down and the close button shut it (chrome/layers.js); focus returns to where it
+   came from. A sideways swipe, the arrow keys and the two round buttons step.
 
-   Used by the reel: clipsOf, clipGameOf, clipWeekRow, clipData, clipCan, clipYtMark,
-   clipSheetOpen(queue, i, originEl, all). */
+   Used by the rail and the ring: clipTheaterOpen(items, i, originEl), clipWarm, clipNames, clipCan,
+   clipYtUrl, clipThumbOf, clipYtChipHTML, clipYtMark, clipDur, clipsOf, clipGameOf, clipWeekRow,
+   clipRingHTML, clipWireRings. items = [{c: a clip, p: a roster player, ps: every player credited, optional}]; i the one to start (-1: the
+   end card). */
 
-let CLIP = null;         /* {queue, i, k, link} on screen: queue[i] is the player, k his clip; null = closed */
+let CT = null;           /* the theater on screen: {items, play, pos, seen, tok, timer}; null = closed */
 let CLIP_RETURN = null;
-let CLIP_API = "";        /* the IFrame API script: "" not asked for, "loading", "ready" */
-let CLIP_WAIT = [];       /* what waits for it */
-let CLIP_BLOCKED = false; /* the page's frame policy refused YouTube */
+const CLIP_ERR_MS = 2000;   /* a clip YouTube refuses: Play all moves on after this */
 const clipEl = () => document.getElementById("clipsheet");
-/* Function declarations, so the reel can call them while the parts load, whatever their order. */
+const clipQ = sel => clipEl().querySelector(sel);
+
+/* ---- data: function declarations, so the rail can call them while the parts load ---- */
 function clipData(){ return (typeof LIVE_CLIPS !== "undefined" ? LIVE_CLIPS : null) || {}; }
 function clipsOf(slug){ return (clipData().players || {})[slug] || []; }
 /* The games are keyed in the schedule's spelling (LAR, WSH). A roster may say LA or WAS: the schedule's
@@ -31,7 +31,7 @@ function clipGameOf(team){
 }
 const CLIP_POS = ["QB", "RB", "WR", "TE"];   /* the positions whose box score has a stat line */
 /* His box score for the week the clips are of (LIVE_CLIPS.week): the points and the stat line, null
-   where the page has no row for him yet (it lags the clips by a night). `row` is for the reel's TD badge. */
+   where the page has no row for him yet (it lags the clips by a night). `row` is for the rail's TD badge. */
 function clipWeekRow(p){
   const wk = clipData().week, row = p.slug && Number.isInteger(wk) ? gamelogRows(p.slug).find(r => r.wk === wk) || null : null;
   return {row, pts: row && typeof row.pts === "number" ? row.pts : null,
@@ -40,156 +40,121 @@ function clipWeekRow(p){
 /* His clips in order; a player with none plays his game's highlights. */
 function clipItemsOf(p){
   const own = clipsOf(p.slug), g = own.length ? null : clipGameOf(p.team);
-  return g ? [{id: g.id, title: g.title, kind: "game", secs: g.secs, embed: g.embed}] : own;
+  return g ? [{id: g.id, title: g.title, kind: "game", secs: g.secs, shape: g.shape, embed: g.embed}] : own;
 }
-/* Whether YouTube lets this clip play on another site; a block from before the field says yes. */
-function clipCan(c){ return !!c && c.embed !== false; }
-const clipFirst = p => clipItemsOf(p).findIndex(clipCan);   /* his first clip that plays here, -1 if none */
+/* Whether this clip plays on this page: YouTube lets it embed (a block from before the field says yes)
+   and the page can load an embed at all. */
+function clipCan(c){ return !!c && c.embed !== false && clipEmbedOk(); }
+const clipTall = c => !!c && c.shape === "tall";
+const clipYtUrl = c => clipTall(c) ? `https://www.youtube.com/shorts/${encodeURIComponent(c.id)}` : `https://www.youtube.com/watch?v=${encodeURIComponent(c.id)}`;
+const clipThumbOf = c => `https://i.ytimg.com/vi/${encodeURIComponent(c.id)}/${clipTall(c) ? "oar2" : "hqdefault"}.jpg`;
+const clipDur = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+const clipPlural = n => ({n, s: n === 1 ? "" : "s"});
+/* Every starter credited on an item ("B. Purdy, G. Kittle"); the ring's items carry only `p`. */
+const clipNames = x => (x.ps || [x.p]).map(p => nameInitial(p.n)).join(", ");
 /* YouTube's mark, for a clip that opens YouTube instead of playing. */
 function clipYtMark(){ return `<svg class="yt-mark" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M6 5h12a4 4 0 0 1 4 4v6a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V9a4 4 0 0 1 4-4zm4 4v6l5-3z"/></svg>`; }
-function clipEmbedOk(){ return PAGE_SERVED() && !CLIP_BLOCKED; }
-const clipDur = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
-const clipThumb = id => `https://i.ytimg.com/vi/${encodeURIComponent(id)}/mqdefault.jpg`;
-const clipPlural = n => ({n, s: n === 1 ? "" : "s"});
-/* The first entry of the queue from `from` on that has anything to show, else -1; `play`: that has a
-   clip that plays here. */
-const clipSeek = (queue, from, play) => queue.findIndex((p, j) => j >= from && (play ? clipFirst(p) >= 0 : clipItemsOf(p).length));
-const clipNow = () => CLIP && clipItemsOf(CLIP.queue[CLIP.i])[CLIP.k];
+/* The "YouTube" chip with its arrow: where a tap leaves for YouTube. */
+function clipYtChipHTML(){ return `<span class="clip-ytchip">${esc(t("teams.clips.youtube"))}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M8 7h9v9"/></svg></span>`; }
 
-/* `all` is Play all: it starts at the first clip of the queue that plays here (none: the first entry,
-   as its link). Otherwise the sheet opens on queue[i]'s first clip, playable or not. */
-function clipSheetOpen(queue, i, originEl, all){
-  const d = clipEl(), q = queue || [], from = i || 0, ok = all ? clipSeek(q, from, true) : -1;
-  const at = ok >= 0 ? ok : clipSeek(q, from);
-  if (!d || at < 0) return;
-  if (!CLIP) CLIP_RETURN = originEl || document.activeElement;
-  const was = !!CLIP;
-  CLIP = {queue, i: at, k: ok >= 0 ? clipFirst(q[at]) : 0, link: false};
-  clipPaint();
-  d.scrollTop = 0;
+/* ---- open, step, close ---- */
+function clipTheaterOpen(items, i, originEl){
+  const d = clipEl();
+  if (!d || !items || !items.length) return;
+  const play = items.map((x, j) => j).filter(j => clipCan(items[j].c)), at = play.indexOf(i);
+  const was = !!CT;
+  if (!was) CLIP_RETURN = originEl || document.activeElement;
+  if (CT) clearTimeout(CT.timer);
+  CT = {items, play, pos: 0, seen: new Set(), tok: 0, timer: 0};
+  if (play.length) clipWarm();            /* a no-op when the tap that got here already warmed it */
   d.classList.add("on");
   d.setAttribute("aria-hidden", "false");
-  document.getElementById("clipsheet-scrim").classList.add("on");
-  d.querySelector("[data-clipclose]").focus({preventScroll: true});
+  clipShow(i < 0 ? play.length : at >= 0 ? at : 0);
+  clipQ("[data-clipclose]").focus({preventScroll: true});
   if (!was) layerPush("clipsheet", clipShut);
 }
 
 /* The close itself, which also stops the video; clipClose takes back the history entry too. */
 function clipShut(){
   const d = clipEl();
-  if (!d || !CLIP) return;
-  CLIP = null;
-  d.querySelector("iframe")?.remove();
-  d.classList.remove("on");
+  if (!d || !CT) return;
+  clearTimeout(CT.timer);
+  CT = null;
+  clipPlayerStop();
+  d.classList.remove("on", "end");
   d.setAttribute("aria-hidden", "true");
-  document.getElementById("clipsheet-scrim").classList.remove("on");
   const back = CLIP_RETURN;
   CLIP_RETURN = null;
   if (back && back.focus && back.isConnected) back.focus({preventScroll: true});
 }
 function clipClose(){ clipShut(); layerDone("clipsheet"); }
 
-/* Another clip of the queue, in the sheet that is already open; `play` starts it. */
-function clipGoto(i, k, play){
-  const d = clipEl();
-  if (!d || !CLIP) return;
-  CLIP = {queue: CLIP.queue, i, k, link: false};
-  clipPaint();
-  d.scrollTop = 0;
-  /* A clip that cannot play here is already its link; a tap on it lands there. */
-  if (play && clipCan(clipNow())) clipPlay();
-  else d.querySelector(play ? ".clip-poster" : "[data-clipclose]").focus({preventScroll: true});
+/* Show the clip at `pos` of the playable ones, and play it; past the last is the end card. */
+function clipShow(pos){
+  const d = clipEl(), end = pos >= CT.play.length;
+  clearTimeout(CT.timer);
+  CT.pos = pos;
+  CT.tok++;
+  d.classList.toggle("end", end);
+  clipQ("[data-clipend]").hidden = !end;
+  clipQ("[data-cliplink]").hidden = true;
+  clipPaintBar();
+  if (end){
+    clipPlayerStop();
+    clipSoundSync();
+    return clipPaintEnd();
+  }
+  const x = CT.items[CT.play[pos]];
+  CT.seen.add(pos);
+  clipQ("[data-clipbox]").classList.toggle("tall", clipTall(x.c));
+  const ps = x.ps || [x.p], uniq = k => [...new Set(ps.map(p => p[k]))].join("/");
+  clipQ("[data-clipcap]").innerHTML = `<p class="clip-who"><b>${esc(ps.length > 1 ? clipNames(x) : x.p.n)}</b>${esc(uniq("pos"))} &middot; ${esc(uniq("team"))}</p><p class="clip-title">${esc(x.c.title)}</p>`;
+  clipSoundSync();
+  clipPlayerPlay(x.c.id);
+}
+function clipStep(d){
+  const np = CT ? CT.pos + d : -1;
+  if (np >= 0 && np <= CT.play.length) clipShow(np);
 }
 
-/* A clip ended: his next one that plays here, else the next player of the queue who has one; the last rests. */
-function clipAdvance(){
-  if (!CLIP) return;
-  const k = clipItemsOf(CLIP.queue[CLIP.i]).findIndex((c, j) => j > CLIP.k && clipCan(c));
-  if (k >= 0) return clipGoto(CLIP.i, k, true);
-  const nx = clipSeek(CLIP.queue, CLIP.i + 1, true);
-  if (nx >= 0) clipGoto(nx, clipFirst(CLIP.queue[nx]), true);
+/* The counter, and the bottom row: previous, who is next, next. */
+function clipPaintBar(){
+  const n = CT.play.length, end = CT.pos >= n, nx = CT.items[CT.play[CT.pos + 1]];
+  clipQ("[data-clipcount]").textContent = n ? t("teams.clips.of", {i: Math.min(CT.pos + 1, n), n}) : "";
+  clipQ("[data-clipprev]").disabled = CT.pos <= 0;
+  clipQ("[data-clipnext]").disabled = end;
+  clipQ("[data-clipup]").textContent = end ? "" : nx ? t("teams.clips.upNext", {name: clipNames(nx)}) : t("teams.clips.last");
+  const f = document.activeElement;
+  if (f && f.disabled) clipQ("[data-clipclose]").focus({preventScroll: true});
 }
 
-/* The embed, in place of the thumbnail; focus follows it so the keyboard is not left on a button that went. */
-function clipPlay(){
-  const stage = clipEl().querySelector("[data-clipstage]"), c = clipNow();
-  if (!stage || !c || !clipEmbedOk() || CLIP.link || !clipCan(c)) return;
-  const origin = /^https?:/.test(location.origin) ? `&origin=${encodeURIComponent(location.origin)}` : "";
-  stage.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(c.id)}?autoplay=1&playsinline=1&rel=0&enablejsapi=1${origin}"
-    title="${esc(c.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
-  const frame = stage.querySelector("iframe");
-  frame.focus({preventScroll: true});
-  clipApi(() => new YT.Player(frame, {events: {
-    onStateChange: e => { if (e.data === 0 && frame.isConnected) clipAdvance(); },
-    onError: () => { if (frame.isConnected) clipFailed(); },
-  }}));
+/* The end card: how many played, then every clip that only plays on YouTube as a link. */
+function clipPaintEnd(){
+  const rows = CT.items.filter(x => !clipCan(x.c)), n = CT.seen.size;
+  clipQ("[data-clipend]").innerHTML = `${n ? `<h2 class="clip-done">${esc(t("teams.clips.done", {n}))}</h2>` : ""}
+    <ul class="clip-ends">${rows.map(x => `<li><a class="clip-row" href="${esc(clipYtUrl(x.c))}" target="_blank" rel="noopener">
+      <span class="clip-thumb"><img src="${esc(clipThumbOf(x.c))}" alt="" loading="lazy" decoding="async"></span>
+      <span class="clip-rw"><b>${esc(clipNames(x))}</b><span>${esc(x.c.title)}</span></span>${clipYtChipHTML()}</a></li>`).join("")}</ul>`;
 }
 
-/* This clip cannot play here: its stage becomes the link. */
-function clipFailed(){
-  if (!CLIP) return;
-  CLIP.link = true;
-  clipPaint();
-  clipEl().querySelector(".clip-poster")?.focus({preventScroll: true});
+/* ---- what the player tells us ---- */
+function clipOnEnded(){ if (CT && CT.pos < CT.play.length) clipStep(1); }
+function clipOnPlaying(){ clipSoundSync(); }
+/* The pill is for a clip that is on screen while the sound is off. */
+function clipSoundSync(){
+  if (CT) clipQ("[data-clipsound]").hidden = !(CP.muted && CT.pos < CT.play.length);
 }
-
-/* The IFrame API script, asked for on the first play and never before. */
-function clipApi(then){
-  if (CLIP_API === "ready") return then();
-  CLIP_WAIT.push(then);
-  if (CLIP_API) return;
-  CLIP_API = "loading";
-  window.onYouTubeIframeAPIReady = () => { CLIP_API = "ready"; CLIP_WAIT.splice(0).forEach(f => f()); };
-  const s = document.createElement("script");
-  s.src = "https://www.youtube.com/iframe_api";
-  s.onerror = () => { CLIP_API = ""; CLIP_WAIT = []; };   /* the clip still plays; it just cannot hand on by itself */
-  document.head.appendChild(s);
-}
-
-/* ---- the markup ---- */
-const clipCloseHTML = () => `<button type="button" class="clip-x" data-clipclose aria-label="${esc(t("teams.clips.close"))}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`;
-function clipHeadHTML(p){
-  const w = clipWeekRow(p), wk = [w.pts !== null ? `<b>${w.pts.toFixed(1)}</b>` : "", w.line ? esc(w.line) : ""].filter(Boolean).join(" · ");
-  return `<div class="clip-grab" aria-hidden="true"></div>
-    <div class="clip-bar"><span class="clip-av">${headHTML(p)}</span>
-      <div class="clip-who"><h2 class="clip-name">${esc(p.n)}</h2><p>${esc(p.pos)} · ${esc(p.team)}</p>${wk ? `<p class="clip-wk">${wk}</p>` : ""}</div>${clipCloseHTML()}</div>`;
-}
-const clipPlayIcon = `<span class="clip-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l12 7-12 7z"/></svg></span>`;
-/* The stage: the thumbnail and a play button; a link to YouTube where the embed cannot load, and from
-   the start for a clip YouTube refuses to embed (no play button then: it does not play here). */
-function clipStageHTML(c){
-  const can = clipCan(c), img = `<img src="${clipThumb(c.id)}" alt="" decoding="async">${can ? clipPlayIcon : ""}`;
-  const label = esc(t("teams.clips.play", {title: c.title}));
-  const link = !clipEmbedOk() || CLIP.link || !can;
-  return `<div class="clip-stage" data-clipstage>${link
-    ? `<a class="clip-poster" href="https://www.youtube.com/watch?v=${encodeURIComponent(c.id)}" target="_blank" rel="noopener noreferrer" aria-label="${can ? label : `${esc(c.title)}. ${esc(t("teams.clips.onYouTube"))}`}">${img}<span class="clip-yt">${clipYtMark()}${esc(t("teams.clips.onYouTube"))}</span></a>`
-    : `<button type="button" class="clip-poster" data-clipplay aria-label="${label}">${img}</button>`}</div>`;
-}
-const clipBarsHTML = items => items.length < 2 ? "" :
-  `<div class="clip-bars" aria-hidden="true">${items.map((_, j) => `<i class="${j < CLIP.k ? "done" : j === CLIP.k ? "now" : ""}"></i>`).join("")}</div>`;
-function clipCaptionHTML(c, items){
-  const kick = {best_plays: t("teams.clips.bestPlays"), game: t("teams.clips.gameTitle")}[c.kind] || "";
-  const of = items.length > 1 ? t("teams.clips.of", {i: CLIP.k + 1, n: items.length}) : "";
-  return `<div class="clip-cap">${kick || of ? `<div class="clip-kick"><span>${esc(kick)}</span><span>${esc(of)}</span></div>` : ""}<p class="clip-title">${esc(c.title)}</p></div>`;
-}
-/* The rest of his clips, a tap shows one: it plays, or for a clip YouTube refuses to embed (marked)
-   its stage is the link to YouTube. */
-const clipListHTML = items => items.length < 2 ? "" : `<ul class="clip-list">${items.map((c, j) => j === CLIP.k ? "" :
-  `<li><button type="button" class="clip-row" data-cliprow="${j}" aria-label="${esc(clipCan(c) ? t("teams.clips.play", {title: c.title}) : `${c.title}. ${t("teams.clips.onYouTube")}`)}">
-    <span class="clip-thumb"><img src="${clipThumb(c.id)}" alt="" loading="lazy" decoding="async"></span>
-    <span class="clip-rt">${esc(c.title)}</span>${clipCan(c) ? "" : clipYtMark()}<b>${clipDur(c.secs || 0)}</b></button></li>`).join("")}</ul>`;
-/* Opened from Play all: who comes after this player, among those with a clip that plays here. */
-function clipNextHTML(){
-  const nx = clipSeek(CLIP.queue, CLIP.i + 1, true), q = CLIP.queue[nx];
-  if (nx < 0) return "";
-  return `<button type="button" class="clip-next" data-clipnext="${nx}"><span class="clip-av">${headHTML(q)}</span>
-    <span class="clip-who"><b>${esc(t("teams.clips.upNext", {name: nameInitial(q.n)}))}</b><small>${esc(t("teams.clips.nextPlays", clipPlural(clipItemsOf(q).filter(clipCan).length)))}</small></span></button>`;
-}
-function clipPaint(){
-  const d = clipEl(), p = CLIP && CLIP.queue[CLIP.i];
-  if (!d || !p) return;
-  const items = clipItemsOf(p), c = items[CLIP.k];
-  d.innerHTML = clipHeadHTML(p) + clipStageHTML(c) + clipBarsHTML(items) + clipCaptionHTML(c, items) + clipListHTML(items) + clipNextHTML();
+/* This clip cannot play here: its box becomes the link. 101 and 150 are YouTube refusing an embed, so Play
+   all moves on; any other code stays, the reader decides. */
+function clipOnError(code){
+  if (!CT || CT.pos >= CT.play.length) return;
+  const x = CT.items[CT.play[CT.pos]], tok = CT.tok, link = clipQ("[data-cliplink]");
+  clipPlayerStop();
+  link.innerHTML = `<a class="clip-linka" href="${esc(clipYtUrl(x.c))}" target="_blank" rel="noopener"><img src="${esc(clipThumbOf(x.c))}" alt="">
+    <span class="clip-ytchip">${clipYtMark()}${esc(t("teams.clips.onYouTube"))}</span></a>`;
+  link.hidden = false;
+  clipQ("[data-clipsound]").hidden = true;
+  if (code === 101 || code === 150) CT.timer = setTimeout(() => { if (CT && CT.tok === tok) clipStep(1); }, CLIP_ERR_MS);
 }
 
 /* ---- the rings on the roster's heads (board.js marks them data-clips) ---- */
@@ -201,36 +166,37 @@ function clipWireRings(v){
   v.querySelectorAll(".head[data-clips]").forEach(h => {
     const row = h.closest(".row"), open = e => {
       e.stopPropagation();
-      const p = findPlayer(row.dataset.team, +row.dataset.i);
-      if (p) clipSheetOpen([p], 0, h);
+      const p = findPlayer(row.dataset.team, +row.dataset.i), items = p ? clipItemsOf(p).map(c => ({c, p})) : [];
+      clipTheaterOpen(items, items.findIndex(x => clipCan(x.c)), h);
     };
+    h.addEventListener("pointerdown", () => clipWarm());
     h.addEventListener("click", open);
     h.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); open(e); } });
   });
 }
 
-/* Bound once: the sheet's markup is replaced on every paint, its listeners are not. */
+/* Bound once: the theater's markup is in shell.html and is never replaced, only painted. */
 (() => {
   const d = clipEl();
   if (!d) return;
   d.addEventListener("click", e => {
-    if (e.target.closest("[data-clipclose]")) return clipClose();
-    if (e.target.closest("[data-clipplay]")) return clipPlay();
-    const row = e.target.closest("[data-cliprow]"), nx = e.target.closest("[data-clipnext]");
-    if (row) clipGoto(CLIP.i, +row.dataset.cliprow, true);
-    else if (nx) clipGoto(+nx.dataset.clipnext, clipFirst(CLIP.queue[+nx.dataset.clipnext]), true);
+    if (e.target.closest("[data-clipclose]")) clipClose();
+    else if (e.target.closest("[data-clipprev]")) clipStep(-1);
+    else if (e.target.closest("[data-clipnext]")) clipStep(1);
+    else if (e.target.closest("[data-clipsound]")){ clipUnmute(); clipSoundSync(); }
   });
   d.addEventListener("keydown", e => {
     if (e.key !== "Tab") return;
-    const f = [...d.querySelectorAll("button, a[href], iframe")];
+    const f = [...d.querySelectorAll("button:not([disabled]), a[href]")].filter(x => x.offsetParent);
     if (e.shiftKey && document.activeElement === f[0]){ e.preventDefault(); f[f.length - 1].focus(); }
     else if (!e.shiftKey && document.activeElement === f[f.length - 1]){ e.preventDefault(); f[0].focus(); }
   });
-  document.getElementById("clipsheet-scrim").addEventListener("click", clipClose);
-  onPullDown(d, () => d.scrollTop <= 0, () => !!CLIP, clipClose);
-  document.addEventListener("keydown", e => { if (e.key === "Escape" && CLIP) clipClose(); });
-  /* A frame policy that refuses YouTube (the published Artifact) says so here: the stage turns into the link. */
-  document.addEventListener("securitypolicyviolation", e => {
-    if (CLIP && /youtube/.test(e.blockedURI)){ CLIP_BLOCKED = true; clipFailed(); }
+  onSwipeX(d, clipStep);
+  onPullDown(d, () => { const e = clipQ("[data-clipend]"); return e.hidden || e.scrollTop <= 0; }, () => !!CT, clipClose);
+  document.addEventListener("keydown", e => {
+    if (!CT) return;
+    if (e.key === "Escape") clipClose();
+    else if (e.key === "ArrowRight") clipStep(1);
+    else if (e.key === "ArrowLeft") clipStep(-1);
   });
 })();

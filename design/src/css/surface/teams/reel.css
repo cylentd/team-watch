@@ -1,50 +1,55 @@
-/* ============================== WEEK PLAYS REEL ============================== */
-/* The roster's clip reel (js/surface/teams/reel.js, 2026-10-05): a card per starter with a clip,
-   paged two to a phone screen, never scrolled sideways (STYLE.md). Every box has its shape before
-   its thumbnail loads (16:9), so a slow or failed image moves nothing. Lime is the lineup's colour
-   and means a touchdown here; the Play all pill is the one filled control. */
+/* ============================== WEEK PLAYS RAIL ============================== */
+/* The roster's clip rail (js/surface/teams/reel.js, 2026-10-05): one card per clip in a row the reader
+   drags, the next card showing past the edge. STYLE.md allows this one sideways row ("Roster clips").
+   Every thumbnail box has its shape before its image loads (128x160), so a slow or failed image moves
+   nothing. Lime is the lineup's colour: the play disc and the Play n pill are the only filled marks. */
 .reel{margin-top:14px}
 .reel-h{display:flex;align-items:center;gap:8px;margin:0 0 8px;min-height:40px}
 .reel-ti{min-width:0;margin-right:auto}
 .reel-ti h2{margin:0;font-family:var(--disp);font-size:var(--t-4);font-weight:800;line-height:1.1;color:var(--ink)}
 .reel-ti small{display:block;margin-top:2px;font-family:var(--ui);font-size:var(--t-1);font-weight:500;color:var(--ink-3)}
-.reel-all{appearance:none;border:0;border-radius:999px;min-height:40px;padding:0 16px;background:var(--lime);color:var(--on-lime);
-  font-family:var(--ui);font-size:var(--t-2);font-weight:700;cursor:pointer;transition:scale var(--dur-spring) var(--spring)}
+.reel-all{appearance:none;display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;min-height:40px;padding:0 16px 0 12px;
+  background:var(--lime);color:var(--on-lime);font-family:var(--ui);font-size:var(--t-2);font-weight:700;cursor:pointer;
+  transition:scale var(--dur-spring) var(--spring)}
+.reel-all svg{width:14px;height:14px;fill:currentColor}
 .reel-all:active{scale:var(--press)}
-.reel-arr{flex:none;width:40px;min-height:40px;border:0;border-radius:8px;background:none;color:var(--ink);cursor:pointer;
+.reel-arr{display:none;flex:none;width:40px;min-height:40px;border:0;border-radius:8px;background:none;color:var(--ink);cursor:pointer;
   font-family:var(--mono);font-size:var(--t-5);font-weight:700;line-height:1}
 .reel-arr:disabled{color:var(--line-2);cursor:default}
 .reel-arr:last-child{margin-right:-8px}
-.reel.one .reel-arr{display:none}
 .reel-all:focus-visible,.reel-arr:focus-visible,.reel-card:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
-
-/* A page of cards: `--per` of them, set from the measured width; the rest are [hidden]. */
-.reel-track{display:grid;grid-template-columns:repeat(var(--per,2),minmax(0,1fr));gap:10px;touch-action:pan-y}
-.reel-card{display:flex;flex-direction:column;gap:6px;min-width:0;padding:0 0 10px;appearance:none;background:var(--panel);
-  border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer;text-align:left;font-family:var(--ui);color:var(--ink);
-  transition:translate var(--dur-spring) var(--spring),scale var(--dur-spring) var(--spring)}
-.reel-card[hidden]{display:none}
-.reel-card:active{scale:var(--press)}
-@media (hover:hover){ .reel-card:hover{translate:0 var(--lift)} }
-.reel-thumb{position:relative;display:block;aspect-ratio:16/9;background:var(--panel-3);overflow:hidden}
-.reel-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.reel-n{position:absolute;right:6px;bottom:6px;display:inline-flex;align-items:center;gap:4px;padding:2px 8px 2px 6px;border-radius:999px;
-  background:rgb(var(--void-rgb) / .78);color:var(--ink);font-family:var(--mono);font-size:var(--t-1);font-weight:700;line-height:1.4}
-.reel-n svg{width:10px;height:10px;fill:currentColor}
-.reel-n .yt-mark{width:14px;height:14px}
-.reel-n.td{background:var(--lime);color:var(--on-lime)}
-.reel-who{display:flex;align-items:baseline;gap:8px;padding:0 10px}
-.reel-nm{flex:1;min-width:0;font-size:var(--t-2);font-weight:700;line-height:1.25;overflow-wrap:anywhere}
-.reel-pts{flex:none;font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink-2)}
-.reel-line{padding:0 10px;font-size:var(--t-1);line-height:1.35;color:var(--ink-3)}
-
-/* A turn: the new page arrives from the side it was turned toward and stops in place. */
-@media (prefers-reduced-motion:no-preference){
-  .reel-track.in-r{animation:reel-in-r var(--dur-spring) var(--spring)}
-  .reel-track.in-l{animation:reel-in-l var(--dur-spring) var(--spring)}
-  @keyframes reel-in-r{from{transform:translateX(28px);opacity:.4}}
-  @keyframes reel-in-l{from{transform:translateX(-28px);opacity:.4}}
+@media (min-width:1100px){
+  .reel-arr{display:block}
+  .reel.fits .reel-arr{display:none}
 }
+
+/* The rail: native scroll on a touch screen, a drag with a mouse (`.drag` while it is held, so the snap
+   does not fight the hand). The padding is room for a card's focus ring, which the scroller would clip. */
+.reel-track{display:flex;gap:10px;padding:3px;margin:-3px;scroll-padding-inline:3px;overflow-x:auto;scroll-snap-type:x proximity;
+  overscroll-behavior-x:contain;scrollbar-width:none;cursor:grab}
+.reel-track::-webkit-scrollbar{display:none}
+.reel-track.drag{scroll-snap-type:none;cursor:grabbing;user-select:none}
+.reel-card{flex:none;display:flex;flex-direction:column;gap:2px;width:128px;padding:0;appearance:none;background:none;border:0;
+  scroll-snap-align:start;text-align:left;text-decoration:none;font-family:var(--ui);color:var(--ink);cursor:pointer;
+  transition:scale var(--dur-spring) var(--spring);-webkit-user-drag:none}
+.reel-card:active{scale:var(--press)}
+.reel-thumb{position:relative;display:block;width:128px;height:160px;margin-bottom:4px;border-radius:10px;background:var(--panel-3);overflow:hidden}
+.reel-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;-webkit-user-drag:none}
+
+/* The mark names the thing: a clip that plays here has the disc, one that opens YouTube has the chip. */
+.reel-disc{position:absolute;left:50%;top:50%;translate:-50% -50%;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;
+  background:var(--lime);color:var(--on-lime)}
+.reel-disc svg{width:20px;height:20px;margin-left:2px;fill:currentColor}
+.reel-mark{position:absolute;top:6px;right:6px;display:inline-flex}
+.reel-dur{position:absolute;left:6px;bottom:6px;padding:1px 6px;border-radius:6px;background:rgb(var(--void-rgb) / .78);color:var(--ink);
+  font-family:var(--mono);font-size:var(--t-1);font-weight:700;line-height:1.4}
+.reel-nm{font-size:var(--t-2);font-weight:700;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reel-cap{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;font-size:var(--t-1);line-height:1.35;color:var(--ink-3)}
+
+/* The end card: the thumbnail's size, words in place of a picture. */
+.reel-end .reel-thumb{display:flex;flex-direction:column;justify-content:flex-end;gap:6px;padding:12px 10px;box-sizing:border-box;border:1px solid var(--line)}
+.reel-no{font-size:var(--t-3);font-weight:800;line-height:1.2;color:var(--ink)}
+.reel-endline{font-size:var(--t-1);line-height:1.35;color:var(--ink-2)}
 
 /* From 1100px the list is a column beside the rows: the reel takes the rows' column above them, and
    the list spans both so it still pins at the top of its column. */

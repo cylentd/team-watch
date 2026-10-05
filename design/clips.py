@@ -1,7 +1,8 @@
 """LIVE_CLIPS: official YouTube clips per player and per game (2026-10-05), from ff-jarvis's clips.json.
 
-`players` is {slug: [{id, title, kind, secs, embed}]}, best_plays first then plays by posting time, the
-order ff-jarvis wrote. `games` is {team: {id, title, secs, embed}} (`alias` {nflverse code: schedule code}): the NFL "Game Highlights" video, once
+`players` is {slug: [{id, title, kind, secs, embed, shape}]}, best_plays first then plays by posting time, the
+order ff-jarvis wrote. `shape` is "tall" (a vertical Short) or "wide" (2026-10-05, Clips v2: the player
+takes the clip's shape). `games` is {team: {id, title, secs, embed, shape}} (`alias` {nflverse code: schedule code}): the NFL "Game Highlights" video, once
 per club, both clubs of a game pointing at the same video. The page only opens a video by its id.
 `embed` is whether YouTube lets the video play on another site (the NFL channel, MIN, SEA and SF
 refuse, error 150); a file from before ff-jarvis wrote it reads as true, and the page's runtime
@@ -15,13 +16,14 @@ that pair map too, so a page built with no schedule still finds a club's game vi
 """
 from schedule import TO_ESPN
 
-CLIP_FIELDS = ("id", "title", "kind", "secs", "embed")
-GAME_FIELDS = ("id", "title", "secs", "embed")
+CLIP_FIELDS = ("id", "title", "kind", "secs", "embed", "shape")
+GAME_FIELDS = ("id", "title", "secs", "embed", "shape")
 
 
 def _pick(row, fields):
     out = {k: row.get(k) for k in fields}
     out["embed"] = row.get("embed") is not False     # missing (an older file) plays
+    out["shape"] = "tall" if row.get("shape") == "tall" else "wide"   # missing (an older file) is wide
     return out
 
 

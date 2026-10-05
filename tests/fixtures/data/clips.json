@@ -5,27 +5,29 @@
   "llm": "ok",
   "players": {
     "brock-purdy": [
-      {"id": "aaaaaaaaaa1", "title": "Brock Purdy's best plays from Week 4", "kind": "best_plays", "channel": "NFL", "secs": 212, "posted": "2026-10-05T01:30:00Z", "embed": false},
-      {"id": "aaaaaaaaaa2", "title": "Purdy finds Kittle for the touchdown", "kind": "play", "channel": "NFL", "secs": 34, "posted": "2026-10-05T00:10:00Z", "embed": false},
-      {"id": "aaaaaaaaaa3", "title": "Purdy scrambles for the first down", "kind": "play", "channel": "LAR", "secs": 28, "posted": "2026-10-04T23:40:00Z", "embed": true}
+      {"id": "aaaaaaaaaa1", "title": "Brock Purdy's best plays from Week 4", "kind": "best_plays", "channel": "NFL", "secs": 212, "posted": "2026-10-05T01:30:00Z", "shape": "wide", "embed": false},
+      {"id": "aaaaaaaaaa2", "title": "Purdy finds Kittle for the touchdown", "kind": "play", "channel": "NFL", "secs": 34, "posted": "2026-10-05T00:10:00Z", "shape": "wide", "embed": false},
+      {"id": "aaaaaaaaaa3", "title": "Purdy scrambles for the first down", "kind": "play", "channel": "LAR", "secs": 28, "posted": "2026-10-04T23:40:00Z", "shape": "tall", "embed": true}
     ],
     "george-kittle": [
-      {"id": "aaaaaaaaaa2", "title": "Purdy finds Kittle for the touchdown", "kind": "play", "channel": "NFL", "secs": 34, "posted": "2026-10-05T00:10:00Z", "embed": false}
+      {"id": "aaaaaaaaaa2", "title": "Purdy finds Kittle for the touchdown", "kind": "play", "channel": "NFL", "secs": 34, "posted": "2026-10-05T00:10:00Z", "shape": "wide", "embed": false}
     ],
     "chase-brown": [
-      {"id": "bbbbbbbbbb1", "title": "Chase Brown breaks off a long run", "kind": "play", "channel": "CIN", "secs": 41, "posted": "2026-10-05T02:05:00Z", "embed": true}
+      {"id": "bbbbbbbbbb1", "title": "Chase Brown breaks off a long run", "kind": "play", "channel": "CIN", "secs": 41, "posted": "2026-10-05T02:05:00Z", "shape": "tall", "embed": true},
+      {"id": "bbbbbbbbbb2", "title": "Chase Brown's best runs vs. Bills", "kind": "best_plays", "channel": "CIN", "secs": 96, "posted": "2026-10-05T03:00:00Z", "shape": "wide", "embed": true}
     ]
   },
   "games": {
-    "SF": {"id": "cccccccccc1", "title": "49ers vs. Rams | NFL Week 4 Game Highlights 2026", "secs": 412, "embed": false},
-    "LA": {"id": "cccccccccc1", "title": "49ers vs. Rams | NFL Week 4 Game Highlights 2026", "secs": 412, "embed": false},
-    "CIN": {"id": "cccccccccc2", "title": "Bengals vs. Bills | NFL Week 4 Game Highlights 2026", "secs": 398, "embed": false},
-    "BUF": {"id": "cccccccccc2", "title": "Bengals vs. Bills | NFL Week 4 Game Highlights 2026", "secs": 398, "embed": false}
+    "SF": {"id": "cccccccccc1", "title": "49ers vs. Rams | NFL Week 4 Game Highlights 2026", "secs": 412, "shape": "wide", "embed": false},
+    "LA": {"id": "cccccccccc1", "title": "49ers vs. Rams | NFL Week 4 Game Highlights 2026", "secs": 412, "shape": "wide", "embed": false},
+    "CIN": {"id": "cccccccccc2", "title": "Bengals vs. Bills | NFL Week 4 Game Highlights 2026", "secs": 398, "shape": "wide", "embed": false},
+    "BUF": {"id": "cccccccccc2", "title": "Bengals vs. Bills | NFL Week 4 Game Highlights 2026", "secs": 398, "shape": "wide", "embed": false}
   },
   "matched": {
     "aaaaaaaaaa1": {"players": ["brock-purdy"], "conf": "rule"},
     "aaaaaaaaaa2": {"players": ["brock-purdy", "george-kittle"], "conf": "high"},
     "aaaaaaaaaa3": {"players": ["brock-purdy"], "conf": "medium"},
-    "bbbbbbbbbb1": {"players": ["chase-brown"], "conf": "high"}
+    "bbbbbbbbbb1": {"players": ["chase-brown"], "conf": "high"},
+    "bbbbbbbbbb2": {"players": ["chase-brown"], "conf": "rule"}
   }
 }
