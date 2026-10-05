@@ -430,6 +430,10 @@ CONTRACT = {
 # Every other Yahoo league's blocks (design/leagues.py blocks(); AYO since 2026-09-29) are the first one's shape.
 CONTRACT.update({b: CONTRACT[a] for key in leagues.YAHOO for a, b in zip(leagues.blocks("yahoo"), leagues.blocks(key))})
 
+# design/claude_record.py (2026-10-05): Claude's hit rate where he took the model's side and where he did not, the second
+# row of the Slips record strip. None without ff-jarvis's file; `agree` and `alone` are null before a game is graded.
+CONTRACT["LIVE_CLAUDE_RECORD"] = {"keys": ["season", "week", "through_week", "agree", "alone"], "checks": [slips.problems_claude_record]}
+
 
 class ContractError(SystemExit):
     """Raised as SystemExit so `python design/build.py` exits non-zero with the message."""

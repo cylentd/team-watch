@@ -104,6 +104,32 @@ def problems_record(obj):
     return [f"LIVE_PROPS_RECORD.tiers[{k!r}].{f}" for k in TIERS[1:] for f in ("w", "l") if f not in (obj or {}).get("tiers", {}).get(k, {})]
 
 
+def claude_record(raw):
+    """LIVE_CLAUDE_RECORD (2026-10-05): how Claude's frozen prop calls have done against the model's on the same
+    lines (ff-jarvis claude_props.json `record`, METHODOLOGY 12.84), cut to the second row of the record strip.
+    Only the record is injected, never the calls: {season, week, through_week, agree, alone}. `week` is the
+    file's week (the one Claude is calling now). `agree` is Claude's {w, l, push, void} where he took the model's
+    side, `alone` his where he took the other (`disagree.claude`); both and `through_week` are null until a game is
+    graded. None without the file (or without its week), and the page draws no Claude row."""
+    if not isinstance(raw, dict) or raw.get("week") is None:
+        return None
+    rec = raw.get("record") or {}
+    weeks = rec.get("weeks") or []
+
+    def tally(t):
+        return {k: t.get(k, 0) for k in ("w", "l", "push", "void")} if isinstance(t, dict) else None
+    return {"season": raw.get("season"), "week": raw["week"], "through_week": weeks[-1].get("week") if weeks else None,
+            "agree": tally(rec.get("agree")), "alone": tally((rec.get("disagree") or {}).get("claude"))}
+
+
+def problems_claude_record(obj):
+    """A tally that is there has its wins and losses, and the two come together."""
+    out = [f"LIVE_CLAUDE_RECORD.{k}.{f}" for k in ("agree", "alone") if (obj or {}).get(k) for f in ("w", "l") if f not in obj[k]]
+    if ((obj or {}).get("agree") is None) != ((obj or {}).get("alone") is None):
+        out.append("LIVE_CLAUDE_RECORD.agree and .alone are both there or both null")
+    return out
+
+
 def live_reasons(raw, props):
     """LIVE_REASONS: {slug: {why, work, tags}}, ff-jarvis's keys (already team-watch slugs, pinned on its
     side) cut to the players with a line on this page. `{}` without the file, so the board draws every

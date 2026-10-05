@@ -443,6 +443,13 @@ def load_dfs_history(season, week):
     return rows
 
 
+def load_claude_record():
+    """Claude's own prop calls graded against the model's on the same lines (ff-jarvis claude_props.json,
+    2026-10-05): feed block `claude_props` first, the file second. design/claude_record.py cuts only its
+    `record` into LIVE_CLAUDE_RECORD for the second row of the Slips record strip; None when neither exists."""
+    return feed_block(("claude_props",), "calls") or read_first(DWR / "claude_props.json")
+
+
 if __name__ == "__main__":
     # scripts/land.ps1: `python design/sources.py --fetch` fetches the ff-jarvis checkout, then prints
     # how far behind it is and where it is; "None" when DWR is not a checkout.

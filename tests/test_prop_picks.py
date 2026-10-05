@@ -245,7 +245,7 @@ def test_the_record_is_one_line_with_the_three_tiers(page):
     assert rec.count() == 1
     btn = rec.locator("button.pr-rec-b")
     assert btn.get_attribute("aria-expanded") == "false"
-    assert btn.locator(".pr-rec-l").text_content() == "Record"
+    assert btn.locator(".pr-rec-l").all_text_contents() == ["Record", "Claude"], "Claude's row is the second line (tests/test_claude_record.py)"
     assert btn.locator(".pr-rq i").all_inner_texts() == ["Slight", "Confident", "Very"]
     assert btn.locator(".pr-rq b").all_inner_texts() == ["55%", "53%", "57%"]
     assert btn.locator(".pr-rq b").first.evaluate("e => getComputedStyle(e).fontFamily").lower().endswith("monospace")
@@ -259,15 +259,16 @@ def test_the_record_is_one_line_with_the_three_tiers(page):
 
 def test_the_record_line_is_slim_and_never_wraps_at_360(page):
     """The Slips budget (design/STYLE.md): the first game card starts by 200px. The strip was a 117px card
-    that put it at 289px; it is now one line of at most 36px."""
+    that put it at 289px; it is now one line (Claude's row under it, tests/test_claude_record.py, takes the button
+    from 36px to 44px and the first card to 212px at most)."""
     box = page.locator(".pr-rec-b").bounding_box()
-    assert 32 <= box["height"] <= 36, box
+    assert 32 <= box["height"] <= 44, box
     assert page.evaluate("(() => { const b = document.querySelector('.pr-rec-b'); return b.scrollWidth <= b.clientWidth; })()"), "overflows its line"
-    mids = page.evaluate("[...document.querySelectorAll('.pr-rec-b > .pr-rec-l, .pr-rec-b > .pr-rq')].map(e => { const r = e.getBoundingClientRect(); return r.top + r.height / 2; })")
+    mids = page.evaluate("[...document.querySelectorAll('.pr-rec-r:first-child > .pr-rec-l, .pr-rec-r:first-child > .pr-rq')].map(e => { const r = e.getBoundingClientRect(); return r.top + r.height / 2; })")
     assert max(mids) - min(mids) < 3, f"all on one line: {mids}"
     top = page.locator(".sl-game").first.bounding_box()["y"] + page.evaluate("window.scrollY")
     print("first game card top:", top)
-    assert top <= 200, f"first card at {top}px"
+    assert top <= 212, f"first card at {top}px"
 
 
 def test_the_record_line_opens_its_detail(page):

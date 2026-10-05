@@ -5,18 +5,96 @@
  "model": "opus/high",
  "games": {},
  "calls": [
-  {"game": "2026_04_CIN_PIT", "key": "chase brown", "name": "Chase Brown", "pos": "RB", "team": "PIT", "market": "RUSH", "line": 65.5,
-   "side": "higher", "conf": "confident", "why": "He has 22 carries a game over the last three and NYJ allow the 3rd-most RB points.",
-   "model_side": "higher", "model_tier": "very", "p_over": 72, "mu": 75.0, "asof": "2026-10-05T22:09:24Z"},
-  {"game": "2026_04_CIN_PIT", "key": "joe burrow", "name": "Joe Burrow", "pos": "QB", "team": "CIN", "market": "PASS", "line": 245.5,
-   "side": "higher", "conf": "slight", "why": "Over 245.5 in 4 of his last 5, and CIN trail late more often than not.",
-   "model_side": "lower", "model_tier": "confident", "p_over": 36, "mu": 230.0, "asof": "2026-10-05T22:09:24Z"},
-  {"game": "2026_04_SEA_SF", "key": "george kittle", "name": "George Kittle", "pos": "TE", "team": "SF", "market": "REC", "line": 45.5,
-   "side": "lower", "conf": "slight", "why": "Under 45.5 in 3 of his last 4 on 4, 3, 5 targets.",
-   "model_side": "higher", "model_tier": "none", "p_over": 50, "mu": 46.0, "asof": "2026-10-05T22:09:24Z"},
-  {"game": "2026_04_SEA_SF", "key": "brock purdy", "name": "Brock Purdy", "pos": "QB", "team": "SF", "market": "PASS", "line": 230.5,
-   "side": "lower", "conf": "confident", "why": "SEA allow the fewest QB points and he threw under 230.5 in 4 of 5.",
-   "model_side": "lower", "model_tier": "slight", "p_over": 41, "mu": 205.0, "asof": "2026-10-05T22:09:24Z"}
+  {
+   "game": "2026_04_CIN_PIT",
+   "key": "chase brown",
+   "name": "Chase Brown",
+   "pos": "RB",
+   "team": "PIT",
+   "market": "RUSH",
+   "line": 65.5,
+   "side": "higher",
+   "conf": "confident",
+   "why": "He has 22 carries a game over the last three and NYJ allow the 3rd-most RB points.",
+   "model_side": "higher",
+   "model_tier": "very",
+   "p_over": 72,
+   "mu": 75.0,
+   "asof": "2026-10-05T22:09:24Z"
+  },
+  {
+   "game": "2026_04_CIN_PIT",
+   "key": "joe burrow",
+   "name": "Joe Burrow",
+   "pos": "QB",
+   "team": "CIN",
+   "market": "PASS",
+   "line": 245.5,
+   "side": "higher",
+   "conf": "slight",
+   "why": "Over 245.5 in 4 of his last 5, and CIN trail late more often than not.",
+   "model_side": "lower",
+   "model_tier": "confident",
+   "p_over": 36,
+   "mu": 230.0,
+   "asof": "2026-10-05T22:09:24Z"
+  },
+  {
+   "game": "2026_04_SEA_SF",
+   "key": "george kittle",
+   "name": "George Kittle",
+   "pos": "TE",
+   "team": "SF",
+   "market": "REC",
+   "line": 45.5,
+   "side": "lower",
+   "conf": "slight",
+   "why": "Under 45.5 in 3 of his last 4 on 4, 3, 5 targets.",
+   "model_side": "higher",
+   "model_tier": "none",
+   "p_over": 50,
+   "mu": 46.0,
+   "asof": "2026-10-05T22:09:24Z"
+  },
+  {
+   "game": "2026_04_SEA_SF",
+   "key": "brock purdy",
+   "name": "Brock Purdy",
+   "pos": "QB",
+   "team": "SF",
+   "market": "PASS",
+   "line": 230.5,
+   "side": "lower",
+   "conf": "confident",
+   "why": "SEA allow the fewest QB points and he threw under 230.5 in 4 of 5.",
+   "model_side": "lower",
+   "model_tier": "slight",
+   "p_over": 41,
+   "mu": 205.0,
+   "asof": "2026-10-05T22:09:24Z"
+  }
  ],
- "record": null
+ "record": null,
+ "rules": {
+  "sides": [
+   "higher",
+   "lower"
+  ],
+  "conf": [
+   "slight",
+   "confident",
+   "very"
+  ],
+  "markets": [
+   "PASS",
+   "RUSH",
+   "REC",
+   "RECS"
+  ],
+  "ask_within_h": 36,
+  "max_lines": 24,
+  "win": "Claude's side right on the stat (equal = push, no stats row = void)",
+  "frozen": "the last history `claude_props` row before the game's kickoff",
+  "methodology": "12.84"
+ }
 }
