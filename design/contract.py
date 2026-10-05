@@ -318,7 +318,8 @@ CONTRACT = {
                   "rows": [("rows", ["slug", "n", "pos", "team", "g", "xfp", "pts", "gap", "td", "work", "prev"])]},
     # design/teams.py, League > Teams (leaf `teams`, 2026-10-05). A league has its slot counts, its column medians
     # and its teams; a team's record (`w`, `l`, `t`) is null with no standings. The nested shapes are checked by `problems`.
-    "LIVE_TEAMS": {"keys": ["leagues"], "rows": [("leagues", ["key", "name", "slots", "median", "teams"])],
+    # `week` is the projections' week, the board's label (null with no schedule).
+    "LIVE_TEAMS": {"keys": ["week", "leagues"], "rows": [("leagues", ["key", "name", "slots", "median", "teams"])],
                    "checks": [teams.problems]},
     # design/trade_offers.py, League > Teams > Find trades (2026-10-05). Not an injected block: a file written beside the
     # page (`trade_offers.json`) that the builder sheet fetches on first open. Pairs, offers and players are checked by `problems`.

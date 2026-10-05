@@ -1,14 +1,14 @@
 /* ============================== LEAGUE > TEAMS: THE TRADE BUILDER, EDIT ==============================
    2026-10-05 (storyboard https://claude.ai/artifact/BXCJdmWfC87Z7VCAgdVC3Y, frame 4). The reader's own package,
-   built inside the builder sheet: "Edit" on an offer card starts from that offer, "Make your own offer" from an
-   empty package. It is its own layer (layers.js "tbedit"), so Back, Escape, the x, the scrim and a pull down
-   each return to the offers first.
+   built on the builder page: "Edit" on an offer card starts from that offer, "Make your own offer" from an empty
+   package. It is its own history entry (layers.js "tbedit"), so Back and the "‹ Offers" link return to the offers.
 
    Top: the package, YOU SEND and YOU GET, three rows tall whatever is in it (a fourth scrolls inside). Below: the
    reader's roster and the partner's, from the file's `values`, each row a switch that puts the player in or out of
-   the package. Foot, never moving: the live gain by tbscore.js (green, red, or a dash for an empty package), the
-   players the reader would drop to stay at the roster cap, Reset to the offer it started from, and Copy offer.
-   Nothing about the partner's roster room is checked or shown. Only offers.js's guard (tbEditOk) lets it open. */
+   the package (side by side from 760px). The foot is a tray stuck to the bottom edge, where the thumb is (STYLE.md):
+   the live gain by tbscore.js (green, red, or a dash for an empty package), the players the reader would drop to
+   stay at the roster cap, Reset to the offer it started from, and Copy offer. Nothing about the partner's roster
+   room is checked or shown. Only offers.js's guard (tbEditOk) lets it open. */
 
 const TB_POS = ["QB", "RB", "WR", "TE"];
 
@@ -17,7 +17,7 @@ const tbHas = (rows, key) => rows.find(p => tbKey(p) === key);
 const tbPicked = key => TB_EDIT.send.includes(key) || TB_EDIT.get.includes(key);
 
 const tbRowHTML = p => `<li><button type="button" class="tb-r" data-tbpick="${esc(tbKey(p))}" aria-pressed="${tbPicked(tbKey(p))}">
-  <span class="lbs-pos" data-pos="${esc(p.pos)}">${esc(p.pos)}</span><span class="tb-n">${esc(nameInitial(p.name))}</span>${tbPillHTML(p)}
+  <span class="lbp-pos" data-pos="${esc(p.pos)}">${esc(p.pos)}</span><span class="tb-n">${esc(nameInitial(p.name))}</span>${tbPillHTML(p)}
   <b class="tb-v">${lbNum(p.proj)}</b><svg class="tb-tick" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button></li>`;
 
 /* The roster as a list: IR last, then by position, the highest projection first. */
@@ -26,7 +26,7 @@ const tbListHTML = rows => `<ul class="tb-list">${[...rows].sort((a, b) => a.ir 
 
 /* A package row is a button too: a tap takes the player back out. */
 const tbPkgRowHTML = p => `<li><button type="button" class="tb-p tb-pr" data-tbpick="${esc(tbKey(p))}" aria-label="${esc(t("lboard.edit.remove", {name: p.name}))}">
-  <span class="lbs-pos" data-pos="${esc(p.pos)}">${esc(p.pos)}</span><span class="tb-n">${esc(nameInitial(p.name))}</span>${tbPillHTML(p)}
+  <span class="lbp-pos" data-pos="${esc(p.pos)}">${esc(p.pos)}</span><span class="tb-n">${esc(nameInitial(p.name))}</span>${tbPillHTML(p)}
   <svg class="tb-out" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></li>`;
 
 function tbPkgHTML(){
@@ -51,21 +51,21 @@ function tbFootHTML(){
       <button type="button" class="tb-copy tb-go" data-tbedcopy${r.ok && send.length && get.length ? "" : " disabled"}>${t("lboard.offer.copy")}</button></div>`;
 }
 
-/* The state itself: the package, the two rosters (the only part that scrolls), the foot. */
+/* The state itself: the package, the two rosters, the foot as the tray. */
 function tbEditHTML(){
+  const roster = (title, rows) => `<section class="tb-roster"><h2>${title}</h2>${tbListHTML(rows)}</section>`;
   return `<div class="tb-pkg tb-card">${tbPkgHTML()}</div>
-    <div class="tb-lists"><h3>${t("lboard.edit.mine")}</h3>${tbListHTML(TB_EDIT.mine)}
-      <h3>${t("lboard.edit.theirs", {name: esc(TB.tm.name)})}</h3>${tbListHTML(TB_EDIT.theirs)}</div>
+    <div class="tb-lists">${roster(t("lboard.edit.mine"), TB_EDIT.mine)}${roster(t("lboard.edit.theirs", {name: esc(TB.tm.name)}), TB_EDIT.theirs)}</div>
     <div class="tb-edfoot">${tbFootHTML()}</div>`;
 }
 
-/* What a tap changes: the package and the foot, and which rows read as picked. The lists are left alone, so they
-   keep their scroll and the tapped row its focus. */
+/* What a tap changes: the package and the foot, and which rows read as picked. The lists are left alone, so
+   the page keeps its scroll and the tapped row its focus. */
 function tbEditPaint(){
-  const d = tbEl();
-  d.querySelector(".tb-pkg").innerHTML = tbPkgHTML();
-  d.querySelector(".tb-edfoot").innerHTML = tbFootHTML();
-  d.querySelectorAll(".tb-r").forEach(b => b.setAttribute("aria-pressed", String(tbPicked(b.dataset.tbpick))));
+  const v = document.getElementById("view");
+  v.querySelector(".tb-pkg").innerHTML = tbPkgHTML();
+  v.querySelector(".tb-edfoot").innerHTML = tbFootHTML();
+  v.querySelectorAll(".tb-r").forEach(b => b.setAttribute("aria-pressed", String(tbPicked(b.dataset.tbpick))));
 }
 
 function tbEditOpen(offer, opener){
@@ -74,9 +74,9 @@ function tbEditOpen(offer, opener){
   const send = offer ? offer.send.map(tbKey) : [], get = offer ? offer.get.map(tbKey) : [];
   TB_EDIT = {mine: lgd.values[TB.me.name], theirs: lgd.values[TB.tm.name], lu: lgd.lineup, other: tbOther(lgd, TB.me.name), send, get,
     from: {send: send.slice(), get: get.slice()}, back: opener && opener.dataset.tbedit !== undefined ? `[data-tbedit="${opener.dataset.tbedit}"]` : "[data-tbown]"};
+  lbpForward();
   layerPush("tbedit", tbEditShut);
-  tbPaint();
-  tbEl().querySelector(".lbs-x").focus({preventScroll: true});
+  lbpShow();
 }
 
 /* The close itself (Back arrives here); tbEditClose also takes back the history entry. */
@@ -85,8 +85,8 @@ function tbEditShut(){
   const back = TB_EDIT.back;
   TB_EDIT = null;
   if (!TB) return;
-  tbPaint();
-  tbEl().querySelector(back)?.focus({preventScroll: true});
+  lbpBack();
+  document.querySelector(back)?.focus({preventScroll: true});
 }
 function tbEditClose(){ tbEditShut(); layerDone("tbedit"); }
 
@@ -95,9 +95,9 @@ function tbToggle(key, fromPackage){
   const E = TB_EDIT, side = tbHas(E.mine, key) ? "send" : "get", i = E[side].indexOf(key);
   if (i < 0) E[side].push(key); else E[side].splice(i, 1);
   tbEditPaint();
-  const d = tbEl();
-  if (i < 0) d.querySelectorAll(".tb-pkg .tb-col ul")[side === "send" ? 0 : 1].scrollTop = 1e6;     // the new row shows when a fourth scrolls
-  if (fromPackage) d.querySelector(`.tb-r[data-tbpick="${CSS.escape(key)}"]`)?.focus({preventScroll: true});
+  const v = document.getElementById("view");
+  if (i < 0) v.querySelectorAll(".tb-pkg .tb-col ul")[side === "send" ? 0 : 1].scrollTop = 1e6;     // the new row shows when a fourth scrolls
+  if (fromPackage) v.querySelector(`.tb-r[data-tbpick="${CSS.escape(key)}"]`)?.focus({preventScroll: true});
 }
 
 function tbReset(){
@@ -106,26 +106,23 @@ function tbReset(){
   tbEditPaint();
 }
 
-/* Copy offer, from the foot: the same message as a card's, of season averages. */
+/* Copy offer, from the foot: the same message as a card's, of season averages. A refused clipboard shows the box
+   in the tray, so it is on screen wherever the page is scrolled to. */
 function tbEditCopy(btn){
-  const E = TB_EDIT, lists = tbEl().querySelector(".tb-lists");
-  lists.scrollTop = 0;
-  tbCopyText(btn, tbText({send: E.send.map(k => tbHas(E.mine, k)), get: E.get.map(k => tbHas(E.theirs, k))}), lists, "afterbegin");
+  const E = TB_EDIT;
+  tbCopyText(btn, tbText({send: E.send.map(k => tbHas(E.mine, k)), get: E.get.map(k => tbHas(E.theirs, k))}), btn.closest(".tb-edfoot"), "afterbegin");
 }
 
-/* Bound once, on the sheet: its markup is replaced on every open, its listeners are not. */
-(() => {
-  const d = tbEl();
-  if (!d) return;
-  d.addEventListener("click", e => {
-    const hit = sel => e.target.closest(sel);
-    const edit = hit("[data-tbedit]"), own = hit("[data-tbown]"), pick = hit("[data-tbpick]");
-    if (edit && TB_DATA) return tbEditOpen(tbOffers()[+edit.dataset.tbedit], edit);
-    if (own && TB_DATA) return tbEditOpen(null, own);
-    if (!TB_EDIT) return;
-    if (pick) return tbToggle(pick.dataset.tbpick, pick.classList.contains("tb-pr"));
-    if (hit("[data-tbreset]")) return tbReset();
-    const copy = hit("[data-tbedcopy]");
-    if (copy) tbEditCopy(copy);
-  });
-})();
+/* The page's taps in and around the edit state (lbpage.js wires them): Edit and Make your own on the offers,
+   then a player, Reset and Copy offer inside it. True when one was handled. */
+function tbEditClick(hit){
+  const edit = hit("[data-tbedit]"), own = hit("[data-tbown]"), pick = hit("[data-tbpick]");
+  if (edit && TB_DATA) return tbEditOpen(tbOffers()[+edit.dataset.tbedit], edit), true;
+  if (own && TB_DATA) return tbEditOpen(null, own), true;
+  if (!TB_EDIT) return false;
+  if (pick) return tbToggle(pick.dataset.tbpick, pick.classList.contains("tb-pr")), true;
+  if (hit("[data-tbreset]")) return tbReset(), true;
+  const copy = hit("[data-tbedcopy]");
+  if (copy) return tbEditCopy(copy), true;
+  return false;
+}

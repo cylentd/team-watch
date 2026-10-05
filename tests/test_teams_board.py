@@ -1,6 +1,6 @@
 """League > Teams, the League board (leaf `teams`, 2026-10-05): design/teams.py cuts every team's best
 lineup by position from ff-jarvis's roster files and this week's projections, and the page draws it as a
-grid with a roster sheet. The cut is tested on small invented leagues; the page on the fixture build."""
+grid with a page for each team. The cut is tested on small invented leagues; the page on the fixture build."""
 import copy
 import re
 import sys
@@ -94,7 +94,7 @@ PTS = dict(qa=20, ra=15, wa=14, ta=8, ra2=13, wa2=12, qb=18, rb=10, wb=9, tb=7, 
 
 def board(roster=None, pts=None, status=None, season=None):
     roster = roster or league()
-    return teams.live_league("test", roster, season, *teams._points(proj(**(pts or PTS)), slug, status, None), slug)
+    return teams.live_league("test", roster, season, *teams._points(proj(**(pts or PTS)), slug, status, None)[1:], slug)
 
 
 def by_name(b):
@@ -154,8 +154,24 @@ def test_a_players_already_played_game_counts_zero():
                                     {"week": 2, "home": "XXX", "away": "YYY", "kickoff": "2026-09-20T17:00:00Z"}]}
     raw = proj(qa=20, qb=18)
     raw["players"][1]["kickoff"] = "2026-09-20 17:00:00"      # qb's next game is week 2; qa's is week 1
-    pts, _ = teams._points(raw, slug, None, sched)
+    _, pts, _ = teams._points(raw, slug, None, sched)
     assert pts["qa"] == 20 and pts["qb"] == 0
+
+
+def test_the_block_carries_the_projections_week_not_the_pages():
+    """The label's week (2026-10-05): the week most players' next games fall in, so after Sunday it is
+    already next week while the page's week waits for Monday night. A bye that week counts 0."""
+    sched = {"alias": {}, "games": [{"week": 4, "home": "XXX", "away": "YYY", "kickoff": "2026-10-06T00:15:00Z"},
+                                    {"week": 5, "home": "XXX", "away": "ZZZ", "kickoff": "2026-10-11T17:00:00Z"},
+                                    {"week": 6, "home": "WWW", "away": "VVV", "kickoff": "2026-10-18T17:00:00Z"}]}
+    raw = proj(qa=20, qb=18, qc=16)
+    for p, kick, team in zip(raw["players"], ("2026-10-11 17:00:00", "2026-10-11 17:00:00", "2026-10-18 17:00:00"),
+                             ("XXX", "ZZZ", "WWW")):
+        p["kickoff"], p["team"] = kick, team
+    week, pts, _ = teams._points(raw, slug, None, sched)
+    assert week == 5 and pts["qa"] == 20 and pts["qc"] == 0, "qc's next game is week 6: on a bye in week 5"
+    assert teams.live_teams([("a", league(), None)], raw, slug, None, sched)["week"] == 5
+    assert teams.live_teams([("a", league(), None)], proj(**PTS), slug)["week"] is None, "no schedule, no week"
 
 
 def test_the_record_comes_from_the_leagues_standings_and_is_null_without_one():
@@ -210,7 +226,7 @@ def phone(browser, page_file, pick=None, w=360, h=800):
 
 def plant(page, roster, key="yahoo", season=None):
     """Gives league `key` a board from an invented roster file, and draws it."""
-    block = teams.live_league(key, roster, season, *teams._points(proj(**PTS), slug, None, None), slug)
+    block = teams.live_league(key, roster, season, *teams._points(proj(**PTS), slug, None, None)[1:], slug)
     page.evaluate("b => { LIVE_TEAMS.leagues = LIVE_TEAMS.leagues.filter(l => l.key !== b.key); LIVE_TEAMS.leagues.push(b); render(); }", block)
 
 
@@ -282,28 +298,68 @@ def test_a_cell_is_tinted_only_8_percent_off_the_median_and_a_spare_is_marked(br
 
 
 @pytest.mark.render
-def test_a_row_opens_its_roster_in_a_sheet_that_back_and_escape_close_and_that_leaves_the_pick_alone(browser, page_file):
+def test_a_row_opens_the_team_as_a_page_that_the_link_and_back_both_close_and_that_leaves_the_pick_alone(browser, page_file):
     ctx, page, errors = phone(browser, page_file, pick="espn")
     page.locator(".lb-row >> nth=1").click()
-    page.wait_for_selector("#lbsheet.on")
-    assert page.locator("#lbs-title").inner_text() == "Run It Back"
-    rows = page.locator(".lbs-r").all_inner_texts()
+    page.wait_for_selector(".lbp-title")
+    assert page.locator(".lbp-title").inner_text() == "Run It Back"
+    assert page.locator(".lb-grid").count() == 0, "the page replaces the board in the view"
+    assert page.locator("#lbsheet, #tbsheet, .lbs-scrim").count() == 0, "a page, not a sheet: nothing slides up, no scrim"
+    assert page.locator(".navitem[data-s='league']").is_visible() and page.locator(".mode-sub[aria-pressed='true']").inner_text().lower() == "teams"
+    assert page.locator(".lbp-back").inner_text() == "Teams"
+    rows = page.locator(".lbp-r").all_inner_texts()
     assert any("B. Robinson" in r for r in rows) and any("C. Hubbard" in r for r in rows), "names as initials, bench after the lineup"
-    assert page.locator(".lbsheet h3").all_inner_texts() == ["LINEUP", "BENCH"]
+    assert page.locator(".lbp h2").all_inner_texts() == ["LINEUP", "BENCH"]
+    assert page.locator(".lbp-sub").inner_text().endswith("projected")
     assert page.evaluate("localStorage.getItem('tw-team')") == "espn", "opening a team never picks it"
+    assert page.evaluate("location.hash") == "#teams", "pages are history entries, not URLs: a reload lands on the board"
     page.go_back()
-    page.wait_for_function("!document.getElementById('lbsheet').classList.contains('on')")
-    assert page.evaluate("location.hash") == "#teams", "Back closed the sheet, not the view"
+    page.wait_for_selector(".lb-grid")
+    assert page.evaluate("location.hash") == "#teams", "Back closed the page, not the view"
+    assert page.evaluate("document.activeElement.dataset.lbopen") == "espn-run-it-back", "focus returns to the row"
     page.locator(".lb-row >> nth=0").click()
-    page.wait_for_selector("#lbsheet.on")
-    page.keyboard.press("Escape")
-    page.wait_for_function("!document.getElementById('lbsheet').classList.contains('on')")
-    page.locator(".lb-row >> nth=0").click()
-    page.locator("#lbsheet-scrim").click(position={"x": 5, "y": 5})
-    page.wait_for_function("!document.getElementById('lbsheet').classList.contains('on')")
+    page.wait_for_selector(".lbp-title")
+    page.locator(".lbp-back").click()
+    page.wait_for_selector(".lb-grid")
+    assert page.evaluate("history.state") is None, "the link took its history entry back too"
     assert page.evaluate("[VIEW, localStorage.getItem('tw-team')]") == ["espn", "espn"]
     ctx.close()
     assert errors == []
+
+
+@pytest.mark.render
+def test_the_board_comes_back_at_the_scroll_the_reader_left_whichever_way_they_step_back(browser, page_file):
+    ctx, page, _ = phone(browser, page_file, pick="espn", h=500)
+    plant(page, league({f"T{i}": [row(f"q{i}", "QB", "QB")] for i in range(20)}), key="espn")
+    for way in ("link", "back"):
+        page.evaluate("window.scrollTo(0, 260)")
+        y = page.evaluate("scrollY")
+        assert y > 200, "the board is long enough to scroll"
+        page.locator(".lb-row >> nth=6").click()
+        page.wait_for_selector(".lbp-title")
+        assert page.evaluate("scrollY") == 0, "a page starts at its top"
+        if way == "link":
+            page.locator(".lbp-back").click()
+        else:
+            page.go_back()
+        page.wait_for_selector(".lb-grid")
+        page.wait_for_function(f"scrollY === {y}")
+    ctx.close()
+
+
+@pytest.mark.render
+def test_the_board_asks_for_a_team_only_while_the_reader_has_none_in_the_league(browser, page_file):
+    ctx, page, _ = phone(browser, page_file, pick="espn")
+    assert page.locator(".lb-pick").count() == 0, "their team is in this league"
+    page.locator("[data-lgpick='ayo']").click()
+    assert page.locator(".lb-pick").inner_text() == "Tap your team to set it"
+    ctx.close()
+    ctx, page, _ = phone(browser, page_file, pick="nothing")
+    page.locator("[data-lgpick='espn']").click()
+    assert page.locator(".lb-pick").inner_text() == "Tap your team to set it"
+    top = page.evaluate("document.querySelector('.lb-grid').getBoundingClientRect().top")
+    assert top <= 200, f"the line still leaves the grid at {top:.0f}px"
+    ctx.close()
 
 
 @pytest.mark.render

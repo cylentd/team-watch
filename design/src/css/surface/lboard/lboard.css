@@ -5,19 +5,21 @@
    phone the five columns are fixed-width, so the numbers line up down the page and the team's name
    takes what is left; from 760px the board stops at --lb-w, left on the frame's edge like any list. */
 .lb{--lb-w:720px;--lb-cell:38px}
+/* While the reader has no team in the league: one quiet line above the grid (a team's page has the button). */
+.lb-pick{margin:12px 0 0;max-width:var(--lb-w);font:500 var(--t-2)/1.3 var(--ui);color:var(--ink-3)}
 .lb-grid{margin-top:12px;max-width:var(--lb-w);border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden}
 .lb-head,.lb-row{display:grid;grid-template-columns:minmax(0,1fr) repeat(var(--lb-n,5),var(--lb-cell))}
 .lb-head{background:var(--panel-2);border-bottom:1px solid var(--line)}
 .lb-head > span{display:flex;min-width:0}
 
-/* The header buttons sort. The pressed one is lime with a caret; there is always exactly one. */
+/* The header buttons sort. The pressed one is lime, no caret: a caret read as a dropdown (David,
+   2026-10-05). There is always exactly one. */
 .lb-h{appearance:none;border:0;background:none;width:100%;min-height:40px;padding:0;cursor:pointer;
   display:inline-flex;align-items:center;justify-content:center;gap:4px;
   font:700 var(--t-1)/1 var(--mono);letter-spacing:.06em;color:var(--ink-3);white-space:nowrap}
 .lb-h.team{justify-content:flex-start;padding-left:12px;letter-spacing:.02em;text-transform:uppercase}
 .lb-h:hover{color:var(--ink)}
 .lb-h[aria-pressed="true"]{color:var(--lime)}
-.lb-h[aria-pressed="true"]::after{content:"";border:4px solid transparent;border-top-color:currentColor;border-bottom:0}
 .lb-h:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
 
 .lb-row{position:relative;min-height:50px;border-top:1px solid var(--line);cursor:pointer}

@@ -1,8 +1,8 @@
 /* ============================== LEAGUE > TEAMS: TRADE OFFERS, THE DATA ==============================
    2026-10-05. ff-jarvis's trade_offers.json (design/trade_offers.py writes it beside the page): for every
    owner in every league, up to three bold and three fair offers to each partner. ~650 KB, so it is not in
-   the page: it is fetched the first time a reader opens the builder (tbsheet.js) and kept in memory for the
-   session. From file:// or offline the fetch fails and the sheet says so, with a button to try again. An offer
+   the page: it is fetched the first time a reader opens the builder (tbpage.js) and kept in memory for the
+   session. From file:// or offline the fetch fails and the page says so, with a button to try again. An offer
    is what each side sends, the owner's one number, `gain`, and who the owner drops to stay at the roster cap.
    The page scores nothing but the reader's own packages (Edit, tbedit.js, with tbscore.js's port of the rule).
 
@@ -13,7 +13,7 @@ let TB_DATA = null;     // the file, once fetched
 let TB_ERR = false;     // the last fetch failed
 let TB_BUSY = null;     // the fetch in flight, so two opens share one request
 
-/* True when the file is in TB_DATA. Always resolves, never throws: the sheet paints what it has. */
+/* True when the file is in TB_DATA. Always resolves, never throws: the page paints what it has. */
 function tbLoad(){
   if (TB_DATA) return Promise.resolve(true);
   if (TB_BUSY) return TB_BUSY;
@@ -36,11 +36,12 @@ function tbLoad(){
 const tbLeagueOf = key => ((lbData() || {}).leagues || []).find(l => l.teams.some(x => x.key === key)) || null;
 const tbMine = lg => { const k = myTeamLoad(); return lg && k ? lg.teams.find(x => x.key === k) || null : null; };
 
-/* What the roster sheet's foot holds: "find" (the button), "pick" (a line asking the reader for their team)
-   or "" (it is the reader's own team: nothing to trade with). */
+/* What a team's page offers (lbpage.js): "find" (Find trades, the reader's own team is in this league and is
+   another), "set" (This is my team: the reader has no team in this league), "own" (it is the reader's team: nothing
+   to trade with) or "" (a team the page cannot make the reader's, which TEAMS does not list). */
 function tbGate(tm){
   const lg = tbLeagueOf(tm.key), me = tbMine(lg);
-  return !lg ? "" : !me ? "pick" : me.key === tm.key ? "" : "find";
+  return !lg ? "" : !me ? (TEAMS[tm.key] ? "set" : "") : me.key === tm.key ? "own" : "find";
 }
 
 /* {bold: [offer], fair: [offer]} for this pair, or null when the file has nothing for it. */

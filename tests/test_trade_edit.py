@@ -12,7 +12,7 @@ import json
 
 import pytest
 
-from test_trade_offers import FIXTURE, PLANT, builder, reader, roster, shut_wait
+from test_trade_offers import FIXTURE, PLANT, builder, reader, roster
 
 RUN = "espn-run-it-back"
 ESPN = FIXTURE["leagues"]["espn"]
@@ -154,7 +154,8 @@ def test_edit_opens_on_the_offer_it_started_from_and_back_returns_to_the_offers(
     assert [r.replace("\n", " ") for r in cols.nth(1).locator(".tb-p").all_inner_texts()] == ["WR J. Smith-Njigba", "RB C. Brown"]
     assert gain(page) == "+8.5 pts a week for you"
     assert page.locator(".tb-edfoot .tb-gain b").evaluate("e => getComputedStyle(e).color") == "rgb(55, 224, 139)"
-    assert page.locator(".tb-lists h3").all_inner_texts() == ["YOUR ROSTER", "RUN IT BACK ROSTER"]
+    assert page.locator(".tb-lists h2").all_inner_texts() == ["YOUR ROSTER", "RUN IT BACK ROSTER"]
+    assert page.locator(".lbp-back").inner_text() == "Offers", "the edit state has its own back step"
     mine, theirs = page.locator(".tb-list").nth(0), page.locator(".tb-list").nth(1)
     assert mine.locator(".tb-r").count() == 15 and theirs.locator(".tb-r").count() == 16
     assert mine.locator(".tb-r").first.inner_text().replace("\n", " ").startswith("QB "), "positions in order, QB first"
@@ -167,18 +168,15 @@ def test_edit_opens_on_the_offer_it_started_from_and_back_returns_to_the_offers(
     page.go_back()
     page.wait_for_selector(".tb-card .tb-gain")
     assert page.locator(".tb-body.tb-ed").count() == 0
-    assert page.evaluate("document.getElementById('tbsheet').classList.contains('on')"), "Back closed the edit state only"
+    assert page.locator("#tb-title").count() == 1, "Back closed the edit state only: the builder page is still there"
     assert page.evaluate("document.activeElement.dataset.tbedit") == "0", "focus returns to the Edit button"
     open_edit(page, 0)
-    page.keyboard.press("Escape")
+    page.locator(".lbp-back").click()                                         # the link is the same step as Back
     page.wait_for_selector(".tb-card .tb-gain")
-    assert page.evaluate("document.getElementById('tbsheet').classList.contains('on')"), "Escape closes one layer"
-    open_edit(page, 0)
-    page.locator("#tbsheet-scrim").click(position={"x": 5, "y": 5})
-    page.wait_for_selector(".tb-card .tb-gain")
-    page.keyboard.press("Escape")
-    shut_wait(page, "tbsheet")
-    assert page.evaluate("document.getElementById('lbsheet').classList.contains('on')")
+    assert page.evaluate("history.state && history.state.layer") == "lbtrade", "and it took the edit state's history entry back"
+    page.locator(".lbp-back").click()
+    page.wait_for_selector("[data-tbfind]")
+    assert page.locator(".lbp-title").inner_text() == "Run It Back"
     ctx.close()
     assert errors == []
 
@@ -282,7 +280,7 @@ def test_a_refused_clipboard_in_edit_shows_the_text_in_a_box(browser, page_file)
     builder(page, RUN)
     open_edit(page, 1)
     page.locator("[data-tbedcopy]").click()
-    page.wait_for_selector(".tb-lists .tb-box")
+    page.wait_for_selector(".tb-edfoot .tb-box")
     assert page.locator(".tb-box").input_value() == "Trade? I send Purdy (28.8 a game), Raymond (9.4), Gordon II (10.2) for Smith-Njigba (25.3)."
     assert page.locator("[data-tbedcopy]").inner_text() == "Copy offer", "no false Copied"
     ctx.close()
@@ -332,22 +330,27 @@ def test_make_your_own_is_under_the_offers_on_both_tabs_and_in_the_empty_states_
 
 
 @pytest.mark.render
-def test_the_edit_state_is_fixed_in_its_parts_fits_both_screens_and_scrolls_only_the_rosters(browser, page_file):
+def test_the_edit_state_keeps_its_parts_still_with_the_foot_on_the_bottom_edge_and_fits_both_screens(browser, page_file):
     for w, h in ((360, 800), (1280, 900)):
         ctx, page, _ = reader(browser, page_file, "espn", w=w, h=h)
         builder(page, RUN)
         open_edit(page, 0)
-        geo = "(() => { const g = s => document.querySelector(s).getBoundingClientRect(); return [g('#tbsheet').top, g('.tb-pkg').height, g('.tb-edfoot').height, g('.tb-edfoot').bottom, g('.tb-lists').top]; })()"
+        geo = "(() => { const g = s => document.querySelector(s).getBoundingClientRect(); return [g('.tb-pkg').top, g('.tb-pkg').height, g('.tb-edfoot').height, g('.tb-edfoot').bottom, g('.tb-lists').top]; })()"
         before = page.evaluate(geo)
         for name in ("George Kittle", "Tee Higgins", "Brock Purdy", "Jared Goff", "Chase Brown", "Drake Maye", "Juwan Johnson"):
             page.locator(f".tb-r[data-tbpick='{name}']").click()
-        assert page.evaluate(geo) == before, "the sheet, the package and the foot do not move or resize when the package changes"
-        assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
-        assert page.evaluate("(() => { const b = document.querySelector('.tb-body'); return b.scrollWidth <= b.clientWidth && b.scrollHeight <= b.clientHeight + 1; })()"), "the body itself never scrolls"
-        assert page.evaluate("(() => { const l = document.querySelector('.tb-lists'); return l.scrollHeight > l.clientHeight && l.clientHeight > 150; })()"), "the rosters do, and have room"
+        page.evaluate("window.scrollTo(0, 0)")
+        assert page.evaluate(geo) == before, "the package, the foot and the rosters do not move or resize when the package changes"
+        assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), "no sideways scroll"
+        assert page.evaluate("document.documentElement.scrollHeight > innerHeight"), "the rosters scroll with the page"
+        assert page.evaluate(f"document.querySelector('.tb-edfoot').getBoundingClientRect().bottom <= {h} - 8"), "the foot is a tray on the bottom edge"
         assert page.evaluate("[...document.querySelectorAll('.tb-r, .tb-pr, .tb-edfoot .tb-copy')].every(b => b.getBoundingClientRect().height >= 40)")
-        assert page.evaluate("(() => { const b = document.getElementById('tbsheet').getBoundingClientRect(); return b.left >= 0 && b.right <= innerWidth && b.bottom <= innerHeight; })()")
-        assert page.evaluate("[...document.querySelectorAll('.tb-pkg ul, .tb-lists')].every(e => e.scrollWidth <= e.clientWidth)")
+        assert page.evaluate("[...document.querySelectorAll('.tb-pkg ul, .tb-lists, .tb-edfoot')].every(e => e.scrollWidth <= e.clientWidth)")
+        page.evaluate("window.scrollTo(0, document.documentElement.scrollHeight)")
+        rest = page.evaluate("(() => { const r = [...document.querySelectorAll('.tb-r')].pop().getBoundingClientRect(), f = document.querySelector('.tb-edfoot').getBoundingClientRect(); return [f.top, r.bottom, innerHeight, scrollY, document.documentElement.scrollHeight]; })()")
+        assert rest[0] >= rest[1] - 1, f"at the end the tray rests under the last row: {rest}"
+        side = page.evaluate("(() => { const t = [...document.querySelectorAll('.tb-roster')].map(e => Math.round(e.getBoundingClientRect().top + scrollY)); return t[0] === t[1]; })()")
+        assert side == (w >= 760), "the two rosters sit side by side on a desktop and stack on a phone"
         ctx.close()
 
 
@@ -379,10 +382,9 @@ def test_a_file_whose_gain_the_page_cannot_reproduce_shuts_edit_and_names_the_of
     ctx, page, errors, warnings = guarded(browser, page_file, bad)
     assert_shut(page)
     assert any("Purdy Big in Japan to Run It Back" in w and "bold[1]" in w for w in warnings), warnings
-    page.keyboard.press("Escape")
-    shut_wait(page, "tbsheet")
-    page.keyboard.press("Escape")
-    shut_wait(page, "lbsheet")
+    page.locator(".lbp-back").click()
+    page.locator(".lbp-back").click()
+    page.wait_for_selector(".lb-grid")
     builder(page, RUN)                                                        # a shut guard stays shut for the session
     page.wait_for_selector(".tb-card .tb-gain")
     assert page.locator("[data-tbedit]").count() == 0

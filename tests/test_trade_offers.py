@@ -134,47 +134,78 @@ def reader(browser, page_file, pick, w=360, h=800, init=""):
 
 
 def roster(page, key):
+    """A team's page, opened from the board."""
     page.locator(f"[data-lbopen='{key}']").click()
-    page.wait_for_selector("#lbsheet.on")
+    page.wait_for_selector(".lbp-title")
 
 
 def builder(page, key):
+    """The trade builder page, one page further in."""
     roster(page, key)
-    page.locator(".tb-find").click()
-    page.wait_for_selector("#tbsheet.on")
+    page.locator("[data-tbfind]").click()
+    page.wait_for_selector("#tb-title")
 
 
-def shut_wait(page, el):
-    page.wait_for_function(f"!document.getElementById('{el}').classList.contains('on')")
+def on_board(page):
+    page.wait_for_selector(".lb-grid")
 
 
 @pytest.mark.render
 def test_the_button_is_for_a_team_that_is_not_the_readers_own_in_the_readers_league(browser, page_file):
     ctx, page, errors = reader(browser, page_file, "espn")
     roster(page, "espn-run-it-back")
-    assert page.locator(".tb-find").inner_text() == "Find trades with Run It Back"
-    assert page.locator(".tb-pick").count() == 0
-    page.keyboard.press("Escape")
-    shut_wait(page, "lbsheet")
+    assert page.locator("[data-tbfind]").inner_text() == "Find trades with Run It Back"
+    assert page.locator("[data-lbmine]").count() == 0, "a reader with a team in this league switches with the team switch"
+    page.locator(".lbp-back").click()
+    on_board(page)
     roster(page, "espn")
-    assert page.locator(".tb-find").count() == 0 and page.locator(".tb-pick").count() == 0, "your own team has nobody to trade with"
+    assert page.locator("[data-tbfind]").count() == 0 and page.locator("[data-lbmine]").count() == 0, "your own team has nobody to trade with"
+    assert page.locator(".lbp-yours").inner_text() == "Your team"
     ctx.close()
     assert errors == []
 
 
 @pytest.mark.render
-def test_a_reader_with_no_team_in_the_league_is_asked_for_one_and_gets_no_button(browser, page_file):
+def test_a_reader_with_no_team_in_the_league_gets_this_is_my_team_and_no_trade_button(browser, page_file):
     ctx, page, _ = reader(browser, page_file, "ayo")                      # the reader's team is in AYO
     page.locator("[data-lgpick='espn']").click()                           # the board on ESPN's league
     roster(page, "espn-run-it-back")
-    assert page.locator(".tb-find").count() == 0
-    assert page.locator(".tb-pick").inner_text() == "Pick your team to find trades here"
+    assert page.locator("[data-tbfind]").count() == 0
+    assert page.locator("[data-lbmine]").inner_text() == "This is my team"
     ctx.close()
     ctx, page, _ = reader(browser, page_file, None)                        # no team picked at all
     page.locator("[data-lgpick='espn']").click()
     roster(page, "espn")
-    assert page.locator(".tb-find").count() == 0 and page.locator(".tb-pick").count() == 1
+    assert page.locator("[data-tbfind]").count() == 0 and page.locator("[data-lbmine]").count() == 1
     ctx.close()
+
+
+@pytest.mark.render
+def test_this_is_my_team_picks_it_the_way_the_team_switch_does_and_the_other_teams_then_offer_trades(browser, page_file):
+    ctx, page, errors = reader(browser, page_file, None)
+    page.locator("[data-lgpick='espn']").click()
+    assert page.locator(".lb-pick").inner_text() == "Tap your team to set it" and page.locator(".lb-row.mine").count() == 0
+    roster(page, "espn-run-it-back")
+    slot = page.evaluate("document.querySelector('.lbp-slot').getBoundingClientRect().height")
+    page.locator("[data-lbmine]").click()
+    assert page.evaluate("[localStorage.getItem('tw-team'), VIEW, myTeamLoad()]") == ["espn-run-it-back"] * 3, "pickTeam's own storage and state"
+    assert page.locator(".lbp-yours").inner_text() == "Your team"
+    assert page.locator("[data-lbmine]").count() == 0 and page.locator("[data-tbfind]").count() == 0
+    assert page.evaluate("document.querySelector('.lbp-slot').getBoundingClientRect().height") == slot, "the action row keeps its height"
+    assert page.evaluate("document.activeElement.className") == "lbp-yours"
+    page.locator(".lbp-back").click()
+    on_board(page)
+    assert page.locator(".lb-pick").count() == 0, "the line is gone once the reader has a team here"
+    assert names(page)[0] == "Run It Back" and page.locator(".lb-row.mine").count() == 1, "pinned"
+    roster(page, "espn")
+    assert page.locator("[data-tbfind]").inner_text() == "Find trades with Purdy Big in Japan"
+    assert page.locator("[data-lbmine]").count() == 0, "a reader who has a team here never sees This is my team on another"
+    ctx.close()
+    assert errors == []
+
+
+def names(page):
+    return page.locator(".lb-row .lb-team b").all_inner_texts()
 
 
 @pytest.mark.render
@@ -209,16 +240,16 @@ def test_fair_is_the_other_tab_and_the_last_tab_is_kept_for_the_visit_and_the_fi
     ctx, page, _ = reader(browser, page_file, "espn-run-it-back")     # Run It Back's offers to Purdy have both kinds
     builder(page, "espn")
     page.wait_for_selector(".tb-card .tb-gain")
-    top = page.evaluate("document.getElementById('tbsheet').getBoundingClientRect().top")
+    top = page.evaluate("document.querySelector('[data-tbtab]').getBoundingClientRect().top")
     page.locator("[data-tbtab='fair']").click()
     assert page.locator("[data-tbtab='fair']").get_attribute("aria-pressed") == "true"
     assert page.locator(".tb-line").inner_text() == "Both lineups gain"
     assert page.locator(".tb-card").count() == 3 and page.locator(".tb-gain").first.inner_text() == "+1.1 pts a week for you"
-    assert page.evaluate("document.getElementById('tbsheet').getBoundingClientRect().top") == top, "the sheet does not move between tabs"
-    page.keyboard.press("Escape")
-    shut_wait(page, "tbsheet")
-    page.keyboard.press("Escape")
-    shut_wait(page, "lbsheet")
+    assert page.evaluate("document.querySelector('[data-tbtab]').getBoundingClientRect().top") == top, "the tabs do not move between tabs"
+    page.locator(".lbp-back").click()
+    page.wait_for_selector("[data-tbfind]")
+    page.locator(".lbp-back").click()
+    on_board(page)
     builder(page, "espn")
     assert page.locator("[data-tbtab='fair']").get_attribute("aria-pressed") == "true", "kept in memory for the visit"
     assert page.evaluate("__tbFetches") == 1, "the file is cached for the session"
@@ -303,7 +334,7 @@ def test_the_builder_shows_shapes_while_loading_and_an_error_with_a_retry(browse
 
 
 @pytest.mark.render
-def test_from_file_the_real_fetch_is_refused_and_the_sheet_says_so(browser, page_file):
+def test_from_file_the_real_fetch_is_refused_and_the_page_says_so(browser, page_file):
     ctx = browser.new_context(viewport={"width": 360, "height": 800}, reduced_motion="reduce")
     page = ctx.new_page()
     page.set_default_timeout(5000)
@@ -318,26 +349,37 @@ def test_from_file_the_real_fetch_is_refused_and_the_sheet_says_so(browser, page
 
 
 @pytest.mark.render
-def test_back_and_escape_close_the_builder_first_and_then_the_roster_sheet(browser, page_file):
+def test_back_and_the_link_step_back_one_page_at_a_time_from_the_builder_to_the_team_to_the_board(browser, page_file):
     ctx, page, errors = reader(browser, page_file, "espn")
     builder(page, "espn-run-it-back")
+    assert page.locator(".lbp-back").inner_text() == "Run It Back", "the link names the page it goes back to"
+    assert page.locator("#lbsheet, #tbsheet, .lbs-scrim").count() == 0, "pages all the way: no sheet, no scrim"
     page.go_back()
-    shut_wait(page, "tbsheet")
-    assert page.evaluate("document.getElementById('lbsheet').classList.contains('on')"), "Back closed the builder, not the roster"
-    assert page.evaluate("document.activeElement.className") == "tb-find", "focus returns to the button"
-    page.locator(".tb-find").click()
-    page.wait_for_selector("#tbsheet.on")
-    page.keyboard.press("Escape")
-    shut_wait(page, "tbsheet")
-    assert page.evaluate("document.getElementById('lbsheet').classList.contains('on')"), "Escape closes one layer"
-    page.locator(".tb-find").click()
-    page.wait_for_selector("#tbsheet.on")
-    page.locator("#tbsheet-scrim").click(position={"x": 5, "y": 5})
-    shut_wait(page, "tbsheet")
+    page.wait_for_selector("[data-tbfind]")
+    assert page.locator(".lbp-title").inner_text() == "Run It Back", "Back closed the builder, not the team"
+    assert page.evaluate("document.activeElement.hasAttribute('data-tbfind')"), "focus returns to the button"
+    page.locator("[data-tbfind]").click()
+    page.wait_for_selector("#tb-title")
+    page.locator(".lbp-back").click()
+    page.wait_for_selector("[data-tbfind]")
     page.go_back()
-    shut_wait(page, "lbsheet")
+    on_board(page)
     assert page.evaluate("location.hash") == "#teams"
     assert page.evaluate("localStorage.getItem('tw-team')") == "espn", "trading with a team never picks it"
+    ctx.close()
+    assert errors == []
+
+
+@pytest.mark.render
+def test_leaving_teams_with_a_page_open_forgets_it(browser, page_file):
+    ctx, page, errors = reader(browser, page_file, "espn")
+    builder(page, "espn-run-it-back")
+    page.locator(".navitem[data-s='scouting']").click()
+    page.wait_for_selector("#view[data-view='highlights'] > *")
+    page.locator(".navitem[data-s='league']").click()
+    page.locator(".mode-sub[data-leaf='teams']").click()
+    on_board(page)
+    assert page.locator(".lbp").count() == 0, "Teams opens on its board, not on the page left behind"
     ctx.close()
     assert errors == []
 
@@ -348,9 +390,12 @@ def test_the_builder_fits_a_phone_and_a_desktop_with_no_sideways_scroll(browser,
         ctx, page, _ = reader(browser, page_file, "espn", w=w, h=h)
         builder(page, "espn-run-it-back")
         page.wait_for_selector(".tb-card .tb-gain")
-        box = page.evaluate("(() => { const r = document.getElementById('tbsheet').getBoundingClientRect(); return [r.left, r.right, r.bottom]; })()")
-        assert box[0] >= 0 and box[1] <= w and box[2] <= h
+        box = page.evaluate("(() => { const r = document.querySelector('.lbp').getBoundingClientRect(); return [r.left, r.right]; })()")
+        assert box[0] >= 0 and box[1] <= w
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
         assert page.evaluate("(() => { const b = document.querySelector('.tb-body'); return b.scrollWidth <= b.clientWidth; })()")
-        assert page.evaluate("[...document.querySelectorAll('.tb-copy, .tb-find, [data-tbtab]')].every(b => b.getBoundingClientRect().height >= 44 || b.className.includes('tb-find'))")
+        assert page.evaluate("[...document.querySelectorAll('.tb-copy, .lbp-act, .lbp-back, [data-tbtab]')].every(b => b.getBoundingClientRect().height >= 44)")
+        left = page.evaluate("document.querySelector('.tb-card').getBoundingClientRect().left - document.querySelector('.lbp-back').getBoundingClientRect().left")
+        assert abs(left) <= 12, f"left-aligned on the frame's edge, {left}px off the link"
+        assert page.evaluate("document.querySelector('.tb-card').getBoundingClientRect().width") <= 561, "a card keeps to one column"
         ctx.close()

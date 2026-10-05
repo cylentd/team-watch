@@ -86,17 +86,18 @@ def _floors(lineups):
 
 
 def _points(proj, slugify, status, schedule):
-    """(slug -> points, slugs not playing). A player whose projected game is already played (`slate`)
-    counts 0, the way LIVE_PROJECTIONS gives him no number; the model's row wins a duplicate."""
+    """(week, slug -> points, slugs not playing). `week` is the one the file speaks for (`slate`), the
+    board's label; a player whose projected game is a later week (on a bye that week) counts 0, the way
+    LIVE_PROJECTIONS gives him no number; the model's row wins a duplicate."""
     players = (proj or {}).get("players") or []
-    _, done = slate(players, slugify, schedule)
+    week, done = slate(players, slugify, schedule)
     pts = {}
     for p in players:
         slug = slugify(p.get("name") or "")
         if not slug or (slug in pts and p.get("src") != "model"):
             continue
         pts[slug] = 0 if slug in done else (p.get("pts") or 0)
-    return pts, set(unavailable(status, slugify))
+    return week, pts, set(unavailable(status, slugify))
 
 
 def _players(rows, pts, gone, slugify):
@@ -136,13 +137,14 @@ def live_league(key, roster, season, pts, gone, slugify):
 
 
 def live_teams(inputs, proj, slugify, status=None, schedule=None):
-    """LIVE_TEAMS: {leagues: [league, ...]} for `inputs`, [(league key, roster file, this season's league
+    """LIVE_TEAMS: {week, leagues: [league, ...]} for `inputs`, [(league key, roster file, this season's league
     file)] in the order the League switch lists them, or None when no league has a board. A league with no
-    roster file is left out, and the page says so under its chip."""
-    pts, gone = _points(proj, slugify, status, schedule)
+    roster file is left out, and the page says so under its chip. `week` is the projections' week, null
+    with no schedule; the page labels the board with it, never with the page's own week."""
+    week, pts, gone = _points(proj, slugify, status, schedule)
     made = [live_league(k, r, s, pts, gone, slugify) for k, r, s in inputs]
     made = [m for m in made if m and m["teams"]]
-    return {"leagues": made} if made else None
+    return {"week": week, "leagues": made} if made else None
 
 
 def add_teams(blocks, report, slugify):

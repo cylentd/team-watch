@@ -135,6 +135,7 @@ const navFromHash = () => {
 
 function navGo(leaf, fromHash){
   LAST_LEAF[navGroupOf(leaf)] = leaf;
+  if (leaf !== "teams" && LB_PAGE) lbPageReset();   // a League > Teams page left open by a tap on another view (lbpage.js)
   SURFACE = leaf;
   const active = navGroupOf(leaf);
   document.querySelectorAll("#nav .navitem")

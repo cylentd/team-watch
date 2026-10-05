@@ -1,27 +1,16 @@
 /* ============================================================
-   THE TRADE BUILDER SHEET (2026-10-05, js/surface/lboard/tbsheet.js)
-   The roster sheet's shape (sheet.css: .lbsheet, .lbs-grab, .lbs-bar, .lbs-x, .lbs-body, .lbs-pos) one layer
-   higher, and the lime button in the roster sheet's foot that opens it. Offers are cards (one subject each:
-   panel, 1px line, 16px radius); a card's two columns are rows, its gain strip a filled box (DESIGN.md "Cards").
+   THE TRADE BUILDER PAGE (2026-10-05, js/surface/lboard/tbpage.js)
+   The team page's shape (lbpage.css: .lbp, .lbp-back, .lbp-title, .lbp-pos), one page further in. Offers are
+   cards (one subject each: panel, 1px line, 16px radius); a card's two columns are rows, its gain strip a
+   filled box (DESIGN.md "Cards").
    ============================================================ */
-.tbs-scrim{z-index:50}
-/* One height for every tab, so Bold to Fair, an empty tab and the loading shapes never move the sheet's top edge. */
-.tbsheet{z-index:51;height:min(88dvh,720px)}
-
-/* The roster sheet's foot: outside the scrolling body, so the button is always in reach. */
-.lbs-foot{flex:none}
-.tb-find{appearance:none;border:0;width:100%;min-height:48px;padding:10px 16px;border-radius:12px;cursor:pointer;
-  background:var(--lime);color:var(--on-lime);font:700 var(--t-3)/1.2 var(--ui);transition:transform .12s var(--ease)}
-.tb-find:active{transform:scale(var(--press))}
-.tb-find:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
-.tb-pick{margin:0;padding:6px 0;text-align:center;font:500 var(--t-2)/1.3 var(--ui);color:var(--ink-3)}
-
 /* The head: "You ⇄ Team", the swap drawn in the ink of a label. */
 .tb-swap{width:18px;height:18px;margin:0 7px;vertical-align:-3px;fill:none;stroke:var(--ink-3);stroke-width:2;
   stroke-linecap:round;stroke-linejoin:round}
 
+/* A column, so the edit state's tray (tbedit.css) can stick to the bottom edge: a sticky grid item stays in its row. */
+.tb-body{display:flex;flex-direction:column;gap:10px;margin-top:14px}
 /* Two halves of one control; the pressed one is lime, as every chip. */
-.tb-body{gap:10px}
 .setrow.tb-seg{margin-top:0}
 .setrow.tb-seg > .chip{flex:1;min-height:44px}
 .tb-line{margin:0;font:500 var(--t-2)/1.3 var(--ui);color:var(--ink-2)}

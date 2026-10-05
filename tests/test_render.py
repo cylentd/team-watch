@@ -109,7 +109,7 @@ LB_OLD_SHAPE = ("() => { TB_DATA = (d => { for (const lg of Object.values(d.leag
                 " for (const ps of Object.values(lg.teams)) for (const ks of Object.values(ps)) for (const os of Object.values(ks))"
                 " os.forEach(o => delete o.drop); } return d; })(" + TRADE_OFFERS + "); }")
 LB_AS = lambda key: f"localStorage.setItem('tw-team', '{key}')"
-LB_BUILDER = lambda team: [("eval", "TB_DATA = " + TRADE_OFFERS), ("click", f"[data-lbopen='{team}']"), ("click", ".tb-find")]
+LB_BUILDER = lambda team: [("eval", "TB_DATA = " + TRADE_OFFERS), ("click", f"[data-lbopen='{team}']"), ("click", "[data-tbfind]")]
 
 
 def _strip_game():
@@ -283,16 +283,22 @@ STATES = [
     ("trades-open", go("trades") + [("click", "[data-trmgr='6']"), ("eval", "document.querySelector('[data-trall]')?.click()")]),
     # League > Teams (2026-10-05): the board. The suite's reader is on the Madden Curse, whose fixture is the
     # old scrape with no slots, so the default is the empty state; ESPN's and AYO's boards by the switch, ESPN's
-    # sorted by RB, and a team's roster sheet open.
+    # sorted by RB. The reader here has no team in ESPN's or AYO's league, so those boards carry the "Tap your team
+    # to set it" line. A team opens as a full page (2026-10-05, no sheet): with "This is my team" for that reader,
+    # then "Your team" once they tap it, and the board again with their team pinned.
     ("lboard-yahoo", go("teams")),
     ("lboard-espn", go("teams") + [("click", "[data-lgpick='espn']")]),
     ("lboard-ayo", go("teams") + [("click", "[data-lgpick='ayo']")]),
     ("lboard-sorted", go("teams") + [("click", "[data-lgpick='espn']"), ("click", "[data-lbsort='RB']")]),
-    ("lboard-sheet", go("teams") + [("click", "[data-lgpick='espn']"), ("click", ".lb-row .lb-team")]),
-    # Find trades (2026-10-05): the roster sheet's lime button for a team in the reader's own league (the reader is
-    # on ESPN here, the suite's David being on the Madden Curse), its quiet line for a reader with no team in the
-    # league, and the builder sheet from the fixture's offers (planted: from file:// the browser refuses the fetch, and
-    # logs it, so -error replaces fetch with a refusal). Bold is the first tab; Fair; a tab with no offer; a pair with no entry.
+    ("lboard-team", go("teams") + [("click", "[data-lgpick='espn']"), ("click", ".lb-row .lb-team")]),
+    ("lboard-team-mine", go("teams") + [("click", "[data-lgpick='espn']"), ("click", "[data-lbopen='espn-run-it-back']"), ("click", "[data-lbmine]")]),
+    ("lboard-board-picked", go("teams") + [("click", "[data-lgpick='espn']"), ("click", "[data-lbopen='espn-run-it-back']"),
+                                           ("click", "[data-lbmine]"), ("click", ".lbp-back")]),
+    # Find trades (2026-10-05): the team page's lime button for a team in the reader's own league (the reader is
+    # on ESPN here, the suite's David being on the Madden Curse), "This is my team" for a reader whose team is in
+    # another league, and the builder page from the fixture's offers (planted: from file:// the browser refuses the
+    # fetch, and logs it, so -error replaces fetch with a refusal). Bold is the first tab; Fair; a tab with no
+    # offer; a pair with no entry.
     ("lboard-offers-button", [("eval", LB_AS("espn"))] + go("teams") + [("click", "[data-lbopen='espn-run-it-back']")]),
     ("lboard-offers-pick", [("eval", LB_AS("ayo"))] + go("teams") + [("click", "[data-lgpick='espn']"),
                                                                     ("click", "[data-lbopen='espn-run-it-back']")]),
@@ -301,7 +307,7 @@ STATES = [
     ("lboard-offers-empty", [("eval", LB_AS("espn"))] + go("teams") + LB_BUILDER("espn-run-it-back") + [("click", "[data-tbtab='fair']")]),
     ("lboard-offers-none", [("eval", LB_AS("ayo-don-wick"))] + go("teams") + [("click", "[data-lgpick='ayo']")] + LB_BUILDER("ayo")),
     ("lboard-offers-error", [("eval", LB_AS("espn")), ("eval", "void (window.fetch = () => Promise.reject(new TypeError('offline')))")]
-                           + go("teams") + [("click", "[data-lbopen='espn-run-it-back']"), ("click", ".tb-find"), ("eval", "tbLoad()")]),
+                           + go("teams") + [("click", "[data-lbopen='espn-run-it-back']"), ("click", "[data-tbfind]"), ("eval", "tbLoad()")]),
     # Edit mode (2026-10-05): from the third offer (Purdy for Brown and Watson, which drops Gordon), after taking Watson out
     # of the package, from an empty package (Make your own), and a file with no lineup, values or drops (Edit is shut).
     ("lboard-edit", [("eval", LB_AS("espn"))] + go("teams") + LB_BUILDER("espn-run-it-back") + [("click", "[data-tbedit='2']")]),
@@ -309,7 +315,7 @@ STATES = [
                             + [("click", "[data-tbedit='2']"), ("click", ".tb-r[data-tbpick='Christian Watson']")]),
     ("lboard-edit-own", [("eval", LB_AS("espn"))] + go("teams") + LB_BUILDER("espn-run-it-back") + [("click", "[data-tbown]")]),
     ("lboard-offers-oldshape", [("eval", LB_AS("espn"))] + go("teams") + [("eval", LB_OLD_SHAPE)]
-                               + [("click", "[data-lbopen='espn-run-it-back']"), ("click", ".tb-find")]),
+                               + [("click", "[data-lbopen='espn-run-it-back']"), ("click", "[data-tbfind]")]),
     ("myrecap-yahoo", go("myrecap")),
     ("myrecap-ayo", [("eval", "VIEW='ayo'; render()")] + go("myrecap")),
     ("myrecap-yahoo-week1", go("myrecap") + [("click", "[data-lgweek='1']")]),
@@ -554,12 +560,6 @@ PROBE = """
           // The leg sheet too (2026-09-27).
           legsheet: strip(document.getElementById("legsheet").innerHTML),
           legsheetOpen: document.getElementById("legsheet").classList.contains("on"),
-          // The League board's roster sheet (2026-10-05), kept out of every state that never opened it.
-          ...(document.getElementById("lbsheet").innerHTML ? {lbsheet: document.getElementById("lbsheet").innerHTML,
-              lbsheetOpen: document.getElementById("lbsheet").classList.contains("on")} : {}),
-          // And the trade builder over it (2026-10-05).
-          ...(document.getElementById("tbsheet").innerHTML ? {tbsheet: document.getElementById("tbsheet").innerHTML,
-              tbsheetOpen: document.getElementById("tbsheet").classList.contains("on")} : {}),
           // The play strip's dialog and the pack's stage (2026-09-27): the stage hangs off <body>,
           // outside every root above, and the strip's CSS was proven by no state until these.
           strip: strip(document.getElementById("stripmodal").innerHTML),

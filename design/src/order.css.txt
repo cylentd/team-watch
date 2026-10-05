@@ -113,8 +113,8 @@ surface/trades/trades.css
 surface/trades/curses.css
 # pin: lboard.css after pool.css -- the league switch above the board is pool.css's .setrow and .chip.
 surface/lboard/lboard.css
-surface/lboard/sheet.css
-# pin: offers.css after sheet.css -- the trade sheet is the roster sheet's shape one layer higher (.lbsheet, .lbs-*).
+surface/lboard/lbpage.css
+# pin: offers.css after lbpage.css -- the trade builder page is the team page's shape (.lbp, .lbp-pos).
 surface/lboard/offers.css
 # pin: tbedit.css after offers.css -- the edit state reuses the offer card's columns and buttons (.tb-card, .tb-col, .tb-p, .tb-copy).
 surface/lboard/tbedit.css

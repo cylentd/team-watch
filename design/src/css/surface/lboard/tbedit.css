@@ -1,11 +1,13 @@
 /* ============================================================
    THE TRADE BUILDER, EDIT STATE (2026-10-05, js/surface/lboard/tbedit.js)
-   Inside #tbsheet, replacing what is under its head. Three parts that never move: the package on top (the offer
-   card's columns, three rows tall, a fourth scrolls inside), the two rosters in the middle (the one part that
-   scrolls), and the foot (the live gain, the drop line, Reset and Copy offer). One card per subject: the package
-   is one, each roster is one, rows inside (DESIGN.md "Cards").
+   On the builder page, replacing what is under its head. The package on top (the offer card's columns, three
+   rows tall, a fourth scrolls inside), the two rosters under it (one column on a phone, side by side from
+   760px), and the foot as a tray stuck to the bottom edge, where the thumb is (STYLE.md): the live gain, the
+   drop line, Reset and Copy offer. One card per subject: the package is one, each roster is one, rows inside
+   (DESIGN.md "Cards").
    ============================================================ */
-.tb-body.tb-ed{display:flex;flex-direction:column;gap:8px;overflow:hidden}
+/* The 12px under the tray is the gap it keeps from the bottom edge: at the end of the page it rests in place. */
+.lbp > .tb-body.tb-ed{max-width:var(--lb-w);padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}
 
 /* The package: a row is a button that takes the player back out. */
 .tb-pkg{flex:none}
@@ -16,26 +18,33 @@
 .tb-out{grid-column:4;width:14px;height:14px;fill:none;stroke:var(--ink-3);stroke-width:2;stroke-linecap:round}
 .tb-hint{padding:11px 0;font:500 var(--t-2)/1.3 var(--ui);color:var(--ink-3)}
 
-/* The two rosters: a card each, a row a switch. Picked is lime on its left edge, a tint and a tick. */
-.tb-lists{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;display:grid;align-content:start;grid-auto-rows:max-content;gap:6px}
-.tb-lists h3:first-child{margin-top:2px}
+/* The two rosters: a card each, a row a switch. Picked is a lime tint, a 1px outline of it and a tick. */
+.tb-lists{display:grid;gap:10px;align-items:start}
+.tb-roster h2{margin:2px 0 6px}
 .tb-list{margin:0;padding:0;list-style:none;border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden}
 .tb-r{appearance:none;width:100%;min-height:44px;padding:0 14px;border:0;border-top:1px solid var(--line);background:none;color:var(--ink);
   text-align:left;cursor:pointer;display:grid;grid-template-columns:30px minmax(0,1fr) auto auto 20px;align-items:center;gap:8px;font:inherit}
 .tb-list li:first-child .tb-r{border-top:0}
 .tb-r:active{background:var(--panel-2)}
 .tb-r:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
-.tb-r[aria-pressed="true"]{background:rgb(var(--lime-rgb) / .10);box-shadow:inset 3px 0 0 var(--lime)}
+.tb-r[aria-pressed="true"]{background:rgb(var(--lime-rgb) / .10);box-shadow:inset 0 0 0 1px rgb(var(--lime-rgb) / .35)}
 .tb-v{grid-column:4;min-width:40px;text-align:right;font:700 var(--t-3)/1 var(--mono);font-variant-numeric:tabular-nums}
 .tb-tick{grid-column:5;width:18px;height:18px;fill:none;stroke:var(--lime);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;opacity:0}
 .tb-r[aria-pressed="true"] .tb-tick{opacity:1}
 
-/* The foot: fixed rows, so a package that gains a drop line or loses its gain moves nothing. */
-.tb-edfoot{flex:none;display:grid;gap:6px;padding-top:10px;border-top:1px solid var(--line)}
+/* The tray: fixed rows, so a package that gains a drop line or loses its gain moves nothing. It rests after the
+   last roster row when the page is scrolled to its end, so it never hides one. */
+.tb-edfoot{position:sticky;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:32;display:grid;gap:6px;padding:10px 12px;
+  border:1px solid var(--line-2);border-radius:16px;background:var(--panel-3);box-shadow:0 14px 30px -12px rgb(var(--shadow-rgb) / .9)}
 .tb-edfoot .tb-gain{min-height:24px;line-height:24px}
 .tb-edrop{margin:0;min-height:18px;font:500 var(--t-2)/1.3 var(--ui);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-edfoot .tb-box{width:100%;margin:0}
 .tb-edfoot .tb-copy:disabled{opacity:.4;cursor:default}
 .tb-go{background:var(--lime);border-color:var(--lime);color:var(--on-lime)}
 .tb-go:hover{border-color:var(--lime)}
 .tb-go.done{background:var(--panel-2);border-color:var(--up);color:var(--up)}
 .tb-go:disabled{background:none;border-color:var(--line-2);color:var(--ink-3)}
+
+@media (min-width:760px){
+  .tb-lists{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+}

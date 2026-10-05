@@ -4,7 +4,7 @@
    week's projected points of that team's starters there, in its best legal lineup (design/teams.py,
    LIVE_TEAMS; the page computes nothing). A cell is green 8% above the league's median for its column and
    red 8% below. A lime "+" in a corner is a spare starter on that team's bench. A tap on a row opens the
-   team's roster in a sheet (sheet.js); it never changes the reader's own team.
+   team as a full page (lbpage.js, then tbpage.js); it never changes the reader's own team.
 
    The league switch is Recap's (surface/league/switch.js) with the ESPN league added: those three views
    are the Yahoo leagues' alone, this one has data for all three. Teams opens on the reader's own league
@@ -77,12 +77,13 @@ function lbHeadHTML(cols){
   return `<div class="lb-head" role="row">${th(null, t("lboard.head.team"), " team")}${cols.map(c => th(c, c, "")).join("")}</div>`;
 }
 
-/* "Next game", not the page's week (2026-10-05): the projections are each player's next kickoff, so after
-   Sunday the numbers are week N+1 while schedWeek() stays N until Monday night's game is final. */
+/* The board's own week (LIVE_TEAMS.week, design/projections.py `slate`), never schedWeek() (2026-10-05):
+   the projections are each player's next kickoff, so after Sunday they are week N+1 while the page's
+   week stays N until Monday night's game is final. */
 function lbKeyHTML(){
-  const pct = LB_EDGE * 100;
+  const pct = LB_EDGE * 100, wk = lbData()?.week || null;
   return `<div class="lb-key" role="group" aria-label="${t("lboard.key.aria")}">
-    <span class="lb-what">${t("lboard.key.what")}</span>
+    <span class="lb-what">${wk ? t("lboard.key.what", {wk}) : t("lboard.key.whatNoWeek")}</span>
     <span class="lb-k"><i class="lb-sw up"></i>${t("lboard.key.above", {pct})}</span>
     <span class="lb-k"><i class="lb-sw dn"></i>${t("lboard.key.below", {pct})}</span>
     <span class="lb-k"><i class="lb-plus">+</i>${t("lboard.key.spare")}</span></div>`;
@@ -92,11 +93,16 @@ function lbKeyHTML(){
 const lbEmptyHTML = () => `<div class="state-empty lb-empty"><div><b>${t("lboard.empty.title")}</b>
   <span>${t("lboard.empty.sub")}</span></div></div>`;
 
+/* While the reader has no team in this league, one quiet line says how to set it: a team's page has the button. */
+const lbPickHTML = lg => tbMine(lg) ? "" : `<p class="lb-pick">${t("lboard.board.pick")}</p>`;
+
 function lbViewHTML(){
+  const page = LB_PAGE ? lbPageHTML() : "";          // lbpage.js; "" when no page is open, or its team is gone
+  if (page) return page;
   const on = lbLeagueKey(), lg = lbOf(on), sw = lgSwitchHTML(lbKeys(), on);
   if (!lg) return `<div class="wrap lb">${sw}${lbEmptyHTML()}</div>`;
   const cols = lbCols(lg);
-  return `<div class="wrap lb">${sw}
+  return `<div class="wrap lb">${sw}${lbPickHTML(lg)}
     <div class="lb-grid" role="table" aria-label="${t("lboard.table.aria")}" style="--lb-n:${cols.length}">
       ${lbHeadHTML(cols)}${lbRows(lg).map(tm => lbRowHTML(tm, lg, cols)).join("")}</div>
     ${lbKeyHTML()}</div>`;
@@ -104,6 +110,7 @@ function lbViewHTML(){
 
 /* A header tap redraws the grid in place, so the switch above it never moves; focus stays on the header. */
 function wireLb(v){
+  if (LB_PAGE) return wireLbPage(v);
   wireLgSwitch(v, lbPick);
   v.querySelectorAll("[data-lbsort]").forEach(b => b.addEventListener("click", () => {
     const c = b.dataset.lbsort || null;
@@ -111,5 +118,5 @@ function wireLb(v){
     render();
     v.querySelector(`[data-lbsort="${b.dataset.lbsort}"]`)?.focus({preventScroll: true});
   }));
-  v.querySelectorAll("[data-lbrow]").forEach(r => r.addEventListener("click", () => lbSheetOpen(r.dataset.lbrow, r.querySelector(".lb-team"))));
+  v.querySelectorAll("[data-lbrow]").forEach(r => r.addEventListener("click", () => lbPageOpen(r.dataset.lbrow)));
 }

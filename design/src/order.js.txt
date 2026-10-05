@@ -146,15 +146,13 @@ surface/league/switch.js
 surface/trades/cards.js
 surface/trades/trades.js
 surface/trades/alive.js
-# pin: sheet.js binds its listeners at load, so it needs #lbsheet and its scrim (shell.html, above the
-#      script), and the board's helpers (lbData, lbNum, lbRecord) declared before it.
+# lboard is the board, lbpage the team's page, tbpage the trade builder's, tbedit its edit state. Nothing binds at
+# load (the pages wire per draw), so the order is readability: every name is used only after the last part ran.
 surface/lboard/lboard.js
-surface/lboard/sheet.js
-# pin: tbsheet.js binds its listeners at load, so it needs #tbsheet and its scrim (shell.html) and the roster sheet's helpers.
+surface/lboard/lbpage.js
 surface/lboard/tbscore.js
 surface/lboard/offers.js
-surface/lboard/tbsheet.js
-# pin: tbedit.js after tbsheet.js -- it binds a second listener on #tbsheet and uses tbsheet.js's TB, TB_EDIT and tbPaint.
+surface/lboard/tbpage.js
 surface/lboard/tbedit.js
 # pin: board/* after data/usage.js -- bdRows memoises off USAGE.sheet, and after
 #      surface/profile/sheet.js, whose sheetValues() is the one definition of who counts on an
