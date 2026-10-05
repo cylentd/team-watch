@@ -4,8 +4,8 @@
    accordingly. Need to know and Highlights become old news on kickoff.").
 
    The Digest is the packet's until the week's first kickoff. From then it shares Live's poll
-   (live.js): the headline is the week's top scorer so far, Highlights becomes Right now (the top
-   five and a touchdown count), Need to know drops what has been played, and the last game of the
+   (live.js): the headline is the week's top scorer so far, Right now appears beside Need to know (the
+   top five and a touchdown count; Highlights left the Digest on 2026-10-04), Need to know drops what has been played, and the last game of the
    week gets a card of its own (mnf.js). Every number here is GD_STATS.lead, league-wide and half-PPR,
    the same reply Live and the profile read; the page adds nothing to it. A fantasy-relevant player
    (QB/RB/WR/TE projected 8+) who left a game hurt, in any game (data/gameday/hurt.js, from ESPN's play
@@ -122,8 +122,8 @@ function dgHurtRow(h){
     <i class="dg-now-p">${t("digest.hurt.row")}</i></button></li>`;
 }
 
-/* Highlights from the first kickoff to the week's last final: the top five and the day's touchdowns,
-   which open Live's TDs tab. "" outside live mode, so the packet's Highlights draws instead. Players who
+/* From the first kickoff to the week's last final: the top five and the day's touchdowns,
+   which open Live's TDs tab. "" outside live mode, where nothing takes its place. Players who
    left a game hurt lead it, the best projections first (their own rows, so none is in the five as well). */
 const DG_HURT_ROWS = 3;
 function dgNowHTML(){

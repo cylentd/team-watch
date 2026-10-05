@@ -94,7 +94,6 @@ surface/digest/bodies.css
 surface/digest/tonight.css
 surface/digest/results.css
 surface/digest/headlines.css
-# pin: digest/need.css after headlines.css -- a fact tile's .dg-fact .dg-tile-v resizes the tile's number.
 surface/digest/need.css
 surface/digest/now.css
 surface/digest/wait.css

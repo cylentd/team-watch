@@ -223,33 +223,20 @@ def test_two_players_one_team_one_short_name_keep_their_first_names(browser, pag
 
 
 @pytest.mark.render
-def test_worth_knowing_never_repeats_the_banner_or_itself(browser, page_file):
-    """Worth knowing (2026-09-29, storyboard 96B1dMss6vfyhhsQLUSK4x B): one fact from each Players view,
-    a tap opens that view. The banner's player is never a tile, a player is in one tile at most, and
-    when the most over-performing player leads the banner, the next one takes his tile. This is the
-    fallback for a build without a Highlights packet (test_highlights.py covers the packet's tiles)."""
+def test_before_kickoff_the_digest_has_no_highlights_section(browser, page_file):
+    """David, 2026-10-04: bored of the Digest's Highlights. Before kickoff nothing stands beside Need to
+    know, which takes the wall's band; the Players tab keeps the Highlights."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     page.goto(page_file.as_uri())
-    got = page.evaluate("""() => {
-      LIVE_HIGHLIGHTS.views.splice(0);
-      const d = dgD(), over = [...LIVE_ROLE.rows].sort((a, b) => b.gap - a.gap);
-      const read = dd => { const h = document.createElement('div'); h.innerHTML = dgFactsHTML(dd);
-        return [...h.querySelectorAll('.dg-fact')].map(t => [t.dataset.dgfact, t.dataset.dggo]); };
-      const plain = read({...d, lead: null});
-      // The banner as the top score, made the top over-performer's own row.
-      const star = {...d.stars[0], slug: over[0].slug, actual: 99};
-      const led = read({...d, stars: [star, ...d.stars.slice(1)], lead: {rule: 'results', index: 0}});
-      return {over: over.slice(0, 2).map(r => r.slug), plain, led};
-    }""")
+    page.evaluate("dgLiveMode = () => false")
+    drive(page, go("digest"))
+    page.wait_for_selector(".dg-need")
+    assert page.locator(".dg-facts, .dg-fact, [data-dgfact]").count() == 0
+    assert "no-facts" in page.locator(".dg-ticker").get_attribute("class")
+    assert "Highlights" not in page.locator(".dg-sec").all_inner_texts()
+    assert page.evaluate("NAV.find(([g]) => g === 'scouting')[1][0]") == "highlights"
     ctx.close()
     assert errors == []
-    assert got["plain"] and got["plain"][0] == [got["over"][0], "movers"]
-    assert got["led"][0] == [got["over"][1], "movers"]
-    for tiles in (got["plain"], got["led"]):
-        slugs = [s for s, _ in tiles]
-        assert len(slugs) == len(set(slugs))
-        assert {v for _, v in tiles} <= {"movers", "usage", "matchups"}
-    assert got["over"][0] not in [s for s, _ in got["led"]]
 
 
 @pytest.mark.render
@@ -846,7 +833,7 @@ def test_during_a_game_the_headline_is_the_top_score_and_right_now_lists_five(br
     assert fact == "12 tgt · Q3 4:12"                                # what the head (10 catches, 180 yards, 2 TDs) leaves out
     now = page.locator("[data-dgnow]")
     assert now.locator(".dg-sec").text_content() == "Right now"
-    assert page.locator(".dg-facts").count() == 1                    # Right now stands where Highlights did
+    assert page.locator(".dg-facts").count() == 1                    # Right now is the one .dg-facts panel
     rows = now.locator(".dg-now-r")
     assert rows.count() == 5
     first = rows.first.inner_text().replace("\n", " ")

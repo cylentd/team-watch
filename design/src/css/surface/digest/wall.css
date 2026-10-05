@@ -50,7 +50,8 @@
   .dg > .dg-lead .dg-lpill{font-size:var(--t-2);padding:8px 12px}
 
   /* The wall. */
-  /* Need to know and Worth knowing share the first band under the lead (need.css, 2026-09-29); the
+  /* Need to know and, from kickoff, Right now share the first band under the lead (need.css, 2026-09-29;
+     Worth knowing / Highlights was Right now's pre-kickoff twin until 2026-10-04); the
      Hurt panel that stood beside the matchups is gone, so matchups and weather split its row. */
   .dg-ticker{
     display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:20px;border-top:0;

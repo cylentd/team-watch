@@ -67,8 +67,7 @@ const dgResNum = r => `<span class="dg-rv"><b>${r.actual != null ? r.actual.toFi
   + `${r.proj != null ? `<span>${r.proj.toFixed(1)}</span>` : ""}</span>`;
 
 /* A face cropped to the head, drawn at 150% so it fills the circle instead of the chest-up frame;
-   `96` asks the srcset for a file sharp at that size. Worth knowing's tiles wear it (facts.js); a
-   list row is text. */
+   `96` asks the srcset for a file sharp at that size. A list row is text. */
 const dgResFace = r => HEADS[r.slug] ? headImgHTML(HEADS[r.slug], initials(r.n), r.slug, 96)
   : `<div class="fallback">${esc(initials(r.n))}</div>`;
 /* One list row: name over its reason pills, points over projection. Opens the profile. */

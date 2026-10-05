@@ -121,7 +121,6 @@ surface/digest/headlines.js
 surface/digest/rows.js
 surface/digest/ahead.js
 surface/digest/need.js
-surface/digest/facts.js
 surface/digest/tonight.js
 surface/digest/wait.js
 surface/digest/now.js

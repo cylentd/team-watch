@@ -1,8 +1,10 @@
-/* ============================== DIGEST: NEED TO KNOW, WORTH KNOWING ==============================
-   2026-09-29, storyboard https://claude.ai/artifact/96B1dMss6vfyhhsQLUSK4x (option B). Two sections that
-   lie open above the rows, each a heading in the rows' label voice, then its lines or tiles. Colour map:
+/* ============================== DIGEST: NEED TO KNOW ==============================
+   2026-09-29, storyboard https://claude.ai/artifact/96B1dMss6vfyhhsQLUSK4x (option B). A section that
+   lies open above the rows, a heading in the rows' label voice, then its lines. Worth knowing /
+   Highlights, its twin beside it, left the Digest on 2026-10-04; `.dg-facts` is now Right now's
+   panel (now.js). Colour map:
    the tags keep the ticker's (filled red out, outlined red doubtful, green a new starter, sky a new
-   team); a tile's number is green above his work, red below it. The rank at a line's right is grey:
+   team). The rank at a line's right is grey:
    it says why the line matters, it is not a signal. */
 
 .dg-need,.dg-facts{display:grid;gap:4px;min-width:0;padding:14px 14px 4px;border-bottom:1px solid var(--line)}
@@ -45,10 +47,6 @@
 .dg-q-p:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
 .dg-q-p > .dg-hd{display:none}
 
-/* A fact tile is the Results tile's shape (headlines.css) plus the view it opens, in lime. */
-.dg-fact .dg-tile-v{font-size:var(--t-4)}
-.dg-fact-go{display:inline-flex;align-items:center;gap:4px;margin-top:2px;font-size:var(--t-1);font-weight:600;color:var(--lime)}
-
 @media (min-width:960px){
   .dg-need,.dg-facts{padding:18px 22px 6px}
   .dg-facts{padding-bottom:18px}
@@ -85,8 +83,7 @@
   .dg-q-p > .dg-hd{display:block;position:relative;width:24px;height:24px;flex:none}
   .dg-q-p > .dg-hd img{position:absolute;left:-25%;top:-6%;width:150%;height:150%;max-width:none}
   .dg-facts{grid-area:facts;display:flex;flex-direction:column;gap:4px}
-  .dg-facts > .dg-foot{margin-top:auto}
-  .dg-facts > .dg-tiles{margin-bottom:10px}
-  .dg-facts .dg-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  /* Before kickoff nothing stands beside Need to know (Highlights left the Digest 2026-10-04), so it takes the band. */
+  .dg-ticker.no-facts .dg-need{grid-column:1 / -1}
   .dg-sec{font-size:var(--t-2);letter-spacing:.08em;color:var(--ink)}
 }

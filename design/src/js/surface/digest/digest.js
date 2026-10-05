@@ -93,21 +93,22 @@ function digestHTML(){
   const d = dgD(), open = dgOpenRow();
   const rows = DG_ROWS.filter(dgShown);
   const wait = dgWaiting(d);
+  // Need to know lies open above the rows (need.js; 2026-09-29); Right now stands beside it from the
+  // first kickoff (now.js). Before kickoff nothing does: Highlights left the Digest on 2026-10-04.
+  const now = d ? dgNowHTML() : "";
   const mnf = dgMnfHTML(), needOff = !!d && dgNeedEmpty(d);
   // The wall's layout names which bands exist (wall.css): results, tonight's card (or the last game's,
   // mnf.js), the last slot, the wait. The wait card sits where the preview rows it stands for were,
-  // right after Results. Need to know leaves the band to Right now when nothing in it is left to say.
+  // right after Results. Need to know leaves the band to Right now when nothing in it is left to say,
+  // and takes the whole band when Right now is not drawn.
   const cls = d ? [dgHas("res") ? "has-res" : "", d.tn.length || mnf ? "has-tn" : "", d.tnLast ? "tn-last" : "",
-    wait ? "wk-done" : "", needOff ? "no-need" : ""].filter(Boolean).join(" ") : "";
+    wait ? "wk-done" : "", needOff ? "no-need" : "", now ? "" : "no-facts"].filter(Boolean).join(" ") : "";
   const body = rows.map(id => dgRowHTML(id, d, open));
   if (wait) body.splice(rows[0] === "res" ? 1 : 0, 0, dgWaitHTML(d));
-  // Need to know and Worth knowing lie open above the rows (need.js, facts.js; 2026-09-29); Right now
-  // takes Worth knowing's place from the first kickoff (now.js).
-  const now = d ? dgNowHTML() : "";
   const lead = dgLeadHTML();
   DG_LAST = {lead, now, mnf};
   DG_DRAWN = dgPhaseKey();
-  const ticker = d ? `<section class="dg-ticker${cls ? " " + cls : ""}" aria-label="${t("digest.ticker.label")}">${dgTonightHTML(d, mnf)}${needOff ? "" : dgNeedHTML(d)}${now || dgFactsHTML(d)}${body.join("")}</section>`
+  const ticker = d ? `<section class="dg-ticker${cls ? " " + cls : ""}" aria-label="${t("digest.ticker.label")}">${dgTonightHTML(d, mnf)}${needOff ? "" : dgNeedHTML(d)}${now}${body.join("")}</section>`
     : `<p class="dg-none">${t("digest.empty.ticker")}</p>`;
   return `<div class="dg">${lead}${ticker}</div>`;
 }

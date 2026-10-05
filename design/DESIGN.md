@@ -779,10 +779,16 @@ David: "Sometimes something big happens like injury or top scores. The headline 
 accordingly. Need to know and Highlights become old news on kickoff." The packet leads until the
 week's first kickoff; from then the Digest shares Live's poll (`surface/digest/now.js`).
 
+**Highlights left the Digest (2026-10-04, David: bored of it).** The section (each Players view's
+first line, a tile each, a foot to the tab; named Worth knowing until 2026-09-30) is gone, with its
+fallback of one fact each from Role, the Grid and Takes and its copy keys. Players > Highlights
+(the Reel) is unchanged. Before the first kickoff nothing stands beside Need to know, so on the
+wall it takes the whole band (`.dg-ticker.no-facts`, `need.css`).
+
 | Part | Before the first kickoff | From the first kickoff |
 |---|---|---|
 | Headline | ff-jarvis's pick (`lead.rule`) | the top scorer so far, called by his yards and TDs ("Gibbs: 170 yards, 1 TD"; the 2026-10-04 "has 31.4 points" wording is superseded, see "The top scorer's call"); his box line and the game's clock under it, his team's colour behind him, a tap opens his profile |
-| Highlights (was Worth knowing until 2026-09-30) | each Players view's first line | **Right now** replaces it: the top five scorers (face, name, position, club and clock, line, points) and a count of the day's touchdowns that opens Live's TDs tab |
+| Right now (the old Highlights section, removed before kickoff 2026-10-04) | nothing | the top five scorers (face, name, position, club and clock, line, points) and a count of the day's touchdowns that opens Live's TDs tab |
 | Need to know | new starters and who sits | only games not yet started (`dgCut` drops a game's pre-game rows at its kickoff); gone when nothing is left |
 | Tonight's card | the slot's preview | unchanged, except the last game's card (below) stands in for it |
 

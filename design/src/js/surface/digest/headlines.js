@@ -21,7 +21,7 @@ function dgStatLine(r){
 
 /* The four tiles (the runner-up, out of nowhere, the dud, carted off) left on 2026-09-29, storyboard
    https://claude.ai/artifact/96B1dMss6vfyhhsQLUSK4x: each was the first row of Smashed, Busts or Left
-   hurt right under it. Their shape carries Worth knowing now (facts.js). */
+   hurt right under it. Their shape went on to Worth knowing, which left the Digest on 2026-10-04. */
 
 /* Each position's top three, as a table: the position as a heading, then name over his day, points at
    the right (2026-09-29, storyboard https://claude.ai/artifact/Ms6FbdvynVPoRTKEidPGAz, 1B; David: "should

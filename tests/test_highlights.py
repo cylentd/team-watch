@@ -1,6 +1,6 @@
 """design/highlights.py and Players > Highlights (leaf `highlights`, 2026-09-29): two Claude-written,
 number-checked lines per Players view, from ff-jarvis's highlights.json (the fixture is the real week-4
-run's packet), and Worth knowing on the Digest reading each view's first line."""
+run's packet). (The Digest's Highlights section left on 2026-10-04.)"""
 import re
 import sys
 from pathlib import Path
@@ -70,27 +70,5 @@ def test_highlights_leads_players_and_each_card_opens_its_view(browser, page_fil
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
         page.locator("[data-hlgo='movers']").click()
         assert page.evaluate("SURFACE") == "movers"
-    finally:
-        ctx.close()
-
-
-@pytest.mark.render
-def test_worth_knowing_is_each_views_first_line_never_the_banners(browser, page_file):
-    """David, 2026-09-29: one producer feeds both, so the Digest and the tab never disagree."""
-    ctx, page = _page(browser, page_file, (360, 800), "digest")
-    try:
-        page.wait_for_selector(".dg-facts")
-        got = page.evaluate("""() => {
-          const d = dgD(), banner = dgLeadSlug(d);
-          const want = LIVE_HIGHLIGHTS.views.map(v => (v.rows.find(r => r.slug !== banner) || {}).slug);
-          const tiles = [...document.querySelectorAll('.dg-facts .dg-fact')].map(t => [t.dataset.dgfact, t.dataset.dggo]);
-          return {banner, want, tiles, leaves: LIVE_HIGHLIGHTS.views.map(v => v.leaf),
-                  more: (document.querySelector('.dg-facts [data-dggo="highlights"]') || {}).textContent || ''};
-        }""")
-        assert [s for s, _ in got["tiles"]] == [s for s in got["want"] if s]
-        assert [g for _, g in got["tiles"]] == got["leaves"][:len(got["tiles"])]
-        assert got["banner"] not in [s for s, _ in got["tiles"]]
-        assert "All 8 highlights" in got["more"]
-        assert page.locator("#dg-facts-h").text_content() == "Highlights", "one name for one list (David, 2026-09-30)"
     finally:
         ctx.close()
