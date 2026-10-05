@@ -901,60 +901,6 @@ def test_before_the_first_kickoff_the_digest_is_unchanged(browser, page_file):
     assert errors == []
 
 
-def _gap(page):
-    return page.evaluate("""() => { const lg = GD.leagues[0], g = lg.games.find(x => x.includes(lg.me));
-      const a = gdSide(lg, lg.me, GD_STATS.stats, GD_STATS.games), b = gdSide(lg, g[0] === lg.me ? g[1] : g[0], GD_STATS.stats, GD_STATS.games);
-      return Math.round((a.total - b.total) * 100) / 100; }""")
-
-
-@pytest.mark.render
-def test_the_last_game_is_its_own_card_and_the_headline_goes_into_it(browser, page_file):
-    """Every game but the Monday one is final: a card above the ticker holds my matchup in each league,
-    who is left on each side with their projections, and what the game needs. The banner reads "You're
-    up 1.6 going into Monday night". During the game the card stays and the banner is the top score."""
-    ctx, page, errors = _digest_page(browser, page_file)
-    n = lambda v: page.evaluate("v => dgN1(Math.abs(v))", v)      # the page's own rounding, not Python's
-    # Colston Loveland (theirs) plays Monday, none of my starters: ahead, "stay under".
-    page.evaluate(PLANT_WEEK, _live_cfg(at="2026-10-05T09:00:00Z", sunState="complete", mon=["CHI", "DEN"],
-                                         stats={"4217": {"rec": 5, "rec_yd": 600}}))
-    gap = _gap(page)
-    assert gap > 0
-    assert page.locator(".dg-lead-h").inner_text() == f"You're up {n(gap)} going into Monday night"
-    card = page.locator(".dg-mnf")
-    assert card.count() == 1 and "has-tn" in page.locator(".dg-ticker").get_attribute("class")
-    # The title is one line; the time and the game sit on a small second line (2026-10-04, 360px).
-    head = re.sub(r"\s+", " ", card.locator(".dg-mnf-h").inner_text()).strip()
-    assert re.fullmatch(r"Monday night \d{1,2}:\d\d [AP]M · DEN @ CHI", head)
-    assert card.locator(".dg-mnf-h b").bounding_box()["y"] < card.locator(".dg-mnf-sub").bounding_box()["y"]
-    assert card.locator(".dg-mnf-lead").inner_text() == f"UP {n(gap)}"
-    assert card.locator(".dg-mnf-say").inner_text() == f"To win, C. Loveland must score under {n(gap)}"
-    assert card.locator(".dg-mnf-lg.done").count() == 0                              # someone is left: the full block
-    assert page.locator(".dg-lead-fact").inner_text() == card.locator(".dg-mnf-say").inner_text()
-    assert card.locator(".dg-mnf-c").nth(1).locator(".dg-mnf-p").count() == 1       # theirs: one man to play
-    assert card.locator(".dg-mnf-c").nth(0).inner_text().endswith("Nobody left")     # mine: none
-    assert card.locator(".dg-mnf-med").count() == 1                                   # the ESPN league has a median
-    assert page.locator("[data-dgnow]").count() == 1
-    assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
-    # Down, with one of mine (Cam Skattebo) still to play and none of theirs: "You need".
-    page.evaluate(PLANT_WEEK, _live_cfg(at="2026-10-05T09:00:00Z", sunState="complete", mon=["NYG", "DAL"],
-                                         stats={"9488": {"rec": 5, "rec_yd": 3000}}))
-    gap = _gap(page)
-    assert gap < 0
-    assert page.locator(".dg-lead-h").inner_text() == f"You're down {n(gap)} going into Monday night"
-    assert page.locator(".dg-mnf-lead").inner_text() == f"DOWN {n(gap)}"
-    assert page.locator(".dg-mnf-say").inner_text() == f"You need {n(gap)} from C. Skattebo"
-    # The game is on: the card stays, with its clock, and the top scorer has the banner back.
-    page.evaluate(PLANT_WEEK, _live_cfg(at="2026-10-05T15:30:00Z", sunState="complete", monState="in_game", mon=["NYG", "DAL"]))
-    assert page.locator(".dg-mnf").count() == 1
-    assert "going into" not in page.locator(".dg-lead-h").inner_text()
-    assert page.locator(".dg-mnf-h time").inner_text() == "Live"
-    page.set_viewport_size({"width": 1400, "height": 900})
-    assert page.locator(".dg-mnf").bounding_box()["width"] > 600
-    assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
-    ctx.close()
-    assert errors == []
-
-
 # Three games on the last day make it the main slate, not the standalone last game: no card, and the
 # packet's own lead stands between windows.
 EXTRA_LATE = """() => {
@@ -1024,40 +970,3 @@ def test_the_digests_data_layer_calls_no_surface_function():
     assert leaked == []
     assert "function dgMnfSlot" in data and "function dgWeek" in data
 
-
-@pytest.mark.render
-def test_a_league_with_nobody_left_is_one_line_and_one_with_a_player_left_is_the_block(browser, page_file):
-    """Monday's card (360px): a decided league collapses to its name, the score and won or lost (plus the
-    median gap); the full block is only for a league with someone still to play. A long team name ends in
-    an ellipsis and the title stays on one line."""
-    ctx, page, errors = _digest_page(browser, page_file, viewport=(360, 800))
-    # Neither side has anyone in the late game (two clubs no lineup holds): decided.
-    page.evaluate(PLANT_WEEK, _live_cfg(at="2026-10-05T09:00:00Z", sunState="complete", mon=["ZZA", "ZZB"]))
-    gap = _gap(page)
-    card = page.locator(".dg-mnf")
-    assert card.count() == 1
-    done = card.locator(".dg-mnf-lg")
-    assert done.count() == 1 and "done" in done.get_attribute("class")
-    assert card.locator(".dg-mnf-c, .dg-mnf-say, .dg-mnf-score").count() == 0
-    text = done.inner_text().replace("\n", " ")
-    assert re.search(r"\d+\.\d – \d+\.\d", text) and ("won" in text if gap > 0 else "lost" in text)
-    assert done.locator(".dg-mnf-med").count() == 1                                    # the ESPN league has a median
-    assert done.bounding_box()["height"] < 70
-    # Someone is left on a side, and the team names are long: the full block, ellipsized, inside the card.
-    page.evaluate(PLANT_WEEK, _live_cfg(at="2026-10-05T09:00:00Z", sunState="complete", mon=["CHI", "DEN"],
-                                         stats={"4217": {"rec": 5, "rec_yd": 600}}))
-    page.evaluate("""() => { for (const tm of Object.values(GD.leagues[0].teams)) tm.name = '\\u{1F3C8} The Very Long Team Name That Will Not Fit \\u{1F3C6}';
-      DG_CUT = null; render(); }""")
-    assert page.locator(".dg-mnf-lg:not(.done)").count() == 1 and page.locator(".dg-mnf-c").count() == 2
-    box = page.locator(".dg-mnf").bounding_box()
-    names = page.locator(".dg-mnf-score .dg-mnf-nm")
-    assert names.count() == 2
-    for i in range(2):
-        b = names.nth(i).bounding_box()
-        assert b["x"] + b["width"] <= box["x"] + box["width"]
-        assert names.nth(i).evaluate("e => getComputedStyle(e).textOverflow") == "ellipsis"
-        assert names.nth(i).evaluate("e => e.scrollWidth > e.clientWidth")
-    assert page.locator(".dg-mnf-h b").bounding_box()["height"] < 30                  # "Monday night" on one line
-    assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
-    ctx.close()
-    assert errors == []

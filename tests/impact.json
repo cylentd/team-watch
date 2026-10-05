@@ -18,7 +18,7 @@
     },
     "digest": {
       "paths": ["design/src/js/surface/digest/", "design/src/css/surface/digest/", "design/src/js/data/digest.js", "design/digest.py"],
-      "tests": ["tests/test_digest.py", "tests/test_left_hurt.py"],
+      "tests": ["tests/test_digest.py", "tests/test_digest_live.py", "tests/test_left_hurt.py"],
       "render": ["digest"]
     },
     "weather": {

@@ -7,13 +7,17 @@
    believed to carry the same text in drives[].plays[].text. Check it on Monday's game (ATL @ NO).
    Until then a summary that does not say it flags nobody and nothing on the page changes.
 
-   gdHurtScan is pure: a summary and my players in, who is hurt out. The poller asks for a summary only
-   while a game with one of my starters is on, once per 120 s per game, one request at a time, and
-   keeps GD_HURT = {slug: {slug, name, team, q, clock, back}}. The Digest's headline and Right now
+   gdHurtScan is pure: a summary and the players to watch in, who is hurt out. The players to watch are
+   league-wide (David, 2026-10-04: "The Digest is supposed to be GENERIC for the public. It shouldn't
+   hone on to my roster or their roster."): every QB, RB, WR and TE the projections rate GD_HURT_MIN_PTS
+   or more this week, from LIVE_RANKS, which keeps defenders and special teams out. The poller asks for
+   a summary of every game that is on, once per 180 s per game, one request at a time, and keeps
+   GD_HURT = {slug: {slug, name, team, q, clock, back}}. The Digest's headline and Right now
    (surface/digest/now.js) and Live's Matchup chip (surface/live/mirror.js) read it. */
 
-const GD_HURT_GAP_MS = 120000;
-let GD_HURT = {};        /* slug -> latest {slug, name, team, q, clock, back} for my starters */
+const GD_HURT_GAP_MS = 180000;
+const GD_HURT_MIN_PTS = 8;   /* projected points this week: below it he is not fantasy-relevant news */
+let GD_HURT = {};        /* slug -> latest {slug, name, team, q, clock, back} */
 let GD_HURT_AT = {};     /* ESPN event id -> epoch ms of the last attempt */
 let GD_HURT_BUSY = false;
 
@@ -41,31 +45,30 @@ function gdHurtParse(raw){
   return m ? {club: m[1] || "", key: `${m[2]}.${m[3].replace(/\s+/g, "")}`.toLowerCase()} : null;
 }
 
-/* My starters, in every league, by that key: {"b.purdy": [{slug, name, team}]}. A defense is not a name
-   the play text uses, and nobody on a bench is a headline. */
+/* LIVE_RANKS' rows: every QB, RB, WR and TE with a projection this week ({slug, n, pos, team, pts}). */
+const gdHurtRows = () => typeof LIVE_RANKS !== "undefined" && LIVE_RANKS ? LIVE_RANKS.rows : [];
+
+/* Every fantasy-relevant player of the week by that key: {"b.purdy": [{slug, name, team}]}. Those the
+   projections rate GD_HURT_MIN_PTS or more: no defense, no kicker, nobody who is not projected to play. */
 function gdHurtNames(){
   const out = {};
-  for (const lg of GD.leagues){
-    const tm = lg.teams[lg.me];
-    if (!tm) continue;
-    for (const r of tm.lineup.filter(gdStarter)){
-      const key = /^(DEF|DST|D\/ST)$/.test(r.pos) || !r.slug || !r.team ? "" : gdHurtKey(r.n);
-      if (!key) continue;
-      const list = out[key] = out[key] || [];
-      if (!list.some(x => x.slug === r.slug)) list.push({slug: r.slug, name: r.n, team: r.team});
-    }
+  for (const r of gdHurtRows()){
+    const key = !r.slug || !r.team || !(r.pts >= GD_HURT_MIN_PTS) ? "" : gdHurtKey(r.n);
+    if (!key) continue;
+    const list = out[key] = out[key] || [];
+    if (!list.some(x => x.slug === r.slug)) list.push({slug: r.slug, name: r.n, team: r.team});
   }
   return out;
 }
 
-/* Which of mine the text means: a club in the text must be his; without one, he must play in this game. */
+/* Who the text means: a club in the text must be his; without one, he must play in this game. */
 function gdHurtWho(raw, clubs, names){
   const who = gdHurtParse(raw || "");
   if (!who) return null;
   return (names[who.key] || []).find(c => who.club ? gdSameClub(c.team, who.club) : !clubs.length || clubs.some(x => gdSameClub(c.team, x))) || null;
 }
 
-/* Every play in order; the last word on each of my players wins, so "returned" clears him and a second
+/* Every play in order; the last word on each watched player wins, so "returned" clears him and a second
    injury flags him again. -> [{slug, name, team, q, clock, back}], one per player named. */
 function gdHurtScan(summary, names){
   const found = new Map();
@@ -91,15 +94,12 @@ function gdHurtScan(summary, names){
   return [...found.values()];
 }
 
-/* A game with one of my starters in it, in any of my leagues (gdMineIn is one league's). */
-const gdHurtWatched = g => GD.leagues.some(lg => gdMineIn(g, lg) > 0);
-
-/* One summary per due game, one at a time. Called by every Live poll and never awaited: the stats do
-   not wait for ESPN. A failed fetch keeps the last state and says nothing. */
+/* One summary per due game (every game that is on), one at a time. Called by every Live poll and never
+   awaited: the stats do not wait for ESPN. A failed fetch keeps the last state and says nothing. */
 async function gdHurtPoll(){
   if (GD_HURT_BUSY || !PAGE_SERVED() || !gdOnScreen()) return;
   const now = Date.now();
-  const due = gdWeekGames().filter(g => g.espn && gdClockOf(g.home).live && gdHurtWatched(g) && now - (GD_HURT_AT[g.espn] || 0) >= GD_HURT_GAP_MS);
+  const due = gdWeekGames().filter(g => g.espn && gdClockOf(g.home).live && now - (GD_HURT_AT[g.espn] || 0) >= GD_HURT_GAP_MS);
   if (!due.length) return;
   GD_HURT_BUSY = true;
   const before = JSON.stringify(GD_HURT);
@@ -115,21 +115,12 @@ async function gdHurtPoll(){
   if (JSON.stringify(GD_HURT) !== before) paintLive();
 }
 
-/* My starters hurt now (flagged, not back), the best projection first, for the Digest's headline and its
-   Right now row: {slug, n, pos, team, teams: [my team's name in each league he starts], h}. */
+/* Who is hurt now (flagged, not back), the best projection first, for the Digest's headline and its
+   Right now rows: {slug, n, pos, team, pts, h}. A flag for a player the rankings no longer carry is not
+   drawn. */
 function gdHurtNow(){
-  const by = new Map();
-  for (const lg of GD.leagues){
-    const tm = lg.teams[lg.me];
-    if (!tm) continue;
-    for (const r of tm.lineup.filter(gdStarter)){
-      const h = GD_HURT[r.slug];
-      if (!h || h.back) continue;
-      const e = by.get(r.slug) || {slug: r.slug, n: r.n, pos: r.pos, team: r.team, teams: [], h};
-      if (tm.name && !e.teams.includes(tm.name)) e.teams.push(tm.name);
-      by.set(r.slug, e);
-    }
-  }
-  const pts = e => { const p = projFor(e); return p === null ? -1 : p; };
-  return [...by.values()].sort((a, b) => pts(b) - pts(a));
+  const rows = new Map(gdHurtRows().map(r => [r.slug, r]));
+  return Object.values(GD_HURT).filter(h => !h.back && rows.has(h.slug))
+    .map(h => { const r = rows.get(h.slug); return {slug: h.slug, n: r.n, pos: r.pos, team: r.team, pts: r.pts, h}; })
+    .sort((a, b) => b.pts - a.pts);
 }

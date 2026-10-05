@@ -736,8 +736,8 @@ week's first kickoff; from then the Digest shares Live's poll (`surface/digest/n
 
 - **Hurt starter lead holds** while no game is on and his own has not kicked off: no live injury
   source exists yet, so nothing live knows who got hurt since. Once a game is on, the top scorer
-  takes the banner (superseded in part, same day: a starter of mine who leaves a game hurt beats
-  the top scorer, see "Left the game hurt" below).
+  takes the banner (superseded in part, same day: a player who leaves a game hurt beats the top
+  scorer, see "Left the game hurt" below).
 - **Numbers** are `/api/stats` `lead=1` (league-wide, half-PPR), the same reply Live and the
   profile read. The page adds nothing to it. A passing TD is the same score as the catch, so the
   count is rushing plus receiving TDs.
@@ -746,17 +746,24 @@ week's first kickoff; from then the Digest shares Live's poll (`surface/digest/n
   phase (a section appears or leaves) renders the view again.
 - **The Monday night card** (`mnf.js`, "the last game", David 2026-10-04: "The Monday game needs to be
   its own section"): once every game before the week's last day is final and one or two games
-  remain, a card sits above the ticker and stays through the game with live points. For each league
-  it shows the matchup, and:
-  - a league with someone still to play: both scores, who is still to play on each side with their
-    projections (points of it mid-game), one sentence of what the result needs, and the median gap;
-  - a league with nobody left: one line, its name, the score, won / lost / tied, the median gap.
+  remain, a card sits above the ticker and stays through the game. It is the game itself, generic,
+  the same for every reader (rewritten 2026-10-04, below). One block per game, each opening with a
+  line, "5:15 PM · NO @ ATL" (its clock mid-game, "Final" after):
+  - before kickoff: each side's two best projections (QB/RB/WR/TE, `LIVE_RANKS`), name and number;
+  - mid-game and after: the score (Sleeper's, `gdClubScore`) and the game's top three scorers from
+    `GD_STATS.lead`, name and points.
 
-  Before the game starts, the headline is "You're up 1.6 going into Monday night" (first league),
-  then the top scorer takes it back. The wait card does not start while this card shows.
-  Scores come through Live's own scorer (`gdSide`), so the Digest and Live never disagree.
+  The headline before the game is the between-windows one, the week's top scorer ("St. Brown leads
+  the week with 31.4 points"). The wait card does not start while this card shows.
+  - **Superseded 2026-10-04** (David, the same evening: "The Digest is supposed to be GENERIC for the
+    public. It shouldn't hone on to my roster or their roster."): the first card drew the reader's
+    matchup in each league (both scores, who was left to play, "what the result needs", the median gap)
+    and the headline "You're up 1.6 going into Monday night". Nothing in `surface/digest/` or
+    `data/digest.js` reads `GD.leagues`, a roster or a matchup now; `test_digest_live.py` greps for it and
+    asserts no league, team or opponent name reaches the page. Live is the personal view.
 
-**Left the game hurt (2026-10-04).** While games are on, a starter of mine who left one ("B. Purdy left the game hurt", by-line "{my team} · Q3 4:12") takes the headline from the top score and leads Right now in `--down`; the best projection if several; when "has returned to the game" is read, the top score is back. Live's Matchup row wears a red Hurt chip. Source: the play text of ESPN's game summary, fetched by the reader's browser every 120 s per game (`data/gameday/hurt.js`). ESPN's wording ("was injured during the play", "Injury Update: X has returned to the game") is nflverse's and was unverified on ESPN as of 2026-10-04: check Monday ATL @ NO.
+**Left the game hurt (2026-10-04).** While games are on, any QB, RB, WR or TE the projections rate 8 points or more this week, in any game, who left it ("B. Purdy left the game hurt", by-line "{club} · Q3 4:12") takes the headline from the top score and leads Right now in `--down`; the best projection if several (three rows at most); when "has returned to the game" is read, the top score is back. Live's Matchup row wears a red Hurt chip when one of mine is flagged. Source: the play text of ESPN's game summary, fetched by the reader's browser for every game that is on, each at most once per 180 s, one request at a time (`data/gameday/hurt.js`); the players to watch are `LIVE_RANKS` rows at 8 points or more, which keeps defenders and special teams out. ESPN's wording ("was injured during the play", "Injury Update: X has returned to the game") is nflverse's and was unverified on ESPN as of 2026-10-04: check Monday ATL @ NO.
+- **Superseded 2026-10-04** (David: "The Digest is supposed to be GENERIC for the public. It shouldn't hone on to my roster or their roster."): the first version watched only my starters in my leagues, asked only for games that held one, every 120 s, and the by-line named my team in each league.
 
 ## Start/Sit (This week, 2026-10-03; was Takes; v3 2026-10-04)
 

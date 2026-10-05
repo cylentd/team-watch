@@ -140,7 +140,7 @@ function dgWeek(now){
 
 /* The late slot, once the poll has said where everyone stands: [{g, k, st}] or null. */
 function dgMnfSlot(now){
-  if (!GD_STATS || !GD.leagues.length) return null;
+  if (!GD_STATS) return null;
   return dgWeek(now).mnf;
 }
 
