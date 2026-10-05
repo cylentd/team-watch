@@ -424,6 +424,22 @@ League group. One row per team in a league, one column per position (QB, RB, WR,
   cells 84px.
 - **Not built:** a median row, a total column (the total is under each name), the team's week-by-week line.
 
+## Clips (Roster, 2026-10-05)
+
+NFL YouTube clips of the reader's own players, picked from a storyboard (A reel + B ring,
+https://claude.ai/artifact/9C4vZYmMkhSKLyTHenWpEv). Embedded, never hosted or downloaded.
+
+| Part | What it does |
+|---|---|
+| **Data** | ff-jarvis `clips.json` (`model/season/clip_match.py`), via `design/clips.py` as `LIVE_CLIPS`. Best-plays videos are credited by title; other clips by Claude (sonnet) per game from the title, channel, post time, rosters with jersey numbers and the box score. Week 4 check: 9 of David's 9 TD scorers had a clip |
+| **Week** | `LIVE_CLIPS.week`, never `schedWeek()` (that is the week coming up). The finished week stays up until the next kickoff |
+| **Reel** | Above the This week list, Sheet and Cards modes. One card per starter with a clip, best scorer first; 2 to 4 cards a page by measured width, ‹ › and a swipe (STYLE.md: no sideways scroll). Count badge lime when he scored (box score, else a title saying touchdown). An end card names starters with no clip and plays their game's highlights, one video per game |
+| **Brief fold** | Below 1100px the This week list folds to its one-line form while the reel shows, so the first starter row does not drop. From 1100px the list is a side column and stays; the reel pushes the rows down by its height |
+| **Ring** | Sheet rows only: lime ring and clip count on the headshot. The head opens the clip sheet, the rest of the row the profile. Known exception: the head is a button inside a row that is a button; Tab and Enter reach it, a screen reader's browse mode may not |
+| **Sheet** | On `<body>` like the game sheet. Thumbnail until a tap, then the youtube-nocookie embed; the IFrame API loads on the first play and moves to the next clip on end. A card plays its player; Play all walks every card. Where the embed cannot load (file://, the Artifact frame, a video that bans embedding) the stage is a link to YouTube. NFL-channel, MIN, SEA and SF clips cannot be embedded (YouTube error 150, tested 2026-10-05 from the live site), so they open YouTube and Play all skips them; ff-jarvis `model/clients/youtube_embed.json` lists the blocked channels |
+
+Not built: clips on the Digest, Players > Highlights or the profile; a ring on trading cards.
+
 ## Waivers (sub-tab of My Teams, 2026-09-16)
 
 A Roster | Waivers toggle under the team name, not a sixth nav tab: waivers are per league like

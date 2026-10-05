@@ -1,0 +1,55 @@
+/* ============================== WEEK PLAYS REEL ============================== */
+/* The roster's clip reel (js/surface/teams/reel.js, 2026-10-05): a card per starter with a clip,
+   paged two to a phone screen, never scrolled sideways (STYLE.md). Every box has its shape before
+   its thumbnail loads (16:9), so a slow or failed image moves nothing. Lime is the lineup's colour
+   and means a touchdown here; the Play all pill is the one filled control. */
+.reel{margin-top:14px}
+.reel-h{display:flex;align-items:center;gap:8px;margin:0 0 8px;min-height:40px}
+.reel-ti{min-width:0;margin-right:auto}
+.reel-ti h2{margin:0;font-family:var(--disp);font-size:var(--t-4);font-weight:800;line-height:1.1;color:var(--ink)}
+.reel-ti small{display:block;margin-top:2px;font-family:var(--ui);font-size:var(--t-1);font-weight:500;color:var(--ink-3)}
+.reel-all{appearance:none;border:0;border-radius:999px;min-height:40px;padding:0 16px;background:var(--lime);color:var(--on-lime);
+  font-family:var(--ui);font-size:var(--t-2);font-weight:700;cursor:pointer;transition:scale var(--dur-spring) var(--spring)}
+.reel-all:active{scale:var(--press)}
+.reel-arr{flex:none;width:40px;min-height:40px;border:0;border-radius:8px;background:none;color:var(--ink);cursor:pointer;
+  font-family:var(--mono);font-size:var(--t-5);font-weight:700;line-height:1}
+.reel-arr:disabled{color:var(--line-2);cursor:default}
+.reel-arr:last-child{margin-right:-8px}
+.reel.one .reel-arr{display:none}
+.reel-all:focus-visible,.reel-arr:focus-visible,.reel-card:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+
+/* A page of cards: `--per` of them, set from the measured width; the rest are [hidden]. */
+.reel-track{display:grid;grid-template-columns:repeat(var(--per,2),minmax(0,1fr));gap:10px;touch-action:pan-y}
+.reel-card{display:flex;flex-direction:column;gap:6px;min-width:0;padding:0 0 10px;appearance:none;background:var(--panel);
+  border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer;text-align:left;font-family:var(--ui);color:var(--ink);
+  transition:translate var(--dur-spring) var(--spring),scale var(--dur-spring) var(--spring)}
+.reel-card[hidden]{display:none}
+.reel-card:active{scale:var(--press)}
+@media (hover:hover){ .reel-card:hover{translate:0 var(--lift)} }
+.reel-thumb{position:relative;display:block;aspect-ratio:16/9;background:var(--panel-3);overflow:hidden}
+.reel-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.reel-n{position:absolute;right:6px;bottom:6px;display:inline-flex;align-items:center;gap:4px;padding:2px 8px 2px 6px;border-radius:999px;
+  background:rgb(var(--void-rgb) / .78);color:var(--ink);font-family:var(--mono);font-size:var(--t-1);font-weight:700;line-height:1.4}
+.reel-n svg{width:10px;height:10px;fill:currentColor}
+.reel-n .yt-mark{width:14px;height:14px}
+.reel-n.td{background:var(--lime);color:var(--on-lime)}
+.reel-who{display:flex;align-items:baseline;gap:8px;padding:0 10px}
+.reel-nm{flex:1;min-width:0;font-size:var(--t-2);font-weight:700;line-height:1.25;overflow-wrap:anywhere}
+.reel-pts{flex:none;font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink-2)}
+.reel-line{padding:0 10px;font-size:var(--t-1);line-height:1.35;color:var(--ink-3)}
+
+/* A turn: the new page arrives from the side it was turned toward and stops in place. */
+@media (prefers-reduced-motion:no-preference){
+  .reel-track.in-r{animation:reel-in-r var(--dur-spring) var(--spring)}
+  .reel-track.in-l{animation:reel-in-l var(--dur-spring) var(--spring)}
+  @keyframes reel-in-r{from{transform:translateX(28px);opacity:.4}}
+  @keyframes reel-in-l{from{transform:translateX(-28px);opacity:.4}}
+}
+
+/* From 1100px the list is a column beside the rows: the reel takes the rows' column above them, and
+   the list spans both so it still pins at the top of its column. */
+@media (min-width:1100px){
+  .rl-reel > .reel{grid-column:1;grid-row:1;margin-top:20px}
+  .rl-reel > .rl-rows{grid-row:2}
+  .rl-reel > .brief,.rl-reel > .brief.done{grid-row:1 / span 2;margin-top:20px}
+}

@@ -10,6 +10,12 @@ def lines(page):
     return page.evaluate("[...document.querySelectorAll('.brief-line')].map(e => ({kind: e.className.match(/k-(\\w+)/)[1], shown: e.offsetParent !== null}))")
 
 
+def unfold(page):
+    """On a phone the Week plays reel folds the list to its one row; Show opens it."""
+    if page.locator("[data-briefunfold]").count():
+        page.locator("[data-briefunfold]").click()
+
+
 @pytest.mark.render
 def test_the_lineup_check_is_always_there(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (1280, 900))
@@ -27,6 +33,7 @@ def test_the_lineup_check_is_always_there(browser, page_file):
 def test_a_phone_shows_three_then_all(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (360, 800))
     drive(page, go("roster"))
+    unfold(page)
     got = lines(page)
     if len(got) <= 3:
         assert page.locator("[data-briefall]").count() == 0
@@ -42,6 +49,7 @@ def test_a_phone_shows_three_then_all(browser, page_file):
 def test_got_it_folds_the_list_and_a_reload_keeps_it(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (360, 800))
     drive(page, go("roster"))
+    unfold(page)
     n = len(lines(page))
     page.locator("[data-briefok]").click()
     assert lines(page) == [] and page.locator(".brief.done").count() == 1
@@ -58,8 +66,9 @@ def test_got_it_folds_the_list_and_a_reload_keeps_it(browser, page_file):
 def test_a_swipe_checks_one_line(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (360, 800))
     drive(page, go("roster"))
+    unfold(page)
     n = len(lines(page))
-    box = page.locator(".brief-line").first.bounding_box()
+    box =page.locator(".brief-line").first.bounding_box()
     y = box["y"] + box["height"] / 2
     page.mouse.move(box["x"] + 40, y)
     page.mouse.down()

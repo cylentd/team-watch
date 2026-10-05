@@ -42,6 +42,8 @@ from digest import live_digest, report as digest_report        # design/digest.p
 from preview import live_preview, report as preview_report     # design/preview.py: This week > Preview
 from role import live_role, report as role_report              # design/role.py: Players > Role
 from highlights import live_highlights, report as highlights_report  # design/highlights.py: Players > Highlights
+from clips import live_clips, report as clips_report            # design/clips.py: official YouTube clips
+from prop_math import implied, is_stale                         # design/prop_math.py: break-even odds, stale-line test
 from league_recap import live_league, report as league_report  # My teams > League
 from league_trades import report as trades_report  # League > Trades
 import leagues                 # design/leagues.py: David's leagues, their files and blocks
@@ -51,7 +53,7 @@ from sources import (                                    # design/sources.py: th
     ROOT, REPO, DWR, FEED, ESPN_ROSTERS, DFS_POOL,
     feed_block, read_first, warn_if_stale, load_status, load_props_raw, load_model_raw,
     load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
-    load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_digest, load_digest_headline, load_game_preview, load_preview_record, load_league, load_role_board, load_highlights, load_slip_reasons,
+    load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_digest, load_digest_headline, load_game_preview, load_preview_record, load_league, load_role_board, load_highlights, load_clips, load_slip_reasons,
     load_defense, load_kickers,
 )
 from slips import UNPRICED, carry_mean, live_reasons, null_prices, report as slips_report  # the Slips board's data
@@ -104,17 +106,6 @@ REFERENCE_BOOK = "Consensus"
 POS_ORDER = {"QB": 0, "RB": 1, "WR": 2, "TE": 3}
 # BettingPros team codes that differ from the ESPN/nflverse codes the rest of the page uses.
 TEAM_FIX = {"JAC": "JAX", "LA": "LAR"}   # the book's and the model's spellings, one canon
-# Where the model's rate sits relative to the book's line across the whole slate (week 1 2026:
-# medians 1.12 rush, 1.13 rec, 1.01 receptions, 0.94 pass), and how far from that a line can be
-# before it is read as a role change rather than a disagreement.
-STALE_CENTRE = {"RUSH": 1.12, "REC": 1.10, "RECS": 1.0, "PASS": 0.93}
-STALE_BAND = 1.35
-
-
-def is_stale(mkt, mu, line):
-    r0 = STALE_CENTRE.get(mkt, 1.0)
-    ratio = mu / line
-    return ratio > r0 * STALE_BAND or ratio < r0 / STALE_BAND
 # The anytime-TD market prices whole teams too; those rows are not players.
 NFL_TEAMS = {
     "Arizona Cardinals", "Atlanta Falcons", "Baltimore Ravens", "Buffalo Bills", "Carolina Panthers",
@@ -232,12 +223,6 @@ def load_market_stock():
     re-keyed by slug (see _stock_by_slug)."""
     block = feed_block(("market", "stock"), "players") or read_first(DWR / "market_stock.json")
     return {**block, "players": _stock_by_slug(block["players"])} if block else block
-
-
-def implied(american):
-    """Break-even probability of an American price, vig included."""
-    a = float(american)
-    return 100.0 / (a + 100.0) if a > 0 else -a / (-a + 100.0)
 
 
 def live_props(available, rosters):
@@ -679,7 +664,7 @@ def render():
         "LIVE_ROUTES": live_routes(load_routes(), slugify, wanted_set),
         "LIVE_ARCHETYPE": live_archetype(load_archetype(FEED, DWR), wanted_set),
         "LIVE_TRENCHES": live_trenches(load_trenches(FEED, DWR)),
-        "LIVE_ROLE": live_role(load_role_board(), slugify), "LIVE_HIGHLIGHTS": live_highlights(load_highlights()),
+        "LIVE_ROLE": live_role(load_role_board(), slugify), "LIVE_HIGHLIGHTS": live_highlights(load_highlights()), "LIVE_CLIPS": live_clips(load_clips()),
         "LIVE_DIGEST": live_digest(load_digest(), slugify, load_schedule(DWR), load_digest_headline()),
         "LIVE_PREVIEW": live_preview(load_game_preview(), slugify, load_preview_record(), status=load_status()),
         "LIVE_LEAGUE": live_league(*load_league(), roster_file(ESPN_ROSTERS), slugify),
@@ -698,7 +683,7 @@ def render():
                routes_report(blocks["LIVE_ROUTES"]), report_archetype(blocks["LIVE_ARCHETYPE"]),
                report_trenches(blocks["LIVE_TRENCHES"]), lines_report(blocks["LIVE_LINES"]),
                injury_report(blocks["LIVE_INJURY"]), role_report(blocks["LIVE_ROLE"]),
-               highlights_report(blocks["LIVE_HIGHLIGHTS"]), wx_history_report(blocks["LIVE_WX_HISTORY"]),
+               highlights_report(blocks["LIVE_HIGHLIGHTS"]), clips_report(blocks["LIVE_CLIPS"]), wx_history_report(blocks["LIVE_WX_HISTORY"]),
                defense_report(blocks["LIVE_DEFENSE"]), gameday_report(blocks["LIVE_GAMEDAY"]),
                f"Weather: {len(blocks['LIVE_WEATHER']['teams'])} teams" if blocks["LIVE_WEATHER"] else "Weather: none"]
     for name, obj in blocks.items():

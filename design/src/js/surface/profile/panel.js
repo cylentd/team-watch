@@ -62,13 +62,16 @@ document.getElementById("modal").addEventListener("click", e => {
   if (g) openStrip(g, b.dataset.stripname, b);
 });
 
-/* Roster rows and waiver cards both open the profile; one wiring for both. */
+/* Roster rows and waiver cards both open the profile; one wiring for both. A head with clips (the lime
+   ring, board.js) is the one part that opens the clip sheet instead (clipsheet.js clipWireRings). */
 function wireProfiles(v){
   const open = el => el.dataset.team !== undefined
     ? openProfile(findPlayer(el.dataset.team, +el.dataset.i), el)
     : openProfile(waiverPlayers()[+el.dataset.wire], el);
+  const ring = e => !!e.target.closest(".head[data-clips]");
   v.querySelectorAll(".row, [data-wire]").forEach(el => {
-    el.addEventListener("click", () => open(el));
-    el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); open(el); } });
+    el.addEventListener("click", e => { if (!ring(e)) open(el); });
+    el.addEventListener("keydown", e => { if (ring(e)) return; if (e.key === "Enter" || e.key === " "){ e.preventDefault(); open(el); } });
   });
+  clipWireRings(v);
 }

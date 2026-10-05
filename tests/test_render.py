@@ -225,6 +225,9 @@ STATES = [
     # The third league (2026-09-29): AYO, a second Yahoo login, the first Yahoo team's shape.
     ("teams-ayo", [("eval", "VIEW='ayo'; render()")] + go("roster")),
     ("teams-modal", go("roster") + [("click", ".row")]),   # Joe Burrow: no matchup profile, the quiet state
+    # Clips (2026-10-05): the ring opens a player's clip sheet; with no clips there is no reel and no ring.
+    ("teams-clips-sheet", [("eval", "VIEW='espn'; render()")] + go("roster") + [("click", ".head[data-clips]")]),
+    ("teams-clips-empty", [("eval", "LIVE_CLIPS.players = {}; LIVE_CLIPS.games = {}")] + go("roster")),
     # One league at a time since v2: the team on screen picks the cards, tiers, hero and rail.
     # SEED is a Saturday, so these are wire-watch mode (the rail leads, every row shown).
     ("waivers-espn", [("eval", "VIEW='espn'; render()")] + go("waivers")),

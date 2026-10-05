@@ -66,6 +66,16 @@
   display:grid;place-items:center;border-radius:99px;border:2px solid var(--void);
   font-family:var(--mono);font-size:var(--t-1);font-weight:700;
 }
+/* A head whose player has official clips (board.js, clipsheet.js): a lime ring and a count top right,
+   the injury badge's mirror. The ring is an outline and the hit area a pseudo-element, so the row's
+   height is the same with or without it. */
+.head[data-clips]{cursor:pointer;border-radius:99px;outline:2px solid var(--lime);outline-offset:1px}
+.head[data-clips]:has(.dst){border-radius:8px}
+.head[data-clips]::after{content:"";position:absolute;inset:-4px}
+.head[data-clips]:focus-visible{outline-offset:2px;box-shadow:0 0 0 6px rgb(var(--lime-rgb) / .3)}
+.head .clipn{position:absolute;right:-5px;top:-5px;min-width:16px;height:16px;padding:0 4px;display:grid;place-items:center;
+  border-radius:99px;border:2px solid var(--void);background:var(--lime);color:var(--void);
+  font-family:var(--mono);font-size:var(--t-1);font-weight:700;line-height:1;z-index:1}
 .badge.q{background:var(--amber);color:var(--amber-ground)}
 .badge.o,.badge.d{background:var(--down);color:var(--down-ground)}
 

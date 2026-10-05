@@ -1,17 +1,16 @@
 /* "This week": the roster's checklist (2026-09-25, from the storyboard David picked; it replaced a
    brief of at most three lines that usually held one). One line per thing to check before
    kickoff, most urgent first: who is hurt, whether the lineup is right, the weather, the
-   matchups, the wire, the news. Each line says the fact, a second line says what it touches, and
-   a tap opens the player or the view it names. Every fact is read from data the page already
-   carries; nothing here computes a verdict of its own. */
+   matchups, the wire, the news. Each line says the fact, a second line what it touches, and a tap
+   opens the player or view it names. Every fact is read from data the page already carries. */
 
 let BRIEF_ALL = false;   // a phone shows three lines until "Show all"
 let BRIEF_PEEK = false;  // the checked lines are shown again, until "Hide checked" or a reload
 
 /* Checked lines (2026-09-25): the list is read once, then it is in the way, on a phone above the
-   whole roster. "Got it" checks every line, a swipe checks one, and a line that is all checked
-   folds to one row. Kept per league per week, by what the line says, so a line whose fact changes
-   (a new injury, a new swap) comes back. localStorage can refuse: this load still remembers. */
+   roster. "Got it" checks every line, a swipe checks one, and a line that is all checked folds to
+   one row. Kept per league per week, by what the line says, so a line whose fact changes comes
+   back. localStorage can refuse: this load still remembers. */
 const BRIEF_MEM = new Map();
 const briefKey = team => `tw-brief-${team.key}-${schedWeek() || 0}`;
 function briefId(l){
@@ -174,6 +173,7 @@ function briefHTML(team){
   // Every line checked: one row that says so, and the way back to them.
   if (!lines.length) return `<section class="brief done" aria-label="${t("teams.brief.title")}" data-bteam="${team.key}">
     ${head(t("teams.brief.allChecked", {n: all.length}), `<button type="button" class="brief-act" data-briefpeek>${t("teams.brief.show")}</button>`)}</section>`;
+  if (reelFolds(team) && !BRIEF_PEEK) return reelFoldHTML(team, open.length);   // the Week plays reel is up: one row (reel.js)
   // Every line checked and shown again: the done row keeps its words and its place, "Show" becomes
   // "Hide", and the lines open under it (a "0 things to check" heading read as a fault).
   const peekDone = !open.length, more = lines.length > 3;
@@ -241,6 +241,7 @@ function wireBrief(v){
   });
   v.querySelector("[data-briefall]")?.addEventListener("click", () => { BRIEF_ALL = !BRIEF_ALL; render(); });
   v.querySelector("[data-briefpeek]")?.addEventListener("click", () => { BRIEF_PEEK = !BRIEF_PEEK; render(); });
+  v.querySelector("[data-briefunfold]")?.addEventListener("click", reelUnfold);
   v.querySelector("[data-briefok]")?.addEventListener("click", () => {
     briefCheck(team, [...v.querySelectorAll(".brief-line[data-bid]:not(.checked)")].map(el => el.dataset.bid));
     BRIEF_PEEK = false; BRIEF_ALL = false;

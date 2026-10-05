@@ -41,6 +41,7 @@ surface/teams/packshow.js
 surface/teams/packdeal.js
 surface/teams/packland.js
 surface/teams/brief.js
+surface/teams/reel.js
 surface/teams/proof.js
 surface/teams/wcard.js
 surface/teams/wback.js
@@ -203,6 +204,8 @@ surface/live/gamecards.js
 # pin: gamesheet.js binds its listeners and its poll timer at load: it needs #gamesheet (shell.html)
 #      and GD_POLL_MS (live.js, above).
 surface/live/gamesheet.js
+# pin: clipsheet.js binds its listeners at load, like gamesheet.js: it needs #clipsheet (shell.html).
+surface/teams/clipsheet.js
 # pin: the strip loads bottom-up -- art and easing are pure, scene reads them, pose reads scene,
 #      strip reads pose, and transport/game are the only files with listeners or a fetch. Each
 #      file may only name things declared above it (one scope, so the temporal dead zone applies).

@@ -29,6 +29,7 @@ surface/teams/injury.css
 surface/teams/pack.css
 surface/teams/packshow.css
 surface/teams/brief.css
+surface/teams/reel.css
 surface/teams/matchup.css
 surface/teams/wire.css
 surface/teams/wcard.css
@@ -119,6 +120,7 @@ surface/live/live.css
 surface/live/mirror.css
 surface/live/tds.css
 surface/live/gamesheet.css
+surface/teams/clipsheet.css
 surface/strip/field.css
 surface/strip/figure.css
 surface/strip/panel.css

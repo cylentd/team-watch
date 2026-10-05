@@ -9,11 +9,14 @@ function rowHTML(p, i, teamKey){
   // The injury badge on the head: ! out, D doubtful, Q questionable; the reason is its tooltip.
   const inj = injFor(p);
   const badge = inj ? `<span class="badge ${{OUT: "o", D: "d", Q: "q"}[inj.s]}" title="${injLabel(inj)}">${{OUT: "!", D: "D", Q: "Q"}[inj.s]}</span>` : "";
+  // A lime ring and a count on a head whose player has official clips; a tap opens the clip sheet (clipsheet.js).
+  const nc = clipsOf(p.slug).length;
+  const ring = nc ? `<span class="clipn" aria-hidden="true">${nc}</span>` : "";
   const rd = 40+i*24;
   const use = rowUsage(p);
   return `<div class="row ${cls}" style="animation-delay:${rd}ms;--rowdelay:${rd}ms" data-team="${teamKey}" data-i="${i}" role="button" tabindex="0">
     ${p.start ? `<span class="slot">${esc(slotLabel(p.slot))}</span>` : ""}
-    <div class="head">${headHTML(p)}${badge}</div>
+    <div class="head"${clipRingHTML(p)}>${headHTML(p)}${badge}${ring}</div>
     <div class="nm">
       <div class="nm-1"><b><span class="nm-full">${esc(p.n)}</span><span class="nm-ini">${esc(nameInitial(p.n))}</span></b></div>
       <div class="nm-2">

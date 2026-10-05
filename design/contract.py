@@ -11,6 +11,7 @@ import leagues
 import startsit_board   # design/startsit_board.py: LIVE_SSB's nested shape check
 import startsit_v3      # design/startsit_v3.py: LIVE_SS3's nested shape check
 import teams            # design/teams.py: LIVE_TEAMS's nested shape check
+import clips            # design/clips.py: LIVE_CLIPS's nested shape check
 from contract_checks import WIRE_EVENT, WIRE_KIND, WIRE_KIND_OPTIONAL, WIRE_OPTIONAL, WIRE_SUBS  # noqa: F401  re-exported for wire_watch.py
 
 # A league's `status` is fa | waiver | rostered | mine | unknown -- no value is enforced here: "unknown"
@@ -299,6 +300,8 @@ CONTRACT = {
     "LIVE_SSB": {"keys": ["week", "fp", "board", "out"], "checks": [startsit_board.problems]},
     # design/highlights.py, Players > Highlights (2026-09-29); a view's rows are pinned in tests/test_highlights.py.
     "LIVE_HIGHLIGHTS": {"keys": ["season", "week", "generated", "views"], "rows": [("views", ["view", "leaf", "rows"])]},
+    # design/clips.py, official YouTube clips (2026-10-05): `players` {slug: [{id, title, kind, secs, embed}]}, `games` {team: {id, title, secs, embed}}; null without ff-jarvis's file. Nested shapes are checked by its `problems`.
+    "LIVE_CLIPS": {"keys": ["week", "players", "games", "alias"], "checks": [clips.problems]},
     "LIVE_REASONS": {"keys": [], "map": (".", ["why", "work", "tags"])},   # design/slips.py (2026-10-03): the block IS the map; `{}` without the file
     # design/preview.py, This week > Preview (slate and dossier, 2026-09-29). A game's `take` is null
     # before Claude has written it; `line`, `matchup`, `wx`, `rest`, `travel`, `site` are null when
