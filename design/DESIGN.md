@@ -122,7 +122,7 @@ Phase 2 (2026-09-26):
 |---|---|
 | Trend and news on their rows and Cards | `design/signals.py` reads every LIVE_MATES roster too |
 | Waivers: their league's Breaking rail, no status rows, no verdicts, no cards | `waiverKey(team)` is the league; `wvMateEvents` (rail.js) |
-| Live: every matchup in both leagues, theirs included (superseded the per-team follow, 2026-09-28) | `design/gameday.py`, `api/stats.py`; the design is in `js/surface/live/live.js`'s header; its game sheet under "The game sheet" below |
+| Live: every matchup in both leagues, theirs included (superseded the per-team follow, 2026-09-28) | `design/gameday.py`, `api/stats.py`; see "Live" (tabs since 2026-10-04) and "The game sheet" below |
 
 **My teams asks first (2026-09-27).** With no pick in this browser (`tw-team`), every My teams view
 draws "Which team is yours?": all 24 teams by league, 48px buttons, and "Add your ESPN league"; no
@@ -593,7 +593,7 @@ group and Digest the default leaf, except on a Tuesday, when Waivers leads.
 
 | part | what it shows |
 |---|---|
-| Lead | ff-jarvis's pick (`lead.rule`): a hurt starter, else a game in bad weather, else the top headline. A headline, one fact line ("The WR2 this week. Hip. LA @ DEN, Sun 5:20 PM."), the photo; weather draws its wind or rain mark instead. No stats row |
+| Lead | until the week's first kickoff (the top scorer takes it then, see "After kickoff"), ff-jarvis's pick (`lead.rule`): a hurt starter, else a game in bad weather, else the top headline. A headline, one fact line ("The WR2 this week. Hip. LA @ DEN, Sun 5:20 PM."), the photo; weather draws its wind or rain mark instead. No stats row |
 | Hurt | red count; the next two who will likely sit, then how many are questionable |
 | Starters | count; the newest new #1 on Sleeper's depth chart ("Keenum QB1 over Williams") or team move with his new depth ("MIN → NYG · QB3"); empty, Blip asleep and one of three short lines (`surface/digest/blip.js`, pose "asleep", 2026-09-29). Opened: each with a green up mark (new #1, the old one's status in brackets) or sky arrows (new team), the weekday at the right. The foot quotes `rules.starters`. On the wall it sits under Hurt. Since 2026-09-29 |
 | Matchups | the call count; the best spot at WR, else RB, TE, QB |
@@ -721,6 +721,39 @@ projections for every player (it linked to Leaders until then).
   each game opened, a link to Weather. A calm week draws no row on a phone and one sentence on the wall.
   The packet's 15 mph / 50% list was a second rule beside the tab's backtested one.
 - Top 5 and Weather left the wait card; on the wall they share its row.
+
+**After kickoff (2026-10-04, storyboard https://claude.ai/artifact/JrM6hBMrAL2hjFzYPgKitV, option A).**
+David: "Sometimes something big happens like injury or top scores. The headline should change
+accordingly. Need to know and Highlights become old news on kickoff." The packet leads until the
+week's first kickoff; from then the Digest shares Live's poll (`surface/digest/now.js`).
+
+| Part | Before the first kickoff | From the first kickoff |
+|---|---|---|
+| Headline | ff-jarvis's pick (`lead.rule`) | the top scorer so far: "Gibbs has 31.4 points" while a game is on, "leads with" between windows; his box line and the game's clock under it, his team's colour behind him, a tap opens his profile |
+| Highlights (was Worth knowing until 2026-09-30) | each Players view's first line | **Right now** replaces it: the top five scorers (face, name, position, club and clock, line, points) and a count of the day's touchdowns that opens Live's TDs tab |
+| Need to know | new starters and who sits | only games not yet started (`dgCut` drops a game's pre-game rows at its kickoff); gone when nothing is left |
+| Tonight's card | the slot's preview | unchanged, except the last game's card (below) stands in for it |
+
+- **Hurt starter lead holds** while no game is on and his own has not kicked off: no live injury
+  source exists yet, so nothing live knows who got hurt since. Once a game is on, the top scorer
+  takes the banner.
+- **Numbers** are `/api/stats` `lead=1` (league-wide, half-PPR), the same reply Live and the
+  profile read. The page adds nothing to it. A passing TD is the same score as the catch, so the
+  count is rushing plus receiving TDs.
+- **The poll starts only after the week's first kickoff** (`dgKicked`). A Tuesday's Digest asks
+  neither `/api/stats` nor ESPN. Live parts repaint in place (`paintDigestLive`); only a change of
+  phase (a section appears or leaves) renders the view again.
+- **The Monday night card** (`mnf.js`, "the last game", David 2026-10-04: "The Monday game needs to be
+  its own section"): once every game before the week's last day is final and one or two games
+  remain, a card sits above the ticker and stays through the game with live points. For each league
+  it shows the matchup, and:
+  - a league with someone still to play: both scores, who is still to play on each side with their
+    projections (points of it mid-game), one sentence of what the result needs, and the median gap;
+  - a league with nobody left: one line, its name, the score, won / lost / tied, the median gap.
+
+  Before the game starts, the headline is "You're up 1.6 going into Monday night" (first league),
+  then the top scorer takes it back. The wait card does not start while this card shows.
+  Scores come through Live's own scorer (`gdSide`), so the Digest and Live never disagree.
 
 ## Start/Sit (This week, 2026-10-03; was Takes)
 
@@ -1017,6 +1050,74 @@ on a card. Superseded: the per-game "Does it matter? / Already in our projection
 - **First data:** the first card at 188px on a 360x800 phone (live data, 2026-09-26). Desktop: cards
   three across at 1400px, the two lists side by side.
 
+## Live (This week, 2026-09-28; four tabs 2026-10-04)
+
+Every matchup in both of David's leagues, scored live, and every NFL game of the week. Storyboard
+for the tabs, mirrored rows, clock, TDs and game sheet (option A, David 2026-10-04):
+https://claude.ai/artifact/JrM6hBMrAL2hjFzYPgKitV. The first build (2026-09-28):
+https://claude.ai/artifact/8qKDQUVxkz4F5naVPVQjhH. Lineups and each league's scoring rules are baked
+in (`LIVE_GAMEDAY`, `design/gameday.py`); the numbers are Sleeper's, trimmed to our players by
+`/api/stats`, and the page scores them itself. No ESPN cookies, no Yahoo API.
+
+~~**One page, a score card, the lineups, the games, the ranking**~~ (superseded 2026-10-04 by the
+tabs below; the NFL now card (`nflnow.js`) above the matchup went with it).
+
+| Tab | Shows | Source |
+|---|---|---|
+| Matchup (the default) | both scores, who leads, the league median line, then both lineups mirrored | `board.js`, `mirror.js` |
+| Games | every NFL game of the week as a tile: live first, then the next kickoffs, then finals; a lime count of games on now rides the tab; a tile with starters of mine has a lime edge and "N yours"; a tap opens the game sheet | `nflnow.js`, `gdWeekGames` |
+| TDs | Scored, then Still alive (below) | `tds.js` |
+| League | every matchup as one row, then the ranking with the median; a game's tap opens it in Matchup. The storyboard called this tab the box score; the tab says League | `league.js` |
+
+- **The choice** is `tw-live-tab` in `localStorage` (`tabs.js`), never the hash, so another view
+  sends the reader to a tab by setting it, then opening `#live` (the Digest's touchdown count does).
+  Switching repaints in place (`paintLive`), never through `render()`. The league chips (Yahoo,
+  ESPN) draw on Matchup and League only: Games and TDs are NFL-wide.
+- **Mirrored rows (Matchup).** One row per starter slot, ESPN's way: my starter left, theirs right,
+  the slot between as a pill. A half is his name with his points beside it, and under them his
+  game's clock line and his projection (no label: under the points it can only be the projection).
+  A row is 46px, so the score and nine starters fit one phone screen. My slot pairs with the
+  opponent's starter in the same slot, then the rest pair in order; a short side gets an empty half.
+  The benches sit behind one toggle row, mirrored the same way, dimmed and never in the total; open
+  or closed lives in memory only and starts closed.
+- **Slot pills** wear the position's colour: QB, RB, WR, TE, K sand, DEF steel. FLEX, OP and W/R/T
+  stay neutral. A half whose game is on is tinted lime and its points are lime (David, 2026-09-29:
+  lime means his game is on); a smashed projection draws the flame beside the points.
+- **The median line** sits under the score: "League median 101.7 · you +3.3", green above it and
+  red below. Only a league that pays the top half a second win draws it; the other leagues rank for
+  bragging and draw the line grey, in the League tab only.
+- **The clock line** (2026-10-04) is the half's second line: the quarter and clock ("Q3 4:12",
+  "Half", "OT 2:01", "Final", "Final/OT"), then the score from his club's side while it is on, the
+  result once final, and before kickoff the opponent ("vs DEN", "at DEN") after the kickoff time.
+  ESPN's public scoreboard says where a game is; Sleeper only says whether it is on. The reader's
+  browser asks ESPN, one request per Live poll for every game (`gdClockFetch`,
+  `data/gameday/clock.js`); ESPN answers a browser and refuses servers, so no `api/` function can.
+  `gdClockOf(club)` is the one read every view uses, returning `{state, label, live}`. When ESPN is
+  down, Sleeper's word stands ("Live", "Final") and the kickoff from the schedule, never a guessed
+  clock. The score is Sleeper's: a club's defense row counts the points it allowed.
+- **A tap on the clock line opens that game's sheet** on the player it came from (below); a tap on
+  the name opens his profile. Two buttons, never nested.
+- **The TDs tab** follows what David builds slips from, with no input: he will not enter slips, so
+  nothing is saved. League-wide and public, so it reads no roster.
+
+  | List | What | Rows |
+  |---|---|---|
+  | Scored | every player in `/api/stats` `lead=1` with a rushing or receiving TD (a passing TD is the same score as the catch, counted once); most TDs first, then points | position, name and club, "2 rush TD", the game's clock; green line |
+  | Still alive | the top 15 of Parlay's anytime-TD list by the model's chance, minus whoever scored; live (his game is on, no TD yet, lime), later (the kickoff), missed (his game is final with none, red, sunk to the bottom) | position, name, the clock, the model's chance |
+
+  No live market means no board: the sample rows are not TD chances. A row opens the profile.
+- **The poll** (unchanged since 2026-09-28): a game on and Live (or the Digest, after kickoff) on
+  screen, every 30 s; the edge caches the reply 15 s, so readers share one Sleeper read. Nothing on:
+  once, if the reply is over 15 minutes old, then asleep until the next kickoff. Another view or a
+  hidden tab: never; coming back asks at once. If `/api/stats` is down the page reads Sleeper
+  directly (it allows a browser, checked 2026-09-28).
+- **`/api/stats?lead=1`** (2026-10-04) adds `lead {id: {n, pos, team, s, pts}}`: every player with a
+  touchdown and the week's top 25 by half-PPR, league-wide. Half-PPR is Sleeper's own total, else
+  the standard sum: one yardstick for "who leads", whatever each league scores. Live's URL carries
+  every club of the week in both spellings and `lead=1`, one reply for all readers.
+- **Not measured:** the 46px row is the CSS `min-height`; the claim that the score and nine starters
+  fit one 360x800 screen was not measured against live data on 2026-10-04.
+
 ## Parlay and DFS
 
 **Superseded for Parlay 2026-09-25: Slips and Build.** Parlay is two views, Slips (leaf `parlay`,
@@ -1123,31 +1224,44 @@ is an ⓘ that opens the leg sheet (below). Page sizes are multiples of 2 and 3
 same day (`--paper` #f1efe8 → #cbc4b4); it glowed against the dark page.~~ Superseded the same day:
 the slip went dark (below).
 
-### The game sheet (2026-09-28)
+### The game sheet (2026-09-28; full screen on a phone, followed players and tabs 2026-10-04)
 
 One NFL game, for following it without watching (`surface/live/gamesheet.js`, cards in
-`gamecards.js`, ESPN shaping in `data/gameday/espn.js`). Storyboard "Follow a Game"; this is part 1.
-Live's **NFL now** card (`nflnow.js`) lists the games on now, else the next kickoff's, each drawn
-like a league game (its state over two boxes, club and score), and a tap opens the sheet.
+`gamecards.js`, ESPN shaping in `data/gameday/espn.js`). Storyboard "Follow a Game" (2026-09-28);
+the 2026-10-04 rework is option A of https://claude.ai/artifact/JrM6hBMrAL2hjFzYPgKitV.
+It opens from a Games tile or from the clock line under a player in Matchup (the sheet then leads
+with that player). ~~Live's **NFL now** card listed the games on now, else the next kickoff's, and a
+tap opened the sheet~~ (superseded 2026-10-04 by the Games tab; the card is gone).
+
+**A phone gets it full screen (2026-10-04)**, one scroll: the scoreboard, "Yours in this game", then
+the tabs, which stick to the top while the pane under them goes by. The tabs are Plays · Box score ·
+Top scorers; the default is Box score and the last pick is kept in memory for the session. From
+960px it is a bottom sheet again with the plays tall on the left; the Plays tab is hidden there
+and the Box score takes its place on the right. A pull down from the top closes it; a sideways swipe
+walks the week's games in kickoff order.
 
 | Card | Source | Notes |
 |---|---|---|
-| Scoreboard | ESPN summary, else Sleeper | on a live game: who has the ball, down and distance, a strip from the away goal line (left) to the home one |
+| Scoreboard | ESPN summary, else Sleeper | on a live game: who has the ball, down and distance, a strip from the away goal line (left) to the home one; before the summary loads, the scoreboard's clock ("Q3 4:12") |
+| Yours in this game | rosters + followed players | pinned above the tabs: every player of mine in this game in every league, then everyone followed; the player the reader came from leads, with a lime edge, wherever he is rostered; points in the league on screen's scoring, a dash before kickoff; a star on each row follows or unfollows |
 | Plays | ESPN summary | drives newest first; the newest open, the rest one line each and kept open through a poll; timeouts and ends of quarters left out |
-| Top scorers | Sleeper (`/api/stats?teams=`) | five, in the league on screen's own scoring; mine bold with lime points |
-| Box score | Sleeper (`/api/stats?teams=`) | one club at a time: passing, rushing, receiving, most yards first |
+| Top scorers | Sleeper (`/api/stats?teams=`) | five, in the league on screen's own scoring; mine bold with lime points; a star on each |
+| Box score | Sleeper (`/api/stats?teams=`) | one club at a time: passing, rushing, receiving, most yards first; a star beside each name |
+
+- **Follow** (2026-10-04): the star adds a player to "Yours in this game" for this week, on this
+  device. Stored in `localStorage` `tw-gs-follow.<week>` (not `tw-follow`, which is the team
+  switch); keys of other weeks are deleted on open. A player's key is his Sleeper id, else his slug.
 
 - **ESPN from the reader's browser only.** It answers a browser and refuses servers and headless
   browsers (403), so nothing server-side asks it; the tests shape the saved game instead.
 - **Either source can go quiet.** ESPN down: a line above the plays, every other card keeps updating.
-- **The NFL now score** is Sleeper's: a club's defense row counts the points it allowed. Live's one
-  shared poll carries every club of the week for it, so the card costs no request.
+- **The Games score** is Sleeper's: a club's defense row counts the points it allowed. Live's one
+  shared poll carries every club of the week for it, so a tile costs no request.
 - **Polling.** Open, the game not final, the tab visible: both sources every 30 s, one request per
   host in flight. Closed: never.
 - **Overlay**, as the leg sheet's: outside `#view`, one history entry, Escape and the scrim close it.
-  From 960px the plays take the tall left column.
-- **Part 2 (not built):** follow a player from this sheet with his Underdog lines as bars; replay
-  a drive in the strip.
+- **Part 2 (partly built 2026-10-04):** following a player from this sheet is built, without his
+  Underdog lines as bars (not built). Replaying a drive in the strip is not built.
 
 ### The leg sheet and the TD board (2026-09-27)
 
@@ -1247,6 +1361,14 @@ https://claude.ai/artifact/HjEA4x7r7DRz3Z7Xes4u62).
 | Next week's matchup | lede, as a rank | the lime row, with kickoff and projection |
 | Ownership | "On 2 of your teams" | each league's team by name |
 
+- **This week's row is live (2026-10-04, `season.js`).** The game log is cut at build time and lags
+  until the nightly rebuild, so on a Sunday the row said "No stats" while Live had scored him. For
+  the page's week, with no log row and his game kicked off, the row is drawn from Live's poll
+  (`gd:stats` repaints an open profile in place): lime with "Q3 4:12 · live" while the game is on, a
+  played row once final. His stats come from his own row in the poll (a player on one of my rosters,
+  by Sleeper id), else the league-wide leaders by name and club; with neither, the row stays as it
+  was. QB, RB, WR and TE only; points are half-PPR, the log's own scoring. An open profile keeps the
+  poll going over any other view.
 - **The Season table never grows.** One row per week from week 1, played or still to come, so it
   is ~18 rows in week 1 and in week 18. The opponent's rank is LIVE_DEFENSE's points allowed to his
   position, counted from the easy end (1st allows the most); it is the one measure that exists for
@@ -1465,6 +1587,9 @@ Signal Desk — a dark trading-terminal console.
 Positions are typographic, never coloured, with one exception decided 2026-09-21: the profile
 modal's stat sheet (radar, its chips, the stat card) is tinted by position (`--pos-qb/rb/wr/te`),
 so a run of profiles reads QB/RB/WR/TE at a glance. Rows, cells and badges stay typographic.
+A second exception, 2026-10-04 (David): Live's slot pills wear the same tints, plus sand for K
+(`--pos-k`) and steel for DEF (`--pos-def`). FLEX, OP and W/R/T stay neutral. The pill is the only
+place; the rows around it stay typographic.
 Extended 2026-09-29 (David: Usage "too black and white"): inside the profile, his own marks wear
 the same tint -- his bar among his teammates', his depth bars, his red-zone segment, his middle and
 outside shares, his combine percentiles (`.pf-body` sets `--tint`). One meaning: coloured is him;
@@ -1489,8 +1614,8 @@ renders in script and did not load for a check), so re-read it there before bend
 
 | Rule | Here |
 |---|---|
-| One card per subject | Live: the score, each team's lineup, the league's games, the ranking |
-| Rows inside a card stay rows, divided by a 1px `--line` | a lineup's players, the ranking's teams |
+| One card per subject | Live: Matchup the score and the two lineups; League the games and the ranking (the same list on 2026-09-28, before the tabs) |
+| Rows inside a card stay rows, divided by a 1px `--line` | a lineup's players, the ranking's teams; the Matchup's rows are shaded in turn instead, no rule between them (2026-10-04) |
 | A card never holds a card | a nested block uses a filled box (`--panel-2`), no second border radius stack |
 | A card is one tap target, or holds its own buttons, never both | a game box opens the game; a lineup row opens the player |
 | One card style: `--panel` fill, 1px `--line` border, 16px radius; no shadow (the console is flat) | a filled box inside a card: `--panel-2`, 10px radius |
@@ -1506,7 +1631,7 @@ word on it, and the prose lives one tap away in the profile.
 
 | Rule | Why | Where it was learned |
 |---|---|---|
-| Every visual code is named on the screen, by a word on the thing or one key under the list. A tint, colour or mark nobody explains is removed. | An unexplained tint reads as a bug ("why is the QB row lit?"). | Live's in-game row tint, removed 2026-09-28 |
+| Every visual code is named on the screen, by a word on the thing or one key under the list. A tint, colour or mark nobody explains is removed. | An unexplained tint reads as a bug ("why is the QB row lit?"). | Live's in-game row tint, removed 2026-09-28 (a lime tint on a half whose game is on came back 2026-10-04, with its clock line beside it saying "Q3 4:12"; superseded as a rule only where the words sit next to it) |
 | A state is a tag plus a picture of it: LIVE / n LEFT / a drawn lock and LOCKED, and a meter with one slot per player. Never a sentence to parse ("2 still to play or playing"). | The meter also shows which side still has a man going. | Live's league games |
 | A reason is a short coloured label: a kind and a number ("TD luck +6", "16% tgt +10"), two parted by a dot. Only the one warning in a card gets a filled box ("Out 3 wks"). The producer stores the kind and the number; the page only labels them. ~~A reason is a pill~~ (superseded 2026-09-29: thirty outlined pills in one card were busy). | 23 lines of prose in one card was the busy part of Results; then 30 boxes were. | Digest Results |
 | One colour means one thing inside a set of pills: green helped, red hurt, amber injury, filled red how long he is out, grey his role. | A reader learns it once for the whole card. | Digest Results |
