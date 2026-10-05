@@ -12,6 +12,7 @@ import startsit_board   # design/startsit_board.py: LIVE_SSB's nested shape chec
 import startsit_v3      # design/startsit_v3.py: LIVE_SS3's nested shape check
 import teams            # design/teams.py: LIVE_TEAMS's nested shape check
 import clips            # design/clips.py: LIVE_CLIPS's nested shape check
+import trade_offers     # design/trade_offers.py: TRADE_OFFERS's nested shape check
 from contract_checks import WIRE_EVENT, WIRE_KIND, WIRE_KIND_OPTIONAL, WIRE_OPTIONAL, WIRE_SUBS  # noqa: F401  re-exported for wire_watch.py
 
 # A league's `status` is fa | waiver | rostered | mine | unknown -- no value is enforced here: "unknown"
@@ -315,6 +316,9 @@ CONTRACT = {
     # and its teams; a team's record (`w`, `l`, `t`) is null with no standings. The nested shapes are checked by `problems`.
     "LIVE_TEAMS": {"keys": ["leagues"], "rows": [("leagues", ["key", "name", "slots", "median", "teams"])],
                    "checks": [teams.problems]},
+    # design/trade_offers.py, League > Teams > Find trades (2026-10-05). Not an injected block: a file written beside the
+    # page (`trade_offers.json`) that the builder sheet fetches on first open. Pairs, offers and players are checked by `problems`.
+    "TRADE_OFFERS": {"keys": ["updated", "season", "leagues"], "checks": [trade_offers.problems]},
     # design/startsit_board.py, the Start / Sit picker and board (2026-10-03): `fp` {slug: {ecr, pos}}, `board` {POS: {avg, n, best, worst}}
     # (rows {team, opp, pts, rank}), `out` {slug: [{n, pos, s}]}; each part may be empty. The nested shapes are checked by its `problems`.
     "LIVE_SSB": {"keys": ["week", "fp", "board", "out"], "checks": [startsit_board.problems]},

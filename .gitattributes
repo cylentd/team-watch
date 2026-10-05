@@ -17,6 +17,7 @@ design/index.html  -diff merge=ours
 # Same build, same rule: land.ps1 folds these into the branch commit too, so a land that retries
 # after another session's land replays them onto a newer build.json and games/.
 build.json         -diff merge=ours
+trade_offers.json  -diff merge=ours
 games/**           -diff merge=ours
 heads/**           -diff merge=ours
 

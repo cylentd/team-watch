@@ -1,0 +1,63 @@
+/* ============================================================
+   THE TRADE BUILDER SHEET (2026-10-05, js/surface/lboard/tbsheet.js)
+   The roster sheet's shape (sheet.css: .lbsheet, .lbs-grab, .lbs-bar, .lbs-x, .lbs-body, .lbs-pos) one layer
+   higher, and the lime button in the roster sheet's foot that opens it. Offers are cards (one subject each:
+   panel, 1px line, 16px radius); a card's two columns are rows, its gain strip a filled box (DESIGN.md "Cards").
+   ============================================================ */
+.tbs-scrim{z-index:50}
+/* One height for every tab, so Bold to Fair, an empty tab and the loading shapes never move the sheet's top edge. */
+.tbsheet{z-index:51;height:min(88dvh,720px)}
+
+/* The roster sheet's foot: outside the scrolling body, so the button is always in reach. */
+.lbs-foot{flex:none}
+.tb-find{appearance:none;border:0;width:100%;min-height:48px;padding:10px 16px;border-radius:12px;cursor:pointer;
+  background:var(--lime);color:var(--on-lime);font:700 var(--t-3)/1.2 var(--ui);transition:transform .12s var(--ease)}
+.tb-find:active{transform:scale(var(--press))}
+.tb-find:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.tb-pick{margin:0;padding:6px 0;text-align:center;font:500 var(--t-2)/1.3 var(--ui);color:var(--ink-3)}
+
+/* The head: "You ⇄ Team", the swap drawn in the ink of a label. */
+.tb-swap{width:18px;height:18px;margin:0 7px;vertical-align:-3px;fill:none;stroke:var(--ink-3);stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
+
+/* Two halves of one control; the pressed one is lime, as every chip. */
+.tb-body{gap:10px}
+.setrow.tb-seg{margin-top:0}
+.setrow.tb-seg > .chip{flex:1;min-height:44px}
+.tb-line{margin:0;font:500 var(--t-2)/1.3 var(--ui);color:var(--ink-2)}
+
+.tb-card{border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden}
+.tb-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.tb-col{min-width:0;padding:10px 12px 8px}
+.tb-col + .tb-col{border-left:1px solid var(--line)}
+.tb-h{margin:0 0 4px;font:600 var(--t-1)/1.3 var(--ui);letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+.tb-col ul{margin:0;padding:0;list-style:none}
+.tb-p{display:grid;grid-template-columns:22px minmax(0,1fr) auto;align-items:center;gap:6px;min-height:34px}
+.tb-n{min-width:0;font:600 var(--t-2)/1.2 var(--ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-inj{padding:3px 5px;border-radius:5px;background:rgb(var(--amber-rgb) / .16);color:var(--amber);
+  font:700 var(--t-1)/1 var(--mono);font-style:normal}
+
+/* One number under the columns, and the card's one button. */
+.tb-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 10px;padding:8px 12px;
+  border-top:1px solid var(--line);background:var(--panel-2)}
+.tb-gain{margin:0;font:500 var(--t-2)/1.2 var(--ui);color:var(--ink-2)}
+.tb-gain b{font:700 var(--t-3)/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--up)}
+.tb-copy{appearance:none;min-height:44px;padding:0 16px;border:1px solid var(--line-2);border-radius:999px;background:none;
+  color:var(--ink);font:600 var(--t-2)/1 var(--ui);cursor:pointer;transition:transform .12s var(--ease)}
+.tb-copy:hover{border-color:var(--ink-3)}
+.tb-copy:active{transform:scale(var(--press))}
+.tb-copy:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.tb-copy.done{border-color:var(--up);color:var(--up)}
+.tb-box{display:block;box-sizing:border-box;width:calc(100% - 24px);margin:0 12px 12px;padding:8px 10px;resize:none;
+  border:1px solid var(--line-2);border-radius:10px;background:var(--void);color:var(--ink);font:500 var(--t-2)/1.35 var(--mono)}
+.tb-box:focus-visible{outline:2px solid var(--lime)}
+
+/* While the file loads: the cards' own shape in bars, the size they will be. Nothing moves. */
+.tb-skel .tb-col{padding-top:14px}
+.tb-skel i{display:block;height:14px;margin:12px 0;border-radius:7px;background:var(--panel-3)}
+.tb-skel .tb-cols{min-height:132px}
+
+/* An empty tab, or the file not loading: the shared dashed block, one line. */
+.tb-empty{min-height:150px;border-radius:16px}
+.tb-empty b{margin-bottom:10px;font-size:var(--t-3);color:var(--ink-3)}
+.tb-upd{margin:2px 0 4px;text-align:center;font:500 var(--t-1)/1.3 var(--mono);color:var(--ink-3)}

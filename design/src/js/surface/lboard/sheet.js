@@ -28,7 +28,18 @@ function lbsSheetHTML(tm){
       <ol class="lbs-list">${tm.lineup.map(r => lbsRowHTML(r, r.slot === "FLX")).join("")}</ol>
       <h3>${t("lboard.sheet.bench")}</h3>
       ${tm.bench.length ? `<ol class="lbs-list">${tm.bench.map(r => lbsRowHTML(r, false)).join("")}</ol>`
-        : `<p class="lbs-none">${t("lboard.sheet.nobench")}</p>`}</div>`;
+        : `<p class="lbs-none">${t("lboard.sheet.nobench")}</p>`}</div>${lbsFootHTML(tm)}`;
+}
+
+/* The foot, outside the scrolling body so it is always in reach: the lime button to the trade builder
+   (tbsheet.js) when the reader's own team is in this league and is not this one, a quiet line asking for
+   their team when it is not, nothing on their own team. */
+function lbsFootHTML(tm){
+  const gate = tbGate(tm);
+  if (!gate) return "";
+  return `<div class="lbs-foot">${gate === "find"
+    ? `<button type="button" class="tb-find" data-tbfind="${esc(tm.key)}">${t("lboard.offer.find", {name: esc(tm.name)})}</button>`
+    : `<p class="tb-pick">${t("lboard.offer.pick")}</p>`}</div>`;
 }
 
 function lbSheetOpen(key, origin){
@@ -63,11 +74,18 @@ function lbSheetClose(){ lbSheetShut(); layerDone("lbsheet"); }
 (() => {
   const d = lbsEl();
   if (!d) return;
-  d.addEventListener("click", e => { if (e.target.closest("[data-lbsclose]")) lbSheetClose(); });
+  d.addEventListener("click", e => {
+    if (e.target.closest("[data-lbsclose]")) lbSheetClose();
+    const find = e.target.closest("[data-tbfind]");
+    if (find) tbShow(find.dataset.tbfind, find);
+  });
   d.addEventListener("keydown", e => {
-    if (e.key === "Tab"){ e.preventDefault(); d.querySelector(".lbs-x").focus(); }   // one stop, the close
+    if (e.key !== "Tab") return;                        // Tab stays inside the sheet: the close, and the trade button when there is one
+    const stops = [...d.querySelectorAll(".lbs-x, .tb-find")], i = stops.indexOf(document.activeElement);
+    e.preventDefault();
+    stops[(i + (e.shiftKey ? -1 : 1) + stops.length) % stops.length].focus();
   });
   lbsScrim().addEventListener("click", lbSheetClose);
   onPullDown(d, () => d.querySelector(".lbs-body").scrollTop <= 0, () => !!LBS, lbSheetClose);
-  document.addEventListener("keydown", e => { if (e.key === "Escape" && LBS) lbSheetClose(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && LBS) lbSheetClose(); });   // the trade sheet takes its own Escape first (tbsheet.js)
 })();

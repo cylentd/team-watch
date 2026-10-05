@@ -102,6 +102,12 @@ def bdpick(q):
 
 MOVERS = go("movers")
 
+# Find trades (2026-10-05). The reader is whoever `key` names; the builder opens from the roster sheet of the team
+# `team` (a LIVE_TEAMS key) with the fixture's offers planted, since from file:// the page's own fetch is refused.
+TRADE_OFFERS = (GAMEDAY_FIX.parent / "data" / "trade_offers.json").read_text(encoding="utf-8")
+LB_AS = lambda key: f"localStorage.setItem('tw-team', '{key}')"
+LB_BUILDER = lambda team: [("eval", "TB_DATA = " + TRADE_OFFERS), ("click", f"[data-lbopen='{team}']"), ("click", ".tb-find")]
+
 
 def _strip_game():
     """The fixture ESPN summary, shaped by api/game.py exactly as the endpoint serves it."""
@@ -280,6 +286,19 @@ STATES = [
     ("lboard-ayo", go("teams") + [("click", "[data-lgpick='ayo']")]),
     ("lboard-sorted", go("teams") + [("click", "[data-lgpick='espn']"), ("click", "[data-lbsort='RB']")]),
     ("lboard-sheet", go("teams") + [("click", "[data-lgpick='espn']"), ("click", ".lb-row .lb-team")]),
+    # Find trades (2026-10-05): the roster sheet's lime button for a team in the reader's own league (the reader is
+    # on ESPN here, the suite's David being on the Madden Curse), its quiet line for a reader with no team in the
+    # league, and the builder sheet from the fixture's offers (planted: from file:// the browser refuses the fetch, and
+    # logs it, so -error replaces fetch with a refusal). Bold is the first tab; Fair; a tab with no offer; a pair with no entry.
+    ("lboard-offers-button", [("eval", LB_AS("espn"))] + go("teams") + [("click", "[data-lbopen='espn-run-it-back']")]),
+    ("lboard-offers-pick", [("eval", LB_AS("ayo"))] + go("teams") + [("click", "[data-lgpick='espn']"),
+                                                                    ("click", "[data-lbopen='espn-run-it-back']")]),
+    ("lboard-offers-bold", [("eval", LB_AS("espn"))] + go("teams") + LB_BUILDER("espn-run-it-back")),
+    ("lboard-offers-fair", [("eval", LB_AS("espn"))] + go("teams") + LB_BUILDER("espn-run-it-back") + [("click", "[data-tbtab='fair']")]),
+    ("lboard-offers-empty", [("eval", LB_AS("espn-run-it-back"))] + go("teams") + LB_BUILDER("espn") + [("click", "[data-tbtab='fair']")]),
+    ("lboard-offers-none", [("eval", LB_AS("ayo-don-wick"))] + go("teams") + [("click", "[data-lgpick='ayo']")] + LB_BUILDER("ayo")),
+    ("lboard-offers-error", [("eval", LB_AS("espn")), ("eval", "void (window.fetch = () => Promise.reject(new TypeError('offline')))")]
+                           + go("teams") + [("click", "[data-lbopen='espn-run-it-back']"), ("click", ".tb-find"), ("eval", "tbLoad()")]),
     ("myrecap-yahoo", go("myrecap")),
     ("myrecap-ayo", [("eval", "VIEW='ayo'; render()")] + go("myrecap")),
     ("myrecap-yahoo-week1", go("myrecap") + [("click", "[data-lgweek='1']")]),
@@ -527,6 +546,9 @@ PROBE = """
           // The League board's roster sheet (2026-10-05), kept out of every state that never opened it.
           ...(document.getElementById("lbsheet").innerHTML ? {lbsheet: document.getElementById("lbsheet").innerHTML,
               lbsheetOpen: document.getElementById("lbsheet").classList.contains("on")} : {}),
+          // And the trade builder over it (2026-10-05).
+          ...(document.getElementById("tbsheet").innerHTML ? {tbsheet: document.getElementById("tbsheet").innerHTML,
+              tbsheetOpen: document.getElementById("tbsheet").classList.contains("on")} : {}),
           // The play strip's dialog and the pack's stage (2026-09-27): the stage hangs off <body>,
           // outside every root above, and the strip's CSS was proven by no state until these.
           strip: strip(document.getElementById("stripmodal").innerHTML),

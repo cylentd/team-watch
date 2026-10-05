@@ -1,0 +1,74 @@
+{
+  "updated": "2026-10-05T01:28",
+  "season": 2026,
+  "rules": {"top": 3, "max_out": 3, "max_in": 2, "min_gain": 1.0},
+  "leagues": {
+    "espn": {
+      "week": 2,
+      "teams": {
+        "Purdy Big in Japan": {
+          "Run It Back": {
+            "bold": [
+              {"send": [
+                  {"name": "Brock Purdy", "pos": "QB", "team": "SF", "slug": "brock-purdy", "seen": 28.8, "injury": null},
+                  {"name": "Tee Higgins", "pos": "WR", "team": "CIN", "slug": "tee-higgins", "seen": 14.4, "injury": "Questionable"},
+                  {"name": "Jahmyr Gibbs", "pos": "RB", "team": "DET", "slug": "jahmyr-gibbs", "seen": 11.0, "injury": "IR"}],
+               "get": [
+                  {"name": "Amon-Ra St. Brown", "pos": "WR", "team": "DET", "slug": "amonra-st-brown", "seen": 25.3, "injury": null},
+                  {"name": "Chase Brown", "pos": "RB", "team": "CIN", "slug": "chase-brown", "seen": 11.4, "injury": null}],
+               "gain": 8.5},
+              {"send": [
+                  {"name": "Tee Higgins", "pos": "WR", "team": "CIN", "slug": "tee-higgins", "seen": 14.4, "injury": "Questionable"}],
+               "get": [
+                  {"name": "George Kittle", "pos": "TE", "team": "SF", "slug": "george-kittle", "seen": 12.9, "injury": null}],
+               "gain": 3.2}
+            ],
+            "fair": [
+              {"send": [
+                  {"name": "Joe Burrow", "pos": "QB", "team": "CIN", "slug": "joe-burrow", "seen": 20.1, "injury": null}],
+               "get": [
+                  {"name": "Chase Brown", "pos": "RB", "team": "CIN", "slug": "chase-brown", "seen": 11.4, "injury": null}],
+               "gain": 1.1}
+            ]
+          }
+        },
+        "Run It Back": {
+          "Purdy Big in Japan": {
+            "bold": [
+              {"send": [
+                  {"name": "George Kittle", "pos": "TE", "team": "SF", "slug": "george-kittle", "seen": 12.9, "injury": null}],
+               "get": [
+                  {"name": "Brock Purdy", "pos": "QB", "team": "SF", "slug": "brock-purdy", "seen": 28.8, "injury": null}],
+               "gain": 4.7}
+            ],
+            "fair": []
+          }
+        }
+      }
+    },
+    "yahoo": {"week": 2, "teams": {}},
+    "ayo": {
+      "week": 2,
+      "teams": {
+        "Taylor Made for Sundays": {
+          "Don Wick": {
+            "bold": [
+              {"send": [
+                  {"name": "Chase Brown", "pos": "RB", "team": "CIN", "slug": "chase-brown", "seen": 11.4, "injury": null}],
+               "get": [
+                  {"name": "Jahmyr Gibbs", "pos": "RB", "team": "DET", "slug": "jahmyr-gibbs", "seen": 15.6, "injury": "Out"}],
+               "gain": 2.4}
+            ],
+            "fair": [
+              {"send": [
+                  {"name": "Tee Higgins", "pos": "WR", "team": "CIN", "slug": "tee-higgins", "seen": 14.4, "injury": null}],
+               "get": [
+                  {"name": "Amon-Ra St. Brown", "pos": "WR", "team": "DET", "slug": "amonra-st-brown", "seen": 25.3, "injury": null}],
+               "gain": 1.6}
+            ]
+          }
+        }
+      }
+    }
+  }
+}

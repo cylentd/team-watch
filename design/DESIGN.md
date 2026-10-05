@@ -424,6 +424,36 @@ League group. One row per team in a league, one column per position (QB, RB, WR,
   cells 84px.
 - **Not built:** a median row, a total column (the total is under each name), the team's week-by-week line.
 
+### Trade builder (League > Teams, 2026-10-05)
+
+Storyboard https://claude.ai/artifact/BXCJdmWfC87Z7VCAgdVC3Y, frames 1-3 (frame 4's edit mode is not built). A lime
+"Find trades with <team>" button in the foot of the roster sheet opens a second sheet over it, `#tbsheet`, its own layer
+(`layers.js`: Back, Escape, the scrim and a pull down close it, and the roster sheet is still there after).
+
+| Part | Rule |
+|---|---|
+| Button | Foot of the roster sheet, outside its scrolling body. Shown when the reader's own team (`tw-team`, never David's) is in that team's league and is not that team. A reader with no team in the league gets one quiet line asking for it and no button; the reader's own team gets neither |
+| Head | "You ⇄ <team>", the swap a drawn icon |
+| Bold | The offers that gain the reader the most, ranked by their gain, whatever the other side makes of it. Their screen (2026 points a game) shows the other side ahead; this is the old trade search |
+| Fair | The offers where the partner's real gain by projection is not below 0, ranked by the reader's gain. A pair can have none |
+| Tabs | Two chips, Bold then Fair, one pressed. Bold opens first; the last tab is kept in memory for the visit. One line under them names the tab: "Biggest gain for you" / "Both lineups gain" |
+| Offer card | At most 3 per tab. Two columns, YOU SEND and YOU GET, a row per player: position, name as initials, an amber pill (O, IR, Q, D) where a status is set. Under them one number, the reader's gain, "+8.5 pts a week for you", mono and green. No partner gain, no season averages on the card |
+| Copy offer | Per card. Puts "Trade? I send Purdy (28.8 a game), Higgins (14.4) for Smith-Njigba (25.3) and Brown (11.4)." on the clipboard: surnames and true 2026 points a game in that league's scoring (`seen`), nothing projected. Where the clipboard is refused the text shows in a box, selected. The button says "Copied" for 1.6 s |
+| States | Loading: three card-shaped placeholders (no motion). Error (offline, file://, a missing file): one dashed block and Try again. A tab with none: "No fair offer this week" / "No bold offer this week". A pair with no entry: "No offers this week", no tabs. The `updated` date in a footer line |
+| Size | Phone: the first offer card starts at ~255px, over the ~200px budget (STYLE.md) because the sheet's head, the tabs and their line come first; it is a sheet over the page, so the page's own 200px is not the measure. The sheet is one height (88dvh, 720px at most) on every tab and state, so Bold to Fair never moves its top edge |
+
+- **Data:** ff-jarvis `trade_offers.json` (`model.season.trade_offers`, nightly, feed block `trade_offers`; ~650 KB).
+  `design/sources.py` `load_trade_offers()` (feed first, file second), checked at build time by `contract.py`
+  `TRADE_OFFERS`, written compact beside the page by `design/trade_offers.py` as `trade_offers.json`. **Never injected**:
+  the page fetches it the first time a reader opens the builder and keeps it in memory for the session
+  (`surface/lboard/offers.js`). `.vercelignore` is an allowlist and lists it; `.gitattributes` marks it generated and
+  `land.ps1` folds it into the land commit like `build.json`, so a feature branch never commits it.
+- **Keys:** an owner and a partner are team names as `LIVE_TEAMS` has them, the names in ff-jarvis's roster files; the
+  offers are keyed by them, so a team renamed between a nightly run and a rebuild has no offers until the next night.
+- **Judgment, not backtested:** a gain is a projection difference (ff-jarvis METHODOLOGY says as much), shown as one number.
+- **Fixed on the way:** `.lbs-body` rows are `max-content`. The lists clip their rows, and in a short body the grid shrank
+  the lineup to five and a half rows instead of scrolling (found with a real 8-man lineup and the new foot).
+
 ## Clips (Roster, 2026-10-05)
 
 NFL YouTube clips of the reader's own players, picked from a storyboard (A reel + B ring,

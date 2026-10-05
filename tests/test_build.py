@@ -16,6 +16,9 @@ BLOCKS = ["HEADS", "LIVE_ESPN", "LIVE_YAHOO", "LIVE_MATES", "LIVE_FEED", "LIVE_N
           "LIVE_AYO", "LIVE_LEAGUE_AYO", "LIVE_TRADES_AYO"]   # the third league (2026-09-29)
 
 
+FILE_BLOCKS = {"TRADE_OFFERS"}   # contract blocks written as a file beside the page, not injected (design/trade_offers.py)
+
+
 def injected(fragment):
     """{name: parsed JSON} for every `const X = ...;` line the build injected."""
     out = {}
@@ -57,6 +60,8 @@ def test_defense_speaks_the_pages_team_codes(built):
 def test_injected_blocks_meet_the_contract(built):
     d = injected(built.fragment)
     for name in contract.CONTRACT:
+        if name in FILE_BLOCKS:
+            continue
         assert contract.problems(name, d[name]) == []
 
 

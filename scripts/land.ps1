@@ -45,7 +45,9 @@ $repo = Split-Path -Parent $PSScriptRoot
 # the three above these never conflict -- a finished game is never rewritten, so a build only ever
 # adds files -- but they belong to the same build, so they are folded in at the same moment.
 # `heads/` is the headshots, copied from ff-jarvis by the same build; the page names them by path.
-$generated = @("index.html", "design/index.html", "build.json", "games", "heads")
+# `trade_offers.json` is the trade builder's offers (design/trade_offers.py), rewritten whole by every build
+# like build.json, and fetched by the page on first open, so Vercel must serve it (.vercelignore).
+$generated = @("index.html", "design/index.html", "build.json", "trade_offers.json", "games", "heads")
 
 # Call git.exe explicitly, and never name a helper `Git`: PowerShell resolves a function name
 # before an external command, case-insensitively, so `function Git { & git ... }` calls itself
@@ -223,7 +225,8 @@ for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
         $changed = @(GitRead "status --porcelain" | Where-Object { $_ })
         if ($changed.Count -gt 0) {
             Write-Host "folding the rebuild into the branch commit" -ForegroundColor Cyan
-            GitRun ("add " + ($generated -join " ")) | Out-Null
+            # Only what exists: trade_offers.json is absent until ff-jarvis has written offers, and `git add` of a missing path fails.
+            GitRun ("add " + (($generated | Where-Object { Test-Path (Join-Path $repo $_) }) -join " ")) | Out-Null
             GitRun "commit --amend --no-edit" | Out-Null
         } else {
             Write-Host "build output unchanged -- nothing to fold" -ForegroundColor DarkGray

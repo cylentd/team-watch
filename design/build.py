@@ -37,6 +37,7 @@ from archetype import (load_archetype, load_trenches, live_archetype, live_trenc
                        report_archetype, report_trenches)
 from startsit_blocks import add_start_sit                      # design/startsit_blocks.py: Start/Sit's three blocks
 from teams import add_teams                                    # design/teams.py: League > Teams
+import trade_offers                                            # design/trade_offers.py: Teams > Find trades, its own file
 from mates import espn_rows, live_mates, slugs as mate_slugs, report as mates_report  # every team in David's leagues
 from digest import live_digest, report as digest_report        # design/digest.py: the Digest view
 from preview import live_preview, report as preview_report     # design/preview.py: This week > Preview
@@ -720,20 +721,19 @@ def main():
     b = render()
     (ROOT / "index.html").write_text(b.fragment, encoding="utf-8")
     (REPO / "index.html").write_text(b.page, encoding="utf-8")
-    # Served at /build.json next to the page, under Vercel's static default (max-age=0,
-    # must-revalidate), so an open tab's check costs a 304 until the data actually moves.
+    # Served at /build.json beside the page (max-age=0, must-revalidate): an open tab's check is a 304 until the data moves.
     (REPO / "build.json").write_text(json.dumps(b.stamp), encoding="utf-8")
     kb = len(b.page.encode("utf-8")) / 1024
     print(f"wrote {REPO/'index.html'} and {ROOT/'index.html'} ({kb:.0f} KB), "
           f"{write_heads(REPO)} heads to {HEADS_DIR}/")
-    # One JSON per played game, for the drive strip to fetch on demand. Not injected: 39 KB a
-    # game against a page that is already 2.2 MB. Not a function either -- a Vercel Python
-    # function may not import pandas. Static files off the CDN, immutable once a game has ended.
+    # One JSON per played game, for the drive strip to fetch on demand: 39 KB a game, never injected, and a static file
+    # because a Vercel Python function may not import pandas. Immutable once a game has ended.
     sched = load_schedule(DWR)
     if sched:
         written, skipped = pbp.write_games(pathlib.Path(DWR) / "cache", sched, REPO / "games")
         print(f"Games: {written} drive strips written to games/" +
               (f", {skipped} not played yet" if isinstance(skipped, int) else f" ({skipped})"))
+    print(trade_offers.build(REPO))   # trade_offers.json: the trade builder fetches it on first open, it is never injected
     print(*b.report, sep="\n")
     warn_if_stale()
 

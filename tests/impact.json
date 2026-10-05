@@ -45,8 +45,8 @@
       "render": ["trades"]
     },
     "lboard": {
-      "paths": ["design/src/js/surface/lboard/", "design/src/css/surface/lboard/", "design/teams.py"],
-      "tests": ["tests/test_teams_board.py"],
+      "paths": ["design/src/js/surface/lboard/", "design/src/css/surface/lboard/", "design/teams.py", "design/trade_offers.py"],
+      "tests": ["tests/test_teams_board.py", "tests/test_trade_offers.py"],
       "render": ["lboard"]
     },
     "live": {

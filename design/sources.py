@@ -331,6 +331,13 @@ def load_preview_record():
     return feed_block(("preview_record",), "season") or read_first(DWR / "preview_record.json")
 
 
+def load_trade_offers():
+    """Every owner's bold and fair trade offers to every partner, per league (model.season.trade_offers,
+    2026-10-05): feed block `trade_offers` first, the file second. design/trade_offers.py checks it and
+    writes it beside the page for the trade builder to fetch; None when neither exists."""
+    return feed_block(("trade_offers",), "leagues") or read_first(DWR / "trade_offers.json")
+
+
 def load_league():
     """(this season, every past season) of the ESPN league, from ff-jarvis's model.clients.espn_league.
     Files only: neither is a feed block. design/league_recap.py cuts them for My teams > League."""
