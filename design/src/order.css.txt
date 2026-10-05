@@ -116,6 +116,8 @@ surface/lboard/lboard.css
 surface/lboard/sheet.css
 # pin: offers.css after sheet.css -- the trade sheet is the roster sheet's shape one layer higher (.lbsheet, .lbs-*).
 surface/lboard/offers.css
+# pin: tbedit.css after offers.css -- the edit state reuses the offer card's columns and buttons (.tb-card, .tb-col, .tb-p, .tb-copy).
+surface/lboard/tbedit.css
 surface/chat/chat.css
 surface/live/live.css
 surface/live/mirror.css

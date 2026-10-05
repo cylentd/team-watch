@@ -56,16 +56,16 @@ def test_the_contract_passes_the_fixture_and_names_every_missing_field():
 
 def test_a_null_injury_is_a_value_and_a_missing_one_is_not():
     ok = copy.deepcopy(FIXTURE)
-    assert ok["leagues"]["espn"]["teams"]["Purdy Big in Japan"]["Run It Back"]["bold"][0]["send"][0]["injury"] is None
+    assert ok["leagues"]["espn"]["teams"]["Purdy Big in Japan"]["Run It Back"]["bold"][0]["send"][1]["injury"] is None
     assert trade_offers.problems(ok) == []
 
 
 def test_build_writes_the_same_data_compact_beside_the_page(tmp_path):
     line = trade_offers.build(tmp_path)
-    assert line.startswith("Offers: espn 2, yahoo 0, ayo 1 pairs with an offer, updated 2026-10-05T01:28")
+    assert line.startswith("Offers: espn 2, yahoo 0, ayo 1 pairs with an offer, updated 2026-10-05T14:07")
     text = (tmp_path / trade_offers.NAME).read_text(encoding="utf-8")
     assert json.loads(text) == FIXTURE
-    assert ", " not in text and '": ' not in text, "compact: the file is fetched by every reader"
+    assert text == json.dumps(FIXTURE, ensure_ascii=False, separators=(",", ":")), "compact: the file is fetched by every reader"
 
 
 def test_build_with_no_offers_writes_nothing_and_says_so(tmp_path, monkeypatch):
@@ -188,13 +188,13 @@ def test_the_builder_opens_on_bold_with_each_offer_as_two_columns_and_one_number
     assert page.locator("[data-tbtab='bold']").get_attribute("aria-pressed") == "true"
     assert page.locator("[data-tbtab='fair']").get_attribute("aria-pressed") == "false"
     assert page.locator(".tb-line").inner_text() == "Biggest gain for you"
-    assert page.locator(".tb-card").count() == 2
+    assert page.locator(".tb-card").count() == 3
     first = page.locator(".tb-card").first
     assert first.locator(".tb-h").all_inner_texts() == ["YOU SEND", "YOU GET"]
     cols = first.locator(".tb-col")
-    assert [r.replace("\n", " ") for r in cols.nth(0).locator(".tb-p").all_inner_texts()] == ["QB B. Purdy", "WR T. Higgins Q", "RB J. Gibbs IR"]
+    assert [r.replace("\n", " ") for r in cols.nth(0).locator(".tb-p").all_inner_texts()] == ["WR T. Higgins Q", "QB B. Purdy", "RB O. Gordon II"]
     assert cols.nth(1).locator(".tb-p").count() == 2
-    assert first.locator(".tb-inj").all_inner_texts() == ["Q", "IR"], "an amber pill where a status is set"
+    assert first.locator(".tb-inj").all_inner_texts() == ["Q"], "an amber pill where a status is set"
     assert first.locator(".tb-gain").inner_text() == "+8.5 pts a week for you"
     assert first.locator(".tb-gain b").evaluate("e => getComputedStyle(e).color") == "rgb(55, 224, 139)", "green"
     assert page.locator(".tb-upd").inner_text() == "Offers updated Oct 5"
@@ -206,20 +206,20 @@ def test_the_builder_opens_on_bold_with_each_offer_as_two_columns_and_one_number
 
 @pytest.mark.render
 def test_fair_is_the_other_tab_and_the_last_tab_is_kept_for_the_visit_and_the_file_is_fetched_once(browser, page_file):
-    ctx, page, _ = reader(browser, page_file, "espn")
-    builder(page, "espn-run-it-back")
+    ctx, page, _ = reader(browser, page_file, "espn-run-it-back")     # Run It Back's offers to Purdy have both kinds
+    builder(page, "espn")
     page.wait_for_selector(".tb-card .tb-gain")
     top = page.evaluate("document.getElementById('tbsheet').getBoundingClientRect().top")
     page.locator("[data-tbtab='fair']").click()
     assert page.locator("[data-tbtab='fair']").get_attribute("aria-pressed") == "true"
     assert page.locator(".tb-line").inner_text() == "Both lineups gain"
-    assert page.locator(".tb-card").count() == 1 and page.locator(".tb-gain").inner_text() == "+1.1 pts a week for you"
+    assert page.locator(".tb-card").count() == 3 and page.locator(".tb-gain").first.inner_text() == "+1.1 pts a week for you"
     assert page.evaluate("document.getElementById('tbsheet').getBoundingClientRect().top") == top, "the sheet does not move between tabs"
     page.keyboard.press("Escape")
     shut_wait(page, "tbsheet")
     page.keyboard.press("Escape")
     shut_wait(page, "lbsheet")
-    builder(page, "espn-run-it-back")
+    builder(page, "espn")
     assert page.locator("[data-tbtab='fair']").get_attribute("aria-pressed") == "true", "kept in memory for the visit"
     assert page.evaluate("__tbFetches") == 1, "the file is cached for the session"
     ctx.close()
@@ -227,10 +227,10 @@ def test_fair_is_the_other_tab_and_the_last_tab_is_kept_for_the_visit_and_the_fi
 
 @pytest.mark.render
 def test_an_empty_tab_and_a_pair_with_no_entry_say_so_in_one_line(browser, page_file):
-    ctx, page, _ = reader(browser, page_file, "espn-run-it-back")      # Run It Back's offers to Purdy: bold only
-    builder(page, "espn")
+    ctx, page, _ = reader(browser, page_file, "espn")                  # Purdy's offers to Run It Back: bold only
+    builder(page, "espn-run-it-back")
     page.wait_for_selector(".tb-card .tb-gain")
-    assert page.locator(".tb-card").count() == 1
+    assert page.locator(".tb-card").count() == 3
     page.locator("[data-tbtab='fair']").click()
     assert page.locator(".tb-card").count() == 0
     assert page.locator(".tb-empty").inner_text() == "No fair offer this week"
@@ -258,10 +258,10 @@ def test_copy_offer_puts_a_message_of_true_season_averages_on_the_clipboard(brow
     page.locator("[data-tbcopy='0']").click()
     page.wait_for_function("document.querySelector(\"[data-tbcopy='0']\").textContent === 'Copied'")
     assert page.evaluate("navigator.clipboard.readText()") == (
-        "Trade? I send Purdy (28.8 a game), Higgins (14.4), Gibbs (11.0) for St. Brown (25.3) and Brown (11.4).")
+        "Trade? I send Higgins (14.4 a game), Purdy (28.8), Gordon II (10.2) for Smith-Njigba (25.3) and Brown (11.4).")
     page.locator("[data-tbcopy='1']").click()
     page.wait_for_function("document.querySelector(\"[data-tbcopy='1']\").textContent === 'Copied'")
-    assert page.evaluate("navigator.clipboard.readText()") == "Trade? I send Higgins (14.4 a game) for Kittle (12.9)."
+    assert page.evaluate("navigator.clipboard.readText()") == "Trade? I send Purdy (28.8 a game), Raymond (9.4), Gordon II (10.2) for Smith-Njigba (25.3)."
     ctx.close()
     assert errors == []
 
@@ -274,7 +274,7 @@ def test_a_refused_clipboard_shows_the_text_selected_in_a_box(browser, page_file
     page.locator("[data-tbcopy='1']").click()
     page.wait_for_selector(".tb-box")
     box = page.locator(".tb-box")
-    assert box.input_value() == "Trade? I send Higgins (14.4 a game) for Kittle (12.9)."
+    assert box.input_value() == "Trade? I send Purdy (28.8 a game), Raymond (9.4), Gordon II (10.2) for Smith-Njigba (25.3)."
     assert page.evaluate("(() => { const b = document.querySelector('.tb-box'); return document.activeElement === b && b.selectionEnd - b.selectionStart === b.value.length; })()")
     assert page.locator("[data-tbcopy='1']").inner_text() == "Copy offer", "no false Copied"
     ctx.close()

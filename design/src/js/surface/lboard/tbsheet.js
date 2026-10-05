@@ -4,10 +4,13 @@
    so Back closes it and then the roster sheet. Two tabs, Bold (the biggest gain for the reader, whatever the
    partner makes of it) and Fair (both lineups gain), up to three offers each. An offer is two columns, YOU
    SEND and YOU GET, and one number, the reader's gain a week. "Copy offer" puts a message on the clipboard
-   for the other manager, built from season averages alone. The data is offers.js's; nothing here is computed. */
+   for the other manager, built from season averages alone. An offer that drops a player says so in one line.
+   "Edit" on a card and "Make your own offer" under the list open the edit state (tbedit.js) in this same sheet,
+   its own layer, so Back returns to the offers. The data is offers.js's; nothing here is computed. */
 let TB = null;            // {lg, me, tm} while open: the league, the reader's team and the partner's
 let TB_TAB = "bold";      // the last tab, kept for this visit only
 let TB_RETURN = null;     // what had focus when it opened
+let TB_EDIT = null;       // the reader's own package while the edit state is open (tbedit.js), else null
 const tbEl = () => document.getElementById("tbsheet");
 const tbScrim = () => document.getElementById("tbsheet-scrim");
 
@@ -15,19 +18,31 @@ const tbScrim = () => document.getElementById("tbsheet-scrim");
 const tbInjCode = s => ({Out: t("lboard.inj.o"), IR: t("lboard.inj.ir"), Questionable: t("lboard.inj.q"),
   Doubtful: t("lboard.inj.d")})[s] || String(s).slice(0, 3).toUpperCase();
 
+/* The amber pill: the status where one is set, else IR for a player in an IR slot (the rosters in Edit say so). */
+const tbPillHTML = p => p.injury || p.ir
+  ? `<i class="tb-inj" title="${esc(p.injury || "IR")}">${esc(tbInjCode(p.injury || "IR"))}</i>` : "";
+
 function tbPlayerHTML(p){
-  const inj = p.injury ? `<i class="tb-inj" title="${esc(p.injury)}">${esc(tbInjCode(p.injury))}</i>` : "";
   return `<li class="tb-p"><span class="lbs-pos" data-pos="${esc(p.pos)}">${esc(p.pos)}</span>
-    <span class="tb-n" title="${esc(p.name)}">${esc(nameInitial(p.name))}</span>${inj}</li>`;
+    <span class="tb-n" title="${esc(p.name)}">${esc(nameInitial(p.name))}</span>${tbPillHTML(p)}</li>`;
 }
+
+/* "You drop: O. Gordon II": who the reader releases to stay at the roster cap, one quiet line. Nothing about the
+   partner's roster: their room is theirs to manage. */
+const tbDropHTML = drop => drop && drop.length
+  ? `<p class="tb-drop">${t("lboard.offer.drop", {names: esc(drop.map(p => nameInitial(p.name)).join(", "))})}</p>` : "";
 
 function tbCardHTML(o, i){
   const col = (label, rows) => `<div class="tb-col"><p class="tb-h">${label}</p><ul>${rows.map(tbPlayerHTML).join("")}</ul></div>`;
+  const edit = tbEditOk() ? `<button type="button" class="tb-copy" data-tbedit="${i}">${t("lboard.offer.edit")}</button>` : "";
   return `<article class="tb-card">
-    <div class="tb-cols">${col(t("lboard.offer.send"), o.send)}${col(t("lboard.offer.get"), o.get)}</div>
+    <div class="tb-cols">${col(t("lboard.offer.send"), o.send)}${col(t("lboard.offer.get"), o.get)}</div>${tbDropHTML(o.drop)}
     <div class="tb-foot"><p class="tb-gain">${t("lboard.offer.gain", {n: `<b>+${lbNum(o.gain)}</b>`})}</p>
-      <button type="button" class="tb-copy" data-tbcopy="${i}">${t("lboard.offer.copy")}</button></div></article>`;
+      <div class="tb-acts">${edit}<button type="button" class="tb-copy" data-tbcopy="${i}">${t("lboard.offer.copy")}</button></div></div></article>`;
 }
+
+/* Under the offers, in every state with a pair: the way in to a package of the reader's own (tbedit.js). */
+const tbOwnHTML = () => tbEditOk() ? `<button type="button" class="tb-own" data-tbown>${t("lboard.offer.own")}</button>` : "";
 
 /* Shapes where the cards will be, so the sheet is the size it will be: two columns of three bars, three cards. */
 const tbSkelHTML = () => `<p class="tb-line" role="status">${t("lboard.offer.loading")}</p>` + [0, 1, 2].map(() =>
@@ -54,10 +69,11 @@ function tbMainHTML(){
   if (TB_ERR) return `<div class="state-empty tb-empty"><div><b>${t("lboard.offer.error")}</b>
     <button type="button" class="chip" data-tbretry>${t("lboard.offer.retry")}</button></div></div>`;
   if (!TB_DATA) return tbSkelHTML();
+  if (TB_EDIT) return tbEditHTML();
   const foot = `<p class="tb-upd">${tbUpdated()}</p>`, offers = tbOffers();
-  if (!tbPair(TB.lg, TB.me, TB.tm)) return tbEmptyHTML(t("lboard.offer.none")) + foot;
+  if (!tbPair(TB.lg, TB.me, TB.tm)) return tbEmptyHTML(t("lboard.offer.none")) + tbOwnHTML() + foot;
   return tbTabsHTML() + (offers.length ? offers.map(tbCardHTML).join("")
-    : tbEmptyHTML(TB_TAB === "bold" ? t("lboard.offer.noBold") : t("lboard.offer.noFair"))) + foot;
+    : tbEmptyHTML(TB_TAB === "bold" ? t("lboard.offer.noBold") : t("lboard.offer.noFair"))) + tbOwnHTML() + foot;
 }
 
 const tbSwap = `<svg class="tb-swap" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h12M15 3l4 4-4 4M17 17H5M9 13l-4 4 4 4"/></svg>`;
@@ -72,13 +88,16 @@ function tbHeadHTML(){
 /* Redraws what is under the head; the head keeps its focus. */
 function tbPaint(){
   const body = tbEl().querySelector(".tb-body");
-  if (body) body.innerHTML = tbMainHTML();
+  if (!body) return;
+  body.classList.toggle("tb-ed", !!TB_EDIT && !!TB_DATA);
+  body.innerHTML = tbMainHTML();
 }
 
 function tbShow(key, origin){
   const lg = tbLeagueOf(key), me = tbMine(lg), tm = lg && lg.teams.find(x => x.key === key), d = tbEl();
   if (!tm || !me || me.key === tm.key || !d) return;
   TB = {lg, me, tm};
+  TB_EDIT = null;
   TB_RETURN = origin || document.activeElement;
   const loading = TB_DATA ? null : tbLoad();          // first, so an error from an earlier open is cleared
   d.innerHTML = tbHeadHTML();
@@ -96,6 +115,7 @@ function tbSheetShut(){
   const d = tbEl();
   if (!d || !TB) return;
   TB = null;
+  TB_EDIT = null;
   d.classList.remove("on");
   d.setAttribute("aria-hidden", "true");
   tbScrim().classList.remove("on");
@@ -103,19 +123,23 @@ function tbSheetShut(){
   TB_RETURN = null;
   if (back && back.focus && back.isConnected) back.focus({preventScroll: true});
 }
-function tbSheetClose(){ tbSheetShut(); layerDone("tbsheet"); }
+/* Every way out (the x, Escape, the scrim, a pull down) closes one layer: the edit state first, then the sheet. */
+function tbSheetClose(){
+  if (TB_EDIT) return tbEditClose();
+  tbSheetShut();
+  layerDone("tbsheet");
+}
 
-/* The card's offer, as a message. The clipboard call is made inside the click, as browsers insist; where it is
-   refused (an in-app browser, file://) the text shows in a box, selected, for the reader to copy by hand. */
-async function tbCopy(btn){
-  const text = tbText(tbOffers()[+btn.dataset.tbcopy]);
+/* The offer, as a message. The clipboard call is made inside the click, as browsers insist; where it is refused
+   (an in-app browser, file://) the text shows in a box, selected, for the reader to copy by hand: in `host`, at
+   its `where` ("beforeend" of a card, "afterbegin" of the edit lists). */
+async function tbCopyText(btn, text, host, where){
   let ok = false;
   try { await navigator.clipboard.writeText(text); ok = true; } catch (e) { /* the box below */ }
   if (!ok){
-    const card = btn.closest(".tb-card");
-    let box = card.querySelector(".tb-box");
-    if (!box) card.insertAdjacentHTML("beforeend", `<textarea class="tb-box" readonly rows="3" aria-label="${t("lboard.offer.copyBox")}">${esc(text)}</textarea>`);
-    box = card.querySelector(".tb-box");
+    let box = host.querySelector(".tb-box");
+    if (!box) host.insertAdjacentHTML(where, `<textarea class="tb-box" readonly rows="3" aria-label="${t("lboard.offer.copyBox")}">${esc(text)}</textarea>`);
+    box = host.querySelector(".tb-box");
     box.focus(); box.select();
     return;
   }
@@ -123,6 +147,7 @@ async function tbCopy(btn){
   btn.classList.add("done");
   setTimeout(() => { if (btn.isConnected){ btn.textContent = t("lboard.offer.copy"); btn.classList.remove("done"); } }, 1600);
 }
+const tbCopy = btn => tbCopyText(btn, tbText(tbOffers()[+btn.dataset.tbcopy]), btn.closest(".tb-card"), "beforeend");
 
 /* Bound once: the sheet's markup is replaced on every open, its listeners are not. */
 (() => {
@@ -148,7 +173,7 @@ async function tbCopy(btn){
     if (next){ e.preventDefault(); next.focus(); }
   });
   tbScrim().addEventListener("click", tbSheetClose);
-  onPullDown(d, () => d.querySelector(".tb-body").scrollTop <= 0, () => !!TB, tbSheetClose);
+  onPullDown(d, () => (d.querySelector(".tb-lists") || d.querySelector(".tb-body")).scrollTop <= 0, () => !!TB, tbSheetClose);
   // On the window, in the capture phase: Escape closes this sheet alone, never the roster sheet under it.
   window.addEventListener("keydown", e => { if (e.key === "Escape" && TB){ e.stopPropagation(); tbSheetClose(); } }, true);
 })();

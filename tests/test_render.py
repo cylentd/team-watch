@@ -105,6 +105,9 @@ MOVERS = go("movers")
 # Find trades (2026-10-05). The reader is whoever `key` names; the builder opens from the roster sheet of the team
 # `team` (a LIVE_TEAMS key) with the fixture's offers planted, since from file:// the page's own fetch is refused.
 TRADE_OFFERS = (GAMEDAY_FIX.parent / "data" / "trade_offers.json").read_text(encoding="utf-8")
+LB_OLD_SHAPE = ("() => { TB_DATA = (d => { for (const lg of Object.values(d.leagues)){ delete lg.lineup; delete lg.values; delete lg.other;"
+                " for (const ps of Object.values(lg.teams)) for (const ks of Object.values(ps)) for (const os of Object.values(ks))"
+                " os.forEach(o => delete o.drop); } return d; })(" + TRADE_OFFERS + "); }")
 LB_AS = lambda key: f"localStorage.setItem('tw-team', '{key}')"
 LB_BUILDER = lambda team: [("eval", "TB_DATA = " + TRADE_OFFERS), ("click", f"[data-lbopen='{team}']"), ("click", ".tb-find")]
 
@@ -294,11 +297,19 @@ STATES = [
     ("lboard-offers-pick", [("eval", LB_AS("ayo"))] + go("teams") + [("click", "[data-lgpick='espn']"),
                                                                     ("click", "[data-lbopen='espn-run-it-back']")]),
     ("lboard-offers-bold", [("eval", LB_AS("espn"))] + go("teams") + LB_BUILDER("espn-run-it-back")),
-    ("lboard-offers-fair", [("eval", LB_AS("espn"))] + go("teams") + LB_BUILDER("espn-run-it-back") + [("click", "[data-tbtab='fair']")]),
-    ("lboard-offers-empty", [("eval", LB_AS("espn-run-it-back"))] + go("teams") + LB_BUILDER("espn") + [("click", "[data-tbtab='fair']")]),
+    ("lboard-offers-fair", [("eval", LB_AS("espn-run-it-back"))] + go("teams") + LB_BUILDER("espn") + [("click", "[data-tbtab='fair']")]),
+    ("lboard-offers-empty", [("eval", LB_AS("espn"))] + go("teams") + LB_BUILDER("espn-run-it-back") + [("click", "[data-tbtab='fair']")]),
     ("lboard-offers-none", [("eval", LB_AS("ayo-don-wick"))] + go("teams") + [("click", "[data-lgpick='ayo']")] + LB_BUILDER("ayo")),
     ("lboard-offers-error", [("eval", LB_AS("espn")), ("eval", "void (window.fetch = () => Promise.reject(new TypeError('offline')))")]
                            + go("teams") + [("click", "[data-lbopen='espn-run-it-back']"), ("click", ".tb-find"), ("eval", "tbLoad()")]),
+    # Edit mode (2026-10-05): from the third offer (Purdy for Brown and Watson, which drops Gordon), after taking Watson out
+    # of the package, from an empty package (Make your own), and a file with no lineup, values or drops (Edit is shut).
+    ("lboard-edit", [("eval", LB_AS("espn"))] + go("teams") + LB_BUILDER("espn-run-it-back") + [("click", "[data-tbedit='2']")]),
+    ("lboard-edit-toggled", [("eval", LB_AS("espn"))] + go("teams") + LB_BUILDER("espn-run-it-back")
+                            + [("click", "[data-tbedit='2']"), ("click", ".tb-r[data-tbpick='Christian Watson']")]),
+    ("lboard-edit-own", [("eval", LB_AS("espn"))] + go("teams") + LB_BUILDER("espn-run-it-back") + [("click", "[data-tbown]")]),
+    ("lboard-offers-oldshape", [("eval", LB_AS("espn"))] + go("teams") + [("eval", LB_OLD_SHAPE)]
+                               + [("click", "[data-lbopen='espn-run-it-back']"), ("click", ".tb-find")]),
     ("myrecap-yahoo", go("myrecap")),
     ("myrecap-ayo", [("eval", "VIEW='ayo'; render()")] + go("myrecap")),
     ("myrecap-yahoo-week1", go("myrecap") + [("click", "[data-lgweek='1']")]),

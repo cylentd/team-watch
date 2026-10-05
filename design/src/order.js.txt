@@ -151,8 +151,11 @@ surface/trades/alive.js
 surface/lboard/lboard.js
 surface/lboard/sheet.js
 # pin: tbsheet.js binds its listeners at load, so it needs #tbsheet and its scrim (shell.html) and the roster sheet's helpers.
+surface/lboard/tbscore.js
 surface/lboard/offers.js
 surface/lboard/tbsheet.js
+# pin: tbedit.js after tbsheet.js -- it binds a second listener on #tbsheet and uses tbsheet.js's TB, TB_EDIT and tbPaint.
+surface/lboard/tbedit.js
 # pin: board/* after data/usage.js -- bdRows memoises off USAGE.sheet, and after
 #      surface/profile/sheet.js, whose sheetValues() is the one definition of who counts on an
 #      axis. leaders.js before board.js is readability, not load order: both are functions.

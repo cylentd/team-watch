@@ -426,7 +426,7 @@ League group. One row per team in a league, one column per position (QB, RB, WR,
 
 ### Trade builder (League > Teams, 2026-10-05)
 
-Storyboard https://claude.ai/artifact/BXCJdmWfC87Z7VCAgdVC3Y, frames 1-3 (frame 4's edit mode is not built). A lime
+Storyboard https://claude.ai/artifact/BXCJdmWfC87Z7VCAgdVC3Y, frames 1-4 (frame 4, Edit, since 2026-10-05). A lime
 "Find trades with <team>" button in the foot of the roster sheet opens a second sheet over it, `#tbsheet`, its own layer
 (`layers.js`: Back, Escape, the scrim and a pull down close it, and the roster sheet is still there after).
 
@@ -438,6 +438,10 @@ Storyboard https://claude.ai/artifact/BXCJdmWfC87Z7VCAgdVC3Y, frames 1-3 (frame 
 | Fair | The offers where the partner's real gain by projection is not below 0, ranked by the reader's gain. A pair can have none |
 | Tabs | Two chips, Bold then Fair, one pressed. Bold opens first; the last tab is kept in memory for the visit. One line under them names the tab: "Biggest gain for you" / "Both lineups gain" |
 | Offer card | At most 3 per tab. Two columns, YOU SEND and YOU GET, a row per player: position, name as initials, an amber pill (O, IR, Q, D) where a status is set. Under them one number, the reader's gain, "+8.5 pts a week for you", mono and green. No partner gain, no season averages on the card |
+| Drop line | When an offer's `drop` is not empty, one quiet line under the columns: "You drop: O. Gordon II" (initials, comma-separated; never amber). The reader's roster room only: nothing on the card or anywhere says whether the partner has room (David, 2026-10-05) |
+| Edit | A button beside Copy offer on every card, two equal halves under the gain. Opens the edit state inside the same sheet, its own layer (Back, Escape, the x, the scrim and a pull down each return to the offers first; focus goes back to the Edit button) |
+| Make your own | A full-width outlined button under the offers, on both tabs and in the "none" empty states. Opens the same edit state with an empty package |
+| Edit state | Three parts that never move or resize: the package on top (YOU SEND / YOU GET, three rows tall, a fourth scrolls inside, a row is a button that takes the player out), the two rosters in the middle (the only part that scrolls: "Your roster" and "<team> roster", a card each, position, initials, IR/injury pill, projection to one decimal, a lime edge and a tick on a picked row), and the foot. The foot: the live gain ("+5.5 pts a week for you", green above 0, red below, grey at 0, a dash for an empty package), one row for the drop line (kept empty so nothing shifts), Reset (back to the offer it started from, disabled while there is no change) and Copy offer (lime, the same message as a card's, disabled until both sides have a player). A package the cap cannot take (nobody left to drop) shows a dash and "Over the roster limit, no one to drop". Gains of any sign show, unlike the offers the producer writes (>= `rules.min_gain`) |
 | Copy offer | Per card. Puts "Trade? I send Purdy (28.8 a game), Higgins (14.4) for Smith-Njigba (25.3) and Brown (11.4)." on the clipboard: surnames and true 2026 points a game in that league's scoring (`seen`), nothing projected. Where the clipboard is refused the text shows in a box, selected. The button says "Copied" for 1.6 s |
 | States | Loading: three card-shaped placeholders (no motion). Error (offline, file://, a missing file): one dashed block and Try again. A tab with none: "No fair offer this week" / "No bold offer this week". A pair with no entry: "No offers this week", no tabs. The `updated` date in a footer line |
 | Size | Phone: the first offer card starts at ~255px, over the ~200px budget (STYLE.md) because the sheet's head, the tabs and their line come first; it is a sheet over the page, so the page's own 200px is not the measure. The sheet is one height (88dvh, 720px at most) on every tab and state, so Bold to Fair never moves its top edge |
@@ -448,6 +452,16 @@ Storyboard https://claude.ai/artifact/BXCJdmWfC87Z7VCAgdVC3Y, frames 1-3 (frame 
   the page fetches it the first time a reader opens the builder and keeps it in memory for the session
   (`surface/lboard/offers.js`). `.vercelignore` is an allowlist and lists it; `.gitattributes` marks it generated and
   `land.ps1` folds it into the land commit like `build.json`, so a feature branch never commits it.
+- **The scorer and its guard (2026-10-05):** Edit scores the reader's package in the browser, so the rule is ported:
+  `surface/lboard/tbscore.js` is a pure port of ff-jarvis's `rules.scoring` and `rules.drop` (written in the file's own
+  `rules`), over each league's `lineup`, `values` (every rostered QB/RB/WR/TE of every team, with `proj` and `ir`) and
+  `other` (K/DST per team, which count toward `lineup.cap`), and each offer's `drop`. The page never owns the rule: the
+  file's `rules` text does. `offers.js` re-scores every offer of the open pair when the builder first draws it
+  (`tbEditOk`); if one gain is more than 0.15 off, a drop differs, or `lineup`, `values` or `drop` is missing (the old file
+  shape), **Edit and Make your own are hidden for the session**, the offers and Copy offer still show, and the console
+  names the offer. Fail closed: a wrong number on a package the reader built is worse than no Edit. The test fixture is
+  a cut of the producer's own file and `tests/test_trade_edit.py` asserts the port reproduces every gain and drop in it
+  exactly (and, once, all 1,511 offers of ff-jarvis's full file). A rule change on either side shows up there first.
 - **Keys:** an owner and a partner are team names as `LIVE_TEAMS` has them, the names in ff-jarvis's roster files; the
   offers are keyed by them, so a team renamed between a nightly run and a rebuild has no offers until the next night.
 - **Judgment, not backtested:** a gain is a projection difference (ff-jarvis METHODOLOGY says as much), shown as one number.
