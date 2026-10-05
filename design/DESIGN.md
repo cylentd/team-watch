@@ -693,7 +693,43 @@ group and Digest the default leaf, except on a Tuesday, when Waivers leads.
   The wall fills the page frame (`--page-w`, 1680px since 2026-09-27 for every view; see Page
   width). Phone and tablet are unchanged.
 
-**Results (2026-09-29, storyboard https://claude.ai/artifact/7gsPHebT4xTdo36N1QqqWD, option B).**
+**Recap leaves the Digest (2026-10-05, supersedes every Results, results-banner and Waiting paragraph
+below; they stay as the record of the shapes Recap now draws).** David: "we probably need a recap section
+for the week instead of dumping it into the Digest. The Digest should be a curated list of content for
+readers to enjoy and not just a results section that stays there for the whole week and quickly become
+stale." This week > Recap (leaf `weekrecap`, hash `#weekrecap`, `surface/recap/`, from `LIVE_RECAP`,
+`design/recap.py`) holds the week. Storyboard: `recap-storyboard.html` (section 1, what leaves).
+
+| Left the Digest | Where it went |
+|---|---|
+| The results banner (rule 3 of the lead; `dgLeadRes`) | Recap's banner. A packet whose `lead` is still "results" now falls to the top headline, else the quiet banner (`dgLeadAfter`) |
+| The Results row: each position's top three, Smashed, Busts, Left hurt (`dgResBody`, `dgResTabs`, the `res` tabs and wall columns) | Recap's leaders board and three lists |
+| The "Waiting on week N" card (`wait.js`, `wait.css`) | nothing: Hurt and Matchups still leave the ticker once the week is over (`dgWaiting`), and Need to know says the report is still to come |
+| Monday's day-open Results row (`DG_DAY[1]`) | nothing: Monday opens no row |
+| Packet fields `finals`, `pending`, `stars`, `smashed`, `busts`, `left` (`design/digest.py`, `contract.py`) | gone; `digest._left` stays, `design/recap.py` imports it |
+
+Kept under their names for Recap, in `surface/digest/parts.js` (`dgStatLine`, `dgBoardHTML`, `dgWhy`,
+`dgLeftPills`, `dgOutPill`, `dgPill`, `dgResRow`, `dgResNum`, `dgResFace`, `dgCap`, `dgGames`) and `lead.js`
+(`dgCall`, `dgBoxPills`, `dgTopLine`). Their styles, `results.css` (rows, pills) and `headlines.css` (board),
+are fenced to both views. A `LIVE_RECAP` row has no `why`, so `dgWhy` needs one added upstream before Recap
+can pill a smashed or busted player. Still the Digest's: `dgCap`, `dgGames`, `dgResFace` and `dgResList`
+(facts, need, the weather line, Tonight), `tabs.js` (Top 5), and `dgMuNone` (moved into `digest.js`).
+
+**The Recap row (2026-10-05).** One 52px ticker row, first in the ticker, in the other rows' shape: the
+Recap icon and label, the week ("Wk 4"), the week's top scorer and Claude's picks ("J. Allen 285 yds · 3 TD",
+"Claude 5 of 8"), an arrow. It is a link (`<a href="#weekrecap">`), opens nothing in place, and on the wall
+is a full-width band. No fantasy points: David, 2026-10-05, Digest headlines show yards and TDs, never
+points, since every league scores differently, so the scorer's day is `dgStatLine` of `LIVE_RECAP.top`
+(just his name when the recap has no box line yet; Claude's part is `preview_record.su`, "5-3" read as 5
+of 8, left out when null). On a 360px phone the two parts wrap onto two lines inside the 52px.
+**When it shows** (`dgRecap`, `data/digest.js`): `n_final * 2 >= n_games` of the recap's week, until the
+end of the first Wednesday after that week's last kickoff (local midnight into Thursday, the reader's own
+day); then it hides, and with no kickoff to count from there is no row. Measured on the fixture
+(2026-10-05), at 360px, Monday with Sunday final: the Digest is 1,634px, the Results row's open card
+having made it 1,921px (340px closed to 53px, 287px shorter).
+
+**Results (2026-09-29, storyboard https://claude.ai/artifact/7gsPHebT4xTdo36N1QqqWD, option B;
+superseded 2026-10-05, now Recap's).**
 Every row is one shape: a 40px face, the name over its reason pills, the points over the projection
 (Live's stack). The gap ("+14.9") is not printed: the list's name says which way, the pill says why.
 The wall puts the top scores and the lists on the same four columns, Left hurt spanning two and read
@@ -705,7 +741,7 @@ Reasons lost their boxes the same day: thirty outlined pills made the card busy,
 coloured words parted by a dot, and only how long he is out keeps a filled red box.
 
 **Results became headlines (2026-09-29, storyboard https://claude.ai/artifact/FYQES3vMxJ8ukZm7gLNNih,
-option B; supersedes the top-scores grid above).** David: "I don't like it". The card said scores with
+option B; supersedes the top-scores grid above; the whole card superseded 2026-10-05, now Recap's).** David: "I don't like it". The card said scores with
 no reason and two grids with two meanings.
 - **Four tiles:** Top score, Out of nowhere (the biggest smash), Dud (the biggest bust), Carted off (the
   left-hurt player out longest). Each is a filled box with a face, one number, the name and one line
@@ -718,7 +754,8 @@ no reason and two grids with two meanings.
 - Measured: desktop card 612px -> 499px; a phone's opened card 841px -> 803px.
 
 **The results lead, called like a game (2026-09-29, storyboard
-https://claude.ai/artifact/BvceuqtTkqyvzgjiHPGK7g).** The week's top score is an announcer's call on
+https://claude.ai/artifact/BvceuqtTkqyvzgjiHPGK7g; superseded 2026-10-05 as the Digest's banner, `dgCall`
+and `dgBoxPills` stay for Recap's).** The week's top score is an announcer's call on
 his real box line (ff-jarvis `results.*[].line`, from the cached play-by-play): "Gibbs rumbles for 164
 yards and 3 TDs". The kind of call follows his day: 10+ throws is a passer, more rushing than
 receiving a runner, else a catcher; three or more TDs on under 80 yards a goal-line day. Each kind
@@ -734,7 +771,8 @@ Not backtested: Weather, Stock and Gems. Each says "Not backtested." in amber on
 never on the closed line: the closed line is the fact, the caveat is for whoever reads on. Lead copy
 for the weather and news rules has no real week yet (2026-09-26).
 
-**The wait (2026-09-29).** Once every game of the packet's week has kicked off and Tonight's card is
+**The wait (2026-09-29; the card superseded 2026-10-05, Hurt and Matchups still leave the ticker, nothing
+stands in for them).** Once every game of the packet's week has kicked off and Tonight's card is
 gone, Hurt, Matchups, Weather and Top 5 have nothing left to preview until Tuesday's run. They leave
 the ticker for one card, "Waiting on week N", with Blip (the mascot, `surface/digest/blip.js`) and one
 deadpan line each; on the wall it sits in one row with Waiver adds, Risers & fallers and Gems. It
@@ -748,10 +786,10 @@ projections for every player (it linked to Leaders until then).
   0.5 bar for 45 of 64 priced players in week 4, only 11 moved past one sector's usual wobble, part
   of every move was the opponent changing, and it failed its backtest (ff-jarvis METHODOLOGY 12.46).
   The Stock row in the table above is superseded; Role reads a changing role from the work itself.
-- **Board (1B):** each position a display heading (`--t-5`, `--t-6` on the wall) over rows of name, his
+- **Board (1B; moved to Recap 2026-10-05):** each position a display heading (`--t-5`, `--t-6` on the wall) over rows of name, his
   day and points; no faces (the tiles keep them). Two positions a row on a phone, four on the wall.
   K and DST would take the same shape; ff-jarvis's results carry QB-TE only.
-- **Lists (2A):** on a phone Smashed, Busts and Left hurt are one panel under one tab bar (`tabs.js`),
+- **Lists (2A; superseded 2026-10-05, moved to Recap):** on a phone Smashed, Busts and Left hurt are one panel under one tab bar (`tabs.js`),
   counts in each list's colour; three toggles side by side read as one panel. On the wall, after three
   rounds the same day ("too wide", "expand and shrinks the container", "still looks weird", "the tab
   list to be awkward"), there are no tabs: all three lists are open on the board's four columns, each
@@ -828,6 +866,31 @@ wall it takes the whole band (`.dg-ticker.no-facts`, `need.css`).
 **The top scorer's call (2026-10-04).** David, on "McMillan leads the week with 38.2 points": "38.2 is insane number in fantasy... Should be like NFL announcer to build the hype." The live and between-windows banner (`dgTopCall`, `lead.js`) scales with the day: big at 30+ points, 3+ touchdowns, 150+ yards (300+ passing), with "laps the field" when he is 10+ points clear of the second score; solid at 20+; plain under that. Two phrasings per tier, in the present while his game is on and the past after, fixed by his slug so a poll never reshuffles them. Only facts the page has; no caveats.
 
 **Superseded 2026-10-05: the printed points.** David: the headline "should use yards and TDs" (every league scores differently; ff-jarvis's Claude-written headline already never prints points). The tiers are still chosen by points, which no longer print. The head carries his real line from `GD_STATS.lead` `s` (`dgTopLine`, `lead.js`): a passer's passing yards and his passing plus rushing TDs, anyone else's rushing plus receiving yards and TDs, catches first only at 10+ ("McMillan laps the field with 14 catches, 192 yards, 2 TDs", "St. Brown ERUPTS: 180 yards, 2 TDs", "Skattebo is rolling: 104 yards", plain "Higgins: 87 yards, 1 TD"; "1 TD" singular). A scorer with nothing to count (a kicker, a defense) is said without a number ("Butker is out in front"). The by-line under it keeps his full box line and the game's clock, which adds what the head leaves out (completions, targets); Right now keeps its points column, a table and not the headline.
+
+## Recap (This week, 2026-10-05)
+
+The week's results, league-wide and public: who went off, how every game ended, how Claude's calls did.
+Leaf `weekrecap`, hash `#weekrecap`, second in This week (`recap` is League's). Storyboard, option C
+(David: "otherwise that is a lot of scrolling"): https://claude.ai/artifact/HVdkEL4YbiBKUJ3QbLH9gf.
+`LIVE_RECAP` (`design/recap.py`) cuts ff-jarvis's `data/recap/<season>-wNN.json`: the newest week with half its
+games final (the Digest banner's rule, so Monday morning shows Sunday). It reads no roster, matchup or league;
+the file's `leagues` block and each player's `rostered` and `slot` never cross (`tests/test_recap_data.py`).
+Code: `surface/recap/` (prefix `wr`), CSS `css/surface/recap/` fenced to `weekrecap`.
+
+| Part | What | Data |
+|---|---|---|
+| Banner | the week's top scorer called like an announcer ("Allen slings 285 yards and 4 TDs"), box line as pills, washed in his club's colour, its code behind him from 1100px. "Week 4 · top score so far" until the week is complete. Yards and TDs in the head, never fantasy points (David, 2026-10-05: every league scores differently). A tap opens his profile | `LIVE_RECAP.top`; the Digest's own `dgCall`, `dgBoxPills`, `dgPhotoHTML`, `dgGhostChars` on the same `.dg-lead` panel |
+| Tab bar | Players / Scores / Claude: Live's `.gd-tabs` (`live.css` is fenced to both views), three columns. Choice in `localStorage` `tw-recap-tab`, never the hash; a tap repaints the body in place. A tab with nothing hides; with one tab left the bar hides | `wrAvail` |
+| Players | Leaders (QB, RB, WR, TE, K, DST: top three each, two columns on a phone, three from 960px); Smashed / Busts / Left hurt (one list under a tab bar on a phone, all three side by side from 960px, no bar); Touchdowns (a dot per rushing, receiving or return score, top five then Show all, one line for the most passing TDs) | `stars`, `k`, `dst`, `smashed`, `busts`, `left_hurt`, `tds` |
+| Scores | a strip ("Claude picked 5 of 8 winners · 5-3 vs spread"), then every game under its kickoff window (Preview's `pvWinLabel` and `preview.win.*`; `wrSlot` ports `design/preview.py` `_slot`, Eastern time through `Intl`): winner bold; at the right "Picked CLE" and Hit or Miss; a game still to play shows "1:00 PM ET" and the pick. A game opens Preview's dossier when Preview holds the same week and the game matches by away and home; otherwise the row is plain text. From 960px windows of one or two games share a row, longer ones span it | `games`, `preview_record` |
+| Claude | three tiles (winners, vs spread, over/under), the best call (a winner picked against the market, the biggest line first, else the longest shot) and the worst (the surest miss), a link to Preview's every-week record | `preview_record`, `games[].preview` |
+
+- **Exception to STYLE.md "one job per view" (2026-10-05):** tabs, like Live's (2026-10-04). Three questions on one page measured 2,265px at 360px wide; with the bar the tallest tab is Players at 1,523px (Scores 1,348px; Claude fits one screen), measured on the fixture.
+- **Cards (Material's rule):** Leaders, the three lists, Touchdowns, Every game, Claude's week: one card per subject, rows inside, none nested. Faces stay in the banner; lists scan by name.
+- **Empty states:** no recap file is one line ("No recap yet"); a section with no data is not drawn; no zeros (no record, no tiles, no strip). An old recap file (weeks 1-3) has only its finals and no picks, so Scores shows them with no pick or grade.
+- **First data (360x800, fixture):** the bar at 287px, the first card at 339px, over STYLE.md's 200px: the banner is the page's headline, as the Digest's is (a photo makes it 270px).
+- **Smashed and Busts** are ff-jarvis's own picks (`smashed`, `busts_shown`), the Digest's lists, never a cut made here.
+- Tests: `tests/test_recap_view.py`; golden states `weekrecap`, `weekrecap-busts`, `weekrecap-tds-all`, `weekrecap-scores`, `weekrecap-claude`.
 
 ## Start/Sit (This week, 2026-10-03; was Takes; v3 2026-10-04)
 
@@ -1027,6 +1090,11 @@ and public, so it reads no roster (decided 2026-09-26): the players named are th
 the schedule's alias (LA is LAR there); a forecast counts only when its `kickoff` is this game's.
 It sat in Players for its first hours; it moved to This week (after Digest) the same day, which
 put Players back to six views and let the 7-tab phone rule go.
+
+**Out of the sub-row (2026-10-05).** Recap (below) took its place in This week's sub-row: seven views
+measured 389px against the 328px a 360px phone has, six fit in 321px. Weather stays in `NAV`, so `#weather`,
+`navGo("weather")` and `navGroupOf` work; `NAV_HIDDEN` (`chrome/nav.js`) only keeps it out of the row. It is one tap
+away from the Digest's Weather row and every Preview dossier; with it open no sub button is pressed.
 
 **Reworked 2026-09-26 (same day): say only what moves scoring.** The reader is a casual player
 setting a lineup on a phone; a condition with no proven effect is noise, so it is not mentioned

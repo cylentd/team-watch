@@ -374,6 +374,16 @@ def load_recap(season, week):
     return read_first(DWR / "recap" / f"{season}-w{week:02d}.json")
 
 
+def load_recaps():
+    """Every weekly recap file (data/recap/<season>-wNN.json), newest week first, read one at a time:
+    a caller that stops at the week it wants never parses the older ones. Files only, no feed block.
+    design/recap.py picks the week and cuts it for This week > Recap (2026-10-05)."""
+    for path in sorted((DWR / "recap").glob("*-w[0-9][0-9].json"), reverse=True):
+        doc = read_first(path)
+        if isinstance(doc, dict):
+            yield doc
+
+
 def load_status_asof(day):
     """norm_name -> the newest Sleeper status row ff-jarvis recorded on or before `day`
     (YYYY-MM-DD, history kind `status`): load_status() as it stood that morning."""

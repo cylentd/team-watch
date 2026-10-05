@@ -55,7 +55,7 @@ function render(){
   }
   /* Views that are one HTML function and one wiring function. `movers` is Role (2026-09-29). */
   const plain = {ranks: [ranksHTML, wireRanks], digest: [digestHTML, wireDigest], matchups: [matchupsHTML, wireMatchups],
-    movers: [rvViewHTML, wireRv], highlights: [hlViewHTML, wireHl],
+    movers: [rvViewHTML, wireRv], highlights: [hlViewHTML, wireHl], weekrecap: [wrViewHTML, wireWeekRecap],
     weather: [wtViewHTML, wireWeather], preview: [pvViewHTML, wirePreview], recap: [lgLeaguePageHTML, wireLeaguePage], records: [lgRecordsPageHTML, wireRecords], trades: [trPageHTML, wireTrades],
     teams: [lbViewHTML, wireLb]}[SURFACE];
   if (plain){ v.innerHTML = plain[0](); plain[1](v); return; }

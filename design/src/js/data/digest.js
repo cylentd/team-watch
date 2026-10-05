@@ -2,13 +2,13 @@
    ranks every row and writes the same packet the morning Discord post renders; the page only
    decides which one row lies open. */
 
-/* The ticker, top to bottom. Each id is one topic and one row. Results shows only once a game is
-   final (2026-09-28): an empty "Results" row all week would be noise. */
+/* The ticker, top to bottom. Each id is one topic and one row. `recap` is the link to This week > Recap
+   (2026-10-05), which replaced the Results row: it shows only while the week's results are fresh. */
 /* Starters folded into News on 2026-09-29 (rows.js dgStartNewsHTML): a new #1 is news, and the row
    of its own sat empty most days. */
 /* Hurt left the rows on 2026-09-29 for Need to know (surface/digest/need.js), which lies open above
-   them; its id stays for the wait card's line. */
-const DG_ROWS = ["res", "mu", "wx", "adds", "t5", "gems", "news"];
+   them; its id stays for dgWaiting's rows. */
+const DG_ROWS = ["recap", "mu", "wx", "adds", "t5", "gems", "news"];
 const DG_POS = ["QB", "RB", "WR", "TE"];
 
 /* The row the reader opened by hand ("" when he closed it); null until the first tap, and while
@@ -16,10 +16,10 @@ const DG_POS = ["QB", "RB", "WR", "TE"];
 let DG_OPEN = null;
 
 /* The signature: the day picks the open row. Claims are Tuesday and Wednesday, so the wire's
-   adds lead; Sunday is game day, so the weather; Monday, the week's results; any other day no row
-   opens, since who is hurt already lies open in Need to know (2026-09-29). The reader's local day,
-   from Date.now(), which the render suite pins. */
-const DG_DAY = {0: ["wx"], 1: ["res"], 2: ["adds"], 3: ["adds"]};
+   adds lead; Sunday is game day, so the weather; any other day no row opens, since who is hurt already
+   lies open in Need to know (2026-09-29). Monday opened the Results row until 2026-10-05, when the
+   results moved to Recap. The reader's local day, from Date.now(), which the render suite pins. */
+const DG_DAY = {0: ["wx"], 2: ["adds"], 3: ["adds"]};
 
 /* A game that has kicked off takes its pre-game rows with it, here in the browser: the packet was
    cut at build time, and a tab stays open across a Sunday. ff-jarvis drops the same rows at build
@@ -37,14 +37,14 @@ function dgCut(d, now){
 }
 
 /* The lead keeps its row, found again by reference in the cut lists. One whose game has started
-   gives way to the week's results, then to the top headline: the packet's own order of rules. */
+   gives way to the top headline. The packet's "results" rule (the week's top score once half the week
+   was final) is not drawn since 2026-10-05, when the results moved to Recap: it falls to the headline too. */
 function dgLeadAfter(d, c){
   const L = d.lead;
-  if (L && L.rule === "results") return c.finals.length ? L : null;
   const was = L && ({hurt: d.hurt, weather: d.wx, news: d.news}[L.rule] || [])[L.index];
   const at = was ? (c.leadRows[L.rule] || []).indexOf(was) : -1;
   if (at >= 0) return {rule: L.rule, index: at};
-  return c.finals.length ? {rule: "results", index: 0} : c.news.length ? {rule: "news", index: 0} : null;
+  return c.news.length ? {rule: "news", index: 0} : null;
 }
 
 /* Tonight's card (2026-09-28, storyboard JSPwg21i9YaTSzhYqAEnQZ) shows from 18 hours before its
@@ -97,11 +97,32 @@ function dgTop5(d, pos){
    15 mph / 50% list was a second rule that disagreed with the tab beside it. */
 const dgWxMoves = () => wtRows().moves.filter(r => !r.done);
 
+/* The Recap row's rule (2026-10-05; David: the Digest is "a curated list of content ... not just a
+   results section that stays there for the whole week and quickly become stale"). LIVE_RECAP is the
+   week This week > Recap shows, the newest with half its games final. The row points at it from that
+   half-way mark until the end of the first Wednesday after the week's last kickoff, in the reader's
+   own day; then the Digest is next week's alone. Without a kickoff to count from, no row. */
+const DG_RECAP_DAY = 3;      // Wednesday, as Date.getDay() says it
+function dgRecapEnd(r){
+  const sched = typeof LIVE_SCHEDULE !== "undefined" && LIVE_SCHEDULE ? LIVE_SCHEDULE.games.filter(g => g.week === r.week) : [];
+  const ks = [...r.games, ...sched].map(g => Date.parse(g.kickoff)).filter(k => !isNaN(k));
+  if (!ks.length) return null;
+  const last = new Date(Math.max(...ks));
+  const ahead = (DG_RECAP_DAY - last.getDay() + 7) % 7 || 7;   // days to the first Wednesday after his day
+  return new Date(last.getFullYear(), last.getMonth(), last.getDate() + ahead + 1).getTime();   // that day's midnight, its end
+}
+function dgRecap(){
+  const r = typeof LIVE_RECAP !== "undefined" ? LIVE_RECAP : null;
+  if (!r || !r.n_games || r.n_final * 2 < r.n_games) return null;
+  const end = dgRecapEnd(r);
+  return end !== null && Date.now() < end ? r : null;
+}
+
 /* Does the section hold anything at all. An empty one says "nothing new" and cannot open. */
 function dgHas(id){
   const d = dgD();
   if (!d) return false;
-  return {res: d.finals.length || d.stars.length, hurt: d.hurt.length, mu: d.best.length || d.calls,
+  return {recap: dgRecap(), hurt: d.hurt.length, mu: d.best.length || d.calls,
           wx: dgWxMoves().length, adds: d.adds.length, t5: dgTop5(d, "QB").length,
           gems: d.gems.length, news: d.news.length}[id] ? true : false;
 }
@@ -145,17 +166,18 @@ function dgMnfSlot(now){
 }
 
 /* The week's preview rows, and whether they are waiting on next week: every game has kicked off
-   and tonight's card is gone. They then leave the ticker for one card (surface/digest/wait.js).
+   and tonight's card is gone. They then leave the ticker (the card that stood in for them, "Waiting on
+   week N", left on 2026-10-05; Need to know says the report is still to come).
    Weather and Top 5 no longer wait (2026-09-29): both read next week's data the page already has. */
 const DG_WAIT_ROWS = ["hurt", "mu"];
 /* The last game's card (surface/digest/mnf.js) is a card of the week, so the wait does not start under it. */
 const dgWaiting = d => !!d && !d.tn.length && dgWeekDone(d) && dgMnfSlot(Date.now()) === null;
 
-/* Is the row drawn at all: Results once a game is final, and the week's preview rows unless
+/* Is the row drawn at all: Recap while the week's results are fresh, and the week's preview rows unless
    tonight's card holds everything the week has left, or the week is over and they wait. */
 function dgShown(id){
   const d = dgD();
-  if (id === "res") return dgHas(id);
+  if (id === "recap") return dgHas(id);
   if (dgWaiting(d) && DG_WAIT_ROWS.includes(id)) return false;
   return !(d && d.tnLast && DG_TN_ROWS.includes(id));
 }

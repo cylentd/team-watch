@@ -11,7 +11,7 @@ const DG_WIND = `<svg class="dg-ico" viewBox="0 0 24 24" aria-hidden="true"><pat
 const DG_RAIN = `<svg class="dg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 15a4 4 0 0 1 .5-8 5.5 5.5 0 0 1 10.3 1.5A3.5 3.5 0 0 1 17.5 15H7zM9 18l-1 3M13 18l-1 3M17 18l-1 3"/></svg>`;
 
 /* Every label spelled out: assemble.py --check finds a copy key only as a literal lookup. */
-const dgLabel = id => ({res: t("digest.row.res"), hurt: t("digest.row.hurt"),
+const dgLabel = id => ({recap: t("digest.recapRow.label"), hurt: t("digest.row.hurt"),
   mu: t("digest.row.mu"), wx: t("digest.row.wx"),
   adds: t("digest.row.adds"), t5: t("digest.row.t5"), gems: t("digest.row.gems"),
   news: t("digest.row.news")})[id];
@@ -19,8 +19,6 @@ const dgLabel = id => ({res: t("digest.row.res"), hurt: t("digest.row.hurt"),
 /* The closed row's count and its pill's colour: red for who is hurt, sky for weather, lime for
    the wire. Top 5 and Stock are lists, not counts, so they carry none. */
 function dgCount(id, d){
-  // Results counts what is still to play, not what is final: "15" said nothing the footer did not.
-  if (id === "res") return [d.pending ? t("digest.res.toPlay", {n: d.pending}) : "", "go"];
   if (id === "mu") return [d.calls || "", ""];
   if (id === "wx") return [dgWxMoves().length || "", "sky"];
   if (id === "adds") return [!d.adds.length ? "" : d.adds_source === "sleeper" ? dgBig(d.adds[0].count)
@@ -52,15 +50,15 @@ function dgGemLine(g){
     : t("digest.line.gemTouch", {name: esc(g.n), usage: g.usage.toFixed(1), pos: esc(g.pos), ecr: g.ecr});
 }
 
-/* Results' line: how many games are final. It named the top three scores until 2026-09-29, the
-   banner's and the board's names a third time. */
-const dgResLine = d => t("digest.line.resGames", {n: dgGames(d.finals.length)});
+/* Matchups with nothing to call says so in Blip's voice, one of three lines, the same one all week
+   (2026-09-29, David: "we can say something funny if we dont have stuff instead of boring stats").
+   The record it used to quote lives on Start/Sit, where it has its splits beside it. */
+const dgMuNone = next => dgPick([t("digest.wait.mu1", {week: next}), t("digest.wait.mu2"), t("digest.wait.mu3")], `mu|${next}`);
 
 function dgLine(id, d){
   const top = pos => dgTop5(d, pos)[0];
   const it = d.news[0], a = d.adds[0];
   return {
-    res: () => dgResLine(d),
     mu: () => dgMuLine(d), wx: () => dgWxLine(d),
     adds: () => d.adds_source === "sleeper" ? `<b>${esc(a.n)}</b> ${dgAddCount(a)}`
       : t("digest.line.adds", {name: esc(a.n), was: dgPct(a.was), now: dgPct(a.now)}),
@@ -92,19 +90,17 @@ function digestHTML(){
   if (dgKicked()) queueMicrotask(gdEnsure);
   const d = dgD(), open = dgOpenRow();
   const rows = DG_ROWS.filter(dgShown);
-  const wait = dgWaiting(d);
   // Need to know lies open above the rows (need.js; 2026-09-29); Right now stands beside it from the
   // first kickoff (now.js). Before kickoff nothing does: Highlights left the Digest on 2026-10-04.
   const now = d ? dgNowHTML() : "";
   const mnf = dgMnfHTML(), needOff = !!d && dgNeedEmpty(d);
-  // The wall's layout names which bands exist (wall.css): results, tonight's card (or the last game's,
-  // mnf.js), the last slot, the wait. The wait card sits where the preview rows it stands for were,
-  // right after Results. Need to know leaves the band to Right now when nothing in it is left to say,
-  // and takes the whole band when Right now is not drawn.
-  const cls = d ? [dgHas("res") ? "has-res" : "", d.tn.length || mnf ? "has-tn" : "", d.tnLast ? "tn-last" : "",
-    wait ? "wk-done" : "", needOff ? "no-need" : "", now ? "" : "no-facts"].filter(Boolean).join(" ") : "";
-  const body = rows.map(id => dgRowHTML(id, d, open));
-  if (wait) body.splice(rows[0] === "res" ? 1 : 0, 0, dgWaitHTML(d));
+  // The wall's layout names which bands exist (wall.css): the Recap link, tonight's card (or the last
+  // game's, mnf.js), the last slot, and the week being over (the preview rows have left, dgWaiting).
+  // Need to know leaves the band to Right now when nothing in it is left to say, and takes the whole
+  // band when Right now is not drawn.
+  const cls = d ? [dgHas("recap") ? "has-recap" : "", d.tn.length || mnf ? "has-tn" : "", d.tnLast ? "tn-last" : "",
+    dgWaiting(d) ? "wk-done" : "", needOff ? "no-need" : "", now ? "" : "no-facts"].filter(Boolean).join(" ") : "";
+  const body = rows.map(id => id === "recap" ? dgRecapRowHTML() : dgRowHTML(id, d, open));
   const lead = dgLeadHTML();
   DG_LAST = {lead, now, mnf};
   DG_DRAWN = dgPhaseKey();
@@ -125,13 +121,13 @@ function dgSetOpen(row, open){
 const DG_WALL = matchMedia("(min-width:1100px)");
 function dgSyncWall(v){
   const open = dgOpenRow();
-  v.querySelectorAll(".dg-row:not(.empty)").forEach(r => dgSetOpen(r, DG_WALL.matches || r.dataset.dgrow === open));
+  v.querySelectorAll(".dg-row:not(.empty):not(.link)").forEach(r => dgSetOpen(r, DG_WALL.matches || r.dataset.dgrow === open));
 }
 
 /* Opened in place, never by re-render: the row's own spring is the motion, and the rest of the
    list must not be redrawn under the reader. One open at a time; a second tap closes it. */
 function wireDigest(v){
-  v.querySelectorAll(".dg-row:not(.empty) .dg-head").forEach(h => h.addEventListener("click", () => {
+  v.querySelectorAll(".dg-row:not(.empty):not(.link) .dg-head").forEach(h => h.addEventListener("click", () => {
     if (DG_WALL.matches) return;
     const id = h.parentElement.dataset.dgrow;
     DG_OPEN = dgOpenRow() === id ? "" : id;
@@ -139,9 +135,11 @@ function wireDigest(v){
   }));
   dgSyncWall(v);
   DG_WALL.onchange = () => { const cur = document.querySelector(".dg"); if (cur) dgSyncWall(cur.parentElement); };
-  /* A set of tabs (Results' lists, Top 5's positions) swaps its panel in place, and the pick is kept
-     across repaints (DG_TAB, tabs.js). */
+  /* A set of tabs (Top 5's positions) swaps its panel in place, and the pick is kept across repaints
+     (DG_TAB, tabs.js). */
   v.querySelectorAll("[data-dgtab]").forEach(b => b.addEventListener("click", () => dgTabPick(b)));
+  // The Recap row is a real link (#weekrecap): the hash opens the view, this only does what the other links do.
+  v.querySelectorAll("a.dg-head[href]").forEach(a => a.addEventListener("click", () => { morphLogo(); window.scrollTo({top: 0}); }));
   v.querySelectorAll("[data-dgneedall]").forEach(b => b.addEventListener("click", () => {
     const y = window.scrollY; DG_NEED_ALL = true; render(); window.scrollTo(0, y);
   }));
@@ -154,8 +152,7 @@ function wireDigest(v){
   const d = dgD();
   v.querySelectorAll("[data-dgslug]").forEach(el => el.addEventListener("click", () => {
     const slug = el.dataset.dgslug;
-    const p = [...d.hurt, ...d.starters, ...d.best, ...d.adds, ...d.gems, ...d.stars, ...d.smashed, ...d.busts, ...d.left]
-      .find(x => x.slug === slug);
+    const p = [...d.hurt, ...d.starters, ...d.best, ...d.adds, ...d.gems].find(x => x.slug === slug);
     if (p) return openProfile({n: p.n, pos: p.pos, team: p.team, slug: p.slug}, el);
     // A News player need not be in any list above: search's index knows everyone on the page.
     const e = searchIndex().find(x => x.slug === slug);

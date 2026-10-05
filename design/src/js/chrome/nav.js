@@ -27,7 +27,9 @@ const NAV = [
   // this week's, not research, and it was the sixth of six sub-tabs. Its leaf and hash stay `news`.
   // Takes (leaf `matchups`) joined them the same day: our weekly calls against the experts are this
   // week's, not research. Its leaf and both hashes stay. Labelled Start / Sit since 2026-10-03.
-  ["week",     ["digest", "news", "matchups", "preview", "weather", "live"]],
+  // Recap (2026-10-05, storyboard https://claude.ai/artifact/HVdkEL4YbiBKUJ3QbLH9gf) is the week's results; it took
+  // Weather's room in the sub-row (NAV_HIDDEN, below).
+  ["week",     ["digest", "weekrecap", "news", "matchups", "preview", "weather", "live"]],
   ["teams",    ["roster", "waivers", "league", "myrecap"]],
   // Highlights (2026-09-29) leads Players: two lines from each view below it, so Players opens on
   // the summary and the research is one tap further (storyboard W5ty9RzT4XWSRfSjtdKEAk, option A).
@@ -40,7 +42,7 @@ const NAV = [
    orphaned by scanning for literal lookups, and a key assembled from a template is invisible to
    it -- the build would pass while the label rendered blank. */
 const navLabel = leaf => ({
-  digest: t("nav.tab.digest"), roster: t("nav.tab.roster"), waivers: t("nav.tab.waivers"), league: t("nav.tab.league"),
+  digest: t("nav.tab.digest"), weekrecap: t("nav.tab.weekrecap"), roster: t("nav.tab.roster"), waivers: t("nav.tab.waivers"), league: t("nav.tab.league"),
   records: t("nav.tab.records"), recap: t("nav.tab.recap"), myrecap: t("nav.tab.myrecap"), trades: t("nav.tab.trades"),
   highlights: t("nav.tab.highlights"), ranks: t("nav.tab.ranks"),
   board: t("nav.tab.board"), movers: t("nav.tab.movers"),
@@ -92,10 +94,16 @@ function navCount(leaf){
   return ` <span class="tabcount">${waiverIn(VIEW).filter(([r]) => waiverTier(r, VIEW) !== "stash").length}</span>`;
 }
 
+/* Weather left the sub-row on 2026-10-05 to make room for Recap: seven views took 389px against the 328px
+   a 360px phone has, six fit in 321px. It stays in NAV, so #weather, navGo("weather") and navGroupOf still
+   work; the Digest's Weather row and every Preview dossier link to it. While it is open no sub button is
+   pressed. */
+const NAV_HIDDEN = ["weather"];
+
 /* A group with one leaf gets no row: a sub-nav of one is a label pretending to be a choice. */
 function paintSubnav(){
   const el = document.getElementById("subnav");
-  const tabs = navTabsOf(navGroupOf(SURFACE));
+  const tabs = navTabsOf(navGroupOf(SURFACE)).filter(k => !NAV_HIDDEN.includes(k));
   el.hidden = tabs.length < 2;
   // .modes-sub without .dock: the docked variant is fixed to the phone's bottom edge, which is
   // where the Parlay and DFS switchers already live.

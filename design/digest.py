@@ -93,21 +93,6 @@ def _asof(stamp):
     return f"{t:%a} {_clock(t)}"
 
 
-def _results(r, slugify):
-    """The week so far: finals, the recap's standouts (per position, its order) and busts."""
-    r = r or {}
-    # `line`: his box score from ff-jarvis's play-by-play (2026-09-29), null until it publishes; the
-    # lead banner calls the top score from it.
-    row = lambda x: {**_player(x, slugify, "pos", "team", "actual", "proj", "diff"), "why": _why(x.get("why")),
-                     "line": x.get("line")}
-    return {"finals": [{k: g.get(k) for k in ("away", "home", "away_pts", "home_pts")} for g in r.get("games") or []],
-            "pending": len(r.get("pending") or []),
-            "stars": [row(x) for pos in POS for x in (r.get("top") or {}).get(pos) or []],
-            "smashed": [row(x) for x in r.get("smashed") or []],
-            "busts": [row(x) for x in r.get("busts") or []],
-            "left": [_left(x, slugify) for x in r.get("left_hurt") or []]}
-
-
 def _rest(headline, name):
     """A headline without his name at its front: after the injury tag when there is one ("Baker
     Mayfield (thumb) exits early" -> "exits early"), else past his name, suffix and all ("Travis
@@ -120,21 +105,14 @@ def _rest(headline, name):
     return h[len(lead):].strip() if lead else h
 
 
-def _why(w):
-    """The producer's reason, rounded as the row says it: {kind, luck, expected, stat, share, delta}.
-    The rule that picked it is ff-jarvis's (weekly_digest_played.why_of); the page only words it."""
-    w = w or {}
-    rnd = lambda v: None if v is None else round(v)
-    return {"kind": w.get("kind") or "earned", "luck": rnd(w.get("luck")), "expected": rnd(w.get("expected")),
-            "stat": w.get("stat"), "share": rnd(w.get("share")), "delta": rnd(w.get("delta"))}
-
-
 def _tag(h):
     return h[h.find("(") + 1:h.find(")")] if "(" in h and ")" in h else None
 
 
 def _left(x, slugify):
-    """"Baker Mayfield (thumb) exits early Sunday" -> injury "thumb"; an untagged headline has none.
+    """Kept for design/recap.py (the Recap's left-hurt rows); the Digest no longer carries a left list
+    (2026-10-05, the week's results moved to Recap).
+    "Baker Mayfield (thumb) exits early Sunday" -> injury "thumb"; an untagged headline has none.
     His newest headline since, when there is one, is the fresher word: its tag wins ("(quad)" the
     next day over "(thigh)" in-game) and its words are `later` ("suffers season-ending torn ACL")."""
     h, u = (x.get("headline") or "").strip(), (x.get("update") or "").strip()
@@ -246,7 +224,6 @@ def live_digest(p, slugify, schedule=None, headline=None):
         "adds": [_player(r, slugify, "pos", "team", "count", "was", "now", "delta") for r in adds.get("rows") or []],
         "top5": [{"pos": pos, **_player(r, slugify, "team", "opp", "pts"), "ko": ko.get(r["team"])}
                  for pos in POS for r in (p.get("top5") or {}).get(pos) or []],
-        **_results(p.get("results"), slugify),
         **_tonight(p.get("tonight"), slugify),
         "up": [_player(r, slugify, "pos", "team", "d_pts", "pts") for r in stock.get("up") or []],
         "down": [_player(r, slugify, "pos", "team", "d_pts", "pts") for r in stock.get("down") or []],
@@ -263,5 +240,4 @@ def report(block):
     lead = block["lead"]
     return (f"Digest: week {block['week']} as of {block['asof']}, lead "
             + (f"{lead['rule']}[{lead['index']}]" if lead else "none")
-            + f", {len(block['hurt'])} hurt, {len(block['adds'])} adds, {len(block['news'])} news"
-            + f", {len(block['finals'])} final")
+            + f", {len(block['hurt'])} hurt, {len(block['adds'])} adds, {len(block['news'])} news")

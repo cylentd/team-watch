@@ -1,6 +1,6 @@
 /* ============================== DIGEST: TABS ==============================
    One bar over one panel (tabs.js; 2026-09-29, storyboard https://claude.ai/artifact/Ms6FbdvynVPoRTKEidPGAz):
-   Results' three lists and Top 5's positions. A filled track with the picked tab raised and underlined
+   Top 5's positions (Results' three lists too, until 2026-10-05). A filled track with the picked tab raised and underlined
    in lime, the underline being the one mark of "this is showing". Counts keep their list's colour. */
 .dg-tabset{display:grid;gap:6px;min-width:0}
 .dg-tabs{display:flex;gap:4px;padding:3px;border-radius:10px;background:var(--panel-2)}
@@ -21,11 +21,10 @@
 .dg-tabps{display:grid;min-width:0}
 .dg-tabp{min-width:0}
 .dg-tabp[data-off]{display:none}
-/* A panel's own heading shows only where the wall lays the set open (below); the tab says it elsewhere. */
+/* A panel's own heading is for a set the wall laid open with no bar (Results' lists did, until they
+   moved to Recap on 2026-10-05); the tab says it everywhere the Digest draws a set. */
 .dg-tabh{display:none}
 
-/* Results' list under its tabs: one column on a phone. */
-.dg-rlist{display:grid}
 @media (min-width:1100px){
   .dg-tabs{align-self:start;max-width:520px}
   /* Top 5 keeps its tabs on the wall, in a fixed box: every panel in the same cell, the off ones in
@@ -33,30 +32,4 @@
      less jarring"). `data-off`, not `hidden`, which the page's reset pins to display:none !important. */
   .dg-tabp{grid-area:1 / 1}
   .dg-tabp[data-off]{display:block;visibility:hidden}
-
-  /* Results' lists open, no tabs (2026-09-29, David: "I still feel the tab list to be awkward"). A
-     1,600px card has room for all seventeen, so a bar hiding twelve of them solved a phone's problem
-     on a desktop, and a five-across grid under a four-column board floated its entries in space. So
-     the three lists sit on the board's own columns, each under a heading in the board's type and its
-     list's colour: Smashed under QB, Busts under RB, Left hurt across WR and TE, read down. Nothing
-     hidden, nothing to tap, nothing moves; the tallest list sets the height. */
-  [data-dgset="res"] > .dg-tabs{display:none}
-  [data-dgset="res"] .dg-tabps{grid-template-columns:repeat(4,minmax(0,1fr));column-gap:32px;align-items:start}
-  [data-dgset="res"] .dg-tabp,[data-dgset="res"] .dg-tabp[data-off]{grid-area:auto;display:block;visibility:visible}
-  [data-dgset="res"] .dg-tabp[data-dgpanel="smashed"]{grid-column:1}
-  [data-dgset="res"] .dg-tabp[data-dgpanel="busts"]{grid-column:2}
-  [data-dgset="res"] .dg-tabp[data-dgpanel="left"]{grid-column:3 / span 2}
-  [data-dgset="res"] .dg-tabh{display:flex;align-items:baseline;gap:8px;margin:0 0 8px;
-    font:800 var(--t-5)/1 var(--disp);letter-spacing:-.01em}
-  [data-dgset="res"] .dg-tabh b{font:700 var(--t-2)/1 var(--mono)}
-  .dg-tabh.up{color:var(--up)}
-  .dg-tabh.dn{color:var(--down)}
-  .dg-tabh.am{color:var(--amber)}
-  /* A list is one column of entries, the points first and the name beside them (David: "the name and
-     the number gap"); Left hurt reads down two, half its rows each (--rows, results.js). */
-  .dg-rlist{gap:12px;align-content:start}
-  [data-dgpanel="left"] .dg-rlist{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(var(--rows, 5), auto);
-    grid-auto-flow:column;column-gap:32px}
-  .dg-rlist .dg-rr{grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;border-bottom:0;min-height:0;padding:0}
-  .dg-rlist .dg-rv{order:-1;justify-items:start;min-width:44px}
 }

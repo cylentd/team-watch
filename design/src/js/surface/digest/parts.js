@@ -1,10 +1,44 @@
-/* ============================== DIGEST: RESULTS ==============================
-   The week so far (2026-09-28): each position's top three (headlines.js, since 2026-09-29), then who smashed his projection, who busted and who left his game hurt, folded.
-   A smashed or busted row says why as a pill: ff-jarvis picks the reason
-   (weekly_digest_played.why_of), the page only labels it. */
+/* ============================== DIGEST: PARTS THE RECAP VIEW DRAWS ==============================
+   The week's results left the Digest on 2026-10-05 (David: "we probably need a recap section for the
+   week instead of dumping it into the Digest ... not just a results section that stays there for the
+   whole week and quickly become stale"). The Results row, its banner rule and the Waiting card are gone;
+   This week > Recap (surface/recap/) draws the week. What it draws with is here, under the names the
+   Digest gave them, so nothing was copied: a call, a box line, a board, a reason, a left-hurt pill.
+   Nothing in the Digest itself calls dgBoardHTML, dgWhy, dgLeftPills or dgResRow any more; the Recap
+   view does (and dgCall, dgBoxPills, dgTopLine in lead.js). Their styles are results.css and
+   headlines.css, fenced to both views (scope.json). */
 
 /* "1 game" / "15 games": both spelled out, since assemble.py --check finds a key only as a literal. */
 const dgGames = n => n === 1 ? t("digest.res.game") : t("digest.res.games", {n});
+
+/* A player's day in one short line: a passer's yards and TDs, a back's rushing and receiving yards,
+   a receiver's catches for yards. Every word is a copy key, spelled out for assemble.py --check. */
+function dgStatLine(r){
+  const b = r.line;
+  if (!b) return "";
+  const td = n => n ? t("digest.stat.td", {n}) : "";
+  const parts = b.att >= 10
+    ? [t("digest.stat.pass", {y: b.pass_yd}), td(b.pass_td), b.int ? t("digest.stat.int", {n: b.int}) : "",
+       b.rush_yd >= 20 ? t("digest.stat.rush", {y: b.rush_yd}) : ""]
+    : b.car >= 5
+      ? [t("digest.stat.rush", {y: b.rush_yd}), b.rec_yd > 0 ? t("digest.stat.recYd", {y: b.rec_yd}) : "", td(b.td)]
+      : [b.rec ? t("digest.stat.catches", {n: b.rec, y: b.rec_yd}) : "", b.car ? t("digest.stat.rush", {y: b.rush_yd}) : "", td(b.td)];
+  return parts.filter(Boolean).join(" · ");
+}
+
+/* Each position's top three, as a table: the position as a heading, then name over his day, points at
+   the right (2026-09-29, storyboard https://claude.ai/artifact/Ms6FbdvynVPoRTKEidPGAz, 1B). No faces: a
+   list scans by name, and a kicker or a defense has none to show. Two positions a row on a phone, four
+   on a wide screen. `d.stars` is a list of rows with `line`; the Recap's own `stars` has the same shape. */
+function dgBoardHTML(d){
+  const pos = DG_POS.map(p => {
+    const rows = d.stars.filter(r => r.pos === p);
+    return rows.length ? `<div class="dg-bd-pos"><h4 class="dg-bd-p">${p}</h4><span class="dg-bd-ns">${rows.map(r =>
+      `<button type="button" class="dg-bd-r" data-dgslug="${esc(r.slug)}">
+        <b>${esc(dgShort(r.n))}</b><span class="dg-bd-s">${dgStatLine(r)}</span><i>${r.actual.toFixed(1)}</i></button>`).join("")}</span></div>` : "";
+  }).join("");
+  return pos ? `<div class="dg-bd">${pos}</div>` : "";
+}
 
 /* Reasons are short coloured words, not sentences (2026-09-28, DESIGN.md "Say it in a shape"; boxes
    dropped 2026-09-29, only how long he is out keeps one). One colour, one meaning: green = TD luck
@@ -66,34 +100,6 @@ function dgWhy(r, left){
 const dgResNum = r => `<span class="dg-rv"><b>${r.actual != null ? r.actual.toFixed(1) : ""}</b>`
   + `${r.proj != null ? `<span>${r.proj.toFixed(1)}</span>` : ""}</span>`;
 
-/* A face cropped to the head, drawn at 150% so it fills the circle instead of the chest-up frame;
-   `96` asks the srcset for a file sharp at that size. A list row is text. */
-const dgResFace = r => HEADS[r.slug] ? headImgHTML(HEADS[r.slug], initials(r.n), r.slug, 96)
-  : `<div class="fallback">${esc(initials(r.n))}</div>`;
 /* One list row: name over its reason pills, points over projection. Opens the profile. */
 const dgResRow = (r, pills, num) => `<button type="button" class="dg-rr" data-dgslug="${esc(r.slug)}">
     <span class="dg-rr-n"><b>${esc(dgShort(r.n))}</b>${pills ? `<span>${pills}</span>` : ""}</span>${num}</button>`;
-
-/* The three lists: on a phone one panel under one tab bar (tabs.js; 2026-09-29, 2A), the count on each
-   tab in its list's colour; on the wall all three open on the board's four columns, each under its own
-   heading, Left hurt across two (tabs.css). A list with no one in it draws no tab and no column. */
-function dgResTabs(d){
-  const why = r => dgResRow(r, dgWhy(r, d.left), dgResNum(r));
-  // `--rows`: a list the wall sets in two columns reads down them, half its rows each (tabs.css).
-  const tab = (key, label, rows, row, tone) => rows.length
-    ? {key, label, count: rows.length, tone,
-       body: `<div class="dg-rlist" style="--rows:${Math.ceil(rows.length / 2)}">${rows.map(row).join("")}</div>`} : null;
-  return dgTabsHTML("res", [tab("smashed", t("digest.res.smashed"), d.smashed, why, "up"),
-    tab("busts", t("digest.res.busts"), d.busts, why, "dn"),
-    tab("left", t("digest.res.left"), d.left, r => dgResRow(r, dgLeftPills(r), dgResNum(r)), "am")].filter(Boolean));
-}
-
-/* Each position's top three, then the three lists under their tabs. The four tiles above them left
-   on 2026-09-29: each was only the first row of a list below it (Worth knowing, facts.js, took
-   their place above the rows). */
-function dgResBody(d){
-  const low = dgResTabs(d);
-  const blocks = dgBoardHTML(d) + (low ? `<div class="dg-rlow">${low}</div>` : "");
-  const foot = d.pending ? t("digest.foot.resPending", {n: dgGames(d.finals.length), left: d.pending}) : t("digest.foot.res", {n: dgGames(d.finals.length)});
-  return (blocks ? `<div class="dg-rs">${blocks}</div>` : "") + dgFootHTML(foot, "", "");
-}

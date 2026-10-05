@@ -88,6 +88,11 @@
       "tests": ["tests/test_role.py"],
       "render": ["role"]
     },
+    "recap": {
+      "paths": ["design/recap.py", "design/src/js/surface/recap/", "design/src/css/surface/recap/"],
+      "tests": ["tests/test_recap_data.py", "tests/test_recap_view.py"],
+      "render": ["weekrecap"]
+    },
     "highlights": {
       "paths": ["design/src/js/surface/highlights/", "design/src/css/surface/highlights/", "design/highlights.py"],
       "tests": ["tests/test_highlights.py"],

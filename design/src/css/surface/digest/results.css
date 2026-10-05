@@ -1,16 +1,9 @@
-/* ============================== DIGEST: RESULTS ==============================
-   The four tiles and the board are headlines.css (2026-09-29, storyboard
-   https://claude.ai/artifact/FYQES3vMxJ8ukZm7gLNNih, option B). Here: the card's spacing and the rows
-   of the three lists, which sit under one tab bar since 2026-09-29 (tabs.css). Every list row is one
-   shape (2026-09-29, storyboard https://claude.ai/artifact/7gsPHebT4xTdo36N1QqqWD, option B): the name
-   over its reason, the points over the projection, the stack Live's rows use. */
-
-.dg-rs{display:grid;gap:18px;padding-top:6px}
-.dg-rlow{display:grid;gap:0}
-
-/* The count is words ("1 to play"), wider than the other rows' 40px number column. */
-.dg-row[data-dgrow="res"] .dg-head{grid-template-columns:106px auto minmax(0,1fr) 18px}
-.dg-row[data-dgrow="res"] .dg-n{white-space:nowrap}
+/* ============================== DIGEST: RESULT PARTS ==============================
+   What the Digest's Results row drew with, kept for This week > Recap (2026-10-05; both views fence
+   this file, scope.json): the rows of Smashed, Busts and Left hurt, and a reason as coloured words.
+   The row, its card and its wall columns left with the Results row. Every list row is one shape
+   (2026-09-29, storyboard https://claude.ai/artifact/7gsPHebT4xTdo36N1QqqWD, option B): the name over
+   its reason, the points over the projection, the stack Live's rows use. */
 
 .dg-rr{
   appearance:none;border:0;border-bottom:1px solid var(--line);background:none;color:inherit;font:inherit;text-align:left;
@@ -37,7 +30,3 @@
 .dg-pill.hurt{color:var(--amber)}
 .dg-pill.out{color:var(--down);background:rgb(var(--down-rgb) / .14);border-radius:999px;padding:3px 8px}
 .dg-pill.out::before{display:none}
-
-@media (min-width:1100px){
-  .dg-rs{gap:22px}
-}

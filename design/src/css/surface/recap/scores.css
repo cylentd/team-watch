@@ -1,0 +1,57 @@
+/* ============================== RECAP: SCORES AND CLAUDE ==============================
+   The Scores tab: a strip of Claude's record, then every game under its kickoff window, one row each: the
+   score (winner bold) at the left, Claude's pick and a Hit or Miss at the right. The Claude tab: three
+   record tiles, then the best call and the worst. Green means a hit, red a miss. */
+
+.wr-strip{
+  margin:0;padding:10px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);
+  font:500 var(--t-2)/1.4 var(--ui);color:var(--ink-2);
+}
+.wr-strip b{font:700 var(--t-2)/1 var(--mono);color:var(--lime)}
+
+.wr-wins{display:grid}
+.wr-win ul{list-style:none;margin:0;padding:0;display:grid}
+.wr-wh{
+  display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:0;padding:12px 0 4px;border-top:1px solid var(--line);
+  font:600 var(--t-1)/1.3 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);
+}
+.wr-wh em{font-style:normal;letter-spacing:0}
+.wr-win:first-child .wr-wh{border-top:0;padding-top:4px}
+.wr-g{
+  appearance:none;border:0;border-top:1px solid var(--line);background:none;color:inherit;font:inherit;text-align:left;width:100%;
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;min-height:44px;padding:0;
+}
+button.wr-g{cursor:pointer}
+button.wr-g:focus-visible{outline:2px solid var(--lime);outline-offset:-2px;border-radius:6px}
+.wr-win li:first-child .wr-g{border-top:0}
+.wr-sc{font:500 var(--t-2)/1.3 var(--mono);font-variant-numeric:tabular-nums;color:var(--ink-3);white-space:nowrap}
+.wr-sc b{color:var(--ink);font-weight:700}
+.wr-pk{display:flex;align-items:center;justify-content:flex-end;gap:8px;font:500 var(--t-1)/1.3 var(--ui);color:var(--ink-3);white-space:nowrap}
+.wr-mk{font:700 var(--t-1)/1 var(--mono);letter-spacing:.04em;text-transform:uppercase;min-width:34px;text-align:right}
+.wr-mk.hit{color:var(--up)}
+.wr-mk.miss{color:var(--down)}
+
+/* Claude's week. */
+.wr-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.wr-tile{display:grid;gap:2px;padding:10px 6px;border-radius:10px;background:var(--panel-2);text-align:center}
+.wr-tile b{font:700 var(--t-4)/1.2 var(--mono);font-variant-numeric:tabular-nums}
+.wr-tile span{font:500 var(--t-1)/1.3 var(--ui);color:var(--ink-3)}
+.wr-call{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 10px;align-items:baseline;padding:10px 0;border-top:1px solid var(--line);font:500 var(--t-2)/1.3 var(--ui)}
+.wr-call .wr-mk{min-width:0;text-align:left}
+.wr-call p{grid-column:2;margin:0;font:500 var(--t-1)/1.3 var(--ui);color:var(--ink-3)}
+
+@media (min-width:960px){
+  /* Two columns of windows: a window of one or two games takes one column, so Thursday night sits beside
+     Sunday morning; a longer one spans both and sets its games two or three across. */
+  .wr-wins{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:32px;align-items:start}
+  .wr-win.wide{grid-column:1 / -1}
+  .wr-win.wide ul{grid-template-columns:repeat(auto-fill,minmax(320px,1fr));column-gap:32px}
+  .wr-win li:first-child .wr-g{border-top:1px solid var(--line)}
+  /* A heading and its times sit together; the space above a window, not a rule, parts it from the last. */
+  .wr-wh,.wr-win:first-child .wr-wh{justify-content:flex-start;gap:12px;border-top:0;padding:0 0 4px}
+  .wr-win{padding-top:12px}
+  .wr-wins{margin-top:-8px}
+  .wr-claude{grid-template-columns:minmax(0,5fr) minmax(0,7fr);column-gap:32px;align-items:start}
+  .wr-claude .wr-chr{grid-column:1 / -1}
+  .wr-claude .wr-calls .wr-call:first-child{border-top:0;padding-top:0}
+}

@@ -136,6 +136,6 @@ function dgResList(title, rows, num){
     + `<span>${esc(dgShort(r.n))}</span>${num(r)}</li>`).join("")}</ol></div>` : "";
 }
 
-/* Results' body is results.js's (dgResBody). */
-const DG_BODY = {res: dgResBody, mu: dgMuBody, wx: dgWxBody, adds: dgAddsBody, t5: dgTop5Body,
+/* The Recap row opens no body: it is a link (recaprow.js). */
+const DG_BODY = {mu: dgMuBody, wx: dgWxBody, adds: dgAddsBody, t5: dgTop5Body,
                  gems: dgGemsBody, news: dgNewsBody};

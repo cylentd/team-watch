@@ -76,13 +76,17 @@ def LIVE_PLANT(states=None):
 GROUP = {"digest": "week", "roster": "teams", "waivers": "teams", "league": "teams", "myrecap": "teams",
          "recap": "league", "records": "league", "trades": "league", "teams": "league",
          "highlights": "scouting", "ranks": "scouting", "board": "scouting", "movers": "scouting", "matchups": "week", "usage": "scouting",
-         "news": "week", "weather": "week", "preview": "week", "live": "week",
+         "news": "week", "weather": "week", "weekrecap": "week", "preview": "week", "live": "week",
          "parlay": "bets", "build": "bets", "dfs": "bets"}
+# Weather left the This week sub-row on 2026-10-05 (nav.js NAV_HIDDEN): it is reached by hash or navGo, not a tap.
+HIDDEN = {"weather"}
 
 
 def go(leaf):
+    if leaf in HIDDEN:
+        return [("click", f".navitem[data-s='{GROUP[leaf]}']"), ("eval", f"navGo('{leaf}')")]
     steps = [("click", f".navitem[data-s='{GROUP[leaf]}']")]
-    if len([k for k, g in GROUP.items() if g == GROUP[leaf]]) > 1:
+    if len([k for k, g in GROUP.items() if g == GROUP[leaf] and k not in HIDDEN]) > 1:
         steps.append(("click", f"[data-leaf='{leaf}']"))
     return steps
 
@@ -339,6 +343,14 @@ STATES = [
     # This week > Weather (2026-09-26): week 2's four games, the dome first, then the rest by wind
     # (NE windy, IND retractable, SEA with no forecast yet); DET's players listed under DET @ SEA.
     ("weather", go("weather")),
+    # This week > Recap (2026-10-05, storyboard option C): the banner, a three-tab bar, then the tab's cards,
+    # from the fixture's week 4 recap (8 of 16 games final). Players is first; Busts is the phone's list tab
+    # (a desktop draws all three open); Show all opens the touchdown list.
+    ("weekrecap", go("weekrecap")),
+    ("weekrecap-busts", go("weekrecap") + [("eval", "document.querySelector(\"[data-wrlist='busts']\").click()")]),   # the desk has no bar to tap
+    ("weekrecap-tds-all", go("weekrecap") + [("click", "[data-wrtds]")]),
+    ("weekrecap-scores", go("weekrecap") + [("click", "[data-wrtab='scores']")]),
+    ("weekrecap-claude", go("weekrecap") + [("click", "[data-wrtab='claude']")]),
     # This week > Preview (2026-09-29, slate and dossier): the slate (a phone) or the rail beside the
     # Thursday game (a desktop); DET @ CAR's dossier, the fullest; Monday's, with no take yet.
     ("preview", go("preview")),
@@ -670,7 +682,8 @@ def test_no_fenced_rule_misses_its_element(snapshot, area):
     ("takes", "week", "START/SIT"),
     ("startsit", "week", "START/SIT"),
     ("news", "week", "NEWS"),           # Players until 2026-09-29; the leaf and hash stayed
-    ("weather", "week", "WEATHER"),
+    ("weather", "week", None),          # out of the sub-row since 2026-10-05 (nav.js NAV_HIDDEN): the hash still lands, no button is pressed
+    ("weekrecap", "week", "RECAP"),
     ("preview", "week", "PREVIEW"),
     ("waivers", "teams", "WAIVERS"),
     ("parlay", "bets", "SLIPS"),        # the leaf is still `parlay`, so its bookmarks land
@@ -687,7 +700,10 @@ def test_a_hash_opens_its_view(browser, page_file, leaf, group, label):
     try:
         assert page.locator(".navitem[aria-current='true']").get_attribute("data-s") == group
         sub = page.locator("#subnav .mode-sub[aria-pressed='true']")
-        assert sub.inner_text().strip().upper().startswith(label)
+        if label is None:
+            assert sub.count() == 0 and page.evaluate("document.getElementById('view').dataset.view") == leaf
+        else:
+            assert sub.inner_text().strip().upper().startswith(label)
         # And navigating writes it back, so the next reload holds.
         page.locator(".navitem[data-s='teams']").first.click()
         page.wait_for_function("location.hash === '#roster'")

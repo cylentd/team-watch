@@ -41,6 +41,7 @@ from mates import espn_rows, live_mates, slugs as mate_slugs, report as mates_re
 from digest import live_digest, report as digest_report        # design/digest.py: the Digest view
 from preview import live_preview, report as preview_report     # design/preview.py: This week > Preview
 from role import live_role, report as role_report              # design/role.py: Players > Role
+from recap import live_recap, report as recap_report           # design/recap.py: This week > Recap
 from highlights import live_highlights, report as highlights_report  # design/highlights.py: Players > Highlights
 from clips import live_clips, report as clips_report            # design/clips.py: official YouTube clips
 from prop_math import implied, is_stale                         # design/prop_math.py: break-even odds, stale-line test
@@ -54,7 +55,7 @@ from sources import (                                    # design/sources.py: th
     feed_block, read_first, warn_if_stale, load_status, load_props_raw, load_model_raw,
     load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
     load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_digest, load_digest_headline, load_game_preview, load_preview_record, load_league, load_role_board, load_highlights, load_clips, load_slip_reasons,
-    load_defense, load_kickers,
+    load_defense, load_kickers, load_recaps,
 )
 from slips import UNPRICED, carry_mean, live_reasons, null_prices, report as slips_report  # the Slips board's data
 from gameday import live_gameday, report as gameday_report  # This week > Live: every matchup, scored live
@@ -628,9 +629,7 @@ def render():
     wanted = wanted_slugs([src for _, src in mine], props, liveDfsYahoo, waiver, pool) + mate_slugs(mates)
     wanted_set = set(wanted)
 
-    # Every head ff-jarvis has, not only the wanted ones: a connected league's players are read at
-    # runtime, so the build cannot know them. They are files now (write_heads), fetched lazily, so
-    # a head nobody scrolls to costs nothing -- inlined, all of them would cost the page 470 KB.
+    # Every head, not only the wanted ones (a connected league's are read at runtime): files, fetched lazily; inlined, 470 KB.
     heads = {slug: f"{HEADS_DIR}/{slug}.webp" for slug in sorted(available)}
     heads_lg = {p.stem: f"{HEADS_DIR}/{HEADS_LG}/{p.name}" for p in sorted((HEADS_SRC / HEADS_LG).glob("*.webp"))}
     heads_xl = {p.stem: f"{HEADS_DIR}/{HEADS_XL}/{p.name}" for p in sorted((HEADS_SRC / HEADS_XL).glob("*.webp"))}
@@ -665,6 +664,7 @@ def render():
         "LIVE_ARCHETYPE": live_archetype(load_archetype(FEED, DWR), wanted_set),
         "LIVE_TRENCHES": live_trenches(load_trenches(FEED, DWR)),
         "LIVE_ROLE": live_role(load_role_board(), slugify), "LIVE_HIGHLIGHTS": live_highlights(load_highlights()), "LIVE_CLIPS": live_clips(load_clips()),
+        "LIVE_RECAP": live_recap(load_recaps(), slugify),
         "LIVE_DIGEST": live_digest(load_digest(), slugify, load_schedule(DWR), load_digest_headline()),
         "LIVE_PREVIEW": live_preview(load_game_preview(), slugify, load_preview_record(), status=load_status()),
         "LIVE_LEAGUE": live_league(*load_league(), roster_file(ESPN_ROSTERS), slugify),
@@ -683,7 +683,7 @@ def render():
                routes_report(blocks["LIVE_ROUTES"]), report_archetype(blocks["LIVE_ARCHETYPE"]),
                report_trenches(blocks["LIVE_TRENCHES"]), lines_report(blocks["LIVE_LINES"]),
                injury_report(blocks["LIVE_INJURY"]), role_report(blocks["LIVE_ROLE"]),
-               highlights_report(blocks["LIVE_HIGHLIGHTS"]), clips_report(blocks["LIVE_CLIPS"]), wx_history_report(blocks["LIVE_WX_HISTORY"]),
+               highlights_report(blocks["LIVE_HIGHLIGHTS"]), clips_report(blocks["LIVE_CLIPS"]), recap_report(blocks["LIVE_RECAP"]), wx_history_report(blocks["LIVE_WX_HISTORY"]),
                defense_report(blocks["LIVE_DEFENSE"]), gameday_report(blocks["LIVE_GAMEDAY"]),
                f"Weather: {len(blocks['LIVE_WEATHER']['teams'])} teams" if blocks["LIVE_WEATHER"] else "Weather: none"]
     for name, obj in blocks.items():

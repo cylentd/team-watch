@@ -96,7 +96,7 @@ surface/digest/results.css
 surface/digest/headlines.css
 surface/digest/need.css
 surface/digest/now.css
-surface/digest/wait.css
+surface/digest/recaprow.css
 surface/digest/tabs.css
 surface/digest/ahead.css
 # pin: digest/wall.css after lead.css, ticker.css, bodies.css and tonight.css -- it rearranges all four from
@@ -120,6 +120,9 @@ surface/live/mirror.css
 surface/live/tds.css
 surface/live/gamesheet.css
 surface/teams/clipsheet.css
+surface/recap/recap.css
+surface/recap/players.css
+surface/recap/scores.css
 surface/strip/field.css
 surface/strip/figure.css
 surface/strip/panel.css

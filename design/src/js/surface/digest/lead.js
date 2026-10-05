@@ -1,8 +1,9 @@
 /* ============================== DIGEST: THE LEAD ==============================
    One fact leads the week: a headline, one fact line, a photo. ff-jarvis picks it by rule (the
-   packet's `lead`: a hurt starter first, then a game in bad weather, then the week's results once
-   half of it is final, then the top headline); this file only writes it. No stats row and no "leads because" line (David, 2026-09-26): the fact is
-   the lead, and the rows under it carry the numbers. */
+   packet's `lead`: a hurt starter first, then a game in bad weather, then the top headline); this
+   file only writes it. No stats row and no "leads because" line (David, 2026-09-26): the fact is the
+   lead, and the rows under it carry the numbers. The week's results left the banner on 2026-10-05
+   (Recap has them); a packet whose `lead` is still "results" falls to the top headline (data/digest.js). */
 
 const DG_STATUS = {
   Out: ["out", () => t("digest.status.out")], IR: ["out", () => t("digest.status.ir")],
@@ -41,11 +42,11 @@ function dgLeadWx(g){
           fact: [g.kick ? esc(g.kick) + "." : "", sky ? sky + "." : ""].filter(Boolean).join(" ")};
 }
 
-/* Rule 3 (2026-09-28): once half the week is final, the week's top score among the recap's
-   standouts, called like a game (David, 2026-09-29, storyboard
+/* The week's top score, called like a game (David, 2026-09-29, storyboard
    https://claude.ai/artifact/BvceuqtTkqyvzgjiHPGK7g): "Gibbs rumbles for 164 yards and 3 TDs", his
-   box line as pills, the banner washed in his team's colour with its code huge behind him. The
-   headline celebrates: no projection, no luck, nothing the Results list under it already says. */
+   box line as pills. It was the banner's rule 3 once half the week was final, until 2026-10-05; it is
+   now Recap's banner, which calls dgCall and dgBoxPills (the Digest's live banner is dgTopCall, below).
+   The headline celebrates: no projection, no luck, nothing the lists under it already say. */
 const dgSurname = n => n.replace(/\s+(Jr\.?|Sr\.?|II|III|IV|V)$/i, "").split(" ").slice(1).join(" ") || n;
 
 /* The announcer's call, picked by what his day was made of, never invented: a passer (10+ throws),
@@ -111,23 +112,16 @@ function dgTopCall(top, on, name){
   return t("digest.live.plain", v);
 }
 
-/* His box line, once each: the points, then passing, rushing and receiving where he had any. */
+/* His box line, once each: passing, rushing and receiving where he had any. No fantasy points
+   (David, 2026-10-05: a headline shows yards and TDs, never points, since every league scores differently). */
 function dgBoxPills(r){
   const b = r.line || {}, pill = s => `<span class="dg-lpill">${s}</span>`;
-  return [pill(t("digest.call.pts", {n: r.actual.toFixed(1)})),
-    b.att >= 10 ? pill(t("digest.call.passLine", {c: b.cmp, a: b.att, y: b.pass_yd})) : "",
+  return [b.att >= 10 ? pill(t("digest.call.passLine", {c: b.cmp, a: b.att, y: b.pass_yd})) : "",
     b.car ? pill(t("digest.call.rushLine", {n: b.car, y: b.rush_yd})) : "",
     b.rec ? pill(t("digest.call.recLine", {n: b.rec, y: b.rec_yd})) : ""].join("");
 }
 
-function dgLeadRes(d){
-  const r = [...d.stars].sort((a, b) => b.actual - a.actual)[0];
-  if (!r) return {tone: "go", photo: "", head: t("digest.lead.res.none", {week: d.week}), fact: ""};
-  return {tone: "go team", team: r.team, slug: r.slug, name: r.n, photo: dgPhotoHTML(r.slug), ghost: esc(r.team),
-          head: dgCall(r, d.week), fact: `<span class="dg-lead-pills">${dgBoxPills(r)}</span>`};
-}
-
-/* Rule 4: the headline itself, a size down because it is a sentence, not a name. */
+/* Rule 3: the headline itself, a size down because it is a sentence, not a name. */
 function dgLeadNews(it){
   return {tone: it.kind === "out" ? "out" : it.kind === "injury" ? "q" : "", photo: dgPhotoHTML(it.slugs), long: true, slug: [].concat(it.slugs || [])[0], name: it.n,
           head: esc(it.headline), fact: it.when ? t("digest.lead.news.fact", {when: esc(it.when)}) : t("digest.lead.news.src")};
@@ -163,7 +157,6 @@ function dgLead(){
   const live = dgLeadLive(d);
   if (live) return live;
   const l = d.lead;
-  if (l && l.rule === "results") return dgLeadRes(d);
   const row = l && d.leadRows[l.rule] ? d.leadRows[l.rule][l.index] : null;
   if (!row) return {tone: "quiet", photo: "", head: t("digest.lead.quiet.head"), fact: t("digest.lead.quiet.sub")};
   return l.rule === "hurt" ? dgLeadHurt(row) : l.rule === "weather" ? dgLeadWx(row) : dgLeadNews(row);

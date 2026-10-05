@@ -41,27 +41,20 @@ def test_game_rows_carry_their_kickoff_for_the_browser():
     assert all(r["ko"] is None or r["ko"].endswith("Z") for r in b["best"] + b["top5"])
 
 
-def test_results_cut_to_finals_stars_and_busts():
+def test_the_packet_carries_no_results_but_recap_still_cuts_left_hurt_rows():
+    """2026-10-05: the week's results moved to This week > Recap (LIVE_RECAP), so the Digest's packet no
+    longer carries finals, stars, smashed, busts or left. design/recap.py still cuts its left-hurt rows with
+    digest._left: a tagged headline gives the injury, an untagged one loses his name, suffix and all, and his
+    newest headline since, when there is one, is `later`, without his name or tag."""
+    from digest import _left
     b = _block()
-    assert b["finals"] == [{"away": "MIA", "home": "BUF", "away_pts": 17.0, "home_pts": 27.0}]
-    assert b["pending"] == 2
-    assert [(r["pos"], r["n"], r["actual"]) for r in b["stars"]] == [("QB", "Josh Allen", 24.6), ("RB", "James Cook", 19.4)]
-    assert b["busts"][0]["slug"] == slugify("De'Von Achane")
-    assert [(r["n"], r["diff"]) for r in b["smashed"]] == [("Khalil Shakir", 9.7)]
-    # A tagged headline gives the injury; an untagged one loses his name, suffix and all.
-    # His newest headline since, when there is one, is `later`, without his name or tag.
-    assert [(r["n"], r["injury"], r["rest"], r["later"]) for r in b["left"]] == [
+    assert not {"finals", "pending", "stars", "smashed", "busts", "left"} & set(b)
+    left = [_left(x, slugify) for x in load_digest()["results"]["left_hurt"]]
+    assert [(r["n"], r["injury"], r["rest"], r["later"]) for r in left] == [
         ("Tua Tagovailoa", "concussion", "ruled out for the remainder", None),
         ("De'Von Achane", "knee", "questionable to return", "suffers season-ending torn ACL"),
         ("Travis Etienne", None, "exits early Sunday", None)]
     assert b["asof_words"] == "Fri 10:40 PM"
-
-
-def test_a_reason_is_rounded_as_the_row_says_it():
-    b = _block()
-    assert b["smashed"][0]["why"] == {"kind": "role", "luck": 5, "expected": 12, "stat": "targets",
-                                      "share": 31, "delta": 10}
-    assert [r["why"]["kind"] for r in b["busts"]] == ["hurt", "luck"]
 
 
 @pytest.fixture(scope="module")
@@ -83,137 +76,72 @@ def phone(_phone):
 
 
 @pytest.mark.render
-def test_results_reads_as_the_storyboard(phone):
-    """The badge counts games still to play; each smashed or busted line says why and shows its
-    points over its projection, no gap (2026-09-29); a bust who left hurt borrows Left hurt's
-    freshest word."""
-    page, errors = phone
-    drive(page, go("digest"))
-    got = page.evaluate("""() => {
-      const d = dgD(), host = document.createElement('div');
-      host.innerHTML = dgResBody(d);
-      const rows = [...host.querySelectorAll('.dg-rlow .dg-rr')];
-      const lines = rows.map(b => b.querySelector('.dg-rr-n').textContent.replace(/\\s+/g, ' ').trim());
-      const nums = rows.map(b => [...b.querySelectorAll('.dg-rv > *')].map(x => x.textContent));
-      const pill = s => { const h = document.createElement('div'); h.innerHTML = dgOutPill(s); return h.textContent; };
-      return {badge: dgCount('res', d)[0], lines, nums,
-              pills: {season: [...host.querySelectorAll('.dg-rlow .dg-pill.out')].filter(p => p.textContent === 'Season').length,
-                      weeks: pill('Baker Mayfield expected to miss three weeks')}};
-    }""")
-    assert errors == []
-    assert got["badge"] == "2 to play"
-    # every reason is a pill (DESIGN.md "Say it in a shape"); innerText has no gaps between flex cells
-    assert "31% tgt +10" in got["lines"][0] and "TD luck +5" in got["lines"][0]
-    assert got["nums"][0] == ["17.8", "8.1"]                   # points over projection, no gap
-    assert all(len(n) <= 2 for n in got["nums"])
-    assert "Hurt · Knee" in got["lines"][1]
-    assert "TD luck −6" in got["lines"][2]
-    assert "Concussion" in got["lines"][3] and got["nums"][3] == ["3.2", "18.4"]
-    assert "Left early" in got["lines"][5]
-    assert got["pills"]["season"] == 1 and got["pills"]["weeks"] == "Out 3 wks"
-
-
-@pytest.mark.render
-def test_the_results_lists_are_one_panel_under_tabs_on_a_phone(browser, page_file):
-    """2026-09-29, storyboard Ms6FbdvynVPoRTKEidPGAz 2A (David: "clicking on smashed, busts, and left hurt
-    opens up all 3 panels anyways ... just opens a big panel"): on a phone one tab bar, each tab its
-    list's count, one list showing. A tap swaps the list in place, and the pick survives a repaint."""
-    ctx, page, errors = open_page(browser, page_file, (390, 844))
-    drive(page, go("digest"))
-    page.wait_for_selector(".dg-row[data-dgrow='res']")
-    if page.locator(".dg-row[data-dgrow='res'][data-open]").count() == 0:
-        page.click(".dg-row[data-dgrow='res'] .dg-head")
-        page.wait_for_selector(".dg-row[data-dgrow='res'][data-open]")
-    visible = lambda sel: page.locator(sel).evaluate_all("els => els.filter(e => e.checkVisibility({visibilityProperty: true})).length")
-    tabs = page.locator("[data-dgset='res'] .dg-tab")
-    n = page.evaluate("(() => { const d = dgD(); return [d.smashed.length, d.busts.length, d.left.length]; })()")
-    assert tabs.count() == 3
-    assert [tabs.nth(i).locator(".dg-tab-n").inner_text() for i in range(3)] == [str(x) for x in n]
-    assert tabs.first.get_attribute("aria-selected") == "true"
-    assert visible("[data-dgset='res'] .dg-rr") == n[0]
-    assert visible("[data-dgset='res'] .dg-tabh") == 0          # the tab names the list; no second heading
-    tabs.nth(2).click()
-    assert tabs.nth(2).get_attribute("aria-selected") == "true" and tabs.first.get_attribute("aria-selected") == "false"
-    assert visible("[data-dgset='res'] .dg-rr") == n[2]
-    page.evaluate("render()")
-    assert page.locator("[data-dgset='res'] .dg-tab").nth(2).get_attribute("aria-selected") == "true"
-    ctx.close()
-    assert errors == []
-
-
-@pytest.mark.render
-def test_the_wall_opens_all_three_results_lists_on_the_boards_columns(browser, page_file):
-    """2026-09-29 (David: "I still feel the tab list to be awkward"): on the wall no tab bar; Smashed,
-    Busts and Left hurt all open, each under its own heading with its count, on the board's four columns
-    (Smashed under QB, Busts under RB, Left hurt across WR and TE, read down two). Every row can be
-    tapped, and each leads with its points right against the name."""
-    ctx, page, errors = open_page(browser, page_file, (1705, 1000))
-    drive(page, go("digest"))
-    page.wait_for_selector(".dg-rs")
-    got = page.evaluate("""(() => {
-      const set = document.querySelector('[data-dgset="res"]'), vis = e => e.checkVisibility({visibilityProperty: true});
-      // The board's four column lefts, from its grid (the fixture fills fewer than four positions).
-      const bd = document.querySelector('.dg-bd'), cs = getComputedStyle(bd), w = cs.gridTemplateColumns.split(' ').map(parseFloat);
-      const col = w.map((_, i) => Math.round(bd.getBoundingClientRect().left + w.slice(0, i).reduce((a, b) => a + b, 0) + i * parseFloat(cs.columnGap)));
-      const panels = [...set.querySelectorAll('.dg-tabp')].map(p => ({key: p.dataset.dgpanel, shown: vis(p),
-        left: Math.round(p.getBoundingClientRect().left), width: Math.round(p.getBoundingClientRect().width),
-        head: [p.querySelector('.dg-tabh').firstChild.textContent.trim(), p.querySelector('.dg-tabh b').textContent].join(' '), rows: p.querySelectorAll('.dg-rr').length}));
-      const rows = [...set.querySelectorAll('.dg-rr')];
-          rows.at(-1).scrollIntoView({block: 'center'});   // below the fold since Need to know took the first band
-      return {bar: vis(set.querySelector('.dg-tabs')), col, panels,
-              gap: Math.max(...rows.map(r => r.querySelector('.dg-rr-n').getBoundingClientRect().left - r.querySelector('.dg-rv').getBoundingClientRect().right)),
-              leftCols: getComputedStyle(set.querySelector('[data-dgpanel="left"] .dg-rlist')).gridTemplateColumns.split(' ').length,
-              top: document.elementFromPoint(...(r => [r.left + 8, r.top + 8])(rows.at(-1).getBoundingClientRect())) === rows.at(-1)
-                   || rows.at(-1).contains(document.elementFromPoint(...(r => [r.left + 8, r.top + 8])(rows.at(-1).getBoundingClientRect())))};
-    })()""")
-    n = page.evaluate("(() => { const d = dgD(); return {smashed: d.smashed.length, busts: d.busts.length, left: d.left.length}; })()")
-    ctx.close()
-    assert errors == []
-    assert not got["bar"]
-    by = {p["key"]: p for p in got["panels"]}
-    assert all(p["shown"] for p in got["panels"])
-    assert {k: p["rows"] for k, p in by.items()} == n
-    assert by["smashed"]["head"] == f"Smashed {n['smashed']}" and by["left"]["head"] == f"Left hurt {n['left']}"
-    assert by["smashed"]["left"] == got["col"][0] and by["busts"]["left"] == got["col"][1] and by["left"]["left"] == got["col"][2]
-    assert by["left"]["width"] > 1.8 * by["smashed"]["width"] and got["leftCols"] == 2
-    assert 0 <= got["gap"] <= 24                      # the points lead, right against the name
-    assert got["top"], "a row on the wall is tappable, not covered or inert"
-
-
-@pytest.mark.render
-def test_results_on_the_wall_keep_each_number_by_its_name(browser, page_file):
-    """On a desktop the board sits in four position columns, each a heading
-    over rows of name, his day and points, with no face (2026-09-29, storyboard Ms6FbdvynVPoRTKEidPGAz
-    1B: "should the categories be bigger? Should we consider not using headshots?"). A board row is one column wide, so its points sit within 350px of its name at
-    the 1,680px frame. A phone sets the board two positions a row."""
-    got = {}
-    for size in ((1705, 1000), (360, 740)):
+def test_the_digest_has_no_results_row_banner_board_or_wait_card(browser, page_file):
+    """2026-10-05 (David: "we probably need a recap section for the week instead of dumping it into the
+    Digest. The Digest should be a curated list of content for readers to enjoy and not just a results
+    section that stays there for the whole week and quickly become stale"). On a phone and on the wall,
+    before the week, on a Monday after games and once the week is over: no Results row, no board, no
+    Smashed / Busts / Left hurt tabs, no "Waiting on week N" card. Monday opens no row of its own. The
+    banner the packet's "results" rule used to draw falls to the top headline."""
+    states = ("2026-09-18T12:00:00Z", "2026-09-22T12:00:00Z", "2026-09-28T13:00:00Z", "2026-10-02T12:00:00Z")
+    for size in ((390, 844), (1400, 900)):
         ctx, page, errors = open_page(browser, page_file, size)
         drive(page, go("digest"))
-        if page.locator(".dg-row[data-dgrow='res'][data-open]").count() == 0:
-            page.click(".dg-row[data-dgrow='res'] .dg-head")
-        page.wait_for_selector(".dg-rs")
-        got[size[0]] = page.evaluate("""() => {
-          const cols = s => getComputedStyle(document.querySelector(s)).gridTemplateColumns.split(' ').length;
-          const rows = [...document.querySelectorAll('.dg-bd-r')].map(r => {
-            const n = r.querySelector('b').getBoundingClientRect(), v = r.querySelector('i').getBoundingClientRect();
-            return {gap: v.left - n.left, day: getComputedStyle(r.querySelector('.dg-bd-s')).display};
-          });
-          const head = document.querySelector('.dg-bd-p'), name = document.querySelector('.dg-bd-r b');
-          return {tiles: document.querySelectorAll('.dg-rs .dg-tiles').length, board: cols('.dg-bd'), list: cols('.dg-rlist'), rows,
-                  faces: document.querySelectorAll('.dg-bd .dg-hd').length,
-                  headPx: parseFloat(getComputedStyle(head).fontSize), namePx: parseFloat(getComputedStyle(name).fontSize)};
-        }""")
+        page.wait_for_selector(".dg-row")
+        for at in states:
+            got = page.evaluate("""(at) => { Date.now = () => Date.parse(at); DG_CUT = null; DG_OPEN = null;
+              // The old packet still says its lead is the results rule: it must not draw one.
+              LIVE_DIGEST.lead = {rule: 'results', index: 0}; render();
+              const d = dgD();
+              return {rows: [...document.querySelectorAll('.dg-row')].map(r => r.dataset.dgrow),
+                      parts: document.querySelectorAll('.dg-rs, .dg-bd, .dg-rr, .dg-rlist, [data-dgset="res"], .dg-wait, .dg-lead-pills').length,
+                      lead: d.lead, head: document.querySelector('.dg-lead-h').textContent,
+                      news: d.news.length ? d.news[0].headline : null,
+                      open: document.querySelectorAll('.dg-row[data-open]').length,
+                      day: new Date(Date.now()).getDay()}; }""", at)
+            assert "res" not in got["rows"] and got["parts"] == 0, (size, at, got)
+            assert got["lead"] is None or got["lead"]["rule"] != "results", (size, at, got)
+            if got["news"] and got["lead"] and got["lead"]["rule"] == "news":
+                assert got["head"] == got["news"], (size, at, got)
+            if size[0] < 1100 and got["day"] == 1:
+                assert got["open"] == 0, (size, at, got)
         ctx.close()
         assert errors == []
-    wall, phone = got[1705], got[360]
-    # No tiles in Results since 2026-09-29: each restated a list's first row. Smashed: one column, under QB.
-    assert (wall["tiles"], wall["board"], wall["list"]) == (0, 4, 1)
-    assert wall["rows"] and max(r["gap"] for r in wall["rows"]) < 350
-    assert {r["day"] for r in wall["rows"]} == {"block"}
-    assert wall["faces"] == 0 and phone["faces"] == 0
-    assert wall["headPx"] > wall["namePx"] and phone["headPx"] > phone["namePx"]   # the position leads
-    assert (phone["board"], phone["list"]) == (2, 1)
+
+
+@pytest.mark.render
+def test_the_parts_the_recap_view_draws_with_still_draw(phone):
+    """2026-10-05: the Results row is gone from the Digest, but the functions that drew a call, a box line, a
+    board, a reason and a left-hurt row stay under their names (surface/digest/parts.js, lead.js) for the Recap
+    view, which draws them from LIVE_RECAP. A LIVE_RECAP row has no `why`, so dgWhy takes a planted one."""
+    page, errors = phone
+    got = page.evaluate("""() => {
+      const text = html => { const h = document.createElement('div'); h.innerHTML = html; return h.textContent.replace(/\\s+/g, ' ').trim(); };
+      const R = LIVE_RECAP, top = R.top;
+      const left = R.left_hurt.length ? R.left_hurt[0] : {injury: 'knee', later: 'suffers season-ending torn ACL', slug: 'x', n: 'Test Player', proj: 10, actual: null};
+      const why = {kind: 'role', luck: 5, expected: 12, stat: 'targets', share: 31, delta: 10};
+      const board = (() => { const h = document.createElement('div'); h.innerHTML = dgBoardHTML({stars: R.stars}); return h; })();
+      return {board: board.querySelectorAll('.dg-bd-r').length, stars: R.stars.length,
+              boardText: board.querySelector('.dg-bd-r') ? board.querySelector('.dg-bd-r').textContent.replace(/\\s+/g, ' ').trim() : '',
+              first: R.stars.length ? dgShort(R.stars[0].n) + ' ' + dgStatLine(R.stars[0]) + ' ' + R.stars[0].actual.toFixed(1) : '',
+              call: text(dgCall({n: 'Jahmyr Gibbs', line: {car: 20, rush_yd: 99, rec: 7, rec_yd: 65, td: 3, att: null}, actual: 30}, 4)),
+              box: [...(() => { const h = document.createElement('div'); h.innerHTML = dgBoxPills({...top, actual: top.actual}); return h.querySelectorAll('.dg-lpill'); })()].map(e => e.textContent),
+              topLine: dgTopLine({rush_yd: 99, rec_yd: 65, rush_td: 1, rec_td: 2}),
+              why: text(dgWhy({why, diff: 9.7, slug: 'x'}, [])),
+              leftRow: text(dgResRow(left, dgLeftPills(left), dgResNum(left))),
+              out: [text(dgOutPill('Baker Mayfield expected to miss three weeks')), text(dgOutPill('suffers season-ending torn ACL'))],
+              games: [dgGames(1), dgGames(15)]};
+    }""")
+    assert errors == []
+    assert got["board"] == got["stars"] > 0
+    assert got["boardText"] and got["first"].split(" ")[0] in got["boardText"]
+    assert re.match(r"^Gibbs (rumbles for|runs wild for|bulldozes for|churns out) 164 yards and 3 TDs$", got["call"]), got["call"]
+    assert got["box"] and not any(b.endswith("pts") for b in got["box"])    # yards, never points (2026-10-05)
+    assert got["topLine"] == "164 yards, 3 TDs"
+    assert got["why"] == "31% tgt +10TD luck +5"
+    assert got["out"] == ["Out 3 wks", "Season"]
+    assert got["leftRow"].startswith("L. Jackson") and "Ankle" in got["leftRow"]      # his injury as an amber word, then how long
+    assert got["games"] == ["1 game", "15 games"]
 
 
 @pytest.mark.render
@@ -284,13 +212,14 @@ def test_the_call_picks_its_verb_from_his_day(phone):
 
 
 @pytest.mark.render
-def test_a_finished_week_folds_the_preview_rows_into_the_wait(browser, page_file):
+def test_a_finished_week_drops_the_preview_rows_and_draws_no_wait_card(browser, page_file):
     """Once every game of the packet's week has kicked off (the fixture's week 3 ends with KC @ SF,
     2026-09-21), Hurt and Matchups have nothing left to preview and next week's are not written: they
-    leave the ticker for one card, Blip's, with a line each (2026-09-29, storyboard
-    UDoWgLMrzUHup5tX53zaue option B). Weather and Top 5 read next week's data and stay out of the wait
-    since 2026-09-29 (storyboard Ms6FbdvynVPoRTKEidPGAz 5A, 6A). Hurt is Need to know since 2026-09-29,
-    above the rows: with nobody hurt it says so, and once the week is over it waits on next week's report."""
+    leave the ticker (2026-09-29). The card that stood in for them, Blip's "Waiting on week N" (storyboard
+    UDoWgLMrzUHup5tX53zaue option B), left on 2026-10-05 with the Results row: the Recap row takes that
+    slot of the page. Weather and Top 5 read next week's data and stay. Hurt is Need to know since
+    2026-09-29, above the rows: with nobody hurt it says so, and once the week is over it waits on next
+    week's report."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     for _, sel in go("digest"):
         page.click(sel)
@@ -299,20 +228,16 @@ def test_a_finished_week_folds_the_preview_rows_into_the_wait(browser, page_file
       DG_CUT = null; render();
       return [...document.querySelectorAll('.dg-ticker > [data-dgrow]')].map(e => e.dataset.dgrow); }""", when)
     before = at("2026-09-20T12:00:00Z")
-    assert "wait" not in before and "mu" in before and "hurt" not in before
+    assert "mu" in before and "hurt" not in before
     assert page.locator(".dg-need .dg-nd-none").inner_text() == "Nobody new is out since Tuesday."
     after = at("2026-09-22T12:00:00Z")
-    assert "wait" in after and not {"hurt", "mu"} & set(after)
+    assert not {"hurt", "mu", "wait"} & set(after) and ("wx" in after or "t5" in after)
     assert page.locator(".dg-need .dg-nd-none").inner_text() == "Week 4's injury report is still in the trainer's room."
-    card = page.locator(".dg-wait")
-    assert card.locator(".dg-wait-h").inner_text().upper() == "WAITING ON WEEK 4"
-    assert card.locator("svg.blip").count() == 1
-    lines = {li.locator("b").inner_text().upper(): li.locator("span").inner_text() for li in card.locator("li").all()}
-    assert list(lines) == ["HURT", "MATCHUPS"]
-    assert lines["HURT"] == "Week 4's injury report is still in the trainer's room."
-    # Blip's voice, not the record (2026-09-29, David: "say something funny ... instead of boring stats")
+    assert page.locator(".dg-wait").count() == 0 and page.locator(".dg svg.blip").count() == 0
+    # Blip's voice for a Matchups row with nothing to call stays (digest.js dgMuNone): one of three lines,
+    # never the record (2026-09-29, David: "say something funny ... instead of boring stats").
     jokes = page.evaluate("[t('digest.wait.mu1', {week: 4}), t('digest.wait.mu2'), t('digest.wait.mu3')]")
-    assert lines["MATCHUPS"] in jokes and not re.search(r"\d\.\d", lines["MATCHUPS"])
+    assert page.evaluate("dgMuNone(4)") in jokes
     ctx.close()
     assert errors == []
 
@@ -327,19 +252,25 @@ def test_every_wall_row_has_its_area(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
     drive(page, go("digest"))
     seen = {}
-    for at in ("2026-09-10T12:00:00Z", "2026-09-14T18:00:00Z", "2026-09-17T12:00:00Z", "2026-09-18T12:00:00Z",
-               "2026-09-21T20:00:00Z", "2026-09-22T00:30:00Z", "2026-09-22T12:00:00Z", "2026-09-24T12:00:00Z"):
-        got = page.evaluate("""(at) => { Date.now = () => Date.parse(at); DG_CUT = null; render();
+    clocks = ("2026-09-10T12:00:00Z", "2026-09-14T18:00:00Z", "2026-09-17T12:00:00Z", "2026-09-18T12:00:00Z",
+              "2026-09-21T20:00:00Z", "2026-09-22T00:30:00Z", "2026-09-22T12:00:00Z", "2026-09-24T12:00:00Z")
+    # Each clock with the Recap link, then two without it (a recap under half final draws no link).
+    for at, hide in [(c, False) for c in clocks] + [("2026-09-18T12:00:00Z", True), ("2026-09-22T12:00:00Z", True)]:
+        got = page.evaluate("""([at, hide]) => { Date.now = () => Date.parse(at); DG_CUT = null;
+          window.__nf = window.__nf ?? LIVE_RECAP.n_final; LIVE_RECAP.n_final = hide ? 0 : window.__nf; render();
           const tk = document.querySelector('.dg-ticker'), cs = getComputedStyle(tk);
           const names = new Set(cs.gridTemplateAreas.replace(/"/g, ' ').split(/\\s+/).filter(Boolean));
           const rows = [...tk.children].filter(e => getComputedStyle(e).display !== 'none');
           return {cls: tk.className, missing: rows.map(e => [e.dataset.dgrow || e.className, getComputedStyle(e).gridRowStart])
-            .filter(([, a]) => !names.has(a)), cols: cs.gridTemplateColumns.split(' ').length}; }""", at)
+            .filter(([, a]) => !names.has(a)), cols: cs.gridTemplateColumns.split(' ').length}; }""", [at, hide])
         seen[got["cls"]] = at
         assert got["missing"] == [], f"{at} ({got['cls']}): rows with no area in the template: {got['missing']}"
         assert got["cols"] == 12, f"{at} ({got['cls']}): {got['cols']} columns, the wall has 12"
-    # The fixture week must reach the finished-week layout, or the check above never saw it.
+    # The fixture week must reach the finished-week layout, with and without the Recap link, or the
+    # check above never saw it (the recap fixture's week ends Monday 2026-10-05, so the link shows all of September).
     assert any("wk-done" in c for c in seen), seen
+    assert any("wk-done" in c and "has-recap" in c for c in seen) and any("wk-done" in c and "has-recap" not in c for c in seen), seen
+    assert any("has-recap" in c and "wk-done" not in c for c in seen) and any("has-recap" not in c for c in seen), seen
     ctx.close()
     assert errors == []
 
@@ -587,27 +518,25 @@ def test_empty_sections_are_empty_lists_not_errors():
 @pytest.mark.render
 def test_a_started_game_drops_its_rows_live_and_the_lead_gives_way(browser, page_file):
     """The Friday packet read on Monday morning: nothing about a Sunday game survives in the
-    browser, the lead falls to the week's results, and the stamp says how old the packet is."""
+    browser, the lead falls to the top headline (it fell to the week's results until 2026-10-05, when
+    those moved to Recap), and the stamp says how old the packet is."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     page.evaluate('Date.now = () => Date.parse("2026-09-28T13:00:00Z")')   # after load: the page pins its own
     for _, sel in go("digest"):
         page.click(sel)
     page.wait_for_selector(".dg-row")
-    # the week's top score, called like a game on his box line, washed in his team's colour
-    assert re.match(r"^Allen (slings|airs it out for|carves them up for|lights it up for) 204 yards and 2 TDs$",
-                    page.locator(".dg-lead-h").inner_text())
-    assert page.locator(".dg-lead .dg-lpill").all_inner_texts() == ["24.6 pts", "16/26 · 204 yds", "8 car · 22 yds"]
-    assert "--team:#00338d" in page.locator(".dg-lead").get_attribute("style")
-    assert page.locator(".dg-lead .dg-ghost").inner_text() == "BUF"
+    # the hurt starter's game has started, so the banner is the top headline, never a results call
+    assert page.evaluate("dgD().lead") == {"rule": "news", "index": 0}
+    assert page.locator(".dg-lead-h").inner_text() == page.evaluate("dgD().news[0].headline")
+    assert page.locator(".dg-lead .dg-lpill").count() == 0
     assert page.locator(".dg-lead-when").inner_text() == "Week 3 · updated Fri 10:40 PM"
-    assert page.locator(".dg-row[data-dgrow='res'][data-open]").count() == 1
+    assert page.locator(".dg-row[data-dgrow='res']").count() == 0 and page.locator(".dg-row[data-open]").count() == 0
     left = page.evaluate("dgD().hurt.map(r => r.game && r.game.away + '@' + r.game.home)")
     assert "LA@DEN" not in left
     # The fixture schedule holds one week-3 game, so give one top-5 row a Sunday kickoff by hand.
     n = page.evaluate("dgD().top5.length")
     page.evaluate("LIVE_DIGEST.top5.find(r => !r.ko).ko = '2026-09-27T17:00:00Z'; DG_CUT = null")
     assert page.evaluate("dgD().top5.length") == n - 1
-    assert page.locator(".dg-row[data-dgrow='res'] .dg-foot").inner_text().startswith("1 game final, 2 to play.")
     assert errors == []
     ctx.close()
 
@@ -625,8 +554,9 @@ def test_the_wall_opens_every_panel_and_a_head_is_not_a_toggle(browser, page_fil
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
     page.goto(page_file.as_uri() + "#digest")
     page.wait_for_selector(".dg-row")
-    rows = page.locator(".dg-row:not(.empty)")
+    rows = page.locator(".dg-row:not(.empty):not(.link)")      # the Recap link is a band to tap, not a panel that opens
     assert rows.count() == page.locator(".dg-row[data-open]").count() > 0
+    assert page.locator(".dg-row.link").count() == 1 and page.locator(".dg-row.link[data-open]").count() == 0
     page.locator(".dg-row[data-dgrow='adds'] .dg-head").click()
     assert page.locator(".dg-row[data-dgrow='adds'][data-open]").count() == 1
     assert page.locator(".dg-ghost").inner_text() == "WR2"
@@ -938,6 +868,121 @@ def test_the_tds_link_opens_lives_tds_tab_even_when_storage_throws(browser, page
     page.locator(".dg-now-td").click()
     assert page.evaluate("location.hash") == "#live"
     assert page.evaluate("gdTab()") == "tds"
+    ctx.close()
+    assert errors == []
+
+
+# ---- the Recap row (2026-10-05): the one link left of the Results row ----
+
+# The recap fixture is week 4, 8 of 16 games final, its last kickoff Monday 2026-10-05 5:15 PM Pacific.
+# These clocks hold in every zone from UTC-12 to UTC+11: the row goes at the end of Wednesday 10/7.
+RECAP_ON, RECAP_LAST_DAY, RECAP_OFF = "2026-10-05T15:00:00Z", "2026-10-07T12:00:00Z", "2026-10-09T00:00:00Z"
+
+
+def _recap_row(page, at, js=""):
+    # Every call starts from the fixture's recap, so one case's edit never leaks into the next.
+    page.evaluate("""([at, js]) => { window.__r = window.__r ?? JSON.stringify(LIVE_RECAP); window.__s = window.__s ?? LIVE_SCHEDULE.games;
+      Object.assign(LIVE_RECAP, JSON.parse(window.__r)); LIVE_SCHEDULE.games = window.__s;
+      Date.now = () => Date.parse(at); DG_CUT = null; eval(js); render(); }""", [at, js])
+    return page.locator(".dg-row[data-dgrow='recap']")
+
+
+@pytest.mark.render
+def test_the_recap_row_links_to_recap_with_the_top_scorers_day_and_claudes_record(browser, page_file):
+    """2026-10-05: one ticker row stands in for the Results row, in the other rows' shape: "Recap", the week,
+    the top scorer's day and Claude's straight-up picks. It is a link to #weekrecap, opens nothing in place, and
+    prints no fantasy points (David: Digest headlines show yards and TDs, never points)."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    drive(page, go("digest"))
+    page.wait_for_selector(".dg-row")
+    row = _recap_row(page, RECAP_ON)
+    assert row.count() == 1
+    assert page.evaluate("document.querySelector('.dg-ticker > .dg-row').dataset.dgrow") == "recap", "first in the ticker"
+    link = row.locator("a.dg-head")
+    assert link.get_attribute("href") == "#weekrecap" and link.locator("svg.dg-arrow").count() == 1
+    assert row.locator(".dg-l").inner_text().upper() == "RECAP" and row.locator(".dg-n").inner_text() == "Wk 4"
+    assert row.locator(".dg-body").count() == 0 and row.get_attribute("data-open") is None
+    want = page.evaluate("[dgShort(LIVE_RECAP.top.n), dgStatLine(LIVE_RECAP.top), LIVE_RECAP.preview_record.su]")
+    wins, losses = (int(x) for x in want[2].split("-")[:2])
+    day = " · ".join(want[1].split(" · ")[:2])     # the first two parts of his line: the whole one cut off at 360px
+    assert row.locator(".dg-s-w").inner_text() == f"{want[0]} {day}"
+    assert row.locator(".dg-s-c").inner_text() == f"Claude {wins} of {wins + losses}"
+    text = row.locator(".dg-s").inner_text()
+    assert not re.search(r"\d\.\d|pts|point", text), f"no fantasy points on a Digest headline: {text!r}"
+    # A tap on the row is a link, not a toggle: it opens no body, and the view's own hash does the rest.
+    link.click()
+    assert page.evaluate("location.hash") == "#weekrecap"
+    ctx.close()
+    assert errors == []
+
+
+@pytest.mark.render
+def test_the_recap_row_drops_what_it_lacks_and_never_prints_a_missing_value(browser, page_file):
+    """No box line: just his name. No Preview record: no Claude part. No scorer at all: the label and the week."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    drive(page, go("digest"))
+    page.wait_for_selector(".dg-row")
+    row = _recap_row(page, RECAP_ON, "LIVE_RECAP.top = {...LIVE_RECAP.top, line: null}")
+    name = page.evaluate("dgShort(LIVE_RECAP.top.n)")
+    assert row.locator(".dg-s-w").inner_text() == name and row.locator(".dg-s-c").count() == 1
+    row = _recap_row(page, RECAP_ON, "LIVE_RECAP.preview_record = null")
+    assert row.locator(".dg-s-c").count() == 0 and row.locator(".dg-s-w b").count() == 1
+    row = _recap_row(page, RECAP_ON, "LIVE_RECAP.preview_record = {...LIVE_RECAP.preview_record, su: null}")
+    assert row.locator(".dg-s-c").count() == 0
+    row = _recap_row(page, RECAP_ON, "LIVE_RECAP.top = null")
+    assert row.count() == 1 and row.locator(".dg-s-w").count() == 0 and "undefined" not in row.inner_text()
+    ctx.close()
+    assert errors == []
+
+
+@pytest.mark.render
+def test_the_recap_row_shows_from_half_the_week_final_until_the_end_of_the_first_wednesday(browser, page_file):
+    """Shows when n_final * 2 >= n_games, until local midnight at the end of the first Wednesday after the
+    week's last kickoff; then hides. A recap file with no kickoff to count from draws no row."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    drive(page, go("digest"))
+    page.wait_for_selector(".dg-row")
+    shown = lambda at, js="": _recap_row(page, at, js).count() == 1
+    assert shown(RECAP_ON) and shown(RECAP_LAST_DAY)                         # Monday; Wednesday noon
+    assert not shown(RECAP_OFF)                                              # Thursday
+    assert not shown(RECAP_ON, "LIVE_RECAP.n_final = 7")                     # under half final
+    assert shown(RECAP_ON, "LIVE_RECAP.n_final = 8")                         # exactly half
+    assert not shown(RECAP_ON, "LIVE_RECAP.n_games = 0")
+    # The end is the reader's own midnight: Thursday 00:00 local, to the minute.
+    end = page.evaluate("""(() => { const r = LIVE_RECAP; const e = dgRecapEnd(r); return [e, new Date(e).getDay(), new Date(e).getHours(),
+      new Date(e).getMinutes(), Math.max(...r.games.map(g => Date.parse(g.kickoff)))]; })()""")
+    assert end[1:4] == [4, 0, 0] and end[0] > end[4] and end[0] - end[4] < 4 * 86400e3
+    gone = "LIVE_RECAP.games.forEach(g => { g.kickoff = null; }); LIVE_SCHEDULE.games = LIVE_SCHEDULE.games.filter(g => g.week !== LIVE_RECAP.week)"
+    assert not shown(RECAP_ON, gone)
+    # A kickoff on a Wednesday itself ends at the end of the NEXT one.
+    wed = "LIVE_RECAP.games.forEach(g => { g.kickoff = '2026-10-07T20:00:00Z'; })"
+    assert shown("2026-10-10T12:00:00Z", wed) and not shown("2026-10-16T12:00:00Z", wed)
+    ctx.close()
+    assert errors == []
+
+
+@pytest.mark.render
+def test_the_recap_row_fits_a_phone_and_sits_in_a_wall_band(browser, page_file):
+    """Nothing scrolls sideways at 360px, the row is one line at the ticker's 52px, and the wall draws it as a
+    full-width band (its own named area) that is a link, not a toggle."""
+    ctx, page, errors = open_page(browser, page_file, (360, 740))
+    drive(page, go("digest"))
+    page.wait_for_selector(".dg-row")
+    _recap_row(page, RECAP_ON)
+    got = page.evaluate("""(() => { const r = document.querySelector('.dg-row[data-dgrow="recap"]'), h = r.querySelector('.dg-head').getBoundingClientRect();
+      const c = r.querySelector('.dg-s-c').getBoundingClientRect(), s = r.querySelector('.dg-s').getBoundingClientRect();
+      return {h: Math.round(h.height), overflow: document.documentElement.scrollWidth > innerWidth, claudeInside: c.right <= s.right + 1}; })()""")
+    assert got["h"] == 52 and not got["overflow"] and got["claudeInside"], got
+    ctx.close()
+    ctx, page, errors = open_page(browser, page_file, (1705, 1000))
+    drive(page, go("digest"))
+    page.wait_for_selector(".dg-row")
+    _recap_row(page, RECAP_ON)
+    got = page.evaluate("""(() => { const tk = document.querySelector('.dg-ticker'), r = tk.querySelector('.dg-row[data-dgrow="recap"]');
+      const cs = getComputedStyle(r), b = r.getBoundingClientRect(), t = tk.getBoundingClientRect();
+      return {area: cs.gridRowStart, full: Math.abs(b.width - t.width) < 2, open: r.hasAttribute('data-open'),
+              line: getComputedStyle(r.querySelector('.dg-s')).display, cur: getComputedStyle(r.querySelector('.dg-head')).cursor}; })()""")
+    assert got["area"] == "recap" and got["full"] and not got["open"] and got["line"] != "none" and got["cur"] == "pointer", got
     ctx.close()
     assert errors == []
 

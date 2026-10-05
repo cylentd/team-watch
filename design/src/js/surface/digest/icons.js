@@ -3,7 +3,7 @@
    category"). Stroked in currentColor, so an icon is always its label's colour: grey, or lime on the
    day's open topic. Never emoji (DESIGN.md "Say it in a shape"). */
 const DG_ICON_PATH = {
-  res: '<path d="M7 4h10v4a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8"/>',
+  recap: '<path d="M7 4h10v4a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8"/>',
   hurt: '<path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6z"/>',
   mu: '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
   wx: '<path d="M7 17a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 8.5a3.5 3.5 0 0 1 0 8.5z"/>',

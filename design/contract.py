@@ -28,6 +28,10 @@ WAIVER_ROW = ["n", "slug", "pos", "team", "opp", "home", "tier", "weeks", "injur
 # 2026-09-23); a packet from before it reads null there and the card falls back to the row's
 # top-level `tier`, which ff-jarvis keeps as the best of the per-league ones.
 WAIVER_LEAGUE = ["status", "clears", "need", "tier", "lane", "verdict", "drop"]
+# design/recap.py: a player's day, and a kicker's or a defense's (`slug` null for a defense).
+RECAP_ROW = ["n", "slug", "pos", "team", "game_id", "actual", "proj", "diff", "line",
+             "pass_td", "rush_td", "rec_td", "ret_td"]
+RECAP_KD = ["n", "slug", "pos", "team", "game_id", "actual", "box"]
 
 LEAGUE_SPEC = {
     "keys": ["league", "season", "week", "since", "scope", "teams", "weeks", "now", "h2h", "champs", "facts"],
@@ -287,6 +291,22 @@ CONTRACT = {
         "sub_rows": [("record", "last_week", ["slug", "name", "pos", "call", "result", "finish"])],
         "checks": [startsit_v3.problems],
     },
+    # design/recap.py, This week > Recap (2026-10-05). Always whole: a recap file from before ff-jarvis added `games`,
+    # `preview_record`, `k_dst`, `left_hurt`, the TD split and `line` gives [] / null for them (`games` falls back to the
+    # file's finals, a game's `preview` is null, a row's TD fields and `line` null), never an absent key. `top` is null
+    # with no scorer. A row never carries `rostered`, `slot` or the file's `leagues` (tests/test_recap_data.py).
+    "LIVE_RECAP": {
+        "keys": ["season", "week", "asof", "complete", "n_games", "n_final", "games", "preview_record", "top", "stars",
+                 "k", "dst", "smashed", "busts", "tds", "left_hurt"],
+        "rows": [("games", ["game_id", "kickoff", "away", "home", "away_pts", "home_pts", "final", "preview"]),
+                 ("stars", RECAP_ROW), ("smashed", RECAP_ROW), ("busts", RECAP_ROW), ("tds", RECAP_ROW + ["td"]),
+                 ("k", RECAP_KD), ("dst", RECAP_KD),
+                 ("left_hurt", ["n", "slug", "pos", "team", "proj", "actual", "injury", "rest", "later"])],
+        "row_objs": [("games", "preview", ["winner", "score", "win_pct", "ats_side", "ats_conf", "total_call",
+                                           "total_conf", "spread_home", "total_line", "headline", "frozen",
+                                           "su_hit", "ats_hit", "total_hit"])],
+        "objs": [("preview_record", ["n", "su", "ats", "ats_pass", "total", "by_conf"]), ("top", RECAP_ROW)],
+    },
     # design/role.py, Players > Role (leaf `movers`). A row's `prev` is null when he played under 4
     # games last season; `work` values may be null where ff-jarvis had no number.
     "LIVE_ROLE": {"keys": ["season", "through", "min_games", "rows"],
@@ -333,13 +353,14 @@ CONTRACT = {
     },
     # design/digest.py, the Digest view (This week). `lead`, `record` and `near` may be null, and a
     # hurt row's `game`; `rank`, `rostered`, `injury`, `was`, `why`, `opp`, `temp_f`, `short`,
-    # `when`, a headline's `n`, `ko` (a kickoff the schedule lacks) and a result's `proj`/`diff` may
-    # be null too, and a left row's `injury` (a headline with no tag), and an add's `count` (espn) or
-# `was`/`now`/`delta` (sleeper, `now` when the experts do not have him), and `adds_hours` (espn). Every list may be empty: that is "nothing new".
+    # `when`, a headline's `n` and `ko` (a kickoff the schedule lacks) may be null too, and an add's `count`
+    # (espn) or `was`/`now`/`delta` (sleeper, `now` when the experts do not have him), and `adds_hours` (espn).
+    # Every list may be empty: that is "nothing new". The week's results (finals, stars, smashed, busts,
+    # left) left the packet on 2026-10-05 for LIVE_RECAP.
     "LIVE_DIGEST": {
         "keys": ["season", "week", "asof", "asof_words", "lead", "story", "rules", "hurt", "calls", "record", "best", "wx",
-                 "near", "adds_source", "adds_hours", "adds_weeks", "adds", "top5", "up", "down", "gems", "news", "finals", "pending", "stars",
-                 "smashed", "busts", "left", "tonight", "tonight_last", "starters"],
+                 "near", "adds_source", "adds_hours", "adds_weeks", "adds", "top5", "up", "down", "gems", "news",
+                 "tonight", "tonight_last", "starters"],
         "rows": [("hurt", ["n", "slug", "pos", "team", "status", "was", "injury", "new", "rank", "rostered", "game"]),
                  ("best", ["n", "slug", "pos", "team", "opp", "home", "pts", "why", "ko"]),
                  ("wx", ["away", "home", "kick", "ko", "temp_f", "wind_mph", "precip_pct", "short", "lead", "bar"]),
@@ -351,20 +372,12 @@ CONTRACT = {
                  ("news", ["when", "headline", "kind", "n", "rest", "slugs", "link"]),
                  # `over` (a team move alone), `from` (a new #1 alone), `proj`, `depth`, `day` and `ko` may be null.
                  ("starters", ["n", "slug", "pos", "team", "proj", "from", "depth", "day", "ko", "over"]),
-                 ("finals", ["away", "home", "away_pts", "home_pts"]),
-                 ("stars", ["n", "slug", "pos", "team", "actual", "proj", "diff", "why", "line"]),
-                 ("smashed", ["n", "slug", "pos", "team", "actual", "proj", "diff", "why"]),
-                 ("busts", ["n", "slug", "pos", "team", "actual", "proj", "diff", "why"]),
-                 # `proj`, `actual` and `later` (no headline since) may be null.
-                 ("left", ["n", "slug", "pos", "team", "proj", "actual", "injury", "rest", "later"]),
                  # A Tonight card's game; its lists (out, next_up, groups, moved, tcalls, projected)
                  # are pinned field by field in tests/test_digest.py, since a row spec is one level.
                  ("tonight", ["away", "home", "kick", "ko", "wx", "out", "next_up", "groups", "moved", "tcalls",
                               "projected"])],
         "row_objs": [("hurt", "game", ["away", "home", "kick", "ko"]),
                      ("starters", "over", ["n", "slug", "status"]),
-                     ("smashed", "why", ["kind", "luck", "expected", "stat", "share", "delta"]),
-                     ("busts", "why", ["kind", "luck", "expected", "stat", "share", "delta"]),
                      ("tonight", "wx", ["roof", "temp_f", "wind_mph", "precip_pct", "short"])],
         # Claude's pick of the story between games (2026-10-04): null, else head, fact, kind and asof are
         # all there; `club` and `player` ({n, slug, pos, team}) may be null.
