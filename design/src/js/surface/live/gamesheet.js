@@ -87,17 +87,18 @@ function gsFollowToggle(rec){
   try { localStorage.setItem(gsFollowKey(), JSON.stringify(GS_FOLLOW)); } catch (e) { /* kept for this open only */ }
 }
 
-/* A sideways swipe walks the week's games in kickoff order (2026-09-29, lib/swipe.js), the sheet staying
-   up: every NFL game, not only the NFL now card's. It stops at either end. */
-function gsWeekOrder(){
-  return gdWeekGames().slice().sort((a, b) => a.kickoff.localeCompare(b.kickoff) || a.away.localeCompare(b.away));
+/* A sideways swipe, or the step row's buttons, walks the week's games in the Games tab's order (live,
+   still to play, final; 2026-10-04, was kickoff order, so a swipe from the list jumped about), the
+   sheet staying up: every NFL game. The step row names the game on each side. It stops at either end. */
+function gsNeighbours(){
+  const games = gdGamesSorted().map(x => x.g);
+  const i = games.findIndex(g => (GS.event && g.espn === GS.event) || (g.away === GS.away && g.home === GS.home));
+  return i < 0 ? [null, null] : [games[i - 1] || null, games[i + 1] || null];
 }
 function gsStep(step){
   if (!GS) return;
-  const games = gsWeekOrder();
-  const i = games.findIndex(g => (GS.event && g.espn === GS.event) || (g.away === GS.away && g.home === GS.home));
-  const g = games[i + step];
-  if (i < 0 || !g) return;
+  const g = gsNeighbours()[step > 0 ? 1 : 0];
+  if (!g) return;
   gsOpen({event: g.espn || "", away: g.away, home: g.home}, GS_RETURN);   // layerPush keeps the one entry
   const d = gsEl();
   if (d && !REDUCED()){
@@ -163,6 +164,14 @@ const gsLive = () => GS && document.visibilityState === "visible" && (GS_GAME ? 
   if (!d) return;
   d.addEventListener("click", e => {
     if (e.target.closest("[data-gsclose]")) return gsClose();
+    const step = e.target.closest("[data-gsstep]");
+    if (step){
+      const k = step.dataset.gsstep;
+      gsStep(+k);
+      /* gsOpen focused the close; a keyboard reader stepping on stays on the step (if there is one). */
+      d.querySelector(`[data-gsstep="${k}"]`)?.focus({preventScroll: true});
+      return;
+    }
     const team = e.target.closest("[data-gsteam]");
     if (team){ GS_TEAM = team.dataset.gsteam; gsPaint(); return; }
     const tab = e.target.closest("[data-gstab]");

@@ -120,7 +120,7 @@ def open_game(pg, i=0):
     for _kind, sel in go("live"):
         pg.click(sel)
     pg.wait_for_function("typeof GD !== 'undefined' && GD.leagues.length > 0")
-    pg.evaluate("i => { const g = gsWeekOrder()[i]; gsOpen({event: g.espn || '', away: g.away, home: g.home}); }", i)
+    pg.evaluate("i => { const g = gdGamesSorted()[i].g; gsOpen({event: g.espn || '', away: g.away, home: g.home}); }", i)
     pg.wait_for_selector("#gamesheet.on")
 
 
@@ -134,7 +134,7 @@ def test_a_swipe_on_the_game_sheet_walks_the_weeks_games(page):
     page.evaluate("""() => { const g = gdWeekGames()[0];
         GD_GAMES.push({...g, id: g.id + '-b', espn: '', away: 'NE', home: 'BUF',
                        kickoff: new Date(Date.parse(g.kickoff) + 3 * 3600e3).toISOString().replace('.000', '')}); }""")
-    order = page.evaluate("gsWeekOrder().map(g => [g.away, g.home])")
+    order = page.evaluate("gdGamesSorted().map(x => [x.g.away, x.g.home])")
     assert len(order) >= 2 and at(page) == order[0]
     swipe(page, "#gamesheet", -120)
     assert at(page) == order[1]

@@ -41,6 +41,16 @@ body:has(.gamesheet.on){overflow:hidden}
   color:var(--ink-3);cursor:pointer;border-radius:10px}
 .gs-x svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
 .gs-x:focus-visible{outline:2px solid var(--lime)}
+/* The game on each side, in swipe order (gamecards.js gsStepsHTML): left the one before, right the
+   one after, each with where it stands. Quiet, so the score stays the headline. */
+.gs-steps{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:none;margin-top:-4px}
+.gs-step{appearance:none;border:0;background:none;min-height:40px;padding:4px 0;display:flex;align-items:center;gap:6px;
+  color:var(--ink-3);cursor:pointer;border-radius:8px;text-align:left;min-width:0}
+.gs-step.next{grid-column:2;flex-direction:row-reverse;text-align:right}
+.gs-step b{font:700 var(--t-5)/1 var(--mono);color:var(--ink-2)}
+.gs-step span{display:grid;min-width:0;font:700 var(--t-2)/1.2 var(--mono);letter-spacing:.02em;white-space:nowrap}
+.gs-step small{font:500 var(--t-1)/1.2 var(--ui);letter-spacing:0;overflow:hidden;text-overflow:ellipsis}
+.gs-step:focus-visible{outline:2px solid var(--lime)}
 
 /* The phone: one scroll for the whole body. Score, yours and the pane flow in .gs-main (.gs-side
    dissolves into it), and the tabs stick to the top of that scroll while the pane goes by. */

@@ -11,7 +11,26 @@ function gdLeaguesHTML(lg){
     `<button type="button" data-gdleague="${esc(l.key)}" aria-pressed="${l.key === lg.key}">${esc(l.name)}</button>`).join("")}</div>`;
 }
 
-const GD_LOCK = `<svg viewBox="0 0 12 12" aria-hidden="true"><rect x="2.5" y="5.5" width="7" height="5" rx="1"/><path d="M4 5.5V4a2 2 0 0 1 4 0v1.5"/></svg>`;
+/* A sideways swipe on Matchup or League walks the leagues, the chips above it in step (2026-10-04,
+   lib/swipe.js): the reader's own team in each, one swipe apart. It stops at either end. Games and
+   TDs draw no chips, so there it does nothing. */
+const GD_SWIPED = new WeakSet();   /* boards already listening: a paint keeps the board, a render() replaces it */
+function gdStepLeague(step){
+  const tab = gdTab(), lg = gdLeague();
+  if (SURFACE !== "live" || (tab !== "matchup" && tab !== "league") || !lg) return;
+  const next = GD.leagues[GD.leagues.indexOf(lg) + step];
+  if (!next) return;
+  gdSetLeague(next.key); paintLive();   // paintLive drops the last slide, so a poll never replays it
+  const board = document.querySelector("[data-gdboard]");
+  if (board && !REDUCED()){ void board.offsetWidth; board.classList.add(step > 0 ? "turn-r" : "turn-l"); }
+}
+/* Bound on the board, never on #view (render() passes that to wireLive), which outlives Live. */
+function gdWireSwipe(host){
+  const board = host.matches("[data-gdboard]") ? host : host.querySelector("[data-gdboard]");
+  if (board && !GD_SWIPED.has(board)){ GD_SWIPED.add(board); onSwipeX(board, gdStepLeague); }
+}
+
+const GD_LOCK =`<svg viewBox="0 0 12 12" aria-hidden="true"><rect x="2.5" y="5.5" width="7" height="5" rx="1"/><path d="M4 5.5V4a2 2 0 0 1 4 0v1.5"/></svg>`;
 const GD_CUP = `<svg class="gd-cup" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 2.5h6v3.5a3 3 0 0 1-6 0z"/><path d="M5 3.5H3a2 2 0 0 0 2 3M11 3.5h2a2 2 0 0 1-2 3M8 9v2.5M5.5 13.5h5"/></svg>`;
 
 /* A game's state, on the line above its two boxes so it can only belong to them: LIVE and how

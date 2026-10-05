@@ -201,6 +201,7 @@ function paintLive(){
   document.dispatchEvent(new Event("gd:stats"));
   const host = document.querySelector("[data-gdboard]");
   if (!host) return;
+  host.classList.remove("turn-r", "turn-l");   // a poll's repaint must not replay a swipe's slide
   host.innerHTML = gdBoardHTML();
   wireLive(host);
 }
@@ -239,6 +240,7 @@ function wireLive(host){
   }));
   /* The TDs tab is drawn by another file (surface/live/tds.js), which wires its own taps. */
   if (gdTab() === "tds" && typeof wireTds === "function") wireTds(host);
+  gdWireSwipe(host);
 }
 
 /* One timer for the life of the page, inert unless Live is on screen. */
