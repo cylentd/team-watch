@@ -77,10 +77,12 @@ function lbHeadHTML(cols){
   return `<div class="lb-head" role="row">${th(null, t("lboard.head.team"), " team")}${cols.map(c => th(c, c, "")).join("")}</div>`;
 }
 
+/* "Next game", not the page's week (2026-10-05): the projections are each player's next kickoff, so after
+   Sunday the numbers are week N+1 while schedWeek() stays N until Monday night's game is final. */
 function lbKeyHTML(){
-  const wk = schedWeek(), pct = LB_EDGE * 100;
+  const pct = LB_EDGE * 100;
   return `<div class="lb-key" role="group" aria-label="${t("lboard.key.aria")}">
-    <span class="lb-what">${wk ? t("lboard.key.what", {wk}) : t("lboard.key.whatNoWeek")}</span>
+    <span class="lb-what">${t("lboard.key.what")}</span>
     <span class="lb-k"><i class="lb-sw up"></i>${t("lboard.key.above", {pct})}</span>
     <span class="lb-k"><i class="lb-sw dn"></i>${t("lboard.key.below", {pct})}</span>
     <span class="lb-k"><i class="lb-plus">+</i>${t("lboard.key.spare")}</span></div>`;

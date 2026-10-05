@@ -32,7 +32,7 @@ OFFER = ("send", "get", "gain")
 PLAYER = ("name", "pos", "team", "slug", "seen", "injury")   # `injury` may be null; the key may not be missing
 VALUE = PLAYER + ("proj", "ir")                              # a rostered player in `values`
 LINEUP = ("slots", "flex", "floor", "cap")
-EDIT_REQUIRED = False    # TODO(2026-10-05): True once ff-jarvis writes lineup, values and drop; the old shape then fails the build
+EDIT_REQUIRED = True     # since 2026-10-05 (ff-jarvis 29e54f2 writes lineup, values, other and drop): the old shape fails the build
 LIMIT = 8                                                    # contract.problems cuts at this many, so stop early
 
 

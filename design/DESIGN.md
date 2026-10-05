@@ -403,7 +403,7 @@ League group. One row per team in a league, one column per position (QB, RB, WR,
 
 | Part | Rule |
 |---|---|
-| A cell | the sum of this week's projected points of the team's starters at that position, in its best legal lineup; FLX is what the league's flex slots take, the best RB/WR/TE left over |
+| A cell | the sum of the team's starters' projected points for each one's next game, in its best legal lineup; FLX is what the league's flex slots take, the best RB/WR/TE left over. The key says "Projected points, next game", never a week number (2026-10-05): after Sunday the projections are already week N+1 while the page's week is N until Monday night's game is final |
 | Tint | `--up` at 8% or more over the league's median for the column, `--down` at 8% or more under, else plain (`LB_EDGE`) |
 | Spare starter | a lime "+" in a cell's corner: a bench player at that position who projects above the median team's weakest starter there. The flex slots count as starters when finding the weakest one. QB, RB, WR and TE columns only |
 | Pin | the reader's own team (`tw-team`, never David's) is the top row with a lime outline, whatever the sort; no team of theirs in the league, no pin |
