@@ -2,6 +2,9 @@
 so the page can score every matchup itself from Sleeper's live stats (storyboard
 https://claude.ai/artifact/8qKDQUVxkz4F5naVPVQjhH).
 
+`me` stays in the data, but no view reads it as the reader's team (2026-10-04): the page is public and
+the reader's team is the one they picked, found by a team's `key` (js/surface/live/live.js gdMine).
+
 Inputs are ff-jarvis's: espn_league.json / yahoo_league.json (teams, games, week, bonus, ESPN's raw
 `scoring`), espn_rosters.json / league_rosters.json (`me` and each team's `detail` lineup), and
 yahoo_settings.json (Yahoo's raw `scoring`). api/_scoring.py turns the raw rules into terms. A
@@ -47,7 +50,10 @@ def _league(key, season, rosters, rules, ids, slugify, norm):
     week = season.get("week")
     names = {str(k): t["name"] for k, t in (season.get("teams") or {}).items()}
     by_name = {v: k for k, v in names.items()}
-    teams = {tid: {"name": name, "lineup": _lineup(rosters["detail"].get(name), ids, slugify, norm)}
+    # `key` is the page's own TEAMS key for the team (David's: the league's key; any other: the league
+    # plus the name's slug, as mates.live_mates keys it), so the page finds the reader's team by key.
+    teams = {tid: {"key": key if name == rosters.get("me") else f"{key}-{slugify(name)}", "name": name,
+                   "lineup": _lineup(rosters["detail"].get(name), ids, slugify, norm)}
              for tid, name in names.items()}
     games = [[str(g["away"]), str(g["home"])] for g in season.get("games") or []
              if str(g.get("week")) == str(week) and g.get("home") is not None]

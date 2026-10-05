@@ -41,11 +41,9 @@ function gdGameOf(club){
   return {kickoff: g.kickoff, home, opp: home ? g.away : g.home, key: gdNflKey(g)};
 }
 
-/* How many of my starters, in the league on screen, play in it. */
+/* How many of the reader's starters, in the league on screen, play in it (0 without a team there). */
 function gdMineIn(g, lg){
-  const tm = lg && lg.teams[lg.me];
-  if (!tm) return 0;
-  return tm.lineup.filter(gdStarter).filter(r => r.team && (gdSameClub(g.home, r.team) || gdSameClub(g.away, r.team))).length;
+  return gdMineLineup(lg).filter(gdStarter).filter(r => r.team && (gdSameClub(g.home, r.team) || gdSameClub(g.away, r.team))).length;
 }
 
 /* Games on now, for the tab's lime count. */

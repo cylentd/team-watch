@@ -27,8 +27,8 @@ const hasWaivers = team => !!team && !team.connected;
 const waiverKey = team => team && team.mate ? team.league : team && team.key;
 
 /* The reader's own team, remembered in this browser only; a key that no longer exists (a renamed
-   team, a league gone) falls back to David's Yahoo team. Unset means the reader has not picked
-   yet, and My teams asks first (teamswitch.js pickHTML). */
+   team, a league gone) reads as unset. Unset means the reader has not picked yet, and My teams
+   asks first (teamswitch.js pickHTML), and Live shows no team of theirs (live.js gdMine). */
 const MY_TEAM = "tw-team";
 function myTeamLoad(){
   try { const k = localStorage.getItem(MY_TEAM); return k && TEAMS[k] ? k : null; }
@@ -40,8 +40,9 @@ function myTeamSave(k){
 
 /* The teams a reader follows (2026-09-26): the team switch lists only these, and every other team
    in David's leagues sits behind its league's row, one tap further. Kept in this browser. Unset, it
-   is David's own teams (three since 2026-09-29), or the leaguemate's own team if they had already
-   picked it. A connected league is always followed: adding it was the follow. */
+   is the team the reader picked, or nothing: never David's own teams (David, 2026-10-04: "I don't
+   want it to default to my personal rosters"; the page is public and his three are three of ~36).
+   A connected league is always followed: adding it was the follow. */
 const FOLLOW = "tw-follow";
 let FOLLOW_MEM = null;        // this load's list, for a browser that refuses storage
 function followLoad(){
@@ -51,7 +52,7 @@ function followLoad(){
     if (Array.isArray(got)) return got.filter(k => TEAMS[k] && !TEAMS[k].connected);
   } catch (e) { /* unreadable: the default below */ }
   const mine = myTeamLoad();
-  return mine && TEAMS[mine].mate ? [mine] : myLeagueKeys();
+  return mine ? [mine] : [];
 }
 function followToggle(k){
   const now = followLoad(), next = now.includes(k) ? now.filter(x => x !== k) : [...now, k];

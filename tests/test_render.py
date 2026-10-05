@@ -34,8 +34,13 @@ OWNER_HASH = _owner_hash()
 # The reader has also chosen Sheet (2026-09-28: Cards became the default, and its pack would open a
 # stage over every roster state). test_roster_cards.py FRESH is the reader who never chose.
 CHOSE_SHEET = ' if (!localStorage.getItem("tw-roster-mode")) localStorage.setItem("tw-roster-mode", "sheet");'
+# And as a reader who follows David's three teams (2026-10-04, followLoad() is empty until a reader picks
+# or stars: the page no longer defaults to David's rosters). That keeps the team switch's list and every
+# Live "mine" (gdMine: the picked team, else a followed one) on David's teams, as these states drew them.
+# A first visit with nothing is the state "live-nopick" and tests/test_live_mine.py.
+FOLLOWING = ' if (!localStorage.getItem("tw-follow")) localStorage.setItem("tw-follow", JSON.stringify(["yahoo", "espn", "ayo"]));'
 PICKED = ('try { if (!localStorage.getItem("tw-team")) localStorage.setItem("tw-team", "yahoo");'
-          + CHOSE_SHEET +
+          + CHOSE_SHEET + FOLLOWING +
           f' if (localStorage.getItem("tw-owner") === null) localStorage.setItem("tw-owner", "{OWNER_HASH}"); }} catch (e) {{}}\n')
 VIEWPORTS = {"desk": (1400, 900), "phone": (390, 844)}
 PROPS = ["color", "background-color", "border-top-color", "border-top-style", "border-top-width",
@@ -414,6 +419,10 @@ STATES = [
     # A score that just moved wears its "+6.0" for a few seconds.
     ("live-moved", [("eval", LIVE_PLANT() + "GD_PULSE = {'8183': 6.0};")] + go("live")),
     ("live-yahoo", [("eval", LIVE_PLANT())] + go("live") + [("click", "[data-gdleague='yahoo']")]),
+    # A first visit (2026-10-04): no team picked or followed, so no side is "mine": neutral BY chips,
+    # no "you" under the median, and one line that opens My teams.
+    ("live-nopick", [("eval", "localStorage.removeItem('tw-team'); localStorage.removeItem('tw-follow')"),
+                     ("eval", LIVE_PLANT())] + go("live")),
     # Sleeper stopped answering: the last good board stays, the stamp says how old it is.
     ("live-stale", [("eval", LIVE_PLANT() + "GD_ERR = 'Could not reach Sleeper. Trying again.'; GD_BUSY = true;")]
                    + go("live")),

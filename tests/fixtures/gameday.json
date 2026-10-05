@@ -1166,6 +1166,7 @@
   },
   "teams": {
    "12": {
+    "key": "espn",
     "name": "Purdy Big in Japan",
     "lineup": [
      {
@@ -1307,6 +1308,7 @@
     ]
    },
    "15": {
+    "key": "espn-teamminh",
     "name": "TeamMinh",
     "lineup": [
      {
@@ -1440,6 +1442,7 @@
     ]
    },
    "5": {
+    "key": "espn-fafo",
     "name": "FAFO!",
     "lineup": [
      {
@@ -1573,6 +1576,7 @@
     ]
    },
    "11": {
+    "key": "espn-half-asian-lives-matter",
     "name": "Half Asian Lives Matter",
     "lineup": [
      {
@@ -1957,6 +1961,7 @@
   },
   "teams": {
    "9": {
+    "key": "yahoo",
     "name": "Chat Take the Wheel 👾",
     "lineup": [
      {
@@ -2034,6 +2039,7 @@
     ]
    },
    "4": {
+    "key": "yahoo-bobo-milk-tea",
     "name": "Bo-Bo Milk Tea",
     "lineup": [
      {
@@ -2111,6 +2117,7 @@
     ]
    },
    "11": {
+    "key": "yahoo-lamarley-me",
     "name": "Lamarley & Me",
     "lineup": [
      {
@@ -2188,6 +2195,7 @@
     ]
    },
    "1": {
+    "key": "yahoo-let-romo-take-the-wheel",
     "name": "Let Romo Take the Wheel",
     "lineup": [
      {

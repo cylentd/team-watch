@@ -33,8 +33,9 @@ const gdCounts = s => [s.playing ? t("live.count.playing", {n: s.playing}) : "",
   s.left ? t("live.count.left", {n: s.left}) : "", s.done && !s.playing && !s.left ? t("live.count.done", {n: s.done}) : ""]
   .filter(Boolean).join(" · ");
 
-/* Who leads, in words: "UP 0.6" / "DOWN 9.8" in my game, "BY 0.6" (the leader bright) in anyone
-   else's. Under each score, where it should finish (gdProj) and who is left. */
+/* Who leads, in words: "UP 0.6" / "DOWN 9.8" in the reader's own game, "BY 0.6" (the leader bright)
+   in anyone else's, and in every game while the reader has no team in the league (gdMine). Under
+   each score, where it should finish (gdProj) and who is left. */
 function gdLeadHTML(a, b, mine){
   const gap = a.total - b.total, n = gdNum(Math.abs(gap));
   if (Math.abs(gap) < 0.05) return `<span class="gd-lead even">${t("live.lead.tied")}</span>`;
@@ -43,21 +44,26 @@ function gdLeadHTML(a, b, mine){
 }
 
 function gdHeadHTML(a, b, lg){
-  const lead = a.total > b.total ? a : b.total > a.total ? b : null;
-  const side = (s, cls) => `<div class="gd-side ${cls}${s.id === lg.me ? " mine" : ""}${s === lead ? " lead" : ""}">
+  const lead = a.total > b.total ? a : b.total > a.total ? b : null, mine = gdMine(lg);
+  const side = (s, cls) => `<div class="gd-side ${cls}${mine && s.id === mine ? " mine" : ""}${s === lead ? " lead" : ""}">
       <span>${esc(s.name)}</span><b>${gdNum(s.total)}</b>
       <small>${t("live.projFinish", {n: gdNum(gdProj(s, projFor))})} · ${gdCounts(s)}</small></div>`;
-  return `<div class="gd-head">${side(a, "a")}${gdLeadHTML(a, b, a.id === lg.me)}${side(b, "b")}</div>`;
+  return `<div class="gd-head">${side(a, "a")}${gdLeadHTML(a, b, !!mine && a.id === mine)}${side(b, "b")}</div>`;
 }
 
-/* Where I stand against the league's median, under the score: "League median 101.7 · you +3.3",
-   green above it, red below. Only a league that pays the top half draws it. */
+/* Where the reader stands against the league's median, under the score: "League median 101.7 · you
+   +3.3", green above it, red below. Only a league that pays the top half draws it; without a team
+   of theirs in the league it is the median alone, in the neutral colour. */
 function gdMedianHTML(lg, sides){
   if (!lg.median) return "";
-  const {median} = gdLadder(Object.values(sides)), me = sides[lg.me];
+  const {median} = gdLadder(Object.values(sides)), mine = gdMine(lg), me = mine ? sides[mine] : null;
   const you = me ? ` · ${t("live.med.you", {d: gdSigned(me.total - median)})}` : "";
-  return `<p class="gd-medline ${me && me.total < median ? "dn" : "up"}">${t("live.med.line", {n: gdNum(median)})}${you}</p>`;
+  return `<p class="gd-medline${me ? (me.total < median ? " dn" : " up") : ""}">${t("live.med.line", {n: gdNum(median)})}${you}</p>`;
 }
+
+/* One line above the score while the reader has no team in this league: it opens My teams, where
+   they pick (teamswitch.js tsPickFor). Never a nag: it is a line, not a sheet. */
+const gdPickHTML = lg => `<button type="button" class="gd-pick" data-gdpick="${esc(lg.key)}">${t("live.pick")}</button>`;
 
 function gdStampHTML(){
   const now = Date.now();
@@ -71,14 +77,15 @@ function gdStampHTML(){
     : t("live.stamp.next", {at: esc(at), when: esc(gdClock(next))})}</p>`;
 }
 
-/* The Matchup tab: the game on screen (mine unless another was tapped in the League tab), its score
-   and the median under it, then the mirrored lineups. */
+/* The Matchup tab: the game on screen (the reader's unless another was tapped in the League tab; the
+   league's first when they have no team in it), its score and the median under it, then the mirrored
+   lineups, the reader's on the left. */
 function gdMatchupHTML(lg, sides){
-  const game = gdGame(lg);
+  const game = gdGame(lg), mine = gdMine(lg);
   let [a, b] = game ? [sides[game[0]], sides[game[1]]] : [];
-  if (b && b.id === lg.me) [a, b] = [b, a];
+  if (b && mine && b.id === mine) [a, b] = [b, a];
   if (!(a && b)) return "";
-  return `<div class="gd-match">${gdHeadHTML(a, b, lg)}${gdMedianHTML(lg, sides)}${gdMirrorHTML(a, b)}</div>`;
+  return `<div class="gd-match">${mine ? "" : gdPickHTML(lg)}${gdHeadHTML(a, b, lg)}${gdMedianHTML(lg, sides)}${gdMirrorHTML(a, b, lg)}</div>`;
 }
 
 /* The League tab: every matchup as one row, then the ranking. */

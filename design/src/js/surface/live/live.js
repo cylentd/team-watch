@@ -47,7 +47,7 @@ const gdOnScreen = () => (SURFACE === "live" || (SURFACE === "digest" && typeof 
 /* ---------------------------------------------------------------- which league, which game */
 
 const GD_LEAGUE_KEY = "tw-live-league";
-let GD_PICK = null;      /* the game on screen, as [away, home] ids; null = mine */
+let GD_PICK = null;      /* the game on screen, as [away, home] ids; null = the reader's (gdGame) */
 
 function gdLeague(){
   let k = null;
@@ -58,10 +58,11 @@ function gdSetLeague(key){
   try { localStorage.setItem(GD_LEAGUE_KEY, key); } catch (e) {}
   GD_PICK = null;
 }
-/* The game on screen: the picked one, else mine, else the first. */
+/* The game on screen: the picked one, else the reader's (mine.js gdMine), else the league's first. */
 function gdGame(lg){
   if (GD_PICK && lg.games.some(g => g[0] === GD_PICK[0] && g[1] === GD_PICK[1])) return GD_PICK;
-  return lg.games.find(g => g.includes(lg.me)) || lg.games[0] || null;
+  const mine = gdMine(lg);
+  return (mine && lg.games.find(g => g.includes(mine))) || lg.games[0] || null;
 }
 
 /* ---------------------------------------------------------------- the clock */
@@ -220,6 +221,7 @@ function wireLive(host){
   host.querySelectorAll("[data-gdbench]").forEach(b => b.addEventListener("click", () => {
     GD_BENCHES = !GD_BENCHES; paintLive();
   }));
+  wireGdPick(host);   // "Pick your team" (mine.js)
   /* A league game (League tab) opens in the Matchup tab. */
   host.querySelectorAll("[data-gdgame]").forEach(b => b.addEventListener("click", () => {
     GD_PICK = b.dataset.gdgame.split(","); gdSetTab("matchup"); paintLive();

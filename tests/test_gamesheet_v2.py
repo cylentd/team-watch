@@ -100,7 +100,9 @@ def test_yours_in_this_game_lists_my_players_and_leads_with_the_one_i_came_from(
     ctx, page, errors = open_page(browser, page_file, (360, 780))
     open_sheet(page, slug="amonra-st-brown")
     rows = page.locator(".gs-yours .gs-yr")
-    assert rows.count() >= 2                                   # St. Brown and Goff (DET) in the fixture's espn league
+    # "mine" is the reader's: the seed picks yahoo and follows all three, so St. Brown and Goff (DET)
+    # in the fixture's espn league (tests/test_live_mine.py: a reader with no team has none)
+    assert rows.count() >= 2
     assert "St. Brown" in rows.first.inner_text() and "focus" in rows.first.get_attribute("class")
     assert page.locator(".gs-yr.focus").count() == 1
     assert "Goff" in page.locator(".gs-yours").inner_text()
@@ -121,7 +123,7 @@ def test_a_star_follows_a_player_and_survives_closing_the_sheet(browser, page_fi
     assert star.get_attribute("aria-pressed") == "false"
     star.click()
     assert list(page.evaluate(FOLLOWED)) == ["7547"]          # tw-gs-follow.<week>, never tw-follow
-    assert page.evaluate("localStorage.getItem('tw-follow')") is None
+    assert page.evaluate("localStorage.getItem('tw-follow')") == '["yahoo","espn","ayo"]'   # the seed's, untouched
     page.keyboard.press("Escape")
     page.wait_for_selector("#gamesheet:not(.on)", state="attached")
     page.evaluate("gsOpen({event: '1', away: 'DET', home: 'BUF'}, null)")     # no slug now

@@ -60,7 +60,7 @@ function gsPlaysHTML(){
 /* The box's players, each scored by the league on screen, best first. */
 function gsScored(lg){
   const box = (GS_BOX && GS_BOX.box) || {};
-  const mine = new Set(((lg && lg.teams[lg.me]) || {lineup: []}).lineup.map(r => r.sid));
+  const mine = new Set(gdMineLineup(lg).map(r => r.sid));
   return Object.entries(box).map(([sid, p]) => ({sid, id: sid, ...p, pts: lg ? gdPts(lg.rules, p, p.s) : null, line: gdLine(p, p.s), mine: mine.has(sid), fol: sid in GS_FOLLOW}))
     .sort((a, b) => (b.pts || 0) - (a.pts || 0));
 }
@@ -73,7 +73,8 @@ function gsStar(p){
     data-n="${esc(p.n)}" data-pos="${esc(p.pos)}" data-team="${esc(p.team)}" aria-pressed="${!!p.fol}" aria-label="${esc(label)}">${GS_STAR}</button>`;
 }
 
-/* Every player of mine in this game, in every league, then everyone followed. The player the reader came
+/* Every player of the reader's teams in this game, in every league (gdMine; none until they pick or
+   follow a team), then everyone followed. The player the reader came
    from (GS.slug) leads, wherever he is rostered, mine or an opponent's. Scored by the league on screen. */
 function gsYours(){
   const lg = gdLeague(), seen = new Set(), out = [], box = (GS_BOX && GS_BOX.box) || {};
@@ -87,7 +88,7 @@ function gsYours(){
     out.push({id, sid: r.sid || "", slug: r.slug || "", n: r.n, pos: r.pos, team: r.team, line: gdLine(r, s), s,
               pts: lg ? gdPts(lg.rules, r, s) : null, fol: id in GS_FOLLOW, focus: !!GS.slug && r.slug === GS.slug});
   };
-  for (const l of GD.leagues) ((l.teams[l.me] || {}).lineup || []).forEach(add);
+  for (const l of GD.leagues) gdMineLineup(l).forEach(add);
   Object.values(GS_FOLLOW).forEach(add);
   if (GS.slug && !out.some(r => r.focus))
     for (const l of GD.leagues) for (const tm of Object.values(l.teams)) tm.lineup.filter(r => r.slug === GS.slug).forEach(add);

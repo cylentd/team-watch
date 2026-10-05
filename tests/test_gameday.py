@@ -22,6 +22,7 @@ import stats as api_stats  # noqa: E402
 from _espn import slugify  # noqa: E402
 from build import norm_name  # noqa: E402
 from gameday import live_gameday  # noqa: E402
+from mates import live_mates  # noqa: E402
 from sources import DWR, read_first, load_status, load_kickers  # noqa: E402
 from test_render import LIVE_PLANT as plant, browser, go, open_page  # noqa: E402,F401  (the suite's one Chromium)
 
@@ -95,6 +96,18 @@ def test_a_defense_and_a_kicker_find_their_sleeper_ids():
     assert (lg["me"], lg["games"], lg["median"]) == ("1", [["2", "1"]], False)
     assert [(r["slot"], r["team"], r["sid"]) for r in lg["teams"]["1"]["lineup"]] == [
         ("QB", "LAR", "421"), ("K", "JAX", "7"), ("D/ST", "LAR", "LAR")]      # slot order, Sleeper's codes
+
+
+def test_every_team_carries_the_page_key_the_reader_is_found_by():
+    """The page finds the reader's team in a league by `key` (live.js gdMine): David's is the league's
+    own key, any other the league plus the name's slug, the key mates.live_mates gives that team."""
+    season = {"week": 3, "league": "L", "bonus": None, "teams": {"1": {"name": "Me"}, "2": {"name": "Run It Back"}},
+              "games": [{"week": 3, "home": 1, "away": 2}]}
+    rosters = {"me": "Me", "detail": {"Me": [], "Run It Back": []}}
+    lg = live_gameday(season, rosters, None, None, None, {}, {}, slugify, norm_name)["leagues"][0]
+    assert {tid: tm["key"] for tid, tm in lg["teams"].items()} == {"1": "espn", "2": "espn-run-it-back"}
+    mates = live_mates(rosters, None, set(), lambda n, s: None, slugify)
+    assert [t["key"] for t in mates["teams"]] == ["espn-run-it-back"]
 
 
 # --------------------------------------------------------------------------- the trimmed endpoint

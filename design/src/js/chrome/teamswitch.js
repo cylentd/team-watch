@@ -1,7 +1,7 @@
 /* The team switch. It used to live in the navbar next to the tabs, crowding them on mobile; now
    it rides the hero's own eyebrow line, which already has the room and is where a reader looks
    first to confirm which team they're on. Since 2026-09-26 it lists the teams the reader follows
-   (data/mates.js followLoad) and the leagues they connected (data/connect.js). Under them, one row
+   (data/mates.js followLoad; the team they picked, or none, since 2026-10-04) and the leagues they connected (data/connect.js). Under them, one row
    per league of David's (2026-09-29, storyboard option A, for a third league): a tap swaps the
    menu for that league's twelve, each with a star to follow it, and a Back row. Then "Add a
    league" for a team in another league. */
@@ -26,10 +26,11 @@ function tsRowHTML(k, followed, showLeague = followed){
 function tsMenuHTML(){
   return TS_LEAGUE ? tsLeagueHTML(TS_LEAGUE) : tsRootHTML();
 }
-/* The first screen: the reader's teams, then a row per league. A league row only when it has
-   leaguemates on the page; with none, David's team there is the whole league. */
+/* The first screen: the reader's teams, then a row per league. A league row when it has
+   leaguemates on the page, or when its one team is not followed (nothing is followed until the
+   reader stars or picks: since 2026-10-04 David's teams are not the default), so it can be reached. */
 function tsRootHTML(){
-  const mine = tsFollowed(), lgs = tsLeagues().filter(lg => mateKeys(lg).length);
+  const mine = tsFollowed(), lgs = tsLeagues().filter(lg => mateKeys(lg).length || !mine.includes(lg));
   return `<div class="ts-head" role="presentation">${t("chrome.teamswitch.following")}</div>
     ${mine.length ? mine.map(k => tsRowHTML(k, true)).join("") : `<p class="ts-empty">${t("chrome.teamswitch.empty")}</p>`}
     ${lgs.length ? `<div class="ts-head" role="presentation">${t("chrome.teamswitch.leagues")}</div>
@@ -97,6 +98,20 @@ function pickTeam(k){
   render();
   paintSubnav();       // the Waivers count is per league, and a connected league has none
   if (changed) zipFootball();
+}
+/* Live's "Pick your team" (2026-10-04): My teams, where the picker takes the pick when nobody has
+   made one, else the team switch, opened at the league the reader asked about. */
+function tsPickFor(league){
+  navGo("roster");
+  const sw = document.getElementById("switch");
+  if (!sw) return;      // the picker is on screen instead: it lists every team
+  const btn = sw.querySelector("[data-tsbtn]"), menu = sw.querySelector("[data-tsmenu]");
+  TS_LEAGUE = TEAMS[league] && !TEAMS[league].mate ? league : null;
+  menu.innerHTML = tsMenuHTML();
+  menu.scrollTop = 0;
+  wireTsMenu(sw, menu);
+  menu.hidden = false;
+  btn.setAttribute("aria-expanded", "true");
 }
 /* A phone hides the bar's Discord link (760.css), and this menu is the one every reader opens.
    The address is read from the bar's link, so the invite lives in shell.html only. The item is

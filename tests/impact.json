@@ -48,7 +48,8 @@
       "paths": ["design/src/js/surface/live/", "design/src/css/surface/live/", "design/src/js/data/schedule.js",
                 "design/src/js/data/gameday/", "design/gameday.py", "api/stats.py", "api/_scoring.py",
                 "design/schedule.py", "tests/fixtures/gameday.json"],
-      "tests": ["tests/test_gameday.py", "tests/test_gamesheet_v2.py", "tests/test_schedule.py", "tests/test_live_tds.py", "tests/test_live_tabs.py"],
+      "tests": ["tests/test_gameday.py", "tests/test_gamesheet_v2.py", "tests/test_schedule.py", "tests/test_live_tds.py", "tests/test_live_tabs.py",
+                "tests/test_live_mine.py"],
       "render": ["live"]
     },
     "matchups": {

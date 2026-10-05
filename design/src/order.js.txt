@@ -188,6 +188,7 @@ surface/parlay/legsheet.js
 surface/dfs/dfs.js
 chrome/state.js
 surface/live/live.js
+surface/live/mine.js
 surface/live/tabs.js
 surface/live/board.js
 surface/live/mirror.js

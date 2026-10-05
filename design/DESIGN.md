@@ -130,6 +130,14 @@ draws "Which team is yours?": all 24 teams by league, 48px buttons, and "Add you
 replaced the "Not your team? Pick yours" nudge under David's team name, which left every leaguemate on
 David's roster and claim advice by default. Connecting a league counts as the pick.
 
+**"Mine" is the reader's pick, never David's (2026-10-04).** David: "Make sure that the site registers
+the roster(s) that the user picks as the 'yours' or 'mine'. I don't want it to default to my personal
+rosters." The page is public; his three teams are three of ~36. Until a reader picks or stars a team,
+`followLoad()` is empty (it was David's three, and the pick when it was a leaguemate's), then the picked
+team alone; the switch's first screen says "No teams yet" and shows a league row for every league, so a
+reader can always reach a team. Live reads the same pick (see "Live", "Whose team is mine").
+~~`followLoad()` defaulting to David's own teams~~ (superseded 2026-10-04).
+
 Phase 3 (per-team waiver advice) is shelved, 2026-09-26: it would help leaguemates beat David.
 (Built on 2026-09-27 and tabled the same night, unlanded: ff-jarvis branch `waiver-teams`, team-watch
 branch `worktree-waiver-teams`.)
@@ -1007,6 +1015,18 @@ tabs below; the NFL now card (`nflnow.js`) above the matchup went with it).
 | TDs | Scored, then Still alive (below) | `tds.js` |
 | League | every matchup as one row, then the ranking with the median; a game's tap opens it in Matchup. The storyboard called this tab the box score; the tab says League | `league.js` |
 
+- **Whose team is "mine" (2026-10-04).** David: "Make sure that the site registers the roster(s) that
+  the user picks as the 'yours' or 'mine'. I don't want it to default to my personal rosters." Live's
+  "mine" (the left side and UP / DOWN, the median's "you", the League tab's highlight, the Games tab's
+  "N yours", the sheet's "Yours in this game", the red Hurt chip) is `gdMine(lg)` (`mine.js`): the team
+  picked in this browser (`tw-team`) if it plays in the league on screen, else a followed team
+  (`tw-follow`) that does, else null; never the league's `me` (David's, kept in the data for the build).
+  A team is found by the `key` `gameday.py` bakes in beside its name: the league's own key for David's
+  ("espn"), the league plus the name's slug for any other ("espn-run-it-back", as `mates.py` keys it).
+  With null the Matchup tab shows the league's first game (or the one tapped) with neutral "BY n"
+  chips, no "you" under the median, no lime side, and one dashed line above the score, "Pick your team to
+  see your matchup", which opens My teams: the picker when nothing is picked, else the team switch on
+  that league (`tsPickFor`). The Games tab's count and the sheet's block are empty without a team.
 - **The choice** is `tw-live-tab` in `localStorage` (`tabs.js`), never the hash, so another view
   sends the reader to a tab by setting it, then opening `#live` (the Digest's touchdown count does).
   Switching repaints in place (`paintLive`), never through `render()`. The league chips (Yahoo,

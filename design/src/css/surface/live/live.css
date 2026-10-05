@@ -50,6 +50,12 @@
 .gd-medline{margin:0;text-align:center;font:600 var(--t-1)/1.2 var(--mono)}
 .gd-medline.up{color:var(--up)}
 .gd-medline.dn{color:var(--down)}
+/* While the reader has no team in this league: one line over the score that opens My teams. */
+.gd-pick{
+  appearance:none;min-height:34px;padding:0 12px;border-radius:10px;border:1px dashed var(--line-2);background:none;
+  color:var(--ink-2);font:600 var(--t-2)/1.2 var(--ui);cursor:pointer;text-align:center;
+}
+.gd-pick:hover{border-color:var(--ink-3);color:var(--ink)}
 
 .gd-games h3,.gd-ladder h3{
   display:flex;justify-content:space-between;gap:8px;margin:0 0 4px;

@@ -29,12 +29,13 @@ function gdGameState(a, b){
    A tap opens it in the Matchup tab (live.js wireLive). Who is top or bottom half is the ranking
    card's job, right below. */
 function gdGamesHTML(lg, sides, on){
+  const mine = gdMine(lg);
   const half = (s, o, cls, final) => `<span class="gd-gn ${cls}${s.total < o.total ? " behind" : ""}"><span>${esc(s.name)}</span>${final && s.total > o.total ? GD_CUP : ""}</span>
       <b class="gd-gp ${cls}${s.total < o.total ? " behind" : ""}">${gdNum(s.total)}</b>`;
   const rows = lg.games.map(g => {
     const a = sides[g[0]], b = sides[g[1]], picked = on && on[0] === g[0] && on[1] === g[1];
     const final = !(a.playing + b.playing + a.left + b.left);
-    return `<button type="button" class="gd-g${picked ? " on" : ""}${g.includes(lg.me) ? " mine" : ""}" data-gdgame="${esc(g.join(","))}"
+    return `<button type="button" class="gd-g${picked ? " on" : ""}${mine && g.includes(mine) ? " mine" : ""}" data-gdgame="${esc(g.join(","))}"
       aria-pressed="${!!picked}">${gdGameState(a, b)}${half(a, b, "a", final)}${half(b, a, "b", final)}</button>`;
   }).join("");
   return `<section class="gd-games gd-card"><h3>${t("live.games", {week: lg.week})}</h3>${rows}</section>`;
@@ -42,8 +43,8 @@ function gdGamesHTML(lg, sides, on){
 
 function gdLadderHTML(lg, sides){
   const {median, rows} = gdLadder(Object.values(sides));
-  const cut = rows.findIndex(r => !r.top);
-  const row = (r, i) => `<div class="gd-l${r.id === lg.me ? " mine" : ""}">
+  const cut = rows.findIndex(r => !r.top), mine = gdMine(lg);
+  const row = (r, i) => `<div class="gd-l${mine && r.id === mine ? " mine" : ""}">
       <span>${i + 1}</span><span>${esc(r.name)}</span>
       <small class="${r.total >= median ? "up" : "dn"}">${gdSigned(r.total - median)}</small><b>${gdNum(r.total)}</b></div>`;
   const line = `<div class="gd-median${lg.median ? "" : " quiet"}"><span>${t("live.median", {n: gdNum(median)})}</span></div>`;

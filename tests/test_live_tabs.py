@@ -29,8 +29,9 @@ def test_four_tabs_and_the_matchup_is_a_mirrored_row_per_starter_slot(browser, p
     names = [re.sub(r"\d+$", "", s).strip() for s in page.locator(".gd-tabs button").all_inner_texts()]
     assert names == ["Matchup", "Games", "TDs", "League"]
     assert page.locator(".gd-tabs [aria-pressed='true']").get_attribute("data-gdtab") == "matchup"
-    # nine starters in my ESPN lineup: nine rows, each a slot pill between two halves
-    starters = page.evaluate("gdLeague().teams[gdLeague().me].lineup.filter(gdStarter).length")
+    # nine starters in the reader's ESPN lineup (the seed follows David's teams): nine rows, each a slot
+    # pill between two halves
+    starters = page.evaluate("gdMineLineup(gdLeague()).filter(gdStarter).length")
     rows = page.locator(".gd-mirror:not(.bn) .gd-mr")
     assert starters == 9 and rows.count() == 9
     assert rows.evaluate_all("rs => rs.every(r => r.querySelectorAll('.gd-h').length === 2 && r.querySelectorAll('.gd-sl').length === 1)")
