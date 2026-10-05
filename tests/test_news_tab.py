@@ -2,31 +2,46 @@
 Player names are hard to find on a scan. Should we have a search for players here?")."""
 import pytest
 
-from test_render import browser, go, open_page  # noqa: F401  (the suite's one Chromium)
+from test_render import go, open_page  # noqa: F401
 
 
 def _news(browser, page_file, size):
     ctx, page, errors = open_page(browser, page_file, size)
-    page.goto(page_file.as_uri())
     for _, sel in go("news"):
         page.click(sel)
     page.wait_for_selector(".newsrow")
     return ctx, page, errors
 
 
-@pytest.mark.render
-def test_a_story_with_a_read_drops_the_summary_that_repeats_its_headline(browser, page_file):
+@pytest.fixture(scope="module")
+def _wide(browser, page_file):
+    """One 1400px News page for the two read-only tests below: loaded once per file per worker."""
     ctx, page, errors = _news(browser, page_file, (1400, 900))
+    assert errors == []                 # whatever the load raised fails here, not lost to a later clear
+    yield page, errors
+    ctx.close()
+
+
+@pytest.fixture
+def wide(_wide):
+    page, errors = _wide
+    left, errors[:] = list(errors), []  # each test answers for its own page errors only,
+    assert left == []                   # and an error raised or left over since the last one fails this
+    return page, errors
+
+
+@pytest.mark.render
+def test_a_story_with_a_read_drops_the_summary_that_repeats_its_headline(wide):
+    page, errors = wide
     got = page.evaluate("""() => [...document.querySelectorAll('.newsrow')].map(r => ({
       desc: !!r.querySelector('.ndesc'), impact: !!r.querySelector('.nimpact')}))""")
     assert got and not any(r["desc"] and r["impact"] for r in got)
-    ctx.close()
     assert errors == []
 
 
 @pytest.mark.render
-def test_the_players_name_is_the_bright_part_of_the_headline(browser, page_file):
-    ctx, page, errors = _news(browser, page_file, (1400, 900))
+def test_the_players_name_is_the_bright_part_of_the_headline(wide):
+    page, errors = wide
     got = page.evaluate("""() => [...document.querySelectorAll('.newsrow')].map(r => {
       const t = r.querySelector('.ntitle'), b = t.querySelector('.nname');
       return {title: t.textContent, name: b && b.textContent,
@@ -36,7 +51,6 @@ def test_the_players_name_is_the_bright_part_of_the_headline(browser, page_file)
     for r in named:
         assert r["name"] in r["title"]
         assert r["ink"] != r["rest"], "the name is brighter than the rest of the headline"
-    ctx.close()
     assert errors == []
 
 

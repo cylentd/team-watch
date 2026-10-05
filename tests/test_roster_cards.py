@@ -7,7 +7,7 @@ import pytest
 
 from lines import live_lines
 from projections import position_ranks
-from test_render import browser, drive, go, open_page  # noqa: F401  (browser is a fixture)
+from test_render import drive, go, open_page, watch_errors  # noqa: F401
 
 
 def slug(n):
@@ -47,6 +47,105 @@ def test_implied_points_split_the_total_by_the_spread():
     assert live_lines({"games": {}}, {}) is None
 
 
+# A virtual clock for the pack's motion (2026-10-05). The stage times itself with setTimeout (pkSleep) and
+# the Web Animations API (pkAnim), a dozen seconds of both per pack. Installed after the page loads, it
+# replaces setTimeout and clearTimeout and parks every finite animation, then moves page time on only
+# when a test asks, jumping from one event (a timer, an animation's end) to the next at the animation's
+# own playbackRate. So a tap that hurries the deal (rate 6) still shortens the page's time, the best
+# card's reveal is still not hurried, and a test reads how long the page says it took, not the host's
+# wall clock. Infinite animations (the orbiting line) are left alone: nothing awaits them.
+VCLOCK = """
+(() => {
+  if (window.__vc) return;
+  const realST = window.setTimeout.bind(window);
+  const yieldNow = () => new Promise(r => { const c = new MessageChannel(); c.port1.onmessage = () => r(); c.port2.postMessage(0); });
+  const vc = window.__vc = {now: 0, seq: 0, timers: new Map(), anims: new Set()};
+  window.setTimeout = (fn, ms, ...args) => {
+    const id = ++vc.seq;
+    vc.timers.set(id, {id, at: vc.now + Math.max(0, +ms || 0), fn: () => fn(...args)});
+    return id;
+  };
+  window.clearTimeout = id => { vc.timers.delete(id); };
+  const animate = Element.prototype.animate;
+  Element.prototype.animate = function (frames, opts) {
+    const a = animate.call(this, frames, opts);
+    if (a.effect.getComputedTiming().endTime !== Infinity) { a.pause(); vc.anims.add(a); }
+    return a;
+  };
+  const left = a => (a.effect.getComputedTiming().endTime - (a.currentTime ?? 0)) / a.playbackRate;
+  const next = () => {
+    let d = Infinity;
+    for (const t of vc.timers.values()) d = Math.min(d, t.at - vc.now);
+    for (const a of vc.anims) if (a.playState === "paused" && a.playbackRate > 0) d = Math.min(d, left(a));
+    return d === Infinity ? null : Math.max(0, d);
+  };
+  const step = dt => {
+    vc.now += dt;
+    for (;;) {
+      let n = null;
+      for (const t of vc.timers.values()) if (t.at <= vc.now + 1e-6 && (!n || t.at < n.at || (t.at === n.at && t.id < n.id))) n = t;
+      if (!n) break;
+      vc.timers.delete(n.id);
+      try { n.fn(); } catch (e) { realST(() => { throw e; }, 0); }
+    }
+    for (const a of [...vc.anims]) {
+      if (a.playState === "idle" || a.playState === "finished") { vc.anims.delete(a); continue; }
+      if (a.playbackRate <= 0) continue;
+      const to = (a.currentTime ?? 0) + dt * a.playbackRate;
+      if (to >= a.effect.getComputedTiming().endTime - 1e-6) a.finish(); else a.currentTime = to;
+    }
+  };
+  vc.run = async ms => {
+    const end = vc.now + ms;
+    for (let i = 0; vc.now < end - 1e-6 && i < 100000; i++) {
+      const d = next();
+      step(d === null ? end - vc.now : Math.min(d, end - vc.now));
+      await yieldNow();
+    }
+    return vc.now;
+  };
+  vc.until = async (cond, limit) => {
+    const ok = new Function("return (" + cond + ")"), t0 = vc.now;
+    let idle = 0;
+    while (!ok()) {
+      if (vc.now - t0 >= limit) return -1;
+      const d = next();
+      if (d === null) {   // nothing of ours is pending: something real (a decode, a frame) has to land
+        if (++idle > 1500) return -2;
+        await new Promise(r => realST(r, 10));
+        continue;
+      }
+      idle = 0;
+      step(Math.min(d, t0 + limit - vc.now));
+      await yieldNow();
+    }
+    return vc.now - t0;
+  };
+})()
+"""
+
+
+def vc_install(page):
+    page.evaluate(VCLOCK)
+
+
+def vc_run(page, ms):
+    """Move the page's time on by `ms`; returns the page clock in ms."""
+    return page.evaluate("ms => window.__vc.run(ms)", ms)
+
+
+def vc_until(page, cond, limit=60000):
+    """Move the page's time on until the JS expression `cond` holds; fails if `limit` page-ms pass first.
+    Returns the page-ms it took."""
+    took = page.evaluate("([c, l]) => window.__vc.until(c, l)", [cond, limit])
+    assert took >= 0, f"the page's clock ran {limit} ms ({took}) and never saw: {cond}"
+    return took
+
+
+def vc_now(page):
+    return page.evaluate("window.__vc.now")
+
+
 def cards_page(browser, page_file, viewport=(360, 660), keep_stage=False):
     """The ESPN roster in Cards view. An unopened pack opens its stage by itself a moment after the
     view draws; unless the test wants it, the stage is closed (Escape before a rip puts the pack
@@ -55,18 +154,30 @@ def cards_page(browser, page_file, viewport=(360, 660), keep_stage=False):
     drive(page, go("roster"))
     page.evaluate("VIEW='espn'; render()")
     page.click("[data-rmode='cards']")
-    page.wait_for_timeout(450)
+    if page.locator(".pack .pack-seal").count():          # a pack waits on the page: its stage opens by itself
+        page.wait_for_selector(".pk-stage")
     if not keep_stage and page.locator(".pk-stage").count():
         page.keyboard.press("Escape")
     return ctx, page, errors
+
+
+def stage_opens(page):
+    """The motion page's stage opens by itself (the page's 350 ms timer, run on the page's clock)."""
+    vc_until(page, "!!document.querySelector('.pk-stage')", 2000)
 
 
 def rip(page, part=.9):
     """Drag along the stage pack's strip, `part` of its width. A tap no longer rips (2026-09-25).
     With motion on, the pack spins in first (2026-09-26); a finger waits for it to land. The pack
     stands turned, so its box is wider than its strip: the grip is the first point from the left
-    that is on the strip."""
-    page.wait_for_function("!document.querySelector('.pk-center .pack-glow')?.getAnimations().length")
+    that is on the strip. On a page with the virtual clock, the wait and the tear's own 220 ms
+    are run on it."""
+    still = "!document.querySelector('.pk-center .pack-glow')?.getAnimations().length"
+    clocked = page.evaluate("!!window.__vc")
+    if clocked:
+        vc_until(page, still)
+    else:
+        page.wait_for_function(still)
     box = page.locator(".pk-stage .pack-seal").bounding_box()
     y = box["y"] + box["height"] * .07
     x = page.evaluate("""([l, w, y]) => { for (let f = .02; f < .5; f += .02){
@@ -78,19 +189,22 @@ def rip(page, part=.9):
     for k in range(1, 7):
         page.mouse.move(x + box["width"] * part * k / 6, y)
     page.mouse.up()
+    if clocked:
+        vc_run(page, 250)
 
 
 def motion_page(browser, page_file):
-    """The same, with motion on, as a reader without reduced motion sees it."""
+    """The same, with motion on, as a reader without reduced motion sees it, on the virtual clock."""
     from test_render import SEED
     ctx = browser.new_context(viewport={"width": 390, "height": 844}, reduced_motion="no-preference")
     page = ctx.new_page()
-    errors = []
-    page.on("pageerror", lambda e: errors.append(str(e)))
+    page.set_default_timeout(5000)
+    errors = watch_errors(page)
     page.route(re.compile(r"^https?://"), lambda route: route.abort())
     page.add_init_script(SEED)
     page.goto(page_file.as_uri() + "#roster")
     page.wait_for_function("document.getElementById('view').children.length > 0")
+    vc_install(page)
     page.evaluate("VIEW='espn'; render()")
     page.click("[data-rmode='cards']")
     return ctx, page, errors
@@ -116,8 +230,8 @@ def fresh_page(browser, page_file):
     from test_render import CHOSE_SHEET, SEED
     ctx = browser.new_context(viewport={"width": 390, "height": 844}, reduced_motion="reduce")
     page = ctx.new_page()
-    errors = []
-    page.on("pageerror", lambda e: errors.append(str(e)))
+    page.set_default_timeout(5000)
+    errors = watch_errors(page)
     page.route(re.compile(r"^https?://"), lambda route: route.abort())
     page.add_init_script(SEED.replace(CHOSE_SHEET, ""))
     page.goto(page_file.as_uri() + "#roster")
@@ -130,16 +244,16 @@ def test_a_new_reader_gets_cards_and_one_pack_stage_a_week(browser, page_file):
     """2026-09-28: Cards is the default, so a new reader meets the pack. Only the first unopened pack
     of the week opens by itself; a leaguemate's, opened next, waits sealed for a tap."""
     ctx, page, errors = fresh_page(browser, page_file)
-    if not page.evaluate("packHas(TEAMS.yahoo) && packHas(TEAMS.espn)"):
-        pytest.skip("the fixture has no pack for both teams")
+    assert page.evaluate("packHas(TEAMS.yahoo) && packHas(TEAMS.espn)"), "the fixture has a pack for both teams"
     assert page.evaluate("ROSTER_MODE") == "cards"
     assert page.evaluate("localStorage.getItem('tw-roster-mode')") is None, "a default is not a choice"
     page.wait_for_selector(".pk-stage")
     page.keyboard.press("Escape")
     wk = page.evaluate("schedWeek()")
     assert page.evaluate(f"localStorage.getItem('tw-pack-auto-{wk}')") == "1"
+    vc_install(page)                                            # the wait for a stage that must not open runs on the page's clock
     page.evaluate("VIEW='espn'; render()")
-    page.wait_for_timeout(450)
+    vc_run(page, 450)
     assert page.locator(".pk-stage").count() == 0, "a second team's pack does not open by itself"
     assert page.locator(".pack .pack-seal").count() == 1, "it waits on the page, sealed"
     page.click(".pack .pack-seal")
@@ -151,9 +265,10 @@ def test_a_new_reader_gets_cards_and_one_pack_stage_a_week(browser, page_file):
 @pytest.mark.render
 def test_a_stored_sheet_wins_over_the_default(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (390, 844))
+    vc_install(page)                                            # the wait for a stage that must not open runs on the page's clock
     drive(page, go("roster"))
     assert page.evaluate("ROSTER_MODE") == "sheet"
-    page.wait_for_timeout(450)
+    vc_run(page, 450)
     assert page.locator(".pk-stage").count() == 0
     assert errors == []
     ctx.close()
@@ -209,6 +324,7 @@ def test_only_a_signed_player_has_the_autograph_whatever_his_tier(browser, page_
     # an Epic or the #1 (it was every #1-5 until 2026-09-25).
     if page.evaluate("LIVE_SIGNED === null"):
         assert page.locator(".cards .tc-sig").count() == 0
+        assert errors == []
         ctx.close()
         return
     got = page.evaluate("""(() => {
@@ -220,8 +336,7 @@ def test_only_a_signed_player_has_the_autograph_whatever_his_tier(browser, page_
       const sig = p => { const d = document.createElement('div'); d.innerHTML = cardHTML(p, 0, 'espn'); return d.querySelectorAll('.tc-sig').length; };
       return [sig(ps[0]), sig(ps[1])];
     })()""")
-    if got is None:
-        pytest.skip("the fixture's ESPN roster has too few skill players")
+    assert got is not None, "the fixture's ESPN roster has two skill players"
     assert got == [1, 0]
     assert errors == []
     ctx.close()
@@ -316,8 +431,7 @@ def test_a_card_back_is_a_role_sheet_from_his_latest_game(browser, page_file):
       return {stats: d.querySelectorAll('.bk-stat').length, bars: [...d.querySelectorAll('.bk-bar i')].map(i => i.style.getPropertyValue('--p')),
               week: d.querySelector('.bk-why').textContent.includes(String(last)), spark: d.querySelectorAll('.tc-back .spark').length};
     })()""")
-    if got is None:
-        pytest.skip("no rostered skill player in the fixture's usage grid")
+    assert got is not None, "the fixture's usage grid has a rostered skill player"
     assert got["stats"] == 3 and all(b != "" for b in got["bars"])
     assert got["week"] and got["spark"] == 0
     assert errors == []
@@ -343,8 +457,7 @@ def test_a_card_takes_the_256px_head_where_there_is_one(browser, page_file):
 def test_the_photo_fills_the_art_from_its_bottom_edge(browser, page_file):
     ctx, page, errors = cards_page(browser, page_file)
     img = page.locator(".cards .tc-art > .head > img").first
-    if img.count() == 0:
-        pytest.skip("no headshot file in the fixture build")
+    assert img.count() > 0, "the fixture build has a headshot file"
     art = img.locator("xpath=../..").bounding_box()
     box = img.bounding_box()
     assert box["height"] > art["height"] * 0.8
@@ -356,15 +469,15 @@ def test_the_photo_fills_the_art_from_its_bottom_edge(browser, page_file):
 @pytest.mark.render
 def test_the_pack_opens_once_a_week(browser, page_file):
     ctx, page, errors = cards_page(browser, page_file)
-    if page.locator(".pack").count() == 0:
-        pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
+    assert page.locator(".pack").count() > 0, "the fixture's schedule has a week ahead, so a pack to open"
     page.click(".pack .pack-seal")                              # the page's pack puts it back on the stage
     rip(page)                                                   # reduced motion: straight to the roster
     page.wait_for_selector(".pk-stage", state="detached")
     assert page.locator(".cards .tc.pk-slot").count() == 0
     assert page.locator(".pack").count() == 0
+    vc_install(page)                                            # the wait for a stage that must not open runs on the page's clock
     page.evaluate("render()")
-    page.wait_for_timeout(450)
+    vc_run(page, 450)
     assert page.locator(".pk-stage").count() == 0, "an opened pack never opens its stage again by itself"
     assert errors == []
     ctx.close()
@@ -373,8 +486,7 @@ def test_the_pack_opens_once_a_week(browser, page_file):
 @pytest.mark.render
 def test_rip_again_puts_this_weeks_pack_back_on_the_stage(browser, page_file):
     ctx, page, errors = cards_page(browser, page_file)
-    if page.locator(".pack").count() == 0:
-        pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
+    assert page.locator(".pack").count() > 0, "the fixture's schedule has a week ahead, so a pack to open"
     assert page.locator("[data-rerip]").count() == 0, "nothing to rip again before the pack is opened"
     page.click(".pack .pack-seal")
     rip(page)
@@ -389,18 +501,15 @@ def test_rip_again_puts_this_weeks_pack_back_on_the_stage(browser, page_file):
 @pytest.mark.render
 def test_the_stage_opens_by_itself_and_its_cards_fly_home_to_their_slots(browser, page_file):
     ctx, page, errors = motion_page(browser, page_file)
-    try:
-        page.wait_for_selector(".pk-stage", timeout=2000)
-    except Exception:
-        pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
+    stage_opens(page)
     # While the stage holds the pack, its players' slots on the page are left empty, in place.
     empty = page.evaluate("[...document.querySelectorAll('.cards .tc.pk-slot .bk-open')].map(b => +b.dataset.ci).sort((a, b) => a - b)")
     want = page.evaluate("packCards(TEAMS.espn).map(c => c.i).sort((a, b) => a - b)")
     assert empty == want and len(want) > 0
     rip(page)
-    page.wait_for_selector(".pk-card")
+    vc_until(page, "!!document.querySelector('.pk-card')")
     page.keyboard.press("Escape")                               # after the rip, Escape skips to the roster
-    page.wait_for_selector(".pk-stage", state="detached", timeout=6000)
+    vc_until(page, "!document.querySelector('.pk-stage')", 6000)
     assert page.locator(".cards .tc.pk-slot").count() == 0 and page.locator(".pk-card").count() == 0
     assert page.locator("[data-rerip]").count() == 1
     assert errors == []
@@ -410,18 +519,15 @@ def test_the_stage_opens_by_itself_and_its_cards_fly_home_to_their_slots(browser
 @pytest.mark.render
 def test_the_first_card_comes_out_of_the_pack_and_the_pile_counts_it(browser, page_file):
     ctx, page, errors = motion_page(browser, page_file)
-    try:
-        page.wait_for_selector(".pk-stage", timeout=2000)
-    except Exception:
-        pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
+    stage_opens(page)
     rip(page)
-    page.wait_for_selector(".pk-card")
+    vc_until(page, "!!document.querySelector('.pk-card')")
     # The pack is still on the stage while its first card rises out of it, then it goes.
     assert page.locator(".pk-center").count() == 1
-    page.wait_for_selector(".pk-center", state="detached", timeout=4000)
+    vc_until(page, "!document.querySelector('.pk-center')", 4000)
     # Nothing says the pack's size before the rip (2026-09-27); the pile counts each card as it lands.
     assert page.locator(".pack-n").count() == 0
-    page.wait_for_function("document.querySelector('.pk-count')?.textContent.startsWith('1 ')", timeout=8000)
+    vc_until(page, "document.querySelector('.pk-count')?.textContent.startsWith('1 ')", 8000)
     assert errors == []
     ctx.close()
 
@@ -429,8 +535,7 @@ def test_the_first_card_comes_out_of_the_pack_and_the_pile_counts_it(browser, pa
 @pytest.mark.render
 def test_the_tear_starts_under_the_finger_and_runs_its_way(browser, page_file):
     ctx, page, errors = cards_page(browser, page_file, keep_stage=True)
-    if page.locator(".pk-stage").count() == 0:
-        pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
+    assert page.locator(".pk-stage").count() > 0, "the fixture's schedule has a week ahead, so a pack on the stage"
     box = page.locator(".pk-stage .pack-seal").bounding_box()
     y = box["y"] + 14
     page.mouse.move(box["x"] + box["width"] * .6, y)
@@ -448,8 +553,7 @@ def test_the_tear_starts_under_the_finger_and_runs_its_way(browser, page_file):
 def test_a_grip_near_the_end_tears_from_the_very_edge(browser, page_file):
     """2026-09-27: a finger never lands on the edge itself, and the tear left a stub of strip."""
     ctx, page, errors = cards_page(browser, page_file, keep_stage=True)
-    if page.locator(".pk-stage").count() == 0:
-        pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
+    assert page.locator(".pk-stage").count() > 0, "the fixture's schedule has a week ahead, so a pack on the stage"
     box = page.locator(".pk-stage .pack-seal").bounding_box()
     y = box["y"] + box["height"] * .07
     page.mouse.move(box["x"] + box["width"] * .2, y)
@@ -465,12 +569,9 @@ def test_a_grip_near_the_end_tears_from_the_very_edge(browser, page_file):
 @pytest.mark.render
 def test_a_stage_card_is_its_roster_card_scaled_up_whole(browser, page_file):
     ctx, page, errors = motion_page(browser, page_file)
-    try:
-        page.wait_for_selector(".pk-stage", timeout=2000)
-    except Exception:
-        pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
+    stage_opens(page)
     rip(page)
-    page.wait_for_function("document.querySelector('.pk-card .tc') && document.querySelector('.pk-msg').textContent.includes('#')", timeout=8000)
+    vc_until(page, "document.querySelector('.pk-card .tc') && document.querySelector('.pk-msg').textContent.includes('#')", 8000)
     share = """(el => el.querySelector('.tc-art').getBoundingClientRect().height / el.getBoundingClientRect().height)"""
     stage = page.evaluate(f"{share}(document.querySelector('.pk-card .tc'))")
     roster = page.evaluate(f"{share}(document.querySelector('#view .cards .tc'))")
@@ -493,10 +594,9 @@ def test_on_a_desktop_the_starters_are_three_by_three_with_the_bench_beside(brow
 @pytest.mark.render
 def test_only_a_drag_along_the_strip_rips_and_a_short_one_springs_back(browser, page_file):
     ctx, page, errors = cards_page(browser, page_file, keep_stage=True)
-    if page.locator(".pk-stage").count() == 0:
-        pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
+    assert page.locator(".pk-stage").count() > 0, "the fixture's schedule has a week ahead, so a pack on the stage"
     box = page.locator(".pk-stage .pack-seal").bounding_box()
-    tear = "getComputedStyle(document.querySelector('.pk-stage .pack-seal')).getPropertyValue('--tear').trim()"
+    tear ="getComputedStyle(document.querySelector('.pk-stage .pack-seal')).getPropertyValue('--tear').trim()"
     # A tap on the pack's body, and a tap on the strip, only nudge.
     page.mouse.click(box["x"] + box["width"] / 2, box["y"] + box["height"] * .7)
     page.mouse.click(box["x"] + 20, box["y"] + 14)

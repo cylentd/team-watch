@@ -14,7 +14,7 @@ from _espn import slugify  # noqa: E402
 import contract  # noqa: E402
 from digest import kicks, live_digest, report  # noqa: E402
 from sources import load_digest  # noqa: E402
-from test_render import browser, drive, go, open_page  # noqa: E402,F401  (the suite's one Chromium)
+from test_render import drive, go, open_page  # noqa: E402,F401
 
 
 def _block(schedule=None):
@@ -64,15 +64,31 @@ def test_a_reason_is_rounded_as_the_row_says_it():
     assert [r["why"]["kind"] for r in b["busts"]] == ["hurt", "luck"]
 
 
+@pytest.fixture(scope="module")
+def _phone(browser, page_file):
+    """One 390px page for the pure-function checks below (they call a draw function and read what it
+    returns): loaded once per file per worker. A test that mutates a global puts it back."""
+    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    assert errors == []                 # whatever the load raised fails here, not lost to a later clear
+    yield page, errors
+    ctx.close()
+
+
+@pytest.fixture
+def phone(_phone):
+    page, errors = _phone
+    left, errors[:] = list(errors), []  # each test answers for its own page errors only,
+    assert left == []                   # and an error raised or left over since the last one fails this
+    return page, errors
+
+
 @pytest.mark.render
-def test_results_reads_as_the_storyboard(browser, page_file):
+def test_results_reads_as_the_storyboard(phone):
     """The badge counts games still to play; each smashed or busted line says why and shows its
     points over its projection, no gap (2026-09-29); a bust who left hurt borrows Left hurt's
     freshest word."""
-    ctx, page, errors = open_page(browser, page_file, (390, 844))
-    page.goto(page_file.as_uri())
-    for _, sel in go("digest"):
-        page.click(sel)
+    page, errors = phone
+    drive(page, go("digest"))
     got = page.evaluate("""() => {
       const d = dgD(), host = document.createElement('div');
       host.innerHTML = dgResBody(d);
@@ -85,7 +101,6 @@ def test_results_reads_as_the_storyboard(browser, page_file):
                       weeks: pill('Baker Mayfield expected to miss three weeks')}};
     }""")
     assert errors == []
-    ctx.close()
     assert got["badge"] == "2 to play"
     # every reason is a pill (DESIGN.md "Say it in a shape"); innerText has no gaps between flex cells
     assert "31% tgt +10" in got["lines"][0] and "TD luck +5" in got["lines"][0]
@@ -104,12 +119,11 @@ def test_the_results_lists_are_one_panel_under_tabs_on_a_phone(browser, page_fil
     opens up all 3 panels anyways ... just opens a big panel"): on a phone one tab bar, each tab its
     list's count, one list showing. A tap swaps the list in place, and the pick survives a repaint."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
-    page.goto(page_file.as_uri())
     drive(page, go("digest"))
     page.wait_for_selector(".dg-row[data-dgrow='res']")
     if page.locator(".dg-row[data-dgrow='res'][data-open]").count() == 0:
         page.click(".dg-row[data-dgrow='res'] .dg-head")
-        page.wait_for_timeout(600)
+        page.wait_for_selector(".dg-row[data-dgrow='res'][data-open]")
     visible = lambda sel: page.locator(sel).evaluate_all("els => els.filter(e => e.checkVisibility({visibilityProperty: true})).length")
     tabs = page.locator("[data-dgset='res'] .dg-tab")
     n = page.evaluate("(() => { const d = dgD(); return [d.smashed.length, d.busts.length, d.left.length]; })()")
@@ -134,7 +148,6 @@ def test_the_wall_opens_all_three_results_lists_on_the_boards_columns(browser, p
     (Smashed under QB, Busts under RB, Left hurt across WR and TE, read down two). Every row can be
     tapped, and each leads with its points right against the name."""
     ctx, page, errors = open_page(browser, page_file, (1705, 1000))
-    page.goto(page_file.as_uri())
     drive(page, go("digest"))
     page.wait_for_selector(".dg-rs")
     got = page.evaluate("""(() => {
@@ -176,7 +189,6 @@ def test_results_on_the_wall_keep_each_number_by_its_name(browser, page_file):
     got = {}
     for size in ((1705, 1000), (360, 740)):
         ctx, page, errors = open_page(browser, page_file, size)
-        page.goto(page_file.as_uri())
         drive(page, go("digest"))
         if page.locator(".dg-row[data-dgrow='res'][data-open]").count() == 0:
             page.click(".dg-row[data-dgrow='res'] .dg-head")
@@ -205,19 +217,20 @@ def test_results_on_the_wall_keep_each_number_by_its_name(browser, page_file):
 
 
 @pytest.mark.render
-def test_two_players_one_team_one_short_name_keep_their_first_names(browser, page_file):
+def test_two_players_one_team_one_short_name_keep_their_first_names(phone):
     """ATL has Bijan and Brian Robinson (2026-09-29, David: "two B. Robinson on ATL ... confusing"):
     a short form two players on one team share keeps the first name; one on two teams stays short."""
-    ctx, page, errors = open_page(browser, page_file, (390, 844))
-    page.goto(page_file.as_uri())
+    page, errors = phone
     got = page.evaluate("""() => {
+      const was = [SEARCH_INDEX, DG_CLASH];
       SEARCH_INDEX = [...searchIndex(),
         {n: 'Bijan Robinson', slug: 'bijan-robinson', team: 'ATL'}, {n: 'Brian Robinson Jr.', slug: 'brian-robinson', team: 'ATL'},
         {n: 'Zed Quill', slug: 'zed-quill', team: 'SF'}, {n: 'Zack Quill', slug: 'zack-quill', team: 'NYJ'}];
       DG_CLASH = null;
-      return [dgShort('Bijan Robinson'), dgShort('Brian Robinson Jr.'), dgShort('Zed Quill')];
+      const out = [dgShort('Bijan Robinson'), dgShort('Brian Robinson Jr.'), dgShort('Zed Quill')];
+      [SEARCH_INDEX, DG_CLASH] = was;
+      return out;
     }""")
-    ctx.close()
     assert errors == []
     assert got == ["Bijan Robinson", "Brian Robinson", "Z. Quill"]
 
@@ -227,7 +240,6 @@ def test_before_kickoff_the_digest_has_no_highlights_section(browser, page_file)
     """David, 2026-10-04: bored of the Digest's Highlights. Before kickoff nothing stands beside Need to
     know, which takes the wall's band; the Players tab keeps the Highlights."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
-    page.goto(page_file.as_uri())
     page.evaluate("dgLiveMode = () => false")
     drive(page, go("digest"))
     page.wait_for_selector(".dg-need")
@@ -235,16 +247,16 @@ def test_before_kickoff_the_digest_has_no_highlights_section(browser, page_file)
     assert "no-facts" in page.locator(".dg-ticker").get_attribute("class")
     assert "Highlights" not in page.locator(".dg-sec").all_inner_texts()
     assert page.evaluate("NAV.find(([g]) => g === 'scouting')[1][0]") == "highlights"
-    ctx.close()
     assert errors == []
+    ctx.close()
 
 
 @pytest.mark.render
-def test_the_call_picks_its_verb_from_his_day(browser, page_file):
+def test_the_call_picks_its_verb_from_his_day(phone):
     """Week 3's real lines (Sleeper and nflverse agree, 2026-09-29): the verb follows what his day was
     made of, the TDs ride at the end, a receiver's one throw does not make him a passer, and with no
     box line yet it says the score."""
-    ctx, page, errors = open_page(browser, page_file, (390, 844))
+    page, errors = phone
     got = page.evaluate("""() => {
       const box = (o) => ({car: 0, rush_yd: 0, rec: 0, rec_yd: 0, td: 0, cmp: null, att: null, pass_yd: null, pass_td: null, int: null, ...o});
       const call = (n, line, week, actual) => { const h = document.createElement('i'); h.innerHTML = dgCall({n, line, actual: actual || 30}, week); return h.textContent; };
@@ -258,7 +270,6 @@ def test_the_call_picks_its_verb_from_his_day(browser, page_file):
               again: call('Jahmyr Gibbs', gibbs, 3),
               weeks: [...new Set([1, 2, 3, 4, 5, 6, 7, 8].map(w => call('Jahmyr Gibbs', gibbs, w)))].length};
     }""")
-    ctx.close()
     assert errors == []
     rush, rec, pas, short = (r"(rumbles for|runs wild for|bulldozes for|churns out)", r"(hauls in \d+ for|reels in \d+ for|torches them for|racks up)",
                              r"(slings|airs it out for|carves them up for|lights it up for)", r"(punches in|plunges in for|cashes in|owns the goal line:)")
@@ -281,7 +292,6 @@ def test_a_finished_week_folds_the_preview_rows_into_the_wait(browser, page_file
     since 2026-09-29 (storyboard Ms6FbdvynVPoRTKEidPGAz 5A, 6A). Hurt is Need to know since 2026-09-29,
     above the rows: with nobody hurt it says so, and once the week is over it waits on next week's report."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
-    page.goto(page_file.as_uri())
     for _, sel in go("digest"):
         page.click(sel)
     page.wait_for_selector(".dg-row")
@@ -379,7 +389,6 @@ def test_every_news_line_opens_its_story(browser, page_file):
     a link to its story in a new tab, the story's own page when ff-jarvis kept one, else a search for the
     headline; the face and name still open the profile, and no link sits inside a button."""
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
-    page.goto(page_file.as_uri())
     for _, sel in go("digest"):
         page.click(sel)
     page.wait_for_selector(".dg-nws")
@@ -403,7 +412,6 @@ def test_need_to_know_leads_with_new_starters_then_who_sits(browser, page_file):
     the packet's out, IR and doubtful, then one line of the questionable. Five lines, then "N more".
     News no longer carries the starters, and they go with the team's kickoff."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
-    page.goto(page_file.as_uri())
     for _, sel in go("digest"):
         page.click(sel)
     page.wait_for_selector(".dg-need")
@@ -497,7 +505,6 @@ def test_monday_night_is_one_card_and_the_preview_rows_go(browser, page_file):
     """Monday 6 AM Pacific, PHI @ CHI tonight and all the week has left: the card says who is out and
     what the books moved, its rows leave the ticker, and the five preview rows go (2026-09-28)."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
-    page.goto(page_file.as_uri())
     page.evaluate('Date.now = () => Date.parse("2026-09-28T13:00:00Z")')
     for _, sel in go("digest"):
         page.click(sel)
@@ -536,7 +543,6 @@ def test_sleeper_adds_carry_their_source_and_count():
 @pytest.mark.render
 def test_sleeper_adds_read_as_counts_on_the_digest(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (390, 844))
-    page.goto(page_file.as_uri())
     page.evaluate("""Object.assign(LIVE_DIGEST, {adds_source: "sleeper", adds_hours: 24, adds_weeks: [], adds: [
         {n: "Ollie Gordon II", slug: "ollie-gordon-ii", pos: "RB", team: "MIA", count: 4039301, was: null, now: null, delta: null},
         {n: "Kenyon Sadiq", slug: "kenyon-sadiq", pos: "TE", team: "NYJ", count: 832977, was: null, now: 35.2, delta: null}]});
@@ -583,7 +589,6 @@ def test_a_started_game_drops_its_rows_live_and_the_lead_gives_way(browser, page
     """The Friday packet read on Monday morning: nothing about a Sunday game survives in the
     browser, the lead falls to the week's results, and the stamp says how old the packet is."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
-    page.goto(page_file.as_uri())
     page.evaluate('Date.now = () => Date.parse("2026-09-28T13:00:00Z")')   # after load: the page pins its own
     for _, sel in go("digest"):
         page.click(sel)
@@ -641,7 +646,6 @@ def test_top_5_is_ranks_own_rows_under_position_tabs(browser, page_file):
     like a mini feed of our rankings"): Top 5 reads LIVE_RANKS, the rows Ranks draws, never the packet,
     so the two cannot disagree. A tab per position and FLEX, five rows each, a tap swaps them."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
-    page.goto(page_file.as_uri())
     drive(page, go("digest"))
     page.wait_for_selector(".dg-row")
     page.evaluate(EARLY)
@@ -676,7 +680,6 @@ def test_start_of_the_week_heads_the_matchups_card(browser, page_file):
     between our rank and his season average), first in the Matchups card, our rank over his average
     on the right. None: no row. The foot is Start/Sit's record, SMASH, START and SIT as hit-miss."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
-    page.goto(page_file.as_uri())
     drive(page, go("digest"))
     page.wait_for_selector(".dg-row")
     want = page.evaluate("LIVE_SS3.takes.find(r => r.call === 'START')")
@@ -701,7 +704,6 @@ def test_weather_is_the_weather_tabs_own_games(browser, page_file):
     row counts the games the Weather view says move scoring (wtRows().moves, still to kick off) and
     links there. A calm week draws no row on a phone and one quiet sentence on the wall."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
-    page.goto(page_file.as_uri())
     drive(page, go("digest"))
     page.wait_for_selector(".dg-row")
     page.evaluate(EARLY)
@@ -725,10 +727,9 @@ def test_weather_is_the_weather_tabs_own_games(browser, page_file):
 
 
 @pytest.mark.render
-def test_every_topic_label_carries_its_icon(browser, page_file):
+def test_every_topic_label_carries_its_icon(phone):
     """2026-09-29, 3A: a drawn icon beside every topic's label, stroked in the label's own colour."""
-    ctx, page, errors = open_page(browser, page_file, (390, 844))
-    page.goto(page_file.as_uri())
+    page, errors = phone
     drive(page, go("digest"))
     page.wait_for_selector(".dg-row")
     got = page.evaluate("""[...document.querySelectorAll('.dg-row')].map(r => {
@@ -736,7 +737,6 @@ def test_every_topic_label_carries_its_icon(browser, page_file):
       return [r.dataset.dgrow, !!i && getComputedStyle(i).stroke === getComputedStyle(l).color];
     })""")
     assert got and all(ok for _, ok in got), got
-    ctx.close()
     assert errors == []
 
 
@@ -746,7 +746,6 @@ def test_a_headline_naming_no_player_keeps_the_digest_up(browser, page_file):
     name; News keyed a block to the slug, avatarHTML read the missing name, and the throw blanked the
     whole Digest. A headline naming no player is a plain block of its own, whatever it carries."""
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
-    page.goto(page_file.as_uri())
     drive(page, go("digest"))
     page.wait_for_selector(".dg-row")
     got = page.evaluate("""(() => {

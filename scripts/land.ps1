@@ -9,7 +9,8 @@
 
   Order matters. Rebase first, then test, then build, then commit -- building before the rebase
   produces a page from the wrong parent and guarantees the conflict this script exists to avoid,
-  and the tests run on the rebased tree, which is the one that ships.
+  and the tests run on the rebased tree, which is the one that ships. The tests run before the
+  queue and again inside it only if origin/<base> moved meanwhile (2026-10-05).
 
   `git land` never runs `git checkout <base>` -- it pushes HEAD onto origin/<base> and fast-forwards
   whichever checkout holds <base>, so this script lands straight from its own worktree with no
@@ -88,18 +89,6 @@ if ($dirty.Count -gt 0) {
     throw "Uncommitted changes that are not build output. Commit or stash them first."
 }
 
-# --- the queue ------------------------------------------------------------------------------------
-
-# One writer to main at a time (scripts/land-queue.ps1): from the first fetch to the push, this
-# land holds main, so it rebases onto the last land that finished rather than racing it. The
-# scheduled rebuild joins the same queue. A dry run changes nothing, so it does not queue.
-$ticket = $null
-if (-not $DryRun) {
-    . (Join-Path $PSScriptRoot "land-queue.ps1")
-    $ticket = Enter-LandQueue -Repo $repo -Label "land $branch"
-}
-try {
-
 # Every comparison from here on reads origin/$Base, never the local branch -- a session landing
 # from its own worktree never touches the local $Base ref, so a stale local copy would lie.
 Write-Host "fetching" -ForegroundColor Cyan
@@ -123,26 +112,19 @@ if ($notQuiet.Count -gt 0 -and -not $Yes) {
     throw "This changes the live page. Ask the user, then re-run with -Yes."
 }
 
-# --- rebase, test, build, fold, land -------------------------------------------------------------
+# --- rebase and test --------------------------------------------------------------------------------
 
 # A conflict in the two generated files is expected on any branch predating this convention.
 # merge=ours settles it silently; anything else stops the rebase and is a real conflict.
-#
-# `git land` can lose a fast-forward race to another session or a scheduled job (exit 2, push
-# rejected) or find HEAD no longer contains origin/$Base (exit 3, needs a rebase). Either means
-# origin/$Base moved since the fetch above, so this retries the whole rebase-test-build-fold-land
-# cycle once, on the theory that a second collision in a row means something needs a human.
-$maxAttempts = 2
-for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+function RebaseAndTest {
     $behind = [int](GitRead "rev-list --count HEAD..origin/$Base").Trim()
     if ($behind -gt 0) {
         Write-Host "$behind commit(s) behind origin/$Base -- rebasing" -ForegroundColor Cyan
         GitRun "rebase origin/$Base" | Out-Null
     }
 
-    # One group per worker (loadgroup; tests/conftest.py makes each file a group, and each golden
-    # area its own), so a module's browser and snapshot fixtures are built once. About 50 s instead
-    # of 200 s on 20 cores (2026-09-27); without pytest-xdist it runs serially.
+    # Tests spread one by one over the workers, except each golden area's slice, which shares one
+    # snapshot (tests/conftest.py). Without pytest-xdist it runs serially.
     $parallel = @()
     & python -c "import xdist" 2>$null
     if ($LASTEXITCODE -eq 0) { $parallel = @("-n", "auto", "--dist", "loadgroup") }
@@ -153,7 +135,9 @@ for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
     # so does -Full. The scheduled rebuild runs the whole suite twice a day either way.
     $selected = @()
     if (-not $Full) {
-        $impact = (& python (Join-Path $PSScriptRoot "impact.py") --base "origin/$Base") | ConvertFrom-Json
+        $impactOut = & python (Join-Path $PSScriptRoot "impact.py") --base "origin/$Base"
+        if ($LASTEXITCODE -ne 0) { throw "scripts/impact.py failed ($LASTEXITCODE) -- fix it or re-run with -Full" }
+        $impact = $impactOut | ConvertFrom-Json
         if ($impact.all) {
             Write-Host "  whole suite: $($impact.why -join '; ')" -ForegroundColor DarkGray
         } else {
@@ -170,6 +154,42 @@ for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
             & python -m pytest @parallel @selected
             if ($LASTEXITCODE -ne 0) { throw "tests failed ($LASTEXITCODE) -- nothing landed" }
         } finally { Pop-Location }
+    }
+}
+
+# The first test run happens before the queue (2026-10-05). Until then a land held main for its
+# whole test run, so a second session's land waited out the first's tests and then ran its own.
+# Now the queue holds only the check, the build and the push; tests run again inside it only when
+# origin/$Base moved while they ran, because only then is the tree that ships a different one.
+RebaseAndTest
+
+# --- the queue ------------------------------------------------------------------------------------
+
+# One writer to main at a time (scripts/land-queue.ps1): from here to the push, this land holds
+# main, so it rebases onto the last land that finished rather than racing it. The scheduled
+# rebuild joins the same queue. A dry run changes nothing, so it does not queue.
+$ticket = $null
+if (-not $DryRun) {
+    . (Join-Path $PSScriptRoot "land-queue.ps1")
+    $ticket = Enter-LandQueue -Repo $repo -Label "land $branch"
+}
+try {
+
+# --- fetch again, build, fold, land ---------------------------------------------------------------
+
+# `git land` can lose a fast-forward race to another session or a scheduled job (exit 2, push
+# rejected) or find HEAD no longer contains origin/$Base (exit 3, needs a rebase). Either means
+# origin/$Base moved since the fetch, so this retries the whole rebase-test-build-fold-land cycle
+# once, on the theory that a second collision in a row means something needs a human.
+$maxAttempts = 2
+for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+    GitRun "fetch origin $Base" | Out-Null
+    $moved = [int](GitRead "rev-list --count HEAD..origin/$Base").Trim()
+    if ($moved -gt 0) {
+        Write-Host "origin/$Base moved while testing ($moved commit(s)) -- rebasing and testing again" -ForegroundColor Yellow
+        RebaseAndTest
+    } else {
+        Write-Host "origin/$Base unchanged since the tests -- no second run" -ForegroundColor DarkGray
     }
 
     # A docs/tests-only diff cannot change the page, so it lands without a rebuild: main already
@@ -227,7 +247,6 @@ for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
         break
     } elseif (($landCode -eq 2 -or $landCode -eq 3) -and $attempt -lt $maxAttempts) {
         Write-Host "origin/$Base moved -- rebasing and re-testing once" -ForegroundColor Yellow
-        GitRun "fetch origin $Base" | Out-Null
         continue
     } else {
         throw "git land failed ($landCode) -- nothing landed"

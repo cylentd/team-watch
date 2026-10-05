@@ -4,7 +4,7 @@ the GET would. The endpoint itself is covered by test_league.py."""
 
 import pytest
 
-from test_render import browser, open_page  # noqa: F401  (browser is a fixture)
+from test_render import open_page  # noqa: F401
 
 pytestmark = pytest.mark.render
 

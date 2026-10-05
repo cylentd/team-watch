@@ -3,7 +3,7 @@ always among them; a phone shows three and "Show all", a desktop every line besi
 
 import pytest
 
-from test_render import browser, drive, go, open_page  # noqa: F401  (browser is a fixture)
+from test_render import drive, go, open_page  # noqa: F401
 
 
 def lines(page):

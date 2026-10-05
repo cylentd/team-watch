@@ -5,7 +5,7 @@ on the rosters, which is enough to prove prefix, hyphen halves, a typo, and a po
 """
 import pytest
 
-from test_render import browser, open_page  # noqa: F401  (browser is a fixture)
+from test_render import open_page  # noqa: F401
 
 pytestmark = pytest.mark.render
 

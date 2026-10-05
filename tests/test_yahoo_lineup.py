@@ -10,7 +10,7 @@ import pytest
 
 import build
 import myteams
-from test_render import browser, open_page  # noqa: F401  (browser is a fixture)
+from test_render import open_page  # noqa: F401
 
 # The shape of ff-jarvis's league_rosters.json, one row per Yahoo slot the league uses.
 ROWS = [

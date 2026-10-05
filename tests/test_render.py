@@ -14,8 +14,12 @@ import json
 import os
 import pathlib
 import re
+import sys
 
 import pytest
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "scripts"))
+from impact import area_of  # noqa: E402  (scripts/impact.py maps a changed golden state the same way)
 
 pytestmark = pytest.mark.render
 
@@ -520,29 +524,34 @@ PROBE = """
 """
 
 
-@pytest.fixture(scope="module")
-def browser():
-    from playwright.sync_api import sync_playwright
-    with sync_playwright() as pw:
-        b = pw.chromium.launch()
-        yield b
-        b.close()
+def watch_errors(page, into=None):
+    """Collect the page's uncaught exceptions and console errors, into `into` when a list is given
+    (pages that share one list). Blocked externals (the font stylesheet) log "Failed to load
+    resource"; that one is expected."""
+    errors = [] if into is None else into
+    page.on("pageerror", lambda e: errors.append(str(e)))
+    page.on("console", lambda m: errors.append(m.text)
+            if m.type == "error" and not m.text.startswith("Failed to load resource") else None)
+    return errors
+
+
+def open_at(browser, page_file, size, hash_="", init=()):
+    """Open the page at a size, with a hash or pinned-clock init scripts: (ctx, page, errors)."""
+    ctx = browser.new_context(viewport={"width": size[0], "height": size[1]}, reduced_motion="reduce")
+    page = ctx.new_page()
+    page.set_default_timeout(5000)     # a missing control is a bug, not something to wait 30 s for
+    errors = watch_errors(page)
+    page.route(re.compile(r"^https?://"), lambda route: route.abort())
+    page.add_init_script(SEED)
+    for script in init:
+        page.add_init_script(script)
+    page.goto(page_file.as_uri() + hash_)
+    page.wait_for_function("document.getElementById('view').children.length > 0")
+    return ctx, page, errors
 
 
 def open_page(browser, page_file, viewport):
-    ctx = browser.new_context(viewport={"width": viewport[0], "height": viewport[1]}, reduced_motion="reduce")
-    page = ctx.new_page()
-    page.set_default_timeout(5000)     # a missing control is a bug, not something to wait 30 s for
-    errors = []
-    page.on("pageerror", lambda e: errors.append(str(e)))
-    # Blocked externals (the font stylesheet) log "Failed to load resource"; that one is expected.
-    page.on("console", lambda m: errors.append(m.text)
-            if m.type == "error" and not m.text.startswith("Failed to load resource") else None)
-    page.route(re.compile(r"^https?://"), lambda route: route.abort())
-    page.add_init_script(SEED)
-    page.goto(page_file.as_uri())
-    page.wait_for_function("document.getElementById('view').children.length > 0")
-    return ctx, page, errors
+    return open_at(browser, page_file, viewport)
 
 
 def drive(page, steps):
@@ -555,12 +564,6 @@ def drive(page, steps):
     # Scroll events (the header hiding, hidebar.js) fire in the next rendering step, not after any
     # fixed time: on a loaded machine 50 ms passed without one (2026-09-27, run in parallel).
     page.evaluate("new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))")
-
-
-def area_of(state):
-    """The impact area a golden state belongs to (tests/impact.json): its name's first word."""
-    first = state.split("-")[0]
-    return {"teams": "roster", "profile": "profile"}.get(first, first)
 
 
 AREAS = sorted({area_of(s) for s, _ in STATES})
@@ -680,21 +683,16 @@ def test_a_hash_opens_its_view(browser, page_file, leaf, group, label):
     """The view lives in the hash so a reload lands where you were reading. Renaming a leaf, or
     dropping the hash write, breaks bookmarks and the Back button silently -- the page still works,
     it just always opens on the roster. This is the only thing that would notice."""
-    ctx = browser.new_context(viewport={"width": 1280, "height": 900}, reduced_motion="reduce")
-    page = ctx.new_page()
-    page.set_default_timeout(5000)
-    page.route(re.compile(r"^https?://"), lambda route: route.abort())
-    page.add_init_script(SEED)
+    ctx, page, errors = open_at(browser, page_file, (1280, 900), f"#{leaf}")
     try:
-        page.goto(f"{page_file.as_uri()}#{leaf}")
-        page.wait_for_function("document.getElementById('view').children.length > 0")
         assert page.locator(".navitem[aria-current='true']").get_attribute("data-s") == group
         sub = page.locator("#subnav .mode-sub[aria-pressed='true']")
         assert sub.inner_text().strip().upper().startswith(label)
         # And navigating writes it back, so the next reload holds.
         page.locator(".navitem[data-s='teams']").first.click()
-        page.wait_for_timeout(120)
+        page.wait_for_function("location.hash === '#roster'")
         assert page.evaluate("location.hash") == "#roster"
+        assert errors == []
     finally:
         ctx.close()
 
@@ -705,18 +703,16 @@ def test_a_head_fills_its_circle(browser, page_file, hash):
     `.xf-head`/`.bd-head` grid sized its implicit row to the img's default 150px, so a 36px circle
     showed the top of a 36x150 strip -- hair and background, no face -- in Movers, Matchups and
     Leaders alike. The golden probe measures no img, which is how it shipped."""
-    ctx = browser.new_context(viewport={"width": 390, "height": 844}, reduced_motion="reduce")
-    page = ctx.new_page()
-    page.route(re.compile(r"^https?://"), lambda route: route.abort())
-    page.add_init_script(SEED)
+    ctx, page, errors = open_at(browser, page_file, (390, 844), hash)
     try:
-        page.goto(page_file.as_uri() + hash)
-        page.wait_for_function("document.getElementById('view').children.length > 0")
-        page.wait_for_timeout(200)
+        # Layout settles when every drawn headshot has loaded (or failed) and a frame has passed.
+        page.wait_for_function("[...document.querySelectorAll('.xf-head img, .bd-head img')].every(i => i.complete)")
+        page.evaluate("new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))")
         sizes = page.evaluate("""() => [...document.querySelectorAll('.xf-head img, .bd-head img')].map(i =>
             [Math.round(i.getBoundingClientRect().height), Math.round(i.parentElement.getBoundingClientRect().height)])""")
         assert sizes, f"no headshot drawn on {hash}; the check would pass on nothing"
         assert all(h == box for h, box in sizes), f"img height vs its circle: {sizes[:5]}"
+        assert errors == []
     finally:
         ctx.close()
 
@@ -727,24 +723,19 @@ def test_movers_hash_opens_role(browser, page_file, hash):
     """Role is the leaf `movers` (2026-09-29; Movers' share cards before, and the `pool` view before
     that): its hash, old or new, must open it with its tab pressed, the Leaders tab must write
     #board, and Back must return to Role."""
-    ctx = browser.new_context(viewport={"width": 390, "height": 844}, reduced_motion="reduce")
-    page = ctx.new_page()
-    page.set_default_timeout(5000)
-    page.route(re.compile(r"^https?://"), lambda route: route.abort())
-    page.add_init_script(SEED)
+    ctx, page, errors = open_at(browser, page_file, (390, 844), hash)
     try:
-        page.goto(page_file.as_uri() + hash)
-        page.wait_for_function("document.getElementById('view').children.length > 0")
         assert page.evaluate("SURFACE") == "movers"
         assert page.locator("#subnav [data-leaf='movers'][aria-pressed='true']").count() == 1
         assert page.locator("[data-bdadd]").count() == 0, "+ Compare belongs to Leaders only"
         page.locator("#subnav [data-leaf='board']").click()
-        page.wait_for_timeout(120)
+        page.wait_for_function("location.hash === '#board' && SURFACE === 'board'")
         assert page.evaluate("[location.hash, SURFACE]") == ["#board", "board"]
         page.go_back()
         page.wait_for_function("SURFACE === 'movers'")
         assert page.locator("[data-rvopen]").count() > 0
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+        assert errors == []
     finally:
         ctx.close()
 
@@ -754,17 +745,12 @@ def test_nav_row_fits_a_narrow_desktop(browser, page_file, w):
     """Between the phone and 1100px the groups slid under the search field and "WEEK 3" wrapped to
     two lines (300px of overlap at 761, 9px at 1100; fixed 2026-09-27). The golden viewports are
     390 and 1400, so neither saw it."""
-    ctx = browser.new_context(viewport={"width": w, "height": 700}, reduced_motion="reduce")
-    page = ctx.new_page()
-    page.set_default_timeout(5000)
-    page.route(re.compile(r"^https?://"), lambda route: route.abort())
-    page.add_init_script(SEED)
+    ctx, page, errors = open_at(browser, page_file, (w, 700), "#board")
     try:
-        page.goto(page_file.as_uri() + "#board")
-        page.wait_for_function("document.getElementById('view').children.length > 0")
         nav = page.evaluate("""(() => { const n = document.querySelector('.nav'), wk = document.querySelector('.status-btn');
           return {overflow: n.scrollWidth - n.clientWidth, weekOneLine: !wk || wk.getBoundingClientRect().height <= 30}; })()""")
         assert nav == {"overflow": 0, "weekOneLine": True}, nav
+        assert errors == []
     finally:
         ctx.close()
 
@@ -774,13 +760,8 @@ def test_the_mark_is_smug_blip(browser, page_file, w, shown):
     """The mark before TEAM//WATCH is Smug Blip (2026-09-29, per David): lib/blip.js pose "smug",
     about the wordmark's cap height plus its // antenna, the wordmark at --t-brand (22px), over the
     18px tabs. A phone hides the brand, as before."""
-    ctx = browser.new_context(viewport={"width": w, "height": 800}, reduced_motion="reduce")
-    page = ctx.new_page()
-    page.route(re.compile(r"^https?://"), lambda route: route.abort())
-    page.add_init_script(SEED)
+    ctx, page, errors = open_at(browser, page_file, (w, 800), "#board")
     try:
-        page.goto(page_file.as_uri() + "#board")
-        page.wait_for_function("document.getElementById('view').children.length > 0")
         got = page.evaluate("""(() => { const m = document.querySelector('.navbar .brand-mark svg.blip.smug'),
             n = document.querySelector('.navbar .brand-name'), bar = document.querySelector('.navbar');
           const r = m && m.getBoundingClientRect();
@@ -792,6 +773,7 @@ def test_the_mark_is_smug_blip(browser, page_file, w, shown):
             assert got["size"] == 30 and got["font"] == "22px" and got["bar"] == 57, got
         else:
             assert got["size"] == 0, got
+        assert errors == []
     finally:
         ctx.close()
 
@@ -803,15 +785,9 @@ def test_leaders_page_fits_the_screen(browser, page_file, w, h):
     (board/fit.js, 2026-09-26): as it lands and after a turn, the card, pager included, ends above
     the bottom edge with no scroll, and a taller screen holds more rows than a phone. A 360x740
     phone showed five players before a tap until then; the hero plus the list must beat that."""
-    ctx = browser.new_context(viewport={"width": w, "height": h}, reduced_motion="reduce")
-    page = ctx.new_page()
-    page.set_default_timeout(5000)
-    page.route(re.compile(r"^https?://"), lambda route: route.abort())
-    page.add_init_script(SEED)
+    ctx, page, errors = open_at(browser, page_file, (w, h), "#board")
     fits = "(() => { const m = document.querySelector('.bd-card').getBoundingClientRect(); return scrollY === 0 && m.bottom <= innerHeight; })()"
     try:
-        page.goto(page_file.as_uri() + "#board")
-        page.wait_for_function("document.getElementById('view').children.length > 0")
         assert page.evaluate(fits)
         assert page.locator(".bd-card > .bd-hero").count() == 1, "the #1 keeps his card"
         rows = page.evaluate("document.querySelectorAll('.bd-card .bd-list:not(.bd-pinned) > .bd-row').length")
@@ -820,6 +796,7 @@ def test_leaders_page_fits_the_screen(browser, page_file, w, h):
         if page.locator(".bd-pager [data-bdpage='2']:not([disabled])").count():
             page.locator(".bd-pager [data-bdpage='2']").click()
             assert page.evaluate(fits)
+        assert errors == []
     finally:
         ctx.close()
 
@@ -829,21 +806,16 @@ def test_league_back_page_fits_one_desktop_screen(browser, page_file):
     """This week > League on a 1440x900 screen (storyboard 2026-09-27): the masthead, the lead, the
     briefs, the grudges, the standings and all six superlatives end above the bottom edge, every week.
     It ran to 3.3 screens before. On a phone the order is the story, the lead, the briefs, then the rest."""
-    ctx = browser.new_context(viewport={"width": 1440, "height": 900}, reduced_motion="reduce")
-    page = ctx.new_page()
-    page.set_default_timeout(5000)
-    page.route(re.compile(r"^https?://"), lambda route: route.abort())
-    page.add_init_script(SEED)
+    ctx, page, errors = open_at(browser, page_file, (1440, 900), "#recap")
     bottom = "Math.max(...[...document.querySelectorAll('.bp2 > *, .bp2-main > *')].map(e => e.getBoundingClientRect().bottom))"
     try:
-        page.goto(page_file.as_uri() + "#recap")
-        page.wait_for_function("document.getElementById('view').children.length > 0")
         for wk in page.evaluate("LGS.yahoo.weeks.map(w => w.week)"):
             page.locator(f"[data-lgweek='{wk}']").click()
             assert page.evaluate(bottom) <= 900, f"week {wk} runs past the fold"
         page.set_viewport_size({"width": 360, "height": 740})
         order = page.evaluate("['.bp2-mast', '.bp2-lead', '.bp2-briefs', '.bp2-sups', '.bp2-under'].map(q => document.querySelector(q).getBoundingClientRect().top)")
         assert order == sorted(order), order
+        assert errors == []
     finally:
         ctx.close()
 
@@ -854,15 +826,9 @@ def test_trades_desktop_rows_end_level(browser, page_file):
     beside the curses (ending within 250px of them), the decided trades full width, three across. Two
     columns by kind left the ranking ending ~1000px above its neighbour. On a phone it is one strip, its
     card sections swipe rows."""
-    ctx = browser.new_context(viewport={"width": 1440, "height": 900}, reduced_motion="reduce")
-    page = ctx.new_page()
-    page.set_default_timeout(5000)
-    page.route(re.compile(r"^https?://"), lambda route: route.abort())
-    page.add_init_script(SEED)
+    ctx, page, errors = open_at(browser, page_file, (1440, 900), "#trades")
     box = "q => { const r = document.querySelector(q).getBoundingClientRect(); return [r.left, r.top, r.width, r.bottom]; }"
     try:
-        page.goto(page_file.as_uri() + "#trades")
-        page.wait_for_function("document.getElementById('view').children.length > 0")
         rank, curses, dec, body = (page.evaluate(box, q) for q in (".tr-rank", ".tr-curses", ".tr-decided", ".tr-body"))
         assert curses[0] > rank[0] and abs(curses[1] - rank[1]) < 1, "curses beside the ranking"
         assert abs(curses[3] - rank[3]) <= 250, f"ranking ends {rank[3]:.0f}, curses {curses[3]:.0f}"
@@ -897,6 +863,7 @@ def test_trades_desktop_rows_end_level(browser, page_file):
         assert phone["page"] == phone["vw"], f"the page scrolls sideways: {phone['page']} > {phone['vw']}"
         assert phone["rows"] and all(phone["rows"]), f"every card section swipes: {phone['rows']}"
         assert phone["clipped"] == 0, f"{phone['clipped']} cards clip their content"
+        assert errors == []
     finally:
         ctx.close()
 
@@ -909,12 +876,8 @@ def test_leaders_wide_is_the_one_beside_two_lists(browser, page_file, w, h):
     is the single card (test_leaders_page_fits_the_screen). Since 2026-09-29 a full page's #1 ends
     where the taller list ends, so no empty page sits under it ('a bottom left gap'), and page 2
     settles: a short last page once flipped between two row counts until the tab crashed."""
-    ctx = browser.new_context(viewport={"width": w, "height": h}, reduced_motion="reduce")
-    page = ctx.new_page()
-    page.set_default_timeout(5000)
-    page.route(re.compile(r"^https?://"), lambda route: route.abort())
-    page.add_init_script(SEED)
-    shape = """(() => { const c = document.querySelector('.bd-card'), h = c.querySelector(':scope > .bd-hero');
+    ctx, page, errors = open_at(browser, page_file, (w, h), "#board")
+    shape ="""(() => { const c = document.querySelector('.bd-card'), h = c.querySelector(':scope > .bd-hero');
       const lists = [...c.querySelectorAll('.bd-cols > .bd-list')].map(l => l.getBoundingClientRect());
       return {hero: h ? Math.round(h.getBoundingClientRect().width) : 0, lists: lists.length,
               sideBySide: lists.length === 2 && Math.abs(lists[0].top - lists[1].top) < 1 && lists[1].left > lists[0].right,
@@ -923,8 +886,6 @@ def test_leaders_wide_is_the_one_beside_two_lists(browser, page_file, w, h):
       const low = Math.max(...[...c.querySelectorAll('.bd-cols > .bd-list')].map(l => l.getBoundingClientRect().bottom));
       return Math.round(Math.abs(h.getBoundingClientRect().bottom - low)); })()"""
     try:
-        page.goto(page_file.as_uri() + "#board")
-        page.wait_for_function("document.getElementById('view').children.length > 0")
         page.locator("[data-bdpos='WR']").click()
         s = page.evaluate(shape)
         assert s == {"hero": 440, "lists": 2, "sideBySide": True, "fits": True}, s
@@ -933,6 +894,7 @@ def test_leaders_wide_is_the_one_beside_two_lists(browser, page_file, w, h):
         if page.locator(".bd-pager [data-bdpage='2']:not([disabled])").count():
             page.locator(".bd-pager [data-bdpage='2']").click()
             assert page.evaluate(shape)["hero"] == 440, "the #1 stays beside page 2"
+        assert errors == []
     finally:
         ctx.close()
 
@@ -948,16 +910,8 @@ TUESDAY = 'Date.now = () => Date.parse("2026-09-22T12:00:00Z");'   # a Tuesday i
 def test_tuesday_opens_waivers(browser, page_file, day, hash, surface, first):
     """The day is read from Date.now(), so pinning it is the whole injection. SEED pins a
     Saturday; a Tuesday script added after it wins."""
-    ctx = browser.new_context(viewport={"width": 390, "height": 844}, reduced_motion="reduce")
-    page = ctx.new_page()
-    page.set_default_timeout(5000)
-    page.route(re.compile(r"^https?://"), lambda route: route.abort())
-    page.add_init_script(SEED)
-    if day == "tue":
-        page.add_init_script(TUESDAY)
+    ctx, page, errors = open_at(browser, page_file, (390, 844), hash, init=[TUESDAY] if day == "tue" else [])
     try:
-        page.goto(page_file.as_uri() + hash)
-        page.wait_for_function("document.getElementById('view').children.length > 0")
         assert page.evaluate("SURFACE") == surface
         subs = page.locator("#subnav .mode-sub")
         if first:
@@ -966,6 +920,7 @@ def test_tuesday_opens_waivers(browser, page_file, day, hash, surface, first):
             assert subs.count() == 0
         # No sideways scroll on a phone, whichever view opened.
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+        assert errors == []
     finally:
         ctx.close()
 

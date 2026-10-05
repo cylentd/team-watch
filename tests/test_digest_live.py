@@ -12,7 +12,7 @@ import re
 
 import pytest
 
-from test_render import LIVE_PLANT, browser, drive, go, open_page  # noqa: F401  (the suite's one Chromium)
+from test_render import LIVE_PLANT, drive, go, open_page  # noqa: F401
 
 pytestmark = pytest.mark.render
 

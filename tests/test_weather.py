@@ -15,7 +15,7 @@ import re
 
 import pytest
 
-from test_render import SEED, browser  # noqa: F401  (browser is a fixture)
+from test_render import SEED  # noqa: F401
 
 pytestmark = pytest.mark.render
 

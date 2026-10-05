@@ -16,7 +16,7 @@ import pytest
 
 import contract
 from preview import _ats, _base, _blind, _total, live_preview
-from test_render import SEED, browser  # noqa: F401  (browser is a fixture)
+from test_render import PICKED, SEED, watch_errors  # noqa: F401
 
 FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "data" / "game_previews.json"
 
@@ -165,10 +165,11 @@ def test_before_a_final_week_the_record_is_empty():
     assert live_preview(json.loads(FIXTURE.read_text(encoding="utf-8")), slug)["record"] is None
 
 
-def open_preview(browser, page_file, w=360, h=800):
+def open_preview(browser, page_file, w=360, h=800, errors=None):
     ctx = browser.new_context(viewport={"width": w, "height": h}, reduced_motion="reduce", has_touch=True)
     pg = ctx.new_page()
     pg.set_default_timeout(5000)
+    watch_errors(pg, errors)
     pg.route(re.compile(r"^https?://"), lambda route: route.abort())
     pg.add_init_script(SEED)
     pg.goto(page_file.as_uri() + "#preview")
@@ -176,11 +177,56 @@ def open_preview(browser, page_file, w=360, h=800):
     return ctx, pg
 
 
-@pytest.fixture
-def page(browser, page_file):
-    ctx, pg = open_preview(browser, page_file)
-    yield pg
+PRISTINE_JS = """() => {
+  const live = {LIVE_PREVIEW, PROPS};
+  window.__pristine = {live, openProfile, galWin: GAL_WIN,
+    snap: Object.fromEntries(Object.entries(live).map(([k, v]) => [k, structuredClone(v)]))};
+}"""
+
+# Puts the shared page back to what a fresh load shows: the preview block (tests edit it), the dossier,
+# the record, the slip and its tray, localStorage, open layers and the view. Every test starts from
+# here, whichever worker it lands on.
+RESET_JS = """() => {
+  'use strict';
+  document.querySelectorAll('.modal.on').forEach(d => modalShut(d));
+  LAYERS.length = 0; LAYER_SKIP.length = 0;
+  const p = window.__pristine;
+  for (const [k, v] of Object.entries(p.live)) {
+    const s = structuredClone(p.snap[k]);
+    if (Array.isArray(v)) { v.length = 0; v.push(...s); } else { for (const key of Object.keys(v)) delete v[key]; Object.assign(v, s); }
+  }
+  openProfile = p.openProfile; delete window.__opened;
+  try { localStorage.clear(); } catch (e) {}
+  %s
+  SAVED = savedRead();
+  SLIP.length = 0; SLIP_SIDE = {}; SL_CHIP = {}; SL_FOCUS = null; GAL_WIN = p.galWin;
+  BETS_SHEET = false; BETS_PANEL = false; LEG_SHEET = null;
+  PV_I = null; PV_OPEN = false; PV_Y = 0; PV_REC = false; PV_ENTER = "";
+  window.scrollTo(0, 0);
+  navGo('preview');
+}""" % PICKED
+
+
+@pytest.fixture(scope="module")
+def shared(browser, page_file):
+    """One page for the module: page resets it, so a test never sees another's changes."""
+    errors = []
+    ctx, pg = open_preview(browser, page_file, errors=errors)
+    pg.evaluate(PRISTINE_JS)
+    assert errors == []                 # whatever the load or the snapshot raised fails here, not lost to a clear
+    yield pg, errors
     ctx.close()
+
+
+@pytest.fixture
+def page(shared):
+    """The shared page, reset. Any page error or console error during the test fails it."""
+    pg, errors = shared
+    left, errors[:] = list(errors), []  # an error raised or left over since the last test fails this one
+    assert left == []
+    pg.evaluate(RESET_JS)
+    yield pg
+    assert errors == [], errors
 
 
 def is_open(pg):
@@ -489,7 +535,8 @@ def test_a_shared_surname_is_never_bolded_alone(page):
 
 @pytest.mark.render
 def test_a_desktop_shows_the_rail_beside_the_dossier(browser, page_file):
-    ctx, pg = open_preview(browser, page_file, 1280, 900)
+    errors = []
+    ctx, pg = open_preview(browser, page_file, 1280, 900, errors)
     try:
         assert pg.is_visible(".pv-slate") and pg.is_visible(".pv-dz") and match(pg) == "PIT @ CLE"
         pg.click("[data-pvopen='2']")
@@ -511,6 +558,7 @@ def test_a_desktop_shows_the_rail_beside_the_dossier(browser, page_file):
         open_record(pg)
         pg.click("[data-pvrec]")
         assert pg.locator(".pv-rz").count() == 0 and match(pg) == "JAX @ LA"
+        assert errors == [], errors
     finally:
         ctx.close()
 

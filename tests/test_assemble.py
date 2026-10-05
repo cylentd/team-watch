@@ -2,7 +2,6 @@
 neither drop out of the page nor join it unlisted, and every user-facing string resolves to a
 key in content.json."""
 import json
-import shutil
 
 import pytest
 
@@ -69,17 +68,42 @@ def test_placeholders_do_not_survive():
     assert out.count("/*__HEADS__*/") == 1
 
 
+SCRATCH = {
+    "shell.html": "<title>{{copy:chrome.head.title}}</title>\n<style>\n/*{{css}}*/\n</style>\n"
+                  "<script>\n/*__HEADS__*/\n/*{{js}}*/\n</script>\n",
+    "order.css.txt": "# pin: tokens first\nbase/tokens.css\nsurface/ranks/ranks.css\n",
+    "order.js.txt": "chrome/nav.js\nmain.js\n",
+    "scope.json": '{"fenced": {"surface/ranks/ranks.css": ["ranks"]}, "shared": {}}\n',
+    "css/base/tokens.css": ":root { --x: 1px; }\n",
+    "css/surface/ranks/ranks.css": ".rk { margin: var(--x); }\n",
+    "js/chrome/nav.js": 'const NAV = [t("nav.tab.grid")];\n',
+    "js/main.js": "render();\n",
+}
+
+
 @pytest.fixture
 def scratch_tree(tmp_path, monkeypatch):
-    """A copy of design/src the test may break, with the module pointed at it."""
+    """A tree of the same shape as design/src, nine files instead of hundreds, with the module
+    pointed at it. The checker is under test here, not the repo's tree: test_tree_and_manifests_agree
+    covers that. A copy of the real tree cost 3-4 s per test on Windows (2026-10-05)."""
     src = tmp_path / "src"
-    shutil.copytree(assemble.SRC, src)
+    for rel, text in SCRATCH.items():
+        (src / rel).parent.mkdir(parents=True, exist_ok=True)
+        (src / rel).write_text(text, encoding="utf-8")
+    (src / "css" / "chrome").mkdir()
+    write_copy(src, {"chrome.head.title": "Team Watch", "nav.tab.grid": "Grid"})
     monkeypatch.setattr(assemble, "SRC", src)
     monkeypatch.setattr(assemble, "SHELL", src / "shell.html")
     monkeypatch.setattr(assemble, "KINDS", {"css": src / "order.css.txt", "js": src / "order.js.txt"})
     monkeypatch.setattr(assemble, "CONTENT", src / "content.json")
     monkeypatch.setattr(assemble, "SCOPE", src / "scope.json")
     return src
+
+
+def test_the_scratch_tree_starts_clean(scratch_tree):
+    """Each test below breaks one thing, so the tree they start from must have no problem."""
+    assert assemble.check() == []
+    assert ".rk" in assemble.assemble() and "Team Watch" in assemble.assemble()
 
 
 def test_unlisted_file_is_a_problem(scratch_tree):

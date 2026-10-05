@@ -3,7 +3,7 @@ meant for ESPN landed on the Sheet / Cards chips below it. A click in Playwright
 target is hit, so the test asks what is actually on top at the point a finger would tap."""
 import pytest
 
-from test_render import browser, drive, go, open_page  # noqa: F401  (browser is a fixture)
+from test_render import drive, go, open_page  # noqa: F401
 
 pytestmark = pytest.mark.render
 
@@ -37,8 +37,7 @@ def test_the_menu_lists_followed_teams_and_a_league_on_request(browser, page_fil
     page.click("[data-tsbtn]")
     assert page.evaluate(SHOWN) == ["yahoo", "espn", "ayo"], "unset, the list is David's teams (three since 2026-09-29)"
     lg = page.evaluate("MATES[0]?.league || null")
-    if not lg:
-        pytest.skip("the fixture has no leaguemates")
+    assert lg, "the fixture has leaguemates"
     mates = page.evaluate(f"mateKeys('{lg}').sort(tsByName)")
     page.click(f"[data-tsleague='{lg}']")
     assert page.evaluate(SHOWN) == [lg, *mates], "David's team first, then by name"
@@ -95,8 +94,7 @@ def test_a_whole_league_fits_the_menu_on_a_phone(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (360, 740))
     drive(page, go("roster"))
     page.click("[data-tsbtn]")
-    if not page.locator("[data-tsleague]").count():
-        pytest.skip("the fixture has no leaguemates")
+    assert page.locator("[data-tsleague]").count(), "the fixture has leaguemates"
     page.click("[data-tsleague]")
     over = page.evaluate("(m => m.scrollHeight - m.clientHeight)(document.querySelector('[data-tsmenu]'))")
     assert over <= 1, f"the league's list scrolls {over}px inside the menu"
@@ -109,8 +107,7 @@ def test_the_menu_opens_on_the_league_of_an_unfollowed_team(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     drive(page, go("roster"))
     mate = page.evaluate("MATES.map(m => m.key)[0] || null")
-    if not mate:
-        pytest.skip("the fixture has no leaguemates")
+    assert mate, "the fixture has leaguemates"
     # Viewed, not picked: a pick follows the team by default (data/mates.js followLoad).
     page.evaluate(f"VIEW = '{mate}'; render()")
     page.click("[data-tsbtn]")

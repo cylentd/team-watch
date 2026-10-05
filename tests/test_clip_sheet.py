@@ -7,7 +7,7 @@ import re
 
 import pytest
 
-from test_render import browser, drive, go, open_page  # noqa: F401  (browser is a fixture)
+from test_render import drive, go, open_page  # noqa: F401
 
 RING = ".row .head[data-clips]"
 SHEET_OPEN = "document.getElementById('clipsheet').classList.contains('on')"

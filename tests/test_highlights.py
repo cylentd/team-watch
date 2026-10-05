@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "design"))
 import contract  # noqa: E402
 from highlights import VIEWS, live_highlights  # noqa: E402
 from sources import load_highlights  # noqa: E402
-from test_render import browser, SEED  # noqa: E402,F401  (the suite's one Chromium and its pinned clock)
+from test_render import open_at  # noqa: E402
 
 
 def test_block_keeps_the_tabs_order_and_each_views_leaf():
@@ -37,19 +37,9 @@ def test_no_file_is_no_block():
     contract.validate("LIVE_HIGHLIGHTS", None)
 
 
-def _page(browser, page_file, size, hash_):
-    ctx = browser.new_context(viewport={"width": size[0], "height": size[1]}, reduced_motion="reduce")
-    page = ctx.new_page()
-    page.set_default_timeout(5000)
-    page.route(re.compile(r"^https?://"), lambda route: route.abort())
-    page.add_init_script(SEED)
-    page.goto(page_file.as_uri() + "#" + hash_)
-    return ctx, page
-
-
 @pytest.mark.render
 def test_highlights_leads_players_and_each_card_opens_its_view(browser, page_file):
-    ctx, page = _page(browser, page_file, (360, 800), "highlights")
+    ctx, page, errors = open_at(browser, page_file, (360, 800), "#highlights")
     try:
         page.wait_for_selector(".hl-v")
         assert page.evaluate("NAV.find(([g]) => g === 'scouting')[1][0]") == "highlights", "Players opens on Highlights"
@@ -70,5 +60,6 @@ def test_highlights_leads_players_and_each_card_opens_its_view(browser, page_fil
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
         page.locator("[data-hlgo='movers']").click()
         assert page.evaluate("SURFACE") == "movers"
+        assert errors == []
     finally:
         ctx.close()

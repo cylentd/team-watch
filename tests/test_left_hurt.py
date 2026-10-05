@@ -18,7 +18,7 @@ import re
 
 import pytest
 
-from test_render import LIVE_PLANT, browser, drive, go, open_page, SEED  # noqa: F401  (the suite's one Chromium)
+from test_render import LIVE_PLANT, drive, go, open_page, SEED  # noqa: F401
 
 pytestmark = pytest.mark.render
 
@@ -59,12 +59,48 @@ def summary(clubs, plays):
             "drives": {"previous": [{"plays": plays[:k]}], "current": {"plays": plays[k:]}}}
 
 
+@pytest.fixture(scope="module")
+def shared_pages(browser, page_file):
+    """One loaded page per viewport for the module, where each test used to load its own (9 loads for
+    the pure scan alone). The tests that plant data re-plant everything they read (PLANT) after
+    leaving the view, and the two that stub the poller or need http keep their own page."""
+    pages = {}
+
+    def get(size):
+        if size not in pages:
+            pages[size] = open_page(browser, page_file, size)
+            assert pages[size][2] == []     # whatever the load raised fails here, not lost to a clear
+        return pages[size]
+    yield get
+    for ctx, *_ in pages.values():
+        ctx.close()
+
+
 @pytest.fixture
-def blank(browser, page_file):
-    ctx, page, errors = open_page(browser, page_file, (390, 844))
-    yield page
-    ctx.close()
-    assert errors == []
+def shared(shared_pages):
+    """shared((w, h)) -> (page, errors): the viewport's page with no dialog open and its error list
+    emptied. The list is asserted empty again when the test ends."""
+    used = []
+
+    def open_shared(size):
+        ctx, page, errors = shared_pages(size)
+        left, errors[:] = list(errors), []
+        assert left == []               # an error left over since the last test fails this one
+        used.append(errors)
+        for _ in range(3):
+            if not page.evaluate("!!document.querySelector('.modal.on')"):
+                break
+            page.keyboard.press("Escape")
+            page.wait_for_function("LAYER_SKIP.length === 0")
+        return page, errors
+    yield open_shared
+    for errors in used:
+        assert errors == []
+
+
+@pytest.fixture
+def blank(shared):
+    return shared((390, 844))[0]
 
 
 def scan(page, clubs, plays, names=NAMES):
@@ -172,20 +208,22 @@ def cfg(**over):
     return c
 
 
-def digest(browser, page_file, **over):
-    ctx, page, errors = open_page(browser, page_file, (390, 844))
+def digest(shared, **over):
+    page, errors = shared((390, 844))
+    drive(page, go("roster"))          # a shared page may sit on the Digest already: leave it, then come back
     drive(page, go("digest"))
     page.wait_for_selector(".dg")
     page.evaluate(PLANT, cfg(**over))
-    return ctx, page, errors
+    return page, errors
 
 
-def live(browser, page_file, **over):
-    ctx, page, errors = open_page(browser, page_file, (360, 780))
+def live(shared, **over):
+    page, errors = shared((360, 780))
+    drive(page, go("roster"))
     page.evaluate(PLANT, cfg(**over))
     drive(page, go("live"))
     page.wait_for_selector(".gd-mirror .gd-mr")
-    return ctx, page, errors
+    return page, errors
 
 
 def personal_names(page):
@@ -195,12 +233,11 @@ def personal_names(page):
     return names
 
 
-def test_names_are_every_projected_8_plus_player_not_my_starters(browser, page_file):
-    ctx, page, errors = live(browser, page_file)
+def test_names_are_every_projected_8_plus_player_not_my_starters(shared):
+    page, errors = live(shared)
     names = page.evaluate("gdHurtNames()")
     mine = page.evaluate("GD.leagues.flatMap(lg => Object.values(lg.teams).flatMap(tm => tm.lineup.map(r => r.slug)))")
     ranked = page.evaluate("LIVE_RANKS.rows.map(r => [r.slug, r.pts, r.pos])")
-    ctx.close()
     assert errors == []
     assert "tyler-huntley" not in mine                                # nobody of mine: he is watched all the same
     assert names["t.huntley"] == [{"slug": "tyler-huntley", "name": "Tyler Huntley", "team": "BAL"}]
@@ -212,8 +249,8 @@ def test_names_are_every_projected_8_plus_player_not_my_starters(browser, page_f
     assert {pos for _, _, pos in ranked} <= {"QB", "RB", "WR", "TE"}
 
 
-def test_hurt_starter_takes_the_headline_and_a_row_and_a_return_gives_it_back(browser, page_file):
-    ctx, page, errors = digest(browser, page_file)
+def test_hurt_starter_takes_the_headline_and_a_row_and_a_return_gives_it_back(shared):
+    page, errors = digest(shared)
     assert page.locator(".dg-lead-h").inner_text() == "St. Brown ERUPTS: 10 catches, 180 yards, 2 TDs"
     rows = page.locator(".dg-now-r").count()
     page.evaluate("(h) => { GD_HURT = {[h.slug]: h}; paintDigestLive(); }", PURDY)
@@ -237,58 +274,53 @@ def test_hurt_starter_takes_the_headline_and_a_row_and_a_return_gives_it_back(br
     page.evaluate("(h) => { GD_HURT = {[h.slug]: {...h, back: true}}; paintDigestLive(); }", PURDY)
     assert page.locator(".dg-lead-h").inner_text() == "St. Brown ERUPTS: 10 catches, 180 yards, 2 TDs"
     assert page.locator(".dg-now-r.hurt").count() == 0 and page.locator(".dg-now-r").count() == rows
-    ctx.close()
     assert errors == []
 
 
-def test_with_several_hurt_the_best_projection_leads(browser, page_file):
-    ctx, page, errors = digest(browser, page_file)
+def test_with_several_hurt_the_best_projection_leads(shared):
+    page, errors = digest(shared)
     page.evaluate("(hs) => { GD_HURT = Object.fromEntries(hs.map(h => [h.slug, h])); paintDigestLive(); }", [PURDY, ACHANE, HUNTLEY])
     order = page.evaluate("() => gdHurtNow().map(e => [e.slug, e.pts])")
     head = page.locator(".dg-lead-h").inner_text()
     rows = page.locator(".dg-now-r.hurt").all_inner_texts()
-    ctx.close()
     assert errors == []
     assert order == [["devon-achane", 21.5], ["tyler-huntley", 19.9], ["brock-purdy", 18.1]]
     assert head == "D. Achane left the game hurt"
     assert len(rows) == 3 and "T. Huntley" in rows[1]              # Huntley is on nobody's team of mine, and a row all the same
 
 
-def test_the_digest_names_no_league_or_team_of_mine_while_a_player_is_hurt(browser, page_file):
+def test_the_digest_names_no_league_or_team_of_mine_while_a_player_is_hurt(shared):
     """David, 2026-10-04: the Digest is generic for the public. The by-line is his club and the clock."""
-    ctx, page, errors = digest(browser, page_file)
+    page, errors = digest(shared)
     names = personal_names(page)
     page.evaluate("(h) => { GD_HURT = {[h.slug]: h}; paintDigestLive(); }", ACHANE)
     fact = page.locator(".dg-lead-fact").inner_text()
     dg = page.evaluate("document.querySelector('.dg').outerHTML")
-    ctx.close()
     assert errors == []
     assert fact == "MIA · Live"
     assert [n for n in names if n in dg] == []
 
 
-def test_before_kickoff_nothing_changes(browser, page_file):
-    ctx, page, errors = digest(browser, page_file, at="2026-10-04T08:00:00Z", state="pre_game", clock={})
+def test_before_kickoff_nothing_changes(shared):
+    page, errors = digest(shared, at="2026-10-04T08:00:00Z", state="pre_game", clock={})
     drawn = page.evaluate("document.querySelector('.dg').outerHTML")
     page.evaluate("(h) => { GD_HURT = {[h.slug]: h}; DG_CUT = null; render(); }", PURDY)
     assert page.evaluate("document.querySelector('.dg').outerHTML") == drawn
     assert page.locator(".dg-now-r.hurt").count() == 0
-    ctx.close()
     assert errors == []
 
 
-def test_between_games_the_banner_is_not_a_hurt_one(browser, page_file):
+def test_between_games_the_banner_is_not_a_hurt_one(shared):
     """No game is on (every one final): GD_HURT is last Sunday's news and the top score keeps the banner."""
-    ctx, page, errors = digest(browser, page_file, at="2026-10-04T23:30:00Z", state="complete", clock={})
+    page, errors = digest(shared, at="2026-10-04T23:30:00Z", state="complete", clock={})
     page.evaluate("(h) => { GD_HURT = {[h.slug]: h}; paintDigestLive(); }", PURDY)
     head = page.locator(".dg-lead-h").inner_text()
-    ctx.close()
     assert errors == []
     assert "left the game hurt" not in head
 
 
-def test_live_row_wears_a_hurt_chip_until_he_is_back(browser, page_file):
-    ctx, page, errors = live(browser, page_file)
+def test_live_row_wears_a_hurt_chip_until_he_is_back(shared):
+    page, errors = live(shared)
     row = lambda: page.locator(".gd-mirror:not(.bn) .gd-mr", has=page.locator(".gd-h.l .gd-nb[data-gdn='Brock Purdy']"))
     assert row().count() == 1 and page.locator(".gd-hurt").count() == 0
     plain = page.evaluate("document.querySelector('.gd-mirror').innerHTML")
@@ -309,16 +341,14 @@ def test_live_row_wears_a_hurt_chip_until_he_is_back(browser, page_file):
     page.evaluate("(h) => { GD_HURT = {[h.slug]: {...h, back: true}}; paintLive(); }", PURDY)
     assert page.locator(".gd-hurt").count() == 0
     assert page.evaluate("document.querySelector('.gd-mirror').innerHTML") == plain
-    ctx.close()
     assert errors == []
 
 
-def test_a_player_whose_game_has_not_started_draws_no_chip(browser, page_file):
-    ctx, page, errors = live(browser, page_file)
+def test_a_player_whose_game_has_not_started_draws_no_chip(shared):
+    page, errors = live(shared)
     # DET has not kicked off: a stale flag on St. Brown is not drawn
     page.evaluate("""() => { for (const c of gdCodes('DET')) GD_STATS.games[c] = 'pre_game'; GD_HURT = {'amonra-st-brown': {slug: 'amonra-st-brown', name: 'Amon-Ra St. Brown', team: 'DET', q: 1, clock: '', back: false}}; paintLive(); }""")
     assert page.locator(".gd-hurt").count() == 0
-    ctx.close()
     assert errors == []
 
 

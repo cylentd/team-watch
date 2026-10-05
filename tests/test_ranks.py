@@ -9,7 +9,7 @@ import pytest
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "design"))
 from ranks import live_ranks, natural_breaks  # noqa: E402
-from test_render import browser, SEED  # noqa: E402,F401  (the suite's one Chromium and its pinned clock)
+from test_render import SEED  # noqa: E402,F401
 
 
 def slug(name):

@@ -45,15 +45,6 @@ def shaped():
     return _game_module().shape(json.loads(FIXTURE.read_text(encoding="utf-8")))
 
 
-@pytest.fixture(scope="module")
-def browser():
-    from playwright.sync_api import sync_playwright
-    with sync_playwright() as pw:
-        b = pw.chromium.launch()
-        yield b
-        b.close()
-
-
 MOUNT = """
 ([data, at, who]) => {
   const host = document.createElement("div");

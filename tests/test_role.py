@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "design"))
 import contract  # noqa: E402
 from role import live_role  # noqa: E402
 from sources import load_role_board  # noqa: E402
-from test_render import browser, SEED  # noqa: E402,F401  (the suite's one Chromium and its pinned clock)
+from test_render import SEED  # noqa: E402,F401
 
 
 def slug(name):

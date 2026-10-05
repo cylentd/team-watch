@@ -12,7 +12,7 @@ import re
 
 import pytest
 
-from test_render import SEED, browser, open_page  # noqa: F401  (browser is a fixture)
+from test_render import SEED, open_page  # noqa: F401
 
 pytestmark = pytest.mark.render
 

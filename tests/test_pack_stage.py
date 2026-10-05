@@ -1,12 +1,11 @@
 """The pack's stage and its controls, fixes of 2026-09-25: "Rip again" sits over the cards and never
 moves the Sheet / Cards switch, a drag on the pack turns it and it springs back, and a tap while the
-cards are dealt hurries them."""
-import time
-
+cards are dealt hurries them. The motion tests run on the page's virtual clock (test_roster_cards.VCLOCK),
+so no test waits for a real animation, and "how long it took" is the page's own time."""
 import pytest
 
-from test_roster_cards import cards_page, motion_page, rip
-from test_render import browser  # noqa: F401  (browser is a fixture)
+from test_roster_cards import (cards_page, motion_page, rip, stage_opens, vc_install, vc_now, vc_run,
+                               vc_until)
 
 
 def chips(page):
@@ -16,8 +15,7 @@ def chips(page):
 @pytest.mark.render
 def test_rip_again_is_over_the_cards_and_the_switch_holds_still(browser, page_file):
     ctx, page, errors = cards_page(browser, page_file)
-    if page.locator(".pack").count() == 0:
-        pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
+    assert page.locator(".pack").count() > 0, "the fixture's schedule has a week ahead, so a pack to open"
     page.click(".pack .pack-seal")
     rip(page)
     page.wait_for_selector(".pk-stage", state="detached")
@@ -42,20 +40,20 @@ def test_rip_again_is_over_the_cards_and_the_switch_holds_still(browser, page_fi
 def test_an_empty_pack_still_opens_and_says_so(browser, page_file, motion):
     """2026-09-27: a week where nobody on the roster is top 12 gets a pack with nothing in it."""
     ctx, page, errors = motion_page(browser, page_file) if motion else cards_page(browser, page_file)
-    page.wait_for_timeout(500)
+    vc_install(page)                                            # a no-op on the motion page, which has it
+    vc_run(page, 500)
     if page.locator(".pk-stage").count():
         page.keyboard.press("Escape")
     page.evaluate("""Object.values(LIVE_PROJECTIONS.players).forEach(r => { if (r.rank) r.rank = 40; });
       if (typeof LIVE_SIGNED !== 'undefined' && LIVE_SIGNED) LIVE_SIGNED.players = {};
       render()""")
-    if page.locator(".pack .pack-seal").count() == 0:
-        pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
+    assert page.locator(".pack .pack-seal").count() > 0, "the fixture's schedule has a week ahead, so a pack to open"
     assert page.evaluate("packCards(TEAMS.espn).length") == 0
     page.click(".pack .pack-seal")
     rip(page)
-    page.wait_for_function("document.querySelector('.pk-msg')?.textContent.startsWith('Empty')", timeout=6000)
+    vc_until(page, "document.querySelector('.pk-msg')?.textContent.startsWith('Empty')", 6000)
     assert page.text_content(".pk-count").startswith("0 ")
-    page.wait_for_selector(".pk-stage", state="detached", timeout=6000)
+    vc_until(page, "!document.querySelector('.pk-stage')", 6000)
     assert page.locator(".cards .rule [data-rerip]").count() == 1, "an empty pack can be ripped again too"
     assert errors == []
     ctx.close()
@@ -66,8 +64,7 @@ def test_the_packs_side_seams_are_never_clipped(browser, page_file):
     """2026-09-27: a clip-path on the pack's turned edge slices dropped the spin to 16 fps on a
     throttled CPU (53 without). The side seams are shaped by border-radius instead."""
     ctx, page, errors = cards_page(browser, page_file, keep_stage=True)
-    if page.locator(".pk-stage").count() == 0:
-        pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
+    assert page.locator(".pk-stage").count() > 0, "the fixture's schedule has a week ahead, so a pack on the stage"
     clips = page.evaluate("[...document.querySelectorAll('.pk-stage .pack-wall')].map(w => getComputedStyle(w).clipPath)")
     assert len(clips) == 2 and set(clips) == {"none"}, clips
     assert errors == []
@@ -77,8 +74,7 @@ def test_the_packs_side_seams_are_never_clipped(browser, page_file):
 @pytest.mark.render
 def test_a_drag_on_the_pack_turns_it_and_it_springs_back(browser, page_file):
     ctx, page, errors = cards_page(browser, page_file, keep_stage=True)
-    if page.locator(".pk-stage").count() == 0:
-        pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
+    assert page.locator(".pk-stage").count() > 0, "the fixture's schedule has a week ahead, so a pack on the stage"
     box = page.locator(".pk-stage .pack-seal").bounding_box()
     y = box["y"] + box["height"] * .6
     page.mouse.move(box["x"] + box["width"] / 2, y)
@@ -97,15 +93,19 @@ def test_a_drag_on_the_pack_turns_it_and_it_springs_back(browser, page_file):
 def test_a_tap_does_not_hurry_the_best_cards_reveal(browser, page_file):
     """2026-09-27: the last card is the payoff; a tap during it changes nothing."""
     ctx, page, errors = motion_page(browser, page_file)
-    try:
-        page.wait_for_selector(".pk-stage", timeout=2000)
-    except Exception:
-        pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
+    stage_opens(page)
     rip(page)
-    page.wait_for_selector(".pk-stage.pk-dim", timeout=30000)
+    # The page's clock stops the moment the reveal begins (its first animation is still to run).
+    vc_until(page, "!!document.querySelector('.pk-stage.pk-dim')", 120000)
     page.mouse.click(20, 400)
-    rates = page.evaluate("""document.querySelector('.pk-stage').getAnimations({subtree: true})
-      .filter(a => a.effect.getTiming().iterations !== Infinity).map(a => a.playbackRate)""")
+    # The clock parks every animation (a pending pause); a rate read before it settles reads 1 even when
+    # the tap's updatePlaybackRate(6) landed, so wait for each to be ready first.
+    rates = page.evaluate("""async () => {
+      const anims = document.querySelector('.pk-stage').getAnimations({subtree: true})
+        .filter(a => a.effect.getTiming().iterations !== Infinity);
+      await Promise.all(anims.map(a => a.ready));
+      return anims.map(a => a.playbackRate);
+    }""")
     assert rates and all(r == 1 for r in rates), rates
     assert errors == []
     ctx.close()
@@ -114,20 +114,17 @@ def test_a_tap_does_not_hurry_the_best_cards_reveal(browser, page_file):
 @pytest.mark.render
 def test_taps_hurry_the_deal(browser, page_file):
     ctx, page, errors = motion_page(browser, page_file)
-    try:
-        page.wait_for_selector(".pk-stage", timeout=2000)
-    except Exception:
-        pytest.skip("the fixture's schedule has no week ahead, so no pack to open")
+    stage_opens(page)
     rip(page)
-    page.wait_for_selector(".pk-card")
-    t0 = time.time()
-    while page.locator(".pk-stage").count() and time.time() - t0 < 15:
+    vc_until(page, "!!document.querySelector('.pk-card')")
+    t0 = vc_now(page)
+    while page.locator(".pk-stage").count() and vc_now(page) - t0 < 15000:
         page.mouse.click(20, 400)
-        page.wait_for_timeout(150)
-    took = time.time() - t0
+        vc_run(page, 150)
+    took = (vc_now(page) - t0) / 1000                           # the page's seconds, not the host's
     n = page.evaluate("packCards(TEAMS.espn).length")
     # Untouched, a card takes ~2.4s and the best one ~5.5s more.
-    assert took < 1.2 * n + 3, f"{n} cards took {took:.1f}s with taps"
+    assert took < 1.2 * n + 3, f"{n} cards took {took:.1f}s of page time with taps"
     assert page.locator(".cards .tc.pk-slot").count() == 0
     assert errors == []
     ctx.close()

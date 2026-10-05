@@ -5,7 +5,7 @@ the view. The fixture gives Tee Higgins and Chase Brown per-game usage (`u`) and
 none, and a defense block in which NYJ has two starters out."""
 import pytest
 
-from test_render import browser, open_page  # noqa: F401  (browser is a fixture)
+from test_render import open_page  # noqa: F401
 
 pytestmark = pytest.mark.render
 

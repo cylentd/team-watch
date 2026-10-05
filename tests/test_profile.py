@@ -15,7 +15,7 @@ import build
 import contract
 from conftest import FIXTURES
 from test_build import injected
-from test_render import browser, drive, go  # noqa: F401  (browser is a fixture)
+from test_render import drive, go  # noqa: F401
 from test_render import open_page as open_any_page
 
 PROFILES = json.loads((FIXTURES / "data" / "player_profiles.json").read_text(encoding="utf-8"))
@@ -28,6 +28,71 @@ def open_page(browser, page_file, viewport):
     ctx, page, errors = open_any_page(browser, page_file, viewport)
     drive(page, go("roster"))
     return ctx, page, errors
+
+
+RESTORE = """(snap) => {
+  'use strict';
+  localStorage.clear();
+  for (const [k, v] of snap.ls) localStorage.setItem(k, v);
+  VIEW = snap.view; render(); window.scrollTo(0, 0);
+}"""
+
+
+def settle(page):
+    """Let a closed layer's history.back() land: its popstate is counted in LAYER_SKIP (layers.js) and
+    arrives after the close, so a test that opens the next layer at once would race it."""
+    page.wait_for_function("LAYER_SKIP.length === 0")
+    page.evaluate("new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))")
+
+
+def reset(page, snap):
+    """Put a shared page back to what a fresh load plus a click on Roster would be: no profile or layer
+    open, the first team in view, localStorage as loaded, scrolled to the top."""
+    for _ in range(5):
+        if not page.evaluate("!!document.querySelector('.modal.on, .pf-orblayer, .cmp-layer')"):
+            break
+        page.keyboard.press("Escape")
+        settle(page)
+    settle(page)
+    page.evaluate(RESTORE, snap)
+    drive(page, go("roster"))
+
+
+@pytest.fixture(scope="module")
+def shared_pages(browser, page_file):
+    """One loaded page per viewport for the module (about 50 loads of a 2.3 MB page became 5). A test
+    that changes page data (USAGE, Date.now, GD_*) or needs its own init script loads its own."""
+    pages = {}
+
+    def get(size):
+        if size not in pages:
+            ctx, page, errors = open_any_page(browser, page_file, size)
+            drive(page, go("roster"))
+            snap = page.evaluate("({view: VIEW, ls: Object.entries(localStorage)})")
+            assert errors == []         # whatever the load raised fails here, not lost to a later clear
+            pages[size] = (ctx, page, errors, snap)
+        return pages[size]
+    yield get
+    for ctx, *_ in pages.values():
+        ctx.close()
+
+
+@pytest.fixture
+def shared(shared_pages):
+    """shared((w, h)) -> (page, errors): the viewport's page, reset, with its error list emptied. The
+    list is asserted empty again when the test ends, so a test that forgets still fails on a page error."""
+    used = []
+
+    def open_shared(size):
+        ctx, page, errors, snap = shared_pages(size)
+        reset(page, snap)
+        left, errors[:] = list(errors), []   # what the reset (its Escapes included) or the last test left
+        assert left == []
+        used.append(errors)
+        return page, errors
+    yield open_shared
+    for errors in used:
+        assert errors == []
 
 
 def tab(page, name):
@@ -123,8 +188,8 @@ def cell(page, name):
 
 
 @pytest.mark.render
-def test_ordinal_and_colour_class(browser, page_file):
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+def test_ordinal_and_colour_class(shared):
+    page, errors = shared((1400, 900))
     got = page.evaluate("""() => ({
       nth: ordinal(easiestRank({rank: 24, of: 32})),
       suffixes: [1, 2, 3, 4, 11, 12, 13, 21, 22, 23].map(ordinal),
@@ -134,12 +199,11 @@ def test_ordinal_and_colour_class(browser, page_file):
     assert got["suffixes"] == ["1st", "2nd", "3rd", "4th", "11th", "12th", "13th", "21st", "22nd", "23rd"]
     assert got["cls"] == ["mu-easy", "", "", "mu-hard"]
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_matchup_column_rows(browser, page_file):
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+def test_matchup_column_rows(shared):
+    page, errors = shared((1400, 900))
     assert re.sub(r"\s+", " ", cell(page, "Amon-Ra St. Brown").inner_text()).strip() == "@ KC 9th"
     assert cell(page, "Amon-Ra St. Brown").locator(".mu-n").get_attribute("class").strip() == "mu-n"
     assert cell(page, "Jahmyr Gibbs").count() == 0                         # bye: no clause
@@ -153,12 +217,11 @@ def test_matchup_column_rows(browser, page_file):
     assert "easiest of 32" in tip
     assert page.locator(".mchip").count() == 0
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_phone_moves_matchup_to_the_meta_line(browser, page_file):
-    ctx, page, errors = open_page(browser, page_file, (390, 844))
+def test_phone_moves_matchup_to_the_meta_line(shared):
+    page, errors = shared((390, 844))
     page.evaluate("VIEW='espn'; render()")
     kittle = row(page, "George Kittle")
     assert not kittle.locator(".match").is_visible()
@@ -172,15 +235,14 @@ def test_phone_moves_matchup_to_the_meta_line(browser, page_file):
     assert row(page, "Jahmyr Gibbs").locator(".mu-meta").count() == 0      # bye: no clause
     assert page.evaluate("document.documentElement.scrollWidth") <= 390
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_head_carries_the_verdict(browser, page_file):
+def test_head_carries_the_verdict(shared):
     """The verdict word left the roster row on 2026-09-25 for the profile head. Looked up by slug,
     so a sheet opened from anywhere (search passes a bare {n, pos, team}) says the same thing a
     roster row's sheet does. "On 2 of your teams" went on 2026-09-28 to the owner pills."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page, errors = shared((1400, 900))
     modal = page.locator("#modal")
     page.evaluate("VIEW='espn'; render()")
     row(page, "Chase Brown").click()                     # RISING in watch, on both fixture rosters
@@ -195,17 +257,16 @@ def test_head_carries_the_verdict(browser, page_file):
       .findIndex(p => p.n === 'Brock Purdy')))""")      # watch says hold, one roster: no line
     assert modal.locator(".pf-tags").count() == 0
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_head_carries_his_injury_status(browser, page_file):
+def test_head_carries_his_injury_status(shared):
     """2026-09-30 (David: "should injured players have their status on the player profile?"): the head
     says the level and Sleeper's reason, from the same injFor() the roster cards read; a healthy player
     shows nothing. It is a line of the name block, under the identity line, at every width (moved there
     the same day: alone in the head's middle it looked stray)."""
     for size in ((1400, 900), (360, 800)):
-        ctx, page, errors = open_page(browser, page_file, size)
+        page, errors = shared(size)
         got = page.evaluate("""() => {
           const hurt = Object.entries(LIVE_INJURY.players).map(([slug, r]) => ({slug, r}))
             .map(x => ({...x, e: searchIndex().find(e => e.slug === x.slug)})).find(x => x.e);
@@ -228,15 +289,14 @@ def test_head_carries_his_injury_status(browser, page_file):
         assert got["inWho"] and got["afterId"] and got["belowId"], "a line of the name block, under the identity"
         assert page.evaluate("document.documentElement.scrollWidth") <= size[0]
         assert errors == []
-        ctx.close()
 
 
 @pytest.mark.render
-def test_panes_split_the_blocks_and_only_one_is_in_the_dom(browser, page_file):
+def test_panes_split_the_blocks_and_only_one_is_in_the_dom(shared):
     """Three panes since 2026-09-22, replacing eleven stacked blocks and the Details disclosure
     nested inside them. Each block still renders exactly as before; what changed is which pane
     it belongs to, and that only the open pane exists in the DOM at all."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page, errors = shared((1400, 900))
     modal = page.locator("#modal")
     row(page, "Amon-Ra St. Brown").click()
     assert [b.inner_text() for b in modal.locator("[data-pftab]").all()] == ["SEASON", "USAGE", "PROPS", "MATCHUP"]
@@ -286,16 +346,15 @@ def test_panes_split_the_blocks_and_only_one_is_in_the_dom(browser, page_file):
     tab(page, "matchup")
     assert "mu-hard" in modal.locator(".pf-rank").get_attribute("class")
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_the_strip_says_how_good_and_how_used(browser, page_file):
+def test_the_strip_says_how_good_and_how_used(shared):
     """The strip under the head (2026-09-28): rank by points per game, ppg, role share, snaps, all
     LIVE_POOL. The share is the one pool.py plots for his position -- carries for a back, targets
     for a receiver -- and a cell with no source is left out, so a player the pool does not carry
     shows no strip rather than four dashes. The rank left the identity line for it."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page, errors = shared((1400, 900))
     page.evaluate("VIEW='espn'; render()")
     row(page, "Chase Brown").click()
     cells = page.locator("#modal .pf-lede-c")
@@ -310,16 +369,15 @@ def test_the_strip_says_how_good_and_how_used(browser, page_file):
     row(page, "Amon-Ra St. Brown").click()                  # not in the fixture pool
     assert page.locator("#modal .pf-lede").count() == 0
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_season_lists_every_week_played_and_to_come(browser, page_file):
+def test_season_lists_every_week_played_and_to_come(shared):
     """The Season pane (2026-09-28): one row per week of his club's schedule. A played week shows
     his points and his line; the first week still to come is the lime row with the kickoff and the
     projection; a week with games for everyone but his club and no pedigree bye is left out, not
     called a bye. The opponent carries its rank against his position, 1st allowing the most."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page, errors = shared((1400, 900))
     page.evaluate("VIEW='espn'; render()")
     row(page, "George Kittle").click()
     season = page.locator("#modal .pf-season")
@@ -344,14 +402,13 @@ def test_season_lists_every_week_played_and_to_come(browser, page_file):
     assert at_sea.inner_text() == "22nd"                    # SEA allows RBs the 11th-fewest of 32
     assert page.locator("#modal .ss-row.ss-bye").count() == 0   # his bye is week 6, not week 3
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_season_is_one_line_a_week_on_a_phone(browser, page_file):
+def test_season_is_one_line_a_week_on_a_phone(shared):
     """No sideways scroll and no blocks of chips: a phone reads each week as box-score shorthand in
     one cell, and the stat columns are not drawn beside it."""
-    ctx, page, errors = open_page(browser, page_file, (360, 800))
+    page, errors = shared((360, 800))
     page.evaluate("VIEW='yahoo'; render()")
     row(page, "Jahmyr Gibbs").click()
     first = page.locator("#modal .ss-row.ss-played").first
@@ -362,14 +419,13 @@ def test_season_is_one_line_a_week_on_a_phone(browser, page_file):
     assert len(set(heads)) == 1, heads                      # the points line up under their head
     assert page.evaluate("document.querySelector('#modal').scrollWidth <= document.querySelector('#modal').clientWidth")
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_owners_name_each_leagues_team(browser, page_file):
+def test_owners_name_each_leagues_team(shared):
     """One pill per league (2026-09-28): the team that rosters him by name, or free agent when every
     team in that league is loaded and none has him. "Yours" is the reader's own team only."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))      # David's browser, Yahoo team
+    page, errors = shared((1400, 900))      # David's browser, Yahoo team
     row(page, "Amon-Ra St. Brown").click()
     pills = page.locator("#modal .pf-own")
     text = lambda: [re.sub(r"\s+", " ", p.inner_text()).strip() for p in pills.all()]  # noqa: E731
@@ -383,18 +439,17 @@ def test_owners_name_each_leagues_team(browser, page_file):
     assert text() == ["Yahoo Chat Take the Wheel", "ESPN Free agent", "AYO Free agent"]
     assert "mine" not in pills.first.get_attribute("class")
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_desktop_panes_sit_side_by_side_and_a_phone_stacks_them(browser, page_file):
+def test_desktop_panes_sit_side_by_side_and_a_phone_stacks_them(shared):
     """2026-09-29, David: Usage and Matchup "should fit without scrolling", Props two to a row. On
     a desktop the blocks share a top edge; on a phone the same blocks stack in the same order. The
     league tags are grey, not the leagues' brand colours, and a played week carries no play mark."""
     tops = lambda sel: page.evaluate(  # noqa: E731
         f"[...document.querySelectorAll({sel!r})].map(e => [e.getBoundingClientRect().top, e.getBoundingClientRect().bottom])")
     for w, h, side in [(1400, 900, True), (360, 800, False)]:
-        ctx, page, errors = open_page(browser, page_file, (w, h))
+        page, errors = shared((w, h))
         row(page, "Amon-Ra St. Brown").click()
         tab(page, "usage")
         a, b = tops("#modal .pf-tabpane > *")[:2]
@@ -420,15 +475,14 @@ def test_desktop_panes_sit_side_by_side_and_a_phone_stacks_them(browser, page_fi
           return r.querySelector('dd').getBoundingClientRect().right - r.querySelector('dt').getBoundingClientRect().left; })()""")
         assert gap <= 560
         assert errors == []
-        ctx.close()
 
 
 @pytest.mark.render
-def test_an_owner_pill_opens_that_teams_roster(browser, page_file):
+def test_an_owner_pill_opens_that_teams_roster(shared):
     """A team's pill is a way to that team's roster (2026-09-28, for looking up a trade). It is a
     look, not a pick: the reader's own team is still theirs afterwards, and Back returns to the
     view they came from. A free agent's pill goes nowhere."""
-    ctx, page, errors = open_any_page(browser, page_file, (1400, 900))
+    page, errors = shared((1400, 900))
     drive(page, go("usage"))                                  # somewhere that is not a roster
     page.evaluate("openProfile({n: 'Chase Brown', pos: 'RB', team: 'CIN', slug: 'chase-brown'})")
     pill = page.locator("#modal button.pf-own", has_text="ESPN")   # the ESPN team, not the one in view
@@ -445,16 +499,15 @@ def test_an_owner_pill_opens_that_teams_roster(browser, page_file):
     page.evaluate("openProfile({n: 'Amon-Ra St. Brown', pos: 'WR', team: 'DET', slug: 'amonra-st-brown'})")
     assert page.locator("#modal span.pf-own.free").count() == 2   # free agent in ESPN and AYO: not a button
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_the_archetype_sits_in_the_head_and_explains_itself_in_usage(browser, page_file):
+def test_the_archetype_sits_in_the_head_and_explains_itself_in_usage(shared):
     """2026-09-29, David: the archetype "should be on the player profile" (it showed only under a
     Leaders comparison pick). His two words are tags with an icon in the head; a tap opens Usage
     on the block that says what each means and the numbers that produced it. A word the model
     withholds is no tag, and its reason stands in its place in Usage."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page, errors = shared((1400, 900))
     who = page.evaluate("""(() => {
       const arch = (LIVE_ARCHETYPE && LIVE_ARCHETYPE.players) || {};
       const row = slug => LIVE_GAMELOG.rows.find(r => r.slug === slug);
@@ -483,21 +536,20 @@ def test_the_archetype_sits_in_the_head_and_explains_itself_in_usage(browser, pa
     starts_row = block.evaluate("e => [...e.parentNode.children].indexOf(e) % 2 === 0")
     fields = block.locator(".pf-arch-two > .bd-fld")
     assert (fields.nth(0).bounding_box()["y"] == fields.nth(1).bounding_box()["y"]) == starts_row
-    if who["one"]:
-        page.evaluate("p => openProfile(p)", who["one"])
-        assert page.locator("#modal .pf-head .pf-rail .pf-arch-slot").count() == 1
-        tab(page, "usage")
-        assert who["one"]["role_null"] in page.locator("#modal .pf-sec-arch .bd-why").first.inner_text()
+    assert who["one"], "the fixture needs a player with a style and no role"
+    page.evaluate("p => openProfile(p)", who["one"])
+    assert page.locator("#modal .pf-head .pf-rail .pf-arch-slot").count() == 1
+    tab(page, "usage")
+    assert who["one"]["role_null"] in page.locator("#modal .pf-sec-arch .bd-why").first.inner_text()
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_props_draws_his_last_games_against_the_line(browser, page_file):
+def test_props_draws_his_last_games_against_the_line(shared):
     """2026-09-29, David: "see his receptions, yds, tds as bar chart in the past X games". A player
     with a market log gets a Props tab: one chart per market he records, the leg sheet's bars, lime
     where he went over this week's line -- the over, whatever side the model picks. No log, no tab."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page, errors = shared((1400, 900))
     who = page.evaluate("""(() => {
       const logs = (LIVE_MARKET && LIVE_MARKET.logs) || {};
       const p = PROPS.find(r => ['WR', 'TE', 'RB'].includes(r.pos) && r.mkt !== 'TD' && logs[r.slug || slugOf(r.n)]);
@@ -516,20 +568,19 @@ def test_props_draws_his_last_games_against_the_line(browser, page_file):
     over = sum(1 for v in who["vals"] if v > who["line"])
     assert sec.locator(".ls-bar.hit").count() == over
     assert sec.locator(".ls-cap b").inner_text().startswith(f"Over {who['line']} in {over}/{len(who['vals'])}")
-    if who["none"]:
-        page.evaluate("p => openProfile(p)", who["none"])
-        assert page.locator("#modal [data-pftab='props']").count() == 0
+    assert who["none"], "the fixture needs a non-passer with no market log"
+    page.evaluate("p => openProfile(p)", who["none"])
+    assert page.locator("#modal [data-pftab='props']").count() == 0
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_usage_opens_on_his_share_of_his_own_team(browser, page_file):
+def test_usage_opens_on_his_share_of_his_own_team(shared):
     """2026-09-29, David: usage "should have his teammates there for comparison". Usage leads with
     his share of his team's targets (a back: carries, then targets) from the game log, the top five
     by volume with him among them, the rest as one row. A teammate's row opens that profile; a
     passer gets no block."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page, errors = shared((1400, 900))
     page.evaluate("openProfile({n: 'Amon-Ra St. Brown', pos: 'WR', team: 'DET', slug: 'amonra-st-brown'})")
     tab(page, "usage")
     sec = page.locator("#modal .pf-sec-team")
@@ -558,42 +609,46 @@ def test_usage_opens_on_his_share_of_his_own_team(browser, page_file):
         tab(page, "usage")
     assert page.locator("#modal .pf-sec-team").count() == 0
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_the_sphere_turns_rests_and_stops(browser, page_file):
+def test_the_sphere_turns_rests_and_stops(shared):
     """STYLE.md rule 1 as rewritten on 2026-09-28: a tap cue may move, slowly, only while it can be
     seen, resting where its data reads, and never under reduced motion. The sphere starts turning as
     the profile opens (2026-09-30; it used to hold still 2 s first) and rests after the turn; a shut
     profile stops it."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
-    page.emulate_media(reduced_motion="no-preference")
-    row(page, "Amon-Ra St. Brown").click()
+    page, errors = shared((1400, 900))
     yaw = "ORB_STATE.get(document.querySelector('#modal .pf-orb')).yaw"
-    page.wait_for_timeout(600)
-    a = page.evaluate(yaw)
-    page.wait_for_timeout(400)
-    assert 0 < a < page.evaluate(yaw)
-    page.keyboard.press("Escape")
-    page.wait_for_timeout(100)
-    shut = page.evaluate(yaw)
-    page.wait_for_timeout(500)
-    assert page.evaluate(yaw) == shut
-    page.emulate_media(reduced_motion="reduce")
-    row(page, "Amon-Ra St. Brown").click()
-    page.wait_for_timeout(2600)
-    assert page.evaluate(yaw) == 0
-    assert errors == []
-    ctx.close()
+    frames = lambda n: page.evaluate(  # noqa: E731
+        "n => new Promise(r => { const f = () => --n > 0 ? requestAnimationFrame(f) : r(); f(); })", n)
+    try:
+        page.emulate_media(reduced_motion="no-preference")
+        row(page, "Amon-Ra St. Brown").click()
+        page.wait_for_function(f"{yaw} > 0")                  # it has started turning
+        a = page.evaluate(yaw)
+        page.wait_for_function(f"{yaw} > {a}")                # and it keeps turning
+        page.keyboard.press("Escape")
+        frames(2)
+        shut = page.evaluate(yaw)
+        frames(20)                                            # twenty frames of a shut profile: still
+        assert page.evaluate(yaw) == shut
+        page.emulate_media(reduced_motion="reduce")
+        row(page, "Amon-Ra St. Brown").click()
+        # A real 2.6 s, not a frame count: the old bug held the sphere still for 2 s and then turned it, so
+        # a short wait would pass a regression to "hold, then turn" under reduced motion.
+        page.wait_for_timeout(2600)
+        assert page.evaluate(yaw) == 0
+        assert errors == []
+    finally:
+        page.emulate_media(reduced_motion="reduce")
 
 
 @pytest.mark.render
-def test_the_sphere_opens_the_sheet_over_the_profile(browser, page_file):
+def test_the_sphere_opens_the_sheet_over_the_profile(shared):
     """The radar is a sphere in the head (orb.js) and a tap opens the flat sheet over the profile.
     Escape and Back close the sheet alone and put the reader back in the profile, on the pane they
     left; the sphere's caption is the rank the sheet opens on."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page, errors = shared((1400, 900))
     row(page, "Amon-Ra St. Brown").click()
     orb = page.locator("#modal .pf-orb")
     rank = page.evaluate("rankMark(sheetRank('WR', 'wopr', 'amonra-st-brown'))")
@@ -617,17 +672,16 @@ def test_the_sphere_opens_the_sheet_over_the_profile(browser, page_file):
     row(page, "George Kittle").click()                        # no sheet row: no sphere
     assert page.locator("#modal .pf-orb").count() == 0
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
 @pytest.mark.parametrize("viewport", [(360, 740), (1400, 900)])
-def test_the_sheet_holds_still_under_a_tap_and_a_scroll(browser, page_file, viewport):
+def test_the_sheet_holds_still_under_a_tap_and_a_scroll(shared, viewport):
     """2026-09-29, David: tapping a stat "will expand the shape of the container which causes the
     content to jump", and "scrolling or swiping on this modal will move the content behind it".
     The sheet opens centred and keeps that top (orbsheet.js orbPin), so a fold grows it downward;
     a wheel on the scrim or on a sheet with nothing to scroll moves neither the profile nor the page."""
-    ctx, page, errors = open_page(browser, page_file, viewport)
+    page, errors = shared(viewport)
     row(page, "Amon-Ra St. Brown").click()
     sheet(page)
     radar = page.locator("#modal .pf-orbsheet .pf-radar")
@@ -640,7 +694,7 @@ def test_the_sheet_holds_still_under_a_tap_and_a_scroll(browser, page_file, view
     box = page.locator("#modal .pf-orbscrim").bounding_box()
     page.mouse.move(box["x"] + 4, box["y"] + 4)
     page.mouse.wheel(0, 600)
-    page.wait_for_timeout(100)
+    page.evaluate("new Promise(r => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(r))))")
     assert page.evaluate(under) == before
     # A sideways swipe on the scrim leaves the profile's tab where it was (modal.js up()).
     selected = "document.querySelector('#modal [data-pftab][aria-selected=true]').dataset.pftab"
@@ -652,14 +706,13 @@ def test_the_sheet_holds_still_under_a_tap_and_a_scroll(browser, page_file, view
     assert page.evaluate(selected) == was
     assert page.locator("#modal .pf-orblayer").count() == 1
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_an_elite_stat_glows(browser, page_file):
+def test_an_elite_stat_glows(shared):
     """Ranked and over the position's elite bar (sheet.js sheetElite): the ladder row and the radar
     label and vertex carry `elite`, and nothing else does."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page, errors = shared((1400, 900))
     row(page, "Amon-Ra St. Brown").click()
     sheet(page)
     want = page.evaluate("""(() => { const s = sheetFor({slug: 'amonra-st-brown'});
@@ -671,11 +724,10 @@ def test_an_elite_stat_glows(browser, page_file):
     glow = page.eval_on_selector("#modal .pf-orbsheet .pf-lr.elite .pf-lr-bar i", "e => getComputedStyle(e).boxShadow")
     assert glow != "none"
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_facts_show_pedigree_and_fantasy_draft(browser, page_file):
+def test_facts_show_pedigree_and_fantasy_draft(shared):
     """tests/fixtures/data/pedigree.json: Jahmyr Gibbs was 1.12 (pick 12 overall) in the real
     2023 NFL draft, drafted 1.01 by my ESPN team and 1.02 in Yahoo; Chase Brown has an ESPN pick
     only, the per-league optional-ness that fantasy_draft's shape allows.
@@ -683,7 +735,7 @@ def test_facts_show_pedigree_and_fantasy_draft(browser, page_file):
     The bio splits in two (2026-09-22). Age, size, experience and the bye qualify every number in
     the modal, so they are a line under his name; where he was drafted is history that decides
     nothing this week, so it keeps a headed block at the foot of the left column."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page, errors = shared((1400, 900))
     row(page, "Jahmyr Gibbs").click()
     # The bye is the one fact here that decides something, so it is on the identity line under
     # his name; the rest is reference and lives in its own Bio pane. The fixture's pedigree
@@ -698,8 +750,10 @@ def test_facts_show_pedigree_and_fantasy_draft(browser, page_file):
       LIVE_PEDIGREE.players['stub'] = {age: 27, height: '73', weight: 210, years_exp: 5, bye: 9};
       const d = document.createElement('div');
       d.innerHTML = bioBlockHTML({slug: 'stub'});
-      return [...d.querySelectorAll('dt')].map((k, i) =>
-        k.textContent + ' ' + d.querySelectorAll('dd')[i].textContent); }""") \
+      const out = [...d.querySelectorAll('dt')].map((k, i) =>
+        k.textContent + ' ' + d.querySelectorAll('dd')[i].textContent);
+      delete LIVE_PEDIGREE.players['stub'];           // the page is shared: leave it as found
+      return out; }""") \
         == ["Age 27", "Size 6′1″ · 210 lb", "Exp 5 yr pro"]
     # One row per league I have a team in, labelled by my team's name there (uppercase in the
     # render); "by X" only when someone else took him.
@@ -719,16 +773,15 @@ def test_facts_show_pedigree_and_fantasy_draft(browser, page_file):
     assert page.evaluate("TEAMS.yahoo.name").upper() not in [d.inner_text().upper() for d in page.locator("#modal .pf-facts dt").all()]
     page.keyboard.press("Escape")
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_the_fantasy_tier_leads_the_strip(browser, page_file):
+def test_the_fantasy_tier_leads_the_strip(shared):
     """"RB4": his rank by points per game, season to date, among every RB in LIVE_POOL
     (watch.json) -- said the way a fantasy reader says it, never as a WR1/2/3 tier that reads
     like a depth chart. It sat on the identity line until 2026-09-28 and leads the strip since;
     the line keeps position, club and bye."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page, errors = shared((1400, 900))
     row(page, "Chase Brown").click()
     head = page.locator("#modal .pf-who .lbl").inner_text().upper()
     rank, of, _tied = page.evaluate("ppgRank({slug: 'chase-brown', pos: 'RB'})")
@@ -743,16 +796,15 @@ def test_the_fantasy_tier_leads_the_strip(browser, page_file):
     assert page.locator("#modal .pf-lede").count() == 0
     page.keyboard.press("Escape")
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_weather_shows_stadium_forecast_with_icons(browser, page_file):
+def test_weather_shows_stadium_forecast_with_icons(shared):
     """tests/fixtures/data/weather.json: Amon-Ra St. Brown is away at KC (outdoor, sunny), Chase
     Brown is home at CIN (outdoor, cooler), Jahmyr Gibbs has no next game (a bye in the fixture)
     so no forecast to show at all. The forecast sits inside the matchup block, in the Matchup
     pane."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page, errors = shared((1400, 900))
     row(page, "Amon-Ra St. Brown").click()
     tab(page, "matchup")
     wx = page.locator("#modal .pf-sec", has_text="Week 3 @ KC").locator(".pf-weather")
@@ -772,15 +824,14 @@ def test_weather_shows_stadium_forecast_with_icons(browser, page_file):
     assert page.locator("#modal .pf-weather").count() == 0
     page.keyboard.press("Escape")
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_red_zone_split_names_the_teammates(browser, page_file):
+def test_red_zone_split_names_the_teammates(shared):
     """red_zone.others (player_profiles.json): Amon-Ra St. Brown has 4 of DET's 13 red-zone
     targets; Sam LaPorta 4 and Jahmyr Gibbs 2 are named, the other 3 are "3 more". His segment
     comes first and is the bright one."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page, errors = shared((1400, 900))
     row(page, "Amon-Ra St. Brown").click()
     tab(page, "usage")
     split = page.locator("#modal .pf-split")
@@ -799,15 +850,14 @@ def test_red_zone_split_names_the_teammates(browser, page_file):
     assert "Z. Moss 3" in splits.nth(0).inner_text() and "J. Chase 5" in splits.nth(1).inner_text()
     page.keyboard.press("Escape")
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_a_rate_under_its_floor_shows_its_sample_and_no_rank(browser, page_file):
+def test_a_rate_under_its_floor_shows_its_sample_and_no_rank(shared):
     """2026-09-26: M. Stafford's 33% goal-line share was 1 of 3 and ranked 85th percentile. In the
     fixture L. Jackson is 1 of 4 against a floor of 5, J. Allen 3 of 5. Below the floor the number
     stays, says what it is out of, and nothing ranks it: not the radar, not Leaders."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page, errors = shared((1400, 900))
     got = page.evaluate("""(() => {
       const s = sheetFor({slug: 'lamar-jackson'}), a = s.axes.find(x => x.id === 'gl_pct');
       const lad = (who) => { const d = document.createElement('div'); d.innerHTML = ladderHTML(who, 'gl_pct'); return d; };
@@ -833,16 +883,15 @@ def test_a_rate_under_its_floor_shows_its_sample_and_no_rank(browser, page_file)
     assert got["allenRk"].startswith("#")
     assert got["held"] == ["3/4", "2/3", "1/4"]           # C. Ward 75%, T. Shough 66.7%, L. Jackson 25%
     assert not errors
-    ctx.close()
 
 
-def test_stat_sheet_draws_the_positions_own_axes(browser, page_file):
+def test_stat_sheet_draws_the_positions_own_axes(shared):
     """ff-jarvis's `sheet.axes` drives the shape: six for a receiver, none of them a raw count
     the Grid already shows. Every number is his season rank among the position ("#3", "#3*" on a
     tie), first place at the rim. Each label is a button, and the ladder under the chart lists
     every stat best first; a label and its row light together, and the row folds out the
     definition and the elite gap."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page, errors = shared((1400, 900))
     row(page, "Amon-Ra St. Brown").click()
     sheet(page)
     radar = page.locator("#modal .pf-radar")
@@ -901,7 +950,6 @@ def test_stat_sheet_draws_the_positions_own_axes(browser, page_file):
     assert "pctl" not in page.locator("#modal").inner_text()
     page.keyboard.press("Escape")
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
@@ -969,11 +1017,11 @@ def test_too_few_measured_axes_draw_no_shape(browser, page_file):
 
 
 @pytest.mark.render
-def test_each_position_gets_its_own_shape(browser, page_file):
+def test_each_position_gets_its_own_shape(shared):
     """A back's sheet is opportunity and rushing talent, a passer's is volume and his legs.
     Four to six axes each, and the sheet is tinted by position so a run of profiles reads
     QB/RB/WR/TE without anyone reading the label."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page, errors = shared((1400, 900))
     axes = page.evaluate(
         "Object.fromEntries(Object.entries(USAGE.sheet.axes).map(([k, v]) => [k, v.map(a => a.id)]))")
     assert axes["RB"] == ["wopp", "opp_pct", "route_pct", "rz", "ryoe", "brk_rate"]
@@ -989,7 +1037,6 @@ def test_each_position_gets_its_own_shape(browser, page_file):
     assert page.locator("#modal .pf-radar-l").count() == 6
     page.keyboard.press("Escape")
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
@@ -1015,9 +1062,9 @@ def test_ties_share_a_rank(browser, page_file):
 
 
 @pytest.mark.render
-def test_height_reads_in_feet_not_inches(browser, page_file):
+def test_height_reads_in_feet_not_inches(shared):
     """Sleeper stores height as bare inches in a string; nobody reads a receiver as 73."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page, errors = shared((1400, 900))
     assert page.evaluate("inchesText('73')") == "6′1″"
     assert page.evaluate("inchesText('72')") == "6′0″"
     assert page.evaluate("inchesText(null)") is None
@@ -1025,12 +1072,11 @@ def test_height_reads_in_feet_not_inches(browser, page_file):
     assert page.evaluate("shortName('Kenneth Walker III')") == "K. Walker III"
     assert page.evaluate("shortName('Ja\\'Marr Chase')") == "J. Chase"
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_red_zone_line_switches_at_ten(browser, page_file):
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+def test_red_zone_line_switches_at_ten(shared):
+    page, errors = shared((1400, 900))
     got = page.evaluate("""() => [
       rzLineHTML(1, 5, 0.2, ["team target", "team targets"], false),
       rzLineHTML(3, 10, 0.3, ["team target", "team targets"], false),
@@ -1038,12 +1084,11 @@ def test_red_zone_line_switches_at_ten(browser, page_file):
     assert got[0].startswith("1 of 5") and "%" not in got[0]
     assert got[1].startswith("30% · 3 of 10")
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_market_row_shows_priced_numbers(browser, page_file):
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+def test_market_row_shows_priced_numbers(shared):
+    page, errors = shared((1400, 900))
     row(page, "Amon-Ra St. Brown").click()
     modal = page.locator("#modal")
     tab(page, "matchup")
@@ -1054,12 +1099,11 @@ def test_market_row_shows_priced_numbers(browser, page_file):
     assert "Priced: REC" in text
     assert not re.search(r"\b(BUY|SELL|RISING|FALLING|HOT|COLD)\b", text, re.I)
     page.keyboard.press("Escape")
-    ctx.close()
 
 
 @pytest.mark.render
-def test_market_row_falls_back_to_model_pts(browser, page_file):
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+def test_market_row_falls_back_to_model_pts(shared):
+    page, errors = shared((1400, 900))
     page.evaluate("VIEW='espn'; render()")
     row(page, "George Kittle").click()
     modal = page.locator("#modal")
@@ -1069,15 +1113,14 @@ def test_market_row_falls_back_to_model_pts(browser, page_file):
     assert "13.1 pts, the model's number" in text
     assert "No market priced yet." in text
     page.keyboard.press("Escape")
-    ctx.close()
 
 
 @pytest.mark.render
-def test_market_row_zero_d_rank_shows_no_change_marker(browser, page_file):
+def test_market_row_zero_d_rank_shows_no_change_marker(shared):
     """d_rank 0 (Chase Brown, tests/fixtures/data/market_stock.json) must not render a delta
     marker next to the rank -- "#8 -- 0" reads as a range, not as "no change." z moves to the
     role line instead of sharing the rank line."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page, errors = shared((1400, 900))
     row(page, "Chase Brown").click()
     modal = page.locator("#modal")
     tab(page, "matchup")
@@ -1087,14 +1130,13 @@ def test_market_row_zero_d_rank_shows_no_change_marker(browser, page_file):
     text = modal.inner_text()
     assert "z -0.05" in text
     page.keyboard.press("Escape")
-    ctx.close()
 
 
 @pytest.mark.render
-def test_market_row_partial_markets_shows_priced_not_no_market(browser, page_file):
+def test_market_row_partial_markets_shows_priced_not_no_market(shared):
     """A src:"model" row can still carry a partial `markets` list (Tee Higgins: ["REC"]); the
     "No market priced yet." sentence is only for a row with no markets priced at all."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page, errors = shared((1400, 900))
     page.evaluate("VIEW='espn'; render()")
     row(page, "Tee Higgins").click()
     modal = page.locator("#modal")
@@ -1105,12 +1147,11 @@ def test_market_row_partial_markets_shows_priced_not_no_market(browser, page_fil
     assert "Priced: REC" in text
     assert "No market priced yet." not in text
     page.keyboard.press("Escape")
-    ctx.close()
 
 
 @pytest.mark.render
-def test_no_verdict_words_on_the_page(browser, page_file):
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+def test_no_verdict_words_on_the_page(shared):
+    page, errors = shared((1400, 900))
     words = re.compile(r"\b(PLUS|MINUS|EVEN)\b", re.I)
     for view in ("yahoo", "espn"):
         page.evaluate(f"VIEW='{view}'; render()")
@@ -1125,7 +1166,6 @@ def test_no_verdict_words_on_the_page(browser, page_file):
             assert not words.search(page.locator("#modal").inner_text()), (view, i)
             page.keyboard.press("Escape")
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
@@ -1154,11 +1194,11 @@ def test_no_profiles_renders_dashes_and_a_quiet_panel(browser, monkeypatch, tmp_
 
 
 @pytest.mark.render
-def test_compare_picks_from_the_profile_and_draws_one_radar(browser, page_file):
+def test_compare_picks_from_the_profile_and_draws_one_radar(shared):
     """Compare (2026-09-30): the head's button opens the picker over the profile with the reader's
     own team first; two ticks and Compare draw three chips, one shape each on one radar, and the
     rows; Back closes the whole layer and leaves the profile open."""
-    ctx, page, errors = open_page(browser, page_file, (360, 800))
+    page, errors = shared((360, 800))
     row(page, "Amon-Ra St. Brown").click()
     page.locator("#modal [data-compare]").click()
     assert page.locator("#modal .cmp-layer").count() == 1
@@ -1179,17 +1219,17 @@ def test_compare_picks_from_the_profile_and_draws_one_radar(browser, page_file):
     assert page.locator("#modal .cmp-card.on").get_attribute("data-i") == "0"
     assert page.evaluate("!!document.activeElement.closest('.cmp-sheet')")
     page.go_back()
-    page.wait_for_timeout(200)
+    page.wait_for_function("!document.querySelector('#modal .cmp-layer')")
+    settle(page)
     assert page.locator("#modal .cmp-layer").count() == 0
     assert page.locator("#modal.on").count() == 1
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_compare_search_reaches_any_player(browser, page_file):
+def test_compare_search_reaches_any_player(shared):
     """A search pick joins the set and the lists come back; the box never keeps a stale query."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page, errors = shared((1400, 900))
     row(page, "Amon-Ra St. Brown").click()
     page.locator("#modal [data-compare]").click()
     page.locator("#cmp-q").fill("kittle")
@@ -1202,7 +1242,6 @@ def test_compare_search_reaches_any_player(browser, page_file):
     assert page.locator("#modal .cmp-layer").count() == 0
     assert page.locator("#modal.on").count() == 1
     assert errors == []
-    ctx.close()
 
 
 def test_the_sheet_keeps_the_fluke_filter():
@@ -1218,11 +1257,11 @@ def test_the_sheet_keeps_the_fluke_filter():
 
 
 @pytest.mark.render
-def test_elite_reads_the_fluke_filter(browser, page_file):
+def test_elite_reads_the_fluke_filter(shared):
     """St. Brown's fixture row clears the WOPR and TPRR bars raw, but the filter keeps WOPR only:
     WOPR glows, TPRR does not and says the sample is too small, and a bar with no history behind
     it is dotted and named."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
+    page, errors = shared((1400, 900))
     row(page, "Amon-Ra St. Brown").click()
     sheet(page)
     assert "elite" in page.locator("#modal .pf-lr[data-col='wopr']").get_attribute("class")
@@ -1234,14 +1273,13 @@ def test_elite_reads_the_fluke_filter(browser, page_file):
     assert "prov" in page.locator("#modal .pf-radar-bar[data-col='tprr']").get_attribute("class")
     assert "prov" not in page.locator("#modal .pf-radar-bar[data-col='wopr']").get_attribute("class")
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_compare_card_tap_moves_the_graph_focus(browser, page_file):
+def test_compare_card_tap_moves_the_graph_focus(shared):
     """Three receivers on one graph (storyboard v5): the profile's player is in focus first, his
     ranks on the labels; a tap on another card moves the focus and the labels follow it."""
-    ctx, page, errors = open_page(browser, page_file, (360, 800))
+    page, errors = shared((360, 800))
     row(page, "Amon-Ra St. Brown").click()
     page.locator("#modal [data-compare]").click()
     page.locator("#cmp-q").fill("wr")
@@ -1260,15 +1298,14 @@ def test_compare_card_tap_moves_the_graph_focus(browser, page_file):
     assert page.locator("#modal .cmp-graph .pf-radar-v").all_inner_texts() != before
     assert page.locator("#modal .cmp-graph button").count() == 0   # labels choose nothing here
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
 @pytest.mark.parametrize("size", [(1280, 720), (1400, 900), (360, 800)])
-def test_compare_sheet_opens_without_scrolling(browser, page_file, size):
+def test_compare_sheet_opens_without_scrolling(shared, size):
     """David, 2026-09-30: "it should open up without having to scroll". A desktop puts the graph
     beside the strips; a 360x800 phone fits the stacked sheet."""
-    ctx, page, errors = open_page(browser, page_file, size)
+    page, errors = shared(size)
     row(page, "Amon-Ra St. Brown").click()
     page.locator("#modal [data-compare]").click()
     page.locator("#cmp-q").fill("wr")
@@ -1279,15 +1316,14 @@ def test_compare_sheet_opens_without_scrolling(browser, page_file, size):
     sh, ch = page.locator("#modal .cmp-sheet").evaluate("e => [e.scrollHeight, e.clientHeight]")
     assert sh <= ch, f"the Compare sheet scrolls {sh - ch}px at {size}"
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_head_rail_orders_and_centres_what_he_has(browser, page_file):
+def test_head_rail_orders_and_centres_what_he_has(shared):
     """The head rail (2026-09-30, rail.js): role, style, the sphere and Compare, always in that
     order, centred under the name on a phone, so a player with fewer has no hole; with nothing but
     Compare there is no rail and Compare is a small button in the name block."""
-    ctx, page, errors = open_page(browser, page_file, (360, 800))
+    page, errors = shared((360, 800))
     got = page.evaluate("""() => {
       const kinds = () => [...document.querySelectorAll('#modal .pf-rail > *')].map(e =>
         e.matches('[data-pfarch=role]') ? 'role' : e.matches('[data-pfarch=style]') ? 'style' : e.matches('.pf-orb') ? 'orb' : 'cmp');
@@ -1314,7 +1350,6 @@ def test_head_rail_orders_and_centres_what_he_has(browser, page_file):
         assert kinds[-1] == "cmp" and kinds == sorted(kinds, key=order.index), key
         assert v["centred"], f"{key} is not centred"
     assert errors == []
-    ctx.close()
 
 
 LIVE_SEASON_PLANT = """() => {

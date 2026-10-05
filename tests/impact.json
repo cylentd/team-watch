@@ -52,14 +52,14 @@
     "live": {
       "paths": ["design/src/js/surface/live/", "design/src/css/surface/live/", "design/src/js/data/schedule.js",
                 "design/src/js/data/gameday/", "design/gameday.py", "api/stats.py", "api/_scoring.py",
-                "design/schedule.py", "tests/fixtures/gameday.json"],
+                "design/schedule.py"],
       "tests": ["tests/test_gameday.py", "tests/test_gamesheet_v2.py", "tests/test_schedule.py", "tests/test_live_tds.py", "tests/test_live_tabs.py",
                 "tests/test_live_mine.py", "tests/test_live_swipe.py"],
       "render": ["live"]
     },
     "matchups": {
       "paths": ["design/src/js/surface/matchups/", "design/src/css/surface/matchups/", "design/src/js/data/startsit.js",
-                "design/startsit.py", "design/startsit_board.py", "design/startsit_v3.py", "design/startsit_blocks.py", "tests/fixtures/data/startsit_v3.json"],
+                "design/startsit.py", "design/startsit_board.py", "design/startsit_v3.py", "design/startsit_blocks.py"],
       "tests": ["tests/test_startsit.py", "tests/test_startsit_board.py", "tests/test_startsit_v3.py"],
       "render": ["matchups"]
     },
@@ -89,8 +89,7 @@
       "render": ["role"]
     },
     "highlights": {
-      "paths": ["design/src/js/surface/highlights/", "design/src/css/surface/highlights/", "design/highlights.py",
-                "tests/fixtures/data/highlights.json"],
+      "paths": ["design/src/js/surface/highlights/", "design/src/css/surface/highlights/", "design/highlights.py"],
       "tests": ["tests/test_highlights.py"],
       "render": ["highlights"]
     },
@@ -103,7 +102,7 @@
     "teams": {
       "paths": ["design/src/js/surface/teams/", "design/src/css/surface/teams/", "design/src/js/data/waiver.js",
                 "design/src/js/data/wire.js", "design/src/js/data/mates.js", "design/waiver.py", "design/wire_watch.py",
-                "design/injury.py", "design/mates.py", "design/clips.py", "tests/fixtures/data/clips.json"],
+                "design/injury.py", "design/mates.py", "design/clips.py"],
       "tests": ["tests/test_brief.py", "tests/test_clip_reel.py", "tests/test_clip_sheet.py", "tests/test_clips.py", "tests/test_injury.py", "tests/test_mates.py", "tests/test_mates_page.py",
                 "tests/test_pack_stage.py", "tests/test_render_waivers.py", "tests/test_waiver_owner.py", "tests/test_roster_cards.py",
                 "tests/test_roster_sheet.py", "tests/test_teamswitch.py", "tests/test_waiver.py",

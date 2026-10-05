@@ -60,17 +60,14 @@ STRAY_TIER = """() => { const d = document.createElement("div"); d.className = "
 
 
 @pytest.mark.render
-def test_a_fenced_rule_stays_out_of_another_view(page_file):
+def test_a_fenced_rule_stays_out_of_another_view(browser, page_file):
     """Ranks' class drawn inside Usage gets none of Ranks' style; inside Ranks it does."""
-    from playwright.sync_api import sync_playwright
-    with sync_playwright() as pw:
-        b = pw.chromium.launch()
-        page = b.new_page(viewport={"width": 390, "height": 844})
-        page.route("http*://**", lambda r: r.abort())
-        seen = {}
-        for leaf in ("ranks", "usage"):
-            page.goto(page_file.as_uri() + "#" + leaf)
-            page.wait_for_selector(f"#view[data-view='{leaf}'] > *")
-            seen[leaf] = page.evaluate(STRAY_TIER)
-        b.close()
+    page = browser.new_page(viewport={"width": 390, "height": 844})
+    page.route("http*://**", lambda r: r.abort())
+    seen = {}
+    for leaf in ("ranks", "usage"):
+        page.goto(page_file.as_uri() + "#" + leaf)
+        page.wait_for_selector(f"#view[data-view='{leaf}'] > *")
+        seen[leaf] = page.evaluate(STRAY_TIER)
+    page.close()
     assert seen == {"ranks": "flex 10px", "usage": "block 0px"}

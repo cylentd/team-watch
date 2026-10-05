@@ -11,7 +11,7 @@ import re
 
 import pytest
 
-from test_render import LIVE_PLANT as plant, PICKED, SEED, browser, go  # noqa: F401  (the suite's one Chromium)
+from test_render import LIVE_PLANT as plant, PICKED, SEED, go  # noqa: F401
 
 pytestmark = pytest.mark.render
 

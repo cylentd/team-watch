@@ -3,7 +3,7 @@ leagues is in the team switch under its league's name, a pick is remembered in t
 leaguemate's team has no Waivers (ff-jarvis builds David's only until phase 3)."""
 import pytest
 
-from test_render import browser, open_page  # noqa: F401  (browser is a fixture)
+from test_render import open_page  # noqa: F401
 
 
 def test_a_leaguemate_picks_their_team_and_it_sticks(browser, page_file):

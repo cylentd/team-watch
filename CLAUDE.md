@@ -31,7 +31,7 @@ Never hand-edit the generated files. The pages are ~2.6 MB each (all live data i
 ```
 python design/build.py      # rebuild both outputs
 python -m pytest tests/test_<area>.py         # while working: the files for what you touched, seconds
-python -m pytest -n auto --dist loadgroup     # everything, ~50 s parallel (~200 s serial), 2026-09-27
+python -m pytest -n auto --dist loadgroup     # everything, ~43 s on a quiet machine (was 68-91 s), 2026-10-05
 python -m pytest --update-golden              # never with -n: every area rewrites the one golden file
 python -m pytest -m "not render"              # no browser, ~30 s
 python -m pytest tests/test_render.py --areas ranks   # one area's golden slice, ~10 s
@@ -42,9 +42,22 @@ python -m pytest tests/test_render.py --areas ranks   # one area's golden slice,
 Land tests by impact (2026-09-27). `scripts/impact.py` maps the branch's paths to areas through
 `tests/impact.json`: a change fenced to one view runs that view's tests, the core and its golden
 slice (a Ranks change: ~14 s, against ~65 s for everything). A path no area claims, shared CSS,
-and shared test setup run everything. The scheduled rebuild runs the whole suite twice a day, the
-net for whatever the map misses. A new test file must be listed in `tests/impact.json`
-(`test_impact.py` fails otherwise); a new golden state belongs to the area its name starts with.
+and shared test setup run everything; `content.json`, the order files, `scope.json` and the golden
+are read by what changed inside them (since 2026-10-05; the docstring of `scripts/impact.py` says
+how). The scheduled rebuild runs the whole suite twice a day, the net for whatever the map misses.
+A new test file must be listed in `tests/impact.json` (`test_impact.py` fails otherwise); a new
+golden state belongs to the area its name starts with. Fixture files are never claimed by an area:
+the build injects all of them into one page.
+
+Writing a browser test (2026-10-05): take `browser` from `tests/conftest.py` (one Chromium per
+worker), never your own. A full page load costs about 1 s, so a file's tests share a module-scoped
+page that resets what a test changed (`'use strict'` in the reset, so a renamed global throws) and
+asserts no page error after load; a test about loading itself opens its own. Every browser test
+asserts no page errors (`test_render.watch_errors`). A missing fixture element is an `assert`, never
+a `pytest.skip`. Animations run on the page's own clock (`test_roster_cards.py` VCLOCK), never on
+`wait_for_timeout`. Logic with no layout (wording, sorting, a pure JS function) is checked with
+`page.evaluate` on the shared page or in Python, not through clicks. `conftest.py` runs each file in
+groups of 12 tests, so a shared page loads once per group and a long file still spreads out.
 
 The build fails on a lint error (`design/lint_css.py`), a contract violation (`design/contract.py`:
 an injected block missing a field the JS reads), or a part the manifests do not agree on. The
@@ -80,8 +93,9 @@ and the main checkout stays on `main`, unedited. Notes that cost time to learn:
   page, so it needs `-Yes`, passed only after the user says yes. Landing ends the feature:
   `ExitWorktree` with `remove` puts the session back in the main checkout, and the session goes on.
 - Lands queue (`scripts/land-queue.ps1`, since 2026-09-26): a ticket in `.git/land-queue`, shared by
-  every worktree, holds `main` from the first fetch to the push, so a second land waits, printing
-  whose it is behind, then rebases onto the first. The scheduled rebuild (the last step of the 5:50
+  every worktree, holds `main` from after the first test run to the push, so a second land waits,
+  printing whose it is behind, then rebases onto the first. Since 2026-10-05 the tests run before the
+  queue, and again inside it only if `origin/main` moved meanwhile. The scheduled rebuild (the last step of the 5:50
   and 14:30 daily jobs and Tuesday's 2:00 week turn, in agent-config) takes the same queue. A dead session's ticket clears itself; a wait over 20 min
   gives up with nothing landed. A push from outside the queue still gets exit 2 from `git land`,
   and `land.ps1` rebases, rebuilds and retries once.

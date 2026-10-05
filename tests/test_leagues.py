@@ -18,7 +18,7 @@ import leagues
 import sources
 from conftest import FIXTURES, REPO
 from league_recap import live_league_yahoo
-from test_render import browser, drive, go, open_page  # noqa: F401  (browser is a fixture)
+from test_render import drive, go, open_page  # noqa: F401
 
 def read(name):
     return json.loads((FIXTURES / "data" / name).read_text(encoding="utf-8"))

@@ -9,7 +9,7 @@ import re
 
 import pytest
 
-from test_render import SEED, browser, go  # noqa: F401  (browser is a fixture)
+from test_render import SEED, go, watch_errors  # noqa: F401
 
 pytestmark = pytest.mark.render
 
@@ -25,7 +25,7 @@ TOUCH = """([sel, pts]) => {
 
 def touch(pg, sel, *pts):
     pg.evaluate(TOUCH, [sel, [list(p) for p in pts]])
-    pg.wait_for_timeout(60)
+    pg.evaluate("new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))")   # the handlers' frame, not a clock
 
 
 def swipe(pg, sel, dx):
@@ -41,12 +41,16 @@ def page(browser, page_file):
     ctx = browser.new_context(viewport={"width": 390, "height": 844}, reduced_motion="reduce", has_touch=True, is_mobile=True)
     pg = ctx.new_page()
     pg.set_default_timeout(5000)
+    errors = watch_errors(pg)
     pg.route(re.compile(r"^https?://"), lambda route: route.abort())
     pg.add_init_script(SEED)
     pg.goto(page_file.as_uri())
     pg.wait_for_function("document.getElementById('view').children.length > 0")
-    yield pg
-    ctx.close()
+    try:
+        yield pg
+        assert errors == []
+    finally:
+        ctx.close()
 
 
 def open_profile(pg):
@@ -78,8 +82,7 @@ def test_a_swipe_on_the_profile_turns_its_tab_and_stops_at_the_ends(page):
 
 def test_a_swipe_inside_the_orb_sheet_is_the_sheets_own(page):
     open_profile(page)
-    if not page.locator("#modal .pf-orb").count():
-        pytest.skip("the fixture player draws no sphere")
+    assert page.locator("#modal .pf-orb").count(), "the fixture player draws a sphere"
     page.click("#modal .pf-orb")
     page.wait_for_selector("#modal .pf-orbsheet")
     before = tab(page)

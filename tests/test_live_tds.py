@@ -4,7 +4,7 @@ switch (Feed, By game) and four chips (Mine, Pass, Rush, Rec) narrow it."""
 import pytest
 
 from test_live_tabs import live  # noqa: F401
-from test_render import browser, open_page  # noqa: F401  (the suite's one Chromium)
+from test_render import open_page  # noqa: F401
 
 # The page's own TD chances, ranked the way the board ranks them, and the lead rows planted around them.
 PLANT = """() => {

@@ -15,7 +15,7 @@ from _espn import slugify  # noqa: E402
 import contract  # noqa: E402
 from sources import load_startsit  # noqa: E402
 from startsit import live_startsit  # noqa: E402
-from test_render import SEED, browser  # noqa: E402,F401  (browser is a fixture)
+from startsit_page import PRISTINE_JS, RESET_JS, open_view  # noqa: E402
 
 
 def test_the_best_spots_are_the_only_thing_the_view_keeps_of_the_calls_file():
@@ -79,30 +79,40 @@ def ssb_js():
       else window.LIVE_SSB = stub;""" % json.dumps(_board())
 
 
-def open_view(browser, page_file, js="", w=360, h=800, hash_="#matchups"):
-    ctx = browser.new_context(viewport={"width": w, "height": h}, reduced_motion="reduce", has_touch=True)
-    pg = ctx.new_page()
-    pg.set_default_timeout(5000)
-    pg.route(re.compile(r"^https?://"), lambda route: route.abort())
-    pg.add_init_script(SEED)
-    pg.goto(page_file.as_uri() + hash_)
-    pg.wait_for_function("document.querySelector('.mu') !== null")
-    if js:
-        pg.evaluate("() => {" + js + "; render(); }")
-    return ctx, pg
+@pytest.fixture(scope="module")
+def shared(browser, page_file):
+    """One page for the module: ss() resets it, so a test never sees another's changes."""
+    errors = []
+    ctx, pg = open_view(browser, page_file, errors=errors)
+    pg.evaluate(PRISTINE_JS)
+    assert errors == []                 # whatever the load or the snapshot raised fails here, not lost to a clear
+    yield pg, errors
+    ctx.close()
 
 
 @pytest.fixture
-def ss(browser, page_file):
+def ss(browser, page_file, shared):
+    """ss(js) resets the shared page and applies js. A hash_ opens a fresh page, because the hash on load
+    is what that test proves. Any page error or console error during the test fails it."""
+    pg, errors = shared
+    left, errors[:] = list(errors), []  # an error raised or left over since the last test fails this one
+    assert left == []
     made = []
 
-    def go(js="", **kw):
-        ctx, pg = open_view(browser, page_file, js, **kw)
-        made.append(ctx)
+    def go(js="", w=360, h=800, hash_=None):
+        if hash_ is not None:
+            ctx, fresh = open_view(browser, page_file, js, w=w, h=h, hash_=hash_, errors=errors)
+            made.append(ctx)
+            return fresh
+        pg.set_viewport_size({"width": w, "height": h})
+        pg.evaluate(RESET_JS)
+        if js:
+            pg.evaluate("() => {" + js + "; render(); }")
         return pg
     yield go
     for c in made:
         c.close()
+    assert errors == [], errors
 
 
 def verdict(pg):

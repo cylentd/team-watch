@@ -4,7 +4,7 @@ tabs are the one sideways row: six stats need ~470px, and the row fades at its e
 
 import pytest
 
-from test_render import browser, open_page  # noqa: F401  (browser is a fixture)
+from test_render import open_page  # noqa: F401
 
 VIEWS = ["roster", "waivers", "board", "movers", "usage", "news", "parlay", "build", "dfs", "weather", "teams"]
 SIDEWAYS = """[...document.querySelectorAll('#view *')].filter(e =>

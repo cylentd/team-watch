@@ -24,7 +24,7 @@ from build import norm_name  # noqa: E402
 from gameday import live_gameday  # noqa: E402
 from mates import live_mates  # noqa: E402
 from sources import DWR, read_first, load_status, load_kickers  # noqa: E402
-from test_render import LIVE_PLANT as plant, browser, go, open_page  # noqa: E402,F401  (the suite's one Chromium)
+from test_render import LIVE_PLANT as plant, go, open_page  # noqa: E402,F401
 
 FIX = json.loads((REPO / "tests" / "fixtures" / "gameday.json").read_text(encoding="utf-8"))
 

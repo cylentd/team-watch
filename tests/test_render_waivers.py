@@ -10,15 +10,6 @@ from test_render import SEED, TUESDAY
 pytestmark = pytest.mark.render
 
 
-@pytest.fixture(scope="module")
-def browser():
-    from playwright.sync_api import sync_playwright
-    with sync_playwright() as pw:
-        b = pw.chromium.launch()
-        yield b
-        b.close()
-
-
 @pytest.fixture
 def open_waivers(browser, page_file):
     """open_waivers(view=, init=, reduced=, width=) -> page on #waivers for that league."""

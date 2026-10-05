@@ -2,7 +2,7 @@
 Waivers is the league-wide Most added list, with no counts, no FAAB and no waiver rows in search."""
 import pytest
 
-from test_render import browser, open_page  # noqa: F401  (browser is a fixture)
+from test_render import open_page  # noqa: F401
 
 pytestmark = pytest.mark.render
 

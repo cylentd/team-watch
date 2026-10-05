@@ -10,7 +10,7 @@ sys.path.insert(0, str(REPO / "design"))
 
 import pytest  # noqa: E402
 
-from test_render import LIVE_PLANT as plant, browser, go, open_page  # noqa: E402,F401  (the suite's one Chromium)
+from test_render import LIVE_PLANT as plant, go, open_page  # noqa: E402,F401
 
 SUMMARY = json.loads((REPO / "tests" / "fixtures" / "data" / "espn_summary.json").read_text(encoding="utf-8"))
 BOX = json.loads((REPO / "tests" / "fixtures" / "data" / "sleeper_box.json").read_text(encoding="utf-8"))

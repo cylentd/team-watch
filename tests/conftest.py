@@ -34,28 +34,44 @@ def pytest_addoption(parser):
 
 def pytest_configure(config):
     config.addinivalue_line("markers", "area(name): the impact area a test covers (scripts/impact.py)")
+    config.addinivalue_line("markers", "xdist_group(name): set by the hook below; one group runs on one worker")
+
+
+CHUNK = 12   # tests per xdist group outside the golden slices
 
 
 @pytest.hookimpl(tryfirst=True)
 def pytest_collection_modifyitems(config, items):
-    # `-n auto --dist loadgroup` (land.ps1) keeps a file on one worker, so its module fixtures (a
-    # browser, a built page) are made once, except that each area's golden slice is its own group:
-    # test_render.py's areas run side by side instead of one after another. Runs before xdist's own
-    # hook, which is the one that reads the marker.
+    areas = {a for a in config.getoption("--areas").split(",") if a}
+    if areas:
+        keep, drop = [], []
+        for item in items:
+            marked = {a for m in item.iter_markers("area") for a in m.args}
+            (keep if not marked or marked & areas else drop).append(item)
+        if drop:
+            config.hook.pytest_deselected(items=drop)
+            items[:] = keep
+    # `-n auto --dist loadgroup` (land.ps1) runs one group on one worker. Two kinds of group:
+    # - test_render.py's golden slice per area: the snapshot (a page per state, both viewports) is
+    #   taken once and read by four tests. These are the longest units of work, so they go to the
+    #   front of the queue; started last, alphabetically, they ran on after everything else.
+    # - every other file in runs of CHUNK tests, so a module-scoped page is loaded once per run, and
+    #   a long file still spreads over several workers. Until 2026-10-05 each file was one group,
+    #   and test_profile.py's 58 browser tests took 67 s on one worker while the other 19 sat idle;
+    #   with no groups at all every worker that drew one test loaded the file's shared pages.
+    # Runs before xdist's hook, which is the one that reads the marker.
+    slices, seen = [], {}
     for item in items:
         area = next((m.args[0] for m in item.iter_markers("area")), None)
-        group = f"render:{area}" if area and item.path.name == "test_render.py" else item.path.name
-        item.add_marker(pytest.mark.xdist_group(group))
-    areas = {a for a in config.getoption("--areas").split(",") if a}
-    if not areas:
-        return
-    keep, drop = [], []
-    for item in items:
-        marked = {a for m in item.iter_markers("area") for a in m.args}
-        (keep if not marked or marked & areas else drop).append(item)
-    if drop:
-        config.hook.pytest_deselected(items=drop)
-        items[:] = keep
+        if area and item.path.name == "test_render.py" and "snapshot" in getattr(item, "fixturenames", ()):
+            item.add_marker(pytest.mark.xdist_group(f"render:{area}"))
+            slices.append(item)
+        else:
+            n = seen[item.path.name] = seen.get(item.path.name, -1) + 1
+            item.add_marker(pytest.mark.xdist_group(f"{item.path.name}#{n // CHUNK}"))
+    if slices:
+        first = set(map(id, slices))
+        items[:] = slices + [i for i in items if id(i) not in first]
 
 
 @pytest.fixture(scope="session")
@@ -68,6 +84,18 @@ def built():
     """One in-process build of the fixture page, shared by every test that needs it."""
     import build
     return build.render()
+
+
+@pytest.fixture(scope="session")
+def browser():
+    """One Chromium per worker for every browser test; the launch (about 1 s) is what is shared.
+    A test opens its own context, or borrows its file's module-scoped page, which resets what
+    the last test changed and checks the page raised no error while loading."""
+    from playwright.sync_api import sync_playwright
+    with sync_playwright() as pw:
+        b = pw.chromium.launch()
+        yield b
+        b.close()
 
 
 @pytest.fixture(scope="session")
