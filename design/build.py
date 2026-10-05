@@ -36,6 +36,7 @@ from routes import live_routes, report as routes_report          # design/routes
 from archetype import (load_archetype, load_trenches, live_archetype, live_trenches,  # role/style labels + OL context
                        report_archetype, report_trenches)
 from startsit_blocks import add_start_sit                      # design/startsit_blocks.py: Start/Sit's three blocks
+from teams import add_teams                                    # design/teams.py: League > Teams
 from mates import espn_rows, live_mates, slugs as mate_slugs, report as mates_report  # every team in David's leagues
 from digest import live_digest, report as digest_report        # design/digest.py: the Digest view
 from preview import live_preview, report as preview_report     # design/preview.py: This week > Preview
@@ -101,7 +102,6 @@ def sleeper_flag(rec):
 BOOK_ORDER = ["DraftKings", "Underdog"]
 REFERENCE_BOOK = "Consensus"
 POS_ORDER = {"QB": 0, "RB": 1, "WR": 2, "TE": 3}
-MKT_ORDER = {"PASS": 0, "RUSH": 1, "REC": 2, "RECS": 3, "TD": 4, "LONG": 5}
 # BettingPros team codes that differ from the ESPN/nflverse codes the rest of the page uses.
 TEAM_FIX = {"JAC": "JAX", "LA": "LAR"}   # the book's and the model's spellings, one canon
 # Where the model's rate sits relative to the book's line across the whole slate (week 1 2026:
@@ -117,14 +117,13 @@ def is_stale(mkt, mu, line):
     return ratio > r0 * STALE_BAND or ratio < r0 / STALE_BAND
 # The anytime-TD market prices whole teams too; those rows are not players.
 NFL_TEAMS = {
-    "Arizona Cardinals", "Atlanta Falcons", "Baltimore Ravens", "Buffalo Bills",
-    "Carolina Panthers", "Chicago Bears", "Cincinnati Bengals", "Cleveland Browns",
-    "Dallas Cowboys", "Denver Broncos", "Detroit Lions", "Green Bay Packers",
-    "Houston Texans", "Indianapolis Colts", "Jacksonville Jaguars", "Kansas City Chiefs",
-    "Las Vegas Raiders", "Los Angeles Chargers", "Los Angeles Rams", "Miami Dolphins",
-    "Minnesota Vikings", "New England Patriots", "New Orleans Saints", "New York Giants",
-    "New York Jets", "Philadelphia Eagles", "Pittsburgh Steelers", "San Francisco 49ers",
-    "Seattle Seahawks", "Tampa Bay Buccaneers", "Tennessee Titans", "Washington Commanders",
+    "Arizona Cardinals", "Atlanta Falcons", "Baltimore Ravens", "Buffalo Bills", "Carolina Panthers",
+    "Chicago Bears", "Cincinnati Bengals", "Cleveland Browns", "Dallas Cowboys", "Denver Broncos",
+    "Detroit Lions", "Green Bay Packers", "Houston Texans", "Indianapolis Colts", "Jacksonville Jaguars",
+    "Kansas City Chiefs", "Las Vegas Raiders", "Los Angeles Chargers", "Los Angeles Rams", "Miami Dolphins",
+    "Minnesota Vikings", "New England Patriots", "New Orleans Saints", "New York Giants", "New York Jets",
+    "Philadelphia Eagles", "Pittsburgh Steelers", "San Francisco 49ers", "Seattle Seahawks",
+    "Tampa Bay Buccaneers", "Tennessee Titans", "Washington Commanders",
 }
 
 SLUGS = [
@@ -692,6 +691,7 @@ def render():
     blocks["LIVE_SIGNED"] = live_signed(load_gamelog_weekly(), blocks["LIVE_SCHEDULE"], slugify, wanted_set)
     add_market_stock(blocks, report)
     add_start_sit(blocks, report, slugify)
+    add_teams(blocks, report, slugify)                             # design/teams.py: League > Teams
     report += [slips_report(blocks["LIVE_REASONS"]),schedule_report(blocks["LIVE_SCHEDULE"]), signed_report(blocks["LIVE_SIGNED"]), digest_report(blocks["LIVE_DIGEST"]),
                preview_report(blocks["LIVE_PREVIEW"]), pedigree_report(blocks["LIVE_PEDIGREE"]), gamelog_report(blocks["LIVE_GAMELOG"]),
                projections_report(blocks["LIVE_PROJECTIONS"]), ranks_report(blocks["LIVE_RANKS"]),

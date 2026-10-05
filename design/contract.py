@@ -10,6 +10,7 @@ import contract_checks   # design/contract_checks.py: the rules that read a spec
 import leagues
 import startsit_board   # design/startsit_board.py: LIVE_SSB's nested shape check
 import startsit_v3      # design/startsit_v3.py: LIVE_SS3's nested shape check
+import teams            # design/teams.py: LIVE_TEAMS's nested shape check
 from contract_checks import WIRE_EVENT, WIRE_KIND, WIRE_KIND_OPTIONAL, WIRE_OPTIONAL, WIRE_SUBS  # noqa: F401  re-exported for wire_watch.py
 
 # A league's `status` is fa | waiver | rostered | mine | unknown -- no value is enforced here: "unknown"
@@ -289,6 +290,10 @@ CONTRACT = {
     # games last season; `work` values may be null where ff-jarvis had no number.
     "LIVE_ROLE": {"keys": ["season", "through", "min_games", "rows"],
                   "rows": [("rows", ["slug", "n", "pos", "team", "g", "xfp", "pts", "gap", "td", "work", "prev"])]},
+    # design/teams.py, League > Teams (leaf `teams`, 2026-10-05). A league has its slot counts, its column medians
+    # and its teams; a team's record (`w`, `l`, `t`) is null with no standings. The nested shapes are checked by `problems`.
+    "LIVE_TEAMS": {"keys": ["leagues"], "rows": [("leagues", ["key", "name", "slots", "median", "teams"])],
+                   "checks": [teams.problems]},
     # design/startsit_board.py, the Start / Sit picker and board (2026-10-03): `fp` {slug: {ecr, pos}}, `board` {POS: {avg, n, best, worst}}
     # (rows {team, opp, pts, rank}), `out` {slug: [{n, pos, s}]}; each part may be empty. The nested shapes are checked by its `problems`.
     "LIVE_SSB": {"keys": ["week", "fp", "board", "out"], "checks": [startsit_board.problems]},

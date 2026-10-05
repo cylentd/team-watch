@@ -141,6 +141,10 @@ surface/league/switch.js
 surface/trades/cards.js
 surface/trades/trades.js
 surface/trades/alive.js
+# pin: sheet.js binds its listeners at load, so it needs #lbsheet and its scrim (shell.html, above the
+#      script), and the board's helpers (lbData, lbNum, lbRecord) declared before it.
+surface/lboard/lboard.js
+surface/lboard/sheet.js
 # pin: board/* after data/usage.js -- bdRows memoises off USAGE.sheet, and after
 #      surface/profile/sheet.js, whose sheetValues() is the one definition of who counts on an
 #      axis. leaders.js before board.js is readability, not load order: both are functions.

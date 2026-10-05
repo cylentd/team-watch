@@ -111,6 +111,9 @@ surface/league/cases.css
 surface/league/pages.css
 surface/trades/trades.css
 surface/trades/curses.css
+# pin: lboard.css after pool.css -- the league switch above the board is pool.css's .setrow and .chip.
+surface/lboard/lboard.css
+surface/lboard/sheet.css
 surface/chat/chat.css
 surface/live/live.css
 surface/live/mirror.css

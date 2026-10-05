@@ -396,6 +396,34 @@ labels went from 5px to 2px sides (8px clear of the search icon at 360px, measur
 - **The curse mark** (David picked E of five, storyboard v7): the face drained of colour before black
   fire (`--hex-*` tokens), and one skull per trade under it, red lost, hollow amber still open.
 
+## Teams (League group, 2026-10-05)
+
+Storyboard https://claude.ai/artifact/BXCJdmWfC87Z7VCAgdVC3Y, option B. Leaf `teams`, hash `#teams`, last in the
+League group. One row per team in a league, one column per position (QB, RB, WR, TE, FLX).
+
+| Part | Rule |
+|---|---|
+| A cell | the sum of this week's projected points of the team's starters at that position, in its best legal lineup; FLX is what the league's flex slots take, the best RB/WR/TE left over |
+| Tint | `--up` at 8% or more over the league's median for the column, `--down` at 8% or more under, else plain (`LB_EDGE`) |
+| Spare starter | a lime "+" in a cell's corner: a bench player at that position who projects above the median team's weakest starter there. The flex slots count as starters when finding the weakest one. QB, RB, WR and TE columns only |
+| Pin | the reader's own team (`tw-team`, never David's) is the top row with a lime outline, whatever the sort; no team of theirs in the league, no pin |
+| Sort | total of the lineup, best first, by default (the team column's button, "Team · Total"). A column header sorts by that column; a second tap goes back to the total. Real buttons, one always pressed |
+| Roster sheet | a row opens that team's roster from the bottom edge (`#lbsheet`, outside `#view`, `layers.js`): the lineup by slot, then the bench, position, name as initials, projection. Back, Escape, the scrim and a pull down close it. It never calls `pickTeam` |
+| Leagues | all three. The League switch (`surface/league/switch.js`) lists the ESPN league here as well; Recap, Records and Trades keep their Yahoo-only list. Teams opens on the league of the reader's team until they switch on this visit; a pick on a Yahoo league is saved with Recap's (`tw-league`), ESPN's is not |
+| Empty | a league whose roster file is missing or names no starting slots gets the shared dashed empty block under the switch |
+
+- **Data:** `design/teams.py` -> `LIVE_TEAMS`, from the three roster files (`espn_rosters.json`,
+  `league_rosters.json`, `ayo_rosters.json`), `player_projections.json` and each league file's standings. Starting
+  slots are read from the data: ESPN's `starters`, else the most players any team has in a slot (Yahoo's
+  `W/R/T` is flex). K, D/ST, IR and anyone Sleeper lists as not playing are left out; no projection counts 0. The
+  lineup rule is ff-jarvis's `model.season.leagues` (`counts`, `fills`), re-written in `teams.py` and not imported:
+  nothing in this repo imports `model.*`. Dedicated slots take the top players at their position, then the flex
+  slots take the best left, which is the optimum for a flex open to several positions. The page computes only the tint.
+- **First data at ~145px** on a phone, 12 rows in one screen at 360x800; five 38px columns, tabular figures, the
+  team's name takes the rest and ends in an ellipsis. Desktop: the grid stops at 720px, left on the frame's edge,
+  cells 84px.
+- **Not built:** a median row, a total column (the total is under each name), the team's week-by-week line.
+
 ## Waivers (sub-tab of My Teams, 2026-09-16)
 
 A Roster | Waivers toggle under the team name, not a sixth nav tab: waivers are per league like

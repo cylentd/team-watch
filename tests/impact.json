@@ -44,6 +44,11 @@
       "tests": ["tests/test_league_trades.py"],
       "render": ["trades"]
     },
+    "lboard": {
+      "paths": ["design/src/js/surface/lboard/", "design/src/css/surface/lboard/", "design/teams.py"],
+      "tests": ["tests/test_teams_board.py"],
+      "render": ["lboard"]
+    },
     "live": {
       "paths": ["design/src/js/surface/live/", "design/src/css/surface/live/", "design/src/js/data/schedule.js",
                 "design/src/js/data/gameday/", "design/gameday.py", "api/stats.py", "api/_scoring.py",

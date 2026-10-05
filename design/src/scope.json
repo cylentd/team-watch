@@ -39,6 +39,7 @@
     "surface/live/live.css": ["live"],
     "surface/live/mirror.css": ["live"],
     "surface/live/tds.css": ["live"],
+    "surface/lboard/lboard.css": ["teams"],
     "surface/trades/trades.css": ["trades"],
     "surface/trades/curses.css": ["trades"],
     "surface/matchups/record.css": ["matchups"],
@@ -87,6 +88,7 @@
   "shared": {
     "surface/board/board.css": "Leaders and Slips",
     "surface/builder/legsheet.css": "the leg sheet and its scrim sit on <body>, outside every view, and a body:has() rule locks the scroll",
+    "surface/lboard/sheet.css": "the roster sheet and its scrim sit on <body>, outside every view, and a body:has() rule locks the scroll",
     "surface/live/gamesheet.css": "the game sheet and its scrim sit on <body>, outside every view, and a body:has() rule locks the scroll",
     "surface/profile/sheet.css": "the profile modal and Weather",
     "surface/strip/panel.css": "the strip's dialog chrome, the profile modal and Live",

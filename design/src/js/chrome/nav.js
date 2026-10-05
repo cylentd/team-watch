@@ -32,7 +32,7 @@ const NAV = [
   // Highlights (2026-09-29) leads Players: two lines from each view below it, so Players opens on
   // the summary and the research is one tap further (storyboard W5ty9RzT4XWSRfSjtdKEAk, option A).
   ["scouting", ["highlights", "ranks", "board", "movers", "usage"]],
-  ["league",   ["recap", "records", "trades"]],
+  ["league",   ["recap", "records", "trades", "teams"]],
   ["bets",     ["parlay", "build", "dfs"]],
 ];
 
@@ -45,7 +45,7 @@ const navLabel = leaf => ({
   highlights: t("nav.tab.highlights"), ranks: t("nav.tab.ranks"),
   board: t("nav.tab.board"), movers: t("nav.tab.movers"),
   matchups: t("nav.tab.matchups"), usage: t("nav.tab.grid"), news: t("nav.tab.news"),
-  weather: t("nav.tab.weather"), preview: t("nav.tab.preview"),
+  weather: t("nav.tab.weather"), preview: t("nav.tab.preview"), teams: t("nav.tab.teams"),
   parlay: t("nav.tab.parlay"), build: t("nav.tab.build"), dfs: t("nav.tab.dfs"), live: t("nav.tab.live"),
 }[leaf] || leaf);
 
@@ -74,8 +74,10 @@ function navTabsOf(group){
   // every reader, and My teams > My recap for the team on screen (hasRecords). ESPN keeps its own
   // League leaf (hasLeague and no record book); a connected league has neither. Trades shows when any
   // Yahoo league has trades: the League switch picks which, and a league without says so on the page.
+  // Teams (2026-10-05) is for all three leagues, the ESPN one too, so a reader whose team is ESPN's has
+  // a League group: it shows with any league of David's, and a league with no rosters says so on the page.
   const tm = TEAMS[VIEW], leagueWide = lgLeagueKeys().length > 0;
-  const tabs = all.filter(k => (k !== "waivers" || hasWaivers(tm))
+  const tabs = all.filter(k => (k !== "waivers" || hasWaivers(tm)) && (k !== "teams" || lbKeys().length > 0)
     && (k !== "league" || (hasLeague(tm) && !hasRecords(tm))) && (k !== "myrecap" || hasRecords(tm))
     && ((k !== "recap" && k !== "records") || leagueWide) && (k !== "trades" || lgLeagueKeys().some(x => LG_TRADES[x])));
   return navWaiverDay() && tabs.includes("waivers") ? ["waivers", ...tabs.filter(k => k !== "waivers")] : tabs;

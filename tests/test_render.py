@@ -70,7 +70,7 @@ def LIVE_PLANT(states=None):
 # out here (rather than trusting the group button's "return me to where I was") keeps a state
 # reachable in the same way no matter which state ran before it.
 GROUP = {"digest": "week", "roster": "teams", "waivers": "teams", "league": "teams", "myrecap": "teams",
-         "recap": "league", "records": "league", "trades": "league",
+         "recap": "league", "records": "league", "trades": "league", "teams": "league",
          "highlights": "scouting", "ranks": "scouting", "board": "scouting", "movers": "scouting", "matchups": "week", "usage": "scouting",
          "news": "week", "weather": "week", "preview": "week", "live": "week",
          "parlay": "bets", "build": "bets", "dfs": "bets"}
@@ -261,6 +261,14 @@ STATES = [
     # phone swipes through all of them and has no Show all).
     ("trades", go("trades")),
     ("trades-open", go("trades") + [("click", "[data-trmgr='6']"), ("eval", "document.querySelector('[data-trall]')?.click()")]),
+    # League > Teams (2026-10-05): the board. The suite's reader is on the Madden Curse, whose fixture is the
+    # old scrape with no slots, so the default is the empty state; ESPN's and AYO's boards by the switch, ESPN's
+    # sorted by RB, and a team's roster sheet open.
+    ("lboard-yahoo", go("teams")),
+    ("lboard-espn", go("teams") + [("click", "[data-lgpick='espn']")]),
+    ("lboard-ayo", go("teams") + [("click", "[data-lgpick='ayo']")]),
+    ("lboard-sorted", go("teams") + [("click", "[data-lgpick='espn']"), ("click", "[data-lbsort='RB']")]),
+    ("lboard-sheet", go("teams") + [("click", "[data-lgpick='espn']"), ("click", ".lb-row .lb-team")]),
     ("myrecap-yahoo", go("myrecap")),
     ("myrecap-ayo", [("eval", "VIEW='ayo'; render()")] + go("myrecap")),
     ("myrecap-yahoo-week1", go("myrecap") + [("click", "[data-lgweek='1']")]),
@@ -497,6 +505,9 @@ PROBE = """
           // The leg sheet too (2026-09-27).
           legsheet: strip(document.getElementById("legsheet").innerHTML),
           legsheetOpen: document.getElementById("legsheet").classList.contains("on"),
+          // The League board's roster sheet (2026-10-05), kept out of every state that never opened it.
+          ...(document.getElementById("lbsheet").innerHTML ? {lbsheet: document.getElementById("lbsheet").innerHTML,
+              lbsheetOpen: document.getElementById("lbsheet").classList.contains("on")} : {}),
           // The play strip's dialog and the pack's stage (2026-09-27): the stage hangs off <body>,
           // outside every root above, and the strip's CSS was proven by no state until these.
           strip: strip(document.getElementById("stripmodal").innerHTML),
@@ -660,6 +671,7 @@ def test_no_fenced_rule_misses_its_element(snapshot, area):
     ("build", "bets", "BUILD"),
     ("records", "league", "RECORDS"),   # League became a group of its own on 2026-09-28
     ("trades", "league", "TRADES"),
+    ("teams", "league", "TEAMS"),       # League > Teams, the League board (2026-10-05)
 ])
 def test_a_hash_opens_its_view(browser, page_file, leaf, group, label):
     """The view lives in the hash so a reload lands where you were reading. Renaming a leaf, or
