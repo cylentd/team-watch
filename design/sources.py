@@ -304,6 +304,12 @@ def load_clips():
     return feed_block(("clips",), "players") or read_first(DWR / "clips.json")
 
 
+def load_player_names():
+    """Jersey numbers and nicknames per player (ff-jarvis player_names.json, 2026-10-05), feed block
+    `player_names` first, the file second. design/player_names.py cuts it; None when neither exists."""
+    return feed_block(("player_names",), "players") or read_first(DWR / "player_names.json")
+
+
 def load_role_board():
     """Each player's season so far: what his work is worth against what he scored, and last
     season's same gap (model.season.role_board, 2026-09-29), feed block `role_board` first, the

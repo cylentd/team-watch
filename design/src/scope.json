@@ -71,6 +71,7 @@
     "surface/highlights/highlights.css": ["highlights"],
     "surface/role/role.css": ["movers"],
     "surface/teams/brief.css": ["roster", "waivers"],
+    "surface/teams/cliprail.css": ["roster", "waivers", "live"],
     "surface/teams/reel.css": ["roster", "waivers"],
     "surface/teams/injury.css": ["roster", "waivers"],
     "surface/teams/matchup.css": ["roster", "waivers", "#modal"],

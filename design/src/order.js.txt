@@ -41,6 +41,7 @@ surface/teams/packshow.js
 surface/teams/packdeal.js
 surface/teams/packland.js
 surface/teams/brief.js
+surface/teams/cliprail.js
 surface/teams/reel.js
 surface/teams/proof.js
 surface/teams/wcard.js
@@ -113,6 +114,8 @@ data/gameday/score.js
 data/gameday/espn.js
 data/gameday/clock.js
 data/gameday/hurt.js
+data/gameday/tdclips.js
+data/gameday/tdcmatch.js
 surface/digest/icons.js
 surface/digest/tabs.js
 surface/digest/lead.js
@@ -209,6 +212,7 @@ surface/live/mirror.js
 surface/live/league.js
 surface/live/nflnow.js
 surface/live/tds.js
+surface/live/tdclips.js
 surface/live/gamecards.js
 # pin: gamesheet.js binds its listeners and its poll timer at load: it needs #gamesheet (shell.html)
 #      and GD_POLL_MS (live.js, above).

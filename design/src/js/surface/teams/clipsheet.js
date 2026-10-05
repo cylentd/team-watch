@@ -16,6 +16,7 @@
 
 let CT = null;           /* the theater on screen: {items, play, pos, seen, tok, timer}; null = closed */
 let CLIP_RETURN = null;
+let CLIP_RETURN_KEY = "";   /* a selector for the same control after a repaint replaced it; "" = none */
 const CLIP_ERR_MS = 2000;   /* a clip YouTube refuses: Play all moves on after this */
 const clipEl = () => document.getElementById("clipsheet");
 const clipQ = sel => clipEl().querySelector(sel);
@@ -63,7 +64,7 @@ function clipTheaterOpen(items, i, originEl){
   if (!d || !items || !items.length) return;
   const play = items.map((x, j) => j).filter(j => clipCan(items[j].c)), at = play.indexOf(i);
   const was = !!CT;
-  if (!was) CLIP_RETURN = originEl || document.activeElement;
+  if (!was){ CLIP_RETURN = originEl || document.activeElement; CLIP_RETURN_KEY = clipReturnKey(CLIP_RETURN); }
   if (CT) clearTimeout(CT.timer);
   CT = {items, play, pos: 0, seen: new Set(), tok: 0, timer: 0};
   if (play.length) clipWarm();            /* a no-op when the tap that got here already warmed it */
@@ -83,10 +84,18 @@ function clipShut(){
   clipPlayerStop();
   d.classList.remove("on", "end");
   d.setAttribute("aria-hidden", "true");
-  const back = CLIP_RETURN;
-  CLIP_RETURN = null;
-  if (back && back.focus && back.isConnected) back.focus({preventScroll: true});
+  const back = CLIP_RETURN, key = CLIP_RETURN_KEY;
+  CLIP_RETURN = null; CLIP_RETURN_KEY = "";
+  const to = back && back.isConnected ? back : key ? clipReturnFind(key) : null;
+  if (to && to.focus) to.focus({preventScroll: true});
 }
+/* Live repaints every 30 s, so the card that opened the theater may be gone when it closes: the card is
+   found again by its clip id (or the Play n button), else the first card of the rail on screen. */
+function clipReturnKey(el){
+  const card = el && el.closest ? el.closest("[data-clipid]") : null;
+  return card ? `[data-clipid="${CSS.escape(card.dataset.clipid)}"]` : el && el.matches && el.matches("[data-reelall]") ? "[data-reelall]" : "";
+}
+const clipReturnFind = key => document.querySelector(`#view ${key}`) || document.querySelector("#view [data-reel] .reel-card");
 function clipClose(){ clipShut(); layerDone("clipsheet"); }
 
 /* Show the clip at `pos` of the playable ones, and play it; past the last is the end card. */

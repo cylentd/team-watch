@@ -23,7 +23,7 @@ def test_block_keeps_clip_order_and_drops_the_decision_cache():
     assert b["week"] == 4
     purdy = b["players"]["brock-purdy"]
     assert [c["kind"] for c in purdy] == ["best_plays", "play", "play"], "best plays first, then plays, as ff-jarvis wrote them"
-    assert set(purdy[0]) == {"id", "title", "kind", "secs", "embed", "shape"}, "the raw channel code stays in ff-jarvis"
+    assert set(purdy[0]) == {"id", "title", "kind", "secs", "embed", "shape", "posted"}, "the raw channel code stays in ff-jarvis"
     assert [c["kind"] for c in b["players"]["george-kittle"]] == ["play"]
 
 

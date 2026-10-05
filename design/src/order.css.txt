@@ -29,6 +29,7 @@ surface/teams/injury.css
 surface/teams/pack.css
 surface/teams/packshow.css
 surface/teams/brief.css
+surface/teams/cliprail.css
 surface/teams/reel.css
 surface/teams/matchup.css
 surface/teams/wire.css

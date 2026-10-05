@@ -23,7 +23,9 @@
    Sleeper's stats carry no scoring time: By game orders games live first, then the latest kickoff.
 
    The league argument is unused: both lists are league-wide and the page is public, so no roster
-   is read but the reader's own. A row opens the player's profile. */
+   is read but the reader's own. A row opens the player's profile.
+
+   Feed also draws a TD clips reel above the Scored card (tdclips.js), of the scorers the chips keep. */
 
 const TD_ALIVE_N = 15;
 const TD_MODE_KEY = "tw-live-tds";
@@ -148,10 +150,16 @@ function tdControlsHTML(){
 /* The one line a filter that finds nothing says. */
 const tdNoneLine = () => TD_ON.mine && !tdMineSet().size ? t("live.tds.pickTeam") : t("live.tds.noMatch");
 
+/* What the chips leave of the Scored list: `all` is everyone who has scored, `scored` what the chips keep. */
+function tdFilter(){
+  const kinds = tdKinds(), mine = TD_ON.mine ? tdMineSet() : null, filtered = TD_CHIPS.some(k => TD_ON[k]);
+  const all = tdScoredRows();
+  return {kinds, mine, filtered, all, scored: filtered ? tdScoredRows(kinds, mine) : all};
+}
+
 function gdTdsHTML(lg){
   if (!GD_STATS || !GD_STATS.lead) return `<div class="gd-card td-card"><p class="td-empty">${t("live.tds.loading")}</p></div>`;
-  const kinds = tdKinds(), mine = TD_ON.mine ? tdMineSet() : null, filtered = TD_CHIPS.some(k => TD_ON[k]);
-  const all = tdScoredRows(), scored = filtered ? tdScoredRows(kinds, mine) : all;
+  const {kinds, mine, filtered, all, scored} = tdFilter();
   const empty = () => `<p class="td-empty">${filtered ? tdNoneLine() : t("live.tds.noneYet")}</p>`;
   if (tdMode() === "game")
     return tdControlsHTML() + (scored.length ? tdGameCardsHTML(scored, kinds) : `<section class="gd-card td-card">${empty()}</section>`);
@@ -163,7 +171,7 @@ function gdTdsHTML(lg){
   aliveRows.sort((a, b) => order(a) - order(b));
   const scoredList = scored.length ? `<ul class="td-list">${scored.map(v => tdScoredRow(v, kinds, false)).join("")}</ul>` : empty();
   const aliveCard = aliveRows.length ? `<ul class="td-list">${aliveRows.map(tdRowHTML).join("")}</ul>` : filtered ? "" : `<p class="td-empty">${t("live.tds.noBoard")}</p>`;
-  return tdControlsHTML() + `<section class="gd-card td-card"><h3 class="td-head"><span>${t("live.tds.scored")}</span><span>${t("live.tds.count", {n: scored.length})}</span></h3>${scoredList}</section>`
+  return tdControlsHTML() + tdrHTML(tdrModel(scored, kinds)) + `<section class="gd-card td-card"><h3 class="td-head"><span>${t("live.tds.scored")}</span><span>${t("live.tds.count", {n: scored.length})}</span></h3>${scoredList}</section>`
     + (aliveCard ? `<section class="gd-card td-card"><h3 class="td-head"><span>${t("live.tds.alive")}</span><span>${t("live.tds.byChance")}</span></h3>${aliveCard}</section>` : "");
 }
 
@@ -180,4 +188,7 @@ function wireTds(host){
   host.querySelectorAll("[data-tdchip]").forEach(b => b.addEventListener("click", () => {
     TD_ON[b.dataset.tdchip] = !TD_ON[b.dataset.tdchip]; again(`[data-tdchip="${b.dataset.tdchip}"]`);
   }));
+  /* The TD clips reel (tdclips.js) is Feed's; fresh clips are asked for here, when the tab paints. */
+  if (GD_STATS && GD_STATS.lead && tdMode() === "feed"){ const f = tdFilter(); tdrWire(host, tdrModel(f.scored, f.kinds)); }
+  tdcEnsure();
 }

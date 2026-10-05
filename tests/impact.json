@@ -52,9 +52,10 @@
     "live": {
       "paths": ["design/src/js/surface/live/", "design/src/css/surface/live/", "design/src/js/data/schedule.js",
                 "design/src/js/data/gameday/", "design/gameday.py", "api/stats.py", "api/_scoring.py",
-                "design/schedule.py"],
+                "design/schedule.py", "api/clips.py", "api/_yt_channels.json", "design/yt_channels.py"],
       "tests": ["tests/test_gameday.py", "tests/test_gamesheet_v2.py", "tests/test_schedule.py", "tests/test_live_tds.py", "tests/test_live_tabs.py",
-                "tests/test_live_mine.py", "tests/test_live_swipe.py"],
+                "tests/test_live_mine.py", "tests/test_live_swipe.py", "tests/test_live_tdclips.py", "tests/test_api_clips.py",
+                "tests/test_yt_channels.py"],
       "render": ["live"]
     },
     "matchups": {
@@ -107,8 +108,8 @@
     "teams": {
       "paths": ["design/src/js/surface/teams/", "design/src/css/surface/teams/", "design/src/js/data/waiver.js",
                 "design/src/js/data/wire.js", "design/src/js/data/mates.js", "design/waiver.py", "design/wire_watch.py",
-                "design/injury.py", "design/mates.py", "design/clips.py"],
-      "tests": ["tests/test_brief.py", "tests/test_clip_reel.py", "tests/test_clip_sheet.py", "tests/test_clips.py", "tests/test_injury.py", "tests/test_mates.py", "tests/test_mates_page.py",
+                "design/injury.py", "design/mates.py", "design/clips.py", "design/player_names.py"],
+      "tests": ["tests/test_brief.py", "tests/test_clip_reel.py", "tests/test_clip_sheet.py", "tests/test_clips.py", "tests/test_player_names.py","tests/test_injury.py", "tests/test_mates.py", "tests/test_mates_page.py",
                 "tests/test_pack_stage.py", "tests/test_render_waivers.py", "tests/test_waiver_owner.py", "tests/test_roster_cards.py",
                 "tests/test_roster_sheet.py", "tests/test_teamswitch.py", "tests/test_waiver.py",
                 "tests/test_wire_watch.py", "tests/test_yahoo_lineup.py"],

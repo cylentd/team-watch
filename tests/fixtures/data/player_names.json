@@ -1,0 +1,17 @@
+{
+  "generated": "2026-10-05T09:00:00Z",
+  "season": 2026,
+  "players": {
+    "brock-purdy": {"name": "Brock Purdy", "team": "SF", "pos": "QB", "num": 13, "nick": ["Mr. Irrelevant"]},
+    "george-kittle": {"name": "George Kittle", "team": "SF", "pos": "TE", "num": 85, "nick": []},
+    "chase-brown": {"name": "Chase Brown", "team": "CIN", "pos": "RB", "num": 30, "nick": []},
+    "tee-higgins": {"name": "Tee Higgins", "team": "CIN", "pos": "WR", "num": 5, "nick": []},
+    "amonra-st-brown": {"name": "Amon-Ra St. Brown", "team": "DET", "pos": "WR", "num": 14, "nick": ["ARSB", "Sun God"]},
+    "jahmyr-gibbs": {"name": "Jahmyr Gibbs", "team": "DET", "pos": "RB", "num": 26, "nick": []},
+    "cam-skattebo": {"name": "Cam Skattebo", "team": "NYG", "pos": "RB", "num": 44, "nick": []},
+    "devon-achane": {"name": "De'Von Achane", "team": "MIA", "pos": "RB", "num": 28, "nick": ["Speedy"]},
+    "puka-nacua": {"name": "Puka Nacua", "team": "LA", "pos": "WR", "num": 12, "nick": []},
+    "jayden-daniels": {"name": "Jayden Daniels", "team": "WAS", "pos": "QB", "num": 5, "nick": []},
+    "test-rookie": {"name": "Test Rookie", "team": "BUF", "pos": "WR", "num": null, "nick": []}
+  }
+}

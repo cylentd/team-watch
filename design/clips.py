@@ -16,7 +16,7 @@ that pair map too, so a page built with no schedule still finds a club's game vi
 """
 from schedule import TO_ESPN
 
-CLIP_FIELDS = ("id", "title", "kind", "secs", "embed", "shape")
+CLIP_FIELDS = ("id", "title", "kind", "secs", "embed", "shape", "posted")
 GAME_FIELDS = ("id", "title", "secs", "embed", "shape")
 
 

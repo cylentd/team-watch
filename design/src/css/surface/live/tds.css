@@ -72,5 +72,9 @@ div.td-gh{cursor:default}
 .td-gclock{justify-self:end;font:600 var(--t-2)/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--ink-3);white-space:nowrap}
 .td-gclock.in{color:var(--lime)}
 
+/* The TD clips reel (js/surface/live/tdclips.js) is the Roster's rail, cliprail.css. In Live's grid it
+   sits one gap under the chips, and `min-width:0` lets a grid item narrower than its cards scroll them. */
+.td-reel{margin-top:0;min-width:0}
+
 /* A row in a game's card has no clock column. */
 .td-row.in-game{grid-template-columns:36px minmax(0,1fr)}
