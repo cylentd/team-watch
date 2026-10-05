@@ -3,7 +3,8 @@
    owner in every league, up to three bold and three fair offers to each partner. ~650 KB, so it is not in
    the page: it is fetched the first time a reader opens the builder (tbpage.js) and kept in memory for the
    session. From file:// or offline the fetch fails and the page says so, with a button to try again. An offer
-   is what each side sends, the owner's one number, `gain`, and who the owner drops to stay at the roster cap.
+   is what each side sends, the owner's one number, `gain`, and who the owner moves to IR (`ir_moves`) or drops to
+   stay at the roster cap.
    The page scores nothing but the reader's own packages (Edit, tbedit.js, with tbscore.js's port of the rule).
 
    An owner and a partner are the teams' names as the League board has them (LIVE_TEAMS), which are the names
@@ -67,16 +68,22 @@ function tbResolve(list, roster){
   return rows.every(Boolean) ? rows : null;
 }
 
-/* The reason this pair cannot be scored, or "" when every offer of it re-scores to its gain and its drop. */
+/* True when a roster carries what the drop rule reads: a `keep` number and the two flags on every player. A file
+   from before the rule (2026-10-05) has none, and the page cannot score it. */
+const tbRuled = rows => rows.every(p => typeof p.keep === "number" && typeof p.ir_ok === "boolean" && typeof p.protect === "boolean");
+
+/* The reason this pair cannot be scored, or "" when every offer of it re-scores to its gain, its IR moves and its drop. */
 function tbMismatch(lgd, me, tm, pair){
   const lu = lgd && lgd.lineup, mine = lgd && lgd.values && lgd.values[me.name], theirs = lgd && lgd.values && lgd.values[tm.name];
   if (!lu || !mine || !theirs) return "no lineup or values for this pair";
+  if (typeof lu.ir !== "number" || !tbRuled(mine) || !tbRuled(theirs)) return "no IR slots, keep, ir_ok or protect: the file predates the drop rule";
   for (const kind of ["bold", "fair"]) for (const [i, o] of ((pair || {})[kind] || []).entries()){
     const send = tbResolve(o.send, mine), get = tbResolve(o.get, theirs);
-    if (!send || !get || !Array.isArray(o.drop)) return `${kind}[${i}] has a player the roster does not list, or no drop`;
+    if (!send || !get || !Array.isArray(o.drop) || !Array.isArray(o.ir_moves)) return `${kind}[${i}] has a player the roster does not list, or no drop or ir_moves`;
     const r = tbGain(mine, send, get, lu, tbOther(lgd, me.name));
-    const same = r.ok && r.drop.map(tbKey).join("|") === o.drop.map(tbKey).join("|");   // the producer's order is the rule's
-    if (!(Math.abs(r.gain - o.gain) <= TB_TOL) || !same) return `${kind}[${i}] scores ${r.gain}${same ? "" : " and drops another player"}, the file says ${o.gain}`;
+    const names = list => list.map(tbKey).join("|");      // the producer's order is the rule's
+    const same = r.ok && names(r.drop) === names(o.drop) && names(r.irMoves) === names(o.ir_moves);
+    if (!(Math.abs(r.gain - o.gain) <= TB_TOL) || !same) return `${kind}[${i}] scores ${r.gain}${same ? "" : " and moves or drops other players"}, the file says ${o.gain}`;
   }
   return "";
 }

@@ -37,7 +37,8 @@
 .tb-edfoot{position:sticky;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:32;display:grid;gap:6px;padding:10px 12px;
   border:1px solid var(--line-2);border-radius:16px;background:var(--panel-3);box-shadow:0 14px 30px -12px rgb(var(--shadow-rgb) / .9)}
 .tb-edfoot .tb-gain{min-height:24px;line-height:24px}
-.tb-edrop{margin:0;min-height:18px;font:500 var(--t-2)/1.3 var(--ui);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-edroom{display:grid}
+.tb-eir,.tb-edrop{margin:0;min-height:18px;font:500 var(--t-2)/1.3 var(--ui);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tb-edfoot .tb-box{width:100%;margin:0}
 .tb-edfoot .tb-copy:disabled{opacity:.4;cursor:default}
 .tb-go{background:var(--lime);border-color:var(--lime);color:var(--on-lime)}

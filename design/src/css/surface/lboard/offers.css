@@ -26,9 +26,12 @@
 .tb-inj{padding:3px 5px;border-radius:5px;background:rgb(var(--amber-rgb) / .16);color:var(--amber);
   font:700 var(--t-1)/1 var(--mono);font-style:normal}
 
-/* Who the reader drops to stay at the roster cap: one quiet line under the columns, only when there is one. */
-.tb-drop{margin:0;padding:7px 12px 8px;border-top:1px solid var(--line);font:500 var(--t-2)/1.3 var(--ui);color:var(--ink-3);
+/* Who the reader moves to IR and who they drop to stay at the roster cap: quiet lines under the columns, only when
+   there is one, IR above the drop. Two lines share one rule and one set of paddings. */
+.tb-ir,.tb-drop{margin:0;padding:7px 12px 8px;border-top:1px solid var(--line);font:500 var(--t-2)/1.3 var(--ui);color:var(--ink-3);
   overflow-wrap:anywhere}
+.tb-ir + .tb-drop{padding-top:0;border-top:0}
+.tb-ir:has(+ .tb-drop){padding-bottom:2px}
 
 /* One number under the columns, and the card's two buttons, side by side. */
 .tb-foot{display:grid;gap:8px;padding:8px 12px;border-top:1px solid var(--line);background:var(--panel-2)}

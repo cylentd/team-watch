@@ -38,7 +38,8 @@ function tbPkgHTML(){
   return `<div class="tb-cols">${col(t("lboard.offer.send"), TB_EDIT.send, TB_EDIT.mine)}${col(t("lboard.offer.get"), TB_EDIT.get, TB_EDIT.theirs)}</div>`;
 }
 
-/* The foot: the gain, the drop line (its row is there with nothing in it, so nothing moves), the two buttons. */
+/* The foot: the gain, the IR line and the drop line (their rows are there with nothing in them, so nothing moves),
+   the two buttons. */
 function tbFootHTML(){
   const E = TB_EDIT, send = E.send.map(k => tbHas(E.mine, k)), get = E.get.map(k => tbHas(E.theirs, k));
   const r = tbGain(E.mine, send, get, E.lu, E.other), empty = !send.length && !get.length;
@@ -46,7 +47,8 @@ function tbFootHTML(){
   const same = ["send", "get"].every(s => E[s].slice().sort().join() === E.from[s].slice().sort().join());
   const n = `<b class="${mood}">${r.ok ? tbSigned(r.gain) : t("lboard.edit.none")}</b>`;
   return `<p class="tb-gain" aria-live="polite">${t("lboard.offer.gain", {n})}</p>
-    <p class="tb-edrop">${r.ok && r.drop.length ? t("lboard.offer.drop", {names: esc(r.drop.map(p => nameInitial(p.name)).join(", "))}) : !r.ok && !empty ? t("lboard.edit.nocap") : ""}</p>
+    <div class="tb-edroom"><p class="tb-eir">${r.ok && r.irMoves.length ? t("lboard.offer.ir", {names: tbNames(r.irMoves)}) : ""}</p>
+      <p class="tb-edrop">${r.ok && r.drop.length ? t("lboard.offer.drop", {names: tbNames(r.drop)}) : !r.ok && !empty ? t("lboard.edit.nocap") : ""}</p></div>
     <div class="tb-acts"><button type="button" class="tb-copy" data-tbreset${same ? " disabled" : ""}>${t("lboard.edit.reset")}</button>
       <button type="button" class="tb-copy tb-go" data-tbedcopy${r.ok && send.length && get.length ? "" : " disabled"}>${t("lboard.offer.copy")}</button></div>`;
 }

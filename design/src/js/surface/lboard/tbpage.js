@@ -27,15 +27,21 @@ function tbPlayerHTML(p){
 }
 
 /* "You drop: O. Gordon II": who the reader releases to stay at the roster cap, one quiet line. Nothing about the
-   partner's roster: their room is theirs to manage. */
-const tbDropHTML = drop => drop && drop.length
-  ? `<p class="tb-drop">${t("lboard.offer.drop", {names: esc(drop.map(p => nameInitial(p.name)).join(", "))})}</p>` : "";
+   partner's roster: their room is theirs to manage. Initials, comma-separated. */
+const tbNames = list => esc(list.map(p => nameInitial(p.name)).join(", "));
+const tbDropHTML = drop => drop && drop.length ? `<p class="tb-drop">${t("lboard.offer.drop", {names: tbNames(drop)})}</p>` : "";
+
+/* "To IR: C. Williams": who moves into an IR slot instead of being dropped, its own quiet line above the drop line. */
+const tbIrHTML = moves => moves && moves.length ? `<p class="tb-ir">${t("lboard.offer.ir", {names: tbNames(moves)})}</p>` : "";
+
+/* Both lines of an offer, IR first, each only when there is one. */
+const tbRoomHTML = o => tbIrHTML(o.ir_moves) + tbDropHTML(o.drop);
 
 function tbCardHTML(o, i){
   const col = (label, rows) => `<div class="tb-col"><p class="tb-h">${label}</p><ul>${rows.map(tbPlayerHTML).join("")}</ul></div>`;
   const edit = tbEditOk() ? `<button type="button" class="tb-copy" data-tbedit="${i}">${t("lboard.offer.edit")}</button>` : "";
   return `<article class="tb-card">
-    <div class="tb-cols">${col(t("lboard.offer.send"), o.send)}${col(t("lboard.offer.get"), o.get)}</div>${tbDropHTML(o.drop)}
+    <div class="tb-cols">${col(t("lboard.offer.send"), o.send)}${col(t("lboard.offer.get"), o.get)}</div>${tbRoomHTML(o)}
     <div class="tb-foot"><p class="tb-gain">${t("lboard.offer.gain", {n: `<b>+${lbNum(o.gain)}</b>`})}</p>
       <div class="tb-acts">${edit}<button type="button" class="tb-copy" data-tbcopy="${i}">${t("lboard.offer.copy")}</button></div></div></article>`;
 }

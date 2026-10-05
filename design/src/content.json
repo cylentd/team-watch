@@ -491,6 +491,7 @@
  "lboard.offer.gain": "{n} pts a week for you",
  "lboard.offer.game": "{n} a game",
  "lboard.offer.get": "You get",
+ "lboard.offer.ir": "To IR: {names}",
  "lboard.offer.loading": "Finding offers",
  "lboard.offer.noBold": "No bold offer this week",
  "lboard.offer.noFair": "No fair offer this week",

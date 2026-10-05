@@ -54,6 +54,50 @@ def test_the_contract_passes_the_fixture_and_names_every_missing_field():
     assert contract.problems("TRADE_OFFERS", None) == []
 
 
+def without_drop_rule(doc):
+    """The file as it was before the drop rule: no IR slots, no keep / ir_ok / protect, no ir_moves."""
+    old = copy.deepcopy(doc)
+    for lg in old["leagues"].values():
+        lg["lineup"].pop("ir")
+        for rows in lg["values"].values():
+            for p in rows:
+                for k in trade_offers.DROP_VALUE:
+                    p.pop(k)
+        for ps in lg["teams"].values():
+            for kinds in ps.values():
+                for offers in kinds.values():
+                    for o in offers:
+                        o.pop("ir_moves")
+    return old
+
+
+def test_the_drop_rules_fields_are_required(monkeypatch):
+    """Required since 2026-10-05 (ff-jarvis 4e69378): a file from before the drop rule fails the build."""
+    old = without_drop_rule(FIXTURE)
+    assert trade_offers.DROP_RULE_REQUIRED is True
+    miss = trade_offers.problems(old)
+    assert any(m.endswith(".lineup.ir") for m in miss), miss
+    monkeypatch.setattr(trade_offers, "DROP_RULE_REQUIRED", False)
+    assert trade_offers.problems(old) == [], "with the flag off the old shape passes, so the flag is what enforces it"
+    monkeypatch.undo()
+    assert trade_offers.problems(FIXTURE) == [], "the fixture follows the spec exactly"
+    no_moves = copy.deepcopy(FIXTURE)
+    del no_moves["leagues"]["espn"]["teams"]["Purdy Big in Japan"]["Run It Back"]["bold"][0]["ir_moves"]
+    assert any(m.endswith("bold[0].ir_moves") for m in trade_offers.problems(no_moves))
+    no_ir = copy.deepcopy(FIXTURE)
+    del no_ir["leagues"]["espn"]["values"]["Run It Back"][0]["keep"]
+    assert any(m.endswith("['Run It Back'][0].keep") for m in trade_offers.problems(no_ir))
+
+
+def test_present_drop_rule_fields_are_checked_even_while_optional():
+    bad = copy.deepcopy(FIXTURE)
+    del bad["leagues"]["espn"]["values"]["Run It Back"][0]["protect"]      # keep and ir_ok are there, protect is not
+    del bad["leagues"]["espn"]["teams"]["Run It Back"]["Purdy Big in Japan"]["bold"][1]["ir_moves"][0]["slug"]
+    miss = trade_offers.problems(bad)
+    assert any(m.endswith("['Run It Back'][0].protect") for m in miss), miss
+    assert any(m.endswith("bold[1].ir_moves[0].slug") for m in miss), miss
+
+
 def test_a_null_injury_is_a_value_and_a_missing_one_is_not():
     ok = copy.deepcopy(FIXTURE)
     assert ok["leagues"]["espn"]["teams"]["Purdy Big in Japan"]["Run It Back"]["bold"][0]["send"][1]["injury"] is None

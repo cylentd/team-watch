@@ -8,7 +8,7 @@ fair offers to each partner: what each side sends and ONE number, the owner's we
 
     {"updated", "season", "rules", "leagues": {"espn"|"yahoo"|"ayo": {"week", "teams": {owner: {partner:
         {"bold": [offer], "fair": [offer]}}}}}}
-    offer = {"send": [player], "get": [player], "gain", "drop": [player]}
+    offer = {"send": [player], "get": [player], "gain", "drop": [player], "ir_moves": [player]}
     player = {"name", "pos", "team", "slug", "seen", "injury"}
 
 A pair with no offer of either kind is left out by the producer; a kind with none is []. The shape is checked
@@ -17,12 +17,18 @@ at build time (contract.py, TRADE_OFFERS), so a field the producer drops fails t
 Edit mode (2026-10-05, js/surface/lboard/tbscore.js): each league also carries what the page needs to score a
 package of its own, and each offer the players the reader drops to stay at the roster cap:
 
-    league = {..., "lineup": {"slots", "flex", "floor", "cap"}, "values": {team: [player + {"proj", "ir"}]},
+    league = {..., "lineup": {"slots", "flex", "floor", "cap", "ir"},
+              "values": {team: [player + {"proj", "ir", "keep", "ir_ok", "protect"}]},
               "other": {team: n}}     # n = the K/DST the team also holds: they count toward `cap`, are never released
+
+The drop rule (2026-10-05): over the cap, a player who is eligible for IR (`ir_ok`) moves to a free IR slot
+(`lineup.ir` minus those on IR) before anyone is dropped, the highest `keep` first (an offer's `ir_moves`); then the
+lowest-`keep` players who are not starters, not in `get`, not on IR and not `protect` are dropped (`drop`).
 
 The scoring rule is the producer's (its `rules` field); the page re-scores every offer it loads and hides Edit
 when one differs (tbscore.js, offers.js). Until ff-jarvis writes the fields they are optional here, and when
-present they are checked: `EDIT_REQUIRED` turns that into "must be present" the day the producer lands.
+present they are checked: `EDIT_REQUIRED` turns that into "must be present" the day the producer lands, and
+`DROP_RULE_REQUIRED` does the same for the drop rule's fields (`ir`, `keep`, `ir_ok`, `protect`, `ir_moves`).
 """
 import json
 
@@ -31,9 +37,13 @@ KINDS = ("bold", "fair")
 OFFER = ("send", "get", "gain")
 PLAYER = ("name", "pos", "team", "slug", "seen", "injury")   # `injury` may be null; the key may not be missing
 VALUE = PLAYER + ("proj", "ir")                              # a rostered player in `values`
+DROP_VALUE = ("keep", "ir_ok", "protect")                    # what the drop rule reads of a rostered player
 LINEUP = ("slots", "flex", "floor", "cap")
 EDIT_REQUIRED = True     # since 2026-10-05 (ff-jarvis 29e54f2 writes lineup, values, other and drop): the old shape fails the build
-LIMIT = 8                                                    # contract.problems cuts at this many, so stop early
+# The drop rule of 2026-10-05 (IR moves, then drops by `keep`): lineup.ir, per value keep / ir_ok / protect, per offer ir_moves.
+# Required since 2026-10-05 (ff-jarvis 4e69378 writes them; the live file was rewritten the same day): the old shape fails the build.
+DROP_RULE_REQUIRED = True
+LIMIT = 8                                                 # contract.problems cuts at this many, so stop early
 
 
 def edit_problems(at, body):
@@ -47,6 +57,8 @@ def edit_problems(at, body):
         miss.append(at + ".lineup")
     else:
         miss += [f"{at}.lineup.{k}" for k in LINEUP if k not in lu]
+        if "ir" not in lu and DROP_RULE_REQUIRED:
+            miss.append(at + ".lineup.ir")
     if "other" not in body:
         if EDIT_REQUIRED:
             miss.append(at + ".other")
@@ -61,6 +73,9 @@ def edit_problems(at, body):
         for team, rows in vals.items():
             for j, p in enumerate(rows if isinstance(rows, list) else []):
                 miss += [f"{at}.values[{team!r}][{j}].{k}" for k in VALUE if k not in p]
+                # the drop rule's fields: all three or none while they are optional, all three once required
+                if DROP_RULE_REQUIRED or any(k in p for k in DROP_VALUE):
+                    miss += [f"{at}.values[{team!r}][{j}].{k}" for k in DROP_VALUE if k not in p]
     return miss
 
 
@@ -88,7 +103,9 @@ def problems(doc):
                         miss += [f"{here}.{kind}[{i}].{k}" for k in OFFER if k not in o]
                         if "drop" not in o and EDIT_REQUIRED:
                             miss.append(f"{here}.{kind}[{i}].drop")
-                        for side in ("send", "get", "drop"):
+                        if "ir_moves" not in o and DROP_RULE_REQUIRED:
+                            miss.append(f"{here}.{kind}[{i}].ir_moves")
+                        for side in ("send", "get", "drop", "ir_moves"):
                             for j, p in enumerate(o.get(side) or []):
                                 miss += [f"{here}.{kind}[{i}].{side}[{j}].{k}" for k in PLAYER if k not in p]
                 if len(miss) >= LIMIT:
