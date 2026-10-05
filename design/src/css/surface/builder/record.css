@@ -1,0 +1,21 @@
+/* ============================================================
+   THE PROP RECORD (2026-10-05, js/surface/parlay/record.js)
+   The strip above the Slips board: one card, a label and the
+   weeks counted, three tiles. Start/Sit's record in this
+   view's own class names (that file is fenced to its view).
+   Slight in ink-2, Confident in lime, Very a filled lime chip.
+   ============================================================ */
+.pr-rec{display:grid;gap:10px;margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
+.pr-rec-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.pr-rec-l{margin:0;font-size:var(--t-1);font-weight:600;line-height:1.2;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+.pr-rec-s{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.pr-rts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.pr-rt{display:grid;justify-items:center;align-content:center;gap:3px;min-height:64px;padding:8px 6px;border-radius:10px;background:var(--panel-2);text-align:center}
+.pr-rt b{font-family:var(--mono);font-size:var(--t-4);font-weight:700;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink)}
+.pr-rt span{font-family:var(--mono);font-size:var(--t-1);font-weight:700;line-height:16px;letter-spacing:.04em;color:var(--ink-2)}
+.pr-rt.confident span{color:var(--lime)}
+.pr-rt.very span{padding:0 5px;border-radius:4px;background:var(--lime);color:var(--on-lime)}
+.pr-rt small{min-height:1em;font-family:var(--mono);font-size:var(--t-1);line-height:1;color:var(--ink-3)}
+@media (min-width:760px){
+  .pr-rec{max-width:560px}
+}

@@ -127,8 +127,9 @@ def idx(page, name, mkt):
 
 
 def test_the_board_is_games_of_players_with_no_line_and_no_chance(browser, page_file):
-    """A card per game at the kickoff; a row per player: name, position and club, his work, the
-    reason, "N lines" -- and no line, no side and no model % (those wait in the player sheet)."""
+    """A card per game at the kickoff; a row per player: name, position and club, his work, "N lines"
+    -- and no line, no side and no model % (those wait in the player sheet; the row's one pick is a
+    label, never a button)."""
     ctx, page, errors = board(browser, page_file, "day-2026-09-13")
     assert page.locator(".sl-game").count() == 2, "Sunday: CIN @ NYJ and SEA @ SF"
     assert page.locator(".sl-game h3").all_inner_texts() == ["CIN @ NYJ", "SEA @ SF"], "kickoff order"
@@ -174,7 +175,7 @@ def test_rising_work_comes_first_and_is_the_default(browser, page_file):
     assert chip == ("rise" if rising else "all")
     if rising:
         assert [r.get_attribute("data-slplayer") for r in page.locator(".sl-row").all()] == rising
-        assert page.locator(".sl-row .sl-why").count() >= 1, "ff-jarvis's reason prints under the work"
+        assert page.locator(".sl-row .sl-why").count() == 0, "no sentence under the work (2026-10-05)"
         assert page.locator(".sl-row .sl-spark i").count() >= 3
     assert errors == []
     ctx.close()
@@ -182,7 +183,8 @@ def test_rising_work_comes_first_and_is_the_default(browser, page_file):
 
 def test_the_player_sheet_holds_every_line_with_its_last_four(browser, page_file):
     """St. Brown's sheet: his touchdown (Yes) and receiving yards (Higher / Lower), each with his
-    last four games against today's line, "N of 4" and the model %; then his longest catch in those
+    last four games against today's line; the touchdown "N% to score", the yards the model's tier
+    (tests/test_prop_picks.py); then his longest catch in those
     games, history only (plan update 2026-10-03: no Longest reception line, so no sides, no count;
     the fixture's LONG prop rows are ignored, a game with no catch logged is a dash). Two legs from
     one sheet."""
@@ -197,11 +199,11 @@ def test_the_player_sheet_holds_every_line_with_its_last_four(browser, page_file
     assert lines.nth(0).locator(".sl-side").all_inner_texts() == ["Yes"]
     for k in range(2):
         hist = lines.nth(k).locator(".sl-hist")
-        assert hist.locator("i").count() == 4 and re.fullmatch(r"\d of \d", hist.locator("em").inner_text())
-    assert sheet.locator(".sl-md").count() == 2
+        assert hist.locator("i").count() == 4 and hist.locator("em").count() == 0, "no N of 4 any more"
+    assert sheet.locator(".sl-md").all_inner_texts() == ["28% to score"], "only the touchdown keeps a %"
     long = sheet.locator(".sl-long")
     assert long.count() == 1 and long.locator(".sl-mk").inner_text() == "Longest catch"
-    assert long.locator(".sl-side, em, .sl-md").count() == 0, "history only"
+    assert long.locator(".sl-side, em, .sl-md, .sl-conf").count() == 0, "history only"
     cells = long.locator(".sl-hist i").all_inner_texts()
     assert len(cells) == 4 and cells[-1] == "–", "no catch logged reads as a dash"
     rec, tdi = idx(page, "Amon-Ra St. Brown", "REC"), idx(page, "Amon-Ra St. Brown", "TD")

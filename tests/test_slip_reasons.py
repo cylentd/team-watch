@@ -26,7 +26,9 @@ def test_reasons_are_cut_to_players_with_a_line(built):
     assert set(reasons) == {"tee-higgins", "amonra-st-brown", "george-kittle", "jahmyr-gibbs"}
     assert set(reasons) <= slugs, "a player with no line this week is not carried"
     assert "lamar-jackson" not in reasons, "the fixture's fifth player has no line"
-    assert set(reasons["tee-higgins"]) == {"why", "work", "tags"}
+    assert set(reasons["tee-higgins"]) == {"why", "work", "tags", "vacated"}, "vacated rides through whole"
+    assert set(reasons["george-kittle"]) == {"why", "work", "tags"}, "and is absent when no teammate is out"
+    assert reasons["tee-higgins"]["vacated"] == [{"name": "J. Chase", "last": "Chase", "status": "IR", "work": "tgt"}]
     assert contract.problems("LIVE_REASONS", reasons) == []
     assert "Reasons: 4 players with a line this week" in built.report
 
@@ -50,6 +52,72 @@ def test_a_reason_missing_a_field_fails_the_contract():
     got = contract.problems("LIVE_REASONS", {"tee-higgins": {"why": "x", "tags": []}})
     assert got == ["LIVE_REASONS['tee-higgins'].work"]
     assert contract.problems("LIVE_REASONS", {"tee-higgins": {"why": "x", "work": None, "tags": []}}) == []
+
+
+def test_vacated_is_optional_but_whole_when_sent():
+    ok = {"x": {"why": "", "work": None, "tags": [], "vacated": [{"name": "J. Reed", "last": "Reed", "status": "Out", "work": "tgt"}]}}
+    assert contract.problems("LIVE_REASONS", ok) == []
+    bad = {"x": {"why": "", "work": None, "tags": [], "vacated": [{"name": "J. Reed", "last": "Reed"}]}}
+    assert contract.problems("LIVE_REASONS", bad) == ["LIVE_REASONS['x'].vacated[0].status", "LIVE_REASONS['x'].vacated[0].work"]
+
+
+def by_line(built):
+    return {(p["n"], p["mkt"]): p for p in block(built, "LIVE_PROPS")["props"]}
+
+
+def test_every_tier_rides_on_the_row_and_each_books_own_line(built):
+    """ff-jarvis's `tier` and `side` pass through as sent, on the row and on each book (a book's line is its own
+    row in the model), never cut from the chance here. TD, Longest reception and an Out player carry none."""
+    rows = by_line(built)
+    got = {k: (p.get("side"), p.get("tier")) for k, p in rows.items() if p["mkt"] != "TD" and p["mkt"] != "LONG"}
+    assert got[("Chase Brown", "RUSH")] == ("higher", "very")
+    assert got[("Joe Burrow", "PASS")] == ("lower", "confident")
+    assert got[("Brock Purdy", "PASS")] == ("lower", "slight")
+    assert got[("George Kittle", "REC")] == ("higher", "none")
+    assert got[("Amon-Ra St. Brown", "REC")] == ("higher", "slight")
+    assert got[("Jahmyr Gibbs", "RUSH")] == ("lower", "very")
+    assert got[("Tee Higgins", "REC")] == (None, None), "an Out row has no pick"
+    assert all("tier" not in p for k, p in rows.items() if k[1] in ("TD", "LONG"))
+    brown = rows[("Chase Brown", "RUSH")]
+    assert {b: (x["side"], x["tier"]) for b, x in brown["books"].items() if "tier" in x} == {"DraftKings": ("higher", "very"), "Underdog": ("higher", "very")}
+    assert contract.problems("LIVE_PROPS", block(built, "LIVE_PROPS")) == []
+
+
+def test_a_producer_without_tiers_still_builds(monkeypatch):
+    """Today's ff-jarvis data has no tier or side: the page builds and draws no pick."""
+    real = build.load_model_raw
+
+    def old():
+        m = real()
+        for r in m["lines"]:
+            r.pop("tier", None)
+            r.pop("side", None)
+        return m
+
+    monkeypatch.setattr(build, "load_model_raw", old)
+    props = injected(build.render().fragment)["LIVE_PROPS"]
+    assert all("tier" not in p and "side" not in p for p in props["props"])
+    assert any(p.get("model") is not None for p in props["props"])
+
+
+def test_an_unknown_tier_fails_the_contract():
+    props = {"props": [{"tier": "huge", "side": "up", "books": {"Underdog": {"tier": "slight"}}}]}
+    assert slips.problems_props(props) == ["LIVE_PROPS.props[0].tier", "LIVE_PROPS.props[0].side"]
+
+
+def test_the_record_is_cut_to_the_three_tiers(built):
+    rec = block(built, "LIVE_PROPS_RECORD")
+    assert rec["through_week"] == 4 and rec["season"] == 2026
+    assert {k: (v["w"], v["l"]) for k, v in rec["tiers"].items()} == {"slight": (205, 165), "confident": (305, 275), "very": (241, 182)}
+    assert set(rec) == {"season", "through_week", "tiers"}, "rules and the weekly list stay in ff-jarvis's file"
+    assert contract.problems("LIVE_PROPS_RECORD", rec) == []
+
+
+def test_no_record_file_is_no_block():
+    assert slips.props_record(None) is None
+    assert slips.props_record({"tiers": {"slight": {"w": 1, "l": 0}}}) is None, "a tier missing: no strip"
+    assert contract.problems("LIVE_PROPS_RECORD", {"season": 2026, "through_week": 1, "tiers": {"slight": {}, "confident": {"w": 1, "l": 0}, "very": {"w": 0, "l": 0}}}) \
+        == ["LIVE_PROPS_RECORD.tiers['slight'].w", "LIVE_PROPS_RECORD.tiers['slight'].l"]
 
 
 def test_the_feed_block_wins_over_the_file(tmp_path, monkeypatch):

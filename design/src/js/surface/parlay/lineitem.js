@@ -1,9 +1,12 @@
 /* ONE LINE, THE ROW THE PLAYER SHEET AND PREVIEW SHARE (2026-10-03). The market and today's line,
    Higher and Lower (a touchdown: Yes), then his last four games against that line: lime where the
    game cleared it (over the line, one score for a touchdown), faded when the game is from an earlier
-   season, "N of 4", and the model's chance small at the end, only when the model prices the line
-   (Longest reception it does not). A tap on a side puts the line on the slip at that side; the same
-   side again takes it off. One player can feed several legs. */
+   season. The model's side gets a lime outline with its tier word under it (2026-10-05, storyboard
+   "Prop Picks" A): Slight, Confident or Very confident, or "No pick" under Lower; the fill stays
+   the reader's own pick. A touchdown has no side or tier, only "N% to score". The tier is
+   ff-jarvis's (`tier`, `side` on the row and on each book, for that book's own line); the page never
+   cuts one from the chance. A tap on a side puts the line on the slip at that side; the same side
+   again takes it off. One player can feed several legs. */
 const SL_HIST = 4;
 
 /* The line in force: Underdog's own when the reader is on Underdog and it has one, else the row's. */
@@ -12,16 +15,25 @@ function slLine(p){
   return u && typeof u.line === "number" ? u.line : p.line;
 }
 
-/* The model's call at that line, or null: Underdog's pick and confidence; the model's own side of
-   its P(over) at the row's own line ("lower 75%" for a 25% over, as Underdog words it); a
-   touchdown's P(score). */
+/* The row or book entry whose line slLine shows, and so whose tier belongs to that exact line:
+   build.py puts `tier` on each book for the book's own line. */
+const slSrc = p => PARLAY_BOOK === "underdog" && ud(p) && typeof ud(p).line === "number" ? ud(p) : p;
+
+/* The model's call at the line shown, or null: a touchdown's P(score); a priced line's side, tier and
+   the chance of that side (for ordering only); nothing when ff-jarvis sent no tier (an older producer,
+   an Out player, Longest reception). */
 function slModel(p){
   const num = x => typeof x === "number";
-  if (p.mkt === "TD") return num(p.model) ? {side: "higher", pct: Math.round(p.model)} : null;
-  const u = PARLAY_BOOK === "underdog" ? udPick(p) : null;
-  if (u && !u.synthetic && u.pick && num(u.conf)) return {side: u.pick, pct: Math.round(u.conf)};
-  return num(p.model) && slLine(p) === p.line ? {side: p.model >= 50 ? "higher" : "lower", pct: Math.round(Math.max(p.model, 100 - p.model))} : null;
+  if (p.mkt === "TD") return num(p.model) ? {td: true, pct: Math.round(p.model)} : null;
+  const s = slSrc(p);
+  if (!SL_TIERS.includes(s.tier)) return null;
+  return {side: s.side === "lower" ? "lower" : "higher", tier: s.tier, q: num(s.model) ? Math.max(s.model, 100 - s.model) : 0};
 }
+
+const SL_TIERS = ["none", "slight", "confident", "very"];
+const slTierWord = k => k === "very" ? t("slips.tier.very") : k === "confident" ? t("slips.tier.confident") : k === "slight" ? t("slips.tier.slight") : t("slips.tier.none");
+/* The tier word, in Preview's looks: Slight grey, Confident lime text, Very confident a lime fill. */
+const slTierHTML = k => `<b class="sl-conf ${k}">${slTierWord(k)}</b>`;
 
 const slCleared = (p, line, v) => typeof v === "number" && (p.mkt === "TD" ? v >= 1 : typeof line === "number" && v > line);
 
@@ -36,21 +48,27 @@ function slHist(p){
 
 function slHistHTML(p, line, m){
   const h = slHist(p), known = h.filter(x => typeof x.v === "number");
-  const md = m ? `<small class="sl-md">${p.mkt === "TD" ? t("slips.line.modelTd", {p: m.pct})
-    : t("slips.line.model", {side: m.side === "lower" ? t("slips.side.lower") : t("slips.side.higher"), p: m.pct})}</small>` : "";
+  const md = m && m.td ? `<small class="sl-md">${t("slips.line.modelTd", {p: m.pct})}</small>` : "";
   if (!known.length) return md ? `<span class="sl-hist">${md}</span>` : "";
   const cells = h.map(x => `<i class="${slCleared(p, line, x.v) ? "hit" : ""}${x.old ? " old" : ""}"${x.g.length ? ` title="${x.g[0]} wk${x.g[1]}${x.g[2] ? " vs " + esc(x.g[2]) : ""}"` : ""}>${typeof x.v === "number" ? fmt2(x.v) : ""}</i>`).join("");
-  const hit = known.filter(x => slCleared(p, line, x.v)).length;
-  return `<span class="sl-hist">${cells}<em>${t("slips.line.of", {hit, n: known.length})}</em>${md}</span>`;
+  return `<span class="sl-hist">${cells}${md}</span>`;
+}
+
+/* Higher and Lower, the model's side outlined; the tier word under that side ("No pick" under Lower).
+   A line without a tier is just the two buttons. */
+function slSidesHTML(i, m, side){
+  const btn = (s, label) => `<button type="button" class="sl-side ${s}${m && m.side === s && m.tier !== "none" ? " pick" : ""}" data-slpick="${i}" data-side="${s}" aria-pressed="${side === s}">${label}</button>`;
+  const under = m && m.tier ? ["higher", "lower"].map(s => `<span class="sl-under">${(m.tier === "none" ? s === "lower" : m.side === s) ? slTierHTML(m.tier) : ""}</span>`).join("") : "";
+  return `<span class="sl-sides">${btn("higher", t("slips.side.higher"))}${btn("lower", t("slips.side.lower"))}${under}</span>`;
 }
 
 function slLineHTML(i){
-  const p = PROPS[i], line = slLine(p), td = p.mkt === "TD", on = SLIP.includes(i), side = on ? slipSide(i) : null;
-  const btn = (s, label) => `<button type="button" class="sl-side ${s}" data-slpick="${i}" data-side="${s}" aria-pressed="${side === s}">${label}</button>`;
-  return `<div class="sl-ln${on ? " on" : ""}">
+  const p = PROPS[i], line = slLine(p), td = p.mkt === "TD", on = SLIP.includes(i), side = on ? slipSide(i) : null, m = slModel(p);
+  const yes = `<span class="sl-sides"><button type="button" class="sl-side higher" data-slpick="${i}" data-side="higher" aria-pressed="${side === "higher"}">${t("slips.side.yes")}</button></span>`;
+  return `<div class="sl-ln${on ? " on" : ""}${m && m.tier ? " tiered" : ""}">
       <span class="sl-mk">${esc(MKT[p.mkt] || p.mkt)}${!td && line != null ? ` <b>${line}</b>` : ""}</span>
-      <span class="sl-sides">${td ? btn("higher", t("slips.side.yes")) : btn("higher", t("slips.side.higher")) + btn("lower", t("slips.side.lower"))}</span>
-      ${slHistHTML(p, line, slModel(p))}
+      ${td ? yes : slSidesHTML(i, m, side)}
+      ${slHistHTML(p, line, m)}
     </div>`;
 }
 

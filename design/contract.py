@@ -12,6 +12,7 @@ import startsit_board   # design/startsit_board.py: LIVE_SSB's nested shape chec
 import startsit_v3      # design/startsit_v3.py: LIVE_SS3's nested shape check
 import teams            # design/teams.py: LIVE_TEAMS's nested shape check
 import clips            # design/clips.py: LIVE_CLIPS's nested shape check
+import slips            # design/slips.py: the optional tier, side and vacated fields
 import trade_offers     # design/trade_offers.py: TRADE_OFFERS's nested shape check
 from contract_checks import WIRE_EVENT, WIRE_KIND, WIRE_KIND_OPTIONAL, WIRE_OPTIONAL, WIRE_SUBS  # noqa: F401  re-exported for wire_watch.py
 
@@ -94,6 +95,9 @@ CONTRACT = {
         # ints or null; when present it carries every key below.
         "map": ("logs", ["g", "v"]),
         "nested": [("logs", "u", ["tgt", "car", "snap", "team_tgt", "rz_tgt", "rz_car", "gl_car", "team_rz"])],
+        # A row and each of its books may carry `tier` (none|slight|confident|very) and `side` (2026-10-05):
+        # optional, absent means no pick drawn; when sent they must be a known word (slips.problems_props).
+        "checks": [slips.problems_props],
     },
     # design/defense.py: per team the points allowed by position (this season and last, rank 1 the
     # fewest) and its starters who will not play. The whole block is optional (None without either
@@ -326,7 +330,11 @@ CONTRACT = {
     "LIVE_HIGHLIGHTS": {"keys": ["season", "week", "generated", "views"], "rows": [("views", ["view", "leaf", "rows"])]},
     # design/clips.py, official YouTube clips (2026-10-05): `players` {slug: [{id, title, kind, secs, embed, shape}]}, `games` {team: {id, title, secs, embed, shape}}; null without ff-jarvis's file. Nested shapes are checked by its `problems`.
     "LIVE_CLIPS": {"keys": ["week", "players", "games", "alias"], "checks": [clips.problems]},
-    "LIVE_REASONS": {"keys": [], "map": (".", ["why", "work", "tags"])},   # design/slips.py (2026-10-03): the block IS the map; `{}` without the file
+    # design/slips.py (2026-10-03): the block IS the map; `{}` without the file. A reason may carry `vacated`
+    # (2026-10-05, optional): [{name, last, status, work}], a teammate out whose work he inherits.
+    "LIVE_REASONS": {"keys": [], "map": (".", ["why", "work", "tags"]), "checks": [slips.problems_reasons]},
+    # design/slips.py (2026-10-05): the tiers' graded record, the strip at the top of Slips. None without ff-jarvis's file.
+    "LIVE_PROPS_RECORD": {"keys": ["season", "through_week", "tiers"], "checks": [slips.problems_record]},
     # design/preview.py, This week > Preview (slate and dossier, 2026-09-29). A game's `take` is null
     # before Claude has written it; `line`, `matchup`, `wx`, `rest`, `travel`, `site` are null when
     # ff-jarvis has none (the row is not drawn), a line's `fav` null at even and `open` null with no

@@ -1298,10 +1298,12 @@ Underdog; Kept went unused. The page answers "who is getting the work", not "dea
 | Part | What |
 |---|---|
 | Bar | the kickoff tabs, unchanged, then the book chip |
-| Game card | matchup and kickoff; each side's implied points as one bar (`LIVE_LINES`, else Preview's line); spread and total in words; Preview's headline and the first sentence of its story; chips Work rising · TE · Role guys · All N |
-| Player row | name, position · club, his work in his last three games as bars with the latest number (`LIVE_REASONS.work`, else the log's `u`), his snap share, ff-jarvis's `why`, "N lines". No line and no % on a row |
+| Record | (2026-10-05) above the first card: a card, "RECORD" and "weeks 1-{through_week}", three tiles (W-L big, SLIGHT grey, CONFIDENT lime, VERY a lime chip, hit % small). ff-jarvis `props_record.json` (feed `market.props_record`) via `LIVE_PROPS_RECORD`, drawn by `surface/parlay/record.js`; absent or nothing graded, no strip. Start/Sit's record in this view's own class names |
+| Game card | matchup and kickoff; each side's implied points as one bar (`LIVE_LINES`, else Preview's line); Preview's headline as a link to that game's dossier (lime ›; the spread, total and script sentence went 2026-10-05); chips Work rising · TE · Role guys · All N |
+| Player row | (2026-10-05, storyboard "Slips Board" A) two columns. Left: name, position · club; his work label and its last three games as bars, each number under its bar (the last bold, `--up` green when his work rose); "Snaps 72%"; chips only when one applies. Right: his most confident line (highest chance of the model's side among his non-TD lines with a tier) as an outlined label, "Lower rec yds", its tier word under it, then "N lines ›". No tier on any line: just "N lines ›". The `why` sentence and the footer are gone |
+| Chips | a pill with a 6px dot, only when true. Matchup from `LIVE_DEFENSE` (`seasonDefRank`; rank 1 allows the fewest): the 8 softest defences green "Easy matchup", the 8 toughest red "Tough matchup". "{last} out" amber, one per teammate in `LIVE_REASONS[slug].vacated` (ff-jarvis: every teammate out whose work he inherits) |
 | Player sheet | in the leg sheet's overlay (`playersheet.js`): his work week by week (snaps, targets, carries, RZ looks; an earlier season faded), then every line he has, Anytime TD included, then "Longest catch": his longest catch in each of the four games, history only (no line, no sides, no count; a game with no catch logged is a dash), because no source sells a Longest reception line we can read (plan update 2026-10-03) |
-| Line row | `lineitem.js`, shared with Preview: market and line, Higher / Lower (a TD: Yes), last four games vs today's line (lime cleared, earlier season faded), "N of 4", the model's % small at the end only when the model prices the line |
+| Line row | `lineitem.js`, shared with Preview: market and line, Higher / Lower (a TD: Yes), last four games vs today's line (lime cleared, earlier season faded). The model's side is outlined in lime (`.pick`; the fill stays the reader's own pick, so a side can be both) with its tier word under it: Slight grey, Confident lime text, Very confident a lime fill, "No pick" muted under Lower and no outline. A TD keeps "{p}% to score" and no tier. "N of 4" and "model Lower 67%" went 2026-10-05 |
 | Tray | count, who, Save slip; its sheet: the slip, the payout box, copy, then the slips saved this week (`localStorage` `tw.slips.saved.<week>`, guarded), each a tap to load and an x to delete |
 
 - **Who shows:** every player with a line still to play, not out, his line not moved far from the
@@ -1316,6 +1318,13 @@ Underdog; Kept went unused. The page answers "who is getting the work", not "dea
 - **Preview hand-off:** the dossier's box score gains "From this game to your slip" (`preview/handoff.js`):
   the take's players with lines, in the line row, into the same tray, then "All N players in Slips",
   which opens Slips on that kickoff with the game's card in view.
+- **Tiers (2026-10-05):** `tier` (none / slight / confident / very) and `side` come from ff-jarvis's
+  props_model rows, one per line value, so each book's own line has its own: build.py puts them on the
+  row (the primary line) and on each entry of `books`. The cutoffs (.55 / .60 / .70 on the chance of the
+  model's side) live only in ff-jarvis; the page never cuts a tier from `model`. In Underdog mode the
+  line sheet reads the Underdog entry (`slSrc`), the line it shows; an Underdog line with no tier of its
+  own draws none, never the other book's. Absent fields (an older producer, an Out player, TD, LONG)
+  draw no outline and no word. Fields optional in `contract.py`; unknown words fail the build.
 - **Budget:** the first row sits under the game card's head (matchup, bar, take, chips), so it starts
   past STYLE.md's ~200px; the storyboard accepted ~330px for a game header first. Measured on
   2026-10-03 against the live build at 360x800: the first row at 340px, no sideways scroll.

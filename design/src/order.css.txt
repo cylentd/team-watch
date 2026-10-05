@@ -141,6 +141,7 @@ surface/builder/strategy.css
 surface/builder/side.css
 surface/builder/ticket.css
 surface/builder/board.css
+surface/builder/record.css
 surface/builder/slip.css
 surface/builder/lines.css
 surface/builder/payout.css

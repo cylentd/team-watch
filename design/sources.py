@@ -318,6 +318,13 @@ def load_slip_reasons():
     return feed_block(("slip_reasons",), "players") or read_first(DWR / "slip_reasons.json")
 
 
+def load_props_record():
+    """How each prop tier (Slight, Confident, Very confident) has done, graded weekly (ff-jarvis
+    props_record.json, 2026-10-05): feed block `market.props_record` first, the file second. design/slips.py
+    cuts it into LIVE_PROPS_RECORD for the strip at the top of Slips; None when neither exists."""
+    return feed_block(("market", "props_record"), "tiers") or read_first(DWR / "props_record.json")
+
+
 def load_game_preview():
     """Each game of the week's facts and Claude's take (model.season.game_preview), feed block
     `game_preview` first, the file second. design/preview.py cuts it for This week > Preview."""

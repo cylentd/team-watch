@@ -1075,11 +1075,13 @@
       "pos": "RB",
       "team": "PIT",
       "mu": 75.0,
-      "p_over": 0.58,
+      "p_over": 0.72,
       "games": 10,
       "last": "2025 wk18",
       "opp": "NYJ",
-      "opp_f": 1.05
+      "opp_f": 1.05,
+      "side": "higher",
+      "tier": "very"
      },
      {
       "name": "Tee Higgins",
@@ -1097,7 +1099,9 @@
       "games": 12,
       "last": "2025 wk18",
       "opp": "NYJ",
-      "opp_f": 0.95
+      "opp_f": 0.95,
+      "side": null,
+      "tier": null
      },
      {
       "name": "Tee Higgins",
@@ -1115,7 +1119,9 @@
       "games": 12,
       "last": "2025 wk18",
       "opp": "NYJ",
-      "opp_f": 0.95
+      "opp_f": 0.95,
+      "side": null,
+      "tier": null
      },
      {
       "name": "Joe Burrow",
@@ -1129,11 +1135,13 @@
       "pos": "QB",
       "team": "CIN",
       "mu": 230.0,
-      "p_over": 0.49,
+      "p_over": 0.36,
       "games": 12,
       "last": "2025 wk18",
       "opp": "NYJ",
-      "opp_f": 1.1
+      "opp_f": 1.1,
+      "side": "lower",
+      "tier": "confident"
      },
      {
       "name": "Brock Purdy",
@@ -1147,11 +1155,13 @@
       "pos": "QB",
       "team": "SF",
       "mu": 205.0,
-      "p_over": 0.47,
+      "p_over": 0.41,
       "games": 12,
       "last": "2025 wk18",
       "opp": "SEA",
-      "opp_f": 0.98
+      "opp_f": 0.98,
+      "side": "lower",
+      "tier": "slight"
      },
      {
       "name": "George Kittle",
@@ -1169,7 +1179,9 @@
       "games": 12,
       "last": "2025 wk18",
       "opp": "SEA",
-      "opp_f": 1.0
+      "opp_f": 1.0,
+      "side": "higher",
+      "tier": "none"
      },
      {
       "name": "Amon-Ra St. Brown",
@@ -1187,7 +1199,9 @@
       "games": 12,
       "last": "2025 wk18",
       "opp": "GB",
-      "opp_f": 1.02
+      "opp_f": 1.02,
+      "side": "higher",
+      "tier": "slight"
      },
      {
       "name": "Jahmyr Gibbs",
@@ -1205,7 +1219,9 @@
       "games": 12,
       "last": "2025 wk18",
       "opp": "GB",
-      "opp_f": 0.9
+      "opp_f": 0.9,
+      "side": "lower",
+      "tier": "very"
      },
      {
       "name": "Chase Brown",
@@ -1223,7 +1239,9 @@
       "games": 10,
       "last": "2025 wk18",
       "opp": "NYJ",
-      "opp_f": 1.05
+      "opp_f": 1.05,
+      "side": null,
+      "tier": null
      },
      {
       "name": "Tee Higgins",
@@ -1241,7 +1259,9 @@
       "games": 12,
       "last": "2025 wk18",
       "opp": "NYJ",
-      "opp_f": 0.95
+      "opp_f": 0.95,
+      "side": null,
+      "tier": null
      },
      {
       "name": "George Kittle",
@@ -1259,7 +1279,9 @@
       "games": 12,
       "last": "2025 wk18",
       "opp": "SEA",
-      "opp_f": 1.0
+      "opp_f": 1.0,
+      "side": null,
+      "tier": null
      },
      {
       "name": "Jahmyr Gibbs",
@@ -1277,7 +1299,9 @@
       "games": 12,
       "last": "2025 wk18",
       "opp": "GB",
-      "opp_f": 0.9
+      "opp_f": 0.9,
+      "side": null,
+      "tier": null
      },
      {
       "name": "Amon-Ra St. Brown",
@@ -1295,7 +1319,9 @@
       "games": 12,
       "last": "2025 wk18",
       "opp": "GB",
-      "opp_f": 1.02
+      "opp_f": 1.02,
+      "side": null,
+      "tier": null
      },
      {
       "name": "Ja'Marr Chase",
@@ -1313,7 +1339,9 @@
       "games": 0,
       "last": null,
       "opp": null,
-      "opp_f": null
+      "opp_f": null,
+      "side": null,
+      "tier": null
      },
      {
       "name": "Tee Higgins",
@@ -1331,7 +1359,9 @@
       "games": 8,
       "last": "2025 wk18",
       "opp": "NYJ",
-      "opp_f": 0.95
+      "opp_f": 0.95,
+      "side": null,
+      "tier": null
      },
      {
       "name": "Amon-Ra St. Brown",
@@ -1349,7 +1379,9 @@
       "games": 4,
       "last": "2025 wk18",
       "opp": null,
-      "opp_f": null
+      "opp_f": null,
+      "side": null,
+      "tier": null
      },
      {
       "name": "George Kittle",
@@ -1367,7 +1399,9 @@
       "games": 10,
       "last": "2025 wk18",
       "opp": null,
-      "opp_f": null
+      "opp_f": null,
+      "side": null,
+      "tier": null
      }
     ],
     "logs": {

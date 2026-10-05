@@ -1,0 +1,15 @@
+{
+ "generated": "2026-10-05 06:00",
+ "season": 2026,
+ "through_week": 4,
+ "rules": {"cuts": {"slight": 0.55, "confident": 0.60, "very": 0.70}, "markets": ["PASS", "RUSH", "REC", "RECS"], "methodology": "12.82"},
+ "tiers": {
+  "slight": {"w": 205, "l": 165, "push": 3, "void": 0},
+  "confident": {"w": 305, "l": 275, "push": 5, "void": 0},
+  "very": {"w": 241, "l": 182, "push": 2, "void": 1}
+ },
+ "weeks": [
+  {"week": 1, "complete": true, "slight": {"w": 50, "l": 40, "push": 1, "void": 0}, "confident": {"w": 80, "l": 70, "push": 1, "void": 0}, "very": {"w": 60, "l": 45, "push": 0, "void": 0}},
+  {"week": 4, "complete": true, "slight": {"w": 55, "l": 45, "push": 1, "void": 0}, "confident": {"w": 75, "l": 70, "push": 2, "void": 0}, "very": {"w": 61, "l": 47, "push": 1, "void": 1}}
+ ]
+}

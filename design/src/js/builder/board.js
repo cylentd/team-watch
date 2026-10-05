@@ -55,7 +55,28 @@ function slSnapNow(p){
 
 function slPlayer(slug, rows){
   const p = PROPS[rows[0]], r = REASONS[slug] || null;
-  return {slug, p, reason: !!r, rows: slPlayerRows(slug), why: (r && r.why) || "", tags: (r && r.tags) || [], work: slWork(p)};
+  return {slug, p, reason: !!r, rows: slPlayerRows(slug), tags: (r && r.tags) || [], vacated: (r && r.vacated) || [], work: slWork(p)};
+}
+
+/* His most confident line, or null: among his lines the model gave a pick (tier not "none", never a
+   touchdown), the highest chance of its side, ties to the higher tier. {i, side, tier, mkt}. */
+const SL_TIER_RANK = {slight: 1, confident: 2, very: 3};
+function slBestLine(x){
+  let best = null;
+  x.rows.forEach(i => {
+    const p = PROPS[i], m = p.mkt === "TD" ? null : slModel(p);
+    if (!m || !m.tier || m.tier === "none") return;
+    if (!best || m.q > best.q || (m.q === best.q && SL_TIER_RANK[m.tier] > SL_TIER_RANK[best.tier])) best = {i, side: m.side, tier: m.tier, q: m.q, mkt: p.mkt};
+  });
+  return best;
+}
+
+/* Eight softest and eight toughest defences against his position, from LIVE_DEFENSE (rank 1 allows the
+   fewest points, so seasonDefRank counts from the easy end): "easy", "tough" or "". */
+const SL_DEF_EDGE = 8;
+function slMatchup(p){
+  const opp = legOpp(p), d = opp ? seasonDefRank(opp, p.pos) : null;
+  return !d ? "" : d[0] <= SL_DEF_EDGE ? "easy" : d[0] > d[1] - SL_DEF_EDGE ? "tough" : "";
 }
 /* One step of work, per kind: two targets, two carries, ten snap points. A bigger move than that is
    a rise; snaps wobble too much to call a rise without ff-jarvis's tag. */
@@ -111,10 +132,4 @@ function slGameLine(teams, pv){
   if (!l) return null;
   const imp = l.implied ? teams.map(c => l.implied[schedCode(c)] ?? l.implied[c]) : null;
   return {imp: imp && imp.every(v => typeof v === "number") ? imp : null, fav: l.fav, by: l.by, total: l.total};
-}
-
-/* The take's script: the first sentence of Claude's story, as one line. */
-function slScript(take){
-  const first = String(take.lean || "").split(/\n\s*\n/)[0].split(/(?<=[.!?])\s+/)[0] || "";
-  return first.length > 170 ? first.slice(0, 167).replace(/\s+\S*$/, "") + "…" : first;
 }

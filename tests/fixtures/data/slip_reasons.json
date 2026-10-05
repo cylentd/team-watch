@@ -6,12 +6,14 @@
   "tee-higgins": {
    "why": "Targets 6, 9, 5 in his last 3 games. Chase (IR) frees targets.",
    "work": {"key": "tgt", "last": [6, 9, 5], "trend": -1},
-   "tags": ["vacated", "trailing"]
+   "tags": ["vacated", "trailing"],
+   "vacated": [{"name": "J. Chase", "last": "Chase", "status": "IR", "work": "tgt"}]
   },
   "amonra-st-brown": {
    "why": "Targets 7, 9, 11 in his last 3 games. Trailing by 3.5 means more passing.",
    "work": {"key": "tgt", "last": [7, 9, 11], "trend": 4},
-   "tags": ["work_up", "trailing"]
+   "tags": ["work_up", "trailing", "vacated"],
+   "vacated": [{"name": "J. Reed", "last": "Reed", "status": "Out", "work": "tgt"}, {"name": "K. Raymond", "last": "Raymond", "status": "IR", "work": "tgt"}]
   },
   "george-kittle": {
    "why": "Targets 5, 6, 8 in his last 3 games.",
