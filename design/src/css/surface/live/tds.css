@@ -49,3 +49,28 @@
 /* Already scored: the TD line is green, a finished game is a plain grey Final, never a miss. */
 .td-row.scored .td-line{color:var(--up)}
 .td-row.scored:not(.live) .td-clock{color:var(--ink-3)}
+
+/* ---------------------------------------------------------------- VIEW SWITCH, CHIPS, GAME CARDS
+   Feed | By game is the Live league chips' segmented row (live.css `.gd-leagues`); Mine, Pass, Rush, Rec
+   are the shared `.chip` toggles. By game is one card per game: its header (a button that opens the
+   game sheet) holds the two clubs, the score and the clock, so its rows hold neither. */
+
+.td-filters{display:flex;flex-wrap:wrap;gap:8px}
+.td-filters .chip{min-height:40px}
+
+.td-gh{
+  appearance:none;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;
+  width:100%;min-height:36px;padding:0;
+  display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:6px 16px;
+  letter-spacing:0;text-transform:none;
+}
+.td-gh:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+div.td-gh{cursor:default}
+.td-gt{font:600 var(--t-3)/1.2 var(--ui);color:var(--ink);white-space:nowrap}
+.td-gt b{font:700 var(--t-4)/1 var(--mono);font-variant-numeric:tabular-nums}
+.td-gt.behind,.td-gt.behind b{color:var(--ink-3)}
+.td-gclock{justify-self:end;font:600 var(--t-2)/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--ink-3);white-space:nowrap}
+.td-gclock.in{color:var(--lime)}
+
+/* A row in a game's card has no clock column. */
+.td-row.in-game{grid-template-columns:36px minmax(0,1fr)}

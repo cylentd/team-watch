@@ -58,13 +58,36 @@ function gdGamesSorted(){
     .sort((a, b) => rank(a.c) - rank(b.c) || Date.parse(a.g.kickoff) - Date.parse(b.g.kickoff));
 }
 
+/* The club's colour as the Games tab wears it on the dark panel: its first colour that holds ~3:1
+   against --panel (relative luminance 0.12 and up), else its primary lifted toward white until it
+   does, so a navy or forest club still wins in its own hue (2026-10-05: plain ink left 9 of 32
+   clubs uncoloured). A colour that is black or grey has no hue to keep, and the row stays --ink. */
+const GD_TILE_LUMA = 0.12;
+function gdLift(hex){
+  const rgb = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
+  if (Math.max(...rgb) - Math.min(...rgb) < 40) return null;
+  for (let w = 0.1; w < 1; w += 0.1){
+    const out = "#" + rgb.map(v => Math.round(v + (255 - v) * w).toString(16).padStart(2, "0")).join("");
+    if (teamLuma(out) >= GD_TILE_LUMA) return out;
+  }
+  return null;
+}
+function gdClubTint(club){
+  const c = gdByCode(TEAM_COLOURS, club);
+  return c ? c.find(hex => teamLuma(hex) >= GD_TILE_LUMA) || gdLift(c[0]) || gdLift(c[1]) : null;
+}
+
 function gdGamesTabHTML(lg){
   const all = gdGamesSorted();
   if (!all.length) return `<div class="state-empty"><div><b>—</b><span>${t("live.games.none")}</span></div></div>`;
   const tiles = all.map(({g, c}) => {
     const mine = gdMineIn(g, lg), a = gdClubScore(g.away, g.home), h = gdClubScore(g.home, g.away);
     const on = c.state !== "pre" && a !== null && h !== null;
-    const club = (code, s, o) => `<span class="gd-tr${on && s < o ? " behind" : ""}"><span>${esc(code)}</span><b>${on ? s : "—"}</b></span>`;
+    // the leader wears its club's colour, the trailer greys, a tie or no score stays plain
+    const club = (code, s, o) => {
+      const lead = on && s > o, tint = lead ? gdClubTint(code) : null;
+      return `<span class="gd-tr${on && s < o ? " behind" : lead ? " lead" : ""}"${tint ? ` style="--tc:${tint}"` : ""}><span>${esc(code)}</span><b>${on ? s : "—"}</b></span>`;
+    };
     return `<button type="button" class="gd-t ${c.state}${mine ? " mine" : ""}" data-gdnfl="${esc(gdNflKey(g))}" aria-haspopup="dialog">
       <small class="gd-ts"><span>${esc(c.label)}</span>${mine ? `<em>${t("live.games.yours", {n: mine})}</em>` : ""}</small>
       ${club(g.away, a, h)}${club(g.home, h, a)}</button>`;

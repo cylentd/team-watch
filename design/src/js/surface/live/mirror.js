@@ -6,8 +6,13 @@
    name and the projection under them. A row is one line of two, so nine starters and the score
    above them fit one phone screen. The benches sit behind a toggle, mirrored the same way. */
 
-/* The slot pill's colour: a slot that is one position wears it; FLEX, OP, W/R/T are neutral. */
-const GD_SLOT_POS = {QB: "qb", RB: "rb", WR: "wr", TE: "te", K: "k", DEF: "def", "D/ST": "def", DST: "def"};
+/* The slot pill's colour: a slot that is one position wears it; a flex slot wears a blend of the
+   positions it takes (David, 2026-10-05). */
+const GD_SLOT_POS = {
+  QB: "qb", RB: "rb", WR: "wr", TE: "te", K: "k", DEF: "def", "D/ST": "def", DST: "def",
+  FLEX: "mix flex", FLX: "mix flex", "W/R/T": "mix flex", "RB/WR/TE": "mix flex",
+  "W/R": "mix wrrb", "W/T": "mix wrte", OP: "mix op", SFLX: "mix op", SUPERFLEX: "mix op", "Q/W/R/T": "mix op",
+};
 
 const gdName = r => r.pos === "DEF" ? r.n.replace(/\s*D\/ST$/, "") : gdShort(r);
 

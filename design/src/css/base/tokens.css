@@ -57,15 +57,15 @@
 
   /* Position tints (2026-09-21), the exception to "positions are typographic": the profile's stat sheet
      and the Board (2026-09-25) are tinted so a run of players reads QB/RB/WR/TE at a glance, and Live's
-     slot pills wear them too (David, 2026-10-04), sand for K, steel for DEF. Nowhere else -- a row, a cell, a badge stays typographic, and lime/green/red/amber keep their jobs. */
+     slot pills wear them too (David, 2026-10-04), sand for K, violet for DEF (steel until 2026-10-05: it read as grey text). Nowhere else -- a row, a cell, a badge stays typographic, and lime/green/red/amber keep their jobs. */
   --pos-qb:#5ab4ff;
   --pos-rb:#ff9d5c;
   --pos-wr:#ff6fd8;
-  --pos-te:#3fd8c2; --pos-k:#d8c38a; --pos-def:#a7b0bf;
+  --pos-te:#3fd8c2; --pos-k:#d8c38a; --pos-def:#a58bff;
   --pos-qb-rgb:90 180 255;
   --pos-rb-rgb:255 157 92;
   --pos-wr-rgb:255 111 216;
-  --pos-te-rgb:63 216 194; --pos-k-rgb:216 195 138; --pos-def-rgb:167 176 191;
+  --pos-te-rgb:63 216 194; --pos-k-rgb:216 195 138; --pos-def-rgb:165 139 255;
 
   /* The archetype's skill-tile stones (2026-09-29): steel for a Role word (this season's job),
      bronze for a Style word (his career). Muted on purpose, and off the position hues above, so a

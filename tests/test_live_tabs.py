@@ -40,11 +40,13 @@ def test_four_tabs_and_the_matchup_is_a_mirrored_row_per_starter_slot(browser, p
     assert clocks.count() >= 1      # the fixture schedule holds only some of week 2's clubs
     assert clocks.evaluate_all("bs => bs.every(b => b.tagName === 'BUTTON' && /^[^,]*,[A-Z]+,[A-Z]+$/.test(b.dataset.gdnfl) && b.dataset.gdfocus)")
     assert page.locator(".gd-mirror button button").count() == 0            # never a button in a button
-    # the slot pill wears the position's colour; FLEX stays neutral
+    # the slot pill wears the position's colour; FLEX wears the RB-WR-TE blend
     col = lambda slot: page.locator(f".gd-mr .gd-sl:text-is('{slot}')").first.evaluate("e => getComputedStyle(e).color")
     assert len({col("QB"), col("RB"), col("TE"), col("WR")}) == 4
     assert page.locator(".gd-sl.qb").count() >= 1 and page.locator(".gd-sl.def").count() >= 1
-    assert page.locator(".gd-mr .gd-sl:text-is('FLEX')").first.get_attribute("class").strip() == "gd-sl"
+    flex = page.locator(".gd-mr .gd-sl:text-is('FLEX')").first
+    assert flex.get_attribute("class").split() == ["gd-sl", "mix", "flex"]
+    assert "linear-gradient" in flex.evaluate("e => getComputedStyle(e).backgroundImage")
     # the median line sits under the score in a league that pays the top half
     assert re.match(r"^League median \d+\.\d · you [+−]\d+\.\d$", page.locator(".gd-medline").inner_text())
     # benches are shut until the Benches row opens them, mirrored the same way
@@ -113,6 +115,59 @@ def test_games_tab_lists_every_game_live_first_and_a_tile_opens_the_sheet(browse
     tiles.first.click()
     page.wait_for_selector("#gamesheet.on")
     page.keyboard.press("Escape")
+    ctx.close()
+    assert errors == []
+
+
+def test_games_tiles_read_by_state_and_the_leader_wears_its_club_colour(browser, page_file):
+    ctx, page, errors = live(browser, page_file)
+    page.evaluate("""() => {
+      const gs = gdWeekGames(), st = GD_STATS.games;
+      gs.forEach((g, i) => { for (const c of gdCodes(g.home).concat(gdCodes(g.away))) st[c] = i === 0 ? "in_game" : i === 1 ? "pre_game" : "complete"; });
+      paintLive();
+    }""")
+    page.click("[data-gdtab='games']")
+    tiles = page.locator(".gd-tiles .gd-t")
+    style = lambda sel, prop: page.locator(sel).first.evaluate(f"e => getComputedStyle(e).{prop}")
+    # three states, three looks: a live tile has a lime stripe and wash, a final one is dimmer, an
+    # upcoming one is the plain panel
+    live_t, pre_t, post_t = (style(f".gd-t.{k}", "backgroundColor") for k in ("in", "pre", "post"))
+    assert len({live_t, pre_t, post_t}) == 3
+    assert "200, 255, 46" in style(".gd-t.in", "boxShadow") and style(".gd-t.pre", "boxShadow") == "none"
+    # mine stays a ring: a lime border on every side, never the live stripe alone
+    mine = page.locator(".gd-t.mine:not(.in)")
+    assert mine.count() >= 1 and mine.first.evaluate("e => getComputedStyle(e).boxShadow") == "none"
+    # who leads is read off the score: the trailer is grey, the leader is not, a tie is plain
+    rows = tiles.evaluate_all("""ts => ts.map(t => {
+      const [a, h] = [...t.querySelectorAll('.gd-tr')], n = r => +r.querySelector('b').textContent;
+      if (isNaN(n(a)) || isNaN(n(h))) return null;
+      const cls = r => r.classList.contains('lead') ? 'lead' : r.classList.contains('behind') ? 'behind' : 'plain';
+      return [n(a), n(h), cls(a), cls(h)];
+    }).filter(Boolean)""")
+    assert rows
+    for a, h, ca, ch in rows:
+        assert (ca, ch) == (("lead", "behind") if a > h else ("behind", "lead") if h > a else ("plain", "plain"))
+    # the leader's club code and score share one colour; it is the club's own when readable on the
+    # panel (set as --tc), else the page's ink; the trailer is --ink-3
+    ink, ink3 = page.evaluate("""(() => { const g = n => { const d = document.createElement('i'); d.style.color = getComputedStyle(document.body).getPropertyValue(n); document.body.append(d); const c = getComputedStyle(d).color; d.remove(); return c; }; return [g('--ink'), g('--ink-3')]; })()""")
+    cols = page.locator(".gd-tr.lead").evaluate_all("rs => rs.map(r => [getComputedStyle(r.querySelector('span')).color, getComputedStyle(r.querySelector('b')).color, r.style.getPropertyValue('--tc')])")
+    assert cols and all(c == b for c, b, _ in cols)
+    assert all((tc != "") == (c != ink) for c, _, tc in cols)
+    assert set(page.locator(".gd-tr.behind b").evaluate_all("bs => bs.map(b => getComputedStyle(b).color)")) <= {ink3}
+    # every club colour the tab can pick holds 3:1 against the panel; a near-black one falls back
+    bad = page.evaluate("""() => {
+      const lum = h => { const c = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(v => v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+      const panel = lum('#171b21');
+      return Object.keys(TEAM_COLOURS).filter(k => { const t = gdClubTint(k); return t && (lum(t) + 0.05) / (panel + 0.05) < 2.8; });
+    }""")
+    assert bad == []
+    assert page.evaluate("gdClubTint('KC')") == "#e31837"
+    # a navy primary is lifted in its own hue, not dropped to ink: blue stays the strongest channel
+    nyg = page.evaluate("gdClubTint('NYG')")
+    assert nyg and int(nyg[5:7], 16) > int(nyg[1:3], 16)
+    uncoloured = page.evaluate("Object.keys(TEAM_COLOURS).filter(k => !gdClubTint(k))")
+    assert len(uncoloured) <= 2, uncoloured
+    assert page.evaluate("gdClubTint('WSH')") == page.evaluate("gdClubTint('WAS')")
     ctx.close()
     assert errors == []
 

@@ -1015,8 +1015,8 @@ tabs below; the NFL now card (`nflnow.js`) above the matchup went with it).
 | Tab | Shows | Source |
 |---|---|---|
 | Matchup (the default) | both scores, who leads, the league median line, then both lineups mirrored | `board.js`, `mirror.js` |
-| Games | every NFL game of the week as a tile: live first, then the next kickoffs, then finals; a lime count of games on now rides the tab; a tile with starters of mine has a lime edge and "N yours"; a tap opens the game sheet | `nflnow.js`, `gdWeekGames` |
-| TDs | Scored, then Still alive (below) | `tds.js` |
+| Games | every NFL game of the week as a tile: live first, then the next kickoffs, then finals; a lime count of games on now rides the tab; a tile with starters of mine has a lime edge and "N yours"; a tap opens the game sheet. Since 2026-10-05 the states read apart (live: a lime stripe down the left edge and a faint lime wash, so it is a different shape from mine's ring; final: the panel at 40%; upcoming: plain), and the leader's code and score wear the club's colour (`gdClubTint`: its first colour at luminance 0.12+, about 3:1 on the panel, else the primary lifted toward white in its own hue) while the trailer greys | `nflnow.js`, `gdWeekGames` |
+| TDs | Scored, then Still alive (below); Feed or By game, with filters (below) | `tds.js` |
 | League | every matchup as one row, then the ranking with the median; a game's tap opens it in Matchup. The storyboard called this tab the box score; the tab says League | `league.js` |
 
 - **Whose team is "mine" (2026-10-04).** David: "Make sure that the site registers the roster(s) that
@@ -1042,8 +1042,9 @@ tabs below; the NFL now card (`nflnow.js`) above the matchup went with it).
   opponent's starter in the same slot, then the rest pair in order; a short side gets an empty half.
   The benches sit behind one toggle row, mirrored the same way, dimmed and never in the total; open
   or closed lives in memory only and starts closed.
-- **Slot pills** wear the position's colour: QB, RB, WR, TE, K sand, DEF steel. FLEX, OP and W/R/T
-  stay neutral. A half whose game is on is tinted lime and its points are lime (David, 2026-09-29:
+- **Slot pills** wear the position's colour: QB, RB, WR, TE, K sand, DEF violet (steel until
+  2026-10-05: it read as grey). A flex slot wears a left-to-right blend of what it takes (David,
+  2026-10-05): FLEX and W/R/T are RB-WR-TE, OP is QB-RB-TE, W/R and W/T their two. A half whose game is on is tinted lime and its points are lime (David, 2026-09-29:
   lime means his game is on); a smashed projection draws the flame beside the points.
 - **The median line** sits under the score: "League median 101.7 · you +3.3", green above it and
   red below. Only a league that pays the top half a second win draws it; the other leagues rank for
@@ -1068,6 +1069,16 @@ tabs below; the NFL now card (`nflnow.js`) above the matchup went with it).
   | Still alive | the top 15 of Parlay's anytime-TD list by the model's chance, minus whoever scored; live (his game is on, no TD yet, lime), later (the kickoff), missed (his game is final with none, red, sunk to the bottom) | position, name, the clock, the model's chance |
 
   No live market means no board: the sample rows are not TD chances. A row opens the profile.
+
+  **Feed or By game (2026-10-05).** David: "group by game + filters. I also like the current list as
+  well." A switch (Live's league-chip row, `tw-live-tds` in `localStorage`) keeps the list above as
+  Feed, the default, and adds By game: one card per game, games on now first then the latest kickoff
+  (Sleeper gives no scoring time), the clubs, score and clock in the header (a tap opens the sheet),
+  that game's scorers inside. Chips under it apply to both and clear on load: Mine (the reader's
+  pick or follows, never David's; no team says "Pick your team"), Pass, Rush, Rec. With no type chip
+  on the list is rush and rec, as before; Pass is the only way a passer shows. No Return chip:
+  `/api/stats` carries only pass, rush and rec TDs. The two rows put the first card at 241px on a
+  phone, over STYLE.md's 200px: accepted, because a 61-row list is worse without them.
 - **The poll** (unchanged since 2026-09-28): a game on and Live (or the Digest, after kickoff) on
   screen, every 30 s; the edge caches the reply 15 s, so readers share one Sleeper read. Nothing on:
   once, if the reply is over 15 minutes old, then asleep until the next kickoff. Another view or a
