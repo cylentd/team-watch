@@ -51,7 +51,7 @@ function gdLine(row, s){
     out.push(t("live.line.allowed", {n: n("pts_allow")}));
     if (n("sack")) out.push(t("live.line.sacks", {n: n("sack")}));
     if (n("int")) out.push(t("live.line.int", {n: n("int")}));
-    if (n("fum_rec")) out.push(t("live.line.fr", {n: n("fum_rec")}));
+    if (n("fum_rec") + n("def_st_fum_rec")) out.push(t("live.line.fr", {n: n("fum_rec") + n("def_st_fum_rec")}));
     if (n("def_td") + n("def_st_td")) out.push(t("live.line.td", {n: n("def_td") + n("def_st_td")}));
   }
   if (n("fum_lost")) out.push(t("live.line.fl", {n: n("fum_lost")}));

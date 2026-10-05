@@ -49,8 +49,11 @@ ESPN = {
     132: (None, T("yds_allow", lo=350, hi=399)), 133: (None, T("yds_allow", lo=400, hi=449)),
     134: (None, T("yds_allow", lo=450, hi=499)), 135: (None, T("yds_allow", lo=500, hi=549)),
     136: (None, T("yds_allow", lo=550, hi=None)),
-    95: (None, T("int")), 96: (None, T("fum_rec")), 97: (None, T("blk_kick")), 98: (None, T("safe")),
-    99: (None, T("sack")), 106: (None, T("ff")), 206: (None, T("def_2pt")),                   # 206 unseen
+    # Sleeper keeps a fumble forced or recovered on a kick or punt apart (def_st_ff, def_st_fum_rec);
+    # ESPN counts it with the rest. Week 4 2026: KC 2.5, SEA 2.0, DEN 0.5 short without them.
+    95: (None, T("int")), 96: (None, T("fum_rec", "def_st_fum_rec")), 97: (None, T("blk_kick")),
+    98: (None, T("safe")), 99: (None, T("sack")), 106: (None, T("ff", "def_st_ff")),
+    206: (None, T("def_2pt")),                                                                 # 206 unseen
     93: (None, None), 209: (None, None),     # blocked-kick return TD, 1-pt safety: Sleeper has neither
 }
 # Any other statId a league scores (another league's 18-27 points-allowed tiers, say) lands in
@@ -93,7 +96,7 @@ YAHOO = {
     "Field Goals Total Yards": ("fgm_yds",),
 }
 YAHOO_DST = {
-    "Sack": ("sack",), "Interception": ("int",), "Fumble Recovery": ("fum_rec",), "Touchdown": ("def_td",),
+    "Sack": ("sack",), "Interception": ("int",), "Fumble Recovery": ("fum_rec", "def_st_fum_rec"), "Touchdown": ("def_td",),
     "Safety": ("safe",), "Block Kick": ("blk_kick",), "Kickoff and Punt Return Touchdowns": ("def_st_td",),
     "Extra Point Returned": ("def_2pt",),                                                     # unseen
 }

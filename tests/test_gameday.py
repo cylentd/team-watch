@@ -49,6 +49,17 @@ def test_yahoo_rules_read_yahoos_words():
     assert r["unknown"] == ["Something New"]
 
 
+def test_a_defense_scores_its_special_teams_fumbles():
+    """Sleeper files a fumble forced or recovered on a kick or punt apart. KC D/ST, week 4 2026:
+    ESPN gave 2.75; without def_st_ff and def_st_fum_rec the page said 0.25."""
+    terms = _scoring.espn_rules(FIX["espn_items"])["dst"]
+    s = {"def_st_ff": 1.0, "def_st_fum_rec": 1.0}
+    pts = sum(t["p"] for t in terms if t["s"][0] in ("ff", "fum_rec") for k in t["s"] if s.get(k))
+    assert pts == 2.5
+    yahoo = _scoring.yahoo_rules([["Defense/Special Teams", "Fumble Recovery", "2"]])["dst"]
+    assert "def_st_fum_rec" in yahoo[0]["s"]
+
+
 def test_the_fixture_rules_are_the_leagues_own():
     """The fixture's rules are what the table makes of the leagues' raw settings today."""
     assert FIX["espn"]["rules"] == _scoring.espn_rules(FIX["espn_items"])

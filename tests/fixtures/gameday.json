@@ -969,7 +969,8 @@
    "dst": [
     {
      "s": [
-      "ff"
+      "ff",
+      "def_st_ff"
      ],
      "p": 0.5
     },
@@ -1131,7 +1132,8 @@
     },
     {
      "s": [
-      "fum_rec"
+      "fum_rec",
+      "def_st_fum_rec"
      ],
      "p": 2.0
     },
@@ -1866,7 +1868,8 @@
     },
     {
      "s": [
-      "fum_rec"
+      "fum_rec",
+      "def_st_fum_rec"
      ],
      "p": 2.0
     },
