@@ -841,7 +841,7 @@ def test_during_a_game_the_headline_is_the_top_score_and_right_now_lists_five(br
     five and a touchdown count that opens Live's TDs tab; Need to know, with nothing left in it, is gone."""
     ctx, page, errors = _digest_page(browser, page_file)
     page.evaluate(PLANT_WEEK, _live_cfg(noHurt=True, clock={"DET": {"state": "in", "q": 3, "clock": "4:12", "half": False, "detail": "", "clubs": ["DET"]}}))
-    assert page.locator(".dg-lead-h").inner_text() == "St. Brown has 31.4 points"
+    assert page.locator(".dg-lead-h").inner_text() == "St. Brown goes off: 31.4 points"
     fact = page.locator(".dg-lead-fact").inner_text()
     assert "180 yds" in fact and fact.endswith("Q3 4:12")
     now = page.locator("[data-dgnow]")
@@ -882,7 +882,7 @@ def test_a_poll_repaints_the_headline_in_place(browser, page_file):
       return {kept, head, rows, still: document.querySelector('.dg-lead-h').textContent}; }""")
     ctx.close()
     assert errors == []
-    assert got["kept"] and got["head"] == "Achane has 40.2 points"
+    assert got["kept"] and got["head"] == "Achane goes off: 40.2 points"
     assert got["rows"][0] == "40.2" and got["still"] == got["head"]
 
 

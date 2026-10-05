@@ -41,8 +41,8 @@ function dgLiveMode(now){
 
 const dgLvAttrs = r => `data-dglv data-n="${esc(r.n)}" data-pos="${esc(r.pos)}" data-team="${esc(r.team)}" data-slug="${esc(r.slug || slugOf(r.n))}"`;
 
-/* The banner while games are on: the top scorer, "Gibbs has 31.4 points", his line and the game's clock
-   under it. Between windows the same man, in the past of the week. */
+/* The banner while games are on: the top scorer, called like an announcer would (lead.js dgTopCall),
+   his line and the game's clock under it. Between windows the same man, in the past tense. */
 function dgLeadTop(top, playing){
   const slug = slugOf(top.n), name = esc(dgSurname(top.n));
   const pts = `<em class="dg-em go">${dgN1(top.pts)}</em>`;
@@ -50,7 +50,7 @@ function dgLeadTop(top, playing){
   // Sleeper's code (LAR, WSH) is not always the colour table's (LA, WAS): take whichever spelling it has.
   const team = gdCodes(top.team).find(c => TEAM_COLOURS[c]) || top.team;
   return {tone: "go team", team, slug, name: top.n, live: {...top, slug}, photo: dgPhotoHTML(slug), ghost: esc(top.team),
-          head: playing ? t("digest.live.has", {name, pts}) : t("digest.live.leads", {name, pts}), fact: by};
+          head: dgTopCall(top, playing && gdClockOf(top.team).state !== "post", name, pts), fact: by};
 }
 
 /* A player left a game hurt and is not back (data/gameday/hurt.js): "B. Purdy left the game hurt"
@@ -65,18 +65,23 @@ function dgLeadLeft(){
           head: t("digest.hurt.head", {name: esc(dgShort(h.n)), hurt: `<em class="dg-em out">${t("digest.hurt.word")}</em>`}), fact: by};
 }
 
-/* null leaves the packet's lead alone. */
+/* The banner's order (2026-10-04): a game in play leads with the live hurt or top scorer; with no game
+   on, Claude's story (lead.js dgLeadStory) when it is newer than the packet; else the rules below and
+   then the packet's own lead. null leaves the packet's lead alone. */
 function dgLeadLive(d){
-  const now = Date.now(), w = dgWeek(now);
-  if (!w.started || w.done) return null;
-  const top = dgLeaders()[0], playing = gdPlaying(now);
-  const left = playing ? dgLeadLeft() : null;
-  if (left) return left;
+  const now = Date.now(), w = dgWeek(now), on = w.started && !w.done;
+  const top = on ? dgLeaders()[0] : null, playing = on && gdPlaying(now);
+  if (playing){
+    const left = dgLeadLeft();
+    return left || (top ? dgLeadTop(top, true) : null);
+  }
+  const story = dgLeadStory(d);
+  if (story) return story;
   if (!top) return null;
   // The packet's hurt starter (dgLeadAfter already dropped one whose game began) holds the banner
   // until a game is on: nothing live knows who got hurt since.
-  if (!playing && d.lead && d.lead.rule === "hurt") return null;
-  return dgLeadTop(top, playing);
+  if (d.lead && d.lead.rule === "hurt") return null;
+  return dgLeadTop(top, false);
 }
 
 /* ---------------------------------------------------------------- Right now */

@@ -71,6 +71,29 @@ function dgCall(r, week){
   return tds ? t("digest.call.and", {call, td}) : call;
 }
 
+/* The top scorer's call, scaled by the size of his day (2026-10-04, David on "McMillan leads the week with
+   38.2 points": "38.2 is insane number in fantasy... use more excited wording. This is the headline
+   afterall. Should be like NFL announcer to build the hype."). Only what the page has: his points, his
+   stat line (GD_STATS.lead `s`), whether his game is on, and the gap to the week's second score.
+   Big: 30+ points, 3+ touchdowns, 150+ yards (300+ passing); with a 10-point gap to the second score
+   he "laps the field". Solid: 20+ points. Under that, the plain count. Each tier has two phrasings in
+   the present (his game is on) and the past (it is not), picked by his slug so a poll never reshuffles
+   them. */
+const DG_BIG = {pts: 30, tds: 3, yds: 150, passYds: 300, lap: 10, solid: 20};
+function dgTopCall(top, on, name, pts){
+  const s = top.s || {}, n = k => +(s[k] || 0), seed = slugOf(top.n);
+  const second = dgLeaders()[1], gap = second ? top.pts - second.pts : 0;
+  const big = top.pts >= DG_BIG.pts || n("rush_td") + n("rec_td") + n("pass_td") >= DG_BIG.tds
+    || n("rush_yd") + n("rec_yd") >= DG_BIG.yds || n("pass_yd") >= DG_BIG.passYds;
+  const v = {name, pts};
+  if (big && gap >= DG_BIG.lap) return on ? t("digest.live.lap.on", v) : t("digest.live.lap.fin", v);
+  if (big) return dgPick(on ? [t("digest.live.big1.on", v), t("digest.live.big2.on", v)]
+                            : [t("digest.live.big1.fin", v), t("digest.live.big2.fin", v)], seed);
+  if (top.pts >= DG_BIG.solid) return dgPick(on ? [t("digest.live.solid1.on", v), t("digest.live.solid2.on", v)]
+                                                : [t("digest.live.solid1.fin", v), t("digest.live.solid2.fin", v)], seed);
+  return on ? t("digest.live.has", v) : t("digest.live.leads", v);
+}
+
 /* His box line, once each: the points, then passing, rushing and receiving where he had any. */
 function dgBoxPills(r){
   const b = r.line || {}, pill = s => `<span class="dg-lpill">${s}</span>`;
@@ -91,6 +114,29 @@ function dgLeadRes(d){
 function dgLeadNews(it){
   return {tone: it.kind === "out" ? "out" : it.kind === "injury" ? "q" : "", photo: dgPhotoHTML(it.slugs), long: true, slug: [].concat(it.slugs || [])[0], name: it.n,
           head: esc(it.headline), fact: it.when ? t("digest.lead.news.fact", {when: esc(it.when)}) : t("digest.lead.news.src")};
+}
+
+/* Claude's pick between games (2026-10-04, David: "claude should determine what is the best headline
+   from Sunday's results, Injuries, etc"): the packet's `story` (design/digest.py), written by ff-jarvis's
+   digest_headline step after the packet it follows. It takes the banner only while no game is on and
+   only when it is newer than the packet; an older one is a leftover of last week's run. Its words are
+   Claude's and number-checked upstream, so they are drawn as they come, escaped. The stamps are Pacific
+   wall clock both ("YYYY-MM-DD HH:MM[:SS]"), so a string compare orders them. */
+const dgStamp = s => { const x = String(s || "").replace("T", " ").slice(0, 19); return x.length === 16 ? x + ":00" : x; };
+const DG_STORY_TONE = {result: "go", injury: "out"};
+
+function dgLeadStory(d){
+  const s = d && d.story;
+  if (!s || !s.head || !s.fact || !s.asof || dgStamp(s.asof) <= dgStamp(d.asof)) return null;
+  const p = s.player, club = (p && p.team) || s.club || "";
+  // Sleeper's code (LAR, WSH) is not always the colour table's (LA, WAS): take whichever spelling it has.
+  const team = club ? gdCodes(club).find(c => TEAM_COLOURS[c]) || "" : "";
+  const photo = p ? dgPhotoHTML(p.slug) : "";
+  const base = DG_STORY_TONE[s.kind] || "";
+  const tone = team ? `${base} team`.trim() : base || (photo ? "" : "quiet");
+  return {tone, team: team || undefined, long: true, photo, ghost: team ? esc(team) : "",
+          head: esc(s.head), fact: esc(s.fact),
+          ...(p ? {slug: p.slug, name: p.n, live: {n: p.n, pos: p.pos || "", team: p.team || "", slug: p.slug}} : {})};
 }
 
 function dgLead(){

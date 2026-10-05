@@ -50,7 +50,7 @@ from sources import (                                    # design/sources.py: th
     ROOT, REPO, DWR, FEED, ESPN_ROSTERS, DFS_POOL,
     feed_block, read_first, warn_if_stale, load_status, load_props_raw, load_model_raw,
     load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
-    load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_digest, load_game_preview, load_preview_record, load_league, load_role_board, load_highlights, load_slip_reasons,
+    load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_digest, load_digest_headline, load_game_preview, load_preview_record, load_league, load_role_board, load_highlights, load_slip_reasons,
     load_defense, load_kickers,
 )
 from slips import UNPRICED, carry_mean, live_reasons, null_prices, report as slips_report  # the Slips board's data
@@ -681,7 +681,7 @@ def render():
         "LIVE_ARCHETYPE": live_archetype(load_archetype(FEED, DWR), wanted_set),
         "LIVE_TRENCHES": live_trenches(load_trenches(FEED, DWR)),
         "LIVE_ROLE": live_role(load_role_board(), slugify), "LIVE_HIGHLIGHTS": live_highlights(load_highlights()),
-        "LIVE_DIGEST": live_digest(load_digest(), slugify, load_schedule(DWR)),
+        "LIVE_DIGEST": live_digest(load_digest(), slugify, load_schedule(DWR), load_digest_headline()),
         "LIVE_PREVIEW": live_preview(load_game_preview(), slugify, load_preview_record(), status=load_status()),
         "LIVE_LEAGUE": live_league(*load_league(), roster_file(ESPN_ROSTERS), slugify),
         "LIVE_DEFENSE": live_defense(load_defense(), TEAM_FIX),

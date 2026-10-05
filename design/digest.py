@@ -186,9 +186,40 @@ def _tonight(t, slugify):
     return {"tonight": games, "tonight_last": bool((t or {}).get("last"))}
 
 
-def live_digest(p, slugify, schedule=None):
+def _stamp(asof):
+    """An ISO stamp as Pacific wall clock "YYYY-MM-DD HH:MM:SS", the packet's own clock, so the page can
+    tell which of two stamps is newer by comparing strings. A stamp with an offset is moved to Pacific;
+    one without is already Pacific (as the packet's asof is). None when it does not parse."""
+    try:
+        t = dt.datetime.fromisoformat(str(asof).replace(" ", "T").replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if t.tzinfo is not None:
+        t = t.astimezone(LOCAL_TZ).replace(tzinfo=None)
+    return f"{t:%Y-%m-%d %H:%M:%S}"
+
+
+def story(h, p, slugify):
+    """Claude's pick of the best story when no game is on (ff-jarvis digest_headline.json, 2026-10-04):
+    the banner's headline and fact, what kind of story it is, when it was written, and the player and
+    club it is about. `llm` and `candidate_id` are the producer's bookkeeping and stay behind. None when
+    there is no block, it is for another week, or it lacks words or a clock: the page then keeps its own
+    banner. Generic by rule: an NFL player and club, never anything of the reader's."""
+    if not h or not p or h.get("week") != p.get("week") or h.get("season") not in (None, p.get("season")):
+        return None
+    head, fact, kind, asof = (str(h.get(k) or "").strip() for k in ("head", "fact", "kind", "asof"))
+    asof = _stamp(asof)
+    if not (head and fact and kind and asof):
+        return None
+    who = h.get("player") if isinstance(h.get("player"), dict) and h["player"].get("name") else None
+    return {"head": head, "fact": fact, "kind": kind, "asof": asof, "club": h.get("club") or None,
+            "player": {"n": who["name"], "slug": slugify(who["name"]), "pos": who.get("pos"), "team": who.get("club")} if who else None}
+
+
+def live_digest(p, slugify, schedule=None, headline=None):
     """None when ff-jarvis has written no packet: the view then says so instead of guessing.
-    `schedule` is LIVE_SCHEDULE, for each best-spot and top-5 row's kickoff (`ko`)."""
+    `schedule` is LIVE_SCHEDULE, for each best-spot and top-5 row's kickoff (`ko`); `headline` is
+    ff-jarvis's digest_headline block, kept as `story` only when it is for the packet's week."""
     if not p or "week" not in p:
         return None
     m, wx, adds, stock = p.get("matchups") or {}, p.get("weather") or {}, p.get("adds") or {}, p.get("stock") or {}
@@ -198,6 +229,7 @@ def live_digest(p, slugify, schedule=None):
     return {
         "season": p.get("season"), "week": p["week"], "asof": p.get("asof"), "asof_words": _asof(p.get("asof")),
         "lead": p.get("lead"),
+        "story": story(headline, p, slugify),
         "rules": p.get("rules"),   # ff-jarvis's thresholds, quoted by the row feet; never re-applied here
         "hurt": [{**_player(r, slugify, "pos", "team", "status", "was", "injury", "new", "rank", "rostered"),
                   "game": _game(r.get("game"))} for r in p.get("hurt") or []],

@@ -284,6 +284,13 @@ def load_digest():
     return feed_block(("weekly_digest",), "week") or read_first(DWR / "weekly_digest.json")
 
 
+def load_digest_headline():
+    """Claude's pick of the best story while no game is on (model.season.digest_headline, 2026-10-04):
+    feed block `digest_headline` first, the file second. design/digest.py cuts it into
+    LIVE_DIGEST.story; None when neither exists."""
+    return feed_block(("digest_headline",), "week") or read_first(DWR / "digest_headline.json")
+
+
 def load_highlights():
     """Players > Highlights: two Claude-written, number-checked lines per Players view
     (model.season.highlights, 2026-09-29), feed block `highlights` first, the file second. None when

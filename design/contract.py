@@ -329,7 +329,7 @@ CONTRACT = {
     # be null too, and a left row's `injury` (a headline with no tag), and an add's `count` (espn) or
 # `was`/`now`/`delta` (sleeper, `now` when the experts do not have him), and `adds_hours` (espn). Every list may be empty: that is "nothing new".
     "LIVE_DIGEST": {
-        "keys": ["season", "week", "asof", "asof_words", "lead", "rules", "hurt", "calls", "record", "best", "wx",
+        "keys": ["season", "week", "asof", "asof_words", "lead", "story", "rules", "hurt", "calls", "record", "best", "wx",
                  "near", "adds_source", "adds_hours", "adds_weeks", "adds", "top5", "up", "down", "gems", "news", "finals", "pending", "stars",
                  "smashed", "busts", "left", "tonight", "tonight_last", "starters"],
         "rows": [("hurt", ["n", "slug", "pos", "team", "status", "was", "injury", "new", "rank", "rostered", "game"]),
@@ -358,6 +358,9 @@ CONTRACT = {
                      ("smashed", "why", ["kind", "luck", "expected", "stat", "share", "delta"]),
                      ("busts", "why", ["kind", "luck", "expected", "stat", "share", "delta"]),
                      ("tonight", "wx", ["roof", "temp_f", "wind_mph", "precip_pct", "short"])],
+        # Claude's pick of the story between games (2026-10-04): null, else head, fact, kind and asof are
+        # all there; `club` and `player` ({n, slug, pos, team}) may be null.
+        "objs": [("story", ["head", "fact", "kind", "asof", "club", "player"])],
     },
     # design/league_recap.py: each league's recap and history, My teams > League. `h2h` is
     # {team id: {opponent id: record}}, all-time or this season only by `scope`; each week's
