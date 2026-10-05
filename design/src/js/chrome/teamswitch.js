@@ -6,6 +6,7 @@
    menu for that league's twelve, each with a star to follow it, and a Back row. Then "Add a
    league" for a team in another league. */
 let TS_LEAGUE = null;         // the league the menu is showing, or null for the first screen
+let TS_ABOUT = false;         // the About screen (the credits) instead of either
 /* David's leagues, keyed by his team in each (data/teams.js myLeagueKeys; three since 2026-09-29). */
 const tsLeagues = () => myLeagueKeys();
 const tsLeagueOf = k => TEAMS[k].mate ? TEAMS[k].league : k;
@@ -24,7 +25,12 @@ function tsRowHTML(k, followed, showLeague = followed){
   return `<div class="ts-row" style="--tint:${tm.tint}"><button class="ts-item" role="option" data-k="${esc(k)}" aria-selected="${k === VIEW}">${esc(tm.name)}${lg}</button>${star}</div>`;
 }
 function tsMenuHTML(){
-  return TS_LEAGUE ? tsLeagueHTML(TS_LEAGUE) : tsRootHTML();
+  return TS_ABOUT ? tsAboutHTML() : TS_LEAGUE ? tsLeagueHTML(TS_LEAGUE) : tsRootHTML();
+}
+/* About (2026-10-04): the footer's credits, here because a phone has no footer and no week pill. */
+function tsAboutHTML(){
+  return `<button class="ts-back" type="button" data-tsback>${TS_BACK}${t("chrome.teamswitch.back")}</button>
+    <div class="ts-head" role="presentation">${t("chrome.teamswitch.about")}</div>${creditsHTML()}`;
 }
 /* The first screen: the reader's teams, then a row per league. A league row when it has
    leaguemates on the page, or when its one team is not followed (nothing is followed until the
@@ -37,7 +43,8 @@ function tsRootHTML(){
     ${lgs.map(lg => `<button class="ts-league" type="button" data-tsleague="${esc(lg)}">
       <span class="ts-lg-name">${tsLeagueName(lg)}</span><span class="ts-lg-n">${1 + mateKeys(lg).length}</span>${TS_NEXT}</button>`).join("")}` : ""}
     <button class="ts-item ts-add" data-tsadd>${t("connect.add")}</button>
-    ${discordItemHTML()}`;
+    ${discordItemHTML()}
+    <button class="ts-league ts-about" type="button" data-tsabout><span class="ts-lg-name">${t("chrome.teamswitch.about")}</span>${TS_NEXT}</button>`;
 }
 /* One league: all its teams, David's first, then by name, each starred when followed. */
 function tsLeagueHTML(lg){
@@ -107,6 +114,7 @@ function tsPickFor(league){
   if (!sw) return;      // the picker is on screen instead: it lists every team
   const btn = sw.querySelector("[data-tsbtn]"), menu = sw.querySelector("[data-tsmenu]");
   TS_LEAGUE = TEAMS[league] && !TEAMS[league].mate ? league : null;
+  TS_ABOUT = false;
   menu.innerHTML = tsMenuHTML();
   menu.scrollTop = 0;
   wireTsMenu(sw, menu);
@@ -131,6 +139,7 @@ function wireTeamSwitch(v){
     if (open){
       // It opens where the team on screen is: the first screen, or its league when not followed.
       TS_LEAGUE = VIEW in TEAMS && !TEAMS[VIEW].connected && !tsFollowed().includes(VIEW) ? tsLeagueOf(VIEW) : null;
+      TS_ABOUT = false;
       menu.innerHTML = tsMenuHTML();
       menu.scrollTop = 0;
       wireTsMenu(sw, menu);
@@ -153,12 +162,19 @@ function wireTsMenu(sw, menu){
     menu.scrollTop = 0;
     menu.querySelector("[data-tsback]")?.focus();
   }));
+  menu.querySelector("[data-tsabout]")?.addEventListener("click", e => {
+    e.stopPropagation();
+    TS_ABOUT = true;
+    redraw();
+    menu.scrollTop = 0;
+    menu.querySelector("[data-tsback]")?.focus();
+  });
   menu.querySelector("[data-tsback]")?.addEventListener("click", e => {
     e.stopPropagation();
-    const from = TS_LEAGUE;
-    TS_LEAGUE = null;
+    const from = TS_ABOUT ? null : TS_LEAGUE;
+    TS_LEAGUE = null; TS_ABOUT = false;
     redraw();
-    menu.querySelector(`[data-tsleague="${CSS.escape(from)}"]`)?.focus();
+    menu.querySelector(from ? `[data-tsleague="${CSS.escape(from)}"]` : "[data-tsabout]")?.focus();
   });
   menu.querySelectorAll("[data-follow]").forEach(b => b.addEventListener("click", e => {
     e.stopPropagation();

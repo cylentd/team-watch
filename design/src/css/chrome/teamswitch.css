@@ -85,6 +85,10 @@
 .ts-back{position:sticky;top:0;z-index:2;background:var(--panel-2);color:var(--lime)}
 .ts-back .ts-go{color:currentColor}
 .ts-back + .ts-head{position:static}
+/* About (2026-10-04): the menu's last row, quieter than a league, since it holds no team. Its screen
+   is the credits (feed.js creditsHTML), under a heading that already draws the rule above them. */
+.ts-league.ts-about{border-bottom:0;font-weight:500;color:var(--ink-3)}
+.ts-head + .credits{border-top:0;margin-top:0}
 .ts-item:hover{background:var(--panel-3);color:var(--ink);border-left-color:var(--tint)}
 .ts-item[aria-selected="true"]{color:var(--ink);background:rgb(var(--lime-rgb) / .06);border-left-color:var(--tint)}
 

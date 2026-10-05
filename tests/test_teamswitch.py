@@ -54,6 +54,42 @@ def test_the_menu_lists_followed_teams_and_a_league_on_request(browser, page_fil
     ctx.close()
 
 
+def test_the_footer_is_gone_and_its_credits_are_one_tap_into_about(browser, page_file):
+    """2026-10-04: the footer stood 161px under every view. Its credits, the archetype icons' CC BY
+    attribution among them, moved to the team switch's About screen, which a phone can reach."""
+    ctx, page, errors = open_page(browser, page_file, (360, 740))
+    drive(page, go("roster"))
+    assert page.locator(".foot").count() == 0
+    page.click("[data-tsbtn]")
+    page.click("[data-tsabout]")
+    credits = page.locator("[data-tsmenu] .credits")
+    assert credits.is_visible() and "CC BY 3.0" in credits.inner_text()
+    assert page.evaluate("document.activeElement.matches('[data-tsback]')"), "focus moves to Back"
+    page.click("[data-tsback]")
+    assert page.locator("[data-tsmenu] .credits").count() == 0
+    assert page.evaluate("document.activeElement.matches('[data-tsabout]')"), "focus returns to About"
+    # closed and opened again, the menu starts on its first screen, not on About
+    page.click("[data-tsabout]")
+    page.click("[data-tsbtn]")
+    page.click("[data-tsbtn]")
+    assert page.locator("[data-tsabout]").count() == 1
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.parametrize("leaf", ["roster", "waivers"])
+def test_the_menu_stays_on_a_phone_screen_whatever_the_names_length(browser, page_file, leaf):
+    """2026-10-05: hung from the name's right end, a long name's menu ran 20px off the left edge (and a
+    short one's off the right, 2026-09-29). On a phone it runs gutter to gutter."""
+    ctx, page, errors = open_page(browser, page_file, (360, 740))
+    drive(page, go(leaf))
+    page.click("[data-tsbtn]")
+    left, right = page.evaluate("(r => [r.left, r.right])(document.querySelector('[data-tsmenu]').getBoundingClientRect())")
+    assert 0 <= left and right <= 360, (left, right)
+    assert errors == []
+    ctx.close()
+
+
 def test_a_whole_league_fits_the_menu_on_a_phone(browser, page_file):
     """Option A's point: a league's twelve on screen without scrolling the menu, at 360 x 740."""
     ctx, page, errors = open_page(browser, page_file, (360, 740))

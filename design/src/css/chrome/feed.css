@@ -21,7 +21,7 @@
 @keyframes freshpulse{0%,100%{opacity:1}50%{opacity:.3}}
 
 .status-menu{
-  position:absolute;top:calc(100% + 6px);right:0;z-index:20;min-width:250px;
+  position:absolute;top:calc(100% + 6px);right:0;z-index:20;min-width:250px;max-width:min(300px,calc(100vw - 32px));
   background:var(--panel-2);border:1px solid var(--line-2);border-radius:3px;
   box-shadow:0 12px 28px rgb(var(--shadow-rgb) / .45);padding:6px 0;
 }
@@ -34,4 +34,10 @@
 .src.ok b{color:var(--ink-2);font-weight:500}
 .src b{font-weight:500;margin-left:auto}
 .src.stamp{border-top:1px solid var(--line);margin-top:4px;padding-top:9px;color:var(--ink-3)}
+/* The credits the footer carried until 2026-10-04: where the data comes from, and the archetype
+   icons' CC BY attribution, which has to stay reachable. They wrap inside the menu's max-width. */
+.credits{margin:4px 0 0;padding:9px 13px 4px;border-top:1px solid var(--line);display:grid;gap:3px;
+  font-family:var(--mono);font-size:var(--t-1);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.credits dt{color:var(--ink-2)}
+.credits dd{margin:0 0 6px;line-height:1.5}
 

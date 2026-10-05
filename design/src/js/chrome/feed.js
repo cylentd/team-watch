@@ -1,3 +1,13 @@
+/* The credits the footer carried until 2026-10-04: where the data comes from, and the archetype
+   icons' CC BY attribution, which has to stay reachable. Drawn here under the week pill (a desktop)
+   and on the team switch's About screen (teamswitch.js), since a phone hides the pill. */
+function creditsHTML(){
+  return `<dl class="credits">
+    <dt>${t("chrome.credits.sources")}</dt><dd>${t("chrome.credits.sourcesList")}</dd>
+    <dt>${t("chrome.credits.icons")}</dt><dd>${t("chrome.credits.iconsList")}</dd>
+  </dl>`;
+}
+
 /* What `python -m model.refresh` last wrote, per source. This is the honest version of a
    "last updated" line: five sources, each with its own state, because they fail separately. */
 function buildFeed(){
@@ -29,6 +39,7 @@ function buildFeed(){
       ${cells.map(([label,[state,text]]) =>
         `<div class="src ${state}"><i></i>${label} <b>${esc(text)}</b></div>`).join("")}
       ${F && F.generated ? `<div class="src stamp"><i style="visibility:hidden"></i>${t("chrome.feed.refreshed")} <b>${esc(F.generated.replace("T"," ").slice(0,16))}</b></div>` : ""}
+      ${creditsHTML()}
     </div>`;
   const btn = el.querySelector("#statusbtn"), menu = el.querySelector("#statusmenu");
   btn.addEventListener("click", e=>{

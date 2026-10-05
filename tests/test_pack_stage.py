@@ -23,8 +23,10 @@ def test_rip_again_is_over_the_cards_and_the_switch_holds_still(browser, page_fi
     page.wait_for_selector(".pk-stage", state="detached")
     page.wait_for_timeout(100)
     # The page stays on the cards that just landed (2026-09-27: closing the stage threw it to the top).
+    # The cards end the page, and since the footer went (2026-10-04) nothing is under them to scroll past,
+    # so they may sit below the middle: on screen and scrolled down is the point.
     top = page.evaluate("document.querySelector('#view .cards').getBoundingClientRect().top")
-    assert page.evaluate("scrollY") > 0 and top < page.viewport_size["height"] / 2, top
+    assert page.evaluate("scrollY") > 0 and 0 <= top < page.viewport_size["height"] * .6, top
     assert page.locator(".cards .rule [data-rerip]").count() == 1
     assert page.locator(".rmode [data-rerip]").count() == 0
     in_cards = chips(page)

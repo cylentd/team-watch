@@ -47,7 +47,7 @@ Every view sits in one frame, so a tab change never moves the nav bar's edges.
 
 | Token | Value | What it sets |
 |---|---|---|
-| `--page-w` | 1680px | the frame: `.wrap`, so the nav row, the view tabs, every view and the footer |
+| `--page-w` | 1680px | the frame: `.wrap`, so the nav row, the view tabs, and every view |
 | `--page-pad` | 26px, 40px from 1100px | the frame's side gutter |
 | `--list-w` | 1128px | a view that is one list (Ranks, News): the list's column, left on the frame's edge |
 
