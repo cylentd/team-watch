@@ -20,7 +20,7 @@ RESET = """() => { 'use strict';
   Object.assign(LIVE_REASONS, JSON.parse(__REASONS));
   LIVE_PREVIEW.games.splice(0, LIVE_PREVIEW.games.length, ...JSON.parse(__PV));
   Object.assign(LIVE_PROPS_RECORD, JSON.parse(__REC));
-  SLIP.length = 0; SL_CHIP = {}; SL_FOCUS = null; PV_OPEN = false; PV_I = null;
+  SLIP.length = 0; SL_CHIP = {}; SL_FOCUS = null; SL_REC_OPEN = false; PV_OPEN = false; PV_I = null;
   PARLAY_BOOK = 'dk'; GAL_WIN = 'evening-mon'; SURFACE = 'parlay'; render(); }"""
 
 # The fixture's preview games and its props slate are different games (tests/test_preview.py), so game 3
@@ -239,25 +239,61 @@ def test_the_headline_opens_that_games_dossier(page):
     page.wait_for_function("PV_OPEN === false")
 
 
-def test_the_record_leads_slips_with_three_tiles(page):
+def test_the_record_is_one_line_with_the_three_tiers(page):
     rec = page.locator(".pr-rec")
     assert rec.count() == 1
-    assert rec.locator(".pr-rec-l").text_content() == "Record" and rec.locator(".pr-rec-s").inner_text() == "weeks 1-4"
-    assert rec.locator(".pr-rt b").all_inner_texts() == ["205-165", "305-275", "241-182"]
-    assert rec.locator(".pr-rt span").all_inner_texts() == ["SLIGHT", "CONFIDENT", "VERY"]
-    assert rec.locator(".pr-rt small").all_inner_texts() == ["55%", "53%", "57%"]
+    btn = rec.locator("button.pr-rec-b")
+    assert btn.get_attribute("aria-expanded") == "false"
+    assert btn.locator(".pr-rec-l").text_content() == "Record"
+    assert btn.locator(".pr-rq i").all_inner_texts() == ["Slight", "Confident", "Very"]
+    assert btn.locator(".pr-rq b").all_inner_texts() == ["55%", "53%", "57%"]
+    assert btn.locator(".pr-rq b").first.evaluate("e => getComputedStyle(e).fontFamily").lower().endswith("monospace")
     assert page.evaluate("document.querySelector('.pr-rec').compareDocumentPosition(document.querySelector('.sl-board')) & 4"), "above the board"
-    very = rec.locator(".pr-rt.very span")
-    assert very.evaluate("e => getComputedStyle(e).backgroundColor") != "rgba(0, 0, 0, 0)", "VERY is a filled chip"
-    assert rec.locator(".pr-rt.slight span").evaluate("e => getComputedStyle(e).backgroundColor") == "rgba(0, 0, 0, 0)"
+    assert btn.locator(".pr-rq.very i").evaluate("e => getComputedStyle(e).backgroundColor") != "rgba(0, 0, 0, 0)", "Very is a filled chip"
+    assert btn.locator(".pr-rq.slight i").evaluate("e => getComputedStyle(e).backgroundColor") == "rgba(0, 0, 0, 0)"
     assert page.evaluate("document.documentElement.scrollWidth") <= 360
     page.evaluate("SURFACE = 'build'; render()")
     assert page.locator(".pr-rec").count() == 0, "Slips only"
 
 
+def test_the_record_line_is_slim_and_never_wraps_at_360(page):
+    """The Slips budget (design/STYLE.md): the first game card starts by 200px. The strip was a 117px card
+    that put it at 289px; it is now one line of at most 36px."""
+    box = page.locator(".pr-rec-b").bounding_box()
+    assert 32 <= box["height"] <= 36, box
+    assert page.evaluate("(() => { const b = document.querySelector('.pr-rec-b'); return b.scrollWidth <= b.clientWidth; })()"), "overflows its line"
+    mids = page.evaluate("[...document.querySelectorAll('.pr-rec-b > .pr-rec-l, .pr-rec-b > .pr-rq')].map(e => { const r = e.getBoundingClientRect(); return r.top + r.height / 2; })")
+    assert max(mids) - min(mids) < 3, f"all on one line: {mids}"
+    top = page.locator(".sl-game").first.bounding_box()["y"] + page.evaluate("window.scrollY")
+    print("first game card top:", top)
+    assert top <= 200, f"first card at {top}px"
+
+
+def test_the_record_line_opens_its_detail(page):
+    btn = page.locator(".pr-rec-b")
+    more = page.locator("#pr-rec-more")
+    assert more.is_hidden()
+    btn.click()
+    assert btn.get_attribute("aria-expanded") == "true" and more.is_visible()
+    assert page.locator(".pr-rec-s").inner_text() == "weeks 1-4"
+    assert page.locator(".pr-rt b").all_inner_texts() == ["205-165", "305-275", "241-182"]
+    assert page.locator(".pr-rt span").all_inner_texts() == ["SLIGHT", "CONFIDENT", "VERY"]
+    assert page.locator(".pr-rt small").all_inner_texts() == ["55%", "53%", "57%"]
+    page.evaluate("render()")
+    assert page.locator("#pr-rec-more").is_visible(), "a re-render keeps it open"
+    page.locator(".pr-rec-b").click()
+    assert page.locator(".pr-rec-b").get_attribute("aria-expanded") == "false" and page.locator("#pr-rec-more").is_hidden()
+    page.locator(".pr-rec-b").focus()
+    page.keyboard.press("Tab")
+    page.keyboard.press("Shift+Tab")
+    assert page.evaluate("document.activeElement.className") == "pr-rec-b"
+    assert page.locator(".pr-rec-b").evaluate("e => getComputedStyle(e).outlineStyle") == "solid", "a visible focus ring"
+
+
 def test_nothing_graded_is_no_strip(page):
     page.evaluate("for (const t of Object.values(LIVE_PROPS_RECORD.tiers)) { t.w = 0; t.l = 0; } render()")
     assert page.locator(".pr-rec").count() == 0 and page.locator(".sl-board").count() == 1
-    page.evaluate("LIVE_PROPS_RECORD.through_week = 1; LIVE_PROPS_RECORD.tiers.slight.w = 3; render()")
+    page.evaluate("LIVE_PROPS_RECORD.through_week = 1; LIVE_PROPS_RECORD.tiers.slight.w = 3; SL_REC_OPEN = true; render()")
     assert page.locator(".pr-rec-s").inner_text() == "week 1"
     assert page.locator(".pr-rt small").all_inner_texts() == ["100%", "", ""]
+    assert page.locator(".pr-rq b").all_inner_texts() == ["100%"]

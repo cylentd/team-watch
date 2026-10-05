@@ -1,21 +1,38 @@
 /* ============================================================
    THE PROP RECORD (2026-10-05, js/surface/parlay/record.js)
-   The strip above the Slips board: one card, a label and the
-   weeks counted, three tiles. Start/Sit's record in this
-   view's own class names (that file is fenced to its view).
-   Slight in ink-2, Confident in lime, Very a filled lime chip.
+   One line above the Slips board, no card: RECORD, then each
+   tier's word and hit rate. It is a button; a tap opens the
+   three tiles under it. Slight in ink-2, Confident in lime,
+   Very a filled lime chip. Start/Sit's record in this view's
+   own class names (that file is fenced to its view).
    ============================================================ */
-.pr-rec{display:grid;gap:10px;margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
-.pr-rec-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-.pr-rec-l{margin:0;font-size:var(--t-1);font-weight:600;line-height:1.2;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+.pr-rec{margin-top:4px}
+.pr-rec-b{display:flex;align-items:center;gap:8px;width:100%;min-height:36px;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.pr-rec-b:active{transform:scale(var(--press))}
+.pr-rec-b:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:6px}
+.pr-rec-l{margin:0 2px 0 0;font-size:var(--t-1);font-weight:600;line-height:1.2;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+.pr-rq{display:inline-flex;align-items:baseline;gap:4px;font-family:var(--mono);font-size:var(--t-1);line-height:16px}
+.pr-rq i{font-style:normal;font-weight:700;color:var(--ink-2)}
+.pr-rq b{font-weight:400;font-variant-numeric:tabular-nums;color:var(--ink)}
+.pr-rq.confident i{color:var(--lime)}
+.pr-rq.very i{padding:0 5px;border-radius:4px;background:var(--lime);color:var(--on-lime)}
+.pr-rec-d{color:var(--ink-3)}
+.pr-rec-c{width:7px;height:7px;margin:-3px 4px 0 auto;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);transform:rotate(45deg);flex:none;transition:transform var(--dur-spring) var(--spring)}
+.pr-rec-b[aria-expanded="true"] .pr-rec-c{margin-top:3px;transform:rotate(225deg)}
+.pr-rec-more{display:grid;gap:8px;margin-top:2px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
+.pr-rec-more[hidden]{display:none}
 .pr-rec-s{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
 .pr-rts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .pr-rt{display:grid;justify-items:center;align-content:center;gap:3px;min-height:64px;padding:8px 6px;border-radius:10px;background:var(--panel-2);text-align:center}
 .pr-rt b{font-family:var(--mono);font-size:var(--t-4);font-weight:700;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink)}
-.pr-rt span{font-family:var(--mono);font-size:var(--t-1);font-weight:700;line-height:16px;letter-spacing:.04em;color:var(--ink-2)}
+.pr-rt span{font-family:var(--mono);font-size:var(--t-1);font-weight:700;line-height:16px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2)}
 .pr-rt.confident span{color:var(--lime)}
 .pr-rt.very span{padding:0 5px;border-radius:4px;background:var(--lime);color:var(--on-lime)}
 .pr-rt small{min-height:1em;font-family:var(--mono);font-size:var(--t-1);line-height:1;color:var(--ink-3)}
+/* A phone has no room for the dots between the tiers. */
+@media (max-width:430px){
+  .pr-rec-d{display:none}
+}
 @media (min-width:760px){
   .pr-rec{max-width:560px}
 }
