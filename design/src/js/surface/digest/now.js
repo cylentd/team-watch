@@ -7,9 +7,10 @@
    (live.js): the headline is the week's top scorer so far, Highlights becomes Right now (the top
    five and a touchdown count), Need to know drops what has been played, and the last game of the
    week gets a card of its own (mnf.js). Every number here is GD_STATS.lead, league-wide and half-PPR,
-   the same reply Live and the profile read; the page adds nothing to it. No live injury source
-   exists yet, so the packet's hurt-starter lead stands only while no game is on and his own has not
-   kicked off.
+   the same reply Live and the profile read; the page adds nothing to it. A starter of mine who left a
+   game hurt (data/gameday/hurt.js, from ESPN's play text) takes the headline from the top score until
+   he returns. Without that, the packet's hurt-starter lead stands only while no game is on and his own
+   has not kicked off.
 
    Live parts repaint in place (paintDigestLive, called by live.js): a poll never rebuilds the page
    under a thumb. Only a change of phase (a new section appears or leaves) renders it again. */
@@ -48,6 +49,17 @@ function dgLeadTop(top, playing){
           head: playing ? t("digest.live.has", {name, pts}) : t("digest.live.leads", {name, pts}), fact: by};
 }
 
+/* A starter of mine left a game hurt and is not back (data/gameday/hurt.js): "B. Purdy left the game
+   hurt" outranks the top score while games are on (2026-10-04). Several: the best projection. When he
+   returns, GD_HURT clears him and the banner is the top scorer again. */
+function dgLeadLeft(){
+  const h = gdHurtNow()[0];
+  if (!h) return null;
+  const by = [h.teams.join(", "), gdClockOf(h.team).label].filter(Boolean).map(esc).join(" · ");
+  return {tone: "out", slug: h.slug, name: h.n, live: {n: h.n, pos: h.pos, team: h.team, slug: h.slug}, photo: dgPhotoHTML(h.slug),
+          head: t("digest.hurt.head", {name: esc(dgShort(h.n)), hurt: `<em class="dg-em out">${t("digest.hurt.word")}</em>`}), fact: by};
+}
+
 /* null leaves the packet's lead alone. */
 function dgLeadLive(d){
   const now = Date.now(), w = dgWeek(now);
@@ -55,6 +67,8 @@ function dgLeadLive(d){
   const mnf = dgLeadMnf(now);
   if (mnf) return mnf;
   const top = dgLeaders()[0], playing = gdPlaying(now);
+  const left = playing ? dgLeadLeft() : null;
+  if (left) return left;
   if (!top) return null;
   // The packet's hurt starter (dgLeadAfter already dropped one whose game began) holds the banner
   // until a game is on: nothing live knows who got hurt since.
@@ -76,14 +90,25 @@ function dgNowRow(r){
     <i class="dg-now-p">${dgN1(r.pts)}</i></button></li>`;
 }
 
+/* One of mine who left the game hurt, in --down: the same row, "Hurt" where the points go. */
+function dgHurtRow(h){
+  const line = [h.pos, h.team, gdClockOf(h.team).label].filter(Boolean).map(esc).join(" · ");
+  return `<li><button type="button" class="dg-now-r hurt" ${dgLvAttrs({n: h.n, pos: h.pos, team: h.team, slug: h.slug})}>
+    <span class="dg-hd">${avatarHTML({n: h.n, slug: h.slug})}</span>
+    <span class="dg-now-t"><b>${esc(dgShort(h.n))}</b><span class="dg-now-m">${line}</span></span>
+    <i class="dg-now-p">${t("digest.hurt.row")}</i></button></li>`;
+}
+
 /* Highlights from the first kickoff to the week's last final: the top five and the day's touchdowns,
-   which open Live's TDs tab. "" outside live mode, so the packet's Highlights draws instead. */
+   which open Live's TDs tab. "" outside live mode, so the packet's Highlights draws instead. A starter
+   of mine who left a game hurt takes the first row (his own, so he is not in the five as well). */
 function dgNowHTML(){
   if (!dgLiveMode(Date.now())) return "";
-  const n = dgTdCount();
+  const n = dgTdCount(), hurt = gdPlaying(Date.now()) ? gdHurtNow() : [], out = new Set(hurt.map(h => h.slug));
+  const top = dgLeaders().filter(r => !out.has(slugOf(r.n))).slice(0, DG_NOW_TOP);
   return `<section class="dg-facts dg-now" data-dgnow aria-labelledby="dg-now-h">
     <h3 class="dg-sec" id="dg-now-h">${t("digest.live.title")}</h3>
-    <ol class="dg-now-l">${dgLeaders().slice(0, DG_NOW_TOP).map(dgNowRow).join("")}</ol>
+    <ol class="dg-now-l">${hurt.map(dgHurtRow).join("")}${top.map(dgNowRow).join("")}</ol>
     ${n ? `<button type="button" class="dg-go dg-now-td" data-dgtds>${n === 1 ? t("digest.live.td1") : t("digest.live.tds", {n})}${DG_ARROW}</button>` : ""}</section>`;
 }
 

@@ -111,6 +111,7 @@ data/digest.js
 data/gameday/score.js
 data/gameday/espn.js
 data/gameday/clock.js
+data/gameday/hurt.js
 surface/digest/icons.js
 surface/digest/tabs.js
 surface/digest/lead.js

@@ -24,6 +24,14 @@ function gdProjHTML(r){
   return `<span class="gd-proj">${p === null ? "" : gdNum(p)}</span>`;
 }
 
+/* His name; a starter of mine who left his game hurt and is not back wears a red "Hurt" beside it
+   (data/gameday/hurt.js, 2026-10-04). Anyone else draws the bare name, as before. */
+function gdNameHTML(r){
+  const h = GD_HURT[r.slug];
+  if (!h || h.back || r.state === "pre_game") return `<b>${esc(gdName(r))}</b>`;
+  return `<span class="gd-nm"><b>${esc(gdName(r))}</b><i class="gd-hurt" aria-label="${esc(t("live.hurt.label"))}">${t("live.hurt.chip")}</i></span>`;
+}
+
 /* His game's second line: the clock, then the club's side of it. Before kickoff the opponent, while
    it is on the score from his club's side, once final the result. The clock is ESPN's, the score
    Sleeper's (nflnow.js gdClubScore). */
@@ -48,7 +56,7 @@ function gdHalfHTML(r, cls){
     : `<span class="gd-ck">${line}</span>`;
   return `<div class="gd-h ${cls}${r.state === "in_game" ? " on" : r.state === "pre_game" ? " pre" : ""}">
     <button type="button" class="gd-nb" data-gdslug="${esc(r.slug)}" data-gdn="${esc(r.n)}" data-gdpos="${esc(r.pos)}" data-gdteam="${esc(r.team)}">
-      <b>${esc(gdName(r))}</b>${gdPtsHTML(r)}</button>
+      ${gdNameHTML(r)}${gdPtsHTML(r)}</button>
     <span class="gd-sub">${clock}${gdProjHTML(r)}</span></div>`;
 }
 

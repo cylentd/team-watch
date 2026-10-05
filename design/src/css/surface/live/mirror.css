@@ -36,6 +36,10 @@
 .gd-nb:active{transform:scale(var(--press))}
 .gd-nb b{min-width:0;font-weight:600;font-size:var(--t-2);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gd-h.r .gd-nb{flex-direction:row-reverse;text-align:right}
+/* Left the game hurt: a small red chip after the name; the name shortens before the chip does. */
+.gd-nm{display:flex;align-items:center;gap:5px;min-width:0}
+.gd-hurt{flex:none;padding:2px 5px;border-radius:999px;border:1px solid rgb(var(--down-rgb) / .5);background:rgb(var(--down-rgb) / .12);
+  color:var(--down);font:700 9px/1 var(--mono);font-style:normal;letter-spacing:.04em;text-transform:uppercase}
 .gd-pts{flex:none;display:flex;gap:4px;align-items:center;font:700 var(--t-2)/1.25 var(--mono);font-variant-numeric:tabular-nums}
 .gd-pts.pre{font-weight:500;color:var(--ink-3)}
 .gd-h.on .gd-pts{color:var(--lime)}

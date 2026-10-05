@@ -157,6 +157,8 @@ async function gdFetch(){
     ok = res.ok;
   } catch (e) { /* no response: Sleeper directly, below */ }
   await clock;
+  /* Who left a game hurt (data/gameday/hurt.js): its own requests, on its own 120 s gap; the stats never wait. */
+  gdHurtPoll().catch(() => {});
   if (!(ok && payload && payload.stats)){
     try { payload = await gdDirect(); ok = !!payload; } catch (e) { ok = false; }
   }

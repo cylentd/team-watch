@@ -736,7 +736,8 @@ week's first kickoff; from then the Digest shares Live's poll (`surface/digest/n
 
 - **Hurt starter lead holds** while no game is on and his own has not kicked off: no live injury
   source exists yet, so nothing live knows who got hurt since. Once a game is on, the top scorer
-  takes the banner.
+  takes the banner (superseded in part, same day: a starter of mine who leaves a game hurt beats
+  the top scorer, see "Left the game hurt" below).
 - **Numbers** are `/api/stats` `lead=1` (league-wide, half-PPR), the same reply Live and the
   profile read. The page adds nothing to it. A passing TD is the same score as the catch, so the
   count is rushing plus receiving TDs.
@@ -754,6 +755,8 @@ week's first kickoff; from then the Digest shares Live's poll (`surface/digest/n
   Before the game starts, the headline is "You're up 1.6 going into Monday night" (first league),
   then the top scorer takes it back. The wait card does not start while this card shows.
   Scores come through Live's own scorer (`gdSide`), so the Digest and Live never disagree.
+
+**Left the game hurt (2026-10-04).** While games are on, a starter of mine who left one ("B. Purdy left the game hurt", by-line "{my team} · Q3 4:12") takes the headline from the top score and leads Right now in `--down`; the best projection if several; when "has returned to the game" is read, the top score is back. Live's Matchup row wears a red Hurt chip. Source: the play text of ESPN's game summary, fetched by the reader's browser every 120 s per game (`data/gameday/hurt.js`). ESPN's wording ("was injured during the play", "Injury Update: X has returned to the game") is nflverse's and was unverified on ESPN as of 2026-10-04: check Monday ATL @ NO.
 
 ## Start/Sit (This week, 2026-10-03; was Takes)
 

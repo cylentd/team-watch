@@ -21,6 +21,9 @@
 .dg-now-pos{font-weight:600;color:var(--ink-2)}
 .dg-now-p{font:600 var(--t-4)/1 var(--mono);font-style:normal;font-variant-numeric:tabular-nums;color:var(--lime)}
 .dg-now-td{justify-self:start;margin-top:6px}
+/* Left the game hurt (2026-10-04): his row leads the list, the word where the points go, in --down. */
+.dg-now-r.hurt .dg-now-t b,.dg-now-r.hurt .dg-now-p{color:var(--down)}
+.dg-now-r.hurt .dg-now-p{font-size:var(--t-2);letter-spacing:.04em;text-transform:uppercase}
 
 /* The last game's card */
 .dg-mnf{border-color:rgb(var(--lime-rgb) / .45)}
