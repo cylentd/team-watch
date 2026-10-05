@@ -1500,6 +1500,8 @@
  "slips.chip.rise": "Work rising",
  "slips.chip.role": "Role guys",
  "slips.chip.te": "TE",
+ "slips.claude.c": "C",
+ "slips.claude.name": "{side}, Claude picks this",
  "slips.empty": "No lines left at this kickoff",
  "slips.flag.easy": "Easy matchup",
  "slips.flag.out": "{last} out",

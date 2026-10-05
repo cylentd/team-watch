@@ -339,6 +339,9 @@ CONTRACT = {
     "LIVE_REASONS": {"keys": [], "map": (".", ["why", "work", "tags"]), "checks": [slips.problems_reasons]},
     # design/slips.py (2026-10-05): the tiers' graded record, the strip at the top of Slips. None without ff-jarvis's file.
     "LIVE_PROPS_RECORD": {"keys": ["season", "through_week", "tiers"], "checks": [slips.problems_record]},
+    # design/slips.py (2026-10-05): Claude's calls on prop lines, {slug: [{mkt, line, side, why}]}. Optional: None without
+    # ff-jarvis's file, and a line with no call draws no badge.
+    "LIVE_CLAUDE_PROPS": {"keys": ["week", "asof", "calls"], "checks": [slips.problems_claude]},
     # design/preview.py, This week > Preview (slate and dossier, 2026-09-29). A game's `take` is null
     # before Claude has written it; `line`, `matchup`, `wx`, `rest`, `travel`, `site` are null when
     # ff-jarvis has none (the row is not drawn), a line's `fav` null at even and `open` null with no

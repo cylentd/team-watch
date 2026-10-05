@@ -331,6 +331,13 @@ def load_props_record():
     return feed_block(("market", "props_record"), "tiers") or read_first(DWR / "props_record.json")
 
 
+def load_claude_props():
+    """Claude's higher or lower call on a prop line, with a one-line why (ff-jarvis claude_props.json,
+    2026-10-05): feed block `claude_props` first, the file second. design/slips.py cuts it into
+    LIVE_CLAUDE_PROPS for the line sheet and the Slips board; None when neither exists."""
+    return feed_block(("claude_props",), "calls") or read_first(DWR / "claude_props.json")
+
+
 def load_game_preview():
     """Each game of the week's facts and Claude's take (model.season.game_preview), feed block
     `game_preview` first, the file second. design/preview.py cuts it for This week > Preview."""

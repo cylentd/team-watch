@@ -54,21 +54,42 @@ function slHistHTML(p, line, m){
   return `<span class="sl-hist">${cells}${md}</span>`;
 }
 
+/* Claude's call at the line shown, or null (2026-10-05, storyboard "Claude Calls" A): its side and one
+   line of why, from ff-jarvis's claude_props. Found by player, market and the exact line value, so on
+   Underdog a call made for another number gets nothing. A touchdown has no sides, so no call. */
+function slClaude(p){
+  const L = typeof LIVE_CLAUDE_PROPS !== "undefined" ? LIVE_CLAUDE_PROPS : null;
+  const rows = L && L.calls && L.calls[slSlug(p)], line = slLine(p);
+  const c = rows && p.mkt !== "TD" ? rows.find(r => r.mkt === p.mkt && r.line === line) : null;
+  return c && (c.side === "higher" || c.side === "lower") ? {side: c.side, why: c.why || ""} : null;
+}
+
+/* Claude backs the model's outlined pick: lime. Any other call (the other side, or a line the model gave
+   no pick) is ink. The model's tier word stays the only confidence word; Claude's is never shown. */
+const slClaudeAgrees = (c, m) => !!c && !!m && !m.td && m.tier !== "none" && m.side === c.side;
+const slClaudeBadge = (agree, more = "") => `<i class="sl-cb${agree ? " agree" : ""}${more}" aria-hidden="true">${t("slips.claude.c")}</i>`;
+
 /* Higher and Lower, the model's side outlined; the tier word under that side ("No pick" under Lower).
-   A line without a tier is just the two buttons. */
-function slSidesHTML(i, m, side){
-  const btn = (s, label) => `<button type="button" class="sl-side ${s}${m && m.side === s && m.tier !== "none" ? " pick" : ""}" data-slpick="${i}" data-side="${s}" aria-pressed="${side === s}">${label}</button>`;
+   A line without a tier is just the two buttons. Claude's side wears a badge on its corner and is named
+   "Higher, Claude picks this" to a screen reader. */
+function slSidesHTML(i, m, side, c){
+  const agree = slClaudeAgrees(c, m);
+  const btn = (s, label) => {
+    const mine = !!c && c.side === s;
+    return `<button type="button" class="sl-side ${s}${m && m.side === s && m.tier !== "none" ? " pick" : ""}" data-slpick="${i}" data-side="${s}" aria-pressed="${side === s}"${mine ? ` aria-label="${t("slips.claude.name", {side: label})}"` : ""}>${label}${mine ? slClaudeBadge(agree) : ""}</button>`;
+  };
   const under = m && m.tier ? ["higher", "lower"].map(s => `<span class="sl-under">${(m.tier === "none" ? s === "lower" : m.side === s) ? slTierHTML(m.tier) : ""}</span>`).join("") : "";
   return `<span class="sl-sides">${btn("higher", t("slips.side.higher"))}${btn("lower", t("slips.side.lower"))}${under}</span>`;
 }
 
 function slLineHTML(i){
-  const p = PROPS[i], line = slLine(p), td = p.mkt === "TD", on = SLIP.includes(i), side = on ? slipSide(i) : null, m = slModel(p);
+  const p = PROPS[i], line = slLine(p), td = p.mkt === "TD", on = SLIP.includes(i), side = on ? slipSide(i) : null, m = slModel(p), c = slClaude(p);
   const yes = `<span class="sl-sides"><button type="button" class="sl-side higher" data-slpick="${i}" data-side="higher" aria-pressed="${side === "higher"}">${t("slips.side.yes")}</button></span>`;
   return `<div class="sl-ln${on ? " on" : ""}${m && m.tier ? " tiered" : ""}">
       <span class="sl-mk">${esc(MKT[p.mkt] || p.mkt)}${!td && line != null ? ` <b>${line}</b>` : ""}</span>
-      ${td ? yes : slSidesHTML(i, m, side)}
+      ${td ? yes : slSidesHTML(i, m, side, c)}
       ${slHistHTML(p, line, m)}
+      ${c && c.why && !slClaudeAgrees(c, m) ? `<span class="sl-cwhy">${slClaudeBadge(false, " static")}<span>${esc(c.why)}</span></span>` : ""}
     </div>`;
 }
 

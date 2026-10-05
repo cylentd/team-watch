@@ -41,12 +41,15 @@ function slFlagsHTML(x){
   return flags.length ? `<span class="sl-fl">${flags.join("")}</span>` : "";
 }
 
-/* "Lower rec yds" over its tier word, or nothing when the model has no pick on any of his lines. */
+/* "Lower rec yds" over its tier word, or nothing when the model has no pick on any of his lines. A lime
+   "C" sits on its corner when Claude picked the same side of that exact line (2026-10-05); a call the other
+   way shows nothing here, the line sheet carries it. */
 function slPickHTML(x){
   const b = slBestLine(x);
   if (!b) return "";
   const side = b.side === "lower" ? t("slips.side.lower") : t("slips.side.higher");
-  return `<span class="sl-pick">${t("slips.pick.label", {side, mkt: SL_MKT_WORD()[b.mkt] || b.mkt})}</span>${slTierHTML(b.tier)}`;
+  const c = slClaude(PROPS[b.i]), badge = slClaudeAgrees(c, b) ? slClaudeBadge(true) : "";
+  return `<span class="sl-pick">${t("slips.pick.label", {side, mkt: SL_MKT_WORD()[b.mkt] || b.mkt})}${badge}</span>${slTierHTML(b.tier)}`;
 }
 
 function slRowHTML(x, on){

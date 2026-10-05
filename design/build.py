@@ -56,10 +56,10 @@ from sources import (                                    # design/sources.py: th
     ROOT, REPO, DWR, FEED, ESPN_ROSTERS, DFS_POOL,
     feed_block, read_first, warn_if_stale, load_status, load_props_raw, load_model_raw,
     load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
-    load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_digest, load_digest_headline, load_game_preview, load_preview_record, load_league, load_role_board, load_highlights, load_clips, load_player_names, load_slip_reasons, load_props_record,
+    load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_digest, load_digest_headline, load_game_preview, load_preview_record, load_league, load_role_board, load_highlights, load_clips, load_player_names, load_slip_reasons, load_props_record, load_claude_props,
     load_defense, load_kickers, load_recaps,
 )
-from slips import UNPRICED, carry_mean, live_reasons, null_prices, priced as put_model, props_record, report as slips_report  # the Slips board's data
+from slips import UNPRICED, carry_mean, live_reasons, null_prices, priced as put_model, props_record, claude_props, report as slips_report  # the Slips board's data
 from gameday import live_gameday, report as gameday_report  # This week > Live: every matchup, scored live
 from defense import live_defense, report as defense_report  # design/defense.py: the leg sheet's matchup line
 from wx_history import live_wx_history, report as wx_history_report  # Weather's backtest lines
@@ -664,7 +664,7 @@ def render():
         "LIVE_ROUTES": live_routes(load_routes(), slugify, wanted_set),
         "LIVE_ARCHETYPE": live_archetype(load_archetype(FEED, DWR), wanted_set),
         "LIVE_TRENCHES": live_trenches(load_trenches(FEED, DWR)),
-        "LIVE_ROLE": live_role(load_role_board(), slugify), "LIVE_HIGHLIGHTS": live_highlights(load_highlights()), "LIVE_CLIPS": live_clips(load_clips()), "LIVE_NAMES": live_names(load_player_names()), "LIVE_PROPS_RECORD": props_record(load_props_record()),
+        "LIVE_ROLE": live_role(load_role_board(), slugify), "LIVE_HIGHLIGHTS": live_highlights(load_highlights()), "LIVE_CLIPS": live_clips(load_clips()), "LIVE_NAMES": live_names(load_player_names()), "LIVE_PROPS_RECORD": props_record(load_props_record()), "LIVE_CLAUDE_PROPS": claude_props(load_claude_props()),
         "LIVE_RECAP": live_recap(load_recaps(), slugify),
         "LIVE_DIGEST": live_digest(load_digest(), slugify, load_schedule(DWR), load_digest_headline()),
         "LIVE_PREVIEW": live_preview(load_game_preview(), slugify, load_preview_record(), status=load_status()),

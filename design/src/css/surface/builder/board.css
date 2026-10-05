@@ -65,7 +65,7 @@
 .sl-f.out::before{background:var(--amber)}
 /* the model's best line, button-like, its tier under it, then the line count */
 .sl-r{display:grid;justify-items:end;gap:4px}
-.sl-pick{padding:4px 8px;border:1px solid var(--lime);box-shadow:inset 0 0 0 1px var(--lime);border-radius:8px;
+.sl-pick{position:relative;padding:4px 8px;border:1px solid var(--lime);box-shadow:inset 0 0 0 1px var(--lime);border-radius:8px;
   font-size:var(--t-1);font-weight:700;line-height:1.2;white-space:nowrap;color:var(--ink)}
 .sl-go{display:inline-flex;align-items:center;gap:4px;font-size:var(--t-1);color:var(--ink-3)}
 .sl-go svg{width:6px;height:10px;stroke:currentColor;stroke-width:1.8;fill:none}

@@ -52,6 +52,27 @@ def props_record(raw):
     return {"season": raw.get("season"), "through_week": raw.get("through_week"), "tiers": {k: tiers[k] for k in TIERS[1:]}}
 
 
+def claude_props(raw):
+    """LIVE_CLAUDE_PROPS: Claude's calls (ff-jarvis claude_props.json, 2026-10-05) cut to what the page
+    matches on: {week, asof, calls: {slug: [{mkt, line, side, why}]}}. The page finds a call by player,
+    market and the exact line value shown, so a call carries no confidence, model side or chance. A call
+    with no name, market or numeric line is dropped. None without the file or without a usable call."""
+    calls = {}
+    for c in (raw or {}).get("calls") or []:
+        who = c.get("name") or c.get("key")
+        if not who or not c.get("market") or isinstance(c.get("line"), bool) or not isinstance(c.get("line"), (int, float)):
+            continue
+        calls.setdefault(slugify(who), []).append(
+            {"mkt": c["market"], "line": c["line"], "side": c.get("side"), "why": str(c.get("why") or "")[:120]})
+    return {"week": raw.get("week"), "asof": raw.get("asof"), "calls": calls} if calls else None
+
+
+def problems_claude(obj):
+    """Each call has a known side and a why; an unknown side word fails the build, as a tier word does."""
+    return [f"LIVE_CLAUDE_PROPS.calls[{s!r}][{i}].{f}" for s, rows in ((obj or {}).get("calls") or {}).items()
+            for i, c in enumerate(rows) for f, ok in (("side", c.get("side") in SIDES), ("why", "why" in c)) if not ok]
+
+
 def problems_props(obj):
     """Optional `tier`/`side` on a PROPS row or its books: when sent, a known word."""
     out = []

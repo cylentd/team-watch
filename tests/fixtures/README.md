@@ -33,6 +33,7 @@ Jahmyr Gibbs) across CIN/SF/DET, plus Ja'Marr Chase as a TD-only, headshot-less,
 | `data/cache/roster_2026.parquet` | `nfl_roster()` — resolves Ja'Marr Chase's TD-only position |
 | `heads/*.webp` | inlined headshots; Ja'Marr Chase has none (tests the missing-headshot path) |
 | `data/props_model.json` `tier`, `side`, `data/slip_reasons.json` `vacated`, `data/props_record.json` | prop picks (2026-10-05): St. Brown slight Higher, Brown very Higher, Burrow confident Lower, Purdy slight Lower, Kittle No pick, Gibbs very Lower (the book moved it); St. Brown has two teammates out; the record is the real week 4 totals (file only; the props_model copy in `feed.json` carries the tiers too) |
+| `data/claude_props.json` | Claude's prop calls (2026-10-05, file only): Brown Higher 65.5 (agrees with the model), Burrow Higher 245.5 (disagrees), Kittle Lower 45.5 (the model has no pick), Purdy Lower 230.5 (a different line from 220.5, so no badge); St. Brown has no call |
 | `feed.json` | `TEAM_WATCH_FEED` — feed-first copy of every block above |
 
 The one rule: change any fixture only together with the golden render snapshot regenerated

@@ -96,8 +96,9 @@ def test_each_tier_has_its_word_and_its_side(page):
     for slug, label in (("chase-brown", "Rush yds"), ("joe-burrow", "Pass yds"), ("george-kittle", "Rec yds")):
         sheet = open_sheet(page, slug)
         ln = line(sheet, label)
+        # a side Claude picked carries its "C" badge after the word (tests/test_claude_calls.py)
         got[slug] = (ln.locator(".sl-conf").inner_text(), ln.locator(".sl-conf").get_attribute("class").split()[-1],
-                     ln.locator(".sl-side.pick").all_inner_texts())
+                     [x.split("\n")[0] for x in ln.locator(".sl-side.pick").all_inner_texts()])
         close_sheet(page)
     assert got == {"chase-brown": ("Very confident", "very", ["Higher"]),
                    "joe-burrow": ("Confident", "confident", ["Lower"]),

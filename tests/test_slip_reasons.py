@@ -143,6 +143,37 @@ def test_long_rows_carry_nulls_not_a_price_or_a_pick(built):
     assert higgins["mu"] == 21.6 and higgins["games"] == 8
 
 
+def test_claude_calls_are_cut_to_player_market_line_side_and_why(built):
+    """LIVE_CLAUDE_PROPS (2026-10-05): per player slug a list of {mkt, line, side, why}; the model's side,
+    Claude's confidence and the chance stay in ff-jarvis's file, the page never shows them."""
+    blk = block(built, "LIVE_CLAUDE_PROPS")
+    assert blk["week"] == 4 and set(blk["calls"]) == {"chase-brown", "joe-burrow", "george-kittle", "brock-purdy"}
+    assert blk["calls"]["joe-burrow"] == [{"mkt": "PASS", "line": 245.5, "side": "higher",
+                                           "why": "Over 245.5 in 4 of his last 5, and CIN trail late more often than not."}]
+    assert contract.problems("LIVE_CLAUDE_PROPS", blk) == []
+
+
+def test_no_claude_file_is_no_block_and_a_bad_call_is_dropped_or_fails():
+    assert slips.claude_props(None) is None and slips.claude_props({"calls": []}) is None
+    raw = {"week": 4, "calls": [{"name": "A B", "market": "REC", "line": 1.5, "side": "lower", "why": "x" * 200},
+                                {"name": "C D", "market": "REC", "line": None, "side": "lower"},
+                                {"market": "REC", "line": 2.5, "side": "lower"}]}
+    out = slips.claude_props(raw)
+    assert list(out["calls"]) == ["a-b"] and len(out["calls"]["a-b"][0]["why"]) == 120, "a call with no line or no name is dropped"
+    assert contract.problems("LIVE_CLAUDE_PROPS", None) == [], "optional"
+    bad = {"week": 4, "asof": None, "calls": {"a-b": [{"mkt": "REC", "line": 1.5, "side": "up", "why": ""}]}}
+    assert contract.problems("LIVE_CLAUDE_PROPS", bad) == ["LIVE_CLAUDE_PROPS.calls['a-b'][0].side"]
+
+
+def test_the_claude_feed_block_wins_over_the_file(tmp_path, monkeypatch):
+    feed = tmp_path / "feed.json"
+    feed.write_text(json.dumps({"claude_props": {"data": {"calls": [{"name": "X Y"}]}}}), encoding="utf-8")
+    monkeypatch.setattr(sources, "FEED", feed)
+    assert sources.load_claude_props()["calls"] == [{"name": "X Y"}]
+    feed.write_text("{}", encoding="utf-8")
+    assert len(sources.load_claude_props()["calls"]) == 4, "no feed block: the file is read"
+
+
 def test_long_rows_sort_after_the_priced_ones(built):
     props = block(built, "LIVE_PROPS")["props"]
     priced = [i for i, p in enumerate(props) if p.get("edge") is not None]
