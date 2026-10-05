@@ -1,11 +1,12 @@
-/* The pack's stage (2026-09-25, David's storyboard): a black stage with the sealed pack in the middle.
-   Rip it (drag across the top, or tap) and flakes burst from the tear; the cards then come out one
-   at a time in the centre, worst first, turn over by themselves, and shrink away into a pile at the
-   foot of the screen. The best card is last and gets the moment: rays behind it, a shake, a flash,
-   a burst in its tier's colours, a spin a size up, its signature written in. Then the stage fades
-   to the roster, where the pack's slots were left empty, and each card in the pile flies home
-   into its own slot. ✕ before the rip puts the pack back on the page; after it, it skips to the
-   roster. Reduced motion skips straight to the roster. One state object (S) carries the run. */
+/* The pack's stage (2026-09-25, David's storyboard; reworked 2026-10-05): a dark stage the sealed
+   pack grows onto from where it was tapped (the starters' place, or the Starters rule's chip). Rip
+   it (drag across the top) and flakes burst from the tear; the cards then rise one at a time to the
+   centre, worst first (packdeal.js): stock cards flick past, a metal holds with its label and a
+   shine, a signed card holds again while it is signed, and the best card, last, gets the moment.
+   Each drops into a pile at the foot of the screen; then the stage fades to the roster, where the
+   pack's slots were left empty, and each card flies home into its own slot. ✕ before the rip puts
+   the pack back on the page; after it, it skips to the roster. Reduced motion skips straight to the
+   roster. One state object (S) carries the run. */
 let PACK_SHOW = null;       // {key, order}: the pack on the stage; its slots on the page stay empty
 const packShowing = () => !!PACK_SHOW;
 
@@ -15,11 +16,6 @@ function packFaceDown(team, i, html){
   return html.replace('class="tc ', `data-pk="${PACK_SHOW.order.get(i)}" class="tc pk-slot `);
 }
 
-// Spelled out one call each: assemble.py --check finds a key only in a literal lookup.
-const PACK_TIER_LABEL = {one: () => t("teams.pack.tier.one"), sig: () => t("teams.pack.tier.sig"), ur: () => t("teams.pack.tier.ur"),
-  r: () => t("teams.pack.tier.r"), c: () => t("teams.pack.tier.c")};
-const pkLabel = c => `<b>${t("teams.card.rank", {n: c.rank, pos: esc(c.p.pos)})}</b> · ${PACK_TIER_LABEL[cardTier(c.rank)]()}`
-  + (cardSigned(c.p) ? ` · <em class="pk-signed-tag">${t("teams.pack.signed")}</em>` : "");
 const pkSpring = el => getComputedStyle(el).getPropertyValue("--spring").trim() || "ease-out";
 
 /* A tap while the cards are dealt hurries the card on the stage (2026-09-25): its running motion
@@ -47,10 +43,12 @@ function pkHurry(S){
   [...S.wake].forEach(done => done());
 }
 
-function packShow(team, wk){
+/* `from` is what was tapped (the gate's pack, the chip's small pack): the stage's pack grows out of it. */
+function packShow(team, wk, from){
   if (PACK_SHOW || !wk) return;
   const cards = packCards(team);
   if (!packHas(team)) return;
+  const at = pkFrom(from);
   PACK_SHOW = {key: `${team.key}-${wk}`, order: new Map(cards.map((c, k) => [c.i, k]))};
   const st = document.createElement("div");
   st.className = "pk-stage";
@@ -78,13 +76,31 @@ function packShow(team, wk){
   wireRip(st.querySelector(".pack-seal"), () => pkRip(S), (x, y) => { packBuzz(6); packBurst(x, y, {n: 6, tier: S.best, spread: .35}); },
     (e, nudge) => pkTilt(S, e, nudge));
   pkAim(S);
-  render();                     // the page drops its own copy of the pack while the stage holds it
-  if (!REDUCED()){
-    st.animate([{opacity: 0}, {opacity: 1}], {duration: 260});
-    // The pack spins in to its lean, back first, so it arrives as a thing with two sides and a body.
-    st.querySelector(".pk-center .pack-glow").animate([{transform: "rotateX(14deg) rotateY(-376deg) scale(.6)"}, {transform: "rotateX(6deg) rotateY(-22deg)"}],
+  render();                     // the page hides its own copy of the pack while the stage holds it
+  if (!REDUCED()) pkGrow(S, at);
+}
+
+/* Where the tapped thing sits, and how far the gate's pack had turned, read before render() redraws it. */
+function pkFrom(el){
+  if (!el || !el.isConnected) return null;
+  const r = el.getBoundingClientRect(), turn = el.querySelector?.(".pack-glow");
+  const deg = turn ? parseFloat((getComputedStyle(turn).rotate.match(/(-?[\d.]+)deg/) || [0, 0])[1]) : 0;
+  return {x: r.left + r.width / 2, y: r.top + r.height / 2, h: r.height, deg: ((deg + 180) % 360 + 360) % 360 - 180};
+}
+/* The pack grows from where it was tapped to the middle of the stage (FLIP: the stage lays it out in
+   its place, then it is moved back to the tap and let go), while the room darkens around it. With
+   nothing to grow from it spins in to its lean, back first, so it arrives as a thing with a body. */
+function pkGrow(S, at){
+  S.st.querySelectorAll(".pk-back,.pk-msg,.pk-hint,.pk-close").forEach(x => x.animate([{opacity: 0}, {opacity: 1}], {duration: 260}));
+  const glow = S.st.querySelector(".pk-center .pack-glow"), c = S.st.querySelector(".pk-center");
+  if (!at){
+    glow.animate([{transform: "rotateX(14deg) rotateY(-376deg) scale(.6)"}, {transform: "rotateX(6deg) rotateY(-22deg)"}],
       {duration: 850, easing: "cubic-bezier(.2,.9,.3,1.04)"});
+    return;
   }
+  const r = c.getBoundingClientRect();
+  glow.animate([{translate: `${at.x - (r.left + r.width / 2)}px ${at.y - (r.top + r.height / 2)}px`, scale: String(at.h / r.height), rotate: `y ${at.deg}deg`},
+    {translate: "0 0", scale: "1", rotate: "y 0deg"}], {duration: 560, easing: pkSpring(glow)});
 }
 
 /* The sealed pack turns toward the mouse and its foil's shine follows it (--mx/--my). It turns
@@ -168,7 +184,7 @@ function pkBestHead(p){
 /* ✕, Escape or Back. Before the rip the pack goes back on the page; after it, straight to the end. */
 function pkQuit(S, fromBack){
   if (!fromBack) layerDone("pack");
-  if (S.ripped){ S.skip = true; [...S.wake].forEach(done => done()); S.st.getAnimations({subtree: true}).forEach(a => { if (a.effect.getTiming().iterations !== Infinity) a.finish(); }); return; }
+  if (S.ripped){ S.skip = S.quit = true; [...S.wake].forEach(done => done()); S.st.getAnimations({subtree: true}).forEach(a => { if (a.effect.getTiming().iterations !== Infinity) a.finish(); }); return; }
   pkClose(S);
 }
 function pkClose(S){
@@ -182,6 +198,7 @@ function pkClose(S){
 async function pkRip(S){
   S.ripped = true;
   packMark(S.team, S.wk);
+  render();                     // the starters' place gives way to their slots, kept empty until each card lands
   packBuzz(18);
   S.st.querySelector(".pk-hint").textContent = t("teams.pack.faster");
   S.st.classList.add("pk-ripped");
@@ -204,7 +221,6 @@ async function pkRip(S){
         {duration: 380, easing: out, fill: "forwards"}).finished]);
     S.pack = center;
   }
-  if (!S.cards.length) return pkEmpty(S);
   await pkDeal(S);
   await pkHome(S);
 }

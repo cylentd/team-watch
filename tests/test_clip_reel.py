@@ -1,9 +1,10 @@
-"""The Week plays rail on the Roster (2026-10-05, Clips v2): one card per clip in a row the reader
-drags, the "This week" list folded to its one row while it shows. Runs on the ESPN fixture team, the
-one whose starters have clips in tests/fixtures/data/clips.json: Purdy 3 (two that YouTube refuses on
-other sites, then one tall that plays), Kittle 1 (refused; the same clip as Purdy's second, the touchdown
-pass, so one card names both), C. Brown 2 (both play). The Yahoo team has
-C. Brown's two and an end card for Burrow, whose club has a game video.
+"""The Week plays rail on the Roster (2026-10-05, Clips v2; one card per starter, two to a phone page,
+text over the picture since Roster redesign unit C): a row the reader pages or drags, the "This week"
+list folded to its one row while it shows. Runs on the ESPN fixture team, the one whose starters have
+clips in tests/fixtures/data/clips.json: Purdy 3 (two that YouTube refuses on other sites, then one
+tall that plays), Kittle 1 (refused; the same clip as Purdy's second, the touchdown pass, so it is one
+item credited to both), C. Brown 2 (both play): three cards, five clips. The Yahoo team has C. Brown's
+card and an end card for Burrow, whose club has a game video.
 
 The clip theater and the warm-up belong to clipsheet.js (clipTheaterOpen, clipWarm), so
 these tests put stubs on the page and check what the rail asks of them."""
@@ -48,6 +49,28 @@ def names(page):
     return page.eval_on_selector_all(".reel-card:not(.reel-end) .reel-nm", "els => els.map(e => e.textContent)")
 
 
+@pytest.fixture(scope="module")
+def phone(browser, page_file):
+    """One 360x800 page for the tests that only read it: ESPN's roster, Cards mode, this week's pack
+    already opened so no stage covers the page."""
+    ctx, page, errors = open_page(browser, page_file, (360, 800))
+    drive(page, go("roster"))
+    page.evaluate("() => { window.__clipWeekRow = clipWeekRow; }")
+    assert errors == [], "the page raised an error while loading"
+    yield page, errors
+    ctx.close()
+
+
+@pytest.fixture
+def ph(phone):
+    page, errors = phone
+    page.evaluate("""() => { 'use strict';
+      clipEmbedOk = () => true; window.clipWeekRow = window.__clipWeekRow;
+      packMark(TEAMS.espn, schedWeek());
+      navGo('roster'); VIEW = 'espn'; ROSTER_MODE = 'cards'; render(); }""")
+    return page, errors
+
+
 def first_row_y(page):
     return page.evaluate("document.querySelector('.row.start').getBoundingClientRect().top + scrollY")
 
@@ -60,44 +83,93 @@ def rect(page, sel, n=0):
 def test_where_nothing_can_embed_every_card_is_a_youtube_link(browser, page_file):
     ctx, page, errors = espn(browser, page_file, (360, 800), served=False)
     kinds = page.eval_on_selector_all(".reel-card:not(.reel-end)", "els => els.map(e => e.tagName)")
-    assert kinds == ["A"] * 5, kinds
-    assert page.locator("[data-reelall]").count() == 0, "no Play n when nothing plays here"
+    assert kinds == ["A"] * 3, kinds
+    assert page.locator("[data-reelall]").count() == 0, "no Play all when nothing plays here"
     assert errors == []
     ctx.close()
 
 
-@pytest.mark.render
-def test_the_rail_has_a_card_per_clip_in_order_with_a_mark_on_each(browser, page_file):
-    ctx, page, errors = espn(browser, page_file, (360, 800))
+def test_the_rail_has_a_card_per_starter_best_scorer_first_with_a_count_on_each(ph):
+    page, errors = ph
     assert page.locator(".reel").count() == 1
     assert page.locator(".reel-ti h2").inner_text() == "Week 4 plays"      # LIVE_CLIPS.week, not schedWeek()
-    assert page.locator(".reel-ti small").inner_text() == "5 clips"
-    assert page.locator(".reel-card").count() == 5 and page.locator(".reel-end").count() == 0, "every starter has a clip, so no end card"
-    assert names(page) == ["B. Purdy", "B. Purdy, G. Kittle", "B. Purdy"] + ["C. Brown"] * 2, "best scorer first, his clips in data order, the shared pass once naming both"
-    assert page.eval_on_selector_all(".reel-cap", "els => els.map(e => e.textContent)")[:3] == [
-        "Brock Purdy's best plays from Week 4", "Purdy finds Kittle for the touchdown", "Purdy scrambles for the first down"]
-    # A clip that plays here wears the disc and a button; one YouTube refuses wears the chip and is a link.
-    kinds = page.eval_on_selector_all(".reel-card", "els => els.map(e => [e.tagName, !!e.querySelector('.reel-disc'), !!e.querySelector('.reel-mark')])")
-    assert kinds == [["A", False, True], ["A", False, True], ["BUTTON", True, False], ["BUTTON", True, False], ["BUTTON", True, False]], kinds
+    assert page.locator(".reel-ti small").inner_text() == "5 clips", "every clip once, the shared pass too"
+    assert page.locator(".reel-card").count() == 3 and page.locator(".reel-end").count() == 0, "every starter has a clip, so no end card"
+    assert names(page) == ["B. Purdy", "G. Kittle", "C. Brown"], "best scorer first"
+    # A card with a clip that plays here is a button wearing the count of his clips; one whose clips
+    # YouTube all refuses is a link wearing YouTube's chip where the count goes.
+    kinds = page.eval_on_selector_all(".reel-card", "els => els.map(e => [e.tagName, (e.querySelector('.reel-n') || {}).textContent || null, !!e.querySelector('.reel-mark')])")
+    assert kinds == [["BUTTON", "3", False], ["A", None, True], ["BUTTON", "2", False]], kinds
     assert "YouTube" in page.locator(".reel-mark").first.inner_text()
-    assert page.eval_on_selector_all(".reel-dur", "els => els.map(e => e.textContent)") == ["3:32", "0:34", "0:28", "0:41", "1:36"]
-    # A tall clip's thumbnail is the vertical frame, a wide one's the 16:9 still, in a box with its shape already.
+    # The picture is his first clip's still, in a 16:10 box that has its shape before the image loads.
     src = page.eval_on_selector_all(".reel-thumb img", "els => els.map(e => e.getAttribute('src'))")
-    assert src[0] == "https://i.ytimg.com/vi/aaaaaaaaaa1/hqdefault.jpg", src
-    assert src[2] == "https://i.ytimg.com/vi/aaaaaaaaaa3/oar2.jpg" and src[4] == "https://i.ytimg.com/vi/bbbbbbbbbb2/hqdefault.jpg", src
+    want = page.evaluate("['brock-purdy', 'george-kittle', 'chase-brown'].map(s => clipThumbOf(clipsOf(s)[0]))")
+    assert src == want and src[0] == "https://i.ytimg.com/vi/aaaaaaaaaa1/hqdefault.jpg", src
     thumb = rect(page, ".reel-thumb")
-    assert (thumb["w"], thumb["h"]) == (128, 160) and rect(page, ".reel-card")["w"] == 128
+    assert thumb["w"] / thumb["h"] == pytest.approx(1.6, abs=.03)
     assert errors == []
-    ctx.close()
+
+
+def test_two_cards_fill_a_phone_page_and_the_third_waits_for_the_next(ph):
+    page, errors = ph
+    track, a, b, c = (rect(page, ".reel-track" if i is None else ".reel-card", i or 0) for i in (None, 0, 1, 2))
+    assert abs(b["r"] - a["l"] - 2 * a["w"] - 8) < 1.5 and a["w"] == b["w"] == c["w"], "two cards and a gap fill the page"
+    assert b["r"] <= track["r"] and c["l"] >= track["r"] - 1, "the third card does not show past the edge"
+    assert rect(page, ".reel-card")["h"] == pytest.approx(rect(page, ".reel-thumb")["h"], abs=.5), "no text block under the picture"
+    assert errors == []
+
+
+def test_a_cards_name_points_and_stat_line_sit_inside_its_picture(ph):
+    page, errors = ph
+    page.evaluate("""() => { window.clipWeekRow = p => p.n === 'Brock Purdy' ? {row: {}, pts: 17.6, line: '6-86-1 · 11 tgt'} : {row: null, pts: null, line: null}; render(); }""")
+    thumb = rect(page, ".reel-thumb")
+    for sel in (".reel-ov", ".reel-nm", ".reel-pt", ".reel-l2", ".reel-n"):
+        r = rect(page, sel)
+        assert thumb["l"] <= r["l"] and r["r"] <= thumb["r"] + .5 and thumb["t"] <= r["t"] and r["t"] + r["h"] <= thumb["t"] + thumb["h"] + .5, (sel, r, thumb)
+    assert page.locator(".reel-nm").first.inner_text() == "B. Purdy" and page.locator(".reel-pt").first.inner_text() == "17.6"
+    assert page.locator(".reel-l2").first.inner_text() == "6-86-1 · 11 tgt"
+    nm, pt, l2, n = (rect(page, s) for s in (".reel-nm", ".reel-pt", ".reel-l2", ".reel-n"))
+    assert nm["r"] <= pt["l"] and l2["t"] >= nm["t"] + nm["h"] - 1, "name left, points right, the stat line under"
+    assert n["r"] > thumb["r"] - 12 and n["t"] < thumb["t"] + 12, "the count chip sits top right"
+    assert page.locator(".reel-pt").count() == 1, "a starter with no week row shows no points"
+    assert errors == []
+
+
+def test_the_hero_is_one_row_with_the_switch_at_its_right_end(ph):
+    page, errors = ph
+    row, sw, sub, hero = (rect(page, s) for s in (".hero-eyebrow", ".rmode", ".hero-sub", ".hero"))
+    assert row["t"] - 1 <= sw["t"] <= row["t"] + row["h"], "the switch's top is inside the name row's box"
+    assert sw["r"] >= 360 - 20 and sw["l"] > row["l"] + 100, "at the row's right end"
+    assert sub["t"] + sub["h"] <= hero["t"] + hero["h"] and hero["h"] < 80, hero
+    assert sub["l"] == row["l"] and sub["r"] < sw["l"], "the league line is under the name, one line, beside the switch"
+    assert page.evaluate("document.querySelector('.hero-sub').scrollHeight") <= 18
+    btns = page.eval_on_selector_all(".rmode [data-rmode]", "els => els.map(e => [e.dataset.rmode, e.getAttribute('aria-label'), e.getAttribute('aria-pressed'), e.textContent.trim(), !!e.querySelector('svg')])")
+    assert btns == [["sheet", "Sheet", "false", "", True], ["cards", "Cards", "true", "", True]], btns
+    assert page.locator(".rmode [data-rerip]").count() == 0, "Rip again stays on the Starters rule"
+    page.locator("[data-rmode=sheet]").click()
+    assert page.locator(".row.start").count() > 0 and page.locator("[data-rmode=sheet]").get_attribute("aria-pressed") == "true"
+    assert errors == []
+
+
+def test_my_recap_keeps_the_one_row_hero_without_the_switch(ph):
+    page, errors = ph
+    page.evaluate("VIEW = 'yahoo'; navGo('myrecap')")
+    assert page.locator(".hero.team").count() == 1 and page.locator(".rmode").count() == 0
+    assert rect(page, ".hero")["h"] < 80 and page.evaluate("document.querySelector('.hero-sub').scrollHeight") <= 18
+    assert errors == []
 
 
 @pytest.mark.render
-def test_the_header_counts_the_clips_that_play_and_hides_the_pill_when_none_does(browser, page_file):
+def test_the_header_says_play_all_when_something_plays_and_nothing_when_none_does(browser, page_file):
     ctx, page, errors = espn(browser, page_file, (360, 800))
-    assert page.locator("[data-reelall]").inner_text() == "Play 3" and page.locator("[data-reelall] svg").count() == 1
+    assert page.locator("[data-reelall]").inner_text() == "Play all"
+    h2, small, all_, prev, nxt = (rect(page, s) for s in (".reel-ti h2", ".reel-ti small", "[data-reelall]", "[data-reelstep='-1']", "[data-reelstep='1']"))
+    assert h2["r"] <= small["l"] and small["r"] <= all_["l"] <= all_["r"] <= prev["l"] and prev["r"] <= nxt["l"], "title, count, Play all, then the arrows"
+    centres = [r["t"] + r["h"] / 2 for r in (h2, small, all_, prev, nxt)]
+    assert max(centres) - min(centres) < 10 and rect(page, ".reel-h")["h"] < 44, "one line"
     page.evaluate("for (const l of Object.values(LIVE_CLIPS.players)) l.forEach(c => { c.embed = false; }); render()")
     assert page.locator("[data-reelall]").count() == 0, "nothing plays here: no pill"
-    assert page.locator(".reel-disc").count() == 0 and page.locator("a.reel-card").count() == 5
+    assert page.locator(".reel-n").count() == 0 and page.locator("a.reel-card").count() == 3
     assert page.locator(".reel-ti small").inner_text() == "5 clips"
     assert errors == []
     ctx.close()
@@ -106,12 +178,12 @@ def test_the_header_counts_the_clips_that_play_and_hides_the_pill_when_none_does
 @pytest.mark.render
 def test_a_youtube_only_card_is_a_link_and_opens_no_theater(browser, page_file):
     ctx, page, errors = espn(browser, page_file, (360, 800), stubs=True)
-    a = page.locator("a.reel-card").first
+    a = page.locator("a.reel-card").first                              # Kittle's: his one clip is the shared one YouTube refuses
     assert a.get_attribute("target") == "_blank" and a.get_attribute("rel") == "noopener"
-    assert "youtube.com/" in a.get_attribute("href") and "aaaaaaaaaa1" in a.get_attribute("href"), a.get_attribute("href")
-    want = page.evaluate("typeof clipYtUrl === 'function' ? clipYtUrl(clipsOf('brock-purdy')[0]) : null")
+    assert "youtube.com/" in a.get_attribute("href") and "aaaaaaaaaa2" in a.get_attribute("href"), a.get_attribute("href")
+    want = page.evaluate("typeof clipYtUrl === 'function' ? clipYtUrl(clipsOf('george-kittle')[0]) : null")
     assert want is None or a.get_attribute("href") == want, "the link is the sheet's own YouTube address"
-    assert a.get_attribute("aria-label") == "Brock Purdy's best plays from Week 4, opens YouTube"
+    assert a.get_attribute("aria-label") == "Purdy finds Kittle for the touchdown, opens YouTube"
     a.click()
     assert page.evaluate("__opened") is None, "no sheet for a card that opens YouTube"
     assert errors == []
@@ -119,21 +191,23 @@ def test_a_youtube_only_card_is_a_link_and_opens_no_theater(browser, page_file):
 
 
 @pytest.mark.render
-def test_a_playable_card_and_play_n_open_the_theater_on_every_clip_in_rail_order(browser, page_file):
+def test_a_card_opens_the_theater_on_his_clips_only_and_play_all_on_every_clip(browser, page_file):
     ctx, page, errors = espn(browser, page_file, (360, 800), stubs=True)
-    page.locator("button.reel-card").first.scroll_into_view_if_needed()
-    page.locator("button.reel-card").first.click()                    # Purdy's tall clip, the third card
+    page.locator("button.reel-card").first.click()                    # Purdy's three, from his tall clip, the one that plays
     got = page.evaluate("__opened")
     assert got["i"] == 2 and got["el"] == "BUTTON"
-    assert got["ids"] == ["aaaaaaaaaa1", "aaaaaaaaaa2", "aaaaaaaaaa3", "bbbbbbbbbb1", "bbbbbbbbbb2"], "YouTube-only ones ride along, the shared clip once"
-    assert got["who"][1] == "Brock Purdy" and got["ps"][1] == ["Brock Purdy", "George Kittle"]
+    assert got["ids"] == ["aaaaaaaaaa1", "aaaaaaaaaa2", "aaaaaaaaaa3"], "his clips only: the YouTube-only ones ride along"
+    assert got["ps"][1] == ["Brock Purdy", "George Kittle"], "the shared pass is still credited to both"
     page.evaluate("__opened = null")
     page.locator("[data-reelall]").click()
     got = page.evaluate("__opened")
-    assert got["i"] == 2 and got["el"] == "BUTTON", "Play n starts at the first clip that plays"
+    assert got["i"] == 2 and got["el"] == "BUTTON", "Play all starts at the first clip that plays"
+    assert got["ids"] == ["aaaaaaaaaa1", "aaaaaaaaaa2", "aaaaaaaaaa3", "bbbbbbbbbb1", "bbbbbbbbbb2"], "every clip once, the shared one once"
     page.evaluate("__opened = null")
-    page.locator("button.reel-card").nth(2).click()
-    assert page.evaluate("__opened")["i"] == 4, "a card's index is its place in the rail"
+    page.locator("button.reel-card").nth(1).evaluate("e => e.scrollIntoView({inline: 'start'})")
+    page.locator("button.reel-card").nth(1).click()                   # Brown's two
+    got = page.evaluate("__opened")
+    assert got["ids"] == ["bbbbbbbbbb1", "bbbbbbbbbb2"] and got["i"] == 0, got
     assert errors == []
     ctx.close()
 
@@ -169,7 +243,7 @@ def test_the_end_card_names_the_starters_with_no_clip_and_opens_their_game(brows
     """C. Brown has clips; J. Burrow has none but his club has a game video; St. Brown and Gibbs
     play for DET, which has neither, so only Burrow is named."""
     ctx, page, errors = espn(browser, page_file, (360, 800), team="yahoo", stubs=True)
-    assert page.locator(".reel-card").count() == 3 and page.locator(".reel-end").count() == 1
+    assert page.locator(".reel-card").count() == 2 and page.locator(".reel-end").count() == 1, "Brown's card, then the end card"
     end = page.locator(".reel-end")
     assert end.evaluate("e => e.tagName") == "A" and end.get_attribute("target") == "_blank"
     assert "cccccccccc2" in end.get_attribute("href"), "the first such game's video"
@@ -177,8 +251,12 @@ def test_the_end_card_names_the_starters_with_no_clip_and_opens_their_game(brows
     assert end.locator(".reel-endline").inner_text() == "J. Burrow: their game's highlights on YouTube"
     assert "YouTube" in end.locator(".reel-mark").inner_text()
     last, first = rect(page, ".reel-end .reel-thumb"), rect(page, ".reel-thumb")
-    assert (last["w"], last["h"]) == (first["w"], first["h"]) == (128, 160), "the same size as a clip card"
-    assert page.locator("[data-reelall]").inner_text() == "Play 2"
+    assert (last["w"], last["h"]) == (first["w"], first["h"]), "the same size as a clip card"
+    inside = page.evaluate("""(() => { const t = document.querySelector('.reel-end .reel-thumb').getBoundingClientRect();
+      return [...document.querySelectorAll('.reel-end .reel-thumb > *')].every(e => { const r = e.getBoundingClientRect();
+        return r.left >= t.left - .5 && r.right <= t.right + .5 && r.top >= t.top - .5 && r.bottom <= t.bottom + .5; }); })()""")
+    assert inside, "the end card's words fit its box"
+    assert page.locator("[data-reelall]").inner_text() == "Play all"
     end.click()
     assert page.evaluate("__opened") is None
     assert errors == []
@@ -211,16 +289,23 @@ def test_a_team_without_clips_has_no_rail(browser, page_file):
 
 
 @pytest.mark.render
-def test_the_rail_scrolls_sideways_with_the_next_card_showing_and_nothing_else_does(browser, page_file):
+def test_the_rail_scrolls_sideways_a_page_at_a_time_and_nothing_else_does(browser, page_file):
     ctx, page, errors = espn(browser, page_file, (360, 800))
     track = page.locator(".reel-track")
     css = track.evaluate("e => { const s = getComputedStyle(e); return [s.overflowX, s.scrollSnapType, s.touchAction, s.overscrollBehaviorX, s.scrollbarWidth]; }")
     assert css == ["auto", "x", "auto", "contain", "none"], "native touch scroll, x snapping (proximity is the default and prints as x), no bar, no paging"
     assert page.evaluate("[...document.querySelectorAll('.reel-card')].every(e => getComputedStyle(e).scrollSnapAlign.startsWith('start'))")
     assert page.evaluate("(() => { const t = document.querySelector('.reel-track'); return t.scrollWidth - t.clientWidth; })()") > 100
-    t, third = rect(page, ".reel-track"), rect(page, ".reel-card", 2)
-    assert third["l"] < t["r"] < third["r"], "the third card shows past the edge"
-    assert page.locator(".reel-arr").first.is_hidden(), "buttons are for a desktop"
+    prev, nxt = page.locator("[data-reelstep='-1']"), page.locator("[data-reelstep='1']")
+    assert prev.is_visible() and prev.is_disabled() and nxt.is_enabled(), "three cards are more than the one page of two: the arrows turn it"
+    # An arrow scrolls by the measured page: the cards that fit whole, each a width and a gap (two here).
+    page.evaluate("document.querySelector('.reel-track').scrollBy = o => { window.__by = o; }")
+    nxt.click()
+    card = rect(page, ".reel-card")
+    assert page.evaluate("__by")["left"] == pytest.approx(2 * (card["w"] + 8), abs=1)
+    track.evaluate("e => { e.scrollLeft = 1000; }")                  # to the end: the page is out of cards
+    page.wait_for_function("document.querySelector('[data-reelstep=\"1\"]').disabled")
+    assert prev.is_enabled()
     assert page.evaluate("document.scrollingElement.scrollWidth - innerWidth") <= 0
     assert page.evaluate("[...document.querySelectorAll('#view *')].filter(e => /(auto|scroll)/.test(getComputedStyle(e).overflowX) && e.scrollWidth > e.clientWidth + 4 && !e.matches('.reel-track')).length") == 0
     track.evaluate("e => { e.scrollLeft = 200; }")                   # touch scroll is the browser's; the same property it moves
@@ -232,8 +317,8 @@ def test_the_rail_scrolls_sideways_with_the_next_card_showing_and_nothing_else_d
 @pytest.mark.render
 def test_a_mouse_drags_the_rail_and_a_drag_opens_no_card(browser, page_file):
     ctx, page, errors = espn(browser, page_file, (360, 800), stubs=True)
-    third = rect(page, ".reel-card", 2)                              # a playable card
-    x, y = third["l"] + 30, third["t"] + 40
+    second = rect(page, ".reel-card", 1)                             # a card on the page, a link here
+    x, y = second["l"] + 30, second["t"] + 40
     page.mouse.move(x, y)
     page.mouse.down()
     for dx in (-10, -40, -90, -150):
@@ -242,36 +327,43 @@ def test_a_mouse_drags_the_rail_and_a_drag_opens_no_card(browser, page_file):
     assert page.evaluate("document.querySelector('.reel-track').scrollLeft") > 100, "the rail followed the mouse"
     assert page.evaluate("__opened") is None, "the click that ends a drag opens nothing"
     # A press that moves less than the threshold is still a click.
-    third = rect(page, ".reel-card", 3)
-    page.mouse.move(third["l"] + 30, third["t"] + 40)
-    page.mouse.down()
-    page.mouse.move(third["l"] + 32, third["t"] + 40)
-    page.mouse.up()
     page.wait_for_timeout(450)
     page.evaluate("document.querySelector('.reel-track').scrollLeft = 0")
-    page.locator("button.reel-card").first.click()
+    first = rect(page, "button.reel-card")
+    page.mouse.move(first["l"] + 30, first["t"] + 40)
+    page.mouse.down()
+    page.mouse.move(first["l"] + 32, first["t"] + 40)
+    page.mouse.up()
     assert page.evaluate("__opened")["i"] == 2, "a plain click opens its card after a drag"
     assert errors == []
     ctx.close()
 
 
 @pytest.mark.render
-def test_on_a_desktop_the_arrows_scroll_one_card_and_hide_when_the_rail_fits(browser, page_file):
+def test_on_a_desktop_four_cards_make_a_page_and_the_arrows_hide_when_the_rail_fits(browser, page_file):
     ctx, page, errors = espn(browser, page_file, (1100, 800))
-    assert page.evaluate("(() => { const t = document.querySelector('.reel-track'); return t.scrollWidth > t.clientWidth; })()"), "five cards overflow the column"
-    prev, nxt = page.locator("[data-reelstep='-1']"), page.locator("[data-reelstep='1']")
-    assert prev.is_visible() and prev.is_disabled() and nxt.is_enabled()
-    room = page.evaluate("(() => { const t = document.querySelector('.reel-track'); return t.scrollWidth - t.clientWidth; })()")
-    nxt.click()
-    page.wait_for_function("document.querySelector('.reel-track').scrollLeft > 20")
-    page.wait_for_timeout(500)
-    assert page.evaluate("document.querySelector('.reel-track').scrollLeft") == pytest.approx(min(138, room), abs=2), "one card width and a gap, or what is left"
-    assert prev.is_enabled()
+    a, d = rect(page, ".reel-card"), rect(page, ".reel-track")
+    assert d["w"] / a["w"] > 3.8, "four cards to a page from 760px"
+    assert page.evaluate("(() => { const t = document.querySelector('.reel-track'); return t.scrollWidth <= t.clientWidth + 1; })()"), "three cards fit the column"
+    assert page.locator(".reel-arr").first.is_hidden() and page.locator(".reel.fits").count() == 1
     assert errors == []
     ctx.close()
-    ctx, page, errors = espn(browser, page_file, (1100, 800), team="yahoo")     # three cards: they fit
+    ctx, page, errors = espn(browser, page_file, (1100, 800), team="yahoo")     # a card and the end card: they fit
     assert page.evaluate("(() => { const t = document.querySelector('.reel-track'); return t.scrollWidth <= t.clientWidth + 1; })()")
     assert page.locator(".reel-arr").first.is_hidden() and page.locator(".reel.fits").count() == 1
+    assert errors == []
+    ctx.close()
+    # More cards than a page: the page turns by four cards, and the end of the rail disables ›.
+    ctx, page, errors = espn(browser, page_file, (1100, 800))
+    page.evaluate("""() => { const tr = document.querySelector('.reel-track'), c = tr.querySelector('.reel-card');
+      for (let i = 0; i < 3; i++) tr.appendChild(c.cloneNode(true));
+      reelFit(document.querySelector('.reel')); }""")
+    nxt = page.locator("[data-reelstep='1']")
+    assert nxt.is_visible() and nxt.is_enabled() and page.locator("[data-reelstep='-1']").is_disabled()
+    page.evaluate("document.querySelector('.reel-track').scrollBy = o => { window.__by = o; }")
+    nxt.click()
+    card = rect(page, ".reel-card")
+    assert page.evaluate("__by")["left"] == pytest.approx(4 * (card["w"] + 8), abs=1), "a page, measured"
     assert errors == []
     ctx.close()
 
@@ -297,14 +389,14 @@ def test_the_list_folds_while_the_rail_shows_and_show_opens_it(browser, page_fil
 @pytest.mark.render
 @pytest.mark.parametrize("team", ["espn", "yahoo"])
 def test_the_first_starter_stays_on_the_first_screen_under_the_rail(browser, page_file, noclips_file, team):
-    """The folded list pays for the rail, but a 160px thumbnail is taller than the old 2-up cards (2026-10-05:
-    573 and 573 against 550 and 530 with no rail at 360x800), so the bar is the first screen, not the old row."""
+    """The folded list pays for the rail. 2026-10-05, 360x800, Sheet: 573 with the 160px-tall cards of Clips v2,
+    392 with the 16:10 two-up cards and the one-row hero of Roster redesign unit C."""
     ctx, page, errors = espn(browser, page_file, (360, 800), team=team)
     with_reel = first_row_y(page)
     ctx.close()
     ctx, page, errors = espn(browser, noclips_file, (360, 800), team=team)
     without = first_row_y(page)
-    assert with_reel < 650 and with_reel - without < 60, (with_reel, without)
+    assert with_reel < 430 and with_reel - without < 60, (with_reel, without)
     ctx.close()
 
 

@@ -1,27 +1,19 @@
 /* ============================== ROSTER: CARDS ============================== */
-/* 2026-09-25 (js/surface/teams/cards.js, cardmotion.js). A card is 5:7; three to a row on a phone,
-   so all nine starters fill the first screen, as many as fit on a desktop. The frame is the tier,
-   one colour family each: plain (#25 and on at the position), blue (#13-24), gold (#6-12), violet
-   with an etch behind the face and the name signed across the photo (#2-5), and for the #1 a
-   turning holographic frame, holo foil and glitter behind the face, a glow, and the signature.
-   The top bar's label gives the rank itself beside the position ("QB12"), in the tier's colour,
-   so two cards of one tier still read apart. Nothing is printed over a face or over text. --mx/--my is
-   where the light falls, set by the pointer. */
-@property --ang{syntax:"<angle>";inherits:true;initial-value:0deg}
+/* 2026-09-25 (js/surface/teams/cards.js, cardmotion.js); the face redrawn 2026-10-05. A card is 5:7;
+   three to a row on a phone, so all nine starters fill the first screen, as many as fit on a
+   desktop. The border is the tier: card stock for everyone, and for #4-6 silver, #2-3 gold and #1
+   holo (the metals are tokens, base/tokens.css). The face is the photo full bleed on the club's
+   colour, the projection chip top right, the last name on a club-colour banner across the foot,
+   and a round badge (position over rank) on the banner's edge whose ring is the metal. Nothing but
+   the signature is ever printed over the photo's middle. --mx/--my is where the light falls, set
+   by the pointer. */
 @property --mx{syntax:"<percentage>";inherits:true;initial-value:50%}
 @property --my{syntax:"<percentage>";inherits:true;initial-value:50%}
-.rmode{margin:12px 0 0}
-/* Sheet / Cards is a view switch sitting right under the bar, so it wears the bar's language at
-   every width (2026-09-25): sentence-case words, the picked one filled. It was the boxed mono chip
-   on a desktop, the one all-caps control left between the bar and the lineup. */
-.rmode .chip{border-radius:999px;border-color:transparent;background:var(--panel-2);color:var(--ink-2);
-  font-family:var(--ui);font-size:var(--t-2);font-weight:500;letter-spacing:0;text-transform:none;padding:7px 14px}
-.rmode .chip:hover{border-color:transparent;color:var(--ink)}
-.rmode .chip[aria-pressed="true"]{background:var(--ink);color:var(--void);border-color:transparent}
+/* The Sheet / Cards switch moved to the hero's right end as two icons (chrome/hero.css .rmode, 2026-10-05). */
 .cards-col.bench{margin-top:6px}
-.cardgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}
-.tc{--rx:0deg;--ry:0deg;--frame:var(--line-2);--th:52px;
-  position:relative;aspect-ratio:5/7;border-radius:10px;padding:4px;background:var(--frame);
+.cardgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:10px}
+.tc{--rx:0deg;--ry:0deg;--frame:var(--stock);--ring:var(--stock);--th:52px;
+  position:relative;aspect-ratio:5/7;border-radius:9px;padding:3px;background:var(--frame);
   cursor:pointer;isolation:isolate;touch-action:pan-y;
   transform:perspective(700px) rotateX(var(--rx)) rotateY(var(--ry));transition:transform .5s var(--ease);
   box-shadow:0 2px 4px rgb(var(--shadow-rgb) / .5),0 8px 18px rgb(var(--shadow-rgb) / .3)}
@@ -29,105 +21,124 @@
 .tc:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
 .tc-flip{position:relative;height:100%;transform-style:preserve-3d;transition:transform .6s var(--ease)}
 .tc.back .tc-flip{transform:rotateY(180deg)}
-.tc-face{position:absolute;inset:0;border-radius:7px;background:var(--panel);display:flex;flex-direction:column;
+.tc-face{position:absolute;inset:0;border-radius:6px;background:var(--panel);display:flex;flex-direction:column;
   overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden}
-.tc-top{display:flex;justify-content:space-between;align-items:baseline;gap:4px;padding:5px 6px 3px;
-  font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.04em;color:var(--ink-2);white-space:nowrap}
-.tc-num{color:var(--ink)}
-.tc-num.out{color:var(--down)}
-.tc-art{--tint:var(--ink-rgb);position:relative;flex:1;margin:0;border-radius:0;overflow:hidden;
-  display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,rgb(var(--tint) / .34),rgb(var(--tint) / .05) 70%),var(--panel-3)}
 .tc .pos-QB{--tint:var(--pos-qb-rgb)}
 .tc .pos-RB{--tint:var(--pos-rb-rgb)}
 .tc .pos-WR{--tint:var(--pos-wr-rgb)}
 .tc .pos-TE{--tint:var(--pos-te-rgb)}
-/* The photo stands on the art's bottom edge and fills its height, the way a printed card is cut
-   (2026-09-25; it was a small circle in the middle). Heads are transparent cutouts, so the tint
-   shows around him. It drifts a few pixels against the tilt (--px/--py from cardmotion.js), so the
-   photo sits in front of the art. A player with no photo keeps the initials, centred. */
-.tc-art > .head{position:absolute;z-index:1;inset:6% 0 0;width:auto;height:auto;display:flex;justify-content:center;align-items:flex-end;
+
+/* The front. Everything on it is placed against the face, so nothing depends on the content's
+   height: the art fills it, the banner (a fifth of the height) and the badge sit on the foot.
+   Its width is the container the weather chip reads to shorten itself. Nothing on it has a z-index:
+   the stack is the order in the markup (art, flags, signature, projection, banner, badge), because
+   a z-indexed child of a turned-over face still catches the tap meant for the back's button. */
+.tc-front{display:block;container-type:inline-size}
+.tc-art{position:absolute;inset:0;isolation:isolate;overflow:hidden;display:grid;place-items:center;
+  background:linear-gradient(180deg,var(--team,var(--panel-3)),color-mix(in srgb,var(--team,var(--panel-3)) 35%,transparent)),var(--panel-2)}
+/* The photo stands on the banner's edge and fills the height above it, the way a printed card is
+   cut. Heads are transparent cutouts, so the club's colour shows around him. It drifts a few pixels
+   against the tilt (--px/--py from cardmotion.js). A player with no photo keeps the initials. */
+.tc-art > .head{position:absolute;z-index:1;inset:7% 0 15%;width:auto;height:auto;display:flex;justify-content:center;align-items:flex-end;
   translate:calc(var(--px, 0) * -6px) calc(var(--py, 0) * -4px);transition:translate var(--dur-spring) var(--spring)}
 .tc.live .tc-art > .head{transition:none}
 .tc-art > .head > img{height:100%;width:auto;max-width:100%;aspect-ratio:1;object-fit:contain;object-position:bottom;
   border:0;border-radius:0;background:none;filter:drop-shadow(0 3px 5px rgb(var(--shadow-rgb) / .45))}
 .tc-art > .head .fallback{align-self:center;width:var(--th);height:var(--th);border:2px solid rgb(var(--ink-rgb) / .15)}
-.tc-name{padding:6px 6px 0;text-align:center;font-family:var(--disp);font-weight:800;font-size:var(--t-2);line-height:1.15;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tc-meta{padding:1px 6px 7px;text-align:center;font-size:var(--t-1);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* The projection, a chip on the photo's top right. OUT turns it red. */
+.tc-num{position:absolute;right:4px;top:4px;padding:3px 5px;border-radius:5px;background:rgb(var(--void-rgb) / .8);
+  font-family:var(--mono);font-size:var(--t-1);font-weight:700;line-height:1;letter-spacing:.02em;color:var(--ink);white-space:nowrap}
+.tc-num.out{color:var(--down)}
+/* The name: the club's colour darkened, cut on a slant that rises to the right, the last name in
+   Big Shoulders left on it. The badge takes the right-hand third, so the name stays out from under it. */
+.tc-ban{position:absolute;left:0;right:0;bottom:0;height:20%;display:flex;align-items:flex-end;padding:0 0 4% 7px;
+  background:color-mix(in srgb,var(--team,var(--panel-3)) 60%,var(--void));clip-path:polygon(0 26%,100% 0,100% 100%,0 100%)}
+.tc-ban span{max-width:62%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-family:var(--tab);font-weight:900;font-size:var(--bf,var(--t-2));line-height:1;letter-spacing:.03em;text-transform:uppercase;
+  color:var(--ink);text-shadow:0 1px 0 rgb(var(--shadow-rgb) / .45)}
+/* Position over rank, small enough to sit in a ring cut from the metal (--ring). */
+.tc-badge{position:absolute;right:4%;bottom:7%;width:clamp(30px,31%,42px);aspect-ratio:1;border-radius:50%;
+  display:grid;place-content:center;text-align:center;background:var(--panel);box-shadow:0 0 0 2px var(--ring);
+  font-family:var(--mono);font-size:var(--t-1);font-weight:800;line-height:1}
+.tc-badge b{display:block;font-weight:800;color:var(--ink)}
+.tc-badge i{display:block;font-style:normal;color:var(--ink-2)}
+/* Weather and Q/D chips: a row of their own under the projection, so none of them ever sits on it,
+   the badge or the banner. */
+.tc-flags{position:absolute;left:4px;top:calc(var(--t-1) + 14px);max-width:calc(100% - 8px);display:flex;flex-wrap:wrap;gap:3px}
+.tc-flags > .tc-chip{position:static}
+.tc-chip{position:absolute;z-index:2;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.04em;line-height:1.2;
+  color:var(--ink);background:rgb(var(--void-rgb) / .75);border-radius:3px;padding:1px 4px;white-space:nowrap}
+.tc-chip.wx{color:var(--amber)}
+.tc-chip.d{color:var(--down-ground);background:var(--down)}
+/* A card too narrow for the long chip (~118px of face: a phone, or a desktop squeezed beside "This
+   week") says only "RAIN", without the points already in his projection; both are in the tooltip
+   and on the back. */
+.tc-chip.wx .wx-short{display:none}
+@container (max-width:118px){ .tc-chip.wx .wx-long,.tc-chip.wx .wx-adj{display:none} .tc-chip.wx .wx-short{display:inline} }
 
-/* Tiers: the frame is the rarity, one colour family each (2026-09-25): plain, blue, gold, violet,
-   holo. --tier-ink colours the position label to match. */
-.tier-c{--tier-ink:var(--ink-2)}
-.tier-r{--frame:linear-gradient(135deg,var(--uncommon-1),var(--uncommon-2) 45%,var(--uncommon-1) 55%,var(--uncommon-2));--tier-ink:var(--uncommon-2)}
-.tier-ur{--frame:linear-gradient(135deg,var(--gold-1),var(--gold-2) 40%,var(--gold-1) 60%,var(--gold-2));--tier-ink:var(--gold-2)}
-.tier-sig{--frame:linear-gradient(115deg,var(--epic-1),var(--epic-2) 35%,var(--epic-1) 55%,var(--epic-2) 80%,var(--epic-1)) var(--mx) var(--my)/260% 260%;
-  --tier-ink:var(--epic-2)}
-.tier-one{--tier-ink:var(--holo-1)}
-.tier-sig .tc-face,.tier-one .tc-face{background:var(--cleat)}
-/* #1: the frame is a full holo spectrum turning around the card (--ang), with a glow in its colours. */
-.tier-one{--frame:conic-gradient(from var(--ang),var(--holo-1),var(--holo-2),var(--holo-3),var(--holo-4),var(--holo-5),var(--holo-1));
+/* The tiers: card stock, then the metals as the border. --ring is the badge's ring. */
+.tier-silver{--frame:var(--m-silver);--ring:var(--silver-2)}
+.tier-gold{--frame:var(--m-gold);--ring:var(--gold-2)}
+/* The #1: a static holo spectrum for the border, a glow in its colours, and the photo tinted holo. */
+.tier-holo{--frame:var(--m-holo);--ring:var(--white);
   box-shadow:0 2px 4px rgb(var(--shadow-rgb) / .5),0 0 16px rgb(var(--holo-2-rgb) / .45),0 0 28px rgb(var(--holo-1-rgb) / .2)}
-/* Holo foil behind his photo: rainbow bands that slide with the light (--mx/--my). */
-.tc-holo{position:absolute;inset:0;opacity:.6;mix-blend-mode:color-dodge;
-  background:repeating-linear-gradient(115deg,transparent 0,rgb(var(--holo-1-rgb) / .7) 7%,rgb(var(--holo-2-rgb) / .7) 14%,
-    rgb(var(--holo-3-rgb) / .7) 21%,rgb(var(--holo-4-rgb) / .7) 28%,rgb(var(--holo-5-rgb) / .7) 35%,transparent 42%) var(--mx) var(--my)/260% 260%}
-/* Position and rank, "QB12", engraved into the card's top bar in the tier's colour: a dark edge
-   above the strokes and a faint light one below read as cut in, not printed on (2026-09-25). */
-.tc-pos{font-family:var(--disp);font-size:var(--t-2);font-weight:800;letter-spacing:.06em;line-height:1;
-  color:var(--tier-ink, var(--ink-2));
-  text-shadow:0 -1px 0 rgb(var(--shadow-rgb) / .9),0 1px 0 rgb(var(--ink-rgb) / .16)}
-/* The rank after the letters: smaller and quieter, so the position is what a row reads first. */
-.tc-rk{margin-left:2px;font-size:var(--t-1);font-weight:600;letter-spacing:.02em;opacity:.65}
-/* The #1: glitter behind the face, lit only where the light falls. White and pale gold. */
-.tc-spark{position:absolute;inset:0;mix-blend-mode:color-dodge;
-  background-image:radial-gradient(circle,rgb(var(--ink-rgb) / .95) 0 1px,transparent 1.6px),
-    radial-gradient(circle,rgb(var(--gold-2-rgb) / .9) 0 .8px,transparent 1.4px),
-    radial-gradient(circle,rgb(var(--ink-rgb) / .7) 0 .6px,transparent 1.1px);
-  background-size:23px 19px,31px 27px,13px 17px;background-position:0 0,7px 11px,3px 5px;
-  -webkit-mask-image:radial-gradient(circle at var(--mx) var(--my),var(--shadow) 0,transparent 65%);
-          mask-image:radial-gradient(circle at var(--mx) var(--my),var(--shadow) 0,transparent 65%)}
-/* #2-5: a violet sheen showing only through fine etched lines. */
-.tc-etch{position:absolute;inset:0;opacity:.5;mix-blend-mode:color-dodge;
-  background:linear-gradient(115deg,var(--epic-2),var(--iri-2) 30%,var(--epic-2) 60%,var(--iri-1) 85%,var(--epic-2)) var(--mx) var(--my)/320% 320%;
-  -webkit-mask-image:repeating-linear-gradient(60deg,transparent 0 2px,var(--shadow) 2px 2.6px);
-          mask-image:repeating-linear-gradient(60deg,transparent 0 2px,var(--shadow) 2px 2.6px)}
-/* Signed across the lower photo, the top layer of the art (earned: cards.js cardSigned). Gold foil
-   ink, not flat gold: a band of light runs along the stroke, a dark edge keeps it on any jersey,
-   and it glows. (A small spinning holo seal after the name went the same day: it read as a colour
-   wheel, not a mark of authenticity.) The ink is the text's own background, so the edge and glow
-   are drop-shadows (a text-shadow would show through it). */
-.tc-sig{position:absolute;z-index:3;left:0;right:0;bottom:0;text-align:center;font-family:var(--sig);
-  font-size:var(--t-4);line-height:1.25;transform:rotate(-5deg);white-space:nowrap;
-  color:transparent;-webkit-background-clip:text;background-clip:text;
-  background-image:linear-gradient(100deg,var(--gold-1) 0%,var(--gold-2) 38%,var(--ink) 50%,var(--gold-2) 62%,var(--gold-1) 100%);
-  background-size:300% 100%;background-position:100% 0;
-  filter:drop-shadow(0 0 1px rgb(var(--shadow-rgb) / .95)) drop-shadow(0 1px 2px rgb(var(--shadow-rgb) / .7)) drop-shadow(0 0 6px rgb(var(--gold-2-rgb) / .55))}
-@media (prefers-reduced-motion:no-preference){ .tc-sig{animation:sig-shine 2.6s linear infinite} }
-@keyframes sig-shine{from{background-position:100% 0}to{background-position:0 0}}
-.tc-glare{position:absolute;inset:0;border-radius:10px;pointer-events:none;opacity:0;mix-blend-mode:overlay;
+.tc-holo{position:absolute;z-index:2;inset:0;pointer-events:none;background:var(--m-holo);mix-blend-mode:color-dodge;opacity:.22}
+
+/* The autograph (2026-10-05): the gold script name above the badge, sized to its box (cardfit.js
+   fitSig), never real ink. Static it shows .cool; .hot (the pen's white-hot ink) and .tip (the nib)
+   are hidden until the pack writes it (cardsign.js). */
+.tc-auto{position:absolute;left:3px;right:3px;bottom:33%;text-align:center;white-space:nowrap;transform:rotate(-8deg);
+  font-family:var(--sig);font-size:var(--t-5);line-height:1.15}
+.tc-auto .sgw{position:relative;display:inline-block;padding:0 3px}
+.tc-auto .sg.cool{color:var(--gold-2);text-shadow:0 1px 2px rgb(var(--shadow-rgb) / .75)}
+.tc-auto .sg.hot{position:absolute;left:3px;top:0;color:var(--white);opacity:0;pointer-events:none;
+  text-shadow:0 0 2px var(--white),0 0 5px var(--gold-2),0 0 11px var(--heat)}
+.tc-auto .tip{position:absolute;left:0;top:55%;width:3px;height:3px;margin:-1.5px 0 0 -1.5px;border-radius:50%;opacity:0;pointer-events:none;
+  background:var(--white);box-shadow:0 0 3px 1px var(--white),0 0 7px 3px var(--gold-2),0 0 14px 6px rgb(var(--heat-rgb) / .55)}
+
+/* The border's shine: a light band that crosses the metal once when a card is shown off (class
+   `shine`, put there by the pack), never on a loop. Only the border: the mask cuts the face out. */
+.tc .fx{position:absolute;z-index:4;inset:0;padding:3px;border-radius:inherit;overflow:hidden;pointer-events:none;
+  -webkit-mask:linear-gradient(var(--shadow) 0 0) content-box,linear-gradient(var(--shadow) 0 0);-webkit-mask-composite:xor;
+          mask:linear-gradient(var(--shadow) 0 0) content-box exclude,linear-gradient(var(--shadow) 0 0)}
+.tc .fx::after{content:"";position:absolute;inset:-30% -70%;transform:translateX(-70%);
+  background:linear-gradient(105deg,transparent 42%,rgb(var(--white-rgb) / .7) 50%,transparent 58%)}
+@media (prefers-reduced-motion:no-preference){ .tc.shine .fx::after{animation:tc-sweep var(--dur-shine) var(--ease) 1} }
+@keyframes tc-sweep{to{transform:translateX(70%)}}
+.tc-glare{position:absolute;inset:0;border-radius:9px;pointer-events:none;opacity:0;mix-blend-mode:overlay;
   background:radial-gradient(circle at var(--mx) var(--my),rgb(var(--ink-rgb) / .7),transparent 55%);transition:opacity .3s}
 .tc.live .tc-glare{opacity:.8}
-@media (prefers-reduced-motion:no-preference){
-  .tier-sig:not(.live){animation:tcsheen 6s ease-in-out infinite alternate}
-  .tier-one{animation:tcspin 4s linear infinite}
-  .tier-one:not(.live){animation:tcspin 4s linear infinite,tcsheen 6s ease-in-out infinite alternate}
-}
-@keyframes tcsheen{from{--mx:15%;--my:20%}to{--mx:85%;--my:80%}}
-@keyframes tcspin{to{--ang:360deg}}
 
-/* The back: the trend line the front leaves out, and the way into the profile. It is washed in
-   his position's colour, the same as the front's art (2026-09-25), so a turned-over row still
-   says QB / RB / WR / TE; the frame keeps the tier. Nothing on it shrinks: a row that does not
-   fit is a bug to see, not a value squeezed to nothing (the support backs lost theirs that way). */
+/* Face down (2026-10-05, packgate.js): the set's one back for every card, like a real set, while the
+   week's pack waits in the starters' place. The card is drawn whole and turned over to it, so it
+   turns face up where it lies; its border is plain stock until then, so the metal says nothing yet.
+   .up holds the back's look through the turn. */
+.tc-cb{display:none;position:absolute;inset:-3px;border-radius:9px;padding:3px;background:var(--panel-3);
+  transform:rotateY(180deg);backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.tc-cb b{display:grid;place-items:center;height:100%;border-radius:6px;border:1px solid var(--line-2);
+  background:repeating-linear-gradient(135deg,rgb(var(--lime-rgb) / .06) 0 6px,transparent 6px 12px),var(--panel-2);
+  font-family:var(--tab);font-weight:900;font-size:var(--t-5);line-height:1;color:rgb(var(--lime-rgb) / .35)}
+.tc:is(.down,.up){--frame:var(--panel-3);box-shadow:0 2px 4px rgb(var(--shadow-rgb) / .5),0 8px 18px rgb(var(--shadow-rgb) / .3)}
+.tc:is(.down,.up) .tc-cb{display:block}
+.tc:is(.down,.up) .tc-back{visibility:hidden}
+.tc.down .tc-flip{transform:rotateY(180deg)}
+.tc.up .tc-flip{transition:none}
+
+/* The back: the game, the trend line the front leaves out, and the way into the profile. It is washed
+   in his position's colour (2026-09-25), so a turned-over row still says QB / RB / WR / TE; the frame
+   keeps the tier. Nothing on it shrinks: a row that does not fit is a bug to see, not a value
+   squeezed to nothing (the support backs lost theirs that way). */
 .tc-back{transform:rotateY(180deg);padding:6px 7px 6px;gap:1px}
 .tc-back > *{flex-shrink:0}
-/* On the smallest phones (a 360px screen makes the back ~138px tall, 126px inside its padding;
-   390px makes it 140px inside) the heading's second line goes, so the stats and the button fit. */
 .tc-back{container-type:size}
-@container (max-height:132px){ .bk-why > span{display:none} }
 .tc .tc-back:is(.pos-QB,.pos-RB,.pos-WR,.pos-TE){background-image:linear-gradient(180deg,rgb(var(--tint) / .4),rgb(var(--tint) / .1) 55%,transparent)}
 .bk-why{font-size:var(--t-1);color:var(--ink-3);padding-bottom:4px;border-bottom:1px solid var(--line)}
-.bk-why b{display:block;font-family:var(--disp);font-weight:800;font-size:var(--t-3);color:var(--ink)}
+/* First line: the rank, with the game beside it when the card is wide enough, under it when not. */
+.bk-why b{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;column-gap:4px;
+  font-family:var(--disp);font-weight:800;font-size:var(--t-3);line-height:1.2;color:var(--ink)}
+.bk-why b small{font-family:var(--mono);font-size:var(--t-1);font-weight:600;letter-spacing:.02em;line-height:1.2;color:var(--ink-3);white-space:nowrap}
+/* A signed card: what the autograph says, one row under the heading. */
+.bk-signed{margin:3px -4px 0;text-align:center;font-family:var(--tab);font-size:var(--t-1);font-weight:800;line-height:1.2;letter-spacing:.02em;color:var(--gold-2)}
 .bk-l{margin-top:4px;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.06em;color:var(--ink-3);text-transform:uppercase;white-space:nowrap}
 .bk-sp .spark{width:100%;height:24px}
 /* The role sheet: label and value on one line, the percentile bar under them. The bar's colour
@@ -153,33 +164,39 @@
   font-family:var(--ui);font-weight:600;font-size:var(--t-1);padding:4px;cursor:pointer}
 .bk-open:hover{background:var(--panel-3)}
 .bk-open:focus-visible{outline:2px solid var(--lime);outline-offset:1px}
+/* Fitting the back (measured, 2026-10-05): the heading is rank, game and why, then a signed card's
+   autograph row, three stat rows and the button, and a card's back is ~126px (360px screen), ~140px
+   (390px), ~158px (430px) and ~190px (a desktop's largest) inside its padding. A signed card, whose
+   row takes ~30px, loses its why line and last stat row below 180px. Below 150px every card loses
+   its why line and tightens; below 132px a signed card also drops its stat bars. Container queries
+   style descendants of .tc-back, which is the container, and sit after the rules they override. */
+@container (max-height:180px){
+  .tc-back.signed .bk-why > span{display:none}
+  .tc-back.signed .bk-stat:last-child{display:none}
+}
+@container (max-height:150px){
+  .bk-why > span{display:none}
+  .bk-why{padding-bottom:0;border-bottom-color:transparent}
+  .bk-stats{gap:1px;margin-top:1px}
+  .bk-stat,.bk-open{line-height:1.15}
+  .bk-bar{height:2px;margin-top:1px}
+  .bk-signed{margin-top:1px}
+  /* a signed card with no role sheet: the snap line gives way to the autograph's row */
+  .tc-back.signed > .bk-l,.tc-back.signed > .bk-sp{display:none}
+}
+@container (max-height:132px){ .tc-back.signed .bk-bar{display:none} }
 
-/* Support cards: no rank, so no tier, no metal and no foil. The art is the matchup. */
-.tier-k{--frame:var(--turf-line)}
-.tier-k .tc-face{background:var(--turf)}
+/* Support cards: no rank, so no metal; the same stock, banner and badge as the rest. The art is the
+   matchup: the kicker's venue, the defense's club. Their chip sits on the row under the projection
+   chip, like a weather chip. */
 .tier-k .tc-art{background:repeating-linear-gradient(180deg,var(--turf) 0 13px,var(--turf-2) 13px 26px);box-shadow:inset 0 0 0 1px var(--turf-line)}
 /* The posts stand off to his right, small and far downfield; centred behind him they rose out of
    his head like antlers (2026-09-25). He stands a little left of centre to give them room. */
-.tier-k .tc-art > .head{inset:24% 18% 0 0}
-.tc-posts{position:absolute;top:8%;right:6%;width:30%;fill:none;stroke:var(--post);stroke-width:3;stroke-linecap:round;opacity:.85}
-.tc-chip{position:absolute;z-index:2;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.04em;
-  color:var(--ink);background:rgb(var(--void-rgb) / .75);border-radius:3px;padding:1px 4px;white-space:nowrap}
-.tc-chip.r{right:3px;bottom:3px}
-/* A player's weather chip: the photo's other top corner from the rank stamp, amber like a warning. */
-.tc-chip.wx{top:4px;right:4px;color:var(--amber)}
-/* A card too narrow for the stamp and the chip side by side (~110px of art: a phone, or a desktop
-   squeezed beside "This week") says only "RAIN", so the chip stays off his face; the percentage
-   is in the tooltip and on the back. Dropped a row, the chip covered his face. */
-.tc-art{container-type:inline-size}
-.tc-chip.wx .wx-short{display:none}
-@container (max-width:118px){ .tc-chip.wx .wx-long{display:none} .tc-chip.wx .wx-short{display:inline} }
+.tier-k .tc-art > .head{inset:24% 18% 15% 0}
+.tc-posts{position:absolute;top:21%;right:6%;width:26%;fill:none;stroke:var(--post);stroke-width:3;stroke-linecap:round;opacity:.85}
+.tc-chip.r{left:4px;top:calc(var(--t-1) + 14px);max-width:calc(100% - 8px);overflow:hidden;text-overflow:ellipsis}
 .bk-wx{display:block;color:var(--amber);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tier-dst{--frame:var(--team,var(--line-2))}
-.tier-dst .tc-face{background:var(--team-2,var(--panel))}
-.tier-dst .tc-art{background:repeating-linear-gradient(135deg,transparent 0 8px,rgb(var(--shadow-rgb) / .12) 8px 16px),var(--team,var(--panel-3))}
-.tier-dst .tc-top,.tier-dst .tc-name{color:var(--on-team-2,var(--ink))}
-.tier-dst .tc-pos{color:inherit}
-.tier-dst .tc-meta{color:var(--on-team-2,var(--ink-3));opacity:.75}
+.tier-dst .tc-art{padding-bottom:15%;background:repeating-linear-gradient(135deg,transparent 0 8px,rgb(var(--shadow-rgb) / .12) 8px 16px),var(--team,var(--panel-3))}
 /* The club's code is the defense card's face, large in its own colours, so the card says which
    defense before anything else (2026-09-25; the opponent's points had the middle and the code was a
    faint watermark). The points moved to the chip. */

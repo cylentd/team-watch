@@ -33,29 +33,8 @@ async function pkHome(S){
   pkClose(S);
 }
 
-/* An empty pack (2026-09-27): nobody on the roster made the top 12 this week. It is ripped like
-   any other, then turned upside down and shaken, and nothing falls out but a puff of dust. The line
-   says so, the pile counts 0, and it drops away. A tap, ✕ or Escape goes sooner. The line stays
-   body size in the lead's place: as a headline it would sit on the pack. */
-async function pkEmpty(S){
-  const center = S.pack, moving = center && !S.skip;
-  S.pack = null;
-  S.st.querySelector(".pk-hint").textContent = "";
-  if (moving){
-    await pkAnim(S, center, [{rotate: "0deg"}, {rotate: "180deg"}], {duration: 520, easing: "cubic-bezier(.25,1,.5,1)", fill: "forwards"}).finished;
-    await pkAnim(S, center, [0, -9, 9, -7, 7, -4, 4, 0].map(x => ({translate: `calc(-50% + ${x}px) -50%`, rotate: "180deg"})), {duration: 640}).finished;
-    const r = center.querySelector(".pack-seal").getBoundingClientRect();
-    packPuff(r.left + r.width / 2, r.bottom, r.width * .6);
-    packBuzz(10);
-  }
-  S.st.querySelector(".pk-msg").innerHTML = t("teams.pack.empty");
-  S.st.querySelector(".pk-count").textContent = t("teams.pack.count", {n: 0});
-  await new Promise(r => { setTimeout(r, 2600); S.wake.add(r); S.st.addEventListener("click", r, {once: true}); });
-  if (moving && !S.skip) await pkAnim(S, center, [{translate: "-50% -50%", rotate: "180deg", opacity: 1}, {translate: "-50% 10%", rotate: "180deg", opacity: 0}],
-    {duration: 340, easing: "cubic-bezier(.5,0,.75,0)", fill: "forwards"}).finished;
-  layerDone("pack");
-  pkClose(S);
-}
+/* Superseded 2026-10-05: the empty pack turned upside down and shaken (pkEmpty). The pack is the
+   starters now, never empty; a week with no metal says so after the deal (packdeal.js pkNone). */
 
 /* One card onto its slot. Centres from the boxes (a leaning card's box is wider than the card; its
    centre is not moved), the width from the layout, so the lean does not skew the scale. */

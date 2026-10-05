@@ -1,12 +1,8 @@
 /* ============================== ROSTER: THE WEEK'S PACK ============================== */
-/* 2026-09-25 (js/surface/teams/pack.js). A sealed foil pack above the cards, once per league per
-   week: crimped at both ends by a mask, a tear strip across the top, the week and the card count
-   printed on it. --tear (0..1, set by the finger) lifts the strip and lights the seam. Face down,
-   every card wears the same plain frame and the same back, so the tier is a surprise until the
-   card turns. The stage the cards open onto is packstage.css. */
-.pack{margin:14px 0 6px;padding-bottom:10px;border-bottom:1px solid var(--line)}
-.pack-msg{margin:0 0 12px;font-size:var(--t-3);color:var(--ink-2);text-wrap:balance}
-.pack-msg b{color:var(--ink)}
+/* 2026-09-25 (js/surface/teams/pack.js). A sealed foil pack, crimped at both ends by a mask, a tear
+   strip across the top, the week printed on it. --tear (0..1, set by the finger) lifts the strip
+   and lights the seam. Since 2026-10-05 it waits in the starters' place (packgate.css) and opens
+   onto the stage (packshow.css). */
 .pack-seal{position:relative;display:block;width:200px;height:280px;margin:0 auto;padding:0;border:0;cursor:pointer;
   color:var(--ink);font:inherit;background:none;container-type:size}
 /* A pack with a body (2026-09-26, "like an actual booster pack"): the front (.pack-seal) and a back
@@ -65,8 +61,6 @@
     linear-gradient(rgb(var(--shadow-rgb) / .45),rgb(var(--shadow-rgb) / .45)),
     linear-gradient(180deg,var(--holo-1),var(--holo-2) 30%,var(--holo-1) 55%,var(--holo-2) 80%,var(--holo-1))}
 .pack-wall.l{left:calc(var(--pkd) / -2);transform:rotateY(-90deg)}
-.pack .pack-glow{transform:rotateX(5deg) rotateY(-16deg)}
-.pack{perspective:900px}
 /* The pillow: the foil bulges, so its sides fall into shadow, a highlight runs down it where the
    light catches the curve (it follows --mx, the hand, on the stage), and it pinches and crinkles
    where the crimps seal it. */
@@ -97,13 +91,8 @@
   translate:calc((var(--mx, 50%) - 50%) * -.5) calc((var(--my, 50%) - 50%) * -.5)}
 .pack-foil::after{content:"";position:absolute;left:0;right:0;bottom:0;height:18px;
   background:repeating-linear-gradient(90deg,rgb(var(--ink-rgb) / .09) 0 1px,transparent 1px 3px),linear-gradient(0deg,rgb(var(--void-rgb) / .5),transparent)}
-/* The page's small pack shimmers by itself; the stage's follows the hand instead (pkLean), since
-   a layer drifting inside a 3D-turned, masked pack is the likeliest source of the dark box a
-   phone showed swinging across it (2026-09-25). */
-@media (prefers-reduced-motion:no-preference){
-  .pack .pack-foil::before{animation:pk-holo 4s ease-in-out infinite alternate}
-}
-@keyframes pk-holo{from{translate:-18% -14%}to{translate:18% 14%}}
+/* The stage's pack's shimmer follows the hand (pkLean). The page's small pack shimmered by itself
+   until 2026-10-05, a loop with no rest; its one slow turn is its cue now (packgate.js). */
 .pack-seal:focus-visible{outline:2px solid var(--lime);outline-offset:4px}
 /* The key art (pack.js packArtSVG): yard lines, the brand's // as two stripes, the week's number embossed. */
 .pack-art{position:absolute;inset:0;width:100%;height:100%}
@@ -181,20 +170,21 @@
   background:radial-gradient(closest-side,var(--glow, transparent) 55%,transparent);opacity:.75}
 /* The stage draws the same glow on .pk-center, which does not turn (packshow.css), so each tier's
    colour is set there too, through :has. */
-:is(.pack-glow.tease-ur,.pk-center:has(.tease-ur)){--glow:rgb(var(--gold-2-rgb) / .55);--glow-r:10px}
-:is(.pack-glow.tease-sig,.pk-center:has(.tease-sig)){--glow:rgb(var(--epic-2-rgb) / .7);--glow-r:14px}
-:is(.pack-glow.tease-one,.pk-center:has(.tease-one)){--glow:rgb(var(--holo-3-rgb) / .8);--glow-r:18px}
+:is(.pack-glow.tease-silver,.pk-center:has(.tease-silver)){--glow:rgb(var(--silver-2-rgb) / .5);--glow-r:10px}
+:is(.pack-glow.tease-gold,.pk-center:has(.tease-gold)){--glow:rgb(var(--gold-2-rgb) / .65);--glow-r:14px}
+:is(.pack-glow.tease-holo,.pk-center:has(.tease-holo)){--glow:rgb(var(--holo-3-rgb) / .8);--glow-r:18px}
+/* Only the stage's glow breathes: on the page a breathing glow was a loop that never rested
+   (STYLE.md motion rule 1, 2026-10-05). */
 @media (prefers-reduced-motion:no-preference){
-  :is(.pack-glow.tease-sig,.pack-glow.tease-one,.pk-center:has(.tease-sig,.tease-one))::before{animation:pk-breathe 1.8s ease-in-out infinite alternate}
-  :is(.pack-glow.tease-one,.pk-center:has(.tease-one))::before{animation-duration:1.1s}
+  .pk-center:has(.tease-gold,.tease-holo)::before{animation:pk-breathe 1.8s ease-in-out infinite alternate}
+  .pk-center:has(.tease-holo)::before{animation-duration:1.1s}
   .pack-seal.tearing{animation:pk-strain .12s linear infinite}
 }
 @keyframes pk-breathe{from{opacity:.55}to{opacity:1}}
 @keyframes pk-strain{0%,100%{translate:0 0 calc(var(--pkd) / 2)}50%{translate:.6px -.4px calc(var(--pkd) / 2)}}
-.pack-hint{margin:10px 0 0;text-align:center;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.14em;color:var(--ink-3)}
-.pack-done{display:block;margin:14px auto 0}
-/* "Rip again" ends the Starters rule over the cards (cardmotion.js reripHTML), a quiet text action.
-   In the Sheet / Cards switch it came and went with the mode and shifted both chips (2026-09-25). */
+/* The pack's chip ends the Starters rule over the cards (cardmotion.js reripHTML), a quiet text
+   action: "Rip again", or "Open week 5" (packgate.css). In the Sheet / Cards switch it came and went
+   with the mode and shifted both chips (2026-09-25). */
 .rule .rm-again{appearance:none;display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 2px;border:0;background:none;cursor:pointer;
   font-family:var(--ui);font-size:var(--t-2);font-weight:500;color:var(--ink-2);white-space:nowrap}
 .rule .rm-again:hover{color:var(--lime)}

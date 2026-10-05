@@ -10,10 +10,9 @@
    Smoke (2026-09-27): a card landing in its roster slot kicks up a puff along the ground, soft
    grey rounds that roll out sideways, swell and thin away (packPuff). Same canvas, same loop. */
 const PACK_FX_COLOURS = {
-  one: ["--holo-1", "--holo-2", "--holo-3", "--holo-4", "--holo-5"],
-  sig: ["--epic-1", "--epic-2", "--iri-2", "--ink"],
-
-  ur: ["--gold-1", "--gold-2"],
+  holo: ["--holo-1", "--holo-2", "--holo-3", "--holo-4", "--holo-5"],
+  gold: ["--gold-1", "--gold-2"],
+  silver: ["--silver-1", "--silver-2", "--ink"],
   none: ["--ink-3", "--line-2"],                  // an empty pack's foil: grey, nothing to celebrate
 };
 
@@ -23,10 +22,10 @@ function packBuzz(pattern){
 
 const PACK_FX = {c: null, g: null, w: 0, h: 0, flakes: [], last: 0};
 
-function packBurst(x, y, {n = 40, tier = "ur", spread = 1} = {}){
+function packBurst(x, y, {n = 40, tier = "gold", spread = 1} = {}){
   if (REDUCED()) return;
   const css = getComputedStyle(document.documentElement);
-  const colours = (PACK_FX_COLOURS[tier] || PACK_FX_COLOURS.ur).map(k => css.getPropertyValue(k).trim());
+  const colours = (PACK_FX_COLOURS[tier] || PACK_FX_COLOURS.gold).map(k => css.getPropertyValue(k).trim());
   for (let k = 0; k < n; k++){
     const a = -Math.PI / 2 + (Math.random() - .5) * Math.PI * .9 * spread, v = 4 + Math.random() * 7;
     PACK_FX.flakes.push({x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, s: 3 + Math.random() * 5, r: Math.random() * 6.3,

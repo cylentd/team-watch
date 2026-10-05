@@ -44,17 +44,26 @@ function rosterModeLoad(){
 function rosterModeSave(m){
   try { localStorage.setItem("tw-roster-mode", m); } catch (e) { /* a private window keeps it for this load */ }
 }
-/* "Rip again" (2026-09-25) puts this week's opened pack back on the stage, sealed, with the same
-   cards (pack.js packReplay). It sits at the end of the Starters rule over the cards, never in the
-   Sheet / Cards switch: there it came and went with the mode and moved both chips each time
-   (2026-09-25). The arrow says "again". */
+/* The pack's chip (2026-09-25; two states since 2026-10-05, pack.js packChip) ends the Starters rule
+   over the cards, never in the Sheet / Cards switch: there it came and went with the mode and moved
+   both chips each time (2026-09-25). "Open week 5", with a small pack, opens a skipped or browsed
+   pack; "Rip again", with an arrow, puts an opened one back on the stage, sealed. While the pack
+   waits in the starters' place the chip is drawn but hidden, so Skip has somewhere to shrink it to. */
 const RERIP_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>`;
-const reripHTML = team => packReplayable(team) ? `<button class="rm-again" type="button" data-rerip>${RERIP_ICON}${t("teams.pack.again")}</button>` : "";
+function reripHTML(team){
+  const chip = packChip(team);
+  if (chip === "again") return `<button class="rm-again" type="button" data-rerip>${RERIP_ICON}${t("teams.pack.again")}</button>`;
+  if (!chip) return "";
+  return `<button class="rm-again rm-open${chip === "wait" ? " wait" : ""}" type="button" data-pkopen><i class="rm-pk" aria-hidden="true"></i>${t("teams.pack.openWeek", {wk: schedWeek()})}</button>`;
+}
+/* Two icon buttons at the hero's right end (2026-10-05): a list is the Sheet, a grid the Cards. */
+const RMODE_ICON = {
+  sheet: `<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="2.4" rx="1"/><rect x="1" y="6.8" width="14" height="2.4" rx="1"/><rect x="1" y="11.1" width="14" height="2.4" rx="1"/></svg>`,
+  cards: `<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.3"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1.3"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1.3"/><rect x="9" y="9" width="5.5" height="5.5" rx="1.3"/></svg>`,
+};
 function rosterModeHTML(){
-  return `<div class="filters rmode" role="group" aria-label="${t("teams.mode.label")}">
-    <button class="chip" data-rmode="sheet" aria-pressed="${ROSTER_MODE === "sheet"}">${t("teams.mode.sheet")}</button>
-    <button class="chip" data-rmode="cards" aria-pressed="${ROSTER_MODE === "cards"}">${t("teams.mode.cards")}</button>
-  </div>`;
+  const btn = (m, name) => `<button type="button" class="chip" data-rmode="${m}" aria-pressed="${ROSTER_MODE === m}" aria-label="${name}" title="${name}">${RMODE_ICON[m]}</button>`;
+  return `<div class="rmode" role="group" aria-label="${t("teams.mode.label")}">${btn("sheet", t("teams.mode.sheet"))}${btn("cards", t("teams.mode.cards"))}</div>`;
 }
 function wireRosterMode(v, team){
   v.querySelectorAll("[data-rmode]").forEach(b => b.addEventListener("click", () => {
@@ -63,6 +72,5 @@ function wireRosterMode(v, team){
     rosterModeSave(ROSTER_MODE);
     render();
   }));
-  v.querySelector("[data-rerip]")?.addEventListener("click", () => packReplay(team));
   if (ROSTER_MODE === "cards") wireCards(v);
 }

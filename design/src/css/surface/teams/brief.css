@@ -7,9 +7,16 @@
    - below: above the rows, three lines and "Show all" (a phone scrolls to reach the roster, and
      three lines are what decides whether it needs to). */
 .brief{margin-top:20px;max-width:720px}
-.brief-h{display:flex;align-items:center;gap:10px;margin:0 0 6px;min-height:32px}
-.brief-h h2{margin:0;font-family:var(--disp);font-size:var(--t-4);font-weight:800;color:var(--ink)}
-.brief-h small{margin-left:auto;font-family:var(--ui);font-size:var(--t-1);font-weight:500;color:var(--ink-3)}
+/* The row: the title, the red sit pill when a starter will likely sit (injury.js, 2026-10-05; it was a
+   strip above the roster), the count at the right with the one action. With the pill the row never
+   wraps (a 360px phone pushed "Show" to a second line, 2026-10-05): the count gives way, the pill
+   keeps the room and ends in an ellipsis if it must. */
+.brief-h{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin:0 0 6px;min-height:32px}
+.brief-h h2{flex:none;margin:0;font-family:var(--disp);font-size:var(--t-4);font-weight:800;color:var(--ink)}
+.brief-h small{margin-left:auto;white-space:nowrap;font-family:var(--ui);font-size:var(--t-1);font-weight:500;color:var(--ink-3)}
+.brief-h:has(.inj-warn){flex-wrap:nowrap}
+.brief-h:has(.inj-warn) small{display:none}
+.brief-h:has(.inj-warn) .brief-act{margin-left:auto}
 /* "Got it" / "Show": the header's one action, a quiet pill like the Sheet / Cards chips. */
 .brief-act{appearance:none;border:0;border-radius:999px;padding:6px 12px;background:var(--panel-2);cursor:pointer;
   font-family:var(--ui);font-size:var(--t-2);font-weight:600;color:var(--ink-2)}

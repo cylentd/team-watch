@@ -1,60 +1,68 @@
-/* The week's pack (2026-09-25): once per league per week, the Cards view holds a sealed pack of the
-   players who rank in the top 12 at their position this week (cards.js cardTier "ur" and up). How
-   many it holds is news too, so since 2026-09-27 nothing says it before the rip (a "1 card" pack
-   gave the week away); the stage counts the cards up as they land in the pile. Opening is remembered in localStorage, which can
-   refuse: then the pack simply shows again next load.
+/* The week's pack (2026-09-25; rebuilt 2026-10-05 from the round-4 storyboard): this week's nine
+   starters, sealed. Until it is ripped or skipped this week, it sits where the starters go on a team
+   the reader follows, in Cards mode only (packgate.js): the slots face down behind it, Rip and Skip
+   under it. Rip opens the stage (packshow.js), Skip turns the cards face up and leaves a chip on the
+   Starters rule ("Open week 5") that opens the stage directly; once opened the chip says "Rip again".
+   A team only browsed, and Sheet mode, never wait: the roster shows, with the chip. Opened and
+   skipped are remembered per team per week in localStorage, which can refuse: then a Set keeps them
+   for this load. The sealed pack glows in the colour of the best card inside: how good, never who.
+   Superseded 2026-10-05: the stage that opened by itself once a week (tw-pack-auto-<wk>), and a
+   pack of only the top 6 at their position above the cards. */
+const PACK_MEM = new Set();      // keys a refusing localStorage could not keep, for this load
 
-   The first unopened pack a reader meets in a week opens on its own black stage, centred
-   (packshow.js). Only that one: since 2026-09-28 anyone can open any of the 24 teams, and a reader
-   browsing leaguemates would otherwise sit through a stage per team; the rest wait sealed for a
-   tap. Remembered per week in localStorage, and per load when it refuses. Closing the stage leaves the pack on the page as the way
-   back in; "Rip again" on the Sheet / Cards row puts an opened pack back on the stage. The sealed
-   pack glows in the colour of the best card inside: how good, never who. */
-const PACK_TIERS = ["ur", "sig", "one"];
-let PACK_REPLAY = null;          // "<league>-<week>" while a replayed pack is waiting to be ripped
-const PACK_AUTO_SEEN = new Set(); // weeks whose stage already opened on its own this load
-
-/* Has a pack already opened on its own this week, for any team? */
-const packAutoKey = wk => `tw-pack-auto-${wk}`;
-function packAutoDone(wk){
-  if (PACK_AUTO_SEEN.has(wk)) return true;
-  try { return localStorage.getItem(packAutoKey(wk)) === "1"; } catch (e) { return false; }
+function packGet(k){
+  if (PACK_MEM.has(k)) return true;
+  try { return localStorage.getItem(k) === "1"; } catch (e) { return false; }
 }
-function packAutoMark(wk){
-  PACK_AUTO_SEEN.add(wk);
-  try { localStorage.setItem(packAutoKey(wk), "1"); } catch (e) { /* the Set keeps it for this load */ }
+function packPut(k){
+  try { localStorage.setItem(k, "1"); } catch (e) { PACK_MEM.add(k); }
 }
-
 /* The pack's week is the schedule's this-week (data/schedule.js schedWeek). */
 const packKey = (team, wk) => `tw-pack-${team.key}-${wk}`;
-function packOpened(team, wk){
-  try { return localStorage.getItem(packKey(team, wk)) === "1"; } catch (e) { return false; }
+const packSkipKey = (team, wk) => `tw-pack-skip-${team.key}-${wk}`;
+const packOpened = (team, wk) => packGet(packKey(team, wk));
+const packMark = (team, wk) => packPut(packKey(team, wk));
+const packSkipped = (team, wk) => packGet(packSkipKey(team, wk));
+const packSkipMark = (team, wk) => packPut(packSkipKey(team, wk));
+/* A metal or a signed card is a hit: it holds the stage. Metal tiers count up from the stock. */
+const PACK_METAL = {base: 0, silver: 1, gold: 2, holo: 3};
+const packHit = c => PACK_METAL[cardTier(c.rank)] > 0 || !!cardSigned(c.p);
+/* Worst first, best last: the stock by rank (K, DST and the unranked first), then the hits by metal
+   and rank, a signed card of the same rank after an unsigned one. A signed stock card is a hit, so
+   it comes after every stock card. */
+function packScore(c){
+  if (!packHit(c)) return c.rank ? 500 - c.rank : 0;
+  return 1000 + PACK_METAL[cardTier(c.rank)] * 100 + (100 - (c.rank || 100)) + (cardSigned(c.p) ? .5 : 0);
 }
-function packMark(team, wk){
-  try { localStorage.setItem(packKey(team, wk), "1"); } catch (e) { /* shows again next load */ }
-}
-
-/* The pack's players with their profile index, lowest rank first so the best turns last: the top
-   12 at a position, and any signed card (cards.js cardSigned) whatever its tier, the chase card. */
+/* The pack is the starters, each with his profile index (starters come first, drawer.js findPlayer). */
 function packCards(team){
-  const ordered = team.roster.filter(p => p.start)
-    .concat(team.roster.filter(p => !p.start && p.slot !== "OUT"), team.roster.filter(p => p.slot === "OUT"));
-  return ordered.map((p, i) => ({p, i, rank: cardRank(p)}))
-    .filter(c => c.rank && (PACK_TIERS.includes(cardTier(c.rank)) || cardSigned(c.p)))
-    .sort((a, b) => b.rank - a.rank);
+  const support = p => p.pos === "K" || p.pos === "DST";
+  return team.roster.filter(p => p.start).map((p, i) => ({p, i, rank: support(p) ? null : cardRank(p)}))
+    .sort((a, b) => packScore(a) - packScore(b));
 }
 
-/* There is a pack this week when the projections rank anyone on the roster, even if none of them
-   makes it in (2026-09-27): an empty pack is a bad week, and a bad week gets its pack too. With no
-   ranks at all (no projections yet) there is nothing to open. */
-const packHas = team => team.roster.some(p => cardRank(p));
-/* The best card's tier, which the pack glows in; "none" for an empty pack, which does not glow. */
-const packBest = cards => cards.length ? cardTier(cards[cards.length - 1].rank) : "none";
+/* There is a pack this week when the projections rank anyone on the roster (2026-09-27): a bad week
+   gets its pack too. With no ranks at all (no projections yet) there is nothing to open. */
+const packHas = team => team.roster.some(p => p.start) && team.roster.some(p => cardRank(p));
+/* The best card's tier, which the pack glows in; "none" when the best is stock, which does not glow. */
+const packBest = cards => {
+  const top = cards[cards.length - 1];
+  return top && cardTier(top.rank) !== "base" ? cardTier(top.rank) : "none";
+};
 
-/* This week's pack has been opened: the Sheet / Cards row offers it again, empty or not. */
-function packReplayable(team){
+/* The pack waits in the starters' place: Cards mode, a followed team (data/mates.js followLoad), and
+   this week's pack neither opened nor skipped. */
+function packGated(team){
   const wk = schedWeek();
-  return !!wk && packOpened(team, wk) && packHas(team) && !packShowing();
+  return ROSTER_MODE === "cards" && !!wk && packHas(team) && followLoad().includes(team.key)
+    && !packOpened(team, wk) && !packSkipped(team, wk);
+}
+/* What the Starters rule offers (cardmotion.js reripHTML): "again" once opened, "open" when skipped
+   or only browsed, "wait" (drawn, hidden) while the gate stands, so Skip has a chip to shrink into. */
+function packChip(team){
+  const wk = schedWeek();
+  if (!wk || !packHas(team) || packShowing()) return "";
+  return packOpened(team, wk) ? "again" : packGated(team) ? "wait" : "open";
 }
 
 /* The sealed pack (art reworked 2026-09-25: it was a plain gradient with a dark band for a strip).
@@ -106,29 +114,14 @@ function packSeason(){
   return g ? new Date(g.kickoff).getUTCFullYear() : "";
 }
 
-/* On the page: the unopened pack, small, as the way onto the stage. */
-function packHTML(team){
-  const wk = schedWeek(), cards = packCards(team);
-  if (!wk || !packHas(team) || packOpened(team, wk) || packShowing()) return "";
-  return `<div class="pack" data-pack="${wk}">
-    <p class="pack-msg">${t("teams.pack.lead", {wk})}</p>
-    ${packSealHTML(team, wk, cards)}
-    <p class="pack-hint">${t("teams.pack.tapOpen")}</p>
-  </div>`;
-}
-
+/* The page's ways onto the stage: the gate (packgate.js), and the Starters rule's chip, which grows
+   the pack out of itself. */
 function wirePack(v, team){
-  const box = v.querySelector(".pack"), seal = box && box.querySelector(".pack-seal");
-  if (!seal) return;
-  const wk = +box.dataset.pack;
-  seal.addEventListener("click", e => { e.stopPropagation(); packShow(team, wk); });
-  if (!packAutoDone(wk)){
-    PACK_AUTO_SEEN.add(wk);      // at once, so a re-render inside the delay does not queue a second
-    setTimeout(() => { if (document.body.contains(seal)){ packAutoMark(wk); packShow(team, wk); } }, 350);
-  }
-}
-function packReplay(team){
-  packShow(team, schedWeek());
+  const gate = v.querySelector(".pk-gate");
+  if (gate) packGateWire(v, team, gate);
+  v.querySelectorAll("[data-pkopen],[data-rerip]").forEach(b => b.addEventListener("click", () => {
+    packShow(team, schedWeek(), b.querySelector(".rm-pk, svg") || b);
+  }));
 }
 
 /* The tear (2026-09-25, reworked twice the same day: it jumped, then it always began at the left

@@ -27,6 +27,7 @@ surface/teams/cards.css
 surface/teams/cardweather.css
 surface/teams/injury.css
 surface/teams/pack.css
+surface/teams/packgate.css
 surface/teams/packshow.css
 surface/teams/brief.css
 surface/teams/cliprail.css

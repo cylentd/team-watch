@@ -20,15 +20,17 @@ body.pk-open{overflow:hidden}
 .pk-close:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 .pk-msg{position:absolute;z-index:4;left:16px;right:16px;top:calc(45% - var(--pkw) * .86 - 60px);margin:0;text-align:center;
   font-size:var(--t-3);color:var(--ink-2);text-wrap:balance}
-.pk-msg b{color:var(--ink);margin-right:4px}
-/* The caption over each card as it is dealt, "#3 RB · Signature" (.deal, packdeal.js): headline
-   size since 2026-09-25; as body text it read as a footnote over a card twice its height. */
-.pk-msg.deal{top:calc(45% - var(--pkw) * .7 - 78px);font-family:var(--disp);font-size:var(--t-5);font-weight:700;line-height:1.2}
-.pk-msg.deal b{margin-right:6px;font-weight:800}
+/* The label over a hit as it holds (.deal, packdeal.js pkTag; 2026-10-05, it was "#3 RB · Gold"
+   in one line): the metal's name large in the metal ("GOLD"; the holo spectrum for a #1), and under
+   it in small capitals what earned it ("#2 TE THIS WEEK"), or SIGNED in gold over the finish. */
+.pk-msg.deal{top:calc(45% - var(--pkw) * .7 - 86px);line-height:1.1}
+.pk-msg.deal b{display:block;margin:0;font-family:var(--tab);font-size:var(--t-6);font-weight:900;letter-spacing:.06em;text-transform:uppercase}
+.pk-msg.deal small{display:block;margin-top:4px;font-family:var(--mono);font-size:var(--t-1);font-weight:600;letter-spacing:.1em;color:var(--ink-2)}
+.pk-tag.t-silver{color:var(--silver-2)}
+.pk-tag.t-gold,.pk-tag.t-signed{color:var(--gold-2)}
+.pk-tag.t-holo{background:var(--m-holo);-webkit-background-clip:text;background-clip:text;color:transparent}
 /* The best card stands 16% larger and framed (packdeal.js pkHero), so its line sits higher. */
-.pk-dim .pk-msg.deal{top:calc(45% - var(--pkw) * .82 - 86px)}
-.pk-msg .pk-signed-tag{font-style:normal;font-family:var(--sig);font-size:var(--t-4);color:var(--gold-2)}
-.pk-msg.deal .pk-signed-tag{font-size:var(--t-6);font-weight:400}
+.pk-dim .pk-msg.deal{top:calc(45% - var(--pkw) * .82 - 92px)}
 /* The sealed pack in 3D: at rest it stands at a slight lean; it turns toward the mouse, spins with
    a drag on its body (--pry, packshow.js pkLean), and settles when let go. Side to side only since
    2026-09-27. Its strip flies off in 3D (the seal's own perspective) and the pack turns to face the
@@ -71,15 +73,19 @@ body.pk-open{overflow:hidden}
    the photo was soft until the turn ended; a zoomed one is laid out, and painted, at full size.
    No will-change on .pk-card for the same reason: it froze the paint at the card's first, smaller scale. */
 .pk-inner > .tc{inset:auto;left:0;top:0;width:var(--cw0);height:calc(var(--cw0) * 1.4);zoom:var(--pkz, 1)}
-.pk-cb{rotate:y 180deg;border-radius:10px;padding:4px;background:var(--line-2);
+/* The set's back, the same as a face-down slot's (cards.css .tc-cb, 2026-10-05). */
+.pk-cb{rotate:y 180deg;border-radius:10px;padding:4px;background:var(--panel-3);
   box-shadow:0 2px 4px rgb(var(--shadow-rgb) / .5),0 8px 18px rgb(var(--shadow-rgb) / .3)}
-.pk-cb b{display:grid;place-items:center;height:100%;border-radius:7px;font-family:var(--disp);font-weight:800;font-size:var(--t-3);color:var(--ink);
-  background:repeating-linear-gradient(45deg,var(--panel-2) 0 9px,var(--panel-3) 9px 18px)}
-.pk-cb b i{font-style:normal;color:var(--lime)}
+.pk-cb b{display:grid;place-items:center;height:100%;border-radius:7px;border:1px solid var(--line-2);
+  background:repeating-linear-gradient(135deg,rgb(var(--lime-rgb) / .06) 0 9px,transparent 9px 18px),var(--panel-2);
+  font-family:var(--tab);font-weight:900;font-size:var(--t-7);line-height:1;color:rgb(var(--lime-rgb) / .35)}
 /* The reveal is the player: no weather on a stage card (it is back on the card in its roster slot). */
 .pk-card :is(.tc-wx,.tc-chip.wx){display:none}
-.pk-card .tc-sig{clip-path:inset(-20% 100% -20% -5%)}
-.pk-card.pk-signed .tc-sig{clip-path:inset(-20% -5% -20% -5%)}
+/* A signed card's autograph is not on it until its signing (packdeal.js pkSigned, cardsign.js). */
+.pk-card.pk-unsigned .tc-auto{visibility:hidden}
+/* The sparks off the pen's nib, in the signature's own box; each removes itself when it has fallen. */
+.pk-card .spk{position:absolute;left:0;top:0;width:2px;height:2px;margin:-1px 0 0 -1px;border-radius:50%;pointer-events:none;
+  background:var(--white);box-shadow:0 0 2px 1px var(--gold-2)}
 
 /* The best card's moment: rays turn behind the centre, and a flash. */
 /* Sized to the card, not the window (2026-09-26): at 170vmax a phone composited a turning layer
@@ -89,13 +95,13 @@ body.pk-open{overflow:hidden}
   background:repeating-conic-gradient(from 0deg,rgb(var(--gold-2-rgb) / .16) 0 5deg,transparent 5deg 15deg);
   -webkit-mask:radial-gradient(circle,var(--shadow) 0,transparent 36%);mask:radial-gradient(circle,var(--shadow) 0,transparent 36%);
   transition:opacity .6s var(--ease)}
-.pk-best-sig .pk-rays{background:repeating-conic-gradient(from 0deg,rgb(var(--epic-2-rgb) / .24) 0 5deg,transparent 5deg 15deg)}
-.pk-best-one .pk-rays{background:repeating-conic-gradient(from 0deg,rgb(var(--holo-1-rgb) / .24) 0 4deg,transparent 4deg 9deg,
+.pk-best-silver .pk-rays{background:repeating-conic-gradient(from 0deg,rgb(var(--silver-2-rgb) / .16) 0 5deg,transparent 5deg 15deg)}
+.pk-best-holo .pk-rays{background:repeating-conic-gradient(from 0deg,rgb(var(--holo-1-rgb) / .24) 0 4deg,transparent 4deg 9deg,
   rgb(var(--holo-3-rgb) / .24) 9deg 13deg,transparent 13deg 18deg,rgb(var(--holo-4-rgb) / .24) 18deg 22deg,transparent 22deg 27deg)}
 .pk-dim .pk-rays{opacity:1}
 .pk-flash{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;
   background:radial-gradient(circle at 50% 45%,rgb(var(--ink-rgb) / .95),rgb(var(--ink-rgb) / .2) 30%,transparent 60%)}
-.pk-best-one .pk-flash{background:radial-gradient(circle at 50% 45%,rgb(var(--ink-rgb) / .95),rgb(var(--holo-2-rgb) / .35) 28%,transparent 60%)}
+.pk-best-holo .pk-flash{background:radial-gradient(circle at 50% 45%,rgb(var(--ink-rgb) / .95),rgb(var(--holo-2-rgb) / .35) 28%,transparent 60%)}
 @media (prefers-reduced-motion:no-preference){ .pk-dim .pk-rays{animation:pk-spin 22s linear infinite} }
 @keyframes pk-spin{to{rotate:360deg}}
 
@@ -104,9 +110,9 @@ body.pk-open{overflow:hidden}
    and once it is face up two lines keep circling it and a sheen crosses its face. All in the best
    tier's colour (--rc). The line is a conic sweep turned by transform inside a frame-shaped mask,
    so it costs no repaint per frame. */
-.pk-best-ur{--rc:var(--gold-2-rgb)}
-.pk-best-sig{--rc:var(--epic-2-rgb)}
-.pk-best-one{--rc:var(--holo-3-rgb)}
+.pk-best-silver{--rc:var(--silver-2-rgb)}
+.pk-best-gold{--rc:var(--gold-2-rgb)}
+.pk-best-holo{--rc:var(--holo-3-rgb)}
 .pk-ring{position:absolute;inset:-6px;z-index:2;border-radius:15px;padding:4px;overflow:hidden;pointer-events:none;
   -webkit-mask:linear-gradient(var(--shadow) 0 0) content-box,linear-gradient(var(--shadow) 0 0);-webkit-mask-composite:xor;
           mask:linear-gradient(var(--shadow) 0 0) content-box exclude,linear-gradient(var(--shadow) 0 0);
@@ -115,7 +121,7 @@ body.pk-open{overflow:hidden}
   background:conic-gradient(transparent 0 62%,rgb(var(--rc) / .15) 70%,rgb(var(--rc)) 96%,var(--ink) 99%,transparent 100%)}
 .pk-ring.lit i{background:conic-gradient(transparent 0 22%,rgb(var(--rc) / .2) 30%,rgb(var(--rc)) 47%,var(--ink) 49.5%,transparent 50% 72%,
   rgb(var(--rc) / .2) 80%,rgb(var(--rc)) 97%,var(--ink) 99.5%,transparent 100%)}
-.pk-best-one .pk-ring.lit i{background:conic-gradient(transparent 0 20%,rgb(var(--holo-1-rgb) / .3) 28%,var(--holo-2) 38%,var(--holo-4) 47%,var(--ink) 49.5%,
+.pk-best-holo .pk-ring.lit i{background:conic-gradient(transparent 0 20%,rgb(var(--holo-1-rgb) / .3) 28%,var(--holo-2) 38%,var(--holo-4) 47%,var(--ink) 49.5%,
   transparent 50% 70%,rgb(var(--holo-3-rgb) / .3) 78%,var(--holo-5) 88%,var(--holo-1) 97%,var(--ink) 99.5%,transparent 100%)}
 /* The halo under the line: the frame's own light, spilling past the card's edge and breathing once
    it is lit. A shadow of the card's own shape, so it hugs the edge instead of glowing as a box. */

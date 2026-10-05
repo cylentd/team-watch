@@ -92,7 +92,8 @@
     "surface/strip/phone.css": [".stpanel"],
     "surface/strip/reel.css": [".stpanel"],
     "surface/teams/cards.css": ["roster", "waivers", ".pk-stage"],
-    "surface/teams/pack.css": ["roster", "waivers", ".pk-stage"]
+    "surface/teams/pack.css": ["roster", "waivers", ".pk-stage"],
+    "surface/teams/packgate.css": ["roster"]
   },
   "shared": {
     "surface/board/board.css": "Leaders and Slips",

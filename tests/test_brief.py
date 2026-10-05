@@ -82,6 +82,54 @@ def test_a_swipe_checks_one_line(browser, page_file):
     ctx.close()
 
 
+SITS = """(n) => { LIVE_INJURY.players = {};
+  for (const tm of Object.values(TEAMS)){
+    tm.roster.forEach(p => { p.status = null; });
+    tm.roster.filter(p => p.start && p.slug && !['K','DST'].includes(p.pos)).slice(0, n)
+      .forEach(p => { LIVE_INJURY.players[p.slug] = {s: 'OUT', code: 'IR', note: 'Knee'}; });
+  }
+  VIEW = 'espn'; ROSTER_MODE = __MODE__; render(); }"""
+
+
+@pytest.mark.render
+@pytest.mark.parametrize("mode", ["sheet", "cards"])
+def test_a_starter_who_will_sit_is_a_red_pill_in_the_week_row_not_a_strip(browser, page_file, mode):
+    """2026-10-05: the full-width strip above the roster became a pill in the "This week" row, on a
+    phone (the folded row under the reel) and on a desktop (the column's heading)."""
+    ctx, page, errors = open_page(browser, page_file, (360, 800))
+    drive(page, go("roster"))
+    page.evaluate("packMark(TEAMS.espn, schedWeek())")
+    page.evaluate(SITS.replace("__MODE__", f"'{mode}'"), 1)
+    pill = page.locator(".brief-h .inj-warn")
+    assert pill.count() == 1 and pill.inner_text() == "B. Purdy out" and "Knee" in pill.get_attribute("title")
+    assert page.locator("div.inj-warn").count() == 0, "no strip above the roster"
+    head, box = page.locator(".brief-h").bounding_box(), pill.bounding_box()
+    assert head["y"] <= box["y"] and box["y"] + box["height"] <= head["y"] + head["height"] and box["x"] + box["width"] <= 360, "inside the row, on screen"
+    assert page.evaluate("""() => { const p = document.querySelector('.inj-warn'), probe = document.createElement('i');
+      probe.style.color = 'var(--down)'; document.body.append(probe);
+      const same = getComputedStyle(p).color === getComputedStyle(probe).color; probe.remove(); return same; }"""), "red, the app's down colour"
+    unfold(page)
+    assert page.locator(".brief-h .inj-warn").count() == 1, "the open list keeps it"
+    page.evaluate(SITS.replace("__MODE__", f"'{mode}'"), 2)
+    assert page.locator(".brief-h .inj-warn").inner_text() == "2 starters out", "several: one pill with the count"
+    page.evaluate(SITS.replace("__MODE__", f"'{mode}'"), 0)
+    assert page.locator(".inj-warn").count() == 0, "a clean lineup has none"
+    assert errors == []
+    ctx.close()
+
+
+@pytest.mark.render
+def test_the_sit_pill_sits_in_the_desktop_columns_heading(browser, page_file):
+    ctx, page, errors = open_page(browser, page_file, (1280, 900))
+    drive(page, go("roster"))
+    page.evaluate(SITS.replace("__MODE__", "'sheet'"), 2)
+    head, box = page.locator(".brief-h").bounding_box(), page.locator(".brief-h .inj-warn").bounding_box()
+    assert head["y"] <= box["y"] and box["y"] + box["height"] <= head["y"] + head["height"], "one line, with Got it"
+    assert page.locator("[data-briefok]").bounding_box()["y"] < head["y"] + head["height"]
+    assert errors == []
+    ctx.close()
+
+
 def test_a_bench_player_fits_the_slots_his_position_can_fill(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (1280, 900))
     fits = page.evaluate("""[briefFits('RB2','RB'), briefFits('FLEX','WR'), briefFits('FLX','QB'),

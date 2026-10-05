@@ -55,25 +55,41 @@
 /* Waivers' full hero, the same fix (2026-09-29): its menu opened as a sliver on a phone. */
 .hero.wire{overflow:clip visible;z-index:5}
 .hero.team .numghost,.hero.team h1.fit,.hero.team .league-mark,.hero.team .hero-eyebrow .lbl{display:none}
-.hero.team .hero-in{grid-template-columns:minmax(0,1fr) auto;gap:4px 20px;align-items:end}
-/* The Sheet / Cards switch at the header's right end, on the league line's baseline. */
-.hero.team .hero-side .rmode{margin:0;padding:0;flex-wrap:nowrap}
-/* A phone's title fills the width, so the switch takes the line under the league. */
-@media (max-width:760px){
-  .hero.team .hero-in{grid-template-columns:minmax(0,1fr)}
-  .hero.team .hero-side{margin-top:8px}
-}
+/* One row at every width (2026-10-05, Roster redesign unit C): the team switch and the league line
+   on the left, the Sheet / Cards icon switch at the right end of the same row. A phone used to put the
+   switch on a line of its own under the league (116px of hero; 60px now). */
+.hero.team .hero-in{grid-template-columns:minmax(0,1fr) auto;gap:0 12px;align-items:center}
+.hero.team .hero-in > div:first-child{min-width:0}
+.hero.team .hero-side{margin:0}
+.hero.team{--hero-name:21px}
 .hero.team .hero-eyebrow{flex-wrap:nowrap;margin-bottom:0}
-.hero.team .teamswitch{position:relative;top:auto;right:auto;order:1;min-width:0;padding:0;margin:0}
-.hero.team .ts-btn{background:none;border:0;padding:4px 0;min-width:0;gap:10px}
-.hero.team .ts-team{font-family:var(--disp);font-size:var(--t-6);font-weight:700;max-width:none;
-  overflow:hidden;text-overflow:ellipsis}
-.hero.team .ts-chev{width:30px;height:30px}
+.hero.team .teamswitch{position:relative;top:auto;right:auto;order:1;flex-shrink:1;min-width:0;padding:0;margin:0}
+.hero.team .hero-eyebrow .ts-btn{background:none;border:0;padding:2px 0;min-width:0;gap:8px;max-width:100%}
+.hero.team .hero-eyebrow .ts-team{font-family:var(--disp);font-size:var(--hero-name);font-weight:800;line-height:1.1;
+  letter-spacing:-.02em;max-width:none;overflow:hidden;text-overflow:ellipsis}
+.hero.team .hero-eyebrow .ts-chev{width:24px;height:24px}
+/* The league line stays one line, its league name taking the cut (an ellipsis) beside the switch. */
+.hero.team .hero-sub{margin-top:2px;flex-wrap:nowrap;gap:6px;min-width:0}
+.hero.team .hero-rec{flex:none}
+.hero.team .leaguechip{min-width:0;gap:0;white-space:nowrap;text-align:left}
+.hero.team .lc-t{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.hero.team .lc-info{flex:none;margin-left:6px}
 /* The menu opens under the chevron, the thing that was tapped, at the title's right end; anchored
    left it appeared across the title from it (2026-09-25). */
 .hero.team .ts-menu{left:auto;right:0}
 .hero.team .hero-rec{display:inline}
 .hero.team .leaguechip{border:0;padding:0;letter-spacing:.06em;color:var(--ink-3)}
 .hero.team .leaguechip:hover{color:var(--ink)}
-.hero.team .hero-rec + .leaguechip::before{content:"·";margin-right:10px;color:var(--ink-3)}
+.hero.team .hero-rec + .leaguechip::before{content:"·";margin-right:6px;color:var(--ink-3)}
+
+/* The Roster's Sheet / Cards switch (js/surface/teams/cardmotion.js rosterModeHTML), two icon buttons
+   in one rounded frame: a list for the Sheet, a grid for the Cards, the picked one lit. It was two
+   word chips (surface/teams/cards.css); a screen reader gets each one's name from its aria-label. */
+.rmode{display:flex;flex:none;margin:0;padding:0;border:1px solid var(--line-2);border-radius:9px;overflow:hidden}
+.rmode .chip{display:grid;place-items:center;width:40px;height:36px;padding:0;margin:0;border:0;border-radius:0;
+  background:none;color:var(--ink-3);cursor:pointer}
+.rmode .chip:hover{color:var(--ink);background:none}
+.rmode .chip[aria-pressed="true"]{background:var(--panel-3);color:var(--ink)}
+.rmode .chip:focus-visible{outline:2px solid var(--lime);outline-offset:-3px}
+.rmode .chip svg{width:16px;height:16px;fill:currentColor;display:block}
 

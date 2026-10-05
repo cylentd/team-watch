@@ -11,7 +11,8 @@
    multiple league quickly, I guess I need the dropdown back"), with .hero.wire clipping sideways
    only, the Roster's own fix (hero.css). test_the_waivers_switch_opens_on_a_phone pins it. */
 /* `side` sits at the hero's right end: the roster's Sheet / Cards switch (2026-09-25), moved up out
-   of the rows' column so the starters, the bench and "This week" share one top edge. */
+   of the rows' column so the starters, the bench and "This week" share one top edge. Since 2026-10-05
+   the switch is two icons and shares the title's row at every width (hero.css .hero.team). */
 function heroHTML(team, side = ""){
   const wire = SURFACE === "waivers" && hasWaivers(team);
   // Every ESPN team's record comes from its standings (data/league.js); Yahoo has no source, so none.
@@ -28,7 +29,7 @@ function heroHTML(team, side = ""){
         <h1 class="fit">${esc(team.name)}</h1>
         <div class="hero-sub">
           <span class="hero-rec">${rec}</span>
-          <button class="leaguechip">${esc(team.meta[team.meta.length-1])} <span class="lc-info">ⓘ</span></button>
+          <button class="leaguechip"><span class="lc-t">${esc(team.meta[team.meta.length-1])}</span> <span class="lc-info">ⓘ</span></button>
         </div>
       </div>
       ${wire ? `<div>${waiverHeroHTML(team)}</div>` : side ? `<div class="hero-side">${side}</div>` : ""}

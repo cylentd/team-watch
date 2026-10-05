@@ -31,14 +31,17 @@ ui/matchup.js
 ui/weather.js
 surface/teams/board.js
 surface/teams/cards.js
+surface/teams/cardfit.js
 surface/teams/cardsupport.js
 surface/teams/cardweather.js
 surface/teams/injury.js
 surface/teams/cardmotion.js
 surface/teams/pack.js
+surface/teams/packgate.js
 surface/teams/packfx.js
 surface/teams/packshow.js
 surface/teams/packdeal.js
+surface/teams/cardsign.js
 surface/teams/packland.js
 surface/teams/brief.js
 surface/teams/cliprail.js

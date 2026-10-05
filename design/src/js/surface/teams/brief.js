@@ -164,8 +164,8 @@ const BRIEF_ICON = {
 };
 
 function briefHTML(team){
-  const all = briefLines(team).map(l => ({...l, id: briefId(l)}));
-  const head = (small, act) => `<div class="brief-h"><h2>${t("teams.brief.title")}</h2><small>${small}</small>${act}</div>`;
+  const all = briefLines(team).map(l => ({...l, id: briefId(l)})), pill = injWarnHTML(team);   // the red sit pill goes in the heading row
+  const head = (small, act) => `<div class="brief-h"><h2>${t("teams.brief.title")}</h2>${pill}<small>${small}</small>${act}</div>`;
   if (!all.length) return `<section class="brief" aria-label="${t("teams.brief.title")}">
     ${head("", "")}<p class="brief-quiet">${t("teams.brief.quiet")}</p></section>`;
   const checked = briefChecked(team), open = all.filter(l => !checked.has(l.id));
@@ -173,7 +173,7 @@ function briefHTML(team){
   // Every line checked: one row that says so, and the way back to them.
   if (!lines.length) return `<section class="brief done" aria-label="${t("teams.brief.title")}" data-bteam="${team.key}">
     ${head(t("teams.brief.allChecked", {n: all.length}), `<button type="button" class="brief-act" data-briefpeek>${t("teams.brief.show")}</button>`)}</section>`;
-  if (reelFolds(team) && !BRIEF_PEEK) return reelFoldHTML(team, open.length);   // the Week plays reel is up: one row (reel.js)
+  if (reelFolds(team) && !BRIEF_PEEK) return reelFoldHTML(team, open.length, pill);   // the Week plays reel is up: one row (reel.js)
   // Every line checked and shown again: the done row keeps its words and its place, "Show" becomes
   // "Hide", and the lines open under it (a "0 things to check" heading read as a fault).
   const peekDone = !open.length, more = lines.length > 3;
@@ -183,7 +183,7 @@ function briefHTML(team){
   ].join("");
   return `<section class="brief${BRIEF_ALL ? " all" : ""}${peekDone ? " done peek" : ""}" aria-label="${t("teams.brief.title")}" data-bteam="${team.key}">
     ${peekDone ? head(t("teams.brief.allChecked", {n: all.length}), `<button type="button" class="brief-act" data-briefpeek>${t("teams.brief.hide")}</button>`)
-      : head(t("teams.brief.count", {n: open.length, s: open.length === 1 ? "" : "s"}),
+      : head(briefCount(open.length, pill),
           `<button type="button" class="brief-act" data-briefok>${t("teams.brief.gotIt")}</button>`)}
     ${lines.map(l => `<button class="brief-line k-${l.kind} ${l.tone}${checked.has(l.id) ? " checked" : ""}" data-bid="${l.id}" ${l.go ? `data-go="${l.go}"` : `data-team="${team.key}" data-i="${l.i}"`}>
         <span class="brief-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${BRIEF_ICON[l.kind]}</svg></span>

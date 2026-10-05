@@ -1,0 +1,38 @@
+/* ============================== ROSTER: THE PACK IN THE STARTERS' PLACE ============================== */
+/* 2026-10-05 (js/surface/teams/packgate.js, the round-4 storyboard). Until this week's pack is ripped
+   or skipped, the starters' grid keeps its place and size with every card face down and dimmed
+   (cards.css .tc.down), and the sealed pack, small (132x185), stands over it near its top with Rip
+   and Skip under it. Nothing below it moves when it goes. The pack stands at a lean; the idle turn
+   and a drag add a turn on top of it (its `rotate` property, set by packgate.js). */
+.pk-zone{position:relative}
+/* A lineup of fewer than three rows (a test team, an unset league) is shorter than the pack and its
+   buttons; the place grows to hold them rather than let them sit on the bench. */
+.pk-zone:not(.open){min-height:290px}
+.pk-zone > .cardgrid{transition:opacity .4s var(--ease)}
+.pk-zone:not(.open) > .cardgrid{opacity:.3}
+.pk-gate{position:absolute;z-index:2;left:0;right:0;top:28px;display:flex;flex-direction:column;align-items:center;gap:18px}
+/* While the stage holds the pack, the page's copy is gone from its place. */
+.pk-gate.away{visibility:hidden}
+.pk-gate.going .pk-gbtns{opacity:0;transition:opacity .2s var(--ease)}
+/* The stage's pack, two thirds the size (200x280 to 132x185), by zoom so its print shrinks with it;
+   on an inner layer, so a translate given to .pk-gpack (Skip) is in the page's pixels. */
+.pk-gpack{cursor:grab;-webkit-tap-highlight-color:transparent}
+.pk-gz{zoom:.66;perspective:900px}
+.pk-gpack.dragging{cursor:grabbing}
+.pk-gpack .pack-glow{transform:rotateX(5deg) rotateY(-16deg)}
+/* A finger that starts on the pack can still scroll the page; only a sideways drag turns it. */
+.pk-gpack .pack-seal{touch-action:pan-y}
+.pk-gbtns{display:flex;gap:10px}
+.pk-gbtns button{appearance:none;min-height:40px;padding:0 22px;border-radius:999px;cursor:pointer;
+  font-family:var(--ui);font-size:var(--t-3);font-weight:700;line-height:1;transition:scale .12s var(--ease)}
+.pk-gbtns button:active{scale:var(--press)}
+.pk-gbtns button:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.pk-rip{border:0;background:var(--lime);color:var(--on-lime)}
+.pk-skip{border:1px solid var(--line-2);background:var(--panel-2);color:var(--ink-2)}
+
+/* The Starters rule's chip, "Open week 5", with the pack drawn small beside it: Skip shrinks the
+   pack into it, a tap grows it back onto the stage. Drawn but hidden while the pack waits above. */
+.rule .rm-again.wait{visibility:hidden}
+.rm-pk{flex:none;width:11px;height:16px;border-radius:2px;
+  background:linear-gradient(170deg,var(--iri-1),var(--iri-2) 40%,var(--iri-3) 75%,var(--iri-4));
+  box-shadow:inset 0 3px 0 rgb(var(--ink-rgb) / .35),0 1px 2px rgb(var(--shadow-rgb) / .5)}

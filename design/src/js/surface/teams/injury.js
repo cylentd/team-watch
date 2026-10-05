@@ -1,16 +1,21 @@
-/* The lineup warning (2026-09-25): a strip above the roster, Sheet or Cards, naming every starter
-   who is out or doubtful this week (injFor, LIVE_INJURY). It says who and why; the swap is yours.
-   Questionable starters are not named: most of them play, and a strip that is always there stops
-   being read. Nothing when the lineup is clean. */
+/* The lineup warning, a red pill in the "This week" row (2026-10-05; 2026-09-25 it was a full-width
+   strip above the roster that cost 50px): one starter who is out or doubtful is named ("S. Barkley
+   out", the reason in its tooltip), several are counted ("2 starters out"). Sheet and Cards alike
+   (brief.js briefHTML, reel.js reelFoldHTML). Questionable starters are not named: most of them
+   play, and a pill that is always there stops being read. Nothing when the lineup is clean. */
 function injWarnHTML(team){
   const sits = team.roster.filter(p => p.start && injSits(p));
   if (!sits.length) return "";
-  const who = sits.map(p => `<b>${esc(nameInitial(p.n))}</b> <span>${injLabel(injFor(p))}</span>`).join(`<i aria-hidden="true">·</i>`);
-  return `<div class="inj-warn" role="status">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 2.8 19.5h18.4z"/><line x1="12" y1="10" x2="12" y2="14"/><circle cx="12" cy="16.9" r=".4"/></svg>
-      <p><strong>${sits.length === 1 ? t("teams.inj.warnOne") : t("teams.inj.warnMany", {n: sits.length})}</strong> ${who}</p>
-    </div>`;
+  const one = sits.length === 1 ? sits[0] : null;
+  const text = one ? t("teams.inj.pillOne", {name: esc(nameInitial(one.n)), status: INJ_WORD[injFor(one).s]().toLowerCase()})
+    : t("teams.inj.pillMany", {n: sits.length});
+  const tip = sits.map(p => { const r = injFor(p); return `${nameInitial(p.n)}: ${INJ_WORD[r.s]()}${r.note ? ` · ${r.note}` : ""}`; }).join(" / ");
+  return `<span class="inj-warn" role="status" title="${esc(tip)}">${text}</span>`;
 }
+
+/* The "This week" row's count: "N things to check", or "N to check" beside the sit pill, which takes the
+   room of a phone's row (brief.js, reel.js). */
+const briefCount = (n, pill) => pill ? t("teams.brief.countShort", {n}) : t("teams.brief.count", {n, s: n === 1 ? "" : "s"});
 
 /* A card's or a row's classes for its level: inj-out / inj-d / inj-q, and inj-alert on a starter
    who will likely sit. */

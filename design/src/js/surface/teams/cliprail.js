@@ -93,16 +93,18 @@ function reelDrag(track){
 /* Wire one rail: a card opens the theater on its place in `items`, Play n on the first that plays
    (`first`), the arrows step, the drag works, and the first touch or scroll warms the player. Nothing
    is cued ahead of the tap: on real YouTube the cue swallows the loadVideoById the click sends, and
-   the clip stays cued. Returns the track. */
-function clipRailWire(box, items, first){
+   the clip stays cued. Returns the track.
+   A view whose card is not one clip passes `open(i, el)` for a card's tap (the Roster's card is a
+   player and opens his clips only) and `step(track, dir)` for the arrows (the Roster turns a page). */
+function clipRailWire(box, items, first, {open, step = reelStep} = {}){
   const track = box.querySelector(".reel-track");
-  const open = (i, el) => clipTheaterOpen(items, i, el);
+  const play = (i, el) => clipTheaterOpen(items, i, el), card = open || play;
   track.addEventListener("click", e => {
     const b = e.target.closest("[data-reelplay]");
-    if (b) open(+b.dataset.reelplay, b);
+    if (b) card(+b.dataset.reelplay, b);
   });
-  box.querySelector("[data-reelall]")?.addEventListener("click", e => open(first, e.currentTarget));
-  box.querySelectorAll("[data-reelstep]").forEach(b => b.addEventListener("click", () => reelStep(track, +b.dataset.reelstep)));
+  box.querySelector("[data-reelall]")?.addEventListener("click", e => play(first, e.currentTarget));
+  box.querySelectorAll("[data-reelstep]").forEach(b => b.addEventListener("click", () => step(track, +b.dataset.reelstep)));
   let warm = false;
   const wake = () => { if (!warm){ warm = true; clipWarm(); } };
   ["pointerdown", "touchstart", "scroll"].forEach(k => track.addEventListener(k, wake, {passive: true}));

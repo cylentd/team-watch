@@ -15,7 +15,7 @@ function supportArt(p, g){
     return `${CARD_POSTS}${cardWeatherFx(w, "K")}<div class="head">${cardHeadHTML(p)}</div><span class="tc-chip r">${chip}</span>`;
   }
   const opp = g ? cardLines(g.opp) : null;
-  const chip = opp ? t("teams.card.implied", {team: esc(g.opp), n: opp.implied}) : t("teams.card.noLine");
+  const chip = opp ? t("teams.card.implied", {n: opp.implied}) : t("teams.card.noLine");
   return `<span class="tc-abbr">${esc(p.team)}</span>
     <span class="tc-chip r" title="${t("teams.card.lowerBetter")}">${chip}</span>`;
 }

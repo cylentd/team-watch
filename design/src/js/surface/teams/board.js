@@ -64,7 +64,7 @@ function boardHTML(team){
     </div>
     <div class="board ${key === "start" ? "" : "two"}">${list.map(p=>rowHTML(p, n++, team.key)).join("")}</div>`;
   const [start, ...rest] = groups[0] && groups[0][0] === "start" ? groups : [null, ...groups];
-  return `${injWarnHTML(team)}<div class="sheet">
+  return `<div class="sheet">
     ${start ? `<section class="sheet-col">${group(start)}</section>` : ""}
     ${rest.length ? `<section class="sheet-col">${rest.map(group).join("")}</section>` : ""}
   </div>`;
