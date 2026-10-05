@@ -1,84 +1,33 @@
 /* ============================== START / SIT ==============================
    This week > Start/Sit (leaf `matchups`, hash #startsit, #matchups or #takes; was Takes until
-   2026-10-03 and Matchups until 2026-09-29, per David: "compare hot takes against the experts").
-   The picker and the matchup board lead; under them the Takes. The record strip, then every position in one
-   list: where we rank a player higher than the FantasyPros experts, where lower, then Pitcher
-   List's calls. A phone stacks them; wider, ours and Pitcher List's sit side by side. The page
-   computes nothing: every take and the record are ff-jarvis's (record.js, rows.js). The matchup
-   itself moved to Ranks, a tag on the row, since it is worth at most about 2 points. No method
-   footer, scoring rules or version notes (2026-09-30, David: show, don't tell). */
+   2026-10-03 and Matchups until 2026-09-29). Top down: the picker and the matchup board, the record
+   (record.js), our SMASH players (smash.js), our bold START and SIT calls (rows.js), then last
+   week's calls. Version 3 (2026-10-04, David: "SMASH, START, SIT for only those we have confidence
+   in. No coin flips."): our own projections only, no close calls, and the experts only as a for-fun
+   line of the record. The page computes nothing: every call and the record are ff-jarvis's
+   (LIVE_SS3). The matchup itself moved to Ranks, a tag on the row. No method footer, scoring rules
+   or version notes (2026-09-30, David: show, don't tell). */
 
-/* The column key ("ours / experts · pts") heads the first section only: the second's rows sit in
-   the same columns, and two keys beside two long titles wrapped both on a phone. */
-/* A paused take type (Amendment 2) leaves the list; its line stands where its takes would be, at the
-   end of its section, and a section holding only paused takes says that instead of "no takes". */
-function muSectionHTML(title, tag, empty, key){
-  const all = muCalls(tag), paused = muPausedHTML(tag);
-  // Takes shown but not counted in the record (week 4's rank-5+ additions, Amendment 3) follow
-  // under their own line, so a row keeps its one line and the record's takes stay together.
-  const rows = all.filter(r => r.graded !== false), more = all.filter(r => r.graded === false);
-  const extra = more.length ? `<h4 class="mu-more">${t("matchups.row.ungraded")}</h4>${more.map(r => muCallHTML(r)).join("")}` : "";
-  const body = all.length ? rows.map(r => muCallHTML(r)).join("") + extra : paused ? "" : `<p class="mu-empty">${empty}</p>`;
-  return `<h3 class="mu-grp">${title}${key ? `<span>${t("matchups.calls.cols")}</span>` : ""}</h3>${body}${paused}`;
-}
-
-/* No takes at all: Blip says why, and when that changes (2026-09-29, David: "ask Blip the mascot
-   since we have no Takes"). Two reasons, told apart by the data: the experts have not ranked this
-   week yet (every Tuesday, until Wednesday's 8 AM fetch and the 2:30 PM refresh), or they have and
-   we agree with them on every starter. */
+/* No calls at all (ff-jarvis has not posted the week): Blip says so, in place of the two cards. */
 function muBlipHTML(){
-  const d = LIVE_STARTSIT, early = d.experts_week != null && d.experts_week < d.week;
-  const say = early ? t("matchups.blip.early", {week: d.week}) : t("matchups.blip.agree");
-  const when = early ? `<p>${t("matchups.blip.earlyWhen")}</p>` : "";
-  return `<section class="mu-list"><div class="mu-blip">${blipSVG(t("matchups.blip.name"), early ? "bored" : "awake")}
-    <div><q>${say}</q>${when}</div></div></section>`;
+  return `<section class="mu-blip">${blipSVG(t("matchups.blip.name"), "bored")}
+    <div><q>${t("matchups.blip.none")}</q><p>${t("matchups.blip.noneWhen")}</p></div></section>`;
 }
 
-/* Most confident (2026-10-03, David: "most confident picks"): the record's takes that a reason backs,
-   widest gap from FantasyPros first, START and SIT together. They stay in their sections below too;
-   the record grades them once, as the takes they are. None with a gap and a reason: no section. */
-const MU_TOP = 3;
-function muTopHTML(){
-  const top = muConfident(["start", "sit"]).slice(0, MU_TOP);
-  return top.length ? `<h3 class="mu-grp mu-top">${t("matchups.top.title")}</h3>${top.map(r => muCallHTML(r, "t:")).join("")}` : "";
+/* SMASH and the bold calls, two columns on a desktop when both have rows. */
+function muCallsHTML(){
+  const d = LIVE_SS3;
+  if (!d.smash.length && !d.takes.length) return muBlipHTML();
+  return `<div class="mu-calls${d.smash.length && d.takes.length ? " two" : ""}">${muSmashHTML()}${muTakesHTML()}</div>`;
 }
 
-function muOursHTML(){
-  if (!LIVE_STARTSIT.calls.length && !(LIVE_STARTSIT.shadow || []).length) return muBlipHTML();
-  return `<section class="mu-list">
-    ${muTopHTML()}
-    ${muSectionHTML(t("matchups.calls.higher"), "start", t("matchups.calls.emptyHigher"), true)}
-    ${muSectionHTML(t("matchups.calls.lower"), "sit", t("matchups.calls.emptyLower"), false)}
-  </section>`;
-}
-
-function muPlHTML(){
-  const d = LIVE_STARTSIT, rows = muPl();
-  const body = !d.article ? `<p class="mu-empty">${t("matchups.pl.none")}</p>`
-    : rows.length ? rows.map(muPlRowHTML).join("")
-    : `<p class="mu-empty">${t("matchups.pl.empty")}</p>`;
-  const n = d.article && rows.length ? `<span>${rows.length === 1 ? t("matchups.pl.one") : t("matchups.pl.count", {n: rows.length})}</span>` : "";
-  return `<section class="mu-list"><h3 class="mu-grp">${t("matchups.pl.title")}${n}</h3>${body}</section>`;
-}
-
-/* Start/Sit (2026-10-03): the picker and the matchup board lead (picker.js, board.js), then the
-   Takes as they were. No takes written yet leaves the picker and the board standing. */
 function matchupsHTML(){
-  const lead = `<div class="ssv">${ssPickHTML()}${ssBoardHTML()}</div>`;
-  if (!LIVE_STARTSIT) return `<div class="mu">${lead}<div class="state-empty" style="margin:26px 14px;min-height:120px"><div><b>0</b
-    ><span>${t("matchups.empty.noCalls")}</span></div></div></div>`;
   return `<div class="mu">
-    ${lead}
+    <div class="ssv">${ssPickHTML()}${ssBoardHTML()}</div>
     ${muRecordHTML()}
-    <div class="mu-cols"><div class="mu-cols-in">${muOursHTML()}${muPlHTML()}</div></div>
-    ${muReviewHTML()}
+    ${muCallsHTML()}
+    ${muLastHTML()}
   </div>`;
-}
-
-function muSetOpen(row, open){
-  row.toggleAttribute("data-open", open);
-  row.querySelector(".mu-call-h").setAttribute("aria-expanded", open);
-  row.querySelector(".mu-b").inert = !open;
 }
 
 /* A row opens in place, never by re-render: its own spring is the motion, and the list must not
@@ -86,15 +35,17 @@ function muSetOpen(row, open){
 function wireMatchups(v){
   ssWirePick(v);
   ssWireBoard(v);
-  if (!LIVE_STARTSIT) return;
   v.querySelectorAll(".mu-call-h").forEach(h => h.addEventListener("click", () => {
     const key = h.parentElement.dataset.mukey;
     MU_OPEN = MU_OPEN === key ? "" : key;
     v.querySelectorAll(".mu-call").forEach(r => muSetOpen(r, r.dataset.mukey === MU_OPEN));
   }));
   v.querySelectorAll("[data-muslug]").forEach(el => el.addEventListener("click", () => {
-    const r = [...LIVE_STARTSIT.calls, ...(LIVE_STARTSIT.shadow || [])].find(x => x.slug === el.dataset.muslug);
-    if (r) openProfile({n: r.n, pos: r.pos, team: r.team, slug: r.slug}, el);
+    const r = [...LIVE_SS3.smash, ...LIVE_SS3.takes].find(x => x.slug === el.dataset.muslug);
+    if (r) openProfile({n: r.name, pos: r.pos, team: r.team, slug: r.slug}, el);
   }));
-  wireMuSplits(v);
+  v.querySelectorAll("[data-ssgo]").forEach(b => b.addEventListener("click", () => {
+    navGo(b.dataset.ssgo);
+    window.scrollTo({top: 0});
+  }));
 }

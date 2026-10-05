@@ -35,8 +35,7 @@ from lines import live_lines, report as lines_report  # design/lines.py: implied
 from routes import live_routes, report as routes_report          # design/routes.py: the profile sheet's YPRR axis
 from archetype import (load_archetype, load_trenches, live_archetype, live_trenches,  # role/style labels + OL context
                        report_archetype, report_trenches)
-from startsit import live_startsit, report as startsit_report  # design/startsit.py: the Matchups view
-from startsit_board import live_ssb, report as ssb_report      # design/startsit_board.py: its picker and board
+from startsit_blocks import add_start_sit                      # design/startsit_blocks.py: Start/Sit's three blocks
 from mates import espn_rows, live_mates, slugs as mate_slugs, report as mates_report  # every team in David's leagues
 from digest import live_digest, report as digest_report        # design/digest.py: the Digest view
 from preview import live_preview, report as preview_report     # design/preview.py: This week > Preview
@@ -51,8 +50,8 @@ from sources import (                                    # design/sources.py: th
     ROOT, REPO, DWR, FEED, ESPN_ROSTERS, DFS_POOL,
     feed_block, read_first, warn_if_stale, load_status, load_props_raw, load_model_raw,
     load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
-    load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_startsit, load_startsit_review, load_digest, load_game_preview, load_preview_record, load_league, load_role_board, load_highlights, load_slip_reasons,
-    load_defense, load_kickers, load_expert_ranks,
+    load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_digest, load_game_preview, load_preview_record, load_league, load_role_board, load_highlights, load_slip_reasons,
+    load_defense, load_kickers,
 )
 from slips import UNPRICED, carry_mean, live_reasons, null_prices, report as slips_report  # the Slips board's data
 from gameday import live_gameday, report as gameday_report  # This week > Live: every matchup, scored live
@@ -560,13 +559,6 @@ def add_market_stock(blocks, report):
                    trades_report(blocks[leagues.blocks(lg.key).trades], lg.key)]
 
 
-def add_start_sit_board(blocks, report):
-    """LIVE_SSB, the Start / Sit picker and board, from blocks already built (ranks, schedule, preview)."""
-    blocks["LIVE_SSB"] = live_ssb(blocks["LIVE_RANKS"], blocks["LIVE_SCHEDULE"], blocks["LIVE_PREVIEW"],
-                                  load_defense(), load_expert_ranks(), slugify, load_status())
-    report.append(ssb_report(blocks["LIVE_SSB"]))
-
-
 def report_sources(report, mine, props, liveDfsYahoo, news, profiles, missing):
     """The per-source lines of render()'s summary -- split out to keep render() under its
     110-line budget (tests/test_budgets.py's PY_BACKLOG ratchet). Mutates `report` in place,
@@ -688,7 +680,6 @@ def render():
         "LIVE_ROUTES": live_routes(load_routes(), slugify, wanted_set),
         "LIVE_ARCHETYPE": live_archetype(load_archetype(FEED, DWR), wanted_set),
         "LIVE_TRENCHES": live_trenches(load_trenches(FEED, DWR)),
-        "LIVE_STARTSIT": live_startsit(*load_startsit(), slugify, load_startsit_review()),
         "LIVE_ROLE": live_role(load_role_board(), slugify), "LIVE_HIGHLIGHTS": live_highlights(load_highlights()),
         "LIVE_DIGEST": live_digest(load_digest(), slugify, load_schedule(DWR)),
         "LIVE_PREVIEW": live_preview(load_game_preview(), slugify, load_preview_record()),
@@ -700,13 +691,13 @@ def render():
     }
     blocks["LIVE_SIGNED"] = live_signed(load_gamelog_weekly(), blocks["LIVE_SCHEDULE"], slugify, wanted_set)
     add_market_stock(blocks, report)
-    add_start_sit_board(blocks, report)
+    add_start_sit(blocks, report, slugify)
     report += [slips_report(blocks["LIVE_REASONS"]),schedule_report(blocks["LIVE_SCHEDULE"]), signed_report(blocks["LIVE_SIGNED"]), digest_report(blocks["LIVE_DIGEST"]),
                preview_report(blocks["LIVE_PREVIEW"]), pedigree_report(blocks["LIVE_PEDIGREE"]), gamelog_report(blocks["LIVE_GAMELOG"]),
                projections_report(blocks["LIVE_PROJECTIONS"]), ranks_report(blocks["LIVE_RANKS"]),
                routes_report(blocks["LIVE_ROUTES"]), report_archetype(blocks["LIVE_ARCHETYPE"]),
                report_trenches(blocks["LIVE_TRENCHES"]), lines_report(blocks["LIVE_LINES"]),
-               injury_report(blocks["LIVE_INJURY"]), startsit_report(blocks["LIVE_STARTSIT"]), role_report(blocks["LIVE_ROLE"]),
+               injury_report(blocks["LIVE_INJURY"]), role_report(blocks["LIVE_ROLE"]),
                highlights_report(blocks["LIVE_HIGHLIGHTS"]), wx_history_report(blocks["LIVE_WX_HISTORY"]),
                defense_report(blocks["LIVE_DEFENSE"]), gameday_report(blocks["LIVE_GAMEDAY"]),
                f"Weather: {len(blocks['LIVE_WEATHER']['teams'])} teams" if blocks["LIVE_WEATHER"] else "Weather: none"]

@@ -82,7 +82,6 @@ surface/preview/dossier.css
 surface/preview/record.css
 surface/preview/handoff.css
 surface/matchups/rows.css
-surface/matchups/splits.css
 # pin: picker.css and board.css after pool.css and matchups.css -- the board's position row is pool.css's
 #      .setrow and .chip, and both cards sit in .mu, the grid matchups.css lays out.
 surface/matchups/picker.css

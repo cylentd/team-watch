@@ -758,105 +758,33 @@ week's first kickoff; from then the Digest shares Live's poll (`surface/digest/n
 
 **Left the game hurt (2026-10-04).** While games are on, a starter of mine who left one ("B. Purdy left the game hurt", by-line "{my team} · Q3 4:12") takes the headline from the top score and leads Right now in `--down`; the best projection if several; when "has returned to the game" is read, the top score is back. Live's Matchup row wears a red Hurt chip. Source: the play text of ESPN's game summary, fetched by the reader's browser every 120 s per game (`data/gameday/hurt.js`). ESPN's wording ("was injured during the play", "Injury Update: X has returned to the game") is nflverse's and was unverified on ESPN as of 2026-10-04: check Monday ATL @ NO.
 
-## Start/Sit (This week, 2026-10-03; was Takes)
+## Start/Sit (This week, 2026-10-03; was Takes; v3 2026-10-04)
 
-The weekly question, "A or B?", answered on one page (storyboard
-https://claude.ai/artifact/HUVUoVRF3wG6XCxQ3LxHuT, David picked option C). Three parts, top down:
+The weekly question, "A or B?", then what we would call. Storyboards: v1
+https://claude.ai/artifact/HUVUoVRF3wG6XCxQ3LxHuT (David picked option C); v3 (2026-10-04) option C
+"Against his average" plus option B's SMASH card. David: "SMASH, START, SIT for only those we have
+confidence in. No coin flips." Our own projections only: FantasyPros and Pitcher List never define a
+call and appear only as a for-fun line of the record. Rule: ff-jarvis METHODOLOGY 12.75. Top down:
 
 | part | what | data |
 |---|---|---|
 | Picker | 2-3 players; START for the higher projection, Coin flip within 0.5 pts (judged at the one decimal shown). Rows: projected, rank, defense vs his position, FantasyPros, teammate out, weather. Opens on the reader's closest bench-vs-starter call (`briefPairs`, shared with the brief). Picks kept for the week they were made in | `LIVE_RANKS`, `LIVE_DEFENSE`, `LIVE_SSB.fp/out`, `LIVE_PROJECTIONS.wx` |
-| Board | QB/RB/WR/TE tabs: each position's best spot (ff-jarvis `best`, the Digest's Matchups card), then the four offenses facing the softest and toughest defenses, a bar against the league average | `LIVE_STARTSIT.best`, `LIVE_SSB.board` |
-| Takes | unchanged, below; rows lead with START / SIT since 2026-10-03 | `LIVE_STARTSIT` |
+| Board | QB/RB/WR/TE tabs: each position's best spot (ff-jarvis `best`), then the four offenses facing the softest and toughest defenses, a bar against the league average | `LIVE_STARTSIT.best`, `LIVE_SSB.board` |
+| Record | three tiles, SMASH, START, SIT, each its own hit-miss since week 5 (a void count beside a tile only above zero); under them, small, FantasyPros and Pitcher List hit-miss "for fun". Before a week is graded: "No week graded yet." in place of the tiles | `LIVE_SS3.record` |
+| SMASH | one card: every player we project top 3 (QB, TE) or top 6 (RB, WR) at his position, in position order. Row: head, "P. Nacua", "WR2 · LA @ PHI · Sun 1:25 PM", the book's main yardage line over the TD price ("72.0 rec yds", "TD +135"). A player no book prices shows what he has. Foot: Build in Slips | `LIVE_SS3.smash` |
+| Bold calls | one card, a Start group then a Sit group: our rank and his season-average rank disagree across the position's starter line by 6+ spots. Row: START/SIT tag, head, name, game and kickoff; right "WR16" bold over "avg WR41". A tap opens the reasons (green chips) and the profile link. An empty group is not drawn; none at all is one quiet line | `LIVE_SS3.takes` |
+| Last week | "Week 5: how the calls did": a Hit / Miss / Void word, the name, the call and where he finished; a void call (ruled out after it froze) has no finish and is not in the record | `LIVE_SS3.record.last_week` |
 
-- One job per view still holds: every part answers "who do I start this week".
-- The WR defense row says it matters little for WRs (METHODOLOGY 12.29, 12.70: no WR effect in 8 seasons).
-- Teammate out is a reason only: giving a hurt teammate's targets to the others made the projection worse (METHODOLOGY 12.55, 12.71).
-- The This week sub-row's gap went 20px -> 16px at 760px and under, site-wide, so six views fit 332px at 360. Every phone golden state moved one key for it.
-
-## Takes (Players; was Matchups, redesigned 2026-09-26, renamed and made one list 2026-09-29; part of Start/Sit since 2026-10-03)
-
-Where we disagree with the experts, every position in one list (storyboard
-https://claude.ai/artifact/8TaM9sZ21JjS2oLThGyFfr, David picked B plus "compare hot takes against
-the experts"). The leaf and hash stay `matchups`; `#takes` lands too. `LIVE_STARTSIT`
-(`design/startsit.py`) carries ff-jarvis's own calls as frozen for the record
-(`model.season.startsit_calls`), Pitcher List's column for the same week, and the season record
-(`model.season.grade`). The page computes nothing.
-
-The matchup itself left this page for Ranks: a signed tag under the points (`mx`, from ff-jarvis
-`matchup.pts`, QB/RB/TE only, shown from ±0.5). A defense is worth at most about 2 points a week
-(week 4 of 2026: +2.0 to −1.5, 11 of 104 QB/RB/TE move 1+), too little to lead a page, and it is
-already inside the projection. The WR effect tests null, so a WR never gets one.
-
-| part | what it shows |
-|---|---|
-| Record strip | Pitcher List and ours through the last graded week: one bar each, filled to the score (0 to 1), each count on its own bar ("0.67 · 12 calls"); the higher one lime |
-| Higher than the experts | our START calls across positions, biggest disagreement first (`gap`, ff-jarvis `gap_n`: the rank gap over the position's own threshold); each row leads with its position in the position tint |
-| Lower than the experts | our SIT calls, same order |
-| Pitcher List | their calls, all positions, START/SIT tag, the position where our ranks sit |
-| Foot | what makes a take, and the 1 / 0.5 / 0 scale (week 1 counts half) |
-
-- **The record leads.** It is the trust question. Through week 2 of 2026 ours read 0.32 against
-  Pitcher List's 0.67 (2026-09-25), and the strip says so without softening. FantasyPros joined it
-  2026-09-29, scored on our takes (the other call on each disagreement).
-- **v2 from week 4** (ff-jarvis METHODOLOGY 12.64 + Amendment 1, 2026-09-29; David: "we can miss,
-  that's fine, but let's learn from it"). Every rank-gap take counts, each marked Backed (a reason
-  points its way: work up 1.5+ a game over his last 2, a matchup worth 0.5+, a top- or bottom-8
-  team total, the player ahead of him out) or Gut. Once a v2 week is graded the bars are v2's on
-  the clean set (a take an injury decided is left out, "that's just bad luck"), the line under them
-  splits backed against gut and keeps v1's weeks 1-3 small, and "Week N: how the takes did" lists
-  every take with Hit / Close / Miss and, for a miss, its cause: injury (dimmed, left out), his
-  role shrank, touchdowns flipped a call right on yards, or a wrong read.
-- **Rows open in place**, one open across both lists. Ours opens to up to four evidence chips
-  (green for, amber "but ..." against), the projection's source and a link to the profile.
-  Pitcher List's opens to their own words (clamped to five lines) and a link to the column.
-  Nothing on the closed line argues.
-- **Every graded call is shown.** A call with no backing stat says "No stat this season backs this
-  call" in amber rather than being hidden: hiding it would make the page and the record disagree.
-- **Kickoff times come from `LIVE_SCHEDULE`** (matched through its club-code alias). The meta line
-  wraps to a second line rather than cut the time; the name stays one line. No schedule row: the
-  game alone. A Pitcher List row with no opponent shows the team, never "vs null".
-- **First data (2026-09-29, fixture, 360x800):** the first take starts ~185px down, under the
-  record strip. It was 335px with the position chips and the best-spot lead (2026-09-26).
-  (Superseded the same day: 258px with the FantasyPros bar, the record's first data at ~99px; see
-  "Confidence, splits" below.)
-- **Desktop (960px+):** the record spans the width (bars capped at 560px, so a score never reads as
-  a progress bar); ours and Pitcher List's sit side by side once the lists are 760px wide (a
-  container query on the lists, not the window), capped at `--list-w` like Ranks and News.
-
-Not backtested: the calls. The foot says so, and names the record as the test.
-
-### Confidence, splits, the pause rule and Claude's read (2026-09-29)
-
-ff-jarvis METHODOLOGY 12.64 Amendment 2. David: "keep track of our track record and try to improve it
-week to week", "same goes for our hot takes". Weeks 1-3 (v1): START 0.241 on 29 against FantasyPros
-0.759; SIT 0.621 on 19; a wider rank gap did not score better (lean 0.367, solid 0.386, strong 0.350).
-
-| part | what it shows |
-|---|---|
-| Tier chip | LEAN / SOLID / STRONG under the take's two ranks, the gap it measures (ff-jarvis `tier` from `gap_n`: under 1.5, 1.5 to 2.5, 2.5+). Preview's chips: STRONG lime fill, SOLID lime outline, LEAN grey. The foot names them |
-| Splits | a "Splits" button on the record's last line opens a table in place: Call (START, SIT), Position, Confidence, each ours, FantasyPros on the same takes, and the count. The same population as the bars: v1's weeks 1-3 on every take, then v2's clean set once a v2 week is graded |
-| The rule | under the splits, once: "A take type is paused after 40 graded takes if it trails FantasyPros; it comes back when its shadow takes beat them." While nothing is paused and the week is under 11: "None can pause before week 11." |
-| Paused line | a paused type's takes leave the list; one line stands at the end of its section: "Paused: our START TE takes (0.21 vs FantasyPros 0.79 on 42). Still tracked." The numbers are the ones that paused it. "See n" opens this week's shadow takes in place, on the panel fill |
-| Claude's read | heads "Week N: how the takes did" in a filled box: "Claude's read of week N, not advice", the note, up to 3 patterns, up to 3 take types to watch with their own clean split. On a desktop the note and the watch list pair side by side |
-
-- **Why the splits hide behind a tap:** they are reference detail; the bars stay the answer. A layer
-  (Preview's record) earns Back handling for a long list of weeks; nine rows open in place, like a
-  take row, on the house spring. Closed, the button costs no height.
-- **Colour:** in the splits the higher score of each row is lime, the bars' own rule (one meaning: who
-  scored better); a tie or an empty cell is plain. `--up` / `--down` stay the graded Hit / Miss.
-- **Absent states:** an older producer sends no `tier` (no chip), no `rule` (no paused line, no rule
-  sentence), no `splits` (no button); `review.read` is null until Claude's review of that very week
-  is written (an older week's read is dropped), and then nothing is drawn.
-- **Data:** `design/startsit.py` cuts `calls` (tier), `shadow` (rows with `paused`), `rule`
-  (`calls.v2.rule`, paused types with their pause entry), `record.splits`, and `review.read` from ff-jarvis
-  `startsit_review` (`design/sources.py` `load_startsit_review`, feed block first).
-- **Measured 2026-09-29 at 360x800** (fixture): a take row is 52px before and after the chip. The first
-  take starts at 258px, 237px before; the 21px is FantasyPros' bar, which the fixture's real weeks 1-3
-  record carries. The record strip is 125px with or without the Splits button; open, 566px.
-- Tests: `tests/test_startsit.py` (tier, shadow and rule, v1 and v2 splits, the read kept or dropped, the
-  loader feed first, and the rendered chip, paused line, splits, rule sentence, read and 360 overflow);
-  golden states `matchups-splits`, `matchups-paused`, `matchups-read`, `matchups-nofp`.
+- **One job per view still holds:** every part answers "who do I start this week".
+- **No calls at all** (ff-jarvis has not posted the week, or no `startsit_v3` block yet): Blip says so in place of the two cards; the picker, board and record still draw. The build treats a missing block as an empty week (`design/startsit_v3.py`), never as an error.
+- **Cards:** one card per subject, rows inside, none inside another (Material cards rule). SMASH and Bold calls sit side by side from 960px when both hold rows, `--list-w` wide, each card 560px or less when alone; at the fixture's 10 rows against 9 they end within 30px of each other (STYLE.md: within 150px).
+- **Colour:** SMASH is lime, START green, SIT red (the Takes' one rule: green and red are start and sit). The result words on last week's list are Hit green, Miss red, Void grey.
+- **Measured 2026-10-04 at 360x800** (fixture): the record's tiles are 64px; a call row is 52px, or 63px when its meta line wraps to carry the kickoff (the name stays one line). The picker and board lead, so the record is not the first data; the page was already over the 200px budget for them.
+- WR defense matters little (METHODOLOGY 12.29, 12.70) and teammate out is a reason only (12.55, 12.71), as before.
+- The This week sub-row's gap went 20px -> 16px at 760px and under, site-wide, so six views fit 332px at 360.
+- **Data:** `design/startsit_v3.py` cuts ff-jarvis `startsit_v3` (feed block first, `data/startsit_v3.json` second; `sources.load_startsit_v3`) into `LIVE_SS3`: SMASH in position order, takes START first then SIT by margin, a record of zero counts when none. A reason is read as `{k, text}` (also `{kind, text_key}`). `design/startsit.py` keeps only each position's best spot, for the board.
+- **Superseded 2026-10-04:** the v2 takes (higher/lower than FantasyPros), Pitcher List's column, the v2 record bars and splits, the pause rule, shadow takes and Claude's weekly read. Their data, copy and CSS are gone from this view; the weeks 1-4 grade files stay in ff-jarvis.
+- Tests: `tests/test_startsit_v3.py` (the cut, the loader, every state of the page, the Slips link, the desktop edges, 360 overflow), `tests/test_startsit.py` (picker, board and best spot); golden states `matchups`, `matchups-open`, `matchups-modal`, `matchups-nograde`, `matchups-notakes`, `matchups-nocalls`.
 
 Not built yet: Bets > Games (every game with its implied totals and each offense against the other
 defense by position), the storyboard's second view.

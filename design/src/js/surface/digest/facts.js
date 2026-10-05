@@ -68,15 +68,12 @@ function dgFactsHTML(d){
   const over = take(free([...role].sort((a, b) => b.gap - a.gap).filter(r => r.gap > 0)));
   const under = take(free([...role].sort((a, b) => a.gap - b.gap).filter(r => r.gap < 0)));
   const j = dgJump(), jump = j && !used.has(j.slug) ? take(j) : null;
-  const call = take(free(muCalls("start").filter(r => r.ecr != null && r.ecr > r.rank)));
-  const work = call ? null : take(free([...role].sort((a, b) => b.xfp - a.xfp)));
+  const work = take(free([...role].sort((a, b) => b.xfp - a.xfp)));
   const tiles = [
     over && dgFactTile("up", t("digest.fact.over"), over, dgSigned(over.gap, 1), dgRoleSub(over), "movers"),
     under && dgFactTile("dn", t("digest.fact.under"), under, dgSigned(under.gap, 1), dgRoleSub(under), "movers"),
     jump && dgFactTile("", t("digest.fact.jump"), jump, `${Math.round(jump.now)}%`,
       t("digest.fact.jumpSub", {was: Math.round(jump.was), now: Math.round(jump.now), wk: jump.wk}), "usage"),
-    call && dgFactTile("", t("digest.fact.take"), call, `+${call.ecr - call.rank}`,
-      t("digest.fact.takeSub", {pos: esc(call.pos), rank: call.rank, ecr: call.ecr}), "matchups"),
     work && dgFactTile("", t("digest.fact.work"), work, work.xfp.toFixed(1), t("digest.fact.workSub"), "movers"),
   ].filter(Boolean);
   if (!tiles.length) return "";

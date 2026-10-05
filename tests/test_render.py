@@ -189,34 +189,6 @@ TABLE.sig = ''; render();
 """
 
 
-def mu_graded_js():
-    """Takes with week 4 graded, the first week its record counts (2026-09-30). The fixture holds weeks
-    1-3 only, so the page has no record; this grades a week 4 through design/startsit.py itself, the
-    splits being the fixture's real v1 numbers moved to v2's clean set so the table has values."""
-    import sys
-    root = pathlib.Path(__file__).resolve().parents[1]
-    for p in ("design", "api"):
-        if str(root / p) not in sys.path:
-            sys.path.insert(0, str(root / p))
-    from _espn import slugify
-    from sources import load_startsit
-    from startsit import live_startsit
-    calls, pl, grade = load_startsit()
-    g = json.loads(json.dumps(grade))
-    g["week"] = 4
-    r = g["startsit_record"]
-    r["weeks"] = [1, 2, 3, 4]
-    r["ours_v2"] = {"n": 16, "score": 0.47, "clean": {"n": 15, "score": 0.5}, "backed": {"n": 6, "score": 0.58},
-                    "gut": {"n": 10, "score": 0.4}, "causes": {"injury": 1, "role": 2, "td": 3, "read": 3}}
-    r["fantasypros_v2"] = {"n": 16, "score": 0.53, "clean": {"n": 15, "score": 0.5}}
-    r["pitcherlist_v2"] = {"n": 6, "score": 0.5, "score_no_dnp": 0.5}
-    r["splits"]["v2"] = {grp: {k: {**c, "clean": c["all"]} for k, c in cells.items()}
-                         for grp, cells in r["splits"]["v1"].items()}
-    return "LIVE_STARTSIT.record = " + json.dumps(live_startsit(calls, pl, g, slugify)["record"]) + ";"
-
-
-MU_GRADED = mu_graded_js()
-
 STATES = [
     # The Digest (This week, 2026-09-26), the page's default: the day picks the open row. Friday
     # opens Hurt (the fixture leads with a doubtful Puka Nacua), Tuesday opens Waiver adds, a tap
@@ -374,47 +346,21 @@ STATES = [
     # same grid as week-over-week change (the mode the level view cannot show; the week and the
     # reading sit in the panel the bar's last chip opens since 2026-09-25), a QB grid because its
     # columns are the ones with no counterpart anywhere else in the app, and the profile modal.
-    # Matchups (redesigned 2026-09-26 in the Digest's language): WR has no best spot, so its lead
-    # says so, then a start (Higgins, whom Pitcher List says to sit) and a sit. -open opens
-    # Higgins' row to its evidence (a dashed matchup chip and a "but"); -pl-open opens Pitcher
-    # List's Higgins row to their words; QB is the unbacked call; RB carries the best spot as the
-    # lead, photo and chips; the opened row's link opens the profile; and a week with nothing yet
-    # (no calls, no column, no graded week) says each of those in its own place. LIVE_STARTSIT is
-    # a const, so the null block (no calls file) is pinned in tests/test_startsit.py instead.
+    # Start/Sit v3 (2026-10-04): the fixture week (tests/fixtures/data/startsit_v3.json) holds ten SMASH
+    # players, four bold STARTs and five bold SITs, and a record with week 5 graded. -open opens the
+    # first bold call to its reasons, the opened row's link opens the profile, and a week with nothing
+    # yet says each of those in its own place: no week graded (a calm record), no bold calls (one line),
+    # no calls at all (Blip). LIVE_SS3 is a const, so the missing block is pinned in tests/test_startsit_v3.py.
     ("matchups", go("matchups")),
-    ("matchups-open", go("matchups") + [("click", "[data-mukey^='c:'] .mu-call-h")]),
-    ("matchups-pl-open", go("matchups") + [("click", "[data-mukey^='p:'] .mu-call-h")]),
-    ("matchups-modal", go("matchups") + [("click", "[data-mukey^='c:'] .mu-call-h"),
+    ("matchups-open", go("matchups") + [("click", "[data-mukey^='t:'] .mu-call-h")]),
+    ("matchups-modal", go("matchups") + [("click", "[data-mukey^='t:'] .mu-call-h"),
                                          ("click", ".mu-call[data-open] [data-muslug]")]),
-    ("matchups-empty", [("eval", "Object.assign(LIVE_STARTSIT, {calls: [], shadow: [], rule: null, pl: [], article: null, record: null})")]
-                       + go("matchups")),
-    # No takes on a Tuesday: the experts have not ranked the week yet, and Blip (bored) says when
-    # they will (2026-09-29). matchups-empty above is the other reason: the experts are in, we agree.
-    # The fixture's record is weeks 1-3 only, so `matchups` shows no record (it restarts at week 4,
-    # 2026-09-30); the states below grade a week 4 first (MU_GRADED).
-    # Amendment 2 (2026-09-29): the splits open under the record, and the paused START TE line opens
-    # to its shadow take.
-    ("matchups-splits", [("eval", MU_GRADED)] + go("matchups") + [("click", "[data-musplits]")]),
-    ("matchups-paused", go("matchups") + [("click", "[data-mups] > .mu-ps-h")]),
-    # Takes v2 graded (week 4 on, METHODOLOGY 12.64): the clean bars with the backed/gut line, and
-    # last week's takes with their causes; an injury miss dimmed, left out of the score.
-    ("matchups-v2", [("eval", MU_GRADED + """
-      LIVE_STARTSIT.review = {week: 4, rows: [
-        {n: 'Chase Brown', slug: 'chase-brown', pos: 'RB', team: 'CIN', call: 'start', score: 1, cause: 'hit', note: null, backed: true, finish: 14},
-        {n: 'Tee Higgins', slug: 'tee-higgins', pos: 'WR', team: 'CIN', call: 'start', score: 0, cause: 'injury', note: 'did not play', backed: false, finish: null},
-        {n: 'Amon-Ra St. Brown', slug: 'amon-ra-st-brown', pos: 'WR', team: 'DET', call: 'sit', score: 0, cause: 'td', note: 'finish without TDs 31', backed: false, finish: 9},
-        {n: 'Brock Purdy', slug: 'brock-purdy', pos: 'QB', team: 'SF', call: 'start', score: .5, cause: 'read', note: null, backed: true, finish: 16}]};""")]
-                    + go("matchups")),
-    # The same week with Claude's read of it (ff-jarvis startsit_review): note, patterns, watch list.
-    ("matchups-read", [("eval", MU_GRADED + """
-      LIVE_STARTSIT.review = {week: 4, read: {model: 'opus',
-        note: 'Week 4 split down the middle on the clean set: ours 0.5 on 15 takes, FantasyPros 0.5 on the same 15.',
-        patterns: ['3 of 9 misses came on touchdowns: the call was right on yards', '2 of 3 START-WR takes missed on read'],
-        watch: [{type: 'START-WR', tag: 'start', pos: 'WR', text: '2 of 3 missed on read in week 4', status: 'active', n: 3, ours: .167, fp: .833}]},
-        rows: [{n: 'Chase Brown', slug: 'chase-brown', pos: 'RB', team: 'CIN', call: 'start', score: 1, cause: 'hit', note: null, backed: true, finish: 14}]};""")]
-                      + go("matchups")),
-    ("matchups-early",[("eval", "Object.assign(LIVE_STARTSIT, {calls: [], shadow: [], rule: null, experts_week: LIVE_STARTSIT.week - 1})")]
-                       + go("matchups")),
+    ("matchups-nograde", [("eval", "Object.assign(LIVE_SS3.record, {weeks: [], last_week: [], smash: {hit: 0, miss: 0, void: 0},"
+                                   " start: {hit: 0, miss: 0, void: 0}, sit: {hit: 0, miss: 0, void: 0},"
+                                   " fun: {fantasypros: {hit: 0, miss: 0}, pitcherlist: {hit: 0, miss: 0}}})")]
+                         + go("matchups")),
+    ("matchups-notakes", [("eval", "LIVE_SS3.takes.length = 0")] + go("matchups")),
+    ("matchups-nocalls", [("eval", "LIVE_SS3.takes.length = 0; LIVE_SS3.smash.length = 0")] + go("matchups")),
     ("usage", go("usage")),
     ("usage-panel", go("usage") + [("click", "[data-upanel]")]),
     ("usage-change", go("usage") + [("click", "[data-upanel]"), ("click", "[data-umode='change']")]),

@@ -1,82 +1,40 @@
-/* ============================== TAKES ==============================
-   The Digest's language on the Players side: a record strip, then one-line rows, every position in
-   one list (2026-09-29; the position chips and the best-spot lead are gone). A phone stacks them
-   full-bleed; wider, ours and Pitcher List's sit side by side. Green and red keep their one job,
-   start and sit; lime is the better record. */
+/* ============================== START / SIT ==============================
+   The page's layout: the picker and board (picker.css, board.css), the record (record.css), then
+   two cards, SMASH and the bold calls, then last week. Each card is one subject with its rows inside
+   it, never a card in a card (DESIGN.md "Cards"). A phone stacks them full width; from 960px the two
+   calls cards sit side by side when both hold rows, each at most as wide as a label may sit from its
+   value (STYLE.md "Layout"). Green and red keep their one job, start and sit; lime is SMASH. */
 .mu{display:grid;grid-template-columns:minmax(0,1fr);padding-bottom:28px}
+.mu > *{min-width:0}
+.mu-calls,.mu-rec,.mu-last{margin:12px 14px 0}
+.mu-calls{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:start}
 
-/* The record is the view's first data and its trust question, so it leads, as a strip. */
-.mu-rec{
-  display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;
-  padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel);
+/* One subject: a header (what it is on the left, what its numbers are on the right), then its rows. */
+.mu-card{min-width:0;border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden}
+.mu-ch{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0;padding:12px 14px 10px;
+  font-family:var(--disp);font-size:var(--t-4);font-weight:800;line-height:1.1;text-transform:uppercase;color:var(--ink);
 }
-.mu-rec-l{display:grid;gap:3px;font-size:var(--t-1);font-weight:600;line-height:1.2;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
-.mu-rec small{font-family:var(--mono);font-size:var(--t-1);font-weight:500;line-height:1;letter-spacing:0;text-transform:none;color:var(--ink-3)}
-.mu-rec-bars{display:grid;gap:5px;min-width:0}
-.mu-rb{display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:8px;align-items:center;font-size:var(--t-1);color:var(--ink-2)}
-.mu-rb > span:first-child{white-space:nowrap}
-.mu-tr{height:6px;border-radius:3px;overflow:hidden;background:var(--panel-3)}
-.mu-tr i{display:block;height:100%;width:var(--w);border-radius:3px;background:var(--line-2)}
-.mu-rb.lead{color:var(--ink)}
-.mu-rb.lead .mu-tr i{background:var(--lime)}
-.mu-rb em{font-family:var(--mono);font-size:var(--t-2);font-weight:700;font-style:normal;line-height:1;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
-.mu-rb.lead em{color:var(--lime)}
-.mu-rec.none{grid-template-columns:auto minmax(0,1fr)}
-
-/* Backed or gut, on the closed line: lime means a reason came with the take, grey means gut. */
-.mu-bk{color:var(--ink-3)}
-.mu-bk.yes{color:var(--lime)}
-.mu-why{margin:0;font-size:var(--t-2);line-height:1.45;color:var(--ink)}
-.mu-why b{margin-right:6px;font-size:var(--t-1);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--lime)}
-
-/* Last graded week, take by take. The result word carries the colour; an injury miss is dimmed,
-   since it is left out of the score. */
-.mu-review{margin-top:8px}
-.mu-review ul{list-style:none;margin:0;padding:0}
-.mu-rv{display:grid;grid-template-columns:52px minmax(0,1fr);column-gap:10px;row-gap:2px;padding:9px 14px;border-bottom:1px solid var(--line)}
-.mu-rv-r{grid-row:1 / 3;align-self:center;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
-.mu-rv.hit .mu-rv-r{color:var(--up)}
-.mu-rv.close .mu-rv-r{color:var(--amber)}
-.mu-rv.miss .mu-rv-r{color:var(--down)}
-.mu-rv.out{opacity:.6}
-.mu-rv-n b{font-weight:600}
-.mu-rv-n i{font-style:normal;font-size:var(--t-1);color:var(--ink-3)}
-.mu-rv-w{font-size:var(--t-1);color:var(--ink-2)}
-.mu-rv-w small{color:var(--ink-3)}
-.mu-rec-none{font-size:var(--t-2);color:var(--ink-2)}
-
-/* A list's header: what it is on the left, what its numbers are on the right. */
-.mu-list{min-width:0}
+.mu-ck{font-family:var(--mono);font-size:var(--t-1);font-weight:500;line-height:1;letter-spacing:0;text-transform:none;color:var(--ink-3);white-space:nowrap}
+/* A group inside a card: the rows' own header, a rule above it. */
 .mu-grp{
-  display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0;padding:14px 14px 6px;
+  margin:0;padding:12px 14px 6px;border-top:1px solid var(--line);
   font-size:var(--t-1);font-weight:600;line-height:1;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);
 }
-/* Most confident heads the list in the brand lime: the one header that is a pick, not a bucket. */
-.mu-grp.mu-top{color:var(--lime)}
-.mu-grp span{font-family:var(--mono);font-weight:500;letter-spacing:0;text-transform:none;white-space:nowrap}
-/* The shown-not-graded takes' line (Amendment 3, 2026-10-03): quieter than a list's header, a rule above. */
-.mu-more{margin:8px 14px 0;padding:10px 0 4px;border-top:1px dashed var(--line-2);font-size:var(--t-1);font-weight:500;line-height:1;color:var(--ink-3)}
-.mu-empty{margin:4px 14px 0;padding:12px 14px;border:1px dashed var(--line-2);border-radius:10px;color:var(--ink-3);font-size:var(--t-2)}
-/* No takes: Blip and his line, in place of the two lists. */
+.mu-cf{display:flex;justify-content:flex-end;padding:0 14px;border-top:1px solid var(--line)}
+
+.mu-empty{margin:0;padding:12px 14px;border:1px dashed var(--line-2);border-radius:10px;color:var(--ink-3);font-size:var(--t-2)}
+/* No calls at all: Blip and his line, in place of the cards. */
 .mu-blip{display:flex;align-items:center;gap:14px;margin:12px 14px 0;padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
 .mu-blip .blip{flex:none;width:72px;height:72px}
 .mu-blip q{quotes:none;display:block;font-size:var(--t-3);font-weight:500;line-height:1.45;color:var(--ink);text-wrap:pretty}
 .mu-blip p{margin:6px 0 0;font-size:var(--t-1);line-height:1.45;color:var(--ink-3)}
 
-/* The two lists go side by side once each can hold a row whose name is not cut to initials,
-   measured on the lists' own width. The lists stop at --list-w, like Ranks and News. */
-.mu-cols{min-width:0;container-type:inline-size}
-@container (min-width:760px){
-  .mu-cols-in{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
-  .mu-cols-in > .mu-list + .mu-list{border-left:1px solid var(--line)}
-}
-
 @media (min-width:960px){
   .mu{max-width:var(--page-w);margin:0 auto;padding:20px var(--page-pad) 40px}
-  /* The bars stop at 560px: a score bar a thousand pixels long reads as a progress bar. */
-  .mu-rec{grid-template-columns:auto minmax(0,560px) auto;justify-content:start;column-gap:20px;
-    border:1px solid var(--line);border-radius:12px;padding:12px 18px;margin-bottom:12px}
-  .mu-rb{grid-template-columns:96px minmax(0,1fr) auto}
-  .mu-cols{max-width:var(--list-w);border-top:1px solid var(--line)}
-  .mu-review{max-width:var(--list-w)}
+  .mu-calls,.mu-rec,.mu-last{margin:0 0 12px}
+  .mu-calls{max-width:var(--list-w)}
+  .mu-calls.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+  /* One card alone, or the last week's list, stays a row's width, not a thousand pixels. */
+  .mu-calls:not(.two) > .mu-card,.mu-last{max-width:560px}
 }

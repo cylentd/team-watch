@@ -9,6 +9,7 @@ whole. Null values are fine; absent keys are not.
 import contract_checks   # design/contract_checks.py: the rules that read a spec
 import leagues
 import startsit_board   # design/startsit_board.py: LIVE_SSB's nested shape check
+import startsit_v3      # design/startsit_v3.py: LIVE_SS3's nested shape check
 from contract_checks import WIRE_EVENT, WIRE_KIND, WIRE_KIND_OPTIONAL, WIRE_OPTIONAL, WIRE_SUBS  # noqa: F401  re-exported for wire_watch.py
 
 # A league's `status` is fa | waiver | rostered | mine | unknown -- no value is enforced here: "unknown"
@@ -45,8 +46,6 @@ LEAGUE_YAHOO_SPEC = {
 WAIVER_VERDICT = ["kind", "over", "slot", "margin"]
 WAIVER_DROP = ["name", "pos", "pts"]
 WAIVER_META = ["label", "faab_left", "faab_budget", "clears", "needs"]
-STARTSIT_ROW = ["tag", "n", "slug", "pos", "team", "opp", "home", "pts", "rank", "ecr", "own", "gap", "why", "but",
-                "reasons", "backed", "tier", "graded"]   # one take, LIVE_STARTSIT `calls` and `shadow`
 
 CONTRACT = {
     "LIVE_ESPN": {
@@ -270,14 +269,21 @@ CONTRACT = {
                           "ol_starters_out", "ol_starters_out_of", "ol_starters_out_names",
                           "ol_starters_out_reason"]),
     },
-    # design/startsit.py, the Takes view (leaf `matchups`). `tag` is start|sit; `ecr`, `own`, `gap` (before 2026-09-29) may be null; `reasons` empty (a gut call).
-    # `record` is null until a week is graded, its `v2` and `review` until a v2 week (4+) is; `pl` is empty when Pitcher List's column is not this week's, and `article` null with it.
-    # Amendment 2 (2026-09-29): `tier`, `rule`, the record's `splits` (shape pinned in test_startsit.py) and the review's `read` (Claude's) may be null; `shadow` is [] with nothing paused.
+    # design/startsit.py, each position's best spot, the lead of Start/Sit's matchup board (leaf `matchups`); null without ff-jarvis's calls file.
     "LIVE_STARTSIT": {
-        "keys": ["week", "experts_week", "generated", "calls", "shadow", "best", "rule", "pl", "article", "record", "review"],
-        "rows": [("calls", STARTSIT_ROW), ("shadow", STARTSIT_ROW), ("best", ["n", "slug", "pos", "team", "opp", "home", "pts", "why"]), ("pl", ["call", "pos", "n", "slug", "team", "opp", "home", "rationale"])],
-        "objs": [("rule", ["min_n", "paused"]), ("record", ["through", "weeks", "ours", "pl", "fp", "v2", "splits"]), ("review", ["week", "read", "rows"])],
-        "sub_rows": [("rule", "paused", ["type", "tag", "pos", "n", "ours", "fp", "since"])],
+        "keys": ["week", "generated", "best"],
+        "rows": [("best", ["n", "slug", "pos", "team", "opp", "home", "pts", "why"])],
+    },
+    # design/startsit_v3.py, Start/Sit's SMASH list, bold calls and record (2026-10-04). Always a dict: no block from ff-jarvis is an empty week
+    # (`week` null, no rows, a zero record). A SMASH row's `line` and `td_price` may be null (no book prices him); a take's `reasons` may be [].
+    # `record` counts from `since_week`; `weeks` is [] until one is graded; the nested counts are checked by its `problems`.
+    "LIVE_SS3": {
+        "keys": ["week", "season", "smash", "takes", "record"],
+        "rows": [("smash", ["slug", "name", "pos", "team", "opp", "home", "kick", "rank", "pts", "avg_rank", "line", "td_price"]),
+                 ("takes", ["slug", "name", "pos", "team", "opp", "home", "kick", "rank", "pts", "avg_rank", "call", "line_pts", "margin_spots", "reasons"])],
+        "objs": [("record", ["since_week", "smash", "start", "sit", "weeks", "fun", "last_week"])],
+        "sub_rows": [("record", "last_week", ["slug", "name", "pos", "call", "result", "finish"])],
+        "checks": [startsit_v3.problems],
     },
     # design/role.py, Players > Role (leaf `movers`). A row's `prev` is null when he played under 4
     # games last season; `work` values may be null where ff-jarvis had no number.

@@ -1,11 +1,37 @@
-/* ============================== TAKES: EVIDENCE ==============================
-   The chips an opened take shows: green argues it, amber argues against it. The dashed defense
-   chip went on 2026-09-29 with the WR defense signal it marked; the QB/RB/TE matchup chip is
-   calibrated now (ff-jarvis `matchup`), so it is evidence like the rest. */
-.mu-evs{display:flex;flex-wrap:wrap;gap:6px}
-.mu-ev{
-  font-size:var(--t-1);font-weight:500;line-height:1.25;padding:4px 8px;border-radius:12px;
-  border:1px solid var(--line-2);color:var(--ink-2);
+/* ============================== START / SIT: RECORD AND LAST WEEK ==============================
+   The record is the page's trust question: three tiles, SMASH, START and SIT, each its own hit-miss
+   (a tile stacks a number over its name, so it is centred; STYLE.md "Alignment"). The tile's name
+   wears its call's colour. FantasyPros and Pitcher List are one quiet line under it. Last week's
+   calls follow as a list; the result word carries the colour, a void call is dimmed (left out of
+   the record above). */
+.mu-rec{display:grid;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
+.mu-rec-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.mu-rec-l{margin:0;font-size:var(--t-1);font-weight:600;line-height:1.2;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+.mu-rec-s{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.mu-rec-none{margin:0;font-size:var(--t-2);color:var(--ink-2)}
+
+.mu-rts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.mu-rt{display:grid;justify-items:center;align-content:center;gap:3px;min-height:64px;padding:8px 6px;border-radius:10px;background:var(--panel-2);text-align:center}
+.mu-rt b{font-family:var(--mono);font-size:var(--t-4);font-weight:700;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink)}
+.mu-rt span{font-family:var(--mono);font-size:var(--t-1);font-weight:700;line-height:1;letter-spacing:.04em}
+.mu-rt.smash span{color:var(--lime)}
+.mu-rt.start span{color:var(--up)}
+.mu-rt.sit span{color:var(--down)}
+.mu-rt small{font-family:var(--mono);font-size:var(--t-1);line-height:1;color:var(--ink-3)}
+.mu-fun{margin:0;font-size:var(--t-1);line-height:1.4;color:var(--ink-3)}
+.mu-fun b{font-family:var(--mono);font-weight:500;color:var(--ink-2)}
+
+.mu-last ul{list-style:none;margin:0;padding:0}
+.mu-rv{display:grid;grid-template-columns:52px minmax(0,1fr);align-items:center;gap:10px;min-height:48px;padding:6px 14px;border-top:1px solid var(--line)}
+.mu-rv-r{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.mu-rv.hit .mu-rv-r{color:var(--up)}
+.mu-rv.miss .mu-rv-r{color:var(--down)}
+.mu-rv.void{opacity:.6}
+.mu-rv.void .mu-rv-r{color:var(--ink-3)}
+.mu-rv-n{display:grid;gap:1px;min-width:0}
+.mu-rv-n b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mu-rv-n i{font-style:normal;font-size:var(--t-1);color:var(--ink-3)}
+
+@media (min-width:960px){
+  .mu-rec{max-width:560px}
 }
-.mu-ev.pro{border-color:rgb(var(--up-rgb) / .45);color:var(--up)}
-.mu-ev.con{border-color:rgb(var(--amber-rgb) / .5);color:var(--amber)}

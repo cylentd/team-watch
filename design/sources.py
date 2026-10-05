@@ -10,7 +10,6 @@ build.py and calls these readers -- this file returns parsed JSON, nothing more.
 import json
 import os
 import pathlib
-import re
 
 import leagues                 # design/leagues.py: David's leagues and their ff-jarvis file names
 
@@ -254,23 +253,22 @@ def load_defense():
 
 
 def load_startsit():
-    """(our calls, Pitcher List's calls, the newest grade file carrying a start/sit record), each
-    None when ff-jarvis has not written it. Files only: none of the three is a feed block."""
-    graded = []
-    for path in (DWR / "grades").glob("*-w*.json"):
-        m = re.fullmatch(r"(\d{4})-w(\d+)", path.stem)
-        g = read_first(path) if m else None
-        if g and g.get("startsit_record"):
-            graded.append(((int(m.group(1)), int(m.group(2))), g))
-    newest = max(graded, key=lambda x: x[0])[1] if graded else None
-    return read_first(DWR / "startsit_calls.json"), read_first(DWR / "pl_startsit.json"), newest
+    """Our calls file (model.season.startsit_calls), None when ff-jarvis has not written it. The view
+    reads only its per-position best spot (the board's lead); the calls themselves are v3's."""
+    return read_first(DWR / "startsit_calls.json")
 
 
-def load_startsit_review():
-    """Claude's read of the newest graded v2 week of takes (model.season.startsit_review, METHODOLOGY
-    12.64 Amendment 2), feed block `startsit_review` first, the file second. None before a v2 week
-    (4+) is graded; design/startsit.py keeps it only when it is the graded week the page shows."""
-    return feed_block(("startsit_review",), "note") or read_first(DWR / "startsit_review.json")
+def load_startsit_v3():
+    """Start/Sit v3 (model.season.startsit_v3, METHODOLOGY 12.75): SMASH, bold START and SIT, and their
+    record. The feed's `startsit_v3` first (the block itself, or wrapped in `data` like the others),
+    else ff-jarvis's startsit_v3.json. None before ff-jarvis writes it; design/startsit_v3.py then
+    builds the empty week."""
+    try:
+        d = (json.loads(FEED.read_text(encoding="utf-8")) or {}).get("startsit_v3") or {}
+    except (OSError, json.JSONDecodeError):
+        d = {}
+    d = d.get("data") if isinstance(d.get("data"), dict) else d
+    return d if d.get("week") else read_first(DWR / "startsit_v3.json")
 
 
 def load_expert_ranks():

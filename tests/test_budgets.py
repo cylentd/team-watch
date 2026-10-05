@@ -18,7 +18,7 @@ JS_BACKLOG = {
 }
 # Same for design/*.py. build.py itself is over the 500-line file budget; the split that fixes
 # that is a model-vs-view change, not a refactor, so it is a ratchet here rather than a fail.
-PY_FILE_BACKLOG = {"build.py": 766}   # 794 until design/heads.py took the headshot copy (2026-10-03); 820 before design/myteams.py took the Yahoo leagues (2026-09-29)
+PY_FILE_BACKLOG = {"build.py": 757}   # 766 until design/startsit_blocks.py took Start/Sit's three blocks (2026-10-04); 794 until design/heads.py took the headshot copy (2026-10-03); 820 before design/myteams.py took the Yahoo leagues (2026-09-29)
 PY_BACKLOG = {"live_props": 200, "render": 110, "live_dfs_yahoo": 70}
 
 

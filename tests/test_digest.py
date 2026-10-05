@@ -382,7 +382,7 @@ def test_top_5_links_to_ranks_and_one_call_is_singular(browser, page_file):
     got = page.evaluate("""() => { LIVE_DIGEST.calls = 1; LIVE_DIGEST.best = []; DG_CUT = null; render();
       return [document.querySelector('.dg-row[data-dgrow="mu"] [data-dggo]').textContent.trim(),
               document.querySelector('.dg-row[data-dgrow="mu"] .dg-s').textContent.trim()]; }""")
-    assert got == ["1 take vs FantasyPros", "1 call this week"]   # Matchups became Takes, 2026-09-29
+    assert got == ["Start/Sit", "1 call this week"]   # the link names the view, not a count of takes against FantasyPros (2026-10-04)
     ctx.close()
     assert errors == []
 
@@ -685,25 +685,25 @@ def test_top_5_is_ranks_own_rows_under_position_tabs(browser, page_file):
 
 @pytest.mark.render
 def test_start_of_the_week_heads_the_matchups_card(browser, page_file):
-    """2026-10-03, David: yes to a Start of the week: our most confident START (graded, backed,
-    widest gap), first in the Matchups card, ours / FantasyPros on the right. None: no row."""
+    """2026-10-03, David: yes to a Start of the week: our boldest START (Start/Sit v3: the widest gap
+    between our rank and his season average), first in the Matchups card, our rank over his average
+    on the right. None: no row. The foot is Start/Sit's record, SMASH, START and SIT as hit-miss."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     page.goto(page_file.as_uri())
     drive(page, go("digest"))
     page.wait_for_selector(".dg-row")
-    page.evaluate("""(() => { LIVE_STARTSIT.calls.forEach((r, i) => { r.backed = true; r.graded = true; r.gap = i; });
-      const s = LIVE_STARTSIT.calls.filter(r => r.tag === 'start'); s[s.length - 1].gap = 50; s[0].gap = 99; s[0].backed = false;
-      DG_CUT = null; render(); })()""")
-    want = page.evaluate("""(() => { const s = LIVE_STARTSIT.calls.filter(r => r.tag === 'start'); return s[s.length - 1]; })()""")
+    want = page.evaluate("LIVE_SS3.takes.find(r => r.call === 'START')")
     row = page.locator(".dg-row[data-dgrow='mu']")
     if row.locator(".dg-head").count():
         row.locator(".dg-head").click()
     first = row.locator(".dg-ln").first
     assert first.locator(".dg-sotw").inner_text() == "Start of the week"
     assert first.get_attribute("data-dgslug") == want["slug"]
-    assert first.locator(".dg-ln-r").inner_text() == f"{want['rank']} / {want['ecr'] if want['ecr'] is not None else '—'}"
-    page.evaluate("LIVE_STARTSIT.calls.forEach(r => { r.backed = false; }); DG_CUT = null; render()")
+    assert first.locator(".dg-ln-r").inner_text().replace("\n", " ") == f"{want['pos']}{want['rank']} avg {want['pos']}{want['avg_rank']}"
+    assert row.locator(".dg-foot > span").inner_text() == "Record since week 5: SMASH 7-3, START 2-2, SIT 4-1."
+    page.evaluate("LIVE_SS3.takes = LIVE_SS3.takes.filter(r => r.call !== 'START'); Object.assign(LIVE_SS3.record, {weeks: [], smash: {hit: 0, miss: 0, void: 0}, start: {hit: 0, miss: 0, void: 0}, sit: {hit: 0, miss: 0, void: 0}}); DG_CUT = null; render()")
     assert page.locator(".dg-sotw").count() == 0
+    assert row.locator(".dg-foot > span").inner_text() == "Record starts with week 5."
     assert not errors
     ctx.close()
 

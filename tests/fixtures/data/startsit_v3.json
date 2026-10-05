@@ -1,0 +1,52 @@
+{
+ "week": 6, "season": 2026, "asof": "2026-10-14T13:00:00Z",
+ "rule": {"lines": {"QB": 12, "RB": 24, "WR": 24, "TE": 12}, "smash_top": {"QB": 3, "RB": 6, "WR": 6, "TE": 3}, "margin_spots": 6, "version": "12.75"},
+ "smash": [
+  {"slug": "josh-allen", "name": "Josh Allen", "pos": "QB", "team": "BUF", "opp": "MIA", "home": true, "kick": "2026-10-18T17:00:00Z", "rank": 1, "pts": 24.1, "avg_rank": 2, "line": {"stat": "pass_yds", "value": 251.5}, "td_price": -105},
+  {"slug": "joe-burrow", "name": "Joe Burrow", "pos": "QB", "team": "CIN", "opp": "PIT", "home": false, "kick": "2026-10-18T17:00:00Z", "rank": 3, "pts": 21.4, "avg_rank": 5, "line": {"stat": "pass_yds", "value": 262.5}, "td_price": 120},
+  {"slug": "jahmyr-gibbs", "name": "Jahmyr Gibbs", "pos": "RB", "team": "DET", "opp": "CHI", "home": true, "kick": "2026-10-18T17:00:00Z", "rank": 1, "pts": 19.8, "avg_rank": 1, "line": {"stat": "rush_yds", "value": 84.5}, "td_price": -170},
+  {"slug": "saquon-barkley", "name": "Saquon Barkley", "pos": "RB", "team": "PHI", "opp": "LA", "home": true, "kick": "2026-10-18T20:25:00Z", "rank": 2, "pts": 18.2, "avg_rank": 4, "line": {"stat": "rush_yds", "value": 91.5}, "td_price": -145},
+  {"slug": "chase-brown", "name": "Chase Brown", "pos": "RB", "team": "CIN", "opp": "PIT", "home": false, "kick": "2026-10-18T17:00:00Z", "rank": 5, "pts": 15.6, "avg_rank": 7, "line": {"stat": "rush_yds", "value": 72.5}, "td_price": 105},
+  {"slug": "puka-nacua", "name": "Puka Nacua", "pos": "WR", "team": "LA", "opp": "PHI", "home": false, "kick": "2026-10-18T20:25:00Z", "rank": 2, "pts": 16.6, "avg_rank": 3, "line": {"stat": "rec_yds", "value": 72.0}, "td_price": 135},
+  {"slug": "amonra-st-brown", "name": "Amon-Ra St. Brown", "pos": "WR", "team": "DET", "opp": "CHI", "home": true, "kick": "2026-10-18T17:00:00Z", "rank": 4, "pts": 14.9, "avg_rank": 6, "line": {"stat": "rec_yds", "value": 78.5}, "td_price": 130},
+  {"slug": "jamarr-chase", "name": "Ja'Marr Chase", "pos": "WR", "team": "CIN", "opp": "PIT", "home": false, "kick": "2026-10-18T17:00:00Z", "rank": 5, "pts": 14.8, "avg_rank": 2, "line": {"stat": "rec_yds", "value": 81.5}, "td_price": 115},
+  {"slug": "trey-mcbride", "name": "Trey McBride", "pos": "TE", "team": "ARI", "opp": "SEA", "home": true, "kick": "2026-10-18T20:05:00Z", "rank": 1, "pts": 13.4, "avg_rank": 1, "line": {"stat": "rec_yds", "value": 66.5}, "td_price": 150},
+  {"slug": "george-kittle", "name": "George Kittle", "pos": "TE", "team": "SF", "opp": "DEN", "home": true, "kick": "2026-10-18T20:25:00Z", "rank": 2, "pts": 11.9, "avg_rank": 4, "line": null, "td_price": null}
+ ],
+ "takes": [
+  {"slug": "rhamondre-stevenson", "name": "Rhamondre Stevenson", "pos": "RB", "team": "NE", "opp": "BUF", "home": false, "kick": "2026-10-18T17:00:00Z", "call": "START", "rank": 15, "avg_rank": 36, "pts": 10.2, "line_pts": 8.6, "margin_spots": 9.5,
+   "reasons": [{"k": "role", "text": "Work up 3.1 a game over his last 2"}]},
+  {"slug": "tee-higgins", "name": "Tee Higgins", "pos": "WR", "team": "CIN", "opp": "PIT", "home": false, "kick": "2026-10-18T17:00:00Z", "call": "START", "rank": 16, "avg_rank": 41, "pts": 11.1, "line_pts": 9.2, "margin_spots": 8.5,
+   "reasons": [{"k": "mx", "text": "PIT D vs WRs: 3rd softest"}, {"k": "script", "text": "Team total 27.5, 3rd of 32"}]},
+  {"slug": "sam-laporta", "name": "Sam LaPorta", "pos": "TE", "team": "DET", "opp": "CHI", "home": true, "kick": "2026-10-18T17:00:00Z", "call": "START", "rank": 5, "avg_rank": 17, "pts": 9.1, "line_pts": 7.4, "margin_spots": 7.5,
+   "reasons": []},
+  {"slug": "cj-stroud", "name": "C.J. Stroud", "pos": "QB", "team": "HOU", "opp": "TEN", "home": true, "kick": "2026-10-18T17:00:00Z", "call": "START", "rank": 6, "avg_rank": 22, "pts": 19.3, "line_pts": 17.8, "margin_spots": 6.5,
+   "reasons": [{"k": "door", "text": "T. Dell (WR) is out"}]},
+  {"slug": "dj-moore", "name": "D.J. Moore", "pos": "WR", "team": "CHI", "opp": "DET", "home": false, "kick": "2026-10-18T17:00:00Z", "call": "SIT", "rank": 33, "avg_rank": 12, "pts": 7.4, "line_pts": 9.2, "margin_spots": 8.5,
+   "reasons": [{"k": "script", "text": "Team total 17.0, 28th of 32"}]},
+  {"slug": "evan-engram", "name": "Evan Engram", "pos": "TE", "team": "DEN", "opp": "SF", "home": false, "kick": "2026-10-18T20:25:00Z", "call": "SIT", "rank": 20, "avg_rank": 8, "pts": 5.2, "line_pts": 7.4, "margin_spots": 7.5,
+   "reasons": []},
+  {"slug": "kyren-williams", "name": "Kyren Williams", "pos": "RB", "team": "LA", "opp": "PHI", "home": false, "kick": "2026-10-18T20:25:00Z", "call": "SIT", "rank": 31, "avg_rank": 8, "pts": 6.9, "line_pts": 8.6, "margin_spots": 6.5,
+   "reasons": [{"k": "role", "text": "Work down 2.4 a game over his last 2"}]},
+  {"slug": "kirk-cousins", "name": "Kirk Cousins", "pos": "QB", "team": "LV", "opp": "KC", "home": true, "kick": "2026-10-18T17:00:00Z", "call": "SIT", "rank": 19, "avg_rank": 9, "pts": 14.9, "line_pts": 17.8, "margin_spots": 6.5,
+   "reasons": []},
+  {"slug": "chris-olave", "name": "Chris Olave", "pos": "WR", "team": "NO", "opp": "ATL", "home": true, "kick": "2026-10-18T17:00:00Z", "call": "SIT", "rank": 31, "avg_rank": 18, "pts": 7.8, "line_pts": 9.2, "margin_spots": 6.5,
+   "reasons": [{"k": "mx", "text": "ATL D vs WRs: 4th toughest"}]}
+ ],
+ "record": {
+  "since_week": 5,
+  "smash": {"hit": 7, "miss": 3, "void": 0},
+  "start": {"hit": 2, "miss": 2, "void": 1},
+  "sit": {"hit": 4, "miss": 1, "void": 0},
+  "weeks": [{"week": 5, "smash": {"hit": 7, "miss": 3}, "start": {"hit": 2, "miss": 2}, "sit": {"hit": 4, "miss": 1}}],
+  "fun": {"fantasypros": {"hit": 5, "miss": 3}, "pitcherlist": {"hit": 3, "miss": 2}},
+  "last_week": [
+   {"slug": "tee-higgins", "name": "Tee Higgins", "pos": "WR", "call": "START", "result": "hit", "finish": 14},
+   {"slug": "rhamondre-stevenson", "name": "Rhamondre Stevenson", "pos": "RB", "call": "START", "result": "miss", "finish": 38},
+   {"slug": "sam-laporta", "name": "Sam LaPorta", "pos": "TE", "call": "START", "result": "void", "finish": null},
+   {"slug": "dj-moore", "name": "D.J. Moore", "pos": "WR", "call": "SIT", "result": "hit", "finish": 41},
+   {"slug": "kyren-williams", "name": "Kyren Williams", "pos": "RB", "call": "SIT", "result": "miss", "finish": 9},
+   {"slug": "puka-nacua", "name": "Puka Nacua", "pos": "WR", "call": "SMASH", "result": "hit", "finish": 2}
+  ]
+ }
+}

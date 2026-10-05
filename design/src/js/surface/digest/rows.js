@@ -35,22 +35,23 @@ function dgStartWhat(r, name, bare){
   return [over, moved].filter(Boolean).join(", ");
 }
 
-/* Start of the week (2026-10-03, David: yes): our most confident START, the take's own row on
-   Start/Sit, leading the card in lime. Ours against FantasyPros on the right, as the takes show it. */
+/* Start of the week (2026-10-03, David: yes): our boldest START, the call's own row on Start/Sit (the
+   widest gap between our rank and his season average), leading the card in lime. Our rank on the
+   right with his average under it, as Start/Sit shows it. */
 function dgSotwHTML(){
-  const s = muConfident(["start"])[0];
-  return s ? dgLnHTML(s, `<b class="dg-sotw">${t("digest.mu.sotw")}</b> · ${esc(s.pos)} · ${dgVs(s)}`,
-    `${s.rank} / ${s.ecr == null ? "—" : s.ecr}`) : "";
+  const s = LIVE_SS3.takes.find(r => r.call === "START");
+  return s ? dgLnHTML({n: s.name, slug: s.slug}, `<b class="dg-sotw">${t("digest.mu.sotw")}</b> · ${esc(s.pos)} · ${dgVs(s)}`,
+    `${esc(s.pos)}${s.rank}<small>${t("matchups.takes.avg", {avg: s.avg_rank == null ? "—" : esc(s.pos) + s.avg_rank})}</small>`) : "";
 }
 
+/* The foot is Start/Sit's record (SMASH, START, SIT as hit-miss since week 5), the same numbers the view prints. */
 function dgMuBody(d){
   const lines = dgSotwHTML() + d.best.map(b => dgLnHTML(b, [esc(b.pos), dgVs(b), b.why ? esc(b.why) : ""].filter(Boolean).join(" · "),
     b.pts.toFixed(1))).join("");
-  const r = d.record;
-  const rec = r ? t("digest.foot.mu", {us: r.ours.score == null ? "—" : r.ours.score.toFixed(2),
-                                        pl: r.pl.score == null ? "—" : r.pl.score.toFixed(2), wk: r.through})
-    : t("digest.foot.muNone");
-  return lines + dgFootHTML(rec, "matchups", d.calls === 1 ? t("digest.go.matchupsOne") : t("digest.go.matchups", {n: d.calls}));
+  const r = LIVE_SS3.record;
+  const rec = ss3Graded(r) ? t("digest.foot.mu", {wk: r.since_week, smash: ss3Wl(r.smash), start: ss3Wl(r.start), sit: ss3Wl(r.sit)})
+    : t("digest.foot.muNone", {wk: r.since_week});
+  return lines + dgFootHTML(rec, "matchups", t("digest.go.matchups"));
 }
 
 /* Each bar grows when the row opens (adds.css): from last week's % rostered to this week's on the
