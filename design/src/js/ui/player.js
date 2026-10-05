@@ -130,6 +130,18 @@ function projNumHTML(p){
   const td = tdChanceFor(p);
   const chip = td !== null && td >= TD_SHOW
     ? `<small class="rtd ${td >= TD_HOT ? "hot" : ""}" title="${t("teams.row.tdTip", {n: td})}">${t("teams.row.td", {n: td})}</small>` : "";
-  return `<div class="rproj">${pts.toFixed(1)}${chip}</div>`;
+  const stage = projStage(p);
+  const tag = stage === "early" ? `<small class="rstage" title="${t("teams.row.stageEarlyTip")}">${t("teams.row.stageEarly")}</small>` : "";
+  const tip = stage === "lined" ? ` title="${t("teams.row.stageLinedTip")}"` : "";
+  return `<div class="rproj"${tip}>${pts.toFixed(1)}${chip}${tag}</div>`;
+}
+
+/* "early" (no prop line posted for his game yet) or "lined" (lines posted for his game; his own blended if he has one), or null when the feed
+   does not say (a bye, or a file from before ff-jarvis stamped it). Only "early" draws a label: a
+   lined number is the normal state, so it gets a hover note and no pill. */
+function projStage(p){
+  if (typeof LIVE_PROJECTIONS === "undefined" || !LIVE_PROJECTIONS) return null;
+  const proj = LIVE_PROJECTIONS.players[p.slug];
+  return proj && (proj.stage === "early" || proj.stage === "lined") ? proj.stage : null;
 }
 

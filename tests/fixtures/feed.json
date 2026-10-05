@@ -188,7 +188,8 @@
      "src": "model",
      "flag": "q",
      "injury": "Questionable",
-     "depth": 1
+     "depth": 1,
+     "stage": "early"
     },
     {
      "key": "chase brown",
@@ -211,7 +212,8 @@
      "src": "model",
      "flag": "q",
      "injury": "Questionable",
-     "depth": 1
+     "depth": 1,
+     "stage": "lined"
     },
     {
      "key": "george kittle",

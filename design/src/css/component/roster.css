@@ -125,6 +125,8 @@
 .rtd{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.02em;line-height:1;
   padding:2px 5px;border-radius:4px;background:var(--panel-2);color:var(--ink-2);white-space:nowrap}
 .rtd.hot{color:var(--lime);background:rgb(var(--lime-rgb) / .1)}
+.rstage{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.08em;line-height:1;
+  padding:2px 5px;border-radius:4px;background:var(--panel-2);color:var(--ink-3);white-space:nowrap}
 .rproj.none{color:var(--ink-3)}
 .rproj.out{color:var(--down);font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.08em}
 .rp-ar{width:8px;height:8px;flex-shrink:0}

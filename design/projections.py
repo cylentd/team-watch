@@ -125,8 +125,11 @@ def live_projections(raw, slugify, wanted, status=None, schedule=None):
                         "out": gone.get(slug), "done": done.get(slug),
                         # {adj, cond}: points ff-jarvis already moved for this game's weather
                         # (its weather_adjust, METHODOLOGY 12.53), null when none applied.
-                        "wx": p.get("wx")}
+                        "wx": p.get("wx"),
+                        # "early" (no prop line posted for his game yet) | "lined" (lines posted for his game; his own blended if he has one) |
+                        # null (a bye, or a feed from before ff-jarvis said which). Absent is never an error.
+                        "stage": p.get("stage")}
     if not out:
         return None
-    meta = {k: (raw or {}).get(k) for k in ("scoring", "through", "generated")}
+    meta = {k: (raw or {}).get(k) for k in ("scoring", "through", "generated", "stage")}
     return {"players": out, "meta": meta}
