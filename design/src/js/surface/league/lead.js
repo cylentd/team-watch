@@ -1,7 +1,7 @@
 /* ============================== LEAGUE: THE LEAD AND THE BRIEFS (Yahoo back page) ==============================
    2026-09-27, storyboard https://claude.ai/artifact/5Sj3BRZqyfaVWkvCXCjgFV; rows and tags 2026-10-06 (back.js).
-   The game the week is about as one big story with the photo of the player its joke is about (faded like an
-   OUT headshot when the player flopped), the other games as rows of a score line, its tags and the joke, and
+   The game the week is about as one big story with Blip reacting to it (never a player's headshot since
+   2026-10-06: the recap is the whole league's board, not one roster's), the other games as rows of a score line, its tags and the joke, and
    the standings in agate. Managers carry the score lines; team names appear inside the jokes, where the
    puns need them. A row's facts and box score open in the modal, so no card ever grows. */
 
@@ -17,16 +17,7 @@ function lgScoreLineHTML(g){
 
 const lgBeatsHTML = g => g.beats.length ? `<ul class="bp2-beats">${g.beats.map(b => `<li>${lgBeatHTML(b)}</li>`).join("")}</ul>` : "";
 
-/* The headshot: the biggest cut ff-jarvis made of the player; nothing when there is none. */
-function lgPhotoHTML(p){
-  if (!p) return "";
-  const src = (typeof HEADS_LG !== "undefined" && HEADS_LG[p.slug]) || (typeof HEADS !== "undefined" && HEADS[p.slug]);
-  if (!src) return "";
-  return `<figure class="bp2-photo${p.flop ? " flop" : ""}">${headImgHTML(src, initials(p.name), p.slug, 170)}
-    <figcaption>${esc(nameInitial(p.name))} <b>${lgPts(p.pts)}</b></figcaption></figure>`;
-}
-
-/* No player to picture: Blip in the photo's place, reacting once to the game (w.blip, blip_of). */
+/* Blip on the lead, reacting once to the game (w.blip, blip_of). */
 const LG_BLIP_LABEL = {wince: () => t("league.lead.blip.wince"), flatline: () => t("league.lead.blip.flatline"),
   ko: () => t("league.lead.blip.ko"), sweat: () => t("league.lead.blip.sweat"), laugh: () => t("league.lead.blip.laugh")};
 function lgBlipHTML(pose, stamped){
@@ -35,16 +26,16 @@ function lgBlipHTML(pose, stamped){
   return `<figure class="bp2-photo bp2-blip${stamped ? " late" : ""}">${blipReactSVG(LG_BLIP_LABEL[pose](), pose)}</figure>`;
 }
 
-/* The lead: the week's biggest game (w.lead), drawn big: Blip or the photo with the page's one stamp under
-   it, the score, the award tags, the game's line, its facts and its box score. */
+/* The lead: the week's biggest game (w.lead), drawn big, the full width above the other games: Blip with the
+   page's one stamp under it, the score, the award tags, the game's line, its facts and its box score. */
 function lgLeadHTML(w, g){
-  const photo = lgPhotoHTML(w.photo) || lgBlipHTML(w.blip, !!g.stamp);
+  const fig = lgBlipHTML(w.blip, !!g.stamp);
   const stamp = g.stamp ? `<span class="bp-stamp bp2-stamp">${esc(g.stamp)}</span>` : "";
-  return `<article class="bp2-lead${photo ? " has-photo" : ""}">
-    ${photo ? `<div class="bp2-fig">${photo}${stamp}</div>` : ""}
+  return `<article class="bp2-lead${fig ? " has-fig" : ""}">
+    ${fig ? `<div class="bp2-fig">${fig}${stamp}</div>` : ""}
     <div class="bp2-lbody">
       <div class="bp2-score">${lgScoreLineHTML(g)}</div>
-      ${photo ? "" : stamp}
+      ${fig ? "" : stamp}
       ${lgTagsHTML(w, g)}
       ${g.punch ? `<p class="bp2-punch">${esc(g.punch)}</p>` : ""}
       ${lgBeatsHTML(g)}
@@ -84,6 +75,24 @@ function lgAgateHTML(w){
   return `<section class="lg-sec bp2-agate" aria-label="${t("league.table.title")}">
     <h3 class="bp-hd">${t("league.going.title", {n: w.week + 1})}</h3>
     <div class="bp2-ag">${cells.join("")}</div>
+  </section>`;
+}
+
+/* Luck so far (David, 2026-10-06, the bottom row's gap): a ladder of every team, luckiest first, by its luck
+   in wins (league_back.add_standings: real wins minus the wins its points earned against everyone); the
+   table's own tag names a whole win either way. "Robbed" is the week's award, so the unlucky side is Snakebit.
+   Kept simple: record, the signed number, the tag, one caption; the method stays in the code. */
+const lgLuckRows = w => [...w.table].sort((a, b) => b.luck - a.luck);
+const lgSignedLuck = n => n > 0 ? `+${n.toFixed(1)}` : n < 0 ? `−${(-n).toFixed(1)}` : "0.0";
+function lgLuckHTML(w){
+  const rows = lgLuckRows(w);
+  if (!rows.length) return "";
+  const tag = r => r.tag === "lucky" ? `<span class="lg-tag g">${t("league.luck.lucky")}</span>`
+    : r.tag === "robbed" ? `<span class="lg-tag r">${t("league.luck.snakebit")}</span>` : "";
+  return `<section class="lg-sec lg-luck" aria-label="${t("league.luck.title")}">
+    <h3 class="bp-hd">${t("league.luck.title")}<span>${t("league.luck.sub")}</span></h3>
+    <ul class="lg-luck-l">${rows.map(r => `<li${r.tag ? ` class="${r.tag === "lucky" ? "up" : "dn"}"` : ""}><b>${lgMgr(r.id)}</b>
+      <em>${r.t ? `${r.w}–${r.l}–${r.t}` : `${r.w}–${r.l}`}</em><i>${lgSignedLuck(r.luck)}</i>${tag(r)}</li>`).join("")}</ul>
   </section>`;
 }
 

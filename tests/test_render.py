@@ -939,8 +939,18 @@ def test_recap_puts_your_game_first_then_league_and_nothing_overlaps_a_header(br
         assert page.locator(".lg-you").count() == 1 and page.locator(".lg-league").count() == 1
         assert page.evaluate(top, ".lg-step") < page.evaluate(top, ".lg-you") < page.evaluate(top, ".lg-lhd")
         assert page.evaluate(overlaps) == []
-        lead, row = (page.evaluate("q => document.querySelector(q).getBoundingClientRect().left", q) for q in (".bp2-lead", ".lg-gr"))
-        assert row > lead, "the other games' column sits beside the lead from 1100px"
+        # The lead is the week's hero (David, 2026-10-06, "this looks smaller"): the full width of the games,
+        # the other games under it, its line in the tabloid face at 40px, Blip beside it.
+        box = "q => { const r = document.querySelector(q).getBoundingClientRect(); return [r.left, r.right, r.bottom]; }"
+        lead, games, first_row = (page.evaluate(box, q) for q in (".bp2-lead", ".lg-games", ".lg-row"))
+        assert lead[1] - lead[0] >= 0.98 * (games[1] - games[0]), "the lead spans the games' full width"
+        assert first_row[2] > lead[2], "the other games sit under the lead"
+        assert page.evaluate("parseFloat(getComputedStyle(document.querySelector('.bp2-punch')).fontSize)") >= 40
+        assert page.locator(".bp2-lead .bp2-blip").count() == 1
+        # The bottom row has no hole beside the standings (David, 2026-10-06, "a weird gap"): the standings'
+        # block is as wide as its table, where the old 1.3fr column ran ~235px past it.
+        section, table = (page.evaluate(box, q) for q in (".bp2-agate", ".bp2-ag"))
+        assert section[1] - table[1] <= 2, (section, table)
         weeks = page.evaluate("LGS.yahoo.weeks.map(w => w.week)")
         assert page.locator(".lg-step-next").is_disabled() and page.locator(".lg-step-prev").is_enabled()
         page.locator(".lg-step-prev").click()

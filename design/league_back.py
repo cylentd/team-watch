@@ -34,25 +34,11 @@ def slim_box(b):
             "left": [mistake(left.get("a")), mistake(left.get("b"))]}
 
 
-FLOP = 0.5   # a pictured player under half the projection is drawn faded, like an OUT headshot
-
-
-def photo_of(b, name, slugify):
-    """The lead's photo: {name, slug, pts, flop} for `name` among the box's starters and benches, or None.
-    `flop` fades the headshot: at most zero, or under FLOP of the projection."""
-    if not b or not name:
-        return None
-    people = [s[k] for s in b["slots"] for k in ("a", "b") if s.get(k)] + [p for k in ("a", "b") for p in (b.get("bench") or {}).get(k) or []]
-    p = next((x for x in people if x.get("name") == name), None)
-    if not p or p.get("pts") is None:
-        return None
-    proj = p.get("proj") or 0
-    return {"name": name, "slug": slugify(name), "pts": p["pts"], "flop": p["pts"] <= 0 or (proj > 0 and p["pts"] < FLOP * proj)}
-
-
 def blip_of(wk):
-    """Blip's pose on the lead when its joke names no player (2026-09-29, storyboard
-    https://claude.ai/artifact/RKkFYVa7asD65uWfvLMVLU), from the lead game's place in the week, first that fits:
+    """Blip's pose on every lead (2026-09-29, storyboard
+    https://claude.ai/artifact/RKkFYVa7asD65uWfvLMVLU; on every lead since 2026-10-06, when the player headshot
+    that replaced it went: the recap is the whole league's board, not one roster's), from the lead game's place
+    in the week, first that fits:
     biggest margin and lowest score "ko", biggest margin "wince", lowest score "flatline", closest game
     "sweat", else "laugh"."""
     key = lambda g: f"{g['a']}-{g['b']}"
@@ -77,11 +63,10 @@ def _lead_key(wk, said):
     return f"{g['a']}-{g['b']}"
 
 
-def enrich_weeks(weeks, box, recap, slugify=None):
+def enrich_weeks(weeks, box, recap):
     """league_recap.weeks() rows (every decided week, oldest first), each game with both records after
     that week, its punchline, facts, stamp and box, each week with its headline and dek (None when the roast skipped
-    it), the bench award, the lead game's key and its photo (the player the lead's punch is about), or Blip's
-    pose in its place."""
+    it), the bench award, the lead game's key and Blip's pose for it."""
     boxes = {(int(w), g["home"], g["away"]): g for w, gs in ((box or {}).get("weeks") or {}).items() for g in gs}
     words = (recap or {}).get("weeks") or {}
     tally = {}
@@ -103,20 +88,28 @@ def enrich_weeks(weeks, box, recap, slugify=None):
         if best:
             wk["awards"]["bench"] = best
         wk["lead"] = _lead_key(wk, r.get("lead"))
-        a, b = (int(x) for x in wk["lead"].split("-"))
-        wk["photo"] = photo_of(boxes.get((wk["week"], a, b)), r.get("photo"), slugify) if slugify else None
-        wk["blip"] = None if wk["photo"] else blip_of(wk)
+        wk["blip"] = blip_of(wk)
     return weeks
+
+
+LUCK_TAG = 1.0   # wins of luck, either way, that earn a Lucky or Snakebit tag
 
 
 def add_standings(weeks, ids):
     """Each week row gets `table`: every team after that week in standings order (wins, then points),
-    as {id, w, l, t, pf, pfr (points rank), move (places up since the week before; 0 in week 1), tag}.
-    `tag` is "lucky" when the record ranks 2+ places better than the points, "robbed" when 2+ worse:
-    standings and a power ranking in one table, the tag only where they disagree."""
+    as {id, w, l, t, pf, pfr (points rank), move (places up since the week before; 0 in week 1), luck, tag}.
+    `luck` is real wins minus the wins the team's points earned: each week a score earns the share of the
+    other teams it outscored (ties half), so a week's top score earns a whole win and its lowest none. `tag`
+    is "lucky" at LUCK_TAG wins or more, "robbed" at LUCK_TAG or more short (Luck so far, 2026-10-06; it was
+    the record's place against the points rank, which tiebreaks by points left at 0 for 10 of 12 teams)."""
     tally = {i: [0, 0, 0, 0.0] for i in ids}
+    earned = {i: 0.0 for i in ids}
     last = None
     for wk in weeks:
+        scores = [(tid, pts) for g in wk["games"] for tid, pts in ((g["a"], g["ap"]), (g["b"], g["bp"])) if tid in tally]
+        for tid, pts in scores:
+            beat = sum(1 if pts > o else 0.5 if pts == o else 0 for t, o in scores if t != tid)
+            earned[tid] += beat / max(len(scores) - 1, 1)
         for g in wk["games"]:
             res = {"home": (0, 1), "away": (1, 0)}.get(g["win"], (2, 2))
             for tid, r, pts in ((g["a"], res[0], g["ap"]), (g["b"], res[1], g["bp"])):
@@ -128,9 +121,10 @@ def add_standings(weeks, ids):
         rows = []
         for n, i in enumerate(order, 1):
             pfr = by_pf.index(i) + 1
+            luck = round(tally[i][0] + tally[i][2] / 2 - earned[i], 1) + 0.0   # + 0.0: never a -0.0
             rows.append({"id": i, "w": tally[i][0], "l": tally[i][1], "t": tally[i][2], "pf": tally[i][3], "pfr": pfr,
-                         "move": (last.index(i) + 1 - n) if last else 0,
-                         "tag": "lucky" if pfr - n >= 2 else "robbed" if n - pfr >= 2 else None})
+                         "move": (last.index(i) + 1 - n) if last else 0, "luck": luck,
+                         "tag": "lucky" if luck >= LUCK_TAG else "robbed" if luck <= -LUCK_TAG else None})
         wk["table"] = rows
         last = order
     return weeks

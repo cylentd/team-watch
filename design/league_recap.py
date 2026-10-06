@@ -264,7 +264,7 @@ def live_league_yahoo(season, history, owners, rosters, slugify, box=None, recap
     block = _block(season, teams, games, champs, fx,
                    min([int(y) for y in pods] + [season["season"]]), "all" if mapped else "season")
     block["history"] = bool(pods)
-    enrich_weeks(block["weeks"], box, recap, slugify)
+    enrich_weeks(block["weeks"], box, recap)
     add_standings(block["weeks"], [t["id"] for t in block["teams"]])
     add_meets(block["h2h"], games)
     ids = {t["id"] for t in block["teams"]}

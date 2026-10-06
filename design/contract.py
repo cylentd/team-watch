@@ -53,7 +53,7 @@ LEAGUE_SPEC = {
 LEAGUE_YAHOO_SPEC = {
     "keys": LEAGUE_SPEC["keys"] + ["book", "grudge", "withheld", "spoons", "history"],
     "rows": [("teams", ["id", "name", "key", "w", "l", "t", "all", "titles", "lasts"]),
-             ("weeks", ["week", "games", "awards", "head", "dek", "table", "lead", "photo", "blip", "streaks"]),
+             ("weeks", ["week", "games", "awards", "head", "dek", "table", "lead", "blip", "streaks"]),
              ("spoons", ["y", "id", "name", "mgr", "final"])] + LEAGUE_SPEC["rows"][2:],
 }
 WAIVER_VERDICT = ["kind", "over", "slot", "margin"]

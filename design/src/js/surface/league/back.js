@@ -90,11 +90,12 @@ function lgLeagueHTML(w){
     ${w.head ? `<h2 class="lg-hl">${esc(w.head)}</h2>` : ""}
     ${w.head && w.dek ? `<p class="lg-dek">${esc(w.dek)}</p>` : ""}
     <div class="lg-games">
-      <div class="lg-gl">${lgLeadHTML(w, lead)}${rest.slice(0, 1).map((x, i) => row(x, i)).join("")}</div>
-      <div class="lg-gr">${rest.slice(1).map((x, i) => row(x, i + 1)).join("")}</div>
+      ${lgLeadHTML(w, lead)}
+      <div class="lg-gr">${rest.map(row).join("")}</div>
     </div>
     <div class="lg-after">
       ${lgAgateHTML(w)}
+      ${lgLuckHTML(w)}
       ${g ? lgPairGrudgeHTML(g.a, g.b, t("league.grudge.biggest")) : ""}
     </div>
   </section>`;

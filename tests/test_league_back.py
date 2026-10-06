@@ -82,6 +82,19 @@ def test_book_splits_fame_and_shame(back):
     assert not set(fame) & set(shame)
 
 
+def test_luck_is_wins_minus_the_wins_a_teams_points_earned_against_everyone():
+    # David, 2026-10-06: Luck so far. Each week a score "earns" the share of the other teams it beat; luck is
+    # real wins minus those earned wins, in wins, one decimal; a whole win or more either way is tagged.
+    from league_back import add_standings
+    g = lambda a, b, ap, bp: {"a": a, "b": b, "ap": ap, "bp": bp, "win": "home" if ap > bp else "away"}
+    weeks = [{"games": [g(1, 2, 100, 90), g(3, 4, 80, 70)]},      # earned 1, 2/3, 1/3, 0
+             {"games": [g(1, 3, 60, 110), g(2, 4, 120, 50)]}]     # earned 1/3, 1, 2/3, 0
+    add_standings(weeks, [1, 2, 3, 4])
+    luck = {r["id"]: (r["luck"], r["tag"]) for r in weeks[1]["table"]}
+    assert luck == {1: (-0.3, None), 2: (-0.7, None), 3: (1.0, "lucky"), 4: (0.0, None)}
+    assert {r["id"]: r["luck"] for r in weeks[0]["table"]} == {1: 0.0, 2: -0.7, 3: 0.7, 4: 0.0}
+
+
 def test_standings_after_each_week(back):
     t1, t2 = (w["table"] for w in back["weeks"])
     assert [r["id"] for r in t1][:2] == [10, 3]                     # both 1-0, Jaxon The Box on points
@@ -102,20 +115,6 @@ def test_next_grudge_is_the_most_lopsided_pairing(back):
     assert back["grudge"] is None                              # the fixture's pairings met at most twice
 
 
-def test_the_lead_photo_is_found_in_the_box_and_greyed_when_the_player_flopped():
-    from league_back import photo_of
-    p = lambda n, pts, proj: {"name": n, "pts": pts, "proj": proj}
-    box = {"slots": [{"a": p("Josh Allen", 40.82, 22.0), "b": p("DJ Moore", -0.1, 12.0)},
-                     {"a": p("Colston Loveland", 0.0, 7.5), "b": p("Jaxon Smith-Njigba", 12.0, 16.0)}],
-           "bench": {"a": [p("Rico Dowdle", 3.0, 9.0)], "b": []}}
-    slug = lambda n: n.lower().replace(" ", "-")
-    assert photo_of(box, "Josh Allen", slug) == {"name": "Josh Allen", "slug": "josh-allen", "pts": 40.82, "flop": False}
-    assert photo_of(box, "DJ Moore", slug)["flop"] and photo_of(box, "Colston Loveland", slug)["flop"]
-    assert not photo_of(box, "Jaxon Smith-Njigba", slug)["flop"]             # 12 of 16 is a quiet day, not a flop
-    assert photo_of(box, "Rico Dowdle", slug)["flop"]                          # the bench counts too
-    assert photo_of(box, "Nobody", slug) is None and photo_of(None, "Josh Allen", slug) is None
-
-
 def test_blip_reacts_to_the_lead_games_place_in_the_week():
     """2026's real weeks 1 and 3 (a, b, a's points, b's points)."""
     from league_back import blip_of
@@ -131,9 +130,18 @@ def test_blip_reacts_to_the_lead_games_place_in_the_week():
     assert blip_of(wk("1-7", w3)) == "laugh"
 
 
-def test_blip_fills_only_a_lead_with_no_photo(back):
-    assert all((w["blip"] is None) == bool(w["photo"]) for w in back["weeks"])
-    assert all(w["blip"] in (None, "ko", "wince", "flatline", "sweat", "laugh") for w in back["weeks"])
+def test_blip_reacts_on_every_lead_even_one_whose_line_is_about_a_player(back):
+    # David, 2026-10-06: Blip on every lead, because the recap is the whole league's board, not one roster's;
+    # a player's headshot took Blip's place until then.
+    assert all(w["blip"] in ("ko", "wince", "flatline", "sweat", "laugh") for w in back["weeks"])
+    recap = read("yahoo_league_recap.json")
+    recap["weeks"]["2"] = {**recap["weeks"]["2"], "lead": "10-9", "photo": "Justin Herbert"}
+    b = live_league_yahoo(read("yahoo_league.json"), read("yahoo_league_history.json"), read("yahoo_league_owners.json"),
+                          read("league_rosters.json"), slugify, read("yahoo_league_box.json"), recap,
+                          read("yahoo_league_managers.json"))
+    wk = next(w for w in b["weeks"] if w["week"] == 2)
+    assert wk["blip"] in ("ko", "wince", "flatline", "sweat", "laugh")
+    assert "photo" not in wk, "the board never pictures one roster's player"
 
 
 def test_every_week_names_its_lead_game(back):
@@ -292,6 +300,31 @@ def test_the_league_section_is_the_same_for_every_reader(recap_js):
     assert "lg-you" in me and "lg-you" in other and "lg-you" not in nobody
     assert "lg-you" not in league(me), "the reader's own game is an ordinary row in League"
     assert "lime" not in league(me) and 'class="me' not in league(me)
+
+
+ROW = lambda id, luck, tag=None: {"id": id, "w": 2, "l": 2, "t": 0, "pf": 400.0, "pfr": 1, "move": 0, "luck": luck, "tag": tag}
+
+
+def test_the_luck_ladder_ranks_every_team_luckiest_first_and_never_says_robbed(recap_js):
+    # David, 2026-10-06: the bottom row's gap holds "Luck so far", every team by its luck in wins
+    # (league_back.add_standings), the tag only at a whole win either way; "Robbed" is the week's award, so the
+    # unlucky side is "Snakebit". Kept simple: record, the signed number, the tag, one caption; no jargon.
+    table = [ROW(1, 0.0), ROW(2, 1.2, "lucky"), ROW(3, 0.4), ROW(4, -1.1, "robbed"), ROW(5, -0.3)]
+    html = recap_js("(table) => lgLuckHTML({table})", table)
+    assert recap_js("(table) => lgLuckRows({table}).map(r => r.id)", table) == [2, 3, 1, 5, 4]
+    assert html.count("<li") == 5, "every team has a rung"
+    assert html.count("Lucky") == 1 and html.count("Snakebit") == 1 and "Robbed" not in html
+    assert "+1.2" in html and "−1.1" in html and ">0.0<" in html, "the luck as a signed number, one decimal"
+    assert "vs. what their points earned" in html and "all-play" not in html.lower()
+    assert recap_js("(table) => lgLuckHTML({table})", []) == "", "no table, no section"
+
+
+def test_the_lead_draws_blip_even_when_the_week_names_a_photo(recap_js):
+    # HEADS holds the player's cut, so the headshot could draw: the lead must still pick Blip.
+    html = recap_js("() => { globalThis.HEADS = {'josh-allen': 'heads/josh-allen.webp'}; LG_WEEK = null; const w = lgWeek();"
+                    " return lgLeadHTML({...w, photo: {name: 'Josh Allen', slug: 'josh-allen', pts: 40.82, flop: false}, blip: 'laugh'},"
+                    " w.games[0]); }")
+    assert "br-laugh" in html and "<img" not in html
 
 
 def test_the_page_has_no_superlative_cards_streaks_block_week_chips_or_extra_stamps(recap_js):

@@ -398,6 +398,17 @@ chips and the bottom `bp2-you` block (`back.js`, `lead.js`, `myrecap.js`; ESPN k
   and no legend (David, 2026-10-06).
 - **Desktop (1100px, the breakpoints lint allows):** Your game as one wide row; headline and dek side by side; the lead
   with the next game under it, the other four games 2x2 beside it; the standings and the grudge side by side.
+  Superseded the same day ("this looks smaller", David): the lead is the week's hero, the full width with the other
+  five games three across under it, its line in the tabloid face (40px at 1100px, 34 at 760, 24 on a phone); the
+  bottom row is the standings at their own width, Luck so far, and the biggest grudge.
+- **Blip on every lead** (2026-10-06): the player headshot that replaced Blip when the line named a player is gone,
+  data and all, because the recap is the whole league's board, not one roster's.
+- **Luck so far** (`lgLuckHTML`): a ladder of all 12, luckiest first, by luck in wins (`league_back.add_standings`:
+  real wins minus the wins the team's points earned, each week's score earning the share of the other teams it
+  outscored). Record, the signed number, a tag at a whole win either way (Lucky green, Snakebit red, never
+  "Robbed", the week's award), one caption, "vs. what their points earned". No jargon on the page (David asked
+  what "all-play" meant, 2026-10-06; the method stays in the code). Place against points rank, tried first,
+  read 0 for 10 of 12 teams because the standings already break ties by points.
 
 **A third league, AYO (2026-09-29, David: "Everything"; for the League group "a switch on the page").**
 AYO is a second Yahoo login in the first Yahoo league's shape, read from ff-jarvis's `ayo_<kind>.json`.
