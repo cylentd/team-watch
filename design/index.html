@@ -13176,26 +13176,26 @@ const BRIEF_ICON = {
 function briefHTML(team){
   const all = briefLines(team).map(l => ({...l, id: briefId(l)})), pill = injWarnHTML(team);   // the red sit pill goes in the heading row
   const head = (small, act) => `<div class="brief-h" data-testid="roster-brief-head"><h2>${t("teams.brief.title")}</h2>${pill}<small>${small}</small>${act}</div>`;
-  if (!all.length) return `<section class="brief" aria-label="${t("teams.brief.title")}">
+  if (!all.length) return `<section class="brief" data-testid="roster-brief" aria-label="${t("teams.brief.title")}">
     ${head("", "")}<p class="brief-quiet">${t("teams.brief.quiet")}</p></section>`;
   const checked = briefChecked(team), open = all.filter(l => !checked.has(l.id));
   const lines = BRIEF_PEEK ? all : open, done = all.length - open.length;
   // Every line checked: one row that says so, and the way back to them.
-  if (!lines.length) return `<section class="brief done" aria-label="${t("teams.brief.title")}" data-bteam="${team.key}">
-    ${head(t("teams.brief.allChecked", {n: all.length}), `<button type="button" class="brief-act" data-briefpeek>${t("teams.brief.show")}</button>`)}</section>`;
+  if (!lines.length) return `<section class="brief done" data-testid="roster-brief" aria-label="${t("teams.brief.title")}" data-bteam="${team.key}">
+    ${head(t("teams.brief.allChecked", {n: all.length}), `<button type="button" class="brief-act" data-testid="roster-brief-peek" data-briefpeek>${t("teams.brief.show")}</button>`)}</section>`;
   if (reelFolds(team) && !BRIEF_PEEK) return reelFoldHTML(team, open.length, pill);   // the Week plays reel is up: one row (reel.js)
   // Every line checked and shown again: the done row keeps its words and its place, "Show" becomes
   // "Hide", and the lines open under it (a "0 things to check" heading read as a fault).
   const peekDone = !open.length, more = lines.length > 3;
   const foot = [
-    more ? `<button type="button" class="brief-more" data-briefall aria-expanded="${BRIEF_ALL}">${BRIEF_ALL ? t("teams.brief.fewer") : t("teams.brief.all", {n: lines.length})}</button>` : "",
-    done && !peekDone ? `<button type="button" class="brief-more" data-briefpeek>${BRIEF_PEEK ? t("teams.brief.hideChecked") : t("teams.brief.showChecked", {n: done})}</button>` : "",
+    more ? `<button type="button" class="brief-more" data-testid="roster-brief-all" data-briefall aria-expanded="${BRIEF_ALL}">${BRIEF_ALL ? t("teams.brief.fewer") : t("teams.brief.all", {n: lines.length})}</button>` : "",
+    done && !peekDone ? `<button type="button" class="brief-more" data-testid="roster-brief-peek" data-briefpeek>${BRIEF_PEEK ? t("teams.brief.hideChecked") : t("teams.brief.showChecked", {n: done})}</button>` : "",
   ].join("");
-  return `<section class="brief${BRIEF_ALL ? " all" : ""}${peekDone ? " done peek" : ""}" aria-label="${t("teams.brief.title")}" data-bteam="${team.key}">
-    ${peekDone ? head(t("teams.brief.allChecked", {n: all.length}), `<button type="button" class="brief-act" data-briefpeek>${t("teams.brief.hide")}</button>`)
+  return `<section class="brief${BRIEF_ALL ? " all" : ""}${peekDone ? " done peek" : ""}" data-testid="roster-brief" aria-label="${t("teams.brief.title")}" data-bteam="${team.key}">
+    ${peekDone ? head(t("teams.brief.allChecked", {n: all.length}), `<button type="button" class="brief-act" data-testid="roster-brief-peek" data-briefpeek>${t("teams.brief.hide")}</button>`)
       : head(briefCount(open.length, pill),
-          `<button type="button" class="brief-act" data-briefok>${t("teams.brief.gotIt")}</button>`)}
-    ${lines.map(l => `<button class="brief-line k-${l.kind} ${l.tone}${checked.has(l.id) ? " checked" : ""}" data-bid="${l.id}" ${l.go ? `data-go="${l.go}"` : `data-team="${team.key}" data-i="${l.i}"`}>
+          `<button type="button" class="brief-act" data-testid="roster-brief-ok" data-briefok>${t("teams.brief.gotIt")}</button>`)}
+    ${lines.map(l => `<button class="brief-line k-${l.kind} ${l.tone}${checked.has(l.id) ? " checked" : ""}" data-testid="roster-brief-line" data-bid="${l.id}" ${l.go ? `data-go="${l.go}"` : `data-team="${team.key}" data-i="${l.i}"`}>
         <span class="brief-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${BRIEF_ICON[l.kind]}</svg></span>
         <span class="brief-txt">${l.text}${l.sub ? `<small>${l.sub}</small>` : ""}</span><span class="brief-go" aria-hidden="true">&rsaquo;</span>
       </button>`).join("")}
@@ -13450,7 +13450,7 @@ function reelUnfold(){ REEL.unfold = true; render(); }
 /* The list's folded form, in brief.js's own done row: what is left to check, the sit pill when a
    starter will likely sit (`pill`, injury.js), and the way to open it. */
 function reelFoldHTML(team, open, pill = ""){
-  return `<section class="brief done" aria-label="${t("teams.brief.title")}" data-bteam="${team.key}">
+  return `<section class="brief done" data-testid="roster-brief" aria-label="${t("teams.brief.title")}" data-bteam="${team.key}">
     <div class="brief-h" data-testid="roster-brief-head"><h2>${t("teams.brief.title")}</h2>${pill}<small>${briefCount(open, pill)}</small>
     <button type="button" class="brief-act" data-testid="roster-brief-unfold" data-briefunfold>${t("teams.brief.show")}</button></div></section>`;
 }
@@ -18948,34 +18948,34 @@ const sosGames = n => (n === 0 ? t("sos.row.game.none") : n === 1 ? t("sos.row.g
 /* One week: the opponent's code over the week number, or BYE. Never a colour for good or bad. */
 function sosCellHTML(c){
   const aria = c.bye ? t("sos.cell.byeAria", {week: c.week}) : t("sos.cell.gameAria", {week: c.week, opp: esc(c.opp)});
-  return `<li class="sos-c${c.bye ? " bye" : ""}" aria-label="${aria}"><i>${c.week}</i><b>${c.bye ? t("sos.cell.bye") : esc(c.opp)}</b></li>`;
+  return `<li class="sos-c${c.bye ? " bye" : ""}" data-testid="schedule-cell" aria-label="${aria}"><i>${c.week}</i><b>${c.bye ? t("sos.cell.bye") : esc(c.opp)}</b></li>`;
 }
 
 function sosRowHTML(r){
   const pts = r.pts === null ? "" : r.pts.toFixed(1);
-  return `<li class="sos-row">
+  return `<li class="sos-row" data-testid="schedule-row">
     <span class="sos-n">${r.rank === null ? "" : r.rank}</span>
     <span class="sos-who"><b class="sos-team">${esc(r.team)}</b><span class="sos-g">${sosGames(r.games)}</span></span>
-    <span class="sos-pts" ${pts ? `aria-label="${t("sos.row.ptsAria", {n: pts})}"` : ""}>${pts ? t("sos.row.pts", {n: `<b>${pts}</b>`}) : ""}</span>
-    <ol class="sos-cells">${r.cells.map(sosCellHTML).join("")}</ol>
+    <span class="sos-pts" data-testid="schedule-pts" ${pts ? `aria-label="${t("sos.row.ptsAria", {n: pts})}"` : ""}>${pts ? t("sos.row.pts", {n: `<b data-testid="schedule-pts-value">${pts}</b>`}) : ""}</span>
+    <ol class="sos-cells" data-testid="schedule-cells">${r.cells.map(sosCellHTML).join("")}</ol>
   </li>`;
 }
 
 /* The one control row: position, then the weeks. Chips, not selects: each is a short set that stays visible. */
 function sosControlsHTML(){
-  const seg = (label, attr, cur, items) => `<div class="sos-seg" role="group" aria-label="${label}">${
-    items.map(([k, text]) => `<button type="button" class="chip" data-${attr}="${k}" aria-pressed="${cur === k}">${text}</button>`).join("")}</div>`;
-  return `<div class="sos-ctl">${seg(t("sos.pos.label"), "sospos", SOS_PICK_POS, SOS_POS.map(p => [p, p]))
-    }${seg(t("sos.win.label"), "soswin", SOS_PICK_WIN, SOS_WINDOWS.map(w => [w, sosWinLabel(w)]))}</div>`;
+  const seg = (label, attr, cur, items, tid) => `<div class="sos-seg" role="group" aria-label="${label}">${
+    items.map(([k, text]) => `<button type="button" class="chip" data-testid="${tid}" data-${attr}="${k}" aria-pressed="${cur === k}">${text}</button>`).join("")}</div>`;
+  return `<div class="sos-ctl" data-testid="schedule-control">${seg(t("sos.pos.label"), "sospos", SOS_PICK_POS, SOS_POS.map(p => [p, p]), "schedule-pos-chip")
+    }${seg(t("sos.win.label"), "soswin", SOS_PICK_WIN, SOS_WINDOWS.map(w => [w, sosWinLabel(w)]), "schedule-win-chip")}</div>`;
 }
 
 function sosPageHTML(){
   const v = sosView(typeof LIVE_SOS === "undefined" ? null : LIVE_SOS, SOS_PICK_POS, SOS_PICK_WIN);
-  if (!v) return `<div class="wrap"><div class="state-empty" style="min-height:220px">
+  if (!v) return `<div class="wrap"><div class="state-empty" data-testid="schedule-empty" style="min-height:220px">
     <div><b>${t("sos.empty.title")}</b><span>${t("sos.empty.sub")}</span></div></div></div>`;
   return `<div class="wrap sos">
     ${sosControlsHTML()}
-    <div class="sos-head"><h2>${t("sos.head.title", {pos: SOS_PICK_POS, span: v.span})}</h2><p>${esc(v.label)}</p></div>
+    <div class="sos-head" data-testid="schedule-head"><h2 data-testid="schedule-title">${t("sos.head.title", {pos: SOS_PICK_POS, span: v.span})}</h2><p data-testid="schedule-label">${esc(v.label)}</p></div>
     <ol class="sos-list">${v.rows.map(sosRowHTML).join("")}</ol>
   </div>`;
 }

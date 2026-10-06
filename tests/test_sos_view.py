@@ -1,115 +1,124 @@
 """Stats > Schedule (#schedule, 2026-10-05, unit U7c): the layout and the taps, in the browser. The ranking, the
 bye cell and the empty state are test_js_sos.py, in Node.
 
+Component tests (Schedule mounted, tests/component.py; every locator in tests/pages/schedule.py), except the two
+journeys: the hash opening a leaf and the Stats sub-row are the nav chrome, so they need the full page.
+
 Hidden from the sub-row like Weather (NAV_HIDDEN), because Stats' five tabs end at 326 of the 332 px a phone
 holds. The control row is one line at 360 px; the first data starts under the heading and the file's label,
 which is three lines there, so it sits near 226 px against STYLE.md's ~200 (DESIGN.md "Schedule" says why)."""
-import json
 import re
 
 import pytest
 
-from test_render import open_at, open_page  # noqa: F401
+from component import Mounter, mount  # noqa: F401  (the fixture)
+from pages.schedule import ScheduleNav, SchedulePage
+from test_render import open_at
 
 LABEL = "Context only"
 
 
-def _page_without_the_file(page_file):
-    html = page_file.read_text(encoding="utf-8")
-    m = re.search(r"const LIVE_SOS = (.*?);\n", html)
+@pytest.fixture(scope="module")
+def without_file(mount, built, tmp_path_factory):
+    """A Schedule mounted on a build whose `const LIVE_SOS` is null (the sos.json file missing): (page, errors).
+    It builds on `mount` (same browser), so a test that asks for it is a component test."""
+    m = re.search(r"const LIVE_SOS = (.*?);\n", built.fragment)
     assert m, "LIVE_SOS is not in the built page"
-    out = page_file.with_name("sos-variant.html")
-    out.write_text(html[:m.start()] + f"const LIVE_SOS = {json.dumps(None)};\n" + html[m.end():], encoding="utf-8")
-    return out
+    fragment = built.fragment[:m.start()] + "const LIVE_SOS = null;\n" + built.fragment[m.end():]
+    mounter = Mounter(mount.browser, tmp_path_factory.getbasetemp() / "component-schedule-nofile", fragment)
+    yield lambda: mounter("schedule", size=(360, 800))
+    mounter.pages.close()
 
 
 @pytest.mark.render
+@pytest.mark.journey
 def test_the_hash_opens_the_view_and_no_sub_button_is_pressed(browser, page_file):
     ctx, page, errors = open_at(browser, page_file, (360, 800), "#schedule")
-    assert page.locator(".navitem[aria-current='true']").get_attribute("data-s") == "scouting"
-    assert page.locator("#subnav .mode-sub[aria-pressed='true']").count() == 0
-    assert page.evaluate("document.getElementById('view').dataset.view") == "schedule"
-    assert page.locator(".sos-row").count() == 32
+    nav, sched = ScheduleNav(page), SchedulePage(page)
+    assert nav.group() == "scouting"
+    assert nav.pressed_subs() == 0
+    assert nav.view() == "schedule"
+    assert sched.row_count() == 32
     assert errors == []
     ctx.close()
 
 
 @pytest.mark.render
+@pytest.mark.journey
 def test_the_stats_sub_row_keeps_its_five_tabs_inside_the_phone(browser, page_file):
     """Since 2026-10-05 a phone's tab row is pills that scroll sideways inside the row (chrome/phonenav.css):
     the five are all there, and the page itself never scrolls sideways."""
     ctx, page, errors = open_at(browser, page_file, (360, 800), "#schedule")
-    assert page.locator("#subnav .mode-sub").all_inner_texts() == ["Highlights", "Ranks", "Leaders", "Work vs points", "Usage"]
-    assert page.evaluate("getComputedStyle(document.querySelector('#subnav .modes-sub')).overflowX") == "auto"
-    assert page.evaluate("document.documentElement.scrollWidth") <= 360
+    nav = ScheduleNav(page)
+    assert nav.sub_row() == ["Highlights", "Ranks", "Leaders", "Work vs points", "Usage"]
+    assert nav.sub_row_overflow_x() == "auto"
+    assert nav.page_scroll_width() <= 360
     ctx.close()
 
 
 @pytest.mark.render
 @pytest.mark.parametrize("size", [(360, 800), (390, 844)])
-def test_the_control_row_is_one_line_and_the_label_is_shown(browser, page_file, size):
-    ctx, page, errors = open_at(browser, page_file, size, "#schedule")
-    ys = page.evaluate("[...document.querySelectorAll('.sos-ctl .chip')].map(b => Math.round(b.getBoundingClientRect().y))")
+def test_the_control_row_is_one_line_and_the_label_is_shown(mount, size):
+    page, errors = mount("schedule", size=size)
+    sched = SchedulePage(page)
+    ys = sched.chip_tops()
     assert len(ys) == 7 and len(set(ys)) == 1, ys                      # position and weeks share one line
-    assert LABEL in page.locator(".sos-head p").inner_text()
-    assert page.locator(".sos-head p").is_visible()
-    first = page.evaluate("document.querySelector('.sos-row').getBoundingClientRect().y")
+    assert LABEL in sched.label()
+    assert sched.label_is_visible()
+    first = sched.first_row_top()
     assert first <= 240, first                                          # ~200 plus the label's three lines
-    assert page.evaluate("document.scrollingElement.scrollWidth - innerWidth") <= 0
-    ctx.close()
+    assert sched.overflow() <= 0
 
 
 @pytest.mark.render
 @pytest.mark.parametrize("win,weeks", [("next4", 4), ("ros", 13), ("playoffs", 3)])
-def test_every_window_fits_a_phone_with_nothing_hidden(browser, page_file, win, weeks):
-    ctx, page, errors = open_at(browser, page_file, (360, 800), "#schedule")
-    page.click(f"[data-soswin='{win}']")
-    assert page.locator(".sos-row").count() == 32
-    assert page.locator(".sos-row:first-child .sos-c").count() == weeks
-    assert page.evaluate("document.scrollingElement.scrollWidth - innerWidth") <= 0
-    assert page.evaluate("[...document.querySelectorAll('.sos-cells')].every(c => c.scrollWidth <= c.clientWidth)")
+def test_every_window_fits_a_phone_with_nothing_hidden(mount, win, weeks):
+    page, errors = mount("schedule", size=(360, 800))
+    sched = SchedulePage(page)
+    sched.pick_window(win)
+    assert sched.row_count() == 32
+    assert sched.first_row_cell_count() == weeks
+    assert sched.overflow() <= 0
+    assert sched.cells_fit()
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_position_and_weeks_redraw_the_heading_and_the_order(browser, page_file):
-    ctx, page, errors = open_at(browser, page_file, (360, 800), "#schedule")
-    assert page.locator(".sos-head h2").inner_text() == "Easiest RB schedules, weeks 5–8"
-    page.click("[data-sospos='TE']")
-    page.click("[data-soswin='playoffs']")
-    assert page.locator(".sos-head h2").inner_text() == "Easiest TE schedules, weeks 15–17"
-    assert page.locator("[data-sospos='TE']").get_attribute("aria-pressed") == "true"
-    assert page.locator("[data-soswin='playoffs']").get_attribute("aria-pressed") == "true"
-    pts = page.evaluate("[...document.querySelectorAll('.sos-pts b')].map(b => parseFloat(b.textContent))")
+def test_position_and_weeks_redraw_the_heading_and_the_order(mount):
+    page, errors = mount("schedule", size=(360, 800))
+    sched = SchedulePage(page)
+    assert sched.title() == "Easiest RB schedules, weeks 5–8"
+    sched.pick_position("TE")
+    sched.pick_window("playoffs")
+    assert sched.title() == "Easiest TE schedules, weeks 15–17"
+    assert sched.position_pressed("TE") == "true"
+    assert sched.window_pressed("playoffs") == "true"
+    pts = sched.points()
     assert pts == sorted(pts, reverse=True)
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_a_bye_is_marked_in_its_week(browser, page_file):
-    ctx, page, errors = open_at(browser, page_file, (360, 800), "#schedule")
-    byes = page.locator(".sos-c.bye")
-    assert byes.count() >= 1
-    assert byes.first.inner_text().replace("\n", " ").endswith("BYE")
-    assert "bye" in byes.first.get_attribute("aria-label")
-    ctx.close()
+def test_a_bye_is_marked_in_its_week(mount):
+    page, errors = mount("schedule", size=(360, 800))
+    sched = SchedulePage(page)
+    assert sched.bye_count() >= 1
+    bye = sched.first_bye()
+    assert bye["text"].endswith("BYE")
+    assert "bye" in bye["aria"]
 
 
 @pytest.mark.render
-def test_a_desktop_joins_the_opponents_to_the_teams_line(browser, page_file):
-    ctx, page, errors = open_at(browser, page_file, (1280, 900), "#schedule")
-    row = page.evaluate("(r => [r.height, document.querySelector('.sos-cells').getBoundingClientRect().y - r.y])(document.querySelector('.sos-row').getBoundingClientRect())")
+def test_a_desktop_joins_the_opponents_to_the_teams_line(mount):
+    page, errors = mount("schedule", size=(1280, 900))
+    row = SchedulePage(page).first_row_shape()
     assert row[0] < 70 and row[1] < 20, row
-    ctx.close()
 
 
 @pytest.mark.render
-def test_no_file_is_a_stated_empty_state_with_no_controls(browser, page_file):
-    ctx, page, errors = open_page(browser, _page_without_the_file(page_file), (360, 800))
-    page.evaluate("navGo('schedule')")
-    assert page.locator(".state-empty").inner_text().startswith("NO SCHEDULE YET")
-    assert page.locator(".sos-row").count() == 0 and page.locator(".sos-ctl").count() == 0
+def test_no_file_is_a_stated_empty_state_with_no_controls(without_file):
+    page, errors = without_file()
+    sched = SchedulePage(page)
+    assert sched.empty_text().startswith("NO SCHEDULE YET")
+    assert sched.row_count() == 0 and sched.control_count() == 0
     assert errors == []
-    ctx.close()

@@ -72,7 +72,7 @@ function reelUnfold(){ REEL.unfold = true; render(); }
 /* The list's folded form, in brief.js's own done row: what is left to check, the sit pill when a
    starter will likely sit (`pill`, injury.js), and the way to open it. */
 function reelFoldHTML(team, open, pill = ""){
-  return `<section class="brief done" aria-label="${t("teams.brief.title")}" data-bteam="${team.key}">
+  return `<section class="brief done" data-testid="roster-brief" aria-label="${t("teams.brief.title")}" data-bteam="${team.key}">
     <div class="brief-h" data-testid="roster-brief-head"><h2>${t("teams.brief.title")}</h2>${pill}<small>${briefCount(open, pill)}</small>
     <button type="button" class="brief-act" data-testid="roster-brief-unfold" data-briefunfold>${t("teams.brief.show")}</button></div></section>`;
 }

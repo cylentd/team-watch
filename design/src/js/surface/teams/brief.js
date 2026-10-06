@@ -166,26 +166,26 @@ const BRIEF_ICON = {
 function briefHTML(team){
   const all = briefLines(team).map(l => ({...l, id: briefId(l)})), pill = injWarnHTML(team);   // the red sit pill goes in the heading row
   const head = (small, act) => `<div class="brief-h" data-testid="roster-brief-head"><h2>${t("teams.brief.title")}</h2>${pill}<small>${small}</small>${act}</div>`;
-  if (!all.length) return `<section class="brief" aria-label="${t("teams.brief.title")}">
+  if (!all.length) return `<section class="brief" data-testid="roster-brief" aria-label="${t("teams.brief.title")}">
     ${head("", "")}<p class="brief-quiet">${t("teams.brief.quiet")}</p></section>`;
   const checked = briefChecked(team), open = all.filter(l => !checked.has(l.id));
   const lines = BRIEF_PEEK ? all : open, done = all.length - open.length;
   // Every line checked: one row that says so, and the way back to them.
-  if (!lines.length) return `<section class="brief done" aria-label="${t("teams.brief.title")}" data-bteam="${team.key}">
-    ${head(t("teams.brief.allChecked", {n: all.length}), `<button type="button" class="brief-act" data-briefpeek>${t("teams.brief.show")}</button>`)}</section>`;
+  if (!lines.length) return `<section class="brief done" data-testid="roster-brief" aria-label="${t("teams.brief.title")}" data-bteam="${team.key}">
+    ${head(t("teams.brief.allChecked", {n: all.length}), `<button type="button" class="brief-act" data-testid="roster-brief-peek" data-briefpeek>${t("teams.brief.show")}</button>`)}</section>`;
   if (reelFolds(team) && !BRIEF_PEEK) return reelFoldHTML(team, open.length, pill);   // the Week plays reel is up: one row (reel.js)
   // Every line checked and shown again: the done row keeps its words and its place, "Show" becomes
   // "Hide", and the lines open under it (a "0 things to check" heading read as a fault).
   const peekDone = !open.length, more = lines.length > 3;
   const foot = [
-    more ? `<button type="button" class="brief-more" data-briefall aria-expanded="${BRIEF_ALL}">${BRIEF_ALL ? t("teams.brief.fewer") : t("teams.brief.all", {n: lines.length})}</button>` : "",
-    done && !peekDone ? `<button type="button" class="brief-more" data-briefpeek>${BRIEF_PEEK ? t("teams.brief.hideChecked") : t("teams.brief.showChecked", {n: done})}</button>` : "",
+    more ? `<button type="button" class="brief-more" data-testid="roster-brief-all" data-briefall aria-expanded="${BRIEF_ALL}">${BRIEF_ALL ? t("teams.brief.fewer") : t("teams.brief.all", {n: lines.length})}</button>` : "",
+    done && !peekDone ? `<button type="button" class="brief-more" data-testid="roster-brief-peek" data-briefpeek>${BRIEF_PEEK ? t("teams.brief.hideChecked") : t("teams.brief.showChecked", {n: done})}</button>` : "",
   ].join("");
-  return `<section class="brief${BRIEF_ALL ? " all" : ""}${peekDone ? " done peek" : ""}" aria-label="${t("teams.brief.title")}" data-bteam="${team.key}">
-    ${peekDone ? head(t("teams.brief.allChecked", {n: all.length}), `<button type="button" class="brief-act" data-briefpeek>${t("teams.brief.hide")}</button>`)
+  return `<section class="brief${BRIEF_ALL ? " all" : ""}${peekDone ? " done peek" : ""}" data-testid="roster-brief" aria-label="${t("teams.brief.title")}" data-bteam="${team.key}">
+    ${peekDone ? head(t("teams.brief.allChecked", {n: all.length}), `<button type="button" class="brief-act" data-testid="roster-brief-peek" data-briefpeek>${t("teams.brief.hide")}</button>`)
       : head(briefCount(open.length, pill),
-          `<button type="button" class="brief-act" data-briefok>${t("teams.brief.gotIt")}</button>`)}
-    ${lines.map(l => `<button class="brief-line k-${l.kind} ${l.tone}${checked.has(l.id) ? " checked" : ""}" data-bid="${l.id}" ${l.go ? `data-go="${l.go}"` : `data-team="${team.key}" data-i="${l.i}"`}>
+          `<button type="button" class="brief-act" data-testid="roster-brief-ok" data-briefok>${t("teams.brief.gotIt")}</button>`)}
+    ${lines.map(l => `<button class="brief-line k-${l.kind} ${l.tone}${checked.has(l.id) ? " checked" : ""}" data-testid="roster-brief-line" data-bid="${l.id}" ${l.go ? `data-go="${l.go}"` : `data-team="${team.key}" data-i="${l.i}"`}>
         <span class="brief-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${BRIEF_ICON[l.kind]}</svg></span>
         <span class="brief-txt">${l.text}${l.sub ? `<small>${l.sub}</small>` : ""}</span><span class="brief-go" aria-hidden="true">&rsaquo;</span>
       </button>`).join("")}

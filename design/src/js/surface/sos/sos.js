@@ -19,34 +19,34 @@ const sosGames = n => (n === 0 ? t("sos.row.game.none") : n === 1 ? t("sos.row.g
 /* One week: the opponent's code over the week number, or BYE. Never a colour for good or bad. */
 function sosCellHTML(c){
   const aria = c.bye ? t("sos.cell.byeAria", {week: c.week}) : t("sos.cell.gameAria", {week: c.week, opp: esc(c.opp)});
-  return `<li class="sos-c${c.bye ? " bye" : ""}" aria-label="${aria}"><i>${c.week}</i><b>${c.bye ? t("sos.cell.bye") : esc(c.opp)}</b></li>`;
+  return `<li class="sos-c${c.bye ? " bye" : ""}" data-testid="schedule-cell" aria-label="${aria}"><i>${c.week}</i><b>${c.bye ? t("sos.cell.bye") : esc(c.opp)}</b></li>`;
 }
 
 function sosRowHTML(r){
   const pts = r.pts === null ? "" : r.pts.toFixed(1);
-  return `<li class="sos-row">
+  return `<li class="sos-row" data-testid="schedule-row">
     <span class="sos-n">${r.rank === null ? "" : r.rank}</span>
     <span class="sos-who"><b class="sos-team">${esc(r.team)}</b><span class="sos-g">${sosGames(r.games)}</span></span>
-    <span class="sos-pts" ${pts ? `aria-label="${t("sos.row.ptsAria", {n: pts})}"` : ""}>${pts ? t("sos.row.pts", {n: `<b>${pts}</b>`}) : ""}</span>
-    <ol class="sos-cells">${r.cells.map(sosCellHTML).join("")}</ol>
+    <span class="sos-pts" data-testid="schedule-pts" ${pts ? `aria-label="${t("sos.row.ptsAria", {n: pts})}"` : ""}>${pts ? t("sos.row.pts", {n: `<b data-testid="schedule-pts-value">${pts}</b>`}) : ""}</span>
+    <ol class="sos-cells" data-testid="schedule-cells">${r.cells.map(sosCellHTML).join("")}</ol>
   </li>`;
 }
 
 /* The one control row: position, then the weeks. Chips, not selects: each is a short set that stays visible. */
 function sosControlsHTML(){
-  const seg = (label, attr, cur, items) => `<div class="sos-seg" role="group" aria-label="${label}">${
-    items.map(([k, text]) => `<button type="button" class="chip" data-${attr}="${k}" aria-pressed="${cur === k}">${text}</button>`).join("")}</div>`;
-  return `<div class="sos-ctl">${seg(t("sos.pos.label"), "sospos", SOS_PICK_POS, SOS_POS.map(p => [p, p]))
-    }${seg(t("sos.win.label"), "soswin", SOS_PICK_WIN, SOS_WINDOWS.map(w => [w, sosWinLabel(w)]))}</div>`;
+  const seg = (label, attr, cur, items, tid) => `<div class="sos-seg" role="group" aria-label="${label}">${
+    items.map(([k, text]) => `<button type="button" class="chip" data-testid="${tid}" data-${attr}="${k}" aria-pressed="${cur === k}">${text}</button>`).join("")}</div>`;
+  return `<div class="sos-ctl" data-testid="schedule-control">${seg(t("sos.pos.label"), "sospos", SOS_PICK_POS, SOS_POS.map(p => [p, p]), "schedule-pos-chip")
+    }${seg(t("sos.win.label"), "soswin", SOS_PICK_WIN, SOS_WINDOWS.map(w => [w, sosWinLabel(w)]), "schedule-win-chip")}</div>`;
 }
 
 function sosPageHTML(){
   const v = sosView(typeof LIVE_SOS === "undefined" ? null : LIVE_SOS, SOS_PICK_POS, SOS_PICK_WIN);
-  if (!v) return `<div class="wrap"><div class="state-empty" style="min-height:220px">
+  if (!v) return `<div class="wrap"><div class="state-empty" data-testid="schedule-empty" style="min-height:220px">
     <div><b>${t("sos.empty.title")}</b><span>${t("sos.empty.sub")}</span></div></div></div>`;
   return `<div class="wrap sos">
     ${sosControlsHTML()}
-    <div class="sos-head"><h2>${t("sos.head.title", {pos: SOS_PICK_POS, span: v.span})}</h2><p>${esc(v.label)}</p></div>
+    <div class="sos-head" data-testid="schedule-head"><h2 data-testid="schedule-title">${t("sos.head.title", {pos: SOS_PICK_POS, span: v.span})}</h2><p data-testid="schedule-label">${esc(v.label)}</p></div>
     <ol class="sos-list">${v.rows.map(sosRowHTML).join("")}</ol>
   </div>`;
 }

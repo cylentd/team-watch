@@ -1,9 +1,10 @@
 """The Roster's Week plays rail (design/src/js/surface/teams/reel.js): one card per starter with clips, the
 header, the page arrows, and the "This week" list that folds under it.
 
-Every rail locator is a `clips-*` data-testid (test hooks only: no CSS or JS reads them). Two things are not
-the rail's and are found by class until their owners get a hook: the "This week" list (`.brief`, brief.js)
-and the Roster's page layout (`.rl-reel`, `.rl-rows`, render.js). The League's team line is
+Every rail locator is a `clips-*` data-testid (test hooks only: no CSS or JS reads them). The "This week" list
+under it is `roster-brief-*` (brief.js; its own reads are pages/roster_brief.py). One thing is not the rail's
+and is found by class until its owner gets a hook: the Roster's page layout (`.rl-reel`, `.rl-rows`, render.js).
+The League's team line is
 pages/league_chip.py, and the roster's rows and cards are `RosterPage` (pages/roster.py).
 
 The clip theater is clipsheet.js's: `show(stubs=True)` puts stubs on the page, and `opened()` reads what the
@@ -24,7 +25,7 @@ class ClipsPage:
         self.page = page
         tid = page.get_by_test_id
         self._reel, self._track, self._card = tid("clips-reel"), tid("clips-track"), tid("clips-card")
-        self._brief = page.locator(".brief")                    # brief.js has no test id
+        self._brief = tid("roster-brief")                        # brief.js, reel.js
         self._parts = {
             "track": self._track, "card": self._card, "head": tid("clips-head"), "title": tid("clips-title"),
             "count": tid("clips-count"), "all": tid("clips-all"), "prev": tid("clips-prev"), "next": tid("clips-next"),
@@ -311,16 +312,16 @@ class ClipsPage:
         return self._brief.and_(self.page.locator(".done")).get_by_test_id("roster-brief-head").locator("small").inner_text()
 
     def list_lines(self):
-        return self.page.locator(".brief-line").count()
+        return self.page.get_by_test_id("roster-brief-line").count()
 
     def unfold_buttons(self):
         return self.page.get_by_test_id("roster-brief-unfold").count()
 
     def list_html(self):
-        return self.page.evaluate("document.querySelector('.brief').outerHTML")
+        return self._brief.first.evaluate("e => e.outerHTML")
 
     def first_list_line_visible(self):
-        return self.page.locator(".brief-line").first.is_visible()
+        return self.page.get_by_test_id("roster-brief-line").first.is_visible()
 
     def rail_count_in_layout(self):
         """The Roster's column wrapper when a rail is drawn (`.rl-reel`, render.js)."""

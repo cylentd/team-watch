@@ -26,13 +26,14 @@ TOP = re.compile(r"^(?:async )?function (\w+)\(|^(?:const|let) (\w+)\s*=\s*(?:as
 
 # Calls of pure data/ functions through the browser, per test file, 2026-10-05. Only shrinks.
 BACKLOG = {
-    "test_brief.py": 1, "test_gameday.py": 4,
+    "test_gameday.py": 4,
     "test_leagues.py": 1, "test_left_hurt.py": 9, "test_mates_page.py": 2,
     "test_search.py": 8, "test_startsit.py": 1, "test_waiver_owner.py": 6,
     "test_weather.py": 3,
     "pages/clips.py": 1, "pages/digest.py": 6, "pages/profile.py": 4, "pages/profile_head.py": 2,
     "pages/recap.py": 2, "pages/roster.py": 1, "pages/roster_pack.py": 1,
-}   # 52 in all. Superseded (later on 2026-10-06): the earlier "39 in all" missed 14 calls that had moved into
+}   # 51 in all (2026-10-06: test_brief.py's schedWeek call now goes through RosterPage's, already counted).
+# 52 before that. Superseded (later on 2026-10-06): the earlier "39 in all" missed 14 calls that had moved into
 # tests/pages/, which this counter did not read until then; they are listed under pages/ now. Test files
 # hold 35 of the 52 (Recap's 2 moved into pages/recap.py later that day). test_trade_edit's 33 moved to tests/test_js_trade_score.py (Node) on 2026-10-05
 
@@ -112,7 +113,7 @@ def test_the_backlog_is_current():
 # A loader call inside a test marked `@pytest.mark.journey` (navigation, hash, Back, cross-view: it needs
 # the full page) is not counted, in any file; a helper's loads count where the helper is called.
 FULL_LOADS = {
-    "test_accuracy_view.py": 4, "test_brief.py": 7, "test_claude_calls.py": 1, "test_claude_record.py": 1,
+    "test_accuracy_view.py": 4, "test_claude_calls.py": 1, "test_claude_record.py": 1,
     "test_clip_sheet.py": 2,
     "test_gameday.py": 5, "test_gestures.py": 1, "test_highlights.py": 1,
     "test_leagues.py": 6, "test_left_hurt.py": 4, "test_legsheet.py": 6, "test_live_mine.py": 6,
@@ -121,11 +122,12 @@ FULL_LOADS = {
     "test_preview.py": 3, "test_profile_journeys.py": 1, "test_prop_picks.py": 1,
     "test_range_view.py": 1, "test_render.py": 10,
     "test_render_connect.py": 3, "test_role.py": 1, "test_roster_sheet.py": 5,
-    "test_scope.py": 1, "test_search.py": 4, "test_sos_view.py": 8, "test_startsit.py": 1,
+    "test_scope.py": 1, "test_search.py": 4, "test_startsit.py": 1,
     "test_startsit_v3.py": 1, "test_style_rules.py": 2,
     "test_teamswitch.py": 6, "test_top_calls.py": 1,
     "test_waiver_owner.py": 5, "test_weather.py": 5, "test_yahoo_lineup.py": 2,
-}   # 116 in all (2026-10-06: test_live_tds.py's 6 and test_gamesheet_v2.py's 6 moved to `mount` with pages/live_tds.py
+}   # 101 in all (2026-10-06: test_sos_view.py's 8 and test_brief.py's 7 moved to `mount` with pages/schedule.py and
+# pages/roster_brief.py; 2 Schedule nav tests stay as journeys); 116 before (test_live_tds.py's 6 and test_gamesheet_v2.py's 6 moved to `mount` with pages/live_tds.py
 # and pages/gamesheet.py, the 128 below);
 # 128 before that (2026-10-06: test_live_tabs.py's 10 moved to `mount` with pages/live_tabs.py, the 138 below);
 # 138 before that (2026-10-06: test_teams_board.py's 12 moved to `mount` with pages/teams.py, the 150 below);
