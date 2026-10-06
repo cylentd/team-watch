@@ -1,7 +1,9 @@
 # Tests: design and conventions
 
 A test lives in the cheapest layer that can catch its defect. Commands are in the repo's
-`CLAUDE.md` ("Build, test, land"); this file says how to write a test.
+`CLAUDE.md` ("Testing"); this file says how to write a test. The standards behind it are the
+`testing` skill's (`~/.claude/skills/testing/references/design.md`); this file is how team-watch
+applies them.
 
 ## Layers, cheapest first
 
@@ -24,6 +26,36 @@ Moving down: a rule a Node test can prove is not asserted again in a browser tes
 test only proves the screen draws it. `tests/test_layer_ratchet.py` counts the full page loads
 per test file; the count only goes down, and a new file's allowance is 0. A test marked `journey`
 is not counted: it needs the full page.
+
+## New logic, test first
+
+(2026-10-05) A view's logic goes in `js/data/` with its failing Node test written first; the
+surface only draws it, and its browser test covers layout and taps. Touching an area moves its
+logic-only browser tests to Node. `tests/test_layer_ratchet.py` counts pure `data/` calls made
+through `page.evaluate` per file (108 when set): only down, and a new file has none.
+
+## Writing a unit test
+
+(2026-10-05) A JS function from data to data runs in Node, Python logic in Python. The `node_js`
+fixture loads named files from `design/src/js` and calls a function in about a millisecond, no
+build (`tests/jsunit.py`; `tests/test_js_hurt.py`: 0.07 s, 7.7 s in the browser).
+
+## Writing a browser test
+
+(2026-10-05) Take `browser` from `tests/conftest.py` (one Chromium per worker), never your own. A
+full page load costs about 1 s, so a file's tests share a module-scoped page that resets what a
+test changed (`'use strict'` in the reset, so a renamed global throws) and asserts no page error
+after load; a test about loading itself opens its own. Every browser test asserts no page errors
+(`test_render.watch_errors`). A missing fixture element is an `assert`, never a `pytest.skip`. A
+test waits for a condition, never a duration: no `wait_for_timeout` or sleep (animations run on
+the page's clock, `test_roster_cards.py` VCLOCK); `tests/test_honest_tests.py` enforces both.
+Logic with no layout is not a browser test. `conftest.py` runs each file in groups of 12 tests, so
+a shared page loads once per group and a long file still spreads out.
+
+Every context has an owner (`conftest.keep`, 2026-10-05): one a test opens is closed when the test
+ends, pass or fail; pages a module opens lazily and shares go through `SharedPages`, which
+remembers a failed load so the module's later tests fail at once. More than 6 contexts open after
+a test errors.
 
 ## Markers
 
@@ -53,6 +85,37 @@ is not counted: it needs the full page.
   warns (`--gate` makes it fail).
 - **It passes 10 times in a row.** `python scripts/run_tests.py --repeat-new 10` runs every test
   function the branch added or changed 10 times in parallel. Land runs it; one failure blocks.
+
+## Goldens
+
+The suite builds against `tests/fixtures/` (never ff-jarvis) and compares the rendered page, in
+Chromium, to `tests/golden/render.json`. A refactor proves "no visual change" with an empty diff;
+an intended change regenerates the golden with `pytest --update-golden` and the diff is the
+review. `tests/test_budgets.py` holds the size ratchets: what is over budget today is listed with
+its size and may only shrink.
+
+## How land picks tests
+
+(2026-09-27) `scripts/impact.py` maps the branch's paths to areas through `tests/impact.json`: a
+change fenced to one view runs that view's tests, the core and its golden slice (a Ranks change:
+~14 s, against ~65 s for everything). A path no area claims, shared CSS, and shared test setup
+run everything; `content.json`, the order files, `scope.json` and the golden are read by what
+changed inside them (since 2026-10-05; the docstring of `scripts/impact.py` says how). The
+scheduled rebuild runs the whole suite twice a day, the net for whatever the map misses. A new
+golden state belongs to the area its name starts with. Fixture files are never claimed by an
+area: the build injects all of them into one page.
+
+`scripts/run_tests.py` runs the same selection `land.ps1` does, on the files on disk, uncommitted
+ones included; anything after `--` goes to pytest. `python -m pytest -m "not render"` runs
+everything without a browser, ~30 s.
+
+## Test history
+
+(2026-10-05) Every pytest run and land is one JSON line in `.git/test-history/`, shared by all
+worktrees; `python scripts/testlog.py` summarizes layers, trend, slowest files, flaky tests and
+land phases. Read it before test-speed or flakiness work (it supersedes the hand-timed 2026-10-05
+note: browser 830 of 3,122 tests, 725 of 782 worker-s). A nightly job runs the suite 3 times for
+flakes.
 
 ## Exemplars and building blocks
 

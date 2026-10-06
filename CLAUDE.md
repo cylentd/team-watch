@@ -28,72 +28,39 @@ Every new or changed view passes `design/STYLE.md` (controls, layout, motion) be
 Never hand-edit the generated files. The pages are ~2.6 MB each (all live data inlined), and
 `build.py` rewrites both in full on every run.
 
-## Build, test, land
+## Build and land
 
 ```
 python design/build.py      # rebuild both outputs
-python scripts/run_tests.py                   # while working: what your edits can break, in parallel, ~12-15 s
-python scripts/run_tests.py --full            # everything in parallel, ~43-110 s
-python -m pytest tests/test_<area>.py         # one file
-python -m pytest --update-golden              # never with -n: every area rewrites the one golden file
-python -m pytest -m "not render"              # no browser, ~30 s
-python -m pytest tests/test_render.py --areas ranks   # one area's golden slice, ~10 s
-.\scripts\land.ps1          # rebase, test what the diff can break, rebuild, fold into the commit, land
+.\scripts\land.ps1          # rebase, test-first gate, test what the diff can break, rebuild, fold into the commit, land
 .\scripts\land.ps1 -Full    # the same, testing everything
 ```
 
-Never run a bare `python -m pytest`: it runs all ~3,600 tests one at a time, ~10 min (2026-10-05).
-`scripts/run_tests.py` runs the same selection `land.ps1` does, on the files on disk, uncommitted
-ones included; anything after `--` goes to pytest.
-
-Land tests by impact (2026-09-27). `scripts/impact.py` maps the branch's paths to areas through
-`tests/impact.json`: a change fenced to one view runs that view's tests, the core and its golden
-slice (a Ranks change: ~14 s, against ~65 s for everything). A path no area claims, shared CSS,
-and shared test setup run everything; `content.json`, the order files, `scope.json` and the golden
-are read by what changed inside them (since 2026-10-05; the docstring of `scripts/impact.py` says
-how). The scheduled rebuild runs the whole suite twice a day, the net for whatever the map misses.
-A new test file must be listed in `tests/impact.json` (`test_impact.py` fails otherwise); a new
-golden state belongs to the area its name starts with. Fixture files are never claimed by an area:
-the build injects all of them into one page.
-
-Before writing any test, read `tests/README.md` (2026-10-05): the layers (component via `mount`),
-the `req` and `quarantine` markers, page objects in `tests/pages/`, the exemplars to copy and the
-files not to. Land also runs new tests 10 times and prints a mutation score (`scripts/mutate.py`).
-
-Writing a browser test (2026-10-05): take `browser` from `tests/conftest.py` (one Chromium per
-worker), never your own. A full page load costs about 1 s, so a file's tests share a module-scoped
-page that resets what a test changed (`'use strict'` in the reset, so a renamed global throws) and
-asserts no page error after load; a test about loading itself opens its own. Every browser test
-asserts no page errors (`test_render.watch_errors`). A missing fixture element is an `assert`, never
-a `pytest.skip`. A test waits for a condition, never a duration: no `wait_for_timeout` or sleep
-(animations run on the page's clock, `test_roster_cards.py` VCLOCK); `tests/test_honest_tests.py`
-enforces both. Logic with no layout is not a browser test. `conftest.py` runs each file in groups of
-12 tests, so a shared page loads once per group and a long file still spreads out.
-Every context has an owner (`conftest.keep`, 2026-10-05): one a test opens is closed when the test
-ends, pass or fail; pages a module opens lazily and shares go through `SharedPages`, which remembers a
-failed load so the module's later tests fail at once. More than 6 contexts open after a test errors.
-
-Writing a unit test (2026-10-05): a JS function from data to data runs in Node, Python logic in
-Python. The `node_js` fixture loads named files from `design/src/js` and calls a function in about a
-millisecond, no build (`tests/jsunit.py`; `tests/test_js_hurt.py`: 0.07 s, 7.7 s in the browser).
-
-Test history (2026-10-05): every pytest run and land is one JSON line in `.git/test-history/`, shared
-by all worktrees; `python scripts/testlog.py` summarizes layers, trend, slowest files, flaky tests and
-land phases. Read it before test-speed or flakiness work (it supersedes the hand-timed 2026-10-05 note:
-browser 830 of 3,122 tests, 725 of 782 worker-s). A nightly job runs the suite 3 times for flakes.
-
-New logic, test first (2026-10-05): a view's logic goes in `js/data/` with its failing Node test
-written first; the surface only draws it, and its browser test covers layout and taps. Touching an
-area moves its logic-only browser tests to Node. `tests/test_layer_ratchet.py` counts pure `data/`
-calls made through `page.evaluate` per file (108 when set): only down, and a new file has none.
-
 The build fails on a lint error (`design/lint_css.py`), a contract violation (`design/contract.py`:
-an injected block missing a field the JS reads), or a part the manifests do not agree on. The
-suite builds against `tests/fixtures/` (never ff-jarvis) and compares the rendered page, in
-Chromium, to `tests/golden/render.json`. A refactor proves "no visual change" with an empty diff;
-an intended change regenerates the golden with `pytest --update-golden` and the diff is the
-review. `tests/test_budgets.py` holds the size ratchets: what is over budget today is listed
-with its size and may only shrink.
+an injected block missing a field the JS reads), or a part the manifests do not agree on.
+
+## Testing
+
+TDD is the default; standards live in the `testing` skill. **Before writing any test, read
+`tests/README.md`**: layers, markers, page objects, exemplars, building blocks, how land picks
+tests, goldens, test history.
+
+| Do | Run |
+|---|---|
+| One test | `python -m pytest tests/test_ranks.py::test_running_backs_are_ordered_and_ranked_by_the_books_number` |
+| One file | `python -m pytest tests/test_<area>.py` |
+| While working | `python scripts/run_tests.py` (what your edits can break, in parallel, ~12-15 s) |
+| Full suite | `python scripts/run_tests.py --full` (in parallel, ~43-110 s) |
+| One golden slice | `python -m pytest tests/test_render.py --areas ranks` (~10 s) |
+| Regenerate golden | `python -m pytest --update-golden` (never with `-n`: every area rewrites the one file) |
+| Before land | `.\scripts\land.ps1` runs the testing skill's `land_gate.py` itself |
+
+- **Never a bare `python -m pytest`:** all ~3,600 tests one at a time, ~10 min (2026-10-05).
+- **Land gate:** source changed with no test changed fails, unless a commit says `Test-Exempt: <reason>`.
+- **A new test file** is listed in `tests/impact.json` (`test_impact.py` fails otherwise).
+- **Protected:** `tests/golden/render.json` (only through `--update-golden`, diff read as the review);
+  `tests/fixtures/` (only with the golden regenerated); the ratchet numbers in `test_budgets.py`
+  and `test_layer_ratchet.py`, which only shrink.
 
 **Feature branches do not commit `index.html` or `design/index.html`.** The build runs once, at
 land time, via `scripts/land.ps1`. This is not tidiness: both files are single blobs that change

@@ -20,7 +20,8 @@
   script re-fetches, rebases, re-tests and retries once.
 
   A diff that only touches docs and tests (*.md, tests/**) lands on its own. Anything that touches
-  the live page stops and asks -- pass -Yes once a human has said go.
+  the live page stops and asks -- pass -Yes once a human has said go. Source with no test change
+  stops too, unless a commit says `Test-Exempt: <reason>` (the testing skill's land gate).
 
 .EXAMPLE
   .\scripts\land.ps1 -DryRun          # say what would happen, change nothing
@@ -126,6 +127,16 @@ if ($notQuiet.Count -gt 0 -and -not $Yes) {
     Write-Host ($notQuiet -join "`n")
     throw "This changes the live page. Ask the user, then re-run with -Yes."
 }
+
+# --- test-first gate ------------------------------------------------------------------------------
+
+# Source changed with no test changed fails, unless a branch commit carries `Test-Exempt: <reason>`
+# (CLAUDE.md "Testing"). The script is the testing skill's, from agent-config, shared by every repo
+# rather than copied into each; it only reads git, so a dry run runs it too.
+$gate = Join-Path $HOME ".agents/skills/testing/scripts/land_gate.py"
+if (-not (Test-Path $gate)) { throw "No $gate. Run agent-config's install.ps1, then land again." }
+& python $gate --repo $repo --base "origin/$Base"
+if ($LASTEXITCODE -ne 0) { throw "test-first gate failed ($LASTEXITCODE) -- add a test, or a Test-Exempt: <reason> trailer" }
 
 # --- rebase and test --------------------------------------------------------------------------------
 

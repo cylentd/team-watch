@@ -2,7 +2,7 @@
 
 A fixed wait (wait_for_timeout, time.sleep, a setTimeout the test awaits) is a guess about how long
 something takes: too short and the test flakes on a busy machine, too long and every run pays for it.
-A test waits for the condition it needs instead (CLAUDE.md, "Writing a browser test"). David,
+A test waits for the condition it needs instead (tests/README.md, "Writing a browser test"). David,
 2026-10-05: "hardcoded waits are really bad in test frameworks."
 
 A skipped test prints as an "s" among the dots and is read as a pass. A skip is allowed only when the
