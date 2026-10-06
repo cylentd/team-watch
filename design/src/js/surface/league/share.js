@@ -13,8 +13,10 @@ const lgShareName = id => { const x = LG && LG.teams.find(tm => tm.id === id); r
 
 function lgShareRow(w, g, headline){
   const aWon = g.win !== "away", [wi, wp, li, lp] = aWon ? [g.a, g.ap, g.b, g.bp] : [g.b, g.bp, g.a, g.ap];
+  // side: the half of the score line the stamp sits in, as on the page (lgScoreLineHTML); the Nail-biter is the game's
+  const side = x => x.k === "close" ? "game" : x.id === wi ? "win" : "lose";
   const tags = (lgGameTags(w, g) || []).slice(0, LG_SHARE_TAGS)
-    .map(x => ({label: x.label, tone: x.tone, name: x.id != null ? lgShareName(x.id) : ""}));
+    .map(x => ({label: x.label, tone: x.tone, name: x.id != null ? lgShareName(x.id) : "", side: side(x)}));
   return {win: lgShareName(wi), winPts: lgPts(wp), lose: lgShareName(li), losePts: lgPts(lp), tie: g.win === "tie",
     tags, line: g.punch && g.punch !== headline ? g.punch : ""};
 }

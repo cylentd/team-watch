@@ -417,6 +417,26 @@ chips and the bottom `bp2-you` block (`back.js`, `lead.js`, `myrecap.js`; ESPN k
   "Robbed", the week's award), one caption, "vs. what their points earned". No jargon on the page (David asked
   what "all-play" meant, 2026-10-06; the method stays in the code). Place against points rank, tried first,
   read 0 for 10 of 12 teams because the standings already break ties by points.
+- **One voice per line** (2026-10-06, "something makes it not easily readable"; STYLE.md "Type"): every text passed
+  contrast, but a score line changed face five times and the section held 36 text styles (31 after). Scores take
+  their names' face with fixed-width digits; names leave mono (the standings' rank, record and streak keep it, a
+  column); "def." became "beat" at its line's size (David asked what "def." meant). Each award is a stamp: the
+  lead's stamp in small, condensed caps outlined in its colour at 13.5px with a 2° tilt, in the score line right
+  after the score of the team it names, the Nail-biter (the game's) last (`.lg-stamp`, `lgScoreLineHTML(g, w)`;
+  grey sentence-case chips were tried the same day and read "clinical", David: "I liked the stamps"; a tag row
+  under the line put Jon's Dumpster fire under Phillip). The same day the five game cards became scoreboards
+  (`lgScoreRowsHTML`): the winner's row over the loser's, name, score and its own stamps, the scores in one
+  column, the Nail-biter spanning both rows at the right, no "beat" (at 1160px "Chanel 146.98 [TOP DOG] beat"
+  ended a line and the loser wrapped); the lead keeps its one line. The lead reads headline, score, then one
+  report paragraph, the game's line and the dek together (`.bp2-report`, a newspaper's lede: David found the
+  line, the dek and the facts "a bit random" and easy to miss), then "Box score ›"; the facts left the lead for
+  the sheet, superseding the trimmed facts below. Luck so far keeps all 12 teams (David: dropping the middle six
+  "might be confusing") at 20px rows, so the bottom row ends within 136px. A longer Claude-written report (3-4
+  sentences) needs ff-jarvis's prompt and is not built. The dek moved into the lead card, after the game's line (it had no home
+  between the card and the rows; supersedes "the dek opens the other five games" above). The lead's facts drop a
+  points number its headline says or the margin its score shows (`lgLeadBeats`; the sheet keeps all). The week's
+  unluckiest loss says Unlucky, Robbed until now: one word for bad luck. The phone standings keep an empty
+  streak's cell, so every record ends on one edge. The shared PNG follows: one face per score line, the same stamps.
 
 **A third league, AYO (2026-09-29, David: "Everything"; for the League group "a switch on the page").**
 AYO is a second Yahoo login in the first Yahoo league's shape, read from ff-jarvis's `ayo_<kind>.json`.

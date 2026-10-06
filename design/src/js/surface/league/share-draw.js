@@ -77,31 +77,42 @@ function lgShareHead(ctx, d, th, y, blip){
   return y + 22;
 }
 
-/* One game: its score line, up to two tags (beside it when they fit, else under), then its line. */
+/* An award stamp, the page's (front.css .lg-stamp): condensed caps outlined in its colour, a slight tilt. With
+   draw false it only measures. Returns its width. */
+function lgShareStamp(ctx, th, tg, x, y, draw){
+  ctx.font = `900 26px ${th.tab}`; ctx.letterSpacing = "1.5px";
+  const label = tg.label.toUpperCase(), w = ctx.measureText(label).width + 20, color = th.tone[tg.tone] || th.ink2;
+  if (draw){
+    ctx.save(); ctx.translate(x + w / 2, y + 22); ctx.rotate(-2 * Math.PI / 180);
+    ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.roundRect(-w / 2, -18, w, 36, 5); ctx.stroke();
+    ctx.fillStyle = color; ctx.fillText(label, -w / 2 + 10, 10); ctx.restore();
+  }
+  ctx.letterSpacing = "0px";
+  return w;
+}
+
+/* One game: its score line, each stamp after the score of the team it names and the Nail-biter last, as on the
+   page (lgScoreLineHTML); a side that does not fit starts the next line whole. Then the game's line. */
 function lgShareGame(ctx, r, th, y){
   const inner = LG_SHARE_W - 2 * LG_SHARE_PAD, x0 = LG_SHARE_PAD;
   ctx.fillStyle = th.line; ctx.fillRect(x0, y, inner, 2);
   y += 2 + 18;
-  const parts = [[r.win, `800 34px ${th.ui}`, th.ink, 10], [r.winPts, `700 34px ${th.mono}`, th.ink, 16],
-    [r.tie ? t("league.lead.tied") : t("league.lead.def"), `500 24px ${th.ui}`, th.ink3, 16],
-    [r.lose, `600 34px ${th.ui}`, th.ink3, 10], [r.losePts, `700 34px ${th.mono}`, th.ink3, 0]];
-  let x = x0, scoreW = 0;
-  parts.forEach(([s, font, , gap]) => { ctx.font = font; scoreW += ctx.measureText(s).width + gap; });
-  const pills = r.tags.map(tg => {
-    ctx.font = `700 22px ${th.ui}`; const a = ctx.measureText(tg.label).width;
-    ctx.font = `600 22px ${th.ui}`; const b = tg.name ? ctx.measureText(tg.name).width + 8 : 0;
-    return {tg, a, w: a + b + 22};
-  });
-  const tagsW = pills.reduce((n, p) => n + p.w + 10, -10), beside = pills.length && scoreW + 16 + tagsW <= inner;
-  parts.forEach(([s, font, color, gap]) => { ctx.font = font; ctx.fillStyle = color; ctx.fillText(s, x, y + 34); x += ctx.measureText(s).width + gap; });
-  let ty = y + 2, tx = beside ? x0 + inner - tagsW : x0;
-  if (pills.length && !beside){ ty = y + 44 + 10; y += 44 + 10; }
-  pills.forEach(p => {
-    const color = th.tone[p.tg.tone] || th.ink2;
-    ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.roundRect(tx + 1.25, ty + 1.25, p.w - 2.5, 37.5, 6); ctx.stroke();
-    ctx.font = `700 22px ${th.ui}`; ctx.fillStyle = color; ctx.fillText(p.tg.label, tx + 11, ty + 27);
-    if (p.tg.name){ ctx.font = `600 22px ${th.ui}`; ctx.fillStyle = th.ink2; ctx.fillText(p.tg.name, tx + 11 + p.a + 8, ty + 27); }
-    tx += p.w + 10;
+  // a score beside its name takes the name's face (STYLE.md "Type")
+  const txt = (s, font, color, gap) => ({s, font, color, gap}), stamps = side => r.tags.filter(tg => tg.side === side).map(tg => ({tg, gap: 12}));
+  const units = [
+    [txt(r.win, `800 34px ${th.ui}`, th.ink, 10), txt(r.winPts, `800 34px ${th.ui}`, th.ink, 12), ...stamps("win")],
+    [txt(r.tie ? t("league.lead.tied") : t("league.lead.def"), `400 34px ${th.ui}`, th.ink3, 12)],
+    [txt(r.lose, `600 34px ${th.ui}`, th.ink3, 10), txt(r.losePts, `600 34px ${th.ui}`, th.ink3, 12), ...stamps("lose")],
+    stamps("game")].filter(u => u.length);
+  const width = p => p.tg ? lgShareStamp(ctx, th, p.tg, 0, 0, false) : (ctx.font = p.font, ctx.measureText(p.s).width);
+  let x = x0;
+  units.forEach(u => {
+    const uw = u.reduce((n, p) => n + width(p) + p.gap, 0);
+    if (x > x0 && x + uw - u[u.length - 1].gap > x0 + inner){ x = x0; y += 48; }
+    u.forEach(p => {
+      if (p.tg) x += lgShareStamp(ctx, th, p.tg, x, y, true) + p.gap;
+      else { ctx.font = p.font; ctx.fillStyle = p.color; ctx.fillText(p.s, x, y + 34); x += ctx.measureText(p.s).width + p.gap; }
+    });
   });
   y += 44;
   if (r.line){

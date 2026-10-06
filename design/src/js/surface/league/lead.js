@@ -5,14 +5,31 @@
    the standings in agate. Managers carry the score lines; team names appear inside the jokes, where the
    puns need them. A row's facts and box score open in the modal, so no card ever grows. */
 
-/* Winner and score, "def.", loser and score: the loser dimmed. */
-function lgScoreLineHTML(g){
+/* Winner and score, "beat", loser and score: the loser dimmed. Given the week, each award is a stamp in its
+   team's half, after its score, and the Nail-biter, the game's own, closes the line (David, 2026-10-06: a row of
+   tags under the line put Jon's Dumpster fire under Phillip). The sheet passes no week and draws none. */
+const lgStampHTML = x => `<span class="lg-stamp ${x.tone}">${x.label}</span>`;
+function lgScoreLineHTML(g, wk){
   const aWon = g.win !== "away";
   const [w, l] = aWon ? [[g.a, g.ap], [g.b, g.bp]] : [[g.b, g.bp], [g.a, g.ap]];
-  const tie = g.win === "tie";
-  return `<span class="bp2-w"><b>${lgMgr(w[0])}</b> <span class="bp2-n">${lgPts(w[1])}</span></span>
+  const tie = g.win === "tie", tags = wk ? lgGameTags(wk, g) : [];
+  const of = id => tags.filter(x => x.k !== "close" && x.id === id).map(lgStampHTML).join("");
+  return `<span class="bp2-w"><b>${lgMgr(w[0])}</b> <span class="bp2-n">${lgPts(w[1])}</span>${of(w[0])}</span>
     <span class="bp2-d">${tie ? t("league.lead.tied") : t("league.lead.def")}</span>
-    <span class="bp2-l"><b>${lgMgr(l[0])}</b> <span class="bp2-n">${lgPts(l[1])}</span></span>`;
+    <span class="bp2-l"><b>${lgMgr(l[0])}</b> <span class="bp2-n">${lgPts(l[1])}</span>${of(l[0])}</span>${
+    tags.filter(x => x.k === "close").map(lgStampHTML).join("")}`;
+}
+
+/* A game card's score as a scoreboard (David, 2026-10-06: in three-across cards "Chanel 146.98 [TOP DOG] beat"
+   ended a line and the loser wrapped under it): the winner's row over the loser's, name, score, its own stamps;
+   the Nail-biter, the game's, spans both rows at their end. A tie dims neither row. */
+function lgScoreRowsHTML(g, wk){
+  const aWon = g.win !== "away", tie = g.win === "tie", tags = lgGameTags(wk, g);
+  const [w, l] = aWon ? [[g.a, g.ap], [g.b, g.bp]] : [[g.b, g.bp], [g.a, g.ap]];
+  const row = ([id, pts], cls) => `<span class="bp2-sr ${cls}"><b>${lgMgr(id)}</b><span class="bp2-n">${lgPts(pts)}</span><span class="bp2-st">${
+    tags.filter(x => x.k !== "close" && x.id === id).map(lgStampHTML).join("")}</span></span>`;
+  const game = tags.filter(x => x.k === "close").map(lgStampHTML).join("");
+  return `<span class="bp2-sb">${row(w, "bp2-w")}${row(l, tie ? "bp2-w" : "bp2-l")}${game ? `<span class="bp2-sgame">${game}</span>` : ""}</span>`;
 }
 
 const lgBeatsHTML = g => g.beats.length ? `<ul class="bp2-beats">${g.beats.map(b => `<li>${lgBeatHTML(b)}</li>`).join("")}</ul>` : "";
@@ -29,37 +46,31 @@ function lgBlipHTML(pose, stamped){
 /* The lead: the week's biggest game (w.lead), the full width above the other games, and the page's one
    headline (2026-10-06, "it looks like two headlines": Claude's headline sat above the card and the game's
    line inside it in the same face). Blip with the page's one stamp under it; the headline, else the game's
-   line in its place; the score, the award tags, the game's line as text, its facts and its box score. */
+   line in its place; the score with its stamps, then the report and Box score. The report is one paragraph,
+   the game's line then the dek on the rest of the week (David, 2026-10-06: the line, the dek and the facts were
+   three scraps, "a bit random"; a newspaper runs the headline, then the report). The facts live in the sheet. */
 function lgLeadHTML(w, g){
   const fig = lgBlipHTML(w.blip, !!g.stamp);
   const stamp = g.stamp ? `<span class="bp-stamp bp2-stamp">${esc(g.stamp)}</span>` : "";
   const title = w.head || g.punch, line = g.punch && g.punch !== title ? g.punch : "";
+  const report = [line, w.head ? w.dek : ""].filter(Boolean).map(esc).join(" ");
   return `<article class="bp2-lead${fig ? " has-fig" : ""}">
     ${fig ? `<div class="bp2-fig">${fig}${stamp}</div>` : ""}
     <div class="bp2-lbody">
       ${title ? `<h2 class="lg-hl">${esc(title)}</h2>` : ""}
-      <div class="bp2-score">${lgScoreLineHTML(g)}</div>
+      <div class="bp2-score">${lgScoreLineHTML(g, w)}</div>
       ${fig ? "" : stamp}
-      ${lgTagsHTML(w, g)}
-      ${line ? `<p class="bp2-punch">${esc(line)}</p>` : ""}
-      ${lgBeatsHTML(g)}
-      ${g.box ? `<button class="bp2-more" data-lgsheet="${lgKey(g)}">${t("league.box.show")}</button>` : ""}
+      ${report ? `<p class="bp2-report">${report}</p>` : ""}
+      ${g.box ? `<button class="bp2-more" data-lgsheet="${lgKey(g)}">${t("league.box.more")}</button>` : ""}
     </div>
   </article>`;
 }
 
-/* A game's award tags (back.js lgGameTags): flat, in the row's flow, each with the team it names. */
-function lgTagsHTML(w, g){
-  const tags = lgGameTags(w, g);
-  return tags.length ? `<span class="lg-tags">${tags.map(x => `<span class="lg-tag ${x.tone}">${x.label} <small>${lgMgr(x.id)}</small></span>`).join("")}</span>` : "";
-}
-
-/* Every game but the lead as one row: the score line, up to two tags, the line. The whole row is the
-   button that opens its sheet. No row carries a stamp. */
+/* Every game but the lead as one card: the score as a scoreboard with its award stamps, the line. The whole
+   card is the button that opens its sheet. No card carries the lead's big stamp. */
 function lgRowHTML(w, g, i){
   return `<button type="button" class="lg-row" data-lgsheet="${lgKey(g)}" style="--i:${i}">
-    <span class="bp2-bl">${lgScoreLineHTML(g)}</span>
-    ${lgTagsHTML(w, g)}
+    ${lgScoreRowsHTML(g, w)}
     ${g.punch ? `<span class="bp2-bp">${esc(g.punch)}</span>` : ""}
   </button>`;
 }
@@ -86,16 +97,16 @@ function lgAgateHTML(w){
    (league_back.add_standings: real wins minus the wins its points earned against everyone), drawn as a bar
    from a zero line, so it reads as a chart beside the standings' table ("looks the same", 2026-10-06): its
    length against the week's biggest luck, right and green when lucky, left and red when not. The table's tags
-   name the two most extreme each side; "Robbed" is the week's award, so the unlucky side is Unlucky (Snakebit until David asked
-   what it meant, 2026-10-06). */
+   name the two most extreme each side, Lucky and Unlucky (Snakebit until David asked what it meant; the week's
+   unluckiest loss says Unlucky too since 2026-10-06, Robbed before: one word for bad luck). */
 const lgLuckRows = w => [...w.table].sort((a, b) => b.luck - a.luck);
 const lgSignedLuck = n => n > 0 ? `+${n.toFixed(1)}` : n < 0 ? `−${(-n).toFixed(1)}` : "0.0";
 function lgLuckHTML(w){
   const rows = lgLuckRows(w);
   if (!rows.length) return "";
   const most = Math.max(...rows.map(r => Math.abs(r.luck))) || 1;
-  const tag = r => r.tag === "lucky" ? `<span class="lg-tag g">${t("league.luck.lucky")}</span>`
-    : r.tag === "robbed" ? `<span class="lg-tag r">${t("league.luck.unlucky")}</span>` : "";
+  const tag = r => r.tag === "lucky" ? lgStampHTML({tone: "g", label: t("league.luck.lucky")})
+    : r.tag === "robbed" ? lgStampHTML({tone: "r", label: t("league.luck.unlucky")}) : "";
   const bar = r => `<span class="lg-lucktrack"><span class="lg-luckbar ${r.luck > 0 ? "up" : r.luck < 0 ? "dn" : "zero"}" style="--w:${
     +(Math.abs(r.luck) / most * 100).toFixed(1)}%"></span></span>`;
   return `<section class="lg-sec lg-luck" aria-label="${t("league.luck.title")}">

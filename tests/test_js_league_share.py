@@ -78,11 +78,16 @@ def test_a_score_line_names_the_winner_first_with_two_decimals_and_plain_text_na
     assert [r["tie"] for r in data(share)["rows"]].count(True) == 1
 
 
-def test_a_game_carries_at_most_two_tags_with_the_team_each_belongs_to(share):
+def test_a_game_carries_at_most_two_tags_with_the_team_and_side_each_belongs_to(share):
+    # side: which half of the score line the stamp sits beside (David, 2026-10-06: Dumpster fire, Jon's, sat
+    # under Phillip); a Nail-biter is the game's, so it closes the line.
     rows = {r["win"]: r for r in data(share)["rows"]}
-    assert rows["Phillip"]["tags"] == [{"label": "Stole one", "tone": "g", "name": "Phillip"},
-                                       {"label": "Dumpster fire", "tone": "r", "name": "Jon & Kay"}]
-    assert rows["Chanel"]["tags"] == [{"label": "Top dog", "tone": "g", "name": "Chanel"}]
+    assert rows["Phillip"]["tags"] == [{"label": "Stole one", "tone": "g", "name": "Phillip", "side": "win"},
+                                       {"label": "Dumpster fire", "tone": "r", "name": "Jon & Kay", "side": "lose"}]
+    assert rows["Chanel"]["tags"] == [{"label": "Top dog", "tone": "g", "name": "Chanel", "side": "win"}]
+    nail = share("(g) => { const keep = globalThis.lgGameTags; globalThis.lgGameTags = () => [{k: 'close', label: 'Nail-biter', tone: 'x', id: 3}];"
+                 " const t = lgShareRow({}, g, '').tags; globalThis.lgGameTags = keep; return t; }", GAMES[2])
+    assert nail == [{"label": "Nail-biter", "tone": "x", "name": "Phillip", "side": "game"}]
     assert rows["Kearny"]["tags"] == []
     assert max(len(r["tags"]) for r in data(share)["rows"]) == 2
 
@@ -106,7 +111,7 @@ def test_the_image_holds_the_league_and_nothing_about_the_reader(share):
     assert d["url"] == "teamwatch.cylentlabs.com/#recap"
     assert set(d) == {"kicker", "headline", "rows", "url"}, "no dek, team, standings or your-game box"
     assert all(set(r) == {"win", "winPts", "lose", "losePts", "tie", "tags", "line"} for r in d["rows"])
-    assert all(set(tg) == {"label", "tone", "name"} for r in d["rows"] for tg in r["tags"])
+    assert all(set(tg) == {"label", "tone", "name", "side"} for r in d["rows"] for tg in r["tags"])
 
 
 def test_the_text_version_is_kicker_headline_each_game_with_its_line_then_the_link(share):
@@ -116,7 +121,7 @@ def test_the_text_version_is_kicker_headline_each_game_with_its_line_then_the_li
         {"win": "Kearny", "winPts": "77.70", "lose": "Theo", "losePts": "77.70", "tie": True, "tags": [], "line": ""}]}
     assert share("lgShareText", d) == "\n".join([
         "MADDEN CURSE · WEEK 4 · FINAL", "A beats B", "",
-        "Chanel 146.98 def. Crystal W. 93.04 · TOP DOG Chanel", "Me is Kyren.", "",
+        "Chanel 146.98 beat Crystal W. 93.04 · TOP DOG Chanel", "Me is Kyren.", "",
         "Kearny 77.70 tied Theo 77.70", "",
         "u.example/#recap"])
 
@@ -126,9 +131,9 @@ def test_the_real_text_has_every_game_the_link_last_and_no_tone_word(share):
     lines = text.split("\n")
     assert lines[-1] == "teamwatch.cylentlabs.com/#recap"
     assert lines[0] == "MADDEN CURSE · WEEK 4 · FINAL"
-    assert sum(" def. " in ln or " tied " in ln for ln in lines) == len(GAMES)
+    assert sum(" beat " in ln or " tied " in ln for ln in lines) == len(GAMES)
     assert not any(w in text.lower() for w in ("roast", "props", "your game", "cheer"))
-    assert lines[3] == "Chanel 146.98 def. Crystal W. 93.04 · TOP DOG Chanel", "lead first, below the headline and a blank line"
+    assert lines[3] == "Chanel 146.98 beat Crystal W. 93.04 · TOP DOG Chanel", "lead first, below the headline and a blank line"
 
 
 def test_a_week_with_no_games_is_a_headline_and_a_link_not_an_error(share):

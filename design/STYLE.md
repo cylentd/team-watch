@@ -92,6 +92,31 @@ A row of centred lanes takes its label on its own line above it, left-aligned, s
 the full width and line up with whatever sits above them (Compare's strips under its cards; a
 label column beside the lanes pushed them off the cards' and the graph's centre, 2026-09-30).
 
+## Type: one voice per line
+
+A line the reader reads as words stays in one face. Decided 2026-10-06, after League > Recap read badly
+with every text passing contrast: one score line ("Chanel 146.98 def. Crystal W. 93.04") changed face,
+size or weight five times, and the section held 36 text styles.
+
+| Text | Face | Why |
+|---|---|---|
+| A name (manager, player, team) | Body (`--ui`), never mono | A name is a word; in mono it reads as code |
+| A number inside a line of words: a score beside its name, a number in a sentence | The line's face, `font-variant-numeric: tabular-nums` | The eye stays in one voice; digits still line up |
+| A number standing in a column (records, ranks, a stat column, a chart's values) | Mono (`--mono`) | Read downward, compared; DESIGN.md's "mono for numerals" means this |
+| An award stamp (one or two words: Top dog, Unlucky) | Display (`--tab`, caps), 13.5px or more, outlined in its colour, a slight tilt; it sits right after the name or score it is about, never in a row of its own (a row under a score line put Jon's award under Phillip, 2026-10-06) | The stamp is the page's character (David, 2026-10-06: grey chips read "clinical"); at 12px with the name inside it was the hardest text on the page |
+| The page's headline and section titles | Display (`--tab`, caps) | Caps belong to these and the stamps |
+
+- **Small words keep the line's size, and are plain words.** "beat" sits at its line's size in `--ink-3`
+  ("def." until 2026-10-06, when David asked what it meant).
+- **Comfortable is not the goal on its own.** A pass that removes every display element reads clinical;
+  keep the voice in a few big, deliberate places (headline, stamps, Blip), never mid-sentence.
+- **A column lines up whatever its rows hold.** A row with an empty cell keeps the cell (a fixed grid
+  track), so the next column does not shift (Recap's standings on a phone, 2026-10-06).
+- **A fact said once.** A card's facts drop a number its headline or score already shows.
+
+`tests/test_render.py::test_recap_league_reads_in_one_voice` checks the Recap. A new view takes the
+same rules.
+
 ## Motion: feedback that shows the change
 
 Every motion answers the reader's hand and ends where the thing now lives. The motion carries the
@@ -145,7 +170,9 @@ loads. A new curve or duration is a new token, never a literal in a component.
 5. Its cards pass Material Design's rule (`DESIGN.md`, "Cards"): one card per subject, rows
    inside it, never a card in a card. Its states and reasons pass "Say it in a shape" (the same
    file): tags, meters and pills, every code named on screen, no prose where a pill fits.
-6. `tests/test_style_rules.py` passes: nothing scrolls sideways at 360px (Leaders' faded stat
+6. Every line of words is in one face (Type, above): no name in mono, no score in a face its name
+   does not use, no stamp under 13.5px or with a name inside it.
+7. `tests/test_style_rules.py` passes: nothing scrolls sideways at 360px (Leaders' faded stat
    tabs are the one exception) and nothing loops while the page is idle.
 
 The playable motion reference is the Bets storyboard, published 2026-09-25:

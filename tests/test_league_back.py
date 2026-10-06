@@ -335,13 +335,81 @@ def test_the_luck_ladder_ranks_every_team_luckiest_first_and_never_says_robbed(r
 
 def test_the_league_section_has_one_headline_and_it_tops_the_lead(recap_js):
     # David, 2026-10-06, "it looks like two headlines": Claude's headline is the lead card's title; the game's
-    # line runs under the score as text; the dek opens the other games.
+    # line runs under the score as text.
     html = recap_js("() => { LG_WEEK = null; const w = lgWeek(); w.head = 'Chanel hangs 146.98 on Crystal W.'; w.dek = 'And the rest.';"
                     " return lgLeagueHTML(w); }")
     lead = html[html.index('<article class="bp2-lead'):html.index("</article>")]
     assert html.count('class="lg-hl') == 1 and 'class="lg-hl' in lead, "one headline, inside the lead card"
-    assert html.index("lg-dek") > html.index("</article>"), "the dek follows the lead, opening the other games"
     assert recap_js("(table) => lgLuckHTML({table})", []) == "", "no table, no section"
+
+
+def test_the_lead_reads_headline_score_then_one_report_paragraph(recap_js):
+    # David, 2026-10-06: the game's line, the dek and the facts were three small scraps ("a bit random", "easy to
+    # miss"); a newspaper runs the headline, then the report. The game's line and the dek are one paragraph, the
+    # facts stay in the game's sheet, and Box score is the link under the report.
+    html = recap_js("() => { LG_WEEK = null; const w = lgWeek(); const g = {...w.games[0], box: w.games[0].box || {},"
+                    " punch: 'Nabers sat and flipped it.', beats: [\"Theo's Nabers benching cost 17.1\"]};"
+                    " return lgLeadHTML({...w, head: 'McMillan drops 38.2', dek: 'Chanel runs it up.'}, g); }")
+    assert html.count('class="bp2-report"') == 1
+    report = html.split('class="bp2-report">', 1)[1].split("</p>", 1)[0]
+    assert report == "Nabers sat and flipped it. Chanel runs it up.", report
+    assert "bp2-beats" not in html and "17.1" not in html and "lg-dek" not in html and "bp2-punch" not in html
+    assert html.index("bp2-report") < html.index("bp2-more"), "Box score under the report"
+    # no headline: the game's line is the title, so the report is the dek alone, or nothing
+    bare = recap_js("() => { LG_WEEK = null; const w = lgWeek(); return lgLeadHTML({...w, head: '', dek: ''}, {...w.games[0], punch: 'Only line.'}); }")
+    assert "bp2-report" not in bare and bare.count("Only line.") == 1
+
+
+@pytest.mark.parametrize("win", ["home", "away", "tie"])
+def test_a_card_stacks_its_score_winner_over_loser_each_row_with_its_own_stamps(recap_js, win):
+    # David, 2026-10-06: in three-across cards "Chanel 146.98 [TOP DOG] beat" ended a line and the loser wrapped
+    # under it. A card is a scoreboard: the winner's row, then the loser's, each with its own stamps; the
+    # Nail-biter, the game's, spans both rows at their end.
+    a, b = recap_js("() => { LG_WEEK = null; const g = lgWeek().games[0]; return [g.a, g.b]; }")
+    g = {"a": a, "b": b, "ap": 90.0, "bp": 85.0 if win != "tie" else 90.0, "win": win}
+    winner, loser = (b, a) if win == "away" else (a, b)
+    w = {"games": [], "awards": {"top": {"id": winner, "v": 150}, "low": {"id": loser, "v": 60}}}
+    html = recap_js("(g, w) => lgScoreRowsHTML(g, w)", g, w)
+    rows = html.split('class="bp2-sr ')[1:]
+    assert len(rows) == 2 and "beat" not in html and "bp2-sgame" not in html
+    assert recap_js("(id) => lgMgr(id)", winner) in rows[0] and 'lg-stamp g">Top dog<' in rows[0] and "Dumpster" not in rows[0]
+    assert recap_js("(id) => lgMgr(id)", loser) in rows[1] and 'lg-stamp r">Dumpster fire<' in rows[1]
+    assert rows[0].startswith("bp2-w") and rows[1].startswith("bp2-w" if win == "tie" else "bp2-l"), "a tie dims neither"
+    # the Nail-biter (two stamps a game at most, and it always keeps one place: lgGameTags) spans the rows
+    close = {"games": [], "awards": {"close": {"id": winner, "v": 5}}}
+    html = recap_js("(g, w) => lgScoreRowsHTML(g, w)", g, close)
+    assert html.count("Nail-biter") == 1 and html.endswith('<span class="bp2-sgame"><span class="lg-stamp x">Nail-biter</span></span></span>')
+
+
+def test_the_unluckiest_loss_tag_says_unlucky_never_robbed(recap_js):
+    # 2026-10-06: one word for bad luck, the week's tag and the season's chart alike.
+    assert recap_js("() => lgSupLabel('unluck', {v: 120})") == "Unlucky"
+
+
+def test_a_score_line_says_beat_not_def(recap_js):
+    # David, 2026-10-06: "what does 'def.' mean". A plain word.
+    html = recap_js("() => { LG_WEEK = null; const w = lgWeek(); return lgScoreLineHTML({...w.games[0], win: 'home'}); }")
+    assert '<span class="bp2-d">beat</span>' in html and "def." not in html
+
+
+@pytest.mark.parametrize("win", ["home", "away"])
+def test_each_stamp_sits_beside_the_team_it_names_and_the_nail_biter_closes_the_line(recap_js, win):
+    # David, 2026-10-06, "I liked the stamps", then "Dumpster fire is attributed to Jon but it looks like it's
+    # under Phillip": a row of tags under the score line put a loser's award under the winner. Each stamp now
+    # sits in its team's half of the line, after its score, so it needs no name; a Nail-biter is the game's.
+    a, b = recap_js("() => { LG_WEEK = null; const g = lgWeek().games[0]; return [g.a, g.b]; }")
+    g = {"a": a, "b": b, "ap": 90.0, "bp": 85.0, "win": win}
+    winner, loser = (a, b) if win == "home" else (b, a)
+    assert recap_js("(id) => lgMgr(id)", winner) != recap_js("(id) => lgMgr(id)", loser)
+    w = {"games": [], "awards": {"top": {"id": winner, "v": 150}, "low": {"id": loser, "v": 60}}}
+    html = recap_js("(g, w) => lgScoreLineHTML(g, w)", g, w)
+    first, second = html.split('class="bp2-d"', 1)        # the winner's half, then "beat" and the loser's
+    assert recap_js("(id) => lgMgr(id)", winner) in first and 'lg-stamp g">Top dog<' in first and "Dumpster fire" not in first
+    assert recap_js("(id) => lgMgr(id)", loser) in second and 'lg-stamp r">Dumpster fire<' in second and "Top dog" not in second
+    close = {"games": [], "awards": {"close": {"id": winner, "v": 5}}}
+    html = recap_js("(g, w) => lgScoreLineHTML(g, w)", g, close)
+    assert html.rstrip().endswith('<span class="lg-stamp x">Nail-biter</span>'), html
+    assert recap_js("(g) => lgScoreLineHTML(g)", g).count("lg-stamp") == 0, "no week, no stamps (the sheet)"
 
 
 def test_the_lead_draws_blip_even_when_the_week_names_a_photo(recap_js):

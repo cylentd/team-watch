@@ -89,7 +89,6 @@ function lgLeagueHTML(w){
     </header>
     <div class="lg-games">
       ${lgLeadHTML(w, lead)}
-      ${w.head && w.dek ? `<p class="lg-dek">${esc(w.dek)}</p>` : ""}
       <div class="lg-gr">${rest.map(row).join("")}</div>
     </div>
     <div class="lg-after">
