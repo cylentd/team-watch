@@ -1,5 +1,5 @@
 /* ============================== ROSTER: THE CLIP THEATER ==============================
-   A player's official clips (LIVE_CLIPS, design/clips.py), played full screen over the page: opened by
+   A player's official clips (LIVE_CLIPS, design/yt_clips.py), played full screen over the page: opened by
    the ring on a roster head (clipWireRings) or by the Week plays rail (reel.js). The player itself is
    clipplayer.js, one YouTube player for every clip; this part is what is on screen around it.
 

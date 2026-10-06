@@ -44,7 +44,7 @@ from preview import live_preview, report as preview_report     # design/preview.
 from role import live_role, report as role_report              # design/role.py: Players > Role
 from recap import live_recap, report as recap_report           # design/recap.py: This week > Recap
 from highlights import live_highlights, report as highlights_report  # design/highlights.py: Players > Highlights
-from clips import live_clips, report as clips_report            # design/clips.py: official YouTube clips
+from yt_clips import live_clips, report as clips_report            # design/yt_clips.py: official YouTube clips
 from player_names import live_names, report as names_report     # design/player_names.py: LIVE_NAMES
 from prop_math import implied, is_stale                         # design/prop_math.py: break-even odds, stale-line test
 from league_recap import live_league, report as league_report  # My teams > League

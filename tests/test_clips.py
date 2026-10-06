@@ -1,4 +1,4 @@
-"""design/clips.py: LIVE_CLIPS, the official YouTube clips per player and per game, cut from
+"""design/yt_clips.py: LIVE_CLIPS, the official YouTube clips per player and per game, cut from
 ff-jarvis's clips.json (the fixture follows the contract ff-jarvis writes)."""
 import json
 import sys
@@ -8,11 +8,20 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "design"))
 import contract  # noqa: E402
-from clips import live_clips, report  # noqa: E402
+from yt_clips import live_clips, report  # noqa: E402
 from sources import load_clips  # noqa: E402
 from test_build import injected  # noqa: E402
 
 FIXTURES = Path(__file__).parent / "fixtures" / "data"
+
+
+def test_no_design_module_shares_a_name_with_an_api_module():
+    """design/ and api/ are both put on sys.path, often api/ first. A shared name hands whichever
+    comes first to every `import`: design/clips.py lost to api/clips.py (the /api/clips endpoint),
+    and test_digest.py failed to collect on its own, so it became design/yt_clips.py (2026-10-05)."""
+    repo = Path(__file__).resolve().parents[1]
+    shared = {p.stem for p in (repo / "design").glob("*.py")} & {p.stem for p in (repo / "api").glob("*.py")}
+    assert not shared, f"rename one side: {sorted(shared)}"
 
 
 def test_block_keeps_clip_order_and_drops_the_decision_cache():

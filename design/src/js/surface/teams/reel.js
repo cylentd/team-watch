@@ -1,5 +1,5 @@
 /* ============================== ROSTER: THE WEEK PLAYS RAIL ==============================
-   One card per starter who has clips (LIVE_CLIPS, design/clips.py), best scorer first, in a rail of
+   One card per starter who has clips (LIVE_CLIPS, design/yt_clips.py), best scorer first, in a rail of
    pages: two cards to a phone page, four from 761px, the next page's card never showing (2026-10-05,
    Roster redesign unit C; v2 had a card per clip, 128x160, the next one showing past the edge). The
    card is a 16:10 picture of his first clip with his name, points and stat line laid over its foot

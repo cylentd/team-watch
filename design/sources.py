@@ -300,7 +300,7 @@ def load_highlights():
 
 def load_clips():
     """Official YouTube clips per player and per game (ff-jarvis clips.json, 2026-10-05), feed block
-    `clips` first, the file second. design/clips.py cuts it; None when neither exists."""
+    `clips` first, the file second. design/yt_clips.py cuts it; None when neither exists."""
     return feed_block(("clips",), "players") or read_first(DWR / "clips.json")
 
 

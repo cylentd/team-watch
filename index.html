@@ -13150,7 +13150,7 @@ function clipRailWire(box, items, first, {open, step = reelStep} = {}){
 window.addEventListener("resize", () => reelFit(document.querySelector("#view [data-reel]")));
 /* ── js/surface/teams/reel.js ── */
 /* ============================== ROSTER: THE WEEK PLAYS RAIL ==============================
-   One card per starter who has clips (LIVE_CLIPS, design/clips.py), best scorer first, in a rail of
+   One card per starter who has clips (LIVE_CLIPS, design/yt_clips.py), best scorer first, in a rail of
    pages: two cards to a phone page, four from 761px, the next page's card never showing (2026-10-05,
    Roster redesign unit C; v2 had a card per clip, 128x160, the next one showing past the edge). The
    card is a 16:10 picture of his first clip with his name, points and stat line laid over its foot
@@ -29511,7 +29511,7 @@ document.addEventListener("securitypolicyviolation", e => {
 });
 /* ── js/surface/teams/clipsheet.js ── */
 /* ============================== ROSTER: THE CLIP THEATER ==============================
-   A player's official clips (LIVE_CLIPS, design/clips.py), played full screen over the page: opened by
+   A player's official clips (LIVE_CLIPS, design/yt_clips.py), played full screen over the page: opened by
    the ring on a roster head (clipWireRings) or by the Week plays rail (reel.js). The player itself is
    clipplayer.js, one YouTube player for every clip; this part is what is on screen around it.
 
