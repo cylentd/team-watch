@@ -116,7 +116,7 @@ FULL_LOADS = {
     "test_clip_sheet.py": 2,
     "test_gameday.py": 5, "test_gamesheet_v2.py": 6, "test_gestures.py": 1, "test_highlights.py": 1,
     "test_leagues.py": 6, "test_left_hurt.py": 4, "test_legsheet.py": 6, "test_live_mine.py": 6,
-    "test_live_modal.py": 5, "test_live_swipe.py": 2, "test_live_tabs.py": 10,
+    "test_live_modal.py": 5, "test_live_swipe.py": 2,
     "test_live_tds.py": 6, "test_mates_page.py": 2, "test_news_tab.py": 2,
     "test_preview.py": 3, "test_profile_journeys.py": 1, "test_prop_picks.py": 1,
     "test_range_view.py": 1, "test_render.py": 10,
@@ -125,7 +125,8 @@ FULL_LOADS = {
     "test_startsit_v3.py": 1, "test_style_rules.py": 2,
     "test_teamswitch.py": 6, "test_top_calls.py": 1,
     "test_waiver_owner.py": 5, "test_weather.py": 5, "test_yahoo_lineup.py": 2,
-}   # 138 in all (2026-10-06: test_teams_board.py's 12 moved to `mount` with pages/teams.py, the 150 below);
+}   # 128 in all (2026-10-06: test_live_tabs.py's 10 moved to `mount` with pages/live_tabs.py, the 138 below);
+# 138 before that (2026-10-06: test_teams_board.py's 12 moved to `mount` with pages/teams.py, the 150 below);
 # 150 before that (2026-10-06: test_trade_edit.py (20) and test_trade_offers.py (17) moved to `mount` with the trade finder;
 # 187 before it, after the second wave: clip reel, pack stage, Recap and the Digest's
 # live tests moved to `mount`); 240 earlier that day (profile, Digest, roster cards, Bets, strip and TD clips;

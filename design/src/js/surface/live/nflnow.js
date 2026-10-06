@@ -97,11 +97,11 @@ function gdGamesTabHTML(lg){
     const club = (code, s, o) => {
       const lead = on && s > o, tint = lead ? gdClubTint(code) : null;
       const ball = sit && gdSameClub(code, sit.ball) ? gdBallMark(code) : "";
-      return `<span class="gd-tr${on && s < o ? " behind" : lead ? " lead" : ""}"${tint ? ` style="--tc:${tint}"` : ""}><span>${ball}${esc(code)}</span><b>${on ? s : "—"}</b></span>`;
+      return `<span class="gd-tr${on && s < o ? " behind" : lead ? " lead" : ""}" data-testid="live-tile-club"${tint ? ` style="--tc:${tint}"` : ""}><span>${ball}${esc(code)}</span><b>${on ? s : "—"}</b></span>`;
     };
-    return `<button type="button" class="gd-t ${c.state}${mine ? " mine" : ""}" data-gdnfl="${esc(gdNflKey(g))}" aria-haspopup="dialog">
-      <small class="gd-ts"><span>${esc(c.label)}</span>${mine ? `<em>${t("live.games.yours", {n: mine})}</em>` : ""}</small>
+    return `<button type="button" class="gd-t ${c.state}${mine ? " mine" : ""}" data-testid="live-tile" data-gdnfl="${esc(gdNflKey(g))}" aria-haspopup="dialog">
+      <small class="gd-ts"><span>${esc(c.label)}</span>${mine ? `<em data-testid="live-tile-yours">${t("live.games.yours", {n: mine})}</em>` : ""}</small>
       ${club(g.away, a, h)}${club(g.home, h, a)}${sit ? gdSitHTML(sit) : ""}</button>`;
   }).join("");
-  return `<div class="gd-tiles">${tiles}</div>`;
+  return `<div class="gd-tiles" data-testid="live-tiles">${tiles}</div>`;
 }

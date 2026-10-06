@@ -20,8 +20,8 @@ function gdChipHTML(g, sides, on, mine){
   const word = st.k === "live" ? t("live.chip.live") : st.k === "left" ? t("live.state.left", {n: st.n}) : t("live.state.final");
   const row = (s, o) => `<span class="gd-cr${s.total < o.total ? " behind" : ""}"><span>${esc(gdShortName(s.name))}</span><b>${gdNum(s.total)}</b></span>`;
   const label = t("live.chip.label", {a: esc(a.name), pa: gdNum(a.total), b: esc(b.name), pb: gdNum(b.total)});
-  return `<button type="button" class="gd-chip${picked ? " on" : ""}${a.id === mine ? " mine" : ""}" data-gdgame="${esc(g.join(","))}"
-    aria-pressed="${picked}" aria-label="${label}"><small class="gd-cs ${st.k}">${st.k === "final" ? GD_LOCK : ""}${word}</small>${row(a, b)}${row(b, a)}</button>`;
+  return `<button type="button" class="gd-chip${picked ? " on" : ""}${a.id === mine ? " mine" : ""}" data-testid="live-chip" data-gdgame="${esc(g.join(","))}"
+    aria-pressed="${picked}" aria-label="${label}"><small class="gd-cs ${st.k}" data-testid="live-chip-state">${st.k === "final" ? GD_LOCK : ""}${word}</small>${row(a, b)}${row(b, a)}</button>`;
 }
 
 /* The strip (data/gameday/strip.js gdStripOrder): the reader's game first, then the league's order. A
@@ -31,7 +31,7 @@ function gdStripHTML(lg, sides, on, mine){
   const all = Object.values(sides), started = all.some(s => s.done + s.playing);
   const pts = Object.fromEntries(all.map(s => [s.id, started ? s.total : gdProj(s, projFor)]));
   const chips = gdStripOrder(lg.games, pts, mine).map(g => gdChipHTML(g, sides, on, mine)).join("");
-  return chips ? `<div class="gd-strip" role="group" aria-label="${t("live.games", {week: lg.week})}">${chips}</div>` : "";
+  return chips ? `<div class="gd-strip" data-testid="live-strip" role="group" aria-label="${t("live.games", {week: lg.week})}">${chips}</div>` : "";
 }
 
 /* Every team's total against the week's median, below the lineups. Kept when the tabs merged: the strip
@@ -44,8 +44,8 @@ function gdLadderHTML(lg, sides){
   const row = (r, i) => `<div class="gd-l${mine && r.id === mine ? " mine" : ""}">
       <span>${i + 1}</span><span>${esc(r.name)}</span>
       <small class="${r.total >= median ? "up" : "dn"}">${gdSigned(r.total - median)}</small><b>${gdNum(r.total)}</b></div>`;
-  const line = `<div class="gd-median${lg.median ? "" : " quiet"}"><span>${t("live.median", {n: gdNum(median)})}</span></div>`;
+  const line = `<div class="gd-median${lg.median ? "" : " quiet"}" data-testid="live-ladder-median"><span>${t("live.median", {n: gdNum(median)})}</span></div>`;
   const head = lg.median ? t("live.medianHead") : `${t("live.rankHead")} <em>${t("live.rankNote")}</em>`;
-  return `<section class="gd-ladder gd-card"><h3><span>${head}</span></h3>
+  return `<section class="gd-ladder gd-card" data-testid="live-ladder"><h3><span>${head}</span></h3>
     ${rows.map((r, i) => (i === cut ? line : "") + row(r, i)).join("")}</section>`;
 }

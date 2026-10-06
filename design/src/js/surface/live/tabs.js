@@ -36,7 +36,7 @@ function gdTabsHTML(){
   const on = gdTab(), live = gdLiveCount();
   const btn = k => `<button type="button" data-testid="live-tab" data-gdtab="${k}" aria-pressed="${k === on}">${gdTabName(k)}${k === "games" && live
     ? `<em class="gd-n" aria-label="${gdLiveLabel(live)}">${live}</em>` : ""}</button>`;
-  return `<div class="gd-tabs view-tabs" role="group" aria-label="${t("live.tab.label")}">${GD_TABS.map(btn).join("")}</div>`;
+  return `<div class="gd-tabs view-tabs" data-testid="live-tabbar" role="group" aria-label="${t("live.tab.label")}">${GD_TABS.map(btn).join("")}</div>`;
 }
 /* Every tab button in the board, the bar's and any link to a tab, repaints in place. */
 function wireGdTabs(host){

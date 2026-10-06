@@ -59,10 +59,10 @@ function gdHalfHTML(r, cls, own){
   if (!r) return `<div class="gd-h ${cls} empty"></div>`;
   const line = gdClockLine(r), g = gdGameOf(r.team);
   const clock = line && g
-    ? `<button type="button" class="gd-ck" data-gdnfl="${esc(g.key)}" data-gdfocus="${esc(r.slug)}" aria-haspopup="dialog">${line}</button>`
-    : `<span class="gd-ck">${line}</span>`;
-  return `<div class="gd-h ${cls}${r.state === "in_game" ? " on" : r.state === "pre_game" ? " pre" : ""}">
-    <button type="button" class="gd-nb" data-gdslug="${esc(r.slug)}" data-gdn="${esc(r.n)}" data-gdpos="${esc(r.pos)}" data-gdteam="${esc(r.team)}">
+    ? `<button type="button" class="gd-ck" data-testid="live-clock" data-gdnfl="${esc(g.key)}" data-gdfocus="${esc(r.slug)}" aria-haspopup="dialog">${line}</button>`
+    : `<span class="gd-ck" data-testid="live-clock">${line}</span>`;
+  return `<div class="gd-h ${cls}${r.state === "in_game" ? " on" : r.state === "pre_game" ? " pre" : ""}" data-testid="live-half">
+    <button type="button" class="gd-nb" data-testid="live-name" data-gdslug="${esc(r.slug)}" data-gdn="${esc(r.n)}" data-gdpos="${esc(r.pos)}" data-gdteam="${esc(r.team)}">
       ${gdNameHTML(r, own)}${gdPtsHTML(r)}</button>
     <span class="gd-sub">${clock}${gdProjHTML(r)}</span></div>`;
 }
@@ -84,7 +84,7 @@ function gdPairs(mine, theirs){
 /* `own` is [the left half is the reader's, the right half is]. */
 function gdMirrorRowHTML(l, r, own){
   const slot = (l || r).slot;
-  return `<div class="gd-mr"><span class="gd-sl ${GD_SLOT_POS[slot] || ""}">${esc(slot)}</span>
+  return `<div class="gd-mr" data-testid="live-mirror-row"><span class="gd-sl ${GD_SLOT_POS[slot] || ""}" data-testid="live-slot">${esc(slot)}</span>
     ${gdHalfHTML(l, "l", own[0])}${gdHalfHTML(r, "r", own[1])}</div>`;
 }
 
@@ -96,8 +96,8 @@ const GD_CHEVRON = `<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5 
    the total. Open or closed is remembered in memory only (GD_BENCHES). */
 function gdMirrorHTML(a, b, lg){
   const mine = gdMine(lg), own = [!!mine && a.id === mine, !!mine && b.id === mine];
-  const bench = a.bench.length || b.bench.length ? `<button type="button" class="gd-bt" data-gdbench aria-expanded="${GD_BENCHES}">
+  const bench = a.bench.length || b.bench.length ? `<button type="button" class="gd-bt" data-testid="live-bench-toggle" data-gdbench aria-expanded="${GD_BENCHES}">
       <span>${t("live.bench.toggle")}</span>${GD_CHEVRON}</button>
-    ${GD_BENCHES ? `<section class="gd-mirror bn">${gdMirrorRows(a.bench, b.bench, own)}</section>` : ""}` : "";
-  return `<section class="gd-mirror">${gdMirrorRows(a.rows, b.rows, own)}</section>${bench}`;
+    ${GD_BENCHES ? `<section class="gd-mirror bn" data-testid="live-bench">${gdMirrorRows(a.bench, b.bench, own)}</section>` : ""}` : "";
+  return `<section class="gd-mirror" data-testid="live-mirror">${gdMirrorRows(a.rows, b.rows, own)}</section>${bench}`;
 }

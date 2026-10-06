@@ -38,23 +38,23 @@ const gdCounts = s => [s.playing ? t("live.count.playing", {n: s.playing}) : "",
    each score, where it should finish (gdProj) and who is left. */
 function gdLeadHTML(a, b, mine){
   const gap = a.total - b.total, n = gdNum(Math.abs(gap));
-  if (Math.abs(gap) < 0.05) return `<span class="gd-lead even">${t("live.lead.tied")}</span>`;
-  if (!mine) return `<span class="gd-lead even">${t("live.lead.by", {n})}</span>`;
-  return gap > 0 ? `<span class="gd-lead up">${t("live.lead.up", {n})}</span>` : `<span class="gd-lead dn">${t("live.lead.down", {n})}</span>`;
+  if (Math.abs(gap) < 0.05) return `<span class="gd-lead even" data-testid="live-lead">${t("live.lead.tied")}</span>`;
+  if (!mine) return `<span class="gd-lead even" data-testid="live-lead">${t("live.lead.by", {n})}</span>`;
+  return gap > 0 ? `<span class="gd-lead up" data-testid="live-lead">${t("live.lead.up", {n})}</span>` : `<span class="gd-lead dn" data-testid="live-lead">${t("live.lead.down", {n})}</span>`;
 }
 
 /* The reader's own name on the score head is the team switch (2026-10-05): a tap opens it, a pick
    there changes the league and keeps the reader on Live. Anyone else's name is just a name. A phone's
    header bar already holds the switch, so there the head shows the plain name (`.gd-me`, live.css). */
-const gdNameOn = (s, mine) => s.id === mine ? `<span class="gd-me">${esc(s.name)}</span>${teamSwitchHTML(esc(s.name), "gd-sw")}`
+const gdNameOn = (s, mine) => s.id === mine ? `<span class="gd-me" data-testid="live-me">${esc(s.name)}</span>${teamSwitchHTML(esc(s.name), "gd-sw")}`
   : `<span>${esc(s.name)}</span>`;
 
 function gdHeadHTML(a, b, lg){
   const lead = a.total > b.total ? a : b.total > a.total ? b : null, mine = gdMine(lg);
-  const side = (s, cls) => `<div class="gd-side ${cls}${mine && s.id === mine ? " mine" : ""}${s === lead ? " lead" : ""}">
+  const side = (s, cls) => `<div class="gd-side ${cls}${mine && s.id === mine ? " mine" : ""}${s === lead ? " lead" : ""}" data-testid="live-side">
       ${gdNameOn(s, mine)}<b>${gdNum(s.total)}</b>
       <small>${t("live.projFinish", {n: gdNum(gdProj(s, projFor))})} · ${gdCounts(s)}</small></div>`;
-  return `<div class="gd-head">${side(a, "a")}${gdLeadHTML(a, b, !!mine && a.id === mine)}${side(b, "b")}</div>`;
+  return `<div class="gd-head" data-testid="live-head">${side(a, "a")}${gdLeadHTML(a, b, !!mine && a.id === mine)}${side(b, "b")}</div>`;
 }
 
 /* Where the reader stands against the league's median, under the score: "League median 101.7 · you
@@ -64,12 +64,12 @@ function gdMedianHTML(lg, sides){
   if (!lg.median) return "";
   const {median} = gdLadder(Object.values(sides)), mine = gdMine(lg), me = mine ? sides[mine] : null;
   const you = me ? ` · ${t("live.med.you", {d: gdSigned(me.total - median)})}` : "";
-  return `<p class="gd-medline${me ? (me.total < median ? " dn" : " up") : ""}">${t("live.med.line", {n: gdNum(median)})}${you}</p>`;
+  return `<p class="gd-medline${me ? (me.total < median ? " dn" : " up") : ""}" data-testid="live-medline">${t("live.med.line", {n: gdNum(median)})}${you}</p>`;
 }
 
 /* The score head when the reader's team has no game this week (a bye, out of the fantasy playoffs,
    week 18): their name, still the team switch, and that one fact, never an empty matchup. */
-const gdByeHTML = s => `<div class="gd-head bye"><div class="gd-side a mine">${gdNameOn(s, s.id)}<small>${t("live.bye")}</small></div></div>`;
+const gdByeHTML = s => `<div class="gd-head bye" data-testid="live-head"><div class="gd-side a mine" data-testid="live-side">${gdNameOn(s, s.id)}<small>${t("live.bye")}</small></div></div>`;
 
 function gdStampHTML(){
   const now = Date.now();
@@ -95,7 +95,7 @@ function gdMyLeagueHTML(lg, sides){
   if (b && b.id === mine) [a, b] = [b, a];
   const match = a && b ? gdHeadHTML(a, b, lg) + gdMedianHTML(lg, sides) + gdMirrorHTML(a, b, lg)
     : gdByeHTML(sides[mine]) + gdMedianHTML(lg, sides);
-  return `<div class="gd-match">${gdStripHTML(lg, sides, game, mine)}${match}</div>${gdLadderHTML(lg, sides)}`;
+  return `<div class="gd-match" data-testid="live-match">${gdStripHTML(lg, sides, game, mine)}${match}</div>${gdLadderHTML(lg, sides)}`;
 }
 
 /* The TDs tab is another file's (surface/live/tds.js); this one only hosts it. */

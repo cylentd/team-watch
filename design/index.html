@@ -28832,7 +28832,7 @@ function gdTabsHTML(){
   const on = gdTab(), live = gdLiveCount();
   const btn = k => `<button type="button" data-testid="live-tab" data-gdtab="${k}" aria-pressed="${k === on}">${gdTabName(k)}${k === "games" && live
     ? `<em class="gd-n" aria-label="${gdLiveLabel(live)}">${live}</em>` : ""}</button>`;
-  return `<div class="gd-tabs view-tabs" role="group" aria-label="${t("live.tab.label")}">${GD_TABS.map(btn).join("")}</div>`;
+  return `<div class="gd-tabs view-tabs" data-testid="live-tabbar" role="group" aria-label="${t("live.tab.label")}">${GD_TABS.map(btn).join("")}</div>`;
 }
 /* Every tab button in the board, the bar's and any link to a tab, repaints in place. */
 function wireGdTabs(host){
@@ -28882,23 +28882,23 @@ const gdCounts = s => [s.playing ? t("live.count.playing", {n: s.playing}) : "",
    each score, where it should finish (gdProj) and who is left. */
 function gdLeadHTML(a, b, mine){
   const gap = a.total - b.total, n = gdNum(Math.abs(gap));
-  if (Math.abs(gap) < 0.05) return `<span class="gd-lead even">${t("live.lead.tied")}</span>`;
-  if (!mine) return `<span class="gd-lead even">${t("live.lead.by", {n})}</span>`;
-  return gap > 0 ? `<span class="gd-lead up">${t("live.lead.up", {n})}</span>` : `<span class="gd-lead dn">${t("live.lead.down", {n})}</span>`;
+  if (Math.abs(gap) < 0.05) return `<span class="gd-lead even" data-testid="live-lead">${t("live.lead.tied")}</span>`;
+  if (!mine) return `<span class="gd-lead even" data-testid="live-lead">${t("live.lead.by", {n})}</span>`;
+  return gap > 0 ? `<span class="gd-lead up" data-testid="live-lead">${t("live.lead.up", {n})}</span>` : `<span class="gd-lead dn" data-testid="live-lead">${t("live.lead.down", {n})}</span>`;
 }
 
 /* The reader's own name on the score head is the team switch (2026-10-05): a tap opens it, a pick
    there changes the league and keeps the reader on Live. Anyone else's name is just a name. A phone's
    header bar already holds the switch, so there the head shows the plain name (`.gd-me`, live.css). */
-const gdNameOn = (s, mine) => s.id === mine ? `<span class="gd-me">${esc(s.name)}</span>${teamSwitchHTML(esc(s.name), "gd-sw")}`
+const gdNameOn = (s, mine) => s.id === mine ? `<span class="gd-me" data-testid="live-me">${esc(s.name)}</span>${teamSwitchHTML(esc(s.name), "gd-sw")}`
   : `<span>${esc(s.name)}</span>`;
 
 function gdHeadHTML(a, b, lg){
   const lead = a.total > b.total ? a : b.total > a.total ? b : null, mine = gdMine(lg);
-  const side = (s, cls) => `<div class="gd-side ${cls}${mine && s.id === mine ? " mine" : ""}${s === lead ? " lead" : ""}">
+  const side = (s, cls) => `<div class="gd-side ${cls}${mine && s.id === mine ? " mine" : ""}${s === lead ? " lead" : ""}" data-testid="live-side">
       ${gdNameOn(s, mine)}<b>${gdNum(s.total)}</b>
       <small>${t("live.projFinish", {n: gdNum(gdProj(s, projFor))})} · ${gdCounts(s)}</small></div>`;
-  return `<div class="gd-head">${side(a, "a")}${gdLeadHTML(a, b, !!mine && a.id === mine)}${side(b, "b")}</div>`;
+  return `<div class="gd-head" data-testid="live-head">${side(a, "a")}${gdLeadHTML(a, b, !!mine && a.id === mine)}${side(b, "b")}</div>`;
 }
 
 /* Where the reader stands against the league's median, under the score: "League median 101.7 · you
@@ -28908,12 +28908,12 @@ function gdMedianHTML(lg, sides){
   if (!lg.median) return "";
   const {median} = gdLadder(Object.values(sides)), mine = gdMine(lg), me = mine ? sides[mine] : null;
   const you = me ? ` · ${t("live.med.you", {d: gdSigned(me.total - median)})}` : "";
-  return `<p class="gd-medline${me ? (me.total < median ? " dn" : " up") : ""}">${t("live.med.line", {n: gdNum(median)})}${you}</p>`;
+  return `<p class="gd-medline${me ? (me.total < median ? " dn" : " up") : ""}" data-testid="live-medline">${t("live.med.line", {n: gdNum(median)})}${you}</p>`;
 }
 
 /* The score head when the reader's team has no game this week (a bye, out of the fantasy playoffs,
    week 18): their name, still the team switch, and that one fact, never an empty matchup. */
-const gdByeHTML = s => `<div class="gd-head bye"><div class="gd-side a mine">${gdNameOn(s, s.id)}<small>${t("live.bye")}</small></div></div>`;
+const gdByeHTML = s => `<div class="gd-head bye" data-testid="live-head"><div class="gd-side a mine" data-testid="live-side">${gdNameOn(s, s.id)}<small>${t("live.bye")}</small></div></div>`;
 
 function gdStampHTML(){
   const now = Date.now();
@@ -28939,7 +28939,7 @@ function gdMyLeagueHTML(lg, sides){
   if (b && b.id === mine) [a, b] = [b, a];
   const match = a && b ? gdHeadHTML(a, b, lg) + gdMedianHTML(lg, sides) + gdMirrorHTML(a, b, lg)
     : gdByeHTML(sides[mine]) + gdMedianHTML(lg, sides);
-  return `<div class="gd-match">${gdStripHTML(lg, sides, game, mine)}${match}</div>${gdLadderHTML(lg, sides)}`;
+  return `<div class="gd-match" data-testid="live-match">${gdStripHTML(lg, sides, game, mine)}${match}</div>${gdLadderHTML(lg, sides)}`;
 }
 
 /* The TDs tab is another file's (surface/live/tds.js); this one only hosts it. */
@@ -29017,10 +29017,10 @@ function gdHalfHTML(r, cls, own){
   if (!r) return `<div class="gd-h ${cls} empty"></div>`;
   const line = gdClockLine(r), g = gdGameOf(r.team);
   const clock = line && g
-    ? `<button type="button" class="gd-ck" data-gdnfl="${esc(g.key)}" data-gdfocus="${esc(r.slug)}" aria-haspopup="dialog">${line}</button>`
-    : `<span class="gd-ck">${line}</span>`;
-  return `<div class="gd-h ${cls}${r.state === "in_game" ? " on" : r.state === "pre_game" ? " pre" : ""}">
-    <button type="button" class="gd-nb" data-gdslug="${esc(r.slug)}" data-gdn="${esc(r.n)}" data-gdpos="${esc(r.pos)}" data-gdteam="${esc(r.team)}">
+    ? `<button type="button" class="gd-ck" data-testid="live-clock" data-gdnfl="${esc(g.key)}" data-gdfocus="${esc(r.slug)}" aria-haspopup="dialog">${line}</button>`
+    : `<span class="gd-ck" data-testid="live-clock">${line}</span>`;
+  return `<div class="gd-h ${cls}${r.state === "in_game" ? " on" : r.state === "pre_game" ? " pre" : ""}" data-testid="live-half">
+    <button type="button" class="gd-nb" data-testid="live-name" data-gdslug="${esc(r.slug)}" data-gdn="${esc(r.n)}" data-gdpos="${esc(r.pos)}" data-gdteam="${esc(r.team)}">
       ${gdNameHTML(r, own)}${gdPtsHTML(r)}</button>
     <span class="gd-sub">${clock}${gdProjHTML(r)}</span></div>`;
 }
@@ -29042,7 +29042,7 @@ function gdPairs(mine, theirs){
 /* `own` is [the left half is the reader's, the right half is]. */
 function gdMirrorRowHTML(l, r, own){
   const slot = (l || r).slot;
-  return `<div class="gd-mr"><span class="gd-sl ${GD_SLOT_POS[slot] || ""}">${esc(slot)}</span>
+  return `<div class="gd-mr" data-testid="live-mirror-row"><span class="gd-sl ${GD_SLOT_POS[slot] || ""}" data-testid="live-slot">${esc(slot)}</span>
     ${gdHalfHTML(l, "l", own[0])}${gdHalfHTML(r, "r", own[1])}</div>`;
 }
 
@@ -29054,10 +29054,10 @@ const GD_CHEVRON = `<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5 
    the total. Open or closed is remembered in memory only (GD_BENCHES). */
 function gdMirrorHTML(a, b, lg){
   const mine = gdMine(lg), own = [!!mine && a.id === mine, !!mine && b.id === mine];
-  const bench = a.bench.length || b.bench.length ? `<button type="button" class="gd-bt" data-gdbench aria-expanded="${GD_BENCHES}">
+  const bench = a.bench.length || b.bench.length ? `<button type="button" class="gd-bt" data-testid="live-bench-toggle" data-gdbench aria-expanded="${GD_BENCHES}">
       <span>${t("live.bench.toggle")}</span>${GD_CHEVRON}</button>
-    ${GD_BENCHES ? `<section class="gd-mirror bn">${gdMirrorRows(a.bench, b.bench, own)}</section>` : ""}` : "";
-  return `<section class="gd-mirror">${gdMirrorRows(a.rows, b.rows, own)}</section>${bench}`;
+    ${GD_BENCHES ? `<section class="gd-mirror bn" data-testid="live-bench">${gdMirrorRows(a.bench, b.bench, own)}</section>` : ""}` : "";
+  return `<section class="gd-mirror" data-testid="live-mirror">${gdMirrorRows(a.rows, b.rows, own)}</section>${bench}`;
 }
 /* ── js/surface/live/league.js ── */
 /* ============================== LIVE: THE LEAGUE ==============================
@@ -29082,8 +29082,8 @@ function gdChipHTML(g, sides, on, mine){
   const word = st.k === "live" ? t("live.chip.live") : st.k === "left" ? t("live.state.left", {n: st.n}) : t("live.state.final");
   const row = (s, o) => `<span class="gd-cr${s.total < o.total ? " behind" : ""}"><span>${esc(gdShortName(s.name))}</span><b>${gdNum(s.total)}</b></span>`;
   const label = t("live.chip.label", {a: esc(a.name), pa: gdNum(a.total), b: esc(b.name), pb: gdNum(b.total)});
-  return `<button type="button" class="gd-chip${picked ? " on" : ""}${a.id === mine ? " mine" : ""}" data-gdgame="${esc(g.join(","))}"
-    aria-pressed="${picked}" aria-label="${label}"><small class="gd-cs ${st.k}">${st.k === "final" ? GD_LOCK : ""}${word}</small>${row(a, b)}${row(b, a)}</button>`;
+  return `<button type="button" class="gd-chip${picked ? " on" : ""}${a.id === mine ? " mine" : ""}" data-testid="live-chip" data-gdgame="${esc(g.join(","))}"
+    aria-pressed="${picked}" aria-label="${label}"><small class="gd-cs ${st.k}" data-testid="live-chip-state">${st.k === "final" ? GD_LOCK : ""}${word}</small>${row(a, b)}${row(b, a)}</button>`;
 }
 
 /* The strip (data/gameday/strip.js gdStripOrder): the reader's game first, then the league's order. A
@@ -29093,7 +29093,7 @@ function gdStripHTML(lg, sides, on, mine){
   const all = Object.values(sides), started = all.some(s => s.done + s.playing);
   const pts = Object.fromEntries(all.map(s => [s.id, started ? s.total : gdProj(s, projFor)]));
   const chips = gdStripOrder(lg.games, pts, mine).map(g => gdChipHTML(g, sides, on, mine)).join("");
-  return chips ? `<div class="gd-strip" role="group" aria-label="${t("live.games", {week: lg.week})}">${chips}</div>` : "";
+  return chips ? `<div class="gd-strip" data-testid="live-strip" role="group" aria-label="${t("live.games", {week: lg.week})}">${chips}</div>` : "";
 }
 
 /* Every team's total against the week's median, below the lineups. Kept when the tabs merged: the strip
@@ -29106,9 +29106,9 @@ function gdLadderHTML(lg, sides){
   const row = (r, i) => `<div class="gd-l${mine && r.id === mine ? " mine" : ""}">
       <span>${i + 1}</span><span>${esc(r.name)}</span>
       <small class="${r.total >= median ? "up" : "dn"}">${gdSigned(r.total - median)}</small><b>${gdNum(r.total)}</b></div>`;
-  const line = `<div class="gd-median${lg.median ? "" : " quiet"}"><span>${t("live.median", {n: gdNum(median)})}</span></div>`;
+  const line = `<div class="gd-median${lg.median ? "" : " quiet"}" data-testid="live-ladder-median"><span>${t("live.median", {n: gdNum(median)})}</span></div>`;
   const head = lg.median ? t("live.medianHead") : `${t("live.rankHead")} <em>${t("live.rankNote")}</em>`;
-  return `<section class="gd-ladder gd-card"><h3><span>${head}</span></h3>
+  return `<section class="gd-ladder gd-card" data-testid="live-ladder"><h3><span>${head}</span></h3>
     ${rows.map((r, i) => (i === cut ? line : "") + row(r, i)).join("")}</section>`;
 }
 /* ── js/surface/live/nflnow.js ── */
@@ -29211,13 +29211,13 @@ function gdGamesTabHTML(lg){
     const club = (code, s, o) => {
       const lead = on && s > o, tint = lead ? gdClubTint(code) : null;
       const ball = sit && gdSameClub(code, sit.ball) ? gdBallMark(code) : "";
-      return `<span class="gd-tr${on && s < o ? " behind" : lead ? " lead" : ""}"${tint ? ` style="--tc:${tint}"` : ""}><span>${ball}${esc(code)}</span><b>${on ? s : "—"}</b></span>`;
+      return `<span class="gd-tr${on && s < o ? " behind" : lead ? " lead" : ""}" data-testid="live-tile-club"${tint ? ` style="--tc:${tint}"` : ""}><span>${ball}${esc(code)}</span><b>${on ? s : "—"}</b></span>`;
     };
-    return `<button type="button" class="gd-t ${c.state}${mine ? " mine" : ""}" data-gdnfl="${esc(gdNflKey(g))}" aria-haspopup="dialog">
-      <small class="gd-ts"><span>${esc(c.label)}</span>${mine ? `<em>${t("live.games.yours", {n: mine})}</em>` : ""}</small>
+    return `<button type="button" class="gd-t ${c.state}${mine ? " mine" : ""}" data-testid="live-tile" data-gdnfl="${esc(gdNflKey(g))}" aria-haspopup="dialog">
+      <small class="gd-ts"><span>${esc(c.label)}</span>${mine ? `<em data-testid="live-tile-yours">${t("live.games.yours", {n: mine})}</em>` : ""}</small>
       ${club(g.away, a, h)}${club(g.home, h, a)}${sit ? gdSitHTML(sit) : ""}</button>`;
   }).join("");
-  return `<div class="gd-tiles">${tiles}</div>`;
+  return `<div class="gd-tiles" data-testid="live-tiles">${tiles}</div>`;
 }
 /* ── js/surface/live/tds.js ── */
 /* ============================== LIVE: THE TDS TAB ==============================
