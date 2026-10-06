@@ -47,6 +47,7 @@ PICKED = ('try { if (!localStorage.getItem("tw-team")) localStorage.setItem("tw-
           + CHOSE_SHEET + FOLLOWING +
           f' if (localStorage.getItem("tw-owner") === null) localStorage.setItem("tw-owner", "{OWNER_HASH}"); }} catch (e) {{}}\n')
 VIEWPORTS = {"desk": (1400, 900), "phone": (390, 844)}
+LOAD_MS = 30000     # the page load only; every other wait keeps open_at's 5 s (see there)
 PROPS = ["color", "background-color", "border-top-color", "border-top-style", "border-top-width",
          "padding-top", "padding-left", "margin-top", "gap", "font-family", "font-size",
          "font-weight", "letter-spacing", "line-height", "opacity", "display", "grid-template-columns",
@@ -601,8 +602,10 @@ def open_at(browser, page_file, size, hash_="", init=()):
         page.add_init_script(SEED)
         for script in init:
             page.add_init_script(script)
-        page.goto(page_file.as_uri() + hash_)
-        page.wait_for_function("document.getElementById('view').children.length > 0")
+        # Loading is not a missing control: the ~6 MB page parses in about 1 s alone, but over 5 s
+        # with every worker's Chromium starting at once (two scheduled runs lost 32 tests, 2026-10-05).
+        page.goto(page_file.as_uri() + hash_, timeout=LOAD_MS)
+        page.wait_for_function("document.getElementById('view').children.length > 0", timeout=LOAD_MS)
     except BaseException:
         ctx.close()      # a page that never drew is the caller's to close, but the caller never got it
         raise
