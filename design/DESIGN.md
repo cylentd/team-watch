@@ -403,7 +403,15 @@ chips and the bottom `bp2-you` block (`back.js`, `lead.js`, `myrecap.js`; ESPN k
   bottom row is the standings at their own width, Luck so far, and the biggest grudge.
 - **Blip on every lead** (2026-10-06): the player headshot that replaced Blip when the line named a player is gone,
   data and all, because the recap is the whole league's board, not one roster's.
-- **Luck so far** (`lgLuckHTML`): a ladder of all 12, luckiest first, by luck in wins (`league_back.add_standings`:
+- **One headline** (2026-10-06, "it looks like two headlines"): Claude's headline is the lead card's title; the
+  game's line runs under the score as text, and the dek opens the other five games under the card.
+- **Luck so far is a chart** (2026-10-06, the ladder "looks the same" as the standings): a bar per team from a zero
+  line, right and green lucky, left and red not, its length against the week's biggest luck, the signed number in
+  ink, no record column. Tags go to the two luckiest and two unluckiest each week at half a win or more
+  (`league_back.luck_tags`), so most weeks show both sides.
+- **The shared image carries Blip** (2026-10-06, "it would add character"): the lead's reacting Blip beside the
+  headline, cloned from the page with its computed paint, so the image and the card never disagree.
+- **Luck so far** (`lgLuckHTML`, first cut, superseded by the chart above): a ladder of all 12, luckiest first, by luck in wins (`league_back.add_standings`:
   real wins minus the wins the team's points earned, each week's score earning the share of the other teams it
   outscored). Record, the signed number, a tag at a whole win either way (Lucky green, Snakebit red, never
   "Robbed", the week's award), one caption, "vs. what their points earned". No jargon on the page (David asked

@@ -942,7 +942,12 @@ def test_recap_puts_your_game_first_then_league_and_nothing_overlaps_a_header(br
         lead, games, first_row = (page.evaluate(box, q) for q in (".bp2-lead", ".lg-games", ".lg-row"))
         assert lead[1] - lead[0] >= 0.98 * (games[1] - games[0]), "the lead spans the games' full width"
         assert first_row[2] > lead[2], "the other games sit under the lead"
-        assert page.evaluate("parseFloat(getComputedStyle(document.querySelector('.bp2-punch')).fontSize)") >= 40
+        # One headline (2026-10-06, "it looks like two headlines"): the only big tabloid line in League is the
+        # lead's title, 40px; the game's line under it is text.
+        big = """() => [...document.querySelectorAll('.lg-league *')].filter(e => e.childElementCount === 0 && e.checkVisibility()
+                   && getComputedStyle(e).fontFamily.includes('Big Shoulders') && parseFloat(getComputedStyle(e).fontSize) >= 30).length"""
+        assert page.evaluate(big) == 1
+        assert page.evaluate("parseFloat(getComputedStyle(document.querySelector('.bp2-lead .lg-hl')).fontSize)") >= 40
         assert page.locator(".bp2-lead .bp2-blip").count() == 1
         # The bottom row has no hole beside the standings (David, 2026-10-06, "a weird gap"): the standings'
         # block is as wide as its table, where the old 1.3fr column ran ~235px past it.

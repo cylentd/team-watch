@@ -84,15 +84,24 @@ def test_book_splits_fame_and_shame(back):
 
 def test_luck_is_wins_minus_the_wins_a_teams_points_earned_against_everyone():
     # David, 2026-10-06: Luck so far. Each week a score "earns" the share of the other teams it beat; luck is
-    # real wins minus those earned wins, in wins, one decimal; a whole win or more either way is tagged.
+    # real wins minus those earned wins, in wins, one decimal. Tags by luck_tags (the test below).
     from league_back import add_standings
     g = lambda a, b, ap, bp: {"a": a, "b": b, "ap": ap, "bp": bp, "win": "home" if ap > bp else "away"}
     weeks = [{"games": [g(1, 2, 100, 90), g(3, 4, 80, 70)]},      # earned 1, 2/3, 1/3, 0
              {"games": [g(1, 3, 60, 110), g(2, 4, 120, 50)]}]     # earned 1/3, 1, 2/3, 0
     add_standings(weeks, [1, 2, 3, 4])
     luck = {r["id"]: (r["luck"], r["tag"]) for r in weeks[1]["table"]}
-    assert luck == {1: (-0.3, None), 2: (-0.7, None), 3: (1.0, "lucky"), 4: (0.0, None)}
+    assert luck == {1: (-0.3, None), 2: (-0.7, "robbed"), 3: (1.0, "lucky"), 4: (0.0, None)}
     assert {r["id"]: r["luck"] for r in weeks[0]["table"]} == {1: 0.0, 2: -0.7, 3: 0.7, 4: 0.0}
+
+
+def test_luck_tags_the_two_luckiest_and_the_two_unluckiest_half_a_win_or_more_off():
+    # David, 2026-10-06, "we should have unlucky as well?": a week tagged only at a whole win showed Lucky and no
+    # Snakebit (the worst were -0.9). So each side tags its two most extreme teams, if half a win or more off.
+    from league_back import luck_tags
+    lucks = {1: 1.1, 2: 1.1, 3: 0.8, 4: 0.2, 5: -0.4, 6: -0.9, 7: -0.9, 8: -1.3}
+    assert luck_tags(lucks) == {1: "lucky", 2: "lucky", 8: "robbed", 6: "robbed"}, "two a side, ties by id"
+    assert luck_tags({1: 0.4, 2: -0.4, 3: 0.0}) == {}, "nobody half a win off, nobody tagged"
 
 
 def test_standings_after_each_week(back):
@@ -316,6 +325,21 @@ def test_the_luck_ladder_ranks_every_team_luckiest_first_and_never_says_robbed(r
     assert html.count("Lucky") == 1 and html.count("Snakebit") == 1 and "Robbed" not in html
     assert "+1.2" in html and "−1.1" in html and ">0.0<" in html, "the luck as a signed number, one decimal"
     assert "vs. what their points earned" in html and "all-play" not in html.lower()
+    # A chart, not a second table (David, 2026-10-06, "looks the same" as the standings): a bar per team from
+    # a zero line, its length against the week's biggest luck, its side by sign; no record column.
+    bars = recap_js("(table) => [...lgLuckHTML({table}).matchAll(/lg-luckbar (up|dn|zero)\" style=\"--w:([\\d.]+)%/g)].map(m => [m[1], +m[2]])", table)
+    assert bars == [["up", 100], ["up", 33.3], ["zero", 0], ["dn", 25], ["dn", 91.7]]
+    assert "2–2" not in html, "the standings carry the records"
+
+
+def test_the_league_section_has_one_headline_and_it_tops_the_lead(recap_js):
+    # David, 2026-10-06, "it looks like two headlines": Claude's headline is the lead card's title; the game's
+    # line runs under the score as text; the dek opens the other games.
+    html = recap_js("() => { LG_WEEK = null; const w = lgWeek(); w.head = 'Chanel hangs 146.98 on Crystal W.'; w.dek = 'And the rest.';"
+                    " return lgLeagueHTML(w); }")
+    lead = html[html.index('<article class="bp2-lead'):html.index("</article>")]
+    assert html.count('class="lg-hl') == 1 and 'class="lg-hl' in lead, "one headline, inside the lead card"
+    assert html.index("lg-dek") > html.index("</article>"), "the dek follows the lead, opening the other games"
     assert recap_js("(table) => lgLuckHTML({table})", []) == "", "no table, no section"
 
 

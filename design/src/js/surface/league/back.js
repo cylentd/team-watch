@@ -87,10 +87,9 @@ function lgLeagueHTML(w){
       <p class="lg-kick">${t("league.lg.kick")}<b>${esc(LG.league)}</b></p>
       <button type="button" class="lg-share" data-lgshare>${LG_SHARE_ICON}<span class="lg-share-t">${t("league.share.btn")}</span></button>
     </header>
-    ${w.head ? `<h2 class="lg-hl">${esc(w.head)}</h2>` : ""}
-    ${w.head && w.dek ? `<p class="lg-dek">${esc(w.dek)}</p>` : ""}
     <div class="lg-games">
       ${lgLeadHTML(w, lead)}
+      ${w.head && w.dek ? `<p class="lg-dek">${esc(w.dek)}</p>` : ""}
       <div class="lg-gr">${rest.map(row).join("")}</div>
     </div>
     <div class="lg-after">

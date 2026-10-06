@@ -26,6 +26,28 @@ async function lgShareMark(th){
   return img;
 }
 
+/* The lead's Blip, reacting, as an image (David, 2026-10-06: "it would add character"): the one on the page,
+   cloned with each part's computed paint written in as attributes, since an image sees no CSS. The resting
+   face (.br-f0) goes, so a clone taken mid-animation still shows the reaction. Null when the page has none. */
+const LG_SHARE_PAINT = ["fill", "stroke", "stroke-width", "stroke-linecap", "stroke-linejoin", "opacity", "font-family", "font-size", "font-weight"];
+async function lgShareBlip(){
+  const src = document.querySelector(".bp2-lead .bp2-blip svg");
+  if (!src) return null;
+  const copy = src.cloneNode(true), from = [src, ...src.querySelectorAll("*")], to = [copy, ...copy.querySelectorAll("*")];
+  from.forEach((el, i) => {
+    const cs = getComputedStyle(el);
+    LG_SHARE_PAINT.forEach(k => to[i].setAttribute(k, cs.getPropertyValue(k)));
+    to[i].removeAttribute("class");
+  });
+  copy.querySelectorAll("[opacity]").forEach(el => el.setAttribute("opacity", "1"));
+  to.forEach((el, i) => { if (from[i].classList.contains("br-f0")) el.remove(); });
+  copy.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  copy.setAttribute("width", "120"); copy.setAttribute("height", "120");
+  const img = new Image();
+  img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(new XMLSerializer().serializeToString(copy))}`;
+  try { await img.decode(); return img; } catch (e) { return null; }
+}
+
 function lgShareWrap(ctx, text, maxW){
   const lines = [];
   let cur = "";
@@ -36,16 +58,22 @@ function lgShareWrap(ctx, text, maxW){
   return cur ? [...lines, cur] : lines;
 }
 
-/* Kicker and headline; returns the next y. */
-function lgShareHead(ctx, d, th, y){
-  const inner = LG_SHARE_W - 2 * LG_SHARE_PAD;
+/* Kicker and headline, Blip reacting at the right when there is one; returns the next y. */
+const LG_SHARE_BLIP = 180;
+function lgShareHead(ctx, d, th, y, blip){
+  const inner = LG_SHARE_W - 2 * LG_SHARE_PAD, top = y;
   ctx.fillStyle = th.league; ctx.fillRect(0, 0, LG_SHARE_W, 10);
   ctx.font = `700 26px ${th.mono}`; ctx.letterSpacing = "3.6px"; ctx.fillStyle = th.kick;
   ctx.fillText(d.kicker.toUpperCase(), LG_SHARE_PAD, y + 26);
   ctx.letterSpacing = "0px";
   y += 26 + 16;
   ctx.font = `900 80px ${th.tab}`; ctx.fillStyle = th.ink;
-  lgShareWrap(ctx, d.headline.toUpperCase(), inner).forEach(l => { ctx.fillText(l, LG_SHARE_PAD, y + 66); y += 74; });
+  const wide = blip ? inner - LG_SHARE_BLIP - 24 : inner;
+  lgShareWrap(ctx, d.headline.toUpperCase(), wide).forEach(l => { ctx.fillText(l, LG_SHARE_PAD, y + 66); y += 74; });
+  if (blip){
+    ctx.drawImage(blip, LG_SHARE_W - LG_SHARE_PAD - LG_SHARE_BLIP, top, LG_SHARE_BLIP, LG_SHARE_BLIP);
+    y = Math.max(y, top + LG_SHARE_BLIP);
+  }
   return y + 22;
 }
 
@@ -113,11 +141,11 @@ function lgShareFoot(ctx, d, th, y, mark){
 async function lgSharePNG(d){
   const th = lgShareTheme();
   await Promise.all([`900 80px ${th.tab}`, `800 34px ${th.ui}`, `700 26px ${th.mono}`, `800 34px ${th.disp}`].map(f => document.fonts.load(f)));
-  const mark = await lgShareMark(th), scratch = document.createElement("canvas");
+  const [mark, blip] = await Promise.all([lgShareMark(th), lgShareBlip()]), scratch = document.createElement("canvas");
   scratch.width = LG_SHARE_W; scratch.height = 700 + d.rows.length * 420;
   const sc = scratch.getContext("2d");
   sc.fillStyle = th.void; sc.fillRect(0, 0, scratch.width, scratch.height);
-  let y = lgShareHead(sc, d, th, 50);
+  let y = lgShareHead(sc, d, th, 50, blip);
   d.rows.forEach(r => { y = lgShareGame(sc, r, th, y); });
   const h = lgShareFoot(sc, d, th, y, mark), out = document.createElement("canvas");
   out.width = LG_SHARE_W; out.height = h;

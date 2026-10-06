@@ -26,18 +26,22 @@ function lgBlipHTML(pose, stamped){
   return `<figure class="bp2-photo bp2-blip${stamped ? " late" : ""}">${blipReactSVG(LG_BLIP_LABEL[pose](), pose)}</figure>`;
 }
 
-/* The lead: the week's biggest game (w.lead), drawn big, the full width above the other games: Blip with the
-   page's one stamp under it, the score, the award tags, the game's line, its facts and its box score. */
+/* The lead: the week's biggest game (w.lead), the full width above the other games, and the page's one
+   headline (2026-10-06, "it looks like two headlines": Claude's headline sat above the card and the game's
+   line inside it in the same face). Blip with the page's one stamp under it; the headline, else the game's
+   line in its place; the score, the award tags, the game's line as text, its facts and its box score. */
 function lgLeadHTML(w, g){
   const fig = lgBlipHTML(w.blip, !!g.stamp);
   const stamp = g.stamp ? `<span class="bp-stamp bp2-stamp">${esc(g.stamp)}</span>` : "";
+  const title = w.head || g.punch, line = g.punch && g.punch !== title ? g.punch : "";
   return `<article class="bp2-lead${fig ? " has-fig" : ""}">
     ${fig ? `<div class="bp2-fig">${fig}${stamp}</div>` : ""}
     <div class="bp2-lbody">
+      ${title ? `<h2 class="lg-hl">${esc(title)}</h2>` : ""}
       <div class="bp2-score">${lgScoreLineHTML(g)}</div>
       ${fig ? "" : stamp}
       ${lgTagsHTML(w, g)}
-      ${g.punch ? `<p class="bp2-punch">${esc(g.punch)}</p>` : ""}
+      ${line ? `<p class="bp2-punch">${esc(line)}</p>` : ""}
       ${lgBeatsHTML(g)}
       ${g.box ? `<button class="bp2-more" data-lgsheet="${lgKey(g)}">${t("league.box.show")}</button>` : ""}
     </div>
@@ -78,21 +82,24 @@ function lgAgateHTML(w){
   </section>`;
 }
 
-/* Luck so far (David, 2026-10-06, the bottom row's gap): a ladder of every team, luckiest first, by its luck
-   in wins (league_back.add_standings: real wins minus the wins its points earned against everyone); the
-   table's own tag names a whole win either way. "Robbed" is the week's award, so the unlucky side is Snakebit.
-   Kept simple: record, the signed number, the tag, one caption; the method stays in the code. */
+/* Luck so far (David, 2026-10-06, the bottom row's gap): every team, luckiest first, by its luck in wins
+   (league_back.add_standings: real wins minus the wins its points earned against everyone), drawn as a bar
+   from a zero line, so it reads as a chart beside the standings' table ("looks the same", 2026-10-06): its
+   length against the week's biggest luck, right and green when lucky, left and red when not. The table's tags
+   name the two most extreme each side; "Robbed" is the week's award, so the unlucky side is Snakebit. */
 const lgLuckRows = w => [...w.table].sort((a, b) => b.luck - a.luck);
 const lgSignedLuck = n => n > 0 ? `+${n.toFixed(1)}` : n < 0 ? `−${(-n).toFixed(1)}` : "0.0";
 function lgLuckHTML(w){
   const rows = lgLuckRows(w);
   if (!rows.length) return "";
+  const most = Math.max(...rows.map(r => Math.abs(r.luck))) || 1;
   const tag = r => r.tag === "lucky" ? `<span class="lg-tag g">${t("league.luck.lucky")}</span>`
     : r.tag === "robbed" ? `<span class="lg-tag r">${t("league.luck.snakebit")}</span>` : "";
+  const bar = r => `<span class="lg-lucktrack"><span class="lg-luckbar ${r.luck > 0 ? "up" : r.luck < 0 ? "dn" : "zero"}" style="--w:${
+    +(Math.abs(r.luck) / most * 100).toFixed(1)}%"></span></span>`;
   return `<section class="lg-sec lg-luck" aria-label="${t("league.luck.title")}">
     <h3 class="bp-hd">${t("league.luck.title")}<span>${t("league.luck.sub")}</span></h3>
-    <ul class="lg-luck-l">${rows.map(r => `<li${r.tag ? ` class="${r.tag === "lucky" ? "up" : "dn"}"` : ""}><b>${lgMgr(r.id)}</b>
-      <em>${r.t ? `${r.w}–${r.l}–${r.t}` : `${r.w}–${r.l}`}</em><i>${lgSignedLuck(r.luck)}</i>${tag(r)}</li>`).join("")}</ul>
+    <ul class="lg-luck-l">${rows.map(r => `<li><b>${lgMgr(r.id)}</b>${bar(r)}<i>${lgSignedLuck(r.luck)}</i>${tag(r)}</li>`).join("")}</ul>
   </section>`;
 }
 

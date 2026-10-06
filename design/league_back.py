@@ -92,7 +92,16 @@ def enrich_weeks(weeks, box, recap):
     return weeks
 
 
-LUCK_TAG = 1.0   # wins of luck, either way, that earn a Lucky or Snakebit tag
+LUCK_TAG = 0.5   # wins of luck, either way, a team needs before it can be tagged
+LUCK_TAGGED = 2  # teams tagged on each side
+
+
+def luck_tags(lucks):
+    """{team id: "lucky" | "robbed"} for the LUCK_TAGGED luckiest and unluckiest teams at LUCK_TAG wins or more
+    off, ties by id (2026-10-06: a whole-win bar tagged a week's Lucky side and no Snakebit at -0.9)."""
+    up = sorted((i for i, v in lucks.items() if v >= LUCK_TAG), key=lambda i: (-lucks[i], i))[:LUCK_TAGGED]
+    down = sorted((i for i, v in lucks.items() if v <= -LUCK_TAG), key=lambda i: (lucks[i], i))[:LUCK_TAGGED]
+    return {**{i: "lucky" for i in up}, **{i: "robbed" for i in down}}
 
 
 def add_standings(weeks, ids):
@@ -100,8 +109,8 @@ def add_standings(weeks, ids):
     as {id, w, l, t, pf, pfr (points rank), move (places up since the week before; 0 in week 1), luck, tag}.
     `luck` is real wins minus the wins the team's points earned: each week a score earns the share of the
     other teams it outscored (ties half), so a week's top score earns a whole win and its lowest none. `tag`
-    is "lucky" at LUCK_TAG wins or more, "robbed" at LUCK_TAG or more short (Luck so far, 2026-10-06; it was
-    the record's place against the points rank, which tiebreaks by points left at 0 for 10 of 12 teams)."""
+    is luck_tags' "lucky" or "robbed" (Luck so far, 2026-10-06; luck was the record's place against the points
+    rank before, which tiebreaks by points left at 0 for 10 of 12 teams)."""
     tally = {i: [0, 0, 0, 0.0] for i in ids}
     earned = {i: 0.0 for i in ids}
     last = None
@@ -123,8 +132,10 @@ def add_standings(weeks, ids):
             pfr = by_pf.index(i) + 1
             luck = round(tally[i][0] + tally[i][2] / 2 - earned[i], 1) + 0.0   # + 0.0: never a -0.0
             rows.append({"id": i, "w": tally[i][0], "l": tally[i][1], "t": tally[i][2], "pf": tally[i][3], "pfr": pfr,
-                         "move": (last.index(i) + 1 - n) if last else 0, "luck": luck,
-                         "tag": "lucky" if luck >= LUCK_TAG else "robbed" if luck <= -LUCK_TAG else None})
+                         "move": (last.index(i) + 1 - n) if last else 0, "luck": luck})
+        tags = luck_tags({r["id"]: r["luck"] for r in rows})
+        for r in rows:
+            r["tag"] = tags.get(r["id"])
         wk["table"] = rows
         last = order
     return weeks
