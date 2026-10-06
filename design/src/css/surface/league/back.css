@@ -1,41 +1,15 @@
-/* ============================== LEAGUE: THE BACK PAGE (Yahoo) ==============================
-   A sports tabloid's back page inside Signal Desk. Its one voice is the condensed display face
-   (--tab: headline, stamps, section heads); body stays Archivo, numbers JetBrains Mono.
-   Colour map: the league's own colour rules the masthead (which league you are reading); green won,
-   red lost (the strike through a loser, the stamp); lime is the team on screen; amber a bench mistake. */
-/* The rule and the kicker wear the league's colour: --lg-tint is set by the League switch's page
-   (back.js; the Madden Curse violet, AYO cyan since 2026-09-29). */
-.bp-mast{display:grid;gap:6px;padding:12px 0 14px;border-top:3px solid var(--lg-tint, var(--yahoo));border-bottom:1px solid var(--line-2)}
-.bp-kick{margin:0;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--lg-tint, var(--yahoo))}
-
+/* ============================== LEAGUE: THE RECAP'S PARTS (Yahoo) ==============================
+   The tabloid voice of the back page (2026-09-27), kept for what Recap B (2026-10-06) still draws: the
+   section head, the lead's one stamp, the box score, the grudge card. Its one voice is the condensed
+   display face (--tab: headline, stamp, section heads); body stays Archivo, numbers JetBrains Mono.
+   Colour map: the league's own colour rules the League header (which league you are reading); green won,
+   red lost (the strike through a loser, the stamp); lime is Your game; amber a bench mistake. */
 .bp-hd{margin:10px 0 0;display:flex;justify-content:space-between;align-items:baseline;gap:8px;
   font-family:var(--tab);font-size:var(--t-5);font-weight:900;line-height:1;text-transform:uppercase}
 .bp-hd span{font-family:var(--ui);font-size:var(--t-1);font-weight:500;text-transform:none;color:var(--ink-3)}
 
-
-/* the slate */
-.bp-slate{display:grid;gap:8px}
-.bp-game{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 13px 10px;display:grid;gap:8px;min-width:0}
-.bp-game.mine{background:var(--panel-2);border-color:var(--line-2)}
-.bp-sc{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:center}
-.bp-t{display:flex;align-items:baseline;gap:6px;min-width:0;position:relative;justify-self:start;max-width:100%}
-.bp-t b{font-size:var(--t-3);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bp-t small{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
-.bp-t.lo b{font-weight:500;color:var(--ink-3)}
-.bp-t.lo::after{content:"";position:absolute;left:0;right:0;top:52%;height:2px;background:var(--down);transform-origin:left}
-.bp-p{font-family:var(--mono);font-size:var(--t-4);font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
-.bp-p.lo{font-weight:500;color:var(--ink-3)}
 .bp-stamp{font-family:var(--tab);font-size:var(--t-3);font-weight:900;letter-spacing:.06em;text-transform:uppercase;line-height:1;white-space:nowrap;
   color:var(--down);border:2px solid var(--down);border-radius:5px;padding:3px 6px 1px;transform:rotate(-8deg);flex:none;margin-top:2px}
-/* The joke first, big, in the back page's voice; the facts that back it up under it, one per line,
-   numbers in bold so the eye lands on them (a negative one red). */
-.bp-punch{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.bp-punch p{margin:0;font-family:var(--tab);font-size:var(--t-5);font-weight:900;line-height:1;text-transform:uppercase;text-wrap:balance;overflow-wrap:anywhere}
-.bp-beats{margin:0;padding:8px 0 0;list-style:none;display:grid;gap:4px;border-top:1px solid var(--line)}
-.bp-beats li{display:flex;gap:8px;font-size:var(--t-2);line-height:1.4;color:var(--ink-2)}
-.bp-beats li::before{content:"";flex:none;width:5px;height:5px;margin-top:7px;border-radius:50%;background:var(--ink-3)}
-.bp-beats b{font-family:var(--mono);font-weight:700;color:var(--ink)}
-.bp-beats b.neg{color:var(--down)}
 .bp-open{justify-self:start;font:inherit;font-size:var(--t-1);font-weight:600;color:var(--ink-2);background:none;border:0;padding:4px 0;cursor:pointer}
 .bp-open:hover{color:var(--ink)}
 .bp-open:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
@@ -54,20 +28,7 @@
 .bp-miss b{font-family:var(--mono);color:var(--amber)}
 .bp-proj{margin:0;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
 
-/* superlatives: the award as a stamp in its colour, the number big, the team, one line of proof */
-.bp-sups{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.bp-su{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 11px 10px;display:grid;gap:4px;align-content:start;min-width:0}
-.bp-suk{justify-self:start;font-family:var(--tab);font-size:var(--t-3);font-weight:900;letter-spacing:.05em;text-transform:uppercase;line-height:1;
-  color:var(--ink-2);border:2px solid currentColor;border-radius:5px;padding:3px 6px 1px;margin-bottom:4px;transform:rotate(-5deg);transform-origin:left center;white-space:nowrap}
-.bp-suk.g{color:var(--up)}
-.bp-suk.r{color:var(--down)}
-.bp-suk.a{color:var(--amber)}
-.bp-suv{font-family:var(--tab);font-size:var(--t-6);font-weight:900;line-height:.9;font-variant-numeric:tabular-nums}
-.bp-sut{font-size:var(--t-2);font-weight:700;line-height:1.25;overflow-wrap:anywhere}
-.bp-sud{font-size:var(--t-1);line-height:1.35;color:var(--ink-2)}
-.bp-sud b{font-family:var(--mono);font-weight:700;color:var(--ink)}
-
-/* this week's grudge: the series record, one sentence, the last meetings as W/L chips */
+/* a grudge: the series record, one sentence, the last meetings as W/L chips */
 .bp-gcard{background:var(--panel);border:1px solid var(--line-2);border-radius:12px;padding:14px;display:grid;gap:12px}
 .bp-gvs{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:10px}
 .bp-gvs span{font-size:var(--t-3);font-weight:800;line-height:1.15;overflow-wrap:anywhere}
@@ -107,14 +68,7 @@
 .bp-gmp i.l::after{transform-origin:top}
 @keyframes mi-grow-y{from{transform:scaleY(0)}}
 
-/* Arrival, once per new week (league.js drops .bp-in on the first tap): the dots drop onto the
-   strip, the cards rise in order, each loser is struck through, then the stamps slam.
-   Reduced motion: responsive/motion.css. */
-.bp-in .bp-game,.bp-in .bp-su{animation:mi-rise var(--dur-spring) var(--spring) calc(var(--i,0) * 70ms) backwards}
-.bp-in .bp-t.lo::after{animation:mi-ink .42s var(--ease) calc(.3s + var(--i,0) * 70ms) backwards}
+/* Arrival, once per new week (league.js drops .bp-in on the first tap): the rows rise in order, then the
+   lead's stamp slams. Reduced motion: responsive/motion.css. */
+.bp-in .lg-row{animation:mi-rise var(--dur-spring) var(--spring) calc(var(--i,0) * 70ms) backwards}
 .bp-in .bp-stamp{animation:wv-slam var(--dur-stamp) var(--spring-pop) .75s backwards}
-
-/* Beside the week, the grudge card is one short block: it stays in view while the slate scrolls. */
-@media (min-width:960px){
-  .lg.bp > .lg-col:last-child{position:sticky;top:var(--page-pad);align-self:start}
-}

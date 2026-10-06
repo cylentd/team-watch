@@ -331,7 +331,8 @@ STATES = [
                                         " LGS.yahoo.h2h['9']['3'] = {w: 2, l: 1, t: 0, since: 2024, big: {v: 12.5, y: 2024, wk: 3}, m};"
                                         " LGS.yahoo.h2h['3']['9'] = {w: 1, l: 2, t: 0, since: 2024, big: {v: 30.25, y: 2025, wk: 6},"
                                         " m: m.map(x => [x[0], x[1], -x[2], x[3]])}; }")]
-                               + [("eval", LB_AS("yahoo"))] + go("recap") + [("click", "[data-lgmargins]")]),
+                               + [("eval", LB_AS("yahoo"))] + go("recap")
+                               + [("click", "summary:has-text('Next week vs')"), ("click", "[data-lgmargins]")]),
     ("waivers-folds", go("waivers") + [("click", "summary.wvfold-s >> nth=0"),
                                        ("click", "summary.wvfold-s >> nth=1")]),   # spec + stash open
     # The modal is panes since 2026-09-22, so each one is its own state: the tab bar only renders
@@ -920,19 +921,36 @@ def test_leaders_page_fits_the_screen(browser, page_file, w, h):
 
 
 @pytest.mark.area("recap")
-def test_league_back_page_fits_one_desktop_screen(browser, page_file):
-    """This week > League on a 1440x900 screen (storyboard 2026-09-27): the masthead, the lead, the
-    briefs, the grudges, the standings and all six superlatives end above the bottom edge, every week.
-    It ran to 3.3 screens before. On a phone the order is the story, the lead, the briefs, then the rest."""
+def test_recap_puts_your_game_first_then_league_and_nothing_overlaps_a_header(browser, page_file):
+    """League > Recap, direction B (2026-10-06, plan recap-b U2): the week stepper, then Your game, then the
+    League header, at every width. On a 360x800 phone the League header starts above 700px; on a 1440x900
+    desktop Your game is above it, the lead and its rows are beside each other, and no element overlaps a
+    section header. The stepper walks the weeks and its ends are disabled."""
     ctx, page, errors = open_at(browser, page_file, (1440, 900), "#recap")
-    bottom = "Math.max(...[...document.querySelectorAll('.bp2 > *:not(.bp2-you):not(.bp2-mine), .bp2-main > *')].map(e => e.getBoundingClientRect().bottom))"
+    top = "q => document.querySelector(q).getBoundingClientRect().top"
+    overlaps = """() => [...document.querySelectorAll('.lg-lhd, .lg-you > .lg-kick')].flatMap(h => {
+        const r = h.getBoundingClientRect();
+        return [...document.querySelectorAll('.bp2 *')].filter(e => !h.contains(e) && !e.contains(h)).filter(e => {
+          const b = e.getBoundingClientRect();
+          return e.checkVisibility() && b.width && b.height && b.left < r.right - 1 && b.right > r.left + 1 && b.top < r.bottom - 1 && b.bottom > r.top + 1;
+        }).map(e => e.className);
+      })"""
     try:
-        for wk in page.evaluate("LGS.yahoo.weeks.map(w => w.week)"):
-            page.locator(f"[data-lgweek='{wk}']").click()
-            assert page.evaluate(bottom) <= 900, f"week {wk} runs past the fold"
-        page.set_viewport_size({"width": 360, "height": 740})
-        order = page.evaluate("['.bp2-mast', '.bp2-lead', '.bp2-briefs', '.bp2-sups', '.bp2-under'].map(q => document.querySelector(q).getBoundingClientRect().top)")
+        assert page.locator(".lg-you").count() == 1 and page.locator(".lg-league").count() == 1
+        assert page.evaluate(top, ".lg-step") < page.evaluate(top, ".lg-you") < page.evaluate(top, ".lg-lhd")
+        assert page.evaluate(overlaps) == []
+        lead, row = (page.evaluate("q => document.querySelector(q).getBoundingClientRect().left", q) for q in (".bp2-lead", ".lg-gr"))
+        assert row > lead, "the other games' column sits beside the lead from 1100px"
+        weeks = page.evaluate("LGS.yahoo.weeks.map(w => w.week)")
+        assert page.locator(".lg-step-next").is_disabled() and page.locator(".lg-step-prev").is_enabled()
+        page.locator(".lg-step-prev").click()
+        assert page.locator(".lg-step-t").inner_text().startswith(f"Week {weeks[-2]}")
+        assert page.locator(".lg-step-next").is_enabled()
+        page.set_viewport_size({"width": 360, "height": 800})
+        assert page.evaluate(top, ".lg-lhd") < 700, "the League header starts in the first screen"
+        order = page.evaluate("['.lg-step', '.lg-you', '.lg-lhd', '.bp2-lead', '.lg-row', '.bp2-agate'].map(q => document.querySelector(q).getBoundingClientRect().top)")
         assert order == sorted(order), order
+        assert page.evaluate(overlaps) == []
         assert errors == []
     finally:
         ctx.close()

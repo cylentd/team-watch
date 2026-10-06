@@ -1,22 +1,65 @@
-/* ============================== LEAGUE PAGES (Yahoo, 2026-09-27) ==============================
-   The league-wide pages' own head (League and Records under This week name the league, not a team),
-   and My recap's parts. Colour map as the back page: green up, red down, amber
-   a record luckier than its points, lime the team on screen (My recap only). */
+/* ============================== LEAGUE PAGES (Yahoo, 2026-09-27; Recap B 2026-10-06) ==============================
+   The league-wide pages' own head (Records names the league, not a team), the week stepper, and YOUR GAME:
+   the Recap's first section, a lime-tinted box (the colour map of back.css: lime is the reader's own).
+   Numbers in mono, names in the UI face, headings in the display face. */
 .lgp{display:grid;gap:4px;padding:18px 0 4px}
 .lgp h1{margin:0;font-family:var(--disp);font-size:var(--t-6);font-weight:800;line-height:1.05}
 .lgp p{margin:0;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
 
-/* My recap: the result in the back page's voice, then where the team stands three ways */
-.mr-res{margin:0;font-family:var(--tab);font-size:var(--t-6);font-weight:900;line-height:1;text-transform:uppercase}
+/* the week stepper: ‹ Week 4 Final ›, 44px targets, an end with no week beyond it is disabled */
+.lg-step{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;height:44px;border:1px solid var(--line-2);border-radius:10px}
+.lg-step-b{display:grid;place-items:center;height:44px;padding:0;font:inherit;font-size:var(--t-5);line-height:1;color:var(--ink-2);background:none;border:0;border-radius:10px;cursor:pointer}
+.lg-step-b:not(:disabled):active{transform:scale(var(--press))}
+.lg-step-b:disabled{opacity:.35;cursor:default}
+.lg-step-b:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+.lg-step-t{text-align:center;font-size:var(--t-3);font-weight:700}
+.lg-step-t small{margin-left:6px;font-family:var(--mono);font-size:var(--t-1);font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+
+/* Your game: the result, the score, the game's line, three stats, three disclosures that start closed */
+.lg-you{display:grid;gap:10px;min-width:0;padding:10px 14px 4px;background:rgb(var(--lime-rgb) / .045);
+  border:1px solid rgb(var(--lime-rgb) / .24);border-radius:16px}
+.lg-ytop{display:grid;gap:6px}
+.mr-res{margin:0;font-family:var(--tab);font-size:var(--t-6);font-weight:900;line-height:.9;text-transform:uppercase}
 .mr-res.w{color:var(--up)}
 .mr-res.l{color:var(--down)}
-.mr-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.mr-stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 10px;display:grid;gap:1px;min-width:0}
-.mr-k{font-family:var(--tab);font-size:var(--t-2);font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
-.mr-stat b{font-family:var(--tab);font-size:var(--t-5);font-weight:900;line-height:1.05}
-.mr-sub{font-size:var(--t-1);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lg-ysc{display:grid;gap:3px}
+.lg-ysc > div{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;gap:8px}
+.lg-ysc b{font-size:var(--t-3);font-weight:800}
+.lg-ysc small{margin-left:6px;font-size:var(--t-1);color:var(--ink-3)}
+.lg-ysc .n{font-family:var(--mono);font-size:var(--t-4);font-weight:700;font-variant-numeric:tabular-nums}
+.lg-ysc .lo b,.lg-ysc .lo .n{font-weight:600;color:var(--ink-3)}
+.lg-yline{margin:0;padding-left:10px;border-left:3px solid var(--line-2);font-size:var(--t-3);font-weight:500;line-height:1.38;text-wrap:pretty}
+.mr-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.mr-stat{background:var(--panel-2);border-radius:10px;padding:7px 10px 8px;display:grid;gap:1px;min-width:0}
+.mr-k{font-family:var(--mono);font-size:var(--t-1);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.mr-stat b{font-family:var(--tab);font-size:var(--t-5);font-weight:900;line-height:1}
+.mr-sub{font-size:var(--t-1);color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* a disclosure: native <details>, opens in place; the chevron turns on a tap and rests under reduced motion */
+.lg-discs{display:grid}
+.lg-disc{border-top:1px solid var(--line)}
+.lg-disc summary{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:2px 10px;min-height:44px;
+  font-size:var(--t-2);font-weight:600;list-style:none;cursor:pointer}
+.lg-disc summary::-webkit-details-marker{display:none}
+.lg-disc summary:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
+.lg-dsum{display:flex;align-items:center;gap:8px;font-weight:500;color:var(--ink-2)}
+.lg-dsum b{font-family:var(--mono);color:var(--ink)}
+.lg-dsum::after{content:"›";color:var(--ink-3);transition:transform var(--dur-spring) var(--spring)}
+.lg-disc[open] .lg-dsum::after{transform:rotate(90deg)}
+.lg-dbody{display:grid;gap:8px;padding:2px 0 12px}
 .mr-book{margin:0;padding:0;list-style:none;display:grid;gap:6px}
 .mr-book li{display:flex;justify-content:space-between;align-items:baseline;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:var(--t-2)}
 .mr-book li small{color:var(--ink-3)}
 .mr-book li b{flex:none;font-family:var(--tab);font-size:var(--t-4);font-weight:900}
 .mr-book li.sh b{color:var(--down)}
+
+/* desktop: the box is one wide row, kicker above, the disclosures in the last column */
+@media (min-width:1100px){
+  .lg-step{width:300px}
+  .lg-you{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1.1fr) minmax(0,1fr);gap:8px 28px;align-items:center;padding:14px 20px}
+  .lg-you > .lg-kick{grid-column:1 / -1}
+  .lg-yline{font-size:var(--t-4)}
+  .lg-discs .lg-disc:first-child{border-top:0}
+  /* an open disclosure (a box score's two columns) needs the box's full width, not the last column's ~290px */
+  .lg-you:has(.lg-disc[open]) .lg-discs{grid-column:1 / -1}
+}

@@ -44,7 +44,7 @@
     "league": {
       "paths": ["design/src/js/surface/league/", "design/src/css/surface/league/", "design/src/js/data/league.js",
                 "design/league_back.py", "design/league_recap.py"],
-      "tests": ["tests/test_league_back.py", "tests/test_league_recap.py", "tests/test_leagues.py"],
+      "tests": ["tests/test_league_back.py", "tests/test_league_recap.py", "tests/test_leagues.py", "tests/test_js_league_share.py"],
       "render": ["league", "myrecap", "recap", "records"]
     },
     "trades": {

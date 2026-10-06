@@ -6,7 +6,7 @@
 
 function leagueHTML(team){
   const L = lgOf(team);
-  if (L !== LG){ LG = L; LG_WEEK = null; LG_OPEN = null; }   // the other league's weeks are its own
+  if (L !== LG){ LG = L; LG_WEEK = null; }   // the other league's weeks are its own
   if (!LG) return `<p class="lg-none">${t("league.none")}</p>`;
   const id = lgIdOf(team);
   return `<div class="lg">
@@ -25,34 +25,38 @@ function lgEspnPageHTML(f){
 }
 function wireEspnPage(v, f){
   const id = lgIdOf(lgEspnTeam(f));   // after leagueHTML, which sets LG: the id is looked up in the league on screen
-  wireLeague(v, id, () => lgRecapHTML(id)); wireLgChip(v);
+  wireLeague(v, () => lgRecapHTML(id)); wireLgChip(v);
 }
 
 /* One listener on the view's own container (rebuilt on every render, so it never stacks), for every
    league page. Each control redraws only its own part in place, so nothing above it moves: a week
-   chip the week section (`weekHTML`, the page's own), a box toggle its one card, the margins toggle
-   its grudge card. The arrival motion
-   is for a new week only, so any tap first takes it off. */
-function wireLeague(v, id, weekHTML){
+   chip or the stepper the week section (`weekHTML`, the page's own), the margins toggle its grudge
+   card; a game's sheet and Share open over the page. The arrival motion is for a new week only, so
+   any tap first takes it off. */
+function wireLeague(v, weekHTML){
   const root = v.querySelector(".lg");
   if (!root) return;
+  if (root.querySelector("[data-lgshare]")) lgShareWarm(lgWeek());
   root.addEventListener("click", e => {
-    const b = e.target.closest("[data-lgweek],[data-lgbox],[data-lgmargins],[data-lgsheet]");
+    const b = e.target.closest("[data-lgweek],[data-lgmargins],[data-lgsheet],[data-lgshare]");
     if (!b) return;
     root.querySelector(".bp-in")?.classList.remove("bp-in");
     if (b.dataset.lgsheet){
       lgOpenGameSheet(lgWeek().games.find(x => lgKey(x) === b.dataset.lgsheet), b);
+    } else if (b.hasAttribute("data-lgshare")){
+      lgShare(lgWeek(), b);
     } else if (b.hasAttribute("data-lgmargins")){
       const card = b.closest(".bp-gcard");
       LG_MARGINS = !LG_MARGINS;
       card.outerHTML = lgGrudgeCardHTML(Number(card.dataset.a), Number(card.dataset.b));
     } else if (b.dataset.lgweek){
-      LG_WEEK = Number(b.dataset.lgweek); LG_OPEN = null;
-      b.closest(".lg-sec").outerHTML = weekHTML();
-    } else {
-      const k = b.dataset.lgbox, g = lgWeek().games.find(x => lgKey(x) === k);
-      lgToggleBox(k, id);
-      b.closest(".bp-game").outerHTML = lgGameHTML(g, id, 0);
+      const forward = b.classList.contains("lg-step-next");
+      LG_WEEK = Number(b.dataset.lgweek);
+      (b.closest("[data-lgroot]") || b.closest(".lg-sec")).outerHTML = weekHTML();
+      if (root.querySelector("[data-lgshare]")) lgShareWarm(lgWeek());
+      // The button that was tapped is gone with the old stepper: keep the keyboard on the same side.
+      const step = root.querySelector(forward ? ".lg-step-next:not([disabled])" : ".lg-step-prev:not([disabled])");
+      if (step) step.focus({preventScroll: true});
     }
   });
 }

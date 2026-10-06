@@ -1,5 +1,5 @@
-/* ============================== LEAGUE: THIS WEEK'S GRUDGE (Yahoo back page) ==============================
-   The team on screen against this week's opponent, as one point: the series record, one sentence on
+/* ============================== LEAGUE: THE GRUDGE (Yahoo Recap) ==============================
+   Two teams, next week's pairing, as one point: the series record, one sentence on
    who owns it and who is hot, and the last meetings as W/L chips. (2026-09-27: it was a tale of the
    tape with six stat rows, a bar per meeting, a legend and two footnotes, and nobody could tell who
    owned the series. Titles and all-time records live on Records now.) */
@@ -28,8 +28,12 @@ function lgGrudgeLine(id, opp, h, m){
   return hot ? t("league.grudge.evenRun", at) : t("league.grudge.even");
 }
 
-/* The team on screen against this week's opponent (My recap). */
-const lgGrudgeHTML = id => lgPairGrudgeHTML(id, id ? lgOpp(id) : null, t("league.grudge.title"));
+/* The team on screen against next week's opponent: the card alone, for Your game's disclosure (myrecap.js);
+   nothing on a bye or with no schedule. */
+function lgGrudgeBodyHTML(id){
+  const opp = id ? lgOpp(id) : null;
+  return opp && LG.teams.some(x => x.id === id) && LG.teams.some(x => x.id === opp) ? lgGrudgeCardHTML(id, opp) : "";
+}
 
 /* Whether the grudge cards show each meeting's margin instead of W/L chips: the reader's tap, kept
    for the session so a redraw keeps it. */
@@ -74,7 +78,7 @@ const lgChipsHTML = m => m.length ? `<div class="bp-gchips" role="img" aria-labe
   m.slice(-10).map(x => `<span><i class="${x[2] > 0 ? "w" : "l"}">${x[2] > 0 ? t("league.grudge.w") : t("league.grudge.l")}</i>
     <small>'${String(x[0]).slice(2)}</small></span>`).join("")}</div>` : "";
 
-/* One pairing's grudge card, from `id`'s side: My recap's own, or the league page's biggest one. */
+/* One pairing's grudge card with its heading, from `id`'s side: the league page's biggest grudge. */
 function lgPairGrudgeHTML(id, opp, title){
   if (!LG.teams.some(x => x.id === id) || !LG.teams.some(x => x.id === opp)) return "";
   return `<section class="lg-sec bp-grudge" aria-label="${title}">

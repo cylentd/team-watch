@@ -160,6 +160,8 @@ surface/league/recap.js
 surface/league/history.js
 surface/league/slate.js
 surface/league/back.js
+surface/league/share.js
+surface/league/share-draw.js
 surface/league/tape.js
 surface/league/lead.js
 surface/league/records.js

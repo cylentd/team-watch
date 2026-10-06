@@ -219,3 +219,100 @@ def test_without_box_or_roast_the_block_still_draws():
                           read("league_rosters.json"), slugify)
     contract.validate("LIVE_LEAGUE_YAHOO", b)
     assert all(w["head"] is None for w in b["weeks"])
+
+
+# ---- Recap direction B (2026-10-06, plan 2026-10-06-recap-b U2): the page's own markup, in Node ----
+
+@pytest.fixture(scope="module")
+def recap_js(node_js, back):
+    """The Recap's draw functions with the fixture league on screen (LG), week 2 showing."""
+    js = node_js("data/league.js", "surface/league/slate.js", "surface/league/back.js", "surface/league/share.js",
+                 "surface/league/tape.js", "surface/league/lead.js", "surface/league/records.js",
+                 "surface/league/myrecap.js")
+    js("(b) => { globalThis.ordinal = n => `${n}th`; globalThis.headImgHTML = () => '<img>';"
+       " globalThis.blipReactSVG = (l, p) => `<svg class=\"br br-${p}\"></svg>`; LG = b; LG_WEEK = null; return 1; }", back)
+    return js
+
+
+def game(a, b, ap, bp):
+    return {"a": a, "b": b, "ap": ap, "bp": bp, "win": "home" if ap > bp else "away"}
+
+
+AW = lambda id, **k: {"id": id, "v": 100.0, "opp": 0, "m": 5.0, "rank": 1, "of": 8, **k}
+BUSY = {"games": [game(1, 2, 120.0, 118.0), game(3, 4, 99.0, 80.0)],
+        "awards": {"top": AW(1), "low": AW(2), "unluck": AW(2), "luck": AW(1), "bench": AW(1, v=9.0, name="A", bp=1, started="B", sp=0),
+                   "close": {"id": 1, "opp": 2, "v": 2.0, "p": 120.0, "op": 118.0}}}
+
+
+def kinds(js, w, g):
+    return [t["k"] for t in js("lgGameTags", w, g)]
+
+
+def test_a_game_wears_at_most_two_award_tags_in_priority_order(recap_js):
+    w = {"games": [game(1, 2, 120.0, 90.0)], "awards": {"top": AW(1), "low": AW(2), "unluck": AW(2), "luck": AW(1)}}
+    assert kinds(recap_js, w, w["games"][0]) == ["top", "low"]
+    only = {"games": w["games"], "awards": {"luck": AW(1), "bench": AW(2, v=9.0, name="A", bp=1, started="B", sp=0)}}
+    assert kinds(recap_js, only, only["games"][0]) == ["luck", "bench"]
+    assert kinds(recap_js, w, game(5, 6, 100.0, 90.0)) == [], "a game no award names has no tags"
+
+
+def test_the_nail_biter_is_always_on_the_weeks_closest_game_even_in_a_busy_one(recap_js):
+    assert kinds(recap_js, BUSY, BUSY["games"][0]) == ["top", "close"], "close keeps a slot; the other is the top priority"
+    assert kinds(recap_js, BUSY, BUSY["games"][1]) == []
+    assert sum("close" in kinds(recap_js, BUSY, g) for g in BUSY["games"]) == 1
+
+
+def test_a_tag_carries_its_label_tone_and_team(recap_js):
+    tags = {t["k"]: t for t in recap_js("lgGameTags", BUSY, BUSY["games"][0])}
+    assert tags["top"] == {"k": "top", "label": "Top dog", "tone": "g", "id": 1}
+    assert tags["close"]["label"] == "Nail-biter" and tags["close"]["tone"] == "x"
+    far = {**BUSY, "awards": {"close": {"id": 1, "opp": 2, "v": 14.0, "p": 120.0, "op": 106.0}}}
+    assert recap_js("lgGameTags", far, BUSY["games"][0])[0]["label"] == "Closest game", "10 points or more is not a nail-biter"
+    rest = {**BUSY, "awards": {k: v for k, v in BUSY["awards"].items() if k not in ("top", "close")}}
+    assert [(t["k"], t["tone"]) for t in recap_js("lgGameTags", rest, BUSY["games"][0])] == [("low", "r"), ("unluck", "r")]
+    amber = {**BUSY, "awards": {"bench": BUSY["awards"]["bench"]}}
+    assert recap_js("lgGameTags", amber, BUSY["games"][0])[0]["tone"] == "a"
+
+
+def test_the_week_stepper_disables_each_end_and_walks_by_week(recap_js, back):
+    nums = [w["week"] for w in back["weeks"]]
+    html = lambda wk: recap_js("(n) => { LG_WEEK = n; return lgStepHTML(lgWeek()); }", wk)
+    first, last = html(nums[0]), html(nums[-1])
+    assert 'data-lgweek="' + str(nums[0] - 1) not in first and "disabled" in first.split("lg-step-next")[0], "no week before the first"
+    assert "disabled" not in last.split("lg-step-next")[0] and f'data-lgweek="{nums[-1] - 1}"' in last
+    assert last.count("disabled") == 1 and first.count("disabled") == 1
+    assert "Week 2" in last and "Final" in last
+
+
+def test_the_league_section_is_the_same_for_every_reader(recap_js):
+    page = lambda id: recap_js("(id) => { LG_WEEK = null; return lgBackWeekHTML(id); }", id)
+    league = lambda html: html[html.index('<section class="lg-league'):]
+    me, other, nobody = page(9), page(3), page(None)
+    assert league(me) == league(other) == league(nobody)
+    assert "lg-you" in me and "lg-you" in other and "lg-you" not in nobody
+    assert "lg-you" not in league(me), "the reader's own game is an ordinary row in League"
+    assert "lime" not in league(me) and 'class="me' not in league(me)
+
+
+def test_the_page_has_no_superlative_cards_streaks_block_week_chips_or_extra_stamps(recap_js):
+    html = recap_js("() => { LG_WEEK = null; return lgBackWeekHTML(9); }")
+    for gone in ("bp-su", "bp-sups", "lg-weeks", "bp2-streaks", "bp2-you", "bp2-brief", "bp2-tag", "bp-game"):
+        assert gone not in html, gone
+    assert html.count("bp-stamp") <= 1, "only the lead card keeps its stamp"
+    assert 'data-lgweek="1"' in html, "the stepper's back button asks for week 1"
+
+
+def test_your_game_box_opens_nothing_by_default_and_names_three_disclosures(recap_js):
+    html = recap_js("() => { LG_WEEK = null; return lgBackWeekHTML(9); }")
+    box = html[html.index('<div class="lg-you'):html.index('<section class="lg-league')]
+    assert box.count("<details") == 3 and " open" not in box
+    assert "Box score" in box and "You in the record book" in box and "Next week vs" in box
+    assert "Your game" in box
+
+
+def test_standings_end_each_row_with_a_streak_tinted_by_its_run(recap_js, back):
+    html = recap_js("() => { LG_WEEK = null; return lgAgateHTML(lgWeek()); }")
+    run = {s["id"]: s for s in back["weeks"][-1]["streaks"]}
+    long = [s for s in run.values() if s["n"] >= 2]
+    assert ("lg-sk hot" in html) == any(s["w"] for s in long) and ("lg-sk cold" in html) == any(not s["w"] for s in long)
+    assert html.count("<i>") == 4, "one rank cell per team"

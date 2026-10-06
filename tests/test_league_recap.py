@@ -42,18 +42,26 @@ def test_week_awards(league):
     pick = lambda d, *k: {x: d[x] for x in k}
     assert pick(a["top"], "id", "v") == {"id": 14, "v": 137.35} and pick(a["low"], "id", "v") == {"id": 12, "v": 101.35}
     assert pick(a["blow"], "id", "opp", "v") == {"id": 14, "opp": 15, "v": 26.45}
-    # Two games: Stole one and Robbed name both, so no nail-biter is left to tell either again.
-    assert "close" not in a
+    # Two games: Stole one is the closer (16.05), so it is the nail-biter too.
+    assert pick(a["close"], "id", "opp", "v") == {"id": 1, "opp": 12, "v": 16.05}
     assert pick(a["luck"], "id", "v") == {"id": 1, "v": 117.4} and pick(a["unluck"], "id", "v") == {"id": 15, "v": 110.9}
 
 
-def test_the_nail_biter_is_never_the_game_robbed_or_stole_one_names():
+def test_the_nail_biter_is_the_closest_game_even_when_robbed_or_stole_one_names_it():
     from league_recap import awards
     g = lambda h, a, hp, ap: {"home": h, "away": a, "hp": hp, "ap": ap, "winner": "home" if hp > ap else "away"}
-    # 1-2: the highest losing score (2 robbed by 2.18) is also the closest game; 5-6 is the next closest.
+    # 1-2: the highest losing score (2 robbed by 2.18) is also the closest game, so it is the nail-biter too.
     a = awards([g(1, 2, 114.24, 112.06), g(3, 4, 146.62, 96.46), g(5, 6, 101.0, 95.5), g(7, 8, 80.0, 60.0)])
     assert (a["unluck"]["id"], a["unluck"]["opp"]) == (2, 1)
-    assert (a["close"]["id"], a["close"]["opp"], a["close"]["v"]) == (5, 6, 5.5)
+    assert (a["close"]["id"], a["close"]["opp"], a["close"]["v"]) == (1, 2, 2.18)
+
+
+def test_the_nail_biter_is_the_smallest_margin_of_all_decided_games():
+    from league_recap import awards
+    g = lambda h, a, hp, ap: {"home": h, "away": a, "hp": hp, "ap": ap, "winner": "home" if hp > ap else "away"}
+    # Week 4 shape: Phillip-Jon (2.50) holds Robbed or Stole one; David-Theo (5.90) is the closest of the rest.
+    a = awards([g(1, 2, 90.0, 87.5), g(3, 4, 120.0, 114.1), g(5, 6, 140.0, 80.0), g(7, 8, 70.0, 130.0)])
+    assert (a["close"]["id"], a["close"]["opp"], a["close"]["v"]) == (1, 2, 2.5)
 
 
 def test_awards_carry_their_proof(league):

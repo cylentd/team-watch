@@ -1,0 +1,25 @@
+/* League > Recap: the Share button and its save modal (js/surface/league/share.js, 2026-10-06 recap-b plan, U3).
+   The button sits in the League header; its label says what happened for two seconds (data-state). The modal is
+   the last resort when neither the share sheet nor the clipboard took the image: a centred reading modal. */
+.lg-share{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 16px;border-radius:999px;
+  border:1px solid var(--line-2);background:var(--panel-2);color:var(--ink);cursor:pointer;flex:none;
+  font-family:var(--ui);font-size:var(--t-2);font-weight:600;
+  transition:border-color .2s var(--ease),color .2s var(--ease),transform .2s var(--ease)}
+.lg-share svg{width:16px;height:16px;flex:none}
+.lg-share:hover{border-color:var(--ink-3)}
+.lg-share:active{transform:scale(var(--press))}
+.lg-share:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.lg-share[data-state="busy"]{color:var(--ink-3);cursor:progress}
+.lg-share[data-state="done"]{border-color:var(--up);color:var(--up)}
+
+/* the save modal: the image at the width a phone shows it, the hint as its title */
+.modal:has(.lg-share-body){width:min(560px,92vw);height:auto;max-height:90vh}
+.lg-share-hint{padding-right:44px;font-family:var(--tab);font-size:var(--t-5);text-transform:uppercase;text-wrap:balance}
+.lg-share-body{display:grid;justify-items:center;padding-top:16px}
+.lg-share-img{display:block;width:100%;height:auto;border:1px solid var(--line-2)}
+.lg-share-foot{display:none;padding:0 22px 22px}
+.lg-share-close{width:100%;min-height:48px;border:1px solid var(--line-2);background:var(--panel-2);color:var(--ink);
+  font-family:var(--ui);font-size:var(--t-3);font-weight:600;cursor:pointer}
+@media (max-width:760px){
+  .lg-share-foot{display:block}
+}

@@ -51,16 +51,13 @@ def awards(games):
         m = lambda s: round(s[2] - s[3], 2)
         blow = max(won, key=m)
         luck, unluck = min(won, key=lambda s: s[2]), max(won, key=lambda s: s[3])
-        # The closest game is often the one Robbed or Stole one already names, told from the other
-        # side (David, 2026-09-27: Lateef robbed by 2.18, Jon's nail-biter by 2.18), so the nail-biter
-        # is the closest game neither names.
-        rest = [s for s in won if s is not luck and s is not unluck]
-        close = min(rest, key=m) if rest else None
+        # The nail-biter is the week's smallest margin among all decided games, whatever other award
+        # that game holds (2026-10-06: week 4 named David-Theo 5.90 while Phillip-Jon was 2.50).
+        close = min(won, key=m)
         edge = lambda s: {"id": s[0], "opp": s[1], "v": m(s), "p": s[2], "op": s[3]}
         out.update(blow=edge(blow), luck=row((luck[0], luck[2], luck[1], luck[3])),
                    unluck=row((unluck[1], unluck[3], unluck[0], unluck[2])))
-        if close:
-            out["close"] = edge(close)
+        out["close"] = edge(close)
     return out
 
 

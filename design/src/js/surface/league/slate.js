@@ -1,21 +1,9 @@
-/* ============================== LEAGUE: THE SLATE (Yahoo back page) ==============================
-   Every game of the week as a card: winner over loser (the loser struck through), each side's record
-   after that week, Claude's punchline (the stamp beside it on the week's blowout and lowest score),
-   the 1-3 facts that back it up, and a box score that opens in place. The team on screen's game
-   comes first and opens by default. */
-
-/* The games whose box is open, by key; null until the reader taps one, meaning the team on screen's
-   own game. Several may be open: closing one never moves another card. */
-let LG_OPEN = null;
+/* ============================== LEAGUE: A GAME'S BOX SCORE AND FACTS (Yahoo) ==============================
+   The box score of one game (the winner's side on the left) and its facts, the numbers in bold. Two
+   places draw it: the game sheet a row opens (lead.js) and Your game's Box score disclosure (myrecap.js).
+   (Until 2026-10-06 this file also drew the slate's game cards, each with a box that opened in place.) */
 
 const lgKey = g => `${g.a}-${g.b}`;
-
-const lgIsOpen = (g, id) => LG_OPEN ? LG_OPEN.has(lgKey(g)) : g.a === id || g.b === id;
-
-function lgToggleBox(k, id){
-  if (!LG_OPEN) LG_OPEN = new Set(lgWeek().games.filter(g => g.a === id || g.b === id).map(lgKey));
-  LG_OPEN.has(k) ? LG_OPEN.delete(k) : LG_OPEN.add(k);
-}
 
 /* One starter row: the slot, both players (initials, the full name is not a heading here) and their
    points, the higher of the two in full ink. */
@@ -48,22 +36,4 @@ function lgBoxHTML(g0){
    hyphen after a digit is a record ("0-2"), not a sign. */
 const lgBeatHTML = s => s.split(/((?<![\d.])-?\d+(?:\.\d+)?)/)
   .map((p, i) => i % 2 ? `<b${p.startsWith("-") ? ' class="neg"' : ""}>${p}</b>` : esc(p)).join("");
-
-function lgGameHTML(g, id, i){
-  const aWon = g.win !== "away";
-  const [win, lose] = aWon ? [[g.a, g.ap, g.ar], [g.b, g.bp, g.br]] : [[g.b, g.bp, g.br], [g.a, g.ap, g.ar]];
-  const mine = g.a === id || g.b === id;
-  const open = lgIsOpen(g, id);
-  const row = ([tid, pts, rec], lost) => `<span class="bp-t${lost ? " lo" : ""}"><b>${lgName(tid)}</b><small>${rec}</small></span>
-    <span class="bp-p${lost ? " lo" : ""}">${lgPts(pts)}</span>`;
-  // The stamp sits beside the punchline, so both names keep the card's full width.
-  const stamp = g.stamp ? `<span class="bp-stamp">${esc(g.stamp)}</span>` : "";
-  return `<article class="bp-game${mine ? " mine" : ""}" style="--i:${i}">
-    <div class="bp-sc">${row(win, false)}${row(lose, g.win !== "tie")}</div>
-    ${g.punch || stamp ? `<div class="bp-punch"><p>${g.punch ? esc(g.punch) : ""}</p>${stamp}</div>` : ""}
-    ${g.beats.length ? `<ul class="bp-beats">${g.beats.map(b => `<li><span>${lgBeatHTML(b)}</span></li>`).join("")}</ul>` : ""}
-    ${g.box ? `<button class="bp-open" data-lgbox="${lgKey(g)}" aria-expanded="${open}" aria-controls="bp-box-${lgKey(g)}">
-      ${open ? t("league.box.hide") : t("league.box.show")}</button>${open ? lgBoxHTML(g) : ""}` : ""}
-  </article>`;
-}
 

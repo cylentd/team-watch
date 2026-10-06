@@ -190,7 +190,7 @@ Top bar **Week · League · Stats · Bets**. Table in `js/data/navmap.js` (pure,
 |---|---|---|
 | **Teams and League are one group, League** (David). Leaves: Roster, Waivers, Teams, Trades, Recap, Records | "League" was a group and a leaf under Teams, "Teams" a group and a leaf under League; the league was picked twice (team switch, Madden Curse / AYO / ESPN chips) | `NAV`, `navLeavesFor` |
 | **One chip: the team switch.** Pick your team and the league follows: Recap, Records, Trades and Teams all read `lgFocusKey()`, the league of the reader's team (`lgMine()`; the team on screen when none is picked). The Madden Curse / AYO / ESPN chips and `tw-league` are gone; the league's name sits under the team's (the League team line, every League leaf since 2026-10-05) | one place to say "my league" | `surface/league/switch.js` `lgChipHTML`, `data/league.js` |
-| **Recap is one leaf.** `#myrecap` and `#league` are `NAV_ALIAS` entries for it. A Yahoo league draws the back page with the reader's own game first under the masthead (`lgMineWeekHTML`), then the league's page, then his grudge and record-book lines; on a 1100px desktop the league's page keeps its one-screen fold and his week sits under it. An ESPN league keeps its plain recap, rivalry and history | one Recap, your game first | `surface/league/back.js`, `myrecap.js`, `league.js` |
+| **Recap is one leaf.** `#myrecap` and `#league` are `NAV_ALIAS` entries for it. A Yahoo league draws Recap B (2026-10-06, "Recap became direction B" below): the week stepper, YOUR GAME (the reader's game, grudge and record-book lines in one box), then LEAGUE, the same for every reader; superseded: the masthead with the reader's game under it and his lines at the bottom. An ESPN league keeps its plain recap, rivalry and history | one Recap, your game first | `surface/league/back.js`, `myrecap.js`, `league.js` |
 | **Fewer leaves where a league lacks data**: ESPN has no record book or graded trades (4 leaves), AYO no graded trades (5). A link to a missing leaf lands on its nearest (`navFallback`: Recap, or Roster for Waivers) | six is the most a 360px phone holds | `navFacts` |
 | **A reader with no team**: Roster still asks (the picker); Waivers opens on the league's public Most added list under the chip, Recap, Records, Trades and Teams open for everyone | the wire is the league's, not the team's. Tiered public verdicts are not built: David hid his tiers from leaguemates on 2026-09-27 (`data/owner.js`) and a roster-free tier needs ff-jarvis | `chrome/render.js` `renderAsk`, `teams/hot.js` |
 | **Six leaves fit a phone**: League's sub-row takes an 8px gap (`.dense`; at 16px they took 366px with Waivers' count against a 332px row, at 8px 324px; measured at 360px, 2026-10-05) | | `chrome/navrow.css` |
@@ -253,7 +253,7 @@ https://claude.ai/artifact/LBKkjFWgJ1rLZGrKtQ1Fn3. ESPN is David's work league a
 | Headline, dek, per game a punchline, 1-3 facts and a stamp: `claude -p`, R-rated, checked against the facts | ff-jarvis `model.season.league_roast` |
 | Box scores (starters, bench, the one bench mistake per side) | ff-jarvis `model.clients.yahoo_box` |
 | Records after each week, the bench award, meetings, tape fields, the record book | `design/league_back.py` |
-| Masthead, superlatives, the page's layout | `surface/league/back.js` |
+| The page's layout, award tags (`lgGameTags`); the masthead and superlatives are superseded by Recap B, 2026-10-06 | `surface/league/back.js` |
 | The lead, the briefs, the agate standings, a game's sheet | `surface/league/lead.js` |
 | Game cards (My recap) and box scores (the winner's side on the left) | `surface/league/slate.js` |
 | This week's grudge: series record, one sentence, last meetings as W/L chips | `surface/league/tape.js` |
@@ -376,6 +376,28 @@ option A):** David found the flat panels didn't look like a case.
 - **Taps:** several boxes may be open at once, so closing one never moves another card. Each control
   redraws only its own part.
 - **A week the roast skipped** (two rejected replies) draws scores, boxes and superlatives without words.
+
+**Recap became direction B, Scoreboard (2026-10-06, storyboard https://claude.ai/artifact/4GGAd3Xvk4sh8Sp2ktkDMU,
+plan U2).** Superseded for Yahoo: the six superlative cards, the Streaks block, a stamp on every brief, the week
+chips and the bottom `bp2-you` block (`back.js`, `lead.js`, `myrecap.js`; ESPN keeps its chips and awards).
+- **Order, phone and desktop alike:** the team line, the `‹ Week 4 Final ›` stepper (44px targets, an end with no
+  week beyond it disabled, `data-lgweek` like the chips), YOUR GAME, then LEAGUE.
+- **Your game** (only with a team in the league): a lime-tinted box, the result, the score with managers as names and
+  the team name small, the game's line, the three stats, then three disclosures closed by default: Box score (its
+  summary the bench mistake), Next week vs <opponent> (the series), You in the record book (N lines).
+- **League** is the same for every reader, so a screenshot or Share is the league's, not a person's: the reader's own
+  game is an ordinary row, no lime anywhere, nothing reads the picked team (`test_league_back.py`). Header with the
+  league's colour rule and Share; Claude's headline and dek; the lead (Blip or the photo, its one stamp, score, tags,
+  line, facts, Box score); every other game as one row (score line, up to two award tags, the line, no stamp);
+  "Going into week N+1" (the standings, each team's streak last, W3 green, L4 red); the biggest grudge.
+- **Share** (`share.js` data and click, `share-draw.js` the Canvas picture): the League section as one 1080px PNG,
+  games in the page's order (`lgGamesInOrder`). A phone that shares files gets the share sheet with a PNG drawn when
+  the section drew (iOS drops the tap across an await); a desktop copies the image; then the text; then a modal.
+- **Award tags** (`lgGameTags(w, g)`): top, low, unluck, luck, bench, close, two at most, flat in the row's flow. The
+  Nail-biter is the week's closest game, so close always keeps one of the two places. No cheer/roast label or colour
+  and no legend (David, 2026-10-06).
+- **Desktop (1100px, the breakpoints lint allows):** Your game as one wide row; headline and dek side by side; the lead
+  with the next game under it, the other four games 2x2 beside it; the standings and the grudge side by side.
 
 **A third league, AYO (2026-09-29, David: "Everything"; for the League group "a switch on the page").**
 AYO is a second Yahoo login in the first Yahoo league's shape, read from ff-jarvis's `ayo_<kind>.json`.

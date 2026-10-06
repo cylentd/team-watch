@@ -1,33 +1,25 @@
-/* ============================== LEAGUE: THE BACK PAGE LAYOUT (Yahoo, lead.js) ==============================
-   A newspaper back page (2026-09-27): masthead, one lead story with a photo, briefs, standings in
-   agate, superlatives. Phone: one column in reading order, the lead first. From 1100px: the lead and
-   what sits under it on the left, the briefs on the right, the superlatives in one row, all of it
-   above the fold of a 1440x900 screen. The back page's colour map (back.css) holds: green won, red
-   lost, lime the team on screen, amber a bench mistake. */
-/* the page is one grid of its own, not .lg's two columns */
+/* ============================== LEAGUE: THE LEAGUE SECTION (Yahoo Recap, direction B) ==============================
+   2026-10-06, storyboard https://claude.ai/artifact/4GGAd3Xvk4sh8Sp2ktkDMU. Phone: one column in reading order,
+   the stepper, Your game (pages.css), then LEAGUE: header, headline, the lead, every other game as one row,
+   the standings, the grudge. From 1100px the lead has the next game under it and the other four games sit
+   2x2 beside it, with the standings and the grudge side by side under. LEAGUE is the same for every reader,
+   so nothing in it is lit for a team. Colour map (back.css): green won, red lost, amber a bench mistake. */
 .lg.lg-one{grid-template-columns:minmax(0,1fr)}
-/* Phone order: the story, the lead, the briefs, the superlatives, then the grudges and standings
-   (.bp2-main dissolves so its two parts can take separate places). */
-.bp2{display:grid;gap:14px;
-  grid-template-areas:"mast" "lead" "briefs" "sups" "under"}
-.bp2-main{display:contents}
-/* The reader's own team (2026-10-05, Recap merged with My recap): his game right under the masthead on a
-   phone, his grudge and record-book lines after everything else (on a 1100px desktop both sit under the
-   league's page, which must fit one screen). Only a page with a team has these rows,
-   so a page without one keeps the areas above (an empty named row would still cost its gap). */
-.bp2-mine{grid-area:mine;min-width:0}
-.bp2-you{grid-area:you;display:grid;gap:14px;align-content:start;min-width:0}
-.bp2.has-mine{grid-template-areas:"mast" "mine" "lead" "briefs" "sups" "under" "you"}
-.bp2-lead{grid-area:lead}
-.bp2-under{grid-area:under}
-.bp2-agate{align-content:start}
-.bp2-mast{grid-area:mast;grid-template-columns:minmax(0,1fr) auto;align-items:start;column-gap:16px}
-.bp2-mast .bp-kick{grid-column:1}
-.bp2-mast .lg-weeks{grid-column:2;grid-row:1;margin:0}
-.bp2-briefs{grid-area:briefs;display:grid;align-content:start;min-width:0}
-.bp2-sups{grid-area:sups}
-.bp2-under{display:grid;gap:14px;align-content:start}
-.bp2-under .bp-hd,.bp2-briefs .bp-hd{margin-top:0}
+.bp2{display:grid;gap:16px;align-content:start;min-width:0}
+.lg-league{display:grid;gap:14px;min-width:0}
+
+/* the header: kicker and league name under the league's colour rule, Share at the right */
+.lg-lhd{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:48px;padding-top:6px;border-top:3px solid var(--lg-tint, var(--yahoo))}
+.lg-kick{margin:0;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--lg-tint, var(--yahoo))}
+.lg-kick b{margin-left:6px;font-family:var(--ui);font-size:var(--t-3);font-weight:800;letter-spacing:0;text-transform:none;color:var(--ink)}
+.lg-kick.lime{color:var(--lime)}
+.lg-hl{margin:0;font-family:var(--tab);font-size:var(--t-5);font-weight:900;line-height:.95;text-transform:uppercase;text-wrap:balance;overflow-wrap:anywhere}
+.lg-dek{margin:0;font-size:var(--t-3);line-height:1.4;color:var(--ink-2)}
+
+/* the games: the lead, then one row each (a list on a phone, cards from 1100px) */
+.lg-games{display:grid}
+.lg-gl,.lg-gr{display:contents}
+.bp2-lead{margin-bottom:6px}
 
 /* score lines: winner in full ink, "def.", the loser dimmed */
 .bp2-score,.bp2-bl{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;min-width:0}
@@ -37,102 +29,94 @@
 .bp2-l,.bp2-l .bp2-n{color:var(--ink-3)}
 .bp2-l b{font-weight:600}
 
-/* the lead: photo beside the story, the joke big, the facts in one wrapping line */
-.bp2-lead{position:relative;display:grid;grid-template-columns:minmax(0,1fr);gap:0 18px;background:var(--panel);
+/* the lead: Blip or the photo with its stamp under it, then the score, tags, line and facts */
+.bp2-lead{position:relative;display:grid;grid-template-columns:minmax(0,1fr);gap:0 14px;background:var(--panel);
   border:1px solid var(--line-2);border-radius:14px;padding:14px 14px 12px;overflow:hidden}
 .bp2-lead.has-photo{grid-template-columns:96px minmax(0,1fr)}
 .bp2-lbody{display:grid;gap:8px;align-content:start;min-width:0}
-.bp2-lead .bp2-score{font-size:var(--t-4);padding-right:92px}
-.bp2-punch{margin:0;font-family:var(--tab);font-size:var(--t-6);font-weight:900;line-height:.95;text-transform:uppercase;text-wrap:balance;overflow-wrap:anywhere}
+.bp2-lead .bp2-score{font-size:var(--t-4)}
+.bp2-punch{margin:0;font-size:var(--t-4);font-weight:700;line-height:1.3;text-wrap:pretty;overflow-wrap:anywhere}
 .bp2-beats{margin:0;padding:8px 0 0;list-style:none;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:3px 16px;font-size:var(--t-2);color:var(--ink-2)}
 .bp2-beats b{font-family:var(--mono);font-weight:700;color:var(--ink)}
 .bp2-beats b.neg{color:var(--down)}
 .bp2-more{justify-self:start;font:inherit;font-size:var(--t-1);font-weight:600;color:var(--ink-2);background:none;border:0;padding:2px 0;cursor:pointer}
 .bp2-more:hover{color:var(--ink)}
-.bp2-stamp{position:absolute;right:12px;top:12px;margin:0}
+.bp2-fig{display:grid;gap:8px;justify-items:center;align-content:start;min-width:0}
+.bp2-stamp{margin:0;white-space:normal;text-align:center;font-size:var(--t-2)}
+.bp2-lbody > .bp2-stamp{justify-self:start}
 
 /* the photo: a cut-out on a half-disc; faded like an OUT headshot when the player flopped */
 .bp2-photo{position:relative;margin:0;align-self:start;display:grid;justify-items:center}
 .bp2-photo::before{content:"";position:absolute;left:6%;right:6%;bottom:18px;height:70%;border-radius:50% 50% 0 0;background:var(--panel-2)}
 .bp2-photo img,.bp2-photo .fallback{position:relative;width:100%;aspect-ratio:1;object-fit:cover;object-position:top}
-.bp2-photo figcaption{position:relative;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2);white-space:nowrap}
+.bp2-photo figcaption{position:relative;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2);text-align:center;line-height:1.2}
 .bp2-photo figcaption b{color:var(--ink)}
 .bp2-photo.flop img{filter:grayscale(1);opacity:.55}
 .bp2-photo.flop::before{background:rgb(var(--down-rgb) / .14)}
 .bp2-photo.flop figcaption b{color:var(--down)}
 
-/* a brief: the whole row is the button that opens its sheet */
-.bp2-brief{position:relative;display:grid;gap:4px;width:100%;text-align:left;font:inherit;color:inherit;background:none;border:0;
-  border-bottom:1px solid var(--line);padding:7px 0;cursor:pointer}
-.bp2-brief:hover .bp2-bp{color:var(--lime)}
-.bp2-brief:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
-.bp2-bl{font-size:var(--t-2);padding-right:84px}
-/* the joke in plain sentence case: five stacked lines of display caps read as one shout (2026-09-27) */
-.bp2-bp{font-family:var(--ui);font-size:var(--t-3);font-weight:500;line-height:1.3;color:var(--ink);text-wrap:pretty;overflow-wrap:anywhere}
-.bp2-tag{position:absolute;right:0;top:2px;font-family:var(--tab);font-size:var(--t-1);font-weight:900;letter-spacing:.05em;text-transform:uppercase;
-  color:var(--down);border:2px solid var(--down);border-radius:4px;padding:2px 5px 0;transform:rotate(-6deg);white-space:nowrap}
+/* award tags: flat, in the row's flow, each beside the team it names */
+.lg-tags{display:flex;flex-wrap:wrap;gap:6px}
+.lg-tag{font-family:var(--tab);font-size:var(--t-1);font-weight:900;letter-spacing:.05em;text-transform:uppercase;line-height:1.15;white-space:nowrap;
+  color:var(--ink-2);border:1.5px solid currentColor;border-radius:4px;padding:2px 6px 1px}
+.lg-tag small{margin-left:3px;font-family:var(--ui);font-size:var(--t-1);font-weight:700;letter-spacing:0;text-transform:none;color:var(--ink)}
+.lg-tag.g{color:var(--up)}
+.lg-tag.r{color:var(--down)}
+.lg-tag.a{color:var(--amber)}
 
-/* the standings in agate: small mono print, two columns of six */
-.bp2-ag{display:grid;grid-template-columns:1fr 1fr;gap:3px 18px;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2)}
-.bp2-ag span{display:flex;gap:8px;white-space:nowrap;min-width:0}
+/* a game row: the whole row is the button that opens its sheet */
+.lg-row{display:grid;gap:6px;align-content:start;width:100%;min-width:0;text-align:left;font:inherit;color:inherit;background:none;
+  border:0;border-top:1px solid var(--line);padding:11px 0;cursor:pointer}
+.lg-row:hover .bp2-bp{color:var(--lime)}
+.lg-row:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
+.bp2-bl{font-size:var(--t-3)}
+.bp2-bp{font-size:var(--t-3);font-weight:500;line-height:1.3;color:var(--ink);text-wrap:pretty;overflow-wrap:anywhere}
+
+/* the standings in agate with each team's run: two columns of six */
+.lg-after{display:grid;gap:14px;align-items:start}
+.bp2-ag{display:grid;grid-template-columns:1fr 1fr;gap:5px 18px;max-width:520px;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2)}
+.bp2-ag > span{display:flex;gap:8px;align-items:baseline;min-width:0}
 .bp2-ag i{font-style:normal;color:var(--ink-3);width:2ch;text-align:right;flex:none}
-.bp2-ag em{font-style:normal;margin-left:auto;color:var(--ink)}
-.bp2-ag .me{color:var(--lime)}
+.bp2-ag b{flex:1;min-width:0;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bp2-ag em{font-style:normal;flex:none;color:var(--ink)}
+.lg-sk{flex:none;width:3.4ch;text-align:center;font-weight:700;border-radius:3px}
+.lg-sk:empty{display:none}
+.lg-sk.hot{color:var(--up);background:rgb(var(--up-rgb) / .14)}
+.lg-sk.cold{color:var(--down);background:rgb(var(--down-rgb) / .14)}
+.bp2-agate{align-content:start}
 
-/* streaks: the run as a green or red mono tag, the manager, where it began */
-.bp2-streaks{align-self:start}
-.bp2-streaks ul{margin:0;padding:0;list-style:none;display:grid;gap:6px}
-.bp2-streaks li{display:flex;align-items:baseline;gap:8px;font-size:var(--t-2);min-width:0}
-.bp2-streaks small{margin-left:auto;font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
-.bp2-sk{flex:none;min-width:4ch;font-family:var(--mono);font-size:var(--t-1);font-weight:700;text-align:center;border-radius:4px;padding:1px 5px}
-.bp2-sk.hot{color:var(--up);background:rgb(var(--up-rgb) / .14)}
-.bp2-sk.cold{color:var(--down);background:rgb(var(--down-rgb) / .14)}
-
-/* the sheet a brief opens: its parts at their own height, a readable width */
+/* the sheet a row opens: its parts at their own height, a readable width */
 .bp2-sheet{display:grid;gap:12px;align-content:start}
 /* A game's sheet is one known size (a score line, three facts, nine box rows), so it sizes to that
    rather than taking the profile's fixed 1240x860 box and leaving most of it empty. */
 .modal:has(.bp2-sheet){width:min(820px,96vw);height:auto;max-height:90vh}
-
-/* phone: the photo sits beside the score line only; the joke and the facts take the full width
-   (undone from 760px, where the story runs beside the photo) */
-.bp2-lead.has-photo .bp2-lbody{display:contents}
-.bp2-lead.has-photo .bp2-score{grid-column:2;align-self:center;padding-right:0}
-.bp2-lead.has-photo .bp2-punch,.bp2-lead.has-photo .bp2-beats,.bp2-lead.has-photo .bp2-more{grid-column:1 / -1;margin-top:8px}
-.bp2-lead.has-photo .bp2-stamp{top:auto;bottom:12px}
-.bp2-photo figcaption{white-space:normal;text-align:center;line-height:1.2}
-@media (min-width:760px){
-  .bp2-lead.has-photo .bp2-lbody{display:grid}
-  .bp2-lead.has-photo .bp2-score{grid-column:auto;align-self:auto;padding-right:92px}
-  .bp2-lead.has-photo .bp2-punch,.bp2-lead.has-photo .bp2-beats,.bp2-lead.has-photo .bp2-more{grid-column:auto;margin-top:0}
-  .bp2-lead.has-photo .bp2-beats{margin-top:0}
-  .bp2-lead.has-photo .bp2-stamp{top:12px;bottom:auto}
-  .bp2-photo figcaption{white-space:nowrap}
-}
 .bp2-sheet-t{font-family:var(--tab);text-transform:uppercase;text-wrap:balance}
 
-.bp-in .bp2-brief{animation:mi-rise var(--dur-spring) var(--spring) calc(var(--i,0) * 70ms) backwards}
-
-/* phone: the lead's photo stays small, the superlatives two to a row (back.css) */
+/* phone: the photo sits beside the score line only; tags, line and facts take the full width
+   (undone from 760px, where the story runs beside the photo) */
+.bp2-lead.has-photo .bp2-lbody{display:contents}
+.bp2-lead.has-photo .bp2-score{grid-column:2;align-self:center}
+.bp2-lead.has-photo .lg-tags,.bp2-lead.has-photo .bp2-punch,.bp2-lead.has-photo .bp2-beats,.bp2-lead.has-photo .bp2-more{grid-column:1 / -1;margin-top:8px}
 @media (min-width:760px){
   .bp2-lead{padding:18px 20px 16px}
   .bp2-lead.has-photo{grid-template-columns:150px minmax(0,1fr)}
+  .bp2-lead.has-photo .bp2-lbody{display:grid}
+  .bp2-lead.has-photo .bp2-score{grid-column:auto;align-self:auto}
+  .bp2-lead.has-photo .lg-tags,.bp2-lead.has-photo .bp2-punch,.bp2-lead.has-photo .bp2-beats,.bp2-lead.has-photo .bp2-more{grid-column:auto;margin-top:0}
   .bp2-lead .bp2-score{font-size:var(--t-5)}
-  .bp2-punch{font-size:var(--t-7)}
-  .bp2-under{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
-  .bp2-you{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
 }
 @media (min-width:1100px){
-  .bp2{grid-template-columns:minmax(0,1fr) 420px;column-gap:24px;grid-template-areas:"mast mast" "main briefs" "sups sups"}
-  /* the league's page keeps its one-screen fold budget; the reader's own week sits right under it */
-  .bp2.has-mine{grid-template-areas:"mast mast" "main briefs" "sups sups" "mine you"}
-  .bp2-main{grid-area:main;display:grid;gap:14px;align-content:start;min-width:0}
-  .bp2-lead,.bp2-under{grid-area:auto}
-  .bp2-brief:first-of-type{padding-top:4px}
-  .bp2-bp{font-size:var(--t-4)}
-  .bp2-sups{grid-template-columns:repeat(6,minmax(0,1fr))}
-  /* the fold budget on a 1440x900 screen: every px below is one the week 1 page needed */
-  .bp2-lead{padding:14px 20px 12px}
-  .bp2-under .bp-gcard{padding:11px 12px;gap:9px}
-  .bp2-sups .bp-suv{font-size:var(--t-5)}
+  .lg-league{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);column-gap:32px;align-items:end}
+  .lg-lhd,.lg-games,.lg-after{grid-column:1 / -1}
+  .lg-hl{font-size:var(--t-7)}
+  .lg-games{grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:12px;align-items:stretch}
+  .lg-gl{display:grid;gap:12px;grid-template-rows:auto 1fr;min-width:0}
+  .lg-gr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:1fr;gap:12px;min-width:0}
+  .bp2-lead{margin-bottom:0}
+  .bp2-lead.has-photo{grid-template-columns:110px minmax(0,1fr)}
+  .bp2-lead .bp2-score{font-size:var(--t-4)}
+  .lg-row{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+  .bp2-bl,.bp2-bp{font-size:var(--t-4)}
+  .lg-after{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px}
+  .bp2-ag{font-size:var(--t-2);gap:6px 24px}
 }

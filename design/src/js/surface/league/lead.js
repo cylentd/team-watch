@@ -1,9 +1,9 @@
 /* ============================== LEAGUE: THE LEAD AND THE BRIEFS (Yahoo back page) ==============================
-   2026-09-27, storyboard https://claude.ai/artifact/5Sj3BRZqyfaVWkvCXCjgFV. A newspaper back page: the
-   game the headline is about as one big story with the photo of the player its joke is about (faded
-   like an OUT headshot when the player flopped), the other games as briefs of one line and the joke, and the
-   standings in agate. Managers carry the score lines; team names appear inside the jokes, where the
-   puns need them. A brief's facts and box score open in the modal, so no card ever grows. */
+   2026-09-27, storyboard https://claude.ai/artifact/5Sj3BRZqyfaVWkvCXCjgFV; rows and tags 2026-10-06 (back.js).
+   The game the week is about as one big story with the photo of the player its joke is about (faded like an
+   OUT headshot when the player flopped), the other games as rows of a score line, its tags and the joke, and
+   the standings in agate. Managers carry the score lines; team names appear inside the jokes, where the
+   puns need them. A row's facts and box score open in the modal, so no card ever grows. */
 
 /* Winner and score, "def.", loser and score: the loser dimmed. */
 function lgScoreLineHTML(g){
@@ -35,49 +35,54 @@ function lgBlipHTML(pose, stamped){
   return `<figure class="bp2-photo bp2-blip${stamped ? " late" : ""}">${blipReactSVG(LG_BLIP_LABEL[pose](), pose)}</figure>`;
 }
 
-/* The lead: the week's biggest game (w.lead), drawn big. Its joke is the page's one headline (since
-   2026-09-27; the roast's own headline told the same game twice), else the roast's headline. */
-function lgLeadHTML(w){
-  const g = w.games.find(x => lgKey(x) === w.lead) || w.games[0];
-  const photo = lgPhotoHTML(w.photo) || lgBlipHTML(w.blip, !!g.stamp), hl = g.punch || w.head;
+/* The lead: the week's biggest game (w.lead), drawn big: Blip or the photo with the page's one stamp under
+   it, the score, the award tags, the game's line, its facts and its box score. */
+function lgLeadHTML(w, g){
+  const photo = lgPhotoHTML(w.photo) || lgBlipHTML(w.blip, !!g.stamp);
+  const stamp = g.stamp ? `<span class="bp-stamp bp2-stamp">${esc(g.stamp)}</span>` : "";
   return `<article class="bp2-lead${photo ? " has-photo" : ""}">
-    ${photo}
+    ${photo ? `<div class="bp2-fig">${photo}${stamp}</div>` : ""}
     <div class="bp2-lbody">
       <div class="bp2-score">${lgScoreLineHTML(g)}</div>
-      ${hl ? `<h2 class="bp2-punch">${esc(hl)}</h2>` : ""}
+      ${photo ? "" : stamp}
+      ${lgTagsHTML(w, g)}
+      ${g.punch ? `<p class="bp2-punch">${esc(g.punch)}</p>` : ""}
       ${lgBeatsHTML(g)}
       ${g.box ? `<button class="bp2-more" data-lgsheet="${lgKey(g)}">${t("league.box.show")}</button>` : ""}
     </div>
-    ${g.stamp ? `<span class="bp-stamp bp2-stamp">${esc(g.stamp)}</span>` : ""}
   </article>`;
 }
 
-/* A brief: one line of names and scores, the joke under it; the whole brief opens its sheet. */
-function lgBriefHTML(g, i){
-  return `<button class="bp2-brief" data-lgsheet="${lgKey(g)}" style="--i:${i}">
+/* A game's award tags (back.js lgGameTags): flat, in the row's flow, each with the team it names. */
+function lgTagsHTML(w, g){
+  const tags = lgGameTags(w, g);
+  return tags.length ? `<span class="lg-tags">${tags.map(x => `<span class="lg-tag ${x.tone}">${x.label} <small>${lgMgr(x.id)}</small></span>`).join("")}</span>` : "";
+}
+
+/* Every game but the lead as one row: the score line, up to two tags, the line. The whole row is the
+   button that opens its sheet. No row carries a stamp. */
+function lgRowHTML(w, g, i){
+  return `<button type="button" class="lg-row" data-lgsheet="${lgKey(g)}" style="--i:${i}">
     <span class="bp2-bl">${lgScoreLineHTML(g)}</span>
+    ${lgTagsHTML(w, g)}
     ${g.punch ? `<span class="bp2-bp">${esc(g.punch)}</span>` : ""}
-    ${g.stamp ? `<span class="bp2-tag">${esc(g.stamp)}</span>` : ""}
   </button>`;
 }
 
-/* Every game but the lead, in the slate's story order (stamped first, then by margin). */
-function lgBriefsHTML(w){
-  const margin = g => Math.abs(g.ap - g.bp);
-  const rest = w.games.filter(g => lgKey(g) !== w.lead).sort((x, y) => (!!y.stamp - !!x.stamp) || margin(y) - margin(x));
-  return `<section class="bp2-briefs" aria-label="${t("league.lead.also")}">
-    <h3 class="bp-hd">${t("league.lead.also")}<span>${t("league.back.games", {n: rest.length})}</span></h3>
-    ${rest.map(lgBriefHTML).join("")}
-  </section>`;
-}
-
-/* The standings in agate: rank, manager, record, two columns of six; the team on screen in lime. */
-function lgAgateHTML(w, id){
-  const half = Math.ceil(w.table.length / 2);
-  const row = (r, i) => `<span class="${r.id === id ? "me" : ""}"><i>${i + 1}</i>${lgMgr(r.id)}<em>${r.t ? `${r.w}–${r.l}–${r.t}` : `${r.w}–${r.l}`}</em></span>`;
+/* The standings in agate: rank, manager, record, then the run each team is on going into next week
+   (league_back.add_streaks; two games or more). The same for every reader: no row is lit. */
+const LG_STREAK_MIN = 2;
+function lgAgateHTML(w){
+  const half = Math.ceil(w.table.length / 2), run = {};
+  (w.streaks || []).forEach(r => { run[r.id] = r; });
+  const sk = id => {
+    const r = run[id], cls = r && r.n >= LG_STREAK_MIN ? (r.w ? " hot" : " cold") : "";
+    return `<span class="lg-sk${cls}">${cls ? (r.w ? t("league.streak.w", {n: r.n}) : t("league.streak.l", {n: r.n})) : ""}</span>`;
+  };
+  const row = (r, i) => `<span><i>${i + 1}</i><b>${lgMgr(r.id)}</b><em>${r.t ? `${r.w}–${r.l}–${r.t}` : `${r.w}–${r.l}`}</em>${sk(r.id)}</span>`;
   const cells = w.table.slice(0, half).flatMap((r, i) => [row(r, i), w.table[i + half] ? row(w.table[i + half], i + half) : ""]);
   return `<section class="lg-sec bp2-agate" aria-label="${t("league.table.title")}">
-    <h3 class="bp-hd">${t("league.table.title")}<span>${t("league.table.after", {n: w.week})}</span></h3>
+    <h3 class="bp-hd">${t("league.going.title", {n: w.week + 1})}</h3>
     <div class="bp2-ag">${cells.join("")}</div>
   </section>`;
 }

@@ -178,12 +178,12 @@ def test_the_one_chip_changes_recap_and_a_reload_keeps_it(browser, page_file):
     drive(page, go("recap"))
     assert page.locator(".lg-switch, [data-lgpick]").count() == 0, "no league chips of their own"
     assert page.locator(".lgchip #switch").count() == 1 and page.locator(".lgchip-lg").text_content().strip() == "Madden Curse"
-    assert "Madden" not in page.locator(".bp-kick").text_content(), "the team line above names the league, once"
+    assert "Madden" in page.locator(".lg-lhd .lg-kick").text_content(), "Recap B (2026-10-06): the League header names its league"
     drive(page, [("click", ".lgchip [data-tsbtn]"), ("click", ".lgchip .ts-item[data-k='ayo']")])
     assert page.locator(".lgchip-lg").text_content().strip() == "AYO"
     assert page.locator(".lgchip .ts-team").text_content() == "Taylor Made for Sundays"
     assert "Don Wick" in page.locator("#view").text_content()
-    assert page.evaluate("getComputedStyle(document.querySelector('.bp-mast')).borderTopColor") == "rgb(31, 200, 224)"
+    assert page.evaluate("getComputedStyle(document.querySelector('.lg-lhd')).borderTopColor") == "rgb(31, 200, 224)"
     page.reload()
     page.wait_for_function("document.getElementById('view').children.length > 0")
     drive(page, go("recap"))
