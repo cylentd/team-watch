@@ -43,7 +43,8 @@ const navGroupOf = leaf => (NAV.find(([, tabs]) => tabs.includes(leaf)) || NAV[0
 
 /* The leaves a group shows, given what the league on screen has. `facts` is plain booleans:
    waivers (a league with a packet; a connected one has none), teams (any league has rosters),
-   recap (the league has a recap block), records (a record book: Yahoo's), trades (graded trades).
+   recap (the league has a recap block), records (a record book: Yahoo's), trades (the trade finder: any league
+   with rosters, like teams; the graded trade history moved to Records > Trade history, 2026-10-06).
    On a Tuesday, claims day, Waivers leads. */
 function navLeavesFor(group, facts, waiverDay){
   const all = (NAV.find(([g]) => g === group) || NAV[0])[1];

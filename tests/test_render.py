@@ -105,16 +105,18 @@ def bdpick(q):
 
 MOVERS = go("movers")
 
-# Find trades (2026-10-05). The reader is whoever `key` names; the builder opens from the roster sheet of the team
-# `team` (a LIVE_TEAMS key) with the fixture's offers planted, since from file:// the page's own fetch is refused.
+# The trade finder (2026-10-06, was Find trades 2026-10-05). The reader is whoever `key` names; the finder's offers are the
+# fixture's, planted before the view draws, since from file:// the page's own fetch is refused (and logs it).
 TRADE_OFFERS = (GAMEDAY_FIX.parent / "data" / "trade_offers.json").read_text(encoding="utf-8")
 LB_OLD_SHAPE = ("() => { TB_DATA = (d => { for (const lg of Object.values(d.leagues)){ delete lg.lineup; delete lg.values; delete lg.other;"
-                " for (const ps of Object.values(lg.teams)) for (const ks of Object.values(ps)) for (const os of Object.values(ks))"
-                " os.forEach(o => delete o.drop); } return d; })(" + TRADE_OFFERS + "); }")
+                " for (const os of Object.values(lg.teams)) os.forEach(o => delete o.drop); } return d; })(" + TRADE_OFFERS + "); }")
 LB_AS = lambda key: f"localStorage.setItem('tw-team', '{key}')"
 # A reader who has picked no team, looking at team `key`'s league (the League group's seat is VIEW then).
 UNPICK = lambda key: ("eval", f"localStorage.removeItem('tw-team'); VIEW='{key}'; render()")
-LB_BUILDER = lambda team: [("eval", "TB_DATA = " + TRADE_OFFERS), ("click", f"[data-lbopen='{team}']"), ("click", "[data-tbfind]")]
+TF_OFFERS = ("eval", "TB_DATA = " + TRADE_OFFERS)
+# The finder for reader `key` with the offers planted, opened on Trades; `partner`: filtered to that team from Who's deep.
+FINDER = lambda key: [("eval", LB_AS(key)), TF_OFFERS] + go("trades")
+FINDER_WITH = lambda key, team: FINDER(key) + [("click", f"[data-tfwho='{team}']")]
 
 
 def _strip_game():
@@ -280,49 +282,42 @@ STATES = [
                                             ("click", "[data-rcpair] >> nth=0")]),
     ("records-yahoo-roster", go("records") + [("click", "[data-csroster='2025:champ']")]),
     # The League chip (2026-09-29 as a switch, the team switch since 2026-10-05): AYO's week 2 and its Records,
-    # which have no history yet. AYO has no graded trades, so no Trades leaf: a #trades link lands on its Recap.
+    # which have no history yet and no graded trades (so no Trade history tab on its Records).
     ("recap-ayo", [("eval", LB_AS("ayo"))] + go("recap")),
     ("records-ayo", [("eval", LB_AS("ayo"))] + go("records")),
-    ("trades-ayo", [("eval", LB_AS("ayo")), ("eval", "location.hash = '#trades'")]),
-    # League > Trades (2026-09-28): the page, then Lateef's trades open (a 2026 one still open, a trade
-    # whose tree verdict differs, the seasons it decided) and every "decided a season" card shown (a
-    # phone swipes through all of them and has no Show all).
-    ("trades", go("trades")),
-    ("trades-open", go("trades") + [("click", "[data-trmgr='6']"), ("eval", "document.querySelector('[data-trall]')?.click()")]),
-    # League > Teams (2026-10-05): the board. The suite's reader is on the Madden Curse, whose fixture is the
-    # old scrape with no slots, so the default is the empty state; ESPN's and AYO's boards by the switch, ESPN's
-    # sorted by RB. The reader here has no team in ESPN's or AYO's league, so those boards carry the "Tap your team
-    # to set it" line. A team opens as a full page (2026-10-05, no sheet): with "This is my team" for that reader,
-    # then "Your team" once they tap it, and the board again with their team pinned.
+    # Records > Trade history (2026-10-06; the Trades leaf, 2026-09-28): the page, then Lateef's trades open (a 2026 one
+    # still open, a trade whose tree verdict differs, the seasons it decided) and every "decided a season" card shown (a
+    # phone swipes through all of them and has no Show all). rcSelect is what a tab runs: a phone's tab is in the pill.
+    ("trades-history", go("records") + [("eval", "rcSelect('trades')")]),
+    ("trades-history-open", go("records") + [("eval", "rcSelect('trades')"), ("click", "[data-trmgr='6']"),
+                                              ("eval", "document.querySelector('[data-trall]')?.click()")]),
+    # League > Teams (2026-10-05; cards 2026-10-06): the board. The suite's reader is on the Madden Curse, whose fixture is
+    # the old scrape with no slots, so the default is the empty state; ESPN's and AYO's boards by the switch, ESPN's
+    # sorted by RB. A reader with a team in the league sees "Trades with them ›" on every other card; one with no team
+    # sees "This is my team" as a quiet link on every card (lboard-nopick).
     ("lboard-yahoo", go("teams")),
     ("lboard-espn", [("eval", LB_AS("espn"))] + go("teams")),
     ("lboard-ayo", [("eval", LB_AS("ayo"))] + go("teams")),
     ("lboard-sorted", [("eval", LB_AS("espn"))] + go("teams") + [("click", "[data-lbsort='RB']")]),
-    ("lboard-team", [UNPICK("espn")] + go("teams") + [("click", ".lb-row .lb-team")]),
-    ("lboard-team-mine", [UNPICK("espn")] + go("teams") + [("click", "[data-lbopen='espn-run-it-back']"), ("click", "[data-lbmine]")]),
-    ("lboard-board-picked", [UNPICK("espn")] + go("teams") + [("click", "[data-lbopen='espn-run-it-back']"),
-                                                                                ("click", "[data-lbmine]"), ("click", ".lbp-back")]),
-    # Find trades (2026-10-05): the team page's lime button for a team in the reader's own league (the reader is
-    # on ESPN here, the suite's David being on the Madden Curse), "This is my team" for a reader whose team is in
-    # another league, and the builder page from the fixture's offers (planted: from file:// the browser refuses the
-    # fetch, and logs it, so -error replaces fetch with a refusal). Bold is the first tab; Fair; a tab with no
-    # offer; a pair with no entry.
-    ("lboard-offers-button", [("eval", LB_AS("espn"))] + go("teams") + [("click", "[data-lbopen='espn-run-it-back']")]),
-    ("lboard-offers-pick", [UNPICK("espn")] + go("teams") + [("click", "[data-lbopen='espn-run-it-back']")]),
-    ("lboard-offers-bold", [("eval", LB_AS("espn"))] + go("teams") + LB_BUILDER("espn-run-it-back")),
-    ("lboard-offers-fair", [("eval", LB_AS("espn-run-it-back"))] + go("teams") + LB_BUILDER("espn") + [("click", "[data-tbtab='fair']")]),
-    ("lboard-offers-empty", [("eval", LB_AS("espn"))] + go("teams") + LB_BUILDER("espn-run-it-back") + [("click", "[data-tbtab='fair']")]),
-    ("lboard-offers-none", [("eval", LB_AS("ayo-don-wick"))] + go("teams") + LB_BUILDER("ayo")),
-    ("lboard-offers-error", [("eval", LB_AS("espn")), ("eval", "void (window.fetch = () => Promise.reject(new TypeError('offline')))")]
-                           + go("teams") + [("click", "[data-lbopen='espn-run-it-back']"), ("click", "[data-tbfind]"), ("eval", "tbLoad()")]),
-    # Edit mode (2026-10-05): from the third offer (Purdy for Brown and Watson, which drops Gordon), after taking Watson out
-    # of the package, from an empty package (Make your own), and a file with no lineup, values or drops (Edit is shut).
-    ("lboard-edit", [("eval", LB_AS("espn"))] + go("teams") + LB_BUILDER("espn-run-it-back") + [("click", "[data-tbedit='2']")]),
-    ("lboard-edit-toggled", [("eval", LB_AS("espn"))] + go("teams") + LB_BUILDER("espn-run-it-back")
+    ("lboard-nopick", [UNPICK("espn")] + go("teams")),
+    # League > Trades, the trade finder (2026-10-06): the chips open on the reader's most negative gap and show the offers
+    # whose get holds that position; WR; a team filtered from Who's deep; a position with no offer (Purdy's offers get only
+    # RB and WR); a reader with no team (the picker); AYO's own finder; the file failing to load; an old-shaped file (Edit is
+    # shut). Edit opens from the third offer (Purdy for Brown and Watson, which drops Gordon), after taking Watson out of
+    # the package, and from an empty package (Make your own) as a page of its own.
+    ("finder-espn", FINDER("espn")),
+    ("finder-wr", FINDER("espn") + [("click", "[data-tfpos='WR']")]),
+    ("finder-partner", FINDER_WITH("espn", "espn-run-it-back")),
+    ("finder-empty", FINDER("espn") + [("click", "[data-tfpos='TE']")]),
+    ("finder-nopick", [UNPICK("espn")] + go("trades")),
+    ("finder-ayo", FINDER("ayo")),
+    ("finder-error", [("eval", LB_AS("espn")), ("eval", "void (window.fetch = () => Promise.reject(new TypeError('offline')))")]
+                     + go("trades") + [("eval", "tbLoad()")]),
+    ("finder-edit", FINDER_WITH("espn", "espn-run-it-back") + [("click", "[data-tbedit='2']")]),
+    ("finder-edit-toggled", FINDER_WITH("espn", "espn-run-it-back")
                             + [("click", "[data-tbedit='2']"), ("click", ".tb-r[data-tbpick='Christian Watson']")]),
-    ("lboard-edit-own", [("eval", LB_AS("espn"))] + go("teams") + LB_BUILDER("espn-run-it-back") + [("click", "[data-tbown]")]),
-    ("lboard-offers-oldshape", [("eval", LB_AS("espn"))] + go("teams") + [("eval", LB_OLD_SHAPE)]
-                               + [("click", "[data-lbopen='espn-run-it-back']"), ("click", "[data-tbfind]")]),
+    ("finder-edit-own", FINDER_WITH("espn", "espn-run-it-back") + [("click", "[data-tbown]")]),
+    ("finder-oldshape", [("eval", LB_AS("espn")), ("eval", LB_OLD_SHAPE)] + go("trades") + [("click", "[data-tfwho='espn-run-it-back']")]),
     ("myrecap-yahoo", [("eval", LB_AS("yahoo"))] + go("recap")),
     ("myrecap-ayo", [("eval", LB_AS("ayo"))] + go("recap")),
     ("myrecap-yahoo-week1", [("eval", LB_AS("yahoo"))] + go("recap") + [("click", "[data-lgweek='1']")]),
@@ -587,11 +582,13 @@ PROBE = """
 def watch_errors(page, into=None):
     """Collect the page's uncaught exceptions and console errors, into `into` when a list is given
     (pages that share one list). Blocked externals (the font stylesheet) log "Failed to load
-    resource"; that one is expected."""
+    resource"; that one is expected. So is the trade finder's fetch of trade_offers.json from file://, which the
+    browser refuses and logs (2026-10-06: any test that opens League > Trades asks for the file; the page says "Offers
+    did not load", tests/test_trade_finder.py plants the fetch where the offers matter)."""
     errors = [] if into is None else into
+    expected = re.compile(r"^Failed to load resource|^Fetch API cannot load file:.*trade_offers\.json")
     page.on("pageerror", lambda e: errors.append(str(e)))
-    page.on("console", lambda m: errors.append(m.text)
-            if m.type == "error" and not m.text.startswith("Failed to load resource") else None)
+    page.on("console", lambda m: errors.append(m.text) if m.type == "error" and not expected.match(m.text) else None)
     return errors
 
 
@@ -968,11 +965,12 @@ def test_recap_puts_your_game_first_then_league_and_nothing_overlaps_a_header(br
 
 @pytest.mark.area("trades")
 def test_trades_desktop_rows_end_level(browser, page_file):
-    """League > Trades at 1440px (STYLE.md "Rows, not columns", 2026-09-28): five cards on top, the ranking
-    beside the curses (ending within 250px of them), the decided trades full width, three across. Two
-    columns by kind left the ranking ending ~1000px above its neighbour. On a phone it is one strip, its
+    """Records > Trade history at 1440px (STYLE.md "Rows, not columns", 2026-09-28; the Trades leaf until 2026-10-06): five
+    cards on top, the ranking beside the curses (ending within 250px of them), the decided trades full width, three
+    across. Two columns by kind left the ranking ending ~1000px above its neighbour. On a phone it is one strip, its
     card sections swipe rows."""
-    ctx, page, errors = open_at(browser, page_file, (1440, 900), "#trades")
+    ctx, page, errors = open_at(browser, page_file, (1440, 900), "#records")
+    page.evaluate("rcSelect('trades')")
     box = "q => { const r = document.querySelector(q).getBoundingClientRect(); return [r.left, r.top, r.width, r.bottom]; }"
     try:
         rank, curses, dec, body = (page.evaluate(box, q) for q in (".tr-rank", ".tr-curses", ".tr-decided", ".tr-body"))

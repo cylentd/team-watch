@@ -100,13 +100,27 @@ def _points(proj, slugify, status, schedule):
     return week, pts, set(unavailable(status, slugify))
 
 
-def _players(rows, pts, gone, slugify):
-    """A team's rows -> [{n, pos, pts}] of the players who can start: QB/RB/WR/TE, not on IR, not out."""
+def _byes(schedule):
+    """A function NFL team -> True when it has no game in the page week; always False with no week or no
+    games in it (a schedule that does not name the week cannot say a team is idle)."""
+    week = (schedule or {}).get("week")
+    alias = (schedule or {}).get("alias") or {}
+    playing = {t for g in (schedule or {}).get("games") or [] if g.get("week") == week
+               for t in (g.get("home"), g.get("away"))}
+    return lambda team: bool(week is not None and playing and team and alias.get(team, team) not in playing)
+
+
+def _players(rows, pts, gone, slugify, bye=None):
+    """A team's rows -> [{n, pos, pts, team, bye}] of the players who can start: QB/RB/WR/TE, not on IR, not
+    out. `team` is his NFL club as the roster file spells it; `bye` says that club has no game in the page
+    week (the page draws BYE for such a player, a dash for any other with no points)."""
     out = []
     for r in rows:
         slug = slugify(r["name"])
         if r["pos"] in POS and r.get("slot") not in OUT_SLOTS and slug not in gone:
-            out.append({"n": r["name"], "pos": r["pos"], "pts": round(pts.get(slug, 0), 1)})
+            team = r.get("team") or ""
+            out.append({"n": r["name"], "pos": r["pos"], "pts": round(pts.get(slug, 0), 1),
+                        "team": team, "bye": bool(bye(team)) if bye else False})
     return out
 
 
@@ -115,13 +129,13 @@ def _record(season):
     return {t["name"]: (t.get("w"), t.get("l"), t.get("t")) for t in ((season or {}).get("teams") or {}).values()}
 
 
-def live_league(key, roster, season, pts, gone, slugify):
+def live_league(key, roster, season, pts, gone, slugify, bye=None):
     """One league's board, or None when its roster file is missing or names no starting slots."""
     counts = slots(roster) if roster else {}
     if not counts:
         return None
     rec = _record(season)
-    cut = {name: best_lineup(_players(rows, pts, gone, slugify), counts) for name, rows in roster["detail"].items()}
+    cut = {name: best_lineup(_players(rows, pts, gone, slugify, bye), counts) for name, rows in roster["detail"].items()}
     floor = _floors([lu for lu, _ in cut.values()])
     teams = []
     for name, (lineup, bench) in cut.items():
@@ -142,7 +156,8 @@ def live_teams(inputs, proj, slugify, status=None, schedule=None):
     roster file is left out, and the page says so under its chip. `week` is the projections' week, null
     with no schedule; the page labels the board with it, never with the page's own week."""
     week, pts, gone = _points(proj, slugify, status, schedule)
-    made = [live_league(k, r, s, pts, gone, slugify) for k, r, s in inputs]
+    bye = _byes(schedule)
+    made = [live_league(k, r, s, pts, gone, slugify, bye) for k, r, s in inputs]
     made = [m for m in made if m and m["teams"]]
     return {"week": week, "leagues": made} if made else None
 
@@ -177,7 +192,8 @@ def problems(obj):
             at = f"LIVE_TEAMS.leagues[{i}].teams[{j}]"
             miss += [f"{at}.{k}" for k in TEAM_KEYS if k not in tm]
             miss += [f"{at}.cols.{c}" for c in COLS if c not in (tm.get("cols") or {})]
-            for part, keys in (("lineup", ("slot", "n", "pos", "pts")), ("bench", ("n", "pos", "pts"))):
+            for part, keys in (("lineup", ("slot", "n", "pos", "pts", "team", "bye")),
+                              ("bench", ("n", "pos", "pts", "team", "bye"))):
                 for r, row in enumerate(tm.get(part) or []):
                     miss += [f"{at}.{part}[{r}].{k}" for k in keys if k not in row]
     return miss

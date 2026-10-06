@@ -1,11 +1,11 @@
-/* ============================== LEAGUE > TEAMS: TRADE OFFERS, THE DATA ==============================
-   2026-10-05. ff-jarvis's trade_offers.json (design/trade_offers.py writes it beside the page): for every
-   owner in every league, up to three bold and three fair offers to each partner. ~650 KB, so it is not in
-   the page: it is fetched the first time a reader opens the builder (tbpage.js) and kept in memory for the
-   session. From file:// or offline the fetch fails and the page says so, with a button to try again. An offer
-   is what each side sends, the owner's one number, `gain`, and who the owner moves to IR (`ir_moves`) or drops to
-   stay at the roster cap.
-   The page scores nothing but the reader's own packages (Edit, tbedit.js, with tbscore.js's port of the rule).
+/* ============================== LEAGUE > TRADES: TRADE OFFERS, THE DATA ==============================
+   2026-10-05; v2 2026-10-06. ff-jarvis's trade_offers.json (design/trade_offers.py writes it beside the page): for
+   every owner in every league one flat list of offers ranked by gain, each with its `partner`: per position the best
+   offers whose `get` holds a player there, and per partner his best. ~360 KB, so it is not in the page: it is
+   fetched the first time a reader opens the finder (finder/finder.js) and kept in memory for the session. From
+   file:// or offline the fetch fails and the page says so, with a button to try again. An offer is what each side
+   sends, the owner's one number, `gain`, and who the owner moves to IR (`ir_moves`) or drops to stay at the roster
+   cap. The page scores nothing but the reader's own packages (Edit, tbedit.js, with tbscore.js's port of the rule).
 
    An owner and a partner are the teams' names as the League board has them (LIVE_TEAMS), which are the names
    in ff-jarvis's roster files, the same ones the offers are keyed by. */
@@ -37,25 +37,26 @@ function tbLoad(){
 const tbLeagueOf = key => ((lbData() || {}).leagues || []).find(l => l.teams.some(x => x.key === key)) || null;
 const tbMine = lg => { const k = myTeamLoad(); return lg && k ? lg.teams.find(x => x.key === k) || null : null; };
 
-/* What a team's page offers (lbpage.js): "find" (Find trades, the reader's own team is in this league and is
-   another), "set" (This is my team: the reader has no team in this league), "own" (it is the reader's team: nothing
-   to trade with) or "" (a team the page cannot make the reader's, which TEAMS does not list). */
+/* What a Teams card's foot offers: "find" (the reader's own team is in this league and is another: "Trades with
+   them"), "set" (This is my team: the reader has no team in this league), "own" (it is the reader's team: nothing to
+   trade with) or "" (a team the page cannot make the reader's, which TEAMS does not list). */
 function tbGate(tm){
   const lg = tbLeagueOf(tm.key), me = tbMine(lg);
   return !lg ? "" : !me ? (TEAMS[tm.key] ? "set" : "") : me.key === tm.key ? "own" : "find";
 }
 
-/* {bold: [offer], fair: [offer]} for this pair, or null when the file has nothing for it. */
-const tbPair = (lg, me, tm) => ((((TB_DATA || {}).leagues || {})[lg.key] || {}).teams || {})[me.name]?.[tm.name] || null;
+/* The owner's offers in this league, as the file ranks them (best gain first); [] when it has none for him. */
+const tbOffersOf = (lg, me) => ((((TB_DATA || {}).leagues || {})[lg.key] || {}).teams || {})[me.name] || [];
 
 /* ---- Edit's guard (2026-10-05): the page re-scores the offers it loads with tbscore.js and shuts Edit when it
    cannot reproduce them. The file is ff-jarvis's, the port is the page's, and a rule that changed on one side
    only would otherwise show the reader a wrong number on a card they built themselves. Fails closed: a missing
    field (an offer's `their` too, since option B), a player the roster does not list, a gain more than 0.15 off or a
    different drop, IR move or `their` shuts Edit and Make
-   your own for the session (the offers still show), and the console names the offer. ---- */
+   your own for the session (the offers still show), and the console names the offer. Since v2 (2026-10-06) the
+   guard checks every offer of the owner, each against its own partner's values, once per owner. ---- */
 const TB_TOL = 0.15;
-let TB_GUARD = {data: null, shut: false, seen: {}};   // per file in memory: a shut guard stays shut, a pair is checked once
+let TB_GUARD = {data: null, shut: false, seen: {}};   // per file in memory: a shut guard stays shut, an owner is checked once
 
 const tbLeagueData = lg => ((TB_DATA || {}).leagues || {})[lg.key] || null;
 
@@ -76,33 +77,36 @@ const tbRuled = rows => rows.every(p => typeof p.keep === "number" && typeof p.i
 /* True when an offer's `their` (the partner's room after the trade, option B) is there: both lists, possibly empty. */
 const tbTheirOk = th => !!th && Array.isArray(th.ir_moves) && Array.isArray(th.drop);
 
-/* The reason this pair cannot be scored, or "" when every offer of it re-scores to its gain, its IR moves and its drop. */
-function tbMismatch(lgd, me, tm, pair){
-  const lu = lgd && lgd.lineup, mine = lgd && lgd.values && lgd.values[me.name], theirs = lgd && lgd.values && lgd.values[tm.name];
-  if (!lu || !mine || !theirs) return "no lineup or values for this pair";
-  if (typeof lu.ir !== "number" || !tbRuled(mine) || !tbRuled(theirs)) return "no IR slots, keep, ir_ok or protect: the file predates the drop rule";
-  for (const kind of ["bold", "fair"]) for (const [i, o] of ((pair || {})[kind] || []).entries()){
+/* The reason this owner's offers cannot be scored, or "" when every one re-scores to its gain, its IR moves and its
+   drop. `list` is the owner's offers (tbOffersOf), each with its partner's name. */
+function tbMismatch(lgd, me, list){
+  const lu = lgd && lgd.lineup, mine = lgd && lgd.values && lgd.values[me.name];
+  if (!lu || !mine) return "no lineup or values for this owner";
+  if (typeof lu.ir !== "number" || !tbRuled(mine)) return "no IR slots, keep, ir_ok or protect: the file predates the drop rule";
+  for (const [i, o] of (list || []).entries()){
+    const theirs = lgd.values[o.partner];
+    if (!theirs || !tbRuled(theirs)) return `offers[${i}] is with ${o.partner}, who has no values the drop rule reads`;
     const send = tbResolve(o.send, mine), get = tbResolve(o.get, theirs);
-    if (!send || !get || !Array.isArray(o.drop) || !Array.isArray(o.ir_moves) || !tbTheirOk(o.their)) return `${kind}[${i}] has a player the roster does not list, or no drop, ir_moves or their`;
-    const r = tbGain(mine, send, get, lu, tbOther(lgd, me.name)), th = tbTheir(theirs, send, get, lu, tbOther(lgd, tm.name));
+    if (!send || !get || !Array.isArray(o.drop) || !Array.isArray(o.ir_moves) || !tbTheirOk(o.their)) return `offers[${i}] has a player the roster does not list, or no drop, ir_moves or their`;
+    const r = tbGain(mine, send, get, lu, tbOther(lgd, me.name)), th = tbTheir(theirs, send, get, lu, tbOther(lgd, o.partner));
     const names = list => list.map(tbKey).join("|");      // the producer's order is the rule's
     const same = r.ok && names(r.drop) === names(o.drop) && names(r.irMoves) === names(o.ir_moves);
     const sameTheirs = names(th.irMoves) === names(o.their.ir_moves) && names(th.drop) === names(o.their.drop);
-    if (!(Math.abs(r.gain - o.gain) <= TB_TOL) || !same || !sameTheirs) return `${kind}[${i}] scores ${r.gain}${same && sameTheirs ? "" : " and moves, drops or makes room for them differently"}, the file says ${o.gain}`;
+    if (!(Math.abs(r.gain - o.gain) <= TB_TOL) || !same || !sameTheirs) return `offers[${i}] scores ${r.gain}${same && sameTheirs ? "" : " and moves, drops or makes room for them differently"}, the file says ${o.gain}`;
   }
   return "";
 }
 
-/* True when Edit and Make your own may show for the open pair. */
-function tbEditOk(){
-  if (!TB_DATA || !TB) return false;
+/* True when Edit and Make your own may show for this owner. */
+function tbEditOk(lg, me){
+  if (!TB_DATA || !lg || !me) return false;
   if (TB_GUARD.data !== TB_DATA) TB_GUARD = {data: TB_DATA, shut: false, seen: {}};
   if (TB_GUARD.shut) return false;
-  const k = `${TB.lg.key}|${TB.me.name}|${TB.tm.name}`;
+  const k = `${lg.key}|${me.name}`;
   if (!(k in TB_GUARD.seen)){
-    const why = tbMismatch(tbLeagueData(TB.lg), TB.me, TB.tm, tbPair(TB.lg, TB.me, TB.tm));
+    const why = tbMismatch(tbLeagueData(lg), me, tbOffersOf(lg, me));
     TB_GUARD.seen[k] = !why;
-    if (why){ TB_GUARD.shut = true; console.warn(`trade builder: Edit is off, ${TB.me.name} to ${TB.tm.name}: ${why}`); }
+    if (why){ TB_GUARD.shut = true; console.warn(`trade finder: Edit is off, ${me.name}: ${why}`); }
   }
   return TB_GUARD.seen[k];
 }

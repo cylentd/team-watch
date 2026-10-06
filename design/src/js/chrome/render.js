@@ -66,7 +66,7 @@ function render(){
   /* Views that are one HTML function and one wiring function. `movers` is Role (2026-09-29). */
   const plain = {ranks: [ranksHTML, wireRanks], digest: [digestHTML, wireDigest], matchups: [matchupsHTML, wireMatchups],
     movers: [rvViewHTML, wireRv], highlights: [hlViewHTML, wireHl], weekrecap: [wrViewHTML, wireWeekRecap],
-    weather: [wtViewHTML, wireWeather], preview: [pvViewHTML, wirePreview], recap: [lgRecapPageHTML, wireRecapPage], records: [lgRecordsPageHTML, wireRecords], trades: [trPageHTML, wireTrades],
+    weather: [wtViewHTML, wireWeather], preview: [pvViewHTML, wirePreview], recap: [lgRecapPageHTML, wireRecapPage], records: [lgRecordsPageHTML, wireRecords], trades: [tfViewHTML, wireTf],
     teams: [lbViewHTML, wireLb], schedule: [sosPageHTML, wireSos]}[SURFACE];
   if (plain){ v.innerHTML = plain[0](); plain[1](v); return; }
   if (SURFACE === "usage"){

@@ -44,7 +44,7 @@
     "league": {
       "paths": ["design/src/js/surface/league/", "design/src/css/surface/league/", "design/src/js/data/league.js",
                 "design/league_back.py", "design/league_recap.py"],
-      "tests": ["tests/test_league_back.py", "tests/test_league_recap.py", "tests/test_leagues.py", "tests/test_js_league_share.py"],
+      "tests": ["tests/test_league_back.py", "tests/test_league_recap.py", "tests/test_leagues.py", "tests/test_js_league_share.py", "tests/test_records_tabs.py"],
       "render": ["league", "myrecap", "recap", "records"]
     },
     "trades": {
@@ -53,9 +53,11 @@
       "render": ["trades"]
     },
     "lboard": {
-      "paths": ["design/src/js/surface/lboard/", "design/src/css/surface/lboard/", "design/teams.py", "design/trade_offers.py"],
-      "tests": ["tests/test_teams_board.py", "tests/test_trade_offers.py", "tests/test_trade_edit.py", "tests/test_js_trade_score.py"],
-      "render": ["lboard"]
+      "paths": ["design/src/js/surface/lboard/", "design/src/css/surface/lboard/", "design/src/js/surface/finder/", "design/src/css/surface/finder/",
+                "design/teams.py", "design/trade_offers.py"],
+      "tests": ["tests/test_teams_board.py", "tests/test_trade_offers.py", "tests/test_trade_edit.py", "tests/test_js_trade_score.py",
+                "tests/test_trade_finder.py", "tests/test_js_finder.py"],
+      "render": ["lboard", "finder"]
     },
     "live": {
       "paths": ["design/src/js/surface/live/", "design/src/css/surface/live/", "design/src/js/data/schedule.js",

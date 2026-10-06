@@ -1,19 +1,21 @@
-"""League > Teams > Find trades (2026-10-05): ff-jarvis's `trade_offers.json`, written beside the page.
+"""League > Trades, the finder (2026-10-06; Teams > Find trades from 2026-10-05): ff-jarvis's `trade_offers.json`, written beside the page.
 
-ff-jarvis (model.season.trade_offers) writes, for every owner in every league, up to three bold and three
-fair offers to each partner: what each side sends and ONE number, the owner's weekly gain by our projection.
-~650 KB, so it is not injected into the page: the build copies it to `trade_offers.json` next to index.html
-(compact, byte for byte the same data) and the page fetches it the first time a reader opens the builder
-(js/surface/lboard/offers.js). Nothing else reads it.
+ff-jarvis (model.season.trade_offers, v2) writes, for every owner in every league, one flat list of offers ranked
+by gain: per position (QB, RB, WR, TE) the best `per_pos` offers whose `get` holds a player there (at most
+`per_partner_pos` from one partner), and per partner the best `top` offers with him; the union, deduped. Each
+offer is what each side sends and ONE number, the owner's weekly gain by our projection. ~360 KB, so it is not
+injected into the page: the build copies it to `trade_offers.json` next to index.html (compact, byte for byte the
+same data) and the page fetches it the first time a reader opens the finder (js/surface/lboard/offers.js).
+Nothing else reads it.
 
-    {"updated", "season", "rules", "leagues": {"espn"|"yahoo"|"ayo": {"week", "teams": {owner: {partner:
-        {"bold": [offer], "fair": [offer]}}}}}}
-    offer = {"send": [player], "get": [player], "gain", "drop": [player], "ir_moves": [player],
+    {"updated", "season", "rules", "leagues": {"espn"|"yahoo"|"ayo": {"week", "teams": {owner: [offer]}}}}
+    offer = {"partner", "send": [player], "get": [player], "gain", "drop": [player], "ir_moves": [player],
              "their": {"ir_moves": [player], "drop": [player]}}
     player = {"name", "pos", "team", "slug", "seen", "injury", "last2", "chips"}
 
-A pair with no offer of either kind is left out by the producer; a kind with none is []. The shape is checked
-at build time (contract.py, TRADE_OFFERS), so a field the producer drops fails the build, not the sheet.
+An owner with no offer is left out by the producer. v1 (owner -> partner -> {"bold", "fair"}) is gone: its shape
+fails the build. The shape is checked at build time (contract.py, TRADE_OFFERS), so a field the producer drops
+fails the build, not the page.
 
 Edit mode (2026-10-05, js/surface/lboard/tbscore.js): each league also carries what the page needs to score a
 package of its own, and each offer the players the reader drops to stay at the roster cap:
@@ -39,8 +41,8 @@ what `their` holds. `OPTION_B_REQUIRED` turns "checked when present" into "must 
 import json
 
 NAME = "trade_offers.json"
-KINDS = ("bold", "fair")
-OFFER = ("send", "get", "gain")
+OFFER = ("send", "get", "gain")                             # and `partner`, a non-empty string (offer_problems)
+RULE_NUMBERS = ("top", "per_pos", "per_partner_pos", "max_out", "max_in", "min_gain", "max_losses")   # per_pos, per_partner_pos and max_losses are v2's
 PLAYER = ("name", "pos", "team", "slug", "seen", "injury")   # `injury` may be null; the key may not be missing
 VALUE = PLAYER + ("proj", "ir")                              # a rostered player in `values`
 DROP_VALUE = ("keep", "ir_ok", "protect")                    # what the drop rule reads of a rostered player
@@ -121,9 +123,34 @@ def edit_problems(at, body):
     return miss
 
 
+def rules_problems(doc):
+    """`rules` carries the numbers the producer's search ran on; v2 added `per_pos`, `per_partner_pos` and `max_losses`."""
+    rules = doc.get("rules")
+    if not isinstance(rules, dict):
+        return ["TRADE_OFFERS.rules"]
+    return [f"TRADE_OFFERS.rules.{k}" for k in RULE_NUMBERS if not isinstance(rules.get(k), (int, float))]
+
+
+def offer_problems(at, o):
+    """One offer of an owner's flat list: its own fields, the partner it is with, and every player object in it."""
+    miss = [f"{at}.{k}" for k in OFFER if k not in o]
+    if not isinstance(o.get("partner"), str) or not o["partner"]:
+        miss.append(f"{at}.partner")
+    if "drop" not in o and EDIT_REQUIRED:
+        miss.append(f"{at}.drop")
+    if "ir_moves" not in o and DROP_RULE_REQUIRED:
+        miss.append(f"{at}.ir_moves")
+    miss += their_problems(at, o)
+    for side in ("send", "get", "drop", "ir_moves"):
+        for j, p in enumerate(o.get(side) or []):
+            miss += [f"{at}.{side}[{j}].{k}" for k in PLAYER if k not in p]
+            miss += perceived_problems(f"{at}.{side}[{j}]", p)
+    return miss
+
+
 def problems(doc):
-    """Missing fields as `TRADE_OFFERS.leagues['espn'].teams['A']['B'].bold[0].send[1].seen`, at most LIMIT."""
-    miss = []
+    """Missing fields as `TRADE_OFFERS.leagues['espn'].teams['A'][0].send[1].seen`, at most LIMIT."""
+    miss = rules_problems(doc)
     if not isinstance(doc.get("leagues"), dict):
         return ["TRADE_OFFERS.leagues"]
     for lg, body in doc["leagues"].items():
@@ -134,26 +161,15 @@ def problems(doc):
         if "week" not in body:
             miss.append(at + ".week")
         miss += edit_problems(at, body)
-        for owner, partners in body["teams"].items():
-            for partner, kinds in partners.items():
-                here = f"{at}.teams[{owner!r}][{partner!r}]"
-                for kind in KINDS:
-                    if not isinstance(kinds.get(kind), list):
-                        miss.append(f"{here}.{kind}")
-                        continue
-                    for i, o in enumerate(kinds[kind]):
-                        miss += [f"{here}.{kind}[{i}].{k}" for k in OFFER if k not in o]
-                        if "drop" not in o and EDIT_REQUIRED:
-                            miss.append(f"{here}.{kind}[{i}].drop")
-                        if "ir_moves" not in o and DROP_RULE_REQUIRED:
-                            miss.append(f"{here}.{kind}[{i}].ir_moves")
-                        miss += their_problems(f"{here}.{kind}[{i}]", o)
-                        for side in ("send", "get", "drop", "ir_moves"):
-                            for j, p in enumerate(o.get(side) or []):
-                                miss += [f"{here}.{kind}[{i}].{side}[{j}].{k}" for k in PLAYER if k not in p]
-                                miss += perceived_problems(f"{here}.{kind}[{i}].{side}[{j}]", p)
-                if len(miss) >= LIMIT:
-                    return miss
+        for owner, offers in body["teams"].items():
+            here = f"{at}.teams[{owner!r}]"
+            if not isinstance(offers, list):
+                miss.append(here)
+                continue
+            for i, o in enumerate(offers):
+                miss += offer_problems(f"{here}[{i}]", o)
+            if len(miss) >= LIMIT:
+                return miss
     return miss
 
 
@@ -163,8 +179,9 @@ def compact(doc):
 
 
 def summary(doc):
-    pairs = {lg: sum(len(p) for p in body["teams"].values()) for lg, body in doc["leagues"].items()}
-    return ", ".join(f"{lg} {n}" for lg, n in pairs.items()) + f" pairs with an offer, updated {doc.get('updated')}"
+    n = {lg: (len(body["teams"]), sum(len(o) for o in body["teams"].values())) for lg, body in doc["leagues"].items()}
+    return ", ".join(f"{lg} {offers} offers from {owners} owner{'s' if owners != 1 else ''}"
+                     for lg, (owners, offers) in n.items()) + f", updated {doc.get('updated')}"
 
 
 def build(repo):

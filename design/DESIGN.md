@@ -191,7 +191,7 @@ Top bar **Week · League · Stats · Bets**. Table in `js/data/navmap.js` (pure,
 | **Teams and League are one group, League** (David). Leaves: Roster, Waivers, Teams, Trades, Recap, Records | "League" was a group and a leaf under Teams, "Teams" a group and a leaf under League; the league was picked twice (team switch, Madden Curse / AYO / ESPN chips) | `NAV`, `navLeavesFor` |
 | **One chip: the team switch.** Pick your team and the league follows: Recap, Records, Trades and Teams all read `lgFocusKey()`, the league of the reader's team (`lgMine()`; the team on screen when none is picked). The Madden Curse / AYO / ESPN chips and `tw-league` are gone; the league's name sits under the team's (the League team line, every League leaf since 2026-10-05) | one place to say "my league" | `surface/league/switch.js` `lgChipHTML`, `data/league.js` |
 | **Recap is one leaf.** `#myrecap` and `#league` are `NAV_ALIAS` entries for it. A Yahoo league draws Recap B (2026-10-06, "Recap became direction B" below): the week stepper, YOUR GAME (the reader's game, grudge and record-book lines in one box), then LEAGUE, the same for every reader; superseded: the masthead with the reader's game under it and his lines at the bottom. An ESPN league keeps its plain recap, rivalry and history | one Recap, your game first | `surface/league/back.js`, `myrecap.js`, `league.js` |
-| **Fewer leaves where a league lacks data**: ESPN has no record book or graded trades (4 leaves), AYO no graded trades (5). A link to a missing leaf lands on its nearest (`navFallback`: Recap, or Roster for Waivers) | six is the most a 360px phone holds | `navFacts` |
+| **Fewer leaves where a league lacks data**: ESPN has no record book (5 leaves: Roster, Waivers, Teams, Trades, Recap). Since 2026-10-06 Trades is the trade finder, which every league with rosters has, so AYO shows all six; the graded trade history left for Records > Trade history. A link to a missing leaf lands on its nearest (`navFallback`: Recap, or Roster for Waivers) ~~ESPN 4 leaves, AYO 5 (Trades needed graded trades)~~ | six is the most a 360px phone holds | `navFacts` |
 | **A reader with no team**: Roster still asks (the picker); Waivers opens on the league's public Most added list under the chip, Recap, Records, Trades and Teams open for everyone | the wire is the league's, not the team's. Tiered public verdicts are not built: David hid his tiers from leaguemates on 2026-09-27 (`data/owner.js`) and a roster-free tier needs ff-jarvis | `chrome/render.js` `renderAsk`, `teams/hot.js` |
 | **Six leaves fit a phone**: League's sub-row takes an 8px gap (`.dense`; at 16px they took 366px with Waivers' count against a 332px row, at 8px 324px; measured at 360px, 2026-10-05) | | `chrome/navrow.css` |
 | **Players is Stats** (group id `scouting` and every leaf id and hash stay). Sub-tabs named by what they hold: Highlights, Ranks, Leaders, **Work vs points** (leaf `movers`, was Role), **Usage** (leaf `usage`, was Grid), each view with one line saying what it holds (`stat-cap`; Role's is its head line). The draft's "Stat leaders" and "Usage grid" took 408px of the 332px row at 360px; these take 312px at the dense 8px gap | A + C of David's options; Highlights leads the group, Ranks second | `navmap.js` `navLabel`, `navCaptionHTML` |
@@ -427,7 +427,15 @@ AYO is a second Yahoo login in the first Yahoo league's shape, read from ff-jarv
   shows. It is the one row of controls STYLE.md allows, and the page must say which league it is.
 - The back page's rule and kicker take the picked league's colour (`--lg-tint`).
 
-## Trades (League group, 2026-09-28)
+## Trade history (Records > Trade history; was the Trades leaf, 2026-09-28)
+
+**Moved 2026-10-06 (trade finder, unit U4):** the page below is now the second tab of Records, **Trade history**
+(`surface/league/rctabs.js`, declared with `navModes("records", ...)`: a phone draws All-time and Trade history as
+the Records pill's own tabs, a desktop a `.setrow` bar above the page). The tab exists only where `LG_TRADES` has
+graded trades (the Madden Curse and AYO; ESPN has no Records) and is kept for the session. The `trades` leaf is the Trade finder
+now (next section); `#trades` opens the finder, the history is at Records. Its CSS is fenced to `records`
+(`scope.json`), its JS is still `surface/trades/`. The golden states `trades` and `trades-open` became
+`trades-history` and `trades-history-open`, reached through Records.
 
 Storyboard https://claude.ai/artifact/EhbDwDUZ7ERb2iNfAqaKjn. **League became a nav group** (Recap,
 Records, Trades): those pages are about the league and its history, not this week's games. It took
@@ -502,20 +510,26 @@ labels went from 5px to 2px sides (8px clear of the search icon at 360px, measur
 ## Teams (League group, 2026-10-05)
 
 Storyboard https://claude.ai/artifact/BXCJdmWfC87Z7VCAgdVC3Y, option B. Leaf `teams`, hash `#teams`, last in the
-League group. One row per team in a league, one column per position (QB, RB, WR, TE, FLX).
+League group. **Roster cards since 2026-10-06** (trade finder, unit U3; a table with one row per team until then): one
+card per team in the league, over a chip row that sorts them. A card is not a button; the team page below is reached
+only from the trade flow.
 
 | Part | Rule |
 |---|---|
+| Card | `surface/lboard/lbcard.js`, top to bottom: the header (name, record, lineup total as the big number), the strength strip, the starters one row each (slot, name as initials, projected points), the bench as one wrapped line (position, initials, points), and a foot. Cards of a grid row share their top and bottom edge; the foot rests on the bottom edge (`lbCardFoot(lg, tm, mine)`). Starters are one 20px row each, no rule between, and the card's gaps are 6px (it was 30px rows with a rule and 10px gaps, 2026-10-06: a card measured 445px at 360, David: ~330; it measures ~361px with 7 starters now, ~380px with 8; two columns of starters would reach ~320px but clip names like "D. Montgomery" to 70px, so they stay one column), the type stays `--t-2` |
+| Strength strip | five cells, QB RB WR TE FLX, the column's label over the team's sum, tinted against the league's median as the table cells were (below). A league with no flex draws no FLX; the lime "+" spare mark stays |
+| Points shown | a player projected 0 shows **BYE** when his NFL club has no game in the page week, else a dash (hurt, unprojected, or already played). `design/teams.py` writes `team` and `bye` on every lineup and bench row (`bye` is False with no schedule or no games in the page week: it cannot say a club is idle) |
+| Sort chips | Total (default), QB, RB, WR, TE, one row, one always pressed, lime. No FLX chip: it is a slot, not a position. The reader's own card stays first whatever the sort, outlined in lime. ~~A table of rows with sortable column headers, a second tap going back to the total~~ (superseded 2026-10-06) |
+| Foot | the reader's own card says "Your team"; a reader with no team in this league gets "This is my team" on every card, **a quiet underlined text link, not a button** (`pickTeam`; lime is for the one primary action on a screen, and 12 full-width lime buttons were not, 2026-10-06); a card of another team, for a reader who has a team here, ends its foot with "Trades with them ›" at the right end, which opens the Trade finder on that team (`tfOpenWith`, below). ~~"This is my team" a full-width lime button~~ (superseded 2026-10-06) |
+| Layout | one column on a phone; from there as many 300px columns as the frame holds (three at 1280px). The week's caption and the chip row come first: the first card starts 227px down at 360px, over the ~200px budget because the team line, the caption and the chips come before any data. ~~"Tap your team to set it" line above the grid~~ (superseded 2026-10-06: each card's foot asks) |
 | A cell | the sum of the team's starters' projected points for each one's next game, in its best legal lineup; FLX is what the league's flex slots take, the best RB/WR/TE left over. The key says "Week N projected points" with the projections' own week (`LIVE_TEAMS.week`, the week most players' next games fall in, `projections.slate`), never the page's week (2026-10-05): after Sunday the projections are already week N+1 while the page's week is N until Monday night's game is final. A player on a bye that week counts 0 |
-| The sort | the pressed header is lime; no caret, which read as a dropdown (2026-10-05) |
 | Tint | `--up` at 8% or more over the league's median for the column, `--down` at 8% or more under, else plain (`LB_EDGE`) |
-| Spare starter | a lime "+" in a cell's corner: a bench player at that position who projects above the median team's weakest starter there. The flex slots count as starters when finding the weakest one. QB, RB, WR and TE columns only |
-| Pin | the reader's own team (`tw-team`, never David's) is the top row with a lime outline, whatever the sort; no team of theirs in the league, no pin |
-| Sort | total of the lineup, best first, by default (the team column's button, "Team · Total"). A column header sorts by that column; a second tap goes back to the total. Real buttons, one always pressed |
-| Team page | a row opens that team as a full page in the view (`lbpage.js`, David 2026-10-05: no pop-ups from the bottom, so no sheet, no scrim, no motion), nav bar and League sub-row still on screen: a "‹ Teams" link, the name, record and total, one action in a fixed-height slot, then LINEUP by slot and BENCH (position, name as initials, projection). A page is a history entry (`layers.js`, no URL change: the hash stays `#teams`, so a reload lands on the board). Back and the ‹ link each step back one page, and the board returns at the scroll the reader left (`LB_Y`). Content keeps to one 560px column, left on the frame's edge (a name and its number stay within STYLE.md's 560px). The action is above the lineup, not below the bench as first asked: under 16 rows it was a screen away on a phone. Data starts ~235px down at 360px, over the ~200px budget for that reason |
-| Action | "Find trades with <team>" when the reader's team is in this league and is another; "This is my team" when the reader has no team in this league; a quiet "Your team" chip on their own. "This is my team" calls `pickTeam`, the team switch's own function and storage (`tw-team`), so My teams, Live and the rest follow, and the page redraws as theirs. A reader who already has a team here never sees it on another team: they switch with the team switch |
-| No team yet | while the reader has no team in the league on screen, one quiet line above the grid says "Tap your team to set it" |
-| Leagues | all three. **Superseded 2026-10-05:** the board is the league of the reader's team, whichever of the three, set by the one chip (`surface/league/switch.js`, the team switch); the league switch and `tw-league` are gone. Records and Trades are the Yahoo leagues' alone |
+| Spare starter | a lime "+" in a strip cell's corner: a bench player at that position who projects above the median team's weakest starter there. The flex slots count as starters when finding the weakest one. QB, RB, WR and TE cells only |
+| Pin | the reader's own team (`tw-team`, never David's) is the first card with a lime outline, whatever the sort; no team of theirs in the league, no pin |
+| Team page | ~~**reached only from the trade flow since 2026-10-06; a card does not open it.** A team opened as a full page in the view (`lbpage.js`)...~~ **Retired 2026-10-06** (trade finder, unit U4): the page, its history entry and its Back handling went with `lbpage.js` and `tbpage.js`. "Trades with them ›" opens the finder filtered to that team, which is the one place "trades with X" lives; the lineup and bench are on the card |
+| Action | "This is my team" calls `pickTeam`, the team switch's own function and storage (`tw-team`), so My teams, Live and the rest follow, and the cards redraw with theirs pinned. A reader who already has a team here never sees it on another team: they switch with the team switch. "Trades with them ›" is the other action, below |
+| No team yet | ~~one quiet line above the grid said "Tap your team to set it"~~ (superseded 2026-10-06: every card's foot offers "This is my team") |
+| Leagues | all three. **Superseded 2026-10-05:** the board is the league of the reader's team, whichever of the three, set by the one chip (`surface/league/switch.js`, the team switch); the league switch and `tw-league` are gone. Records is the Yahoo leagues' alone (and its Trade history tab the Madden Curse's); Trades is the finder, for all three since 2026-10-06 |
 | Empty | a league whose roster file is missing or names no starting slots gets the shared dashed empty block under the switch |
 
 - **Data:** `design/teams.py` -> `LIVE_TEAMS`, from the three roster files (`espn_rosters.json`,
@@ -525,64 +539,93 @@ League group. One row per team in a league, one column per position (QB, RB, WR,
   lineup rule is ff-jarvis's `model.season.leagues` (`counts`, `fills`), re-written in `teams.py` and not imported:
   nothing in this repo imports `model.*`. Dedicated slots take the top players at their position, then the flex
   slots take the best left, which is the optimum for a flex open to several positions. The page computes only the tint.
-- **First data at ~145px** on a phone, 12 rows in one screen at 360x800; five 38px columns, tabular figures, the
-  team's name takes the rest and ends in an ellipsis. Desktop: the grid stops at 720px, left on the frame's edge,
-  cells 84px.
-- **Not built:** a median row, a total column (the total is under each name), the team's week-by-week line.
+- **First card at 227px** on a phone (measured 360x800, 2026-10-06), over the ~200px budget: the team line, the
+  week's caption and the chip row come first. A card is ~361px tall (7 starters at 20px; ~445px at 30px before 2026-10-06), so 12 teams are ~4,400px; a
+  card is 317px wide. Desktop at 1280: three cards across, ~385px each. ~~First data at ~145px, 12 rows in one screen,
+  five 38px columns, the grid stopping at 720px~~ (the table, superseded 2026-10-06).
+- **Not built:** a median row, the team's week-by-week line, a card that opens the team (its foot's "Trades with them ›" opens
+  the Trade finder on it).
 
-### Trade builder (League > Teams, 2026-10-05)
+## Trade finder (League > Trades, 2026-10-06)
 
-Storyboard https://claude.ai/artifact/BXCJdmWfC87Z7VCAgdVC3Y, frames 1-4 (frame 4, Edit, since 2026-10-05). A lime
-"Find trades with <team>" button on the team's page opens the builder as the next full page (`tbpage.js`; it was a sheet
-over a sheet until 2026-10-05, when David dropped every pop-up from the bottom). Its link reads "‹ <team>", and Back and the
-link return to that team's page, which is still there after (`layers.js`, one history entry per page).
+Plan: ff-jarvis `trade-finder` (producer, `trade_offers.json` v2) and team-watch `trade-finder` (this page, unit U4). Leaf
+`trades`, hash `#trades`, for every league that has Teams data (all three). It replaced the per-partner builder
+(Teams > a team's page > "Find trades with <team>", Bold and Fair tabs, 2026-10-05), which is gone with `lbpage.js` and
+`tbpage.js`. The trade history that was the Trades leaf is Records > Trade history (Trade history above).
 
 | Part | Rule |
 |---|---|
-| Button | On the team's page, in its action slot. Shown when the reader's own team (`tw-team`, never David's) is in that team's league and is not that team. A reader with no team in the league gets "This is my team" instead (see Teams, "Action"); the reader's own team gets a "Your team" chip |
-| Head | "You ⇄ <team>", the swap a drawn icon |
-| Bold | The offers that gain the reader the most, ranked by their gain, that the other manager would also see as a gain at his price (option B, 2026-10-05; ff-jarvis `rules.perceived`: season average, plus half the last-2 streak, plus a leash for round 1-3 picks; an untested guess). Never an offer for a player the partner's team name is built on (`rules.namesake`: Honey Bijan keeps Bijan) |
-| Fair | The Bold test, and the partner's real gain by projection is not below 0. Ranked by the reader's gain. A pair can have none |
-| Perceived filter | The producer's, not the page's: the page re-checks the reader's gain only, so a partner who sees a loss is never recomputed here. It is not labelled on screen; the chips and the pitch are its only trace |
+| Question | "Which position do I need a trade at?" One screen answers it: the chips, the offers for one position, who is deep there. No typed "I need a WR" box; the four chips are the ask |
+| No team picked | the team picker (the Roster view's own markup, by league) under the team line, with one line: "A trade needs your team. Pick yours." No chips, no offers. A pick that is not in this league (a connected one) gets the same; a league with no rosters gets the shared empty block |
+| Chip row | QB, RB, WR, TE (only the positions the league starts), one row of four equal chips, each the position over **the reader's gap to the league median**: his column in `LIVE_TEAMS` (`cols`) minus `median`, signed, one decimal, a true minus, `0.0` with no sign, red below the median and green above (`--down`, `--up`). One chip is always pressed, lime. **It opens on the most negative gap**, the first in QB RB WR TE order on a tie, the smallest lead when nobody is short (`tfStartPos`); once the offers are in, only among positions with an offer, so a reader short at TE with no TE offer opens where a trade exists (2026-10-06), and a chip the reader taps stays. The chip is kept for the visit, per league and per reader's team. 54px tall, 44px targets |
+| Offers | the offers whose `get` holds a player at the pressed position, **best `gain` first, the top 5** (`tfOffersFor`; equal gains go to the smaller trade, then the partner's name), from the owner's flat list in `trade_offers.json`. A card: the **partner's name and record** on top, YOU SEND and YOU GET as rows (position, initials, amber status pill, Hot / Cold / Early pick chips under the name), the **To IR** and **You drop** lines, then the gain ("+8.5 pts a week for you", mono, green) with **Copy offer** and **Edit** side by side. An offer for a RB and a TE is a TE offer too. The card is the builder's, unchanged (below) |
+| Who's deep at <POS> | under the offers: every team but the reader's, ranked by that column, ties to the higher lineup total (`tfDeep`). A row: the **team's name** (a button, 44px) with his record, the column's sum tinted as a Teams card strip cell (8% over the median is green, 8% under red; `lbTone`), and under them his starters at that position as initials, the flex slot's included. A row opens nothing; **the name opens the finder filtered to that team** |
+| Trades with <team> | the filtered state (a name in Who's deep, or "Trades with them ›" on a Teams card): "‹ All positions" (the way back to the chips, on the position the reader left), the heading "Trades with <team>", then **every offer with him whatever the position** (no cap of five; the file holds his best 3 and the per-position ones), and Make your own. No chips and no Who's deep. A team with no offer says "No offers with <team> this week". It is not a history entry: the way back is the button, and from Teams the browser's Back returns to the cards |
+| Empty | a position with no offer says "No offer at <POS> this week" in one dashed line and keeps Who's deep and Make your own |
+| Make your own offer | a full-width outlined button under everything, once the file is in (and the guard allows Edit). Against the filtered team, else against **the deepest team at the pressed position**; with no team filtered the edit page carries a "Trade with" select of every other team to change it (the package's "get" side clears, what the reader sends stays) |
+| States | loading: the chips and Who's deep draw at once, three card-shaped placeholders hold the offers; error (offline, file://, a missing file): one dashed block and Try again; the `updated` date under everything. The file is fetched on the first open and kept for the session |
+| Size | phone, 360px: the first offer card starts at ~247px (the team line and the chips come first; budget ~200, STYLE.md). A card is ~275px, Who's deep ~64px a team. Desktop: one 560px column on the frame's edge (`--tf-w`), the cards 560px at most |
+| Phone vs view tabs | the chips are **content controls**, not view tabs: they stay in the page (STYLE.md "Phone chrome" is for a view's own tabs, which open in place in the tab row: Records' tabs do) |
+
+### The offer card and the edit page (2026-10-05, storyboard https://claude.ai/artifact/BXCJdmWfC87Z7VCAgdVC3Y, frames 1-4)
+
+| Part | Rule |
+|---|---|
+| Perceived filter | The producer's, not the page's: the page re-checks the reader's gain only, so a partner who sees a loss is never recomputed here. ff-jarvis `rules.perceived`: season average, plus half the last-2 streak, plus a leash for round 1-3 picks; an untested guess. Never an offer for a player the partner's team name is built on (`rules.namesake`: Honey Bijan keeps Bijan). v2 adds `rules.max_losses` (1, a count the producer's search uses; the page reads none of `rules`' numbers, `contract.py` checks they are there) |
 | Chips | Hot (`--heat`), Cold (`--sky`), Early pick (neutral), small and flat like the status pill, on every player of an offer card and of both Edit rosters. Hot and Cold are the last 2 games' average 4+ points off the season's; Early pick is a round 1-3 draft pick (`rules.chips`). On a card they sit on a line under the name, because a card column is ~140px at 360px and a name plus two chips does not fit one line; on an Edit roster row they trail the name; the Edit package shows none, so its rows stay one line tall |
-| Tabs | Two chips, Bold then Fair, one pressed. Bold opens first; the last tab is kept in memory for the visit. One line under them names the tab: "Biggest gain for you" / "Both lineups gain" |
-| Offer card | At most 3 per tab. Two columns, YOU SEND and YOU GET, a row per player: position, name as initials, an amber pill (O, IR, Q, D) where a status is set. Under them one number, the reader's gain, "+8.5 pts a week for you", mono and green. No partner gain, no season averages on the card |
 | Room lines | The reader's roster room only: nothing on the card says whether the partner has room (David, 2026-10-05); the copied pitch does (Copy offer, below). **The rule (fixed 2026-10-05, after David: "IR is not a drop candidate"):** over the cap, an injured player eligible for IR moves to a free IR slot first; only then are the lowest-`keep` non-starters dropped, never a `protect` player (early picks, anyone who would start for half the league). Two quiet lines under the columns, each only when it has someone, IR above: "To IR: C. Williams" (an offer's `ir_moves`), then "You drop: O. Gordon II" (`drop`). Initials, comma-separated, never amber |
-| Edit | A button beside Copy offer on every card, two equal halves under the gain. Opens the edit state on the same page, its own history entry: Back and the page's link (now "‹ Offers") each return to the offers first, and focus goes back to the Edit button |
-| Make your own | A full-width outlined button under the offers, on both tabs and in the "none" empty states. Opens the same edit state with an empty package |
+| Edit | A button beside Copy offer on every card, two equal halves under the gain. Opens the edit state **on a page of its own** (`finder/page.js`, its own history entry: Back and the "‹ Offers" link each return to the finder, at the scroll the reader left, and focus goes back to the Edit button) |
 | Edit state | Three parts that never move or resize: the package on top (YOU SEND / YOU GET, three rows tall, a fourth scrolls inside, a row is a button that takes the player out), the two rosters under it (the page scrolls past them: "Your roster" and "<team> roster", a card each, stacked on a phone and side by side from 760px within 720px, position, initials, IR/injury pill, projection to one decimal, a lime tint with a 1px outline of it and a tick on a picked row, no one-sided edge), and the foot, a tray stuck to the bottom edge (STYLE.md: what the reader builds lives there; `position:sticky`, so it rests under the last row at the page's end and hides none). The foot: the live gain ("+5.5 pts a week for you", green above 0, red below, grey at 0, a dash for an empty package), two rows for the "To IR" and drop lines (kept empty so nothing shifts), Reset (back to the offer it started from, disabled while there is no change) and Copy offer (lime, the same message as a card's, disabled until both sides have a player). A package the cap cannot take (nobody left to drop) shows a dash and "Over the roster limit, no one to drop". Gains of any sign show, unlike the offers the producer writes (>= `rules.min_gain`) |
 | Copy offer | Per card. Puts "Trade? I send Purdy (28.8 a game), Higgins (14.4) for Smith-Njigba (25.3) and Brown (11.4)." on the clipboard: surnames and true 2026 points a game in that league's scoring (`seen`), nothing projected. **A Hot player the reader sends is quoted on his last 2** ("McMillan (20.5 a game his last 2)", `last2`), selling high, because the other manager prices the streak; **every player the reader gets is quoted on his season average, Hot or not** (his last 2 would inflate the ask; David, 2026-10-05); the "a game" unit goes on the side's first season average. Then one sentence on the partner's room from the offer's `their` (option B, 2026-10-05): "D. Smith can go to your IR slot, so you don't cut anyone." or "You'd only need to cut K. Johnson."; with both, "D. Smith can go to your IR slot. You'd only need to cut K. Johnson." (no "you don't cut anyone" before a cut; deviation from the spec's two sentences, which contradicted each other). Nothing when `their` is empty. In Edit the sentence is worked out live for the package (`tbTheir`, the room rule run on the partner's roster, `values[partner]`), and left out when the partner has nobody to cut. Where the clipboard is refused the text shows in a box, selected (on a card; in the edit state, in the tray). The button says "Copied" for 1.6 s |
-| States | Loading: three card-shaped placeholders (no motion). Error (offline, file://, a missing file): one dashed block and Try again. A tab with none: "No fair offer this week" / "No bold offer this week". A pair with no entry: "No offers this week", no tabs. The `updated` date in a footer line |
-| Size | Phone, 360px: the first offer card starts at ~285px (a two-line team name; ~255px with one), over the ~200px budget (STYLE.md) because the link, the head, the tabs and their line come first. The tabs sit at the same place on Bold and Fair, so a tab never moves them. Desktop: one 560px column on the frame's edge; the edit state's rosters sit side by side within 720px |
 
-- **Data:** ff-jarvis `trade_offers.json` (`model.season.trade_offers`, nightly, feed block `trade_offers`; ~650 KB).
-  `design/sources.py` `load_trade_offers()` (feed first, file second), checked at build time by `contract.py`
-  `TRADE_OFFERS`, written compact beside the page by `design/trade_offers.py` as `trade_offers.json`. **Never injected**:
-  the page fetches it the first time a reader opens the builder and keeps it in memory for the session
-  (`surface/lboard/offers.js`). `.vercelignore` is an allowlist and lists it; `.gitattributes` marks it generated and
-  `land.ps1` folds it into the land commit like `build.json`, so a feature branch never commits it.
-- **The scorer and its guard (2026-10-05):** Edit scores the reader's package in the browser, so the rule is ported:
-  `surface/lboard/tbscore.js` is a pure port of ff-jarvis's `rules.scoring` and `rules.drop` (written in the file's own
-  `rules`), over each league's `lineup` (with `ir`, the IR slots), `values` (every rostered QB/RB/WR/TE of every team, with
-  `proj`, `ir`, `keep`, `ir_ok`, `protect`) and `other` (K/DST per team, which count toward `lineup.cap`), and each offer's
-  `ir_moves` and `drop`. The drop rule in two lines: over the cap, IR-eligible players move to free IR slots first, the
-  highest `keep` first; then the lowest-`keep` non-starters outside `get` go, never a `protect` player, and with nobody left
-  to drop there is no offer ("Over the roster limit, no one to drop"). The page never owns the rule: the
-  file's `rules` text does. `offers.js` re-scores every offer of the open pair when the builder first draws it
-  (`tbEditOk`); if one gain is more than 0.15 off, a drop or an IR move differs, or `lineup.ir`, `keep`, `ir_ok`, `protect`,
-  `ir_moves` or `drop` is missing (a file from before the rule, 2026-10-05, or older), **Edit and Make your own are hidden for the session**, the offers and Copy offer still show, and the console
-  names the offer. Fail closed: a wrong number on a package the reader built is worse than no Edit. The test fixture is
-  a cut of the producer's own file and `tests/test_trade_edit.py` asserts the port reproduces every gain, drop and IR move in it
-  exactly, and in `tests/fixtures/trade_offers_ffjarvis.json`, ff-jarvis's own drop-rule file (ESPN, 121 offers, 8 with
-  IR moves, 25 with drops, 2026-10-05), which the guard also accepts pair by pair. A rule change on either side shows up there first. `trade_offers.py` `DROP_RULE_REQUIRED` has been True since 2026-10-05 (the ~~"False until the live file carries the rule" note was superseded~~ when ff-jarvis 4e69378 landed).
-- **Option B, the partner's price (2026-10-05, spec `option-b-spec.md`):** each player carries `last2` (null with under 2 games) and `chips`, each offer `their` (the partner's `ir_moves` and `drop` by the same room rule). The guard re-derives `their` with `tbTheir` and compares names per offer, so a missing `their` or a different one shuts Edit like a wrong gain: **the page lands after ff-jarvis, or Edit stays off until it does**. `trade_offers.py` `OPTION_B_REQUIRED` is False (TODO beside it: flip it the day the live file carries the fields); until then the fields are checked only when present.
-- **Producer's option-B file (`tests/fixtures/trade_offers_ffjarvis_optionb.json`, ff-jarvis b23bf06, ESPN, 3 owners):** the Node tests assert the port reproduces every gain, drop, `ir_moves` and `their` in it exactly (10 offers move a partner's player to IR, 27 cut one) and that the guard accepts every pair unstamped; the contract passes with `OPTION_B_REQUIRED` on. Nothing disagreed with the port.
-- **Tests, in Node (2026-10-05):** the scorer, the room rule, `tbTheir`, the pitch text, the chips and room lines as strings, and the guard's checks are plain functions of data, so they run in `tests/test_js_trade_score.py` through the `node_js` fixture (no build, no browser, ~0.2 s for 18 tests). `test_trade_edit.py` and `test_trade_offers.py` keep what is drawn or clicked, in Chromium.
+- **Data:** ff-jarvis `trade_offers.json` **v2** (`model.season.trade_offers`, nightly, feed block `trade_offers`; ~360 KB).
+  Per league, `teams` is owner -> **one flat list of offers ranked by `gain`**, each offer carrying its `partner`: per
+  position (QB RB WR TE) the best `rules.per_pos` = 5 offers whose `get` holds a player there, at most
+  `rules.per_partner_pos` = 2 from one partner, and per partner the best `rules.top` = 3 (the union, deduped by partner
+  and the two name lists). An owner with no offer is left out: in the Madden Curse 3 of 12 owners have none and the median
+  owner has 0.5 QB, 2 RB, 2 WR and 0.5 TE offers (ESPN 4.5, 6, 8 and 5.5), so an empty position is common there and the
+  finder says so. ~~owner -> partner -> {bold, fair}~~ (v1, superseded 2026-10-06). `design/sources.py`
+  `load_trade_offers()` (feed first, file second), checked at build time by `contract.py` `TRADE_OFFERS` (`design/trade_offers.py`:
+  every offer has a `partner`, `rules` carries its numbers), written compact beside the page by `design/trade_offers.py` as
+  `trade_offers.json`. **Never injected**: the page fetches it the first time a reader opens the finder and keeps it in memory
+  for the session (`surface/lboard/offers.js`). `.vercelignore` is an allowlist and lists it; `.gitattributes` marks it
+  generated and `land.ps1` folds it into the land commit like `build.json`, so a feature branch never commits it.
+- **The scorer and its guard (2026-10-05, per owner since v2):** Edit scores the reader's package in the browser, so the
+  rule is ported: `surface/lboard/tbscore.js` is a pure port of ff-jarvis's `rules.scoring` and `rules.drop` (written in the
+  file's own `rules`), over each league's `lineup` (with `ir`, the IR slots), `values` (every rostered QB/RB/WR/TE of every
+  team, with `proj`, `ir`, `keep`, `ir_ok`, `protect`) and `other` (K/DST per team, which count toward `lineup.cap`), and each
+  offer's `ir_moves` and `drop`. The drop rule in two lines: over the cap, IR-eligible players move to free IR slots first,
+  the highest `keep` first; then the lowest-`keep` non-starters outside `get` go, never a `protect` player, and with nobody
+  left to drop there is no offer ("Over the roster limit, no one to drop"). The page never owns the rule: the file's `rules`
+  text does. `offers.js` re-scores **every offer of the owner, each against its own partner's `values`**, the first time the
+  finder shows Edit for him (`tbEditOk(lg, me)`); if one gain is more than 0.15 off, a drop or an IR move differs, or
+  `lineup.ir`, `keep`, `ir_ok`, `protect`, `ir_moves`, `drop` or `their` is missing (a file from before the rule,
+  2026-10-05, or older), **Edit and Make your own are hidden for the session**, the offers and Copy offer still show, and
+  the console names the offer ("trade finder: Edit is off, <owner>: offers[3] scores ..."). Fail closed: a wrong number on
+  a package the reader built is worse than no Edit. An owner with no offer passes (nothing to disagree with). The test
+  fixture is a cut of the producer's own file and `tests/test_js_trade_score.py` asserts the port reproduces every gain,
+  drop and IR move in it exactly, and in `tests/fixtures/trade_offers_ffjarvis.json`, ff-jarvis's own drop-rule file (ESPN,
+  121 offers, 8 with IR moves, 25 with drops, 2026-10-05), which the guard also accepts owner by owner. The first real v2
+  file (ff-jarvis `trade-finder` 60ace9c, 2026-10-06: 202 ESPN, 67 Madden Curse, 104 AYO offers) passes the guard for all 36
+  owners, the 3 with no offer included. A rule change on either side shows up there first.
+- **Option B, the partner's price (2026-10-05, spec `option-b-spec.md`):** each player carries `last2` (null with under 2
+  games) and `chips`, each offer `their` (the partner's `ir_moves` and `drop` by the same room rule). The guard re-derives
+  `their` with `tbTheir` and compares names per offer, so a missing `their` or a different one shuts Edit like a wrong gain.
+  `trade_offers.py` `OPTION_B_REQUIRED` and `DROP_RULE_REQUIRED` are True (since 2026-10-05).
+- **Tests, in Node (2026-10-05):** the scorer, the room rule, `tbTheir`, the pitch text, the chips and room lines as strings,
+  and the guard's checks are plain functions of data, so they run in `tests/test_js_trade_score.py` through the `node_js`
+  fixture. The finder's own logic (gaps, the default chip, which offers a chip shows, the deep ranking) is
+  `surface/finder/logic.js` and `tests/test_js_finder.py`. `tests/test_trade_finder.py` mounts the Trades view alone and reads it
+  through `tests/pages/finder.py`; `test_trade_edit.py` and `test_trade_offers.py` keep the edit page and the file.
 - **Keys:** an owner and a partner are team names as `LIVE_TEAMS` has them, the names in ff-jarvis's roster files; the
   offers are keyed by them, so a team renamed between a nightly run and a rebuild has no offers until the next night.
 - **Judgment, not backtested:** a gain is a projection difference (ff-jarvis METHODOLOGY says as much), shown as one number.
-- **Superseded 2026-10-05:** the sheets (`#lbsheet`, `#tbsheet`, their scrims and the `.lbs-body` scroller, which once
-  shrank an 8-man lineup to five and a half rows) are gone; the pages scroll with the document.
+  No bench or rest-of-season value: a benched player counts 0 to a lineup. No partner-side roster-room display on the
+  card (David: "just our side"); the copied pitch carries it.
+- **Superseded 2026-10-06:** the Bold and Fair tabs and the per-partner page ("You ⇄ <team>" with "‹ <team>" above it), the
+  team page's lime "Find trades with <team>" button, "This is my team" as a full-width lime button. **Superseded
+  2026-10-05:** the sheets (`#lbsheet`, `#tbsheet`, their scrims and the `.lbs-body` scroller), which once shrank an 8-man lineup
+  to five and a half rows; pages scroll with the document.
 
 ## Clips (Roster, 2026-10-05)
 

@@ -1,4 +1,4 @@
-"""The trade builder's pure JavaScript (surface/lboard/tbscore.js, offers.js, tbpage.js) in Node, with no build and no
+"""The trade builder's pure JavaScript (surface/lboard/tbscore.js, offers.js, tbcard.js) in Node, with no build and no
 browser: the scorer (a port of ff-jarvis's rules.scoring and rules.drop) over every fixture offer, the room rule, the
 partner's room (`their`, option B), the pitch text, the chips and the IR / drop lines as strings, and the guard
 (`tbMismatch`) that shuts Edit when the page cannot reproduce the file.
@@ -27,36 +27,35 @@ OWNER, PARTNER = "Purdy Big in Japan", "Run It Back"
 @pytest.fixture(scope="module")
 def tb(node_js):
     # lboard.js for lbNum, then the scorer, the offers' data and guard, and the page's string builders, as on the page.
-    return node_js("surface/lboard/lboard.js", "surface/lboard/tbscore.js", "surface/lboard/offers.js", "surface/lboard/tbpage.js")
+    return node_js("surface/lboard/lboard.js", "surface/lboard/tbscore.js", "surface/lboard/offers.js", "surface/lboard/tbcard.js")
 
 
-def bold(doc):
-    return doc["leagues"]["espn"]["teams"][OWNER][PARTNER]["bold"]
+def mine(doc):
+    """OWNER's offers in the fixture, the flat list v2 writes (best gain first, each with its `partner`)."""
+    return doc["leagues"]["espn"]["teams"][OWNER]
 
 
 def mismatch(tb, doc):
     lg = doc["leagues"]["espn"]
-    return tb("tbMismatch", lg, {"name": OWNER}, {"name": PARTNER}, lg["teams"][OWNER][PARTNER])
+    return tb("tbMismatch", lg, {"name": OWNER}, lg["teams"][OWNER])
 
 
 def each_offer(doc):
     for lg in doc["leagues"].values():
-        for ps in lg["teams"].values():
-            for kinds in ps.values():
-                for offers in kinds.values():
-                    yield from offers
+        for offers in lg["teams"].values():
+            yield from offers
 
 
 # ---- the scorer: every fixture offer, exactly; drops, floors, flex, ties, IR ------------------------------------
 
 SCORE_ALL = """(data) => {
   const out = [];
-  for (const [key, lg] of Object.entries(data.leagues)) for (const [owner, ps] of Object.entries(lg.teams))
-    for (const [partner, kinds] of Object.entries(ps)) for (const kind of ["bold", "fair"]) for (const o of kinds[kind]){
-      const mine = lg.values[owner], theirs = lg.values[partner];
+  for (const [key, lg] of Object.entries(data.leagues)) for (const [owner, list] of Object.entries(lg.teams))
+    for (const o of list){
+      const partner = o.partner, mine = lg.values[owner], theirs = lg.values[partner];
       const r = tbGain(mine, tbResolve(o.send, mine), tbResolve(o.get, theirs), lg.lineup, tbOther(lg, owner));
       const th = tbTheir(theirs, tbResolve(o.send, mine), tbResolve(o.get, theirs), lg.lineup, tbOther(lg, partner));
-      out.push({at: `${key} ${owner} ${partner} ${kind}`, js: r.gain, file: o.gain, ok: r.ok,
+      out.push({at: `${key} ${owner} ${partner}`, js: r.gain, file: o.gain, ok: r.ok,
                 drop: r.drop.map(p => p.name), want: o.drop.map(p => p.name),
                 moves: r.irMoves.map(p => p.name), wantMoves: o.ir_moves.map(p => p.name),
                 theirMoves: th.irMoves.map(p => p.name), wantTheirMoves: o.their.ir_moves.map(p => p.name),
@@ -95,33 +94,32 @@ REAL_ALL = """(data) => {
     const mine = strip(lg.values[owner]), theirs = strip(lg.values[o.partner]);
     return tbGain(mine, tbResolve(o.send, mine), tbResolve(o.get, theirs), lg.lineup, tbOther(lg, owner));
   };
-  for (const [key, lg] of Object.entries(data.leagues)) for (const [owner, ps] of Object.entries(lg.teams))
-    for (const [partner, kinds] of Object.entries(ps)) for (const kind of ["bold", "fair"]) for (const o of kinds[kind]){
-      const r = plain(lg, owner, Object.assign({partner}, o), true), n = plain(lg, owner, Object.assign({partner}, o), false);
-      out.push({at: `${key} ${owner} ${partner} ${kind}`, js: r.gain, file: o.gain, ok: r.ok,
+  for (const [key, lg] of Object.entries(data.leagues)) for (const [owner, list] of Object.entries(lg.teams))
+    for (const o of list){
+      const r = plain(lg, owner, o, true), n = plain(lg, owner, o, false);
+      out.push({at: `${key} ${owner} ${o.partner}`, js: r.gain, file: o.gain, ok: r.ok,
                 drop: r.drop.map(p => p.name), want: o.drop.map(p => p.name),
                 moves: r.irMoves.map(p => p.name), wantMoves: o.ir_moves.map(p => p.name),
                 unprotected: n.drop.map(p => p.name), owner});
     }
   const guard = [];
-  for (const [key, lg] of Object.entries(data.leagues)) for (const [owner, ps] of Object.entries(lg.teams))
-    for (const [partner, pair] of Object.entries(ps)){
-      const stamped = {};
-      for (const kind of ["bold", "fair"]) stamped[kind] = pair[kind].map(o => {
-        const mine = lg.values[owner], theirs = lg.values[partner], send = tbResolve(o.send, mine), get = tbResolve(o.get, theirs);
-        const th = tbTheir(theirs, send, get, lg.lineup, tbOther(lg, partner));
-        return Object.assign({}, o, {their: {ir_moves: th.irMoves, drop: th.drop}});
-      });
-      const why = tbMismatch(lg, {name: owner}, {name: partner}, stamped);
-      if (why) guard.push(`${owner} to ${partner}: ${why}`);
-    }
+  for (const [key, lg] of Object.entries(data.leagues)) for (const [owner, list] of Object.entries(lg.teams)){
+    const stamped = list.map(o => {
+      const mine = lg.values[owner], theirs = lg.values[o.partner], send = tbResolve(o.send, mine), get = tbResolve(o.get, theirs);
+      const th = tbTheir(theirs, send, get, lg.lineup, tbOther(lg, o.partner));
+      return Object.assign({}, o, {their: {ir_moves: th.irMoves, drop: th.drop}});
+    });
+    const why = tbMismatch(lg, {name: owner}, stamped);
+    if (why) guard.push(`${owner}: ${why}`);
+  }
   return {out, guard};
 }"""
 
 HAND = """(data) => {
   const lg = data.leagues.espn, res = [];
-  for (const [owner, ps] of Object.entries(lg.teams)) for (const [partner, kinds] of Object.entries(ps))
-    for (const o of kinds.bold.concat(kinds.fair)) if (o.drop.length){
+  for (const [owner, list] of Object.entries(lg.teams))
+    for (const o of list) if (o.drop.length){
+      const partner = o.partner;
       const mine = lg.values[owner].map(p => Object.assign({}, p, {protect: p.protect || o.drop.some(d => d.name === p.name)}));
       const theirs = lg.values[partner];
       const r = tbGain(mine, tbResolve(o.send, mine), tbResolve(o.get, theirs), lg.lineup, tbOther(lg, owner));
@@ -160,19 +158,18 @@ OPTION_B = json.loads((FIXTURES / "trade_offers_ffjarvis_optionb.json").read_tex
 
 OPTION_B_ALL = """(data) => {
   const out = [], guard = [], names = list => list.map(p => p.name);
-  for (const [key, lg] of Object.entries(data.leagues)) for (const [owner, ps] of Object.entries(lg.teams))
-    for (const [partner, kinds] of Object.entries(ps)){
-      const why = tbMismatch(lg, {name: owner}, {name: partner}, kinds);
-      if (why) guard.push(`${owner} to ${partner}: ${why}`);
-      for (const kind of ["bold", "fair"]) for (const o of kinds[kind]){
-        const mine = lg.values[owner], theirs = lg.values[partner], send = tbResolve(o.send, mine), get = tbResolve(o.get, theirs);
-        const r = tbGain(mine, send, get, lg.lineup, tbOther(lg, owner)), th = tbTheir(theirs, send, get, lg.lineup, tbOther(lg, partner));
-        out.push({at: `${key} ${owner} ${partner} ${kind}`, owner, ok: r.ok, js: r.gain, file: o.gain,
-                  drop: names(r.drop), want: names(o.drop), moves: names(r.irMoves), wantMoves: names(o.ir_moves),
-                  theirMoves: names(th.irMoves), wantTheirMoves: names(o.their.ir_moves),
-                  theirDrop: names(th.drop), wantTheirDrop: names(o.their.drop), short: th.short});
-      }
+  for (const [key, lg] of Object.entries(data.leagues)) for (const [owner, list] of Object.entries(lg.teams)){
+    const why = tbMismatch(lg, {name: owner}, list);
+    if (why) guard.push(`${owner}: ${why}`);
+    for (const o of list){
+      const partner = o.partner, mine = lg.values[owner], theirs = lg.values[partner], send = tbResolve(o.send, mine), get = tbResolve(o.get, theirs);
+      const r = tbGain(mine, send, get, lg.lineup, tbOther(lg, owner)), th = tbTheir(theirs, send, get, lg.lineup, tbOther(lg, partner));
+      out.push({at: `${key} ${owner} ${partner}`, owner, ok: r.ok, js: r.gain, file: o.gain,
+                drop: names(r.drop), want: names(o.drop), moves: names(r.irMoves), wantMoves: names(o.ir_moves),
+                theirMoves: names(th.irMoves), wantTheirMoves: names(o.their.ir_moves),
+                theirDrop: names(th.drop), wantTheirDrop: names(o.their.drop), short: th.short});
     }
+  }
   return {out, guard};
 }"""
 
@@ -195,13 +192,11 @@ def test_the_option_b_file_has_chips_that_agree_across_its_players(tb):
     """last2 and chips are per player, so a player reads the same wherever he appears; Hot and Cold follow `rules.chips`."""
     lg = OPTION_B["leagues"]["espn"]
     seen = {p["name"]: (p["last2"], p["chips"], p["seen"]) for rows in lg["values"].values() for p in rows}
-    for ps in lg["teams"].values():
-        for kinds in ps.values():
-            for offers in kinds.values():
-                for o in offers:
-                    for side in ("send", "get", "drop", "ir_moves"):
-                        for p in o[side] + o["their"]["ir_moves"] + o["their"]["drop"]:
-                            assert (p["last2"], p["chips"]) == seen[p["name"]][:2], p["name"]
+    for offers in lg["teams"].values():
+        for o in offers:
+            for side in ("send", "get", "drop", "ir_moves"):
+                for p in o[side] + o["their"]["ir_moves"] + o["their"]["drop"]:
+                    assert (p["last2"], p["chips"]) == seen[p["name"]][:2], p["name"]
     chips = {c for _, cs, _ in seen.values() for c in cs}
     assert chips <= {"Hot", "Cold", "Early pick"} and {"Hot", "Cold", "Early pick"} <= chips
     for name, (last2, cs, season) in seen.items():
@@ -412,36 +407,52 @@ def test_the_pitch_ends_with_one_sentence_on_the_partners_room_or_none(tb):
 
 # ---- the guard: Edit is shut when the page cannot reproduce the file -----------------------------------------------
 
-def test_the_guard_accepts_every_pair_of_the_fixture(tb):
+def test_the_guard_accepts_every_owner_of_the_fixture(tb):
     for lgk, lg in FIXTURE["leagues"].items():
-        for owner, ps in lg["teams"].items():
-            for partner, pair in ps.items():
-                assert tb("tbMismatch", lg, {"name": owner}, {"name": partner}, pair) == "", (lgk, owner, partner)
+        for owner, offers in lg["teams"].items():
+            assert tb("tbMismatch", lg, {"name": owner}, offers) == "", (lgk, owner)
+
+
+def test_an_owner_with_no_offers_passes_the_guard_so_make_your_own_still_shows(tb):
+    lg = FIXTURE["leagues"]["espn"]
+    assert tb("tbMismatch", lg, {"name": OWNER}, []) == "" and tb("tbMismatch", lg, {"name": OWNER}, None) == ""
+
+
+def test_each_offer_is_scored_against_its_own_partners_values(tb):
+    """v2 mixes partners in one list: an offer re-pointed at another partner is not the one the file scored."""
+    bad = copy.deepcopy(FIXTURE)
+    lg = bad["leagues"]["espn"]
+    lg["values"]["Third Team"] = [{**p, "proj": 1.0} for p in lg["values"][PARTNER]]      # the same players, scored differently
+    mine(bad)[0]["partner"] = "Third Team"
+    why = mismatch(tb, bad)
+    assert "offers[0]" in why, why
+    mine(bad)[0]["partner"] = "Nobody At All"
+    assert tb("tbMismatch", lg, {"name": OWNER}, mine(bad)) == "offers[0] is with Nobody At All, who has no values the drop rule reads"
 
 
 def test_a_gain_the_page_cannot_reproduce_is_named_and_one_within_the_tolerance_is_not(tb):
     bad = copy.deepcopy(FIXTURE)
-    bold(bad)[1]["gain"] = 7.9                                                # the rule says 7.7
+    mine(bad)[1]["gain"] = 7.9                                                # the rule says 7.7
     why = mismatch(tb, bad)
-    assert "bold[1]" in why and "7.7" in why and "7.9" in why, why
+    assert "offers[1]" in why and "7.7" in why and "7.9" in why, why
     near = copy.deepcopy(FIXTURE)
-    bold(near)[1]["gain"] = 7.8
+    mine(near)[1]["gain"] = 7.8
     assert mismatch(tb, near) == ""
 
 
 def test_a_different_drop_ir_move_or_partner_room_is_named(tb):
     wrong = copy.deepcopy(FIXTURE)
-    bold(wrong)[2]["drop"] = []
-    assert "bold[2]" in mismatch(tb, wrong)
+    mine(wrong)[2]["drop"] = []
+    assert "offers[2]" in mismatch(tb, wrong)
     moved = copy.deepcopy(FIXTURE)
-    bold(moved)[0]["ir_moves"] = bold(moved)[2]["drop"]                       # a player the rule drops, not moves
-    assert "bold[0]" in mismatch(tb, moved)
+    mine(moved)[0]["ir_moves"] = mine(moved)[2]["drop"]                       # a player the rule drops, not moves
+    assert "offers[0]" in mismatch(tb, moved)
     theirs = copy.deepcopy(FIXTURE)
-    bold(theirs)[1]["their"]["drop"] = []                                     # the rule says Raymond goes
-    assert "bold[1]" in mismatch(tb, theirs) and "them differently" in mismatch(tb, theirs)
+    mine(theirs)[1]["their"]["drop"] = []                                     # the rule says Raymond goes
+    assert "offers[1]" in mismatch(tb, theirs) and "them differently" in mismatch(tb, theirs)
     theirs = copy.deepcopy(FIXTURE)
-    bold(theirs)[0]["their"]["ir_moves"] = []                                 # the rule says Mariota goes to IR
-    assert "bold[0]" in mismatch(tb, theirs)
+    mine(theirs)[0]["their"]["ir_moves"] = []                                 # the rule says Mariota goes to IR
+    assert "offers[0]" in mismatch(tb, theirs)
 
 
 def test_a_file_without_their_fails_closed_as_one_without_a_drop_does(tb):
@@ -450,8 +461,8 @@ def test_a_file_without_their_fails_closed_as_one_without_a_drop_does(tb):
         o.pop("their")
     assert "no drop, ir_moves or their" in mismatch(tb, old)
     half = copy.deepcopy(FIXTURE)
-    del bold(half)[0]["their"]["drop"]
-    assert "bold[0]" in mismatch(tb, half)
+    del mine(half)[0]["their"]["drop"]
+    assert "offers[0]" in mismatch(tb, half)
 
 
 def test_the_old_shapes_say_why_there_is_no_edit(tb):
@@ -459,7 +470,7 @@ def test_the_old_shapes_say_why_there_is_no_edit(tb):
     lg = old["leagues"]["espn"]
     for k in ("lineup", "values", "other"):
         lg.pop(k)
-    assert mismatch(tb, old) == "no lineup or values for this pair"
+    assert mismatch(tb, old) == "no lineup or values for this owner"
     before = copy.deepcopy(FIXTURE)
     lg = before["leagues"]["espn"]
     lg["lineup"].pop("ir")

@@ -1,9 +1,9 @@
 /* ============================================================
-   A TEAM'S PAGE (2026-10-05, js/surface/lboard/lbpage.js)
-   One team as a full page in the view: the link back, its name, record and total, one action, then its best
-   lineup by slot and its bench. No sheet and no scrim (David: nothing slides up from the bottom). The content
-   keeps to one column of --lbp-w: a row pins a name to one edge and a number to the other, and STYLE.md keeps
-   a label within 560px of its value. The trade builder page (offers.css) and its edit state use the same head.
+   A PAGE IN THE TRADES VIEW (2026-10-05, the Teams page; 2026-10-06, the trade finder's edit page, finder/page.js)
+   One column of --lbp-w with the link back and a title over it: the edit page (tbedit.css) is one. No sheet and no
+   scrim (David: nothing slides up from the bottom). A row pins a name to one edge and a number to the other, and
+   STYLE.md keeps a label within 560px of its value, so the content stays in one column. The team page that
+   shared these rules is gone (2026-10-06); fenced to Trades since then.
    ============================================================ */
 .lbp{--lbp-w:560px;padding-bottom:24px}
 .lbp > *{max-width:var(--lbp-w)}
@@ -15,30 +15,10 @@
 .lbp-chev{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
 .lbp-title{margin:2px 0 0;font:800 var(--t-5)/1.15 var(--disp);color:var(--ink);overflow-wrap:anywhere}
-.lbp-sub{display:flex;gap:6px;margin:4px 0 0;font:500 var(--t-1)/1.2 var(--mono);color:var(--ink-3);font-variant-numeric:tabular-nums}
-.lbp-sub b{font-weight:700;color:var(--ink-2)}
-.lbp-sub i{font-style:normal}
-
-/* The action's slot is one height whatever it holds: "This is my team" becomes "Your team" and nothing moves. */
-.lbp-slot{display:flex;align-items:center;min-height:48px;margin-top:12px}
-.lbp-act{appearance:none;border:0;width:100%;min-height:48px;padding:10px 16px;border-radius:12px;cursor:pointer;
-  background:var(--lime);color:var(--on-lime);font:700 var(--t-3)/1.2 var(--ui);transition:transform .12s var(--ease)}
-.lbp-act:active{transform:scale(var(--press))}
-.lbp-act:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
-.lbp-yours{margin:0;padding:6px 12px;border:1px solid var(--line-2);border-radius:999px;color:var(--ink-2);font:600 var(--t-2)/1.2 var(--ui)}
-.lbp-yours:focus-visible{outline:2px solid var(--lime)}
 
 .lbp h2{margin:16px 0 6px;font:600 var(--t-1)/1.3 var(--ui);letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
-.lbp-list{margin:0;padding:0;list-style:none;border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden}
-.lbp-r{display:grid;grid-template-columns:30px minmax(0,1fr) auto auto;align-items:center;gap:8px;min-height:44px;padding:0 14px;
-  border-top:1px solid var(--line)}
-.lbp-r:first-child{border-top:0}
 .lbp-pos{font:700 var(--t-1)/1 var(--mono);color:var(--ink-3)}
 .lbp-pos[data-pos="QB"]{color:var(--pos-qb)}
 .lbp-pos[data-pos="RB"]{color:var(--pos-rb)}
 .lbp-pos[data-pos="WR"]{color:var(--pos-wr)}
 .lbp-pos[data-pos="TE"]{color:var(--pos-te)}
-.lbp-n{min-width:0;font:600 var(--t-2)/1.2 var(--ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lbp-flx{font:700 var(--t-1)/1 var(--mono);font-style:normal;color:var(--ink-3);border:1px solid var(--line-2);border-radius:4px;padding:3px 4px}
-.lbp-pts{grid-column:4;font:700 var(--t-3)/1 var(--mono);font-variant-numeric:tabular-nums;min-width:40px;text-align:right}
-.lbp-none{margin:0;font-size:var(--t-2);color:var(--ink-3)}

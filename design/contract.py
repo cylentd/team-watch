@@ -327,8 +327,8 @@ CONTRACT = {
     # `week` is the projections' week, the board's label (null with no schedule).
     "LIVE_TEAMS": {"keys": ["week", "leagues"], "rows": [("leagues", ["key", "name", "slots", "median", "teams"])],
                    "checks": [teams.problems]},
-    # design/trade_offers.py, League > Teams > Find trades (2026-10-05). Not an injected block: a file written beside the
-    # page (`trade_offers.json`) that the builder sheet fetches on first open. Pairs, offers and players are checked by `problems`.
+    # design/trade_offers.py, League > Trades, the Trade finder (v2 since 2026-10-06). Not an injected block: a file written
+    # beside the page (`trade_offers.json`) that the finder fetches on first open. Owner lists, offers and players are checked by `problems`.
     "TRADE_OFFERS": {"keys": ["updated", "season", "leagues"], "checks": [trade_offers.problems]},
     # design/startsit_board.py, the Start / Sit picker and board (2026-10-03): `fp` {slug: {ecr, pos}}, `board` {POS: {avg, n, best, worst}}
     # (rows {team, opp, pts, rank}), `out` {slug: [{n, pos, s}]}; each part may be empty. The nested shapes are checked by its `problems`.

@@ -132,14 +132,15 @@ function lgHallHTML(kind, id){
   </section>`;
 }
 
-/* This week > Records: the same page for every reader. */
+/* This week > Records: the same page for every reader, All-time or Trade history (rctabs.js). */
 function lgRecordsPageHTML(){
   if (!lgUsePicked()) return `<div class="wrap"><p class="lg-none">${t("league.none")}</p></div>`;
+  if (rcTab() === "trades") return trPageHTML();                // surface/trades/trades.js, its own head and tabs bar
   // A league with no past seasons read (AYO until ff-jarvis backfills it, 2026-09-29) has no book to
   // show: one season's games are This week's, not a record. The switch stays, so the reader can go back.
   if (!LG.history) return `<div class="wrap">${lgChipHTML()}${lgPageHead(t("records.empty.sub"))}
     <p class="lg-none rc-empty">${t("records.empty.body")}</p></div>`;
-  return `<div class="wrap">${lgChipHTML()}${lgPageHead(t("league.page.sub", {y: LG.since}))}<div class="lg rc">
+  return `<div class="wrap">${lgChipHTML()}${rcTabsHTML()}${lgPageHead(t("league.page.sub", {y: LG.since}))}<div class="lg rc">
     ${rcHeadToHeadHTML()}
     ${rcTrophyHTML()}${rcSpoonHTML()}
     <div class="rc-halls">${lgHallHTML("fame", null)}${lgHallHTML("shame", null)}</div>
@@ -181,6 +182,8 @@ function rcOpenPair(a, b, originEl){
 /* The manager select redraws the head to head alone, so the cases beside it never move. A row opens
    the pair's sheet; a trophy or a toilet opens that season's final lineup. */
 function wireRecords(v){
+  v.querySelectorAll("[data-rctab]").forEach(b => b.addEventListener("click", () => rcSelect(b.dataset.rctab)));
+  if (rcTab() === "trades") return wireTrades(v);
   wireLgChip(v);
   const root = v.querySelector(".rc");
   if (!root) return;

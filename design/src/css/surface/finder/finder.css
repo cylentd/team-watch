@@ -1,0 +1,52 @@
+/* ============================================================
+   LEAGUE > TRADES: THE FINDER (2026-10-06, js/surface/finder/)
+   A chip per position with the reader's gap to the median, the offers for it (cards: lboard/offers.css), who is deep
+   there, Make your own. One column on a phone; from 760px the offers and the deep list sit under the chips in the same
+   column, kept to --tf-w so a name and its number stay within STYLE.md's 560px. No tint but the shared up and down.
+   ============================================================ */
+.tf{--tf-w:560px;padding-bottom:24px}
+.tf > :not(.lgchip){max-width:var(--tf-w)}
+
+/* No team picked: one line, then the picker the Roster view asks with (chrome/teamswitch.css). */
+.tf-need{margin:14px 0 14px;font:500 var(--t-3)/1.35 var(--ui);color:var(--ink-2)}
+
+/* The chips: four equal halves of one row. The label over the gap, the gap red below the median and green above;
+   the pressed chip is lime, as every chip. */
+.tf-chips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:10px}
+.tf-chip{appearance:none;display:grid;justify-items:center;gap:4px;min-height:54px;padding:8px 0;border:1px solid var(--line-2);
+  border-radius:14px;background:none;color:var(--ink-2);cursor:pointer;transition:transform .12s var(--ease)}
+.tf-chip:active{transform:scale(var(--press))}
+.tf-chip:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.tf-chip i{font:700 var(--t-1)/1 var(--mono);font-style:normal;letter-spacing:.06em;color:var(--ink-3)}
+.tf-chip b{font:700 var(--t-3)/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.tf-chip b.up{color:var(--up)}
+.tf-chip b.dn{color:var(--down)}
+.tf-chip[aria-pressed="true"]{border-color:var(--lime);background:var(--lime)}
+.tf-chip[aria-pressed="true"] i,.tf-chip[aria-pressed="true"] b{color:var(--on-lime)}
+
+.tf-h{margin:18px 0 8px;font:600 var(--t-1)/1.3 var(--ui);letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+.tf-offers{display:flex;flex-direction:column;gap:10px}
+.tf-offers .tf-h{margin:18px 0 0}
+
+/* The filtered state: the way back to the chips, then who the offers are with. */
+.tf-all{margin-top:4px}
+.tf-with{margin:2px 0 12px;font:800 var(--t-5)/1.15 var(--disp);letter-spacing:0;text-transform:none;color:var(--ink);overflow-wrap:anywhere}
+
+/* Who is deep: one card, a row a team: the name (a button) and the sum, then who starts there. */
+.tf-dl{margin:0;padding:0;list-style:none;border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden}
+.tf-d{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:8px;padding:0 12px 8px;border-top:1px solid var(--line)}
+.tf-d:first-child{border-top:0}
+.tf-dn{appearance:none;display:flex;align-items:baseline;gap:6px;min-width:0;min-height:44px;padding:0;border:0;background:none;
+  color:var(--ink);text-align:left;cursor:pointer;font:600 var(--t-3)/1.2 var(--ui)}
+.tf-dn b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
+.tf-dn small{flex:none;font:500 var(--t-1)/1.2 var(--mono);color:var(--ink-3);font-variant-numeric:tabular-nums}
+.tf-dn:hover b{text-decoration:underline;text-underline-offset:3px}
+.tf-dn:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:6px}
+.tf-dv{padding:3px 8px;border-radius:8px;font:700 var(--t-2)/1.2 var(--mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+.tf-dv.up{background:rgb(var(--up-rgb) / .16);color:var(--up)}
+.tf-dv.dn{background:rgb(var(--down-rgb) / .16);color:var(--down)}
+.tf-ds{grid-column:1 / -1;margin-top:-4px;font:500 var(--t-2)/1.3 var(--ui);color:var(--ink-2);overflow-wrap:anywhere}
+
+/* Make your own, and the date, once the file is in. */
+.tf-tail{display:grid;gap:10px;margin-top:16px}
+.tf-pick{display:grid;gap:4px;margin-top:10px}

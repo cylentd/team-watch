@@ -162,7 +162,7 @@ def test_the_ayo_roster_waivers_and_recap_draw(browser, page_file):
     names = page.evaluate("[...document.querySelectorAll('#view .row')].map(r => r.textContent)")
     assert len(names) == 5 and any("Justin Jefferson" in n or "J. Jefferson" in n for n in names)
     assert page.evaluate("[...document.querySelectorAll('#subnav [data-leaf]')].map(b => b.dataset.leaf)") == \
-        ["roster", "waivers", "teams", "recap", "records"], "AYO: the League leaves, no Trades until ff-jarvis grades its trades"
+        ["roster", "waivers", "teams", "trades", "recap", "records"], "AYO: all six League leaves; Trades is the finder, which needs only rosters (2026-10-06)"
     drive(page, [("click", "[data-leaf='waivers']")])
     assert "Jaylen Warren" in page.locator("#view").text_content(), "AYO's own wire"
     drive(page, [("click", "[data-leaf='recap']")])
@@ -201,12 +201,14 @@ def test_records_and_trades_for_ayo_say_there_is_no_history_yet(browser, page_fi
     drive(page, go("records"))
     assert page.locator(".rc-empty").count() == 1 and page.locator(".rc-hh").count() == 0
     assert page.locator(".lgchip").count() == 1, "the chip stays, so the reader can go back"
-    assert page.locator("#subnav [data-leaf='trades']").count() == 0, "AYO has no graded trades, so no Trades leaf"
-    page.evaluate("location.hash = '#trades'")                    # a stale link lands on the league's Recap
-    page.wait_for_function("SURFACE === 'recap'")
+    assert page.locator("#subnav [data-leaf='trades']").count() == 1, "Trades is the trade finder since 2026-10-06: every league with rosters has it"
+    assert page.locator("[data-rctab]").count() == 0, "but AYO has no graded trades, so Records has no Trade history tab"
+    page.evaluate("location.hash = '#trades'")                    # a #trades link opens the finder, not the old history
+    page.wait_for_function("SURFACE === 'trades'")
     page.evaluate("pickTeam('yahoo')")
-    drive(page, [("click", "[data-leaf='trades']")])
-    assert page.locator(".tr-rank").count() == 1, "the Madden Curse's trades, on the same tab"
+    drive(page, go("records"))
+    page.evaluate("rcSelect('trades')")
+    assert page.locator(".tr-rank").count() == 1, "the Madden Curse's trades, on Records' Trade history tab"
     assert errors == []
     ctx.close()
 

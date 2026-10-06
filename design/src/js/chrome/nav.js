@@ -55,11 +55,12 @@ const navDefaultLeaf = () => navWaiverDay() ? "waivers" : "digest";
 /* What the league on screen has, as plain booleans for navLeavesFor. A connected league has no Waivers:
    ff-jarvis builds the packet for David's leagues only. A leaguemate's team has its league's rail
    (data/mates.js hasWaivers). Recap is every league with a League block, ESPN's too; Records only a
-   league with a record book (Yahoo's), Trades only one with graded trades; Teams (2026-10-05) is for all
-   three leagues, and a league with no rosters says so on the page. */
+   league with a record book (Yahoo's), whose Trade history tab is a league with graded trades; Teams (2026-10-05)
+   and Trades (the trade finder, 2026-10-06) are for all three leagues, and a league with no rosters says so on the
+   page. */
 function navFacts(){
-  const f = lgFocusKey(), L = f && LGS[f];
-  return {waivers: hasWaivers(TEAMS[VIEW]), teams: lbKeys().length > 0, recap: !!L, records: !!(L && L.book), trades: !!(f && LG_TRADES[f])};
+  const f = lgFocusKey(), L = f && LGS[f], rosters = lbKeys().length > 0;
+  return {waivers: hasWaivers(TEAMS[VIEW]), teams: rosters, recap: !!L, records: !!(L && L.book), trades: rosters};
 }
 const navTabsOf = group => navLeavesFor(group, navFacts(), navWaiverDay());
 
@@ -149,7 +150,7 @@ const navFromHash = () => {
 function navGo(leaf, fromHash){
   leaf = navLeafOf(leaf) || leaf;      // an old name (`myrecap`, `pool`) opens its successor
   LAST_LEAF[navGroupOf(leaf)] = leaf;
-  if (leaf !== "teams" && LB_PAGE) lbPageReset();   // a League > Teams page left open by a tap on another view (lbpage.js)
+  if (leaf !== "trades" && TB_EDIT) tfLeft();   // the trade finder's edit page left open by a tap on another view (finder/page.js)
   SURFACE = leaf;
   const active = navGroupOf(leaf);
   document.querySelectorAll("#nav .navitem")

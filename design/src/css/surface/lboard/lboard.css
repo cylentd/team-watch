@@ -1,64 +1,31 @@
 /* ============================== LEAGUE > TEAMS ==============================
-   The League board (js/surface/lboard/lboard.js, 2026-10-05): one row per team, a column per position.
-   A cell is green 8% or more over the league's median for its column and red 8% under; a lime "+" in a
-   corner is a spare starter on the bench. The reader's own team sits on top with a lime outline. On a
-   phone the five columns are fixed-width, so the numbers line up down the page and the team's name
-   takes what is left; from 760px the board stops at --lb-w, left on the frame's edge like any list. */
-.lb{--lb-w:720px;--lb-cell:38px}
-/* While the reader has no team in the league: one quiet line above the grid (a team's page has the button). */
-.lb-pick{margin:12px 0 0;max-width:var(--lb-w);font:500 var(--t-2)/1.3 var(--ui);color:var(--ink-3)}
-.lb-grid{margin-top:12px;max-width:var(--lb-w);border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden}
-.lb-head,.lb-row{display:grid;grid-template-columns:minmax(0,1fr) repeat(var(--lb-n,5),var(--lb-cell))}
-.lb-head{background:var(--panel-2);border-bottom:1px solid var(--line)}
-.lb-head > span{display:flex;min-width:0}
+   The league's cards (js/surface/lboard/lboard.js, lbcard.js; table until 2026-10-06): the week's caption, a
+   chip row that sorts the cards, then one card per team (lbcard.css). One column on a phone, as many 300px
+   columns as the frame holds from there (three at 1280px). The reader's own card is first, outlined in lime. */
+.lb{--lb-card-min:300px}
+.lb-what{margin:12px 0 0;font:500 var(--t-1)/1.3 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
 
-/* The header buttons sort. The pressed one is lime, no caret: a caret read as a dropdown (David,
-   2026-10-05). There is always exactly one. */
-.lb-h{appearance:none;border:0;background:none;width:100%;min-height:40px;padding:0;cursor:pointer;
-  display:inline-flex;align-items:center;justify-content:center;gap:4px;
-  font:700 var(--t-1)/1 var(--mono);letter-spacing:.06em;color:var(--ink-3);white-space:nowrap}
-.lb-h.team{justify-content:flex-start;padding-left:12px;letter-spacing:.02em;text-transform:uppercase}
-.lb-h:hover{color:var(--ink)}
-.lb-h[aria-pressed="true"]{color:var(--lime)}
-.lb-h:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+/* The sort chips: one is always pressed, lime. One row; five short labels fit 360px. */
+.lb-sorts{display:flex;gap:6px;margin-top:8px}
+.lb-sort{appearance:none;flex:0 0 auto;min-width:44px;min-height:40px;padding:0 14px;border:1px solid var(--line-2);border-radius:999px;
+  background:none;color:var(--ink-2);cursor:pointer;font:700 var(--t-2)/1 var(--mono);letter-spacing:.04em;
+  transition:transform .12s var(--ease)}
+.lb-sort:active{transform:scale(var(--press))}
+.lb-sort:hover{color:var(--ink)}
+.lb-sort[aria-pressed="true"]{border-color:var(--lime);background:var(--lime);color:var(--on-lime)}
+.lb-sort:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 
-.lb-row{position:relative;min-height:50px;border-top:1px solid var(--line);cursor:pointer}
-.lb-head + .lb-row{border-top:0}
-.lb-row:hover{background:var(--panel-2)}
-/* The reader's own team: pinned first, outlined in lime. Inset, so the grid's edge does not move. */
-.lb-row.mine{box-shadow:inset 0 0 0 2px var(--lime);border-top-color:transparent;border-radius:12px;z-index:1}
-.lb-rh{display:flex;min-width:0}
-.lb-team{appearance:none;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;
-  display:grid;align-content:center;gap:3px;width:100%;min-width:0;padding:6px 6px 6px 12px}
-.lb-team b{font:600 var(--t-2)/1.2 var(--ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lb-team small{display:flex;gap:5px;font:500 var(--t-1)/1.2 var(--mono);color:var(--ink-3);font-variant-numeric:tabular-nums}
-.lb-team small i{font-style:normal}
-.lb-team small em{font-style:normal;color:var(--ink-2)}
-.lb-team:focus-visible{outline:2px solid var(--lime);outline-offset:-2px;border-radius:10px}
+.lb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,var(--lb-card-min)),1fr));gap:12px;margin-top:12px}
 
-.lb-c{position:relative;display:grid;place-items:center;margin:5px 1px;border-radius:7px;
-  font:600 var(--t-2)/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--ink)}
-.lb-c.up{background:rgb(var(--up-rgb) / .16);color:var(--up)}
-.lb-c.dn{background:rgb(var(--down-rgb) / .16);color:var(--down)}
-.lb-plus{position:absolute;top:2px;right:3px;font:800 var(--t-1)/1 var(--mono);font-style:normal;color:var(--lime)}
-
-/* The key, under the grid: what the numbers are, then the two tints and the plus. */
-.lb-key{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;max-width:var(--lb-w);margin:12px 0 4px;
+/* The key, under the cards: the two tints and the plus. */
+.lb-key{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin:16px 0 4px;
   font:500 var(--t-1)/1.3 var(--ui);color:var(--ink-3)}
-.lb-what{flex-basis:100%;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase}
 .lb-k{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 .lb-k .lb-plus{position:static;display:grid;place-items:center;width:14px;height:14px;font-size:var(--t-2)}
 .lb-sw{width:14px;height:14px;border-radius:4px}
 .lb-sw.up{background:rgb(var(--up-rgb) / .16);box-shadow:inset 0 0 0 1px var(--up)}
 .lb-sw.dn{background:rgb(var(--down-rgb) / .16);box-shadow:inset 0 0 0 1px var(--down)}
 
-/* A league with no rosters: the shared empty block, kept the board's width. */
-.lb-empty{min-height:240px;margin-top:12px;max-width:var(--lb-w);border-radius:14px}
+/* A league with no rosters: the shared empty block. */
+.lb-empty{min-height:240px;margin-top:12px;border-radius:14px}
 .lb-empty b{margin-bottom:6px;color:var(--ink-3)}
-
-@media (min-width:760px){
-  .lb{--lb-cell:84px}
-  .lb-row{min-height:54px}
-  .lb-team{padding-left:16px}
-  .lb-h.team{padding-left:16px}
-}

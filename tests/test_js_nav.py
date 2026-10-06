@@ -5,10 +5,11 @@ are all data: no DOM, so no browser. What the bar and the sub-row look like at 3
 test_render.py and test_nav_merge.py, in the browser."""
 import pytest
 
+# `trades` is the trade finder since 2026-10-06 (chrome/nav.js navFacts): every league with rosters has it, like `teams`.
 YAHOO = {"waivers": True, "teams": True, "recap": True, "records": True, "trades": True}
-ESPN = {"waivers": True, "teams": True, "recap": True, "records": False, "trades": False}
-AYO = {**YAHOO, "trades": False}
-CONNECTED = {"waivers": False, "teams": True, "recap": True, "records": False, "trades": False}
+ESPN = {"waivers": True, "teams": True, "recap": True, "records": False, "trades": True}
+AYO = {**YAHOO}
+CONNECTED = {"waivers": False, "teams": True, "recap": True, "records": False, "trades": True}
 
 
 @pytest.fixture(scope="module")
@@ -80,13 +81,14 @@ def test_a_yahoo_league_shows_all_six(nav):
     assert nav("navLeavesFor", "league", YAHOO, False) == ["roster", "waivers", "teams", "trades", "recap", "records"]
 
 
-def test_espn_shows_fewer_leaves(nav):
-    """ESPN has no record book and no graded trades: the filters hide those two leaves."""
-    assert nav("navLeavesFor", "league", ESPN, False) == ["roster", "waivers", "teams", "recap"]
+def test_espn_has_no_record_book_but_has_the_trade_finder(nav):
+    """ESPN has no record book, so no Records; Trades is the finder, which every league with rosters has."""
+    assert nav("navLeavesFor", "league", ESPN, False) == ["roster", "waivers", "teams", "trades", "recap"]
 
 
-def test_ayo_has_no_trades_yet(nav):
-    assert nav("navLeavesFor", "league", AYO, False) == ["roster", "waivers", "teams", "recap", "records"]
+def test_ayo_has_the_finder_even_with_no_graded_trades(nav):
+    """Its graded history was the old Trades leaf (AYO had none); the finder needs only rosters."""
+    assert nav("navLeavesFor", "league", AYO, False) == ["roster", "waivers", "teams", "trades", "recap", "records"]
 
 
 def test_a_connected_league_has_no_waivers(nav):
@@ -95,7 +97,7 @@ def test_a_connected_league_has_no_waivers(nav):
 
 def test_tuesday_puts_waivers_first(nav):
     assert nav("navLeavesFor", "league", YAHOO, True)[0] == "waivers"
-    assert nav("navLeavesFor", "league", ESPN, True) == ["waivers", "roster", "teams", "recap"]
+    assert nav("navLeavesFor", "league", ESPN, True) == ["waivers", "roster", "teams", "trades", "recap"]
 
 
 def test_other_groups_are_not_filtered(nav):
@@ -105,7 +107,7 @@ def test_other_groups_are_not_filtered(nav):
 
 @pytest.mark.parametrize("leaf,tabs,want", [
     ("records", ["roster", "waivers", "teams", "recap"], "recap"),     # a #records link on an ESPN team
-    ("trades", ["roster", "waivers", "teams", "recap"], "recap"),
+    ("trades", ["roster", "waivers", "recap"], "recap"),               # a league with no rosters has neither Teams nor Trades
     ("waivers", ["roster", "teams", "recap"], "roster"),               # a connected league
     ("recap", ["roster", "waivers", "teams", "recap"], "recap"),
     ("weather", ["digest", "weekrecap"], "weather"),                   # hidden from the sub-row, still reachable

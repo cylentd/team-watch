@@ -1,0 +1,60 @@
+/* ============================== LEAGUE > TEAMS: A TEAM'S CARD ==============================
+   One card per team (js/surface/lboard/lbcard.js, 2026-10-06): header, the strength strip, the starters one
+   row each, the bench as one wrapped line, a foot when there is something to do. Cards in a grid row share
+   a top and bottom edge (STYLE.md "Layout"), so the foot rests on the card's bottom. The reader's own card
+   carries a lime outline. */
+.lb-card{display:flex;flex-direction:column;gap:6px;min-width:0;padding:8px 12px 6px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.lb-card.mine{border-color:transparent;box-shadow:0 0 0 2px var(--lime)}
+
+.lb-ch{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.lb-id{min-width:0;display:grid;gap:2px}
+.lb-name{margin:0;font:700 var(--t-3)/1.2 var(--ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-rec{font:500 var(--t-1)/1.2 var(--mono);color:var(--ink-3);font-variant-numeric:tabular-nums}
+.lb-tot{flex:none;font:800 var(--t-5)/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+
+/* The strip: five equal cells, the label over the sum, tinted 8% off the league's median. */
+.lb-strip{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px}
+.lb-c{position:relative;display:grid;justify-items:center;gap:3px;padding:5px 0;border-radius:8px;background:var(--panel-2);
+  font-variant-numeric:tabular-nums;color:var(--ink)}
+.lb-cl{font:700 var(--t-1)/1 var(--mono);font-style:normal;letter-spacing:.06em;color:var(--ink-3)}
+.lb-c b{font:700 var(--t-2)/1 var(--mono)}
+.lb-c.up{background:rgb(var(--up-rgb) / .16)}
+.lb-c.up b{color:var(--up)}
+.lb-c.dn{background:rgb(var(--down-rgb) / .16)}
+.lb-c.dn b{color:var(--down)}
+.lb-plus{position:absolute;top:2px;right:3px;font:800 var(--t-1)/1 var(--mono);font-style:normal;color:var(--lime)}
+
+/* Starters: slot, name, points, one 20px row each (it was 30px with a rule between, 2026-10-06: a card of 8 starters
+   measured 445px at 360, David: tighter). The type stays at --t-2. The points hug the right edge of a card at most
+   ~420px wide. */
+.lb-starters{margin:0;padding:0;list-style:none}
+.lb-s{display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;gap:8px;min-height:20px}
+.lb-pos,.lb-bi i{font:700 var(--t-1)/1 var(--mono);font-style:normal;color:var(--ink-3)}
+.lb-pos[data-pos="QB"],.lb-bi i[data-pos="QB"]{color:var(--pos-qb)}
+.lb-pos[data-pos="RB"],.lb-bi i[data-pos="RB"]{color:var(--pos-rb)}
+.lb-pos[data-pos="WR"],.lb-bi i[data-pos="WR"]{color:var(--pos-wr)}
+.lb-pos[data-pos="TE"],.lb-bi i[data-pos="TE"]{color:var(--pos-te)}
+.lb-n{min-width:0;font:600 var(--t-2)/1.2 var(--ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-pts{min-width:40px;text-align:right;font:700 var(--t-2)/1 var(--mono);font-variant-numeric:tabular-nums}
+
+/* The bench: one line that wraps, a player = position, name, points. */
+.lb-bench{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin:0;padding-top:6px;border-top:1px solid var(--line);
+  font:500 var(--t-1)/1.3 var(--ui);color:var(--ink-2)}
+.lb-bh{font:700 var(--t-1)/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.lb-bench em{font-style:normal;color:var(--ink-3)}
+.lb-bi{display:inline-flex;align-items:baseline;gap:4px;white-space:nowrap}
+.lb-bi b{font:700 var(--t-1)/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+
+/* The foot sits on the card's bottom edge whatever the card's height. One height, so "This is my team" becoming
+   "Your team" moves nothing. Quiet: "This is my team" is a text link (lime is for the one primary action on a screen,
+   2026-10-06, after it measured as a full-width lime button on all 12 cards), and "Trades with them ›" ends the row. */
+.lb-foot{display:flex;align-items:center;justify-content:space-between;min-height:44px;margin:auto 0 -4px}
+.lb-mine,.lb-trade{appearance:none;border:0;background:none;min-height:44px;padding:0 4px;cursor:pointer;
+  font:600 var(--t-2)/1.2 var(--ui);color:var(--ink-2);transition:transform .12s var(--ease)}
+.lb-mine{text-decoration:underline;text-underline-offset:3px}
+.lb-trade{margin-left:auto;color:var(--ink)}
+.lb-mine:hover,.lb-trade:hover{color:var(--ink)}
+.lb-mine:active,.lb-trade:active{transform:scale(var(--press))}
+.lb-mine:focus-visible,.lb-trade:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:6px}
+.lb-yours{padding:6px 12px;border:1px solid var(--line-2);border-radius:999px;color:var(--ink-2);font:600 var(--t-2)/1.2 var(--ui)}
+.lb-yours:focus-visible{outline:2px solid var(--lime)}

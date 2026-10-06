@@ -377,9 +377,9 @@ def load_preview_record():
 
 
 def load_trade_offers():
-    """Every owner's bold and fair trade offers to every partner, per league (model.season.trade_offers,
-    2026-10-05): feed block `trade_offers` first, the file second. design/trade_offers.py checks it and
-    writes it beside the page for the trade builder to fetch; None when neither exists."""
+    """Every owner's trade offers as one flat list with a `partner` per offer, per league (model.season.trade_offers
+    v2, 2026-10-06): feed block `trade_offers` first, the file second. design/trade_offers.py checks it and
+    writes it beside the page for the Trade finder to fetch; None when neither exists."""
     return feed_block(("trade_offers",), "leagues") or read_first(DWR / "trade_offers.json")
 
 

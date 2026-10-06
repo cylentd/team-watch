@@ -1,7 +1,8 @@
-/* ============================== LEAGUE > TEAMS: THE TRADE BUILDER, EDIT ==============================
+/* ============================== LEAGUE > TRADES: THE TRADE BUILDER, EDIT ==============================
    2026-10-05 (storyboard https://claude.ai/artifact/BXCJdmWfC87Z7VCAgdVC3Y, frame 4). The reader's own package,
-   built on the builder page: "Edit" on an offer card starts from that offer, "Make your own offer" from an empty
-   package. It is its own history entry (layers.js "tbedit"), so Back and the "‹ Offers" link return to the offers.
+   built on its own page (finder/page.js draws the head): "Edit" on an offer card starts from that offer, "Make your own
+   offer" from an empty package. It is its own history entry (layers.js "tbedit"), so Back and the "‹ Offers" link
+   return to the finder, at the scroll the reader left.
 
    Top: the package, YOU SEND and YOU GET, three rows tall whatever is in it (a fourth scrolls inside). Below: the
    reader's roster and the partner's, from the file's `values`, each row a switch that puts the player in or out of
@@ -71,15 +72,32 @@ function tbEditPaint(){
   v.querySelectorAll(".tb-r").forEach(b => b.setAttribute("aria-pressed", String(tbPicked(b.dataset.tbpick))));
 }
 
-function tbEditOpen(offer, opener){
-  const lgd = tbLeagueData(TB.lg);
-  if (!tbEditOk() || !lgd) return;
+/* Opens the edit state against `tm`, the partner (a LIVE_TEAMS row), for the reader's `me` in `lg`. `offer` is the card
+   it starts from, null for Make your own; `pick` lets the reader change the partner on the page (Make your own with no
+   partner chosen). Nothing opens when the guard has Edit shut or the file has no values for the pair. */
+function tbEditOpen(lg, me, tm, offer, opener, pick){
+  const lgd = tbLeagueData(lg);
+  if (!tbEditOk(lg, me) || !lgd || !lgd.values[tm.name]) return;
+  TB = {lg, me, tm};
   const send = offer ? offer.send.map(tbKey) : [], get = offer ? offer.get.map(tbKey) : [];
-  TB_EDIT = {mine: lgd.values[TB.me.name], theirs: lgd.values[TB.tm.name], lu: lgd.lineup, other: tbOther(lgd, TB.me.name), otherTheirs: tbOther(lgd, TB.tm.name), send, get,
-    from: {send: send.slice(), get: get.slice()}, back: opener && opener.dataset.tbedit !== undefined ? `[data-tbedit="${opener.dataset.tbedit}"]` : "[data-tbown]"};
-  lbpForward();
+  TB_EDIT = {mine: lgd.values[me.name], theirs: lgd.values[tm.name], lu: lgd.lineup, other: tbOther(lgd, me.name), otherTheirs: tbOther(lgd, tm.name), send, get,
+    from: {send: send.slice(), get: get.slice()}, pick: !!pick,
+    back: opener && opener.dataset.tbedit !== undefined ? `[data-tbedit="${opener.dataset.tbedit}"]` : "[data-tbown]"};
+  tfForward();
   layerPush("tbedit", tbEditShut);
-  lbpShow();
+  tfShow();
+}
+
+/* The partner changed on the page (Make your own with no partner chosen): his roster replaces the old one's, what the
+   reader gets from the old one is out of the package, what he sends stays. */
+function tbEditPartner(tm){
+  const lgd = tbLeagueData(TB.lg);
+  if (!lgd || !lgd.values[tm.name]) return;
+  TB = {...TB, tm};
+  Object.assign(TB_EDIT, {theirs: lgd.values[tm.name], otherTheirs: tbOther(lgd, tm.name), get: []});
+  TB_EDIT.from.get = [];
+  render();
+  document.querySelector("[data-tbpartner]")?.focus({preventScroll: true});
 }
 
 /* The close itself (Back arrives here); tbEditClose also takes back the history entry. */
@@ -87,8 +105,8 @@ function tbEditShut(){
   if (!TB_EDIT) return;
   const back = TB_EDIT.back;
   TB_EDIT = null;
-  if (!TB) return;
-  lbpBack();
+  TB = null;
+  tfBack();
   document.querySelector(back)?.focus({preventScroll: true});
 }
 function tbEditClose(){ tbEditShut(); layerDone("tbedit"); }
@@ -118,12 +136,9 @@ function tbEditCopy(btn){
   tbCopyText(btn, tbText({send, get, their}), btn.closest(".tb-edfoot"), "afterbegin");
 }
 
-/* The page's taps in and around the edit state (lbpage.js wires them): Edit and Make your own on the offers,
-   then a player, Reset and Copy offer inside it. True when one was handled. */
+/* The edit page's taps (finder/page.js wires them): a player, Reset and Copy offer inside it. True when one was handled. */
 function tbEditClick(hit){
-  const edit = hit("[data-tbedit]"), own = hit("[data-tbown]"), pick = hit("[data-tbpick]");
-  if (edit && TB_DATA) return tbEditOpen(tbOffers()[+edit.dataset.tbedit], edit), true;
-  if (own && TB_DATA) return tbEditOpen(null, own), true;
+  const pick = hit("[data-tbpick]");
   if (!TB_EDIT) return false;
   if (pick) return tbToggle(pick.dataset.tbpick, pick.classList.contains("tb-pr")), true;
   if (hit("[data-tbreset]")) return tbReset(), true;

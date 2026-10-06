@@ -165,6 +165,7 @@ surface/league/share-draw.js
 surface/league/tape.js
 surface/league/lead.js
 surface/league/records.js
+surface/league/rctabs.js
 surface/league/cases.js
 surface/league/myrecap.js
 surface/league/league.js
@@ -172,14 +173,20 @@ surface/league/switch.js
 surface/trades/cards.js
 surface/trades/trades.js
 surface/trades/alive.js
-# lboard is the board, lbpage the team's page, tbpage the trade builder's, tbedit its edit state. Nothing binds at
-# load (the pages wire per draw), so the order is readability: every name is used only after the last part ran.
+# lboard is the board and lbcard its cards. The trade finder (leaf trades, 2026-10-06) is tbscore (the scorer), offers
+# (the file and the guard), tbcard (an offer card), tbedit (the edit state), then finder/: logic (pure), finder, deep,
+# page (the edit page). Nothing binds at load (the pages wire per draw), so the order is readability: every name is
+# used only after the last part ran.
 surface/lboard/lboard.js
-surface/lboard/lbpage.js
+surface/lboard/lbcard.js
 surface/lboard/tbscore.js
 surface/lboard/offers.js
-surface/lboard/tbpage.js
+surface/lboard/tbcard.js
 surface/lboard/tbedit.js
+surface/finder/logic.js
+surface/finder/finder.js
+surface/finder/deep.js
+surface/finder/page.js
 # pin: board/* after data/usage.js -- bdRows memoises off USAGE.sheet, and after
 #      surface/profile/sheet.js, whose sheetValues() is the one definition of who counts on an
 #      axis. leaders.js before board.js is readability, not load order: both are functions.
