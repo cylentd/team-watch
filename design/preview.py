@@ -267,16 +267,22 @@ def _favs(games):
 
 
 def _record_game(g):
-    return {"away": g["away"], "home": g["home"], "pick": g.get("pick"), "side": g.get("ats_side"),
+    """One graded game. Since 2026-10-05 (the archive, storyboard https://claude.ai/artifact/NTeV8W2N9mFnYgftfbuqPV)
+    it carries all three calls, each with its hit: moneyline (`su`, the winner), spread (`hit`) and total."""
+    su, pick = g.get("su_hit"), g.get("pick")
+    pick = pick.get("winner") if isinstance(pick, dict) else pick     # ff-jarvis writes {winner, score}; the team is what is read
+    return {"key": g.get("key"), "away": g["away"], "home": g["home"], "pick": pick, "side": g.get("ats_side"),
             "conf": g.get("ats_conf"), "spread_home": g.get("spread_home"), "result": g.get("result"),
-            "hit": g.get("ats_hit")}
+            "hit": g.get("ats_hit"), "su": None if su is None else "hit" if su else "miss",
+            "total_line": g.get("total_line"), "total_call": g.get("total_call"), "total_conf": g.get("total_conf"),
+            "total_hit": g.get("total_hit")}
 
 
 def _record_week(w):
     games = w.get("games") or []
     closer, graded = _closer(games)
     fav, fav_of = _favs(games)
-    return {"week": w["week"], "n": w.get("n") or len(games), "ats": w["ats"],
+    return {"week": w["week"], "n": w.get("n") or len(games), "su": w.get("su"), "ats": w["ats"], "total": w.get("total"),
             "strong": (w.get("by_conf") or {}).get("strong"), "closer": closer, "graded": graded,
             "fav": fav, "fav_of": fav_of, "games": [_record_game(g) for g in games]}
 
@@ -302,7 +308,7 @@ def _record(raw):
     fav, fav_of = _favs(games)
     covered = sum(1 for g in games if g.get("fav_covered"))
     return {"season": raw.get("season"), "through": raw.get("through_week"), "n": tot.get("n") or 0,
-            "ats": tot.get("ats"), "by_conf": tot.get("by_conf") or {}, "closer": closer, "graded": graded,
+            "su": tot.get("su"), "ats": tot.get("ats"), "total": tot.get("total"), "by_conf": tot.get("by_conf") or {}, "closer": closer, "graded": graded,
             "fav": fav, "fav_of": fav_of, "covered": covered, "blind": _record_blind(tot.get("blind")),
             "weeks": [_record_week(w) for w in reversed(weeks)]}
 

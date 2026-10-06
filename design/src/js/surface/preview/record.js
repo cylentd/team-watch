@@ -1,63 +1,87 @@
 /* ------------------------------------------------------------------
-   PREVIEW's record (2026-09-29, storyboard option A; David: "going with safe is just saying we go
-   with Vegas"). A card atop the slate keeps Claude's score against the spread: the season, by
-   confidence, and how often his win % landed closer to the result than the market's. A tap opens
-   every week (a table, then each week's games) in the slate's place on a phone, the dossier's on a
-   desktop, as a layer Back closes (chrome/layers.js). Before a graded game, one line says when the
-   record starts, never a row of zeros.
+   PREVIEW's Past games (2026-10-05, storyboard https://claude.ai/artifact/NTeV8W2N9mFnYgftfbuqPV, picks 1A and
+   2A; it replaced the record card atop the slate, which David found "randomly placed" and wordy). A game
+   leaves the slate once it is over (data/preview.js pvOver); here it stays, one tap away, back to the first
+   week Claude wrote previews.
 
-   Colour map: --up / --down only a graded HIT / MISS; a push and a pass are grey. The chips are the
-   slate's (lime is Claude).
+   Top: Claude's season, one row per bet (Moneyline, Spread, Total) with its hit rate, and the spread by
+   confidence in one grey line. Then a stepper, ‹ Week 4 ›, which stays one row wide however many weeks
+   there are (David asked how 2A scales to 18). Under it that week's record in one line, then its games:
+   the final and a ✓ / ✗ per call. A tap opens the game's preview as it was written, with the final on top.
+
+   This week's finals are in the page; an earlier week's previews are in preview_archive.json, fetched the
+   first time one is opened (design/preview_archive.py). The record's graded games draw the rows meanwhile.
+
+   Colour map: --up / --down only a graded ✓ / ✗; a push and an ungraded call are grey.
 ------------------------------------------------------------------ */
-const pvRecByConf = r => [["strong", t("preview.conf.strong")], ["solid", t("preview.conf.solid")], ["lean", t("preview.conf.lean")]]
-  .map(([c, label]) => `<span>${label} <b>${pvWL(r.by_conf[c])}</b></span>`).join("");
+const PV_ARC_URL = "preview_archive.json";
 
-/* The card: "CLAUDE VS THE SPREAD · EVERY WEEK ›", 25–21–2 and 54% hit, by confidence, win % closer.
-   The weeks it covers are the sheet's rows. */
-function pvRecordHTML(){
+/* Fetch the archive once; a failure leaves "failed" until the reader taps retry (which sets PV_ARC null first). */
+async function pvArcLoad(){
+  if (PV_ARC !== null) return;
+  if (!PAGE_SERVED()){ PV_ARC = "failed"; return; }   // from file:// there is no file to ask for
+  PV_ARC = "loading";
+  try {
+    const res = await fetch(PV_ARC_URL);
+    PV_ARC = res.ok ? await res.json() : "failed";
+  } catch (e) { PV_ARC = "failed"; }
+  if (SURFACE === "preview") render();
+}
+
+/* Claude's season: Moneyline, Spread, Total, each its record and hit rate, then the spread by confidence. */
+function pvSeasonHTML(){
   const r = pvRecord();
-  if (!r || !r.weeks.length) return `<p class="pv-rec0">${t("preview.rec.empty", {n: LIVE_PREVIEW.week})}</p>`;
-  const hit = pvHit(r.ats);
-  return `<button class="pv-rec${PV_REC ? " cur" : ""}" data-pvrec aria-expanded="${PV_REC}">
-    <span class="pv-rec-t"><span>${t("preview.rec.title")}</span><span class="pv-rec-more">${t("preview.rec.more")}</span></span>
-    <span class="pv-rec-big"><b>${pvWL(r.ats)}</b><small>${t("preview.rec.vs")}</small>${hit != null ? `<em>${t("preview.rec.hit", {n: hit})}</em>` : ""}</span>
-    <span class="pv-rec-row">${pvRecByConf(r)}</span>
-    ${r.graded ? `<span class="pv-rec-row">${t("preview.rec.closer", {n: r.closer, m: r.graded})}</span>` : ""}</button>`;
+  if (!r || !r.weeks.length) return "";
+  const tr = (label, s) => { const h = pvHit(s); return `<tr><th scope="row">${label}</th><td>${pvWL(s)}</td><td>${h != null ? h + "%" : "–"}</td></tr>`; };
+  const c = r.by_conf || {};
+  return `<section class="pv-season"><h3 class="pv-sk">${t("preview.arc.season", {n: r.through})}</h3>
+    <table class="pv-st"><tbody>${tr(t("preview.bet.ml"), r.su)}${tr(t("preview.bet.spread"), r.ats)}${tr(t("preview.bet.total"), r.total)}</tbody></table>
+    <p class="pv-sc">${t("preview.arc.conf", {s: pvWL(c.strong), c: pvWL(c.solid), l: pvWL(c.lean)})}</p></section>`;
 }
 
-const pvOf = (n, m) => m ? t("preview.rec.of", {n, m}) : "–";
-
-function pvRecTable(r){
-  const tr = (label, ats, strong, fav, favOf, closer, graded) => `<tr><th scope="row">${label}</th><td>${pvWL(ats)}</td>
-    <td>${strong ? pvWL(strong) : "–"}</td><td>${pvOf(fav, favOf)}</td><td>${pvOf(closer, graded)}</td></tr>`;
-  return `<table class="pv-rt">
-    <thead><tr><th>${t("preview.rec.col.week")}</th><th>${t("preview.rec.col.ats")}</th><th>${t("preview.conf.strong")}</th>
-      <th>${t("preview.rec.col.fav")}</th><th>${t("preview.rec.col.closer")}</th></tr></thead>
-    <tbody>${r.weeks.map(w => tr(w.week, w.ats, w.strong, w.fav, w.fav_of, w.closer, w.graded)).join("")}</tbody>
-    <tfoot>${tr(t("preview.rec.season"), r.ats, r.by_conf.strong, r.fav, r.fav_of, r.closer, r.graded)}</tfoot></table>`;
+/* One call on a row: "Spread ✓ CLE", "Total ✗ Under", "Moneyline CLE" before it is graded. */
+function pvArcCallHTML(label, c){
+  if (!c) return "";
+  const pick = c.pick === "over" ? t("preview.pick.over") : c.pick === "under" ? t("preview.pick.under") : esc(c.pick);
+  return `<span>${label} ${pvMarkHTML(c.hit)}<b class="${c.hit || ""}">${pick}</b></span>`;
 }
 
-/* One graded game: the matchup and the final (winner first), the HIT / MISS / PUSH / PASS tag, then
-   Claude's side and chip under it. */
-function pvRecGame(g){
-  const res = g.result || {}, hw = res.home > res.away, w = hw ? g.home : g.away;
-  const fin = res.home == null ? "" : `${esc(w)} ${hw ? res.home : res.away}–${hw ? res.away : res.home}`;
-  const side = g.side ? `<span class="pv-side">${pvSideWords(g.side, g.side === g.home ? g.spread_home : -g.spread_home)}</span>` : "";
-  const tag = {hit: ["hit", t("preview.rec.hit.hit")], miss: ["miss", t("preview.rec.hit.miss")], push: ["push", t("preview.rec.hit.push")]}[g.hit]
-    || ["pass", t("preview.rec.hit.pass")];
-  return `<li class="pv-rg"><span class="pv-rg-m">${esc(g.away)} @ ${esc(g.home)}</span><span class="pv-rg-f">${fin}</span>
-    <b class="pv-hit ${tag[0]}">${tag[1]}</b><span class="pv-rg-a">${side}${pvConfHTML(g.side ? g.conf : null)}</span></li>`;
+function pvArcRowHTML(x){
+  const {g, i, key, rg} = x, c = pvArcCalls(g, rg), fin = pvFinal(g, rg);
+  const open = i != null ? `data-pvopen="${i}"` : `data-pvarcg="${esc(key)}"`;
+  return `<li><button type="button" class="pv-rg" ${open}>
+    <span class="pv-rg-m">${esc(g.away)} @ ${esc(g.home)}</span><span class="pv-rg-f">${fin || t("preview.final")}</span>
+    <span class="pv-rg-c">${pvArcCallHTML(t("preview.bet.ml"), c.ml)}${pvArcCallHTML(t("preview.bet.spread"), c.spread)}${pvArcCallHTML(t("preview.bet.total"), c.total)}</span>
+  </button></li>`;
 }
 
-/* Every week: the table, then each week's games, the newest open. */
+/* The week shown: its stepper, its record line, its games. */
+function pvArcWeekHTML(wk){
+  const last = pvArcLast();
+  const step = `<header class="pv-top pv-wstep">
+    <button class="pv-arrow" data-pvarcstep="-1"${wk <= 1 ? " disabled" : ""} aria-label="${t("preview.arc.prev")}">‹</button>
+    <b class="pv-mt">${t("preview.arc.week", {n: wk})}</b>
+    <button class="pv-arrow" data-pvarcstep="1"${wk >= last ? " disabled" : ""} aria-label="${t("preview.arc.next")}">›</button></header>`;
+  const rw = pvRecWeek(wk);
+  const line = rw ? `<p class="pv-wl">${t("preview.arc.weekline", {su: pvWL(rw.su), ats: pvWL(rw.ats), tot: pvWL(rw.total)})}</p>` : "";
+  const rows = pvArcRows(wk);
+  const body = rows.length ? `<ul class="pv-rgl">${rows.map(pvArcRowHTML).join("")}</ul>` : `<p class="pv-allover">${t("preview.arc.none")}</p>`;
+  return step + line + body;
+}
+
 function pvRecSheetHTML(){
-  const r = pvRecord();
-  const weeks = r.weeks.map((w, j) => `<section class="pvd-row full"><details class="pv-rw"${j === 0 ? " open" : ""}>
-    <summary>${t("preview.rec.weekgames", {n: w.week, ats: pvWL(w.ats)})}</summary>
-    <ul class="pv-rgl">${w.games.map(pvRecGame).join("")}</ul></details></section>`).join("");
-  return `<section class="pv-rz" aria-label="${t("preview.rec.sheet", {n: r.through})}">
-    <button class="pv-back" data-pvrecback>${t("preview.back")}</button>
-    <article class="pvd-card pv-rcard"><section class="pvd-row full"><h3 class="pvd-rt">${t("preview.rec.sheet", {n: r.through})}</h3>
-      ${pvRecTable(r)}
-      <p class="pv-note">${t("preview.rec.favs", {n: r.fav, m: r.fav_of, c: r.covered, g: r.n})}</p></section>${weeks}</article></section>`;
+  const wk = PV_ARC_WK ?? pvArcWeekDefault();
+  return `<section class="pv-rz" aria-label="${t("preview.arc.title")}">
+    <button class="pv-back" data-pvrecback>${t("preview.backPv")}</button>
+    <h2 class="pv-title">${t("preview.arc.title")}</h2>
+    ${pvSeasonHTML()}${pvArcWeekHTML(wk)}</section>`;
+}
+
+/* An earlier week's game, once the archive is in: the same dossier as a live game. Before then, a line. */
+function pvArcDossierHTML(enter){
+  const gs = pvArcGames(PV_ARC_G.week), i = gs.findIndex(g => g.key === PV_ARC_G.key);
+  if (i >= 0) return pvDossierHTML(gs[i], i, gs.length, enter);
+  const msg = PV_ARC === "failed" ? `<button type="button" class="pv-fold" data-pvarcretry>${t("preview.arc.failed", {n: PV_ARC_G.week})}</button>`
+    : `<p class="pv-allover">${t("preview.arc.loading", {n: PV_ARC_G.week})}</p>`;
+  return `<div class="pv-dz"><button class="pv-back" data-pvback>${t("preview.backPv")}</button>${msg}</div>`;
 }

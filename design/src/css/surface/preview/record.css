@@ -1,52 +1,38 @@
-/* ============================== PREVIEW RECORD ============================== */
-/* Claude's record (js/surface/preview/record.js, 2026-09-29). The card atop the slate is one tap
-   target (DESIGN.md "Cards"); every week is one card, rows inside: the table, then each week's
-   games. --up / --down mark only a graded HIT / MISS. */
-.pv-rec{width:100%;display:flex;flex-direction:column;gap:4px;margin:0 0 4px;padding:10px 12px;border:1px solid var(--line);border-radius:16px;background:var(--panel);color:inherit;font:inherit;text-align:left;cursor:pointer}
-.pv-rec:hover,.pv-rec.cur{background:var(--panel-2)}
-.pv-rec:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
-.pv-rec-t{display:flex;justify-content:space-between;gap:10px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
-.pv-rec-big{display:flex;align-items:baseline;gap:8px;font-family:var(--mono);font-variant-numeric:tabular-nums}
-.pv-rec-big b{font-size:var(--t-5);font-weight:700;color:var(--ink)}
-.pv-rec-big small{font-size:var(--t-1);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
-.pv-rec-big em{margin-left:auto;font-style:normal;font-size:var(--t-3);font-weight:700;color:var(--ink)}
-.pv-rec-row{display:flex;flex-wrap:wrap;gap:2px 14px;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2)}
-.pv-rec-row b{font-weight:700;color:var(--ink)}
-.pv-rec-t .pv-rec-more{letter-spacing:.04em;color:var(--ink-2)}
-.pv-rec0{margin:0;padding:6px 2px 2px;font-size:var(--t-1);line-height:1.4;color:var(--ink-3)}
-
-/* Every week: back, then the card. One card, rows inside, divided by 1px --line: the card's own fill
-   shows through a 1px grid gap (the dossier drew the same card until 2026-09-29). */
+/* ============================== PREVIEW PAST GAMES ============================== */
+/* Past games (js/surface/preview/record.js, 2026-10-05, storyboard picks 1A and 2A): Claude's season as three
+   rows, a week stepper, then the week's games. Hairline rules on the page's own ground, no card.
+   --up / --down mark only a graded ✓ / ✗ (the marks are dossier.css's .pv-mk). */
 .pv-rz{display:flex;flex-direction:column;gap:8px;min-width:0}
-.pvd-card{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden}
-.pvd-row{background:var(--panel);padding:12px 14px;min-width:0}
-.pvd-rt{margin:0 0 8px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
-.pv-rt{width:100%;max-width:640px;border-collapse:collapse;font-family:var(--mono);font-size:var(--t-2);font-variant-numeric:tabular-nums}
-.pv-rt thead th{padding:0 0 6px 8px;font-size:var(--t-1);font-weight:500;letter-spacing:.04em;line-height:1.25;text-transform:uppercase;color:var(--ink-3);text-align:right;vertical-align:bottom}
-.pv-rt thead th:first-child{padding-left:0;text-align:left}
-.pv-rt td,.pv-rt th[scope]{padding:6px 0 6px 8px;border-top:1px solid var(--line);text-align:right;color:var(--ink);white-space:nowrap}
-.pv-rt th[scope]{padding-left:0;font-weight:500;text-align:left;color:var(--ink-2)}
-.pv-rt tfoot td,.pv-rt tfoot th[scope]{border-top-color:var(--line-2);font-weight:700;color:var(--ink)}
 
-/* A week's games: matchup, final, the tag; Claude's side and chip under them. */
-.pv-rw summary{cursor:pointer;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
-.pv-rw summary:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
-.pv-rgl{list-style:none;margin:8px 0 0;padding:0}
-.pv-rg{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:3px 10px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line)}
+/* The season: Moneyline, Spread, Total; record then hit rate, right-aligned in mono. */
+.pv-season{padding-bottom:10px;border-bottom:1px solid var(--line-2)}
+.pv-sk{margin:0 0 4px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.pv-st{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.pv-st th,.pv-st td{padding:6px 0;border-top:1px solid var(--line)}
+.pv-st tr:first-child th,.pv-st tr:first-child td{border-top:0}
+.pv-st th{font-size:var(--t-2);font-weight:600;text-align:left;color:var(--ink-2)}
+.pv-st td{font-family:var(--mono);font-size:var(--t-3);font-weight:700;text-align:right;color:var(--ink)}
+.pv-st td:last-child{width:4.5em;font-size:var(--t-2);font-weight:400;color:var(--ink-3)}
+.pv-sc{margin:6px 0 0;font-size:var(--t-1);line-height:1.4;color:var(--ink-3)}
+
+/* ‹ Week 4 ›: the dossier's own arrows (.pv-top, .pv-arrow). The week's record line under it. */
+.pv-wstep{margin-top:4px}
+.pv-wl{margin:0;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2)}
+
+/* A week's games: matchup and final, then the three calls with their marks. Each row is one tap target. */
+.pv-rgl{list-style:none;margin:4px 0 0;padding:0}
+.pv-rg{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 10px;align-items:baseline;padding:9px 2px;
+  border:0;border-top:1px solid var(--line);background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.pv-rg:hover{background:var(--panel)}
+.pv-rg:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
 .pv-rg-m{font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink);white-space:nowrap}
 .pv-rg-f{font-family:var(--mono);font-size:var(--t-2);color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
-.pv-rg-a{grid-column:1/-1;display:flex;align-items:center;gap:6px}
-.pv-rg-a .pv-side{font-size:var(--t-1)}
-.pv-hit{min-width:44px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.06em;text-align:right}
-.pv-hit.hit{color:var(--up)}
-.pv-hit.miss{color:var(--down)}
-.pv-hit.push,.pv-hit.pass{color:var(--ink-3)}
+.pv-rg-c{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:2px 14px;font-size:var(--t-1);color:var(--ink-3)}
+.pv-rg-c b{font-weight:600;color:var(--ink-2)}
+.pv-rg-c b.hit{color:var(--up)}
+.pv-rg-c b.miss{color:var(--down)}
 
-/* A desktop: no Back (a click on a game or the card closes it). One column, 720px at most, so a
-   game's HIT sits within reach of its matchup (STYLE.md, a label within 560px of its value). */
+/* A desktop: no Back (a click in the rail changes the pane). One column, 720px at most. */
 @media (min-width:960px){
   .pv-rz{max-width:720px}
-}
-@media (min-width:1100px){
-  .pvd-row{padding:14px 18px}
 }

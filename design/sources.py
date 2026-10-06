@@ -461,6 +461,21 @@ def load_dfs_history(season, week):
     return rows
 
 
+def load_preview_archive(season):
+    """Every frozen Preview take of `season` (ff-jarvis history kind `previews`, model.season.preview_record):
+    the first row per game key, the one that was graded. design/preview_archive.py cuts it for Past games."""
+    out = {}
+    for path in sorted((DWR / "history" / "previews").glob("*.jsonl")):
+        for line in path.read_text(encoding="utf-8").splitlines():
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if row.get("season") == season and row.get("key"):
+                out.setdefault(row["key"], row)
+    return list(out.values())
+
+
 def load_claude_record():
     """Claude's own prop calls graded against the model's on the same lines (ff-jarvis claude_props.json,
     2026-10-05): feed block `claude_props` first, the file second. design/claude_record.py cuts only its

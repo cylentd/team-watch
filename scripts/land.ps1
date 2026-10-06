@@ -58,7 +58,8 @@ function Timed($name, [scriptblock]$block) {
 # `heads/` is the headshots, copied from ff-jarvis by the same build; the page names them by path.
 # `trade_offers.json` is the trade builder's offers (design/trade_offers.py), rewritten whole by every build
 # like build.json, and fetched by the page on first open, so Vercel must serve it (.vercelignore).
-$generated = @("index.html", "design/index.html", "build.json", "trade_offers.json", "games", "heads")
+# `preview_archive.json` is Preview's earlier weeks (design/preview_archive.py), the same kind of file.
+$generated = @("index.html", "design/index.html", "build.json", "trade_offers.json", "preview_archive.json", "games", "heads")
 
 # Call git.exe explicitly, and never name a helper `Git`: PowerShell resolves a function name
 # before an external command, case-insensitively, so `function Git { & git ... }` calls itself

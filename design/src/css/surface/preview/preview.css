@@ -33,31 +33,32 @@
 /* The face: the player the headline is about, 40px round, beside both lines. */
 .pv-hs{grid-row:1/3;grid-column:1;align-self:center;width:40px;height:40px;border-radius:50%;overflow:hidden;background:var(--panel-2)}
 .pv-hs img,.pv-hs .fallback{width:100%;height:100%;object-fit:cover;display:grid;place-items:center;font-size:var(--t-1);color:var(--ink-3)}
-.pv-row.done .pv-hs{opacity:.6}
 .pv-rm{grid-row:1;grid-column:2;font-family:var(--mono);font-size:var(--t-3);font-weight:700;letter-spacing:.02em;color:var(--ink);white-space:nowrap}
 .pv-rs{font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 .pv-rs i{font-style:normal;color:var(--lime)}
 .pv-rh{grid-row:2;grid-column:2/-1;font-family:var(--news);font-size:var(--t-3);font-weight:500;line-height:1.3;color:var(--ink-2);text-wrap:pretty}
 .pv-row.cur .pv-rh{color:var(--ink)}
-.pv-row.done .pv-rm,.pv-row.done .pv-rs,.pv-row.done .pv-rh{color:var(--ink-3)}
 /* How sure Claude is (2026-09-29), in plain words (David: "don't use jargon"): Slight and No pick
    grey, Confident lime text, Very confident a lime fill. Lime is Claude, and only the confident
    picks earn it, and only they show on the slate (no side there since 2026-09-29). */
 .pv-ats{display:flex;align-items:baseline;justify-content:flex-end;gap:6px;white-space:nowrap}
-.pv-side{font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink);white-space:nowrap}
 .pv-conf{display:inline-block;padding:2px 0;border-radius:4px;font-family:var(--ui);font-size:var(--t-1);font-weight:500;line-height:1;color:var(--ink-3);white-space:nowrap}
 .pv-conf.strong{padding-inline:6px;background:var(--lime);color:var(--on-lime);font-weight:700}
 .pv-conf.solid{color:var(--lime);font-weight:700}
-/* The win % bar (the box score's Win chance): grey tick the market, lime dot Claude, the gap between
-   them filled faintly. Its own --mk / --cl / --lo / --gap place the marks. */
-.pv-pb{display:block;position:relative;height:12px;margin:6px 5px 8px}
-.pv-pb i{position:absolute;display:block}
-.pv-pbt{left:0;right:0;top:5px;height:2px;background:var(--line-2)}
-.pv-pbf{left:var(--lo);width:var(--gap);top:4px;height:4px;background:rgb(var(--lime-rgb) / .35)}
-.pv-pbm{left:var(--mk);top:0;width:2px;height:12px;margin-left:-1px;background:var(--ink-2)}
-.pv-pbc{left:var(--cl);top:1px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--lime)}
+/* A game being played: the word Live where a confident pick's word would sit. */
+.pv-live{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--down)}
 
-/* The every-week record takes the slate's place on a phone (record.css draws it). */
+/* The slate's title, then (storyboard 1A, 2026-10-05) the two ways into Past games under the games. */
+.pv-title{margin:0 2px 4px;font-family:var(--news);font-size:var(--t-4);font-weight:700;line-height:1.2;color:var(--ink)}
+.pv-allover{margin:8px 2px;font-size:var(--t-2);line-height:1.45;color:var(--ink-3)}
+.pv-folds{display:flex;flex-direction:column;gap:8px;margin-top:22px}
+.pv-fold{width:100%;min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;
+  border:1px solid var(--line-2);border-radius:12px;background:none;color:var(--ink-2);font:inherit;font-size:var(--t-2);text-align:left;cursor:pointer}
+.pv-fold b{color:var(--ink)}
+.pv-fold:hover,.pv-fold.cur{background:var(--panel)}
+.pv-fold:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+
+/* Past games takes the slate's place on a phone (record.css draws it). */
 .pv.rec .pv-slate{display:none}
 
 /* The dossier's frame: back, the header, the card, the footer. */

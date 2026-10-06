@@ -38,18 +38,33 @@ function pvRowHTML(g, i, cur){
     : k ? `<span class="pv-rs"><i>${esc(k.pick.winner)}</i> ${k.pick.score[k.pick.winner]}–${
       k.pick.score[k.pick.winner === g.home ? g.away : g.home]}</span>` : "";
   const face = pvFacePlayer(k);
-  return `<li><button class="pv-row${cur ? " cur" : ""}${pvDone(g) ? " done" : ""}" data-pvopen="${i}"${cur ? ` aria-current="true"` : ""}>
+  // A game being played says Live where the pick's word sits; the slate drops it once it is over (pvOver).
+  const live = pvDone(g) ? `<span class="pv-live">${t("preview.live")}</span>` : right;
+  return `<li><button class="pv-row${cur ? " cur" : ""}" data-pvopen="${i}"${cur ? ` aria-current="true"` : ""}>
     <span class="pv-hs" aria-hidden="true">${face ? headHTML(face) : ""}</span>
-    <span class="pv-rm">${esc(g.away)} @ ${esc(g.home)}</span>${right}
+    <span class="pv-rm">${esc(g.away)} @ ${esc(g.home)}</span>${live}
     <span class="pv-rh">${k ? esc(k.head) : t("preview.slate.notake")}</span></button></li>`;
 }
 
+/* The two ways into Past games (storyboard 1A, 2026-10-05): this week's finals, then the earlier weeks with
+   Claude's record. Each row is drawn only when it has something behind it. */
+function pvFoldsHTML(){
+  const fin = pvFinalIdx().length, wk = LIVE_PREVIEW.week, past = pvArcWeeks().some(w => w < wk);
+  const row = (to, title, sub) => `<button type="button" class="pv-fold${PV_REC && PV_ARC_WK === to ? " cur" : ""}" data-pvarcwk="${to}">
+    <span><b>${title}</b> · ${sub}</span><span aria-hidden="true">›</span></button>`;
+  const rows = [fin ? row(wk, t("preview.arc.finals"), fin === 1 ? t("preview.arc.finalsOne") : t("preview.arc.finalsSub", {n: fin})) : "",
+    past ? row(Math.max(...pvArcWeeks().filter(w => w < wk)), t("preview.arc.past"), t("preview.arc.pastSub")) : ""].join("");
+  return rows ? `<div class="pv-folds">${rows}</div>` : "";
+}
+
 function pvSlateHTML(cur){
-  const gs = pvGames();
-  return `<nav class="pv-slate" aria-label="${t("preview.slate.label")}">${pvRecordHTML()}${pvWindows().map(w => `
+  const gs = pvGames(), wins = pvWindows();
+  const empty = wins.length ? "" : `<p class="pv-allover">${t("preview.slate.done")}</p>`;
+  return `<nav class="pv-slate" aria-label="${t("preview.slate.label")}">
+    <h2 class="pv-title">${t("preview.slate.title", {n: LIVE_PREVIEW.week})}</h2>${empty}${wins.map(w => `
     <section class="pv-win">
       <h3 class="pv-wh"><span>${pvWinLabel(w)}</span><em>${esc(w.times.join(" · "))}${
         w.idx.length > 1 ? " · " + t("preview.win.count", {n: w.idx.length}) : ""}</em></h3>
       <ul>${w.idx.map(i => pvRowHTML(gs[i], i, i === cur)).join("")}</ul>
-    </section>`).join("")}</nav>`;
+    </section>`).join("")}${pvFoldsHTML()}</nav>`;
 }

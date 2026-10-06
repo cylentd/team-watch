@@ -18,6 +18,7 @@ design/index.html  -diff merge=ours
 # after another session's land replays them onto a newer build.json and games/.
 build.json         -diff merge=ours
 trade_offers.json  -diff merge=ours
+preview_archive.json  -diff merge=ours
 games/**           -diff merge=ours
 heads/**           -diff merge=ours
 

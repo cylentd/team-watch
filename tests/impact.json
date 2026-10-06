@@ -35,8 +35,9 @@
     },
     "preview": {
       "paths": ["design/src/js/surface/preview/", "design/src/css/surface/preview/", "design/src/js/data/preview.js",
-                "design/preview.py"],
-      "tests": ["tests/test_preview.py", "tests/test_js_preview_wx.py", "tests/test_js_preview_answer.py"],
+                "design/preview.py", "design/preview_archive.py"],
+      "tests": ["tests/test_preview.py", "tests/test_js_preview_wx.py", "tests/test_js_preview_answer.py",
+                "tests/test_preview_archive.py"],
       "render": ["preview"]
     },
     "league": {

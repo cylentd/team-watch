@@ -1,5 +1,7 @@
 """This week > Preview (2026-09-29, storyboard option A): a slate of every game by kickoff window,
-and a tap opens the game's dossier. Rendered from the fixture build.
+and a tap opens the game's dossier. Rendered from the fixture build. Since 2026-10-05 (storyboard
+https://claude.ai/artifact/NTeV8W2N9mFnYgftfbuqPV, picks 1A 2A 3A 4A) a game that is over leaves the slate
+for Past games, which heads with Claude's season by bet, and the dossier's answer is one row per bet.
 
 The fixture (tests/fixtures/data/game_previews.json) holds five games, one per window: PIT @ CLE on
 Thursday (both on a short week), JAX @ LA on Sunday morning at Wembley (neutral site, wind 17 mph,
@@ -150,8 +152,11 @@ def test_the_record_is_cut_newest_week_first(block):
     assert [w["week"] for w in rec["weeks"]] == [2, 1]
     w2 = rec["weeks"][0]
     assert (w2["ats"], w2["strong"], w2["closer"], w2["graded"], w2["fav"], w2["fav_of"]) == ("1-2-1", "0-0-1", 2, 3, 3, 4)
-    assert w2["games"][1] == {"away": "SEA", "home": "LA", "pick": "LA", "side": "LA", "conf": "strong", "spread_home": -3.0,
-                              "result": {"home": 27, "away": 24}, "hit": "push"}
+    # Since 2026-10-05 (Past games, storyboard 2A) every graded game carries all three calls and their hits.
+    assert w2["games"][1] == {"key": "2026_02_SEA_LA", "away": "SEA", "home": "LA", "pick": "LA", "side": "LA", "conf": "strong",
+                              "spread_home": -3.0, "result": {"home": 27, "away": 24}, "hit": "push", "su": "hit",
+                              "total_line": 46.5, "total_call": "over", "total_conf": "solid", "total_hit": "hit"}
+    assert (rec["su"], rec["total"], w2["su"], w2["total"]) == ("5-3", "5-1-0", "2-2", "3-0-0")
     assert contract.problems("LIVE_PREVIEW", {**block, "record": rec}) == []
 
 
@@ -201,7 +206,7 @@ RESET_JS = """() => {
   SAVED = savedRead();
   SLIP.length = 0; SLIP_SIDE = {}; SL_CHIP = {}; SL_FOCUS = null; GAL_WIN = p.galWin;
   BETS_SHEET = false; BETS_PANEL = false; LEG_SHEET = null;
-  PV_I = null; PV_OPEN = false; PV_Y = 0; PV_REC = false; PV_ENTER = "";
+  PV_I = null; PV_OPEN = false; PV_Y = 0; PV_REC = false; PV_ENTER = ""; PV_ARC_WK = null; PV_ARC_G = null; PV_ARC = null;
   window.scrollTo(0, 0);
   navGo('preview');
 }""" % PICKED
@@ -306,26 +311,31 @@ def open_game(pg, i):
     pg.evaluate(f"() => {{ PV_I = {i}; PV_OPEN = true; render(); }}")
 
 
+def bet_rows(pg):
+    return pg.evaluate("""() => [...document.querySelectorAll('.pv-bt tbody tr')].map(r =>
+        [...r.children].map(c => c.innerText.replace(/\\s+/g, ' ').trim()))""")
+
+
 @pytest.mark.render
-def test_the_win_bar_needs_the_markets_win_pct(page):
-    has_bar = []
-    for i in range(5):
-        open_game(page, i)
-        has_bar.append(page.locator(".pvn-ans .win .pv-pb").count())
-    assert has_bar == [1, 1, 1, 0, 0]                                    # SF @ NYJ: no moneyline; ATL @ NO: no take
-    open_game(page, 2)
-    # The answer block (2026-10-05, plan U3): win chance and Claude's pick, the market's beside each.
-    win = page.inner_text(".pvn-ans .win").replace("\n", " ")
-    pick = page.inner_text(".pvn-ans .pick").replace("\n", " ")
-    for want in ("Win chance", "DET 74%", "market 64%"):
-        assert want in win, want
-    for want in ("Claude's pick", "DET 30, CAR 19", "market DET 27, CAR 23.5"):
-        assert want in pick, want
-    open_game(page, 3)
-    assert "SF 60%" in page.inner_text(".pvn-ans .win").replace("\n", " ") and "market" not in page.inner_text(".pvn-ans .win")
-    open_game(page, 1)
-    style = page.get_attribute(".pvn-ans .win .pv-pb", "style")
-    assert "--mk:41.7%" in style and "--cl:54%" in style                 # JAX, the underdog Claude picks
+def test_the_answer_is_one_row_per_bet_vegas_beside_claude(page):
+    """Storyboard 3A (2026-10-05; David: "saying the same thing many times", "Are you saying PIT is covering?"):
+    Claude's score, then Moneyline, Spread and Total, Vegas's number in its own column beside Claude's call."""
+    open_game(page, 2)                                                   # DET @ CAR
+    assert page.inner_text(".pvn-ans .pv-am") == "DET 30, CAR 19"
+    assert texts(page, ".pv-bt thead th") == ["", "VEGAS", "CLAUDE"]
+    assert bet_rows(page) == [["Moneyline", "DET 64%", "DET wins 74% chance"],
+                              ["Spread", "DET by 3.5", "DET covers Confident wins by 4 or more"],
+                              ["Total", "50.5", "Under Slight 50 points or fewer"]]
+    open_game(page, 1)                                                   # JAX @ LA: Claude takes the underdog
+    assert bet_rows(page)[1][1:] == ["LA by 3", "JAX covers Very confident wins, or loses by 2 or less"]   # 3 is a push
+    # Gone with 3A: the market's score, the bar, "getting / giving", where a line opened.
+    ans = page.inner_text(".pvn-ans")
+    for gone in ("market", "getting", "giving", "opened"):
+        assert gone not in ans, gone
+    assert page.locator(".pvn-ans .pv-pb").count() == 0
+    open_game(page, 4)                                                   # ATL @ NO: no take, Vegas only
+    assert page.locator(".pvn-ans .pv-am").count() == 0
+    assert [r[2] for r in bet_rows(page)] == ["–", "–", "–"]
 
 
 @pytest.mark.render
@@ -336,8 +346,8 @@ def test_the_game_page_reads_like_a_newspaper(page):
     parts = page.evaluate("() => [...document.querySelector('.pvn').children].map(e => e.className)")
     # The answer first (2026-10-05, plan U3): pick, line, total and win chance above the headline.
     assert parts == ["pvn-ans", "pvn-head", "pvn-call", "pvn-box", "pvn-story"]
-    assert page.evaluate("() => [...document.querySelectorAll('.pvn-ans > .pv-an')].map(e => e.classList[1])") == ["pick", "line", "total", "win"]
-    box = page.evaluate("() => [...document.querySelectorAll('.pva')].map(r => r.classList[1])")
+    assert page.evaluate("() => [...document.querySelectorAll('.pv-bt tbody tr')].map(e => e.className)") == ["ml", "spread", "total"]
+    box =page.evaluate("() => [...document.querySelectorAll('.pva')].map(r => r.classList[1])")
     # "slip" since 2026-10-03: the take names Amon-Ra St. Brown, who has lines on the fixture's slate.
     assert box == ["matchup", "handoff", "inj", "wx", "rest"]
     assert page.evaluate("getComputedStyle(document.querySelector('.pv-head')).fontFamily").startswith("Newsreader")
@@ -354,7 +364,7 @@ def test_the_game_page_reads_like_a_newspaper(page):
     for want in ("The call.", "Carolina without Coker"):
         assert want in call, want
     ans = page.inner_text(".pvn-ans").replace("\n", " ")
-    for want in ("DET giving 3.5", "Confident", "Claude's total Under Slight", "50.5", "DET by 3.5"):
+    for want in ("DET covers", "Confident", "Under", "Slight", "50.5", "DET by 3.5"):
         assert want in ans, want
     assert page.inner_text(".pv-risk").startswith("What could go wrong.")
     # Show, don't tell (2026-09-30): no research notes, no before-the-line process, no footnotes.
@@ -369,8 +379,7 @@ def test_the_game_page_reads_like_a_newspaper(page):
     assert page.locator(".pv-score").count() == 0 and page.locator(".pv-vs").count() == 0
     page.click("[data-pvstep='-1']")
     page.click("[data-pvstep='-1']")                                     # PIT @ CLE: no edge
-    assert page.locator(".pvn-ans .pick .pv-side").count() == 0
-    assert page.locator(".pvn-ans .pick .pv-conf.none").count() == 1 and page.locator(".pvn-ans .total .pv-conf.none").count() == 1
+    assert page.locator(".pv-bt .spread .pv-conf.none").count() == 1 and page.locator(".pv-bt .total .pv-conf.none").count() == 1
     assert page.locator(".pvn-call").count() == 0                        # no edge, no reason to print
 
 
@@ -392,73 +401,140 @@ def test_the_answer_is_above_the_fold_on_a_phone_and_the_story_starts_below_it(b
         ctx.close()
 
 
-def open_record(pg):
-    pg.click("[data-pvrec]")
+def open_record(pg, wk=None):
+    """Past games, from its row under the slate (or straight to a week, as a slate row would)."""
+    if wk is None:
+        pg.click("[data-pvarcwk]")
+    else:
+        pg.evaluate(f"() => pvRecOpen({wk})")
     pg.wait_for_function("document.querySelector('.pv').classList.contains('rec')")
 
 
+def end_games(pg, *idx):
+    """Puts the given games 5 hours past kickoff, so pvOver counts them over (SCHED_GRACE_MS is 4 hours)."""
+    pg.evaluate(f"""() => {{ const t = new Date(Date.now() - 5 * 3600e3).toISOString();
+        {list(idx)}.forEach(i => LIVE_PREVIEW.games[i].kickoff = t); render(); }}""")
+
+
 @pytest.mark.render
-def test_the_record_card_opens_every_week_and_back_closes_it(page):
-    card = page.inner_text("[data-pvrec]").replace("\n", " ")
-    for want in ("CLAUDE VS THE SPREAD", "EVERY WEEK", "4–2–1", "VS SPREAD", "67% hit", "Very confident 1–0–1", "Confident 1–1",
-                 "Slight 2–1", "Win % closer than the market's on 4 of 7"):
-        assert want in card, want
-    assert "Blind number" not in card and "Margin error" not in card      # off the page since 2026-09-30
-    assert page.locator(".pv-rec").evaluate("e => e.getBoundingClientRect().top") < page.locator(".pv-win").first.evaluate(
-        "e => e.getBoundingClientRect().top")                             # the card heads the slate
+def test_past_games_opens_from_under_the_slate_and_back_closes_it(page):
+    """Storyboard 1A and 2A (2026-10-05, https://claude.ai/artifact/NTeV8W2N9mFnYgftfbuqPV): the record left the
+    top of the slate (David: "randomly placed", wordy). It heads Past games, one row per bet, reached from a
+    row under the games. The fixture's record runs through week 2, the page's own week, so week 1 is past."""
+    assert page.locator(".pv-rec, .pv-rec0").count() == 0                # no record card on the slate
+    assert page.inner_text(".pv-title") == "Game previews · Week 2"
+    assert texts(page, "[data-pvarcwk]") == ["Past weeks · Claude's record ›"]
+    assert page.locator("[data-pvarcwk]").evaluate("e => e.getBoundingClientRect().top") > page.locator(".pv-win").last.evaluate(
+        "e => e.getBoundingClientRect().bottom") - 1                     # under the games, not above them
     page.evaluate("window.scrollTo(0, 60)")
     y = page.evaluate("scrollY")
     open_record(page)
     assert not page.is_visible(".pv-slate") and page.is_visible(".pv-rz")
     assert page.evaluate("location.hash") == "#preview"
-    assert page.inner_text(".pv-rz .pvd-rt") == "CLAUDE VS THE SPREAD, THROUGH WEEK 2"
-    rows = page.evaluate("() => [...document.querySelectorAll('.pv-rt tr')].map(r => [...r.cells].map(c => c.innerText.trim()))")
-    assert rows[1:] == [["2", "1–2–1", "0–0–1", "3 of 4", "2 of 3"], ["1", "3–0", "1–0", "3 of 4", "2 of 4"],
-                        ["Season", "4–2–1", "1–0–1", "6 of 8", "4 of 7"]]
-    opened = page.evaluate("() => [...document.querySelectorAll('.pv-rw')].map(d => d.open)")
-    assert opened == [True, False]                                       # the newest week open
-    assert texts(page, ".pv-rw[open] .pv-hit") == ["MISS", "PUSH", "HIT", "MISS"]
-    assert page.locator(".pv-rw[open] .pv-hit.hit").count() == 1 and page.locator(".pv-rw[open] .pv-hit.miss").count() == 2
-    assert texts(page, ".pv-rw[open] .pv-rg-a")[:2] == ["NYJ giving 1.5 Confident", "LA giving 3 Very confident"]
-    assert "NE 20–13" in page.inner_text(".pv-rw[open] .pv-rg >> nth=0")
+    assert page.inner_text(".pv-sk") == "CLAUDE THIS SEASON · THROUGH WEEK 2"
+    rows = page.evaluate("() => [...document.querySelectorAll('.pv-st tr')].map(r => [...r.cells].map(c => c.innerText.trim()))")
+    assert rows == [["Moneyline", "5–3", "63%"], ["Spread", "4–2–1", "67%"], ["Total", "5–1", "83%"]]
+    assert page.inner_text(".pv-sc") == "Spread by confidence: Very confident 1–0–1 · Confident 1–1 · Slight 2–1"
+    for gone in ("closer than the market", "Fav picks", "Blind number"):
+        assert gone not in page.inner_text(".pv-rz"), gone
+    assert page.inner_text(".pv-wstep .pv-mt") == "Week 1"
+    assert page.locator(".pv-rg").count() == 4                           # week 1's graded games, from the record
     page.go_back()
     page.wait_for_function("!document.querySelector('.pv').classList.contains('rec')")
     page.wait_for_function(f"scrollY === {y} && !!document.querySelector('.pv-slate')")
     assert page.is_visible(".pv-slate") and page.evaluate("scrollY") == y
-    assert page.evaluate("location.hash") == "#preview"
 
 
 @pytest.mark.render
-def test_the_records_back_button_closes_it(page):
+def test_the_back_button_closes_past_games(page):
     open_record(page)
+    assert page.inner_text("[data-pvrecback]") == "‹ Preview"
     page.click("[data-pvrecback]")
     assert page.is_visible(".pv-slate") and page.locator(".pv-rz").count() == 0
     assert page.evaluate("LAYERS.length") == 0
 
 
 @pytest.mark.render
-def test_before_a_final_week_the_record_is_one_line(page):
+def test_a_game_that_is_over_leaves_the_slate_for_past_games(page):
+    """1A: once a game is over (final, or 4 hours past kickoff) the slate drops it; This week's Final row
+    holds it, and its page opens from there with the final's calls, back to Past games."""
+    end_games(page, 0, 1)
+    assert "PIT @ CLE" not in texts(page, ".pv-rm") and "JAX @ LA" not in texts(page, ".pv-rm")
+    assert texts(page, "[data-pvarcwk]")[0] == "Final · 2 games this week ›"
+    open_record(page)                                                    # the first row: this week
+    assert page.inner_text(".pv-wstep .pv-mt") == "Week 2"
+    assert [t.split(" ")[0:3] for t in texts(page, ".pv-rg-m")] == [["PIT", "@", "CLE"], ["JAX", "@", "LA"]]
+    page.click(".pv-rg >> nth=1")
+    assert is_open(page) and match(page) == "JAX @ LA"
+    assert page.inner_text("[data-pvback]") == "‹ Past games"
+    assert page.locator(".pva.handoff").count() == 0                     # a finished game's lines are gone
+    page.click("[data-pvback]")
+    assert page.is_visible(".pv-rz") and page.inner_text(".pv-wstep .pv-mt") == "Week 2"
+
+
+@pytest.mark.render
+def test_every_game_over_says_so_on_the_slate(page):
+    end_games(page, 0, 1, 2, 3, 4)
+    assert page.locator(".pv-win").count() == 0
+    assert page.inner_text(".pv-allover").startswith("Every game this week is over.")
+    assert texts(page, "[data-pvarcwk]") == ["Final · 5 games this week ›", "Past weeks · Claude's record ›"]
+
+
+@pytest.mark.render
+def test_the_week_stepper_stays_in_range(page):
+    """David asked how 2A scales to 18 weeks: a stepper, one row wide at any count, from week 1 to this week."""
+    end_games(page, 0)
+    open_record(page, 2)
+    assert page.is_disabled("[data-pvarcstep='1']")
+    page.click("[data-pvarcstep='-1']")
+    assert page.inner_text(".pv-wstep .pv-mt") == "Week 1" and page.is_disabled("[data-pvarcstep='-1']")
+    assert page.inner_text(".pv-wl") == "Moneyline 3–1 · Spread 3–0 · Total 2–1"
+
+
+@pytest.mark.render
+def test_an_earlier_weeks_game_opens_from_the_archive(page):
+    """An earlier week's previews come from preview_archive.json (design/preview_archive.py), fetched on first
+    open. Here the fetched document is set by hand: one week-1 game, drawn by the same dossier."""
+    page.evaluate("""() => { const g = structuredClone(LIVE_PREVIEW.games[2]);
+        Object.assign(g, {key: "2026_01_DET_CAR", week: 1, kickoff: "2026-09-14T17:00:00Z", matchup: null, inj: null,
+          wx: null, rest: null, travel: null, site: null});
+        g.take.players.forEach(p => p.proj = null);
+        PV_ARC = {season: 2026, weeks: {"1": [g]}}; }""")
+    open_record(page, 1)
+    assert texts(page, ".pv-rg-m") == ["DET @ CAR"]
+    page.click("[data-pvarcg]")
+    assert is_open(page) and match(page) == "DET @ CAR"
+    assert page.inner_text(".pv-ko").startswith("Week 1 · ")
+    assert page.inner_text("[data-pvback]") == "‹ Past games"
+    assert page.locator(".pva").count() == 0                             # an archived game keeps only its take
+    assert all(t == "" for t in texts(page, ".pv-pj"))                  # no projection was archived
+    page.click("[data-pvback]")
+    assert page.is_visible(".pv-rz") and page.evaluate("PV_ARC_G") is None
+
+
+@pytest.mark.render
+def test_without_a_graded_week_there_is_no_season_block(page):
     page.evaluate("() => { LIVE_PREVIEW.record.weeks.splice(0); render(); }")
-    assert page.locator("[data-pvrec]").count() == 0
-    assert page.inner_text(".pv-rec0") == "Claude's record against the spread starts once week 2 is final."
-    page.evaluate("() => { LIVE_PREVIEW.record = null; render(); }")    # no record file at all: the same line
-    assert page.inner_text(".pv-rec0").startswith("Claude's record")
+    assert page.locator("[data-pvarcwk]").count() == 0                   # nothing over, nothing graded
+    page.evaluate("() => { LIVE_PREVIEW.record = null; render(); }")
+    end_games(page, 0)
+    open_record(page)
+    assert page.locator(".pv-season").count() == 0 and page.locator(".pv-rg").count() == 1
 
 
 @pytest.mark.render
 def test_no_signed_spread_anywhere_in_the_preview(page):
-    """David: never a signed spread. A side is "CLE getting 2.5" / "IND giving 3.5", a line "PIT by 2.5"."""
+    """David: never a signed spread. A line is "PIT by 2.5", a call "CLE covers"."""
     seen = [page.inner_text(".pv-slate")]
     for i in range(5):
         page.evaluate(f"() => {{ PV_I = {i}; PV_OPEN = true; render(); }}")
         seen += texts(page, ".pvn-ans, .pvn-head, .pvn-call")
     page.evaluate("() => { PV_OPEN = false; render(); }")
     open_record(page)
-    page.evaluate("() => document.querySelectorAll('.pv-rw').forEach(d => d.open = true)")
     seen.append(page.inner_text(".pv-rz"))
     signed = [m.group(0) for s in seen for m in re.finditer(r"(?<![\w.])[+\-−]\d+(\.\d)?", s)]
     assert signed == []
-    assert "giving" in " ".join(seen) and "getting" in " ".join(seen)
+    assert " by " in " ".join(seen) and "covers" in " ".join(seen)
 
 
 @pytest.mark.render
@@ -470,7 +546,7 @@ def test_a_tap_opens_the_dossier_and_back_returns_to_the_slate_where_it_was(page
     assert not page.is_visible(".pv-slate")
     assert page.evaluate("location.hash") == "#preview"          # the game is not in the URL
     lines = page.inner_text(".pvn-ans")
-    assert "NYJ by 1.5" in lines and "opened SF by 3" in lines and "opened 43.5" in lines
+    assert "NYJ by 1.5" in lines and "opened" not in lines              # storyboard 3A cut where a line opened
     assert "+3 zones east · kicks off at 1:25 PM body time" in page.inner_text(".pva.rest")
     page.go_back()
     page.wait_for_function("!document.querySelector('.pv').classList.contains('open')")
@@ -493,9 +569,9 @@ def test_optional_rows_are_absent_without_data(page):
     rows = lambda: page.evaluate("() => [...document.querySelectorAll('.pva')].map(r => r.classList[1])")
     page.click("[data-pvopen='4']")                              # ATL @ NO: dome, no take, no rest
     assert rows() == ["inj", "wx"]                               # no matchup or rest; a dome says Dome
-    # The answer still gives the line, the total and the market's win chance: no take, so no pick and no bar.
-    assert page.evaluate("() => [...document.querySelectorAll('.pvn-ans > .pv-an')].map(e => e.classList[1])") == ["line", "total", "win"]
-    assert page.locator(".pvn-ans .pv-pb").count() == 0 and page.locator(".pvn-ans .win .pv-cl").count() == 0
+    # The answer still gives Vegas on every bet: no take, so no score and no call.
+    assert page.evaluate("() => [...document.querySelectorAll('.pv-bt tbody tr')].map(e => e.className)") == ["ml", "spread", "total"]
+    assert page.locator(".pvn-ans .pv-am").count() == 0
     assert page.inner_text(".pva.wx .pv-fc") == "Dome" and "forecast" not in page.inner_text(".pva.wx").lower()
     assert page.locator(".pvn-call").count() == 0 and page.locator(".pvn-story").count() == 0
     assert "Claude's call on this game arrives" in page.inner_text(".pvn-head")
@@ -578,15 +654,12 @@ def test_a_desktop_shows_the_rail_beside_the_dossier(browser, page_file):
         call, box = pg.evaluate("""() => ['.pvn-call', '.pvn-box'].map(s => {
             const b = document.querySelector(s).getBoundingClientRect(); return [b.left, b.top, b.right]; })""")
         assert box[0] > call[2] and abs(box[1] - call[1]) < 2
-        # The record opens in the dossier's place, the rail stays; a game (or the card again) closes it.
+        # Past games opens in the dossier's place, the rail stays; a game in the rail closes it.
         open_record(pg)
         assert pg.is_visible(".pv-slate") and pg.is_visible(".pv-rz") and pg.locator(".pv-dz").count() == 0
-        assert pg.locator(".pv-rec.cur").count() == 1 and pg.locator(".pv-row.cur").count() == 0
+        assert pg.locator(".pv-fold.cur").count() == 1 and pg.locator(".pv-row.cur").count() == 0
         pg.click("[data-pvopen='1']")
         assert match(pg) == "JAX @ LA" and pg.locator(".pv-rz").count() == 0 and pg.evaluate("LAYERS.length") == 0
-        open_record(pg)
-        pg.click("[data-pvrec]")
-        assert pg.locator(".pv-rz").count() == 0 and match(pg) == "JAX @ LA"
         assert errors == [], errors
     finally:
         ctx.close()
@@ -597,9 +670,9 @@ def test_nothing_scrolls_sideways_at_360(page):
     for i in range(5):
         page.evaluate(f"() => {{ PV_I = {i}; PV_OPEN = true; render(); }}")
         assert page.evaluate("document.documentElement.scrollWidth") <= 360, f"game {i}"
-    page.evaluate("() => { PV_OPEN = false; PV_REC = true; render(); document.querySelectorAll('.pv-rw').forEach(d => d.open = true); }")
-    assert page.locator(".pv-rz").count() == 1
-    assert page.evaluate("document.documentElement.scrollWidth") <= 360, "the record"
+    page.evaluate("() => { PV_OPEN = false; PV_REC = true; PV_ARC_WK = 2; render(); }")
+    assert page.locator(".pv-rz").count() == 1 and page.locator(".pv-rg").count() > 0
+    assert page.evaluate("document.documentElement.scrollWidth") <= 360, "Past games"
 
 
 # The fixture's preview games and its props slate are different games, so the hand-off test turns

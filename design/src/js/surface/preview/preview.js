@@ -9,6 +9,10 @@
    one tap from any game. A desktop (960px+) draws both, the slate as a rail beside the dossier, and a
    click only changes the game. Inside the dossier the arrows and a sideways swipe walk the games in
    kickoff order (lib/swipe.js). The take is opinion and the footer says so once.
+
+   Past games (2026-10-05, record.js): a game that is over leaves the slate; the record and every
+   finished game, this week's and earlier weeks', sit one tap away. It is a layer like the dossier; an
+   earlier week's game opens over it as its own layer ("pvarcgame"), so Back walks out one step at a time.
 ------------------------------------------------------------------ */
 let PV_ENTER = "";         // the side the dossier slides in from after a turn; "" on a plain draw
 let PV_SCROLLED = false;   // the slate scrolls to the next game once per load, once the week has begun
@@ -19,12 +23,15 @@ function pvViewHTML(){
   if (!gs.length) return `<div class="wrap"><div class="state-empty" style="min-height:220px">
     <div><b>${t("preview.empty.title")}</b><span>${t("preview.empty.sub")}</span></div></div></div>`;
   const i = pvIndex();
-  const rec = PV_REC && pvRecord() && pvRecord().weeks.length;
+  // The pane: an earlier week's game, else Past games unless a game is open over it, else this week's game.
+  const arc = !!PV_ARC_G, rec = PV_REC && !PV_OPEN && !arc;
+  // Only a first ask: a failed fetch stays failed until the reader taps retry, or a render would refetch forever.
+  if (rec && PV_ARC === null && PV_ARC_WK !== null && PV_ARC_WK < LIVE_PREVIEW.week) pvArcLoad();
   // The slip's tray joins the page once a pick is in it (handoff.js), the same tray as Slips'.
   const tray = SLIP.length || BETS_SHEET;
-  const html = `<div class="wrap pv${PV_OPEN ? " open" : ""}${rec ? " rec" : ""}${tray ? " pv-tray" : ""}">
-    ${pvSlateHTML(rec ? -1 : i)}
-    ${rec ? pvRecSheetHTML() : pvDossierHTML(gs[i], i, gs.length, PV_ENTER)}
+  const html = `<div class="wrap pv${PV_OPEN || arc ? " open" : ""}${PV_REC ? " rec" : ""}${tray ? " pv-tray" : ""}">
+    ${pvSlateHTML(rec || arc ? -1 : i)}
+    ${arc ? pvArcDossierHTML(PV_ENTER) : rec ? pvRecSheetHTML() : pvDossierHTML(gs[i], i, gs.length, PV_ENTER)}
   </div>${tray ? trayHTML() + sheetHTML() : ""}`;
   PV_ENTER = "";
   return html;
@@ -42,7 +49,8 @@ function pvTurn(d){
 function pvOpen(i){
   PV_I = i;
   if (pvWide()){
-    if (PV_REC){ PV_REC = false; layerDone("pvrecord"); }   // a desktop: a game takes the record's place
+    if (PV_ARC_G){ PV_ARC_G = null; layerDone("pvarcgame"); }
+    if (PV_REC){ PV_REC = false; layerDone("pvrecord"); }   // a desktop: a game takes Past games' place
     render();
     return;
   }
@@ -62,12 +70,16 @@ function pvClose(){
   requestAnimationFrame(() => window.scrollTo(0, PV_Y));
 }
 
-/* The every-week record opens as a layer Back closes: over the slate on a phone, in the dossier's
-   place on a desktop. */
-function pvRecOpen(){
-  PV_Y = window.scrollY;
-  PV_REC = true;
-  layerPush("pvrecord", pvRecClose);
+/* Past games opens as a layer Back closes: over the slate on a phone, in the dossier's place on a desktop.
+   `wk` is the week to show (a slate row names it); without one, the week it last showed, else the newest. */
+function pvRecOpen(wk){
+  PV_ARC_WK = wk ?? PV_ARC_WK ?? pvArcWeekDefault();
+  if (PV_ARC_G){ PV_ARC_G = null; layerDone("pvarcgame"); }
+  if (!PV_REC){
+    PV_Y = window.scrollY;
+    PV_REC = true;
+    layerPush("pvrecord", pvRecClose);
+  }
   render();
   if (!pvWide()) window.scrollTo(0, 0);
 }
@@ -81,6 +93,28 @@ function pvRecClose(){
   requestAnimationFrame(() => window.scrollTo(0, PV_Y));
 }
 
+/* A week along in Past games, within week 1 to pvArcLast(). */
+function pvArcStep(d){
+  const wk = (PV_ARC_WK ?? pvArcWeekDefault()) + d;
+  if (wk < 1 || wk > pvArcLast()) return;
+  PV_ARC_WK = wk;
+  render();
+}
+
+/* An earlier week's game opens over Past games as its own layer; the archive is fetched if it is not in yet. */
+function pvArcOpen(key){
+  PV_ARC_G = {week: PV_ARC_WK ?? pvArcWeekDefault(), key};
+  layerPush("pvarcgame", pvArcClose);
+  pvArcLoad();
+  render();
+  window.scrollTo(0, 0);
+}
+
+function pvArcClose(){
+  PV_ARC_G = null;
+  if (SURFACE === "preview") render();
+}
+
 /* Once the week has begun, the slate opens scrolled to the next game to kick off. */
 function pvScrollToNext(v){
   if (PV_SCROLLED || PV_OPEN || PV_REC || pvWide()) return;
@@ -92,11 +126,15 @@ function pvScrollToNext(v){
 function wirePreview(v){
   v.querySelectorAll("[data-pvopen]").forEach(b => b.addEventListener("click", () => pvOpen(+b.dataset.pvopen)));
   v.querySelectorAll("[data-pvstep]").forEach(b => b.addEventListener("click", () => pvTurn(+b.dataset.pvstep)));
-  v.querySelector("[data-pvback]")?.addEventListener("click", () => { pvClose(); layerDone("preview"); });
-  const recShut = () => { pvRecClose(); layerDone("pvrecord"); };
-  v.querySelector("[data-pvrec]")?.addEventListener("click", () => PV_REC ? recShut() : pvRecOpen());   // a desktop's card toggles
-  v.querySelector("[data-pvrecback]")?.addEventListener("click", recShut);
-  const g = pvGames()[pvIndex()];
+  v.querySelector("[data-pvback]")?.addEventListener("click", () => {
+    if (PV_ARC_G){ pvArcClose(); layerDone("pvarcgame"); } else { pvClose(); layerDone("preview"); }
+  });
+  v.querySelector("[data-pvrecback]")?.addEventListener("click", () => { pvRecClose(); layerDone("pvrecord"); });
+  v.querySelectorAll("[data-pvarcwk]").forEach(b => b.addEventListener("click", () => pvRecOpen(+b.dataset.pvarcwk)));
+  v.querySelectorAll("[data-pvarcstep]").forEach(b => b.addEventListener("click", () => pvArcStep(+b.dataset.pvarcstep)));
+  v.querySelectorAll("[data-pvarcg]").forEach(b => b.addEventListener("click", () => pvArcOpen(b.dataset.pvarcg)));
+  v.querySelector("[data-pvarcretry]")?.addEventListener("click", () => { PV_ARC = null; pvArcLoad(); render(); });
+  const g = pvCurGame();
   v.querySelectorAll("[data-pvp]").forEach(el => el.addEventListener("click", () => {
     const p = g && g.take && g.take.players[+el.dataset.pvp];
     if (p) openProfile({n: p.n, pos: p.pos, team: p.team, slug: p.slug}, el);

@@ -407,9 +407,9 @@ STATES = [
     ("preview-slip", go("preview") + [("eval", """(() => { const g = LIVE_PREVIEW.games[3]; g.away = 'SEA'; g.home = 'SF';
       g.take.players = [{n: 'George Kittle', slug: 'george-kittle', pos: 'TE', team: 'SF', proj: 9.1, call: 'up', why: 'Seattle allows the most TE points.'}];
       PV_I = 3; PV_OPEN = true; render(); })()"""), ("click", ".pva.handoff [data-side='higher']")]),
-    # Claude's record (2026-09-29, confidence): every week open (the fixture's two graded weeks), and
-    # the slate before any graded week, when the card is one line.
-    ("preview-record", go("preview") + [("click", "[data-pvrec]")]),
+    # Past games (2026-10-05, picks 1A and 2A; the record card before): opened from its row under the slate
+    # on week 1, the fixture's earlier graded week; and the slate before any graded week, with no such row.
+    ("preview-record", go("preview") + [("click", "[data-pvarcwk]")]),
     ("preview-record-empty", [("eval", "LIVE_PREVIEW.record.weeks.splice(0)")] + go("preview")),
     # Role, leaf `movers` (2026-09-29; Movers' share cards before): the fixture's role board, all
     # positions, one position, every row shown, no board at all, and a row opening the profile.

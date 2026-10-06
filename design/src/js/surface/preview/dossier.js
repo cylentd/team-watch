@@ -11,8 +11,8 @@
    the page. A desktop from 1100px sets the box score as a column right of the story; a phone prints it
    under the call, so the numbers come before the player calls.
 
-   Colour map: --up / --down a player's call and a soft / tough defense rank; --lime Claude (his win
-   %, the bar's dot, the STRONG / SOLID chips); the market is grey.
+   Colour map: --up / --down a player's call, a soft / tough defense rank and a graded ✓ / ✗; --lime only
+   the Confident / Very confident words; Vegas is grey, Claude's call white (storyboard 3A, 2026-10-05).
 ------------------------------------------------------------------ */
 /* The kickoff in the reader's clock, the page's one format ("Mon 8:15 PM", lib/kick.js). Until 2026-10-05 it
    was Eastern ("Mon 8:15 PM ET") while Bets and the Digest said Pacific; the travel row's body clock is a
@@ -74,28 +74,27 @@ function pvCallHTML(g){
   return k.ats.edge ? `<div class="pvn-call"><p class="pv-callp">${pvRunIn(t("preview.run.call"))} ${esc(k.ats.edge)}</p></div>` : "";
 }
 
-/* The answer block: Claude's pick (score, the market's beside it, his side as chips), the line, the total
-   with Claude's call on it, the win chance with the bar. The cells are pvAnswer's (data/preview.js). */
-function pvAnsCellHTML(c, g){
-  const label = {pick: t("preview.ans.pick"), line: t("preview.line.spread"), total: t("preview.line.totalk"), win: t("preview.row.win")}[c.id];
-  const sub = c.sub ? `<small class="pv-as">${c.sub}</small>` : "";
-  let extra = "";
-  if (c.id === "pick" && c.ats) extra = `<span class="pv-aats">${pvAtsHTML(g, c.ats)}</span>`;
-  if (c.id === "total" && c.call) extra = `<span class="pv-aats">${t("preview.line.claude")} ${
-    c.call.call ? `${c.call.call === "over" ? t("preview.pick.over") : t("preview.pick.under")} ${pvConfHTML(c.call.conf)}` : pvConfHTML(null)}</span>`;
-  if (c.id === "win" && c.bar) extra = pvBarHTML(c.bar.mk, c.bar.cl);
-  return `<div class="pv-an ${c.id}"><span class="pv-ak">${label}</span><b class="pv-am${c.claude ? " pv-cl" : ""}">${c.main}</b>${sub}${extra}</div>`;
-}
-function pvAnswerHTML(g){
-  const cells = pvAnswer(g);
-  return cells.length ? `<section class="pvn-ans" aria-label="${t("preview.ans.label")}">${cells.map(c => pvAnsCellHTML(c, g)).join("")}</section>` : "";
+/* The answer block (storyboard 3A, 2026-10-05): a finished game's final, Claude's score, then a table of one
+   row per bet, Vegas grey beside Claude white with his confidence word and what the call needs in points.
+   A graded game marks each call ✓ / ✗. The rows are pvAnswer's (data/preview.js). */
+const PV_MARK = {hit: "✓", miss: "✗", push: "–"};
+const pvMarkHTML = h => h ? `<b class="pv-mk ${h}" aria-label="${({hit: t("preview.hit.hit"), miss: t("preview.hit.miss"), push: t("preview.hit.push")})[h]}">${PV_MARK[h]}</b> ` : "";
+
+function pvAnsRowHTML(r, hasTake){
+  const label = {ml: t("preview.bet.ml"), spread: t("preview.bet.spread"), total: t("preview.bet.total")}[r.id];
+  const call = r.claude ? `${pvMarkHTML(r.hit)}${r.claude}${r.conf ? " " + pvConfHTML(r.conf) : ""}${r.sub && !r.hit ? `<small class="pv-as">${r.sub}</small>` : ""}`
+    : hasTake ? pvConfHTML(null) : "–";
+  return `<tr class="${r.id}"><th scope="row">${label}</th><td class="pv-vg">${r.vegas || "–"}</td><td class="pv-cc">${call}</td></tr>`;
 }
 
-/* The bar under the win %: grey tick the market, lime dot Claude, the gap between them filled faintly. */
-function pvBarHTML(mk, cl){
-  const r1 = n => Math.round(n * 10) / 10;
-  return `<span class="pv-pb" aria-hidden="true" style="--mk:${r1(mk)}%;--cl:${r1(cl)}%;--lo:${r1(Math.min(mk, cl))}%;--gap:${r1(Math.abs(cl - mk))}%">
-    <i class="pv-pbt"></i><i class="pv-pbf"></i><i class="pv-pbm"></i><i class="pv-pbc"></i></span>`;
+function pvAnswerHTML(g){
+  const rg = pvRecGameOf(g), a = pvAnswer(g, rg), fin = pvFinal(g, rg);
+  if (!a.rows.length && !a.score) return "";
+  const final = fin ? `<p class="pv-fin"><span>${t("preview.final")}</span><b>${fin}</b></p>` : "";
+  const score = a.score ? `<span class="pv-ak">${t("preview.ans.pick")}</span><b class="pv-am">${a.score}</b>` : "";
+  const table = a.rows.length ? `<table class="pv-bt"><thead><tr><th></th><th>${t("preview.ans.vegas")}</th><th>${t("preview.ans.claude")}</th></tr></thead>
+    <tbody>${a.rows.map(r => pvAnsRowHTML(r, !!g.take)).join("")}</tbody></table>` : "";
+  return `<section class="pvn-ans" aria-label="${t("preview.ans.label")}">${final}${score}${table}</section>`;
 }
 
 const pvKV = (k, v) => `<span class="pv-k">${k}</span><span class="pv-v">${v}</span>`;
@@ -122,7 +121,7 @@ function pvPlayerHTML(p, j){
     <span class="pv-face">${headHTML(p)}</span>
     <span class="pv-call ${p.call}" aria-label="${pvCallWord(p.call)}">${PV_CALL[p.call]}</span>
     <span class="pv-pn">${shortName(p.n)}<small>${esc(p.pos)} · ${esc(p.team)}</small></span>
-    <span class="pv-pj">${p.proj.toFixed(1)}</span>
+    <span class="pv-pj">${p.proj != null ? p.proj.toFixed(1) : ""}</span>
     <span class="pv-pw">${esc(p.why)}</span></button></li>`;
 }
 
@@ -134,10 +133,12 @@ function pvStoryHTML(g){
   return pl || risk ? `<div class="pvn-story">${pl}${risk}</div>` : "";
 }
 
-/* The header: back to the slate (a phone), ‹ AWAY @ HOME ›, the kickoff. */
+/* The header: back (a phone) to the slate, or to Past games when it opened the game, ‹ AWAY @ HOME ›, the
+   kickoff. An earlier week's kickoff names its week, since the day alone would not say which. */
 function pvTopHTML(g, i, n){
-  const kick = pvDone(g) ? t("preview.kicked", {kick: pvKick(g)}) : pvKick(g);
-  return `<button class="pv-back" data-pvback>${t("preview.back")}</button>
+  const kick = PV_ARC_G ? `${t("preview.arc.week", {n: PV_ARC_G.week})} · ${pvKick(g)}`
+    : pvOver(g) ? `${t("preview.final")} · ${pvKick(g)}` : pvDone(g) ? t("preview.kicked", {kick: pvKick(g)}) : pvKick(g);
+  return `<button class="pv-back" data-pvback>${PV_ARC_G || PV_REC ? t("preview.backArc") : t("preview.back")}</button>
     <header class="pv-top">
     <button class="pv-arrow" data-pvstep="-1"${i === 0 ? " disabled" : ""} aria-label="${t("preview.prev")}">‹</button>
     <b class="pv-mt" aria-label="${t("preview.count", {i: i + 1, n})}">${esc(g.away)} @ ${esc(g.home)}</b>
@@ -146,7 +147,8 @@ function pvTopHTML(g, i, n){
 }
 
 function pvDossierHTML(g, i, n, enter){
-  const box = [pvMatchupRow(g), pvSlipRow(g), pvInjRow(g), pvWxRow(g), pvRestRow(g)].join("");
+  // Once a game is over its lines are gone, so the hand-off to Slips is too; an earlier week's always is.
+  const box = [pvMatchupRow(g), PV_ARC_G || pvOver(g) ? "" : pvSlipRow(g), pvInjRow(g), pvWxRow(g), pvRestRow(g)].join("");
   return `<div class="pv-dz">${pvTopHTML(g, i, n)}
     <article class="pvn${enter}" data-pvswipe>${pvAnswerHTML(g)}${pvHeadHTML(g)}${pvCallHTML(g)}${box ? `<aside class="pvn-box">${box}</aside>` : ""}${pvStoryHTML(g)}</article></div>`;
 }
