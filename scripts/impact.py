@@ -1,6 +1,7 @@
 """Which tests a branch's diff can break (2026-09-27). land.ps1 runs these instead of everything.
 
     python scripts/impact.py                   # the diff against origin/main
+    python scripts/impact.py --worktree        # the same, uncommitted edits included
     python scripts/impact.py --paths a.js b.py # any list of paths
 
 Prints JSON: {"all": bool, "why": [...], "files": [test files], "areas": [golden areas]}. The
@@ -191,13 +192,28 @@ def src_texts():
             yield p.relative_to(ROOT).as_posix(), p.read_text(encoding="utf-8")
 
 
-def changed(base):
-    """The diff's paths and the golden areas it changes, shared files read by what changed in them."""
-    paths = [p for p in git("diff", "--no-renames", "--name-only", f"{base}...HEAD").splitlines() if p]
+def on_disk(path):
+    p = ROOT / path
+    return p.read_text(encoding="utf-8") if p.is_file() else None
+
+
+def changed(base, worktree=False):
+    """The diff's paths and the golden areas it changes, shared files read by what changed in them.
+
+    worktree: the files on disk, uncommitted and untracked ones included, against the fork point
+    (scripts/run_tests.py, while working); otherwise HEAD against it (land.ps1, a finished branch)."""
     fork = git("merge-base", base, "HEAD").strip()
+    if worktree:
+        listed = git("diff", "--no-renames", "--name-only", fork) + \
+            git("ls-files", "--others", "--exclude-standard")
+        now = on_disk
+    else:
+        listed = git("diff", "--no-renames", "--name-only", f"{base}...HEAD")
+        now = lambda path: at("HEAD", path)
+    paths = sorted({p for p in listed.splitlines() if p})
     out, golden = [], set()
     for path in paths:
-        got = expand(path, at(fork, path), at("HEAD", path), src_texts)
+        got = expand(path, at(fork, path), now(path), src_texts)
         if got is None:
             out.append(path)
         else:
@@ -210,11 +226,12 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--base", default="origin/main")
     ap.add_argument("--paths", nargs="*")
+    ap.add_argument("--worktree", action="store_true", help="the files on disk, not HEAD")
     a = ap.parse_args(argv)
     if a.paths is not None:
         print(json.dumps(select(a.paths)))
     else:
-        paths, golden = changed(a.base)
+        paths, golden = changed(a.base, a.worktree)
         print(json.dumps(select(paths, golden=golden)))
 
 

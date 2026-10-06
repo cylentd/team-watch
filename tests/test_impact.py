@@ -167,3 +167,56 @@ def test_any_other_file_is_not_expanded():
 def test_the_cli_prints_json(capsys):
     impact.main(["--paths", "design/ranks.py"])
     assert json.loads(capsys.readouterr().out)["areas"] == ["ranks"]
+
+
+# ---- the files on disk, and scripts/run_tests.py (2026-10-05) ----
+
+def fake_git(monkeypatch, outputs):
+    """impact.git answering from a table, keyed by its first two arguments."""
+    calls = []
+    def git(*args):
+        calls.append(args)
+        return outputs[args[:2]]
+    monkeypatch.setattr(impact, "git", git)
+    monkeypatch.setattr(impact, "at", lambda rev, path: "old")
+    return calls
+
+
+def test_the_worktree_mode_sees_edits_not_yet_committed(monkeypatch):
+    calls = fake_git(monkeypatch, {
+        ("merge-base", "origin/main"): "abc\n",
+        ("diff", "--no-renames"): "design/ranks.py\n",
+        ("ls-files", "--others"): "design/src/js/surface/ranks/new.js\n"})
+    monkeypatch.setattr(impact, "on_disk", lambda path: "new")
+    paths, _ = impact.changed("origin/main", worktree=True)
+    assert paths == ["design/ranks.py", "design/src/js/surface/ranks/new.js"]
+    assert ("diff", "--no-renames", "--name-only", "abc") in calls  # the tree, not HEAD
+
+
+def test_the_committed_mode_reads_head_only(monkeypatch):
+    calls = fake_git(monkeypatch, {
+        ("merge-base", "origin/main"): "abc\n",
+        ("diff", "--no-renames"): "design/ranks.py\n"})
+    paths, _ = impact.changed("origin/main")
+    assert paths == ["design/ranks.py"]
+    assert ("diff", "--no-renames", "--name-only", "origin/main...HEAD") in calls
+    assert not [c for c in calls if c[0] == "ls-files"]
+
+
+import run_tests as runner  # noqa: E402  scripts/run_tests.py
+
+
+def test_the_runner_passes_files_and_areas():
+    pick = {"all": False, "why": [], "files": ["tests/a.py", "tests/test_render.py"], "areas": ["preview"]}
+    assert runner.selection(pick) == ["tests/a.py", "tests/test_render.py", "--areas", "preview"]
+    assert runner.selection({**pick, "areas": []}) == ["tests/a.py", "tests/test_render.py"]
+
+
+def test_the_runner_runs_everything_when_impact_says_all(capsys):
+    assert runner.selection({"all": True, "why": ["design/build.py"], "files": [], "areas": []}) == []
+    assert "design/build.py" in capsys.readouterr().out
+
+
+def test_update_golden_never_runs_in_parallel():
+    """Every area rewrites the one golden file, so workers would overwrite each other."""
+    assert runner.parallel(["--update-golden"]) == []

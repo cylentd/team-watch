@@ -136,40 +136,26 @@ function RebaseAndTest {
         GitRun "rebase origin/$Base" | Out-Null
     }
 
-    # Tests spread one by one over the workers, except each golden area's slice, which shares one
-    # snapshot (tests/conftest.py). Without pytest-xdist it runs serially.
-    $parallel = @()
-    & python -c "import xdist" 2>$null
-    if ($LASTEXITCODE -eq 0) { $parallel = @("-n", "auto", "--dist", "loadgroup") }
-    else { Write-Host "  pytest-xdist missing (pip install pytest-xdist) -- running serially" -ForegroundColor Yellow }
-
-    # Only the tests this diff can break (scripts/impact.py, tests/impact.json): a change fenced to one
-    # view runs that view's tests plus the core. Anything the map does not claim runs everything, and
-    # so does -Full. The scheduled rebuild runs the whole suite twice a day either way.
-    $selected = @()
-    if (-not $Full) {
-        $impactOut = & python (Join-Path $PSScriptRoot "impact.py") --base "origin/$Base"
-        if ($LASTEXITCODE -ne 0) { throw "scripts/impact.py failed ($LASTEXITCODE) -- fix it or re-run with -Full" }
-        $impact = $impactOut | ConvertFrom-Json
-        if ($impact.all) {
-            Write-Host "  whole suite: $($impact.why -join '; ')" -ForegroundColor DarkGray
-        } else {
-            $selected = @($impact.files)
-            if ($impact.areas.Count -gt 0) { $selected += @("--areas", ($impact.areas -join ",")) }
-        }
-    }
+    # scripts/run_tests.py picks and runs the tests, in parallel: only the ones this diff can break
+    # (scripts/impact.py, tests/impact.json), so a change fenced to one view runs that view's tests
+    # plus the core. Anything the map does not claim runs everything, and so does -Full. The
+    # scheduled rebuild runs the whole suite twice a day either way.
+    $testArgs = @("--base", "origin/$Base", "--committed")
+    if ($Full) { $testArgs += "--full" }
+    $runner = Join-Path $PSScriptRoot "run_tests.py"
 
     Write-Host "testing" -ForegroundColor Cyan
-    Write-Host "  python -m pytest $($parallel -join ' ') $($selected -join ' ')" -ForegroundColor DarkGray
-    if (-not $DryRun) {
-        Push-Location $repo
-        $env:TW_RUN_KIND = "land"
-        $script:testRuns++
-        try {
-            Timed $(if ($script:testRuns -eq 1) { "test" } else { "retest" }) { & python -m pytest @parallel @selected }
-            if ($LASTEXITCODE -ne 0) { throw "tests failed ($LASTEXITCODE) -- nothing landed" }
-        } finally { Pop-Location; Remove-Item Env:TW_RUN_KIND -ErrorAction SilentlyContinue }
+    if ($DryRun) {
+        & python $runner @testArgs --dry-run
+        if ($LASTEXITCODE -ne 0) { throw "scripts/run_tests.py failed ($LASTEXITCODE) -- fix it or re-run with -Full" }
+        return
     }
+    $env:TW_RUN_KIND = "land"
+    $script:testRuns++
+    try {
+        Timed $(if ($script:testRuns -eq 1) { "test" } else { "retest" }) { & python $runner @testArgs }
+        if ($LASTEXITCODE -ne 0) { throw "tests failed ($LASTEXITCODE) -- nothing landed" }
+    } finally { Remove-Item Env:TW_RUN_KIND -ErrorAction SilentlyContinue }
 }
 
 # The first test run happens before the queue (2026-10-05). Until then a land held main for its
