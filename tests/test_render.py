@@ -585,15 +585,19 @@ def watch_errors(page, into=None):
 def open_at(browser, page_file, size, hash_="", init=()):
     """Open the page at a size, with a hash or pinned-clock init scripts: (ctx, page, errors)."""
     ctx = browser.new_context(viewport={"width": size[0], "height": size[1]}, reduced_motion="reduce")
-    page = ctx.new_page()
-    page.set_default_timeout(5000)     # a missing control is a bug, not something to wait 30 s for
-    errors = watch_errors(page)
-    page.route(re.compile(r"^https?://"), lambda route: route.abort())
-    page.add_init_script(SEED)
-    for script in init:
-        page.add_init_script(script)
-    page.goto(page_file.as_uri() + hash_)
-    page.wait_for_function("document.getElementById('view').children.length > 0")
+    try:
+        page = ctx.new_page()
+        page.set_default_timeout(5000)     # a missing control is a bug, not something to wait 30 s for
+        errors = watch_errors(page)
+        page.route(re.compile(r"^https?://"), lambda route: route.abort())
+        page.add_init_script(SEED)
+        for script in init:
+            page.add_init_script(script)
+        page.goto(page_file.as_uri() + hash_)
+        page.wait_for_function("document.getElementById('view').children.length > 0")
+    except BaseException:
+        ctx.close()      # a page that never drew is the caller's to close, but the caller never got it
+        raise
     return ctx, page, errors
 
 
@@ -697,25 +701,33 @@ def snapshot(browser, page_file):
     Each state gets its own fresh context, so nothing one state did reaches the next capture. (Loading
     the next state's page while this one was driven saved nothing on a full run, where every worker is
     busy, and doubled the renderers per worker; removed 2026-10-05.)"""
-    taken, fences = {}, json.dumps(fenced_selectors())
+    taken, failed, fences = {}, {}, json.dumps(fenced_selectors())
     steps_of = dict(STATES)
 
     def take(key):
+        # A state that cannot be drawn fails the slice once; its other tests fail at once with the
+        # same error, instead of loading every state of the slice again (conftest, `keep`).
+        if key in failed:
+            pytest.fail(f"the {key} snapshot failed in an earlier test: {failed[key]}", pytrace=False)
         if key not in taken:
             out, errors, outside = {vp: {} for vp in VIEWPORTS}, {}, {}
-            for vp_name, vp in VIEWPORTS.items():
-                for state in SLICES[key][1]:
-                    ctx, page, errs = open_at(browser, page_file, vp)
-                    try:
-                        drive(page, steps_of[state])
-                        out[vp_name][state] = page.evaluate(PROBE, PROPS)
-                        missed = page.evaluate(f"(json) => ({OUTSIDE_FENCE})(JSON.parse(json))", fences)
-                    finally:
-                        ctx.close()
-                    if errs:
-                        errors[f"{vp_name}/{state}"] = errs
-                    if missed:
-                        outside[f"{vp_name}/{state}"] = missed
+            try:
+                for vp_name, vp in VIEWPORTS.items():
+                    for state in SLICES[key][1]:
+                        ctx, page, errs = open_at(browser, page_file, vp)
+                        try:
+                            drive(page, steps_of[state])
+                            out[vp_name][state] = page.evaluate(PROBE, PROPS)
+                            missed = page.evaluate(f"(json) => ({OUTSIDE_FENCE})(JSON.parse(json))", fences)
+                        finally:
+                            ctx.close()
+                        if errs:
+                            errors[f"{vp_name}/{state}"] = errs
+                        if missed:
+                            outside[f"{vp_name}/{state}"] = missed
+            except BaseException as e:
+                failed[key] = (f"{type(e).__name__}: {e}".strip().splitlines() or ["?"])[0][:300]
+                raise
             taken[key] = out, errors
             take.outside[key] = outside
         return taken[key]

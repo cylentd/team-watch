@@ -18,6 +18,7 @@ import pytest  # noqa: E402
 from _espn import slugify  # noqa: E402
 import contract  # noqa: E402
 import sources  # noqa: E402
+from conftest import SharedPages  # noqa: E402
 from digest import live_digest  # noqa: E402
 from sources import load_digest, load_digest_headline  # noqa: E402
 from test_digest_live import (MONDAY_EARLY, assert_generic, cfg, digest)  # noqa: E402,F401
@@ -133,10 +134,9 @@ RESET = """() => { 'use strict'; LIVE_DIGEST.story = window.__story0; GD_STATS.l
 
 @pytest.fixture(scope="module")
 def _pages(browser, page_file):
-    pages = {}
+    pages = SharedPages()
     yield browser, page_file, pages
-    for ctx, _, _ in pages.values():
-        ctx.close()
+    pages.close()
 
 
 @pytest.fixture
@@ -144,14 +144,15 @@ def planted(_pages):
     """planted(**state) -> (page, errors), the Digest as `digest()` plants it for that state."""
     browser, page_file, pages = _pages
 
+    def opener(state):
+        ctx, page, errors = digest(browser, page_file, **state)
+        page.evaluate("() => { window.__story0 = LIVE_DIGEST.story; window.__lead0 = JSON.stringify(GD_STATS.lead); }")
+        assert errors == []          # whatever the load or the plant raised fails here, not lost to a clear
+        return ctx, page, errors
+
     def get(**state):
         key = json.dumps(cfg(**state), sort_keys=True)
-        if key not in pages:
-            ctx, page, errors = digest(browser, page_file, **state)
-            page.evaluate("() => { window.__story0 = LIVE_DIGEST.story; window.__lead0 = JSON.stringify(GD_STATS.lead); }")
-            assert errors == []          # whatever the load or the plant raised fails here, not lost to a clear
-            pages[key] = (ctx, page, errors)
-        _, page, errors = pages[key]
+        _, page, errors = pages.get(key, lambda: opener(state))
         left, errors[:] = list(errors), []   # each test answers for its own page errors only,
         assert left == []                    # and an error raised or left over since the last one fails this
         page.evaluate(RESET)

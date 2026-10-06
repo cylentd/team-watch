@@ -18,6 +18,7 @@ import re
 
 import pytest
 
+from conftest import SharedPages
 from test_js_hurt import play, summary
 from test_render import LIVE_PLANT, drive, go, open_page, SEED  # noqa: F401
 
@@ -28,16 +29,14 @@ pytestmark = pytest.mark.render
 def shared_pages(browser, page_file):
     """One loaded page per viewport for the module, where each test used to load its own. The tests that plant data re-plant everything they read (PLANT) after
     leaving the view, and the two that stub the poller or need http keep their own page."""
-    pages = {}
+    pages = SharedPages()
 
-    def get(size):
-        if size not in pages:
-            pages[size] = open_page(browser, page_file, size)
-            assert pages[size][2] == []     # whatever the load raised fails here, not lost to a clear
-        return pages[size]
-    yield get
-    for ctx, *_ in pages.values():
-        ctx.close()
+    def opener(size):
+        opened = open_page(browser, page_file, size)
+        assert opened[2] == []              # whatever the load raised fails here, not lost to a clear
+        return opened
+    yield lambda size: pages.get(size, lambda: opener(size))
+    pages.close()
 
 
 @pytest.fixture

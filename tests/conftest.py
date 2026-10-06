@@ -7,9 +7,11 @@ a failure is a change in this repo, not in tonight's data.
     pytest -m "not render"     # no browser, about 30 s
     pytest --update-golden     # rewrite tests/golden/render.json after an intended visual change
 """
+import contextlib
 import os
 import pathlib
 import sys
+import warnings
 
 import pytest
 
@@ -112,12 +114,151 @@ def built():
 def browser():
     """One Chromium per worker for every browser test; the launch (about 1 s) is what is shared.
     A test opens its own context, or borrows its file's module-scoped page, which resets what
-    the last test changed and checks the page raised no error while loading."""
+    the last test changed and checks the page raised no error while loading. Who closes each
+    context is decided below (`keep`), not left to the test."""
     from playwright.sync_api import sync_playwright
     with sync_playwright() as pw:
         b = pw.chromium.launch()
-        yield b
-        b.close()
+        _PW["browser"] = b
+        try:
+            yield b
+        finally:
+            _PW["browser"] = None
+            b.close()
+
+
+# Every browser context has an owner, so a failure never strands one (2026-10-05). A page whose
+# script broke made every test fail in setup, and each failure left its context open: one Chromium
+# grew to 6.5 GB and ~300 renderers in 25 minutes, and an earlier run ran the machine out of memory.
+# - A context opened while a module- or session-scoped fixture sets up belongs to that scope; one a
+#   module opens later and shares (SharedPages) is kept for the module by `keep`.
+# - Any other context belongs to the test that opened it, and is closed when the test ends however
+#   the test ended (_pages_closed). A test that passed and still left one open gets a warning.
+# - A kept context its module did not close is closed when the module ends (_module_pages_closed).
+# - A setup that fails closes what it opened at once.
+# After every test at most MAX_CONTEXTS contexts and MAX_PAGES pages may stay open, or the test
+# errors in teardown. The suite keeps at most 3 contexts and 3 pages open between tests (measured
+# 2026-10-05: test_digest_story.py's planted Digests), so twice that is headroom, not a leak.
+MAX_CONTEXTS = 6
+MAX_PAGES = 12
+_PW = {"browser": None, "module": ""}
+_KEPT = {}          # context -> owner: a module's (or class's) nodeid, "" for the session
+
+
+def open_contexts():
+    b = _PW["browser"]
+    if b is None:
+        return []
+    try:
+        return list(b.contexts)
+    except Exception:       # the browser is gone: nothing of it is open
+        return []
+
+
+def _close(contexts):
+    for c in contexts:
+        try:
+            c.close()
+        except Exception:
+            pass
+
+
+@contextlib.contextmanager
+def keep(owner=None):
+    """Contexts opened inside the block outlive the test: they belong to `owner` (the running test's
+    module by default), whose own teardown closes them. If the block raises they are closed at once."""
+    before = set(open_contexts())
+    try:
+        yield
+    except BaseException:
+        _close([c for c in open_contexts() if c not in before])
+        raise
+    for c in open_contexts():
+        if c not in before and c not in _KEPT:
+            _KEPT[c] = _PW["module"] if owner is None else owner
+
+
+class SharedPages:
+    """A module's pages, opened once per key and shared: `pages.get(key, opener)` returns what
+    opener() returned the first time (a tuple whose first item is the context). A failed open is
+    remembered: every later test that asks for that key fails at once with the first error instead
+    of opening, and stranding, a page of its own. `close()` in the module fixture's teardown."""
+
+    def __init__(self):
+        self.items, self.failed = {}, {}
+
+    def get(self, key, opener):
+        if key in self.failed:
+            pytest.fail(f"the shared page {key!r} failed to open in an earlier test: {self.failed[key]}",
+                        pytrace=False)
+        if key not in self.items:
+            try:
+                with keep():
+                    self.items[key] = opener()
+            except BaseException as e:
+                self.failed[key] = (f"{type(e).__name__}: {e}".strip().splitlines() or ["?"])[0][:300]
+                raise
+        return self.items[key]
+
+    def values(self):
+        return self.items.values()
+
+    def close(self):
+        _close([v[0] for v in self.items.values()])
+
+
+@pytest.hookimpl(wrapper=True)
+def pytest_fixture_setup(fixturedef, request):
+    if fixturedef.scope == "function":
+        return (yield)
+    with keep(request.node.nodeid):
+        return (yield)
+
+
+_FAILED = pytest.StashKey[bool]()
+
+
+@pytest.hookimpl(wrapper=True)
+def pytest_runtest_makereport(item, call):
+    rep = yield
+    if rep.failed:
+        item.stash[_FAILED] = True
+    return rep
+
+
+@pytest.fixture(autouse=True)
+def _pages_closed(request):
+    """Close what the test opened and did not hand to its module, then hold the bound."""
+    module = request.node.getparent(pytest.Module)
+    _PW["module"] = module.nodeid if module else ""
+    before = set(open_contexts())
+    yield
+    left = [c for c in open_contexts() if c not in before and c not in _KEPT]
+    _close(left)
+    if left and not request.node.stash.get(_FAILED, False):
+        warnings.warn(f"{request.node.nodeid} left {len(left)} browser context(s) open; closed them",
+                      pytest.PytestWarning)
+    contexts = open_contexts()
+    pages = sum(len(c.pages) for c in contexts)
+    if len(contexts) > MAX_CONTEXTS or pages > MAX_PAGES:
+        pytest.fail(f"{len(contexts)} browser contexts and {pages} pages are open after "
+                    f"{request.node.nodeid} (bound {MAX_CONTEXTS} and {MAX_PAGES}): something keeps "
+                    "opening pages it never closes", pytrace=False)
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _module_pages_closed(request):
+    """Torn down after the module's own fixtures: close what they kept and did not close."""
+    yield
+    mine = [c for c, owner in list(_KEPT.items()) if owner == request.node.nodeid]
+    for c in mine:
+        del _KEPT[c]
+    still = set(open_contexts())
+    left = [c for c in mine if c in still]
+    _close(left)
+    if left:
+        warnings.warn(f"{request.node.nodeid} kept {len(left)} browser context(s) it never closed; closed them",
+                      pytest.PytestWarning)
 
 
 @pytest.fixture(scope="module")

@@ -59,6 +59,9 @@ a `pytest.skip`. A test waits for a condition, never a duration: no `wait_for_ti
 (animations run on the page's clock, `test_roster_cards.py` VCLOCK); `tests/test_honest_tests.py`
 enforces both. Logic with no layout is not a browser test. `conftest.py` runs each file in groups of
 12 tests, so a shared page loads once per group and a long file still spreads out.
+Every context has an owner (`conftest.keep`, 2026-10-05): one a test opens is closed when the test
+ends, pass or fail; pages a module opens lazily and shares go through `SharedPages`, which remembers a
+failed load so the module's later tests fail at once. More than 6 contexts open after a test errors.
 
 Writing a unit test (2026-10-05): a JS function from data to data runs in Node, Python logic in
 Python. The `node_js` fixture loads named files from `design/src/js` and calls a function in about a

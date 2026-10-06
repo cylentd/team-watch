@@ -13,7 +13,7 @@ import pytest
 
 import build
 import contract
-from conftest import FIXTURES
+from conftest import FIXTURES, SharedPages
 from test_build import injected
 from test_render import drive, go  # noqa: F401
 from test_render import open_page as open_any_page
@@ -62,19 +62,16 @@ def reset(page, snap):
 def shared_pages(browser, page_file):
     """One loaded page per viewport for the module (about 50 loads of a 2.3 MB page became 5). A test
     that changes page data (USAGE, Date.now, GD_*) or needs its own init script loads its own."""
-    pages = {}
+    pages = SharedPages()
 
-    def get(size):
-        if size not in pages:
-            ctx, page, errors = open_any_page(browser, page_file, size)
-            drive(page, go("roster"))
-            snap = page.evaluate("({view: VIEW, ls: Object.entries(localStorage)})")
-            assert errors == []         # whatever the load raised fails here, not lost to a later clear
-            pages[size] = (ctx, page, errors, snap)
-        return pages[size]
-    yield get
-    for ctx, *_ in pages.values():
-        ctx.close()
+    def opener(size):
+        ctx, page, errors = open_any_page(browser, page_file, size)
+        drive(page, go("roster"))
+        snap = page.evaluate("({view: VIEW, ls: Object.entries(localStorage)})")
+        assert errors == []         # whatever the load raised fails here, not lost to a later clear
+        return ctx, page, errors, snap
+    yield lambda size: pages.get(size, lambda: opener(size))
+    pages.close()
 
 
 @pytest.fixture
