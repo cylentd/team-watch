@@ -13,7 +13,7 @@ as his are. A plain "break where the drop is large" rule was tried on week 3 and
 
 Self-contained like the other cuts: the raw block, slugify and the out-list come in as arguments.
 """
-from projections import kick_iso, slate, unavailable
+from projections import kick_iso, order_key, slate, unavailable
 
 # How deep each list goes, and how many tiers it is split into.
 DEPTH = {"QB": (32, 8), "RB": (60, 12), "WR": (72, 14), "TE": (32, 8), "FLEX": (100, 16)}
@@ -98,9 +98,14 @@ def _matchup(p, key="pts"):
 
 def live_ranks(raw, slugify, status=None, schedule=None):
     """LIVE_RANKS: {scoring, week, off, rows, flex}, or None when ff-jarvis has not written the file.
-    Both lists hold {slug, n, pos, team, opp, home, kick, inj, mu, mx, mxp, pts, floor, ceil, rank,
-    tier}, best first (`floor` and `ceil`: ff-jarvis's 10th and 90th percentile outcome, null
-    without a band, never computed here):
+    Both lists hold {slug, n, pos, team, opp, home, kick, inj, mu, mx, mxp, pts, floor, ceil,
+    rank_pts, unlined_backup, pts_before_unlined, rank, tier}, best first (`floor` and `ceil`:
+    ff-jarvis's 10th and 90th percentile outcome, null without a band, never computed here).
+    Running backs (2026-10-05, ff-jarvis METHODOLOGY 12.86): the RB list, its tiers and the RB `rank`
+    follow `rank_pts` (the books' implied points) where a back has one, else `pts`; the number a row
+    shows stays `pts`. FLEX and every other position order by `pts`. `unlined_backup` (12.87) marks a
+    back the books left unpriced beside a priced teammate, whose `pts` is already cut to 30% of
+    `pts_before_unlined`:
     `rows` is every position's list one after another, each tiered on its own; `flex` is RB/WR/TE
     together, tiered together. `rank` is the place at the position in this week's list, on a FLEX
     row too; a FLEX row's own place is its index.
@@ -112,7 +117,7 @@ def live_ranks(raw, slugify, status=None, schedule=None):
         return None
     gone = unavailable(status, slugify)
     week, done = slate(players, slugify, schedule)
-    rows = {}
+    rows, keys = {}, {}
     for p in players:
         slug = slugify(p.get("name") or "")
         if not slug or slug in gone or p.get("pts") is None or p.get("pos") not in ("QB", "RB", "WR", "TE"):
@@ -123,17 +128,24 @@ def live_ranks(raw, slugify, status=None, schedule=None):
                           "opp": p.get("opp"), "home": _home(p), "kick": kick_iso(p), "inj": INJ.get(p.get("injury")),
                           "mu": _makeup(p.get("mu"), p.get("pos")), "mx": _matchup(p), "mxp": _matchup(p, "priced"),
                           "pts": round(p["pts"], 2), "floor": p.get("floor"), "ceil": p.get("ceil"),
+                          "rank_pts": p.get("rank_pts") if p.get("pos") == "RB" else None,
+                          "unlined_backup": (p.get("unlined_backup") or None) if p.get("pos") == "RB" else None,
+                          "pts_before_unlined": p.get("pts_before_unlined") if p.get("pos") == "RB" else None,
                           "rank": None, "tier": None}
+            keys[slug] = order_key(p)
     off = sorted({rows[s]["team"] for s in done if s in rows})
     live = [r for r in rows.values() if r["slug"] not in done]
     lists, place = {}, {}
     for pos, (depth, k) in DEPTH.items():
         want = FLEX if pos == "FLEX" else (pos,)
-        ordered = sorted((r for r in live if r["pos"] in want), key=lambda r: (-r["pts"], r["slug"]))
+        # A position orders and tiers on one key: the books' number for a running back that has one,
+        # else `pts` (order_key). FLEX mixes three positions, so it stays on plain `pts`.
+        key = (lambda r: r["pts"]) if pos == "FLEX" else (lambda r: keys[r["slug"]])
+        ordered = sorted((r for r in live if r["pos"] in want), key=lambda r: (-key(r), r["slug"]))
         if pos != "FLEX":
             place.update({r["slug"]: i + 1 for i, r in enumerate(ordered)})
         top = ordered[:depth]
-        tiers = natural_breaks([r["pts"] for r in top], k)
+        tiers = natural_breaks([key(r) for r in top], k)
         lists[pos] = [{**r, "tier": t} for r, t in zip(top, tiers)]
     for rs in lists.values():
         for r in rs:

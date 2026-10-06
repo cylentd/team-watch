@@ -615,6 +615,32 @@ docstring, `model/market/dst.py`). Tests: `tests/test_js_dst.py` (Node: the leag
 streamer flag, a bye, the estimate marker, K hidden on ESPN, the league rule), `tests/test_ranks_dst.py` (chips fit
 one row, the tabs, the Schedule link).
 
+### Running backs ordered by the books (2026-10-05, ff-jarvis METHODOLOGY 12.86 and 12.87)
+
+The books' implied points for a back (`rank_pts`) order running backs better than our projection (weekly Spearman
+0.527 to 0.551, 2024-2025 closing lines) but read about 0.5 high in level, so they **order and are never shown**.
+Only backs were tested, against backs: every other position and FLEX order by `pts`. A back the books leave
+unpriced beside a priced teammate scores about a third of his projection; ff-jarvis cuts his `pts` to 30%
+(`unlined_backup`, `pts_before_unlined`) and the page tags him.
+
+| Part | Rule | Where |
+|---|---|---|
+| RB list, tiers and rank | Sorted, tiered and ranked on `rank_pts` where a back has one, else `pts` (the roster cards' RB rank too). The number a row shows stays `pts`. A tier's label names its highest and lowest points, not its first and last row's | `design/projections.py` `order_key`, `design/ranks.py`, `rbTierSpan` |
+| FLEX and other positions | `pts`, as before. A `rank_pts` on a non-back is never carried | `ranks.py` |
+| Why a back can sit above one with more points | One sentence in the RB heading, only when the list is out of printed-points order (`rbReordered`): "Running backs are ordered by the sportsbooks' prices, which rank them better than our points do." Never on FLEX or another tab | `ranks.rb.note`, `rkRbNotes` |
+| **No line** tag | An outline tag beside the injury tag on a Ranks row, under the name in a Start/Sit lane, and a note under the profile strip. Hover and screen readers get the tip; each view also says it in words once (the heading, under the call, under the strip): "The books priced a teammate, not him; backs like this score about a third of their projection." Three class names, one per view, because each CSS file is fenced to its own views | `rbNoLine`, `rbNoLineHTML`, `.rk-noline`, `.ssv-noline`, `.pf-noline` |
+
+- **Data:** `LIVE_RANKS` rows and `LIVE_PROJECTIONS` players carry `rank_pts`, `unlined_backup`, `pts_before_unlined`,
+  always present, null when ff-jarvis did not write them (an older file), for a non-back and with no points. The
+  fixtures hold a back the books reorder (Breece Hall, points 15.0, books 16.6, over Chase Brown, 16.2 and 15.4) and
+  an unlined backup (Kendre Miller, 3.1 points from 10.3).
+- **One rule, two homes:** the build orders the list (`order_key`) and the page decides the Start/Sit call
+  (`rbVerdict`): the same one-line rule, a back's `rank_pts` else `pts`. ff-jarvis's `rb_rules` block (its rank and unlined
+  settings) is not read.
+- Tests: `tests/test_js_rbrules.py` (Node: the order key, the call, the reorder test, the tier span, the tag and notes),
+  `tests/test_ranks.py` (the build's order, tiers, rank, FLEX untouched, the fields; the Ranks list, notes and tag; the
+  strip's tag), `tests/test_startsit.py` (the picker's call, note and tag).
+
 ### Floor and ceiling (2026-10-05, plan U5)
 
 Every projection has a band: `floor` and `ceil`, the 10th and 90th percentile outcome in half-PPR points, given he
@@ -1061,7 +1087,7 @@ call and appear only as a for-fun line of the record. Rule: ff-jarvis METHODOLOG
 
 | part | what | data |
 |---|---|---|
-| Picker | 2-3 players; START for the higher projection, Coin flip within 0.5 pts (judged at the one decimal shown). Rows: projected, rank, defense vs his position, FantasyPros, teammate out, weather, his row in Usage (a link, `navGoRow`). The saved picks are keyed by `slateWeek()` (2026-10-05); the saved slips stay keyed by the props' week (`SLATE_WEEK`), because a Monday's lines are still week N's. Opens on the reader's closest bench-vs-starter call (`briefPairs`, shared with the brief) **only when he has picked a team** (`lgMine`); with none it opens empty, the search open and focused, and stays open until two are picked (2026-10-05, plan U3: it handed a first-time visitor David's pair, 8 taps from his own; now Start/Sit, a name, a name is 3). Picks kept for the week they were made in. When FantasyPros' ECR puts the loser ahead of our START, the row says so in one sentence (the call is the projection, not expert opinion; `ssFpCheck`, a coin flip never contradicts) | `LIVE_RANKS`, `LIVE_DEFENSE`, `LIVE_SSB.fp/out`, `LIVE_PROJECTIONS.wx` |
+| Picker | 2-3 players; START for the higher projection, Coin flip within 0.5 pts (judged at the one decimal shown). **Running backs (2026-10-05, METHODOLOGY 12.86):** when every player compared is a back with a books number (`rank_pts`), the call and the coin flip follow that number instead, the gap printed stays in points (none when the books' pick has fewer points), and one sentence says why ("Running backs are ordered by the sportsbooks' prices...") only when the call differs from the points'; any other pair, or a back the books skipped, follows points. A back the books left unpriced wears a "No line" tag under his name, with its meaning under the call (see Ranks). Rows: projected, rank, defense vs his position, FantasyPros, teammate out, weather, his row in Usage (a link, `navGoRow`). The saved picks are keyed by `slateWeek()` (2026-10-05); the saved slips stay keyed by the props' week (`SLATE_WEEK`), because a Monday's lines are still week N's. Opens on the reader's closest bench-vs-starter call (`briefPairs`, shared with the brief) **only when he has picked a team** (`lgMine`); with none it opens empty, the search open and focused, and stays open until two are picked (2026-10-05, plan U3: it handed a first-time visitor David's pair, 8 taps from his own; now Start/Sit, a name, a name is 3). Picks kept for the week they were made in. When FantasyPros' ECR puts the loser ahead of our START, the row says so in one sentence (the call is the projection, not expert opinion; `ssFpCheck`, a coin flip never contradicts) | `LIVE_RANKS`, `LIVE_DEFENSE`, `LIVE_SSB.fp/out`, `LIVE_PROJECTIONS.wx` |
 | Board | QB/RB/WR/TE tabs: each position's best spot (ff-jarvis `best`), then the four offenses facing the softest and toughest defenses, a bar against the league average | `LIVE_STARTSIT.best`, `LIVE_SSB.board` |
 | Record | three tiles, SMASH, START, SIT, each its own hit-miss since week 5 (a void count beside a tile only above zero); under them, small, FantasyPros and Pitcher List hit-miss "for fun". Before a week is graded: "No week graded yet." in place of the tiles | `LIVE_SS3.record` |
 | SMASH | one card: every player we project top 3 (QB, TE) or top 6 (RB, WR) at his position, in position order. Row: head, "P. Nacua", "WR2 · LA @ PHI · Sun 1:25 PM", the book's main yardage line over the TD price ("72.0 rec yds", "TD +135"). A player no book prices shows what he has. Foot: Build in Slips | `LIVE_SS3.smash` |

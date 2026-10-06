@@ -74,15 +74,19 @@ function ssPlayer(slug){
   const e = searchIndex().find(x => x.slug === slug);
   return e ? searchPlayer(e) : null;
 }
-const ssCols = () => ssLoad().map(ssPlayer).filter(Boolean).map(p => ({p, rk: ssRank(p.slug), pts: ssPts(p.slug)}));
-
-/* The higher projection starts; the top two inside SS_FLIP points of each other are a coin flip. */
-function ssVerdict(cols){
-  const ranked = cols.filter(c => c.pts !== null).sort((a, b) => b.pts - a.pts);
-  if (ranked.length < 2) return null;
-  const gap = +(ranked[0].pts - ranked[1].pts).toFixed(1);   // rounded to the one decimal shown, so 0.54 is "0.5", a coin flip, never a START at "+0.5"
-  return gap <= SS_FLIP ? {flip: true, gap} : {flip: false, win: ranked[0], gap};
+/* His books number (rank_pts, running backs only): the Ranks row's own, else the projections' (rbrules.js). */
+function ssBooks(slug){
+  const r = ssRank(slug), row = r && typeof r.rank_pts === "number" ? r : rbProjRow(slug);
+  return row && typeof row.rank_pts === "number" ? row.rank_pts : null;
 }
+/* The row that says whether he is "No line" (the same two rows). */
+const ssLineRow = slug => { const r = ssRank(slug); return r && r.unlined_backup ? r : rbProjRow(slug); };
+const ssCols = () => ssLoad().map(ssPlayer).filter(Boolean).map(p => ({p, pos: p.pos, rk: ssRank(p.slug), pts: ssPts(p.slug), rp: ssBooks(p.slug)}));
+
+/* The higher projection starts; the top two inside SS_FLIP points of each other are a coin flip. Two or
+   more running backs the books all priced are called on the books' number instead (rbrules.js, ff-jarvis
+   METHODOLOGY 12.86); the points shown stay ours. */
+const ssVerdict = cols => rbVerdict(cols, SS_FLIP);
 
 const ssVal = (val, sub, cls) => `<span class="ssv-v${cls ? " " + cls : ""}"><b>${val}</b>${sub ? `<small>${sub}</small>` : ""}</span>`;
 
@@ -152,15 +156,17 @@ function ssBandHTML(cols){
   return `<div class="ssv-band" style="--n:${cols.length}">${cols.map((c, i) => `<div class="ssv-who ssv-s${i}">
     <button type="button" class="ssv-x" data-ssx="${esc(c.p.slug)}" aria-label="${t("startsit.pick.remove", {name: shortName(c.p.n)})}">${SS_X}</button>
     <span class="ssv-face">${headHTML(c.p)}</span><b>${shortName(c.p.n)}</b>
-    <span class="lbl">${esc([c.p.pos, c.p.team].filter(Boolean).join(" · "))}</span></div>`).join("")}</div>`;
+    <span class="lbl">${esc([c.p.pos, c.p.team].filter(Boolean).join(" · "))}</span>${rbNoLineHTML(ssLineRow(c.p.slug), "ssv-noline")}</div>`).join("")}</div>`;
 }
 
+/* The gap is points, so a back the books put first on fewer points shows none (a negative gap is no gain). */
 function ssVerdictHTML(cols){
   const v = ssVerdict(cols);
-  if (!v) return "";
-  return v.flip ? `<div class="ssv-verdict flip"><span class="ssv-coin">${t("startsit.pick.flip")}</span></div>`
-    : `<div class="ssv-verdict"><span class="mu-tag start">${t("matchups.call.start")}</span><b>${shortName(v.win.p.n)}</b>
-      <span class="ssv-gain">${t("startsit.pick.gap", {n: v.gap.toFixed(1)})}</span></div>`;
+  const gain = v && v.gap > 0 ? `<span class="ssv-gain">${t("startsit.pick.gap", {n: v.gap.toFixed(1)})}</span>` : "";
+  const call = !v ? "" : v.flip ? `<div class="ssv-verdict flip"><span class="ssv-coin">${t("startsit.pick.flip")}</span></div>`
+    : `<div class="ssv-verdict"><span class="mu-tag start">${t("matchups.call.start")}</span><b>${shortName(v.win.p.n)}</b>${gain}</div>`;
+  // Said once, only when it shows: why the call is not the higher points (the books ordered two backs), and "No line".
+  return call + rbWhyHTML(cols.map(c => ssLineRow(c.p.slug)), v && v.moved ? t("startsit.rb.note") : "", "ssv-why", "ssv-noline");
 }
 
 function ssOptHTML(p){

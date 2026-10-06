@@ -87,6 +87,11 @@
       "tests": ["tests/test_ranks.py", "tests/test_ranks_dst.py", "tests/test_js_dst.py"],
       "render": ["ranks"]
     },
+    "rbrules": {
+      "paths": ["tests/test_js_rbrules.py"],
+      "tests": ["tests/test_js_rbrules.py"],
+      "render": []
+    },
     "usage": {
       "paths": ["design/src/js/surface/usage/", "design/src/css/surface/usage/", "design/src/js/data/usage.js", "design/usage.py"],
       "tests": [],

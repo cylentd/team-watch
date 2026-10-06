@@ -138,6 +138,76 @@ def test_the_band_rides_on_every_row_and_card_as_the_file_wrote_it():
     assert cards["out-back"]["pts"] is None and (cards["out-back"]["floor"], cards["out-back"]["ceil"]) == (None, None)
 
 
+RB_RAW = {"players": [
+    {"name": "A Back", "pos": "RB", "team": "ATL", "game": "ATL @ NO", "pts": 16.2, "rank_pts": 15.4, "src": "model"},
+    {"name": "B Back", "pos": "RB", "team": "DET", "game": "NYJ @ DET", "pts": 15.0, "rank_pts": 16.6, "src": "model"},
+    {"name": "C Back", "pos": "RB", "team": "GB", "game": "GB @ TB", "pts": 12.0, "rank_pts": None, "src": "model"},
+    {"name": "D Back", "pos": "RB", "team": "SEA", "game": "SEA @ SF", "pts": 3.1, "rank_pts": None, "src": "model",
+     "unlined_backup": True, "pts_before_unlined": 10.3},
+    {"name": "A Wideout", "pos": "WR", "team": "SEA", "game": "SEA @ LAR", "pts": 14.0, "rank_pts": 30.0, "src": "model"},
+    {"name": "B Wideout", "pos": "WR", "team": "MIA", "game": "MIA @ NE", "pts": 15.0, "src": "model"},
+]}
+
+
+def test_running_backs_are_ordered_and_ranked_by_the_books_number():
+    """ff-jarvis METHODOLOGY 12.86 (2026-10-05): the books' implied points order backs better than our
+    projection but read ~0.5 high, so they order and are never shown. A back they did not price falls
+    back to his own points; `pts` stays the number a row shows."""
+    r = live_ranks(RB_RAW, slug)
+    rbs = [x for x in r["rows"] if x["pos"] == "RB"]
+    assert [x["slug"] for x in rbs] == ["b-back", "a-back", "c-back", "d-back"], "B (16.6) over A (15.4) though A has more points"
+    assert [x["rank"] for x in rbs] == [1, 2, 3, 4], "the card's position rank follows the same order"
+    assert [x["pts"] for x in rbs] == [15.0, 16.2, 12.0, 3.1], "the number shown is still pts"
+    assert [x["rank_pts"] for x in rbs] == [16.6, 15.4, None, None]
+
+
+def test_the_tiers_are_cut_on_the_same_key_as_the_order():
+    """A list ordered by the books and tiered on points would break a tier in two places at once."""
+    keys = [30.0 - i * 1.0 for i in range(14)]    # more backs than the 12 tiers, so a tier holds several
+    raw = {"players": [{"name": f"Back {i:02d}", "pos": "RB", "team": "ATL", "game": "ATL @ NO",
+                        "pts": k + (4.0 if i % 2 else -4.0), "rank_pts": k} for i, k in enumerate(keys)]}
+    rows = live_ranks(raw, slug)["rows"]
+    assert [x["slug"] for x in rows] == [f"back-{i:02d}" for i in range(14)], "ordered by the books' number"
+    assert [x["tier"] for x in rows] == natural_breaks(keys, 12), "and tiered on it"
+
+
+def test_flex_and_other_positions_still_order_by_points():
+    r = live_ranks(RB_RAW, slug)
+    assert [x["slug"] for x in r["flex"]] == ["a-back", "b-back", "b-wideout", "a-wideout", "c-back", "d-back"]
+    wrs = [x["slug"] for x in r["rows"] if x["pos"] == "WR"]
+    assert wrs == ["b-wideout", "a-wideout"], "a rank_pts on a receiver is ignored"
+    assert [x["rank"] for x in r["flex"] if x["pos"] == "RB"] == [2, 1, 3, 4], "a FLEX row keeps its position rank, by the books"
+    assert next(x for x in r["rows"] if x["slug"] == "a-wideout")["rank_pts"] is None, "only a back carries it"
+
+
+def test_an_unlined_backup_is_flagged_and_keeps_his_cut_points():
+    """ff-jarvis METHODOLOGY 12.87: his `pts` is already 30% of `pts_before_unlined`; the page tags him."""
+    r = live_ranks(RB_RAW, slug)
+    d = next(x for x in r["rows"] if x["slug"] == "d-back")
+    assert (d["unlined_backup"], d["pts"], d["pts_before_unlined"]) == (True, 3.1, 10.3)
+    a = next(x for x in r["rows"] if x["slug"] == "a-back")
+    assert (a["unlined_backup"], a["pts_before_unlined"]) == (None, None)
+
+
+def test_a_file_from_before_the_fields_gives_null_never_a_missing_key():
+    from projections import live_projections
+    raw = {"players": [{"name": "A Back", "pos": "RB", "team": "ATL", "game": "ATL @ NO", "pts": 19.7, "src": "model"}]}
+    row = live_ranks(raw, slug)["rows"][0]
+    assert (row["rank_pts"], row["unlined_backup"], row["pts_before_unlined"]) == (None, None, None)
+    card = live_projections(raw, slug, {"a-back"})["players"]["a-back"]
+    assert (card["rank_pts"], card["unlined_backup"], card["pts_before_unlined"]) == (None, None, None)
+
+
+def test_the_roster_cards_rank_a_back_by_the_books_number_too():
+    from projections import live_projections, position_ranks
+    ranks = position_ranks(RB_RAW["players"], slug)
+    assert [ranks[s] for s in ("b-back", "a-back", "c-back", "d-back")] == [(1, 4), (2, 4), (3, 4), (4, 4)]
+    assert ranks["b-wideout"] == (1, 2), "receivers rank by points"
+    cards = live_projections(RB_RAW, slug, {"b-back", "d-back"})["players"]
+    assert (cards["b-back"]["rank"], cards["b-back"]["rank_pts"]) == (1, 16.6)
+    assert (cards["d-back"]["unlined_backup"], cards["d-back"]["pts_before_unlined"]) == (True, 10.3)
+
+
 @pytest.mark.render
 def test_ranks_tags_a_matchup_from_half_a_point(browser, page_file):
     """The fixture gives Chase Brown +1.4, Joe Burrow -0.9, George Kittle -0.3 (under the half
@@ -158,6 +228,69 @@ def test_ranks_tags_a_matchup_from_half_a_point(browser, page_file):
         page.locator("[data-rkpos='QB']").click()
         assert page.locator(f"[data-rkopen='{slug('Joe Burrow')}'] .rk-mx.dn").inner_text() == "−0.9"
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+    finally:
+        ctx.close()
+
+
+NOTE = "Running backs are ordered by the sportsbooks' prices, which rank them better than our points do."
+TIP = "The books priced a teammate, not him; backs like this score about a third of their projection."
+
+
+@pytest.mark.render
+def test_the_back_list_follows_the_books_and_says_why_once_and_flex_does_not(browser, page_file):
+    """The fixture: Hall 15.0 points (books 16.6) above Brown 16.2 (books 15.4); Miller is an unlined backup
+    (3.1 points, tagged). The number shown is points. FLEX orders by points: no reorder, no note."""
+    ctx = browser.new_context(viewport={"width": 360, "height": 740}, reduced_motion="reduce")
+    page = ctx.new_page()
+    page.set_default_timeout(5000)
+    page.route(re.compile(r"^https?://"), lambda route: route.abort())
+    page.add_init_script(SEED)
+    errors = []
+    page.on("pageerror", lambda e: errors.append(str(e)))
+    try:
+        page.goto(page_file.as_uri() + "#ranks")
+        page.wait_for_function("document.querySelectorAll('.rk-row').length > 0")
+        rows = lambda: page.evaluate("[...document.querySelectorAll('.rk-row')].map(r => [r.dataset.rkopen, r.querySelector('.rk-pts').firstChild.textContent])")
+        assert rows() == [["breece-hall", "15.0"], ["chase-brown", "16.2"], ["kendre-miller", "3.1"]]
+        sub = page.locator(".rk-headline p").inner_text()
+        assert NOTE in sub and sub.count(NOTE) == 1 and "No line " + TIP in sub
+        assert page.locator(".rk-row .rk-noline").all_inner_texts() == ["No line"]
+        assert page.locator("[data-rkopen='kendre-miller'] .rk-noline").get_attribute("title") == TIP
+        page.locator("[data-rkpos='FLEX']").click()
+        assert page.locator(".rk-headline p").inner_text().count(NOTE) == 0
+        assert [r[0] for r in rows()] == ["amonra-st-brown", "chase-brown", "breece-hall", "george-kittle", "kendre-miller"]
+        page.locator("[data-rkpos='QB']").click()
+        assert page.locator(".rk-headline p").inner_text().count("No line") == 0
+        assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+        assert errors == []
+    finally:
+        ctx.close()
+
+
+@pytest.mark.render
+def test_an_unlined_backups_profile_strip_wears_the_tag(browser, page_file):
+    """The fixture's backup has no profile (so no strip), so Chase Brown, who has one, is flagged in the page."""
+    ctx = browser.new_context(viewport={"width": 360, "height": 740}, reduced_motion="reduce")
+    page = ctx.new_page()
+    page.set_default_timeout(5000)
+    page.route(re.compile(r"^https?://"), lambda route: route.abort())
+    page.add_init_script(SEED)
+    errors = []
+    page.on("pageerror", lambda e: errors.append(str(e)))
+    brown = {"n": "Chase Brown", "pos": "RB", "team": "CIN", "slug": "chase-brown"}
+    try:
+        page.goto(page_file.as_uri() + "#ranks")
+        page.wait_for_function("document.querySelectorAll('.rk-row').length > 0")
+        page.evaluate("(p) => openProfile(p, document.body)", brown)
+        page.wait_for_selector("#modal.on .pf-lede")
+        assert page.locator(".pf-noline").count() == 0, "a back the books priced has no tag"
+        page.evaluate("() => modalShut(document.querySelector('.modal.on'))")
+        page.evaluate("() => { LIVE_PROJECTIONS.players['chase-brown'].unlined_backup = true; }")
+        page.evaluate("(p) => openProfile(p, document.body)", brown)
+        page.wait_for_selector("#modal.on .pf-lede")
+        assert page.locator(".pf-lede-note").all_inner_texts()[-1] == "No line" + TIP
+        assert page.locator(".pf-lede-note .pf-noline").get_attribute("title") == TIP
+        assert errors == []
     finally:
         ctx.close()
 

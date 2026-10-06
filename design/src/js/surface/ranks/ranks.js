@@ -73,7 +73,7 @@ function rkRowHTML(r, place, mine, flex){
     <span class="rk-n">${place}</span>
     <span class="rk-face">${avatarHTML(r)}</span>
     <span class="rk-who"><span class="rk-nm">${esc(nameInitial(r.n))}${mine ? `<i class="rk-mine">${t("ranks.row.mine")}</i>` : ""}</span>
-      <span class="rk-game">${pos}<span>${rkGame(r)}</span>${inj}</span></span>
+      <span class="rk-game">${pos}<span>${rkGame(r)}</span>${inj}${rbNoLineHTML(r, "rk-noline")}</span></span>
     <span class="rk-mu">${rkMakeup(r)}</span>
     <span class="rk-pts">${r.pts.toFixed(1)}${rkRangeHTML(r)}${rkMatchupHTML(r)}</span>
   </button>`;
@@ -88,7 +88,7 @@ function rkTiersHTML(list, flex){
     groups[groups.length - 1].rows.push([r, i + 1]);
   });
   return groups.map(g => {
-    const hi = g.rows[0][0].pts.toFixed(1), lo = g.rows[g.rows.length - 1][0].pts.toFixed(1);
+    const {hi, lo} = rbTierSpan(g.rows.map(([r]) => r));   // a back's tier follows the books, so its edge rows need not hold its extremes
     const k = last > 1 ? ((g.tier - 1) / (last - 1)).toFixed(2) : "0";
     return `<section class="rk-group" style="--k:${k}">
       <div class="rk-tier"><b>${t("ranks.tier", {n: g.tier})}</b><span>${hi === lo ? t("ranks.tier.one", {pts: hi}) : t("ranks.tier.range", {hi, lo})}</span></div>
@@ -105,6 +105,16 @@ function rkChipsHTML(pos, extra){
   </div>`;
 }
 
+/* Running backs only (2026-10-05, ff-jarvis METHODOLOGY 12.86 and 12.87), each said once per list and only when
+   it shows on screen: why a back can sit above one with more points (the list follows the books), and what a
+   "No line" tag means. */
+function rkRbNotes(pos, list){
+  if (pos !== "RB") return "";
+  const order = rbReordered(list) ? " " + t("ranks.rb.note") : "";
+  const row = list.find(r => rbNoLine(r));
+  return order + (row ? ` ${rbNoLineHTML(row, "rk-noline")} ${rbNoLine(row).tip}` : "");
+}
+
 function ranksHTML(){
   const block = rkDstBlock(), lg = rkLeague(), pos = dstPos(RK_POS, block, lg), extra = dstTabs(block, lg);
   const chips = rkChipsHTML(pos, extra);
@@ -118,9 +128,10 @@ function ranksHTML(){
   const off = (LIVE_RANKS.off || []).length ? " " + t("ranks.head.off", {teams: LIVE_RANKS.off.map(esc).join(", ")}) : "";
   // The band is said in words once per list, only when a row draws one (plan U5).
   const band = list.some(rangeFrom) ? " " + t("range.note") : "";
+  const rb = rkRbNotes(pos, list);
   return `<div class="wrap rk">
     ${chips}
-    <div class="rk-headline"><div><h2>${title}</h2><p>${t("ranks.head.sub", {scoring: esc(LIVE_RANKS.scoring || "")})}${band}${off}</p></div>${rkSchedHTML()}</div>
+    <div class="rk-headline"><div><h2>${title}</h2><p>${t("ranks.head.sub", {scoring: esc(LIVE_RANKS.scoring || "")})}${band}${rb}${off}</p></div>${rkSchedHTML()}</div>
     <div class="rk-list">${rkTiersHTML(list, pos === "FLEX")}</div>
   </div>`;
 }

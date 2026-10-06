@@ -156,6 +156,51 @@ def test_the_verdict_judges_the_margin_as_shown_to_one_decimal(ss):
     assert v["tag"] == "START" and v["gain"] == "+0.6"
 
 
+PICK_RBS = "SS_PICKS = %s; SS_OPEN = false; SS_Q = '';"
+NOTE = "Running backs are ordered by the sportsbooks' prices, which rank them better than our points do."
+
+
+@pytest.mark.render
+def test_two_priced_backs_are_called_by_the_books_and_the_page_says_why(ss):
+    """Brown 16.2 points (books 15.4) and Hall 15.0 (books 16.6): the books start Hall (ff-jarvis
+    METHODOLOGY 12.86). The points shown stay ours and the gap is points, so a call on fewer points has none."""
+    pg = ss(PICK_RBS % "['chase-brown', 'breece-hall']")
+    assert verdict(pg) == {"tag": "START", "name": "B. Hall", "gain": None, "flip": None}
+    assert pg.locator(".ssv-why").all_inner_texts() == [NOTE]
+    shown = pg.evaluate("[...document.querySelectorAll('.ssv-v.big b')].map(b => b.textContent)")
+    assert shown == ["16.2", "15.0"], "the books' number is never shown"
+
+
+@pytest.mark.render
+def test_backs_the_books_and_points_agree_on_say_nothing_extra(ss):
+    pg = ss(PICK_RBS % "['chase-brown', 'breece-hall']" + "LIVE_RANKS.rows.find(r => r.slug === 'chase-brown').rank_pts = 18.0;")
+    assert verdict(pg)["name"] == "C. Brown" and verdict(pg)["gain"] == "+1.2"
+    assert pg.locator(".ssv-why").count() == 0
+
+
+@pytest.mark.render
+def test_a_back_against_a_receiver_is_called_by_points_with_no_note(ss):
+    pg = ss(PICK_RBS % "['breece-hall', 'amonra-st-brown']")
+    assert verdict(pg)["name"] == "A. St. Brown" and pg.locator(".ssv-why").count() == 0
+
+
+@pytest.mark.render
+def test_an_unlined_backup_wears_the_tag_and_the_page_says_what_it_means(ss):
+    """Kendre Miller (the books priced a teammate, not him; ff-jarvis METHODOLOGY 12.87)."""
+    pg = ss(PICK_RBS % "['breece-hall', 'kendre-miller']")
+    assert pg.locator(".ssv-who .ssv-noline").all_inner_texts() == ["No line"]
+    tip = "The books priced a teammate, not him; backs like this score about a third of their projection."
+    assert pg.locator(".ssv-why").all_inner_texts() == ["No line" + tip]
+    assert pg.locator(".ssv-who .ssv-noline").get_attribute("title") == tip
+    assert verdict(pg)["name"] == "B. Hall", "one back unpriced: points decide, so no reorder note"
+
+
+@pytest.mark.render
+def test_the_tag_and_the_note_fit_a_phone(ss):
+    pg = ss(PICK_RBS % "['chase-brown', 'breece-hall', 'kendre-miller']")
+    assert pg.evaluate("document.documentElement.scrollWidth <= innerWidth")
+
+
 @pytest.mark.render
 def test_focus_lands_on_the_search_box_then_back_on_a_control(ss):
     pg = ss(ROSTER_JS % (17.0, 17.0))
