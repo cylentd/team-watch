@@ -172,9 +172,8 @@
       "render": []
     },
     "testtools": {
-      "paths": ["scripts/run_tests.py", "scripts/trace.py", "scripts/mutate.py",
-                "scripts/mutate_ops.py", "scripts/mutate_select.py"],
-      "tests": ["tests/test_run_tests.py", "tests/test_trace.py", "tests/test_mutate.py"],
+      "paths": ["scripts/run_tests.py", "scripts/trace.py", "scripts/mutate_tests.py", ".testing.json"],
+      "tests": ["tests/test_run_tests.py", "tests/test_trace.py", "tests/test_mutate_tests.py"],
       "render": []
     },
     "designdoc": {

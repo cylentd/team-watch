@@ -1,0 +1,7 @@
+{
+  "mutate": {
+    "include": ["design/src/js/data/**/*.js", "design/*.py"],
+    "select_command": "python scripts/mutate_tests.py {path}",
+    "test_command": {"py": "python -m pytest -x -q -p no:randomly -m \"not render\" {tests}"}
+  }
+}

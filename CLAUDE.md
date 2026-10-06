@@ -53,6 +53,7 @@ tests, goldens, test history.
 | Full suite | `python scripts/run_tests.py --full` (in parallel, ~43-110 s) |
 | One golden slice | `python -m pytest tests/test_render.py --areas ranks` (~10 s) |
 | Regenerate golden | `python -m pytest --update-golden` (never with `-n`: every area rewrites the one file) |
+| Mutation | `python $HOME/.agents/skills/testing/scripts/mutate.py --files <file>` (the testing skill's, since 2026-10-06; `.testing.json` picks the files and `scripts/mutate_tests.py` the tests; land runs it on the branch's changed lines) |
 | Before land | `.\scripts\land.ps1` runs the testing skill's `land_gate.py` itself |
 
 - **Never a bare `python -m pytest`:** all ~3,600 tests one at a time, ~10 min (2026-10-05).

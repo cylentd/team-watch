@@ -175,8 +175,15 @@ function RebaseAndTest {
         if ($script:testRuns -eq 1) {
             Timed repeat { & python $runner --repeat-new 10 --base "origin/$Base" --committed }
             if ($LASTEXITCODE -ne 0) { throw "a new or changed test failed one of 10 runs -- nothing landed" }
+            # The mutator is the testing skill's (2026-10-06), configured by .testing.json `mutate`:
+            # its tests come from scripts/mutate_tests.py. TW_RUN_KIND=mutate tags its pytest runs
+            # in the test history (tests/runlog.py) apart from the land's own.
             if (-not $SkipMutate) {
-                Timed mutate { & python (Join-Path $PSScriptRoot "mutate.py") --base "origin/$Base" --budget 120 }
+                $mutator = Join-Path $HOME ".agents/skills/testing/scripts/mutate.py"
+                $env:TW_RUN_KIND = "mutate"
+                Timed mutate { & python $mutator --repo $repo --base "origin/$Base" --budget 120 }
+                if ($LASTEXITCODE -ne 0) { Write-Host "  (mutation report exited $LASTEXITCODE; it does not block the land)" -ForegroundColor Yellow }
+                $env:TW_RUN_KIND = "land"
             }
         }
     } finally { Remove-Item Env:TW_RUN_KIND -ErrorAction SilentlyContinue }

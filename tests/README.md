@@ -81,10 +81,13 @@ a test errors.
 
 ## Proving a test
 
-- **It fails when the behaviour breaks.** `python scripts/mutate.py` mutates the `js/data/` and
-  `design/*.py` files the branch changed, one operator at a time, runs the tests `impact.py`
-  picks for each, and reports the share of mutants killed. Land prints the score; below 60% it
-  warns (`--gate` makes it fail).
+- **It fails when the behaviour breaks.** The testing skill's `mutate.py` (since 2026-10-06; the
+  repo's own copy is gone) mutates the `js/data/` and `design/*.py` lines the branch changed, one
+  operator at a time, and reports the share of mutants killed. `.testing.json` `mutate` names the
+  files and the pytest command (`-m "not render"`); `scripts/mutate_tests.py` picks each file's
+  tests: the ones naming it plus `impact.py`'s pick, minus the core and the whole-repo checks,
+  light layers first. Land prints the score; below 60% it warns (`--gate` makes it fail). One file:
+  `python $HOME/.agents/skills/testing/scripts/mutate.py --files design/src/js/data/stock.js`
 - **It passes 10 times in a row.** `python scripts/run_tests.py --repeat-new 10` runs every test
   function the branch added or changed 10 times in parallel. Land runs it; one failure blocks.
 
