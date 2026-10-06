@@ -51,13 +51,13 @@ function packShow(team, wk, from){
   const at = pkFrom(from);
   PACK_SHOW = {key: `${team.key}-${wk}`, order: new Map(cards.map((c, k) => [c.i, k]))};
   const st = document.createElement("div");
-  st.className = "pk-stage";
+  st.className = "pk-stage"; st.dataset.testid = "roster-pack-stage";
   st.setAttribute("role", "dialog"); st.setAttribute("aria-modal", "true"); st.setAttribute("aria-label", t("teams.pack.stage"));
   st.innerHTML = `<div class="pk-back"></div><div class="pk-rays"></div><div class="pk-flash"></div><div class="pk-wave"></div>
     <button class="pk-close" type="button" aria-label="${t("teams.pack.closeLabel")}">✕</button>
-    <p class="pk-msg" aria-live="polite">${t("teams.pack.lead", {wk})}</p>
-    <div class="pk-center">${packSealHTML(team, wk, cards)}</div>
-    <p class="pk-hint">${t("teams.pack.hint")}</p><p class="pk-count" aria-hidden="true"></p>`;
+    <p class="pk-msg" data-testid="roster-pack-msg" aria-live="polite">${t("teams.pack.lead", {wk})}</p>
+    <div class="pk-center" data-testid="roster-pack-center">${packSealHTML(team, wk, cards)}</div>
+    <p class="pk-hint">${t("teams.pack.hint")}</p><p class="pk-count" data-testid="roster-pack-count" aria-hidden="true"></p>`;
   document.body.appendChild(st);
   document.body.classList.add("pk-open");
   const S = {st, team, wk, cards, ripped: false, skip: false, rush: false, homing: false, wake: new Set(), shown: [], best: packBest(cards)};

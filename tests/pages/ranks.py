@@ -1,10 +1,11 @@
 """Stats > Ranks (design/src/js/surface/ranks/): what a reader can do there and what they see.
 
 Every Ranks locator lives here, data-testid first (`ranks-*`, test hooks only). The "No line" tag is
-drawn by data/rbrules.js for several views, so it is found by its class inside a Ranks row. The
-profile reads (`player_*`) and the Waivers link are the two ways into and out of Ranks a test
-needs; they move to pages/profile.py and pages/waivers.py when those exist.
+drawn by data/rbrules.js for several views, so it is found by its class inside a Ranks row. A row opens
+the profile, which pages/profile.py owns: `open_player` returns its ProfilePage. The Waivers link is the
+one way out of Ranks a test needs; it moves to pages/waivers.py when that exists.
 """
+from pages.profile import ProfilePage
 
 POSITIONS = {"D/ST": "DST"}       # a chip's label -> its data-rkpos, where they differ
 
@@ -25,17 +26,15 @@ class RanksPage:
         self.page.wait_for_function("p => RK_POS === p", arg=pos)
 
     def open_player(self, slug):
-        """Tap a player's row; returns once his profile is open."""
+        """Tap a player's row; returns his profile (pages/profile.py) once it is open."""
         self._row(slug).click()
-        self.page.wait_for_selector("#modal.on .pf-lede")
-
-    def close_player(self):
-        self.page.evaluate("() => modalShut(document.querySelector('.modal.on'))")
-        self.page.wait_for_function("!document.querySelector('#modal.on')")
+        self.page.wait_for_selector("#modal.on [data-testid='profile-lede']")
+        return ProfilePage(self.page)
 
     def open_first_row(self):
         self._rows.first.click()
         self.page.wait_for_selector("#modal.on")
+        return ProfilePage(self.page)
 
     def pick_team(self, key):
         """Switch the reader's team (the one chip, chrome/teamswitch.js) as a tap would."""
@@ -93,14 +92,6 @@ class RanksPage:
 
     def surface(self):
         return self.page.evaluate("SURFACE")
-
-    def player_notes(self):
-        """The open profile's lede notes, as read."""
-        return self.page.locator(".pf-lede-note").all_inner_texts()
-
-    def player_noline_tips(self):
-        """The tooltip of every "No line" tag on the profile; [] when he has none."""
-        return self.page.locator(".pf-noline").evaluate_all("ts => ts.map(t => t.title)")
 
     # ---- the ways in from elsewhere ----
 

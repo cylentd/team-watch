@@ -10,16 +10,16 @@ function dgTabsHTML(set, tabs){
   if (!tabs.length) return "";
   const on = tabs.some(x => x.key === DG_TAB[set]) ? DG_TAB[set] : tabs[0].key;
   const id = x => `dg-${set}-${x.key}`;
-  const bar = tabs.map(x => `<button type="button" role="tab" class="dg-tab" data-dgtab="${esc(x.key)}" id="${id(x)}-t"
+  const bar = tabs.map(x => `<button type="button" role="tab" class="dg-tab" data-testid="digest-tab" data-dgtab="${esc(x.key)}" id="${id(x)}-t"
     aria-controls="${id(x)}-p" aria-selected="${x.key === on}" tabindex="${x.key === on ? 0 : -1}">${x.label}${x.count != null
       ? `<b class="dg-tab-n${x.tone ? " " + x.tone : ""}">${x.count}</b>` : ""}</button>`).join("");
   /* Each panel also carries its own heading, the tab's label and count. A set the wall lays open, all
      panels at once with no bar (Results' lists, tabs.css), shows it; a phone and Top 5 do not. */
-  const panels = tabs.map(x => `<div class="dg-tabp" role="tabpanel" id="${id(x)}-p" aria-labelledby="${id(x)}-t"
+  const panels = tabs.map(x => `<div class="dg-tabp" data-testid="digest-tabpanel" role="tabpanel" id="${id(x)}-p" aria-labelledby="${id(x)}-t"
     data-dgpanel="${esc(x.key)}"${x.key === on ? "" : " data-off"}><h4 class="dg-tabh${x.tone ? " " + x.tone : ""}">${x.label}${x.count != null
       ? `<b>${x.count}</b>` : ""}</h4>${x.body}</div>`).join("");
   // The panels share one box (tabs.css), which is as tall as the tallest, so a tab never resizes it.
-  return `<div class="dg-tabset" data-dgset="${set}"><div class="dg-tabs" role="tablist">${bar}</div><div class="dg-tabps">${panels}</div></div>`;
+  return `<div class="dg-tabset" data-testid="digest-tabset" data-dgset="${set}"><div class="dg-tabs" role="tablist">${bar}</div><div class="dg-tabps">${panels}</div></div>`;
 }
 
 function dgTabPick(b){

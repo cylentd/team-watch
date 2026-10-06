@@ -92,7 +92,7 @@ function tdRowHTML(o){
   const line = o.line || (cls === "live" ? t("live.tds.none") : cls === "missed" ? t("live.tds.missed") : "");
   const chance = o.chance === null ? "" : `<small>${t("live.tds.chance", {n: o.chance})}</small>`;
   const club = o.game ? "" : ` <small>${esc(o.team)}</small>`;
-  return `<li><button type="button" class="td-row ${cls}${o.scored && cls !== "scored" ? " scored" : ""}${o.game ? " in-game" : ""}" data-tdslug="${esc(o.slug)}" data-tdn="${esc(o.n)}"
+  return `<li><button type="button" data-testid="live-td-row" class="td-row ${cls}${o.scored && cls !== "scored" ? " scored" : ""}${o.game ? " in-game" : ""}" data-tdslug="${esc(o.slug)}" data-tdn="${esc(o.n)}"
       data-tdpos="${esc(o.pos)}" data-tdteam="${esc(o.team)}">
     <span class="td-pos" data-pos="${esc(o.pos)}">${esc(o.pos)}</span>
     <span class="td-who"><b>${esc(nameInitial(o.n))}${club}</b>${line ? `<span class="td-line">${esc(line)}</span>` : ""}</span>
@@ -132,7 +132,7 @@ function tdGameCardsHTML(rows, kinds){
       head = `${side(g.away, a, h)}${side(g.home, h, a)}<span class="td-gclock ${c.state}">${esc(c.label)}</span>`;
     }
     const tag = g ? `button type="button" class="td-gh" data-gdnfl="${esc(gdNflKey(g))}" aria-haspopup="dialog"` : `div class="td-gh"`;
-    return `<section class="gd-card td-card td-gcard"><h3 class="td-head"><${tag}>${head}</${g ? "button" : "div"}></h3>
+    return `<section class="gd-card td-card td-gcard" data-testid="live-td-gcard"><h3 class="td-head"><${tag}>${head}</${g ? "button" : "div"}></h3>
       <ul class="td-list">${rows.map(v => tdScoredRow(v, kinds, true)).join("")}</ul></section>`;
   }).join("");
 }
@@ -142,8 +142,8 @@ function tdGameCardsHTML(rows, kinds){
    Every copy key is spelled out (assemble.py --check). */
 function tdControlsHTML(){
   const name = {mine: t("live.tds.fMine"), pass: t("live.tds.fPass"), rush: t("live.tds.fRush"), rec: t("live.tds.fRec")};
-  const chips = TD_CHIPS.map(k => `<button type="button" class="chip" data-tdchip="${k}" aria-pressed="${!!TD_ON[k]}">${name[k]}</button>`).join("");
-  const byGame = `<button type="button" class="chip td-bygame" data-tdgame aria-pressed="${tdMode() === "game"}">${t("live.tds.byGame")}</button>`;
+  const chips = TD_CHIPS.map(k => `<button type="button" class="chip" data-testid="live-td-chip" data-tdchip="${k}" aria-pressed="${!!TD_ON[k]}">${name[k]}</button>`).join("");
+  const byGame = `<button type="button" class="chip td-bygame" data-testid="live-td-bygame" data-tdgame aria-pressed="${tdMode() === "game"}">${t("live.tds.byGame")}</button>`;
   return `<div class="td-filters" role="group" aria-label="${t("live.tds.filters")}">${chips}<span class="td-sep" aria-hidden="true"></span>${byGame}</div>`;
 }
 
@@ -162,7 +162,7 @@ function gdTdsHTML(lg){
   const {kinds, mine, filtered, all, scored} = tdFilter();
   const empty = () => `<p class="td-empty">${filtered ? tdNoneLine() : t("live.tds.noneYet")}</p>`;
   if (tdMode() === "game")
-    return tdControlsHTML() + (scored.length ? tdGameCardsHTML(scored, kinds) : `<section class="gd-card td-card">${empty()}</section>`);
+    return tdControlsHTML() + (scored.length ? tdGameCardsHTML(scored, kinds) : `<section class="gd-card td-card" data-testid="live-td-card">${empty()}</section>`);
   /* Still alive has no TD type: a type chip hides it, Mine narrows it, and it never repeats the empty line. */
   const alive = ["pass", "rush", "rec"].some(k => TD_ON[k]) ? [] : tdAliveRows(all).filter(p => !mine || mine.has(p.slug));
   const aliveRows = alive.map(p => ({n: p.n, slug: p.slug, pos: p.pos, team: p.team || "", chance: tdChanceFor(p)}));
@@ -171,8 +171,8 @@ function gdTdsHTML(lg){
   aliveRows.sort((a, b) => order(a) - order(b));
   const scoredList = scored.length ? `<ul class="td-list">${scored.map(v => tdScoredRow(v, kinds, false)).join("")}</ul>` : empty();
   const aliveCard = aliveRows.length ? `<ul class="td-list">${aliveRows.map(tdRowHTML).join("")}</ul>` : filtered ? "" : `<p class="td-empty">${t("live.tds.noBoard")}</p>`;
-  return tdControlsHTML() + tdrHTML(tdrModel(scored, kinds)) + `<section class="gd-card td-card"><h3 class="td-head"><span>${t("live.tds.scored")}</span><span>${t("live.tds.count", {n: scored.length})}</span></h3>${scoredList}</section>`
-    + (aliveCard ? `<section class="gd-card td-card"><h3 class="td-head"><span>${t("live.tds.alive")}</span><span>${t("live.tds.byChance")}</span></h3>${aliveCard}</section>` : "");
+  return tdControlsHTML() + tdrHTML(tdrModel(scored, kinds)) + `<section class="gd-card td-card" data-testid="live-td-card"><h3 class="td-head"><span>${t("live.tds.scored")}</span><span>${t("live.tds.count", {n: scored.length})}</span></h3>${scoredList}</section>`
+    + (aliveCard ? `<section class="gd-card td-card" data-testid="live-td-card"><h3 class="td-head"><span>${t("live.tds.alive")}</span><span>${t("live.tds.byChance")}</span></h3>${aliveCard}</section>` : "");
 }
 
 /* A row opens the player's profile, the way the matchup's rows do; the view and the chips repaint in

@@ -2,15 +2,15 @@
 moves the Sheet / Cards switch, a drag on the pack turns it and it springs back, and a tap while the
 cards are dealt hurries them. Since 2026-10-05 the pack waits in the starters' place on a followed team
 (packgate.js) and the deal holds each hit with its label. The motion tests run on the page's virtual
-clock (test_roster_cards.VCLOCK), so no test waits for a real animation, and "how long it took" is the
+clock (pages/roster_pack.VCLOCK), so no test waits for a real animation, and "how long it took" is the
 page's own time."""
 import re
 
 import pytest
 
+from pages.roster_motion import cards_page, motion_page, stage_opens
+from pages.roster_pack import rip, vc_install, vc_now, vc_run, vc_until
 from test_render import open_page
-from test_roster_cards import (cards_page, motion_page, rip, stage_opens, vc_install, vc_now, vc_run,
-                               vc_until)
 
 STARTERS = "TEAMS.espn.roster.filter(p => p.start).length"
 DOWN = "document.querySelectorAll('.cards-col:not(.bench) .tc.down').length"

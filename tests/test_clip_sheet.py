@@ -6,8 +6,8 @@ wants it on sets clipEmbedOk; every https request is aborted and `window.YT` is 
 the page asks of the player and lets a test fire its events, so nothing leaves the machine."""
 import pytest
 
+from pages.roster_pack import VCLOCK
 from test_render import drive, go, open_at
-from test_roster_cards import VCLOCK
 
 RING = ".row .head[data-clips]"
 OPEN = "document.getElementById('clipsheet').classList.contains('on')"

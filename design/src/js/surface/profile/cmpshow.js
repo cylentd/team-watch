@@ -22,7 +22,7 @@ function cmpCardsHTML(ps){
     const gap = v !== null && !lead ? `<span class="cmp-gap">−${(top - v).toFixed(1)}</span>` : "";
     const src = HEADS[p.slug];
     const face = src && p.pos !== "DST" ? headImgHTML(src, initials(p.n), p.slug, 56) : headHTML(p);
-    return `<button type="button" class="cmp-card cmp-s${i}${lead ? " lead" : ""}${CMP.on === i ? " on" : ""}" data-cmp="focus" data-i="${i}" aria-pressed="${CMP.on === i}">
+    return `<button type="button" class="cmp-card cmp-s${i}${lead ? " lead" : ""}${CMP.on === i ? " on" : ""}" data-testid="profile-cmp-card" data-cmp="focus" data-i="${i}" aria-pressed="${CMP.on === i}">
       <span class="cmp-face">${face}</span><b>${shortName(p.n)}</b>
       <span class="cmp-proj">${v === null ? "—" : v.toFixed(1)}</span>
       <span class="cmp-rank">${gap}</span></button>`;

@@ -273,13 +273,13 @@ def test_an_unlined_backups_profile_strip_wears_the_tag(mount):
     """The fixture's backup has no profile (so no strip), so Chase Brown, who has one, is flagged in the page."""
     page, errors = mount("ranks")
     ranks = RanksPage(page)
-    ranks.open_player("chase-brown")
-    assert ranks.player_noline_tips() == [], "a back the books priced has no tag"
-    ranks.close_player()
+    profile = ranks.open_player("chase-brown")
+    assert profile.noline_tips() == [], "a back the books priced has no tag"
+    profile.close()
     page.evaluate("() => { LIVE_PROJECTIONS.players['chase-brown'].unlined_backup = true; }")
-    ranks.open_player("chase-brown")
-    assert ranks.player_notes()[-1] == "No line" + TIP
-    assert ranks.player_noline_tips() == [TIP]
+    profile = ranks.open_player("chase-brown")
+    assert profile.notes()[-1] == "No line" + TIP
+    assert profile.noline_tips() == [TIP]
     assert errors == []
 
 

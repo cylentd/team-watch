@@ -56,7 +56,7 @@ function weekOpens(p, r){
 
 function weekCell(p, r){
   if (!weekOpens(p, r)) return r.wk;
-  return `<button type="button" class="pf-wk" aria-label="${esc(t("strip.open.week", {n: r.wk}))}">${r.wk}</button>`;
+  return `<button type="button" class="pf-wk" data-testid="profile-wk" aria-label="${esc(t("strip.open.week", {n: r.wk}))}">${r.wk}</button>`;
 }
 
 /* The producer's own mu keys, spelled out so a reader is not left deciding whether REC is

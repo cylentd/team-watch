@@ -45,19 +45,19 @@ const ST_RUNNER = '<svg class="strig" viewBox="-18 -4 84 68" aria-hidden="true">
   + ST_HELMET
   + '<g class="sh near"><path class="j" d="M18.4 11L19.2 22.5L24.8 22.5L25.6 11Z"/>'
   + '<g class="elb"><path class="p" d="M19.5 21.5L20.2 31L23.8 31L24.5 21.5Z"/><circle class="k" cx="22" cy="32.2" r="3"/></g></g></g>'
-  + '<g class="hip near"><path class="p" d="M17.4 29.5Q16.8 37 19 43.5L25 43.5Q27.2 37 26.6 29.5Z"/>'
+  + '<g class="hip near" data-testid="strip-near-hip"><path class="p" d="M17.4 29.5Q16.8 37 19 43.5L25 43.5Q27.2 37 26.6 29.5Z"/>'
   + '<g class="knee"><path class="j" d="M19 42.5L20 55L24.2 55L25 42.5Z"/><path class="s" d="M19.3 46.5H24.7"/>'
   + '<path class="k" d="M19.4 54h5.4q3.6.4 4 3.2h-9.4z"/></g></g></svg>';
 
 /* the post's path is rewritten every frame from its two anchors -- see stPostPath */
-const ST_POST = '<span class="stpost"><svg aria-hidden="true"><path d=""/></svg></span>';
+const ST_POST = '<span class="stpost"><svg aria-hidden="true"><path data-testid="strip-post-path" d=""/></svg></span>';
 
 /* The two anchors under one post, on the end line at the back of its end zone: A is the left end
    of the field, B the right. They are zero-size and invisible; only their screen positions matter. */
 const stPostAnchors = k => {
   const x = k === "A" ? "14%" : "86%";
-  return `<i class="stanc a-n${k}" style="left:${x};bottom:${ST_LANE - ST_HALF}px"></i>`
-       + `<i class="stanc a-f${k}" style="left:${x};bottom:${ST_LANE + ST_HALF}px"></i>`;
+  return `<i class="stanc a-n${k}" data-testid="strip-anchor-near-${k}" style="left:${x};bottom:${ST_LANE - ST_HALF}px"></i>`
+       + `<i class="stanc a-f${k}" data-testid="strip-anchor-far-${k}" style="left:${x};bottom:${ST_LANE + ST_HALF}px"></i>`;
 };
 
 /* Drawn from the NEAR upright's base at 0,0; the far base lands at dx,dy on screen, so how far the
@@ -82,10 +82,10 @@ const stInitials = n => String(n || "").replace(/[^A-Z]/g, "").slice(0, 2);
 function stFace(who, url, cls = ""){
   const label = ` role="img" aria-label="${esc(who || "")}"`;
   return url
-    ? `<span class="stface${cls}"${label} style="background-image:url(${encodeURI(url)})"></span>`
-    : `<span class="stface${cls}"${label}>${esc(stInitials(who))}</span>`;
+    ? `<span class="stface${cls}" data-testid="strip-face"${label} style="background-image:url(${encodeURI(url)})"></span>`
+    : `<span class="stface${cls}" data-testid="strip-face"${label}>${esc(stInitials(who))}</span>`;
 }
 
 /* the ring on the ground is how the reader finds the man the play card names among helmets */
-const stFigure = who => `<div class="stpose" role="img" aria-label="${esc(who || "")}"><span class="stspot"></span>`
+const stFigure = who => `<div class="stpose" data-testid="strip-pose" role="img" aria-label="${esc(who || "")}"><span class="stspot"></span>`
   + `${ST_RUNNER}<span class="stheld">${ST_BALL}</span></div>`;

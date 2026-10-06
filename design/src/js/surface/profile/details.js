@@ -6,7 +6,7 @@
    coverage note drops its own. */
 function subHTML(label, body, extra){
   return `<div class="pf-dsec">
-    <div class="pf-sechead"><span class="lbl">${label}</span>${extra || ""}</div>
+    <div class="pf-sechead"><span class="lbl" data-testid="profile-sec-label">${label}</span>${extra || ""}</div>
     ${body}
   </div>`;
 }
@@ -106,7 +106,7 @@ function lineHTML(prof){
   const kept = r.ol_continuity === null || r.ol_continuity === undefined || !r.ol_continuity_of ? ""
     : cell(`${r.ol_continuity}/${r.ol_continuity_of}`, t("profile.line.kept"), r.ol_continuity < r.ol_continuity_of);
   if (!starters && !out && !kept) return "";
-  const wk = LIVE_TRENCHES.week ? `<span class="pf-win">${t("profile.line.week", {wk: LIVE_TRENCHES.week})}</span>` : "";
+  const wk = LIVE_TRENCHES.week ? `<span class="pf-win" data-testid="profile-win">${t("profile.line.week", {wk: LIVE_TRENCHES.week})}</span>` : "";
   return subHTML(t("profile.line.label", {team: esc(prof.team)}), `<div class="pf-wx pf-line">${starters}${kept}${out}</div>`, wk);
 }
 

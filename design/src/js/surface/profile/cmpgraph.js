@@ -17,7 +17,7 @@ function cmpGraphHTML(ps, on){
   const g = radarGeom(s.axes.length);
   const ranks = s.axes.map(a => sheetRank(s.pos, a.id, ps[fi].slug));
   const order = ps.map((_, i) => i).filter(i => sheets[i] && i !== fi).concat(fi);
-  return `<div class="pf-sheet cmp-graph cmp-s${fi}"><div class="pf-radar-box">
+  return `<div class="pf-sheet cmp-graph cmp-s${fi}" data-testid="profile-cmp-graph"><div class="pf-radar-box">
     <svg class="pf-radar" viewBox="-34 0 ${g.VW} ${g.VH}" role="img" aria-label="${t("profile.compare.radar")}">
       ${radarDefsHTML(g.cx, g.cy, g.R)}
       <circle class="pf-radar-disc" cx="${g.cx}" cy="${g.cy}" r="${g.R}"/>
@@ -35,5 +35,5 @@ function cmpShapeHTML(s, p, i, front, g){
     .map(([j, r]) => g.xy(j, r).map(v => v.toFixed(1)));
   const st = front ? " front" : " dim";
   const dots = pts.map(([x, y]) => `<circle class="cmp-dot cmp-s${i}${st}" cx="${x}" cy="${y}" r="3"/>`).join("");
-  return (pts.length >= 3 ? `<polygon class="cmp-shape cmp-s${i}${st}" points="${pts.map(q => q.join(",")).join(" ")}"/>` : "") + dots;
+  return (pts.length >= 3 ? `<polygon class="cmp-shape cmp-s${i}${st}" data-testid="profile-cmp-shape" points="${pts.map(q => q.join(",")).join(" ")}"/>` : "") + dots;
 }

@@ -37,14 +37,14 @@ function teamShareListHTML(d, slug){
   const pct = v => Math.round(v / d.total * 100) + "%";
   const row = (r, i) => {
     const body = `<span class="pf-tm-n">${shortName(r.n)}<em>${esc(r.pos)}</em></span>
-      <span class="pf-tm-bar"><i style="--w:${(r.v / max * 100).toFixed(0)}%;--i:${i}"></i></span><b>${pct(r.v)}</b>`;
-    return r.slug === slug ? `<div class="pf-tm me">${body}</div>`
-      : `<button type="button" class="pf-tm" data-tmslug="${esc(r.slug)}" aria-label="${t("profile.team.open", {n: esc(r.n)})}">${body}</button>`;
+      <span class="pf-tm-bar" data-testid="profile-tm-bar"><i style="--w:${(r.v / max * 100).toFixed(0)}%;--i:${i}"></i></span><b data-testid="profile-tm-pct">${pct(r.v)}</b>`;
+    return r.slug === slug ? `<div class="pf-tm me" data-testid="profile-tm">${body}</div>`
+      : `<button type="button" class="pf-tm" data-testid="profile-tm" data-tmslug="${esc(r.slug)}" aria-label="${t("profile.team.open", {n: esc(r.n)})}">${body}</button>`;
   };
   // No bar for the rest: it is several players, not one to compare him with, and their sum can
   // outgrow the leader's bar the scale is set by.
-  const others = restN > 0 && rest > 0 ? `<div class="pf-tm rest"><span class="pf-tm-n">${t("profile.team.others", {n: restN})}</span>
-      <span></span><b>${pct(rest)}</b></div>` : "";
+  const others = restN > 0 && rest > 0 ? `<div class="pf-tm rest" data-testid="profile-tm"><span class="pf-tm-n">${t("profile.team.others", {n: restN})}</span>
+      <span></span><b data-testid="profile-tm-pct">${pct(rest)}</b></div>` : "";
   return `<div class="pf-team">${shown.map(row).join("")}${others}</div>`;
 }
 

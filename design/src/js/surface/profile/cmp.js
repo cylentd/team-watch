@@ -16,8 +16,9 @@ function cmpOpen(d){
   CMP.picks = []; CMP.stage = "pick"; CMP.q = "";
   const layer = document.createElement("div");
   layer.className = "cmp-layer";
+  layer.setAttribute("data-testid", "profile-cmp-layer");
   layer.innerHTML = `<div class="cmp-scrim"></div>
-    <div class="cmp-sheet" role="dialog" aria-modal="true" aria-labelledby="cmp-t"></div>`;
+    <div class="cmp-sheet" data-testid="profile-cmp-sheet" role="dialog" aria-modal="true" aria-labelledby="cmp-t"></div>`;
   d.appendChild(layer);
   [...d.children].forEach(c => { if (c !== layer) c.inert = true; });
   const sheet = layer.querySelector(".cmp-sheet");
@@ -99,5 +100,5 @@ const CMP_ICON = `<svg class="cmp-ic-svg" viewBox="0 0 24 24" aria-hidden="true"
 
 /* `medal`: the rail's medallion (rail.js); otherwise the small button a player with no rail keeps. */
 const cmpButtonHTML = medal => medal
-  ? `<button type="button" class="cmp-open medal" data-compare aria-haspopup="dialog"><span class="cmp-ic">${CMP_ICON}</span><span>${t("profile.compare.open")}</span></button>`
-  : `<button type="button" class="cmp-open" data-compare aria-haspopup="dialog">${CMP_ICON}<span>${t("profile.compare.open")}</span></button>`;
+  ? `<button type="button" class="cmp-open medal" data-testid="profile-compare-open" data-compare aria-haspopup="dialog"><span class="cmp-ic">${CMP_ICON}</span><span>${t("profile.compare.open")}</span></button>`
+  : `<button type="button" class="cmp-open" data-testid="profile-compare-open" data-compare aria-haspopup="dialog">${CMP_ICON}<span>${t("profile.compare.open")}</span></button>`;

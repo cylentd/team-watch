@@ -24,7 +24,7 @@ async function pkMove(S, el, to, ms, easing){
    (.pk-unsigned) until its signing. */
 function pkCardEl(S, c, faceDown){
   const el = document.createElement("div");
-  el.className = cardSigned(c.p) ? "pk-card pk-unsigned" : "pk-card";
+  el.className = cardSigned(c.p) ? "pk-card pk-unsigned" : "pk-card"; el.dataset.testid = "roster-pack-card";
   el.innerHTML = `<div class="pk-inner"><div class="pk-cb" aria-hidden="true"><b>TW</b></div>${cardHTML(c.p, c.i, S.team.key)}</div>`;
   if (!faceDown) el.querySelector(".pk-inner").style.rotate = "y 0deg";
   return el;

@@ -46,7 +46,7 @@ function dgTnCard(g, now){
   if (Date.parse(g.ko) <= now){
     // Once it is on, the game is the same block as the last game's (mnf.js): its clock, score and best performer, one tap to its sheet.
     const sched = gdWeekGames().find(x => gdSameClub(x.home, g.home) || gdSameClub(x.away, g.home));
-    return `<section class="dg-tn dg-mnf on" aria-label="${t("digest.tn.label")}">${sched ? dgMnfFor(sched)
+    return `<section class="dg-tn dg-mnf on" data-testid="digest-tn" aria-label="${t("digest.tn.label")}">${sched ? dgMnfFor(sched)
       : `<p class="dg-tn-on"><b>${game}</b> ${t("digest.tn.playing")}</p>`}</section>`;
   }
   const tag = r => `<em class="${r.status === "Doubtful" ? "q" : "dn"}">${r.status === "IR" ? t("digest.tag.ir") : r.status === "Doubtful" ? t("digest.tag.d") : t("digest.tag.out")}</em>`;
@@ -55,9 +55,9 @@ function dgTnCard(g, now){
     + dgResList(t("digest.tn.proj.h"), g.projected, r => `<em>${r.pts.toFixed(1)}</em>`)
     + dgResList(t("digest.tn.moved.h"), g.moved, r => `<em class="${r.d_pts < 0 ? "dn" : "up"}">${dgSigned(r.d_pts, 1)}</em>`);
   const story = dgTnStory(g);
-  return `<section class="dg-tn" aria-label="${t("digest.tn.label")}">
+  return `<section class="dg-tn" data-testid="digest-tn" aria-label="${t("digest.tn.label")}">
     <header class="dg-tn-h"><b>${t("digest.tn.head", {game})}</b><time>${esc(dgKick(g))}</time></header>
-    <p class="dg-tn-sky">${dgTnSky(g.wx)}</p>${story ? `<p class="dg-tn-story">${story}</p>` : ""}
+    <p class="dg-tn-sky">${dgTnSky(g.wx)}</p>${story ? `<p class="dg-tn-story" data-testid="digest-tn-story">${story}</p>` : ""}
     ${lists ? `<div class="dg-t5 dg-tn-lists">${lists}</div>` : ""}
     ${dgFootHTML(t("digest.foot.tn"), "matchups", t("digest.go.matchupsAll"))}</section>`;
 }

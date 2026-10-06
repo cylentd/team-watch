@@ -12,11 +12,11 @@ function supportArt(p, g){
     // One chip, the one that decides a kick: a roof means no wind at all; otherwise the wind.
     const chip = !w ? t("teams.card.noForecast") : w.roof === "dome" ? t("teams.card.dome")
       : w.wind ? t("teams.card.wind", {w: esc(w.wind), d: esc(w.wind_dir || "")}) : cardRoof(w);
-    return `${CARD_POSTS}${cardWeatherFx(w, "K")}<div class="head">${cardHeadHTML(p)}</div><span class="tc-chip r">${chip}</span>`;
+    return `${CARD_POSTS}${cardWeatherFx(w, "K")}<div class="head" data-testid="roster-card-head">${cardHeadHTML(p)}</div><span class="tc-chip r">${chip}</span>`;
   }
   const opp = g ? cardLines(g.opp) : null;
   const chip = opp ? t("teams.card.implied", {n: opp.implied}) : t("teams.card.noLine");
-  return `<span class="tc-abbr">${esc(p.team)}</span>
+  return `<span class="tc-abbr" data-testid="roster-card-abbr">${esc(p.team)}</span>
     <span class="tc-chip r" title="${t("teams.card.lowerBetter")}">${chip}</span>`;
 }
 
@@ -31,9 +31,9 @@ function supportBack(p, g, teamKey, i){
     : [[t("teams.card.oppImplied"), opp ? String(opp.implied) : "—"],
        [t("teams.card.spread"), mine ? `${mine.spread > 0 ? "+" : ""}${mine.spread}` : "—"],
        [t("teams.card.total"), mine && mine.total ? String(mine.total) : "—"]];
-  return `<div class="tc-face tc-back">
-      <div class="bk-why"><b>${p.pos === "K" ? t("teams.card.kicking") : t("teams.card.defending")}</b><span>${esc(cardMatchup(p.team, g))}</span></div>
+  return `<div class="tc-face tc-back" data-testid="roster-card-back">
+      <div class="bk-why" data-testid="roster-back-why"><b data-testid="roster-back-rank">${p.pos === "K" ? t("teams.card.kicking") : t("teams.card.defending")}</b><span>${esc(cardMatchup(p.team, g))}</span></div>
       <div class="bk-rows"${p.pos === "DST" ? ` title="${t("teams.card.lowerBetter")}"` : ""}>${rows.map(([l, v]) => `<div class="bk-row"><span class="bk-l">${l}</span><b>${esc(v)}</b></div>`).join("")}</div>
-      <button class="bk-open" type="button" data-cteam="${teamKey}" data-ci="${i}">${t("teams.card.profile")}</button>
+      <button class="bk-open" type="button" data-testid="roster-back-open" data-cteam="${teamKey}" data-ci="${i}">${t("teams.card.profile")}</button>
     </div>`;
 }

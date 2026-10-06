@@ -14,7 +14,7 @@ function rowHTML(p, i, teamKey){
   const ring = nc ? `<span class="clipn" aria-hidden="true">${nc}</span>` : "";
   const rd = 40+i*24;
   const use = rowUsage(p);
-  return `<div class="row ${cls}" style="animation-delay:${rd}ms;--rowdelay:${rd}ms" data-team="${teamKey}" data-i="${i}" role="button" tabindex="0">
+  return `<div class="row ${cls}" data-testid="roster-row" style="animation-delay:${rd}ms;--rowdelay:${rd}ms" data-team="${teamKey}" data-i="${i}" role="button" tabindex="0">
     ${p.start ? `<span class="slot">${esc(slotLabel(p.slot))}</span>` : ""}
     <div class="head"${clipRingHTML(p)}>${headHTML(p)}${badge}${ring}</div>
     <div class="nm">

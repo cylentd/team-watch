@@ -38,9 +38,9 @@ function buildLines(){
 /* One column under a heading per kickoff, paged by player (lines.js). */
 function buildHTML(){
   const all = buildLines(), ud = PARLAY_BOOK === "underdog";
-  if (!all.length) return `<div class="state-empty" style="margin:20px 0;min-height:120px"><div><b>0</b><span>${MKT_BEST ? t("parlay.empty.noBest") : t("parlay.empty.noLines")}</span></div></div>`;
+  if (!all.length) return `<div class="state-empty" data-testid="parlay-build-empty" style="margin:20px 0;min-height:120px"><div><b>0</b><span>${MKT_BEST ? t("parlay.empty.noBest") : t("parlay.empty.noLines")}</span></div></div>`;
   const {body, page, pages, players} = buildListHTML(all);
-  return `<div class="blist">${body}</div>
+  return `<div class="blist" data-testid="parlay-build-list">${body}</div>
   <div class="filters bets-pager">
     <span class="lbl">${t("parlay.pager.lines", {n: all.length, s: all.length===1?"":"s"})} · ${t("parlay.pager.players", {n: players, s: players===1?"":"s"})}${ud && all.some(p => (udPick(p) || {}).synthetic) ? ` · ${t("parlay.pager.tdNote")}` : ""}</span>
     <span style="flex:1"></span>

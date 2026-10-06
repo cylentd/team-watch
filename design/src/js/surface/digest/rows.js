@@ -5,15 +5,15 @@
 
 /* A player line: head, name over one meta line, one number at the right. It opens his profile. */
 function dgLnHTML(p, meta, right, extra){
-  return `<button type="button" class="dg-ln${extra ? " wide" : ""}" data-dgslug="${esc(p.slug)}">
+  return `<button type="button" class="dg-ln${extra ? " wide" : ""}" data-testid="digest-ln" data-dgslug="${esc(p.slug)}">
     <span class="dg-hd">${avatarHTML(p)}</span>
     <span class="dg-ln-t"><b>${esc(p.n)}</b><span>${meta}</span>${extra || ""}</span>
-    <span class="dg-ln-r">${right}</span></button>`;
+    <span class="dg-ln-r" data-testid="digest-ln-right">${right}</span></button>`;
 }
 
 function dgFootHTML(text, leaf, label, caveat){
-  const go = leaf ? `<button type="button" class="dg-go" data-dggo="${leaf}">${label}${DG_ARROW}</button>` : "";
-  return `<div class="dg-foot"><span>${text}${caveat ? ` <span class="dg-nb">${t("digest.nb")}</span>` : ""}</span>${go}</div>`;
+  const go = leaf ? `<button type="button" class="dg-go" data-testid="digest-go" data-dggo="${leaf}">${label}${DG_ARROW}</button>` : "";
+  return `<div class="dg-foot" data-testid="digest-foot"><span data-testid="digest-foot-text">${text}${caveat ? ` <span class="dg-nb">${t("digest.nb")}</span>` : ""}</span>${go}</div>`;
 }
 
 const dgVs = r => r.home ? t("digest.vs.home", {team: esc(r.team), opp: esc(r.opp)}) : t("digest.vs.away", {team: esc(r.team), opp: esc(r.opp)});
@@ -40,7 +40,7 @@ function dgStartWhat(r, name, bare){
    right with his average under it, as Start/Sit shows it. */
 function dgSotwHTML(){
   const s = LIVE_SS3.takes.find(r => r.call === "START");
-  return s ? dgLnHTML({n: s.name, slug: s.slug}, `<b class="dg-sotw">${t("digest.mu.sotw")}</b> · ${esc(s.pos)} · ${dgVs(s)}`,
+  return s ? dgLnHTML({n: s.name, slug: s.slug}, `<b class="dg-sotw" data-testid="digest-sotw">${t("digest.mu.sotw")}</b> · ${esc(s.pos)} · ${dgVs(s)}`,
     `${esc(s.pos)}${s.rank}<small>${t("matchups.takes.avg", {avg: s.avg_rank == null ? "—" : esc(s.pos) + s.avg_rank})}</small>`) : "";
 }
 
@@ -61,12 +61,12 @@ function dgAddsBody(d){
     const top = Math.max(1, ...d.adds.map(a => a.count || 0));
     const lines = d.adds.map((a, i) => dgLnHTML(a, a.now != null
       ? t("digest.adds.metaEspn", {pos: esc(a.pos), team: esc(a.team), pct: dgPct(a.now)}) : `${esc(a.pos)} · ${esc(a.team)}`,
-      `<span class="dg-plus">${dgBig(a.count)}</span>`,
+      `<span class="dg-plus" data-testid="digest-plus">${dgBig(a.count)}</span>`,
       `<span class="dg-bar" style="--a:0%;--b:${(100 * a.count / top).toFixed(1)}%;--i:${i}"><i></i><u></u></span>`)).join("");
     return lines + dgFootHTML(t("digest.foot.addsSleeper", {h: d.adds_hours}), "waivers", t("digest.go.waivers"));
   }
   const lines = d.adds.map((a, i) => dgLnHTML(a, t("digest.adds.meta", {pos: esc(a.pos), team: esc(a.team), was: dgPct(a.was), now: dgPct(a.now)}),
-    `<span class="dg-plus">${dgSigned(Math.round(a.delta), 0)}</span>`,
+    `<span class="dg-plus" data-testid="digest-plus">${dgSigned(Math.round(a.delta), 0)}</span>`,
     `<span class="dg-bar" style="--a:${a.was}%;--b:${a.now}%;--i:${i}"><i></i><u></u></span>`)).join("");
   const [a, b] = d.adds_weeks;
   return lines + dgFootHTML(a != null ? t("digest.foot.adds", {a, b}) : t("digest.foot.addsNoWeeks"), "waivers", t("digest.go.waivers"));
@@ -118,19 +118,19 @@ function dgNewsBody(d){
      does. The face and name still open his profile, so the block is a div holding both kinds of tap. */
   const line = it => {
     const href = it.link || `https://www.google.com/search?tbm=nws&q=${encodeURIComponent(it.headline)}`;
-    return `<li><a href="${esc(href)}" target="_blank" rel="noopener noreferrer"><time>${esc(it.when || "")}</time>
+    return `<li><a data-testid="digest-news-link" href="${esc(href)}" target="_blank" rel="noopener noreferrer"><time>${esc(it.when || "")}</time>
       <span>${esc(it.n ? dgCap(it.rest) : it.headline)}${DG_EXT}</span></a></li>`;
   };
   const blocks = dgNewsGroups(d.news).map(g => {
-    if (!g.key) return `<div class="dg-nw"><ul>${g.lines.map(line).join("")}</ul></div>`;
+    if (!g.key) return `<div class="dg-nw" data-testid="digest-news-block"><ul>${g.lines.map(line).join("")}</ul></div>`;
     const e = who.get(g.key), p = {n: g.n, slug: g.key, pos: e && e.pos, team: e && e.team};
     const meta = [p.pos, p.team].filter(Boolean).map(esc).join(" · ");
-    return `<div class="dg-nw who">
+    return `<div class="dg-nw who" data-testid="digest-news-block">
       <button type="button" class="dg-hd" data-dgslug="${esc(g.key)}" tabindex="-1" aria-hidden="true">${avatarHTML(p)}</button>
-      <span class="dg-nw-t"><button type="button" class="dg-nw-who" data-dgslug="${esc(g.key)}"><b class="${DG_KIND[g.kind] || ""}">${esc(g.n)}</b><small>${meta}</small></button>
+      <span class="dg-nw-t"><button type="button" class="dg-nw-who" data-testid="digest-news-who" data-dgslug="${esc(g.key)}"><b class="${DG_KIND[g.kind] || ""}">${esc(g.n)}</b><small>${meta}</small></button>
       <ul>${g.lines.map(line).join("")}</ul></span></div>`;
   }).join("");
-  return `<div class="dg-nws">${blocks}</div>` + dgFootHTML(t("digest.foot.news"), "news", t("digest.go.news"));
+  return `<div class="dg-nws" data-testid="digest-news">${blocks}</div>` + dgFootHTML(t("digest.foot.news"), "news", t("digest.go.news"));
 }
 
 /* One short list in Top 5's shape: a head, then "K. Mumpfield" and one number per line (Tonight's lists). */

@@ -19,7 +19,7 @@ function cmpStripHTML(label, cells, best){
   const top = vals.length > 1 && best ? (best === "low" ? Math.min(...vals) : Math.max(...vals)) : null;
   const cell = c => !c ? `<span class="cmp-v none">—</span>`
     : `<span class="cmp-v${c.v === top ? " best" : ""}">${c.txt}</span>`;
-  return `<div class="cmp-row-s"><span class="cmp-l">${label}</span><div class="cmp-strip">${cells.map(cell).join("")}</div></div>`;
+  return `<div class="cmp-row-s" data-testid="profile-cmp-strip"><span class="cmp-l">${label}</span><div class="cmp-strip">${cells.map(cell).join("")}</div></div>`;
 }
 
 /* Whose share: targets for receivers, carries for backs, "team share" when the set is mixed. */

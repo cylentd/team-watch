@@ -35,7 +35,7 @@ const slTierWord = k => k === "very" ? t("slips.tier.very") : k === "confident" 
 /* The tier word, in Preview's looks: Slight grey, Confident lime text, Very confident a lime fill, with the
    chance of the model's side before it ("74% Confident", 2026-10-05): one vocabulary in Slips, Top calls and
    All lines. "No pick" has no chance to print. */
-const slTierHTML = (k, q) => `<span class="sl-tp">${q && k !== "none" ? `<i class="sl-pc">${Math.round(q)}%</i>` : ""}<b class="sl-conf ${k}">${slTierWord(k)}</b></span>`;
+const slTierHTML = (k, q) => `<span class="sl-tp">${q && k !== "none" ? `<i class="sl-pc">${Math.round(q)}%</i>` : ""}<b class="sl-conf ${k}" data-testid="parlay-tier">${slTierWord(k)}</b></span>`;
 
 const slCleared = (p, line, v) => typeof v === "number" && (p.mkt === "TD" ? v >= 1 : typeof line === "number" && v > line);
 
@@ -50,10 +50,10 @@ function slHist(p){
 
 function slHistHTML(p, line, m){
   const h = slHist(p), known = h.filter(x => typeof x.v === "number");
-  const md = m && m.td ? `<small class="sl-md">${t("slips.line.modelTd", {p: m.pct})}</small>` : "";
-  if (!known.length) return md ? `<span class="sl-hist">${md}</span>` : "";
-  const cells = h.map(x => `<i class="${slCleared(p, line, x.v) ? "hit" : ""}${x.old ? " old" : ""}"${x.g.length ? ` title="${x.g[0]} wk${x.g[1]}${x.g[2] ? " vs " + esc(x.g[2]) : ""}"` : ""}>${typeof x.v === "number" ? fmt2(x.v) : ""}</i>`).join("");
-  return `<span class="sl-hist">${cells}${md}</span>`;
+  const md = m && m.td ? `<small class="sl-md" data-testid="parlay-model-pct">${t("slips.line.modelTd", {p: m.pct})}</small>` : "";
+  if (!known.length) return md ? `<span class="sl-hist" data-testid="parlay-hist">${md}</span>` : "";
+  const cells = h.map(x => `<i class="${slCleared(p, line, x.v) ? "hit" : ""}${x.old ? " old" : ""}" data-testid="parlay-hist-cell"${x.g.length ? ` title="${x.g[0]} wk${x.g[1]}${x.g[2] ? " vs " + esc(x.g[2]) : ""}"` : ""}>${typeof x.v === "number" ? fmt2(x.v) : ""}</i>`).join("");
+  return `<span class="sl-hist" data-testid="parlay-hist">${cells}${md}</span>`;
 }
 
 /* Claude's call at the line shown, or null (2026-10-05, storyboard "Claude Calls" A): its side and one
@@ -78,7 +78,7 @@ function slSidesHTML(i, m, side, c){
   const agree = slClaudeAgrees(c, m);
   const btn = (s, label) => {
     const mine = !!c && c.side === s;
-    return `<button type="button" class="sl-side ${s}${m && m.side === s && m.tier !== "none" ? " pick" : ""}" data-slpick="${i}" data-side="${s}" aria-pressed="${side === s}"${mine ? ` aria-label="${t("slips.claude.name", {side: label})}"` : ""}>${label}${mine ? slClaudeBadge(agree) : ""}</button>`;
+    return `<button type="button" class="sl-side ${s}${m && m.side === s && m.tier !== "none" ? " pick" : ""}" data-testid="parlay-side" data-slpick="${i}" data-side="${s}" aria-pressed="${side === s}"${mine ? ` aria-label="${t("slips.claude.name", {side: label})}"` : ""}>${label}${mine ? slClaudeBadge(agree) : ""}</button>`;
   };
   // "72% Very confident" is wider than one side, so it spans both under the buttons, to the right edge; "No pick"
   // has no chance and stays under Lower.
@@ -91,9 +91,9 @@ function slSidesHTML(i, m, side, c){
 
 function slLineHTML(i){
   const p = PROPS[i], line = slLine(p), td = p.mkt === "TD", on = SLIP.includes(i), side = on ? slipSide(i) : null, m = slModel(p), c = slClaude(p);
-  const yes = `<span class="sl-sides"><button type="button" class="sl-side higher" data-slpick="${i}" data-side="higher" aria-pressed="${side === "higher"}">${t("slips.side.yes")}</button></span>`;
-  return `<div class="sl-ln${on ? " on" : ""}${m && m.tier ? " tiered" : ""}">
-      <span class="sl-mk">${esc(MKT[p.mkt] || p.mkt)}${!td && line != null ? ` <b>${line}</b>` : ""}</span>
+  const yes = `<span class="sl-sides"><button type="button" class="sl-side higher" data-testid="parlay-side" data-slpick="${i}" data-side="higher" aria-pressed="${side === "higher"}">${t("slips.side.yes")}</button></span>`;
+  return `<div class="sl-ln${on ? " on" : ""}${m && m.tier ? " tiered" : ""}" data-testid="parlay-line-item">
+      <span class="sl-mk" data-testid="parlay-line-market">${esc(MKT[p.mkt] || p.mkt)}${!td && line != null ? ` <b>${line}</b>` : ""}</span>
       ${td ? yes : slSidesHTML(i, m, side, c)}
       ${slHistHTML(p, line, m)}
       ${c && c.why && !slClaudeAgrees(c, m) ? `<span class="sl-cwhy">${slClaudeBadge(false, " static")}<span>${esc(c.why)}</span></span>` : ""}
@@ -109,8 +109,8 @@ function slLongHTML(slug){
   if (!vals || !vals.some(v => typeof v === "number")) return "";
   const k0 = Math.max(0, vals.length - SL_HIST);
   const cells = vals.slice(k0).map((v, k) => { const g = log.g[k0 + k] || [];
-    return `<i class="${g[0] < BUILD_SEASON ? "old" : ""}"${g.length ? ` title="${g[0]} wk${g[1]}"` : ""}>${typeof v === "number" ? fmt2(v) : "–"}</i>`; }).join("");
-  return `<div class="sl-ln sl-long"><span class="sl-mk">${t("slips.line.longest")}</span><span class="sl-hist">${cells}</span></div>`;
+    return `<i class="${g[0] < BUILD_SEASON ? "old" : ""}" data-testid="parlay-hist-cell"${g.length ? ` title="${g[0]} wk${g[1]}"` : ""}>${typeof v === "number" ? fmt2(v) : "–"}</i>`; }).join("");
+  return `<div class="sl-ln sl-long" data-testid="parlay-long"><span class="sl-mk" data-testid="parlay-line-market">${t("slips.line.longest")}</span><span class="sl-hist" data-testid="parlay-hist">${cells}</span></div>`;
 }
 
 /* A side tapped, from the board's sheet or Preview: the slip changes, the view behind redraws (its

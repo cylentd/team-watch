@@ -29,7 +29,7 @@ function cardRank(p){
    .cool the finished gold; the pack writes it left to right (cardsign.js). */
 function cardAutoHTML(p, won){
   const tip = t("teams.card.signedTip", {rank: won.rank, pos: esc(p.pos), wk: LIVE_SIGNED.wk, pts: won.pts}), n = esc(p.n);
-  return `<div class="tc-auto" title="${tip}"><span class="sgw"><span class="sg cool">${n}</span><span class="sg hot">${n}</span><i class="tip"></i></span></div>`;
+  return `<div class="tc-auto" data-testid="roster-card-auto" title="${tip}"><span class="sgw" data-testid="roster-card-auto-wrap"><span class="sg cool" data-testid="roster-card-auto-cool">${n}</span><span class="sg hot" data-testid="roster-card-auto-hot">${n}</span><i class="tip" data-testid="roster-card-auto-tip"></i></span></div>`;
 }
 /* A card's photo is the 256px head where ff-jarvis cut one (HEADS_LG, the draft board's players),
    since a card shows it at 2-3x the 96px file's size and blurs it. Anyone else keeps the 96px
@@ -59,9 +59,9 @@ function cardLast(n){
   const parts = String(n || "").trim().replace(/\s+(Jr\.?|Sr\.?|II|III|IV)$/i, "").split(/\s+/);
   return parts.length < 2 ? parts[0] : parts.slice(1).join(" ");
 }
-const cardBanner = name => `<div class="tc-ban" style="--bf:var(${name.length <= 8 ? "--t-2" : "--t-1"})"><span>${esc(name)}</span></div>`;
+const cardBanner = name => `<div class="tc-ban" data-testid="roster-card-ban" style="--bf:var(${name.length <= 8 ? "--t-2" : "--t-1"})"><span data-testid="roster-card-name">${esc(name)}</span></div>`;
 /* The round badge on the banner's edge: position over rank, its ring the metal (cards.css). */
-const cardBadge = (pos, rank, tip = "") => `<span class="tc-badge"${tip ? ` title="${tip}"` : ""}><b>${esc(pos)}</b>${rank ? `<i>${rank}</i>` : ""}</span>`;
+const cardBadge = (pos, rank, tip = "") => `<span class="tc-badge" data-testid="roster-card-badge"${tip ? ` title="${tip}"` : ""}><b data-testid="roster-card-badge-pos">${esc(pos)}</b>${rank ? `<i data-testid="roster-card-badge-rank">${rank}</i>` : ""}</span>`;
 
 /* The front, 2026-10-05 ("3G"): the photo full bleed on the club's colour inside the card stock; the
    projection chip top right; the last name on a club-colour banner across the foot; the badge
@@ -72,27 +72,27 @@ function cardFront(p, tier, g, rank){
   const pts = projFor(p);
   const inj = injFor(p), sits = inj && (inj.s === "OUT" || inj.s === "D");
   const flag = !inj || inj.s === "OUT" ? ""
-    : `<span class="tc-chip ${inj.s === "Q" ? "q" : "d"}" title="${injLabel(inj)}">${inj.s === "Q" ? t("teams.inj.q") : t("teams.card.doubtful")}</span>`;
+    : `<span class="tc-chip ${inj.s === "Q" ? "q" : "d"}" data-testid="roster-card-chip" title="${injLabel(inj)}">${inj.s === "Q" ? t("teams.inj.q") : t("teams.card.doubtful")}</span>`;
   // Signed only when he earned it: top 3 at his position in the last completed week (LIVE_SIGNED),
   // on any tier. The tier is what he is expected to do; the autograph is what he did.
   const won = cardSigned(p);
   const auto = !sits && won ? cardAutoHTML(p, won) : "";
   // The #1's photo is tinted holo, over the photo and under everything printed on it.
-  const holo = tier === "holo" ? `<i class="tc-holo"></i>` : "";
+  const holo = tier === "holo" ? `<i class="tc-holo" data-testid="roster-card-holo"></i>` : "";
   // Weather that touches him: moving over the art, and its chip, with what ff-jarvis already took
   // off his projection for it ("−0.5") when it took any.
   const w = inj && inj.s === "OUT" ? null : cardWeather(g), wx = cardWeatherNote(w, p.pos);
   const adj = wx ? cardWxAdj(p) : "";
   const adjHTML = adj ? `<span class="wx-adj" title="${t("teams.card.wxAdjTip", {n: adj})}">${t("teams.card.wxAdj", {n: adj})}</span>` : "";
-  const chip = wx ? `<span class="tc-chip wx" title="${t("teams.card.wxTip", wx)}"><span class="wx-long">${wx.what}</span><span class="wx-short">${wx.kind}</span>${adjHTML}</span>` : "";
+  const chip = wx ? `<span class="tc-chip wx" data-testid="roster-card-chip" title="${t("teams.card.wxTip", wx)}"><span class="wx-long">${wx.what}</span><span class="wx-short">${wx.kind}</span>${adjHTML}</span>` : "";
   const tip = rank ? t("teams.card.rank", {n: rank, pos: esc(p.pos)}) : "";
   // OUT on either source (the projection row or the injury report) reads OUT in red, never a number.
   const out = projOut(p) || (inj && inj.s === "OUT");
   const num = out ? t("teams.card.out") : pts !== null ? pts.toFixed(1) : projDone(p) ? projDoneWord(projDone(p)) : "—";
-  return `<div class="tc-face tc-front">
-      <div class="tc-art pos-${esc(p.pos)}">${wx ? cardWeatherFx(w, p.pos) : ""}<div class="head">${cardHeadHTML(p)}</div>${holo}</div>
-      ${flag || chip ? `<div class="tc-flags">${chip}${flag}</div>` : ""}${auto}
-      <span class="tc-num${out ? " out" : ""}">${num}</span>
+  return `<div class="tc-face tc-front" data-testid="roster-card-front">
+      <div class="tc-art pos-${esc(p.pos)}" data-testid="roster-card-art">${wx ? cardWeatherFx(w, p.pos) : ""}<div class="head" data-testid="roster-card-head">${cardHeadHTML(p)}</div>${holo}</div>
+      ${flag || chip ? `<div class="tc-flags" data-testid="roster-card-flags">${chip}${flag}</div>` : ""}${auto}
+      <span class="tc-num${out ? " out" : ""}" data-testid="roster-card-num">${num}</span>
       ${cardBanner(cardLast(p.n))}${cardBadge(p.pos, rank, tip)}
     </div>`;
 }
@@ -110,14 +110,14 @@ function cardStats(p){
   const cols = WV_PROOF[p.pos].map(want => wvCol(p.pos, want)).filter(Boolean);
   if (!row || !cols.length) return null;
   const val = (r, id) => r && r.v[id] !== undefined ? r.v[id] : null;
-  const html = `<div class="bk-stats">${cols.map(c => {
+  const html = `<div class="bk-stats" data-testid="roster-back-stats">${cols.map(c => {
     const now = val(row, c.id);
     const pct = row.p && typeof row.p[c.id] === "number" ? row.p[c.id] : null;
     const band = pct === null ? "" : pct >= 67 ? "hi" : pct >= 34 ? "mid" : "lo";
     const tip = pct === null ? esc(c.label) : t("teams.card.pctTip", {stat: esc(c.label), p: pct, pos: esc(p.pos)});
-    return `<div class="bk-stat ${band}" title="${tip}">
+    return `<div class="bk-stat ${band}" data-testid="roster-back-stat" title="${tip}">
         <span class="bk-l">${esc(c.label)}</span><b>${usageFmt(now, c.fmt)}${wvTrendHTML(now, before ? val(before, c.id) : null)}</b>
-        <span class="bk-bar"><i style="--p:${pct === null ? 0 : pct / 100}"></i></span></div>`;
+        <span class="bk-bar" data-testid="roster-back-bar"><i style="--p:${pct === null ? 0 : pct / 100}"></i></span></div>`;
   }).join("")}</div>`;
   return {html, wk: row.wk};
 }
@@ -131,11 +131,11 @@ function cardBack(p, rank, teamKey, i, g){
   const sub = inj ? `<span class="bk-inj ${inj.s.toLowerCase()}" title="${injLabel(inj)}">${injLabel(inj)}</span>`
     : wx ? `<span class="bk-wx" title="${t("teams.card.wxTip", wx)}">${t("teams.card.wxNote", wx)}${cardWxAdj(p) ? ` · ${t("teams.card.wxAdjBack", {n: cardWxAdj(p)})}` : ""}</span>`
     : `<span>${stats ? t("teams.card.roleWeek", {wk: stats.wk}) : t("teams.card.thisWeek")}</span>`;
-  const signed = won ? `<div class="bk-signed">${t("teams.card.signedBack", {wk: LIVE_SIGNED.wk, rank: won.rank, pos: esc(p.pos), pts: won.pts})}</div>` : "";
-  return `<div class="tc-face tc-back pos-${esc(p.pos)}${won ? " signed" : ""}">
-      <div class="bk-why"><b>${rank ? t("teams.card.rank", {n: rank, pos: esc(p.pos)}) : esc(p.pos)}<small>${esc(cardMatchup(p.team, g))}</small></b>${sub}</div>${signed}
+  const signed = won ? `<div class="bk-signed" data-testid="roster-back-signed">${t("teams.card.signedBack", {wk: LIVE_SIGNED.wk, rank: won.rank, pos: esc(p.pos), pts: won.pts})}</div>` : "";
+  return `<div class="tc-face tc-back pos-${esc(p.pos)}${won ? " signed" : ""}" data-testid="roster-card-back">
+      <div class="bk-why" data-testid="roster-back-why"><b data-testid="roster-back-rank">${rank ? t("teams.card.rank", {n: rank, pos: esc(p.pos)}) : esc(p.pos)}<small>${esc(cardMatchup(p.team, g))}</small></b>${sub}</div>${signed}
       ${stats ? stats.html : `<div class="bk-l">${t("teams.card.snap")}</div><div class="bk-sp">${sparkHTML(p.trend, 110, 28)}</div>`}
-      <button class="bk-open" type="button" data-cteam="${teamKey}" data-ci="${i}">${t("teams.card.profile")}</button>
+      <button class="bk-open" type="button" data-testid="roster-back-open" data-cteam="${teamKey}" data-ci="${i}">${t("teams.card.profile")}</button>
     </div>`;
 }
 
@@ -146,15 +146,15 @@ function cardHTML(p, i, teamKey){
   const tier = support ? (p.pos === "K" ? "k" : "dst") : cardTier(rank);
   // Support cards wear the same stock, banner and badge; the badge says just K or DST.
   const front = support
-    ? `<div class="tc-face tc-front">
-        <div class="tc-art">${supportArt(p, g)}</div>
-        <span class="tc-num">${esc(g ? `${g.home ? "vs" : "@"} ${g.opp}` : "—")}</span>
+    ? `<div class="tc-face tc-front" data-testid="roster-card-front">
+        <div class="tc-art" data-testid="roster-card-art">${supportArt(p, g)}</div>
+        <span class="tc-num" data-testid="roster-card-num">${esc(g ? `${g.home ? "vs" : "@"} ${g.opp}` : "—")}</span>
         ${cardBanner(p.pos === "K" ? cardLast(p.n) : p.n)}${cardBadge(p.pos, null, p.pos === "K" ? t("teams.card.kicker", {team: esc(p.team)}) : t("teams.card.defense", {team: esc(p.team)}))}
       </div>`
     : cardFront(p, tier, g, rank);
-  return `<div class="tc tier-${tier}${support ? "" : injClass(p)}" ${teamColourStyle(p.team)} role="button" tabindex="0" aria-label="${t("teams.card.flip", {name: esc(p.n)})}">
+  return `<div class="tc tier-${tier}${support ? "" : injClass(p)}" data-testid="roster-card" ${teamColourStyle(p.team)} role="button" tabindex="0" aria-label="${t("teams.card.flip", {name: esc(p.n)})}">
     <div class="tc-flip">${front}${support ? supportBack(p, g, teamKey, i) : cardBack(p, rank, teamKey, i, g)}</div>
-    <div class="tc-glare"></div><i class="fx"></i>
+    <div class="tc-glare"></div><i class="fx" data-testid="roster-card-fx"></i>
   </div>`;
 }
 
@@ -166,14 +166,14 @@ function cardsHTML(team){
   // While the stage holds this week's pack, its cards' slots are kept empty (packshow.js packFaceDown);
   // while the pack waits in the starters' place, the starters lie face down under it (packgate.js).
   const gated = packGated(team);
-  const grid = (list, down) => `<div class="cardgrid"${down ? " inert" : ""}>${list.map(p => {
+  const grid = (list, down) => `<div class="cardgrid" data-testid="roster-cardgrid"${down ? " inert" : ""}>${list.map(p => {
     const i = n++, html = cardHTML(p, i, team.key);
     return down ? packCardDown(html) : packFaceDown(team, i, html);
   }).join("")}</div>`;
   const rule = (label, count, end = "") => `<div class="rule"><h2>${label}</h2><span class="count">${String(count).padStart(2,"0")}</span><span class="hair"></span>${end}</div>`;
   const starters = gated ? `<div class="pk-zone">${grid(start, true)}${packGateHTML(team)}</div>` : grid(start);
-  return `<div class="cards">
-    <section class="cards-col">${rule(t("teams.group.starters"), start.length, reripHTML(team))}${starters}</section>
-    ${rest.length ? `<section class="cards-col bench">${rule(t("teams.group.bench"), rest.length)}${grid(rest)}</section>` : ""}
+  return `<div class="cards" data-testid="roster-cards">
+    <section class="cards-col" data-testid="roster-cards-starters">${rule(t("teams.group.starters"), start.length, reripHTML(team))}${starters}</section>
+    ${rest.length ? `<section class="cards-col bench" data-testid="roster-cards-bench">${rule(t("teams.group.bench"), rest.length)}${grid(rest)}</section>` : ""}
   </div>`;
 }

@@ -40,7 +40,7 @@ function tdrModel(rows, kinds){
 function tdrHTML(m){
   if (!m) return "";
   const title = t("live.tds.clips");
-  return `<section class="reel td-reel" data-reel data-tdreel aria-label="${esc(title)}">
+  return `<section class="reel td-reel" data-testid="live-reel" data-reel data-tdreel aria-label="${esc(title)}">
     ${clipRailHeadHTML(title, m.items.length, m.play)}
     <div class="reel-track">${m.items.map((x, i) => clipCardHTML(x, i, x.line)).join("")}</div>
   </section>`;

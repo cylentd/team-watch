@@ -15,7 +15,7 @@
    stone, steel for a Role word and bronze for a Style word (tokens --arch-role / --arch-style). */
 function archTileHTML(v, field){
   const g = ARCH_GLYPH[v];
-  return g ? `<span class="pf-sk pf-sk-${field}"><svg viewBox="0 0 512 512" aria-hidden="true"><path d="${g[1]}"/></svg></span>` : "";
+  return g ? `<span class="pf-sk pf-sk-${field}" data-testid="profile-arch-tile"><svg viewBox="0 0 512 512" aria-hidden="true"><path d="${g[1]}"/></svg></span>` : "";
 }
 
 /* What each word means, in one clause. Spelled out one literal t() per word, the same reason
@@ -49,7 +49,7 @@ const archMean = (v, pos) => ARCH_MEAN[v] ? ARCH_MEAN[v](pos) : "";
 function archSlotsHTML(p){
   const a = bdArch(p.slug);
   if (!a) return [];
-  const slot = (field, v, word) => `<button type="button" class="pf-arch-slot" data-pfarch="${field}"
+  const slot = (field, v, word) => `<button type="button" class="pf-arch-slot" data-testid="profile-arch-slot" data-pfarch="${field}"
     aria-label="${field === "role" ? t("profile.arch.roleIs", {w: word}) : t("profile.arch.styleIs", {w: word})}"
     >${archTileHTML(v, field)}<span>${word}</span></button>`;
   return [a.role ? slot("role", a.role, bdRoleWord(a.role)) : "", a.style ? slot("style", a.style, bdStyleWord(a.style)) : ""].filter(Boolean);
@@ -62,7 +62,7 @@ function archBlockHTML(p){
   const a = bdArch(p.slug);
   if (!a) return "";
   const word = (v, w) => v ? `${archTileHTML(v, v === a.role ? "role" : "style")}${w}` : "";
-  const body = `<div class="pf-arch-two">` + bdFieldHTML({field: "role", pos: a.pos, label: t("board.label.role"),
+  const body = `<div class="pf-arch-two" data-testid="profile-arch-two">` + bdFieldHTML({field: "role", pos: a.pos, label: t("board.label.role"),
       word: word(a.role, a.role ? bdRoleWord(a.role) : ""), why: a.role_null, ev: a.role_evidence,
       nums: bdRoleNums(a.pos), say: a.role ? archMean(a.role, a.pos) : ""})
     + bdFieldHTML({field: "style", pos: a.pos, label: t("board.label.style"),

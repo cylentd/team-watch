@@ -18,15 +18,15 @@ const ST_ARC = '<path d="M1 9Q9 -5 17 9"/>';
    scanning for literal lookups, and cannot see one assembled from a template. */
 function stripPanelHTML(){
   const arc = cls => `<svg class="${cls}" viewBox="0 0 18 10" aria-hidden="true">${ST_ARC}</svg>`;
-  return '<div class="stfilt"></div>'
+  return '<div class="stfilt" data-testid="strip-filter"></div>'
     + '<div class="stgrid"><div class="stmain">'
     + '<div class="stscorerow"><div class="stscore"></div><div class="stclock"></div></div>'
-    + '<div class="stbox"><div class="stview" data-phone="pan"><div class="ststage"></div></div><div class="stslam"></div></div>'
-    + '<div class="stcap"></div>'
+    + '<div class="stbox" data-testid="strip-box"><div class="stview" data-phone="pan" data-testid="strip-view"><div class="ststage" data-testid="strip-stage"></div></div><div class="stslam"></div></div>'
+    + '<div class="stcap" data-testid="strip-caption"></div>'
     + '<div class="stscrub">'
-    + `<button type="button" class="stplay" aria-pressed="false"></button>`
+    + `<button type="button" class="stplay" data-testid="strip-play" aria-pressed="false"></button>`
     + `<button type="button" class="stprev" aria-label="${esc(t("strip.control.prev"))}">&lsaquo;<span class="stw"> ${t("strip.control.prev")}</span></button>`
-    + `<input type="range" class="stslider" min="0" max="1" step="0.01" value="1" aria-label="${esc(t("strip.control.scrub"))}">`
+    + `<input type="range" class="stslider" data-testid="strip-slider" min="0" max="1" step="0.01" value="1" aria-label="${esc(t("strip.control.scrub"))}">`
     + `<button type="button" class="stnext" aria-label="${esc(t("strip.control.next"))}"><span class="stw">${t("strip.control.next")} </span>&rsaquo;</button>`
     + `<button type="button" class="stmode" aria-label="${esc(t("strip.control.view"))}">${t("strip.view.pan")}</button>`
     + "</div>"
@@ -94,7 +94,7 @@ function stCaption(ctl, p, over, dr = ctl.drive){
         {spot: stSpot(p.to - p.yac * dr.dir, ctl.home, ctl.away), n: p.yac})}</span>` : "";
   /* PFR counts broken tackles per game, never per play, so the card says it as a game total */
   const n = !over && p.who && ctl.data.brk ? ctl.data.brk[p.who] : 0;
-  const brk = n ? `<span class="stbrk">${n === 1 ? t("strip.caption.brkOne") : t("strip.caption.brk", {n})}</span>` : "";
+  const brk = n ? `<span class="stbrk" data-testid="strip-broke">${n === 1 ? t("strip.caption.brkOne") : t("strip.caption.brk", {n})}</span>` : "";
   const yac = caught || brk ? `<span class="stmore">${caught}${brk}</span>` : "";
   return `<span class="stfaces">${p.qb ? stFace(p.qb, ctl.faces[p.qb], " sm") : ""}${stFace(who, ctl.faces[p.who])}</span>`
     + `<span class="stnm">${esc(who)}${from}</span><span class="stdd">${esc(c.dd || "")}</span>`

@@ -37,12 +37,12 @@ const trayWho = (n = SLIP.length) => trayNames(SLIP.slice(0, n).map(i => ({n: PR
 
 function trayHTML(){
   const n = SLIP.length, saved = slipIsSaved();
-  return `<div class="tray${n ? "" : " empty"}">
-    <button type="button" class="tray-open" data-tray aria-expanded="${BETS_SHEET}">
-      <span class="tray-c">${t("slips.tray.label")} · <span class="tray-n">${n}</span></span>
+  return `<div class="tray${n ? "" : " empty"}" data-testid="parlay-tray">
+    <button type="button" class="tray-open" data-testid="parlay-tray-open" data-tray aria-expanded="${BETS_SHEET}">
+      <span class="tray-c">${t("slips.tray.label")} · <span class="tray-n" data-testid="parlay-tray-count">${n}</span></span>
       <span class="tray-who">${n ? esc(trayWho()) : t("slips.tray.empty")}</span>
     </button>
-    <button type="button" class="tray-save" data-slsave ${n && !saved ? "" : "disabled"}>${saved ? t("slips.tray.saved") : t("slips.tray.save")}</button>
+    <button type="button" class="tray-save" data-testid="parlay-tray-save" data-slsave ${n && !saved ? "" : "disabled"}>${saved ? t("slips.tray.saved") : t("slips.tray.save")}</button>
   </div>`;
 }
 
@@ -52,7 +52,7 @@ function trayHTML(){
 function betsOddsHTML(){
   const legs = betsSlipLegs(), same = betsSameGame(legs) !== null;
   if (!legs.length || legs.some(l => betsLegChance(l) === null)) return "";
-  const row = (name, v, all) => `<div class="odds-row${all ? " all" : ""}"><span>${name}</span>
+  const row = (name, v, all) => `<div class="odds-row${all ? " all" : ""}" data-testid="parlay-odds-row"><span>${name}</span>
     <i class="odds-bar"><i style="--w:${v.toFixed(1)}%"></i></i><b>${v.toFixed(1)}%</b></div>`;
   // Same-game legs: each leg's own chance stays, the all-hit bar goes (it would multiply what moves together).
   return `<div class="odds">${legs.map(l => row(esc(nameInitial(l.n)), betsLegChance(l), false)).join("")}
@@ -64,17 +64,17 @@ const SV_X = `<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 2.5l7 7M
 /* The slips saved this week: how many legs, who, and an x. A tap loads one into the tray. */
 function savedHTML(){
   if (!SAVED.length) return "";
-  const rows = SAVED.map((s, k) => `<li class="sv-row">
-      <button type="button" class="sv-load" data-slload="${k}"><b>${t("slips.saved.legs", {n: s.legs.length})}</b>
+  const rows = SAVED.map((s, k) => `<li class="sv-row" data-testid="parlay-saved-row">
+      <button type="button" class="sv-load" data-testid="parlay-saved-load" data-slload="${k}"><b>${t("slips.saved.legs", {n: s.legs.length})}</b>
         <span>${esc(trayNames(s.legs.map(l => ({n: l.n || l.slug, slug: l.slug}))))}</span></button>
-      <button type="button" class="sv-drop" data-sldrop="${k}" aria-label="${t("slips.saved.drop")}">${SV_X}</button>
+      <button type="button" class="sv-drop" data-testid="parlay-saved-drop" data-sldrop="${k}" aria-label="${t("slips.saved.drop")}">${SV_X}</button>
     </li>`).join("");
   return `<section class="sv"><h3>${t("slips.saved.title", {n: SAVED.length})}</h3><ul>${rows}</ul></section>`;
 }
 
 function sheetHTML(){
   return `<div class="sheet-scrim${BETS_SHEET ? " on" : ""}" data-sheetclose></div>
-  <section class="slipsheet${BETS_SHEET ? " on" : ""}" role="dialog" aria-modal="true" aria-hidden="${!BETS_SHEET}"
+  <section class="slipsheet${BETS_SHEET ? " on" : ""}" data-testid="parlay-slipsheet" role="dialog" aria-modal="true" aria-hidden="${!BETS_SHEET}"
     aria-label="${t("slips.tray.label")}">
     <button type="button" class="grab" data-sheetclose aria-label="${t("common.action.close")}"></button>
     ${betsOddsHTML()}

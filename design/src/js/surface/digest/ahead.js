@@ -12,10 +12,10 @@
 function dgT5Row(r, i, flex, last){
   const inj = r.inj ? `<span class="dg-rk-inj ${r.inj === "Q" ? "q" : "d"}">${r.inj === "Q" ? t("digest.t5.q") : t("digest.t5.d")}</span>` : "";
   const k = last > 1 ? ((r.tier - 1) / (last - 1)).toFixed(2) : "0";
-  const tier = r.tier ? `<span class="dg-rk-tier${r.tier === 1 ? " top" : ""}" style="--k:${k}">${t("digest.t5.tier", {n: r.tier})}</span>` : "";
-  return `<button type="button" class="dg-rk" data-dgslug="${esc(r.slug)}"><span class="dg-rk-n">${i + 1}</span>
-    <span class="dg-rk-t"><b>${esc(nameInitial(r.n))}${inj}</b><span>${flex ? esc(r.pos) + " · " : ""}${dgVs(r)}</span></span>
-    ${tier}<span class="dg-rk-p">${r.pts.toFixed(1)}</span></button>`;
+  const tier = r.tier ? `<span class="dg-rk-tier${r.tier === 1 ? " top" : ""}" data-testid="digest-rk-tier" style="--k:${k}">${t("digest.t5.tier", {n: r.tier})}</span>` : "";
+  return `<button type="button" class="dg-rk" data-testid="digest-rk" data-dgslug="${esc(r.slug)}"><span class="dg-rk-n">${i + 1}</span>
+    <span class="dg-rk-t"><b data-testid="digest-rk-name">${esc(nameInitial(r.n))}${inj}</b><span>${flex ? esc(r.pos) + " · " : ""}${dgVs(r)}</span></span>
+    ${tier}<span class="dg-rk-p" data-testid="digest-rk-pts">${r.pts.toFixed(1)}</span></button>`;
 }
 
 function dgTop5Body(d){
@@ -34,9 +34,9 @@ function dgWxRow(r){
   const c = dgWxCond(r), fc = r.fc || {};
   const num = c === "wind" ? t("digest.wx.mph", {n: Math.round(r.mph)}) : c === "precip" ? t("digest.wx.pct", {n: fc.precip_pct})
     : t("digest.lead.wx.temp", {f: fc.temp_f});
-  return `<div class="dg-wx">${c === "wind" ? DG_WIND : DG_RAIN}
+  return `<div class="dg-wx" data-testid="digest-wx">${c === "wind" ? DG_WIND : DG_RAIN}
     <span class="dg-ln-t"><b>${esc(r.g.away)} @ ${esc(r.g.home)}</b><span>${wtKick(r.g.kickoff)}</span></span>
-    <span class="dg-ln-r">${num}</span></div>`;
+    <span class="dg-ln-r" data-testid="digest-ln-right">${num}</span></div>`;
 }
 
 function dgWxBody(){

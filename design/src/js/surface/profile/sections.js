@@ -33,10 +33,10 @@ function shareBarHTML(label, share, avg, lead){
    it the reader has no way to tell a two-week number from a one-week number, and the only
    honest answer to "does that look right?" is to go and read the source file. */
 function secHTML(label, body, legend, cls, win){
-  const right = (win ? `<span class="pf-win">${win}</span>` : "")
+  const right = (win ? `<span class="pf-win" data-testid="profile-win">${win}</span>` : "")
     + (legend ? `<span class="pf-legend"><i></i>${legend}</span>` : "");
-  return `<section class="dr-sec pf-sec${cls ? " " + cls : ""}">
-    <div class="pf-sechead"><span class="lbl">${label}</span>${right ? `<span class="pf-sechead-r">${right}</span>` : ""}</div>
+  return `<section class="dr-sec pf-sec${cls ? " " + cls : ""}" data-testid="profile-sec"${cls ? ` data-sec="${cls.split(" ")[0].replace("pf-sec-", "")}"` : ""}>
+    <div class="pf-sechead"><span class="lbl" data-testid="profile-sec-label">${label}</span>${right ? `<span class="pf-sechead-r">${right}</span>` : ""}</div>
     ${body}
   </section>`;
 }
@@ -48,7 +48,7 @@ function winText(n){
 }
 
 function leadHTML(num, text, cls){
-  return `<div class="pf-lead${cls ? " " + cls : ""}"><b>${num}</b><span>${text}</span></div>`;
+  return `<div class="pf-lead${cls ? " " + cls : ""}" data-testid="profile-lead"><b>${num}</b><span>${text}</span></div>`;
 }
 
 /* The matchup: the rank as a sentence, then as a cell on the strip of every defence
@@ -60,7 +60,7 @@ function headlineHTML(prof){
   const cls = n === null ? "" : matchupClass(n, nx.factor.of);
   const rank = n === null
     ? `<p class="pf-cap pf-quiet">${t("profile.matchup.none")}</p>`
-    : `<p class="pf-rank ${cls}">${matchupRankText(prof)}</p>` + rankStripHTML(n, nx.factor.of, cls);
+    : `<p class="pf-rank ${cls}" data-testid="profile-rank">${matchupRankText(prof)}</p>` + rankStripHTML(n, nx.factor.of, cls);
   return secHTML(t("profile.next.label", {wk: nx.week, where: whereWord(nx), opp: esc(nx.opp)}), rank + weatherHTML(prof));
 }
 
@@ -70,7 +70,7 @@ function zonesHTML(z, top){
   const keys = DEPTH_ZONES.filter(k => z[k]);
   const max = Math.max(.01, ...keys.map(k => Math.max(z[k].share || 0, z[k].pos_avg || 0)));
   const h = v => (Math.max(0, v || 0) / max * 100).toFixed(0);
-  return `<div class="pf-zones">${keys.map(k => `<div class="pf-zone${k === top ? " top" : ""}">
+  return `<div class="pf-zones" data-testid="profile-zones">${keys.map(k => `<div class="pf-zone${k === top ? " top" : ""}" data-testid="profile-zone">
       <span class="pf-zone-bars"><i class="me" style="--h:${h(z[k].share)}%"></i><i class="avg" style="--h:${h(z[k].pos_avg)}%"></i></span>
       <em>${zoneWord(k)}</em><b>${pfPct(z[k].share)}</b><small>${pfPct(z[k].pos_avg)}</small>
     </div>`).join("")}</div>`;

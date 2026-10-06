@@ -102,8 +102,8 @@ function radarHTML(p){
      while the label ring around it still scrolls the modal. Percentages of the viewBox, so it
      tracks the chart at every width. */
   const hit = `left:${pc(cx - R + 34, VW)};top:${pc(cy - R, VH)};width:${pc(2 * R, VW)};height:${pc(2 * R, VH)}`;
-  return `<div class="pf-sheet pos-${esc(String(s.pos).toLowerCase())}" data-slug="${esc(p.slug)}"><div class="pf-radar-box">
-    <svg class="pf-radar" viewBox="-34 0 ${VW} ${VH}" role="img" aria-label="${t("profile.sheet.label")}" data-cx="${cx}" data-cy="${cy}" data-r="${R}">
+  return `<div class="pf-sheet pos-${esc(String(s.pos).toLowerCase())}" data-testid="profile-sheet" data-slug="${esc(p.slug)}"><div class="pf-radar-box" data-testid="profile-radar-box">
+    <svg class="pf-radar" data-testid="profile-radar" viewBox="-34 0 ${VW} ${VH}" role="img" aria-label="${t("profile.sheet.label")}" data-cx="${cx}" data-cy="${cy}" data-r="${R}">
       ${radarDefsHTML(cx, cy, R)}
       <circle class="pf-radar-disc" cx="${cx}" cy="${cy}" r="${R}"/>
       <g class="pf-radar-grid">${radarGridHTML(g)}</g>
@@ -148,15 +148,15 @@ function shapeHTML(s, ranks, k, xy, sel, cx, cy){
      route data has not covered yet. The vertices still plot, because they are real, and the
      count says why the rest is missing. Rashee Rice in week 2 is the case: WOPR and RZ Tgts
      measured, the four route-derived stats not. */
-  const poly = idx.length >= 3 ? `<polygon class="pf-radar-shape" points="${pts}"/>` : "";
+  const poly = idx.length >= 3 ? `<polygon class="pf-radar-shape" data-testid="profile-radar-shape" points="${pts}"/>` : "";
   const note = idx.length >= 3 ? ""
-    : `<text class="pf-radar-note" x="${cx}" y="${cy + 46}" text-anchor="middle">${t("profile.sheet.partial", {n: idx.length, of: s.axes.length})}</text>`;
+    : `<text class="pf-radar-note" data-testid="profile-radar-note" x="${cx}" y="${cy + 46}" text-anchor="middle">${t("profile.sheet.partial", {n: idx.length, of: s.axes.length})}</text>`;
   /* Each vertex carries its own stat id, so picking a label lights the point it belongs to.
      Without it the highlight moved on the label and the shape never answered. */
   const dots = idx.map(i => {
     const [x, y] = xy(i, k(i));
     const cls = (s.axes[i].id === sel ? " on" : "") + (sheetElite(s, s.axes[i], ranks[i]) ? " elite" : "");
-    return `<circle class="pf-radar-dot${cls}" data-col="${esc(s.axes[i].id)}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5"/>`;
+    return `<circle class="pf-radar-dot${cls}" data-testid="profile-radar-dot" data-col="${esc(s.axes[i].id)}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5"/>`;
   }).join("");
   /* Two rings at the selected vertex, both moved by wireSheet on a pick. `mark` is the resting
      state -- a target on the point being read, which is where the number it describes actually
@@ -207,7 +207,7 @@ function eliteBarsHTML(s, ang, xy, sel, cx, cy, R, n){
     // data-el: elite by sheetElite (the fluke filter), so a vertex that crosses the arc on a raw
     // rank the filter does not back never lights it (radarmotion.js radarGrow).
     const el = sheetElite(s, a, sheetRank(s.pos, a.id, s.row.slug)) ? ` data-el="1"` : "";
-    return `<path class="pf-radar-bar${on}" data-col="${esc(a.id)}" data-r="${r.toFixed(1)}"${el} fill="none" d="M ${pt(a0)} A ${r.toFixed(1)} ${r.toFixed(1)} 0 0 1 ${pt(a1)}"/>`
+    return `<path class="pf-radar-bar${on}" data-testid="profile-radar-bar" data-col="${esc(a.id)}" data-r="${r.toFixed(1)}"${el} fill="none" d="M ${pt(a0)} A ${r.toFixed(1)} ${r.toFixed(1)} 0 0 1 ${pt(a1)}"/>`
       + `<text class="pf-radar-bartag${on}" data-col="${esc(a.id)}" x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="middle" dominant-baseline="middle">${t("profile.sheet.eliteTag")}</text>`;
   }).join("");
 }
@@ -230,7 +230,7 @@ function axisLabelsHTML(s, ranks, k, sel, ang, xy, at, R, tag = "button"){
     const [x, y] = xy(i, 1 + (side === "n" || side === "s" ? 8 : 10) / R);   // units clear of the rim
     const rk = ranks[i] ? rankMark(ranks[i]) : "—";
     const cls = (a.id === sel ? " on" : "") + (!ranks[i] || k(i) < .5 ? " low" : "") + (sheetElite(s, a, ranks[i]) ? " elite" : "");
-    return `<${tag}${kind} class="pf-radar-l at-${side}${cls}" style="${at(x, y)};--i:${i}" data-col="${esc(a.id)}"
-      ><b class="pf-radar-v">${rk}</b><span class="pf-radar-n">${esc(axisName(a))}</span></${tag}>`;
+    return `<${tag}${kind} class="pf-radar-l at-${side}${cls}" data-testid="profile-radar-label" style="${at(x, y)};--i:${i}" data-col="${esc(a.id)}"
+      ><b class="pf-radar-v" data-testid="profile-radar-value">${rk}</b><span class="pf-radar-n">${esc(axisName(a))}</span></${tag}>`;
   }).join("");
 }

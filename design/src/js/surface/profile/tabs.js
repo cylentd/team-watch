@@ -36,12 +36,12 @@ function pfReceiver(prof){ return prof.pos === "WR" || prof.pos === "TE"; }
    and the market's number). A desktop reads them side by side, each about 370px wide instead of
    bars 1,000px long; a phone stacks them in the same order. */
 function matchupPaneHTML(prof){
-  const card = h => h.trim() ? `<div class="pf-col">${h}</div>` : "";
+  const card = h => h.trim() ? `<div class="pf-col" data-testid="profile-col">${h}</div>` : "";
   const rec = pfReceiver(prof);
   const cards = card(opponentHTML(prof))
     + card(rec ? zoneReadHTML(prof) + coverageHTML(prof) : "")
     + card(lineHTML(prof) + marketHTML(prof));
-  return headlineHTML(prof) + (cards ? `<div class="pf-cols">${cards}</div>` : "");
+  return headlineHTML(prof) + (cards ? `<div class="pf-cols" data-testid="profile-cols">${cards}</div>` : "");
 }
 
 // The pane's class names the tab, so each pane lays itself out (panel.css) without a wrapper.
@@ -53,7 +53,7 @@ function pfPanes(prof, p){
 }
 
 function pfNoneHTML(){
-  return `<div class="state-empty pf-empty"><div><b>—</b><span>${t("profile.empty.none")}</span></div></div>`;
+  return `<div class="state-empty pf-empty" data-testid="profile-empty"><div><b>—</b><span>${t("profile.empty.none")}</span></div></div>`;
 }
 
 function tabsHTML(prof, p){
@@ -66,11 +66,11 @@ function tabsHTML(prof, p){
   const on = panes[0].id;
   // One pane draws no tab bar: a switch with one position is a label pretending to be a control.
   const bar = panes.length < 2 ? "" :
-    `<div class="modes-sub pf-tabs" role="tablist" aria-label="${t("profile.tab.label")}">
-      ${panes.map(x => `<button class="mode-sub" type="button" role="tab" data-pftab="${esc(x.id)}"
+    `<div class="modes-sub pf-tabs" data-testid="profile-tabs" role="tablist" aria-label="${t("profile.tab.label")}">
+      ${panes.map(x => `<button class="mode-sub" type="button" role="tab" data-testid="profile-tab" data-pftab="${esc(x.id)}"
         aria-selected="${x.id === on}">${x.label}</button>`).join("")}
     </div>`;
-  return none + bar + `<div class="${pfPaneClass(on)}" role="tabpanel">${panes[0].html}</div>`;
+  return none + bar + `<div class="${pfPaneClass(on)}" data-testid="profile-pane" role="tabpanel">${panes[0].html}</div>`;
 }
 
 /* Arrow keys move along the row and open as they go, which is what role="tablist" promises. */

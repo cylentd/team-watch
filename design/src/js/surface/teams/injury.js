@@ -10,7 +10,7 @@ function injWarnHTML(team){
   const text = one ? t("teams.inj.pillOne", {name: esc(nameInitial(one.n)), status: INJ_WORD[injFor(one).s]().toLowerCase()})
     : t("teams.inj.pillMany", {n: sits.length});
   const tip = sits.map(p => { const r = injFor(p); return `${nameInitial(p.n)}: ${INJ_WORD[r.s]()}${r.note ? ` · ${r.note}` : ""}`; }).join(" / ");
-  return `<span class="inj-warn" role="status" title="${esc(tip)}">${text}</span>`;
+  return `<span class="inj-warn" data-testid="roster-inj-warn" role="status" title="${esc(tip)}">${text}</span>`;
 }
 
 /* The "This week" row's count: "N things to check", or "N to check" beside the sit pill, which takes the

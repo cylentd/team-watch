@@ -19,14 +19,14 @@ function dgNeedRank(slug){
    right of a 550px panel, and the tag stood in a column of its own). */
 function dgNeedLine(r, tag, what){
   const rank = dgNeedRank(r.slug);
-  return `<button type="button" class="dg-nd" data-dgslug="${esc(r.slug)}">
+  return `<button type="button" class="dg-nd" data-testid="digest-need-line" data-dgslug="${esc(r.slug)}">
     <span class="dg-hd">${avatarHTML(r)}</span>
-    <span class="dg-nd-t"><b>${esc(dgShort(r.n))}</b><span>${tag}<span class="dg-nd-w">${what}${rank ? ` · <i>${rank}</i>` : ""}</span></span></span></button>`;
+    <span class="dg-nd-t"><b>${esc(dgShort(r.n))}</b><span data-testid="digest-need-what">${tag}<span class="dg-nd-w">${what}${rank ? ` · <i>${rank}</i>` : ""}</span></span></span></button>`;
 }
 
 /* A new starter: "New QB1" and over whom (the tag already says QB1); a moved player, "New team". */
 function dgNeedStart(r){
-  const tag = `<span class="dg-nw-tag ${r.over ? "up" : "mv"}">${r.over ? t("digest.nw.newStarter", {pos: esc(r.pos)}) : t("digest.nw.newTeam")}</span>`;
+  const tag = `<span class="dg-nw-tag ${r.over ? "up" : "mv"}" data-testid="digest-need-tag">${r.over ? t("digest.nw.newStarter", {pos: esc(r.pos)}) : t("digest.nw.newTeam")}</span>`;
   const o = r.over, v = o && {name: esc(dgShort(o.n)), status: esc(o.status || "")};
   const over = !o ? "" : o.status ? t("digest.need.overStatus", v) : t("digest.need.over", v);
   // A move with no one displaced keeps Starters' own words, which name his spot on the new chart.
@@ -51,15 +51,15 @@ function dgNeedHTML(d){
   const lines = [...d.starters.map(dgNeedStart), ...sit.map(dgNeedHurt)];
   const shown = DG_NEED_ALL ? lines : lines.slice(0, DG_NEED_FIRST);
   const more = lines.length > shown.length
-    ? `<button type="button" class="dg-nd-more" data-dgneedall>${t("digest.need.more", {n: lines.length - shown.length})}</button>` : "";
+    ? `<button type="button" class="dg-nd-more" data-testid="digest-need-more" data-dgneedall>${t("digest.need.more", {n: lines.length - shown.length})}</button>` : "";
   // Questionable: a chip each, his face and name, so the list is as tappable as the lines above it
   // and wraps to fill the panel's width (2026-09-30, David: "fill the box better").
-  const also = q.length ? `<div class="dg-q"><span class="dg-st q">${t("digest.tag.q")}</span>${q.map(r =>
-    `<button type="button" class="dg-q-p" data-dgslug="${esc(r.slug)}"><span class="dg-hd">${avatarHTML(r)}</span>${esc(dgShort(r.n))}</button>`).join("")}</div>` : "";
+  const also = q.length ? `<div class="dg-q" data-testid="digest-need-q"><span class="dg-st q">${t("digest.tag.q")}</span>${q.map(r =>
+    `<button type="button" class="dg-q-p" data-testid="digest-need-qp" data-dgslug="${esc(r.slug)}"><span class="dg-hd">${avatarHTML(r)}</span>${esc(dgShort(r.n))}</button>`).join("")}</div>` : "";
   const list = shown.length ? `<div class="dg-nd-list">${shown.join("")}${more}</div>` : "";
   const body = lines.length || q.length ? list + also
-    : `<p class="dg-nd-none">${dgWaiting(d) ? t("digest.line.hurtNext", {week: dgRowWeek(d)}) + "." : t("digest.need.none")}</p>`;
-  return `<section class="dg-need" aria-labelledby="dg-need-h">
-    <h3 class="dg-sec" id="dg-need-h">${t("digest.need.title")}</h3>${body}
+    : `<p class="dg-nd-none" data-testid="digest-need-none">${dgWaiting(d) ? t("digest.line.hurtNext", {week: dgRowWeek(d)}) + "." : t("digest.need.none")}</p>`;
+  return `<section class="dg-need" data-testid="digest-need" aria-labelledby="dg-need-h">
+    <h3 class="dg-sec" data-testid="digest-sec" id="dg-need-h">${t("digest.need.title")}</h3>${body}
     ${dgFootHTML(t("digest.foot.need"), "news", t("digest.go.news"))}</section>`;
 }

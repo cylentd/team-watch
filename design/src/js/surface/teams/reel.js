@@ -73,7 +73,7 @@ function reelUnfold(){ REEL.unfold = true; render(); }
    starter will likely sit (`pill`, injury.js), and the way to open it. */
 function reelFoldHTML(team, open, pill = ""){
   return `<section class="brief done" aria-label="${t("teams.brief.title")}" data-bteam="${team.key}">
-    <div class="brief-h"><h2>${t("teams.brief.title")}</h2>${pill}<small>${briefCount(open, pill)}</small>
+    <div class="brief-h" data-testid="roster-brief-head"><h2>${t("teams.brief.title")}</h2>${pill}<small>${briefCount(open, pill)}</small>
     <button type="button" class="brief-act" data-briefunfold>${t("teams.brief.show")}</button></div></section>`;
 }
 

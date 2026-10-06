@@ -10,5 +10,5 @@
 function pfRailHTML(p){
   const slots = archSlotsHTML(p), orb = orbBadgeHTML(p);
   if (!slots.length && !orb) return "";
-  return `<div class="pf-rail">${slots.join("")}${orb}${cmpButtonHTML(true)}</div>`;
+  return `<div class="pf-rail" data-testid="profile-rail">${slots.join("")}${orb}${cmpButtonHTML(true)}</div>`;
 }

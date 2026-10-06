@@ -18,14 +18,14 @@ function betsSettingLabel(build){
 function betsBarHTML(build){
   const set = `<button type="button" class="chip bets-set" data-betspanel aria-expanded="${BETS_PANEL}"
     aria-label="${t("parlay.bar.settings")}">${betsSettingLabel(build)}<span class="bets-caret" aria-hidden="true"></span></button>`;
-  if (build) return `<div class="filters bets-bar">
+  if (build) return `<div class="filters bets-bar" data-testid="parlay-bar">
     <button class="chip bets-best" data-mbest aria-pressed="${MKT_BEST}">${t("parlay.bar.best")}</button>
     ${["QB","RB","WR","TE"].map(p=>`<button class="chip" data-mpos="${p}" aria-pressed="${MKT_POS===p}">${p}</button>`).join("")}
     ${set}</div>`;
   const on = slWin();
-  return `<div class="bets-bar bets-tabsrow">
-    <div class="bd-tabs view-tabs" role="tablist" aria-label="${t("parlay.filter.kickoff")}">${KICK_CHIPS.map(w =>
-      `<button type="button" class="bd-tab" role="tab" data-gwin="${esc(w.k)}" aria-selected="${on === w}"
+  return `<div class="bets-bar bets-tabsrow" data-testid="parlay-bar">
+    <div class="bd-tabs view-tabs" role="tablist" data-testid="parlay-kick-tabs" aria-label="${t("parlay.filter.kickoff")}">${KICK_CHIPS.map(w =>
+      `<button type="button" class="bd-tab" role="tab" data-testid="parlay-kick-tab" data-gwin="${esc(w.k)}" aria-selected="${on === w}"
         aria-label="${esc(galGroupName(w))}">${esc(kickChipLabel(w))}</button>`).join("")}</div>
     ${set}</div>`;
 }
@@ -56,7 +56,7 @@ function kickName(w){
 function betsPanelHTML(build){
   if (!BETS_PANEL) return "";
   const sel = (k, label, opts, cur) => `<label class="selwrap"><span class="lbl">${label}</span>
-    <select class="msel" data-msel="${k}">${opts.map(([v, l]) => `<option value="${v}" ${cur===v?"selected":""}>${l}</option>`).join("")}</select></label>`;
+    <select class="msel" data-testid="parlay-select" data-msel="${k}">${opts.map(([v, l]) => `<option value="${v}" ${cur===v?"selected":""}>${l}</option>`).join("")}</select></label>`;
   const sorts = PARLAY_BOOK === "underdog"
     // Anytime TD on Underdog is a model read at P(score) on every row, so one sort, named for
     // what it is, instead of three that visibly do nothing.

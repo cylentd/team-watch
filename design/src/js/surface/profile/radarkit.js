@@ -16,7 +16,7 @@ function radarGeom(n){
    the label and the vertex already say that, while six of them crossed the translucent shape and
    turned the fill muddy. */
 function radarGridHTML(g){
-  const ring = (r, cls, i) => `<circle class="pf-radar-ring${cls}" style="--i:${i}" cx="${g.cx}" cy="${g.cy}" r="${(g.R * r).toFixed(1)}"/>`;
+  const ring = (r, cls, i) => `<circle class="pf-radar-ring${cls}" data-testid="profile-radar-ring" style="--i:${i}" cx="${g.cx}" cy="${g.cy}" r="${(g.R * r).toFixed(1)}"/>`;
   const ticks = Array.from({length: g.n}, (_, i) => {
     const [x0, y0] = g.xy(i, .93), [x1, y1] = g.xy(i, 1);
     return `<line class="pf-radar-axis" style="--i:${i}" x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}"/>`;

@@ -106,11 +106,11 @@ function stFieldHTML(plays, g, id, label, dir){
 }
 
 /* The flat overlay: everything that must stay screen-upright, in one 2D layer over the tilted field. */
-const stActorsHTML = () => '<div class="stactors"><svg class="starcs" aria-hidden="true"></svg>'
-  + `<div class="stactor stpost postA">${ST_POST}</div><div class="stactor stpost postB">${ST_POST}</div>`
-  + `<div class="stactor stmiss"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7"/></svg>${t("strip.tag.incomplete")}</div>`
-  + '<div class="stactor stfig qb"></div><div class="stactor stfig tk"></div><div class="stactor stfig tk2"></div>'
-  + '<div class="stactor stfig carrier"></div>'
+const stActorsHTML = () => '<div class="stactors" data-testid="strip-actors"><svg class="starcs" aria-hidden="true"></svg>'
+  + `<div class="stactor stpost postA" data-testid="strip-post">${ST_POST}</div><div class="stactor stpost postB" data-testid="strip-post">${ST_POST}</div>`
+  + `<div class="stactor stmiss" data-testid="strip-miss"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7"/></svg>${t("strip.tag.incomplete")}</div>`
+  + '<div class="stactor stfig qb" data-testid="strip-passer"></div><div class="stactor stfig tk" data-testid="strip-tackler"></div><div class="stactor stfig tk2" data-testid="strip-tackler2"></div>'
+  + '<div class="stactor stfig carrier" data-testid="strip-carrier"></div>'
   + `<div class="stactor stfly">${ST_BALL}</div></div>`;
 
 /* The whole stage for one drive. `dir` sends the play the right way; the field itself never flips. */
@@ -118,8 +118,8 @@ function stStageHTML(drive, id, home, away){
   const g = stGeom(drive.dir), toward = drive.dir > 0 ? "B" : "A";
   const ez = (side, abbr) => `<div class="stez${side === toward ? " tgt" : ""}">${esc(abbr || "")}${stPostAnchors(side)}</div>`;
   return `<div class="stplane" style="--ez:${ST_FIELD.EZ}%;--base:${ST_FIELD.BASE}px">`
-    + ez("A", home) + `<div class="stturf"><span class="strz ${drive.dir > 0 ? "r" : "l"}"></span>${stYards()}`
-    + '<span class="stltg"><i>1st</i></span><span class="stahead"></span>'
+    + ez("A", home) + `<div class="stturf" data-testid="strip-turf"><span class="strz ${drive.dir > 0 ? "r" : "l"}"></span>${stYards()}`
+    + '<span class="stltg"><i>1st</i></span><span class="stahead" data-testid="strip-chevrons"></span>'
     + stFieldHTML(drive.plays, g, id, drive.label || "", drive.dir)
     + "</div>" + ez("B", away) + "</div>" + stActorsHTML();
 }

@@ -35,3 +35,41 @@ def test_without_a_projection_the_stock_row_stands_in(stock):
 
 def test_a_row_the_books_did_not_price_has_no_books_number(stock):
     assert stock("stockPts", row(no_market=True), {"slug": "jsn"}) == {"model": 16.7, "books": None}
+
+
+# stockFor: a player's LIVE_MARKET_STOCK row, keyed by the page's slug (scripts/mutate.py found no
+# test calling it, 2026-10-06). Rows are keyed as build.py's load_market_stock() writes them.
+MH = {"src": "market", "pts": 14.2}
+MARKET = {"players": {"marvin-harrison": MH}}
+
+
+@pytest.fixture(scope="module")
+def market(node_js):
+    return node_js("surface/parlay/gamelog.js", "data/stock.js", globals={"LIVE_MARKET_STOCK": MARKET})
+
+
+@pytest.mark.req("Live data in, live signals on top", ac="a profile reads its player's market stock row")
+def test_a_player_is_found_by_his_slug(market):
+    assert market("stockFor", {"slug": "marvin-harrison"}) == MH
+
+
+@pytest.mark.req("Live data in, live signals on top", ac="a profile reads its player's market stock row")
+def test_a_player_with_only_a_name_is_found_by_its_slug_without_the_suffix(market):
+    """"Marvin Harrison Jr." -> lower case, punctuation gone, "jr" dropped -> marvin-harrison."""
+    assert market("stockFor", {"n": "Marvin Harrison Jr."}) == MH
+
+
+@pytest.mark.req("Live data in, live signals on top", ac="a profile reads its player's market stock row")
+def test_a_player_the_market_has_no_row_for_gets_null(market):
+    assert market("stockFor", {"slug": "nobody-at-all"}) is None
+
+
+@pytest.mark.req("Live data in, live signals on top", ac="a profile reads its player's market stock row")
+def test_no_player_gets_null(market):
+    assert market("stockFor", None) is None
+
+
+@pytest.mark.req("Live data in, live signals on top", ac="a page built without the stock block draws no row")
+def test_a_page_without_the_stock_block_gets_null(node_js):
+    bare = node_js("surface/parlay/gamelog.js", "data/stock.js")
+    assert bare("stockFor", {"slug": "marvin-harrison"}) is None

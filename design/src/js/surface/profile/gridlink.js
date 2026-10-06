@@ -9,7 +9,7 @@ function pfGridLinkHTML(p){
   const rows = typeof USAGE !== "undefined" && USAGE ? USAGE.rows : null;
   const week = typeof USAGE_WEEK !== "undefined" ? USAGE_WEEK : null;
   if (!rows || !navRowPlan("usage", slug, rows, {week})) return "";
-  return `<div class="pf-gl"><button type="button" class="pf-grid" data-pfgrid="${esc(slug)}">${t("profile.grid.open")}${OWN_GO}</button></div>`;
+  return `<div class="pf-gl"><button type="button" class="pf-grid" data-testid="profile-grid-link" data-pfgrid="${esc(slug)}">${t("profile.grid.open")}${OWN_GO}</button></div>`;
 }
 
 function pfOpenGridRow(slug){

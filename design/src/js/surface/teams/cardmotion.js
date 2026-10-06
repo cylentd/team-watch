@@ -52,9 +52,9 @@ function rosterModeSave(m){
 const RERIP_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>`;
 function reripHTML(team){
   const chip = packChip(team);
-  if (chip === "again") return `<button class="rm-again" type="button" data-rerip>${RERIP_ICON}${t("teams.pack.again")}</button>`;
+  if (chip === "again") return `<button class="rm-again" type="button" data-testid="roster-rerip" data-rerip>${RERIP_ICON}${t("teams.pack.again")}</button>`;
   if (!chip) return "";
-  return `<button class="rm-again rm-open${chip === "wait" ? " wait" : ""}" type="button" data-pkopen><i class="rm-pk" aria-hidden="true"></i>${t("teams.pack.openWeek", {wk: schedWeek()})}</button>`;
+  return `<button class="rm-again rm-open${chip === "wait" ? " wait" : ""}" type="button" data-testid="roster-open-week" data-pkopen><i class="rm-pk" aria-hidden="true"></i>${t("teams.pack.openWeek", {wk: schedWeek()})}</button>`;
 }
 /* Two icon buttons at the hero's right end (2026-10-05): a list is the Sheet, a grid the Cards. */
 const RMODE_ICON = {
@@ -62,7 +62,7 @@ const RMODE_ICON = {
   cards: `<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.3"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1.3"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1.3"/><rect x="9" y="9" width="5.5" height="5.5" rx="1.3"/></svg>`,
 };
 function rosterModeHTML(){
-  const btn = (m, name) => `<button type="button" class="chip" data-rmode="${m}" aria-pressed="${ROSTER_MODE === m}" aria-label="${name}" title="${name}">${RMODE_ICON[m]}</button>`;
+  const btn = (m, name) => `<button type="button" class="chip" data-testid="roster-mode" data-rmode="${m}" aria-pressed="${ROSTER_MODE === m}" aria-label="${name}" title="${name}">${RMODE_ICON[m]}</button>`;
   return `<div class="rmode" role="group" aria-label="${t("teams.mode.label")}">${btn("sheet", t("teams.mode.sheet"))}${btn("cards", t("teams.mode.cards"))}</div>`;
 }
 function wireRosterMode(v, team){

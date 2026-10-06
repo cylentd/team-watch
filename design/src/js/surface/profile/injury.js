@@ -12,6 +12,6 @@ function pfInjuryHTML(p){
   if (!r) return "";
   // IR, PUP and suspension say more than "out", so Sleeper's own code leads when it is not plain Out.
   const word = r.s === "OUT" && r.code && !/^out$/i.test(r.code) ? esc(r.code).toUpperCase() : INJ_WORD[r.s]();
-  return `<div class="pf-inj ${PF_INJ_CLS[r.s]}">
-    <span class="pf-inj-s">${word}</span>${r.note ? `<span class="pf-inj-n">${esc(r.note)}</span>` : ""}</div>`;
+  return `<div class="pf-inj ${PF_INJ_CLS[r.s]}" data-testid="profile-inj">
+    <span class="pf-inj-s" data-testid="profile-inj-word">${word}</span>${r.note ? `<span class="pf-inj-n" data-testid="profile-inj-note">${esc(r.note)}</span>` : ""}</div>`;
 }

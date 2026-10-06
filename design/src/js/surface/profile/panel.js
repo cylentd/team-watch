@@ -24,13 +24,13 @@ function openProfile(p, originEl){
   // The rail (rail.js): his words, his sphere and Compare as one row; none for a deep-bench player.
   const rail = pfRailHTML(p);
   d.innerHTML = `
-    <div class="dr-head pf-head">
-      <button type="button" class="dr-close" aria-label="${t("common.action.close")}">✕</button>
+    <div class="dr-head pf-head" data-testid="profile-head">
+      <button type="button" class="dr-close" data-testid="profile-close" aria-label="${t("common.action.close")}">✕</button>
       <div class="dr-id${rail ? " has-rail" : ""}">
         ${headHTML(p)}
-        <div class="pf-who">
-          <h3 id="pf-title">${esc(p.n)}</h3>
-          <div class="lbl">${identityHTML(p, prof)}</div>
+        <div class="pf-who" data-testid="profile-who">
+          <h3 id="pf-title" data-testid="profile-title">${esc(p.n)}</h3>
+          <div class="lbl" data-testid="profile-identity">${identityHTML(p, prof)}</div>
           ${pfInjuryHTML(p)}
           ${rail ? "" : cmpButtonHTML(false)}
         </div>
@@ -39,7 +39,7 @@ function openProfile(p, originEl){
       </div>
       ${p.note ? `<div class="dr-note">${esc(p.note)}</div>` : ""}
     </div>
-    <div class="dr-body pf-body pos-${esc(String(prof ? prof.pos : p.pos || "").toLowerCase())}">
+    <div class="dr-body pf-body pos-${esc(String(prof ? prof.pos : p.pos || "").toLowerCase())}" data-testid="profile-body">
       ${ledeHTML(p, prof)}
       ${pfGridLinkHTML(p)}
       ${ownersHTML(p)}

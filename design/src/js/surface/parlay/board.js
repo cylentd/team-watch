@@ -21,7 +21,7 @@ function slSparkHTML(last, up){
   const top = Math.max(...last, 1);
   return `<span class="sl-spark">${last.map((v, k) => {
     const now = k === last.length - 1;
-    return `<span class="${now && up ? "up" : ""}"><i style="--h:${Math.max(2, v / top * SL_BAR_PX).toFixed(0)}px"></i><em>${v}</em></span>`;
+    return `<span class="${now && up ? "up" : ""}"><i data-testid="parlay-spark-bar" style="--h:${Math.max(2, v / top * SL_BAR_PX).toFixed(0)}px"></i><em>${v}</em></span>`;
   }).join("")}</span>`;
 }
 
@@ -54,12 +54,12 @@ function slPickHTML(x){
 
 function slRowHTML(x, on){
   const p = x.p, n = x.rows.length;
-  return `<li><button type="button" class="sl-row" data-slplayer="${esc(x.slug)}" aria-haspopup="dialog">
+  return `<li><button type="button" class="sl-row" data-testid="parlay-row" data-slplayer="${esc(x.slug)}" aria-haspopup="dialog">
       <span class="sl-l">
-        <span class="sl-who"><b>${esc(nameInitial(p.n))}</b><span class="sl-pos">${esc(p.pos)} · ${esc(p.team)}</span>${on ? `<span class="sl-on">${t("slips.onSlip")}</span>` : ""}</span>
+        <span class="sl-who"><b data-testid="parlay-row-name">${esc(nameInitial(p.n))}</b><span class="sl-pos">${esc(p.pos)} · ${esc(p.team)}</span>${on ? `<span class="sl-on" data-testid="parlay-row-on">${t("slips.onSlip")}</span>` : ""}</span>
         ${slUseHTML(x)}${slFlagsHTML(x)}
       </span>
-      <span class="sl-r">${slPickHTML(x)}<span class="sl-go">${n === 1 ? t("slips.lines.one") : t("slips.lines.many", {n})}${SL_CHEV}</span></span>
+      <span class="sl-r">${slPickHTML(x)}<span class="sl-go" data-testid="parlay-row-go">${n === 1 ? t("slips.lines.one") : t("slips.lines.many", {n})}${SL_CHEV}</span></span>
     </button></li>`;
 }
 
@@ -74,12 +74,12 @@ function slLineBoxHTML(teams, ln){
 function slGameHTML(g, on){
   const teams = slTeams(g.game), pv = teams.length === 2 ? slPreviewGame(teams) : null, k = pv && pv.take;
   const chip = slChip(g), shown = slChipPlayers(g, chip);
-  const chips = SL_CHIPS.map(c => `<button type="button" class="chip" data-slchip="${c}" data-slgame="${esc(g.game)}" aria-pressed="${chip === c}">${slChipLabel(c, g.players.length)}</button>`).join("");
+  const chips = SL_CHIPS.map(c => `<button type="button" class="chip" data-testid="parlay-chip" data-slchip="${c}" data-slgame="${esc(g.game)}" aria-pressed="${chip === c}">${slChipLabel(c, g.players.length)}</button>`).join("");
   const rows = shown.length ? shown.map(x => slRowHTML(x, on.has(x.slug))).join("")
-    : `<li class="sl-none">${chip === "rise" ? t("slips.chip.noneRise") : t("slips.chip.none")}</li>`;
-  return `<section class="sl-game" data-slgamecard="${esc(g.game)}">
+    : `<li class="sl-none" data-testid="parlay-none">${chip === "rise" ? t("slips.chip.noneRise") : t("slips.chip.none")}</li>`;
+  return `<section class="sl-game" data-testid="parlay-game" data-slgamecard="${esc(g.game)}">
       <header class="sl-gh">
-        <div class="sl-gt"><h3>${esc(g.game)}</h3><span>${esc(g.kick || "")}</span></div>
+        <div class="sl-gt"><h3 data-testid="parlay-game-title">${esc(g.game)}</h3><span>${esc(g.kick || "")}</span></div>
         ${teams.length === 2 ? slLineBoxHTML(teams, slGameLine(teams, pv)) : ""}
         ${k ? `<button type="button" class="sl-take" data-slprev="${pvGames().indexOf(pv)}">${esc(k.head)}<span aria-hidden="true">›</span></button>` : ""}
         <div class="sl-chips" role="group" aria-label="${t("slips.chip.label")}">${chips}</div>
@@ -91,7 +91,7 @@ function slGameHTML(g, on){
 function slBoardHTML(){
   const games = slGames(slWin()), on = onSlipSlugs();
   if (!games.length) return `<div class="state-empty sl-empty"><div><b>0</b><span>${t("slips.empty")}</span></div></div>`;
-  return `<div class="sl-board">${games.map(g => slGameHTML(g, on)).join("")}</div>`;
+  return `<div class="sl-board" data-testid="parlay-board">${games.map(g => slGameHTML(g, on)).join("")}</div>`;
 }
 
 /* A game's headline opens its Preview dossier, the way a Recap game does (recap.js wrGo). */

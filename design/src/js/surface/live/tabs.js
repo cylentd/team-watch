@@ -34,7 +34,7 @@ const gdLiveLabel = n => (n === 1 ? t("live.tab.liveNow1") : t("live.tab.liveNow
    row (2026-10-05, data/tabrow.js, declared below), and hides this one (.view-tabs, chrome/phonenav.css). */
 function gdTabsHTML(){
   const on = gdTab(), live = gdLiveCount();
-  const btn = k => `<button type="button" data-gdtab="${k}" aria-pressed="${k === on}">${gdTabName(k)}${k === "games" && live
+  const btn = k => `<button type="button" data-testid="live-tab" data-gdtab="${k}" aria-pressed="${k === on}">${gdTabName(k)}${k === "games" && live
     ? `<em class="gd-n" aria-label="${gdLiveLabel(live)}">${live}</em>` : ""}</button>`;
   return `<div class="gd-tabs view-tabs" role="group" aria-label="${t("live.tab.label")}">${GD_TABS.map(btn).join("")}</div>`;
 }

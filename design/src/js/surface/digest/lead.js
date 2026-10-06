@@ -189,17 +189,17 @@ function dgLeadHTML(){
   /* The ghost is the reason he leads (his rank, the wind), set huge and faint behind the photo on
      a wide screen; aria-hidden, since the fact line already says it. The stamp above the head says
      which week and how old the packet is, so a stale page reads as stale (2026-09-28). */
-  const stamp = d && d.asof_words ? `<p class="dg-lead-when">${t("digest.lead.when", {week: d.week, when: esc(d.asof_words)})}</p>` : "";
+  const stamp = d && d.asof_words ? `<p class="dg-lead-when" data-testid="digest-lead-when">${t("digest.lead.when", {week: d.week, when: esc(d.asof_words)})}</p>` : "";
   /* A lead about one player opens his profile from anywhere on the band (2026-09-29, David: "should
      we be able to click on players to open their profile?"). A button laid over the band, not the
      band made a button, so the headline stays a heading. */
   const who = L.live ? dgLvAttrs(L.live) : `data-dgslug="${esc(L.slug)}"`;   // a live scorer opens through now.js's one listener
-  const go = L.slug ? `<button type="button" class="dg-lead-go" ${who}
+  const go = L.slug ? `<button type="button" class="dg-lead-go" data-testid="digest-lead-go" ${who}
     aria-label="${esc(t("digest.lead.open", {n: L.name || ""}))}"></button>` : "";
   return `<article class="dg-lead ${L.tone}${L.photo ? " has-photo" : ""}${go ? " opens" : ""}"${L.team ? " " + teamColourStyle(L.team) : ""}>
-    ${go}${L.ghost ? `<span class="dg-ghost" aria-hidden="true">${dgGhostChars(L.ghost)}</span>` : ""}
-    <div class="dg-lead-txt">${stamp}<h2 class="dg-lead-h${L.long ? " long" : ""}">${L.head}</h2>
-      <div class="dg-lead-fact">${L.fact}</div></div>
+    ${go}${L.ghost ? `<span class="dg-ghost" data-testid="digest-ghost" aria-hidden="true">${dgGhostChars(L.ghost)}</span>` : ""}
+    <div class="dg-lead-txt">${stamp}<h2 class="dg-lead-h${L.long ? " long" : ""}" data-testid="digest-lead-head">${L.head}</h2>
+      <div class="dg-lead-fact" data-testid="digest-lead-fact">${L.fact}</div></div>
     ${L.photo}
   </article>`;
 }

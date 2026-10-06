@@ -13,4 +13,4 @@ const DG_ICON_PATH = {
   news: '<path d="M4 5h13v14H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v8a2 2 0 0 1-4 0M7 9h7M7 13h7M7 16h4"/>',
 };
 const dgIcon = id => DG_ICON_PATH[id]
-  ? `<svg class="dg-lico" viewBox="0 0 24 24" aria-hidden="true">${DG_ICON_PATH[id]}</svg>` : "";
+  ? `<svg class="dg-lico" data-testid="digest-icon" viewBox="0 0 24 24" aria-hidden="true">${DG_ICON_PATH[id]}</svg>` : "";

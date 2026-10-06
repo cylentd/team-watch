@@ -11,7 +11,7 @@
    no source is left out, not dashed; the row is gone when none survives. */
 function ledeCellHTML(value, label, id, range){
   const rng = range ? `<small class="pf-lede-r" title="${t("range.tip", {floor: range.floor.toFixed(1), ceil: range.ceil.toFixed(1)})}">${range.text}</small>` : "";
-  return `<div class="pf-lede-c${id === "proj" ? " proj" : ""}"><b>${value}</b><span class="pf-lede-l">${label}</span>${rng}</div>`;
+  return `<div class="pf-lede-c${id === "proj" ? " proj" : ""}" data-testid="profile-lede-cell"><b data-testid="profile-lede-value">${value}</b><span class="pf-lede-l" data-testid="profile-lede-label">${label}</span>${rng}</div>`;
 }
 
 function poolRow(slug){
@@ -42,9 +42,9 @@ function ledeHTML(p, prof){
   });
   const html = cells.map(c => ledeCellHTML(esc(c.value), c.label, c.id, c.range ? range : null)).join("");
   // The band is said in words once, under the strip, and only when a cell draws one (plan U5).
-  const note = cells.some(c => c.range) ? `<p class="pf-lede-note">${t("range.note")}</p>` : "";
+  const note = cells.some(c => c.range) ? `<p class="pf-lede-note" data-testid="profile-lede-note">${t("range.note")}</p>` : "";
   // A back the books left unpriced beside a priced teammate (rbrules.js, METHODOLOGY 12.87): the tag and what it means.
   const noLine = rbNoLine(rbProjRow(p.slug));
-  const why = noLine ? `<p class="pf-lede-note">${rbNoLineHTML(rbProjRow(p.slug), "pf-noline")}${noLine.tip}</p>` : "";
-  return html ? `<div class="pf-lede">${html}</div>${note}${why}` : "";
+  const why = noLine ? `<p class="pf-lede-note" data-testid="profile-lede-note">${rbNoLineHTML(rbProjRow(p.slug), "pf-noline")}${noLine.tip}</p>` : "";
+  return html ? `<div class="pf-lede" data-testid="profile-lede">${html}</div>${note}${why}` : "";
 }

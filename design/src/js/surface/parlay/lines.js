@@ -29,11 +29,11 @@ function buildRowHTML(p){
   const i = PROPS.indexOf(p), s = legSide(p), moved = lineMoved(p, PARLAY_BOOK);
   const best = moved ? null : bestOdds(p, PARLAY_BOOK);
   const td = s.line == null;
-  const ev = `<button type="button" class="more bl-ev" data-legsheet="${i}" aria-haspopup="dialog" aria-label="${t("parlay.more.sheet")}">
-      <span class="bl-ln"><b>${td ? t("parlay.call.td") : s.line}</b><small>${td ? t("parlay.call.anytime") : MKT_SHORT[p.mkt]}</small>${best ? `<em>${esc(best)}</em>` : ""}</span>
+  const ev = `<button type="button" class="more bl-ev" data-testid="parlay-line-ev" data-legsheet="${i}" aria-haspopup="dialog" aria-label="${t("parlay.more.sheet")}">
+      <span class="bl-ln"><b>${td ? t("parlay.call.td") : s.line}</b><small>${td ? t("parlay.call.anytime") : MKT_SHORT[p.mkt]}</small>${best ? `<em data-testid="parlay-line-why">${esc(best)}</em>` : ""}</span>
       ${buildGamesHTML(p, s, moved)}</button>`;
-  if (moved) return `<div class="bline moved">${ev}
-    <button type="button" class="more bl-call" data-legsheet="${i}" title="${t("parlay.tag.staleTitle")}">${t("parlay.call.moved")}</button></div>`;
+  if (moved) return `<div class="bline moved" data-testid="parlay-line">${ev}
+    <button type="button" class="more bl-call" data-testid="parlay-line-call" data-legsheet="${i}" title="${t("parlay.tag.staleTitle")}">${t("parlay.call.moved")}</button></div>`;
   const inSlip = SLIP.includes(i), lower = s.pick === "lower";
   const word = td ? t("parlay.call.scores") : PARLAY_BOOK === "dk" ? t("parlay.call.over") : lower ? t("parlay.call.lowerWord") : t("parlay.call.higherWord");
   // Longest reception is never priced (2026-10-03), so it is not "pending" either: no number.
@@ -42,8 +42,8 @@ function buildRowHTML(p){
   // The model's tier word under the chance (2026-10-05): the one vocabulary Slips uses, only where the
   // model's side is the side this row calls.
   const m = td ? null : slModel(p), tier = m && PT_RANK[m.tier] && m.side === (lower ? "lower" : "higher") ? m.tier : "";
-  return `<div class="bline" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">${ev}
-    <span class="bl-call ${lower ? "lower" : "higher"}">${word}<b>${pct}${price}</b>${tier ? `<span class="bl-tier ${tier}">${slTierWord(tier)}</span>` : ""}</span></div>`;
+  return `<div class="bline" data-testid="parlay-line" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">${ev}
+    <span class="bl-call ${lower ? "lower" : "higher"}" data-testid="parlay-line-call">${word}<b>${pct}${price}</b>${tier ? `<span class="bl-tier ${tier}">${slTierWord(tier)}</span>` : ""}</span></div>`;
 }
 
 /* The cornerback he draws this week, when ff-jarvis rates it an upgrade or a downgrade. */
@@ -55,7 +55,7 @@ function cbTagHTML(c){
 function buildPlayerHTML(rows){
   const p = rows[0], cb = (rows.find(r => r.cb) || {}).cb;
   const tag = whyNotSlip({...p, stale: 0, norole: 0}, null) + roleNoteTagHTML(p) + cbTagHTML(cb);
-  return `<div class="bplayer ${p.mine ? "mine" : ""} ${p.flag === "out" ? "isout" : ""}">
+  return `<div class="bplayer ${p.mine ? "mine" : ""} ${p.flag === "out" ? "isout" : ""}" data-testid="parlay-bplayer">
     <div class="bp-who">${avatarHTML(p)}<span class="bp-name">${esc(nameInitial(p.n))}</span><span class="bp-meta">${esc(p.pos)} · ${esc(p.game)}</span>${tag}</div>
     ${rows.map(buildRowHTML).join("")}
   </div>`;

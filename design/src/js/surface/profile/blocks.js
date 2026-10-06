@@ -20,14 +20,14 @@ function weatherHTML(prof){
   if (typeof LIVE_WEATHER === "undefined" || !LIVE_WEATHER || !nx) return "";
   const w = LIVE_WEATHER.teams[nx.home ? prof.team : nx.opp];
   if (!w) return "";
-  if (w.roof === "dome") return `<div class="pf-wx pf-weather"><span class="pf-wx-c">${wxIcon("dome")}<em>${t("profile.weather.dome")}</em></span></div>`;
+  if (w.roof === "dome") return `<div class="pf-wx pf-weather" data-testid="profile-weather"><span class="pf-wx-c">${wxIcon("dome")}<em>${t("profile.weather.dome")}</em></span></div>`;
   if (w.temp_f === null || w.temp_f === undefined) return "";
   const cells = [
     [wxIcon(wxKind(w.short)), t("profile.weather.temp", {n: w.temp_f}), esc(w.short || "")],
     [wxIcon("wind"), esc(w.wind || "—"), w.wind_dir ? t("profile.weather.windFrom", {dir: esc(w.wind_dir)}) : t("profile.weather.wind")],
   ];
   const roof = w.roof === "retractable" ? `<span class="pf-wx-c pf-wx-note">${wxIcon("dome")}<em>${t("profile.weather.retractable")}</em></span>` : "";
-  return `<div class="pf-wx pf-weather">${cells.map(([i, v, l]) => `<span class="pf-wx-c">${i}<b>${v}</b><em>${l}</em></span>`).join("")}${roof}</div>`;
+  return `<div class="pf-wx pf-weather" data-testid="profile-weather">${cells.map(([i, v, l]) => `<span class="pf-wx-c">${i}<b>${v}</b><em>${l}</em></span>`).join("")}${roof}</div>`;
 }
 
 /* The team's red-zone touches of one kind as a bar: his first, then each named teammate, the
@@ -38,9 +38,9 @@ function rzSplitHTML(mine, team, others, field, name){
   const rest = others.filter(o => (o[field] || 0) > 0).sort((a, b) => b[field] - a[field]);
   const named = rest.reduce((s, o) => s + o[field], 0);
   const unnamed = Math.max(0, team - mine - named);
-  const seg = (n, cls, title) => n > 0 ? `<i${cls ? ` class="${cls}"` : ""} style="--w:${(100 * n / team).toFixed(1)}%" title="${title}"></i>` : "";
+  const seg = (n, cls, title) => n > 0 ? `<i data-testid="profile-split-seg"${cls ? ` class="${cls}"` : ""} style="--w:${(100 * n / team).toFixed(1)}%" title="${title}"></i>` : "";
   const bar = seg(mine, "me", `${esc(name)} ${mine}`) + rest.map(o => seg(o[field], "", `${esc(o.n)} ${o[field]}`)).join("");
   const key = [`<b>${shortName(name)} ${mine}</b>`]
     .concat(rest.map(o => `<span>${shortName(o.n)} ${o[field]}</span>`), unnamed ? [`<span>${t("profile.rz.others", {n: unnamed})}</span>`] : []);
-  return `<div class="pf-split"><span class="pf-split-bar">${bar}</span><div class="pf-split-key">${key.join("")}</div></div>`;
+  return `<div class="pf-split" data-testid="profile-split"><span class="pf-split-bar" data-testid="profile-split-bar">${bar}</span><div class="pf-split-key" data-testid="profile-split-key">${key.join("")}</div></div>`;
 }

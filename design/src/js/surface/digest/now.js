@@ -105,18 +105,18 @@ const dgTdCount = () => dgLeaders().reduce((n, r) => n + DG_TD_KEYS.reduce((m, k
 
 function dgNowRow(r){
   const slug = slugOf(r.n), line = gdLine({pos: r.pos}, r.s), clock = gdClockOf(r.team).label;
-  return `<li><button type="button" class="dg-now-r" ${dgLvAttrs({...r, slug})}>
+  return `<li><button type="button" class="dg-now-r" data-testid="digest-now-row" ${dgLvAttrs({...r, slug})}>
     <span class="dg-hd">${avatarHTML({n: r.n, slug})}</span>
     <span class="dg-now-t"><b>${esc(dgShort(r.n))}</b>
       <span class="dg-now-m"><span class="dg-now-pos">${esc(r.pos)}</span> ${esc(r.team)}${clock ? ` · ${esc(clock)}` : ""}</span>
       ${line ? `<span class="dg-now-s">${esc(line)}</span>` : ""}</span>
-    <i class="dg-now-p">${dgN1(r.pts)}</i></button></li>`;
+    <i class="dg-now-p" data-testid="digest-now-pts">${dgN1(r.pts)}</i></button></li>`;
 }
 
 /* One who left the game hurt, in --down: the same row, "Hurt" where the points go. */
 function dgHurtRow(h){
   const line = [h.pos, h.team, gdClockOf(h.team).label].filter(Boolean).map(esc).join(" · ");
-  return `<li><button type="button" class="dg-now-r hurt" ${dgLvAttrs({n: h.n, pos: h.pos, team: h.team, slug: h.slug})}>
+  return `<li><button type="button" class="dg-now-r hurt" data-testid="digest-now-row" ${dgLvAttrs({n: h.n, pos: h.pos, team: h.team, slug: h.slug})}>
     <span class="dg-hd">${avatarHTML({n: h.n, slug: h.slug})}</span>
     <span class="dg-now-t"><b>${esc(dgShort(h.n))}</b><span class="dg-now-m">${line}</span></span>
     <i class="dg-now-p">${t("digest.hurt.row")}</i></button></li>`;
@@ -137,11 +137,11 @@ function dgNowHTML(){
   const n = dgTdCount(), hurt = gdPlaying(Date.now()) ? gdHurtNow().slice(0, DG_HURT_ROWS) : [], out = new Set(hurt.map(h => h.slug));
   const top = dgLeaders().filter(r => !out.has(slugOf(r.n))).slice(0, DG_NOW_TOP);
   const rows = [...hurt.map(dgHurtRow), ...top.map(dgNowRow)], more = rows.length > DG_NOW_SHOW;
-  return `<section class="dg-facts dg-now" data-dgnow aria-labelledby="dg-now-h">
-    <h3 class="dg-sec" id="dg-now-h">${t("digest.live.title")}</h3>
+  return `<section class="dg-facts dg-now" data-testid="digest-now" data-dgnow aria-labelledby="dg-now-h">
+    <h3 class="dg-sec" data-testid="digest-sec" id="dg-now-h">${t("digest.live.title")}</h3>
     <ol class="dg-now-l">${(more && !DG_NOW_MORE ? rows.slice(0, DG_NOW_SHOW) : rows).join("")}</ol>
-    <div class="dg-now-f">${more ? `<button type="button" class="dg-go dg-now-more" data-dgmore aria-expanded="${DG_NOW_MORE}">${DG_NOW_MORE ? t("digest.now.less") : t("digest.now.more")}</button>` : ""}
-    ${n ? `<button type="button" class="dg-go dg-now-td" data-dgtds>${n === 1 ? t("digest.live.td1") : t("digest.live.tds", {n})}${DG_ARROW}</button>` : ""}</div></section>`;
+    <div class="dg-now-f">${more ? `<button type="button" class="dg-go dg-now-more" data-testid="digest-now-more" data-dgmore aria-expanded="${DG_NOW_MORE}">${DG_NOW_MORE ? t("digest.now.less") : t("digest.now.more")}</button>` : ""}
+    ${n ? `<button type="button" class="dg-go dg-now-td" data-testid="digest-now-td" data-dgtds>${n === 1 ? t("digest.live.td1") : t("digest.live.tds", {n})}${DG_ARROW}</button>` : ""}</div></section>`;
 }
 
 /* Need to know is empty once games are on and nobody unplayed is hurt or new: it is not drawn. */

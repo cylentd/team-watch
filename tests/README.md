@@ -24,8 +24,10 @@ fenced to other views, and the saving is the kept context.
 
 Moving down: a rule a Node test can prove is not asserted again in a browser test; the browser
 test only proves the screen draws it. `tests/test_layer_ratchet.py` counts the full page loads
-per test file; the count only goes down, and a new file's allowance is 0. A test marked `journey`
-is not counted: it needs the full page.
+per test file, loaders in `tests/pages/` included; the count only goes down, and a new file's
+allowance is 0. A test marked `journey` is not counted: it needs the full page. A module fixture
+that opens one shared page for journey tests is counted once; list it with a note
+(`test_profile_journeys.py`, 2026-10-06).
 
 ## New logic, test first
 
@@ -126,22 +128,25 @@ Agents copy the patterns they see, bad ones included. Copy these.
 | python | `test_ranks.py::test_running_backs_are_ordered_and_ranked_by_the_books_number` | Exact lists; each `assert` message says the rule; `req` marker names the behaviour |
 | node | `test_js_range.py` | `node_js` loader lists its files; one behaviour a test; missing-data cases beside the happy path |
 | component | `test_ranks.py::test_the_back_list_follows_the_books_and_says_why_once_and_flex_does_not` | `mount` + `RanksPage`, no selector in the file, exact values, `errors == []` last |
-| browser journey | `test_left_hurt.py`: fixtures `shared_pages`, `shared`; test `test_with_several_hurt_the_best_projection_leads` | `SharedPages` per viewport, errors asserted at teardown, exact order. Copy the fixtures, not its inline selectors |
+| browser journey | `test_profile_journeys.py::test_the_sphere_opens_the_sheet_over_the_profile` | `journey`-marked, a page shared per viewport, every read through `ProfilePage`, Back checked |
 | error path | `test_weather.py::test_no_backtest_file_means_no_cards_and_no_error` | A missing input still builds and draws the fallback rows; page errors asserted empty |
 
 ## Do not copy
 
-| File | Signal (`evaluate`, selector, click, locator calls) | Tracked by |
-|---|---|---|
-| `test_profile.py` | 1,374 lines, 416 calls | `BACKLOG` 6, `FULL_LOADS` 5 |
-| `test_digest.py` | 1,003 lines, 196 calls | `BACKLOG` 16, `FULL_LOADS` 28 |
-| `test_roster_cards.py` | 170 calls | `FULL_LOADS` 20 |
-| `test_parlay_grid.py` | 155 calls | `FULL_LOADS` 20 |
-| `test_live_tdclips.py` | 99 calls; logic run through `page.evaluate` | `BACKLOG` 13, `FULL_LOADS` 18 |
-| `test_strip.py` | 83 calls, a full load in nearly every test | `FULL_LOADS` 24 |
+The files with the most full page loads left (2026-10-06). They hold inline selectors and load the
+page per test; `BACKLOG` and `FULL_LOADS` are in `test_layer_ratchet.py` and only shrink.
 
-These hold inline selectors at scale, pure `data/` logic asserted in a browser, and a page
-load per test. `BACKLOG` and `FULL_LOADS` are in `test_layer_ratchet.py` and only shrink.
+| File | Tracked by |
+|---|---|
+| `test_clip_reel.py` | `FULL_LOADS` 20, `BACKLOG` 1 |
+| `test_trade_edit.py` | `FULL_LOADS` 20 |
+| `test_trade_offers.py` | `FULL_LOADS` 17 |
+| `test_pack_stage.py` | `FULL_LOADS` 16, `BACKLOG` 1 |
+| `test_recap_view.py` | `FULL_LOADS` 12, `BACKLOG` 2 |
+| `test_teams_board.py` | `FULL_LOADS` 12 |
+
+Migrated, copy these instead: Ranks, profile, Digest, roster cards, Bets, the strip, Live TD clips
+(their page objects are in `tests/pages/`).
 
 ## Building blocks
 
@@ -153,11 +158,11 @@ load per test. `BACKLOG` and `FULL_LOADS` are in `test_layer_ratchet.py` and onl
 | `browser` | `conftest.py` | The worker's one Chromium; never launch your own |
 | `keep`, `SharedPages` | `conftest.py` | `keep` hands a context to the module; `SharedPages` opens a page once per key and remembers a failed open |
 | `mount` | `component.py` | One surface on a kept context: `page, errors = mount("ranks")` |
-| `RanksPage` | `pages/ranks.py` | The only place Ranks locators live; the model for a new page object |
+| Page objects | `pages/`: `ranks`, `profile` + `profile_head` + `profile_sheet`, `digest` + `digest_live`, `roster` + `roster_pack` + `roster_motion`, `parlay` + `parlay_build`, `strip`, `live` | The only place each view's locators live; `RanksPage` is the smallest model for a new one |
 | `open_at`, `open_page` | `test_render.py` | A full page at a size and hash: `(ctx, page, errors)` |
 | `watch_errors`, `LOAD_MS` | `test_render.py` | Collect page errors; the 30 s page-load timeout |
 | `open_view` | `startsit_page.py` | A touch page already on Start/Sit |
-| `VCLOCK` | `test_roster_cards.py` | A virtual clock so motion tests wait on a condition, not a duration |
+| `VCLOCK` | `pages/roster_pack.py` | A virtual clock so motion tests wait on a condition, not a duration |
 | `jsunit` | `jsunit.py` | The Node host behind `node_js`; read its docstring for the file-order rules |
 | `req`, `quarantine`, `journey`, `area`, `render` | markers, above | Trace, flake quarantine, full-page journey, impact area, Chromium |
 

@@ -165,7 +165,7 @@ const BRIEF_ICON = {
 
 function briefHTML(team){
   const all = briefLines(team).map(l => ({...l, id: briefId(l)})), pill = injWarnHTML(team);   // the red sit pill goes in the heading row
-  const head = (small, act) => `<div class="brief-h"><h2>${t("teams.brief.title")}</h2>${pill}<small>${small}</small>${act}</div>`;
+  const head = (small, act) => `<div class="brief-h" data-testid="roster-brief-head"><h2>${t("teams.brief.title")}</h2>${pill}<small>${small}</small>${act}</div>`;
   if (!all.length) return `<section class="brief" aria-label="${t("teams.brief.title")}">
     ${head("", "")}<p class="brief-quiet">${t("teams.brief.quiet")}</p></section>`;
   const checked = briefChecked(team), open = all.filter(l => !checked.has(l.id));

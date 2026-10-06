@@ -12,6 +12,6 @@ function sheetTagsHTML(p){
   if (!sig.verdict) return "";
   // The reason is a sentence (data/signals.js signalWords), not watch's shorthand ("snaps -5.0, share +19").
   const why = signalWords(sig.verdict, sig.why);
-  return `<div class="pf-tags"><span class="tag verdict">${esc(sig.verdict)}</span>`
-    + (why ? `<span class="pf-why">${esc(why)}</span>` : "") + `</div>`;
+  return `<div class="pf-tags" data-testid="profile-tags"><span class="tag verdict" data-testid="profile-verdict">${esc(sig.verdict)}</span>`
+    + (why ? `<span class="pf-why" data-testid="profile-why">${esc(why)}</span>` : "") + `</div>`;
 }

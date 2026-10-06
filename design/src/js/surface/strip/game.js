@@ -110,7 +110,7 @@ function openStrip(game, name, originEl){
   const title = `${esc(game.away)} ${t("strip.title.at")} ${esc(game.home)}`;
   d.innerHTML = `<div class="dr-head">
       <button type="button" class="dr-close" aria-label="${t("common.action.close")}">✕</button>
-      <h3 id="st-title">${title}</h3>
+      <h3 id="st-title" data-testid="strip-title">${title}</h3>
       <div class="lbl">${esc(name || "")}${name ? " · " : ""}${t("strip.title.week", {n: game.week})}</div>
     </div><div class="dr-body stbody"></div>`;
   showModal(d, originEl, "st-title");

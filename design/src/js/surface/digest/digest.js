@@ -6,7 +6,7 @@
    The packet is ff-jarvis's (data/weekly_digest.json); the page computes nothing. */
 
 const DG_CHEV = `<svg class="dg-chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 6l4.5 4.5L12.5 6"/></svg>`;
-const DG_ARROW = `<svg class="dg-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5L12 8l-3.5 3.5"/></svg>`;
+const DG_ARROW = `<svg class="dg-arrow" data-testid="digest-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5L12 8l-3.5 3.5"/></svg>`;
 const DG_WIND = `<svg class="dg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/></svg>`;
 const DG_RAIN = `<svg class="dg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 15a4 4 0 0 1 .5-8 5.5 5.5 0 0 1 10.3 1.5A3.5 3.5 0 0 1 17.5 15H7zM9 18l-1 3M13 18l-1 3M17 18l-1 3"/></svg>`;
 
@@ -76,11 +76,11 @@ function dgRowHTML(id, d, open){
     : id === "wx" ? t("digest.line.wxCalm")
     : id === "mu" && d ? dgMuNone(dgRowWeek(d)) : t("digest.line.nothing");
   const on = has && open === id;
-  return `<div class="dg-row${has ? "" : " empty"}" data-dgrow="${id}"${on ? " data-open data-today" : ""}>
-    <button type="button" class="dg-head" aria-expanded="${on}"${has ? ` aria-controls="dg-b-${id}"` : " disabled"}>
-      <span class="dg-l">${dgIcon(id)}${dgLabel(id)}</span><span class="dg-n ${n === "" ? "none" : tone}">${n}</span>
-      <span class="dg-s">${line}</span>${has ? DG_CHEV : ""}</button>
-    ${has ? `<div class="dg-body" id="dg-b-${id}"${on ? "" : " inert"}><div class="dg-in"><div class="dg-pad">${DG_BODY[id](d)}</div></div></div>` : ""}
+  return `<div class="dg-row${has ? "" : " empty"}" data-testid="digest-row" data-dgrow="${id}"${on ? " data-open data-today" : ""}>
+    <button type="button" class="dg-head" data-testid="digest-row-head" aria-expanded="${on}"${has ? ` aria-controls="dg-b-${id}"` : " disabled"}>
+      <span class="dg-l" data-testid="digest-row-label">${dgIcon(id)}${dgLabel(id)}</span><span class="dg-n ${n === "" ? "none" : tone}" data-testid="digest-row-count">${n}</span>
+      <span class="dg-s" data-testid="digest-row-line">${line}</span>${has ? DG_CHEV : ""}</button>
+    ${has ? `<div class="dg-body" data-testid="digest-row-body" id="dg-b-${id}"${on ? "" : " inert"}><div class="dg-in"><div class="dg-pad">${DG_BODY[id](d)}</div></div></div>` : ""}
   </div>`;
 }
 
@@ -104,9 +104,9 @@ function digestHTML(){
   const lead = dgLeadHTML();
   DG_LAST = {lead, now, mnf};
   DG_DRAWN = dgPhaseKey();
-  const ticker = d ? `<section class="dg-ticker${cls ? " " + cls : ""}" aria-label="${t("digest.ticker.label")}">${dgTonightHTML(d, mnf)}${needOff ? "" : dgNeedHTML(d)}${now}${body.join("")}</section>`
+  const ticker = d ? `<section class="dg-ticker${cls ? " " + cls : ""}" data-testid="digest-ticker" aria-label="${t("digest.ticker.label")}">${dgTonightHTML(d, mnf)}${needOff ? "" : dgNeedHTML(d)}${now}${body.join("")}</section>`
     : `<p class="dg-none">${t("digest.empty.ticker")}</p>`;
-  return `<div class="dg">${lead}${ticker}</div>`;
+  return `<div class="dg" data-testid="digest-root">${lead}${ticker}</div>`;
 }
 
 function dgSetOpen(row, open){

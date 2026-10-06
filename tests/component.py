@@ -5,6 +5,7 @@
     def test_x(mount):
         page, errors = mount("ranks")                                # Ranks at 360x740, the suite's seed
         page, errors = mount("ranks", size=(390, 844), init=(NO_TEAM,))
+        page, errors = mount("roster", heads=True)                   # the fixture's headshot files beside the page
 
 A full-page browser test opens a new context and loads the whole fixture page into it (`open_at`).
 `mount` loads a page assembled for one view, on a context its module keeps per (surface, size,
@@ -30,7 +31,9 @@ What the page holds, and why the cut is honest:
   so dropping it changes nothing the view can show. Fences are applied as the build applies them.
 - **Data: a real build's.** The injected section of the session's build of tests/fixtures (the
   `built` fixture, shared with every full-page test on the worker), never re-derived.
-- **No headshots** are copied beside the page, so a face draws its initials.
+- **No headshots** are copied beside the page, so a face draws its initials, unless a test asks with
+  `heads=True`: the build's headshot files go in a folder of their own (once per worker) and the page
+  loads from there.
 
 Where the time goes: most of the saving is the kept context (no context to create, the compiled
 script reused); the cut CSS is the rest, less to match on every style pass. The trade-off: a link to another view does land there (all JS is present), but that
@@ -58,7 +61,10 @@ sys.path.insert(0, str(ROOT / "design"))
 import assemble  # noqa: E402
 import scope_css  # noqa: E402
 
-SURFACES = {"ranks": "ranks"}      # a mountable surface -> the leaf (hash and #view[data-view]) it draws
+# a mountable surface -> the leaf (hash and #view[data-view]) it draws. An overlay (the profile, a
+# game's strip) has no leaf of its own: its tests mount the view that opens it.
+SURFACES = {"ranks": "ranks", "digest": "digest", "roster": "roster", "parlay": "parlay", "build": "build",
+            "live": "live"}
 DRAWN = "document.getElementById('view').children.length > 0"
 
 
@@ -95,11 +101,15 @@ class Mounter:
     def __init__(self, browser, folder, fragment):
         self.browser, self.folder, self.data, self.pages = browser, pathlib.Path(folder), injected(fragment), SharedPages()
 
-    def url(self, surface):
-        key = (surface, str(self.folder))
+    def url(self, surface, heads=False):
+        key = (surface, str(self.folder), heads)
         if key not in _FILES:
-            self.folder.mkdir(parents=True, exist_ok=True)
-            p = self.folder / f"{surface}.html"
+            folder = self.folder / "heads" if heads else self.folder     # the headshots beside the page, as served
+            folder.mkdir(parents=True, exist_ok=True)
+            if heads:
+                import build
+                build.write_heads(folder)
+            p = folder / f"{surface}.html"
             p.write_text(component_html(surface, self.data), encoding="utf-8")
             _FILES[key] = p.as_uri() + "#" + SURFACES[surface]
         return _FILES[key]
@@ -116,9 +126,9 @@ class Mounter:
             page.add_init_script(script)
         return ctx, page, errors
 
-    def __call__(self, surface, size=(360, 740), init=(), touch=False):
-        url = self.url(surface)
-        _, page, errors = self.pages.get((surface, tuple(size), tuple(init), touch),
+    def __call__(self, surface, size=(360, 740), init=(), touch=False, heads=False):
+        url = self.url(surface, heads)
+        _, page, errors = self.pages.get((surface, tuple(size), tuple(init), touch, heads),
                                          lambda: self._open(size, init, touch))
         if page.url.startswith("file:"):
             page.evaluate("() => { try { localStorage.clear(); sessionStorage.clear(); } catch (e) {} }")

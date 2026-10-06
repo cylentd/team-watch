@@ -202,10 +202,10 @@ function bioBlockHTML(p){
      (2026-09-29, David: "on desktop we stretch out info"). */
   const wide = (nfl ? [[t("profile.fact.nfl"), nfl, ""]] : []).concat(leagueFactRows(b.fantasy_draft || {}));
   if (!half.length && !wide.length) return ath;
-  const cell = (k, v) => `<div><dt>${k}</dt><dd>${v}</dd></div>`;
-  const draft = (k, v, tag) => `<div><dt${tag ? ` data-league="${esc(tag)}"` : ""}>${k}</dt><dd>${v}</dd></div>`;
+  const cell = (k, v) => `<div><dt data-testid="profile-fact-label">${k}</dt><dd data-testid="profile-fact-value">${v}</dd></div>`;
+  const draft = (k, v, tag) => `<div><dt data-testid="profile-fact-label"${tag ? ` data-league="${esc(tag)}"` : ""}>${k}</dt><dd data-testid="profile-fact-value">${v}</dd></div>`;
   const meas = half.length ? `<dl class="pf-meas">${half.map(([k, v]) => cell(k, v)).join("")}</dl>` : "";
   const drafts = wide.length ? secHTML(t("profile.fact.drafted"),
-    `<dl class="pf-facts">${wide.map(([k, v, tag]) => draft(k, v, tag)).join("")}</dl>`, "", "pf-sec-drafts") : "";
+    `<dl class="pf-facts" data-testid="profile-facts">${wide.map(([k, v, tag]) => draft(k, v, tag)).join("")}</dl>`, "", "pf-sec-drafts") : "";
   return meas + drafts + ath;
 }

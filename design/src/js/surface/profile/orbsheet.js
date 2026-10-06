@@ -96,8 +96,9 @@ function orbOpen(d, p, btn){
   const s = sheetFor(p);
   const layer = document.createElement("div");
   layer.className = "pf-orblayer";
-  layer.innerHTML = `<div class="pf-orbscrim"></div>
-    <div class="pf-orbsheet" role="dialog" aria-modal="true" aria-labelledby="pf-orb-t">
+  layer.setAttribute("data-testid", "profile-orblayer");
+  layer.innerHTML = `<div class="pf-orbscrim" data-testid="profile-orbscrim"></div>
+    <div class="pf-orbsheet" data-testid="profile-orbsheet" role="dialog" aria-modal="true" aria-labelledby="pf-orb-t">
       <div class="pf-orbsheet-h"><div><h4 id="pf-orb-t">${esc(p.n)}</h4>
         <span class="lbl">${t("profile.orb.sub", {pos: esc(s.pos)})}</span></div>
         <button type="button" class="dr-close pf-orb-x" aria-label="${t("profile.orb.close")}">✕</button></div>

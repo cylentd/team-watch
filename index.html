@@ -11227,7 +11227,7 @@ function rowHTML(p, i, teamKey){
   const ring = nc ? `<span class="clipn" aria-hidden="true">${nc}</span>` : "";
   const rd = 40+i*24;
   const use = rowUsage(p);
-  return `<div class="row ${cls}" style="animation-delay:${rd}ms;--rowdelay:${rd}ms" data-team="${teamKey}" data-i="${i}" role="button" tabindex="0">
+  return `<div class="row ${cls}" data-testid="roster-row" style="animation-delay:${rd}ms;--rowdelay:${rd}ms" data-team="${teamKey}" data-i="${i}" role="button" tabindex="0">
     ${p.start ? `<span class="slot">${esc(slotLabel(p.slot))}</span>` : ""}
     <div class="head"${clipRingHTML(p)}>${headHTML(p)}${badge}${ring}</div>
     <div class="nm">
@@ -11314,7 +11314,7 @@ function cardRank(p){
    .cool the finished gold; the pack writes it left to right (cardsign.js). */
 function cardAutoHTML(p, won){
   const tip = t("teams.card.signedTip", {rank: won.rank, pos: esc(p.pos), wk: LIVE_SIGNED.wk, pts: won.pts}), n = esc(p.n);
-  return `<div class="tc-auto" title="${tip}"><span class="sgw"><span class="sg cool">${n}</span><span class="sg hot">${n}</span><i class="tip"></i></span></div>`;
+  return `<div class="tc-auto" data-testid="roster-card-auto" title="${tip}"><span class="sgw" data-testid="roster-card-auto-wrap"><span class="sg cool" data-testid="roster-card-auto-cool">${n}</span><span class="sg hot" data-testid="roster-card-auto-hot">${n}</span><i class="tip" data-testid="roster-card-auto-tip"></i></span></div>`;
 }
 /* A card's photo is the 256px head where ff-jarvis cut one (HEADS_LG, the draft board's players),
    since a card shows it at 2-3x the 96px file's size and blurs it. Anyone else keeps the 96px
@@ -11344,9 +11344,9 @@ function cardLast(n){
   const parts = String(n || "").trim().replace(/\s+(Jr\.?|Sr\.?|II|III|IV)$/i, "").split(/\s+/);
   return parts.length < 2 ? parts[0] : parts.slice(1).join(" ");
 }
-const cardBanner = name => `<div class="tc-ban" style="--bf:var(${name.length <= 8 ? "--t-2" : "--t-1"})"><span>${esc(name)}</span></div>`;
+const cardBanner = name => `<div class="tc-ban" data-testid="roster-card-ban" style="--bf:var(${name.length <= 8 ? "--t-2" : "--t-1"})"><span data-testid="roster-card-name">${esc(name)}</span></div>`;
 /* The round badge on the banner's edge: position over rank, its ring the metal (cards.css). */
-const cardBadge = (pos, rank, tip = "") => `<span class="tc-badge"${tip ? ` title="${tip}"` : ""}><b>${esc(pos)}</b>${rank ? `<i>${rank}</i>` : ""}</span>`;
+const cardBadge = (pos, rank, tip = "") => `<span class="tc-badge" data-testid="roster-card-badge"${tip ? ` title="${tip}"` : ""}><b data-testid="roster-card-badge-pos">${esc(pos)}</b>${rank ? `<i data-testid="roster-card-badge-rank">${rank}</i>` : ""}</span>`;
 
 /* The front, 2026-10-05 ("3G"): the photo full bleed on the club's colour inside the card stock; the
    projection chip top right; the last name on a club-colour banner across the foot; the badge
@@ -11357,27 +11357,27 @@ function cardFront(p, tier, g, rank){
   const pts = projFor(p);
   const inj = injFor(p), sits = inj && (inj.s === "OUT" || inj.s === "D");
   const flag = !inj || inj.s === "OUT" ? ""
-    : `<span class="tc-chip ${inj.s === "Q" ? "q" : "d"}" title="${injLabel(inj)}">${inj.s === "Q" ? t("teams.inj.q") : t("teams.card.doubtful")}</span>`;
+    : `<span class="tc-chip ${inj.s === "Q" ? "q" : "d"}" data-testid="roster-card-chip" title="${injLabel(inj)}">${inj.s === "Q" ? t("teams.inj.q") : t("teams.card.doubtful")}</span>`;
   // Signed only when he earned it: top 3 at his position in the last completed week (LIVE_SIGNED),
   // on any tier. The tier is what he is expected to do; the autograph is what he did.
   const won = cardSigned(p);
   const auto = !sits && won ? cardAutoHTML(p, won) : "";
   // The #1's photo is tinted holo, over the photo and under everything printed on it.
-  const holo = tier === "holo" ? `<i class="tc-holo"></i>` : "";
+  const holo = tier === "holo" ? `<i class="tc-holo" data-testid="roster-card-holo"></i>` : "";
   // Weather that touches him: moving over the art, and its chip, with what ff-jarvis already took
   // off his projection for it ("−0.5") when it took any.
   const w = inj && inj.s === "OUT" ? null : cardWeather(g), wx = cardWeatherNote(w, p.pos);
   const adj = wx ? cardWxAdj(p) : "";
   const adjHTML = adj ? `<span class="wx-adj" title="${t("teams.card.wxAdjTip", {n: adj})}">${t("teams.card.wxAdj", {n: adj})}</span>` : "";
-  const chip = wx ? `<span class="tc-chip wx" title="${t("teams.card.wxTip", wx)}"><span class="wx-long">${wx.what}</span><span class="wx-short">${wx.kind}</span>${adjHTML}</span>` : "";
+  const chip = wx ? `<span class="tc-chip wx" data-testid="roster-card-chip" title="${t("teams.card.wxTip", wx)}"><span class="wx-long">${wx.what}</span><span class="wx-short">${wx.kind}</span>${adjHTML}</span>` : "";
   const tip = rank ? t("teams.card.rank", {n: rank, pos: esc(p.pos)}) : "";
   // OUT on either source (the projection row or the injury report) reads OUT in red, never a number.
   const out = projOut(p) || (inj && inj.s === "OUT");
   const num = out ? t("teams.card.out") : pts !== null ? pts.toFixed(1) : projDone(p) ? projDoneWord(projDone(p)) : "—";
-  return `<div class="tc-face tc-front">
-      <div class="tc-art pos-${esc(p.pos)}">${wx ? cardWeatherFx(w, p.pos) : ""}<div class="head">${cardHeadHTML(p)}</div>${holo}</div>
-      ${flag || chip ? `<div class="tc-flags">${chip}${flag}</div>` : ""}${auto}
-      <span class="tc-num${out ? " out" : ""}">${num}</span>
+  return `<div class="tc-face tc-front" data-testid="roster-card-front">
+      <div class="tc-art pos-${esc(p.pos)}" data-testid="roster-card-art">${wx ? cardWeatherFx(w, p.pos) : ""}<div class="head" data-testid="roster-card-head">${cardHeadHTML(p)}</div>${holo}</div>
+      ${flag || chip ? `<div class="tc-flags" data-testid="roster-card-flags">${chip}${flag}</div>` : ""}${auto}
+      <span class="tc-num${out ? " out" : ""}" data-testid="roster-card-num">${num}</span>
       ${cardBanner(cardLast(p.n))}${cardBadge(p.pos, rank, tip)}
     </div>`;
 }
@@ -11395,14 +11395,14 @@ function cardStats(p){
   const cols = WV_PROOF[p.pos].map(want => wvCol(p.pos, want)).filter(Boolean);
   if (!row || !cols.length) return null;
   const val = (r, id) => r && r.v[id] !== undefined ? r.v[id] : null;
-  const html = `<div class="bk-stats">${cols.map(c => {
+  const html = `<div class="bk-stats" data-testid="roster-back-stats">${cols.map(c => {
     const now = val(row, c.id);
     const pct = row.p && typeof row.p[c.id] === "number" ? row.p[c.id] : null;
     const band = pct === null ? "" : pct >= 67 ? "hi" : pct >= 34 ? "mid" : "lo";
     const tip = pct === null ? esc(c.label) : t("teams.card.pctTip", {stat: esc(c.label), p: pct, pos: esc(p.pos)});
-    return `<div class="bk-stat ${band}" title="${tip}">
+    return `<div class="bk-stat ${band}" data-testid="roster-back-stat" title="${tip}">
         <span class="bk-l">${esc(c.label)}</span><b>${usageFmt(now, c.fmt)}${wvTrendHTML(now, before ? val(before, c.id) : null)}</b>
-        <span class="bk-bar"><i style="--p:${pct === null ? 0 : pct / 100}"></i></span></div>`;
+        <span class="bk-bar" data-testid="roster-back-bar"><i style="--p:${pct === null ? 0 : pct / 100}"></i></span></div>`;
   }).join("")}</div>`;
   return {html, wk: row.wk};
 }
@@ -11416,11 +11416,11 @@ function cardBack(p, rank, teamKey, i, g){
   const sub = inj ? `<span class="bk-inj ${inj.s.toLowerCase()}" title="${injLabel(inj)}">${injLabel(inj)}</span>`
     : wx ? `<span class="bk-wx" title="${t("teams.card.wxTip", wx)}">${t("teams.card.wxNote", wx)}${cardWxAdj(p) ? ` · ${t("teams.card.wxAdjBack", {n: cardWxAdj(p)})}` : ""}</span>`
     : `<span>${stats ? t("teams.card.roleWeek", {wk: stats.wk}) : t("teams.card.thisWeek")}</span>`;
-  const signed = won ? `<div class="bk-signed">${t("teams.card.signedBack", {wk: LIVE_SIGNED.wk, rank: won.rank, pos: esc(p.pos), pts: won.pts})}</div>` : "";
-  return `<div class="tc-face tc-back pos-${esc(p.pos)}${won ? " signed" : ""}">
-      <div class="bk-why"><b>${rank ? t("teams.card.rank", {n: rank, pos: esc(p.pos)}) : esc(p.pos)}<small>${esc(cardMatchup(p.team, g))}</small></b>${sub}</div>${signed}
+  const signed = won ? `<div class="bk-signed" data-testid="roster-back-signed">${t("teams.card.signedBack", {wk: LIVE_SIGNED.wk, rank: won.rank, pos: esc(p.pos), pts: won.pts})}</div>` : "";
+  return `<div class="tc-face tc-back pos-${esc(p.pos)}${won ? " signed" : ""}" data-testid="roster-card-back">
+      <div class="bk-why" data-testid="roster-back-why"><b data-testid="roster-back-rank">${rank ? t("teams.card.rank", {n: rank, pos: esc(p.pos)}) : esc(p.pos)}<small>${esc(cardMatchup(p.team, g))}</small></b>${sub}</div>${signed}
       ${stats ? stats.html : `<div class="bk-l">${t("teams.card.snap")}</div><div class="bk-sp">${sparkHTML(p.trend, 110, 28)}</div>`}
-      <button class="bk-open" type="button" data-cteam="${teamKey}" data-ci="${i}">${t("teams.card.profile")}</button>
+      <button class="bk-open" type="button" data-testid="roster-back-open" data-cteam="${teamKey}" data-ci="${i}">${t("teams.card.profile")}</button>
     </div>`;
 }
 
@@ -11431,15 +11431,15 @@ function cardHTML(p, i, teamKey){
   const tier = support ? (p.pos === "K" ? "k" : "dst") : cardTier(rank);
   // Support cards wear the same stock, banner and badge; the badge says just K or DST.
   const front = support
-    ? `<div class="tc-face tc-front">
-        <div class="tc-art">${supportArt(p, g)}</div>
-        <span class="tc-num">${esc(g ? `${g.home ? "vs" : "@"} ${g.opp}` : "—")}</span>
+    ? `<div class="tc-face tc-front" data-testid="roster-card-front">
+        <div class="tc-art" data-testid="roster-card-art">${supportArt(p, g)}</div>
+        <span class="tc-num" data-testid="roster-card-num">${esc(g ? `${g.home ? "vs" : "@"} ${g.opp}` : "—")}</span>
         ${cardBanner(p.pos === "K" ? cardLast(p.n) : p.n)}${cardBadge(p.pos, null, p.pos === "K" ? t("teams.card.kicker", {team: esc(p.team)}) : t("teams.card.defense", {team: esc(p.team)}))}
       </div>`
     : cardFront(p, tier, g, rank);
-  return `<div class="tc tier-${tier}${support ? "" : injClass(p)}" ${teamColourStyle(p.team)} role="button" tabindex="0" aria-label="${t("teams.card.flip", {name: esc(p.n)})}">
+  return `<div class="tc tier-${tier}${support ? "" : injClass(p)}" data-testid="roster-card" ${teamColourStyle(p.team)} role="button" tabindex="0" aria-label="${t("teams.card.flip", {name: esc(p.n)})}">
     <div class="tc-flip">${front}${support ? supportBack(p, g, teamKey, i) : cardBack(p, rank, teamKey, i, g)}</div>
-    <div class="tc-glare"></div><i class="fx"></i>
+    <div class="tc-glare"></div><i class="fx" data-testid="roster-card-fx"></i>
   </div>`;
 }
 
@@ -11451,15 +11451,15 @@ function cardsHTML(team){
   // While the stage holds this week's pack, its cards' slots are kept empty (packshow.js packFaceDown);
   // while the pack waits in the starters' place, the starters lie face down under it (packgate.js).
   const gated = packGated(team);
-  const grid = (list, down) => `<div class="cardgrid"${down ? " inert" : ""}>${list.map(p => {
+  const grid = (list, down) => `<div class="cardgrid" data-testid="roster-cardgrid"${down ? " inert" : ""}>${list.map(p => {
     const i = n++, html = cardHTML(p, i, team.key);
     return down ? packCardDown(html) : packFaceDown(team, i, html);
   }).join("")}</div>`;
   const rule = (label, count, end = "") => `<div class="rule"><h2>${label}</h2><span class="count">${String(count).padStart(2,"0")}</span><span class="hair"></span>${end}</div>`;
   const starters = gated ? `<div class="pk-zone">${grid(start, true)}${packGateHTML(team)}</div>` : grid(start);
-  return `<div class="cards">
-    <section class="cards-col">${rule(t("teams.group.starters"), start.length, reripHTML(team))}${starters}</section>
-    ${rest.length ? `<section class="cards-col bench">${rule(t("teams.group.bench"), rest.length)}${grid(rest)}</section>` : ""}
+  return `<div class="cards" data-testid="roster-cards">
+    <section class="cards-col" data-testid="roster-cards-starters">${rule(t("teams.group.starters"), start.length, reripHTML(team))}${starters}</section>
+    ${rest.length ? `<section class="cards-col bench" data-testid="roster-cards-bench">${rule(t("teams.group.bench"), rest.length)}${grid(rest)}</section>` : ""}
   </div>`;
 }
 /* ── js/surface/teams/cardfit.js ── */
@@ -11523,11 +11523,11 @@ function supportArt(p, g){
     // One chip, the one that decides a kick: a roof means no wind at all; otherwise the wind.
     const chip = !w ? t("teams.card.noForecast") : w.roof === "dome" ? t("teams.card.dome")
       : w.wind ? t("teams.card.wind", {w: esc(w.wind), d: esc(w.wind_dir || "")}) : cardRoof(w);
-    return `${CARD_POSTS}${cardWeatherFx(w, "K")}<div class="head">${cardHeadHTML(p)}</div><span class="tc-chip r">${chip}</span>`;
+    return `${CARD_POSTS}${cardWeatherFx(w, "K")}<div class="head" data-testid="roster-card-head">${cardHeadHTML(p)}</div><span class="tc-chip r">${chip}</span>`;
   }
   const opp = g ? cardLines(g.opp) : null;
   const chip = opp ? t("teams.card.implied", {n: opp.implied}) : t("teams.card.noLine");
-  return `<span class="tc-abbr">${esc(p.team)}</span>
+  return `<span class="tc-abbr" data-testid="roster-card-abbr">${esc(p.team)}</span>
     <span class="tc-chip r" title="${t("teams.card.lowerBetter")}">${chip}</span>`;
 }
 
@@ -11542,10 +11542,10 @@ function supportBack(p, g, teamKey, i){
     : [[t("teams.card.oppImplied"), opp ? String(opp.implied) : "—"],
        [t("teams.card.spread"), mine ? `${mine.spread > 0 ? "+" : ""}${mine.spread}` : "—"],
        [t("teams.card.total"), mine && mine.total ? String(mine.total) : "—"]];
-  return `<div class="tc-face tc-back">
-      <div class="bk-why"><b>${p.pos === "K" ? t("teams.card.kicking") : t("teams.card.defending")}</b><span>${esc(cardMatchup(p.team, g))}</span></div>
+  return `<div class="tc-face tc-back" data-testid="roster-card-back">
+      <div class="bk-why" data-testid="roster-back-why"><b data-testid="roster-back-rank">${p.pos === "K" ? t("teams.card.kicking") : t("teams.card.defending")}</b><span>${esc(cardMatchup(p.team, g))}</span></div>
       <div class="bk-rows"${p.pos === "DST" ? ` title="${t("teams.card.lowerBetter")}"` : ""}>${rows.map(([l, v]) => `<div class="bk-row"><span class="bk-l">${l}</span><b>${esc(v)}</b></div>`).join("")}</div>
-      <button class="bk-open" type="button" data-cteam="${teamKey}" data-ci="${i}">${t("teams.card.profile")}</button>
+      <button class="bk-open" type="button" data-testid="roster-back-open" data-cteam="${teamKey}" data-ci="${i}">${t("teams.card.profile")}</button>
     </div>`;
 }
 /* ── js/surface/teams/cardweather.js ── */
@@ -11610,7 +11610,7 @@ function injWarnHTML(team){
   const text = one ? t("teams.inj.pillOne", {name: esc(nameInitial(one.n)), status: INJ_WORD[injFor(one).s]().toLowerCase()})
     : t("teams.inj.pillMany", {n: sits.length});
   const tip = sits.map(p => { const r = injFor(p); return `${nameInitial(p.n)}: ${INJ_WORD[r.s]()}${r.note ? ` · ${r.note}` : ""}`; }).join(" / ");
-  return `<span class="inj-warn" role="status" title="${esc(tip)}">${text}</span>`;
+  return `<span class="inj-warn" data-testid="roster-inj-warn" role="status" title="${esc(tip)}">${text}</span>`;
 }
 
 /* The "This week" row's count: "N things to check", or "N to check" beside the sit pill, which takes the
@@ -11679,9 +11679,9 @@ function rosterModeSave(m){
 const RERIP_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>`;
 function reripHTML(team){
   const chip = packChip(team);
-  if (chip === "again") return `<button class="rm-again" type="button" data-rerip>${RERIP_ICON}${t("teams.pack.again")}</button>`;
+  if (chip === "again") return `<button class="rm-again" type="button" data-testid="roster-rerip" data-rerip>${RERIP_ICON}${t("teams.pack.again")}</button>`;
   if (!chip) return "";
-  return `<button class="rm-again rm-open${chip === "wait" ? " wait" : ""}" type="button" data-pkopen><i class="rm-pk" aria-hidden="true"></i>${t("teams.pack.openWeek", {wk: schedWeek()})}</button>`;
+  return `<button class="rm-again rm-open${chip === "wait" ? " wait" : ""}" type="button" data-testid="roster-open-week" data-pkopen><i class="rm-pk" aria-hidden="true"></i>${t("teams.pack.openWeek", {wk: schedWeek()})}</button>`;
 }
 /* Two icon buttons at the hero's right end (2026-10-05): a list is the Sheet, a grid the Cards. */
 const RMODE_ICON = {
@@ -11689,7 +11689,7 @@ const RMODE_ICON = {
   cards: `<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.3"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1.3"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1.3"/><rect x="9" y="9" width="5.5" height="5.5" rx="1.3"/></svg>`,
 };
 function rosterModeHTML(){
-  const btn = (m, name) => `<button type="button" class="chip" data-rmode="${m}" aria-pressed="${ROSTER_MODE === m}" aria-label="${name}" title="${name}">${RMODE_ICON[m]}</button>`;
+  const btn = (m, name) => `<button type="button" class="chip" data-testid="roster-mode" data-rmode="${m}" aria-pressed="${ROSTER_MODE === m}" aria-label="${name}" title="${name}">${RMODE_ICON[m]}</button>`;
   return `<div class="rmode" role="group" aria-label="${t("teams.mode.label")}">${btn("sheet", t("teams.mode.sheet"))}${btn("cards", t("teams.mode.cards"))}</div>`;
 }
 function wireRosterMode(v, team){
@@ -11804,10 +11804,10 @@ function packSealHTML(team, wk, cards){
   const best = packBest(cards);
   // The rear and the side seams give the pack its body (pack.css); only the front is a control.
   // No wrapper around the seams: an element between them and .pack-glow would flatten them.
-  return `<div class="pack-glow tease-${best}">${packRearHTML()}<i class="pack-wall l" aria-hidden="true"></i><i class="pack-wall r" aria-hidden="true"></i>
-    <button class="pack-seal" type="button" aria-label="${t("teams.pack.open")}">
+  return `<div class="pack-glow tease-${best}" data-testid="roster-pack-glow">${packRearHTML()}<i class="pack-wall l" aria-hidden="true"></i><i class="pack-wall r" aria-hidden="true"></i>
+    <button class="pack-seal" type="button" data-testid="roster-pack-seal" aria-label="${t("teams.pack.open")}">
       <span class="pack-foil">${packArtSVG(wk)}<i class="pack-bulge"></i></span>
-      <span class="pack-top"><i class="pt-mouth"></i><i class="pt-base"></i><i class="pt-flap"></i><i class="pt-edge"></i></span>
+      <span class="pack-top" data-testid="roster-pack-top"><i class="pt-mouth"></i><i class="pt-base"></i><i class="pt-flap"></i><i class="pt-edge"></i></span>
       <b>TEAM<i class="slashes" aria-hidden="true"><b></b><b></b></i>WATCH</b>
       <span class="pack-side">${t("teams.pack.side", {season: packSeason()})}</span>
     </button></div>`;
@@ -11919,9 +11919,9 @@ function packCardDown(html){
 
 function packGateHTML(team){
   const wk = schedWeek();
-  return `<div class="pk-gate${packShowing() ? " away" : ""}" data-gate="${wk}">
+  return `<div class="pk-gate${packShowing() ? " away" : ""}" data-testid="roster-pack-gate" data-gate="${wk}">
     <div class="pk-gpack"><div class="pk-gz">${packSealHTML(team, wk, packCards(team))}</div></div>
-    <div class="pk-gbtns"><button class="pk-rip" type="button" data-pkrip>${t("teams.pack.rip")}</button><button class="pk-skip" type="button" data-pkskip>${t("teams.pack.skip")}</button></div>
+    <div class="pk-gbtns"><button class="pk-rip" type="button" data-testid="roster-pack-rip" data-pkrip>${t("teams.pack.rip")}</button><button class="pk-skip" type="button" data-testid="roster-pack-skip" data-pkskip>${t("teams.pack.skip")}</button></div>
   </div>`;
 }
 
@@ -12192,13 +12192,13 @@ function packShow(team, wk, from){
   const at = pkFrom(from);
   PACK_SHOW = {key: `${team.key}-${wk}`, order: new Map(cards.map((c, k) => [c.i, k]))};
   const st = document.createElement("div");
-  st.className = "pk-stage";
+  st.className = "pk-stage"; st.dataset.testid = "roster-pack-stage";
   st.setAttribute("role", "dialog"); st.setAttribute("aria-modal", "true"); st.setAttribute("aria-label", t("teams.pack.stage"));
   st.innerHTML = `<div class="pk-back"></div><div class="pk-rays"></div><div class="pk-flash"></div><div class="pk-wave"></div>
     <button class="pk-close" type="button" aria-label="${t("teams.pack.closeLabel")}">✕</button>
-    <p class="pk-msg" aria-live="polite">${t("teams.pack.lead", {wk})}</p>
-    <div class="pk-center">${packSealHTML(team, wk, cards)}</div>
-    <p class="pk-hint">${t("teams.pack.hint")}</p><p class="pk-count" aria-hidden="true"></p>`;
+    <p class="pk-msg" data-testid="roster-pack-msg" aria-live="polite">${t("teams.pack.lead", {wk})}</p>
+    <div class="pk-center" data-testid="roster-pack-center">${packSealHTML(team, wk, cards)}</div>
+    <p class="pk-hint">${t("teams.pack.hint")}</p><p class="pk-count" data-testid="roster-pack-count" aria-hidden="true"></p>`;
   document.body.appendChild(st);
   document.body.classList.add("pk-open");
   const S = {st, team, wk, cards, ripped: false, skip: false, rush: false, homing: false, wake: new Set(), shown: [], best: packBest(cards)};
@@ -12392,7 +12392,7 @@ async function pkMove(S, el, to, ms, easing){
    (.pk-unsigned) until its signing. */
 function pkCardEl(S, c, faceDown){
   const el = document.createElement("div");
-  el.className = cardSigned(c.p) ? "pk-card pk-unsigned" : "pk-card";
+  el.className = cardSigned(c.p) ? "pk-card pk-unsigned" : "pk-card"; el.dataset.testid = "roster-pack-card";
   el.innerHTML = `<div class="pk-inner"><div class="pk-cb" aria-hidden="true"><b>TW</b></div>${cardHTML(c.p, c.i, S.team.key)}</div>`;
   if (!faceDown) el.querySelector(".pk-inner").style.rotate = "y 0deg";
   return el;
@@ -12898,7 +12898,7 @@ const BRIEF_ICON = {
 
 function briefHTML(team){
   const all = briefLines(team).map(l => ({...l, id: briefId(l)})), pill = injWarnHTML(team);   // the red sit pill goes in the heading row
-  const head = (small, act) => `<div class="brief-h"><h2>${t("teams.brief.title")}</h2>${pill}<small>${small}</small>${act}</div>`;
+  const head = (small, act) => `<div class="brief-h" data-testid="roster-brief-head"><h2>${t("teams.brief.title")}</h2>${pill}<small>${small}</small>${act}</div>`;
   if (!all.length) return `<section class="brief" aria-label="${t("teams.brief.title")}">
     ${head("", "")}<p class="brief-quiet">${t("teams.brief.quiet")}</p></section>`;
   const checked = briefChecked(team), open = all.filter(l => !checked.has(l.id));
@@ -13174,7 +13174,7 @@ function reelUnfold(){ REEL.unfold = true; render(); }
    starter will likely sit (`pill`, injury.js), and the way to open it. */
 function reelFoldHTML(team, open, pill = ""){
   return `<section class="brief done" aria-label="${t("teams.brief.title")}" data-bteam="${team.key}">
-    <div class="brief-h"><h2>${t("teams.brief.title")}</h2>${pill}<small>${briefCount(open, pill)}</small>
+    <div class="brief-h" data-testid="roster-brief-head"><h2>${t("teams.brief.title")}</h2>${pill}<small>${briefCount(open, pill)}</small>
     <button type="button" class="brief-act" data-briefunfold>${t("teams.brief.show")}</button></div></section>`;
 }
 
@@ -14019,11 +14019,11 @@ function bioBlockHTML(p){
      (2026-09-29, David: "on desktop we stretch out info"). */
   const wide = (nfl ? [[t("profile.fact.nfl"), nfl, ""]] : []).concat(leagueFactRows(b.fantasy_draft || {}));
   if (!half.length && !wide.length) return ath;
-  const cell = (k, v) => `<div><dt>${k}</dt><dd>${v}</dd></div>`;
-  const draft = (k, v, tag) => `<div><dt${tag ? ` data-league="${esc(tag)}"` : ""}>${k}</dt><dd>${v}</dd></div>`;
+  const cell = (k, v) => `<div><dt data-testid="profile-fact-label">${k}</dt><dd data-testid="profile-fact-value">${v}</dd></div>`;
+  const draft = (k, v, tag) => `<div><dt data-testid="profile-fact-label"${tag ? ` data-league="${esc(tag)}"` : ""}>${k}</dt><dd data-testid="profile-fact-value">${v}</dd></div>`;
   const meas = half.length ? `<dl class="pf-meas">${half.map(([k, v]) => cell(k, v)).join("")}</dl>` : "";
   const drafts = wide.length ? secHTML(t("profile.fact.drafted"),
-    `<dl class="pf-facts">${wide.map(([k, v, tag]) => draft(k, v, tag)).join("")}</dl>`, "", "pf-sec-drafts") : "";
+    `<dl class="pf-facts" data-testid="profile-facts">${wide.map(([k, v, tag]) => draft(k, v, tag)).join("")}</dl>`, "", "pf-sec-drafts") : "";
   return meas + drafts + ath;
 }
 /* ── js/surface/profile/injury.js ── */
@@ -14041,8 +14041,8 @@ function pfInjuryHTML(p){
   if (!r) return "";
   // IR, PUP and suspension say more than "out", so Sleeper's own code leads when it is not plain Out.
   const word = r.s === "OUT" && r.code && !/^out$/i.test(r.code) ? esc(r.code).toUpperCase() : INJ_WORD[r.s]();
-  return `<div class="pf-inj ${PF_INJ_CLS[r.s]}">
-    <span class="pf-inj-s">${word}</span>${r.note ? `<span class="pf-inj-n">${esc(r.note)}</span>` : ""}</div>`;
+  return `<div class="pf-inj ${PF_INJ_CLS[r.s]}" data-testid="profile-inj">
+    <span class="pf-inj-s" data-testid="profile-inj-word">${word}</span>${r.note ? `<span class="pf-inj-n" data-testid="profile-inj-note">${esc(r.note)}</span>` : ""}</div>`;
 }
 /* ── js/surface/profile/tags.js ── */
 /* The profile head's second line (2026-09-25): watch's verdict word with its reason. It used to be
@@ -14059,8 +14059,8 @@ function sheetTagsHTML(p){
   if (!sig.verdict) return "";
   // The reason is a sentence (data/signals.js signalWords), not watch's shorthand ("snaps -5.0, share +19").
   const why = signalWords(sig.verdict, sig.why);
-  return `<div class="pf-tags"><span class="tag verdict">${esc(sig.verdict)}</span>`
-    + (why ? `<span class="pf-why">${esc(why)}</span>` : "") + `</div>`;
+  return `<div class="pf-tags" data-testid="profile-tags"><span class="tag verdict" data-testid="profile-verdict">${esc(sig.verdict)}</span>`
+    + (why ? `<span class="pf-why" data-testid="profile-why">${esc(why)}</span>` : "") + `</div>`;
 }
 /* ── js/surface/profile/blocks.js ── */
 /* The three drawn blocks on the modal's right side, each a pure function of what it is handed:
@@ -14085,14 +14085,14 @@ function weatherHTML(prof){
   if (typeof LIVE_WEATHER === "undefined" || !LIVE_WEATHER || !nx) return "";
   const w = LIVE_WEATHER.teams[nx.home ? prof.team : nx.opp];
   if (!w) return "";
-  if (w.roof === "dome") return `<div class="pf-wx pf-weather"><span class="pf-wx-c">${wxIcon("dome")}<em>${t("profile.weather.dome")}</em></span></div>`;
+  if (w.roof === "dome") return `<div class="pf-wx pf-weather" data-testid="profile-weather"><span class="pf-wx-c">${wxIcon("dome")}<em>${t("profile.weather.dome")}</em></span></div>`;
   if (w.temp_f === null || w.temp_f === undefined) return "";
   const cells = [
     [wxIcon(wxKind(w.short)), t("profile.weather.temp", {n: w.temp_f}), esc(w.short || "")],
     [wxIcon("wind"), esc(w.wind || "—"), w.wind_dir ? t("profile.weather.windFrom", {dir: esc(w.wind_dir)}) : t("profile.weather.wind")],
   ];
   const roof = w.roof === "retractable" ? `<span class="pf-wx-c pf-wx-note">${wxIcon("dome")}<em>${t("profile.weather.retractable")}</em></span>` : "";
-  return `<div class="pf-wx pf-weather">${cells.map(([i, v, l]) => `<span class="pf-wx-c">${i}<b>${v}</b><em>${l}</em></span>`).join("")}${roof}</div>`;
+  return `<div class="pf-wx pf-weather" data-testid="profile-weather">${cells.map(([i, v, l]) => `<span class="pf-wx-c">${i}<b>${v}</b><em>${l}</em></span>`).join("")}${roof}</div>`;
 }
 
 /* The team's red-zone touches of one kind as a bar: his first, then each named teammate, the
@@ -14103,11 +14103,11 @@ function rzSplitHTML(mine, team, others, field, name){
   const rest = others.filter(o => (o[field] || 0) > 0).sort((a, b) => b[field] - a[field]);
   const named = rest.reduce((s, o) => s + o[field], 0);
   const unnamed = Math.max(0, team - mine - named);
-  const seg = (n, cls, title) => n > 0 ? `<i${cls ? ` class="${cls}"` : ""} style="--w:${(100 * n / team).toFixed(1)}%" title="${title}"></i>` : "";
+  const seg = (n, cls, title) => n > 0 ? `<i data-testid="profile-split-seg"${cls ? ` class="${cls}"` : ""} style="--w:${(100 * n / team).toFixed(1)}%" title="${title}"></i>` : "";
   const bar = seg(mine, "me", `${esc(name)} ${mine}`) + rest.map(o => seg(o[field], "", `${esc(o.n)} ${o[field]}`)).join("");
   const key = [`<b>${shortName(name)} ${mine}</b>`]
     .concat(rest.map(o => `<span>${shortName(o.n)} ${o[field]}</span>`), unnamed ? [`<span>${t("profile.rz.others", {n: unnamed})}</span>`] : []);
-  return `<div class="pf-split"><span class="pf-split-bar">${bar}</span><div class="pf-split-key">${key.join("")}</div></div>`;
+  return `<div class="pf-split" data-testid="profile-split"><span class="pf-split-bar" data-testid="profile-split-bar">${bar}</span><div class="pf-split-key" data-testid="profile-split-key">${key.join("")}</div></div>`;
 }
 /* ── js/surface/profile/sections.js ── */
 /* The three profile blocks above Details: the matchup rank, his role, his red-zone share. Each
@@ -14145,10 +14145,10 @@ function shareBarHTML(label, share, avg, lead){
    it the reader has no way to tell a two-week number from a one-week number, and the only
    honest answer to "does that look right?" is to go and read the source file. */
 function secHTML(label, body, legend, cls, win){
-  const right = (win ? `<span class="pf-win">${win}</span>` : "")
+  const right = (win ? `<span class="pf-win" data-testid="profile-win">${win}</span>` : "")
     + (legend ? `<span class="pf-legend"><i></i>${legend}</span>` : "");
-  return `<section class="dr-sec pf-sec${cls ? " " + cls : ""}">
-    <div class="pf-sechead"><span class="lbl">${label}</span>${right ? `<span class="pf-sechead-r">${right}</span>` : ""}</div>
+  return `<section class="dr-sec pf-sec${cls ? " " + cls : ""}" data-testid="profile-sec"${cls ? ` data-sec="${cls.split(" ")[0].replace("pf-sec-", "")}"` : ""}>
+    <div class="pf-sechead"><span class="lbl" data-testid="profile-sec-label">${label}</span>${right ? `<span class="pf-sechead-r">${right}</span>` : ""}</div>
     ${body}
   </section>`;
 }
@@ -14160,7 +14160,7 @@ function winText(n){
 }
 
 function leadHTML(num, text, cls){
-  return `<div class="pf-lead${cls ? " " + cls : ""}"><b>${num}</b><span>${text}</span></div>`;
+  return `<div class="pf-lead${cls ? " " + cls : ""}" data-testid="profile-lead"><b>${num}</b><span>${text}</span></div>`;
 }
 
 /* The matchup: the rank as a sentence, then as a cell on the strip of every defence
@@ -14172,7 +14172,7 @@ function headlineHTML(prof){
   const cls = n === null ? "" : matchupClass(n, nx.factor.of);
   const rank = n === null
     ? `<p class="pf-cap pf-quiet">${t("profile.matchup.none")}</p>`
-    : `<p class="pf-rank ${cls}">${matchupRankText(prof)}</p>` + rankStripHTML(n, nx.factor.of, cls);
+    : `<p class="pf-rank ${cls}" data-testid="profile-rank">${matchupRankText(prof)}</p>` + rankStripHTML(n, nx.factor.of, cls);
   return secHTML(t("profile.next.label", {wk: nx.week, where: whereWord(nx), opp: esc(nx.opp)}), rank + weatherHTML(prof));
 }
 
@@ -14182,7 +14182,7 @@ function zonesHTML(z, top){
   const keys = DEPTH_ZONES.filter(k => z[k]);
   const max = Math.max(.01, ...keys.map(k => Math.max(z[k].share || 0, z[k].pos_avg || 0)));
   const h = v => (Math.max(0, v || 0) / max * 100).toFixed(0);
-  return `<div class="pf-zones">${keys.map(k => `<div class="pf-zone${k === top ? " top" : ""}">
+  return `<div class="pf-zones" data-testid="profile-zones">${keys.map(k => `<div class="pf-zone${k === top ? " top" : ""}" data-testid="profile-zone">
       <span class="pf-zone-bars"><i class="me" style="--h:${h(z[k].share)}%"></i><i class="avg" style="--h:${h(z[k].pos_avg)}%"></i></span>
       <em>${zoneWord(k)}</em><b>${pfPct(z[k].share)}</b><small>${pfPct(z[k].pos_avg)}</small>
     </div>`).join("")}</div>`;
@@ -14293,7 +14293,7 @@ function weekOpens(p, r){
 
 function weekCell(p, r){
   if (!weekOpens(p, r)) return r.wk;
-  return `<button type="button" class="pf-wk" aria-label="${esc(t("strip.open.week", {n: r.wk}))}">${r.wk}</button>`;
+  return `<button type="button" class="pf-wk" data-testid="profile-wk" aria-label="${esc(t("strip.open.week", {n: r.wk}))}">${r.wk}</button>`;
 }
 
 /* The producer's own mu keys, spelled out so a reader is not left deciding whether REC is
@@ -14380,8 +14380,8 @@ function seasonOppHTML(g, pos){
   const rk = seasonDefRank(g.opp, pos);
   const where = g.home ? "" : t("profile.season.away");
   const cls = rk ? matchupClass(rk[0], rk[1]) : "";
-  return `<span class="ss-opp">${where}${esc(g.opp)}</span>`
-    + (rk ? `<span class="ss-rk ${cls}">${ordinal(rk[0])}</span>` : "");
+  return `<span class="ss-opp" data-testid="profile-ss-opp">${where}${esc(g.opp)}</span>`
+    + (rk ? `<span class="ss-rk ${cls}" data-testid="profile-ss-rk">${ordinal(rk[0])}</span>` : "");
 }
 
 /* The box-score shorthand: carries-yards-TDs then catches-yards for a back, catches-yards-TDs then
@@ -14403,9 +14403,9 @@ function seasonLineHead(pos){
 /* One row. `kind` is ss-played / ss-next / ss-later / ss-bye / ss-total / ss-head. Prefixed: a bare
    `head` class picked up a global grid-row rule and put the header under week 1 (2026-09-28). */
 function seasonRowHTML(kind, cells, attrs = ""){
-  return `<div role="${SS_ROW}" class="ss-row ${kind}"${attrs}>${cells}</div>`;
+  return `<div role="${SS_ROW}" class="ss-row ${kind}" data-testid="profile-ss-row"${attrs}>${cells}</div>`;
 }
-const ssCell = (cls, html, role = SS_CELL) => `<div role="${role}" class="${cls}">${html}</div>`;
+const ssCell = (cls, html, role = SS_CELL) => `<div role="${role}" class="${cls}" data-testid="profile-${cls.split(" ")[0]}">${html}</div>`;
 const ssHead = (cls, html) => ssCell(cls, html, "columnheader");
 
 /* A played week with a replay opens it (panel.js delegates the click). history.js's weekRowAttrs
@@ -14549,7 +14549,7 @@ function seasonHTML(p, prof, repaint){
       continue;
     }
     if (live && wk === live.wk){ body.push(seasonLiveRowHTML(g, pos, live, stats)); continue; }
-    const opp = g ? seasonOppHTML(g, pos) : `<span class="ss-opp">${esc(r.opp || "—")}</span>`;
+    const opp = g ? seasonOppHTML(g, pos) : `<span class="ss-opp" data-testid="profile-ss-opp">${esc(r.opp || "—")}</span>`;
     if (r || !g || Date.parse(g.kickoff) + SCHED_GRACE_MS < now){
       const open = seasonOpens(p, r);
       body.push(seasonRowHTML("ss-played" + open.cls,
@@ -14570,7 +14570,7 @@ function seasonHTML(p, prof, repaint){
       + (proj.note ? ssCell("ss-note", proj.note) : "")));
   }
   if (rows.length) body.push(seasonTotalHTML(pos, rows, stats));
-  SEASON_LAST = `<div class="pf-season" role="table" aria-label="${t("profile.season.label")}" style="--ss-n:${Math.max(1, cols.length)}">`
+  SEASON_LAST = `<div class="pf-season" data-testid="profile-season" role="table" aria-label="${t("profile.season.label")}" style="--ss-n:${Math.max(1, cols.length)}">`
     + seasonHeadHTML(pos, cols) + body.join("") + `</div>`;
   return SEASON_LAST;
 }
@@ -14605,10 +14605,10 @@ function ownersHTML(p){
   const pills = OWN_LEAGUES.filter(l => TEAMS[l.key]).map(l => {
     const tm = ownerOf(l.key, slug);
     if (!tm && !mateKeys(l.key).length) return "";
-    const tag = `<i class="pf-own-l ${l.key}">${l.tag()}</i>`;
-    if (!tm) return `<span class="pf-own free">${tag}${t("profile.own.free")}</span>`;
+    const tag = `<i class="pf-own-l ${l.key}" data-testid="profile-owner-league">${l.tag()}</i>`;
+    if (!tm) return `<span class="pf-own free" data-testid="profile-owner">${tag}${t("profile.own.free")}</span>`;
     const mine = ownIsMine(tm);
-    return `<button type="button" class="pf-own${mine ? " mine" : ""}" data-ownteam="${esc(tm.key)}"
+    return `<button type="button" class="pf-own${mine ? " mine" : ""}" data-testid="profile-owner" data-ownteam="${esc(tm.key)}"
       aria-label="${esc(t("profile.own.open", {team: tm.name}))}">${tag}${mine ? t("profile.own.yours") : esc(tm.name)}${OWN_GO}</button>`;
   }).join("");
   return pills ? `<div class="pf-owners" role="group" aria-label="${t("profile.own.label")}">${pills}</div>` : "";
@@ -14647,7 +14647,7 @@ function pfGridLinkHTML(p){
   const rows = typeof USAGE !== "undefined" && USAGE ? USAGE.rows : null;
   const week = typeof USAGE_WEEK !== "undefined" ? USAGE_WEEK : null;
   if (!rows || !navRowPlan("usage", slug, rows, {week})) return "";
-  return `<div class="pf-gl"><button type="button" class="pf-grid" data-pfgrid="${esc(slug)}">${t("profile.grid.open")}${OWN_GO}</button></div>`;
+  return `<div class="pf-gl"><button type="button" class="pf-grid" data-testid="profile-grid-link" data-pfgrid="${esc(slug)}">${t("profile.grid.open")}${OWN_GO}</button></div>`;
 }
 
 function pfOpenGridRow(slug){
@@ -14703,14 +14703,14 @@ function teamShareListHTML(d, slug){
   const pct = v => Math.round(v / d.total * 100) + "%";
   const row = (r, i) => {
     const body = `<span class="pf-tm-n">${shortName(r.n)}<em>${esc(r.pos)}</em></span>
-      <span class="pf-tm-bar"><i style="--w:${(r.v / max * 100).toFixed(0)}%;--i:${i}"></i></span><b>${pct(r.v)}</b>`;
-    return r.slug === slug ? `<div class="pf-tm me">${body}</div>`
-      : `<button type="button" class="pf-tm" data-tmslug="${esc(r.slug)}" aria-label="${t("profile.team.open", {n: esc(r.n)})}">${body}</button>`;
+      <span class="pf-tm-bar" data-testid="profile-tm-bar"><i style="--w:${(r.v / max * 100).toFixed(0)}%;--i:${i}"></i></span><b data-testid="profile-tm-pct">${pct(r.v)}</b>`;
+    return r.slug === slug ? `<div class="pf-tm me" data-testid="profile-tm">${body}</div>`
+      : `<button type="button" class="pf-tm" data-testid="profile-tm" data-tmslug="${esc(r.slug)}" aria-label="${t("profile.team.open", {n: esc(r.n)})}">${body}</button>`;
   };
   // No bar for the rest: it is several players, not one to compare him with, and their sum can
   // outgrow the leader's bar the scale is set by.
-  const others = restN > 0 && rest > 0 ? `<div class="pf-tm rest"><span class="pf-tm-n">${t("profile.team.others", {n: restN})}</span>
-      <span></span><b>${pct(rest)}</b></div>` : "";
+  const others = restN > 0 && rest > 0 ? `<div class="pf-tm rest" data-testid="profile-tm"><span class="pf-tm-n">${t("profile.team.others", {n: restN})}</span>
+      <span></span><b data-testid="profile-tm-pct">${pct(rest)}</b></div>` : "";
   return `<div class="pf-team">${shown.map(row).join("")}${others}</div>`;
 }
 
@@ -14826,7 +14826,7 @@ const ARCH_GLYPH = {
    stone, steel for a Role word and bronze for a Style word (tokens --arch-role / --arch-style). */
 function archTileHTML(v, field){
   const g = ARCH_GLYPH[v];
-  return g ? `<span class="pf-sk pf-sk-${field}"><svg viewBox="0 0 512 512" aria-hidden="true"><path d="${g[1]}"/></svg></span>` : "";
+  return g ? `<span class="pf-sk pf-sk-${field}" data-testid="profile-arch-tile"><svg viewBox="0 0 512 512" aria-hidden="true"><path d="${g[1]}"/></svg></span>` : "";
 }
 
 /* What each word means, in one clause. Spelled out one literal t() per word, the same reason
@@ -14860,7 +14860,7 @@ const archMean = (v, pos) => ARCH_MEAN[v] ? ARCH_MEAN[v](pos) : "";
 function archSlotsHTML(p){
   const a = bdArch(p.slug);
   if (!a) return [];
-  const slot = (field, v, word) => `<button type="button" class="pf-arch-slot" data-pfarch="${field}"
+  const slot = (field, v, word) => `<button type="button" class="pf-arch-slot" data-testid="profile-arch-slot" data-pfarch="${field}"
     aria-label="${field === "role" ? t("profile.arch.roleIs", {w: word}) : t("profile.arch.styleIs", {w: word})}"
     >${archTileHTML(v, field)}<span>${word}</span></button>`;
   return [a.role ? slot("role", a.role, bdRoleWord(a.role)) : "", a.style ? slot("style", a.style, bdStyleWord(a.style)) : ""].filter(Boolean);
@@ -14873,7 +14873,7 @@ function archBlockHTML(p){
   const a = bdArch(p.slug);
   if (!a) return "";
   const word = (v, w) => v ? `${archTileHTML(v, v === a.role ? "role" : "style")}${w}` : "";
-  const body = `<div class="pf-arch-two">` + bdFieldHTML({field: "role", pos: a.pos, label: t("board.label.role"),
+  const body = `<div class="pf-arch-two" data-testid="profile-arch-two">` + bdFieldHTML({field: "role", pos: a.pos, label: t("board.label.role"),
       word: word(a.role, a.role ? bdRoleWord(a.role) : ""), why: a.role_null, ev: a.role_evidence,
       nums: bdRoleNums(a.pos), say: a.role ? archMean(a.role, a.pos) : ""})
     + bdFieldHTML({field: "style", pos: a.pos, label: t("board.label.style"),
@@ -14948,7 +14948,7 @@ function radarGeom(n){
    the label and the vertex already say that, while six of them crossed the translucent shape and
    turned the fill muddy. */
 function radarGridHTML(g){
-  const ring = (r, cls, i) => `<circle class="pf-radar-ring${cls}" style="--i:${i}" cx="${g.cx}" cy="${g.cy}" r="${(g.R * r).toFixed(1)}"/>`;
+  const ring = (r, cls, i) => `<circle class="pf-radar-ring${cls}" data-testid="profile-radar-ring" style="--i:${i}" cx="${g.cx}" cy="${g.cy}" r="${(g.R * r).toFixed(1)}"/>`;
   const ticks = Array.from({length: g.n}, (_, i) => {
     const [x0, y0] = g.xy(i, .93), [x1, y1] = g.xy(i, 1);
     return `<line class="pf-radar-axis" style="--i:${i}" x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}"/>`;
@@ -15060,8 +15060,8 @@ function radarHTML(p){
      while the label ring around it still scrolls the modal. Percentages of the viewBox, so it
      tracks the chart at every width. */
   const hit = `left:${pc(cx - R + 34, VW)};top:${pc(cy - R, VH)};width:${pc(2 * R, VW)};height:${pc(2 * R, VH)}`;
-  return `<div class="pf-sheet pos-${esc(String(s.pos).toLowerCase())}" data-slug="${esc(p.slug)}"><div class="pf-radar-box">
-    <svg class="pf-radar" viewBox="-34 0 ${VW} ${VH}" role="img" aria-label="${t("profile.sheet.label")}" data-cx="${cx}" data-cy="${cy}" data-r="${R}">
+  return `<div class="pf-sheet pos-${esc(String(s.pos).toLowerCase())}" data-testid="profile-sheet" data-slug="${esc(p.slug)}"><div class="pf-radar-box" data-testid="profile-radar-box">
+    <svg class="pf-radar" data-testid="profile-radar" viewBox="-34 0 ${VW} ${VH}" role="img" aria-label="${t("profile.sheet.label")}" data-cx="${cx}" data-cy="${cy}" data-r="${R}">
       ${radarDefsHTML(cx, cy, R)}
       <circle class="pf-radar-disc" cx="${cx}" cy="${cy}" r="${R}"/>
       <g class="pf-radar-grid">${radarGridHTML(g)}</g>
@@ -15106,15 +15106,15 @@ function shapeHTML(s, ranks, k, xy, sel, cx, cy){
      route data has not covered yet. The vertices still plot, because they are real, and the
      count says why the rest is missing. Rashee Rice in week 2 is the case: WOPR and RZ Tgts
      measured, the four route-derived stats not. */
-  const poly = idx.length >= 3 ? `<polygon class="pf-radar-shape" points="${pts}"/>` : "";
+  const poly = idx.length >= 3 ? `<polygon class="pf-radar-shape" data-testid="profile-radar-shape" points="${pts}"/>` : "";
   const note = idx.length >= 3 ? ""
-    : `<text class="pf-radar-note" x="${cx}" y="${cy + 46}" text-anchor="middle">${t("profile.sheet.partial", {n: idx.length, of: s.axes.length})}</text>`;
+    : `<text class="pf-radar-note" data-testid="profile-radar-note" x="${cx}" y="${cy + 46}" text-anchor="middle">${t("profile.sheet.partial", {n: idx.length, of: s.axes.length})}</text>`;
   /* Each vertex carries its own stat id, so picking a label lights the point it belongs to.
      Without it the highlight moved on the label and the shape never answered. */
   const dots = idx.map(i => {
     const [x, y] = xy(i, k(i));
     const cls = (s.axes[i].id === sel ? " on" : "") + (sheetElite(s, s.axes[i], ranks[i]) ? " elite" : "");
-    return `<circle class="pf-radar-dot${cls}" data-col="${esc(s.axes[i].id)}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5"/>`;
+    return `<circle class="pf-radar-dot${cls}" data-testid="profile-radar-dot" data-col="${esc(s.axes[i].id)}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5"/>`;
   }).join("");
   /* Two rings at the selected vertex, both moved by wireSheet on a pick. `mark` is the resting
      state -- a target on the point being read, which is where the number it describes actually
@@ -15165,7 +15165,7 @@ function eliteBarsHTML(s, ang, xy, sel, cx, cy, R, n){
     // data-el: elite by sheetElite (the fluke filter), so a vertex that crosses the arc on a raw
     // rank the filter does not back never lights it (radarmotion.js radarGrow).
     const el = sheetElite(s, a, sheetRank(s.pos, a.id, s.row.slug)) ? ` data-el="1"` : "";
-    return `<path class="pf-radar-bar${on}" data-col="${esc(a.id)}" data-r="${r.toFixed(1)}"${el} fill="none" d="M ${pt(a0)} A ${r.toFixed(1)} ${r.toFixed(1)} 0 0 1 ${pt(a1)}"/>`
+    return `<path class="pf-radar-bar${on}" data-testid="profile-radar-bar" data-col="${esc(a.id)}" data-r="${r.toFixed(1)}"${el} fill="none" d="M ${pt(a0)} A ${r.toFixed(1)} ${r.toFixed(1)} 0 0 1 ${pt(a1)}"/>`
       + `<text class="pf-radar-bartag${on}" data-col="${esc(a.id)}" x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="middle" dominant-baseline="middle">${t("profile.sheet.eliteTag")}</text>`;
   }).join("");
 }
@@ -15188,8 +15188,8 @@ function axisLabelsHTML(s, ranks, k, sel, ang, xy, at, R, tag = "button"){
     const [x, y] = xy(i, 1 + (side === "n" || side === "s" ? 8 : 10) / R);   // units clear of the rim
     const rk = ranks[i] ? rankMark(ranks[i]) : "—";
     const cls = (a.id === sel ? " on" : "") + (!ranks[i] || k(i) < .5 ? " low" : "") + (sheetElite(s, a, ranks[i]) ? " elite" : "");
-    return `<${tag}${kind} class="pf-radar-l at-${side}${cls}" style="${at(x, y)};--i:${i}" data-col="${esc(a.id)}"
-      ><b class="pf-radar-v">${rk}</b><span class="pf-radar-n">${esc(axisName(a))}</span></${tag}>`;
+    return `<${tag}${kind} class="pf-radar-l at-${side}${cls}" data-testid="profile-radar-label" style="${at(x, y)};--i:${i}" data-col="${esc(a.id)}"
+      ><b class="pf-radar-v" data-testid="profile-radar-value">${rk}</b><span class="pf-radar-n">${esc(axisName(a))}</span></${tag}>`;
   }).join("");
 }
 /* ── js/surface/profile/statcard.js ── */
@@ -15266,15 +15266,15 @@ function eliteGapHTML(v, a, row){
   // Over the bar, but the fluke filter (sheet.js sheetElite) says his sample is too small to call
   // it: the number stands, the claim waits. Neither green nor red.
   if (gap >= 0 && row && Array.isArray(row.el) && !row.el.includes(a.id))
-    return `<small class="pf-lr-d">${t("profile.stat.overEarly", n)}</small>`;
+    return `<small class="pf-lr-d" data-testid="profile-lr-gap">${t("profile.stat.overEarly", n)}</small>`;
   // Two literal t() calls, not one built from a ternary: assemble.py --check finds a copy key by
   // scanning for the literal form, and a key assembled at runtime reads to it as an orphan.
   /* The gap, not the threshold. "elite >= 0.00" printed in red said the elite bar was the bad
      thing; what is actually red is him being 0.42 under it. So the line states the distance and
      which side of the bar he is on, and the colour agrees with the sign. */
   return gap >= 0
-    ? `<small class="pf-lr-d up">${t("profile.stat.overElite", n)}</small>`
-    : `<small class="pf-lr-d down">${t("profile.stat.underElite", n)}</small>`;
+    ? `<small class="pf-lr-d up" data-testid="profile-lr-gap">${t("profile.stat.overElite", n)}</small>`
+    : `<small class="pf-lr-d down" data-testid="profile-lr-gap">${t("profile.stat.underElite", n)}</small>`;
 }
 
 /* Each stat's name in plain words, 2026-09-25. ff-jarvis's labels are the analyst's shorthand
@@ -15411,20 +15411,20 @@ function ladderMoreHTML(s, x){
     : a.elite_src === "published" ? `<span>${t("profile.stat.barPublished")}</span>` : "";
   const facts = [smp ? `<span>${smp}</span>` : "", gap, src, `<span>${ladderWindow(s, wk)}</span>`].join("");
   const unit = SAMPLE_UNIT[a.den];
-  const floor = thin && unit ? `<p class="pf-lr-floor">${t("profile.ladder.floor", {floor: a.floor, unit: unit()})}</p>` : "";
+  const floor = thin && unit ? `<p class="pf-lr-floor" data-testid="profile-lr-floor">${t("profile.ladder.floor", {floor: a.floor, unit: unit()})}</p>` : "";
   const def = AXIS_DEF[a.id]
-    ? `<p class="pf-lr-def">${AXIS_DEF[a.id]()}${AXIS_WHY[a.id] ? `<span class="pf-lr-why">${AXIS_WHY[a.id]()}</span>` : ""}</p>` : "";
+    ? `<p class="pf-lr-def" data-testid="profile-lr-def">${AXIS_DEF[a.id]()}${AXIS_WHY[a.id] ? `<span class="pf-lr-why" data-testid="profile-lr-why">${AXIS_WHY[a.id]()}</span>` : ""}</p>` : "";
   // Read against the same bar, so a week above it is visibly a week above it. One week is a
   // point, not a line, and the window already names it.
   const line = wk.length > 1 ? sparkHTML(wk.map(r => r.v[a.id]), 160, 30, a.elite) : "";
-  return `<div class="pf-lr-more"><div class="pf-lr-facts">${facts}</div>${floor}${def}${line}</div>`;
+  return `<div class="pf-lr-more"><div class="pf-lr-facts" data-testid="profile-lr-facts">${facts}</div>${floor}${def}${line}</div>`;
 }
 
 /* `name` makes the rows one accordion natively: opening one closes the last, so the list never
    grows more than one fold longer than it was. */
 function ladderHTML(s, sel){
-  return `<div class="pf-ladder">${ladderOrder(s).map((x, i) => `<details class="pf-lr${x.a.id === sel ? " on" : ""}${x.elite ? " elite" : ""}" name="pf-ladder" data-col="${esc(x.a.id)}" style="--i:${i}">
-    <summary><span class="pf-lr-n">${esc(axisName(x.a))}</span><b class="pf-lr-v${x.band ? " dim" : ""}">${usageFmt(x.v, x.a.fmt)}</b>${ladderBarHTML(s, x)}<span class="pf-lr-rk">${ladderRankHTML(s, x)}</span></summary>
+  return `<div class="pf-ladder">${ladderOrder(s).map((x, i) => `<details class="pf-lr${x.a.id === sel ? " on" : ""}${x.elite ? " elite" : ""}" data-testid="profile-lr" name="pf-ladder" data-col="${esc(x.a.id)}" style="--i:${i}">
+    <summary data-testid="profile-lr-toggle"><span class="pf-lr-n" data-testid="profile-lr-name">${esc(axisName(x.a))}</span><b class="pf-lr-v${x.band ? " dim" : ""}" data-testid="profile-lr-value">${usageFmt(x.v, x.a.fmt)}</b>${ladderBarHTML(s, x)}<span class="pf-lr-rk" data-testid="profile-lr-rank">${ladderRankHTML(s, x)}</span></summary>
     ${ladderMoreHTML(s, x)}</details>`).join("")}</div>`;
 }
 /* ── js/surface/profile/radarmotion.js ── */
@@ -15729,7 +15729,7 @@ function orbBadgeHTML(p){
   if (!s) return "";
   const axis = s.axes.find(a => a.id === sheetDefaultAxis(s)) || s.axes[0];
   const rk = sheetRank(s.pos, axis.id, p.slug);
-  return `<button type="button" class="pf-orb pos-${esc(String(s.pos).toLowerCase())}" aria-label="${esc(t("profile.orb.open", {n: p.n}))}">
+  return `<button type="button" class="pf-orb pos-${esc(String(s.pos).toLowerCase())}" data-testid="profile-orb" aria-label="${esc(t("profile.orb.open", {n: p.n}))}">
     <canvas aria-hidden="true"></canvas>
     ${rk ? `<span class="pf-orb-l"><b>${rankMark(rk)}</b> ${esc(axisName(axis))}</span>` : ""}</button>`;
 }
@@ -15862,8 +15862,9 @@ function orbOpen(d, p, btn){
   const s = sheetFor(p);
   const layer = document.createElement("div");
   layer.className = "pf-orblayer";
-  layer.innerHTML = `<div class="pf-orbscrim"></div>
-    <div class="pf-orbsheet" role="dialog" aria-modal="true" aria-labelledby="pf-orb-t">
+  layer.setAttribute("data-testid", "profile-orblayer");
+  layer.innerHTML = `<div class="pf-orbscrim" data-testid="profile-orbscrim"></div>
+    <div class="pf-orbsheet" data-testid="profile-orbsheet" role="dialog" aria-modal="true" aria-labelledby="pf-orb-t">
       <div class="pf-orbsheet-h"><div><h4 id="pf-orb-t">${esc(p.n)}</h4>
         <span class="lbl">${t("profile.orb.sub", {pos: esc(s.pos)})}</span></div>
         <button type="button" class="dr-close pf-orb-x" aria-label="${t("profile.orb.close")}">✕</button></div>
@@ -15930,7 +15931,7 @@ function pfDelta(v, digits){
   const k = v > 0 ? "up" : v < 0 ? "down" : "flat";
   const g = v > 0 ? "▲" : v < 0 ? "▼" : "—";
   const n = Math.abs(v).toFixed(digits);
-  return ` <span class="delta ${k}">${g} ${n}</span>`;
+  return ` <span class="delta ${k}" data-testid="profile-delta">${g} ${n}</span>`;
 }
 
 function pfNum(v, digits){
@@ -15948,12 +15949,12 @@ function marketHTML(prof){
   if (!m) return "";
   // No UNTESTED tag since 2026-09-29 (details.js zoneReadHTML says why).
   const priced = (m.markets && m.markets.length)
-    ? `<p class="pf-cap pf-fine">${t("profile.market.priced", {markets: esc(marketPricedText(m.markets))})}</p>`
-    : `<p class="pf-cap pf-quiet">${t("profile.market.noMarket")}</p>`;
+    ? `<p class="pf-cap pf-fine" data-testid="profile-cap">${t("profile.market.priced", {markets: esc(marketPricedText(m.markets))})}</p>`
+    : `<p class="pf-cap pf-quiet" data-testid="profile-cap">${t("profile.market.noMarket")}</p>`;
   /* The model's number is the projection every other view prints (stockPts, data/stock.js); the books'
      own number, with its move, sits on its own line and says whose it is. */
   const pts = stockPts(m, prof);
-  const model = pts.model === null ? "" : `<p class="pf-cap">${t("profile.market.model", {pts: pfNum(pts.model, 1)})}</p>`;
+  const model = pts.model === null ? "" : `<p class="pf-cap" data-testid="profile-cap">${t("profile.market.model", {pts: pfNum(pts.model, 1)})}</p>`;
   if (m.no_market || m.src !== "market"){
     return subHTML(t("profile.market.label"), `
       ${model}
@@ -15964,9 +15965,9 @@ function marketHTML(prof){
      rank line holds rank and its own delta only. */
   return subHTML(t("profile.market.label"), `
     ${model}
-    <p class="pf-cap">${t("profile.market.line.pts", {pts: pfNum(pts.books, 1)})}${pfDelta(m.d_pts, 1)}</p>
-    <p class="pf-cap">${t("profile.market.line.role", {role: pfNum(m.role_pts, 1)})}${pfDelta(m.d_role_pts, 1)} · ${t("profile.market.line.z", {z: pfNum(m.z, 2)})}</p>
-    <p class="pf-cap">${t("profile.market.line.rank", {pos: esc(m.pos), rank: m.rank ?? "—"})}${m.d_rank ? pfDelta(m.d_rank, 0) : ""}</p>
+    <p class="pf-cap" data-testid="profile-cap">${t("profile.market.line.pts", {pts: pfNum(pts.books, 1)})}${pfDelta(m.d_pts, 1)}</p>
+    <p class="pf-cap" data-testid="profile-cap">${t("profile.market.line.role", {role: pfNum(m.role_pts, 1)})}${pfDelta(m.d_role_pts, 1)} · ${t("profile.market.line.z", {z: pfNum(m.z, 2)})}</p>
+    <p class="pf-cap" data-testid="profile-cap">${t("profile.market.line.rank", {pos: esc(m.pos), rank: m.rank ?? "—"})}${m.d_rank ? pfDelta(m.d_rank, 0) : ""}</p>
     ${priced}`);
 }
 /* ── js/surface/profile/details.js ── */
@@ -15978,7 +15979,7 @@ function marketHTML(prof){
    coverage note drops its own. */
 function subHTML(label, body, extra){
   return `<div class="pf-dsec">
-    <div class="pf-sechead"><span class="lbl">${label}</span>${extra || ""}</div>
+    <div class="pf-sechead"><span class="lbl" data-testid="profile-sec-label">${label}</span>${extra || ""}</div>
     ${body}
   </div>`;
 }
@@ -16078,7 +16079,7 @@ function lineHTML(prof){
   const kept = r.ol_continuity === null || r.ol_continuity === undefined || !r.ol_continuity_of ? ""
     : cell(`${r.ol_continuity}/${r.ol_continuity_of}`, t("profile.line.kept"), r.ol_continuity < r.ol_continuity_of);
   if (!starters && !out && !kept) return "";
-  const wk = LIVE_TRENCHES.week ? `<span class="pf-win">${t("profile.line.week", {wk: LIVE_TRENCHES.week})}</span>` : "";
+  const wk = LIVE_TRENCHES.week ? `<span class="pf-win" data-testid="profile-win">${t("profile.line.week", {wk: LIVE_TRENCHES.week})}</span>` : "";
   return subHTML(t("profile.line.label", {team: esc(prof.team)}), `<div class="pf-wx pf-line">${starters}${kept}${out}</div>`, wk);
 }
 
@@ -16096,7 +16097,7 @@ function lineHTML(prof){
    no source is left out, not dashed; the row is gone when none survives. */
 function ledeCellHTML(value, label, id, range){
   const rng = range ? `<small class="pf-lede-r" title="${t("range.tip", {floor: range.floor.toFixed(1), ceil: range.ceil.toFixed(1)})}">${range.text}</small>` : "";
-  return `<div class="pf-lede-c${id === "proj" ? " proj" : ""}"><b>${value}</b><span class="pf-lede-l">${label}</span>${rng}</div>`;
+  return `<div class="pf-lede-c${id === "proj" ? " proj" : ""}" data-testid="profile-lede-cell"><b data-testid="profile-lede-value">${value}</b><span class="pf-lede-l" data-testid="profile-lede-label">${label}</span>${rng}</div>`;
 }
 
 function poolRow(slug){
@@ -16127,11 +16128,11 @@ function ledeHTML(p, prof){
   });
   const html = cells.map(c => ledeCellHTML(esc(c.value), c.label, c.id, c.range ? range : null)).join("");
   // The band is said in words once, under the strip, and only when a cell draws one (plan U5).
-  const note = cells.some(c => c.range) ? `<p class="pf-lede-note">${t("range.note")}</p>` : "";
+  const note = cells.some(c => c.range) ? `<p class="pf-lede-note" data-testid="profile-lede-note">${t("range.note")}</p>` : "";
   // A back the books left unpriced beside a priced teammate (rbrules.js, METHODOLOGY 12.87): the tag and what it means.
   const noLine = rbNoLine(rbProjRow(p.slug));
-  const why = noLine ? `<p class="pf-lede-note">${rbNoLineHTML(rbProjRow(p.slug), "pf-noline")}${noLine.tip}</p>` : "";
-  return html ? `<div class="pf-lede">${html}</div>${note}${why}` : "";
+  const why = noLine ? `<p class="pf-lede-note" data-testid="profile-lede-note">${rbNoLineHTML(rbProjRow(p.slug), "pf-noline")}${noLine.tip}</p>` : "";
+  return html ? `<div class="pf-lede" data-testid="profile-lede">${html}</div>${note}${why}` : "";
 }
 /* ── js/surface/profile/tabs.js ── */
 /* The modal's panes. Eleven blocks stacked at one weight is a wall: the reader scrolls past the
@@ -16172,12 +16173,12 @@ function pfReceiver(prof){ return prof.pos === "WR" || prof.pos === "TE"; }
    and the market's number). A desktop reads them side by side, each about 370px wide instead of
    bars 1,000px long; a phone stacks them in the same order. */
 function matchupPaneHTML(prof){
-  const card = h => h.trim() ? `<div class="pf-col">${h}</div>` : "";
+  const card = h => h.trim() ? `<div class="pf-col" data-testid="profile-col">${h}</div>` : "";
   const rec = pfReceiver(prof);
   const cards = card(opponentHTML(prof))
     + card(rec ? zoneReadHTML(prof) + coverageHTML(prof) : "")
     + card(lineHTML(prof) + marketHTML(prof));
-  return headlineHTML(prof) + (cards ? `<div class="pf-cols">${cards}</div>` : "");
+  return headlineHTML(prof) + (cards ? `<div class="pf-cols" data-testid="profile-cols">${cards}</div>` : "");
 }
 
 // The pane's class names the tab, so each pane lays itself out (panel.css) without a wrapper.
@@ -16189,7 +16190,7 @@ function pfPanes(prof, p){
 }
 
 function pfNoneHTML(){
-  return `<div class="state-empty pf-empty"><div><b>—</b><span>${t("profile.empty.none")}</span></div></div>`;
+  return `<div class="state-empty pf-empty" data-testid="profile-empty"><div><b>—</b><span>${t("profile.empty.none")}</span></div></div>`;
 }
 
 function tabsHTML(prof, p){
@@ -16202,11 +16203,11 @@ function tabsHTML(prof, p){
   const on = panes[0].id;
   // One pane draws no tab bar: a switch with one position is a label pretending to be a control.
   const bar = panes.length < 2 ? "" :
-    `<div class="modes-sub pf-tabs" role="tablist" aria-label="${t("profile.tab.label")}">
-      ${panes.map(x => `<button class="mode-sub" type="button" role="tab" data-pftab="${esc(x.id)}"
+    `<div class="modes-sub pf-tabs" data-testid="profile-tabs" role="tablist" aria-label="${t("profile.tab.label")}">
+      ${panes.map(x => `<button class="mode-sub" type="button" role="tab" data-testid="profile-tab" data-pftab="${esc(x.id)}"
         aria-selected="${x.id === on}">${x.label}</button>`).join("")}
     </div>`;
-  return none + bar + `<div class="${pfPaneClass(on)}" role="tabpanel">${panes[0].html}</div>`;
+  return none + bar + `<div class="${pfPaneClass(on)}" data-testid="profile-pane" role="tabpanel">${panes[0].html}</div>`;
 }
 
 /* Arrow keys move along the row and open as they go, which is what role="tablist" promises. */
@@ -16267,7 +16268,7 @@ function wireTabs(d, prof, p){
 function pfRailHTML(p){
   const slots = archSlotsHTML(p), orb = orbBadgeHTML(p);
   if (!slots.length && !orb) return "";
-  return `<div class="pf-rail">${slots.join("")}${orb}${cmpButtonHTML(true)}</div>`;
+  return `<div class="pf-rail" data-testid="profile-rail">${slots.join("")}${orb}${cmpButtonHTML(true)}</div>`;
 }
 /* ── js/surface/profile/panel.js ── */
 /* The player profile as a centered popup in #modal (chrome/modal.js), opened by tapping a
@@ -16296,13 +16297,13 @@ function openProfile(p, originEl){
   // The rail (rail.js): his words, his sphere and Compare as one row; none for a deep-bench player.
   const rail = pfRailHTML(p);
   d.innerHTML = `
-    <div class="dr-head pf-head">
-      <button type="button" class="dr-close" aria-label="${t("common.action.close")}">✕</button>
+    <div class="dr-head pf-head" data-testid="profile-head">
+      <button type="button" class="dr-close" data-testid="profile-close" aria-label="${t("common.action.close")}">✕</button>
       <div class="dr-id${rail ? " has-rail" : ""}">
         ${headHTML(p)}
-        <div class="pf-who">
-          <h3 id="pf-title">${esc(p.n)}</h3>
-          <div class="lbl">${identityHTML(p, prof)}</div>
+        <div class="pf-who" data-testid="profile-who">
+          <h3 id="pf-title" data-testid="profile-title">${esc(p.n)}</h3>
+          <div class="lbl" data-testid="profile-identity">${identityHTML(p, prof)}</div>
           ${pfInjuryHTML(p)}
           ${rail ? "" : cmpButtonHTML(false)}
         </div>
@@ -16311,7 +16312,7 @@ function openProfile(p, originEl){
       </div>
       ${p.note ? `<div class="dr-note">${esc(p.note)}</div>` : ""}
     </div>
-    <div class="dr-body pf-body pos-${esc(String(prof ? prof.pos : p.pos || "").toLowerCase())}">
+    <div class="dr-body pf-body pos-${esc(String(prof ? prof.pos : p.pos || "").toLowerCase())}" data-testid="profile-body">
       ${ledeHTML(p, prof)}
       ${pfGridLinkHTML(p)}
       ${ownersHTML(p)}
@@ -16368,8 +16369,9 @@ function cmpOpen(d){
   CMP.picks = []; CMP.stage = "pick"; CMP.q = "";
   const layer = document.createElement("div");
   layer.className = "cmp-layer";
+  layer.setAttribute("data-testid", "profile-cmp-layer");
   layer.innerHTML = `<div class="cmp-scrim"></div>
-    <div class="cmp-sheet" role="dialog" aria-modal="true" aria-labelledby="cmp-t"></div>`;
+    <div class="cmp-sheet" data-testid="profile-cmp-sheet" role="dialog" aria-modal="true" aria-labelledby="cmp-t"></div>`;
   d.appendChild(layer);
   [...d.children].forEach(c => { if (c !== layer) c.inert = true; });
   const sheet = layer.querySelector(".cmp-sheet");
@@ -16451,8 +16453,8 @@ const CMP_ICON = `<svg class="cmp-ic-svg" viewBox="0 0 24 24" aria-hidden="true"
 
 /* `medal`: the rail's medallion (rail.js); otherwise the small button a player with no rail keeps. */
 const cmpButtonHTML = medal => medal
-  ? `<button type="button" class="cmp-open medal" data-compare aria-haspopup="dialog"><span class="cmp-ic">${CMP_ICON}</span><span>${t("profile.compare.open")}</span></button>`
-  : `<button type="button" class="cmp-open" data-compare aria-haspopup="dialog">${CMP_ICON}<span>${t("profile.compare.open")}</span></button>`;
+  ? `<button type="button" class="cmp-open medal" data-testid="profile-compare-open" data-compare aria-haspopup="dialog"><span class="cmp-ic">${CMP_ICON}</span><span>${t("profile.compare.open")}</span></button>`
+  : `<button type="button" class="cmp-open" data-testid="profile-compare-open" data-compare aria-haspopup="dialog">${CMP_ICON}<span>${t("profile.compare.open")}</span></button>`;
 /* ── js/surface/profile/cmppick.js ── */
 /* The Compare picker: who to set beside the profile's player. With nothing typed it offers what the
    reader is most likely deciding between (2026-09-30, David: "typically it starts with their own
@@ -16494,7 +16496,7 @@ function cmpRowHTML(p, i){
   const on = CMP.picks.some(x => x.slug === p.slug), full = !on && CMP.picks.length >= CMP_MAX - 1;
   const rk = cmpRankRow(p), pts = projFor(p);
   const sub = [p.pos, p.team, rk && rk.opp ? t("profile.compare.vs", {opp: esc(rk.opp)}) : ""].filter(Boolean).join(" · ");
-  return `<li><button type="button" class="cmp-row${on ? " on" : ""}" data-cmp="pick" data-i="${i}" data-slug="${esc(p.slug)}" aria-pressed="${on}"${full ? " disabled" : ""}>
+  return `<li><button type="button" class="cmp-row${on ? " on" : ""}" data-testid="profile-cmp-row" data-cmp="pick" data-i="${i}" data-slug="${esc(p.slug)}" aria-pressed="${on}"${full ? " disabled" : ""}>
     <span class="cmp-check" aria-hidden="true"></span><span class="cmp-head">${headHTML(p)}</span>
     <span class="cmp-who"><b>${shortName(p.n)}</b><span class="lbl">${esc(sub)}</span></span>
     <span class="cmp-pts">${pts === null ? "—" : pts.toFixed(1)}${rk ? `<small>${esc(rk.pos)}${rk.rank}</small>` : ""}</span></button></li>`;
@@ -16522,13 +16524,13 @@ function cmpTrayHTML(){
   return `<div class="cmp-tray">
     <span class="cmp-heads">${ps.map((p, i) => `<span class="cmp-head cmp-s${i}">${headHTML(p)}</span>`).join("")}</span>
     <span class="cmp-count lbl">${t("profile.compare.count", {n: ps.length, max: CMP_MAX})}</span>
-    <button type="button" class="cmp-go" data-cmp="go"${CMP.picks.length ? "" : " disabled"}>${t("profile.compare.go")}</button></div>`;
+    <button type="button" class="cmp-go" data-testid="profile-cmp-go" data-cmp="go"${CMP.picks.length ? "" : " disabled"}>${t("profile.compare.go")}</button></div>`;
 }
 
 function cmpPickHTML(){
   return `<div class="cmp-h"><h4 id="cmp-t">${t("profile.compare.title", {n: shortName(CMP.base.n)})}</h4>
       <button type="button" class="dr-close cmp-x" data-cmp="close" aria-label="${t("profile.compare.close")}">✕</button></div>
-    <input id="cmp-q" class="cmp-q" type="search" autocomplete="off" spellcheck="false"
+    <input id="cmp-q" class="cmp-q" data-testid="profile-cmp-search" type="search" autocomplete="off" spellcheck="false"
       placeholder="${t("profile.compare.search")}" aria-label="${t("profile.compare.search")}" value="${esc(CMP.q)}">
     <div class="cmp-list">${cmpListHTML()}</div>${cmpTrayHTML()}`;
 }
@@ -16566,7 +16568,7 @@ function cmpCardsHTML(ps){
     const gap = v !== null && !lead ? `<span class="cmp-gap">−${(top - v).toFixed(1)}</span>` : "";
     const src = HEADS[p.slug];
     const face = src && p.pos !== "DST" ? headImgHTML(src, initials(p.n), p.slug, 56) : headHTML(p);
-    return `<button type="button" class="cmp-card cmp-s${i}${lead ? " lead" : ""}${CMP.on === i ? " on" : ""}" data-cmp="focus" data-i="${i}" aria-pressed="${CMP.on === i}">
+    return `<button type="button" class="cmp-card cmp-s${i}${lead ? " lead" : ""}${CMP.on === i ? " on" : ""}" data-testid="profile-cmp-card" data-cmp="focus" data-i="${i}" aria-pressed="${CMP.on === i}">
       <span class="cmp-face">${face}</span><b>${shortName(p.n)}</b>
       <span class="cmp-proj">${v === null ? "—" : v.toFixed(1)}</span>
       <span class="cmp-rank">${gap}</span></button>`;
@@ -16600,7 +16602,7 @@ function cmpGraphHTML(ps, on){
   const g = radarGeom(s.axes.length);
   const ranks = s.axes.map(a => sheetRank(s.pos, a.id, ps[fi].slug));
   const order = ps.map((_, i) => i).filter(i => sheets[i] && i !== fi).concat(fi);
-  return `<div class="pf-sheet cmp-graph cmp-s${fi}"><div class="pf-radar-box">
+  return `<div class="pf-sheet cmp-graph cmp-s${fi}" data-testid="profile-cmp-graph"><div class="pf-radar-box">
     <svg class="pf-radar" viewBox="-34 0 ${g.VW} ${g.VH}" role="img" aria-label="${t("profile.compare.radar")}">
       ${radarDefsHTML(g.cx, g.cy, g.R)}
       <circle class="pf-radar-disc" cx="${g.cx}" cy="${g.cy}" r="${g.R}"/>
@@ -16618,7 +16620,7 @@ function cmpShapeHTML(s, p, i, front, g){
     .map(([j, r]) => g.xy(j, r).map(v => v.toFixed(1)));
   const st = front ? " front" : " dim";
   const dots = pts.map(([x, y]) => `<circle class="cmp-dot cmp-s${i}${st}" cx="${x}" cy="${y}" r="3"/>`).join("");
-  return (pts.length >= 3 ? `<polygon class="cmp-shape cmp-s${i}${st}" points="${pts.map(q => q.join(",")).join(" ")}"/>` : "") + dots;
+  return (pts.length >= 3 ? `<polygon class="cmp-shape cmp-s${i}${st}" data-testid="profile-cmp-shape" points="${pts.map(q => q.join(",")).join(" ")}"/>` : "") + dots;
 }
 /* ── js/surface/profile/cmprows.js ── */
 /* The Compare sheet's strips: one bar per stat, split into a cell per player on the cards' own
@@ -16642,7 +16644,7 @@ function cmpStripHTML(label, cells, best){
   const top = vals.length > 1 && best ? (best === "low" ? Math.min(...vals) : Math.max(...vals)) : null;
   const cell = c => !c ? `<span class="cmp-v none">—</span>`
     : `<span class="cmp-v${c.v === top ? " best" : ""}">${c.txt}</span>`;
-  return `<div class="cmp-row-s"><span class="cmp-l">${label}</span><div class="cmp-strip">${cells.map(cell).join("")}</div></div>`;
+  return `<div class="cmp-row-s" data-testid="profile-cmp-strip"><span class="cmp-l">${label}</span><div class="cmp-strip">${cells.map(cell).join("")}</div></div>`;
 }
 
 /* Whose share: targets for receivers, carries for backs, "team share" when the set is mixed. */
@@ -20351,7 +20353,7 @@ const DG_ICON_PATH = {
   news: '<path d="M4 5h13v14H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v8a2 2 0 0 1-4 0M7 9h7M7 13h7M7 16h4"/>',
 };
 const dgIcon = id => DG_ICON_PATH[id]
-  ? `<svg class="dg-lico" viewBox="0 0 24 24" aria-hidden="true">${DG_ICON_PATH[id]}</svg>` : "";
+  ? `<svg class="dg-lico" data-testid="digest-icon" viewBox="0 0 24 24" aria-hidden="true">${DG_ICON_PATH[id]}</svg>` : "";
 /* ── js/surface/digest/tabs.js ── */
 /* The Digest's tabs (2026-09-29, storyboard https://claude.ai/artifact/Ms6FbdvynVPoRTKEidPGAz): Results'
    Smashed / Busts / Left hurt (2A; David: "should we redesign so it just opens a big panel") and Top 5's
@@ -20365,16 +20367,16 @@ function dgTabsHTML(set, tabs){
   if (!tabs.length) return "";
   const on = tabs.some(x => x.key === DG_TAB[set]) ? DG_TAB[set] : tabs[0].key;
   const id = x => `dg-${set}-${x.key}`;
-  const bar = tabs.map(x => `<button type="button" role="tab" class="dg-tab" data-dgtab="${esc(x.key)}" id="${id(x)}-t"
+  const bar = tabs.map(x => `<button type="button" role="tab" class="dg-tab" data-testid="digest-tab" data-dgtab="${esc(x.key)}" id="${id(x)}-t"
     aria-controls="${id(x)}-p" aria-selected="${x.key === on}" tabindex="${x.key === on ? 0 : -1}">${x.label}${x.count != null
       ? `<b class="dg-tab-n${x.tone ? " " + x.tone : ""}">${x.count}</b>` : ""}</button>`).join("");
   /* Each panel also carries its own heading, the tab's label and count. A set the wall lays open, all
      panels at once with no bar (Results' lists, tabs.css), shows it; a phone and Top 5 do not. */
-  const panels = tabs.map(x => `<div class="dg-tabp" role="tabpanel" id="${id(x)}-p" aria-labelledby="${id(x)}-t"
+  const panels = tabs.map(x => `<div class="dg-tabp" data-testid="digest-tabpanel" role="tabpanel" id="${id(x)}-p" aria-labelledby="${id(x)}-t"
     data-dgpanel="${esc(x.key)}"${x.key === on ? "" : " data-off"}><h4 class="dg-tabh${x.tone ? " " + x.tone : ""}">${x.label}${x.count != null
       ? `<b>${x.count}</b>` : ""}</h4>${x.body}</div>`).join("");
   // The panels share one box (tabs.css), which is as tall as the tallest, so a tab never resizes it.
-  return `<div class="dg-tabset" data-dgset="${set}"><div class="dg-tabs" role="tablist">${bar}</div><div class="dg-tabps">${panels}</div></div>`;
+  return `<div class="dg-tabset" data-testid="digest-tabset" data-dgset="${set}"><div class="dg-tabs" role="tablist">${bar}</div><div class="dg-tabps">${panels}</div></div>`;
 }
 
 function dgTabPick(b){
@@ -20593,17 +20595,17 @@ function dgLeadHTML(){
   /* The ghost is the reason he leads (his rank, the wind), set huge and faint behind the photo on
      a wide screen; aria-hidden, since the fact line already says it. The stamp above the head says
      which week and how old the packet is, so a stale page reads as stale (2026-09-28). */
-  const stamp = d && d.asof_words ? `<p class="dg-lead-when">${t("digest.lead.when", {week: d.week, when: esc(d.asof_words)})}</p>` : "";
+  const stamp = d && d.asof_words ? `<p class="dg-lead-when" data-testid="digest-lead-when">${t("digest.lead.when", {week: d.week, when: esc(d.asof_words)})}</p>` : "";
   /* A lead about one player opens his profile from anywhere on the band (2026-09-29, David: "should
      we be able to click on players to open their profile?"). A button laid over the band, not the
      band made a button, so the headline stays a heading. */
   const who = L.live ? dgLvAttrs(L.live) : `data-dgslug="${esc(L.slug)}"`;   // a live scorer opens through now.js's one listener
-  const go = L.slug ? `<button type="button" class="dg-lead-go" ${who}
+  const go = L.slug ? `<button type="button" class="dg-lead-go" data-testid="digest-lead-go" ${who}
     aria-label="${esc(t("digest.lead.open", {n: L.name || ""}))}"></button>` : "";
   return `<article class="dg-lead ${L.tone}${L.photo ? " has-photo" : ""}${go ? " opens" : ""}"${L.team ? " " + teamColourStyle(L.team) : ""}>
-    ${go}${L.ghost ? `<span class="dg-ghost" aria-hidden="true">${dgGhostChars(L.ghost)}</span>` : ""}
-    <div class="dg-lead-txt">${stamp}<h2 class="dg-lead-h${L.long ? " long" : ""}">${L.head}</h2>
-      <div class="dg-lead-fact">${L.fact}</div></div>
+    ${go}${L.ghost ? `<span class="dg-ghost" data-testid="digest-ghost" aria-hidden="true">${dgGhostChars(L.ghost)}</span>` : ""}
+    <div class="dg-lead-txt">${stamp}<h2 class="dg-lead-h${L.long ? " long" : ""}" data-testid="digest-lead-head">${L.head}</h2>
+      <div class="dg-lead-fact" data-testid="digest-lead-fact">${L.fact}</div></div>
     ${L.photo}
   </article>`;
 }
@@ -20721,15 +20723,15 @@ const dgResRow = (r, pills, num) => `<button type="button" class="dg-rr" data-dg
 
 /* A player line: head, name over one meta line, one number at the right. It opens his profile. */
 function dgLnHTML(p, meta, right, extra){
-  return `<button type="button" class="dg-ln${extra ? " wide" : ""}" data-dgslug="${esc(p.slug)}">
+  return `<button type="button" class="dg-ln${extra ? " wide" : ""}" data-testid="digest-ln" data-dgslug="${esc(p.slug)}">
     <span class="dg-hd">${avatarHTML(p)}</span>
     <span class="dg-ln-t"><b>${esc(p.n)}</b><span>${meta}</span>${extra || ""}</span>
-    <span class="dg-ln-r">${right}</span></button>`;
+    <span class="dg-ln-r" data-testid="digest-ln-right">${right}</span></button>`;
 }
 
 function dgFootHTML(text, leaf, label, caveat){
-  const go = leaf ? `<button type="button" class="dg-go" data-dggo="${leaf}">${label}${DG_ARROW}</button>` : "";
-  return `<div class="dg-foot"><span>${text}${caveat ? ` <span class="dg-nb">${t("digest.nb")}</span>` : ""}</span>${go}</div>`;
+  const go = leaf ? `<button type="button" class="dg-go" data-testid="digest-go" data-dggo="${leaf}">${label}${DG_ARROW}</button>` : "";
+  return `<div class="dg-foot" data-testid="digest-foot"><span data-testid="digest-foot-text">${text}${caveat ? ` <span class="dg-nb">${t("digest.nb")}</span>` : ""}</span>${go}</div>`;
 }
 
 const dgVs = r => r.home ? t("digest.vs.home", {team: esc(r.team), opp: esc(r.opp)}) : t("digest.vs.away", {team: esc(r.team), opp: esc(r.opp)});
@@ -20756,7 +20758,7 @@ function dgStartWhat(r, name, bare){
    right with his average under it, as Start/Sit shows it. */
 function dgSotwHTML(){
   const s = LIVE_SS3.takes.find(r => r.call === "START");
-  return s ? dgLnHTML({n: s.name, slug: s.slug}, `<b class="dg-sotw">${t("digest.mu.sotw")}</b> · ${esc(s.pos)} · ${dgVs(s)}`,
+  return s ? dgLnHTML({n: s.name, slug: s.slug}, `<b class="dg-sotw" data-testid="digest-sotw">${t("digest.mu.sotw")}</b> · ${esc(s.pos)} · ${dgVs(s)}`,
     `${esc(s.pos)}${s.rank}<small>${t("matchups.takes.avg", {avg: s.avg_rank == null ? "—" : esc(s.pos) + s.avg_rank})}</small>`) : "";
 }
 
@@ -20777,12 +20779,12 @@ function dgAddsBody(d){
     const top = Math.max(1, ...d.adds.map(a => a.count || 0));
     const lines = d.adds.map((a, i) => dgLnHTML(a, a.now != null
       ? t("digest.adds.metaEspn", {pos: esc(a.pos), team: esc(a.team), pct: dgPct(a.now)}) : `${esc(a.pos)} · ${esc(a.team)}`,
-      `<span class="dg-plus">${dgBig(a.count)}</span>`,
+      `<span class="dg-plus" data-testid="digest-plus">${dgBig(a.count)}</span>`,
       `<span class="dg-bar" style="--a:0%;--b:${(100 * a.count / top).toFixed(1)}%;--i:${i}"><i></i><u></u></span>`)).join("");
     return lines + dgFootHTML(t("digest.foot.addsSleeper", {h: d.adds_hours}), "waivers", t("digest.go.waivers"));
   }
   const lines = d.adds.map((a, i) => dgLnHTML(a, t("digest.adds.meta", {pos: esc(a.pos), team: esc(a.team), was: dgPct(a.was), now: dgPct(a.now)}),
-    `<span class="dg-plus">${dgSigned(Math.round(a.delta), 0)}</span>`,
+    `<span class="dg-plus" data-testid="digest-plus">${dgSigned(Math.round(a.delta), 0)}</span>`,
     `<span class="dg-bar" style="--a:${a.was}%;--b:${a.now}%;--i:${i}"><i></i><u></u></span>`)).join("");
   const [a, b] = d.adds_weeks;
   return lines + dgFootHTML(a != null ? t("digest.foot.adds", {a, b}) : t("digest.foot.addsNoWeeks"), "waivers", t("digest.go.waivers"));
@@ -20834,19 +20836,19 @@ function dgNewsBody(d){
      does. The face and name still open his profile, so the block is a div holding both kinds of tap. */
   const line = it => {
     const href = it.link || `https://www.google.com/search?tbm=nws&q=${encodeURIComponent(it.headline)}`;
-    return `<li><a href="${esc(href)}" target="_blank" rel="noopener noreferrer"><time>${esc(it.when || "")}</time>
+    return `<li><a data-testid="digest-news-link" href="${esc(href)}" target="_blank" rel="noopener noreferrer"><time>${esc(it.when || "")}</time>
       <span>${esc(it.n ? dgCap(it.rest) : it.headline)}${DG_EXT}</span></a></li>`;
   };
   const blocks = dgNewsGroups(d.news).map(g => {
-    if (!g.key) return `<div class="dg-nw"><ul>${g.lines.map(line).join("")}</ul></div>`;
+    if (!g.key) return `<div class="dg-nw" data-testid="digest-news-block"><ul>${g.lines.map(line).join("")}</ul></div>`;
     const e = who.get(g.key), p = {n: g.n, slug: g.key, pos: e && e.pos, team: e && e.team};
     const meta = [p.pos, p.team].filter(Boolean).map(esc).join(" · ");
-    return `<div class="dg-nw who">
+    return `<div class="dg-nw who" data-testid="digest-news-block">
       <button type="button" class="dg-hd" data-dgslug="${esc(g.key)}" tabindex="-1" aria-hidden="true">${avatarHTML(p)}</button>
-      <span class="dg-nw-t"><button type="button" class="dg-nw-who" data-dgslug="${esc(g.key)}"><b class="${DG_KIND[g.kind] || ""}">${esc(g.n)}</b><small>${meta}</small></button>
+      <span class="dg-nw-t"><button type="button" class="dg-nw-who" data-testid="digest-news-who" data-dgslug="${esc(g.key)}"><b class="${DG_KIND[g.kind] || ""}">${esc(g.n)}</b><small>${meta}</small></button>
       <ul>${g.lines.map(line).join("")}</ul></span></div>`;
   }).join("");
-  return `<div class="dg-nws">${blocks}</div>` + dgFootHTML(t("digest.foot.news"), "news", t("digest.go.news"));
+  return `<div class="dg-nws" data-testid="digest-news">${blocks}</div>` + dgFootHTML(t("digest.foot.news"), "news", t("digest.go.news"));
 }
 
 /* One short list in Top 5's shape: a head, then "K. Mumpfield" and one number per line (Tonight's lists). */
@@ -20884,13 +20886,13 @@ function dgRecapRowHTML(){
   const top = r.top, picks = dgRecapPicks(r.preview_record && r.preview_record.su);
   // The first two parts of his line ("285 yds · 3 TD"): the whole line ran past 360px and cut off.
   const day = top ? dgStatLine(top).split(" · ").slice(0, 2).join(" · ") : "";
-  const who = top ? `<span class="dg-s-w"><b>${esc(dgShort(top.n))}</b>${day ? " " + esc(day) : ""}</span>` : "";
-  const claude = picks ? `<span class="dg-s-c">${t("digest.recapRow.claude", picks)}</span>` : "";
-  const note = recapNote(r) ? `<span class="dg-s-f">${recapNote(r)}</span>` : "";
-  return `<div class="dg-row link" data-dgrow="recap">
-    <a class="dg-head" href="#weekrecap">
-      <span class="dg-l">${dgIcon("recap")}${dgLabel("recap")}</span><span class="dg-n go">${recapChip(r)}</span>
-      <span class="dg-s">${note}${who}${claude}</span>${DG_ARROW}</a>
+  const who = top ? `<span class="dg-s-w" data-testid="digest-recap-who"><b>${esc(dgShort(top.n))}</b>${day ? " " + esc(day) : ""}</span>` : "";
+  const claude = picks ? `<span class="dg-s-c" data-testid="digest-recap-claude">${t("digest.recapRow.claude", picks)}</span>` : "";
+  const note = recapNote(r) ? `<span class="dg-s-f" data-testid="digest-recap-note">${recapNote(r)}</span>` : "";
+  return `<div class="dg-row link" data-testid="digest-row" data-dgrow="recap">
+    <a class="dg-head" data-testid="digest-row-head" href="#weekrecap">
+      <span class="dg-l" data-testid="digest-row-label">${dgIcon("recap")}${dgLabel("recap")}</span><span class="dg-n go" data-testid="digest-row-count">${recapChip(r)}</span>
+      <span class="dg-s" data-testid="digest-row-line">${note}${who}${claude}</span>${DG_ARROW}</a>
   </div>`;
 }
 /* ── js/surface/digest/ahead.js ── */
@@ -20908,10 +20910,10 @@ function dgRecapRowHTML(){
 function dgT5Row(r, i, flex, last){
   const inj = r.inj ? `<span class="dg-rk-inj ${r.inj === "Q" ? "q" : "d"}">${r.inj === "Q" ? t("digest.t5.q") : t("digest.t5.d")}</span>` : "";
   const k = last > 1 ? ((r.tier - 1) / (last - 1)).toFixed(2) : "0";
-  const tier = r.tier ? `<span class="dg-rk-tier${r.tier === 1 ? " top" : ""}" style="--k:${k}">${t("digest.t5.tier", {n: r.tier})}</span>` : "";
-  return `<button type="button" class="dg-rk" data-dgslug="${esc(r.slug)}"><span class="dg-rk-n">${i + 1}</span>
-    <span class="dg-rk-t"><b>${esc(nameInitial(r.n))}${inj}</b><span>${flex ? esc(r.pos) + " · " : ""}${dgVs(r)}</span></span>
-    ${tier}<span class="dg-rk-p">${r.pts.toFixed(1)}</span></button>`;
+  const tier = r.tier ? `<span class="dg-rk-tier${r.tier === 1 ? " top" : ""}" data-testid="digest-rk-tier" style="--k:${k}">${t("digest.t5.tier", {n: r.tier})}</span>` : "";
+  return `<button type="button" class="dg-rk" data-testid="digest-rk" data-dgslug="${esc(r.slug)}"><span class="dg-rk-n">${i + 1}</span>
+    <span class="dg-rk-t"><b data-testid="digest-rk-name">${esc(nameInitial(r.n))}${inj}</b><span>${flex ? esc(r.pos) + " · " : ""}${dgVs(r)}</span></span>
+    ${tier}<span class="dg-rk-p" data-testid="digest-rk-pts">${r.pts.toFixed(1)}</span></button>`;
 }
 
 function dgTop5Body(d){
@@ -20930,9 +20932,9 @@ function dgWxRow(r){
   const c = dgWxCond(r), fc = r.fc || {};
   const num = c === "wind" ? t("digest.wx.mph", {n: Math.round(r.mph)}) : c === "precip" ? t("digest.wx.pct", {n: fc.precip_pct})
     : t("digest.lead.wx.temp", {f: fc.temp_f});
-  return `<div class="dg-wx">${c === "wind" ? DG_WIND : DG_RAIN}
+  return `<div class="dg-wx" data-testid="digest-wx">${c === "wind" ? DG_WIND : DG_RAIN}
     <span class="dg-ln-t"><b>${esc(r.g.away)} @ ${esc(r.g.home)}</b><span>${wtKick(r.g.kickoff)}</span></span>
-    <span class="dg-ln-r">${num}</span></div>`;
+    <span class="dg-ln-r" data-testid="digest-ln-right">${num}</span></div>`;
 }
 
 function dgWxBody(){
@@ -20960,14 +20962,14 @@ function dgNeedRank(slug){
    right of a 550px panel, and the tag stood in a column of its own). */
 function dgNeedLine(r, tag, what){
   const rank = dgNeedRank(r.slug);
-  return `<button type="button" class="dg-nd" data-dgslug="${esc(r.slug)}">
+  return `<button type="button" class="dg-nd" data-testid="digest-need-line" data-dgslug="${esc(r.slug)}">
     <span class="dg-hd">${avatarHTML(r)}</span>
-    <span class="dg-nd-t"><b>${esc(dgShort(r.n))}</b><span>${tag}<span class="dg-nd-w">${what}${rank ? ` · <i>${rank}</i>` : ""}</span></span></span></button>`;
+    <span class="dg-nd-t"><b>${esc(dgShort(r.n))}</b><span data-testid="digest-need-what">${tag}<span class="dg-nd-w">${what}${rank ? ` · <i>${rank}</i>` : ""}</span></span></span></button>`;
 }
 
 /* A new starter: "New QB1" and over whom (the tag already says QB1); a moved player, "New team". */
 function dgNeedStart(r){
-  const tag = `<span class="dg-nw-tag ${r.over ? "up" : "mv"}">${r.over ? t("digest.nw.newStarter", {pos: esc(r.pos)}) : t("digest.nw.newTeam")}</span>`;
+  const tag = `<span class="dg-nw-tag ${r.over ? "up" : "mv"}" data-testid="digest-need-tag">${r.over ? t("digest.nw.newStarter", {pos: esc(r.pos)}) : t("digest.nw.newTeam")}</span>`;
   const o = r.over, v = o && {name: esc(dgShort(o.n)), status: esc(o.status || "")};
   const over = !o ? "" : o.status ? t("digest.need.overStatus", v) : t("digest.need.over", v);
   // A move with no one displaced keeps Starters' own words, which name his spot on the new chart.
@@ -20992,16 +20994,16 @@ function dgNeedHTML(d){
   const lines = [...d.starters.map(dgNeedStart), ...sit.map(dgNeedHurt)];
   const shown = DG_NEED_ALL ? lines : lines.slice(0, DG_NEED_FIRST);
   const more = lines.length > shown.length
-    ? `<button type="button" class="dg-nd-more" data-dgneedall>${t("digest.need.more", {n: lines.length - shown.length})}</button>` : "";
+    ? `<button type="button" class="dg-nd-more" data-testid="digest-need-more" data-dgneedall>${t("digest.need.more", {n: lines.length - shown.length})}</button>` : "";
   // Questionable: a chip each, his face and name, so the list is as tappable as the lines above it
   // and wraps to fill the panel's width (2026-09-30, David: "fill the box better").
-  const also = q.length ? `<div class="dg-q"><span class="dg-st q">${t("digest.tag.q")}</span>${q.map(r =>
-    `<button type="button" class="dg-q-p" data-dgslug="${esc(r.slug)}"><span class="dg-hd">${avatarHTML(r)}</span>${esc(dgShort(r.n))}</button>`).join("")}</div>` : "";
+  const also = q.length ? `<div class="dg-q" data-testid="digest-need-q"><span class="dg-st q">${t("digest.tag.q")}</span>${q.map(r =>
+    `<button type="button" class="dg-q-p" data-testid="digest-need-qp" data-dgslug="${esc(r.slug)}"><span class="dg-hd">${avatarHTML(r)}</span>${esc(dgShort(r.n))}</button>`).join("")}</div>` : "";
   const list = shown.length ? `<div class="dg-nd-list">${shown.join("")}${more}</div>` : "";
   const body = lines.length || q.length ? list + also
-    : `<p class="dg-nd-none">${dgWaiting(d) ? t("digest.line.hurtNext", {week: dgRowWeek(d)}) + "." : t("digest.need.none")}</p>`;
-  return `<section class="dg-need" aria-labelledby="dg-need-h">
-    <h3 class="dg-sec" id="dg-need-h">${t("digest.need.title")}</h3>${body}
+    : `<p class="dg-nd-none" data-testid="digest-need-none">${dgWaiting(d) ? t("digest.line.hurtNext", {week: dgRowWeek(d)}) + "." : t("digest.need.none")}</p>`;
+  return `<section class="dg-need" data-testid="digest-need" aria-labelledby="dg-need-h">
+    <h3 class="dg-sec" data-testid="digest-sec" id="dg-need-h">${t("digest.need.title")}</h3>${body}
     ${dgFootHTML(t("digest.foot.need"), "news", t("digest.go.news"))}</section>`;
 }
 /* ── js/surface/digest/tonight.js ── */
@@ -21053,7 +21055,7 @@ function dgTnCard(g, now){
   if (Date.parse(g.ko) <= now){
     // Once it is on, the game is the same block as the last game's (mnf.js): its clock, score and best performer, one tap to its sheet.
     const sched = gdWeekGames().find(x => gdSameClub(x.home, g.home) || gdSameClub(x.away, g.home));
-    return `<section class="dg-tn dg-mnf on" aria-label="${t("digest.tn.label")}">${sched ? dgMnfFor(sched)
+    return `<section class="dg-tn dg-mnf on" data-testid="digest-tn" aria-label="${t("digest.tn.label")}">${sched ? dgMnfFor(sched)
       : `<p class="dg-tn-on"><b>${game}</b> ${t("digest.tn.playing")}</p>`}</section>`;
   }
   const tag = r => `<em class="${r.status === "Doubtful" ? "q" : "dn"}">${r.status === "IR" ? t("digest.tag.ir") : r.status === "Doubtful" ? t("digest.tag.d") : t("digest.tag.out")}</em>`;
@@ -21062,9 +21064,9 @@ function dgTnCard(g, now){
     + dgResList(t("digest.tn.proj.h"), g.projected, r => `<em>${r.pts.toFixed(1)}</em>`)
     + dgResList(t("digest.tn.moved.h"), g.moved, r => `<em class="${r.d_pts < 0 ? "dn" : "up"}">${dgSigned(r.d_pts, 1)}</em>`);
   const story = dgTnStory(g);
-  return `<section class="dg-tn" aria-label="${t("digest.tn.label")}">
+  return `<section class="dg-tn" data-testid="digest-tn" aria-label="${t("digest.tn.label")}">
     <header class="dg-tn-h"><b>${t("digest.tn.head", {game})}</b><time>${esc(dgKick(g))}</time></header>
-    <p class="dg-tn-sky">${dgTnSky(g.wx)}</p>${story ? `<p class="dg-tn-story">${story}</p>` : ""}
+    <p class="dg-tn-sky">${dgTnSky(g.wx)}</p>${story ? `<p class="dg-tn-story" data-testid="digest-tn-story">${story}</p>` : ""}
     ${lists ? `<div class="dg-t5 dg-tn-lists">${lists}</div>` : ""}
     ${dgFootHTML(t("digest.foot.tn"), "matchups", t("digest.go.matchupsAll"))}</section>`;
 }
@@ -21185,18 +21187,18 @@ const dgTdCount = () => dgLeaders().reduce((n, r) => n + DG_TD_KEYS.reduce((m, k
 
 function dgNowRow(r){
   const slug = slugOf(r.n), line = gdLine({pos: r.pos}, r.s), clock = gdClockOf(r.team).label;
-  return `<li><button type="button" class="dg-now-r" ${dgLvAttrs({...r, slug})}>
+  return `<li><button type="button" class="dg-now-r" data-testid="digest-now-row" ${dgLvAttrs({...r, slug})}>
     <span class="dg-hd">${avatarHTML({n: r.n, slug})}</span>
     <span class="dg-now-t"><b>${esc(dgShort(r.n))}</b>
       <span class="dg-now-m"><span class="dg-now-pos">${esc(r.pos)}</span> ${esc(r.team)}${clock ? ` · ${esc(clock)}` : ""}</span>
       ${line ? `<span class="dg-now-s">${esc(line)}</span>` : ""}</span>
-    <i class="dg-now-p">${dgN1(r.pts)}</i></button></li>`;
+    <i class="dg-now-p" data-testid="digest-now-pts">${dgN1(r.pts)}</i></button></li>`;
 }
 
 /* One who left the game hurt, in --down: the same row, "Hurt" where the points go. */
 function dgHurtRow(h){
   const line = [h.pos, h.team, gdClockOf(h.team).label].filter(Boolean).map(esc).join(" · ");
-  return `<li><button type="button" class="dg-now-r hurt" ${dgLvAttrs({n: h.n, pos: h.pos, team: h.team, slug: h.slug})}>
+  return `<li><button type="button" class="dg-now-r hurt" data-testid="digest-now-row" ${dgLvAttrs({n: h.n, pos: h.pos, team: h.team, slug: h.slug})}>
     <span class="dg-hd">${avatarHTML({n: h.n, slug: h.slug})}</span>
     <span class="dg-now-t"><b>${esc(dgShort(h.n))}</b><span class="dg-now-m">${line}</span></span>
     <i class="dg-now-p">${t("digest.hurt.row")}</i></button></li>`;
@@ -21217,11 +21219,11 @@ function dgNowHTML(){
   const n = dgTdCount(), hurt = gdPlaying(Date.now()) ? gdHurtNow().slice(0, DG_HURT_ROWS) : [], out = new Set(hurt.map(h => h.slug));
   const top = dgLeaders().filter(r => !out.has(slugOf(r.n))).slice(0, DG_NOW_TOP);
   const rows = [...hurt.map(dgHurtRow), ...top.map(dgNowRow)], more = rows.length > DG_NOW_SHOW;
-  return `<section class="dg-facts dg-now" data-dgnow aria-labelledby="dg-now-h">
-    <h3 class="dg-sec" id="dg-now-h">${t("digest.live.title")}</h3>
+  return `<section class="dg-facts dg-now" data-testid="digest-now" data-dgnow aria-labelledby="dg-now-h">
+    <h3 class="dg-sec" data-testid="digest-sec" id="dg-now-h">${t("digest.live.title")}</h3>
     <ol class="dg-now-l">${(more && !DG_NOW_MORE ? rows.slice(0, DG_NOW_SHOW) : rows).join("")}</ol>
-    <div class="dg-now-f">${more ? `<button type="button" class="dg-go dg-now-more" data-dgmore aria-expanded="${DG_NOW_MORE}">${DG_NOW_MORE ? t("digest.now.less") : t("digest.now.more")}</button>` : ""}
-    ${n ? `<button type="button" class="dg-go dg-now-td" data-dgtds>${n === 1 ? t("digest.live.td1") : t("digest.live.tds", {n})}${DG_ARROW}</button>` : ""}</div></section>`;
+    <div class="dg-now-f">${more ? `<button type="button" class="dg-go dg-now-more" data-testid="digest-now-more" data-dgmore aria-expanded="${DG_NOW_MORE}">${DG_NOW_MORE ? t("digest.now.less") : t("digest.now.more")}</button>` : ""}
+    ${n ? `<button type="button" class="dg-go dg-now-td" data-testid="digest-now-td" data-dgtds>${n === 1 ? t("digest.live.td1") : t("digest.live.tds", {n})}${DG_ARROW}</button>` : ""}</div></section>`;
 }
 
 /* Need to know is empty once games are on and nobody unplayed is hurt or new: it is not drawn. */
@@ -21358,9 +21360,9 @@ function dgMnfGame(x){
     ? `<span class="dg-mnf-s">${esc(g.away)} <b>${a}</b><i aria-hidden="true"> · </i>${esc(g.home)} <b>${h}</b></span>` : "";
   const top = played ? dgMnfTop(g) : null;
   const by = top ? `<span class="dg-mnf-t">${esc(dgShort(top.n))} ${esc(dgMnfLine(top))}</span>` : "";
-  return `<button type="button" class="dg-mnf-g" data-dgblk="${esc(g.home)}" data-event="${esc(g.espn || "")}"
+  return `<button type="button" class="dg-mnf-g" data-testid="digest-mnf-block" data-dgblk="${esc(g.home)}" data-event="${esc(g.espn || "")}"
     data-away="${esc(g.away)}" data-home="${esc(g.home)}" data-st="${x.st}">
-    <span class="dg-mnf-w">${esc(dgMnfWhen(x))}</span>${score}${by}${DG_ARROW}</button>`;
+    <span class="dg-mnf-w" data-testid="digest-mnf-when">${esc(dgMnfWhen(x))}</span>${score}${by}${DG_ARROW}</button>`;
 }
 
 /* The block for a game of the week's schedule, in the state the clock puts it in. Both the late slot and
@@ -21371,7 +21373,7 @@ const dgMnfFor = g => dgMnfGame({g, k: Date.parse(g.kickoff), st: dgGameState(g,
 function dgMnfHTML(){
   const late = dgMnfSlot(Date.now());
   if (!late) return "";
-  return `<section class="dg-tn dg-mnf" data-dgmnf aria-label="${t("digest.mnf.label")}">${late.map(dgMnfGame).join("")}</section>`;
+  return `<section class="dg-tn dg-mnf" data-testid="digest-tn" data-dgmnf aria-label="${t("digest.mnf.label")}">${late.map(dgMnfGame).join("")}</section>`;
 }
 /* ── js/surface/digest/digest.js ── */
 /* ============================== DIGEST ==============================
@@ -21382,7 +21384,7 @@ function dgMnfHTML(){
    The packet is ff-jarvis's (data/weekly_digest.json); the page computes nothing. */
 
 const DG_CHEV = `<svg class="dg-chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 6l4.5 4.5L12.5 6"/></svg>`;
-const DG_ARROW = `<svg class="dg-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5L12 8l-3.5 3.5"/></svg>`;
+const DG_ARROW = `<svg class="dg-arrow" data-testid="digest-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5L12 8l-3.5 3.5"/></svg>`;
 const DG_WIND = `<svg class="dg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/></svg>`;
 const DG_RAIN = `<svg class="dg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 15a4 4 0 0 1 .5-8 5.5 5.5 0 0 1 10.3 1.5A3.5 3.5 0 0 1 17.5 15H7zM9 18l-1 3M13 18l-1 3M17 18l-1 3"/></svg>`;
 
@@ -21452,11 +21454,11 @@ function dgRowHTML(id, d, open){
     : id === "wx" ? t("digest.line.wxCalm")
     : id === "mu" && d ? dgMuNone(dgRowWeek(d)) : t("digest.line.nothing");
   const on = has && open === id;
-  return `<div class="dg-row${has ? "" : " empty"}" data-dgrow="${id}"${on ? " data-open data-today" : ""}>
-    <button type="button" class="dg-head" aria-expanded="${on}"${has ? ` aria-controls="dg-b-${id}"` : " disabled"}>
-      <span class="dg-l">${dgIcon(id)}${dgLabel(id)}</span><span class="dg-n ${n === "" ? "none" : tone}">${n}</span>
-      <span class="dg-s">${line}</span>${has ? DG_CHEV : ""}</button>
-    ${has ? `<div class="dg-body" id="dg-b-${id}"${on ? "" : " inert"}><div class="dg-in"><div class="dg-pad">${DG_BODY[id](d)}</div></div></div>` : ""}
+  return `<div class="dg-row${has ? "" : " empty"}" data-testid="digest-row" data-dgrow="${id}"${on ? " data-open data-today" : ""}>
+    <button type="button" class="dg-head" data-testid="digest-row-head" aria-expanded="${on}"${has ? ` aria-controls="dg-b-${id}"` : " disabled"}>
+      <span class="dg-l" data-testid="digest-row-label">${dgIcon(id)}${dgLabel(id)}</span><span class="dg-n ${n === "" ? "none" : tone}" data-testid="digest-row-count">${n}</span>
+      <span class="dg-s" data-testid="digest-row-line">${line}</span>${has ? DG_CHEV : ""}</button>
+    ${has ? `<div class="dg-body" data-testid="digest-row-body" id="dg-b-${id}"${on ? "" : " inert"}><div class="dg-in"><div class="dg-pad">${DG_BODY[id](d)}</div></div></div>` : ""}
   </div>`;
 }
 
@@ -21480,9 +21482,9 @@ function digestHTML(){
   const lead = dgLeadHTML();
   DG_LAST = {lead, now, mnf};
   DG_DRAWN = dgPhaseKey();
-  const ticker = d ? `<section class="dg-ticker${cls ? " " + cls : ""}" aria-label="${t("digest.ticker.label")}">${dgTonightHTML(d, mnf)}${needOff ? "" : dgNeedHTML(d)}${now}${body.join("")}</section>`
+  const ticker = d ? `<section class="dg-ticker${cls ? " " + cls : ""}" data-testid="digest-ticker" aria-label="${t("digest.ticker.label")}">${dgTonightHTML(d, mnf)}${needOff ? "" : dgNeedHTML(d)}${now}${body.join("")}</section>`
     : `<p class="dg-none">${t("digest.empty.ticker")}</p>`;
-  return `<div class="dg">${lead}${ticker}</div>`;
+  return `<div class="dg" data-testid="digest-root">${lead}${ticker}</div>`;
 }
 
 function dgSetOpen(row, open){
@@ -26272,11 +26274,11 @@ function buildRowHTML(p){
   const i = PROPS.indexOf(p), s = legSide(p), moved = lineMoved(p, PARLAY_BOOK);
   const best = moved ? null : bestOdds(p, PARLAY_BOOK);
   const td = s.line == null;
-  const ev = `<button type="button" class="more bl-ev" data-legsheet="${i}" aria-haspopup="dialog" aria-label="${t("parlay.more.sheet")}">
-      <span class="bl-ln"><b>${td ? t("parlay.call.td") : s.line}</b><small>${td ? t("parlay.call.anytime") : MKT_SHORT[p.mkt]}</small>${best ? `<em>${esc(best)}</em>` : ""}</span>
+  const ev = `<button type="button" class="more bl-ev" data-testid="parlay-line-ev" data-legsheet="${i}" aria-haspopup="dialog" aria-label="${t("parlay.more.sheet")}">
+      <span class="bl-ln"><b>${td ? t("parlay.call.td") : s.line}</b><small>${td ? t("parlay.call.anytime") : MKT_SHORT[p.mkt]}</small>${best ? `<em data-testid="parlay-line-why">${esc(best)}</em>` : ""}</span>
       ${buildGamesHTML(p, s, moved)}</button>`;
-  if (moved) return `<div class="bline moved">${ev}
-    <button type="button" class="more bl-call" data-legsheet="${i}" title="${t("parlay.tag.staleTitle")}">${t("parlay.call.moved")}</button></div>`;
+  if (moved) return `<div class="bline moved" data-testid="parlay-line">${ev}
+    <button type="button" class="more bl-call" data-testid="parlay-line-call" data-legsheet="${i}" title="${t("parlay.tag.staleTitle")}">${t("parlay.call.moved")}</button></div>`;
   const inSlip = SLIP.includes(i), lower = s.pick === "lower";
   const word = td ? t("parlay.call.scores") : PARLAY_BOOK === "dk" ? t("parlay.call.over") : lower ? t("parlay.call.lowerWord") : t("parlay.call.higherWord");
   // Longest reception is never priced (2026-10-03), so it is not "pending" either: no number.
@@ -26285,8 +26287,8 @@ function buildRowHTML(p){
   // The model's tier word under the chance (2026-10-05): the one vocabulary Slips uses, only where the
   // model's side is the side this row calls.
   const m = td ? null : slModel(p), tier = m && PT_RANK[m.tier] && m.side === (lower ? "lower" : "higher") ? m.tier : "";
-  return `<div class="bline" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">${ev}
-    <span class="bl-call ${lower ? "lower" : "higher"}">${word}<b>${pct}${price}</b>${tier ? `<span class="bl-tier ${tier}">${slTierWord(tier)}</span>` : ""}</span></div>`;
+  return `<div class="bline" data-testid="parlay-line" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">${ev}
+    <span class="bl-call ${lower ? "lower" : "higher"}" data-testid="parlay-line-call">${word}<b>${pct}${price}</b>${tier ? `<span class="bl-tier ${tier}">${slTierWord(tier)}</span>` : ""}</span></div>`;
 }
 
 /* The cornerback he draws this week, when ff-jarvis rates it an upgrade or a downgrade. */
@@ -26298,7 +26300,7 @@ function cbTagHTML(c){
 function buildPlayerHTML(rows){
   const p = rows[0], cb = (rows.find(r => r.cb) || {}).cb;
   const tag = whyNotSlip({...p, stale: 0, norole: 0}, null) + roleNoteTagHTML(p) + cbTagHTML(cb);
-  return `<div class="bplayer ${p.mine ? "mine" : ""} ${p.flag === "out" ? "isout" : ""}">
+  return `<div class="bplayer ${p.mine ? "mine" : ""} ${p.flag === "out" ? "isout" : ""}" data-testid="parlay-bplayer">
     <div class="bp-who">${avatarHTML(p)}<span class="bp-name">${esc(nameInitial(p.n))}</span><span class="bp-meta">${esc(p.pos)} · ${esc(p.game)}</span>${tag}</div>
     ${rows.map(buildRowHTML).join("")}
   </div>`;
@@ -26488,15 +26490,15 @@ function betsVerdictHTML(legs){
 function betsPayHTML(legs){
   const x = betsPayout(legs);
   return `<label class="paybox"><span>${t("parlay.slip.appPays")}</span>
-      <input data-bpay inputmode="decimal" autocomplete="off" value="${x ? x : ""}" placeholder="${t("parlay.slip.payHint")}"><i>×</i></label>
-    <div class="payverdict" data-bpayv>${betsVerdictHTML(legs)}</div>`;
+      <input data-testid="parlay-pay-input" data-bpay inputmode="decimal" autocomplete="off" value="${x ? x : ""}" placeholder="${t("parlay.slip.payHint")}"><i>×</i></label>
+    <div class="payverdict" data-testid="parlay-pay-verdict" data-bpayv>${betsVerdictHTML(legs)}</div>`;
 }
 
 /* One Underdog leg: name, then the side on the slip, the line and the stat, and remove. */
 function slipLegUdHTML(i){
   const l = PROPS[i], side = slipSide(i), td = l.mkt === "TD", line = slLine(l);
   const dir = td ? t("slips.side.yes") : side === "lower" ? t("slips.side.lower") : t("slips.side.higher");
-  return `<div class="slipleg ud ${side}">
+  return `<div class="slipleg ud ${side}" data-testid="parlay-slip-leg">
       <div><div class="p">${esc(l.n)}</div>
         <div class="m"><span class="dir">${dir}</span><b>${td || line == null ? t("parlay.call.td") : line}</b><span class="stat">${td ? t("parlay.call.anytime") : esc(MKT_SHORT[l.mkt] || l.mkt)}</span></div></div>
       <button class="legremove" data-removeleg="${i}" title="${t("common.action.remove")}">✕</button></div>`;
@@ -26519,28 +26521,28 @@ function slipHTML(){
   const udMode = PARLAY_BOOK === "underdog";
   const title = SLIP_MODE === "mine" ? t("parlay.slip.titleMine") : udMode ? t("parlay.slip.titleUd") : t("parlay.slip.titleDk");
   const udP = udMode && legs.length && !corr ? udChance(legs) : null;
-  const note = corr ? `<div class="corr"><span>⚠</span>${t("slips.joint.note")}</div>` : "";
+  const note = corr ? `<div class="corr" data-testid="parlay-slip-corr"><span>⚠</span>${t("slips.joint.note")}</div>` : "";
   const chips = `<div class="presets">
     ${PRESETS.map(([k,label]) =>
       `<button class="chip" data-preset="${k}" aria-pressed="${SLIP_MODE===k}">${label}</button>`).join("")}</div>`;
   const model = legs.some(l => (udPick(l) || {}).synthetic);
-  if (udMode) return `<div class="slip">
-    <div class="sliphead"><span class="lbl">${title}</span><span class="pill">${t("parlay.slip.pickCount", {n: legs.length})}</span></div>
+  if (udMode) return `<div class="slip" data-testid="parlay-slip">
+    <div class="sliphead"><span class="lbl">${title}</span><span class="pill" data-testid="parlay-slip-pill">${t("parlay.slip.pickCount", {n: legs.length})}</span></div>
     ${chips}
     ${legs.length ? SLIP.map(slipLegUdHTML).join("") : slipEmptyHTML(t("slips.tray.emptySheet"))}
     ${note}
     <div class="payout">
       <span class="lbl">${t("parlay.slip.allHit")}</span>
-      <div class="bigedge">${udP === null ? "—" : `${(udP*100).toFixed(1)}%`}</div>
+      <div class="bigedge" data-testid="parlay-slip-edge">${udP === null ? "—" : `${(udP*100).toFixed(1)}%`}</div>
       ${legs.length >= 2 ? betsPayHTML(legs) : ""}
       <div class="payrow"><span>${model ? t("parlay.slip.tdModelRead") : t("parlay.slip.udLine")}</span><b>${model ? t("parlay.slip.notUdPrice") : t("parlay.slip.notDk")}</b></div>
       <button class="btn" data-copy="picks" style="width:100%;margin-top:14px" ${legs.length ? "" : "disabled"}>${t("parlay.slip.copyPicks")}</button>
     </div>
   </div>`;
-  return `<div class="slip">
-    <div class="sliphead"><span class="lbl">${title}</span><span class="pill">${t("parlay.slip.legCount", {n: legs.length})}</span></div>
+  return `<div class="slip" data-testid="parlay-slip">
+    <div class="sliphead"><span class="lbl">${title}</span><span class="pill" data-testid="parlay-slip-pill">${t("parlay.slip.legCount", {n: legs.length})}</span></div>
     ${chips}
-    ${legs.length ? legs.map((l,k)=>`<div class="slipleg">
+    ${legs.length ? legs.map((l,k)=>`<div class="slipleg" data-testid="parlay-slip-leg">
       <div><div class="p">${esc(l.n)}</div><div class="m">${esc(propLabel(l).toUpperCase())}${l.books ? ` · ${esc(ABBR[l.book]||l.book)}` : ""}${l.kick ? ` · ${esc(l.kick.toUpperCase())}` : ""}${typeof l.edge === "number" ? ` · ${l.model}% · ${l.edge>0?"+":""}${l.edge.toFixed(1)}` : ""}</div></div>
       <div class="o">${esc(fmtAm(overPrice(l)))}</div>
       <button class="legremove" data-removeleg="${SLIP[k]}" title="${t("common.action.remove")}">✕</button></div>`).join("")
@@ -26548,7 +26550,7 @@ function slipHTML(){
     ${note}
     <div class="payout">
       <span class="lbl">${modeled ? t("parlay.slip.edgeOverBook") : t("parlay.slip.edgeLabel")}</span>
-      <div class="bigedge ${modeled ? "" : "pending"}">${modeled ? `${modelP >= implied ? "+" : ""}${((modelP-implied)*100).toFixed(1)}` : t("parlay.slip.pending")}</div>
+      <div class="bigedge ${modeled ? "" : "pending"}" data-testid="parlay-slip-edge">${modeled ? `${modelP >= implied ? "+" : ""}${((modelP-implied)*100).toFixed(1)}` : t("parlay.slip.pending")}</div>
       <div class="payrow"><span>${t("parlay.slip.modelProb")}</span><b>${modeled ? pct(modelP) : "—"}</b></div>
       <div class="payrow"><span>${t("parlay.detail.bookImplied")}</span><b>${priced ? pct(implied) : "—"}</b></div>
       <div class="payrow"><span>${t("parlay.slip.combinedOdds")}</span><b>${priced ? fmtAm(decToAm(dec)) : "—"}</b></div>
@@ -26702,9 +26704,9 @@ function buildLines(){
 /* One column under a heading per kickoff, paged by player (lines.js). */
 function buildHTML(){
   const all = buildLines(), ud = PARLAY_BOOK === "underdog";
-  if (!all.length) return `<div class="state-empty" style="margin:20px 0;min-height:120px"><div><b>0</b><span>${MKT_BEST ? t("parlay.empty.noBest") : t("parlay.empty.noLines")}</span></div></div>`;
+  if (!all.length) return `<div class="state-empty" data-testid="parlay-build-empty" style="margin:20px 0;min-height:120px"><div><b>0</b><span>${MKT_BEST ? t("parlay.empty.noBest") : t("parlay.empty.noLines")}</span></div></div>`;
   const {body, page, pages, players} = buildListHTML(all);
-  return `<div class="blist">${body}</div>
+  return `<div class="blist" data-testid="parlay-build-list">${body}</div>
   <div class="filters bets-pager">
     <span class="lbl">${t("parlay.pager.lines", {n: all.length, s: all.length===1?"":"s"})} · ${t("parlay.pager.players", {n: players, s: players===1?"":"s"})}${ud && all.some(p => (udPick(p) || {}).synthetic) ? ` · ${t("parlay.pager.tdNote")}` : ""}</span>
     <span style="flex:1"></span>
@@ -26734,14 +26736,14 @@ function betsSettingLabel(build){
 function betsBarHTML(build){
   const set = `<button type="button" class="chip bets-set" data-betspanel aria-expanded="${BETS_PANEL}"
     aria-label="${t("parlay.bar.settings")}">${betsSettingLabel(build)}<span class="bets-caret" aria-hidden="true"></span></button>`;
-  if (build) return `<div class="filters bets-bar">
+  if (build) return `<div class="filters bets-bar" data-testid="parlay-bar">
     <button class="chip bets-best" data-mbest aria-pressed="${MKT_BEST}">${t("parlay.bar.best")}</button>
     ${["QB","RB","WR","TE"].map(p=>`<button class="chip" data-mpos="${p}" aria-pressed="${MKT_POS===p}">${p}</button>`).join("")}
     ${set}</div>`;
   const on = slWin();
-  return `<div class="bets-bar bets-tabsrow">
-    <div class="bd-tabs view-tabs" role="tablist" aria-label="${t("parlay.filter.kickoff")}">${KICK_CHIPS.map(w =>
-      `<button type="button" class="bd-tab" role="tab" data-gwin="${esc(w.k)}" aria-selected="${on === w}"
+  return `<div class="bets-bar bets-tabsrow" data-testid="parlay-bar">
+    <div class="bd-tabs view-tabs" role="tablist" data-testid="parlay-kick-tabs" aria-label="${t("parlay.filter.kickoff")}">${KICK_CHIPS.map(w =>
+      `<button type="button" class="bd-tab" role="tab" data-testid="parlay-kick-tab" data-gwin="${esc(w.k)}" aria-selected="${on === w}"
         aria-label="${esc(galGroupName(w))}">${esc(kickChipLabel(w))}</button>`).join("")}</div>
     ${set}</div>`;
 }
@@ -26772,7 +26774,7 @@ function kickName(w){
 function betsPanelHTML(build){
   if (!BETS_PANEL) return "";
   const sel = (k, label, opts, cur) => `<label class="selwrap"><span class="lbl">${label}</span>
-    <select class="msel" data-msel="${k}">${opts.map(([v, l]) => `<option value="${v}" ${cur===v?"selected":""}>${l}</option>`).join("")}</select></label>`;
+    <select class="msel" data-testid="parlay-select" data-msel="${k}">${opts.map(([v, l]) => `<option value="${v}" ${cur===v?"selected":""}>${l}</option>`).join("")}</select></label>`;
   const sorts = PARLAY_BOOK === "underdog"
     // Anytime TD on Underdog is a model read at P(score) on every row, so one sort, named for
     // what it is, instead of three that visibly do nothing.
@@ -26833,12 +26835,12 @@ const trayWho = (n = SLIP.length) => trayNames(SLIP.slice(0, n).map(i => ({n: PR
 
 function trayHTML(){
   const n = SLIP.length, saved = slipIsSaved();
-  return `<div class="tray${n ? "" : " empty"}">
-    <button type="button" class="tray-open" data-tray aria-expanded="${BETS_SHEET}">
-      <span class="tray-c">${t("slips.tray.label")} · <span class="tray-n">${n}</span></span>
+  return `<div class="tray${n ? "" : " empty"}" data-testid="parlay-tray">
+    <button type="button" class="tray-open" data-testid="parlay-tray-open" data-tray aria-expanded="${BETS_SHEET}">
+      <span class="tray-c">${t("slips.tray.label")} · <span class="tray-n" data-testid="parlay-tray-count">${n}</span></span>
       <span class="tray-who">${n ? esc(trayWho()) : t("slips.tray.empty")}</span>
     </button>
-    <button type="button" class="tray-save" data-slsave ${n && !saved ? "" : "disabled"}>${saved ? t("slips.tray.saved") : t("slips.tray.save")}</button>
+    <button type="button" class="tray-save" data-testid="parlay-tray-save" data-slsave ${n && !saved ? "" : "disabled"}>${saved ? t("slips.tray.saved") : t("slips.tray.save")}</button>
   </div>`;
 }
 
@@ -26848,7 +26850,7 @@ function trayHTML(){
 function betsOddsHTML(){
   const legs = betsSlipLegs(), same = betsSameGame(legs) !== null;
   if (!legs.length || legs.some(l => betsLegChance(l) === null)) return "";
-  const row = (name, v, all) => `<div class="odds-row${all ? " all" : ""}"><span>${name}</span>
+  const row = (name, v, all) => `<div class="odds-row${all ? " all" : ""}" data-testid="parlay-odds-row"><span>${name}</span>
     <i class="odds-bar"><i style="--w:${v.toFixed(1)}%"></i></i><b>${v.toFixed(1)}%</b></div>`;
   // Same-game legs: each leg's own chance stays, the all-hit bar goes (it would multiply what moves together).
   return `<div class="odds">${legs.map(l => row(esc(nameInitial(l.n)), betsLegChance(l), false)).join("")}
@@ -26860,17 +26862,17 @@ const SV_X = `<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 2.5l7 7M
 /* The slips saved this week: how many legs, who, and an x. A tap loads one into the tray. */
 function savedHTML(){
   if (!SAVED.length) return "";
-  const rows = SAVED.map((s, k) => `<li class="sv-row">
-      <button type="button" class="sv-load" data-slload="${k}"><b>${t("slips.saved.legs", {n: s.legs.length})}</b>
+  const rows = SAVED.map((s, k) => `<li class="sv-row" data-testid="parlay-saved-row">
+      <button type="button" class="sv-load" data-testid="parlay-saved-load" data-slload="${k}"><b>${t("slips.saved.legs", {n: s.legs.length})}</b>
         <span>${esc(trayNames(s.legs.map(l => ({n: l.n || l.slug, slug: l.slug}))))}</span></button>
-      <button type="button" class="sv-drop" data-sldrop="${k}" aria-label="${t("slips.saved.drop")}">${SV_X}</button>
+      <button type="button" class="sv-drop" data-testid="parlay-saved-drop" data-sldrop="${k}" aria-label="${t("slips.saved.drop")}">${SV_X}</button>
     </li>`).join("");
   return `<section class="sv"><h3>${t("slips.saved.title", {n: SAVED.length})}</h3><ul>${rows}</ul></section>`;
 }
 
 function sheetHTML(){
   return `<div class="sheet-scrim${BETS_SHEET ? " on" : ""}" data-sheetclose></div>
-  <section class="slipsheet${BETS_SHEET ? " on" : ""}" role="dialog" aria-modal="true" aria-hidden="${!BETS_SHEET}"
+  <section class="slipsheet${BETS_SHEET ? " on" : ""}" data-testid="parlay-slipsheet" role="dialog" aria-modal="true" aria-hidden="${!BETS_SHEET}"
     aria-label="${t("slips.tray.label")}">
     <button type="button" class="grab" data-sheetclose aria-label="${t("common.action.close")}"></button>
     ${betsOddsHTML()}
@@ -27097,7 +27099,7 @@ const slTierWord = k => k === "very" ? t("slips.tier.very") : k === "confident" 
 /* The tier word, in Preview's looks: Slight grey, Confident lime text, Very confident a lime fill, with the
    chance of the model's side before it ("74% Confident", 2026-10-05): one vocabulary in Slips, Top calls and
    All lines. "No pick" has no chance to print. */
-const slTierHTML = (k, q) => `<span class="sl-tp">${q && k !== "none" ? `<i class="sl-pc">${Math.round(q)}%</i>` : ""}<b class="sl-conf ${k}">${slTierWord(k)}</b></span>`;
+const slTierHTML = (k, q) => `<span class="sl-tp">${q && k !== "none" ? `<i class="sl-pc">${Math.round(q)}%</i>` : ""}<b class="sl-conf ${k}" data-testid="parlay-tier">${slTierWord(k)}</b></span>`;
 
 const slCleared = (p, line, v) => typeof v === "number" && (p.mkt === "TD" ? v >= 1 : typeof line === "number" && v > line);
 
@@ -27112,10 +27114,10 @@ function slHist(p){
 
 function slHistHTML(p, line, m){
   const h = slHist(p), known = h.filter(x => typeof x.v === "number");
-  const md = m && m.td ? `<small class="sl-md">${t("slips.line.modelTd", {p: m.pct})}</small>` : "";
-  if (!known.length) return md ? `<span class="sl-hist">${md}</span>` : "";
-  const cells = h.map(x => `<i class="${slCleared(p, line, x.v) ? "hit" : ""}${x.old ? " old" : ""}"${x.g.length ? ` title="${x.g[0]} wk${x.g[1]}${x.g[2] ? " vs " + esc(x.g[2]) : ""}"` : ""}>${typeof x.v === "number" ? fmt2(x.v) : ""}</i>`).join("");
-  return `<span class="sl-hist">${cells}${md}</span>`;
+  const md = m && m.td ? `<small class="sl-md" data-testid="parlay-model-pct">${t("slips.line.modelTd", {p: m.pct})}</small>` : "";
+  if (!known.length) return md ? `<span class="sl-hist" data-testid="parlay-hist">${md}</span>` : "";
+  const cells = h.map(x => `<i class="${slCleared(p, line, x.v) ? "hit" : ""}${x.old ? " old" : ""}" data-testid="parlay-hist-cell"${x.g.length ? ` title="${x.g[0]} wk${x.g[1]}${x.g[2] ? " vs " + esc(x.g[2]) : ""}"` : ""}>${typeof x.v === "number" ? fmt2(x.v) : ""}</i>`).join("");
+  return `<span class="sl-hist" data-testid="parlay-hist">${cells}${md}</span>`;
 }
 
 /* Claude's call at the line shown, or null (2026-10-05, storyboard "Claude Calls" A): its side and one
@@ -27140,7 +27142,7 @@ function slSidesHTML(i, m, side, c){
   const agree = slClaudeAgrees(c, m);
   const btn = (s, label) => {
     const mine = !!c && c.side === s;
-    return `<button type="button" class="sl-side ${s}${m && m.side === s && m.tier !== "none" ? " pick" : ""}" data-slpick="${i}" data-side="${s}" aria-pressed="${side === s}"${mine ? ` aria-label="${t("slips.claude.name", {side: label})}"` : ""}>${label}${mine ? slClaudeBadge(agree) : ""}</button>`;
+    return `<button type="button" class="sl-side ${s}${m && m.side === s && m.tier !== "none" ? " pick" : ""}" data-testid="parlay-side" data-slpick="${i}" data-side="${s}" aria-pressed="${side === s}"${mine ? ` aria-label="${t("slips.claude.name", {side: label})}"` : ""}>${label}${mine ? slClaudeBadge(agree) : ""}</button>`;
   };
   // "72% Very confident" is wider than one side, so it spans both under the buttons, to the right edge; "No pick"
   // has no chance and stays under Lower.
@@ -27153,9 +27155,9 @@ function slSidesHTML(i, m, side, c){
 
 function slLineHTML(i){
   const p = PROPS[i], line = slLine(p), td = p.mkt === "TD", on = SLIP.includes(i), side = on ? slipSide(i) : null, m = slModel(p), c = slClaude(p);
-  const yes = `<span class="sl-sides"><button type="button" class="sl-side higher" data-slpick="${i}" data-side="higher" aria-pressed="${side === "higher"}">${t("slips.side.yes")}</button></span>`;
-  return `<div class="sl-ln${on ? " on" : ""}${m && m.tier ? " tiered" : ""}">
-      <span class="sl-mk">${esc(MKT[p.mkt] || p.mkt)}${!td && line != null ? ` <b>${line}</b>` : ""}</span>
+  const yes = `<span class="sl-sides"><button type="button" class="sl-side higher" data-testid="parlay-side" data-slpick="${i}" data-side="higher" aria-pressed="${side === "higher"}">${t("slips.side.yes")}</button></span>`;
+  return `<div class="sl-ln${on ? " on" : ""}${m && m.tier ? " tiered" : ""}" data-testid="parlay-line-item">
+      <span class="sl-mk" data-testid="parlay-line-market">${esc(MKT[p.mkt] || p.mkt)}${!td && line != null ? ` <b>${line}</b>` : ""}</span>
       ${td ? yes : slSidesHTML(i, m, side, c)}
       ${slHistHTML(p, line, m)}
       ${c && c.why && !slClaudeAgrees(c, m) ? `<span class="sl-cwhy">${slClaudeBadge(false, " static")}<span>${esc(c.why)}</span></span>` : ""}
@@ -27171,8 +27173,8 @@ function slLongHTML(slug){
   if (!vals || !vals.some(v => typeof v === "number")) return "";
   const k0 = Math.max(0, vals.length - SL_HIST);
   const cells = vals.slice(k0).map((v, k) => { const g = log.g[k0 + k] || [];
-    return `<i class="${g[0] < BUILD_SEASON ? "old" : ""}"${g.length ? ` title="${g[0]} wk${g[1]}"` : ""}>${typeof v === "number" ? fmt2(v) : "–"}</i>`; }).join("");
-  return `<div class="sl-ln sl-long"><span class="sl-mk">${t("slips.line.longest")}</span><span class="sl-hist">${cells}</span></div>`;
+    return `<i class="${g[0] < BUILD_SEASON ? "old" : ""}" data-testid="parlay-hist-cell"${g.length ? ` title="${g[0]} wk${g[1]}"` : ""}>${typeof v === "number" ? fmt2(v) : "–"}</i>`; }).join("");
+  return `<div class="sl-ln sl-long" data-testid="parlay-long"><span class="sl-mk" data-testid="parlay-line-market">${t("slips.line.longest")}</span><span class="sl-hist" data-testid="parlay-hist">${cells}</span></div>`;
 }
 
 /* A side tapped, from the board's sheet or Preview: the slip changes, the view behind redraws (its
@@ -27209,7 +27211,7 @@ function slSparkHTML(last, up){
   const top = Math.max(...last, 1);
   return `<span class="sl-spark">${last.map((v, k) => {
     const now = k === last.length - 1;
-    return `<span class="${now && up ? "up" : ""}"><i style="--h:${Math.max(2, v / top * SL_BAR_PX).toFixed(0)}px"></i><em>${v}</em></span>`;
+    return `<span class="${now && up ? "up" : ""}"><i data-testid="parlay-spark-bar" style="--h:${Math.max(2, v / top * SL_BAR_PX).toFixed(0)}px"></i><em>${v}</em></span>`;
   }).join("")}</span>`;
 }
 
@@ -27242,12 +27244,12 @@ function slPickHTML(x){
 
 function slRowHTML(x, on){
   const p = x.p, n = x.rows.length;
-  return `<li><button type="button" class="sl-row" data-slplayer="${esc(x.slug)}" aria-haspopup="dialog">
+  return `<li><button type="button" class="sl-row" data-testid="parlay-row" data-slplayer="${esc(x.slug)}" aria-haspopup="dialog">
       <span class="sl-l">
-        <span class="sl-who"><b>${esc(nameInitial(p.n))}</b><span class="sl-pos">${esc(p.pos)} · ${esc(p.team)}</span>${on ? `<span class="sl-on">${t("slips.onSlip")}</span>` : ""}</span>
+        <span class="sl-who"><b data-testid="parlay-row-name">${esc(nameInitial(p.n))}</b><span class="sl-pos">${esc(p.pos)} · ${esc(p.team)}</span>${on ? `<span class="sl-on" data-testid="parlay-row-on">${t("slips.onSlip")}</span>` : ""}</span>
         ${slUseHTML(x)}${slFlagsHTML(x)}
       </span>
-      <span class="sl-r">${slPickHTML(x)}<span class="sl-go">${n === 1 ? t("slips.lines.one") : t("slips.lines.many", {n})}${SL_CHEV}</span></span>
+      <span class="sl-r">${slPickHTML(x)}<span class="sl-go" data-testid="parlay-row-go">${n === 1 ? t("slips.lines.one") : t("slips.lines.many", {n})}${SL_CHEV}</span></span>
     </button></li>`;
 }
 
@@ -27262,12 +27264,12 @@ function slLineBoxHTML(teams, ln){
 function slGameHTML(g, on){
   const teams = slTeams(g.game), pv = teams.length === 2 ? slPreviewGame(teams) : null, k = pv && pv.take;
   const chip = slChip(g), shown = slChipPlayers(g, chip);
-  const chips = SL_CHIPS.map(c => `<button type="button" class="chip" data-slchip="${c}" data-slgame="${esc(g.game)}" aria-pressed="${chip === c}">${slChipLabel(c, g.players.length)}</button>`).join("");
+  const chips = SL_CHIPS.map(c => `<button type="button" class="chip" data-testid="parlay-chip" data-slchip="${c}" data-slgame="${esc(g.game)}" aria-pressed="${chip === c}">${slChipLabel(c, g.players.length)}</button>`).join("");
   const rows = shown.length ? shown.map(x => slRowHTML(x, on.has(x.slug))).join("")
-    : `<li class="sl-none">${chip === "rise" ? t("slips.chip.noneRise") : t("slips.chip.none")}</li>`;
-  return `<section class="sl-game" data-slgamecard="${esc(g.game)}">
+    : `<li class="sl-none" data-testid="parlay-none">${chip === "rise" ? t("slips.chip.noneRise") : t("slips.chip.none")}</li>`;
+  return `<section class="sl-game" data-testid="parlay-game" data-slgamecard="${esc(g.game)}">
       <header class="sl-gh">
-        <div class="sl-gt"><h3>${esc(g.game)}</h3><span>${esc(g.kick || "")}</span></div>
+        <div class="sl-gt"><h3 data-testid="parlay-game-title">${esc(g.game)}</h3><span>${esc(g.kick || "")}</span></div>
         ${teams.length === 2 ? slLineBoxHTML(teams, slGameLine(teams, pv)) : ""}
         ${k ? `<button type="button" class="sl-take" data-slprev="${pvGames().indexOf(pv)}">${esc(k.head)}<span aria-hidden="true">›</span></button>` : ""}
         <div class="sl-chips" role="group" aria-label="${t("slips.chip.label")}">${chips}</div>
@@ -27279,7 +27281,7 @@ function slGameHTML(g, on){
 function slBoardHTML(){
   const games = slGames(slWin()), on = onSlipSlugs();
   if (!games.length) return `<div class="state-empty sl-empty"><div><b>0</b><span>${t("slips.empty")}</span></div></div>`;
-  return `<div class="sl-board">${games.map(g => slGameHTML(g, on)).join("")}</div>`;
+  return `<div class="sl-board" data-testid="parlay-board">${games.map(g => slGameHTML(g, on)).join("")}</div>`;
 }
 
 /* A game's headline opens its Preview dossier, the way a Recap game does (recap.js wrGo). */
@@ -28315,7 +28317,7 @@ const gdLiveLabel = n => (n === 1 ? t("live.tab.liveNow1") : t("live.tab.liveNow
    row (2026-10-05, data/tabrow.js, declared below), and hides this one (.view-tabs, chrome/phonenav.css). */
 function gdTabsHTML(){
   const on = gdTab(), live = gdLiveCount();
-  const btn = k => `<button type="button" data-gdtab="${k}" aria-pressed="${k === on}">${gdTabName(k)}${k === "games" && live
+  const btn = k => `<button type="button" data-testid="live-tab" data-gdtab="${k}" aria-pressed="${k === on}">${gdTabName(k)}${k === "games" && live
     ? `<em class="gd-n" aria-label="${gdLiveLabel(live)}">${live}</em>` : ""}</button>`;
   return `<div class="gd-tabs view-tabs" role="group" aria-label="${t("live.tab.label")}">${GD_TABS.map(btn).join("")}</div>`;
 }
@@ -28799,7 +28801,7 @@ function tdRowHTML(o){
   const line = o.line || (cls === "live" ? t("live.tds.none") : cls === "missed" ? t("live.tds.missed") : "");
   const chance = o.chance === null ? "" : `<small>${t("live.tds.chance", {n: o.chance})}</small>`;
   const club = o.game ? "" : ` <small>${esc(o.team)}</small>`;
-  return `<li><button type="button" class="td-row ${cls}${o.scored && cls !== "scored" ? " scored" : ""}${o.game ? " in-game" : ""}" data-tdslug="${esc(o.slug)}" data-tdn="${esc(o.n)}"
+  return `<li><button type="button" data-testid="live-td-row" class="td-row ${cls}${o.scored && cls !== "scored" ? " scored" : ""}${o.game ? " in-game" : ""}" data-tdslug="${esc(o.slug)}" data-tdn="${esc(o.n)}"
       data-tdpos="${esc(o.pos)}" data-tdteam="${esc(o.team)}">
     <span class="td-pos" data-pos="${esc(o.pos)}">${esc(o.pos)}</span>
     <span class="td-who"><b>${esc(nameInitial(o.n))}${club}</b>${line ? `<span class="td-line">${esc(line)}</span>` : ""}</span>
@@ -28839,7 +28841,7 @@ function tdGameCardsHTML(rows, kinds){
       head = `${side(g.away, a, h)}${side(g.home, h, a)}<span class="td-gclock ${c.state}">${esc(c.label)}</span>`;
     }
     const tag = g ? `button type="button" class="td-gh" data-gdnfl="${esc(gdNflKey(g))}" aria-haspopup="dialog"` : `div class="td-gh"`;
-    return `<section class="gd-card td-card td-gcard"><h3 class="td-head"><${tag}>${head}</${g ? "button" : "div"}></h3>
+    return `<section class="gd-card td-card td-gcard" data-testid="live-td-gcard"><h3 class="td-head"><${tag}>${head}</${g ? "button" : "div"}></h3>
       <ul class="td-list">${rows.map(v => tdScoredRow(v, kinds, true)).join("")}</ul></section>`;
   }).join("");
 }
@@ -28849,8 +28851,8 @@ function tdGameCardsHTML(rows, kinds){
    Every copy key is spelled out (assemble.py --check). */
 function tdControlsHTML(){
   const name = {mine: t("live.tds.fMine"), pass: t("live.tds.fPass"), rush: t("live.tds.fRush"), rec: t("live.tds.fRec")};
-  const chips = TD_CHIPS.map(k => `<button type="button" class="chip" data-tdchip="${k}" aria-pressed="${!!TD_ON[k]}">${name[k]}</button>`).join("");
-  const byGame = `<button type="button" class="chip td-bygame" data-tdgame aria-pressed="${tdMode() === "game"}">${t("live.tds.byGame")}</button>`;
+  const chips = TD_CHIPS.map(k => `<button type="button" class="chip" data-testid="live-td-chip" data-tdchip="${k}" aria-pressed="${!!TD_ON[k]}">${name[k]}</button>`).join("");
+  const byGame = `<button type="button" class="chip td-bygame" data-testid="live-td-bygame" data-tdgame aria-pressed="${tdMode() === "game"}">${t("live.tds.byGame")}</button>`;
   return `<div class="td-filters" role="group" aria-label="${t("live.tds.filters")}">${chips}<span class="td-sep" aria-hidden="true"></span>${byGame}</div>`;
 }
 
@@ -28869,7 +28871,7 @@ function gdTdsHTML(lg){
   const {kinds, mine, filtered, all, scored} = tdFilter();
   const empty = () => `<p class="td-empty">${filtered ? tdNoneLine() : t("live.tds.noneYet")}</p>`;
   if (tdMode() === "game")
-    return tdControlsHTML() + (scored.length ? tdGameCardsHTML(scored, kinds) : `<section class="gd-card td-card">${empty()}</section>`);
+    return tdControlsHTML() + (scored.length ? tdGameCardsHTML(scored, kinds) : `<section class="gd-card td-card" data-testid="live-td-card">${empty()}</section>`);
   /* Still alive has no TD type: a type chip hides it, Mine narrows it, and it never repeats the empty line. */
   const alive = ["pass", "rush", "rec"].some(k => TD_ON[k]) ? [] : tdAliveRows(all).filter(p => !mine || mine.has(p.slug));
   const aliveRows = alive.map(p => ({n: p.n, slug: p.slug, pos: p.pos, team: p.team || "", chance: tdChanceFor(p)}));
@@ -28878,8 +28880,8 @@ function gdTdsHTML(lg){
   aliveRows.sort((a, b) => order(a) - order(b));
   const scoredList = scored.length ? `<ul class="td-list">${scored.map(v => tdScoredRow(v, kinds, false)).join("")}</ul>` : empty();
   const aliveCard = aliveRows.length ? `<ul class="td-list">${aliveRows.map(tdRowHTML).join("")}</ul>` : filtered ? "" : `<p class="td-empty">${t("live.tds.noBoard")}</p>`;
-  return tdControlsHTML() + tdrHTML(tdrModel(scored, kinds)) + `<section class="gd-card td-card"><h3 class="td-head"><span>${t("live.tds.scored")}</span><span>${t("live.tds.count", {n: scored.length})}</span></h3>${scoredList}</section>`
-    + (aliveCard ? `<section class="gd-card td-card"><h3 class="td-head"><span>${t("live.tds.alive")}</span><span>${t("live.tds.byChance")}</span></h3>${aliveCard}</section>` : "");
+  return tdControlsHTML() + tdrHTML(tdrModel(scored, kinds)) + `<section class="gd-card td-card" data-testid="live-td-card"><h3 class="td-head"><span>${t("live.tds.scored")}</span><span>${t("live.tds.count", {n: scored.length})}</span></h3>${scoredList}</section>`
+    + (aliveCard ? `<section class="gd-card td-card" data-testid="live-td-card"><h3 class="td-head"><span>${t("live.tds.alive")}</span><span>${t("live.tds.byChance")}</span></h3>${aliveCard}</section>` : "");
 }
 
 /* A row opens the player's profile, the way the matchup's rows do; the view and the chips repaint in
@@ -28942,7 +28944,7 @@ function tdrModel(rows, kinds){
 function tdrHTML(m){
   if (!m) return "";
   const title = t("live.tds.clips");
-  return `<section class="reel td-reel" data-reel data-tdreel aria-label="${esc(title)}">
+  return `<section class="reel td-reel" data-testid="live-reel" data-reel data-tdreel aria-label="${esc(title)}">
     ${clipRailHeadHTML(title, m.items.length, m.play)}
     <div class="reel-track">${m.items.map((x, i) => clipCardHTML(x, i, x.line)).join("")}</div>
   </section>`;
@@ -29742,19 +29744,19 @@ const ST_RUNNER = '<svg class="strig" viewBox="-18 -4 84 68" aria-hidden="true">
   + ST_HELMET
   + '<g class="sh near"><path class="j" d="M18.4 11L19.2 22.5L24.8 22.5L25.6 11Z"/>'
   + '<g class="elb"><path class="p" d="M19.5 21.5L20.2 31L23.8 31L24.5 21.5Z"/><circle class="k" cx="22" cy="32.2" r="3"/></g></g></g>'
-  + '<g class="hip near"><path class="p" d="M17.4 29.5Q16.8 37 19 43.5L25 43.5Q27.2 37 26.6 29.5Z"/>'
+  + '<g class="hip near" data-testid="strip-near-hip"><path class="p" d="M17.4 29.5Q16.8 37 19 43.5L25 43.5Q27.2 37 26.6 29.5Z"/>'
   + '<g class="knee"><path class="j" d="M19 42.5L20 55L24.2 55L25 42.5Z"/><path class="s" d="M19.3 46.5H24.7"/>'
   + '<path class="k" d="M19.4 54h5.4q3.6.4 4 3.2h-9.4z"/></g></g></svg>';
 
 /* the post's path is rewritten every frame from its two anchors -- see stPostPath */
-const ST_POST = '<span class="stpost"><svg aria-hidden="true"><path d=""/></svg></span>';
+const ST_POST = '<span class="stpost"><svg aria-hidden="true"><path data-testid="strip-post-path" d=""/></svg></span>';
 
 /* The two anchors under one post, on the end line at the back of its end zone: A is the left end
    of the field, B the right. They are zero-size and invisible; only their screen positions matter. */
 const stPostAnchors = k => {
   const x = k === "A" ? "14%" : "86%";
-  return `<i class="stanc a-n${k}" style="left:${x};bottom:${ST_LANE - ST_HALF}px"></i>`
-       + `<i class="stanc a-f${k}" style="left:${x};bottom:${ST_LANE + ST_HALF}px"></i>`;
+  return `<i class="stanc a-n${k}" data-testid="strip-anchor-near-${k}" style="left:${x};bottom:${ST_LANE - ST_HALF}px"></i>`
+       + `<i class="stanc a-f${k}" data-testid="strip-anchor-far-${k}" style="left:${x};bottom:${ST_LANE + ST_HALF}px"></i>`;
 };
 
 /* Drawn from the NEAR upright's base at 0,0; the far base lands at dx,dy on screen, so how far the
@@ -29779,12 +29781,12 @@ const stInitials = n => String(n || "").replace(/[^A-Z]/g, "").slice(0, 2);
 function stFace(who, url, cls = ""){
   const label = ` role="img" aria-label="${esc(who || "")}"`;
   return url
-    ? `<span class="stface${cls}"${label} style="background-image:url(${encodeURI(url)})"></span>`
-    : `<span class="stface${cls}"${label}>${esc(stInitials(who))}</span>`;
+    ? `<span class="stface${cls}" data-testid="strip-face"${label} style="background-image:url(${encodeURI(url)})"></span>`
+    : `<span class="stface${cls}" data-testid="strip-face"${label}>${esc(stInitials(who))}</span>`;
 }
 
 /* the ring on the ground is how the reader finds the man the play card names among helmets */
-const stFigure = who => `<div class="stpose" role="img" aria-label="${esc(who || "")}"><span class="stspot"></span>`
+const stFigure = who => `<div class="stpose" data-testid="strip-pose" role="img" aria-label="${esc(who || "")}"><span class="stspot"></span>`
   + `${ST_RUNNER}<span class="stheld">${ST_BALL}</span></div>`;
 /* ── js/surface/strip/ease.js ── */
 /* ------------------------------------------------------------------
@@ -29952,11 +29954,11 @@ function stFieldHTML(plays, g, id, label, dir){
 }
 
 /* The flat overlay: everything that must stay screen-upright, in one 2D layer over the tilted field. */
-const stActorsHTML = () => '<div class="stactors"><svg class="starcs" aria-hidden="true"></svg>'
-  + `<div class="stactor stpost postA">${ST_POST}</div><div class="stactor stpost postB">${ST_POST}</div>`
-  + `<div class="stactor stmiss"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7"/></svg>${t("strip.tag.incomplete")}</div>`
-  + '<div class="stactor stfig qb"></div><div class="stactor stfig tk"></div><div class="stactor stfig tk2"></div>'
-  + '<div class="stactor stfig carrier"></div>'
+const stActorsHTML = () => '<div class="stactors" data-testid="strip-actors"><svg class="starcs" aria-hidden="true"></svg>'
+  + `<div class="stactor stpost postA" data-testid="strip-post">${ST_POST}</div><div class="stactor stpost postB" data-testid="strip-post">${ST_POST}</div>`
+  + `<div class="stactor stmiss" data-testid="strip-miss"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7"/></svg>${t("strip.tag.incomplete")}</div>`
+  + '<div class="stactor stfig qb" data-testid="strip-passer"></div><div class="stactor stfig tk" data-testid="strip-tackler"></div><div class="stactor stfig tk2" data-testid="strip-tackler2"></div>'
+  + '<div class="stactor stfig carrier" data-testid="strip-carrier"></div>'
   + `<div class="stactor stfly">${ST_BALL}</div></div>`;
 
 /* The whole stage for one drive. `dir` sends the play the right way; the field itself never flips. */
@@ -29964,8 +29966,8 @@ function stStageHTML(drive, id, home, away){
   const g = stGeom(drive.dir), toward = drive.dir > 0 ? "B" : "A";
   const ez = (side, abbr) => `<div class="stez${side === toward ? " tgt" : ""}">${esc(abbr || "")}${stPostAnchors(side)}</div>`;
   return `<div class="stplane" style="--ez:${ST_FIELD.EZ}%;--base:${ST_FIELD.BASE}px">`
-    + ez("A", home) + `<div class="stturf"><span class="strz ${drive.dir > 0 ? "r" : "l"}"></span>${stYards()}`
-    + '<span class="stltg"><i>1st</i></span><span class="stahead"></span>'
+    + ez("A", home) + `<div class="stturf" data-testid="strip-turf"><span class="strz ${drive.dir > 0 ? "r" : "l"}"></span>${stYards()}`
+    + '<span class="stltg"><i>1st</i></span><span class="stahead" data-testid="strip-chevrons"></span>'
     + stFieldHTML(drive.plays, g, id, drive.label || "", drive.dir)
     + "</div>" + ez("B", away) + "</div>" + stActorsHTML();
 }
@@ -30351,15 +30353,15 @@ const ST_ARC = '<path d="M1 9Q9 -5 17 9"/>';
    scanning for literal lookups, and cannot see one assembled from a template. */
 function stripPanelHTML(){
   const arc = cls => `<svg class="${cls}" viewBox="0 0 18 10" aria-hidden="true">${ST_ARC}</svg>`;
-  return '<div class="stfilt"></div>'
+  return '<div class="stfilt" data-testid="strip-filter"></div>'
     + '<div class="stgrid"><div class="stmain">'
     + '<div class="stscorerow"><div class="stscore"></div><div class="stclock"></div></div>'
-    + '<div class="stbox"><div class="stview" data-phone="pan"><div class="ststage"></div></div><div class="stslam"></div></div>'
-    + '<div class="stcap"></div>'
+    + '<div class="stbox" data-testid="strip-box"><div class="stview" data-phone="pan" data-testid="strip-view"><div class="ststage" data-testid="strip-stage"></div></div><div class="stslam"></div></div>'
+    + '<div class="stcap" data-testid="strip-caption"></div>'
     + '<div class="stscrub">'
-    + `<button type="button" class="stplay" aria-pressed="false"></button>`
+    + `<button type="button" class="stplay" data-testid="strip-play" aria-pressed="false"></button>`
     + `<button type="button" class="stprev" aria-label="${esc(t("strip.control.prev"))}">&lsaquo;<span class="stw"> ${t("strip.control.prev")}</span></button>`
-    + `<input type="range" class="stslider" min="0" max="1" step="0.01" value="1" aria-label="${esc(t("strip.control.scrub"))}">`
+    + `<input type="range" class="stslider" data-testid="strip-slider" min="0" max="1" step="0.01" value="1" aria-label="${esc(t("strip.control.scrub"))}">`
     + `<button type="button" class="stnext" aria-label="${esc(t("strip.control.next"))}"><span class="stw">${t("strip.control.next")} </span>&rsaquo;</button>`
     + `<button type="button" class="stmode" aria-label="${esc(t("strip.control.view"))}">${t("strip.view.pan")}</button>`
     + "</div>"
@@ -30427,7 +30429,7 @@ function stCaption(ctl, p, over, dr = ctl.drive){
         {spot: stSpot(p.to - p.yac * dr.dir, ctl.home, ctl.away), n: p.yac})}</span>` : "";
   /* PFR counts broken tackles per game, never per play, so the card says it as a game total */
   const n = !over && p.who && ctl.data.brk ? ctl.data.brk[p.who] : 0;
-  const brk = n ? `<span class="stbrk">${n === 1 ? t("strip.caption.brkOne") : t("strip.caption.brk", {n})}</span>` : "";
+  const brk = n ? `<span class="stbrk" data-testid="strip-broke">${n === 1 ? t("strip.caption.brkOne") : t("strip.caption.brk", {n})}</span>` : "";
   const yac = caught || brk ? `<span class="stmore">${caught}${brk}</span>` : "";
   return `<span class="stfaces">${p.qb ? stFace(p.qb, ctl.faces[p.qb], " sm") : ""}${stFace(who, ctl.faces[p.who])}</span>`
     + `<span class="stnm">${esc(who)}${from}</span><span class="stdd">${esc(c.dd || "")}</span>`
@@ -30588,10 +30590,10 @@ const stQTab = q => q > 4 ? t("strip.filter.ot") : t("strip.filter.q", {n: q});
    player chip stacks with a quarter ("his Q2"), which is why it is a toggle and not a sixth tab. */
 function stFiltHTML(ctl){
   const qs = [...new Set(ctl.data.drives.flatMap(dr => dr.plays.map(stQuarter)))].filter(Boolean).sort();
-  const tab = (q, label) => `<button type="button" data-q="${q}">${label}</button>`;
+  const tab = (q, label) => `<button type="button" data-q="${q}" data-testid="strip-quarter">${label}</button>`;
   const who = ctl.sel.who, mine = who && ctl.data.drives.some(dr => dr.plays.some(p => stInvolves(p, who)));
-  const chip = mine ? `<button type="button" class="stme" aria-pressed="false">${stFace(who, ctl.faces[who], " xs")}`
-    + `<span>${esc(who)}</span><em></em></button>` : "";
+  const chip = mine ? `<button type="button" class="stme" data-testid="strip-me" aria-pressed="false">${stFace(who, ctl.faces[who], " xs")}`
+    + `<span>${esc(who)}</span><em data-testid="strip-me-count"></em></button>` : "";
   return `<div class="stqs" role="group" aria-label="${esc(t("strip.filter.label"))}">`
     + tab(0, t("strip.filter.game")) + qs.map(q => tab(q, stQTab(q))).join("") + "</div>" + chip;
 }
@@ -30629,7 +30631,7 @@ function stPaintList(ctl){
     if (pq !== q){ q = pq; html += `<li class="stqh">${stQName(pq)}</li>`; }
     const [res, cls] = stResult(p, dr.dir);
     const mine = !ctl.sel.me && stInvolves(p, ctl.sel.who) ? " mine" : "";
-    html += `<li><button type="button" class="strow${mine}" data-k="${k}">`
+    html += `<li><button type="button" class="strow${mine}" data-k="${k}" data-testid="strip-row">`
       + `<span class="stclk">${esc((p.clock || "").replace(/^Q\d\s*/, ""))}</span>`
       + `<span class="stteam">${esc(dr.team || "")}</span>`
       + `<span class="stwho">${esc(p.who || t("strip.unnamed"))}</span>`
@@ -30899,6 +30901,7 @@ const ST_FRAME_MS = 14;
    the play texts spell him ("M. Stafford"). */
 function stripMount(host, data, at, who){
   host.classList.add("stpanel");
+  host.setAttribute("data-testid", "strip");
   host.innerHTML = stripPanelHTML();
   const ctl = {data, ui: stUi(host), faces: data.faces || {}, sel: {q: 0, me: false, who: who || null},
                home: data.home.abbr, away: data.away.abbr, raf: 0, playing: false, T: 0};
@@ -31197,7 +31200,7 @@ function openStrip(game, name, originEl){
   const title = `${esc(game.away)} ${t("strip.title.at")} ${esc(game.home)}`;
   d.innerHTML = `<div class="dr-head">
       <button type="button" class="dr-close" aria-label="${t("common.action.close")}">✕</button>
-      <h3 id="st-title">${title}</h3>
+      <h3 id="st-title" data-testid="strip-title">${title}</h3>
       <div class="lbl">${esc(name || "")}${name ? " · " : ""}${t("strip.title.week", {n: game.week})}</div>
     </div><div class="dr-body stbody"></div>`;
   showModal(d, originEl, "st-title");

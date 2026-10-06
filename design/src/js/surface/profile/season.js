@@ -50,8 +50,8 @@ function seasonOppHTML(g, pos){
   const rk = seasonDefRank(g.opp, pos);
   const where = g.home ? "" : t("profile.season.away");
   const cls = rk ? matchupClass(rk[0], rk[1]) : "";
-  return `<span class="ss-opp">${where}${esc(g.opp)}</span>`
-    + (rk ? `<span class="ss-rk ${cls}">${ordinal(rk[0])}</span>` : "");
+  return `<span class="ss-opp" data-testid="profile-ss-opp">${where}${esc(g.opp)}</span>`
+    + (rk ? `<span class="ss-rk ${cls}" data-testid="profile-ss-rk">${ordinal(rk[0])}</span>` : "");
 }
 
 /* The box-score shorthand: carries-yards-TDs then catches-yards for a back, catches-yards-TDs then
@@ -73,9 +73,9 @@ function seasonLineHead(pos){
 /* One row. `kind` is ss-played / ss-next / ss-later / ss-bye / ss-total / ss-head. Prefixed: a bare
    `head` class picked up a global grid-row rule and put the header under week 1 (2026-09-28). */
 function seasonRowHTML(kind, cells, attrs = ""){
-  return `<div role="${SS_ROW}" class="ss-row ${kind}"${attrs}>${cells}</div>`;
+  return `<div role="${SS_ROW}" class="ss-row ${kind}" data-testid="profile-ss-row"${attrs}>${cells}</div>`;
 }
-const ssCell = (cls, html, role = SS_CELL) => `<div role="${role}" class="${cls}">${html}</div>`;
+const ssCell = (cls, html, role = SS_CELL) => `<div role="${role}" class="${cls}" data-testid="profile-${cls.split(" ")[0]}">${html}</div>`;
 const ssHead = (cls, html) => ssCell(cls, html, "columnheader");
 
 /* A played week with a replay opens it (panel.js delegates the click). history.js's weekRowAttrs
@@ -219,7 +219,7 @@ function seasonHTML(p, prof, repaint){
       continue;
     }
     if (live && wk === live.wk){ body.push(seasonLiveRowHTML(g, pos, live, stats)); continue; }
-    const opp = g ? seasonOppHTML(g, pos) : `<span class="ss-opp">${esc(r.opp || "—")}</span>`;
+    const opp = g ? seasonOppHTML(g, pos) : `<span class="ss-opp" data-testid="profile-ss-opp">${esc(r.opp || "—")}</span>`;
     if (r || !g || Date.parse(g.kickoff) + SCHED_GRACE_MS < now){
       const open = seasonOpens(p, r);
       body.push(seasonRowHTML("ss-played" + open.cls,
@@ -240,7 +240,7 @@ function seasonHTML(p, prof, repaint){
       + (proj.note ? ssCell("ss-note", proj.note) : "")));
   }
   if (rows.length) body.push(seasonTotalHTML(pos, rows, stats));
-  SEASON_LAST = `<div class="pf-season" role="table" aria-label="${t("profile.season.label")}" style="--ss-n:${Math.max(1, cols.length)}">`
+  SEASON_LAST = `<div class="pf-season" data-testid="profile-season" role="table" aria-label="${t("profile.season.label")}" style="--ss-n:${Math.max(1, cols.length)}">`
     + seasonHeadHTML(pos, cols) + body.join("") + `</div>`;
   return SEASON_LAST;
 }

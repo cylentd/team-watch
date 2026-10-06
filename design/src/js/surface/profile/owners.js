@@ -28,10 +28,10 @@ function ownersHTML(p){
   const pills = OWN_LEAGUES.filter(l => TEAMS[l.key]).map(l => {
     const tm = ownerOf(l.key, slug);
     if (!tm && !mateKeys(l.key).length) return "";
-    const tag = `<i class="pf-own-l ${l.key}">${l.tag()}</i>`;
-    if (!tm) return `<span class="pf-own free">${tag}${t("profile.own.free")}</span>`;
+    const tag = `<i class="pf-own-l ${l.key}" data-testid="profile-owner-league">${l.tag()}</i>`;
+    if (!tm) return `<span class="pf-own free" data-testid="profile-owner">${tag}${t("profile.own.free")}</span>`;
     const mine = ownIsMine(tm);
-    return `<button type="button" class="pf-own${mine ? " mine" : ""}" data-ownteam="${esc(tm.key)}"
+    return `<button type="button" class="pf-own${mine ? " mine" : ""}" data-testid="profile-owner" data-ownteam="${esc(tm.key)}"
       aria-label="${esc(t("profile.own.open", {team: tm.name}))}">${tag}${mine ? t("profile.own.yours") : esc(tm.name)}${OWN_GO}</button>`;
   }).join("");
   return pills ? `<div class="pf-owners" role="group" aria-label="${t("profile.own.label")}">${pills}</div>` : "";

@@ -23,12 +23,12 @@ function dgRecapRowHTML(){
   const top = r.top, picks = dgRecapPicks(r.preview_record && r.preview_record.su);
   // The first two parts of his line ("285 yds · 3 TD"): the whole line ran past 360px and cut off.
   const day = top ? dgStatLine(top).split(" · ").slice(0, 2).join(" · ") : "";
-  const who = top ? `<span class="dg-s-w"><b>${esc(dgShort(top.n))}</b>${day ? " " + esc(day) : ""}</span>` : "";
-  const claude = picks ? `<span class="dg-s-c">${t("digest.recapRow.claude", picks)}</span>` : "";
-  const note = recapNote(r) ? `<span class="dg-s-f">${recapNote(r)}</span>` : "";
-  return `<div class="dg-row link" data-dgrow="recap">
-    <a class="dg-head" href="#weekrecap">
-      <span class="dg-l">${dgIcon("recap")}${dgLabel("recap")}</span><span class="dg-n go">${recapChip(r)}</span>
-      <span class="dg-s">${note}${who}${claude}</span>${DG_ARROW}</a>
+  const who = top ? `<span class="dg-s-w" data-testid="digest-recap-who"><b>${esc(dgShort(top.n))}</b>${day ? " " + esc(day) : ""}</span>` : "";
+  const claude = picks ? `<span class="dg-s-c" data-testid="digest-recap-claude">${t("digest.recapRow.claude", picks)}</span>` : "";
+  const note = recapNote(r) ? `<span class="dg-s-f" data-testid="digest-recap-note">${recapNote(r)}</span>` : "";
+  return `<div class="dg-row link" data-testid="digest-row" data-dgrow="recap">
+    <a class="dg-head" data-testid="digest-row-head" href="#weekrecap">
+      <span class="dg-l" data-testid="digest-row-label">${dgIcon("recap")}${dgLabel("recap")}</span><span class="dg-n go" data-testid="digest-row-count">${recapChip(r)}</span>
+      <span class="dg-s" data-testid="digest-row-line">${note}${who}${claude}</span>${DG_ARROW}</a>
   </div>`;
 }

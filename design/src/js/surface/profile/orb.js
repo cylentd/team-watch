@@ -145,7 +145,7 @@ function orbBadgeHTML(p){
   if (!s) return "";
   const axis = s.axes.find(a => a.id === sheetDefaultAxis(s)) || s.axes[0];
   const rk = sheetRank(s.pos, axis.id, p.slug);
-  return `<button type="button" class="pf-orb pos-${esc(String(s.pos).toLowerCase())}" aria-label="${esc(t("profile.orb.open", {n: p.n}))}">
+  return `<button type="button" class="pf-orb pos-${esc(String(s.pos).toLowerCase())}" data-testid="profile-orb" aria-label="${esc(t("profile.orb.open", {n: p.n}))}">
     <canvas aria-hidden="true"></canvas>
     ${rk ? `<span class="pf-orb-l"><b>${rankMark(rk)}</b> ${esc(axisName(axis))}</span>` : ""}</button>`;
 }

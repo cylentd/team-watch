@@ -61,19 +61,19 @@ function ladderMoreHTML(s, x){
     : a.elite_src === "published" ? `<span>${t("profile.stat.barPublished")}</span>` : "";
   const facts = [smp ? `<span>${smp}</span>` : "", gap, src, `<span>${ladderWindow(s, wk)}</span>`].join("");
   const unit = SAMPLE_UNIT[a.den];
-  const floor = thin && unit ? `<p class="pf-lr-floor">${t("profile.ladder.floor", {floor: a.floor, unit: unit()})}</p>` : "";
+  const floor = thin && unit ? `<p class="pf-lr-floor" data-testid="profile-lr-floor">${t("profile.ladder.floor", {floor: a.floor, unit: unit()})}</p>` : "";
   const def = AXIS_DEF[a.id]
-    ? `<p class="pf-lr-def">${AXIS_DEF[a.id]()}${AXIS_WHY[a.id] ? `<span class="pf-lr-why">${AXIS_WHY[a.id]()}</span>` : ""}</p>` : "";
+    ? `<p class="pf-lr-def" data-testid="profile-lr-def">${AXIS_DEF[a.id]()}${AXIS_WHY[a.id] ? `<span class="pf-lr-why" data-testid="profile-lr-why">${AXIS_WHY[a.id]()}</span>` : ""}</p>` : "";
   // Read against the same bar, so a week above it is visibly a week above it. One week is a
   // point, not a line, and the window already names it.
   const line = wk.length > 1 ? sparkHTML(wk.map(r => r.v[a.id]), 160, 30, a.elite) : "";
-  return `<div class="pf-lr-more"><div class="pf-lr-facts">${facts}</div>${floor}${def}${line}</div>`;
+  return `<div class="pf-lr-more"><div class="pf-lr-facts" data-testid="profile-lr-facts">${facts}</div>${floor}${def}${line}</div>`;
 }
 
 /* `name` makes the rows one accordion natively: opening one closes the last, so the list never
    grows more than one fold longer than it was. */
 function ladderHTML(s, sel){
-  return `<div class="pf-ladder">${ladderOrder(s).map((x, i) => `<details class="pf-lr${x.a.id === sel ? " on" : ""}${x.elite ? " elite" : ""}" name="pf-ladder" data-col="${esc(x.a.id)}" style="--i:${i}">
-    <summary><span class="pf-lr-n">${esc(axisName(x.a))}</span><b class="pf-lr-v${x.band ? " dim" : ""}">${usageFmt(x.v, x.a.fmt)}</b>${ladderBarHTML(s, x)}<span class="pf-lr-rk">${ladderRankHTML(s, x)}</span></summary>
+  return `<div class="pf-ladder">${ladderOrder(s).map((x, i) => `<details class="pf-lr${x.a.id === sel ? " on" : ""}${x.elite ? " elite" : ""}" data-testid="profile-lr" name="pf-ladder" data-col="${esc(x.a.id)}" style="--i:${i}">
+    <summary data-testid="profile-lr-toggle"><span class="pf-lr-n" data-testid="profile-lr-name">${esc(axisName(x.a))}</span><b class="pf-lr-v${x.band ? " dim" : ""}" data-testid="profile-lr-value">${usageFmt(x.v, x.a.fmt)}</b>${ladderBarHTML(s, x)}<span class="pf-lr-rk" data-testid="profile-lr-rank">${ladderRankHTML(s, x)}</span></summary>
     ${ladderMoreHTML(s, x)}</details>`).join("")}</div>`;
 }

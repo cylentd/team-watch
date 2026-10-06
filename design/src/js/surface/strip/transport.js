@@ -23,6 +23,7 @@ const ST_FRAME_MS = 14;
    the play texts spell him ("M. Stafford"). */
 function stripMount(host, data, at, who){
   host.classList.add("stpanel");
+  host.setAttribute("data-testid", "strip");
   host.innerHTML = stripPanelHTML();
   const ctl = {data, ui: stUi(host), faces: data.faces || {}, sel: {q: 0, me: false, who: who || null},
                home: data.home.abbr, away: data.away.abbr, raf: 0, playing: false, T: 0};

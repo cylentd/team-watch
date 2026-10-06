@@ -38,7 +38,7 @@ function cmpRowHTML(p, i){
   const on = CMP.picks.some(x => x.slug === p.slug), full = !on && CMP.picks.length >= CMP_MAX - 1;
   const rk = cmpRankRow(p), pts = projFor(p);
   const sub = [p.pos, p.team, rk && rk.opp ? t("profile.compare.vs", {opp: esc(rk.opp)}) : ""].filter(Boolean).join(" · ");
-  return `<li><button type="button" class="cmp-row${on ? " on" : ""}" data-cmp="pick" data-i="${i}" data-slug="${esc(p.slug)}" aria-pressed="${on}"${full ? " disabled" : ""}>
+  return `<li><button type="button" class="cmp-row${on ? " on" : ""}" data-testid="profile-cmp-row" data-cmp="pick" data-i="${i}" data-slug="${esc(p.slug)}" aria-pressed="${on}"${full ? " disabled" : ""}>
     <span class="cmp-check" aria-hidden="true"></span><span class="cmp-head">${headHTML(p)}</span>
     <span class="cmp-who"><b>${shortName(p.n)}</b><span class="lbl">${esc(sub)}</span></span>
     <span class="cmp-pts">${pts === null ? "—" : pts.toFixed(1)}${rk ? `<small>${esc(rk.pos)}${rk.rank}</small>` : ""}</span></button></li>`;
@@ -66,13 +66,13 @@ function cmpTrayHTML(){
   return `<div class="cmp-tray">
     <span class="cmp-heads">${ps.map((p, i) => `<span class="cmp-head cmp-s${i}">${headHTML(p)}</span>`).join("")}</span>
     <span class="cmp-count lbl">${t("profile.compare.count", {n: ps.length, max: CMP_MAX})}</span>
-    <button type="button" class="cmp-go" data-cmp="go"${CMP.picks.length ? "" : " disabled"}>${t("profile.compare.go")}</button></div>`;
+    <button type="button" class="cmp-go" data-testid="profile-cmp-go" data-cmp="go"${CMP.picks.length ? "" : " disabled"}>${t("profile.compare.go")}</button></div>`;
 }
 
 function cmpPickHTML(){
   return `<div class="cmp-h"><h4 id="cmp-t">${t("profile.compare.title", {n: shortName(CMP.base.n)})}</h4>
       <button type="button" class="dr-close cmp-x" data-cmp="close" aria-label="${t("profile.compare.close")}">✕</button></div>
-    <input id="cmp-q" class="cmp-q" type="search" autocomplete="off" spellcheck="false"
+    <input id="cmp-q" class="cmp-q" data-testid="profile-cmp-search" type="search" autocomplete="off" spellcheck="false"
       placeholder="${t("profile.compare.search")}" aria-label="${t("profile.compare.search")}" value="${esc(CMP.q)}">
     <div class="cmp-list">${cmpListHTML()}</div>${cmpTrayHTML()}`;
 }

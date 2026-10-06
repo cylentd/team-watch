@@ -25,7 +25,7 @@
     },
     "digest": {
       "paths": ["design/src/js/surface/digest/", "design/src/css/surface/digest/", "design/src/js/data/digest.js", "design/digest.py"],
-      "tests": ["tests/test_digest.py", "tests/test_digest_live.py", "tests/test_digest_story.py", "tests/test_left_hurt.py", "tests/test_js_leadsplit.py"],
+      "tests": ["tests/test_digest.py", "tests/test_digest_after_kickoff.py", "tests/test_digest_recap_row.py", "tests/test_js_digest.py", "tests/test_digest_live.py", "tests/test_digest_story.py", "tests/test_left_hurt.py", "tests/test_js_leadsplit.py"],
       "render": ["digest"]
     },
     "weather": {
@@ -62,7 +62,7 @@
                 "design/src/js/data/gameday/", "design/gameday.py", "api/stats.py", "api/_scoring.py",
                 "design/schedule.py", "api/clips.py", "api/_yt_channels.json", "design/yt_channels.py"],
       "tests": ["tests/test_gameday.py", "tests/test_gamesheet_v2.py", "tests/test_schedule.py", "tests/test_live_tds.py", "tests/test_live_tabs.py",
-                "tests/test_live_mine.py", "tests/test_live_swipe.py", "tests/test_live_tdclips.py", "tests/test_api_clips.py",
+                "tests/test_live_mine.py", "tests/test_live_swipe.py", "tests/test_live_tdclips.py", "tests/test_js_tdclips.py", "tests/test_api_clips.py",
                 "tests/test_yt_channels.py", "tests/test_js_hurt.py", "tests/test_js_page_week.py", "tests/test_slate_week.py", "tests/test_page_week_build.py", "tests/test_js_gamesituation.py",
                 "tests/test_live_modal.py", "tests/test_js_gdstrip.py"],
       "render": ["live"]
@@ -122,7 +122,7 @@
     "profile": {
       "paths": ["design/src/js/surface/profile/", "design/src/css/surface/profile/", "design/src/js/data/lede.js", "design/pedigree.py", "design/gamelog.py",
                 "design/routes.py", "design/archetype.py"],
-      "tests": ["tests/test_profile.py", "tests/test_js_profile.py", "tests/test_js_stock.py", "tests/test_js_range.py", "tests/test_range_view.py"],
+      "tests": ["tests/test_profile.py", "tests/test_profile_panes.py", "tests/test_profile_sheet.py", "tests/test_profile_compare.py", "tests/test_profile_journeys.py", "tests/test_js_profile.py", "tests/test_js_stock.py", "tests/test_js_range.py", "tests/test_range_view.py"],
       "render": ["profile"]
     },
     "teams": {
@@ -131,7 +131,7 @@
                 "design/injury.py", "design/mates.py", "design/yt_clips.py", "design/player_names.py"],
       "tests": ["tests/test_brief.py", "tests/test_clip_reel.py", "tests/test_clip_sheet.py", "tests/test_clips.py", "tests/test_player_names.py","tests/test_injury.py", "tests/test_mates.py", "tests/test_mates_page.py",
                 "tests/test_pack_stage.py", "tests/test_render_waivers.py", "tests/test_waiver_owner.py", "tests/test_roster_cards.py",
-                "tests/test_roster_sheet.py", "tests/test_teamswitch.py", "tests/test_waiver.py",
+                "tests/test_roster_pack.py", "tests/test_roster_sheet.py", "tests/test_teamswitch.py", "tests/test_waiver.py",
                 "tests/test_wire_watch.py", "tests/test_yahoo_lineup.py"],
       "render": ["roster", "waivers"]
     },
@@ -170,7 +170,8 @@
       "render": []
     },
     "testtools": {
-      "paths": ["scripts/run_tests.py", "scripts/trace.py", "scripts/mutate.py"],
+      "paths": ["scripts/run_tests.py", "scripts/trace.py", "scripts/mutate.py",
+                "scripts/mutate_ops.py", "scripts/mutate_select.py"],
       "tests": ["tests/test_run_tests.py", "tests/test_trace.py", "tests/test_mutate.py"],
       "render": []
     },

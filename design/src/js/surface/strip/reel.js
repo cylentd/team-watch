@@ -35,10 +35,10 @@ const stQTab = q => q > 4 ? t("strip.filter.ot") : t("strip.filter.q", {n: q});
    player chip stacks with a quarter ("his Q2"), which is why it is a toggle and not a sixth tab. */
 function stFiltHTML(ctl){
   const qs = [...new Set(ctl.data.drives.flatMap(dr => dr.plays.map(stQuarter)))].filter(Boolean).sort();
-  const tab = (q, label) => `<button type="button" data-q="${q}">${label}</button>`;
+  const tab = (q, label) => `<button type="button" data-q="${q}" data-testid="strip-quarter">${label}</button>`;
   const who = ctl.sel.who, mine = who && ctl.data.drives.some(dr => dr.plays.some(p => stInvolves(p, who)));
-  const chip = mine ? `<button type="button" class="stme" aria-pressed="false">${stFace(who, ctl.faces[who], " xs")}`
-    + `<span>${esc(who)}</span><em></em></button>` : "";
+  const chip = mine ? `<button type="button" class="stme" data-testid="strip-me" aria-pressed="false">${stFace(who, ctl.faces[who], " xs")}`
+    + `<span>${esc(who)}</span><em data-testid="strip-me-count"></em></button>` : "";
   return `<div class="stqs" role="group" aria-label="${esc(t("strip.filter.label"))}">`
     + tab(0, t("strip.filter.game")) + qs.map(q => tab(q, stQTab(q))).join("") + "</div>" + chip;
 }
@@ -76,7 +76,7 @@ function stPaintList(ctl){
     if (pq !== q){ q = pq; html += `<li class="stqh">${stQName(pq)}</li>`; }
     const [res, cls] = stResult(p, dr.dir);
     const mine = !ctl.sel.me && stInvolves(p, ctl.sel.who) ? " mine" : "";
-    html += `<li><button type="button" class="strow${mine}" data-k="${k}">`
+    html += `<li><button type="button" class="strow${mine}" data-k="${k}" data-testid="strip-row">`
       + `<span class="stclk">${esc((p.clock || "").replace(/^Q\d\s*/, ""))}</span>`
       + `<span class="stteam">${esc(dr.team || "")}</span>`
       + `<span class="stwho">${esc(p.who || t("strip.unnamed"))}</span>`
