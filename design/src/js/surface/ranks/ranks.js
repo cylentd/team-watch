@@ -24,7 +24,7 @@ function rkMine(){
   return s;
 }
 
-const rkKick = iso => iso ? new Date(iso).toLocaleString([], {weekday: "short", hour: "numeric", minute: "2-digit"}) : "";
+const rkKick = iso => kickFmt(iso);   // the page's one kickoff format (lib/kick.js)
 function rkGame(r){
   const vs = r.opp ? `${esc(r.team)} ${r.home === false ? "@" : "vs"} ${esc(r.opp)}` : esc(r.team || "");
   const when = rkKick(r.kick);
@@ -58,6 +58,13 @@ function rkMatchupHTML(r){
   return `<span class="rk-mx ${r.mx > 0 ? "up" : "dn"}" title="${say}" aria-label="${say}">${n}</span>`;
 }
 
+/* Floor and ceiling under the projection (plan U5): ff-jarvis's band, from the row's own fields (the
+   same two numbers LIVE_PROJECTIONS holds for him). Nothing for a row with no band. */
+function rkRangeHTML(r){
+  const g = rangeFrom(r);
+  return g ? `<small class="rk-rng" title="${t("range.tip", {floor: g.floor.toFixed(1), ceil: g.ceil.toFixed(1)})}">${g.text}</small>` : "";
+}
+
 function rkRowHTML(r, place, mine, flex){
   const inj = r.inj ? `<span class="rk-inj ${r.inj.toLowerCase()}">${r.inj === "Q" ? t("ranks.inj.q") : t("ranks.inj.d")}</span>` : "";
   // On FLEX the position and its own rank lead the game line, the card's "RB3".
@@ -68,7 +75,7 @@ function rkRowHTML(r, place, mine, flex){
     <span class="rk-who"><span class="rk-nm">${esc(nameInitial(r.n))}${mine ? `<i class="rk-mine">${t("ranks.row.mine")}</i>` : ""}</span>
       <span class="rk-game">${pos}<span>${rkGame(r)}</span>${inj}</span></span>
     <span class="rk-mu">${rkMakeup(r)}</span>
-    <span class="rk-pts">${r.pts.toFixed(1)}${rkMatchupHTML(r)}</span>
+    <span class="rk-pts">${r.pts.toFixed(1)}${rkRangeHTML(r)}${rkMatchupHTML(r)}</span>
   </button>`;
 }
 
@@ -90,20 +97,31 @@ function rkTiersHTML(list, flex){
   }).join("");
 }
 
-function ranksHTML(){
-  const chips = `<div class="setrow" role="group" aria-label="${t("ranks.filter.position")}">
-    ${RK_POSITIONS.map(p => `<button class="chip" data-rkpos="${p}" aria-pressed="${RK_POS === p}">${p === "FLEX" ? t("ranks.filter.flex") : p}</button>`).join("")}
+/* The position row: QB RB WR TE FLEX, then D/ST and, in a Yahoo league, K (surface/ranks/dst.js, 2026-10-05). */
+function rkChipsHTML(pos, extra){
+  const label = p => p === "FLEX" ? t("ranks.filter.flex") : p === "DST" ? t("ranks.filter.dst") : p;
+  return `<div class="setrow" role="group" aria-label="${t("ranks.filter.position")}">
+    ${[...RK_POSITIONS, ...extra].map(p => `<button class="chip" data-rkpos="${p}" aria-pressed="${pos === p}">${label(p)}</button>`).join("")}
   </div>`;
-  const list = rkList(RK_POS);
+}
+
+function ranksHTML(){
+  const block = rkDstBlock(), lg = rkLeague(), pos = dstPos(RK_POS, block, lg), extra = dstTabs(block, lg);
+  const chips = rkChipsHTML(pos, extra);
+  if (pos === "DST" || pos === "K") return rkDstHTML(chips, dstBoard(block, lg, pos));
+  const list = rkList(pos);
   if (!list.length) return `<div class="wrap">${chips}<div class="state-empty" style="min-height:220px">
     <div><b>${t("ranks.empty.title")}</b><span>${t("ranks.empty.sub")}</span></div></div></div>`;
-  const pos = RK_POS === "FLEX" ? t("ranks.filter.flex") : RK_POS;
-  const title = LIVE_RANKS.week ? t("ranks.head.title", {week: LIVE_RANKS.week, pos}) : t("ranks.head.titleNoWeek", {pos});
+  const posName = pos === "FLEX" ? t("ranks.filter.flex") : pos;
+  const wk = slateWeek();
+  const title = wk ? t("ranks.head.title", {week: wk, pos: posName}) : t("ranks.head.titleNoWeek", {pos: posName});
   const off = (LIVE_RANKS.off || []).length ? " " + t("ranks.head.off", {teams: LIVE_RANKS.off.map(esc).join(", ")}) : "";
+  // The band is said in words once per list, only when a row draws one (plan U5).
+  const band = list.some(rangeFrom) ? " " + t("range.note") : "";
   return `<div class="wrap rk">
     ${chips}
-    <div class="rk-headline"><h2>${title}</h2><p>${t("ranks.head.sub", {scoring: esc(LIVE_RANKS.scoring || "")})}${off}</p></div>
-    <div class="rk-list">${rkTiersHTML(list, RK_POS === "FLEX")}</div>
+    <div class="rk-headline"><div><h2>${title}</h2><p>${t("ranks.head.sub", {scoring: esc(LIVE_RANKS.scoring || "")})}${band}${off}</p></div>${rkSchedHTML()}</div>
+    <div class="rk-list">${rkTiersHTML(list, pos === "FLEX")}</div>
   </div>`;
 }
 
@@ -112,6 +130,7 @@ function wireRanks(v){
     if (b.dataset.rkpos === RK_POS) return;
     RK_POS = b.dataset.rkpos; render();
   }));
+  v.querySelectorAll("[data-rkgo]").forEach(b => b.addEventListener("click", () => navGo(b.dataset.rkgo)));
   v.querySelectorAll("[data-rkopen]").forEach(el => el.addEventListener("click", () => {
     const r = rkList(RK_POS).find(x => x.slug === el.dataset.rkopen);
     if (r) openProfile({n: r.n, pos: r.pos, team: r.team, slug: r.slug}, el);

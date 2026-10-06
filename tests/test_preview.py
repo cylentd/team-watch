@@ -243,7 +243,7 @@ def test_the_slate_lists_every_game_by_window(page):
         w.querySelector('.pv-wh span').textContent, [...w.querySelectorAll('.pv-rm')].map(r => r.textContent)])""")
     assert wins == [["Thursday night", ["PIT @ CLE"]], ["Sunday morning", ["JAX @ LA"]], ["Sunday early", ["DET @ CAR"]],
                     ["Sunday late", ["SF @ NYJ"]], ["Monday night", ["ATL @ NO"]]]
-    assert page.inner_text(".pv-wh em >> nth=0") .upper() == "8:15 PM ET"
+    assert page.inner_text(".pv-wh em >> nth=0") == "5:15 PM"      # the reader's clock (Pacific here), no "ET"
     assert not is_open(page) and not page.is_visible(".pv-dz")
 
 
@@ -311,17 +311,20 @@ def test_the_win_bar_needs_the_markets_win_pct(page):
     has_bar = []
     for i in range(5):
         open_game(page, i)
-        has_bar.append(page.locator(".pva.win .pv-pb").count())
+        has_bar.append(page.locator(".pvn-ans .win .pv-pb").count())
     assert has_bar == [1, 1, 1, 0, 0]                                    # SF @ NYJ: no moneyline; ATL @ NO: no take
     open_game(page, 2)
-    win = page.inner_text(".pva.win").replace("\n", " ")
-    for want in ("Win chance", "DET, Claude 74%", "DET, market 64%", "Score, Claude DET 30, CAR 19",
-                 "Score, market DET 27, CAR 23.5"):
+    # The answer block (2026-10-05, plan U3): win chance and Claude's pick, the market's beside each.
+    win = page.inner_text(".pvn-ans .win").replace("\n", " ")
+    pick = page.inner_text(".pvn-ans .pick").replace("\n", " ")
+    for want in ("Win chance", "DET 74%", "market 64%"):
         assert want in win, want
+    for want in ("Claude's pick", "DET 30, CAR 19", "market DET 27, CAR 23.5"):
+        assert want in pick, want
     open_game(page, 3)
-    assert "SF, Claude 60%" in page.inner_text(".pva.win").replace("\n", " ") and "market" not in page.inner_text(".pva.win").split("Score")[0]
+    assert "SF 60%" in page.inner_text(".pvn-ans .win").replace("\n", " ") and "market" not in page.inner_text(".pvn-ans .win")
     open_game(page, 1)
-    style = page.get_attribute(".pva.win .pv-pb", "style")
+    style = page.get_attribute(".pvn-ans .win .pv-pb", "style")
     assert "--mk:41.7%" in style and "--cl:54%" in style                 # JAX, the underdog Claude picks
 
 
@@ -331,10 +334,12 @@ def test_the_game_page_reads_like_a_newspaper(page):
     the story. Section names are run-in words and plain bold names, never all-caps label rows."""
     page.click("[data-pvopen='2']")                                      # DET @ CAR
     parts = page.evaluate("() => [...document.querySelector('.pvn').children].map(e => e.className)")
-    assert parts == ["pvn-head", "pvn-call", "pvn-box", "pvn-story"]
+    # The answer first (2026-10-05, plan U3): pick, line, total and win chance above the headline.
+    assert parts == ["pvn-ans", "pvn-head", "pvn-call", "pvn-box", "pvn-story"]
+    assert page.evaluate("() => [...document.querySelectorAll('.pvn-ans > .pv-an')].map(e => e.classList[1])") == ["pick", "line", "total", "win"]
     box = page.evaluate("() => [...document.querySelectorAll('.pva')].map(r => r.classList[1])")
     # "slip" since 2026-10-03: the take names Amon-Ra St. Brown, who has lines on the fixture's slate.
-    assert box == ["win", "lines", "matchup", "handoff", "inj", "wx", "rest"]
+    assert box == ["matchup", "handoff", "inj", "wx", "rest"]
     assert page.evaluate("getComputedStyle(document.querySelector('.pv-head')).fontFamily").startswith("Newsreader")
     # The story's paragraphs (2026-09-30), every one set alike: one voice, not a dek and smaller body copy.
     assert texts(page, ".pvn-head .pv-dek") == ["Rain keeps it on the ground, and Carolina allows the second-most RB points.",
@@ -346,10 +351,11 @@ def test_the_game_page_reads_like_a_newspaper(page):
     assert texts(page, ".pvn-head .pv-nm") == ["Gibbs", "Young"]
     assert page.evaluate("getComputedStyle(document.querySelector('.pv-nm')).fontWeight") == "700"
     call = page.inner_text(".pvn-call").replace("\n", " ")
-    for want in ("The call.", "DET giving 3.5", "Confident", "Carolina without Coker"):
+    for want in ("The call.", "Carolina without Coker"):
         assert want in call, want
-    lines = page.inner_text(".pva.lines").replace("\n", " ")
-    assert "Claude's total Under Slight" in lines and "50.5" in lines
+    ans = page.inner_text(".pvn-ans").replace("\n", " ")
+    for want in ("DET giving 3.5", "Confident", "Claude's total Under Slight", "50.5", "DET by 3.5"):
+        assert want in ans, want
     assert page.inner_text(".pv-risk").startswith("What could go wrong.")
     # Show, don't tell (2026-09-30): no research notes, no before-the-line process, no footnotes.
     dz = page.inner_text(".pv-dz")
@@ -363,8 +369,27 @@ def test_the_game_page_reads_like_a_newspaper(page):
     assert page.locator(".pv-score").count() == 0 and page.locator(".pv-vs").count() == 0
     page.click("[data-pvstep='-1']")
     page.click("[data-pvstep='-1']")                                     # PIT @ CLE: no edge
-    assert page.locator(".pvn-call .pv-side").count() == 0
-    assert page.locator(".pvn-call .pv-conf.none").count() == 1 and page.locator(".pva.lines .pv-conf.none").count() == 1
+    assert page.locator(".pvn-ans .pick .pv-side").count() == 0
+    assert page.locator(".pvn-ans .pick .pv-conf.none").count() == 1 and page.locator(".pvn-ans .total .pv-conf.none").count() == 1
+    assert page.locator(".pvn-call").count() == 0                        # no edge, no reason to print
+
+
+@pytest.mark.render
+def test_the_answer_is_above_the_fold_on_a_phone_and_the_story_starts_below_it(browser, page_file):
+    """Plan U3 (2026-10-05): the line, total, win chance and Claude's pick were under five paragraphs. At
+    390x844 the whole block ends above the fold and the headline starts under it."""
+    errors = []
+    ctx, pg = open_preview(browser, page_file, 390, 844, errors)
+    try:
+        pg.click("[data-pvopen='2']")                                    # DET @ CAR: every cell
+        box = pg.evaluate("""() => { const r = s => document.querySelector(s).getBoundingClientRect();
+            return {ans: [r('.pvn-ans').top, r('.pvn-ans').bottom], head: r('.pvn-head').top, dek: r('.pv-dek').top, vh: innerHeight}; }""")
+        assert box["ans"][1] <= box["vh"], box                           # the whole block is on the first screen
+        assert box["head"] >= box["ans"][1] - 1 and box["dek"] > box["head"]
+        assert pg.evaluate("document.documentElement.scrollWidth") <= 390
+        assert errors == [], errors
+    finally:
+        ctx.close()
 
 
 def open_record(pg):
@@ -426,7 +451,7 @@ def test_no_signed_spread_anywhere_in_the_preview(page):
     seen = [page.inner_text(".pv-slate")]
     for i in range(5):
         page.evaluate(f"() => {{ PV_I = {i}; PV_OPEN = true; render(); }}")
-        seen += texts(page, ".pvn-head, .pvn-call, .pva.win, .pva.lines")
+        seen += texts(page, ".pvn-ans, .pvn-head, .pvn-call")
     page.evaluate("() => { PV_OPEN = false; render(); }")
     open_record(page)
     page.evaluate("() => document.querySelectorAll('.pv-rw').forEach(d => d.open = true)")
@@ -444,7 +469,7 @@ def test_a_tap_opens_the_dossier_and_back_returns_to_the_slate_where_it_was(page
     assert is_open(page) and match(page) == "SF @ NYJ"
     assert not page.is_visible(".pv-slate")
     assert page.evaluate("location.hash") == "#preview"          # the game is not in the URL
-    lines = page.inner_text(".pva.lines")
+    lines = page.inner_text(".pvn-ans")
     assert "NYJ by 1.5" in lines and "opened SF by 3" in lines and "opened 43.5" in lines
     assert "+3 zones east · kicks off at 1:25 PM body time" in page.inner_text(".pva.rest")
     page.go_back()
@@ -467,7 +492,11 @@ def test_the_all_games_button_closes_the_dossier(page):
 def test_optional_rows_are_absent_without_data(page):
     rows = lambda: page.evaluate("() => [...document.querySelectorAll('.pva')].map(r => r.classList[1])")
     page.click("[data-pvopen='4']")                              # ATL @ NO: dome, no take, no rest
-    assert rows() == ["lines", "inj"]                            # no win chance, matchup or rest; a dome, no weather
+    assert rows() == ["inj", "wx"]                               # no matchup or rest; a dome says Dome
+    # The answer still gives the line, the total and the market's win chance: no take, so no pick and no bar.
+    assert page.evaluate("() => [...document.querySelectorAll('.pvn-ans > .pv-an')].map(e => e.classList[1])") == ["line", "total", "win"]
+    assert page.locator(".pvn-ans .pv-pb").count() == 0 and page.locator(".pvn-ans .win .pv-cl").count() == 0
+    assert page.inner_text(".pva.wx .pv-fc") == "Dome" and "forecast" not in page.inner_text(".pva.wx").lower()
     assert page.locator(".pvn-call").count() == 0 and page.locator(".pvn-story").count() == 0
     assert "Claude's call on this game arrives" in page.inner_text(".pvn-head")
     assert page.locator(".pv-pl").count() == 0 and page.locator(".pv-risk").count() == 0

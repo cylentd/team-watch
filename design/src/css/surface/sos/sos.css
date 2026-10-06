@@ -1,0 +1,32 @@
+/* ============================== SCHEDULE ============================== */
+/* Stats > Schedule (js/surface/sos/sos.js, 2026-10-05). One control row, the heading with the file's label
+   under it, then the 32 teams easiest first. A row is two lines on a phone: the rank, the team and the
+   points allowed per game; under them the opponents, one small cell per week, the full row wide and
+   wrapping (a 13-week window takes two lines, 7 and 6) so nothing scrolls sideways and nothing is hidden. From 760px the cells join the first
+   line. No colour says good or bad: the page is context, not a call. */
+.sos-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:10px}
+.sos-seg{display:flex;gap:3px}
+.sos-seg .chip{min-height:40px;padding:6px 7px;font-size:var(--t-1);letter-spacing:0}
+.sos-head{margin:10px 0 0}
+.sos-head h2{margin:0;font-family:var(--disp);font-size:var(--t-4);line-height:1.15;font-weight:800;color:var(--ink)}
+.sos-head p{margin:2px 0 0;font-size:var(--t-1);color:var(--ink-3);max-width:70ch}
+.sos-list{list-style:none;margin:10px 0 0;padding:4px 0;max-width:var(--list-w);
+  border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.sos-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;column-gap:10px;row-gap:4px;align-items:center;padding:8px 14px}
+.sos-row + .sos-row{border-top:1px solid var(--line)}
+.sos-n{font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink-3);font-variant-numeric:tabular-nums;text-align:right}
+.sos-who{display:flex;align-items:baseline;gap:8px;min-width:0}
+.sos-team{font-family:var(--mono);font-size:var(--t-3);font-weight:700;color:var(--ink)}
+.sos-g{font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
+.sos-pts{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.sos-pts b{font-size:var(--t-3);font-weight:700;color:var(--ink)}
+.sos-cells{grid-column:1 / -1;display:flex;flex-wrap:wrap;gap:4px;list-style:none;margin:0;padding:0}
+.sos-c{display:grid;justify-items:center;gap:1px;width:36px;padding:3px 0;border:1px solid transparent;border-radius:6px;background:var(--panel-2)}
+.sos-c i{font-style:normal;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);line-height:1}
+.sos-c b{font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink);line-height:1.2}
+.sos-c.bye{background:none;border:1px dashed var(--line-2)}
+.sos-c.bye b{color:var(--ink-3)}
+@media (min-width:760px){
+  .sos-row{grid-template-columns:32px 150px 130px minmax(0,1fr);column-gap:14px;padding:8px 18px}
+  .sos-cells{grid-column:auto}
+}

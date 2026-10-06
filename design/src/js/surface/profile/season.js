@@ -67,11 +67,8 @@ function seasonLineHead(pos){
   return pos === "QB" ? t("profile.season.headQb") : pos === "RB" ? t("profile.season.headRb") : t("profile.season.headWr");
 }
 
-const seasonKick = iso => MU_KICK_FMT.format(new Date(iso)).replace(",", "");
-/* A played week's date, "Sep 14", in the same Pacific wall clock as the kickoffs, so the When
-   column reads as one timeline down the season. */
-const SS_DAY_FMT = new Intl.DateTimeFormat("en-US", {timeZone: "America/Los_Angeles", month: "short", day: "numeric"});
-const seasonDay = iso => SS_DAY_FMT.format(new Date(iso));
+/* The When column reads as one timeline down the season: a played week's date ("Sep 14", kickDate) and a
+   coming kickoff ("Sun 1:25 PM", kickFmt) are both in the reader's clock (lib/kick.js). */
 
 /* One row. `kind` is ss-played / ss-next / ss-later / ss-bye / ss-total / ss-head. Prefixed: a bare
    `head` class picked up a global grid-row rule and put the header under week 1 (2026-09-28). */
@@ -227,7 +224,7 @@ function seasonHTML(p, prof, repaint){
       const open = seasonOpens(p, r);
       body.push(seasonRowHTML("ss-played" + open.cls,
         ssCell("ss-wk", r ? weekCell(p, r) : wk) + ssCell("ss-opp-c", opp)
-        + ssCell("ss-date", g ? seasonDay(g.kickoff) : "")
+        + ssCell("ss-date", g ? kickDate(g.kickoff) : "")
         + ssCell("ss-pts", r ? glNum(r.pts) : "—")
         + ssCell("ss-line", r ? seasonLine(pos, r) : t("profile.season.noStats"))
         + stats(c => r ? glNum(r[c.id]) : "—"),
@@ -235,7 +232,7 @@ function seasonHTML(p, prof, repaint){
       continue;
     }
     const isNext = !nextDone; nextDone = true;       // the first week still to come
-    const when = Date.parse(g.kickoff) < now ? t("profile.season.live") : seasonKick(g.kickoff);
+    const when = Date.parse(g.kickoff) < now ? t("profile.season.live") : kickFmt(g.kickoff);
     const proj = isNext ? seasonProj(p, prof, pos, wk) : {pts: "", note: ""};
     body.push(seasonRowHTML(isNext ? "ss-next" : "ss-later",
       ssCell("ss-wk", wk) + ssCell("ss-opp-c", opp) + ssCell("ss-date", when)

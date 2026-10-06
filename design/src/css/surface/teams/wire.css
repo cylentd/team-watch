@@ -19,6 +19,9 @@
 .wvhero-mode{color:var(--lime);font-weight:700;letter-spacing:.12em;text-transform:uppercase}
 .wvhero.empty{color:var(--ink-3)}
 .wv-empty{margin:24px 0}
+/* The way into Ranks > D/ST (2026-10-05): one quiet button above the rail, a 44px control on touch. */
+.wv-dst{margin:14px 0 0}
+.wv-dst .btn{min-height:44px;padding:8px 16px}
 /* A leaguemate's Waivers (2026-09-26): the rail, then one line where the cards would be. */
 .wv-mate{margin:24px 0;padding:14px 16px;border:1px dashed var(--line-2);border-radius:12px;
   font-size:var(--t-2);line-height:1.5;color:var(--ink-2);max-width:60ch}

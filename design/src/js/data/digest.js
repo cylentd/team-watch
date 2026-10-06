@@ -21,6 +21,10 @@ let DG_OPEN = null;
    results moved to Recap. The reader's local day, from Date.now(), which the render suite pins. */
 const DG_DAY = {0: ["wx"], 2: ["adds"], 3: ["adds"]};
 
+/* A game's kickoff as the page writes every kickoff (lib/kick.js), in the reader's clock, from the
+   packet's ISO `ko`; the Pacific words digest.py wrote (`kick`) stand in for a packet without one. */
+const dgKick = g => kickFmt(g.ko) || g.kick || "";
+
 /* A game that has kicked off takes its pre-game rows with it, here in the browser: the packet was
    cut at build time, and a tab stays open across a Sunday. ff-jarvis drops the same rows at build
    (weekly_digest_played); this only catches up with the clock since. */

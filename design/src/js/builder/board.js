@@ -60,7 +60,7 @@ function slPlayer(slug, rows){
 
 /* His most confident line, or null: among his lines the model gave a pick (tier not "none", never a
    touchdown), the highest chance of its side, ties to the higher tier. {i, side, tier, mkt}. */
-const SL_TIER_RANK = {slight: 1, confident: 2, very: 3};
+const SL_TIER_RANK = PT_RANK;   // the one order, data/topcalls.js
 function slBestLine(x){
   let best = null;
   x.rows.forEach(i => {

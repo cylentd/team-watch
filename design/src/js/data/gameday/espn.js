@@ -60,7 +60,8 @@ function gsShape(summary){
   const drives = chrono.map((d, i) => {
     const plays = (d.plays || []).filter(p => !GS_NOT_PLAY.test((p.type || {}).text || "") && !GS_NOT_PLAY.test(p.text || ""))
       .map(p => ({q: (p.period || {}).number, clock: (p.clock || {}).displayValue || "", text: p.text || "",
-                  dd: (p.start || {}).downDistanceText || gsWhere(p.start, abbrOf, other), sc: !!p.scoringPlay}));
+                  dd: (p.start || {}).downDistanceText || gsWhere(p.start, abbrOf, other), sc: !!p.scoringPlay,
+                  names: gsPlayNames(p)}));
     const res = d.result || d.displayResult || "";
     return {team: abbrOf[(d.team || {}).id] || (d.team || {}).abbreviation || "", line: gsDriveLine(d),
             res, sc: !!d.isScore || /^(TD|FG|touchdown|field goal)/i.test(res), on: i === onDrive, plays: plays.reverse()};
@@ -70,11 +71,13 @@ function gsShape(summary){
 }
 
 /* Where the ball is now: ESPN's `situation` when the summary carries one, else the end of the last
-   play. `ytez` places the ball on the strip under the scoreboard. */
+   play. `ytez` places the ball on the strip under the scoreboard; `red` is the red-zone mark
+   (situation.js reads the situation, the same one the scoreboard carries). */
 function gsNow(summary, chrono, abbrOf, other){
-  const s = summary.situation;
-  if (s && s.possession) return {ball: abbrOf[s.possession] || "", dd: s.downDistanceText || "", ytez: s.yardsToEndzone};
+  const sit = gdSitShape(summary.situation, abbrOf);
+  if (sit) return sit;
   const last = [...chrono].reverse().flatMap(d => [...(d.plays || [])].reverse()).find(p => p.end && p.end.down);
   if (!last) return null;
-  return {ball: abbrOf[(last.end.team || {}).id] || "", dd: gsWhere(last.end, abbrOf, other), ytez: last.end.yardsToEndzone};
+  const ytez = last.end.yardsToEndzone;
+  return {ball: abbrOf[(last.end.team || {}).id] || "", dd: gsWhere(last.end, abbrOf, other), ytez, red: ytez > 0 && ytez <= 20};
 }

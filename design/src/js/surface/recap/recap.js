@@ -10,14 +10,15 @@
 const wrTabsHTML = (open, on) => `<div class="gd-tabs" role="group" aria-label="${t("weekrecap.tabs.label")}">${open.map(k =>
   `<button type="button" data-wrtab="${k}" aria-pressed="${k === on}">${wrTabName(k)}</button>`).join("")}</div>`;
 
-const wrBodyHTML = (d, tab) => tab === "players" ? wrPlayersHTML(d) : tab === "scores" ? wrScoresHTML(d) : wrClaudeHTML(d);
+const wrBodyHTML = (d, tab) => tab === "players" ? wrPlayersHTML(d) : tab === "scores" ? wrScoresHTML(d)
+  : tab === "accuracy" ? acHTML(wrAcc()) : wrClaudeHTML(d);
 
 function wrViewHTML(){
-  const d = wrD(), open = d ? wrAvail(d) : [];
-  if (!d || (!d.top && !open.length)) return `<div class="wrap"><div class="state-empty" style="min-height:220px">
+  const d = wrD(), open = wrAvail(d);
+  if (!open.length && !(d && d.top)) return `<div class="wrap"><div class="state-empty" style="min-height:220px">
     <div><b>${t("weekrecap.empty.title")}</b><span>${t("weekrecap.empty.sub")}</span></div></div></div>`;
   const on = wrTab(d);
-  return `<div class="wrap wr-page">${wrBannerHTML(d)}${open.length > 1 ? wrTabsHTML(open, on) : ""}
+  return `<div class="wrap wr-page">${d ? wrBannerHTML(d) : ""}${open.length > 1 ? wrTabsHTML(open, on) : ""}
     <div class="wr-body" data-wrbody data-wrtabname="${on || ""}">${on ? wrBodyHTML(d, on) : ""}</div></div>`;
 }
 

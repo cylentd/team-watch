@@ -23,7 +23,7 @@ from contract_checks import WIRE_EVENT, WIRE_KIND, WIRE_KIND_OPTIONAL, WIRE_OPTI
 # design/ranks.py: one row of Players > Ranks. `home`, `kick`, `inj`, `mu`, `mx` and `mxp` may be
 # null; `mx` (the points the defense adds or takes, ff-jarvis `matchup.pts`) and `mxp` (the part of
 # it already in `pts`, `matchup.priced`) are null for every WR.
-RANK_ROW = ["slug", "n", "pos", "team", "opp", "home", "kick", "inj", "mu", "mx", "mxp", "pts", "rank", "tier"]
+RANK_ROW = ["slug", "n", "pos", "team", "opp", "home", "kick", "inj", "mu", "mx", "mxp", "pts", "floor", "ceil", "rank", "tier"]
 WAIVER_ROW = ["n", "slug", "pos", "team", "opp", "home", "tier", "weeks", "injury", "injury_note",
               "practice", "news_latest", "news_count", "leagues", "summary"]
 # One league's view of a candidate (waiver.py `_league`). `verdict` and `drop` may be null; when
@@ -199,7 +199,7 @@ CONTRACT = {
     # page can show. `mu` is the component means (PASS/RUSH/TD/...), read as-is off the source.
     "LIVE_PROJECTIONS": {
         "keys": ["players"],
-        "map": ("players", ["pts", "mu", "games", "src", "rank", "of", "out", "done", "wx"]),
+        "map": ("players", ["pts", "mu", "games", "src", "rank", "of", "out", "done", "wx", "floor", "ceil"]),
     },
     # design/ranks.py: Players > Ranks. Every position's list in `rows`, RB/WR/TE together in
     # `flex`, each tiered by natural breaks, one week only: `week` is null with no schedule, and
@@ -339,6 +339,11 @@ CONTRACT = {
     "LIVE_REASONS": {"keys": [], "map": (".", ["why", "work", "tags"]), "checks": [slips.problems_reasons]},
     # design/slips.py (2026-10-05): the tiers' graded record, the strip at the top of Slips. None without ff-jarvis's file.
     "LIVE_PROPS_RECORD": {"keys": ["season", "through_week", "tiers"], "checks": [slips.problems_record]},
+    # design/accuracy.py, design/dst.py, design/sos.py (2026-10-05): each passes its ff-jarvis file through, None without
+    # it; the producers' docstrings hold the nested shapes.
+    "LIVE_ACCURACY": {"keys": ["season", "generated", "weeks", "season_to_date"], "rows": [("weeks", ["week", "model", "by_pos"])]},
+    "LIVE_DST": {"keys": ["season", "weeks", "source", "leagues", "rules", "teams"], "rows": [("teams", ["team", "rostered", "weeks"])]},
+    "LIVE_SOS": {"keys": ["label", "season", "from_week", "playoff_weeks", "windows", "teams"]},
     # design/slips.py (2026-10-05): Claude's calls on prop lines, {slug: [{mkt, line, side, why}]}. Optional: None without
     # ff-jarvis's file, and a line with no call draws no badge.
     "LIVE_CLAUDE_PROPS": {"keys": ["week", "asof", "calls"], "checks": [slips.problems_claude]},

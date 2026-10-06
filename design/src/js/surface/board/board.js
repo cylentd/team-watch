@@ -76,6 +76,7 @@ function bdViewHTML(){
     <div><b>${t("board.empty.noSheetTitle")}</b><span>${t("board.empty.noSheetSub")}</span></div></div></div>`;
   const picks = bdPicked();
   return `<div class="wrap pos-${BD_POS.toLowerCase()}">
+    ${navCaptionHTML("board")}
     ${bdControlsHTML()}
     ${BD_NOTE ? `<p class="bd-note">${BD_NOTE}</p>` : ""}
     ${bdChipsHTML(picks)}

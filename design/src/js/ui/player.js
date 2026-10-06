@@ -79,6 +79,22 @@ function projFor(p){
   const proj = LIVE_PROJECTIONS.players[p.slug];
   return proj && typeof proj.pts === "number" ? proj.pts : null;
 }
+/* The band beside his projection (plan U5, 2026-10-05): ff-jarvis's 10th and 90th percentile outcome in
+   half-PPR points, given he plays, so 8 in 10 of his games land between them. The page never computes
+   one. `row` is a projections row (or a Ranks row, which carries the same fields): {pts, floor, ceil,
+   out, done}. Null, so nothing is drawn, with no points (out, played, a bye), no band (a position the
+   table does not cover, a file from before it) or a 0 to 0 band (a zeroed row). */
+function rangeText(floor, ceil){ return t("range.fmt", {floor: floor.toFixed(1), ceil: ceil.toFixed(1)}); }
+function rangeFrom(row){
+  if (!row || row.out || row.done || typeof row.pts !== "number") return null;
+  const {floor, ceil} = row;
+  if (typeof floor !== "number" || typeof ceil !== "number" || ceil <= 0) return null;
+  return {floor, ceil, text: rangeText(floor, ceil)};
+}
+function rangeFor(p){
+  if (typeof LIVE_PROJECTIONS === "undefined" || !LIVE_PROJECTIONS) return null;
+  return rangeFrom(LIVE_PROJECTIONS.players[p.slug]);
+}
 /* Sleeper's code when he is not playing this week (design/projections.py OUT_INJURY), or null. */
 function projOut(p){
   if (typeof LIVE_PROJECTIONS === "undefined" || !LIVE_PROJECTIONS) return null;

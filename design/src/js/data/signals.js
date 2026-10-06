@@ -20,6 +20,28 @@ function trendLine(series){
   return v.length >= 2 ? v : null;
 }
 
+/* watch's reason for a verdict, as a sentence a reader can act on (plan U3, 2026-10-05; the audit's
+   "RISING snaps −5.0, share +19; buy or start" was jargon with a minus sign). ff-jarvis writes two
+   shapes (model/season/watch.py verdict()): RISING "snaps {d:+.1f}, share {d:+.0f}; buy or start" and
+   SELL HIGH "{luck:+.0%} over what the usage bought, on a part-time role". Anything else comes back as
+   it was written, and nothing without a verdict is a sentence. Plain text: the caller escapes it. */
+const SIG_NUM = "([+\\-\\u2212]?\\d+(?:\\.\\d+)?)";
+function signalWords(verdict, why){
+  if (!verdict || !why) return "";
+  const move = n => {
+    const v = parseFloat(String(n).replace("−", "-"));
+    return {dir: Math.abs(v) < 0.05 ? "flat" : v > 0 ? "up" : "down", n: Math.abs(v)};
+  };
+  const phrase = (m, fmt) => m.dir === "flat" ? t("profile.signal.flat")
+    : m.dir === "up" ? t("profile.signal.up", {n: fmt(m.n)}) : t("profile.signal.down", {n: fmt(m.n)});
+  const rising = new RegExp(`^snaps ${SIG_NUM}, share ${SIG_NUM}; buy or start$`).exec(why);
+  if (verdict === "RISING" && rising)
+    return t("profile.signal.rising", {snaps: phrase(move(rising[1]), n => n.toFixed(1)), share: phrase(move(rising[2]), n => String(Math.round(n)))});
+  const hot = new RegExp(`^${SIG_NUM}% over what the usage bought, on a part-time role$`).exec(why);
+  if (verdict === "SELL HIGH" && hot) return t("profile.signal.hot", {n: Math.round(Math.abs(parseFloat(hot[1])))});
+  return why;
+}
+
 function signalsFor(p){
   const sig = (typeof LIVE_SIGNALS !== "undefined" && LIVE_SIGNALS && p.slug && LIVE_SIGNALS.players[p.slug]) || {};
   const stock = (typeof LIVE_MARKET_STOCK !== "undefined" && LIVE_MARKET_STOCK && p.slug && LIVE_MARKET_STOCK.players[p.slug]) || null;

@@ -10,8 +10,8 @@
    data arriving is the one thing that moves on its own); redrawing the same week does not. */
 let LG_DRAWN = null;
 
-/* The league-wide pages (Recap, Records, Trades) show the League switch's Yahoo league (data/league.js
-   lgLeagueKey; the Madden Curse unless the reader picked AYO), whatever team is on screen. */
+/* The league-wide pages (Recap, Records, Trades) show the Yahoo league of the team on screen (data/league.js
+   lgLeagueKey; the first Yahoo league when that team is ESPN's or none). */
 function lgUsePicked(){
   const L = LGS[lgLeagueKey()] || null;
   if (LG !== L){ LG = L; LG_WEEK = null; LG_OPEN = null; }
@@ -98,13 +98,16 @@ function lgSupHTML(k, a, i){
 /* The whole back page for the week on screen, redrawn whole by a week chip (wireLeague): the masthead;
    the lead with the grudges and the standings under it; the briefs beside it; the superlatives along
    the bottom. On a 1440x900 screen it all ends above the fold (test_render). */
-function lgBackWeekHTML(){
+function lgBackWeekHTML(id){
   const w = lgWeek();
   if (!w) return `<section class="lg-sec bp2"><p class="lg-none">${t("league.empty")}</p></section>`;
   const sups = ["top", "low", "unluck", "luck", "bench", "close"].map((k, i) => lgSupHTML(k, w.awards[k], i)).join("");
   const g = LG.grudge;
-  return `<section class="lg-sec bp2${lgArrive("league", w) ? " bp-in" : ""}" aria-label="${t("league.recap.aria")}">
+  // The reader's own team (2026-10-05, Recap merged with My recap): his game first, under the masthead,
+  // then his grudge and his lines in the record book after the league's pages.
+  return `<section class="lg-sec bp2${id ? " has-mine" : ""}${lgArrive("league", w) ? " bp-in" : ""}" aria-label="${t("league.recap.aria")}">
     ${lgMastHTML(w)}
+    ${id ? `<div class="bp2-mine">${lgMineWeekHTML(w, id)}</div>` : ""}
     <div class="bp2-main">
       ${lgLeadHTML(w)}
       <div class="bp2-under">
@@ -115,13 +118,27 @@ function lgBackWeekHTML(){
     </div>
     ${lgBriefsHTML(w)}
     <div class="bp-sups bp2-sups" aria-label="${t("league.back.sups")}">${sups}</div>
+    ${id ? `<div class="bp2-you">${lgGrudgeHTML(id)}${lgMyBookHTML(id)}</div>` : ""}
   </section>`;
 }
 
-/* This week > League: the back page, no page head (the league's name is in the kicker). */
-function lgLeaguePageHTML(){
-  if (!lgUsePicked()) return `<div class="wrap"><p class="lg-none">${t("league.none")}</p></div>`;
-  return `<div class="wrap" style="--lg-tint:${lgTint()}">${lgSwitchHTML()}<div class="lg lg-one">${lgBackWeekHTML()}</div></div>`;
+/* The reader's own team in the league on screen, or null: none picked, or a connected league's team. */
+const lgMineId = () => (lgMine() && lgIdOf(lgMine())) || null;
+
+/* League > Recap (leaf `recap`): the league of the team on screen (data/league.js lgFocusKey), the chip
+   above it. A Yahoo league gets the back page, the same for every reader but with the reader's own game
+   first; an ESPN league keeps its plain recap, rivalry and history (league.js: David's work league). */
+function lgRecapPageHTML(){
+  const f = lgFocusKey(), L = f && LGS[f];
+  if (!L) return `<div class="wrap">${lgChipHTML()}<p class="lg-none">${t("league.none")}</p></div>`;
+  if (TEAMS[f].site !== "yahoo") return lgEspnPageHTML(f);
+  lgUsePicked();
+  return `<div class="wrap" style="--lg-tint:${lgTint()}">${lgChipHTML()}<div class="lg lg-one">${lgBackWeekHTML(lgMineId())}</div></div>`;
 }
 
-function wireLeaguePage(v){ wireLeague(v, null, lgBackWeekHTML); wireLgSwitch(v); }
+function wireRecapPage(v){
+  const f = lgFocusKey();
+  if (f && LGS[f] && TEAMS[f].site !== "yahoo") return wireEspnPage(v, f);
+  wireLeague(v, lgMineId(), () => lgBackWeekHTML(lgMineId()));
+  wireLgChip(v);
+}

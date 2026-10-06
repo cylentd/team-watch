@@ -26,7 +26,7 @@ function dgLeadHurt(r){
   const [cls, word] = DG_STATUS[r.status] || ["q", () => esc(r.status)];
   const who = r.rank != null ? t("digest.lead.rank", {pos: esc(r.pos), rank: r.rank})
     : r.rostered != null ? t("digest.lead.rostered", {pct: dgPct(r.rostered)}) : "";
-  const game = r.game ? t("digest.lead.game", {game: dgGame(r.game) + (r.game.kick ? ", " + esc(r.game.kick) : "")}) : "";
+  const game = r.game ? t("digest.lead.game", {game: dgGame(r.game) + (dgKick(r.game) ? ", " + esc(dgKick(r.game)) : "")}) : "";
   return {tone: cls, slug: r.slug, name: r.n, photo: dgPhotoHTML(r.slug), ghost: r.rank != null ? esc(r.pos) + r.rank : "",
           head: t("digest.lead.hurt", {name: esc(r.n), status: `<em class="dg-em ${cls}">${word()}</em>`}),
           fact: [who, r.injury ? esc(r.injury) + "." : "", game].filter(Boolean).join(" ")};
@@ -39,7 +39,7 @@ function dgLeadWx(g){
   return {tone: "sky", photo: `<span class="dg-photo dg-glyph">${dgWxKind(g) === "wind" ? DG_WIND : DG_RAIN}</span>`,
           ghost: dgWxKind(g) === "wind" ? t("digest.wx.mph", {n: g.wind_mph}) : t("digest.wx.pct", {n: g.precip_pct}),
           head: t("digest.lead.wx.head", {game: dgGame(g), what: `<em class="dg-em sky">${what}</em>`}),
-          fact: [g.kick ? esc(g.kick) + "." : "", sky ? sky + "." : ""].filter(Boolean).join(" ")};
+          fact: [dgKick(g) ? esc(dgKick(g)) + "." : "", sky ? sky + "." : ""].filter(Boolean).join(" ")};
 }
 
 /* The week's top score, called like a game (David, 2026-09-29, storyboard

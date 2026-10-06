@@ -231,7 +231,10 @@ def test_head_carries_the_verdict(shared):
     row(page, "Chase Brown").click()                     # RISING in watch, on both fixture rosters
     tags = modal.locator(".pf-tags")
     assert tags.locator(".tag.verdict").inner_text().strip() == "RISING"
-    assert tags.locator(".pf-why").inner_text().startswith("snaps +13.0")
+    # Plain words since 2026-10-05 (plan U3): watch's "snaps +13.0, share +N; buy or start" is a sentence.
+    why = tags.locator(".pf-why").inner_text()
+    assert why.startswith("Snaps up 13.0 points and his share of the work up ") and why.endswith("Worth a start, or an add if he is free.")
+    assert "+" not in why and "snaps +" not in why
     assert modal.locator(".pf-mine").count() == 0
     from_search = page.evaluate("""() => { openProfile({n: "Chase Brown", pos: "RB", team: "CIN"});
       return document.querySelector("#modal .pf-tags").innerText; }""")
@@ -333,24 +336,46 @@ def test_panes_split_the_blocks_and_only_one_is_in_the_dom(shared):
 
 @pytest.mark.render
 def test_the_strip_says_how_good_and_how_used(shared):
-    """The strip under the head (2026-09-28): rank by points per game, ppg, role share, snaps, all
+    """The strip under the head (2026-09-28): ppg, rank by points per game, role share, snaps, all
     LIVE_POOL. The share is the one pool.py plots for his position -- carries for a back, targets
     for a receiver -- and a cell with no source is left out, so a player the pool does not carry
-    shows no strip rather than four dashes. The rank left the identity line for it."""
+    shows no pool cells rather than dashes. The rank left the identity line for it. Since 2026-10-05
+    (plan U3) this week's projection leads it and season ppg is second: "WR3 / 26.2 PPG" read as the
+    projection."""
     page, errors = shared((1400, 900))
     page.evaluate("VIEW='espn'; render()")
     row(page, "Chase Brown").click()
     cells = page.locator("#modal .pf-lede-c")
-    assert [c.locator("b").inner_text() for c in cells.all()] == ["RB1", "17.4", "62%", "71%"]
-    assert [c.locator(".pf-lede-l").inner_text() for c in cells.all()] == ["RANK", "PPG", "CARRIES", "SNAPS"]
+    proj = page.evaluate("projFor({slug: 'chase-brown'}).toFixed(1)")
+    assert [c.locator("b").inner_text() for c in cells.all()] == [proj, "17.4", "RB1", "62%", "71%"]
+    assert [c.locator(".pf-lede-l").inner_text() for c in cells.all()] == ["PROJ.", "PPG", "RANK", "CARRIES", "SNAPS"]
+    assert page.locator("#modal .pf-lede-c.proj").count() == 1 and cells.first.get_attribute("class").endswith("proj")
     assert "RB1" not in page.locator("#modal .pf-who .lbl").inner_text()   # one home for the rank
     page.keyboard.press("Escape")
     row(page, "George Kittle").click()
-    assert page.locator("#modal .pf-lede-l").nth(2).inner_text() == "TARGETS"
+    assert page.locator("#modal .pf-lede-l").nth(3).inner_text() == "TARGETS"
     page.keyboard.press("Escape")
     page.evaluate("VIEW='yahoo'; render()")
-    row(page, "Amon-Ra St. Brown").click()                  # not in the fixture pool
-    assert page.locator("#modal .pf-lede").count() == 0
+    row(page, "Amon-Ra St. Brown").click()                  # not in the fixture pool: his projection alone
+    assert [c.locator(".pf-lede-l").inner_text() for c in page.locator("#modal .pf-lede-c").all()] == ["PROJ."]
+    assert errors == []
+
+
+@pytest.mark.render
+def test_the_profile_reaches_his_row_in_the_usage_grid_in_one_tap(shared):
+    """Plan U3 (2026-10-05): a link under the strip opens Usage on his row (nav.js navGoRow), once the profile
+    has closed behind it. A player the grid has no row for gets no link."""
+    page, errors = shared((390, 844))
+    page.evaluate("VIEW='espn'; render()")
+    row(page, "Chase Brown").click()
+    link = page.locator("#modal [data-pfgrid='chase-brown']")
+    assert link.count() == 1 and link.inner_text() == "His row in Usage"
+    assert link.bounding_box()["height"] >= 44
+    link.click()
+    page.wait_for_function("SURFACE === 'usage'")
+    page.wait_for_function("!document.getElementById('modal').classList.contains('on')")
+    assert page.locator("[data-usage='chase-brown'].nav-hit").count() == 1
+    assert page.evaluate("pfGridLinkHTML({n: 'Nobody Known', slug: 'nobody-known'})") == ""
     assert errors == []
 
 
@@ -778,12 +803,12 @@ def test_the_fantasy_tier_leads_the_strip(shared):
     # One separator for the whole line, and the same one the rest of the page uses.
     assert head == "RB · CIN · BYE 10"
     assert "|" not in head
-    assert page.locator("#modal .pf-lede-c b").first.inner_text() == f"RB{rank}"
+    assert page.locator("#modal .pf-lede-c b").nth(2).inner_text() == f"RB{rank}"   # projection, ppg, then the rank
     assert of == page.evaluate("LIVE_POOL.players.filter(r => r.pos === 'RB' && r.ppg !== null).length")
     page.keyboard.press("Escape")
     row(page, "Amon-Ra St. Brown").click()          # not in the fixture pool: no rank anywhere
     assert page.locator("#modal .pf-who .lbl").inner_text().upper() == "WR · DET"
-    assert page.locator("#modal .pf-lede").count() == 0
+    assert page.locator("#modal .pf-lede-c").count() == 1      # his projection; no pool rank or share
     page.keyboard.press("Escape")
     assert errors == []
 

@@ -235,14 +235,18 @@ def names(page):
 
 
 @pytest.mark.render
-def test_teams_opens_on_the_readers_league_and_lists_all_three(browser, page_file):
+def test_teams_opens_on_the_readers_league_and_the_one_chip_moves_it(browser, page_file):
+    """One chip since 2026-10-05: the team switch. It named the league beside it; a team picked in it is the league."""
     ctx, page, errors = phone(browser, page_file, pick="espn")
-    assert page.locator(".lg-switch .chip[aria-pressed='true']").inner_text().lower() == "espn"
-    assert [x.lower() for x in page.locator(".lg-switch .chip").all_inner_texts()] == ["madden curse", "ayo", "espn"]
+    assert page.locator(".lgchip-lg").inner_text().lower() == "espn"
+    assert page.locator(".lg-switch, [data-lgpick]").count() == 0, "no league chips of their own"
     assert page.locator(".navitem[data-s='league']").count() == 1
     assert page.locator(".mode-sub[aria-pressed='true']").inner_text().lower() == "teams"
     assert names(page) == ["Purdy Big in Japan", "Run It Back"]
-    page.locator("[data-lgpick='ayo']").click()
+    page.locator(".lgchip [data-tsbtn]").click()
+    page.locator(".lgchip [data-tsleague='ayo']").click()
+    page.locator(".lgchip .ts-item[data-k='ayo']").click()
+    assert page.locator(".lgchip-lg").inner_text().lower() == "ayo"
     assert names(page) == ["Taylor Made for Sundays", "Don Wick"]
     ctx.close()
     assert errors == []
@@ -260,8 +264,8 @@ def test_only_the_readers_own_team_is_pinned_with_a_lime_outline(browser, page_f
     ctx.close()
     ctx, page, _ = phone(browser, page_file, pick="espn-run-it-back")
     assert page.locator(".lb-row.mine").count() == 1, "a leaguemate's team is the reader's, whatever it is"
-    page.locator("[data-lgpick='ayo']").click()
-    assert page.locator(".lb-row.mine").count() == 0, "no team of theirs in this league: nothing pinned"
+    page.evaluate("pickTeam('ayo')")
+    assert page.locator(".lb-row.mine").count() == 1 and names(page)[0] == "Taylor Made for Sundays", "the new league pins the new team"
     ctx.close()
 
 
@@ -351,11 +355,9 @@ def test_the_board_comes_back_at_the_scroll_the_reader_left_whichever_way_they_s
 def test_the_board_asks_for_a_team_only_while_the_reader_has_none_in_the_league(browser, page_file):
     ctx, page, _ = phone(browser, page_file, pick="espn")
     assert page.locator(".lb-pick").count() == 0, "their team is in this league"
-    page.locator("[data-lgpick='ayo']").click()
-    assert page.locator(".lb-pick").inner_text() == "Tap your team to set it"
     ctx.close()
-    ctx, page, _ = phone(browser, page_file, pick="nothing")
-    page.locator("[data-lgpick='espn']").click()
+    ctx, page, _ = phone(browser, page_file, pick="nothing")             # no pick: the league on screen is the team on screen's
+    page.evaluate("VIEW = 'espn'; render()")
     assert page.locator(".lb-pick").inner_text() == "Tap your team to set it"
     top = page.evaluate("document.querySelector('.lb-grid').getBoundingClientRect().top")
     assert top <= 200, f"the line still leaves the grid at {top:.0f}px"
@@ -363,11 +365,11 @@ def test_the_board_asks_for_a_team_only_while_the_reader_has_none_in_the_league(
 
 
 @pytest.mark.render
-def test_a_league_with_no_rosters_draws_an_empty_state_and_keeps_the_switch(browser, page_file):
+def test_a_league_with_no_rosters_draws_an_empty_state_and_keeps_the_chip(browser, page_file):
     ctx, page, _ = phone(browser, page_file)                    # the suite's reader is on the Madden Curse: no slots in the fixture
     assert page.locator(".lb-empty").is_visible() and page.locator(".lb-grid").count() == 0
-    assert page.locator(".lg-switch").count() == 1
-    page.locator("[data-lgpick='espn']").click()
+    assert page.locator(".lgchip").count() == 1
+    page.evaluate("pickTeam('espn')")
     assert page.locator(".lb-grid").count() == 1
     ctx.close()
 
@@ -389,6 +391,6 @@ def test_the_board_fits_a_phone_and_starts_near_the_top(browser, page_file):
 def test_the_board_is_capped_on_a_desktop(browser, page_file):
     ctx, page, _ = phone(browser, page_file, pick="espn", w=1280, h=900)
     w = page.evaluate("document.querySelector('.lb-grid').getBoundingClientRect().width")
-    left = page.evaluate("document.querySelector('.lb-grid').getBoundingClientRect().left - document.querySelector('.lg-switch').getBoundingClientRect().left")
+    left = page.evaluate("document.querySelector('.lb-grid').getBoundingClientRect().left - document.querySelector('.lgchip').getBoundingClientRect().left")
     assert w <= 721 and left == 0, f"{w}px wide, {left}px from the frame's edge"
     ctx.close()

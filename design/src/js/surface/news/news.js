@@ -50,7 +50,7 @@ function newsRowHTML(it, featured, i){
     <div class="newstop">
       ${featured ? `<span class="livedot"></span>` : ""}
       ${newsKindTag(kind)}
-      ${it.when ? `<span class="when">${esc(it.when)}</span>` : ""}
+      ${it.when ? `<span class="when">${esc(kickFmt(it.at) || it.when)}</span>` : ""}
       ${it.team ? `<span class="nteam">${esc(it.team)}</span>` : ""}
     </div>
     <div class="ntitle">${newsTitleHTML(it)}</div>

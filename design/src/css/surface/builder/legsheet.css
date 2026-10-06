@@ -27,6 +27,13 @@ body:has(.legsheet.on){overflow:hidden}
   .legsheet > .grab{display:none}
 }
 
+/* A player's sheet is something to read, so on every width it is a centred modal with a margin on all four
+   sides, closed by its ✕ (design/STYLE.md Overlays, 2026-10-05); only one bet, an action, rises from the edge. */
+.legsheet.ls-read{top:50%;bottom:auto;left:16px;right:16px;max-height:calc(100dvh - 32px);border-bottom:1px solid var(--line-2);
+  border-radius:20px;padding:16px 16px 18px;opacity:0;transform:translateY(calc(-50% + 24px));
+  transition:transform var(--dur-spring) var(--spring),opacity .2s var(--ease),visibility 0s linear var(--dur-spring)}
+.legsheet.ls-read.on{opacity:1;transform:translateY(-50%);transition:transform var(--dur-spring) var(--spring),opacity .2s var(--ease)}
+
 /* ---- 1. who, the call, the chance ---- */
 .ls-head{display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:12px;align-items:center}
 .ls-who{min-width:0;display:flex;flex-direction:column;gap:2px}

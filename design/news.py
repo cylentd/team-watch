@@ -133,12 +133,16 @@ def load_news(feed_path, dwr_path):
     for it in sorted(raw["items"], key=parsed_time, reverse=True):
         t = parsed_time(it)
         player, slugs = news_player(it.get("title"))
-        when = None if t == dt.datetime.min.replace(tzinfo=UTC) else (
-            t.astimezone(LOCAL_TZ).strftime("%a %I:%M%p").replace(" 0", " ").replace("AM", "a").replace("PM", "p"))
+        dated = t != dt.datetime.min.replace(tzinfo=UTC)
+        local = t.astimezone(LOCAL_TZ) if dated else None
+        # `when` is the page's one time format (js/lib/kick.js) on David's clock, the fallback; `at` is the
+        # same moment as ISO UTC, which the page writes in the reader's own clock.
+        when = f"{local:%a} {local.hour % 12 or 12}:{local.minute:02d} {'AM' if local.hour < 12 else 'PM'}" if dated else None
         items.append({
             "id": it.get("id"), "title": it.get("title"), "desc": it.get("desc"),
             "impact": it.get("impact"), "team": it.get("team_id"),
             "categories": it.get("categories") or [], "link": it.get("link"), "when": when,
+            "at": t.strftime("%Y-%m-%dT%H:%M:%SZ") if dated else None,
             "kind": news_kind(it), "player": player, "slugs": slugs,
         })
     return {"items": mark_superseded(items)}

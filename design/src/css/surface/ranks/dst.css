@@ -1,0 +1,53 @@
+/* ============================== RANKS > D/ST AND K ============================== */
+/* js/surface/ranks/dst.js (2026-10-05, plan U6c). One panel, a row per team on two lines: place, team
+   and game, this week's points; then who holds it (or FREE, or a STREAMER tag) and the next three weeks
+   as small cells. A week with no posted line wears "~" and a dimmer face; a streamer week's cell is lime.
+   The headline now holds the title block and the Schedule link side by side. */
+/* Seven positions (QB RB WR TE FLEX D/ST K) must fit 362px of a 390px phone in one row: 334px of chips and
+   six 8px gaps overflowed it by 21px. */
+.rk .setrow{gap:6px}
+.rk .setrow > .chip:not(.setchip){padding-left:10px;padding-right:10px}
+.rk-headline > div{min-width:0}
+.rk-sched{flex:none;appearance:none;border:1px solid var(--line);border-radius:999px;background:none;color:var(--ink-2);font:inherit;
+  font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  min-height:44px;padding:0 14px;margin-top:-4px;cursor:pointer}
+.rk-sched:hover{border-color:var(--ink-3);color:var(--ink)}
+.rk-sched:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.rk-sched:active{transform:scale(var(--press))}
+.rk-headline .rk-dnote{color:var(--ink-2)}
+.rk-d{display:grid;grid-template-columns:24px minmax(0,1fr) auto;column-gap:10px;row-gap:2px;align-items:center;
+  padding:8px 16px;min-height:48px}
+.rk-d + .rk-d{border-top:1px solid var(--line)}
+.rk-d.mine .rk-dteam{color:var(--lime)}
+.rk-d.bye .rk-dteam,.rk-d.bye .rk-dpts{color:var(--ink-3)}
+.rk-d.done{opacity:.6}
+.rk-dwho{display:flex;align-items:baseline;gap:8px;min-width:0;white-space:nowrap}
+.rk-dteam{font-size:var(--t-2);font-weight:700}
+.rk-dgame{min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:var(--t-1);color:var(--ink-3)}
+.rk-dpts{font-family:var(--mono);font-size:var(--t-3);font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink);text-align:right}
+.rk-dpts.est{color:var(--ink-2);font-weight:600}
+.rk-dline{grid-column:2 / -1;display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+.rk-dtags{display:flex;align-items:center;gap:6px;min-width:0}
+.rk-dtag{flex:none;padding:1px 7px;border-radius:999px;background:var(--lime);color:var(--void);
+  font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.1em}
+.rk-dhold{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:normal;font-size:var(--t-1);color:var(--ink-3)}
+.rk-dhold.free{font-family:var(--mono);font-weight:700;letter-spacing:.08em;color:var(--up)}
+.rk-dhold.waiver{font-family:var(--mono);font-weight:700;letter-spacing:.08em;color:var(--ink-2)}
+.rk-dhold.mine{font-family:var(--mono);font-weight:700;letter-spacing:.1em;color:var(--lime)}
+.rk-dnext{flex:none;display:flex;gap:10px}
+.rk-dc{display:flex;gap:4px;align-items:baseline;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);font-variant-numeric:tabular-nums}
+.rk-dc i{font-style:normal}
+.rk-dc b{font-weight:700;color:var(--ink-2)}
+.rk-dc.est b{font-weight:500;color:var(--ink-3)}
+.rk-dc.bye b{color:var(--ink-3)}
+.rk-dc.st b{color:var(--lime)}
+.rk-dfoot{margin:10px 2px 0;font-size:var(--t-1);color:var(--ink-3);max-width:70ch}
+@media (min-width:760px){
+  .rk-d{grid-template-columns:28px minmax(180px,260px) 64px minmax(0,1fr);column-gap:14px;padding:8px 20px}
+  .rk-dline{grid-column:auto}
+  .rk-dgroup{max-width:880px}   /* a team's name and its next weeks stay within reach of each other (STYLE.md, 560px) */
+}
+/* From 1100px the tier panels flow in two columns; the one D/ST panel spans both, its rows already wide. */
+@media (min-width:1100px){
+  .rk-dgroup{column-span:all}
+}

@@ -84,7 +84,8 @@ def page(shared):
 
 
 def first_card_top(page):
-    return page.locator(".sl-game").first.bounding_box()["y"] + page.evaluate("window.scrollY")
+    """Where the first data starts: Top calls since 2026-10-05, the game cards follow it."""
+    return page.locator(".tpc").bounding_box()["y"] + page.evaluate("window.scrollY")
 
 
 def one_line(page, selector):

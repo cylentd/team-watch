@@ -28,11 +28,10 @@ Per game, cut to what the page reads:
 the first week is final.
 """
 import datetime
-import zoneinfo
 
 from injury import level
+from slate import et_slot
 
-ET = zoneinfo.ZoneInfo("America/New_York")
 RAIN = 50       # precip % at which weather moves scoring (ff-jarvis METHODOLOGY 12.53: precipitation, WR/K)
 WIND = 15       # mph, the backtest's wind threshold (12.53: QB, WR, TE, K)
 MOVED = 3       # points the spread must move, favourite unchanged, to flag the game
@@ -106,11 +105,8 @@ def _base(b):
 
 def _slot(kickoff):
     """(slot, "1:00 PM", "Sun") for a kickoff, by its Eastern weekday and hour."""
-    t = datetime.datetime.fromisoformat(kickoff.replace("Z", "+00:00")).astimezone(ET)
-    day, h = t.strftime("%a"), t.hour
-    slot = {"Thu": "thu", "Mon": "mon"}.get(day) or (day == "Sun" and (
-        "sunam" if h < 13 else "sun1" if h < 16 else "sunlate" if h < 19 else "sunnight")) or "day"
-    return slot, f"{t.hour % 12 or 12}:{t.minute:02d} {'AM' if h < 12 else 'PM'}", day
+    slot, t = et_slot(datetime.datetime.fromisoformat(kickoff.replace("Z", "+00:00")))   # slate.py: the one definition
+    return slot, f"{t.hour % 12 or 12}:{t.minute:02d} {'AM' if t.hour < 12 else 'PM'}", t.strftime("%a")
 
 
 def _fav(spread_home, home, away):

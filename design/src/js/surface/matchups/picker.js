@@ -2,7 +2,8 @@
    The top card of Start/Sit (2026-10-03): two or three players side by side, and who starts.
    It opens on the reader's closest call when he has a team (the pair the roster brief names:
    the bench player who gains the most on a starter he could replace, else the smallest gap), and
-   empty with a one-line prompt when he has not. The list is his roster at the first pick's
+   empty with the search open and focused when he has not (2026-10-05, ssOpening in data/startsit.js:
+   a first-time visitor was handed a pair he never chose). The search stays open until two are picked. The list is his roster at the first pick's
    position, then search (the Compare picker's pattern, cmppick.js). The page decides nothing: the
    verdict is the higher of ff-jarvis's two projections, "Coin flip" inside half a point, and every
    row is a number ff-jarvis made (LIVE_RANKS, LIVE_DEFENSE, LIVE_SSB, LIVE_PROJECTIONS).
@@ -19,15 +20,23 @@ function ssPts(slug){
   const r = ssRank(slug);
   return r && typeof r.pts === "number" ? r.pts : projFor({slug});
 }
+/* His floor and ceiling (plan U5): the Ranks row's own band while he is on the list, else the projections'
+   (the same two numbers either way, ff-jarvis ranges.py), null with none. */
+function ssRange(slug){
+  const r = ssRank(slug);
+  return r ? rangeFrom(r) : rangeFor({slug});
+}
 function ssWx(slug){
   const row = typeof LIVE_PROJECTIONS !== "undefined" && LIVE_PROJECTIONS ? LIVE_PROJECTIONS.players[slug] : null;
   return row && row.wx ? row.wx : null;
 }
 
-/* The reader's own team on screen, else his first; null for a leaguemate's or none. */
+/* The team the reader picked (lgMine: his pick, else none on a page with leaguemates), null when he has
+   not. It was David's own roster for everyone until 2026-10-05 (the first-time visitor's "someone else's
+   pair", plan U3), because myLeagueKeys lists the three rosters the page ships whoever is reading. */
 function ssTeam(){
-  const mine = myLeagueKeys().filter(k => TEAMS[k] && (TEAMS[k].roster || []).length);
-  return mine.includes(VIEW) ? TEAMS[VIEW] : mine.length ? TEAMS[mine[0]] : null;
+  const mine = lgMine();
+  return mine && (mine.roster || []).length ? mine : null;
 }
 const ssRoster = team => team ? team.roster.map(r => Object.assign({}, r, {slug: r.slug || slugOf(r.n)})) : [];
 
@@ -46,15 +55,17 @@ function ssLoad(){
   if (SS_PICKS) return SS_PICKS;
   let kept = null;
   try {
-    // Kept for the week they were picked in: next week opens on the new closest call.
+    // Kept for the week they were picked in (the page's week, slateWeek: on a Monday the page says N+1
+    // and so does the key): next week opens on the new closest call. Same {week, picks} shape as before.
     const v = JSON.parse(localStorage.getItem(SS_KEY) || "null");
-    if (v && v.week === schedWeek() && Array.isArray(v.picks)) kept = v.picks.filter(s => typeof s === "string").slice(0, SS_MAX);
+    if (v && v.week === slateWeek() && Array.isArray(v.picks)) kept = v.picks.filter(s => typeof s === "string").slice(0, SS_MAX);
   } catch (e) { /* none kept */ }
-  SS_PICKS = kept || ssClosest().map(p => p.slug);
+  const o = ssOpening({team: !!ssTeam(), kept, closest: kept ? [] : ssClosest().map(p => p.slug)});
+  SS_PICKS = o.picks; SS_OPEN = o.open;   // nobody picked: the search is already open (data/startsit.js)
   return SS_PICKS;
 }
 function ssSave(){
-  try { localStorage.setItem(SS_KEY, JSON.stringify({week: schedWeek(), picks: SS_PICKS})); } catch (e) { /* kept for this load */ }
+  try { localStorage.setItem(SS_KEY, JSON.stringify({week: slateWeek(), picks: SS_PICKS})); } catch (e) { /* kept for this load */ }
 }
 
 function ssPlayer(slug){
@@ -102,18 +113,33 @@ function ssWxCell(c){
   return ssVal(adj ? wtSigned(wx.adj) : "—", sub, adj && wx.adj <= -0.05 ? "down" : adj && wx.adj >= 0.05 ? "up" : "");
 }
 
+/* His row in the Usage grid, one tap (nav.js navGoRow; plan U3). Drawn only for a player the grid has. */
+function ssGridCell(c){
+  const rows = typeof USAGE !== "undefined" && USAGE ? USAGE.rows : null;
+  const week = typeof USAGE_WEEK !== "undefined" ? USAGE_WEEK : null;
+  return rows && navRowPlan("usage", c.p.slug, rows, {week}) ? `<button type="button" class="ssv-go" data-ssgrid="${esc(c.p.slug)}">${t("startsit.go.row")}</button>` : "";
+}
+
 /* One row per thing to compare: a label line, then a lane per player. A row nobody has data for is
    not drawn; a lane without data says a dash. */
 function ssRowsHTML(cols){
   const fp = (ssSB() && ssSB().fp) || {}, one = new Set(cols.map(c => c.p.pos)).size === 1;
+  // FantasyPros ranking the man we sit ahead of him is the one row that argues with the verdict: say why it may.
+  const fpNote = ssFpNote(ssFpCheck(cols, ssVerdict(cols), fp), Object.fromEntries(cols.map(c => [c.p.slug, shortName(c.p.n)])));
   const rows = [
-    {label: t("startsit.row.proj"), cells: cols.map(c => c.pts === null ? "" : ssVal(c.pts.toFixed(1), "", "big"))},
+    // The band under each number, said in words once, under the row's label, only when a lane draws one.
+    {label: t("startsit.row.proj"), cells: cols.map(c => {
+      const g = c.pts === null ? null : ssRange(c.p.slug);
+      return c.pts === null ? "" : ssVal(c.pts.toFixed(1), g ? `<span class="ssv-rng" title="${t("range.tip", {floor: g.floor.toFixed(1), ceil: g.ceil.toFixed(1)})}">${g.text}</span>` : "", "big");
+    }), note: cols.some(c => c.pts !== null && ssRange(c.p.slug)) ? t("range.note") : ""},
     {label: t("startsit.row.rank"), cells: cols.map(c => c.rk ? ssVal(t("startsit.fmt.rank", {pos: esc(c.rk.pos), n: c.rk.rank})) : "")},
     {label: one ? t("startsit.row.defPos", {pos: esc(cols[0].p.pos)}) : t("startsit.row.def"), cells: cols.map(ssDefCell),
       note: cols.some(c => c.p.pos === "WR") ? t("startsit.def.wr") : ""},
-    {label: t("startsit.row.fp"), cells: cols.map(c => fp[c.p.slug] ? ssVal(t("startsit.fmt.rank", {pos: esc(fp[c.p.slug].pos), n: fp[c.p.slug].ecr})) : "")},
+    {label: t("startsit.row.fp"), cells: cols.map(c => fp[c.p.slug] ? ssVal(t("startsit.fmt.rank", {pos: esc(fp[c.p.slug].pos), n: fp[c.p.slug].ecr})) : ""),
+      note: fpNote},
     {label: t("startsit.row.out"), cells: cols.map(ssOutCell)},
     {label: t("startsit.row.wx"), cells: cols.map(ssWxCell)},
+    {label: t("startsit.row.grid"), cells: cols.map(ssGridCell)},
   ].filter(r => r.cells.some(Boolean));
   return rows.map(r => `<div class="ssv-row"><div class="ssv-lbl lbl"><span>${r.label}</span>${r.note ? `<em>${r.note}</em>` : ""}</div>
     <div class="ssv-lanes" style="--n:${cols.length}">${r.cells.map(h => h || ssVal("—")).join("")}</div></div>`).join("");
@@ -161,7 +187,7 @@ function ssResultsHTML(){
 }
 
 function ssPickInnerHTML(){
-  const cols = ssCols(), wk = typeof LIVE_RANKS !== "undefined" && LIVE_RANKS ? LIVE_RANKS.week : null;
+  const cols = ssCols(), wk = slateWeek();
   const add = cols.length < SS_MAX ? `<button type="button" class="ssv-add" data-ssadd aria-expanded="${SS_OPEN}" aria-controls="ssv-box">${SS_PLUS}${t("startsit.pick.add")}</button>` : "";
   const box = SS_OPEN ? `<div class="ssv-box" id="ssv-box"><input id="ssv-q" class="ssv-q" type="search" autocomplete="off" spellcheck="false"
     placeholder="${t("startsit.list.search")}" aria-label="${t("startsit.list.search")}" value="${esc(SS_Q)}"><div class="ssv-res">${ssResultsHTML()}</div></div>` : "";
@@ -189,6 +215,7 @@ function ssWirePick(v){
     const b = e.target.closest("button");
     if (!b || !el.contains(b)) return;
     if (b.dataset.ssadd !== undefined){ SS_OPEN = !SS_OPEN; SS_Q = ""; ssPaintPick(el, SS_OPEN ? "#ssv-q" : SS_REFOCUS); return; }
+    if (b.dataset.ssgrid){ morphLogo(); navGoRow("usage", b.dataset.ssgrid); return; }
     if (b.dataset.ssx){
       SS_PICKS = ssLoad().filter(s => s !== b.dataset.ssx);
       ssSave(); ssPaintPick(el, SS_REFOCUS);
@@ -196,8 +223,9 @@ function ssWirePick(v){
     }
     if (b.dataset.ssslug){
       if (!ssLoad().includes(b.dataset.ssslug) && ssLoad().length < SS_MAX) SS_PICKS = [...ssLoad(), b.dataset.ssslug];
-      SS_OPEN = false; SS_Q = "";
-      ssSave(); ssPaintPick(el, SS_REFOCUS);
+      // One pick is not a comparison: the search stays open (and focused) until there are two.
+      SS_OPEN = ssLoad().length < 2; SS_Q = "";
+      ssSave(); ssPaintPick(el, SS_OPEN ? "#ssv-q" : SS_REFOCUS);
     }
   });
   el.addEventListener("input", e => {
@@ -208,4 +236,6 @@ function ssWirePick(v){
   el.addEventListener("keydown", e => {
     if (e.key === "Escape" && SS_OPEN){ SS_OPEN = false; SS_Q = ""; ssPaintPick(el, SS_REFOCUS); }
   });
+  // Nobody picked yet: the search is open and the cursor is in it, so the first tap is a name (plan U3).
+  if (SS_OPEN && !ssLoad().length) el.querySelector("#ssv-q")?.focus({preventScroll: true});
 }

@@ -397,7 +397,8 @@ def test_reduced_motion_never_marks_an_entrance(browser, page_file):
 
 def test_a_saved_slip_loads_into_the_sheet(browser, page_file):
     """A saved slip fills the tray with every leg at its side, and the tray opens the sheet: one bar
-    per leg, then the all-hit bar, then the slip itself, then the saved list."""
+    per leg, then the slip itself, then the saved list. Every morning leg is one game (CIN @ NYJ), so there
+    is no all-hit bar (tests below)."""
     ctx, page, errors = board(browser, page_file, "morning")
     page.evaluate("PROPS.forEach((p, i) => { const u = udPick(p); if (u && !u.synthetic && p.flag !== 'out') slipSet(i, 'higher'); }); render()")
     legs = page.evaluate("SLIP.length")
@@ -407,8 +408,34 @@ def test_a_saved_slip_loads_into_the_sheet(browser, page_file):
     page.locator(".sv-load").first.click()
     assert page.evaluate("SLIP.length") == legs and page.evaluate("SLIP.every(i => slipSide(i) === 'higher')")
     assert page.locator(".slipsheet.on").count() == 1
-    assert page.locator(".slipsheet .odds-row").count() == legs + 1
+    assert page.locator(".slipsheet .odds-row").count() == legs
     assert page.locator(".slipsheet .slip .slipleg").count() == legs
+    page.keyboard.press("Escape")
+    page.wait_for_function("!BETS_SHEET")
+    assert errors == []
+    ctx.close()
+
+
+NOTE = "Same-game legs move together; the combined chance isn't shown."
+
+
+def test_legs_of_different_games_keep_the_all_hit_bar_and_a_second_leg_of_one_game_takes_it_away(browser, page_file):
+    """2026-10-05 (plan "Bets UX" change 5): two legs of one game are not independent, so the slip shows each
+    leg's own chance, no combined chance, no verdict against the payout, and says why."""
+    ctx, page, errors = board(browser, page_file, "morning")
+    brown, purdy, burrow = (idx(page, n, m) for n, m in (("Chase Brown", "RUSH"), ("Brock Purdy", "PASS"), ("Joe Burrow", "PASS")))
+    page.evaluate(f"slipSet({brown}, 'higher'); slipSet({purdy}, 'lower'); render()")
+    page.locator("[data-tray]").click()
+    assert page.locator(".slipsheet .odds-row").count() == 3 and page.locator(".slipsheet .odds-row.all").count() == 1
+    assert page.locator(".slipsheet .corr").count() == 0
+    assert page.locator(".slipsheet .bigedge").inner_text() != "—"
+    page.keyboard.press("Escape")
+    page.wait_for_function("!BETS_SHEET")
+    page.evaluate(f"slipSet({burrow}, 'lower'); render()")   # Burrow plays Brown's game
+    page.locator("[data-tray]").click()
+    assert page.locator(".slipsheet .odds-row").count() == 3 and page.locator(".slipsheet .odds-row.all").count() == 0
+    assert page.locator(".slipsheet .corr").inner_text().strip().endswith(NOTE)
+    assert page.locator(".slipsheet .bigedge").inner_text() == "—" and page.locator(".slipsheet [data-bpayv]").inner_text() == ""
     page.keyboard.press("Escape")
     page.wait_for_function("!BETS_SHEET")
     assert errors == []

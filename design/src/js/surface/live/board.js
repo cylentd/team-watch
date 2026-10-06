@@ -7,7 +7,7 @@ const gdNum = v => (Math.round(v * 10) / 10).toFixed(1);
 const gdSigned = v => (v >= 0 ? "+" : "−") + gdNum(Math.abs(v));
 /* "B. Purdy"; a defense keeps its name ("Seahawks D/ST"). */
 const gdShort = (r) => r.pos === "DEF" ? r.n : r.n.replace(/^(\S)\S*\s+/, "$1. ");
-const gdClock = ms => new Date(ms).toLocaleString("en-US", {weekday: "short", hour: "numeric", minute: "2-digit"});
+const gdClock = ms => kickFmt(ms);   // the page's one kickoff format (lib/kick.js)
 
 /* Points over his projection, ESPN's way (2026-09-28, storyboard
    https://claude.ai/artifact/WxBrEw9K8CTNu8KftYvPYQ, option B). The second number carries no label:

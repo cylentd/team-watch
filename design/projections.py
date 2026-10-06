@@ -4,7 +4,10 @@ slug and cut to the `wanted` set, same reason pedigree.py and gamelog.py give.
 
 Self-contained like the other profile-data cuts: the raw block and slugify come in as arguments.
 """
+import datetime
 from collections import Counter
+
+from slate import EASTERN
 
 
 def report(proj):
@@ -45,6 +48,13 @@ def _week_of(kick, team, schedule):
     return None
 
 
+def _monday(kick):
+    """Is this kickoff (ISO, Z) on a Monday in Eastern time, the league's own clock? Monday night is
+    00:15 UTC the next day."""
+    when = datetime.datetime.fromisoformat(kick.replace("Z", "+00:00"))
+    return when.astimezone(EASTERN).weekday() == 0
+
+
 def slate(players, slugify, schedule):
     """(week, off): the week this file speaks for, and slug -> "played" | "bye" for every player
     whose projected game is a later week (2026-09-26).
@@ -52,19 +62,27 @@ def slate(players, slugify, schedule):
     The file projects each player's NEXT game, so once a Thursday game is over, that team's rows
     are next week's. Ranked beside everyone else's this-week number, Bijan Robinson led the week-3
     RBs for a game he had already played. The week is the one most rows fall in; a team with a
-    game in it has played it, a team without one is on a bye. No schedule: (None, {})."""
-    weeks, by_slug = Counter(), {}
+    game in it has played it, a team without one is on a bye. No schedule: (None, {}).
+
+    Week N holds while one of its games, Monday night apart, is still a team's next game (2026-10-05):
+    the noon Sunday run, after the 1 PM ET games, has most rows on N+1 while the 4 PM games and Sunday
+    night are still to play, and the page flipped to N+1 for them. Monday night alone does not hold the
+    week, so Monday says N+1. The file's own rows say what is still to play: no build clock."""
+    weeks, by_slug, ahead = Counter(), {}, set()
     for p in players:
         slug = slugify(p.get("name") or "")
         if not slug:
             continue
-        wk = _week_of(kick_iso(p), p.get("team"), schedule)
+        kick = kick_iso(p)
+        wk = _week_of(kick, p.get("team"), schedule)
         by_slug[slug] = (wk, p.get("team"))
         if wk is not None:
             weeks[wk] += 1
+            if not _monday(kick):
+                ahead.add(wk)
     if not weeks:
         return None, {}
-    week = weeks.most_common(1)[0][0]
+    week = min(weeks.most_common(1)[0][0], min(ahead, default=weeks.most_common(1)[0][0]))
     alias = (schedule or {}).get("alias") or {}
     playing = {t for g in schedule.get("games") or [] if g.get("week") == week for t in (g.get("home"), g.get("away"))}
     return week, {slug: ("played" if alias.get(team, team) in playing else "bye")
@@ -96,7 +114,7 @@ def position_ranks(players, slugify, skip=()):
 
 
 def live_projections(raw, slugify, wanted, status=None, schedule=None):
-    """LIVE_PROJECTIONS: {players: {slug -> {pts, mu, games, src, rank, of, out, done}}, meta:
+    """LIVE_PROJECTIONS: {players: {slug -> {pts, mu, games, src, rank, of, out, done, wx, floor, ceil}}, meta:
     {scoring, through}} or None when ff-jarvis has not written the file. Two players on the same
     slug keep the model source over a line-only fallback, same tie-break as build.py's
     _stock_by_slug(). A player Sleeper lists as not playing (`status`, OUT_INJURY) keeps his row
@@ -126,6 +144,12 @@ def live_projections(raw, slugify, wanted, status=None, schedule=None):
                         # {adj, cond}: points ff-jarvis already moved for this game's weather
                         # (its weather_adjust, METHODOLOGY 12.53), null when none applied.
                         "wx": p.get("wx"),
+                        # The 10th and 90th percentile outcome in half-PPR points, given he plays
+                        # (ff-jarvis model/market/ranges.py, 2026-10-05): a description, never a
+                        # price, and never computed here. Null with no points (out, played, bye) and
+                        # for a file or position without a band.
+                        "floor": None if slug in gone or slug in done else p.get("floor"),
+                        "ceil": None if slug in gone or slug in done else p.get("ceil"),
                         # "early" (no prop line posted for his game yet) | "lined" (lines posted for his game; his own blended if he has one) |
                         # null (a bye, or a feed from before ff-jarvis said which). Absent is never an error.
                         "stage": p.get("stage")}

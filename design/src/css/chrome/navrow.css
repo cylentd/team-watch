@@ -1,0 +1,24 @@
+/* ============================== THE SIX-LEAF SUB-ROW ============================== */
+/* League holds six leaves (2026-10-05). Measured at 360px, where the row is 332px: at the phone's 16px gap
+   they took 343px (366px with Waivers' two-digit count); at 8px they take 303px (324px with it). nav.js
+   draws `.dense` for League and Stats (data/navmap.js NAV_DENSE). Stats: Highlights, Ranks, Leaders, Work vs
+   points, Usage take 344px at 16px and 312px at 8px. */
+.subnav .modes-sub.dense{gap:8px}
+.subnav .modes-sub.dense .tabcount{margin-left:3px}
+
+/* ============================== STATS: CAPTION AND DEEP-LINKED ROW ============================== */
+/* One line under the sub-row saying what a Stats view holds (2026-10-05, David: A + C). Quiet type: the
+   data starts by ~200px (STYLE.md), so it costs one line and no row of controls. */
+.stat-cap{margin:12px 0 -4px;font-size:var(--t-1);color:var(--ink-3);max-width:70ch}
+/* A player's row reached from elsewhere (chrome/nav.js navGoRow): lime edge and wash, until the next draw. */
+.nav-hit{box-shadow:inset 0 0 0 2px var(--lime);background:rgb(var(--lime-rgb) / .08)}
+
+/* ============================== LEAGUE: THE ONE CHIP ============================== */
+/* The team switch drawn as a chip above a League page (surface/league/switch.js), with the league's
+   name beside it. Left-aligned, so its menu opens rightwards from the chip's left edge. */
+.lgchip{display:flex;align-items:center;gap:12px;margin-top:16px}
+.lgchip .teamswitch{padding:0;min-width:0}
+.lgchip .ts-btn{min-height:44px;max-width:100%}
+.lgchip .ts-team{overflow:hidden;text-overflow:ellipsis}
+.lgchip .ts-menu{left:0;right:auto}
+.lgchip-lg{min-width:0;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

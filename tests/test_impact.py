@@ -39,9 +39,12 @@ def test_the_render_areas_are_the_goldens():
     assert sorted(mapped) == sorted(set(mapped)) == test_render.AREAS
 
 
+RANKS_TESTS = ["tests/test_ranks.py", "tests/test_ranks_dst.py", "tests/test_js_dst.py"]
+
+
 @pytest.mark.parametrize("paths,want", [
-    (["design/src/css/surface/ranks/ranks.css"], {"all": False, "areas": ["ranks"], "extra": ["tests/test_ranks.py", "tests/test_render.py"]}),
-    (["design/ranks.py", "README.md"], {"all": False, "areas": ["ranks"], "extra": ["tests/test_ranks.py", "tests/test_render.py"]}),
+    (["design/src/css/surface/ranks/ranks.css"], {"all": False, "areas": ["ranks"], "extra": RANKS_TESTS + ["tests/test_render.py"]}),
+    (["design/ranks.py", "README.md"], {"all": False, "areas": ["ranks"], "extra": RANKS_TESTS + ["tests/test_render.py"]}),
     (["tests/test_ranks.py"], {"all": False, "areas": [], "extra": ["tests/test_ranks.py"]}),
     (["CLAUDE.md"], {"all": False, "areas": [], "extra": []}),
     (["scripts/land.ps1"], {"all": False, "areas": [], "extra": ["tests/test_land_queue.py", "tests/test_testlog.py"]}),

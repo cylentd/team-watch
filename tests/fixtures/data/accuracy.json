@@ -1,0 +1,276 @@
+{
+ "season": 2026,
+ "generated": "2026-10-05T18:32",
+ "rules": {
+  "shared": "ours and FantasyPros are compared only on players both projected and who played",
+  "bias": "actual minus projection; above 0 means under-projected",
+  "hit": "of the top N by that source's projection, the share who finished in the top N by actual",
+  "d": "our miss minus FantasyPros' miss on shared players; above 0 means FantasyPros was closer",
+  "ci_level": 95
+ },
+ "weeks": [
+  {
+   "week": 1,
+   "model": "pre-blend",
+   "graded": "2026-09-25T22:25:58",
+   "by_pos": {
+    "QB": {
+     "n": 33,
+     "mae": 6.33,
+     "bias": -0.91,
+     "shared": {
+      "n": 29,
+      "ours": {
+       "mae": 6.64,
+       "rho": null,
+       "hit": null
+      },
+      "fp": {
+       "mae": 6.43,
+       "rho": null,
+       "hit": null
+      },
+      "hit_n": null,
+      "rank_n": null
+     }
+    },
+    "RB": {
+     "n": 72,
+     "mae": 5.26,
+     "bias": -0.75,
+     "shared": {
+      "n": 47,
+      "ours": {
+       "mae": 6.58,
+       "rho": null,
+       "hit": null
+      },
+      "fp": {
+       "mae": 6.16,
+       "rho": null,
+       "hit": null
+      },
+      "hit_n": null,
+      "rank_n": null
+     }
+    },
+    "WR": {
+     "n": 127,
+     "mae": 4.11,
+     "bias": 0.23,
+     "shared": {
+      "n": 68,
+      "ours": {
+       "mae": 5.2,
+       "rho": null,
+       "hit": null
+      },
+      "fp": {
+       "mae": 5.3,
+       "rho": null,
+       "hit": null
+      },
+      "hit_n": null,
+      "rank_n": null
+     }
+    },
+    "TE": {
+     "n": 66,
+     "mae": 3.69,
+     "bias": 0.1,
+     "shared": {
+      "n": 27,
+      "ours": {
+       "mae": 5.57,
+       "rho": null,
+       "hit": null
+      },
+      "fp": {
+       "mae": 5.2,
+       "rho": null,
+       "hit": null
+      },
+      "hit_n": null,
+      "rank_n": null
+     }
+    }
+   }
+  },
+  {
+   "week": 2,
+   "model": "pre-blend",
+   "graded": "2026-09-28T05:58:47",
+   "by_pos": {
+    "QB": {
+     "n": 38,
+     "mae": 7.49,
+     "bias": 1.02,
+     "shared": {
+      "n": 32,
+      "ours": {
+       "mae": 7.44,
+       "rho": null,
+       "hit": null
+      },
+      "fp": {
+       "mae": 7.96,
+       "rho": null,
+       "hit": null
+      },
+      "hit_n": null,
+      "rank_n": null
+     }
+    },
+    "RB": {
+     "n": 86,
+     "mae": 3.7,
+     "bias": 1.77,
+     "shared": {
+      "n": 81,
+      "ours": {
+       "mae": 3.84,
+       "rho": null,
+       "hit": null
+      },
+      "fp": {
+       "mae": 3.32,
+       "rho": null,
+       "hit": null
+      },
+      "hit_n": null,
+      "rank_n": null
+     }
+    },
+    "WR": {
+     "n": 141,
+     "mae": 4.09,
+     "bias": -0.15,
+     "shared": {
+      "n": 127,
+      "ours": {
+       "mae": 4.16,
+       "rho": null,
+       "hit": null
+      },
+      "fp": {
+       "mae": 4.08,
+       "rho": null,
+       "hit": null
+      },
+      "hit_n": null,
+      "rank_n": null
+     }
+    },
+    "TE": {
+     "n": 70,
+     "mae": 3.39,
+     "bias": 0.06,
+     "shared": {
+      "n": 66,
+      "ours": {
+       "mae": 3.52,
+       "rho": null,
+       "hit": null
+      },
+      "fp": {
+       "mae": 3.41,
+       "rho": null,
+       "hit": null
+      },
+      "hit_n": null,
+      "rank_n": null
+     }
+    }
+   }
+  },
+  {
+   "week": 3,
+   "model": "pre-blend",
+   "graded": "2026-10-05T06:07:04",
+   "by_pos": {
+    "QB": {
+     "n": 34,
+     "mae": 6.54,
+     "bias": -1.14,
+     "shared": {
+      "n": 31,
+      "ours": {
+       "mae": 5.87,
+       "rho": null,
+       "hit": null
+      },
+      "fp": {
+       "mae": 5.73,
+       "rho": null,
+       "hit": null
+      },
+      "hit_n": null,
+      "rank_n": null
+     }
+    },
+    "RB": {
+     "n": 81,
+     "mae": 4.29,
+     "bias": 0.51,
+     "shared": {
+      "n": 49,
+      "ours": {
+       "mae": 5.38,
+       "rho": null,
+       "hit": null
+      },
+      "fp": {
+       "mae": 5.11,
+       "rho": null,
+       "hit": null
+      },
+      "hit_n": null,
+      "rank_n": null
+     }
+    },
+    "WR": {
+     "n": 138,
+     "mae": 3.75,
+     "bias": -0.81,
+     "shared": {
+      "n": 71,
+      "ours": {
+       "mae": 4.42,
+       "rho": null,
+       "hit": null
+      },
+      "fp": {
+       "mae": 4.71,
+       "rho": null,
+       "hit": null
+      },
+      "hit_n": null,
+      "rank_n": null
+     }
+    },
+    "TE": {
+     "n": 73,
+     "mae": 3.71,
+     "bias": -0.53,
+     "shared": {
+      "n": 30,
+      "ours": {
+       "mae": 5.3,
+       "rho": null,
+       "hit": null
+      },
+      "fp": {
+       "mae": 5.47,
+       "rho": null,
+       "hit": null
+      },
+      "hit_n": null,
+      "rank_n": null
+     }
+    }
+   }
+  }
+ ],
+ "missing_weeks": [],
+ "season_to_date": null
+}

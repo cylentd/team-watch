@@ -24,7 +24,7 @@ function dgTop5Body(d){
     return rows.length ? {key: pos, label: pos === "FLEX" ? t("digest.t5.flex") : pos,
       body: `<div class="dg-rks">${rows.map((r, i) => dgT5Row(r, i, pos === "FLEX", last)).join("")}</div>`} : null;
   }).filter(Boolean);
-  const week = typeof LIVE_RANKS !== "undefined" && LIVE_RANKS && LIVE_RANKS.week;
+  const week = slateWeek();
   return dgTabsHTML("t5", tabs)
     + dgFootHTML(week ? t("digest.foot.t5Week", {week}) : t("digest.foot.t5"), "ranks", t("digest.go.ranks"));
 }

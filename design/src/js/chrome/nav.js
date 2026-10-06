@@ -1,89 +1,67 @@
-/* One icon per group, not per view. The `scouting` group has read "Players" since 2026-09-25 (the
-   id stays, so nothing keyed on it moves). It keeps the old Pool chart mark: the scatter is the
-   Board's Movers mode since 2026-09-25. Bets is a banknote (2026-09-25): the three slider
-   knobs it used to wear read as settings. */
+/* One icon per group, not per view. The `scouting` group has read "Stats" since 2026-10-05 ("Players"
+   from 2026-09-25; the id stays, so nothing keyed on it moves). It keeps the old Pool chart mark: the
+   scatter is the Board's Movers mode since 2026-09-25. Bets is a banknote (2026-09-25): the three slider
+   knobs it used to wear read as settings. The Teams group's two-people mark left with the group (2026-10-05). */
 const NAV_ICON = {
   week: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M7.5 14h4" opacity=".55"/></svg>`,
-  teams: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="7" r="2.4" opacity=".55"/><path d="M15.5 14.2c2.6.4 4.5 2.2 4.5 5.3" opacity=".55"/></svg>`,
   scouting: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><circle cx="9" cy="14" r="1.6" fill="currentColor" stroke="none"/><circle cx="14" cy="9" r="1.6" fill="currentColor" stroke="none"/><circle cx="18" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg>`,
   bets: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.8"/><path d="M6 9.5v5M18 9.5v5"/></svg>`,
   league: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v4a5 5 0 0 1-10 0z"/><path d="M7 5.5H4.5a2.5 2.5 0 0 0 2.8 3.4M17 5.5h2.5a2.5 2.5 0 0 1-2.8 3.4"/><path d="M12 13v3.5M8.5 20h7M9.5 16.5h5"/></svg>`,
 };
-/* Four groups, each holding the views that answer one question. Seven flat tabs fitted no phone
-   and, worse, implied seven peers: Board and Grid are two readings of the same usage data, and
-   Roster and Waivers were already a pair hidden inside the hero. Grouping says which is which.
-   Movers left the table on 2026-09-25 to become the Board's second mode, and came back the same
-   day as a view: a mode switch was a fifth row of controls above the data on a phone, and Leaders
-   and Movers answer different questions, which is what a view is. "Board" reads Leaders now; its
-   leaf and hash stay `board`, so bookmarks still land. Parlay split the same way that day: Slips
-   (leaf `parlay`, so its bookmarks land) and Build.
-   Each leaf's label is its own key, so a rename here never silently changes a heading elsewhere.
-   "This week" (2026-09-26) leads: the Digest, what changed league-wide this week, is the front page.
-   League (2026-09-28, storyboard https://claude.ai/artifact/EhbDwDUZ7ERb2iNfAqaKjn): the Yahoo league's
-   recap, record book and trades left This week, which is about this week's games, for a group of their
-   own. It took Gameday's slot on the bar, and Live joined This week: a live game is this week's. */
-const NAV = [
-  // News moved from Players to This week on 2026-09-29 (storyboard 96B1dMss6vfyhhsQLUSK4x): it is
-  // this week's, not research, and it was the sixth of six sub-tabs. Its leaf and hash stay `news`.
-  // Takes (leaf `matchups`) joined them the same day: our weekly calls against the experts are this
-  // week's, not research. Its leaf and both hashes stay. Labelled Start / Sit since 2026-10-03.
-  // Recap (2026-10-05, storyboard https://claude.ai/artifact/HVdkEL4YbiBKUJ3QbLH9gf) is the week's results; it took
-  // Weather's room in the sub-row (NAV_HIDDEN, below).
-  ["week",     ["digest", "weekrecap", "news", "matchups", "preview", "weather", "live"]],
-  ["teams",    ["roster", "waivers", "league", "myrecap"]],
-  // Highlights (2026-09-29) leads Players: two lines from each view below it, so Players opens on
-  // the summary and the research is one tap further (storyboard W5ty9RzT4XWSRfSjtdKEAk, option A).
-  ["scouting", ["highlights", "ranks", "board", "movers", "usage"]],
-  ["league",   ["recap", "records", "trades", "teams"]],
-  ["bets",     ["parlay", "build", "dfs"]],
-];
+/* Four groups, each holding the views that answer one question: the table is data/navmap.js (NAV, its
+   aliases, the leaves a league shows), pure so Node tests it. Seven flat tabs fitted no phone and,
+   worse, implied seven peers: Board and Grid are two readings of the same usage data, and Roster and
+   Waivers were already a pair hidden inside the hero. Grouping says which is which.
+   Each leaf's label is its own key (navLabel), so a rename here never silently changes a heading elsewhere.
+   History of the table, newest first (bookmarks outlive labels, so every leaf id and hash below stayed):
+   2026-10-05 Teams and League merged into one League group (David; decided in plan U8). "League" was a
+     group and a leaf under Teams, "Teams" a group and a leaf under League, and the league was picked in
+     two places, the team switch and the Madden Curse / AYO chips. Now Week . League . Stats . Bets, and
+     League holds Roster, Waivers, Teams, Trades, Recap, Records: six leaves, the most a 360px phone
+     holds (six take 324px of its 332px sub-row at 360px, a seventh does not fit; data/navmap.js). The league is the one chip, the team
+     switch (surface/league/switch.js): pick your team and every leaf follows its league. `myrecap` (Yahoo
+     My recap) and `league` (ESPN League) are NAV_ALIAS entries for Recap; a league without a record
+     book or graded trades (ESPN, AYO's trades) shows fewer leaves (navLeavesFor).
+   2026-10-05 Players is labelled Stats (David: option A + C; the group id `scouting` stays). Its views are
+     named by what they hold (Leaders, Work vs points, Usage; the draft's "Stat leaders" and "Usage grid" took
+     408px of the 332px row at 360px) with one line each, and a player
+     elsewhere reaches his row in 1 tap: navGoRow(leaf, slug), below.
+   2026-10-05 Recap (leaf `weekrecap`, storyboard https://claude.ai/artifact/HVdkEL4YbiBKUJ3QbLH9gf) joined
+     This week, the week's results; it took Weather's room in the sub-row (NAV_HIDDEN).
+   2026-09-29 News moved from Players to This week (storyboard 96B1dMss6vfyhhsQLUSK4x), then Takes (leaf
+     `matchups`, Start / Sit since 2026-10-03). Highlights (storyboard W5ty9RzT4XWSRfSjtdKEAk, option A)
+     leads Players: two lines from each view below it.
+   2026-09-28 League became a group of its own (storyboard https://claude.ai/artifact/EhbDwDUZ7ERb2iNfAqaKjn):
+     the Yahoo league's recap, record book and trades left This week. Live joined This week.
+   2026-09-26 "This week" leads: the Digest, what changed league-wide this week, is the front page.
+   2026-09-25 Movers left the Board as a mode and came back as a view: a mode switch was a fifth row of
+     controls on a phone, and Leaders and Movers answer different questions. "Board" reads Leaders; its leaf
+     and hash stay `board`. Parlay split the same way: Slips (leaf `parlay`) and Build.
 
-/* Every key spelled out, never built from a variable. assemble.py --check proves no copy key is
-   orphaned by scanning for literal lookups, and a key assembled from a template is invisible to
-   it -- the build would pass while the label rendered blank. */
-const navLabel = leaf => ({
-  digest: t("nav.tab.digest"), weekrecap: t("nav.tab.weekrecap"), roster: t("nav.tab.roster"), waivers: t("nav.tab.waivers"), league: t("nav.tab.league"),
-  records: t("nav.tab.records"), recap: t("nav.tab.recap"), myrecap: t("nav.tab.myrecap"), trades: t("nav.tab.trades"),
-  highlights: t("nav.tab.highlights"), ranks: t("nav.tab.ranks"),
-  board: t("nav.tab.board"), movers: t("nav.tab.movers"),
-  matchups: t("nav.tab.matchups"), usage: t("nav.tab.grid"), news: t("nav.tab.news"),
-  weather: t("nav.tab.weather"), preview: t("nav.tab.preview"), teams: t("nav.tab.teams"),
-  parlay: t("nav.tab.parlay"), build: t("nav.tab.build"), dfs: t("nav.tab.dfs"), live: t("nav.tab.live"),
-}[leaf] || leaf);
-
-const navGroupLabel = (group, short) => (short ? {
-  week: t("nav.group.week.short"), teams: t("nav.group.teams.short"), scouting: t("nav.group.scouting.short"),
-  league: t("nav.group.league.short"), bets: t("nav.group.bets.short"),
-} : {
-  week: t("nav.group.week.full"), teams: t("nav.group.teams.full"), scouting: t("nav.group.scouting.full"),
-  league: t("nav.group.league.full"), bets: t("nav.group.bets.full"),
-})[group] || group;
+   navGoRow(leaf, slug) -> boolean. Opens Grid (leaf "usage") or Role (leaf "movers") on one player's row:
+   sets the position and week (Grid) or the filter and Show all (Role) so the row is drawn, scrolls it to
+   the middle and marks it (.nav-hit). False when the view has no row for him; the view still opens.
+   Called by the Digest's usage rows; the profile and Start/Sit call it too (plan U3). The plan for where
+   the view must stand is data/navrow.js navRowPlan. */
 
 /* Claims are placed Tuesday and clear midweek, so on a Tuesday (the reader's local day) the wire
    is the question: an empty hash opens Waivers and Waivers leads its group. A hash still wins.
    The day comes from Date.now(), which the render suite pins, so a test picks the weekday. Any
    other day the Digest opens (2026-09-26): the week league-wide in one screen. It was Ranks for
-   part of that day, and Board (who leads each stat) before; Ranks stays Players' first view. */
+   part of that day, and Board (who leads each stat) before; Highlights is Stats' first view (Ranks second). */
 const navWaiverDay = () => new Date(Date.now()).getDay() === 2;
 const navDefaultLeaf = () => navWaiverDay() ? "waivers" : "digest";
 
-const navGroupOf = leaf => (NAV.find(([, tabs]) => tabs.includes(leaf)) || NAV[0])[0];
-function navTabsOf(group){
-  const all = (NAV.find(([g]) => g === group) || NAV[0])[1];
-  // A connected league has no Waivers: ff-jarvis builds the packet for David's two leagues only.
-  // A leaguemate's team has its league's rail (data/mates.js hasWaivers).
-  // The Yahoo leagues (the ones David's friends read) have League > Recap and Records, the same for
-  // every reader, and My teams > My recap for the team on screen (hasRecords). ESPN keeps its own
-  // League leaf (hasLeague and no record book); a connected league has neither. Trades shows when any
-  // Yahoo league has trades: the League switch picks which, and a league without says so on the page.
-  // Teams (2026-10-05) is for all three leagues, the ESPN one too, so a reader whose team is ESPN's has
-  // a League group: it shows with any league of David's, and a league with no rosters says so on the page.
-  const tm = TEAMS[VIEW], leagueWide = lgLeagueKeys().length > 0;
-  const tabs = all.filter(k => (k !== "waivers" || hasWaivers(tm)) && (k !== "teams" || lbKeys().length > 0)
-    && (k !== "league" || (hasLeague(tm) && !hasRecords(tm))) && (k !== "myrecap" || hasRecords(tm))
-    && ((k !== "recap" && k !== "records") || leagueWide) && (k !== "trades" || lgLeagueKeys().some(x => LG_TRADES[x])));
-  return navWaiverDay() && tabs.includes("waivers") ? ["waivers", ...tabs.filter(k => k !== "waivers")] : tabs;
+/* What the league on screen has, as plain booleans for navLeavesFor. A connected league has no Waivers:
+   ff-jarvis builds the packet for David's leagues only. A leaguemate's team has its league's rail
+   (data/mates.js hasWaivers). Recap is every league with a League block, ESPN's too; Records only a
+   league with a record book (Yahoo's), Trades only one with graded trades; Teams (2026-10-05) is for all
+   three leagues, and a league with no rosters says so on the page. */
+function navFacts(){
+  const f = lgFocusKey(), L = f && LGS[f];
+  return {waivers: hasWaivers(TEAMS[VIEW]), teams: lbKeys().length > 0, recap: !!L, records: !!(L && L.book), trades: !!(f && LG_TRADES[f])};
 }
+const navTabsOf = group => navLeavesFor(group, navFacts(), navWaiverDay());
 
 /* Waivers is the one leaf whose label carries a number: how many players are on the wire in the
    league on screen. It is the only count that changes what you would do next, so it is the only
@@ -94,12 +72,6 @@ function navCount(leaf){
   return ` <span class="tabcount">${waiverIn(VIEW).filter(([r]) => waiverTier(r, VIEW) !== "stash").length}</span>`;
 }
 
-/* Weather left the sub-row on 2026-10-05 to make room for Recap: seven views took 389px against the 328px
-   a 360px phone has, six fit in 321px. It stays in NAV, so #weather, navGo("weather") and navGroupOf still
-   work; the Digest's Weather row and every Preview dossier link to it. While it is open no sub button is
-   pressed. */
-const NAV_HIDDEN = ["weather"];
-
 /* A group with one leaf gets no row: a sub-nav of one is a label pretending to be a choice. */
 function paintSubnav(){
   const el = document.getElementById("subnav");
@@ -108,7 +80,7 @@ function paintSubnav(){
   // .modes-sub without .dock: the docked variant is fixed to the phone's bottom edge, which is
   // where the Parlay and DFS switchers already live.
   el.querySelector(".subnav-in").innerHTML = el.hidden ? "" :
-    `<div class="modes-sub" role="group" aria-label="${t("nav.sub.label")}">
+    `<div class="modes-sub${NAV_DENSE.includes(navGroupOf(SURFACE)) ? " dense" : ""}" role="group" aria-label="${t("nav.sub.label")}">
       ${tabs.map(k => `<button class="mode-sub" data-leaf="${k}"
         aria-pressed="${SURFACE === k}">${navLabel(k)}${navCount(k)}</button>`).join("")}
     </div>`;
@@ -122,18 +94,16 @@ function paintSubnav(){
 /* The view lives in the hash, so a reload lands where you were reading rather than back on the
    roster -- which matters more now that there are eight views instead of one. Only the view: the
    grid's position and week reset, and that is a deliberate line, because every control that
-   learns the URL is another thing to keep in step with it. */
-/* Old names that still land: Movers was the `pool` view until 2026-09-25, and bookmarks point at it.
-   Takes kept Matchups' leaf `matchups` (2026-09-29), so #takes is the new name's way in. Start / Sit
-   (2026-10-03) is Takes with a picker and a matchup board above it: same leaf, #startsit its name. */
-const NAV_ALIAS = {pool: "movers", takes: "matchups", startsit: "matchups"};
+   learns the URL is another thing to keep in step with it. Old names land too (NAV_ALIAS), and a
+   leaf the league on screen lacks lands on its nearest (navFallback). */
 const navHash = () => (location.hash || "").replace(/^#\/?/, "");
 const navFromHash = () => {
-  const leaf = NAV_ALIAS[navHash()] || navHash();
-  return NAV.some(([, tabs]) => tabs.includes(leaf)) ? leaf : null;
+  const leaf = navLeafOf(navHash());
+  return leaf && navFallback(leaf, navTabsOf(navGroupOf(leaf)));
 };
 
 function navGo(leaf, fromHash){
+  leaf = navLeafOf(leaf) || leaf;      // an old name (`myrecap`, `pool`) opens its successor
   LAST_LEAF[navGroupOf(leaf)] = leaf;
   if (leaf !== "teams" && LB_PAGE) lbPageReset();   // a League > Teams page left open by a tap on another view (lbpage.js)
   SURFACE = leaf;
@@ -149,6 +119,21 @@ function navGo(leaf, fromHash){
   if (typeof freshCheck === "function") freshCheck();
 }
 
+/* One player's row in Grid or Role (see the header). navRowPlan says where each view must stand; this
+   sets it, opens the view, and puts the row in the middle of the screen, marked until the next draw. */
+function navGoRow(leaf, slug){
+  const role = typeof LIVE_ROLE !== "undefined" && LIVE_ROLE;
+  const plan = navRowPlan(leaf, slug, leaf === "usage" ? USAGE.rows : role && role.rows, {week: USAGE_WEEK, pos: RV_POS, first: RV_FIRST});
+  if (plan && leaf === "usage"){ USAGE_POS = plan.pos; USAGE_WEEK = plan.week; USAGE_MINE = false; }
+  if (plan && leaf === "movers"){ RV_POS = plan.pos; if (plan.all) RV_ALL = true; }
+  navGo(leaf);
+  const row = plan && document.querySelector(`[data-${leaf === "usage" ? "usage" : "rvopen"}="${CSS.escape(slug)}"]`);
+  if (!row) return false;
+  row.classList.add("nav-hit");
+  row.scrollIntoView({block: "center"});
+  return true;
+}
+
 /* The mark before TEAM//WATCH is Smug Blip (2026-09-29, per David), the one drawing in lib/blip.js.
    The shell is static markup and the drawing lives in JS, so it is painted here, once. Decoration:
    the wordmark beside it carries the name. */
@@ -161,8 +146,7 @@ function buildNav(){
   paintBrand();
   const n = document.getElementById("nav");
   // Two labels per group, same pattern as the topbar pills' full/abbr swap: four fit a phone
-  // where seven did not, but "Gameday" still needs a short form at 430px ("Players" is its own).
-  // A group with no view to show draws no button: League without the Yahoo league.
+  // where seven did not. A group with no view to show draws no button.
   n.innerHTML = NAV.filter(([g]) => navTabsOf(g).length).map(([g]) =>
     `<button class="navitem" data-s="${g}" aria-current="${navGroupOf(SURFACE) === g}">
       <span class="ix">${NAV_ICON[g]}</span><span class="full">${navGroupLabel(g, false)}</span
@@ -171,7 +155,8 @@ function buildNav(){
     const g = b.dataset.s;
     if (navGroupOf(SURFACE) !== g) morphLogo();
     // Back to where you were in that group, not to its first tab.
-    navGo(LAST_LEAF[g] || navTabsOf(g)[0]);
+    const tabs = navTabsOf(g);
+    navGo(navFallback(LAST_LEAF[g] || tabs[0], tabs));
     window.scrollTo({top: 0, behavior: "smooth"});
   }));
 
@@ -195,4 +180,3 @@ document.addEventListener("click", e=>{
     menu.hidden = true; btn.setAttribute("aria-expanded","false");
   }
 });
-

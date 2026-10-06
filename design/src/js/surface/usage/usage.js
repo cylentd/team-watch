@@ -114,6 +114,7 @@ function usageHTML(){
   // the template is built here rather than pinned in the stylesheet.
   const template = `minmax(128px,1.6fr) 46px repeat(${cols.length}, minmax(52px, 1fr))`;
   return `<div class="wrap">
+    ${navCaptionHTML("usage")}
     ${usageControls()}
     ${usageLegend()}
     <div class="utable" style="--ucols:${template};--un:${cols.length}">

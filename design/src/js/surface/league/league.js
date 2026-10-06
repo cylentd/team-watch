@@ -15,12 +15,17 @@ function leagueHTML(team){
   </div>`;
 }
 
-/* The whole view under the roster's own hero, so the team switch stays on top (render.js). */
-function renderLeague(v, team){
-  v.innerHTML = heroHTML(team) + `<div class="wrap">${leagueHTML(team)}</div>`;
-  const id = lgIdOf(team);   // after leagueHTML, which sets LG: the id is looked up in the league on screen
-  fitTitle(v); wireLeague(v, id, () => lgRecapHTML(id)); wireTeamSwitch(v);
-  v.querySelector(".leaguechip")?.addEventListener("click", ()=>openLeagueInfo(team.key));
+/* The team the ESPN page is about: the reader's when it plays in league `f`, else David's own there. */
+const lgEspnTeam = f => lgFocusKey() === f && lgSeat() && !lgSeat().connected ? lgSeat() : TEAMS[f];
+
+/* The ESPN league's Recap (2026-10-05; it was My teams > League, under the roster's hero): the chip on top,
+   so the team switch stays within reach. The page is the team on screen's game, rivalry and history. */
+function lgEspnPageHTML(f){
+  return `<div class="wrap">${lgChipHTML()}${leagueHTML(lgEspnTeam(f))}</div>`;
+}
+function wireEspnPage(v, f){
+  const id = lgIdOf(lgEspnTeam(f));   // after leagueHTML, which sets LG: the id is looked up in the league on screen
+  wireLeague(v, id, () => lgRecapHTML(id)); wireLgChip(v);
 }
 
 /* One listener on the view's own container (rebuilt on every render, so it never stacks), for every

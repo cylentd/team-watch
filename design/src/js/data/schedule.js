@@ -24,6 +24,24 @@ function schedTeamRow(block, team){
    same build as the recap and the projections, not the moment Monday night kicks off. */
 const schedWeek = () => schedOk() ? LIVE_SCHEDULE.week ?? null : null;
 
+/* THE WEEK RULE (2026-10-05). Two weeks overlap from the last Sunday game to Monday night's final:
+   the schedule is still on week N (its one unscored game), every projection is already for week N+1.
+   The page's week is the week of the projections, so a view that prices, ranks or projects a player
+   (Bets, Ranks, Start/Sit, Teams, the week pill) all say N+1; N's last game stays on the views that
+   list games (Weather, Live, Digest's Monday night), each under its own date. The projections' week is
+   N while any non-Monday game of N is still some team's next game (design/projections.py slate), so
+   Sunday's noon run, with the 4 PM games to play, still says N; Monday, with only Monday night left, says
+   N+1 (tests/test_slate_week.py). Order of trust: Ranks
+   (projections.slate, the cut every roster card takes), the Teams board, the props model's own week,
+   then the schedule. The one function every such label calls; a label reading LIVE_RANKS.week,
+   LIVE_TEAMS.week or LIVE_MARKET.model.week directly is the bug this replaced. */
+const slateWeekOf = (...weeks) => weeks.find(w => Number.isInteger(w)) ?? null;
+const slateWeek = () => slateWeekOf(
+  typeof LIVE_RANKS !== "undefined" && LIVE_RANKS ? LIVE_RANKS.week : null,
+  typeof LIVE_TEAMS !== "undefined" && LIVE_TEAMS ? LIVE_TEAMS.week : null,
+  typeof LIVE_MARKET !== "undefined" && LIVE_MARKET && LIVE_MARKET.model ? LIVE_MARKET.model.week : null,
+  schedWeek());
+
 /* Every game of a week, in kickoff order. */
 const schedGamesOf = wk => !schedOk() || wk === null ? [] : LIVE_SCHEDULE.games
   .filter(g => g.week === wk).sort((a, b) => Date.parse(a.kickoff) - Date.parse(b.kickoff));

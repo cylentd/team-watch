@@ -16,6 +16,13 @@ function betsSlipPct(){
   const c = betsSlipLegs().map(betsLegChance);
   return c.length && c.every(x => x !== null) ? c.reduce((a, x) => a * x / 100, 1) * 100 : null;
 }
+/* The game two legs share outside a whole stack, or null (2026-10-05): legs of one game move together, so
+   multiplying their chances is wrong and the slip shows no combined chance, only the note under it
+   (slips.joint.note, drawn by slip.js). A stack is the one same-game set with a measured joint (12.32). */
+function betsSameGame(legs){
+  const st = stackIn(legs);
+  return slipSameGame(legs.filter(l => !st || !st.includes(l)).map(l => l.game), st ? st[0].game : null);
+}
 
 /* One name per player, however many legs he has on the slip: "T. Higgins ×2". Two players who share
    an initial and surname are told apart by their full names. Takes {n, slug} legs; plain text. */
@@ -43,12 +50,13 @@ function trayHTML(){
    bar, drawn after the others and shorter than any of them. The bars carry their numbers; the
    picture is the multiplication. */
 function betsOddsHTML(){
-  const legs = betsSlipLegs(), p = betsSlipPct();
-  if (!legs.length || p === null) return "";
+  const legs = betsSlipLegs(), same = betsSameGame(legs) !== null;
+  if (!legs.length || legs.some(l => betsLegChance(l) === null)) return "";
   const row = (name, v, all) => `<div class="odds-row${all ? " all" : ""}"><span>${name}</span>
     <i class="odds-bar"><i style="--w:${v.toFixed(1)}%"></i></i><b>${v.toFixed(1)}%</b></div>`;
+  // Same-game legs: each leg's own chance stays, the all-hit bar goes (it would multiply what moves together).
   return `<div class="odds">${legs.map(l => row(esc(nameInitial(l.n)), betsLegChance(l), false)).join("")}
-    ${row(t("parlay.tray.allHit", {n: legs.length}), p, true)}</div>`;
+    ${same ? "" : row(t("parlay.tray.allHit", {n: legs.length}), betsSlipPct(), true)}</div>`;
 }
 
 const SV_X = `<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7"/></svg>`;

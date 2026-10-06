@@ -151,11 +151,14 @@ def test_the_hero_is_one_row_with_the_switch_at_its_right_end(ph):
     assert errors == []
 
 
-def test_my_recap_keeps_the_one_row_hero_without_the_switch(ph):
+def test_recap_has_the_league_chip_and_no_hero_or_roster_switch(ph):
+    """My recap (2026-09-27) kept the roster's one-row hero without its Sheet / Cards switch; since the League
+    merge (2026-10-05) Recap draws the one chip instead of a hero."""
     page, errors = ph
     page.evaluate("VIEW = 'yahoo'; navGo('myrecap')")
-    assert page.locator(".hero.team").count() == 1 and page.locator(".rmode").count() == 0
-    assert rect(page, ".hero")["h"] < 80 and page.evaluate("document.querySelector('.hero-sub').scrollHeight") <= 18
+    assert page.evaluate("SURFACE") == "recap", "the old hash lands on Recap"
+    assert page.locator(".hero").count() == 0 and page.locator(".rmode").count() == 0
+    assert page.locator(".lgchip #switch").count() == 1
     assert errors == []
 
 

@@ -3,6 +3,9 @@
    A leg is saved as slug, market, side, name and line, so a rebuild that reorders PROPS still finds
    it, and a leg whose line has left the board still reads in the list. Storage can throw (a private
    window, blocked site data): every read and write is guarded, and the page works without it. */
+/* Keyed by the props' own week (SLATE_WEEK), not the page's (slateWeek): a slip holds lines, and on a
+   Monday the lines are still week N's Monday night game while the page already says N+1. Keying by the
+   page week would hide a slip saved for that game (review fix 12, reverted 2026-10-05). */
 const SAVED_KEY = `tw.slips.saved.${SLATE_WEEK || schedWeek() || 0}`;
 
 function savedRead(){

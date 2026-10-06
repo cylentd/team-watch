@@ -10,7 +10,7 @@
    Switching repaints the body in place, never through render(). */
 
 const WR_TAB_KEY = "tw-recap-tab";
-const WR_TABS = ["players", "scores", "claude"];
+const WR_TABS = ["players", "scores", "claude", "accuracy"];
 let WR_TAB_MEM = null;      /* the tab when localStorage will not answer (private window, blocked data) */
 let WR_LIST = "smashed";    /* Smashed / Busts / Left hurt on a phone: memory only */
 let WR_TDS_ALL = false;     /* the touchdown list's "show all": memory only, folded on every visit */
@@ -19,7 +19,10 @@ const wrD = () => LIVE_RECAP || null;
 
 /* Every key spelled out: assemble.py --check finds unused copy by scanning for literal lookups. */
 const wrTabName = k => ({players: t("weekrecap.tab.players"), scores: t("weekrecap.tab.scores"),
-  claude: t("weekrecap.tab.claude")})[k];
+  claude: t("weekrecap.tab.claude"), accuracy: t("weekrecap.tab.accuracy")})[k];
+
+/* The accuracy receipts (data/accuracy.js) or null: the tab hides with no file, like any empty tab. */
+const wrAcc = () => (typeof LIVE_ACCURACY !== "undefined" ? acView(LIVE_ACCURACY) : null);
 
 /* Claude's record for the week (preview_record), or null before a game is graded: no zeros. */
 const wrRecord = d => (d.preview_record && d.preview_record.n ? d.preview_record : null);
@@ -34,8 +37,10 @@ const wrHasPlayers = d => !!(d.stars.length || d.k.length || d.dst.length || d.s
   || d.left_hurt.length || wrTdRows(d).length);
 const wrHasClaude = d => !!(wrRecord(d) || d.games.some(g => g.preview && g.preview.su_hit !== null));
 
-/* The tabs that have something in them, in order; with one left the bar hides. */
-const wrAvail = d => WR_TABS.filter(k => k === "players" ? wrHasPlayers(d) : k === "scores" ? d.games.length > 0 : wrHasClaude(d));
+/* The tabs that have something in them, in order; with one left the bar hides. Accuracy has its own file
+   (LIVE_ACCURACY), so it is listed whenever that has a view, with or without a recap week (d null). */
+const wrAvail = d => WR_TABS.filter(k => k === "accuracy" ? !!wrAcc() : !d ? false : k === "players" ? wrHasPlayers(d)
+  : k === "scores" ? d.games.length > 0 : wrHasClaude(d));
 
 function wrTab(d){
   let v = WR_TAB_MEM;
@@ -50,6 +55,21 @@ function wrSetTab(v){
   try { localStorage.setItem(WR_TAB_KEY, v); } catch (e) {}
 }
 
+/* `#accuracy` opens Recap on the Accuracy tab. chrome/nav.js owns the view hashes and knows only leaves, so the
+   tab's own hash is turned into `#weekrecap` here: at load, before main.js reads the hash, and on a later
+   hashchange (a link inside the page). The tab is then kept like any other pick. */
+const wrIsAccHash = () => (location.hash || "").replace(/^#\/?/, "") === "accuracy";
+if (wrIsAccHash()){
+  wrSetTab("accuracy");
+  history.replaceState(null, "", "#weekrecap");
+}
+window.addEventListener("hashchange", () => {
+  if (!wrIsAccHash()) return;
+  wrSetTab("accuracy");
+  history.replaceState(null, "", "#weekrecap");
+  navGo("weekrecap", true);
+});
+
 /* A kickoff's window, from its Eastern weekday and hour: design/preview.py's `_slot`, so a game falls in
    the same window here as on Preview's slate. Null without a kickoff (an old recap file has none). */
 const WR_ET = new Intl.DateTimeFormat("en-US", {timeZone: "America/New_York", weekday: "short",
@@ -62,7 +82,7 @@ function wrSlot(iso){
   const h = +p.hour, day = p.weekday;
   const slot = day === "Thu" ? "thu" : day === "Mon" ? "mon" : day === "Sun"
     ? (h < 13 ? "sunam" : h < 16 ? "sun1" : h < 19 ? "sunlate" : "sunnight") : "day";
-  return {slot, day, et: `${h % 12 || 12}:${p.minute} ${h < 12 ? "AM" : "PM"}`};
+  return {slot, day, time: kickTime(ms)};   // the window is the league's Eastern one; its time is the reader's clock
 }
 
 /* The week's games in kickoff order, grouped by window: [{slot, day, times, rows: [{g, at}]}]. A game
@@ -73,8 +93,8 @@ function wrWindows(d){
     const at = wrSlot(g.kickoff), last = out[out.length - 1];
     if (last && (!at || (last.slot === at.slot && last.day === at.day))){
       last.rows.push({g, at});
-      if (at && !last.times.includes(at.et)) last.times.push(at.et);
-    } else out.push({slot: at ? at.slot : null, day: at ? at.day : "", times: at ? [at.et] : [], rows: [{g, at}]});
+      if (at && !last.times.includes(at.time)) last.times.push(at.time);
+    } else out.push({slot: at ? at.slot : null, day: at ? at.day : "", times: at ? [at.time] : [], rows: [{g, at}]});
   });
   return out;
 }

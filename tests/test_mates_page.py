@@ -11,10 +11,15 @@ def test_a_leaguemate_picks_their_team_and_it_sticks(browser, page_file):
     mates = page.evaluate("MATES.map(m => m.key)")
     assert mates, "the fixture's roster files hold no other team"
     mine = page.evaluate("myLeagueKeys().length")   # David's team per league: three since AYO, 2026-09-29
-    for leaf in ("roster", "waivers", "myrecap"):
-        page.evaluate(f"localStorage.removeItem('tw-team'); SURFACE='{leaf}'; render()")
-        assert page.locator("#view[data-view='pick'] .tp-team").count() == len(mates) + mine, f"{leaf} asks first"
-        assert page.locator("#view .row").count() == 0, "no roster until a pick"
+    page.evaluate("localStorage.removeItem('tw-team'); SURFACE='roster'; render()")
+    assert page.locator("#view[data-view='pick'] .tp-team").count() == len(mates) + mine, "Roster asks first"
+    assert page.locator("#view .row").count() == 0, "no roster until a pick"
+    # Waivers and Recap do not ask (2026-10-05, the League merge): the wire and the league's week are the league's.
+    page.evaluate("localStorage.removeItem('tw-owner'); SURFACE='waivers'; render()")
+    assert page.locator("#view[data-view='pick']").count() == 0 and page.locator(".lgchip .ts-team").text_content() == "Pick your team"
+    page.evaluate("SURFACE='recap'; render()")
+    assert page.locator("#view[data-view='pick']").count() == 0 and page.locator(".lgchip #switch").count() == 1
+    page.evaluate("SURFACE='roster'; render()")
     assert page.locator(".tp-lg").count() == mine == 3, "one list per league"
     page.locator(f".tp-team[data-pick='{mates[0]}']").click()
     assert page.evaluate("VIEW") == mates[0]

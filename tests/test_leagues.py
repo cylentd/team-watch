@@ -155,39 +155,41 @@ def test_the_team_switch_lists_three_teams_and_opens_ayo(browser, page_file):
 
 
 @pytest.mark.render
-def test_the_ayo_roster_waivers_and_my_recap_draw(browser, page_file):
+def test_the_ayo_roster_waivers_and_recap_draw(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     page.evaluate("VIEW = 'ayo'; myTeamSave('ayo')")
     drive(page, go("roster"))
     names = page.evaluate("[...document.querySelectorAll('#view .row')].map(r => r.textContent)")
     assert len(names) == 5 and any("Justin Jefferson" in n or "J. Jefferson" in n for n in names)
     assert page.evaluate("[...document.querySelectorAll('#subnav [data-leaf]')].map(b => b.dataset.leaf)") == \
-        ["roster", "waivers", "myrecap"], "a Yahoo league's tabs: My recap, not League"
+        ["roster", "waivers", "teams", "recap", "records"], "AYO: the League leaves, no Trades until ff-jarvis grades its trades"
     drive(page, [("click", "[data-leaf='waivers']")])
     assert "Jaylen Warren" in page.locator("#view").text_content(), "AYO's own wire"
-    drive(page, [("click", "[data-leaf='myrecap']")])
-    assert "Don Wick" in page.locator("#view").text_content(), "week 2's game against Don Wick"
+    drive(page, [("click", "[data-leaf='recap']")])
+    assert "Don Wick" in page.locator("#view").text_content(), "week 2's game against Don Wick, first on the page"
     assert errors == []
     ctx.close()
 
 
 @pytest.mark.render
-def test_the_league_switch_changes_recap_and_a_reload_keeps_it(browser, page_file):
+def test_the_one_chip_changes_recap_and_a_reload_keeps_it(browser, page_file):
+    """The League switch (2026-09-29) became the team switch on 2026-10-05: pick a team and the league follows."""
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
     drive(page, go("recap"))
-    chips = page.locator(".lg-switch [data-lgpick]")
-    assert chips.count() == 2 and chips.nth(0).text_content() == "Madden Curse" and chips.nth(1).text_content() == "AYO"
-    assert page.get_attribute("[data-lgpick='yahoo']", "aria-pressed") == "true", "the Madden Curse by default"
+    assert page.locator(".lg-switch, [data-lgpick]").count() == 0, "no league chips of their own"
+    assert page.locator(".lgchip #switch").count() == 1 and page.locator(".lgchip-lg").text_content().strip() == "Madden Curse"
     assert "The Madden Curse" in page.locator(".bp-kick").text_content()
-    drive(page, [("click", "[data-lgpick='ayo']")])
+    drive(page, [("click", ".lgchip [data-tsbtn]"), ("click", ".lgchip .ts-item[data-k='ayo']")])
+    assert page.locator(".lgchip-lg").text_content().strip() == "AYO"
+    assert page.locator(".lgchip .ts-team").text_content() == "Taylor Made for Sundays"
     assert "AYO Fantasy Football" in page.locator(".bp-kick").text_content()
     assert "Don Wick" in page.locator("#view").text_content()
     assert page.evaluate("getComputedStyle(document.querySelector('.bp-mast')).borderTopColor") == "rgb(31, 200, 224)"
     page.reload()
     page.wait_for_function("document.getElementById('view').children.length > 0")
     drive(page, go("recap"))
-    assert page.get_attribute("[data-lgpick='ayo']", "aria-pressed") == "true", "the pick survives a reload"
-    drive(page, [("click", "[data-lgpick='yahoo']")])
+    assert page.locator(".lgchip-lg").text_content().strip() == "AYO", "the pick survives a reload: it is the team"
+    drive(page, [("click", ".lgchip [data-tsbtn]"), ("click", ".lgchip .ts-item[data-k='yahoo']")])
     assert "The Madden Curse" in page.locator(".bp-kick").text_content()
     assert errors == []
     ctx.close()
@@ -196,30 +198,30 @@ def test_the_league_switch_changes_recap_and_a_reload_keeps_it(browser, page_fil
 @pytest.mark.render
 def test_records_and_trades_for_ayo_say_there_is_no_history_yet(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (390, 844))
-    page.evaluate("lgLeagueSave('ayo')")
+    page.evaluate("VIEW = 'ayo'; myTeamSave('ayo')")
     drive(page, go("records"))
     assert page.locator(".rc-empty").count() == 1 and page.locator(".rc-hh").count() == 0
-    assert page.locator(".lg-switch").count() == 1, "the switch stays, so the reader can go back"
-    drive(page, go("trades"))
-    assert page.locator(".tr-none").text_content().startswith("No trade history for this league yet")
-    assert page.locator(".tr-rank").count() == 0
-    drive(page, [("click", "[data-lgpick='yahoo']")])
+    assert page.locator(".lgchip").count() == 1, "the chip stays, so the reader can go back"
+    assert page.locator("#subnav [data-leaf='trades']").count() == 0, "AYO has no graded trades, so no Trades leaf"
+    page.evaluate("location.hash = '#trades'")                    # a stale link lands on the league's Recap
+    page.wait_for_function("SURFACE === 'recap'")
+    page.evaluate("pickTeam('yahoo')")
+    drive(page, [("click", "[data-leaf='trades']")])
     assert page.locator(".tr-rank").count() == 1, "the Madden Curse's trades, on the same tab"
     assert errors == []
     ctx.close()
 
 
 @pytest.mark.render
-def test_one_yahoo_league_draws_no_switch(browser, tmp_path, monkeypatch):
+def test_one_yahoo_league_still_draws_the_chip(browser, tmp_path, monkeypatch):
     _, path = build_without_ayo(tmp_path, monkeypatch)
     ctx, page, errors = open_page(browser, path, (390, 844))
     assert page.evaluate("'ayo' in TEAMS") is False
     for leaf in ("recap", "records", "trades"):
         drive(page, go(leaf))
-        assert page.locator(".lg-switch").count() == 0, leaf
-    page.evaluate("lgLeagueSave('ayo')")   # a pick from a page that had AYO
+        assert page.locator(".lgchip").count() == 1, leaf
     drive(page, go("recap"))
-    assert "The Madden Curse" in page.locator(".bp-kick").text_content(), "falls back to the league there is"
+    assert "The Madden Curse" in page.locator(".bp-kick").text_content()
     drive(page, go("roster"))
     page.click("[data-tsbtn]")
     assert page.evaluate("[...document.querySelectorAll('.ts-menu .ts-item[data-k]')].map(b => b.dataset.k)") == ["yahoo", "espn"]

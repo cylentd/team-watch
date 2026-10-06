@@ -33,7 +33,7 @@ function cmpStripsHTML(ps){
   const opp = ps.map(p => { const rk = cmpRankRow(p), d = rk && rk.opp ? seasonDefRank(rk.opp, p.pos) : null;
     return d ? {v: d[0], txt: `${ordinal(d[0])}<small>${esc(rk.opp)}</small>`} : null; });
   const share = ps.map(p => { const r = poolRow(p.slug);
-    return r && ledeShareLabel(p.pos) && typeof r.share === "number" ? {v: r.share, txt: Math.round(r.share) + "%"} : null; });
+    return r && ledeShareId(p.pos) && typeof r.share === "number" ? {v: r.share, txt: Math.round(r.share) + "%"} : null; });
   const rz = ps.map(p => { const v = cmpRz(p); return v === null ? null : {v, txt: Math.round(v * 100) + "%"}; });
   const last = ps.map((p, i) => { const rows = gamelogRows(p.slug).slice(-3);
     return rows.length ? {v: null, txt: cmpSparkHTML(rows, i)} : null; });

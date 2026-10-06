@@ -1,0 +1,45 @@
+/* ============================================================
+   TOP CALLS (2026-10-05, js/surface/parlay/topcalls.js)
+   The first section of Slips under the record line: five rows,
+   each the model's side and line, its chance with the tier word,
+   and the edge over the book's break-even; a round + adds the
+   side to the slip. Two lines a row, so five fit under the
+   first screen. The chance and tier word are lineitem.css's.
+   ============================================================ */
+.tpc{margin-top:8px;background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.tpc-head{display:grid;gap:2px;padding:12px 14px 8px}
+.tpc-head h2{margin:0;font-family:var(--disp);font-weight:800;font-size:var(--t-4);letter-spacing:-.01em}
+.tpc-head span{font-size:var(--t-1);color:var(--ink-3)}
+.tpc-rows{margin:0;padding:0;list-style:none}
+.tpc-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;border-top:1px solid var(--line)}
+.tpc-main{appearance:none;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px 10px;width:100%;
+  padding:10px 4px 10px 14px;border:0;background:none;color:var(--ink);font-family:var(--ui);text-align:left;cursor:pointer;
+  transition:background .15s var(--ease)}
+.tpc-main:hover{background:rgb(var(--ink-rgb) / .03)}
+.tpc-main:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+.tpc-main > .sl-tp{justify-self:end}
+.tpc-sub{grid-column:1 / -1;display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px}
+.tpc-who{display:flex;align-items:baseline;gap:8px;min-width:0}
+.tpc-who b{font-size:var(--t-3);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tpc-pos{flex:none;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.tpc-edge{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.tpc-edge.up{color:var(--up)}
+.tpc-pick{position:relative;padding:4px 8px;border:1px solid var(--lime);box-shadow:inset 0 0 0 1px var(--lime);border-radius:8px;
+  font-size:var(--t-1);font-weight:700;line-height:1.2;white-space:nowrap;color:var(--ink)}
+.tpc-pick b{font-family:var(--mono);font-weight:700}
+/* the + is a 44px target around a 28px disc; lime once the side is on the slip */
+.tpc-add{appearance:none;display:grid;place-items:center;width:52px;height:52px;border:0;background:none;cursor:pointer;
+  -webkit-tap-highlight-color:transparent}
+.tpc-add i{position:relative;display:block;width:28px;height:28px;border:1px solid var(--line-2);border-radius:50%;background:var(--panel-2);
+  transition:background .15s var(--ease),border-color .15s var(--ease),transform .12s var(--ease)}
+.tpc-add i::before,.tpc-add i::after{content:"";position:absolute;left:50%;top:50%;background:var(--ink);border-radius:1px;transform:translate(-50%,-50%)}
+.tpc-add i::before{width:12px;height:2px}
+.tpc-add i::after{width:2px;height:12px;transition:transform .15s var(--ease)}
+.tpc-add:active i{transform:scale(var(--press))}
+.tpc-add:focus-visible{outline:2px solid var(--lime);outline-offset:-4px;border-radius:12px}
+.tpc-add.on i{background:var(--lime);border-color:var(--lime)}
+.tpc-add.on i::before,.tpc-add.on i::after{background:var(--on-lime)}
+.tpc-add.on i::after{transform:translate(-50%,-50%) scaleY(0)}
+@media (min-width:760px){
+  .tpc{max-width:560px}
+}

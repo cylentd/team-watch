@@ -80,9 +80,15 @@
 .ssv-v b{font-family:var(--ui);font-size:var(--t-2);font-weight:600;overflow-wrap:anywhere}
 .ssv-v.big b{font-family:var(--mono);font-size:var(--t-5);font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
 .ssv-v small{font-size:var(--t-1);color:var(--ink-3)}
+.ssv-rng{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
 .ssv-v.up b{color:var(--up)}
 .ssv-v.down b{color:var(--down)}
 .ssv-o{display:flex;flex-direction:column;align-items:center;gap:1px}
+/* His row in the Usage grid: a text link in the lane, a full-height tap. */
+.ssv-go{appearance:none;border:0;background:none;min-height:44px;padding:0 6px;font:inherit;font-size:var(--t-2);font-weight:600;
+  color:var(--lime);cursor:pointer}
+.ssv-go:hover{text-decoration:underline;text-underline-offset:3px}
+.ssv-go:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
 
 @media (min-width:960px){
   /* Side by side, one top and one bottom edge: the grid stretches the shorter card. */

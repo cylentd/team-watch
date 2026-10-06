@@ -32,6 +32,11 @@
 .sl-ln.tiered .sl-hist{grid-column:1;align-self:end}
 .sl-side.pick{border-color:var(--lime);box-shadow:inset 0 0 0 1px var(--lime)}
 .sl-under{display:flex;align-items:center;min-height:14px}
+.sl-sides:has(.sl-under.wide) .sl-under:empty{display:none}
+.sl-under.wide{grid-column:1 / -1;justify-self:end}
+/* The chance of the model's side, then its tier word ("74% Confident"), one unit */
+.sl-tp{display:inline-flex;align-items:center;gap:5px}
+.sl-pc{font-style:normal;font-family:var(--mono);font-size:var(--t-1);font-variant-numeric:tabular-nums;color:var(--ink-2)}
 .sl-conf{display:inline-block;padding:2px 0;border-radius:4px;font-family:var(--ui);font-size:var(--t-1);font-weight:500;line-height:1;color:var(--ink-3);white-space:nowrap}
 .sl-conf.confident{color:var(--lime);font-weight:700}
 .sl-conf.very{padding-inline:6px;background:var(--lime);color:var(--on-lime);font-weight:700}

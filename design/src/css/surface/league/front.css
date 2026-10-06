@@ -11,6 +11,13 @@
 .bp2{display:grid;gap:14px;
   grid-template-areas:"mast" "lead" "briefs" "sups" "under"}
 .bp2-main{display:contents}
+/* The reader's own team (2026-10-05, Recap merged with My recap): his game right under the masthead on a
+   phone, his grudge and record-book lines after everything else (on a 1100px desktop both sit under the
+   league's page, which must fit one screen). Only a page with a team has these rows,
+   so a page without one keeps the areas above (an empty named row would still cost its gap). */
+.bp2-mine{grid-area:mine;min-width:0}
+.bp2-you{grid-area:you;display:grid;gap:14px;align-content:start;min-width:0}
+.bp2.has-mine{grid-template-areas:"mast" "mine" "lead" "briefs" "sups" "under" "you"}
 .bp2-lead{grid-area:lead}
 .bp2-under{grid-area:under}
 .bp2-agate{align-content:start}
@@ -113,9 +120,12 @@
   .bp2-lead .bp2-score{font-size:var(--t-5)}
   .bp2-punch{font-size:var(--t-7)}
   .bp2-under{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .bp2-you{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
 }
 @media (min-width:1100px){
   .bp2{grid-template-columns:minmax(0,1fr) 420px;column-gap:24px;grid-template-areas:"mast mast" "main briefs" "sups sups"}
+  /* the league's page keeps its one-screen fold budget; the reader's own week sits right under it */
+  .bp2.has-mine{grid-template-areas:"mast mast" "main briefs" "sups sups" "mine you"}
   .bp2-main{grid-area:main;display:grid;gap:14px;align-content:start;min-width:0}
   .bp2-lead,.bp2-under{grid-area:auto}
   .bp2-brief:first-of-type{padding-top:4px}

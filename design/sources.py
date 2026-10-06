@@ -331,6 +331,24 @@ def load_props_record():
     return feed_block(("market", "props_record"), "tiers") or read_first(DWR / "props_record.json")
 
 
+def load_accuracy():
+    """Ours vs FantasyPros per week and position (ff-jarvis accuracy.json, 2026-10-05): feed block `accuracy`
+    first, the file second. design/accuracy.py cuts it; None when neither exists."""
+    return feed_block(("accuracy",), "weeks") or read_first(DWR / "accuracy.json")
+
+
+def load_dst():
+    """D/ST and K points per league, this week and the next 3 (ff-jarvis dst_projections.json, METHODOLOGY 12.85,
+    2026-10-05): feed block `dst` first, the file second. design/dst.py cuts it; None when neither exists."""
+    return feed_block(("dst",), "teams") or read_first(DWR / "dst_projections.json")
+
+
+def load_sos():
+    """Strength of schedule per team and position (ff-jarvis sos.json, 2026-10-05): feed block `sos` first, the
+    file second. design/sos.py cuts it; None when neither exists."""
+    return feed_block(("sos",), "teams") or read_first(DWR / "sos.json")
+
+
 def load_claude_props():
     """Claude's higher or lower call on a prop line, with a one-line why (ff-jarvis claude_props.json,
     2026-10-05): feed block `claude_props` first, the file second. design/slips.py cuts it into

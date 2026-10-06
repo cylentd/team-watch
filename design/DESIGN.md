@@ -41,6 +41,29 @@ projection at every width; the rest are read elsewhere:
 
 None of the three sources is backtested. The verdict word is watch's own; the page adds none.
 
+## The page's week and its kickoffs (2026-10-05)
+
+**The week rule: the page's week is the week of the projections, `slateWeek()` in `data/schedule.js`.**
+From the last Sunday game to Monday night's final the schedule is still on week N (its one unscored game)
+while every projection is for week N+1, so on Monday 2026-10-05 Week and Bets said "Week 4" and Players and
+Start/Sit said "Week 5". The projections' week is N while any non-Monday game of week N is still some
+team's next game (`design/projections.py` `slate`, read off the projection file's own rows, no build clock):
+Sunday's noon run, after the 1 PM ET games and with the 4 PM games to play, is week N, not N+1; Monday,
+with only Monday night left, is N+1 (`tests/test_slate_week.py`: Wednesday, Sunday 9 AM and 12:30 PT,
+Sunday night, Monday, Tuesday, Thursday). Any label on a view that prices, ranks or projects a player (the week pill, Ranks,
+Start/Sit, Compare, the Teams board, Bets, the Digest's top five) calls `slateWeek()`; week N's last game
+stays on the views that list games (Weather, Live, the Digest's Monday night), each under its own date, and
+`schedWeek()` (the pack and the brief) is that list's week. A document names the week it was written for
+(Recap, the Digest packet, a Preview take) and says so. Order of trust: Ranks, Teams, the props model, the
+schedule. `tests/test_js_week.py` pins the Monday case.
+
+**One kickoff format: "Sun 1:00 PM" in the reader's clock** (`lib/kick.js`: `kickFmt`, `kickTime`, `kickDate`,
+`kickClock`, `kickPast`). No zone letters, no "ET", no "5:15p". A window keeps the league's own Eastern name
+("Sunday early") and prints its times in the reader's clock. Python hands the page an ISO time (`at`, `ko`,
+`commence`, `kickoff`) and the page writes the words; the Pacific `kick` labels from `design/slate.py`,
+`design/digest.py` and `design/news.py` are only the fallback for a row with no ISO time. A body clock (the
+travel row) is a team's own and is the same words, not the reader's zone. `tests/test_js_kick.py`.
+
 ## Page width (2026-09-27)
 
 Every view sits in one frame, so a tab change never moves the nav bar's edges.
@@ -68,14 +91,14 @@ question: who, which way, one number.
 
 | Part | Phone | Where |
 |---|---|---|
-| Nav | top: five groups as words since 2026-09-26 (This week leads; the words step down to `--t-3` with 5px sides, because at `--t-4` the search icon covered "Live" at 360px), search + chat icons; view tabs underlined below; both hide on scroll down | `responsive/760.css`, `js/chrome/hidebar.js` |
+| Nav | top: five groups as words since 2026-09-26 (This week leads; the words step down to `--t-3` with 5px sides, because at `--t-4` the search icon covered "Live" at 360px), search + chat icons (the chat bubble carries the word "Ask" under it on a phone, 2026-10-05, plan U3: a bare bubble was not found; `chat.css`); view tabs underlined below; both hide on scroll down | `responsive/760.css`, `js/chrome/hidebar.js` |
 | Brand row | hidden; shown only when a newer build makes DATA a reload control | `responsive/760.css` |
 | Ground | slate `#111418`, surfaces one step up each; no pure black, no radial glow | `base/tokens.css` |
 | Roster row | a lineup sheet since 2026-09-25 (storyboard https://claude.ai/artifact/AqRomyQsQfd7TjYRiJkmhd): starter = slot, 28px head, name over "RB · BAL @ DAL", trend line, projection in ink with a green/red arrow. Bench two to a row with short names ("D. Goedert"), no line. The whole Yahoo team fits 360×660. Desktop: the bench column sits beside the starters, 44px heads, full names | `component/roster.css`, `responsive/lists.css` |
 | Roster cards | **Since 2026-10-05 (David's pick of the round-4 storyboard; `cards.js`, `cards.css`).** Tiers are three metals and the stock: #1 at his position **holo**, #2-3 **gold**, #4-6 **silver**, everything else **base**; K, DST and anyone unranked are base (`cardTier`; measured over 36 teams that is 1.8 metal cards a team, the old #1-12 cut gave 3.4; violet and blue retire). The face is "3G": the photo full bleed on the club's colour (`teamColourStyle`) inside a card-stock border that is the metal for silver, gold and holo (`--m-silver`, `--m-gold`, `--m-holo`, `base/tokens.css`; holo is static, no spinning, and tints the photo); the projection chip top right; the club-colour banner across the foot with the last name in Big Shoulders (`--tab`, shrunk to fit by `fitBanner`); a round badge, position over rank, bottom right, its ring the metal. Nothing is printed on the photo's middle but the autograph. OUT greys the photo and turns the projection red: no red bar, no red frame. Weather and Q/D chips sit on a row of their own under the projection (`.tc-flags`), never on it, the badge or the banner. The matchup is the first line of the back ("#7 RB", "BAL @ DAL"). K and DST wear the same stock, banner and badge (the badge says just K or DST). Grid gap 12px, three across on a phone. A `.fx` layer sweeps a light band over the border once when a card gets class `shine` (no idle loop, none under reduced motion). The autograph is still last week's top-3 finish (`LIVE_SIGNED`), but the face keeps only the gold script name, sized to fit by `fitSig` (min 12px), above the badge: `<div class="tc-auto"><span class="sgw"><span class="sg cool">NAME</span><span class="sg hot">NAME</span><i class="tip"></i></span></div>`. Static, only `.cool` shows; `.hot` (the pen's white-hot ink) and `.tip` (the nib) are hidden for the pack's motion to write it "on metal", left to right with sparks, the ink cooling to gold behind the pen. Its words, "Signed for week 3: #2 TE, 22.6 pts", are on the back as one row and in the pack's label. A back that does not fit drops its why line below 150px of card and, for a signed card, its last stat row below 180px (measured at 360, 390 and 430px). **Superseded 2026-10-05, the tiers, the front's layout and the autograph's look below; the rest of the row (support cards' art, weather, injuries, the back's stats) stands:** the Cards half of a Sheet / Cards switch (2026-09-25, remembered per phone; Cards is the default since 2026-09-28, so a new reader meets the pack, and a stored Sheet wins). Tier = this week's projected rank at the position (`LIVE_PROJECTIONS` rank/of, ranked over every projected player in `design/projections.py`): Five tiers, one colour family each (2026-09-25; it had gold twice and silver beside grey): #1 Legendary holo (turning rainbow frame, glow, foil and glitter behind the photo, signed), #2-5 Epic violet (etched), #6-12 Rare gold, #13-24 Uncommon blue, the rest plain. A stamp in the photo's corner gives the rank ("#10") in the tier's colour. A player Sleeper lists as not playing (Out, IR, PUP, Sus, NA) shows OUT, no rank, no tier (`design/projections.py` OUT_INJURY). Tiers are earned by rank only. The autograph is a separate axis (2026-09-25, David's pick; it was every #1-5): a player who finished top 3 at his position in the last completed week (`LIVE_SIGNED`, `design/signed.py`; "completed" = every team scheduled that week has a game-log row) is signed on any tier, in gold foil ink (`--sig` script, never a real autograph) with a moving shine, a glow and a small holo seal; a roster with nobody in a top 3 has none, by design. An IR spot is a bench spot, never a starter (ESPN's `IR` slot maps to OUT, like Yahoo's). The front is slot, points, photo, name, game; "#7 RB" is the back's first line, never a tier code. K and DST are support cards with no tier (`cardsupport.js`): turf with the posts off to his right and one weather chip (dome, else wind); the club code large in its colours (`data/teamcolors.js`) with the opponent's implied points as a chip (`LIVE_LINES`, `design/lines.py`). Tap flips to the rank, the role stats and the profile; a skill player's back is washed in his position colour, and every back fits a 360px phone. Weather (`cardweather.js`, 2026-09-25): ff-jarvis forecasts the hour of each open-air stadium's next home kickoff; a card whose game it touches gets it moving over the art (wind streaks from 15 mph, rain from a 40% chance, snow), an amber chip ("RAIN 70%") and a back line ("RAIN · pass ↓"). Wind skips RBs; wet weather reads "run ↑" for them. Not on an OUT player, a dome or a retractable roof. Injuries (`LIVE_INJURY`, `design/injury.py`, `surface/teams/injury.js`, 2026-09-25): Sleeper's code in three levels, OUT (Out/IR/PUP/Sus/NA), D (Doubtful), Q (Questionable). A starter who is OUT or D is named in a red strip above the roster ("1 starter will likely sit: J. Jacobs OUT · Personal") and marked in it, Sheet (red edge) or Cards (red ring that breathes). A card: OUT greys the photo, OUT and D lay a band across its foot, Q is an amber chip; the back's second line gives the reason. Questionable never raises the strip: most of them play. Three across on a phone; on a desktop the nine starters are a 3x3 block with the bench three across beside them, the card width set by the window height so the roster fits one screen (104-150px) | `surface/teams/cards.css`, `js/surface/teams/cards.js`, `cardmotion.js` |
 | Week's pack | **Since 2026-10-05 (David's pick of the round-4 storyboard; `pack.js`, `packgate.js`, `packdeal.js`, `cardsign.js`, `packgate.css`).** The pack holds the nine starters. On a team the reader follows (`followLoad`), in Cards mode, until this week's pack is ripped or skipped, it waits in the starters' place (`packGated`): the grid keeps its size with every starter face down on the set's one back (`.tc.down`, `.tc-cb`: stock border, lime-striped panel, "TW"), dimmed, and the sealed pack, 132x185 (the stage's pack zoomed .66), stands near its top with Rip and Skip under it; the bench and the This week row draw as always. It makes one slow turn in 14 s, then rests 2 s facing the reader, only on screen and with the tab visible, still under reduced motion (STYLE.md motion rule 1); a drag turns it and it springs back; a tap or Rip grows it from its place to the stage's centre (FLIP, `pkGrow`), where the tear works as before. Skip shrinks it into the Starters rule's chip, "Open week N" with a small pack, and the starters turn face up in a wave (60 ms apart, the metals shining as they land); a tap on the chip grows the pack back onto the stage. Opened `tw-pack-<team>-<wk>`, skipped `tw-pack-skip-<team>-<wk>`, a Set when localStorage refuses. A team only browsed, and Sheet mode, never wait: the roster, with the chip. Once opened the chip is "Rip again". The deal, worst first, best last (`packScore`: stock by rank, then hits by metal and rank; a signed stock card counts as a hit): each card rises straight up to the stage's centre (its x is the centre throughout); a stock card flicks to the pile (~0.4 s); a metal holds ~1.3 s under its label ("GOLD", "#2 TE THIS WEEK", the metal's colour, the holo spectrum for a #1) while a shine crosses its border; a signed card holds again under "SIGNED", "#2 TE IN WEEK 3 · 22.6 PTS" while it is signed on metal (`cardSign`: a white-hot nib writes left to right, sparks fly off it, the ink cools to gold behind it; Web Animations only, sparks remove themselves; a 25 ms buzz); the best card, if a hit, keeps its moment (charge, flash, turn) before its label. A pack with no hit says "No metal this week" before the cards go home. Then the pile flies home as before. **Superseded 2026-10-05, what follows:** the stage that opened by itself for the first unopened pack of the week (`tw-pack-auto-<wk>`), the pack of only the top 6 above the cards, every card dealt face down and turned, "Rip again" only after a rip, and the empty pack shaken upside down. Once per league per week in Cards view (rebuilt 2026-09-25): a sealed pack of the players ranked top 12 at their position, glowing in its best card's colour (gold, pearl, or pink for a #1: how good, never who). It opens by itself on a black stage for the first unopened pack a reader meets in a week, whichever team it is (2026-09-28; it was every team, and a reader browsing leaguemates sat through a stage per team); the rest wait sealed for a tap; ✕ before the rip puts it back on the page (David's storyboard, 2026-09-25). Drag across the top to tear it (the strip follows the finger, the seam lights; past half it finishes) or tap. Foil flakes burst in the tier's colours (`packfx.js`, canvas); the cards come out one at a time in the centre, worst first, turn by themselves and shrink into a pile at the foot; the best card last with rays, shake, flash and a size up. The stage is a dark room, not a flat black (2026-09-25): the roster blurred and dimmed behind it, a vignette to near-black, and one light behind the centre card in that card's tier colour (blue, gold, violet, holo; stronger the rarer, `--pl`/`--pa`) with its pool on the floor under the card; the card is sized by the window (200-320px). The sealed pack leans toward the mouse in 3D (sways by itself on a phone), its strip flies off in 3D, the pack tips back, and the first card rises out of its mouth before the empty pack drops away. Only a drag that starts on the strip tears it (a tap anywhere only tugs the strip): the torn length lifts off at the finger, a lit edge marks the tear, every eighth ticks (buzz and foil), and a release eases back or finishes (registered `--tear`). Cards turn in real 3D from a TEAM//WATCH back, a signed card's autograph writes itself in after it turns (hidden until then) with a gold burst, and each card drops to the pile on an arc, leaning into a fan; then the stage fades to the roster, whose pack slots were left empty, and the pile flies home into them. ✕, Escape or Back after the rip skips to the roster. "Rip again" on the Sheet / Cards row puts the opened pack back, sealed. Android buzzes. Reduced motion lays it all out at once | `surface/teams/pack.css`, `packgate.css`, `packshow.css`, `js/surface/teams/pack.js`, `packgate.js`, `packshow.js`, `packdeal.js`, `cardsign.js`, `packland.js`, `packfx.js` |
 | Gallery slip | after Underdog's share card since 2026-09-25 (was printed paper, which read as a bright panel in spaced capitals): a dark rounded card; headline number on top; legs grouped under game and kickoff; one rounded row per leg with photo, name, the call as a sentence ("Lower 4.5 Receptions") and one number at the right (Underdog %, DK price); a perforation, then Load slip | `surface/builder/ticket.css` |
-| Roster hero | one row at every width (2026-10-05, Roster redesign unit C; 116px tall on a phone before, 63px now): the team switch is the title at 21px (`--hero-name`) with a chevron, the league line under it ("ESPN · 3-1 · league ⓘ", one line, the league name takes the cut), and at the row's right end the Sheet / Cards switch as two icon buttons in one frame (list = Sheet, grid = Cards, `aria-label` each, the picked one lit; `rosterModeHTML`, `.rmode` in `chrome/hero.css`). "Rip again" stays on the Starters rule, never in the switch. Waivers keeps its full hero; My recap and League use the same one-row hero with no switch. ~~One line at every width since 2026-09-25 with the Sheet / Cards word chips on a line of their own under the league on a phone~~ | `chrome/hero.css` `.hero.team`, `.rmode`; `js/surface/teams/cardmotion.js` |
+| Roster hero | one row at every width (2026-10-05, Roster redesign unit C; 116px tall on a phone before, 63px now): the team switch is the title at 21px (`--hero-name`) with a chevron, the league line under it ("ESPN · 3-1 · league ⓘ", one line, the league name takes the cut), and at the row's right end the Sheet / Cards switch as two icon buttons in one frame (list = Sheet, grid = Cards, `aria-label` each, the picked one lit; `rosterModeHTML`, `.rmode` in `chrome/hero.css`). "Rip again" stays on the Starters rule, never in the switch. Waivers keeps its full hero; My recap and League drew the same one-row hero with no switch until 2026-10-05, when Recap took the League chip instead. ~~One line at every width since 2026-09-25 with the Sheet / Cards word chips on a line of their own under the league on a phone~~ | `chrome/hero.css` `.hero.team`, `.rmode`; `js/surface/teams/cardmotion.js` |
 | This week | the roster's brief (`js/surface/teams/brief.js`): a starter's status (red out, amber other), a must-claim (lime), who the news names (grey). Desktop from 1100px: up to three lines in a sticky column beside the rows; 761-1099px: above the rows; phone: one line, a decision only, else nothing. **The sit pill** (2026-10-05): a starter who is out or doubtful is a red pill in the row's heading, after "This week" ("S. Barkley out", the reason in its tooltip; several: "2 starters out"), in Sheet and Cards, in the folded row under the clips rail and in the open list; the count beside it shortens to "N to check" (`injWarnHTML`, `surface/teams/injury.css`). From 1100px the column's heading drops the count and keeps the pill and "Got it". ~~A red full-width strip above the roster ("1 starter will likely sit: ..."), 50px, Sheet and Cards~~ (superseded 2026-10-05). The red edge on the player's Sheet row stays; on a card the grey photo and red OUT mark him (the red ring went 2026-10-05) | `surface/teams/brief.css`, `surface/teams/injury.css` |
 | Topbar (desktop) | one pill: the week, its dot the sources' health, never wrapped; the live badge shows only on sample data. 761-1099px (2026-09-27): search is its icon; under 960 the wordmark hides (the lime mark stays) and the groups step down to `--t-3`, so the groups never slide under search | `js/chrome/feed.js`, `js/chrome/render.js`, `chrome/nav.css` |
 | Movers row | 52px head, name over verdict chip, share-change pill (role share before week 2) | `responsive/lists.css` |
@@ -151,7 +174,25 @@ still in the page source (LIVE_WAIVER): hidden from the screen, not from DevTool
 over encrypting it. Tests seed the owner key (`test_render.PICKED`); `test_waiver_owner.py` clears it.
 What a leaguemate sees stays fun and shared, never advice.
 
-## League (sub-tab of My teams, 2026-09-26)
+## Navigation: one League group, Stats (2026-10-05, plan U8)
+
+Top bar **Week · League · Stats · Bets**. Table in `js/data/navmap.js` (pure, Node-tested by
+`tests/test_js_nav.py`), drawn by `js/chrome/nav.js`, whose header holds the dated history.
+
+| Change | Why | Where |
+|---|---|---|
+| **Teams and League are one group, League** (David). Leaves: Roster, Waivers, Teams, Trades, Recap, Records | "League" was a group and a leaf under Teams, "Teams" a group and a leaf under League; the league was picked twice (team switch, Madden Curse / AYO / ESPN chips) | `NAV`, `navLeavesFor` |
+| **One chip: the team switch.** Pick your team and the league follows: Recap, Records, Trades and Teams all read `lgFocusKey()`, the league of the reader's team (`lgMine()`; the team on screen when none is picked). The Madden Curse / AYO / ESPN chips and `tw-league` are gone; the league's name sits beside the chip | one place to say "my league" | `surface/league/switch.js` `lgChipHTML`, `data/league.js` |
+| **Recap is one leaf.** `#myrecap` and `#league` are `NAV_ALIAS` entries for it. A Yahoo league draws the back page with the reader's own game first under the masthead (`lgMineWeekHTML`), then the league's page, then his grudge and record-book lines; on a 1100px desktop the league's page keeps its one-screen fold and his week sits under it. An ESPN league keeps its plain recap, rivalry and history | one Recap, your game first | `surface/league/back.js`, `myrecap.js`, `league.js` |
+| **Fewer leaves where a league lacks data**: ESPN has no record book or graded trades (4 leaves), AYO no graded trades (5). A link to a missing leaf lands on its nearest (`navFallback`: Recap, or Roster for Waivers) | six is the most a 360px phone holds | `navFacts` |
+| **A reader with no team**: Roster still asks (the picker); Waivers opens on the league's public Most added list under the chip, Recap, Records, Trades and Teams open for everyone | the wire is the league's, not the team's. Tiered public verdicts are not built: David hid his tiers from leaguemates on 2026-09-27 (`data/owner.js`) and a roster-free tier needs ff-jarvis | `chrome/render.js` `renderAsk`, `teams/hot.js` |
+| **Six leaves fit a phone**: League's sub-row takes an 8px gap (`.dense`; at 16px they took 366px with Waivers' count against a 332px row, at 8px 324px; measured at 360px, 2026-10-05) | | `chrome/navrow.css` |
+| **Players is Stats** (group id `scouting` and every leaf id and hash stay). Sub-tabs named by what they hold: Highlights, Ranks, Leaders, **Work vs points** (leaf `movers`, was Role), **Usage** (leaf `usage`, was Grid), each view with one line saying what it holds (`stat-cap`; Role's is its head line). The draft's "Stat leaders" and "Usage grid" took 408px of the 332px row at 360px; these take 312px at the dense 8px gap | A + C of David's options; Highlights leads the group, Ranks second | `navmap.js` `navLabel`, `navCaptionHTML` |
+| **Deep link to a row**: `navGoRow(leaf, slug)` opens Grid or Role on one player's row, sets the position, week and Show all so it is drawn, scrolls it to the middle and marks it (`.nav-hit`). The Digest's Gems rows carry a Grid link beside the profile line (1 tap); the profile and Start/Sit call it from plan U3 | a profile reaches its Grid row in 1 tap | `navrow.js` `navRowPlan`, `chrome/nav.js` |
+
+Superseded below where marked: My teams as a group, My recap, the League switch.
+
+## League (Recap, ESPN and Yahoo; was a sub-tab of My teams, 2026-09-26)
 
 Each league's own story, for the team on screen. Storyboard:
 https://claude.ai/artifact/Lf17QZYMoNJvmVHCT45xUJ. ESPN since 2026-09-26; Yahoo the same day, read
@@ -212,7 +253,8 @@ bend toward whoever is picked. **Superseded:** the League leaf and Records under
   power ranking (record orders it, points beside it, LUCKY/ROBBED only where the two disagree by 2+,
   ▲▼ the move since last week), keeps the slate in story order (stamped games, then margin), and closes
   on **next week's grudge**: the most lopsided series among next week's games, 3+ meetings.
-- **My teams > My recap** (leaf `myrecap`, Yahoo teams; a stale `#league` lands here) follows the team
+- **My teams > My recap** (leaf `myrecap`, Yahoo teams; a stale `#league` lands here; **superseded 2026-10-05**:
+  part of League > Recap, the reader's game first; both hashes still land there) follows the team
   switch: the result, the game with its box open (the bench mistake is the box's own line), this
   week's score rank / standing / points rank, the grudge with next week's opponent, and every
   record-book line with the team's name on it, Shame included. ESPN keeps its League leaf.
@@ -412,7 +454,7 @@ League group. One row per team in a league, one column per position (QB, RB, WR,
 | Team page | a row opens that team as a full page in the view (`lbpage.js`, David 2026-10-05: no pop-ups from the bottom, so no sheet, no scrim, no motion), nav bar and League sub-row still on screen: a "‹ Teams" link, the name, record and total, one action in a fixed-height slot, then LINEUP by slot and BENCH (position, name as initials, projection). A page is a history entry (`layers.js`, no URL change: the hash stays `#teams`, so a reload lands on the board). Back and the ‹ link each step back one page, and the board returns at the scroll the reader left (`LB_Y`). Content keeps to one 560px column, left on the frame's edge (a name and its number stay within STYLE.md's 560px). The action is above the lineup, not below the bench as first asked: under 16 rows it was a screen away on a phone. Data starts ~235px down at 360px, over the ~200px budget for that reason |
 | Action | "Find trades with <team>" when the reader's team is in this league and is another; "This is my team" when the reader has no team in this league; a quiet "Your team" chip on their own. "This is my team" calls `pickTeam`, the team switch's own function and storage (`tw-team`), so My teams, Live and the rest follow, and the page redraws as theirs. A reader who already has a team here never sees it on another team: they switch with the team switch |
 | No team yet | while the reader has no team in the league on screen, one quiet line above the grid says "Tap your team to set it" |
-| Leagues | all three. The League switch (`surface/league/switch.js`) lists the ESPN league here as well; Recap, Records and Trades keep their Yahoo-only list. Teams opens on the league of the reader's team until they switch on this visit; a pick on a Yahoo league is saved with Recap's (`tw-league`), ESPN's is not |
+| Leagues | all three. **Superseded 2026-10-05:** the board is the league of the reader's team, whichever of the three, set by the one chip (`surface/league/switch.js`, the team switch); the league switch and `tw-league` are gone. Records and Trades are the Yahoo leagues' alone |
 | Empty | a league whose roster file is missing or names no starting slots gets the shared dashed empty block under the switch |
 
 - **Data:** `design/teams.py` -> `LIVE_TEAMS`, from the three roster files (`espn_rosters.json`,
@@ -503,11 +545,13 @@ https://claude.ai/artifact/9C4vZYmMkhSKLyTHenWpEv). Embedded, never hosted or do
 
 Not built: clips on the Digest, Players > Highlights or the profile; a ring on trading cards.
 
-## Waivers (sub-tab of My Teams, 2026-09-16)
+## Waivers (a League leaf, 2026-10-05; a sub-tab of My Teams from 2026-09-16)
 
-A Roster | Waivers toggle under the team name, not a sixth nav tab: waivers are per league like
+Waivers is a leaf of the League group beside Roster (My Teams merged into League on 2026-10-05); it began
+as a Roster | Waivers toggle under the team name, not a sixth nav tab: waivers are per league like
 the roster, so the league switch carries over. (The phone's bottom bar this protected became a
-top nav on 2026-09-24.) The data is ff-jarvis's `model.season.waiver_packet`, built daily by the refresh
+top nav on 2026-09-24.) A "Stream a D/ST" button above the rail opens Ranks on the D/ST tab (`rkOpenDst`,
+`data/dst.js`): 3 taps from the Digest (League, Waivers, the button), 1 on a Tuesday. The data is ff-jarvis's `model.season.waiver_packet`, built daily by the refresh
 (`LIVE_WAIVER`, `design/waiver.py`), and the tab only formats it.
 
 **Cards since 2026-09-22** (superseding the rows, Suggested moves and drops list). One card per
@@ -547,6 +591,56 @@ page's right edge on a phone, so the rail rows and card footers keep `--fab-clea
 Superseded 2026-09-24: the chat launcher is in the nav row and covers nothing. The rail is three
 rows + Show all on every day, not only Tuesday (the Mode row above is superseded on that point),
 and a phone card front drops the proof stats and lane tag; the back still has both.
+
+## Ranks (Stats, 2026-09-26; D/ST and K 2026-10-05, plan U6c)
+
+Ranks is a glance page: this week's projected rank at one position, in tiers, one row per player (face, game and
+kickoff, injury tag, points; a desktop adds what the points are made of). Tabs: QB RB WR TE FLEX, then **D/ST**
+and, in a Yahoo league only, **K**. One link out, **Schedule**, to the hidden leaf `schedule` (strength of
+schedule, another unit's view; `navGo("schedule")`), top right of the headline on every tab.
+
+| Decision | Why | Where |
+|---|---|---|
+| **D/ST and K are teams, so one panel, no tiers.** A row is a team: place (the file's rank), team, `vs`/`@` opponent and kickoff, this week's points; then one line of who holds it and the next three weeks as small cells (`W6 ~7.2`). 32 rows | tiers are natural breaks in a player list; a D/ST list is 32 teams in a 5-point band, and a break there would be noise | `surface/ranks/dst.js`, `css/surface/ranks/dst.css` |
+| **The league is the reader's team's** (`lgFocusKey`, U8's one chip), **ESPN with no team picked**. Points are on that league's scoring (`LIVE_DST.leagues[lg].dst`: `dst_espn` or `dst_yahoo`). K is `leagues[lg].k`, null on ESPN (no K slot), so its tab is not drawn; a K tab left open when the team switches to ESPN falls back to RB | one place to say "my league"; ESPN's D/ST table is not Yahoo's, and The Madden Curse's K (distance ÷ 10) is not AYO's | `data/dst.js` `dstLeagueKey`, `dstTabs`, `dstPos`, `dstBoard` |
+| **Rows are in ff-jarvis's rank order** (`rank[cell]`), byes last by team code. The page computes no points | the model's order is the board; a re-sort here would be a second model | `dstBoard` |
+| **Who holds it:** MINE (lime), FREE (green), WAIVERS (grey: ESPN's `rostered.espn.waiver`, nobody's yet but only claimable, 2026-10-05), else the manager's team name; a **STREAMER** tag (lime fill) replaces FREE, since a streamer is free by definition. The flag is the file's (`streamer[lg]`: free, and top 12 that week); a team already kicked off is never tagged | the question is "can I add him"; one tag answers it | `rkHoldHTML`, `dstBoard` |
+| **A week with `line: "rating"` is an estimate:** `~` before the number, a dimmer face, and a footnote under the list. A posted line has neither | the rating is this season's implied totals, not backtested (ff-jarvis 12.85) | `rkNextHTML`, `.rk-dc.est` |
+| **One plain line on the model's gain:** "Mostly the opponent's expected score. The model's extra inputs cut the average miss by 0.02 to 0.04 points a game, so a close rank is a tie." (K: the team's own expected score, "by about 0.01", 12.85 measured 0.014 and 0.015; a cell the file ships as `baseline` says the model's extras are left out) | 12.85 passes 4 of 4 cells against the opponent's implied total alone, but the weekly order barely moves; the board must not read as sharper than that | `rkDstNote`, `ranks.dst.note*` |
+| **Seven chips fit one row at 390px:** the Ranks position row takes a 6px gap and 10px chip padding (334px of chips and eight-pixel gaps overflowed 362px by 21px) | one row of controls (STYLE.md) | `css/surface/ranks/dst.css` |
+| **`rkOpenDst()`** opens Ranks on D/ST, for a link in another view. The way in by name is Stats, Ranks, D/ST (3 taps); the Digest's Top 5 row is collapsed, so its Ranks link is also 3. Its one caller since 2026-10-05 is Waivers' "Stream a D/ST" button (`wvDstLinkHTML`): League, Waivers, the button = 3 taps from the Digest, 1 on a Tuesday, when Waivers opens first. A Digest link would make it 1 everywhere | the plan's "Stream a D/ST in 2 taps" needs a link in a view this unit does not own; the Waivers one is built, the Digest's is not | `surface/ranks/dst.js` |
+
+Data: `LIVE_DST` (`design/dst.py`, a pass-through of ff-jarvis `dst_projections.json`; shape in its producer's
+docstring, `model/market/dst.py`). Tests: `tests/test_js_dst.py` (Node: the league's cell, rank order, the
+streamer flag, a bye, the estimate marker, K hidden on ESPN, the league rule), `tests/test_ranks_dst.py` (chips fit
+one row, the tabs, the Schedule link).
+
+### Floor and ceiling (2026-10-05, plan U5)
+
+Every projection has a band: `floor` and `ceil`, the 10th and 90th percentile outcome in half-PPR points, given he
+plays, so 8 in 10 of his games land between them. ff-jarvis `model/market/ranges.py` writes both on every
+`player_projections` row (empirical quantiles of actual minus projection by position and projection bucket; holdout
+on 2025: 82.3% inside, QB 74.6% too narrow, RB 81.8%, WR 84.8%, TE 82.1%). **A description, not a price**: it moves
+no rank, tier or START/SIT call, and the page never computes one.
+
+| View | Where | Words |
+|---|---|---|
+| Profile strip | `8.4–28.8` under the lime projection's "Proj." label (`.pf-lede-r`) | one line under the strip, the one string (`range.note`) every view uses: "Range: 8 in 10 of his games land here, if he plays." |
+| Ranks row | small grey line under the points, above the matchup tag (`.rk-rng`); the points column is 72px on a desktop (was 56) | one sentence added to the list's subtitle |
+| Start/Sit picker | under each lane's big number in the Projected row (`.ssv-rng`) | one note under the row's label, not one per player |
+
+- **One source.** `rangeFrom(row)` and `rangeFor(p)` in `ui/player.js` beside `projFor`: the file's two numbers and
+  their text, else null. Ranks rows carry `floor`/`ceil` themselves (`design/ranks.py`), the cards and the profile
+  read LIVE_PROJECTIONS; one file feeds both, so a player's band is the same everywhere (fixture, Joe Burrow: 19.4,
+  8.4–28.8 in all three).
+- **Nothing drawn, no note, when there is no band:** a ruled-out, played or bye player (his `pts` is null, and
+  `design/projections.py` nulls `floor`/`ceil` with it), a position the table does not cover, a file from before it,
+  and a 0 to 0 band. The profile strip's Out, Played and Bye cells never carry a range.
+- **Not drawn:** D/ST and K (no band), the Compare cards, the roster rows.
+- Tests: `tests/test_js_range.py` (Node: the file's numbers, out/played/null/0-0 show nothing, the strip cell),
+  `tests/test_range_view.py` (the same band in the three views, the note once, no band no note, 360px),
+  `tests/test_ranks.py` (the build carries the fields). The fixtures hold real bands: ff-jarvis's shipped table applied
+  with its own `ranges.apply` to `tests/fixtures/data/player_projections.json` and `tests/fixtures/feed.json`.
 
 ## The Board (Scouting's first view, 2026-09-23)
 
@@ -943,17 +1037,19 @@ Code: `surface/recap/` (prefix `wr`), CSS `css/surface/recap/` fenced to `weekre
 | Part | What | Data |
 |---|---|---|
 | Banner | the week's top scorer called like an announcer ("Allen slings 285 yards and 4 TDs"), box line as pills, washed in his club's colour, its code behind him from 1100px. "Week 4 · top score so far" until the week is complete. Yards and TDs in the head, never fantasy points (David, 2026-10-05: every league scores differently). A tap opens his profile | `LIVE_RECAP.top`; the Digest's own `dgCall`, `dgBoxPills`, `dgPhotoHTML`, `dgGhostChars` on the same `.dg-lead` panel |
-| Tab bar | Players / Scores / Claude: Live's `.gd-tabs` (`live.css` is fenced to both views), three columns. Choice in `localStorage` `tw-recap-tab`, never the hash; a tap repaints the body in place. A tab with nothing hides; with one tab left the bar hides | `wrAvail` |
+| Tab bar | Players / Scores / Claude / Accuracy: Live's `.gd-tabs` (`live.css` is fenced to both views), one column per tab that has data. Choice in `localStorage` `tw-recap-tab`, never the hash; a tap repaints the body in place. A tab with nothing hides; with one tab left the bar hides | `wrAvail` |
 | Players | Leaders (QB, RB, WR, TE, K, DST: top three each, two columns on a phone, three from 960px); Smashed / Busts / Left hurt (one list under a tab bar on a phone, all three side by side from 960px, no bar); Touchdowns (a dot per rushing, receiving or return score, top five then Show all, one line for the most passing TDs) | `stars`, `k`, `dst`, `smashed`, `busts`, `left_hurt`, `tds` |
 | Scores | a strip ("Claude picked 5 of 8 winners · 5-3 vs spread"), then every game under its kickoff window (Preview's `pvWinLabel` and `preview.win.*`; `wrSlot` ports `design/preview.py` `_slot`, Eastern time through `Intl`): winner bold; at the right "Picked CLE" and Hit or Miss; a game still to play shows "1:00 PM ET" and the pick. A game opens Preview's dossier when Preview holds the same week and the game matches by away and home; otherwise the row is plain text. From 960px windows of one or two games share a row, longer ones span it | `games`, `preview_record` |
 | Claude | three tiles (winners, vs spread, over/under), the best call (a winner picked against the market, the biggest line first, else the longest shot) and the worst (the surest miss), a link to Preview's every-week record | `preview_record`, `games[].preview` |
+| Accuracy (since 2026-10-05) | the fourth tab: one line saying what it measures ("Average miss in points, on players both of us projected. Lower is closer."), then a card for the season to date and one per graded week, newest first. A row per position (QB, RB, WR, TE; the season card adds All four): our average miss, FantasyPros' on the same players, and who was closer ("Ours" lime, "FantasyPros" amber, "Tie"), the smaller miss bold. A week's header names the model live then ("before the line blend" weeks 1-4, "with the line blend" from 5) and the file's note when it has one. The season card says by how much and the 95% range ("by 0.41 · 95% range 0.12 to 0.70 · clear gap", or "within noise" when the range holds 0). Misses stay in the report (FourthDown Lab's receipts idea, not its look): FantasyPros' wins draw as plainly as ours. Hash `#accuracy` opens Recap on this tab (`state.js` rewrites it to `#weekrecap`; nav.js knows only leaves) | `LIVE_ACCURACY` via `design/accuracy.py` (ff-jarvis `accuracy.json`); `data/accuracy.js` `acView`, `surface/recap/accuracy.js` |
 
 - **Exception to STYLE.md "one job per view" (2026-10-05):** tabs, like Live's (2026-10-04). Three questions on one page measured 2,265px at 360px wide; with the bar the tallest tab is Players at 1,523px (Scores 1,348px; Claude fits one screen), measured on the fixture.
 - **Cards (Material's rule):** Leaders, the three lists, Touchdowns, Every game, Claude's week: one card per subject, rows inside, none nested. Faces stay in the banner; lists scan by name.
 - **Empty states:** no recap file is one line ("No recap yet"); a section with no data is not drawn; no zeros (no record, no tiles, no strip). An old recap file (weeks 1-3) has only its finals and no picks, so Scores shows them with no pick or grade.
 - **First data (360x800, fixture):** the bar at 287px, the first card at 339px, over STYLE.md's 200px: the banner is the page's headline, as the Digest's is (a photo makes it 270px).
 - **Smashed and Busts** are ff-jarvis's own picks (`smashed`, `busts_shown`), the Digest's lists, never a cut made here.
-- Tests: `tests/test_recap_view.py`; golden states `weekrecap`, `weekrecap-busts`, `weekrecap-tds-all`, `weekrecap-scores`, `weekrecap-claude`.
+- **Accuracy never computes (2026-10-05).** Every number is ff-jarvis's, copied from its grade files and scorecard; the page only picks which of two printed misses is smaller. A field the file has as null is a sentence, not a zero: weeks graded before the rank fields shipped say "Rank order and top hits were not graded this week."; a null `season_to_date` says "Not available yet. The season line appears once the scorecard has run."; a null range says "no range yet"; a week the files hold but have not graded says "Week 4 is not graded yet."; a season line behind the weeks says so. With no `accuracy.json` the tab hides, like any empty tab. Order, a card per week and the two-across desktop pair follow the Recap's other tabs. Not measured against the 200px first-data budget: the tab sits under the banner and the bar, like the others.
+- Tests: `tests/test_recap_view.py`, `tests/test_accuracy_view.py` (Node: the cut and the card against the fixture's digits; browser: the tab, `#accuracy`, the hidden tab); golden states `weekrecap`, `weekrecap-busts`, `weekrecap-tds-all`, `weekrecap-scores`, `weekrecap-claude`.
 
 ## Start/Sit (This week, 2026-10-03; was Takes; v3 2026-10-04)
 
@@ -965,7 +1061,7 @@ call and appear only as a for-fun line of the record. Rule: ff-jarvis METHODOLOG
 
 | part | what | data |
 |---|---|---|
-| Picker | 2-3 players; START for the higher projection, Coin flip within 0.5 pts (judged at the one decimal shown). Rows: projected, rank, defense vs his position, FantasyPros, teammate out, weather. Opens on the reader's closest bench-vs-starter call (`briefPairs`, shared with the brief). Picks kept for the week they were made in | `LIVE_RANKS`, `LIVE_DEFENSE`, `LIVE_SSB.fp/out`, `LIVE_PROJECTIONS.wx` |
+| Picker | 2-3 players; START for the higher projection, Coin flip within 0.5 pts (judged at the one decimal shown). Rows: projected, rank, defense vs his position, FantasyPros, teammate out, weather, his row in Usage (a link, `navGoRow`). The saved picks are keyed by `slateWeek()` (2026-10-05); the saved slips stay keyed by the props' week (`SLATE_WEEK`), because a Monday's lines are still week N's. Opens on the reader's closest bench-vs-starter call (`briefPairs`, shared with the brief) **only when he has picked a team** (`lgMine`); with none it opens empty, the search open and focused, and stays open until two are picked (2026-10-05, plan U3: it handed a first-time visitor David's pair, 8 taps from his own; now Start/Sit, a name, a name is 3). Picks kept for the week they were made in. When FantasyPros' ECR puts the loser ahead of our START, the row says so in one sentence (the call is the projection, not expert opinion; `ssFpCheck`, a coin flip never contradicts) | `LIVE_RANKS`, `LIVE_DEFENSE`, `LIVE_SSB.fp/out`, `LIVE_PROJECTIONS.wx` |
 | Board | QB/RB/WR/TE tabs: each position's best spot (ff-jarvis `best`), then the four offenses facing the softest and toughest defenses, a bar against the league average | `LIVE_STARTSIT.best`, `LIVE_SSB.board` |
 | Record | three tiles, SMASH, START, SIT, each its own hit-miss since week 5 (a void count beside a tile only above zero); under them, small, FantasyPros and Pitcher List hit-miss "for fun". Before a week is graded: "No week graded yet." in place of the tiles | `LIVE_SS3.record` |
 | SMASH | one card: every player we project top 3 (QB, TE) or top 6 (RB, WR) at his position, in position order. Row: head, "P. Nacua", "WR2 · LA @ PHI · Sun 1:25 PM", the book's main yardage line over the TD price ("72.0 rec yds", "TD +135"). A player no book prices shows what he has. Foot: Build in Slips | `LIVE_SS3.smash` |
@@ -999,6 +1095,7 @@ roster is read, and the players named are the ones ff-jarvis's `game_preview` pi
 | Slate | every game by kickoff window (Thu night, Sun morning, Sun early, Sun late, Sun night, Mon night, else the weekday), headed with its Eastern times from the data (`design/preview.py` `_slot`). ~~A row: AWAY @ HOME, Claude's winner (`--lime`) and score, the headline, then the spread in words, the total and at most two flags~~ (two lines since 2026-09-29, "Front page") |
 | Flags | ~~drawn on the slate~~ (off the slate since 2026-09-29, "Quiet slate"; `_flags` still ships them) by priority: UPSET (Claude's winner is not the market favourite, `--lime`), Line flipped / Line moved n (3+ points, `--amber`), Rain n% (50%+) or Wind n mph (15+, `--sky`), "J. Coker out" (the highest-average Out/IR player at 10+ points a game, `--down`), Short week (`--ink-2`). Computed in `preview.py` `_flags` |
 | Dossier header | "‹ All games" (a phone), ‹ AWAY @ HOME › and the kickoff. Arrows and a sideways swipe walk the games in kickoff order |
+| The answer (2026-10-05, plan U3) | a block under the header, above the headline: Claude's pick (score, the market's implied score beside it, his side and confidence), the spread and the total (each with where it opened when it moved, Claude's total call under the total), the win chance with the market's and the bar. Cells are `pvAnswer` (data/preview.js); a game with no take still gives the line, total and market win chance. It replaced the Win chance and Lines rows of the box score and the side in "The call." (the call is now its reason alone, absent without one). At 390x844 it ends above the fold (`test_the_answer_is_above_the_fold...`); the audit found the line under five paragraphs. From 1100px it spans both columns |
 | Claude's call | headline and lean, the full width; then the call row (below, "Confidence and record"). ~~Claude's score over the market's implied score, how the two differ~~ (folded into the call row 2026-09-29; a take written before confidence still draws it) |
 | Lines | spread in words ("ARI by 1.5", "opened NYG by 7"; even is "Even"), total ("opened 45.5"). Never a signed spread (David: "-1.5" was "kinda funky"). ~~Claude's margin and total~~ (the call row's Score, 2026-09-29) |
 | Matchup | each offense against the defense it faces, rank with points allowed small beside; bottom 8 `--up` (soft), top 8 `--down` (tough); the WR row faded with the reason (the backtest finds the WR matchup moves nothing, QB/RB/TE 8-18%); pass EPA rank; "after N games" |
@@ -1155,7 +1252,7 @@ It sat in Players for its first hours; it moved to This week (after Digest) the 
 put Players back to six views and let the 7-tab phone rule go.
 
 **Out of the sub-row (2026-10-05).** Recap (below) took its place in This week's sub-row: seven views
-measured 389px against the 328px a 360px phone has, six fit in 321px. Weather stays in `NAV`, so `#weather`,
+measured 383px against the 332px row a 360px phone has, six fit in 316px (browser, 360px, 2026-10-05). Weather stays in `NAV`, so `#weather`,
 `navGo("weather")` and `navGroupOf` work; `NAV_HIDDEN` (`chrome/nav.js`) only keeps it out of the row. It is one tap
 away from the Digest's Weather row and every Preview dossier; with it open no sub button is pressed.
 
@@ -1182,6 +1279,31 @@ on a card. Superseded: the per-game "Does it matter? / Already in our projection
   on the spring; How we know opens with a height ease (grid rows, `@starting-style`).
 - **First data:** the first card at 188px on a 360x800 phone (live data, 2026-09-26). Desktop: cards
   three across at 1400px, the two lists side by side.
+
+## Schedule (Stats, 2026-10-05, plan U7)
+
+Which teams face the softest defenses at a position: the 32 teams ranked easiest first, the points the
+opposing defenses allow that position per game, and the opponents week by week with the byes marked.
+**Context, not backtested** (ff-jarvis METHODOLOGY 12.11 is the nearest finding): the file's own `label` is the one
+line under the heading, no price or lineup call reads it, and no word on the page says start, sit, buy or sell
+(`test_js_sos.py::test_the_view_has_no_verdict_word`). `LIVE_SOS` is ff-jarvis's `sos.json` passed through
+(`design/sos.py`); the page computes no number. The order is the file's `rank` (ties by team code), the number
+is its `pts_pg` to one decimal, the games its count, a bye its `bye` list (`data/sos.js`, `tests/test_js_sos.py`).
+
+| part | what it shows |
+|---|---|
+| Control row | position (QB RB WR TE), then the weeks (Next 4, Rest, Playoffs): one line at 360px, 40px chips at 11px type (`.sos-ctl`); the full weeks are in the heading ("weeks 5-8"). It wraps only below ~330px |
+| Heading and label | "Easiest RB schedules, weeks 5–8" over the file's label, three lines at 360px |
+| Row | rank, team code and games, points allowed per game; under them one small cell per week of the window, the opponent over the week number, a dashed "BYE" cell for a bye. The cells run the row's full width and wrap (7 and 6 for the 13 rest-of-season weeks), so nothing scrolls sideways. From 760px the cells join the first line. Nothing to tap, and no colour for good or bad |
+| No file | "NO SCHEDULE YET", no controls |
+
+- **Where it lives.** A leaf in Stats (id `scouting`) kept out of the sub-row by `NAV_HIDDEN`, like Weather: Stats' five tabs
+  end at 326 of the 332px a 360px phone holds. `#schedule` and `navGo("schedule")` open it; Ranks links to it. With it
+  open no sub button is pressed.
+- **First data at 226px** on a 360x800 phone (measured 2026-10-05), over STYLE.md's ~200px: the label is required
+  on the page and is three lines there, the heading one, the control row 40px. Trimming the label to two lines would
+  cost the METHODOLOGY pointer; `test_sos_view.py` holds the line at 240px.
+- Position and weeks are this view's own choice; they are not shared with Ranks, which is one week.
 
 ## Live (This week, 2026-09-28; four tabs 2026-10-04)
 
@@ -1243,6 +1365,31 @@ tabs below; the NFL now card (`nflnow.js`) above the matchup went with it).
   clock. The score is Sleeper's: a club's defense row counts the points it allowed.
 - **A tap on the clock line opens that game's sheet** on the player it came from (below); a tap on
   the name opens his profile. Two buttons, never nested.
+- **The game is a centred modal (U9, 2026-10-05).** David: "why cant you do a centered modal?" The sheet
+  was full screen on a phone and a bottom sheet from 960px (superseded, 2026-10-05; the list of the bottom
+  sheets that remain is in STYLE.md "Overlays"); STYLE.md "Overlays" says a game is for
+  reading, so it is now a modal with a 16px margin on all four sides on a phone (358px wide at 390px,
+  max 560px) and a 1040px max-width from 960px, never docked to the bottom edge. Closed by the X, a tap on the scrim, Back,
+  Escape or a pull down from the top; the sideways swipe between games (STYLE.md row 17) and the step
+  row work inside it. The grab bar is gone. `tests/test_live_modal.py` pins the four margins at
+  390 and 1280px.
+- **Names in the plays are bold (U9).** David: "the game log should bold the players name." Every
+  player named in a play line is bold: ESPN's play participants when the summary carries them, then
+  the "J.Goff" initial-dot pattern for everyone else ("A.J.Brown", "A.St. Brown", "M.Harrison Jr.",
+  a defender in brackets) (`data/gameday/plays.js`, `gsBoldNames`). The saved summary has no
+  participants, so the pattern is what the tests read on real text; the participant path is pinned
+  with ESPN's field names (`athlete.displayName`) and not seen live.
+- **The ball and the red zone (U9).** David: "the live scoreboard should show the direction of the
+  ball or team and the redzone." A live tile on the Games tab draws a small football before the club
+  that has the ball, the down and distance under the scores ("3rd & 4"), and a red RED ZONE tag
+  inside the opponent's 20. No request is added: ESPN's `situation` (possession, `downDistanceText`,
+  `isRedZone`) rides in the scoreboard response the clock already reads (`gdClockShape` keeps it as
+  `sit`; `data/gameday/situation.js`). **Unverified live:** no game was on when this was built and the
+  one scoreboard request it was allowed returned no saved body, so the scoreboard's `situation` is
+  ESPN's documented shape, as the summary's is, and not a response read. A missing `situation` draws
+  nothing, never a guess. At the half the tag and ball are off. The game modal's scoreboard shows the
+  same tag beside its "BUF ball · 3rd & 4 at DET 15" line (the summary's own `situation`, as before).
+  Without `isRedZone` the spot decides: the opponent's 20 or closer.
 - **The TDs tab** follows what David builds slips from, with no input: he will not enter slips, so
   nothing is saved. League-wide and public, so it reads no roster.
 
@@ -1315,12 +1462,13 @@ Underdog; Kept went unused. The page answers "who is getting the work", not "dea
 |---|---|
 | Bar | the kickoff tabs, unchanged, then the book chip |
 | Record | (2026-10-05) above the first card: a card, "RECORD" and "weeks 1-{through_week}", three tiles (W-L big, SLIGHT grey, CONFIDENT lime, VERY a lime chip, hit % small). ff-jarvis `props_record.json` (feed `market.props_record`) via `LIVE_PROPS_RECORD`, drawn by `surface/parlay/record.js`; absent or nothing graded, no strip. Start/Sit's record in this view's own class names |
+| Top calls | (2026-10-05, plan "Bets UX" change 1) under the Record line, above the first game: "what should I bet" in one look. The model's strongest lines in games that have not kicked off, five, strongest first (tier, then the chance of its side, then the edge; `topCalls` in `data/topcalls.js`, Node-tested), one line per player, never a touchdown, an Out player, a moved line or a line with no pick. A row, two lines: name and club, the chance and tier word ("72% Very confident"); then the side and line as the outlined label ("Higher rush yds 65.5", Claude's lime C when it agrees) and the edge, "+20 vs 52% break-even" (the chance of the model's side less the break-even of that side's own price at the book in force; Underdog's over/under, DraftKings' primary book's; no price, "No price from the book"; a call priced worse than its break-even, edge under 0, is not listed, since 2026-10-05, because the "+" is fixed in the copy). The row opens the player's sheet; the round + puts that side on the slip (the same path as a side on the sheet, `slPick`; the same side again takes it off). Not a NAV entry and not behind the kickoff tabs: it reads across games. Draws nothing when no line has a tier (an older producer). `surface/parlay/topcalls.js`, `css/surface/builder/topcalls.css`. Measured 2026-10-05 at 390px: starts at 197px, each row 88px |
 | Game card | matchup and kickoff; each side's implied points as one bar (`LIVE_LINES`, else Preview's line); Preview's headline as a link to that game's dossier (lime ›; the spread, total and script sentence went 2026-10-05); chips Work rising · TE · Role guys · All N |
 | Player row | (2026-10-05, storyboard "Slips Board" A) two columns. Left: name, position · club; his work label and its last three games as bars, each number under its bar (the last bold, `--up` green when his work rose); "Snaps 72%"; chips only when one applies. Right: his most confident line (highest chance of the model's side among his non-TD lines with a tier) as an outlined label, "Lower rec yds", its tier word under it, then "N lines ›". No tier on any line: just "N lines ›". The `why` sentence and the footer are gone |
 | Chips | a pill with a 6px dot, only when true. Matchup from `LIVE_DEFENSE` (`seasonDefRank`; rank 1 allows the fewest): the 8 softest defences green "Easy matchup", the 8 toughest red "Tough matchup". "{last} out" amber, one per teammate in `LIVE_REASONS[slug].vacated` (ff-jarvis: every teammate out whose work he inherits) |
-| Player sheet | in the leg sheet's overlay (`playersheet.js`): his work week by week (snaps, targets, carries, RZ looks; an earlier season faded), then every line he has, Anytime TD included, then "Longest catch": his longest catch in each of the four games, history only (no line, no sides, no count; a game with no catch logged is a dash), because no source sells a Longest reception line we can read (plan update 2026-10-03) |
-| Line row | `lineitem.js`, shared with Preview: market and line, Higher / Lower (a TD: Yes), last four games vs today's line (lime cleared, earlier season faded). The model's side is outlined in lime (`.pick`; the fill stays the reader's own pick, so a side can be both) with its tier word under it: Slight grey, Confident lime text, Very confident a lime fill, "No pick" muted under Lower and no outline. A TD keeps "{p}% to score" and no tier. "N of 4" and "model Lower 67%" went 2026-10-05. **Claude's pick** (2026-10-05, storyboard "Claude Calls" A, https://claude.ai/artifact/RZRK6c9XR2qXngfEJfELd8): an 18px round "C" on the top-right corner of the side Claude picked, ringed in the panel colour; lime on the model's outlined side when they agree, ink on the other side when they do not (or when the model has no pick), with Claude's `why` in one line under the row. No call, nothing; Claude's own confidence is never shown, the tier word stays the only one. A call is matched on player, market and the exact line shown (`slClaude`), so an Underdog line at another number gets none. The Slips board's best-pick label wears the lime badge on agreement and nothing on a disagreement. ff-jarvis `claude_props.json` (feed `claude_props`) via `LIVE_CLAUDE_PROPS` (`slips.claude_props`), optional in `contract.py` |
-| Tray | count, who, Save slip; its sheet: the slip, the payout box, copy, then the slips saved this week (`localStorage` `tw.slips.saved.<week>`, guarded), each a tap to load and an x to delete |
+| Player sheet | **a centred modal since 2026-10-05** (something to read, design/STYLE.md Overlays: a 16px margin on all four sides, max 560px wide, closed by its ✕, the scrim, Escape or Back; the leg sheet, one bet, an action, stays a bottom sheet, 475px of 780 on a receptions line, so it is not yet "half the screen" and is left as it was). In the leg sheet's overlay (`playersheet.js`, class `ls-read` on `#legsheet`; not `modal`, which is the profile's): his work week by week (snaps, targets, carries, RZ looks; an earlier season faded), then every line he has, Anytime TD included, then "Longest catch": his longest catch in each of the four games, history only (no line, no sides, no count; a game with no catch logged is a dash), because no source sells a Longest reception line we can read (plan update 2026-10-03) |
+| Line row | `lineitem.js`, shared with Preview: market and line, Higher / Lower (a TD: Yes), last four games vs today's line (lime cleared, earlier season faded). The model's side is outlined in lime (`.pick`; the fill stays the reader's own pick, so a side can be both) with its tier word under it: Slight grey, Confident lime text, Very confident a lime fill, "No pick" muted under Lower and no outline. A TD keeps "{p}% to score" and no tier. "N of 4" and "model Lower 67%" went 2026-10-05. **Claude's pick** (2026-10-05, storyboard "Claude Calls" A, https://claude.ai/artifact/RZRK6c9XR2qXngfEJfELd8): an 18px round "C" on the top-right corner of the side Claude picked, ringed in the panel colour; lime on the model's outlined side when they agree, ink on the other side when they do not (or when the model has no pick), with Claude's `why` in one line under the row. No call, nothing; Claude's own confidence is never shown, the tier word stays the only one. A call is matched on player, market and the exact line shown (`slClaude`), so an Underdog line at another number gets none. The Slips board's best-pick label wears the lime badge on agreement and nothing on a disagreement. **One confidence vocabulary (2026-10-05):** the tier word is always printed with the chance of the model's side before it, "72% Very confident", on the line row (under both buttons, to their right edge, except "No pick", which has no chance and stays under Lower), the board's best-pick label, Top calls and Build's call (the word under its chance, `.bl-tier`). The tier words and their order live once, `PT_TIERS` / `PT_RANK` in `data/topcalls.js`. ff-jarvis `claude_props.json` (feed `claude_props`) via `LIVE_CLAUDE_PROPS` (`slips.claude_props`), optional in `contract.py` |
+| Tray | count, who, Save slip; its sheet: the slip, the payout box, copy, then the slips saved this week (`localStorage` `tw.slips.saved.<week>`, guarded), each a tap to load and an x to delete. **Same-game legs (2026-10-05):** two legs of one game outside a whole stack (`betsSameGame`, `slipSameGame`) show each leg's own chance and no all-hit bar, no combined chance, no verdict against the payout, and the note "Same-game legs move together; the combined chance isn't shown." in the slip (replacing the old "two legs in {game}, correlated" warning). A stack, whose joint chance ff-jarvis measured (12.32, 23.1%), counts once. The joint number waits for the game-sim plan |
 
 - **Who shows:** every player with a line still to play, not out, his line not moved far from the
   model (`lineMoved`). A WR3 or a backup back stays: David's wins on 2026-10-03 were role players.
@@ -1354,7 +1502,7 @@ Stacks), Deal me 3 and the TD board are gone. The gallery showed 15 cards for th
 
 | Part | What |
 |---|---|
-| Bar | kickoff tabs `Thu · Sun · AM · PM · Night · Mon` (a day of several windows is its weekday, then its parts; "Sun AM" labels ran 82px over 360px), then the book chip |
+| Bar | kickoff tabs `Thu · Sun · Early · Late · Night · Mon` (a day of several windows is its weekday, then its parts; "Sun AM" labels ran 82px over 360px). Windows are named by the league's Eastern slot, Preview's words (`slate.py` `et_slot`, `data/kickwin.js`), since 2026-10-05; they were AM · PM · Night by a Pacific hour beside times in the reader's clock. The London game joins the 1 PM wave's window, so the tabs stay six. Then the book chip |
 | Slip | kind (TDs, Safe, Mix) and length (3-6) on its top row; a pick per row with a lock; stub: "1 in N" of the graded chance, the board's payout and verdict, Deal again, Keep |
 | Kept | the slips kept this slate week, on this device (`localStorage`, legs as slug and market); a tap loads one into the tray; hidden on a phone until the first Keep |
 | Pool | what it deals from, top 10 then Show all; a tap locks the pick onto the slip |
@@ -1376,7 +1524,7 @@ Lime bars cleared the call's side, faded bars are an earlier season, the dashed 
 The line and bars open the leg sheet; the call adds the pick. A line the book moved far from the
 model (`stale`) shows "Line moved" and no chance, sorts last and adds nothing: on 2026-09-29 all 21
 Underdog picks at 80%+ were moved lines, the model's rate leaning on last season's role. **Best
-odds** is the row's first chip (`bestOdds`, `lib/odds.js`): Underdog keeps a pick paying better
+odds** (renamed **Better price** 2026-10-05, since it filters and does not sort; and the view itself **All lines** in the nav, the leaf `build` and its hash unchanged) is the row's first chip (`bestOdds`, `lib/odds.js`): Underdog keeps a pick paying better
 than −107 on the model's side or at a line easier than DraftKings' (68 of 467 that day);
 DraftKings keeps an over easier than the consensus. Each kept row prints why. "All" left the row
 so six chips fit 360px: a pressed position tapped again clears it.
@@ -1389,7 +1537,7 @@ is an ⓘ that opens the leg sheet (below). Page sizes are multiples of 2 and 3
 same day (`--paper` #f1efe8 → #cbc4b4); it glowed against the dark page.~~ Superseded the same day:
 the slip went dark (below).
 
-### The game sheet (2026-09-28; full screen on a phone, followed players and tabs 2026-10-04)
+### The game sheet (2026-09-28; followed players and tabs 2026-10-04; a centred modal since 2026-10-05)
 
 One NFL game, for following it without watching (`surface/live/gamesheet.js`, cards in
 `gamecards.js`, ESPN shaping in `data/gameday/espn.js`). Storyboard "Follow a Game" (2026-09-28);
@@ -1398,12 +1546,15 @@ It opens from a Games tile or from the clock line under a player in Matchup (the
 with that player). ~~Live's **NFL now** card listed the games on now, else the next kickoff's, and a
 tap opened the sheet~~ (superseded 2026-10-04 by the Games tab; the card is gone).
 
-**A phone gets it full screen (2026-10-04)**, one scroll: the scoreboard, "Yours in this game", then
-the tabs, which stick to the top while the pane under them goes by. The tabs are Plays · Box score ·
-Top scorers; the default is Box score and the last pick is kept in memory for the session. From
-960px it is a bottom sheet again with the plays tall on the left; the Plays tab is hidden there
-and the Box score takes its place on the right. A pull down from the top closes it; a sideways swipe
-walks the week's games in kickoff order.
+~~**A phone gets it full screen (2026-10-04)**~~ Superseded 2026-10-05: the sheet is a centred modal at every
+width (a 16px margin on a phone, 1040px max from 960px, never docked to the bottom edge; see "The game is a
+centred modal" under Live above and STYLE.md "Overlays", which also lists the bottom sheets that remain).
+~~From 960px it is a bottom sheet again with the plays tall on the left~~ (superseded the same day). What
+stands from 2026-10-04: one scroll holds the scoreboard, "Yours in this game", then the tabs, which stick
+to the top while the pane under them goes by. The tabs are Plays · Box score · Top scorers; the default is
+Box score and the last pick is kept in memory for the session. From 960px the modal is wider with the plays tall
+on the left, so the Plays tab is hidden and the Box score takes its place on the right. A pull down from the top closes it; a sideways swipe walks the
+week's games in kickoff order.
 
 | Card | Source | Notes |
 |---|---|---|
@@ -1516,7 +1667,7 @@ https://claude.ai/artifact/HjEA4x7r7DRz3Z7Xes4u62).
 | Block | Answers | Where |
 |---|---|---|
 | **Head** | name, bye, injury, and the rail: role, style, the sphere (the stat sheet as a solid, a tap from the flat radar) and Compare as one row of medallions (2026-09-30) | `rail.js`, `orb.js`, `orbsheet.js`, `headrail.css` |
-| **Strip** | is he good, how much he plays: rank by ppg, ppg, role share, snaps | `lede.js` |
+| **Strip** | what we expect, is he good, how much he plays: this week's projection (lime, the headline since 2026-10-05; Out, Played or Bye when there is no number), ppg, rank by ppg, role share, snaps. A link under it opens his row in the Usage grid (`navGoRow`, only for a player the grid has) | `lede.js`, `data/lede.js` `ledeCells`, `gridlink.js` |
 | **Owners** | who has him: one pill per league, "Yours", a team name, or free agent | `owners.js` |
 | **Season** (first tab, always the default) | points per played week, next week's projection, every later opponent | `season.js` |
 
@@ -1534,6 +1685,13 @@ https://claude.ai/artifact/HjEA4x7r7DRz3Z7Xes4u62).
   by Sleeper id), else the league-wide leaders by name and club; with neither, the row stays as it
   was. QB, RB, WR and TE only; points are half-PPR, the log's own scoring. An open profile keeps the
   poll going over any other view.
+- **The projection is the strip's headline (2026-10-05, plan U3).** The audit found "WR3 / 26.2 PPG", the
+  strip's first two cells, read as this week's projection: they are the season to date. The strip now opens on
+  `projFor` (one source since U1) in lime, season ppg second, the ppg rank third. The range joined it with U5 (see "Floor and ceiling" under Ranks).
+- **The signal line is a sentence (2026-10-05).** Under the head, watch's reason ("snaps -5.0, share +19; buy or
+  start") is written out by `signalWords` (data/signals.js): "Snaps down 5.0 points and his share of the work up 19
+  points. Worth a start, or an add if he is free." A reason it does not know is shown as written. The verdict
+  word beside it is unchanged.
 - **The Season table never grows.** One row per week from week 1, played or still to come, so it
   is ~18 rows in week 1 and in week 18. The opponent's rank is LIVE_DEFENSE's points allowed to his
   position, counted from the easy end (1st allows the most); it is the one measure that exists for

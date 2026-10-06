@@ -263,14 +263,16 @@ def test_the_button_is_for_a_team_that_is_not_the_readers_own_in_the_readers_lea
 
 @pytest.mark.render
 def test_a_reader_with_no_team_in_the_league_gets_this_is_my_team_and_no_trade_button(browser, page_file):
-    ctx, page, _ = reader(browser, page_file, "ayo")                      # the reader's team is in AYO
-    page.locator("[data-lgpick='espn']").click()                           # the board on ESPN's league
-    roster(page, "espn-run-it-back")
+    # One chip since 2026-10-05: the board is the league of the reader's team, so "no team in this league" is a
+    # reader with no team at all, looking at the league of the team on screen.
+    ctx, page, _ = reader(browser, page_file, None)
+    page.evaluate("VIEW = 'ayo'; render()")
+    roster(page, "ayo-don-wick")
     assert page.locator("[data-tbfind]").count() == 0
     assert page.locator("[data-lbmine]").inner_text() == "This is my team"
     ctx.close()
     ctx, page, _ = reader(browser, page_file, None)                        # no team picked at all
-    page.locator("[data-lgpick='espn']").click()
+    page.evaluate("VIEW = 'espn'; render()")
     roster(page, "espn")
     assert page.locator("[data-tbfind]").count() == 0 and page.locator("[data-lbmine]").count() == 1
     ctx.close()
@@ -279,7 +281,7 @@ def test_a_reader_with_no_team_in_the_league_gets_this_is_my_team_and_no_trade_b
 @pytest.mark.render
 def test_this_is_my_team_picks_it_the_way_the_team_switch_does_and_the_other_teams_then_offer_trades(browser, page_file):
     ctx, page, errors = reader(browser, page_file, None)
-    page.locator("[data-lgpick='espn']").click()
+    page.evaluate("VIEW = 'espn'; render()")
     assert page.locator(".lb-pick").inner_text() == "Tap your team to set it" and page.locator(".lb-row.mine").count() == 0
     roster(page, "espn-run-it-back")
     slot = page.evaluate("document.querySelector('.lbp-slot').getBoundingClientRect().height")
@@ -363,14 +365,12 @@ def test_an_empty_tab_and_a_pair_with_no_entry_say_so_in_one_line(browser, page_
     assert page.locator(".tb-empty").inner_text() == "No fair offer this week"
     ctx.close()
     ctx, page, _ = reader(browser, page_file, "ayo-don-wick")          # Don Wick to Taylor Made: nothing in the file
-    page.locator("[data-lgpick='ayo']").click()
     builder(page, "ayo")
     page.wait_for_selector(".tb-empty")
     assert page.locator(".tb-empty").inner_text() == "No offers this week"
     assert page.locator("[data-tbtab]").count() == 0, "nothing to switch between"
     ctx.close()
     ctx, page, _ = reader(browser, page_file, "ayo")                   # Taylor Made to Don Wick: bold has one, fair has one
-    page.locator("[data-lgpick='ayo']").click()
     builder(page, "ayo-don-wick")
     page.wait_for_selector(".tb-card .tb-gain")
     assert page.locator(".tb-inj").all_inner_texts() == ["O"], "Out is an O"

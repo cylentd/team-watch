@@ -1,6 +1,7 @@
 /* THE PLAYER SHEET (2026-10-03; it grew out of the leg sheet, legsheet.js, which Build's ⓘ still
    opens). A tap on a board row opens every line he has, so one player can feed a TD slip and a
-   receptions slip from one screen. Top to bottom:
+   receptions slip from one screen. Since 2026-10-05 it is a centred modal closed by ✕, the scrim or Back,
+   not a bottom sheet: it is something to read (design/STYLE.md Overlays). Top to bottom:
 
      1. who: his face, name, position, club, opponent and kickoff, and ff-jarvis's reason
      2. his work week by week: snaps, targets or carries, red-zone looks, his last four games
@@ -53,6 +54,7 @@ function psHeadHTML(p, why){
   return `<header class="ls-head ps-head">
       <span class="tk-face ls-face"${team ? ` style="--team:${team}"` : ""}>${avatarHTML(p)}</span>
       <div class="ls-who"><h3 id="ls-title">${esc(p.n)}</h3><span class="ls-meta">${where}</span></div>
+      <button type="button" class="ps-x" data-legclose aria-label="${t("common.action.close")}">${SV_X}</button>
     </header>
     ${why ? `<p class="ps-why">${esc(why)}</p>` : ""}`;
 }
@@ -62,8 +64,7 @@ function playerSheetHTML(slug){
   if (!rows.length) return "";
   const p = PROPS[rows[0]], r = REASONS[slug];
   const match = PROPS[rows.find(i => PROPS[i].mkt !== "TD") ?? rows[0]];
-  return `<button type="button" class="grab" data-legclose aria-label="${t("common.action.close")}"></button>
-    ${psHeadHTML(p, r && r.why)}
+  return `${psHeadHTML(p, r && r.why)}
     ${psUsageHTML(p)}
     <section class="ps-lines" aria-label="${t("slips.sheet.linesLabel", {n: rows.length})}">${rows.map(slLineHTML).join("")}${slLongHTML(slug)}</section>
     ${legMatchupHTML(match)}`;

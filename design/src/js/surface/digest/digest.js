@@ -146,6 +146,10 @@ function wireDigest(v){
   v.querySelectorAll("[data-dggo]").forEach(b => b.addEventListener("click", () => {
     morphLogo(); navGo(b.dataset.dggo); window.scrollTo({top: 0});
   }));
+  // A usage line's Grid link: the player's row in the Grid, not the Grid (nav.js navGoRow).
+  v.querySelectorAll("[data-dggrid]").forEach(b => b.addEventListener("click", () => {
+    morphLogo(); navGoRow("usage", b.dataset.dggrid);
+  }));
   // A live scorer, the touchdown count and the last game's link: one listener, so the parts a poll
   // repaints in place need no wiring (now.js).
   v.querySelector(".dg")?.addEventListener("click", dgLiveClick);

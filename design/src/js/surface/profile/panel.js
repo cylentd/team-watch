@@ -7,7 +7,8 @@
 
      the head    name, the bye, and the rail (rail.js): his words, the sphere -- his stat sheet
                  as a solid (orb.js), a tap from the full radar (orbsheet.js) -- and Compare
-     the strip   rank by points per game, ppg, role share, snap share (lede.js)
+     the strip   this week's projection, ppg, rank by ppg, role share, snap share (lede.js),
+                 then a link to his row in the Usage grid (gridlink.js)
      the owners  one pill per league: yours, a leaguemate's team, or free (owners.js)
      the panes   Season first -- every week, played and to come -- then usage, matchup, bio
 
@@ -40,6 +41,7 @@ function openProfile(p, originEl){
     </div>
     <div class="dr-body pf-body pos-${esc(String(prof ? prof.pos : p.pos || "").toLowerCase())}">
       ${ledeHTML(p, prof)}
+      ${pfGridLinkHTML(p)}
       ${ownersHTML(p)}
       ${tabsHTML(prof, p)}
     </div>`;

@@ -12,17 +12,21 @@ function parlayHTML(){
   return `<div class="wrap bets">
     ${betsBarHTML(build)}
     ${betsPanelHTML(build)}
-    ${build ? buildHTML() : slRecordHTML() + slBoardHTML()}
-    ${build ? `<p class="note bets-foot">${SLATE_WEEK ? t("parlay.hero.eyebrow", {n: PROPS.length, week: SLATE_WEEK}) : t("parlay.hero.eyebrowNoWeek", {n: PROPS.length})}</p>` : ""}
+    ${build ? buildHTML() : slRecordHTML() + slTopHTML() + slBoardHTML()}
+    ${build ? `<p class="note bets-foot">${slateWeek() ? t("parlay.hero.eyebrow", {n: buildCount(), week: slateWeek()}) : t("parlay.hero.eyebrowNoWeek", {n: buildCount()})}</p>` : ""}
   </div>
   ${trayHTML()}${sheetHTML()}`;
 }
+
+/* The lines the book has priced for games still to come: a game past its kickoff is no longer a line to
+   pick (2026-10-05: Build listed Thursday night's PIT @ CLE on a Monday). The footer counts these. */
+const buildCount = () => PROPS.filter(upcoming).length;
 
 /* The lines that pass Build's filters, in the chosen sort. Kickoff is the shared GAL_WIN, read
    through inWin so a whole-day choice ("Sunday") covers its windows. */
 function buildLines(){
   const win = GAL_WINDOWS.find(w => w.k === GAL_WIN);
-  return PROPS.filter(p => (MKT_POS==="ALL"||p.pos===MKT_POS) && (MKT_KIND==="ALL"||p.mkt===MKT_KIND)
+  return PROPS.filter(p => upcoming(p) && (MKT_POS==="ALL"||p.pos===MKT_POS) && (MKT_KIND==="ALL"||p.mkt===MKT_KIND)
     && (GAL_WIN==="ALL"||inWin(p, win)) && (!MKT_MINE||p.mine)
     // A real Underdog price without a model rating yet has no higher/lower call to show; udPick
     // covers that plus the TD rows Underdog has no line for at all. Longest reception has no line to

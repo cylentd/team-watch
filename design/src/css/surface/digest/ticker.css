@@ -49,6 +49,10 @@
 .dg-ln.wide{grid-template-columns:32px minmax(0,1fr) 58px}
 .dg-ln:active{transform:scale(var(--press))}
 .dg-ln:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+/* A usage line also names its row in the Grid (2026-10-05): the line opens his profile, the link beside it his row. */
+.dg-lnrow{display:flex;align-items:center;gap:8px}
+.dg-lnrow .dg-ln{flex:1;min-width:0}
+.dg-lnrow .dg-grid{flex:none;min-height:44px}
 .dg-hd{display:block;width:32px;height:32px;border-radius:50%;overflow:hidden;background:var(--panel-3)}
 .dg-hd img{display:block;width:100%;height:100%;object-fit:cover;object-position:top}
 .dg-hd .fallback{width:100%;height:100%;display:grid;place-items:center;font-size:var(--t-1);color:var(--ink-3)}

@@ -1,8 +1,9 @@
 /* ============================== LIVE: THE GAME SHEET ==============================
    One NFL game, for following it without watching (2026-09-28, storyboard
-   https://claude.ai/artifact/7dtFfrweZG7mYE6oWSjmFb). The NFL now card on Live opens it from the
-   bottom edge, the way the leg sheet opens; Back, Escape, the scrim and the grab close it
-   (chrome/layers.js). It lives outside #view (shell.html), so a render() never rebuilds it.
+   https://claude.ai/artifact/7dtFfrweZG7mYE6oWSjmFb). A game tile on Live opens it as a centred
+   modal (U9, 2026-10-05; STYLE.md "Overlays": it is for reading, so not a bottom sheet); the X, Back,
+   Escape, the scrim and a pull down from the top close it (chrome/layers.js), and a sideways swipe
+   walks the week's games inside it. It lives outside #view (shell.html), so a render() never rebuilds it.
 
    When it asks, and why:
      open                         ESPN's summary (the reader's browser, espn.js) and /api/stats for

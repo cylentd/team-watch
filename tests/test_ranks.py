@@ -117,6 +117,27 @@ def test_matchup_rides_on_qb_rb_te_never_wr():
     assert got == {"a-back": (1.7, 0.7), "a-wideout": (None, None), "a-passer": (None, None)}
 
 
+def test_the_band_rides_on_every_row_and_card_as_the_file_wrote_it():
+    """`floor` and `ceil` (plan U5, 2026-10-05) are ff-jarvis's 10th and 90th percentile outcome, cut
+    through untouched: the page never computes a band. A ruled-out or already-played player keeps
+    his row on the cards with no points and no band; a file with no band (older, or a position the
+    table does not cover) gives null, never a missing key."""
+    from projections import live_projections
+    raw = {"players": [
+        {"name": "A Back", "pos": "RB", "team": "ATL", "game": "ATL @ NO", "pts": 19.7, "floor": 7.4, "ceil": 31.2, "src": "model"},
+        {"name": "No Band", "pos": "WR", "team": "SEA", "game": "SEA @ LAR", "pts": 12.0, "src": "model"},
+        {"name": "Out Back", "pos": "RB", "team": "GB", "game": "GB @ TB", "pts": 0.0, "floor": 0.0, "ceil": 0.0, "src": "model"},
+    ]}
+    status = {"x": {"name": "Out Back", "injury": "Out"}}
+    rows = {x["slug"]: x for x in live_ranks(raw, slug, status)["rows"]}
+    assert (rows["a-back"]["floor"], rows["a-back"]["ceil"]) == (7.4, 31.2)
+    assert (rows["no-band"]["floor"], rows["no-band"]["ceil"]) == (None, None)
+    cards = live_projections(raw, slug, {"a-back", "no-band", "out-back"}, status)["players"]
+    assert (cards["a-back"]["floor"], cards["a-back"]["ceil"]) == (7.4, 31.2)
+    assert (cards["no-band"]["floor"], cards["no-band"]["ceil"]) == (None, None)
+    assert cards["out-back"]["pts"] is None and (cards["out-back"]["floor"], cards["out-back"]["ceil"]) == (None, None)
+
+
 @pytest.mark.render
 def test_ranks_tags_a_matchup_from_half_a_point(browser, page_file):
     """The fixture gives Chase Brown +1.4, Joe Burrow -0.9, George Kittle -0.3 (under the half

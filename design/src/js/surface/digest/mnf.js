@@ -48,7 +48,7 @@ function dgMnfPlay(g){
 function dgMnfWhen(x){
   if (x.st === "final") return t("live.clock.final");
   if (x.st === "live") return gdClockOf(x.g.home).label;
-  return new Date(x.k).toLocaleTimeString("en-US", {hour: "numeric", minute: "2-digit"});
+  return kickTime(x.k);   // the card already says "Monday night"; the page's one format (lib/kick.js) without the day
 }
 
 function dgMnfGame(x){

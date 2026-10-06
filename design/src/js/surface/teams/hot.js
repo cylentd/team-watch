@@ -16,6 +16,10 @@ function wvHotHTML(){
     <p class="wv-hot-sub">${sub}</p><ol>${rows.map(row).join("")}</ol></section>`;
 }
 
+/* Waivers for a reader who has picked no team (2026-10-05, the League merge: Roster still asks, the wire
+   does not, since the wire is the league's). The same list, under the chip that picks the team. */
+const wvPublicHTML = () => `<div class="wrap">${lgChipHTML()}${wvHotHTML()}</div>`;
+
 function wireHot(v){
   const rows = (dgD() || {}).adds || [];
   v.querySelectorAll("[data-hot]").forEach(el => el.addEventListener("click", () => {

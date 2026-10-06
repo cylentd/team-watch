@@ -54,7 +54,7 @@ function dgTnCard(g, now){
     + dgResList(t("digest.tn.moved.h"), g.moved, r => `<em class="${r.d_pts < 0 ? "dn" : "up"}">${dgSigned(r.d_pts, 1)}</em>`);
   const story = dgTnStory(g);
   return `<section class="dg-tn" aria-label="${t("digest.tn.label")}">
-    <header class="dg-tn-h"><b>${t("digest.tn.head", {game})}</b><time>${esc(g.kick || "")}</time></header>
+    <header class="dg-tn-h"><b>${t("digest.tn.head", {game})}</b><time>${esc(dgKick(g))}</time></header>
     <p class="dg-tn-sky">${dgTnSky(g.wx)}</p>${story ? `<p class="dg-tn-story">${story}</p>` : ""}
     ${lists ? `<div class="dg-t5 dg-tn-lists">${lists}</div>` : ""}
     ${dgFootHTML(t("digest.foot.tn"), "matchups", t("digest.go.matchupsAll"))}</section>`;

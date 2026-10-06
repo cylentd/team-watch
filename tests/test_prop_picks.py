@@ -83,7 +83,9 @@ def test_the_models_side_is_outlined_with_its_tier_under_it(page):
     assert rec.count() == 1
     assert rec.locator(".sl-side.pick").all_inner_texts() == ["Higher"]
     assert rec.locator(".sl-conf").all_inner_texts() == ["Slight"] and rec.locator(".sl-conf.slight").count() == 1
-    assert abs(centre(rec.locator(".sl-side.higher")) - centre(rec.locator(".sl-conf"))) <= 2
+    # "55% Slight" is wider than one side, so it spans both under the buttons, to their right edge (2026-10-05)
+    assert rec.locator(".sl-tp .sl-pc").all_inner_texts() == ["55%"]
+    assert abs(right(rec.locator(".sl-side.lower")) - right(rec.locator(".sl-tp"))) <= 1
     assert rec.locator(".sl-side[aria-pressed='true']").count() == 0
     rec.locator(".sl-side.higher").click()
     both = sheet.locator(".sl-ln.tiered .sl-side.higher")
@@ -266,9 +268,10 @@ def test_the_record_line_is_slim_and_never_wraps_at_360(page):
     assert page.evaluate("(() => { const b = document.querySelector('.pr-rec-b'); return b.scrollWidth <= b.clientWidth; })()"), "overflows its line"
     mids = page.evaluate("[...document.querySelectorAll('.pr-rec-r:first-child > .pr-rec-l, .pr-rec-r:first-child > .pr-rq')].map(e => { const r = e.getBoundingClientRect(); return r.top + r.height / 2; })")
     assert max(mids) - min(mids) < 3, f"all on one line: {mids}"
-    top = page.locator(".sl-game").first.bounding_box()["y"] + page.evaluate("window.scrollY")
-    print("first game card top:", top)
-    assert top <= 212, f"first card at {top}px"
+    # The first data is Top calls since 2026-10-05; the game cards follow it.
+    top = page.locator(".tpc").bounding_box()["y"] + page.evaluate("window.scrollY")
+    print("Top calls top:", top)
+    assert top <= 212, f"Top calls at {top}px"
 
 
 def test_the_record_line_opens_its_detail(page):

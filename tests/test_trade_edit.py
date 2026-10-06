@@ -355,8 +355,7 @@ def test_make_your_own_is_under_the_offers_on_both_tabs_and_in_the_empty_states_
     assert page.locator(".tb-empty").count() == 1 and page.locator("[data-tbown]").count() == 1
     ctx.close()
     ctx, page, _ = reader(browser, page_file, "ayo-don-wick")                 # a pair with no entry at all
-    page.locator("[data-lgpick='ayo']").click()
-    builder(page, "ayo")
+    builder(page, "ayo")                                                       # the reader's own league is the board's
     page.wait_for_selector(".tb-empty")
     assert page.locator("[data-tbown]").count() == 1
     page.locator("[data-tbown]").click()

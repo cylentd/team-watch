@@ -1,9 +1,11 @@
 /* ------------------------------------------------------------------
    PREVIEW's dossier: one game, printed like a sports page (2026-09-29, storyboard option C; David:
    "make it clean so that it reads like a newspaper"). The story is words: the serif headline and dek,
-   Claude's call, the player calls, what could go wrong, each led by a bold run-in word. Every number
-   sits in the box score beside it (small type, hairline rules, no boxes): Win chance, Lines,
-   Defense rank, then the research sections (research.js). A section whose data is absent is not
+   Claude's call, the player calls, what could go wrong, each led by a bold run-in word. The answer
+   comes first (2026-10-05, plan U3): a block above the headline with Claude's pick, the line, the total
+   and the win chance, so a reader who wants the number never reads a paragraph for it. The rest of the
+   numbers sit in the box score beside the story (small type, hairline rules, no boxes): Defense rank,
+   then the research sections (research.js). A section whose data is absent is not
    drawn. Show, don't tell (David, 2026-09-30: "no one cares"): no footnote explains a number, and
    Claude's research notes, sources and before-the-line process stay in the data for grading, off
    the page. A desktop from 1100px sets the box score as a column right of the story; a phone prints it
@@ -12,21 +14,15 @@
    Colour map: --up / --down a player's call and a soft / tough defense rank; --lime Claude (his win
    %, the bar's dot, the STRONG / SOLID chips); the market is grey.
 ------------------------------------------------------------------ */
-/* Eastern time, as the slate's windows say it: a reader's local clock ("Sun 10:00 AM" in Seattle) read as
-   the body-clock time the travel row shows beside it (2026-09-29). */
-const pvKick = g => t("preview.kick", {day: esc(g.day), et: esc(g.et)});
+/* The kickoff in the reader's clock, the page's one format ("Mon 8:15 PM", lib/kick.js). Until 2026-10-05 it
+   was Eastern ("Mon 8:15 PM ET") while Bets and the Digest said Pacific; the travel row's body clock is a
+   team's own and says so. */
+const pvKick = g => esc(kickFmt(g.kickoff));
 const PV_CALL = {up: "▲", down: "▼", hold: "●"};
 const pvCallWord = c => ({up: t("preview.call.up"), down: t("preview.call.down"), hold: t("preview.call.hold")})[c];
 /* One box-score section: a plain bold name, then its rows. */
 const pvRow = (cls, title, body) => `<section class="pva ${cls}"><h3 class="pva-h">${title}</h3>${body}</section>`;
 const pvRunIn = key => `<b class="pv-rin">${key}</b>`;
-
-/* Claude's score over the market's, winner first; the market row is the implied totals. */
-function pvScoreHTML(g){
-  const p = g.take.pick, w = p.winner, l = w === g.home ? g.away : g.home, imp = g.line && g.line.implied;
-  const mk = imp ? `<div class="pv-sc mk"><span>${t("preview.market")}</span><b>${esc(w)} ${imp[w]}</b><b>${esc(l)} ${imp[l]}</b></div>` : "";
-  return `<div class="pv-score"><div class="pv-sc"><span>${t("preview.claude")}</span><b>${esc(w)} ${p.score[w]}</b><b>${esc(l)} ${p.score[l]}</b></div>${mk}</div>`;
-}
 
 /* The headline and the story, the full width. The story is 2-3 paragraphs split by a blank line
    (ff-jarvis STORY_VERSION 1, 2026-09-30), one voice, so every paragraph is set alike (David,
@@ -68,15 +64,31 @@ function pvNamesHTML(paras, players){
   });
 }
 
-/* The call: "The call. PIT giving 2.5 [LEAN] CLE allows ...". A take from before confidence (no
-   `ats`) keeps its old score block here. */
+/* The call's reason: "The call. CLE allows ...". The side and its confidence moved into the answer block
+   above the story (2026-10-05), so this is prose only, and absent when the take gave no reason. A take
+   from before confidence (no `ats`) keeps its one-line `vs`. */
 function pvCallHTML(g){
   const k = g.take;
   if (!k) return "";
-  if (!k.ats) return `<div class="pvn-call">${pvScoreHTML(g)}<p class="pv-vs">${esc(k.vs)}</p></div>`;
-  const a = k.ats;
-  return `<div class="pvn-call"><p class="pv-callp">${pvRunIn(t("preview.run.call"))} <span class="pv-callline">${pvAtsHTML(g, a)}</span>${
-    a.edge ? ` ${esc(a.edge)}` : ""}</p></div>`;
+  if (!k.ats) return `<div class="pvn-call"><p class="pv-vs">${esc(k.vs)}</p></div>`;
+  return k.ats.edge ? `<div class="pvn-call"><p class="pv-callp">${pvRunIn(t("preview.run.call"))} ${esc(k.ats.edge)}</p></div>` : "";
+}
+
+/* The answer block: Claude's pick (score, the market's beside it, his side as chips), the line, the total
+   with Claude's call on it, the win chance with the bar. The cells are pvAnswer's (data/preview.js). */
+function pvAnsCellHTML(c, g){
+  const label = {pick: t("preview.ans.pick"), line: t("preview.line.spread"), total: t("preview.line.totalk"), win: t("preview.row.win")}[c.id];
+  const sub = c.sub ? `<small class="pv-as">${c.sub}</small>` : "";
+  let extra = "";
+  if (c.id === "pick" && c.ats) extra = `<span class="pv-aats">${pvAtsHTML(g, c.ats)}</span>`;
+  if (c.id === "total" && c.call) extra = `<span class="pv-aats">${t("preview.line.claude")} ${
+    c.call.call ? `${c.call.call === "over" ? t("preview.pick.over") : t("preview.pick.under")} ${pvConfHTML(c.call.conf)}` : pvConfHTML(null)}</span>`;
+  if (c.id === "win" && c.bar) extra = pvBarHTML(c.bar.mk, c.bar.cl);
+  return `<div class="pv-an ${c.id}"><span class="pv-ak">${label}</span><b class="pv-am${c.claude ? " pv-cl" : ""}">${c.main}</b>${sub}${extra}</div>`;
+}
+function pvAnswerHTML(g){
+  const cells = pvAnswer(g);
+  return cells.length ? `<section class="pvn-ans" aria-label="${t("preview.ans.label")}">${cells.map(c => pvAnsCellHTML(c, g)).join("")}</section>` : "";
 }
 
 /* The bar under the win %: grey tick the market, lime dot Claude, the gap between them filled faintly. */
@@ -86,37 +98,7 @@ function pvBarHTML(mk, cl){
     <i class="pv-pbt"></i><i class="pv-pbf"></i><i class="pv-pbm"></i><i class="pv-pbc"></i></span>`;
 }
 
-/* Win chance: Claude's win % for his winner over the market's, the bar, his score over the market's
-   implied one. No market win %, no bar. */
-function pvWinRow(g){
-  const k = g.take;
-  if (!k || !k.ats) return "";
-  const w = k.pick.winner, lo = w === g.home ? g.away : g.home, imp = g.line && g.line.implied;
-  const cl = k.win && k.win[w], mk = g.market_win && g.market_win[w];
-  let kv = "";
-  if (cl != null) kv += pvKV(t("preview.chance.claude", {team: esc(w)}), `<b class="pv-cl">${cl}%</b>`);
-  if (mk != null) kv += pvKV(t("preview.chance.market", {team: esc(w)}), `${Math.round(mk)}%`);
-  const bar = cl != null && mk != null ? pvBarHTML(mk, cl) : "";
-  let sc = pvKV(t("preview.pick.score"), t("preview.pick.pair", {w: esc(w), a: k.pick.score[w], l: esc(lo), b: k.pick.score[lo]}));
-  if (imp) sc += pvKV(t("preview.chance.mscore"), t("preview.pick.pair", {w: esc(w), a: imp[w], l: esc(lo), b: imp[lo]}));
-  return pvRow("win", t("preview.row.win"), `${kv ? `<div class="pv-kv">${kv}</div>` : ""}${bar}<div class="pv-kv">${sc}</div>`);
-}
-
 const pvKV = (k, v) => `<span class="pv-k">${k}</span><span class="pv-v">${v}</span>`;
-
-/* Lines: the spread and the total, each with where it opened when it moved, then Claude's total. */
-function pvLinesRow(g){
-  const l = g.line, tc = g.take && g.take.ats ? g.take.total : null;
-  if (!l) return "";
-  const o = l.open, small = s => s ? ` <small>${s}</small>` : "";
-  const moved = o && (o.fav !== l.fav || o.by !== l.by);
-  const tMoved = o && o.total != null && o.total !== l.total;
-  let rows = pvKV(t("preview.line.spread"), pvSpread(l.fav, l.by) + small(moved ? t("preview.line.opened", {line: pvSpread(o.fav, o.by)}) : ""));
-  if (l.total != null) rows += pvKV(t("preview.line.totalk"), pvNum(l.total) + small(tMoved ? t("preview.line.openedn", {n: pvNum(o.total)}) : ""));
-  if (tc) rows += pvKV(t("preview.line.claude"), tc.call
-    ? `${tc.call === "over" ? t("preview.pick.over") : t("preview.pick.under")} ${pvConfHTML(tc.conf)}` : pvConfHTML(null));
-  return pvRow("lines", t("preview.row.lines"), `<div class="pv-kv">${rows}</div>`);
-}
 
 function pvMatchupCell(side, pos){
   const c = side && (pos === "epa" ? {rank: side.epa} : side.pos[pos]);
@@ -164,7 +146,7 @@ function pvTopHTML(g, i, n){
 }
 
 function pvDossierHTML(g, i, n, enter){
-  const box = [pvWinRow(g), pvLinesRow(g), pvMatchupRow(g), pvSlipRow(g), pvInjRow(g), pvWxRow(g), pvRestRow(g)].join("");
+  const box = [pvMatchupRow(g), pvSlipRow(g), pvInjRow(g), pvWxRow(g), pvRestRow(g)].join("");
   return `<div class="pv-dz">${pvTopHTML(g, i, n)}
-    <article class="pvn${enter}" data-pvswipe>${pvHeadHTML(g)}${pvCallHTML(g)}${box ? `<aside class="pvn-box">${box}</aside>` : ""}${pvStoryHTML(g)}</article></div>`;
+    <article class="pvn${enter}" data-pvswipe>${pvAnswerHTML(g)}${pvHeadHTML(g)}${pvCallHTML(g)}${box ? `<aside class="pvn-box">${box}</aside>` : ""}${pvStoryHTML(g)}</article></div>`;
 }

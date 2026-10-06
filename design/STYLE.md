@@ -14,7 +14,7 @@ A reader on a phone scrolls to reach data, never to get past controls.
 | At most one row of controls between the sub-row and the data. | Every row pushes the answer down. | Board, 5 rows to 4; Movers 3 |
 | A filter is chosen once per surface. Two views that share a filter share one setting. | The same choice twice reads as two different things. | Parlay's two kickoff selects |
 | No sideways scroll inside a page that scrolls down. Exception: a row of video thumbnails may scroll sideways when it is one row, the next card shows past the edge, and nothing else in the view scrolls sideways. | Two axes to scroll is a maze on a phone. A thumbnail rail is the one shape where a cut-off card says "more" better than buttons do. | Parlay's slip carousel; the exception: Roster clips, 2026-10-05 |
-| A sideways swipe only turns to the next thing in a set the reader can already page with buttons; a pull down from the top only closes a sheet. One meaning per surface, both from `lib/swipe.js`, never a swipe between views. | The same finger meaning two things on one screen is a guess. | Leaders stat, Preview game, profile tab, game sheet game; profile, search, game sheet close (2026-09-29). Live's league on Matchup and League; the game sheet walks the Games tab's order and names the game on each side (2026-10-04) |
+| A sideways swipe only turns to the next thing in a set the reader can already page with buttons; a pull down from the top only closes a sheet or modal (see Overlays). One meaning per surface, both from `lib/swipe.js`, never a swipe between views. | The same finger meaning two things on one screen is a guess. | Leaders stat, Preview game, profile tab, game sheet game; profile, search, game sheet close (2026-09-29). Live's league on Matchup and League; the game sheet walks the Games tab's order and names the game on each side (2026-10-04) |
 | A row of up to ~6 siblings stays visible (tabs, chips). A dropdown is for many options or rare changes. | A dropdown hides the options and costs two taps. | Sub-tabs kept over dropdowns (2026-09-25) |
 | What the reader builds (a slip, a lineup) lives on the bottom edge as a tray, not mid-page. | The thumb is already there, from any view. | Parlay slip, 875px down |
 | The row holds the filter changed most; the rest goes behind a settings chip at its end that names what is set (`chrome/setchip.css`). | One row that fits beats a row that scrolls its last options off the edge. | Grid (12 controls) and DFS (3 rows), audit 2026-09-25 |
@@ -22,6 +22,24 @@ A reader on a phone scrolls to reach data, never to get past controls.
 
 Budget, at 360x800, measured in the browser: **the first data starts by ~200px**. A view over it
 names the reason in its `DESIGN.md` section.
+
+## Overlays: a bottom sheet is for doing, a centred modal for reading
+
+David, 2026-10-05: "I don't like modals popping up from the bottom … I think we are using it wrong."
+
+| Rule | Why | Where it was learned |
+|---|---|---|
+| A bottom sheet holds only a short action on what was just tapped: pick a line, add a leg, choose an option. It fits on the screen with no scroll of its own (David, 2026-10-05; "about half the screen" until the leg sheet measured 61% and was kept). | The thumb is already at the bottom edge, and nothing scrolls inside the scrolling page. | The Slips line sheet; the leg sheet (2026-10-05) |
+| Something to read (a game, a player, a team) opens as a centred modal: a margin on all four sides on a phone, a max-width on a desktop, closed by ✕, a tap on the scrim or Back. Too long for one modal: a full page with Back. Never a bottom sheet, and never one that slides up full screen. | A reading sheet is a scroll inside a scrolling page, and its pull-down close fights that scroll. | League > Teams, sheets to full pages (2026-10-05); the Live game sheet (2026-10-05) |
+| On a desktop nothing docks to the bottom edge but the tray. | A phone-shaped panel stretched along a wide screen reads as a mistake. | The game sheet from 960px |
+
+Bottom sheets on 2026-10-05, and what each holds: the slip sheet the tray grows into
+(`builder/bets.css`, an action: keep), the leg sheet (`builder/legsheet.css`, an action: keep; 475 of
+780px, no scroll of its own), the Slips player sheet
+(`builder/playersheet.css`, reading: a centred modal since 2026-10-05), the Live game sheet
+(`live/gamesheet.css`, reading: a centred modal since 2026-10-05), and chat on a phone
+(`chat/chat.css`, a conversation: its own call). The player profile is already a centred modal
+(`#modal`), and so are its orb and compare layers.
 
 ## Layout: nothing reflows under the reader
 

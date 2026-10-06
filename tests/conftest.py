@@ -119,6 +119,10 @@ def browser():
     from playwright.sync_api import sync_playwright
     with sync_playwright() as pw:
         b = pw.chromium.launch()
+        # Every kickoff is written in the reader's own clock (design/src/js/lib/kick.js, 2026-10-05), so a
+        # context with no zone would print the machine's. Pacific is David's, and the golden's.
+        new_context = b.new_context
+        b.new_context = lambda **kw: new_context(**{"timezone_id": "America/Los_Angeles", **kw})
         _PW["browser"] = b
         try:
             yield b

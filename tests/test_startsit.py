@@ -190,11 +190,12 @@ def test_the_wr_note_rides_on_the_defense_row_only_when_a_wr_is_picked(ss):
     # a mixed pair names no one position, and still says it for the receiver
     pg = ss(picks_js(12.0, 9.0) + "; SS_PICKS[1] = 'amonra-st-brown'")
     assert pg.locator(".ssv-lbl span", has_text="Defense").text_content() == "Defense"
-    assert pg.locator(".ssv-lbl em").inner_text() == "matters little for WRs"
+    # (the Projected row has its own note about the range, plan U5: the WR note is the defense row's)
+    assert pg.locator(".ssv-row", has=pg.locator(".ssv-lbl", has_text="Defense")).locator(".ssv-lbl em").inner_text() == "matters little for WRs"
     for pos in ("QB", "RB"):
         pg = ss(picks_js(12.0, 9.0, pos=pos))
         assert pg.locator(".ssv-lbl", has_text=f"Defense vs {pos}").count() == 1
-        assert pg.locator(".ssv-lbl em").count() == 0
+        assert pg.locator(".ssv-row", has=pg.locator(".ssv-lbl", has_text="Defense")).locator(".ssv-lbl em").count() == 0
 
 
 @pytest.mark.render
@@ -204,15 +205,17 @@ def test_rows_read_the_blocks_and_drop_when_nobody_has_data(ss):
       LIVE_PROJECTIONS.players[SS_PICKS[1]].wx = null;""")
     rows = pg.evaluate("""() => Object.fromEntries([...document.querySelectorAll('.ssv-row')].map(r =>
         [r.querySelector('.ssv-lbl span').textContent, [...r.querySelectorAll('.ssv-v')].map(v => v.textContent)]))""")
-    assert list(rows) == ["Projected", "Rank", "Defense vs QB", "FantasyPros", "Teammate out", "Weather"]
-    assert rows["Projected"] == ["12.0", "9.0"]
+    assert list(rows) == ["Projected", "Rank", "Defense vs QB", "FantasyPros", "Teammate out", "Weather", "Usage"]
+    # the number, then its floor-ceiling (plan U5) in the same lane
+    assert [re.match(r"\d+\.\d", v).group() for v in rows["Projected"]] == ["12.0", "9.0"]
+    assert all("–" in v for v in rows["Projected"])
     assert rows["FantasyPros"] == ["QB14", "QB21"]
     assert rows["Teammate out"] == ["J. CokerWR · Out", "—"]
     assert rows["Weather"] == ["−1.1wind · rain", "—"]
     # with no block and no weather, FantasyPros, Teammate out and Weather are not drawn
     pg = ss(picks_js(12.0, 9.0) + CLEAR_SSB + "; for (const s of SS_PICKS) LIVE_PROJECTIONS.players[s].wx = null;")
     assert pg.evaluate("[...document.querySelectorAll('.ssv-lbl span')].map(e => e.textContent)") == [
-        "Projected", "Rank", "Defense vs QB"]
+        "Projected", "Rank", "Defense vs QB", "Usage"]
 
 
 @pytest.mark.render
@@ -311,11 +314,64 @@ def test_it_opens_on_the_closest_call_the_roster_brief_names(ss):
     assert pg.evaluate("[...document.querySelectorAll('[data-ssx]')].map(b => b.dataset.ssx)") == ["brock-purdy", "joe-burrow"]
     assert verdict(pg)["name"] == "J. Burrow"
     # a reader who kept picks gets them back, and one who cleared them keeps an empty card
-    pg = ss(ROSTER_JS % (9.0, 9.0) + "; SS_PICKS = null; localStorage.setItem('tw-ss-picks', JSON.stringify({week: schedWeek(), picks: []}))")
+    pg = ss(ROSTER_JS % (9.0, 9.0) + "; SS_PICKS = null; localStorage.setItem('tw-ss-picks', JSON.stringify({week: slateWeek(), picks: []}))")
     assert pg.locator(".ssv-who").count() == 0
     # last week's picks are dropped: the card opens on this week's closest call
-    pg = ss(ROSTER_JS % (9.0, 9.0) + "; SS_PICKS = null; localStorage.setItem('tw-ss-picks', JSON.stringify({week: schedWeek() - 1, picks: []}))")
+    pg = ss(ROSTER_JS % (9.0, 9.0) + "; SS_PICKS = null; localStorage.setItem('tw-ss-picks', JSON.stringify({week: slateWeek() - 1, picks: []}))")
     assert pg.evaluate("[...document.querySelectorAll('[data-ssx]')].map(b => b.dataset.ssx)") == ["brock-purdy", "joe-burrow"]
+
+
+NO_TEAM_JS = "TEAMS[VIEW].roster = []; SS_PICKS = null; SS_OPEN = false; try { localStorage.removeItem('tw-ss-picks'); } catch (e) {}"
+
+
+@pytest.mark.render
+def test_a_reader_with_no_team_opens_on_an_empty_card_with_the_search_open_and_focused(ss):
+    """Plan U3 (2026-10-05): the first-time visitor was handed a pair he never chose (8 taps to his own).
+    ssTeam is the team he picked; with none the card is empty and the cursor is already in the search."""
+    pg = ss(NO_TEAM_JS)
+    assert pg.locator(".ssv-who").count() == 0 and pg.locator("#ssv-box").count() == 1
+    assert pg.evaluate("document.activeElement.id") == "ssv-q"
+    assert pg.inner_text(".ssv-prompt") == "Pick two players to see who starts."
+
+
+@pytest.mark.render
+def test_the_search_stays_open_until_there_are_two_and_the_first_tap_is_a_name(ss):
+    pg = ss(NO_TEAM_JS)
+    pg.fill("#ssv-q", "Gibbs")
+    pg.locator(".ssv-opt").first.click()                             # tap 1: a name
+    assert pg.locator(".ssv-who").count() == 1 and pg.locator("#ssv-box").count() == 1
+    assert pg.evaluate("document.activeElement.id") == "ssv-q"      # the cursor is back in it for the second
+    assert pg.inner_text(".ssv-prompt") == "Add one more to see who starts."
+    pg.fill("#ssv-q", "Chase Brown")
+    pg.locator(".ssv-opt").first.click()                             # tap 2: the other
+    assert pg.locator(".ssv-who").count() == 2 and pg.locator("#ssv-box").count() == 0
+    assert pg.locator(".ssv-prompt").count() == 0                    # two is a comparison: no prompt left
+
+
+@pytest.mark.render
+def test_fantasypros_ranking_the_loser_ahead_says_why_the_call_differs(ss):
+    """Plan U3: the FantasyPros row used to contradict our START with no word. It says whose rank it is."""
+    pg = ss(picks_js(12.0, 9.0) + ssb_js())                          # ours: first starts; theirs: ECR 14 vs 21, agrees
+    assert pg.locator(".ssv-lbl em", has_text="ahead of").count() == 0
+    pg = ss(picks_js(12.0, 9.0) + ssb_js() + "; LIVE_SSB.fp[SS_PICKS[0]].ecr = 30")   # now FantasyPros has the second ahead
+    note = pg.locator(".ssv-row", has=pg.locator(".ssv-lbl", has_text="FantasyPros")).locator(".ssv-lbl em").inner_text()
+    first, second = pg.evaluate("ssCols().map(c => shortName(c.p.n))")
+    assert note == f"FantasyPros' experts rank {second} ahead of {first}. Our call is the projection, not expert opinion."
+    assert verdict(pg)["tag"] == "START"                             # the call itself is untouched
+    pg = ss(picks_js(10.0, 9.8) + ssb_js() + "; LIVE_SSB.fp[SS_PICKS[0]].ecr = 30")   # a coin flip has no call to contradict
+    assert pg.locator(".ssv-lbl em", has_text="ahead of").count() == 0
+
+
+@pytest.mark.render
+def test_a_players_lane_links_to_his_row_in_the_usage_grid(ss):
+    pg = ss(picks_js(12.0, 9.0) + ssb_js())
+    slug = pg.evaluate("SS_PICKS[0]")
+    link = pg.locator(f".ssv-go[data-ssgrid='{slug}']")
+    assert link.count() == 1 and link.inner_text() == "Open row"
+    assert link.bounding_box()["height"] >= 44
+    link.click()
+    assert pg.evaluate("SURFACE") == "usage"
+    assert pg.evaluate(f"!!document.querySelector('[data-usage=\"{slug}\"].nav-hit')")
 
 
 @pytest.mark.render

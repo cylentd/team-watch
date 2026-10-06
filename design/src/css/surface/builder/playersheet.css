@@ -3,6 +3,12 @@
    In the leg sheet's overlay: who, the reason, his work week by
    week as a small table, then every line he has (lineitem.css).
    ============================================================ */
+/* the ✕ of the centred modal: a 44px target around the head's third column */
+.ps-x{appearance:none;display:grid;place-items:center;align-self:start;width:44px;height:44px;margin:-8px -8px 0 0;border:0;
+  background:none;color:var(--ink-2);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ps-x svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.ps-x:active{transform:scale(var(--press))}
+.ps-x:focus-visible{outline:2px solid var(--lime);outline-offset:-4px;border-radius:12px}
 .ps-why{margin:-4px 0 0;font-size:var(--t-2);line-height:1.45;color:var(--ink-2)}
 .ps-use{display:grid;grid-template-columns:auto repeat(var(--n),minmax(0,1fr));gap:4px 10px;padding:10px 12px;
   border-radius:10px;background:var(--panel-2);font-size:var(--t-1)}

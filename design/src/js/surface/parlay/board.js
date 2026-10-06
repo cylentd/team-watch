@@ -49,7 +49,7 @@ function slPickHTML(x){
   if (!b) return "";
   const side = b.side === "lower" ? t("slips.side.lower") : t("slips.side.higher");
   const c = slClaude(PROPS[b.i]), badge = slClaudeAgrees(c, b) ? slClaudeBadge(true) : "";
-  return `<span class="sl-pick">${t("slips.pick.label", {side, mkt: SL_MKT_WORD()[b.mkt] || b.mkt})}${badge}</span>${slTierHTML(b.tier)}`;
+  return `<span class="sl-pick">${t("slips.pick.label", {side, mkt: SL_MKT_WORD()[b.mkt] || b.mkt})}${badge}</span>${slTierHTML(b.tier, b.q)}`;
 }
 
 function slRowHTML(x, on){

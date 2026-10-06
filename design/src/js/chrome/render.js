@@ -31,6 +31,16 @@ function paintBadge(){
   el.querySelector(".abbr").textContent = b.abbr;
 }
 
+/* Until a reader picks a team, Roster asks which (teamswitch.js pickHTML). Waivers does not (2026-10-05, the
+   League merge): the wire is the league's, not the team's, so it opens on the league's public list under the
+   chip. David's own browser has no such list: it asks. */
+function renderAsk(v){
+  const wire = SURFACE === "waivers" && !isOwner();
+  v.dataset.view = wire ? "waivers" : "pick";
+  v.innerHTML = wire ? wvPublicHTML() : pickHTML();
+  if (wire){ wireHot(v); wireLgChip(v); } else wirePick(v);
+}
+
 function render(){
   const v = document.getElementById("view");
   v.dataset.view = SURFACE;   // the view drawn, which its CSS is fenced to (design/scope_css.py)
@@ -56,8 +66,8 @@ function render(){
   /* Views that are one HTML function and one wiring function. `movers` is Role (2026-09-29). */
   const plain = {ranks: [ranksHTML, wireRanks], digest: [digestHTML, wireDigest], matchups: [matchupsHTML, wireMatchups],
     movers: [rvViewHTML, wireRv], highlights: [hlViewHTML, wireHl], weekrecap: [wrViewHTML, wireWeekRecap],
-    weather: [wtViewHTML, wireWeather], preview: [pvViewHTML, wirePreview], recap: [lgLeaguePageHTML, wireLeaguePage], records: [lgRecordsPageHTML, wireRecords], trades: [trPageHTML, wireTrades],
-    teams: [lbViewHTML, wireLb]}[SURFACE];
+    weather: [wtViewHTML, wireWeather], preview: [pvViewHTML, wirePreview], recap: [lgRecapPageHTML, wireRecapPage], records: [lgRecordsPageHTML, wireRecords], trades: [trPageHTML, wireTrades],
+    teams: [lbViewHTML, wireLb], schedule: [sosPageHTML, wireSos]}[SURFACE];
   if (plain){ v.innerHTML = plain[0](); plain[1](v); return; }
   if (SURFACE === "usage"){
     v.innerHTML = usageHTML(); wireUsage(v); nudgeScrollers(v);
@@ -70,11 +80,8 @@ function render(){
     nudgeScrollers(v);
     return;
   }
-  if (needsPick()){ v.dataset.view = "pick"; v.innerHTML = pickHTML(); wirePick(v); return; }   // teamswitch.js
+  if (needsPick()) return renderAsk(v);
   const team = TEAMS[VIEW] || TEAMS.yahoo;
-  // My recap (Yahoo), League (ESPN); a stale #league on a Yahoo team opens My recap, neither draws the roster.
-  if ((SURFACE === "myrecap" || SURFACE === "league") && hasRecords(team)){ v.dataset.view = "myrecap"; return renderMyRecap(v, team); }
-  if (SURFACE === "league" && hasLeague(team)) return renderLeague(v, team);
   // A connected league has no Waivers (nav.js hides the tab); a stale #waivers draws its roster.
   const wire = SURFACE === "waivers" && hasWaivers(team);
   v.dataset.view = wire ? "waivers" : "roster";

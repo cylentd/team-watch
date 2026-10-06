@@ -39,7 +39,7 @@ function wvCardsHTML(key){
    are new. The markup is otherwise the same on every render. */
 function waiverHTML(motion){
   // Anyone but David (data/owner.js) gets the league-wide Most added list, whatever team is on screen.
-  if (!isOwner()) return wvHotHTML();
+  if (!isOwner()) return wvDstLinkHTML() + wvHotHTML();
   if (!WAIVER) return `<div class="state-empty wv-empty"><div><b>—</b><span>${t("waiver.empty.noPacket")}</span></div></div>`;
   const team = TEAMS[VIEW], key = waiverKey(team), mate = notMine(team);
   if (!waiverMeta()[key]) return `<div class="state-empty wv-empty"><div><b>—</b><span>${t("waiver.hero.none")}</span></div></div>`;
@@ -50,8 +50,15 @@ function waiverHTML(motion){
   const shape = mate ? "watch" : mode;
   const rail = wvRailHTML(key, shape, m.since, mate);
   const cards = mate ? `<p class="wv-mate">${t("waiver.mate.soon")}</p>` : `<div class="wv-cards">${wvCardsHTML(key)}</div>`;
-  return `<div class="wv mode-${shape}${m.deal ? " deal" : ""}">${rail}${cards}</div>`;
+  return `${wvDstLinkHTML()}<div class="wv mode-${shape}${m.deal ? " deal" : ""}">${rail}${cards}</div>`;
 }
+
+/* The way into Ranks > D/ST (rkOpenDst, surface/ranks/dst.js): a D/ST is streamed by the week's matchup, not by
+   the wire's usage, so the list that shows it lives in Ranks. Taps from the Digest: League, Waivers, this
+   link = 3 (Stats, Ranks, D/ST is also 3); on a Tuesday, when Waivers opens first, it is 1. Drawn only when
+   the page has the D/ST file. */
+const wvDstLinkHTML = () => typeof rkDstBlock === "function" && rkDstBlock()
+  ? `<p class="wv-dst"><button type="button" class="btn ghost" data-wvdst>${t("waiver.dst.link")}</button></p>` : "";
 
 /* The hero on Waivers, one line for the league on screen: which day of the week it is for the
    wire, when its claims clear, how many must-claims are open there, and what is left to bid. */

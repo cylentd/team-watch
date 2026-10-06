@@ -73,13 +73,15 @@ def LIVE_PLANT(states=None):
 # two clicks, not one, except in a group of one where no sub-row is drawn at all. Spelling both
 # out here (rather than trusting the group button's "return me to where I was") keeps a state
 # reachable in the same way no matter which state ran before it.
-GROUP = {"digest": "week", "roster": "teams", "waivers": "teams", "league": "teams", "myrecap": "teams",
+GROUP = {"digest": "week", "roster": "league", "waivers": "league",   # Teams and League merged into League on 2026-10-05
          "recap": "league", "records": "league", "trades": "league", "teams": "league",
          "highlights": "scouting", "ranks": "scouting", "board": "scouting", "movers": "scouting", "matchups": "week", "usage": "scouting",
          "news": "week", "weather": "week", "weekrecap": "week", "preview": "week", "live": "week",
+         "schedule": "scouting",
          "parlay": "bets", "build": "bets", "dfs": "bets"}
 # Weather left the This week sub-row on 2026-10-05 (nav.js NAV_HIDDEN): it is reached by hash or navGo, not a tap.
-HIDDEN = {"weather"}
+# Schedule (Stats, 2026-10-05) is hidden the same way, because Stats' five tabs already fill a phone's sub-row.
+HIDDEN = {"weather", "schedule"}
 
 
 def go(leaf):
@@ -109,6 +111,8 @@ LB_OLD_SHAPE = ("() => { TB_DATA = (d => { for (const lg of Object.values(d.leag
                 " for (const ps of Object.values(lg.teams)) for (const ks of Object.values(ps)) for (const os of Object.values(ks))"
                 " os.forEach(o => delete o.drop); } return d; })(" + TRADE_OFFERS + "); }")
 LB_AS = lambda key: f"localStorage.setItem('tw-team', '{key}')"
+# A reader who has picked no team, looking at team `key`'s league (the League group's seat is VIEW then).
+UNPICK = lambda key: ("eval", f"localStorage.removeItem('tw-team'); VIEW='{key}'; render()")
 LB_BUILDER = lambda team: [("eval", "TB_DATA = " + TRADE_OFFERS), ("click", f"[data-lbopen='{team}']"), ("click", "[data-tbfind]")]
 
 
@@ -260,9 +264,9 @@ STATES = [
     ("waivers-flipped", [("eval", "VIEW='espn'; render()")] + go("waivers") + [("click", ".wvc-flip >> visible=true")]),
     # My teams > League (2026-09-26): ESPN teams only. David's team, a leaguemate's (its own
     # matchup and rivalry), and week 1 picked by its chip.
-    ("league-espn", [("eval", "VIEW='espn'; render()")] + go("league")),
-    ("league-mate", [("eval", "VIEW='espn-run-it-back'; render()")] + go("league")),
-    ("league-week1", [("eval", "VIEW='espn'; render()")] + go("league") + [("click", "[data-lgweek='1']")]),
+    ("league-espn", [("eval", LB_AS("espn"))] + go("recap")),
+    ("league-mate", [("eval", LB_AS("espn-run-it-back"))] + go("recap")),
+    ("league-week1", [("eval", LB_AS("espn"))] + go("recap") + [("click", "[data-lgweek='1']")]),
     # Yahoo (2026-09-27). This week > League, the same for every reader: week 2 roasted with every box
     # shut, week 1 with no roast (scores only), a box opened by its toggle. This week > Records. Then My
     # teams > My recap for David's team, week 2 (his box open) and week 1.
@@ -274,10 +278,11 @@ STATES = [
     ("records-yahoo-pair", go("records") + [("eval", "const s = document.querySelector('[data-rcmgr]'); s.value = '3'; s.dispatchEvent(new Event('change', {bubbles: true}))"),
                                             ("click", "[data-rcpair] >> nth=0")]),
     ("records-yahoo-roster", go("records") + [("click", "[data-csroster='2025:champ']")]),
-    # The League switch (2026-09-29): AYO's week 2, its Records and Trades, which have no history yet.
-    ("recap-ayo", go("recap") + [("click", "[data-lgpick='ayo']")]),
-    ("records-ayo", go("records") + [("click", "[data-lgpick='ayo']")]),
-    ("trades-ayo", go("trades") + [("click", "[data-lgpick='ayo']")]),
+    # The League chip (2026-09-29 as a switch, the team switch since 2026-10-05): AYO's week 2 and its Records,
+    # which have no history yet. AYO has no graded trades, so no Trades leaf: a #trades link lands on its Recap.
+    ("recap-ayo", [("eval", LB_AS("ayo"))] + go("recap")),
+    ("records-ayo", [("eval", LB_AS("ayo"))] + go("records")),
+    ("trades-ayo", [("eval", LB_AS("ayo")), ("eval", "location.hash = '#trades'")]),
     # League > Trades (2026-09-28): the page, then Lateef's trades open (a 2026 one still open, a trade
     # whose tree verdict differs, the seasons it decided) and every "decided a season" card shown (a
     # phone swipes through all of them and has no Show all).
@@ -289,25 +294,24 @@ STATES = [
     # to set it" line. A team opens as a full page (2026-10-05, no sheet): with "This is my team" for that reader,
     # then "Your team" once they tap it, and the board again with their team pinned.
     ("lboard-yahoo", go("teams")),
-    ("lboard-espn", go("teams") + [("click", "[data-lgpick='espn']")]),
-    ("lboard-ayo", go("teams") + [("click", "[data-lgpick='ayo']")]),
-    ("lboard-sorted", go("teams") + [("click", "[data-lgpick='espn']"), ("click", "[data-lbsort='RB']")]),
-    ("lboard-team", go("teams") + [("click", "[data-lgpick='espn']"), ("click", ".lb-row .lb-team")]),
-    ("lboard-team-mine", go("teams") + [("click", "[data-lgpick='espn']"), ("click", "[data-lbopen='espn-run-it-back']"), ("click", "[data-lbmine]")]),
-    ("lboard-board-picked", go("teams") + [("click", "[data-lgpick='espn']"), ("click", "[data-lbopen='espn-run-it-back']"),
-                                           ("click", "[data-lbmine]"), ("click", ".lbp-back")]),
+    ("lboard-espn", [("eval", LB_AS("espn"))] + go("teams")),
+    ("lboard-ayo", [("eval", LB_AS("ayo"))] + go("teams")),
+    ("lboard-sorted", [("eval", LB_AS("espn"))] + go("teams") + [("click", "[data-lbsort='RB']")]),
+    ("lboard-team", [UNPICK("espn")] + go("teams") + [("click", ".lb-row .lb-team")]),
+    ("lboard-team-mine", [UNPICK("espn")] + go("teams") + [("click", "[data-lbopen='espn-run-it-back']"), ("click", "[data-lbmine]")]),
+    ("lboard-board-picked", [UNPICK("espn")] + go("teams") + [("click", "[data-lbopen='espn-run-it-back']"),
+                                                                                ("click", "[data-lbmine]"), ("click", ".lbp-back")]),
     # Find trades (2026-10-05): the team page's lime button for a team in the reader's own league (the reader is
     # on ESPN here, the suite's David being on the Madden Curse), "This is my team" for a reader whose team is in
     # another league, and the builder page from the fixture's offers (planted: from file:// the browser refuses the
     # fetch, and logs it, so -error replaces fetch with a refusal). Bold is the first tab; Fair; a tab with no
     # offer; a pair with no entry.
     ("lboard-offers-button", [("eval", LB_AS("espn"))] + go("teams") + [("click", "[data-lbopen='espn-run-it-back']")]),
-    ("lboard-offers-pick", [("eval", LB_AS("ayo"))] + go("teams") + [("click", "[data-lgpick='espn']"),
-                                                                    ("click", "[data-lbopen='espn-run-it-back']")]),
+    ("lboard-offers-pick", [UNPICK("espn")] + go("teams") + [("click", "[data-lbopen='espn-run-it-back']")]),
     ("lboard-offers-bold", [("eval", LB_AS("espn"))] + go("teams") + LB_BUILDER("espn-run-it-back")),
     ("lboard-offers-fair", [("eval", LB_AS("espn-run-it-back"))] + go("teams") + LB_BUILDER("espn") + [("click", "[data-tbtab='fair']")]),
     ("lboard-offers-empty", [("eval", LB_AS("espn"))] + go("teams") + LB_BUILDER("espn-run-it-back") + [("click", "[data-tbtab='fair']")]),
-    ("lboard-offers-none", [("eval", LB_AS("ayo-don-wick"))] + go("teams") + [("click", "[data-lgpick='ayo']")] + LB_BUILDER("ayo")),
+    ("lboard-offers-none", [("eval", LB_AS("ayo-don-wick"))] + go("teams") + LB_BUILDER("ayo")),
     ("lboard-offers-error", [("eval", LB_AS("espn")), ("eval", "void (window.fetch = () => Promise.reject(new TypeError('offline')))")]
                            + go("teams") + [("click", "[data-lbopen='espn-run-it-back']"), ("click", "[data-tbfind]"), ("eval", "tbLoad()")]),
     # Edit mode (2026-10-05): from the third offer (Purdy for Brown and Watson, which drops Gordon), after taking Watson out
@@ -318,15 +322,15 @@ STATES = [
     ("lboard-edit-own", [("eval", LB_AS("espn"))] + go("teams") + LB_BUILDER("espn-run-it-back") + [("click", "[data-tbown]")]),
     ("lboard-offers-oldshape", [("eval", LB_AS("espn"))] + go("teams") + [("eval", LB_OLD_SHAPE)]
                                + [("click", "[data-lbopen='espn-run-it-back']"), ("click", "[data-tbfind]")]),
-    ("myrecap-yahoo", go("myrecap")),
-    ("myrecap-ayo", [("eval", "VIEW='ayo'; render()")] + go("myrecap")),
-    ("myrecap-yahoo-week1", go("myrecap") + [("click", "[data-lgweek='1']")]),
+    ("myrecap-yahoo", [("eval", LB_AS("yahoo"))] + go("recap")),
+    ("myrecap-ayo", [("eval", LB_AS("ayo"))] + go("recap")),
+    ("myrecap-yahoo-week1", [("eval", LB_AS("yahoo"))] + go("recap") + [("click", "[data-lgweek='1']")]),
     # The fixture's week-3 pairings never met, so this seeds three meetings before the view draws.
     ("myrecap-yahoo-margins", [("eval", "() => { const m = [[2024, 3, 12.5, 0], [2025, 6, -30.25, 0], [2025, 14, 4.1, 1]];"
                                         " LGS.yahoo.h2h['9']['3'] = {w: 2, l: 1, t: 0, since: 2024, big: {v: 12.5, y: 2024, wk: 3}, m};"
                                         " LGS.yahoo.h2h['3']['9'] = {w: 1, l: 2, t: 0, since: 2024, big: {v: 30.25, y: 2025, wk: 6},"
                                         " m: m.map(x => [x[0], x[1], -x[2], x[3]])}; }")]
-                               + go("myrecap") + [("click", "[data-lgmargins]")]),
+                               + [("eval", LB_AS("yahoo"))] + go("recap") + [("click", "[data-lgmargins]")]),
     ("waivers-folds", go("waivers") + [("click", "summary.wvfold-s >> nth=0"),
                                        ("click", "summary.wvfold-s >> nth=1")]),   # spec + stash open
     # The modal is panes since 2026-09-22, so each one is its own state: the tab bar only renders
@@ -381,6 +385,10 @@ STATES = [
     # This week > Weather (2026-09-26): week 2's four games, the dome first, then the rest by wind
     # (NE windy, IND retractable, SEA with no forecast yet); DET's players listed under DET @ SEA.
     ("weather", go("weather")),
+    # Stats > Schedule (2026-10-05, plan U7): the easiest RB schedules for the next 4 weeks, byes marked; the
+    # playoff weeks for TE. Hidden from the sub-row, so go() opens it with navGo.
+    ("schedule", go("schedule")),
+    ("schedule-te-playoffs", go("schedule") + [("click", "[data-sospos='TE']"), ("click", "[data-soswin='playoffs']")]),
     # This week > Recap (2026-10-05, storyboard option C): the banner, a three-tab bar, then the tab's cards,
     # from the fixture's week 4 recap (8 of 16 games final). Players is first; Busts is the phone's list tab
     # (a desktop draws all three open); Show all opens the touchdown list.
@@ -752,20 +760,25 @@ def test_no_fenced_rule_misses_its_element(snapshot, area):
 @pytest.mark.parametrize("leaf,group,label", [
     ("ranks", "scouting", "RANKS"),
     ("board", "scouting", "LEADERS"),  # the leaf is still `board`, so its bookmarks land
-    ("movers", "scouting", "ROLE"),    # Movers until 2026-09-29; the leaf kept its name
+    ("movers", "scouting", "WORK VS POINTS"),   # Movers until 2026-09-29, Role until 2026-10-05; the leaf kept its name
     ("highlights", "scouting", "HIGHLIGHTS"),
-    ("pool", "scouting", "ROLE"),      # the old Movers view's hash, kept for bookmarks
-    ("usage", "scouting", "GRID"),
+    ("pool", "scouting", "WORK VS POINTS"),     # the old Movers view's hash, kept for bookmarks
+    ("usage", "scouting", "USAGE"),             # Grid until 2026-10-05
     ("matchups", "week", "START/SIT"),  # Matchups -> Takes 2026-09-29 -> Start/Sit 2026-10-03; the leaf stayed
     ("takes", "week", "START/SIT"),
     ("startsit", "week", "START/SIT"),
     ("news", "week", "NEWS"),           # Players until 2026-09-29; the leaf and hash stayed
     ("weather", "week", None),          # out of the sub-row since 2026-10-05 (nav.js NAV_HIDDEN): the hash still lands, no button is pressed
+    ("schedule", "scouting", None),     # Stats > Schedule, hidden the same way (2026-10-05)
     ("weekrecap", "week", "RECAP"),
     ("preview", "week", "PREVIEW"),
-    ("waivers", "teams", "WAIVERS"),
+    ("waivers", "league", "WAIVERS"),   # Teams and League merged into one League group on 2026-10-05
+    ("roster", "league", "ROSTER"),
+    ("recap", "league", "RECAP"),
+    ("myrecap", "league", "RECAP"),     # Yahoo's My recap and ESPN's League are Recap now; their hashes still land
+    ("league", "league", "RECAP"),
     ("parlay", "bets", "SLIPS"),        # the leaf is still `parlay`, so its bookmarks land
-    ("build", "bets", "BUILD"),
+    ("build", "bets", "ALL LINES"),   # Build until 2026-10-05; the leaf kept its name
     ("records", "league", "RECORDS"),   # League became a group of its own on 2026-09-28
     ("trades", "league", "TRADES"),
     ("teams", "league", "TEAMS"),       # League > Teams, the League board (2026-10-05)
@@ -783,7 +796,7 @@ def test_a_hash_opens_its_view(browser, page_file, leaf, group, label):
         else:
             assert sub.inner_text().strip().upper().startswith(label)
         # And navigating writes it back, so the next reload holds.
-        page.locator(".navitem[data-s='teams']").first.click()
+        page.locator(".navitem[data-s='league']").first.click()
         page.wait_for_function("location.hash === '#roster'")
         assert page.evaluate("location.hash") == "#roster"
         assert errors == []
@@ -901,7 +914,7 @@ def test_league_back_page_fits_one_desktop_screen(browser, page_file):
     briefs, the grudges, the standings and all six superlatives end above the bottom edge, every week.
     It ran to 3.3 screens before. On a phone the order is the story, the lead, the briefs, then the rest."""
     ctx, page, errors = open_at(browser, page_file, (1440, 900), "#recap")
-    bottom = "Math.max(...[...document.querySelectorAll('.bp2 > *, .bp2-main > *')].map(e => e.getBoundingClientRect().bottom))"
+    bottom = "Math.max(...[...document.querySelectorAll('.bp2 > *:not(.bp2-you):not(.bp2-mine), .bp2-main > *')].map(e => e.getBoundingClientRect().bottom))"
     try:
         for wk in page.evaluate("LGS.yahoo.weeks.map(w => w.week)"):
             page.locator(f"[data-lgweek='{wk}']").click()

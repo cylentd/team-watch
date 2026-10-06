@@ -77,20 +77,31 @@ function gdClubTint(club){
   return c ? c.find(hex => teamLuma(hex) >= GD_TILE_LUMA) || gdLift(c[0]) || gdLift(c[1]) : null;
 }
 
+/* The ball beside the club that has it (U9): a small football, named for a screen reader. */
+const GD_BALL = `<svg viewBox="0 0 20 12" aria-hidden="true"><g transform="rotate(-28 10 6)"><ellipse cx="10" cy="6" rx="9" ry="4.6"/><path d="M6.5 6h7M8 4.6v2.8M10 4.4v3.2M12 4.6v2.8"/></g></svg>`;
+const gdBallMark = club => `<i class="gd-ball" role="img" aria-label="${esc(t("live.games.ball", {club}))}">${GD_BALL}</i>`;
+
+/* A live tile's third line: the down and distance (or who has the ball), and the red-zone mark inside the 20. */
+function gdSitHTML(sit){
+  return `<small class="gd-sit"><span>${esc(gdSitText(sit))}</span>${sit.red ? `<em class="gd-rz">${t("live.games.red")}</em>` : ""}</small>`;
+}
+
 function gdGamesTabHTML(lg){
   const all = gdGamesSorted();
   if (!all.length) return `<div class="state-empty"><div><b>—</b><span>${t("live.games.none")}</span></div></div>`;
   const tiles = all.map(({g, c}) => {
     const mine = gdMineIn(g, lg), a = gdClubScore(g.away, g.home), h = gdClubScore(g.home, g.away);
     const on = c.state !== "pre" && a !== null && h !== null;
+    const sit = c.state === "in" ? gdSitOf(g.home) : null;       // who has the ball, from the scoreboard's own read
     // the leader wears its club's colour, the trailer greys, a tie or no score stays plain
     const club = (code, s, o) => {
       const lead = on && s > o, tint = lead ? gdClubTint(code) : null;
-      return `<span class="gd-tr${on && s < o ? " behind" : lead ? " lead" : ""}"${tint ? ` style="--tc:${tint}"` : ""}><span>${esc(code)}</span><b>${on ? s : "—"}</b></span>`;
+      const ball = sit && gdSameClub(code, sit.ball) ? gdBallMark(code) : "";
+      return `<span class="gd-tr${on && s < o ? " behind" : lead ? " lead" : ""}"${tint ? ` style="--tc:${tint}"` : ""}><span>${ball}${esc(code)}</span><b>${on ? s : "—"}</b></span>`;
     };
     return `<button type="button" class="gd-t ${c.state}${mine ? " mine" : ""}" data-gdnfl="${esc(gdNflKey(g))}" aria-haspopup="dialog">
       <small class="gd-ts"><span>${esc(c.label)}</span>${mine ? `<em>${t("live.games.yours", {n: mine})}</em>` : ""}</small>
-      ${club(g.away, a, h)}${club(g.home, h, a)}</button>`;
+      ${club(g.away, a, h)}${club(g.home, h, a)}${sit ? gdSitHTML(sit) : ""}</button>`;
   }).join("");
   return `<div class="gd-tiles">${tiles}</div>`;
 }

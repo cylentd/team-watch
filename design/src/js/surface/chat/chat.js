@@ -98,7 +98,7 @@ function chatDockHTML(){
 function renderChat(){
   const fab = document.getElementById("chatfab"), dock = document.getElementById("chatdock");
   const left = chatLeft();
-  fab.innerHTML = CHAT_GLYPH;
+  fab.innerHTML = `${CHAT_GLYPH}<span class="chatlbl">${t("chat.label")}</span>`;   // the word shows on a phone (chat.css): a bare bubble read as nothing
   fab.classList.toggle("out", !left);
   fab.setAttribute("aria-label", t("chat.open"));
   fab.title = t("chat.limit.left", {n: left, of: CHAT_DAILY});

@@ -5,6 +5,8 @@
     "tests/test_build.py",
     "tests/test_js_syntax.py",
     "tests/test_js_harness.py",
+    "tests/test_js_kick.py",
+    "tests/test_js_nav.py",
     "tests/test_layer_ratchet.py",
     "tests/test_honest_tests.py",
     "tests/test_lint.py",
@@ -34,7 +36,7 @@
     "preview": {
       "paths": ["design/src/js/surface/preview/", "design/src/css/surface/preview/", "design/src/js/data/preview.js",
                 "design/preview.py"],
-      "tests": ["tests/test_preview.py"],
+      "tests": ["tests/test_preview.py", "tests/test_js_preview_wx.py", "tests/test_js_preview_answer.py"],
       "render": ["preview"]
     },
     "league": {
@@ -59,7 +61,8 @@
                 "design/schedule.py", "api/clips.py", "api/_yt_channels.json", "design/yt_channels.py"],
       "tests": ["tests/test_gameday.py", "tests/test_gamesheet_v2.py", "tests/test_schedule.py", "tests/test_live_tds.py", "tests/test_live_tabs.py",
                 "tests/test_live_mine.py", "tests/test_live_swipe.py", "tests/test_live_tdclips.py", "tests/test_api_clips.py",
-                "tests/test_yt_channels.py", "tests/test_js_hurt.py"],
+                "tests/test_yt_channels.py", "tests/test_js_hurt.py", "tests/test_js_week.py", "tests/test_slate_week.py", "tests/test_js_gamesituation.py",
+                "tests/test_live_modal.py"],
       "render": ["live"]
     },
     "matchups": {
@@ -73,9 +76,15 @@
       "tests": ["tests/test_news_kind.py", "tests/test_news_tab.py", "tests/test_stale_guards.py"],
       "render": ["news"]
     },
+    "schedule": {
+      "paths": ["design/src/js/surface/sos/", "design/src/css/surface/sos/", "design/src/js/data/sos.js", "design/sos.py"],
+      "tests": ["tests/test_js_sos.py", "tests/test_sos_view.py"],
+      "render": ["schedule"]
+    },
     "ranks": {
-      "paths": ["design/src/js/surface/ranks/", "design/src/css/surface/ranks/", "design/ranks.py"],
-      "tests": ["tests/test_ranks.py"],
+      "paths": ["design/src/js/surface/ranks/", "design/src/css/surface/ranks/", "design/ranks.py",
+                "design/src/js/data/dst.js", "design/dst.py"],
+      "tests": ["tests/test_ranks.py", "tests/test_ranks_dst.py", "tests/test_js_dst.py"],
       "render": ["ranks"]
     },
     "usage": {
@@ -94,8 +103,8 @@
       "render": ["role"]
     },
     "recap": {
-      "paths": ["design/recap.py", "design/src/js/surface/recap/", "design/src/css/surface/recap/"],
-      "tests": ["tests/test_recap_data.py", "tests/test_recap_view.py"],
+      "paths": ["design/recap.py", "design/src/js/data/accuracy.js", "design/src/js/surface/recap/", "design/src/css/surface/recap/"],
+      "tests": ["tests/test_recap_data.py", "tests/test_recap_view.py", "tests/test_accuracy_view.py"],
       "render": ["weekrecap"]
     },
     "highlights": {
@@ -104,9 +113,9 @@
       "render": ["highlights"]
     },
     "profile": {
-      "paths": ["design/src/js/surface/profile/", "design/src/css/surface/profile/", "design/pedigree.py", "design/gamelog.py",
+      "paths": ["design/src/js/surface/profile/", "design/src/css/surface/profile/", "design/src/js/data/lede.js", "design/pedigree.py", "design/gamelog.py",
                 "design/routes.py", "design/archetype.py"],
-      "tests": ["tests/test_profile.py", "tests/test_js_profile.py"],
+      "tests": ["tests/test_profile.py", "tests/test_js_profile.py", "tests/test_js_stock.py", "tests/test_js_range.py", "tests/test_range_view.py"],
       "render": ["profile"]
     },
     "teams": {
@@ -122,10 +131,10 @@
     "bets": {
       "paths": ["design/src/js/surface/parlay/", "design/src/js/surface/dfs/", "design/src/js/builder/",
                 "design/src/css/surface/builder/", "design/src/css/surface/dfs/", "design/src/js/data/dfs.js",
-                "design/src/js/data/market.js", "design/dfs_backtest.py", "design/slate.py", "design/defense.py", "design/slips.py"],
+                "design/src/js/data/market.js", "design/src/js/data/kickwin.js", "design/dfs_backtest.py", "design/slate.py", "design/defense.py", "design/slips.py"],
       "tests": ["tests/test_dfs_backtest.py", "tests/test_dfs_pool.py", "tests/test_dfs_solver.py", "tests/test_legsheet.py",
                 "tests/test_parlay_grid.py", "tests/test_prop_picks.py", "tests/test_claude_calls.py", "tests/test_slip_reasons.py",
-                "tests/test_claude_record.py"],
+                "tests/test_claude_record.py", "tests/test_js_bets.py", "tests/test_js_topcalls.py", "tests/test_js_kickwin.py", "tests/test_slate_kick.py", "tests/test_top_calls.py"],
       "render": ["build", "dfs", "parlay"]
     },
     "chat": {

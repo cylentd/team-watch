@@ -36,10 +36,15 @@ function pvWxEffects(w){
 function pvWxRow(g){
   const w = g.wx;
   if (!w) return "";
-  const where = g.site && g.site.stadium ? esc(g.site.stadium) + " · " : "";
-  const title = t("preview.row.wx") + (where || w.roof ? ` <em>${where}${w.roof ? esc(w.roof) : ""}</em>` : "");
-  // A roof or no forecast: nothing to show, so no section (2026-09-30).
-  if (w.roof === "dome" || w.roof === "closed" || (w.temp == null && w.wind == null)) return "";
+  const covered = w.roof === "dome" || w.roof === "closed";
+  // A roof is an answer, not a gap: the section says "Dome" (or "Roof closed") instead of vanishing, which
+  // read as a forecast that failed (2026-10-05, ATL @ NO). The roof is that word, so the title keeps only
+  // the stadium. Open air with no forecast yet has nothing to say, so no section (2026-09-30).
+  const tag = covered ? "" : w.roof ? esc(w.roof) : "";
+  const place = [g.site && g.site.stadium ? esc(g.site.stadium) : "", tag].filter(Boolean).join(" · ");
+  const title = t("preview.row.wx") + (place ? ` <em>${place}</em>` : "");
+  if (covered) return pvRow("wx", title, `<p class="pv-fc">${w.roof === "dome" ? t("preview.wx.dome") : t("preview.wx.closed")}</p>`);
+  if (w.temp == null && w.wind == null) return "";
   const rain = w.precip != null ? t("preview.wx.pct", {n: w.precip}) : "";
   const fc = [w.temp != null ? `${w.temp}°` : "", w.wind != null ? t("preview.wx.mph", {n: w.wind}) : "", rain].filter(Boolean).join(" · ");
   const eff = pvWxEffects(w);
@@ -47,8 +52,6 @@ function pvWxRow(g){
     ${eff.length ? `<ul class="pv-eff">${eff.join("")}</ul>` : ""}`);
 }
 
-/* "13:25" -> "1:25 PM": the body-clock kickoff as the reader's page writes times. */
-const pvClock = hm => { const [h, m] = hm.split(":").map(Number); return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`; };
 
 function pvRestLine(team, g){
   const r = (g.rest || {})[team], tr = (g.travel || {})[team], bits = [];
@@ -57,7 +60,7 @@ function pvRestLine(team, g){
   if (r && r.bye) bits.push(`<b class="pv-tag bye">${t("preview.rest.bye")}</b>`);
   const z = tr && {n: Math.abs(tr.zones)};
   if (tr && tr.zones) bits.push((tr.zones > 0 ? t("preview.travel.east", z) : t("preview.travel.west", z))
-    + (tr.body ? " · " + t("preview.travel.body", {clock: pvClock(tr.body)}) : ""));
+    + (tr.body ? " · " + t("preview.travel.body", {clock: kickClock(tr.body)}) : ""));
   else if (tr && team === g.home && !(g.site && g.site.neutral)) bits.push(t("preview.travel.home"));
   if (tr && tr.miles) bits.push(t("preview.travel.miles", {n: tr.miles.toLocaleString("en-US")}));
   return pvKV(esc(team), bits.join(" · ") || "–");

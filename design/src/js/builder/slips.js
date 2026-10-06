@@ -7,8 +7,8 @@ const DAYS = (LIVE_MARKET && LIVE_MARKET.days) || [];
 const winGames = k => new Set(PROPS.filter(p => !k || p.win === k).map(p => p.game)).size;
 /* The page is a static build that can be days old when it is opened, so "has this game started"
    is asked of the viewer's clock, once at load. A started game is no longer a bet. */
-const NOW = Date.now();
-const upcoming = p => !p.commence || Date.parse(p.commence.replace(" ", "T") + "Z") > NOW;
+const NOW = typeof BETS_NOW === "number" ? BETS_NOW : Date.now();   // a test pins the clock with BETS_NOW
+const upcoming = p => !kickPast(p.commence, NOW);
 const inWin = (p, w) => !w || (w.wins ? w.wins.includes(p.win) : p.win === w.k);
 /* The gallery's kickoff choices: every day, then every window, that still has a game to come. */
 const GAL_WINDOWS = [...DAYS, ...WINDOWS].filter(w => PROPS.some(p => inWin(p, w) && upcoming(p)));
@@ -122,6 +122,8 @@ const GAL_GROUPS = (() => {
 /* "Sunday morning", "Thursday Night", "All Sunday": a window labelled only by the hour
    ("Morning") takes its weekday, since the heading is what the reader scrolls to. */
 function galGroupName(w){
+  const named = kickWinName(w);   // Preview's Eastern name for the window's slot (data/kickwin.js)
+  if (named) return named;
   const day = new Date(`${w.date}T12:00:00`).toLocaleDateString("en-US", {weekday: "long"});
   const name = w.wins || w.label.startsWith(day) ? w.label : `${day} ${w.label}`;
   // Sentence case, weekdays kept: "Thursday Night" reads "Thursday night".

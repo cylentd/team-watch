@@ -1,0 +1,6552 @@
+{
+ "label": "Context only: what these defenses have allowed, averaged over the schedule. Not tested as a predictor of points.",
+ "generated": "2026-10-05 18:32",
+ "season": 2026,
+ "from_week": 5,
+ "through_week": 4,
+ "playoff_weeks": [
+  15,
+  16,
+  17
+ ],
+ "last_week": 17,
+ "weights": {
+  "prior_games": 8,
+  "rule": "(games x current + prior_games x prior) / (games + prior_games)"
+ },
+ "windows": {
+  "next4": [
+   5,
+   6,
+   7,
+   8
+  ],
+  "ros": [
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17
+  ],
+  "playoffs": [
+   15,
+   16,
+   17
+  ]
+ },
+ "teams": {
+  "ARI": {
+   "schedule": {
+    "next4": {
+     "games": 4,
+     "bye": [],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "DET"
+      },
+      {
+       "week": 6,
+       "opp": "LA"
+      },
+      {
+       "week": 7,
+       "opp": "DEN"
+      },
+      {
+       "week": 8,
+       "opp": "DAL"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      14
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "DET"
+      },
+      {
+       "week": 6,
+       "opp": "LA"
+      },
+      {
+       "week": 7,
+       "opp": "DEN"
+      },
+      {
+       "week": 8,
+       "opp": "DAL"
+      },
+      {
+       "week": 9,
+       "opp": "SEA"
+      },
+      {
+       "week": 10,
+       "opp": "LA"
+      },
+      {
+       "week": 11,
+       "opp": "KC"
+      },
+      {
+       "week": 12,
+       "opp": "WAS"
+      },
+      {
+       "week": 13,
+       "opp": "PHI"
+      },
+      {
+       "week": 15,
+       "opp": "NYJ"
+      },
+      {
+       "week": 16,
+       "opp": "NO"
+      },
+      {
+       "week": 17,
+       "opp": "LV"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "NYJ"
+      },
+      {
+       "week": 16,
+       "opp": "NO"
+      },
+      {
+       "week": 17,
+       "opp": "LV"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 18.82,
+     "current": 20.85,
+     "prior": 17.8,
+     "avg_def_rank": 20.0,
+     "rank": 3
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 17.07,
+     "current": 17.7,
+     "prior": 16.78,
+     "avg_def_rank": 15.75,
+     "rank": 9
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 16.72,
+     "current": 16.17,
+     "prior": 17.1,
+     "avg_def_rank": 17.33,
+     "rank": 17
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 18.77,
+     "current": 19.27,
+     "prior": 18.52,
+     "avg_def_rank": 12.25,
+     "rank": 25
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 19.54,
+     "current": 19.35,
+     "prior": 19.68,
+     "avg_def_rank": 14.75,
+     "rank": 16
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 22.46,
+     "current": 23.77,
+     "prior": 22.0,
+     "avg_def_rank": 24.33,
+     "rank": 1
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 27.93,
+     "current": 28.8,
+     "prior": 27.5,
+     "avg_def_rank": 21.25,
+     "rank": 3
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 25.4,
+     "current": 25.58,
+     "prior": 25.32,
+     "avg_def_rank": 15.08,
+     "rank": 18
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 24.36,
+     "current": 23.37,
+     "prior": 24.9,
+     "avg_def_rank": 11.67,
+     "rank": 25
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 11.48,
+     "current": 13.5,
+     "prior": 10.47,
+     "avg_def_rank": 19.5,
+     "rank": 8
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.81,
+     "current": 12.19,
+     "prior": 10.17,
+     "avg_def_rank": 17.42,
+     "rank": 14
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 10.86,
+     "current": 12.9,
+     "prior": 10.03,
+     "avg_def_rank": 17.67,
+     "rank": 15
+    }
+   }
+  },
+  "ATL": {
+   "schedule": {
+    "next4": {
+     "games": 4,
+     "bye": [],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "BAL"
+      },
+      {
+       "week": 6,
+       "opp": "CHI"
+      },
+      {
+       "week": 7,
+       "opp": "SF"
+      },
+      {
+       "week": 8,
+       "opp": "TB"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      11
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "BAL"
+      },
+      {
+       "week": 6,
+       "opp": "CHI"
+      },
+      {
+       "week": 7,
+       "opp": "SF"
+      },
+      {
+       "week": 8,
+       "opp": "TB"
+      },
+      {
+       "week": 9,
+       "opp": "CIN"
+      },
+      {
+       "week": 10,
+       "opp": "KC"
+      },
+      {
+       "week": 12,
+       "opp": "MIN"
+      },
+      {
+       "week": 13,
+       "opp": "DET"
+      },
+      {
+       "week": 14,
+       "opp": "CLE"
+      },
+      {
+       "week": 15,
+       "opp": "WAS"
+      },
+      {
+       "week": 16,
+       "opp": "TB"
+      },
+      {
+       "week": 17,
+       "opp": "NO"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "WAS"
+      },
+      {
+       "week": 16,
+       "opp": "TB"
+      },
+      {
+       "week": 17,
+       "opp": "NO"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 17.23,
+     "current": 14.75,
+     "prior": 18.48,
+     "avg_def_rank": 20.75,
+     "rank": 9
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 16.98,
+     "current": 16.87,
+     "prior": 17.06,
+     "avg_def_rank": 18.17,
+     "rank": 10
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 18.04,
+     "current": 18.37,
+     "prior": 17.97,
+     "avg_def_rank": 21.67,
+     "rank": 5
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 19.3,
+     "current": 17.3,
+     "prior": 20.3,
+     "avg_def_rank": 16.5,
+     "rank": 19
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 19.16,
+     "current": 17.2,
+     "prior": 20.19,
+     "avg_def_rank": 15.0,
+     "rank": 30
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 19.96,
+     "current": 18.4,
+     "prior": 20.93,
+     "avg_def_rank": 18.33,
+     "rank": 14
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 26.4,
+     "current": 23.5,
+     "prior": 27.85,
+     "avg_def_rank": 18.5,
+     "rank": 12
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 25.24,
+     "current": 25.29,
+     "prior": 25.22,
+     "avg_def_rank": 14.67,
+     "rank": 21
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 25.71,
+     "current": 25.53,
+     "prior": 25.83,
+     "avg_def_rank": 15.67,
+     "rank": 13
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 10.19,
+     "current": 8.72,
+     "prior": 10.93,
+     "avg_def_rank": 12.5,
+     "rank": 22
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 11.88,
+     "current": 13.19,
+     "prior": 11.28,
+     "avg_def_rank": 19.92,
+     "rank": 2
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 13.1,
+     "current": 15.7,
+     "prior": 12.0,
+     "avg_def_rank": 26.0,
+     "rank": 2
+    }
+   }
+  },
+  "BAL": {
+   "schedule": {
+    "next4": {
+     "games": 4,
+     "bye": [],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "ATL"
+      },
+      {
+       "week": 6,
+       "opp": "CLE"
+      },
+      {
+       "week": 7,
+       "opp": "CIN"
+      },
+      {
+       "week": 8,
+       "opp": "BUF"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      13
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "ATL"
+      },
+      {
+       "week": 6,
+       "opp": "CLE"
+      },
+      {
+       "week": 7,
+       "opp": "CIN"
+      },
+      {
+       "week": 8,
+       "opp": "BUF"
+      },
+      {
+       "week": 9,
+       "opp": "JAX"
+      },
+      {
+       "week": 10,
+       "opp": "LAC"
+      },
+      {
+       "week": 11,
+       "opp": "CAR"
+      },
+      {
+       "week": 12,
+       "opp": "HOU"
+      },
+      {
+       "week": 14,
+       "opp": "TB"
+      },
+      {
+       "week": 15,
+       "opp": "PIT"
+      },
+      {
+       "week": 16,
+       "opp": "CLE"
+      },
+      {
+       "week": 17,
+       "opp": "CIN"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "PIT"
+      },
+      {
+       "week": 16,
+       "opp": "CLE"
+      },
+      {
+       "week": 17,
+       "opp": "CIN"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 16.59,
+     "current": 19.0,
+     "prior": 15.43,
+     "avg_def_rank": 16.5,
+     "rank": 17
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 16.32,
+     "current": 17.62,
+     "prior": 15.68,
+     "avg_def_rank": 15.33,
+     "rank": 22
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 16.73,
+     "current": 16.27,
+     "prior": 16.97,
+     "avg_def_rank": 17.67,
+     "rank": 16
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 20.12,
+     "current": 16.62,
+     "prior": 21.68,
+     "avg_def_rank": 18.0,
+     "rank": 13
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 19.38,
+     "current": 17.71,
+     "prior": 20.16,
+     "avg_def_rank": 15.42,
+     "rank": 25
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 19.93,
+     "current": 18.13,
+     "prior": 20.83,
+     "avg_def_rank": 17.67,
+     "rank": 15
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 25.37,
+     "current": 30.43,
+     "prior": 22.93,
+     "avg_def_rank": 16.0,
+     "rank": 19
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 24.85,
+     "current": 28.28,
+     "prior": 23.17,
+     "avg_def_rank": 14.33,
+     "rank": 24
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 24.68,
+     "current": 26.5,
+     "prior": 23.77,
+     "avg_def_rank": 13.67,
+     "rank": 24
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 11.12,
+     "current": 12.7,
+     "prior": 10.47,
+     "avg_def_rank": 16.25,
+     "rank": 11
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 11.47,
+     "current": 11.66,
+     "prior": 11.42,
+     "avg_def_rank": 18.75,
+     "rank": 3
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 13.1,
+     "current": 12.03,
+     "prior": 13.63,
+     "avg_def_rank": 25.33,
+     "rank": 2
+    }
+   }
+  },
+  "BUF": {
+   "schedule": {
+    "next4": {
+     "games": 3,
+     "bye": [
+      7
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "LA"
+      },
+      {
+       "week": 6,
+       "opp": "LV"
+      },
+      {
+       "week": 8,
+       "opp": "BAL"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      7
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "LA"
+      },
+      {
+       "week": 6,
+       "opp": "LV"
+      },
+      {
+       "week": 8,
+       "opp": "BAL"
+      },
+      {
+       "week": 9,
+       "opp": "MIN"
+      },
+      {
+       "week": 10,
+       "opp": "NYJ"
+      },
+      {
+       "week": 11,
+       "opp": "MIA"
+      },
+      {
+       "week": 12,
+       "opp": "KC"
+      },
+      {
+       "week": 13,
+       "opp": "NE"
+      },
+      {
+       "week": 14,
+       "opp": "GB"
+      },
+      {
+       "week": 15,
+       "opp": "CHI"
+      },
+      {
+       "week": 16,
+       "opp": "DEN"
+      },
+      {
+       "week": 17,
+       "opp": "MIA"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "CHI"
+      },
+      {
+       "week": 16,
+       "opp": "DEN"
+      },
+      {
+       "week": 17,
+       "opp": "MIA"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 16.43,
+     "current": 15.77,
+     "prior": 16.77,
+     "avg_def_rank": 15.33,
+     "rank": 21
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 15.96,
+     "current": 15.03,
+     "prior": 16.42,
+     "avg_def_rank": 14.08,
+     "rank": 28
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 16.91,
+     "current": 16.47,
+     "prior": 17.13,
+     "avg_def_rank": 19.0,
+     "rank": 13
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 18.68,
+     "current": 16.63,
+     "prior": 19.7,
+     "avg_def_rank": 12.33,
+     "rank": 26
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 19.87,
+     "current": 20.15,
+     "prior": 19.72,
+     "avg_def_rank": 16.25,
+     "rank": 10
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 19.97,
+     "current": 21.43,
+     "prior": 19.23,
+     "avg_def_rank": 18.0,
+     "rank": 13
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 27.0,
+     "current": 26.07,
+     "prior": 27.47,
+     "avg_def_rank": 20.33,
+     "rank": 9
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 24.25,
+     "current": 23.04,
+     "prior": 24.86,
+     "avg_def_rank": 12.33,
+     "rank": 28
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 23.72,
+     "current": 20.83,
+     "prior": 25.17,
+     "avg_def_rank": 10.67,
+     "rank": 27
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 9.14,
+     "current": 9.57,
+     "prior": 8.93,
+     "avg_def_rank": 8.67,
+     "rank": 29
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.29,
+     "current": 10.07,
+     "prior": 10.4,
+     "avg_def_rank": 14.17,
+     "rank": 24
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 11.24,
+     "current": 10.87,
+     "prior": 11.43,
+     "avg_def_rank": 18.0,
+     "rank": 14
+    }
+   }
+  },
+  "CAR": {
+   "schedule": {
+    "next4": {
+     "games": 3,
+     "bye": [
+      5
+     ],
+     "opps": [
+      {
+       "week": 6,
+       "opp": "PHI"
+      },
+      {
+       "week": 7,
+       "opp": "TB"
+      },
+      {
+       "week": 8,
+       "opp": "GB"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      5
+     ],
+     "opps": [
+      {
+       "week": 6,
+       "opp": "PHI"
+      },
+      {
+       "week": 7,
+       "opp": "TB"
+      },
+      {
+       "week": 8,
+       "opp": "GB"
+      },
+      {
+       "week": 9,
+       "opp": "DEN"
+      },
+      {
+       "week": 10,
+       "opp": "NO"
+      },
+      {
+       "week": 11,
+       "opp": "BAL"
+      },
+      {
+       "week": 12,
+       "opp": "TB"
+      },
+      {
+       "week": 13,
+       "opp": "MIN"
+      },
+      {
+       "week": 14,
+       "opp": "NO"
+      },
+      {
+       "week": 15,
+       "opp": "CIN"
+      },
+      {
+       "week": 16,
+       "opp": "PIT"
+      },
+      {
+       "week": 17,
+       "opp": "SEA"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "CIN"
+      },
+      {
+       "week": 16,
+       "opp": "PIT"
+      },
+      {
+       "week": 17,
+       "opp": "SEA"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 16.26,
+     "current": 15.43,
+     "prior": 16.67,
+     "avg_def_rank": 14.67,
+     "rank": 22
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 15.86,
+     "current": 15.28,
+     "prior": 16.21,
+     "avg_def_rank": 13.92,
+     "rank": 30
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 16.2,
+     "current": 14.33,
+     "prior": 17.13,
+     "avg_def_rank": 16.0,
+     "rank": 19
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 20.4,
+     "current": 20.87,
+     "prior": 20.17,
+     "avg_def_rank": 19.67,
+     "rank": 11
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 19.53,
+     "current": 20.03,
+     "prior": 19.38,
+     "avg_def_rank": 16.17,
+     "rank": 17
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 19.6,
+     "current": 19.4,
+     "prior": 19.7,
+     "avg_def_rank": 16.33,
+     "rank": 19
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 24.58,
+     "current": 25.2,
+     "prior": 24.27,
+     "avg_def_rank": 12.0,
+     "rank": 26
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 23.79,
+     "current": 23.93,
+     "prior": 23.74,
+     "avg_def_rank": 10.5,
+     "rank": 32
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 22.87,
+     "current": 21.67,
+     "prior": 23.47,
+     "avg_def_rank": 9.33,
+     "rank": 29
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 9.59,
+     "current": 9.7,
+     "prior": 9.53,
+     "avg_def_rank": 12.0,
+     "rank": 28
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 11.01,
+     "current": 11.24,
+     "prior": 11.0,
+     "avg_def_rank": 17.33,
+     "rank": 12
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 12.9,
+     "current": 10.23,
+     "prior": 14.23,
+     "avg_def_rank": 24.0,
+     "rank": 4
+    }
+   }
+  },
+  "CHI": {
+   "schedule": {
+    "next4": {
+     "games": 4,
+     "bye": [],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "GB"
+      },
+      {
+       "week": 6,
+       "opp": "ATL"
+      },
+      {
+       "week": 7,
+       "opp": "NE"
+      },
+      {
+       "week": 8,
+       "opp": "SEA"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      10
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "GB"
+      },
+      {
+       "week": 6,
+       "opp": "ATL"
+      },
+      {
+       "week": 7,
+       "opp": "NE"
+      },
+      {
+       "week": 8,
+       "opp": "SEA"
+      },
+      {
+       "week": 9,
+       "opp": "TB"
+      },
+      {
+       "week": 11,
+       "opp": "NO"
+      },
+      {
+       "week": 12,
+       "opp": "DET"
+      },
+      {
+       "week": 13,
+       "opp": "JAX"
+      },
+      {
+       "week": 14,
+       "opp": "MIA"
+      },
+      {
+       "week": 15,
+       "opp": "BUF"
+      },
+      {
+       "week": 16,
+       "opp": "GB"
+      },
+      {
+       "week": 17,
+       "opp": "DET"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "BUF"
+      },
+      {
+       "week": 16,
+       "opp": "GB"
+      },
+      {
+       "week": 17,
+       "opp": "DET"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 14.94,
+     "current": 14.7,
+     "prior": 15.1,
+     "avg_def_rank": 7.5,
+     "rank": 31
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 16.77,
+     "current": 18.02,
+     "prior": 16.18,
+     "avg_def_rank": 15.5,
+     "rank": 16
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 17.57,
+     "current": 21.57,
+     "prior": 15.57,
+     "avg_def_rank": 17.33,
+     "rank": 7
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 18.35,
+     "current": 18.98,
+     "prior": 17.85,
+     "avg_def_rank": 10.75,
+     "rank": 28
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 19.39,
+     "current": 20.47,
+     "prior": 18.83,
+     "avg_def_rank": 15.33,
+     "rank": 24
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 20.99,
+     "current": 23.57,
+     "prior": 19.7,
+     "avg_def_rank": 21.33,
+     "rank": 3
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 24.83,
+     "current": 25.73,
+     "prior": 24.48,
+     "avg_def_rank": 15.25,
+     "rank": 23
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 25.82,
+     "current": 27.15,
+     "prior": 25.2,
+     "avg_def_rank": 16.67,
+     "rank": 13
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 27.74,
+     "current": 31.9,
+     "prior": 25.67,
+     "avg_def_rank": 22.0,
+     "rank": 5
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 9.63,
+     "current": 8.82,
+     "prior": 10.18,
+     "avg_def_rank": 11.0,
+     "rank": 27
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 11.25,
+     "current": 12.85,
+     "prior": 10.54,
+     "avg_def_rank": 17.5,
+     "rank": 9
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 10.54,
+     "current": 13.7,
+     "prior": 8.97,
+     "avg_def_rank": 13.67,
+     "rank": 18
+    }
+   }
+  },
+  "CIN": {
+   "schedule": {
+    "next4": {
+     "games": 3,
+     "bye": [
+      6
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "MIA"
+      },
+      {
+       "week": 7,
+       "opp": "BAL"
+      },
+      {
+       "week": 8,
+       "opp": "TEN"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      6
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "MIA"
+      },
+      {
+       "week": 7,
+       "opp": "BAL"
+      },
+      {
+       "week": 8,
+       "opp": "TEN"
+      },
+      {
+       "week": 9,
+       "opp": "ATL"
+      },
+      {
+       "week": 10,
+       "opp": "PIT"
+      },
+      {
+       "week": 11,
+       "opp": "WAS"
+      },
+      {
+       "week": 12,
+       "opp": "NO"
+      },
+      {
+       "week": 13,
+       "opp": "CLE"
+      },
+      {
+       "week": 14,
+       "opp": "KC"
+      },
+      {
+       "week": 15,
+       "opp": "CAR"
+      },
+      {
+       "week": 16,
+       "opp": "IND"
+      },
+      {
+       "week": 17,
+       "opp": "BAL"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "CAR"
+      },
+      {
+       "week": 16,
+       "opp": "IND"
+      },
+      {
+       "week": 17,
+       "opp": "BAL"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 17.57,
+     "current": 15.5,
+     "prior": 18.6,
+     "avg_def_rank": 23.0,
+     "rank": 6
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 16.96,
+     "current": 17.16,
+     "prior": 16.9,
+     "avg_def_rank": 18.08,
+     "rank": 11
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 17.12,
+     "current": 18.77,
+     "prior": 16.3,
+     "avg_def_rank": 20.33,
+     "rank": 10
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 20.71,
+     "current": 20.2,
+     "prior": 20.97,
+     "avg_def_rank": 21.33,
+     "rank": 5
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 19.79,
+     "current": 19.28,
+     "prior": 20.03,
+     "avg_def_rank": 17.25,
+     "rank": 11
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 20.73,
+     "current": 21.6,
+     "prior": 20.3,
+     "avg_def_rank": 21.33,
+     "rank": 6
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 27.01,
+     "current": 25.23,
+     "prior": 27.9,
+     "avg_def_rank": 20.0,
+     "rank": 8
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 26.37,
+     "current": 26.5,
+     "prior": 26.34,
+     "avg_def_rank": 18.83,
+     "rank": 9
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 27.16,
+     "current": 27.53,
+     "prior": 26.97,
+     "avg_def_rank": 21.33,
+     "rank": 7
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 10.88,
+     "current": 10.5,
+     "prior": 11.07,
+     "avg_def_rank": 15.67,
+     "rank": 14
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 11.27,
+     "current": 12.66,
+     "prior": 10.67,
+     "avg_def_rank": 19.33,
+     "rank": 8
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 10.78,
+     "current": 11.13,
+     "prior": 10.6,
+     "avg_def_rank": 18.0,
+     "rank": 16
+    }
+   }
+  },
+  "CLE": {
+   "schedule": {
+    "next4": {
+     "games": 4,
+     "bye": [],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "NYJ"
+      },
+      {
+       "week": 6,
+       "opp": "BAL"
+      },
+      {
+       "week": 7,
+       "opp": "TEN"
+      },
+      {
+       "week": 8,
+       "opp": "PIT"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      11
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "NYJ"
+      },
+      {
+       "week": 6,
+       "opp": "BAL"
+      },
+      {
+       "week": 7,
+       "opp": "TEN"
+      },
+      {
+       "week": 8,
+       "opp": "PIT"
+      },
+      {
+       "week": 9,
+       "opp": "NO"
+      },
+      {
+       "week": 10,
+       "opp": "HOU"
+      },
+      {
+       "week": 12,
+       "opp": "LV"
+      },
+      {
+       "week": 13,
+       "opp": "CIN"
+      },
+      {
+       "week": 14,
+       "opp": "ATL"
+      },
+      {
+       "week": 15,
+       "opp": "NYG"
+      },
+      {
+       "week": 16,
+       "opp": "BAL"
+      },
+      {
+       "week": 17,
+       "opp": "IND"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "NYG"
+      },
+      {
+       "week": 16,
+       "opp": "BAL"
+      },
+      {
+       "week": 17,
+       "opp": "IND"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 17.33,
+     "current": 13.95,
+     "prior": 19.02,
+     "avg_def_rank": 21.5,
+     "rank": 8
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 17.09,
+     "current": 16.58,
+     "prior": 17.38,
+     "avg_def_rank": 19.75,
+     "rank": 8
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 17.53,
+     "current": 17.27,
+     "prior": 17.67,
+     "avg_def_rank": 22.67,
+     "rank": 8
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 21.08,
+     "current": 21.1,
+     "prior": 21.07,
+     "avg_def_rank": 20.25,
+     "rank": 4
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 20.31,
+     "current": 19.38,
+     "prior": 20.75,
+     "avg_def_rank": 18.42,
+     "rank": 5
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 20.43,
+     "current": 19.7,
+     "prior": 20.8,
+     "avg_def_rank": 20.0,
+     "rank": 9
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 27.64,
+     "current": 26.27,
+     "prior": 28.32,
+     "avg_def_rank": 22.5,
+     "rank": 6
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 26.9,
+     "current": 27.67,
+     "prior": 26.55,
+     "avg_def_rank": 20.42,
+     "rank": 7
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 28.93,
+     "current": 29.13,
+     "prior": 28.83,
+     "avg_def_rank": 27.0,
+     "rank": 3
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 10.3,
+     "current": 8.0,
+     "prior": 11.45,
+     "avg_def_rank": 15.0,
+     "rank": 20
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.74,
+     "current": 10.93,
+     "prior": 10.74,
+     "avg_def_rank": 15.75,
+     "rank": 16
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 10.0,
+     "current": 10.33,
+     "prior": 9.83,
+     "avg_def_rank": 13.33,
+     "rank": 23
+    }
+   }
+  },
+  "DAL": {
+   "schedule": {
+    "next4": {
+     "games": 4,
+     "bye": [],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "TB"
+      },
+      {
+       "week": 6,
+       "opp": "GB"
+      },
+      {
+       "week": 7,
+       "opp": "PHI"
+      },
+      {
+       "week": 8,
+       "opp": "ARI"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      14
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "TB"
+      },
+      {
+       "week": 6,
+       "opp": "GB"
+      },
+      {
+       "week": 7,
+       "opp": "PHI"
+      },
+      {
+       "week": 8,
+       "opp": "ARI"
+      },
+      {
+       "week": 9,
+       "opp": "IND"
+      },
+      {
+       "week": 10,
+       "opp": "SF"
+      },
+      {
+       "week": 11,
+       "opp": "TEN"
+      },
+      {
+       "week": 12,
+       "opp": "PHI"
+      },
+      {
+       "week": 13,
+       "opp": "SEA"
+      },
+      {
+       "week": 15,
+       "opp": "LA"
+      },
+      {
+       "week": 16,
+       "opp": "JAX"
+      },
+      {
+       "week": 17,
+       "opp": "NYG"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "LA"
+      },
+      {
+       "week": 16,
+       "opp": "JAX"
+      },
+      {
+       "week": 17,
+       "opp": "NYG"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 16.86,
+     "current": 16.82,
+     "prior": 16.88,
+     "avg_def_rank": 18.25,
+     "rank": 13
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 16.39,
+     "current": 15.91,
+     "prior": 16.62,
+     "avg_def_rank": 16.25,
+     "rank": 19
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 15.98,
+     "current": 14.87,
+     "prior": 16.53,
+     "avg_def_rank": 13.67,
+     "rank": 21
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 20.62,
+     "current": 19.45,
+     "prior": 21.2,
+     "avg_def_rank": 20.75,
+     "rank": 7
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 19.56,
+     "current": 18.82,
+     "prior": 19.93,
+     "avg_def_rank": 16.42,
+     "rank": 15
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 18.1,
+     "current": 15.77,
+     "prior": 19.27,
+     "avg_def_rank": 10.0,
+     "rank": 31
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 25.35,
+     "current": 27.35,
+     "prior": 24.35,
+     "avg_def_rank": 15.25,
+     "rank": 20
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 25.71,
+     "current": 26.61,
+     "prior": 25.26,
+     "avg_def_rank": 16.92,
+     "rank": 14
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 26.58,
+     "current": 27.53,
+     "prior": 26.1,
+     "avg_def_rank": 20.67,
+     "rank": 10
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 10.81,
+     "current": 11.18,
+     "prior": 10.62,
+     "avg_def_rank": 16.5,
+     "rank": 15
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.09,
+     "current": 9.09,
+     "prior": 10.59,
+     "avg_def_rank": 14.08,
+     "rank": 30
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 9.61,
+     "current": 8.17,
+     "prior": 10.33,
+     "avg_def_rank": 12.0,
+     "rank": 24
+    }
+   }
+  },
+  "DEN": {
+   "schedule": {
+    "next4": {
+     "games": 4,
+     "bye": [],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "LAC"
+      },
+      {
+       "week": 6,
+       "opp": "SEA"
+      },
+      {
+       "week": 7,
+       "opp": "ARI"
+      },
+      {
+       "week": 8,
+       "opp": "KC"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      10
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "LAC"
+      },
+      {
+       "week": 6,
+       "opp": "SEA"
+      },
+      {
+       "week": 7,
+       "opp": "ARI"
+      },
+      {
+       "week": 8,
+       "opp": "KC"
+      },
+      {
+       "week": 9,
+       "opp": "CAR"
+      },
+      {
+       "week": 11,
+       "opp": "LV"
+      },
+      {
+       "week": 12,
+       "opp": "PIT"
+      },
+      {
+       "week": 13,
+       "opp": "MIA"
+      },
+      {
+       "week": 14,
+       "opp": "NYJ"
+      },
+      {
+       "week": 15,
+       "opp": "LV"
+      },
+      {
+       "week": 16,
+       "opp": "BUF"
+      },
+      {
+       "week": 17,
+       "opp": "NE"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "LV"
+      },
+      {
+       "week": 16,
+       "opp": "BUF"
+      },
+      {
+       "week": 17,
+       "opp": "NE"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 15.15,
+     "current": 15.8,
+     "prior": 14.82,
+     "avg_def_rank": 9.5,
+     "rank": 28
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 16.22,
+     "current": 16.54,
+     "prior": 16.07,
+     "avg_def_rank": 14.75,
+     "rank": 24
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 16.06,
+     "current": 18.03,
+     "prior": 15.07,
+     "avg_def_rank": 12.67,
+     "rank": 20
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 18.45,
+     "current": 18.1,
+     "prior": 18.62,
+     "avg_def_rank": 11.75,
+     "rank": 27
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 20.51,
+     "current": 21.09,
+     "prior": 20.22,
+     "avg_def_rank": 19.0,
+     "rank": 4
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 20.1,
+     "current": 20.7,
+     "prior": 19.8,
+     "avg_def_rank": 18.0,
+     "rank": 12
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 22.78,
+     "current": 23.9,
+     "prior": 22.23,
+     "avg_def_rank": 9.5,
+     "rank": 30
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 24.09,
+     "current": 24.28,
+     "prior": 23.99,
+     "avg_def_rank": 12.5,
+     "rank": 30
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 25.64,
+     "current": 28.73,
+     "prior": 24.1,
+     "avg_def_rank": 17.33,
+     "rank": 14
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 11.28,
+     "current": 12.62,
+     "prior": 10.6,
+     "avg_def_rank": 18.75,
+     "rank": 10
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.88,
+     "current": 11.5,
+     "prior": 10.58,
+     "avg_def_rank": 17.42,
+     "rank": 13
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 8.98,
+     "current": 9.4,
+     "prior": 8.77,
+     "avg_def_rank": 8.33,
+     "rank": 27
+    }
+   }
+  },
+  "DET": {
+   "schedule": {
+    "next4": {
+     "games": 3,
+     "bye": [
+      6
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "ARI"
+      },
+      {
+       "week": 7,
+       "opp": "GB"
+      },
+      {
+       "week": 8,
+       "opp": "MIN"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      6
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "ARI"
+      },
+      {
+       "week": 7,
+       "opp": "GB"
+      },
+      {
+       "week": 8,
+       "opp": "MIN"
+      },
+      {
+       "week": 9,
+       "opp": "MIA"
+      },
+      {
+       "week": 10,
+       "opp": "NE"
+      },
+      {
+       "week": 11,
+       "opp": "TB"
+      },
+      {
+       "week": 12,
+       "opp": "CHI"
+      },
+      {
+       "week": 13,
+       "opp": "ATL"
+      },
+      {
+       "week": 14,
+       "opp": "TEN"
+      },
+      {
+       "week": 15,
+       "opp": "MIN"
+      },
+      {
+       "week": 16,
+       "opp": "NYG"
+      },
+      {
+       "week": 17,
+       "opp": "CHI"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "MIN"
+      },
+      {
+       "week": 16,
+       "opp": "NYG"
+      },
+      {
+       "week": 17,
+       "opp": "CHI"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 15.01,
+     "current": 15.5,
+     "prior": 14.77,
+     "avg_def_rank": 12.0,
+     "rank": 29
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 16.14,
+     "current": 15.09,
+     "prior": 16.68,
+     "avg_def_rank": 16.5,
+     "rank": 26
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 15.37,
+     "current": 13.9,
+     "prior": 16.1,
+     "avg_def_rank": 14.67,
+     "rank": 26
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 19.94,
+     "current": 18.63,
+     "prior": 20.6,
+     "avg_def_rank": 17.33,
+     "rank": 14
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 19.29,
+     "current": 17.46,
+     "prior": 20.14,
+     "avg_def_rank": 15.33,
+     "rank": 27
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 19.14,
+     "current": 16.37,
+     "prior": 20.53,
+     "avg_def_rank": 14.67,
+     "rank": 23
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 24.82,
+     "current": 28.0,
+     "prior": 23.23,
+     "avg_def_rank": 14.67,
+     "rank": 24
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 25.54,
+     "current": 25.38,
+     "prior": 25.65,
+     "avg_def_rank": 16.75,
+     "rank": 17
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 25.3,
+     "current": 24.63,
+     "prior": 25.63,
+     "avg_def_rank": 16.67,
+     "rank": 18
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 10.44,
+     "current": 10.13,
+     "prior": 10.6,
+     "avg_def_rank": 13.67,
+     "rank": 19
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.22,
+     "current": 9.55,
+     "prior": 10.6,
+     "avg_def_rank": 12.92,
+     "rank": 28
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 8.7,
+     "current": 7.63,
+     "prior": 9.23,
+     "avg_def_rank": 6.67,
+     "rank": 30
+    }
+   }
+  },
+  "GB": {
+   "schedule": {
+    "next4": {
+     "games": 4,
+     "bye": [],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "CHI"
+      },
+      {
+       "week": 6,
+       "opp": "DAL"
+      },
+      {
+       "week": 7,
+       "opp": "DET"
+      },
+      {
+       "week": 8,
+       "opp": "CAR"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      11
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "CHI"
+      },
+      {
+       "week": 6,
+       "opp": "DAL"
+      },
+      {
+       "week": 7,
+       "opp": "DET"
+      },
+      {
+       "week": 8,
+       "opp": "CAR"
+      },
+      {
+       "week": 9,
+       "opp": "NE"
+      },
+      {
+       "week": 10,
+       "opp": "MIN"
+      },
+      {
+       "week": 12,
+       "opp": "LA"
+      },
+      {
+       "week": 13,
+       "opp": "NO"
+      },
+      {
+       "week": 14,
+       "opp": "BUF"
+      },
+      {
+       "week": 15,
+       "opp": "MIA"
+      },
+      {
+       "week": 16,
+       "opp": "CHI"
+      },
+      {
+       "week": 17,
+       "opp": "HOU"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "MIA"
+      },
+      {
+       "week": 16,
+       "opp": "CHI"
+      },
+      {
+       "week": 17,
+       "opp": "HOU"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 19.54,
+     "current": 21.62,
+     "prior": 18.5,
+     "avg_def_rank": 24.75,
+     "rank": 1
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 16.86,
+     "current": 18.32,
+     "prior": 16.16,
+     "avg_def_rank": 16.42,
+     "rank": 13
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 16.98,
+     "current": 17.6,
+     "prior": 16.67,
+     "avg_def_rank": 19.67,
+     "rank": 12
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 20.55,
+     "current": 20.55,
+     "prior": 20.55,
+     "avg_def_rank": 20.5,
+     "rank": 9
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 19.53,
+     "current": 19.37,
+     "prior": 19.67,
+     "avg_def_rank": 16.0,
+     "rank": 17
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 19.47,
+     "current": 18.73,
+     "prior": 19.83,
+     "avg_def_rank": 16.0,
+     "rank": 20
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 28.36,
+     "current": 27.77,
+     "prior": 28.65,
+     "avg_def_rank": 23.25,
+     "rank": 1
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 25.87,
+     "current": 27.0,
+     "prior": 25.31,
+     "avg_def_rank": 17.08,
+     "rank": 12
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 25.16,
+     "current": 25.33,
+     "prior": 25.07,
+     "avg_def_rank": 15.67,
+     "rank": 20
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 11.62,
+     "current": 13.82,
+     "prior": 10.52,
+     "avg_def_rank": 20.25,
+     "rank": 7
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.24,
+     "current": 10.38,
+     "prior": 10.22,
+     "avg_def_rank": 13.92,
+     "rank": 27
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 10.57,
+     "current": 9.43,
+     "prior": 11.13,
+     "avg_def_rank": 14.33,
+     "rank": 17
+    }
+   }
+  },
+  "HOU": {
+   "schedule": {
+    "next4": {
+     "games": 3,
+     "bye": [
+      8
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "TEN"
+      },
+      {
+       "week": 6,
+       "opp": "JAX"
+      },
+      {
+       "week": 7,
+       "opp": "NYG"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      8
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "TEN"
+      },
+      {
+       "week": 6,
+       "opp": "JAX"
+      },
+      {
+       "week": 7,
+       "opp": "NYG"
+      },
+      {
+       "week": 9,
+       "opp": "LAC"
+      },
+      {
+       "week": 10,
+       "opp": "CLE"
+      },
+      {
+       "week": 11,
+       "opp": "IND"
+      },
+      {
+       "week": 12,
+       "opp": "BAL"
+      },
+      {
+       "week": 13,
+       "opp": "PIT"
+      },
+      {
+       "week": 14,
+       "opp": "WAS"
+      },
+      {
+       "week": 15,
+       "opp": "JAX"
+      },
+      {
+       "week": 16,
+       "opp": "PHI"
+      },
+      {
+       "week": 17,
+       "opp": "GB"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "JAX"
+      },
+      {
+       "week": 16,
+       "opp": "PHI"
+      },
+      {
+       "week": 17,
+       "opp": "GB"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 16.74,
+     "current": 14.57,
+     "prior": 17.83,
+     "avg_def_rank": 18.67,
+     "rank": 14
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 16.56,
+     "current": 16.53,
+     "prior": 16.57,
+     "avg_def_rank": 16.08,
+     "rank": 17
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 15.44,
+     "current": 15.6,
+     "prior": 15.37,
+     "avg_def_rank": 10.33,
+     "rank": 25
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 19.21,
+     "current": 17.7,
+     "prior": 19.97,
+     "avg_def_rank": 15.33,
+     "rank": 21
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 19.24,
+     "current": 18.97,
+     "prior": 19.38,
+     "avg_def_rank": 15.08,
+     "rank": 29
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 19.47,
+     "current": 20.67,
+     "prior": 18.87,
+     "avg_def_rank": 15.67,
+     "rank": 20
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 27.74,
+     "current": 28.57,
+     "prior": 27.33,
+     "avg_def_rank": 24.0,
+     "rank": 5
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 27.13,
+     "current": 29.03,
+     "prior": 26.18,
+     "avg_def_rank": 21.08,
+     "rank": 4
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 25.58,
+     "current": 28.73,
+     "prior": 24.0,
+     "avg_def_rank": 16.0,
+     "rank": 15
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 10.21,
+     "current": 9.17,
+     "prior": 10.73,
+     "avg_def_rank": 14.33,
+     "rank": 21
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.16,
+     "current": 9.62,
+     "prior": 10.43,
+     "avg_def_rank": 14.5,
+     "rank": 29
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 8.59,
+     "current": 7.43,
+     "prior": 9.17,
+     "avg_def_rank": 8.67,
+     "rank": 31
+    }
+   }
+  },
+  "IND": {
+   "schedule": {
+    "next4": {
+     "games": 4,
+     "bye": [],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "PIT"
+      },
+      {
+       "week": 6,
+       "opp": "TEN"
+      },
+      {
+       "week": 7,
+       "opp": "MIN"
+      },
+      {
+       "week": 8,
+       "opp": "JAX"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      13
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "PIT"
+      },
+      {
+       "week": 6,
+       "opp": "TEN"
+      },
+      {
+       "week": 7,
+       "opp": "MIN"
+      },
+      {
+       "week": 8,
+       "opp": "JAX"
+      },
+      {
+       "week": 9,
+       "opp": "DAL"
+      },
+      {
+       "week": 10,
+       "opp": "MIA"
+      },
+      {
+       "week": 11,
+       "opp": "HOU"
+      },
+      {
+       "week": 12,
+       "opp": "NYG"
+      },
+      {
+       "week": 14,
+       "opp": "PHI"
+      },
+      {
+       "week": 15,
+       "opp": "TEN"
+      },
+      {
+       "week": 16,
+       "opp": "CIN"
+      },
+      {
+       "week": 17,
+       "opp": "CLE"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "TEN"
+      },
+      {
+       "week": 16,
+       "opp": "CIN"
+      },
+      {
+       "week": 17,
+       "opp": "CLE"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 15.42,
+     "current": 13.3,
+     "prior": 16.48,
+     "avg_def_rank": 13.75,
+     "rank": 26
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 16.86,
+     "current": 16.41,
+     "prior": 17.08,
+     "avg_def_rank": 17.92,
+     "rank": 13
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 16.83,
+     "current": 16.37,
+     "prior": 17.07,
+     "avg_def_rank": 19.0,
+     "rank": 15
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 17.75,
+     "current": 17.2,
+     "prior": 18.02,
+     "avg_def_rank": 9.25,
+     "rank": 31
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 19.71,
+     "current": 18.38,
+     "prior": 20.38,
+     "avg_def_rank": 16.75,
+     "rank": 12
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 20.11,
+     "current": 16.93,
+     "prior": 21.7,
+     "avg_def_rank": 18.67,
+     "rank": 11
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 26.01,
+     "current": 26.62,
+     "prior": 25.7,
+     "avg_def_rank": 18.25,
+     "rank": 14
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 26.06,
+     "current": 27.81,
+     "prior": 25.18,
+     "avg_def_rank": 17.5,
+     "rank": 10
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 25.39,
+     "current": 27.97,
+     "prior": 24.1,
+     "avg_def_rank": 15.33,
+     "rank": 17
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 10.13,
+     "current": 7.65,
+     "prior": 11.38,
+     "avg_def_rank": 14.5,
+     "rank": 23
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.68,
+     "current": 9.97,
+     "prior": 11.03,
+     "avg_def_rank": 16.17,
+     "rank": 18
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 12.61,
+     "current": 11.97,
+     "prior": 12.93,
+     "avg_def_rank": 22.0,
+     "rank": 5
+    }
+   }
+  },
+  "JAX": {
+   "schedule": {
+    "next4": {
+     "games": 3,
+     "bye": [
+      7
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "PHI"
+      },
+      {
+       "week": 6,
+       "opp": "HOU"
+      },
+      {
+       "week": 8,
+       "opp": "IND"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      7
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "PHI"
+      },
+      {
+       "week": 6,
+       "opp": "HOU"
+      },
+      {
+       "week": 8,
+       "opp": "IND"
+      },
+      {
+       "week": 9,
+       "opp": "BAL"
+      },
+      {
+       "week": 10,
+       "opp": "TEN"
+      },
+      {
+       "week": 11,
+       "opp": "NYG"
+      },
+      {
+       "week": 12,
+       "opp": "TEN"
+      },
+      {
+       "week": 13,
+       "opp": "CHI"
+      },
+      {
+       "week": 14,
+       "opp": "PIT"
+      },
+      {
+       "week": 15,
+       "opp": "HOU"
+      },
+      {
+       "week": 16,
+       "opp": "DAL"
+      },
+      {
+       "week": 17,
+       "opp": "WAS"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "HOU"
+      },
+      {
+       "week": 16,
+       "opp": "DAL"
+      },
+      {
+       "week": 17,
+       "opp": "WAS"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 16.54,
+     "current": 19.83,
+     "prior": 14.9,
+     "avg_def_rank": 17.0,
+     "rank": 19
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 17.72,
+     "current": 17.72,
+     "prior": 17.72,
+     "avg_def_rank": 21.0,
+     "rank": 3
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 19.81,
+     "current": 22.3,
+     "prior": 18.57,
+     "avg_def_rank": 24.33,
+     "rank": 3
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 19.08,
+     "current": 19.23,
+     "prior": 19.0,
+     "avg_def_rank": 14.0,
+     "rank": 23
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 19.62,
+     "current": 18.51,
+     "prior": 20.18,
+     "avg_def_rank": 16.67,
+     "rank": 14
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 19.83,
+     "current": 17.03,
+     "prior": 21.23,
+     "avg_def_rank": 16.67,
+     "rank": 16
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 26.73,
+     "current": 32.33,
+     "prior": 23.93,
+     "avg_def_rank": 19.67,
+     "rank": 10
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 28.24,
+     "current": 29.73,
+     "prior": 27.49,
+     "avg_def_rank": 24.42,
+     "rank": 1
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 29.63,
+     "current": 33.63,
+     "prior": 27.63,
+     "avg_def_rank": 27.33,
+     "rank": 2
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 9.13,
+     "current": 8.4,
+     "prior": 9.5,
+     "avg_def_rank": 11.33,
+     "rank": 30
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.07,
+     "current": 9.29,
+     "prior": 10.46,
+     "avg_def_rank": 13.83,
+     "rank": 31
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 11.37,
+     "current": 12.23,
+     "prior": 10.93,
+     "avg_def_rank": 19.33,
+     "rank": 11
+    }
+   }
+  },
+  "KC": {
+   "schedule": {
+    "next4": {
+     "games": 3,
+     "bye": [
+      5
+     ],
+     "opps": [
+      {
+       "week": 6,
+       "opp": "LAC"
+      },
+      {
+       "week": 7,
+       "opp": "SEA"
+      },
+      {
+       "week": 8,
+       "opp": "DEN"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      5
+     ],
+     "opps": [
+      {
+       "week": 6,
+       "opp": "LAC"
+      },
+      {
+       "week": 7,
+       "opp": "SEA"
+      },
+      {
+       "week": 8,
+       "opp": "DEN"
+      },
+      {
+       "week": 9,
+       "opp": "NYJ"
+      },
+      {
+       "week": 10,
+       "opp": "ATL"
+      },
+      {
+       "week": 11,
+       "opp": "ARI"
+      },
+      {
+       "week": 12,
+       "opp": "BUF"
+      },
+      {
+       "week": 13,
+       "opp": "LA"
+      },
+      {
+       "week": 14,
+       "opp": "CIN"
+      },
+      {
+       "week": 15,
+       "opp": "NE"
+      },
+      {
+       "week": 16,
+       "opp": "SF"
+      },
+      {
+       "week": 17,
+       "opp": "LAC"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "NE"
+      },
+      {
+       "week": 16,
+       "opp": "SF"
+      },
+      {
+       "week": 17,
+       "opp": "LAC"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 14.24,
+     "current": 15.47,
+     "prior": 13.63,
+     "avg_def_rank": 4.67,
+     "rank": 32
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 15.91,
+     "current": 16.62,
+     "prior": 15.58,
+     "avg_def_rank": 13.17,
+     "rank": 29
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 15.11,
+     "current": 15.33,
+     "prior": 15.0,
+     "avg_def_rank": 8.0,
+     "rank": 27
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 17.83,
+     "current": 21.1,
+     "prior": 16.2,
+     "avg_def_rank": 8.67,
+     "rank": 30
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 19.71,
+     "current": 19.24,
+     "prior": 19.88,
+     "avg_def_rank": 15.67,
+     "rank": 12
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 18.89,
+     "current": 20.47,
+     "prior": 18.1,
+     "avg_def_rank": 13.67,
+     "rank": 26
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 21.84,
+     "current": 23.07,
+     "prior": 21.23,
+     "avg_def_rank": 5.33,
+     "rank": 32
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 24.5,
+     "current": 26.69,
+     "prior": 23.43,
+     "avg_def_rank": 13.42,
+     "rank": 26
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 24.76,
+     "current": 26.47,
+     "prior": 23.9,
+     "avg_def_rank": 13.67,
+     "rank": 23
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 10.08,
+     "current": 9.7,
+     "prior": 10.27,
+     "avg_def_rank": 13.67,
+     "rank": 25
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.43,
+     "current": 9.42,
+     "prior": 10.97,
+     "avg_def_rank": 13.83,
+     "rank": 21
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 9.3,
+     "current": 6.37,
+     "prior": 10.77,
+     "avg_def_rank": 8.67,
+     "rank": 26
+    }
+   }
+  },
+  "LA": {
+   "schedule": {
+    "next4": {
+     "games": 4,
+     "bye": [],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "BUF"
+      },
+      {
+       "week": 6,
+       "opp": "ARI"
+      },
+      {
+       "week": 7,
+       "opp": "LV"
+      },
+      {
+       "week": 8,
+       "opp": "LAC"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      11
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "BUF"
+      },
+      {
+       "week": 6,
+       "opp": "ARI"
+      },
+      {
+       "week": 7,
+       "opp": "LV"
+      },
+      {
+       "week": 8,
+       "opp": "LAC"
+      },
+      {
+       "week": 9,
+       "opp": "WAS"
+      },
+      {
+       "week": 10,
+       "opp": "ARI"
+      },
+      {
+       "week": 12,
+       "opp": "GB"
+      },
+      {
+       "week": 13,
+       "opp": "KC"
+      },
+      {
+       "week": 14,
+       "opp": "SF"
+      },
+      {
+       "week": 15,
+       "opp": "DAL"
+      },
+      {
+       "week": 16,
+       "opp": "SEA"
+      },
+      {
+       "week": 17,
+       "opp": "TB"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "DAL"
+      },
+      {
+       "week": 16,
+       "opp": "SEA"
+      },
+      {
+       "week": 17,
+       "opp": "TB"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 16.55,
+     "current": 19.45,
+     "prior": 15.1,
+     "avg_def_rank": 16.25,
+     "rank": 18
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 17.16,
+     "current": 17.73,
+     "prior": 16.87,
+     "avg_def_rank": 17.42,
+     "rank": 7
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 18.22,
+     "current": 16.6,
+     "prior": 19.03,
+     "avg_def_rank": 19.67,
+     "rank": 4
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 20.64,
+     "current": 19.98,
+     "prior": 20.98,
+     "avg_def_rank": 20.5,
+     "rank": 6
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 20.18,
+     "current": 19.19,
+     "prior": 20.67,
+     "avg_def_rank": 18.75,
+     "rank": 8
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 19.11,
+     "current": 18.07,
+     "prior": 19.63,
+     "avg_def_rank": 14.67,
+     "rank": 24
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 25.72,
+     "current": 29.85,
+     "prior": 23.65,
+     "avg_def_rank": 17.25,
+     "rank": 15
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 25.56,
+     "current": 26.48,
+     "prior": 25.09,
+     "avg_def_rank": 16.42,
+     "rank": 16
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 25.21,
+     "current": 22.63,
+     "prior": 26.5,
+     "avg_def_rank": 14.0,
+     "rank": 19
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 10.11,
+     "current": 11.93,
+     "prior": 9.2,
+     "avg_def_rank": 12.5,
+     "rank": 24
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 11.22,
+     "current": 12.35,
+     "prior": 10.66,
+     "avg_def_rank": 18.08,
+     "rank": 10
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 11.5,
+     "current": 11.83,
+     "prior": 11.33,
+     "avg_def_rank": 20.67,
+     "rank": 10
+    }
+   }
+  },
+  "LAC": {
+   "schedule": {
+    "next4": {
+     "games": 3,
+     "bye": [
+      7
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "DEN"
+      },
+      {
+       "week": 6,
+       "opp": "KC"
+      },
+      {
+       "week": 8,
+       "opp": "LA"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      7
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "DEN"
+      },
+      {
+       "week": 6,
+       "opp": "KC"
+      },
+      {
+       "week": 8,
+       "opp": "LA"
+      },
+      {
+       "week": 9,
+       "opp": "HOU"
+      },
+      {
+       "week": 10,
+       "opp": "BAL"
+      },
+      {
+       "week": 11,
+       "opp": "NYJ"
+      },
+      {
+       "week": 12,
+       "opp": "NE"
+      },
+      {
+       "week": 13,
+       "opp": "TB"
+      },
+      {
+       "week": 14,
+       "opp": "LV"
+      },
+      {
+       "week": 15,
+       "opp": "SF"
+      },
+      {
+       "week": 16,
+       "opp": "MIA"
+      },
+      {
+       "week": 17,
+       "opp": "KC"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "SF"
+      },
+      {
+       "week": 16,
+       "opp": "MIA"
+      },
+      {
+       "week": 17,
+       "opp": "KC"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 14.97,
+     "current": 14.83,
+     "prior": 15.03,
+     "avg_def_rank": 7.0,
+     "rank": 30
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 16.18,
+     "current": 15.38,
+     "prior": 16.57,
+     "avg_def_rank": 14.17,
+     "rank": 25
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 16.36,
+     "current": 14.87,
+     "prior": 17.1,
+     "avg_def_rank": 15.33,
+     "rank": 18
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 17.33,
+     "current": 18.0,
+     "prior": 17.0,
+     "avg_def_rank": 6.33,
+     "rank": 32
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 19.31,
+     "current": 19.1,
+     "prior": 19.42,
+     "avg_def_rank": 14.17,
+     "rank": 26
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 20.48,
+     "current": 21.1,
+     "prior": 20.17,
+     "avg_def_rank": 20.0,
+     "rank": 8
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 22.51,
+     "current": 21.53,
+     "prior": 23.0,
+     "avg_def_rank": 8.0,
+     "rank": 31
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 24.14,
+     "current": 23.55,
+     "prior": 24.44,
+     "avg_def_rank": 12.17,
+     "rank": 29
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 22.21,
+     "current": 18.57,
+     "prior": 24.03,
+     "avg_def_rank": 6.33,
+     "rank": 31
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 10.63,
+     "current": 12.03,
+     "prior": 9.93,
+     "avg_def_rank": 17.67,
+     "rank": 17
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.78,
+     "current": 11.17,
+     "prior": 10.59,
+     "avg_def_rank": 16.75,
+     "rank": 15
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 11.97,
+     "current": 13.3,
+     "prior": 11.3,
+     "avg_def_rank": 22.0,
+     "rank": 9
+    }
+   }
+  },
+  "LV": {
+   "schedule": {
+    "next4": {
+     "games": 4,
+     "bye": [],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "NE"
+      },
+      {
+       "week": 6,
+       "opp": "BUF"
+      },
+      {
+       "week": 7,
+       "opp": "LA"
+      },
+      {
+       "week": 8,
+       "opp": "NYJ"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      13
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "NE"
+      },
+      {
+       "week": 6,
+       "opp": "BUF"
+      },
+      {
+       "week": 7,
+       "opp": "LA"
+      },
+      {
+       "week": 8,
+       "opp": "NYJ"
+      },
+      {
+       "week": 9,
+       "opp": "SF"
+      },
+      {
+       "week": 10,
+       "opp": "SEA"
+      },
+      {
+       "week": 11,
+       "opp": "DEN"
+      },
+      {
+       "week": 12,
+       "opp": "CLE"
+      },
+      {
+       "week": 14,
+       "opp": "LAC"
+      },
+      {
+       "week": 15,
+       "opp": "DEN"
+      },
+      {
+       "week": 16,
+       "opp": "TEN"
+      },
+      {
+       "week": 17,
+       "opp": "ARI"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "DEN"
+      },
+      {
+       "week": 16,
+       "opp": "TEN"
+      },
+      {
+       "week": 17,
+       "opp": "ARI"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 15.97,
+     "current": 16.18,
+     "prior": 15.88,
+     "avg_def_rank": 13.0,
+     "rank": 24
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 15.78,
+     "current": 16.25,
+     "prior": 15.54,
+     "avg_def_rank": 12.5,
+     "rank": 31
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 17.12,
+     "current": 17.23,
+     "prior": 17.07,
+     "avg_def_rank": 20.33,
+     "rank": 10
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 20.62,
+     "current": 20.35,
+     "prior": 20.75,
+     "avg_def_rank": 17.25,
+     "rank": 7
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 19.51,
+     "current": 19.84,
+     "prior": 19.34,
+     "avg_def_rank": 14.92,
+     "rank": 19
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 19.76,
+     "current": 19.2,
+     "prior": 20.03,
+     "avg_def_rank": 17.33,
+     "rank": 17
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 25.41,
+     "current": 27.82,
+     "prior": 24.2,
+     "avg_def_rank": 16.5,
+     "rank": 18
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 24.64,
+     "current": 26.65,
+     "prior": 23.64,
+     "avg_def_rank": 13.83,
+     "rank": 25
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 26.26,
+     "current": 28.43,
+     "prior": 25.17,
+     "avg_def_rank": 19.0,
+     "rank": 11
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 8.91,
+     "current": 6.33,
+     "prior": 10.2,
+     "avg_def_rank": 8.75,
+     "rank": 31
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.29,
+     "current": 9.25,
+     "prior": 10.81,
+     "avg_def_rank": 14.5,
+     "rank": 24
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 12.1,
+     "current": 12.1,
+     "prior": 12.1,
+     "avg_def_rank": 21.67,
+     "rank": 8
+    }
+   }
+  },
+  "MIA": {
+   "schedule": {
+    "next4": {
+     "games": 3,
+     "bye": [
+      6
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "CIN"
+      },
+      {
+       "week": 7,
+       "opp": "NYJ"
+      },
+      {
+       "week": 8,
+       "opp": "NE"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      6
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "CIN"
+      },
+      {
+       "week": 7,
+       "opp": "NYJ"
+      },
+      {
+       "week": 8,
+       "opp": "NE"
+      },
+      {
+       "week": 9,
+       "opp": "DET"
+      },
+      {
+       "week": 10,
+       "opp": "IND"
+      },
+      {
+       "week": 11,
+       "opp": "BUF"
+      },
+      {
+       "week": 12,
+       "opp": "NYJ"
+      },
+      {
+       "week": 13,
+       "opp": "DEN"
+      },
+      {
+       "week": 14,
+       "opp": "CHI"
+      },
+      {
+       "week": 15,
+       "opp": "GB"
+      },
+      {
+       "week": 16,
+       "opp": "LAC"
+      },
+      {
+       "week": 17,
+       "opp": "BUF"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "GB"
+      },
+      {
+       "week": 16,
+       "opp": "LAC"
+      },
+      {
+       "week": 17,
+       "opp": "BUF"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 16.88,
+     "current": 15.17,
+     "prior": 17.73,
+     "avg_def_rank": 18.67,
+     "rank": 12
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 16.86,
+     "current": 18.01,
+     "prior": 16.28,
+     "avg_def_rank": 17.33,
+     "rank": 13
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 15.1,
+     "current": 17.83,
+     "prior": 13.73,
+     "avg_def_rank": 8.0,
+     "rank": 28
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 22.08,
+     "current": 20.7,
+     "prior": 22.77,
+     "avg_def_rank": 22.67,
+     "rank": 1
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 21.06,
+     "current": 22.12,
+     "prior": 20.53,
+     "avg_def_rank": 20.33,
+     "rank": 1
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 20.99,
+     "current": 24.17,
+     "prior": 19.4,
+     "avg_def_rank": 21.33,
+     "rank": 3
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 24.06,
+     "current": 25.43,
+     "prior": 23.37,
+     "avg_def_rank": 11.67,
+     "rank": 28
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 25.69,
+     "current": 27.71,
+     "prior": 24.68,
+     "avg_def_rank": 16.5,
+     "rank": 15
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 25.1,
+     "current": 29.37,
+     "prior": 22.97,
+     "avg_def_rank": 15.0,
+     "rank": 21
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 12.08,
+     "current": 8.5,
+     "prior": 13.87,
+     "avg_def_rank": 19.33,
+     "rank": 3
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.47,
+     "current": 9.95,
+     "prior": 10.73,
+     "avg_def_rank": 14.25,
+     "rank": 20
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 8.21,
+     "current": 8.5,
+     "prior": 8.07,
+     "avg_def_rank": 4.67,
+     "rank": 32
+    }
+   }
+  },
+  "MIN": {
+   "schedule": {
+    "next4": {
+     "games": 3,
+     "bye": [
+      6
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "NO"
+      },
+      {
+       "week": 7,
+       "opp": "IND"
+      },
+      {
+       "week": 8,
+       "opp": "DET"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      6
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "NO"
+      },
+      {
+       "week": 7,
+       "opp": "IND"
+      },
+      {
+       "week": 8,
+       "opp": "DET"
+      },
+      {
+       "week": 9,
+       "opp": "BUF"
+      },
+      {
+       "week": 10,
+       "opp": "GB"
+      },
+      {
+       "week": 11,
+       "opp": "SF"
+      },
+      {
+       "week": 12,
+       "opp": "ATL"
+      },
+      {
+       "week": 13,
+       "opp": "CAR"
+      },
+      {
+       "week": 14,
+       "opp": "NE"
+      },
+      {
+       "week": 15,
+       "opp": "DET"
+      },
+      {
+       "week": 16,
+       "opp": "WAS"
+      },
+      {
+       "week": 17,
+       "opp": "NYJ"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "DET"
+      },
+      {
+       "week": 16,
+       "opp": "WAS"
+      },
+      {
+       "week": 17,
+       "opp": "NYJ"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 18.4,
+     "current": 22.4,
+     "prior": 16.5,
+     "avg_def_rank": 22.67,
+     "rank": 4
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 17.52,
+     "current": 19.59,
+     "prior": 16.53,
+     "avg_def_rank": 18.83,
+     "rank": 5
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 19.93,
+     "current": 21.6,
+     "prior": 19.1,
+     "avg_def_rank": 28.33,
+     "rank": 1
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 19.62,
+     "current": 22.43,
+     "prior": 18.4,
+     "avg_def_rank": 16.67,
+     "rank": 16
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 20.61,
+     "current": 21.29,
+     "prior": 20.26,
+     "avg_def_rank": 19.42,
+     "rank": 3
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 21.69,
+     "current": 20.13,
+     "prior": 22.47,
+     "avg_def_rank": 21.0,
+     "rank": 2
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 28.12,
+     "current": 29.77,
+     "prior": 27.33,
+     "avg_def_rank": 22.33,
+     "rank": 2
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 26.95,
+     "current": 28.85,
+     "prior": 26.04,
+     "avg_def_rank": 19.92,
+     "rank": 6
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 28.89,
+     "current": 30.67,
+     "prior": 28.0,
+     "avg_def_rank": 24.33,
+     "rank": 4
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 12.92,
+     "current": 17.1,
+     "prior": 11.03,
+     "avg_def_rank": 25.33,
+     "rank": 1
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 11.37,
+     "current": 12.87,
+     "prior": 10.72,
+     "avg_def_rank": 18.5,
+     "rank": 4
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 13.31,
+     "current": 15.6,
+     "prior": 12.17,
+     "avg_def_rank": 25.67,
+     "rank": 1
+    }
+   }
+  },
+  "NE": {
+   "schedule": {
+    "next4": {
+     "games": 4,
+     "bye": [],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "LV"
+      },
+      {
+       "week": 6,
+       "opp": "NYJ"
+      },
+      {
+       "week": 7,
+       "opp": "CHI"
+      },
+      {
+       "week": 8,
+       "opp": "MIA"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      11
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "LV"
+      },
+      {
+       "week": 6,
+       "opp": "NYJ"
+      },
+      {
+       "week": 7,
+       "opp": "CHI"
+      },
+      {
+       "week": 8,
+       "opp": "MIA"
+      },
+      {
+       "week": 9,
+       "opp": "GB"
+      },
+      {
+       "week": 10,
+       "opp": "DET"
+      },
+      {
+       "week": 12,
+       "opp": "LAC"
+      },
+      {
+       "week": 13,
+       "opp": "BUF"
+      },
+      {
+       "week": 14,
+       "opp": "MIN"
+      },
+      {
+       "week": 15,
+       "opp": "KC"
+      },
+      {
+       "week": 16,
+       "opp": "NYJ"
+      },
+      {
+       "week": 17,
+       "opp": "DEN"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "KC"
+      },
+      {
+       "week": 16,
+       "opp": "NYJ"
+      },
+      {
+       "week": 17,
+       "opp": "DEN"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 17.53,
+     "current": 15.75,
+     "prior": 18.43,
+     "avg_def_rank": 22.5,
+     "rank": 7
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 16.33,
+     "current": 16.65,
+     "prior": 16.18,
+     "avg_def_rank": 15.25,
+     "rank": 21
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 15.82,
+     "current": 14.47,
+     "prior": 16.5,
+     "avg_def_rank": 12.33,
+     "rank": 22
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 22.02,
+     "current": 21.65,
+     "prior": 22.2,
+     "avg_def_rank": 23.75,
+     "rank": 2
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 20.64,
+     "current": 21.56,
+     "prior": 20.18,
+     "avg_def_rank": 18.5,
+     "rank": 2
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 20.59,
+     "current": 22.3,
+     "prior": 19.73,
+     "avg_def_rank": 16.33,
+     "rank": 7
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 24.78,
+     "current": 21.25,
+     "prior": 26.55,
+     "avg_def_rank": 13.5,
+     "rank": 25
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 24.5,
+     "current": 24.73,
+     "prior": 24.38,
+     "avg_def_rank": 12.67,
+     "rank": 26
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 22.16,
+     "current": 21.0,
+     "prior": 22.73,
+     "avg_def_rank": 6.33,
+     "rank": 32
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 10.78,
+     "current": 10.55,
+     "prior": 10.9,
+     "avg_def_rank": 16.0,
+     "rank": 16
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.4,
+     "current": 11.33,
+     "prior": 9.93,
+     "avg_def_rank": 14.58,
+     "rank": 22
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 11.28,
+     "current": 12.7,
+     "prior": 10.57,
+     "avg_def_rank": 21.0,
+     "rank": 13
+    }
+   }
+  },
+  "NO": {
+   "schedule": {
+    "next4": {
+     "games": 3,
+     "bye": [
+      8
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "MIN"
+      },
+      {
+       "week": 6,
+       "opp": "NYG"
+      },
+      {
+       "week": 7,
+       "opp": "PIT"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      8
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "MIN"
+      },
+      {
+       "week": 6,
+       "opp": "NYG"
+      },
+      {
+       "week": 7,
+       "opp": "PIT"
+      },
+      {
+       "week": 9,
+       "opp": "CLE"
+      },
+      {
+       "week": 10,
+       "opp": "CAR"
+      },
+      {
+       "week": 11,
+       "opp": "CHI"
+      },
+      {
+       "week": 12,
+       "opp": "CIN"
+      },
+      {
+       "week": 13,
+       "opp": "GB"
+      },
+      {
+       "week": 14,
+       "opp": "CAR"
+      },
+      {
+       "week": 15,
+       "opp": "TB"
+      },
+      {
+       "week": 16,
+       "opp": "ARI"
+      },
+      {
+       "week": 17,
+       "opp": "ATL"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "TB"
+      },
+      {
+       "week": 16,
+       "opp": "ARI"
+      },
+      {
+       "week": 17,
+       "opp": "ATL"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 15.3,
+     "current": 13.37,
+     "prior": 16.27,
+     "avg_def_rank": 13.67,
+     "rank": 27
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 16.39,
+     "current": 16.47,
+     "prior": 16.37,
+     "avg_def_rank": 16.83,
+     "rank": 19
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 17.86,
+     "current": 17.83,
+     "prior": 17.93,
+     "avg_def_rank": 23.67,
+     "rank": 6
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 19.37,
+     "current": 18.5,
+     "prior": 19.8,
+     "avg_def_rank": 15.0,
+     "rank": 18
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 20.22,
+     "current": 18.62,
+     "prior": 20.95,
+     "avg_def_rank": 18.92,
+     "rank": 6
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 18.95,
+     "current": 13.73,
+     "prior": 21.3,
+     "avg_def_rank": 14.33,
+     "rank": 25
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 25.22,
+     "current": 25.27,
+     "prior": 25.2,
+     "avg_def_rank": 16.33,
+     "rank": 22
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 24.96,
+     "current": 25.75,
+     "prior": 24.6,
+     "avg_def_rank": 15.08,
+     "rank": 22
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 26.63,
+     "current": 28.27,
+     "prior": 25.93,
+     "avg_def_rank": 20.0,
+     "rank": 9
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 9.81,
+     "current": 8.7,
+     "prior": 10.37,
+     "avg_def_rank": 13.0,
+     "rank": 26
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 11.36,
+     "current": 11.65,
+     "prior": 11.27,
+     "avg_def_rank": 18.67,
+     "rank": 5
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 12.58,
+     "current": 14.83,
+     "prior": 11.63,
+     "avg_def_rank": 22.67,
+     "rank": 6
+    }
+   }
+  },
+  "NYG": {
+   "schedule": {
+    "next4": {
+     "games": 3,
+     "bye": [
+      8
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "WAS"
+      },
+      {
+       "week": 6,
+       "opp": "NO"
+      },
+      {
+       "week": 7,
+       "opp": "HOU"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      8
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "WAS"
+      },
+      {
+       "week": 6,
+       "opp": "NO"
+      },
+      {
+       "week": 7,
+       "opp": "HOU"
+      },
+      {
+       "week": 9,
+       "opp": "PHI"
+      },
+      {
+       "week": 10,
+       "opp": "WAS"
+      },
+      {
+       "week": 11,
+       "opp": "JAX"
+      },
+      {
+       "week": 12,
+       "opp": "IND"
+      },
+      {
+       "week": 13,
+       "opp": "SF"
+      },
+      {
+       "week": 14,
+       "opp": "SEA"
+      },
+      {
+       "week": 15,
+       "opp": "CLE"
+      },
+      {
+       "week": 16,
+       "opp": "DET"
+      },
+      {
+       "week": 17,
+       "opp": "DAL"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "CLE"
+      },
+      {
+       "week": 16,
+       "opp": "DET"
+      },
+      {
+       "week": 17,
+       "opp": "DAL"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 17.19,
+     "current": 20.43,
+     "prior": 15.67,
+     "avg_def_rank": 17.0,
+     "rank": 10
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 17.62,
+     "current": 19.52,
+     "prior": 16.69,
+     "avg_def_rank": 18.42,
+     "rank": 4
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 19.92,
+     "current": 23.23,
+     "prior": 18.27,
+     "avg_def_rank": 23.33,
+     "rank": 2
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 19.44,
+     "current": 18.57,
+     "prior": 20.07,
+     "avg_def_rank": 15.33,
+     "rank": 17
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 19.26,
+     "current": 18.48,
+     "prior": 19.69,
+     "avg_def_rank": 14.92,
+     "rank": 28
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 19.43,
+     "current": 18.37,
+     "prior": 19.97,
+     "avg_def_rank": 15.33,
+     "rank": 22
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 26.58,
+     "current": 31.33,
+     "prior": 24.23,
+     "avg_def_rank": 19.33,
+     "rank": 11
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 27.02,
+     "current": 29.6,
+     "prior": 25.73,
+     "avg_def_rank": 19.92,
+     "rank": 5
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 29.73,
+     "current": 32.87,
+     "prior": 28.17,
+     "avg_def_rank": 25.67,
+     "rank": 1
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 11.74,
+     "current": 13.57,
+     "prior": 11.03,
+     "avg_def_rank": 20.33,
+     "rank": 6
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 11.29,
+     "current": 12.19,
+     "prior": 10.88,
+     "avg_def_rank": 19.17,
+     "rank": 7
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 12.31,
+     "current": 16.67,
+     "prior": 10.13,
+     "avg_def_rank": 23.33,
+     "rank": 7
+    }
+   }
+  },
+  "NYJ": {
+   "schedule": {
+    "next4": {
+     "games": 4,
+     "bye": [],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "CLE"
+      },
+      {
+       "week": 6,
+       "opp": "NE"
+      },
+      {
+       "week": 7,
+       "opp": "MIA"
+      },
+      {
+       "week": 8,
+       "opp": "LV"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      13
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "CLE"
+      },
+      {
+       "week": 6,
+       "opp": "NE"
+      },
+      {
+       "week": 7,
+       "opp": "MIA"
+      },
+      {
+       "week": 8,
+       "opp": "LV"
+      },
+      {
+       "week": 9,
+       "opp": "KC"
+      },
+      {
+       "week": 10,
+       "opp": "BUF"
+      },
+      {
+       "week": 11,
+       "opp": "LAC"
+      },
+      {
+       "week": 12,
+       "opp": "MIA"
+      },
+      {
+       "week": 14,
+       "opp": "DEN"
+      },
+      {
+       "week": 15,
+       "opp": "ARI"
+      },
+      {
+       "week": 16,
+       "opp": "NE"
+      },
+      {
+       "week": 17,
+       "opp": "MIN"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "ARI"
+      },
+      {
+       "week": 16,
+       "opp": "NE"
+      },
+      {
+       "week": 17,
+       "opp": "MIN"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 16.21,
+     "current": 16.77,
+     "prior": 15.93,
+     "avg_def_rank": 14.0,
+     "rank": 23
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 15.69,
+     "current": 16.75,
+     "prior": 15.16,
+     "avg_def_rank": 12.33,
+     "rank": 32
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 15.0,
+     "current": 15.67,
+     "prior": 14.67,
+     "avg_def_rank": 11.67,
+     "rank": 30
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 19.66,
+     "current": 19.48,
+     "prior": 19.75,
+     "avg_def_rank": 16.25,
+     "rank": 15
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 19.46,
+     "current": 19.62,
+     "prior": 19.38,
+     "avg_def_rank": 15.42,
+     "rank": 21
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 18.39,
+     "current": 15.7,
+     "prior": 19.73,
+     "avg_def_rank": 11.33,
+     "rank": 28
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 24.53,
+     "current": 25.23,
+     "prior": 24.18,
+     "avg_def_rank": 12.75,
+     "rank": 27
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 23.86,
+     "current": 25.68,
+     "prior": 22.95,
+     "avg_def_rank": 11.42,
+     "rank": 31
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 24.86,
+     "current": 29.17,
+     "prior": 22.7,
+     "avg_def_rank": 15.33,
+     "rank": 22
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 11.12,
+     "current": 12.0,
+     "prior": 10.68,
+     "avg_def_rank": 17.75,
+     "rank": 11
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.73,
+     "current": 11.42,
+     "prior": 10.38,
+     "avg_def_rank": 16.08,
+     "rank": 17
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 10.53,
+     "current": 8.73,
+     "prior": 11.43,
+     "avg_def_rank": 14.0,
+     "rank": 19
+    }
+   }
+  },
+  "PHI": {
+   "schedule": {
+    "next4": {
+     "games": 4,
+     "bye": [],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "JAX"
+      },
+      {
+       "week": 6,
+       "opp": "CAR"
+      },
+      {
+       "week": 7,
+       "opp": "DAL"
+      },
+      {
+       "week": 8,
+       "opp": "WAS"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      10
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "JAX"
+      },
+      {
+       "week": 6,
+       "opp": "CAR"
+      },
+      {
+       "week": 7,
+       "opp": "DAL"
+      },
+      {
+       "week": 8,
+       "opp": "WAS"
+      },
+      {
+       "week": 9,
+       "opp": "NYG"
+      },
+      {
+       "week": 11,
+       "opp": "PIT"
+      },
+      {
+       "week": 12,
+       "opp": "DAL"
+      },
+      {
+       "week": 13,
+       "opp": "ARI"
+      },
+      {
+       "week": 14,
+       "opp": "IND"
+      },
+      {
+       "week": 15,
+       "opp": "SEA"
+      },
+      {
+       "week": 16,
+       "opp": "HOU"
+      },
+      {
+       "week": 17,
+       "opp": "SF"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "SEA"
+      },
+      {
+       "week": 16,
+       "opp": "HOU"
+      },
+      {
+       "week": 17,
+       "opp": "SF"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 18.88,
+     "current": 20.25,
+     "prior": 18.2,
+     "avg_def_rank": 22.0,
+     "rank": 2
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 17.94,
+     "current": 18.49,
+     "prior": 17.67,
+     "avg_def_rank": 20.42,
+     "rank": 2
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 15.08,
+     "current": 15.63,
+     "prior": 14.8,
+     "avg_def_rank": 9.67,
+     "rank": 29
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 20.38,
+     "current": 18.9,
+     "prior": 21.12,
+     "avg_def_rank": 19.5,
+     "rank": 12
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 20.06,
+     "current": 19.27,
+     "prior": 20.45,
+     "avg_def_rank": 18.25,
+     "rank": 9
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 18.22,
+     "current": 18.33,
+     "prior": 18.17,
+     "avg_def_rank": 10.67,
+     "rank": 29
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 27.85,
+     "current": 29.2,
+     "prior": 27.18,
+     "avg_def_rank": 22.5,
+     "rank": 4
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 27.15,
+     "current": 28.21,
+     "prior": 26.62,
+     "avg_def_rank": 21.25,
+     "rank": 3
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 23.56,
+     "current": 25.53,
+     "prior": 22.57,
+     "avg_def_rank": 11.33,
+     "rank": 28
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 11.82,
+     "current": 12.55,
+     "prior": 11.45,
+     "avg_def_rank": 22.75,
+     "rank": 5
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 11.31,
+     "current": 11.03,
+     "prior": 11.46,
+     "avg_def_rank": 19.83,
+     "rank": 6
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 10.04,
+     "current": 7.73,
+     "prior": 11.2,
+     "avg_def_rank": 13.0,
+     "rank": 21
+    }
+   }
+  },
+  "PIT": {
+   "schedule": {
+    "next4": {
+     "games": 4,
+     "bye": [],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "IND"
+      },
+      {
+       "week": 6,
+       "opp": "TB"
+      },
+      {
+       "week": 7,
+       "opp": "NO"
+      },
+      {
+       "week": 8,
+       "opp": "CLE"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      9
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "IND"
+      },
+      {
+       "week": 6,
+       "opp": "TB"
+      },
+      {
+       "week": 7,
+       "opp": "NO"
+      },
+      {
+       "week": 8,
+       "opp": "CLE"
+      },
+      {
+       "week": 10,
+       "opp": "CIN"
+      },
+      {
+       "week": 11,
+       "opp": "PHI"
+      },
+      {
+       "week": 12,
+       "opp": "DEN"
+      },
+      {
+       "week": 13,
+       "opp": "HOU"
+      },
+      {
+       "week": 14,
+       "opp": "JAX"
+      },
+      {
+       "week": 15,
+       "opp": "BAL"
+      },
+      {
+       "week": 16,
+       "opp": "CAR"
+      },
+      {
+       "week": 17,
+       "opp": "TEN"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "BAL"
+      },
+      {
+       "week": 16,
+       "opp": "CAR"
+      },
+      {
+       "week": 17,
+       "opp": "TEN"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 16.65,
+     "current": 17.75,
+     "prior": 16.18,
+     "avg_def_rank": 17.25,
+     "rank": 16
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 16.48,
+     "current": 17.32,
+     "prior": 16.07,
+     "avg_def_rank": 16.5,
+     "rank": 18
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 16.86,
+     "current": 16.3,
+     "prior": 17.13,
+     "avg_def_rank": 19.0,
+     "rank": 14
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 19.19,
+     "current": 19.3,
+     "prior": 19.27,
+     "avg_def_rank": 15.25,
+     "rank": 22
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 19.44,
+     "current": 19.11,
+     "prior": 19.66,
+     "avg_def_rank": 15.92,
+     "rank": 22
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 20.77,
+     "current": 20.5,
+     "prior": 20.9,
+     "avg_def_rank": 21.67,
+     "rank": 5
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 25.32,
+     "current": 26.23,
+     "prior": 24.9,
+     "avg_def_rank": 14.75,
+     "rank": 21
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 25.33,
+     "current": 27.64,
+     "prior": 24.18,
+     "avg_def_rank": 15.33,
+     "rank": 19
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 27.06,
+     "current": 27.03,
+     "prior": 27.07,
+     "avg_def_rank": 21.0,
+     "rank": 8
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 11.99,
+     "current": 13.97,
+     "prior": 11.15,
+     "avg_def_rank": 23.0,
+     "rank": 4
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 11.08,
+     "current": 11.27,
+     "prior": 11.04,
+     "avg_def_rank": 18.17,
+     "rank": 11
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 10.32,
+     "current": 10.17,
+     "prior": 10.4,
+     "avg_def_rank": 15.0,
+     "rank": 20
+    }
+   }
+  },
+  "SEA": {
+   "schedule": {
+    "next4": {
+     "games": 4,
+     "bye": [],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "SF"
+      },
+      {
+       "week": 6,
+       "opp": "DEN"
+      },
+      {
+       "week": 7,
+       "opp": "KC"
+      },
+      {
+       "week": 8,
+       "opp": "CHI"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      11
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "SF"
+      },
+      {
+       "week": 6,
+       "opp": "DEN"
+      },
+      {
+       "week": 7,
+       "opp": "KC"
+      },
+      {
+       "week": 8,
+       "opp": "CHI"
+      },
+      {
+       "week": 9,
+       "opp": "ARI"
+      },
+      {
+       "week": 10,
+       "opp": "LV"
+      },
+      {
+       "week": 12,
+       "opp": "SF"
+      },
+      {
+       "week": 13,
+       "opp": "DAL"
+      },
+      {
+       "week": 14,
+       "opp": "NYG"
+      },
+      {
+       "week": 15,
+       "opp": "PHI"
+      },
+      {
+       "week": 16,
+       "opp": "LA"
+      },
+      {
+       "week": 17,
+       "opp": "CAR"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "PHI"
+      },
+      {
+       "week": 16,
+       "opp": "LA"
+      },
+      {
+       "week": 17,
+       "opp": "CAR"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 15.88,
+     "current": 14.8,
+     "prior": 16.43,
+     "avg_def_rank": 12.75,
+     "rank": 25
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 16.94,
+     "current": 16.9,
+     "prior": 16.96,
+     "avg_def_rank": 16.83,
+     "rank": 12
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 15.68,
+     "current": 17.43,
+     "prior": 14.8,
+     "avg_def_rank": 11.67,
+     "rank": 24
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 18.78,
+     "current": 19.55,
+     "prior": 18.4,
+     "avg_def_rank": 13.5,
+     "rank": 24
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 20.22,
+     "current": 19.5,
+     "prior": 20.58,
+     "avg_def_rank": 18.92,
+     "rank": 6
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 20.16,
+     "current": 19.6,
+     "prior": 20.43,
+     "avg_def_rank": 18.0,
+     "rank": 10
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 23.47,
+     "current": 20.9,
+     "prior": 24.75,
+     "avg_def_rank": 10.75,
+     "rank": 29
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 25.3,
+     "current": 24.91,
+     "prior": 25.5,
+     "avg_def_rank": 15.58,
+     "rank": 20
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 24.07,
+     "current": 26.0,
+     "prior": 23.1,
+     "avg_def_rank": 11.67,
+     "rank": 26
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 10.52,
+     "current": 10.67,
+     "prior": 10.45,
+     "avg_def_rank": 16.0,
+     "rank": 18
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.37,
+     "current": 10.74,
+     "prior": 10.18,
+     "avg_def_rank": 15.5,
+     "rank": 23
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 8.97,
+     "current": 8.3,
+     "prior": 9.3,
+     "avg_def_rank": 11.33,
+     "rank": 28
+    }
+   }
+  },
+  "SF": {
+   "schedule": {
+    "next4": {
+     "games": 3,
+     "bye": [
+      8
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "SEA"
+      },
+      {
+       "week": 6,
+       "opp": "WAS"
+      },
+      {
+       "week": 7,
+       "opp": "ATL"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      8
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "SEA"
+      },
+      {
+       "week": 6,
+       "opp": "WAS"
+      },
+      {
+       "week": 7,
+       "opp": "ATL"
+      },
+      {
+       "week": 9,
+       "opp": "LV"
+      },
+      {
+       "week": 10,
+       "opp": "DAL"
+      },
+      {
+       "week": 11,
+       "opp": "MIN"
+      },
+      {
+       "week": 12,
+       "opp": "SEA"
+      },
+      {
+       "week": 13,
+       "opp": "NYG"
+      },
+      {
+       "week": 14,
+       "opp": "LA"
+      },
+      {
+       "week": 15,
+       "opp": "LAC"
+      },
+      {
+       "week": 16,
+       "opp": "KC"
+      },
+      {
+       "week": 17,
+       "opp": "PHI"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "LAC"
+      },
+      {
+       "week": 16,
+       "opp": "KC"
+      },
+      {
+       "week": 17,
+       "opp": "PHI"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 16.93,
+     "current": 17.77,
+     "prior": 16.57,
+     "avg_def_rank": 16.33,
+     "rank": 11
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 16.08,
+     "current": 16.29,
+     "prior": 15.98,
+     "avg_def_rank": 12.58,
+     "rank": 27
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 14.86,
+     "current": 16.03,
+     "prior": 14.27,
+     "avg_def_rank": 6.67,
+     "rank": 31
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 18.23,
+     "current": 14.77,
+     "prior": 19.7,
+     "avg_def_rank": 10.33,
+     "rank": 29
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 18.81,
+     "current": 17.37,
+     "prior": 19.48,
+     "avg_def_rank": 12.67,
+     "rank": 32
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 18.83,
+     "current": 19.63,
+     "prior": 18.43,
+     "avg_def_rank": 13.0,
+     "rank": 27
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 26.16,
+     "current": 27.17,
+     "prior": 25.77,
+     "avg_def_rank": 19.0,
+     "rank": 13
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 24.87,
+     "current": 25.39,
+     "prior": 24.64,
+     "avg_def_rank": 14.33,
+     "rank": 23
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 22.78,
+     "current": 25.0,
+     "prior": 21.67,
+     "avg_def_rank": 7.67,
+     "rank": 30
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 11.43,
+     "current": 12.8,
+     "prior": 10.93,
+     "avg_def_rank": 18.67,
+     "rank": 9
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 9.86,
+     "current": 10.81,
+     "prior": 9.42,
+     "avg_def_rank": 13.08,
+     "rank": 32
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 8.81,
+     "current": 10.83,
+     "prior": 7.8,
+     "avg_def_rank": 10.0,
+     "rank": 29
+    }
+   }
+  },
+  "TB": {
+   "schedule": {
+    "next4": {
+     "games": 4,
+     "bye": [],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "DAL"
+      },
+      {
+       "week": 6,
+       "opp": "PIT"
+      },
+      {
+       "week": 7,
+       "opp": "CAR"
+      },
+      {
+       "week": 8,
+       "opp": "ATL"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      10
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "DAL"
+      },
+      {
+       "week": 6,
+       "opp": "PIT"
+      },
+      {
+       "week": 7,
+       "opp": "CAR"
+      },
+      {
+       "week": 8,
+       "opp": "ATL"
+      },
+      {
+       "week": 9,
+       "opp": "CHI"
+      },
+      {
+       "week": 11,
+       "opp": "DET"
+      },
+      {
+       "week": 12,
+       "opp": "CAR"
+      },
+      {
+       "week": 13,
+       "opp": "LAC"
+      },
+      {
+       "week": 14,
+       "opp": "BAL"
+      },
+      {
+       "week": 15,
+       "opp": "NO"
+      },
+      {
+       "week": 16,
+       "opp": "ATL"
+      },
+      {
+       "week": 17,
+       "opp": "LA"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "NO"
+      },
+      {
+       "week": 16,
+       "opp": "ATL"
+      },
+      {
+       "week": 17,
+       "opp": "LA"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 18.33,
+     "current": 18.68,
+     "prior": 18.2,
+     "avg_def_rank": 20.5,
+     "rank": 5
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 17.24,
+     "current": 18.42,
+     "prior": 16.71,
+     "avg_def_rank": 17.25,
+     "rank": 6
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 15.82,
+     "current": 16.83,
+     "prior": 15.47,
+     "avg_def_rank": 11.67,
+     "rank": 22
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 20.44,
+     "current": 20.02,
+     "prior": 20.45,
+     "avg_def_rank": 19.5,
+     "rank": 10
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 19.5,
+     "current": 19.12,
+     "prior": 19.61,
+     "avg_def_rank": 15.92,
+     "rank": 20
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 18.16,
+     "current": 16.57,
+     "prior": 18.9,
+     "avg_def_rank": 10.0,
+     "rank": 30
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 27.48,
+     "current": 27.1,
+     "prior": 27.75,
+     "avg_def_rank": 21.75,
+     "rank": 7
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 26.85,
+     "current": 27.29,
+     "prior": 26.69,
+     "avg_def_rank": 19.83,
+     "rank": 8
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 25.75,
+     "current": 26.7,
+     "prior": 25.43,
+     "avg_def_rank": 17.0,
+     "rank": 12
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 11.07,
+     "current": 12.22,
+     "prior": 10.62,
+     "avg_def_rank": 20.0,
+     "rank": 13
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.59,
+     "current": 12.02,
+     "prior": 10.02,
+     "avg_def_rank": 15.92,
+     "rank": 19
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 10.01,
+     "current": 11.93,
+     "prior": 9.43,
+     "avg_def_rank": 13.33,
+     "rank": 22
+    }
+   }
+  },
+  "TEN": {
+   "schedule": {
+    "next4": {
+     "games": 4,
+     "bye": [],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "HOU"
+      },
+      {
+       "week": 6,
+       "opp": "IND"
+      },
+      {
+       "week": 7,
+       "opp": "CLE"
+      },
+      {
+       "week": 8,
+       "opp": "CIN"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      9
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "HOU"
+      },
+      {
+       "week": 6,
+       "opp": "IND"
+      },
+      {
+       "week": 7,
+       "opp": "CLE"
+      },
+      {
+       "week": 8,
+       "opp": "CIN"
+      },
+      {
+       "week": 10,
+       "opp": "JAX"
+      },
+      {
+       "week": 11,
+       "opp": "DAL"
+      },
+      {
+       "week": 12,
+       "opp": "JAX"
+      },
+      {
+       "week": 13,
+       "opp": "WAS"
+      },
+      {
+       "week": 14,
+       "opp": "DET"
+      },
+      {
+       "week": 15,
+       "opp": "IND"
+      },
+      {
+       "week": 16,
+       "opp": "LV"
+      },
+      {
+       "week": 17,
+       "opp": "PIT"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "IND"
+      },
+      {
+       "week": 16,
+       "opp": "LV"
+      },
+      {
+       "week": 17,
+       "opp": "PIT"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 16.7,
+     "current": 19.25,
+     "prior": 15.43,
+     "avg_def_rank": 18.0,
+     "rank": 15
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 17.98,
+     "current": 19.42,
+     "prior": 17.27,
+     "avg_def_rank": 21.08,
+     "rank": 1
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 17.44,
+     "current": 17.2,
+     "prior": 17.57,
+     "avg_def_rank": 21.33,
+     "rank": 9
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 19.26,
+     "current": 17.38,
+     "prior": 20.2,
+     "avg_def_rank": 14.75,
+     "rank": 20
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 19.02,
+     "current": 18.16,
+     "prior": 19.46,
+     "avg_def_rank": 14.08,
+     "rank": 31
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 19.7,
+     "current": 21.5,
+     "prior": 18.8,
+     "avg_def_rank": 17.0,
+     "rank": 18
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 25.69,
+     "current": 30.62,
+     "prior": 23.22,
+     "avg_def_rank": 16.75,
+     "rank": 16
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 27.7,
+     "current": 29.88,
+     "prior": 26.61,
+     "avg_def_rank": 22.25,
+     "rank": 2
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 27.27,
+     "current": 25.27,
+     "prior": 28.27,
+     "avg_def_rank": 21.67,
+     "rank": 6
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 12.16,
+     "current": 11.78,
+     "prior": 12.35,
+     "avg_def_rank": 21.25,
+     "rank": 2
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 11.96,
+     "current": 12.46,
+     "prior": 11.72,
+     "avg_def_rank": 21.58,
+     "rank": 1
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 11.31,
+     "current": 11.47,
+     "prior": 11.23,
+     "avg_def_rank": 20.33,
+     "rank": 12
+    }
+   }
+  },
+  "WAS": {
+   "schedule": {
+    "next4": {
+     "games": 3,
+     "bye": [
+      7
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "NYG"
+      },
+      {
+       "week": 6,
+       "opp": "SF"
+      },
+      {
+       "week": 8,
+       "opp": "PHI"
+      }
+     ]
+    },
+    "ros": {
+     "games": 12,
+     "bye": [
+      7
+     ],
+     "opps": [
+      {
+       "week": 5,
+       "opp": "NYG"
+      },
+      {
+       "week": 6,
+       "opp": "SF"
+      },
+      {
+       "week": 8,
+       "opp": "PHI"
+      },
+      {
+       "week": 9,
+       "opp": "LA"
+      },
+      {
+       "week": 10,
+       "opp": "NYG"
+      },
+      {
+       "week": 11,
+       "opp": "CIN"
+      },
+      {
+       "week": 12,
+       "opp": "ARI"
+      },
+      {
+       "week": 13,
+       "opp": "TEN"
+      },
+      {
+       "week": 14,
+       "opp": "HOU"
+      },
+      {
+       "week": 15,
+       "opp": "ATL"
+      },
+      {
+       "week": 16,
+       "opp": "MIN"
+      },
+      {
+       "week": 17,
+       "opp": "JAX"
+      }
+     ]
+    },
+    "playoffs": {
+     "games": 3,
+     "bye": [],
+     "opps": [
+      {
+       "week": 15,
+       "opp": "ATL"
+      },
+      {
+       "week": 16,
+       "opp": "MIN"
+      },
+      {
+       "week": 17,
+       "opp": "JAX"
+      }
+     ]
+    }
+   },
+   "QB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 16.53,
+     "current": 15.87,
+     "prior": 16.87,
+     "avg_def_rank": 16.67,
+     "rank": 20
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 16.31,
+     "current": 16.22,
+     "prior": 16.38,
+     "avg_def_rank": 16.58,
+     "rank": 23
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 14.69,
+     "current": 14.83,
+     "prior": 14.67,
+     "avg_def_rank": 10.0,
+     "rank": 32
+    }
+   },
+   "RB": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 21.4,
+     "current": 20.4,
+     "prior": 21.9,
+     "avg_def_rank": 23.67,
+     "rank": 3
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 19.4,
+     "current": 16.62,
+     "prior": 20.72,
+     "avg_def_rank": 15.42,
+     "rank": 23
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 16.45,
+     "current": 12.83,
+     "prior": 18.0,
+     "avg_def_rank": 3.33,
+     "rank": 32
+    }
+   },
+   "WR": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 25.56,
+     "current": 26.73,
+     "prior": 24.97,
+     "avg_def_rank": 16.0,
+     "rank": 17
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 25.94,
+     "current": 28.49,
+     "prior": 24.69,
+     "avg_def_rank": 18.0,
+     "rank": 11
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 25.5,
+     "current": 28.8,
+     "prior": 23.97,
+     "avg_def_rank": 16.67,
+     "rank": 16
+    }
+   },
+   "TE": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 8.76,
+     "current": 8.0,
+     "prior": 9.13,
+     "avg_def_rank": 8.67,
+     "rank": 32
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.28,
+     "current": 9.59,
+     "prior": 10.67,
+     "avg_def_rank": 13.5,
+     "rank": 26
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 9.37,
+     "current": 9.47,
+     "prior": 9.5,
+     "avg_def_rank": 10.33,
+     "rank": 25
+    }
+   }
+  }
+ },
+ "source": {
+  "schedule": "games.csv",
+  "defense_form": "2026-10-05 05:53",
+  "playoff_weeks": "espn_league.json"
+ }
+}

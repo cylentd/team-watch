@@ -10,6 +10,8 @@ function sheetTagsHTML(p){
   const sig = signalsFor({slug: p.slug || slugOf(p.n)});
   // "On 2 of your teams" left on 2026-09-28: the owner pills (owners.js) name each league's team.
   if (!sig.verdict) return "";
+  // The reason is a sentence (data/signals.js signalWords), not watch's shorthand ("snaps -5.0, share +19").
+  const why = signalWords(sig.verdict, sig.why);
   return `<div class="pf-tags"><span class="tag verdict">${esc(sig.verdict)}</span>`
-    + (sig.why ? `<span class="pf-why">${esc(sig.why)}</span>` : "") + `</div>`;
+    + (why ? `<span class="pf-why">${esc(why)}</span>` : "") + `</div>`;
 }

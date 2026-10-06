@@ -30,10 +30,12 @@ function slModel(p){
   return {side: s.side === "lower" ? "lower" : "higher", tier: s.tier, q: num(s.model) ? Math.max(s.model, 100 - s.model) : 0};
 }
 
-const SL_TIERS = ["none", "slight", "confident", "very"];
+const SL_TIERS = PT_TIERS;   // the one list, data/topcalls.js
 const slTierWord = k => k === "very" ? t("slips.tier.very") : k === "confident" ? t("slips.tier.confident") : k === "slight" ? t("slips.tier.slight") : t("slips.tier.none");
-/* The tier word, in Preview's looks: Slight grey, Confident lime text, Very confident a lime fill. */
-const slTierHTML = k => `<b class="sl-conf ${k}">${slTierWord(k)}</b>`;
+/* The tier word, in Preview's looks: Slight grey, Confident lime text, Very confident a lime fill, with the
+   chance of the model's side before it ("74% Confident", 2026-10-05): one vocabulary in Slips, Top calls and
+   All lines. "No pick" has no chance to print. */
+const slTierHTML = (k, q) => `<span class="sl-tp">${q && k !== "none" ? `<i class="sl-pc">${Math.round(q)}%</i>` : ""}<b class="sl-conf ${k}">${slTierWord(k)}</b></span>`;
 
 const slCleared = (p, line, v) => typeof v === "number" && (p.mkt === "TD" ? v >= 1 : typeof line === "number" && v > line);
 
@@ -78,7 +80,12 @@ function slSidesHTML(i, m, side, c){
     const mine = !!c && c.side === s;
     return `<button type="button" class="sl-side ${s}${m && m.side === s && m.tier !== "none" ? " pick" : ""}" data-slpick="${i}" data-side="${s}" aria-pressed="${side === s}"${mine ? ` aria-label="${t("slips.claude.name", {side: label})}"` : ""}>${label}${mine ? slClaudeBadge(agree) : ""}</button>`;
   };
-  const under = m && m.tier ? ["higher", "lower"].map(s => `<span class="sl-under">${(m.tier === "none" ? s === "lower" : m.side === s) ? slTierHTML(m.tier) : ""}</span>`).join("") : "";
+  // "72% Very confident" is wider than one side, so it spans both under the buttons, to the right edge; "No pick"
+  // has no chance and stays under Lower.
+  const under = m && m.tier ? ["higher", "lower"].map(s => {
+    const mine = m.tier === "none" ? s === "lower" : m.side === s;
+    return `<span class="sl-under${mine && m.tier !== "none" ? " wide" : ""}">${mine ? slTierHTML(m.tier, m.q) : ""}</span>`;
+  }).join("") : "";
   return `<span class="sl-sides">${btn("higher", t("slips.side.higher"))}${btn("lower", t("slips.side.lower"))}${under}</span>`;
 }
 

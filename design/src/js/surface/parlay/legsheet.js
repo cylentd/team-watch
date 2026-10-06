@@ -110,6 +110,9 @@ function lsShow(key, html, origin){
   LEG_RETURN = origin || document.activeElement;
   d.innerHTML = html;
   d.scrollTop = 0;
+  // A player's sheet (a slug) is something to read: a centred modal (STYLE.md Overlays, 2026-10-05). One
+  // bet (an index) is an action, so the leg sheet stays at the bottom edge.
+  d.classList.toggle("ls-read", typeof key === "string");
   d.classList.add("on");
   d.setAttribute("aria-hidden", "false");
   document.getElementById("legsheet-scrim").classList.add("on");

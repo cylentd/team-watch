@@ -1,0 +1,36 @@
+/* ============================== RECAP: ACCURACY ==============================
+   The Accuracy tab: a card per week (and one for the season to date), a row per position: our average miss,
+   FantasyPros' on the same players, and who was closer. The smaller miss is lit. Fenced to `weekrecap`
+   (design/src/scope.json). Cards are Material's: one per subject, rows inside, none nested. */
+
+.wr-ac-body{display:grid;gap:12px;min-width:0;align-content:start}
+.wr-ac-how{margin:0;padding:0 2px;font:500 var(--t-2)/1.4 var(--ui);color:var(--ink-3)}
+.wr-ac-model{font:500 var(--t-1)/1.3 var(--ui);color:var(--ink-3);text-align:right}
+.wr-ac-note,.wr-ac-none{margin:0;font:500 var(--t-1)/1.4 var(--ui);color:var(--ink-3)}
+.wr-ac-none{padding-top:4px}
+
+/* One grid for the column labels and every row, so the numbers stay under their labels. */
+.wr-ac-cols,.wr-ac-row{
+  display:grid;grid-template-columns:80px 42px 74px minmax(0,1fr);column-gap:4px;align-items:center;
+}
+.wr-ac-cols{padding-top:2px;font:600 var(--t-1)/1.3 var(--ui);letter-spacing:.04em;color:var(--ink-3)}
+.wr-ac-cols span:nth-child(2),.wr-ac-cols span:nth-child(3){text-align:right}
+.wr-ac-cols span:last-child{padding-left:6px}
+.wr-ac-row{padding:8px 0;border-top:1px solid var(--line);min-height:44px}
+.wr-ac-pos{display:grid;gap:1px}
+.wr-ac-pos b{font:700 var(--t-2)/1.2 var(--mono)}
+.wr-ac-pos em{font:500 var(--t-1)/1.2 var(--ui);font-style:normal;color:var(--ink-3)}
+.wr-ac-v{font:500 var(--t-3)/1 var(--mono);font-variant-numeric:tabular-nums;text-align:right;color:var(--ink-3)}
+.wr-ac-v.win{font-weight:700;color:var(--ink)}
+.wr-ac-v.none{color:var(--ink-3)}
+.wr-ac-who{padding-left:6px;font:700 var(--t-1)/1.2 var(--mono);letter-spacing:.02em;color:var(--ink-3)}
+.wr-ac-who.ours{color:var(--lime)}
+.wr-ac-who.fp{color:var(--amber)}
+.wr-ac-under{grid-column:1 / -1;margin:0;font:500 var(--t-1)/1.4 var(--ui);color:var(--ink-3)}
+
+@media (min-width:960px){
+  /* A desktop pairs the cards two across; the season card and the explainer span both. */
+  .wr-ac-body{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+  .wr-ac-body>.wr-ac-how,.wr-ac-body>.wr-strip{grid-column:1 / -1}
+  .wr-ac-cols,.wr-ac-row{grid-template-columns:90px 70px 100px minmax(0,1fr)}
+}

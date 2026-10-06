@@ -228,6 +228,27 @@ def test_the_chat_button_sits_in_the_nav_not_over_the_rows(open_waivers, width):
     assert page.evaluate("getComputedStyle(document.getElementById('chatfab')).position") != "fixed"
 
 
+@pytest.mark.parametrize("width", [360, 390])
+def test_the_chat_button_says_ask_on_a_phone(open_waivers, width):
+    """Plan U3 (2026-10-05): a first-time visitor did not find a bare bubble. A phone prints the word
+    under it; a desktop bar keeps the icon alone."""
+    page = open_waivers("espn", width=width)
+    box = page.evaluate("""() => { const b = document.getElementById('chatfab').getBoundingClientRect(),
+      l = document.querySelector('#chatfab .chatlbl').getBoundingClientRect();
+      return {w: b.width, h: b.height, right: b.right, label: [l.width, l.height, l.bottom <= b.bottom + 0.5]}; }""")
+    assert page.inner_text("#chatfab .chatlbl") == "Ask"
+    assert box["w"] >= 44 and box["h"] >= 44 and box["right"] <= width      # a touch target, inside the screen
+    assert box["label"][0] > 0 and box["label"][2]                          # drawn, and inside its button
+    assert page.evaluate("document.documentElement.scrollWidth") <= width
+    # the bar still holds the four groups and search: nothing was pushed off by the wider button
+    assert page.evaluate("[...document.querySelectorAll('#nav .navitem')].every(b => b.getBoundingClientRect().right <= document.getElementById('navsearch').getBoundingClientRect().left + 1)")
+
+
+def test_the_chat_word_is_hidden_on_a_desktop(open_waivers):
+    page = open_waivers("espn", width=1400)
+    assert page.evaluate("getComputedStyle(document.querySelector('#chatfab .chatlbl')).display") == "none"
+
+
 @pytest.mark.parametrize("day", ["sat", "tue"])
 def test_a_desktop_lays_the_must_claim_open_beside_a_rail_column(open_waivers, day):
     """At 1280px the Must claim shows both faces at once (no flip, nothing inert) and the rail is a

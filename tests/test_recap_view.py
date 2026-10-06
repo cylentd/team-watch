@@ -55,6 +55,9 @@ def page_with(page_file, mutate):
     html = page_file.read_text(encoding="utf-8")
     m = re.search(r"const LIVE_RECAP = (.*?);\n", html)
     new = json.dumps(mutate(json.loads(m.group(1))))
+    # No accuracy file: its tab (test_accuracy_view.py) is hidden, so these variants test the recap's own tabs.
+    html = re.sub(r"const LIVE_ACCURACY = .*?;\n", "const LIVE_ACCURACY = null;\n", html, count=1)
+    m = re.search(r"const LIVE_RECAP = (.*?);\n", html)
     out = page_file.with_name("recap-variant.html")
     out.write_text(html[:m.start()] + f"const LIVE_RECAP = {new};\n" + html[m.end():], encoding="utf-8")
     return out
@@ -63,7 +66,7 @@ def page_with(page_file, mutate):
 def test_three_tabs_open_on_players_and_the_choice_is_kept(browser, page_file):
     ctx, page, errors = recap(browser, page_file)
     names = page.locator(".gd-tabs button").all_inner_texts()
-    assert names == ["Players", "Scores", "Claude"]
+    assert names == ["Players", "Scores", "Claude", "Accuracy"]
     assert page.locator(".gd-tabs [aria-pressed='true']").get_attribute("data-wrtab") == "players"
     assert page.locator(".wr-leaders").count() == 1 and page.locator(".wr-games").count() == 0
     page.click("[data-wrtab='scores']")
@@ -151,13 +154,13 @@ def test_scores_group_by_window_with_the_pick_and_its_grade(phone):
     page, errors = on_tab(phone, "scores")
     heads = page.locator(".wr-wh span").all_inner_texts()
     assert [h.upper() for h in heads] == ["THURSDAY NIGHT", "SUNDAY MORNING", "SUNDAY EARLY", "SUNDAY LATE", "SUNDAY NIGHT", "MONDAY NIGHT"]
-    assert page.locator(".wr-wh em").first.inner_text() == "8:15 PM ET"
+    assert page.locator(".wr-wh em").first.inner_text() == "5:15 PM"
     assert page.locator(".wr-g").count() == 16
     assert page.locator(".wr-mk.hit").count() == 5 and page.locator(".wr-mk.miss").count() == 3     # Claude 5 of 8 on winners
     assert re.fullmatch(r"Claude picked 5 of 8 winners · 5–3 vs spread", page.locator(".wr-strip").inner_text())
-    # a final's winner is bold; a game still to play shows its kickoff in Eastern time and the pick
+    # a final's winner is bold; a game still to play shows its kickoff in the reader's clock and the pick
     assert page.locator(".wr-g:has-text('PIT 24') .wr-sc b").inner_text() == "CLE 27"
-    assert page.locator(".wr-g:has-text('ATL') .wr-pk").inner_text() == "8:15 PM ET · Picked ATL"
+    assert page.locator(".wr-g:has-text('ATL') .wr-pk").inner_text() == "5:15 PM · Picked ATL"
     assert page.locator(".wr-g:has-text('ATL') .wr-mk").count() == 0
     assert page.evaluate(SIDEWAYS) <= 0
     assert errors == []
@@ -234,7 +237,7 @@ def test_weather_is_out_of_the_sub_row_but_the_hash_and_navgo_still_open_it(brow
     assert page.evaluate("document.querySelector('#subnav .subnav-in').scrollWidth <= document.querySelector('#subnav .subnav-in').clientWidth")
     page.evaluate("location.hash = '#weather'")
     page.wait_for_function("document.getElementById('view').dataset.view === 'weather'")
-    assert page.evaluate("navGroupOf('weather')") == "week"
+    assert page.evaluate("document.querySelector('#nav .navitem[aria-current=true]').dataset.s") == "week"
     assert page.locator("#subnav .mode-sub[aria-pressed='true']").count() == 0
     page.evaluate("navGo('weekrecap')")
     assert page.locator("#subnav .mode-sub[aria-pressed='true']").inner_text().strip() == "Recap"

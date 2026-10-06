@@ -24,14 +24,27 @@
 .pvn-call,.pvn-story{min-width:0;max-width:66ch}
 .pv-callp,.pv-vs{margin:0;font-size:var(--t-3);line-height:1.55;color:var(--ink)}
 .pv-vs{margin-top:8px;color:var(--ink-2)}
-.pv-callline{display:inline-flex;align-items:center;gap:6px;margin-right:2px;vertical-align:1px}
-.pv-callline .pv-side{font-size:var(--t-3)}
-/* A take from before confidence: Claude's score over the market's. */
-.pv-score{display:grid;grid-template-columns:auto auto auto;justify-content:start;row-gap:4px;column-gap:14px;align-items:baseline}
-.pv-sc{display:contents}
-.pv-sc span{font-size:var(--t-1);color:var(--ink-3)}
-.pv-sc b{font-family:var(--mono);font-size:var(--t-4);font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
-.pv-sc.mk b{font-size:var(--t-2);font-weight:500;color:var(--ink-2)}
+
+/* The answer block (pvAnswer): Claude's pick first and across the width, then the line and the total side
+   by side, then the win chance with its bar. Hairline rules, no boxes (the page's own ground, like the box
+   score); the pick's score is the one big number. From 760px the four sit in one row. */
+.pvn-ans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px;min-width:0;
+  padding-bottom:14px;border-bottom:1px solid var(--line-2)}
+.pv-an{display:flex;flex-direction:column;gap:3px;min-width:0}
+.pv-an.pick,.pv-an.win{grid-column:1/-1}
+.pv-ak{font-size:var(--t-1);color:var(--ink-3)}
+.pv-am{font-family:var(--mono);font-size:var(--t-4);font-weight:700;line-height:1.15;color:var(--ink);font-variant-numeric:tabular-nums}
+.pv-an.pick .pv-am{font-size:var(--t-5)}
+.pv-am.pv-cl{color:var(--lime)}
+.pv-as{font-size:var(--t-1);color:var(--ink-3)}
+.pv-aats{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:var(--t-2);color:var(--ink-2)}
+.pv-aats .pv-side{font-size:var(--t-2);color:var(--ink)}
+.pv-aats .pv-conf{margin-left:0}
+.pv-an .pv-pb{margin-top:4px}
+@media (min-width:760px){
+  .pvn-ans{grid-template-columns:minmax(0,1.6fr) repeat(3,minmax(0,1fr))}
+  .pv-an.pick,.pv-an.win{grid-column:auto}
+}
 
 /* The box score: sections under a plain bold name, hairlines between them. */
 .pvn-box{min-width:0;border-top:1px solid var(--line-2);border-bottom:1px solid var(--line-2)}
@@ -106,11 +119,12 @@
   .pv-dek{font-size:var(--t-4)}
 }
 
-/* From 1100px: headline across, then the call and the story left, the box score a column right.
-   The story's row takes the slack, so the call keeps its own height beside a tall box score. */
+/* From 1100px: the answer and the headline across, then the call and the story left, the box score a
+   column right. The story's row takes the slack, so the call keeps its own height beside a tall box score. */
 @media (min-width:1100px){
-  .pvn{display:grid;grid-template-columns:minmax(0,1fr) 340px;grid-template-rows:auto auto 1fr;column-gap:36px;row-gap:16px;
-    grid-template-areas:"head head" "call box" "story box"}
+  .pvn{display:grid;grid-template-columns:minmax(0,1fr) 340px;grid-template-rows:auto auto auto 1fr;column-gap:36px;row-gap:16px;
+    grid-template-areas:"ans ans" "head head" "call box" "story box"}
+  .pvn-ans{grid-area:ans}
   .pvn-head{grid-area:head}
   /* The story runs wider than a phone's measure here (David, 2026-09-30: "it shouldn't match the mobile
      width"), still inside a readable line. */

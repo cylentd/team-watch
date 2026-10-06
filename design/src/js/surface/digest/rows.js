@@ -80,9 +80,12 @@ function dgAddsBody(d){
    opponent changing, and the signal failed its backtest (ff-jarvis METHODOLOGY 12.46). Role, from the
    work itself, is where a changing role is read. */
 
+/* A gem is a usage number, so the line also reaches his row in the Grid in 1 tap (2026-10-05, David: A + C,
+   nav.js navGoRow); the line itself still opens his profile. */
 function dgGemsBody(d){
-  const lines = d.gems.map(g => dgLnHTML(g, t("digest.gems.meta", {pos: esc(g.pos), team: esc(g.team), pct: dgPct(g.rostered)}),
-    `${g.metric === "tgt_pct" ? dgPct(g.usage) + "%" : g.usage.toFixed(1)}<small>${t("digest.gems.ecr", {pos: esc(g.pos), ecr: g.ecr})}</small>`)).join("");
+  const lines = d.gems.map(g => `<div class="dg-lnrow">${dgLnHTML(g, t("digest.gems.meta", {pos: esc(g.pos), team: esc(g.team), pct: dgPct(g.rostered)}),
+    `${g.metric === "tgt_pct" ? dgPct(g.usage) + "%" : g.usage.toFixed(1)}<small>${t("digest.gems.ecr", {pos: esc(g.pos), ecr: g.ecr})}</small>`)}
+    <button type="button" class="dg-go dg-grid" data-dggrid="${esc(g.slug)}" aria-label="${t("digest.gems.row", {name: esc(g.n)})}">${t("digest.go.gridRow")}${DG_ARROW}</button></div>`).join("");
   return lines + dgFootHTML(t("digest.foot.gems", d.rules.gems),"usage", t("digest.go.grid"), true);
 }
 

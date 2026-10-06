@@ -14,7 +14,7 @@ function slipText(){
    it is the graded chance against that number, and updates as they type (traywire.js). A slip with
    a leg the model does not price has no graded chance, so no verdict. */
 function betsVerdictHTML(legs){
-  const x = betsPayout(legs), p = udChance(legs);
+  const x = betsPayout(legs), p = betsSameGame(legs) !== null ? null : udChance(legs);
   if (p === null) return "";
   return x > 1 ? slipVerdict(p * x, t("parlay.slip.vsPayout", {x}), (p*100).toFixed(1), (100/x).toFixed(1))
     : `<span class="tk-flag">${t("parlay.slip.typePay")}</span>`;
@@ -40,20 +40,20 @@ const slipEmptyHTML = key => `<div class="state-empty" style="margin:14px 15px;m
 
 function slipHTML(){
   const legs = SLIP.map(i=>PROPS[i]);
-  const games = legs.map(l=>l.game);
-  const corr = games.find((g,i)=>games.indexOf(g)!==i);
+  const corr = betsSameGame(legs);   // two legs of one game: no combined chance, only the note (2026-10-05)
   /* Book terms are arithmetic on the posted prices: the parlay pays the product of the decimal
      odds, and its implied probability is the product of each leg's. The model half is not. */
   const prices = legs.map(overPrice).filter(a => a !== null);
   const priced = prices.length === legs.length && legs.length > 0;
   const dec = priced ? prices.reduce((a,x)=>a*amToDec(x), 1) : null;
   const implied = priced ? prices.reduce((a,x)=>a*amToProb(x), 1) : null;
-  const modeled = legs.length > 0 && legs.every(l => typeof l.model === "number");
+  const modeled = legs.length > 0 && !corr && legs.every(l => typeof l.model === "number");
   const modelP = modeled ? legs.reduce((a,l)=>a*l.model/100, 1) : null;
   const pct = x => `${(x*100).toFixed(1)}%`;
   const udMode = PARLAY_BOOK === "underdog";
   const title = SLIP_MODE === "mine" ? t("parlay.slip.titleMine") : udMode ? t("parlay.slip.titleUd") : t("parlay.slip.titleDk");
-  const udP = udMode && legs.length ? udChance(legs) : null;
+  const udP = udMode && legs.length && !corr ? udChance(legs) : null;
+  const note = corr ? `<div class="corr"><span>⚠</span>${t("slips.joint.note")}</div>` : "";
   const chips = `<div class="presets">
     ${PRESETS.map(([k,label]) =>
       `<button class="chip" data-preset="${k}" aria-pressed="${SLIP_MODE===k}">${label}</button>`).join("")}</div>`;
@@ -62,6 +62,7 @@ function slipHTML(){
     <div class="sliphead"><span class="lbl">${title}</span><span class="pill">${t("parlay.slip.pickCount", {n: legs.length})}</span></div>
     ${chips}
     ${legs.length ? SLIP.map(slipLegUdHTML).join("") : slipEmptyHTML(t("slips.tray.emptySheet"))}
+    ${note}
     <div class="payout">
       <span class="lbl">${t("parlay.slip.allHit")}</span>
       <div class="bigedge">${udP === null ? "—" : `${(udP*100).toFixed(1)}%`}</div>
@@ -78,7 +79,7 @@ function slipHTML(){
       <div class="o">${esc(fmtAm(overPrice(l)))}</div>
       <button class="legremove" data-removeleg="${SLIP[k]}" title="${t("common.action.remove")}">✕</button></div>`).join("")
       : slipEmptyHTML(SLIP_MODE === "mine" ? t("parlay.slip.emptyMine") : t("slips.tray.emptySheet"))}
-    ${corr ? `<div class="corr"><span>⚠</span>${t("parlay.slip.corr", {game: esc(corr.toUpperCase())})}</div>` : ""}
+    ${note}
     <div class="payout">
       <span class="lbl">${modeled ? t("parlay.slip.edgeOverBook") : t("parlay.slip.edgeLabel")}</span>
       <div class="bigedge ${modeled ? "" : "pending"}">${modeled ? `${modelP >= implied ? "+" : ""}${((modelP-implied)*100).toFixed(1)}` : t("parlay.slip.pending")}</div>

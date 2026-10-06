@@ -10,7 +10,10 @@
    gdClockOf(club) is the one read the views use. It returns
      {state: "pre"|"in"|"post", label, live}
    label is "Q3 4:12", "Half", "OT 2:01", "Final", "Final/OT", or the kickoff ("Sun 1:25 PM").
-   live is true while the game is being played, halftime included. */
+   live is true while the game is being played, halftime included.
+
+   The same response carries each live game's `situation` (who has the ball, the down, the red zone);
+   gdClockShape keeps it as `sit` (situation.js), so the Games tab shows the ball with no request more. */
 
 const GD_SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard";
 let GD_CLOCK = {};       /* club code (ESPN's) -> {state, q, clock, half, detail} */
@@ -19,10 +22,15 @@ let GD_CLOCK_AT = 0;
 /* One competition of the scoreboard to what a row needs. */
 function gdClockShape(ev){
   const comp = (ev.competitions || [])[0] || {};
-  const st = comp.status || ev.status || {}, type = st.type || {};
-  return {state: type.state || "pre", q: st.period || 0, clock: st.displayClock || "",
-          half: /HALFTIME/.test(type.name || ""), detail: type.shortDetail || "",
-          clubs: (comp.competitors || []).map(c => (c.team || {}).abbreviation).filter(Boolean)};
+  const st = comp.status || ev.status || {}, type = st.type || {}, state = type.state || "pre";
+  const half = /HALFTIME/.test(type.name || "");
+  const teams = (comp.competitors || []).map(c => c.team || {}), abbrOf = {};
+  for (const tm of teams) if (tm.id !== undefined && tm.abbreviation) abbrOf[tm.id] = tm.abbreviation;
+  return {state, q: st.period || 0, clock: st.displayClock || "",
+          half, detail: type.shortDetail || "",
+          clubs: teams.map(tm => tm.abbreviation).filter(Boolean),
+          /* who has the ball: only while it is being played, not at the half (situation.js) */
+          sit: state === "in" && !half ? gdSitShape(comp.situation, abbrOf) : null};
 }
 
 async function gdClockFetch(){

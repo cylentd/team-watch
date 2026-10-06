@@ -104,12 +104,12 @@ function trPageHTML(){
   const D = trData();
   if (!lgUsePicked()) return `<div class="wrap"><p class="tr-none">${t("trades.none")}</p></div>`;
   // A league ff-jarvis has not graded trades for (AYO, 2026-09-29) says so under the switch.
-  if (!D) return `<div class="wrap">${lgSwitchHTML()}<div class="tr"><header class="tr-head"><h1>${esc(LG.league)}</h1></header>
+  if (!D) return `<div class="wrap">${lgChipHTML()}<div class="tr"><header class="tr-head"><h1>${esc(LG.league)}</h1></header>
     <p class="tr-none">${t("trades.empty")}</p></div></div>`;
   // What PAR means comes before the first number it explains (2026-09-29), then the answer (best, worst,
   // the heists). The sections are siblings in one grid, not two columns: on a desktop the ranking pairs
   // with the curses (trades.css places them) and the decided trades take the full width.
-  return `<div class="wrap">${lgSwitchHTML()}<div class="tr"><header class="tr-head"><h1>${esc(LG.league)}</h1>
+  return `<div class="wrap">${lgChipHTML()}<div class="tr"><header class="tr-head"><h1>${esc(LG.league)}</h1>
       <p class="tr-kick">${t("trades.page.kick", {a: D.since, b: D.through, n: D.n})}</p><p class="tr-what">${t("trades.page.what")}</p></header>
     ${trTopHTML()}
     <div class="tr-body">${trRankHTML()}${trDecidedBlockHTML()}${trCursesHTML()}</div></div></div>`;
@@ -118,7 +118,7 @@ function trPageHTML(){
 /* A manager row opens their trades under it (closing any other); Show all opens the rest of the cards.
    Each redraws only its own section, so nothing beside it moves. */
 function wireTrades(v){
-  wireLgSwitch(v);
+  wireLgChip(v);
   const root = v.querySelector(".tr");
   if (!root || !trData()) return;
   root.addEventListener("click", e => {

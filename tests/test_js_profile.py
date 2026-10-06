@@ -81,3 +81,75 @@ def test_red_zone_line_switches_at_ten(sections):
            for n, team, share in ((1, 5, 0.2), (3, 10, 0.3))]
     assert got[0].startswith("1 of 5") and "%" not in got[0]
     assert got[1].startswith("30% · 3 of 10")
+
+
+# ---- the profile's headline is this week's projection (plan U3, 2026-10-05) ----
+
+@pytest.fixture(scope="module")
+def lede(node_js):
+    return node_js("data/lede.js")
+
+
+def cells(lede, **kw):
+    inp = {"proj": {"pts": 17.4, "out": None, "done": None}, "ppg": 26.2, "rank": "WR3",
+           "share": {"id": "targets", "pct": "31%"}, "snaps": "88%"}
+    inp.update(kw)
+    return lede("ledeCells", inp)
+
+
+def test_the_projection_leads_the_strip_and_season_ppg_comes_second(lede):
+    got = cells(lede)
+    # "WR3 / 26.2 PPG" used to lead and read as the projection; now it is labelled as what it is.
+    assert [c["id"] for c in got] == ["proj", "ppg", "rank", "share", "snaps"]
+    assert (got[0]["value"], got[0]["label"]) == ("17.4", "Proj.")
+    assert (got[1]["value"], got[1]["label"]) == ("26.2", "PPG")
+    assert got[2]["label"] == "Rank" and got[2]["value"] == "WR3"      # right after the PPG it is ranked by
+
+
+def test_an_injured_or_idle_player_headlines_the_reason_not_a_zero(lede):
+    out = cells(lede, proj={"pts": 0, "out": "Out", "done": None})[0]
+    assert (out["id"], out["value"]) == ("proj", "Out")
+    assert cells(lede, proj={"pts": 21.0, "out": None, "done": "played"})[0]["value"] == "PLAYED"
+    assert cells(lede, proj={"pts": 0, "out": None, "done": "bye"})[0]["value"] == "BYE"
+
+
+def test_a_cell_with_no_source_is_left_out_and_nothing_means_no_strip(lede):
+    assert [c["id"] for c in cells(lede, proj=None, ppg=None)] == ["rank", "share", "snaps"]
+    assert lede("ledeCells", {"proj": None, "ppg": None, "rank": None, "share": None, "snaps": None}) == []
+    # A projection of 0.0 for a healthy player is a number, not a gap.
+    assert cells(lede, proj={"pts": 0, "out": None, "done": None})[0]["value"] == "0.0"
+
+
+# ---- plain words for the profile's signal line (plan U3, 2026-10-05) ----
+
+@pytest.fixture(scope="module")
+def sig(node_js):
+    return node_js("data/signals.js")
+
+
+def test_a_rising_verdict_says_who_gained_what_in_a_sentence(sig):
+    got = sig("signalWords", "RISING", "snaps +5.0, share +19; buy or start")
+    assert got == "Snaps up 5.0 points and his share of the work up 19 points. Worth a start, or an add if he is free."
+
+
+def test_a_rising_verdict_with_snaps_down_says_down_and_keeps_the_minus_out_of_it(sig):
+    # The audit's own line: "RISING snaps −5.0, share +19; buy or start", with a real minus sign.
+    for why in ("snaps -5.0, share +19; buy or start", "snaps −5.0, share +19; buy or start"):
+        got = sig("signalWords", "RISING", why)
+        assert got.startswith("Snaps down 5.0 points and his share of the work up 19 points."), got
+        assert "-" not in got and "−" not in got and "+" not in got
+
+
+def test_flat_snaps_and_flat_share_read_as_flat(sig):
+    assert sig("signalWords", "RISING", "snaps +0.0, share -0; buy or start").startswith("Snaps flat and his share of the work flat.")
+
+
+def test_sell_high_says_he_scored_more_than_his_work_earned(sig):
+    got = sig("signalWords", "SELL HIGH", "+45% over what the usage bought, on a part-time role")
+    assert got == "Scoring 45% more than his snaps and touches earned, on a part-time role. The points are likely to cool."
+
+
+def test_a_reason_the_page_does_not_know_is_passed_through_not_dropped(sig):
+    assert sig("signalWords", "RISING", "something new") == "something new"
+    assert sig("signalWords", "SELL HIGH", "") == ""
+    assert sig("signalWords", None, "x") == ""

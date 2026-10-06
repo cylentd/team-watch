@@ -86,7 +86,7 @@ function chatContext(question){
   if (!players.length) return null;
   return {
     scope: named.length ? "players named in the question" : "my highest-projected players",
-    week: (typeof SLATE_WEEK !== "undefined" && SLATE_WEEK) || null,
+    week: slateWeek(),
     scoring: "half-PPR",
     /* Both leagues, so "should I start him" can say which one it is answering for. The ESPN
        league's real scoring is custom and has no kicker; the server's system prompt says so. */

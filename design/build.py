@@ -56,9 +56,9 @@ from sources import (                                    # design/sources.py: th
     ROOT, REPO, DWR, FEED, ESPN_ROSTERS, DFS_POOL,
     feed_block, read_first, warn_if_stale, load_status, load_props_raw, load_model_raw,
     load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
-    load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_digest, load_digest_headline, load_game_preview, load_preview_record, load_league, load_role_board, load_highlights, load_clips, load_player_names, load_slip_reasons, load_props_record, load_claude_props, load_claude_record,
-    load_defense, load_kickers, load_recaps,
+    load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_digest, load_digest_headline, load_game_preview, load_preview_record, load_league, load_role_board, load_highlights, load_clips, load_player_names, load_slip_reasons, load_props_record, load_claude_props, load_claude_record, load_defense, load_kickers, load_recaps,
 )
+from audit_blocks import add_audit_blocks  # design/audit_blocks.py: accuracy receipts, D/ST + K, schedule (2026-10-05)
 from slips import UNPRICED, carry_mean, live_reasons, null_prices, priced as put_model, props_record, claude_props, claude_record, report as slips_report  # the Slips board's data
 from gameday import live_gameday, report as gameday_report  # This week > Live: every matchup, scored live
 from defense import live_defense, report as defense_report  # design/defense.py: the leg sheet's matchup line
@@ -678,11 +678,11 @@ def render():
     add_market_stock(blocks, report)
     add_start_sit(blocks, report, slugify)
     add_teams(blocks, report, slugify)                             # design/teams.py: League > Teams
+    add_audit_blocks(blocks, report)                               # design/audit_blocks.py
     report += [slips_report(blocks["LIVE_REASONS"]),schedule_report(blocks["LIVE_SCHEDULE"]), signed_report(blocks["LIVE_SIGNED"]), digest_report(blocks["LIVE_DIGEST"]),
                preview_report(blocks["LIVE_PREVIEW"]), pedigree_report(blocks["LIVE_PEDIGREE"]), gamelog_report(blocks["LIVE_GAMELOG"]),
                projections_report(blocks["LIVE_PROJECTIONS"]), ranks_report(blocks["LIVE_RANKS"]),
-               routes_report(blocks["LIVE_ROUTES"]), report_archetype(blocks["LIVE_ARCHETYPE"]),
-               report_trenches(blocks["LIVE_TRENCHES"]), lines_report(blocks["LIVE_LINES"]),
+               routes_report(blocks["LIVE_ROUTES"]), report_archetype(blocks["LIVE_ARCHETYPE"]), report_trenches(blocks["LIVE_TRENCHES"]), lines_report(blocks["LIVE_LINES"]),
                injury_report(blocks["LIVE_INJURY"]), role_report(blocks["LIVE_ROLE"]),
                highlights_report(blocks["LIVE_HIGHLIGHTS"]), clips_report(blocks["LIVE_CLIPS"]), names_report(blocks["LIVE_NAMES"]), recap_report(blocks["LIVE_RECAP"]), wx_history_report(blocks["LIVE_WX_HISTORY"]),
                defense_report(blocks["LIVE_DEFENSE"]), gameday_report(blocks["LIVE_GAMEDAY"]),

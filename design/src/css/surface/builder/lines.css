@@ -43,6 +43,10 @@
 .bl-call.higher{color:var(--up)} .bl-call.lower{color:var(--down)}
 .bl-call b{font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink)}
 .bl-call b i{font-style:normal;font-weight:500;color:var(--ink-3)}
+/* the model's tier word under the chance, Slips' own looks (lineitem.css is not fenced to this view) */
+.bl-tier{font-family:var(--ui);font-size:var(--t-1);font-weight:500;line-height:1;color:var(--ink-3);white-space:nowrap}
+.bl-tier.confident{color:var(--lime);font-weight:700}
+.bl-tier.very{padding:2px 4px;border-radius:4px;background:var(--lime);color:var(--on-lime);font-weight:700}
 .bline[aria-pressed="true"] .bl-call{border-color:var(--lime);background:rgb(var(--lime-rgb) / .1)}
 .bline:hover .bl-call{border-color:var(--ink-3)}
 /* No chance to show: amber, the page's caution colour, and it opens the sheet instead. */

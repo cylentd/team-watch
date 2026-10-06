@@ -57,6 +57,7 @@ surface/profile/orb.css
 surface/profile/compare.css
 surface/profile/headrail.css
 chrome/nav.css
+chrome/navrow.css
 chrome/search.css
 chrome/connect.css
 # pin: component/pool.css (a component since 2026-09-27: its chips and rows are in 14 views) keeps
@@ -73,11 +74,14 @@ component/lead.css
 surface/matchups/matchups.css
 # pin: ranks.css after pool.css -- its position row is pool.css's .setrow and .chip.
 surface/ranks/ranks.css
+surface/ranks/dst.css
 surface/highlights/highlights.css
 # pin: role.css after pool.css -- its rows reuse .xf-head and its chips .setrow and .chip.
 surface/role/role.css
 surface/weather/weather.css
 surface/weather/card.css
+# pin: sos.css after pool.css -- its position and weeks choices are pool.css's .chip, narrowed here.
+surface/sos/sos.css
 surface/preview/preview.css
 surface/matchups/record.css
 surface/preview/dossier.css
@@ -129,6 +133,7 @@ surface/teams/clipsheet.css
 surface/recap/recap.css
 surface/recap/players.css
 surface/recap/scores.css
+surface/recap/accuracy.css
 surface/strip/field.css
 surface/strip/figure.css
 surface/strip/panel.css
@@ -152,6 +157,7 @@ surface/builder/bets.css
 surface/builder/legsheet.css
 surface/builder/lineitem.css
 surface/builder/playersheet.css
+surface/builder/topcalls.css
 surface/dfs/table.css
 chrome/feed.css
 surface/dfs/lineup.css

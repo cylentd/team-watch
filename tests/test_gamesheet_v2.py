@@ -34,11 +34,14 @@ def visible(page, sel):
 
 
 @pytest.mark.render
-def test_a_phone_gets_the_sheet_full_screen_with_three_tabs(browser, page_file):
+def test_a_phone_gets_the_game_as_a_centred_modal_with_three_tabs(browser, page_file):
+    """U9, 2026-10-05: a margin on all four sides, not full screen (the first line of the module is the 2026-10-04 design)."""
     ctx, page, errors = open_page(browser, page_file, (360, 780))
     open_sheet(page)
-    box = page.evaluate("(() => { const r = document.getElementById('gamesheet').getBoundingClientRect(); return [r.top, r.height, innerHeight]; })()")
-    assert box[0] == 0 and box[1] == box[2] == 780
+    page.evaluate("Promise.all(document.getAnimations().map(a => a.finished))")    # the spring settles
+    box = page.evaluate("(() => { const r = document.getElementById('gamesheet').getBoundingClientRect(); return [r.top, r.left, innerWidth - r.right, innerHeight - r.bottom]; })()")
+    assert all(m >= 15 for m in box), box                       # top, left, right, bottom
+    assert abs(box[1] - box[2]) <= 1 and abs(box[0] - box[3]) <= 1, box   # centred both ways
     tabs = page.locator(".gs-tab")
     assert tabs.all_inner_texts() == ["Plays", "Box score", "Top scorers"]
     # Box score is the default; each tab shows its own card and no other

@@ -44,7 +44,7 @@ def test_highlights_leads_players_and_each_card_opens_its_view(browser, page_fil
         page.wait_for_selector(".hl-v")
         assert page.evaluate("NAV.find(([g]) => g === 'scouting')[1][0]") == "highlights", "Players opens on Highlights"
         heads = [h.strip() for h in page.locator(".hl-go").all_inner_texts()]
-        assert heads == ["Ranks", "Leaders", "Role", "Grid"]
+        assert heads == ["Ranks", "Leaders", "Work vs points", "Usage"]
         assert page.locator(".hl-ln").count() == 8
         assert page.locator(".hl-ln .hl-art :is(img, .fallback)").count() == 8, "every card shows the player"
         # The Reel (2026-09-30): every number has its unit, and a sign says up or down in colour.

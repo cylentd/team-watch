@@ -134,6 +134,7 @@
    "from_lines": 0,
    "moved": 0,
    "not_playing": 0,
+   "ranges": {"floor": "10th percentile outcome in points, given he plays; 0 when pts is 0", "ceil": "90th percentile outcome in points, given he plays; 0 when pts is 0", "fit_seasons": [2018, 2025], "holdout_season": 2025, "holdout_coverage": 0.8234, "source": "model/market/ranges.json"},
    "weather_adjust": {
     "since": "2026-09-26",
     "cells": {"wind": {"QB": -1.33, "WR": -0.5, "TE": -0.43}, "precip": {"WR": -0.56}},
@@ -156,6 +157,8 @@
      "game": "CIN @ NYJ",
      "kickoff": "2026-09-13 17:00:00",
      "pts": 19.4,
+     "floor": 8.4,
+     "ceil": 28.8,
      "mu": {
       "PASS": 245,
       "RUSH": 15,
@@ -178,6 +181,8 @@
      "game": "SEA @ SF",
      "kickoff": "2026-09-14 00:20:00",
      "pts": 18.1,
+     "floor": 7.3,
+     "ceil": 27.6,
      "mu": {
       "PASS": 220,
       "RUSH": 10,
@@ -202,6 +207,8 @@
      "game": "CIN @ NYJ",
      "kickoff": "2026-09-13 17:00:00",
      "pts": 16.2,
+     "floor": 7.0,
+     "ceil": 27.8,
      "mu": {
       "RUSH": 75,
       "REC": 20,
@@ -226,6 +233,8 @@
      "game": "SEA @ SF",
      "kickoff": "2026-09-14 00:20:00",
      "pts": 13.6,
+     "floor": 6.4,
+     "ceil": 22.1,
      "mu": {
       "REC": 50,
       "TD": 0.2
@@ -248,6 +257,8 @@
      "game": "DET @ GB",
      "kickoff": "2026-09-15 00:15:00",
      "pts": 17.3,
+     "floor": 8.2,
+     "ceil": 27.5,
      "mu": {
       "REC": 85,
       "TD": 0.3

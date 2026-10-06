@@ -12,7 +12,7 @@ function betsSettingLabel(build){
   const ud = PARLAY_BOOK === "underdog";
   const book = `<span class="full">${ud ? t("parlay.bar.ud") : t("parlay.bar.dk")}</span><span class="abbr">${ud ? t("parlay.bar.udShort") : t("parlay.bar.dkShort")}</span>`;
   const win = GAL_WINDOWS.find(w => w.k === GAL_WIN);
-  return win && build ? `${book} · ${esc(win.label)}` : book;
+  return win && build ? `${book} · ${esc(galGroupName(win))}` : book;
 }
 
 function betsBarHTML(build){
@@ -30,15 +30,16 @@ function betsBarHTML(build){
     ${set}</div>`;
 }
 
-/* Slips' kickoff tabs (2026-09-29): Thu · Sun · AM · PM · Night · Mon. A day of several windows
-   is its weekday (the whole day), followed by its parts; a day of one window is its weekday. Six
-   tabs and the book chip fit 360px only this way: "Sun AM" and "All Sun" ran 82px over. */
+/* Slips' kickoff tabs (2026-09-29): Thu · Sun · Early · Late · Night · Mon (AM · PM · Night until 2026-10-05,
+   Pacific hours beside a clock that is the reader's). A day of several windows is its weekday (the whole
+   day), followed by its parts; a day of one window is its weekday. Six tabs and the book chip fit 360px
+   only this way: "Sun AM" and "All Sun" ran 82px over. */
 const KICK_CHIPS = GAL_GROUPS;
 const kickDay = w => new Date(`${w.date}T12:00:00`).toLocaleDateString("en-US", {weekday: "short"});
-const kickPart = w => /^morning/.test(w.k) ? t("parlay.kick.am") : /^afternoon/.test(w.k) ? t("parlay.kick.pm") : t("parlay.kick.night");
+const kickPart = kickWinPart;   // Preview's Eastern slot words, not a Pacific AM/PM (data/kickwin.js)
 const kickInDay = w => !w.wins && DAYS.some(d => d.wins.includes(w.k) && GAL_WINDOWS.includes(d));
 function kickChipLabel(w){ return kickInDay(w) ? kickPart(w) : kickDay(w); }
-/* The same kickoff named on its own, off the tab row: "Sun AM", "All Sun", "Thu". */
+/* The same kickoff named on its own, off the tab row: "Sun Early", "All Sun", "Thu". */
 function kickName(w){
   if (w.wins) return t("parlay.kick.day", {day: kickDay(w)});
   return kickInDay(w) ? `${kickDay(w)} ${kickPart(w)}` : kickDay(w);
@@ -60,7 +61,7 @@ function betsPanelHTML(build){
       <button class="mode-sub" data-parlaybook="dk" aria-pressed="${PARLAY_BOOK==="dk"}">${t("parlay.book.dk")}</button>
     </div>
     <div class="filters">
-      ${build ? sel("gwin", t("parlay.filter.kickoff"), [["ALL", t("parlay.option.all")], ...GAL_WINDOWS.map(w => [w.k, esc(w.label)])], GAL_WIN) : ""}
+      ${build ? sel("gwin", t("parlay.filter.kickoff"), [["ALL", t("parlay.option.all")], ...GAL_WINDOWS.map(w => [w.k, esc(galGroupName(w))])], GAL_WIN) : ""}
       ${build ? sel("mkind", t("parlay.filter.market"), [["ALL",t("parlay.option.all")],["TD",MKT.TD],["RUSH",MKT.RUSH],["REC",MKT.REC],["RECS",MKT.RECS],["PASS",MKT.PASS]], MKT_KIND)
         + sel("msort", t("parlay.filter.sort"), sorts, MKT_SORT)
         + `<button class="chip" data-mine="1" aria-pressed="${MKT_MINE}">${t("parlay.filter.mineOnly")}</button>` : ""}

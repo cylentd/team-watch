@@ -39,8 +39,11 @@ function buildRowHTML(p){
   // Longest reception is never priced (2026-10-03), so it is not "pending" either: no number.
   const pct = typeof s.pct === "number" ? `${s.pct}%` : p.mkt === "LONG" ? "" : t("parlay.call.pending");
   const price = PARLAY_BOOK === "dk" ? ` <i>${esc(fmtAm(s.price))}</i>` : "";
+  // The model's tier word under the chance (2026-10-05): the one vocabulary Slips uses, only where the
+  // model's side is the side this row calls.
+  const m = td ? null : slModel(p), tier = m && PT_RANK[m.tier] && m.side === (lower ? "lower" : "higher") ? m.tier : "";
   return `<div class="bline" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">${ev}
-    <span class="bl-call ${lower ? "lower" : "higher"}">${word}<b>${pct}${price}</b></span></div>`;
+    <span class="bl-call ${lower ? "lower" : "higher"}">${word}<b>${pct}${price}</b>${tier ? `<span class="bl-tier ${tier}">${slTierWord(tier)}</span>` : ""}</span></div>`;
 }
 
 /* The cornerback he draws this week, when ff-jarvis rates it an upgrade or a downgrade. */

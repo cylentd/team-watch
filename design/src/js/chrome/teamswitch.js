@@ -60,11 +60,13 @@ function tsLeagueHTML(lg){
 const TS_CHEV = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const TS_NEXT = `<svg class="ts-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const TS_BACK = `<svg class="ts-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 4L6 8l4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-function teamSwitchHTML(){
-  const cur = TEAMS[VIEW] || TEAMS.yahoo;
+/* `label` is the already-escaped words on the button: the team's name by default; the League chip says
+   "Pick your team" until the reader has (surface/league/switch.js). */
+function teamSwitchHTML(label){
+  const cur = TEAMS[VIEW] || TEAMS.yahoo, name = label || esc(cur.name);
   return `<div class="teamswitch" id="switch" style="--tint:${cur.tint}">
-    <button class="ts-btn" data-tsbtn aria-haspopup="listbox" aria-expanded="false" aria-label="${t("chrome.teamswitch.label", {team: esc(cur.name)})}">
-      <span class="ts-team">${esc(cur.name)}</span>
+    <button class="ts-btn" data-tsbtn aria-haspopup="listbox" aria-expanded="false" aria-label="${t("chrome.teamswitch.label", {team: name})}">
+      <span class="ts-team">${name}</span>
       <span class="ts-chev">${TS_CHEV}</span>
     </button>
     <div class="ts-menu" data-tsmenu role="listbox" hidden>${tsMenuHTML()}</div>
@@ -92,18 +94,16 @@ const needsPick = () => MATES.length > 0 && !myTeamLoad();
 /* A reader's pick, from the picker or the team switch: saved, then the view it lands on is fixed up
    for what that team has. */
 function pickTeam(k){
-  const changed = VIEW !== k;
+  const changed = VIEW !== k, was = lgFocusKey();
   VIEW = k;
   myTeamSave(VIEW);    // the reader's pick opens next time too (data/mates.js)
   SEARCH_INDEX = null; // a leaguemate's roster counts as "yours" in search only while on screen
-  // A connected league has no Waivers (ff-jarvis builds David's two leagues only).
-  if (!hasWaivers(TEAMS[VIEW]) && SURFACE === "waivers") SURFACE = "roster";
-  // A team's league page follows its league: My recap for Yahoo, League for ESPN, none when connected.
-  if (SURFACE === "league" && hasRecords(TEAMS[VIEW])) SURFACE = "myrecap";
-  if (SURFACE === "myrecap" && !hasRecords(TEAMS[VIEW])) SURFACE = hasLeague(TEAMS[VIEW]) ? "league" : "roster";
-  if (SURFACE === "league" && !hasLeague(TEAMS[VIEW])) SURFACE = "roster";
-  render();
-  paintSubnav();       // the Waivers count is per league, and a connected league has none
+  if (lgFocusKey() !== was) lgLeagueChanged();
+  // The league follows the team (2026-10-05), and a league lacks some leaves: a connected league has no
+  // Waivers (ff-jarvis builds David's leagues only), ESPN has no Records or Trades. Land on the nearest.
+  const next = navFallback(SURFACE, navTabsOf(navGroupOf(SURFACE)));
+  if (next !== SURFACE) navGo(next);
+  else { render(); paintSubnav(); }   // the Waivers count is per league, and a connected league has none
   if (changed) zipFootball();
 }
 /* Live's "Pick your team" (2026-10-04): My teams, where the picker takes the pick when nobody has

@@ -6,14 +6,14 @@
 
    Data: data/weather.js wtRows(), data/wxhistory.js. Icons: ui/weather.js.
 ------------------------------------------------------------------ */
-const wtKick = iso => new Date(iso).toLocaleString([], {weekday: "short", hour: "numeric", minute: "2-digit"});
+const wtKick = iso => kickFmt(iso);   // the page's one kickoff format (lib/kick.js)
 /* A game already under way or over says so where its kickoff time was: the card is dimmed, not gone. */
 const wtKickLabel = r => r.done ? t("weather.done", {kick: wtKick(r.g.kickoff)}) : wtKick(r.g.kickoff);
 
 /* One compact row: matchup, kickoff, the sky in brief. */
 function wtRowHTML(r){
   const fc = r.fc;
-  const sky = r.roof === "dome" ? "" : fc ? `${t("profile.weather.temp", {n: fc.temp_f})} · ${esc(fc.wind || "")}`
+  const sky = r.roof === "dome" ? t("profile.weather.dome") : fc ? `${t("profile.weather.temp", {n: fc.temp_f})} · ${esc(fc.wind || "")}`
     : r.done ? t("weather.row.nosaved") : t("weather.row.nofc");
   return `<li class="wt-row${r.done ? " done" : ""}"><b class="wt-match">${esc(r.g.away)} @ ${esc(r.g.home)}</b>
     <span class="wt-kick">${wtKickLabel(r)}</span><span class="wt-rs">${sky}</span></li>`;

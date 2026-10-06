@@ -30,16 +30,16 @@ function wrScoreline(g){
 
 function wrGameRow(d, {g, at}){
   const p = g.preview, pick = p ? t("weekrecap.pick.picked", {team: esc(p.winner)}) : "";
-  const kick = !g.final && at ? t("weekrecap.game.kick", {time: at.et}) : "";
+  const kick = !g.final && at ? esc(at.time) : "";
   const right = `<span class="wr-pk">${[kick, pick].filter(Boolean).join(" · ")}${wrMark(g.final ? p : null)}</span>`;
   const i = wrPreviewIndex(d, g), body = wrScoreline(g) + right;
   return i >= 0 ? `<li><button type="button" class="wr-g" data-wrgame="${i}">${body}</button></li>` : `<li><div class="wr-g">${body}</div></li>`;
 }
 
-/* One window: its name (Preview's), its kickoff times in Eastern time, then its games. A window with no
+/* One window: its name (Preview's), its kickoff times in the reader's clock, then its games. A window with no
    kickoff (an old recap file) has no heading. */
 const wrWindowHTML = (d, w) => `<section class="wr-win${w.rows.length > 2 ? " wide" : ""}">${w.slot ? `<h4 class="wr-wh"><span>${pvWinLabel(w)}</span><em>${
-  t("preview.win.times", {times: w.times.join(" · ")})}</em></h4>` : ""}<ul>${w.rows.map(r => wrGameRow(d, r)).join("")}</ul></section>`;
+  esc(w.times.join(" · "))}</em></h4>` : ""}<ul>${w.rows.map(r => wrGameRow(d, r)).join("")}</ul></section>`;
 
 function wrScoresHTML(d){
   if (!d.games.length) return "";

@@ -98,7 +98,9 @@ def _matchup(p, key="pts"):
 
 def live_ranks(raw, slugify, status=None, schedule=None):
     """LIVE_RANKS: {scoring, week, off, rows, flex}, or None when ff-jarvis has not written the file.
-    Both lists hold {slug, n, pos, team, opp, home, kick, inj, mu, mx, mxp, pts, rank, tier}, best first:
+    Both lists hold {slug, n, pos, team, opp, home, kick, inj, mu, mx, mxp, pts, floor, ceil, rank,
+    tier}, best first (`floor` and `ceil`: ff-jarvis's 10th and 90th percentile outcome, null
+    without a band, never computed here):
     `rows` is every position's list one after another, each tiered on its own; `flex` is RB/WR/TE
     together, tiered together. `rank` is the place at the position in this week's list, on a FLEX
     row too; a FLEX row's own place is its index.
@@ -120,7 +122,8 @@ def live_ranks(raw, slugify, status=None, schedule=None):
             rows[slug] = {"slug": slug, "n": p.get("name"), "pos": p.get("pos"), "team": p.get("team"),
                           "opp": p.get("opp"), "home": _home(p), "kick": kick_iso(p), "inj": INJ.get(p.get("injury")),
                           "mu": _makeup(p.get("mu"), p.get("pos")), "mx": _matchup(p), "mxp": _matchup(p, "priced"),
-                          "pts": round(p["pts"], 2), "rank": None, "tier": None}
+                          "pts": round(p["pts"], 2), "floor": p.get("floor"), "ceil": p.get("ceil"),
+                          "rank": None, "tier": None}
     off = sorted({rows[s]["team"] for s in done if s in rows})
     live = [r for r in rows.values() if r["slug"] not in done]
     lists, place = {}, {}

@@ -49,6 +49,14 @@
 /* The small Compare a player with no rail keeps, in his name block. */
 .pf-who > .cmp-open{margin-top:10px}
 
+/* His row in the Usage grid (gridlink.js): one text link under the strip, a 44px tap, at the strip's right edge. */
+.pf-gl{display:flex;justify-content:flex-end}
+.pf-grid{appearance:none;border:0;background:none;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 2px 0 12px;
+  font:inherit;font-size:var(--t-2);font-weight:600;color:var(--lime);cursor:pointer}
+.pf-grid:hover{text-decoration:underline;text-underline-offset:3px}
+.pf-grid:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
+.pf-grid .pf-own-go{width:8px;height:12px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
 @media (max-width:760px){
   /* The name block clears the close button itself (padding-right below), so the rail keeps the
      whole width; panel.css's and orb.css's right padding is for the desktop row. */

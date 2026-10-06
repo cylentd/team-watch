@@ -1,4 +1,4 @@
-/* My teams > League (2026-09-26; storyboard https://claude.ai/artifact/Lf17QZYMoNJvmVHCT45xUJ): each
+/* League > Recap (it was My teams > League, 2026-09-26; storyboard https://claude.ai/artifact/Lf17QZYMoNJvmVHCT45xUJ): each
    league's weekly recap, the rivalry with this week's opponent, and its history. LIVE_LEAGUE (ESPN,
    since 2014) and LIVE_LEAGUE_YAHOO (since 2018, champions only) are design/league_recap.py's: every
    award, record and head-to-head is computed there, so the page only picks the team on screen.
@@ -15,29 +15,35 @@ const LG_TRADES = {
   ayo: (typeof LIVE_TRADES_AYO !== "undefined" && LIVE_TRADES_AYO) || null,
 };
 
-/* The League group's league (Recap, Records, Trades; 2026-09-29, David: "a switch on the page"): one
-   of David's Yahoo leagues with a League block, in the team switch's order, so the Madden Curse
-   first. The reader's pick is kept in this browser (`tw-league`), like the roster's Sheet / Cards,
-   so a reload keeps it; the hash stays the view's alone. */
-const LG_PICK = "tw-league";
-let LG_PICK_MEM = null;       // this load's pick, for a browser that refuses storage
-const lgLeagueKeys = () => myLeagueKeys().filter(k => TEAMS[k].site === "yahoo" && LGS[k]);
-function lgLeagueKey(){
-  const ks = lgLeagueKeys();
-  let k = LG_PICK_MEM;
-  try { k = k || localStorage.getItem(LG_PICK); } catch (e) { /* no storage: the default */ }
-  return ks.includes(k) ? k : ks[0] || null;
+/* The League group's league (2026-10-05, David: one chip, "pick your team, the league follows"): the
+   league of the reader's team, whichever of David's three it is; a leaguemate's is his league's.
+   Until 2026-10-05 Recap, Records and Trades had a Madden Curse / AYO switch of their own (2026-09-29,
+   kept in `tw-league`), and the Teams board a third with ESPN: two ways to say one thing. The team is
+   the one pick now (data/mates.js myTeamSave), so a reload keeps it. */
+const lgFocusKey = () => navFocusKey(lgSeat(), lbKeys());
+/* The reader's own team: the one they picked, else David's on a page with no leaguemates, else none (the
+   chip then says "Pick your team"). Recap puts this team's game first. The team on screen (VIEW) can be
+   another's, reached from a profile; the League group is about the reader's. */
+function lgMine(){
+  const k = myTeamLoad();
+  return k ? TEAMS[k] : needsPick() ? null : TEAMS[VIEW] || null;
 }
-function lgLeagueSave(k){
-  LG_PICK_MEM = k;
-  try { localStorage.setItem(LG_PICK, k); } catch (e) { /* this load only */ }
+/* The team whose league the League group shows: the reader's, else the one on screen (David's yahoo by default). */
+const lgSeat = () => lgMine() || TEAMS[VIEW];
+/* The Yahoo leagues with a League block: the ones Records and Trades are about. */
+const lgLeagueKeys = () => myLeagueKeys().filter(k => TEAMS[k].site === "yahoo" && LGS[k]);
+/* The Yahoo league Recap's back page, Records and Trades draw: the focus league when it is one, else the
+   first (an ESPN team on a stale #records link). */
+function lgLeagueKey(){
+  const ks = lgLeagueKeys(), f = lgFocusKey();
+  return ks.includes(f) ? f : ks[0] || null;
 }
 
 /* The league of a team: David's own two by key, a leaguemate's by its league. A connected league has
    none. */
 const lgOf = team => !team || team.connected ? null : LGS[team.mate ? team.league : team.key] || null;
 
-/* The league on screen. renderLeague sets it before drawing, so every helper below reads one league. */
+/* The league on screen. Recap (lgUsePicked, leagueHTML) sets it before drawing, so every helper below reads one league. */
 let LG = null;
 
 /* Every team's record in the hero, from its site's own standings: ESPN's adds a win for a top-half
@@ -50,10 +56,8 @@ Object.values(LGS).forEach(L => L && L.teams.forEach(x => {
    Reset when the league on screen changes, since the other league's weeks are its own. */
 let LG_WEEK = null;
 
-const hasLeague = team => !!lgOf(team);
-
-/* The Records tab: a league whose block carries a record book (Yahoo's back page, design/league_back.py). */
-const hasRecords = team => !!(lgOf(team) || {}).book;
+/* Whether Records is a leaf is `(LGS[focus] || {}).book` (chrome/nav.js navFacts): a league whose block
+   carries a record book (Yahoo's back page, design/league_back.py). */
 
 /* The team id of the team on screen, matched by the key the team switch uses. */
 const lgIdOf = team => ((LG && team && LG.teams.find(x => x.key === team.key)) || {}).id;

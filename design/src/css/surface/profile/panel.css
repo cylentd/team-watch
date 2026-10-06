@@ -58,6 +58,11 @@
   letter-spacing:-.03em;color:var(--ink)}
 .pf-lede-l{font-family:var(--mono);font-size:var(--t-1);font-weight:600;letter-spacing:.1em;
   text-transform:uppercase;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* This week's projection is the headline of the strip: lime, and a step above the season numbers on a phone. */
+.pf-lede-c.proj b{color:var(--lime)}
+/* Floor and ceiling under the label (plan U5), said in words once under the strip. */
+.pf-lede-r{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pf-lede-note{margin:6px 0 0;font-size:var(--t-1);color:var(--ink-3)}
 
 /* Who has him (owners.js): one pill per league. The reader's own team is lime, the page's "this is
    yours" colour; a free agent is green, the page's "up". The league's tag is grey, not Yahoo purple
@@ -187,8 +192,9 @@ button.pf-own:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
    numbers step down one size; the labels stay whole ("CARRIES", seven letters, is the longest). */
 @media (max-width:760px){
   .pf-head .dr-id img,.pf-head .dr-id .fallback{width:84px;height:84px}
-  .pf-lede-c{padding-right:6px}
-  .pf-lede-c + .pf-lede-c{padding-left:9px}
+  .pf-lede-c{padding-right:3px}
+  .pf-lede-c + .pf-lede-c{padding-left:7px}
   .pf-lede-c b{font-size:var(--t-4)}
-  .pf-lede-l{letter-spacing:.04em}
+  .pf-lede-c.proj b{font-size:var(--t-5)}
+  .pf-lede-l{letter-spacing:0}
 }

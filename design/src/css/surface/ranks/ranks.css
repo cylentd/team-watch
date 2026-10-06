@@ -5,7 +5,7 @@
    read as six kinds of line on 2026-09-26). The tier label's fill steps down from lime at Tier 1
    (--k, 0 at the top tier to 1 at the last), so how high a tier sits reads first.
    Your player is named in lime, the Board's "pick" colour. */
-.rk-headline{margin:14px 0 0}
+.rk-headline{margin:14px 0 0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .rk-headline h2{margin:0;font-family:var(--disp);font-size:var(--t-4);font-weight:800;color:var(--ink)}
 .rk-headline p{margin:2px 0 0;font-size:var(--t-1);color:var(--ink-3);max-width:70ch}
 .rk-list{display:grid;gap:10px;margin-top:12px;max-width:var(--list-w)}
@@ -42,13 +42,16 @@
    the way a delta sits under a price. */
 .rk-mx{display:block;margin-top:2px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;
   font-variant-numeric:tabular-nums;text-align:right}
+/* Floor and ceiling, the smaller line under the projection (plan U5). Quiet: it is context for the number. */
+.rk-rng{display:block;margin-top:1px;font-family:var(--mono);font-size:var(--t-1);font-weight:500;color:var(--ink-3);
+  font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
 .rk-mx.up{color:var(--up)}
 .rk-mx.dn{color:var(--down)}
 .rk-inj{flex:none;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.04em;color:var(--amber)}
 .rk-inj.d{color:var(--down)}
 /* A desktop has the width for what the points are made of, between the name and the number. */
 @media (min-width:760px){
-  .rk-row{grid-template-columns:28px 34px minmax(200px,280px) minmax(0,1fr) 56px;gap:14px;padding:4px 20px}
+  .rk-row{grid-template-columns:28px 34px minmax(200px,280px) minmax(0,1fr) 72px;gap:14px;padding:4px 20px}
   .rk-mu{display:block}
   .rk-pts{text-align:right}
   .rk-tier{padding:12px 20px 6px}
@@ -60,9 +63,9 @@
 @media (min-width:1100px){
   .rk-list{display:block;columns:2;column-gap:16px;max-width:none}
   .rk-group{break-inside:avoid;margin-bottom:10px;container-type:inline-size}
-  .rk-row{grid-template-columns:28px 34px minmax(150px,1fr) max-content 56px}
+  .rk-row{grid-template-columns:28px 34px minmax(150px,1fr) max-content 72px}
   @container (max-width:599px){
-    .rk-row{grid-template-columns:28px 34px minmax(0,1fr) 56px}
+    .rk-row{grid-template-columns:28px 34px minmax(0,1fr) 72px}
     .rk-mu{display:none}
   }
 }

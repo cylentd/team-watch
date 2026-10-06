@@ -6,12 +6,11 @@
    red 8% below. A lime "+" in a corner is a spare starter on that team's bench. A tap on a row opens the
    team as a full page (lbpage.js, then tbpage.js); it never changes the reader's own team.
 
-   The league switch is Recap's (surface/league/switch.js) with the ESPN league added: those three views
-   are the Yahoo leagues' alone, this one has data for all three. Teams opens on the reader's own league
-   until they switch on this visit, and their own team is pinned to the top row. */
+   The league is the one chip's (surface/league/switch.js): the league of the team on screen, ESPN's too,
+   where Records and Trades are the Yahoo leagues' alone (2026-10-05: it had a Madden Curse / AYO / ESPN
+   switch of its own until then). The reader's own team is pinned to the top row. */
 const LB_EDGE = .08;                           // how far from the league's median a cell is tinted
 const LB_COLS = ["QB", "RB", "WR", "TE", "FLX"];
-let LB_LEAGUE = null;                          // this visit's league pick; null until the reader taps one
 let LB_SORT = null;                            // a column, or null for the lineup total
 
 const lbData = () => (typeof LIVE_TEAMS !== "undefined" && LIVE_TEAMS) || null;
@@ -22,19 +21,9 @@ const lbKeys = () => {
   return [...ks.filter(k => TEAMS[k].site === "yahoo"), ...ks.filter(k => TEAMS[k].site !== "yahoo")];
 };
 
-/* This visit's pick, else the league of the team the reader picked, else Recap's league. */
-function lbLeagueKey(){
-  const ks = lbKeys(), mine = myTeamLoad(), tm = mine && TEAMS[mine];
-  const home = tm ? (tm.mate ? tm.league : mine) : null;
-  return [LB_LEAGUE, home, lgLeagueKey()].find(k => k && ks.includes(k)) || ks[0] || null;
-}
-
-function lbPick(k){
-  if (k === lbLeagueKey()) return false;
-  LB_LEAGUE = k;
-  if (TEAMS[k].site === "yahoo") lgLeagueSave(k);    // Recap, Records and Trades follow the same choice
-  return true;
-}
+/* The league of the team on screen (data/league.js lgFocusKey): the chip is the one pick since 2026-10-05,
+   so the board, Recap, Records and Trades are always the same league. */
+const lbLeagueKey = () => lgFocusKey();
 
 /* A team's record, as the standings write it: 3–1, or 3–1–1 with a tie; "" with no standings. */
 const lbRecord = tm => tm.w == null ? "" : tm.t ? `${tm.w}–${tm.l}–${tm.t}` : `${tm.w}–${tm.l}`;
@@ -77,11 +66,11 @@ function lbHeadHTML(cols){
   return `<div class="lb-head" role="row">${th(null, t("lboard.head.team"), " team")}${cols.map(c => th(c, c, "")).join("")}</div>`;
 }
 
-/* The board's own week (LIVE_TEAMS.week, design/projections.py `slate`), never schedWeek() (2026-10-05):
-   the projections are each player's next kickoff, so after Sunday they are week N+1 while the page's
-   week stays N until Monday night's game is final. */
+/* The board's week is slateWeek() (data/schedule.js, the week rule), never schedWeek() (2026-10-05):
+   the projections are each player's next kickoff, so after Sunday they are week N+1 while the
+   schedule's week stays N until Monday night's game is final. */
 function lbKeyHTML(){
-  const pct = LB_EDGE * 100, wk = lbData()?.week || null;
+  const pct = LB_EDGE * 100, wk = slateWeek();
   return `<div class="lb-key" role="group" aria-label="${t("lboard.key.aria")}">
     <span class="lb-what">${wk ? t("lboard.key.what", {wk}) : t("lboard.key.whatNoWeek")}</span>
     <span class="lb-k"><i class="lb-sw up"></i>${t("lboard.key.above", {pct})}</span>
@@ -99,7 +88,7 @@ const lbPickHTML = lg => tbMine(lg) ? "" : `<p class="lb-pick">${t("lboard.board
 function lbViewHTML(){
   const page = LB_PAGE ? lbPageHTML() : "";          // lbpage.js; "" when no page is open, or its team is gone
   if (page) return page;
-  const on = lbLeagueKey(), lg = lbOf(on), sw = lgSwitchHTML(lbKeys(), on);
+  const on = lbLeagueKey(), lg = lbOf(on), sw = lgChipHTML();
   if (!lg) return `<div class="wrap lb">${sw}${lbEmptyHTML()}</div>`;
   const cols = lbCols(lg);
   return `<div class="wrap lb">${sw}${lbPickHTML(lg)}
@@ -111,7 +100,7 @@ function lbViewHTML(){
 /* A header tap redraws the grid in place, so the switch above it never moves; focus stays on the header. */
 function wireLb(v){
   if (LB_PAGE) return wireLbPage(v);
-  wireLgSwitch(v, lbPick);
+  wireLgChip(v);
   v.querySelectorAll("[data-lbsort]").forEach(b => b.addEventListener("click", () => {
     const c = b.dataset.lbsort || null;
     LB_SORT = c && c !== LB_SORT ? c : null;

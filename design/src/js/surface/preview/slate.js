@@ -48,7 +48,7 @@ function pvSlateHTML(cur){
   const gs = pvGames();
   return `<nav class="pv-slate" aria-label="${t("preview.slate.label")}">${pvRecordHTML()}${pvWindows().map(w => `
     <section class="pv-win">
-      <h3 class="pv-wh"><span>${pvWinLabel(w)}</span><em>${t("preview.win.times", {times: w.times.join(" · ")})}${
+      <h3 class="pv-wh"><span>${pvWinLabel(w)}</span><em>${esc(w.times.join(" · "))}${
         w.idx.length > 1 ? " · " + t("preview.win.count", {n: w.idx.length}) : ""}</em></h3>
       <ul>${w.idx.map(i => pvRowHTML(gs[i], i, i === cur)).join("")}</ul>
     </section>`).join("")}</nav>`;

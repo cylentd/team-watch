@@ -1,0 +1,5421 @@
+{
+ "generated": "2026-10-05T21:45:11-04:00",
+ "season": 2026,
+ "weeks": [
+  5,
+  6,
+  7,
+  8
+ ],
+ "source": {
+  "dst_espn": "model",
+  "dst_yahoo": "model",
+  "k_yahoo": "model",
+  "k_ayo": "model"
+ },
+ "leagues": {
+  "espn": {
+   "dst": "dst_espn",
+   "k": null,
+   "roster_updated": "2026-10-05"
+  },
+  "yahoo": {
+   "dst": "dst_yahoo",
+   "k": "k_yahoo",
+   "roster_updated": "2026-10-05"
+  },
+  "ayo": {
+   "dst": "dst_yahoo",
+   "k": "k_ayo",
+   "roster_updated": "2026-10-05"
+  }
+ },
+ "rules": {
+  "streamer": "on no roster in that league (pct under 50) and ranked top 12 that week on its scoring",
+  "top": 12,
+  "line": "posted: the week's nflverse line; rating: this season's implied totals for and against, additive",
+  "rostered": "pct is 100 when a team in the league holds him, else 0; platform_pct is ESPN-wide, free agents"
+ },
+ "teams": [
+  {
+   "team": "ARI",
+   "rostered": {
+    "espn": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "DET",
+     "home": true,
+     "kickoff": "2026-10-11T16:25:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 24.5,
+     "opp_implied": 30.0,
+     "dst": {
+      "dst_espn": 1.9,
+      "dst_yahoo": 3.3
+     },
+     "k": {
+      "k_yahoo": 7.6,
+      "k_ayo": 7.8
+     },
+     "rank": {
+      "dst_espn": 30,
+      "dst_yahoo": 30,
+      "k_yahoo": 19,
+      "k_ayo": 19
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "LA",
+     "home": false,
+     "kickoff": "2026-10-18T16:05:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 20.0,
+     "opp_implied": 29.0,
+     "dst": {
+      "dst_espn": 3.0,
+      "dst_yahoo": 3.9
+     },
+     "k": {
+      "k_yahoo": 7.6,
+      "k_ayo": 7.7
+     },
+     "rank": {
+      "dst_espn": 28,
+      "dst_yahoo": 27,
+      "k_yahoo": 19,
+      "k_ayo": 20
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "DEN",
+     "home": true,
+     "kickoff": "2026-10-25T16:05:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 21.8,
+     "opp_implied": 25.0,
+     "dst": {
+      "dst_espn": 4.9,
+      "dst_yahoo": 5.2
+     },
+     "k": {
+      "k_yahoo": 7.5,
+      "k_ayo": 7.7
+     },
+     "rank": {
+      "dst_espn": 25,
+      "dst_yahoo": 23,
+      "k_yahoo": 22,
+      "k_ayo": 22
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "DAL",
+     "home": false,
+     "kickoff": "2026-11-01T13:00:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 21.8,
+     "opp_implied": 30.0,
+     "dst": {
+      "dst_espn": 2.2,
+      "dst_yahoo": 3.5
+     },
+     "k": {
+      "k_yahoo": 7.2,
+      "k_ayo": 7.4
+     },
+     "rank": {
+      "dst_espn": 28,
+      "dst_yahoo": 28,
+      "k_yahoo": 22,
+      "k_ayo": 22
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    }
+   ]
+  },
+  {
+   "team": "ATL",
+   "rostered": {
+    "espn": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "BAL",
+     "home": true,
+     "kickoff": "2026-10-11T20:20:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 21.5,
+     "opp_implied": 25.0,
+     "dst": {
+      "dst_espn": 5.4,
+      "dst_yahoo": 5.5
+     },
+     "k": {
+      "k_yahoo": 7.6,
+      "k_ayo": 7.8
+     },
+     "rank": {
+      "dst_espn": 26,
+      "dst_yahoo": 24,
+      "k_yahoo": 20,
+      "k_ayo": 20
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "CHI",
+     "home": true,
+     "kickoff": "2026-10-18T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 20.1,
+     "opp_implied": 24.1,
+     "dst": {
+      "dst_espn": 5.3,
+      "dst_yahoo": 5.2
+     },
+     "k": {
+      "k_yahoo": 7.4,
+      "k_ayo": 7.6
+     },
+     "rank": {
+      "dst_espn": 22,
+      "dst_yahoo": 23,
+      "k_yahoo": 22,
+      "k_ayo": 22
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "SF",
+     "home": true,
+     "kickoff": "2026-10-25T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 20.5,
+     "opp_implied": 25.9,
+     "dst": {
+      "dst_espn": 4.4,
+      "dst_yahoo": 4.7
+     },
+     "k": {
+      "k_yahoo": 7.4,
+      "k_ayo": 7.5
+     },
+     "rank": {
+      "dst_espn": 27,
+      "dst_yahoo": 27,
+      "k_yahoo": 23,
+      "k_ayo": 23
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "TB",
+     "home": false,
+     "kickoff": "2026-11-01T13:00:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 20.0,
+     "opp_implied": 23.4,
+     "dst": {
+      "dst_espn": 6.6,
+      "dst_yahoo": 6.2
+     },
+     "k": {
+      "k_yahoo": 7.5,
+      "k_ayo": 7.6
+     },
+     "rank": {
+      "dst_espn": 16,
+      "dst_yahoo": 16,
+      "k_yahoo": 18,
+      "k_ayo": 18
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    }
+   ]
+  },
+  {
+   "team": "BAL",
+   "rostered": {
+    "espn": {
+     "owner": "TeamMinh",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "yahoo": {
+     "owner": "Bo-Bo Milk Tea",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": "Poopin Tuten",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": "Bo-Bo Milk Tea",
+     "mine": false,
+     "pct": 100.0
+    },
+    "ayo": {
+     "owner": "Big Brain David",
+     "mine": false,
+     "pct": 100.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "ATL",
+     "home": false,
+     "kickoff": "2026-10-11T20:20:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 25.0,
+     "opp_implied": 21.5,
+     "dst": {
+      "dst_espn": 7.5,
+      "dst_yahoo": 7.3
+     },
+     "k": {
+      "k_yahoo": 8.1,
+      "k_ayo": 8.3
+     },
+     "rank": {
+      "dst_espn": 12,
+      "dst_yahoo": 11,
+      "k_yahoo": 12,
+      "k_ayo": 9
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "CLE",
+     "home": false,
+     "kickoff": "2026-10-18T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 26.0,
+     "opp_implied": 16.8,
+     "dst": {
+      "dst_espn": 10.4,
+      "dst_yahoo": 9.2
+     },
+     "k": {
+      "k_yahoo": 8.5,
+      "k_ayo": 8.8
+     },
+     "rank": {
+      "dst_espn": 1,
+      "dst_yahoo": 1,
+      "k_yahoo": 5,
+      "k_ayo": 5
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "CIN",
+     "home": true,
+     "kickoff": "2026-10-25T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 26.7,
+     "opp_implied": 21.9,
+     "dst": {
+      "dst_espn": 7.1,
+      "dst_yahoo": 7.0
+     },
+     "k": {
+      "k_yahoo": 8.3,
+      "k_ayo": 8.6
+     },
+     "rank": {
+      "dst_espn": 13,
+      "dst_yahoo": 11,
+      "k_yahoo": 7,
+      "k_ayo": 7
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "BUF",
+     "home": false,
+     "kickoff": "2026-11-01T13:00:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 26.7,
+     "opp_implied": 26.1,
+     "dst": {
+      "dst_espn": 4.9,
+      "dst_yahoo": 5.6
+     },
+     "k": {
+      "k_yahoo": 8.1,
+      "k_ayo": 8.3
+     },
+     "rank": {
+      "dst_espn": 24,
+      "dst_yahoo": 20,
+      "k_yahoo": 14,
+      "k_ayo": 13
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    }
+   ]
+  },
+  {
+   "team": "BUF",
+   "rostered": {
+    "espn": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": 47.49,
+     "waiver": true
+    },
+    "yahoo": {
+     "owner": "Something Burrowed\ud83d\udc70\ud83c\udffb\u200d\u2640\ufe0f",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": "COOKIE WALKER III",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "LA",
+     "home": false,
+     "kickoff": "2026-10-12T20:15:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 25.5,
+     "opp_implied": 28.0,
+     "dst": {
+      "dst_espn": 3.6,
+      "dst_yahoo": 4.6
+     },
+     "k": {
+      "k_yahoo": 8.1,
+      "k_ayo": 8.2
+     },
+     "rank": {
+      "dst_espn": 28,
+      "dst_yahoo": 28,
+      "k_yahoo": 11,
+      "k_ayo": 13
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "LV",
+     "home": false,
+     "kickoff": "2026-10-18T16:25:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 27.2,
+     "opp_implied": 22.2,
+     "dst": {
+      "dst_espn": 7.3,
+      "dst_yahoo": 7.2
+     },
+     "k": {
+      "k_yahoo": 8.7,
+      "k_ayo": 8.9
+     },
+     "rank": {
+      "dst_espn": 13,
+      "dst_yahoo": 12,
+      "k_yahoo": 2,
+      "k_ayo": 2
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": true
+     }
+    },
+    {
+     "week": 7,
+     "bye": true,
+     "opp": null,
+     "home": null,
+     "kickoff": null,
+     "kicked_off": null,
+     "line": null,
+     "own_implied": null,
+     "opp_implied": null,
+     "dst": null,
+     "k": null,
+     "rank": null,
+     "streamer": null,
+     "k_streamer": null
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "BAL",
+     "home": true,
+     "kickoff": "2026-11-01T13:00:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 26.1,
+     "opp_implied": 26.7,
+     "dst": {
+      "dst_espn": 4.5,
+      "dst_yahoo": 5.2
+     },
+     "k": {
+      "k_yahoo": 7.6,
+      "k_ayo": 7.8
+     },
+     "rank": {
+      "dst_espn": 26,
+      "dst_yahoo": 23,
+      "k_yahoo": 17,
+      "k_ayo": 17
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    }
+   ]
+  },
+  {
+   "team": "CAR",
+   "rostered": {
+    "espn": {
+     "owner": "Big Nasty Nate",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": true,
+     "opp": null,
+     "home": null,
+     "kickoff": null,
+     "kicked_off": null,
+     "line": null,
+     "own_implied": null,
+     "opp_implied": null,
+     "dst": null,
+     "k": null,
+     "rank": null,
+     "streamer": null,
+     "k_streamer": null
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "PHI",
+     "home": false,
+     "kickoff": "2026-10-18T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 19.8,
+     "opp_implied": 23.7,
+     "dst": {
+      "dst_espn": 6.0,
+      "dst_yahoo": 5.8
+     },
+     "k": {
+      "k_yahoo": 7.2,
+      "k_ayo": 7.4
+     },
+     "rank": {
+      "dst_espn": 20,
+      "dst_yahoo": 19,
+      "k_yahoo": 24,
+      "k_ayo": 24
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "TB",
+     "home": true,
+     "kickoff": "2026-10-25T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 24.1,
+     "opp_implied": 21.2,
+     "dst": {
+      "dst_espn": 7.8,
+      "dst_yahoo": 7.4
+     },
+     "k": {
+      "k_yahoo": 8.0,
+      "k_ayo": 8.2
+     },
+     "rank": {
+      "dst_espn": 10,
+      "dst_yahoo": 9,
+      "k_yahoo": 13,
+      "k_ayo": 13
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": true,
+      "ayo": true
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "GB",
+     "home": false,
+     "kickoff": "2026-10-29T20:15:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 20.6,
+     "opp_implied": 24.2,
+     "dst": {
+      "dst_espn": 5.8,
+      "dst_yahoo": 5.8
+     },
+     "k": {
+      "k_yahoo": 7.3,
+      "k_ayo": 7.5
+     },
+     "rank": {
+      "dst_espn": 20,
+      "dst_yahoo": 19,
+      "k_yahoo": 21,
+      "k_ayo": 21
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    }
+   ]
+  },
+  {
+   "team": "CHI",
+   "rostered": {
+    "espn": {
+     "owner": "Half Asian Lives Matter",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": "Make Lamarica Great Again",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": "Jaxon The Box",
+     "mine": false,
+     "pct": 100.0
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "GB",
+     "home": false,
+     "kickoff": "2026-10-11T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 23.5,
+     "opp_implied": 21.0,
+     "dst": {
+      "dst_espn": 8.1,
+      "dst_yahoo": 7.6
+     },
+     "k": {
+      "k_yahoo": 7.9,
+      "k_ayo": 8.1
+     },
+     "rank": {
+      "dst_espn": 10,
+      "dst_yahoo": 8,
+      "k_yahoo": 18,
+      "k_ayo": 17
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": true,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "ATL",
+     "home": false,
+     "kickoff": "2026-10-18T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 24.1,
+     "opp_implied": 20.1,
+     "dst": {
+      "dst_espn": 9.0,
+      "dst_yahoo": 8.3
+     },
+     "k": {
+      "k_yahoo": 8.1,
+      "k_ayo": 8.3
+     },
+     "rank": {
+      "dst_espn": 5,
+      "dst_yahoo": 3,
+      "k_yahoo": 7,
+      "k_ayo": 6
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": true,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": true
+     }
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "NE",
+     "home": true,
+     "kickoff": "2026-10-22T20:15:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 24.9,
+     "opp_implied": 20.3,
+     "dst": {
+      "dst_espn": 8.9,
+      "dst_yahoo": 8.4
+     },
+     "k": {
+      "k_yahoo": 8.2,
+      "k_ayo": 8.4
+     },
+     "rank": {
+      "dst_espn": 6,
+      "dst_yahoo": 2,
+      "k_yahoo": 11,
+      "k_ayo": 9
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": true,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": true
+     }
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "SEA",
+     "home": false,
+     "kickoff": "2026-11-02T20:15:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 19.1,
+     "opp_implied": 23.7,
+     "dst": {
+      "dst_espn": 7.0,
+      "dst_yahoo": 6.8
+     },
+     "k": {
+      "k_yahoo": 7.1,
+      "k_ayo": 7.2
+     },
+     "rank": {
+      "dst_espn": 14,
+      "dst_yahoo": 12,
+      "k_yahoo": 25,
+      "k_ayo": 25
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": true,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    }
+   ]
+  },
+  {
+   "team": "CIN",
+   "rostered": {
+    "espn": {
+     "owner": "Purdy Big in Japan",
+     "mine": true,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "yahoo": {
+     "owner": "Chat Take the Wheel \ud83d\udc7e",
+     "mine": true,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": "Sausage Egg McCaffrey \ud83c\udf73",
+     "mine": false,
+     "pct": 100.0
+    },
+    "ayo": {
+     "owner": "Make Lamarica Great Again",
+     "mine": false,
+     "pct": 100.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "MIA",
+     "home": false,
+     "kickoff": "2026-10-11T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 24.2,
+     "opp_implied": 17.2,
+     "dst": {
+      "dst_espn": 10.4,
+      "dst_yahoo": 9.1
+     },
+     "k": {
+      "k_yahoo": 8.2,
+      "k_ayo": 8.5
+     },
+     "rank": {
+      "dst_espn": 2,
+      "dst_yahoo": 1,
+      "k_yahoo": 8,
+      "k_ayo": 7
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": true
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": true,
+     "opp": null,
+     "home": null,
+     "kickoff": null,
+     "kicked_off": null,
+     "line": null,
+     "own_implied": null,
+     "opp_implied": null,
+     "dst": null,
+     "k": null,
+     "rank": null,
+     "streamer": null,
+     "k_streamer": null
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "BAL",
+     "home": false,
+     "kickoff": "2026-10-25T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 21.9,
+     "opp_implied": 26.7,
+     "dst": {
+      "dst_espn": 4.6,
+      "dst_yahoo": 5.0
+     },
+     "k": {
+      "k_yahoo": 7.3,
+      "k_ayo": 7.5
+     },
+     "rank": {
+      "dst_espn": 26,
+      "dst_yahoo": 25,
+      "k_yahoo": 24,
+      "k_ayo": 24
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "TEN",
+     "home": true,
+     "kickoff": "2026-11-01T13:00:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 25.3,
+     "opp_implied": 15.7,
+     "dst": {
+      "dst_espn": 10.7,
+      "dst_yahoo": 9.2
+     },
+     "k": {
+      "k_yahoo": 8.5,
+      "k_ayo": 8.7
+     },
+     "rank": {
+      "dst_espn": 2,
+      "dst_yahoo": 2,
+      "k_yahoo": 5,
+      "k_ayo": 4
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": true
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    }
+   ]
+  },
+  {
+   "team": "CLE",
+   "rostered": {
+    "espn": {
+     "owner": "TEAM MURICA",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": "Jimmy Jesus",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "NYJ",
+     "home": false,
+     "kickoff": "2026-10-11T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 19.0,
+     "opp_implied": 21.5,
+     "dst": {
+      "dst_espn": 7.5,
+      "dst_yahoo": 6.5
+     },
+     "k": {
+      "k_yahoo": 7.3,
+      "k_ayo": 7.5
+     },
+     "rank": {
+      "dst_espn": 14,
+      "dst_yahoo": 15,
+      "k_yahoo": 24,
+      "k_ayo": 25
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "BAL",
+     "home": true,
+     "kickoff": "2026-10-18T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 16.8,
+     "opp_implied": 26.0,
+     "dst": {
+      "dst_espn": 4.8,
+      "dst_yahoo": 4.7
+     },
+     "k": {
+      "k_yahoo": 6.7,
+      "k_ayo": 6.8
+     },
+     "rank": {
+      "dst_espn": 24,
+      "dst_yahoo": 25,
+      "k_yahoo": 28,
+      "k_ayo": 28
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "TEN",
+     "home": false,
+     "kickoff": "2026-10-25T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 16.9,
+     "opp_implied": 18.3,
+     "dst": {
+      "dst_espn": 9.3,
+      "dst_yahoo": 7.6
+     },
+     "k": {
+      "k_yahoo": 7.2,
+      "k_ayo": 7.4
+     },
+     "rank": {
+      "dst_espn": 4,
+      "dst_yahoo": 8,
+      "k_yahoo": 25,
+      "k_ayo": 25
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": true,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "PIT",
+     "home": false,
+     "kickoff": "2026-11-01T13:00:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 14.9,
+     "opp_implied": 22.1,
+     "dst": {
+      "dst_espn": 7.0,
+      "dst_yahoo": 6.1
+     },
+     "k": {
+      "k_yahoo": 6.6,
+      "k_ayo": 6.8
+     },
+     "rank": {
+      "dst_espn": 13,
+      "dst_yahoo": 17,
+      "k_yahoo": 28,
+      "k_ayo": 28
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    }
+   ]
+  },
+  {
+   "team": "DAL",
+   "rostered": {
+    "espn": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": 6.41,
+     "waiver": true
+    },
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": "Something Burrowed\ud83d\udc70\ud83c\udffb\u200d\u2640\ufe0f",
+     "mine": false,
+     "pct": 100.0
+    },
+    "ayo": {
+     "owner": "COOKIE WALKER III",
+     "mine": false,
+     "pct": 100.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "TB",
+     "home": true,
+     "kickoff": "2026-10-08T20:15:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 28.8,
+     "opp_implied": 18.8,
+     "dst": {
+      "dst_espn": 8.8,
+      "dst_yahoo": 8.1
+     },
+     "k": {
+      "k_yahoo": 9.0,
+      "k_ayo": 9.2
+     },
+     "rank": {
+      "dst_espn": 3,
+      "dst_yahoo": 4,
+      "k_yahoo": 1,
+      "k_ayo": 1
+     },
+     "streamer": {
+      "espn": true,
+      "yahoo": true,
+      "ayo": true
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "GB",
+     "home": false,
+     "kickoff": "2026-10-18T20:20:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 23.6,
+     "opp_implied": 24.6,
+     "dst": {
+      "dst_espn": 5.1,
+      "dst_yahoo": 5.3
+     },
+     "k": {
+      "k_yahoo": 7.8,
+      "k_ayo": 8.0
+     },
+     "rank": {
+      "dst_espn": 23,
+      "dst_yahoo": 22,
+      "k_yahoo": 15,
+      "k_ayo": 15
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "PHI",
+     "home": false,
+     "kickoff": "2026-10-26T20:15:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 22.9,
+     "opp_implied": 24.1,
+     "dst": {
+      "dst_espn": 5.4,
+      "dst_yahoo": 5.4
+     },
+     "k": {
+      "k_yahoo": 7.7,
+      "k_ayo": 7.9
+     },
+     "rank": {
+      "dst_espn": 22,
+      "dst_yahoo": 22,
+      "k_yahoo": 18,
+      "k_ayo": 17
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "ARI",
+     "home": true,
+     "kickoff": "2026-11-01T13:00:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 30.0,
+     "opp_implied": 21.8,
+     "dst": {
+      "dst_espn": 6.7,
+      "dst_yahoo": 6.7
+     },
+     "k": {
+      "k_yahoo": 9.0,
+      "k_ayo": 9.2
+     },
+     "rank": {
+      "dst_espn": 15,
+      "dst_yahoo": 13,
+      "k_yahoo": 1,
+      "k_ayo": 1
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    }
+   ]
+  },
+  {
+   "team": "DEN",
+   "rostered": {
+    "espn": {
+     "owner": "Larry's World",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "yahoo": {
+     "owner": "Something Burrowed\ud83d\udc70\ud83c\udffb\u200d\u2640\ufe0f",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": "Christian McCarryMe",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "LAC",
+     "home": false,
+     "kickoff": "2026-10-11T16:05:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 23.5,
+     "opp_implied": 20.0,
+     "dst": {
+      "dst_espn": 8.6,
+      "dst_yahoo": 7.6
+     },
+     "k": {
+      "k_yahoo": 8.7,
+      "k_ayo": 8.8
+     },
+     "rank": {
+      "dst_espn": 6,
+      "dst_yahoo": 7,
+      "k_yahoo": 4,
+      "k_ayo": 4
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": true
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "SEA",
+     "home": true,
+     "kickoff": "2026-10-15T20:15:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 19.9,
+     "opp_implied": 22.7,
+     "dst": {
+      "dst_espn": 6.8,
+      "dst_yahoo": 6.3
+     },
+     "k": {
+      "k_yahoo": 7.3,
+      "k_ayo": 7.4
+     },
+     "rank": {
+      "dst_espn": 15,
+      "dst_yahoo": 16,
+      "k_yahoo": 23,
+      "k_ayo": 23
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "ARI",
+     "home": false,
+     "kickoff": "2026-10-25T16:05:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 25.0,
+     "opp_implied": 21.8,
+     "dst": {
+      "dst_espn": 7.0,
+      "dst_yahoo": 6.6
+     },
+     "k": {
+      "k_yahoo": 8.2,
+      "k_ayo": 8.4
+     },
+     "rank": {
+      "dst_espn": 15,
+      "dst_yahoo": 14,
+      "k_yahoo": 12,
+      "k_ayo": 10
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": true
+     }
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "KC",
+     "home": true,
+     "kickoff": "2026-11-01T16:25:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 20.7,
+     "opp_implied": 24.5,
+     "dst": {
+      "dst_espn": 5.1,
+      "dst_yahoo": 5.0
+     },
+     "k": {
+      "k_yahoo": 7.3,
+      "k_ayo": 7.5
+     },
+     "rank": {
+      "dst_espn": 21,
+      "dst_yahoo": 24,
+      "k_yahoo": 20,
+      "k_ayo": 20
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    }
+   ]
+  },
+  {
+   "team": "DET",
+   "rostered": {
+    "espn": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": 40.01,
+     "waiver": true
+    },
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    },
+    "ayo": {
+     "owner": "Jimmy Jesus",
+     "mine": false,
+     "pct": 100.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "ARI",
+     "home": false,
+     "kickoff": "2026-10-11T16:25:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 30.0,
+     "opp_implied": 24.5,
+     "dst": {
+      "dst_espn": 5.5,
+      "dst_yahoo": 6.0
+     },
+     "k": {
+      "k_yahoo": 8.6,
+      "k_ayo": 8.8
+     },
+     "rank": {
+      "dst_espn": 24,
+      "dst_yahoo": 18,
+      "k_yahoo": 5,
+      "k_ayo": 3
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": true,
+     "opp": null,
+     "home": null,
+     "kickoff": null,
+     "kicked_off": null,
+     "line": null,
+     "own_implied": null,
+     "opp_implied": null,
+     "dst": null,
+     "k": null,
+     "rank": null,
+     "streamer": null,
+     "k_streamer": null
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "GB",
+     "home": true,
+     "kickoff": "2026-10-25T16:25:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 27.3,
+     "opp_implied": 23.3,
+     "dst": {
+      "dst_espn": 6.1,
+      "dst_yahoo": 6.2
+     },
+     "k": {
+      "k_yahoo": 8.9,
+      "k_ayo": 9.0
+     },
+     "rank": {
+      "dst_espn": 16,
+      "dst_yahoo": 16,
+      "k_yahoo": 2,
+      "k_ayo": 2
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": false
+     }
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "MIN",
+     "home": true,
+     "kickoff": "2026-11-01T13:00:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 26.9,
+     "opp_implied": 23.5,
+     "dst": {
+      "dst_espn": 6.6,
+      "dst_yahoo": 6.6
+     },
+     "k": {
+      "k_yahoo": 8.8,
+      "k_ayo": 9.0
+     },
+     "rank": {
+      "dst_espn": 17,
+      "dst_yahoo": 15,
+      "k_yahoo": 2,
+      "k_ayo": 2
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": false
+     }
+    }
+   ]
+  },
+  {
+   "team": "GB",
+   "rostered": {
+    "espn": {
+     "owner": "Lets rock  Mate",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "yahoo": {
+     "owner": "Jaxon The Box",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": "Juwanny Li",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": "Gibbs Me TDs",
+     "mine": false,
+     "pct": 100.0
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "CHI",
+     "home": true,
+     "kickoff": "2026-10-11T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 21.0,
+     "opp_implied": 23.5,
+     "dst": {
+      "dst_espn": 5.5,
+      "dst_yahoo": 5.3
+     },
+     "k": {
+      "k_yahoo": 7.4,
+      "k_ayo": 7.6
+     },
+     "rank": {
+      "dst_espn": 25,
+      "dst_yahoo": 26,
+      "k_yahoo": 22,
+      "k_ayo": 22
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "DAL",
+     "home": true,
+     "kickoff": "2026-10-18T20:20:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 24.6,
+     "opp_implied": 23.6,
+     "dst": {
+      "dst_espn": 5.6,
+      "dst_yahoo": 5.6
+     },
+     "k": {
+      "k_yahoo": 8.0,
+      "k_ayo": 8.2
+     },
+     "rank": {
+      "dst_espn": 21,
+      "dst_yahoo": 21,
+      "k_yahoo": 9,
+      "k_ayo": 9
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": true
+     }
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "DET",
+     "home": false,
+     "kickoff": "2026-10-25T16:25:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 23.3,
+     "opp_implied": 27.3,
+     "dst": {
+      "dst_espn": 3.3,
+      "dst_yahoo": 4.0
+     },
+     "k": {
+      "k_yahoo": 8.2,
+      "k_ayo": 8.3
+     },
+     "rank": {
+      "dst_espn": 28,
+      "dst_yahoo": 28,
+      "k_yahoo": 10,
+      "k_ayo": 12
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": true
+     }
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "CAR",
+     "home": true,
+     "kickoff": "2026-10-29T20:15:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 24.2,
+     "opp_implied": 20.6,
+     "dst": {
+      "dst_espn": 7.6,
+      "dst_yahoo": 7.0
+     },
+     "k": {
+      "k_yahoo": 8.1,
+      "k_ayo": 8.3
+     },
+     "rank": {
+      "dst_espn": 10,
+      "dst_yahoo": 9,
+      "k_yahoo": 13,
+      "k_ayo": 12
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": true
+     }
+    }
+   ]
+  },
+  {
+   "team": "HOU",
+   "rostered": {
+    "espn": {
+     "owner": "Big Nasty Nate",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "yahoo": {
+     "owner": "Honey Bijan",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": "Chase\u2019n Boutte",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": "Lamarley & Me",
+     "mine": false,
+     "pct": 100.0
+    },
+    "ayo": {
+     "owner": "Chase\u2019n Boutte",
+     "mine": false,
+     "pct": 100.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "TEN",
+     "home": false,
+     "kickoff": "2026-10-11T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 23.0,
+     "opp_implied": 16.5,
+     "dst": {
+      "dst_espn": 10.5,
+      "dst_yahoo": 8.9
+     },
+     "k": {
+      "k_yahoo": 8.5,
+      "k_ayo": 8.6
+     },
+     "rank": {
+      "dst_espn": 1,
+      "dst_yahoo": 2,
+      "k_yahoo": 6,
+      "k_ayo": 6
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "JAX",
+     "home": false,
+     "kickoff": "2026-10-18T09:30:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 21.5,
+     "opp_implied": 22.9,
+     "dst": {
+      "dst_espn": 6.6,
+      "dst_yahoo": 6.3
+     },
+     "k": {
+      "k_yahoo": 7.8,
+      "k_ayo": 8.0
+     },
+     "rank": {
+      "dst_espn": 17,
+      "dst_yahoo": 15,
+      "k_yahoo": 14,
+      "k_ayo": 14
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "NYG",
+     "home": true,
+     "kickoff": "2026-10-25T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 24.8,
+     "opp_implied": 18.2,
+     "dst": {
+      "dst_espn": 9.4,
+      "dst_yahoo": 8.4
+     },
+     "k": {
+      "k_yahoo": 8.6,
+      "k_ayo": 8.8
+     },
+     "rank": {
+      "dst_espn": 3,
+      "dst_yahoo": 3,
+      "k_yahoo": 3,
+      "k_ayo": 3
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 8,
+     "bye": true,
+     "opp": null,
+     "home": null,
+     "kickoff": null,
+     "kicked_off": null,
+     "line": null,
+     "own_implied": null,
+     "opp_implied": null,
+     "dst": null,
+     "k": null,
+     "rank": null,
+     "streamer": null,
+     "k_streamer": null
+    }
+   ]
+  },
+  {
+   "team": "IND",
+   "rostered": {
+    "espn": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": "Let Romo Take the Wheel",
+     "mine": false,
+     "pct": 100.0
+    },
+    "ayo": {
+     "owner": "Juwanny Li",
+     "mine": false,
+     "pct": 100.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "PIT",
+     "home": false,
+     "kickoff": "2026-10-11T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 21.0,
+     "opp_implied": 23.5,
+     "dst": {
+      "dst_espn": 6.1,
+      "dst_yahoo": 5.9
+     },
+     "k": {
+      "k_yahoo": 7.4,
+      "k_ayo": 7.6
+     },
+     "rank": {
+      "dst_espn": 19,
+      "dst_yahoo": 21,
+      "k_yahoo": 21,
+      "k_ayo": 21
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "TEN",
+     "home": true,
+     "kickoff": "2026-10-18T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 22.7,
+     "opp_implied": 17.5,
+     "dst": {
+      "dst_espn": 9.5,
+      "dst_yahoo": 8.2
+     },
+     "k": {
+      "k_yahoo": 8.0,
+      "k_ayo": 8.2
+     },
+     "rank": {
+      "dst_espn": 2,
+      "dst_yahoo": 4,
+      "k_yahoo": 8,
+      "k_ayo": 7
+     },
+     "streamer": {
+      "espn": true,
+      "yahoo": true,
+      "ayo": true
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "MIN",
+     "home": false,
+     "kickoff": "2026-10-25T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 19.2,
+     "opp_implied": 24.6,
+     "dst": {
+      "dst_espn": 6.0,
+      "dst_yahoo": 5.8
+     },
+     "k": {
+      "k_yahoo": 7.7,
+      "k_ayo": 7.8
+     },
+     "rank": {
+      "dst_espn": 18,
+      "dst_yahoo": 19,
+      "k_yahoo": 17,
+      "k_ayo": 18
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "JAX",
+     "home": false,
+     "kickoff": "2026-11-01T13:00:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 20.2,
+     "opp_implied": 25.8,
+     "dst": {
+      "dst_espn": 4.6,
+      "dst_yahoo": 4.8
+     },
+     "k": {
+      "k_yahoo": 7.1,
+      "k_ayo": 7.3
+     },
+     "rank": {
+      "dst_espn": 25,
+      "dst_yahoo": 26,
+      "k_yahoo": 24,
+      "k_ayo": 24
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    }
+   ]
+  },
+  {
+   "team": "JAX",
+   "rostered": {
+    "espn": {
+     "owner": "Trafalgar D. Lawrence",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "yahoo": {
+     "owner": "Am I COOKed? \ud83d\udc68\ud83c\udffd\u200d\ud83c\udf73",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": "Chase\u2019n Boutte",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": "Chat Take the Wheel \ud83d\udc7e",
+     "mine": true,
+     "pct": 100.0
+    },
+    "ayo": {
+     "owner": "Poopin Tuten",
+     "mine": false,
+     "pct": 100.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "PHI",
+     "home": true,
+     "kickoff": "2026-10-11T09:30:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 24.0,
+     "opp_implied": 19.5,
+     "dst": {
+      "dst_espn": 8.8,
+      "dst_yahoo": 8.1
+     },
+     "k": {
+      "k_yahoo": 8.1,
+      "k_ayo": 8.3
+     },
+     "rank": {
+      "dst_espn": 4,
+      "dst_yahoo": 3,
+      "k_yahoo": 13,
+      "k_ayo": 11
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "HOU",
+     "home": true,
+     "kickoff": "2026-10-18T09:30:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 22.9,
+     "opp_implied": 21.5,
+     "dst": {
+      "dst_espn": 7.2,
+      "dst_yahoo": 6.9
+     },
+     "k": {
+      "k_yahoo": 7.7,
+      "k_ayo": 7.9
+     },
+     "rank": {
+      "dst_espn": 14,
+      "dst_yahoo": 14,
+      "k_yahoo": 16,
+      "k_ayo": 16
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 7,
+     "bye": true,
+     "opp": null,
+     "home": null,
+     "kickoff": null,
+     "kicked_off": null,
+     "line": null,
+     "own_implied": null,
+     "opp_implied": null,
+     "dst": null,
+     "k": null,
+     "rank": null,
+     "streamer": null,
+     "k_streamer": null
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "IND",
+     "home": true,
+     "kickoff": "2026-11-01T13:00:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 25.8,
+     "opp_implied": 20.2,
+     "dst": {
+      "dst_espn": 8.8,
+      "dst_yahoo": 8.4
+     },
+     "k": {
+      "k_yahoo": 8.3,
+      "k_ayo": 8.5
+     },
+     "rank": {
+      "dst_espn": 4,
+      "dst_yahoo": 4,
+      "k_yahoo": 6,
+      "k_ayo": 6
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    }
+   ]
+  },
+  {
+   "team": "KC",
+   "rostered": {
+    "espn": {
+     "owner": "Big Salty",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": "Honey Bijan",
+     "mine": false,
+     "pct": 100.0
+    },
+    "ayo": {
+     "owner": "Taylor Made for Sundays",
+     "mine": true,
+     "pct": 100.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": true,
+     "opp": null,
+     "home": null,
+     "kickoff": null,
+     "kicked_off": null,
+     "line": null,
+     "own_implied": null,
+     "opp_implied": null,
+     "dst": null,
+     "k": null,
+     "rank": null,
+     "streamer": null,
+     "k_streamer": null
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "LAC",
+     "home": true,
+     "kickoff": "2026-10-18T16:25:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 26.9,
+     "opp_implied": 19.1,
+     "dst": {
+      "dst_espn": 9.1,
+      "dst_yahoo": 8.3
+     },
+     "k": {
+      "k_yahoo": 8.7,
+      "k_ayo": 8.9
+     },
+     "rank": {
+      "dst_espn": 3,
+      "dst_yahoo": 2,
+      "k_yahoo": 3,
+      "k_ayo": 3
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": true,
+      "ayo": true
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "SEA",
+     "home": false,
+     "kickoff": "2026-10-25T20:20:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 21.3,
+     "opp_implied": 22.1,
+     "dst": {
+      "dst_espn": 7.3,
+      "dst_yahoo": 6.9
+     },
+     "k": {
+      "k_yahoo": 7.6,
+      "k_ayo": 7.8
+     },
+     "rank": {
+      "dst_espn": 12,
+      "dst_yahoo": 12,
+      "k_yahoo": 21,
+      "k_ayo": 20
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": true,
+      "ayo": true
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "DEN",
+     "home": false,
+     "kickoff": "2026-11-01T16:25:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 24.5,
+     "opp_implied": 20.7,
+     "dst": {
+      "dst_espn": 7.4,
+      "dst_yahoo": 6.9
+     },
+     "k": {
+      "k_yahoo": 8.2,
+      "k_ayo": 8.4
+     },
+     "rank": {
+      "dst_espn": 11,
+      "dst_yahoo": 10,
+      "k_yahoo": 9,
+      "k_ayo": 10
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": true,
+      "ayo": true
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    }
+   ]
+  },
+  {
+   "team": "LA",
+   "rostered": {
+    "espn": {
+     "owner": "Trafalgar D. Lawrence",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "yahoo": {
+     "owner": "Le-Chase-Godwin Curse",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": "ayoooo",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "BUF",
+     "home": true,
+     "kickoff": "2026-10-12T20:15:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 28.0,
+     "opp_implied": 25.5,
+     "dst": {
+      "dst_espn": 5.3,
+      "dst_yahoo": 5.9
+     },
+     "k": {
+      "k_yahoo": 8.8,
+      "k_ayo": 9.0
+     },
+     "rank": {
+      "dst_espn": 27,
+      "dst_yahoo": 20,
+      "k_yahoo": 2,
+      "k_ayo": 2
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": true
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "ARI",
+     "home": true,
+     "kickoff": "2026-10-18T16:05:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 29.0,
+     "opp_implied": 20.0,
+     "dst": {
+      "dst_espn": 8.2,
+      "dst_yahoo": 7.8
+     },
+     "k": {
+      "k_yahoo": 9.3,
+      "k_ayo": 9.5
+     },
+     "rank": {
+      "dst_espn": 7,
+      "dst_yahoo": 6,
+      "k_yahoo": 1,
+      "k_ayo": 1
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": true
+     }
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "LV",
+     "home": false,
+     "kickoff": "2026-10-25T16:25:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 25.0,
+     "opp_implied": 20.8,
+     "dst": {
+      "dst_espn": 8.2,
+      "dst_yahoo": 7.6
+     },
+     "k": {
+      "k_yahoo": 8.6,
+      "k_ayo": 8.8
+     },
+     "rank": {
+      "dst_espn": 8,
+      "dst_yahoo": 7,
+      "k_yahoo": 4,
+      "k_ayo": 4
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": true
+     }
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "LAC",
+     "home": true,
+     "kickoff": "2026-11-01T16:05:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 26.2,
+     "opp_implied": 21.2,
+     "dst": {
+      "dst_espn": 8.1,
+      "dst_yahoo": 7.7
+     },
+     "k": {
+      "k_yahoo": 8.8,
+      "k_ayo": 8.9
+     },
+     "rank": {
+      "dst_espn": 8,
+      "dst_yahoo": 6,
+      "k_yahoo": 3,
+      "k_ayo": 3
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": true
+     }
+    }
+   ]
+  },
+  {
+   "team": "LAC",
+   "rostered": {
+    "espn": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": 18.12,
+     "waiver": true
+    },
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "DEN",
+     "home": true,
+     "kickoff": "2026-10-11T16:05:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 20.0,
+     "opp_implied": 23.5,
+     "dst": {
+      "dst_espn": 6.1,
+      "dst_yahoo": 5.9
+     },
+     "k": {
+      "k_yahoo": 8.1,
+      "k_ayo": 8.2
+     },
+     "rank": {
+      "dst_espn": 18,
+      "dst_yahoo": 19,
+      "k_yahoo": 9,
+      "k_ayo": 16
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "KC",
+     "home": false,
+     "kickoff": "2026-10-18T16:25:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 19.1,
+     "opp_implied": 26.9,
+     "dst": {
+      "dst_espn": 4.2,
+      "dst_yahoo": 4.5
+     },
+     "k": {
+      "k_yahoo": 7.1,
+      "k_ayo": 7.2
+     },
+     "rank": {
+      "dst_espn": 26,
+      "dst_yahoo": 26,
+      "k_yahoo": 26,
+      "k_ayo": 26
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 7,
+     "bye": true,
+     "opp": null,
+     "home": null,
+     "kickoff": null,
+     "kicked_off": null,
+     "line": null,
+     "own_implied": null,
+     "opp_implied": null,
+     "dst": null,
+     "k": null,
+     "rank": null,
+     "streamer": null,
+     "k_streamer": null
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "LA",
+     "home": false,
+     "kickoff": "2026-11-01T16:05:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 21.2,
+     "opp_implied": 26.2,
+     "dst": {
+      "dst_espn": 4.9,
+      "dst_yahoo": 5.3
+     },
+     "k": {
+      "k_yahoo": 8.1,
+      "k_ayo": 8.2
+     },
+     "rank": {
+      "dst_espn": 23,
+      "dst_yahoo": 22,
+      "k_yahoo": 11,
+      "k_ayo": 14
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": false
+     }
+    }
+   ]
+  },
+  {
+   "team": "LV",
+   "rostered": {
+    "espn": {
+     "owner": "FAFO!",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "yahoo": {
+     "owner": "Let Romo Take the Wheel",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": "Taylor Made for Sundays",
+     "mine": true,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "NE",
+     "home": false,
+     "kickoff": "2026-10-11T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 20.5,
+     "opp_implied": 24.0,
+     "dst": {
+      "dst_espn": 6.6,
+      "dst_yahoo": 6.4
+     },
+     "k": {
+      "k_yahoo": 7.4,
+      "k_ayo": 7.6
+     },
+     "rank": {
+      "dst_espn": 16,
+      "dst_yahoo": 16,
+      "k_yahoo": 23,
+      "k_ayo": 23
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "BUF",
+     "home": true,
+     "kickoff": "2026-10-18T16:25:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 22.2,
+     "opp_implied": 27.2,
+     "dst": {
+      "dst_espn": 4.4,
+      "dst_yahoo": 5.0
+     },
+     "k": {
+      "k_yahoo": 8.1,
+      "k_ayo": 8.2
+     },
+     "rank": {
+      "dst_espn": 25,
+      "dst_yahoo": 24,
+      "k_yahoo": 6,
+      "k_ayo": 8
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": true
+     }
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "LA",
+     "home": true,
+     "kickoff": "2026-10-25T16:25:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 20.8,
+     "opp_implied": 25.0,
+     "dst": {
+      "dst_espn": 5.4,
+      "dst_yahoo": 5.5
+     },
+     "k": {
+      "k_yahoo": 8.0,
+      "k_ayo": 8.1
+     },
+     "rank": {
+      "dst_espn": 21,
+      "dst_yahoo": 20,
+      "k_yahoo": 14,
+      "k_ayo": 14
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "NYJ",
+     "home": false,
+     "kickoff": "2026-11-01T13:00:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 20.2,
+     "opp_implied": 22.2,
+     "dst": {
+      "dst_espn": 7.3,
+      "dst_yahoo": 6.7
+     },
+     "k": {
+      "k_yahoo": 7.5,
+      "k_ayo": 7.6
+     },
+     "rank": {
+      "dst_espn": 12,
+      "dst_yahoo": 14,
+      "k_yahoo": 19,
+      "k_ayo": 19
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    }
+   ]
+  },
+  {
+   "team": "MIA",
+   "rostered": {
+    "espn": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "CIN",
+     "home": true,
+     "kickoff": "2026-10-11T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 17.2,
+     "opp_implied": 24.2,
+     "dst": {
+      "dst_espn": 5.8,
+      "dst_yahoo": 5.5
+     },
+     "k": {
+      "k_yahoo": 6.9,
+      "k_ayo": 7.0
+     },
+     "rank": {
+      "dst_espn": 20,
+      "dst_yahoo": 23,
+      "k_yahoo": 30,
+      "k_ayo": 30
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": true,
+     "opp": null,
+     "home": null,
+     "kickoff": null,
+     "kicked_off": null,
+     "line": null,
+     "own_implied": null,
+     "opp_implied": null,
+     "dst": null,
+     "k": null,
+     "rank": null,
+     "streamer": null,
+     "k_streamer": null
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "NYJ",
+     "home": false,
+     "kickoff": "2026-10-25T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 16.5,
+     "opp_implied": 24.1,
+     "dst": {
+      "dst_espn": 5.9,
+      "dst_yahoo": 5.5
+     },
+     "k": {
+      "k_yahoo": 6.8,
+      "k_ayo": 6.9
+     },
+     "rank": {
+      "dst_espn": 20,
+      "dst_yahoo": 21,
+      "k_yahoo": 28,
+      "k_ayo": 28
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "NE",
+     "home": true,
+     "kickoff": "2026-11-01T16:25:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 18.3,
+     "opp_implied": 24.1,
+     "dst": {
+      "dst_espn": 6.2,
+      "dst_yahoo": 5.9
+     },
+     "k": {
+      "k_yahoo": 7.1,
+      "k_ayo": 7.2
+     },
+     "rank": {
+      "dst_espn": 18,
+      "dst_yahoo": 18,
+      "k_yahoo": 26,
+      "k_ayo": 26
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    }
+   ]
+  },
+  {
+   "team": "MIN",
+   "rostered": {
+    "espn": {
+     "owner": "Run it back",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "yahoo": {
+     "owner": "Lamarley & Me",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": "Bed Bath and Bijan",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": "Am I COOKed? \ud83d\udc68\ud83c\udffd\u200d\ud83c\udf73",
+     "mine": false,
+     "pct": 100.0
+    },
+    "ayo": {
+     "owner": "Don Wick",
+     "mine": false,
+     "pct": 100.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "NO",
+     "home": false,
+     "kickoff": "2026-10-11T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 22.0,
+     "opp_implied": 20.5,
+     "dst": {
+      "dst_espn": 8.7,
+      "dst_yahoo": 7.8
+     },
+     "k": {
+      "k_yahoo": 8.7,
+      "k_ayo": 8.8
+     },
+     "rank": {
+      "dst_espn": 5,
+      "dst_yahoo": 5,
+      "k_yahoo": 3,
+      "k_ayo": 5
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": true,
+     "opp": null,
+     "home": null,
+     "kickoff": null,
+     "kicked_off": null,
+     "line": null,
+     "own_implied": null,
+     "opp_implied": null,
+     "dst": null,
+     "k": null,
+     "rank": null,
+     "streamer": null,
+     "k_streamer": null
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "IND",
+     "home": true,
+     "kickoff": "2026-10-25T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 24.6,
+     "opp_implied": 19.2,
+     "dst": {
+      "dst_espn": 9.2,
+      "dst_yahoo": 8.3
+     },
+     "k": {
+      "k_yahoo": 9.2,
+      "k_ayo": 9.3
+     },
+     "rank": {
+      "dst_espn": 5,
+      "dst_yahoo": 4,
+      "k_yahoo": 1,
+      "k_ayo": 1
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "DET",
+     "home": false,
+     "kickoff": "2026-11-01T13:00:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 23.5,
+     "opp_implied": 26.9,
+     "dst": {
+      "dst_espn": 4.1,
+      "dst_yahoo": 4.6
+     },
+     "k": {
+      "k_yahoo": 8.6,
+      "k_ayo": 8.6
+     },
+     "rank": {
+      "dst_espn": 27,
+      "dst_yahoo": 27,
+      "k_yahoo": 4,
+      "k_ayo": 5
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    }
+   ]
+  },
+  {
+   "team": "NE",
+   "rostered": {
+    "espn": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": 48.38,
+     "waiver": true
+    },
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "LV",
+     "home": true,
+     "kickoff": "2026-10-11T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 24.0,
+     "opp_implied": 20.5,
+     "dst": {
+      "dst_espn": 8.2,
+      "dst_yahoo": 7.6
+     },
+     "k": {
+      "k_yahoo": 8.0,
+      "k_ayo": 8.2
+     },
+     "rank": {
+      "dst_espn": 9,
+      "dst_yahoo": 9,
+      "k_yahoo": 15,
+      "k_ayo": 14
+     },
+     "streamer": {
+      "espn": true,
+      "yahoo": true,
+      "ayo": true
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "NYJ",
+     "home": true,
+     "kickoff": "2026-10-18T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 23.5,
+     "opp_implied": 20.3,
+     "dst": {
+      "dst_espn": 8.1,
+      "dst_yahoo": 7.4
+     },
+     "k": {
+      "k_yahoo": 7.9,
+      "k_ayo": 8.1
+     },
+     "rank": {
+      "dst_espn": 9,
+      "dst_yahoo": 9,
+      "k_yahoo": 10,
+      "k_ayo": 10
+     },
+     "streamer": {
+      "espn": true,
+      "yahoo": true,
+      "ayo": true
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": true
+     }
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "CHI",
+     "home": false,
+     "kickoff": "2026-10-22T20:15:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 20.3,
+     "opp_implied": 24.9,
+     "dst": {
+      "dst_espn": 5.0,
+      "dst_yahoo": 5.1
+     },
+     "k": {
+      "k_yahoo": 7.1,
+      "k_ayo": 7.3
+     },
+     "rank": {
+      "dst_espn": 23,
+      "dst_yahoo": 24,
+      "k_yahoo": 26,
+      "k_ayo": 26
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "MIA",
+     "home": false,
+     "kickoff": "2026-11-01T16:25:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 24.1,
+     "opp_implied": 18.3,
+     "dst": {
+      "dst_espn": 9.8,
+      "dst_yahoo": 8.7
+     },
+     "k": {
+      "k_yahoo": 8.2,
+      "k_ayo": 8.4
+     },
+     "rank": {
+      "dst_espn": 3,
+      "dst_yahoo": 3,
+      "k_yahoo": 10,
+      "k_ayo": 8
+     },
+     "streamer": {
+      "espn": true,
+      "yahoo": true,
+      "ayo": true
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": true
+     }
+    }
+   ]
+  },
+  {
+   "team": "NO",
+   "rostered": {
+    "espn": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": 3.91,
+     "waiver": false
+    },
+    "yahoo": {
+     "owner": "Gibbs Me TDs",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "MIN",
+     "home": true,
+     "kickoff": "2026-10-11T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 20.5,
+     "opp_implied": 22.0,
+     "dst": {
+      "dst_espn": 7.5,
+      "dst_yahoo": 6.8
+     },
+     "k": {
+      "k_yahoo": 8.3,
+      "k_ayo": 8.3
+     },
+     "rank": {
+      "dst_espn": 13,
+      "dst_yahoo": 13,
+      "k_yahoo": 7,
+      "k_ayo": 8
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": true
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "NYG",
+     "home": false,
+     "kickoff": "2026-10-18T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 21.6,
+     "opp_implied": 23.2,
+     "dst": {
+      "dst_espn": 6.4,
+      "dst_yahoo": 6.1
+     },
+     "k": {
+      "k_yahoo": 7.7,
+      "k_ayo": 7.9
+     },
+     "rank": {
+      "dst_espn": 18,
+      "dst_yahoo": 18,
+      "k_yahoo": 17,
+      "k_ayo": 17
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "PIT",
+     "home": true,
+     "kickoff": "2026-10-25T09:30:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 20.4,
+     "opp_implied": 21.8,
+     "dst": {
+      "dst_espn": 7.1,
+      "dst_yahoo": 6.5
+     },
+     "k": {
+      "k_yahoo": 8.2,
+      "k_ayo": 8.3
+     },
+     "rank": {
+      "dst_espn": 14,
+      "dst_yahoo": 15,
+      "k_yahoo": 8,
+      "k_ayo": 11
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": true
+     }
+    },
+    {
+     "week": 8,
+     "bye": true,
+     "opp": null,
+     "home": null,
+     "kickoff": null,
+     "kicked_off": null,
+     "line": null,
+     "own_implied": null,
+     "opp_implied": null,
+     "dst": null,
+     "k": null,
+     "rank": null,
+     "streamer": null,
+     "k_streamer": null
+    }
+   ]
+  },
+  {
+   "team": "NYG",
+   "rostered": {
+    "espn": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": 7.81,
+     "waiver": true
+    },
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "WAS",
+     "home": false,
+     "kickoff": "2026-10-11T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 20.2,
+     "opp_implied": 23.2,
+     "dst": {
+      "dst_espn": 6.3,
+      "dst_yahoo": 6.0
+     },
+     "k": {
+      "k_yahoo": 7.3,
+      "k_ayo": 7.4
+     },
+     "rank": {
+      "dst_espn": 17,
+      "dst_yahoo": 17,
+      "k_yahoo": 26,
+      "k_ayo": 26
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "NO",
+     "home": true,
+     "kickoff": "2026-10-18T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 23.2,
+     "opp_implied": 21.6,
+     "dst": {
+      "dst_espn": 7.7,
+      "dst_yahoo": 7.3
+     },
+     "k": {
+      "k_yahoo": 7.9,
+      "k_ayo": 8.0
+     },
+     "rank": {
+      "dst_espn": 12,
+      "dst_yahoo": 11,
+      "k_yahoo": 13,
+      "k_ayo": 13
+     },
+     "streamer": {
+      "espn": true,
+      "yahoo": true,
+      "ayo": true
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "HOU",
+     "home": false,
+     "kickoff": "2026-10-25T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 18.2,
+     "opp_implied": 24.8,
+     "dst": {
+      "dst_espn": 5.0,
+      "dst_yahoo": 4.9
+     },
+     "k": {
+      "k_yahoo": 6.9,
+      "k_ayo": 7.0
+     },
+     "rank": {
+      "dst_espn": 24,
+      "dst_yahoo": 26,
+      "k_yahoo": 27,
+      "k_ayo": 27
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 8,
+     "bye": true,
+     "opp": null,
+     "home": null,
+     "kickoff": null,
+     "kicked_off": null,
+     "line": null,
+     "own_implied": null,
+     "opp_implied": null,
+     "dst": null,
+     "k": null,
+     "rank": null,
+     "streamer": null,
+     "k_streamer": null
+    }
+   ]
+  },
+  {
+   "team": "NYJ",
+   "rostered": {
+    "espn": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": 11.45,
+     "waiver": true
+    },
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "CLE",
+     "home": true,
+     "kickoff": "2026-10-11T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 21.5,
+     "opp_implied": 19.0,
+     "dst": {
+      "dst_espn": 8.5,
+      "dst_yahoo": 7.4
+     },
+     "k": {
+      "k_yahoo": 7.9,
+      "k_ayo": 8.1
+     },
+     "rank": {
+      "dst_espn": 7,
+      "dst_yahoo": 10,
+      "k_yahoo": 17,
+      "k_ayo": 18
+     },
+     "streamer": {
+      "espn": true,
+      "yahoo": true,
+      "ayo": true
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "NE",
+     "home": false,
+     "kickoff": "2026-10-18T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 20.3,
+     "opp_implied": 23.5,
+     "dst": {
+      "dst_espn": 6.1,
+      "dst_yahoo": 5.8
+     },
+     "k": {
+      "k_yahoo": 7.5,
+      "k_ayo": 7.6
+     },
+     "rank": {
+      "dst_espn": 19,
+      "dst_yahoo": 20,
+      "k_yahoo": 21,
+      "k_ayo": 21
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "MIA",
+     "home": true,
+     "kickoff": "2026-10-25T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 24.1,
+     "opp_implied": 16.5,
+     "dst": {
+      "dst_espn": 10.1,
+      "dst_yahoo": 8.6
+     },
+     "k": {
+      "k_yahoo": 8.5,
+      "k_ayo": 8.7
+     },
+     "rank": {
+      "dst_espn": 1,
+      "dst_yahoo": 1,
+      "k_yahoo": 5,
+      "k_ayo": 5
+     },
+     "streamer": {
+      "espn": true,
+      "yahoo": true,
+      "ayo": true
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": true
+     }
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "LV",
+     "home": true,
+     "kickoff": "2026-11-01T13:00:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 22.2,
+     "opp_implied": 20.2,
+     "dst": {
+      "dst_espn": 7.8,
+      "dst_yahoo": 6.9
+     },
+     "k": {
+      "k_yahoo": 8.0,
+      "k_ayo": 8.1
+     },
+     "rank": {
+      "dst_espn": 9,
+      "dst_yahoo": 11,
+      "k_yahoo": 15,
+      "k_ayo": 15
+     },
+     "streamer": {
+      "espn": true,
+      "yahoo": true,
+      "ayo": true
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    }
+   ]
+  },
+  {
+   "team": "PHI",
+   "rostered": {
+    "espn": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": 63.5,
+     "waiver": true
+    },
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "JAX",
+     "home": false,
+     "kickoff": "2026-10-11T09:30:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 19.5,
+     "opp_implied": 24.0,
+     "dst": {
+      "dst_espn": 5.6,
+      "dst_yahoo": 5.4
+     },
+     "k": {
+      "k_yahoo": 7.0,
+      "k_ayo": 7.1
+     },
+     "rank": {
+      "dst_espn": 23,
+      "dst_yahoo": 25,
+      "k_yahoo": 28,
+      "k_ayo": 27
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "CAR",
+     "home": true,
+     "kickoff": "2026-10-18T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 23.7,
+     "opp_implied": 19.8,
+     "dst": {
+      "dst_espn": 8.1,
+      "dst_yahoo": 7.4
+     },
+     "k": {
+      "k_yahoo": 7.9,
+      "k_ayo": 8.1
+     },
+     "rank": {
+      "dst_espn": 10,
+      "dst_yahoo": 10,
+      "k_yahoo": 12,
+      "k_ayo": 12
+     },
+     "streamer": {
+      "espn": true,
+      "yahoo": true,
+      "ayo": true
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": true
+     }
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "DAL",
+     "home": true,
+     "kickoff": "2026-10-26T20:15:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 24.1,
+     "opp_implied": 22.9,
+     "dst": {
+      "dst_espn": 6.0,
+      "dst_yahoo": 6.0
+     },
+     "k": {
+      "k_yahoo": 7.8,
+      "k_ayo": 8.0
+     },
+     "rank": {
+      "dst_espn": 17,
+      "dst_yahoo": 17,
+      "k_yahoo": 15,
+      "k_ayo": 15
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "WAS",
+     "home": false,
+     "kickoff": "2026-11-01T20:20:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 23.2,
+     "opp_implied": 19.2,
+     "dst": {
+      "dst_espn": 8.4,
+      "dst_yahoo": 7.5
+     },
+     "k": {
+      "k_yahoo": 7.8,
+      "k_ayo": 8.1
+     },
+     "rank": {
+      "dst_espn": 7,
+      "dst_yahoo": 8,
+      "k_yahoo": 16,
+      "k_ayo": 16
+     },
+     "streamer": {
+      "espn": true,
+      "yahoo": true,
+      "ayo": true
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    }
+   ]
+  },
+  {
+   "team": "PIT",
+   "rostered": {
+    "espn": {
+     "owner": "Pukkake",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "yahoo": {
+     "owner": "WE SELL EXTENDED WARREN-TY",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": "Big Brain David",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": "WE SELL EXTENDED WARREN-TY",
+     "mine": false,
+     "pct": 100.0
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "IND",
+     "home": true,
+     "kickoff": "2026-10-11T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 23.5,
+     "opp_implied": 21.0,
+     "dst": {
+      "dst_espn": 8.2,
+      "dst_yahoo": 7.7
+     },
+     "k": {
+      "k_yahoo": 8.1,
+      "k_ayo": 8.2
+     },
+     "rank": {
+      "dst_espn": 8,
+      "dst_yahoo": 6,
+      "k_yahoo": 14,
+      "k_ayo": 12
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": true
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "TB",
+     "home": false,
+     "kickoff": "2026-10-18T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 20.8,
+     "opp_implied": 19.8,
+     "dst": {
+      "dst_espn": 9.0,
+      "dst_yahoo": 8.0
+     },
+     "k": {
+      "k_yahoo": 7.7,
+      "k_ayo": 7.9
+     },
+     "rank": {
+      "dst_espn": 4,
+      "dst_yahoo": 5,
+      "k_yahoo": 18,
+      "k_ayo": 18
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "NO",
+     "home": false,
+     "kickoff": "2026-10-25T09:30:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 21.8,
+     "opp_implied": 20.4,
+     "dst": {
+      "dst_espn": 8.8,
+      "dst_yahoo": 8.0
+     },
+     "k": {
+      "k_yahoo": 8.5,
+      "k_ayo": 8.6
+     },
+     "rank": {
+      "dst_espn": 7,
+      "dst_yahoo": 6,
+      "k_yahoo": 6,
+      "k_ayo": 6
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": true
+     }
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "CLE",
+     "home": true,
+     "kickoff": "2026-11-01T13:00:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 22.1,
+     "opp_implied": 14.9,
+     "dst": {
+      "dst_espn": 11.8,
+      "dst_yahoo": 9.9
+     },
+     "k": {
+      "k_yahoo": 8.2,
+      "k_ayo": 8.4
+     },
+     "rank": {
+      "dst_espn": 1,
+      "dst_yahoo": 1,
+      "k_yahoo": 7,
+      "k_ayo": 7
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": true
+     }
+    }
+   ]
+  },
+  {
+   "team": "SEA",
+   "rostered": {
+    "espn": {
+     "owner": "Purdy Big in Japan",
+     "mine": true,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "yahoo": {
+     "owner": "Sausage Egg McCaffrey \ud83c\udf73",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": "Don Wick",
+     "mine": false,
+     "pct": 100.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    },
+    "ayo": {
+     "owner": "Bed Bath and Bijan",
+     "mine": false,
+     "pct": 100.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "SF",
+     "home": true,
+     "kickoff": "2026-10-11T16:25:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 24.5,
+     "opp_implied": 22.0,
+     "dst": {
+      "dst_espn": 7.0,
+      "dst_yahoo": 6.8
+     },
+     "k": {
+      "k_yahoo": 8.1,
+      "k_ayo": 8.3
+     },
+     "rank": {
+      "dst_espn": 15,
+      "dst_yahoo": 14,
+      "k_yahoo": 10,
+      "k_ayo": 10
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "DEN",
+     "home": false,
+     "kickoff": "2026-10-15T20:15:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 22.7,
+     "opp_implied": 19.9,
+     "dst": {
+      "dst_espn": 8.2,
+      "dst_yahoo": 7.5
+     },
+     "k": {
+      "k_yahoo": 7.9,
+      "k_ayo": 8.1
+     },
+     "rank": {
+      "dst_espn": 6,
+      "dst_yahoo": 8,
+      "k_yahoo": 11,
+      "k_ayo": 11
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": false
+     }
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "KC",
+     "home": true,
+     "kickoff": "2026-10-25T20:20:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 22.1,
+     "opp_implied": 21.3,
+     "dst": {
+      "dst_espn": 7.3,
+      "dst_yahoo": 6.8
+     },
+     "k": {
+      "k_yahoo": 7.7,
+      "k_ayo": 7.9
+     },
+     "rank": {
+      "dst_espn": 11,
+      "dst_yahoo": 13,
+      "k_yahoo": 16,
+      "k_ayo": 16
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "CHI",
+     "home": true,
+     "kickoff": "2026-11-02T20:15:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 23.7,
+     "opp_implied": 19.1,
+     "dst": {
+      "dst_espn": 8.5,
+      "dst_yahoo": 7.7
+     },
+     "k": {
+      "k_yahoo": 8.1,
+      "k_ayo": 8.3
+     },
+     "rank": {
+      "dst_espn": 6,
+      "dst_yahoo": 7,
+      "k_yahoo": 12,
+      "k_ayo": 11
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": false
+     }
+    }
+   ]
+  },
+  {
+   "team": "SF",
+   "rostered": {
+    "espn": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": 47.85,
+     "waiver": true
+    },
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    },
+    "ayo": {
+     "owner": "ayoooo",
+     "mine": false,
+     "pct": 100.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "SEA",
+     "home": false,
+     "kickoff": "2026-10-11T16:25:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 22.0,
+     "opp_implied": 24.5,
+     "dst": {
+      "dst_espn": 5.6,
+      "dst_yahoo": 5.7
+     },
+     "k": {
+      "k_yahoo": 7.3,
+      "k_ayo": 7.5
+     },
+     "rank": {
+      "dst_espn": 21,
+      "dst_yahoo": 22,
+      "k_yahoo": 25,
+      "k_ayo": 24
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "WAS",
+     "home": true,
+     "kickoff": "2026-10-19T20:15:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 28.1,
+     "opp_implied": 19.1,
+     "dst": {
+      "dst_espn": 8.2,
+      "dst_yahoo": 7.6
+     },
+     "k": {
+      "k_yahoo": 8.6,
+      "k_ayo": 8.9
+     },
+     "rank": {
+      "dst_espn": 8,
+      "dst_yahoo": 7,
+      "k_yahoo": 4,
+      "k_ayo": 4
+     },
+     "streamer": {
+      "espn": true,
+      "yahoo": true,
+      "ayo": true
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": false
+     }
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "ATL",
+     "home": false,
+     "kickoff": "2026-10-25T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 25.9,
+     "opp_implied": 20.5,
+     "dst": {
+      "dst_espn": 7.8,
+      "dst_yahoo": 7.4
+     },
+     "k": {
+      "k_yahoo": 8.2,
+      "k_ayo": 8.5
+     },
+     "rank": {
+      "dst_espn": 9,
+      "dst_yahoo": 10,
+      "k_yahoo": 9,
+      "k_ayo": 8
+     },
+     "streamer": {
+      "espn": true,
+      "yahoo": true,
+      "ayo": true
+     },
+     "k_streamer": {
+      "yahoo": true,
+      "ayo": false
+     }
+    },
+    {
+     "week": 8,
+     "bye": true,
+     "opp": null,
+     "home": null,
+     "kickoff": null,
+     "kicked_off": null,
+     "line": null,
+     "own_implied": null,
+     "opp_implied": null,
+     "dst": null,
+     "k": null,
+     "rank": null,
+     "streamer": null,
+     "k_streamer": null
+    }
+   ]
+  },
+  {
+   "team": "TB",
+   "rostered": {
+    "espn": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": 20.31,
+     "waiver": true
+    },
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": "Le-Chase-Godwin Curse",
+     "mine": false,
+     "pct": 100.0
+    },
+    "ayo": {
+     "owner": "Christian McCarryMe",
+     "mine": false,
+     "pct": 100.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "DAL",
+     "home": false,
+     "kickoff": "2026-10-08T20:15:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 18.8,
+     "opp_implied": 28.8,
+     "dst": {
+      "dst_espn": 3.0,
+      "dst_yahoo": 3.8
+     },
+     "k": {
+      "k_yahoo": 6.9,
+      "k_ayo": 7.0
+     },
+     "rank": {
+      "dst_espn": 29,
+      "dst_yahoo": 29,
+      "k_yahoo": 29,
+      "k_ayo": 29
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "PIT",
+     "home": true,
+     "kickoff": "2026-10-18T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 19.8,
+     "opp_implied": 20.8,
+     "dst": {
+      "dst_espn": 7.8,
+      "dst_yahoo": 7.1
+     },
+     "k": {
+      "k_yahoo": 7.6,
+      "k_ayo": 7.7
+     },
+     "rank": {
+      "dst_espn": 11,
+      "dst_yahoo": 13,
+      "k_yahoo": 20,
+      "k_ayo": 19
+     },
+     "streamer": {
+      "espn": true,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "CAR",
+     "home": false,
+     "kickoff": "2026-10-25T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 21.2,
+     "opp_implied": 24.1,
+     "dst": {
+      "dst_espn": 6.0,
+      "dst_yahoo": 5.9
+     },
+     "k": {
+      "k_yahoo": 7.6,
+      "k_ayo": 7.7
+     },
+     "rank": {
+      "dst_espn": 19,
+      "dst_yahoo": 18,
+      "k_yahoo": 20,
+      "k_ayo": 21
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "ATL",
+     "home": true,
+     "kickoff": "2026-11-01T13:00:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 23.4,
+     "opp_implied": 20.0,
+     "dst": {
+      "dst_espn": 8.5,
+      "dst_yahoo": 7.8
+     },
+     "k": {
+      "k_yahoo": 8.2,
+      "k_ayo": 8.4
+     },
+     "rank": {
+      "dst_espn": 5,
+      "dst_yahoo": 5,
+      "k_yahoo": 8,
+      "k_ayo": 9
+     },
+     "streamer": {
+      "espn": true,
+      "yahoo": true,
+      "ayo": true
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    }
+   ]
+  },
+  {
+   "team": "TEN",
+   "rostered": {
+    "espn": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "HOU",
+     "home": true,
+     "kickoff": "2026-10-11T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 16.5,
+     "opp_implied": 23.0,
+     "dst": {
+      "dst_espn": 5.6,
+      "dst_yahoo": 5.0
+     },
+     "k": {
+      "k_yahoo": 7.0,
+      "k_ayo": 7.1
+     },
+     "rank": {
+      "dst_espn": 22,
+      "dst_yahoo": 27,
+      "k_yahoo": 27,
+      "k_ayo": 28
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "IND",
+     "home": false,
+     "kickoff": "2026-10-18T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 17.5,
+     "opp_implied": 22.7,
+     "dst": {
+      "dst_espn": 6.8,
+      "dst_yahoo": 6.1
+     },
+     "k": {
+      "k_yahoo": 7.1,
+      "k_ayo": 7.3
+     },
+     "rank": {
+      "dst_espn": 16,
+      "dst_yahoo": 17,
+      "k_yahoo": 25,
+      "k_ayo": 25
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 7,
+     "bye": false,
+     "opp": "CLE",
+     "home": true,
+     "kickoff": "2026-10-25T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 18.3,
+     "opp_implied": 16.9,
+     "dst": {
+      "dst_espn": 10.0,
+      "dst_yahoo": 8.2
+     },
+     "k": {
+      "k_yahoo": 7.6,
+      "k_ayo": 7.8
+     },
+     "rank": {
+      "dst_espn": 2,
+      "dst_yahoo": 5,
+      "k_yahoo": 19,
+      "k_ayo": 19
+     },
+     "streamer": {
+      "espn": true,
+      "yahoo": true,
+      "ayo": true
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "CIN",
+     "home": false,
+     "kickoff": "2026-11-01T13:00:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 15.7,
+     "opp_implied": 25.3,
+     "dst": {
+      "dst_espn": 5.1,
+      "dst_yahoo": 4.8
+     },
+     "k": {
+      "k_yahoo": 6.7,
+      "k_ayo": 6.8
+     },
+     "rank": {
+      "dst_espn": 22,
+      "dst_yahoo": 25,
+      "k_yahoo": 27,
+      "k_ayo": 27
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    }
+   ]
+  },
+  {
+   "team": "WAS",
+   "rostered": {
+    "espn": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": 4.14,
+     "waiver": true
+    },
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0,
+     "platform_pct": null,
+     "waiver": null
+    }
+   },
+   "k_rostered": {
+    "yahoo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    },
+    "ayo": {
+     "owner": null,
+     "mine": false,
+     "pct": 0.0
+    }
+   },
+   "weeks": [
+    {
+     "week": 5,
+     "bye": false,
+     "opp": "NYG",
+     "home": true,
+     "kickoff": "2026-10-11T13:00:00-04:00",
+     "kicked_off": false,
+     "line": "posted",
+     "own_implied": 23.2,
+     "opp_implied": 20.2,
+     "dst": {
+      "dst_espn": 7.8,
+      "dst_yahoo": 7.0
+     },
+     "k": {
+      "k_yahoo": 8.0,
+      "k_ayo": 8.2
+     },
+     "rank": {
+      "dst_espn": 11,
+      "dst_yahoo": 12,
+      "k_yahoo": 16,
+      "k_ayo": 15
+     },
+     "streamer": {
+      "espn": true,
+      "yahoo": true,
+      "ayo": true
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 6,
+     "bye": false,
+     "opp": "SF",
+     "home": false,
+     "kickoff": "2026-10-19T20:15:00-04:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 19.1,
+     "opp_implied": 28.1,
+     "dst": {
+      "dst_espn": 3.0,
+      "dst_yahoo": 3.6
+     },
+     "k": {
+      "k_yahoo": 6.9,
+      "k_ayo": 7.0
+     },
+     "rank": {
+      "dst_espn": 27,
+      "dst_yahoo": 28,
+      "k_yahoo": 27,
+      "k_ayo": 27
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    },
+    {
+     "week": 7,
+     "bye": true,
+     "opp": null,
+     "home": null,
+     "kickoff": null,
+     "kicked_off": null,
+     "line": null,
+     "own_implied": null,
+     "opp_implied": null,
+     "dst": null,
+     "k": null,
+     "rank": null,
+     "streamer": null,
+     "k_streamer": null
+    },
+    {
+     "week": 8,
+     "bye": false,
+     "opp": "PHI",
+     "home": true,
+     "kickoff": "2026-11-01T20:20:00-05:00",
+     "kicked_off": false,
+     "line": "rating",
+     "own_implied": 19.2,
+     "opp_implied": 23.2,
+     "dst": {
+      "dst_espn": 6.0,
+      "dst_yahoo": 5.6
+     },
+     "k": {
+      "k_yahoo": 7.2,
+      "k_ayo": 7.3
+     },
+     "rank": {
+      "dst_espn": 19,
+      "dst_yahoo": 21,
+      "k_yahoo": 23,
+      "k_ayo": 23
+     },
+     "streamer": {
+      "espn": false,
+      "yahoo": false,
+      "ayo": false
+     },
+     "k_streamer": {
+      "yahoo": false,
+      "ayo": false
+     }
+    }
+   ]
+  }
+ ]
+}

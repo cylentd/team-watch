@@ -1,7 +1,9 @@
 /* ============================== LIVE: THE GAME SHEET'S CARDS ==============================
    One card per subject (DESIGN.md "Cards"): the scoreboard, the plays, top scorers, the box score.
    The first two are ESPN's (data/gameday/espn.js), the last two Sleeper's (/api/stats?teams=), so
-   either source going quiet leaves the other's cards standing. Pure markup from GS_* state. */
+   either source going quiet leaves the other's cards standing. Pure markup from GS_* state.
+   In a play line every player's name is bold (data/gameday/plays.js); the scoreboard shows the ball and
+   the red zone (data/gameday/situation.js). */
 
 /* The score, where the game is, and on a live game who has the ball where. The strip under it runs
    from the away club's goal line (left) to the home club's (right). */
@@ -20,7 +22,7 @@ function gsScoreHTML(){
     : cl && cl.state === "in" ? `<span>${esc(cl.label)}</span>` : "";
   const now = g && g.now, x = now && typeof now.ytez === "number"
     ? (gdSameClub(GS.home, now.ball) ? now.ytez : 100 - now.ytez) : null;
-  const sit = now ? `<p class="gs-sit">${t("live.sheet.ball", {club: esc(now.ball)})}${now.dd ? ` · ${esc(now.dd)}` : ""}</p>
+  const sit = now ? `<p class="gs-sit">${t("live.sheet.ball", {club: esc(now.ball)})}${now.dd ? ` · ${esc(now.dd)}` : ""}${now.red ? ` <i class="gs-rz">${t("live.sheet.red")}</i>` : ""}</p>
       ${x === null ? "" : `<div class="gs-field" aria-hidden="true"><i style="left:${Math.max(0, Math.min(100, x))}%"></i></div>
       <div class="gs-ends"><span>${esc(GS.away)}</span><span>${esc(GS.home)}</span></div>`}` : "";
   return `<section class="gs-card gs-sb">
@@ -36,7 +38,7 @@ function gsSleeperState(){
 
 function gsPlayHTML(p){
   return `<div class="gs-pl${p.sc ? " sc" : ""}"><span>${esc(t("live.sheet.clock", {q: p.q || "", c: p.clock}))}</span>
-    <span>${esc(p.text)}${p.dd ? `<small>${esc(p.dd)}</small>` : ""}</span></div>`;
+    <span>${gsBoldNames(p.text, p.names)}${p.dd ? `<small>${esc(p.dd)}</small>` : ""}</span></div>`;
 }
 
 /* Drives newest first. The newest is open; every earlier one is a single line that opens on a tap,
@@ -166,8 +168,7 @@ function gsStepsHTML(){
 
 function gsSheetHTML(){
   const tab = GS_WIDE.matches && GS_TAB === "plays" ? "box" : GS_TAB;
-  return `<button type="button" class="gs-grab" data-gsclose aria-label="${t("common.action.close")}"></button>
-    <div class="gs-bar"><h2 class="gs-title" id="gs-title">${esc(t("live.sheet.title", {away: GS.away, home: GS.home}))}</h2>
+  return `<div class="gs-bar"><h2 class="gs-title" id="gs-title">${esc(t("live.sheet.title", {away: GS.away, home: GS.home}))}</h2>
       <button type="button" class="gs-x" data-gsclose aria-label="${t("common.action.close")}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     ${gsStepsHTML()}
     <div class="gs-main" data-tab="${tab}"><div class="gs-side">${gsScoreHTML()}${gsYoursHTML()}${gsTabsHTML(tab)}</div>

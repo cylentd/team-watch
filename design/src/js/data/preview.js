@@ -29,15 +29,17 @@ function pvStep(d){
   return true;
 }
 
-/* The slate by kickoff window, in kickoff order: [{slot, day, times: ["1:00 PM"], idx: [game indexes]}]. */
+/* The slate by kickoff window, in kickoff order: [{slot, day, times: ["1:00 PM"], idx: [game indexes]}].
+   A window is named for the league's own Eastern slots (slot, day: design/preview.py), its times are
+   the reader's clock (lib/kick.js), so a Denver reader sees "Sunday early · 11:00 AM". */
 function pvWindows(){
   const out = [];
   pvGames().forEach((g, i) => {
-    const last = out[out.length - 1];
+    const last = out[out.length - 1], time = kickTime(g.kickoff);
     if (last && last.slot === g.slot && last.day === g.day){
       last.idx.push(i);
-      if (!last.times.includes(g.et)) last.times.push(g.et);
-    } else out.push({slot: g.slot, day: g.day, times: [g.et], idx: [i]});
+      if (!last.times.includes(time)) last.times.push(time);
+    } else out.push({slot: g.slot, day: g.day, times: [time], idx: [i]});
   });
   return out;
 }
@@ -69,6 +71,40 @@ const pvConfHTML = conf => ({
 /* A take's side, chip first-class: "JAX getting 3 [STRONG]", or the NO EDGE chip alone. */
 const pvAtsHTML = (g, a) => a && a.side
   ? `<span class="pv-side">${pvSideWords(a.side, pvTeamSpread(g, a.side))}</span>${pvConfHTML(a.conf)}` : pvConfHTML(null);
+
+/* The answer block at the top of a game's page (plan U3, 2026-10-05; the audit found the line and the pick
+   under five paragraphs): Claude's pick, the line, the total, the win chance, in that order, as data the
+   surface draws. A cell with nothing behind it is left out, so a game with no take still gives its line,
+   total and the market's win chance, and a game with nothing gives []. `sub` is the market's own number
+   beside Claude's, or where a line opened when it moved; `ats` and `call` are Claude's sides, drawn as chips. */
+function pvAnswer(g){
+  const l = g.line, k = g.take && g.take.ats ? g.take : null, p = g.take && g.take.pick ? g.take.pick : null;
+  const out = [];
+  const pair = (w, lo, s) => t("preview.pick.pair", {w: esc(w), a: s[w], l: esc(lo), b: s[lo]});
+  const other = w => w === g.home ? g.away : g.home;
+  if (p){
+    const w = p.winner, imp = l && l.implied;
+    out.push({id: "pick", main: pair(w, other(w), p.score), sub: imp ? t("preview.ans.market", {what: pair(w, other(w), imp)}) : "",
+      ats: k ? k.ats : null});
+  }
+  if (l){
+    const o = l.open, moved = o && (o.fav !== l.fav || o.by !== l.by);
+    out.push({id: "line", main: pvSpread(l.fav, l.by), sub: moved ? t("preview.line.opened", {line: pvSpread(o.fav, o.by)}) : ""});
+    if (l.total != null){
+      const tMoved = o && o.total != null && o.total !== l.total;
+      out.push({id: "total", main: pvNum(l.total), sub: tMoved ? t("preview.line.openedn", {n: pvNum(o.total)}) : "",
+        call: k && k.total ? {call: k.total.call, conf: k.total.conf} : null});
+    }
+  }
+  const mw = g.market_win, w = p ? p.winner : mw ? Object.keys(mw).reduce((a, b) => mw[b] > mw[a] ? b : a) : null;
+  const cl = k && k.win && w ? k.win[w] : null, mk = mw && w ? mw[w] : null;
+  if (w && (cl != null || mk != null)){
+    out.push({id: "win", main: `${esc(w)} ${cl != null ? cl : Math.round(mk)}%`,
+      sub: cl != null && mk != null ? t("preview.ans.market", {what: `${Math.round(mk)}%`}) : "",
+      claude: cl != null, bar: cl != null && mk != null ? {mk, cl} : null});
+  }
+  return out;
+}
 
 /* The graded season (design/preview.py _record); null without ff-jarvis's preview_record. */
 const pvRecord = () => (LIVE_PREVIEW && LIVE_PREVIEW.record) || null;

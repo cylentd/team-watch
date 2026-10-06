@@ -4,7 +4,7 @@
 # files above it, or inside functions that run later.
 #
 # pin: data/* before anything that reads it; builder/saved.js reads the saved slips at load, which
-#      needs SLATE_WEEK (data/market.js) and schedWeek (data/schedule.js) already declared.
+#      needs SLATE_WEEK (data/market.js) and slateWeek (data/schedule.js) already declared.
 # pin: chrome/state.js (SURFACE, VIEW) precedes every render function; main.js is last and is
 #      the only file with side effects on the page.
 # pin: surface/live/live.js sits after chrome/state.js because gdOnScreen() reads SURFACE, and
@@ -12,6 +12,7 @@
 #      data/gameday/score.js (gdSide, gdLadder) precedes all three.
 data/teams.js
 data/signals.js
+data/lede.js
 data/hydrate.js
 data/connect.js
 data/mates.js
@@ -20,9 +21,12 @@ data/stock.js
 data/owner.js
 data/waiver.js
 data/wire.js
+data/navmap.js
+data/navrow.js
 data/teamcolors.js
 data/schedule.js
 lib/escape.js
+lib/kick.js
 lib/served.js
 lib/swipe.js
 lib/blip.js
@@ -63,6 +67,7 @@ surface/profile/sections.js
 surface/profile/history.js
 surface/profile/season.js
 surface/profile/owners.js
+surface/profile/gridlink.js
 surface/profile/teamshare.js
 surface/profile/props.js
 surface/profile/archglyphs.js
@@ -99,12 +104,16 @@ surface/matchups/rows.js
 surface/matchups/picker.js
 surface/matchups/board.js
 surface/matchups/matchups.js
+data/dst.js
 surface/ranks/ranks.js
+surface/ranks/dst.js
 surface/highlights/highlights.js
 data/weather.js
 data/wxhistory.js
 surface/weather/card.js
 surface/weather/weather.js
+data/sos.js
+surface/sos/sos.js
 data/preview.js
 surface/preview/slate.js
 surface/preview/record.js
@@ -115,6 +124,8 @@ surface/preview/preview.js
 data/digest.js
 data/gameday/score.js
 data/gameday/espn.js
+data/gameday/situation.js
+data/gameday/plays.js
 data/gameday/clock.js
 data/gameday/hurt.js
 data/gameday/tdclips.js
@@ -131,11 +142,13 @@ surface/digest/tonight.js
 surface/digest/now.js
 surface/digest/mnf.js
 surface/digest/digest.js
+data/accuracy.js
 surface/recap/state.js
 surface/recap/banner.js
 surface/recap/players.js
 surface/recap/scores.js
 surface/recap/claude.js
+surface/recap/accuracy.js
 surface/recap/recap.js
 data/league.js
 surface/league/recap.js
@@ -173,6 +186,8 @@ surface/chat/context.js
 surface/chat/chat.js
 data/market.js
 lib/odds.js
+data/topcalls.js
+data/kickwin.js
 builder/grade.js
 builder/slips.js
 builder/board.js
@@ -199,6 +214,7 @@ surface/parlay/flight.js
 surface/parlay/lineitem.js
 surface/parlay/board.js
 surface/parlay/record.js
+surface/parlay/topcalls.js
 surface/parlay/playersheet.js
 # pin: legsheet.js binds its listeners at load, so it needs #legsheet (shell.html, above the
 #      script) and nothing declared below it outside a function body.

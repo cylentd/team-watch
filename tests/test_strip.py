@@ -410,10 +410,10 @@ SITE = "http://strip.test/"
 
 
 def open_roster(page):
-    """The nav is two levels, and the Teams group holds Roster and Waivers. Naming the leaf as
+    """The nav is two levels, and the League group holds Roster and Waivers. Naming the leaf as
     well as the group is what keeps this test pointed at the roster when the group's default
     moves -- which it did, the day Waivers became tiered cards."""
-    page.click(".navitem[data-s='teams']")
+    page.click(".navitem[data-s='league']")
     page.click("[data-leaf='roster']")
 
 
