@@ -33,7 +33,7 @@ function legHeadHTML(p, s){
         <span class="ls-meta">${where}${tag ? " " + tag : ""}</span>
         <span class="ls-call">${legCall(p, s.book)}${book ? ` · ${book}` : ""}</span>
       </div>
-      ${typeof s.pct === "number" ? `<b class="ls-pct"><span>${Math.round(s.pct)}<i>%</i></span><small>${t("legsheet.head.chance")}</small></b>` : ""}
+      ${typeof s.pct === "number" ? `<b class="ls-pct" data-testid="legsheet-pct"><span>${Math.round(s.pct)}<i>%</i></span><small>${t("legsheet.head.chance")}</small></b>` : ""}
     </header>
     ${model ? `<p class="ls-model">${model}</p>` : ""}`;
 }
@@ -55,14 +55,14 @@ function legBarsHTML(p, s, log){
   const first = log.g[0], last = log.g[n - 1];
   const bars = vals.map((v, k) => {
     const g = log.g[k], yr = k > 0 && g[0] !== log.g[k - 1][0];
-    return `<span class="ls-bar${legHitGame(p, s, v) ? " hit" : ""}${yr ? " yr" : ""}" style="--h:${h(v)}%" title="${g[0]} wk${g[1]}${g[2] ? " vs " + esc(g[2]) : ""}: ${v}"><em>${td ? (v >= 1 ? v : "") : fmt2(v)}</em></span>`;
+    return `<span class="ls-bar${legHitGame(p, s, v) ? " hit" : ""}${yr ? " yr" : ""}" data-testid="legsheet-bar" style="--h:${h(v)}%" title="${g[0]} wk${g[1]}${g[2] ? " vs " + esc(g[2]) : ""}: ${v}"><em>${td ? (v >= 1 ? v : "") : fmt2(v)}</em></span>`;
   }).join("");
   const drv = legDriver(p, log);
-  const row = (label, cells, cls) => `<span class="ls-lab">${label}</span>${cells.map(c => `<span class="ls-cell ${cls}">${c == null ? "" : c}</span>`).join("")}`;
+  const row = (label, cells, cls) => `<span class="ls-lab">${label}</span>${cells.map(c => `<span class="ls-cell ${cls}" data-testid="legsheet-cell-${cls}">${c == null ? "" : c}</span>`).join("")}`;
   // A touchdown's rule sits between nothing and one score, so a game that scored rises through it.
   const rule = td ? h(0.5) : line == null ? null : h(line);
   return `<section class="ls-bars" style="--n:${n}${rule === null ? "" : `;--y:${rule}%`}" aria-label="${t("legsheet.bars.aria", {n})}">
-      <div class="ls-cap"><b>${[cap, avg === null ? "" : t("legsheet.bars.avg", {v: fmt(avg)})].filter(Boolean).join(" · ")}</b>
+      <div class="ls-cap"><b data-testid="legsheet-caption">${[cap, avg === null ? "" : t("legsheet.bars.avg", {v: fmt(avg)})].filter(Boolean).join(" · ")}</b>
         <span>${first[0] === last[0] ? t("legsheet.bars.spanOne", {y: first[0], a: first[1], b: last[1]}) : t("legsheet.bars.span", {y1: first[0], a: first[1], y2: last[0], b: last[1]})}</span></div>
       <div class="ls-grid">
         <span class="ls-lab ls-line">${line != null && !td ? `<i>${line}</i>` : ""}</span>

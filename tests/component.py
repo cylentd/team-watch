@@ -65,7 +65,8 @@ import scope_css  # noqa: E402
 # game's strip) has no leaf of its own: its tests mount the view that opens it.
 SURFACES = {"ranks": "ranks", "digest": "digest", "roster": "roster", "parlay": "parlay", "build": "build",
             "live": "live", "teams": "teams", "weekrecap": "weekrecap", "trades": "trades", "records": "records",
-            "preview": "preview", "schedule": "schedule", "recap": "recap"}
+            "preview": "preview", "schedule": "schedule", "recap": "recap",
+            "waivers": "waivers"}
 DRAWN = "document.getElementById('view').children.length > 0"
 
 

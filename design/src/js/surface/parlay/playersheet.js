@@ -42,9 +42,9 @@ function psUsageHTML(p){
   const u = psUsage(p);
   if (!u) return "";
   const old = c => c.y < BUILD_SEASON;
-  const head = u.cols.map(c => `<span class="ps-wk${old(c) ? " old" : ""}">${old(c) ? t("slips.sheet.wkOld", {y: c.y, w: c.w}) : t("slips.sheet.wk", {w: c.w})}</span>`).join("");
-  const body = u.rows.map(([k, a]) => `<span class="ps-k">${psRowLabel(k)}</span>${a.map((v, j) =>
-    `<span class="ps-v${old(u.cols[j]) ? " old" : ""}">${psNum(v) ? `${Math.round(v)}${k === "snap" ? "%" : ""}` : ""}</span>`).join("")}`).join("");
+  const head = u.cols.map(c => `<span class="ps-wk${old(c) ? " old" : ""}" data-testid="legsheet-use-week">${old(c) ? t("slips.sheet.wkOld", {y: c.y, w: c.w}) : t("slips.sheet.wk", {w: c.w})}</span>`).join("");
+  const body = u.rows.map(([k, a]) => `<span class="ps-k" data-testid="legsheet-use-label">${psRowLabel(k)}</span>${a.map((v, j) =>
+    `<span class="ps-v${old(u.cols[j]) ? " old" : ""}" data-testid="legsheet-use-value">${psNum(v) ? `${Math.round(v)}${k === "snap" ? "%" : ""}` : ""}</span>`).join("")}`).join("");
   return `<section class="ps-use" style="--n:${u.cols.length}" aria-label="${t("slips.sheet.useLabel")}"><span></span>${head}${body}</section>`;
 }
 

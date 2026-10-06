@@ -20,16 +20,16 @@ const TS_STAR = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.8l1.9
    which mixes leagues; in a league's list the heading already says it. */
 function tsRowHTML(k, followed, showLeague = followed){
   const lg = showLeague ? `<small>${tsLeagueName(k)}</small>` : "";
-  const tm = TEAMS[k], star = tm.connected ? "" : `<button class="ts-star" type="button" data-follow="${esc(k)}" aria-pressed="${followed}"
+  const tm = TEAMS[k], star = tm.connected ? "" : `<button class="ts-star" type="button" data-testid="teamswitch-star" data-follow="${esc(k)}" aria-pressed="${followed}"
     aria-label="${followed ? t("chrome.teamswitch.unfollow", {team: esc(tm.name)}) : t("chrome.teamswitch.follow", {team: esc(tm.name)})}">${TS_STAR}</button>`;
-  return `<div class="ts-row" style="--tint:${tm.tint}"><button class="ts-item" role="option" data-k="${esc(k)}" aria-selected="${k === VIEW}">${esc(tm.name)}${lg}</button>${star}</div>`;
+  return `<div class="ts-row" style="--tint:${tm.tint}"><button class="ts-item" role="option" data-testid="teamswitch-team" data-k="${esc(k)}" aria-selected="${k === VIEW}">${esc(tm.name)}${lg}</button>${star}</div>`;
 }
 function tsMenuHTML(){
   return TS_ABOUT ? tsAboutHTML() : TS_LEAGUE ? tsLeagueHTML(TS_LEAGUE) : tsRootHTML();
 }
 /* About (2026-10-04): the footer's credits, here because a phone has no footer and no week pill. */
 function tsAboutHTML(){
-  return `<button class="ts-back" type="button" data-tsback>${TS_BACK}${t("chrome.teamswitch.back")}</button>
+  return `<button class="ts-back" type="button" data-testid="teamswitch-back" data-tsback>${TS_BACK}${t("chrome.teamswitch.back")}</button>
     <div class="ts-head" role="presentation">${t("chrome.teamswitch.about")}</div>${creditsHTML()}`;
 }
 /* The first screen: the reader's teams, then a row per league. A league row when it has
@@ -40,16 +40,16 @@ function tsRootHTML(){
   return `<div class="ts-head" role="presentation">${t("chrome.teamswitch.following")}</div>
     ${mine.length ? mine.map(k => tsRowHTML(k, true)).join("") : `<p class="ts-empty">${t("chrome.teamswitch.empty")}</p>`}
     ${lgs.length ? `<div class="ts-head" role="presentation">${t("chrome.teamswitch.leagues")}</div>
-    ${lgs.map(lg => `<button class="ts-league" type="button" data-tsleague="${esc(lg)}">
+    ${lgs.map(lg => `<button class="ts-league" type="button" data-testid="teamswitch-league" data-tsleague="${esc(lg)}">
       <span class="ts-lg-name">${tsLeagueName(lg)}</span><span class="ts-lg-n">${1 + mateKeys(lg).length}</span>${TS_NEXT}</button>`).join("")}` : ""}
-    <button class="ts-item ts-add" data-tsadd>${t("connect.add")}</button>
+    <button class="ts-item ts-add" data-testid="teamswitch-add" data-tsadd>${t("connect.add")}</button>
     ${discordItemHTML()}
-    <button class="ts-league ts-about" type="button" data-tsabout><span class="ts-lg-name">${t("chrome.teamswitch.about")}</span>${TS_NEXT}</button>`;
+    <button class="ts-league ts-about" type="button" data-testid="teamswitch-about" data-tsabout><span class="ts-lg-name">${t("chrome.teamswitch.about")}</span>${TS_NEXT}</button>`;
 }
 /* One league: all its teams, David's first, then by name, each starred when followed. */
 function tsLeagueHTML(lg){
   const mine = tsFollowed(), ks = [lg, ...mateKeys(lg).sort(tsByName)];
-  return `<button class="ts-back" type="button" data-tsback>${TS_BACK}${t("chrome.teamswitch.back")}</button>
+  return `<button class="ts-back" type="button" data-testid="teamswitch-back" data-tsback>${TS_BACK}${t("chrome.teamswitch.back")}</button>
     <div class="ts-head" role="presentation">${tsLeagueName(lg)}</div>
     ${ks.map(k => tsRowHTML(k, mine.includes(k), false)).join("")}`;
 }
@@ -66,12 +66,12 @@ const TS_BACK = `<svg class="ts-go" viewBox="0 0 16 16" aria-hidden="true"><path
    "switch" in a view; the phone's header bar draws a second one as "hdrswitch" (nav.js paintHdrTeam). */
 function teamSwitchHTML(label, cls = "", id = "switch"){
   const cur = TEAMS[VIEW] || TEAMS.yahoo, name = label || esc(cur.name);
-  return `<div class="teamswitch${cls ? " " + cls : ""}" id="${id}" style="--tint:${cur.tint}">
-    <button class="ts-btn" data-tsbtn aria-haspopup="listbox" aria-expanded="false" aria-label="${t("chrome.teamswitch.label", {team: name})}">
+  return `<div class="teamswitch${cls ? " " + cls : ""}" id="${id}" data-testid="teamswitch-${id}" style="--tint:${cur.tint}">
+    <button class="ts-btn" data-testid="teamswitch-button" data-tsbtn aria-haspopup="listbox" aria-expanded="false" aria-label="${t("chrome.teamswitch.label", {team: name})}">
       <span class="ts-team">${name}</span>
       <span class="ts-chev">${TS_CHEV}</span>
     </button>
-    <div class="ts-menu" data-tsmenu role="listbox" hidden>${tsMenuHTML()}</div>
+    <div class="ts-menu" data-testid="teamswitch-menu" data-tsmenu role="listbox" hidden>${tsMenuHTML()}</div>
   </div>`;
 }
 /* My teams asks first (2026-09-27, David: "build the picker"). Until a reader picks, every My teams
@@ -116,7 +116,7 @@ function pickTeam(k){
 function discordItemHTML(){
   const a = document.querySelector(".discordlink");
   if (!a) return "";
-  return `<a class="ts-item ts-discord" href="${esc(a.href)}" target="_blank" rel="noopener noreferrer">${t("chrome.discord.join")}</a>`;
+  return `<a class="ts-item ts-discord" data-testid="teamswitch-discord" href="${esc(a.href)}" target="_blank" rel="noopener noreferrer">${t("chrome.discord.join")}</a>`;
 }
 function wireTeamSwitch(v, id = "switch"){
   const sw = v.querySelector("#" + id);

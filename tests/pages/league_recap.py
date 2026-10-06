@@ -1,5 +1,8 @@
-"""League > Recap's League section (surface/league/back.js, lead.js): its type, read for STYLE.md "Type: one voice
-per line". Class selectors until surface/league/ has test ids, as in pages/league_chip.py."""
+"""League > Recap (leaf `recap`, surface/league/back.js, lead.js): the League section's type, read for STYLE.md
+"Type: one voice per line", and the league header and page text. Class selectors until surface/league/ has test
+ids, as in pages/league_chip.py. The League's team line over it is `LeagueChip`, held here as `self.chip`.
+Methods return plain data and never assert."""
+from pages.league_chip import LeagueChip
 
 NAMES = ".lg-league .bp2-w b, .lg-league .bp2-l b, .bp2-ag b, .lg-luck-l li > b"
 
@@ -7,6 +10,19 @@ NAMES = ".lg-league .bp2-w b, .lg-league .bp2-l b, .bp2-ag b, .lg-luck-l li > b"
 class LeagueRecapPage:
     def __init__(self, page):
         self.page = page
+        self.chip = LeagueChip(page)
+
+    def kicker(self):
+        """The League header's kicker: it names the league."""
+        return self.page.locator(".lg-lhd .lg-kick").text_content()
+
+    def header_border(self):
+        """The League header's top border colour, the league's own."""
+        return self.page.locator(".lg-lhd").first.evaluate("e => getComputedStyle(e).borderTopColor")
+
+    def text(self):
+        """Everything the page draws, as text."""
+        return self.page.locator("#view").text_content()
 
     def name_faces(self):
         """The font family of every manager's name in the section."""

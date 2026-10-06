@@ -32,11 +32,11 @@ const gdWhoTeams = lg => Object.values(lg.teams).map(tm => tm.key).filter(k => T
 function gdWhoHTML(){
   const lg = GD_WHO && GD.leagues.find(l => l.key === GD_WHO);
   const body = lg
-    ? `<button type="button" class="ts-back" data-gdwhoback>${TS_BACK}${t("live.who.back")}</button>
+    ? `<button type="button" class="ts-back" data-testid="live-who-back" data-gdwhoback>${TS_BACK}${t("live.who.back")}</button>
       <h4>${esc(lg.name)}</h4><ul class="gd-who-teams">${gdWhoTeams(lg).map(tpTeamHTML).join("")}</ul>`
-    : GD.leagues.map(l => `<button type="button" class="ts-league" data-gdwho="${esc(l.key)}">
+    : GD.leagues.map(l => `<button type="button" class="ts-league" data-testid="live-who-league" data-gdwho="${esc(l.key)}">
       <span class="ts-lg-name">${esc(l.name)}</span><span class="ts-lg-n">${t("live.who.teams", {n: gdWhoTeams(l).length})}</span>${TS_NEXT}</button>`).join("");
-  return `<section class="gd-who gd-card"><h3>${t("live.who.title")}</h3>${body}</section>`;
+  return `<section class="gd-who gd-card" data-testid="live-who"><h3>${t("live.who.title")}</h3>${body}</section>`;
 }
 
 function wireGdWho(host){

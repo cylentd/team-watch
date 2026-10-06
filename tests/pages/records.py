@@ -28,6 +28,18 @@ class RecordsPage:
         """Which view is drawn: "alltime" (the head to head and the cases), "trades" (the trade history) or None."""
         return self.page.evaluate("document.querySelector('#view .rc') ? 'alltime' : document.querySelector('#view .tr') ? 'trades' : null")
 
+    def tab_count(self):
+        """Tabs drawn at all, visible or not: 0 where the league has no graded trades."""
+        return self.page.locator("[data-rctab]").count()
+
+    def empty_count(self):
+        """The empty state's blocks (`.rc-empty`, a league with no record book yet)."""
+        return self.page.locator(".rc-empty").count()
+
+    def head_to_head_count(self):
+        """The All-time head-to-head blocks (`.rc-hh`)."""
+        return self.page.locator(".rc-hh").count()
+
     def history_has_ranking(self):
         return self.page.locator("#view .tr-rank").count() == 1
 

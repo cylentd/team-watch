@@ -2,7 +2,7 @@
    icons' CC BY attribution, which has to stay reachable. Drawn here under the week pill (a desktop)
    and on the team switch's About screen (teamswitch.js), since a phone hides the pill. */
 function creditsHTML(){
-  return `<dl class="credits">
+  return `<dl class="credits" data-testid="teamswitch-credits">
     <dt>${t("chrome.credits.sources")}</dt><dd>${t("chrome.credits.sourcesList")}</dd>
     <dt>${t("chrome.credits.icons")}</dt><dd>${t("chrome.credits.iconsList")}</dd>
   </dl>`;

@@ -16,9 +16,14 @@ import build
 import contract
 import leagues
 import sources
+from component import mount  # noqa: F401  (the fixture)
 from conftest import FIXTURES, REPO
 from league_recap import live_league_yahoo
-from test_render import drive, go, open_page  # noqa: F401
+from pages.league_chip import LeagueChip, pick_script
+from pages.league_recap import LeagueRecapPage
+from pages.records import RecordsPage
+from pages.roster import RosterPage, RosterRows
+from test_render import drive, go, open_at
 
 def read(name):
     return json.loads((FIXTURES / "data" / name).read_text(encoding="utf-8"))
@@ -141,107 +146,108 @@ def test_the_build_without_ayo_files_leaves_ayo_out(tmp_path, monkeypatch):
 # ---------------------------------------------------------------- the page
 
 @pytest.mark.render
-def test_the_team_switch_lists_three_teams_and_opens_ayo(browser, page_file):
-    ctx, page, errors = open_page(browser, page_file, (390, 844))
-    drive(page, go("roster"))
-    page.click("#hdrswitch [data-tsbtn]")       # a phone's switch is the header's (2026-10-05)
-    shown = page.evaluate("[...document.querySelectorAll('#hdrswitch .ts-menu .ts-item[data-k]')].map(b => b.dataset.k)")
-    assert shown == ["yahoo", "espn", "ayo"]
-    page.click("#hdrswitch .ts-item[data-k='ayo']")
-    assert page.evaluate("VIEW") == "ayo"
-    assert page.locator("#hdrswitch .ts-team").text_content() == "Taylor Made for Sundays"
+def test_the_team_switch_lists_three_teams_and_opens_ayo(mount):
+    page, errors = mount("roster", size=(390, 844))
+    chip = LeagueChip(page)
+    chip.open_header_switch()       # a phone's switch is the header's (2026-10-05)
+    assert chip.header_switch_teams() == ["yahoo", "espn", "ayo"]
+    chip.pick_in_header("ayo")
+    assert chip.view() == "ayo"
+    assert chip.header_team() == "Taylor Made for Sundays"
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
+@pytest.mark.journey
 def test_the_ayo_roster_waivers_and_recap_draw(browser, page_file):
-    ctx, page, errors = open_page(browser, page_file, (390, 844))
-    page.evaluate("VIEW = 'ayo'; myTeamSave('ayo')")
+    """A journey: the reader walks Roster, Waivers and Recap through the sub-row."""
+    ctx, page, errors = open_at(browser, page_file, (390, 844), init=(pick_script("ayo"),))
+    chip = LeagueChip(page)
     drive(page, go("roster"))
-    names = page.evaluate("[...document.querySelectorAll('#view .row')].map(r => r.textContent)")
+    names = RosterRows(page).texts()
     assert len(names) == 5 and any("Justin Jefferson" in n or "J. Jefferson" in n for n in names)
-    assert page.evaluate("[...document.querySelectorAll('#subnav [data-leaf]')].map(b => b.dataset.leaf)") == \
+    assert chip.subnav_leaves() == \
         ["roster", "waivers", "teams", "trades", "recap", "records"], "AYO: all six League leaves; Trades is the finder, which needs only rosters (2026-10-06)"
-    drive(page, [("click", "[data-leaf='waivers']")])
-    assert "Jaylen Warren" in page.locator("#view").text_content(), "AYO's own wire"
-    drive(page, [("click", "[data-leaf='recap']")])
-    assert "Don Wick" in page.locator("#view").text_content(), "week 2's game against Don Wick, first on the page"
+    chip.tap_leaf("waivers")
+    assert "Jaylen Warren" in chip.view_text(), "AYO's own wire"
+    chip.tap_leaf("recap")
+    assert "Don Wick" in chip.view_text(), "week 2's game against Don Wick, first on the page"
     assert errors == []
     ctx.close()
 
 
 @pytest.mark.render
-def test_the_one_chip_changes_recap_and_a_reload_keeps_it(browser, page_file):
-    """The League switch (2026-09-29) became the team switch on 2026-10-05: pick a team and the league follows."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
-    drive(page, go("recap"))
-    assert page.locator(".lg-switch, [data-lgpick]").count() == 0, "no league chips of their own"
-    assert page.locator(".lgchip #switch").count() == 1 and page.locator(".lgchip-lg").text_content().strip() == "Madden Curse"
-    assert "Madden" in page.locator(".lg-lhd .lg-kick").text_content(), "Recap B (2026-10-06): the League header names its league"
-    drive(page, [("click", ".lgchip [data-tsbtn]"), ("click", ".lgchip .ts-item[data-k='ayo']")])
-    assert page.locator(".lgchip-lg").text_content().strip() == "AYO"
-    assert page.locator(".lgchip .ts-team").text_content() == "Taylor Made for Sundays"
-    assert "Don Wick" in page.locator("#view").text_content()
-    assert page.evaluate("getComputedStyle(document.querySelector('.lg-lhd')).borderTopColor") == "rgb(31, 200, 224)"
-    page.reload()
-    page.wait_for_function("document.getElementById('view').children.length > 0")
-    drive(page, go("recap"))
-    assert page.locator(".lgchip-lg").text_content().strip() == "AYO", "the pick survives a reload: it is the team"
-    drive(page, [("click", ".lgchip [data-tsbtn]"), ("click", ".lgchip .ts-item[data-k='yahoo']")])
-    assert page.locator(".lgchip-lg").text_content().strip() == "Madden Curse"
+def test_the_one_chip_changes_recap_and_a_reload_keeps_it(mount):
+    """The League switch (2026-09-29) became the team switch on 2026-10-05: pick a team and the league follows.
+    Recap's own locators are classes until its redesign lands test ids (pages/league_recap.py)."""
+    page, errors = mount("recap", size=(1400, 900))
+    recap = LeagueRecapPage(page)
+    chip = recap.chip
+    assert chip.old_league_chips() == 0, "no league chips of their own"
+    assert chip.chip_switch_count() == 1 and chip.league_text() == "Madden Curse"
+    assert "Madden" in recap.kicker(), "Recap B (2026-10-06): the League header names its league"
+    chip.pick("ayo")
+    assert chip.league_text() == "AYO"
+    assert chip.team_name() == "Taylor Made for Sundays"
+    assert "Don Wick" in recap.text()
+    assert recap.header_border() == "rgb(31, 200, 224)"
+    chip.reload()
+    assert chip.league_text() == "AYO", "the pick survives a reload: it is the team"
+    chip.pick("yahoo")
+    assert chip.league_text() == "Madden Curse"
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
+@pytest.mark.journey
 def test_records_and_trades_for_ayo_say_there_is_no_history_yet(browser, page_file):
-    ctx, page, errors = open_page(browser, page_file, (390, 844))
-    page.evaluate("VIEW = 'ayo'; myTeamSave('ayo')")
+    """A journey: Records, a #trades link, then back to Records as another team."""
+    ctx, page, errors = open_at(browser, page_file, (390, 844), init=(pick_script("ayo"),))
+    chip, records = LeagueChip(page), RecordsPage(page)
     drive(page, go("records"))
-    assert page.locator(".rc-empty").count() == 1 and page.locator(".rc-hh").count() == 0
-    assert page.locator(".lgchip").count() == 1, "the chip stays, so the reader can go back"
-    assert page.locator("#subnav [data-leaf='trades']").count() == 1, "Trades is the trade finder since 2026-10-06: every league with rosters has it"
-    assert page.locator("[data-rctab]").count() == 0, "but AYO has no graded trades, so Records has no Trade history tab"
-    page.evaluate("location.hash = '#trades'")                    # a #trades link opens the finder, not the old history
-    page.wait_for_function("SURFACE === 'trades'")
-    page.evaluate("pickTeam('yahoo')")
+    assert records.empty_count() == 1 and records.head_to_head_count() == 0
+    assert chip.chip_count() == 1, "the chip stays, so the reader can go back"
+    assert chip.subnav_leaves().count("trades") == 1, "Trades is the trade finder since 2026-10-06: every league with rosters has it"
+    assert records.tab_count() == 0, "but AYO has no graded trades, so Records has no Trade history tab"
+    chip.open_by_hash("trades")                    # a #trades link opens the finder, not the old history
+    chip.pick_team("yahoo")
     drive(page, go("records"))
-    page.evaluate("rcSelect('trades')")
-    assert page.locator(".tr-rank").count() == 1, "the Madden Curse's trades, on Records' Trade history tab"
+    records.select("Trade history")
+    assert records.history_has_ranking(), "the Madden Curse's trades, on Records' Trade history tab"
     assert errors == []
     ctx.close()
 
 
 @pytest.mark.render
+@pytest.mark.journey
 def test_one_yahoo_league_still_draws_the_chip(browser, tmp_path, monkeypatch):
+    """A journey on a build of its own (no AYO files): the chip on three leaves, then the header's switch."""
     _, path = build_without_ayo(tmp_path, monkeypatch)
-    ctx, page, errors = open_page(browser, path, (390, 844))
-    assert page.evaluate("'ayo' in TEAMS") is False
+    ctx, page, errors = open_at(browser, path, (390, 844))
+    chip = LeagueChip(page)
+    assert chip.has_team("ayo") is False
     for leaf in ("recap", "records", "trades"):
         drive(page, go(leaf))
-        assert page.locator(".lgchip").count() == 1, leaf
+        assert chip.chip_count() == 1, leaf
     drive(page, go("recap"))
-    assert page.locator(".lgchip-lg").text_content().strip() == "Madden Curse"
+    assert chip.league_text() == "Madden Curse"
     drive(page, go("roster"))
-    page.click("#hdrswitch [data-tsbtn]")
-    assert page.evaluate("[...document.querySelectorAll('#hdrswitch .ts-menu .ts-item[data-k]')].map(b => b.dataset.k)") == ["yahoo", "espn"]
+    chip.open_header_switch()
+    assert chip.header_switch_teams() == ["yahoo", "espn"]
     assert errors == []
     ctx.close()
 
 
 @pytest.mark.render
-def test_more_than_one_of_my_teams_is_counted_across_three(browser, page_file):
-    ctx, page, errors = open_page(browser, page_file, (390, 844))
-    dual = page.evaluate("Object.fromEntries(TEAMS.ayo.roster.map(p => [p.n, p.dual || 0]))")
-    assert dual == {"Brock Purdy": 2, "Jahmyr Gibbs": 2, "Chase Brown": 3, "Tee Higgins": 2, "Justin Jefferson": 0}
-    assert page.evaluate("TEAMS.yahoo.roster.find(p => p.n === 'Joe Burrow').dual || 0") == 0
-    assert page.evaluate("TEAMS.espn.roster.find(p => p.n === 'Chase Brown').dual") == 3
+def test_more_than_one_of_my_teams_is_counted_across_three(mount):
+    page, errors = mount("roster", size=(390, 844))
+    roster = RosterPage(page)
+    assert roster.dual_counts("ayo") == {"Brock Purdy": 2, "Jahmyr Gibbs": 2, "Chase Brown": 3, "Tee Higgins": 2, "Justin Jefferson": 0}
+    assert roster.dual_of("yahoo", "Joe Burrow") == 0
+    assert roster.dual_of("espn", "Chase Brown") == 3
     # Anywhere a player shows which of my leagues rosters him, AYO is one of them.
-    assert "AYO" in page.evaluate("ownersHTML({n: 'Justin Jefferson', slug: 'justin-jefferson'})")
-    leagues_of = page.evaluate("searchIndex().find(e => e.n === 'Chase Brown').leagues")
-    assert sorted(leagues_of) == ["ayo", "espn", "yahoo"]
-    props = page.evaluate("PROPS.filter(p => p.n === 'Chase Brown').map(p => p.leagues)")
+    assert "AYO" in roster.owners_html({"n": "Justin Jefferson", "slug": "justin-jefferson"})
+    assert sorted(roster.search_leagues("Chase Brown")) == ["ayo", "espn", "yahoo"]
+    props = roster.prop_leagues("Chase Brown")
     assert props and all(sorted(x) == ["ayo", "espn", "yahoo"] for x in props)
     assert errors == []
-    ctx.close()

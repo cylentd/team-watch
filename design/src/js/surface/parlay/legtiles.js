@@ -56,7 +56,7 @@ function legTilesFor(p, log){
 
 function legTilesHTML(p, log){
   const tiles = legTilesFor(p, log).filter(Boolean);
-  return tiles.length ? `<div class="ls-tiles">${tiles.map(x => `<div class="ls-tile"><span>${x.label}</span><b>${x.value}</b>${x.read ? `<em>${x.read}</em>` : ""}</div>`).join("")}</div>` : "";
+  return tiles.length ? `<div class="ls-tiles">${tiles.map(x => `<div class="ls-tile" data-testid="legsheet-tile"><span data-testid="legsheet-tile-label">${x.label}</span><b>${x.value}</b>${x.read ? `<em>${x.read}</em>` : ""}</div>`).join("")}</div>` : "";
 }
 
 /* One row of small numbers under the bars, per game: the stat that drives the bet. `u` only. */
@@ -85,7 +85,7 @@ function legMatchupHTML(p){
     : t("legsheet.matchup.most", {rank: lsOrd(33 - d.form.rank), pos: esc(p.pos)}));
   if (!opp || (!bits.length && !(d && d.out.length))) return "";
   const head = [t("legsheet.matchup.vs", {team: esc(opp)}), ...bits].join(" · ");
-  if (!d || !d.out.length) return `<p class="ls-match">${head}</p>`;
+  if (!d || !d.out.length) return `<p class="ls-match" data-testid="legsheet-match">${head}</p>`;
   const names = d.out.slice(0, 5).map(o => `<li>${esc(nameInitial(o.name))} <span>${esc(o.pos || "")} · ${esc(o.injury || "")}</span></li>`).join("");
-  return `<details class="ls-match"><summary>${head} · <u>${d.out.length === 1 ? t("legsheet.matchup.outOne") : t("legsheet.matchup.outMany", {n: d.out.length})}</u></summary><ul>${names}</ul></details>`;
+  return `<details class="ls-match" data-testid="legsheet-match"><summary data-testid="legsheet-match-head">${head} · <u>${d.out.length === 1 ? t("legsheet.matchup.outOne") : t("legsheet.matchup.outMany", {n: d.out.length})}</u></summary><ul data-testid="legsheet-match-names">${names}</ul></details>`;
 }

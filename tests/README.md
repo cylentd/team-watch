@@ -141,11 +141,11 @@ page per test; `BACKLOG` and `FULL_LOADS` are in `test_layer_ratchet.py` and onl
 
 | File | Tracked by |
 |---|---|
-| `test_leagues.py` | `FULL_LOADS` 6, `BACKLOG` 1 |
-| `test_legsheet.py` | `FULL_LOADS` 6 |
-| `test_live_mine.py` | `FULL_LOADS` 6 |
-| `test_teamswitch.py` | `FULL_LOADS` 6 |
-| `test_gameday.py` | `FULL_LOADS` 5, `BACKLOG` 4 |
+| `test_waiver_owner.py` | `FULL_LOADS` 5, `BACKLOG` 6 |
+| `test_weather.py` | `FULL_LOADS` 5, `BACKLOG` 3 |
+| `test_live_modal.py` | `FULL_LOADS` 5 |
+| `test_roster_sheet.py` | `FULL_LOADS` 5 |
+| `test_left_hurt.py` | `FULL_LOADS` 4, `BACKLOG` 9 |
 
 `test_trade_edit.py` and `test_trade_offers.py` moved to `mount` with the trade finder; `test_teams_board.py`
 moved with the Teams cards, `test_live_tabs.py` with Live's tabs, `test_live_tds.py` and `test_gamesheet_v2.py`
@@ -153,7 +153,8 @@ with Live's TDs tab and the game sheet (2026-10-06; the full-page `live` loader 
 
 Migrated, copy these instead: Ranks, profile, Digest, roster cards, Bets, the strip, Live TD clips,
 the clip reel, the pack stage, Recap, the trade finder, Records tabs, Teams, Live tabs, Live's TDs tab
-and the game sheet, Schedule, the Roster's brief (their page objects are in `tests/pages/`).
+and the game sheet, Schedule, the Roster's brief, the League leaves, the leg sheet, Live for a new
+reader, the team switch (their page objects are in `tests/pages/`).
 `BACKLOG` counts `tests/pages/` too (since 2026-10-06): moving a `page.evaluate` call into a page
 object does not lower it; moving the test to Node does.
 
@@ -167,7 +168,7 @@ object does not lower it; moving the test to Node does.
 | `browser` | `conftest.py` | The worker's one Chromium; never launch your own |
 | `keep`, `SharedPages` | `conftest.py` | `keep` hands a context to the module; `SharedPages` opens a page once per key and remembers a failed open |
 | `mount` | `component.py` | One surface on a kept context: `page, errors = mount("ranks")` |
-| Page objects | `pages/`: `ranks`, `profile` + `profile_head` + `profile_sheet`, `digest` + `digest_live` + `digest_story`, `roster` + `roster_pack` + `roster_motion` + `roster_brief`, `schedule`, `parlay` + `parlay_build`, `strip`, `live` + `live_tabs` + `live_tds`, `gamesheet`, `teams`, `finder`, `records` | The only place each view's locators live; `RanksPage` is the smallest model for a new one |
+| Page objects | `pages/`: `ranks`, `profile` + `profile_head` + `profile_sheet`, `digest` + `digest_live` + `digest_story`, `roster` + `roster_pack` + `roster_motion` + `roster_brief`, `schedule`, `parlay` + `parlay_build` + `legsheet`, `strip`, `live` + `live_tabs` + `live_tds` + `live_mine`, `gamesheet`, `teams`, `finder`, `records`, `league_recap`, `teamswitch` | The only place each view's locators live; `RanksPage` is the smallest model for a new one |
 | `clips` | `pages/clips.py` | The Roster's Week plays rail and the "This week" list under it (`ClipsPage`); the clip theater's stubs |
 | `recap` | `pages/recap.py` | This week > Recap: banner, tabs, leaders, touchdowns, games, Claude's calls (`RecapPage`), and the nav row it sits in (`RecapNav`) |
 | `digest_story` | `pages/digest_story.py` | The Digest's story banner and Monday block with a planted game day (`DigestStoryPage`) |

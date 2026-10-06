@@ -26,9 +26,11 @@ from build import norm_name  # noqa: E402
 from gameday import live_gameday  # noqa: E402
 from mates import live_mates  # noqa: E402
 from sources import DWR, read_first, load_status, load_kickers  # noqa: E402
-from test_render import LIVE_PLANT as plant, go, open_page  # noqa: E402,F401
+from component import mount  # noqa: E402,F401  (the fixture)
+from pages.gamesheet import SUMMARY, GameSheetPage  # noqa: E402
+from pages.live_mine import LiveMinePage  # noqa: E402
 
-FIX = json.loads((REPO / "tests" / "fixtures" / "gameday.json").read_text(encoding="utf-8"))
+FIX =json.loads((REPO / "tests" / "fixtures" / "gameday.json").read_text(encoding="utf-8"))
 
 
 # --------------------------------------------------------------------------- the rules table
@@ -159,11 +161,20 @@ def test_stats_keep_only_wanted_players_and_scored_fields():
 
 # --------------------------------------------------------------------------- the page
 
-@pytest.mark.render
-def test_the_page_scores_week_2_as_both_leagues_did(browser, page_file):
+@pytest.fixture(scope="module")
+def scorer(node_js):
+    """The scorer (data/gameday/score.js) in Node: data in, data out, no page (2026-10-06)."""
+    return node_js("data/gameday/score.js")
+
+
+@pytest.fixture(scope="module")
+def espn_js(node_js):
+    return node_js("data/gameday/espn.js")
+
+
+def test_the_page_scores_week_2_as_both_leagues_did(scorer):
     """Every started player and every team total, both leagues, to the hundredth."""
-    ctx, page, errors = open_page(browser, page_file, (390, 844))
-    got = page.evaluate("""(fix) => {
+    got = scorer("""(fix) => {
       const out = {};
       for (const key of ["espn", "yahoo"]){
         const lg = fix[key];
@@ -176,16 +187,13 @@ def test_the_page_scores_week_2_as_both_leagues_did(browser, page_file):
       }
       return out;
     }""", {**FIX, "official": FIX["official"], "totals": FIX["totals"]})
-    ctx.close()
     wrong = {k: v for k, v in got.items() if abs(v[0] - v[1]) > 0.011}
     assert not wrong, wrong
     assert len(got) > 60
 
 
-@pytest.mark.render
-def test_the_bench_is_scored_but_never_counted_and_proj_adds_who_is_left(browser, page_file):
-    ctx, page, errors = open_page(browser, page_file, (390, 844))
-    got = page.evaluate("""(fix) => {
+def test_the_bench_is_scored_but_never_counted_and_proj_adds_who_is_left(scorer):
+    got = scorer("""(fix) => {
       const lg = fix.espn, id = Object.keys(lg.teams)[0], final = {};
       for (const tm of Object.values(lg.teams)) for (const r of tm.lineup) final[r.team] = "complete";
       const s = gdSide(lg, id, fix.stats, final);
@@ -198,92 +206,71 @@ def test_the_bench_is_scored_but_never_counted_and_proj_adds_who_is_left(browser
               benchSlots: s.bench.every(r => GD_BENCH.includes(r.slot)),
               proj: gdProj(mixed, () => proj[i++])};
     }""", FIX)
-    ctx.close()
     assert got["nBench"] > 0 and got["benchSlots"]
     assert abs(got["total"] - got["starters"]) < 0.011
     assert abs(got["benchTotal"] - got["bench"]) < 0.011
-    assert got["proj"] == 10 + 12 + 20 + 9 + 0     # done as scored; mid-game the larger; unplayed projected
-    assert errors == []
+    assert got["proj"] == 10 + 12 + 20 + 9 + 0   # done as scored; mid-game the larger; unplayed projected
 
 
 @pytest.mark.render
-def test_the_board_says_where_each_game_is_and_a_row_opens_his_profile(browser, page_file):
-    ctx, page, errors = open_page(browser, page_file, (390, 844))
-    page.evaluate("localStorage.setItem('tw-team', 'espn');" + plant())    # David's ESPN team: Live opens on its league
-    for kind, sel in go("live"):
-        page.click(sel)
-    page.wait_for_selector(".gd-mr")
+def test_the_board_says_where_each_game_is_and_a_row_opens_his_profile(mount):
+    live, errors = LiveMinePage.open_board(mount)           # David's ESPN team: Live opens on its league
     # each of my halves (the left one of a mirrored row, tabs: surface/live/tabs.js): tinted while his
     # game is on, the kickoff before (and a dash for points); the second number is his projection,
     # unlabelled
-    states = page.evaluate("""() => [...document.querySelectorAll('.gd-mirror:not(.bn) .gd-h.l')].map(r =>
-      [r.querySelector('.gd-nb').dataset.gdteam, r.classList.contains('on') ? 'LIVE' : r.classList.contains('pre') ? 'PRE' : 'FINAL'])""")
-    by_team = dict(states)
+    by_team = dict(live.left_half_states())
     assert by_team.get("SF") == "LIVE" and by_team.get("DET") == "PRE" and "FINAL" in by_team.values()
     # a game's second line is its clock; a final game says so, and no lock sits in the row
-    assert page.locator(".gd-mirror svg:not(.gd-flame)").count() == 0
+    assert live.drawn_shape_count() == 0
     # lime points mean his game is on, and nothing else; a flame beside the points means he passed his
     # projection by the Digest's own Smashed margin, and nothing marks his face
-    lime = page.evaluate("getComputedStyle(document.body).getPropertyValue('--lime').trim()")
-    rows = page.evaluate("""() => [...document.querySelectorAll('.gd-h:not(.empty)')].map(r => ({on: r.classList.contains('on'),
-      lime: getComputedStyle(r.querySelector('.gd-pts')).color, fire: !!r.querySelector('.gd-pts .gd-flame'),
-      ring: false,
-      pts: parseFloat(r.querySelector('.gd-pts').textContent), proj: parseFloat(r.querySelector('.gd-proj').textContent)}))""")
-    lime_rgb = page.evaluate("(c) => { const d = document.createElement('i'); d.style.color = c; document.body.append(d); const v = getComputedStyle(d).color; d.remove(); return v; }", lime)
-    smash = page.evaluate("LIVE_DIGEST.rules.smashed.min")
+    [lime_rgb] = live.colours("--lime")
+    rows = live.half_readings()
+    smash = live.smash_margin()
     known = lambda r: r["proj"] == r["proj"] and r["pts"] == r["pts"]
     assert all((r["lime"] == lime_rgb) == r["on"] for r in rows)
     assert all(r["fire"] == (known(r) and r["pts"] - r["proj"] >= smash) for r in rows)
     assert any(r["fire"] for r in rows) and not any(r["ring"] for r in rows)
     assert any(known(r) and 0 < r["pts"] - r["proj"] < smash for r in rows)    # a beat, not a smash: no flame
-    assert all(re.match(r"^(\d+\.\d)?$", s) for s in page.locator(".gd-h.l .gd-proj").all_inner_texts())
+    assert all(re.match(r"^(\d+\.\d)?$", s) for s in live.left_projections())
     # rows are shaded every other one; a half whose game is on is tinted over that
-    assert page.locator(".gd-mirror:not(.bn)").evaluate("""m => {
-      const bg = r => getComputedStyle(r).backgroundColor, rs = [...m.querySelectorAll('.gd-mr')];
-      return rs.every((r, i) => i < 2 || bg(r) === bg(rs[i - 2])) && bg(rs[0]) !== bg(rs[1]); }""")
-    assert page.locator(".gd-h.on").count() > 0 and page.locator(".gd-h.on").first.evaluate("e => getComputedStyle(e).backgroundColor") != "rgba(0, 0, 0, 0)"
+    assert live.rows_are_striped()
+    assert live.live_half_count() > 0 and live.first_live_half_background() != "rgba(0, 0, 0, 0)"
     # my game says who leads in words; the bench is drawn, dimmed, and left out of the total
-    assert re.match(r"^(UP|DOWN) \d+\.\d$|^TIED$", page.locator(".gd-lead").inner_text())
-    assert page.locator(".gd-mirror.bn").count() == 0                  # shut until the Benches row opens it
-    page.click("[data-gdbench]")
-    assert page.locator(".gd-mirror.bn .gd-mr").count() > 0
-    page.locator(".gd-mirror .gd-nb").first.click()
-    page.wait_for_selector("#modal.on")
-    page.keyboard.press("Escape")
+    assert re.match(r"^(UP|DOWN) \d+\.\d$|^TIED$", live.lead_text())
+    assert live.bench_count() == 0                  # shut until the Benches row opens it
+    live.open_benches()
+    assert live.bench_rows() > 0
+    live.tap_first_name()
+    live.wait_for_profile()
+    live.press_escape()
     # the ranking under the lineups: ESPN pays the top half. Every chip in the strip states its game on
     # the line above two names and two scores; the reader's chip is the one on screen
-    assert page.locator(".gd-median:not(.quiet)").count() == 1
-    tags = page.locator(".gd-cs").all_inner_texts()
-    assert len(tags) == page.locator(".gd-chip").count()
+    assert live.ladder_median_lines() == 1
+    tags = live.chip_state_words()
+    assert len(tags) == live.chip_count()
     assert all(re.match(r"^(LIVE|\d+ LEFT|FINAL)$", s.strip()) for s in tags)
-    assert page.locator(".gd-chip").evaluate_all("gs => gs.every(g => g.firstElementChild.classList.contains('gd-cs'))")
-    assert page.locator(".gd-chip.on").count() == 1 and page.locator(".gd-chip.mine.on").count() == 1
+    assert live.chip_states_lead_their_chips()
+    assert live.picked_chip_count() == 1 and live.my_picked_chip_count() == 1
     # the team picked decides the league: Yahoo's, which ranks for bragging
-    page.evaluate("localStorage.setItem('tw-team', 'yahoo'); paintLive()")
-    assert "Chat Take the Wheel" in page.locator(".gd-head").inner_text()
-    assert page.locator(".gd-median.quiet").count() == 1
+    live.pick_team("yahoo")
+    assert "Chat Take the Wheel" in live.head_text()
+    assert live.ladder_quiet_median_count() == 1
     # another game in the league opens its two lineups in place, and its lead names no side
-    page.locator(".gd-chip:not(.mine)").first.click()
-    assert "Chat Take the Wheel" not in page.locator(".gd-head").inner_text()
-    assert re.match(r"^BY \d+\.\d$|^TIED$", page.locator(".gd-lead").inner_text())
-    assert page.locator(".gd-chip.on").count() == 1 and page.locator(".gd-chip.mine.on").count() == 0
-    ctx.close()
+    live.tap_other_chip()
+    assert "Chat Take the Wheel" not in live.head_text()
+    assert re.match(r"^BY \d+\.\d$|^TIED$", live.lead_text())
+    assert live.picked_chip_count() == 1 and live.my_picked_chip_count() == 0
     assert errors == []
 
 
 # --------------------------------------------------------------------------- the game sheet
 
-SUMMARY = json.loads((REPO / "tests" / "fixtures" / "data" / "espn_summary.json").read_text(encoding="utf-8"))
-BOX = json.loads((REPO / "tests" / "fixtures" / "data" / "sleeper_box.json").read_text(encoding="utf-8"))
-
-
-@pytest.mark.render
-def test_where_the_ball_is_reads_as_espn_writes_it(browser, page_file):
+def test_where_the_ball_is_reads_as_espn_writes_it(espn_js):
     """gsWhere, from down, distance and yards to go, says what ESPN's own downDistanceText says, on
     every play of the saved game: it is the fallback when a live summary leaves the text out.
     Timeouts carry a stale text and no yards to go; the sheet drops them, so the test does too."""
-    ctx, page, errors = open_page(browser, page_file, (390, 844))
-    got = page.evaluate("""(s) => {
+    got = espn_js("""(s) => {
       const cs = s.header.competitions[0].competitors, abbrOf = {};
       for (const c of cs) abbrOf[c.team.id] = c.team.abbreviation;
       const other = a => cs.map(c => c.team.abbreviation).find(x => x !== a);
@@ -292,57 +279,43 @@ def test_where_the_ball_is_reads_as_espn_writes_it(browser, page_file):
         if (p.start && p.start.downDistanceText && !GS_NOT_PLAY.test(p.text) && !GS_NOT_PLAY.test(p.type.text)) out.push([gsWhere(p.start, abbrOf, other), p.start.downDistanceText]);
       return out;
     }""", SUMMARY)
-    ctx.close()
     assert len(got) > 30
     assert [g for g in got if g[0] != g[1]] == []
-    assert errors == []
 
 
 @pytest.mark.render
-def test_the_game_sheet_opens_from_nfl_now_and_draws_four_cards(browser, page_file):
-    ctx, page, errors = open_page(browser, page_file, (390, 844))
-    page.evaluate(plant({"DET": "in_game", "SEA": "in_game"}))
-    for kind, sel in go("live"):
-        page.click(sel)
-    page.wait_for_selector(".gd-mr")
+def test_the_game_sheet_opens_from_nfl_now_and_draws_four_cards(mount):
+    sheet, errors = GameSheetPage.on_live(mount, size=(390, 844))     # DET and SEA on now
+    live = LiveMinePage(sheet.page)
     # the Games tab lists every game of the week, the one on now first: its clock over two clubs
-    page.click("[data-gdtab='games']")
-    tile = page.locator(".gd-tiles .gd-t.in")
-    assert tile.count() == 1 and tile.get_attribute("data-gdnfl") == "401871234,DET,SEA"
-    assert tile.locator(".gd-ts span").inner_text() == "Live"
-    tile.click()
-    page.wait_for_selector("#gamesheet.on")
-    page.evaluate("""([s, b]) => { GS = {event: "1", away: "DET", home: "BUF"}; GS_GAME = gsShape(s); GS_BOX = {box: b}; GS_ERR = ""; gsPaint(); }""",
-                  [SUMMARY, BOX])
-    sheet = page.locator("#gamesheet")
-    assert sheet.locator(".gs-card").count() == 5        # scoreboard, yours, then a card per tab (one shows)
-    assert sheet.locator(".gs-t.behind b").inner_text() == "31"            # DET 31, BUF 41: final
+    live.open_tab("games")
+    assert live.in_tile_count() == 1 and live.in_tile_game() == "401871234,DET,SEA"
+    assert live.in_tile_label() == "Live"
+    live.tap_in_tile()
+    sheet.wait_for_open()
+    sheet.swap_in_saved_game()
+    assert sheet.card_count() == 5        # scoreboard, yours, then a card per tab (one shows)
+    assert sheet.trailing_score() == "31"        # DET 31, BUF 41: final
     # drives newest first, the newest open, the rest one line each; no "END QUARTER" rows
-    sheet.locator("[data-gstab='plays']").click()
-    drives = sheet.locator(".gs-drv")
-    assert drives.count() == 5 and drives.first.get_attribute("open") is not None
-    assert sheet.locator(".gs-drv[open]").count() == 1
-    assert drives.first.locator(".gs-tm").inner_text() == "DET" and drives.first.locator("summary b.sc").count() == 1
-    assert not any(t.startswith("END ") for t in sheet.locator(".gs-pl > span:last-child").all_inner_texts())
+    sheet.select_tab("plays")
+    assert sheet.drive_count() == 5 and sheet.first_drive_is_open()
+    assert sheet.open_drive_count() == 1
+    assert sheet.first_drive_club() == "DET" and sheet.first_drive_scoring_results() == 1
+    assert not any(t.startswith("END ") for t in sheet.play_texts())
     # an earlier drive opened by hand stays open through the next poll's repaint
-    drives.nth(2).locator("summary").click()
-    # "toggle" is a task after the click: wait until it has recorded the drive, then repaint
-    key = drives.nth(2).evaluate("e => e.closest('[data-gsdrive]').dataset.gsdrive")
-    page.wait_for_function("k => GS_OPEN.get(k) === true", arg=key)
-    page.evaluate("gsPaint()")
-    assert sheet.locator(".gs-drv[open]").count() == 2
+    sheet.toggle_drive(2)
+    sheet.repaint()
+    assert sheet.open_drive_count() == 2
     # top scorers, best first, in the league's own scoring
-    sheet.locator("[data-gstab='top']").click()
-    pts =[float(x) for x in sheet.locator(".gs-sc > b").all_inner_texts()]
+    sheet.select_tab("top")
+    pts = sheet.top_scorer_points()
     assert len(pts) == 5 and pts == sorted(pts, reverse=True)
     # the box score shows one club at a time
-    sheet.locator("[data-gstab='box']").click()
-    assert sheet.locator(".gs-seg [aria-pressed='true']").inner_text() == "Lions"
-    sheet.locator(".gs-seg button").nth(1).click()
-    assert sheet.locator(".gs-seg [aria-pressed='true']").inner_text() == "Bills"
-    assert sheet.locator(".gs-tbl").count() >= 2
-    page.keyboard.press("Escape")
-    page.wait_for_selector("#gamesheet:not(.on)", state="attached")
-    assert page.evaluate("GS") is None
-    ctx.close()
+    sheet.select_tab("box")
+    assert sheet.box_club() == "Lions"
+    sheet.tap_box_club(1)
+    assert sheet.box_club() == "Bills"
+    assert sheet.box_table_count() >= 2
+    sheet.close_with_escape()
+    assert sheet.current_game() is None
     assert errors == []

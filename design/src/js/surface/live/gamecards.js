@@ -11,7 +11,7 @@ function gsScoreHTML(){
   const g = GS_GAME, st = g ? g.state : gsSleeperState();
   const score = (club, esp) => esp && esp.score !== null ? esp.score : gdClubScore(club, club === GS.away ? GS.home : GS.away);
   const a = score(GS.away, g && g.away), h = score(GS.home, g && g.home), on = st !== "pre" && a !== null && h !== null;
-  const side = (club, esp, s, o, cls) => `<div class="gs-t ${cls}${on && s < o ? " behind" : ""}">
+  const side = (club, esp, s, o, cls) => `<div class="gs-t ${cls}${on && s < o ? " behind" : ""}" data-testid="gamesheet-club">
       <span>${esc((esp && esp.name) || club)}</span><b>${on ? s : "—"}</b></div>`;
   const mid = st === "in" ? `<span class="gs-pill">${t("live.now.live")}</span>`
     : st === "post" ? `<span class="gs-final">${GD_LOCK}${t("live.state.final")}</span>`
@@ -25,7 +25,7 @@ function gsScoreHTML(){
   const sit = now ? `<p class="gs-sit">${t("live.sheet.ball", {club: esc(now.ball)})}${now.dd ? ` · ${esc(now.dd)}` : ""}${now.red ? ` <i class="gs-rz">${t("live.sheet.red")}</i>` : ""}</p>
       ${x === null ? "" : `<div class="gs-field" aria-hidden="true"><i style="left:${Math.max(0, Math.min(100, x))}%"></i></div>
       <div class="gs-ends"><span>${esc(GS.away)}</span><span>${esc(GS.home)}</span></div>`}` : "";
-  return `<section class="gs-card gs-sb">
+  return `<section class="gs-card gs-sb" data-testid="gamesheet-score">
     <div class="gs-score">${side(GS.away, g && g.away, a, h, "a")}<div class="gs-mid" data-testid="gamesheet-mid">${mid}${detail}</div>${side(GS.home, g && g.home, h, a, "h")}</div>
     ${sit}</section>`;
 }
@@ -52,7 +52,7 @@ function gsPlaysHTML(){
   const n = GS_GAME.drives.length;
   const drives = GS_GAME.drives.map((d, i) => {
     const key = String(n - i), open = GS_OPEN.has(key) ? GS_OPEN.get(key) : i === 0;
-    return `<details class="gs-drv" data-gsdrive="${key}"${open ? " open" : ""}><summary>
+    return `<details class="gs-drv" data-testid="gamesheet-drive" data-gsdrive="${key}"${open ? " open" : ""}><summary>
         <span class="gs-tm">${esc(d.team)}</span><span>${esc(d.line)}</span><b class="${d.sc ? "sc" : ""}">${esc(d.on ? t("live.sheet.onDrive") : d.res)}</b></summary>
       ${d.plays.map(gsPlayHTML).join("")}</details>`;
   }).join("");
@@ -110,7 +110,7 @@ function gsTopHTML(){
   const lg = gdLeague(), rows = gsScored(lg).slice(0, 5);
   const head = lg ? `<h3><em>${t("live.sheet.scoring", {name: esc(lg.name)})}</em></h3>` : "";
   if (!rows.length) return `<section class="gs-card gs-top" data-testid="gamesheet-top" data-gsscroll>${head}<p class="gs-quiet">${GS_BOX_ERR ? t("live.sheet.noSleeper") : GS_BOX ? t("live.sheet.noStats") : t("live.sheet.loading")}</p></section>`;
-  return `<section class="gs-card gs-top" data-testid="gamesheet-top" data-gsscroll>${head}${rows.map(r => `<div class="gs-sc${r.mine ? " mine" : ""}">${gsStar(r)}
+  return `<section class="gs-card gs-top" data-testid="gamesheet-top" data-gsscroll>${head}${rows.map(r => `<div class="gs-sc${r.mine ? " mine" : ""}" data-testid="gamesheet-scorer">${gsStar(r)}
       <span><b>${esc(gdShort(r))}</b> <small>${esc(r.team)}</small><em>${esc(r.line)}</em></span><b>${gdNum(r.pts || 0)}</b></div>`).join("")}</section>`;
 }
 
@@ -127,12 +127,12 @@ function gsGroups(){
 function gsBoxHTML(){
   const club = GS_TEAM || GS.away, lg = gdLeague();
   const players = gsScored(lg).filter(p => gdSameClub(club, p.team));
-  const seg = `<div class="gs-seg" role="group" aria-label="${t("live.sheet.box")}">${[GS.away, GS.home].map(c =>
+  const seg = `<div class="gs-seg" data-testid="gamesheet-seg" role="group" aria-label="${t("live.sheet.box")}">${[GS.away, GS.home].map(c =>
     `<button type="button" data-gsteam="${esc(c)}" aria-pressed="${c === club}">${esc(gsClubName(c))}</button>`).join("")}</div>`;
   const tables = gsGroups().map(([label, has, sort, cols]) => {
     const rows = players.filter(p => p.s[has]).sort((a, b) => (b.s[sort] || 0) - (a.s[sort] || 0));
     if (!rows.length) return "";
-    return `<table class="gs-tbl"><caption>${label}</caption><thead><tr><th></th>${cols.map(c => `<th>${c[0]}</th>`).join("")}</tr></thead>
+    return `<table class="gs-tbl" data-testid="gamesheet-table"><caption>${label}</caption><thead><tr><th></th>${cols.map(c => `<th>${c[0]}</th>`).join("")}</tr></thead>
       <tbody>${rows.map(p => `<tr${p.mine ? ` class="mine"` : ""}><td>${gsStar(p)}${esc(gdShort(p))}</td>${cols.map(c => `<td>${c[1](p.s)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
   }).join("");
   return `<section class="gs-card gs-box" data-testid="gamesheet-box" data-gsscroll>${seg}${tables || `<p class="gs-quiet">${t("live.sheet.noStats")}</p>`}</section>`;

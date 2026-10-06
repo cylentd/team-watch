@@ -20,13 +20,13 @@ const gdName = r => r.pos === "DEF" ? r.n.replace(/\s*D\/ST$/, "") : gdShort(r);
    them once he smashed it (board.js gdSmashed), a dash before kickoff. */
 function gdPtsHTML(r){
   const pulse = r.sid && GD_PULSE[r.sid] !== undefined ? `<em class="up">${gdSigned(GD_PULSE[r.sid])}</em>` : "";
-  if (r.state === "pre_game") return `<span class="gd-pts pre">—</span>`;
+  if (r.state === "pre_game") return `<span class="gd-pts pre" data-testid="live-pts">—</span>`;
   const flame = gdSmashed(r) ? `<svg class="gd-flame" viewBox="0 0 24 24" role="img" aria-label="${t("live.row.smashed")}">${GD_FLAME}</svg>` : "";
-  return `<span class="gd-pts">${pulse}${flame}${gdNum(r.pts || 0)}</span>`;
+  return `<span class="gd-pts" data-testid="live-pts">${pulse}${flame}${gdNum(r.pts || 0)}</span>`;
 }
 function gdProjHTML(r){
   const p = projFor(r);
-  return `<span class="gd-proj">${p === null ? "" : gdNum(p)}</span>`;
+  return `<span class="gd-proj" data-testid="live-proj">${p === null ? "" : gdNum(p)}</span>`;
 }
 
 /* His name; a starter of the reader's who left his game hurt and is not back wears a red "Hurt" beside

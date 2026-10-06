@@ -96,6 +96,19 @@ class GameSheetPage:
         """The sheet's spring has come to rest."""
         self.page.evaluate("Promise.all(document.getAnimations().map(a => a.finished))")
 
+    def swap_in_saved_game(self):
+        """The sheet a tap opened is repainted as the saved game, DET at BUF, with ESPN's summary and Sleeper's box score."""
+        self.page.evaluate("""([s, b]) => { GS = {event: "1", away: "DET", home: "BUF"}; GS_GAME = gsShape(s); GS_BOX = {box: b}; GS_ERR = ""; gsPaint(); }""",
+                           [SUMMARY, BOX])
+
+    def repaint(self):
+        """The sheet's own poll."""
+        self.page.evaluate("gsPaint()")
+
+    def current_game(self):
+        """The game the sheet holds (GS), or None once it is closed."""
+        return self.page.evaluate("GS")
+
     def show_no_summary(self):
         """ESPN's summary has not loaded: the scoreboard stands in for it."""
         self.page.evaluate("GS_GAME = null; GS_ERR = ''; gsPaint()")
@@ -131,6 +144,19 @@ class GameSheetPage:
 
     def unfollow_top_scorer(self, sid):
         self._top.locator(f"[data-gsfollow='{sid}']").click()
+
+    def toggle_drive(self, i):
+        """Tap the i-th drive's line open (or shut) by hand, and wait for the sheet to have recorded it. Returns its key."""
+        drive = self.page.get_by_test_id("gamesheet-drive").nth(i)
+        drive.locator("summary").click()
+        # "toggle" is a task after the click: wait until it has recorded the drive
+        key = drive.evaluate("e => e.closest('[data-gsdrive]').dataset.gsdrive")
+        self.page.wait_for_function("k => GS_OPEN.get(k) === true", arg=key)
+        return key
+
+    def tap_box_club(self, i):
+        """The box score's club switch: 0 is the away club, 1 the home club."""
+        self.page.get_by_test_id("gamesheet-seg").locator("button").nth(i).click()
 
     # ---- what a reader sees ----
 
@@ -201,6 +227,45 @@ class GameSheetPage:
 
     def scoreboard_middle_text(self):
         return self._mid.inner_text()
+
+    def card_count(self):
+        """The cards in the sheet: scoreboard, yours, and a card per tab (one shows)."""
+        return self.page.locator("#gamesheet .gs-card").count()
+
+    def trailing_score(self):
+        """The score of the club that is behind."""
+        return self.page.get_by_test_id("gamesheet-club").and_(self.page.locator(".behind")).locator("b").inner_text()
+
+    def drive_count(self):
+        return self.page.get_by_test_id("gamesheet-drive").count()
+
+    def open_drive_count(self):
+        return self.page.get_by_test_id("gamesheet-drive").and_(self.page.locator("[open]")).count()
+
+    def first_drive_is_open(self):
+        return self.page.get_by_test_id("gamesheet-drive").first.get_attribute("open") is not None
+
+    def first_drive_club(self):
+        return self.page.get_by_test_id("gamesheet-drive").first.locator(".gs-tm").inner_text()
+
+    def first_drive_scoring_results(self):
+        """How many results on the first drive's line are a score."""
+        return self.page.get_by_test_id("gamesheet-drive").first.locator("summary b.sc").count()
+
+    def play_texts(self):
+        """The text of every play line, in the plays card."""
+        return self.page.get_by_test_id("gamesheet-plays").locator(".gs-pl > span:last-child").all_inner_texts()
+
+    def top_scorer_points(self):
+        """The points of each top scorer, in the order shown."""
+        return [float(x) for x in self.page.get_by_test_id("gamesheet-scorer").locator(":scope > b").all_inner_texts()]
+
+    def box_club(self):
+        """The club the box score shows."""
+        return self.page.get_by_test_id("gamesheet-seg").locator("[aria-pressed='true']").inner_text()
+
+    def box_table_count(self):
+        return self.page.get_by_test_id("gamesheet-table").count()
 
     # ---- what the page remembers ----
 

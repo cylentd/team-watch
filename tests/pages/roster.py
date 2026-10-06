@@ -43,6 +43,10 @@ class RosterRows:
     def count(self):
         return self._rows.count()
 
+    def texts(self):
+        """The text of every row drawn."""
+        return self._rows.evaluate_all("rs => rs.map(r => r.textContent)")
+
     def show_team(self, key):
         """The roster of one of the reader's teams ("yahoo", "espn"), as the page's own switch draws it."""
         self.page.evaluate("k => { VIEW = k; render(); }", key)
@@ -160,6 +164,25 @@ class RosterPage(RosterPack):
     def has_packs(self):
         """Both followed teams have a pack this week."""
         return self.page.evaluate("packHas(TEAMS.yahoo) && packHas(TEAMS.espn)")
+
+    def dual_counts(self, team):
+        """How many of the reader's leagues roster each player of `team` (0 when only this one): {name: n}."""
+        return self.page.evaluate("k => Object.fromEntries(TEAMS[k].roster.map(p => [p.n, p.dual || 0]))", team)
+
+    def dual_of(self, team, name):
+        return self.page.evaluate("([k, n]) => TEAMS[k].roster.find(p => p.n === n).dual || 0", [team, name])
+
+    def owners_html(self, player):
+        """The owners line a player shows anywhere (`ownersHTML`), for `player` ({n, slug})."""
+        return self.page.evaluate("p => ownersHTML(p)", player)
+
+    def search_leagues(self, name):
+        """The reader's leagues the search index says rostering `name`."""
+        return self.page.evaluate("n => searchIndex().find(e => e.n === n).leagues", name)
+
+    def prop_leagues(self, name):
+        """The leagues listed on each of `name`'s props."""
+        return self.page.evaluate("n => PROPS.filter(p => p.n === n).map(p => p.leagues)", name)
 
     def signed_block_is_null(self):
         return self.page.evaluate("LIVE_SIGNED === null")
