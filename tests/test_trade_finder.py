@@ -308,6 +308,19 @@ def test_on_a_desktop_who_is_deep_is_a_grid_of_team_cards_in_the_same_columns(mo
     assert errors == []
 
 
+@pytest.mark.req("Trade finder", ac="a team's name and its number share one line, clear of the card's top edge")
+def test_who_is_deep_puts_the_name_level_with_its_number_and_off_the_top_edge(mount):
+    # 2026-10-06, David's screenshot: the name hugged the card's top edge and the number sat lower than it.
+    for size in ((360, 740), (1280, 900)):
+        f, _ = planted(mount, size=size)
+        row = f.page.get_by_test_id("finder-deeprow").first
+        box = lambda sel: row.locator(sel).evaluate("e => { const r = e.getBoundingClientRect(); return [r.top, r.bottom]; }")
+        top, _ = row.evaluate("e => { const r = e.getBoundingClientRect(); return [r.top, r.bottom]; }")
+        name, val = box("[data-testid=finder-deepname] b"), box("[data-testid=finder-deepval]")
+        assert abs((name[0] + name[1]) / 2 - (val[0] + val[1]) / 2) <= 2, f"{size[0]}px: the name and its number on one line"
+        assert name[0] - top >= 10, f"{size[0]}px: the name sits clear of the card's top edge"
+
+
 @pytest.mark.req("Trade finder", ac="the chips are one row, kept to a column's measure")
 def test_the_chip_row_stays_one_row_at_every_width(mount):
     for size in ((360, 740), (1280, 900)):

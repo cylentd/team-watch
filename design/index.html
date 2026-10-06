@@ -6976,11 +6976,13 @@ button.cs-slot:active:where(#view[data-view="records"], #modal, #view[data-view=
 .tf-all:where(#view[data-view="trades"], #view[data-view="trades"] *){margin-top:4px}
 .tf-with:where(#view[data-view="trades"], #view[data-view="trades"] *){margin:2px 0 12px;font:800 var(--t-5)/1.15 var(--disp);letter-spacing:0;text-transform:none;color:var(--ink);overflow-wrap:anywhere}
 
-/* Who is deep: one card, a row a team: the name (a button) and the sum, then who starts there. */
+/* Who is deep: one card, a row a team: the name (a button) and the sum, then who starts there. The name is centred in
+   its 44px button so it sits level with the sum, and the bottom padding matches the space the button leaves above the
+   name (2026-10-06, David: the name hugged the top edge and the sum sat a line lower). */
 .tf-dl:where(#view[data-view="trades"], #view[data-view="trades"] *){margin:0;padding:0;list-style:none;border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden}
-.tf-d:where(#view[data-view="trades"], #view[data-view="trades"] *){display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:8px;padding:0 12px 8px;border-top:1px solid var(--line)}
+.tf-d:where(#view[data-view="trades"], #view[data-view="trades"] *){display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:8px;padding:0 12px 12px;border-top:1px solid var(--line)}
 .tf-d:first-child:where(#view[data-view="trades"], #view[data-view="trades"] *){border-top:0}
-.tf-dn:where(#view[data-view="trades"], #view[data-view="trades"] *){appearance:none;display:flex;align-items:baseline;gap:6px;min-width:0;min-height:44px;padding:0;border:0;background:none;
+.tf-dn:where(#view[data-view="trades"], #view[data-view="trades"] *){appearance:none;display:flex;align-items:center;gap:6px;min-width:0;min-height:44px;padding:0;border:0;background:none;
   color:var(--ink);text-align:left;cursor:pointer;font:600 var(--t-3)/1.2 var(--ui)}
 .tf-dn:where(#view[data-view="trades"], #view[data-view="trades"] *) b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
 .tf-dn:where(#view[data-view="trades"], #view[data-view="trades"] *) small{flex:none;font:500 var(--t-1)/1.2 var(--mono);color:var(--ink-3);font-variant-numeric:tabular-nums}
