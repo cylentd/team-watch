@@ -36,9 +36,12 @@ def test_the_hash_opens_the_view_and_no_sub_button_is_pressed(browser, page_file
 
 @pytest.mark.render
 def test_the_stats_sub_row_keeps_its_five_tabs_inside_the_phone(browser, page_file):
+    """Since 2026-10-05 a phone's tab row is pills that scroll sideways inside the row (chrome/phonenav.css):
+    the five are all there, and the page itself never scrolls sideways."""
     ctx, page, errors = open_at(browser, page_file, (360, 800), "#schedule")
     assert page.locator("#subnav .mode-sub").all_inner_texts() == ["Highlights", "Ranks", "Leaders", "Work vs points", "Usage"]
-    assert page.evaluate("Math.max(...[...document.querySelectorAll('#subnav .mode-sub')].map(b => b.getBoundingClientRect().right))") <= 360
+    assert page.evaluate("getComputedStyle(document.querySelector('#subnav .modes-sub')).overflowX") == "auto"
+    assert page.evaluate("document.documentElement.scrollWidth") <= 360
     ctx.close()
 
 

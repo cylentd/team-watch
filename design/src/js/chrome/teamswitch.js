@@ -61,10 +61,12 @@ const TS_CHEV = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4
 const TS_NEXT = `<svg class="ts-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const TS_BACK = `<svg class="ts-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 4L6 8l4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 /* `label` is the already-escaped words on the button: the team's name by default; the League chip says
-   "Pick your team" until the reader has (surface/league/switch.js). */
-function teamSwitchHTML(label){
+   "Pick your team" until the reader has (surface/league/switch.js). `cls` dresses it for where it sits:
+   Live's score head draws it as the reader's team name (surface/live/board.js, 2026-10-05). `id` is
+   "switch" in a view; the phone's header bar draws a second one as "hdrswitch" (nav.js paintHdrTeam). */
+function teamSwitchHTML(label, cls = "", id = "switch"){
   const cur = TEAMS[VIEW] || TEAMS.yahoo, name = label || esc(cur.name);
-  return `<div class="teamswitch" id="switch" style="--tint:${cur.tint}">
+  return `<div class="teamswitch${cls ? " " + cls : ""}" id="${id}" style="--tint:${cur.tint}">
     <button class="ts-btn" data-tsbtn aria-haspopup="listbox" aria-expanded="false" aria-label="${t("chrome.teamswitch.label", {team: name})}">
       <span class="ts-team">${name}</span>
       <span class="ts-chev">${TS_CHEV}</span>
@@ -76,10 +78,12 @@ function teamSwitchHTML(label){
    view draws this instead of a team: all 24 teams by league, no "none", since each view is about one
    team. It replaced a "Not your team? Pick yours" nudge under David's team name, which left every
    leaguemate on David's roster and his claim advice. The pick is kept in this browser (tw-team). */
+/* One team to pick: here, and in Live's "Whose game are you watching?" card (surface/live/mine.js). */
+const tpTeamHTML = k => `<li><button type="button" class="tp-team" data-pick="${esc(k)}"
+      style="--tint:${TEAMS[k].tint}">${esc(TEAMS[k].name)}</button></li>`;
 function pickHTML(){
   const group = lg => `<section class="tp-lg" aria-labelledby="tp-${lg}"><h2 id="tp-${lg}">${tsLeagueName(lg)}</h2>
-    <ul>${[lg, ...mateKeys(lg)].sort(tsByName).map(k => `<li><button type="button" class="tp-team" data-pick="${esc(k)}"
-      style="--tint:${TEAMS[k].tint}">${esc(TEAMS[k].name)}</button></li>`).join("")}</ul></section>`;
+    <ul>${[lg, ...mateKeys(lg)].sort(tsByName).map(tpTeamHTML).join("")}</ul></section>`;
   return `<div class="wrap tp"><h1>${t("chrome.pick.title")}</h1><p class="tp-sub">${t("chrome.pick.sub")}</p>
     <div class="tp-grid">${tsLeagues().map(group).join("")}</div>
     <button type="button" class="tp-add" data-tpadd>${t("chrome.pick.add")}</button></div>`;
@@ -106,21 +110,6 @@ function pickTeam(k){
   else { render(); paintSubnav(); }   // the Waivers count is per league, and a connected league has none
   if (changed) zipFootball();
 }
-/* Live's "Pick your team" (2026-10-04): My teams, where the picker takes the pick when nobody has
-   made one, else the team switch, opened at the league the reader asked about. */
-function tsPickFor(league){
-  navGo("roster");
-  const sw = document.getElementById("switch");
-  if (!sw) return;      // the picker is on screen instead: it lists every team
-  const btn = sw.querySelector("[data-tsbtn]"), menu = sw.querySelector("[data-tsmenu]");
-  TS_LEAGUE = TEAMS[league] && !TEAMS[league].mate ? league : null;
-  TS_ABOUT = false;
-  menu.innerHTML = tsMenuHTML();
-  menu.scrollTop = 0;
-  wireTsMenu(sw, menu);
-  menu.hidden = false;
-  btn.setAttribute("aria-expanded", "true");
-}
 /* A phone hides the bar's Discord link (760.css), and this menu is the one every reader opens.
    The address is read from the bar's link, so the invite lives in shell.html only. The item is
    drawn on every screen; a desktop simply has a second way in. */
@@ -129,8 +118,8 @@ function discordItemHTML(){
   if (!a) return "";
   return `<a class="ts-item ts-discord" href="${esc(a.href)}" target="_blank" rel="noopener noreferrer">${t("chrome.discord.join")}</a>`;
 }
-function wireTeamSwitch(v){
-  const sw = v.querySelector("#switch");
+function wireTeamSwitch(v, id = "switch"){
+  const sw = v.querySelector("#" + id);
   if (!sw) return;
   const btn = sw.querySelector("[data-tsbtn]"), menu = sw.querySelector("[data-tsmenu]");
   btn.addEventListener("click", e=>{

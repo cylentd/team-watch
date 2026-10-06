@@ -7,6 +7,7 @@
     "tests/test_js_harness.py",
     "tests/test_js_kick.py",
     "tests/test_js_nav.py",
+    "tests/test_js_tabrow.py",
     "tests/test_layer_ratchet.py",
     "tests/test_honest_tests.py",
     "tests/test_lint.py",
@@ -24,7 +25,7 @@
     },
     "digest": {
       "paths": ["design/src/js/surface/digest/", "design/src/css/surface/digest/", "design/src/js/data/digest.js", "design/digest.py"],
-      "tests": ["tests/test_digest.py", "tests/test_digest_live.py", "tests/test_digest_story.py", "tests/test_left_hurt.py"],
+      "tests": ["tests/test_digest.py", "tests/test_digest_live.py", "tests/test_digest_story.py", "tests/test_left_hurt.py", "tests/test_js_leadsplit.py"],
       "render": ["digest"]
     },
     "weather": {
@@ -63,7 +64,7 @@
       "tests": ["tests/test_gameday.py", "tests/test_gamesheet_v2.py", "tests/test_schedule.py", "tests/test_live_tds.py", "tests/test_live_tabs.py",
                 "tests/test_live_mine.py", "tests/test_live_swipe.py", "tests/test_live_tdclips.py", "tests/test_api_clips.py",
                 "tests/test_yt_channels.py", "tests/test_js_hurt.py", "tests/test_js_week.py", "tests/test_slate_week.py", "tests/test_js_gamesituation.py",
-                "tests/test_live_modal.py"],
+                "tests/test_live_modal.py", "tests/test_js_gdstrip.py"],
       "render": ["live"]
     },
     "matchups": {

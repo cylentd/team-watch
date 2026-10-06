@@ -236,16 +236,18 @@ def names(page):
 
 @pytest.mark.render
 def test_teams_opens_on_the_readers_league_and_the_one_chip_moves_it(browser, page_file):
-    """One chip since 2026-10-05: the team switch. It named the league beside it; a team picked in it is the league."""
+    """One chip since 2026-10-05: the team switch. It named the league beside it; a team picked in it is the league.
+    On a phone the switch is the header bar's (#hdrswitch) and the chip keeps the league's name."""
     ctx, page, errors = phone(browser, page_file, pick="espn")
     assert page.locator(".lgchip-lg").inner_text().lower() == "espn"
     assert page.locator(".lg-switch, [data-lgpick]").count() == 0, "no league chips of their own"
     assert page.locator(".navitem[data-s='league']").count() == 1
     assert page.locator(".mode-sub[aria-pressed='true']").inner_text().lower() == "teams"
     assert names(page) == ["Purdy Big in Japan", "Run It Back"]
-    page.locator(".lgchip [data-tsbtn]").click()
-    page.locator(".lgchip [data-tsleague='ayo']").click()
-    page.locator(".lgchip .ts-item[data-k='ayo']").click()
+    assert page.locator(".lgchip .teamswitch").is_hidden()
+    page.locator("#hdrswitch [data-tsbtn]").click()
+    page.locator("#hdrswitch [data-tsleague='ayo']").click()
+    page.locator("#hdrswitch .ts-item[data-k='ayo']").click()
     assert page.locator(".lgchip-lg").inner_text().lower() == "ayo"
     assert names(page) == ["Taylor Made for Sundays", "Don Wick"]
     ctx.close()

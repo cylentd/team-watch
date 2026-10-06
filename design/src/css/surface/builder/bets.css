@@ -31,6 +31,12 @@
   .bets-bar.filters{gap:6px}
   .bets-bar.filters .chip:not(.bets-set){padding-left:9px;padding-right:9px}
 }
+/* On a phone the kickoff tabs are in the tab row (2026-10-05, chrome/phonenav.css): this row keeps only the
+   book chip, so it gives up the rule the tabs stood on and sits closer under the row. */
+@media (max-width:760px){
+  .bets-tabsrow{margin-top:8px;border-bottom:0}
+  .bets-tabsrow .bets-set{margin-bottom:0}
+}
 
 /* ---- the settings panel: book, kickoff, and Build's own three ---- */
 .bets-panel{margin-top:10px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);

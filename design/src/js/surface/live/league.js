@@ -1,65 +1,43 @@
 /* ============================== LIVE: THE LEAGUE ==============================
-   Which league is on screen, every game in it as its state over one row of two teams and their
-   scores (tap it to see both lineups in the Matchup tab), and every team's total against the
-   week's median. Only a league
-   that pays the top half a second win (ESPN's WIN_BONUS_TOP_HALF) draws the line in lime; in the
-   others the ranking is for bragging and the line is grey. */
+   My league's two league-wide parts (2026-10-05, storyboard
+   https://claude.ai/artifact/ArF53Lvh12QV8fbL3mr9KP, option 2A): the strip of the league's matchups on
+   top, and the ranking below the lineups.
 
-function gdLeaguesHTML(lg){
-  if (GD.leagues.length < 2) return "";
-  return `<div class="gd-leagues" role="group" aria-label="${t("live.leagues")}">${GD.leagues.map(l =>
-    `<button type="button" data-gdleague="${esc(l.key)}" aria-pressed="${l.key === lg.key}">${esc(l.name)}</button>`).join("")}</div>`;
-}
-
-/* A sideways swipe on Matchup or League walks the leagues, the chips above it in step (2026-10-04,
-   lib/swipe.js): the reader's own team in each, one swipe apart. It stops at either end. Games and
-   TDs draw no chips, so there it does nothing. */
-const GD_SWIPED = new WeakSet();   /* boards already listening: a paint keeps the board, a render() replaces it */
-function gdStepLeague(step){
-  const tab = gdTab(), lg = gdLeague();
-  if (SURFACE !== "live" || (tab !== "matchup" && tab !== "league") || !lg) return;
-  const next = GD.leagues[GD.leagues.indexOf(lg) + step];
-  if (!next) return;
-  gdSetLeague(next.key); paintLive();   // paintLive drops the last slide, so a poll never replays it
-  const board = document.querySelector("[data-gdboard]");
-  if (board && !REDUCED()){ void board.offsetWidth; board.classList.add(step > 0 ? "turn-r" : "turn-l"); }
-}
-/* Bound on the board, never on #view (render() passes that to wireLive), which outlives Live. */
-function gdWireSwipe(host){
-  const board = host.matches("[data-gdboard]") ? host : host.querySelector("[data-gdboard]");
-  if (board && !GD_SWIPED.has(board)){ GD_SWIPED.add(board); onSwipeX(board, gdStepLeague); }
-}
+   The league is the reader's team's (live.js gdLeague); the league chips and the sideways swipe between
+   leagues went the same day. To switch leagues the reader switches teams: their name on the score head
+   is the team switch (board.js). */
 
 const GD_LOCK =`<svg viewBox="0 0 12 12" aria-hidden="true"><rect x="2.5" y="5.5" width="7" height="5" rx="1"/><path d="M4 5.5V4a2 2 0 0 1 4 0v1.5"/></svg>`;
-const GD_CUP = `<svg class="gd-cup" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 2.5h6v3.5a3 3 0 0 1-6 0z"/><path d="M5 3.5H3a2 2 0 0 0 2 3M11 3.5h2a2 2 0 0 1-2 3M8 9v2.5M5.5 13.5h5"/></svg>`;
 
-/* A game's state, on the line above its two boxes so it can only belong to them: LIVE and how
-   many are left while anyone plays (lime), how many are left before kickoff, or a lock and FINAL
-   once every starter on both sides is done. Every game has one, so every game has the same shape. */
-function gdGameState(a, b){
-  const playing = a.playing + b.playing, left = playing + a.left + b.left;
-  if (playing) return `<small class="gd-gs live">${t("live.state.live", {n: left})}</small>`;
-  if (left) return `<small class="gd-gs">${t("live.state.left", {n: left})}</small>`;
-  return `<small class="gd-gs">${GD_LOCK}${t("live.state.final")}</small>`;
+/* One chip per matchup: its state word on top (LIVE in lime, how many are left, FINAL), then each team's
+   short name and score, the side behind grey. The reader's team leads its own chip, and the chip wears
+   a lime ring; the game on screen is the raised one. A tap shows that game in the score head and the
+   lineups under the strip (live.js wireLive); `data-gdgame` keeps the league's [away, home] order. */
+function gdChipHTML(g, sides, on, mine){
+  let [a, b] = [sides[g[0]], sides[g[1]]];
+  if (b.id === mine) [a, b] = [b, a];
+  const st = gdChipState(a, b), picked = gdSameGame(g, on);
+  const word = st.k === "live" ? t("live.chip.live") : st.k === "left" ? t("live.state.left", {n: st.n}) : t("live.state.final");
+  const row = (s, o) => `<span class="gd-cr${s.total < o.total ? " behind" : ""}"><span>${esc(gdShortName(s.name))}</span><b>${gdNum(s.total)}</b></span>`;
+  const label = t("live.chip.label", {a: esc(a.name), pa: gdNum(a.total), b: esc(b.name), pb: gdNum(b.total)});
+  return `<button type="button" class="gd-chip${picked ? " on" : ""}${a.id === mine ? " mine" : ""}" data-gdgame="${esc(g.join(","))}"
+    aria-pressed="${picked}" aria-label="${label}"><small class="gd-cs ${st.k}">${st.k === "final" ? GD_LOCK : ""}${word}</small>${row(a, b)}${row(b, a)}</button>`;
 }
 
-/* One compact row per game (2026-10-04): both team names and live scores, the leader bright, the
-   side behind grey; a finished game's winner gets the trophy, which also says the game is over.
-   A tap opens it in the Matchup tab (live.js wireLive). Who is top or bottom half is the ranking
-   card's job, right below. */
-function gdGamesHTML(lg, sides, on){
-  const mine = gdMine(lg);
-  const half = (s, o, cls, final) => `<span class="gd-gn ${cls}${s.total < o.total ? " behind" : ""}"><span>${esc(s.name)}</span>${final && s.total > o.total ? GD_CUP : ""}</span>
-      <b class="gd-gp ${cls}${s.total < o.total ? " behind" : ""}">${gdNum(s.total)}</b>`;
-  const rows = lg.games.map(g => {
-    const a = sides[g[0]], b = sides[g[1]], picked = on && on[0] === g[0] && on[1] === g[1];
-    const final = !(a.playing + b.playing + a.left + b.left);
-    return `<button type="button" class="gd-g${picked ? " on" : ""}${mine && g.includes(mine) ? " mine" : ""}" data-gdgame="${esc(g.join(","))}"
-      aria-pressed="${!!picked}">${gdGameState(a, b)}${half(a, b, "a", final)}${half(b, a, "b", final)}</button>`;
-  }).join("");
-  return `<section class="gd-games gd-card"><h3>${t("live.games", {week: lg.week})}</h3>${rows}</section>`;
+/* The strip (data/gameday/strip.js gdStripOrder): the reader's game first, then the league's order. A
+   team with no game this week leads with the closest game: by the scores once anyone has played, by
+   where each side should finish before that. A playoff week with fewer matchups draws fewer chips. */
+function gdStripHTML(lg, sides, on, mine){
+  const all = Object.values(sides), started = all.some(s => s.done + s.playing);
+  const pts = Object.fromEntries(all.map(s => [s.id, started ? s.total : gdProj(s, projFor)]));
+  const chips = gdStripOrder(lg.games, pts, mine).map(g => gdChipHTML(g, sides, on, mine)).join("");
+  return chips ? `<div class="gd-strip" role="group" aria-label="${t("live.games", {week: lg.week})}">${chips}</div>` : "";
 }
 
+/* Every team's total against the week's median, below the lineups. Kept when the tabs merged: the strip
+   says who leads each game, this says who is in the top half, which in a league that pays the top half a
+   second win (ESPN's WIN_BONUS_TOP_HALF) is the other game the reader is playing. Only that league draws
+   the line in lime; elsewhere the ranking is for bragging and the line is grey. */
 function gdLadderHTML(lg, sides){
   const {median, rows} = gdLadder(Object.values(sides));
   const cut = rows.findIndex(r => !r.top), mine = gdMine(lg);

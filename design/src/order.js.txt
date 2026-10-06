@@ -24,6 +24,8 @@ data/waiver.js
 data/wire.js
 data/navmap.js
 data/navrow.js
+# pin: data/tabrow.js before every surface file: Live, Recap and Slips call navModes() at load.
+data/tabrow.js
 data/teamcolors.js
 data/schedule.js
 lib/escape.js
@@ -123,6 +125,7 @@ surface/preview/research.js
 surface/preview/handoff.js
 surface/preview/preview.js
 data/digest.js
+data/leadsplit.js
 data/gameday/score.js
 data/gameday/espn.js
 data/gameday/situation.js
@@ -131,6 +134,7 @@ data/gameday/clock.js
 data/gameday/hurt.js
 data/gameday/tdclips.js
 data/gameday/tdcmatch.js
+data/gameday/strip.js
 surface/digest/icons.js
 surface/digest/tabs.js
 surface/digest/lead.js

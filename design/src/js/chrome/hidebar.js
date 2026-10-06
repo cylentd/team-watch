@@ -1,7 +1,8 @@
-/* The phone nav slides up while the reader scrolls down a list and comes back on the first scroll
-   up. The page body owns one class; responsive/760.css decides what it moves, so on a desktop the
-   class is set and nothing happens. The threshold keeps a finger's jitter from flickering the bar,
-   and the top 120px never hides it: the reader has not left the header yet. */
+/* The phone's header bar (the team switch and Ask) slides up while the reader scrolls down a list and
+   comes back on the first scroll up; the tab row under it sticks to the top edge meanwhile, and the
+   bottom tab bar never moves (2026-10-05). The page body owns one class; chrome/phonenav.css decides
+   what it moves, so on a desktop the class is set and nothing happens. The threshold keeps a finger's
+   jitter from flickering the bar, and the top 120px never hides it: the reader has not left the header yet. */
 const HIDEBAR_JITTER = 6;
 const HIDEBAR_TOP = 120;
 

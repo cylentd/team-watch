@@ -6,8 +6,9 @@
    never through render(), so the banner and the bar hold still. DESIGN.md "Recap (This week)". */
 
 /* The bar is Live's own segmented control (.gd-tabs, surface/live/live.css, fenced to this view too);
-   recap.css sets it to three columns. */
-const wrTabsHTML = (open, on) => `<div class="gd-tabs" role="group" aria-label="${t("weekrecap.tabs.label")}">${open.map(k =>
+   recap.css sets it to three columns. A phone draws the same tabs as the Recap pill's segments in the tab
+   row (2026-10-05, data/tabrow.js, declared at the end of this file) and hides this bar (.view-tabs). */
+const wrTabsHTML = (open, on) => `<div class="gd-tabs view-tabs" role="group" aria-label="${t("weekrecap.tabs.label")}">${open.map(k =>
   `<button type="button" data-wrtab="${k}" aria-pressed="${k === on}">${wrTabName(k)}</button>`).join("")}</div>`;
 
 const wrBodyHTML = (d, tab) => tab === "players" ? wrPlayersHTML(d) : tab === "scores" ? wrScoresHTML(d)
@@ -63,3 +64,6 @@ function wireWeekRecap(v){
   v.querySelector(".wr-go")?.addEventListener("click", e => wrOpenPlayer(e.currentTarget.dataset.wrslug, e.currentTarget));
   wrWireBody(v);
 }
+
+navModes("weekrecap", () => ({ids: wrAvail(wrD()), cur: wrTab(wrD()), attr: "wrtab", name: t("weekrecap.tabs.label"), label: wrTabName,
+  select: k => { const v = document.getElementById("view"); wrSetTab(k); if (v.querySelector("[data-wrbody]")) wrPaint(v); }}));

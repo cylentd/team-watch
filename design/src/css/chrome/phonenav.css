@@ -1,0 +1,97 @@
+/* ============================== THE PHONE'S CHROME ==============================
+   2026-10-05 (game-day flow wave 2, storyboard https://claude.ai/artifact/ArF53Lvh12QV8fbL3mr9KP,
+   David: 1B "Groups to a bottom tab bar" and a header bar "like Yahoo and Sleeper"). Top to bottom:
+     a header bar   the reader's team as the team switch, Ask on the right; slides away on a scroll
+                    down and comes back on a scroll up (js/chrome/hidebar.js)
+     one tab row    the group's views as pills; the open one opens in place into its view's own tabs
+                    (data/tabrow.js), so that view draws no bar of its own here (.view-tabs)
+     the bottom bar Week, League, Stats, Bets, Search: an icon over a word, the group open in lime
+   History: the groups sat on the bottom edge until 2026-09-24, then at the top, because Parlay's and
+   DFS's switchers docked above the bar made the bottom 114px of every screen controls. Those
+   switchers live at the top of their views now, so the bar came back where one thumb reaches it.
+   A desktop keeps its one bar of words (chrome/nav.css): the wrapper below is display:contents. */
+.hdrteam{display:none}
+.tabbar{display:contents}
+/* What sits on the bottom edge rises by this much: nothing on a desktop, the bar on a phone. */
+:root{--dock-b:0px}
+
+@media (max-width:760px){
+  :root{
+    --hdr-h:52px;     /* the header bar, under the status bar's inset */
+    --bar-h:64px;     /* the bottom bar, over the home indicator's inset */
+    --hdr-top:calc(var(--hdr-h) + env(safe-area-inset-top, 0px));
+    --dock-b:calc(var(--bar-h) + env(safe-area-inset-bottom, 0px));
+  }
+  body{padding-bottom:var(--dock-b)}
+
+  /* ---- the header bar ---- */
+  .navbar{position:sticky;top:0;padding-top:env(safe-area-inset-top, 0px);background:var(--void);
+    border-bottom:0;box-shadow:none;transition:top .28s var(--ease)}
+  .navbar .navrow{height:var(--hdr-h);padding:0 4px 0 14px;gap:8px}   /* over responsive/760.css .wrap */
+  /* No brand on a phone (2026-09-24): an app's name does not sit beside its own tabs. Discord is in the
+     team switch's menu (teamswitch.js); the status badge only repeated what the view's rows show. */
+  .navbar .brand,.discordlink,#topbadge{display:none}
+  .hdrteam{display:flex;flex:1 1 auto;min-width:0;align-self:stretch;align-items:center}
+  .hdrteam .teamswitch{padding:0;min-width:0;max-width:100%}
+  .hdrteam .ts-btn{min-width:0;max-width:100%;min-height:44px;padding:0 4px 0 0;gap:8px;background:none;border:0}
+  .hdrteam .ts-team{min-width:0;overflow:hidden;text-overflow:ellipsis;font-family:var(--disp);font-size:var(--t-4);font-weight:700;color:var(--ink)}
+  .hdrteam .ts-pick .ts-team{color:var(--lime)}
+  .hdrteam .ts-menu{left:0;right:auto;top:calc(100% + 4px);width:calc(100vw - 28px)}
+  /* League's chip (surface/league/switch.js) and the Roster and Waivers hero (chrome/hero.js) drew the same
+     switch right under the header: the header's is the one on a phone. The chip keeps the league's name,
+     the hero its record and league. Live's score head shows the plain name on a phone (live.css). */
+  .lgchip .teamswitch,.hero .teamswitch{display:none}
+  .navrow .chatfab{flex:none;height:44px;margin-left:auto}
+  .chatfab .ix{display:inline-flex}
+  body.hdr-away .navbar{top:calc(-1 * var(--hdr-top))}
+
+  /* ---- the tab row: pills, scrolled sideways, the pressed one kept in view (nav.js) ---- */
+  .subnav{position:sticky;top:var(--hdr-top);z-index:38;transition:top .28s var(--ease)}
+  body.hdr-away .subnav{top:0}
+  .subnav .subnav-in{padding:0}   /* the scroller carries the gutter, so a pill scrolls to the screen's edge */
+  .subnav .modes-sub,.subnav .modes-sub.dense{flex:1 1 auto;min-width:0;display:flex;flex-wrap:nowrap;align-items:center;gap:8px;
+    margin:0!important;padding:4px 14px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none}
+  .subnav .modes-sub::-webkit-scrollbar{display:none}
+  .subnav .mode-sub{flex:none;min-height:40px;padding:0 14px;border:1px solid var(--line-2);border-radius:99px;
+    font-family:var(--ui);font-size:var(--t-3);font-weight:600;color:var(--ink-2);background:none;box-shadow:none}
+  .subnav .mode-sub[aria-pressed="true"]{background:var(--lime);border-color:var(--lime);color:var(--on-lime);box-shadow:none}
+  .subnav .mode-sub[aria-pressed="true"] .tabcount{color:var(--on-lime)}
+  /* The open pill, opened into its view's tabs: its name in lime, then one segment per tab. */
+  .tr-x{flex:none;display:flex;align-items:center;gap:2px;padding:0;border:1px solid var(--lime);border-radius:99px}
+  .subnav .tr-x .mode-sub{min-height:40px;padding:0 6px 0 13px;border:0;background:none;color:var(--lime);font-weight:700}
+  .tr-seg{appearance:none;cursor:pointer;flex:none;display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px;
+    border:0;border-radius:99px;background:none;color:var(--ink-2);font-family:var(--ui);font-size:var(--t-3);font-weight:600;white-space:nowrap;
+    transition:background .2s var(--ease),color .2s var(--ease)}
+  .tr-seg[aria-pressed="true"]{background:var(--lime);color:var(--on-lime)}
+  .tr-seg:active{transform:scale(var(--press))}
+  .tr-n{font-style:normal;font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--lime)}
+  .tr-seg[aria-pressed="true"] .tr-n{color:var(--on-lime)}
+  /* A view's own tab bar: the row above already holds its tabs. */
+  #view .view-tabs{display:none}
+
+  /* ---- the bottom tab bar ---- */
+  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:stretch;
+    height:var(--dock-b);padding:0 4px env(safe-area-inset-bottom, 0px);background:var(--void);border-top:1px solid var(--line)}
+  .tabbar .nav{display:contents}
+  .tabbar .navitem{flex:1 1 0;min-width:0;height:var(--bar-h);margin:0;padding:0;flex-direction:column;justify-content:center;align-items:center;gap:4px;
+    border:0;border-radius:0;background:none;font-family:var(--ui);font-size:var(--t-1);font-weight:600;letter-spacing:0;text-transform:none;color:var(--ink-3)}
+  .tabbar .navitem:hover{background:none;color:var(--ink-2)}
+  .tabbar .navitem .ix{display:inline-flex;width:24px;height:24px}
+  .tabbar .navitem .ix svg{width:100%;height:100%}
+  .tabbar .navitem .full,.tabbar .navkbd{display:none}
+  .tabbar .navitem .abbr{display:block;line-height:1}
+  .tabbar .navitem[aria-current="true"]{color:var(--lime)}
+  .tabbar .navitem[aria-current="true"]::after{display:none}
+
+  /* ---- what sits on the bottom edge rises above the bar ---- */
+  /* The week pill shows for one reason only, a newer build on main: then it is the reload control
+     (fresh.js), floating just over the bar. */
+  .statuswrap{display:none}
+  .statuswrap:has(.status-btn.stale){display:block;position:fixed;left:50%;bottom:calc(var(--dock-b) + 12px);
+    transform:translateX(-50%);z-index:45;margin:0}
+  .statuswrap .status-btn.stale{background:var(--panel-2);padding:9px 14px;border-radius:99px;
+    box-shadow:0 8px 24px rgb(var(--shadow-rgb) / .5)}
+  .statuswrap .status-menu{top:auto;bottom:calc(100% + 6px)}
+  /* The slip tray (builder/bets.css) and the trade builder's edit footer (lboard/tbedit.css). */
+  .tray,.tb-edfoot{bottom:calc(12px + var(--dock-b))}
+}

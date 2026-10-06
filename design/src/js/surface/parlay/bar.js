@@ -24,7 +24,7 @@ function betsBarHTML(build){
     ${set}</div>`;
   const on = slWin();
   return `<div class="bets-bar bets-tabsrow">
-    <div class="bd-tabs" role="tablist" aria-label="${t("parlay.filter.kickoff")}">${KICK_CHIPS.map(w =>
+    <div class="bd-tabs view-tabs" role="tablist" aria-label="${t("parlay.filter.kickoff")}">${KICK_CHIPS.map(w =>
       `<button type="button" class="bd-tab" role="tab" data-gwin="${esc(w.k)}" aria-selected="${on === w}"
         aria-label="${esc(galGroupName(w))}">${esc(kickChipLabel(w))}</button>`).join("")}</div>
     ${set}</div>`;
@@ -39,6 +39,13 @@ const kickDay = w => new Date(`${w.date}T12:00:00`).toLocaleDateString("en-US", 
 const kickPart = kickWinPart;   // Preview's Eastern slot words, not a Pacific AM/PM (data/kickwin.js)
 const kickInDay = w => !w.wins && DAYS.some(d => d.wins.includes(w.k) && GAL_WINDOWS.includes(d));
 function kickChipLabel(w){ return kickInDay(w) ? kickPart(w) : kickDay(w); }
+
+/* On a phone the kickoffs are the Slips pill's segments in the tab row (2026-10-05, data/tabrow.js), and
+   the row above keeps only the book chip (.view-tabs hides these tabs there, chrome/phonenav.css). The
+   page holds its place, as a tap on the tabs here does (flight.js wireBets). */
+navModes("parlay", () => ({ids: KICK_CHIPS.map(w => w.k), cur: (slWin() || {}).k, attr: "gwin", name: t("parlay.filter.kickoff"),
+  label: k => esc(kickChipLabel(KICK_CHIPS.find(w => w.k === k))),
+  select: k => { GAL_WIN = k; MKT_PAGE = 1; const y = window.scrollY; render(); window.scrollTo(0, y); }}));
 /* The same kickoff named on its own, off the tab row: "Sun Early", "All Sun", "Thu". */
 function kickName(w){
   if (w.wins) return t("parlay.kick.day", {day: kickDay(w)});

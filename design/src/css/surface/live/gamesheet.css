@@ -42,12 +42,14 @@ body:has(.gamesheet.on){overflow:hidden}
   color:var(--ink-3);cursor:pointer;border-radius:10px}
 .gs-x svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
 .gs-x:focus-visible{outline:2px solid var(--lime)}
-/* The game on each side, in swipe order (gamecards.js gsStepsHTML): left the one before, right the
-   one after, each with where it stands. Quiet, so the score stays the headline. */
-.gs-steps{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:none;margin-top:-4px}
+/* The game on each side, in swipe order (gamecards.js gsFootHTML): left the one before, right the
+   one after, each with where it stands. Quiet, so the score stays the headline. The Close between
+   them shows on a phone only (below), where the bar is pinned to the bottom of the sheet. */
+.gs-foot{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:none;margin-top:-4px}
+.gs-foot.solo,.gs-close{display:none}
 .gs-step{appearance:none;border:0;background:none;min-height:40px;padding:4px 0;display:flex;align-items:center;gap:6px;
   color:var(--ink-3);cursor:pointer;border-radius:8px;text-align:left;min-width:0}
-.gs-step.next{grid-column:2;flex-direction:row-reverse;text-align:right}
+.gs-step.next{flex-direction:row-reverse;text-align:right}
 .gs-step b{font:700 var(--t-5)/1 var(--mono);color:var(--ink-2)}
 .gs-step span{display:grid;min-width:0;font:700 var(--t-2)/1.2 var(--mono);letter-spacing:.02em;white-space:nowrap}
 .gs-step small{font:500 var(--t-1)/1.2 var(--ui);letter-spacing:0;overflow:hidden;text-overflow:ellipsis}
@@ -162,6 +164,24 @@ body:has(.gamesheet.on){overflow:hidden}
 .gs-tbl td .gs-star{width:36px;height:36px;margin:-8px 0 -8px -8px;vertical-align:middle}
 .gs-tbl tr:last-child td{border-bottom:0}
 .gs-tbl tr.mine td:first-child{font-weight:700}
+
+/* The phone, to 760px: previous game, Close, next game as one bar pinned to the bottom of the sheet (the
+   body above it scrolls, the bar does not), three 48px buttons within the thumb's reach. Close is the
+   primary. The X stays at the top (STYLE.md "Overlays"). Padding-bottom keeps it off the sheet's edge;
+   the sheet itself already clears the home bar (its inset is the safe area). */
+@media (max-width:760px){
+  .gamesheet{padding-bottom:10px}
+  .gs-foot,.gs-foot.solo{display:grid;order:3;grid-template-columns:minmax(0,1fr) 80px minmax(0,1fr);gap:6px;margin:0;
+    padding-top:8px;border-top:1px solid var(--line)}
+  .gs-step,.gs-close{min-height:48px;border-radius:12px;padding:0 8px}
+  .gs-step{background:var(--panel-2);gap:4px}
+  .gs-step span{font-size:var(--t-1);letter-spacing:0}
+  .gs-step b{font-size:var(--t-4)}
+  .gs-close{appearance:none;border:0;display:grid;place-items:center;background:var(--lime);color:var(--on-lime);cursor:pointer;
+    font:700 var(--t-3)/1 var(--ui)}
+  .gs-close:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .gs-foot > span{display:block}
+}
 
 /* From 960px: still centred, wider, the plays tall on the left; scoreboard, yours, tabs and the box or top scorers on the right. */
 @media (min-width:960px){

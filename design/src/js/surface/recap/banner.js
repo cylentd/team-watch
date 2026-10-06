@@ -14,14 +14,19 @@ function wrBannerHTML(d){
   const r = d.top;
   if (!r) return "";
   const team = wrClubColour(r.team), photo = dgPhotoHTML(r.slug);
-  const head = r.line ? dgCall(r, d.week) : t("weekrecap.banner.bare", {name: esc(dgSurname(r.n))});
-  const fact = r.line ? `<span class="dg-lead-pills">${dgBoxPills(r)}</span>` : "";
+  /* Claude's own story about the week replaces the template when it is about this week's top scorer
+     (data/leadsplit.js): the Digest then does not say it (2026-10-05, "they should never be the same
+     content"). Its words are number-checked upstream and drawn escaped, as the Digest drew them. */
+  const dig = typeof LIVE_DIGEST !== "undefined" ? LIVE_DIGEST : null;
+  const story = lspRecapStory(dgStoryFresh(dig), dig && dig.week, d);
+  const head = story ? esc(story.head) : r.line ? dgCall(r, d.week) : t("weekrecap.banner.bare", {name: esc(dgSurname(r.n))});
+  const fact = story ? esc(story.fact) : r.line ? `<span class="dg-lead-pills">${dgBoxPills(r)}</span>` : "";
   const kicker = d.complete ? t("weekrecap.banner.k", {week: d.week}) : t("weekrecap.banner.kSoFar", {week: d.week});
   const go = r.slug ? `<button type="button" class="wr-go" data-wrslug="${esc(r.slug)}"
     aria-label="${esc(t("weekrecap.banner.open", {n: r.n}))}"></button>` : "";
   return `<article class="dg-lead wr-lead go${team ? " team" : ""}${photo ? " has-photo" : ""}"${team ? " " + teamColourStyle(team) : ""}>
     ${go}${team ? `<span class="wr-ghost" aria-hidden="true">${dgGhostChars(esc(team))}</span>` : ""}
-    <div class="dg-lead-txt"><p class="wr-when">${kicker}</p><h2 class="dg-lead-h">${head}</h2>
+    <div class="dg-lead-txt"><p class="wr-when">${kicker}</p><h2 class="dg-lead-h${story ? " long" : ""}">${head}</h2>
       <div class="dg-lead-fact">${fact}</div></div>
     ${photo}
   </article>`;

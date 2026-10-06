@@ -1,7 +1,7 @@
 /* ============================== LIVE: THE MATCHUP ==============================
    One game of the league on screen: both scores, the league median under them, then both lineups
-   mirrored slot by slot (mirror.js). The tabs above it (tabs.js) pick this or the Games, TDs and
-   League views; this file draws the Matchup one and assembles the page. */
+   mirrored slot by slot (mirror.js). The tabs above it (tabs.js) pick My league, NFL or TDs; this
+   file draws My league around the strip and the ranking (league.js) and assembles the page. */
 
 const gdNum = v => (Math.round(v * 10) / 10).toFixed(1);
 const gdSigned = v => (v >= 0 ? "+" : "−") + gdNum(Math.abs(v));
@@ -43,10 +43,16 @@ function gdLeadHTML(a, b, mine){
   return gap > 0 ? `<span class="gd-lead up">${t("live.lead.up", {n})}</span>` : `<span class="gd-lead dn">${t("live.lead.down", {n})}</span>`;
 }
 
+/* The reader's own name on the score head is the team switch (2026-10-05): a tap opens it, a pick
+   there changes the league and keeps the reader on Live. Anyone else's name is just a name. A phone's
+   header bar already holds the switch, so there the head shows the plain name (`.gd-me`, live.css). */
+const gdNameOn = (s, mine) => s.id === mine ? `<span class="gd-me">${esc(s.name)}</span>${teamSwitchHTML(esc(s.name), "gd-sw")}`
+  : `<span>${esc(s.name)}</span>`;
+
 function gdHeadHTML(a, b, lg){
   const lead = a.total > b.total ? a : b.total > a.total ? b : null, mine = gdMine(lg);
   const side = (s, cls) => `<div class="gd-side ${cls}${mine && s.id === mine ? " mine" : ""}${s === lead ? " lead" : ""}">
-      <span>${esc(s.name)}</span><b>${gdNum(s.total)}</b>
+      ${gdNameOn(s, mine)}<b>${gdNum(s.total)}</b>
       <small>${t("live.projFinish", {n: gdNum(gdProj(s, projFor))})} · ${gdCounts(s)}</small></div>`;
   return `<div class="gd-head">${side(a, "a")}${gdLeadHTML(a, b, !!mine && a.id === mine)}${side(b, "b")}</div>`;
 }
@@ -61,9 +67,9 @@ function gdMedianHTML(lg, sides){
   return `<p class="gd-medline${me ? (me.total < median ? " dn" : " up") : ""}">${t("live.med.line", {n: gdNum(median)})}${you}</p>`;
 }
 
-/* One line above the score while the reader has no team in this league: it opens My teams, where
-   they pick (teamswitch.js tsPickFor). Never a nag: it is a line, not a sheet. */
-const gdPickHTML = lg => `<button type="button" class="gd-pick" data-gdpick="${esc(lg.key)}">${t("live.pick")}</button>`;
+/* The score head when the reader's team has no game this week (a bye, out of the fantasy playoffs,
+   week 18): their name, still the team switch, and that one fact, never an empty matchup. */
+const gdByeHTML = s => `<div class="gd-head bye"><div class="gd-side a mine">${gdNameOn(s, s.id)}<small>${t("live.bye")}</small></div></div>`;
 
 function gdStampHTML(){
   const now = Date.now();
@@ -77,19 +83,20 @@ function gdStampHTML(){
     : t("live.stamp.next", {at: esc(at), when: esc(gdClock(next))})}</p>`;
 }
 
-/* The Matchup tab: the game on screen (the reader's unless another was tapped in the League tab; the
-   league's first when they have no team in it), its score and the median under it, then the mirrored
-   lineups, the reader's on the left. */
-function gdMatchupHTML(lg, sides){
-  const game = gdGame(lg), mine = gdMine(lg);
+/* My league (2026-10-05, Matchup and League merged): the strip of the league's matchups, then the game
+   on screen (the reader's unless another chip was tapped), its score and the median under it, the
+   mirrored lineups with the reader's on the left, and the ranking. With no team of theirs in any league
+   here, the card that asks whose game it is (mine.js). */
+function gdMyLeagueHTML(lg, sides){
+  const mine = gdMine(lg);
+  if (!mine) return gdWhoHTML();
+  const game = gdGame(lg);
   let [a, b] = game ? [sides[game[0]], sides[game[1]]] : [];
-  if (b && mine && b.id === mine) [a, b] = [b, a];
-  if (!(a && b)) return "";
-  return `<div class="gd-match">${mine ? "" : gdPickHTML(lg)}${gdHeadHTML(a, b, lg)}${gdMedianHTML(lg, sides)}${gdMirrorHTML(a, b, lg)}</div>`;
+  if (b && b.id === mine) [a, b] = [b, a];
+  const match = a && b ? gdHeadHTML(a, b, lg) + gdMedianHTML(lg, sides) + gdMirrorHTML(a, b, lg)
+    : gdByeHTML(sides[mine]) + gdMedianHTML(lg, sides);
+  return `<div class="gd-match">${gdStripHTML(lg, sides, game, mine)}${match}</div>${gdLadderHTML(lg, sides)}`;
 }
-
-/* The League tab: every matchup as one row, then the ranking. */
-const gdLeagueTabHTML = (lg, sides) => `<div class="gd-league">${gdGamesHTML(lg, sides, gdGame(lg))}${gdLadderHTML(lg, sides)}</div>`;
 
 /* The TDs tab is another file's (surface/live/tds.js); this one only hosts it. */
 const gdTdsTabHTML = lg => typeof gdTdsHTML === "function" ? gdTdsHTML(lg)
@@ -101,9 +108,6 @@ function gdBoardHTML(){
   const stats = GD_STATS && GD_STATS.stats, states = (GD_STATS && GD_STATS.games) || {};
   const sides = Object.fromEntries(Object.keys(lg.teams).map(id => [id, gdSide(lg, id, stats, states)]));
   const tab = gdTab();
-  const body = tab === "games" ? gdGamesTabHTML(lg) : tab === "tds" ? gdTdsTabHTML(lg)
-    : tab === "league" ? gdLeagueTabHTML(lg, sides) : gdMatchupHTML(lg, sides);
-  /* The league chips pick a Yahoo or ESPN league: Games and TDs are NFL-wide, so they draw none. */
-  const chips = tab === "matchup" || tab === "league" ? gdLeaguesHTML(lg) : "";
-  return gdTabsHTML() + chips + body + gdStampHTML();
+  const body = tab === "games" ? gdGamesTabHTML(lg) : tab === "tds" ? gdTdsTabHTML(lg) : gdMyLeagueHTML(lg, sides);
+  return gdTabsHTML() + body + gdStampHTML();
 }

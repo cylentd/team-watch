@@ -72,23 +72,67 @@ function navCount(leaf){
   return ` <span class="tabcount">${waiverIn(VIEW).filter(([r]) => waiverTier(r, VIEW) !== "stash").length}</span>`;
 }
 
-/* A group with one leaf gets no row: a sub-nav of one is a label pretending to be a choice. */
+/* The phone layout (2026-10-05, chrome/phonenav.css): a header bar, one tab row, a bottom tab bar. */
+const NAV_PHONE = matchMedia("(max-width:760px)");
+
+/* The open pill opened in place into its view's own tabs (data/tabrow.js); a view declares them with
+   navModes. Each segment carries the view's own attribute too (data-gdtab on Live's), so a selector
+   for the view's tab finds the one on screen. */
+function navPillHTML(p, m){
+  const btn = `<button class="mode-sub" data-leaf="${p.leaf}" aria-pressed="${p.on}">${navLabel(p.leaf)}${navCount(p.leaf)}</button>`;
+  if (!p.segs) return btn;
+  const seg = s => { const c = m.count && m.count(s.id);
+    return `<button type="button" class="tr-seg" data-tseg="${esc(s.id)}" data-${m.attr}="${esc(s.id)}" aria-pressed="${s.on}">${
+      m.label(s.id)}${c ? `<em class="tr-n" aria-label="${esc(c.label)}">${c.n}</em>` : ""}</button>`; };
+  return `<span class="tr-x" role="group" aria-label="${esc(m.name)}">${btn}${p.segs.map(seg).join("")}</span>`;
+}
+
+/* A group with one leaf gets no row, unless its view opens into tabs: a sub-nav of one is a label
+   pretending to be a choice. Repainted only when it changed (Live's poll asks every 30 s), and the row
+   keeps where the reader scrolled it unless the pressed pill is off screen. */
+let NAV_ROW = null;
 function paintSubnav(){
-  const el = document.getElementById("subnav");
+  paintHdrTeam();
+  const el = document.getElementById("subnav"), m = navModesOf(SURFACE);
   const tabs = navTabsOf(navGroupOf(SURFACE)).filter(k => !NAV_HIDDEN.includes(k));
-  el.hidden = tabs.length < 2;
-  // .modes-sub without .dock: the docked variant is fixed to the phone's bottom edge, which is
-  // where the Parlay and DFS switchers already live.
-  el.querySelector(".subnav-in").innerHTML = el.hidden ? "" :
-    `<div class="modes-sub${NAV_DENSE.includes(navGroupOf(SURFACE)) ? " dense" : ""}" role="group" aria-label="${t("nav.sub.label")}">
-      ${tabs.map(k => `<button class="mode-sub" data-leaf="${k}"
-        aria-pressed="${SURFACE === k}">${navLabel(k)}${navCount(k)}</button>`).join("")}
-    </div>`;
+  const plan = tabRowPlan(tabs, SURFACE, m, NAV_PHONE.matches);
+  el.hidden = !plan.shown;
+  const html = el.hidden ? "" : `<div class="modes-sub${NAV_DENSE.includes(navGroupOf(SURFACE)) ? " dense" : ""}" role="group" aria-label="${t("nav.sub.label")}">
+      ${plan.pills.map(p => navPillHTML(p, m)).join("")}</div>`;
+  const inner = el.querySelector(".subnav-in"), was = inner.querySelector(".modes-sub")?.scrollLeft || 0;
+  if (html === NAV_ROW) return;
+  NAV_ROW = html;
+  inner.innerHTML = html;
   el.querySelectorAll("[data-leaf]").forEach(b => b.addEventListener("click", () => {
     if (SURFACE === b.dataset.leaf) return;
     morphLogo();
     navGo(b.dataset.leaf);
   }));
+  el.querySelectorAll("[data-tseg]").forEach(b => b.addEventListener("click", () => {
+    const now = navModesOf(SURFACE);
+    if (now) now.select(b.dataset.tseg);
+    paintSubnav();
+  }));
+  const row = inner.querySelector(".modes-sub"), on = row && row.querySelector(".tr-x, .mode-sub[aria-pressed='true']");
+  if (!on) return;
+  const r = row.getBoundingClientRect(), o = on.getBoundingClientRect();
+  row.scrollLeft = tabRowScroll(o.left - r.left, o.width, was, r.width, 16);   // the new row starts at 0
+}
+
+/* The phone's header bar: the reader's team as the team switch, or "Pick your team" until there is one
+   (the same menu either way). Drawn on a phone only, so a desktop has one switch per screen, and only
+   when the team changed, so a repaint never shuts the menu under a finger. */
+let NAV_HDR = null;
+function paintHdrTeam(){
+  const el = document.getElementById("hdrteam");
+  const key = NAV_PHONE.matches ? `${VIEW}|${needsPick()}|${TEAMS[VIEW] ? TEAMS[VIEW].name : ""}` : "";
+  if (!el || key === NAV_HDR) return;
+  NAV_HDR = key;
+  const pick = needsPick();
+  el.innerHTML = key ? teamSwitchHTML(pick ? t("nav.header.pick") : "", pick ? "hdr ts-pick" : "hdr", "hdrswitch") : "";
+  if (!key) return;
+  el.querySelector("[data-tsmenu]").innerHTML = "";   // drawn when opened (wireTeamSwitch), so a view's menu is the only one in the page until then
+  wireTeamSwitch(el, "hdrswitch");
 }
 
 /* The view lives in the hash, so a reload lands where you were reading rather than back on the
@@ -166,17 +210,20 @@ function buildNav(){
     const leaf = navFromHash();
     if (leaf && leaf !== SURFACE) navGo(leaf, true);
   });
+  // Crossing 760px swaps the layouts: the header's switch and the row's opened tabs are a phone's only.
+  NAV_PHONE.addEventListener("change", paintSubnav);
   paintSubnav();
 }
 
-/* One global listener, registered once, rather than one per render -- render() rebuilds
-   #switch's markup from scratch every time (see teamSwitchHTML/wireTeamSwitch above), so a
-   listener attached inside render() would stack a new copy on every re-render. */
+/* One global listener, registered once, rather than one per render -- render() rebuilds a view's
+   #switch from scratch every time (see teamSwitchHTML/wireTeamSwitch), so a listener attached inside
+   render() would stack a new copy on every re-render. It closes every open switch menu: the view's and
+   the phone header's (#hdrswitch). */
 document.addEventListener("click", e=>{
-  const sw = document.getElementById("switch");
-  if (!sw) return;
-  const menu = sw.querySelector("[data-tsmenu]"), btn = sw.querySelector("[data-tsbtn]");
-  if (menu && !menu.hidden && !sw.contains(e.target)){
-    menu.hidden = true; btn.setAttribute("aria-expanded","false");
-  }
+  document.querySelectorAll(".teamswitch").forEach(sw => {
+    const menu = sw.querySelector("[data-tsmenu]"), btn = sw.querySelector("[data-tsbtn]");
+    if (menu && !menu.hidden && !sw.contains(e.target)){
+      menu.hidden = true; btn.setAttribute("aria-expanded","false");
+    }
+  });
 });

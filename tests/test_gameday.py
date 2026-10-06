@@ -209,7 +209,7 @@ def test_the_bench_is_scored_but_never_counted_and_proj_adds_who_is_left(browser
 @pytest.mark.render
 def test_the_board_says_where_each_game_is_and_a_row_opens_his_profile(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (390, 844))
-    page.evaluate(plant())
+    page.evaluate("localStorage.setItem('tw-team', 'espn');" + plant())    # David's ESPN team: Live opens on its league
     for kind, sel in go("live"):
         page.click(sel)
     page.wait_for_selector(".gd-mr")
@@ -250,29 +250,23 @@ def test_the_board_says_where_each_game_is_and_a_row_opens_his_profile(browser, 
     page.locator(".gd-mirror .gd-nb").first.click()
     page.wait_for_selector("#modal.on")
     page.keyboard.press("Escape")
-    page.click("[data-gdleague='yahoo']")
-    assert "Chat Take the Wheel" in page.locator(".gd-head").inner_text()
-    # the League tab: ESPN pays the top half, Yahoo ranks for bragging. Every game states itself on
-    # the line above its row; a row is two names and two scores, and only a finished game's winner
-    # carries the trophy
-    page.click("[data-gdleague='espn']")
-    page.click("[data-gdtab='league']")
+    # the ranking under the lineups: ESPN pays the top half. Every chip in the strip states its game on
+    # the line above two names and two scores; the reader's chip is the one on screen
     assert page.locator(".gd-median:not(.quiet)").count() == 1
-    tags = page.locator(".gd-gs").all_inner_texts()
-    assert len(tags) == page.locator(".gd-g").count()
-    assert all(re.match(r"^(LIVE · \d+ LEFT|\d+ LEFT|FINAL)$", s.strip()) for s in tags)
-    assert page.locator(".gd-g").evaluate_all("gs => gs.every(g => g.firstElementChild.classList.contains('gd-gs'))")
-    assert page.locator(".gd-cup").count() == sum(1 for s in tags if s.strip() == "FINAL")
-    assert page.locator(".gd-g.on").count() == 1 and page.locator(".gd-g.mine.on").count() == 1
-    page.click("[data-gdleague='yahoo']")
-    assert page.locator(".gd-median.quiet").count() == 1               # Yahoo ranks for bragging
-    # another game in the league opens its two lineups in the Matchup tab, and its chip names no side
-    other = page.locator(".gd-g:not(.mine)").first
-    other.click()
+    tags = page.locator(".gd-cs").all_inner_texts()
+    assert len(tags) == page.locator(".gd-chip").count()
+    assert all(re.match(r"^(LIVE|\d+ LEFT|FINAL)$", s.strip()) for s in tags)
+    assert page.locator(".gd-chip").evaluate_all("gs => gs.every(g => g.firstElementChild.classList.contains('gd-cs'))")
+    assert page.locator(".gd-chip.on").count() == 1 and page.locator(".gd-chip.mine.on").count() == 1
+    # the team picked decides the league: Yahoo's, which ranks for bragging
+    page.evaluate("localStorage.setItem('tw-team', 'yahoo'); paintLive()")
+    assert "Chat Take the Wheel" in page.locator(".gd-head").inner_text()
+    assert page.locator(".gd-median.quiet").count() == 1
+    # another game in the league opens its two lineups in place, and its lead names no side
+    page.locator(".gd-chip:not(.mine)").first.click()
     assert "Chat Take the Wheel" not in page.locator(".gd-head").inner_text()
     assert re.match(r"^BY \d+\.\d$|^TIED$", page.locator(".gd-lead").inner_text())
-    page.click("[data-gdtab='league']")
-    assert page.locator(".gd-g.on").count() == 1 and page.locator(".gd-g.mine.on").count() == 0
+    assert page.locator(".gd-chip.on").count() == 1 and page.locator(".gd-chip.mine.on").count() == 0
     ctx.close()
     assert errors == []
 

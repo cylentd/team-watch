@@ -16,7 +16,8 @@
    Two views and four filters (2026-10-05, David: "group by game + filters. I also like the current list
    as well."). Feed is the list above; By game is one card per game (header: the two clubs, the score
    and the clock, a tap opens the game sheet; rows: its scorers). The view is `tw-live-tds` in
-   localStorage; the chips (Mine, Pass, Rush, Rec) are memory only and clear on every visit. Chips
+   localStorage; the chips (Mine, Pass, Rush, Rec) are memory only and clear on every visit. One chip
+   row holds them all, By game last (a toggle, pressed = By game; 2026-10-05, option 2A). Chips
    narrow both views. Rush/Rec/Pass pick the TD types (none on = rush and rec, the anytime TDs; Pass is
    the only way a passer appears); Mine keeps the players of the teams the reader picked or follows
    (mine.js), never David's. Still alive has no TD type, so a type chip hides it; Mine narrows it.
@@ -136,15 +137,14 @@ function tdGameCardsHTML(rows, kinds){
   }).join("");
 }
 
-/* The view switch, then the chips. Every copy key is spelled out (assemble.py --check). */
+/* One chip row (2026-10-05, storyboard option 2A): the four filters, a divider, then By game, a toggle
+   for the view (pressed = By game, not pressed = Feed). The row scrolls sideways when it does not fit.
+   Every copy key is spelled out (assemble.py --check). */
 function tdControlsHTML(){
-  const mode = tdMode();
-  const view = [["feed", t("live.tds.feed")], ["game", t("live.tds.byGame")]].map(([k, name]) =>
-    `<button type="button" data-tdmode="${k}" aria-pressed="${k === mode}">${name}</button>`).join("");
   const name = {mine: t("live.tds.fMine"), pass: t("live.tds.fPass"), rush: t("live.tds.fRush"), rec: t("live.tds.fRec")};
   const chips = TD_CHIPS.map(k => `<button type="button" class="chip" data-tdchip="${k}" aria-pressed="${!!TD_ON[k]}">${name[k]}</button>`).join("");
-  return `<div class="gd-leagues td-mode" role="group" aria-label="${t("live.tds.view")}">${view}</div>
-    <div class="td-filters" role="group" aria-label="${t("live.tds.filters")}">${chips}</div>`;
+  const byGame = `<button type="button" class="chip td-bygame" data-tdgame aria-pressed="${tdMode() === "game"}">${t("live.tds.byGame")}</button>`;
+  return `<div class="td-filters" role="group" aria-label="${t("live.tds.filters")}">${chips}<span class="td-sep" aria-hidden="true"></span>${byGame}</div>`;
 }
 
 /* The one line a filter that finds nothing says. */
@@ -182,8 +182,8 @@ function wireTds(host){
     openProfile({n: b.dataset.tdn, pos: b.dataset.tdpos, team: b.dataset.tdteam, slug: b.dataset.tdslug}, b);
   }));
   const again = sel => { paintLive(); document.querySelector(sel)?.focus(); };
-  host.querySelectorAll("[data-tdmode]").forEach(b => b.addEventListener("click", () => {
-    tdSetMode(b.dataset.tdmode); again(`[data-tdmode="${b.dataset.tdmode}"]`);
+  host.querySelectorAll("[data-tdgame]").forEach(b => b.addEventListener("click", () => {
+    tdSetMode(tdMode() === "game" ? "feed" : "game"); again("[data-tdgame]");
   }));
   host.querySelectorAll("[data-tdchip]").forEach(b => b.addEventListener("click", () => {
     TD_ON[b.dataset.tdchip] = !TD_ON[b.dataset.tdchip]; again(`[data-tdchip="${b.dataset.tdchip}"]`);

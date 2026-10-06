@@ -99,6 +99,25 @@ def test_the_banner_calls_the_top_scorer_by_yards_and_touchdowns_never_points(br
     assert errors == []
 
 
+STORY = ("() => { LIVE_DIGEST.week = LIVE_RECAP.week; LIVE_DIGEST.story = {head: 'Allen torches the Bills for 285 yards <3', "
+         "fact: 'Josh Allen threw four scores.', kind: 'result', asof: '2099-01-01 00:00:00', club: 'BUF', "
+         "player: {n: 'Josh Allen', slug: LIVE_RECAP.top.slug, pos: 'QB', team: 'BUF'}}; }")
+
+
+def test_claudes_story_about_the_top_scorer_is_the_banner_and_the_digest_leaves_it(browser, page_file):
+    """David, 2026-10-05: the Digest and Recap banners never carry the same content. A result story about the
+    Recap's top scorer is Recap's (escaped, in place of the template); the Digest leads with something else."""
+    ctx, page, errors = recap(browser, page_file, prep=STORY)
+    assert page.locator(".wr-lead .dg-lead-h").inner_text() == "Allen torches the Bills for 285 yards <3"
+    assert page.locator(".wr-lead .dg-lead-fact").inner_text() == "Josh Allen threw four scores."
+    assert page.locator(".wr-lead .dg-lpill").count() == 0
+    drive(page, go("digest"))
+    assert "torches" not in page.locator(".dg-lead-h").inner_text()
+    assert page.locator(".dg-lead-h").inner_text().strip() != ""
+    ctx.close()
+    assert errors == []
+
+
 def test_players_leaders_lists_and_touchdowns(browser, page_file):
     ctx, page, errors = recap(browser, page_file)
     blocks = page.locator(".wr-bp")

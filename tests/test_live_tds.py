@@ -149,10 +149,10 @@ def tds(browser, page_file, viewport=(360, 780)):
 
 def test_the_switch_keeps_the_feed_and_by_game_is_one_card_per_game(browser, page_file):
     ctx, page, errors, mine = tds(browser, page_file)
-    assert page.locator("[data-tdmode='feed']").get_attribute("aria-pressed") == "true"      # the list stays the default
+    assert page.locator("[data-tdgame]").get_attribute("aria-pressed") == "false"            # the list stays the default
     assert page.locator(".td-card").count() == 2 and page.locator(".td-gcard").count() == 0
-    page.click("[data-tdmode='game']")
-    assert page.locator("[data-tdmode='game']").get_attribute("aria-pressed") == "true"
+    page.click("[data-tdgame]")
+    assert page.locator("[data-tdgame]").get_attribute("aria-pressed") == "true"
     cards = page.evaluate(CARDS)
     # the game on now first, then the latest kickoff first; the header is the clubs, the score and the clock
     assert [c["head"] for c in cards] == ["KC 17 SF 24 Q3 4:12", "BUF 10 MIA 27 Final", "MIN 20 DET 13 Final"]
@@ -170,8 +170,8 @@ def test_the_switch_keeps_the_feed_and_by_game_is_one_card_per_game(browser, pag
     # the view is remembered; a store that will not answer still switches
     assert page.evaluate("localStorage.getItem('tw-live-tds')") == "game"
     page.evaluate("Storage.prototype.setItem = () => { throw new Error('blocked'); }; Storage.prototype.getItem = () => { throw new Error('blocked'); }; 0")
-    page.click("[data-tdmode='feed']")
-    assert page.locator(".td-gcard").count() == 0 and page.locator("[data-tdmode='feed']").get_attribute("aria-pressed") == "true"
+    page.click("[data-tdgame]")
+    assert page.locator(".td-gcard").count() == 0 and page.locator("[data-tdgame]").get_attribute("aria-pressed") == "false"
     ctx.close()
     assert errors == []
 
@@ -195,15 +195,15 @@ def test_chips_narrow_both_views_and_an_empty_result_is_one_line(browser, page_f
     # Mine: only the reader's players, in both views; Still alive narrows to theirs
     chip("mine")
     assert len(rows()) >= 1 and "T. Rusher" not in rows() and page.locator("[data-tdchip='mine']").get_attribute("aria-pressed") == "true"
-    page.click("[data-tdmode='game']")
+    page.click("[data-tdgame]")
     cards = page.evaluate(CARDS)
     assert len(cards) == 1 and cards[0]["rows"] == [mine]
     # nothing matches: one line, in either view
     chip("pass")
     assert page.locator(".td-empty").count() == 1 and page.locator(".td-empty").inner_text() == "No touchdowns match."
-    page.click("[data-tdmode='feed']")
+    page.click("[data-tdgame]")
     assert page.locator(".td-empty").count() == 1 and page.locator(".td-row").count() == 0
-    # filters clear on a visit; the view stays
+    # filters clear on a visit; the view stays (Feed here, so By game is not pressed either)
     page.evaluate("TD_ON = {}; paintLive()")
     assert page.locator(".td-filters [aria-pressed='true']").count() == 0
     ctx.close()
@@ -218,17 +218,24 @@ def test_mine_is_the_readers_pick_and_with_none_it_says_to_pick(browser, page_fi
     assert errors == []
 
 
-def test_a_phone_holds_the_controls_in_two_rows_and_nothing_scrolls_sideways(browser, page_file):
+def test_a_phone_holds_the_controls_in_one_row_and_nothing_scrolls_sideways(browser, page_file):
     ctx, page, errors, mine = tds(browser, page_file)
-    page.click("[data-tdmode='game']")
+    page.click("[data-tdgame]")
     m = page.evaluate("""() => {
       const box = s => document.querySelector(s).getBoundingClientRect();
-      return {w: document.documentElement.scrollWidth, vw: innerWidth, mode: box('.td-mode'), chips: box('.td-filters'),
-              tallest: Math.max(...[...document.querySelectorAll('.td-filters .chip')].map(c => c.getBoundingClientRect().height)),
-              first: box('.td-gcard')};
+      const chips = [...document.querySelectorAll('.td-filters .chip')];
+      const row = document.querySelector('.td-filters');
+      return {w: document.documentElement.scrollWidth, vw: innerWidth, chips: box('.td-filters'),
+              n: chips.length, last: chips[chips.length - 1].dataset.tdgame !== undefined,
+              tops: [...new Set(chips.map(c => Math.round(c.getBoundingClientRect().top)))].length,
+              tallest: Math.max(...chips.map(c => c.getBoundingClientRect().height)),
+              shortest: Math.min(...chips.map(c => c.getBoundingClientRect().height)),
+              gdRows: document.querySelectorAll('.gd-leagues, .td-mode').length,
+              rowW: row.clientWidth, sep: document.querySelectorAll('.td-filters .td-sep').length};
     }""")
-    assert m["w"] <= m["vw"]
-    assert m["chips"]["height"] <= m["tallest"] + 1                           # four chips, one line at 360px
-    assert m["tallest"] >= 36
+    assert m["w"] <= m["vw"]                                                  # the page never scrolls sideways
+    assert m["n"] == 5 and m["last"] and m["tops"] == 1                       # Mine, Pass, Rush, Rec, By game: one line
+    assert m["chips"]["height"] <= m["tallest"] + 1 and m["shortest"] >= 40
+    assert m["sep"] == 1                                                      # one divider before By game
     ctx.close()
     assert errors == []

@@ -192,6 +192,27 @@ Top bar **Week · League · Stats · Bets**. Table in `js/data/navmap.js` (pure,
 
 Superseded below where marked: My teams as a group, My recap, the League switch.
 
+### The phone's chrome (2026-10-05, game-day flow wave 2)
+
+Storyboard: https://claude.ai/artifact/ArF53Lvh12QV8fbL3mr9KP. David: groups to a bottom tab bar (1B), a
+header bar "like Yahoo and Sleeper", and "Tab opens in place". Up to 760px, top to bottom
+(`css/chrome/phonenav.css`):
+
+| Layer | Holds | Code |
+|---|---|---|
+| Header bar, 52px | the reader's team as the team switch ("Pick your team" in lime with no pick), Ask on the right; no brand, no Discord link, no week pill; slides away on a scroll down, back on a scroll up | `#hdrteam`, `paintHdrTeam` in `chrome/nav.js`; `chrome/hidebar.js` |
+| Tab row | the group's views as pills; the open pill opens in place into its view's own tabs (Recap: Players, Scores, Claude, Accuracy; Live: My league, NFL, TDs, with the NFL games on now as a count; Slips: the kickoffs); the view draws no bar of its own on a phone (`#view .view-tabs` is hidden) | `#subnav`, `tabRowPlan` and `navModes` in `data/tabrow.js`; declared in `surface/live/tabs.js`, `surface/recap/recap.js`, `surface/parlay/bar.js` |
+| Bottom bar, 64px | Week, League, Stats, Bets, Search: an icon over a word, the open group in lime | `#tabbar` |
+
+- **Where things sit.** League's chip and the Roster and Waivers hero hide their team switch on a phone:
+  the header's is the one. Live's score head shows the plain name on a phone and the switch from 761px. The slip tray, the trade builder's edit footer
+  and the "new build" pill rise by `--dock-b` (the bar's height) so the bar never covers them.
+- **Why.** The groups were the bottom bar until 2026-09-24, then the top bar (superseded), because Parlay's
+  and DFS's switchers docked above the bar made the bottom 114px of every screen controls. Those switchers
+  sit at the top of their views now, so the bar returned to where one thumb reaches it.
+- A desktop keeps its one bar of words; `.tabbar` is `display:contents` there and `#hdrteam` is empty.
+  Crossing 760px repaints the row (`NAV_PHONE`).
+
 ## League (Recap, ESPN and Yahoo; was a sub-tab of My teams, 2026-09-26)
 
 Each league's own story, for the team on screen. Storyboard:
@@ -1009,7 +1030,7 @@ wall it takes the whole band (`.dg-ticker.no-facts`, `need.css`).
 | Part | Before the first kickoff | From the first kickoff |
 |---|---|---|
 | Headline | ff-jarvis's pick (`lead.rule`) | the top scorer so far, called by his yards and TDs ("Gibbs: 170 yards, 1 TD"; the 2026-10-04 "has 31.4 points" wording is superseded, see "The top scorer's call"); his box line and the game's clock under it, his team's colour behind him, a tap opens his profile |
-| Right now (the old Highlights section, removed before kickoff 2026-10-04) | nothing | the top five scorers (face, name, position, club and clock, line, points) and a count of the day's touchdowns that opens Live's TDs tab |
+| Right now (the old Highlights section, removed before kickoff 2026-10-04) | nothing | three rows (hurt starters first, then the top scorers: face, name, position, club and clock, line, points; five rows until 2026-10-05), then a foot: More on the left opens the rest in place (`DG_NOW_SHOW`, `data-dgmore`; kept while the page is open), the day's touchdown count on the right opens Live's TDs tab |
 | Need to know | new starters and who sits | only games not yet started (`dgCut` drops a game's pre-game rows at its kickoff); gone when nothing is left |
 | Tonight's card | the slot's preview | unchanged, except the last game's card (below) stands in for it |
 
@@ -1034,6 +1055,15 @@ wall it takes the whole band (`.dg-ticker.no-facts`, `need.css`).
 
   The headline before the game is the between-windows one, the week's top scorer ("St. Brown leads
   the week with 31.4 points"). The wait card does not start while this card shows.
+  - **One 80px block per game (2026-10-05, storyboard https://claude.ai/artifact/ArF53Lvh12QV8fbL3mr9KP).**
+    The 300-450px card above (projections before kickoff, three scorers after, a header and a foot link) is
+    superseded. The whole block is one button that opens the game's sheet, the one Live's NFL tab opens
+    (`dgMnfGame`, `data-dgblk`). Line 1 the day and the clock ("MON · Q3 4:12"; before kickoff "MON 8:15 PM ·
+    ATL @ NO"), line 2 the score in mono ("ATL 17 · NO 21"), line 3 the game's top performer in yards and
+    touchdowns, never fantasy points (`dgMnfNums`, `dgMnfTop`). Before kickoff there is no score and no
+    line 3. Tonight's card draws the same block once its game is on (`dgMnfFor`, `tonight.js`), so a
+    Thursday game reads like a Monday one; a poll repaints each block in place by its home club. From 960px
+    two games sit side by side, each at most 560px wide.
   - **Superseded 2026-10-04** (David, the same evening: "The Digest is supposed to be GENERIC for the
     public. It shouldn't hone on to my roster or their roster."): the first card drew the reader's
     matchup in each league (both scores, who was left to play, "what the result needs", the median gap)
@@ -1044,7 +1074,7 @@ wall it takes the whole band (`.dg-ticker.no-facts`, `need.css`).
 **Left the game hurt (2026-10-04).** While games are on, any QB, RB, WR or TE the projections rate 8 points or more this week, in any game, who left it ("B. Purdy left the game hurt", by-line "{club} · Q3 4:12") takes the headline from the top score and leads Right now in `--down`; the best projection if several (three rows at most); when "has returned to the game" is read, the top score is back. Live's Matchup row wears a red Hurt chip when one of mine is flagged. Source: the play text of ESPN's game summary, fetched by the reader's browser for every game that is on, each at most once per 180 s, one request at a time (`data/gameday/hurt.js`); the players to watch are `LIVE_RANKS` rows at 8 points or more, which keeps defenders and special teams out. ESPN's wording ("was injured during the play", "Injury Update: X has returned to the game") is nflverse's and was unverified on ESPN as of 2026-10-04: check Monday ATL @ NO.
 - **Superseded 2026-10-04** (David: "The Digest is supposed to be GENERIC for the public. It shouldn't hone on to my roster or their roster."): the first version watched only my starters in my leagues, asked only for games that held one, every 120 s, and the by-line named my team in each league.
 
-**Claude's story between games (2026-10-04).** David, after Sunday's games: the headline was "old news"; "claude should determine what is the best headline from Sunday's results, Injuries, etc". ff-jarvis's `digest_headline` step writes one pick (head, fact, kind result / injury / news / preview, the player and club it is about, an `asof`), number-checked and generic; `design/digest.py` keeps it as `LIVE_DIGEST.story`, only when its season and week are the packet's, and `sources.load_digest_headline` reads the feed block first, the file second. The banner order (`dgLeadLive`, `now.js`): a game in play keeps the live hurt or top-scorer lead; with no game on, the story takes the banner when its `asof` is newer than the packet's (both Pacific wall clock, `dgLeadStory` in `lead.js`); else the old rules. The head is the headline (a sentence, so the smaller size), the fact sits under it, a player draws his face on his club's colour and the band opens his profile; a preview with no player wears the club's colours, or sits quiet with none. The club's colour wash wins over the kind's (red injury, lime result), which only shows when no club is known. Every word is escaped; nothing in it is the reader's. Pinned by `tests/test_digest_story.py`.
+**Claude's story between games (2026-10-04).** David, after Sunday's games: the headline was "old news"; "claude should determine what is the best headline from Sunday's results, Injuries, etc". ff-jarvis's `digest_headline` step writes one pick (head, fact, kind result / injury / news / preview, the player and club it is about, an `asof`), number-checked and generic; `design/digest.py` keeps it as `LIVE_DIGEST.story`, only when its season and week are the packet's, and `sources.load_digest_headline` reads the feed block first, the file second. The banner order (`dgLeadLive`, `now.js`): a game in play keeps the live hurt or top-scorer lead; with no game on, the story takes the banner when its `asof` is newer than the packet's (both Pacific wall clock, `dgLeadStory` in `lead.js`); else the old rules. **Since 2026-10-05 a result story about the Recap's week and top scorer is Recap's banner, not the Digest's** (David: "they should never be the same content"; `data/leadsplit.js`): with no game on, the Digest then leads with the coming week, the packet's own lead (`dgLeadPacket`), and whatever it leads with never names the Recap banner's subject (`lspPick`). A story about anyone else, or of another kind (injury, preview), stays the Digest's. The head is the headline (a sentence, so the smaller size), the fact sits under it, a player draws his face on his club's colour and the band opens his profile; a preview with no player wears the club's colours, or sits quiet with none. The club's colour wash wins over the kind's (red injury, lime result), which only shows when no club is known. Every word is escaped; nothing in it is the reader's. Pinned by `tests/test_digest_story.py`.
 
 **The top scorer's call (2026-10-04).** David, on "McMillan leads the week with 38.2 points": "38.2 is insane number in fantasy... Should be like NFL announcer to build the hype." The live and between-windows banner (`dgTopCall`, `lead.js`) scales with the day: big at 30+ points, 3+ touchdowns, 150+ yards (300+ passing), with "laps the field" when he is 10+ points clear of the second score; solid at 20+; plain under that. Two phrasings per tier, in the present while his game is on and the past after, fixed by his slug so a poll never reshuffles them. Only facts the page has; no caveats.
 
@@ -1059,6 +1089,13 @@ Leaf `weekrecap`, hash `#weekrecap`, second in This week (`recap` is League's). 
 games final (the Digest banner's rule, so Monday morning shows Sunday). It reads no roster, matchup or league;
 the file's `leagues` block and each player's `rostered` and `slot` never cross (`tests/test_recap_data.py`).
 Code: `surface/recap/` (prefix `wr`), CSS `css/surface/recap/` fenced to `weekrecap`.
+
+**The banner says Claude's story (2026-10-05).** When ff-jarvis's finished-week story (`LIVE_DIGEST.story`,
+kind result) is about the week's top scorer and the Recap holds a played week, the banner's headline and fact
+are the story's words, in place of the template call (`wrBannerHTML`, `lspRecapStory`); the Digest then does
+not carry it (DESIGN.md "Claude's story between games"). The words are number-checked upstream and drawn
+escaped; a story headline is a sentence, so it takes the smaller `long` size. No story, or one about someone
+else: the template call and box-line pills, as before. On a phone the Recap's four tabs open in the tab row.
 
 | Part | What | Data |
 |---|---|---|
@@ -1333,9 +1370,13 @@ is its `pts_pg` to one decimal, the games its count, a bye its `bye` list (`data
   cost the METHODOLOGY pointer; `test_sos_view.py` holds the line at 240px.
 - Position and weeks are this view's own choice; they are not shared with Ranks, which is one week.
 
-## Live (This week, 2026-09-28; four tabs 2026-10-04)
+## Live (This week, 2026-09-28; four tabs 2026-10-04; three tabs and a team-led league 2026-10-05)
 
-Every matchup in both of David's leagues, scored live, and every NFL game of the week. Storyboard
+Every matchup in the reader's league, scored live, and every NFL game of the week. **Game-day flow
+(2026-10-05, storyboard https://claude.ai/artifact/ArF53Lvh12QV8fbL3mr9KP, option 2A):** three tabs, My
+league, NFL and TDs; the league is the picked team's; a strip of the league's matchups leads My league; the
+reader picks a team inside Live. Where a line below still names the Matchup or League tab, the league
+chips or `tw-live-league`, it is the 2026-10-04 build and superseded by this paragraph. Storyboard
 for the tabs, mirrored rows, clock, TDs and game sheet (option A, David 2026-10-04):
 https://claude.ai/artifact/JrM6hBMrAL2hjFzYPgKitV. The first build (2026-09-28):
 https://claude.ai/artifact/8qKDQUVxkz4F5naVPVQjhH. Lineups and each league's scoring rules are baked
@@ -1347,10 +1388,33 @@ tabs below; the NFL now card (`nflnow.js`) above the matchup went with it).
 
 | Tab | Shows | Source |
 |---|---|---|
-| Matchup (the default) | both scores, who leads, the league median line, then both lineups mirrored | `board.js`, `mirror.js` |
-| Games | every NFL game of the week as a tile: live first, then the next kickoffs, then finals; a lime count of games on now rides the tab; a tile with starters of mine has a lime edge and "N yours"; a tap opens the game sheet. Since 2026-10-05 the states read apart (live: a lime stripe down the left edge and a faint lime wash, so it is a different shape from mine's ring; final: the panel at 40%; upcoming: plain), and the leader's code and score wear the club's colour (`gdClubTint`: its first colour at luminance 0.12+, about 3:1 on the panel, else the primary lifted toward white in its own hue) while the trailer greys | `nflnow.js`, `gdWeekGames` |
+| My league (id `league`, the default; Matchup and League merged 2026-10-05) | the strip (below), then the game on screen: both scores, who leads, the league median line, both lineups mirrored; then the ranking with the median. Matchup and League were separate tabs until 2026-10-05 (superseded; a stored `matchup` opens My league, `gdTabOf`) | `board.js` `gdMyLeagueHTML`, `mirror.js`, `league.js` |
+| NFL (id `games`; named Games until 2026-10-05) | every NFL game of the week as a tile: live first, then the next kickoffs, then finals; a lime count of games on now rides the tab; a tile with starters of mine has a lime edge and "N yours"; a tap opens the game sheet. Since 2026-10-05 the states read apart (live: a lime stripe down the left edge and a faint lime wash, so it is a different shape from mine's ring; final: the panel at 40%; upcoming: plain), and the leader's code and score wear the club's colour (`gdClubTint`: its first colour at luminance 0.12+, about 3:1 on the panel, else the primary lifted toward white in its own hue) while the trailer greys | `nflnow.js`, `gdWeekGames` |
 | TDs | Feed: a TD clips reel (DESIGN.md "Clips", since 2026-10-05), then Scored, then Still alive (below); or By game; with filters (below) | `tds.js`, `tdclips.js` |
-| League | every matchup as one row, then the ranking with the median; a game's tap opens it in Matchup. The storyboard called this tab the box score; the tab says League | `league.js` |
+| ~~League~~ | superseded 2026-10-05: every matchup as one row, then the ranking, a tap opening Matchup. The rows became the strip, the ranking stayed under My league | `league.js` |
+
+- **The strip (2026-10-05).** A row of chips above the score head, one per matchup of the league, the
+  reader's first and the rest in the league's order, so a poll never reshuffles them (`gdStripOrder`,
+  `data/gameday/strip.js`; drawn by `gdStripHTML`, `surface/live/league.js`). A chip is 124px wide: the two
+  team names in a few whole words (`gdShortName`), the scores, and a state word (`gdChipState`: LIVE while
+  a starter plays, else how many are still to play, else final). A tap shows that game in the head and the
+  lineups under it, no tab switch and no scroll; the reader's chip brings theirs back. The pick is memory
+  only. The strip scrolls sideways (STYLE.md "Controls", dated exception) and keeps where it was scrolled
+  across a poll. A team with no game this week (a bye, out of the fantasy playoffs, week 18) leads with
+  the league's closest game instead, and its head says "No game this week" with the team's name, the
+  team switch from 761px (`gdByeHTML`), never an empty matchup.
+- **The league follows the team (2026-10-05).** Live's league is that of the first of the picked team and
+  the followed teams that plays in a league here (`gdLeagueFor`); with none, the first league. The league
+  chips (Yahoo, ESPN) and `tw-live-league` are gone: to change league, change team. From 761px the reader's
+  name on the score head is the team switch, and a pick there keeps the reader on Live (`gdNameOn`); on a
+  phone the header bar's switch is the one. With no team
+  of theirs in any league, My league is one card, "whose game are you watching": each league with its
+  team count, a league lists its teams, a tap picks (`gdWhoHTML`, `surface/live/mine.js`); it replaced
+  the dashed line that sent the reader to My teams. A poll waits while the switch's menu is open.
+- **Phone tab row.** On a phone the three tabs open in place in the tab row (DESIGN.md "The phone's
+  chrome"); Live draws no tab bar of its own there, and the NFL tab keeps its count of games on now.
+- **Swipe.** The sideways swipe between a league's games went with the Matchup and League tabs; the
+  strip is the way now. The game sheet keeps its own swipe between games.
 
 - **Whose team is "mine" (2026-10-04).** David: "Make sure that the site registers the roster(s) that
   the user picks as the 'yours' or 'mine'. I don't want it to default to my personal rosters." Live's
@@ -1360,15 +1424,15 @@ tabs below; the NFL now card (`nflnow.js`) above the matchup went with it).
   (`tw-follow`) that does, else null; never the league's `me` (David's, kept in the data for the build).
   A team is found by the `key` `gameday.py` bakes in beside its name: the league's own key for David's
   ("espn"), the league plus the name's slug for any other ("espn-run-it-back", as `mates.py` keys it).
-  With null the Matchup tab shows the league's first game (or the one tapped) with neutral "BY n"
-  chips, no "you" under the median, no lime side, and one dashed line above the score, "Pick your team to
-  see your matchup", which opens My teams: the picker when nothing is picked, else the team switch on
-  that league (`tsPickFor`). The Games tab's count and the sheet's block are empty without a team.
+  With null, My league is the "whose game" card (above; superseded 2026-10-05: the Matchup tab showed the
+  league's first game with neutral "BY n" chips and a dashed line, "Pick your team to see your matchup",
+  that opened My teams). The NFL tab's count and the sheet's block are empty without a team.
 - **The choice** is `tw-live-tab` in `localStorage` (`tabs.js`), never the hash, so another view
   sends the reader to a tab by setting it, then opening `#live` (the Digest's touchdown count does).
-  Switching repaints in place (`paintLive`), never through `render()`. The league chips (Yahoo,
-  ESPN) draw on Matchup and League only: Games and TDs are NFL-wide.
-- **Mirrored rows (Matchup).** One row per starter slot, ESPN's way: my starter left, theirs right,
+  Switching repaints in place (`paintLive`), never through `render()`. NFL and TDs are NFL-wide; the
+  league chips that sat above Matchup and League are gone (superseded 2026-10-05, see "The league follows
+  the team").
+- **Mirrored rows (My league).** One row per starter slot, ESPN's way: my starter left, theirs right,
   the slot between as a pill. A half is his name with his points beside it, and under them his
   game's clock line and his projection (no label: under the points it can only be the projection).
   A row is 46px, so the score and nine starters fit one phone screen. My slot pairs with the
@@ -1401,6 +1465,12 @@ tabs below; the NFL now card (`nflnow.js`) above the matchup went with it).
   Escape or a pull down from the top; the sideways swipe between games (STYLE.md row 17) and the step
   row work inside it. The grab bar is gone. `tests/test_live_modal.py` pins the four margins at
   390 and 1280px.
+  **The phone's footer (2026-10-05).** Up to 760px the step row is a bar pinned to the bottom of the
+  modal, three 48px buttons: Prev game · Close · Next game, Close in lime as the primary
+  (`gsFootHTML`, `data-gsclose`; `css/surface/live/gamesheet.css`). The body above it scrolls, the bar
+  does not. The ✕ at the top stays, and the scrim, Back, Escape and the pull-down still close (STYLE.md
+  "Overlays"). From 761px it is the quiet row under the title with no Close, as before; with one game
+  only, the bar is Close alone.
 - **Names in the plays are bold (U9).** David: "the game log should bold the players name." Every
   player named in a play line is bold: ESPN's play participants when the summary carries them, then
   the "J.Goff" initial-dot pattern for everyone else ("A.J.Brown", "A.St. Brown", "M.Harrison Jr.",
@@ -1429,14 +1499,18 @@ tabs below; the NFL now card (`nflnow.js`) above the matchup went with it).
   No live market means no board: the sample rows are not TD chances. A row opens the profile.
 
   **Feed or By game (2026-10-05).** David: "group by game + filters. I also like the current list as
-  well." A switch (Live's league-chip row, `tw-live-tds` in `localStorage`) keeps the list above as
-  Feed, the default, and adds By game: one card per game, games on now first then the latest kickoff
+  well." A switch (`tw-live-tds` in `localStorage`; since 2026-10-05 the last chip of the filter row, a
+  toggle with a divider before it, pressed = By game, so the TDs tab has one chip row, scrolling sideways
+  when it does not fit; before that a segmented row of its own, Live's league-chip row) keeps the list
+  above as Feed, the default, and adds By game: one card per game, games on now first then the latest kickoff
   (Sleeper gives no scoring time), the clubs, score and clock in the header (a tap opens the sheet),
   that game's scorers inside. Chips under it apply to both and clear on load: Mine (the reader's
   pick or follows, never David's; no team says "Pick your team"), Pass, Rush, Rec. With no type chip
   on the list is rush and rec, as before; Pass is the only way a passer shows. No Return chip:
-  `/api/stats` carries only pass, rush and rec TDs. The two rows put the first card at 241px on a
-  phone, over STYLE.md's 200px: accepted, because a 61-row list is worse without them.
+  `/api/stats` carries only pass, rush and rec TDs. Since 2026-10-05 the
+  controls are one row (filters at 107px at 360x780); the clips reel puts the Scored card at ~413px, over
+  STYLE.md's 200px: accepted, because the reel is what a reader opens TDs for. (Superseded: two rows put
+  the first card at 241px.)
 - **The poll** (unchanged since 2026-09-28): a game on and Live (or the Digest, after kickoff) on
   screen, every 30 s; the edge caches the reply 15 s, so readers share one Sleeper read. Nothing on:
   once, if the reply is over 15 minutes old, then asleep until the next kickoff. Another view or a

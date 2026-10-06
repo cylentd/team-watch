@@ -79,6 +79,33 @@ def test_the_game_closes_by_the_x_a_tap_on_the_scrim_and_back(browser, page_file
 
 
 @pytest.mark.render
+def test_the_phone_closes_the_game_from_a_48px_bar_at_the_bottom(browser, page_file):
+    ctx, page, errors = open_page(browser, page_file, (360, 780))
+    open_live(page)
+    page.click("[data-gdtab='games']")
+    tile = page.locator(".gd-tiles [data-gdnfl]").nth(1)
+    tile.click()
+    page.wait_for_selector("#gamesheet.on")
+    page.evaluate(SETTLE)
+    got = page.evaluate("""() => { const r = e => document.querySelector(e).getBoundingClientRect();
+      const c = r('.gs-close'), p = r('.gs-step.prev'), n = r('.gs-step.next'), s = r('#gamesheet');
+      return {closeBottomGap: innerHeight - c.bottom, h: [c.height, p.height, n.height], left: p.right <= c.left, right: c.right <= n.left,
+              inSheet: c.bottom <= s.bottom && c.top >= s.top}; }""")
+    assert got["closeBottomGap"] <= 80 and got["inSheet"], got
+    assert got["h"] == [48, 48, 48] and got["left"] and got["right"], got
+    # the bar stays put while the body scrolls
+    page.evaluate("document.querySelector('.gs-main').scrollTop = 400")
+    assert page.evaluate("innerHeight - document.querySelector('.gs-close').getBoundingClientRect().bottom") == got["closeBottomGap"]
+    page.click(".gs-close")
+    page.wait_for_selector("#gamesheet:not(.on)", state="attached")
+    assert page.evaluate("GS") is None and page.evaluate("LAYERS.length") == 0
+    assert page.locator(".gd-tiles [data-gdnfl]").nth(1).is_visible()                  # still on the Games tab, the tile in place
+    assert page.evaluate("document.activeElement === document.querySelectorAll('.gd-tiles [data-gdnfl]')[1]")   # focus came home
+    ctx.close()
+    assert errors == []
+
+
+@pytest.mark.render
 def test_every_name_in_a_play_line_is_bold(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     open_live(page)

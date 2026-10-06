@@ -1,6 +1,7 @@
-"""Live's sideways swipes (2026-10-04): on Matchup and League a swipe walks the leagues, the chips in
-step; in the game sheet it walks the games in the Games tab's order, and a step row names the game on
-each side. Browser tests on the week 2 fixture (tests/fixtures/gameday.json)."""
+"""Live's sideways swipes. In the game sheet a swipe walks the games in the NFL tab's order, and a step
+row names the game on each side (2026-10-04). On My league a swipe does nothing since 2026-10-05: the
+league is the reader's team's, and the league swipe and chips went with Live's own league setting.
+Browser tests on the week 2 fixture (tests/fixtures/gameday.json)."""
 import pytest
 
 from test_render import LIVE_PLANT as plant, go, open_page  # noqa: F401
@@ -23,48 +24,18 @@ def live(browser, page_file):
     page.evaluate(plant({"DET": "in_game", "SEA": "in_game"}))
     for _kind, sel in go("live"):
         page.click(sel)
-    page.wait_for_selector(".gd-tabs")
+    page.wait_for_selector("[data-gdboard] .gd-tabs", state="attached")   # a phone hides it: the tab row holds the tabs
     return ctx, page, errors
 
 
-def picked(page):
-    return page.locator(".gd-leagues [aria-pressed='true']").get_attribute("data-gdleague")
-
-
-def test_a_swipe_on_matchup_and_league_walks_the_leagues_and_stops_at_the_ends(browser, page_file):
+def test_a_swipe_on_my_league_leaves_the_league_alone(browser, page_file):
     ctx, page, errors = live(browser, page_file)
-    keys = page.evaluate("GD.leagues.map(l => l.key)")
-    assert len(keys) >= 2, "the fixture needs two leagues"
-    assert picked(page) == keys[0]
-    page.evaluate(SWIPE, ["[data-gdboard]", -120])
-    assert picked(page) == keys[1]
-    slides = 0 if page.evaluate("REDUCED()") else 1                # the suite's browser may ask for less motion
-    assert page.locator("[data-gdboard]").get_attribute("class").split().count("turn-r") == slides
-    page.evaluate("paintLive()")                                   # a poll's repaint drops the slide
-    assert "turn-r" not in page.locator("[data-gdboard]").get_attribute("class")
-    for _ in keys:                                                 # past the last league: stays on it
-        page.evaluate(SWIPE, ["[data-gdboard]", -120])
-    assert picked(page) == keys[-1]
-    page.evaluate(SWIPE, ["[data-gdboard]", 30])                    # too short to be a swipe
-    assert picked(page) == keys[-1]
-    page.click("[data-gdtab='league']")
-    page.evaluate(SWIPE, ["[data-gdboard]", 120])
-    assert picked(page) == keys[-2]
-    # Games is NFL-wide, so a swipe there leaves the league alone
-    page.click("[data-gdtab='games']")
-    page.evaluate(SWIPE, ["[data-gdboard]", 120])
-    assert page.evaluate("gdLeague().key") == keys[-2]
-    ctx.close()
-    assert errors == []
-
-
-def test_the_league_swipe_never_outlives_live(browser, page_file):
-    ctx, page, errors = live(browser, page_file)
-    before = page.evaluate("gdLeague().key")
-    for _kind, sel in go("news"):
-        page.click(sel)
-    page.evaluate(SWIPE, ["#view", -120])
-    assert page.evaluate("gdLeague().key") == before
+    assert page.evaluate("GD.leagues.length") >= 2, "the fixture needs two leagues"
+    before = page.evaluate("[gdLeague().key, gdMine(gdLeague())]")
+    for dx in (-120, 120):
+        page.evaluate(SWIPE, ["[data-gdboard]", dx])
+        assert page.evaluate("[gdLeague().key, gdMine(gdLeague())]") == before
+    assert "turn-" not in page.locator("[data-gdboard]").get_attribute("class")
     ctx.close()
     assert errors == []
 

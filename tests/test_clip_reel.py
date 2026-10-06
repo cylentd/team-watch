@@ -136,9 +136,12 @@ def test_a_cards_name_points_and_stat_line_sit_inside_its_picture(ph):
 
 
 def test_the_hero_is_one_row_with_the_switch_at_its_right_end(ph):
+    """Since 2026-10-05 a phone names the team in the header bar (its team switch), so the hero's row is the
+    league line, with Sheet / Cards at its right end."""
     page, errors = ph
     row, sw, sub, hero = (rect(page, s) for s in (".hero-eyebrow", ".rmode", ".hero-sub", ".hero"))
-    assert row["t"] - 1 <= sw["t"] <= row["t"] + row["h"], "the switch's top is inside the name row's box"
+    assert page.locator(".hero .teamswitch").is_hidden() and page.locator("#hdrswitch").is_visible()
+    assert sw["t"] <= sub["t"] + sub["h"] and sub["t"] <= sw["t"] + sw["h"], "the switch shares the league line's row"
     assert sw["r"] >= 360 - 20 and sw["l"] > row["l"] + 100, "at the row's right end"
     assert sub["t"] + sub["h"] <= hero["t"] + hero["h"] and hero["h"] < 80, hero
     assert sub["l"] == row["l"] and sub["r"] < sw["l"], "the league line is under the name, one line, beside the switch"

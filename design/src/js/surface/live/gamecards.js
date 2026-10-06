@@ -152,10 +152,12 @@ function gsTabsHTML(tab){
 }
 
 /* The game on each side, in the order a swipe walks them (gamesheet.js gsNeighbours), with where it
-   stands, so a swipe is never a guess. A tap steps too. At either end that side stays empty. */
-function gsStepsHTML(){
+   stands, so a swipe is never a guess. A tap steps too. At either end that side stays empty. On a phone
+   this is the bar at the bottom of the sheet, within thumb reach: previous, Close (the primary), next,
+   each 48px (2026-10-05, storyboard https://claude.ai/artifact/ArF53Lvh12QV8fbL3mr9KP). From 761px it is
+   the quiet row under the title, without the Close (the X above does that). */
+function gsFootHTML(){
   const [prev, next] = gsNeighbours();
-  if (!prev && !next) return "";
   const btn = (g, k) => {
     if (!g) return `<span></span>`;
     const name = {away: esc(g.away), home: esc(g.home)};
@@ -163,14 +165,14 @@ function gsStepsHTML(){
       aria-label="${k < 0 ? t("live.sheet.prev", name) : t("live.sheet.next", name)}">
       <b aria-hidden="true">${k < 0 ? "‹" : "›"}</b><span>${t("live.sheet.step", name)}<small>${esc(gdClockOf(g.home).label)}</small></span></button>`;
   };
-  return `<nav class="gs-steps" aria-label="${t("live.sheet.steps")}">${btn(prev, -1)}${btn(next, 1)}</nav>`;
+  return `<nav class="gs-foot${prev || next ? "" : " solo"}" aria-label="${t("live.sheet.steps")}">${btn(prev, -1)}<button type="button" class="gs-close" data-gsclose>${t("common.action.close")}</button>${btn(next, 1)}</nav>`;
 }
 
 function gsSheetHTML(){
   const tab = GS_WIDE.matches && GS_TAB === "plays" ? "box" : GS_TAB;
   return `<div class="gs-bar"><h2 class="gs-title" id="gs-title">${esc(t("live.sheet.title", {away: GS.away, home: GS.home}))}</h2>
       <button type="button" class="gs-x" data-gsclose aria-label="${t("common.action.close")}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-    ${gsStepsHTML()}
+    ${gsFootHTML()}
     <div class="gs-main" data-tab="${tab}"><div class="gs-side">${gsScoreHTML()}${gsYoursHTML()}${gsTabsHTML(tab)}</div>
       <div class="gs-panes" data-gsscroll role="tabpanel">${gsPlaysHTML()}${gsBoxHTML()}${gsTopHTML()}</div></div>`;
 }

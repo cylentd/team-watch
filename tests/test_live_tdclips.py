@@ -193,9 +193,9 @@ def test_the_chips_decide_whose_clips_the_reel_holds(browser, page_file):
 
 def test_by_game_has_no_reel(browser, page_file):
     ctx, page, errors = tdclips(browser, page_file)
-    page.click("[data-tdmode='game']")
+    page.click("[data-tdgame]")
     assert page.locator(".td-reel").count() == 0 and page.locator(".td-gcard").count() >= 1
-    page.click("[data-tdmode='feed']")
+    page.click("[data-tdgame]")
     assert page.locator(".td-reel").count() == 1
     ctx.close()
     assert errors == []

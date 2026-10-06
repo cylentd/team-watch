@@ -28,7 +28,7 @@ def phone(browser, page_file):
 
 def test_a_connected_league_draws_its_roster_in_groups(phone):
     page, errors = phone
-    assert page.locator(".ts-team").inner_text().strip() == "Taco Corp"
+    assert page.locator("#hdrswitch .ts-team").inner_text().strip() == "Taco Corp"
     assert page.locator(".row").count() == 4
     groups = [h.inner_text().strip().upper() for h in page.locator(".rule h2").all()]
     assert groups[:2] == ["STARTERS", "BENCH"] and groups[2].startswith("OUT")
@@ -44,10 +44,10 @@ def test_a_connected_league_has_no_waivers(phone):
 
 def test_the_switch_lists_it_and_offers_to_add_another(phone):
     page, _ = phone
-    page.click("[data-tsbtn]")
-    items = [b.inner_text() for b in page.locator(".ts-item").all()]
+    page.click("#hdrswitch [data-tsbtn]")
+    items = [b.inner_text() for b in page.locator("#hdrswitch .ts-item").all()]
     assert any("Taco Corp" in i for i in items)
-    page.click("[data-tsadd]")
+    page.click("#hdrswitch [data-tsadd]")
     assert page.locator("#connect").is_visible()
     assert page.locator("#cn-league").is_visible()
     assert "Taco Corp" in page.locator(".cn-list").inner_text()

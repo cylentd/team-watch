@@ -2,8 +2,8 @@
 
 David: "The Digest is supposed to be GENERIC for the public. It shouldn't hone on to my roster or their
 roster." The first Monday card (2bf04c6) drew the reader's matchup per league and its headline said "You're
-up 1.6 going into Monday night"; both are superseded. The card is now the game: each side's two best
-projections before kickoff, the score, the clock and the game's top scorers while it is on.
+up 1.6 going into Monday night"; both are superseded. The card is now one block per game (2026-10-05, about
+80px): the day and the clock, the score, and the game's top performer in yards and touchdowns while it is on.
 
 Every state here plants a week with LIVE_GAMEDAY's leagues in the page, because that is what a public reader
 also carries, and then asserts the Digest drew none of their league names, team names or opponents' names.
@@ -91,7 +91,7 @@ def card_text(page):
 def test_during_a_game_the_digest_draws_no_league_team_or_opponent(browser, page_file):
     ctx, page, errors = digest(browser, page_file, mon=[], clock={"DET": {"state": "in", "q": 3, "clock": "4:12", "half": False, "detail": "", "clubs": ["DET"]}})
     assert page.locator(".dg-lead-h").inner_text() == "St. Brown ERUPTS: 60 yards"
-    assert page.locator("[data-dgnow] .dg-now-r").count() == 5
+    assert page.locator("[data-dgnow] .dg-now-r").count() == 3      # three rows and More (2026-10-05)
     assert_generic(page)
     # a player is hurt: the banner and a row name him, by his club, no team of mine
     page.evaluate("""() => { const r = LIVE_RANKS.rows.find(x => x.slug === 'bijan-robinson');
@@ -108,26 +108,21 @@ def test_monday_before_kickoff_is_the_game_its_projections_and_a_generic_headlin
     ctx, page, errors = digest(browser, page_file, at=MONDAY_EARLY, sunState="complete")
     card = page.locator(".dg-mnf")
     assert card.count() == 1 and "has-tn" in page.locator(".dg-ticker").get_attribute("class")
-    # "Monday night" over "5:15 PM · NO @ ATL"; the title is one line and sits above the game's line
-    assert card.locator(".dg-mnf-h b").inner_text() == "Monday night"
-    sub = re.sub(r"\s+", " ", card.locator(".dg-mnf-sub").inner_text()).strip()
-    assert re.fullmatch(r"\d{1,2}:\d\d [AP]M · NO @ ATL", sub), sub
-    assert card.locator(".dg-mnf-h b").bounding_box()["y"] < card.locator(".dg-mnf-sub").bounding_box()["y"]
-    assert card.locator(".dg-mnf-h b").bounding_box()["height"] < 30
-    # each side's two best projections, away first, best first, with the number the rankings carry
-    cols = card.locator(".dg-mnf-c")
-    assert cols.count() == 2
-    flat = lambda loc: re.sub(r"\s+", " ", loc.inner_text()).strip()
-    assert flat(cols.nth(0)) == "NO A. Kamara 14.8 C. Olave 13.3"
-    assert flat(cols.nth(1)) == "ATL B. Robinson 19.4 D. London 15.2"
-    assert card.locator(".dg-mnf-score").count() == 0
+    # one block: the day and the kickoff over the matchup, on line 1; no score and no top performer yet
+    block = card.locator(".dg-mnf-g")
+    assert block.count() == 1
+    assert re.fullmatch(r"[A-Z]{3} \d{1,2}:\d\d [AP]M · NO @ ATL", block.locator(".dg-mnf-w").inner_text().strip())
+    assert block.locator(".dg-mnf-s").count() == 0 and block.locator(".dg-mnf-t").count() == 0
+    assert block.bounding_box()["height"] <= 96
+    # the projections left the card
+    assert card.locator(".dg-mnf-c, .dg-mnf-p, .dg-mnf-h, .dg-foot").count() == 0
     # the banner is the week's top scorer between windows, not a matchup
     assert page.locator(".dg-lead-h").inner_text() == "St. Brown went off for 60 yards"
     assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
     assert_generic(page)
-    # a tap on a projected player opens his profile
-    cols.nth(1).locator(".dg-mnf-p").first.click()
-    assert "on" in page.locator("#modal").get_attribute("class")
+    # a tap on the block opens that game's sheet
+    block.click()
+    page.wait_for_selector("#gamesheet.on")
     ctx.close()
     assert errors == []
 
@@ -140,19 +135,26 @@ def test_monday_during_the_game_is_the_score_the_clock_and_the_games_top_scorers
                                clock={"ATL": {"state": "in", "q": 2, "clock": "3:15", "half": False, "detail": "", "clubs": ["ATL", "NO"]}})
     card = page.locator(".dg-mnf")
     assert card.count() == 1
-    sub = re.sub(r"\s+", " ", card.locator(".dg-mnf-sub").inner_text()).strip()
-    assert sub == "Q2 3:15 · NO @ ATL"
-    # the score reads away then home: NO 10 (what ATL's defense allowed), ATL 17 (what NO's did)
-    score = [re.sub(r"\s+", " ", card.locator(".dg-mnf-score > span").nth(i).inner_text()).strip() for i in range(2)]
-    assert score == ["NO 10", "ATL 17"]
-    # only this game's scorers, best first, none of Sunday's, no projections
-    got = re.sub(r"\s+", " ", card.locator(".dg-mnf-c").inner_text()).strip()
-    assert got == "TOP SCORERS B. Robinson 16.4 A. Kamara 11.8 K. Pitts 6.2"
+    block = card.locator(".dg-mnf-g")
+    assert block.count() == 1 and block.bounding_box()["height"] <= 96
+    flat = lambda loc: re.sub(r"\s+", " ", loc.inner_text()).strip()
+    # line 1: the day and the clock, no matchup once it is on
+    assert re.fullmatch(r"[A-Z]{3} · Q2 3:15", flat(block.locator(".dg-mnf-w")))
+    # line 2: the score reads away then home: NO 10 (what ATL's defense allowed), ATL 17 (what NO's did)
+    assert flat(block.locator(".dg-mnf-s")) == "NO 10 · ATL 17"
+    # line 3: this game's best performer in yards and touchdowns, never Sunday's, never points
+    assert flat(block.locator(".dg-mnf-t")) == "B. Robinson 60 yds"
     assert page.locator(".dg-lead-h").inner_text() == "St. Brown went off for 60 yards"    # the week's top score, on any field; his game is final, so the past
     assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
     assert_generic(page)
+    # a poll repaints the block in place: the score moves, the page is not rebuilt
+    page.evaluate("() => { document.querySelector('.dg').dataset.keep = '1'; GD_STATS.stats.ATL.pts_allow = 13; paintDigestLive(); }")
+    assert flat(card.locator(".dg-mnf-s")) == "NO 13 · ATL 17"
+    assert page.evaluate("document.querySelector('.dg').dataset.keep") == "1"
+    # a desktop: the block is at most 560px (STYLE.md, a label within 560px of its value) and the card as wide as its game
     page.set_viewport_size({"width": 1400, "height": 900})
-    assert page.locator(".dg-mnf").bounding_box()["width"] > 600
+    w_block = block.bounding_box()["width"]
+    assert 360 <= w_block <= 560 and page.locator(".dg-mnf").bounding_box()["width"] <= w_block + 2
     assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
     ctx.close()
     assert errors == []
@@ -164,13 +166,15 @@ def test_two_late_games_each_have_their_own_line_and_a_finished_one_says_final(b
     ctx, page, errors = digest(browser, page_file, at=MONDAY_EARLY, sunState="complete", mon=[["NO", "ATL"], ["KC", "HOU"]],
                                monStates=["complete", "pre_game"], stats=stats)
     card = page.locator(".dg-mnf")
-    games = card.locator(".dg-mnf-lg")
+    games = card.locator(".dg-mnf-g")
     assert games.count() == 2
-    sub = lambda i: re.sub(r"\s+", " ", games.nth(i).locator(".dg-mnf-sub").inner_text()).strip()
-    assert sub(0) == "Final · NO @ ATL" and re.fullmatch(r"\d{1,2}:\d\d [AP]M · KC @ HOU", sub(1))
-    assert games.nth(0).locator(".dg-mnf-score b").all_inner_texts() == ["7", "24"]
+    when = lambda i: games.nth(i).locator(".dg-mnf-w").inner_text().strip()
+    assert re.fullmatch(r"[A-Z]{3} · Final", when(0)) and re.fullmatch(r"[A-Z]{3} \d{1,2}:\d\d [AP]M · KC @ HOU", when(1))
+    assert games.nth(0).locator(".dg-mnf-s b").all_inner_texts() == ["7", "24"]
     assert games.nth(0).get_attribute("data-st") == "final" and games.nth(1).get_attribute("data-st") == "pre"
-    assert games.nth(1).locator(".dg-mnf-c").count() == 2                 # the one to come still shows projections
+    assert games.nth(1).locator(".dg-mnf-s, .dg-mnf-t").count() == 0       # the one to come has no score and no performer
+    assert games.nth(0).bounding_box()["height"] <= 96 and games.nth(1).bounding_box()["height"] <= 96
+    assert games.nth(0).bounding_box()["y"] < games.nth(1).bounding_box()["y"]   # two games stack on a phone
     assert_generic(page)
     ctx.close()
     assert errors == []

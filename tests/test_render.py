@@ -455,7 +455,8 @@ STATES = [
     ("build-panel", go("build") + [("click", "[data-betspanel]")]),
     # The research board (2026-10-03; it replaced the deal table): the Sunday tab, Monday night's
     # game on All, St. Brown's player sheet with two legs on, and the tray's sheet with a saved slip.
-    ("parlay-day", go("parlay") + [("click", ".bets-tabsrow [data-gwin]")]),
+    # The first kickoff tab: Slips' own row on a desktop, the Slips pill's first segment in the tab row on a phone.
+    ("parlay-day", go("parlay") + [("click", "[data-gwin]")]),
     ("parlay-board-mon", go("parlay") + [("eval", "GAL_WIN = 'evening-mon'; render()"), ("click", "[data-slchip='all']")]),
     ("parlay-player", go("parlay") + [("eval", "GAL_WIN = 'evening-mon'; render()"), ("click", "[data-slchip='all']"),
                                       ("click", ".sl-row[data-slplayer='amonra-st-brown']"),
@@ -492,11 +493,13 @@ STATES = [
     ("live-board", [("eval", LIVE_PLANT())] + go("live")),
     # A score that just moved wears its "+6.0" for a few seconds.
     ("live-moved", [("eval", LIVE_PLANT() + "GD_PULSE = {'8183': 6.0};")] + go("live")),
-    ("live-yahoo", [("eval", LIVE_PLANT())] + go("live") + [("click", "[data-gdleague='yahoo']")]),
-    # A first visit (2026-10-04): no team picked or followed, so no side is "mine": neutral BY chips,
-    # no "you" under the median, and one line that opens My teams.
+    # A first visit (2026-10-04): no team picked or followed, so My league asks whose game it is, every league a row.
     ("live-nopick", [("eval", "localStorage.removeItem('tw-team'); localStorage.removeItem('tw-follow')"),
                      ("eval", LIVE_PLANT())] + go("live")),
+    # The same card after a tap on a league (2026-10-05, mine.js): its teams in the same spot, a back link
+    # above them. (It replaced live-yahoo, which the seed's Yahoo pick had made identical to live-board.)
+    ("live-who-teams", [("eval", "localStorage.removeItem('tw-team'); localStorage.removeItem('tw-follow')"),
+                        ("eval", LIVE_PLANT())] + go("live") + [("click", ".gd-who [data-gdwho='espn']")]),
     # Sleeper stopped answering: the last good board stays, the stamp says how old it is.
     ("live-stale", [("eval", LIVE_PLANT() + "GD_ERR = 'Could not reach Sleeper. Trying again.'; GD_BUSY = true;")]
                    + go("live")),
@@ -894,15 +897,20 @@ def test_leaders_page_fits_the_screen(browser, page_file, w, h):
     """Leaders opens on the #1's card with the list running on under it, and a page is one screen
     (board/fit.js, 2026-09-26): as it lands and after a turn, the card, pager included, ends above
     the bottom edge with no scroll, and a taller screen holds more rows than a phone. A 360x740
-    phone showed five players before a tap until then; the hero plus the list must beat that."""
+    phone showed five players before a tap until then; the hero plus the list must beat that.
+    Since 2026-10-05 a phone's bottom tab bar (64px) covers the screen's foot, so the card ends above
+    the bar, and fit.js's own count stands: at 360x740 the #1 and five rows (six players), the card
+    ending 17px over the bar. A sixth row needs 38px the header bar, tab row and bottom bar now hold."""
     ctx, page, errors = open_at(browser, page_file, (w, h), "#board")
-    fits = "(() => { const m = document.querySelector('.bd-card').getBoundingClientRect(); return scrollY === 0 && m.bottom <= innerHeight; })()"
+    fits = """(() => { const m = document.querySelector('.bd-card').getBoundingClientRect(), bar = document.querySelector('.tabbar');
+      const edge = bar && getComputedStyle(bar).position === 'fixed' ? bar.getBoundingClientRect().top : innerHeight;
+      return scrollY === 0 && m.bottom <= edge; })()"""
     try:
         assert page.evaluate(fits)
         assert page.locator(".bd-card > .bd-hero").count() == 1, "the #1 keeps his card"
         rows = page.evaluate("document.querySelectorAll('.bd-card .bd-list:not(.bd-pinned) > .bd-row').length")
         assert rows == page.evaluate("BD_FIRST_SIZE") or page.locator(".bd-pager [data-bdpage='2']").count() == 0
-        assert page.evaluate("BD_FIRST_SIZE") >= (15 if h >= 1000 else 6)
+        assert page.evaluate("BD_FIRST_SIZE") >= (15 if h >= 1000 else 5)
         if page.locator(".bd-pager [data-bdpage='2']:not([disabled])").count():
             page.locator(".bd-pager [data-bdpage='2']").click()
             assert page.evaluate(fits)

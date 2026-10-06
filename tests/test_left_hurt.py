@@ -121,6 +121,9 @@ def digest(shared, **over):
 def live(shared, **over):
     page, errors = shared((360, 780))
     drive(page, go("roster"))
+    # Live follows the reader's team since 2026-10-05, and the seed picks the Yahoo one: Purdy starts
+    # for David's ESPN team, so that is the pick here.
+    page.evaluate("localStorage.setItem('tw-team', 'espn')")
     page.evaluate(PLANT, cfg(**over))
     drive(page, go("live"))
     page.wait_for_selector(".gd-mirror .gd-mr")
@@ -161,6 +164,8 @@ def test_hurt_starter_takes_the_headline_and_a_row_and_a_return_gives_it_back(sh
     # his own row leads Right now, in --down, and he is not in the five as well
     first = page.locator(".dg-now-r").first
     assert "hurt" in first.get_attribute("class") and "B. Purdy" in first.inner_text() and first.locator(".dg-now-p").text_content() == "Hurt"
+    assert page.locator(".dg-now-r").count() == 3 and page.locator(".dg-now-r:not(.hurt)").count() == 2   # three rows, he is one
+    page.locator("[data-dgmore]").click()
     assert page.locator(".dg-now-r:not(.hurt)").count() == 5
     assert "Purdy" not in " ".join(page.locator(".dg-now-r:not(.hurt)").all_inner_texts())
     down = page.evaluate("(() => { const d = document.createElement('i'); d.style.color = getComputedStyle(document.body).getPropertyValue('--down'); document.body.append(d); const c = getComputedStyle(d).color; d.remove(); return c; })()")
@@ -174,7 +179,9 @@ def test_hurt_starter_takes_the_headline_and_a_row_and_a_return_gives_it_back(sh
     # he comes back: the top scorer is the headline again and the extra row is gone
     page.evaluate("(h) => { GD_HURT = {[h.slug]: {...h, back: true}}; paintDigestLive(); }", PURDY)
     assert page.locator(".dg-lead-h").inner_text() == "St. Brown ERUPTS: 10 catches, 180 yards, 2 TDs"
-    assert page.locator(".dg-now-r.hurt").count() == 0 and page.locator(".dg-now-r").count() == rows
+    assert page.locator(".dg-now-r.hurt").count() == 0 and page.locator(".dg-now-r").count() == 5   # More stays open until it is closed
+    page.locator("[data-dgmore]").click()
+    assert page.locator(".dg-now-r").count() == rows == 3
     assert errors == []
 
 

@@ -426,8 +426,11 @@ def test_past_games_opens_from_under_the_slate_and_back_closes_it(page):
     assert texts(page, "[data-pvarcwk]") == ["Past weeks · Claude's record ›"]
     assert page.locator("[data-pvarcwk]").evaluate("e => e.getBoundingClientRect().top") > page.locator(".pv-win").last.evaluate(
         "e => e.getBoundingClientRect().bottom") - 1                     # under the games, not above them
-    page.evaluate("window.scrollTo(0, 60)")
+    # Scrolled down to the row: a phone's bottom tab bar (2026-10-05) covers the screen's last 64px, so a
+    # fixed scroll could leave the row under it and the click would scroll the page again before it opens.
+    page.evaluate("document.querySelector('[data-pvarcwk]').scrollIntoView({block: 'center'})")
     y = page.evaluate("scrollY")
+    assert y > 0
     open_record(page)
     assert not page.is_visible(".pv-slate") and page.is_visible(".pv-rz")
     assert page.evaluate("location.hash") == "#preview"

@@ -446,9 +446,11 @@ def test_monday_night_is_one_card_and_the_preview_rows_go(browser, page_file):
     assert story.endswith("PHI is flat (+0.3).")
     rows = page.evaluate("[...document.querySelectorAll('.dg-row')].map(r => r.dataset.dgrow)")
     assert not {"hurt", "mu", "wx", "t5", "st"} & set(rows) and "adds" in rows
-    # After kickoff the card is one line and the way to the live board.
-    page.evaluate('Date.now = () => Date.parse("2026-09-29T00:30:00Z"); DG_CUT = null; render()')
-    assert page.locator(".dg-tn.on [data-dggo='live']").count() == 1
+    # After kickoff the card is the game's one block (mnf.js), a tap away from its sheet.
+    page.evaluate("""() => { GD_GAMES.push({home: 'CHI', away: 'PHI', kickoff: '2026-09-29T00:15:00Z', week: GD.leagues[0].week});
+      Date.now = () => Date.parse("2026-09-29T00:30:00Z"); DG_CUT = null; render(); }""")
+    assert page.locator(".dg-tn.on [data-dgblk]").count() == 1
+    assert re.fullmatch(r"[A-Z]{3} · .+", page.locator(".dg-tn.on .dg-mnf-w").inner_text())
     assert errors == []
     ctx.close()
 
@@ -764,10 +766,21 @@ def test_during_a_game_the_headline_is_the_top_score_and_right_now_lists_five(br
     assert now.locator(".dg-sec").text_content() == "Right now"
     assert page.locator(".dg-facts").count() == 1                    # Right now is the one .dg-facts panel
     rows = now.locator(".dg-now-r")
-    assert rows.count() == 5
+    assert rows.count() == 3                                         # three rows, then More (2026-10-05)
     first = rows.first.inner_text().replace("\n", " ")
     assert "A. St. Brown" in first and "WR" in first and "DET" in first and "Q3 4:12" in first and "31.4" in first
+    assert [rows.nth(i).locator(".dg-now-p").inner_text() for i in range(3)] == ["31.4", "27.1", "24.0"]
+    more = now.locator("[data-dgmore]")
+    assert more.inner_text() == "More" and more.get_attribute("aria-expanded") == "false"
+    more.click()                                                     # the rest opens in place: no navigation, no rebuild
+    rows = page.locator("[data-dgnow] .dg-now-r")
+    assert rows.count() == 5 and page.evaluate("location.hash") != "#live"
     assert [rows.nth(i).locator(".dg-now-p").inner_text() for i in range(5)] == ["31.4", "27.1", "24.0", "19.2", "17.8"]
+    assert page.locator("[data-dgmore]").inner_text() == "Less"
+    page.locator("[data-dgmore]").click()
+    assert page.locator("[data-dgnow] .dg-now-r").count() == 3
+    page.locator("[data-dgmore]").click()
+    now = page.locator("[data-dgnow]")
     tds = sum(int(v["s"].get("rush_td", 0)) + int(v["s"].get("rec_td", 0)) for v in LEAD.values())
     assert now.locator(".dg-now-td").inner_text() == f"{tds} touchdowns so far"
     assert page.locator(".dg-need").count() == 0 and "no-need" in page.locator(".dg-ticker").get_attribute("class")

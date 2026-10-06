@@ -10,9 +10,9 @@
 ------------------------------------------------------------------ */
 const BD_FIT_MIN = 5, BD_FIT_MAX = 40;
 
-// Fixed bars along the screen's bottom edge (the phone's nav), at their full height.
+// Fixed bars along the screen's bottom edge (the phone's tab bar, .tabbar since 2026-10-05), at their full height.
 function bdBottomChromeH(){
-  return [...document.querySelectorAll(".navbar, .modes-sub.dock")]
+  return [...document.querySelectorAll(".navbar, .tabbar, .modes-sub.dock")]
     .filter(el => getComputedStyle(el).position === "fixed" && el.offsetHeight && el.getBoundingClientRect().top > innerHeight / 2)
     .reduce((s, el) => s + el.offsetHeight, 0);
 }

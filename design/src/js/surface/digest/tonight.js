@@ -44,8 +44,10 @@ function dgTnSky(w){
 function dgTnCard(g, now){
   const game = `${esc(g.away)} @ ${esc(g.home)}`;
   if (Date.parse(g.ko) <= now){
-    return `<section class="dg-tn on" aria-label="${t("digest.tn.label")}"><p class="dg-tn-on"><b>${game}</b>
-      ${t("digest.tn.playing")}<button type="button" class="dg-go" data-dggo="live">${t("digest.go.live")}${DG_ARROW}</button></p></section>`;
+    // Once it is on, the game is the same block as the last game's (mnf.js): its clock, score and best performer, one tap to its sheet.
+    const sched = gdWeekGames().find(x => gdSameClub(x.home, g.home) || gdSameClub(x.away, g.home));
+    return `<section class="dg-tn dg-mnf on" aria-label="${t("digest.tn.label")}">${sched ? dgMnfFor(sched)
+      : `<p class="dg-tn-on"><b>${game}</b> ${t("digest.tn.playing")}</p>`}</section>`;
   }
   const tag = r => `<em class="${r.status === "Doubtful" ? "q" : "dn"}">${r.status === "IR" ? t("digest.tag.ir") : r.status === "Doubtful" ? t("digest.tag.d") : t("digest.tag.out")}</em>`;
   const call = r => `<em>${r.call === "BEST" ? (r.pts || 0).toFixed(1) : r.call === "START" ? t("digest.tn.start") : t("digest.tn.sit")}</em>`;

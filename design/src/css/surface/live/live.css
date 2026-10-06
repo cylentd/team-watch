@@ -1,29 +1,22 @@
 /* ---------------------------------------------------------------- LIVE
-   Every matchup in a league, scored live (2026-09-28). Four tabs since 2026-10-04 (storyboard
-   https://claude.ai/artifact/JrM6hBMrAL2hjFzYPgKitV): Matchup (the score, the median, the mirrored
-   lineups: mirror.css), Games (tiles: mirror.css), TDs (tds.css) and League (every game, the
-   ranking). A phone stacks them under the tabs and the league chips; the column stays one reading
-   width wide on a tablet and a desktop, so a name and its points never sit a screen apart.
-   A row's state is words, never a colour alone.
+   Every matchup in the reader's league, scored live (2026-09-28). Three tabs since 2026-10-05
+   (storyboard https://claude.ai/artifact/ArF53Lvh12QV8fbL3mr9KP, option 2A): My league (the strip of
+   the league's matchups, the score, the median, the mirrored lineups: mirror.css, then the ranking),
+   NFL (tiles: mirror.css) and TDs (tds.css). The column stays one reading width wide on a tablet and a
+   desktop, so a name and its points never sit a screen apart. A row's state is words, never a colour
+   alone.
 
    One card per subject (Material's rule, DESIGN.md "Cards", 2026-09-28): the score, the lineups,
-   the league's games, the ranking. Rows inside a card stay rows; a card never holds a card. */
+   the ranking. Rows inside a card stay rows; a card never holds a card. */
 
-.gd{display:grid;gap:8px;padding:8px 0 24px;max-width:760px;margin-inline:auto}
+.gd{display:grid;gap:8px;padding:6px 0 24px;max-width:760px;margin-inline:auto}
 .gd-card{padding:12px 14px;border-radius:16px;background:var(--panel);border:1px solid var(--line)}
-.gd-match{display:grid;gap:6px}
-/* A sideways swipe to the next league (live.js gdStepLeague): what is under the chips comes in from
-   the side it came from; the tabs and chips hold still. */
-@media (prefers-reduced-motion:no-preference){
-  .gd.turn-r>:not(.gd-tabs,.gd-leagues){animation:gd-turn-r var(--dur-spring) var(--spring)}
-  .gd.turn-l>:not(.gd-tabs,.gd-leagues){animation:gd-turn-l var(--dur-spring) var(--spring)}
-  @keyframes gd-turn-r{from{transform:translateX(28px);opacity:.4}}
-  @keyframes gd-turn-l{from{transform:translateX(-28px);opacity:.4}}
-}
+.gd-match{display:grid;gap:5px;min-width:0}
 
-/* The tabs, then the league chips: two segmented rows, one question each. */
+/* The tabs: one segmented row. `.gd-leagues` is the same look for a row of modes inside a tab (the TDs
+   tab's Feed / By game, tds.js); Live's league chips that first wore it went on 2026-10-05. */
 .gd-tabs,.gd-leagues{display:grid;gap:2px;padding:3px;border-radius:12px;background:var(--panel)}
-.gd-tabs{grid-template-columns:repeat(4,minmax(0,1fr))}
+.gd-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}
 .gd-leagues{grid-template-columns:repeat(auto-fit,minmax(0,1fr))}
 .gd-tabs button,.gd-leagues button{
   min-height:34px;border:0;border-radius:9px;background:none;color:var(--ink-3);cursor:pointer;
@@ -37,11 +30,29 @@
 /* The game's two scores, who leads in words between them, and where each should finish. */
 .gd-head{
   display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:10px;
-  padding:8px 14px;border-radius:16px;background:var(--panel);border:1px solid var(--line);scroll-margin-top:72px;
+  padding:6px 14px;border-radius:16px;background:var(--panel);border:1px solid var(--line);scroll-margin-top:72px;
 }
 .gd-side{display:grid;gap:2px;min-width:0}
 .gd-side.b{text-align:right}
-.gd-side span{font:600 var(--t-2)/1.2 var(--ui);color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gd-side > span{font:600 var(--t-2)/1.2 var(--ui);color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* The reader's own name is the team switch (teamswitch.js, board.js gdNameOn): the name's own look,
+   with the switch's chevron well after it to say it opens; its menu drops from the left edge. */
+.gd-sw{padding:0;min-width:0;justify-self:start;max-width:100%}
+.gd-sw .ts-btn{min-width:0;max-width:100%;padding:0;gap:6px;border:0;background:none}
+.gd-sw .ts-btn:hover{background:none}
+.gd-sw .ts-team{min-width:0;overflow:hidden;text-overflow:ellipsis;font:600 var(--t-2)/1.2 var(--ui);color:var(--ink-2)}
+.gd-sw .ts-chev{width:20px;height:20px}
+.gd-sw .ts-chev svg{width:12px;height:12px}
+.gd-sw .ts-menu{left:0;right:auto;text-align:left}
+/* A phone's header bar is the team switch (chrome/phonenav.css): the head shows the plain name there. */
+.gd-me{display:none}
+@media (max-width:760px){
+  .gd-me{display:block}
+  .gd-head .gd-sw{display:none}
+}
+/* No game this week: the name and that one fact. */
+.gd-head.bye{grid-template-columns:minmax(0,1fr)}
+.gd-head.bye small{font:600 var(--t-2)/1.3 var(--ui);color:var(--ink-2)}
 .gd-side b{font:800 var(--t-6)/1 var(--disp);color:var(--ink-2)}
 .gd-side.lead b{color:var(--ink)}
 .gd-side.mine b{color:var(--lime)}
@@ -49,60 +60,72 @@
 .gd-lead{font:700 var(--t-1)/1 var(--mono);white-space:nowrap;border-radius:4px;padding:4px 6px;border:1px solid var(--line-2);color:var(--ink-2)}
 .gd-lead.up{background:var(--lime);border-color:var(--lime);color:var(--void)}
 .gd-lead.dn{border-color:var(--down);color:var(--down)}
-/* A phone has no room for the chip between two names: it drops under both scores, centred. */
+/* A phone has no room for the chip between two names, and a row of its own under the scores cost
+   the ninth starter (2026-10-05): it sits centred on the score line, in the gap between the two
+   scores. Its top is the head's padding, the one-line name (nowrap) and the side's gap, then half the
+   score's line, so it follows the type tokens rather than a measured height. At 360px two scores of
+   five characters leave 12px each side of the chip (measured 2026-10-05). */
 @media (max-width:430px){
-  .gd-head{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:6px}
-  .gd-lead{grid-row:2;grid-column:1 / -1;justify-self:center}
-}
-/* Where I stand against the league's median: green above it, red below. */
+  .gd-head{position:relative;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .gd-head.bye{grid-template-columns:minmax(0,1fr)}
+  .gd-lead{position:absolute;left:50%;top:calc(6px + var(--t-2) * 1.2 + 2px + var(--t-6) / 2);transform:translate(-50%,-50%)}
+}/* Where I stand against the league's median: green above it, red below. */
 .gd-medline{margin:0;text-align:center;font:600 var(--t-1)/1.2 var(--mono)}
 .gd-medline.up{color:var(--up)}
 .gd-medline.dn{color:var(--down)}
-/* While the reader has no team in this league: one line over the score that opens My teams. */
-.gd-pick{
-  appearance:none;min-height:34px;padding:0 12px;border-radius:10px;border:1px dashed var(--line-2);background:none;
-  color:var(--ink-2);font:600 var(--t-2)/1.2 var(--ui);cursor:pointer;text-align:center;
+/* The strip (league.js gdStripHTML): the league's matchups as one row of chips, the reader's first and
+   ringed in lime, the game on screen raised. The row scrolls sideways and the next chip shows past the
+   edge, saying "more" (David picked it, 2026-10-05, option 2A); nothing else on My league scrolls
+   sideways. A chip is its state word over two lines of a short name and a score. */
+.gd-strip{
+  display:flex;gap:6px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;
+  scrollbar-width:none;padding:2px;margin:-2px;
 }
-.gd-pick:hover{border-color:var(--ink-3);color:var(--ink)}
+.gd-strip::-webkit-scrollbar{display:none}
+.gd-chip{
+  flex:none;width:124px;scroll-snap-align:start;appearance:none;cursor:pointer;text-align:left;
+  display:grid;gap:1px;padding:4px 8px 5px;border-radius:10px;border:1px solid var(--line);background:var(--panel);
+  color:var(--ink);font:inherit;transition:background var(--dur-pop) var(--ease),border-color var(--dur-pop) var(--ease);
+}
+.gd-chip:active{transform:scale(var(--press))}
+/* The game on screen wears the ring: ink for another game, lime for yours. Yours keeps a thin lime
+   edge while another is open, so the way back stays findable (review 2026-10-05). */
+.gd-chip.on{background:var(--panel-3);border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.gd-chip.mine{border-color:var(--lime)}
+.gd-chip.mine.on{box-shadow:inset 0 0 0 1px var(--lime)}
+/* Above a phone the column holds a 12-team league's six chips on one line, none clipped. */
+@media (min-width:760px){
+  .gd-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));overflow:visible}
+  .gd-chip{width:auto;min-width:0}
+}
+.gd-chip:focus-visible{outline:2px solid var(--lime);outline-offset:1px}
+.gd-cr{display:flex;align-items:baseline;justify-content:space-between;gap:6px;min-width:0}
+.gd-cr > span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:600 var(--t-1)/1.15 var(--ui)}
+.gd-cr b{font:700 var(--t-1)/1.15 var(--mono);font-variant-numeric:tabular-nums}
+.gd-cr.behind{color:var(--ink-3)}
+/* The chip's state word: LIVE (lime, with a dot), n LEFT, or a lock and FINAL. */
+.gd-cs{display:flex;align-items:center;gap:5px;font:700 10px/1.15 var(--mono);letter-spacing:.04em;color:var(--ink-3)}
+.gd-cs.live{color:var(--lime)}
+.gd-cs.live::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--lime)}
+.gd-cs svg{width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:1.4}
 
-.gd-games h3,.gd-ladder h3{
+/* Whose game are you watching? (mine.js gdWhoHTML): one card, a row per league, then that league's
+   teams in the same spot with a back link (the team switch's own rows: chrome/teamswitch.css). */
+.gd-who{display:grid;gap:0;padding-bottom:6px}
+.gd-who h3{margin:0 0 8px;font:800 var(--t-4)/1.15 var(--disp);color:var(--ink);text-wrap:balance}
+.gd-who h4{margin:10px 0 8px;font:600 var(--t-1)/1.3 var(--ui);letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+.gd-who .ts-league,.gd-who .ts-back{background:none;padding-inline:2px}
+.gd-who .ts-league:last-child{border-bottom:0}
+.gd-who .ts-back{position:static;border-bottom:0;min-height:40px}
+.gd-who-teams{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+
+.gd-ladder h3{
   display:flex;justify-content:space-between;gap:8px;margin:0 0 4px;
   font:600 var(--t-1)/1.3 var(--ui);letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);
 }
 .gd-ladder h3 em{font-style:normal;font-weight:500;text-transform:none;letter-spacing:0}
 .gd-l small.up{color:var(--up)}
 .gd-l small.dn{color:var(--down)}
-
-/* The League tab: every game as its state over one row, a team and its score either side of the
-   middle, then the ranking. The gap between games (12px) is wider than the one inside a game (3px),
-   so a state line can only belong to the row under it. */
-.gd-league{display:grid;gap:16px}
-.gd-games{display:grid;gap:12px}
-.gd-g{
-  appearance:none;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer;width:100%;padding:0;
-  display:grid;grid-template-columns:minmax(0,1fr) auto auto minmax(0,1fr);column-gap:8px;row-gap:3px;align-items:center;
-  border-radius:10px;outline:1px solid transparent;outline-offset:4px;transition:outline-color var(--dur-pop) var(--ease);
-}
-/* The game on screen gets one outline around its row; it moves when another game is tapped. Your own
-   game is not marked here: your team's name says it, and the ranking below marks it. */
-.gd-g.on{outline-color:var(--lime)}
-.gd-g:focus-visible{outline:2px solid var(--lime)}
-.gd-gn,.gd-gp{grid-row:2}
-.gd-gn.a{grid-column:1}
-.gd-gp.a{grid-column:2}
-.gd-gp.b{grid-column:3}
-.gd-gn.b{grid-column:4;justify-content:flex-end;text-align:right}
-/* A name and a score, nothing else; grey on the side behind, a trophy on a finished game's winner. */
-.gd-gn{display:flex;align-items:center;gap:6px;min-width:0;font:600 var(--t-2)/1.25 var(--ui)}
-.gd-gn > span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.gd-gp{font:700 var(--t-3)/1 var(--mono);font-variant-numeric:tabular-nums}
-.gd-gn.behind,.gd-gp.behind{color:var(--ink-3)}
-.gd-cup{flex:none;width:16px;height:16px;fill:none;stroke:var(--lime);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-/* The game's state: LIVE (lime, with a dot), n LEFT, or a lock and FINAL. */
-.gd-gs{grid-column:1 / -1;display:flex;align-items:center;gap:6px;padding-left:2px;font:700 10px/1.2 var(--mono);letter-spacing:.04em;color:var(--ink-3)}
-.gd-gs.live{color:var(--lime)}
-.gd-gs.live::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--lime)}
-.gd-gs svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:1.4}
 
 .gd-ladder{display:grid}
 .gd-l{display:grid;grid-template-columns:22px minmax(0,1fr) auto auto;gap:10px;align-items:center;min-height:34px;padding:0 8px;border-radius:8px}

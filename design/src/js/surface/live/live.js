@@ -46,24 +46,17 @@ const gdOnScreen = () => (SURFACE === "live" || (SURFACE === "digest" && typeof 
 
 /* ---------------------------------------------------------------- which league, which game */
 
-const GD_LEAGUE_KEY = "tw-live-league";
-let GD_PICK = null;      /* the game on screen, as [away, home] ids; null = the reader's (gdGame) */
+/* The game tapped in My league's strip, as {lg: league key, game: [away, home] ids}; null = the
+   reader's own (gdGame). Memory only: every visit opens on the reader's game. */
+let GD_PICK = null;
 
-function gdLeague(){
-  let k = null;
-  try { k = localStorage.getItem(GD_LEAGUE_KEY); } catch (e) {}
-  return GD.leagues.find(l => l.key === k) || GD.leagues[0] || null;
-}
-function gdSetLeague(key){
-  try { localStorage.setItem(GD_LEAGUE_KEY, key); } catch (e) {}
-  GD_PICK = null;
-}
-/* The game on screen: the picked one, else the reader's (mine.js gdMine), else the league's first. */
-function gdGame(lg){
-  if (GD_PICK && lg.games.some(g => g[0] === GD_PICK[0] && g[1] === GD_PICK[1])) return GD_PICK;
-  const mine = gdMine(lg);
-  return (mine && lg.games.find(g => g.includes(mine))) || lg.games[0] || null;
-}
+/* Live's league: the reader's team's (mine.js gdKeys; Live's own league setting, tw-live-league, went
+   2026-10-05). With no team of theirs here, the first league, so NFL, TDs and the game sheet still
+   score by some league's rules; My league then asks whose game it is (mine.js gdWhoHTML). */
+function gdLeague(){ return gdLeagueFor(GD.leagues, gdKeys()) || GD.leagues[0] || null; }
+/* The game on screen: the one tapped in the strip, else the reader's; null while their team has no
+   game this week (a bye, out of the fantasy playoffs, week 18). */
+function gdGame(lg){ return gdGameOn(lg.games, GD_PICK && GD_PICK.lg === lg.key ? GD_PICK.game : null, gdMine(lg)); }
 
 /* ---------------------------------------------------------------- the clock */
 
@@ -201,9 +194,16 @@ function paintLive(){
   document.dispatchEvent(new Event("gd:stats"));
   const host = document.querySelector("[data-gdboard]");
   if (!host) return;
-  host.classList.remove("turn-r", "turn-l");   // a poll's repaint must not replay a swipe's slide
+  /* The team switch open on the score head: a poll waits for it to close rather than shut it under
+     the reader's finger. */
+  if (host.querySelector("#switch [data-tsmenu]:not([hidden])")) return;
+  /* The strip keeps where the reader scrolled it. */
+  const x = host.querySelector(".gd-strip")?.scrollLeft || 0;
   host.innerHTML = gdBoardHTML();
+  const strip = host.querySelector(".gd-strip");
+  if (strip) strip.scrollLeft = x;
   wireLive(host);
+  paintSubnav();   // a phone's tab row carries the tabs and NFL's count (nav.js)
 }
 
 function liveHTML(){
@@ -212,21 +212,20 @@ function liveHTML(){
 }
 
 function wireLive(host){
-  host.querySelectorAll("[data-gdleague]").forEach(b => b.addEventListener("click", () => {
-    gdSetLeague(b.dataset.gdleague); paintLive();
-  }));
-  /* The tabs (tabs.js) and the benches row repaint in place. */
-  host.querySelectorAll("[data-gdtab]").forEach(b => b.addEventListener("click", () => {
-    gdSetTab(b.dataset.gdtab); paintLive();
-  }));
+  wireGdTabs(host);   // the tabs (tabs.js) and the benches row repaint in place
   host.querySelectorAll("[data-gdbench]").forEach(b => b.addEventListener("click", () => {
     GD_BENCHES = !GD_BENCHES; paintLive();
   }));
-  wireGdPick(host);   // "Pick your team" (mine.js)
-  /* A league game (League tab) opens in the Matchup tab. */
+  wireGdWho(host);    // "Whose game are you watching?" (mine.js)
+  /* The reader's name on the score head is the team switch (board.js): a pick there changes the
+     league and keeps the reader on Live (teamswitch.js pickTeam). */
+  wireTeamSwitch(host);
+  /* A chip in the strip (strip.js) shows its game in the score head and the lineups under it; the
+     reader's own chip brings theirs back. No tab switch, no scroll: the head is right below. */
   host.querySelectorAll("[data-gdgame]").forEach(b => b.addEventListener("click", () => {
-    GD_PICK = b.dataset.gdgame.split(","); gdSetTab("matchup"); paintLive();
-    host.querySelector(".gd-head")?.scrollIntoView({block: "start", behavior: "smooth"});
+    const lg = gdLeague(), game = b.dataset.gdgame.split(",");
+    GD_PICK = lg && !game.includes(gdMine(lg)) ? {lg: lg.key, game} : null;
+    paintLive();
   }));
   /* An NFL game opens the game sheet (gamesheet.js), on the player the reader came from if a row's
      clock was tapped. */
@@ -240,7 +239,6 @@ function wireLive(host){
   }));
   /* The TDs tab is drawn by another file (surface/live/tds.js), which wires its own taps. */
   if (gdTab() === "tds" && typeof wireTds === "function") wireTds(host);
-  gdWireSwipe(host);
 }
 
 /* One timer for the life of the page, inert unless Live is on screen. */

@@ -40,12 +40,13 @@ def open_waivers(browser, page_file):
 
 
 def _switch(page, view):
-    page.locator("[data-tsbtn]").click()
-    page.locator(f".ts-item[data-k='{view}']").click()
+    # the switch on screen: the header's on a phone (2026-10-05), the hero's on a desktop
+    page.locator("[data-tsbtn]:visible").click()
+    page.locator(f".ts-item[data-k='{view}']:visible").click()
     page.wait_for_function("document.querySelector('#view .wv')")
 
 
-ON_TOP = """[...document.querySelectorAll('.ts-menu .ts-item, .ts-menu .ts-league')].map(b => {
+ON_TOP = """[...document.querySelectorAll('.ts-menu:not([hidden]) .ts-item, .ts-menu:not([hidden]) .ts-league')].map(b => {
   const r = b.getBoundingClientRect(), hit = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
   return hit && b.contains(hit) ? null : (b.dataset.k || b.dataset.tsleague || 'add') + ' under ' + (hit ? hit.className : 'nothing');
 }).filter(Boolean)"""
@@ -61,15 +62,15 @@ def test_the_waivers_switch_opens_on_a_phone(open_waivers, width):
     could not reach a team. Every row is on top where a finger taps, inside the screen, and a tap
     changes the league on the page."""
     page = open_waivers("yahoo", width=width)
-    page.locator("[data-tsbtn]").click()
-    menu = page.locator(".ts-menu")
+    page.locator("[data-tsbtn]:visible").click()
+    menu = page.locator(".ts-menu:visible")
     assert menu.is_visible()
     box = menu.bounding_box()
     assert box["height"] > 120, "a real list, not a sliver"
     assert box["x"] >= 0 and box["x"] + box["width"] <= width
     assert page.evaluate(ON_TOP) == []
-    page.locator(".ts-item[data-k='espn']").click()
-    assert page.evaluate("VIEW") == "espn" and page.locator(".ts-menu").is_hidden()
+    page.locator(".ts-item[data-k='espn']:visible").click()
+    assert page.evaluate("VIEW") == "espn" and page.locator(".ts-menu:visible").count() == 0
     assert "Parker Washington" in dict(_cards(page)), "the ESPN wire"
     # And back, from the same place.
     _switch(page, "yahoo")

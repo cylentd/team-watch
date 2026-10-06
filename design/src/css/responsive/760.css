@@ -1,56 +1,7 @@
 @media (max-width:760px){
   .wrap{padding:0 14px}
-  /* No brand on a phone (2026-09-24): an app's name does not sit beside its own tabs, and the
-     row has room for four words and two icons. Discord moves into the team switch's menu
-     (teamswitch.js); the status badge only ever repeated what the view's rows already show. */
-  .navbar .brand,.discordlink,#topbadge{display:none}
-  /* The week pill shows for one reason only, a newer build on main: then it is the reload
-     control (fresh.js), and it floats over the bottom edge where the thumb is. The bar stays put
-     while it does, since a moved bar would carry a fixed child with it. */
-  .statuswrap{display:none}
-  .statuswrap:has(.status-btn.stale){display:block;position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));
-    transform:translateX(-50%);z-index:45;margin:0}
-  .statuswrap .status-btn.stale{background:var(--panel-2);padding:9px 14px;border-radius:99px;
-    box-shadow:0 8px 24px rgb(var(--shadow-rgb) / .5)}
-  .statuswrap .status-menu{top:auto;bottom:calc(100% + 6px)}
-  body:has(.status-btn.stale) .navbar{transform:none!important}
-
-  /* The nav is at the top on a phone since 2026-09-24. The bottom bar reached a thumb, but it
-     read as a second app's chrome stacked under this one, and with Parlay's and DFS's own
-     switchers docked above it the bottom 114px of every screen was controls. At the top it is a
-     row of words: four groups, then search and chat as icons. It slides away while the reader
-     scrolls down a list and comes back on the first scroll up (js/chrome/hidebar.js). */
-  .navbar{
-    top:0;background:var(--void);box-shadow:none;
-    transition:transform .28s var(--ease);
-  }
-  .navrow{padding:0 6px;gap:0;height:var(--nav-h)}
-  .nav{flex:1 1 auto;min-width:0;gap:2px}
-  /* Five groups since 2026-09-26 (This week leads): at --t-4 with 8px sides the words ended at
-     335px and the search icon covered "Live", so the words step down to --t-3 with 5px sides.
-     League took Live's slot on 2026-09-28, 23px wider: at 5px sides it ran 22px under the search
-     icon at 360px, at 2px it ends 8px clear (measured in Chromium as a touch phone). */
-  .navitem{
-    border:0;padding:0 2px;height:var(--nav-h);background:none;
-    font-family:var(--disp);font-weight:700;font-size:var(--t-3);text-transform:none;letter-spacing:-.01em;
-    color:var(--ink-3);
-  }
-  .navitem .full{display:none}
-  .navitem .abbr{display:inline}
-  .navitem[aria-current="true"]::after{display:none}
-  .navsearch,.chatfab{flex:none;width:44px;padding:0;justify-content:center;color:var(--ink-2)}
-  .navsearch{min-width:0;margin:0;border:0;border-radius:0;background:none;align-self:stretch}
-  .navsearch:hover{background:none}
-  .navsearch .ix{width:20px;height:20px}
-  .navsearch .ix,.chatfab .ix{display:inline-flex}
-  .navsearch .full,.navsearch .abbr,.navkbd{display:none}
-
-  /* The group's views: underline tabs, sticky under the groups, and away with them. */
-  .subnav{position:sticky;top:var(--nav-h);z-index:38;transition:transform .28s var(--ease)}
-  /* 16px, not 20: This week's six views, Start/Sit among them (2026-10-03), fit 332px at 360. */
-  .subnav .modes-sub{gap:16px;padding:0}
-  body.hdr-away .navbar{transform:translateY(-100%)}
-  body.hdr-away .subnav{transform:translateY(calc(-100% - var(--nav-h)))}
+  /* The phone's chrome (header bar, tab row, bottom tab bar, and what rises above the bar) is
+     chrome/phonenav.css since 2026-10-05. */
 
   /* My Teams' hero on a phone is one line: the team switch is the title, the league and record
      sit beside it. The ghost numeral and the uppercase name repeated what the switch says. */
@@ -80,7 +31,8 @@
   .hero.slim{padding:12px 0 4px}
   .hero.slim .hero-eyebrow{margin-bottom:0}
   /* A book switch (Parlay, DFS) stays where it is written, at the top of its view, in flow. It
-     docked over the bottom tab bar until the nav moved up; now nothing is pinned to the bottom. */
+     docked over the bottom tab bar until the nav moved up (2026-09-24); the bar came back down on
+     2026-10-05 and the switchers stayed up: nothing of a view's is pinned above the bar but the tray. */
   .modes-sub.dock{margin:12px 0 0!important}
   .modes-sub.dock .mode-sub{flex:1 1 0;min-width:0;min-height:40px;padding-left:6px;padding-right:6px}
   .modes-sub.dock .explain-btn{flex:none;margin-left:8px;min-height:40px}

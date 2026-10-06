@@ -11,22 +11,30 @@
 
 <!-- One bar since 2026-09-25: brand, the four groups, then the tools. The brand row above it was
      a third bar of chrome before any data on a desktop, and spoke a different language from the
-     phone's row of words. A phone hides the brand, the Discord link and the week pill here
-     (760.css); Discord lives in the team switch's menu there. -->
+     phone's row of words. On a phone (2026-10-05, chrome/phonenav.css) this bar is the header: the
+     team switch and Ask, with the groups and search moved to the bottom tab bar; the brand, the Discord
+     link and the week pill hide there, and Discord lives in the team switch's menu. -->
 <header class="navbar">
   <div class="wrap navrow">
     <div class="brand">
       <div class="brand-mark"></div>
       <div class="brand-name" aria-label="{{copy:chrome.brand.label}}">Team<i class="slashes" aria-hidden="true"><b></b><b></b></i>Watch</div>
     </div>
+    <!-- A phone's header bar (2026-10-05, chrome/phonenav.css): the reader's team as the team switch
+         on the left, Ask on the right. Painted by nav.js paintHdrTeam on a phone only; empty on a desktop. -->
+    <div class="hdrteam" id="hdrteam"></div>
+    <!-- The groups and search. On a desktop this wrapper is display:contents, so they sit in the bar's
+         row as before; on a phone it is the bottom tab bar, where one thumb reaches it (2026-10-05). -->
+    <nav class="tabbar" id="tabbar" aria-label="{{copy:nav.bar.label}}">
     <div class="nav" id="nav"></div>
     <!-- Search is not a view, so it is not in NAV: no hash, no aria-current. On a phone it takes
-         the bar's fifth column (760.css); on a desktop it is a field that opens the tools. -->
+         the bottom bar's fifth slot (phonenav.css); on a desktop it is a field that opens the tools. -->
     <button class="navitem navsearch" id="navsearch" type="button" aria-haspopup="dialog" aria-controls="search" aria-label="{{copy:nav.search.field}}">
       <span class="ix"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg></span
       ><span class="full">{{copy:nav.search.field}}</span><span class="abbr">{{copy:nav.search.label}}</span
       ><kbd class="navkbd" aria-hidden="true">/</kbd>
     </button>
+    </nav>
     <span class="pill warn" id="topbadge"><span class="dot"></span><span class="full">{{copy:chrome.badge.defaultFull}}</span><span class="abbr">{{copy:chrome.badge.sampleAbbr}}</span></span>
     <div class="statuswrap" id="feed"></div>
     <!-- Chat sits in the bar, not floating over the rows it would otherwise cover. It stays
@@ -40,10 +48,9 @@
 </header>
 
 <!-- The group's views. Painted by paintSubnav(), hidden entirely for a group of one so a sub-nav
-     never shows a single tab the reader cannot move away from. Deliberately OUTSIDE .navbar: on a
-     phone the navbar is fixed to the bottom edge, and a docked row inside it lands in the same
-     slot Parlay's and DFS's own view switchers already occupy, covering them. Out here it sits in
-     normal flow under the header, where nothing competes with it. -->
+     never shows a single tab the reader cannot move away from. Outside .navbar, so it sticks on its
+     own: on a phone the header slides away on a scroll down and this row stays at the top, its open
+     pill opened in place into the view's own tabs (data/tabrow.js). -->
 <div class="subnav" id="subnav" hidden><div class="wrap subnav-in"></div></div>
 
 <!-- No footer (2026-10-04): it stood 161px under every view, a fifth of a phone, and was the only

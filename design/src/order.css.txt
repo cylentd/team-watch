@@ -165,6 +165,10 @@ surface/dfs/lineup.css
 #      those files own (the spring on transform), and wins ties by coming later.
 chrome/micro.css
 chrome/setchip.css
+# pin: chrome/phonenav.css after every surface file and before responsive/*: it lifts the slip tray
+#      (builder/bets.css) and the trade builder's footer (lboard/tbedit.css) above the phone's bottom
+#      bar at equal specificity, and responsive/760.css's .wrap gutter still wins where it should.
+chrome/phonenav.css
 responsive/960.css
 responsive/760.css
 responsive/lists.css

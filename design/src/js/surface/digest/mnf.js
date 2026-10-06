@@ -2,67 +2,73 @@
    2026-10-04, storyboard https://claude.ai/artifact/JrM6hBMrAL2hjFzYPgKitV (David: "The Monday game
    needs to be its own section."). Once every game before the week's last day is final and one or two
    remain (data/digest.js dgWeek: Monday, or any last standalone game), a card sits above the ticker:
-   the game itself. Before kickoff each side's two best projections; while it is on, the score, the
-   clock and the game's top scorers; after it, the final. It stands in for Tonight's card (tonight.js)
-   while it shows.
+   the game itself. It stands in for Tonight's card (tonight.js) while it shows.
+
+   One compact block per game (2026-10-05, storyboard https://claude.ai/artifact/ArF53Lvh12QV8fbL3mr9KP):
+   about 80px at 360px where the card was 300-450px. Line 1 the day and the clock ("MON · Q3 4:12", or
+   before kickoff "MON 8:15 PM · ATL @ NO"), line 2 the score in mono ("ATL 17 · NO 21"), line 3 the
+   game's top performer in yards and touchdowns, never fantasy points (David, 2026-10-05: every league
+   scores differently). Before kickoff there is no score and no line 3. A tap opens the game's sheet
+   (live/gamesheet.js, the one the Games tab opens). Tonight's card uses the same block once its game
+   is on (tonight.js dgTnCard), so a Thursday game reads like a Monday one.
 
    Generic by rule (David, 2026-10-04: "The Digest is supposed to be GENERIC for the public. It
    shouldn't hone on to my roster or their roster."): nothing here reads a league, a roster or a
-   matchup. The first version of this card (2bf04c6) drew the reader's matchup per league and is
-   superseded. Numbers are the league-wide ones every view shares: LIVE_RANKS (projections) and the
-   poll's GD_STATS (scores, GD_STATS.lead). */
+   matchup. Numbers are the poll's GD_STATS (scores, GD_STATS.lead), the same reply Live reads. */
 
 /* The late slot itself, dgMnfSlot, is data (data/digest.js): this file only draws it. */
 
-const DG_MNF_PROJ = 2;      // projected players per side, before kickoff
-const DG_MNF_SCORERS = 3;   // top scorers of the game, once it is on
-
-const dgDayName = k => new Date(k).toLocaleDateString("en-US", {weekday: "long"});
 const dgMnfIn = (g, r) => gdSameClub(g.home, r.team) || gdSameClub(g.away, r.team);
 
-/* One player: his name and a number, a tap opens his profile. */
-const dgMnfPlayer = (r, num) => `<li><button type="button" class="dg-mnf-p" ${dgLvAttrs(r)}>
-  <span>${esc(dgShort(r.n))}</span><i>${num}</i></button></li>`;
-
-const dgMnfCol = (title, rows, num) => `<div class="dg-mnf-c"><h4>${esc(title)}</h4>${rows.length
-  ? `<ul>${rows.map(r => dgMnfPlayer(r, num(r))).join("")}</ul>` : `<p>${t("digest.mnf.none")}</p>`}</div>`;
-
-/* Before kickoff: each side's best projections, LIVE_RANKS' own rows (QB, RB, WR, TE). */
-function dgMnfProj(g){
-  const rows = typeof LIVE_RANKS !== "undefined" && LIVE_RANKS ? LIVE_RANKS.rows : [];
-  const side = club => rows.filter(r => gdSameClub(club, r.team)).sort((a, b) => b.pts - a.pts).slice(0, DG_MNF_PROJ);
-  return `<div class="dg-mnf-cols">${[g.away, g.home].map(c => dgMnfCol(c, side(c), r => dgN1(r.pts))).join("")}</div>`;
+/* His yards and touchdowns: a passer's yards are his passing yards, anyone else's rushing plus
+   receiving; a passing TD is the same score as the catch, counted once (dgTopLine says the same in the
+   headline, in its own words). A scorer with neither (a kicker, a defense) gets Live's whole line. */
+function dgMnfNums(r){
+  const s = r.s || {}, n = k => +(s[k] || 0), pass = n("pass_yd") > n("rush_yd") + n("rec_yd");
+  return {yds: Math.round(pass ? n("pass_yd") : n("rush_yd") + n("rec_yd")), tds: n("rush_td") + (pass ? n("pass_td") : n("rec_td"))};
 }
 
-/* While it is on and after it: the score (Sleeper's, nflnow.js gdClubScore) and the game's best scorers
-   from the poll's league-wide list. Neither draws until the poll has said something about the game. */
-function dgMnfPlay(g){
-  const a = gdClubScore(g.away, g.home), h = gdClubScore(g.home, g.away);
-  const club = (code, s) => `<span><span class="dg-mnf-nm">${esc(code)}</span><b>${s}</b></span>`;
-  const score = a !== null && h !== null ? `<p class="dg-mnf-score">${club(g.away, a)}${club(g.home, h)}</p>` : "";
-  const top = dgLeaders().filter(r => dgMnfIn(g, r)).slice(0, DG_MNF_SCORERS);
-  return score + (top.length ? `<div class="dg-mnf-cols one">${dgMnfCol(t("digest.mnf.scorers"), top, r => dgN1(r.pts))}</div>` : "");
+function dgMnfLine(r){
+  const {yds, tds} = dgMnfNums(r);
+  const line = [yds > 0 ? t("digest.mnf.yds", {n: yds}) : "", tds ? t("digest.mnf.td", {n: tds}) : ""].filter(Boolean).join(", ");
+  return line || gdLine({pos: r.pos}, r.s || {});
 }
 
-/* The line over a game: its time before kickoff, its clock while on, "Final" after; then the matchup. */
+/* The game's best performer in the poll's league-wide list: the best scorer who has yards or a
+   touchdown, else just the best scorer. */
+function dgMnfTop(g){
+  const rows = dgLeaders().filter(r => dgMnfIn(g, r));
+  return rows.find(r => { const m = dgMnfNums(r); return m.yds > 0 || m.tds > 0; }) || rows[0] || null;
+}
+
+/* "MON · Q3 4:12" once on, "MON · Final" after; before kickoff "MON 8:15 PM · ATL @ NO". */
 function dgMnfWhen(x){
-  if (x.st === "final") return t("live.clock.final");
-  if (x.st === "live") return gdClockOf(x.g.home).label;
-  return kickTime(x.k);   // the card already says "Monday night"; the page's one format (lib/kick.js) without the day
+  const fmt = kickFmt(x.k), day = fmt.split(" ")[0].toUpperCase();
+  if (x.st === "final") return t("digest.mnf.on", {day, clock: t("live.clock.final")});
+  if (x.st === "live") return t("digest.mnf.on", {day, clock: gdClockOf(x.g.home).label});
+  return t("digest.mnf.pre", {day, time: kickTime(x.k), game: `${x.g.away} @ ${x.g.home}`});
 }
 
+/* One game's block: the whole of it is one button. `x` is {g, k, st} (dgWeek's row). */
 function dgMnfGame(x){
-  return `<div class="dg-mnf-lg" data-st="${x.st}">
-    <p class="dg-mnf-sub"><time>${esc(dgMnfWhen(x))}</time><i aria-hidden="true"> · </i><span>${esc(x.g.away)} @ ${esc(x.g.home)}</span></p>
-    ${x.st === "pre" ? dgMnfProj(x.g) : dgMnfPlay(x.g)}</div>`;
+  const g = x.g, played = x.st !== "pre";
+  const a = played ? gdClubScore(g.away, g.home) : null, h = played ? gdClubScore(g.home, g.away) : null;
+  const score = a !== null && h !== null
+    ? `<span class="dg-mnf-s">${esc(g.away)} <b>${a}</b><i aria-hidden="true"> · </i>${esc(g.home)} <b>${h}</b></span>` : "";
+  const top = played ? dgMnfTop(g) : null;
+  const by = top ? `<span class="dg-mnf-t">${esc(dgShort(top.n))} ${esc(dgMnfLine(top))}</span>` : "";
+  return `<button type="button" class="dg-mnf-g" data-dgblk="${esc(g.home)}" data-event="${esc(g.espn || "")}"
+    data-away="${esc(g.away)}" data-home="${esc(g.home)}" data-st="${x.st}">
+    <span class="dg-mnf-w">${esc(dgMnfWhen(x))}</span>${score}${by}${DG_ARROW}</button>`;
 }
 
-/* The card: "Monday night", then each of the slot's games. "" when there is no slot. */
+/* The block for a game of the week's schedule, in the state the clock puts it in. Both the late slot and
+   Tonight's card (tonight.js) draw it, and a poll repaints it in place by its club (now.js). */
+const dgMnfFor = g => dgMnfGame({g, k: Date.parse(g.kickoff), st: dgGameState(g, Date.now())});
+
+/* The card: each of the slot's games as a block. "" when there is no slot. */
 function dgMnfHTML(){
   const late = dgMnfSlot(Date.now());
   if (!late) return "";
-  return `<section class="dg-tn dg-mnf" data-dgmnf aria-label="${t("digest.mnf.label")}">
-    <header class="dg-mnf-h"><b>${t("digest.mnf.head", {day: dgDayName(late[0].k)})}</b></header>
-    ${late.map(dgMnfGame).join("")}
-    <div class="dg-foot"><span></span><button type="button" class="dg-go" data-dgmgo>${t("digest.go.live")}${DG_ARROW}</button></div></section>`;
+  return `<section class="dg-tn dg-mnf" data-dgmnf aria-label="${t("digest.mnf.label")}">${late.map(dgMnfGame).join("")}</section>`;
 }

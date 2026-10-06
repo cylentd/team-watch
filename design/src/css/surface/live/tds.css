@@ -50,13 +50,16 @@
 .td-row.scored .td-line{color:var(--up)}
 .td-row.scored:not(.live) .td-clock{color:var(--ink-3)}
 
-/* ---------------------------------------------------------------- VIEW SWITCH, CHIPS, GAME CARDS
-   Feed | By game is the Live league chips' segmented row (live.css `.gd-leagues`); Mine, Pass, Rush, Rec
-   are the shared `.chip` toggles. By game is one card per game: its header (a button that opens the
-   game sheet) holds the two clubs, the score and the clock, so its rows hold neither. */
+/* ---------------------------------------------------------------- CHIP ROW, GAME CARDS
+   One row: Mine, Pass, Rush, Rec are the shared `.chip` toggles, a 1px divider, then By game, the same
+   chip as a view toggle (pressed = By game, else Feed). The row scrolls sideways when it does not fit.
+   By game is one card per game: its header (a button that opens the game sheet) holds the two clubs,
+   the score and the clock, so its rows hold neither. */
 
-.td-filters{display:flex;flex-wrap:wrap;gap:8px}
-.td-filters .chip{min-height:40px}
+.td-filters{display:flex;flex-wrap:nowrap;align-items:center;gap:6px;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain}
+.td-filters::-webkit-scrollbar{display:none}
+.td-filters .chip{flex:none;min-height:40px;padding-left:8px;padding-right:8px;letter-spacing:.08em;white-space:nowrap}
+.td-sep{flex:none;align-self:center;width:1px;height:24px;margin:0 2px;background:var(--line-2)}
 
 .td-gh{
   appearance:none;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;

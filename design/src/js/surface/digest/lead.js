@@ -136,9 +136,19 @@ function dgLeadNews(it){
 const dgStamp = s => { const x = String(s || "").replace("T", " ").slice(0, 19); return x.length === 16 ? x + ":00" : x; };
 const DG_STORY_TONE = {result: "go", injury: "out"};
 
-function dgLeadStory(d){
+/* The story, or null when it is not newer than the packet (a leftover of an earlier run). */
+const dgStoryFresh = d => {
   const s = d && d.story;
-  if (!s || !s.head || !s.fact || !s.asof || dgStamp(s.asof) <= dgStamp(d.asof)) return null;
+  return s && s.head && s.fact && s.asof && dgStamp(s.asof) > dgStamp(d.asof) ? s : null;
+};
+const dgRecapBlock = () => (typeof LIVE_RECAP !== "undefined" ? LIVE_RECAP : null);
+
+/* A result story about the Recap's week and top scorer is Recap's banner, not this one (2026-10-05, David:
+   "they should never be the same content"; data/leadsplit.js says which). With no game on the Digest
+   then leads with the coming week, the packet's own lead. */
+function dgLeadStory(d){
+  const s = lspDigestStory(dgStoryFresh(d), d.week, dgRecapBlock());
+  if (!s) return null;
   const p = s.player, club = (p && p.team) || s.club || "";
   // Sleeper's code (LAR, WSH) is not always the colour table's (LA, WAS): take whichever spelling it has.
   const team = club ? gdCodes(club).find(c => TEAM_COLOURS[c]) || "" : "";
@@ -153,13 +163,20 @@ function dgLeadStory(d){
 function dgLead(){
   const d = dgD();
   if (!d) return {tone: "quiet", photo: "", head: t("digest.empty.head"), fact: t("digest.empty.sub")};
-  // Once games are on, the banner is the day's top score (now.js), or the last game's matchup (mnf.js).
-  const live = dgLeadLive(d);
-  if (live) return live;
-  const l = d.lead;
-  const row = l && d.leadRows[l.rule] ? d.leadRows[l.rule][l.index] : null;
-  if (!row) return {tone: "quiet", photo: "", head: t("digest.lead.quiet.head"), fact: t("digest.lead.quiet.sub")};
-  return l.rule === "hurt" ? dgLeadHurt(row) : l.rule === "weather" ? dgLeadWx(row) : dgLeadNews(row);
+  // Once games are on, the banner is the day's top score (now.js), or the last game's matchup (mnf.js);
+  // else the packet's own lead. Whichever it is, it never names the Recap banner's subject: the first
+  // candidate that does not is the banner (data/leadsplit.js).
+  const quiet = {tone: "quiet", photo: "", head: t("digest.lead.quiet.head"), fact: t("digest.lead.quiet.sub")};
+  return lspPick([dgLeadLive(d), ...dgLeadPacket(d), quiet], lspRecapSubject(dgRecapBlock())) || quiet;
+}
+
+/* The packet's lead, then the other headlines behind it, written as banners: the candidates after a lead
+   the Recap banner already names. */
+function dgLeadPacket(d){
+  const l = d.lead, row = l && d.leadRows[l.rule] ? d.leadRows[l.rule][l.index] : null;
+  if (!row) return [];
+  const first = l.rule === "hurt" ? dgLeadHurt(row) : l.rule === "weather" ? dgLeadWx(row) : dgLeadNews(row);
+  return [first, ...d.leadRows.news.filter(r => r !== row).slice(0, 3).map(dgLeadNews)];
 }
 
 /* The ghost one character to a box, each knowing its place (--i), so a hover can flip them in turn

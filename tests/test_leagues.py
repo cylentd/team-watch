@@ -144,12 +144,12 @@ def test_the_build_without_ayo_files_leaves_ayo_out(tmp_path, monkeypatch):
 def test_the_team_switch_lists_three_teams_and_opens_ayo(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     drive(page, go("roster"))
-    page.click("[data-tsbtn]")
-    shown = page.evaluate("[...document.querySelectorAll('.ts-menu .ts-item[data-k]')].map(b => b.dataset.k)")
+    page.click("#hdrswitch [data-tsbtn]")       # a phone's switch is the header's (2026-10-05)
+    shown = page.evaluate("[...document.querySelectorAll('#hdrswitch .ts-menu .ts-item[data-k]')].map(b => b.dataset.k)")
     assert shown == ["yahoo", "espn", "ayo"]
-    page.click(".ts-item[data-k='ayo']")
+    page.click("#hdrswitch .ts-item[data-k='ayo']")
     assert page.evaluate("VIEW") == "ayo"
-    assert page.locator(".ts-team").text_content() == "Taylor Made for Sundays"
+    assert page.locator("#hdrswitch .ts-team").text_content() == "Taylor Made for Sundays"
     assert errors == []
     ctx.close()
 
@@ -223,8 +223,8 @@ def test_one_yahoo_league_still_draws_the_chip(browser, tmp_path, monkeypatch):
     drive(page, go("recap"))
     assert "The Madden Curse" in page.locator(".bp-kick").text_content()
     drive(page, go("roster"))
-    page.click("[data-tsbtn]")
-    assert page.evaluate("[...document.querySelectorAll('.ts-menu .ts-item[data-k]')].map(b => b.dataset.k)") == ["yahoo", "espn"]
+    page.click("#hdrswitch [data-tsbtn]")
+    assert page.evaluate("[...document.querySelectorAll('#hdrswitch .ts-menu .ts-item[data-k]')].map(b => b.dataset.k)") == ["yahoo", "espn"]
     assert errors == []
     ctx.close()
 

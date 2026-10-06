@@ -301,10 +301,12 @@ def test_the_board_fits_a_phone_and_spreads_on_a_desktop(browser, page_file):
 
 def test_the_kickoff_tabs_pick_what_the_board_shows(browser, page_file):
     """Slips' kickoff is its row of tabs (a whole day by its weekday, then its parts); a tab shows
-    that kickoff's games, and Build opens with it."""
+    that kickoff's games, and Build opens with it. On a phone (2026-10-05) the tabs are the Slips pill's
+    segments in the tab row, and the view's own row keeps only the book chip."""
     ctx, page, errors = open_page(browser, page_file, (360, 800))
-    page.evaluate("SURFACE='parlay'; render()")
-    tabs = page.locator(".bets-tabsrow [data-gwin]")
+    page.evaluate("navGo('parlay')")
+    assert page.locator(".bets-tabsrow .bd-tabs").is_hidden()
+    tabs = page.locator("#subnav .tr-x [data-gwin]")
     assert tabs.count() > 0, "the fixture has no kickoff windows"
     assert tabs.all_inner_texts() == page.evaluate("KICK_CHIPS.map(kickChipLabel)")
     k = tabs.nth(1).get_attribute("data-gwin")
@@ -312,7 +314,8 @@ def test_the_kickoff_tabs_pick_what_the_board_shows(browser, page_file):
     assert page.evaluate("GAL_WIN") == k and page.evaluate("slWin().k") == k
     games = page.evaluate("slGames(slWin()).map(g => g.game)")
     assert page.locator(".sl-game h3").all_inner_texts() == games
-    assert page.locator(f".bets-tabsrow [data-gwin='{k}'][aria-selected='true']").count() == 1
+    assert page.locator(f"#subnav [data-gwin='{k}'][aria-pressed='true']").count() == 1
+    assert page.locator(f".bets-tabsrow [data-gwin='{k}'][aria-selected='true']").count() == 1   # a desktop's row follows
     assert page.evaluate("document.documentElement.scrollWidth") <= 360
     page.evaluate("SURFACE='build'; BETS_PANEL=true; render()")
     assert page.locator("[data-msel='gwin']").input_value() == k

@@ -126,14 +126,22 @@ function dgHurtRow(h){
    which open Live's TDs tab. "" outside live mode, where nothing takes its place. Players who
    left a game hurt lead it, the best projections first (their own rows, so none is in the five as well). */
 const DG_HURT_ROWS = 3;
+/* Three rows, then More (2026-10-05, storyboard https://claude.ai/artifact/ArF53Lvh12QV8fbL3mr9KP): the
+   rest opens in place, because the reader asked for it with a tap (STYLE.md "Layout"). The touchdown
+   count already goes to Live's TDs tab, so More does not. The choice is kept while the page is open. */
+const DG_NOW_SHOW = 3;
+let DG_NOW_MORE = false;
+
 function dgNowHTML(){
   if (!dgLiveMode(Date.now())) return "";
   const n = dgTdCount(), hurt = gdPlaying(Date.now()) ? gdHurtNow().slice(0, DG_HURT_ROWS) : [], out = new Set(hurt.map(h => h.slug));
   const top = dgLeaders().filter(r => !out.has(slugOf(r.n))).slice(0, DG_NOW_TOP);
+  const rows = [...hurt.map(dgHurtRow), ...top.map(dgNowRow)], more = rows.length > DG_NOW_SHOW;
   return `<section class="dg-facts dg-now" data-dgnow aria-labelledby="dg-now-h">
     <h3 class="dg-sec" id="dg-now-h">${t("digest.live.title")}</h3>
-    <ol class="dg-now-l">${hurt.map(dgHurtRow).join("")}${top.map(dgNowRow).join("")}</ol>
-    ${n ? `<button type="button" class="dg-go dg-now-td" data-dgtds>${n === 1 ? t("digest.live.td1") : t("digest.live.tds", {n})}${DG_ARROW}</button>` : ""}</section>`;
+    <ol class="dg-now-l">${(more && !DG_NOW_MORE ? rows.slice(0, DG_NOW_SHOW) : rows).join("")}</ol>
+    <div class="dg-now-f">${more ? `<button type="button" class="dg-go dg-now-more" data-dgmore aria-expanded="${DG_NOW_MORE}">${DG_NOW_MORE ? t("digest.now.less") : t("digest.now.more")}</button>` : ""}
+    ${n ? `<button type="button" class="dg-go dg-now-td" data-dgtds>${n === 1 ? t("digest.live.td1") : t("digest.live.tds", {n})}${DG_ARROW}</button>` : ""}</div></section>`;
 }
 
 /* Need to know is empty once games are on and nobody unplayed is hurt or new: it is not drawn. */
@@ -156,7 +164,9 @@ function dgPhaseKey(){
   if (!d) return "";
   // The live lead is part of the key: the band is a data-dgslug button (wired once, at render) or a
   // data-dglv one (the page's one listener), so a swap between them must render again.
-  return [dgLiveMode(Date.now()), dgMnfSlot(Date.now()) !== null, dgLeadLive(d) !== null, dgNeedEmpty(d), d.hurt.length + d.starters.length].join("|");
+  // Tonight's card turns into the game's block at its kickoff (tonight.js), so each one's kickoff is part of the key too.
+  const on = (d.tn || []).map(g => Date.parse(g.ko) <= Date.now() ? 1 : 0).join("");
+  return [dgLiveMode(Date.now()), dgMnfSlot(Date.now()) !== null, dgLeadLive(d) !== null, dgNeedEmpty(d), d.hurt.length + d.starters.length, on].join("|");
 }
 
 function dgSwap(el, key, html){
@@ -180,7 +190,12 @@ function paintDigestLive(){
   }
   dgSwap(host.querySelector(":scope > .dg-lead"), "lead", dgLeadHTML());
   dgSwap(host.querySelector("[data-dgnow]"), "now", dgNowHTML());
-  dgSwap(host.querySelector("[data-dgmnf]"), "mnf", dgMnfHTML());
+  // Each game's block (the last game's card, or Tonight's once it is on) repaints on its own, by its home club.
+  const games = gdWeekGames();
+  host.querySelectorAll("[data-dgblk]").forEach(el => {
+    const g = games.find(x => x.home === el.dataset.dgblk);
+    if (g) dgSwap(el, "blk." + g.home, dgMnfFor(g));
+  });
 }
 
 /* One listener on the Digest's root, so a part replaced in place needs no wiring of its own. */
@@ -192,5 +207,14 @@ function dgLiveClick(e){
     morphLogo(); navGo("live"); window.scrollTo({top: 0});
     return;
   }
-  if (e.target.closest("[data-dgmgo]")){ morphLogo(); navGo("live"); window.scrollTo({top: 0}); }
+  const more = e.target.closest("[data-dgmore]");
+  if (more){
+    DG_NOW_MORE = !DG_NOW_MORE;
+    const host = more.closest("[data-dgnow]"), html = dgNowHTML();
+    DG_LAST.now = html; host.outerHTML = html;
+    document.querySelector("[data-dgmore]")?.focus({preventScroll: true});
+    return;
+  }
+  const blk = e.target.closest("[data-dgblk]");   // a game's block opens its sheet, the one Live's Games tab opens
+  if (blk) gsOpen({event: blk.dataset.event, away: blk.dataset.away, home: blk.dataset.home}, blk);
 }
