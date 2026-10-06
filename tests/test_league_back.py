@@ -322,7 +322,8 @@ def test_the_luck_ladder_ranks_every_team_luckiest_first_and_never_says_robbed(r
     html = recap_js("(table) => lgLuckHTML({table})", table)
     assert recap_js("(table) => lgLuckRows({table}).map(r => r.id)", table) == [2, 3, 1, 5, 4]
     assert html.count("<li") == 5, "every team has a rung"
-    assert html.count("Lucky") == 1 and html.count("Snakebit") == 1 and "Robbed" not in html
+    # "Unlucky", plain (David asked what "Snakebit" meant, 2026-10-06; its first name, kept clear of "Robbed")
+    assert html.count("Lucky") == 1 and html.count("Unlucky") == 1 and "Robbed" not in html and "Snakebit" not in html
     assert "+1.2" in html and "−1.1" in html and ">0.0<" in html, "the luck as a signed number, one decimal"
     assert "vs. what their points earned" in html and "all-play" not in html.lower()
     # A chart, not a second table (David, 2026-10-06, "looks the same" as the standings): a bar per team from

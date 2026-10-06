@@ -413,7 +413,7 @@ chips and the bottom `bp2-you` block (`back.js`, `lead.js`, `myrecap.js`; ESPN k
   headline, cloned from the page with its computed paint, so the image and the card never disagree.
 - **Luck so far** (`lgLuckHTML`, first cut, superseded by the chart above): a ladder of all 12, luckiest first, by luck in wins (`league_back.add_standings`:
   real wins minus the wins the team's points earned, each week's score earning the share of the other teams it
-  outscored). Record, the signed number, a tag at a whole win either way (Lucky green, Snakebit red, never
+  outscored). Record, the signed number, a tag at a whole win either way (Lucky green, Unlucky red (Snakebit until 2026-10-06), never
   "Robbed", the week's award), one caption, "vs. what their points earned". No jargon on the page (David asked
   what "all-play" meant, 2026-10-06; the method stays in the code). Place against points rank, tried first,
   read 0 for 10 of 12 teams because the standings already break ties by points.

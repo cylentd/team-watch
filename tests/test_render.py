@@ -942,6 +942,10 @@ def test_recap_puts_your_game_first_then_league_and_nothing_overlaps_a_header(br
         lead, games, first_row = (page.evaluate(box, q) for q in (".bp2-lead", ".lg-games", ".lg-row"))
         assert lead[1] - lead[0] >= 0.98 * (games[1] - games[0]), "the lead spans the games' full width"
         assert first_row[2] > lead[2], "the other games sit under the lead"
+        # No empty slot (David, 2026-10-06, "we still have a missing gap"): the last row of games widens to end
+        # at the grid's right edge, whatever the count (five games left one of three slots empty).
+        grid, last_row = (page.evaluate(box, q) for q in (".lg-gr", ".lg-gr > .lg-row:last-child"))
+        assert abs(grid[1] - last_row[1]) <= 2, (grid, last_row)
         # One headline (2026-10-06, "it looks like two headlines"): the only big tabloid line in League is the
         # lead's title, 40px; the game's line under it is text.
         big = """() => [...document.querySelectorAll('.lg-league *')].filter(e => e.childElementCount === 0 && e.checkVisibility()

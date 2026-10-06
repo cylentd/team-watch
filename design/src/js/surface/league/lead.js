@@ -86,7 +86,8 @@ function lgAgateHTML(w){
    (league_back.add_standings: real wins minus the wins its points earned against everyone), drawn as a bar
    from a zero line, so it reads as a chart beside the standings' table ("looks the same", 2026-10-06): its
    length against the week's biggest luck, right and green when lucky, left and red when not. The table's tags
-   name the two most extreme each side; "Robbed" is the week's award, so the unlucky side is Snakebit. */
+   name the two most extreme each side; "Robbed" is the week's award, so the unlucky side is Unlucky (Snakebit until David asked
+   what it meant, 2026-10-06). */
 const lgLuckRows = w => [...w.table].sort((a, b) => b.luck - a.luck);
 const lgSignedLuck = n => n > 0 ? `+${n.toFixed(1)}` : n < 0 ? `−${(-n).toFixed(1)}` : "0.0";
 function lgLuckHTML(w){
@@ -94,7 +95,7 @@ function lgLuckHTML(w){
   if (!rows.length) return "";
   const most = Math.max(...rows.map(r => Math.abs(r.luck))) || 1;
   const tag = r => r.tag === "lucky" ? `<span class="lg-tag g">${t("league.luck.lucky")}</span>`
-    : r.tag === "robbed" ? `<span class="lg-tag r">${t("league.luck.snakebit")}</span>` : "";
+    : r.tag === "robbed" ? `<span class="lg-tag r">${t("league.luck.unlucky")}</span>` : "";
   const bar = r => `<span class="lg-lucktrack"><span class="lg-luckbar ${r.luck > 0 ? "up" : r.luck < 0 ? "dn" : "zero"}" style="--w:${
     +(Math.abs(r.luck) / most * 100).toFixed(1)}%"></span></span>`;
   return `<section class="lg-sec lg-luck" aria-label="${t("league.luck.title")}">
