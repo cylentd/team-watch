@@ -12,8 +12,8 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "design"))
 import contract  # noqa: E402
 import teams  # noqa: E402
-from pages.teams import TeamsPage  # noqa: E402
-from test_render import LOAD_MS, SEED  # noqa: E402,F401
+from component import mount  # noqa: E402,F401  (the fixture)
+from pages.teams import open_teams  # noqa: E402
 
 
 def slug(name):
@@ -235,24 +235,9 @@ def test_the_fixture_build_has_a_board_for_each_league_that_names_its_slots(buil
 
 # ---- the page: one card per team (2026-10-06) -------------------------------------------------------
 
-def phone(browser, page_file, pick=None, w=360, h=800):
-    """The fixture page at `w` x `h` as a reader who picked `pick` (a TEAMS key), or the suite's own pick."""
-    ctx = browser.new_context(viewport={"width": w, "height": h}, reduced_motion="reduce")
-    page = ctx.new_page()
-    page.set_default_timeout(5000)
-    errors = []
-    page.on("pageerror", lambda e: errors.append(str(e)))
-    page.route(re.compile(r"^https?://"), lambda route: route.abort())
-    page.add_init_script(SEED + (f'try {{ localStorage.setItem("tw-team", "{pick}"); }} catch (e) {{}}' if pick else ""))
-    page.goto(page_file.as_uri() + "#teams", timeout=LOAD_MS)
-    page.wait_for_selector("#view[data-view='teams'] > *")
-    return ctx, page, errors
-
-
-def plant(page, roster, key="yahoo", season=None, bye=None):
-    """Gives league `key` a board from an invented roster file, and draws it."""
-    block = teams.live_league(key, roster, season, *teams._points(proj(**PTS), slug, None, None)[1:], slug, bye)
-    page.evaluate("b => { LIVE_TEAMS.leagues = LIVE_TEAMS.leagues.filter(l => l.key !== b.key); LIVE_TEAMS.leagues.push(b); render(); }", block)
+def plant(board, roster, key="yahoo", season=None, bye=None):
+    """Gives league `key` its cards from an invented roster file, and draws them."""
+    board.plant(teams.live_league(key, roster, season, *teams._points(proj(**PTS), slug, None, None)[1:], slug, bye))
 
 
 def fillers(n):
@@ -261,52 +246,43 @@ def fillers(n):
 
 @pytest.mark.render
 @pytest.mark.req("Teams", ac="the board is the league of the reader's team, one chip")
-def test_teams_opens_on_the_readers_league_and_the_one_chip_moves_it(browser, page_file):
+def test_teams_opens_on_the_readers_league_and_the_one_chip_moves_it(mount):
     """One chip since 2026-10-05: the team switch. It named the league beside it; a team picked in it is the league.
     On a phone the switch is the header bar's (#hdrswitch) and the chip keeps the league's name."""
-    ctx, page, errors = phone(browser, page_file, pick="espn")
-    board = TeamsPage(page)
-    assert page.locator(".lgchip-lg").inner_text().lower() == "espn"
-    assert page.locator(".lg-switch, [data-lgpick]").count() == 0, "no league chips of their own"
-    assert page.locator(".navitem[data-s='league']").count() == 1
-    assert page.locator(".mode-sub[aria-pressed='true']").inner_text().lower() == "teams"
+    board, errors = open_teams(mount, "espn")
+    assert board.chip.league_name().lower() == "espn"
+    assert board.chip.old_league_chips() == 0, "no league chips of their own"
+    assert board.league_group_count() == 1
+    assert board.open_leaf().lower() == "teams"
     assert board.names() == ["Purdy Big in Japan", "Run It Back"]
-    assert page.locator(".lgchip .teamswitch").is_hidden()
-    page.locator("#hdrswitch [data-tsbtn]").click()
-    page.locator("#hdrswitch [data-tsleague='ayo']").click()
-    page.locator("#hdrswitch .ts-item[data-k='ayo']").click()
-    assert page.locator(".lgchip-lg").inner_text().lower() == "ayo"
+    assert board.chip.switch_hidden()
+    board.pick_in_header("ayo", "ayo")
+    assert board.chip.league_name().lower() == "ayo"
     assert board.names() == ["Taylor Made for Sundays", "Don Wick"]
-    ctx.close()
     assert errors == []
 
 
 @pytest.mark.render
 @pytest.mark.req("Teams", ac="the reader's own card is first with a lime outline whatever the sort")
-def test_only_the_readers_own_card_is_pinned_first_with_a_lime_outline(browser, page_file):
-    ctx, page, _ = phone(browser, page_file, pick="espn")
-    board = TeamsPage(page)
-    plant(page, league(me="Gamma"), key="espn")                  # Gamma is the reader's, and last on total
+def test_only_the_readers_own_card_is_pinned_first_with_a_lime_outline(mount):
+    board, _ = open_teams(mount, "espn")
+    plant(board, league(me="Gamma"), key="espn")                 # Gamma is the reader's, and last on total
     assert [c["mine"] for c in board.cards()] == [True, False, False]
     assert board.names()[0] == "Gamma", "the reader's card is pinned above Alpha, who leads on total"
     assert board.outline(board.cards()[0]["key"]).count("200, 255, 46") == 1, "lime"
     board.sort("QB")
     assert board.names()[:2] == ["Gamma", "Alpha"], "a sort moves the others, never the pin"
-    ctx.close()
-    ctx, page, _ = phone(browser, page_file, pick="espn-run-it-back")
-    board = TeamsPage(page)
+    board, _ = open_teams(mount, "espn-run-it-back")
     assert [c["mine"] for c in board.cards()] == [True, False], "a leaguemate's team is the reader's, whatever it is"
-    page.evaluate("pickTeam('ayo')")
+    board.pick_team("ayo")
     assert board.cards()[0]["mine"] and board.names()[0] == "Taylor Made for Sundays", "the new league pins the new team"
-    ctx.close()
 
 
 @pytest.mark.render
 @pytest.mark.req("Teams", ac="a sort chip row reorders the cards")
-def test_a_sort_chip_orders_the_cards_by_its_column_and_total_is_the_default(browser, page_file):
-    ctx, page, _ = phone(browser, page_file, pick="nothing")
-    board = TeamsPage(page)
-    plant(page, league(), key="yahoo")
+def test_a_sort_chip_orders_the_cards_by_its_column_and_total_is_the_default(mount):
+    board, _ = open_teams(mount, "nothing")
+    plant(board, league(), key="yahoo")
     assert [s["label"] for s in board.sorts()] == ["Total", "QB", "RB", "WR", "TE"], "no FLX chip"
     assert [s["label"] for s in board.sorts() if s["pressed"]] == ["Total"]
     assert board.names() == ["Alpha", "Beta", "Gamma"]
@@ -320,15 +296,13 @@ def test_a_sort_chip_orders_the_cards_by_its_column_and_total_is_the_default(bro
     assert board.names() == ["Alpha", "Beta", "Gamma"], "TE: 8, 7, 6"
     board.sort("Total")
     assert board.names() == ["Alpha", "Beta", "Gamma"]
-    ctx.close()
 
 
 @pytest.mark.render
 @pytest.mark.req("Teams", ac="the strength strip tints 8% off the median and marks a spare")
-def test_a_strip_cell_is_tinted_only_8_percent_off_the_median_and_a_spare_is_marked(browser, page_file):
-    ctx, page, _ = phone(browser, page_file, pick="nothing")
-    board = TeamsPage(page)
-    plant(page, league(), key="yahoo")
+def test_a_strip_cell_is_tinted_only_8_percent_off_the_median_and_a_spare_is_marked(mount):
+    board, _ = open_teams(mount, "nothing")
+    plant(board, league(), key="yahoo")
     got = {c["name"]: [(x["col"], x["value"], x["tone"] + ("+" if x["spare"] else "")) for x in c["strip"]] for c in board.cards()}
     # Medians: QB 18, RB 11, WR 10, TE 7, FLX 6. 8% either side is the tint; WR is Alpha's spare.
     assert got == {
@@ -336,19 +310,17 @@ def test_a_strip_cell_is_tinted_only_8_percent_off_the_median_and_a_spare_is_mar
         "Beta": [("QB", "18.0", ""), ("RB", "10.0", "dn"), ("WR", "9.0", "dn"), ("TE", "7.0", ""), ("FLX", "6.0", "")],
         "Gamma": [("QB", "16.0", "dn"), ("RB", "11.0", ""), ("WR", "10.0", ""), ("TE", "6.0", "dn"), ("FLX", "5.0", "dn")]}
     assert board.key_swatches() == 3
-    ctx.close()
 
 
 @pytest.mark.render
 @pytest.mark.req("Teams", ac="one card per team, starters a row each, the bench one line, BYE or a dash for 0")
-def test_every_team_gets_a_card_with_its_starters_its_bench_and_bye_or_a_dash_for_zero(browser, page_file):
-    ctx, page, errors = phone(browser, page_file, pick="espn")
-    board = TeamsPage(page)
+def test_every_team_gets_a_card_with_its_starters_its_bench_and_bye_or_a_dash_for_zero(mount):
+    board, errors = open_teams(mount, "espn")
     delta = [{**row("Q Delta", "QB", "QB"), "team": "NOP"}, {**row("R Delta", "RB", "RB"), "team": "XXX"},
              {**row("W Delta", "WR", "WR"), "team": "NOP"}, {**row("T Delta", "TE", "TE"), "team": "XXX"},
              {**row("R Delta Two", "RB", "BN"), "team": "XXX"}]
     season = {"teams": {"1": {"name": "Alpha", "w": 3, "l": 1, "t": 0}}}
-    plant(page, league({"Delta": delta, **fillers(8)}), key="espn", season=season, bye=lambda team: team == "NOP")
+    plant(board, league({"Delta": delta, **fillers(8)}), key="espn", season=season, bye=lambda team: team == "NOP")
     cards = board.cards()
     assert len(cards) == 12, "every team in the league, not only the top"
     alpha = next(c for c in cards if c["name"] == "Alpha")
@@ -360,25 +332,23 @@ def test_every_team_gets_a_card_with_its_starters_its_bench_and_bye_or_a_dash_fo
     assert [(s["slot"], s["name"], s["pts"]) for s in d["starters"]] == [
         ("QB", "Q. Delta", "BYE"), ("RB", "R. Delta", "–"), ("WR", "W. Delta", "BYE"), ("TE", "T. Delta", "–"),
         ("FLX", "R. Delta Two", "–")], "0 points is BYE only when his club has no game that week"
-    assert page.get_by_test_id("teams-bench").count() == 12
-    assert TeamsPage(page).fits()
-    ctx.close()
+    assert board.bench_count() == 12
+    assert board.fits()
     assert errors == []
 
 
 @pytest.mark.render
 @pytest.mark.req("Teams", ac="the foot offers This is my team with no pick, as a quiet text link, Your team on the reader's own card")
-def test_with_no_team_every_foot_offers_this_is_my_team_as_a_quiet_link_and_a_tap_on_a_card_opens_nothing(browser, page_file):
-    ctx, page, _ = phone(browser, page_file, pick="nothing")
-    board = TeamsPage(page)
-    page.evaluate("VIEW = 'espn'; render()")
+def test_with_no_team_every_foot_offers_this_is_my_team_as_a_quiet_link_and_a_tap_on_a_card_opens_nothing(mount):
+    board, _ = open_teams(mount, "nothing")
+    board.show_league("espn")
     assert [c["foot"] for c in board.cards()] == ["This is my team", "This is my team"]
     assert not any(c["mine"] or c["yours"] or c["tradeLink"] for c in board.cards()), "no team yet, so nobody to trade with"
     link = board.foot_box("espn-run-it-back")
     assert link["bg"] == "rgba(0, 0, 0, 0)", "a text link: lime is for the one primary action on a screen"
     assert link["w"] < 200 and link["h"] >= 44, f"not a full-width button, a 44px target: {link}"
     board.tap_card("espn-run-it-back")
-    assert page.locator(".lb-grid").count() == 1 and page.evaluate("location.hash") == "#teams", "a card is not a button"
+    assert board.grid_count() == 1 and board.hash() == "#teams", "a card is not a button"
     board.set_as_mine("espn-run-it-back")
     cards = board.cards()
     assert [(c["name"], c["mine"], c["yours"], c["setButton"]) for c in cards] == [
@@ -386,15 +356,13 @@ def test_with_no_team_every_foot_offers_this_is_my_team_as_a_quiet_link_and_a_ta
     assert cards[0]["foot"] == "Your team"
     assert not cards[1]["setButton"] and not cards[1]["yours"], "once the reader has a team here no other card offers it"
     assert cards[1]["foot"] == "Trades with them ›", "the other card ends in the trade link instead"
-    assert page.evaluate("localStorage.getItem('tw-team')") == "espn-run-it-back"
-    ctx.close()
+    assert board.stored_team() == "espn-run-it-back"
 
 
 @pytest.mark.render
 @pytest.mark.req("Teams", ac="a card of another team ends its foot with Trades with them, at the right end")
-def test_another_teams_card_ends_in_trades_with_them_at_the_right_end_of_its_foot(browser, page_file):
-    ctx, page, errors = phone(browser, page_file, pick="espn")
-    board = TeamsPage(page)
+def test_another_teams_card_ends_in_trades_with_them_at_the_right_end_of_its_foot(mount):
+    board, errors = open_teams(mount, "espn")
     cards = {c["key"]: c for c in board.cards()}
     assert cards["espn"]["foot"] == "Your team" and not cards["espn"]["tradeLink"], "the reader's own card has nobody to trade with"
     assert cards["espn-run-it-back"]["foot"] == "Trades with them ›"
@@ -402,59 +370,50 @@ def test_another_teams_card_ends_in_trades_with_them_at_the_right_end_of_its_foo
     assert 0 <= (card["x"] + card["w"]) - (link["x"] + link["w"]) <= 14, f"flush with the card's right padding: {link} in {card}"
     assert link["h"] >= 44 and link["bg"] == "rgba(0, 0, 0, 0)"
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
 @pytest.mark.req("Teams", ac="starters one 20px row each at the --t-2 step")
-def test_a_starter_is_one_20px_row_at_the_t_2_step(browser, page_file):
-    ctx, page, _ = phone(browser, page_file, pick="espn")
-    board = TeamsPage(page)
-    plant(page, league(fillers(9)), key="espn")
-    rows = page.evaluate("[...document.querySelectorAll('.lb-s')].map(e => Math.round(e.getBoundingClientRect().height))")
+def test_a_starter_is_one_20px_row_at_the_t_2_step(mount):
+    board, _ = open_teams(mount, "espn")
+    plant(board, league(fillers(9)), key="espn")
+    rows = board.starter_heights()
     assert rows and max(rows) <= 22, f"starter rows {rows}"
-    assert page.evaluate("getComputedStyle(document.querySelector('.lb-n')).fontSize") == "13.5px", "the --t-2 step, not below"
-    ctx.close()
+    assert board.starter_name_font() == "13.5px", "the --t-2 step, not below"
 
 
 @pytest.mark.render
-def test_a_league_with_no_rosters_draws_an_empty_state_and_keeps_the_chip(browser, page_file):
-    ctx, page, _ = phone(browser, page_file)                    # the suite's reader is on the Madden Curse: no slots in the fixture
-    board = TeamsPage(page)
+def test_a_league_with_no_rosters_draws_an_empty_state_and_keeps_the_chip(mount):
+    board, _ = open_teams(mount)                                # the suite's reader is on the Madden Curse: no slots in the fixture
     assert board.is_empty_state()
-    assert page.locator(".lgchip").count() == 1
-    page.evaluate("pickTeam('espn')")
+    assert board.chip.chip_count() == 1
+    board.pick_team("espn")
     assert len(board.cards()) == 2
-    ctx.close()
 
 
 @pytest.mark.render
 @pytest.mark.req("Teams", ac="a phone gets one column of cards that start near the top")
-def test_the_cards_fit_a_phone_in_one_column_and_the_first_starts_near_the_top(browser, page_file):
-    ctx, page, _ = phone(browser, page_file, pick="espn")
-    board = TeamsPage(page)
-    plant(page, league(fillers(9)), key="espn")
+def test_the_cards_fit_a_phone_in_one_column_and_the_first_starts_near_the_top(mount):
+    board, _ = open_teams(mount, "espn")
+    plant(board, league(fillers(9)), key="espn")
     first = board.box()
     assert first["y"] <= 260, f"the first card starts at {first['y']:.0f}px"
     assert board.fits()
     assert len(board.card_lefts()) == 1 and 330 <= first["w"] <= 340, "one column, the page's gutters either side"
-    assert page.evaluate("[...document.querySelectorAll('.lb-name')].every(b => b.scrollWidth <= b.clientWidth)"), "a name keeps room"
-    ctx.close()
+    assert board.names_keep_room(), "a name keeps room"
 
 
 @pytest.mark.render
 @pytest.mark.req("Teams", ac="desktop: cards in a grid, three across at 1280")
-def test_the_cards_are_three_across_on_a_desktop(browser, page_file):
-    ctx, page, _ = phone(browser, page_file, pick="espn", w=1280, h=900)
-    board = TeamsPage(page)
-    plant(page, league(fillers(9)), key="espn")
+def test_the_cards_are_three_across_on_a_desktop(mount):
+    board, _ = open_teams(mount, "espn", size=(1280, 900))
+    plant(board, league(fillers(9)), key="espn")
     lefts = board.card_lefts()
     assert len(lefts) == 3, f"columns at {lefts}"
-    left = page.evaluate("document.querySelector('.lb-card').getBoundingClientRect().left - document.querySelector('.lgchip').getBoundingClientRect().left")
+    left = board.card_left_from_chip()
     assert left == 0, f"{left}px from the frame's edge"
-    first_row = [b for b in page.evaluate("[...document.querySelectorAll('.lb-card')].slice(0, 3).map(c => Math.round(c.getBoundingClientRect().height))")]
+    first_row = board.card_heights(3)
     assert len(set(first_row)) == 1, "cards of a row share a top and a bottom edge"
     assert board.fits()
-    ctx.close()
 
 

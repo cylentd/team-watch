@@ -122,10 +122,11 @@ FULL_LOADS = {
     "test_range_view.py": 1, "test_render.py": 10,
     "test_render_connect.py": 3, "test_role.py": 1, "test_roster_sheet.py": 5,
     "test_scope.py": 1, "test_search.py": 4, "test_sos_view.py": 8, "test_startsit.py": 1,
-    "test_startsit_v3.py": 1, "test_style_rules.py": 2, "test_teams_board.py": 12,
+    "test_startsit_v3.py": 1, "test_style_rules.py": 2,
     "test_teamswitch.py": 6, "test_top_calls.py": 1,
     "test_waiver_owner.py": 5, "test_weather.py": 5, "test_yahoo_lineup.py": 2,
-}   # 150 in all (2026-10-06: test_trade_edit.py (20) and test_trade_offers.py (17) moved to `mount` with the trade finder;
+}   # 138 in all (2026-10-06: test_teams_board.py's 12 moved to `mount` with pages/teams.py, the 150 below);
+# 150 before that (2026-10-06: test_trade_edit.py (20) and test_trade_offers.py (17) moved to `mount` with the trade finder;
 # 187 before it, after the second wave: clip reel, pack stage, Recap and the Digest's
 # live tests moved to `mount`); 240 earlier that day (profile, Digest, roster cards, Bets, strip and TD clips;
 # test_profile_journeys.py's 1 is the shared page its journey tests use); test_ranks.py's 4 and 4 of test_ranks_dst.py's 6 moved to `mount` on 2026-10-05, its

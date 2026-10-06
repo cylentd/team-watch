@@ -61,13 +61,13 @@ const lbWhatHTML = () => { const wk = schedWeek(); return `<p class="lb-what">${
 function lbKeyHTML(){
   const pct = LB_EDGE * 100;
   return `<div class="lb-key" data-testid="teams-key" role="group" aria-label="${t("lboard.key.aria")}">
-    <span class="lb-k"><i class="lb-sw up"></i>${t("lboard.key.above", {pct})}</span>
-    <span class="lb-k"><i class="lb-sw dn"></i>${t("lboard.key.below", {pct})}</span>
-    <span class="lb-k"><i class="lb-plus">+</i>${t("lboard.key.spare")}</span></div>`;
+    <span class="lb-k" data-testid="teams-key-item"><i class="lb-sw up"></i>${t("lboard.key.above", {pct})}</span>
+    <span class="lb-k" data-testid="teams-key-item"><i class="lb-sw dn"></i>${t("lboard.key.below", {pct})}</span>
+    <span class="lb-k" data-testid="teams-key-item"><i class="lb-plus">+</i>${t("lboard.key.spare")}</span></div>`;
 }
 
 /* A league whose rosters are missing keeps the switch, so the reader can go to one that has them. */
-const lbEmptyHTML = () => `<div class="state-empty lb-empty"><div><b>${t("lboard.empty.title")}</b>
+const lbEmptyHTML = () => `<div class="state-empty lb-empty" data-testid="teams-empty"><div><b>${t("lboard.empty.title")}</b>
   <span>${t("lboard.empty.sub")}</span></div></div>`;
 
 function lbViewHTML(){
@@ -75,7 +75,7 @@ function lbViewHTML(){
   if (!lg) return `<div class="wrap lb">${sw}${lbEmptyHTML()}</div>`;
   const cols = lbCols(lg);
   return `<div class="wrap lb">${sw}${lbWhatHTML()}${lbSortsHTML(lg)}
-    <section class="lb-grid" aria-label="${t("lboard.cards.aria")}">${lbRows(lg).map(tm => lbCardHTML(tm, lg, cols)).join("")}</section>
+    <section class="lb-grid" data-testid="teams-grid" aria-label="${t("lboard.cards.aria")}">${lbRows(lg).map(tm => lbCardHTML(tm, lg, cols)).join("")}</section>
     ${lbKeyHTML()}</div>`;
 }
 

@@ -12,7 +12,7 @@ const lbPts = r => r.pts ? lbNum(r.pts) : r.bye ? t("lboard.card.bye") : t("lboa
 
 /* One strip cell: the column's label over the team's sum there, green or red 8% off the league's median. */
 function lbCellHTML(tm, lg, c){
-  const plus = tm.spare.includes(c) ? `<i class="lb-plus" title="${t("lboard.spare.title")}">+</i>` : "";
+  const plus = tm.spare.includes(c) ? `<i class="lb-plus" data-testid="teams-spare" title="${t("lboard.spare.title")}">+</i>` : "";
   return `<span class="lb-c ${lbTone(tm.cols[c], lg.median[c])}" data-testid="teams-cell" data-col="${c}">
     <i class="lb-cl">${c}</i><b data-testid="teams-cell-v">${lbNum(tm.cols[c])}</b>${plus}</span>`;
 }

@@ -24012,13 +24012,13 @@ const lbWhatHTML = () => { const wk = schedWeek(); return `<p class="lb-what">${
 function lbKeyHTML(){
   const pct = LB_EDGE * 100;
   return `<div class="lb-key" data-testid="teams-key" role="group" aria-label="${t("lboard.key.aria")}">
-    <span class="lb-k"><i class="lb-sw up"></i>${t("lboard.key.above", {pct})}</span>
-    <span class="lb-k"><i class="lb-sw dn"></i>${t("lboard.key.below", {pct})}</span>
-    <span class="lb-k"><i class="lb-plus">+</i>${t("lboard.key.spare")}</span></div>`;
+    <span class="lb-k" data-testid="teams-key-item"><i class="lb-sw up"></i>${t("lboard.key.above", {pct})}</span>
+    <span class="lb-k" data-testid="teams-key-item"><i class="lb-sw dn"></i>${t("lboard.key.below", {pct})}</span>
+    <span class="lb-k" data-testid="teams-key-item"><i class="lb-plus">+</i>${t("lboard.key.spare")}</span></div>`;
 }
 
 /* A league whose rosters are missing keeps the switch, so the reader can go to one that has them. */
-const lbEmptyHTML = () => `<div class="state-empty lb-empty"><div><b>${t("lboard.empty.title")}</b>
+const lbEmptyHTML = () => `<div class="state-empty lb-empty" data-testid="teams-empty"><div><b>${t("lboard.empty.title")}</b>
   <span>${t("lboard.empty.sub")}</span></div></div>`;
 
 function lbViewHTML(){
@@ -24026,7 +24026,7 @@ function lbViewHTML(){
   if (!lg) return `<div class="wrap lb">${sw}${lbEmptyHTML()}</div>`;
   const cols = lbCols(lg);
   return `<div class="wrap lb">${sw}${lbWhatHTML()}${lbSortsHTML(lg)}
-    <section class="lb-grid" aria-label="${t("lboard.cards.aria")}">${lbRows(lg).map(tm => lbCardHTML(tm, lg, cols)).join("")}</section>
+    <section class="lb-grid" data-testid="teams-grid" aria-label="${t("lboard.cards.aria")}">${lbRows(lg).map(tm => lbCardHTML(tm, lg, cols)).join("")}</section>
     ${lbKeyHTML()}</div>`;
 }
 
@@ -24063,7 +24063,7 @@ const lbPts = r => r.pts ? lbNum(r.pts) : r.bye ? t("lboard.card.bye") : t("lboa
 
 /* One strip cell: the column's label over the team's sum there, green or red 8% off the league's median. */
 function lbCellHTML(tm, lg, c){
-  const plus = tm.spare.includes(c) ? `<i class="lb-plus" title="${t("lboard.spare.title")}">+</i>` : "";
+  const plus = tm.spare.includes(c) ? `<i class="lb-plus" data-testid="teams-spare" title="${t("lboard.spare.title")}">+</i>` : "";
   return `<span class="lb-c ${lbTone(tm.cols[c], lg.median[c])}" data-testid="teams-cell" data-col="${c}">
     <i class="lb-cl">${c}</i><b data-testid="teams-cell-v">${lbNum(tm.cols[c])}</b>${plus}</span>`;
 }

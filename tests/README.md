@@ -141,16 +141,15 @@ page per test; `BACKLOG` and `FULL_LOADS` are in `test_layer_ratchet.py` and onl
 
 | File | Tracked by |
 |---|---|
-| `test_teams_board.py` | `FULL_LOADS` 12 |
 | `test_live_tabs.py` | `FULL_LOADS` 10 |
 | `test_sos_view.py` | `FULL_LOADS` 8 |
+| `test_brief.py` | `FULL_LOADS` 7, `BACKLOG` 1 |
 
-`test_teams_board.py` still runs on the full page: the migration kept on branch `test-migrate-teams` was
-written for the old Teams table (2026-10-06). `test_trade_edit.py` and `test_trade_offers.py` moved to `mount`
-with the trade finder.
+`test_trade_edit.py` and `test_trade_offers.py` moved to `mount` with the trade finder; `test_teams_board.py`
+moved with the Teams cards (2026-10-06).
 
 Migrated, copy these instead: Ranks, profile, Digest, roster cards, Bets, the strip, Live TD clips,
-the clip reel, the pack stage, Recap, the trade finder and Records tabs (their page objects are in `tests/pages/`).
+the clip reel, the pack stage, Recap, the trade finder, Records tabs and Teams (their page objects are in `tests/pages/`).
 `BACKLOG` counts `tests/pages/` too (since 2026-10-06): moving a `page.evaluate` call into a page
 object does not lower it; moving the test to Node does.
 
