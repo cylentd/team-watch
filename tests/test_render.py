@@ -315,7 +315,7 @@ STATES = [
                      + go("trades") + [("eval", "tbLoad()")]),
     ("finder-edit", FINDER_WITH("espn", "espn-run-it-back") + [("click", "[data-tbedit='2']")]),
     ("finder-edit-toggled", FINDER_WITH("espn", "espn-run-it-back")
-                            + [("click", "[data-tbedit='2']"), ("click", ".tb-r[data-tbpick='Christian Watson']")]),
+                            + [("click", "[data-tbedit='2']"), ("click", ".tb-r[data-tbpick='Bhayshul Tuten']")]),
     ("finder-edit-own", FINDER_WITH("espn", "espn-run-it-back") + [("click", "[data-tbown]")]),
     ("finder-oldshape", [("eval", LB_AS("espn")), ("eval", LB_OLD_SHAPE)] + go("trades") + [("click", "[data-tfwho='espn-run-it-back']")]),
     ("myrecap-yahoo", [("eval", LB_AS("yahoo"))] + go("recap")),

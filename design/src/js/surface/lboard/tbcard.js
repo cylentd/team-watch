@@ -2,7 +2,7 @@
    2026-10-05 (storyboard https://claude.ai/artifact/BXCJdmWfC87Z7VCAgdVC3Y, frames 1-3); the card since
    2026-10-06 sits in the finder (finder/finder.js; tbpage.js, the per-partner page with its Bold and Fair tabs,
    is gone). A card is one offer: the partner's name and record on top, two columns, YOU SEND and YOU GET, and one
-   number, the reader's gain a week. "Copy offer" puts a message on the clipboard for the other manager: season
+   number, the reader's gain in rest-of-season points (a week's, until 2026-10-06). "Copy offer" puts a message on the clipboard for the other manager: season
    averages (a Hot player's last 2) and one sentence on the partner's roster room (`their`). An offer that drops a
    player says so in one line. "Edit" on a card and "Make your own offer" under the list open the edit state
    (tbedit.js) on its own page, its own history entry, so Back returns to the finder. The data is offers.js's;

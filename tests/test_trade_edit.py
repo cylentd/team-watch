@@ -1,29 +1,27 @@
-"""League > Trades, the finder's edit mode (2026-10-05; the finder since 2026-10-06), what the page draws and does: the "To IR"
-and "You drop" lines on an offer, the chips, the edit state (Edit on a card, Make your own under the list), the message Copy
-offer puts on the clipboard, and the guard's outcome (Edit gone, the offers still there). The scorer, the room rule, the
-strings they build and the guard's own checks are plain functions of data and live in test_js_trade_score.py, in Node.
-Each test mounts the Trades view alone (tests/component.py); `builder(page, key)` filters the finder to the team `key` from
-Who's deep, so the cards are every offer with him, as the old per-partner page showed them.
+"""League > Trades, the finder's edit mode (2026-10-05; the finder since 2026-10-06; rest-of-season points since 2026-10-06), what
+the page draws and does: the "To IR" and "You drop" lines on an offer, the chips, the edit state (Edit on a card, Make your own
+under the list), the message Copy offer puts on the clipboard, and the guard's outcome (Edit gone, the offers still there). The
+scorer, the room rule, the strings they build and the guard's own checks are plain functions of data and live in
+test_js_trade_score.py, in Node. Each test mounts the Trades view alone (tests/component.py); `builder(page, key)` filters the
+finder to the team `key` from Who's deep, so the cards are every offer with him, as the old per-partner page showed them.
 
-The fixture's ESPN league began as a cut of the file ff-jarvis's real writer made (branch trade-edit, 29e54f2): Purdy Big
-in Japan and TeamMinh, TeamMinh shown as the page fixture's "Run It Back". Its AYO league is hand-made. The drop rule's
-fields (lineup.ir, keep, ir_ok, protect, ir_moves; spec drop-rule-spec, 2026-10-05) and option B's (last2, chips, their;
-spec option-b-spec) are hand-made too, derived by the rule: IR moves first, then the lowest `keep`. Change a roster and
-the offers' gains, moves, drops and `their` have to be re-derived. The page is driven in Chromium with the fetch
-replaced, as test_trade_offers.py does."""
+The fixture's ESPN league is a cut of the file ff-jarvis's real writer made (branch trade-ros, 1b1fe82): Purdy Big in Japan's
+three offers to the page fixture's "Run It Back" (the producer's "Run it back") and his three back; its AYO league is
+hand-made. Every number a test asserts for a package the reader builds was worked out by an independent pure-Python reading of
+the producer's rules.scoring and rules.drop (the producer's test holds one), not by the page's port. Change a roster and the
+offers' gains, moves, drops and `their` have to be re-derived. The page is driven in Chromium with the fetch replaced, as
+test_trade_offers.py does."""
 import copy
-import json
 
 import pytest
 
-import trade_offers
-from conftest import FIXTURES
 from component import mount  # noqa: E402,F401  (the fixture)
-from pages.finder import COPY_REFUSED, FIXTURE, builder, finder, serve  # noqa: E402
+from pages.finder import COPY_REFUSED, FIXTURE, builder, finder  # noqa: E402
 
 RUN = "espn-run-it-back"
 ESPN = FIXTURE["leagues"]["espn"]
 PROJ = {p["name"]: p["proj"] for p in ESPN["values"]["Purdy Big in Japan"]}
+PTS = "pts rest of season"
 
 
 def open_edit(page, which=0):
@@ -41,45 +39,26 @@ def pick(page, name):
 
 
 # ---- the scorer, the room rule, the lines as strings and the guard's own checks are in test_js_trade_score.py (Node) ----
-
-REAL = json.loads((FIXTURES / "trade_offers_ffjarvis.json").read_text(encoding="utf-8"))
-
-
-def test_the_producers_own_file_passes_the_contract_with_the_drop_rule_required(monkeypatch):
-    monkeypatch.setattr(trade_offers, "DROP_RULE_REQUIRED", True)
-    monkeypatch.setattr(trade_offers, "OPTION_B_REQUIRED", False)   # this file predates option B; its own test is below
-    assert trade_offers.problems(REAL) == []
-
-
-def test_the_producers_option_b_file_passes_the_contract_with_option_b_required(monkeypatch):
-    """ff-jarvis option-b (b23bf06): last2 and chips on every player, their on every offer. What flipping the flag will enforce."""
-    monkeypatch.setattr(trade_offers, "OPTION_B_REQUIRED", True)
-    doc = json.loads((FIXTURES / "trade_offers_ffjarvis_optionb.json").read_text(encoding="utf-8"))
-    assert trade_offers.problems(doc) == []
-
-
 # ---- the drop line on an offer ------------------------------------------------------------------------------
 
 @pytest.mark.render
 def test_an_offer_that_drops_a_player_says_so_in_one_line_and_the_others_say_nothing(mount):
-    page, errors = finder(mount, "espn")
-    builder(page, RUN)
+    page, errors = finder(mount, "espn-run-it-back")           # Run It Back's three offers with Purdy each cut Isaiah Davis
+    builder(page, "espn")
     page.wait_for_selector(".tb-card .tb-gain")
     cards = page.locator(".tb-card")
     assert cards.count() == 3
-    assert [cards.nth(i).locator(".tb-drop").count() for i in range(3)] == [0, 0, 1]
-    line = cards.nth(2).locator(".tb-drop")
-    assert line.inner_text() == "You drop: O. Gordon II"
+    assert [cards.nth(i).locator(".tb-drop").count() for i in range(3)] == [1, 1, 1]
+    line = cards.nth(0).locator(".tb-drop")
+    assert line.inner_text() == "You drop: I. Davis"
     assert line.evaluate("e => getComputedStyle(e).color") != "rgb(255, 176, 32)", "quiet, never amber"
-    assert "roster" not in cards.nth(2).inner_text().lower(), "nothing about the partner's room"
+    assert "roster" not in cards.nth(0).inner_text().lower(), "nothing about the partner's room"
+    assert page.locator(".tb-ir").count() == 0, "his IR slot is taken, so no move"
     assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
-    page, _ = finder(mount, RUN)
-    builder(page, "espn")
+    page, _ = finder(mount, "espn")
+    builder(page, RUN)
     page.wait_for_selector(".tb-card .tb-gain")
-    assert page.locator(".tb-drop").count() == 0, "his injured QB goes to IR, so there is no drop"
-    assert page.locator(".tb-ir").all_inner_texts() == ["To IR: M. Mariota"] * 5, "the other direction: his own IR move"
-    assert [page.locator(".tb-card").nth(i).locator(".tb-ir").count() for i in range(6)] == [0, 1, 1, 1, 1, 1], "six offers with Purdy, the best first"
-    assert page.locator(".tb-ir").first.evaluate("e => getComputedStyle(e).color") != "rgb(255, 176, 32)", "quiet, never amber"
+    assert page.locator(".tb-drop").count() == 0 and page.locator(".tb-ir").count() == 0, "Purdy's three offers send more than they get: nobody to cut"
     assert errors == []
 
 
@@ -94,26 +73,25 @@ def test_chips_tag_players_on_the_cards_and_both_rosters_in_the_tokens_colours_a
     builder(page, RUN)
     page.wait_for_selector(".tb-card .tb-gain")
     cards = page.locator(".tb-card")
-    assert cards.nth(0).locator(".tb-chip").count() == 0, "plain players carry none"
-    assert cards.nth(2).locator(".tb-chip").all_inner_texts() == ["Hot", "Early pick"], "Watson: Hot and an early pick"
-    assert cards.nth(1).locator(".tb-chip").all_inner_texts() == ["Cold"], "Raymond: Cold"
+    assert cards.nth(0).locator(".tb-p", has_text="T. Pollard").locator(".tb-chip").count() == 0, "plain players carry none"
+    assert cards.nth(0).locator(".tb-chip").all_inner_texts() == ["Hot", "Hot", "Early pick", "Cold"], "Higgins, then Robinson (Hot, early pick), then Coker"
+    assert cards.nth(1).locator(".tb-chip").all_inner_texts() == ["Hot", "Hot", "Early pick"], "Higgins and Robinson; Concepcion has none"
     color = lambda loc: loc.evaluate("e => getComputedStyle(e).color")   # noqa: E731
-    assert color(cards.nth(2).locator(".tb-chip.hot")) == page.evaluate(TOKEN + "('--heat')")
-    assert color(cards.nth(1).locator(".tb-chip.cold")) == page.evaluate(TOKEN + "('--sky')")
-    early = cards.nth(2).locator(".tb-chip.early")
+    assert color(cards.nth(0).locator(".tb-chip.hot").first) == page.evaluate(TOKEN + "('--heat')")
+    assert color(cards.nth(0).locator(".tb-chip.cold")) == page.evaluate(TOKEN + "('--sky')")
+    early = cards.nth(0).locator(".tb-chip.early")
     assert color(early) not in (page.evaluate(TOKEN + "('--heat')"), page.evaluate(TOKEN + "('--sky')")), "neutral"
-    row = cards.nth(2).locator(".tb-p", has_text="C. Watson")
+    row = cards.nth(0).locator(".tb-p", has_text="B. Robinson")
     assert row.locator(".tb-n").evaluate("e => e.getBoundingClientRect().width") >= 40, "the name keeps room"
     assert row.evaluate("e => e.querySelector('.tb-tags').getBoundingClientRect().top >= e.querySelector('.tb-n').getBoundingClientRect().bottom - 1"), "chips under the name"
     assert row.evaluate("e => e.querySelector('.tb-tags').getBoundingClientRect().right <= e.getBoundingClientRect().right"), "inside the column"
     assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
-    open_edit(page, 2)
+    open_edit(page, 0)
     assert page.locator(".tb-pkg .tb-chip").count() == 0, "the package keeps its rows one line tall; the rosters under it carry the chips"
-    watson = page.locator(".tb-r[data-tbpick='Christian Watson']")
-    assert watson.locator(".tb-chip").all_inner_texts() == ["Hot", "Early pick"], "the rosters wear them too"
-    mason = page.locator(".tb-r[data-tbpick='Jordan Mason']")
-    assert mason.locator(".tb-inj").count() == 1 and mason.locator(".tb-chip").all_inner_texts() == ["Early pick"], "the status pill and a chip share a row"
-    assert page.locator(".tb-list").nth(0).locator(".tb-chip.hot").count() == 0
+    robinson = page.locator(".tb-r[data-tbpick='Bijan Robinson']")
+    assert robinson.locator(".tb-chip").all_inner_texts() == ["Hot", "Early pick"], "the rosters wear them too"
+    coker = page.locator(".tb-r[data-tbpick='Jalen Coker']")
+    assert coker.locator(".tb-inj").count() == 1 and coker.locator(".tb-chip").all_inner_texts() == ["Cold"], "the status pill and a chip share a row"
     assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
     assert page.evaluate("[...document.querySelectorAll('.tb-r .tb-n, .tb-pkg .tb-n')].every(e => e.getBoundingClientRect().width >= 40)")
     assert errors == []
@@ -125,12 +103,12 @@ def test_chips_tag_players_on_the_cards_and_both_rosters_in_the_tokens_colours_a
 def test_edit_opens_on_the_offer_it_started_from_and_back_returns_to_the_offers(mount):
     page, errors = finder(mount, "espn")
     builder(page, RUN)
-    open_edit(page, 0)                                           # Higgins, Purdy, Gordon for Smith-Njigba and Brown
+    open_edit(page, 0)                                           # Higgins, Pollard, Goff for Robinson and Coker
     cols = page.locator(".tb-pkg .tb-col")
     assert cols.nth(0).locator(".tb-h").inner_text() == "YOU SEND" and cols.nth(1).locator(".tb-h").inner_text() == "YOU GET"
-    assert [r.replace("\n", " ") for r in cols.nth(0).locator(".tb-p").all_inner_texts()] == ["WR T. Higgins Q", "QB B. Purdy", "RB O. Gordon II"]
-    assert [r.replace("\n", " ") for r in cols.nth(1).locator(".tb-p").all_inner_texts()] == ["WR J. Smith-Njigba", "RB C. Brown"]
-    assert gain(page) == "+8.5 pts a week for you"
+    assert [r.replace("\n", " ") for r in cols.nth(0).locator(".tb-p").all_inner_texts()] == ["WR T. Higgins Q", "RB T. Pollard", "QB J. Goff"]
+    assert [r.replace("\n", " ") for r in cols.nth(1).locator(".tb-p").all_inner_texts()] == ["RB B. Robinson", "WR J. Coker O"]
+    assert gain(page) == f"+21.7 {PTS}"
     assert page.locator(".tb-edfoot .tb-gain b").evaluate("e => getComputedStyle(e).color") == "rgb(55, 224, 139)"
     assert page.locator(".tb-lists h2").all_inner_texts() == ["YOUR ROSTER", "RUN IT BACK ROSTER"]
     assert page.locator(".lbp-back").inner_text() == "Offers", "the edit state has its own back step"
@@ -141,7 +119,7 @@ def test_edit_opens_on_the_offer_it_started_from_and_back_returns_to_the_offers(
     assert purdy == f"QB B. Purdy {PROJ['Brock Purdy']:.1f}", "position, initials, projection to one decimal"
     assert mine.locator(".tb-r").last.inner_text().replace("\n", " ").startswith("RB J. Mason IR"), "an IR player is last and wears the pill"
     assert mine.locator(".tb-r", has_text="T. Higgins").locator(".tb-inj").inner_text() == "Q"
-    assert theirs.locator(".tb-r", has_text="A. Mitchell").locator(".tb-inj").inner_text() in ("O", "IR")
+    assert theirs.locator(".tb-r", has_text="J. Coker").locator(".tb-inj").inner_text() in ("O", "IR")
     assert page.locator(".tb-r[aria-pressed='true']").count() == 5, "the offer's five players read as picked"
     page.go_back()
     page.wait_for_selector(".tb-card .tb-gain")
@@ -160,17 +138,17 @@ def test_edit_opens_on_the_offer_it_started_from_and_back_returns_to_the_offers(
 def test_a_tap_on_a_player_puts_him_in_or_out_and_the_gain_follows(mount):
     page, errors = finder(mount, "espn")
     builder(page, RUN)
-    open_edit(page, 2)                                                       # Purdy for Brown and Watson, +5.5, drops Gordon
-    assert gain(page) == "+5.5 pts a week for you"
-    pick(page, "Christian Watson")                                           # out of the package: one for one
-    assert page.locator(".tb-r[data-tbpick='Christian Watson']").get_attribute("aria-pressed") == "false"
-    assert gain(page) == "+3.5 pts a week for you"
+    open_edit(page, 2)                                                       # Higgins, Purdy, Wilson for Williams and Tuten, +19.9
+    assert gain(page) == f"+19.9 {PTS}"
+    pick(page, "Bhayshul Tuten")                                             # out of the package: three for one
+    assert page.locator(".tb-r[data-tbpick='Bhayshul Tuten']").get_attribute("aria-pressed") == "false"
+    assert gain(page) == f"−8.1 {PTS}"
     assert page.locator(".tb-pkg .tb-col").nth(1).locator(".tb-p").count() == 1
-    pick(page, "Brock Purdy")
-    pick(page, "Chase Brown")
-    assert page.locator(".tb-pkg .tb-hint").count() == 2 and gain(page) == "— pts a week for you"
+    for name in ("Brock Purdy", "Emanuel Wilson", "Kyren Williams", "Tee Higgins"):
+        pick(page, name)
+    assert page.locator(".tb-pkg .tb-hint").count() == 2 and gain(page) == f"— {PTS}"
     pick(page, "Tee Higgins")                                                # Higgins for nothing: red
-    assert gain(page) == "−4.2 pts a week for you"
+    assert gain(page) == f"−60.8 {PTS}"
     assert page.locator(".tb-edfoot .tb-gain b").evaluate("e => getComputedStyle(e).color") == "rgb(255, 90, 82)"
     page.locator(".tb-pkg [data-tbpick='Tee Higgins']").click()              # taken out from the package itself
     assert page.locator(".tb-r[data-tbpick='Tee Higgins']").get_attribute("aria-pressed") == "false"
@@ -184,45 +162,54 @@ def test_an_empty_package_is_a_dash_and_reset_goes_back_to_the_offer_it_started_
     builder(page, RUN)
     open_edit(page, 1)
     assert page.locator("[data-tbreset]").is_disabled(), "nothing to reset yet"
-    for n in ("Brock Purdy", "Kalif Raymond", "Ollie Gordon II", "Jaxon Smith-Njigba"):
+    for n in ("Tee Higgins", "Tony Pollard", "Jared Goff", "Bijan Robinson", "KC Concepcion"):
         page.locator(f".tb-pkg [data-tbpick='{n}']").click()
-    assert gain(page) == "— pts a week for you"
+    assert gain(page) == f"— {PTS}"
     assert page.locator(".tb-edfoot .tb-gain b").evaluate("e => getComputedStyle(e).color") != "rgb(55, 224, 139)"
     assert page.locator("[data-tbedcopy]").is_disabled(), "an empty package has nothing to copy"
     pick(page, "Tee Higgins")
     assert page.locator("[data-tbedcopy]").is_disabled(), "one side alone is not an offer to copy"
     page.locator("[data-tbreset]").click()
-    assert gain(page) == "+7.7 pts a week for you"
-    assert page.locator(".tb-r[aria-pressed='true']").count() == 4 and page.locator("[data-tbreset]").is_disabled()
+    assert gain(page) == f"+20.4 {PTS}"
+    assert page.locator(".tb-r[aria-pressed='true']").count() == 5 and page.locator("[data-tbreset]").is_disabled()
 
 
 @pytest.mark.render
 def test_the_drop_line_shows_when_the_package_puts_the_reader_over_the_cap_and_goes_when_it_does_not(mount):
     page, _ = finder(mount, "espn")
     builder(page, RUN)
-    open_edit(page, 2)
-    assert page.locator(".tb-edrop").inner_text() == "You drop: O. Gordon II"
-    pick(page, "Tee Higgins")                                                # two out, two in: nobody to drop
+    open_edit(page, 0)                                                       # three out, two in: nobody to drop
+    assert page.locator(".tb-edrop").inner_text() == ""
+    pick(page, "Kyren Williams")                                             # three for three: still nobody
     assert page.locator(".tb-edrop").inner_text() == ""
     assert page.locator(".tb-edrop").evaluate("e => e.offsetHeight") >= 18, "the row keeps its height"
-    pick(page, "Tee Higgins")
+    pick(page, "Bhayshul Tuten")                                             # three for four: one over, his IR slot is full
     assert page.locator(".tb-edrop").inner_text() == "You drop: O. Gordon II"
-    pick(page, "Brock Purdy")                                                # two in, nobody out: two drop
+    pick(page, "Tee Higgins")                                                # two out, four in: two drop
     assert page.locator(".tb-edrop").inner_text() == "You drop: O. Gordon II, K. Raymond"
+    assert gain(page) == f"+143.4 {PTS}"
     assert page.locator(".tb-eir").inner_text() == ""
+    pick(page, "Tee Higgins")                                                # back in: one drop again
+    assert page.locator(".tb-edrop").inner_text() == "You drop: O. Gordon II"
 
 
 @pytest.mark.render
 def test_the_to_ir_line_sits_above_the_drop_line_and_the_foot_keeps_its_size(mount):
     page, _ = finder(mount, "espn")
     builder(page, RUN)
-    open_edit(page, 2)
+    open_edit(page, 0)
     foot = "document.querySelector('.tb-edfoot').getBoundingClientRect().height"
     before = page.evaluate(foot)
-    assert page.locator(".tb-eir").inner_text() == "" and page.locator(".tb-edrop").inner_text() == "You drop: O. Gordon II"
-    pick(page, "Marcus Mariota")          # Out, not on IR: two over (16 + 2 other - 16), one IR slot free, so one move and one drop
-    assert page.locator(".tb-eir").inner_text() == "To IR: M. Mariota"
+    for n in ("Tee Higgins", "Tony Pollard", "Jared Goff", "Bijan Robinson"):   # leave Coker (Out) as the only player in
+        page.locator(f".tb-pkg [data-tbpick='{n}']").click()
+    assert page.locator(".tb-eir").inner_text() == "" and page.locator(".tb-edrop").inner_text() == "You drop: O. Gordon II", "the IR slot is full, so the one extra player is a drop, not a move"
+    pick(page, "Jordan Mason")             # the player in the one IR slot goes: the slot is free, Coker (ir_ok) takes it, nobody is dropped
+    assert gain(page) == f"+4.6 {PTS}"
+    assert page.locator(".tb-eir").inner_text() == "To IR: J. Coker" and page.locator(".tb-edrop").inner_text() == ""
+    pick(page, "Kyren Williams")           # one more in than out: the move is still Coker, and now one drop
+    assert page.locator(".tb-eir").inner_text() == "To IR: J. Coker"
     assert page.locator(".tb-edrop").inner_text() == "You drop: O. Gordon II"
+    assert gain(page) == f"+66.9 {PTS}"
     assert page.evaluate("(() => { const a = document.querySelector('.tb-eir').getBoundingClientRect(), b = document.querySelector('.tb-edrop').getBoundingClientRect(); return a.bottom <= b.top + 1 && a.left === b.left; })()")
     assert page.evaluate(foot) == before, "the two rows are always there, so nothing shifts"
     assert page.locator(".tb-eir").evaluate("e => getComputedStyle(e).color") != "rgb(255, 176, 32)"
@@ -238,9 +225,13 @@ def test_a_package_the_cap_cannot_take_says_so_and_cannot_be_copied(mount):
     rows = page.locator(".tb-list").nth(1).locator(".tb-r")
     for i in range(rows.count()):
         rows.nth(i).click()
-    assert gain(page) == "— pts a week for you"
+    assert gain(page) == f"— {PTS}"
     assert page.locator(".tb-edrop").inner_text() == "Over the roster limit, no one to drop"
     assert page.locator("[data-tbedcopy]").is_disabled()
+
+
+COPIED = "document.querySelector('[data-tbedcopy]').textContent === 'Copied'"
+SEASON = "Trade? I send Higgins (19.8 a game his last 2), Pollard (8.0 a game), Goff (28.4) for Robinson (24.2) and Coker (14.0), priced on the rest of the season."
 
 
 @pytest.mark.render
@@ -249,45 +240,38 @@ def test_copy_offer_in_edit_is_the_same_message_as_a_cards(mount):
     builder(page, RUN)
     open_edit(page, 0)
     page.locator("[data-tbedcopy]").click()
-    page.wait_for_function("document.querySelector('[data-tbedcopy]').textContent === 'Copied'")
-    assert page.evaluate("navigator.clipboard.readText()") == (
-        "Trade? I send Higgins (14.4 a game), Purdy (28.8), Gordon II (10.2) for Smith-Njigba (25.3) and Brown (11.4)."
-        " M. Mariota can go to your IR slot, so you don't cut anyone.")
-    pick(page, "Ollie Gordon II")                  # three for two becomes two for two: his roster fits, so the sentence goes
+    page.wait_for_function(COPIED)
+    # Higgins is Hot and the reader sends him: his last 2; Robinson is Hot too but the reader gets him: season average
+    assert page.evaluate("navigator.clipboard.readText()") == SEASON + " You'd only need to cut I. Davis."
+    pick(page, "Tee Higgins")                      # three for two becomes two for two: his roster fits, so the sentence goes
     page.locator("[data-tbedcopy]").click()
-    page.wait_for_function("document.querySelector('[data-tbedcopy]').textContent === 'Copied'")
+    page.wait_for_function(COPIED)
     assert page.evaluate("navigator.clipboard.readText()") == (
-        "Trade? I send Higgins (14.4 a game) and Purdy (28.8) for Smith-Njigba (25.3) and Brown (11.4).")
+        "Trade? I send Pollard (8.0 a game) and Goff (28.4) for Robinson (24.2) and Coker (14.0), priced on the rest of the season.")
     assert errors == []
 
 
 def tail(page):
-    """Press Copy offer in the edit state and return what the message says after Watson, the last name in it: the partner's room."""
+    """Press Copy offer in the edit state and return what the message says after the pricing sentence: the partner's room."""
     page.locator("[data-tbedcopy]").click()
-    page.wait_for_function("document.querySelector('[data-tbedcopy]').textContent === 'Copied'")
-    return page.evaluate("navigator.clipboard.readText()").split("Watson (16.5).")[1].strip()
+    page.wait_for_function(COPIED)
+    return page.evaluate("navigator.clipboard.readText()").split("rest of the season.")[1].strip()
 
 
 @pytest.mark.render
 def test_copy_offer_in_edit_works_out_the_partners_room_for_the_package_it_holds(mount):
     page, errors = finder(mount, "espn")
     builder(page, RUN)
-    open_edit(page, 2)                                           # Purdy for Brown and Watson (Hot)
-    page.locator("[data-tbedcopy]").click()
-    page.wait_for_function("document.querySelector('[data-tbedcopy]').textContent === 'Copied'")
-    assert page.evaluate("navigator.clipboard.readText()") == (
-        "Trade? I send Purdy (28.8 a game) for Brown (11.4) and Watson (16.5).")      # Watson is Hot but the reader gets him: season average
-    pick(page, "Kalif Raymond")                                  # two for two: nobody to make room for
+    open_edit(page, 0)                                           # Higgins, Pollard, Goff for Robinson and Coker
+    assert tail(page) == "You'd only need to cut I. Davis."
+    pick(page, "Jared Goff")                                     # two for two: nobody to make room for
     assert tail(page) == ""
-    pick(page, "Tee Higgins")                                    # three for two: his IR slot takes Mariota, nobody is cut
-    assert tail(page) == "M. Mariota can go to your IR slot, so you don't cut anyone."
-    pick(page, "Ollie Gordon II")                                # four for two: one more than the slot can take
-    assert tail(page) == "M. Mariota can go to your IR slot. You'd only need to cut J. Hill."
-    page.locator("[data-tbedcopy]").click()
-    page.wait_for_function("document.querySelector('[data-tbedcopy]').textContent === 'Copied'")
-    assert page.evaluate("navigator.clipboard.readText()") == (
-        "Trade? I send Purdy (28.8 a game), Raymond (9.4), Higgins (14.4), Gordon II (10.2) for Brown (11.4) and Watson (16.5)."
-        " M. Mariota can go to your IR slot. You'd only need to cut J. Hill.")
+    for n in ("Bijan Robinson", "Jalen Coker"):                  # Higgins and Pollard for nothing
+        pick(page, n)
+    pick(page, "Jordyn Tyson")                                   # ... for his injured reserve: his slot is free, Coker takes it, and one cut
+    assert tail(page) == "J. Coker can go to your IR slot. You'd only need to cut I. Davis."
+    pick(page, "Tony Pollard")                                   # one in, one out: his IR slot takes Coker, nobody is cut
+    assert tail(page) == "J. Coker can go to your IR slot, so you don't cut anyone."
     assert errors == []
 
 
@@ -299,33 +283,34 @@ def test_a_refused_clipboard_in_edit_shows_the_text_in_a_box(mount):
     open_edit(page, 1)
     page.locator("[data-tbedcopy]").click()
     page.wait_for_selector(".tb-edfoot .tb-box")
-    assert page.locator(".tb-box").input_value() == ("Trade? I send Purdy (28.8 a game), Raymond (9.4), Gordon II (10.2) for Smith-Njigba (25.3)."
-                                                     " M. Mariota can go to your IR slot. You'd only need to cut J. Hill.")
+    assert page.locator(".tb-box").input_value() == (
+        "Trade? I send Higgins (19.8 a game his last 2), Pollard (8.0 a game), Goff (28.4) for Robinson (24.2) and Concepcion (4.9),"
+        " priced on the rest of the season. You'd only need to cut I. Davis.")
     assert page.locator("[data-tbedcopy]").inner_text() == "Copy offer", "no false Copied"
 
 
 @pytest.mark.render
 def test_make_your_own_is_under_the_offers_and_in_the_empty_states_and_starts_empty(mount):
-    page, errors = finder(mount, "espn-run-it-back")        # six offers with Purdy
+    page, errors = finder(mount, "espn-run-it-back")        # three offers with Purdy
     builder(page, "espn")
     page.wait_for_selector(".tb-card .tb-gain")
     assert page.locator("[data-tbown]").inner_text() == "Make your own offer"
     assert page.evaluate("(() => { const b = document.querySelector('[data-tbown]'), c = [...document.querySelectorAll('.tb-card')].pop();"
                          " return b.getBoundingClientRect().top >= c.getBoundingClientRect().bottom; })()"), "under the last offer"
-    assert page.locator(".tb-card").count() == 6
+    assert page.locator(".tb-card").count() == 3
     page.locator("[data-tbown]").click()
     page.wait_for_selector(".tb-body.tb-ed")
     assert page.locator(".tb-r[aria-pressed='true']").count() == 0
     assert page.locator(".tb-pkg .tb-hint").count() == 2
     assert page.locator("[data-tbpartner]").count() == 0, "the partner was chosen: nothing to pick"
-    assert gain(page) == "— pts a week for you"
+    assert gain(page) == f"— {PTS}"
     assert page.locator("[data-tbreset]").is_disabled()
-    pick(page, "Drake Maye")
-    pick(page, "Brock Purdy")
-    pick(page, "Dalton Schultz")
-    assert gain(page) == "+1.1 pts a week for you", "the first fair offer, built by hand"
-    assert page.locator(".tb-eir").inner_text() == "To IR: M. Mariota", "an injured player takes the free IR slot"
-    assert page.locator(".tb-edrop").inner_text() == "", "so nobody is dropped"
+    pick(page, "Kyren Williams")
+    pick(page, "Cam Skattebo")
+    pick(page, "Jared Goff")
+    assert gain(page) == f"+21.2 {PTS}", "the first offer, built by hand"
+    assert page.locator(".tb-edrop").inner_text() == "You drop: I. Davis", "three players in for one: one over, his IR slot is taken"
+    assert page.locator(".tb-eir").inner_text() == ""
     page.go_back()
     page.wait_for_selector("[data-tbown]")
     assert page.evaluate("document.activeElement.hasAttribute('data-tbown')")
@@ -359,8 +344,8 @@ def test_make_your_own_from_the_chips_opens_against_the_deepest_team_and_lets_th
     sel = page.locator("[data-tbpartner]")
     assert sel.locator("option").all_inner_texts() == ["Run It Back", "Third Team"], "every other team in the league"
     pick(page, "Brock Purdy")                                          # his own: stays when the partner changes
-    pick(page, "Chase Brown")                                          # Run It Back's: goes
-    assert gain(page) != "— pts a week for you"
+    pick(page, "Bijan Robinson")                                       # Run It Back's: goes
+    assert gain(page) != f"— {PTS}"
     sel.select_option(label="Third Team")
     page.wait_for_selector("#tb-title[aria-label='You and Third Team']")
     assert page.locator(".tb-pkg .tb-col").nth(0).locator(".tb-p").all_inner_texts() == ["QB\nB. Purdy"], "what he sends stays"
@@ -378,7 +363,7 @@ def test_the_edit_state_keeps_its_parts_still_with_the_foot_on_the_bottom_edge_a
         open_edit(page, 0)
         geo = "(() => { const g = s => document.querySelector(s).getBoundingClientRect(); return [g('.tb-pkg').top, g('.tb-pkg').height, g('.tb-edfoot').height, g('.tb-edfoot').bottom, g('.tb-lists').top]; })()"
         before = page.evaluate(geo)
-        for name in ("George Kittle", "Tee Higgins", "Brock Purdy", "Jared Goff", "Chase Brown", "Drake Maye", "Juwan Johnson"):
+        for name in ("George Kittle", "Tee Higgins", "Brock Purdy", "Jared Goff", "Kyren Williams", "Nico Collins", "Tyler Warren"):
             page.locator(f".tb-r[data-tbpick='{name}']").click()
         page.evaluate("window.scrollTo(0, 0)")
         assert page.evaluate(geo) == before, "the package, the foot and the rosters do not move or resize when the package changes"
@@ -422,7 +407,7 @@ def purdy(doc):
 @pytest.mark.render
 def test_a_file_whose_gain_the_page_cannot_reproduce_shuts_edit_and_names_the_offer(mount):
     bad = copy.deepcopy(FIXTURE)
-    purdy(bad)[1]["gain"] = 7.9                                               # the rule says 7.7
+    purdy(bad)[1]["gain"] = 20.5                                              # the rule says 20.4
     page, errors, warnings = guarded(mount, bad)
     assert_shut(page)
     assert any("Edit is off, Purdy Big in Japan" in w and "offers[1]" in w for w in warnings), warnings
@@ -458,7 +443,7 @@ def test_the_old_shape_with_no_lineup_values_other_or_drop_shows_offers_and_no_e
 
 @pytest.mark.render
 def test_a_file_from_before_the_drop_rule_shows_its_drops_and_no_edit(mount):
-    """Today's live file: lineup, values, other and drop, but no IR slots, keep, ir_ok, protect or ir_moves."""
+    """A file with lineup, values, other and drop, but no IR slots, keep, ir_ok, protect or ir_moves (2026-10-05)."""
     before = copy.deepcopy(FIXTURE)
     for lg in before["leagues"].values():
         lg["lineup"].pop("ir")
@@ -468,6 +453,7 @@ def test_a_file_from_before_the_drop_rule_shows_its_drops_and_no_edit(mount):
                     p.pop(k)
     for o in each_offer(before):
         o.pop("ir_moves")
+    purdy(before)[2]["drop"] = [p for p in before["leagues"]["espn"]["values"]["Purdy Big in Japan"] if p["name"] == "Kalif Raymond"]
     page, errors, warnings = guarded(mount, before)
     assert_shut(page)
     assert page.locator(".tb-drop").count() == 1, "the cards still say who is dropped, as the file has it"
@@ -477,8 +463,25 @@ def test_a_file_from_before_the_drop_rule_shows_its_drops_and_no_edit(mount):
 
 
 @pytest.mark.render
+def test_a_file_from_before_rest_of_season_pricing_shuts_edit_and_says_why(mount):
+    """No weeks_left, ros_floor, ros_pg or games (the weekly file of 2026-10-05): the build refuses it, and a stale one in the
+    browser still shows its cards but cannot score a package."""
+    weekly = copy.deepcopy(FIXTURE)
+    for lg in weekly["leagues"].values():
+        del lg["weeks_left"]
+        del lg["lineup"]["ros_floor"]
+        for rows in lg["values"].values():
+            for p in rows:
+                del p["ros_pg"], p["games"]
+    page, errors, warnings = guarded(mount, weekly)
+    assert_shut(page)
+    assert any("rest-of-season pricing" in w for w in warnings), warnings
+    assert errors == []
+
+
+@pytest.mark.render
 def test_a_file_from_before_option_b_shows_its_offers_with_no_chips_no_edit_and_the_old_pitch(mount):
-    """The live file the day before ff-jarvis lands option B: no last2, chips or their."""
+    """The file the day before ff-jarvis landed option B: no last2, chips or their."""
     before = copy.deepcopy(FIXTURE)
     for lg in before["leagues"].values():
         for rows in lg["values"].values():
@@ -495,8 +498,7 @@ def test_a_file_from_before_option_b_shows_its_offers_with_no_chips_no_edit_and_
     assert any("their" in w for w in warnings), warnings
     page.locator("[data-tbcopy='2']").click()
     page.wait_for_function("document.querySelector(\"[data-tbcopy='2']\").textContent === 'Copied'")
-    assert page.evaluate("navigator.clipboard.readText()") == "Trade? I send Purdy (28.8 a game) for Brown (11.4) and Watson (16.5).", \
-        "no last2, so Watson is quoted on his season average, and nothing about their room"
+    assert page.evaluate("navigator.clipboard.readText()") == (
+        "Trade? I send Higgins (14.4 a game), Purdy (28.8), Wilson (8.6) for Williams (19.1) and Tuten (11.4), priced on the rest of the season."), \
+        "no last2, so Higgins is quoted on his season average, and nothing about their room"
     assert errors == []
-
-

@@ -17,7 +17,8 @@ from component import mount  # noqa: E402,F401  (the fixture)
 from pages.finder import COPY_REFUSED, FinderPage, finder, serve, FIXTURE  # noqa: E402
 
 MEDIAN = {"QB": 18.0, "RB": 22.0, "WR": 20.0, "TE": 7.0, "FLX": 8.0}
-RULES = {"top": 3, "per_pos": 5, "per_partner_pos": 2, "max_out": 3, "max_in": 2, "min_gain": 1.0, "max_losses": 1}
+RULES = {"top": 3, "per_pos": 5, "per_partner_pos": 2, "max_out": 3, "max_in": 2, "min_gain": 6.5, "min_gain_week": 0.5,
+         "unit": "rest of season points"}
 
 
 def starter(slot, name, pos, pts):
@@ -47,7 +48,7 @@ def p(name, pos, **kw):
 
 
 def offer(partner, send, get, gain):
-    return {"partner": partner, "send": send, "get": get, "gain": gain, "drop": [], "ir_moves": [], "their": {"ir_moves": [], "drop": []}}
+    return {"partner": partner, "send": send, "get": get, "gain": gain, "drop": [], "ir_moves": [], "their": {"ir_moves": [], "drop": [], "gain": 0.0}}
 
 
 OFFERS = [
@@ -58,7 +59,7 @@ OFFERS = [
     offer("Gamma", [p("Walt Hill", "WR")], [p("Wil Gamma", "WR")], 2.2),
     offer("Delta", [p("Will Ames", "WR")], [p("Rudy Delta", "RB")], 1.2),
 ]
-BODY = {"updated": "2026-10-05T14:07", "season": 2026, "rules": RULES, "leagues": {"espn": {"week": 4, "teams": {"Me Team": OFFERS}}}}
+BODY = {"updated": "2026-10-05T14:07", "season": 2026, "rules": RULES, "leagues": {"espn": {"week": 4, "weeks_left": 13, "teams": {"Me Team": OFFERS}}}}
 
 
 def planted(mount, size=(360, 740), league=LEAGUE):
@@ -88,9 +89,9 @@ def test_the_chip_row_is_each_position_with_the_readers_gap_and_opens_on_the_mos
 def test_a_chip_shows_only_offers_with_that_position_in_get_best_gain_first(mount):
     f, errors = planted(mount)
     assert [(c["partner"], c["gain"]) for c in f.cards()] == [
-        ("Alpha", "+6.1 pts a week for you"), ("Gamma", "+4.8 pts a week for you"), ("Delta", "+1.2 pts a week for you")], "RB: three of the six"
+        ("Alpha", "+6.1 pts rest of season"), ("Gamma", "+4.8 pts rest of season"), ("Delta", "+1.2 pts rest of season")], "RB: three of the six"
     f.pick("WR")
-    assert [(c["partner"], c["gain"]) for c in f.cards()] == [("Beta", "+5.2 pts a week for you"), ("Gamma", "+2.2 pts a week for you")]
+    assert [(c["partner"], c["gain"]) for c in f.cards()] == [("Beta", "+5.2 pts rest of season"), ("Gamma", "+2.2 pts rest of season")]
     assert f.pressed() == ["WR"] and f.offers_heading().lower() == "best offers at wr"
     f.pick("QB")
     assert f.partners() == ["Alpha"]
@@ -105,7 +106,7 @@ def test_an_offer_card_has_the_partner_and_his_record_on_top_then_what_moves_and
     first = f.cards()[0]
     assert (first["partner"], first["record"]) == ("Alpha", "3–1")
     assert first["send"] == ["WR W. Smith"] and first["get"] == ["RB R. Alpha"]
-    assert first["gain"] == "+6.1 pts a week for you" and first["ir"] is None and first["drop"] is None
+    assert first["gain"] == "+6.1 pts rest of season" and first["ir"] is None and first["drop"] is None
 
 
 # ---- who is deep --------------------------------------------------------------------------------------------------
@@ -130,7 +131,7 @@ def test_a_partner_name_filters_the_finder_to_him_and_all_positions_comes_back(m
     f.pick("WR")
     f.open_partner("Alpha")
     assert f.is_filtered() and f.with_title() == "Trades with Alpha"
-    assert [(c["partner"], c["gain"]) for c in f.cards()] == [("Alpha", "+6.1 pts a week for you"), ("Alpha", "+3.0 pts a week for you")], "every offer with him, whatever the position"
+    assert [(c["partner"], c["gain"]) for c in f.cards()] == [("Alpha", "+6.1 pts rest of season"), ("Alpha", "+3.0 pts rest of season")], "every offer with him, whatever the position"
     assert f.chips() == [] and f.deep() == [], "no chips and no deep list while filtered"
     f.all_positions()
     assert not f.is_filtered() and f.pressed() == ["WR"], "back to the chips on the position he left"
@@ -205,6 +206,32 @@ def test_the_finder_shows_shapes_while_loading_and_an_error_with_a_retry_and_fet
     assert errors == [], "a failed fetch is a state, not an exception"
 
 
+@pytest.mark.req("Trade finder", ac="a file in another unit than rest-of-season points shows the error state, never a wrong number")
+def test_a_file_in_another_unit_is_an_error_not_a_card_with_the_wrong_words(mount):
+    """The build refuses a weekly file, so this is the stale-file case: an older trade_offers.json served beside this page."""
+    weekly = copy.deepcopy(FIXTURE)
+    weekly["rules"]["unit"] = "points a week"
+    no_rules = {k: v for k, v in FIXTURE.items() if k != "rules"}
+    page, errors = finder(mount, "espn", init=("window.__tb = 'fail';",))      # the loading test's page: its first fetch fails, then each retry is served below
+    f = FinderPage(page)
+    page.wait_for_selector("[data-testid=finder-error]")
+
+    def retry_with(body):
+        page.evaluate("b => { window.fetch = () => Promise.resolve(new Response(JSON.stringify(b), {status: 200})); }", body)
+        page.locator("[data-tbretry]").click()
+
+    for body in (weekly, no_rules):
+        retry_with(body)
+        page.wait_for_function("TB_BUSY === null && TB_ERR === true")
+        assert page.evaluate("TB_DATA") is None and f.cards() == [], "a file in the wrong unit is never held"
+        assert "Offers did not load" in page.get_by_test_id("finder-error").inner_text()
+        assert f.deep(), "who's deep needs no file"
+    retry_with(FIXTURE)
+    page.wait_for_selector("[data-testid=finder-card]")
+    assert page.evaluate("TB_DATA.rules.unit") == "rest of season points", "the right unit loads"
+    assert errors == [], "a refused file is a state, not an exception"
+
+
 # ---- copy offer ----------------------------------------------------------------------------------------------------
 
 @pytest.mark.req("Trade finder", ac="Copy offer puts a message of true season averages on the clipboard")
@@ -214,11 +241,13 @@ def test_copy_offer_puts_a_message_of_true_season_averages_on_the_clipboard(moun
     f.wait_offers()
     f.open_partner("Run It Back")
     for i, want in enumerate((
-            "Trade? I send Higgins (14.4 a game), Purdy (28.8), Gordon II (10.2) for Smith-Njigba (25.3) and Brown (11.4)."
-            " M. Mariota can go to your IR slot, so you don't cut anyone.",
-            "Trade? I send Purdy (28.8 a game), Raymond (9.4), Gordon II (10.2) for Smith-Njigba (25.3)."
-            " M. Mariota can go to your IR slot. You'd only need to cut J. Hill.",
-            "Trade? I send Purdy (28.8 a game) for Brown (11.4) and Watson (16.5).")):     # Watson is Hot, but the reader gets him
+            # Higgins is Hot and the reader sends him: his last 2 (19.8), Pollard carries the unit; Robinson is Hot but the reader gets him
+            "Trade? I send Higgins (19.8 a game his last 2), Pollard (8.0 a game), Goff (28.4) for Robinson (24.2) and Coker (14.0),"
+            " priced on the rest of the season. You'd only need to cut I. Davis.",
+            "Trade? I send Higgins (19.8 a game his last 2), Pollard (8.0 a game), Goff (28.4) for Robinson (24.2) and Concepcion (4.9),"
+            " priced on the rest of the season. You'd only need to cut I. Davis.",
+            "Trade? I send Higgins (19.8 a game his last 2), Purdy (28.8 a game), Wilson (12.8 a game his last 2) for Williams (19.1) and Tuten (11.4),"
+            " priced on the rest of the season. You'd only need to cut I. Davis.")):
         page.locator(f"[data-tbcopy='{i}']").click()
         page.wait_for_function(f"document.querySelector(\"[data-tbcopy='{i}']\").textContent === 'Copied'")
         assert page.evaluate("navigator.clipboard.readText()") == want
@@ -234,8 +263,9 @@ def test_a_refused_clipboard_shows_the_text_selected_in_a_box(mount):
     f.open_partner("Run It Back")
     page.locator("[data-tbcopy='1']").click()
     page.wait_for_selector(".tb-box")
-    assert page.locator(".tb-box").input_value() == ("Trade? I send Purdy (28.8 a game), Raymond (9.4), Gordon II (10.2) for Smith-Njigba (25.3)."
-                                                     " M. Mariota can go to your IR slot. You'd only need to cut J. Hill.")
+    assert page.locator(".tb-box").input_value() == (
+        "Trade? I send Higgins (19.8 a game his last 2), Pollard (8.0 a game), Goff (28.4) for Robinson (24.2) and Concepcion (4.9),"
+        " priced on the rest of the season. You'd only need to cut I. Davis.")
     assert page.evaluate("(() => { const b = document.querySelector('.tb-box'); return document.activeElement === b && b.selectionEnd - b.selectionStart === b.value.length; })()")
     assert page.locator("[data-tbcopy='1']").inner_text() == "Copy offer", "no false Copied"
 

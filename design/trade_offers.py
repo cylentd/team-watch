@@ -3,67 +3,70 @@
 ff-jarvis (model.season.trade_offers, v2) writes, for every owner in every league, one flat list of offers ranked
 by gain: per position (QB, RB, WR, TE) the best `per_pos` offers whose `get` holds a player there (at most
 `per_partner_pos` from one partner), and per partner the best `top` offers with him; the union, deduped. Each
-offer is what each side sends and ONE number, the owner's weekly gain by our projection. ~360 KB, so it is not
-injected into the page: the build copies it to `trade_offers.json` next to index.html (compact, byte for byte the
-same data) and the page fetches it the first time a reader opens the finder (js/surface/lboard/offers.js).
-Nothing else reads it.
+offer is what each side sends and ONE number, the owner's gain in REST-OF-SEASON points (since 2026-10-06, METHODOLOGY
+12.99; superseded: the weekly gain by next week's projection). ~400 KB, so it is not injected into the page: the build
+copies it to `trade_offers.json` next to index.html (compact, byte for byte the same data) and the page fetches it the
+first time a reader opens the finder (js/surface/lboard/offers.js). Nothing else reads it.
 
-    {"updated", "season", "rules", "leagues": {"espn"|"yahoo"|"ayo": {"week", "teams": {owner: [offer]}}}}
+    {"updated", "season", "rules", "leagues": {"espn"|"yahoo"|"ayo": {"week", "weeks_left", "teams": {owner: [offer]}}}}
     offer = {"partner", "send": [player], "get": [player], "gain", "drop": [player], "ir_moves": [player],
-             "their": {"ir_moves": [player], "drop": [player]}}
+             "their": {"ir_moves": [player], "drop": [player], "gain"}}
     player = {"name", "pos", "team", "slug", "seen", "injury", "last2", "chips"}
 
-An owner with no offer is left out by the producer. v1 (owner -> partner -> {"bold", "fair"}) is gone: its shape
-fails the build. The shape is checked at build time (contract.py, TRADE_OFFERS), so a field the producer drops
-fails the build, not the page.
+An owner with no offer is left out by the producer. The shape is checked at build time (contract.py, TRADE_OFFERS), so a
+field the producer drops fails the build, not the page. Every field below is required, and a file from before the
+rest-of-season pricing fails closed here (`rules.unit` and the fields it brought are missing), so a build on old data stops
+at the offers step rather than print a weekly number under "pts rest of season".
 
-Edit mode (2026-10-05, js/surface/lboard/tbscore.js): each league also carries what the page needs to score a
-package of its own, and each offer the players the reader drops to stay at the roster cap:
+Edit mode (js/surface/lboard/tbscore.js): each league also carries what the page needs to score a package of its own, and
+each offer the players the reader drops to stay at the roster cap:
 
-    league = {..., "lineup": {"slots", "flex", "floor", "cap", "ir"},
-              "values": {team: [player + {"proj", "ir", "keep", "ir_ok", "protect"}]},
+    league = {..., "lineup": {"slots", "flex", "floor", "ros_floor", "cap", "ir"},
+              "values": {team: [player + {"proj", "ros_pg", "games", "priced", "ir", "keep", "ir_ok", "protect"}]},
               "other": {team: n}}     # n = the K/DST the team also holds: they count toward `cap`, are never released
+
+`ros_pg` and `games` are a player's rest-of-season points a game and expected games left, `keep` is their product (his
+rest-of-season points), `proj` is next week's projection (the page's weekly chips; it no longer moves a gain), `ros_floor`
+is the wire by `ros_pg` (`floor`, by `proj`, is for the chips) and `weeks_left` the weeks the gain covers.
 
 The drop rule (2026-10-05): over the cap, a player who is eligible for IR (`ir_ok`) moves to a free IR slot
 (`lineup.ir` minus those on IR) before anyone is dropped, the highest `keep` first (an offer's `ir_moves`); then the
 lowest-`keep` players who are not starters, not in `get`, not on IR and not `protect` are dropped (`drop`).
 
-The scoring rule is the producer's (its `rules` field); the page re-scores every offer it loads and hides Edit
-when one differs (tbscore.js, offers.js). Until ff-jarvis writes the fields they are optional here, and when
-present they are checked: `EDIT_REQUIRED` turns that into "must be present" the day the producer lands, and
-`DROP_RULE_REQUIRED` does the same for the drop rule's fields (`ir`, `keep`, `ir_ok`, `protect`, `ir_moves`).
+The scoring rule is the producer's (its `rules.scoring` and `rules.drop`, in words); the page ports both and re-scores every
+offer it loads, `gain` and `their.gain` too, and hides Edit when one differs (tbscore.js, offers.js).
 
 Option B (price it their way, 2026-10-05): every player object also carries `last2` (his last 2 games' average, null
 with fewer than 2) and `chips` (any of "Hot", "Cold", "Early pick"), and every offer a `their`, the partner's room after
-the trade by the same drop rule. The card shows the chips; the copied pitch quotes a Hot player on his `last2` and says
-what `their` holds. `OPTION_B_REQUIRED` turns "checked when present" into "must be present" the day the producer lands.
+the trade by the same drop rule and his own rest-of-season gain (`their.gain`, never negative). The card shows the chips; the
+copied pitch quotes a Hot player on his `last2` and says what `their` holds.
 """
 import json
 
 NAME = "trade_offers.json"
+UNIT = "rest of season points"                              # `rules.unit`: the words under every gain; another unit fails the build
+RULE_NUMBERS = ("top", "per_pos", "per_partner_pos", "max_out", "max_in", "min_gain", "min_gain_week")   # the search's numbers; the page reads none
+RULE_TEXTS = ("scoring", "drop")                            # the two rules the page ports (tbscore.js)
 OFFER = ("send", "get", "gain")                             # and `partner`, a non-empty string (offer_problems)
-RULE_NUMBERS = ("top", "per_pos", "per_partner_pos", "max_out", "max_in", "min_gain", "max_losses")   # per_pos, per_partner_pos and max_losses are v2's
 PLAYER = ("name", "pos", "team", "slug", "seen", "injury")   # `injury` may be null; the key may not be missing
-VALUE = PLAYER + ("proj", "ir")                              # a rostered player in `values`
+ROS_VALUE = ("proj", "ros_pg", "games", "keep")              # a rostered player's numbers the rule reads
+FLAGS = ("ir", "priced", "ir_ok", "protect")                 # and the booleans
+VALUE = PLAYER + ("proj", "ros_pg", "games", "priced", "ir") # a rostered player in `values` (the drop rule's `keep`, `ir_ok`, `protect` below)
 DROP_VALUE = ("keep", "ir_ok", "protect")                    # what the drop rule reads of a rostered player
-LINEUP = ("slots", "flex", "floor", "cap")
-EDIT_REQUIRED = True     # since 2026-10-05 (ff-jarvis 29e54f2 writes lineup, values, other and drop): the old shape fails the build
-# The drop rule of 2026-10-05 (IR moves, then drops by `keep`): lineup.ir, per value keep / ir_ok / protect, per offer ir_moves.
-# Required since 2026-10-05 (ff-jarvis 4e69378 writes them; the live file was rewritten the same day): the old shape fails the build.
-DROP_RULE_REQUIRED = True
-# Option B, price it their way (spec option-b-spec.md, 2026-10-05): every player carries `last2` and `chips`, every offer
-# `their`, the partner's room by the same rule. Required since 2026-10-05 (ff-jarvis 79b2b0b writes them; the live file
-# was rewritten the same day): the old shape fails the build.
-OPTION_B_REQUIRED = True
+LINEUP = ("slots", "flex", "floor", "cap", "ir")
+SKILL = ("QB", "RB", "WR", "TE")                             # the positions `lineup.floor` and `lineup.ros_floor` price
 PERCEIVED = ("last2", "chips")                            # the two fields every player object gains; `last2` may be null
-THEIR = ("ir_moves", "drop")                              # an offer's `their`: the partner's room after the trade
+THEIR = ("ir_moves", "drop")                              # an offer's `their`: the partner's room after the trade (and `gain`)
 LIMIT = 8                                                 # contract.problems cuts at this many, so stop early
 
 
+def number(x):
+    """A JSON number (a bool is not one)."""
+    return isinstance(x, (int, float)) and not isinstance(x, bool)
+
+
 def perceived_problems(at, p):
-    """A player object's option-B fields: both or neither while they are optional, both once required, `chips` a list."""
-    if not (OPTION_B_REQUIRED or any(k in p for k in PERCEIVED)):
-        return []
+    """A player object's option-B fields: both, `chips` a list."""
     miss = [f"{at}.{k}" for k in PERCEIVED if k not in p]
     if "chips" in p and not isinstance(p["chips"], list):
         miss.append(at + ".chips")
@@ -71,12 +74,10 @@ def perceived_problems(at, p):
 
 
 def their_problems(at, o):
-    """An offer's `their` ({ir_moves, drop}, the partner's room): checked when present, required with OPTION_B_REQUIRED.
-    Its players are checked like any other player's (PLAYER, and the option-B fields)."""
+    """An offer's `their` ({ir_moves, drop, gain}, the partner's room and his rest-of-season gain). Its players are checked
+    like any other player's (PLAYER, and the option-B fields)."""
     th = o.get("their")
-    if th is None:
-        return [at + ".their"] if OPTION_B_REQUIRED else []
-    if not isinstance(th, dict):
+    if th is None or not isinstance(th, dict):
         return [at + ".their"]
     miss = []
     for side in THEIR:
@@ -86,49 +87,62 @@ def their_problems(at, o):
         for j, p in enumerate(th[side]):
             miss += [f"{at}.their.{side}[{j}].{k}" for k in PLAYER if k not in p]
             miss += perceived_problems(f"{at}.their.{side}[{j}]", p)
+    if not number(th.get("gain")):
+        miss.append(at + ".their.gain")
+    return miss
+
+
+def lineup_problems(at, body):
+    """`lineup` (slots, flex, floor, ros_floor, cap, ir) and the week count the gain covers."""
+    miss = []
+    lu = body.get("lineup")
+    if not isinstance(lu, dict):
+        miss.append(at + ".lineup")
+    else:
+        miss += [f"{at}.lineup.{k}" for k in LINEUP if k not in lu]
+        if not isinstance(lu.get("ros_floor"), dict):
+            miss.append(at + ".lineup.ros_floor")
+        else:
+            miss += [f"{at}.lineup.ros_floor.{k}" for k in SKILL if not number(lu["ros_floor"].get(k))]
+    weeks = body.get("weeks_left")
+    if not isinstance(weeks, int) or isinstance(weeks, bool) or weeks < 1:
+        miss.append(at + ".weeks_left")
+    return miss
+
+
+def values_problems(at, body):
+    """The rows the page scores a package from: every rostered player with his rest-of-season numbers and the drop rule's."""
+    miss = []
+    vals = body.get("values")
+    if "other" not in body or not isinstance(body["other"], dict):
+        miss.append(at + ".other")
+    if not isinstance(vals, dict):
+        return miss + [at + ".values"]
+    for team, rows in vals.items():
+        for j, p in enumerate(rows if isinstance(rows, list) else []):
+            here = f"{at}.values[{team!r}][{j}]"
+            miss += [f"{here}.{k}" for k in VALUE + DROP_VALUE if k not in p]
+            miss += perceived_problems(here, p)
+            miss += [f"{here}.{k}" for k in ROS_VALUE + ("seen",) if k in p and not number(p[k])]
+            miss += [f"{here}.{k}" for k in FLAGS if k in p and not isinstance(p[k], bool)]
     return miss
 
 
 def edit_problems(at, body):
-    """The edit-mode fields of one league: `lineup` and `values`, checked when present, required when EDIT_REQUIRED."""
-    miss = []
-    lu, vals = body.get("lineup"), body.get("values")
-    if lu is None:
-        if EDIT_REQUIRED:
-            miss.append(at + ".lineup")
-    elif not isinstance(lu, dict):
-        miss.append(at + ".lineup")
-    else:
-        miss += [f"{at}.lineup.{k}" for k in LINEUP if k not in lu]
-        if "ir" not in lu and DROP_RULE_REQUIRED:
-            miss.append(at + ".lineup.ir")
-    if "other" not in body:
-        if EDIT_REQUIRED:
-            miss.append(at + ".other")
-    elif not isinstance(body["other"], dict):
-        miss.append(at + ".other")
-    if vals is None:
-        if EDIT_REQUIRED:
-            miss.append(at + ".values")
-    elif not isinstance(vals, dict):
-        miss.append(at + ".values")
-    else:
-        for team, rows in vals.items():
-            for j, p in enumerate(rows if isinstance(rows, list) else []):
-                miss += [f"{at}.values[{team!r}][{j}].{k}" for k in VALUE if k not in p]
-                miss += perceived_problems(f"{at}.values[{team!r}][{j}]", p)
-                # the drop rule's fields: all three or none while they are optional, all three once required
-                if DROP_RULE_REQUIRED or any(k in p for k in DROP_VALUE):
-                    miss += [f"{at}.values[{team!r}][{j}].{k}" for k in DROP_VALUE if k not in p]
-    return miss
+    """The edit-mode fields of one league: `lineup`, `weeks_left`, `values` and `other`, all required."""
+    return lineup_problems(at, body) + values_problems(at, body)
 
 
 def rules_problems(doc):
-    """`rules` carries the numbers the producer's search ran on; v2 added `per_pos`, `per_partner_pos` and `max_losses`."""
+    """`rules` carries the numbers the producer's search ran on, the unit of every gain and the two rule texts the page ports."""
     rules = doc.get("rules")
     if not isinstance(rules, dict):
         return ["TRADE_OFFERS.rules"]
-    return [f"TRADE_OFFERS.rules.{k}" for k in RULE_NUMBERS if not isinstance(rules.get(k), (int, float))]
+    miss = [f"TRADE_OFFERS.rules.{k}" for k in RULE_NUMBERS if not number(rules.get(k))]
+    miss += [f"TRADE_OFFERS.rules.{k}" for k in RULE_TEXTS if not (isinstance(rules.get(k), str) and rules[k])]
+    if rules.get("unit") != UNIT:
+        miss.append("TRADE_OFFERS.rules.unit")
+    return miss
 
 
 def offer_problems(at, o):
@@ -136,10 +150,9 @@ def offer_problems(at, o):
     miss = [f"{at}.{k}" for k in OFFER if k not in o]
     if not isinstance(o.get("partner"), str) or not o["partner"]:
         miss.append(f"{at}.partner")
-    if "drop" not in o and EDIT_REQUIRED:
-        miss.append(f"{at}.drop")
-    if "ir_moves" not in o and DROP_RULE_REQUIRED:
-        miss.append(f"{at}.ir_moves")
+    for k in ("drop", "ir_moves"):
+        if k not in o:
+            miss.append(f"{at}.{k}")
     miss += their_problems(at, o)
     for side in ("send", "get", "drop", "ir_moves"):
         for j, p in enumerate(o.get(side) or []):

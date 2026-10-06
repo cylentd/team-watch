@@ -7,7 +7,7 @@
    Top: the package, YOU SEND and YOU GET, three rows tall whatever is in it (a fourth scrolls inside). Below: the
    reader's roster and the partner's, from the file's `values`, each row a switch that puts the player in or out of
    the package (side by side from 760px). The foot is a tray stuck to the bottom edge, where the thumb is (STYLE.md):
-   the live gain by tbscore.js (green, red, or a dash for an empty package), the players the reader would drop to
+   the live gain by tbscore.js, in rest-of-season points like a card's (green, red, or a dash for an empty package), the players the reader would drop to
    stay at the roster cap, Reset to the offer it started from, and Copy offer. The partner's roster room is never
    shown here; it is worked out when Copy offer is pressed (tbTheir) and goes into the pitch. Only offers.js's guard
    (tbEditOk) lets it open. */
@@ -44,7 +44,7 @@ function tbPkgHTML(){
    the two buttons. */
 function tbFootHTML(){
   const E = TB_EDIT, send = E.send.map(k => tbHas(E.mine, k)), get = E.get.map(k => tbHas(E.theirs, k));
-  const r = tbGain(E.mine, send, get, E.lu, E.other), empty = !send.length && !get.length;
+  const r = tbGain(E.mine, send, get, E.lu, E.other, E.weeks), empty = !send.length && !get.length;
   const mood = !r.ok || r.gain === 0 ? "flat" : r.gain > 0 ? "up" : "neg";
   const same = ["send", "get"].every(s => E[s].slice().sort().join() === E.from[s].slice().sort().join());
   const n = `<b class="${mood}">${r.ok ? tbSigned(r.gain) : t("lboard.edit.none")}</b>`;
@@ -80,7 +80,7 @@ function tbEditOpen(lg, me, tm, offer, opener, pick){
   if (!tbEditOk(lg, me) || !lgd || !lgd.values[tm.name]) return;
   TB = {lg, me, tm};
   const send = offer ? offer.send.map(tbKey) : [], get = offer ? offer.get.map(tbKey) : [];
-  TB_EDIT = {mine: lgd.values[me.name], theirs: lgd.values[tm.name], lu: lgd.lineup, other: tbOther(lgd, me.name), otherTheirs: tbOther(lgd, tm.name), send, get,
+  TB_EDIT = {mine: lgd.values[me.name], theirs: lgd.values[tm.name], lu: lgd.lineup, weeks: lgd.weeks_left, other: tbOther(lgd, me.name), otherTheirs: tbOther(lgd, tm.name), send, get,
     from: {send: send.slice(), get: get.slice()}, pick: !!pick,
     back: opener && opener.dataset.tbedit !== undefined ? `[data-tbedit="${opener.dataset.tbedit}"]` : "[data-tbown]"};
   tfForward();
@@ -131,7 +131,7 @@ function tbReset(){
    in the tray, so it is on screen wherever the page is scrolled to. */
 function tbEditCopy(btn){
   const E = TB_EDIT, send = E.send.map(k => tbHas(E.mine, k)), get = E.get.map(k => tbHas(E.theirs, k));
-  const th = tbTheir(E.theirs, send, get, E.lu, E.otherTheirs);        // the partner's room for this package, live
+  const th = tbTheir(E.theirs, send, get, E.lu, E.otherTheirs, E.weeks);        // the partner's room for this package, live
   const their = th.short ? null : {ir_moves: th.irMoves, drop: th.drop};   // nobody left to cut: no claim about their room
   tbCopyText(btn, tbText({send, get, their}), btn.closest(".tb-edfoot"), "afterbegin");
 }

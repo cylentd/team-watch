@@ -4,12 +4,14 @@
    offers whose `get` holds a player there, and per partner his best. ~360 KB, so it is not in the page: it is
    fetched the first time a reader opens the finder (finder/finder.js) and kept in memory for the session. From
    file:// or offline the fetch fails and the page says so, with a button to try again. An offer is what each side
-   sends, the owner's one number, `gain`, and who the owner moves to IR (`ir_moves`) or drops to stay at the roster
-   cap. The page scores nothing but the reader's own packages (Edit, tbedit.js, with tbscore.js's port of the rule).
+   sends, the owner's one number, `gain` (rest-of-season points since 2026-10-06, `rules.unit`), and who the owner moves
+   to IR (`ir_moves`) or drops to stay at the roster cap. The page scores nothing but the reader's own packages (Edit,
+   tbedit.js, with tbscore.js's port of the rule).
 
    An owner and a partner are the teams' names as the League board has them (LIVE_TEAMS), which are the names
    in ff-jarvis's roster files, the same ones the offers are keyed by. */
 const TB_URL = "trade_offers.json";
+const TB_UNIT = "rest of season points";   // `rules.unit`: what every gain in the file is in (2026-10-06); the card says so in words
 let TB_DATA = null;     // the file, once fetched
 let TB_ERR = false;     // the last fetch failed
 let TB_BUSY = null;     // the fetch in flight, so two opens share one request
@@ -25,6 +27,7 @@ function tbLoad(){
       if (!r.ok) throw new Error(String(r.status));
       const d = await r.json();
       if (!d || typeof d.leagues !== "object") throw new Error("shape");   // an HTML page where the file should be
+      if (!d.rules || d.rules.unit !== TB_UNIT) throw new Error("unit");   // an older file beside this page: its gains are not points for the rest of the season
       TB_DATA = d;
     } catch (e) { TB_ERR = true; }
     TB_BUSY = null;
@@ -51,11 +54,13 @@ const tbOffersOf = (lg, me) => ((((TB_DATA || {}).leagues || {})[lg.key] || {}).
 /* ---- Edit's guard (2026-10-05): the page re-scores the offers it loads with tbscore.js and shuts Edit when it
    cannot reproduce them. The file is ff-jarvis's, the port is the page's, and a rule that changed on one side
    only would otherwise show the reader a wrong number on a card they built themselves. Fails closed: a missing
-   field (an offer's `their` too, since option B), a player the roster does not list, a gain more than 0.15 off or a
-   different drop, IR move or `their` shuts Edit and Make
+   field (an offer's `their` too, since option B; `weeks_left`, `lineup.ros_floor`, `ros_pg` and `games` since the
+   rest-of-season pricing of 2026-10-06), a player the roster does not list, a gain (the owner's or the partner's) a
+   tenth off or a different drop, IR move or `their` shuts Edit and Make
    your own for the session (the offers still show), and the console names the offer. Since v2 (2026-10-06) the
-   guard checks every offer of the owner, each against its own partner's values, once per owner. ---- */
-const TB_TOL = 0.15;
+   guard checks every offer of the owner, each against its own partner's values, once per owner. Both sides are
+   integer maths rounded to a tenth, so a different number is a different rule: only float noise passes. ---- */
+const TB_TOL = 0.05;
 let TB_GUARD = {data: null, shut: false, seen: {}};   // per file in memory: a shut guard stays shut, an owner is checked once
 
 const tbLeagueData = lg => ((TB_DATA || {}).leagues || {})[lg.key] || null;
@@ -74,25 +79,36 @@ function tbResolve(list, roster){
    from before the rule (2026-10-05) has none, and the page cannot score it. */
 const tbRuled = rows => rows.every(p => typeof p.keep === "number" && typeof p.ir_ok === "boolean" && typeof p.protect === "boolean");
 
-/* True when an offer's `their` (the partner's room after the trade, option B) is there: both lists, possibly empty. */
-const tbTheirOk = th => !!th && Array.isArray(th.ir_moves) && Array.isArray(th.drop);
+/* True when an offer's `their` (the partner's room after the trade, option B, and his rest-of-season gain) is there: both
+   lists, possibly empty, and the number. */
+const tbTheirOk = th => !!th && Array.isArray(th.ir_moves) && Array.isArray(th.drop) && typeof th.gain === "number";
 
-/* The reason this owner's offers cannot be scored, or "" when every one re-scores to its gain, its IR moves and its
-   drop. `list` is the owner's offers (tbOffersOf), each with its partner's name. */
+/* True when a roster carries what the rest-of-season rule reads: `ros_pg` and `games` on every player, and the league's
+   `weeks_left` and a `lineup.ros_floor` for each position. A file from before 2026-10-06 prices a week, and the page
+   cannot score it. */
+const tbPriced = (lgd, rows) => typeof lgd.weeks_left === "number" && !!lgd.lineup.ros_floor
+  && ["QB", "RB", "WR", "TE"].every(k => typeof lgd.lineup.ros_floor[k] === "number")
+  && rows.every(p => typeof p.ros_pg === "number" && typeof p.games === "number");
+
+/* The reason this owner's offers cannot be scored, or "" when every one re-scores to its gain, its IR moves, its
+   drop and the partner's room and gain. `list` is the owner's offers (tbOffersOf), each with its partner's name. */
 function tbMismatch(lgd, me, list){
   const lu = lgd && lgd.lineup, mine = lgd && lgd.values && lgd.values[me.name];
   if (!lu || !mine) return "no lineup or values for this owner";
   if (typeof lu.ir !== "number" || !tbRuled(mine)) return "no IR slots, keep, ir_ok or protect: the file predates the drop rule";
+  if (!tbPriced(lgd, mine)) return "no weeks_left, lineup.ros_floor, ros_pg or games: the file predates rest-of-season pricing";
+  const weeks = lgd.weeks_left;
   for (const [i, o] of (list || []).entries()){
     const theirs = lgd.values[o.partner];
-    if (!theirs || !tbRuled(theirs)) return `offers[${i}] is with ${o.partner}, who has no values the drop rule reads`;
+    if (!theirs || !tbRuled(theirs) || !tbPriced(lgd, theirs)) return `offers[${i}] is with ${o.partner}, who has no values the drop rule or the rest-of-season pricing reads`;
     const send = tbResolve(o.send, mine), get = tbResolve(o.get, theirs);
     if (!send || !get || !Array.isArray(o.drop) || !Array.isArray(o.ir_moves) || !tbTheirOk(o.their)) return `offers[${i}] has a player the roster does not list, or no drop, ir_moves or their`;
-    const r = tbGain(mine, send, get, lu, tbOther(lgd, me.name)), th = tbTheir(theirs, send, get, lu, tbOther(lgd, o.partner));
+    const r = tbGain(mine, send, get, lu, tbOther(lgd, me.name), weeks), th = tbTheir(theirs, send, get, lu, tbOther(lgd, o.partner), weeks);
     const names = list => list.map(tbKey).join("|");      // the producer's order is the rule's
-    const same = r.ok && names(r.drop) === names(o.drop) && names(r.irMoves) === names(o.ir_moves);
-    const sameTheirs = names(th.irMoves) === names(o.their.ir_moves) && names(th.drop) === names(o.their.drop);
-    if (!(Math.abs(r.gain - o.gain) <= TB_TOL) || !same || !sameTheirs) return `offers[${i}] scores ${r.gain}${same && sameTheirs ? "" : " and moves, drops or makes room for them differently"}, the file says ${o.gain}`;
+    const rooms = r.ok && names(r.drop) === names(o.drop) && names(r.irMoves) === names(o.ir_moves)
+      && names(th.irMoves) === names(o.their.ir_moves) && names(th.drop) === names(o.their.drop);
+    if (!(Math.abs(r.gain - o.gain) <= TB_TOL) || !rooms) return `offers[${i}] scores ${r.gain}${rooms ? "" : " and moves, drops or makes room for them differently"}, the file says ${o.gain}`;
+    if (!(Math.abs(th.gain - o.their.gain) <= TB_TOL)) return `offers[${i}] scores ${th.gain} for ${o.partner}, the file says ${o.their.gain}`;
   }
   return "";
 }
@@ -144,8 +160,10 @@ function tbTheirText(th){
   return [first, cut.length ? t("lboard.offer.theirCut", {names: plain(cut)}) : ""].filter(Boolean).join(" ");
 }
 
-/* "Trade? I send Purdy (28.8 a game), Higgins (14.4) for Smith-Njigba (25.3) and Brown (11.4). D. Smith can go to your
-   IR slot, so you don't cut anyone." The first season average carries the unit; `o.their` is the partner's room. */
+/* "Trade? I send Purdy (28.8 a game), Higgins (14.4) for Smith-Njigba (25.3) and Brown (11.4), priced on the rest of the
+   season. D. Smith can go to your IR slot, so you don't cut anyone." The first season average carries the unit; the
+   trade is priced on the rest of the season (2026-10-06), the numbers quoted are this season's true averages;
+   `o.their` is the partner's room. */
 function tbText(o){
   const room = tbTheirText(o.their);
   return t("lboard.offer.text", {send: tbSide(o.send, true, true), get: tbSide(o.get, false, false)}) + (room ? " " + room : "");
