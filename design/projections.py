@@ -4,10 +4,6 @@ slug and cut to the `wanted` set, same reason pedigree.py and gamelog.py give.
 
 Self-contained like the other profile-data cuts: the raw block and slugify come in as arguments.
 """
-import datetime
-from collections import Counter
-
-from slate import EASTERN
 
 
 def report(proj):
@@ -48,45 +44,42 @@ def _week_of(kick, team, schedule):
     return None
 
 
-def _monday(kick):
-    """Is this kickoff (ISO, Z) on a Monday in Eastern time, the league's own clock? Monday night is
-    00:15 UTC the next day."""
-    when = datetime.datetime.fromisoformat(kick.replace("Z", "+00:00"))
-    return when.astimezone(EASTERN).weekday() == 0
-
-
-def slate(players, slugify, schedule):
+def slate(players, slugify, schedule, week=None):
     """(week, off): the week this file speaks for, and slug -> "played" | "bye" for every player
-    whose projected game is a later week (2026-09-26).
+    whose projected game is not in the page week (2026-09-26; an earlier week too since 2026-10-05).
 
-    The file projects each player's NEXT game, so once a Thursday game is over, that team's rows
-    are next week's. Ranked beside everyone else's this-week number, Bijan Robinson led the week-3
-    RBs for a game he had already played. The week is the one most rows fall in; a team with a
-    game in it has played it, a team without one is on a bye. No schedule: (None, {}).
+    The week is the site's page week (2026-10-05): `week`, else `schedule["week"]`, which is
+    ff-jarvis's `page_week` (model/common/nflweek.py), the one rule every view shares. It turns at
+    the first rebuild after the week's last game is final, so on Monday before the final it is still
+    N and the file's only week-N rows are the Monday game's players. No week: (None, {}).
 
-    Week N holds while one of its games, Monday night apart, is still a team's next game (2026-10-05):
-    the noon Sunday run, after the 1 PM ET games, has most rows on N+1 while the 4 PM games and Sunday
-    night are still to play, and the page flipped to N+1 for them. Monday night alone does not hold the
-    week, so Monday says N+1. The file's own rows say what is still to play: no build clock."""
-    weeks, by_slug, ahead = Counter(), {}, set()
+    The file projects each player's NEXT game, so once a game is over, that team's rows are next
+    week's. Ranked beside everyone else's this-week number, Bijan Robinson led the week-3 RBs for a
+    game he had already played. A team with a game in the page week and a row in a later one has
+    played it ("played"); a team without a game in it is on a bye ("bye").
+
+    Superseded 2026-10-05: the week was inferred from the rows (the one most rows fall in, held at N
+    while a non-Monday game of N was still some team's next game, so Monday said N+1; the 2026-10-05
+    rule). The page week replaces it; the rows no longer decide it, and no build clock either."""
+    week = week if week is not None else (schedule or {}).get("week")
+    if week is None:
+        return None, {}
+    alias = (schedule or {}).get("alias") or {}
+    playing = {t for g in (schedule or {}).get("games") or [] if g.get("week") == week
+               for t in (g.get("home"), g.get("away"))}
+    off = {}
     for p in players:
         slug = slugify(p.get("name") or "")
         if not slug:
             continue
-        kick = kick_iso(p)
-        wk = _week_of(kick, p.get("team"), schedule)
-        by_slug[slug] = (wk, p.get("team"))
-        if wk is not None:
-            weeks[wk] += 1
-            if not _monday(kick):
-                ahead.add(wk)
-    if not weeks:
-        return None, {}
-    week = min(weeks.most_common(1)[0][0], min(ahead, default=weeks.most_common(1)[0][0]))
-    alias = (schedule or {}).get("alias") or {}
-    playing = {t for g in schedule.get("games") or [] if g.get("week") == week for t in (g.get("home"), g.get("away"))}
-    return week, {slug: ("played" if alias.get(team, team) in playing else "bye")
-                  for slug, (wk, team) in by_slug.items() if wk is not None and wk > week}
+        wk = _week_of(kick_iso(p), p.get("team"), schedule)
+        if wk is None or wk == week:
+            continue
+        # A row for an earlier week (a file written before Monday night, read after the turn) is a
+        # game already played; a later week is "played" when his team has a game in the page week.
+        off[slug] = ("played" if wk < week or alias.get(p.get("team"), p.get("team")) in playing
+                     else "bye")
+    return week, off
 
 
 def order_key(p):

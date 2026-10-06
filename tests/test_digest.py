@@ -224,14 +224,17 @@ def test_a_finished_week_drops_the_preview_rows_and_draws_no_wait_card(browser, 
     for _, sel in go("digest"):
         page.click(sel)
     page.wait_for_selector(".dg-row")
+    # The fixture's page week is 2, the packet's is 3: the page week is set to the packet's, as it is live.
     at = lambda when: page.evaluate("""(at) => { Date.now = () => Date.parse(at); LIVE_DIGEST.hurt = []; LIVE_DIGEST.starters = [];
-      DG_CUT = null; render();
+      LIVE_SCHEDULE.week = LIVE_DIGEST.week; DG_CUT = null; render();
       return [...document.querySelectorAll('.dg-ticker > [data-dgrow]')].map(e => e.dataset.dgrow); }""", when)
     before = at("2026-09-20T12:00:00Z")
     assert "mu" in before and "hurt" not in before
     assert page.locator(".dg-need .dg-nd-none").inner_text() == "Nobody new is out since Tuesday."
     after = at("2026-09-22T12:00:00Z")
     assert not {"hurt", "mu", "wait"} & set(after) and ("wx" in after or "t5" in after)
+    # The page week is the packet's (3) and every game of it has kicked off: the row waits for the next
+    # week's report, never "Week 3's" for a week that is over (2026-10-05).
     assert page.locator(".dg-need .dg-nd-none").inner_text() == "Week 4's injury report is still in the trainer's room."
     assert page.locator(".dg-wait").count() == 0 and page.locator(".dg svg.blip").count() == 0
     # Blip's voice for a Matchups row with nothing to call stays (digest.js dgMuNone): one of three lines,
@@ -986,6 +989,17 @@ def test_the_recap_row_fits_a_phone_and_sits_in_a_wall_band(browser, page_file):
       const c = r.querySelector('.dg-s-c').getBoundingClientRect(), s = r.querySelector('.dg-s').getBoundingClientRect();
       return {h: Math.round(h.height), overflow: document.documentElement.scrollWidth > innerWidth, claudeInside: c.right <= s.right + 1}; })()""")
     assert got["h"] == 52 and not got["overflow"] and got["claudeInside"], got
+    # Page turned past this week's stats (2026-10-05): the chip stays "Wk 4" and "Final tomorrow" opens the
+    # wrapping text (a 192px chip left the text 31px at 360px).
+    row = _recap_row(page, RECAP_ON, "LIVE_RECAP.complete = false; LIVE_SCHEDULE.week = LIVE_RECAP.week + 1")
+    assert row.locator(".dg-n").inner_text() == "Wk 4"
+    assert row.locator(".dg-s > :first-child").inner_text() == "Final tomorrow"
+    got = page.evaluate("""(() => { const r = document.querySelector('.dg-row[data-dgrow="recap"]'), s = r.querySelector('.dg-s').getBoundingClientRect();
+      const w = r.querySelector('.dg-s-w').getBoundingClientRect();
+      return {text: Math.round(s.width), who: Math.round(w.width), overflow: document.documentElement.scrollWidth > innerWidth}; })()""")
+    assert got["text"] >= 100 and got["who"] >= 60 and not got["overflow"], got
+    row = _recap_row(page, RECAP_ON, "LIVE_RECAP.complete = true; LIVE_SCHEDULE.week = LIVE_RECAP.week + 1")
+    assert row.locator(".dg-s-f").count() == 0, "stats landed: no note"
     ctx.close()
     ctx, page, errors = open_page(browser, page_file, (1705, 1000))
     drive(page, go("digest"))

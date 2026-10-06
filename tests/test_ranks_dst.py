@@ -54,6 +54,18 @@ def test_a_team_switch_to_espn_drops_a_k_tab_that_is_open(mount):
 
 
 @pytest.mark.render
+def test_a_dst_file_for_another_week_than_the_page_draws_no_dst_or_k_tab(mount):
+    """After the turn the D/ST file still holds last week (2026-10-05): no tab, rather than week 2's board
+    under week 3's chips. The fixture's file is week 2, the page's week is moved to 3."""
+    page, errors = mount("ranks", size=PHONE)
+    ranks = RanksPage(page)
+    assert "D/ST" in ranks.chips()
+    page.evaluate("LIVE_SCHEDULE.week = 3; render()")
+    assert ranks.chips() == ["QB", "RB", "WR", "TE", "FLEX"]
+    assert errors == []
+
+
+@pytest.mark.render
 @pytest.mark.req("Ranks", ac="every tab links to the Schedule leaf")
 def test_ranks_links_to_the_schedule_leaf(mount):
     """The link, not the leaf: strength of schedule is another view's."""

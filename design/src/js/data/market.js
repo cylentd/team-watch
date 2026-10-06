@@ -39,10 +39,6 @@ const PROPS_SAMPLE = [
    terms only. */
 const LIVE_MARKET = (typeof LIVE_PROPS !== "undefined" && LIVE_PROPS && LIVE_PROPS.props.length) ? LIVE_PROPS : null;
 const PROPS = LIVE_MARKET ? LIVE_MARKET.props : PROPS_SAMPLE;
-/* The props model's own week, from ff-jarvis's props_model (earliest kickoff of its lines): on
-   Monday it is still the week of Monday night's game. It names a store key (builder/saved.js) and
-   nothing a reader sees: every label says slateWeek() (data/schedule.js, the week rule). */
-const SLATE_WEEK = (LIVE_MARKET && LIVE_MARKET.model && LIVE_MARKET.model.week) || null;
 /* A kickoff label in the reader's clock, cut from the row's own time (lib/kick.js) instead of the
    Pacific label design/slate.py wrote; a window carries its first kickoff as `at`. */
 if (LIVE_MARKET){

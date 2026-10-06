@@ -173,6 +173,13 @@ def load_player_proj():
             or read_first(PLAYER_PROJ, REPO / "data" / "player_projections.json"))
 
 
+def load_page_week(dwr=None):
+    """ff-jarvis's `page_week` block (2026-10-05; week is null when no game is left), feed first, then
+    `page_week.json` in `dwr`; else None. Defined once in ff-jarvis nflweek.py, never recomputed here."""
+    block = feed_block(("page_week",), "generated") or read_first(pathlib.Path(dwr or DWR) / "page_week.json")
+    return block if isinstance(block, dict) and "week" in block else None
+
+
 def load_wrcb():
     """RotoBaller's WR/CB column for the week, feed first then the ff-jarvis file."""
     return feed_block(("market", "wrcb"), "records") or read_first(DWR / "wrcb.json")

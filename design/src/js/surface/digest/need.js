@@ -58,7 +58,7 @@ function dgNeedHTML(d){
     `<button type="button" class="dg-q-p" data-dgslug="${esc(r.slug)}"><span class="dg-hd">${avatarHTML(r)}</span>${esc(dgShort(r.n))}</button>`).join("")}</div>` : "";
   const list = shown.length ? `<div class="dg-nd-list">${shown.join("")}${more}</div>` : "";
   const body = lines.length || q.length ? list + also
-    : `<p class="dg-nd-none">${dgWaiting(d) ? t("digest.line.hurtNext", {week: d.week + 1}) + "." : t("digest.need.none")}</p>`;
+    : `<p class="dg-nd-none">${dgWaiting(d) ? t("digest.line.hurtNext", {week: dgRowWeek(d)}) + "." : t("digest.need.none")}</p>`;
   return `<section class="dg-need" aria-labelledby="dg-need-h">
     <h3 class="dg-sec" id="dg-need-h">${t("digest.need.title")}</h3>${body}
     ${dgFootHTML(t("digest.foot.need"), "news", t("digest.go.news"))}</section>`;

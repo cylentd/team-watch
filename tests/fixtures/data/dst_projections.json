@@ -2,10 +2,10 @@
  "generated": "2026-10-05T21:45:11-04:00",
  "season": 2026,
  "weeks": [
-  5,
-  6,
-  7,
-  8
+  2,
+  3,
+  4,
+  5
  ],
  "source": {
   "dst_espn": "model",
@@ -76,7 +76,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "DET",
      "home": true,
@@ -110,7 +110,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "LA",
      "home": false,
@@ -144,7 +144,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "DEN",
      "home": true,
@@ -178,7 +178,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "DAL",
      "home": false,
@@ -252,7 +252,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "BAL",
      "home": true,
@@ -286,7 +286,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "CHI",
      "home": true,
@@ -320,7 +320,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "SF",
      "home": true,
@@ -354,7 +354,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "TB",
      "home": false,
@@ -428,7 +428,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "ATL",
      "home": false,
@@ -462,7 +462,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "CLE",
      "home": false,
@@ -496,7 +496,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "CIN",
      "home": true,
@@ -530,7 +530,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "BUF",
      "home": false,
@@ -604,7 +604,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "LA",
      "home": false,
@@ -638,7 +638,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "LV",
      "home": false,
@@ -672,7 +672,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": true,
      "opp": null,
      "home": null,
@@ -688,7 +688,7 @@
      "k_streamer": null
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "BAL",
      "home": true,
@@ -762,7 +762,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": true,
      "opp": null,
      "home": null,
@@ -778,7 +778,7 @@
      "k_streamer": null
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "PHI",
      "home": false,
@@ -812,7 +812,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "TB",
      "home": true,
@@ -846,7 +846,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "GB",
      "home": false,
@@ -920,7 +920,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "GB",
      "home": false,
@@ -954,7 +954,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "ATL",
      "home": false,
@@ -988,7 +988,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "NE",
      "home": true,
@@ -1022,7 +1022,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "SEA",
      "home": false,
@@ -1096,7 +1096,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "MIA",
      "home": false,
@@ -1130,7 +1130,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": true,
      "opp": null,
      "home": null,
@@ -1146,7 +1146,7 @@
      "k_streamer": null
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "BAL",
      "home": false,
@@ -1180,7 +1180,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "TEN",
      "home": true,
@@ -1254,7 +1254,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "NYJ",
      "home": false,
@@ -1288,7 +1288,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "BAL",
      "home": true,
@@ -1322,7 +1322,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "TEN",
      "home": false,
@@ -1356,7 +1356,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "PIT",
      "home": false,
@@ -1430,7 +1430,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "TB",
      "home": true,
@@ -1464,7 +1464,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "GB",
      "home": false,
@@ -1498,7 +1498,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "PHI",
      "home": false,
@@ -1532,7 +1532,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "ARI",
      "home": true,
@@ -1606,7 +1606,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "LAC",
      "home": false,
@@ -1640,7 +1640,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "SEA",
      "home": true,
@@ -1674,7 +1674,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "ARI",
      "home": false,
@@ -1708,7 +1708,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "KC",
      "home": true,
@@ -1782,7 +1782,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "ARI",
      "home": false,
@@ -1816,7 +1816,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": true,
      "opp": null,
      "home": null,
@@ -1832,7 +1832,7 @@
      "k_streamer": null
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "GB",
      "home": true,
@@ -1866,7 +1866,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "MIN",
      "home": true,
@@ -1940,7 +1940,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "CHI",
      "home": true,
@@ -1974,7 +1974,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "DAL",
      "home": true,
@@ -2008,7 +2008,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "DET",
      "home": false,
@@ -2042,7 +2042,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "CAR",
      "home": true,
@@ -2116,7 +2116,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "TEN",
      "home": false,
@@ -2150,7 +2150,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "JAX",
      "home": false,
@@ -2184,7 +2184,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "NYG",
      "home": true,
@@ -2218,7 +2218,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": true,
      "opp": null,
      "home": null,
@@ -2274,7 +2274,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "PIT",
      "home": false,
@@ -2308,7 +2308,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "TEN",
      "home": true,
@@ -2342,7 +2342,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "MIN",
      "home": false,
@@ -2376,7 +2376,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "JAX",
      "home": false,
@@ -2450,7 +2450,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "PHI",
      "home": true,
@@ -2484,7 +2484,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "HOU",
      "home": true,
@@ -2518,7 +2518,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": true,
      "opp": null,
      "home": null,
@@ -2534,7 +2534,7 @@
      "k_streamer": null
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "IND",
      "home": true,
@@ -2608,7 +2608,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": true,
      "opp": null,
      "home": null,
@@ -2624,7 +2624,7 @@
      "k_streamer": null
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "LAC",
      "home": true,
@@ -2658,7 +2658,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "SEA",
      "home": false,
@@ -2692,7 +2692,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "DEN",
      "home": false,
@@ -2766,7 +2766,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "BUF",
      "home": true,
@@ -2800,7 +2800,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "ARI",
      "home": true,
@@ -2834,7 +2834,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "LV",
      "home": false,
@@ -2868,7 +2868,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "LAC",
      "home": true,
@@ -2942,7 +2942,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "DEN",
      "home": true,
@@ -2976,7 +2976,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "KC",
      "home": false,
@@ -3010,7 +3010,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": true,
      "opp": null,
      "home": null,
@@ -3026,7 +3026,7 @@
      "k_streamer": null
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "LA",
      "home": false,
@@ -3100,7 +3100,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "NE",
      "home": false,
@@ -3134,7 +3134,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "BUF",
      "home": true,
@@ -3168,7 +3168,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "LA",
      "home": true,
@@ -3202,7 +3202,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "NYJ",
      "home": false,
@@ -3276,7 +3276,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "CIN",
      "home": true,
@@ -3310,7 +3310,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": true,
      "opp": null,
      "home": null,
@@ -3326,7 +3326,7 @@
      "k_streamer": null
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "NYJ",
      "home": false,
@@ -3360,7 +3360,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "NE",
      "home": true,
@@ -3434,7 +3434,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "NO",
      "home": false,
@@ -3468,7 +3468,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": true,
      "opp": null,
      "home": null,
@@ -3484,7 +3484,7 @@
      "k_streamer": null
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "IND",
      "home": true,
@@ -3518,7 +3518,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "DET",
      "home": false,
@@ -3592,7 +3592,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "LV",
      "home": true,
@@ -3626,7 +3626,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "NYJ",
      "home": true,
@@ -3660,7 +3660,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "CHI",
      "home": false,
@@ -3694,7 +3694,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "MIA",
      "home": false,
@@ -3768,7 +3768,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "MIN",
      "home": true,
@@ -3802,7 +3802,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "NYG",
      "home": false,
@@ -3836,7 +3836,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "PIT",
      "home": true,
@@ -3870,7 +3870,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": true,
      "opp": null,
      "home": null,
@@ -3926,7 +3926,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "WAS",
      "home": false,
@@ -3960,7 +3960,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "NO",
      "home": true,
@@ -3994,7 +3994,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "HOU",
      "home": false,
@@ -4028,7 +4028,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": true,
      "opp": null,
      "home": null,
@@ -4084,7 +4084,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "CLE",
      "home": true,
@@ -4118,7 +4118,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "NE",
      "home": false,
@@ -4152,7 +4152,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "MIA",
      "home": true,
@@ -4186,7 +4186,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "LV",
      "home": true,
@@ -4260,7 +4260,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "JAX",
      "home": false,
@@ -4294,7 +4294,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "CAR",
      "home": true,
@@ -4328,7 +4328,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "DAL",
      "home": true,
@@ -4362,7 +4362,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "WAS",
      "home": false,
@@ -4436,7 +4436,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "IND",
      "home": true,
@@ -4470,7 +4470,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "TB",
      "home": false,
@@ -4504,7 +4504,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "NO",
      "home": false,
@@ -4538,7 +4538,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "CLE",
      "home": true,
@@ -4612,7 +4612,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "SF",
      "home": true,
@@ -4646,7 +4646,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "DEN",
      "home": false,
@@ -4680,7 +4680,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "KC",
      "home": true,
@@ -4714,7 +4714,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "CHI",
      "home": true,
@@ -4788,7 +4788,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "SEA",
      "home": false,
@@ -4822,7 +4822,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "WAS",
      "home": true,
@@ -4856,7 +4856,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "ATL",
      "home": false,
@@ -4890,7 +4890,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": true,
      "opp": null,
      "home": null,
@@ -4946,7 +4946,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "DAL",
      "home": false,
@@ -4980,7 +4980,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "PIT",
      "home": true,
@@ -5014,7 +5014,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "CAR",
      "home": false,
@@ -5048,7 +5048,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "ATL",
      "home": true,
@@ -5122,7 +5122,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "HOU",
      "home": true,
@@ -5156,7 +5156,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "IND",
      "home": false,
@@ -5190,7 +5190,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": false,
      "opp": "CLE",
      "home": true,
@@ -5224,7 +5224,7 @@
      }
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "CIN",
      "home": false,
@@ -5298,7 +5298,7 @@
    },
    "weeks": [
     {
-     "week": 5,
+     "week": 2,
      "bye": false,
      "opp": "NYG",
      "home": true,
@@ -5332,7 +5332,7 @@
      }
     },
     {
-     "week": 6,
+     "week": 3,
      "bye": false,
      "opp": "SF",
      "home": false,
@@ -5366,7 +5366,7 @@
      }
     },
     {
-     "week": 7,
+     "week": 4,
      "bye": true,
      "opp": null,
      "home": null,
@@ -5382,7 +5382,7 @@
      "k_streamer": null
     },
     {
-     "week": 8,
+     "week": 5,
      "bye": false,
      "opp": "PHI",
      "home": true,

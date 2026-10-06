@@ -4,7 +4,7 @@
 # files above it, or inside functions that run later.
 #
 # pin: data/* before anything that reads it; builder/saved.js reads the saved slips at load, which
-#      needs SLATE_WEEK (data/market.js) and slateWeek (data/schedule.js) already declared.
+#      needs schedWeek (data/schedule.js) already declared.
 # pin: chrome/state.js (SURFACE, VIEW) precedes every render function; main.js is last and is
 #      the only file with side effects on the page.
 # pin: surface/live/live.js sits after chrome/state.js because gdOnScreen() reads SURFACE, and

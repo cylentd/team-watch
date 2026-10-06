@@ -88,7 +88,7 @@ CONTRACT = {
     # no game to open rather than a wrong one.
     "LIVE_SCHEDULE": {
         "keys": ["games", "alias", "week"],
-        "rows": ("games", ["id", "home", "away", "kickoff", "week", "espn"]),
+        "rows": ("games", ["id", "home", "away", "kickoff", "week", "final", "espn"]),
     },
     "LIVE_PROPS": {
         "keys": ["fetched", "events", "books", "players", "windows", "days", "model", "props", "wrcb", "logs"],

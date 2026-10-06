@@ -58,6 +58,12 @@ def test_highlights_leads_players_and_each_card_opens_its_view(browser, page_fil
         text = page.locator("#view").inner_text().lower()
         assert not re.search(r"\b(buy|sell|start him|sit him)\b", text), "the tab describes; it does not advise"
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+        # A packet for another week than the page's (after the turn, 2026-10-05) says nothing is posted.
+        page.evaluate("LIVE_SCHEDULE.week = LIVE_HIGHLIGHTS.week + 1; render()")
+        page.wait_for_selector(".hl .state-empty")
+        assert page.locator(".hl-v").count() == 0 and page.locator(".hl-ln").count() == 0
+        page.evaluate("LIVE_SCHEDULE.week = LIVE_HIGHLIGHTS.week; render()")
+        page.wait_for_selector(".hl-v")
         page.locator("[data-hlgo='movers']").click()
         assert page.evaluate("SURFACE") == "movers"
         assert errors == []

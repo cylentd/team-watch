@@ -12,7 +12,11 @@
    points a game for D/ST, about 0.01 for K (12.85), so the board says in one line that a close rank is a
    tie. A row on ESPN waivers says Waivers, not Free. A week with no posted line is an estimate: "~".
 ------------------------------------------------------------------ */
-const rkDstBlock = () => (typeof LIVE_DST !== "undefined" && LIVE_DST) || null;
+/* No block for another week: the D/ST and K tabs are not drawn, as with no file (data/schedule.js schedIsPageWeek). */
+const rkDstBlock = () => {
+  const b = typeof LIVE_DST !== "undefined" && LIVE_DST;
+  return b && schedIsPageWeek((b.weeks || [])[0]) ? b : null;
+};
 const rkLeague = () => dstLeagueKey(lgFocusKey(), !!lgMine(), rkDstBlock());
 
 /* The way in from another view: open Ranks on the D/ST tab. Its one caller today is the Waivers view's

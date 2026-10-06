@@ -60,8 +60,8 @@ def test_the_count_under_build_is_the_lines_still_open(bets):
     assert bets("buildCount()") == 2
 
 
-def test_the_week_label_is_the_projections_week_not_the_props_models(bets):
-    assert bets("slateWeek()") == 5 and bets("SLATE_WEEK") == 4
+def test_the_week_label_is_the_schedules_week_whatever_the_projections_say(bets):
+    assert bets("schedWeek()") == 4
 
 
 def test_kickoff_labels_come_from_each_rows_own_utc_time(bets):

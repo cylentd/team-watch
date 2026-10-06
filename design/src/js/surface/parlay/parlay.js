@@ -13,7 +13,7 @@ function parlayHTML(){
     ${betsBarHTML(build)}
     ${betsPanelHTML(build)}
     ${build ? buildHTML() : slRecordHTML() + slTopHTML() + slBoardHTML()}
-    ${build ? `<p class="note bets-foot">${slateWeek() ? t("parlay.hero.eyebrow", {n: buildCount(), week: slateWeek()}) : t("parlay.hero.eyebrowNoWeek", {n: buildCount()})}</p>` : ""}
+    ${build ? `<p class="note bets-foot">${schedWeek() ? t("parlay.hero.eyebrow", {n: buildCount(), week: schedWeek()}) : t("parlay.hero.eyebrowNoWeek", {n: buildCount()})}</p>` : ""}
   </div>
   ${trayHTML()}${sheetHTML()}`;
 }

@@ -30,6 +30,8 @@ import datetime
 import json
 import pathlib
 
+import sources                # design/sources.py: the page_week block's reader
+
 UTC = datetime.timezone.utc
 
 # nflverse -> ESPN, and only where they disagree. Not `build.TEAM_FIX` (which targets the book's
@@ -69,23 +71,25 @@ def _latest_per_game(rows):
     return best.values()
 
 
-def page_week(rows):
-    """The week the page is on: the week of the first game with no final score that kicks off
-    after the last game that has one, or None when every game is final.
+def _scored(r):
+    """True when the game's latest row carries both scores, which is what makes it final (an unplayed
+    game's score fields are dropped before ff-jarvis writes the row; 0-0 is not a missing score)."""
+    return all(isinstance(r.get(k), (int, float)) and not isinstance(r.get(k), bool)
+               for k in ("home_score", "away_score"))
 
-    The data decides, not the reader's clock (2026-09-28). The clock turned the pack to week 4 the
-    moment Monday night kicked off, while the recap, roast and projections built that morning were
-    still week 3's. A score only arrives with a refresh, so the whole page turns together, at the
-    first build after Monday night is final (the Tuesday 2:40am rebuild). A game postponed with no
-    score is stepped over as soon as a later game has one, so it cannot hold the page back."""
-    last = max((r["kickoff"] for r in rows if r["final"]), default="")
-    ahead = [r for r in rows if not r["final"] and r["kickoff"] > last and r["week"] is not None]
-    return min(ahead, key=lambda r: r["kickoff"])["week"] if ahead else None
+
+def _page_week(dwr):
+    """The site's week, read from ff-jarvis's `page_week` block (sources.load_page_week), or None.
+    Team Watch computed it here from the games log until 2026-10-05 (the data decides, not the
+    reader's clock, since 2026-09-28); ff-jarvis owns it now (model/common/nflweek.py page_week), so
+    the whole site turns on one rule and this repo never mirrors it."""
+    week = (sources.load_page_week(dwr) or {}).get("week")
+    return int(week) if isinstance(week, (int, float)) and not isinstance(week, bool) else None
 
 
 def load_schedule(dwr):
     """-> {"games": [{home, away, kickoff, week, espn}], "alias": {...}, "week": int|None}, or None when the log
-    is not there.
+    is not there. `week` is ff-jarvis's page week (`_page_week`), not derived from `games`.
 
     `kickoff` is normalized to ISO-8601 UTC with a trailing Z, which Date.parse reads directly
     in the browser. No build clock is consulted, so the same log always yields the same block.
@@ -103,7 +107,7 @@ def load_schedule(dwr):
     if not games_dir.is_dir():
         return None
 
-    out, played = [], []
+    out = []
     for r in _latest_per_game(_rows(games_dir)):
         try:
             when = datetime.datetime.fromisoformat(str(r["kickoff"]).replace("Z", "+00:00"))
@@ -120,9 +124,8 @@ def load_schedule(dwr):
                     "kickoff": when.astimezone(UTC).isoformat(timespec="seconds").replace(
                         "+00:00", "Z"),
                     "week": int(week) if isinstance(week, (int, float)) else None,
+                    "final": _scored(r),
                     "espn": str(r["espn"]) if r.get("espn") else None})
-        played.append({"kickoff": out[-1]["kickoff"], "week": out[-1]["week"],
-                       "final": r.get("home_score") is not None and r.get("away_score") is not None})
 
     if not out:
         return None
@@ -132,11 +135,15 @@ def load_schedule(dwr):
     # so looking a club up in `games` above silently found nothing for the Rams and the Commanders.
     # Writing {"LA": "LAR"} again in JavaScript would be the same table in two places; sending it
     # keeps it in one. ESPN's own codes are not keys here, so they pass through untouched.
-    return {"games": out, "alias": dict(TO_ESPN), "week": page_week(played)}
+    return {"games": out, "alias": dict(TO_ESPN), "week": _page_week(dwr)}
 
 
 def report(block):
     if not block:
         return "Schedule: no live file, so Live polls on its idle cadence only"
     games = block["games"]
-    return f"Schedule: {len(games)} games, {games[0]['kickoff']} to {games[-1]['kickoff']}"
+    line = f"Schedule: {len(games)} games, {games[0]['kickoff']} to {games[-1]['kickoff']}"
+    if block.get("week") is None:
+        line += ("\nWARNING: no page week (ff-jarvis page_week block or file is missing, or no game is left), "
+                 "so forward views carry no week")
+    return line

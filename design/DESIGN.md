@@ -43,19 +43,25 @@ None of the three sources is backtested. The verdict word is watch's own; the pa
 
 ## The page's week and its kickoffs (2026-10-05)
 
-**The week rule: the page's week is the week of the projections, `slateWeek()` in `data/schedule.js`.**
-From the last Sunday game to Monday night's final the schedule is still on week N (its one unscored game)
-while every projection is for week N+1, so on Monday 2026-10-05 Week and Bets said "Week 4" and Players and
-Start/Sit said "Week 5". The projections' week is N while any non-Monday game of week N is still some
-team's next game (`design/projections.py` `slate`, read off the projection file's own rows, no build clock):
-Sunday's noon run, after the 1 PM ET games and with the 4 PM games to play, is week N, not N+1; Monday,
-with only Monday night left, is N+1 (`tests/test_slate_week.py`: Wednesday, Sunday 9 AM and 12:30 PT,
-Sunday night, Monday, Tuesday, Thursday). Any label on a view that prices, ranks or projects a player (the week pill, Ranks,
-Start/Sit, Compare, the Teams board, Bets, the Digest's top five) calls `slateWeek()`; week N's last game
-stays on the views that list games (Weather, Live, the Digest's Monday night), each under its own date, and
-`schedWeek()` (the pack and the brief) is that list's week. A document names the week it was written for
-(Recap, the Digest packet, a Preview take) and says so. Order of trust: Ranks, Teams, the props model, the
-schedule. `tests/test_js_week.py` pins the Monday case.
+**One page week (2026-10-05, David): the whole site has one week, `schedWeek()` in `data/schedule.js`, ff-jarvis's `page_week` block read into `LIVE_SCHEDULE.week` by `design/schedule.py`.**
+It turns at the first rebuild after the week's last game is final (the 9:15 PM PT Monday run), never on the
+reader's clock. Three consequences:
+
+| Views | Before the turn (Monday night, week W) | After the turn |
+|---|---|---|
+| Forward: Ranks, Teams, D/ST and K, Start/Sit, Bets, the pack, Highlights, Preview | week W's games still to play (Monday night), not W+1 | week W+1 |
+| Backward: Recap, Accuracy, League recap, Slips record, autograph | week W | "Week W · final tomorrow" until the stats land (Tuesday 2:00) |
+| A forward block written for another week (its producer has not run since the turn) | | not posted: that view's own empty state (`schedIsPageWeek`) |
+
+`design/projections.py` `slate` marks every player whose projected game is not in the page week, so a file
+written before Monday night leaves Ranks and Teams once the page turns; Ranks names what is left once more
+than 8 teams are off (`schedOffLine`). Tests: `tests/test_js_page_week.py`, `tests/test_slate_week.py`,
+`tests/test_page_week_build.py`. A document names the week it was written for (Recap, the Digest packet, a
+Preview take) and says so.
+
+Superseded 2026-10-05: the week of the projections, `slateWeek()`, read off the projection file's own rows (week N
+while a non-Monday game of N was still some team's next game, so Monday said N+1), with `schedWeek()` as the
+list views' week and `tests/test_js_week.py` (deleted) pinning it. Two weeks on one page is what the rule above removes.
 
 **One kickoff format: "Sun 1:00 PM" in the reader's clock** (`lib/kick.js`: `kickFmt`, `kickTime`, `kickDate`,
 `kickClock`, `kickPast`). No zone letters, no "ET", no "5:15p". A window keeps the league's own Eastern name
@@ -1125,7 +1131,7 @@ call and appear only as a for-fun line of the record. Rule: ff-jarvis METHODOLOG
 
 | part | what | data |
 |---|---|---|
-| Picker | 2-3 players; START for the higher projection, Coin flip within 0.5 pts (judged at the one decimal shown). **Running backs (2026-10-05, METHODOLOGY 12.86):** when every player compared is a back with a books number (`rank_pts`), the call and the coin flip follow that number instead, the gap printed stays in points (none when the books' pick has fewer points), and one sentence says why ("Running backs are ordered by the sportsbooks' prices...") only when the call differs from the points'; any other pair, or a back the books skipped, follows points. A back the books left unpriced wears a "No line" tag under his name, with its meaning under the call (see Ranks). Rows: projected, rank, defense vs his position, FantasyPros, teammate out, weather, his row in Usage (a link, `navGoRow`). The saved picks are keyed by `slateWeek()` (2026-10-05); the saved slips stay keyed by the props' week (`SLATE_WEEK`), because a Monday's lines are still week N's. Opens on the reader's closest bench-vs-starter call (`briefPairs`, shared with the brief) **only when he has picked a team** (`lgMine`); with none it opens empty, the search open and focused, and stays open until two are picked (2026-10-05, plan U3: it handed a first-time visitor David's pair, 8 taps from his own; now Start/Sit, a name, a name is 3). Picks kept for the week they were made in. When FantasyPros' ECR puts the loser ahead of our START, the row says so in one sentence (the call is the projection, not expert opinion; `ssFpCheck`, a coin flip never contradicts) | `LIVE_RANKS`, `LIVE_DEFENSE`, `LIVE_SSB.fp/out`, `LIVE_PROJECTIONS.wx` |
+| Picker | 2-3 players; START for the higher projection, Coin flip within 0.5 pts (judged at the one decimal shown). **Running backs (2026-10-05, METHODOLOGY 12.86):** when every player compared is a back with a books number (`rank_pts`), the call and the coin flip follow that number instead, the gap printed stays in points (none when the books' pick has fewer points), and one sentence says why ("Running backs are ordered by the sportsbooks' prices...") only when the call differs from the points'; any other pair, or a back the books skipped, follows points. A back the books left unpriced wears a "No line" tag under his name, with its meaning under the call (see Ranks). Rows: projected, rank, defense vs his position, FantasyPros, teammate out, weather, his row in Usage (a link, `navGoRow`). The saved picks and the saved slips are both keyed by `schedWeek()`, the one page week (2026-10-05; the slips were keyed by the props' week, `SLATE_WEEK`, until then). Opens on the reader's closest bench-vs-starter call (`briefPairs`, shared with the brief) **only when he has picked a team** (`lgMine`); with none it opens empty, the search open and focused, and stays open until two are picked (2026-10-05, plan U3: it handed a first-time visitor David's pair, 8 taps from his own; now Start/Sit, a name, a name is 3). Picks kept for the week they were made in. When FantasyPros' ECR puts the loser ahead of our START, the row says so in one sentence (the call is the projection, not expert opinion; `ssFpCheck`, a coin flip never contradicts) | `LIVE_RANKS`, `LIVE_DEFENSE`, `LIVE_SSB.fp/out`, `LIVE_PROJECTIONS.wx` |
 | Board | QB/RB/WR/TE tabs: each position's best spot (ff-jarvis `best`), then the four offenses facing the softest and toughest defenses, a bar against the league average | `LIVE_STARTSIT.best`, `LIVE_SSB.board` |
 | Record | three tiles, SMASH, START, SIT, each its own hit-miss since week 5 (a void count beside a tile only above zero); under them, small, FantasyPros and Pitcher List hit-miss "for fun". Before a week is graded: "No week graded yet." in place of the tiles | `LIVE_SS3.record` |
 | SMASH | one card: every player we project top 3 (QB, TE) or top 6 (RB, WR) at his position, in position order. Row: head, "P. Nacua", "WR2 · LA @ PHI · Sun 1:25 PM", the book's main yardage line over the TD price ("72.0 rec yds", "TD +135"). A player no book prices shows what he has. Foot: Build in Slips | `LIVE_SS3.smash` |

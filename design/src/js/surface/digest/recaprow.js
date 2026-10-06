@@ -25,9 +25,10 @@ function dgRecapRowHTML(){
   const day = top ? dgStatLine(top).split(" · ").slice(0, 2).join(" · ") : "";
   const who = top ? `<span class="dg-s-w"><b>${esc(dgShort(top.n))}</b>${day ? " " + esc(day) : ""}</span>` : "";
   const claude = picks ? `<span class="dg-s-c">${t("digest.recapRow.claude", picks)}</span>` : "";
+  const note = recapNote(r) ? `<span class="dg-s-f">${recapNote(r)}</span>` : "";
   return `<div class="dg-row link" data-dgrow="recap">
     <a class="dg-head" href="#weekrecap">
-      <span class="dg-l">${dgIcon("recap")}${dgLabel("recap")}</span><span class="dg-n go">${t("digest.recapRow.wk", {n: r.week})}</span>
-      <span class="dg-s">${who}${claude}</span>${DG_ARROW}</a>
+      <span class="dg-l">${dgIcon("recap")}${dgLabel("recap")}</span><span class="dg-n go">${recapChip(r)}</span>
+      <span class="dg-s">${note}${who}${claude}</span>${DG_ARROW}</a>
   </div>`;
 }

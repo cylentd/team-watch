@@ -123,9 +123,9 @@ function ranksHTML(){
   if (!list.length) return `<div class="wrap">${chips}<div class="state-empty" style="min-height:220px">
     <div><b>${t("ranks.empty.title")}</b><span>${t("ranks.empty.sub")}</span></div></div></div>`;
   const posName = pos === "FLEX" ? t("ranks.filter.flex") : pos;
-  const wk = slateWeek();
+  const wk = schedWeek();
   const title = wk ? t("ranks.head.title", {week: wk, pos: posName}) : t("ranks.head.titleNoWeek", {pos: posName});
-  const off = (LIVE_RANKS.off || []).length ? " " + t("ranks.head.off", {teams: LIVE_RANKS.off.map(esc).join(", ")}) : "";
+  const offLine = schedOffLine(LIVE_RANKS.off || []), off = offLine ? " " + offLine : "";
   // The band is said in words once per list, only when a row draws one (plan U5).
   const band = list.some(rangeFrom) ? " " + t("range.note") : "";
   const rb = rkRbNotes(pos, list);

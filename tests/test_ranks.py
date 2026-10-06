@@ -71,7 +71,7 @@ def test_one_week_only_and_the_teams_left_off_are_named():
         {"name": "Derrick Henry", "pos": "RB", "team": "BAL", "opp": "DAL", "game": "BAL @ DAL",
          "kickoff": "2026-09-27 20:25:00", "pts": 17.9, "injury": None, "mu": None},
     ]}
-    schedule = {"games": [
+    schedule = {"week": 3, "games": [
         {"week": 4, "away": "ATL", "home": "NO", "kickoff": "2026-10-06T00:15:00Z"},
         {"week": 3, "away": "NYJ", "home": "DET", "kickoff": "2026-09-27T17:00:00Z"},
         {"week": 3, "away": "BAL", "home": "DAL", "kickoff": "2026-09-27T20:25:00Z"},
@@ -94,15 +94,13 @@ def test_the_cards_take_the_same_week_cut():
         {"name": "Bye Back", "pos": "RB", "team": "SEA", "kickoff": "2026-10-04 17:00:00", "pts": 18.0, "src": "model"},
         {"name": "Jahmyr Gibbs", "pos": "RB", "team": "DET", "kickoff": "2026-09-27 17:00:00", "pts": 18.8, "src": "model"},
     ]}
-    schedule = {"games": [
+    schedule = {"week": 3, "games": [
         {"week": 3, "away": "ATL", "home": "GB", "kickoff": "2026-09-25T00:15:00Z"},
         {"week": 3, "away": "NYJ", "home": "DET", "kickoff": "2026-09-27T17:00:00Z"},
         {"week": 4, "away": "ATL", "home": "NO", "kickoff": "2026-10-06T00:15:00Z"},
         {"week": 4, "away": "SEA", "home": "LAR", "kickoff": "2026-10-04T17:00:00Z"},
     ]}
     wanted = {"bijan-robinson", "bye-back", "jahmyr-gibbs"}
-    # Gibbs alone is in week 3 here, so weigh the vote with two more DET rows the cut ignores.
-    raw["players"] += [{"name": f"Det {i}", "pos": "WR", "team": "DET", "kickoff": "2026-09-27 17:00:00", "pts": 5.0} for i in range(2)]
     p = live_projections(raw, slug, wanted, None, schedule)["players"]
     assert (p["bijan-robinson"]["done"], p["bijan-robinson"]["pts"], p["bijan-robinson"]["rank"]) == ("played", None, None)
     assert p["bye-back"]["done"] == "bye"

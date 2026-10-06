@@ -21,7 +21,7 @@ function wrBannerHTML(d){
   const story = lspRecapStory(dgStoryFresh(dig), dig && dig.week, d);
   const head = story ? esc(story.head) : r.line ? dgCall(r, d.week) : t("weekrecap.banner.bare", {name: esc(dgSurname(r.n))});
   const fact = story ? esc(story.fact) : r.line ? `<span class="dg-lead-pills">${dgBoxPills(r)}</span>` : "";
-  const kicker = d.complete ? t("weekrecap.banner.k", {week: d.week}) : t("weekrecap.banner.kSoFar", {week: d.week});
+  const kicker = recapKicker(d);   // data/schedule.js: "top score", "so far", or "final tomorrow" once the page has turned
   const go = r.slug ? `<button type="button" class="wr-go" data-wrslug="${esc(r.slug)}"
     aria-label="${esc(t("weekrecap.banner.open", {n: r.n}))}"></button>` : "";
   return `<article class="dg-lead wr-lead go${team ? " team" : ""}${photo ? " has-photo" : ""}"${team ? " " + teamColourStyle(team) : ""}>

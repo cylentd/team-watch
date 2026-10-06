@@ -6,7 +6,7 @@
    A card is the player's button: a tap brings his shape forward on the graph and puts his ranks
    on its labels. The colour order is the pick order (cmp-s0..2), from card to graph to sparkline. */
 function cmpShowHTML(){
-  const ps = cmpPlayers(), wk = slateWeek();
+  const ps = cmpPlayers(), wk = schedWeek();
   return `<div class="cmp-h"><h4 id="cmp-t">${t("profile.compare.head")}${wk ? `<span class="cmp-wk lbl">${t("profile.compare.week", {n: wk})}</span>` : ""}</h4>
       <button type="button" class="cmp-change" data-cmp="change">${t("profile.compare.change")}</button>
       <button type="button" class="dr-close cmp-x" data-cmp="close" aria-label="${t("profile.compare.close")}">✕</button></div>

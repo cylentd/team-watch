@@ -188,7 +188,11 @@ def test_scores_group_by_window_with_the_pick_and_its_grade(phone):
 def test_a_game_opens_previews_dossier_only_when_preview_holds_the_same_week(browser, page_file):
     ctx, page, errors = recap(browser, page_file, tab="scores")
     assert page.locator("button.wr-g").count() == 0           # the fixture's Preview is week 2
+    # Preview holds the recap's week, but the page week is still 2: Preview shows nothing, so no button.
     page.evaluate("LIVE_PREVIEW.week = LIVE_RECAP.week; wrPaint(document.getElementById('view'))")
+    assert page.locator("button.wr-g").count() == 0
+    # Both on the recap's week (the page has not turned past it): the games open their dossiers.
+    page.evaluate("LIVE_SCHEDULE.week = LIVE_RECAP.week; wrPaint(document.getElementById('view'))")
     buttons = page.locator("button.wr-g")
     assert buttons.count() >= 1
     page.locator("button.wr-g:has-text('PIT 24')").click()

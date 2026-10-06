@@ -29,7 +29,7 @@ def _block():
 def test_the_fixture_week_is_whole_and_ordered_as_the_view_draws_it():
     b = _block()
     contract.validate("LIVE_SS3", b)
-    assert (b["week"], b["season"], len(b["smash"]), len(b["takes"])) == (6, 2026, 10, 9)
+    assert (b["week"], b["season"], len(b["smash"]), len(b["takes"])) == (2, 2026, 10, 9)
     # SMASH: position order QB, RB, WR, TE, each by rank
     assert [(r["pos"], r["rank"]) for r in b["smash"]] == [("QB", 1), ("QB", 3), ("RB", 1), ("RB", 2), ("RB", 5),
                                                           ("WR", 2), ("WR", 4), ("WR", 5), ("TE", 1), ("TE", 2)]
@@ -63,6 +63,18 @@ def test_no_block_is_an_empty_week_that_still_meets_the_contract():
         assert startsit_v3.report(b).startswith("Start/Sit v3: no startsit_v3 block")
 
 
+def test_a_block_for_another_week_than_the_page_loses_its_calls_but_keeps_its_record():
+    """After the turn the file still holds last week's calls: the view must say none are posted (2026-10-05)."""
+    raw = sources.load_startsit_v3()
+    other = startsit_v3.live_ss3(raw, slugify, week=raw["week"] + 1)
+    assert other["smash"] == [] and other["takes"] == []
+    assert other["record"] == _block()["record"], "the record is backward-looking and stays"
+    contract.validate("LIVE_SS3", other)
+    same = startsit_v3.live_ss3(raw, slugify, week=raw["week"])
+    assert (len(same["smash"]), len(same["takes"])) == (10, 9)
+    assert len(_block()["smash"]) == 10, "no page week passed: the block is not judged"
+
+
 def test_a_reason_in_any_of_its_shapes_reads_as_text():
     """ff-jarvis's v2 reasons are {k, text}; the spec sketch said {kind, text_key}; the page needs text."""
     take = {"name": "A B", "call": "start", "pos": "WR", "margin_spots": 7,
@@ -74,13 +86,13 @@ def test_a_reason_in_any_of_its_shapes_reads_as_text():
 
 
 def test_the_report_names_the_week_and_the_record_state():
-    assert startsit_v3.report(_block()) == "Start/Sit v3: week 6, 10 SMASH, 4 START, 5 SIT, record since week 5 (1 weeks graded)"
+    assert startsit_v3.report(_block()) == "Start/Sit v3: week 2, 10 SMASH, 4 START, 5 SIT, record since week 5 (1 weeks graded)"
     ungraded = startsit_v3.live_ss3({"week": 5, "smash": [], "takes": []}, slugify)
     assert startsit_v3.report(ungraded).endswith("no week graded yet (counts from week 5)")
 
 
 def test_the_block_is_read_feed_first_bare_or_wrapped_then_the_file(tmp_path, monkeypatch):
-    assert sources.load_startsit_v3()["week"] == 6                            # the fixture file
+    assert sources.load_startsit_v3()["week"] == 2                            # the fixture file
     feed = tmp_path / "feed.json"
     monkeypatch.setattr(sources, "FEED", feed)
     feed.write_text(json.dumps({"startsit_v3": {"data": {"week": 7, "smash": []}}}), encoding="utf-8")
@@ -88,7 +100,7 @@ def test_the_block_is_read_feed_first_bare_or_wrapped_then_the_file(tmp_path, mo
     feed.write_text(json.dumps({"startsit_v3": {"week": 8, "smash": []}}), encoding="utf-8")
     assert sources.load_startsit_v3()["week"] == 8
     feed.write_text("{}", encoding="utf-8")
-    assert sources.load_startsit_v3()["week"] == 6                            # no block in the feed: the file
+    assert sources.load_startsit_v3()["week"] == 2                            # no block in the feed: the file
     monkeypatch.setattr(sources, "DWR", tmp_path)
     assert sources.load_startsit_v3() is None                                 # neither
 

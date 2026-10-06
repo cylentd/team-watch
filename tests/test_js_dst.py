@@ -1,9 +1,9 @@
 """Ranks > D/ST and K (data/dst.js, 2026-10-05, plan U6c): the rows the board draws, in Node.
 
 The numbers are ff-jarvis's (LIVE_DST, METHODOLOGY 12.85); the function only picks the league's cell,
-orders by the file's own rank and carries the flags. The fixture is the real 2026-10-05 run, weeks 5-8:
-CAR is on a bye in week 5, BUF in week 7, and week 5 is the only week with a posted line for ARI's
-neighbours, so week 6 on wears `line: "rating"`."""
+orders by the file's own rank and carries the flags. The fixture is the real 2026-10-05 run, weeks 5-8, renumbered 2-5 to sit on the fixture's page week:
+CAR is on a bye in week 2, BUF in week 4, and week 2 is the only week with a posted line for ARI's
+neighbours, so week 3 on wears `line: "rating"`."""
 import copy
 import json
 import pathlib
@@ -51,12 +51,30 @@ def test_rows_run_in_the_files_rank_order_and_byes_sit_last(dst):
     assert len(board["rows"]) == 32
 
 
+def test_teams_that_have_played_sit_after_the_teams_still_to_play_byes_last(dst):
+    """Monday: the board leads with the games left. Each group keeps the file's rank order."""
+    shown = copy.deepcopy(BLOCK)
+    by_rank = sorted((t for t in shown["teams"] if not t["weeks"][0]["bye"]), key=lambda t: t["weeks"][0]["rank"]["dst_espn"])
+    played = {by_rank[0]["team"], by_rank[2]["team"]}          # the #1 and #3 teams already played
+    for t in by_rank:
+        t["weeks"][0]["kicked_off"] = t["team"] in played
+    board = dst("dstBoard", shown, "espn", "DST")
+    got = [(r["team"], r["kicked_off"], r["bye"]) for r in board["rows"]]
+    live = [r for r in got if not r[1] and not r[2]]
+    done = [r for r in got if r[1]]
+    byes = [r for r in got if r[2]]
+    assert got == live + done + byes, "still to play, then played, then byes"
+    assert {r[0] for r in done} == played
+    assert [r[0] for r in live] == [t["team"] for t in by_rank if t["team"] not in played]
+    assert [r[0] for r in done] == [t["team"] for t in by_rank if t["team"] in played]
+
+
 def test_a_bye_week_has_no_points_and_the_next_weeks_say_bye(dst):
     board = dst("dstBoard", BLOCK, "espn", "DST")
     car = row(board, "CAR")
     assert car["bye"] and car["pts"] is None and car["rank"] is None and car["opp"] is None and car["streamer"] is False
     buf = row(board, "BUF")
-    assert [c["week"] for c in buf["next"]] == [6, 7, 8]
+    assert [c["week"] for c in buf["next"]] == [3, 4, 5]
     assert [c["bye"] for c in buf["next"]] == [False, True, False]
     assert buf["next"][1]["pts"] is None
 
@@ -147,8 +165,8 @@ def test_the_note_knows_whether_the_cell_is_the_model_or_the_baseline(dst):
 
 def test_the_week_is_the_files_first_and_the_rest_are_the_next_three(dst):
     board = dst("dstBoard", BLOCK, "espn", "DST")
-    assert board["week"] == 5 and board["weeks"] == [5, 6, 7, 8]
-    assert [c["week"] for c in row(board, "ARI")["next"]] == [6, 7, 8]
+    assert board["week"] == 2 and board["weeks"] == [2, 3, 4, 5]
+    assert [c["week"] for c in row(board, "ARI")["next"]] == [3, 4, 5]
 
 
 def test_no_file_is_no_board(dst):

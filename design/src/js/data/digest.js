@@ -84,6 +84,10 @@ function dgWeekDone(d){
   return games.length > 0 && games.every(g => Date.parse(g.kickoff) <= now);
 }
 
+/* The week a Digest row names: the page's, never the packet's plus one on the reader's clock (2026-10-05);
+   between the last kickoff and the turn that week is over, and the row waits for the next one's. */
+const dgRowWeek = d => schedWeek() === d.week && dgWeekDone(d) ? d.week + 1 : schedWeek() ?? d.week;
+
 /* Top 5 is Ranks' own rows (2026-09-29, storyboard https://claude.ai/artifact/Ms6FbdvynVPoRTKEidPGAz,
    5A; David: "it's supposed to be forward looking"). The packet's top5 is cut from the week the
    digest was written, so it emptied once that week's games began, and the wait card said

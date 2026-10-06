@@ -12,7 +12,8 @@ let PV_ARC_WK = null;   // the week Past games shows; null until first opened (p
 let PV_ARC_G = null;    // an earlier week's game open from Past games: {week, key}; null for this week's games
 let PV_ARC = null;      // preview_archive.json once fetched ({season, weeks}); "loading" or "failed" meanwhile
 
-const pvGames = () => (LIVE_PREVIEW && LIVE_PREVIEW.games) || [];
+/* Games of another week than the page's are none (schedIsPageWeek), so Preview says its games are not posted. */
+const pvGames = () => (LIVE_PREVIEW && schedIsPageWeek(LIVE_PREVIEW.week) && LIVE_PREVIEW.games) || [];
 const pvDone = g => new Date(g.kickoff).getTime() <= Date.now();
 
 /* A game is over, so it leaves the slate for Past games (2026-10-05, storyboard 1A,
@@ -21,6 +22,7 @@ const pvDone = g => new Date(g.kickoff).getTime() <= Date.now();
    has polled; before that its read throws on the missing game-day state, which counts as "not known". */
 function pvOver(g){
   const h = schedCode(g.home), a = schedCode(g.away);
+  // `final` is the schedule's own (design/schedule.py: both scores are in the games log).
   if (schedGamesOf(LIVE_PREVIEW.week).some(s => s.final && schedCode(s.home) === h && schedCode(s.away) === a)) return true;
   try { if (gdClockOf(h).state === "post") return true; } catch (e) { /* Live has not polled */ }
   return Date.now() - Date.parse(g.kickoff) >= SCHED_GRACE_MS;

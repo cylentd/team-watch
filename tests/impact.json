@@ -63,7 +63,7 @@
                 "design/schedule.py", "api/clips.py", "api/_yt_channels.json", "design/yt_channels.py"],
       "tests": ["tests/test_gameday.py", "tests/test_gamesheet_v2.py", "tests/test_schedule.py", "tests/test_live_tds.py", "tests/test_live_tabs.py",
                 "tests/test_live_mine.py", "tests/test_live_swipe.py", "tests/test_live_tdclips.py", "tests/test_api_clips.py",
-                "tests/test_yt_channels.py", "tests/test_js_hurt.py", "tests/test_js_week.py", "tests/test_slate_week.py", "tests/test_js_gamesituation.py",
+                "tests/test_yt_channels.py", "tests/test_js_hurt.py", "tests/test_js_page_week.py", "tests/test_slate_week.py", "tests/test_page_week_build.py", "tests/test_js_gamesituation.py",
                 "tests/test_live_modal.py", "tests/test_js_gdstrip.py"],
       "render": ["live"]
     },

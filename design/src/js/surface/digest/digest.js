@@ -72,9 +72,9 @@ function dgRowHTML(id, d, open){
   const has = dgHas(id);
   const [n, tone] = has ? dgCount(id, d) : ["", ""];
   const line = has ? dgLine(id, d)
-    : id === "hurt" && d && dgWeekDone(d) ? t("digest.line.hurtNext", {week: d.week + 1})
+    : id === "hurt" && d && dgWeekDone(d) ? t("digest.line.hurtNext", {week: dgRowWeek(d)})
     : id === "wx" ? t("digest.line.wxCalm")
-    : id === "mu" && d ? dgMuNone(dgWeekDone(d) ? d.week + 1 : d.week) : t("digest.line.nothing");
+    : id === "mu" && d ? dgMuNone(dgRowWeek(d)) : t("digest.line.nothing");
   const on = has && open === id;
   return `<div class="dg-row${has ? "" : " empty"}" data-dgrow="${id}"${on ? " data-open data-today" : ""}>
     <button type="button" class="dg-head" aria-expanded="${on}"${has ? ` aria-controls="dg-b-${id}"` : " disabled"}>

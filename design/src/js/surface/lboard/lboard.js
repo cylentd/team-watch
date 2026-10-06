@@ -66,11 +66,9 @@ function lbHeadHTML(cols){
   return `<div class="lb-head" role="row">${th(null, t("lboard.head.team"), " team")}${cols.map(c => th(c, c, "")).join("")}</div>`;
 }
 
-/* The board's week is slateWeek() (data/schedule.js, the week rule), never schedWeek() (2026-10-05):
-   the projections are each player's next kickoff, so after Sunday they are week N+1 while the
-   schedule's week stays N until Monday night's game is final. */
+/* The board's week is schedWeek(), the one page week (data/schedule.js, 2026-10-05). */
 function lbKeyHTML(){
-  const pct = LB_EDGE * 100, wk = slateWeek();
+  const pct = LB_EDGE * 100, wk = schedWeek();
   return `<div class="lb-key" role="group" aria-label="${t("lboard.key.aria")}">
     <span class="lb-what">${wk ? t("lboard.key.what", {wk}) : t("lboard.key.whatNoWeek")}</span>
     <span class="lb-k"><i class="lb-sw up"></i>${t("lboard.key.above", {pct})}</span>

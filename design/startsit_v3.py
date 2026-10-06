@@ -64,14 +64,21 @@ def _record(rec, slugify):
                           for r in rec.get("last_week") or []]}
 
 
-def live_ss3(block, slugify):
-    """The block the page reads. Always a dict with every key; None or {} reads as an empty week."""
+def live_ss3(block, slugify, week=None):
+    """The block the page reads. Always a dict with every key; None or {} reads as an empty week.
+
+    `week` is the page week (LIVE_SCHEDULE.week). A block written for another week (this week's calls
+    are not out yet, 2026-10-05: the site turns at the Monday-night final, ff-jarvis posts the next
+    week's calls later) keeps its record but loses its SMASH and bold calls, so the view says no calls
+    are posted rather than showing last week's under this week's title. No week passed: not judged."""
     block = block or {}
+    stale = week is not None and block.get("week") is not None and block["week"] != week
     pos = {p: i for i, p in enumerate(POS)}
-    smash = sorted((_smash(r, slugify) for r in block.get("smash") or []),
-                   key=lambda r: (pos.get(r["pos"], 9), r["rank"] or 0))
-    takes = sorted((_take(r, slugify) for r in block.get("takes") or [] if str(r.get("call")).upper() in CALLS),
-                   key=lambda r: (CALLS.index(r["call"]), -r["margin_spots"]))
+    smash = [] if stale else sorted((_smash(r, slugify) for r in block.get("smash") or []),
+                                    key=lambda r: (pos.get(r["pos"], 9), r["rank"] or 0))
+    takes = [] if stale else sorted((_take(r, slugify) for r in block.get("takes") or []
+                                     if str(r.get("call")).upper() in CALLS),
+                                    key=lambda r: (CALLS.index(r["call"]), -r["margin_spots"]))
     return {"week": block.get("week"), "season": block.get("season"), "smash": smash, "takes": takes,
             "record": _record(block.get("record"), slugify)}
 

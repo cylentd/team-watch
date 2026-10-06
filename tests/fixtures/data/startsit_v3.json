@@ -1,5 +1,5 @@
 {
- "week": 6, "season": 2026, "asof": "2026-10-14T13:00:00Z",
+ "week": 2, "season": 2026, "asof": "2026-10-14T13:00:00Z",
  "rule": {"lines": {"QB": 12, "RB": 24, "WR": 24, "TE": 12}, "smash_top": {"QB": 3, "RB": 6, "WR": 6, "TE": 3}, "margin_spots": 6, "version": "12.75"},
  "smash": [
   {"slug": "josh-allen", "name": "Josh Allen", "pos": "QB", "team": "BUF", "opp": "MIA", "home": true, "kick": "2026-10-18T17:00:00Z", "rank": 1, "pts": 24.1, "avg_rank": 2, "line": {"stat": "pass_yds", "value": 251.5}, "td_price": -105},

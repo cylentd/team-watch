@@ -359,10 +359,10 @@ def test_it_opens_on_the_closest_call_the_roster_brief_names(ss):
     assert pg.evaluate("[...document.querySelectorAll('[data-ssx]')].map(b => b.dataset.ssx)") == ["brock-purdy", "joe-burrow"]
     assert verdict(pg)["name"] == "J. Burrow"
     # a reader who kept picks gets them back, and one who cleared them keeps an empty card
-    pg = ss(ROSTER_JS % (9.0, 9.0) + "; SS_PICKS = null; localStorage.setItem('tw-ss-picks', JSON.stringify({week: slateWeek(), picks: []}))")
+    pg = ss(ROSTER_JS % (9.0, 9.0) + "; SS_PICKS = null; localStorage.setItem('tw-ss-picks', JSON.stringify({week: schedWeek(), picks: []}))")
     assert pg.locator(".ssv-who").count() == 0
     # last week's picks are dropped: the card opens on this week's closest call
-    pg = ss(ROSTER_JS % (9.0, 9.0) + "; SS_PICKS = null; localStorage.setItem('tw-ss-picks', JSON.stringify({week: slateWeek() - 1, picks: []}))")
+    pg = ss(ROSTER_JS % (9.0, 9.0) + "; SS_PICKS = null; localStorage.setItem('tw-ss-picks', JSON.stringify({week: schedWeek() - 1, picks: []}))")
     assert pg.evaluate("[...document.querySelectorAll('[data-ssx]')].map(b => b.dataset.ssx)") == ["brock-purdy", "joe-burrow"]
 
 

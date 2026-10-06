@@ -55,7 +55,9 @@ function dstBoard(block, lg, pos){
       next: rest.map(w => dstCell(w, cell, lg, pos)),
     };
   });
-  rows.sort((a, b) => (a.bye - b.bye) || (a.bye ? a.team.localeCompare(b.team) : a.rank - b.rank || a.team.localeCompare(b.team)));
+  // Byes last; a team that has played sits after every team still to play (Monday: the board leads with
+  // the games left), each group in the file's rank order.
+  rows.sort((a, b) => (a.bye - b.bye) || (a.kicked_off - b.kicked_off) || (a.bye ? a.team.localeCompare(b.team) : a.rank - b.rank || a.team.localeCompare(b.team)));
   const weeks = block.weeks || [];
   return {
     pos, lg, cell, rows, weeks, week: weeks[0], source: (block.source || {})[cell] || "model",

@@ -164,9 +164,11 @@ fetches it on a tab click and on the window regaining focus, never on a timer: t
 a day and the week turns on a Tuesday. A different hash turns the DATA pill into a reload control,
 naming the new week when there is one. Only over http(s); from `file://` there is nothing to ask.
 
-The page's week is data, not the reader's clock (2026-09-28): `LIVE_SCHEDULE.week` is the week of
-the next game with no final score (`design/schedule.py` `page_week`), and `schedWeek()` returns it.
-So the pack, the brief and Weather turn with the recap and projections, at the Tuesday 2:00 week-turn rebuild.
+The page's week is data, not the reader's clock (2026-09-28): `LIVE_SCHEDULE.week` is ff-jarvis's `page_week`
+block (since 2026-10-05; `design/schedule.py` only reads it), and `schedWeek()` returns it. The whole site turns
+at the first rebuild after the week's last game is final (the 9:15 PM PT Monday run), so every forward view says
+that week and Monday night is still its game to play; backward views say "final tomorrow" until Tuesday 2:00
+(DESIGN.md "One page week").
 
 ## Data
 

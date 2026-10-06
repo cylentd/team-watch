@@ -44,8 +44,8 @@ function hlLineHTML(r){
 function hlViewHTML(){
   const H = typeof LIVE_HIGHLIGHTS !== "undefined" ? LIVE_HIGHLIGHTS : null;
   const sub = `<p>${t("highlights.head.sub")}</p>`;
-  // No packet: the heading and what the tab is, then the wait, in the site's own empty state.
-  if (!H || !H.views.length) return `<div class="wrap hl">
+  // No packet, or one written for another week (schedIsPageWeek): the heading and what the tab is, then the wait.
+  if (!H || !H.views.length || !schedIsPageWeek(H.week)) return `<div class="wrap hl">
     <div class="hl-head"><h2>${t("nav.tab.highlights")}</h2>${sub}</div>
     <div class="state-empty" style="min-height:220px;margin-top:16px">
     <div><b>${t("highlights.empty.title")}</b><span>${t("highlights.empty.sub")}</span></div></div></div>`;

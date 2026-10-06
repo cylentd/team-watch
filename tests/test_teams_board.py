@@ -150,7 +150,7 @@ def test_out_players_ir_slots_and_unprojected_players_are_handled():
 
 def test_a_players_already_played_game_counts_zero():
     """The file projects each player's NEXT game: a team that has played this week's is next week's row."""
-    sched = {"alias": {}, "games": [{"week": 1, "home": "XXX", "away": "YYY", "kickoff": "2026-09-13T17:00:00Z"},
+    sched = {"alias": {}, "week": 1, "games": [{"week": 1, "home": "XXX", "away": "YYY", "kickoff": "2026-09-13T17:00:00Z"},
                                     {"week": 2, "home": "XXX", "away": "YYY", "kickoff": "2026-09-20T17:00:00Z"}]}
     raw = proj(qa=20, qb=18)
     raw["players"][1]["kickoff"] = "2026-09-20 17:00:00"      # qb's next game is week 2; qa's is week 1
@@ -158,10 +158,10 @@ def test_a_players_already_played_game_counts_zero():
     assert pts["qa"] == 20 and pts["qb"] == 0
 
 
-def test_the_block_carries_the_projections_week_not_the_pages():
-    """The label's week (2026-10-05): the week most players' next games fall in, so after Sunday it is
-    already next week while the page's week waits for Monday night. A bye that week counts 0."""
-    sched = {"alias": {}, "games": [{"week": 4, "home": "XXX", "away": "YYY", "kickoff": "2026-10-06T00:15:00Z"},
+def test_the_block_carries_the_page_week():
+    """The label's week (2026-10-05): the site's page week from the schedule block, whatever week most
+    players' next games fall in (until 2026-10-05 it was that vote). A bye that week counts 0."""
+    sched = {"alias": {}, "week": 5, "games": [{"week": 4, "home": "XXX", "away": "YYY", "kickoff": "2026-10-06T00:15:00Z"},
                                     {"week": 5, "home": "XXX", "away": "ZZZ", "kickoff": "2026-10-11T17:00:00Z"},
                                     {"week": 6, "home": "WWW", "away": "VVV", "kickoff": "2026-10-18T17:00:00Z"}]}
     raw = proj(qa=20, qb=18, qc=16)

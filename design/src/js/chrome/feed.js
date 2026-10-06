@@ -30,7 +30,7 @@ function buildFeed(){
   // One pill, not two (2026-09-25): the week is its label, the dot is the sources' health, and the
   // per-source detail is one tap away. The separate week pill went.
   const count = t("chrome.feed.dataCount", {ok: okCount, n: cells.length});
-  const wk = slateWeek();   // the one week every view says (data/schedule.js, the week rule)
+  const wk = schedWeek();   // the one week every view says (data/schedule.js, one page week)
   const label = wk ? t("chrome.weekpill.week", {week: wk}) : count;
   el.innerHTML = `
     <button class="status-btn" id="statusbtn" aria-haspopup="true" aria-expanded="false" title="${count}">

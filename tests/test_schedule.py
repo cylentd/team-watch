@@ -74,6 +74,24 @@ def test_the_espn_event_id_comes_through_and_a_missing_one_is_null(block):
     assert by_teams(block, "WSH", "LAR")["espn"] is None
 
 
+def test_a_game_is_final_when_its_latest_row_has_both_scores(tmp_path):
+    """The Preview slate drops a finished game on `final` (data/preview.js pvOver): written for every
+    game, true only when both scores are there (a 0 is a score), false for an unplayed one."""
+    rows = [
+        {"asof": "2026-10-04T05:51", "game_id": "g1", "week": 4, "kickoff": "2026-10-06T00:15:00Z", "home": "NO", "away": "ATL"},
+        {"asof": "2026-10-06T05:51", "game_id": "g1", "week": 4, "kickoff": "2026-10-06T00:15:00Z", "home": "NO", "away": "ATL",
+         "home_score": 0, "away_score": 17},
+        {"asof": "2026-10-04T05:51", "game_id": "g2", "week": 4, "kickoff": "2026-10-05T17:00:00Z", "home": "KC", "away": "SF",
+         "home_score": 21},
+        {"asof": "2026-10-04T05:51", "game_id": "g3", "week": 4, "kickoff": "2026-10-05T20:00:00Z", "home": "BUF", "away": "MIA"},
+    ]
+    games = tmp_path / "history" / "games"
+    games.mkdir(parents=True)
+    (games / "2026-10-06.jsonl").write_text("\n".join(json.dumps(r) for r in rows), encoding="utf-8")
+    got = {(g["away"], g["home"]): g["final"] for g in schedule.load_schedule(tmp_path)["games"]}
+    assert got == {("ATL", "NO"): True, ("SF", "KC"): False, ("MIA", "BUF"): False}
+
+
 def test_the_dialect_table_ships_with_the_block(block):
     """`games` speaks ESPN (the Live board joins against /api/live's club codes), but the profile's
     game log carries nflverse's straight off the box score -- so a Rams row said LA and matched no
@@ -97,28 +115,10 @@ def test_no_build_clock_is_consulted(block):
         "a week-3 game dropped out, so something is filtering by date after all"
 
 
-def _g(kickoff, week, final):
-    return {"kickoff": kickoff, "week": week, "final": final}
-
-
-def test_the_week_waits_for_monday_nights_score():
-    """2026-09-28: Monday night kicked off, and a clock turned the pack to week 4 while the recap and
-    projections were week 3's. The page's week turns only when that game's score is in the data."""
-    sunday, monday, thursday = "2026-09-27T17:00:00Z", "2026-09-29T00:15:00Z", "2026-10-02T00:15:00Z"
-    assert schedule.page_week([_g(sunday, 3, True), _g(monday, 3, False), _g(thursday, 4, False)]) == 3
-    assert schedule.page_week([_g(sunday, 3, True), _g(monday, 3, True), _g(thursday, 4, False)]) == 4
-
-
-def test_a_postponed_game_cannot_hold_the_week_back():
-    """A game with no score that kicked off before a scored one was not played; the week moves on."""
-    rows = [_g("2026-09-27T17:00:00Z", 3, False), _g("2026-09-29T00:15:00Z", 3, True),
-            _g("2026-10-02T00:15:00Z", 4, False)]
-    assert schedule.page_week(rows) == 4
-
-
-def test_a_finished_season_has_no_week():
-    assert schedule.page_week([_g("2027-01-10T18:00:00Z", 18, True)]) is None
-    assert schedule.page_week([]) is None
+def test_the_week_is_not_computed_here_any_more():
+    """2026-10-05: the page week is ff-jarvis's (model/common/nflweek.py); a second copy here would
+    be a hand-mirror that disagrees on a Monday."""
+    assert not hasattr(schedule, "page_week")
 
 
 def test_report_says_when_there_is_nothing(tmp_path):

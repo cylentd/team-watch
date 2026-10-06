@@ -15,5 +15,5 @@ def add_start_sit(blocks, report, slugify):
     blocks["LIVE_STARTSIT"] = live_startsit(load_startsit(), slugify)
     blocks["LIVE_SSB"] = live_ssb(blocks["LIVE_RANKS"], blocks["LIVE_SCHEDULE"], blocks["LIVE_PREVIEW"],
                                   load_defense(), load_expert_ranks(), slugify, load_status())
-    blocks["LIVE_SS3"] = live_ss3(load_startsit_v3(), slugify)
+    blocks["LIVE_SS3"] = live_ss3(load_startsit_v3(), slugify, (blocks["LIVE_SCHEDULE"] or {}).get("week"))
     report += [startsit_report(blocks["LIVE_STARTSIT"]), ssb_report(blocks["LIVE_SSB"]), ss3_report(blocks["LIVE_SS3"])]

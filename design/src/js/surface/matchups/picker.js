@@ -55,17 +55,17 @@ function ssLoad(){
   if (SS_PICKS) return SS_PICKS;
   let kept = null;
   try {
-    // Kept for the week they were picked in (the page's week, slateWeek: on a Monday the page says N+1
-    // and so does the key): next week opens on the new closest call. Same {week, picks} shape as before.
+    // Kept for the week they were picked in (the page's week, schedWeek): next week opens on the new
+    // closest call. Same {week, picks} shape as before.
     const v = JSON.parse(localStorage.getItem(SS_KEY) || "null");
-    if (v && v.week === slateWeek() && Array.isArray(v.picks)) kept = v.picks.filter(s => typeof s === "string").slice(0, SS_MAX);
+    if (v && v.week === schedWeek() && Array.isArray(v.picks)) kept = v.picks.filter(s => typeof s === "string").slice(0, SS_MAX);
   } catch (e) { /* none kept */ }
   const o = ssOpening({team: !!ssTeam(), kept, closest: kept ? [] : ssClosest().map(p => p.slug)});
   SS_PICKS = o.picks; SS_OPEN = o.open;   // nobody picked: the search is already open (data/startsit.js)
   return SS_PICKS;
 }
 function ssSave(){
-  try { localStorage.setItem(SS_KEY, JSON.stringify({week: slateWeek(), picks: SS_PICKS})); } catch (e) { /* kept for this load */ }
+  try { localStorage.setItem(SS_KEY, JSON.stringify({week: schedWeek(), picks: SS_PICKS})); } catch (e) { /* kept for this load */ }
 }
 
 function ssPlayer(slug){
@@ -193,7 +193,7 @@ function ssResultsHTML(){
 }
 
 function ssPickInnerHTML(){
-  const cols = ssCols(), wk = slateWeek();
+  const cols = ssCols(), wk = schedWeek();
   const add = cols.length < SS_MAX ? `<button type="button" class="ssv-add" data-ssadd aria-expanded="${SS_OPEN}" aria-controls="ssv-box">${SS_PLUS}${t("startsit.pick.add")}</button>` : "";
   const box = SS_OPEN ? `<div class="ssv-box" id="ssv-box"><input id="ssv-q" class="ssv-q" type="search" autocomplete="off" spellcheck="false"
     placeholder="${t("startsit.list.search")}" aria-label="${t("startsit.list.search")}" value="${esc(SS_Q)}"><div class="ssv-res">${ssResultsHTML()}</div></div>` : "";

@@ -696,7 +696,7 @@ def render():
     block_js = [f"const {name} = " + json.dumps(obj) + ";" for name, obj in blocks.items()]
     stamp = {
         "id": hashlib.sha256("".join(block_js).encode("utf-8")).hexdigest()[:12],
-        "week": ((blocks.get("LIVE_PROPS") or {}).get("model") or {}).get("week"),
+        "week": (blocks.get("LIVE_SCHEDULE") or {}).get("week"),   # the page's one week (2026-10-05), as the DATA pill names it
     }
     # A "</" inside a string (a headline quoting markup, say) would end the <script> early;
     # JSON reads "<\/" as the same two characters, and JS never sees the difference.
