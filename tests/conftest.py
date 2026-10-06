@@ -2,6 +2,7 @@
 a failure is a change in this repo, not in tonight's data.
 
     pytest tests/test_x.py     # the files for what you changed, seconds
+    pytest tests/test_js_*.py  # the JS unit layer, in Node: no build, no browser, under a second
     pytest -n auto --dist loadgroup  # everything in parallel, about 50 s (serial about 200 s)
     pytest -m "not render"     # no browser, about 30 s
     pytest --update-golden     # rewrite tests/golden/render.json after an intended visual change
@@ -39,6 +40,37 @@ def pytest_configure(config):
 
 CHUNK = 12   # tests per xdist group outside the golden slices
 
+# The test layers, cheapest first (2026-10-05). A test's layer is the costliest thing it asks for;
+# the run ends with each layer's test count and time (the layers line), so a land shows where its
+# seconds went and whether new tests are landing in the cheap layers or the browser.
+LAYERS = ("python", "node", "build", "browser")
+
+
+def layer_of(item):
+    names = set(getattr(item, "fixturenames", ()))
+    if "browser" in names:
+        return "browser"
+    if names & {"built", "page_file"}:
+        return "build"
+    return "node" if "node_js" in names else "python"
+
+
+_LAYER_TIME = {}
+
+
+def pytest_runtest_logreport(report):
+    """Every phase's time, setup included: a module's page load is charged to its first test."""
+    layer = dict(report.user_properties).get("layer")
+    if layer:
+        n, s = _LAYER_TIME.get(layer, (0, 0.0))
+        _LAYER_TIME[layer] = (n + (report.when == "call"), s + report.duration)
+
+
+def pytest_terminal_summary(terminalreporter):
+    if _LAYER_TIME:
+        parts = [f"{k} {_LAYER_TIME[k][0]} tests {_LAYER_TIME[k][1]:.1f} s" for k in LAYERS if k in _LAYER_TIME]
+        terminalreporter.write_line("layers (worker time): " + " | ".join(parts))
+
 
 @pytest.hookimpl(tryfirst=True)
 def pytest_collection_modifyitems(config, items):
@@ -62,6 +94,7 @@ def pytest_collection_modifyitems(config, items):
     # Runs before xdist's hook, which is the one that reads the marker.
     slices, seen = [], {}
     for item in items:
+        item.user_properties.append(("layer", layer_of(item)))
         area = next((m.args[0] for m in item.iter_markers("area")), None)
         if area and item.path.name == "test_render.py" and "snapshot" in getattr(item, "fixturenames", ()):
             item.add_marker(pytest.mark.xdist_group(f"render:{area}"))
@@ -96,6 +129,21 @@ def browser():
         b = pw.chromium.launch()
         yield b
         b.close()
+
+
+@pytest.fixture(scope="module")
+def node_js():
+    """node_js("data/x.js", ..., globals={...}) -> a callable sandbox of those files in Node, closed
+    when the module ends. The JS unit layer: tests/jsunit.py says how to use it."""
+    from jsunit import NodeJS
+    opened = []
+
+    def load(*files, globals=None):
+        opened.append(NodeJS(*files, globals=globals))
+        return opened[-1]
+    yield load
+    for js in opened:
+        js.close()
 
 
 @pytest.fixture(scope="session")

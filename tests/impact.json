@@ -4,6 +4,7 @@
     "tests/test_budgets.py",
     "tests/test_build.py",
     "tests/test_js_syntax.py",
+    "tests/test_js_harness.py",
     "tests/test_lint.py",
     "tests/test_scope.py",
     "tests/test_style_rules.py",
@@ -55,13 +56,13 @@
                 "design/schedule.py", "api/clips.py", "api/_yt_channels.json", "design/yt_channels.py"],
       "tests": ["tests/test_gameday.py", "tests/test_gamesheet_v2.py", "tests/test_schedule.py", "tests/test_live_tds.py", "tests/test_live_tabs.py",
                 "tests/test_live_mine.py", "tests/test_live_swipe.py", "tests/test_live_tdclips.py", "tests/test_api_clips.py",
-                "tests/test_yt_channels.py"],
+                "tests/test_yt_channels.py", "tests/test_js_hurt.py"],
       "render": ["live"]
     },
     "matchups": {
       "paths": ["design/src/js/surface/matchups/", "design/src/css/surface/matchups/", "design/src/js/data/startsit.js",
                 "design/startsit.py", "design/startsit_board.py", "design/startsit_v3.py", "design/startsit_blocks.py"],
-      "tests": ["tests/test_startsit.py", "tests/test_startsit_board.py", "tests/test_startsit_v3.py"],
+      "tests": ["tests/test_startsit.py", "tests/test_startsit_board.py", "tests/test_startsit_v3.py", "tests/test_js_startsit.py"],
       "render": ["matchups"]
     },
     "news": {

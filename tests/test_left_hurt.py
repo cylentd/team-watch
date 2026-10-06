@@ -4,65 +4,29 @@ David: "the headline should change when something big happens, like an injury." 
 scoreboard say nothing about an injury mid-game; the play-by-play does. nflverse's text (games/*.json)
 reads "PHI-S.Barkley was injured during the play." and "** Injury Update: PHI-J.Hurts has returned to
 the game." ESPN's summary is BELIEVED to carry the same text; UNVERIFIED until Monday's game (2026-10-05,
-ATL @ NO), so the scan is pinned here against the nflverse wording and nothing else.
+ATL @ NO), so the scan is pinned against the nflverse wording and nothing else (test_js_hurt.py).
 
 League-wide since the same evening (David: "The Digest is supposed to be GENERIC for the public. It
 shouldn't hone on to my roster or their roster."): the players to watch are every QB/RB/WR/TE that
 LIVE_RANKS projects at 8 points or more, every live game is scanned, and nothing drawn names a league or a
 team of mine. The first version watched my starters only (8b91604) and is superseded.
 
-The scan (data/gameday/hurt.js gdHurtScan) is pure; the render tests plant GD_HURT, since ESPN refuses
+The scan (data/gameday/hurt.js gdHurtScan) is pure and is tested in Node (test_js_hurt.py, since
+2026-10-05); this file is what the page draws. The render tests plant GD_HURT, since ESPN refuses
 servers and headless browsers and the poller cannot be fed from a test's network."""
-import json
 import re
 
 import pytest
 
+from test_js_hurt import play, summary
 from test_render import LIVE_PLANT, drive, go, open_page, SEED  # noqa: F401
 
 pytestmark = pytest.mark.render
 
-# Two lines copied from games/2026_03_PHI_CHI.json and games/2026_02_PHI_TEN.json (nflverse wording).
-REAL_INJURED = "S.Barkley left guard to PHI 28 for no gain (J.Simmons). PHI-S.Barkley was injured during the play."
-REAL_RETURNED = "J.Hurts pass short right to D.Wicks pushed ob at PHI 46 for 13 yards (C.Lewis). ** Injury Update: PHI-J.Hurts has returned to the game."
-# Real lines too: a defender hurt on a play my QB ran; and a trap, where the ball carrier's name sits just
-# before the injured player's own ("M.Evans. SF-M.Evans").
-REAL_DEFENDER = "J.Hurts scrambles left tackle to CHI 27 for 20 yards (X.Woods). CHI-C.Lewis was injured during the play."
-REAL_TRAP = "B.Purdy pass incomplete short middle to M.Evans. SF-M.Evans was injured during the play."
-REAL_STUKES = "O.Hampton up the middle to LV 26 for 7 yards (J.McCoy; T.Stukes). ** Injury Update: LV-T.Stukes has returned to the game."
-
-HURTS_OUT = "J.Hurts pass incomplete short left to D.Smith. PHI-J.Hurts was injured during the play."
-
-
-def me(slug, name, team):
-    return {"slug": slug, "name": name, "team": team}
-
-
-NAMES = {
-    "s.barkley": [me("saquon-barkley", "Saquon Barkley", "PHI")],
-    "j.hurts": [me("jalen-hurts", "Jalen Hurts", "PHI")],
-    "t.stukes": [me("tre-stukes", "Tre Stukes", "LV")],
-    "m.evans": [me("mike-evans", "Mike Evans", "SF")],
-    "b.purdy": [me("brock-purdy", "Brock Purdy", "SF")],
-    "j.williams": [me("jameson-williams", "Jameson Williams", "DET")],
-}
-
-
-def play(text, q=2, clock="9:41"):
-    return {"text": text, "period": {"number": q}, "clock": {"displayValue": clock}}
-
-
-def summary(clubs, plays):
-    """ESPN's shape: drives.previous[] then drives.current, plays in order. The plays split across both."""
-    k = max(len(plays) - 1, 0)
-    return {"header": {"competitions": [{"competitors": [{"team": {"abbreviation": c}} for c in clubs]}]},
-            "drives": {"previous": [{"plays": plays[:k]}], "current": {"plays": plays[k:]}}}
-
 
 @pytest.fixture(scope="module")
 def shared_pages(browser, page_file):
-    """One loaded page per viewport for the module, where each test used to load its own (9 loads for
-    the pure scan alone). The tests that plant data re-plant everything they read (PLANT) after
+    """One loaded page per viewport for the module, where each test used to load its own. The tests that plant data re-plant everything they read (PLANT) after
     leaving the view, and the two that stub the poller or need http keep their own page."""
     pages = {}
 
@@ -96,68 +60,6 @@ def shared(shared_pages):
     yield open_shared
     for errors in used:
         assert errors == []
-
-
-@pytest.fixture
-def blank(shared):
-    return shared((390, 844))[0]
-
-
-def scan(page, clubs, plays, names=NAMES):
-    return page.evaluate("([s, n]) => gdHurtScan(s, n)", [summary(clubs, plays), names])
-
-
-def test_my_starter_is_flagged_and_a_defender_not_in_names_is_ignored(blank):
-    got = scan(blank, ["PHI", "CHI"], [play(REAL_DEFENDER, 1, "3:02"), play(REAL_INJURED, 2, "9:41")])
-    assert got == [{"slug": "saquon-barkley", "name": "Saquon Barkley", "team": "PHI", "q": 2, "clock": "9:41", "back": False}]
-    # the QB named in the defender's line is not hurt: he only ran the ball
-    assert scan(blank, ["PHI", "CHI"], [play(REAL_DEFENDER)]) == []
-
-
-def test_a_return_clears_him_and_a_second_injury_flags_him_again(blank):
-    got = scan(blank, ["PHI", "CHI"], [play(HURTS_OUT, 3, "4:12"), play(REAL_RETURNED, 3, "2:30")])
-    assert got == [{"slug": "jalen-hurts", "name": "Jalen Hurts", "team": "PHI", "q": 3, "clock": "4:12", "back": True}]
-    again = scan(blank, ["PHI", "CHI"], [play(HURTS_OUT), play(REAL_RETURNED), play(HURTS_OUT, 4, "1:00")])
-    assert [(h["slug"], h["back"], h["q"]) for h in again] == [("jalen-hurts", False, 4)]
-    # a return for someone never seen hurt in this summary is no news
-    assert scan(blank, ["PHI", "CHI"], [play(REAL_RETURNED)]) == []
-
-
-@pytest.mark.parametrize("text", [
-    "LV-T.Stukes was injured during the play.",
-    "T.Stukes was injured during the play.",
-    "T. Stukes was injured during the play.",
-    "LV-T. Stukes was injured during the play.",
-    "O.Hampton up the middle to LV 26 for 7 yards (J.McCoy; T.Stukes). LV-T.Stukes was injured during the play.",
-])
-def test_both_spellings_of_an_abbreviated_name_match(blank, text):
-    got = scan(blank, ["LV", "LAC"], [play(text)])
-    assert [h["slug"] for h in got] == ["tre-stukes"]
-
-
-def test_the_real_return_line_for_stukes_clears_him_in_either_spelling(blank):
-    for spelled in (REAL_STUKES, REAL_STUKES.replace("LV-T.Stukes", "LV-T. Stukes")):
-        got = scan(blank, ["LV", "LAC"], [play("LV-T.Stukes was injured during the play."), play(spelled)])
-        assert [(h["slug"], h["back"]) for h in got] == [("tre-stukes", True)]
-
-
-def test_the_name_before_the_injured_players_is_not_taken_for_his(blank):
-    got = scan(blank, ["SF", "ARI"], [play(REAL_TRAP)])
-    assert [h["slug"] for h in got] == ["mike-evans"]
-
-
-def test_a_club_in_the_text_must_be_his_and_two_in_one_play_are_both_read(blank):
-    # J.Williams on BUF is not my DET starter; with no club in the text he must play in this game
-    assert scan(blank, ["BUF", "HOU"], [play("BUF-J.Williams was injured during the play.")]) == []
-    assert scan(blank, ["DET", "BUF"], [play("DET-J.Williams was injured during the play.")])[0]["slug"] == "jameson-williams"
-    assert scan(blank, ["BUF", "HOU"], [play("J.Williams was injured during the play.")]) == []
-    both = scan(blank, ["PHI", "CHI"], [play("PHI-S.Barkley was injured during the play. PHI-J.Hurts was injured during the play.")])
-    assert sorted(h["slug"] for h in both) == ["jalen-hurts", "saquon-barkley"]
-
-
-def test_a_summary_without_plays_flags_nobody(blank):
-    for s in (None, {}, {"drives": {}}, {"drives": {"previous": [{}], "current": {}}}, summary(["PHI", "CHI"], [])):
-        assert blank.evaluate("([s, n]) => gdHurtScan(s, n)", [s, NAMES]) == []
 
 
 # ---------------------------------------------------------------- the page

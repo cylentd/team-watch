@@ -56,9 +56,16 @@ page that resets what a test changed (`'use strict'` in the reset, so a renamed 
 asserts no page error after load; a test about loading itself opens its own. Every browser test
 asserts no page errors (`test_render.watch_errors`). A missing fixture element is an `assert`, never
 a `pytest.skip`. Animations run on the page's own clock (`test_roster_cards.py` VCLOCK), never on
-`wait_for_timeout`. Logic with no layout (wording, sorting, a pure JS function) is checked with
-`page.evaluate` on the shared page or in Python, not through clicks. `conftest.py` runs each file in
-groups of 12 tests, so a shared page loads once per group and a long file still spreads out.
+`wait_for_timeout`. Logic with no layout is not a browser test (next paragraph). `conftest.py` runs
+each file in groups of 12 tests, so a shared page loads once per group and a long file still spreads out.
+
+Writing a unit test (2026-10-05): logic with no layout (wording, sorting, a scan, any JS function from
+data to data) runs in Node, not the browser: the `node_js` fixture loads the named files from
+`design/src/js` into a sandbox and calls a function in about a millisecond, with no build
+(`tests/jsunit.py` says how; `tests/test_js_hurt.py` is the example: 12 tests in 0.07 s, 7.7 s as
+browser tests). Python logic is tested in Python. Every run ends with a `layers` line, each layer's
+tests and worker seconds (python, node, build, browser); on 2026-10-05 the browser held 830 of 3,122
+tests and 725 of 782 worker-seconds.
 
 The build fails on a lint error (`design/lint_css.py`), a contract violation (`design/contract.py`:
 an injected block missing a field the JS reads), or a part the manifests do not agree on. The
