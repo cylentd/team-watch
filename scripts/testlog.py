@@ -140,7 +140,7 @@ def summary(days):
     for nodeid, (fails, passed) in sorted(flakes.items(), key=lambda x: -x[1][0])[:10]:
         print(f"  {fails} fail / {passed} pass  {nodeid}")
     if lands:
-        keys = [k for k in ("test", "queue", "retest", "build", "push", "total") if any(k in x for x in lands)]
+        keys = [k for k in ("test", "repeat", "mutate", "queue", "retest", "build", "push", "total") if any(k in x for x in lands)]
         med = {k: statistics.median([x[k] for x in lands if k in x]) for k in keys}
         print(f"\nlands, median s over {len(lands)}: " + " | ".join(f"{k} {v:.0f}" for k, v in med.items()))
 

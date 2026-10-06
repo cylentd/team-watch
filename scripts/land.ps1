@@ -33,7 +33,8 @@ param(
     [string]$Base = "main",
     [switch]$Yes,
     [switch]$Full,    # every test, not only the ones this diff can break (scripts/impact.py)
-    [switch]$AllowStaleData   # build even when the ff-jarvis checkout is behind its origin/main
+    [switch]$AllowStaleData,  # build even when the ff-jarvis checkout is behind its origin/main
+    [switch]$SkipMutate       # skip the mutation report (tests/README.md "Proving a test")
 )
 
 $ErrorActionPreference = "Stop"
@@ -43,7 +44,7 @@ $repo = Split-Path -Parent $PSScriptRoot
 # (scripts/testlog.py land; `python scripts/testlog.py` reads them back). The pytest runs below are
 # recorded there too, as kind "land".
 $clock = [Diagnostics.Stopwatch]::StartNew()
-$phase = [ordered]@{ test = 0.0; queue = 0.0; retest = 0.0; build = 0.0; push = 0.0 }
+$phase = [ordered]@{ test = 0.0; repeat = 0.0; mutate = 0.0; queue = 0.0; retest = 0.0; build = 0.0; push = 0.0 }
 $testRuns = 0
 function Timed($name, [scriptblock]$block) {
     $sw = [Diagnostics.Stopwatch]::StartNew()
@@ -156,6 +157,17 @@ function RebaseAndTest {
     try {
         Timed $(if ($script:testRuns -eq 1) { "test" } else { "retest" }) { & python $runner @testArgs }
         if ($LASTEXITCODE -ne 0) { throw "tests failed ($LASTEXITCODE) -- nothing landed" }
+        # The branch's new and changed tests, 10 times in parallel: a flake is caught before it
+        # lands, not by the nightly run after it. The mutation report says whether the changed
+        # js/data and design/*.py lines are tested at all; it warns, it does not block. Both run
+        # once: a retest after origin moved changes neither the branch's tests nor its code.
+        if ($script:testRuns -eq 1) {
+            Timed repeat { & python $runner --repeat-new 10 --base "origin/$Base" --committed }
+            if ($LASTEXITCODE -ne 0) { throw "a new or changed test failed one of 10 runs -- nothing landed" }
+            if (-not $SkipMutate) {
+                Timed mutate { & python (Join-Path $PSScriptRoot "mutate.py") --base "origin/$Base" --budget 120 }
+            }
+        }
     } finally { Remove-Item Env:TW_RUN_KIND -ErrorAction SilentlyContinue }
 }
 

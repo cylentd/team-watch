@@ -1,5 +1,6 @@
 """Players > Ranks (design/ranks.py, 2026-09-26): the tiers are natural breaks, the rank is the
-roster card's, and the view draws each tier with its rows."""
+roster card's, and the view draws each tier with its rows. The view's tests mount Ranks alone
+(tests/component.py) and read it through tests/pages/ranks.py."""
 import re
 import sys
 from pathlib import Path
@@ -9,24 +10,28 @@ import pytest
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "design"))
 from ranks import live_ranks, natural_breaks  # noqa: E402
-from test_render import LOAD_MS, SEED  # noqa: E402,F401
+from component import mount  # noqa: E402,F401  (the fixture)
+from pages.ranks import RanksPage  # noqa: E402
 
 
 def slug(name):
     return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
 
 
+@pytest.mark.req("Ranks", ac="tiers break where the points gap")
 def test_breaks_fall_at_the_widest_drops():
     # Three clear groups: the tier lines must land between them, not at a round count.
     pts = [20.0, 19.8, 15.1, 15.0, 14.9, 9.0, 8.8, 8.7]
     assert natural_breaks(pts, 3) == [1, 1, 2, 2, 2, 3, 3, 3]
 
 
+@pytest.mark.req("Ranks", ac="never more tiers than players")
 def test_breaks_never_ask_for_more_tiers_than_players():
     assert natural_breaks([10.0, 9.0], 8) == [1, 2]
     assert natural_breaks([], 4) == []
 
 
+@pytest.mark.req("Ranks", ac="a long dense tail spreads over several tiers")
 def test_week3_shaped_wr_list_is_not_one_giant_tier():
     """The plain gap rule this replaced gave WR tiers of 1, 2, 1, 1, 2 and 41 on week 3: sparse at
     the top, dense below. Natural breaks must spread a long dense tail over several tiers."""
@@ -36,6 +41,7 @@ def test_week3_shaped_wr_list_is_not_one_giant_tier():
     assert max(sizes) < 20, sizes
 
 
+@pytest.mark.req("Ranks", ac="rows carry the card's rank; a player out is left off")
 def test_rows_carry_the_card_rank_and_skip_the_out():
     raw = {"scoring": "half-PPR", "through": "2026 wk3", "players": [
         {"name": "A Back", "pos": "RB", "team": "ATL", "opp": "NO", "game": "ATL @ NO", "pts": 19.7},
@@ -53,6 +59,7 @@ def test_rows_carry_the_card_rank_and_skip_the_out():
     assert r["flex"][2]["rank"] == 1, "a FLEX row keeps its position rank"
 
 
+@pytest.mark.req("Ranks", ac="one week only; the teams left off are named")
 def test_one_week_only_and_the_teams_left_off_are_named():
     """ATL played Thursday, so the file's number for Bijan Robinson is already week 4's
     (2026-09-26). He must not lead week 3's list, and the list must say why ATL is missing."""
@@ -77,6 +84,7 @@ def test_one_week_only_and_the_teams_left_off_are_named():
     assert gibbs["mu"] == {"RUSH": 76, "REC": 41, "RECS": 4.5, "TD": .8}
 
 
+@pytest.mark.req("Ranks", ac="the roster cards take the same week cut")
 def test_the_cards_take_the_same_week_cut():
     """The roster cards read LIVE_PROJECTIONS, and a Thursday team's row is next week's there too:
     no points, no rank, and `done` says whether his team played or has a bye."""
@@ -101,10 +109,12 @@ def test_the_cards_take_the_same_week_cut():
     assert (p["jahmyr-gibbs"]["done"], p["jahmyr-gibbs"]["rank"]) == (None, 1)
 
 
+@pytest.mark.req("Ranks", ac="no projections, no block")
 def test_no_projections_is_no_block():
     assert live_ranks({}, slug) is None
 
 
+@pytest.mark.req("Ranks", ac="the matchup rides on QB, RB, TE, never WR")
 def test_matchup_rides_on_qb_rb_te_never_wr():
     """`mx` is ff-jarvis's `matchup.pts` (2026-09-29), the points a defense adds or takes. The WR
     effect tests null, so a WR carries none even if a file ever gave him one."""
@@ -117,6 +127,7 @@ def test_matchup_rides_on_qb_rb_te_never_wr():
     assert got == {"a-back": (1.7, 0.7), "a-wideout": (None, None), "a-passer": (None, None)}
 
 
+@pytest.mark.req("Ranks", ac="floor and ceiling ride through untouched")
 def test_the_band_rides_on_every_row_and_card_as_the_file_wrote_it():
     """`floor` and `ceil` (plan U5, 2026-10-05) are ff-jarvis's 10th and 90th percentile outcome, cut
     through untouched: the page never computes a band. A ruled-out or already-played player keeps
@@ -149,6 +160,7 @@ RB_RAW = {"players": [
 ]}
 
 
+@pytest.mark.req("Ranks", ac="backs order and rank by the books' number")
 def test_running_backs_are_ordered_and_ranked_by_the_books_number():
     """ff-jarvis METHODOLOGY 12.86 (2026-10-05): the books' implied points order backs better than our
     projection but read ~0.5 high, so they order and are never shown. A back they did not price falls
@@ -161,6 +173,7 @@ def test_running_backs_are_ordered_and_ranked_by_the_books_number():
     assert [x["rank_pts"] for x in rbs] == [16.6, 15.4, None, None]
 
 
+@pytest.mark.req("Ranks", ac="tiers cut on the same key as the order")
 def test_the_tiers_are_cut_on_the_same_key_as_the_order():
     """A list ordered by the books and tiered on points would break a tier in two places at once."""
     keys = [30.0 - i * 1.0 for i in range(14)]    # more backs than the 12 tiers, so a tier holds several
@@ -171,6 +184,7 @@ def test_the_tiers_are_cut_on_the_same_key_as_the_order():
     assert [x["tier"] for x in rows] == natural_breaks(keys, 12), "and tiered on it"
 
 
+@pytest.mark.req("Ranks", ac="FLEX and other positions order by points")
 def test_flex_and_other_positions_still_order_by_points():
     r = live_ranks(RB_RAW, slug)
     assert [x["slug"] for x in r["flex"]] == ["a-back", "b-back", "b-wideout", "a-wideout", "c-back", "d-back"]
@@ -180,6 +194,7 @@ def test_flex_and_other_positions_still_order_by_points():
     assert next(x for x in r["rows"] if x["slug"] == "a-wideout")["rank_pts"] is None, "only a back carries it"
 
 
+@pytest.mark.req("Ranks", ac="an unlined backup is flagged")
 def test_an_unlined_backup_is_flagged_and_keeps_his_cut_points():
     """ff-jarvis METHODOLOGY 12.87: his `pts` is already 30% of `pts_before_unlined`; the page tags him."""
     r = live_ranks(RB_RAW, slug)
@@ -189,6 +204,7 @@ def test_an_unlined_backup_is_flagged_and_keeps_his_cut_points():
     assert (a["unlined_backup"], a["pts_before_unlined"]) == (None, None)
 
 
+@pytest.mark.req("Ranks", ac="an older file gives null, never a missing key")
 def test_a_file_from_before_the_fields_gives_null_never_a_missing_key():
     from projections import live_projections
     raw = {"players": [{"name": "A Back", "pos": "RB", "team": "ATL", "game": "ATL @ NO", "pts": 19.7, "src": "model"}]}
@@ -198,6 +214,7 @@ def test_a_file_from_before_the_fields_gives_null_never_a_missing_key():
     assert (card["rank_pts"], card["unlined_backup"], card["pts_before_unlined"]) == (None, None, None)
 
 
+@pytest.mark.req("Ranks", ac="the roster cards rank a back by the books too")
 def test_the_roster_cards_rank_a_back_by_the_books_number_too():
     from projections import live_projections, position_ranks
     ranks = position_ranks(RB_RAW["players"], slug)
@@ -209,27 +226,21 @@ def test_the_roster_cards_rank_a_back_by_the_books_number_too():
 
 
 @pytest.mark.render
-def test_ranks_tags_a_matchup_from_half_a_point(browser, page_file):
+@pytest.mark.req("Ranks", ac="a matchup tag shows from half a point, never on a WR")
+def test_ranks_tags_a_matchup_from_half_a_point(mount):
     """The fixture gives Chase Brown +1.4, Joe Burrow -0.9, George Kittle -0.3 (under the half
     point) and a WR +1.0 (never shown)."""
-    ctx = browser.new_context(viewport={"width": 360, "height": 740}, reduced_motion="reduce")
-    page = ctx.new_page()
-    page.set_default_timeout(5000)
-    page.route(re.compile(r"^https?://"), lambda route: route.abort())
-    page.add_init_script(SEED)
-    try:
-        page.goto(page_file.as_uri() + "#ranks", timeout=LOAD_MS)
-        page.wait_for_function("document.querySelectorAll('.rk-row').length > 0")
-        page.locator("[data-rkpos='FLEX']").click()
-        tags = page.evaluate("""Object.fromEntries([...document.querySelectorAll('.rk-row')].map(r =>
-          [r.dataset.rkopen, (r.querySelector('.rk-mx') || {}).textContent || null]))""")
-        assert tags.get(slug("Chase Brown")) == "+1.4"
-        assert tags.get(slug("George Kittle")) is None and tags.get(slug("Amon-Ra St. Brown")) is None
-        page.locator("[data-rkpos='QB']").click()
-        assert page.locator(f"[data-rkopen='{slug('Joe Burrow')}'] .rk-mx.dn").inner_text() == "−0.9"
-        assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
-    finally:
-        ctx.close()
+    page, errors = mount("ranks")
+    ranks = RanksPage(page)
+    ranks.pick("FLEX")
+    tags = {r["slug"]: r["mx"] for r in ranks.rows()}
+    assert tags.get(slug("Chase Brown")) == "+1.4"
+    assert tags.get(slug("George Kittle")) is None and tags.get(slug("Amon-Ra St. Brown")) is None
+    ranks.pick("QB")
+    burrow = next(r for r in ranks.rows() if r["slug"] == slug("Joe Burrow"))
+    assert (burrow["mx"], burrow["mx_up"]) == ("−0.9", False)
+    assert ranks.fits()
+    assert errors == []
 
 
 NOTE = "Running backs are ordered by the sportsbooks' prices, which rank them better than our points do."
@@ -237,88 +248,57 @@ TIP = "The books priced a teammate, not him; backs like this score about a third
 
 
 @pytest.mark.render
-def test_the_back_list_follows_the_books_and_says_why_once_and_flex_does_not(browser, page_file):
+@pytest.mark.req("Ranks", ac="the back list follows the books and says why once; FLEX does not")
+def test_the_back_list_follows_the_books_and_says_why_once_and_flex_does_not(mount):
     """The fixture: Hall 15.0 points (books 16.6) above Brown 16.2 (books 15.4); Miller is an unlined backup
     (3.1 points, tagged). The number shown is points. FLEX orders by points: no reorder, no note."""
-    ctx = browser.new_context(viewport={"width": 360, "height": 740}, reduced_motion="reduce")
-    page = ctx.new_page()
-    page.set_default_timeout(5000)
-    page.route(re.compile(r"^https?://"), lambda route: route.abort())
-    page.add_init_script(SEED)
-    errors = []
-    page.on("pageerror", lambda e: errors.append(str(e)))
-    try:
-        page.goto(page_file.as_uri() + "#ranks", timeout=LOAD_MS)
-        page.wait_for_function("document.querySelectorAll('.rk-row').length > 0")
-        rows = lambda: page.evaluate("[...document.querySelectorAll('.rk-row')].map(r => [r.dataset.rkopen, r.querySelector('.rk-pts').firstChild.textContent])")
-        assert rows() == [["breece-hall", "15.0"], ["chase-brown", "16.2"], ["kendre-miller", "3.1"]]
-        sub = page.locator(".rk-headline p").inner_text()
-        assert NOTE in sub and sub.count(NOTE) == 1 and "No line " + TIP in sub
-        assert page.locator(".rk-row .rk-noline").all_inner_texts() == ["No line"]
-        assert page.locator("[data-rkopen='kendre-miller'] .rk-noline").get_attribute("title") == TIP
-        page.locator("[data-rkpos='FLEX']").click()
-        assert page.locator(".rk-headline p").inner_text().count(NOTE) == 0
-        assert [r[0] for r in rows()] == ["amonra-st-brown", "chase-brown", "breece-hall", "george-kittle", "kendre-miller"]
-        page.locator("[data-rkpos='QB']").click()
-        assert page.locator(".rk-headline p").inner_text().count("No line") == 0
-        assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
-        assert errors == []
-    finally:
-        ctx.close()
+    page, errors = mount("ranks")
+    ranks = RanksPage(page)
+    rows = ranks.rows()
+    assert [[r["slug"], r["pts"]] for r in rows] == [["breece-hall", "15.0"], ["chase-brown", "16.2"], ["kendre-miller", "3.1"]]
+    sub = ranks.sub()
+    assert NOTE in sub and sub.count(NOTE) == 1 and "No line " + TIP in sub
+    assert [r["noline"] for r in rows if r["noline"]] == [{"text": "No line", "title": TIP}]
+    assert next(r for r in rows if r["slug"] == "kendre-miller")["noline"] is not None
+    ranks.pick("FLEX")
+    assert ranks.sub().count(NOTE) == 0
+    assert [r["slug"] for r in ranks.rows()] == ["amonra-st-brown", "chase-brown", "breece-hall", "george-kittle", "kendre-miller"]
+    ranks.pick("QB")
+    assert ranks.sub().count("No line") == 0
+    assert ranks.fits()
+    assert errors == []
 
 
 @pytest.mark.render
-def test_an_unlined_backups_profile_strip_wears_the_tag(browser, page_file):
+@pytest.mark.req("Ranks", ac="an unlined backup's profile strip wears the No line tag")
+def test_an_unlined_backups_profile_strip_wears_the_tag(mount):
     """The fixture's backup has no profile (so no strip), so Chase Brown, who has one, is flagged in the page."""
-    ctx = browser.new_context(viewport={"width": 360, "height": 740}, reduced_motion="reduce")
-    page = ctx.new_page()
-    page.set_default_timeout(5000)
-    page.route(re.compile(r"^https?://"), lambda route: route.abort())
-    page.add_init_script(SEED)
-    errors = []
-    page.on("pageerror", lambda e: errors.append(str(e)))
-    brown = {"n": "Chase Brown", "pos": "RB", "team": "CIN", "slug": "chase-brown"}
-    try:
-        page.goto(page_file.as_uri() + "#ranks", timeout=LOAD_MS)
-        page.wait_for_function("document.querySelectorAll('.rk-row').length > 0")
-        page.evaluate("(p) => openProfile(p, document.body)", brown)
-        page.wait_for_selector("#modal.on .pf-lede")
-        assert page.locator(".pf-noline").count() == 0, "a back the books priced has no tag"
-        page.evaluate("() => modalShut(document.querySelector('.modal.on'))")
-        page.evaluate("() => { LIVE_PROJECTIONS.players['chase-brown'].unlined_backup = true; }")
-        page.evaluate("(p) => openProfile(p, document.body)", brown)
-        page.wait_for_selector("#modal.on .pf-lede")
-        assert page.locator(".pf-lede-note").all_inner_texts()[-1] == "No line" + TIP
-        assert page.locator(".pf-lede-note .pf-noline").get_attribute("title") == TIP
-        assert errors == []
-    finally:
-        ctx.close()
+    page, errors = mount("ranks")
+    ranks = RanksPage(page)
+    ranks.open_player("chase-brown")
+    assert ranks.player_noline_tips() == [], "a back the books priced has no tag"
+    ranks.close_player()
+    page.evaluate("() => { LIVE_PROJECTIONS.players['chase-brown'].unlined_backup = true; }")
+    ranks.open_player("chase-brown")
+    assert ranks.player_notes()[-1] == "No line" + TIP
+    assert ranks.player_noline_tips() == [TIP]
+    assert errors == []
 
 
 @pytest.mark.render
-def test_ranks_draws_tiers_and_opens_a_profile(browser, page_file):
-    ctx = browser.new_context(viewport={"width": 360, "height": 740}, reduced_motion="reduce")
-    page = ctx.new_page()
-    page.set_default_timeout(5000)
-    page.route(re.compile(r"^https?://"), lambda route: route.abort())
-    page.add_init_script(SEED)
-    errors = []
-    page.on("pageerror", lambda e: errors.append(str(e)))
-    try:
-        page.goto(page_file.as_uri() + "#ranks", timeout=LOAD_MS)
-        page.wait_for_function("document.querySelectorAll('.rk-row').length > 0")
-        tiers = page.evaluate("[...document.querySelectorAll('.rk-tier b')].map(e => e.textContent.trim())")
-        assert tiers and tiers[0].upper() == "TIER 1"
-        # Only the reader's own players are his: a leaguemate's roster is not (2026-09-26, when
-        # the leaguemate rosters landed every rostered player read MINE).
-        mine = page.evaluate("[...document.querySelectorAll('.rk-row.mine')].map(e => e.dataset.rkopen)")
-        own = page.evaluate("[...new Set(Object.values(TEAMS).filter(t => !t.mate).flatMap(t => t.roster.map(p => p.slug)))]")
-        assert set(mine) <= set(own), set(mine) - set(own)
-        assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
-        page.locator("[data-rkpos='FLEX']").click()
-        assert page.locator(".rk-pos").count() > 0, "FLEX rows say the position and its rank"
-        page.locator(".rk-row").first.click()
-        page.wait_for_selector("#modal.on")
-        assert errors == []
-    finally:
-        ctx.close()
+@pytest.mark.req("Ranks", ac="tiers drawn, only the reader's own players marked, a row opens the profile")
+def test_ranks_draws_tiers_and_opens_a_profile(mount):
+    page, errors = mount("ranks")
+    ranks = RanksPage(page)
+    tiers = ranks.tiers()
+    assert tiers and tiers[0].upper() == "TIER 1"
+    # Only the reader's own players are his: a leaguemate's roster is not (2026-09-26, when
+    # the leaguemate rosters landed every rostered player read MINE).
+    mine = {r["slug"] for r in ranks.rows() if r["mine"]}
+    own = ranks.own_slugs()
+    assert mine <= own, mine - own
+    assert ranks.fits()
+    ranks.pick("FLEX")
+    assert any(r["pos"] for r in ranks.rows()), "FLEX rows say the position and its rank"
+    ranks.open_first_row()
+    assert errors == []

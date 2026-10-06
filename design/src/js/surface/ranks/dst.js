@@ -23,7 +23,7 @@ function rkOpenDst(){
 }
 
 /* The one link out of Ranks: the schedule's strength, a hidden leaf (NAV_HIDDEN) another view owns. */
-const rkSchedHTML = () => `<button type="button" class="rk-sched" data-rkgo="schedule">${t("ranks.link.schedule")}</button>`;
+const rkSchedHTML = () => `<button type="button" class="rk-sched" data-testid="ranks-schedule" data-rkgo="schedule">${t("ranks.link.schedule")}</button>`;
 
 const rkVs = home => home === false ? "@" : "vs";
 function rkDstGame(r){
@@ -51,8 +51,8 @@ function rkNextHTML(c){
 
 function rkDstRowHTML(r){
   const pts = r.bye ? t("ranks.dst.byeShort") : (r.rating ? "~" : "") + r.pts.toFixed(1);
-  const tag = r.streamer ? `<b class="rk-dtag">${t("ranks.dst.streamer")}</b>` : "";
-  return `<div class="rk-d${r.bye ? " bye" : ""}${r.mine ? " mine" : ""}${r.kicked_off ? " done" : ""}" data-rkteam="${esc(r.team)}">
+  const tag = r.streamer ? `<b class="rk-dtag" data-testid="ranks-dst-streamer">${t("ranks.dst.streamer")}</b>` : "";
+  return `<div class="rk-d${r.bye ? " bye" : ""}${r.mine ? " mine" : ""}${r.kicked_off ? " done" : ""}" data-testid="ranks-dst-row" data-rkteam="${esc(r.team)}">
     <span class="rk-n">${r.bye ? "–" : r.rank}</span>
     <span class="rk-dwho"><b class="rk-dteam">${esc(r.team)}</b><span class="rk-dgame">${rkDstGame(r)}</span></span>
     <span class="rk-dpts${r.rating ? " est" : ""}">${pts}</span>
@@ -79,7 +79,7 @@ function rkDstHTML(chips, b){
   return `<div class="wrap rk">
     ${chips}
     <div class="rk-headline"><div><h2>${t("ranks.head.title", {week: b.week, pos})}</h2>
-      <p>${rkDstScoring(b)}</p><p class="rk-dnote">${rkDstNote(b)}</p></div>${rkSchedHTML()}</div>
+      <p data-testid="ranks-sub">${rkDstScoring(b)}</p><p class="rk-dnote">${rkDstNote(b)}</p></div>${rkSchedHTML()}</div>
     <div class="rk-list"><section class="rk-group rk-dgroup">${b.rows.map(rkDstRowHTML).join("")}</section></div>
     ${b.estimate ? `<p class="rk-dfoot">${t("ranks.dst.est")}</p>` : ""}
   </div>`;

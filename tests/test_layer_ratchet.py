@@ -1,4 +1,5 @@
-"""Logic tested through the browser, as a ratchet (2026-10-05).
+"""Logic tested through the browser, and full page loads, as two ratchets (2026-10-05). The second
+is described above FULL_LOADS below.
 
 A function in design/src/js/data/ that touches no browser API is data to data: its test belongs in
 Node (tests/jsunit.py), where it costs a millisecond, not in a page.evaluate on a built page, where
@@ -93,3 +94,135 @@ def test_the_backlog_is_current():
     now = counts()
     stale = {f: (now.get(f, 0), n) for f, n in BACKLOG.items() if now.get(f, 0) < n}
     assert stale == {}, f"file: (now, listed). Lower these in BACKLOG: {stale}"
+
+
+# ---- Full page loads, as a ratchet (2026-10-05) ----
+#
+# A test of one view mounts it (tests/component.py: the view's own page, a kept context, ~53 ms) instead
+# of loading the whole page into a new context (~148 ms, measured 2026-10-05). Every place a test file
+# loads the full page is counted: a `.goto(` call, or a call of a loader, a function in tests/ whose body
+# calls `.goto(` or another loader (open_at, open_page, startsit_page.open_view, a file's own helper).
+# The call inside a loader's own body is its implementation and is not counted; tests/component.py is
+# the component layer, not a full page, and is never read. The counts below are today's and only go
+# down; a new file has none. Move a one-view test to `mount` and lower its file's number.
+# A loader call inside a test marked `@pytest.mark.journey` (navigation, hash, Back, cross-view: it needs
+# the full page) is not counted, in any file; a helper's loads count where the helper is called.
+FULL_LOADS = {
+    "test_accuracy_view.py": 4, "test_brief.py": 7, "test_claude_calls.py": 1, "test_claude_record.py": 1,
+    "test_clip_reel.py": 20, "test_clip_sheet.py": 2, "test_digest.py": 28, "test_digest_live.py": 5,
+    "test_gameday.py": 5, "test_gamesheet_v2.py": 6, "test_gestures.py": 1, "test_highlights.py": 1,
+    "test_leagues.py": 6, "test_left_hurt.py": 4, "test_legsheet.py": 6, "test_live_mine.py": 6,
+    "test_live_modal.py": 5, "test_live_swipe.py": 2, "test_live_tabs.py": 10, "test_live_tdclips.py": 18,
+    "test_live_tds.py": 6, "test_mates_page.py": 2, "test_news_tab.py": 2, "test_pack_stage.py": 16,
+    "test_parlay_grid.py": 20, "test_preview.py": 3, "test_profile.py": 5, "test_prop_picks.py": 1,
+    "test_range_view.py": 1, "test_recap_view.py": 12, "test_render.py": 10,
+    "test_render_connect.py": 3, "test_role.py": 1, "test_roster_cards.py": 20, "test_roster_sheet.py": 5,
+    "test_scope.py": 1, "test_search.py": 4, "test_sos_view.py": 8, "test_startsit.py": 1,
+    "test_startsit_v3.py": 1, "test_strip.py": 24, "test_style_rules.py": 2, "test_teams_board.py": 12,
+    "test_teamswitch.py": 6, "test_top_calls.py": 1, "test_trade_edit.py": 20, "test_trade_offers.py": 17,
+    "test_waiver_owner.py": 5, "test_weather.py": 5, "test_yahoo_lineup.py": 2,
+}   # 351 in all; test_ranks.py's 4 and 4 of test_ranks_dst.py's 6 moved to `mount` on 2026-10-05, its
+# other 2 are `journey` tests (Waivers link, another view), which the count skips
+NOT_FULL = {"component.py"}
+
+
+def _calls(node):
+    return [n for n in ast.walk(node) if isinstance(n, ast.Call)]
+
+
+def _helpers(tree):
+    """Functions a test calls by name: not a test, not a fixture (pytest calls those, and a fixture's
+    load is counted where it is written)."""
+    def fixture(f):
+        return any("fixture" in ast.dump(d) for d in f.decorator_list)
+    return [n for n in ast.walk(tree) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and not n.name.startswith("test_") and not fixture(n)]
+
+
+def _journeys(tree):
+    """Test functions marked `@pytest.mark.journey`: they need the full page, so their loads are free."""
+    return [n for n in ast.walk(tree) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and any(isinstance(d, ast.Attribute) and d.attr == "journey" for d in n.decorator_list)]
+
+
+def _known(tree, trees, found, own):
+    """What loads the full page when called in this module: bare names (its own loaders and the ones it
+    imports by name from another tests/ module) and module aliases with their loaders."""
+    bare, attrs = set(own), {}
+    for n in ast.walk(tree):
+        if isinstance(n, ast.ImportFrom) and n.module in trees:
+            bare |= {a.asname or a.name for a in n.names if a.name in found[n.module]}
+        elif isinstance(n, ast.Import):
+            attrs.update({a.asname or a.name: found[a.name] for a in n.names if a.name in trees})
+    return bare, attrs
+
+
+def _loads(call, bare, attrs):
+    f = call.func
+    if isinstance(f, ast.Attribute):
+        return f.attr == "goto" or (isinstance(f.value, ast.Name) and f.attr in attrs.get(f.value.id, ()))
+    return isinstance(f, ast.Name) and f.id in bare
+
+
+def full_loads(sources):
+    """{test file: full page loads} over {file name: source}; a loader's own body is not counted."""
+    trees = {name[:-3]: ast.parse(src) for name, src in sources.items() if name not in NOT_FULL}
+    found = {m: set() for m in trees}
+    while True:                          # loaders call goto or another loader, across imports
+        grew = False
+        for m, tree in trees.items():
+            bare, attrs = _known(tree, trees, found, found[m])
+            for f in _helpers(tree):
+                if f.name not in found[m] and any(_loads(c, bare, attrs) for c in _calls(f)):
+                    found[m].add(f.name)
+                    grew = True
+        if not grew:
+            break
+    out = {}
+    for m, tree in trees.items():
+        if not m.startswith("test_"):
+            continue
+        bare, attrs = _known(tree, trees, found, found[m])
+        inside = {id(c) for f in _helpers(tree) if f.name in found[m] for c in _calls(f)}
+        inside |= {id(c) for f in _journeys(tree) for c in _calls(f)}
+        n = sum(1 for c in _calls(tree) if id(c) not in inside and _loads(c, bare, attrs))
+        if n:
+            out[m + ".py"] = n
+    return out
+
+
+def full_load_counts():
+    return full_loads({p.name: p.read_text(encoding="utf-8") for p in sorted(TESTS.glob("*.py"))})
+
+
+def test_the_full_load_counter_sees_helpers_and_skips_their_bodies():
+    src = {
+        "helper.py": "def open_x(b, f):\n    p = b.new_page()\n    p.goto(f)\n    return p\n",
+        "test_a.py": ("from helper import open_x\ndef load(b, f):\n    return open_x(b, f)\n"
+                      "def test_1(b, f):\n    load(b, f)\n    load(b, f)\n"
+                      "def test_2(b, f, page):\n    page.goto(f)\n    pages.get(1, lambda: open_x(b, f))\n"),
+        "test_b.py": "def test_3(mount):\n    mount('ranks')\n    open('x')\n",
+        "component.py": "def mount(page, u):\n    page.goto(u)\n",
+    }
+    assert full_loads(src) == {"test_a.py": 4}, "two load() calls, one goto, one open_x; mount is no full load"
+
+
+def test_a_journey_test_may_load_the_full_page_free():
+    src = {"test_j.py": ("import pytest\n@pytest.mark.journey\ndef test_1(p):\n    p.goto(1)\n    p.goto(2)\n"
+                         "@pytest.mark.render\n@pytest.mark.journey\ndef test_2(p):\n    p.goto(1)\n"
+                         "def test_3(p):\n    p.goto(1)\n")}
+    assert full_loads(src) == {"test_j.py": 1}, "only the unmarked test counts"
+
+
+def test_full_page_loads_only_go_down():
+    over = {f: (n, FULL_LOADS.get(f, 0)) for f, n in full_load_counts().items() if n > FULL_LOADS.get(f, 0)}
+    assert over == {}, ("file: (now, allowed). A test that needs the whole page (navigation, hash, Back) "
+                        "is marked @pytest.mark.journey (tests/README.md); otherwise a test of one view mounts it "
+                        "instead (tests/component.py)")
+
+
+def test_the_full_load_counts_are_current():
+    """A file that moved tests to `mount` lowers its number here, so the ratchet keeps the progress."""
+    now = full_load_counts()
+    stale = {f: (now.get(f, 0), n) for f, n in FULL_LOADS.items() if now.get(f, 0) < n}
+    assert stale == {}, f"file: (now, listed). Lower these in FULL_LOADS: {stale}"

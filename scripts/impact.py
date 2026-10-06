@@ -24,6 +24,9 @@ every feature touches one, and until then 23 of the last 24 feature lands ran ev
     tests/golden/render.json    a changed state counts as its golden area (area_of)
 
 A key, part or entry whose file no area owns still runs everything, as before.
+
+Markdown is ignored (docs change no behaviour) except design/DESIGN.md: a renamed section breaks
+the collection of every test whose `req` marker names it, so the `designdoc` area runs test_trace.py.
 """
 import argparse
 import difflib
@@ -40,6 +43,7 @@ CSS_SURFACE = "design/src/css/surface/"
 SRC = "design/src/"
 CONTENT = SRC + "content.json"
 GOLDEN = "tests/golden/render.json"
+DESIGN_DOC = "design/DESIGN.md"
 ORDERS = {SRC + "order.js.txt": SRC + "js/", SRC + "order.css.txt": SRC + "css/"}
 
 
@@ -150,7 +154,7 @@ def select(paths, cfg=None, scope=None, golden=()):
         if g not in renders:
             why.append(f"golden state area {g} is no impact area's")
     for path in paths:
-        if path.endswith(".md"):
+        if path.endswith(".md") and path != DESIGN_DOC:    # DESIGN.md names the sections `req` cites
             continue
         if path.startswith("tests/"):
             if path.startswith("tests/test_") and path.endswith(".py") and path != "tests/test_render.py":

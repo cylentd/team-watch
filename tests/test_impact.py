@@ -15,7 +15,12 @@ AREAS = CFG["areas"]
 
 
 def test_every_test_file_is_listed_once():
-    listed = CFG["core"] + list(CFG["full_only"]) + [t for a in AREAS.values() for t in a["tests"]]
+    # An area may share a file with another area (test_trace.py is in testtools and designdoc: either
+    # area's change runs it); core and full_only never overlap an area or each other.
+    for name, a in AREAS.items():
+        assert len(a["tests"]) == len(set(a["tests"])), f"{name} lists a test file twice"
+    in_areas = sorted({t for a in AREAS.values() for t in a["tests"]})
+    listed = CFG["core"] + list(CFG["full_only"]) + in_areas
     on_disk = sorted(p.relative_to(ROOT).as_posix() for p in (ROOT / "tests").glob("test_*.py"))
     assert sorted(set(listed)) == on_disk
     assert len(listed) == len(set(listed)), "a test file is listed twice"
@@ -47,6 +52,7 @@ RANKS_TESTS = ["tests/test_ranks.py", "tests/test_ranks_dst.py", "tests/test_js_
     (["design/ranks.py", "README.md"], {"all": False, "areas": ["ranks"], "extra": RANKS_TESTS + ["tests/test_render.py"]}),
     (["tests/test_ranks.py"], {"all": False, "areas": [], "extra": ["tests/test_ranks.py"]}),
     (["CLAUDE.md"], {"all": False, "areas": [], "extra": []}),
+    (["design/DESIGN.md"], {"all": False, "areas": [], "extra": ["tests/test_trace.py"]}),   # the one .md a test reads
     (["scripts/land.ps1"], {"all": False, "areas": [], "extra": ["tests/test_land_queue.py", "tests/test_testlog.py"]}),
     (["design/src/css/surface/strip/panel.css"], {"all": True}), # shared CSS styles any view
     (["design/src/css/component/pool.css"], {"all": True}),      # so does a component

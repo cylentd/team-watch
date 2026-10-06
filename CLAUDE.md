@@ -56,6 +56,10 @@ A new test file must be listed in `tests/impact.json` (`test_impact.py` fails ot
 golden state belongs to the area its name starts with. Fixture files are never claimed by an area:
 the build injects all of them into one page.
 
+Before writing any test, read `tests/README.md` (2026-10-05): the layers (component via `mount`),
+the `req` and `quarantine` markers, page objects in `tests/pages/`, the exemplars to copy and the
+files not to. Land also runs new tests 10 times and prints a mutation score (`scripts/mutate.py`).
+
 Writing a browser test (2026-10-05): take `browser` from `tests/conftest.py` (one Chromium per
 worker), never your own. A full page load costs about 1 s, so a file's tests share a module-scoped
 page that resets what a test changed (`'use strict'` in the reset, so a renamed global throws) and

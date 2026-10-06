@@ -55,7 +55,7 @@ function rkMatchupHTML(r){
   const n = rkSigned(r.mx);
   const say = r.mxp == null ? t("ranks.row.mx", {n, opp: esc(r.opp || "")})
     : t("ranks.row.mxPriced", {n, opp: esc(r.opp || ""), p: rkSigned(r.mxp)});
-  return `<span class="rk-mx ${r.mx > 0 ? "up" : "dn"}" title="${say}" aria-label="${say}">${n}</span>`;
+  return `<span class="rk-mx ${r.mx > 0 ? "up" : "dn"}" data-testid="ranks-mx" title="${say}" aria-label="${say}">${n}</span>`;
 }
 
 /* Floor and ceiling under the projection (plan U5): ff-jarvis's band, from the row's own fields (the
@@ -68,14 +68,14 @@ function rkRangeHTML(r){
 function rkRowHTML(r, place, mine, flex){
   const inj = r.inj ? `<span class="rk-inj ${r.inj.toLowerCase()}">${r.inj === "Q" ? t("ranks.inj.q") : t("ranks.inj.d")}</span>` : "";
   // On FLEX the position and its own rank lead the game line, the card's "RB3".
-  const pos = flex ? `<b class="rk-pos">${esc(r.pos)}${r.rank}</b>` : "";
-  return `<button type="button" class="rk-row${mine ? " mine" : ""}" data-rkopen="${esc(r.slug)}">
+  const pos = flex ? `<b class="rk-pos" data-testid="ranks-row-pos">${esc(r.pos)}${r.rank}</b>` : "";
+  return `<button type="button" class="rk-row${mine ? " mine" : ""}" data-testid="ranks-row" data-rkopen="${esc(r.slug)}">
     <span class="rk-n">${place}</span>
     <span class="rk-face">${avatarHTML(r)}</span>
     <span class="rk-who"><span class="rk-nm">${esc(nameInitial(r.n))}${mine ? `<i class="rk-mine">${t("ranks.row.mine")}</i>` : ""}</span>
       <span class="rk-game">${pos}<span>${rkGame(r)}</span>${inj}${rbNoLineHTML(r, "rk-noline")}</span></span>
     <span class="rk-mu">${rkMakeup(r)}</span>
-    <span class="rk-pts">${r.pts.toFixed(1)}${rkRangeHTML(r)}${rkMatchupHTML(r)}</span>
+    <span class="rk-pts" data-testid="ranks-pts">${r.pts.toFixed(1)}${rkRangeHTML(r)}${rkMatchupHTML(r)}</span>
   </button>`;
 }
 
@@ -91,7 +91,7 @@ function rkTiersHTML(list, flex){
     const {hi, lo} = rbTierSpan(g.rows.map(([r]) => r));   // a back's tier follows the books, so its edge rows need not hold its extremes
     const k = last > 1 ? ((g.tier - 1) / (last - 1)).toFixed(2) : "0";
     return `<section class="rk-group" style="--k:${k}">
-      <div class="rk-tier"><b>${t("ranks.tier", {n: g.tier})}</b><span>${hi === lo ? t("ranks.tier.one", {pts: hi}) : t("ranks.tier.range", {hi, lo})}</span></div>
+      <div class="rk-tier"><b data-testid="ranks-tier">${t("ranks.tier", {n: g.tier})}</b><span>${hi === lo ? t("ranks.tier.one", {pts: hi}) : t("ranks.tier.range", {hi, lo})}</span></div>
       ${g.rows.map(([r, place]) => rkRowHTML(r, place, mine.has(r.slug), flex)).join("")}
     </section>`;
   }).join("");
@@ -100,8 +100,8 @@ function rkTiersHTML(list, flex){
 /* The position row: QB RB WR TE FLEX, then D/ST and, in a Yahoo league, K (surface/ranks/dst.js, 2026-10-05). */
 function rkChipsHTML(pos, extra){
   const label = p => p === "FLEX" ? t("ranks.filter.flex") : p === "DST" ? t("ranks.filter.dst") : p;
-  return `<div class="setrow" role="group" aria-label="${t("ranks.filter.position")}">
-    ${[...RK_POSITIONS, ...extra].map(p => `<button class="chip" data-rkpos="${p}" aria-pressed="${pos === p}">${label(p)}</button>`).join("")}
+  return `<div class="setrow" data-testid="ranks-pos-row" role="group" aria-label="${t("ranks.filter.position")}">
+    ${[...RK_POSITIONS, ...extra].map(p => `<button class="chip" data-testid="ranks-pos-tab" data-rkpos="${p}" aria-pressed="${pos === p}">${label(p)}</button>`).join("")}
   </div>`;
 }
 
@@ -131,7 +131,7 @@ function ranksHTML(){
   const rb = rkRbNotes(pos, list);
   return `<div class="wrap rk">
     ${chips}
-    <div class="rk-headline"><div><h2>${title}</h2><p>${t("ranks.head.sub", {scoring: esc(LIVE_RANKS.scoring || "")})}${band}${rb}${off}</p></div>${rkSchedHTML()}</div>
+    <div class="rk-headline"><div><h2>${title}</h2><p data-testid="ranks-sub">${t("ranks.head.sub", {scoring: esc(LIVE_RANKS.scoring || "")})}${band}${rb}${off}</p></div>${rkSchedHTML()}</div>
     <div class="rk-list">${rkTiersHTML(list, pos === "FLEX")}</div>
   </div>`;
 }

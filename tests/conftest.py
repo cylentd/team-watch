@@ -33,10 +33,18 @@ def pytest_addoption(parser):
     parser.addoption("--areas", default="",
                      help="comma-separated impact areas (tests/impact.json): a test marked "
                           "@pytest.mark.area runs only when its area is listed; unmarked tests always run")
+    parser.addoption("--no-quarantine", action="store_true", default=False,
+                     help="deselect tests marked @pytest.mark.quarantine (the land gate; tests/README.md)")
 
 
 def pytest_configure(config):
     config.addinivalue_line("markers", "area(name): the impact area a test covers (scripts/impact.py)")
+    config.addinivalue_line("markers", "req(section, ac=None): the design/DESIGN.md section (its `## ` "
+                            "heading up to the first ` (`) this test proves, and which behaviour (scripts/trace.py)")
+    config.addinivalue_line("markers", "quarantine(reason): a known-flaky test; --no-quarantine drops it "
+                            "from a gating run, and scripts/trace.py lists it")
+    config.addinivalue_line("markers", "journey: an end-to-end test that needs the full page: navigation, "
+                            "hash, Back, cross-view (tests/test_layer_ratchet.py does not count its page loads)")
     config.addinivalue_line("markers", "xdist_group(name): set by the hook below; one group runs on one worker")
     if hasattr(config.option, "loadscopereorder"):
         config.option.loadscopereorder = False   # the order the hook below sets is the queue's order
@@ -51,6 +59,8 @@ CHUNK = 12   # tests per xdist group outside the golden slices
 # end of a run (the layers line) and records the run in the test history (scripts/testlog.py).
 def layer_of(item):
     names = set(getattr(item, "fixturenames", ()))
+    if "mount" in names:        # a component test drives Chromium through `mount`, and stays a component test
+        return "component"
     if "browser" in names:
         return "browser"
     if names & {"built", "page_file"}:
@@ -58,8 +68,47 @@ def layer_of(item):
     return "node" if "node_js" in names else "python"
 
 
+def rep_of(item):
+    """The repetition index scripts/run_tests.py --repeat-new parametrizes a test with, else None."""
+    return getattr(getattr(item, "callspec", None), "params", {}).get("_tw_rep")
+
+
+def design_sections():
+    """The `## ` headings of design/DESIGN.md, up to the first ` (`: what `req` may name."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("tw_trace", REPO / "scripts" / "trace.py")
+    mod = importlib.util.module_from_spec(spec)     # by path: `trace` is also a stdlib module
+    spec.loader.exec_module(mod)
+    return mod.design_sections()
+
+
+def bad_reqs(items, sections):
+    """(nodeid, section) for every `req` naming a section DESIGN.md does not have; a req with no
+    section at all counts as one named None."""
+    bad = []
+    for item in items:
+        for m in item.iter_markers("req"):
+            section = m.args[0] if m.args else m.kwargs.get("section")
+            if section not in sections:
+                bad.append((item.nodeid, section))
+    return bad
+
+
 @pytest.hookimpl(tryfirst=True)
 def pytest_collection_modifyitems(config, items):
+    if any(item.get_closest_marker("req") for item in items):
+        sections = design_sections()
+        bad = bad_reqs(items, sections)
+        if bad:
+            raise pytest.UsageError(
+                "req names a section design/DESIGN.md does not have:\n"
+                + "\n".join(f"  {nodeid}: {section!r}" for nodeid, section in bad)
+                + "\nvalid sections:\n" + "\n".join(f"  {s}" for s in sections))
+    if config.getoption("--no-quarantine"):
+        quarantined = [i for i in items if i.get_closest_marker("quarantine")]
+        if quarantined:
+            config.hook.pytest_deselected(items=quarantined)
+            items[:] = [i for i in items if i not in quarantined]
     areas = {a for a in config.getoption("--areas").split(",") if a}
     if areas:
         keep, drop = [], []
@@ -89,6 +138,8 @@ def pytest_collection_modifyitems(config, items):
             group = f"render:{mark.kwargs.get('slice', mark.args[0])}"
             item.add_marker(pytest.mark.xdist_group(group))
             slices.setdefault(group, []).append(item)
+        elif rep_of(item) is not None:      # --tw-repeat: one group per repetition, so a test's runs split over workers
+            item.add_marker(pytest.mark.xdist_group(f"rep{rep_of(item)}"))
         else:
             n = seen[item.path.name] = seen.get(item.path.name, -1) + 1
             item.add_marker(pytest.mark.xdist_group(f"{item.path.name}#{n // CHUNK}"))
