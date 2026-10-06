@@ -3,6 +3,7 @@ PowerShell functions against a throwaway git repo, so the queue under test is ne
 import shutil
 import subprocess
 import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pytest
@@ -46,24 +47,38 @@ def test_a_dead_sessions_ticket_is_cleared_not_waited_on(repo):
     assert tickets(repo) == []
 
 
+def popen_ps(script, cwd):
+    return subprocess.Popen([PS, "-NoProfile", "-NonInteractive", "-Command", f". '{QUEUE}'; {script}"],
+                            cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+
 def test_the_second_lander_waits_for_the_first(repo):
-    """First holds main for 4s; the second, started once the first's ticket is in, must get it only after the first
-    lets go, and must say whose land it waited on."""
-    first = subprocess.Popen([PS, "-NoProfile", "-NonInteractive", "-Command",
-                              f". '{QUEUE}'; $t = Enter-LandQueue -Repo '{repo}' -Label first; "
-                              f"Start-Sleep -Seconds 4; [datetime]::UtcNow.Ticks; Exit-LandQueue $t"],
-                             cwd=repo, stdout=subprocess.PIPE, text=True)
-    # The first holds main once its ticket is in the queue; poll for that, never a fixed pause.
+    """First holds main until the test releases it; the second, started once the first's ticket is in, must say
+    whose land it waited on and get main only after the first lets go. The release is a file the test writes once
+    the second has said it is waiting, so no step depends on how fast PowerShell starts (2026-10-06: a 4 s hold
+    lost that race under the parallel land suite)."""
+    release = repo / "release"
+    first = popen_ps(f"$t = Enter-LandQueue -Repo '{repo}' -Label first; "
+                     f"while (-not (Test-Path '{release}')) {{ Start-Sleep -Milliseconds 50 }}; "
+                     f"[datetime]::UtcNow.Ticks; Exit-LandQueue $t", repo)
     deadline = time.monotonic() + 30
     while not tickets(repo) and first.poll() is None and time.monotonic() < deadline:
         time.sleep(0.05)   # poll interval, not a wait for an event
     assert tickets(repo), "the first lander never took a ticket"
-    second = ps(f"$t = Enter-LandQueue -Repo '{repo}' -Label second; [datetime]::UtcNow.Ticks; Exit-LandQueue $t", repo)
-    out_first, _ = first.communicate(timeout=60)
-    assert second.returncode == 0, second.stderr
-    assert "waiting on first" in second.stdout
+    second = popen_ps(f"$t = Enter-LandQueue -Repo '{repo}' -Label second; [datetime]::UtcNow.Ticks; "
+                      f"Exit-LandQueue $t", repo)
+    pool = ThreadPoolExecutor(1)
+    try:
+        said = pool.submit(second.stdout.readline).result(timeout=30)
+        assert "waiting on first" in said, said
+    finally:
+        release.write_text("")   # always let the first go, so a failure here never hangs both
+        out_first, _ = first.communicate(timeout=60)
+        out_second, err_second = second.communicate(timeout=60)
+        pool.shutdown(wait=False)
+    assert second.returncode == 0, err_second
     released = int(out_first.strip().splitlines()[-1])
-    got = int(second.stdout.strip().splitlines()[-1])
+    got = int(out_second.strip().splitlines()[-1])
     assert got >= released, "the second lander got main while the first still held it"
     assert tickets(repo) == []
 
