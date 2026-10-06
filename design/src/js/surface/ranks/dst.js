@@ -23,6 +23,7 @@ const rkLeague = () => dstLeagueKey(lgFocusKey(), !!lgMine(), rkDstBlock());
    "Stream a D/ST" link (surface/teams/waiver.js wvDstLinkHTML, wired in wvmotion.js). */
 function rkOpenDst(){
   RK_POS = "DST";
+  RK_VIEW = "week";   // D/ST is a This week list; Rest of season has none (surface/ranks/ros.js)
   navGo("ranks");
 }
 

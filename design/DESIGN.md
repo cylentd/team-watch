@@ -780,6 +780,32 @@ no rank, tier or START/SIT call, and the page never computes one.
   `tests/test_ranks.py` (the build carries the fields). The fixtures hold real bands: ff-jarvis's shipped table applied
   with its own `ranges.apply` to `tests/fixtures/data/player_projections.json` and `tests/fixtures/feed.json`.
 
+### Rest of season (2026-10-06, ff-jarvis METHODOLOGY 12.97)
+
+Ranks has two views, **This week** (everything above, unchanged) and **Rest of season**, declared with `navModes("ranks", ...)`
+(`data/tabrow.js`): a phone opens them in place in the Ranks pill, a desktop draws a chip bar above the position chips
+(`.rk-views`). David picked storyboard option B (https://claude.ai/artifact/CH1bZ7HFWCZQPvUrRGAEAm): "A doesn't have enough
+space and shows a lot of numbers, which seems busy". The view is calm on purpose: a chart, then rank, name and team, ROS points.
+
+| Part | Rule | Where |
+|---|---|---|
+| Value | Expected half-PPR points from the week still to play through week 17: points a game times the games he is expected to play (ff-jarvis `ros_value`, beat season pace on 2024-2025 held out by 0.29 points a game). The page computes nothing | `design/ros.py`, `LIVE_ROS` |
+| Positions | QB RB WR TE. No FLEX, D/ST or K. The position is Ranks' one setting (STYLE.md): while it is FLEX, D/ST or K the list shows RB, and This week keeps its pick | `rosPos` |
+| Chart | A bump chart of the top 10 at the position: rank by week, rank 1 at the top, rows 1-12. The top three lines wear the position's colour, the rest are quiet. Each name sits at its line's right end and opens the profile. **Rank, never ROS points**: points fall every week for everyone as games run out, so a points line slopes down for the whole league. A rank past row 12 is a hollow dot on the bottom edge, so no line leaves the box; one week of history draws dots, not lines | `data/ros.js` `rosChart`, `roschart.js` |
+| List | One panel under the chart: rank, name with its team, ROS points (rounded). No arrows, sparklines, faces or second number. The full list is every ranked player at the position; the reader's own are lime with MINE. Two columns from 760px, so a name stays within 560px of its number | `ros.js` `rosListHTML` |
+| No heading | The tab says where he is. One caption under the chart says what the points are ("Expected half-PPR points from week 5 to 17."), the Schedule link at its end | `.ros-cap` |
+| Scoring | Half-PPR; a team picked in the ESPN league reads ESPN's numbers and order and the caption adds "ESPN-scaled, not backtested". A file without ESPN numbers stays half-PPR | `rosScoring` |
+| Absent | No `ros_value` block (feed or file): no tab, Ranks reads as it did, the build still passes. A position with no rows says so |  `rkViews`, `ros.empty.*` |
+
+At 360x800 (live data, week 5, WR): the chart starts at 160px (budget ~200) and is 236px tall; the first row is at 489px. B pushes the
+list down by the chart by design; an earlier build with a heading above the chart started it at 237px, so the heading went.
+
+Data: `LIVE_ROS` (`design/ros.py`: players `{slug, n, pos, team, rank, ros_pg, ros_pts, games_left, sched_left, hist, espn}`,
+`hist` is `[[week, rank], ...]`; `espn` the same on ESPN scoring; null without the file). The loader `load_ros_value` is in
+`ros.py` because `sources.py` is at its 500-line budget. Tests: `tests/test_ros.py` (the cut, the contract, the feed block, a build with no block),
+`tests/test_js_ros.py` (Node: rows, scoring, chart clamp, dots, geometry), `tests/test_ros_view.py` (tabs, chart, list, taps, ESPN,
+desktop, the empty states, no block).
+
 ## The Board (Scouting's first view, 2026-09-23)
 
 One lane per stat, the position's whole field on it. One component, three jobs, which is why it
@@ -1908,6 +1934,13 @@ https://claude.ai/artifact/HjEA4x7r7DRz3Z7Xes4u62).
   start") is written out by `signalWords` (data/signals.js): "Snaps down 5.0 points and his share of the work up 19
   points. Worth a start, or an add if he is free." A reason it does not know is shown as written. The verdict
   word beside it is unchanged.
+- **Rest of season block (2026-10-06, `surface/profile/ros.js`).** In the Season pane, under the table of his weeks: his ROS
+  points as the lead number ("169 points, week 5 to 17 · #2 WR"), points a game and "10.2 of 12 games" on one line, his rank
+  among the position by week as a line chart in the position's colour (rank, never points; the axis is his worst week, never
+  fewer than six rows), and one fine line ("Half-PPR points. Games are his team's left, less the ones players like him miss.";
+  ESPN readers: "ESPN-scaled points, not backtested..."). The games figure is the model's expectation of time missed, said so
+  nobody reads it as an injury. Nothing for a player `LIVE_ROS` does not list. A player with no Season table still gets the block.
+  Opened from a Rest of season row or a chart name (see "Rest of season" under Ranks).
 - **The Season table never grows.** One row per week from week 1, played or still to come, so it
   is ~18 rows in week 1 and in week 18. The opponent's rank is LIVE_DEFENSE's points allowed to his
   position, counted from the easy end (1st allows the most); it is the one measure that exists for

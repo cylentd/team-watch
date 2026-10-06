@@ -98,10 +98,10 @@ function rkTiersHTML(list, flex){
 }
 
 /* The position row: QB RB WR TE FLEX, then D/ST and, in a Yahoo league, K (surface/ranks/dst.js, 2026-10-05). */
-function rkChipsHTML(pos, extra){
+function rkChipsHTML(pos, extra, base = RK_POSITIONS){
   const label = p => p === "FLEX" ? t("ranks.filter.flex") : p === "DST" ? t("ranks.filter.dst") : p;
   return `<div class="setrow" data-testid="ranks-pos-row" role="group" aria-label="${t("ranks.filter.position")}">
-    ${[...RK_POSITIONS, ...extra].map(p => `<button class="chip" data-testid="ranks-pos-tab" data-rkpos="${p}" aria-pressed="${pos === p}">${label(p)}</button>`).join("")}
+    ${[...base, ...extra].map(p => `<button class="chip" data-testid="ranks-pos-tab" data-rkpos="${p}" aria-pressed="${pos === p}">${label(p)}</button>`).join("")}
   </div>`;
 }
 
@@ -116,8 +116,9 @@ function rkRbNotes(pos, list){
 }
 
 function ranksHTML(){
+  if (rkView() === "ros") return rosViewHTML();   // Rest of season (surface/ranks/ros.js)
   const block = rkDstBlock(), lg = rkLeague(), pos = dstPos(RK_POS, block, lg), extra = dstTabs(block, lg);
-  const chips = rkChipsHTML(pos, extra);
+  const chips = rkViewsHTML() + rkChipsHTML(pos, extra);
   if (pos === "DST" || pos === "K") return rkDstHTML(chips, dstBoard(block, lg, pos));
   const list = rkList(pos);
   if (!list.length) return `<div class="wrap">${chips}<div class="state-empty" style="min-height:220px">
@@ -137,6 +138,8 @@ function ranksHTML(){
 }
 
 function wireRanks(v){
+  v.querySelectorAll("[data-rkview]").forEach(b => b.addEventListener("click", () => rkSelectView(b.dataset.rkview)));
+  if (rkView() === "ros") wireRos(v);
   v.querySelectorAll("[data-rkpos]").forEach(b => b.addEventListener("click", () => {
     if (b.dataset.rkpos === RK_POS) return;
     RK_POS = b.dataset.rkpos; render();

@@ -89,8 +89,8 @@
     },
     "ranks": {
       "paths": ["design/src/js/surface/ranks/", "design/src/css/surface/ranks/", "design/ranks.py",
-                "design/src/js/data/dst.js", "design/dst.py"],
-      "tests": ["tests/test_ranks.py", "tests/test_ranks_dst.py", "tests/test_js_dst.py"],
+                "design/src/js/data/dst.js", "design/dst.py", "design/src/js/data/ros.js", "design/ros.py"],
+      "tests": ["tests/test_ranks.py", "tests/test_ranks_dst.py", "tests/test_js_dst.py", "tests/test_ros.py", "tests/test_js_ros.py", "tests/test_ros_view.py"],
       "render": ["ranks"]
     },
     "rbrules": {
@@ -126,7 +126,7 @@
     "profile": {
       "paths": ["design/src/js/surface/profile/", "design/src/css/surface/profile/", "design/src/js/data/lede.js", "design/pedigree.py", "design/gamelog.py",
                 "design/routes.py", "design/archetype.py"],
-      "tests": ["tests/test_profile.py", "tests/test_profile_panes.py", "tests/test_profile_sheet.py", "tests/test_profile_compare.py", "tests/test_profile_journeys.py", "tests/test_js_profile.py", "tests/test_js_stock.py", "tests/test_js_range.py", "tests/test_range_view.py"],
+      "tests": ["tests/test_profile.py", "tests/test_profile_panes.py", "tests/test_profile_sheet.py", "tests/test_profile_compare.py", "tests/test_profile_journeys.py", "tests/test_js_profile.py", "tests/test_js_stock.py", "tests/test_js_range.py", "tests/test_range_view.py", "tests/test_ros_view.py"],
       "render": ["profile"]
     },
     "teams": {

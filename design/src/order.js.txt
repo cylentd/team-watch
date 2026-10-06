@@ -71,6 +71,7 @@ surface/profile/blocks.js
 surface/profile/sections.js
 surface/profile/history.js
 surface/profile/season.js
+surface/profile/ros.js
 surface/profile/owners.js
 surface/profile/gridlink.js
 surface/profile/teamshare.js
@@ -110,8 +111,11 @@ surface/matchups/picker.js
 surface/matchups/board.js
 surface/matchups/matchups.js
 data/dst.js
+data/ros.js
 surface/ranks/ranks.js
 surface/ranks/dst.js
+surface/ranks/roschart.js
+surface/ranks/ros.js
 surface/highlights/highlights.js
 data/weather.js
 data/wxhistory.js

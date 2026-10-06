@@ -357,6 +357,10 @@ CONTRACT = {
                         "map": ("teams", ["team", "opp", "n_starters", "n_missing", "front7_missing", "secondary_missing",
                                           "share", "players"]),
                         "checks": [d_starters.problems]},
+    # design/ros.py, Stats > Ranks > Rest of season and the profile's block (2026-10-06): None without ff-jarvis's file. A
+    # player's `hist` is [[week, rank], ...] and `espn` {ros_pg, ros_pts, rank, hist}; the shapes are pinned in tests/test_ros.py.
+    "LIVE_ROS": {"keys": ["season", "week", "through_week", "last_week", "generated", "players"],
+                 "rows": [("players", ["slug", "n", "pos", "team", "rank", "ros_pg", "ros_pts", "games_left", "sched_left", "hist", "espn"])]},
     # design/slips.py (2026-10-05): Claude's calls on prop lines, {slug: [{mkt, line, side, why}]}. Optional: None without
     # ff-jarvis's file, and a line with no call draws no badge.
     "LIVE_CLAUDE_PROPS": {"keys": ["week", "asof", "calls"], "checks": [slips.problems_claude]},

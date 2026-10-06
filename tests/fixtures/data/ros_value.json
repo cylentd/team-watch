@@ -1,0 +1,3279 @@
+{
+ "season": 2026,
+ "week": 5,
+ "through_week": 4,
+ "last_week": 17,
+ "generated": "2026-10-06T10:37",
+ "rules": {
+  "methodology": "12.97",
+  "value": "expected half-PPR points from `week` through week 17 = ros_pg x games_left",
+  "ros_pg": "season pace shrunk toward his work (xfp) and last season, times the remaining schedule (QB/RB/TE)",
+  "games_left": "his team's games left (byes out), scaled by his attendance, a missed last game and Out next week",
+  "tested": "beat season pace on 2024-2025 held out by 0.29 pts/g (QB, RB, WR, TE each no worse)",
+  "espn": "ESPN points = half-PPR x his own 2026 ESPN/half-PPR ratio (0.85-1.35); not backtested",
+  "listed": "2+ games and pace or work 5+ a game, or on a roster in any league",
+  "out": [
+   "Out",
+   "Doubtful",
+   "IR",
+   "PUP",
+   "NA",
+   "Sus",
+   "Suspended"
+  ],
+  "params": {
+   "QB": {
+    "k1": 2,
+    "k2": 4,
+    "e": 0.3,
+    "games": [
+     0.2624,
+     0.5545,
+     -0.186,
+     -2.1423
+    ]
+   },
+   "RB": {
+    "k1": 12,
+    "k2": 4,
+    "e": 0.3,
+    "games": [
+     0.4332,
+     0.4052,
+     -0.1455,
+     -0.9684
+    ]
+   },
+   "WR": {
+    "k1": 6,
+    "k2": 8,
+    "e": 0.0,
+    "games": [
+     0.5801,
+     0.2669,
+     -0.2076,
+     -1.4035
+    ]
+   },
+   "TE": {
+    "k1": 12,
+    "k2": 17,
+    "e": 0.4,
+    "games": [
+     0.7593,
+     0.0584,
+     -0.1939,
+     -0.9267
+    ]
+   }
+  }
+ },
+ "players": [
+  {
+   "key": "josh allen",
+   "name": "Josh Allen",
+   "pos": "QB",
+   "team": "BUF",
+   "slug": "josh-allen",
+   "g": 4,
+   "pace": 27.99,
+   "xfp": 18.04,
+   "prev_pg": 22.79,
+   "f": 0.957,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    7
+   ],
+   "ros_pg": 23.61,
+   "games_left": 9.8,
+   "ros_pts": 231.4,
+   "rank": 1,
+   "espn": {
+    "ros_pg": 27.26,
+    "ros_pts": 267.3,
+    "rank": 1,
+    "hist": [
+     [
+      3,
+      1,
+      330.1
+     ],
+     [
+      4,
+      1,
+      294.5
+     ],
+     [
+      5,
+      1,
+      267.3
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     1,
+     290.2
+    ],
+    [
+     4,
+     1,
+     257.9
+    ],
+    [
+     5,
+     1,
+     231.4
+    ]
+   ]
+  },
+  {
+   "key": "brock purdy",
+   "name": "Brock Purdy",
+   "pos": "QB",
+   "team": "SF",
+   "slug": "brock-purdy",
+   "g": 4,
+   "pace": 25.12,
+   "xfp": 15.65,
+   "prev_pg": 19.71,
+   "f": 0.963,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    8
+   ],
+   "ros_pg": 20.83,
+   "games_left": 9.8,
+   "ros_pts": 204.2,
+   "rank": 2,
+   "espn": {
+    "ros_pg": 23.84,
+    "ros_pts": 233.7,
+    "rank": 7,
+    "hist": [
+     [
+      3,
+      6,
+      271.6
+     ],
+     [
+      4,
+      6,
+      255.6
+     ],
+     [
+      5,
+      7,
+      233.7
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     3,
+     225.1
+    ],
+    [
+     4,
+     2,
+     221.3
+    ],
+    [
+     5,
+     2,
+     204.2
+    ]
+   ]
+  },
+  {
+   "key": "patrick mahomes",
+   "name": "Patrick Mahomes",
+   "pos": "QB",
+   "team": "KC",
+   "slug": "patrick-mahomes",
+   "g": 4,
+   "pace": 20.89,
+   "xfp": 16.54,
+   "prev_pg": 20.37,
+   "f": 0.954,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    5
+   ],
+   "ros_pg": 19.54,
+   "games_left": 9.8,
+   "ros_pts": 191.5,
+   "rank": 3,
+   "espn": {
+    "ros_pg": 23.89,
+    "ros_pts": 234.2,
+    "rank": 6,
+    "hist": [
+     [
+      3,
+      2,
+      296.3
+     ],
+     [
+      4,
+      3,
+      265.7
+     ],
+     [
+      5,
+      6,
+      234.2
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     2,
+     242.0
+    ],
+    [
+     4,
+     3,
+     212.6
+    ],
+    [
+     5,
+     3,
+     191.5
+    ]
+   ]
+  },
+  {
+   "key": "jared goff",
+   "name": "Jared Goff",
+   "pos": "QB",
+   "team": "DET",
+   "slug": "jared-goff",
+   "g": 4,
+   "pace": 21.52,
+   "xfp": 19.97,
+   "prev_pg": 17.47,
+   "f": 0.967,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    6
+   ],
+   "ros_pg": 19.4,
+   "games_left": 9.8,
+   "ros_pts": 190.1,
+   "rank": 4,
+   "espn": {
+    "ros_pg": 25.56,
+    "ros_pts": 250.6,
+    "rank": 2,
+    "hist": [
+     [
+      3,
+      4,
+      281.8
+     ],
+     [
+      4,
+      5,
+      257.0
+     ],
+     [
+      5,
+      2,
+      250.6
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     4,
+     223.0
+    ],
+    [
+     4,
+     7,
+     203.1
+    ],
+    [
+     5,
+     4,
+     190.1
+    ]
+   ]
+  },
+  {
+   "key": "dak prescott",
+   "name": "Dak Prescott",
+   "pos": "QB",
+   "team": "DAL",
+   "slug": "dak-prescott",
+   "g": 4,
+   "pace": 20.3,
+   "xfp": 19.03,
+   "prev_pg": 18.46,
+   "f": 0.982,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    14
+   ],
+   "ros_pg": 19.2,
+   "games_left": 9.8,
+   "ros_pts": 188.2,
+   "rank": 5,
+   "espn": {
+    "ros_pg": 23.41,
+    "ros_pts": 229.5,
+    "rank": 8,
+    "hist": [
+     [
+      3,
+      9,
+      256.6
+     ],
+     [
+      4,
+      10,
+      233.1
+     ],
+     [
+      5,
+      8,
+      229.5
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     7,
+     217.1
+    ],
+    [
+     4,
+     6,
+     203.7
+    ],
+    [
+     5,
+     5,
+     188.2
+    ]
+   ]
+  },
+  {
+   "key": "tyler shough",
+   "name": "Tyler Shough",
+   "pos": "QB",
+   "team": "NO",
+   "slug": "tyler-shough",
+   "g": 4,
+   "pace": 21.33,
+   "xfp": 23.14,
+   "prev_pg": 14.36,
+   "f": 0.982,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    8
+   ],
+   "ros_pg": 18.8,
+   "games_left": 9.8,
+   "ros_pts": 184.3,
+   "rank": 6,
+   "espn": {
+    "ros_pg": 24.11,
+    "ros_pts": 236.4,
+    "rank": 5,
+    "hist": [
+     [
+      3,
+      3,
+      290.9
+     ],
+     [
+      4,
+      4,
+      262.0
+     ],
+     [
+      5,
+      5,
+      236.4
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     6,
+     218.1
+    ],
+    [
+     4,
+     5,
+     204.3
+    ],
+    [
+     5,
+     6,
+     184.3
+    ]
+   ]
+  },
+  {
+   "key": "matthew stafford",
+   "name": "Matthew Stafford",
+   "pos": "QB",
+   "team": "LA",
+   "slug": "matthew-stafford",
+   "g": 4,
+   "pace": 15.41,
+   "xfp": 20.25,
+   "prev_pg": 20.61,
+   "f": 1.029,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    11
+   ],
+   "ros_pg": 18.62,
+   "games_left": 9.8,
+   "ros_pts": 182.5,
+   "rank": 7,
+   "espn": {
+    "ros_pg": 25.13,
+    "ros_pts": 246.4,
+    "rank": 3,
+    "hist": [
+     [
+      3,
+      5,
+      274.1
+     ],
+     [
+      4,
+      2,
+      274.2
+     ],
+     [
+      5,
+      3,
+      246.4
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     9,
+     204.8
+    ],
+    [
+     4,
+     4,
+     204.8
+    ],
+    [
+     5,
+     7,
+     182.5
+    ]
+   ]
+  },
+  {
+   "key": "joe burrow",
+   "name": "Joe Burrow",
+   "pos": "QB",
+   "team": "CIN",
+   "slug": "joe-burrow",
+   "g": 4,
+   "pace": 19.16,
+   "xfp": 19.69,
+   "prev_pg": 16.81,
+   "f": 1.015,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    6
+   ],
+   "ros_pg": 18.41,
+   "games_left": 9.8,
+   "ros_pts": 180.5,
+   "rank": 8,
+   "espn": {
+    "ros_pg": 24.84,
+    "ros_pts": 243.5,
+    "rank": 4,
+    "hist": [
+     [
+      3,
+      12,
+      243.0
+     ],
+     [
+      4,
+      7,
+      235.0
+     ],
+     [
+      5,
+      4,
+      243.5
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     13,
+     190.0
+    ],
+    [
+     4,
+     13,
+     183.9
+    ],
+    [
+     5,
+     8,
+     180.5
+    ]
+   ]
+  },
+  {
+   "key": "bryce young",
+   "name": "Bryce Young",
+   "pos": "QB",
+   "team": "CAR",
+   "slug": "bryce-young",
+   "g": 4,
+   "pace": 22.66,
+   "xfp": 19.78,
+   "prev_pg": 13.63,
+   "f": 0.949,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    5
+   ],
+   "ros_pg": 18.18,
+   "games_left": 9.8,
+   "ros_pts": 178.3,
+   "rank": 9,
+   "espn": {
+    "ros_pg": 23.08,
+    "ros_pts": 226.2,
+    "rank": 9,
+    "hist": [
+     [
+      3,
+      11,
+      254.0
+     ],
+     [
+      4,
+      9,
+      234.7
+     ],
+     [
+      5,
+      9,
+      226.2
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     8,
+     208.0
+    ],
+    [
+     4,
+     10,
+     191.9
+    ],
+    [
+     5,
+     9,
+     178.3
+    ]
+   ]
+  },
+  {
+   "key": "jalen hurts",
+   "name": "Jalen Hurts",
+   "pos": "QB",
+   "team": "PHI",
+   "slug": "jalen-hurts",
+   "g": 4,
+   "pace": 16.76,
+   "xfp": 15.93,
+   "prev_pg": 18.82,
+   "f": 1.075,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    10
+   ],
+   "ros_pg": 17.81,
+   "games_left": 9.8,
+   "ros_pts": 174.6,
+   "rank": 10,
+   "espn": {
+    "ros_pg": 19.77,
+    "ros_pts": 193.8,
+    "rank": 16,
+    "hist": [
+     [
+      3,
+      8,
+      257.7
+     ],
+     [
+      4,
+      14,
+      225.2
+     ],
+     [
+      5,
+      16,
+      193.8
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     5,
+     221.3
+    ],
+    [
+     4,
+     8,
+     194.3
+    ],
+    [
+     5,
+     10,
+     174.6
+    ]
+   ]
+  },
+  {
+   "key": "trevor lawrence",
+   "name": "Trevor Lawrence",
+   "pos": "QB",
+   "team": "JAX",
+   "slug": "trevor-lawrence",
+   "g": 4,
+   "pace": 16.28,
+   "xfp": 13.57,
+   "prev_pg": 19.89,
+   "f": 1.062,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    7
+   ],
+   "ros_pg": 17.5,
+   "games_left": 9.8,
+   "ros_pts": 171.6,
+   "rank": 11,
+   "espn": {
+    "ros_pg": 21.24,
+    "ros_pts": 208.2,
+    "rank": 12,
+    "hist": [
+     [
+      3,
+      13,
+      242.6
+     ],
+     [
+      4,
+      12,
+      227.5
+     ],
+     [
+      5,
+      12,
+      208.2
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     11,
+     202.8
+    ],
+    [
+     4,
+     9,
+     192.8
+    ],
+    [
+     5,
+     11,
+     171.6
+    ]
+   ]
+  },
+  {
+   "key": "lamar jackson",
+   "name": "Lamar Jackson",
+   "pos": "QB",
+   "team": "BAL",
+   "slug": "lamar-jackson",
+   "g": 4,
+   "pace": 19.77,
+   "xfp": 13.63,
+   "prev_pg": 16.53,
+   "f": 0.978,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    13
+   ],
+   "ros_pg": 17.13,
+   "games_left": 9.8,
+   "ros_pts": 167.9,
+   "rank": 12,
+   "espn": {
+    "ros_pg": 21.23,
+    "ros_pts": 208.1,
+    "rank": 13,
+    "hist": [
+     [
+      3,
+      10,
+      254.2
+     ],
+     [
+      4,
+      13,
+      227.3
+     ],
+     [
+      5,
+      13,
+      208.1
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     12,
+     198.2
+    ],
+    [
+     4,
+     15,
+     182.4
+    ],
+    [
+     5,
+     12,
+     167.9
+    ]
+   ]
+  },
+  {
+   "key": "jordan love",
+   "name": "Jordan Love",
+   "pos": "QB",
+   "team": "GB",
+   "slug": "jordan-love",
+   "g": 4,
+   "pace": 16.21,
+   "xfp": 18.91,
+   "prev_pg": 15.68,
+   "f": 1.01,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    11
+   ],
+   "ros_pg": 16.58,
+   "games_left": 9.8,
+   "ros_pts": 162.6,
+   "rank": 14,
+   "espn": {
+    "ros_pg": 21.48,
+    "ros_pts": 210.6,
+    "rank": 11,
+    "hist": [
+     [
+      3,
+      15,
+      235.8
+     ],
+     [
+      4,
+      8,
+      234.8
+     ],
+     [
+      5,
+      11,
+      210.6
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     14,
+     188.6
+    ],
+    [
+     4,
+     14,
+     183.5
+    ],
+    [
+     5,
+     14,
+     162.6
+    ]
+   ]
+  },
+  {
+   "key": "cj stroud",
+   "name": "C.J. Stroud",
+   "pos": "QB",
+   "team": "HOU",
+   "slug": "cj-stroud",
+   "g": 4,
+   "pace": 17.06,
+   "xfp": 18.93,
+   "prev_pg": 14.9,
+   "f": 0.992,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    8
+   ],
+   "ros_pg": 16.53,
+   "games_left": 9.8,
+   "ros_pts": 162.0,
+   "rank": 15,
+   "espn": {
+    "ros_pg": 21.56,
+    "ros_pts": 211.3,
+    "rank": 10,
+    "hist": [
+     [
+      3,
+      7,
+      266.0
+     ],
+     [
+      4,
+      15,
+      221.0
+     ],
+     [
+      5,
+      10,
+      211.3
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     10,
+     203.3
+    ],
+    [
+     4,
+     17,
+     172.7
+    ],
+    [
+     5,
+     15,
+     162.0
+    ]
+   ]
+  },
+  {
+   "key": "jahmyr gibbs",
+   "name": "Jahmyr Gibbs",
+   "pos": "RB",
+   "team": "DET",
+   "slug": "jahmyr-gibbs",
+   "g": 4,
+   "pace": 26.25,
+   "xfp": 19.03,
+   "prev_pg": 19.32,
+   "f": 0.976,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    6
+   ],
+   "ros_pg": 20.39,
+   "games_left": 10.1,
+   "ros_pts": 205.1,
+   "rank": 1,
+   "espn": {
+    "ros_pg": 20.0,
+    "ros_pts": 201.2,
+    "rank": 1,
+    "hist": [
+     [
+      3,
+      1,
+      253.4
+     ],
+     [
+      4,
+      1,
+      233.9
+     ],
+     [
+      5,
+      1,
+      201.2
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     1,
+     252.9
+    ],
+    [
+     4,
+     1,
+     237.3
+    ],
+    [
+     5,
+     1,
+     205.1
+    ]
+   ]
+  },
+  {
+   "key": "bijan robinson",
+   "name": "Bijan Robinson",
+   "pos": "RB",
+   "team": "ATL",
+   "slug": "bijan-robinson",
+   "g": 4,
+   "pace": 24.6,
+   "xfp": 18.11,
+   "prev_pg": 19.49,
+   "f": 0.978,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    11
+   ],
+   "ros_pg": 19.55,
+   "games_left": 10.1,
+   "ros_pts": 196.7,
+   "rank": 2,
+   "espn": {
+    "ros_pg": 19.27,
+    "ros_pts": 193.9,
+    "rank": 2,
+    "hist": [
+     [
+      3,
+      4,
+      213.1
+     ],
+     [
+      4,
+      2,
+      213.2
+     ],
+     [
+      5,
+      2,
+      193.9
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     4,
+     221.5
+    ],
+    [
+     4,
+     2,
+     218.4
+    ],
+    [
+     5,
+     2,
+     196.7
+    ]
+   ]
+  },
+  {
+   "key": "jonathan taylor",
+   "name": "Jonathan Taylor",
+   "pos": "RB",
+   "team": "IND",
+   "slug": "jonathan-taylor",
+   "g": 4,
+   "pace": 20.3,
+   "xfp": 17.6,
+   "prev_pg": 19.96,
+   "f": 0.994,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    13
+   ],
+   "ros_pg": 18.58,
+   "games_left": 10.1,
+   "ros_pts": 186.9,
+   "rank": 3,
+   "espn": {
+    "ros_pg": 17.85,
+    "ros_pts": 179.5,
+    "rank": 4,
+    "hist": [
+     [
+      3,
+      3,
+      223.6
+     ],
+     [
+      4,
+      4,
+      195.6
+     ],
+     [
+      5,
+      4,
+      179.5
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     3,
+     229.5
+    ],
+    [
+     4,
+     3,
+     204.2
+    ],
+    [
+     5,
+     3,
+     186.9
+    ]
+   ]
+  },
+  {
+   "key": "kenneth walker",
+   "name": "Kenneth Walker III",
+   "pos": "RB",
+   "team": "KC",
+   "slug": "kenneth-walker",
+   "g": 4,
+   "pace": 26.03,
+   "xfp": 18.6,
+   "prev_pg": 10.38,
+   "f": 0.998,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    5
+   ],
+   "ros_pg": 18.43,
+   "games_left": 10.1,
+   "ros_pts": 185.4,
+   "rank": 4,
+   "espn": {
+    "ros_pg": 18.41,
+    "ros_pts": 185.2,
+    "rank": 3,
+    "hist": [
+     [
+      3,
+      2,
+      239.8
+     ],
+     [
+      4,
+      3,
+      200.4
+     ],
+     [
+      5,
+      3,
+      185.2
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     2,
+     239.4
+    ],
+    [
+     4,
+     4,
+     200.9
+    ],
+    [
+     5,
+     4,
+     185.4
+    ]
+   ]
+  },
+  {
+   "key": "derrick henry",
+   "name": "Derrick Henry",
+   "pos": "RB",
+   "team": "BAL",
+   "slug": "derrick-henry",
+   "g": 4,
+   "pace": 21.82,
+   "xfp": 16.78,
+   "prev_pg": 16.0,
+   "f": 0.982,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    13
+   ],
+   "ros_pg": 17.54,
+   "games_left": 10.1,
+   "ros_pts": 176.4,
+   "rank": 5,
+   "espn": {
+    "ros_pg": 16.77,
+    "ros_pts": 168.8,
+    "rank": 5,
+    "hist": [
+     [
+      3,
+      6,
+      193.8
+     ],
+     [
+      4,
+      5,
+      185.2
+     ],
+     [
+      5,
+      5,
+      168.8
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     6,
+     201.7
+    ],
+    [
+     4,
+     5,
+     192.9
+    ],
+    [
+     5,
+     5,
+     176.4
+    ]
+   ]
+  },
+  {
+   "key": "ashton jeanty",
+   "name": "Ashton Jeanty",
+   "pos": "RB",
+   "team": "LV",
+   "slug": "ashton-jeanty",
+   "g": 4,
+   "pace": 16.1,
+   "xfp": 17.91,
+   "prev_pg": 12.8,
+   "f": 0.984,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    13
+   ],
+   "ros_pg": 16.45,
+   "games_left": 10.1,
+   "ros_pts": 165.5,
+   "rank": 6,
+   "espn": {
+    "ros_pg": 15.45,
+    "ros_pts": 155.5,
+    "rank": 6,
+    "hist": [
+     [
+      3,
+      5,
+      212.4
+     ],
+     [
+      4,
+      6,
+      176.5
+     ],
+     [
+      5,
+      6,
+      155.5
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     5,
+     218.1
+    ],
+    [
+     4,
+     6,
+     185.2
+    ],
+    [
+     5,
+     6,
+     165.5
+    ]
+   ]
+  },
+  {
+   "key": "kyren williams",
+   "name": "Kyren Williams",
+   "pos": "RB",
+   "team": "LA",
+   "slug": "kyren-williams",
+   "g": 4,
+   "pace": 19.8,
+   "xfp": 13.64,
+   "prev_pg": 14.43,
+   "f": 1.018,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    11
+   ],
+   "ros_pg": 15.11,
+   "games_left": 10.1,
+   "ros_pts": 152.1,
+   "rank": 7,
+   "espn": {
+    "ros_pg": 14.6,
+    "ros_pts": 146.9,
+    "rank": 7,
+    "hist": [
+     [
+      3,
+      18,
+      130.4
+     ],
+     [
+      4,
+      13,
+      135.8
+     ],
+     [
+      5,
+      7,
+      146.9
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     18,
+     136.1
+    ],
+    [
+     4,
+     13,
+     141.8
+    ],
+    [
+     5,
+     7,
+     152.1
+    ]
+   ]
+  },
+  {
+   "key": "christian mccaffrey",
+   "name": "Christian McCaffrey",
+   "pos": "RB",
+   "team": "SF",
+   "slug": "christian-mccaffrey",
+   "g": 4,
+   "pace": 16.5,
+   "xfp": 12.57,
+   "prev_pg": 21.51,
+   "f": 0.952,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    8
+   ],
+   "ros_pg": 14.92,
+   "games_left": 10.1,
+   "ros_pts": 150.2,
+   "rank": 8,
+   "espn": {
+    "ros_pg": 14.25,
+    "ros_pts": 143.3,
+    "rank": 10,
+    "hist": [
+     [
+      3,
+      12,
+      159.1
+     ],
+     [
+      4,
+      9,
+      154.1
+     ],
+     [
+      5,
+      10,
+      143.3
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     12,
+     166.4
+    ],
+    [
+     4,
+     9,
+     160.4
+    ],
+    [
+     5,
+     8,
+     150.2
+    ]
+   ]
+  },
+  {
+   "key": "james cook",
+   "name": "James Cook",
+   "pos": "RB",
+   "team": "BUF",
+   "slug": "james-cook",
+   "g": 4,
+   "pace": 15.88,
+   "xfp": 13.91,
+   "prev_pg": 16.81,
+   "f": 1.002,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    7
+   ],
+   "ros_pg": 14.89,
+   "games_left": 10.1,
+   "ros_pts": 149.8,
+   "rank": 9,
+   "espn": {
+    "ros_pg": 14.54,
+    "ros_pts": 146.3,
+    "rank": 8,
+    "hist": [
+     [
+      3,
+      10,
+      171.5
+     ],
+     [
+      4,
+      7,
+      171.8
+     ],
+     [
+      5,
+      8,
+      146.3
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     10,
+     176.4
+    ],
+    [
+     4,
+     7,
+     172.5
+    ],
+    [
+     5,
+     9,
+     149.8
+    ]
+   ]
+  },
+  {
+   "key": "javonte williams",
+   "name": "Javonte Williams",
+   "pos": "RB",
+   "team": "DAL",
+   "slug": "javonte-williams",
+   "g": 4,
+   "pace": 18.57,
+   "xfp": 13.72,
+   "prev_pg": 14.08,
+   "f": 0.987,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    14
+   ],
+   "ros_pg": 14.71,
+   "games_left": 10.1,
+   "ros_pts": 148.0,
+   "rank": 10,
+   "espn": {
+    "ros_pg": 14.35,
+    "ros_pts": 144.4,
+    "rank": 9,
+    "hist": [
+     [
+      3,
+      14,
+      147.2
+     ],
+     [
+      4,
+      11,
+      141.5
+     ],
+     [
+      5,
+      9,
+      144.4
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     16,
+     148.2
+    ],
+    [
+     4,
+     11,
+     146.3
+    ],
+    [
+     5,
+     10,
+     148.0
+    ]
+   ]
+  },
+  {
+   "key": "chase brown",
+   "name": "Chase Brown",
+   "pos": "RB",
+   "team": "CIN",
+   "slug": "chase-brown",
+   "g": 4,
+   "pace": 11.88,
+   "xfp": 14.38,
+   "prev_pg": 14.59,
+   "f": 1.013,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    6
+   ],
+   "ros_pg": 13.97,
+   "games_left": 10.1,
+   "ros_pts": 140.6,
+   "rank": 11,
+   "espn": {
+    "ros_pg": 13.38,
+    "ros_pts": 134.7,
+    "rank": 11,
+    "hist": [
+     [
+      3,
+      7,
+      181.2
+     ],
+     [
+      4,
+      10,
+      145.3
+     ],
+     [
+      5,
+      11,
+      134.7
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     7,
+     188.5
+    ],
+    [
+     4,
+     10,
+     154.0
+    ],
+    [
+     5,
+     11,
+     140.6
+    ]
+   ]
+  },
+  {
+   "key": "dandre swift",
+   "name": "D'Andre Swift",
+   "pos": "RB",
+   "team": "CHI",
+   "slug": "dandre-swift",
+   "g": 4,
+   "pace": 14.62,
+   "xfp": 13.95,
+   "prev_pg": 13.23,
+   "f": 0.993,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    10
+   ],
+   "ros_pg": 13.91,
+   "games_left": 10.1,
+   "ros_pts": 140.0,
+   "rank": 12,
+   "espn": {
+    "ros_pg": 13.32,
+    "ros_pts": 134.0,
+    "rank": 12,
+    "hist": [
+     [
+      3,
+      8,
+      173.3
+     ],
+     [
+      4,
+      8,
+      158.8
+     ],
+     [
+      5,
+      12,
+      134.0
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     11,
+     174.6
+    ],
+    [
+     4,
+     8,
+     162.2
+    ],
+    [
+     5,
+     12,
+     140.0
+    ]
+   ]
+  },
+  {
+   "key": "breece hall",
+   "name": "Breece Hall",
+   "pos": "RB",
+   "team": "NYJ",
+   "slug": "breece-hall",
+   "g": 3,
+   "pace": 12.5,
+   "xfp": 14.52,
+   "prev_pg": 11.85,
+   "f": 0.982,
+   "att": 0.75,
+   "missed_last": true,
+   "out_next": true,
+   "sched_left": 12,
+   "byes_left": [
+    13
+   ],
+   "ros_pg": 13.57,
+   "games_left": 6.1,
+   "ros_pts": 83.2,
+   "rank": 29,
+   "espn": {
+    "ros_pg": 13.02,
+    "ros_pts": 79.8,
+    "rank": 28,
+    "hist": [
+     [
+      3,
+      9,
+      172.3
+     ],
+     [
+      4,
+      15,
+      129.7
+     ],
+     [
+      5,
+      28,
+      79.8
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     9,
+     178.1
+    ],
+    [
+     4,
+     15,
+     135.1
+    ],
+    [
+     5,
+     29,
+     83.2
+    ]
+   ]
+  },
+  {
+   "key": "kendre miller",
+   "name": "Kendre Miller",
+   "pos": "RB",
+   "team": "NO",
+   "slug": "kendre-miller",
+   "g": 3,
+   "pace": 4.27,
+   "xfp": 5.89,
+   "prev_pg": 4.4,
+   "f": 1.023,
+   "att": 0.75,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    8
+   ],
+   "ros_pg": 5.36,
+   "games_left": 8.8,
+   "ros_pts": 47.4,
+   "rank": 47,
+   "espn": {
+    "ros_pg": 4.6,
+    "ros_pts": 40.7,
+    "rank": 49,
+    "hist": [
+     [
+      4,
+      47,
+      47.0
+     ],
+     [
+      5,
+      49,
+      40.7
+     ]
+    ]
+   },
+   "hist": [
+    [
+     4,
+     48,
+     50.9
+    ],
+    [
+     5,
+     47,
+     47.4
+    ]
+   ]
+  },
+  {
+   "key": "jaxon smithnjigba",
+   "name": "Jaxon Smith-Njigba",
+   "pos": "WR",
+   "team": "SEA",
+   "slug": "jaxon-smithnjigba",
+   "g": 4,
+   "pace": 25.16,
+   "xfp": 15.37,
+   "prev_pg": 17.67,
+   "f": 0.986,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    11
+   ],
+   "ros_pg": 18.57,
+   "games_left": 10.2,
+   "ros_pts": 188.7,
+   "rank": 1,
+   "espn": {
+    "ros_pg": 18.67,
+    "ros_pts": 189.8,
+    "rank": 1,
+    "hist": [
+     [
+      3,
+      1,
+      224.3
+     ],
+     [
+      4,
+      1,
+      221.5
+     ],
+     [
+      5,
+      1,
+      189.8
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     1,
+     219.6
+    ],
+    [
+     4,
+     1,
+     218.8
+    ],
+    [
+     5,
+     1,
+     188.7
+    ]
+   ]
+  },
+  {
+   "key": "amonra st brown",
+   "name": "Amon-Ra St. Brown",
+   "pos": "WR",
+   "team": "DET",
+   "slug": "amonra-st-brown",
+   "g": 4,
+   "pace": 18.95,
+   "xfp": 16.46,
+   "prev_pg": 15.62,
+   "f": 0.996,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    6
+   ],
+   "ros_pg": 16.64,
+   "games_left": 10.2,
+   "ros_pts": 169.1,
+   "rank": 2,
+   "espn": {
+    "ros_pg": 16.35,
+    "ros_pts": 166.2,
+    "rank": 3,
+    "hist": [
+     [
+      3,
+      2,
+      219.5
+     ],
+     [
+      4,
+      2,
+      185.2
+     ],
+     [
+      5,
+      3,
+      166.2
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     2,
+     219.1
+    ],
+    [
+     4,
+     2,
+     187.5
+    ],
+    [
+     5,
+     2,
+     169.1
+    ]
+   ]
+  },
+  {
+   "key": "ceedee lamb",
+   "name": "CeeDee Lamb",
+   "pos": "WR",
+   "team": "DAL",
+   "slug": "ceedee-lamb",
+   "g": 4,
+   "pace": 23.43,
+   "xfp": 17.15,
+   "prev_pg": 12.57,
+   "f": 1.003,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    14
+   ],
+   "ros_pg": 16.51,
+   "games_left": 10.2,
+   "ros_pts": 167.8,
+   "rank": 3,
+   "espn": {
+    "ros_pg": 16.47,
+    "ros_pts": 167.4,
+    "rank": 2,
+    "hist": [
+     [
+      3,
+      4,
+      165.8
+     ],
+     [
+      4,
+      7,
+      150.5
+     ],
+     [
+      5,
+      2,
+      167.4
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     4,
+     164.7
+    ],
+    [
+     4,
+     6,
+     152.8
+    ],
+    [
+     5,
+     3,
+     167.8
+    ]
+   ]
+  },
+  {
+   "key": "chris olave",
+   "name": "Chris Olave",
+   "pos": "WR",
+   "team": "NO",
+   "slug": "chris-olave",
+   "g": 4,
+   "pace": 18.15,
+   "xfp": 17.16,
+   "prev_pg": 13.62,
+   "f": 0.974,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    8
+   ],
+   "ros_pg": 15.81,
+   "games_left": 10.2,
+   "ros_pts": 160.7,
+   "rank": 4,
+   "espn": {
+    "ros_pg": 16.01,
+    "ros_pts": 162.7,
+    "rank": 4,
+    "hist": [
+     [
+      3,
+      3,
+      186.1
+     ],
+     [
+      4,
+      3,
+      175.8
+     ],
+     [
+      5,
+      4,
+      162.7
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     3,
+     185.2
+    ],
+    [
+     4,
+     3,
+     174.3
+    ],
+    [
+     5,
+     4,
+     160.7
+    ]
+   ]
+  },
+  {
+   "key": "puka nacua",
+   "name": "Puka Nacua",
+   "pos": "WR",
+   "team": "LA",
+   "slug": "puka-nacua",
+   "g": 2,
+   "pace": 16.55,
+   "xfp": 15.76,
+   "prev_pg": 19.41,
+   "f": 0.996,
+   "att": 0.5,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    11
+   ],
+   "ros_pg": 17.68,
+   "games_left": 8.6,
+   "ros_pts": 151.4,
+   "rank": 5,
+   "espn": {
+    "ros_pg": 17.63,
+    "ros_pts": 151.0,
+    "rank": 5,
+    "hist": [
+     [
+      5,
+      5,
+      151.0
+     ]
+    ]
+   },
+   "hist": [
+    [
+     5,
+     5,
+     151.4
+    ]
+   ]
+  },
+  {
+   "key": "davante adams",
+   "name": "Davante Adams",
+   "pos": "WR",
+   "team": "LA",
+   "slug": "davante-adams",
+   "g": 4,
+   "pace": 15.5,
+   "xfp": 13.57,
+   "prev_pg": 13.78,
+   "f": 0.996,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    11
+   ],
+   "ros_pg": 14.09,
+   "games_left": 10.2,
+   "ros_pts": 143.2,
+   "rank": 6,
+   "espn": {
+    "ros_pg": 14.09,
+    "ros_pts": 143.2,
+    "rank": 6,
+    "hist": [
+     [
+      3,
+      5,
+      161.6
+     ],
+     [
+      4,
+      4,
+      162.4
+     ],
+     [
+      5,
+      6,
+      143.2
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     5,
+     162.0
+    ],
+    [
+     4,
+     4,
+     161.9
+    ],
+    [
+     5,
+     6,
+     143.2
+    ]
+   ]
+  },
+  {
+   "key": "tee higgins",
+   "name": "Tee Higgins",
+   "pos": "WR",
+   "team": "CIN",
+   "slug": "tee-higgins",
+   "g": 4,
+   "pace": 14.65,
+   "xfp": 13.93,
+   "prev_pg": 12.14,
+   "f": 1.029,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    6
+   ],
+   "ros_pg": 13.29,
+   "games_left": 10.2,
+   "ros_pts": 135.1,
+   "rank": 7,
+   "espn": {
+    "ros_pg": 13.04,
+    "ros_pts": 132.6,
+    "rank": 7,
+    "hist": [
+     [
+      3,
+      12,
+      127.4
+     ],
+     [
+      4,
+      11,
+      124.9
+     ],
+     [
+      5,
+      7,
+      132.6
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     11,
+     137.3
+    ],
+    [
+     4,
+     13,
+     129.7
+    ],
+    [
+     5,
+     7,
+     135.1
+    ]
+   ]
+  },
+  {
+   "key": "tetairoa mcmillan",
+   "name": "Tetairoa McMillan",
+   "pos": "WR",
+   "team": "CAR",
+   "slug": "tetairoa-mcmillan",
+   "g": 4,
+   "pace": 15.38,
+   "xfp": 13.94,
+   "prev_pg": 10.49,
+   "f": 0.93,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    5
+   ],
+   "ros_pg": 12.73,
+   "games_left": 10.2,
+   "ros_pts": 129.4,
+   "rank": 8,
+   "espn": {
+    "ros_pg": 12.83,
+    "ros_pts": 130.4,
+    "rank": 8,
+    "hist": [
+     [
+      3,
+      9,
+      137.5
+     ],
+     [
+      4,
+      18,
+      110.7
+     ],
+     [
+      5,
+      8,
+      130.4
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     12,
+     134.9
+    ],
+    [
+     4,
+     19,
+     112.1
+    ],
+    [
+     5,
+     8,
+     129.4
+    ]
+   ]
+  },
+  {
+   "key": "christian watson",
+   "name": "Christian Watson",
+   "pos": "WR",
+   "team": "GB",
+   "slug": "christian-watson",
+   "g": 4,
+   "pace": 16.78,
+   "xfp": 11.44,
+   "prev_pg": 11.49,
+   "f": 1.009,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    11
+   ],
+   "ros_pg": 12.65,
+   "games_left": 10.2,
+   "ros_pts": 128.6,
+   "rank": 9,
+   "espn": {
+    "ros_pg": 12.44,
+    "ros_pts": 126.4,
+    "rank": 9,
+    "hist": [
+     [
+      3,
+      6,
+      160.4
+     ],
+     [
+      4,
+      6,
+      151.7
+     ],
+     [
+      5,
+      9,
+      126.4
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     6,
+     159.7
+    ],
+    [
+     4,
+     7,
+     152.7
+    ],
+    [
+     5,
+     9,
+     128.6
+    ]
+   ]
+  },
+  {
+   "key": "michael wilson",
+   "name": "Michael Wilson",
+   "pos": "WR",
+   "team": "ARI",
+   "slug": "michael-wilson",
+   "g": 4,
+   "pace": 11.07,
+   "xfp": 15.71,
+   "prev_pg": 10.68,
+   "f": 0.991,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    14
+   ],
+   "ros_pg": 12.45,
+   "games_left": 10.2,
+   "ros_pts": 126.5,
+   "rank": 10,
+   "espn": {
+    "ros_pg": 11.66,
+    "ros_pts": 118.5,
+    "rank": 13,
+    "hist": [
+     [
+      3,
+      27,
+      101.2
+     ],
+     [
+      4,
+      14,
+      123.2
+     ],
+     [
+      5,
+      13,
+      118.5
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     21,
+     116.1
+    ],
+    [
+     4,
+     11,
+     133.0
+    ],
+    [
+     5,
+     10,
+     126.5
+    ]
+   ]
+  },
+  {
+   "key": "drake london",
+   "name": "Drake London",
+   "pos": "WR",
+   "team": "ATL",
+   "slug": "drake-london",
+   "g": 4,
+   "pace": 11.85,
+   "xfp": 9.64,
+   "prev_pg": 13.99,
+   "f": 0.985,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    11
+   ],
+   "ros_pg": 12.07,
+   "games_left": 10.2,
+   "ros_pts": 122.6,
+   "rank": 11,
+   "espn": {
+    "ros_pg": 11.71,
+    "ros_pts": 119.0,
+    "rank": 12,
+    "hist": [
+     [
+      3,
+      20,
+      110.9
+     ],
+     [
+      4,
+      9,
+      131.2
+     ],
+     [
+      5,
+      12,
+      119.0
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     19,
+     126.5
+    ],
+    [
+     4,
+     10,
+     134.2
+    ],
+    [
+     5,
+     11,
+     122.6
+    ]
+   ]
+  },
+  {
+   "key": "nico collins",
+   "name": "Nico Collins",
+   "pos": "WR",
+   "team": "HOU",
+   "slug": "nico-collins",
+   "g": 2,
+   "pace": 22.5,
+   "xfp": 13.64,
+   "prev_pg": 12.71,
+   "f": 1.058,
+   "att": 0.5,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    8
+   ],
+   "ros_pg": 14.28,
+   "games_left": 8.6,
+   "ros_pts": 122.3,
+   "rank": 12,
+   "espn": {
+    "ros_pg": 13.97,
+    "ros_pts": 119.6,
+    "rank": 11,
+    "hist": [
+     [
+      5,
+      11,
+      119.6
+     ]
+    ]
+   },
+   "hist": [
+    [
+     5,
+     12,
+     122.3
+    ]
+   ]
+  },
+  {
+   "key": "zay flowers",
+   "name": "Zay Flowers",
+   "pos": "WR",
+   "team": "BAL",
+   "slug": "zay-flowers",
+   "g": 3,
+   "pace": 19.4,
+   "xfp": 10.96,
+   "prev_pg": 11.78,
+   "f": 0.97,
+   "att": 0.75,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    13
+   ],
+   "ros_pg": 12.84,
+   "games_left": 9.4,
+   "ros_pts": 120.2,
+   "rank": 13,
+   "espn": {
+    "ros_pg": 13.01,
+    "ros_pts": 121.9,
+    "rank": 10,
+    "hist": [
+     [
+      4,
+      16,
+      116.8
+     ],
+     [
+      5,
+      10,
+      121.9
+     ]
+    ]
+   },
+   "hist": [
+    [
+     4,
+     17,
+     114.9
+    ],
+    [
+     5,
+     13,
+     120.2
+    ]
+   ]
+  },
+  {
+   "key": "trey mcbride",
+   "name": "Trey McBride",
+   "pos": "TE",
+   "team": "ARI",
+   "slug": "trey-mcbride",
+   "g": 4,
+   "pace": 13.18,
+   "xfp": 17.32,
+   "prev_pg": 14.88,
+   "f": 1.002,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    14
+   ],
+   "ros_pg": 15.57,
+   "games_left": 9.8,
+   "ros_pts": 152.8,
+   "rank": 1,
+   "espn": {
+    "ros_pg": 15.22,
+    "ros_pts": 149.3,
+    "rank": 1,
+    "hist": [
+     [
+      3,
+      1,
+      178.0
+     ],
+     [
+      4,
+      1,
+      163.7
+     ],
+     [
+      5,
+      1,
+      149.3
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     1,
+     181.2
+    ],
+    [
+     4,
+     1,
+     167.7
+    ],
+    [
+     5,
+     1,
+     152.8
+    ]
+   ]
+  },
+  {
+   "key": "brock bowers",
+   "name": "Brock Bowers",
+   "pos": "TE",
+   "team": "LV",
+   "slug": "brock-bowers",
+   "g": 2,
+   "pace": 20.1,
+   "xfp": 17.83,
+   "prev_pg": 12.02,
+   "f": 0.956,
+   "att": 0.5,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    13
+   ],
+   "ros_pg": 14.53,
+   "games_left": 9.5,
+   "ros_pts": 137.4,
+   "rank": 2,
+   "espn": {
+    "ros_pg": 14.45,
+    "ros_pts": 136.8,
+    "rank": 2,
+    "hist": [
+     [
+      5,
+      2,
+      136.8
+     ]
+    ]
+   },
+   "hist": [
+    [
+     5,
+     2,
+     137.4
+    ]
+   ]
+  },
+  {
+   "key": "george kittle",
+   "name": "George Kittle",
+   "pos": "TE",
+   "team": "SF",
+   "slug": "george-kittle",
+   "g": 4,
+   "pace": 14.1,
+   "xfp": 8.27,
+   "prev_pg": 12.09,
+   "f": 0.916,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    8
+   ],
+   "ros_pg": 10.58,
+   "games_left": 9.8,
+   "ros_pts": 103.8,
+   "rank": 3,
+   "espn": {
+    "ros_pg": 10.5,
+    "ros_pts": 103.1,
+    "rank": 3,
+    "hist": [
+     [
+      3,
+      6,
+      109.8
+     ],
+     [
+      4,
+      2,
+      110.0
+     ],
+     [
+      5,
+      3,
+      103.1
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     7,
+     111.0
+    ],
+    [
+     4,
+     2,
+     111.1
+    ],
+    [
+     5,
+     3,
+     103.8
+    ]
+   ]
+  },
+  {
+   "key": "tucker kraft",
+   "name": "Tucker Kraft",
+   "pos": "TE",
+   "team": "GB",
+   "slug": "tucker-kraft",
+   "g": 4,
+   "pace": 7.15,
+   "xfp": 9.38,
+   "prev_pg": 12.65,
+   "f": 0.948,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    11
+   ],
+   "ros_pg": 10.57,
+   "games_left": 9.8,
+   "ros_pts": 103.7,
+   "rank": 4,
+   "espn": {
+    "ros_pg": 9.79,
+    "ros_pts": 96.1,
+    "rank": 5,
+    "hist": [
+     [
+      3,
+      8,
+      102.3
+     ],
+     [
+      4,
+      7,
+      98.7
+     ],
+     [
+      5,
+      5,
+      96.1
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     5,
+     113.1
+    ],
+    [
+     4,
+     3,
+     110.4
+    ],
+    [
+     5,
+     4,
+     103.7
+    ]
+   ]
+  },
+  {
+   "key": "sam laporta",
+   "name": "Sam LaPorta",
+   "pos": "TE",
+   "team": "DET",
+   "slug": "sam-laporta",
+   "g": 4,
+   "pace": 11.45,
+   "xfp": 11.94,
+   "prev_pg": 9.66,
+   "f": 0.948,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    6
+   ],
+   "ros_pg": 10.48,
+   "games_left": 9.8,
+   "ros_pts": 102.9,
+   "rank": 5,
+   "espn": {
+    "ros_pg": 10.07,
+    "ros_pts": 98.8,
+    "rank": 4,
+    "hist": [
+     [
+      3,
+      5,
+      113.4
+     ],
+     [
+      4,
+      9,
+      95.4
+     ],
+     [
+      5,
+      4,
+      98.8
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     4,
+     119.0
+    ],
+    [
+     4,
+     8,
+     100.5
+    ],
+    [
+     5,
+     5,
+     102.9
+    ]
+   ]
+  },
+  {
+   "key": "juwan johnson",
+   "name": "Juwan Johnson",
+   "pos": "TE",
+   "team": "NO",
+   "slug": "juwan-johnson",
+   "g": 4,
+   "pace": 12.43,
+   "xfp": 10.14,
+   "prev_pg": 8.32,
+   "f": 1.055,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    8
+   ],
+   "ros_pg": 9.69,
+   "games_left": 9.8,
+   "ros_pts": 95.1,
+   "rank": 6,
+   "espn": {
+    "ros_pg": 9.26,
+    "ros_pts": 90.9,
+    "rank": 6,
+    "hist": [
+     [
+      3,
+      10,
+      93.7
+     ],
+     [
+      4,
+      8,
+      97.0
+     ],
+     [
+      5,
+      6,
+      90.9
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     10,
+     98.2
+    ],
+    [
+     4,
+     9,
+     100.2
+    ],
+    [
+     5,
+     6,
+     95.1
+    ]
+   ]
+  },
+  {
+   "key": "tyler warren",
+   "name": "Tyler Warren",
+   "pos": "TE",
+   "team": "IND",
+   "slug": "tyler-warren",
+   "g": 4,
+   "pace": 9.25,
+   "xfp": 10.97,
+   "prev_pg": 8.85,
+   "f": 0.991,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    13
+   ],
+   "ros_pg": 9.64,
+   "games_left": 9.8,
+   "ros_pts": 94.5,
+   "rank": 7,
+   "espn": {
+    "ros_pg": 9.24,
+    "ros_pts": 90.7,
+    "rank": 7,
+    "hist": [
+     [
+      3,
+      7,
+      104.2
+     ],
+     [
+      4,
+      4,
+      104.0
+     ],
+     [
+      5,
+      7,
+      90.7
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     8,
+     107.9
+    ],
+    [
+     4,
+     4,
+     109.1
+    ],
+    [
+     5,
+     7,
+     94.5
+    ]
+   ]
+  },
+  {
+   "key": "harold fannin",
+   "name": "Harold Fannin Jr.",
+   "pos": "TE",
+   "team": "CLE",
+   "slug": "harold-fannin",
+   "g": 4,
+   "pace": 10.45,
+   "xfp": 8.67,
+   "prev_pg": 9.4,
+   "f": 0.994,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    11
+   ],
+   "ros_pg": 9.24,
+   "games_left": 9.8,
+   "ros_pts": 90.7,
+   "rank": 8,
+   "espn": {
+    "ros_pg": 8.95,
+    "ros_pts": 87.9,
+    "rank": 8,
+    "hist": [
+     [
+      3,
+      11,
+      89.4
+     ],
+     [
+      4,
+      6,
+      98.9
+     ],
+     [
+      5,
+      8,
+      87.9
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     11,
+     93.6
+    ],
+    [
+     4,
+     7,
+     100.8
+    ],
+    [
+     5,
+     8,
+     90.7
+    ]
+   ]
+  },
+  {
+   "key": "travis kelce",
+   "name": "Travis Kelce",
+   "pos": "TE",
+   "team": "KC",
+   "slug": "travis-kelce",
+   "g": 4,
+   "pace": 11.15,
+   "xfp": 8.32,
+   "prev_pg": 9.13,
+   "f": 0.968,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    5
+   ],
+   "ros_pg": 8.96,
+   "games_left": 9.8,
+   "ros_pts": 88.0,
+   "rank": 9,
+   "espn": {
+    "ros_pg": 8.84,
+    "ros_pts": 86.8,
+    "rank": 9,
+    "hist": [
+     [
+      3,
+      3,
+      126.0
+     ],
+     [
+      4,
+      5,
+      101.3
+     ],
+     [
+      5,
+      9,
+      86.8
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     3,
+     122.6
+    ],
+    [
+     4,
+     6,
+     101.5
+    ],
+    [
+     5,
+     9,
+     88.0
+    ]
+   ]
+  },
+  {
+   "key": "dalton schultz",
+   "name": "Dalton Schultz",
+   "pos": "TE",
+   "team": "HOU",
+   "slug": "dalton-schultz",
+   "g": 4,
+   "pace": 7.97,
+   "xfp": 10.27,
+   "prev_pg": 8.04,
+   "f": 0.945,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    8
+   ],
+   "ros_pg": 8.65,
+   "games_left": 9.8,
+   "ros_pts": 84.9,
+   "rank": 10,
+   "espn": {
+    "ros_pg": 8.54,
+    "ros_pts": 83.8,
+    "rank": 10,
+    "hist": [
+     [
+      3,
+      2,
+      136.6
+     ],
+     [
+      4,
+      3,
+      105.8
+     ],
+     [
+      5,
+      10,
+      83.8
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     2,
+     134.0
+    ],
+    [
+     4,
+     5,
+     104.1
+    ],
+    [
+     5,
+     10,
+     84.9
+    ]
+   ]
+  },
+  {
+   "key": "isaiah likely",
+   "name": "Isaiah Likely",
+   "pos": "TE",
+   "team": "NYG",
+   "slug": "isaiah-likely",
+   "g": 4,
+   "pace": 10.5,
+   "xfp": 13.11,
+   "prev_pg": 4.02,
+   "f": 1.047,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    8
+   ],
+   "ros_pg": 8.26,
+   "games_left": 9.8,
+   "ros_pts": 81.1,
+   "rank": 11,
+   "espn": {
+    "ros_pg": 7.87,
+    "ros_pts": 77.2,
+    "rank": 12,
+    "hist": [
+     [
+      3,
+      9,
+      95.9
+     ],
+     [
+      4,
+      13,
+      79.3
+     ],
+     [
+      5,
+      12,
+      77.2
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     9,
+     99.7
+    ],
+    [
+     4,
+     13,
+     83.0
+    ],
+    [
+     5,
+     11,
+     81.1
+    ]
+   ]
+  },
+  {
+   "key": "dalton kincaid",
+   "name": "Dalton Kincaid",
+   "pos": "TE",
+   "team": "BUF",
+   "slug": "dalton-kincaid",
+   "g": 4,
+   "pace": 9.62,
+   "xfp": 7.22,
+   "prev_pg": 8.88,
+   "f": 0.956,
+   "att": 1.0,
+   "missed_last": false,
+   "out_next": false,
+   "sched_left": 12,
+   "byes_left": [
+    7
+   ],
+   "ros_pg": 8.22,
+   "games_left": 9.8,
+   "ros_pts": 80.7,
+   "rank": 12,
+   "espn": {
+    "ros_pg": 8.01,
+    "ros_pts": 78.6,
+    "rank": 11,
+    "hist": [
+     [
+      3,
+      4,
+      114.6
+     ],
+     [
+      4,
+      10,
+      94.2
+     ],
+     [
+      5,
+      11,
+      78.6
+     ]
+    ]
+   },
+   "hist": [
+    [
+     3,
+     6,
+     113.0
+    ],
+    [
+     4,
+     10,
+     95.0
+    ],
+    [
+     5,
+     12,
+     80.7
+    ]
+   ]
+  }
+ ]
+}

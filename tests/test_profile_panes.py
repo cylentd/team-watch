@@ -468,7 +468,7 @@ def test_no_profiles_renders_dashes_and_a_quiet_panel(browser, monkeypatch, tmp_
         # profile is not blank.
         assert profile.tab_ids() == ["season", "usage", "props"]
         assert profile.season_blocks() == 1
-        assert profile.sections() == 1                           # the projection
+        assert profile.sections() == 2                           # the projection, and Rest of season (LIVE_ROS)
         profile.tab("usage")
         assert profile.pane_sections() == ["team", "arch"]
         profile.open_sheet()

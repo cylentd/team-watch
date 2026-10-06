@@ -1,0 +1,47 @@
+/* ============================== RANKS > REST OF SEASON ============================== */
+/* js/surface/ranks/ros.js, roschart.js (2026-10-06, storyboard option B). A chip row, a bump chart of the top 10 at the
+   position (rank by week), then a quiet list: rank, name and team, ROS points. Calm on purpose: no arrows, no sparklines,
+   no second number on a row (David found option A busy). The top three lines wear the position's colour (--c), the rest
+   are quiet; a rank past the chart's last row is a hollow dot on its bottom edge. */
+.rk-views{margin-bottom:10px}
+.ros-bump{--c:var(--lime);margin-top:12px;max-width:var(--list-w);padding:8px 6px 4px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.ros-bump[data-pos="QB"]{--c:var(--pos-qb)}
+.ros-bump[data-pos="RB"]{--c:var(--pos-rb)}
+.ros-bump[data-pos="WR"]{--c:var(--pos-wr)}
+.ros-bump[data-pos="TE"]{--c:var(--pos-te)}
+.ros-bump svg{display:block;width:100%;height:auto;overflow:hidden}
+.ros-bump text{font-family:var(--mono);font-size:var(--t-1);fill:var(--ink-3)}
+.ros-pl{fill:none;stroke:var(--line-2);stroke-width:1.4;stroke-linejoin:round}
+.ros-dot{fill:var(--line-2);stroke:var(--line-2);stroke-width:1.2}
+.ros-dot.over{fill:var(--panel)}
+.ros-ln.lead .ros-pl{stroke:var(--c);stroke-width:2.2}
+.ros-ln.lead .ros-dot{fill:var(--c);stroke:var(--c)}
+.ros-ln.lead .ros-dot.over{fill:var(--panel)}
+.ros-lbl{cursor:pointer}
+.ros-lbl text{font-family:var(--ui);font-weight:600;fill:var(--ink-2)}
+.ros-ln.lead .ros-lbl text{fill:var(--ink)}
+.ros-hit{fill:transparent}
+.ros-lbl:hover text{fill:var(--ink)}
+.ros-lbl:focus-visible{outline:2px solid var(--lime);outline-offset:1px}
+/* The caption under the chart: what the points are, the schedule's link at its end. */
+.ros-cap{max-width:var(--list-w);display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:8px}
+.ros-cap p{margin:0;font-size:var(--t-1);color:var(--ink-3);max-width:70ch}
+/* The list: one panel, rows of rank, name with its team, points. Two columns from 760px, so a name sits within 560px of its number. */
+.ros-list{margin-top:12px;max-width:var(--list-w)}
+.ros-group{padding:0 0 4px}
+.ros-lh{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;padding:8px 16px 4px;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.ros-lh span:first-child{text-align:right}
+.ros-row{appearance:none;border:0;background:none;color:inherit;font:inherit;cursor:pointer;text-align:left;
+  display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;min-height:44px;padding:4px 16px}
+.ros-row:hover{background:var(--panel-2)}
+.ros-row:active{transform:scale(var(--press))}
+.ros-row:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+.ros-nm{display:flex;align-items:baseline;gap:6px;min-width:0;font-size:var(--t-2);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ros-nm small{font-family:var(--mono);font-size:var(--t-1);font-weight:500;color:var(--ink-3)}
+.ros-pts{font-family:var(--mono);font-size:var(--t-3);font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink)}
+.ros-row.mine .ros-nm > span{color:var(--lime)}
+@media (min-width:760px){
+  .ros-lh{display:none}
+  .ros-rows{columns:2;column-gap:16px;padding:6px 12px 0}
+  .ros-row{break-inside:avoid;padding:4px 8px}
+}

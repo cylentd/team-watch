@@ -17,7 +17,7 @@
    ones on screen. */
 const PF_TABS = [
   {id: "season", label: () => t("profile.tab.season"),
-   body: (prof, p) => { const s = seasonHTML(p, prof); return s ? s + projectionHTML(p) : ""; }},
+   body: (prof, p) => { const s = seasonHTML(p, prof), r = rosProfileHTML(p); return s ? s + r + projectionHTML(p) : r; }},
   {id: "usage", label: () => t("profile.tab.usage"),
    body: (prof, p) => teamShareHTML(p) + archBlockHTML(p)
      + (prof ? roleHTML(prof) + redZoneHTML(prof) + (pfReceiver(prof) ? sidesHTML(prof) : "") : "")},
