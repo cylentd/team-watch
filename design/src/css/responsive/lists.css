@@ -7,7 +7,6 @@
      like the starters. Rank, the matchup ordinal, the verdict and news tags stay one tap away in
      the profile; the Q/O badge stays on the head. */
   .row{gap:10px;padding:6px 0;border-radius:0}
-  .hero.team{padding-top:12px}
   .row.start{grid-template-columns:30px var(--hd) minmax(0,1fr) 58px 56px}
   .row .nm-1 b{font-size:var(--t-3)}
   .row .nm-2{margin-top:1px;font-size:var(--t-2)}

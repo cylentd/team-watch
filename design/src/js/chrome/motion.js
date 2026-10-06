@@ -1,25 +1,9 @@
 /* Motion that marks a change of context, never motion under something being read:
-   - fitTitle: the team name is one line, sized down to fit, so switching teams never changes
-     the hero's height (a two-line name used to shove the whole board down and back up).
-   - zipFootball: a football crosses the hero on a team switch -- the "new team" beat.
+   - zipFootball: a football crosses the League team line on a team switch -- the "new team" beat.
    - morphLogo: the // in TEAM//WATCH crosses into an X and back on a tab switch.
    Every one is skipped under prefers-reduced-motion. */
 const REDUCED = () => typeof window !== "undefined" && window.matchMedia
   && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-function fitTitle(root){
-  const h = (root || document).querySelector(".hero h1.fit");
-  if (!h) return;
-  h.style.fontSize = ""; h.style.height = "";
-  const max = parseFloat(getComputedStyle(h).fontSize);
-  // The box keeps the height of one line at full size, so a longer name that has to shrink sits
-  // on the same baseline instead of pulling everything below it up.
-  const full = h.getBoundingClientRect().height;
-  let size = max;
-  while (h.scrollWidth > h.clientWidth + 1 && size > 18){ size -= 2; h.style.fontSize = `${size}px`; }
-  h.style.height = `${full}px`;
-}
-if (typeof window !== "undefined") window.addEventListener("resize", () => fitTitle());
 
 const FOOTBALL_SVG = `<svg viewBox="0 0 64 36" aria-hidden="true">
   <ellipse cx="32" cy="18" rx="30" ry="15" fill="var(--ball)"/>
@@ -30,7 +14,7 @@ const FOOTBALL_SVG = `<svg viewBox="0 0 64 36" aria-hidden="true">
 </svg>`;
 
 function zipFootball(){
-  const hero = document.querySelector("#view .hero");
+  const hero = document.querySelector("#view .lgchip");   // the League team line (surface/league/switch.js)
   if (!hero || REDUCED()) return;
   const z = document.createElement("div");
   z.className = "zip";

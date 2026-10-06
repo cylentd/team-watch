@@ -135,22 +135,41 @@ def test_a_cards_name_points_and_stat_line_sit_inside_its_picture(ph):
     assert errors == []
 
 
-def test_the_hero_is_one_row_with_the_switch_at_its_right_end(ph):
-    """Since 2026-10-05 a phone names the team in the header bar (its team switch), so the hero's row is the
-    league line, with Sheet / Cards at its right end."""
+def test_the_team_line_is_one_row_with_the_switch_at_its_right_end(ph):
+    """Since 2026-10-05 a phone names the team in the header bar (its team switch), so Roster's team line
+    (surface/league/switch.js, the same on every League leaf) is the league line, with Sheet / Cards at its right end."""
     page, errors = ph
-    row, sw, sub, hero = (rect(page, s) for s in (".hero-eyebrow", ".rmode", ".hero-sub", ".hero"))
-    assert page.locator(".hero .teamswitch").is_hidden() and page.locator("#hdrswitch").is_visible()
+    sw, sub, line = (rect(page, s) for s in (".rmode", ".lgchip-sub", ".lgchip"))
+    assert page.locator(".lgchip .teamswitch").is_hidden() and page.locator("#hdrswitch").is_visible()
     assert sw["t"] <= sub["t"] + sub["h"] and sub["t"] <= sw["t"] + sw["h"], "the switch shares the league line's row"
-    assert sw["r"] >= 360 - 20 and sw["l"] > row["l"] + 100, "at the row's right end"
-    assert sub["t"] + sub["h"] <= hero["t"] + hero["h"] and hero["h"] < 80, hero
-    assert sub["l"] == row["l"] and sub["r"] < sw["l"], "the league line is under the name, one line, beside the switch"
-    assert page.evaluate("document.querySelector('.hero-sub').scrollHeight") <= 18
+    assert sw["r"] >= 360 - 20 and sw["l"] > line["l"] + 100, "at the row's right end"
+    assert line["h"] < 50, line
+    assert sub["l"] == line["l"] and sub["r"] < sw["l"], "the league line, one line, beside the switch"
+    assert page.evaluate("document.querySelector('.lgchip-sub').scrollHeight") <= 24, "one line (the ⓘ's tap height)"
     btns = page.eval_on_selector_all(".rmode [data-rmode]", "els => els.map(e => [e.dataset.rmode, e.getAttribute('aria-label'), e.getAttribute('aria-pressed'), e.textContent.trim(), !!e.querySelector('svg')])")
     assert btns == [["sheet", "Sheet", "false", "", True], ["cards", "Cards", "true", "", True]], btns
     assert page.locator(".rmode [data-rerip]").count() == 0, "Rip again stays on the Starters rule"
     page.locator("[data-rmode=sheet]").click()
     assert page.locator(".row.start").count() > 0 and page.locator("[data-rmode=sheet]").get_attribute("aria-pressed") == "true"
+    assert errors == []
+
+
+def test_every_league_leaf_draws_the_same_team_line(ph):
+    """The six League leaves drew three shapes of team switch until 2026-10-05 (Roster's hero title, Waivers'
+    full hero plus a boxed chip, the chip elsewhere), so the switch moved as the reader changed tab. Now one
+    line, at the same height on each."""
+    page, errors = ph
+    page.evaluate("pickTeam(VIEW)")   # the team on screen is the reader's, as after any pick
+    tops, names = {}, {}
+    for leaf in page.evaluate("navTabsOf('league').filter(k => !NAV_HIDDEN.includes(k))"):
+        page.evaluate(f"navGo('{leaf}'); window.scrollTo(0, 0)")
+        page.wait_for_function(f"SURFACE === '{leaf}' && document.querySelector('#view .lgchip')")
+        assert page.locator("#view .lgchip").count() == 1 and page.locator("#view .hero").count() == 0, leaf
+        names[leaf] = page.locator(".lgchip-lg").inner_text()
+        tops[leaf] = round(rect(page, ".lgchip-sub")["t"])
+    assert len(tops) >= 4 and len(set(tops.values())) == 1, tops
+    assert len(set(names.values())) == 1, names
+    page.evaluate("navGo('roster')")
     assert errors == []
 
 

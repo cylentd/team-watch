@@ -537,7 +537,7 @@
  "league.award.unluck": "Unluckiest loss",
  "league.award.won": "won",
  "league.back.games": "{n} games",
- "league.back.kick": "{league} · Week {n} · Final",
+ "league.back.kick": "Week {n} · Final",
  "league.back.sups": "Superlatives",
  "league.box.empty": "Empty",
  "league.box.hide": "Hide box score",

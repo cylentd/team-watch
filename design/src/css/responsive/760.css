@@ -3,27 +3,9 @@
   /* The phone's chrome (header bar, tab row, bottom tab bar, and what rises above the bar) is
      chrome/phonenav.css since 2026-10-05. */
 
-  /* My Teams' hero on a phone is one line: the team switch is the title, the league and record
-     sit beside it. The ghost numeral and the uppercase name repeated what the switch says. */
   .numghost{display:none}
   .hero{padding:16px 0 6px}
   .hero-in{gap:10px}
-  .hero:not(.slim) h1{display:none}
-  .hero:not(.slim) .hero-eyebrow{flex-wrap:nowrap;margin-bottom:2px}
-  .hero:not(.slim) .league-mark{display:none}
-  .hero:not(.slim) .hero-eyebrow .lbl{display:none}
-  .hero-rec{display:inline}
-  .hero:not(.slim) .teamswitch{order:1;min-width:0;padding:0;margin:0}
-  .hero:not(.slim) .ts-btn{background:none;border:0;padding:4px 0;min-width:0;gap:8px}
-  .hero:not(.slim) .ts-team{font-family:var(--disp);font-size:var(--t-5);font-weight:700;max-width:none;
-    overflow:hidden;text-overflow:ellipsis}
-  .hero:not(.slim) .ts-chev{width:28px;height:28px}
-  /* A phone's switch starts at the left gutter, so its menu hangs from there and runs gutter to gutter:
-     under the chevron whatever the name's length, and never off the screen. Hung from the name's right
-     end it ran 22px off on Waivers' short name (2026-09-29) and 20px off on a long one (2026-10-05). */
-  .hero:not(.slim) .ts-menu,.hero.team .ts-menu{left:0;right:auto;width:calc(100vw - 28px)}
-  .leaguechip{border:0;padding:0;letter-spacing:.06em;color:var(--ink-3)}
-  .hero-rec + .leaguechip::before{content:"·";margin-right:10px;color:var(--ink-3)}
   .hero h1{margin-bottom:8px}
   .hero-meta{margin-top:2px}
   .hero-meta .pill{font-size:var(--t-1);padding:4px 8px}

@@ -1,6 +1,6 @@
 /* The team switch. It used to live in the navbar next to the tabs, crowding them on mobile; now
-   it rides the hero's own eyebrow line, which already has the room and is where a reader looks
-   first to confirm which team they're on. Since 2026-09-26 it lists the teams the reader follows
+   it is the title of the League team line (surface/league/switch.js, one shape on all six League leaves
+   since 2026-10-05) and, on a phone, the header bar (chrome/nav.js paintHdrTeam). Since 2026-09-26 it lists the teams the reader follows
    (data/mates.js followLoad; the team they picked, or none, since 2026-10-04) and the leagues they connected (data/connect.js). Under them, one row
    per league of David's (2026-09-29, storyboard option A, for a third league): a tap swaps the
    menu for that league's twelve, each with a star to follow it, and a Back row. Then "Add a
@@ -175,7 +175,7 @@ function wireTsMenu(sw, menu){
     menu.hidden = true;
     connectOpen();
   });
-  // No scroll: the switch sits in the hero, and a smooth scroll on top of a re-render was half of
-  // the jump. The title keeps one line (fitTitle), so the height holds too.
+  // No scroll: the switch sits at the top of the view, and a smooth scroll on top of a re-render was half
+  // of the jump. The team line keeps one line (its name takes the cut), so the height holds too.
   menu.querySelectorAll(".ts-item[data-k]").forEach(b => b.addEventListener("click", () => pickTeam(b.dataset.k)));
 }

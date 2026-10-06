@@ -13,12 +13,41 @@
 /* A player's row reached from elsewhere (chrome/nav.js navGoRow): lime edge and wash, until the next draw. */
 .nav-hit{box-shadow:inset 0 0 0 2px var(--lime);background:rgb(var(--lime-rgb) / .08)}
 
-/* ============================== LEAGUE: THE ONE CHIP ============================== */
-/* The team switch drawn as a chip above a League page (surface/league/switch.js), with the league's
-   name beside it. Left-aligned, so its menu opens rightwards from the chip's left edge. */
-.lgchip{display:flex;align-items:center;gap:12px;margin-top:16px}
-.lgchip .teamswitch{padding:0;min-width:0}
-.lgchip .ts-btn{min-height:44px;max-width:100%}
-.lgchip .ts-team{overflow:hidden;text-overflow:ellipsis}
+/* ============================== LEAGUE: THE TEAM LINE ============================== */
+/* One shape on all six League leaves at every width (surface/league/switch.js, 2026-10-05): the team switch as
+   the title, the league and record under it, a view's own control at the right end. It replaced Roster's
+   hero, Waivers' full hero and a boxed chip, three shapes that moved as the reader changed tab. A phone hides
+   the switch (chrome/phonenav.css), so there the line is the league and record beside the control.
+   Clips sideways only: the football (motion.css .zip) crosses it, and the menu must still open below. */
+.lgchip{position:relative;z-index:5;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:20px;overflow:clip visible}
+.lgchip-id{flex:1 1 0;min-width:0}
+.lgchip .teamswitch{padding:0;min-width:0;max-width:100%}
+.lgchip .ts-btn{min-width:0;max-width:100%;padding:2px 0;gap:8px;background:none;border:0}
+.lgchip .ts-btn:hover{background:none}
+.lgchip .ts-team{min-width:0;overflow:hidden;text-overflow:ellipsis;font-family:var(--disp);font-size:var(--t-5);font-weight:800;
+  line-height:1.1;letter-spacing:-.02em;color:var(--ink)}
+.lgchip .ts-pick .ts-team{color:var(--lime)}
+.lgchip .ts-chev{width:24px;height:24px}
 .lgchip .ts-menu{left:0;right:auto}
-.lgchip-lg{min-width:0;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* The league line stays one line; the league's name takes the cut. */
+.lgchip-sub{display:flex;align-items:center;gap:6px;min-width:0;margin-top:2px;white-space:nowrap;
+  font-family:var(--mono);font-size:var(--t-1);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.lgchip-info{appearance:none;display:inline-flex;align-items:center;gap:6px;min-width:0;min-height:24px;margin:0;padding:0;
+  border:0;background:none;font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit;cursor:pointer}
+.lgchip-info:hover{color:var(--ink)}
+.lgchip-info:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.lgchip-lg{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.lgchip .lc-info{flex:none;opacity:.55}
+.lgchip-rec{flex:none}
+.lgchip-info + .lgchip-rec::before{content:"·";margin-right:6px}
+.lgchip-side{flex:none;margin-left:auto}
+.lgchip-side .wvhero{text-align:right}
+@media (max-width:760px){
+  .lgchip{margin-top:12px}
+  /* Roster's Sheet / Cards icons (36px) would make its line taller than the league line alone, and the
+     league line would sit 6px lower on Roster than on the other five leaves. They overhang it instead. */
+  .lgchip-side:has(.rmode){margin-block:-6px}
+  /* Waivers' wire line is two clauses: under the league on a phone, not squeezed beside it. */
+  .lgchip-side:has(.wvhero){flex:1 1 100%;margin-left:0}
+  .lgchip-side .wvhero{text-align:left}
+}

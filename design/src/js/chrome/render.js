@@ -87,14 +87,13 @@ function render(){
   v.dataset.view = wire ? "waivers" : "roster";
   const reel = wire ? "" : reelHTML(team);   // the Week plays reel, above the "This week" list (reel.js)
   // The deal and the rail's "new" flash are taken once per page load, on the first Waivers render.
+  // The League team line (surface/league/switch.js) heads both, as it heads every League leaf.
   v.innerHTML = wire
-    ? heroHTML(team) + `<div class="wrap">${waiverHTML(wvMotionTake())}</div>`
-    : heroHTML(team, rosterModeHTML()) + `<div class="wrap rl${reel ? " rl-reel" : ""}">${reel}${briefHTML(team)}<div class="rl-rows">${
+    ? `<div class="wrap">${lgChipHTML(waiverHeroHTML(team), team)}${waiverHTML(wvMotionTake())}</div>`
+    : `<div class="wrap">${lgChipHTML(rosterModeHTML(), team)}</div><div class="wrap rl${reel ? " rl-reel" : ""}">${reel}${briefHTML(team)}<div class="rl-rows">${
         ROSTER_MODE === "cards" ? cardsHTML(team) : boardHTML(team)}</div></div>`;
-  fitTitle(v);
   if (!wire){ wireBrief(v); wireReel(v, team); wireRosterMode(v, team); wirePack(v, team); }
-  v.querySelector(".leaguechip")?.addEventListener("click", ()=>openLeagueInfo(team.key));
-  wireTeamSwitch(v);
+  wireLgChip(v);
   wireProfiles(v);
   if (wire) wireWaivers(v);
 }

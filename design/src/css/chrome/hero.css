@@ -13,17 +13,6 @@
 .hero.slim .hero-in{align-items:start}
 .hero-in{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:44px;align-items:end}
 .hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
-/* My Teams' switcher used margin-left:auto to push right within .hero-eyebrow -- but that row
-   only spans the hero's LEFT grid column (the signals column is a sibling), so on any viewport
-   wide enough to show both columns the pill landed flush against the invisible seam between
-   them, nowhere near a real edge. It read as centered/floating because it wasn't aligned to
-   anything the eye could see. Pinning it absolute to .hero-in (the wrap itself, already the
-   positioning context) puts it on the same edge the topbar's pills and the signals column sit
-   on -- right:var(--page-pad), not right:0, because an absolutely positioned child's offset is
-   measured from the containing block's OUTER padding edge, while .wrap's own padding is where
-   normal-flow content like the signals column actually stops. right:0 here would land a gutter
-   past every other edge on the page, not on top of them. */
-.hero-eyebrow .teamswitch{position:absolute;top:0;right:var(--page-pad);margin-left:0}
 .league-mark{width:8px;height:8px;border-radius:99px;background:var(--tint)}
 .hero h1{
   font-family:var(--disp);font-weight:800;
@@ -32,56 +21,6 @@
 }
 .hero h1 em{font-style:normal;color:transparent;-webkit-text-stroke:2px var(--ink-2)}
 .hero-meta{display:flex;flex-wrap:wrap;gap:8px}
-/* The league line under the title. The record is in the eyebrow on a wide screen, so this copy of
-   it shows only where the eyebrow gives its room to the team switch (responsive/760.css). */
-.hero-sub{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.hero-rec{display:none;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
-.leaguechip{
-  display:inline-flex;align-items:center;gap:7px;appearance:none;cursor:pointer;
-  background:none;border:1px solid var(--line-2);border-radius:2px;padding:6px 11px;
-  font-family:var(--mono);font-size:var(--t-1);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);
-  transition:border-color .2s var(--ease),color .2s var(--ease);
-}
-.leaguechip:hover{border-color:var(--ink-2);color:var(--ink)}
-.leaguechip .lc-info{opacity:.55;font-size:var(--t-1)}
-
-/* The roster's hero at every width (2026-09-25): one line, the team switch as the title, the
-   platform, record and league beside it. The phone had it first (responsive/760.css); desktop
-   dropped the ghost numeral, the uppercase name that repeated the switch, and the bordered chip. */
-/* Clips sideways only (2026-09-25). The hero hides overflow so the football (motion.css .zip) can
-   never widen the page, but hiding it vertically cut the team menu off under the title: it opened
-   as a sliver, and a tap meant for ESPN landed on the Sheet / Cards chips below. */
-.hero.team{padding:28px 0 4px;overflow:clip visible;z-index:5}
-/* Waivers' full hero, the same fix (2026-09-29): its menu opened as a sliver on a phone. */
-.hero.wire{overflow:clip visible;z-index:5}
-.hero.team .numghost,.hero.team h1.fit,.hero.team .league-mark,.hero.team .hero-eyebrow .lbl{display:none}
-/* One row at every width (2026-10-05, Roster redesign unit C): the team switch and the league line
-   on the left, the Sheet / Cards icon switch at the right end of the same row. A phone used to put the
-   switch on a line of its own under the league (116px of hero; 60px now). */
-.hero.team .hero-in{grid-template-columns:minmax(0,1fr) auto;gap:0 12px;align-items:center}
-.hero.team .hero-in > div:first-child{min-width:0}
-.hero.team .hero-side{margin:0}
-.hero.team{--hero-name:21px}
-.hero.team .hero-eyebrow{flex-wrap:nowrap;margin-bottom:0}
-.hero.team .teamswitch{position:relative;top:auto;right:auto;order:1;flex-shrink:1;min-width:0;padding:0;margin:0}
-.hero.team .hero-eyebrow .ts-btn{background:none;border:0;padding:2px 0;min-width:0;gap:8px;max-width:100%}
-.hero.team .hero-eyebrow .ts-team{font-family:var(--disp);font-size:var(--hero-name);font-weight:800;line-height:1.1;
-  letter-spacing:-.02em;max-width:none;overflow:hidden;text-overflow:ellipsis}
-.hero.team .hero-eyebrow .ts-chev{width:24px;height:24px}
-/* The league line stays one line, its league name taking the cut (an ellipsis) beside the switch. */
-.hero.team .hero-sub{margin-top:2px;flex-wrap:nowrap;gap:6px;min-width:0}
-.hero.team .hero-rec{flex:none}
-.hero.team .leaguechip{min-width:0;gap:0;white-space:nowrap;text-align:left}
-.hero.team .lc-t{min-width:0;overflow:hidden;text-overflow:ellipsis}
-.hero.team .lc-info{flex:none;margin-left:6px}
-/* The menu opens under the chevron, the thing that was tapped, at the title's right end; anchored
-   left it appeared across the title from it (2026-09-25). */
-.hero.team .ts-menu{left:auto;right:0}
-.hero.team .hero-rec{display:inline}
-.hero.team .leaguechip{border:0;padding:0;letter-spacing:.06em;color:var(--ink-3)}
-.hero.team .leaguechip:hover{color:var(--ink)}
-.hero.team .hero-rec + .leaguechip::before{content:"·";margin-right:6px;color:var(--ink-3)}
-
 /* The Roster's Sheet / Cards switch (js/surface/teams/cardmotion.js rosterModeHTML), two icon buttons
    in one rounded frame: a list for the Sheet, a grid for the Cards, the picked one lit. It was two
    word chips (surface/teams/cards.css); a screen reader gets each one's name from its aria-label. */

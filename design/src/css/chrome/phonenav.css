@@ -37,10 +37,10 @@
   .hdrteam .ts-team{min-width:0;overflow:hidden;text-overflow:ellipsis;font-family:var(--disp);font-size:var(--t-4);font-weight:700;color:var(--ink)}
   .hdrteam .ts-pick .ts-team{color:var(--lime)}
   .hdrteam .ts-menu{left:0;right:auto;top:calc(100% + 4px);width:calc(100vw - 28px)}
-  /* League's chip (surface/league/switch.js) and the Roster and Waivers hero (chrome/hero.js) drew the same
-     switch right under the header: the header's is the one on a phone. The chip keeps the league's name,
-     the hero its record and league. Live's score head shows the plain name on a phone (live.css). */
-  .lgchip .teamswitch,.hero .teamswitch{display:none}
+  /* The League team line (surface/league/switch.js) would draw the same switch right under the header: the
+     header's is the one on a phone, and the line keeps the league and record. Live's score head shows the
+     plain name on a phone (live.css). */
+  .lgchip .teamswitch{display:none}
   .navrow .chatfab{flex:none;height:44px;margin-left:auto}
   .chatfab .ix{display:inline-flex}
   body.hdr-away .navbar{top:calc(-1 * var(--hdr-top))}

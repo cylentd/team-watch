@@ -4,8 +4,7 @@
    - The cards column's own width (a container query), so the cards react to the room they have,
      whether that is the full page (761-1099px) or the main column beside the rail (1100px+).
      At 640px of column: two cards per row, and a Must claim spans the row with both faces open.
-   - The viewport at 1100px: the Breaking rail becomes a sticky right-hand column, and the hero
-     folds into one row.
+   - The viewport at 1100px: the Breaking rail becomes a sticky right-hand column.
    wdesk.js reads the two flags below (--wvc-both, --wvr-side) so the markup follows the CSS:
    an open face is never inert, a side rail shows every row. The breakpoint lives only here. */
 .wv-cards{container:wvcards / inline-size}
@@ -44,18 +43,4 @@
   .wv > .wv-cards > .rule:first-child{margin-top:24px}
   .wv > .wvr > .rule{position:sticky;top:0;z-index:1;margin-top:0;padding-bottom:4px;background:var(--void)}
   .wv > .wvr > .wvr-list{margin-top:6px}
-
-  /* The hero in one row: name left, the wire's line right on its baseline. The name column's
-     wrapper steps aside (display:contents) so the name and the line share a grid row. */
-  .hero:has(.wvhero){padding:28px 0 6px}
-  .hero:has(.wvhero) .hero-in{
-    grid-template-columns:minmax(0,1fr) fit-content(60%);
-    grid-template-areas:"eye eye" "name line" "chip .";column-gap:32px;row-gap:10px;align-items:end;
-  }
-  .hero:has(.wvhero) .hero-in > div:first-child{display:contents}
-  .hero:has(.wvhero) .hero-eyebrow{grid-area:eye;margin-bottom:4px}
-  .hero:has(.wvhero) h1{grid-area:name;margin:0}
-  .hero:has(.wvhero) .leaguechip{grid-area:chip;justify-self:start}
-  .hero:has(.wvhero) .hero-in > div:last-child{grid-area:line}
-  .wvhero{text-align:right}
 }

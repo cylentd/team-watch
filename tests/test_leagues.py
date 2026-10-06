@@ -178,11 +178,10 @@ def test_the_one_chip_changes_recap_and_a_reload_keeps_it(browser, page_file):
     drive(page, go("recap"))
     assert page.locator(".lg-switch, [data-lgpick]").count() == 0, "no league chips of their own"
     assert page.locator(".lgchip #switch").count() == 1 and page.locator(".lgchip-lg").text_content().strip() == "Madden Curse"
-    assert "The Madden Curse" in page.locator(".bp-kick").text_content()
+    assert "Madden" not in page.locator(".bp-kick").text_content(), "the team line above names the league, once"
     drive(page, [("click", ".lgchip [data-tsbtn]"), ("click", ".lgchip .ts-item[data-k='ayo']")])
     assert page.locator(".lgchip-lg").text_content().strip() == "AYO"
     assert page.locator(".lgchip .ts-team").text_content() == "Taylor Made for Sundays"
-    assert "AYO Fantasy Football" in page.locator(".bp-kick").text_content()
     assert "Don Wick" in page.locator("#view").text_content()
     assert page.evaluate("getComputedStyle(document.querySelector('.bp-mast')).borderTopColor") == "rgb(31, 200, 224)"
     page.reload()
@@ -190,7 +189,7 @@ def test_the_one_chip_changes_recap_and_a_reload_keeps_it(browser, page_file):
     drive(page, go("recap"))
     assert page.locator(".lgchip-lg").text_content().strip() == "AYO", "the pick survives a reload: it is the team"
     drive(page, [("click", ".lgchip [data-tsbtn]"), ("click", ".lgchip .ts-item[data-k='yahoo']")])
-    assert "The Madden Curse" in page.locator(".bp-kick").text_content()
+    assert page.locator(".lgchip-lg").text_content().strip() == "Madden Curse"
     assert errors == []
     ctx.close()
 
@@ -221,7 +220,7 @@ def test_one_yahoo_league_still_draws_the_chip(browser, tmp_path, monkeypatch):
         drive(page, go(leaf))
         assert page.locator(".lgchip").count() == 1, leaf
     drive(page, go("recap"))
-    assert "The Madden Curse" in page.locator(".bp-kick").text_content()
+    assert page.locator(".lgchip-lg").text_content().strip() == "Madden Curse"
     drive(page, go("roster"))
     page.click("#hdrswitch [data-tsbtn]")
     assert page.evaluate("[...document.querySelectorAll('#hdrswitch .ts-menu .ts-item[data-k]')].map(b => b.dataset.k)") == ["yahoo", "espn"]

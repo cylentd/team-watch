@@ -260,7 +260,6 @@ surface/strip/transport.js
 surface/strip/game.js
 chrome/teamswitch.js
 chrome/connect.js
-chrome/hero.js
 chrome/motion.js
 ui/scrollers.js
 builder/wire.js
