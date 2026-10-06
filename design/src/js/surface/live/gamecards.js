@@ -26,7 +26,7 @@ function gsScoreHTML(){
       ${x === null ? "" : `<div class="gs-field" aria-hidden="true"><i style="left:${Math.max(0, Math.min(100, x))}%"></i></div>
       <div class="gs-ends"><span>${esc(GS.away)}</span><span>${esc(GS.home)}</span></div>`}` : "";
   return `<section class="gs-card gs-sb">
-    <div class="gs-score">${side(GS.away, g && g.away, a, h, "a")}<div class="gs-mid">${mid}${detail}</div>${side(GS.home, g && g.home, h, a, "h")}</div>
+    <div class="gs-score">${side(GS.away, g && g.away, a, h, "a")}<div class="gs-mid" data-testid="gamesheet-mid">${mid}${detail}</div>${side(GS.home, g && g.home, h, a, "h")}</div>
     ${sit}</section>`;
 }
 
@@ -47,8 +47,8 @@ function gsPlaysHTML(){
   const every = GS_ERR ? "" : GS_GAME && GS_GAME.state === "in" ? t("live.sheet.every") : "";
   const head = every ? `<h3><em>${every}</em></h3>` : "";
   const warn = GS_ERR ? `<p class="gs-warn">${esc(GS_ERR)}</p>` : "";
-  if (!GS_GAME) return `<section class="gs-card gs-plays" data-gsscroll>${head}${warn || `<p class="gs-quiet">${GS.event ? t("live.sheet.loading") : t("live.sheet.noEspn")}</p>`}</section>`;
-  if (!GS_GAME.drives.length) return `<section class="gs-card gs-plays" data-gsscroll>${head}${warn}<p class="gs-quiet">${t("live.sheet.noPlays")}</p></section>`;
+  if (!GS_GAME) return `<section class="gs-card gs-plays" data-testid="gamesheet-plays" data-gsscroll>${head}${warn || `<p class="gs-quiet">${GS.event ? t("live.sheet.loading") : t("live.sheet.noEspn")}</p>`}</section>`;
+  if (!GS_GAME.drives.length) return `<section class="gs-card gs-plays" data-testid="gamesheet-plays" data-gsscroll>${head}${warn}<p class="gs-quiet">${t("live.sheet.noPlays")}</p></section>`;
   const n = GS_GAME.drives.length;
   const drives = GS_GAME.drives.map((d, i) => {
     const key = String(n - i), open = GS_OPEN.has(key) ? GS_OPEN.get(key) : i === 0;
@@ -56,7 +56,7 @@ function gsPlaysHTML(){
         <span class="gs-tm">${esc(d.team)}</span><span>${esc(d.line)}</span><b class="${d.sc ? "sc" : ""}">${esc(d.on ? t("live.sheet.onDrive") : d.res)}</b></summary>
       ${d.plays.map(gsPlayHTML).join("")}</details>`;
   }).join("");
-  return `<section class="gs-card gs-plays" data-gsscroll>${head}${warn}${drives}</section>`;
+  return `<section class="gs-card gs-plays" data-testid="gamesheet-plays" data-gsscroll>${head}${warn}${drives}</section>`;
 }
 
 /* The box's players, each scored by the league on screen, best first. */
@@ -71,7 +71,7 @@ function gsScored(lg){
 const GS_STAR = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.4l2.6 5.5 6 .8-4.4 4.2 1.1 6L12 17l-5.3 2.9 1.1-6-4.4-4.2 6-.8z"/></svg>`;
 function gsStar(p){
   const name = gdShort(p), label = p.fol ? t("live.sheet.unfollow", {name}) : t("live.sheet.follow", {name});
-  return `<button type="button" class="gs-star" data-gsfollow="${esc(p.id)}" data-sid="${esc(p.sid || "")}" data-slug="${esc(p.slug || "")}"
+  return `<button type="button" class="gs-star" data-testid="gamesheet-star" data-gsfollow="${esc(p.id)}" data-sid="${esc(p.sid || "")}" data-slug="${esc(p.slug || "")}"
     data-n="${esc(p.n)}" data-pos="${esc(p.pos)}" data-team="${esc(p.team)}" aria-pressed="${!!p.fol}" aria-label="${esc(label)}">${GS_STAR}</button>`;
 }
 
@@ -99,18 +99,18 @@ function gsYours(){
 
 function gsYoursHTML(){
   const rows = gsYours();
-  const list = rows.map(r => `<div class="gs-yr${r.focus ? " focus" : ""}">${gsStar(r)}
+  const list = rows.map(r => `<div class="gs-yr${r.focus ? " focus" : ""}" data-testid="gamesheet-yr">${gsStar(r)}
       <span><b>${esc(gdShort(r))}</b> <i class="gs-pos" data-pos="${esc(r.pos)}">${esc(r.pos)}</i><em>${esc(r.line)}</em></span>
       <b class="gs-pts">${r.pts === null ? "—" : gdNum(r.pts)}</b></div>`).join("");
-  return `<section class="gs-card gs-yours"><h3><span>${t("live.sheet.yours")}</span></h3>
-    ${rows.length ? `<div class="gs-yl" data-gsscroll>${list}</div>` : `<p class="gs-quiet">${t("live.sheet.yoursNone")}</p>`}</section>`;
+  return `<section class="gs-card gs-yours" data-testid="gamesheet-yours"><h3><span>${t("live.sheet.yours")}</span></h3>
+    ${rows.length ? `<div class="gs-yl" data-testid="gamesheet-yl" data-gsscroll>${list}</div>` : `<p class="gs-quiet" data-testid="gamesheet-yours-quiet">${t("live.sheet.yoursNone")}</p>`}</section>`;
 }
 
 function gsTopHTML(){
   const lg = gdLeague(), rows = gsScored(lg).slice(0, 5);
   const head = lg ? `<h3><em>${t("live.sheet.scoring", {name: esc(lg.name)})}</em></h3>` : "";
-  if (!rows.length) return `<section class="gs-card gs-top" data-gsscroll>${head}<p class="gs-quiet">${GS_BOX_ERR ? t("live.sheet.noSleeper") : GS_BOX ? t("live.sheet.noStats") : t("live.sheet.loading")}</p></section>`;
-  return `<section class="gs-card gs-top" data-gsscroll>${head}${rows.map(r => `<div class="gs-sc${r.mine ? " mine" : ""}">${gsStar(r)}
+  if (!rows.length) return `<section class="gs-card gs-top" data-testid="gamesheet-top" data-gsscroll>${head}<p class="gs-quiet">${GS_BOX_ERR ? t("live.sheet.noSleeper") : GS_BOX ? t("live.sheet.noStats") : t("live.sheet.loading")}</p></section>`;
+  return `<section class="gs-card gs-top" data-testid="gamesheet-top" data-gsscroll>${head}${rows.map(r => `<div class="gs-sc${r.mine ? " mine" : ""}">${gsStar(r)}
       <span><b>${esc(gdShort(r))}</b> <small>${esc(r.team)}</small><em>${esc(r.line)}</em></span><b>${gdNum(r.pts || 0)}</b></div>`).join("")}</section>`;
 }
 
@@ -135,7 +135,7 @@ function gsBoxHTML(){
     return `<table class="gs-tbl"><caption>${label}</caption><thead><tr><th></th>${cols.map(c => `<th>${c[0]}</th>`).join("")}</tr></thead>
       <tbody>${rows.map(p => `<tr${p.mine ? ` class="mine"` : ""}><td>${gsStar(p)}${esc(gdShort(p))}</td>${cols.map(c => `<td>${c[1](p.s)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
   }).join("");
-  return `<section class="gs-card gs-box" data-gsscroll>${seg}${tables || `<p class="gs-quiet">${t("live.sheet.noStats")}</p>`}</section>`;
+  return `<section class="gs-card gs-box" data-testid="gamesheet-box" data-gsscroll>${seg}${tables || `<p class="gs-quiet">${t("live.sheet.noStats")}</p>`}</section>`;
 }
 
 const gsClubName = c => {
@@ -147,8 +147,8 @@ const gsClubName = c => {
    plays sit beside the rest, so the tab that would show them shows the box instead. */
 function gsTabsHTML(tab){
   const label = {plays: t("live.sheet.plays"), box: t("live.sheet.box"), top: t("live.sheet.top")};
-  return `<div class="gs-tabs" role="tablist" aria-label="${esc(t("live.sheet.tabs"))}">${GS_TABS.map(k =>
-    `<button type="button" role="tab" class="gs-tab" data-gstab="${k}" aria-selected="${k === tab}">${label[k]}</button>`).join("")}</div>`;
+  return `<div class="gs-tabs" data-testid="gamesheet-tabs" role="tablist" aria-label="${esc(t("live.sheet.tabs"))}">${GS_TABS.map(k =>
+    `<button type="button" role="tab" class="gs-tab" data-testid="gamesheet-tab" data-gstab="${k}" aria-selected="${k === tab}">${label[k]}</button>`).join("")}</div>`;
 }
 
 /* The game on each side, in the order a swipe walks them (gamesheet.js gsNeighbours), with where it
@@ -173,6 +173,6 @@ function gsSheetHTML(){
   return `<div class="gs-bar"><h2 class="gs-title" id="gs-title">${esc(t("live.sheet.title", {away: GS.away, home: GS.home}))}</h2>
       <button type="button" class="gs-x" data-gsclose aria-label="${t("common.action.close")}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     ${gsFootHTML()}
-    <div class="gs-main" data-tab="${tab}"><div class="gs-side">${gsScoreHTML()}${gsYoursHTML()}${gsTabsHTML(tab)}</div>
-      <div class="gs-panes" data-gsscroll role="tabpanel">${gsPlaysHTML()}${gsBoxHTML()}${gsTopHTML()}</div></div>`;
+    <div class="gs-main" data-testid="gamesheet-main" data-tab="${tab}"><div class="gs-side">${gsScoreHTML()}${gsYoursHTML()}${gsTabsHTML(tab)}</div>
+      <div class="gs-panes" data-testid="gamesheet-panes" data-gsscroll role="tabpanel">${gsPlaysHTML()}${gsBoxHTML()}${gsTopHTML()}</div></div>`;
 }

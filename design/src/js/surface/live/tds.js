@@ -90,13 +90,13 @@ function tdRowHTML(o){
   const c = gdClockOf(o.team);
   const cls = o.game ? "scored" : c.state === "in" ? "live" : o.scored ? "scored" : c.state === "post" ? "missed" : "later";
   const line = o.line || (cls === "live" ? t("live.tds.none") : cls === "missed" ? t("live.tds.missed") : "");
-  const chance = o.chance === null ? "" : `<small>${t("live.tds.chance", {n: o.chance})}</small>`;
-  const club = o.game ? "" : ` <small>${esc(o.team)}</small>`;
+  const chance = o.chance === null ? "" : `<small data-testid="live-td-chance">${t("live.tds.chance", {n: o.chance})}</small>`;
+  const club = o.game ? "" : ` <small data-testid="live-td-club">${esc(o.team)}</small>`;
   return `<li><button type="button" data-testid="live-td-row" class="td-row ${cls}${o.scored && cls !== "scored" ? " scored" : ""}${o.game ? " in-game" : ""}" data-tdslug="${esc(o.slug)}" data-tdn="${esc(o.n)}"
       data-tdpos="${esc(o.pos)}" data-tdteam="${esc(o.team)}">
     <span class="td-pos" data-pos="${esc(o.pos)}">${esc(o.pos)}</span>
-    <span class="td-who"><b>${esc(nameInitial(o.n))}${club}</b>${line ? `<span class="td-line">${esc(line)}</span>` : ""}</span>
-    ${o.game ? "" : `<span class="td-right"><span class="td-clock">${esc(c.label)}</span>${chance}</span>`}</button></li>`;
+    <span class="td-who"><b data-testid="live-td-who">${esc(nameInitial(o.n))}${club}</b>${line ? `<span class="td-line" data-testid="live-td-line">${esc(line)}</span>` : ""}</span>
+    ${o.game ? "" : `<span class="td-right"><span class="td-clock" data-testid="live-td-clock">${esc(c.label)}</span>${chance}</span>`}</button></li>`;
 }
 
 /* "2 rush TD", "1 rush TD · 1 rec TD", "3 pass TD" (only the kinds asked). */
@@ -131,8 +131,8 @@ function tdGameCardsHTML(rows, kinds){
       const side = (code, s, o) => `<span class="td-gt${on && s < o ? " behind" : ""}">${esc(code)} <b>${on ? s : "—"}</b></span>`;
       head = `${side(g.away, a, h)}${side(g.home, h, a)}<span class="td-gclock ${c.state}">${esc(c.label)}</span>`;
     }
-    const tag = g ? `button type="button" class="td-gh" data-gdnfl="${esc(gdNflKey(g))}" aria-haspopup="dialog"` : `div class="td-gh"`;
-    return `<section class="gd-card td-card td-gcard" data-testid="live-td-gcard"><h3 class="td-head"><${tag}>${head}</${g ? "button" : "div"}></h3>
+    const tag = g ? `button type="button" class="td-gh" data-testid="live-td-gh" data-gdnfl="${esc(gdNflKey(g))}" aria-haspopup="dialog"` : `div class="td-gh" data-testid="live-td-gh"`;
+    return `<section class="gd-card td-card td-gcard" data-testid="live-td-gcard"><h3 class="td-head" data-testid="live-td-head"><${tag}>${head}</${g ? "button" : "div"}></h3>
       <ul class="td-list">${rows.map(v => tdScoredRow(v, kinds, true)).join("")}</ul></section>`;
   }).join("");
 }
@@ -144,7 +144,7 @@ function tdControlsHTML(){
   const name = {mine: t("live.tds.fMine"), pass: t("live.tds.fPass"), rush: t("live.tds.fRush"), rec: t("live.tds.fRec")};
   const chips = TD_CHIPS.map(k => `<button type="button" class="chip" data-testid="live-td-chip" data-tdchip="${k}" aria-pressed="${!!TD_ON[k]}">${name[k]}</button>`).join("");
   const byGame = `<button type="button" class="chip td-bygame" data-testid="live-td-bygame" data-tdgame aria-pressed="${tdMode() === "game"}">${t("live.tds.byGame")}</button>`;
-  return `<div class="td-filters" role="group" aria-label="${t("live.tds.filters")}">${chips}<span class="td-sep" aria-hidden="true"></span>${byGame}</div>`;
+  return `<div class="td-filters" data-testid="live-td-filters" role="group" aria-label="${t("live.tds.filters")}">${chips}<span class="td-sep" data-testid="live-td-sep" aria-hidden="true"></span>${byGame}</div>`;
 }
 
 /* The one line a filter that finds nothing says. */
@@ -158,9 +158,9 @@ function tdFilter(){
 }
 
 function gdTdsHTML(lg){
-  if (!GD_STATS || !GD_STATS.lead) return `<div class="gd-card td-card"><p class="td-empty">${t("live.tds.loading")}</p></div>`;
+  if (!GD_STATS || !GD_STATS.lead) return `<div class="gd-card td-card"><p class="td-empty" data-testid="live-td-empty">${t("live.tds.loading")}</p></div>`;
   const {kinds, mine, filtered, all, scored} = tdFilter();
-  const empty = () => `<p class="td-empty">${filtered ? tdNoneLine() : t("live.tds.noneYet")}</p>`;
+  const empty = () => `<p class="td-empty" data-testid="live-td-empty">${filtered ? tdNoneLine() : t("live.tds.noneYet")}</p>`;
   if (tdMode() === "game")
     return tdControlsHTML() + (scored.length ? tdGameCardsHTML(scored, kinds) : `<section class="gd-card td-card" data-testid="live-td-card">${empty()}</section>`);
   /* Still alive has no TD type: a type chip hides it, Mine narrows it, and it never repeats the empty line. */
@@ -170,9 +170,9 @@ function gdTdsHTML(lg){
   const order = o => gdClockOf(o.team).state === "post" ? 1 : 0;
   aliveRows.sort((a, b) => order(a) - order(b));
   const scoredList = scored.length ? `<ul class="td-list">${scored.map(v => tdScoredRow(v, kinds, false)).join("")}</ul>` : empty();
-  const aliveCard = aliveRows.length ? `<ul class="td-list">${aliveRows.map(tdRowHTML).join("")}</ul>` : filtered ? "" : `<p class="td-empty">${t("live.tds.noBoard")}</p>`;
-  return tdControlsHTML() + tdrHTML(tdrModel(scored, kinds)) + `<section class="gd-card td-card" data-testid="live-td-card"><h3 class="td-head"><span>${t("live.tds.scored")}</span><span>${t("live.tds.count", {n: scored.length})}</span></h3>${scoredList}</section>`
-    + (aliveCard ? `<section class="gd-card td-card" data-testid="live-td-card"><h3 class="td-head"><span>${t("live.tds.alive")}</span><span>${t("live.tds.byChance")}</span></h3>${aliveCard}</section>` : "");
+  const aliveCard = aliveRows.length ? `<ul class="td-list">${aliveRows.map(tdRowHTML).join("")}</ul>` : filtered ? "" : `<p class="td-empty" data-testid="live-td-empty">${t("live.tds.noBoard")}</p>`;
+  return tdControlsHTML() + tdrHTML(tdrModel(scored, kinds)) + `<section class="gd-card td-card" data-testid="live-td-card"><h3 class="td-head" data-testid="live-td-head"><span>${t("live.tds.scored")}</span><span>${t("live.tds.count", {n: scored.length})}</span></h3>${scoredList}</section>`
+    + (aliveCard ? `<section class="gd-card td-card" data-testid="live-td-card"><h3 class="td-head" data-testid="live-td-head"><span>${t("live.tds.alive")}</span><span>${t("live.tds.byChance")}</span></h3>${aliveCard}</section>` : "");
 }
 
 /* A row opens the player's profile, the way the matchup's rows do; the view and the chips repaint in

@@ -29355,13 +29355,13 @@ function tdRowHTML(o){
   const c = gdClockOf(o.team);
   const cls = o.game ? "scored" : c.state === "in" ? "live" : o.scored ? "scored" : c.state === "post" ? "missed" : "later";
   const line = o.line || (cls === "live" ? t("live.tds.none") : cls === "missed" ? t("live.tds.missed") : "");
-  const chance = o.chance === null ? "" : `<small>${t("live.tds.chance", {n: o.chance})}</small>`;
-  const club = o.game ? "" : ` <small>${esc(o.team)}</small>`;
+  const chance = o.chance === null ? "" : `<small data-testid="live-td-chance">${t("live.tds.chance", {n: o.chance})}</small>`;
+  const club = o.game ? "" : ` <small data-testid="live-td-club">${esc(o.team)}</small>`;
   return `<li><button type="button" data-testid="live-td-row" class="td-row ${cls}${o.scored && cls !== "scored" ? " scored" : ""}${o.game ? " in-game" : ""}" data-tdslug="${esc(o.slug)}" data-tdn="${esc(o.n)}"
       data-tdpos="${esc(o.pos)}" data-tdteam="${esc(o.team)}">
     <span class="td-pos" data-pos="${esc(o.pos)}">${esc(o.pos)}</span>
-    <span class="td-who"><b>${esc(nameInitial(o.n))}${club}</b>${line ? `<span class="td-line">${esc(line)}</span>` : ""}</span>
-    ${o.game ? "" : `<span class="td-right"><span class="td-clock">${esc(c.label)}</span>${chance}</span>`}</button></li>`;
+    <span class="td-who"><b data-testid="live-td-who">${esc(nameInitial(o.n))}${club}</b>${line ? `<span class="td-line" data-testid="live-td-line">${esc(line)}</span>` : ""}</span>
+    ${o.game ? "" : `<span class="td-right"><span class="td-clock" data-testid="live-td-clock">${esc(c.label)}</span>${chance}</span>`}</button></li>`;
 }
 
 /* "2 rush TD", "1 rush TD · 1 rec TD", "3 pass TD" (only the kinds asked). */
@@ -29396,8 +29396,8 @@ function tdGameCardsHTML(rows, kinds){
       const side = (code, s, o) => `<span class="td-gt${on && s < o ? " behind" : ""}">${esc(code)} <b>${on ? s : "—"}</b></span>`;
       head = `${side(g.away, a, h)}${side(g.home, h, a)}<span class="td-gclock ${c.state}">${esc(c.label)}</span>`;
     }
-    const tag = g ? `button type="button" class="td-gh" data-gdnfl="${esc(gdNflKey(g))}" aria-haspopup="dialog"` : `div class="td-gh"`;
-    return `<section class="gd-card td-card td-gcard" data-testid="live-td-gcard"><h3 class="td-head"><${tag}>${head}</${g ? "button" : "div"}></h3>
+    const tag = g ? `button type="button" class="td-gh" data-testid="live-td-gh" data-gdnfl="${esc(gdNflKey(g))}" aria-haspopup="dialog"` : `div class="td-gh" data-testid="live-td-gh"`;
+    return `<section class="gd-card td-card td-gcard" data-testid="live-td-gcard"><h3 class="td-head" data-testid="live-td-head"><${tag}>${head}</${g ? "button" : "div"}></h3>
       <ul class="td-list">${rows.map(v => tdScoredRow(v, kinds, true)).join("")}</ul></section>`;
   }).join("");
 }
@@ -29409,7 +29409,7 @@ function tdControlsHTML(){
   const name = {mine: t("live.tds.fMine"), pass: t("live.tds.fPass"), rush: t("live.tds.fRush"), rec: t("live.tds.fRec")};
   const chips = TD_CHIPS.map(k => `<button type="button" class="chip" data-testid="live-td-chip" data-tdchip="${k}" aria-pressed="${!!TD_ON[k]}">${name[k]}</button>`).join("");
   const byGame = `<button type="button" class="chip td-bygame" data-testid="live-td-bygame" data-tdgame aria-pressed="${tdMode() === "game"}">${t("live.tds.byGame")}</button>`;
-  return `<div class="td-filters" role="group" aria-label="${t("live.tds.filters")}">${chips}<span class="td-sep" aria-hidden="true"></span>${byGame}</div>`;
+  return `<div class="td-filters" data-testid="live-td-filters" role="group" aria-label="${t("live.tds.filters")}">${chips}<span class="td-sep" data-testid="live-td-sep" aria-hidden="true"></span>${byGame}</div>`;
 }
 
 /* The one line a filter that finds nothing says. */
@@ -29423,9 +29423,9 @@ function tdFilter(){
 }
 
 function gdTdsHTML(lg){
-  if (!GD_STATS || !GD_STATS.lead) return `<div class="gd-card td-card"><p class="td-empty">${t("live.tds.loading")}</p></div>`;
+  if (!GD_STATS || !GD_STATS.lead) return `<div class="gd-card td-card"><p class="td-empty" data-testid="live-td-empty">${t("live.tds.loading")}</p></div>`;
   const {kinds, mine, filtered, all, scored} = tdFilter();
-  const empty = () => `<p class="td-empty">${filtered ? tdNoneLine() : t("live.tds.noneYet")}</p>`;
+  const empty = () => `<p class="td-empty" data-testid="live-td-empty">${filtered ? tdNoneLine() : t("live.tds.noneYet")}</p>`;
   if (tdMode() === "game")
     return tdControlsHTML() + (scored.length ? tdGameCardsHTML(scored, kinds) : `<section class="gd-card td-card" data-testid="live-td-card">${empty()}</section>`);
   /* Still alive has no TD type: a type chip hides it, Mine narrows it, and it never repeats the empty line. */
@@ -29435,9 +29435,9 @@ function gdTdsHTML(lg){
   const order = o => gdClockOf(o.team).state === "post" ? 1 : 0;
   aliveRows.sort((a, b) => order(a) - order(b));
   const scoredList = scored.length ? `<ul class="td-list">${scored.map(v => tdScoredRow(v, kinds, false)).join("")}</ul>` : empty();
-  const aliveCard = aliveRows.length ? `<ul class="td-list">${aliveRows.map(tdRowHTML).join("")}</ul>` : filtered ? "" : `<p class="td-empty">${t("live.tds.noBoard")}</p>`;
-  return tdControlsHTML() + tdrHTML(tdrModel(scored, kinds)) + `<section class="gd-card td-card" data-testid="live-td-card"><h3 class="td-head"><span>${t("live.tds.scored")}</span><span>${t("live.tds.count", {n: scored.length})}</span></h3>${scoredList}</section>`
-    + (aliveCard ? `<section class="gd-card td-card" data-testid="live-td-card"><h3 class="td-head"><span>${t("live.tds.alive")}</span><span>${t("live.tds.byChance")}</span></h3>${aliveCard}</section>` : "");
+  const aliveCard = aliveRows.length ? `<ul class="td-list">${aliveRows.map(tdRowHTML).join("")}</ul>` : filtered ? "" : `<p class="td-empty" data-testid="live-td-empty">${t("live.tds.noBoard")}</p>`;
+  return tdControlsHTML() + tdrHTML(tdrModel(scored, kinds)) + `<section class="gd-card td-card" data-testid="live-td-card"><h3 class="td-head" data-testid="live-td-head"><span>${t("live.tds.scored")}</span><span>${t("live.tds.count", {n: scored.length})}</span></h3>${scoredList}</section>`
+    + (aliveCard ? `<section class="gd-card td-card" data-testid="live-td-card"><h3 class="td-head" data-testid="live-td-head"><span>${t("live.tds.alive")}</span><span>${t("live.tds.byChance")}</span></h3>${aliveCard}</section>` : "");
 }
 
 /* A row opens the player's profile, the way the matchup's rows do; the view and the chips repaint in
@@ -29559,7 +29559,7 @@ function gsScoreHTML(){
       ${x === null ? "" : `<div class="gs-field" aria-hidden="true"><i style="left:${Math.max(0, Math.min(100, x))}%"></i></div>
       <div class="gs-ends"><span>${esc(GS.away)}</span><span>${esc(GS.home)}</span></div>`}` : "";
   return `<section class="gs-card gs-sb">
-    <div class="gs-score">${side(GS.away, g && g.away, a, h, "a")}<div class="gs-mid">${mid}${detail}</div>${side(GS.home, g && g.home, h, a, "h")}</div>
+    <div class="gs-score">${side(GS.away, g && g.away, a, h, "a")}<div class="gs-mid" data-testid="gamesheet-mid">${mid}${detail}</div>${side(GS.home, g && g.home, h, a, "h")}</div>
     ${sit}</section>`;
 }
 
@@ -29580,8 +29580,8 @@ function gsPlaysHTML(){
   const every = GS_ERR ? "" : GS_GAME && GS_GAME.state === "in" ? t("live.sheet.every") : "";
   const head = every ? `<h3><em>${every}</em></h3>` : "";
   const warn = GS_ERR ? `<p class="gs-warn">${esc(GS_ERR)}</p>` : "";
-  if (!GS_GAME) return `<section class="gs-card gs-plays" data-gsscroll>${head}${warn || `<p class="gs-quiet">${GS.event ? t("live.sheet.loading") : t("live.sheet.noEspn")}</p>`}</section>`;
-  if (!GS_GAME.drives.length) return `<section class="gs-card gs-plays" data-gsscroll>${head}${warn}<p class="gs-quiet">${t("live.sheet.noPlays")}</p></section>`;
+  if (!GS_GAME) return `<section class="gs-card gs-plays" data-testid="gamesheet-plays" data-gsscroll>${head}${warn || `<p class="gs-quiet">${GS.event ? t("live.sheet.loading") : t("live.sheet.noEspn")}</p>`}</section>`;
+  if (!GS_GAME.drives.length) return `<section class="gs-card gs-plays" data-testid="gamesheet-plays" data-gsscroll>${head}${warn}<p class="gs-quiet">${t("live.sheet.noPlays")}</p></section>`;
   const n = GS_GAME.drives.length;
   const drives = GS_GAME.drives.map((d, i) => {
     const key = String(n - i), open = GS_OPEN.has(key) ? GS_OPEN.get(key) : i === 0;
@@ -29589,7 +29589,7 @@ function gsPlaysHTML(){
         <span class="gs-tm">${esc(d.team)}</span><span>${esc(d.line)}</span><b class="${d.sc ? "sc" : ""}">${esc(d.on ? t("live.sheet.onDrive") : d.res)}</b></summary>
       ${d.plays.map(gsPlayHTML).join("")}</details>`;
   }).join("");
-  return `<section class="gs-card gs-plays" data-gsscroll>${head}${warn}${drives}</section>`;
+  return `<section class="gs-card gs-plays" data-testid="gamesheet-plays" data-gsscroll>${head}${warn}${drives}</section>`;
 }
 
 /* The box's players, each scored by the league on screen, best first. */
@@ -29604,7 +29604,7 @@ function gsScored(lg){
 const GS_STAR = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.4l2.6 5.5 6 .8-4.4 4.2 1.1 6L12 17l-5.3 2.9 1.1-6-4.4-4.2 6-.8z"/></svg>`;
 function gsStar(p){
   const name = gdShort(p), label = p.fol ? t("live.sheet.unfollow", {name}) : t("live.sheet.follow", {name});
-  return `<button type="button" class="gs-star" data-gsfollow="${esc(p.id)}" data-sid="${esc(p.sid || "")}" data-slug="${esc(p.slug || "")}"
+  return `<button type="button" class="gs-star" data-testid="gamesheet-star" data-gsfollow="${esc(p.id)}" data-sid="${esc(p.sid || "")}" data-slug="${esc(p.slug || "")}"
     data-n="${esc(p.n)}" data-pos="${esc(p.pos)}" data-team="${esc(p.team)}" aria-pressed="${!!p.fol}" aria-label="${esc(label)}">${GS_STAR}</button>`;
 }
 
@@ -29632,18 +29632,18 @@ function gsYours(){
 
 function gsYoursHTML(){
   const rows = gsYours();
-  const list = rows.map(r => `<div class="gs-yr${r.focus ? " focus" : ""}">${gsStar(r)}
+  const list = rows.map(r => `<div class="gs-yr${r.focus ? " focus" : ""}" data-testid="gamesheet-yr">${gsStar(r)}
       <span><b>${esc(gdShort(r))}</b> <i class="gs-pos" data-pos="${esc(r.pos)}">${esc(r.pos)}</i><em>${esc(r.line)}</em></span>
       <b class="gs-pts">${r.pts === null ? "—" : gdNum(r.pts)}</b></div>`).join("");
-  return `<section class="gs-card gs-yours"><h3><span>${t("live.sheet.yours")}</span></h3>
-    ${rows.length ? `<div class="gs-yl" data-gsscroll>${list}</div>` : `<p class="gs-quiet">${t("live.sheet.yoursNone")}</p>`}</section>`;
+  return `<section class="gs-card gs-yours" data-testid="gamesheet-yours"><h3><span>${t("live.sheet.yours")}</span></h3>
+    ${rows.length ? `<div class="gs-yl" data-testid="gamesheet-yl" data-gsscroll>${list}</div>` : `<p class="gs-quiet" data-testid="gamesheet-yours-quiet">${t("live.sheet.yoursNone")}</p>`}</section>`;
 }
 
 function gsTopHTML(){
   const lg = gdLeague(), rows = gsScored(lg).slice(0, 5);
   const head = lg ? `<h3><em>${t("live.sheet.scoring", {name: esc(lg.name)})}</em></h3>` : "";
-  if (!rows.length) return `<section class="gs-card gs-top" data-gsscroll>${head}<p class="gs-quiet">${GS_BOX_ERR ? t("live.sheet.noSleeper") : GS_BOX ? t("live.sheet.noStats") : t("live.sheet.loading")}</p></section>`;
-  return `<section class="gs-card gs-top" data-gsscroll>${head}${rows.map(r => `<div class="gs-sc${r.mine ? " mine" : ""}">${gsStar(r)}
+  if (!rows.length) return `<section class="gs-card gs-top" data-testid="gamesheet-top" data-gsscroll>${head}<p class="gs-quiet">${GS_BOX_ERR ? t("live.sheet.noSleeper") : GS_BOX ? t("live.sheet.noStats") : t("live.sheet.loading")}</p></section>`;
+  return `<section class="gs-card gs-top" data-testid="gamesheet-top" data-gsscroll>${head}${rows.map(r => `<div class="gs-sc${r.mine ? " mine" : ""}">${gsStar(r)}
       <span><b>${esc(gdShort(r))}</b> <small>${esc(r.team)}</small><em>${esc(r.line)}</em></span><b>${gdNum(r.pts || 0)}</b></div>`).join("")}</section>`;
 }
 
@@ -29668,7 +29668,7 @@ function gsBoxHTML(){
     return `<table class="gs-tbl"><caption>${label}</caption><thead><tr><th></th>${cols.map(c => `<th>${c[0]}</th>`).join("")}</tr></thead>
       <tbody>${rows.map(p => `<tr${p.mine ? ` class="mine"` : ""}><td>${gsStar(p)}${esc(gdShort(p))}</td>${cols.map(c => `<td>${c[1](p.s)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
   }).join("");
-  return `<section class="gs-card gs-box" data-gsscroll>${seg}${tables || `<p class="gs-quiet">${t("live.sheet.noStats")}</p>`}</section>`;
+  return `<section class="gs-card gs-box" data-testid="gamesheet-box" data-gsscroll>${seg}${tables || `<p class="gs-quiet">${t("live.sheet.noStats")}</p>`}</section>`;
 }
 
 const gsClubName = c => {
@@ -29680,8 +29680,8 @@ const gsClubName = c => {
    plays sit beside the rest, so the tab that would show them shows the box instead. */
 function gsTabsHTML(tab){
   const label = {plays: t("live.sheet.plays"), box: t("live.sheet.box"), top: t("live.sheet.top")};
-  return `<div class="gs-tabs" role="tablist" aria-label="${esc(t("live.sheet.tabs"))}">${GS_TABS.map(k =>
-    `<button type="button" role="tab" class="gs-tab" data-gstab="${k}" aria-selected="${k === tab}">${label[k]}</button>`).join("")}</div>`;
+  return `<div class="gs-tabs" data-testid="gamesheet-tabs" role="tablist" aria-label="${esc(t("live.sheet.tabs"))}">${GS_TABS.map(k =>
+    `<button type="button" role="tab" class="gs-tab" data-testid="gamesheet-tab" data-gstab="${k}" aria-selected="${k === tab}">${label[k]}</button>`).join("")}</div>`;
 }
 
 /* The game on each side, in the order a swipe walks them (gamesheet.js gsNeighbours), with where it
@@ -29706,8 +29706,8 @@ function gsSheetHTML(){
   return `<div class="gs-bar"><h2 class="gs-title" id="gs-title">${esc(t("live.sheet.title", {away: GS.away, home: GS.home}))}</h2>
       <button type="button" class="gs-x" data-gsclose aria-label="${t("common.action.close")}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     ${gsFootHTML()}
-    <div class="gs-main" data-tab="${tab}"><div class="gs-side">${gsScoreHTML()}${gsYoursHTML()}${gsTabsHTML(tab)}</div>
-      <div class="gs-panes" data-gsscroll role="tabpanel">${gsPlaysHTML()}${gsBoxHTML()}${gsTopHTML()}</div></div>`;
+    <div class="gs-main" data-testid="gamesheet-main" data-tab="${tab}"><div class="gs-side">${gsScoreHTML()}${gsYoursHTML()}${gsTabsHTML(tab)}</div>
+      <div class="gs-panes" data-testid="gamesheet-panes" data-gsscroll role="tabpanel">${gsPlaysHTML()}${gsBoxHTML()}${gsTopHTML()}</div></div>`;
 }
 /* ── js/surface/live/gamesheet.js ── */
 /* ============================== LIVE: THE GAME SHEET ==============================

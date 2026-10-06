@@ -11,22 +11,8 @@ import pytest
 
 from component import mount  # noqa: F401  (the fixture)
 from pages.live_tabs import DESK, LiveTabsPage
-from test_render import LIVE_PLANT as plant, go, open_page  # noqa: F401  (for `live`, below)
 
 pytestmark = pytest.mark.render
-
-PHONE = (360, 780)
-
-
-def live(browser, page_file, viewport=PHONE, states=None, team="espn"):
-    """The full page on Live, as the reader of `team`. No test here uses it: tests/test_live_tds.py still
-    imports it, and drops it when its tests move to `mount` (its 6 loads are counted there, not here)."""
-    ctx, page, errors = open_page(browser, page_file, viewport)
-    page.evaluate(f"localStorage.setItem('tw-team', '{team}');" + plant(states))
-    for kind, sel in go("live"):
-        page.click(sel)
-    page.wait_for_selector("[data-gdboard] .gd-tabs", state="attached")
-    return ctx, page, errors
 
 
 def test_three_tabs_and_my_league_is_a_mirrored_row_per_starter_slot(mount):
