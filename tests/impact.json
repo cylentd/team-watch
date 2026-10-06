@@ -5,6 +5,7 @@
     "tests/test_build.py",
     "tests/test_js_syntax.py",
     "tests/test_js_harness.py",
+    "tests/test_layer_ratchet.py",
     "tests/test_lint.py",
     "tests/test_scope.py",
     "tests/test_style_rules.py",
@@ -103,7 +104,7 @@
     "profile": {
       "paths": ["design/src/js/surface/profile/", "design/src/css/surface/profile/", "design/pedigree.py", "design/gamelog.py",
                 "design/routes.py", "design/archetype.py"],
-      "tests": ["tests/test_profile.py"],
+      "tests": ["tests/test_profile.py", "tests/test_js_profile.py"],
       "render": ["profile"]
     },
     "teams": {

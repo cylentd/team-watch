@@ -67,6 +67,12 @@ browser tests). Python logic is tested in Python. Every run ends with a `layers`
 tests and worker seconds (python, node, build, browser); on 2026-10-05 the browser held 830 of 3,122
 tests and 725 of 782 worker-seconds.
 
+New logic, test first (2026-10-05): a view's logic goes in `js/data/` as a function from data to
+data, and its failing Node test is written before it; the surface file only draws what it returns. A
+browser test then covers layout and taps alone. Touching an area moves its logic-only browser tests to
+Node in the same branch. `tests/test_layer_ratchet.py` counts the pure `data/` calls each test file
+makes through `page.evaluate` (108 in 17 files when set): the count may only shrink; a new file has none.
+
 The build fails on a lint error (`design/lint_css.py`), a contract violation (`design/contract.py`:
 an injected block missing a field the JS reads), or a part the manifests do not agree on. The
 suite builds against `tests/fixtures/` (never ff-jarvis) and compares the rendered page, in

@@ -188,20 +188,6 @@ def cell(page, name):
 
 
 @pytest.mark.render
-def test_ordinal_and_colour_class(shared):
-    page, errors = shared((1400, 900))
-    got = page.evaluate("""() => ({
-      nth: ordinal(easiestRank({rank: 24, of: 32})),
-      suffixes: [1, 2, 3, 4, 11, 12, 13, 21, 22, 23].map(ordinal),
-      cls: [8, 9, 24, 25].map(n => matchupClass(n, 32)),
-    })""")
-    assert got["nth"] == "9th"
-    assert got["suffixes"] == ["1st", "2nd", "3rd", "4th", "11th", "12th", "13th", "21st", "22nd", "23rd"]
-    assert got["cls"] == ["mu-easy", "", "", "mu-hard"]
-    assert errors == []
-
-
-@pytest.mark.render
 def test_matchup_column_rows(shared):
     page, errors = shared((1400, 900))
     assert re.sub(r"\s+", " ", cell(page, "Amon-Ra St. Brown").inner_text()).strip() == "@ KC 9th"
@@ -1039,51 +1025,7 @@ def test_each_position_gets_its_own_shape(shared):
     assert errors == []
 
 
-@pytest.mark.render
-def test_ties_share_a_rank(browser, page_file):
-    """Competition ranking: two tied for first are both 1st and say so, the next is 3rd -- never
-    RB1 and RB2 by whichever the sort happened to put first."""
-    ctx, page, errors = open_page(browser, page_file, (1400, 900))
-    page.evaluate("""USAGE.sheet.rows.push(
-      {n: 'A', slug: 'a', pos: 'XX', team: 'T', g: 1, v: {car: 10}},
-      {n: 'B', slug: 'b', pos: 'XX', team: 'T', g: 1, v: {car: 10}},
-      {n: 'C', slug: 'c', pos: 'XX', team: 'T', g: 1, v: {car: 5}})""")
-    assert page.evaluate("sheetRank('XX', 'car', 'a')") == [1, 3, True]
-    assert page.evaluate("sheetRank('XX', 'car', 'b')") == [1, 3, True]
-    assert page.evaluate("sheetRank('XX', 'car', 'c')") == [3, 3, False]
-    assert page.evaluate("sheetRank('XX', 'car', 'nobody')") is None
-    # The tie is in the rank itself -- both are 1st and the next is 3rd -- not in a marker on it.
-    assert page.evaluate("rankText('XX', [1, 3, true])") == "XX1"
-    assert page.evaluate("rankText('XX', [3, 3, false])") == "XX3"
-    assert page.evaluate("rankMark([1, 3, true])") == "#1"
-    assert page.evaluate("rankAmong({a: 2.5, b: 2.5, c: 2.5}, 'b')") == [1, 3, True]
-    assert errors == []
-    ctx.close()
-
-
-@pytest.mark.render
-def test_height_reads_in_feet_not_inches(shared):
-    """Sleeper stores height as bare inches in a string; nobody reads a receiver as 73."""
-    page, errors = shared((1400, 900))
-    assert page.evaluate("inchesText('73')") == "6′1″"
-    assert page.evaluate("inchesText('72')") == "6′0″"
-    assert page.evaluate("inchesText(null)") is None
-    assert page.evaluate("shortName('Xavier Worthy')") == "X. Worthy"
-    assert page.evaluate("shortName('Kenneth Walker III')") == "K. Walker III"
-    assert page.evaluate("shortName('Ja\\'Marr Chase')") == "J. Chase"
-    assert errors == []
-
-
-@pytest.mark.render
-def test_red_zone_line_switches_at_ten(shared):
-    page, errors = shared((1400, 900))
-    got = page.evaluate("""() => [
-      rzLineHTML(1, 5, 0.2, ["team target", "team targets"], false),
-      rzLineHTML(3, 10, 0.3, ["team target", "team targets"], false),
-    ].map(h => { const d = document.createElement("div"); d.innerHTML = h; return d.textContent; })""")
-    assert got[0].startswith("1 of 5") and "%" not in got[0]
-    assert got[1].startswith("30% · 3 of 10")
-    assert errors == []
+# Pure helpers (rankAmong, sheetRank, inchesText, rzLineHTML, ordinal) are tests/test_js_profile.py, in Node.
 
 
 @pytest.mark.render
