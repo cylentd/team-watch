@@ -619,13 +619,20 @@ def test_the_sphere_turns_rests_and_stops(shared):
         frames(20)                                            # twenty frames of a shut profile: still
         assert page.evaluate(yaw) == shut
         page.emulate_media(reduced_motion="reduce")
+        # The old bug held the sphere still for 2 s and then turned it, so a short run would pass a
+        # regression to "hold, then turn" under reduced motion. The page's frames are queued and run by the
+        # test, 170 of them stamped 16.7 ms apart (2.8 s of the page's own time), instead of waiting that long.
+        page.evaluate("""() => { const real = window.requestAnimationFrame.bind(window), q = [];
+          window.__rafReal = real; window.__rafQ = q; window.requestAnimationFrame = cb => q.push(cb); }""")
         row(page, "Amon-Ra St. Brown").click()
-        # A real 2.6 s, not a frame count: the old bug held the sphere still for 2 s and then turned it, so
-        # a short wait would pass a regression to "hold, then turn" under reduced motion.
-        page.wait_for_timeout(2600)
+        page.locator("#modal .pf-orb").wait_for()
+        page.evaluate("""() => { let t = performance.now();
+          for (let i = 0; i < 170; i++) { t += 16.7; window.__rafQ.splice(0).forEach(cb => cb(t)); } }""")
         assert page.evaluate(yaw) == 0
         assert errors == []
     finally:
+        page.evaluate("""() => { if (!window.__rafReal) return; window.requestAnimationFrame = window.__rafReal;
+          window.__rafQ.splice(0).forEach(cb => window.__rafReal(cb)); window.__rafReal = null; }""")
         page.emulate_media(reduced_motion="reduce")
 
 

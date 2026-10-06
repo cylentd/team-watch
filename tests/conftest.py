@@ -36,16 +36,17 @@ def pytest_addoption(parser):
 def pytest_configure(config):
     config.addinivalue_line("markers", "area(name): the impact area a test covers (scripts/impact.py)")
     config.addinivalue_line("markers", "xdist_group(name): set by the hook below; one group runs on one worker")
+    if hasattr(config.option, "loadscopereorder"):
+        config.option.loadscopereorder = False   # the order the hook below sets is the queue's order
+    import runlog
+    runlog.register(config)
 
 
 CHUNK = 12   # tests per xdist group outside the golden slices
 
-# The test layers, cheapest first (2026-10-05). A test's layer is the costliest thing it asks for;
-# the run ends with each layer's test count and time (the layers line), so a land shows where its
-# seconds went and whether new tests are landing in the cheap layers or the browser.
-LAYERS = ("python", "node", "build", "browser")
-
-
+# The test layers, cheapest first (2026-10-05): python, node, build, browser. A test's layer is the
+# costliest thing it asks for. tests/runlog.py prints each layer's tests and worker seconds at the
+# end of a run (the layers line) and records the run in the test history (scripts/testlog.py).
 def layer_of(item):
     names = set(getattr(item, "fixturenames", ()))
     if "browser" in names:
@@ -53,23 +54,6 @@ def layer_of(item):
     if names & {"built", "page_file"}:
         return "build"
     return "node" if "node_js" in names else "python"
-
-
-_LAYER_TIME = {}
-
-
-def pytest_runtest_logreport(report):
-    """Every phase's time, setup included: a module's page load is charged to its first test."""
-    layer = dict(report.user_properties).get("layer")
-    if layer:
-        n, s = _LAYER_TIME.get(layer, (0, 0.0))
-        _LAYER_TIME[layer] = (n + (report.when == "call"), s + report.duration)
-
-
-def pytest_terminal_summary(terminalreporter):
-    if _LAYER_TIME:
-        parts = [f"{k} {_LAYER_TIME[k][0]} tests {_LAYER_TIME[k][1]:.1f} s" for k in LAYERS if k in _LAYER_TIME]
-        terminalreporter.write_line("layers (worker time): " + " | ".join(parts))
 
 
 @pytest.hookimpl(tryfirst=True)
@@ -84,27 +68,32 @@ def pytest_collection_modifyitems(config, items):
             config.hook.pytest_deselected(items=drop)
             items[:] = keep
     # `-n auto --dist loadgroup` (land.ps1) runs one group on one worker. Two kinds of group:
-    # - test_render.py's golden slice per area: the snapshot (a page per state, both viewports) is
-    #   taken once and read by four tests. These are the longest units of work, so they go to the
-    #   front of the queue; started last, alphabetically, they ran on after everything else.
+    # - test_render.py's golden slices (test_render.SLICES, at most 6 states each; the area mark's
+    #   `slice`): the snapshot (a page per state, both viewports) is taken once and read by the
+    #   slice's tests. These are the longest units of work, so they go to the front of the queue,
+    #   the biggest first; started last, alphabetically, they ran on after everything else.
+    #   xdist would reorder groups by test count (a slice of 6 states is 9 tests, behind every
+    #   12-test run below), so pytest_configure turns that reordering off.
     # - every other file in runs of CHUNK tests, so a module-scoped page is loaded once per run, and
     #   a long file still spreads over several workers. Until 2026-10-05 each file was one group,
     #   and test_profile.py's 58 browser tests took 67 s on one worker while the other 19 sat idle;
     #   with no groups at all every worker that drew one test loaded the file's shared pages.
     # Runs before xdist's hook, which is the one that reads the marker.
-    slices, seen = [], {}
+    slices, seen = {}, {}
     for item in items:
         item.user_properties.append(("layer", layer_of(item)))
-        area = next((m.args[0] for m in item.iter_markers("area")), None)
-        if area and item.path.name == "test_render.py" and "snapshot" in getattr(item, "fixturenames", ()):
-            item.add_marker(pytest.mark.xdist_group(f"render:{area}"))
-            slices.append(item)
+        mark = next(item.iter_markers("area"), None)
+        if mark and item.path.name == "test_render.py" and "snapshot" in getattr(item, "fixturenames", ()):
+            group = f"render:{mark.kwargs.get('slice', mark.args[0])}"
+            item.add_marker(pytest.mark.xdist_group(group))
+            slices.setdefault(group, []).append(item)
         else:
             n = seen[item.path.name] = seen.get(item.path.name, -1) + 1
             item.add_marker(pytest.mark.xdist_group(f"{item.path.name}#{n // CHUNK}"))
     if slices:
-        first = set(map(id, slices))
-        items[:] = slices + [i for i in items if id(i) not in first]
+        first = {id(i) for g in slices.values() for i in g}
+        biggest = sorted(slices.values(), key=len, reverse=True)   # stable: ties keep their order
+        items[:] = [i for g in biggest for i in g] + [i for i in items if id(i) not in first]
 
 
 @pytest.fixture(scope="session")

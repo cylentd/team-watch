@@ -38,6 +38,17 @@ param(
 
 $ErrorActionPreference = "Stop"
 $repo = Split-Path -Parent $PSScriptRoot
+
+# Seconds per phase, appended to the test history when the land ends, landed or not
+# (scripts/testlog.py land; `python scripts/testlog.py` reads them back). The pytest runs below are
+# recorded there too, as kind "land".
+$clock = [Diagnostics.Stopwatch]::StartNew()
+$phase = [ordered]@{ test = 0.0; queue = 0.0; retest = 0.0; build = 0.0; push = 0.0 }
+$testRuns = 0
+function Timed($name, [scriptblock]$block) {
+    $sw = [Diagnostics.Stopwatch]::StartNew()
+    try { & $block } finally { $phase[$name] += $sw.Elapsed.TotalSeconds }
+}
 # build.json belongs here for the same reason as the two pages: design/build.py writes it, so a
 # branch that carried it would conflict with every other branch that had rebuilt. It is the hash
 # of the injected data, which an open tab fetches to learn that main has moved.
@@ -152,10 +163,12 @@ function RebaseAndTest {
     Write-Host "  python -m pytest $($parallel -join ' ') $($selected -join ' ')" -ForegroundColor DarkGray
     if (-not $DryRun) {
         Push-Location $repo
+        $env:TW_RUN_KIND = "land"
+        $script:testRuns++
         try {
-            & python -m pytest @parallel @selected
+            Timed $(if ($script:testRuns -eq 1) { "test" } else { "retest" }) { & python -m pytest @parallel @selected }
             if ($LASTEXITCODE -ne 0) { throw "tests failed ($LASTEXITCODE) -- nothing landed" }
-        } finally { Pop-Location }
+        } finally { Pop-Location; Remove-Item Env:TW_RUN_KIND -ErrorAction SilentlyContinue }
     }
 }
 
@@ -163,6 +176,8 @@ function RebaseAndTest {
 # whole test run, so a second session's land waited out the first's tests and then ran its own.
 # Now the queue holds only the check, the build and the push; tests run again inside it only when
 # origin/$Base moved while they ran, because only then is the tree that ships a different one.
+$outcome = "failed"
+try {
 RebaseAndTest
 
 # --- the queue ------------------------------------------------------------------------------------
@@ -173,7 +188,7 @@ RebaseAndTest
 $ticket = $null
 if (-not $DryRun) {
     . (Join-Path $PSScriptRoot "land-queue.ps1")
-    $ticket = Enter-LandQueue -Repo $repo -Label "land $branch"
+    $ticket = Timed queue { Enter-LandQueue -Repo $repo -Label "land $branch" }
 }
 try {
 
@@ -217,7 +232,7 @@ for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
         if (-not $DryRun) {
             Push-Location $repo
             try {
-                & python design/build.py
+                Timed build { & python design/build.py }
                 if ($LASTEXITCODE -ne 0) { throw "build failed ($LASTEXITCODE)" }
             } finally { Pop-Location }
         }
@@ -242,11 +257,12 @@ for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
 
     # Called directly, not through GitRun, so $LASTEXITCODE survives to distinguish "moved, retry"
     # (2 or 3) from "landed" (0) from everything else (a real failure -- stop and say so).
-    $landOutput = & git.exe -C $repo land $Base
+    $landOutput = Timed push { & git.exe -C $repo land $Base }
     $landCode = $LASTEXITCODE
     $landOutput | ForEach-Object { Write-Host $_ }
 
     if ($landCode -eq 0) {
+        $outcome = "landed"
         break
     } elseif (($landCode -eq 2 -or $landCode -eq 3) -and $attempt -lt $maxAttempts) {
         Write-Host "origin/$Base moved -- rebasing and re-testing once" -ForegroundColor Yellow
@@ -257,3 +273,12 @@ for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
 }
 
 } finally { if ($ticket) { Exit-LandQueue $ticket } }
+
+} finally {
+    if (-not $DryRun) {
+        $kv = @("branch=$branch", "outcome=$outcome", "full=$([bool]$Full)", "live=$($notQuiet.Count -gt 0)",
+                "tests=$testRuns", "total=$($clock.Elapsed.TotalSeconds)") + @($phase.Keys | ForEach-Object { "$_=$($phase[$_])" })
+        & python (Join-Path $PSScriptRoot "testlog.py") land @kv
+        if ($LASTEXITCODE -ne 0) { Write-Host "  (land not recorded in the test history)" -ForegroundColor Yellow }
+    }
+}

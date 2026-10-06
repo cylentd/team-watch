@@ -47,13 +47,17 @@ def test_a_dead_sessions_ticket_is_cleared_not_waited_on(repo):
 
 
 def test_the_second_lander_waits_for_the_first(repo):
-    """First holds main for 4s; the second, started 1s later, must get it only after the first
+    """First holds main for 4s; the second, started once the first's ticket is in, must get it only after the first
     lets go, and must say whose land it waited on."""
     first = subprocess.Popen([PS, "-NoProfile", "-NonInteractive", "-Command",
                               f". '{QUEUE}'; $t = Enter-LandQueue -Repo '{repo}' -Label first; "
                               f"Start-Sleep -Seconds 4; [datetime]::UtcNow.Ticks; Exit-LandQueue $t"],
                              cwd=repo, stdout=subprocess.PIPE, text=True)
-    time.sleep(1.5)
+    # The first holds main once its ticket is in the queue; poll for that, never a fixed pause.
+    deadline = time.monotonic() + 30
+    while not tickets(repo) and first.poll() is None and time.monotonic() < deadline:
+        time.sleep(0.05)   # poll interval, not a wait for an event
+    assert tickets(repo), "the first lander never took a ticket"
     second = ps(f"$t = Enter-LandQueue -Repo '{repo}' -Label second; [datetime]::UtcNow.Ticks; Exit-LandQueue $t", repo)
     out_first, _ = first.communicate(timeout=60)
     assert second.returncode == 0, second.stderr

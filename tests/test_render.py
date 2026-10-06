@@ -52,8 +52,8 @@ PROPS = ["color", "background-color", "border-top-color", "border-top-style", "b
          "font-weight", "letter-spacing", "line-height", "opacity", "display", "grid-template-columns",
          "transition-duration"]
 
-# (state name, how to reach it from a fresh load). Each is a list of steps: ("click", selector) or
-# ("eval", js). The nav is clicked, not set, so the wiring is exercised too.
+# (state name, how to reach it from a fresh load). Each is a list of steps: ("click", selector),
+# ("eval", js) or ("wait", js condition). The nav is clicked, not set, so the wiring is exercised too.
 GAMEDAY_FIX = pathlib.Path(__file__).resolve().parent / "fixtures" / "gameday.json"
 # SF's game is on, DET's has not started; every other game is final.
 LIVE_STATES = {"SF": "in_game", "DET": "pre_game"}
@@ -195,9 +195,11 @@ PROFILE_LIVE_PLANT = """(() => {
     lead: {'4881': {n: 'George Kittle', pos: 'TE', team: 'SF', pts: 16.2, s: {rec: 6, rec_tgt: 8, rec_yd: 82, rec_td: 1}}}};
   GD_AT = Date.now(); GD_ERR = '';
 })()"""
-WAIT_STAGE = "new Promise(r => setTimeout(r, 450))"
-CLOSE_STAGE = """(() => { document.body.dispatchEvent(new KeyboardEvent("keydown", {key: "Escape", bubbles: true}));
-  return new Promise(r => setTimeout(r, 450)); })()"""
+# Conditions a step waits for ("wait" steps, page.wait_for_function), never a duration: Cards mode
+# drawn, then (after Escape) no pack stage left on the page.
+CARDS_DRAWN = "document.querySelector('#view .cardgrid .tc') !== null"
+STAGE_GONE = "!document.querySelector('.pk-stage') && !document.body.classList.contains('pk-open')"
+ESCAPE = """document.body.dispatchEvent(new KeyboardEvent("keydown", {key: "Escape", bubbles: true}))"""
 # The fixture slate's picks sit under the deal table's floors (a 35% TD is a backup, no yards leg
 # is called lower at 58%+), so Slips' tests open its pool to every Underdog-priced pick at the
 # kickoff, TDs and yards kept apart as the real pool keeps them.
@@ -519,9 +521,9 @@ STATES = [
     # The pack (2026-09-27): Cards opens the week's pack on its own stage, on <body>; Escape puts
     # it back on the page above the dealt cards.
     ("teams-cards-stage", [("eval", "VIEW='espn'; render()")] + go("roster")
-                          + [("click", "[data-rmode='cards']"), ("eval", WAIT_STAGE)]),
+                          + [("click", "[data-rmode='cards']"), ("wait", CARDS_DRAWN)]),
     ("teams-cards", [("eval", "VIEW='espn'; render()")] + go("roster")
-                    + [("click", "[data-rmode='cards']"), ("eval", WAIT_STAGE), ("eval", CLOSE_STAGE)]),
+                    + [("click", "[data-rmode='cards']"), ("wait", CARDS_DRAWN), ("eval", ESCAPE), ("wait", STAGE_GONE)]),
 ]
 
 SEED = """
@@ -603,9 +605,10 @@ def drive(page, steps):
     for kind, arg in steps:
         if kind == "click":
             page.locator(arg).first.click()
+        elif kind == "wait":
+            page.wait_for_function(arg)
         else:
             page.evaluate(arg)
-    page.wait_for_timeout(50)
     # Scroll events (the header hiding, hidebar.js) fire in the next rendering step, not after any
     # fixed time: on a loaded machine 50 ms passed without one (2026-09-27, run in parallel).
     page.evaluate("new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))")
@@ -613,10 +616,34 @@ def drive(page, steps):
 
 AREAS = sorted({area_of(s) for s, _ in STATES})
 
+# The golden is taken in slices of at most SLICE_MAX states (both viewports each), one xdist group a
+# slice (conftest). An area of more states splits into near-equal runs, named `<area>-1`, `<area>-2`:
+# as one group Teams' 18 states (lboard) took 38 s on one worker, the floor under the whole suite's
+# wall time (2026-10-05). Every state still opens its own fresh page, so the split moves no capture.
+SLICE_MAX = 6
 
-def by_area(values, area=lambda v: v):
-    """Parametrize over values, each marked with its area so `--areas` can pick it (conftest)."""
-    return [pytest.param(v, marks=pytest.mark.area(area(v)), id=v) for v in values]
+
+def _slices():
+    names = {}
+    for s, _ in STATES:
+        names.setdefault(area_of(s), []).append(s)
+    out = {}
+    for area in AREAS:
+        runs = -(-len(names[area]) // SLICE_MAX)
+        size = -(-len(names[area]) // runs)
+        for k in range(runs):
+            out[area if runs == 1 else f"{area}-{k + 1}"] = (area, names[area][k * size:(k + 1) * size])
+    return out
+
+
+SLICES = _slices()                                                  # slice -> (area, its states)
+SLICE_OF = {s: key for key, (_, states) in SLICES.items() for s in states}
+
+
+def by_slice(values, slice_of):
+    """Parametrize over values, each marked with its area so `--areas` can pick it, and with its
+    slice, which conftest makes the xdist group."""
+    return [pytest.param(v, marks=pytest.mark.area(SLICES[slice_of(v)][0], slice=slice_of(v)), id=v) for v in values]
 
 
 def fenced_selectors():
@@ -663,40 +690,46 @@ OUTSIDE_FENCE = """
 
 @pytest.fixture(scope="module")
 def snapshot(browser, page_file):
-    """snapshot(area) -> ({viewport: {state: probe}}, errors) for that area's states, taken once.
-    snapshot.outside[area] holds, per state, the fenced rules that miss an element (OUTSIDE_FENCE)."""
-    taken, fences = {}, fenced_selectors()
+    """snapshot(slice) -> ({viewport: {state: probe}}, errors) for that slice's states (SLICES), taken once.
+    snapshot.outside[slice] holds, per state, the fenced rules that miss an element (OUTSIDE_FENCE).
+    The fence list goes over as one JSON string: as 3,500 separate strings Playwright's argument
+    serialisation cost about 50 ms a page, more than the check itself.
+    Each state gets its own fresh context, so nothing one state did reaches the next capture. (Loading
+    the next state's page while this one was driven saved nothing on a full run, where every worker is
+    busy, and doubled the renderers per worker; removed 2026-10-05.)"""
+    taken, fences = {}, json.dumps(fenced_selectors())
+    steps_of = dict(STATES)
 
-    def take(area):
-        if area not in taken:
+    def take(key):
+        if key not in taken:
             out, errors, outside = {vp: {} for vp in VIEWPORTS}, {}, {}
             for vp_name, vp in VIEWPORTS.items():
-                for state, steps in STATES:
-                    if area_of(state) != area:
-                        continue
-                    ctx, page, errs = open_page(browser, page_file, vp)
-                    drive(page, steps)
-                    out[vp_name][state] = page.evaluate(PROBE, PROPS)
-                    missed = page.evaluate(OUTSIDE_FENCE, fences)
+                for state in SLICES[key][1]:
+                    ctx, page, errs = open_at(browser, page_file, vp)
+                    try:
+                        drive(page, steps_of[state])
+                        out[vp_name][state] = page.evaluate(PROBE, PROPS)
+                        missed = page.evaluate(f"(json) => ({OUTSIDE_FENCE})(JSON.parse(json))", fences)
+                    finally:
+                        ctx.close()
                     if errs:
                         errors[f"{vp_name}/{state}"] = errs
                     if missed:
                         outside[f"{vp_name}/{state}"] = missed
-                    ctx.close()
-            taken[area] = out, errors
-            take.outside[area] = outside
-        return taken[area]
+            taken[key] = out, errors
+            take.outside[key] = outside
+        return taken[key]
     take.outside = {}
     return take
 
 
-@pytest.mark.parametrize("area", by_area(AREAS))
+@pytest.mark.parametrize("area", by_slice(SLICES, lambda k: k))
 def test_no_console_errors(snapshot, area):
     _, errors = snapshot(area)
     assert errors == {}
 
 
-@pytest.mark.parametrize("area", by_area(AREAS))
+@pytest.mark.parametrize("area", by_slice(SLICES, lambda k: k))
 def test_no_fenced_rule_misses_its_element(snapshot, area):
     """A class a fenced file styles, drawn outside that file's fence, gets none of the style.
     Either the fence lists the new place (design/src/scope.json) or the file is shared."""
@@ -974,9 +1007,9 @@ def test_tuesday_opens_waivers(browser, page_file, day, hash, surface, first):
         ctx.close()
 
 
-@pytest.mark.parametrize("state", by_area([s for s, _ in STATES], area_of))
+@pytest.mark.parametrize("state", by_slice([s for s, _ in STATES], SLICE_OF.get))
 def test_state_renders_something(snapshot, state):
-    out, _ = snapshot(area_of(state))
+    out, _ = snapshot(SLICE_OF[state])
     for vp in VIEWPORTS:
         assert len(out[vp][state]["view"]) > 200, f"{vp}/{state}: #view is empty"
     if state.endswith("drawer"):
@@ -991,11 +1024,11 @@ def test_state_renders_something(snapshot, state):
             assert len(out[vp][state]["chat"]) > 100
 
 
-@pytest.mark.area("chat")
+@pytest.mark.area("chat", slice=SLICE_OF["chat-over-movers"])
 def test_chat_panel_survives_a_surface_change(snapshot):
     """The whole reason it is a floating panel: open it, switch surface, and it is still there
     with the page behind it changed. As a tab, asking about a player meant leaving his row."""
-    out, _ = snapshot("chat")
+    out, _ = snapshot(SLICE_OF["chat-over-movers"])
     over_pool = out["desk"]["chat-over-movers"]
     assert over_pool["chatOpen"], "the panel closed when the surface changed"
     assert "chatinput" in over_pool["chat"], "the composer is gone"
@@ -1033,9 +1066,9 @@ def diff(golden, now, limit=25):
     return lines
 
 
-@pytest.mark.parametrize("area", by_area(AREAS))
+@pytest.mark.parametrize("area", by_slice(SLICES, lambda k: k))
 def test_matches_golden(snapshot, update_golden, area):
-    """One area's states against the golden. An update rewrites that area's states only, and drops
+    """One slice's states against the golden. An update rewrites that slice's states only, and drops
     states that no longer exist, so `--areas x --update-golden` leaves every other area as it was."""
     from conftest import GOLDEN
     out, _ = snapshot(area)
@@ -1046,7 +1079,7 @@ def test_matches_golden(snapshot, update_golden, area):
             pytest.fail("--update-golden runs without -n: areas on two workers would each rewrite the one file")
         names = {s for s, _ in STATES}
         for vp in VIEWPORTS:
-            kept = {s: p for s, p in golden.get(vp, {}).items() if s in names and area_of(s) != area}
+            kept = {s: p for s, p in golden.get(vp, {}).items() if s in names and s not in SLICES[area][1]}
             golden[vp] = {**kept, **out[vp]}
         path.parent.mkdir(exist_ok=True)
         path.write_text(json.dumps(golden, indent=0, sort_keys=True), encoding="utf-8", newline="\n")

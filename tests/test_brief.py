@@ -35,9 +35,7 @@ def test_a_phone_shows_three_then_all(browser, page_file):
     drive(page, go("roster"))
     unfold(page)
     got = lines(page)
-    if len(got) <= 3:
-        assert page.locator("[data-briefall]").count() == 0
-        pytest.skip("the fixture's roster has three things or fewer to check")
+    assert len(got) > 3, f"the fixture's roster has more than three things to check, not {len(got)}"
     assert sum(x["shown"] for x in got) == 3
     page.locator("[data-briefall]").click()
     assert all(x["shown"] for x in lines(page))
@@ -74,7 +72,7 @@ def test_a_swipe_checks_one_line(browser, page_file):
     page.mouse.down()
     page.mouse.move(box["x"] + box["width"] * .8, y, steps=6)
     page.mouse.up()
-    page.wait_for_timeout(100)
+    page.wait_for_function("n => document.querySelectorAll('.brief-line').length === n", arg=n - 1)
     assert len(lines(page)) == n - 1
     assert page.locator("[data-briefpeek]").count() == 1, "the checked line is one tap away"
     assert page.locator("#modal.on").count() == 0, "a swipe is not a tap: no profile opened"

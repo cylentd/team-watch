@@ -55,23 +55,24 @@ worker), never your own. A full page load costs about 1 s, so a file's tests sha
 page that resets what a test changed (`'use strict'` in the reset, so a renamed global throws) and
 asserts no page error after load; a test about loading itself opens its own. Every browser test
 asserts no page errors (`test_render.watch_errors`). A missing fixture element is an `assert`, never
-a `pytest.skip`. Animations run on the page's own clock (`test_roster_cards.py` VCLOCK), never on
-`wait_for_timeout`. Logic with no layout is not a browser test (next paragraph). `conftest.py` runs
-each file in groups of 12 tests, so a shared page loads once per group and a long file still spreads out.
+a `pytest.skip`. A test waits for a condition, never a duration: no `wait_for_timeout` or sleep
+(animations run on the page's clock, `test_roster_cards.py` VCLOCK); `tests/test_honest_tests.py`
+enforces both. Logic with no layout is not a browser test. `conftest.py` runs each file in groups of
+12 tests, so a shared page loads once per group and a long file still spreads out.
 
-Writing a unit test (2026-10-05): logic with no layout (wording, sorting, a scan, any JS function from
-data to data) runs in Node, not the browser: the `node_js` fixture loads the named files from
-`design/src/js` into a sandbox and calls a function in about a millisecond, with no build
-(`tests/jsunit.py` says how; `tests/test_js_hurt.py` is the example: 12 tests in 0.07 s, 7.7 s as
-browser tests). Python logic is tested in Python. Every run ends with a `layers` line, each layer's
-tests and worker seconds (python, node, build, browser); on 2026-10-05 the browser held 830 of 3,122
-tests and 725 of 782 worker-seconds.
+Writing a unit test (2026-10-05): a JS function from data to data runs in Node, Python logic in
+Python. The `node_js` fixture loads named files from `design/src/js` and calls a function in about a
+millisecond, no build (`tests/jsunit.py`; `tests/test_js_hurt.py`: 0.07 s, 7.7 s in the browser).
 
-New logic, test first (2026-10-05): a view's logic goes in `js/data/` as a function from data to
-data, and its failing Node test is written before it; the surface file only draws what it returns. A
-browser test then covers layout and taps alone. Touching an area moves its logic-only browser tests to
-Node in the same branch. `tests/test_layer_ratchet.py` counts the pure `data/` calls each test file
-makes through `page.evaluate` (108 in 17 files when set): the count may only shrink; a new file has none.
+Test history (2026-10-05): every pytest run and land is one JSON line in `.git/test-history/`, shared
+by all worktrees; `python scripts/testlog.py` summarizes layers, trend, slowest files, flaky tests and
+land phases. Read it before test-speed or flakiness work (it supersedes the hand-timed 2026-10-05 note:
+browser 830 of 3,122 tests, 725 of 782 worker-s). A nightly job runs the suite 3 times for flakes.
+
+New logic, test first (2026-10-05): a view's logic goes in `js/data/` with its failing Node test
+written first; the surface only draws it, and its browser test covers layout and taps. Touching an
+area moves its logic-only browser tests to Node. `tests/test_layer_ratchet.py` counts pure `data/`
+calls made through `page.evaluate` per file (108 when set): only down, and a new file has none.
 
 The build fails on a lint error (`design/lint_css.py`), a contract violation (`design/contract.py`:
 an injected block missing a field the JS reads), or a part the manifests do not agree on. The

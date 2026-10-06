@@ -90,8 +90,13 @@ def test_on_a_desktop_the_sheet_is_a_centred_dialog(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (1280, 900))
     page.evaluate("SURFACE='parlay'; PARLAY_BOOK='dk'; render()")
     page.evaluate(f"legSheetOpen({index(page, 'Tee Higgins', 'RECS')})")
-    page.wait_for_timeout(700)
-    box = page.evaluate("(() => { const r = document.getElementById('legsheet').getBoundingClientRect(); return [r.top, r.bottom]; })()")
+    sheet_box = "(() => { const r = document.getElementById('legsheet').getBoundingClientRect(); return [r.top, r.bottom]; })()"
+    # The sheet is settled when it has stopped moving: the same box on two frames running. A plain
+    # predicate keeping the last box on window, polled every frame (a returned Promise is never re-checked).
+    page.evaluate("window.__lsb = null")
+    page.wait_for_function("""(src) => { const b = eval(src), s = JSON.stringify(b);
+      const same = window.__lsb === s; window.__lsb = s; return same && b[0] > 8; }""", arg=sheet_box)
+    box = page.evaluate(sheet_box)
     assert box[0] > 8 and abs((box[0] + box[1]) / 2 - 450) <= 2, box
     assert errors == []
     ctx.close()

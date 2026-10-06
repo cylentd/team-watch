@@ -12,7 +12,9 @@ import sys
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "design"))
-sys.path.insert(0, str(REPO / "api"))
+# api/ goes last: it has a clips.py too, and contract.py must get design's. First, it broke this file
+# run on its own (2026-10-05); the full suite only passed because another file imported design's first.
+sys.path.append(str(REPO / "api"))
 
 import pytest  # noqa: E402
 
@@ -330,7 +332,10 @@ def test_the_game_sheet_opens_from_nfl_now_and_draws_four_cards(browser, page_fi
     assert not any(t.startswith("END ") for t in sheet.locator(".gs-pl > span:last-child").all_inner_texts())
     # an earlier drive opened by hand stays open through the next poll's repaint
     drives.nth(2).locator("summary").click()
-    page.evaluate("new Promise(r => setTimeout(() => { gsPaint(); r(); }, 0))")    # "toggle" is a task after the click
+    # "toggle" is a task after the click: wait until it has recorded the drive, then repaint
+    key = drives.nth(2).evaluate("e => e.closest('[data-gsdrive]').dataset.gsdrive")
+    page.wait_for_function("k => GS_OPEN.get(k) === true", arg=key)
+    page.evaluate("gsPaint()")
     assert sheet.locator(".gs-drv[open]").count() == 2
     # top scorers, best first, in the league's own scoring
     sheet.locator("[data-gstab='top']").click()

@@ -398,7 +398,7 @@ def test_the_record_card_opens_every_week_and_back_closes_it(page):
     assert "NE 20–13" in page.inner_text(".pv-rw[open] .pv-rg >> nth=0")
     page.go_back()
     page.wait_for_function("!document.querySelector('.pv').classList.contains('rec')")
-    page.wait_for_timeout(50)
+    page.wait_for_function(f"scrollY === {y} && !!document.querySelector('.pv-slate')")
     assert page.is_visible(".pv-slate") and page.evaluate("scrollY") == y
     assert page.evaluate("location.hash") == "#preview"
 
@@ -449,7 +449,7 @@ def test_a_tap_opens_the_dossier_and_back_returns_to_the_slate_where_it_was(page
     assert "+3 zones east · kicks off at 1:25 PM body time" in page.inner_text(".pva.rest")
     page.go_back()
     page.wait_for_function("!document.querySelector('.pv').classList.contains('open')")
-    page.wait_for_timeout(50)
+    page.wait_for_function(f"scrollY === {y}")
     assert page.evaluate("scrollY") == y
     assert page.evaluate("location.hash") == "#preview"
 

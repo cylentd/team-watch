@@ -1,8 +1,6 @@
 """A leaguemate picks their own team (leaguemates phase 1, 2026-09-25): every team in David's two
 leagues is in the team switch under its league's name, a pick is remembered in the browser, and a
 leaguemate's team has no Waivers (ff-jarvis builds David's only until phase 3)."""
-import pytest
-
 from test_render import open_page  # noqa: F401
 
 
@@ -11,8 +9,7 @@ def test_a_leaguemate_picks_their_team_and_it_sticks(browser, page_file):
     picker, all 24 teams by league and no "none", never David's roster."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     mates = page.evaluate("MATES.map(m => m.key)")
-    if not mates:
-        pytest.skip("the fixture's roster files hold no other team")
+    assert mates, "the fixture's roster files hold no other team"
     mine = page.evaluate("myLeagueKeys().length")   # David's team per league: three since AYO, 2026-09-29
     for leaf in ("roster", "waivers", "myrecap"):
         page.evaluate(f"localStorage.removeItem('tw-team'); SURFACE='{leaf}'; render()")
@@ -39,8 +36,7 @@ def test_a_leaguemates_waivers_is_their_leagues_rail_without_davids_advice(brows
     league, with no status rows (David's players), no verdicts, no cards, no must-claim count."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     mate = page.evaluate("(MATES[0] || {}).key")
-    if not mate:
-        pytest.skip("the fixture's roster files hold no other team")
+    assert mate, "the fixture's roster files hold no other team"
     page.evaluate(f"VIEW = '{mate}'; SURFACE = 'waivers'; render(); paintSubnav()")
     assert "Waivers" in page.locator("#subnav").inner_text()
     assert page.locator(".wvc").count() == 0 and page.locator(".wv-mate").count() == 1
@@ -64,7 +60,6 @@ def test_owner_names_never_reach_the_page(page_file):
     import json, re
     text = page_file.read_text(encoding="utf-8")
     m = re.search(r"const LIVE_MATES = (.*?);\n", text)
-    if not m or m.group(1) == "null":
-        pytest.skip("no LIVE_MATES block in the fixture page")
+    assert m and m.group(1) != "null", "no LIVE_MATES block in the fixture page"
     for team in json.loads(m.group(1))["teams"]:
         assert set(team) == {"key", "league", "name", "roster"}

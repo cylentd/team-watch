@@ -327,7 +327,9 @@ def test_a_mouse_drags_the_rail_and_a_drag_opens_no_card(browser, page_file):
     assert page.evaluate("document.querySelector('.reel-track').scrollLeft") > 100, "the rail followed the mouse"
     assert page.evaluate("__opened") is None, "the click that ends a drag opens nothing"
     # A press that moves less than the threshold is still a click.
-    page.wait_for_timeout(450)
+    # (the rail's scroll has come to rest: the same scrollLeft on two frames running, so a snap is done)
+    page.evaluate("window.__sl = null")
+    page.wait_for_function("() => { const t = document.querySelector('.reel-track').scrollLeft; const same = window.__sl === t; window.__sl = t; return same; }")
     page.evaluate("document.querySelector('.reel-track').scrollLeft = 0")
     first = rect(page, "button.reel-card")
     page.mouse.move(first["l"] + 30, first["t"] + 40)

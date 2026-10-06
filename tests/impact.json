@@ -6,6 +6,7 @@
     "tests/test_js_syntax.py",
     "tests/test_js_harness.py",
     "tests/test_layer_ratchet.py",
+    "tests/test_honest_tests.py",
     "tests/test_lint.py",
     "tests/test_scope.py",
     "tests/test_style_rules.py",
@@ -147,8 +148,8 @@
       "render": []
     },
     "land": {
-      "paths": ["scripts/land-queue.ps1", "scripts/land.ps1", "scripts/impact.py"],
-      "tests": ["tests/test_land_queue.py"],
+      "paths": ["scripts/land-queue.ps1", "scripts/land.ps1", "scripts/impact.py", "scripts/testlog.py", "scripts/flake_run.py"],
+      "tests": ["tests/test_land_queue.py", "tests/test_testlog.py"],
       "render": []
     }
   },

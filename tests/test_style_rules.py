@@ -11,13 +11,22 @@ SIDEWAYS = """[...document.querySelectorAll('#view *')].filter(e =>
   /(auto|scroll)/.test(getComputedStyle(e).overflowX) && e.scrollWidth > e.clientWidth + 4
   && !e.matches('.bd-tabs:not(.bets-tabsrow .bd-tabs), .reel-track')).map(e => String(e.className).slice(0, 40))"""
 # .reel-track is the Roster's clip rail, the STYLE.md exception for a one-row thumbnail rail (Roster clips, 2026-10-05).
+# A view is drawn once render() returns; "settled" is a painted frame with no finite animation still running.
+# Settled: no finite animation still running. A plain predicate, polled every frame: wait_for_function
+# returns at once on a returned Promise (an object is truthy) and never re-checks it.
+SETTLED = """() => document.getAnimations().every(a =>
+  !a.effect || a.effect.getTiming().iterations === Infinity || a.playState !== 'running')"""
+
+
+def settle(page):
+    page.wait_for_function(SETTLED)
 
 
 @pytest.mark.parametrize("leaf", VIEWS)
 def test_nothing_scrolls_sideways_on_a_phone(browser, page_file, leaf):
     ctx, page, errors = open_page(browser, page_file, (360, 800))
     page.evaluate(f"navGo('{leaf}'); render()")
-    page.wait_for_timeout(300)
+    settle(page)
     assert page.evaluate(SIDEWAYS) == []
     assert page.evaluate("document.scrollingElement.scrollWidth - innerWidth") <= 0
     assert errors == []
@@ -30,7 +39,7 @@ def test_nothing_moves_on_its_own(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (1280, 900))
     for leaf in ("board", "news", "parlay"):
         page.evaluate(f"navGo('{leaf}'); render()")
-        page.wait_for_timeout(5000 if leaf == "news" else 300)
+        settle(page)
         loops = page.evaluate("""document.getAnimations().filter(a => a.playState === 'running'
           && a.effect && a.effect.getTiming().iterations === Infinity).map(a => a.animationName)""")
         assert loops == [], (leaf, loops)

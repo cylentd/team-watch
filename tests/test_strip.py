@@ -506,7 +506,7 @@ def test_the_same_game_is_only_fetched_once(browser, page_file, shaped):
         page.locator("#modal .pf-wk").first.click()
         page.wait_for_selector("#stripmodal .stturf")
         page.keyboard.press("Escape")
-        page.wait_for_timeout(50)
+        page.wait_for_function("!document.getElementById('stripmodal').classList.contains('on')")
     ctx.close()
     assert not errors, errors
     assert len(calls) == 1, f"asked /api/game {len(calls)} times for one game"
@@ -593,8 +593,8 @@ def test_the_legs_run_on_the_replays_clock(browser, page_file, shaped):
     page.click("#striptest .stplay")                    # pause
     page.evaluate(frames)                               # let a frame already queued land
     c = page.evaluate(leg)
-    page.wait_for_timeout(200)
-    page.evaluate(frames)
+    for _ in range(12):                                 # twelve more frames of the page's own clock (~200 ms at 60 Hz)
+        page.evaluate(frames)
     d = page.evaluate(leg)
     ctx.close()
     assert not errors, errors

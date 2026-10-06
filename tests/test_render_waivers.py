@@ -201,8 +201,9 @@ def test_reduced_motion_renders_the_final_state(open_waivers):
     page = open_waivers("espn")
     assert page.locator(".wv.deal").count() == 0
     page.evaluate("document.querySelector('.wv').classList.add('deal')")
-    page.wait_for_timeout(50)
-    assert page.evaluate("[...document.querySelectorAll('.wv-cards > .wvc-list .wvc')].every(c => getComputedStyle(c).opacity === '1')")
+    cards_rest = "[...document.querySelectorAll('.wv-cards > .wvc-list .wvc')].every(c => getComputedStyle(c).opacity === '1')"
+    page.wait_for_function(cards_rest)
+    assert page.evaluate(cards_rest)
     assert page.evaluate("getComputedStyle(document.querySelector('.tier-must .wvc-stamp')).opacity") == "1"
     assert page.evaluate("getComputedStyle(document.querySelector('.wvc-in')).transitionDuration") != "0.55s"
 

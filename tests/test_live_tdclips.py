@@ -95,6 +95,13 @@ IDS = "() => [...document.querySelectorAll('.td-reel .reel-card')].map(c => c.da
 SETTLED = "TDC.at > 0 && !TDC.busy"
 
 
+def scroll_rest(page, at_least=0):
+    """Wait for the rail's scroll to come to rest: the same scrollLeft on two frames running, and at least `at_least`."""
+    page.evaluate("window.__sl = null")
+    page.wait_for_function("(s) => { const t = document.querySelector('.td-reel .reel-track').scrollLeft;"
+                           " const same = window.__sl === t; window.__sl = t; return same && t >= s; }", arg=at_least)
+
+
 def tdclips(browser, page_file, viewport=(360, 800), hours=2, replies=REPLIES, clips_week=None, wait=True, post=False):
     ctx, page, errors = live(browser, page_file, viewport)
     page.evaluate(SETUP, {"hours": hours, "replies": replies, "clipsWeek": clips_week, "post": post})
@@ -200,7 +207,7 @@ def test_it_asks_one_request_per_channel_four_at_a_time(browser, page_file):
     page.wait_for_function(SETTLED)
     page.evaluate("window.__calls = []; window.__peak = 0; window.__gate = new Promise(r => { window.__open = r; }); TDC.at = 0; TDC.rounds = 0; paintLive()")
     page.wait_for_function("__calls.length === 4")
-    page.wait_for_timeout(150)
+    # (a fifth request would have been made in the same tick as the first four: the lanes start together)
     assert page.evaluate("[__calls.length, __fly]") == [4, 4], "a fifth waits for one of the four"
     page.evaluate("__open()")
     page.wait_for_function(SETTLED)
@@ -218,13 +225,11 @@ def test_it_asks_again_only_after_five_minutes_and_only_while_a_game_is_on_and_t
     n = page.evaluate("__calls.length")
     assert n == 7
     later = 5                                                       # every round after the first: the clubs on now, and NFL
-    page.evaluate(ADVANCE, 299)                                     # a poll repaints; the gap is not up
-    page.wait_for_timeout(100)
+    page.evaluate(ADVANCE, 299)                                     # a poll repaints; the gap is not up (a request, if any, is made inside that call)
     assert page.evaluate("__calls.length") == n
     # a hidden tab asks nothing, even long after
     page.evaluate("Object.defineProperty(document, 'visibilityState', {configurable: true, get: () => 'hidden'})")
     page.evaluate(ADVANCE, 600)
-    page.wait_for_timeout(100)
     assert page.evaluate("__calls.length") == n
     page.evaluate("Object.defineProperty(document, 'visibilityState', {configurable: true, get: () => 'visible'})")
     page.evaluate(ADVANCE, 1)
@@ -233,7 +238,6 @@ def test_it_asks_again_only_after_five_minutes_and_only_while_a_game_is_on_and_t
     # another tab asks nothing either
     page.click("[data-gdtab='games']")
     page.evaluate(ADVANCE, 600)
-    page.wait_for_timeout(100)
     assert page.evaluate("__calls.length") == n + later
     ctx.close()
     assert errors == []
@@ -242,7 +246,6 @@ def test_it_asks_again_only_after_five_minutes_and_only_while_a_game_is_on_and_t
 def test_with_no_game_on_it_asks_nothing_and_the_reel_still_shows_the_page_clips(browser, page_file):
     ctx, page, errors = tdclips(browser, page_file, hours=20, wait=False)
     page.wait_for_selector(".td-reel")
-    page.wait_for_timeout(150)
     assert page.evaluate("__calls.length") == 0
     assert page.evaluate(IDS) == ["o1", "o2"]                        # LIVE_CLIPS alone, no fetch (a Monday)
     ctx.close()
@@ -268,8 +271,7 @@ def test_a_clip_that_joins_on_the_left_moves_nothing_the_reader_is_looking_at(br
     fresh = clip("n1", "Test Rusher again!", at("22:29"))
     # scrolled to the fifth card: the new clip is first, the same cards stay in view
     page.evaluate("() => { const t = document.querySelector('.td-reel .reel-track'); t.scrollLeft = document.querySelector(\".td-reel [data-clipid='f3']\").offsetLeft - t.offsetLeft; }")
-    page.wait_for_function("document.querySelector('.td-reel .reel-track').scrollLeft > 100")
-    page.wait_for_timeout(100)
+    scroll_rest(page, 101)
     before, was = page.evaluate(left, "f3"), page.evaluate("document.querySelector('.td-reel .reel-track').scrollLeft")
     page.evaluate("window.__replies = {...__replies, NFL: [...__replies.NFL, %s]}" % json.dumps(fresh))
     page.evaluate(ADVANCE, 301)
@@ -279,7 +281,7 @@ def test_a_clip_that_joins_on_the_left_moves_nothing_the_reader_is_looking_at(br
     assert page.evaluate("document.querySelector('.td-reel .reel-track').scrollLeft") > was + 100
     # at the start of the rail a new clip is simply first, and in view
     page.evaluate("document.querySelector('.td-reel .reel-track').scrollLeft = 0")
-    page.wait_for_timeout(100)
+    scroll_rest(page)
     page.evaluate("window.__replies = {...__replies, NFL: [...__replies.NFL, %s]}" % json.dumps(clip("n2", "Test Rusher thrice", at("22:31"))))
     page.evaluate(ADVANCE, 301)
     page.wait_for_function(f"__calls.length === 17 && {SETTLED}")
@@ -402,12 +404,10 @@ def test_a_page_opened_after_the_last_whistle_asks_once_for_the_games_of_the_las
     assert sorted(page.evaluate("__calls")) == sorted(["SF", "KC", "LA", "WAS", "DET", "MIN", "NFL"])
     assert page.locator(".td-reel").count() == 1
     page.evaluate(ADVANCE, 301)                                      # every game is over an hour ago now: nothing more
-    page.wait_for_timeout(150)
     assert page.evaluate("__calls.length") == 7
     ctx.close()
     ctx, page, errors2 = tdclips(browser, page_file, hours=12, post=True, wait=False)     # opened the morning after
     page.wait_for_selector(".td-reel")
-    page.wait_for_timeout(150)
     assert page.evaluate("__calls.length") == 0
     ctx.close()
     assert errors == [] and errors2 == []

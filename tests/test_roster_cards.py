@@ -823,7 +823,8 @@ def test_only_a_drag_along_the_strip_rips_and_a_short_one_springs_back(browser, 
     page.mouse.up()
     assert page.locator(".pk-stage .pack-seal").count() == 1, "only the strip tears"
     rip(page, .3)
-    page.wait_for_timeout(600)                                 # the spring back is eased, not a jump
+    page.wait_for_function(                                    # the spring back is eased, not a jump: wait for it to land
+        f"!document.querySelector('.pk-stage .pack-seal').getAnimations().length && ['0', '0.000'].includes({tear})")
     assert page.locator(".pk-stage .pack-seal").count() == 1, "a short drag does not rip"
     assert page.evaluate(tear) in ("0", "0.000")
     rip(page, .8)

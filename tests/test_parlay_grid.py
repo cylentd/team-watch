@@ -305,8 +305,7 @@ def test_the_kickoff_tabs_pick_what_the_board_shows(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (360, 800))
     page.evaluate("SURFACE='parlay'; render()")
     tabs = page.locator(".bets-tabsrow [data-gwin]")
-    if tabs.count() == 0:
-        pytest.skip("the fixture has no kickoff windows")
+    assert tabs.count() > 0, "the fixture has no kickoff windows"
     assert tabs.all_inner_texts() == page.evaluate("KICK_CHIPS.map(kickChipLabel)")
     k = tabs.nth(1).get_attribute("data-gwin")
     tabs.nth(1).click()
@@ -368,13 +367,18 @@ def test_a_stack_counts_at_its_graded_joint_rate(browser, page_file):
     product of three legs, and a stack gets no standard payout."""
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     got = page.evaluate("""(() => {
+      // the fixture holds no QB whose top two receivers are all on the lower side: plant one game
+      const ud = (line, conf) => ({books: {Underdog: {line, pick: 'lower', conf}}});
+      const at = {team: 'ZZZ', game: 'ZZZ @ YYY', n: 'Planted', slug: 'planted'};
+      PROPS.push({...at, pos: 'QB', mkt: 'PASS', ...ud(230.5, 60)},
+                 {...at, pos: 'WR', mkt: 'REC', ...ud(70.5, 60)},
+                 {...at, pos: 'WR', mkt: 'REC', ...ud(55.5, 60)});
       const qb = PROPS.find(p => p.mkt === 'PASS' && isLower(p) && stackOf(p) && stackOf(p).every(isLower));
       if (!qb) return null;
       const s = stackOf(qb);
       return {chance: udChance(s), pay: betsPayout(s), inside: stackIn(s) !== null};
     })()""")
-    if got is None:
-        pytest.skip("the fixture has no all-lower stack")
+    assert got is not None, "no all-lower stack, even with one planted"
     assert abs(got["chance"] - 0.231) < 1e-9
     assert got["pay"] is None and got["inside"]
     assert errors == []

@@ -38,8 +38,7 @@ def test_the_index_holds_each_player_once_and_every_rostered_one(page):
 
 def test_a_leaguemates_players_are_yours_only_on_their_team(page):
     mate = page.evaluate("(MATES[0] || {}).key")
-    if not mate:
-        pytest.skip("no leaguemate in the fixture")
+    assert mate, "the fixture carries a leaguemate team (MATES[0])"
     tagged = lambda: page.evaluate(f"searchIndex().filter(e => e.leagues.includes('{mate}')).length")
     assert tagged() == 0, "another team's players are not the reader's"
     page.evaluate(f"VIEW = '{mate}'; SEARCH_INDEX = null")
@@ -93,8 +92,8 @@ def test_slash_opens_and_escape_closes_on_a_desktop(browser, page_file):
         assert pg.input_value("#search-q") == ""   # the slash opened it; it was not typed
         pg.keyboard.press("Escape")
         assert pg.is_hidden("#search")
-        pg.wait_for_timeout(50)
-        assert pg.evaluate("history.state") is None   # its history entry went with it
+        pg.wait_for_function("history.state === null")   # its history entry went with it
+        assert pg.evaluate("history.state") is None
         assert errors == []
     finally:
         ctx.close()

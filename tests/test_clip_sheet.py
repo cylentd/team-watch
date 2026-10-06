@@ -7,6 +7,7 @@ the page asks of the player and lets a test fire its events, so nothing leaves t
 import pytest
 
 from test_render import drive, go, open_at
+from test_roster_cards import VCLOCK
 
 RING = ".row .head[data-clips]"
 OPEN = "document.getElementById('clipsheet').classList.contains('on')"
@@ -197,10 +198,18 @@ def test_error_150_shows_the_link_stage_and_play_all_moves_on_after_two_seconds(
 
 def test_another_error_code_shows_the_link_stage_and_stays(pg):
     play_all(pg, 3)
-    ev(pg, "onError", {"data": 5})
-    assert pg.locator("[data-cliplink] a").is_visible()
-    pg.wait_for_timeout(2400)
-    assert pg.locator("[data-clipcount]").inner_text() == "2 / 3" and loads(pg) == ["bbbbbbbbbb1"]
+    # The 2 s the other code would take runs on the page's clock (VCLOCK), put back as it was after, so the
+    # module's page keeps its real timers for the tests that follow.
+    pg.evaluate("window.__real = {st: window.setTimeout, ct: window.clearTimeout, an: Element.prototype.animate}")
+    pg.evaluate(VCLOCK)
+    try:
+        ev(pg, "onError", {"data": 5})
+        assert pg.locator("[data-cliplink] a").is_visible()
+        pg.evaluate("window.__vc.run(2400)")
+        assert pg.locator("[data-clipcount]").inner_text() == "2 / 3" and loads(pg) == ["bbbbbbbbbb1"]
+    finally:
+        pg.evaluate("""() => { Object.assign(window, {setTimeout: __real.st, clearTimeout: __real.ct});
+          Element.prototype.animate = __real.an; delete window.__vc; delete window.__real; }""")
     pg.locator("[data-clipnext]").click()
     assert pg.locator("[data-cliplink]").is_hidden() and loads(pg)[-1] == "bbbbbbbbbb2"
 
