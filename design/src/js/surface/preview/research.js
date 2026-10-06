@@ -22,6 +22,14 @@ function pvInjRow(g){
   return pvRow("inj", t("preview.row.inj"), `<div class="pv-two">${pvInjTeam(g.away, g.inj[g.away] || [])}${pvInjTeam(g.home, g.inj[g.home] || [])}</div>`);
 }
 
+/* Defenders out (2026-10-06): a chip per defense missing starters, in the box score after Injuries. A fact, not a
+   call: no row when neither defense is short, none for an earlier week's game (the block is this week's), and none
+   once the game has kicked off (it is for setting lineups). */
+function pvDsRow(g){
+  const views = PV_ARC_G || pvDone(g) ? [] : dsGameViews(LIVE_D_STARTERS, g, LIVE_PREVIEW.week);
+  return views.length ? pvRow("ds", t("ds.row"), views.map(v => dsChipHTML(v, LIVE_D_STARTERS.rules, "preview")).join("")) : "";
+}
+
 /* The backtest's proven effects for the conditions this forecast meets, as "Wind 15+ mph: QB -1.46 ...". */
 function pvWxEffects(w){
   if (!wtHistOk()) return [];

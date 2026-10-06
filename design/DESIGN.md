@@ -1461,6 +1461,29 @@ is its `pts_pg` to one decimal, the games its count, a bye its `bye` list (`data
   cost the METHODOLOGY pointer; `test_sos_view.py` holds the line at 240px.
 - Position and weeks are this view's own choice; they are not shared with Ranks, which is one week.
 
+## Defenders out (Preview and the profile's Matchup, 2026-10-06)
+
+Which defenses are missing starters this week, shown before the reader sets lineups. A **displayed fact, never a
+price or a call**: it moves no projection, rank, order or Start/Sit call, and no word on it says start, sit, bet,
+fade or lean. `LIVE_D_STARTERS` is ff-jarvis's `d_starters` block re-keyed by defense in the page's team spelling
+(`design/d_starters.py`; nflverse's LA is the page's LAR, and the block carries the alias so either spelling finds
+the defense). The page computes no number: counts, snap shares and statuses are the file's. A starter is a top-11
+defender by snaps before this week; missing is Out, Doubtful, IR, PUP, suspended or off the team (Questionable never
+counts); the unit is front seven or secondary by his most frequent snap-count position.
+
+| where | what it shows |
+|---|---|
+| Preview dossier, box score, "Defenders out" (after Injuries) | One chip per defense with 1+ missing: "NO D: 2 front-seven starters out (Elliss, Granderson)" (a defense whose missing starters span both units says "3 starters out"; up to 3 surnames, then "+N"). A tap opens the names with position, status and share of starter snaps, then the why. No row when neither defense is short, and none for a defense with no earlier game (its counts are null, which is not "none missing") |
+| Profile > Matchup, under the rank sentence | The same chip for the defense he faces, narrowed by position: a back sees front-seven starters, a WR or TE the secondary, a QB all of them. Only when the block's week is his next game's week. None missing in his unit, no note |
+
+- **The why** quotes the file's `rules.evidence` (METHODOLOGY 12.93's exploratory run: seen data, t -2.77 against the
+  spread, +2.62 over, the forward test scored in 2028) and says it is unproven; without `rules` the copy's own line
+  says the same. Wording lives in `content.json` (`preview.ds.*`), pinned by `tests/test_d_starters_view.py`.
+- **Why a chip and not a flag.** A chip is a native `<details>`, closed, one line: it costs nothing when nothing is
+  short and opens in place. Preview's slate stays quiet (no flags there, 2026-09-29); the game page carries the facts.
+- Pure logic is `data/dstarters.js` (`tests/test_js_dstarters.py`); the drawing is `ui/dstarters.js`, shared by both
+  places; one shared stylesheet, `component/dstarters.css`.
+
 ## Live (This week, 2026-09-28; four tabs 2026-10-04; three tabs and a team-led league 2026-10-05)
 
 Every matchup in the reader's league, scored live, and every NFL game of the week. **Game-day flow

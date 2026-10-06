@@ -148,7 +148,7 @@ function pvTopHTML(g, i, n){
 
 function pvDossierHTML(g, i, n, enter){
   // Once a game is over its lines are gone, so the hand-off to Slips is too; an earlier week's always is.
-  const box = [pvMatchupRow(g), PV_ARC_G || pvOver(g) ? "" : pvSlipRow(g), pvInjRow(g), pvWxRow(g), pvRestRow(g)].join("");
+  const box = [pvMatchupRow(g), PV_ARC_G || pvOver(g) ? "" : pvSlipRow(g), pvInjRow(g), pvDsRow(g), pvWxRow(g), pvRestRow(g)].join("");
   return `<div class="pv-dz">${pvTopHTML(g, i, n)}
     <article class="pvn${enter}" data-pvswipe>${pvAnswerHTML(g)}${pvHeadHTML(g)}${pvCallHTML(g)}${box ? `<aside class="pvn-box">${box}</aside>` : ""}${pvStoryHTML(g)}</article></div>`;
 }

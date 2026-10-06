@@ -61,7 +61,10 @@ function headlineHTML(prof){
   const rank = n === null
     ? `<p class="pf-cap pf-quiet">${t("profile.matchup.none")}</p>`
     : `<p class="pf-rank ${cls}" data-testid="profile-rank">${matchupRankText(prof)}</p>` + rankStripHTML(n, nx.factor.of, cls);
-  return secHTML(t("profile.next.label", {wk: nx.week, where: whereWord(nx), opp: esc(nx.opp)}), rank + weatherHTML(prof));
+  // Defenders out (2026-10-06): the defense he faces, narrowed to the unit his position reads; a fact, no verdict.
+  const out = dsPlayerView(LIVE_D_STARTERS, prof.pos, nx.week, nx.opp);
+  const note = out ? dsChipHTML(out, LIVE_D_STARTERS.rules, "profile") : "";
+  return secHTML(t("profile.next.label", {wk: nx.week, where: whereWord(nx), opp: esc(nx.opp)}), rank + note + weatherHTML(prof));
 }
 
 /* His depth shares against the position's, one column per zone: his bar bright, the average

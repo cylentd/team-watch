@@ -64,7 +64,8 @@ import scope_css  # noqa: E402
 # a mountable surface -> the leaf (hash and #view[data-view]) it draws. An overlay (the profile, a
 # game's strip) has no leaf of its own: its tests mount the view that opens it.
 SURFACES = {"ranks": "ranks", "digest": "digest", "roster": "roster", "parlay": "parlay", "build": "build",
-            "live": "live", "teams": "teams", "weekrecap": "weekrecap", "trades": "trades", "records": "records"}
+            "live": "live", "teams": "teams", "weekrecap": "weekrecap", "trades": "trades", "records": "records",
+            "preview": "preview"}
 DRAWN = "document.getElementById('view').children.length > 0"
 
 

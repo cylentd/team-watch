@@ -349,7 +349,8 @@ def test_the_game_page_reads_like_a_newspaper(page):
     assert page.evaluate("() => [...document.querySelectorAll('.pv-bt tbody tr')].map(e => e.className)") == ["ml", "spread", "total"]
     box =page.evaluate("() => [...document.querySelectorAll('.pva')].map(r => r.classList[1])")
     # "slip" since 2026-10-03: the take names Amon-Ra St. Brown, who has lines on the fixture's slate.
-    assert box == ["matchup", "handoff", "inj", "wx", "rest"]
+    # "ds" since 2026-10-06: Carolina is missing a lineman and a corner (tests/test_d_starters_view.py).
+    assert box == ["matchup", "handoff", "inj", "ds", "wx", "rest"]
     assert page.evaluate("getComputedStyle(document.querySelector('.pv-head')).fontFamily").startswith("Newsreader")
     # The story's paragraphs (2026-09-30), every one set alike: one voice, not a dek and smaller body copy.
     assert texts(page, ".pvn-head .pv-dek") == ["Rain keeps it on the ground, and Carolina allows the second-most RB points.",
@@ -571,7 +572,7 @@ def test_the_all_games_button_closes_the_dossier(page):
 def test_optional_rows_are_absent_without_data(page):
     rows = lambda: page.evaluate("() => [...document.querySelectorAll('.pva')].map(r => r.classList[1])")
     page.click("[data-pvopen='4']")                              # ATL @ NO: dome, no take, no rest
-    assert rows() == ["inj", "wx"]                               # no matchup or rest; a dome says Dome
+    assert rows() == ["inj", "ds", "wx"]                         # no matchup or rest; a dome says Dome; New Orleans is short (2026-10-06)
     # The answer still gives Vegas on every bet: no take, so no score and no call.
     assert page.evaluate("() => [...document.querySelectorAll('.pv-bt tbody tr')].map(e => e.className)") == ["ml", "spread", "total"]
     assert page.locator(".pvn-ans .pv-am").count() == 0

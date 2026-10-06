@@ -178,7 +178,7 @@ fallback); `design/build.py` orchestrates and no longer loads. It reads rosters,
 player projections, Sleeper status, the DFS pool, and `usage_weekly.json` (the Grid, via
 `design/usage.py`, whose feed key is `usage_grid` — plain `usage` is already watch.json), and
 A visitor's own ESPN league is read at runtime by `api/league.py`, never baked in (DESIGN.md,
-"Connected leagues"). `wire_watch` (the Waivers Breaking rail, via `design/wire_watch.py`; its field lists live in `contract.py`), `clips` (the Roster's YouTube clips, via `design/yt_clips.py`, 2026-10-05), and `player_names` (jersey numbers and nicknames, via `design/player_names.py` as LIVE_NAMES, 2026-10-05). DFS projections come from ff-jarvis's `model.market.projections`; the page never
+"Connected leagues"). `d_starters` (which defenses are missing starters this week, via `design/d_starters.py` as LIVE_D_STARTERS, 2026-10-06: a chip per short defense in Preview's box score and a note under the rank in the profile's Matchup pane; a fact, not a call, DESIGN.md "Defenders out"), `wire_watch` (the Waivers Breaking rail, via `design/wire_watch.py`; its field lists live in `contract.py`), `clips` (the Roster's YouTube clips, via `design/yt_clips.py`, 2026-10-05), and `player_names` (jersey numbers and nicknames, via `design/player_names.py` as LIVE_NAMES, 2026-10-05). DFS projections come from ff-jarvis's `model.market.projections`; the page never
 computes model numbers itself. Ranks' tiers (`design/ranks.py`, `LIVE_RANKS`) are cut at build
 time from those same projections by natural breaks (1-D k-means, a fixed tier count per position),
 and its rank is the one the roster cards use (`projections.position_ranks`). See `README.md` for the DFS CSV import and `design/DESIGN.md` for

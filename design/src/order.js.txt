@@ -35,6 +35,8 @@ lib/swipe.js
 lib/blip.js
 ui/player.js
 ui/matchup.js
+data/dstarters.js
+ui/dstarters.js
 ui/weather.js
 surface/teams/board.js
 surface/teams/cards.js

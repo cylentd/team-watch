@@ -7,6 +7,7 @@ each row). A block may be None ("source not available"), but a block that is pre
 whole. Null values are fine; absent keys are not.
 """
 import contract_checks   # design/contract_checks.py: the rules that read a spec
+import d_starters       # design/d_starters.py: LIVE_D_STARTERS's nested shape check
 import leagues
 import startsit_board   # design/startsit_board.py: LIVE_SSB's nested shape check
 import startsit_v3      # design/startsit_v3.py: LIVE_SS3's nested shape check
@@ -349,6 +350,13 @@ CONTRACT = {
     "LIVE_ACCURACY": {"keys": ["season", "generated", "weeks", "season_to_date"], "rows": [("weeks", ["week", "model", "by_pos"])]},
     "LIVE_DST": {"keys": ["season", "weeks", "source", "leagues", "rules", "teams"], "rows": [("teams", ["team", "rostered", "weeks"])]},
     "LIVE_SOS": {"keys": ["label", "season", "from_week", "playoff_weeks", "windows", "teams"]},
+    # design/d_starters.py (2026-10-06): ff-jarvis's `d_starters` block re-keyed by defense in the page's team spelling,
+    # with the alias table; None without it. `n_missing`, the two unit counts and `share` are null for a defense with no
+    # earlier game. A displayed fact: it moves no number. Each player's keys and unit are checked by `d_starters.problems`.
+    "LIVE_D_STARTERS": {"keys": ["asof", "season", "week", "rules", "alias", "teams"],
+                        "map": ("teams", ["team", "opp", "n_starters", "n_missing", "front7_missing", "secondary_missing",
+                                          "share", "players"]),
+                        "checks": [d_starters.problems]},
     # design/slips.py (2026-10-05): Claude's calls on prop lines, {slug: [{mkt, line, side, why}]}. Optional: None without
     # ff-jarvis's file, and a line with no call draws no badge.
     "LIVE_CLAUDE_PROPS": {"keys": ["week", "asof", "calls"], "checks": [slips.problems_claude]},

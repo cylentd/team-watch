@@ -1,0 +1,52 @@
+{
+ "asof": "2026-09-12T09:00:00Z",
+ "season": 2026,
+ "week": 2,
+ "source": {
+  "snaps": {"through_week": 1, "age_h": 6.0},
+  "sleeper_defense": "2026-09-12T08:00:00Z",
+  "roster_check": "2026-09-12T08:00:00Z"
+ },
+ "rules": {
+  "starters": "a team's top 11 defenders by defensive snaps over its own regular-season games before this week",
+  "missing": "Out, Doubtful, IR, PUP, suspended, or no longer on the team; Questionable never counts",
+  "units": "front seven: DE, DT, NT, DL, LB, ILB, OLB, MLB; secondary: CB, S, SS, FS, DB (his most frequent snap-count position; METHODOLOGY 12.96)",
+  "share": "the missing starters' share of the starters' snaps",
+  "evidence": "Exploratory only (METHODOLOGY 12.93, seen data, 2018 and 2020-2025, 1,535 games): a defense missing more of its starters went with the opponent beating the spread (t -2.77) and with the over (t +2.62), 6 of 7 seasons each; unproven until the forward test is scored in 2028."
+ },
+ "games": [
+  {
+   "game_id": "2026_02_PIT_CLE", "kickoff": "2026-09-18T00:15:00Z",
+   "away": {"team": "PIT", "opp": "CLE", "n_starters": 11, "n_missing": 0, "front7_missing": 0, "secondary_missing": 0, "share": 0.0, "players": []},
+   "home": {"team": "CLE", "opp": "PIT", "n_starters": 11, "n_missing": 0, "front7_missing": 0, "secondary_missing": 0, "share": 0.0, "players": []}
+  },
+  {
+   "game_id": "2026_02_JAX_LA", "kickoff": "2026-09-20T13:30:00Z",
+   "away": {"team": "JAX", "opp": "LA", "n_starters": 11, "n_missing": 0, "front7_missing": 0, "secondary_missing": 0, "share": 0.0, "players": []},
+   "home": {"team": "LA", "opp": "JAX", "n_starters": 0, "n_missing": null, "front7_missing": null, "secondary_missing": null, "share": null, "players": []}
+  },
+  {
+   "game_id": "2026_02_DET_CAR", "kickoff": "2026-09-20T17:00:00Z",
+   "away": {"team": "DET", "opp": "CAR", "n_starters": 11, "n_missing": 0, "front7_missing": 0, "secondary_missing": 0, "share": 0.0, "players": []},
+   "home": {"team": "CAR", "opp": "DET", "n_starters": 11, "n_missing": 2, "front7_missing": 1, "secondary_missing": 1, "share": 0.172,
+            "players": [
+             {"name": "Derrick Brown", "pos": "DT", "unit": "front7", "status": "IR", "snap_share": 0.098},
+             {"name": "Jaycee Horn", "pos": "CB", "unit": "secondary", "status": "Doubtful", "snap_share": 0.074}]}
+  },
+  {
+   "game_id": "2026_02_SF_NYJ", "kickoff": "2026-09-20T20:25:00Z",
+   "away": {"team": "SF", "opp": "NYJ", "n_starters": 11, "n_missing": 0, "front7_missing": 0, "secondary_missing": 0, "share": 0.0, "players": []},
+   "home": {"team": "NYJ", "opp": "SF", "n_starters": 11, "n_missing": 1, "front7_missing": 0, "secondary_missing": 0, "share": 0.081,
+            "players": [
+             {"name": "Will McDonald IV", "pos": "EDGE", "unit": null, "status": "Off team", "snap_share": 0.081}]}
+  },
+  {
+   "game_id": "2026_02_ATL_NO", "kickoff": "2026-09-22T00:15:00Z",
+   "away": {"team": "ATL", "opp": "NO", "n_starters": 11, "n_missing": 0, "front7_missing": 0, "secondary_missing": 0, "share": 0.0, "players": []},
+   "home": {"team": "NO", "opp": "ATL", "n_starters": 11, "n_missing": 2, "front7_missing": 2, "secondary_missing": 0, "share": 0.188,
+            "players": [
+             {"name": "Kaden Elliss", "pos": "LB", "unit": "front7", "status": "Out", "snap_share": 0.114},
+             {"name": "Carl Granderson", "pos": "DE", "unit": "front7", "status": "Out", "snap_share": 0.074}]}
+  }
+ ]
+}

@@ -1,0 +1,18 @@
+/* ============================== DEFENDERS OUT ============================== */
+/* The chip for a defense missing starters (js/ui/dstarters.js, 2026-10-06): Preview's box score and the profile's
+   Matchup pane draw the same one, so its rules are shared. A native <details>, closed: the summary is the one line,
+   a tap opens the names and the why in place. Plain ink, no colour for good or bad: it is a fact, not a call. */
+.ds{margin:0;font-size:var(--t-2);line-height:1.4;color:var(--ink)}
+.ds + .ds{margin-top:2px}
+.ds summary{display:flex;align-items:baseline;gap:8px;padding:9px 0;cursor:pointer;list-style:none}
+.ds summary::-webkit-details-marker{display:none}
+.ds summary::after{content:"+";flex:none;margin-left:auto;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.ds[open] summary::after{content:"−"}
+.ds summary:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:2px}
+.ds ul{list-style:none;margin:0 0 6px;padding:0;display:grid;gap:4px}
+.ds li b{font-weight:600}
+.ds li span{display:block;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.ds-why,.ds-note{margin:0 0 4px;font-size:var(--t-1);line-height:1.45;color:var(--ink-3)}
+.ds-why{color:var(--ink-2)}
+/* Inside the profile's Matchup section the chip sits under the rank sentence, a hairline above it. */
+.pf-sec .ds{margin-top:8px;border-top:1px solid var(--line)}
