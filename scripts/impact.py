@@ -186,7 +186,7 @@ def git(*args):
 def at(rev, path):
     """A file's text at a revision, or None where it does not exist."""
     out = subprocess.run(["git", "-C", str(ROOT), "show", f"{rev}:{path}"], capture_output=True,
-                         text=True, encoding="utf-8")
+                         text=True, encoding="utf-8", errors="replace")
     return out.stdout if out.returncode == 0 else None
 
 
@@ -198,7 +198,7 @@ def src_texts():
 
 def on_disk(path):
     p = ROOT / path
-    return p.read_text(encoding="utf-8") if p.is_file() else None
+    return p.read_text(encoding="utf-8", errors="replace") if p.is_file() else None
 
 
 def changed(base, worktree=False):

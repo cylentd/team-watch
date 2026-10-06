@@ -209,6 +209,14 @@ def test_the_committed_mode_reads_head_only(monkeypatch):
     assert not [c for c in calls if c[0] == "ls-files"]
 
 
+def test_a_binary_file_in_the_diff_is_read_not_a_crash(monkeypatch, tmp_path):
+    # 2026-10-06: the team avatars' .webp fixtures stopped the picker with a UnicodeDecodeError, at HEAD and on disk
+    assert isinstance(impact.at("HEAD", "tests/fixtures/data/avatars/yahoo/3.webp"), str)
+    (tmp_path / "a.webp").write_bytes(b"RIFF\x8a\xff\x00\x00WEBPVP8 ")
+    monkeypatch.setattr(impact, "ROOT", tmp_path)
+    assert isinstance(impact.on_disk("a.webp"), str)
+
+
 import run_tests as runner  # noqa: E402  scripts/run_tests.py
 
 

@@ -337,4 +337,5 @@ def page_file(built, tmp_path_factory):
     p.write_text(built.page, encoding="utf-8")
     import build
     build.write_heads(p.parent)   # the page names heads by path, so they sit beside it as served
+    build.write_avatars(p.parent)  # and the team avatars the same way
     return p

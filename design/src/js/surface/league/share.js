@@ -17,8 +17,10 @@ function lgShareRow(w, g, headline){
   const side = x => x.k === "close" ? "game" : x.id === wi ? "win" : "lose";
   const tags = (lgGameTags(w, g) || []).slice(0, LG_SHARE_TAGS)
     .map(x => ({label: x.label, tone: x.tone, name: x.id != null ? lgShareName(x.id) : "", side: side(x)}));
+  // winAv: the winner's avatar, as on the page (lgAvatarHTML); "" draws the manager's initial instead
+  const av = (LG.teams.find(tm => tm.id === wi) || {}).avatar || "";
   return {win: lgShareName(wi), winPts: lgPts(wp), lose: lgShareName(li), losePts: lgPts(lp), tie: g.win === "tie",
-    tags, line: g.punch && g.punch !== headline ? g.punch : ""};
+    tags, line: g.punch && g.punch !== headline ? g.punch : "", winAv: av};
 }
 
 function lgShareData(w){

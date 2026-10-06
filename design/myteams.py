@@ -10,6 +10,7 @@ import json
 import sys
 
 import leagues
+from avatars import avatar_ids
 from league_recap import live_league_yahoo
 from league_trades import live_trades
 from mates import yahoo_rows
@@ -50,7 +51,7 @@ def yahoo_league_blocks(available):
         b, path = leagues.blocks(key), roster_path(key)
         out[b.roster] = live_yahoo(available, path)
         out[b.league] = live_league_yahoo(*load_league_yahoo(key), roster_file(path), slugify, *load_league_back(key),
-                                          cases=load_case_rosters(key), key=key)
+                                          cases=load_case_rosters(key), key=key, avatars=avatar_ids(key))
         out[b.trades] = live_trades(load_trades(key), load_league_back(key)[2], slugify=slugify, key=key)
     return out
 

@@ -10,7 +10,7 @@ import json
 import pytest
 
 # Names with an "&" and an apostrophe: the image and the text are not HTML, so they must stay as written.
-TEAMS = [{"id": 1, "mgr": "Chanel", "name": "Lamarley & Me"}, {"id": 2, "mgr": "Crystal W.", "name": "Two"},
+TEAMS = [{"id": 1, "mgr": "Chanel", "name": "Lamarley & Me", "avatar": "avatars/yahoo/1.webp"}, {"id": 2, "mgr": "Crystal W.", "name": "Two"},
          {"id": 3, "mgr": "Phillip", "name": "Three"}, {"id": 4, "mgr": "Jon & Kay", "name": "Four"},
          {"id": 5, "mgr": "", "name": "Five's Team"}, {"id": 6, "mgr": "Victoria", "name": "Six"},
          {"id": 7, "mgr": "Kearny", "name": "Seven"}, {"id": 8, "mgr": "Theo", "name": "Eight"}]
@@ -92,6 +92,13 @@ def test_a_game_carries_at_most_two_tags_with_the_team_and_side_each_belongs_to(
     assert max(len(r["tags"]) for r in data(share)["rows"]) == 2
 
 
+def test_each_game_carries_its_winners_avatar_or_none(share):
+    # David, 2026-10-06: "we need team avatars for the shared image version"; the winner's only, as on the page,
+    # and a team with none gets "" (the picture draws the manager's initial in its place).
+    rows = {r["win"]: r["winAv"] for r in data(share)["rows"]}
+    assert rows == {"Chanel": "avatars/yahoo/1.webp", "Victoria": "", "Phillip": "", "Kearny": "", "Crystal W.": ""}
+
+
 def test_the_headline_is_claudes_and_a_line_that_repeats_it_is_left_out(share):
     d = data(share)
     assert d["headline"] == HEAD
@@ -110,7 +117,7 @@ def test_the_image_holds_the_league_and_nothing_about_the_reader(share):
     assert d["kicker"] == "Madden Curse · Week 4 · Final"
     assert d["url"] == "teamwatch.cylentlabs.com/#recap"
     assert set(d) == {"kicker", "headline", "rows", "url"}, "no dek, team, standings or your-game box"
-    assert all(set(r) == {"win", "winPts", "lose", "losePts", "tie", "tags", "line"} for r in d["rows"])
+    assert all(set(r) == {"win", "winPts", "lose", "losePts", "tie", "tags", "line", "winAv"} for r in d["rows"])
     assert all(set(tg) == {"label", "tone", "name", "side"} for r in d["rows"] for tg in r["tags"])
 
 

@@ -21,6 +21,7 @@ trade_offers.json  -diff merge=ours
 preview_archive.json  -diff merge=ours
 games/**           -diff merge=ours
 heads/**           -diff merge=ours
+avatars/**         -diff merge=ours
 
 # Source parts must not pick up CRLF: the build concatenates them byte for byte, and a stray \r
 # changes the output hash.

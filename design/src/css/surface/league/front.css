@@ -33,7 +33,7 @@
   border:1px solid var(--line-2);border-radius:14px;padding:14px 14px 12px;overflow:hidden}
 .bp2-lead.has-fig{grid-template-columns:96px minmax(0,1fr)}
 .bp2-lbody{display:grid;gap:8px;align-content:start;min-width:0}
-.bp2-lead .bp2-score{font-size:var(--t-4)}
+.bp2-lead .bp2-score{font-size:var(--t-3)}   /* a phone: one line beside the winner's avatar; 24px from 760px */
 /* the report: the game's line and the dek as one paragraph under the score, a newspaper's lede (2026-10-06) */
 .bp2-report{margin:0;max-width:72ch;font-size:var(--t-3);line-height:1.5;color:var(--ink);text-wrap:pretty;overflow-wrap:anywhere}
 .bp2-beats{margin:0;padding:8px 0 0;list-style:none;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:3px 16px;font-size:var(--t-2);color:var(--ink-2)}
@@ -66,9 +66,17 @@
   border:0;border-top:1px solid var(--line);padding:11px 0;cursor:pointer}
 .lg-row:hover .bp2-bp{color:var(--lime)}
 .lg-row:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
+/* the winner's avatar (2026-10-06, David: "only the 5 cards", 52px "slightly bigger" than the 40 tried): a column at
+   the card's left, the scoreboard and the line beside it; an initial in the same circle when the team has none */
+.lg-av{display:block;width:52px;height:52px;border-radius:50%;object-fit:cover;background:var(--panel-2);flex:none}
+.lg-av-i{display:grid;place-items:center;color:var(--ink-2);font-family:var(--ui);font-size:var(--t-4);font-weight:800;line-height:1}
+.lg-row{column-gap:14px;grid-template-columns:52px minmax(0,1fr)}
+.lg-row > :not(.lg-av){grid-column:2}
+.lg-row > .lg-av{grid-column:1;grid-row:1 / span 2}
+.bp2-score > .lg-av{align-self:center;margin-right:4px}
 /* a card's score as a scoreboard (2026-10-06): the winner's row over the loser's, name, score, its stamps, the
    scores in one column; the Nail-biter, the game's, spans both rows at their end */
-.bp2-sb{display:grid;grid-template-columns:max-content max-content minmax(0,1fr) auto;column-gap:10px;row-gap:3px;align-items:center;font-size:var(--t-3)}
+.bp2-sb{display:grid;grid-template-columns:max-content max-content minmax(min-content,1fr) auto;column-gap:10px;row-gap:3px;align-items:center;font-size:var(--t-3)}
 .bp2-sr{display:contents}
 /* every cell names its column: auto-placement sent the loser's name into the Nail-biter's column on a card without one */
 .bp2-sb b{grid-column:1}
@@ -76,6 +84,8 @@
 .bp2-st{grid-column:3;display:flex;flex-wrap:wrap;gap:4px 6px;min-width:0}
 .bp2-st .lg-stamp,.bp2-sgame .lg-stamp{margin-left:0}
 .bp2-sgame{grid-column:4;grid-row:1 / span 2;align-self:center}
+/* a phone: the game's Nail-biter takes its own line under the two rows, so it never meets a team's stamp */
+@media (max-width:430px){.bp2-sgame{grid-column:1 / -1;grid-row:3;justify-self:start}}
 .bp2-bp{font-size:var(--t-3);font-weight:500;line-height:1.3;color:var(--ink);text-wrap:pretty;overflow-wrap:anywhere}
 
 /* the standings with each team's run: two columns of six. The numbers stand in columns, so they keep mono; the
@@ -117,17 +127,17 @@
 .modal:has(.bp2-sheet){width:min(820px,96vw);height:auto;max-height:90vh}
 .bp2-sheet-t{font-family:var(--tab);text-transform:uppercase;text-wrap:balance}
 
-/* phone: Blip sits beside the score line only; tags, line and facts take the full width
-   (undone from 760px, where the story runs beside Blip) */
+/* phone: Blip sits beside the headline only; the score with the winner's avatar, the report and Box score take the
+   full width, so the score keeps one line (undone from 760px, where the story runs beside Blip) */
 .bp2-lead.has-fig .bp2-lbody{display:contents}
-.bp2-lead.has-fig .lg-hl,.bp2-lead.has-fig .bp2-score{grid-column:2;align-self:center}
-.bp2-lead.has-fig .bp2-report,.bp2-lead.has-fig .bp2-beats,.bp2-lead.has-fig .bp2-more{grid-column:1 / -1;margin-top:8px}
+.bp2-lead.has-fig .lg-hl{grid-column:2;align-self:center}
+.bp2-lead.has-fig .bp2-score,.bp2-lead.has-fig .bp2-report,.bp2-lead.has-fig .bp2-beats,.bp2-lead.has-fig .bp2-more{grid-column:1 / -1;margin-top:8px}
 @media (min-width:760px){
   .bp2-lead{padding:18px 20px 16px}
   .bp2-lead.has-fig{grid-template-columns:150px minmax(0,1fr)}
   .bp2-lead.has-fig .bp2-lbody{display:grid}
-  .bp2-lead.has-fig .lg-hl,.bp2-lead.has-fig .bp2-score{grid-column:auto;align-self:auto}
-  .bp2-lead.has-fig .bp2-report,.bp2-lead.has-fig .bp2-beats,.bp2-lead.has-fig .bp2-more{grid-column:auto;margin-top:0}
+  .bp2-lead.has-fig .lg-hl{grid-column:auto;align-self:auto}
+  .bp2-lead.has-fig .bp2-score,.bp2-lead.has-fig .bp2-report,.bp2-lead.has-fig .bp2-beats,.bp2-lead.has-fig .bp2-more{grid-column:auto;margin-top:0}
   .bp2-lead .bp2-score{font-size:var(--t-5)}
   .bp2-report{font-size:var(--t-4)}
   .bp2-lead .lg-hl{font-size:var(--t-6)}

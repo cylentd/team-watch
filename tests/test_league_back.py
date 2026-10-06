@@ -412,6 +412,34 @@ def test_each_stamp_sits_beside_the_team_it_names_and_the_nail_biter_closes_the_
     assert recap_js("(g) => lgScoreLineHTML(g)", g).count("lg-stamp") == 0, "no week, no stamps (the sheet)"
 
 
+AV = "avatars/yahoo/3.webp"
+WITH_AV = ("(id) => { const keep = LG.teams; LG.teams = LG.teams.map(t => ({...t, avatar: t.id === 3 ? '" + AV + "' : ''}));"
+           " try { return FN; } finally { LG.teams = keep; } }")
+
+
+def test_a_team_draws_its_own_avatar_or_its_managers_initial(recap_js):
+    # David, 2026-10-06: each manager's own Yahoo avatar ("it would make it look A LOT better"). Without one, the
+    # manager's initial in the same circle, so every card keeps the same shape.
+    img = recap_js(WITH_AV.replace("FN", "lgAvatarHTML(id)"), 3)
+    assert img == f'<img class="lg-av" src="{AV}" alt="" loading="lazy" decoding="async">'
+    initial = recap_js(WITH_AV.replace("FN", "lgAvatarHTML(id)"), 7)
+    assert initial == f'<span class="lg-av lg-av-i" aria-hidden="true">{recap_js("() => lgMgr(7)")[0]}</span>'
+
+
+@pytest.mark.parametrize("win", ["home", "away"])
+def test_a_game_card_and_the_lead_show_only_the_winners_avatar(recap_js, win):
+    # David, 2026-10-06: "only the 5 cards", the winner's, at the card's left; the lead too, by its score.
+    g = {"a": 3, "b": 7, "ap": 120.0 if win == "home" else 80.0, "bp": 80.0 if win == "home" else 120.0, "win": win, "punch": "x"}
+    winner = 3 if win == "home" else 7
+    row = recap_js(WITH_AV.replace("FN", "lgRowHTML({games: [], awards: {}}, " + __import__("json").dumps(g) + ", 0)"), 0)
+    lead = recap_js(WITH_AV.replace("FN", "lgLeadHTML({games: [], awards: {}, head: 'H'}, " + __import__("json").dumps(g) + ")"), 0)
+    for html in (row, lead):
+        assert html.count('class="lg-av') == 1
+        assert (AV in html) == (winner == 3), "the winner's avatar, never the loser's"
+    assert row.index('class="lg-av') < row.index("bp2-sb"), "the card's avatar leads it"
+    assert lead.index('class="lg-av') < lead.index('class="bp2-w"'), "the lead's sits before its score line"
+
+
 def test_the_lead_draws_blip_even_when_the_week_names_a_photo(recap_js):
     # HEADS holds the player's cut, so the headshot could draw: the lead must still pick Blip.
     html = recap_js("() => { globalThis.HEADS = {'josh-allen': 'heads/josh-allen.webp'}; LG_WEEK = null; const w = lgWeek();"

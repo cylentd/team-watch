@@ -59,6 +59,14 @@ class LeagueRecapPage:
               return [top(r.querySelector('b')), top(r.querySelector('.bp2-n')), ...[...r.querySelectorAll('.lg-stamp')].map(mid)];
             }))""")
 
+    def overlapping_stamps(self):
+        """Pairs of stamps in one card whose boxes cross (more than 1px each way), as [card index, label, label]."""
+        return self.page.evaluate("""() => [...document.querySelectorAll('.lg-league .lg-row')].flatMap((card, i) => {
+            const s = [...card.querySelectorAll('.lg-stamp')].map(e => [e.textContent, e.getBoundingClientRect()]), out = [];
+            s.forEach(([a, r], j) => s.slice(j + 1).forEach(([b, q]) => {
+              if (r.left < q.right - 1 && q.left < r.right - 1 && r.top < q.bottom - 1 && q.top < r.bottom - 1) out.push([i, a, b]); }));
+            return out; })""")
+
     def bottom_row_ends(self):
         """The bottom edge of each section in the bottom row (standings, luck, grudge), in px."""
         return self.page.evaluate("() => [...document.querySelectorAll('.lg-after > *')].map(e => Math.round(e.getBoundingClientRect().bottom))")

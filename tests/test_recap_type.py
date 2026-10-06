@@ -40,6 +40,19 @@ def test_each_card_team_row_holds_its_name_score_and_stamps_on_one_line(mount, s
     assert errors == []
 
 
+@pytest.mark.parametrize("size", [(360, 800), (1160, 900)], ids=["phone", "narrow-desktop"])
+def test_no_two_stamps_on_a_card_overlap(mount, size):
+    # 2026-10-06: with the winner's avatar taking a column, Jon's DUMPSTER FIRE ran into the NAIL-BITER on a phone.
+    page, errors = mount("recap", size=size)
+    # every card as week 4's Phillip-Jon was: a long name, a team stamp on each row, and the game's Nail-biter
+    page.evaluate("""() => document.querySelectorAll('.lg-league .lg-row .bp2-sb').forEach(sb => {
+        sb.querySelectorAll('.bp2-sr > b').forEach(b => { b.textContent = 'Crystal W.'; });
+        sb.querySelectorAll('.bp2-st').forEach(st => st.insertAdjacentHTML('beforeend', '<span class="lg-stamp r">Dumpster fire</span>'));
+        if (!sb.querySelector('.bp2-sgame')) sb.insertAdjacentHTML('beforeend', '<span class="bp2-sgame"><span class="lg-stamp x">Nail-biter</span></span>'); })""")
+    assert LeagueRecapPage(page).overlapping_stamps() == []
+    assert errors == []
+
+
 def test_the_bottom_row_sections_end_within_150px_of_each_other(mount):
     # STYLE.md "Rows, not columns": Luck so far ran ~200px past the standings (2026-10-06). All 12 teams stay
     # (David: dropping the middle six "might be confusing"); the rows tighten instead. The fixture's league is

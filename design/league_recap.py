@@ -16,6 +16,7 @@ Nothing here advises anyone: results, awards and history are already public insi
 import re
 
 import leagues
+from avatars import avatar_path
 from league_back import (add_meets, add_standings, add_streaks, add_tape, book, enrich_weeks, last_places, next_grudge,
                          private_pairs, record_skip, withhold)
 
@@ -233,7 +234,7 @@ def case_rosters(raw, champs, spoons):
 
 
 def live_league_yahoo(season, history, owners, rosters, slugify, box=None, recap=None, managers=None, cases=None,
-                      key="yahoo"):
+                      key="yahoo", avatars=None):
     """LIVE_LEAGUE_YAHOO (or another Yahoo league's block, by `key`: its team keys, private pairs and
     record skip are its own; `history` says whether a past-seasons file was read, which Records needs), or
     None. Yahoo re-ids every team each season and hides managers from the
@@ -242,7 +243,8 @@ def live_league_yahoo(season, history, owners, rosters, slugify, box=None, recap
     season only. A past team keeps the name it had that year (`name`); `id` says who it is today.
     `rosters` is league_rosters.json; `box` and `recap` are ff-jarvis's box scores and weekly roast,
     and the back page (design/league_back.py) draws without either. `managers` names each manager
-    (`mgr` on teams, champions and records) for Records, which files a record under its manager."""
+    (`mgr` on teams, champions and records) for Records, which files a record under its manager. `avatars` is
+    the set of team ids with an avatar file (design/avatars.py); each team names its path, "" without one."""
     if not season or not season.get("teams"):
         return None
     mgr = _mgr_of(managers)
@@ -260,7 +262,8 @@ def live_league_yahoo(season, history, owners, rosters, slugify, box=None, recap
     skip = record_skip(leagues.skip_file(key), former=FORMER)
     fx = _named(facts(everything, [c for c in champs if c["id"]] if mapped else [], totals, skip), names, mgr)
     games = everything if mapped else now
-    teams = [{**t, "mgr": mgr(t["id"])} for t in _teams(season, rosters, slugify, key)]
+    teams = [{**t, "mgr": mgr(t["id"]), "avatar": avatar_path(key, t["id"]) if t["id"] in (avatars or ()) else ""}
+             for t in _teams(season, rosters, slugify, key)]
     block = _block(season, teams, games, champs, fx,
                    min([int(y) for y in pods] + [season["season"]]), "all" if mapped else "season")
     block["history"] = bool(pods)

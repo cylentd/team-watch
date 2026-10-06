@@ -32,6 +32,15 @@ function lgScoreRowsHTML(g, wk){
   return `<span class="bp2-sb">${row(w, "bp2-w")}${row(l, tie ? "bp2-w" : "bp2-l")}${game ? `<span class="bp2-sgame">${game}</span>` : ""}</span>`;
 }
 
+/* A team's own Yahoo avatar (design/avatars.py, 2026-10-06), else its manager's initial in the same circle, so a
+   card keeps its shape. The page draws the winner's only: on each game card and by the lead's score. */
+const lgWinnerId = g => g.win === "away" ? g.b : g.a;
+function lgAvatarHTML(id){
+  const tm = LG && LG.teams.find(x => x.id === id);
+  return tm && tm.avatar ? `<img class="lg-av" src="${esc(tm.avatar)}" alt="" loading="lazy" decoding="async">`
+    : `<span class="lg-av lg-av-i" aria-hidden="true">${esc(String(lgMgr(id) || "").charAt(0))}</span>`;
+}
+
 const lgBeatsHTML = g => g.beats.length ? `<ul class="bp2-beats">${g.beats.map(b => `<li>${lgBeatHTML(b)}</li>`).join("")}</ul>` : "";
 
 /* Blip on the lead, reacting once to the game (w.blip, blip_of). */
@@ -58,7 +67,7 @@ function lgLeadHTML(w, g){
     ${fig ? `<div class="bp2-fig">${fig}${stamp}</div>` : ""}
     <div class="bp2-lbody">
       ${title ? `<h2 class="lg-hl">${esc(title)}</h2>` : ""}
-      <div class="bp2-score">${lgScoreLineHTML(g, w)}</div>
+      <div class="bp2-score">${lgAvatarHTML(lgWinnerId(g))}${lgScoreLineHTML(g, w)}</div>
       ${fig ? "" : stamp}
       ${report ? `<p class="bp2-report">${report}</p>` : ""}
       ${g.box ? `<button class="bp2-more" data-lgsheet="${lgKey(g)}">${t("league.box.more")}</button>` : ""}
@@ -70,7 +79,7 @@ function lgLeadHTML(w, g){
    card is the button that opens its sheet. No card carries the lead's big stamp. */
 function lgRowHTML(w, g, i){
   return `<button type="button" class="lg-row" data-lgsheet="${lgKey(g)}" style="--i:${i}">
-    ${lgScoreRowsHTML(g, w)}
+    ${lgAvatarHTML(lgWinnerId(g))}${lgScoreRowsHTML(g, w)}
     ${g.punch ? `<span class="bp2-bp">${esc(g.punch)}</span>` : ""}
   </button>`;
 }

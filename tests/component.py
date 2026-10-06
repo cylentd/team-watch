@@ -109,8 +109,9 @@ class Mounter:
         if key not in _FILES:
             folder = self.folder / "heads" if heads else self.folder     # the headshots beside the page, as served
             folder.mkdir(parents=True, exist_ok=True)
+            import build
+            build.write_avatars(folder)                   # the team avatars beside the page (two small files)
             if heads:
-                import build
                 build.write_heads(folder)
             p = folder / f"{surface}.html"
             p.write_text(component_html(surface, self.data), encoding="utf-8")

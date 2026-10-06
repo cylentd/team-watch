@@ -7,7 +7,6 @@ Run: python design/build.py
 """
 import hashlib
 import json
-import os
 import pathlib
 import re
 import sys
@@ -66,6 +65,7 @@ from wx_history import live_wx_history, report as wx_history_report  # Weather's
 from wx_hits import live_wx_hits  # Weather's "Who it hits", from the projections, never a roster
 from wx_kicked import kicked as wx_kicked  # Weather's forecast for a game already kicked off
 from heads import HEADS_SRC, HEADS_DIR, HEADS_LG, HEADS_XL, write_heads  # design/heads.py: the headshot files (TEAM_WATCH_HEADS)
+from avatars import AVATARS_DIR, write_avatars  # design/avatars.py: each Yahoo team's avatar (ff-jarvis data/avatars)
 
 # One slug for one name across the page and the functions: api/league.py slugs a connected league's players with this same function (api/_espn.py).
 sys.path.insert(0, str(REPO / "api"))
@@ -725,7 +725,7 @@ def main():
     (REPO / "build.json").write_text(json.dumps(b.stamp), encoding="utf-8")
     kb = len(b.page.encode("utf-8")) / 1024
     print(f"wrote {REPO/'index.html'} and {ROOT/'index.html'} ({kb:.0f} KB), "
-          f"{write_heads(REPO)} heads to {HEADS_DIR}/")
+          f"{write_heads(REPO)} heads to {HEADS_DIR}/, {write_avatars(REPO)} team avatars to {AVATARS_DIR}/")
     # One JSON per played game, for the drive strip to fetch on demand: 39 KB a game, never injected, and a static file
     # because a Vercel Python function may not import pandas. Immutable once a game has ended.
     sched = load_schedule(DWR)

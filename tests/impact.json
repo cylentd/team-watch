@@ -45,8 +45,8 @@
     },
     "league": {
       "paths": ["design/src/js/surface/league/", "design/src/css/surface/league/", "design/src/js/data/league.js",
-                "design/league_back.py", "design/league_recap.py"],
-      "tests": ["tests/test_league_back.py", "tests/test_league_recap.py", "tests/test_leagues.py", "tests/test_js_league_share.py", "tests/test_records_tabs.py", "tests/test_recap_type.py"],
+                "design/league_back.py", "design/league_recap.py", "design/avatars.py"],
+      "tests": ["tests/test_league_back.py", "tests/test_league_recap.py", "tests/test_leagues.py", "tests/test_js_league_share.py", "tests/test_records_tabs.py", "tests/test_recap_type.py", "tests/test_avatars.py"],
       "render": ["league", "myrecap", "recap", "records"]
     },
     "trades": {

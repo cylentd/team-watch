@@ -8,7 +8,7 @@ function lgShareTheme(){
   const css = getComputedStyle(document.documentElement), v = n => css.getPropertyValue(n).trim();
   const tint = (/--[\w-]+/.exec(lgTint()) || ["--yahoo"])[0];
   return {void: v("--void"), ink: v("--ink"), ink2: v("--ink-2"), ink3: v("--ink-3"), line: v("--line"), line2: v("--line-2"),
-    lime: v("--lime"), league: v(tint), kick: v(`${tint}-tint`) || v(tint),
+    lime: v("--lime"), panel2: v("--panel-2"), league: v(tint), kick: v(`${tint}-tint`) || v(tint),
     tone: {g: v("--up"), r: v("--down"), a: v("--amber"), x: v("--ink-2")},
     tab: v("--tab"), ui: v("--ui"), mono: v("--mono"), disp: v("--disp")};
 }
@@ -91,12 +91,42 @@ function lgShareStamp(ctx, th, tg, x, y, draw){
   return w;
 }
 
-/* One game: its score line, each stamp after the score of the team it names and the Nail-biter last, as on the
-   page (lgScoreLineHTML); a side that does not fit starts the next line whole. Then the game's line. */
-function lgShareGame(ctx, r, th, y){
-  const inner = LG_SHARE_W - 2 * LG_SHARE_PAD, x0 = LG_SHARE_PAD;
-  ctx.fillStyle = th.line; ctx.fillRect(x0, y, inner, 2);
+/* Every winner's avatar (r.winAv) as a decoded image, by path; null where one fails, which draws the initial. */
+async function lgShareAvatars(d){
+  const srcs = [...new Set(d.rows.map(r => r.winAv).filter(Boolean))];
+  const imgs = await Promise.all(srcs.map(async src => {
+    const img = new Image();
+    img.src = src;
+    try { await img.decode(); return img; } catch (e) { return null; }
+  }));
+  return new Map(srcs.map((s, i) => [s, imgs[i]]));
+}
+
+/* The winner's avatar in a circle at the left of its game, as on the page (lgAvatarHTML): the image cropped to
+   fill, else the manager's initial on the panel colour. */
+const LG_SHARE_AV = 80, LG_SHARE_AV_GAP = 24;
+function lgShareAvatar(ctx, th, img, name, x, y){
+  const r = LG_SHARE_AV / 2;
+  ctx.save(); ctx.beginPath(); ctx.arc(x + r, y + r, r, 0, 2 * Math.PI); ctx.clip();
+  ctx.fillStyle = th.panel2; ctx.fillRect(x, y, LG_SHARE_AV, LG_SHARE_AV);
+  if (img){
+    const s = Math.min(img.naturalWidth, img.naturalHeight);
+    ctx.drawImage(img, (img.naturalWidth - s) / 2, (img.naturalHeight - s) / 2, s, s, x, y, LG_SHARE_AV, LG_SHARE_AV);
+  } else {
+    ctx.font = `800 38px ${th.ui}`; ctx.fillStyle = th.ink2; ctx.textAlign = "center";
+    ctx.fillText(String(name || "").charAt(0), x + r, y + r + 13); ctx.textAlign = "left";
+  }
+  ctx.restore();
+}
+
+/* One game: the winner's avatar, then its score line, each stamp after the score of the team it names and the
+   Nail-biter last, as on the page (lgScoreLineHTML); a side that does not fit starts the next line whole. Then
+   the game's line. */
+function lgShareGame(ctx, r, th, y, avs){
+  ctx.fillStyle = th.line; ctx.fillRect(LG_SHARE_PAD, y, LG_SHARE_W - 2 * LG_SHARE_PAD, 2);
   y += 2 + 18;
+  lgShareAvatar(ctx, th, avs && r.winAv ? avs.get(r.winAv) : null, r.win, LG_SHARE_PAD, y);
+  const avEnd = y + LG_SHARE_AV, x0 = LG_SHARE_PAD + LG_SHARE_AV + LG_SHARE_AV_GAP, inner = LG_SHARE_W - LG_SHARE_PAD - x0;
   // a score beside its name takes the name's face (STYLE.md "Type")
   const txt = (s, font, color, gap) => ({s, font, color, gap}), stamps = side => r.tags.filter(tg => tg.side === side).map(tg => ({tg, gap: 12}));
   const units = [
@@ -106,6 +136,7 @@ function lgShareGame(ctx, r, th, y){
     stamps("game")].filter(u => u.length);
   const width = p => p.tg ? lgShareStamp(ctx, th, p.tg, 0, 0, false) : (ctx.font = p.font, ctx.measureText(p.s).width);
   let x = x0;
+  y += (LG_SHARE_AV - 44) / 2;  // a one-line score centred on the avatar
   units.forEach(u => {
     const uw = u.reduce((n, p) => n + width(p) + p.gap, 0);
     if (x > x0 && x + uw - u[u.length - 1].gap > x0 + inner){ x = x0; y += 48; }
@@ -123,7 +154,7 @@ function lgShareGame(ctx, r, th, y){
     lines.forEach((l, i) => ctx.fillText(l, x0 + 24, y + 10 + i * 40 + 30));
     y += 10 + lines.length * 40;
   }
-  return y + 18;
+  return Math.max(y, avEnd) + 18;
 }
 
 /* The foot: the mark, the TEAM//WATCH wordmark, the link. Returns the image's final height. */
@@ -152,12 +183,12 @@ function lgShareFoot(ctx, d, th, y, mark){
 async function lgSharePNG(d){
   const th = lgShareTheme();
   await Promise.all([`900 80px ${th.tab}`, `800 34px ${th.ui}`, `700 26px ${th.mono}`, `800 34px ${th.disp}`].map(f => document.fonts.load(f)));
-  const [mark, blip] = await Promise.all([lgShareMark(th), lgShareBlip()]), scratch = document.createElement("canvas");
+  const [mark, blip, avs] = await Promise.all([lgShareMark(th), lgShareBlip(), lgShareAvatars(d)]), scratch = document.createElement("canvas");
   scratch.width = LG_SHARE_W; scratch.height = 700 + d.rows.length * 420;
   const sc = scratch.getContext("2d");
   sc.fillStyle = th.void; sc.fillRect(0, 0, scratch.width, scratch.height);
   let y = lgShareHead(sc, d, th, 50, blip);
-  d.rows.forEach(r => { y = lgShareGame(sc, r, th, y); });
+  d.rows.forEach(r => { y = lgShareGame(sc, r, th, y, avs); });
   const h = lgShareFoot(sc, d, th, y, mark), out = document.createElement("canvas");
   out.width = LG_SHARE_W; out.height = h;
   out.getContext("2d").drawImage(scratch, 0, 0);
