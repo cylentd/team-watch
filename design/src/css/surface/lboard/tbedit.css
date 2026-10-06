@@ -48,4 +48,10 @@
 
 @media (min-width:760px){
   .tb-lists{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+  /* The tray runs the page's width: the gain and the room lines at its left, Reset and Copy offer in a 420px pair at its
+     right, not two 590px buttons under a gain a thousand pixels from them. A refused clipboard's box takes a row of its own. */
+  .tb-edfoot{grid-template-columns:minmax(0,1fr) minmax(0,420px);column-gap:16px;align-items:center}
+  .tb-edfoot .tb-gain,.tb-edfoot .tb-edroom{grid-column:1}
+  .tb-edfoot .tb-acts{grid-column:2;grid-row:1 / span 2}
+  .tb-edfoot .tb-box{grid-column:1 / -1;grid-row:3}
 }

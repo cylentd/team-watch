@@ -255,6 +255,141 @@ def test_the_first_offer_starts_under_the_chips_and_fits_a_phone_and_a_desktop(m
     assert f.page.evaluate("document.querySelector('[data-testid=finder-card]').getBoundingClientRect().width") <= 561, "a card keeps to one column"
 
 
+# ---- the desktop: the offers and who is deep fill the frame, as the Teams cards do ---------------------------------
+# The frame is what the team line spans (1185px at 1280). Teams draws as many 300px columns as it holds, so three
+# at 1280 (DESIGN.md "Teams"); the finder draws its cards in the same columns, and a card stays within STYLE.md's
+# 560px between its partner's name and his record.
+
+def across(boxes):
+    """How many columns the boxes sit in: their distinct left edges."""
+    return len({round(b["x"]) for b in boxes})
+
+
+def rows(boxes):
+    """The boxes by row: lists of boxes sharing a top edge."""
+    out = {}
+    for b in boxes:
+        out.setdefault(round(b["y"]), []).append(b)
+    return list(out.values())
+
+
+@pytest.mark.req("Trade finder", ac="on a desktop the offer cards fill the frame in columns of equal height")
+def test_on_a_desktop_the_offers_fill_the_frame_three_across_in_rows_of_one_height(mount):
+    f, errors = planted(mount, size=(1280, 900))
+    frame, cards = f.frame_box(), f.card_boxes()
+    assert len(cards) == 3 and across(cards) == 3, "RB has three offers, and three columns of 387px are Teams' at 1280px"
+    assert round(cards[0]["x"]) == round(frame["x"]) and round(cards[-1]["x"] + cards[-1]["w"]) == round(frame["x"] + frame["w"]), \
+        "the row runs the frame's width, no gap at its right edge"
+    assert len({round(c["y"]) for c in cards}) == 1 and len({round(c["h"]) for c in cards}) == 1, "one top and one height"
+    assert all(abs(c["w"] - (frame["w"] - 2 * 12) / 3) <= 1 for c in cards), "three equal columns and two 12px gaps: the Teams grid's (387px each in the 1185px frame of a real 1280px page)"
+    f.pick("WR")                                                       # two offers: a row of two
+    assert across(f.card_boxes()) == 2
+    assert f.fits() and errors == []
+
+
+@pytest.mark.req("Trade finder", ac="the offers' feet rest on the cards' bottom edge, so a row's buttons line up")
+def test_a_row_of_offer_cards_shares_its_bottom_and_its_buttons(mount):
+    f, _ = planted(mount, size=(1280, 900))
+    cards = f.card_boxes()                                             # Gamma's gets two players, so the cards' own heights differ
+    feet = f.page.evaluate("[...document.querySelectorAll('[data-testid=finder-card] .tb-foot')].map(e => { const r = e.getBoundingClientRect(); return r.bottom + scrollY; })")
+    assert all(abs(c["y"] + c["h"] - 1 - b) <= 1 for c, b in zip(cards, feet)), "each foot ends on its card's bottom edge (inside the 1px border)"
+    assert len({round(c["y"] + c["h"]) for c in cards}) == 1, "and the three cards end on one line"
+
+
+@pytest.mark.req("Trade finder", ac="on a desktop who is deep is a grid of one-team cards in the same columns")
+def test_on_a_desktop_who_is_deep_is_a_grid_of_team_cards_in_the_same_columns(mount):
+    f, errors = planted(mount, size=(1280, 900))
+    deep, frame = f.deep_boxes(), f.frame_box()
+    assert len(deep) == 4 and across(deep) == 3, "four teams in three columns: 3 then 1"
+    assert round(deep[0]["x"]) == round(frame["x"]) and max(round(d["x"] + d["w"]) for d in deep) == round(frame["x"] + frame["w"])
+    assert all(d["w"] <= 560 for d in deep), "a team's name and his number stay within 560px"
+    assert all(len({round(d["h"]) for d in r}) == 1 for r in rows(deep)), "a row's cards share one height"
+    assert f.page.evaluate("getComputedStyle(document.querySelector('[data-testid=finder-deep] ol')).borderTopWidth") == "0px", "no card around the cards"
+    assert errors == []
+
+
+@pytest.mark.req("Trade finder", ac="the chips are one row, kept to a column's measure")
+def test_the_chip_row_stays_one_row_at_every_width(mount):
+    for size in ((360, 740), (1280, 900)):
+        f, _ = planted(mount, size=size)
+        chips = f.page.get_by_test_id("finder-chip").evaluate_all("bs => bs.map(b => { const r = b.getBoundingClientRect(); return [r.top, r.width]; })")
+        assert len({round(t) for t, _ in chips}) == 1, f"{size[0]}px: four chips on one row"
+        assert f.chips_box()["w"] <= 560 + 1
+
+
+@pytest.mark.req("Trade finder", ac="the filtered state's offers are cards in columns too; an empty state spans the frame")
+def test_the_filtered_state_and_the_empty_state_fill_the_desktop_frame(mount):
+    league = copy.deepcopy(LEAGUE)
+    league["teams"].append(team("espn-epsilon", "Epsilon", {"QB": 10.0, "RB": 10.0, "WR": 10.0, "TE": 1.0}, [], 0, 4))
+    f, errors = planted(mount, size=(1280, 900), league=league)
+    f.open_partner("Alpha")
+    assert across(f.card_boxes()) == 2, "Alpha's two offers sit side by side"
+    f.all_positions()
+    f.open_partner("Epsilon")                                          # nobody offers anything with him
+    empty, frame = f.empty_box(), f.frame_box()
+    assert (round(empty["x"]), round(empty["w"])) == (round(frame["x"]), round(frame["w"])), "the dashed line runs the frame, as Teams' empty block does"
+    assert f.fits() and errors == []
+
+
+@pytest.mark.req("Trade finder", ac="at 1440px the cards are still in columns of at most 560px and nothing scrolls sideways")
+def test_a_wider_desktop_widens_three_offers_to_the_frame_and_never_past_560(mount):
+    f, errors = planted(mount, size=(1280, 900))                       # the page's own context, resized, so no new one opens
+    try:
+        f.page.set_viewport_size({"width": 1440, "height": 900})
+        cards, frame = f.card_boxes(), f.frame_box()
+        assert across(cards) == 3 and all(c["w"] <= 560 for c in cards)
+        assert round(cards[-1]["x"] + cards[-1]["w"]) == round(frame["x"] + frame["w"]), "three offers still run the frame's width, not a fourth column's gap"
+        assert f.fits() and errors == []
+        f.page.set_viewport_size({"width": 900, "height": 900})        # a small laptop or a tablet: two columns, 3 + 2 becomes 2 + 1
+        cards = f.card_boxes()
+        assert across(cards) == 2 and f.fits(), "three columns would be under 300px each"
+        assert across(f.deep_boxes()) == 2
+    finally:
+        f.page.set_viewport_size({"width": 1280, "height": 900})
+
+
+@pytest.mark.req("Trade finder", ac="on a desktop the edit page's tray puts the gain at the left and the buttons in a pair at the right")
+def test_on_a_desktop_the_edit_trays_buttons_sit_beside_the_gain_not_a_screen_away(mount):
+    page, errors = finder(mount, "espn")                               # the fixture's own offers, which pass the guard
+    f = FinderPage(page)
+    f.wait_offers()
+    try:
+        page.set_viewport_size({"width": 1280, "height": 900})
+        f.open_edit(0)
+        b = f.edit_boxes()
+        assert round(b["tray"]["x"]) == round(b["package"]["x"]) and round(b["tray"]["w"]) == round(b["package"]["w"]), "the tray runs the package's width"
+        assert b["acts"]["w"] <= 420 + 1 and round(b["acts"]["x"] + b["acts"]["w"]) <= round(b["tray"]["x"] + b["tray"]["w"]), "the pair is 420px at the tray's right end"
+        assert b["gain"]["y"] < b["acts"]["y"] + b["acts"]["h"] and b["acts"]["y"] < b["gain"]["y"] + b["gain"]["h"] + 40, "on the gain's rows, not under them"
+        assert b["tray"]["h"] <= 120, "one band, not a stack of three"
+        assert f.fits() and errors == []
+    finally:
+        page.set_viewport_size({"width": 360, "height": 740})
+
+
+@pytest.mark.req("Trade finder", ac="with no team the picker's three leagues fill the desktop frame in the cards' three columns")
+def test_with_no_team_the_pickers_leagues_sit_in_three_columns_on_a_desktop(mount):
+    page, errors = finder(mount, None)
+    f = FinderPage(page)
+    try:
+        page.set_viewport_size({"width": 1280, "height": 900})
+        leagues, frame = f.picker_boxes(), f.frame_box()
+        assert len(leagues) == 3 and across(leagues) == 3, "the Madden Curse, AYO and the ESPN league side by side"
+        assert round(leagues[0]["x"]) == round(frame["x"]) and max(round(b["x"] + b["w"]) for b in leagues) == round(frame["x"] + frame["w"])
+        assert f.fits() and errors == []
+        page.set_viewport_size({"width": 360, "height": 740})
+        assert across(f.picker_boxes()) == 1, "a phone stacks them"
+    finally:
+        page.set_viewport_size({"width": 360, "height": 740})
+
+
+@pytest.mark.req("Trade finder", ac="a phone keeps one column of offers and of teams")
+def test_a_phone_keeps_one_column_of_cards_and_of_teams(mount):
+    f, _ = planted(mount, size=(360, 740))
+    for boxes in (f.card_boxes(), f.deep_boxes()):
+        assert across(boxes) == 1 and all(round(2 * b["x"] + b["w"]) == 360 for b in boxes), "one column, the screen less one gutter a side"
+    assert f.page.evaluate("getComputedStyle(document.querySelector('[data-testid=finder-deep] ol')).borderTopWidth") == "1px", "the list is one card on a phone"
+
+
 
 
 # ---- journeys: across views ---------------------------------------------------------------------------------------

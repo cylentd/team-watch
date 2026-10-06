@@ -154,5 +154,45 @@ class FinderPage:
     def fits(self):
         return self.page.evaluate("document.documentElement.scrollWidth <= innerWidth")
 
+    # ---- where things sit (x, y, w, h in page pixels; for the desktop layout) ----
+
+    def frame_box(self):
+        """The page's frame, as the team line spans it: what every League leaf fills."""
+        return self._box(self.page.locator(".lgchip").first)
+
+    def chips_box(self):
+        return self._box(self.page.locator(".tf-chips"))
+
+    def card_boxes(self):
+        return self._boxes(self._cards)
+
+    def deep_boxes(self):
+        return self._boxes(self._deep)
+
+    def picker_boxes(self):
+        """With no team picked: one box per league's list of teams."""
+        return self._boxes(self.page.locator(".tp-lg"))
+
+    def open_edit(self, i=0):
+        """Tap Edit on offer card `i`: the edit page, with its tray."""
+        self.page.locator(f"[data-tbedit='{i}']").click()
+        self.page.wait_for_selector(".tb-edfoot")
+
+    def edit_boxes(self):
+        """The edit page's tray and, inside it, the gain and the Reset / Copy offer pair."""
+        return {"tray": self._box(self.page.locator(".tb-edfoot")), "gain": self._box(self.page.locator(".tb-edfoot .tb-gain")),
+                "acts": self._box(self.page.locator(".tb-edfoot .tb-acts")), "package": self._box(self.page.locator(".tb-pkg"))}
+
+    def empty_box(self):
+        return self._box(self.page.get_by_test_id("finder-empty"))
+
+    @staticmethod
+    def _box(loc):
+        return loc.evaluate("e => { const r = e.getBoundingClientRect(); return {x: r.left, y: r.top + scrollY, w: r.width, h: r.height}; }")
+
+    @staticmethod
+    def _boxes(loc):
+        return loc.evaluate_all("es => es.map(e => { const r = e.getBoundingClientRect(); return {x: r.left, y: r.top + scrollY, w: r.width, h: r.height}; })")
+
     def _chip(self, pos):
         return self._chips.and_(self.page.locator(f"[data-tfpos='{pos}']"))
