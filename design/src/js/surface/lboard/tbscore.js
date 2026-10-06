@@ -24,6 +24,8 @@
                 starters of R2, and are not protect, ordered by keep ascending, then seen ascending, then name
                 ascending. K and D/ST (`other`) are never released. None left to release: no offer.
                 Moves and drops never start, so they never move the gain.
+   their      The partner's room (rules.drop applied to the partner, "Only the owner's room is checked" aside): his
+                roster loses `get` and takes `send`, and the same moves and drops follow. It scores nothing.
    Nothing here touches the page: data in, numbers out. A player is {name, pos, seen, proj, ir, keep, ir_ok, protect}. */
 
 const tbKey = p => p.name;
@@ -83,6 +85,16 @@ function tbRoom(after, get, lu, other){
   const settled = after.map(p => moved.has(tbKey(p)) ? Object.assign({}, p, {ir: true}) : p);
   const {drop, short} = tbDrops(settled, get, lu, other), gone = new Set(drop.map(tbKey));
   return {irMoves, drop, short, kept: settled.filter(p => !gone.has(tbKey(p)))};
+}
+
+/* {irMoves, drop, short}: the partner's room after the same package (option B, 2026-10-05). The same rule, run on the
+   partner's roster: it loses what the reader gets (`get`) and takes what the reader sends (`send`, from the reader's
+   values), and what it takes in is never dropped. Nothing is scored: it is only the sentence in the copied pitch,
+   and the file's per-offer `their` is checked against it (offers.js). */
+function tbTheir(theirs, send, get, lu, other){
+  if (!send.length && !get.length) return {irMoves: [], drop: [], short: false};
+  const r = tbRoom(tbAfter(theirs, get, send), send, lu, other);
+  return {irMoves: r.irMoves, drop: r.drop, short: r.short};
 }
 
 /* {gain, drop, irMoves, ok} for the owner sending `send` and getting `get` (players with `proj`, `ir` and the drop

@@ -98,6 +98,58 @@ def test_present_drop_rule_fields_are_checked_even_while_optional():
     assert any(m.endswith("bold[1].ir_moves[0].slug") for m in miss), miss
 
 
+def without_option_b(doc, their=True, players=True):
+    """The file as it was before option B: no `last2` or `chips` on any player, no `their` on any offer."""
+    old = copy.deepcopy(doc)
+    for lg in old["leagues"].values():
+        for rows in lg["values"].values():
+            for p in rows:
+                if players:
+                    del p["last2"], p["chips"]
+        for ps in lg["teams"].values():
+            for kinds in ps.values():
+                for offers in kinds.values():
+                    for o in offers:
+                        if players:
+                            for side in ("send", "get", "drop", "ir_moves"):
+                                for p in o[side]:
+                                    del p["last2"], p["chips"]
+                            for side in ("ir_moves", "drop"):
+                                for p in o["their"][side]:
+                                    del p["last2"], p["chips"]
+                        if their:
+                            del o["their"]
+    return old
+
+
+def test_option_bs_fields_are_required(monkeypatch):
+    """Required since 2026-10-05 (ff-jarvis 79b2b0b): a file without last2, chips and their fails the build."""
+    assert trade_offers.OPTION_B_REQUIRED is True
+    assert any(m.endswith(".last2") for m in trade_offers.problems(without_option_b(FIXTURE, their=False)))
+    assert any(m.endswith(".their") for m in trade_offers.problems(without_option_b(FIXTURE, players=False)))
+    monkeypatch.setattr(trade_offers, "OPTION_B_REQUIRED", False)
+    assert trade_offers.problems(without_option_b(FIXTURE)) == [], "with the flag off the old shape passes"
+    monkeypatch.undo()
+    assert trade_offers.problems(FIXTURE) == [], "the fixture follows the spec exactly"
+    bad = copy.deepcopy(FIXTURE)
+    del bad["leagues"]["espn"]["values"]["Run It Back"][0]["chips"]                  # last2 is there, chips is not
+    pair = bad["leagues"]["espn"]["teams"]["Purdy Big in Japan"]["Run It Back"]
+    del pair["bold"][1]["their"]["drop"]
+    pair["bold"][0]["send"][1]["chips"] = "Hot"                                     # a string, not a list
+    del pair["bold"][0]["their"]["ir_moves"][0]["last2"]
+    miss = trade_offers.problems(bad)
+    for at in ("['Run It Back'][0].chips", "bold[1].their.drop", "bold[0].send[1].chips", "bold[0].their.ir_moves[0].last2"):
+        assert any(m.endswith(at) for m in miss), (at, miss)
+
+
+def test_a_null_last2_is_a_value_and_a_missing_one_is_not():
+    ok = copy.deepcopy(FIXTURE)
+    ok["leagues"]["espn"]["values"]["Run It Back"][0]["last2"] = None             # a rookie with one game
+    assert trade_offers.problems(ok) == []
+    del ok["leagues"]["espn"]["values"]["Run It Back"][0]["last2"]
+    assert any(m.endswith("['Run It Back'][0].last2") for m in trade_offers.problems(ok))
+
+
 def test_a_null_injury_is_a_value_and_a_missing_one_is_not():
     ok = copy.deepcopy(FIXTURE)
     assert ok["leagues"]["espn"]["teams"]["Purdy Big in Japan"]["Run It Back"]["bold"][0]["send"][1]["injury"] is None
@@ -333,10 +385,17 @@ def test_copy_offer_puts_a_message_of_true_season_averages_on_the_clipboard(brow
     page.locator("[data-tbcopy='0']").click()
     page.wait_for_function("document.querySelector(\"[data-tbcopy='0']\").textContent === 'Copied'")
     assert page.evaluate("navigator.clipboard.readText()") == (
-        "Trade? I send Higgins (14.4 a game), Purdy (28.8), Gordon II (10.2) for Smith-Njigba (25.3) and Brown (11.4).")
+        "Trade? I send Higgins (14.4 a game), Purdy (28.8), Gordon II (10.2) for Smith-Njigba (25.3) and Brown (11.4)."
+        " M. Mariota can go to your IR slot, so you don't cut anyone.")
     page.locator("[data-tbcopy='1']").click()
     page.wait_for_function("document.querySelector(\"[data-tbcopy='1']\").textContent === 'Copied'")
-    assert page.evaluate("navigator.clipboard.readText()") == "Trade? I send Purdy (28.8 a game), Raymond (9.4), Gordon II (10.2) for Smith-Njigba (25.3)."
+    assert page.evaluate("navigator.clipboard.readText()") == (
+        "Trade? I send Purdy (28.8 a game), Raymond (9.4), Gordon II (10.2) for Smith-Njigba (25.3)."
+        " M. Mariota can go to your IR slot. You'd only need to cut J. Hill.")
+    page.locator("[data-tbcopy='2']").click()
+    page.wait_for_function("document.querySelector(\"[data-tbcopy='2']\").textContent === 'Copied'")
+    assert page.evaluate("navigator.clipboard.readText()") == (
+        "Trade? I send Purdy (28.8 a game) for Brown (11.4) and Watson (16.5)."), "Watson is Hot, but the reader gets him: season average, never his last 2; his room is fine, so no sentence"
     ctx.close()
     assert errors == []
 
@@ -349,7 +408,8 @@ def test_a_refused_clipboard_shows_the_text_selected_in_a_box(browser, page_file
     page.locator("[data-tbcopy='1']").click()
     page.wait_for_selector(".tb-box")
     box = page.locator(".tb-box")
-    assert box.input_value() == "Trade? I send Purdy (28.8 a game), Raymond (9.4), Gordon II (10.2) for Smith-Njigba (25.3)."
+    assert box.input_value() == ("Trade? I send Purdy (28.8 a game), Raymond (9.4), Gordon II (10.2) for Smith-Njigba (25.3)."
+                                 " M. Mariota can go to your IR slot. You'd only need to cut J. Hill.")
     assert page.evaluate("(() => { const b = document.querySelector('.tb-box'); return document.activeElement === b && b.selectionEnd - b.selectionStart === b.value.length; })()")
     assert page.locator("[data-tbcopy='1']").inner_text() == "Copy offer", "no false Copied"
     ctx.close()

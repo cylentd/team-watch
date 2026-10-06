@@ -28,9 +28,9 @@ BACKLOG = {
     "test_brief.py": 1, "test_clip_reel.py": 1, "test_digest.py": 16, "test_gameday.py": 4,
     "test_leagues.py": 1, "test_left_hurt.py": 9, "test_live_tdclips.py": 13, "test_mates_page.py": 2,
     "test_pack_stage.py": 1, "test_profile.py": 6, "test_recap_view.py": 2, "test_roster_cards.py": 1,
-    "test_search.py": 8, "test_startsit.py": 1, "test_trade_edit.py": 33, "test_waiver_owner.py": 6,
+    "test_search.py": 8, "test_startsit.py": 1, "test_waiver_owner.py": 6,
     "test_weather.py": 3,
-}   # 108 in all; test_trade_edit was 12 until bc29a23 (drop rule) added 21 the hour the ratchet landed
+}   # 75 in all; test_trade_edit's 33 moved to tests/test_js_trade_score.py (Node) on 2026-10-05
 
 
 def pure_data_functions():

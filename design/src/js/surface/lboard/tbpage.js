@@ -4,8 +4,8 @@
    (lbpage.js), as the next page: its "‹ <team>" link, Back and the browser's Back return to that team. Two
    tabs, Bold (the biggest gain for the reader, whatever the partner makes of it) and Fair (both lineups
    gain), up to three offers each. An offer is two columns, YOU SEND and YOU GET, and one number, the reader's
-   gain a week. "Copy offer" puts a message on the clipboard for the other manager, built from season
-   averages alone. An offer that drops a player says so in one line. "Edit" on a card and "Make your own
+   gain a week. "Copy offer" puts a message on the clipboard for the other manager: season averages (a Hot
+   player's last 2) and one sentence on the partner's roster room (`their`). An offer that drops a player says so in one line. "Edit" on a card and "Make your own
    offer" under the list open the edit state (tbedit.js) on this same page, its own history entry, so Back
    returns to the offers. The data is offers.js's; nothing here is computed. */
 let TB = null;            // {lg, me, tm} while the page is open: the league, the reader's team and the partner's
@@ -21,9 +21,24 @@ const tbInjCode = s => ({Out: t("lboard.inj.o"), IR: t("lboard.inj.ir"), Questio
 const tbPillHTML = p => p.injury || p.ir
   ? `<i class="tb-inj" title="${esc(p.injury || "IR")}">${esc(tbInjCode(p.injury || "IR"))}</i>` : "";
 
+/* The perceived-value chips (option B, 2026-10-05): how the other manager is likely to price a player. Hot and Cold
+   follow his last 2 games, Early pick is a round 1-3 draft pick. Small and flat, in tokens (--heat, --sky, neutral); a
+   chip the file adds that the page does not know is left out. */
+const tbChipsHTML = p => (p.chips || []).map(c => c === "Hot" ? `<i class="tb-chip hot">${t("lboard.chip.hot")}</i>`
+  : c === "Cold" ? `<i class="tb-chip cold">${t("lboard.chip.cold")}</i>`
+  : c === "Early pick" ? `<i class="tb-chip early">${t("lboard.chip.early")}</i>` : "").join("");
+
+const tbWrapTags = s => s ? `<span class="tb-tags">${s}</span>` : "";
+
+/* A roster row (Edit): the status pill, then the chips, after the name; nothing when there is neither. */
+const tbTagsHTML = p => tbWrapTags(tbPillHTML(p) + tbChipsHTML(p));
+
+/* An offer card's row: the pill beside the name as ever, and the chips on a line of their own under it, because a card's
+   column is ~140px at 360px and a name plus two chips does not fit one line. The package in Edit shows no chips: the
+   rosters under it do. */
 function tbPlayerHTML(p){
   return `<li class="tb-p"><span class="lbp-pos" data-pos="${esc(p.pos)}">${esc(p.pos)}</span>
-    <span class="tb-n" title="${esc(p.name)}">${esc(nameInitial(p.name))}</span>${tbPillHTML(p)}</li>`;
+    <span class="tb-n" title="${esc(p.name)}">${esc(nameInitial(p.name))}</span>${tbPillHTML(p)}${tbWrapTags(tbChipsHTML(p))}</li>`;
 }
 
 /* "You drop: O. Gordon II": who the reader releases to stay at the roster cap, one quiet line. Nothing about the
@@ -131,7 +146,7 @@ async function tbCopyText(btn, text, host, where){
   try { await navigator.clipboard.writeText(text); ok = true; } catch (e) { /* the box below */ }
   if (!ok){
     let box = host.querySelector(".tb-box");
-    if (!box) host.insertAdjacentHTML(where, `<textarea class="tb-box" readonly rows="3" aria-label="${t("lboard.offer.copyBox")}">${esc(text)}</textarea>`);
+    if (!box) host.insertAdjacentHTML(where, `<textarea class="tb-box" readonly rows="5" aria-label="${t("lboard.offer.copyBox")}">${esc(text)}</textarea>`);
     box = host.querySelector(".tb-box");
     box.focus(); box.select();
     return;

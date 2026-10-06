@@ -51,7 +51,8 @@ const tbPair = (lg, me, tm) => ((((TB_DATA || {}).leagues || {})[lg.key] || {}).
 /* ---- Edit's guard (2026-10-05): the page re-scores the offers it loads with tbscore.js and shuts Edit when it
    cannot reproduce them. The file is ff-jarvis's, the port is the page's, and a rule that changed on one side
    only would otherwise show the reader a wrong number on a card they built themselves. Fails closed: a missing
-   field, a player the roster does not list, a gain more than 0.15 off or a different drop shuts Edit and Make
+   field (an offer's `their` too, since option B), a player the roster does not list, a gain more than 0.15 off or a
+   different drop, IR move or `their` shuts Edit and Make
    your own for the session (the offers still show), and the console names the offer. ---- */
 const TB_TOL = 0.15;
 let TB_GUARD = {data: null, shut: false, seen: {}};   // per file in memory: a shut guard stays shut, a pair is checked once
@@ -72,6 +73,9 @@ function tbResolve(list, roster){
    from before the rule (2026-10-05) has none, and the page cannot score it. */
 const tbRuled = rows => rows.every(p => typeof p.keep === "number" && typeof p.ir_ok === "boolean" && typeof p.protect === "boolean");
 
+/* True when an offer's `their` (the partner's room after the trade, option B) is there: both lists, possibly empty. */
+const tbTheirOk = th => !!th && Array.isArray(th.ir_moves) && Array.isArray(th.drop);
+
 /* The reason this pair cannot be scored, or "" when every offer of it re-scores to its gain, its IR moves and its drop. */
 function tbMismatch(lgd, me, tm, pair){
   const lu = lgd && lgd.lineup, mine = lgd && lgd.values && lgd.values[me.name], theirs = lgd && lgd.values && lgd.values[tm.name];
@@ -79,11 +83,12 @@ function tbMismatch(lgd, me, tm, pair){
   if (typeof lu.ir !== "number" || !tbRuled(mine) || !tbRuled(theirs)) return "no IR slots, keep, ir_ok or protect: the file predates the drop rule";
   for (const kind of ["bold", "fair"]) for (const [i, o] of ((pair || {})[kind] || []).entries()){
     const send = tbResolve(o.send, mine), get = tbResolve(o.get, theirs);
-    if (!send || !get || !Array.isArray(o.drop) || !Array.isArray(o.ir_moves)) return `${kind}[${i}] has a player the roster does not list, or no drop or ir_moves`;
-    const r = tbGain(mine, send, get, lu, tbOther(lgd, me.name));
+    if (!send || !get || !Array.isArray(o.drop) || !Array.isArray(o.ir_moves) || !tbTheirOk(o.their)) return `${kind}[${i}] has a player the roster does not list, or no drop, ir_moves or their`;
+    const r = tbGain(mine, send, get, lu, tbOther(lgd, me.name)), th = tbTheir(theirs, send, get, lu, tbOther(lgd, tm.name));
     const names = list => list.map(tbKey).join("|");      // the producer's order is the rule's
     const same = r.ok && names(r.drop) === names(o.drop) && names(r.irMoves) === names(o.ir_moves);
-    if (!(Math.abs(r.gain - o.gain) <= TB_TOL) || !same) return `${kind}[${i}] scores ${r.gain}${same ? "" : " and moves or drops other players"}, the file says ${o.gain}`;
+    const sameTheirs = names(th.irMoves) === names(o.their.ir_moves) && names(th.drop) === names(o.their.drop);
+    if (!(Math.abs(r.gain - o.gain) <= TB_TOL) || !same || !sameTheirs) return `${kind}[${i}] scores ${r.gain}${same && sameTheirs ? "" : " and moves, drops or makes room for them differently"}, the file says ${o.gain}`;
   }
   return "";
 }
@@ -102,13 +107,42 @@ function tbEditOk(){
   return TB_GUARD.seen[k];
 }
 
-/* ---- the message the reader pastes to the other manager: only true season averages, "seen" ---- */
+/* ---- the message the reader pastes to the other manager: true points a game, "seen", except a Hot player the
+   reader SENDS, who is quoted on his last 2 (option B, 2026-10-05: managers price a hot streak, so the reader sells
+   high); a Hot player the reader gets stays on his season average ---- */
 const tbSurname = n => { const p = String(n).trim().split(/\s+/); return p.length < 2 || /D\/ST$/.test(n) ? String(n) : p.slice(1).join(" "); };
 const tbJoin = list => list.length === 2 ? list.join(t("lboard.offer.and")) : list.join(", ");
 
-/* "Trade? I send Purdy (28.8 a game), Higgins (14.4) for Smith-Njigba (25.3) and Brown (11.4)." The first
-   player carries the unit. */
+/* A Hot player carries his last 2 games' average (`last2`), which the file sets for every Hot player. */
+const tbHot = p => (p.chips || []).includes("Hot") && typeof p.last2 === "number";
+
+/* "Higgins (14.4 a game)" or, when he is Hot and the reader sends him (`sells`), "McMillan (20.5 a game his last 2)". `unit` puts "a game" on a season average. */
+const tbOne = (p, unit, sells) => `${tbSurname(p.name)} (${sells && tbHot(p) ? t("lboard.offer.last2", {n: lbNum(p.last2)})
+  : unit ? t("lboard.offer.game", {n: lbNum(p.seen)}) : lbNum(p.seen)})`;
+
+/* One side of the message. Only the side the reader SENDS (`sells`) quotes a Hot player on his last 2, selling high; every
+   player the reader GETS is quoted on his season average, Hot or not, so the ask is never inflated. `unit` goes on the
+   side's first season average, so a Hot player ahead of it says his own unit. */
+function tbSide(list, unit, sells){
+  const at = unit ? list.findIndex(p => !(sells && tbHot(p))) : -1;
+  return tbJoin(list.map((p, i) => tbOne(p, i === at, sells)));
+}
+
+/* The partner's room, one or two sentences, from a `their` ({ir_moves, drop}, as the file has it): "D. Smith can go to
+   your IR slot, so you don't cut anyone." or "You'd only need to cut K. Johnson." and, with both, the two one after the
+   other. Empty when there is nothing to say. Initials, plain text: it goes on the clipboard. */
+function tbTheirText(th){
+  const ir = (th || {}).ir_moves || [], cut = (th || {}).drop || [], plain = list => tbJoin(list.map(p => nameInitial(p.name)));
+  const names = {names: plain(ir)}, many = ir.length > 1;      // every key literal: assemble --check cannot see a built one
+  const first = !ir.length ? "" : cut.length
+    ? (many ? t("lboard.offer.theirIrCutMany", names) : t("lboard.offer.theirIrCut", names))
+    : (many ? t("lboard.offer.theirIrMany", names) : t("lboard.offer.theirIr", names));
+  return [first, cut.length ? t("lboard.offer.theirCut", {names: plain(cut)}) : ""].filter(Boolean).join(" ");
+}
+
+/* "Trade? I send Purdy (28.8 a game), Higgins (14.4) for Smith-Njigba (25.3) and Brown (11.4). D. Smith can go to your
+   IR slot, so you don't cut anyone." The first season average carries the unit; `o.their` is the partner's room. */
 function tbText(o){
-  const one = (p, unit) => `${tbSurname(p.name)} (${unit ? t("lboard.offer.game", {n: lbNum(p.seen)}) : lbNum(p.seen)})`;
-  return t("lboard.offer.text", {send: tbJoin(o.send.map((p, i) => one(p, i === 0))), get: tbJoin(o.get.map(p => one(p, false)))});
+  const room = tbTheirText(o.their);
+  return t("lboard.offer.text", {send: tbSide(o.send, true, true), get: tbSide(o.get, false, false)}) + (room ? " " + room : "");
 }

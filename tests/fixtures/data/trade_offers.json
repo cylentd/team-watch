@@ -1,299 +1,1565 @@
 {
-  "updated": "2026-10-05T14:07",
-  "season": 2026,
-  "rules": {"top": 3, "max_out": 3, "max_in": 2, "min_gain": 1.0, "scoring": "Work in integer hundredths: h(x) = round(100*x) of a proj or floor as the file carries it (2 decimals). starters(roster): candidates are the roster's players with ir false, ordered by proj descending, then seen descending, then name ascending. For each position in lineup.slots, take the first n unused candidates of that position. Then for each entry of lineup.flex in order, take the first n unused candidates whose pos is in the entry's pos list. A slot is worth max(h(proj), bar), where bar is h(lineup.floor[pos]) for a fixed slot and the largest h(lineup.floor[p]) over the entry's pos list for a flex slot. A slot with no candidate left is worth bar. lineup(roster) is the sum of the slot values, and a floored starter still counts as a starter. gain = tenths(lineup(R2) - lineup(R1)) where R1 is the owner's values list, R2 is R1 minus send plus get (get players are taken from the partner's values list, matched by name, keeping their ir flag) minus ir_moves minus drop, and tenths(d) is d/10 rounded half away from zero, divided by 10, so one decimal. The search keeps only offers with gain >= rules.min_gain before the drops. Moving or dropping players who never start does not change the lineup, so ir_moves and drop never move gain.", "drop": "over = (the players in R2-before-moves with ir false) + other[owner] - lineup.cap. When over > 0: 1. IR first. free = lineup.ir - (the players of R2 with ir true). The players of R2 with ir false and ir_ok true move to IR, highest keep first, then higher seen, then name ascending, at most free of them and at most over; a moved player stops counting toward the cap and never starts. They are the offer's ir_moves. 2. Then, if still over: release the first `over` players of R2 who have ir false (after the moves), are not in get, are not in starters(R2), and have protect false, ordered by keep ascending, then seen ascending, then name ascending. K and D/ST (other) are never released. protect is true for early picks and for anyone whose keep would start for at least half the league at his position. An offer that cannot reach the cap that way is not written. ir_moves and drop are [] when nothing is needed. Only the owner's room is checked, never the partner's."},
-  "leagues": {
-    "espn": {
-      "week": 4,
-      "lineup": {
-        "slots": {"QB": 1, "RB": 2, "WR": 2, "TE": 1},
-        "flex": [
-          {
-            "n": 2,
-            "pos": ["RB", "WR", "TE"]
-          }
-        ],
-        "floor": {"QB": 17.73, "RB": 0.0, "WR": 0.0, "TE": 0.0},
-        "cap": 16,
-        "ir": 2
-      },
-      "values": {
-        "Purdy Big in Japan": [
-          {"name": "Jared Goff", "pos": "QB", "team": "DET", "slug": "jared-goff", "seen": 28.4, "injury": null, "proj": 23.73, "ir": false, "keep": 24.10, "ir_ok": false, "protect": true},
-          {"name": "Brock Purdy", "pos": "QB", "team": "SF", "slug": "brock-purdy", "seen": 28.8, "injury": null, "proj": 22.0, "ir": false, "keep": 24.60, "ir_ok": false, "protect": true},
-          {"name": "Bo Nix", "pos": "QB", "team": "DEN", "slug": "bo-nix", "seen": 15.8, "injury": null, "proj": 19.19, "ir": false, "keep": 19.20, "ir_ok": false, "protect": true},
-          {"name": "Amon-Ra St. Brown", "pos": "WR", "team": "DET", "slug": "amonra-st-brown", "seen": 18.6, "injury": null, "proj": 15.01, "ir": false, "keep": 17.80, "ir_ok": false, "protect": true},
-          {"name": "Tetairoa McMillan", "pos": "WR", "team": "CAR", "slug": "tetairoa-mcmillan", "seen": 15.5, "injury": null, "proj": 12.48, "ir": false, "keep": 14.90, "ir_ok": false, "protect": true},
-          {"name": "Tee Higgins", "pos": "WR", "team": "CIN", "slug": "tee-higgins", "seen": 14.4, "injury": "Questionable", "proj": 11.94, "ir": false, "keep": 13.00, "ir_ok": false, "protect": false},
-          {"name": "George Kittle", "pos": "TE", "team": "SF", "slug": "george-kittle", "seen": 14.0, "injury": null, "proj": 11.21, "ir": false, "keep": 14.00, "ir_ok": false, "protect": true},
-          {"name": "Cam Skattebo", "pos": "RB", "team": "NYG", "slug": "cam-skattebo", "seen": 9.2, "injury": null, "proj": 10.83, "ir": false, "keep": 11.40, "ir_ok": false, "protect": false},
-          {"name": "DK Metcalf", "pos": "WR", "team": "PIT", "slug": "dk-metcalf", "seen": 8.8, "injury": null, "proj": 9.15, "ir": false, "keep": 9.60, "ir_ok": false, "protect": true},
-          {"name": "Tony Pollard", "pos": "RB", "team": "TEN", "slug": "tony-pollard", "seen": 8.0, "injury": null, "proj": 9.1, "ir": false, "keep": 9.10, "ir_ok": false, "protect": false},
-          {"name": "Dalton Schultz", "pos": "TE", "team": "HOU", "slug": "dalton-schultz", "seen": 7.9, "injury": null, "proj": 7.75, "ir": false, "keep": 8.20, "ir_ok": false, "protect": false},
-          {"name": "Emanuel Wilson", "pos": "RB", "team": "SEA", "slug": "emanuel-wilson", "seen": 8.6, "injury": null, "proj": 7.74, "ir": false, "keep": 8.70, "ir_ok": false, "protect": false},
-          {"name": "Kalif Raymond", "pos": "WR", "team": "CHI", "slug": "kalif-raymond", "seen": 9.4, "injury": null, "proj": 6.56, "ir": false, "keep": 7.50, "ir_ok": false, "protect": false},
-          {"name": "Ollie Gordon II", "pos": "RB", "team": "MIA", "slug": "ollie-gordon", "seen": 10.2, "injury": null, "proj": 5.41, "ir": false, "keep": 6.20, "ir_ok": false, "protect": false},
-          {"name": "Jordan Mason", "pos": "RB", "team": "MIN", "slug": "jordan-mason", "seen": 11.0, "injury": "IR", "proj": 0.0, "ir": true, "keep": 12.00, "ir_ok": true, "protect": false}
-        ],
-        "Run It Back": [
-          {"name": "Drake Maye", "pos": "QB", "team": "NE", "slug": "drake-maye", "seen": 13.7, "injury": null, "proj": 21.47, "ir": false, "keep": 21.50, "ir_ok": false, "protect": true},
-          {"name": "Justin Herbert", "pos": "QB", "team": "LAC", "slug": "justin-herbert", "seen": 13.2, "injury": null, "proj": 20.14, "ir": false, "keep": 20.10, "ir_ok": false, "protect": true},
-          {"name": "Jaxon Smith-Njigba", "pos": "WR", "team": "SEA", "slug": "jaxon-smithnjigba", "seen": 25.3, "injury": null, "proj": 16.86, "ir": false, "keep": 25.30, "ir_ok": false, "protect": true},
-          {"name": "Chase Brown", "pos": "RB", "team": "CIN", "slug": "chase-brown", "seen": 11.4, "injury": null, "proj": 12.63, "ir": false, "keep": 12.60, "ir_ok": false, "protect": false},
-          {"name": "Christian Watson", "pos": "WR", "team": "GB", "slug": "christian-watson", "seen": 16.5, "injury": null, "proj": 11.07, "ir": false, "keep": 16.50, "ir_ok": false, "protect": true},
-          {"name": "Juwan Johnson", "pos": "TE", "team": "NO", "slug": "juwan-johnson", "seen": 13.2, "injury": null, "proj": 8.78, "ir": false, "keep": 13.20, "ir_ok": false, "protect": false},
-          {"name": "Quinshon Judkins", "pos": "RB", "team": "CLE", "slug": "quinshon-judkins", "seen": 9.4, "injury": null, "proj": 8.7, "ir": false, "keep": 9.40, "ir_ok": false, "protect": false},
-          {"name": "Denzel Boston", "pos": "WR", "team": "CLE", "slug": "denzel-boston", "seen": 11.1, "injury": null, "proj": 7.25, "ir": false, "keep": 11.10, "ir_ok": false, "protect": false},
-          {"name": "Wan'Dale Robinson", "pos": "WR", "team": "TEN", "slug": "wandale-robinson", "seen": 7.2, "injury": null, "proj": 7.18, "ir": false, "keep": 7.20, "ir_ok": false, "protect": false},
-          {"name": "Woody Marks", "pos": "RB", "team": "HOU", "slug": "woody-marks", "seen": 6.1, "injury": null, "proj": 6.89, "ir": false, "keep": 6.90, "ir_ok": false, "protect": false},
-          {"name": "Darren Waller", "pos": "TE", "team": "CAR", "slug": "darren-waller", "seen": 7.9, "injury": null, "proj": 6.57, "ir": false, "keep": 7.90, "ir_ok": false, "protect": false},
-          {"name": "Blake Corum", "pos": "RB", "team": "LAR", "slug": "blake-corum", "seen": 4.2, "injury": null, "proj": 5.71, "ir": false, "keep": 5.70, "ir_ok": false, "protect": false},
-          {"name": "Oronde Gadsden", "pos": "TE", "team": "LAC", "slug": "oronde-gadsden", "seen": 4.4, "injury": null, "proj": 4.86, "ir": false, "keep": 4.90, "ir_ok": false, "protect": false},
-          {"name": "Justice Hill", "pos": "RB", "team": "BAL", "slug": "justice-hill", "seen": 2.6, "injury": null, "proj": 3.86, "ir": false, "keep": 3.90, "ir_ok": false, "protect": false},
-          {"name": "Adonai Mitchell", "pos": "WR", "team": "NYJ", "slug": "adonai-mitchell", "seen": 8.2, "injury": "Out", "proj": 0.0, "ir": true, "keep": 8.20, "ir_ok": true, "protect": false},
-          {"name": "Marcus Mariota", "pos": "QB", "team": "WSH", "slug": "marcus-mariota", "seen": 13.0, "injury": "Out", "proj": 0.0, "ir": false, "keep": 13.00, "ir_ok": true, "protect": false}
-        ]
-      },
-      "other": {"Purdy Big in Japan": 2, "Run It Back": 1},
-      "teams": {
-        "Purdy Big in Japan": {
-          "Run It Back": {
-            "bold": [
-              {
-                "send": [
-                  {"name": "Tee Higgins", "pos": "WR", "team": "CIN", "slug": "tee-higgins", "seen": 14.4, "injury": "Questionable"},
-                  {"name": "Brock Purdy", "pos": "QB", "team": "SF", "slug": "brock-purdy", "seen": 28.8, "injury": null},
-                  {"name": "Ollie Gordon II", "pos": "RB", "team": "MIA", "slug": "ollie-gordon", "seen": 10.2, "injury": null}
-                ],
-                "get": [
-                  {"name": "Jaxon Smith-Njigba", "pos": "WR", "team": "SEA", "slug": "jaxon-smithnjigba", "seen": 25.3, "injury": null},
-                  {"name": "Chase Brown", "pos": "RB", "team": "CIN", "slug": "chase-brown", "seen": 11.4, "injury": null}
-                ],
-                "gain": 8.5,
-                "ir_moves": [],
-                "drop": []
-              },
-              {
-                "send": [
-                  {"name": "Brock Purdy", "pos": "QB", "team": "SF", "slug": "brock-purdy", "seen": 28.8, "injury": null},
-                  {"name": "Kalif Raymond", "pos": "WR", "team": "CHI", "slug": "kalif-raymond", "seen": 9.4, "injury": null},
-                  {"name": "Ollie Gordon II", "pos": "RB", "team": "MIA", "slug": "ollie-gordon", "seen": 10.2, "injury": null}
-                ],
-                "get": [
-                  {"name": "Jaxon Smith-Njigba", "pos": "WR", "team": "SEA", "slug": "jaxon-smithnjigba", "seen": 25.3, "injury": null}
-                ],
-                "gain": 7.7,
-                "ir_moves": [],
-                "drop": []
-              },
-              {
-                "send": [
-                  {"name": "Brock Purdy", "pos": "QB", "team": "SF", "slug": "brock-purdy", "seen": 28.8, "injury": null}
-                ],
-                "get": [
-                  {"name": "Chase Brown", "pos": "RB", "team": "CIN", "slug": "chase-brown", "seen": 11.4, "injury": null},
-                  {"name": "Christian Watson", "pos": "WR", "team": "GB", "slug": "christian-watson", "seen": 16.5, "injury": null}
-                ],
-                "gain": 5.5,
-                "ir_moves": [],
-                "drop": [
-                  {"name": "Ollie Gordon II", "pos": "RB", "team": "MIA", "slug": "ollie-gordon", "seen": 10.2, "injury": null}
-                ]
-              }
-            ],
-            "fair": []
-          }
-        },
-        "Run It Back": {
-          "Purdy Big in Japan": {
-            "bold": [
-              {
-                "send": [
-                  {"name": "Denzel Boston", "pos": "WR", "team": "CLE", "slug": "denzel-boston", "seen": 11.1, "injury": null},
-                  {"name": "Juwan Johnson", "pos": "TE", "team": "NO", "slug": "juwan-johnson", "seen": 13.2, "injury": null}
-                ],
-                "get": [
-                  {"name": "Cam Skattebo", "pos": "RB", "team": "NYG", "slug": "cam-skattebo", "seen": 9.2, "injury": null},
-                  {"name": "George Kittle", "pos": "TE", "team": "SF", "slug": "george-kittle", "seen": 14.0, "injury": null}
-                ],
-                "gain": 6.0,
-                "ir_moves": [],
-                "drop": []
-              },
-              {
-                "send": [
-                  {"name": "Denzel Boston", "pos": "WR", "team": "CLE", "slug": "denzel-boston", "seen": 11.1, "injury": null}
-                ],
-                "get": [
-                  {"name": "Cam Skattebo", "pos": "RB", "team": "NYG", "slug": "cam-skattebo", "seen": 9.2, "injury": null},
-                  {"name": "Jared Goff", "pos": "QB", "team": "DET", "slug": "jared-goff", "seen": 28.4, "injury": null}
-                ],
-                "gain": 5.8,
-                "ir_moves": [
-                  {"name": "Marcus Mariota", "pos": "QB", "team": "WSH", "slug": "marcus-mariota", "seen": 13.0, "injury": "Out"}
-                ],
-              "drop": []
-              },
-              {
-                "send": [
-                  {"name": "Denzel Boston", "pos": "WR", "team": "CLE", "slug": "denzel-boston", "seen": 11.1, "injury": null}
-                ],
-                "get": [
-                  {"name": "Cam Skattebo", "pos": "RB", "team": "NYG", "slug": "cam-skattebo", "seen": 9.2, "injury": null},
-                  {"name": "DK Metcalf", "pos": "WR", "team": "PIT", "slug": "dk-metcalf", "seen": 8.8, "injury": null}
-                ],
-                "gain": 5.6,
-                "ir_moves": [
-                  {"name": "Marcus Mariota", "pos": "QB", "team": "WSH", "slug": "marcus-mariota", "seen": 13.0, "injury": "Out"}
-                ],
-              "drop": []
-              }
-            ],
-            "fair": [
-              {
-                "send": [
-                  {"name": "Drake Maye", "pos": "QB", "team": "NE", "slug": "drake-maye", "seen": 13.7, "injury": null}
-                ],
-                "get": [
-                  {"name": "Brock Purdy", "pos": "QB", "team": "SF", "slug": "brock-purdy", "seen": 28.8, "injury": null},
-                  {"name": "Dalton Schultz", "pos": "TE", "team": "HOU", "slug": "dalton-schultz", "seen": 7.9, "injury": null}
-                ],
-                "gain": 1.1,
-                "ir_moves": [
-                  {"name": "Marcus Mariota", "pos": "QB", "team": "WSH", "slug": "marcus-mariota", "seen": 13.0, "injury": "Out"}
-                ],
-              "drop": []
-              },
-              {
-                "send": [
-                  {"name": "Drake Maye", "pos": "QB", "team": "NE", "slug": "drake-maye", "seen": 13.7, "injury": null}
-                ],
-                "get": [
-                  {"name": "Brock Purdy", "pos": "QB", "team": "SF", "slug": "brock-purdy", "seen": 28.8, "injury": null},
-                  {"name": "Emanuel Wilson", "pos": "RB", "team": "SEA", "slug": "emanuel-wilson", "seen": 8.6, "injury": null}
-                ],
-                "gain": 1.1,
-                "ir_moves": [
-                  {"name": "Marcus Mariota", "pos": "QB", "team": "WSH", "slug": "marcus-mariota", "seen": 13.0, "injury": "Out"}
-                ],
-              "drop": []
-              },
-              {
-                "send": [
-                  {"name": "Wan'Dale Robinson", "pos": "WR", "team": "TEN", "slug": "wandale-robinson", "seen": 7.2, "injury": null}
-                ],
-                "get": [
-                  {"name": "Emanuel Wilson", "pos": "RB", "team": "SEA", "slug": "emanuel-wilson", "seen": 8.6, "injury": null},
-                  {"name": "Dalton Schultz", "pos": "TE", "team": "HOU", "slug": "dalton-schultz", "seen": 7.9, "injury": null}
-                ],
-                "gain": 1.1,
-                "ir_moves": [
-                  {"name": "Marcus Mariota", "pos": "QB", "team": "WSH", "slug": "marcus-mariota", "seen": 13.0, "injury": "Out"}
-                ],
-              "drop": []
-              }
-            ]
-          }
-        }
-      }
+ "updated": "2026-10-05T14:07",
+ "season": 2026,
+ "rules": {
+  "top": 3,
+  "max_out": 3,
+  "max_in": 2,
+  "min_gain": 1.0,
+  "scoring": "Work in integer hundredths: h(x) = round(100*x) of a proj or floor as the file carries it (2 decimals). starters(roster): candidates are the roster's players with ir false, ordered by proj descending, then seen descending, then name ascending. For each position in lineup.slots, take the first n unused candidates of that position. Then for each entry of lineup.flex in order, take the first n unused candidates whose pos is in the entry's pos list. A slot is worth max(h(proj), bar), where bar is h(lineup.floor[pos]) for a fixed slot and the largest h(lineup.floor[p]) over the entry's pos list for a flex slot. A slot with no candidate left is worth bar. lineup(roster) is the sum of the slot values, and a floored starter still counts as a starter. gain = tenths(lineup(R2) - lineup(R1)) where R1 is the owner's values list, R2 is R1 minus send plus get (get players are taken from the partner's values list, matched by name, keeping their ir flag) minus ir_moves minus drop, and tenths(d) is d/10 rounded half away from zero, divided by 10, so one decimal. The search keeps only offers with gain >= rules.min_gain before the drops. Moving or dropping players who never start does not change the lineup, so ir_moves and drop never move gain.",
+  "drop": "over = (the players in R2-before-moves with ir false) + other[owner] - lineup.cap. When over > 0: 1. IR first. free = lineup.ir - (the players of R2 with ir true). The players of R2 with ir false and ir_ok true move to IR, highest keep first, then higher seen, then name ascending, at most free of them and at most over; a moved player stops counting toward the cap and never starts. They are the offer's ir_moves. 2. Then, if still over: release the first `over` players of R2 who have ir false (after the moves), are not in get, are not in starters(R2), and have protect false, ordered by keep ascending, then seen ascending, then name ascending. K and D/ST (other) are never released. protect is true for early picks and for anyone whose keep would start for at least half the league at his position. An offer that cannot reach the cap that way is not written. ir_moves and drop are [] when nothing is needed. Only the owner's room is checked, never the partner's."
+ },
+ "leagues": {
+  "espn": {
+   "week": 4,
+   "lineup": {
+    "slots": {
+     "QB": 1,
+     "RB": 2,
+     "WR": 2,
+     "TE": 1
     },
-    "yahoo": {
-      "week": 4,
-      "lineup": {
-        "slots": {"QB": 1, "RB": 2, "WR": 2, "TE": 1},
-        "flex": [
-          {
-            "n": 1,
-            "pos": ["RB", "WR", "TE"]
-          }
-        ],
-        "floor": {"QB": 12.0, "RB": 5.4, "WR": 5.8, "TE": 6.7},
-        "cap": 14,
-        "ir": 2
-      },
-      "values": {},
-      "other": {},
-      "teams": {}
+    "flex": [
+     {
+      "n": 2,
+      "pos": [
+       "RB",
+       "WR",
+       "TE"
+      ]
+     }
+    ],
+    "floor": {
+     "QB": 17.73,
+     "RB": 0.0,
+     "WR": 0.0,
+     "TE": 0.0
     },
-    "ayo": {
-      "week": 4,
-      "lineup": {
-        "slots": {"QB": 1, "RB": 2, "WR": 2, "TE": 1},
-        "flex": [
-          {
-            "n": 1,
-            "pos": ["RB", "WR", "TE"]
-          },
-          {
-            "n": 1,
-            "pos": ["QB", "RB", "WR", "TE"]
-          }
+    "cap": 16,
+    "ir": 2
+   },
+   "values": {
+    "Purdy Big in Japan": [
+     {
+      "name": "Jared Goff",
+      "pos": "QB",
+      "team": "DET",
+      "slug": "jared-goff",
+      "seen": 28.4,
+      "injury": null,
+      "proj": 23.73,
+      "ir": false,
+      "keep": 24.1,
+      "ir_ok": false,
+      "protect": true,
+      "last2": 28.8,
+      "chips": []
+     },
+     {
+      "name": "Brock Purdy",
+      "pos": "QB",
+      "team": "SF",
+      "slug": "brock-purdy",
+      "seen": 28.8,
+      "injury": null,
+      "proj": 22.0,
+      "ir": false,
+      "keep": 24.6,
+      "ir_ok": false,
+      "protect": true,
+      "last2": 28.0,
+      "chips": []
+     },
+     {
+      "name": "Bo Nix",
+      "pos": "QB",
+      "team": "DEN",
+      "slug": "bo-nix",
+      "seen": 15.8,
+      "injury": null,
+      "proj": 19.19,
+      "ir": false,
+      "keep": 19.2,
+      "ir_ok": false,
+      "protect": true,
+      "last2": 17.1,
+      "chips": []
+     },
+     {
+      "name": "Amon-Ra St. Brown",
+      "pos": "WR",
+      "team": "DET",
+      "slug": "amonra-st-brown",
+      "seen": 18.6,
+      "injury": null,
+      "proj": 15.01,
+      "ir": false,
+      "keep": 17.8,
+      "ir_ok": false,
+      "protect": true,
+      "last2": 18.6,
+      "chips": []
+     },
+     {
+      "name": "Tetairoa McMillan",
+      "pos": "WR",
+      "team": "CAR",
+      "slug": "tetairoa-mcmillan",
+      "seen": 15.5,
+      "injury": null,
+      "proj": 12.48,
+      "ir": false,
+      "keep": 14.9,
+      "ir_ok": false,
+      "protect": true,
+      "last2": 14.0,
+      "chips": []
+     },
+     {
+      "name": "Tee Higgins",
+      "pos": "WR",
+      "team": "CIN",
+      "slug": "tee-higgins",
+      "seen": 14.4,
+      "injury": "Questionable",
+      "proj": 11.94,
+      "ir": false,
+      "keep": 13.0,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 15.3,
+      "chips": []
+     },
+     {
+      "name": "George Kittle",
+      "pos": "TE",
+      "team": "SF",
+      "slug": "george-kittle",
+      "seen": 14.0,
+      "injury": null,
+      "proj": 11.21,
+      "ir": false,
+      "keep": 14.0,
+      "ir_ok": false,
+      "protect": true,
+      "last2": 14.4,
+      "chips": []
+     },
+     {
+      "name": "Cam Skattebo",
+      "pos": "RB",
+      "team": "NYG",
+      "slug": "cam-skattebo",
+      "seen": 9.2,
+      "injury": null,
+      "proj": 10.83,
+      "ir": false,
+      "keep": 11.4,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 8.4,
+      "chips": []
+     },
+     {
+      "name": "DK Metcalf",
+      "pos": "WR",
+      "team": "PIT",
+      "slug": "dk-metcalf",
+      "seen": 8.8,
+      "injury": null,
+      "proj": 9.15,
+      "ir": false,
+      "keep": 9.6,
+      "ir_ok": false,
+      "protect": true,
+      "last2": 10.1,
+      "chips": []
+     },
+     {
+      "name": "Tony Pollard",
+      "pos": "RB",
+      "team": "TEN",
+      "slug": "tony-pollard",
+      "seen": 8.0,
+      "injury": null,
+      "proj": 9.1,
+      "ir": false,
+      "keep": 9.1,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 8.0,
+      "chips": []
+     },
+     {
+      "name": "Dalton Schultz",
+      "pos": "TE",
+      "team": "HOU",
+      "slug": "dalton-schultz",
+      "seen": 7.9,
+      "injury": null,
+      "proj": 7.75,
+      "ir": false,
+      "keep": 8.2,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 6.4,
+      "chips": []
+     },
+     {
+      "name": "Emanuel Wilson",
+      "pos": "RB",
+      "team": "SEA",
+      "slug": "emanuel-wilson",
+      "seen": 8.6,
+      "injury": null,
+      "proj": 7.74,
+      "ir": false,
+      "keep": 8.7,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 9.5,
+      "chips": []
+     },
+     {
+      "name": "Kalif Raymond",
+      "pos": "WR",
+      "team": "CHI",
+      "slug": "kalif-raymond",
+      "seen": 9.4,
+      "injury": null,
+      "proj": 6.56,
+      "ir": false,
+      "keep": 7.5,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 4.1,
+      "chips": [
+       "Cold"
+      ]
+     },
+     {
+      "name": "Ollie Gordon II",
+      "pos": "RB",
+      "team": "MIA",
+      "slug": "ollie-gordon",
+      "seen": 10.2,
+      "injury": null,
+      "proj": 5.41,
+      "ir": false,
+      "keep": 6.2,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 9.4,
+      "chips": []
+     },
+     {
+      "name": "Jordan Mason",
+      "pos": "RB",
+      "team": "MIN",
+      "slug": "jordan-mason",
+      "seen": 11.0,
+      "injury": "IR",
+      "proj": 0.0,
+      "ir": true,
+      "keep": 12.0,
+      "ir_ok": true,
+      "protect": false,
+      "last2": 12.3,
+      "chips": [
+       "Early pick"
+      ]
+     }
+    ],
+    "Run It Back": [
+     {
+      "name": "Drake Maye",
+      "pos": "QB",
+      "team": "NE",
+      "slug": "drake-maye",
+      "seen": 13.7,
+      "injury": null,
+      "proj": 21.47,
+      "ir": false,
+      "keep": 21.5,
+      "ir_ok": false,
+      "protect": true,
+      "last2": 14.1,
+      "chips": [
+       "Early pick"
+      ]
+     },
+     {
+      "name": "Justin Herbert",
+      "pos": "QB",
+      "team": "LAC",
+      "slug": "justin-herbert",
+      "seen": 13.2,
+      "injury": null,
+      "proj": 20.14,
+      "ir": false,
+      "keep": 20.1,
+      "ir_ok": false,
+      "protect": true,
+      "last2": 12.4,
+      "chips": []
+     },
+     {
+      "name": "Jaxon Smith-Njigba",
+      "pos": "WR",
+      "team": "SEA",
+      "slug": "jaxon-smithnjigba",
+      "seen": 25.3,
+      "injury": null,
+      "proj": 16.86,
+      "ir": false,
+      "keep": 25.3,
+      "ir_ok": false,
+      "protect": true,
+      "last2": 26.6,
+      "chips": []
+     },
+     {
+      "name": "Chase Brown",
+      "pos": "RB",
+      "team": "CIN",
+      "slug": "chase-brown",
+      "seen": 11.4,
+      "injury": null,
+      "proj": 12.63,
+      "ir": false,
+      "keep": 12.6,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 11.4,
+      "chips": []
+     },
+     {
+      "name": "Christian Watson",
+      "pos": "WR",
+      "team": "GB",
+      "slug": "christian-watson",
+      "seen": 16.5,
+      "injury": null,
+      "proj": 11.07,
+      "ir": false,
+      "keep": 16.5,
+      "ir_ok": false,
+      "protect": true,
+      "last2": 22.6,
+      "chips": [
+       "Hot",
+       "Early pick"
+      ]
+     },
+     {
+      "name": "Juwan Johnson",
+      "pos": "TE",
+      "team": "NO",
+      "slug": "juwan-johnson",
+      "seen": 13.2,
+      "injury": null,
+      "proj": 8.78,
+      "ir": false,
+      "keep": 13.2,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 14.1,
+      "chips": []
+     },
+     {
+      "name": "Quinshon Judkins",
+      "pos": "RB",
+      "team": "CLE",
+      "slug": "quinshon-judkins",
+      "seen": 9.4,
+      "injury": null,
+      "proj": 8.7,
+      "ir": false,
+      "keep": 9.4,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 9.8,
+      "chips": []
+     },
+     {
+      "name": "Denzel Boston",
+      "pos": "WR",
+      "team": "CLE",
+      "slug": "denzel-boston",
+      "seen": 11.1,
+      "injury": null,
+      "proj": 7.25,
+      "ir": false,
+      "keep": 11.1,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 10.3,
+      "chips": []
+     },
+     {
+      "name": "Wan'Dale Robinson",
+      "pos": "WR",
+      "team": "TEN",
+      "slug": "wandale-robinson",
+      "seen": 7.2,
+      "injury": null,
+      "proj": 7.18,
+      "ir": false,
+      "keep": 7.2,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 8.5,
+      "chips": []
+     },
+     {
+      "name": "Woody Marks",
+      "pos": "RB",
+      "team": "HOU",
+      "slug": "woody-marks",
+      "seen": 6.1,
+      "injury": null,
+      "proj": 6.89,
+      "ir": false,
+      "keep": 6.9,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 6.1,
+      "chips": []
+     },
+     {
+      "name": "Darren Waller",
+      "pos": "TE",
+      "team": "CAR",
+      "slug": "darren-waller",
+      "seen": 7.9,
+      "injury": null,
+      "proj": 6.57,
+      "ir": false,
+      "keep": 7.9,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 6.4,
+      "chips": []
+     },
+     {
+      "name": "Blake Corum",
+      "pos": "RB",
+      "team": "LAR",
+      "slug": "blake-corum",
+      "seen": 4.2,
+      "injury": null,
+      "proj": 5.71,
+      "ir": false,
+      "keep": 5.7,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 5.1,
+      "chips": []
+     },
+     {
+      "name": "Oronde Gadsden",
+      "pos": "TE",
+      "team": "LAC",
+      "slug": "oronde-gadsden",
+      "seen": 4.4,
+      "injury": null,
+      "proj": 4.86,
+      "ir": false,
+      "keep": 4.9,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 4.8,
+      "chips": []
+     },
+     {
+      "name": "Justice Hill",
+      "pos": "RB",
+      "team": "BAL",
+      "slug": "justice-hill",
+      "seen": 2.6,
+      "injury": null,
+      "proj": 3.86,
+      "ir": false,
+      "keep": 3.9,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 1.8,
+      "chips": []
+     },
+     {
+      "name": "Adonai Mitchell",
+      "pos": "WR",
+      "team": "NYJ",
+      "slug": "adonai-mitchell",
+      "seen": 8.2,
+      "injury": "Out",
+      "proj": 0.0,
+      "ir": true,
+      "keep": 8.2,
+      "ir_ok": true,
+      "protect": false,
+      "last2": 9.5,
+      "chips": []
+     },
+     {
+      "name": "Marcus Mariota",
+      "pos": "QB",
+      "team": "WSH",
+      "slug": "marcus-mariota",
+      "seen": 13.0,
+      "injury": "Out",
+      "proj": 0.0,
+      "ir": false,
+      "keep": 13.0,
+      "ir_ok": true,
+      "protect": false,
+      "last2": 13.0,
+      "chips": []
+     }
+    ]
+   },
+   "other": {
+    "Purdy Big in Japan": 2,
+    "Run It Back": 1
+   },
+   "teams": {
+    "Purdy Big in Japan": {
+     "Run It Back": {
+      "bold": [
+       {
+        "send": [
+         {
+          "name": "Tee Higgins",
+          "pos": "WR",
+          "team": "CIN",
+          "slug": "tee-higgins",
+          "seen": 14.4,
+          "injury": "Questionable",
+          "last2": 15.3,
+          "chips": []
+         },
+         {
+          "name": "Brock Purdy",
+          "pos": "QB",
+          "team": "SF",
+          "slug": "brock-purdy",
+          "seen": 28.8,
+          "injury": null,
+          "last2": 28.0,
+          "chips": []
+         },
+         {
+          "name": "Ollie Gordon II",
+          "pos": "RB",
+          "team": "MIA",
+          "slug": "ollie-gordon",
+          "seen": 10.2,
+          "injury": null,
+          "last2": 9.4,
+          "chips": []
+         }
         ],
-        "floor": {"QB": 11.0, "RB": 5.0, "WR": 5.5, "TE": 6.0},
-        "cap": 15,
-        "ir": 1
-      },
-      "values": {
-        "Taylor Made for Sundays": [
-          {"name": "Dak Prescott", "pos": "QB", "team": "DAL", "slug": "dak-prescott", "seen": 22.0, "injury": null, "proj": 16.0, "ir": false, "keep": 16.00, "ir_ok": false, "protect": true},
-          {"name": "Kirk Cousins", "pos": "QB", "team": "ATL", "slug": "kirk-cousins", "seen": 14.0, "injury": null, "proj": 12.5, "ir": false, "keep": 14.00, "ir_ok": false, "protect": false},
-          {"name": "James Cook III", "pos": "RB", "team": "BUF", "slug": "james-cook-iii", "seen": 15.2, "injury": null, "proj": 12.5, "ir": false, "keep": 15.20, "ir_ok": false, "protect": true},
-          {"name": "Rhamondre Stevenson", "pos": "RB", "team": "NE", "slug": "rhamondre-stevenson", "seen": 9.8, "injury": null, "proj": 9.5, "ir": false, "keep": 9.80, "ir_ok": false, "protect": false},
-          {"name": "Chuba Hubbard", "pos": "RB", "team": "CAR", "slug": "chuba-hubbard", "seen": 9.1, "injury": null, "proj": 8.0, "ir": false, "keep": 9.10, "ir_ok": false, "protect": false},
-          {"name": "Chase Brown", "pos": "RB", "team": "CIN", "slug": "chase-brown", "seen": 11.4, "injury": "Out", "proj": 0.0, "ir": false, "keep": 12.00, "ir_ok": true, "protect": false},
-          {"name": "CeeDee Lamb", "pos": "WR", "team": "DAL", "slug": "ceedee-lamb", "seen": 19.0, "injury": null, "proj": 15.0, "ir": false, "keep": 19.00, "ir_ok": false, "protect": true},
-          {"name": "Garrett Wilson", "pos": "WR", "team": "NYJ", "slug": "garrett-wilson", "seen": 14.0, "injury": null, "proj": 11.0, "ir": false, "keep": 14.00, "ir_ok": false, "protect": true},
-          {"name": "Tee Higgins", "pos": "WR", "team": "CIN", "slug": "tee-higgins", "seen": 14.4, "injury": null, "proj": 10.5, "ir": false, "keep": 14.40, "ir_ok": false, "protect": true},
-          {"name": "Jaylen Waddle", "pos": "WR", "team": "MIA", "slug": "jaylen-waddle", "seen": 10.2, "injury": null, "proj": 8.5, "ir": false, "keep": 10.20, "ir_ok": false, "protect": false},
-          {"name": "Rashid Shaheed", "pos": "WR", "team": "SEA", "slug": "rashid-shaheed", "seen": 7.0, "injury": null, "proj": 6.0, "ir": false, "keep": 7.00, "ir_ok": false, "protect": false},
-          {"name": "Jalen Nailor", "pos": "WR", "team": "MIN", "slug": "jalen-nailor", "seen": 5.1, "injury": null, "proj": 4.0, "ir": false, "keep": 5.10, "ir_ok": false, "protect": false},
-          {"name": "Travis Kelce", "pos": "TE", "team": "KC", "slug": "travis-kelce", "seen": 10.4, "injury": null, "proj": 9.0, "ir": false, "keep": 10.40, "ir_ok": false, "protect": false},
-          {"name": "Brenton Strange", "pos": "TE", "team": "JAX", "slug": "brenton-strange", "seen": 7.9, "injury": null, "proj": 7.0, "ir": false, "keep": 7.90, "ir_ok": false, "protect": false}
+        "get": [
+         {
+          "name": "Jaxon Smith-Njigba",
+          "pos": "WR",
+          "team": "SEA",
+          "slug": "jaxon-smithnjigba",
+          "seen": 25.3,
+          "injury": null,
+          "last2": 26.6,
+          "chips": []
+         },
+         {
+          "name": "Chase Brown",
+          "pos": "RB",
+          "team": "CIN",
+          "slug": "chase-brown",
+          "seen": 11.4,
+          "injury": null,
+          "last2": 11.4,
+          "chips": []
+         }
         ],
-        "Don Wick": [
-          {"name": "Jahmyr Gibbs", "pos": "RB", "team": "DET", "slug": "jahmyr-gibbs", "seen": 15.6, "injury": null, "proj": 11.9, "ir": false, "keep": 15.60, "ir_ok": false, "protect": true},
-          {"name": "Amon-Ra St. Brown", "pos": "WR", "team": "DET", "slug": "amonra-st-brown", "seen": 25.3, "injury": null, "proj": 12.1, "ir": false, "keep": 25.30, "ir_ok": false, "protect": true},
-          {"name": "Josh Allen", "pos": "QB", "team": "BUF", "slug": "josh-allen", "seen": 26.0, "injury": null, "proj": 21.9, "ir": false, "keep": 26.00, "ir_ok": false, "protect": true},
-          {"name": "Bucky Irving", "pos": "RB", "team": "TB", "slug": "bucky-irving", "seen": 12.0, "injury": null, "proj": 10.8, "ir": false, "keep": 12.00, "ir_ok": false, "protect": false},
-          {"name": "Drake London", "pos": "WR", "team": "ATL", "slug": "drake-london", "seen": 13.0, "injury": null, "proj": 12.0, "ir": false, "keep": 13.00, "ir_ok": false, "protect": true},
-          {"name": "Brock Bowers", "pos": "TE", "team": "LV", "slug": "brock-bowers", "seen": 12.5, "injury": null, "proj": 11.5, "ir": false, "keep": 12.50, "ir_ok": false, "protect": false},
-          {"name": "Trey McBride", "pos": "TE", "team": "ARI", "slug": "trey-mcbride", "seen": 13.6, "injury": null, "proj": 13.0, "ir": false, "keep": 13.60, "ir_ok": false, "protect": true},
-          {"name": "Rashee Rice", "pos": "WR", "team": "KC", "slug": "rashee-rice", "seen": 11.8, "injury": null, "proj": 10.0, "ir": false, "keep": 11.80, "ir_ok": false, "protect": false}
-        ]
-      },
-      "other": {"Taylor Made for Sundays": 1, "Don Wick": 1},
-      "teams": {
-        "Taylor Made for Sundays": {
-          "Don Wick": {
-            "bold": [
-              {
-                "send": [
-                  {"name": "Chase Brown", "pos": "RB", "team": "CIN", "slug": "chase-brown", "seen": 11.4, "injury": "Out"}
-                ],
-                "get": [
-                  {"name": "Jahmyr Gibbs", "pos": "RB", "team": "DET", "slug": "jahmyr-gibbs", "seen": 15.6, "injury": null}
-                ],
-                "gain": 2.4,
-                "ir_moves": [],
-                "drop": []
-              }
-            ],
-            "fair": [
-              {
-                "send": [
-                  {"name": "Tee Higgins", "pos": "WR", "team": "CIN", "slug": "tee-higgins", "seen": 14.4, "injury": null}
-                ],
-                "get": [
-                  {"name": "Amon-Ra St. Brown", "pos": "WR", "team": "DET", "slug": "amonra-st-brown", "seen": 25.3, "injury": null}
-                ],
-                "gain": 1.6,
-                "ir_moves": [],
-                "drop": []
-              }
-            ]
+        "gain": 8.5,
+        "ir_moves": [],
+        "drop": [],
+        "their": {
+         "ir_moves": [
+          {
+           "name": "Marcus Mariota",
+           "pos": "QB",
+           "team": "WSH",
+           "slug": "marcus-mariota",
+           "seen": 13.0,
+           "injury": "Out",
+           "last2": 13.0,
+           "chips": []
           }
+         ],
+         "drop": []
         }
-      }
+       },
+       {
+        "send": [
+         {
+          "name": "Brock Purdy",
+          "pos": "QB",
+          "team": "SF",
+          "slug": "brock-purdy",
+          "seen": 28.8,
+          "injury": null,
+          "last2": 28.0,
+          "chips": []
+         },
+         {
+          "name": "Kalif Raymond",
+          "pos": "WR",
+          "team": "CHI",
+          "slug": "kalif-raymond",
+          "seen": 9.4,
+          "injury": null,
+          "last2": 4.1,
+          "chips": [
+           "Cold"
+          ]
+         },
+         {
+          "name": "Ollie Gordon II",
+          "pos": "RB",
+          "team": "MIA",
+          "slug": "ollie-gordon",
+          "seen": 10.2,
+          "injury": null,
+          "last2": 9.4,
+          "chips": []
+         }
+        ],
+        "get": [
+         {
+          "name": "Jaxon Smith-Njigba",
+          "pos": "WR",
+          "team": "SEA",
+          "slug": "jaxon-smithnjigba",
+          "seen": 25.3,
+          "injury": null,
+          "last2": 26.6,
+          "chips": []
+         }
+        ],
+        "gain": 7.7,
+        "ir_moves": [],
+        "drop": [],
+        "their": {
+         "ir_moves": [
+          {
+           "name": "Marcus Mariota",
+           "pos": "QB",
+           "team": "WSH",
+           "slug": "marcus-mariota",
+           "seen": 13.0,
+           "injury": "Out",
+           "last2": 13.0,
+           "chips": []
+          }
+         ],
+         "drop": [
+          {
+           "name": "Justice Hill",
+           "pos": "RB",
+           "team": "BAL",
+           "slug": "justice-hill",
+           "seen": 2.6,
+           "injury": null,
+           "last2": 1.8,
+           "chips": []
+          }
+         ]
+        }
+       },
+       {
+        "send": [
+         {
+          "name": "Brock Purdy",
+          "pos": "QB",
+          "team": "SF",
+          "slug": "brock-purdy",
+          "seen": 28.8,
+          "injury": null,
+          "last2": 28.0,
+          "chips": []
+         }
+        ],
+        "get": [
+         {
+          "name": "Chase Brown",
+          "pos": "RB",
+          "team": "CIN",
+          "slug": "chase-brown",
+          "seen": 11.4,
+          "injury": null,
+          "last2": 11.4,
+          "chips": []
+         },
+         {
+          "name": "Christian Watson",
+          "pos": "WR",
+          "team": "GB",
+          "slug": "christian-watson",
+          "seen": 16.5,
+          "injury": null,
+          "last2": 22.6,
+          "chips": [
+           "Hot",
+           "Early pick"
+          ]
+         }
+        ],
+        "gain": 5.5,
+        "ir_moves": [],
+        "drop": [
+         {
+          "name": "Ollie Gordon II",
+          "pos": "RB",
+          "team": "MIA",
+          "slug": "ollie-gordon",
+          "seen": 10.2,
+          "injury": null,
+          "last2": 9.4,
+          "chips": []
+         }
+        ],
+        "their": {
+         "ir_moves": [],
+         "drop": []
+        }
+       }
+      ],
+      "fair": []
+     }
+    },
+    "Run It Back": {
+     "Purdy Big in Japan": {
+      "bold": [
+       {
+        "send": [
+         {
+          "name": "Denzel Boston",
+          "pos": "WR",
+          "team": "CLE",
+          "slug": "denzel-boston",
+          "seen": 11.1,
+          "injury": null,
+          "last2": 10.3,
+          "chips": []
+         },
+         {
+          "name": "Juwan Johnson",
+          "pos": "TE",
+          "team": "NO",
+          "slug": "juwan-johnson",
+          "seen": 13.2,
+          "injury": null,
+          "last2": 14.1,
+          "chips": []
+         }
+        ],
+        "get": [
+         {
+          "name": "Cam Skattebo",
+          "pos": "RB",
+          "team": "NYG",
+          "slug": "cam-skattebo",
+          "seen": 9.2,
+          "injury": null,
+          "last2": 8.4,
+          "chips": []
+         },
+         {
+          "name": "George Kittle",
+          "pos": "TE",
+          "team": "SF",
+          "slug": "george-kittle",
+          "seen": 14.0,
+          "injury": null,
+          "last2": 14.4,
+          "chips": []
+         }
+        ],
+        "gain": 6.0,
+        "ir_moves": [],
+        "drop": [],
+        "their": {
+         "ir_moves": [],
+         "drop": []
+        }
+       },
+       {
+        "send": [
+         {
+          "name": "Denzel Boston",
+          "pos": "WR",
+          "team": "CLE",
+          "slug": "denzel-boston",
+          "seen": 11.1,
+          "injury": null,
+          "last2": 10.3,
+          "chips": []
+         }
+        ],
+        "get": [
+         {
+          "name": "Cam Skattebo",
+          "pos": "RB",
+          "team": "NYG",
+          "slug": "cam-skattebo",
+          "seen": 9.2,
+          "injury": null,
+          "last2": 8.4,
+          "chips": []
+         },
+         {
+          "name": "Jared Goff",
+          "pos": "QB",
+          "team": "DET",
+          "slug": "jared-goff",
+          "seen": 28.4,
+          "injury": null,
+          "last2": 28.8,
+          "chips": []
+         }
+        ],
+        "gain": 5.8,
+        "ir_moves": [
+         {
+          "name": "Marcus Mariota",
+          "pos": "QB",
+          "team": "WSH",
+          "slug": "marcus-mariota",
+          "seen": 13.0,
+          "injury": "Out",
+          "last2": 13.0,
+          "chips": []
+         }
+        ],
+        "drop": [],
+        "their": {
+         "ir_moves": [],
+         "drop": []
+        }
+       },
+       {
+        "send": [
+         {
+          "name": "Denzel Boston",
+          "pos": "WR",
+          "team": "CLE",
+          "slug": "denzel-boston",
+          "seen": 11.1,
+          "injury": null,
+          "last2": 10.3,
+          "chips": []
+         }
+        ],
+        "get": [
+         {
+          "name": "Cam Skattebo",
+          "pos": "RB",
+          "team": "NYG",
+          "slug": "cam-skattebo",
+          "seen": 9.2,
+          "injury": null,
+          "last2": 8.4,
+          "chips": []
+         },
+         {
+          "name": "DK Metcalf",
+          "pos": "WR",
+          "team": "PIT",
+          "slug": "dk-metcalf",
+          "seen": 8.8,
+          "injury": null,
+          "last2": 10.1,
+          "chips": []
+         }
+        ],
+        "gain": 5.6,
+        "ir_moves": [
+         {
+          "name": "Marcus Mariota",
+          "pos": "QB",
+          "team": "WSH",
+          "slug": "marcus-mariota",
+          "seen": 13.0,
+          "injury": "Out",
+          "last2": 13.0,
+          "chips": []
+         }
+        ],
+        "drop": [],
+        "their": {
+         "ir_moves": [],
+         "drop": []
+        }
+       }
+      ],
+      "fair": [
+       {
+        "send": [
+         {
+          "name": "Drake Maye",
+          "pos": "QB",
+          "team": "NE",
+          "slug": "drake-maye",
+          "seen": 13.7,
+          "injury": null,
+          "last2": 14.1,
+          "chips": [
+           "Early pick"
+          ]
+         }
+        ],
+        "get": [
+         {
+          "name": "Brock Purdy",
+          "pos": "QB",
+          "team": "SF",
+          "slug": "brock-purdy",
+          "seen": 28.8,
+          "injury": null,
+          "last2": 28.0,
+          "chips": []
+         },
+         {
+          "name": "Dalton Schultz",
+          "pos": "TE",
+          "team": "HOU",
+          "slug": "dalton-schultz",
+          "seen": 7.9,
+          "injury": null,
+          "last2": 6.4,
+          "chips": []
+         }
+        ],
+        "gain": 1.1,
+        "ir_moves": [
+         {
+          "name": "Marcus Mariota",
+          "pos": "QB",
+          "team": "WSH",
+          "slug": "marcus-mariota",
+          "seen": 13.0,
+          "injury": "Out",
+          "last2": 13.0,
+          "chips": []
+         }
+        ],
+        "drop": [],
+        "their": {
+         "ir_moves": [],
+         "drop": []
+        }
+       },
+       {
+        "send": [
+         {
+          "name": "Drake Maye",
+          "pos": "QB",
+          "team": "NE",
+          "slug": "drake-maye",
+          "seen": 13.7,
+          "injury": null,
+          "last2": 14.1,
+          "chips": [
+           "Early pick"
+          ]
+         }
+        ],
+        "get": [
+         {
+          "name": "Brock Purdy",
+          "pos": "QB",
+          "team": "SF",
+          "slug": "brock-purdy",
+          "seen": 28.8,
+          "injury": null,
+          "last2": 28.0,
+          "chips": []
+         },
+         {
+          "name": "Emanuel Wilson",
+          "pos": "RB",
+          "team": "SEA",
+          "slug": "emanuel-wilson",
+          "seen": 8.6,
+          "injury": null,
+          "last2": 9.5,
+          "chips": []
+         }
+        ],
+        "gain": 1.1,
+        "ir_moves": [
+         {
+          "name": "Marcus Mariota",
+          "pos": "QB",
+          "team": "WSH",
+          "slug": "marcus-mariota",
+          "seen": 13.0,
+          "injury": "Out",
+          "last2": 13.0,
+          "chips": []
+         }
+        ],
+        "drop": [],
+        "their": {
+         "ir_moves": [],
+         "drop": []
+        }
+       },
+       {
+        "send": [
+         {
+          "name": "Wan'Dale Robinson",
+          "pos": "WR",
+          "team": "TEN",
+          "slug": "wandale-robinson",
+          "seen": 7.2,
+          "injury": null,
+          "last2": 8.5,
+          "chips": []
+         }
+        ],
+        "get": [
+         {
+          "name": "Emanuel Wilson",
+          "pos": "RB",
+          "team": "SEA",
+          "slug": "emanuel-wilson",
+          "seen": 8.6,
+          "injury": null,
+          "last2": 9.5,
+          "chips": []
+         },
+         {
+          "name": "Dalton Schultz",
+          "pos": "TE",
+          "team": "HOU",
+          "slug": "dalton-schultz",
+          "seen": 7.9,
+          "injury": null,
+          "last2": 6.4,
+          "chips": []
+         }
+        ],
+        "gain": 1.1,
+        "ir_moves": [
+         {
+          "name": "Marcus Mariota",
+          "pos": "QB",
+          "team": "WSH",
+          "slug": "marcus-mariota",
+          "seen": 13.0,
+          "injury": "Out",
+          "last2": 13.0,
+          "chips": []
+         }
+        ],
+        "drop": [],
+        "their": {
+         "ir_moves": [],
+         "drop": []
+        }
+       }
+      ]
+     }
     }
+   }
+  },
+  "yahoo": {
+   "week": 4,
+   "lineup": {
+    "slots": {
+     "QB": 1,
+     "RB": 2,
+     "WR": 2,
+     "TE": 1
+    },
+    "flex": [
+     {
+      "n": 1,
+      "pos": [
+       "RB",
+       "WR",
+       "TE"
+      ]
+     }
+    ],
+    "floor": {
+     "QB": 12.0,
+     "RB": 5.4,
+     "WR": 5.8,
+     "TE": 6.7
+    },
+    "cap": 14,
+    "ir": 2
+   },
+   "values": {},
+   "other": {},
+   "teams": {}
+  },
+  "ayo": {
+   "week": 4,
+   "lineup": {
+    "slots": {
+     "QB": 1,
+     "RB": 2,
+     "WR": 2,
+     "TE": 1
+    },
+    "flex": [
+     {
+      "n": 1,
+      "pos": [
+       "RB",
+       "WR",
+       "TE"
+      ]
+     },
+     {
+      "n": 1,
+      "pos": [
+       "QB",
+       "RB",
+       "WR",
+       "TE"
+      ]
+     }
+    ],
+    "floor": {
+     "QB": 11.0,
+     "RB": 5.0,
+     "WR": 5.5,
+     "TE": 6.0
+    },
+    "cap": 15,
+    "ir": 1
+   },
+   "values": {
+    "Taylor Made for Sundays": [
+     {
+      "name": "Dak Prescott",
+      "pos": "QB",
+      "team": "DAL",
+      "slug": "dak-prescott",
+      "seen": 22.0,
+      "injury": null,
+      "proj": 16.0,
+      "ir": false,
+      "keep": 16.0,
+      "ir_ok": false,
+      "protect": true,
+      "last2": 22.4,
+      "chips": []
+     },
+     {
+      "name": "Kirk Cousins",
+      "pos": "QB",
+      "team": "ATL",
+      "slug": "kirk-cousins",
+      "seen": 14.0,
+      "injury": null,
+      "proj": 12.5,
+      "ir": false,
+      "keep": 14.0,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 13.2,
+      "chips": []
+     },
+     {
+      "name": "James Cook III",
+      "pos": "RB",
+      "team": "BUF",
+      "slug": "james-cook-iii",
+      "seen": 15.2,
+      "injury": null,
+      "proj": 12.5,
+      "ir": false,
+      "keep": 15.2,
+      "ir_ok": false,
+      "protect": true,
+      "last2": 16.5,
+      "chips": []
+     },
+     {
+      "name": "Rhamondre Stevenson",
+      "pos": "RB",
+      "team": "NE",
+      "slug": "rhamondre-stevenson",
+      "seen": 9.8,
+      "injury": null,
+      "proj": 9.5,
+      "ir": false,
+      "keep": 9.8,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 9.8,
+      "chips": []
+     },
+     {
+      "name": "Chuba Hubbard",
+      "pos": "RB",
+      "team": "CAR",
+      "slug": "chuba-hubbard",
+      "seen": 9.1,
+      "injury": null,
+      "proj": 8.0,
+      "ir": false,
+      "keep": 9.1,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 7.6,
+      "chips": []
+     },
+     {
+      "name": "Chase Brown",
+      "pos": "RB",
+      "team": "CIN",
+      "slug": "chase-brown",
+      "seen": 11.4,
+      "injury": "Out",
+      "proj": 0.0,
+      "ir": false,
+      "keep": 12.0,
+      "ir_ok": true,
+      "protect": false,
+      "last2": 12.3,
+      "chips": []
+     },
+     {
+      "name": "CeeDee Lamb",
+      "pos": "WR",
+      "team": "DAL",
+      "slug": "ceedee-lamb",
+      "seen": 19.0,
+      "injury": null,
+      "proj": 15.0,
+      "ir": false,
+      "keep": 19.0,
+      "ir_ok": false,
+      "protect": true,
+      "last2": 19.4,
+      "chips": []
+     },
+     {
+      "name": "Garrett Wilson",
+      "pos": "WR",
+      "team": "NYJ",
+      "slug": "garrett-wilson",
+      "seen": 14.0,
+      "injury": null,
+      "proj": 11.0,
+      "ir": false,
+      "keep": 14.0,
+      "ir_ok": false,
+      "protect": true,
+      "last2": 13.2,
+      "chips": []
+     },
+     {
+      "name": "Tee Higgins",
+      "pos": "WR",
+      "team": "CIN",
+      "slug": "tee-higgins",
+      "seen": 14.4,
+      "injury": null,
+      "proj": 10.5,
+      "ir": false,
+      "keep": 14.4,
+      "ir_ok": false,
+      "protect": true,
+      "last2": 15.7,
+      "chips": []
+     },
+     {
+      "name": "Jaylen Waddle",
+      "pos": "WR",
+      "team": "MIA",
+      "slug": "jaylen-waddle",
+      "seen": 10.2,
+      "injury": null,
+      "proj": 8.5,
+      "ir": false,
+      "keep": 10.2,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 10.2,
+      "chips": []
+     },
+     {
+      "name": "Rashid Shaheed",
+      "pos": "WR",
+      "team": "SEA",
+      "slug": "rashid-shaheed",
+      "seen": 7.0,
+      "injury": null,
+      "proj": 6.0,
+      "ir": false,
+      "keep": 7.0,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 5.5,
+      "chips": []
+     },
+     {
+      "name": "Jalen Nailor",
+      "pos": "WR",
+      "team": "MIN",
+      "slug": "jalen-nailor",
+      "seen": 5.1,
+      "injury": null,
+      "proj": 4.0,
+      "ir": false,
+      "keep": 5.1,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 6.0,
+      "chips": []
+     },
+     {
+      "name": "Travis Kelce",
+      "pos": "TE",
+      "team": "KC",
+      "slug": "travis-kelce",
+      "seen": 10.4,
+      "injury": null,
+      "proj": 9.0,
+      "ir": false,
+      "keep": 10.4,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 10.8,
+      "chips": []
+     },
+     {
+      "name": "Brenton Strange",
+      "pos": "TE",
+      "team": "JAX",
+      "slug": "brenton-strange",
+      "seen": 7.9,
+      "injury": null,
+      "proj": 7.0,
+      "ir": false,
+      "keep": 7.9,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 7.1,
+      "chips": []
+     }
+    ],
+    "Don Wick": [
+     {
+      "name": "Jahmyr Gibbs",
+      "pos": "RB",
+      "team": "DET",
+      "slug": "jahmyr-gibbs",
+      "seen": 15.6,
+      "injury": null,
+      "proj": 11.9,
+      "ir": false,
+      "keep": 15.6,
+      "ir_ok": false,
+      "protect": true,
+      "last2": 16.0,
+      "chips": []
+     },
+     {
+      "name": "Amon-Ra St. Brown",
+      "pos": "WR",
+      "team": "DET",
+      "slug": "amonra-st-brown",
+      "seen": 25.3,
+      "injury": null,
+      "proj": 12.1,
+      "ir": false,
+      "keep": 25.3,
+      "ir_ok": false,
+      "protect": true,
+      "last2": 24.5,
+      "chips": []
+     },
+     {
+      "name": "Josh Allen",
+      "pos": "QB",
+      "team": "BUF",
+      "slug": "josh-allen",
+      "seen": 26.0,
+      "injury": null,
+      "proj": 21.9,
+      "ir": false,
+      "keep": 26.0,
+      "ir_ok": false,
+      "protect": true,
+      "last2": 27.3,
+      "chips": []
+     },
+     {
+      "name": "Bucky Irving",
+      "pos": "RB",
+      "team": "TB",
+      "slug": "bucky-irving",
+      "seen": 12.0,
+      "injury": null,
+      "proj": 10.8,
+      "ir": false,
+      "keep": 12.0,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 12.0,
+      "chips": []
+     },
+     {
+      "name": "Drake London",
+      "pos": "WR",
+      "team": "ATL",
+      "slug": "drake-london",
+      "seen": 13.0,
+      "injury": null,
+      "proj": 12.0,
+      "ir": false,
+      "keep": 13.0,
+      "ir_ok": false,
+      "protect": true,
+      "last2": 11.5,
+      "chips": []
+     },
+     {
+      "name": "Brock Bowers",
+      "pos": "TE",
+      "team": "LV",
+      "slug": "brock-bowers",
+      "seen": 12.5,
+      "injury": null,
+      "proj": 11.5,
+      "ir": false,
+      "keep": 12.5,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 13.4,
+      "chips": []
+     },
+     {
+      "name": "Trey McBride",
+      "pos": "TE",
+      "team": "ARI",
+      "slug": "trey-mcbride",
+      "seen": 13.6,
+      "injury": null,
+      "proj": 13.0,
+      "ir": false,
+      "keep": 13.6,
+      "ir_ok": false,
+      "protect": true,
+      "last2": 14.0,
+      "chips": []
+     },
+     {
+      "name": "Rashee Rice",
+      "pos": "WR",
+      "team": "KC",
+      "slug": "rashee-rice",
+      "seen": 11.8,
+      "injury": null,
+      "proj": 10.0,
+      "ir": false,
+      "keep": 11.8,
+      "ir_ok": false,
+      "protect": false,
+      "last2": 11.0,
+      "chips": []
+     }
+    ]
+   },
+   "other": {
+    "Taylor Made for Sundays": 1,
+    "Don Wick": 1
+   },
+   "teams": {
+    "Taylor Made for Sundays": {
+     "Don Wick": {
+      "bold": [
+       {
+        "send": [
+         {
+          "name": "Chase Brown",
+          "pos": "RB",
+          "team": "CIN",
+          "slug": "chase-brown",
+          "seen": 11.4,
+          "injury": "Out",
+          "last2": 12.3,
+          "chips": []
+         }
+        ],
+        "get": [
+         {
+          "name": "Jahmyr Gibbs",
+          "pos": "RB",
+          "team": "DET",
+          "slug": "jahmyr-gibbs",
+          "seen": 15.6,
+          "injury": null,
+          "last2": 16.0,
+          "chips": []
+         }
+        ],
+        "gain": 2.4,
+        "ir_moves": [],
+        "drop": [],
+        "their": {
+         "ir_moves": [],
+         "drop": []
+        }
+       }
+      ],
+      "fair": [
+       {
+        "send": [
+         {
+          "name": "Tee Higgins",
+          "pos": "WR",
+          "team": "CIN",
+          "slug": "tee-higgins",
+          "seen": 14.4,
+          "injury": null,
+          "last2": 15.7,
+          "chips": []
+         }
+        ],
+        "get": [
+         {
+          "name": "Amon-Ra St. Brown",
+          "pos": "WR",
+          "team": "DET",
+          "slug": "amonra-st-brown",
+          "seen": 25.3,
+          "injury": null,
+          "last2": 24.5,
+          "chips": []
+         }
+        ],
+        "gain": 1.6,
+        "ir_moves": [],
+        "drop": [],
+        "their": {
+         "ir_moves": [],
+         "drop": []
+        }
+       }
+      ]
+     }
+    }
+   }
   }
+ }
 }

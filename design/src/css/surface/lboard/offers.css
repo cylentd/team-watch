@@ -25,6 +25,15 @@
 .tb-n{min-width:0;font:600 var(--t-2)/1.2 var(--ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tb-inj{padding:3px 5px;border-radius:5px;background:rgb(var(--amber-rgb) / .16);color:var(--amber);
   font:700 var(--t-1)/1 var(--mono);font-style:normal}
+/* The perceived-value chips (option B). Flat and small like the pill: Hot in --heat, Cold in --sky, Early pick neutral.
+   On an offer card they sit on a line under the name (a card column is too narrow for a name and two chips); on an Edit
+   roster row (tbedit.css) they trail the name. */
+.tb-tags{display:flex;align-items:center;gap:4px;min-width:0}
+.tb-p > .tb-tags{grid-column:2 / -1;margin:-2px 0 6px}
+.tb-chip{padding:3px 5px;border-radius:5px;font:600 var(--t-1)/1 var(--mono);font-style:normal;white-space:nowrap}
+.tb-chip.hot{background:rgb(var(--heat-rgb) / .16);color:var(--heat)}
+.tb-chip.cold{background:rgb(var(--sky-rgb) / .16);color:var(--sky)}
+.tb-chip.early{background:var(--panel-3);color:var(--ink-2)}
 
 /* Who the reader moves to IR and who they drop to stay at the roster cap: quiet lines under the columns, only when
    there is one, IR above the drop. Two lines share one rule and one set of paddings. */

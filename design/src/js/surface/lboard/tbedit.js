@@ -7,8 +7,9 @@
    reader's roster and the partner's, from the file's `values`, each row a switch that puts the player in or out of
    the package (side by side from 760px). The foot is a tray stuck to the bottom edge, where the thumb is (STYLE.md):
    the live gain by tbscore.js (green, red, or a dash for an empty package), the players the reader would drop to
-   stay at the roster cap, Reset to the offer it started from, and Copy offer. Nothing about the partner's roster
-   room is checked or shown. Only offers.js's guard (tbEditOk) lets it open. */
+   stay at the roster cap, Reset to the offer it started from, and Copy offer. The partner's roster room is never
+   shown here; it is worked out when Copy offer is pressed (tbTheir) and goes into the pitch. Only offers.js's guard
+   (tbEditOk) lets it open. */
 
 const TB_POS = ["QB", "RB", "WR", "TE"];
 
@@ -17,7 +18,7 @@ const tbHas = (rows, key) => rows.find(p => tbKey(p) === key);
 const tbPicked = key => TB_EDIT.send.includes(key) || TB_EDIT.get.includes(key);
 
 const tbRowHTML = p => `<li><button type="button" class="tb-r" data-tbpick="${esc(tbKey(p))}" aria-pressed="${tbPicked(tbKey(p))}">
-  <span class="lbp-pos" data-pos="${esc(p.pos)}">${esc(p.pos)}</span><span class="tb-n">${esc(nameInitial(p.name))}</span>${tbPillHTML(p)}
+  <span class="lbp-pos" data-pos="${esc(p.pos)}">${esc(p.pos)}</span><span class="tb-n">${esc(nameInitial(p.name))}</span>${tbTagsHTML(p)}
   <b class="tb-v">${lbNum(p.proj)}</b><svg class="tb-tick" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button></li>`;
 
 /* The roster as a list: IR last, then by position, the highest projection first. */
@@ -74,7 +75,7 @@ function tbEditOpen(offer, opener){
   const lgd = tbLeagueData(TB.lg);
   if (!tbEditOk() || !lgd) return;
   const send = offer ? offer.send.map(tbKey) : [], get = offer ? offer.get.map(tbKey) : [];
-  TB_EDIT = {mine: lgd.values[TB.me.name], theirs: lgd.values[TB.tm.name], lu: lgd.lineup, other: tbOther(lgd, TB.me.name), send, get,
+  TB_EDIT = {mine: lgd.values[TB.me.name], theirs: lgd.values[TB.tm.name], lu: lgd.lineup, other: tbOther(lgd, TB.me.name), otherTheirs: tbOther(lgd, TB.tm.name), send, get,
     from: {send: send.slice(), get: get.slice()}, back: opener && opener.dataset.tbedit !== undefined ? `[data-tbedit="${opener.dataset.tbedit}"]` : "[data-tbown]"};
   lbpForward();
   layerPush("tbedit", tbEditShut);
@@ -111,8 +112,10 @@ function tbReset(){
 /* Copy offer, from the foot: the same message as a card's, of season averages. A refused clipboard shows the box
    in the tray, so it is on screen wherever the page is scrolled to. */
 function tbEditCopy(btn){
-  const E = TB_EDIT;
-  tbCopyText(btn, tbText({send: E.send.map(k => tbHas(E.mine, k)), get: E.get.map(k => tbHas(E.theirs, k))}), btn.closest(".tb-edfoot"), "afterbegin");
+  const E = TB_EDIT, send = E.send.map(k => tbHas(E.mine, k)), get = E.get.map(k => tbHas(E.theirs, k));
+  const th = tbTheir(E.theirs, send, get, E.lu, E.otherTheirs);        // the partner's room for this package, live
+  const their = th.short ? null : {ir_moves: th.irMoves, drop: th.drop};   // nobody left to cut: no claim about their room
+  tbCopyText(btn, tbText({send, get, their}), btn.closest(".tb-edfoot"), "afterbegin");
 }
 
 /* The page's taps in and around the edit state (lbpage.js wires them): Edit and Make your own on the offers,

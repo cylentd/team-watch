@@ -8,8 +8,9 @@ fair offers to each partner: what each side sends and ONE number, the owner's we
 
     {"updated", "season", "rules", "leagues": {"espn"|"yahoo"|"ayo": {"week", "teams": {owner: {partner:
         {"bold": [offer], "fair": [offer]}}}}}}
-    offer = {"send": [player], "get": [player], "gain", "drop": [player], "ir_moves": [player]}
-    player = {"name", "pos", "team", "slug", "seen", "injury"}
+    offer = {"send": [player], "get": [player], "gain", "drop": [player], "ir_moves": [player],
+             "their": {"ir_moves": [player], "drop": [player]}}
+    player = {"name", "pos", "team", "slug", "seen", "injury", "last2", "chips"}
 
 A pair with no offer of either kind is left out by the producer; a kind with none is []. The shape is checked
 at build time (contract.py, TRADE_OFFERS), so a field the producer drops fails the build, not the sheet.
@@ -29,6 +30,11 @@ The scoring rule is the producer's (its `rules` field); the page re-scores every
 when one differs (tbscore.js, offers.js). Until ff-jarvis writes the fields they are optional here, and when
 present they are checked: `EDIT_REQUIRED` turns that into "must be present" the day the producer lands, and
 `DROP_RULE_REQUIRED` does the same for the drop rule's fields (`ir`, `keep`, `ir_ok`, `protect`, `ir_moves`).
+
+Option B (price it their way, 2026-10-05): every player object also carries `last2` (his last 2 games' average, null
+with fewer than 2) and `chips` (any of "Hot", "Cold", "Early pick"), and every offer a `their`, the partner's room after
+the trade by the same drop rule. The card shows the chips; the copied pitch quotes a Hot player on his `last2` and says
+what `their` holds. `OPTION_B_REQUIRED` turns "checked when present" into "must be present" the day the producer lands.
 """
 import json
 
@@ -43,7 +49,42 @@ EDIT_REQUIRED = True     # since 2026-10-05 (ff-jarvis 29e54f2 writes lineup, va
 # The drop rule of 2026-10-05 (IR moves, then drops by `keep`): lineup.ir, per value keep / ir_ok / protect, per offer ir_moves.
 # Required since 2026-10-05 (ff-jarvis 4e69378 writes them; the live file was rewritten the same day): the old shape fails the build.
 DROP_RULE_REQUIRED = True
+# Option B, price it their way (spec option-b-spec.md, 2026-10-05): every player carries `last2` and `chips`, every offer
+# `their`, the partner's room by the same rule. Required since 2026-10-05 (ff-jarvis 79b2b0b writes them; the live file
+# was rewritten the same day): the old shape fails the build.
+OPTION_B_REQUIRED = True
+PERCEIVED = ("last2", "chips")                            # the two fields every player object gains; `last2` may be null
+THEIR = ("ir_moves", "drop")                              # an offer's `their`: the partner's room after the trade
 LIMIT = 8                                                 # contract.problems cuts at this many, so stop early
+
+
+def perceived_problems(at, p):
+    """A player object's option-B fields: both or neither while they are optional, both once required, `chips` a list."""
+    if not (OPTION_B_REQUIRED or any(k in p for k in PERCEIVED)):
+        return []
+    miss = [f"{at}.{k}" for k in PERCEIVED if k not in p]
+    if "chips" in p and not isinstance(p["chips"], list):
+        miss.append(at + ".chips")
+    return miss
+
+
+def their_problems(at, o):
+    """An offer's `their` ({ir_moves, drop}, the partner's room): checked when present, required with OPTION_B_REQUIRED.
+    Its players are checked like any other player's (PLAYER, and the option-B fields)."""
+    th = o.get("their")
+    if th is None:
+        return [at + ".their"] if OPTION_B_REQUIRED else []
+    if not isinstance(th, dict):
+        return [at + ".their"]
+    miss = []
+    for side in THEIR:
+        if not isinstance(th.get(side), list):
+            miss.append(f"{at}.their.{side}")
+            continue
+        for j, p in enumerate(th[side]):
+            miss += [f"{at}.their.{side}[{j}].{k}" for k in PLAYER if k not in p]
+            miss += perceived_problems(f"{at}.their.{side}[{j}]", p)
+    return miss
 
 
 def edit_problems(at, body):
@@ -73,6 +114,7 @@ def edit_problems(at, body):
         for team, rows in vals.items():
             for j, p in enumerate(rows if isinstance(rows, list) else []):
                 miss += [f"{at}.values[{team!r}][{j}].{k}" for k in VALUE if k not in p]
+                miss += perceived_problems(f"{at}.values[{team!r}][{j}]", p)
                 # the drop rule's fields: all three or none while they are optional, all three once required
                 if DROP_RULE_REQUIRED or any(k in p for k in DROP_VALUE):
                     miss += [f"{at}.values[{team!r}][{j}].{k}" for k in DROP_VALUE if k not in p]
@@ -105,9 +147,11 @@ def problems(doc):
                             miss.append(f"{here}.{kind}[{i}].drop")
                         if "ir_moves" not in o and DROP_RULE_REQUIRED:
                             miss.append(f"{here}.{kind}[{i}].ir_moves")
+                        miss += their_problems(f"{here}.{kind}[{i}]", o)
                         for side in ("send", "get", "drop", "ir_moves"):
                             for j, p in enumerate(o.get(side) or []):
                                 miss += [f"{here}.{kind}[{i}].{side}[{j}].{k}" for k in PLAYER if k not in p]
+                                miss += perceived_problems(f"{here}.{kind}[{i}].{side}[{j}]", p)
                 if len(miss) >= LIMIT:
                     return miss
     return miss
