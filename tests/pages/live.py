@@ -245,6 +245,10 @@ class LivePage:
     def wait_for_requests_in_flight(self, n):
         self.page.wait_for_function(f"__calls.length === {n}")
 
+    def wait_for_game_sheet(self):
+        """A game's sheet (Live's modal, `#gamesheet`) is open; raises TimeoutError when it never opens."""
+        self.page.wait_for_selector("#gamesheet.on")
+
     def wait_for_theater(self):
         self.page.wait_for_function("CT !== null")
 

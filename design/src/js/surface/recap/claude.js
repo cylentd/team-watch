@@ -27,7 +27,7 @@ function wrWorstCall(d){
 }
 
 function wrCallRow(cls, label, head, sub){
-  return `<div class="wr-call"><b class="wr-mk ${cls}">${label}</b><span>${head}</span><p>${sub}</p></div>`;
+  return `<div class="wr-call" data-testid="recap-call"><b class="wr-mk ${cls}">${label}</b><span>${head}</span><p>${sub}</p></div>`;
 }
 function wrCallsHTML(d){
   const best = wrBestCall(d), worst = wrWorstCall(d), score = (g, w) => ({ws: wrPts(g, w), ls: wrPts(g, wrLoser(g, w))});
@@ -43,11 +43,11 @@ function wrCallsHTML(d){
 function wrClaudeHTML(d){
   const rec = wrRecord(d), calls = wrCallsHTML(d);
   if (!rec && !calls) return "";
-  const tile = (s, label) => s ? `<div class="wr-tile"><b>${pvWL(s)}</b><span>${label}</span></div>` : "";
+  const tile = (s, label) => s ? `<div class="wr-tile"><b data-testid="recap-tile-value">${pvWL(s)}</b><span data-testid="recap-tile-label">${label}</span></div>` : "";
   const tiles = rec ? `<div class="wr-tiles">${tile(rec.su, t("weekrecap.claude.winners"))}${tile(rec.ats, t("weekrecap.claude.vsSpread"))}${
     tile(rec.total, t("weekrecap.claude.overUnder"))}</div>` : "";
   const every = pvRecord() && pvRecord().weeks.length
-    ? `<button type="button" class="wr-link" data-wrrec>${t("weekrecap.claude.every")}${WR_ARROW}</button>` : "";
-  return `<section class="wr-card wr-claude"><div class="wr-chr"><h3 class="wr-ch">${t("weekrecap.claude.title")}</h3>${every}</div>
+    ? `<button type="button" class="wr-link" data-testid="recap-every-week" data-wrrec>${t("weekrecap.claude.every")}${WR_ARROW}</button>` : "";
+  return `<section class="wr-card wr-claude" data-testid="recap-claude"><div class="wr-chr"><h3 class="wr-ch">${t("weekrecap.claude.title")}</h3>${every}</div>
     ${tiles}${calls ? `<div class="wr-calls">${calls}</div>` : ""}</section>`;
 }

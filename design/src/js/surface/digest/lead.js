@@ -196,7 +196,7 @@ function dgLeadHTML(){
   const who = L.live ? dgLvAttrs(L.live) : `data-dgslug="${esc(L.slug)}"`;   // a live scorer opens through now.js's one listener
   const go = L.slug ? `<button type="button" class="dg-lead-go" data-testid="digest-lead-go" ${who}
     aria-label="${esc(t("digest.lead.open", {n: L.name || ""}))}"></button>` : "";
-  return `<article class="dg-lead ${L.tone}${L.photo ? " has-photo" : ""}${go ? " opens" : ""}"${L.team ? " " + teamColourStyle(L.team) : ""}>
+  return `<article class="dg-lead ${L.tone}${L.photo ? " has-photo" : ""}${go ? " opens" : ""}" data-testid="digest-lead"${L.team ? " " + teamColourStyle(L.team) : ""}>
     ${go}${L.ghost ? `<span class="dg-ghost" data-testid="digest-ghost" aria-hidden="true">${dgGhostChars(L.ghost)}</span>` : ""}
     <div class="dg-lead-txt">${stamp}<h2 class="dg-lead-h${L.long ? " long" : ""}" data-testid="digest-lead-head">${L.head}</h2>
       <div class="dg-lead-fact" data-testid="digest-lead-fact">${L.fact}</div></div>

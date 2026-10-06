@@ -20,14 +20,14 @@ function wrBannerHTML(d){
   const dig = typeof LIVE_DIGEST !== "undefined" ? LIVE_DIGEST : null;
   const story = lspRecapStory(dgStoryFresh(dig), dig && dig.week, d);
   const head = story ? esc(story.head) : r.line ? dgCall(r, d.week) : t("weekrecap.banner.bare", {name: esc(dgSurname(r.n))});
-  const fact = story ? esc(story.fact) : r.line ? `<span class="dg-lead-pills">${dgBoxPills(r)}</span>` : "";
+  const fact = story ? esc(story.fact) : r.line ? `<span class="dg-lead-pills" data-testid="recap-lead-pills">${dgBoxPills(r)}</span>` : "";
   const kicker = recapKicker(d);   // data/schedule.js: "top score", "so far", or "final tomorrow" once the page has turned
-  const go = r.slug ? `<button type="button" class="wr-go" data-wrslug="${esc(r.slug)}"
+  const go = r.slug ? `<button type="button" class="wr-go" data-testid="recap-go" data-wrslug="${esc(r.slug)}"
     aria-label="${esc(t("weekrecap.banner.open", {n: r.n}))}"></button>` : "";
-  return `<article class="dg-lead wr-lead go${team ? " team" : ""}${photo ? " has-photo" : ""}"${team ? " " + teamColourStyle(team) : ""}>
+  return `<article data-testid="recap-lead" class="dg-lead wr-lead go${team ? " team" : ""}${photo ? " has-photo" : ""}"${team ? " " + teamColourStyle(team) : ""}>
     ${go}${team ? `<span class="wr-ghost" aria-hidden="true">${dgGhostChars(esc(team))}</span>` : ""}
-    <div class="dg-lead-txt"><p class="wr-when">${kicker}</p><h2 class="dg-lead-h${story ? " long" : ""}">${head}</h2>
-      <div class="dg-lead-fact">${fact}</div></div>
+    <div class="dg-lead-txt"><p class="wr-when" data-testid="recap-when">${kicker}</p><h2 class="dg-lead-h${story ? " long" : ""}" data-testid="recap-lead-head">${head}</h2>
+      <div class="dg-lead-fact" data-testid="recap-lead-fact">${fact}</div></div>
     ${photo}
   </article>`;
 }

@@ -18,10 +18,11 @@ import pytest  # noqa: E402
 from _espn import slugify  # noqa: E402
 import contract  # noqa: E402
 import sources  # noqa: E402
-from conftest import SharedPages  # noqa: E402
+from component import mount  # noqa: E402,F401  (the fixture)
 from digest import live_digest  # noqa: E402
+from pages.digest_story import MONDAY_EARLY, DigestStoryPage  # noqa: E402
 from sources import load_digest, load_digest_headline  # noqa: E402
-from test_digest_live import (MONDAY_EARLY, assert_generic, cfg, digest)  # noqa: E402,F401
+from test_digest_live import assert_generic  # noqa: E402
 
 # The fixture packet is season 2026, week 3, asof "2026-09-25 22:40" (Pacific).
 BLOCK = {"season": 2026, "week": 3, "asof": "2026-10-04T21:30:00", "llm": "ok", "kind": "result",
@@ -118,119 +119,88 @@ STORY = {"head": "Bijan Robinson runs wild in the Falcons win", "fact": "152 yar
          "kind": "result", "asof": "2026-10-05 05:30:00", "club": "ATL",
          "player": {"n": "Bijan Robinson", "slug": "bijan-robinson", "pos": "RB", "team": "ATL"}}
 
-SET = """(story) => { LIVE_DIGEST.story = story; DG_CUT = null; render(); }"""
-
-
-def banner(page):
-    return re.sub(r"\s+", " ", page.locator(".dg-lead-h").inner_text()).strip()
-
-
-# A planted Digest page per state, built once per file per worker and reused: a load is the cost (about
-# 0.7 s), a plant is not. Re-planting on the same page would push LIVE_RANKS rows again, so a test that
-# takes a page gets it back as the plant left it: the story, the scorers and the open sheet are reset.
-RESET = """() => { 'use strict'; LIVE_DIGEST.story = window.__story0; GD_STATS.lead = JSON.parse(window.__lead0);
-  document.getElementById('modal').classList.remove('on'); DG_CUT = null; render(); }"""
-
-
-@pytest.fixture(scope="module")
-def _pages(browser, page_file):
-    pages = SharedPages()
-    yield browser, page_file, pages
-    pages.close()
-
-
 @pytest.fixture
-def planted(_pages):
-    """planted(**state) -> (page, errors), the Digest as `digest()` plants it for that state."""
-    browser, page_file, pages = _pages
-
-    def opener(state):
-        ctx, page, errors = digest(browser, page_file, **state)
-        page.evaluate("() => { window.__story0 = LIVE_DIGEST.story; window.__lead0 = JSON.stringify(GD_STATS.lead); }")
-        assert errors == []          # whatever the load or the plant raised fails here, not lost to a clear
-        return ctx, page, errors
-
+def planted(mount):
+    """planted(**state) -> (page object, errors): the Digest mounted on a phone and planted for that state
+    (`DigestStoryPage.plant`). Every call mounts again, so no test inherits another's story or scorers."""
     def get(**state):
-        key = json.dumps(cfg(**state), sort_keys=True)
-        _, page, errors = pages.get(key, lambda: opener(state))
-        left, errors[:] = list(errors), []   # each test answers for its own page errors only,
-        assert left == []                    # and an error raised or left over since the last one fails this
-        page.evaluate(RESET)
-        return page, errors
+        page, errors = mount("digest", size=(390, 844))
+        dg = DigestStoryPage(page)
+        dg.plant(**state)
+        assert errors == []          # whatever the load or the plant raised fails here
+        return dg, errors
     return get
 
 
 @pytest.mark.render
 def test_between_games_the_banner_is_claudes_story(planted):
-    page, errors = planted(at=MONDAY_EARLY, sunState="complete")
-    assert banner(page) == "St. Brown went off for 60 yards"             # no story yet: the top scorer, by his line
-    page.evaluate(SET, STORY)
-    assert banner(page) == STORY["head"]
-    assert page.locator(".dg-lead-fact").inner_text() == STORY["fact"]
-    lead = page.locator("article.dg-lead")
-    assert "team" in lead.get_attribute("class") and "--team:" in lead.get_attribute("style")    # ATL's colours
-    assert page.locator(".dg-lead-go[data-dglv]").count() == 1                                    # the band opens his profile
-    assert_generic(page)
-    page.locator(".dg-lead-go").click()
-    assert "on" in page.locator("#modal").get_attribute("class")
-    page.keyboard.press("Escape")
-    page.wait_for_selector("#modal.on", state="detached")
+    dg, errors = planted(at=MONDAY_EARLY, sunState="complete")
+    assert dg.banner() == "St. Brown went off for 60 yards"             # no story yet: the top scorer, by his line
+    dg.plant_story(STORY)
+    assert dg.banner() == STORY["head"]
+    assert dg.lead_fact() == STORY["fact"]
+    card = dg.lead_card()
+    assert "team" in card["class"] and "--team:" in card["style"]    # ATL's colours
+    assert dg.lead_buttons()["live"] == 1                             # the band opens his profile
+    assert_generic(dg)
+    dg.tap_lead()
+    assert dg.profile_open()
+    dg.close_profile()
     assert errors == []
 
 
 @pytest.mark.render
 def test_after_the_last_final_the_story_still_leads(planted):
-    page, errors = planted(at=AFTER_THE_LAST_FINAL, sunState="complete", monStates=["complete"])
-    page.evaluate(SET, STORY)
-    assert banner(page) == STORY["head"]
-    assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+    dg, errors = planted(at=AFTER_THE_LAST_FINAL, sunState="complete", monStates=["complete"])
+    dg.plant_story(STORY)
+    assert dg.banner() == STORY["head"]
+    assert dg.fits()
     assert errors == []
 
 
 @pytest.mark.render
 def test_a_game_in_play_beats_the_story(planted):
-    page, errors = planted()          # Sunday afternoon, games on
-    page.evaluate(SET, STORY)
-    assert banner(page) == "St. Brown ERUPTS: 60 yards"
+    dg, errors = planted()          # Sunday afternoon, games on
+    dg.plant_story(STORY)
+    assert dg.banner() == "St. Brown ERUPTS: 60 yards"
     assert errors == []
 
 
 @pytest.mark.render
 def test_a_story_older_than_the_packet_does_not_show(planted):
-    page, errors = planted(at=MONDAY_EARLY, sunState="complete")
+    dg, errors = planted(at=MONDAY_EARLY, sunState="complete")
     for asof in ("2026-09-20 10:00:00", "2026-09-25 22:40:00"):          # older, and the same minute as the packet
-        page.evaluate(SET, {**STORY, "asof": asof})
-        assert banner(page) == "St. Brown went off for 60 yards", asof
+        dg.plant_story({**STORY, "asof": asof})
+        assert dg.banner() == "St. Brown went off for 60 yards", asof
     assert errors == []
 
 
 @pytest.mark.render
 def test_a_preview_without_a_player_wears_the_clubs_colours_or_is_quiet(planted):
-    page, errors = planted(at=MONDAY_EARLY, sunState="complete")
-    page.evaluate(SET, {**STORY, "kind": "preview", "player": None, "club": "KC", "head": "Chiefs and Texans on Monday night"})
-    lead = page.locator("article.dg-lead")
-    assert banner(page) == "Chiefs and Texans on Monday night"
-    assert "team" in lead.get_attribute("class") and page.locator(".dg-lead-go").count() == 0
-    page.evaluate(SET, {**STORY, "kind": "preview", "player": None, "club": None})
-    assert "quiet" in page.locator("article.dg-lead").get_attribute("class")
+    dg, errors = planted(at=MONDAY_EARLY, sunState="complete")
+    dg.plant_story({**STORY, "kind": "preview", "player": None, "club": "KC", "head": "Chiefs and Texans on Monday night"})
+    assert dg.banner() == "Chiefs and Texans on Monday night"
+    assert "team" in dg.lead_card()["class"] and dg.lead_buttons()["all"] == 0
+    dg.plant_story({**STORY, "kind": "preview", "player": None, "club": None})
+    assert "quiet" in dg.lead_card()["class"]
     assert errors == []
 
 
 @pytest.mark.render
 def test_the_storys_words_are_escaped(planted):
-    page, errors = planted(at=MONDAY_EARLY, sunState="complete")
-    page.evaluate(SET, {**STORY, "head": "<img src=x onerror=window.__pwned=1> Gibbs & co", "fact": "<b>bold</b> 1 < 2"})
-    assert banner(page) == "<img src=x onerror=window.__pwned=1> Gibbs & co"
-    assert page.locator(".dg-lead img[src='x']").count() == 0 and page.locator(".dg-lead-fact b").count() == 0
-    assert page.evaluate("window.__pwned") is None
+    dg, errors = planted(at=MONDAY_EARLY, sunState="complete")
+    dg.plant_story({**STORY, "head": "<img src=x onerror=window.__pwned=1> Gibbs & co", "fact": "<b>bold</b> 1 < 2"})
+    assert dg.banner() == "<img src=x onerror=window.__pwned=1> Gibbs & co"
+    assert dg.lead_escaped() == {"img": 0, "bold": 0}
+    assert dg.pwned() is None
     assert errors == []
 
 
 @pytest.mark.render
 def test_the_story_names_no_fantasy_team_or_league(planted):
-    page, errors = planted(at=MONDAY_EARLY, sunState="complete")
-    page.evaluate(SET, STORY)
-    assert_generic(page)
+    dg, errors = planted(at=MONDAY_EARLY, sunState="complete")
+    dg.plant_story(STORY)
+    assert_generic(dg)
     assert errors == []
 
 # test_the_digest_story_code_reads_no_league_roster_or_matchup was deleted (2026-10-05): its grep is a
@@ -243,8 +213,6 @@ def test_the_story_names_no_fantasy_team_or_league(planted):
 # David, 2026-10-04, on "McMillan leads the week with 38.2 points": "38.2 is insane number in fantasy... use
 # more excited wording. This is the headline afterall. Should be like NFL announcer to build the hype."
 
-TOP = """(rows) => { GD_STATS.lead = Object.fromEntries(rows.map(([n, pos, team, pts, s], i) => [String(100 + i), {n, pos, team, pts, s: s || {}}]));
-  DG_CUT = null; render(); }"""
 ON = {"at": "2026-10-04T14:00:00Z"}                       # Sunday, games on: the present tense
 FINAL = {"at": MONDAY_EARLY, "sunState": "complete"}      # between windows: the past
 # David, 2026-10-05: the headline "should use yards and TDs", not fantasy points (every league scores
@@ -258,9 +226,9 @@ CATCH = {"rec": 14, "rec_yd": 192, "rec_td": 2}            # "14 catches, 192 ya
 
 
 def call(planted, rows, **state):
-    page, errors = planted(**state)
-    page.evaluate(TOP, rows)
-    text = banner(page)
+    dg, errors = planted(**state)
+    dg.plant_top(rows)
+    text = dg.banner()
     assert errors == []
     return text
 
@@ -344,14 +312,14 @@ def test_the_line_is_the_yards_and_tds_that_make_the_call(planted, pos, s, line)
 @pytest.mark.render
 def test_the_phrasing_is_fixed_by_the_player_and_both_phrasings_are_used(planted):
     names = ["Cam Skattebo", "Tee Higgins", "Josh Allen", "Jahmyr Gibbs", "Puka Nacua", "Ja'Marr Chase", "Bijan Robinson", "Drake London"]
-    page, errors = planted(**ON)
+    dg, errors = planted(**ON)
     seen = set()
     for n in names:
-        page.evaluate(TOP, [[n, "WR", "NYG", 33.0, {"rec_yd": 120, "rec_td": 2}], ["Z Second", "WR", "CIN", 30.0]])
-        first = banner(page)
-        page.evaluate("paintDigestLive()")                                   # a poll
-        page.evaluate("GD_STATS.lead[100].s.rec_yd = 135; paintDigestLive()")  # more yards: same words
-        assert banner(page) == first.replace("120 yards", "135 yards")
+        dg.plant_top([[n, "WR", "NYG", 33.0, {"rec_yd": 120, "rec_td": 2}], ["Z Second", "WR", "CIN", 30.0]])
+        first = dg.banner()
+        dg.paint_poll()                                                      # a poll
+        dg.plant_scorer_stat(100, "rec_yd", 135)                             # more yards: same words
+        assert dg.banner() == first.replace("120 yards", "135 yards")
         seen.add("ERUPTS" in first)
     assert seen == {True, False}, seen
     assert errors == []
@@ -377,9 +345,9 @@ BY_LINES = [
 def test_the_by_line_adds_what_the_head_lacks_and_repeats_no_number(planted, pos, s, by):
     """David's coordinator, 2026-10-05: the by-line never repeats a number the head prints; it keeps the
     rest of his day and the game's clock, and when nothing is left it is the clock alone."""
-    page, errors = planted(**ON)
-    page.evaluate(TOP, [["Cam Skattebo", pos, "NYG", 40.0, s], ["Tee Higgins", "WR", "CIN", 9.0]])
-    head, fact = banner(page), page.locator(".dg-lead-fact").inner_text().strip()
+    dg, errors = planted(**ON)
+    dg.plant_top([["Cam Skattebo", pos, "NYG", 40.0, s], ["Tee Higgins", "WR", "CIN", 9.0]])
+    head, fact = dg.banner(), dg.lead_fact_text()
     assert errors == []
     assert not set(re.findall(r"\d+", head)) & set(re.findall(r"\d+", fact)), (head, fact)
     assert fact.startswith(by)
@@ -392,7 +360,7 @@ def test_the_banner_never_prints_points(planted):
     in the head or by-line would be one league's scoring."""
     rows = [["Tetairoa McMillan", "WR", "CAR", 38.2, CATCH], ["Tee Higgins", "WR", "CIN", 20.1, {"rec_yd": 80}]]
     for state in (ON, FINAL):
-        page, errors = planted(**state)
-        page.evaluate(TOP, rows)
-        assert not re.search(r"point|pts|38\.2", page.locator(".dg-lead").inner_text(), re.I)
+        dg, errors = planted(**state)
+        dg.plant_top(rows)
+        assert not re.search(r"point|pts|38\.2", dg.lead_text(), re.I)
         assert errors == []

@@ -49,7 +49,7 @@ function signSparks(w, nib, D, pen){
 }
 function signSpark(w, x, y, hues){
   const s = document.createElement("i");
-  s.className = "spk";
+  s.className = "spk"; s.dataset.testid = "roster-card-spark";
   w.appendChild(s);
   const vx = (Math.random() - .3) * 46, vy = -(18 + Math.random() * 34), life = 320 + Math.random() * 380;
   const a = s.animate([

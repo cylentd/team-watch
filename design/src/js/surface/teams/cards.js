@@ -170,8 +170,8 @@ function cardsHTML(team){
     const i = n++, html = cardHTML(p, i, team.key);
     return down ? packCardDown(html) : packFaceDown(team, i, html);
   }).join("")}</div>`;
-  const rule = (label, count, end = "") => `<div class="rule"><h2>${label}</h2><span class="count">${String(count).padStart(2,"0")}</span><span class="hair"></span>${end}</div>`;
-  const starters = gated ? `<div class="pk-zone">${grid(start, true)}${packGateHTML(team)}</div>` : grid(start);
+  const rule = (label, count, end = "") => `<div class="rule" data-testid="roster-rule"><h2>${label}</h2><span class="count">${String(count).padStart(2,"0")}</span><span class="hair"></span>${end}</div>`;
+  const starters = gated ? `<div class="pk-zone" data-testid="roster-pack-zone">${grid(start, true)}${packGateHTML(team)}</div>` : grid(start);
   return `<div class="cards" data-testid="roster-cards">
     <section class="cards-col" data-testid="roster-cards-starters">${rule(t("teams.group.starters"), start.length, reripHTML(team))}${starters}</section>
     ${rest.length ? `<section class="cards-col bench" data-testid="roster-cards-bench">${rule(t("teams.group.bench"), rest.length)}${grid(rest)}</section>` : ""}

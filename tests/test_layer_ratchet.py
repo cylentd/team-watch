@@ -26,12 +26,15 @@ TOP = re.compile(r"^(?:async )?function (\w+)\(|^(?:const|let) (\w+)\s*=\s*(?:as
 
 # Calls of pure data/ functions through the browser, per test file, 2026-10-05. Only shrinks.
 BACKLOG = {
-    "test_brief.py": 1, "test_clip_reel.py": 1, "test_gameday.py": 4,
+    "test_brief.py": 1, "test_gameday.py": 4,
     "test_leagues.py": 1, "test_left_hurt.py": 9, "test_mates_page.py": 2,
-    "test_pack_stage.py": 1, "test_recap_view.py": 2,
     "test_search.py": 8, "test_startsit.py": 1, "test_waiver_owner.py": 6,
     "test_weather.py": 3,
-}   # 39 in all (2026-10-06: Digest, Live TD clips, profile and roster cards moved theirs to Node); test_trade_edit's 33 moved to tests/test_js_trade_score.py (Node) on 2026-10-05
+    "pages/clips.py": 1, "pages/digest.py": 6, "pages/profile.py": 4, "pages/profile_head.py": 2,
+    "pages/recap.py": 2, "pages/roster.py": 1, "pages/roster_pack.py": 1,
+}   # 52 in all. Superseded (later on 2026-10-06): the earlier "39 in all" missed 14 calls that had moved into
+# tests/pages/, which this counter did not read until then; they are listed under pages/ now. Test files
+# hold 35 of the 52 (Recap's 2 moved into pages/recap.py later that day). test_trade_edit's 33 moved to tests/test_js_trade_score.py (Node) on 2026-10-05
 
 
 def pure_data_functions():
@@ -61,12 +64,13 @@ def evaluated_js(path):
 
 
 def counts():
+    """tests/pages/ is read too, keyed "pages/x.py": a call moved into a page object is still a call."""
     call = re.compile(r"\b(" + "|".join(sorted(pure_data_functions())) + r")\s*\(")
     out = {}
-    for p in sorted(TESTS.glob("test_*.py")):
+    for p in sorted(TESTS.glob("test_*.py")) + sorted((TESTS / "pages").glob("*.py")):
         n = sum(len(call.findall(s)) for s in evaluated_js(p))
         if n:
-            out[p.name] = n
+            out[p.relative_to(TESTS).as_posix()] = n
     return out
 
 
@@ -109,19 +113,20 @@ def test_the_backlog_is_current():
 # the full page) is not counted, in any file; a helper's loads count where the helper is called.
 FULL_LOADS = {
     "test_accuracy_view.py": 4, "test_brief.py": 7, "test_claude_calls.py": 1, "test_claude_record.py": 1,
-    "test_clip_reel.py": 20, "test_clip_sheet.py": 2, "test_digest_live.py": 5,
+    "test_clip_sheet.py": 2,
     "test_gameday.py": 5, "test_gamesheet_v2.py": 6, "test_gestures.py": 1, "test_highlights.py": 1,
     "test_leagues.py": 6, "test_left_hurt.py": 4, "test_legsheet.py": 6, "test_live_mine.py": 6,
     "test_live_modal.py": 5, "test_live_swipe.py": 2, "test_live_tabs.py": 10,
-    "test_live_tds.py": 6, "test_mates_page.py": 2, "test_news_tab.py": 2, "test_pack_stage.py": 16,
+    "test_live_tds.py": 6, "test_mates_page.py": 2, "test_news_tab.py": 2,
     "test_preview.py": 3, "test_profile_journeys.py": 1, "test_prop_picks.py": 1,
-    "test_range_view.py": 1, "test_recap_view.py": 12, "test_render.py": 10,
+    "test_range_view.py": 1, "test_render.py": 10,
     "test_render_connect.py": 3, "test_role.py": 1, "test_roster_sheet.py": 5,
     "test_scope.py": 1, "test_search.py": 4, "test_sos_view.py": 8, "test_startsit.py": 1,
     "test_startsit_v3.py": 1, "test_style_rules.py": 2, "test_teams_board.py": 12,
     "test_teamswitch.py": 6, "test_top_calls.py": 1, "test_trade_edit.py": 20, "test_trade_offers.py": 17,
     "test_waiver_owner.py": 5, "test_weather.py": 5, "test_yahoo_lineup.py": 2,
-}   # 240 in all (2026-10-06: profile, Digest, roster cards, Bets, strip and TD clips moved to `mount`;
+}   # 187 in all (2026-10-06, second wave: clip reel, pack stage, Recap and the Digest's
+# live tests moved to `mount`); 240 earlier that day (profile, Digest, roster cards, Bets, strip and TD clips;
 # test_profile_journeys.py's 1 is the shared page its journey tests use); test_ranks.py's 4 and 4 of test_ranks_dst.py's 6 moved to `mount` on 2026-10-05, its
 # other 2 are `journey` tests (Waivers link, another view), which the count skips
 NOT_FULL = {"component.py"}

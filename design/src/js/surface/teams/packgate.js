@@ -25,7 +25,7 @@ function packCardDown(html){
 function packGateHTML(team){
   const wk = schedWeek();
   return `<div class="pk-gate${packShowing() ? " away" : ""}" data-testid="roster-pack-gate" data-gate="${wk}">
-    <div class="pk-gpack"><div class="pk-gz">${packSealHTML(team, wk, packCards(team))}</div></div>
+    <div class="pk-gpack" data-testid="roster-pack-gpack"><div class="pk-gz">${packSealHTML(team, wk, packCards(team))}</div></div>
     <div class="pk-gbtns"><button class="pk-rip" type="button" data-testid="roster-pack-rip" data-pkrip>${t("teams.pack.rip")}</button><button class="pk-skip" type="button" data-testid="roster-pack-skip" data-pkskip>${t("teams.pack.skip")}</button></div>
   </div>`;
 }

@@ -123,6 +123,29 @@ class RosterPage(RosterPack):
     def stored_mode(self):
         return self.page.evaluate("localStorage.getItem('tw-roster-mode')")
 
+    def mode_switch(self):
+        """The Sheet / Cards switch: its box, and each button as [mode, label, pressed, text, has an icon]."""
+        buttons = self.page.get_by_test_id("roster-mode").evaluate_all("""bs => bs.map(e =>
+          [e.dataset.rmode, e.getAttribute('aria-label'), e.getAttribute('aria-pressed'), e.textContent.trim(), !!e.querySelector('svg')])""")
+        box = self.page.locator(".rmode").first.evaluate(
+            "e => { const r = e.getBoundingClientRect(); return {l: r.left, r: r.right, t: r.top, w: r.width, h: r.height}; }")
+        return {"rect": box, "buttons": buttons}
+
+    def mode_switch_count(self):
+        """Sheet / Cards switches drawn: 1 on the roster, 0 on every other leaf."""
+        return self.page.locator(".rmode").count()
+
+    def sheet_pressed(self):
+        return self.page.get_by_test_id("roster-mode").and_(self.page.locator("[data-rmode=sheet]")).get_attribute("aria-pressed")
+
+    def first_starter_y(self):
+        """Page y of the first starter's row."""
+        return (self.page.get_by_test_id("roster-row").and_(self.page.locator(".start")).first
+                .evaluate("e => e.getBoundingClientRect().top + scrollY"))
+
+    def card_grid_count(self):
+        return self.page.get_by_test_id("roster-cardgrid").count()
+
     # ---- what the roster holds ----
 
     def roster_size(self, team="espn"):

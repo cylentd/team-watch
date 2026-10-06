@@ -74,7 +74,7 @@ function reelUnfold(){ REEL.unfold = true; render(); }
 function reelFoldHTML(team, open, pill = ""){
   return `<section class="brief done" aria-label="${t("teams.brief.title")}" data-bteam="${team.key}">
     <div class="brief-h" data-testid="roster-brief-head"><h2>${t("teams.brief.title")}</h2>${pill}<small>${briefCount(open, pill)}</small>
-    <button type="button" class="brief-act" data-briefunfold>${t("teams.brief.show")}</button></div></section>`;
+    <button type="button" class="brief-act" data-testid="roster-brief-unfold" data-briefunfold>${t("teams.brief.show")}</button></div></section>`;
 }
 
 /* One starter: his first clip's picture, his name, points and stat line laid over its foot, and the
@@ -84,36 +84,36 @@ function reelFoldHTML(team, open, pill = ""){
 function reelCardHTML(x, i){
   const first = x.items[0].c, can = x.first >= 0, attrs = ` data-clipid="${esc(first.id)}"`;
   const pts = Number.isFinite(x.pts) ? x.pts.toFixed(1) : "";
-  const chip = can ? `<span class="reel-n">${REEL_PLAY}${x.items.length}</span>` : `<span class="reel-mark">${clipYtChipHTML()}</span>`;
-  const body = `<span class="reel-thumb">${reelImg(first)}${chip}<span class="reel-ov">
-      <span class="reel-l1"><span class="reel-nm">${esc(nameInitial(x.p.n))}</span>${pts ? `<b class="reel-pt">${pts}</b>` : ""}</span>
-      <span class="reel-l2">${esc(x.line || first.title || "")}</span></span></span>`;
+  const chip = can ? `<span class="reel-n" data-testid="clips-n">${REEL_PLAY}${x.items.length}</span>` : `<span class="reel-mark" data-testid="clips-mark">${clipYtChipHTML()}</span>`;
+  const body = `<span class="reel-thumb" data-testid="clips-thumb">${reelImg(first)}${chip}<span class="reel-ov" data-testid="clips-ov">
+      <span class="reel-l1"><span class="reel-nm" data-testid="clips-nm">${esc(nameInitial(x.p.n))}</span>${pts ? `<b class="reel-pt" data-testid="clips-pt">${pts}</b>` : ""}</span>
+      <span class="reel-l2" data-testid="clips-l2">${esc(x.line || first.title || "")}</span></span></span>`;
   return can
-    ? `<button type="button" class="reel-card" data-reelplay="${i}"${attrs}>${body}</button>`
-    : `<a class="reel-card" href="${esc(clipYtUrl(first))}" target="_blank" rel="noopener" draggable="false"${attrs}
+    ? `<button type="button" class="reel-card" data-testid="clips-card" data-reelplay="${i}"${attrs}>${body}</button>`
+    : `<a class="reel-card" data-testid="clips-card" href="${esc(clipYtUrl(first))}" target="_blank" rel="noopener" draggable="false"${attrs}
         aria-label="${esc(t("teams.clips.opensYouTube", {title: first.title || ""}))}">${body}</a>`;
 }
 
 /* The starters with no clip, and their game's highlights on YouTube (the first such game's). */
 function reelEndHTML(ends){
   const names = ends.map(p => nameInitial(p.n)).join(", ");
-  return `<a class="reel-card reel-end" href="${esc(clipYtUrl(clipGameOf(ends[0].team)))}" target="_blank" rel="noopener" draggable="false">
-    <span class="reel-thumb"><b class="reel-no">${t("teams.clips.noClip")}</b>
-    <span class="reel-endline">${esc(t("teams.clips.noClipLine", {names}))}</span><span class="reel-mark">${clipYtChipHTML()}</span></span></a>`;
+  return `<a class="reel-card reel-end" data-testid="clips-card" href="${esc(clipYtUrl(clipGameOf(ends[0].team)))}" target="_blank" rel="noopener" draggable="false">
+    <span class="reel-thumb" data-testid="clips-thumb"><b class="reel-no" data-testid="clips-no">${t("teams.clips.noClip")}</b>
+    <span class="reel-endline" data-testid="clips-endline">${esc(t("teams.clips.noClipLine", {names}))}</span><span class="reel-mark" data-testid="clips-mark">${clipYtChipHTML()}</span></span></a>`;
 }
 
 function reelHTML(team){
   const m = reelModel(team);
   if (!m) return "";
   const title = t("teams.clips.title", {week: m.wk}), n = m.items.length;
-  return `<section class="reel reel-wk" data-reel aria-label="${esc(title)}">
-    <div class="reel-h">
-      <div class="reel-ti"><h2>${esc(title)}</h2><small>${t("teams.clips.count", {n, s: n === 1 ? "" : "s"})}</small></div>
-      ${m.first >= 0 ? `<button type="button" class="reel-all" data-reelall>${t("teams.clips.playAll")}</button>` : ""}
-      <button type="button" class="reel-arr" data-reelstep="-1" aria-label="${esc(t("teams.clips.prev"))}">&lsaquo;</button>
-      <button type="button" class="reel-arr" data-reelstep="1" aria-label="${esc(t("teams.clips.next"))}">&rsaquo;</button>
+  return `<section class="reel reel-wk" data-testid="clips-reel" data-reel aria-label="${esc(title)}">
+    <div class="reel-h" data-testid="clips-head">
+      <div class="reel-ti"><h2 data-testid="clips-title">${esc(title)}</h2><small data-testid="clips-count">${t("teams.clips.count", {n, s: n === 1 ? "" : "s"})}</small></div>
+      ${m.first >= 0 ? `<button type="button" class="reel-all" data-testid="clips-all" data-reelall>${t("teams.clips.playAll")}</button>` : ""}
+      <button type="button" class="reel-arr" data-testid="clips-prev" data-reelstep="-1" aria-label="${esc(t("teams.clips.prev"))}">&lsaquo;</button>
+      <button type="button" class="reel-arr" data-testid="clips-next" data-reelstep="1" aria-label="${esc(t("teams.clips.next"))}">&rsaquo;</button>
     </div>
-    <div class="reel-track">${m.decks.map(reelCardHTML).join("")}${m.ends.length ? reelEndHTML(m.ends) : ""}</div>
+    <div class="reel-track" data-testid="clips-track">${m.decks.map(reelCardHTML).join("")}${m.ends.length ? reelEndHTML(m.ends) : ""}</div>
   </section>`;
 }
 

@@ -51,7 +51,7 @@ const PK_TAG = {holo: () => t("teams.pack.tier.holo"), gold: () => t("teams.pack
 function pkTag(S, kind, big, small){
   const m = S.st.querySelector(".pk-msg");
   m.className = "pk-msg deal";
-  m.innerHTML = `<b class="pk-tag t-${kind}">${big}</b><small>${small}</small>`;
+  m.innerHTML = `<b class="pk-tag t-${kind}" data-testid="roster-pack-tag">${big}</b><small>${small}</small>`;
   if (!S.skip) pkAnim(S, m, [{opacity: 0, translate: "0 8px"}, {opacity: 1, translate: "0 0"}], {duration: 250, easing: pkSpring(m)});
 }
 const pkUntag = S => { S.st.querySelector(".pk-msg").innerHTML = ""; };

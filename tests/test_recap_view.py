@@ -1,278 +1,252 @@
 """This week > Recap (leaf `weekrecap`, 2026-10-05, storyboard option C,
 https://claude.ai/artifact/HVdkEL4YbiBKUJ3QbLH9gf): the banner, a Players / Scores / Claude bar, one tab's
 cards. Browser tests on the week 4 recap fixture (tests/fixtures/data/recap/2026-w04.json): 8 of 16 games
-final, Claude 5 of 8 on winners. The data cut is tests/test_recap_data.py's; this proves the page."""
+final, Claude 5 of 8 on winners. The data cut is tests/test_recap_data.py's; this proves the page.
+The view's tests mount Recap alone (tests/component.py) and read it through tests/pages/recap.py; the two
+that cross views (the Digest after Recap's story, the nav's sub-row) are journeys on the full page."""
 import json
 import re
 
 import pytest
 
-from test_render import drive, go, open_page  # noqa: F401
+from component import Mounter, mount  # noqa: F401  (the fixture)
+from pages.digest import DigestPage
+from pages.recap import RecapNav, RecapPage
+from test_render import drive, go, open_page
 
 pytestmark = pytest.mark.render
 
 PHONE, DESK = (360, 800), (1100, 900)
-SIDEWAYS = "document.scrollingElement.scrollWidth - innerWidth"
 
 
-def recap(browser, page_file, viewport=PHONE, tab=None, prep=""):
-    ctx, page, errors = open_page(browser, page_file, viewport)
-    if prep:
-        page.evaluate(prep)
-    drive(page, go("weekrecap") + ([("click", f"[data-wrtab='{tab}']")] if tab else []))
-    return ctx, page, errors
+def with_recap(fragment, mutate):
+    """The built page's data with LIVE_RECAP replaced by mutate(block); mutate returns the new value, None
+    for the empty state. LIVE_RECAP is a const, so the data is rewritten, not patched at runtime. No accuracy
+    file: its tab (test_accuracy_view.py) is hidden, so these variants test the recap's own tabs."""
+    m = re.search(r"const LIVE_RECAP = (.*?);\n", fragment)
+    new = json.dumps(mutate(json.loads(m.group(1))))
+    fragment = re.sub(r"const LIVE_ACCURACY = .*?;\n", "const LIVE_ACCURACY = null;\n", fragment, count=1)
+    m = re.search(r"const LIVE_RECAP = (.*?);\n", fragment)
+    return fragment[:m.start()] + f"const LIVE_RECAP = {new};\n" + fragment[m.end():]
 
 
 @pytest.fixture(scope="module")
-def _phone(browser, page_file):
-    """One 360px Recap page for the tests that only pick a tab and read: loaded once per file per
-    worker. A test's only change is the tab, and the next test picks its own."""
-    ctx, page, errors = recap(browser, page_file)
-    assert errors == []                 # whatever the load raised fails here, not lost to a later clear
-    yield page, errors
-    ctx.close()
+def planted(mount, built, tmp_path_factory):
+    """`planted(name, mutate)` mounts Recap on data changed by mutate: (page, errors). One page per name.
+    It builds on `mount` (same browser, same page), so a test that asks for it is a component test."""
+    made = {}
+
+    def mount_with(name, mutate):
+        if name not in made:
+            made[name] = Mounter(mount.browser, tmp_path_factory.getbasetemp() / f"component-recap-{name}",
+                                 with_recap(built.fragment, mutate))
+        return made[name]("weekrecap")
+    yield mount_with
+    for m in made.values():
+        m.pages.close()
 
 
-@pytest.fixture
-def phone(_phone):
-    page, errors = _phone
-    left, errors[:] = list(errors), []  # each test answers for its own page errors only,
-    assert left == []                   # and an error raised or left over since the last one fails this
-    return page, errors
+def on_tab(page, tab):
+    rc = RecapPage(page)
+    rc.pick_tab(tab)
+    assert rc.body_tab() == tab
+    return rc
 
 
-def on_tab(phone, tab):
-    page, errors = phone
-    drive(page, [("click", f"[data-wrtab='{tab}']")])
-    assert page.locator(".wr-body").get_attribute("data-wrtabname") == tab
-    return page, errors
-
-
-def page_with(page_file, mutate):
-    """A copy of the built page, beside the original (so its heads resolve), whose LIVE_RECAP is
-    mutate(block); mutate returns the new value, None for the empty state. LIVE_RECAP is a const, so the
-    page is rewritten, not patched at runtime."""
-    html = page_file.read_text(encoding="utf-8")
-    m = re.search(r"const LIVE_RECAP = (.*?);\n", html)
-    new = json.dumps(mutate(json.loads(m.group(1))))
-    # No accuracy file: its tab (test_accuracy_view.py) is hidden, so these variants test the recap's own tabs.
-    html = re.sub(r"const LIVE_ACCURACY = .*?;\n", "const LIVE_ACCURACY = null;\n", html, count=1)
-    m = re.search(r"const LIVE_RECAP = (.*?);\n", html)
-    out = page_file.with_name("recap-variant.html")
-    out.write_text(html[:m.start()] + f"const LIVE_RECAP = {new};\n" + html[m.end():], encoding="utf-8")
-    return out
-
-
-def test_three_tabs_open_on_players_and_the_choice_is_kept(browser, page_file):
-    ctx, page, errors = recap(browser, page_file)
-    names = page.locator(".gd-tabs button").all_inner_texts()
-    assert names == ["Players", "Scores", "Claude", "Accuracy"]
-    assert page.locator(".gd-tabs [aria-pressed='true']").get_attribute("data-wrtab") == "players"
-    assert page.locator(".wr-leaders").count() == 1 and page.locator(".wr-games").count() == 0
-    page.click("[data-wrtab='scores']")
-    assert page.locator(".wr-games").count() == 1 and page.locator(".wr-leaders").count() == 0
-    assert page.locator(".gd-tabs [aria-pressed='true']").get_attribute("data-wrtab") == "scores"
+def test_three_tabs_open_on_players_and_the_choice_is_kept(mount):
+    page, errors = mount("weekrecap")
+    rc = RecapPage(page)
+    assert rc.tabs() == ["Players", "Scores", "Claude", "Accuracy"]
+    assert rc.pressed_tab() == "players"
+    assert rc.sections()["leaders"] == 1 and rc.sections()["games"] == 0
+    rc.pick_tab("scores")
+    assert rc.sections()["games"] == 1 and rc.sections()["leaders"] == 0
+    assert rc.pressed_tab() == "scores"
     # the banner and the bar hold still: a tab repaints the body, not the view
-    assert page.evaluate("document.querySelector('.wr-body').dataset.wrtabname") == "scores"
-    assert page.evaluate("localStorage.getItem('tw-recap-tab')") == "scores"
-    page.reload()
-    page.wait_for_selector(".wr-body")
-    assert page.locator(".gd-tabs [aria-pressed='true']").get_attribute("data-wrtab") == "scores"
-    page.click("[data-wrtab='claude']")
-    assert page.locator(".wr-claude").count() == 1
-    ctx.close()
+    assert rc.body_tab() == "scores"
+    assert rc.stored_tab() == "scores"
+    rc.reload()
+    assert rc.pressed_tab() == "scores"
+    rc.pick_tab("claude")
+    assert rc.sections()["claude"] == 1
     assert errors == []
 
 
-def test_the_banner_calls_the_top_scorer_by_yards_and_touchdowns_never_points(browser, page_file):
-    ctx, page, errors = recap(browser, page_file)
-    head = page.locator(".wr-lead .dg-lead-h").inner_text()
+def test_the_banner_calls_the_top_scorer_by_yards_and_touchdowns_never_points(mount):
+    page, errors = mount("weekrecap")
+    rc = RecapPage(page)
+    head = rc.headline()
     assert re.search(r"Allen .*285 yards and 4 TDs", head), head
     assert "point" not in head.lower() and "pts" not in head.lower()
-    assert page.locator(".wr-when").inner_text().upper() == "WEEK 4 · TOP SCORE SO FAR"     # 8 of 16 final: so far
-    pills = page.locator(".wr-lead .dg-lpill")
-    assert pills.count() >= 2                                       # the box line under it: passing, rushing
-    assert not any("pts" in p for p in pills.all_inner_texts())    # no fantasy points in the pills either
-    page.locator(".wr-go").click()
-    page.wait_for_selector("#modal.on")
-    ctx.close()
+    assert rc.lead_when().upper() == "WEEK 4 · TOP SCORE SO FAR"     # 8 of 16 final: so far
+    pills = rc.lead_pills()
+    assert len(pills) >= 2                                          # the box line under it: passing, rushing
+    assert not any("pts" in p for p in pills)                       # no fantasy points in the pills either
+    rc.tap_lead()
     assert errors == []
 
 
-STORY = ("() => { LIVE_DIGEST.week = LIVE_RECAP.week; LIVE_DIGEST.story = {head: 'Allen torches the Bills for 285 yards <3', "
-         "fact: 'Josh Allen threw four scores.', kind: 'result', asof: '2099-01-01 00:00:00', club: 'BUF', "
-         "player: {n: 'Josh Allen', slug: LIVE_RECAP.top.slug, pos: 'QB', team: 'BUF'}}; }")
-
-
+@pytest.mark.journey
 def test_claudes_story_about_the_top_scorer_is_the_banner_and_the_digest_leaves_it(browser, page_file):
     """David, 2026-10-05: the Digest and Recap banners never carry the same content. A result story about the
     Recap's top scorer is Recap's (escaped, in place of the template); the Digest leads with something else."""
-    ctx, page, errors = recap(browser, page_file, prep=STORY)
-    assert page.locator(".wr-lead .dg-lead-h").inner_text() == "Allen torches the Bills for 285 yards <3"
-    assert page.locator(".wr-lead .dg-lead-fact").inner_text() == "Josh Allen threw four scores."
-    assert page.locator(".wr-lead .dg-lpill").count() == 0
-    drive(page, go("digest"))
-    assert "torches" not in page.locator(".dg-lead-h").inner_text()
-    assert page.locator(".dg-lead-h").inner_text().strip() != ""
-    ctx.close()
-    assert errors == []
-
-
-def test_players_leaders_lists_and_touchdowns(browser, page_file):
-    ctx, page, errors = recap(browser, page_file)
-    blocks = page.locator(".wr-bp")
-    assert blocks.locator("h4").all_inner_texts() == ["QB", "RB", "WR", "TE", "K", "DST"]
-    assert all(n == 3 for n in blocks.evaluate_all("bs => bs.map(b => b.querySelectorAll('.wr-r').length)"))
-    # a kicker's day is his box line; a defense has no page to open
-    assert "FG" in page.locator(".wr-bp:has(h4:text-is('K')) .wr-day").first.inner_text()
-    assert page.locator(".wr-bp:has(h4:text-is('DST')) button").count() == 0
-    # the three lists, one open on a phone
-    assert [re.sub(r"\s+\d+$", "", s) for s in page.locator(".wr-lt").all_inner_texts()] == ["Smashed", "Busts", "Left hurt"]
-    assert page.locator(".wr-lp:not([data-off])").count() == 1
-    assert page.locator(".wr-lp:not([data-off])").get_attribute("data-wrpanel") == "smashed"
-    page.click("[data-wrlist='left']")
-    assert page.locator(".wr-lp:not([data-off])").get_attribute("data-wrpanel") == "left"
-    assert "Concussion" in page.locator(".wr-lp[data-wrpanel='left']").inner_text()
-    # touchdowns: top five, then Show all; a dot per rushing, receiving or return score
-    assert page.locator(".wr-tdl .wr-lr").count() == 5
-    page.click("[data-wrtds]")
-    assert page.locator(".wr-tdl .wr-lr").count() == 19 and page.locator("[data-wrtds]").inner_text() == "Show fewer"
-    dots = page.locator(".wr-tdl .wr-lr").evaluate_all("rs => rs.map(r => r.querySelectorAll('.wr-dots i').length)")
-    assert dots == sorted(dots, reverse=True) and min(dots) >= 1
-    assert page.locator(".wr-foot").inner_text().startswith("Most passing TDs: J. Allen, D. Prescott, A. Rodgers, 3 each")
-    assert page.evaluate(SIDEWAYS) <= 0
-    page.locator(".wr-tdl .wr-lr").first.click()
-    page.wait_for_selector("#modal.on")
-    ctx.close()
-    assert errors == []
-
-
-def test_desktop_lays_the_three_lists_open_side_by_side(browser, page_file):
-    ctx, page, errors = recap(browser, page_file, DESK)
-    assert page.locator(".wr-ltabs").is_hidden()
-    panels = page.locator(".wr-lp")
-    assert panels.count() == 3 and panels.evaluate_all("ps => ps.every(p => p.offsetParent !== null)")
-    tops = panels.evaluate_all("ps => ps.map(p => Math.round(p.getBoundingClientRect().top))")
-    assert len(set(tops)) == 1, tops
-    xs = panels.evaluate_all("ps => ps.map(p => Math.round(p.getBoundingClientRect().left))")
-    assert xs == sorted(xs) and len(set(xs)) == 3
-    assert page.locator(".wr-lh").first.is_visible()
-    # the leaders sit three across, and nothing's label sits more than 560px from its value
-    cols = page.evaluate("getComputedStyle(document.querySelector('.wr-board')).gridTemplateColumns.split(' ').length")
-    assert cols == 3
-    far = page.evaluate("""[...document.querySelectorAll('.wr-r, .wr-lr, .wr-g')].filter(r => {
-      const n = r.querySelector('.wr-n, .wr-ln, .wr-sc'), v = r.querySelector('.wr-pts, .wr-nums, .wr-dots, .wr-pk');
-      return n && v && v.getBoundingClientRect().right - n.getBoundingClientRect().left > 560; }).length""")
-    assert far == 0
-    assert page.evaluate(SIDEWAYS) <= 0
-    ctx.close()
-    assert errors == []
-
-
-def test_scores_group_by_window_with_the_pick_and_its_grade(phone):
-    page, errors = on_tab(phone, "scores")
-    heads = page.locator(".wr-wh span").all_inner_texts()
-    assert [h.upper() for h in heads] == ["THURSDAY NIGHT", "SUNDAY MORNING", "SUNDAY EARLY", "SUNDAY LATE", "SUNDAY NIGHT", "MONDAY NIGHT"]
-    assert page.locator(".wr-wh em").first.inner_text() == "5:15 PM"
-    assert page.locator(".wr-g").count() == 16
-    assert page.locator(".wr-mk.hit").count() == 5 and page.locator(".wr-mk.miss").count() == 3     # Claude 5 of 8 on winners
-    assert re.fullmatch(r"Claude picked 5 of 8 winners · 5–3 vs spread", page.locator(".wr-strip").inner_text())
-    # a final's winner is bold; a game still to play shows its kickoff in the reader's clock and the pick
-    assert page.locator(".wr-g:has-text('PIT 24') .wr-sc b").inner_text() == "CLE 27"
-    assert page.locator(".wr-g:has-text('ATL') .wr-pk").inner_text() == "5:15 PM · Picked ATL"
-    assert page.locator(".wr-g:has-text('ATL') .wr-mk").count() == 0
-    assert page.evaluate(SIDEWAYS) <= 0
-    assert errors == []
-
-
-def test_a_game_opens_previews_dossier_only_when_preview_holds_the_same_week(browser, page_file):
-    ctx, page, errors = recap(browser, page_file, tab="scores")
-    assert page.locator("button.wr-g").count() == 0           # the fixture's Preview is week 2
-    # Preview holds the recap's week, but the page week is still 2: Preview shows nothing, so no button.
-    page.evaluate("LIVE_PREVIEW.week = LIVE_RECAP.week; wrPaint(document.getElementById('view'))")
-    assert page.locator("button.wr-g").count() == 0
-    # Both on the recap's week (the page has not turned past it): the games open their dossiers.
-    page.evaluate("LIVE_SCHEDULE.week = LIVE_RECAP.week; wrPaint(document.getElementById('view'))")
-    buttons = page.locator("button.wr-g")
-    assert buttons.count() >= 1
-    page.locator("button.wr-g:has-text('PIT 24')").click()
-    page.wait_for_function("SURFACE === 'preview'")
-    assert page.evaluate("SURFACE") == "preview" and page.evaluate("pvGames()[PV_I].away + pvGames()[PV_I].home") == "PITCLE"
-    ctx.close()
-    assert errors == []
-
-
-def test_claude_tab_tiles_calls_and_the_every_week_link(browser, page_file):
-    ctx, page, errors = recap(browser, page_file, tab="claude")
-    assert page.locator(".wr-tile b").all_inner_texts() == ["5–3", "5–3", "6–2"]
-    assert page.locator(".wr-tile span").all_inner_texts() == ["Winners", "Vs spread", "Over/under"]
-    # best: a winner picked against the market (CLE at home getting 2.5); worst: the surest miss
-    best, worst = page.locator(".wr-call").nth(0), page.locator(".wr-call").nth(1)
-    assert "BEST CALL" in best.inner_text().upper() and "CLE over PIT, 27–24" in best.inner_text()
-    assert "Picked the underdog to win outright" in best.inner_text()
-    assert "WORST CALL" in worst.inner_text().upper() and "JAX at 57% to win" in worst.inner_text() and "CIN won 27–14" in worst.inner_text()
-    page.click("[data-wrrec]")
-    assert page.evaluate("SURFACE") == "preview" and page.evaluate("PV_REC") is True
-    ctx.close()
-    assert errors == []
-
-
-def test_no_recap_file_says_so_in_one_line(browser, page_file):
-    variant = page_with(page_file, lambda d: None)
-    ctx, page, errors = open_page(browser, variant, PHONE)
+    ctx, page, errors = open_page(browser, page_file, PHONE)
+    rc = RecapPage(page)
+    rc.plant_story()
     drive(page, go("weekrecap"))
-    assert page.locator(".state-empty b").inner_text() == "No recap yet"
-    assert page.locator(".gd-tabs").count() == 0 and page.locator(".wr-card").count() == 0
-    assert page.evaluate(SIDEWAYS) <= 0
+    assert rc.headline() == "Allen torches the Bills for 285 yards <3"
+    assert rc.lead_fact() == "Josh Allen threw four scores."
+    assert rc.lead_pills() == []
+    drive(page, go("digest"))
+    dg = DigestPage(page)
+    assert "torches" not in dg.headline()
+    assert dg.headline().strip() != ""
     ctx.close()
     assert errors == []
 
 
-def test_a_section_without_data_hides_and_one_tab_left_hides_the_bar(browser, page_file):
+def test_players_leaders_lists_and_touchdowns(mount):
+    page, errors = mount("weekrecap")
+    rc = RecapPage(page)
+    assert rc.pos_heads() == ["QB", "RB", "WR", "TE", "K", "DST"]
+    assert all(n == 3 for n in rc.leader_counts())
+    # a kicker's day is his box line; a defense has no page to open
+    assert "FG" in rc.first_day("K")
+    assert rc.openable("DST") == 0
+    # the three lists, one open on a phone
+    assert [re.sub(r"\s+\d+$", "", s) for s in rc.list_tab_labels()] == ["Smashed", "Busts", "Left hurt"]
+    assert len(rc.open_panels()) == 1
+    assert rc.open_panels() == ["smashed"]
+    rc.pick_list("left")
+    assert rc.open_panels() == ["left"]
+    assert "Concussion" in rc.panel_text("left")
+    # touchdowns: top five, then Show all; a dot per rushing, receiving or return score
+    assert rc.touchdown_rows() == 5
+    rc.toggle_touchdowns()
+    assert rc.touchdown_rows() == 19 and rc.touchdown_more() == "Show fewer"
+    dots = rc.touchdown_dots()
+    assert dots == sorted(dots, reverse=True) and min(dots) >= 1
+    assert rc.touchdown_note().startswith("Most passing TDs: J. Allen, D. Prescott, A. Rodgers, 3 each")
+    assert rc.sideways() <= 0
+    rc.open_first_touchdown()
+    assert errors == []
+
+
+def test_desktop_lays_the_three_lists_open_side_by_side(mount):
+    page, errors = mount("weekrecap", size=DESK)
+    rc = RecapPage(page)
+    assert rc.list_tabs_hidden()
+    panels = rc.panels()
+    assert panels["count"] == 3 and panels["shown"]
+    assert len(set(panels["tops"])) == 1, panels["tops"]
+    xs = panels["lefts"]
+    assert xs == sorted(xs) and len(set(xs)) == 3
+    assert rc.list_head_visible()
+    # the leaders sit three across, and nothing's label sits more than 560px from its value
+    assert rc.leader_columns() == 3
+    assert rc.labels_far_from_values(560) == 0
+    assert rc.sideways() <= 0
+    assert errors == []
+
+
+def test_scores_group_by_window_with_the_pick_and_its_grade(mount):
+    page, errors = mount("weekrecap")
+    rc = on_tab(page, "scores")
+    heads = rc.window_names()
+    assert [h.upper() for h in heads] == ["THURSDAY NIGHT", "SUNDAY MORNING", "SUNDAY EARLY", "SUNDAY LATE", "SUNDAY NIGHT", "MONDAY NIGHT"]
+    assert rc.first_window_times() == "5:15 PM"
+    assert rc.game_count() == 16
+    assert rc.marks()["hit"] == 5 and rc.marks()["miss"] == 3     # Claude 5 of 8 on winners
+    assert re.fullmatch(r"Claude picked 5 of 8 winners · 5–3 vs spread", rc.strip())
+    # a final's winner is bold; a game still to play shows its kickoff in the reader's clock and the pick
+    assert rc.winner_of("PIT 24") == "CLE 27"
+    assert rc.pick_of("ATL") == "5:15 PM · Picked ATL"
+    assert rc.marks_in("ATL") == 0
+    assert rc.sideways() <= 0
+    assert errors == []
+
+
+def test_a_game_opens_previews_dossier_only_when_preview_holds_the_same_week(mount):
+    page, errors = mount("weekrecap")
+    rc = on_tab(page, "scores")
+    assert rc.game_buttons() == 0           # the fixture's Preview is week 2
+    # Preview holds the recap's week, but the page week is still 2: Preview shows nothing, so no button.
+    rc.plant_preview_week()
+    assert rc.game_buttons() == 0
+    # Both on the recap's week (the page has not turned past it): the games open their dossiers.
+    rc.plant_page_week()
+    assert rc.game_buttons() >= 1
+    rc.open_game("PIT 24")
+    assert rc.surface() == "preview" and rc.opened_preview_game() == "PITCLE"
+    assert errors == []
+
+
+def test_claude_tab_tiles_calls_and_the_every_week_link(mount):
+    page, errors = mount("weekrecap")
+    rc = on_tab(page, "claude")
+    assert rc.tile_values() == ["5–3", "5–3", "6–2"]
+    assert rc.tile_labels() == ["Winners", "Vs spread", "Over/under"]
+    # best: a winner picked against the market (CLE at home getting 2.5); worst: the surest miss
+    best, worst = rc.call(0), rc.call(1)
+    assert "BEST CALL" in best.upper() and "CLE over PIT, 27–24" in best
+    assert "Picked the underdog to win outright" in best
+    assert "WORST CALL" in worst.upper() and "JAX at 57% to win" in worst and "CIN won 27–14" in worst
+    rc.open_every_week()
+    assert rc.surface() == "preview" and rc.preview_record_open() is True
+    assert errors == []
+
+
+def test_no_recap_file_says_so_in_one_line(planted):
+    page, errors = planted("none", lambda d: None)
+    rc = RecapPage(page)
+    assert rc.empty_title() == "No recap yet"
+    assert rc.tab_count() == 0 and rc.cards() == 0
+    assert rc.sideways() <= 0
+    assert errors == []
+
+
+def test_a_section_without_data_hides_and_one_tab_left_hides_the_bar(planted):
     def bare(d):       # games only: no players, no record, nothing graded
         d.update(stars=[], k=[], dst=[], smashed=[], busts=[], tds=[], left_hurt=[], preview_record=None, top=None)
         for g in d["games"]:
             g["preview"] = None
         return d
-    ctx, page, errors = open_page(browser, page_with(page_file, bare), PHONE)
-    drive(page, go("weekrecap"))
-    assert page.locator(".gd-tabs").count() == 0                   # Scores is the only tab left
-    assert page.locator(".wr-games").count() == 1 and page.locator(".wr-lead").count() == 0
-    assert page.locator(".wr-strip").count() == 0 and page.locator(".wr-mk").count() == 0
-    ctx.close()
+    page, errors = planted("bare", bare)
+    rc = RecapPage(page)
+    assert rc.tab_count() == 0                      # Scores is the only tab left
+    assert rc.sections()["games"] == 1 and rc.lead_count() == 0
+    assert rc.strip_count() == 0 and rc.marks()["all"] == 0
 
     def sparse(d):     # no touchdowns, one list: the other lists and cards are not drawn, no zeros
         d.update(tds=[], busts=[], left_hurt=[], k=[], dst=[], preview_record=None)
         return d
-    ctx, page, errors2 = open_page(browser, page_with(page_file, sparse), PHONE)
-    drive(page, go("weekrecap"))
-    assert page.locator(".wr-tds").count() == 0 and page.locator(".wr-lt").count() == 1
-    assert page.locator(".wr-bp h4").all_inner_texts() == ["QB", "RB", "WR", "TE"]
-    assert "0" not in [s.strip() for s in page.locator(".wr-lt em").all_inner_texts()]
-    ctx.close()
+    page, errors2 = planted("sparse", sparse)
+    rc = RecapPage(page)
+    assert rc.sections()["tds"] == 0 and rc.list_tab_count() == 1
+    assert rc.pos_heads() == ["QB", "RB", "WR", "TE"]
+    assert "0" not in rc.list_counts()
     assert errors == [] and errors2 == []
 
 
+@pytest.mark.journey
 def test_weather_is_out_of_the_sub_row_but_the_hash_and_navgo_still_open_it(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, PHONE)
-    subs = page.locator("#subnav .mode-sub").all_inner_texts()
-    assert [s.strip() for s in subs] == ["Digest", "Recap", "News", "Start/Sit", "Preview", "Live"]
-    assert page.evaluate("document.querySelector('#subnav .subnav-in').scrollWidth <= document.querySelector('#subnav .subnav-in').clientWidth")
-    page.evaluate("location.hash = '#weather'")
-    page.wait_for_function("document.getElementById('view').dataset.view === 'weather'")
-    assert page.evaluate("document.querySelector('#nav .navitem[aria-current=true]').dataset.s") == "week"
-    assert page.locator("#subnav .mode-sub[aria-pressed='true']").count() == 0
-    page.evaluate("navGo('weekrecap')")
-    assert page.locator("#subnav .mode-sub[aria-pressed='true']").inner_text().strip() == "Recap"
+    nav = RecapNav(page)
+    assert nav.sub_row() == ["Digest", "Recap", "News", "Start/Sit", "Preview", "Live"]
+    assert nav.sub_row_fits()
+    nav.open_by_hash("weather")
+    assert nav.group() == "week"
+    assert nav.pressed_subs() == 0
+    nav.go("weekrecap")
+    assert nav.pressed_sub() == "Recap"
     ctx.close()
     assert errors == []
 
 
 @pytest.mark.parametrize("tab", ["players", "scores", "claude"])
-def test_nothing_scrolls_sideways_at_360(phone, tab):
-    page, errors = on_tab(phone, tab)
-    assert page.evaluate(SIDEWAYS) <= 0
-    over = page.evaluate("""[...document.querySelectorAll('#view *')].filter(e =>
-      /(auto|scroll)/.test(getComputedStyle(e).overflowX) && e.scrollWidth > e.clientWidth + 4).map(e => String(e.className).slice(0, 40))""")
-    assert over == []
+def test_nothing_scrolls_sideways_at_360(mount, tab):
+    page, errors = mount("weekrecap")
+    rc = on_tab(page, tab)
+    assert rc.sideways() <= 0
+    assert rc.clipped_scrollers() == []
     assert errors == []

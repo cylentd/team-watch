@@ -54,9 +54,9 @@ function dgMnfGame(x){
   const g = x.g, played = x.st !== "pre";
   const a = played ? gdClubScore(g.away, g.home) : null, h = played ? gdClubScore(g.home, g.away) : null;
   const score = a !== null && h !== null
-    ? `<span class="dg-mnf-s">${esc(g.away)} <b>${a}</b><i aria-hidden="true"> · </i>${esc(g.home)} <b>${h}</b></span>` : "";
+    ? `<span class="dg-mnf-s" data-testid="digest-mnf-score">${esc(g.away)} <b>${a}</b><i aria-hidden="true"> · </i>${esc(g.home)} <b>${h}</b></span>` : "";
   const top = played ? dgMnfTop(g) : null;
-  const by = top ? `<span class="dg-mnf-t">${esc(dgShort(top.n))} ${esc(dgMnfLine(top))}</span>` : "";
+  const by = top ? `<span class="dg-mnf-t" data-testid="digest-mnf-top">${esc(dgShort(top.n))} ${esc(dgMnfLine(top))}</span>` : "";
   return `<button type="button" class="dg-mnf-g" data-testid="digest-mnf-block" data-dgblk="${esc(g.home)}" data-event="${esc(g.espn || "")}"
     data-away="${esc(g.away)}" data-home="${esc(g.home)}" data-st="${x.st}">
     <span class="dg-mnf-w" data-testid="digest-mnf-when">${esc(dgMnfWhen(x))}</span>${score}${by}${DG_ARROW}</button>`;

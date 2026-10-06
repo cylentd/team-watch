@@ -11,18 +11,18 @@ const WR_POS = ["QB", "RB", "WR", "TE"];
 function wrLeaderRow(r){
   const day = r.line !== undefined ? dgStatLine(r) : esc(r.box || "");
   const body = `<b class="wr-n">${esc(r.pos === "DST" ? r.n : dgShort(r.n))}</b><i class="wr-pts">${r.actual.toFixed(1)}</i>
-    <span class="wr-day">${day}</span>`;
-  return wrCanOpen(r.slug) ? `<button type="button" class="wr-r" data-wrslug="${esc(r.slug)}">${body}</button>`
-    : `<div class="wr-r">${body}</div>`;
+    <span class="wr-day" data-testid="recap-day">${day}</span>`;
+  return wrCanOpen(r.slug) ? `<button type="button" class="wr-r" data-testid="recap-leader" data-wrslug="${esc(r.slug)}">${body}</button>`
+    : `<div class="wr-r" data-testid="recap-leader">${body}</div>`;
 }
 
 function wrLeadersHTML(d){
   const blocks = [...WR_POS.map(p => [p, d.stars.filter(r => r.pos === p)]), ["K", d.k], ["DST", d.dst]]
     .filter(([, rows]) => rows.length);
   if (!blocks.length) return "";
-  return `<section class="wr-card wr-leaders"><h3 class="wr-ch">${t("weekrecap.leaders.title")}</h3>
-    <div class="wr-board">${blocks.map(([p, rows]) =>
-      `<div class="wr-bp"><h4>${p}</h4>${rows.map(wrLeaderRow).join("")}</div>`).join("")}</div></section>`;
+  return `<section class="wr-card wr-leaders" data-testid="recap-leaders"><h3 class="wr-ch">${t("weekrecap.leaders.title")}</h3>
+    <div class="wr-board" data-testid="recap-board">${blocks.map(([p, rows]) =>
+      `<div class="wr-bp" data-testid="recap-pos"><h4 data-testid="recap-pos-head">${p}</h4>${rows.map(wrLeaderRow).join("")}</div>`).join("")}</div></section>`;
 }
 
 /* The two numbers of a row: what he scored over what we projected, the projection dim. A player hurt
@@ -47,11 +47,11 @@ function wrListsHTML(d){
     ["left", t("weekrecap.lists.left"), d.left_hurt, "am", true]].filter(l => l[2].length);
   if (!lists.length) return "";
   const on = lists.some(l => l[0] === WR_LIST) ? WR_LIST : lists[0][0];
-  const tab = ([k, label, rows, tone]) => `<button type="button" class="wr-lt" data-wrlist="${k}" aria-pressed="${k === on}">${label}
-    <em class="${tone}">${rows.length}</em></button>`;
-  const panel = ([k, label, rows, tone, left]) => `<div class="wr-lp" data-wrpanel="${k}"${k === on ? "" : " data-off"}>
-    <h4 class="wr-lh ${tone}">${label}<em>${rows.length}</em></h4>${rows.map(r => wrListRow(r, left)).join("")}</div>`;
-  return `<section class="wr-card wr-lists"><div class="wr-ltabs" role="group" aria-label="${t("weekrecap.lists.label")}">${lists.map(tab).join("")}</div>
+  const tab = ([k, label, rows, tone]) => `<button type="button" class="wr-lt" data-testid="recap-list-tab" data-wrlist="${k}" aria-pressed="${k === on}">${label}
+    <em class="${tone}" data-testid="recap-list-count">${rows.length}</em></button>`;
+  const panel = ([k, label, rows, tone, left]) => `<div class="wr-lp" data-testid="recap-list-panel" data-wrpanel="${k}"${k === on ? "" : " data-off"}>
+    <h4 class="wr-lh ${tone}" data-testid="recap-list-head">${label}<em>${rows.length}</em></h4>${rows.map(r => wrListRow(r, left)).join("")}</div>`;
+  return `<section class="wr-card wr-lists" data-testid="recap-lists"><div class="wr-ltabs" data-testid="recap-list-tabs" role="group" aria-label="${t("weekrecap.lists.label")}">${lists.map(tab).join("")}</div>
     <div class="wr-lps">${lists.map(panel).join("")}</div></section>`;
 }
 
@@ -70,13 +70,13 @@ function wrTdsHTML(d){
   const rows = wrTdRows(d);
   if (!rows.length) return "";
   const shown = WR_TDS_ALL ? rows : rows.slice(0, 5), note = wrPassNote(d);
-  const row = r => `<button type="button" class="wr-lr" data-wrslug="${esc(r.slug)}"><span class="wr-ln"><b>${esc(dgShort(r.n))}</b>
-    <span>${esc(r.pos)} · ${esc(r.team)}</span></span><span class="wr-dots" role="img" aria-label="${wrTdN(wrDots(r))}">${"<i></i>".repeat(wrDots(r))}</span></button>`;
-  return `<section class="wr-card wr-tds"><h3 class="wr-ch">${t("weekrecap.td.title")}</h3>
-    <div class="wr-tdl">${shown.map(row).join("")}</div>
-    ${rows.length > 5 ? `<button type="button" class="wr-more" data-wrtds aria-expanded="${WR_TDS_ALL}">${
+  const row = r => `<button type="button" class="wr-lr" data-testid="recap-td-row" data-wrslug="${esc(r.slug)}"><span class="wr-ln"><b>${esc(dgShort(r.n))}</b>
+    <span>${esc(r.pos)} · ${esc(r.team)}</span></span><span class="wr-dots" data-testid="recap-td-dots" role="img" aria-label="${wrTdN(wrDots(r))}">${"<i></i>".repeat(wrDots(r))}</span></button>`;
+  return `<section class="wr-card wr-tds" data-testid="recap-tds"><h3 class="wr-ch">${t("weekrecap.td.title")}</h3>
+    <div class="wr-tdl" data-testid="recap-td-list">${shown.map(row).join("")}</div>
+    ${rows.length > 5 ? `<button type="button" class="wr-more" data-testid="recap-td-more" data-wrtds aria-expanded="${WR_TDS_ALL}">${
       WR_TDS_ALL ? t("weekrecap.td.fewer") : t("weekrecap.td.all", {n: rows.length})}</button>` : ""}
-    ${note ? `<p class="wr-foot">${note}</p>` : ""}</section>`;
+    ${note ? `<p class="wr-foot" data-testid="recap-td-note">${note}</p>` : ""}</section>`;
 }
 
 const wrPlayersHTML = d => wrLeadersHTML(d) + wrListsHTML(d) + wrTdsHTML(d);

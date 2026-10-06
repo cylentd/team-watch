@@ -4,9 +4,9 @@ once. The ranks and the implied points are computed at build time; the rest rend
 
 Python for the build side, Node for the pure card functions (the tier, the weather words), component
 (`mount`, `RosterPage`, tests/pages/roster.py) for what a card and the pack draw. The one test that
-needs the headshot files mounts with `heads=True`. The full-page helpers and the page's clock
-(`cards_page`, `motion_page`, `rip`, `vc_*`, `VCLOCK`) live in tests/pages/roster_motion.py and
-roster_pack.py, for test_pack_stage.py and test_clip_sheet.py.
+needs the headshot files mounts with `heads=True`. `on_cards` below mounts the roster; the page's
+clock and its mount (`pages.roster_motion.on_motion`, `rip`, `vc_*`, `VCLOCK`) live in
+tests/pages/roster_motion.py and roster_pack.py, for test_pack_stage.py and test_clip_sheet.py.
 """
 import re
 

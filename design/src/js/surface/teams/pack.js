@@ -100,7 +100,7 @@ function packSealHTML(team, wk, cards){
   const best = packBest(cards);
   // The rear and the side seams give the pack its body (pack.css); only the front is a control.
   // No wrapper around the seams: an element between them and .pack-glow would flatten them.
-  return `<div class="pack-glow tease-${best}" data-testid="roster-pack-glow">${packRearHTML()}<i class="pack-wall l" aria-hidden="true"></i><i class="pack-wall r" aria-hidden="true"></i>
+  return `<div class="pack-glow tease-${best}" data-testid="roster-pack-glow">${packRearHTML()}<i class="pack-wall l" data-testid="roster-pack-wall" aria-hidden="true"></i><i class="pack-wall r" data-testid="roster-pack-wall" aria-hidden="true"></i>
     <button class="pack-seal" type="button" data-testid="roster-pack-seal" aria-label="${t("teams.pack.open")}">
       <span class="pack-foil">${packArtSVG(wk)}<i class="pack-bulge"></i></span>
       <span class="pack-top" data-testid="roster-pack-top"><i class="pt-mouth"></i><i class="pt-base"></i><i class="pt-flap"></i><i class="pt-edge"></i></span>
