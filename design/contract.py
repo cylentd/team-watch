@@ -50,11 +50,11 @@ LEAGUE_SPEC = {
              ("facts", ["k"])],
 }
 # The Yahoo back page (design/league_back.py) reads more: each team's record, titles and last places, each week's
-# headline and dek (null when the roast skipped it), the book, and `history` (a past-seasons file was read).
+# headline, dek and report (null when the roast skipped it), the book, and `history` (a past-seasons file was read).
 LEAGUE_YAHOO_SPEC = {
     "keys": LEAGUE_SPEC["keys"] + ["book", "grudge", "withheld", "spoons", "history"],
     "rows": [("teams", ["id", "name", "key", "w", "l", "t", "all", "titles", "lasts", "avatar"]),
-             ("weeks", ["week", "games", "awards", "head", "dek", "table", "lead", "blip", "streaks"]),
+             ("weeks", ["week", "games", "awards", "head", "dek", "report", "table", "lead", "blip", "streaks"]),
              ("spoons", ["y", "id", "name", "mgr", "final"])] + LEAGUE_SPEC["rows"][2:],
 }
 WAIVER_VERDICT = ["kind", "over", "slot", "margin"]

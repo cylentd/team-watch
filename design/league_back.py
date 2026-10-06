@@ -65,8 +65,8 @@ def _lead_key(wk, said):
 
 def enrich_weeks(weeks, box, recap):
     """league_recap.weeks() rows (every decided week, oldest first), each game with both records after
-    that week, its punchline, facts, stamp and box, each week with its headline and dek (None when the roast skipped
-    it), the bench award, the lead game's key and Blip's pose for it."""
+    that week, its punchline, facts, stamp and box, each week with its headline, dek and report (None when the roast
+    skipped it; the report since 2026-10-06), the bench award, the lead game's key and Blip's pose for it."""
     boxes = {(int(w), g["home"], g["away"]): g for w, gs in ((box or {}).get("weeks") or {}).items() for g in gs}
     words = (recap or {}).get("weeks") or {}
     tally = {}
@@ -75,7 +75,7 @@ def enrich_weeks(weeks, box, recap):
             for tid, res in ((g["a"], {"home": 0, "away": 1}.get(g["win"], 2)), (g["b"], {"away": 0, "home": 1}.get(g["win"], 2))):
                 tally.setdefault(tid, [0, 0, 0])[res] += 1
         r = words.get(str(wk["week"])) or {}
-        wk["head"], wk["dek"] = r.get("headline"), r.get("dek")
+        wk["head"], wk["dek"], wk["report"] = r.get("headline"), r.get("dek"), r.get("report")
         best = None
         for g in wk["games"]:
             said = (r.get("games") or {}).get(f"{g['a']}-{g['b']}") or {}

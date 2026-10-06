@@ -39,6 +39,7 @@ def test_managers_name_teams_champions_and_records(back):
 def test_a_roasted_week_carries_its_words(back):
     w2 = back["weeks"][1]
     assert w2["head"] == "CHAT SURVIVES BY 0.44" and w2["dek"].startswith("Jaxon The Box")
+    assert w2["report"].startswith("Chat Take the Wheel survived by 0.44.")
     g = {f"{x['a']}-{x['b']}": x for x in w2["games"]}
     assert g["7-3"]["stamp"] == "BURIED" and g["10-9"]["stamp"] is None
     assert g["10-9"]["punch"] == "Jaxon The Box benched the win."
@@ -47,7 +48,7 @@ def test_a_roasted_week_carries_its_words(back):
 
 def test_a_skipped_week_draws_scores_without_words(back):
     w1 = back["weeks"][0]
-    assert w1["head"] is None and w1["dek"] is None
+    assert w1["head"] is None and w1["dek"] is None and w1["report"] is None
     assert all(g["punch"] is None and g["beats"] == [] and g["box"] is None for g in w1["games"])
 
 
@@ -349,12 +350,20 @@ def test_the_lead_reads_headline_score_then_one_report_paragraph(recap_js):
     # facts stay in the game's sheet, and Box score is the link under the report.
     html = recap_js("() => { LG_WEEK = null; const w = lgWeek(); const g = {...w.games[0], box: w.games[0].box || {},"
                     " punch: 'Nabers sat and flipped it.', beats: [\"Theo's Nabers benching cost 17.1\"]};"
-                    " return lgLeadHTML({...w, head: 'McMillan drops 38.2', dek: 'Chanel runs it up.'}, g); }")
+                    " return lgLeadHTML({...w, head: 'McMillan drops 38.2', dek: 'Chanel runs it up.', report: null}, g); }")
     assert html.count('class="bp2-report"') == 1
     report = html.split('class="bp2-report">', 1)[1].split("</p>", 1)[0]
     assert report == "Nabers sat and flipped it. Chanel runs it up.", report
     assert "bp2-beats" not in html and "17.1" not in html and "lg-dek" not in html and "bp2-punch" not in html
     assert html.index("bp2-report") < html.index("bp2-more"), "Box score under the report"
+    # Claude's report (ff-jarvis league_roast, 2026-10-06), two or three sentences on the game, takes the line's
+    # place: the report, then the dek on the rest of the week
+    full = recap_js("() => { LG_WEEK = null; const w = lgWeek(); const g = {...w.games[0], punch: 'Nabers sat and flipped it.'};"
+                    " return lgLeadHTML({...w, head: 'McMillan drops 38.2', dek: 'Chanel runs it up.',"
+                    " report: 'David won by 5.9. McMillan did it & then some.'}, g); }")
+    said = full.split('class="bp2-report">', 1)[1].split("</p>", 1)[0]
+    assert said == "David won by 5.9. McMillan did it &amp; then some. Chanel runs it up.", said
+    assert "Nabers sat" not in full
     # no headline: the game's line is the title, so the report is the dek alone, or nothing
     bare = recap_js("() => { LG_WEEK = null; const w = lgWeek(); return lgLeadHTML({...w, head: '', dek: ''}, {...w.games[0], punch: 'Only line.'}); }")
     assert "bp2-report" not in bare and bare.count("Only line.") == 1

@@ -57,12 +57,14 @@ function lgBlipHTML(pose, stamped){
    line inside it in the same face). Blip with the page's one stamp under it; the headline, else the game's
    line in its place; the score with its stamps, then the report and Box score. The report is one paragraph,
    the game's line then the dek on the rest of the week (David, 2026-10-06: the line, the dek and the facts were
-   three scraps, "a bit random"; a newspaper runs the headline, then the report). The facts live in the sheet. */
+   three scraps, "a bit random"; a newspaper runs the headline, then the report). Since 2026-10-06 Claude writes
+   the report itself (ff-jarvis league_roast, w.report: two or three sentences on the game), and it takes the
+   line's place; a week written without one keeps the line. The facts live in the sheet. */
 function lgLeadHTML(w, g){
   const fig = lgBlipHTML(w.blip, !!g.stamp);
   const stamp = g.stamp ? `<span class="bp-stamp bp2-stamp">${esc(g.stamp)}</span>` : "";
   const title = w.head || g.punch, line = g.punch && g.punch !== title ? g.punch : "";
-  const report = [line, w.head ? w.dek : ""].filter(Boolean).map(esc).join(" ");
+  const report = [w.head && w.report ? w.report : line, w.head ? w.dek : ""].filter(Boolean).map(esc).join(" ");
   return `<article class="bp2-lead${fig ? " has-fig" : ""}">
     ${fig ? `<div class="bp2-fig">${fig}${stamp}</div>` : ""}
     <div class="bp2-lbody">
