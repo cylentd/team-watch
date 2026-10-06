@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "design"))
 import contract  # noqa: E402
 from role import live_role  # noqa: E402
 from sources import load_role_board  # noqa: E402
-from test_render import SEED  # noqa: E402,F401
+from test_render import LOAD_MS, SEED  # noqa: E402,F401
 
 
 def slug(name):
@@ -49,7 +49,7 @@ def test_role_draws_the_work_and_never_advises(browser, page_file):
     page.route(re.compile(r"^https?://"), lambda route: route.abort())
     page.add_init_script(SEED)
     try:
-        page.goto(page_file.as_uri() + "#movers")
+        page.goto(page_file.as_uri() + "#movers", timeout=LOAD_MS)
         page.wait_for_selector(".rv-row")
         first = page.locator(".rv-row").first
         assert "Gibbs" in first.inner_text()

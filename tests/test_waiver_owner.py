@@ -2,7 +2,7 @@
 Waivers is the league-wide Most added list, with no counts, no FAAB and no waiver rows in search."""
 import pytest
 
-from test_render import open_page  # noqa: F401
+from test_render import LOAD_MS, open_page  # noqa: F401
 
 pytestmark = pytest.mark.render
 
@@ -52,7 +52,7 @@ def test_a_wrong_owner_link_unlocks_nothing_and_leaves_the_address_bar(browser, 
     ctx, page, errors = open_page(browser, page_file, (390, 844))
     page.evaluate("localStorage.setItem('tw-owner', '')")
     tab = ctx.new_page()   # a fresh load: a hash change alone does not rerun main.js
-    tab.goto(page_file.as_uri() + "#owner-notthetoken")
+    tab.goto(page_file.as_uri() + "#owner-notthetoken", timeout=LOAD_MS)
     tab.wait_for_function("location.hash === '#waivers'", timeout=5000)
     assert tab.evaluate("isOwner()") is False
     assert errors == []

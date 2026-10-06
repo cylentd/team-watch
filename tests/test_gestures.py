@@ -9,7 +9,7 @@ import re
 
 import pytest
 
-from test_render import SEED, go, watch_errors  # noqa: F401
+from test_render import LOAD_MS, SEED, go, watch_errors  # noqa: F401
 
 pytestmark = pytest.mark.render
 
@@ -44,7 +44,7 @@ def page(browser, page_file):
     errors = watch_errors(pg)
     pg.route(re.compile(r"^https?://"), lambda route: route.abort())
     pg.add_init_script(SEED)
-    pg.goto(page_file.as_uri())
+    pg.goto(page_file.as_uri(), timeout=LOAD_MS)
     pg.wait_for_function("document.getElementById('view').children.length > 0")
     try:
         yield pg

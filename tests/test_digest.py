@@ -14,7 +14,7 @@ from _espn import slugify  # noqa: E402
 import contract  # noqa: E402
 from digest import kicks, live_digest, report  # noqa: E402
 from sources import load_digest  # noqa: E402
-from test_render import drive, go, open_page  # noqa: E402,F401
+from test_render import LOAD_MS, drive, go, open_page  # noqa: E402,F401
 
 
 def _block(schedule=None):
@@ -552,7 +552,7 @@ def test_the_wall_opens_every_panel_and_a_head_is_not_a_toggle(browser, page_fil
     """From 1100px the Digest is a wall (2026-09-26): every topic open, the day's row marked, the
     lead's ghost naming why he leads. A tap on a panel's head must not close it."""
     ctx, page, errors = open_page(browser, page_file, (1400, 900))
-    page.goto(page_file.as_uri() + "#digest")
+    page.goto(page_file.as_uri() + "#digest", timeout=LOAD_MS)
     page.wait_for_selector(".dg-row")
     rows = page.locator(".dg-row:not(.empty):not(.link)")      # the Recap link is a band to tap, not a panel that opens
     assert rows.count() == page.locator(".dg-row[data-open]").count() > 0

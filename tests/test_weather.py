@@ -15,7 +15,7 @@ import re
 
 import pytest
 
-from test_render import SEED  # noqa: F401
+from test_render import LOAD_MS, SEED  # noqa: F401
 
 pytestmark = pytest.mark.render
 
@@ -26,7 +26,7 @@ def open_weather(browser, page_file, motion="reduce"):
     pg.set_default_timeout(5000)
     pg.route(re.compile(r"^https?://"), lambda route: route.abort())
     pg.add_init_script(SEED)
-    pg.goto(page_file.as_uri() + "#weather")
+    pg.goto(page_file.as_uri() + "#weather", timeout=LOAD_MS)
     pg.wait_for_function("document.getElementById('view').children.length > 0")
     return ctx, pg
 
@@ -156,7 +156,7 @@ def test_the_roster_card_shows_what_is_in_his_projection(browser, page_file):
     pg.route(re.compile(r"^https?://"), lambda route: route.abort())
     pg.add_init_script(SEED)
     try:
-        pg.goto(page_file.as_uri() + "#roster")
+        pg.goto(page_file.as_uri() + "#roster", timeout=LOAD_MS)
         pg.wait_for_function("document.getElementById('view').children.length > 0")
         html = pg.evaluate("""() => { const p = Object.values(TEAMS).flatMap(t => t.roster || [])
             .find(x => x.n === 'Amon-Ra St. Brown'); return [cardWxAdj(p), cardBack(p, 9, 'espn', 0, cardGame(p.team))]; }""")
@@ -224,7 +224,7 @@ def test_no_backtest_file_means_no_cards_and_no_error(browser, tmp_path, monkeyp
     pg.route(re.compile(r"^https?://"), lambda route: route.abort())
     pg.add_init_script(SEED)
     try:
-        pg.goto(p.as_uri() + "#weather")
+        pg.goto(p.as_uri() + "#weather", timeout=LOAD_MS)
         pg.wait_for_function("document.querySelectorAll('.wt-row').length > 0")
         assert pg.locator(".wt-card").count() == 0 and pg.locator(".wt-row").count() == 4
         assert errors == []

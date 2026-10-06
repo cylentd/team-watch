@@ -11,7 +11,7 @@ import re
 
 import pytest
 
-from test_render import LIVE_PLANT as plant, PICKED, SEED, go  # noqa: F401
+from test_render import LOAD_MS, LIVE_PLANT as plant, PICKED, SEED, go  # noqa: F401
 
 pytestmark = pytest.mark.render
 
@@ -31,7 +31,7 @@ def bare(browser, page_file, setup=""):
     page.on("pageerror", lambda e: errors.append(str(e)))
     page.route(re.compile(r"^https?://"), lambda route: route.abort())
     page.add_init_script(SEED.replace(PICKED, ""))
-    page.goto(page_file.as_uri())
+    page.goto(page_file.as_uri(), timeout=LOAD_MS)
     page.wait_for_function("document.getElementById('view').children.length > 0")
     page.evaluate(PLANT_MATE + setup + plant())
     for kind, sel in go("live"):

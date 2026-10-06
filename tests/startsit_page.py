@@ -2,7 +2,7 @@
 module, put back to a fresh load's state before every test (RESET_JS). Not a test file."""
 import re
 
-from test_render import PICKED, SEED, watch_errors
+from test_render import LOAD_MS, PICKED, SEED, watch_errors
 
 PRISTINE_JS = """() => {
   const live = {LIVE_RANKS, LIVE_PROJECTIONS, LIVE_STARTSIT, LIVE_SS3, TEAMS};
@@ -42,7 +42,7 @@ def open_view(browser, page_file, js="", w=360, h=800, hash_="#matchups", errors
     watch_errors(pg, errors)
     pg.route(re.compile(r"^https?://"), lambda route: route.abort())
     pg.add_init_script(SEED)
-    pg.goto(page_file.as_uri() + hash_)
+    pg.goto(page_file.as_uri() + hash_, timeout=LOAD_MS)
     pg.wait_for_function("document.querySelector('.mu') !== null")
     if js:
         pg.evaluate("() => {" + js + "; render(); }")

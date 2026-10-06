@@ -12,7 +12,7 @@ import re
 
 import pytest
 
-from test_render import SEED, open_page  # noqa: F401
+from test_render import LOAD_MS, SEED, open_page  # noqa: F401
 
 pytestmark = pytest.mark.render
 
@@ -99,7 +99,7 @@ def test_a_new_view_enters_once_and_a_tap_pops_only_its_line(browser, page_file)
     page.on("pageerror", lambda e: errors.append(str(e)))
     page.route(re.compile(r"^https?://"), lambda route: route.abort())
     page.add_init_script(SEED)
-    page.goto(page_file.as_uri() + "#build")
+    page.goto(page_file.as_uri() + "#build", timeout=LOAD_MS)
     page.wait_for_function("document.getElementById('view').children.length > 0")
     assert page.evaluate("document.getElementById('view').classList.contains('enter')")
     page.locator(".bline[data-prop] .bl-call").first.click()

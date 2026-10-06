@@ -11,7 +11,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "design"))
 import contract  # noqa: E402
 import teams  # noqa: E402
-from test_render import SEED  # noqa: E402,F401
+from test_render import LOAD_MS, SEED  # noqa: E402,F401
 
 
 def slug(name):
@@ -219,7 +219,7 @@ def phone(browser, page_file, pick=None, w=360, h=800):
     page.on("pageerror", lambda e: errors.append(str(e)))
     page.route(re.compile(r"^https?://"), lambda route: route.abort())
     page.add_init_script(SEED + (f'try {{ localStorage.setItem("tw-team", "{pick}"); }} catch (e) {{}}' if pick else ""))
-    page.goto(page_file.as_uri() + "#teams")
+    page.goto(page_file.as_uri() + "#teams", timeout=LOAD_MS)
     page.wait_for_selector("#view[data-view='teams'] > *")
     return ctx, page, errors
 

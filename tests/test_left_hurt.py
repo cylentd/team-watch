@@ -20,7 +20,7 @@ import pytest
 
 from conftest import SharedPages
 from test_js_hurt import play, summary
-from test_render import LIVE_PLANT, drive, go, open_page, SEED  # noqa: F401
+from test_render import LOAD_MS, LIVE_PLANT, drive, go, open_page, SEED  # noqa: F401
 
 pytestmark = pytest.mark.render
 
@@ -269,7 +269,7 @@ def served(browser, page_file):
     page.route(re.compile(r"^http://team-watch\.test/?$"), lambda r: r.fulfill(status=200, content_type="text/html", body=html))
     page.route(re.compile(r"^https?://(?!team-watch\.test/?$)"), lambda r: r.abort())
     page.add_init_script(SEED)
-    page.goto(SERVED)
+    page.goto(SERVED, timeout=LOAD_MS)
     page.wait_for_function("document.getElementById('view').children.length > 0")
     return ctx, page, errors
 

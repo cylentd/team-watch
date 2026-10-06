@@ -7,7 +7,7 @@ import pytest
 
 from lines import live_lines
 from projections import position_ranks
-from test_render import drive, go, open_page, watch_errors  # noqa: F401
+from test_render import LOAD_MS, drive, go, open_page, watch_errors  # noqa: F401
 
 
 def slug(n):
@@ -243,7 +243,7 @@ def motion_page(browser, page_file):
     errors = watch_errors(page)
     page.route(re.compile(r"^https?://"), lambda route: route.abort())
     page.add_init_script(SEED)
-    page.goto(page_file.as_uri() + "#roster")
+    page.goto(page_file.as_uri() + "#roster", timeout=LOAD_MS)
     page.wait_for_function("document.getElementById('view').children.length > 0")
     vc_install(page)
     page.evaluate("VIEW='espn'; render()")
@@ -275,7 +275,7 @@ def fresh_page(browser, page_file):
     errors = watch_errors(page)
     page.route(re.compile(r"^https?://"), lambda route: route.abort())
     page.add_init_script(SEED.replace(CHOSE_SHEET, ""))
-    page.goto(page_file.as_uri() + "#roster")
+    page.goto(page_file.as_uri() + "#roster", timeout=LOAD_MS)
     page.wait_for_function("document.getElementById('view').children.length > 0")
     return ctx, page, errors
 

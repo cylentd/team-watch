@@ -5,7 +5,7 @@ import re
 
 import pytest
 
-from test_render import SEED, TUESDAY
+from test_render import LOAD_MS, SEED, TUESDAY
 
 pytestmark = pytest.mark.render
 
@@ -27,7 +27,7 @@ def open_waivers(browser, page_file):
         page.add_init_script(SEED)
         if init:
             page.add_init_script(init)
-        page.goto(page_file.as_uri() + "#waivers")
+        page.goto(page_file.as_uri() + "#waivers", timeout=LOAD_MS)
         page.wait_for_function("document.querySelector('#view .wv')")
         if view != "yahoo":
             _switch(page, view)

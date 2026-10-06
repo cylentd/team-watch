@@ -4,7 +4,7 @@ the GET would. The endpoint itself is covered by test_league.py."""
 
 import pytest
 
-from test_render import open_page  # noqa: F401
+from test_render import LOAD_MS, open_page  # noqa: F401
 
 pytestmark = pytest.mark.render
 
@@ -55,7 +55,7 @@ def test_the_switch_lists_it_and_offers_to_add_another(phone):
 
 def test_the_bookmark_hash_is_wiped_on_arrival(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, (360, 780))
-    page.goto(page.url.split("#")[0] + "#connect=" + "%7B%22l%22%3A%22%22%2C%22s%22%3A%22x%22%2C%22w%22%3A%22y%22%7D")
+    page.goto(page.url.split("#")[0] + "#connect=" + "%7B%22l%22%3A%22%22%2C%22s%22%3A%22x%22%2C%22w%22%3A%22y%22%7D", timeout=LOAD_MS)
     page.reload()
     assert page.evaluate("location.hash") == ""
     assert page.locator("#connect").is_visible()

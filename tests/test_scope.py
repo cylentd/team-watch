@@ -7,6 +7,7 @@ import pytest
 
 import assemble
 import scope_css
+from test_render import LOAD_MS  # noqa: E402
 
 MODAL = ["#modal"]
 W = ":where(#modal, #modal *)"
@@ -66,7 +67,7 @@ def test_a_fenced_rule_stays_out_of_another_view(browser, page_file):
     page.route("http*://**", lambda r: r.abort())
     seen = {}
     for leaf in ("ranks", "usage"):
-        page.goto(page_file.as_uri() + "#" + leaf)
+        page.goto(page_file.as_uri() + "#" + leaf, timeout=LOAD_MS)
         page.wait_for_selector(f"#view[data-view='{leaf}'] > *")
         seen[leaf] = page.evaluate(STRAY_TIER)
     page.close()

@@ -9,7 +9,7 @@ import pytest
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "design"))
 from ranks import live_ranks, natural_breaks  # noqa: E402
-from test_render import SEED  # noqa: E402,F401
+from test_render import LOAD_MS, SEED  # noqa: E402,F401
 
 
 def slug(name):
@@ -218,7 +218,7 @@ def test_ranks_tags_a_matchup_from_half_a_point(browser, page_file):
     page.route(re.compile(r"^https?://"), lambda route: route.abort())
     page.add_init_script(SEED)
     try:
-        page.goto(page_file.as_uri() + "#ranks")
+        page.goto(page_file.as_uri() + "#ranks", timeout=LOAD_MS)
         page.wait_for_function("document.querySelectorAll('.rk-row').length > 0")
         page.locator("[data-rkpos='FLEX']").click()
         tags = page.evaluate("""Object.fromEntries([...document.querySelectorAll('.rk-row')].map(r =>
@@ -248,7 +248,7 @@ def test_the_back_list_follows_the_books_and_says_why_once_and_flex_does_not(bro
     errors = []
     page.on("pageerror", lambda e: errors.append(str(e)))
     try:
-        page.goto(page_file.as_uri() + "#ranks")
+        page.goto(page_file.as_uri() + "#ranks", timeout=LOAD_MS)
         page.wait_for_function("document.querySelectorAll('.rk-row').length > 0")
         rows = lambda: page.evaluate("[...document.querySelectorAll('.rk-row')].map(r => [r.dataset.rkopen, r.querySelector('.rk-pts').firstChild.textContent])")
         assert rows() == [["breece-hall", "15.0"], ["chase-brown", "16.2"], ["kendre-miller", "3.1"]]
@@ -279,7 +279,7 @@ def test_an_unlined_backups_profile_strip_wears_the_tag(browser, page_file):
     page.on("pageerror", lambda e: errors.append(str(e)))
     brown = {"n": "Chase Brown", "pos": "RB", "team": "CIN", "slug": "chase-brown"}
     try:
-        page.goto(page_file.as_uri() + "#ranks")
+        page.goto(page_file.as_uri() + "#ranks", timeout=LOAD_MS)
         page.wait_for_function("document.querySelectorAll('.rk-row').length > 0")
         page.evaluate("(p) => openProfile(p, document.body)", brown)
         page.wait_for_selector("#modal.on .pf-lede")
@@ -305,7 +305,7 @@ def test_ranks_draws_tiers_and_opens_a_profile(browser, page_file):
     errors = []
     page.on("pageerror", lambda e: errors.append(str(e)))
     try:
-        page.goto(page_file.as_uri() + "#ranks")
+        page.goto(page_file.as_uri() + "#ranks", timeout=LOAD_MS)
         page.wait_for_function("document.querySelectorAll('.rk-row').length > 0")
         tiers = page.evaluate("[...document.querySelectorAll('.rk-tier b')].map(e => e.textContent.trim())")
         assert tiers and tiers[0].upper() == "TIER 1"

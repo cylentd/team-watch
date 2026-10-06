@@ -18,7 +18,7 @@ import pytest
 
 import contract
 from preview import _ats, _base, _blind, _total, live_preview
-from test_render import PICKED, SEED, watch_errors  # noqa: F401
+from test_render import LOAD_MS, PICKED, SEED, watch_errors  # noqa: F401
 
 FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "data" / "game_previews.json"
 
@@ -177,7 +177,7 @@ def open_preview(browser, page_file, w=360, h=800, errors=None):
     watch_errors(pg, errors)
     pg.route(re.compile(r"^https?://"), lambda route: route.abort())
     pg.add_init_script(SEED)
-    pg.goto(page_file.as_uri() + "#preview")
+    pg.goto(page_file.as_uri() + "#preview", timeout=LOAD_MS)
     pg.wait_for_function("document.querySelector('.pv-row') !== null")
     return ctx, pg
 

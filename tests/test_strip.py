@@ -23,7 +23,7 @@ import re
 
 import pytest
 
-from test_render import PICKED   # noqa: E402  (My teams asks whose team first; these pages are David's)
+from test_render import LOAD_MS, PICKED   # noqa: E402  (My teams asks whose team first; these pages are David's)
 
 pytestmark = pytest.mark.render
 
@@ -82,7 +82,7 @@ def open_strip(browser, page_file, shaped, drive, viewport=DESK, who=None):
     page.on("console", lambda m: errors.append(m.text)
             if m.type == "error" and not m.text.startswith("Failed to load resource") else None)
     page.route(re.compile(r"^https?://"), lambda route: route.abort())
-    page.goto(page_file.as_uri())
+    page.goto(page_file.as_uri(), timeout=LOAD_MS)
     page.evaluate(MOUNT, [shaped, drive, who])
     return page, ctx, errors
 
@@ -442,7 +442,7 @@ def served(browser, page_file, shaped):
         route.abort()
 
     page.route(re.compile(r"^https?://"), handle)
-    page.goto(SITE)
+    page.goto(SITE, timeout=LOAD_MS)
     return page, ctx, errors, calls
 
 

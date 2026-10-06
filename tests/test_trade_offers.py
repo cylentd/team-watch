@@ -16,7 +16,7 @@ import contract  # noqa: E402
 import sources  # noqa: E402
 import trade_offers  # noqa: E402
 from conftest import FIXTURES, REPO  # noqa: E402
-from test_render import SEED  # noqa: E402
+from test_render import LOAD_MS, SEED  # noqa: E402
 
 FIXTURE = json.loads((FIXTURES / "data" / "trade_offers.json").read_text(encoding="utf-8"))
 
@@ -224,7 +224,7 @@ def reader(browser, page_file, pick, w=360, h=800, init=""):
     page.route(re.compile(r"^https?://"), lambda route: route.abort())
     page.add_init_script(SEED + (f'try {{ localStorage.setItem("tw-team", "{pick}"); }} catch (e) {{}}' if pick else
                                  'try { localStorage.removeItem("tw-team"); } catch (e) {}') + PLANT + init)
-    page.goto(page_file.as_uri() + "#teams")
+    page.goto(page_file.as_uri() + "#teams", timeout=LOAD_MS)
     page.wait_for_selector("#view[data-view='teams'] > *")
     return ctx, page, errors
 
@@ -444,7 +444,7 @@ def test_from_file_the_real_fetch_is_refused_and_the_page_says_so(browser, page_
     page.set_default_timeout(5000)
     page.route(re.compile(r"^https?://"), lambda route: route.abort())
     page.add_init_script(SEED + 'try { localStorage.setItem("tw-team", "espn"); } catch (e) {}')
-    page.goto(page_file.as_uri() + "#teams")
+    page.goto(page_file.as_uri() + "#teams", timeout=LOAD_MS)
     page.wait_for_selector("#view[data-view='teams'] > *")
     builder(page, "espn-run-it-back")
     page.wait_for_selector(".tb-empty")
