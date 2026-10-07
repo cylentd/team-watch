@@ -746,11 +746,32 @@ def snapshot(browser, page_file):
     snapshot.outside[slice] holds, per state, the fenced rules that miss an element (OUTSIDE_FENCE).
     The fence list goes over as one JSON string: as 3,500 separate strings Playwright's argument
     serialisation cost about 50 ms a page, more than the check itself.
-    Each state gets its own fresh context, so nothing one state did reaches the next capture. (Loading
-    the next state's page while this one was driven saved nothing on a full run, where every worker is
-    busy, and doubled the renderers per worker; removed 2026-10-05.)"""
+    Each viewport keeps one context (open_at's: its size, reduced motion, routes and SEED init script are
+    the same for every state) and every state after the first loads the page again in it. Nothing one
+    state did reaches the next capture, because the reload is a new document and the rest is reset:
+    localStorage and sessionStorage are cleared (SEED only fills what is missing, and states set and
+    remove keys), the page goes through about:blank (every timer, listener, planted global, scroll
+    position and open dialog of the last document goes with it; each state adds two history entries,
+    harmless because nothing reads history.length and layers.js pops only its own), the mouse is moved
+    off the page (a click's hover would otherwise follow into the next document), and the error list is
+    emptied. Storage writes are stubbed before the clear, so a timer of the old page cannot set a key. A state that raised closes the context and fails the slice. The page uses no cookie,
+    IndexedDB, service worker or window.name (grep of design/src/js, 2026-10-07). (Loading the next
+    state's page while this one was driven saved nothing on a full run, where every worker is busy, and
+    doubled the renderers per worker; removed 2026-10-05. A new context per state, 148 ms against 64 ms
+    for a reload in a kept one, tests/component.py, was replaced on 2026-10-07.)"""
     taken, failed, fences = {}, {}, json.dumps(fenced_selectors())
     steps_of = dict(STATES)
+
+    def reload(page, errs):
+        """The page again as a new document, with nothing of the last one left (see the docstring)."""
+        # Writes are stubbed first, so a timer of the old page cannot set a key between the clear and the hop.
+        page.evaluate("() => { Storage.prototype.setItem = Storage.prototype.removeItem = () => {};"
+                      " localStorage.clear(); sessionStorage.clear(); }")
+        page.goto("about:blank")
+        page.mouse.move(-1, -1)
+        del errs[:]
+        page.goto(page_file.as_uri(), timeout=LOAD_MS)
+        page.wait_for_function("document.getElementById('view').children.length > 0", timeout=LOAD_MS)
 
     def take(key):
         # A state that cannot be drawn fails the slice once; its other tests fail at once with the
@@ -761,18 +782,23 @@ def snapshot(browser, page_file):
             out, errors, outside = {vp: {} for vp in VIEWPORTS}, {}, {}
             try:
                 for vp_name, vp in VIEWPORTS.items():
-                    for state in SLICES[key][1]:
-                        ctx, page, errs = open_at(browser, page_file, vp)
-                        try:
+                    ctx = page = None
+                    try:
+                        for n, state in enumerate(SLICES[key][1]):
+                            if n == 0:
+                                ctx, page, errs = open_at(browser, page_file, vp)
+                            else:
+                                reload(page, errs)
                             drive(page, steps_of[state])
                             out[vp_name][state] = page.evaluate(PROBE, PROPS)
                             missed = page.evaluate(f"(json) => ({OUTSIDE_FENCE})(JSON.parse(json))", fences)
-                        finally:
+                            if errs:
+                                errors[f"{vp_name}/{state}"] = list(errs)
+                            if missed:
+                                outside[f"{vp_name}/{state}"] = missed
+                    finally:
+                        if ctx is not None:
                             ctx.close()
-                        if errs:
-                            errors[f"{vp_name}/{state}"] = errs
-                        if missed:
-                            outside[f"{vp_name}/{state}"] = missed
             except BaseException as e:
                 failed[key] = (f"{type(e).__name__}: {e}".strip().splitlines() or ["?"])[0][:300]
                 raise

@@ -20,6 +20,10 @@ a shrink-only backlog) load here and nowhere else, so a mutant run or a shuffled
 timed. An ordinary run lists the tests over their limit; only --repeat-new passes --limits-enforce,
 failing a new or changed test whose fastest copy is over. The skill dir is $TESTING_SKILL if set,
 else the installed copy (~/.agents/skills/testing/scripts).
+
+Every run claims its xdist workers from a machine-wide budget first (scripts/worker_slots.py): the
+budget is what `-n auto` gives here, a run gets min(wanted, free) and at least 2, and passes
+`-n <claimed>`. One line says what it got and who holds the rest. TW_SLOTS=off bypasses it.
 """
 import argparse
 import ast
@@ -38,14 +42,39 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import impact  # noqa: E402
 
 
-def parallel(extra):
-    """xdist flags, or none: --update-golden rewrites one file from every area, so it runs alone."""
+def parallel(extra, workers=None):
+    """xdist flags, or none: --update-golden rewrites one file from every area, so it runs alone.
+    `workers` is what claim_workers got from the shared budget; None leaves it to xdist's auto."""
     if "--update-golden" in extra:
         return []
     if importlib.util.find_spec("xdist") is None:
         print("  pytest-xdist missing (pip install pytest-xdist) -- running serially", file=sys.stderr)
         return []
-    return ["-n", "auto", "--dist", "loadgroup"]
+    return ["-n", str(workers) if workers else "auto", "--dist", "loadgroup"]
+
+
+def slots_module():
+    """scripts/worker_slots.py (not test_*.py: the land gate would read that name as a test and freeze it)."""
+    import worker_slots
+    return worker_slots
+
+
+def claim_workers(extra, dry_run=False):
+    """(workers to pass as -n or None, the Claim or None): the run's share of the machine-wide worker
+    budget (scripts/worker_slots.py, one claim file per run in the git common dir). A serial run holds 1,
+    a parallel one wants what -n auto would give. TW_SLOTS=off, or no way to claim, leaves it to auto.
+    A dry run only looks. The claim is released at exit; callers also release it in a finally."""
+    try:
+        s = slots_module()
+        serial = "--update-golden" in extra or importlib.util.find_spec("xdist") is None
+        claim = s.acquire(ROOT, 1 if serial else s.budget(), write=not dry_run)
+    except Exception as e:    # a broken budget must never stop a test run
+        print(f"  test slots: not used ({type(e).__name__}: {e})", file=sys.stderr)
+        return None, None
+    if claim is None:
+        return None, None
+    print(claim.line(), flush=True)
+    return (None if serial else claim.got), claim
 
 
 def selection(pick):
@@ -95,10 +124,10 @@ def with_path(environ, *dirs):
     return {**environ, "PYTHONPATH": path}
 
 
-def command(full, base, committed, extra, quarantine=False, picked=None, skill=None):
+def command(full, base, committed, extra, quarantine=False, picked=None, skill=None, workers=None):
     picked = picked_args(full, base, committed) if picked is None else picked
     limits = limit_args(skill_dir() if skill is None else skill)
-    return [sys.executable, "-m", "pytest", *parallel(extra), *gate(extra, quarantine), *limits, *picked, *extra]
+    return [sys.executable, "-m", "pytest", *parallel(extra, workers), *gate(extra, quarantine), *limits, *picked, *extra]
 
 
 ARGV_LIMIT = 8000   # chars of test ids on a command line; Windows allows 32,767 for the whole line
@@ -184,9 +213,9 @@ def new_test_ids(base, committed):
     return nodeids_for(lines, {p: (ROOT / p).read_text(encoding="utf-8") for p in lines})
 
 
-def repeat_command(ids, n, extra, quarantine=False, skill=None):
+def repeat_command(ids, n, extra, quarantine=False, skill=None, workers=None):
     limits = limit_args(skill_dir() if skill is None else skill, enforce=True)
-    return [sys.executable, "-m", "pytest", "-p", "run_tests", "--tw-repeat", str(n), *parallel(extra),
+    return [sys.executable, "-m", "pytest", "-p", "run_tests", "--tw-repeat", str(n), *parallel(extra, workers),
             *gate(extra, quarantine), *limits, *ids, *extra]
 
 
@@ -229,13 +258,17 @@ def repeat_new(a, extra):
         print("  no new or changed tests -- nothing to repeat")
         return 0
     print(f"  {len(ids)} new or changed test(s), {a.repeat_new} runs each:\n    " + "\n    ".join(ids))
-    cmd = repeat_command(ids, a.repeat_new, extra, a.with_quarantine)
-    if a.dry_run:
-        print("  python -m pytest " + " ".join(cmd[3:]))
-        return 0
-    env = with_path(os.environ, ROOT / "scripts", skill_dir())
-    code = run_pytest(cmd, ids, getattr(a, "argv_limit", ARGV_LIMIT), env=env)
-    return 0 if code == 5 else code    # 5 = every test deselected (all quarantined): nothing to prove, not a failure
+    workers, claim = claim_workers(extra, a.dry_run)
+    try:
+        cmd = repeat_command(ids, a.repeat_new, extra, a.with_quarantine, workers=workers)
+        if a.dry_run:
+            print("  python -m pytest " + " ".join(cmd[3:]))
+            return 0
+        env = with_path(os.environ, ROOT / "scripts", skill_dir())
+        code = run_pytest(cmd, ids, getattr(a, "argv_limit", ARGV_LIMIT), env=env)
+        return 0 if code == 5 else code    # 5 = every test deselected (all quarantined): nothing to prove, not a failure
+    finally:
+        slots_module().release(claim)
 
 
 def main(argv=None):
@@ -255,11 +288,15 @@ def main(argv=None):
     if a.repeat_new:
         return repeat_new(a, extra)
     picked = picked_args(a.full, a.base, a.committed)
-    cmd = command(a.full, a.base, a.committed, extra, a.with_quarantine, picked)
-    print("  python -m pytest " + " ".join(cmd[3:]), flush=True)
-    if a.dry_run:
-        return 0
-    return run_pytest(cmd, picked, a.argv_limit, env=with_path(os.environ, skill_dir()))
+    workers, claim = claim_workers(extra, a.dry_run)
+    try:
+        cmd = command(a.full, a.base, a.committed, extra, a.with_quarantine, picked, workers=workers)
+        print("  python -m pytest " + " ".join(cmd[3:]), flush=True)
+        if a.dry_run:
+            return 0
+        return run_pytest(cmd, picked, a.argv_limit, env=with_path(os.environ, skill_dir()))
+    finally:
+        slots_module().release(claim)
 
 
 if __name__ == "__main__":

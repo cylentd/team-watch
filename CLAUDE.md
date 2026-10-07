@@ -55,6 +55,11 @@ tests, goldens, test history.
 | Regenerate golden | `python -m pytest --update-golden` (never with `-n`: every area rewrites the one file) |
 | Mutation | `python $HOME/.agents/skills/testing/scripts/mutate.py --files <file>` (`.testing.json` picks the files, `scripts/mutate_tests.py` the tests) |
 | Before land | `.\scripts\land.ps1` runs the testing skill's `land_gate.py` itself |
+| Where a run's time went | `python scripts/testlog.py --profile` (harness vs tests, fixtures, workers; `--last` for any run) |
+
+- **Workers are shared** (since 2026-10-07): `run_tests.py` claims its `-n` from one budget for
+  every session (`scripts/worker_slots.py`, 14 here): a dev run gets what is free (at least 2), a
+  land a fair share. `TW_SLOTS=off` bypasses it. Time a change only with no other run holding slots.
 
 - **Never a bare `python -m pytest`:** all ~3,600 tests one at a time, ~10 min (2026-10-05).
 - **Land gate** (since 2026-10-06; what each check does: tests/README.md "Frozen tests and the

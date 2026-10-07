@@ -181,8 +181,8 @@
       "render": []
     },
     "testtools": {
-      "paths": ["scripts/run_tests.py", "scripts/trace.py", "scripts/mutate_tests.py", ".testing.json", ".testing-backlog.json", "scripts/flake_run.py"],
-      "tests": ["tests/test_run_tests.py", "tests/test_trace.py", "tests/test_mutate_tests.py", "tests/test_flake_run.py", "tests/test_testlog.py"],
+      "paths": ["scripts/run_tests.py", "scripts/worker_slots.py", "scripts/trace.py", "scripts/mutate_tests.py", ".testing.json", ".testing-backlog.json", "scripts/flake_run.py"],
+      "tests": ["tests/test_run_tests.py", "tests/test_slots.py", "tests/test_trace.py", "tests/test_mutate_tests.py", "tests/test_flake_run.py", "tests/test_testlog.py", "tests/test_profile_log.py"],
       "render": []
     },
     "designdoc": {

@@ -162,6 +162,15 @@ note: browser 830 of 3,122 tests, 725 of 782 worker-s). A weekly job (Wednesday 
 `scripts/flake_run.py`) runs the suite 5 times in shuffled order and posts the flaky and broken
 tests to Discord; a clean run posts nothing.
 
+(2026-10-07) Each run's line also carries a `profile` block, so slowness can be pinned on the harness
+or the test: `python scripts/testlog.py --profile` (the latest full run; `--last` any size; or a commit
+prefix or index) prints worker-s split into tests (setup, call, teardown kept apart) and harness (process
+startup, collection, session and module fixtures, pytest overhead, idle), the costliest fixtures by scope
+and count, the costliest tests and each worker's busy share. The parts must sum to worker-s within 5%;
+the rest prints as `unaccounted`. A session fixture's build is charged to the fixture, not to the first
+test that asked for it. Written by `Profile` in `tests/runlog.py`; under xdist each worker sends its
+block home in `workeroutput`.
+
 ## Exemplars and building blocks
 
 Agents copy the patterns they see, bad ones included. Copy these.
