@@ -36,6 +36,7 @@ data/matchupline.js
 data/pointsbars.js
 data/packrip.js
 data/weekstat.js
+data/firstsentence.js
 data/supportback.js
 lib/escape.js
 lib/kick.js

@@ -71,12 +71,6 @@ function wvStatusText(lg, key){
   return when ? t("waiver.card.waiver", {when}) : t("waiver.card.waiverNoWhen");
 }
 
-/* The summary's first sentence. A period after a short word ("St.", "Jr.") is not an end. */
-function wvFirstSentence(text){
-  const m = /^(.+?(?:\b\w{3,}|\d|%|\))[.!?])\s+(?=[A-Z])/.exec(text || "");
-  return m ? m[1] : text || "";
-}
-
 function wvFrontHTML(r, key, tier){
   const lg = r.leagues[key];
   const opp = !r.opp ? "" : r.home ? t("waiver.card.vs", {opp: esc(r.opp)}) : t("waiver.card.at", {opp: esc(r.opp)});

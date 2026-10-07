@@ -2,12 +2,17 @@
    the full summary, the injury and the latest headline, one line for every other league, and the
    way into the full profile. Starts inert: wvFlip (wvmotion.js) swaps which face is live. */
 
+/* The summary after the sentence the front already shows (wvFirstSentence, wcard.js): repeated, it
+   made the back ~40px taller than the front and left that as a hole above the front's foot, since
+   both faces share one height (STYLE.md "Gaps", 2026-10-07). A Must claim laid open shows both faces
+   and hides this paragraph (wdesk.css). */
 function wvSummaryHTML(r){
   const s = r.summary;
   if (!s || !s.text) return "";
+  const rest = s.text.slice(wvFirstSentence(s.text).length).trim();
   const mark = s.src === "rule"
     ? ` <span class="wvc-rule" title="${t("waiver.summary.ruleTip")}">${t("waiver.summary.rule")}</span>` : "";
-  return `<p class="wvc-sum">${esc(s.text)}${mark}</p>`;
+  return rest || mark ? `<p class="wvc-sum">${esc(rest)}${mark}</p>` : "";
 }
 
 /* Injury and practice on one line, the latest headline under it, only when there is any. */

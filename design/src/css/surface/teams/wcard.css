@@ -34,6 +34,10 @@
 }
 .wvc-back{transform:rotateY(180deg);background:var(--panel-2)}
 .wvc:hover .wvc-face{border-color:var(--line-2)}
+/* A front shares its back's height (the flip never moves the page). The two causes of a tall back are gone
+   (the phone shows the proof stats; the back no longer repeats the lede), so what is left is a short front's
+   slack, 0-45px: the id holds the top, the foot the bottom, and the block between centres (STYLE.md "Gaps"). */
+.wvc-front > .wvc-id + :not(.wvc-foot){margin-top:auto}
 .wvc-profile,.wvc-rule,.wvc-lane,.wvs circle{pointer-events:auto}
 .wvc.tier-stash .wvc-face{border-style:dashed}
 

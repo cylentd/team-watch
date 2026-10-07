@@ -63,10 +63,12 @@ body.pk-open{overflow:hidden}
 /* A light in the room, not a halo of the pack (David, 2026-10-07: it narrowed with the pack's silhouette and
    read as attached to it): a round pool 1.5x the pack's width, centred on it, that does not change as the
    pack turns, feathered from its middle to nothing, so it has no edge to see. */
+/* Gold's room light is a lighter, warmer gold than the pack's own glow: --gold-2 at .65 over this dark room read olive. */
+.pk-center:has(.tease-gold){--room:rgb(var(--gold-mid-rgb) / .6)}
 .pk-center::before{content:"";position:absolute;z-index:-1;left:50%;top:50%;width:calc(var(--pkw) * 1.22 * 1.5);aspect-ratio:1;
   translate:-50% -50%;border-radius:50%;pointer-events:none;
-  background:radial-gradient(closest-side,var(--glow, transparent),color-mix(in srgb,var(--glow, transparent) 55%,transparent) 35%,
-    color-mix(in srgb,var(--glow, transparent) 18%,transparent) 68%,transparent);opacity:.9}
+  background:radial-gradient(closest-side,var(--room, var(--glow, transparent)),color-mix(in srgb,var(--room, var(--glow, transparent)) 55%,transparent) 35%,
+    color-mix(in srgb,var(--room, var(--glow, transparent)) 18%,transparent) 68%,transparent);opacity:.9}
 .pk-aim:not(.pk-drag) .pk-center .pack-glow{transition:transform .5s cubic-bezier(.25,1,.5,1)}
 /* Larger than the cards inside it, as a real pack is: 1.06x the card on 2026-09-26, 1.22x since
    2026-09-27 (~255px wide on a 360px phone), so the pack is the thing on the screen. */

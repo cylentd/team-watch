@@ -127,13 +127,6 @@ GAPS = r"""(phone) => {
 
 # Today's true violations: (leaf, width, kind, selector) -> why it is one, and where it is being fixed.
 KNOWN = {
-    # A Watch card takes its back face's height: the lede hugs the name and a ~160px hole sits above
-    # Evidence. The middle block should centre (2026-10-07).
-    ("waivers", 360, "card", "div.wvc-in > div.wvc-face.wvc-front"): "middle block hugs the top",
-    ("waivers", 1280, "card", "div.wvc-in > div.wvc-face.wvc-front"): "middle block hugs the top",
-    # A Build player card stretched to its row's tallest: the line and its tier sit in the top 2/3, ~70px
-    # empty below (2026-10-07).
-    ("build", 1280, "card", "section.bl-group > div.bplayer.mine"): "content high, empty bottom",
 }
 
 

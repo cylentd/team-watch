@@ -13,6 +13,14 @@
 }
 
 .bplayer{padding:10px 0 4px;border-bottom:1px solid var(--line)}
+/* Two to a row, a player hugs his lines (stretched to the taller neighbour, the box was ~70px empty below
+   them) and the rule moves to his top, so the two rules of a row still share one line: the shorter
+   player's spare room sits under his lines, above the next row's rule, as in a table (STYLE.md "Gaps",
+   "Share edges"). The first row's rule is the kickoff heading's own. After the base rule on purpose. */
+@media (min-width:960px){
+  .bplayer{align-self:start;border-bottom:0;border-top:1px solid var(--line)}
+  .bl-when + .bplayer,.bl-when + .bplayer + .bplayer{border-top:0}
+}
 .bplayer.isout{opacity:.55}
 .bp-who{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;min-width:0}
 .bp-who img,.bp-who .fallback{width:28px;height:28px;border-radius:99px;object-fit:cover;border:1px solid var(--line-2);background:var(--panel-3)}

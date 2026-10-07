@@ -101,9 +101,11 @@
   .pooltable .pool-head{width:52px;height:52px}
   .pooltable .pname b{font-size:var(--t-3);font-weight:600}
   .pooltable .pname span{font-family:var(--ui);font-size:var(--t-2);letter-spacing:0}
-  /* A waiver card's front on a phone: tier, who, what claiming him does, one sentence why. The
-     three proof stats are the back face's job, where each one is a weekly chart. */
-  .wvc-front .wvc-proof,.wvc-front .wvc-lane{display:none}
+  /* A waiver card's front on a phone: tier, who, what claiming him does, one sentence why, the
+     three proof stats. The lane tag waits for a wider card. The proof stays (2026-10-07): the card is
+     as tall as its back (charts, summary, other leagues), so hiding the stats saved no height and left
+     a ~100-124px hole above the foot (STYLE.md "Gaps"); shown, the hole is 0-25px. */
+  .wvc-front .wvc-lane{display:none}
   .wvc-id .head,.wvc-id .head img,.wvc-id .head .fallback{width:52px;height:52px}
   .rule{margin-top:22px}
 }
