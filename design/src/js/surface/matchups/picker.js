@@ -1,5 +1,5 @@
-/* ============================== START/SIT: THE PICKER ==============================
-   The top card of Start/Sit (2026-10-03): two or three players side by side, and who starts.
+/* ============================== MATCHUPS: THE PICKER ==============================
+   The Compare two page (was Start/Sit's top card until 2026-10-06; matchups.js): two or three players side by side, and who starts.
    It opens on the reader's closest call when he has a team (the pair the roster brief names:
    the bench player who gains the most on a starter he could replace, else the smallest gap), and
    empty with the search open and focused when he has not (2026-10-05, ssOpening in data/startsit.js:
@@ -13,7 +13,6 @@ const SS_MAX = 3, SS_KEY = "tw-ss-picks", SS_FLIP = 0.5, SS_LIST_ROWS = 8;
 let SS_PICKS = null;   // slugs in pick order; null until first read
 let SS_OPEN = false;   // the add list is open
 let SS_Q = "";
-
 const ssSB = () => typeof LIVE_SSB !== "undefined" && LIVE_SSB ? LIVE_SSB : null;
 const ssRank = slug => typeof LIVE_RANKS !== "undefined" && LIVE_RANKS ? LIVE_RANKS.rows.find(r => r.slug === slug) || null : null;
 function ssPts(slug){

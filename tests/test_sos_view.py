@@ -4,9 +4,10 @@ bye cell and the empty state are test_js_sos.py, in Node.
 Component tests (Schedule mounted, tests/component.py; every locator in tests/pages/schedule.py), except the two
 journeys: the hash opening a leaf and the Stats sub-row are the nav chrome, so they need the full page.
 
-Hidden from the sub-row like Weather (NAV_HIDDEN), because Stats' five tabs end at 326 of the 332 px a phone
-holds. The control row is one line at 360 px (the weeks alone on a phone since 2026-10-06: the position is Stats'
-strip above the bottom bar); the first data starts under the heading and the file's label,
+In the Stats sub-row since 2026-10-06 (hidden like Weather until then: five tabs ended at 326 of the 332 px a
+phone holds; the row scrolls sideways as one row now). The control row is one line at 360 px (the weeks alone on a
+phone since 2026-10-06: the position is Stats' strip above the bottom bar); the first data starts under the heading
+and the file's label,
 which is three lines there, so it sits near 226 px against STYLE.md's ~200 (DESIGN.md "Schedule" says why)."""
 import re
 
@@ -34,11 +35,12 @@ def without_file(mount, built, tmp_path_factory):
 
 @pytest.mark.render
 @pytest.mark.journey
-def test_the_hash_opens_the_view_and_no_sub_button_is_pressed(browser, page_file):
+def test_the_hash_opens_the_view_and_its_sub_button_is_the_pressed_one(browser, page_file):
+    """Schedule is in the Stats sub-row again since 2026-10-06 (David, plan dbd T4); it was hidden, so no pill was pressed."""
     ctx, page, errors = open_at(browser, page_file, (360, 800), "#schedule")
     nav, sched = ScheduleNav(page), SchedulePage(page)
     assert nav.group() == "scouting"
-    assert nav.pressed_subs() == 0
+    assert nav.pressed_subs() == 1 and nav.pressed_sub_text() == "Schedule"
     assert nav.view() == "schedule"
     assert sched.row_count() == 32
     assert errors == []
@@ -47,12 +49,12 @@ def test_the_hash_opens_the_view_and_no_sub_button_is_pressed(browser, page_file
 
 @pytest.mark.render
 @pytest.mark.journey
-def test_the_stats_sub_row_keeps_its_five_tabs_inside_the_phone(browser, page_file):
+def test_the_stats_sub_row_keeps_its_six_tabs_inside_the_phone(browser, page_file):
     """Since 2026-10-05 a phone's tab row is pills that scroll sideways inside the row (chrome/phonenav.css):
-    the five are all there, and the page itself never scrolls sideways."""
+    the six are all there (Schedule back in the row, 2026-10-06), and the page itself never scrolls sideways."""
     ctx, page, errors = open_at(browser, page_file, (360, 800), "#schedule")
     nav = ScheduleNav(page)
-    assert nav.sub_row() == ["Highlights", "Ranks", "Leaders", "Work vs points", "Usage"]
+    assert nav.sub_row() == ["Highlights", "Ranks", "Leaders", "Work vs points", "Usage", "Schedule"]
     assert nav.sub_row_overflow_x() == "auto"
     assert nav.page_scroll_width() <= 360
     ctx.close()

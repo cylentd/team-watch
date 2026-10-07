@@ -1,0 +1,22 @@
+/* DIGEST CARD: Claude vs Vegas (surface/digest/cards/vegas.js). Its own styles, past the shared card and row in
+   digest/card.css: a small table, one row per bet, Vegas grey beside Claude in white (Preview's rule). The
+   confidence chip is Preview's `.pv-conf` markup (pvConfHTML) and Preview's CSS is fenced to Preview, so its three
+   looks are set here: STRONG a lime fill, SOLID lime type, LEAN and none grey. */
+.dg-vg-game{margin:0;padding:0 0 6px;font-size:var(--t-1);line-height:1.3;color:var(--ink-3)}
+.dg-vg{width:100%;margin:0 0 6px;border-collapse:collapse}
+.dg-vg thead th{
+  padding:6px 8px 6px 0;border-top:1px solid var(--line);text-align:left;
+  font:700 var(--t-1)/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);
+}
+.dg-vg tbody th,.dg-vg td{padding:8px 8px 8px 0;border-top:1px solid var(--line);vertical-align:top;text-align:left}
+.dg-vg tbody th{width:1%;padding-right:12px;font-size:var(--t-2);font-weight:700;color:var(--ink-2);white-space:nowrap}
+.dg-vg-v{width:1%;padding-right:12px;font:var(--t-2)/1.3 var(--mono);color:var(--ink-3);white-space:nowrap;font-variant-numeric:tabular-nums}
+.dg-vg-c{font-size:var(--t-2);line-height:1.3;color:var(--ink)}
+.dg-vg-c b{font-weight:700}
+.dg-vg-c small{display:block;margin-top:2px;font-size:var(--t-1);color:var(--ink-3)}
+.dg-vg .pv-conf{
+  display:inline-block;margin-left:4px;padding:2px 0;border-radius:4px;vertical-align:1px;
+  font-family:var(--ui);font-size:var(--t-1);font-weight:500;line-height:1;color:var(--ink-3);white-space:nowrap;
+}
+.dg-vg .pv-conf.strong{padding-inline:6px;background:var(--lime);color:var(--on-lime);font-weight:700}
+.dg-vg .pv-conf.solid{color:var(--lime);font-weight:700}

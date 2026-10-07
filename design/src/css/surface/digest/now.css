@@ -56,13 +56,5 @@
   .dg-mnf-g + .dg-mnf-g{border-top:0;border-left:1px solid var(--line)}
 }
 
-/* The wall: Right now is a panel beside Need to know, two tiles across; with Need to know gone it takes the band. */
-@media (min-width:1100px){
-  .dg-now-l{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-  .dg-now-r{grid-template-columns:48px minmax(0,1fr) auto;padding:12px;border-radius:12px;background:var(--panel-2)}
-  .dg-now-r > .dg-hd{width:48px;height:48px}
-  .dg-now-l > :last-child:nth-child(odd){grid-column:1 / -1}
-  .dg-ticker.no-need .dg-facts{grid-column:1 / -1}
-  .dg-ticker.no-need .dg-now-l{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
-  .dg-ticker.no-need .dg-now-l > :last-child:nth-child(odd){grid-column:auto}
-}
+/* Since 2026-10-06 Right now is one of the day's cards (Digest by day), side by side with the others on a
+   wide screen (wall.css); the wall's two-tile layout went with the wall. */

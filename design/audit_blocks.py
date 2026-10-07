@@ -10,10 +10,14 @@ from dst import live_dst, report as dst_report
 from ros import live_ros, load_ros_value, report as ros_report
 from sos import live_sos, report as sos_report
 from sources import load_accuracy, load_dst, load_sos
+from usage_movers import live_usage_movers, load_usage_movers, report as usage_movers_report
 
 
 def add_audit_blocks(blocks, report):
-    """Adds the blocks to `blocks` and their lines to the build `report`, in place."""
+    """Adds the blocks to `blocks` and their lines to the build `report`, in place. LIVE_USAGE_MOVERS (2026-10-06,
+    the Digest's Usage movers) rides here too: build.py is over its line budget."""
+    blocks["LIVE_USAGE_MOVERS"] = live_usage_movers(load_usage_movers())
+    report.append(usage_movers_report(blocks["LIVE_USAGE_MOVERS"]))
     blocks["LIVE_ACCURACY"] = live_accuracy(load_accuracy())
     blocks["LIVE_DST"] = live_dst(load_dst())
     blocks["LIVE_SOS"] = live_sos(load_sos())

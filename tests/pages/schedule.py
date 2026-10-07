@@ -2,8 +2,8 @@
 
 Every Schedule locator lives here, data-testid first (`schedule-*`, test hooks only). `SchedulePage` is
 the view mounted (tests/component.py). `ScheduleNav` is the chrome around it (the Stats sub-row, the
-group, the hash), for the journeys that need the full page: Schedule is hidden from the sub-row
-(`NAV_HIDDEN`), so only the hash and `navGo` open it.
+group, the hash), for the journeys that need the full page: Schedule is the Stats sub-row's sixth
+pill since 2026-10-06 (hidden by `NAV_HIDDEN` before), and the hash and `navGo` open it too.
 
 Reads return plain data; no method asserts.
 """
@@ -110,6 +110,9 @@ class ScheduleNav:
 
     def pressed_subs(self):
         return self.page.locator("#subnav .mode-sub[aria-pressed='true']").count()
+
+    def pressed_sub_text(self):
+        return self.page.locator("#subnav .mode-sub[aria-pressed='true']").inner_text()
 
     def view(self):
         return self.page.evaluate("document.getElementById('view').dataset.view")

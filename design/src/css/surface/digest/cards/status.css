@@ -1,0 +1,14 @@
+/* DIGEST CARD: Game status / Injury watch (surface/digest/cards/status.js). Past the shared card and row in
+   digest/card.css: the practice marks between the name and the status (the status pills, D amber like Q and
+   IR red like OUT, are row.js's, styled in card.css). A mark is DNP red, LTD amber, FULL green, empty for a
+   day with no report. */
+
+.dg-st-prac{display:flex;gap:3px}
+.dg-st-mark{
+  display:inline-block;min-width:30px;min-height:20px;padding:4px 2px;border:1px solid var(--line-2);border-radius:4px;
+  font:700 var(--t-1)/1 var(--mono);font-style:normal;text-align:center;color:var(--ink-3);
+}
+.dg-st-mark.dnp{background:var(--down-ground);border-color:var(--down-ground);color:var(--down)}
+.dg-st-mark.lp{background:var(--amber-ground);border-color:var(--amber-ground);color:var(--amber)}
+.dg-st-mark.fp{border-color:var(--up);color:var(--up)}
+.dg-st-mark.none{border-style:dashed}

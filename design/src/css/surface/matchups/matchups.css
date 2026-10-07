@@ -1,5 +1,5 @@
-/* ============================== START / SIT ==============================
-   The page's layout: the picker and board (picker.css, board.css), the record (record.css), then
+/* ============================== MATCHUPS ==============================
+   The page's layout: the board (board.css; the picker page is picker.css), the record (record.css), then
    two cards, SMASH and the bold calls, then last week. Each card is one subject with its rows inside
    it, never a card in a card (DESIGN.md "Cards"). A phone stacks them full width; from 960px the two
    calls cards sit side by side when both hold rows, each at most as wide as a label may sit from its

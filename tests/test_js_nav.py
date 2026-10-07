@@ -29,9 +29,9 @@ def test_the_group_called_teams_is_gone_and_league_holds_six_leaves(nav):
 
 def test_no_sub_row_holds_more_than_six_leaves(nav):
     """Six fit in the 332 px row of a 360 px phone (316 px for This week's), seven took 383 px (measured in the
-    browser, 2026-10-05; the figures are in data/navmap.js)."""
+    browser, 2026-10-05; the figures are in data/navmap.js). Stats holds six since Schedule came back (2026-10-06)."""
     assert nav("NAV_SUBROW_MAX") == 6
-    assert nav("NAV.map(([g, tabs]) => tabs.filter(k => !NAV_HIDDEN.includes(k)).length)") == [6, 6, 5, 3]
+    assert nav("NAV.map(([g, tabs]) => tabs.filter(k => !NAV_HIDDEN.includes(k)).length)") == [6, 6, 6, 3]
 
 
 def test_every_leaf_is_in_one_group_only(nav):
@@ -62,13 +62,20 @@ def test_the_stats_group_keeps_its_id_and_its_leaves(nav):
     assert nav("navGroupOf", "usage") == "scouting"
 
 
-def test_schedule_is_a_stats_leaf_kept_out_of_the_sub_row(nav):
-    """Stats' five tabs end at 326 of 332 px at 360 px, so Schedule opens by hash and link only (2026-10-05, U7c)."""
+def test_schedule_is_a_stats_leaf_in_the_sub_row_and_weather_is_the_only_hidden_one(nav):
+    """Schedule left NAV_HIDDEN on 2026-10-06 (David, plan dbd T4): Stats shows six tabs, the most a sub-row holds.
+    It was hidden on 2026-10-05 (U7c) while Stats' five tabs ended at 326 of 332 px. A decision change, not a loosened test."""
     assert nav("navLeafOf", "schedule") == "schedule" and nav("navGroupOf", "schedule") == "scouting"
-    assert nav("NAV_HIDDEN") == ["weather", "schedule"]
+    assert nav("NAV_HIDDEN") == ["weather"]
     assert nav("navLabel", "schedule") == "Schedule"
     tabs = nav("navLeavesFor", "scouting", ESPN, False)
-    assert nav("navFallback", "schedule", [k for k in tabs if k != "schedule"]) == "schedule"
+    assert tabs[-1] == "schedule" and nav("navFallback", "schedule", tabs) == "schedule"
+
+
+def test_the_matchups_tab_is_labelled_matchups_and_the_old_names_still_land(nav):
+    """Start/Sit became Matchups on 2026-10-06 (David); the leaf id stays, and #startsit and #takes still open it."""
+    assert nav("navLabel", "matchups") == "Matchups"
+    assert [nav("navLeafOf", n) for n in ("matchups", "startsit", "takes")] == ["matchups"] * 3
 
 
 @pytest.mark.parametrize("leaf,group", [("roster", "league"), ("waivers", "league"), ("teams", "league"), ("trades", "league"),

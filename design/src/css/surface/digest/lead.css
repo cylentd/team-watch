@@ -1,10 +1,8 @@
 /* ============================== DIGEST: THE LEAD ==============================
-   The lead panel itself is shared with Matchups (component/lead.css). This file holds the
-   Digest's grid: a phone stacks the lead over the ticker; from 960px the lead is a 440px column
-   that stays put while the ticker beside it scrolls. */
+   The lead panel itself is shared with Matchups and Recap (component/lead.css). This file holds the
+   Digest's grid: one column, the banner (banner.css) over the day's cards; from 960px the page's own
+   width and gutter. The 440px lead column beside a scrolling ticker went with the ticker (2026-10-06). */
 .dg{display:grid;grid-template-columns:minmax(0,1fr)}
-/* "Week 3 · updated Mon 5:58 AM": which week the packet is and how old, above the head. */
-.dg-lead-when{margin:0;font-size:var(--t-1);font-weight:600;line-height:1;letter-spacing:.07em;color:var(--ink-3)}
 
 /* The 200px floor is sized for the photo lead; a banner with no photo (Monday's matchup) sizes to its
    text on a phone instead of leaving an empty band under the sub line. */
@@ -13,8 +11,7 @@
 }
 
 @media (min-width:960px){
-  .dg{grid-template-columns:440px minmax(0,1fr);column-gap:28px;align-items:start;max-width:var(--page-w);
-    margin:0 auto;padding:20px var(--page-pad) 40px}
+  .dg{max-width:var(--page-w);margin:0 auto;padding:20px var(--page-pad) 40px}
 }
 
 /* A lead about one player opens his profile (lead.js): a clear button over the whole band, above the

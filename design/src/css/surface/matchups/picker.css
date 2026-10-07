@@ -1,10 +1,10 @@
-/* ============================== START / SIT: THE PICKER ==============================
+/* ============================== MATCHUPS: THE PICKER ==============================
    One card for one subject, the choice between two or three players (DESIGN.md "Cards"): a header
    with the add button, a lane per player (a filled box each, never a card in the card), the verdict
    in a filled box, then one row per thing compared, its label on its own line above its lanes
-   (STYLE.md "Alignment"). The add list is a filled box that opens in the card. A phone stacks this
-   card over the board (board.css); from 960px they sit side by side and share their edges. The
-   cards' own box is here because the board wears it too. */
+   (STYLE.md "Alignment"). The add list is a filled box that opens in the card. The card is the page
+   Compare two opens (until 2026-10-06 it sat beside the board from 960px). The cards' own box is
+   here because the board wears it too. */
 .ssv{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin:12px 14px 0}
 .ssv-card{min-width:0;padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
 .ssv-h{display:flex;align-items:center;gap:10px;margin-bottom:10px}
@@ -95,7 +95,15 @@
 .ssv-go:hover{text-decoration:underline;text-underline-offset:3px}
 .ssv-go:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
 
+/* Compare two (2026-10-06): a quiet button in the board's head, and the picker as a page of its own under a back link. */
+.ssv-cmp{padding:0 12px;font-size:var(--t-2);white-space:nowrap}
+.ssv-back{align-self:flex-start;justify-self:start;min-height:44px;margin:4px 14px 0;padding:0 8px 0 0;border:0;background:none;
+  color:var(--ink-2);font-family:var(--ui);font-size:var(--t-2);font-weight:600;cursor:pointer}
+.ssv-back:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+@media (hover:hover){ .ssv-back:hover{color:var(--ink)} }
+
 @media (min-width:960px){
-  /* Side by side, one top and one bottom edge: the grid stretches the shorter card. */
-  .ssv{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;margin:0 0 12px}
+  /* One card, a list's width: the board alone, or the picker page. Never a half-width card stretched across the page. */
+  .ssv.one{grid-template-columns:minmax(0,1fr);max-width:var(--list-w);margin:0 0 12px}
+  .ssv-back{margin:0 0 4px}
 }

@@ -1,6 +1,6 @@
-"""This week > Digest, after the week's first kickoff and the Recap row (surface/digest/now.js, mnf.js,
-tonight.js, recaprow.js): the same page object plus what Live's poll and the clock plant, and what Right now,
-Tonight's card, the last game and the Recap row print. See pages/digest.py.
+"""This week > Digest, after the week's first kickoff (surface/digest/now.js, mnf.js, tonight.js): the same
+page object plus what Live's poll and the clock plant, and what Right now, Tonight's card and the last game
+print. See pages/digest.py. The Recap row became a strip chip on 2026-10-06 (pages/digest_day.py).
 """
 from pages.digest import DigestPage
 from test_render import LIVE_PLANT
@@ -44,12 +44,14 @@ PLANT_WEEK = """(cfg) => {
 }""".replace("PLANT", LIVE_PLANT())
 
 # Three games on the last day make it the main slate, not the standalone last game: no card, and the
-# packet's own lead stands between windows.
+# packet's own lead stands between windows. The season schedule holds no game that Monday, so the day has
+# no banner of its own (Monday's is tonight's game, surface/digest/day.js) and the packet's lead shows.
 EXTRA_LATE = """() => {
   for (const [h, a] of [['XA', 'XB'], ['XC', 'XD']]) GD_GAMES.push({home: h, away: a, kickoff: GD_GAMES[GD_GAMES.length - 1].kickoff, week: 2});
   const h = LIVE_DIGEST.hurt[0];
   h.game = {away: 'XA', home: 'XB', ko: '2026-10-06T00:30:00Z', kick: 'Mon 5:15 PM'};
   LIVE_DIGEST.lead = {rule: 'hurt', index: 0};
+  LIVE_SCHEDULE.games = [];
   DG_CUT = null; render();
 }"""
 BANNER_AT = """([at, state]) => {
@@ -68,7 +70,7 @@ def live_cfg(**over):
 
 
 class DigestLivePage(DigestPage):
-    """DigestPage, with the planted poll, Right now, Tonight, the last game and the Recap row."""
+    """DigestPage, with the planted poll, Right now, Tonight and the last game."""
 
     # ---- planting: Live's poll and the clock ----
 
@@ -94,13 +96,6 @@ class DigestLivePage(DigestPage):
         self.page.evaluate("""() => { GD_GAMES.push({home: 'CHI', away: 'PHI', kickoff: '2026-09-29T00:15:00Z', week: GD.leagues[0].week});
           Date.now = () => Date.parse("2026-09-29T00:30:00Z"); DG_CUT = null; render(); }""")
 
-    def plant_recap(self, at, edit=""):
-        """The page at a clock, after `edit` (a JS statement) on the fixture's recap. Every call starts
-        from the fixture's recap, so one case's edit never leaks into the next."""
-        self.page.evaluate("""([at, js]) => { window.__r = window.__r ?? JSON.stringify(LIVE_RECAP); window.__s = window.__s ?? LIVE_SCHEDULE.games;
-          Object.assign(LIVE_RECAP, JSON.parse(window.__r)); LIVE_SCHEDULE.games = window.__s;
-          Date.now = () => Date.parse(at); DG_CUT = null; eval(js); render(); }""", [at, edit])
-
     # ---- what a reader does ----
 
     def tap_now_more(self):
@@ -108,9 +103,6 @@ class DigestLivePage(DigestPage):
 
     def tap_now_row(self, n=0):
         self._now.get_by_test_id("digest-now-row").nth(n).click()
-
-    def tap_recap_link(self):
-        self._row("recap").get_by_test_id("digest-row-head").click()
 
     def tap_now_td(self):
         self._now.get_by_test_id("digest-now-td").click()
@@ -184,39 +176,3 @@ class DigestLivePage(DigestPage):
     def paint_poll_off_the_digest(self, pts):
         """A poll lands while another view is on screen: the Digest keeps what it drew."""
         self.page.evaluate("""(p) => { SURFACE = 'ranks'; GD_STATS.lead['9226'].pts = p; paintDigestLive(); SURFACE = 'digest'; }""", pts)
-
-    # ---- the Recap row ----
-
-    def recap_facts(self):
-        """What the Recap row prints (the label, the week, the top scorer's part and Claude's), or None
-        when the ticker draws no such row."""
-        row = self._row("recap")
-        if not row.count():
-            return None
-        who, claude = row.get_by_test_id("digest-recap-who"), row.get_by_test_id("digest-recap-claude")
-        return {"href": row.get_by_test_id("digest-row-head").get_attribute("href"),
-                "arrows": row.get_by_test_id("digest-row-head").get_by_test_id("digest-arrow").count(),
-                "label": row.get_by_test_id("digest-row-label").inner_text(),
-                "week": row.get_by_test_id("digest-row-count").inner_text(),
-                "bodies": row.get_by_test_id("digest-row-body").count(),
-                "open": row.get_attribute("data-open"),
-                "who": who.inner_text() if who.count() else None, "claude": claude.inner_text() if claude.count() else None,
-                "whos": who.count(), "claudes": claude.count(), "bold": who.locator("b").count(),
-                "line": row.get_by_test_id("digest-row-line").inner_text(), "text": row.inner_text()}
-
-    def recap_row_geometry(self):
-        """The row's height, whether the page scrolls sideways, and whether Claude's part sits inside its line."""
-        return self.page.evaluate("""() => { const r = document.querySelector('[data-testid="digest-row"][data-dgrow="recap"]'),
-          h = r.querySelector('[data-testid="digest-row-head"]').getBoundingClientRect();
-          const c = r.querySelector('[data-testid="digest-recap-claude"]').getBoundingClientRect(),
-                s = r.querySelector('[data-testid="digest-row-line"]').getBoundingClientRect();
-          return {h: Math.round(h.height), overflow: document.documentElement.scrollWidth > innerWidth, claudeInside: c.right <= s.right + 1}; }""")
-
-    def recap_row_wall_band(self):
-        """On the wall: the row's grid area, whether it is as wide as the ticker, whether it opens, its line, its cursor."""
-        return self.page.evaluate("""() => { const tk = document.querySelector('[data-testid="digest-ticker"]'),
-          r = tk.querySelector('[data-testid="digest-row"][data-dgrow="recap"]');
-          const cs = getComputedStyle(r), b = r.getBoundingClientRect(), t = tk.getBoundingClientRect();
-          return {area: cs.gridRowStart, full: Math.abs(b.width - t.width) < 2, open: r.hasAttribute('data-open'),
-                  line: getComputedStyle(r.querySelector('[data-testid="digest-row-line"]')).display,
-                  cur: getComputedStyle(r.querySelector('[data-testid="digest-row-head"]')).cursor}; }""")

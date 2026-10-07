@@ -1,0 +1,7 @@
+/* DIGEST CARD: SMASH (surface/digest/cards/smash.js). Its own styles, past the shared card and row in
+   digest/card.css: the foot's "+N more" link, a 44px target on a line of its own over the record. */
+.dg-sm-more{
+  appearance:none;border:0;background:none;font:inherit;font-size:var(--t-1);font-weight:600;cursor:pointer;
+  display:flex;align-items:center;gap:4px;min-height:44px;padding:0;color:var(--lime);
+}
+.dg-sm-more:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}

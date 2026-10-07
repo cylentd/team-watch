@@ -1,0 +1,4 @@
+/* DIGEST CARD: Weather (surface/digest/cards/weather.js). Its own styles, past the shared card and row in
+   digest/card.css: the conditions line wraps instead of cutting at the effect ("15 to 22 mph wind · 70% chance
+   of rain" is the one fact the row exists to say, and 360px gives it half a line). */
+[data-dgcard="weather"] .dg-r-m{white-space:normal}

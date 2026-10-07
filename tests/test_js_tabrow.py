@@ -48,7 +48,7 @@ def test_one_tab_is_not_a_choice(row):
 
 
 def test_a_view_opened_off_the_row_presses_nothing(row):
-    """Weather and Schedule are out of the row (NAV_HIDDEN): open, no pill is pressed and nothing expands."""
+    """Weather is out of the row (NAV_HIDDEN; Schedule was too until 2026-10-06): open, no pill is pressed and nothing expands."""
     plan = row("tabRowPlan", WEEK, "weather", {"ids": ["a", "b"], "cur": "a"}, True)
     assert not any(p["on"] for p in plan["pills"]) and all(p["segs"] is None for p in plan["pills"])
 

@@ -1,0 +1,47 @@
+{
+ "season": 2026,
+ "week": 4,
+ "asof": "2026-10-06 05:50",
+ "from_week": 3,
+ "to_week": 4,
+ "label": "Descriptive, not backtested: a week-over-week change in usage, an untested signal (METHODOLOGY 12.105).",
+ "llm": "ok",
+ "rows": [
+  {
+   "slug": "bijan-robinson",
+   "name": "Bijan Robinson",
+   "pos": "RB",
+   "team": "ATL",
+   "metric": "snap",
+   "was": 55.0,
+   "now": 78.0,
+   "change": 23.0,
+   "spark": [55.0, 55.0, 78.0],
+   "targets": 3,
+   "carries": 15,
+   "teammate": null,
+   "nums": {"from_week": 3, "to_week": 4, "was": 55.0, "now": 78.0, "change": 23.0},
+   "fact": "Bijan Robinson played 78.0% of Atlanta's snaps in week 4, up from 55.0% in week 3.",
+   "line": "Bijan Robinson played 78.0% of Atlanta's snaps in week 4, up from 55.0% in week 3.",
+   "source": "template"
+  },
+  {
+   "slug": "harold-fannin-jr",
+   "name": "Harold Fannin Jr.",
+   "pos": "TE",
+   "team": "CLE",
+   "metric": "tgt_pct",
+   "was": 11.0,
+   "now": 28.0,
+   "change": 17.0,
+   "spark": [11.0, 12.0, 28.0],
+   "targets": 9,
+   "carries": null,
+   "teammate": {"name": "David Njoku", "was": 24.0, "now": 12.0},
+   "nums": {"from_week": 3, "to_week": 4, "was": 11.0, "now": 28.0, "change": 17.0},
+   "fact": "Harold Fannin Jr. drew 28.0% of Cleveland's targets in week 4, up from 11.0% in week 3.",
+   "line": "Harold Fannin Jr. drew 28.0% of Cleveland's targets in week 4, up from 11.0%, as David Njoku fell from 24.0% to 12.0%.",
+   "source": "claude"
+  }
+ ]
+}

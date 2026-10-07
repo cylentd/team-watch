@@ -95,9 +95,10 @@ surface/matchups/rows.css
 #      .setrow and .chip, and both cards sit in .mu, the grid matchups.css lays out.
 surface/matchups/picker.css
 surface/matchups/board.css
-# pin: digest/bodies.css after ticker.css -- its `.dg-ico` size yields to lead.css's `.dg-glyph .dg-ico`
-#      on specificity, and its bar rules sit inside rows that ticker.css lays out.
+# pin: digest/bodies.css after ticker.css -- its `.dg-ico` size yields to banner.css's `.dg-bn-glyph .dg-ico`
+#      on specificity.
 surface/digest/lead.css
+surface/digest/banner.css
 surface/digest/ticker.css
 surface/digest/bodies.css
 surface/digest/tonight.css
@@ -105,11 +106,21 @@ surface/digest/results.css
 surface/digest/headlines.css
 surface/digest/need.css
 surface/digest/now.css
-surface/digest/recaprow.css
-surface/digest/tabs.css
-surface/digest/ahead.css
-# pin: digest/wall.css after lead.css, ticker.css, bodies.css and tonight.css -- it rearranges all four from
-#      1100px up, and component/lead.css's 960px sticky column is what it undoes.
+# pin: digest/card.css after ticker.css -- a row's `.dg-r-face` (34px) is also a `.dg-hd` (32px), one class each,
+#      so the later file sets the size.
+surface/digest/card.css
+surface/digest/cards/adds.css
+surface/digest/cards/gains.css
+surface/digest/cards/usage.css
+surface/digest/cards/defenses.css
+surface/digest/cards/status.css
+surface/digest/cards/vegas.css
+surface/digest/cards/game.css
+surface/digest/cards/smash.css
+surface/digest/cards/bold.css
+surface/digest/cards/calls.css
+surface/digest/cards/weather.css
+# pin: digest/wall.css after card.css and tonight.css -- from 960px it lays their cards and blocks side by side.
 surface/digest/wall.css
 surface/league/league.css
 surface/league/back.css

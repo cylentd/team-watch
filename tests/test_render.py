@@ -83,8 +83,8 @@ GROUP = {"digest": "week", "roster": "league", "waivers": "league",   # Teams an
          "schedule": "scouting",
          "parlay": "bets", "build": "bets", "dfs": "bets"}
 # Weather left the This week sub-row on 2026-10-05 (nav.js NAV_HIDDEN): it is reached by hash or navGo, not a tap.
-# Schedule (Stats, 2026-10-05) is hidden the same way, because Stats' five tabs already fill a phone's sub-row.
-HIDDEN = {"weather", "schedule"}
+# Schedule (Stats) was hidden the same way on 2026-10-05 and came back to the sub-row on 2026-10-06 (six tabs).
+HIDDEN = {"weather"}
 
 
 def go(leaf):
@@ -237,11 +237,8 @@ STATES = [
     # Monday 06:00 Pacific, the same Friday packet: every game has kicked off, so its preview rows
     # are in the wait card, Puka's lead gives way to the results, and Monday opens Results.
     ("digest-monday", [("eval", 'Date.now = () => Date.parse("2026-09-28T13:00:00Z")')] + go("digest")),
-    # Top 5 sits below Results on a phone: opening it scrolls, and whether the header had slid away
-    # by the snapshot was timing (the rebuild job's run 2026-09-28 caught it both ways). Back to the
-    # top, instantly, the header is always shown.
-    ("digest-top5", go("digest") + [("click", "[data-dgrow='t5'] .dg-head"),
-                                    ("eval", "window.scrollTo({top: 0, behavior: 'instant'})")]),
+    # Saturday is lineup day (Digest by day, 2026-10-06): SMASH, bold calls, top calls, weather.
+    ("digest-saturday", [("eval", 'Date.now = () => Date.parse("2026-09-26T19:00:00Z")')] + go("digest")),
     ("digest-empty", [("eval", "Object.assign(LIVE_DIGEST, {lead: null, hurt: [], calls: 0, record: null, best: [],"
                                " wx: [], near: null, adds: [], top5: [], up: [], down: [], gems: [], news: []})")]
                      + go("digest")),
@@ -807,12 +804,12 @@ def test_no_fenced_rule_misses_its_element(snapshot, area):
     ("highlights", "scouting", "HIGHLIGHTS"),
     ("pool", "scouting", "WORK VS POINTS"),     # the old Movers view's hash, kept for bookmarks
     ("usage", "scouting", "USAGE"),             # Grid until 2026-10-05
-    ("matchups", "week", "START/SIT"),  # Matchups -> Takes 2026-09-29 -> Start/Sit 2026-10-03; the leaf stayed
-    ("takes", "week", "START/SIT"),
-    ("startsit", "week", "START/SIT"),
+    ("matchups", "week", "MATCHUPS"),   # Matchups -> Takes 2026-09-29 -> Start/Sit 2026-10-03 -> Matchups 2026-10-06; the leaf stayed
+    ("takes", "week", "MATCHUPS"),
+    ("startsit", "week", "MATCHUPS"),
     ("news", "week", "NEWS"),           # Players until 2026-09-29; the leaf and hash stayed
     ("weather", "week", None),          # out of the sub-row since 2026-10-05 (nav.js NAV_HIDDEN): the hash still lands, no button is pressed
-    ("schedule", "scouting", None),     # Stats > Schedule, hidden the same way (2026-10-05)
+    ("schedule", "scouting", "SCHEDULE"),   # Stats > Schedule: hidden 2026-10-05, back in the sub-row 2026-10-06
     ("weekrecap", "week", "RECAP"),
     ("preview", "week", "PREVIEW"),
     ("waivers", "league", "WAIVERS"),   # Teams and League merged into one League group on 2026-10-05

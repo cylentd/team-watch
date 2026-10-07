@@ -1,0 +1,10 @@
+/* DIGEST CARD: Usage movers (surface/digest/cards/usage.js). Its own styles, past the shared card and row in
+   digest/card.css: the sparkline (grey line, the last week dotted lime) and Claude's line, which wraps to two
+   lines because it is a sentence, not a tag. */
+
+.dg-us-spark{display:block}
+.dg-us-line{fill:none;stroke:var(--ink-3);stroke-width:1.5}
+.dg-us-dot{fill:var(--lime)}
+.dg-card[data-dgcard="usage"] .dg-r-m{
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;overflow:hidden;
+}

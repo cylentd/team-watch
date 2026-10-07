@@ -53,8 +53,9 @@ def _board():
             for pos, (t, o) in BOARD.items()}
 
 
-def picks_js(*pts, pos="QB"):
-    """Pick len(pts) LIVE_RANKS players at `pos` with exactly these projections, cloning when short."""
+def picks_js(*pts, pos="QB", compare=True):
+    """Pick len(pts) LIVE_RANKS players at `pos` with exactly these projections, cloning when short. The picker
+    is behind "Compare two" since 2026-10-06, so it opens that page unless `compare=False` (a board test)."""
     return f"""
       const rows = LIVE_RANKS.rows.filter(r => r.pos === '{pos}');
       while (rows.length < {len(pts)}) {{
@@ -65,7 +66,7 @@ def picks_js(*pts, pos="QB"):
         rows[i].pts = p;
         LIVE_PROJECTIONS.players[rows[i].slug] = Object.assign(LIVE_PROJECTIONS.players[rows[i].slug] || {{}}, {{pts: p}});
       }});
-      SS_PICKS = rows.slice(0, {len(pts)}).map(r => r.slug); SS_OPEN = false; SS_Q = ''; SS_BTAB = '';"""
+      SS_PICKS = rows.slice(0, {len(pts)}).map(r => r.slug); SS_OPEN = false; SS_Q = ''; SS_BTAB = ''; SS_CMP = {str(compare).lower()};"""
 
 
 def ssb_js():
@@ -156,7 +157,7 @@ def test_the_verdict_judges_the_margin_as_shown_to_one_decimal(ss):
     assert v["tag"] == "START" and v["gain"] == "+0.6"
 
 
-PICK_RBS = "SS_PICKS = %s; SS_OPEN = false; SS_Q = '';"
+PICK_RBS = "SS_PICKS = %s; SS_OPEN = false; SS_Q = ''; SS_CMP = true;"
 NOTE = "Running backs are ordered by the sportsbooks' prices, which rank them better than our points do."
 
 
@@ -221,7 +222,7 @@ def test_one_player_or_none_is_a_prompt_not_a_verdict(ss):
     pg = ss(picks_js(11.0))
     assert pg.locator(".ssv-verdict").count() == 0
     assert pg.inner_text(".ssv-prompt") == "Add one more to see who starts."
-    pg = ss("SS_PICKS = [];")
+    pg = ss("SS_PICKS = []; SS_CMP = true;")
     assert pg.inner_text(".ssv-prompt") == "Pick two players to see who starts."
     assert pg.locator(".ssv-who, .ssv-row").count() == 0
     assert pg.locator("[data-ssadd]").count() == 1
@@ -275,7 +276,7 @@ def test_the_defense_row_says_softest_or_toughest_with_the_opponent(ss):
 
 @pytest.mark.render
 def test_the_board_tabs_switch_position_in_place(ss):
-    pg = ss(picks_js(12.0, 9.0) + ssb_js())
+    pg = ss(picks_js(12.0, 9.0, compare=False) + ssb_js())
     assert pg.evaluate("[...document.querySelectorAll('[data-ssbpos]')].map(b => b.textContent)") == ["QB", "RB", "WR", "TE"]
     assert pg.locator(".ssv-board h3").text_content().startswith("QB matchups")          # opens on the first pick's position
     assert pg.locator("[data-ssbpos='QB']").get_attribute("aria-pressed") == "true"
@@ -300,7 +301,7 @@ SPOT_JS = """; LIVE_STARTSIT.best = [{n: 'Stefon Diggs', slug: 'stefon-diggs', p
 @pytest.mark.render
 def test_the_board_names_the_best_spot_with_its_teammate_out(ss):
     # The Digest's Matchups card, back on Start / Sit (2026-10-03, David: "Diggs is a good start because Terry is out")
-    pg = ss(picks_js(12.0, 9.0) + ssb_js() + SPOT_JS)
+    pg = ss(picks_js(12.0, 9.0, compare=False) + ssb_js() + SPOT_JS)
     spot = pg.locator(".ssv-board .ssv-spot")
     assert spot.locator(".mu-nm b").text_content() == "S. Diggs"
     meta = spot.locator(".mu-nm span").text_content()
@@ -313,7 +314,7 @@ def test_the_board_names_the_best_spot_with_its_teammate_out(ss):
 
 @pytest.mark.render
 def test_a_board_row_has_a_bar_against_the_league_average(ss):
-    pg = ss(picks_js(12.0, 9.0) + ssb_js())
+    pg = ss(picks_js(12.0, 9.0, compare=False) + ssb_js())
     got = pg.evaluate("""() => { const b = document.querySelector('.ssv-bar'), r = b.getBoundingClientRect();
       const tick = getComputedStyle(b, '::after');
       return {fill: b.querySelector('i').getBoundingClientRect().width / r.width, avg: parseFloat(tick.left) / r.width}; }""")
@@ -323,19 +324,23 @@ def test_a_board_row_has_a_bar_against_the_league_average(ss):
 
 @pytest.mark.render
 def test_a_missing_block_draws_no_board_and_no_error(ss):
-    pg = ss(picks_js(12.0, 9.0) + CLEAR_SSB)
-    assert pg.locator(".ssv-board").count() == 0 and pg.locator(".ssv-pick").count() == 1
-    pg = ss(picks_js(12.0, 9.0) + ssb_js() + "; LIVE_SSB.board.TE = null; LIVE_SSB.board.QB = {avg: 'x'};")
+    """No board: the view still offers Compare two, and the picker opens from it."""
+    pg = ss(picks_js(12.0, 9.0, compare=False) + CLEAR_SSB)
+    assert pg.locator(".ssv-board").count() == 0 and pg.locator("[data-sscmp]").count() == 1
+    pg.click("[data-sscmp]")
+    assert pg.locator(".ssv-pick").count() == 1
+    pg = ss(picks_js(12.0, 9.0, compare=False) + ssb_js() + "; LIVE_SSB.board.TE = null; LIVE_SSB.board.QB = {avg: 'x'};")
     assert pg.evaluate("[...document.querySelectorAll('[data-ssbpos]')].map(b => b.textContent)") == ["RB", "WR"]
     assert pg.locator(".ssv-board h3").text_content().startswith("RB matchups")          # the first pick's tab is gone
 
 
 @pytest.mark.render
 def test_startsit_hash_opens_the_view_under_its_new_name(ss):
+    """Start/Sit was renamed Matchups on 2026-10-06 (David); #startsit and #takes still land on it."""
     pg = ss(hash_="#startsit")
-    assert pg.locator(".ssv-pick").count() == 1 and pg.locator(".mu-rec").count() == 1
+    assert pg.locator("[data-sscmp]").count() == 1 and pg.locator(".ssv-pick").count() == 0 and pg.locator(".mu-rec").count() == 1
     assert pg.evaluate("SURFACE") == "matchups"
-    assert pg.inner_text(".mode-sub[aria-pressed='true']") == "Start/Sit"
+    assert pg.inner_text(".mode-sub[aria-pressed='true']") == "Matchups"
     for old in ("#takes", "#matchups"):                                  # the old names still land
         assert ss(hash_=old).evaluate("SURFACE") == "matchups"
 
@@ -346,7 +351,7 @@ ROSTER_JS = """
         P('Brock Purdy', 'QB', 'SF', 'brock-purdy', {slot: 'BN'}), P('Test Back', 'RB', 'CIN', 'test-back', {slot: 'BN'})];
       LIVE_RANKS.rows.push({slug: 'test-back', n: 'Test Back', pos: 'RB', team: 'CIN', opp: 'NYJ', home: false, pts: %s, rank: 2});
       LIVE_PROJECTIONS.players['test-back'] = {pts: %s};
-      SS_PICKS = null; try { localStorage.removeItem('tw-ss-picks'); } catch (e) {}"""
+      SS_PICKS = null; SS_CMP = true; try { localStorage.removeItem('tw-ss-picks'); } catch (e) {}"""
 
 
 @pytest.mark.render
@@ -366,7 +371,7 @@ def test_it_opens_on_the_closest_call_the_roster_brief_names(ss):
     assert pg.evaluate("[...document.querySelectorAll('[data-ssx]')].map(b => b.dataset.ssx)") == ["brock-purdy", "joe-burrow"]
 
 
-NO_TEAM_JS = "TEAMS[VIEW].roster = []; SS_PICKS = null; SS_OPEN = false; try { localStorage.removeItem('tw-ss-picks'); } catch (e) {}"
+NO_TEAM_JS = "TEAMS[VIEW].roster = []; SS_PICKS = null; SS_OPEN = false; SS_CMP = true; try { localStorage.removeItem('tw-ss-picks'); } catch (e) {}"
 
 
 @pytest.mark.render
@@ -420,11 +425,53 @@ def test_a_players_lane_links_to_his_row_in_the_usage_grid(ss):
 
 
 @pytest.mark.render
-def test_the_picker_and_board_lead_and_the_calls_stay_under_them(ss):
-    pg = ss()
+def test_the_board_leads_and_the_calls_stay_under_it_with_no_picker_until_asked(ss):
+    pg = ss(picks_js(12.0, 9.0, compare=False) + ssb_js())
     assert pg.evaluate("""() => { const q = s => document.querySelector(s);
       return [!!(q('.ssv').compareDocumentPosition(q('.mu-rec')) & 4), !!(q('.ssv').compareDocumentPosition(q('.mu-calls')) & 4)]; }""") == [True, True]
     assert pg.locator(".mu-calls [data-mukey^='t:']").count() == 9
+    assert pg.locator(".ssv-board [data-sscmp]").inner_text() == "Compare two"       # the link sits in the board's own head
+    assert pg.locator(".ssv-pick").count() == 0 and pg.locator("[data-ssadd]").count() == 0
+
+
+@pytest.mark.render
+def test_compare_two_opens_the_picker_as_a_page_with_a_back_link(ss):
+    """David, 2026-10-06: Matchups leads with the board; the picker is reached from "Compare two" and opens as a
+    full page inside the view (no bottom sheet), with a back link that returns to the board where it was."""
+    pg = ss(picks_js(12.0, 9.0, compare=False) + ssb_js())
+    pg.click("[data-sscmp]")
+    assert pg.locator(".ssv-pick").count() == 1 and pg.locator(".ssv-who").count() == 2
+    assert pg.locator(".ssv-board, .mu-calls, .mu-rec, .mu-last, [data-sscmp]").count() == 0     # a page, not a card among the rest
+    assert pg.inner_text("[data-ssback]") == "‹ Matchups"
+    assert pg.evaluate("SURFACE") == "matchups"
+    pg.click("[data-ssback]")
+    assert pg.locator(".ssv-pick").count() == 0 and pg.locator(".ssv-board").count() == 1
+    assert pg.locator(".mu-calls").count() == 1
+
+
+@pytest.mark.render
+def test_the_browsers_back_closes_the_compare_page_and_stays_on_the_view(ss):
+    pg = ss(picks_js(12.0, 9.0, compare=False) + ssb_js())
+    pg.click("[data-sscmp]")
+    assert pg.locator(".ssv-pick").count() == 1
+    pg.go_back()
+    pg.wait_for_function("document.querySelector('.ssv-pick') === null")
+    assert pg.evaluate("SURFACE") == "matchups" and pg.locator(".ssv-board").count() == 1
+    pg.click("[data-sscmp]")                                          # and it opens again, one history entry each time
+    pg.click("[data-ssback]")
+    pg.wait_for_function("!(history.state && history.state.layer)")      # the back link took its own history entry back
+    assert pg.locator(".ssv-pick").count() == 0
+
+
+@pytest.mark.render
+def test_compare_two_keeps_the_picks_made_on_the_page_when_it_is_closed_and_reopened(ss):
+    pg = ss(picks_js(12.0, 9.0, compare=False) + ssb_js())
+    pg.click("[data-sscmp]")
+    first = pg.evaluate("SS_PICKS[0]")
+    pg.click(f"[data-ssx='{first}']")
+    pg.click("[data-ssback]")
+    pg.click("[data-sscmp]")
+    assert pg.locator(".ssv-who").count() == 1
 
 
 @pytest.mark.render
@@ -462,17 +509,20 @@ def test_nothing_scrolls_sideways_at_360_with_three_players_and_every_row(ss):
       LIVE_SSB.out[SS_PICKS[1]] = [{n: 'Jalen Coker', pos: 'WR', s: 'Out'}, {n: 'Tetairoa McMillan', pos: 'WR', s: 'Doubtful'}];""")
     assert pg.locator(".ssv-who").count() == 3
     assert pg.evaluate("document.documentElement.scrollWidth") <= 360
-    pg.click("[data-ssbpos='TE']")
-    assert pg.evaluate("document.documentElement.scrollWidth") <= 360
     pg.evaluate("SS_PICKS.pop(); SS_OPEN = true; render()")
     assert pg.evaluate("document.documentElement.scrollWidth") <= 360
+    pg.evaluate("SS_CMP = false; SS_BTAB = 'TE'; render()")             # the board, with its Compare two link, fits too
+    assert pg.locator(".ssv-board").count() == 1 and pg.evaluate("document.documentElement.scrollWidth") <= 360
 
 
 @pytest.mark.render
-def test_desktop_puts_the_picker_and_board_side_by_side_on_shared_edges(ss):
-    pg = ss(picks_js(12.0, 9.0) + ssb_js(), w=1400, h=900)
-    box = pg.evaluate("""() => ['.ssv-pick', '.ssv-board'].map(s => { const r = document.querySelector(s).getBoundingClientRect();
-        return [Math.round(r.top), Math.round(r.bottom), Math.round(r.left)]; })""")
-    assert box[0][0] == box[1][0] and box[0][1] == box[1][1] and box[0][2] < box[1][2]
+def test_desktop_gives_the_board_its_two_lists_and_the_picker_page_one_column(ss):
+    """The picker left the board's side (2026-10-06): the board alone is as wide as a list, Best and Worst side by side;
+    the Compare two page is one column too, never a half-width card stretched to the other's edge."""
+    pg = ss(picks_js(12.0, 9.0, compare=False) + ssb_js(), w=1400, h=900)
     lists = pg.evaluate("[...document.querySelectorAll('.ssv-bl')].map(l => Math.round(l.getBoundingClientRect().left))")
-    assert len(set(lists)) == 2                                   # Best and Worst side by side in a half-width card
+    assert len(set(lists)) == 2                                   # Best and Worst side by side
+    assert pg.evaluate("document.querySelector('.ssv-board').getBoundingClientRect().width") <= 1128
+    pg.click("[data-sscmp]")
+    assert pg.evaluate("document.querySelector('.ssv-pick').getBoundingClientRect().width") <= 1128
+    assert pg.evaluate("document.documentElement.scrollWidth") <= 1400

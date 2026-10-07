@@ -16,6 +16,9 @@ import yt_clips         # design/yt_clips.py: LIVE_CLIPS's nested shape check
 import player_names     # design/player_names.py: LIVE_NAMES's nested shape check
 import slips            # design/slips.py: the optional tier, side and vacated fields
 import trade_offers     # design/trade_offers.py: TRADE_OFFERS's nested shape check
+import digest           # design/digest.py: LIVE_DIGEST's gains and practice shape check
+import sos              # design/sos.py: LIVE_SOS's K shape check
+import usage_movers     # design/usage_movers.py: LIVE_USAGE_MOVERS's nested shape check
 from contract_checks import WIRE_EVENT, WIRE_KIND, WIRE_KIND_OPTIONAL, WIRE_OPTIONAL, WIRE_SUBS  # noqa: F401  re-exported for wire_watch.py
 
 # A league's `status` is fa | waiver | rostered | mine | unknown -- no value is enforced here: "unknown"
@@ -349,7 +352,13 @@ CONTRACT = {
     # it; the producers' docstrings hold the nested shapes.
     "LIVE_ACCURACY": {"keys": ["season", "generated", "weeks", "season_to_date"], "rows": [("weeks", ["week", "model", "by_pos"])]},
     "LIVE_DST": {"keys": ["season", "weeks", "source", "leagues", "rules", "teams"], "rows": [("teams", ["team", "rostered", "weeks"])]},
-    "LIVE_SOS": {"keys": ["label", "season", "from_week", "playoff_weeks", "windows", "teams"]},
+    # K (2026-10-06): `k` and `source` are null without it; a team's `K` window has the other positions' fields (sos.problems).
+    "LIVE_SOS": {"keys": ["label", "season", "from_week", "playoff_weeks", "windows", "teams", "k", "source"], "checks": [sos.problems]},
+    # design/usage_movers.py, the Digest's Usage movers (2026-10-06): None without ff-jarvis's file. A row's `line` is Claude's
+    # sentence or the template fact; `teammate` may be null, `targets` and `carries` are optional. Spark and teammate: usage_movers.problems.
+    "LIVE_USAGE_MOVERS": {"keys": ["season", "week", "asof", "from_week", "to_week", "label", "rows"],
+                          "rows": [("rows", ["slug", "name", "pos", "team", "metric", "was", "now", "change", "spark", "teammate", "line"])],
+                          "checks": [usage_movers.problems]},
     # design/d_starters.py (2026-10-06): ff-jarvis's `d_starters` block re-keyed by defense in the page's team spelling,
     # with the alias table; None without it. `n_missing`, the two unit counts and `share` are null for a defense with no
     # earlier game. A displayed fact: it moves no number. Each player's keys and unit are checked by `d_starters.problems`.
@@ -402,8 +411,11 @@ CONTRACT = {
     "LIVE_DIGEST": {
         "keys": ["season", "week", "asof", "asof_words", "lead", "story", "rules", "hurt", "calls", "record", "best", "wx",
                  "near", "adds_source", "adds_hours", "adds_weeks", "adds", "top5", "up", "down", "gems", "news",
-                 "tonight", "tonight_last", "starters"],
-        "rows": [("hurt", ["n", "slug", "pos", "team", "status", "was", "injury", "new", "rank", "rostered", "game"]),
+                 "tonight", "tonight_last", "starters", "gains"],
+        "rows": [("hurt", ["n", "slug", "pos", "team", "status", "was", "injury", "new", "rank", "rostered", "game", "practice"]),
+                 # Since 2026-10-06: a `gains` row is {out, next}, `next` null when nobody is behind him; a hurt row's
+                 # `practice` is [] without a report. Nested keys: row_objs below, the entries' by digest.problems.
+                 ("gains", ["out", "next"]),
                  ("best", ["n", "slug", "pos", "team", "opp", "home", "pts", "why", "ko"]),
                  ("wx", ["away", "home", "kick", "ko", "temp_f", "wind_mph", "precip_pct", "short", "lead", "bar"]),
                  ("adds", ["n", "slug", "pos", "team", "count", "was", "now", "delta"]),
@@ -420,10 +432,13 @@ CONTRACT = {
                  ("tonight", ["away", "home", "kick", "ko", "wx", "out", "next_up", "tcalls", "projected"])],
         "row_objs": [("hurt", "game", ["away", "home", "kick", "ko"]),
                      ("starters", "over", ["n", "slug", "status"]),
+                     ("gains", "out", ["key", "slug", "name", "pos", "team", "status", "injury"]),
+                     ("gains", "next", ["key", "slug", "name", "pos", "team", "depth", "snap_last", "tgt_pct_last", "carries_last", "targets_last"]),
                      ("tonight", "wx", ["roof", "temp_f", "wind_mph", "precip_pct", "short"])],
         # Claude's pick of the story between games (2026-10-04): null, else head, fact, kind and asof are
         # all there; `club` and `player` ({n, slug, pos, team}) may be null.
         "objs": [("story", ["head", "fact", "kind", "asof", "club", "player"])],
+        "checks": [digest.problems],
     },
     # design/league_recap.py: each league's recap and history, My teams > League. `h2h` is
     # {team id: {opponent id: record}}, all-time or this season only by `scope`; each week's

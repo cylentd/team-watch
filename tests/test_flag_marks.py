@@ -31,6 +31,7 @@ MARKS = {
     "teams.brief.wxMarkWind": "U16", "lboard.offer.mark": "U17", "lboard.chip.mark": "U18",
     "profile.signal.risingMark": "U19", "profile.sheet.eliteMark": "U20", "profile.line.mark": "U21",
     "trades.lead.dueMark": "U23",
+    "digest.card.usage.mark": "Digest usage movers, 12.105", "digest.card.defenses.foot": "Digest defenses card, 12.97",
 }
 
 # Keys the removals left behind: gone from the copy, so a reader can never see them.

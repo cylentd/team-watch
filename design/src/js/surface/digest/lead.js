@@ -1,9 +1,11 @@
 /* ============================== DIGEST: THE LEAD ==============================
-   One fact leads the week: a headline, one fact line, a photo. ff-jarvis picks it by rule (the
-   packet's `lead`: a hurt starter first, then a game in bad weather, then the top headline); this
-   file only writes it. No stats row and no "leads because" line (David, 2026-09-26): the fact is the
-   lead, and the rows under it carry the numbers. The week's results left the banner on 2026-10-05
-   (Recap has them); a packet whose `lead` is still "results" falls to the top headline (data/digest.js). */
+   The banner: the day's label, a headline, one fact line, a 96px face or the game's two team codes, in
+   one 128px band on a phone (2026-10-06, Digest by day; it was a 236px panel). Its subject, in order: a
+   game in play (now.js: who left hurt, else the top scorer), Claude's story or the top scorer between
+   windows (now.js), the day's answer (day.js), then the packet's lead (a hurt starter, a game in bad
+   weather, the top headline). No stats row and no "leads because" line (David, 2026-09-26). The week's
+   results left the banner on 2026-10-05 (Recap has them); a packet whose `lead` is still "results" falls
+   to the top headline (data/digest.js). */
 
 const DG_STATUS = {
   Out: ["out", () => t("digest.status.out")], IR: ["out", () => t("digest.status.ir")],
@@ -28,7 +30,7 @@ function dgLeadHurt(r){
     : r.rostered != null ? t("digest.lead.rostered", {pct: dgPct(r.rostered)}) : "";
   const game = r.game ? t("digest.lead.game", {game: dgGame(r.game) + (dgKick(r.game) ? ", " + esc(dgKick(r.game)) : "")}) : "";
   return {tone: cls, slug: r.slug, name: r.n, photo: dgPhotoHTML(r.slug), ghost: r.rank != null ? esc(r.pos) + r.rank : "",
-          head: t("digest.lead.hurt", {name: esc(r.n), status: `<em class="dg-em ${cls}">${word()}</em>`}),
+          head: t("digest.lead.hurt", {name: esc(dgShort(r.n)), status: `<em class="dg-em ${cls}">${word()}</em>`}),
           fact: [who, r.injury ? esc(r.injury) + "." : "", game].filter(Boolean).join(" ")};
 }
 
@@ -36,7 +38,7 @@ function dgLeadHurt(r){
 function dgLeadWx(g){
   const what = dgWxKind(g) === "wind" ? t("digest.lead.wx.wind", {mph: g.wind_mph}) : t("digest.lead.wx.rain", {pct: g.precip_pct});
   const sky = [g.temp_f != null ? t("digest.lead.wx.temp", {f: g.temp_f}) : "", g.short ? esc(g.short) : ""].filter(Boolean).join(", ");
-  return {tone: "sky", photo: `<span class="dg-photo dg-glyph">${dgWxKind(g) === "wind" ? DG_WIND : DG_RAIN}</span>`,
+  return {tone: "sky", glyph: dgWxKind(g) === "wind" ? DG_WIND : DG_RAIN,
           ghost: dgWxKind(g) === "wind" ? t("digest.wx.mph", {n: g.wind_mph}) : t("digest.wx.pct", {n: g.precip_pct}),
           head: t("digest.lead.wx.head", {game: dgGame(g), what: `<em class="dg-em sky">${what}</em>`}),
           fact: [dgKick(g) ? esc(dgKick(g)) + "." : "", sky ? sky + "." : ""].filter(Boolean).join(" ")};
@@ -160,14 +162,14 @@ function dgLeadStory(d){
           ...(p ? {slug: p.slug, name: p.n, live: {n: p.n, pos: p.pos || "", team: p.team || "", slug: p.slug}} : {})};
 }
 
-function dgLead(){
+function dgLead(plan){
   const d = dgD();
   if (!d) return {tone: "quiet", photo: "", head: t("digest.empty.head"), fact: t("digest.empty.sub")};
-  // Once games are on, the banner is the day's top score (now.js), or the last game's matchup (mnf.js);
-  // else the packet's own lead. Whichever it is, it never names the Recap banner's subject: the first
-  // candidate that does not is the banner (data/leadsplit.js).
+  // Once games are on, the banner is the day's top score (now.js); else the day's answer (day.js), else the
+  // packet's own lead. Whichever it is, it never names the Recap banner's subject: the first candidate
+  // that does not is the banner (data/leadsplit.js).
   const quiet = {tone: "quiet", photo: "", head: t("digest.lead.quiet.head"), fact: t("digest.lead.quiet.sub")};
-  return lspPick([dgLeadLive(d), ...dgLeadPacket(d), quiet], lspRecapSubject(dgRecapBlock())) || quiet;
+  return lspPick([dgLeadLive(d), dgLeadDay(d, plan), ...dgLeadPacket(d), quiet], lspRecapSubject(dgRecapBlock())) || quiet;
 }
 
 /* The packet's lead, then the other headlines behind it, written as banners: the candidates after a lead
@@ -184,22 +186,30 @@ function dgLeadPacket(d){
 const dgGhostChars = s => (s.match(/&[^;\s]+;|\s|./gu) || [])
   .map((c, i) => c.trim() ? `<i style="--i:${i}">${c}</i>` : c).join("");
 
+/* The band's right edge: Weather's mark, the game's two codes ("TB at DAL"), or his 96px face
+   (heads/<slug>.webp); nothing when he has no head file, never a broken image. */
+function dgBnSide(L){
+  if (L.glyph) return `<span class="dg-bn-glyph" aria-hidden="true">${L.glyph}</span>`;
+  if (L.vs) return `<span class="dg-bn-vs" data-testid="digest-lead-vs"><b>${esc(L.vs[0])}</b><small>${t("digest.day.at")}</small><b>${esc(L.vs[1])}</b></span>`;
+  const src = L.slug && typeof HEADS !== "undefined" ? HEADS[L.slug] : "";
+  return src ? `<img class="dg-bn-face" data-testid="digest-lead-face" src="${src}" alt="" decoding="async" onerror="this.remove()">` : "";
+}
+
 function dgLeadHTML(){
-  const L = dgLead(), d = dgD();
-  /* The ghost is the reason he leads (his rank, the wind), set huge and faint behind the photo on
-     a wide screen; aria-hidden, since the fact line already says it. The stamp above the head says
-     which week and how old the packet is, so a stale page reads as stale (2026-09-28). */
-  const stamp = d && d.asof_words ? `<p class="dg-lead-when" data-testid="digest-lead-when">${t("digest.lead.when", {week: d.week, when: esc(d.asof_words)})}</p>` : "";
+  const plan = dgDayPlan(Date.now()), L = dgLead(plan);
   /* A lead about one player opens his profile from anywhere on the band (2026-09-29, David: "should
      we be able to click on players to open their profile?"). A button laid over the band, not the
      band made a button, so the headline stays a heading. */
   const who = L.live ? dgLvAttrs(L.live) : `data-dgslug="${esc(L.slug)}"`;   // a live scorer opens through now.js's one listener
   const go = L.slug ? `<button type="button" class="dg-lead-go" data-testid="digest-lead-go" ${who}
     aria-label="${esc(t("digest.lead.open", {n: L.name || ""}))}"></button>` : "";
-  return `<article class="dg-lead ${L.tone}${L.photo ? " has-photo" : ""}${go ? " opens" : ""}" data-testid="digest-lead"${L.team ? " " + teamColourStyle(L.team) : ""}>
-    ${go}${L.ghost ? `<span class="dg-ghost" data-testid="digest-ghost" aria-hidden="true">${dgGhostChars(L.ghost)}</span>` : ""}
-    <div class="dg-lead-txt">${stamp}<h2 class="dg-lead-h${L.long ? " long" : ""}" data-testid="digest-lead-head">${L.head}</h2>
-      <div class="dg-lead-fact" data-testid="digest-lead-fact">${L.fact}</div></div>
-    ${L.photo}
+  const side = dgBnSide(L);
+  // An untested call (Saturday's SMASH, Thursday's pick) says so on hover, as every flag does (tests/test_flag_marks.py).
+  const mark = s => s ? ` title="${esc(s)}"` : "";
+  return `<article class="dg-bn ${L.tone}${side ? " has-side" : ""}${go ? " opens" : ""}" data-testid="digest-lead" data-dgday="${plan.key}"${L.team ? " " + teamColourStyle(L.team) : ""}>
+    ${go}<div class="dg-bn-txt"><p class="dg-bn-day" data-testid="digest-day">${dgDayLabel(plan.key)}</p>
+      <h2 class="dg-bn-h" data-testid="digest-lead-head"${mark(L.headMark)}>${L.head}</h2>
+      <div class="dg-bn-fact" data-testid="digest-lead-fact"${mark(L.factMark)}>${L.fact}</div></div>
+    ${side}
   </article>`;
 }

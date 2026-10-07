@@ -245,6 +245,32 @@
      "avg_def_rank": 17.67,
      "rank": 15
     }
+   },
+   "K": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 11.48,
+     "current": 13.5,
+     "prior": 10.47,
+     "avg_def_rank": 19.5,
+     "rank": 8
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.81,
+     "current": 12.19,
+     "prior": 10.17,
+     "avg_def_rank": 17.42,
+     "rank": 14
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 10.86,
+     "current": 12.9,
+     "prior": 10.03,
+     "avg_def_rank": 17.67,
+     "rank": 15
+    }
    }
   },
   "ATL": {
@@ -425,6 +451,32 @@
     }
    },
    "TE": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 10.19,
+     "current": 8.72,
+     "prior": 10.93,
+     "avg_def_rank": 12.5,
+     "rank": 22
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 11.88,
+     "current": 13.19,
+     "prior": 11.28,
+     "avg_def_rank": 19.92,
+     "rank": 2
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 13.1,
+     "current": 15.7,
+     "prior": 12.0,
+     "avg_def_rank": 26.0,
+     "rank": 2
+    }
+   },
+   "K": {
     "next4": {
      "games": 4,
      "pts_pg": 10.19,
@@ -653,6 +705,32 @@
      "avg_def_rank": 25.33,
      "rank": 2
     }
+   },
+   "K": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 11.12,
+     "current": 12.7,
+     "prior": 10.47,
+     "avg_def_rank": 16.25,
+     "rank": 11
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 11.47,
+     "current": 11.66,
+     "prior": 11.42,
+     "avg_def_rank": 18.75,
+     "rank": 3
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 13.1,
+     "current": 12.03,
+     "prior": 13.63,
+     "avg_def_rank": 25.33,
+     "rank": 2
+    }
    }
   },
   "BUF": {
@@ -855,6 +933,32 @@
      "avg_def_rank": 18.0,
      "rank": 14
     }
+   },
+   "K": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 9.14,
+     "current": 9.57,
+     "prior": 8.93,
+     "avg_def_rank": 8.67,
+     "rank": 29
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.29,
+     "current": 10.07,
+     "prior": 10.4,
+     "avg_def_rank": 14.17,
+     "rank": 24
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 11.24,
+     "current": 10.87,
+     "prior": 11.43,
+     "avg_def_rank": 18.0,
+     "rank": 14
+    }
    }
   },
   "CAR": {
@@ -1033,6 +1137,32 @@
     }
    },
    "TE": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 9.59,
+     "current": 9.7,
+     "prior": 9.53,
+     "avg_def_rank": 12.0,
+     "rank": 28
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 11.01,
+     "current": 11.24,
+     "prior": 11.0,
+     "avg_def_rank": 17.33,
+     "rank": 12
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 12.9,
+     "current": 10.23,
+     "prior": 14.23,
+     "avg_def_rank": 24.0,
+     "rank": 4
+    }
+   },
+   "K": {
     "next4": {
      "games": 3,
      "pts_pg": 9.59,
@@ -1261,6 +1391,32 @@
      "avg_def_rank": 13.67,
      "rank": 18
     }
+   },
+   "K": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 9.63,
+     "current": 8.82,
+     "prior": 10.18,
+     "avg_def_rank": 11.0,
+     "rank": 27
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 11.25,
+     "current": 12.85,
+     "prior": 10.54,
+     "avg_def_rank": 17.5,
+     "rank": 9
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 10.54,
+     "current": 13.7,
+     "prior": 8.97,
+     "avg_def_rank": 13.67,
+     "rank": 18
+    }
    }
   },
   "CIN": {
@@ -1439,6 +1595,32 @@
     }
    },
    "TE": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 10.88,
+     "current": 10.5,
+     "prior": 11.07,
+     "avg_def_rank": 15.67,
+     "rank": 14
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 11.27,
+     "current": 12.66,
+     "prior": 10.67,
+     "avg_def_rank": 19.33,
+     "rank": 8
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 10.78,
+     "current": 11.13,
+     "prior": 10.6,
+     "avg_def_rank": 18.0,
+     "rank": 16
+    }
+   },
+   "K": {
     "next4": {
      "games": 3,
      "pts_pg": 10.88,
@@ -1667,6 +1849,32 @@
      "avg_def_rank": 13.33,
      "rank": 23
     }
+   },
+   "K": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 10.3,
+     "current": 8.0,
+     "prior": 11.45,
+     "avg_def_rank": 15.0,
+     "rank": 20
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.74,
+     "current": 10.93,
+     "prior": 10.74,
+     "avg_def_rank": 15.75,
+     "rank": 16
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 10.0,
+     "current": 10.33,
+     "prior": 9.83,
+     "avg_def_rank": 13.33,
+     "rank": 23
+    }
    }
   },
   "DAL": {
@@ -1847,6 +2055,32 @@
     }
    },
    "TE": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 10.81,
+     "current": 11.18,
+     "prior": 10.62,
+     "avg_def_rank": 16.5,
+     "rank": 15
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.09,
+     "current": 9.09,
+     "prior": 10.59,
+     "avg_def_rank": 14.08,
+     "rank": 30
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 9.61,
+     "current": 8.17,
+     "prior": 10.33,
+     "avg_def_rank": 12.0,
+     "rank": 24
+    }
+   },
+   "K": {
     "next4": {
      "games": 4,
      "pts_pg": 10.81,
@@ -2075,6 +2309,32 @@
      "avg_def_rank": 8.33,
      "rank": 27
     }
+   },
+   "K": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 11.28,
+     "current": 12.62,
+     "prior": 10.6,
+     "avg_def_rank": 18.75,
+     "rank": 10
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.88,
+     "current": 11.5,
+     "prior": 10.58,
+     "avg_def_rank": 17.42,
+     "rank": 13
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 8.98,
+     "current": 9.4,
+     "prior": 8.77,
+     "avg_def_rank": 8.33,
+     "rank": 27
+    }
    }
   },
   "DET": {
@@ -2253,6 +2513,32 @@
     }
    },
    "TE": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 10.44,
+     "current": 10.13,
+     "prior": 10.6,
+     "avg_def_rank": 13.67,
+     "rank": 19
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.22,
+     "current": 9.55,
+     "prior": 10.6,
+     "avg_def_rank": 12.92,
+     "rank": 28
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 8.7,
+     "current": 7.63,
+     "prior": 9.23,
+     "avg_def_rank": 6.67,
+     "rank": 30
+    }
+   },
+   "K": {
     "next4": {
      "games": 3,
      "pts_pg": 10.44,
@@ -2481,6 +2767,32 @@
      "avg_def_rank": 14.33,
      "rank": 17
     }
+   },
+   "K": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 11.62,
+     "current": 13.82,
+     "prior": 10.52,
+     "avg_def_rank": 20.25,
+     "rank": 7
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.24,
+     "current": 10.38,
+     "prior": 10.22,
+     "avg_def_rank": 13.92,
+     "rank": 27
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 10.57,
+     "current": 9.43,
+     "prior": 11.13,
+     "avg_def_rank": 14.33,
+     "rank": 17
+    }
    }
   },
   "HOU": {
@@ -2659,6 +2971,32 @@
     }
    },
    "TE": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 10.21,
+     "current": 9.17,
+     "prior": 10.73,
+     "avg_def_rank": 14.33,
+     "rank": 21
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.16,
+     "current": 9.62,
+     "prior": 10.43,
+     "avg_def_rank": 14.5,
+     "rank": 29
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 8.59,
+     "current": 7.43,
+     "prior": 9.17,
+     "avg_def_rank": 8.67,
+     "rank": 31
+    }
+   },
+   "K": {
     "next4": {
      "games": 3,
      "pts_pg": 10.21,
@@ -2887,6 +3225,32 @@
      "avg_def_rank": 22.0,
      "rank": 5
     }
+   },
+   "K": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 10.13,
+     "current": 7.65,
+     "prior": 11.38,
+     "avg_def_rank": 14.5,
+     "rank": 23
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.68,
+     "current": 9.97,
+     "prior": 11.03,
+     "avg_def_rank": 16.17,
+     "rank": 18
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 12.61,
+     "current": 11.97,
+     "prior": 12.93,
+     "avg_def_rank": 22.0,
+     "rank": 5
+    }
    }
   },
   "JAX": {
@@ -3089,6 +3453,32 @@
      "avg_def_rank": 19.33,
      "rank": 11
     }
+   },
+   "K": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 9.13,
+     "current": 8.4,
+     "prior": 9.5,
+     "avg_def_rank": 11.33,
+     "rank": 30
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.07,
+     "current": 9.29,
+     "prior": 10.46,
+     "avg_def_rank": 13.83,
+     "rank": 31
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 11.37,
+     "current": 12.23,
+     "prior": 10.93,
+     "avg_def_rank": 19.33,
+     "rank": 11
+    }
    }
   },
   "KC": {
@@ -3267,6 +3657,32 @@
     }
    },
    "TE": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 10.08,
+     "current": 9.7,
+     "prior": 10.27,
+     "avg_def_rank": 13.67,
+     "rank": 25
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.43,
+     "current": 9.42,
+     "prior": 10.97,
+     "avg_def_rank": 13.83,
+     "rank": 21
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 9.3,
+     "current": 6.37,
+     "prior": 10.77,
+     "avg_def_rank": 8.67,
+     "rank": 26
+    }
+   },
+   "K": {
     "next4": {
      "games": 3,
      "pts_pg": 10.08,
@@ -3495,6 +3911,32 @@
      "avg_def_rank": 20.67,
      "rank": 10
     }
+   },
+   "K": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 10.11,
+     "current": 11.93,
+     "prior": 9.2,
+     "avg_def_rank": 12.5,
+     "rank": 24
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 11.22,
+     "current": 12.35,
+     "prior": 10.66,
+     "avg_def_rank": 18.08,
+     "rank": 10
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 11.5,
+     "current": 11.83,
+     "prior": 11.33,
+     "avg_def_rank": 20.67,
+     "rank": 10
+    }
    }
   },
   "LAC": {
@@ -3673,6 +4115,32 @@
     }
    },
    "TE": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 10.63,
+     "current": 12.03,
+     "prior": 9.93,
+     "avg_def_rank": 17.67,
+     "rank": 17
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.78,
+     "current": 11.17,
+     "prior": 10.59,
+     "avg_def_rank": 16.75,
+     "rank": 15
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 11.97,
+     "current": 13.3,
+     "prior": 11.3,
+     "avg_def_rank": 22.0,
+     "rank": 9
+    }
+   },
+   "K": {
     "next4": {
      "games": 3,
      "pts_pg": 10.63,
@@ -3901,6 +4369,32 @@
      "avg_def_rank": 21.67,
      "rank": 8
     }
+   },
+   "K": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 8.91,
+     "current": 6.33,
+     "prior": 10.2,
+     "avg_def_rank": 8.75,
+     "rank": 31
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.29,
+     "current": 9.25,
+     "prior": 10.81,
+     "avg_def_rank": 14.5,
+     "rank": 24
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 12.1,
+     "current": 12.1,
+     "prior": 12.1,
+     "avg_def_rank": 21.67,
+     "rank": 8
+    }
    }
   },
   "MIA": {
@@ -4103,6 +4597,32 @@
      "avg_def_rank": 4.67,
      "rank": 32
     }
+   },
+   "K": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 12.08,
+     "current": 8.5,
+     "prior": 13.87,
+     "avg_def_rank": 19.33,
+     "rank": 3
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.47,
+     "current": 9.95,
+     "prior": 10.73,
+     "avg_def_rank": 14.25,
+     "rank": 20
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 8.21,
+     "current": 8.5,
+     "prior": 8.07,
+     "avg_def_rank": 4.67,
+     "rank": 32
+    }
    }
   },
   "MIN": {
@@ -4281,6 +4801,32 @@
     }
    },
    "TE": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 12.92,
+     "current": 17.1,
+     "prior": 11.03,
+     "avg_def_rank": 25.33,
+     "rank": 1
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 11.37,
+     "current": 12.87,
+     "prior": 10.72,
+     "avg_def_rank": 18.5,
+     "rank": 4
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 13.31,
+     "current": 15.6,
+     "prior": 12.17,
+     "avg_def_rank": 25.67,
+     "rank": 1
+    }
+   },
+   "K": {
     "next4": {
      "games": 3,
      "pts_pg": 12.92,
@@ -4509,6 +5055,32 @@
      "avg_def_rank": 21.0,
      "rank": 13
     }
+   },
+   "K": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 10.78,
+     "current": 10.55,
+     "prior": 10.9,
+     "avg_def_rank": 16.0,
+     "rank": 16
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.4,
+     "current": 11.33,
+     "prior": 9.93,
+     "avg_def_rank": 14.58,
+     "rank": 22
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 11.28,
+     "current": 12.7,
+     "prior": 10.57,
+     "avg_def_rank": 21.0,
+     "rank": 13
+    }
    }
   },
   "NO": {
@@ -4711,6 +5283,32 @@
      "avg_def_rank": 22.67,
      "rank": 6
     }
+   },
+   "K": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 9.81,
+     "current": 8.7,
+     "prior": 10.37,
+     "avg_def_rank": 13.0,
+     "rank": 26
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 11.36,
+     "current": 11.65,
+     "prior": 11.27,
+     "avg_def_rank": 18.67,
+     "rank": 5
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 12.58,
+     "current": 14.83,
+     "prior": 11.63,
+     "avg_def_rank": 22.67,
+     "rank": 6
+    }
    }
   },
   "NYG": {
@@ -4889,6 +5487,32 @@
     }
    },
    "TE": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 11.74,
+     "current": 13.57,
+     "prior": 11.03,
+     "avg_def_rank": 20.33,
+     "rank": 6
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 11.29,
+     "current": 12.19,
+     "prior": 10.88,
+     "avg_def_rank": 19.17,
+     "rank": 7
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 12.31,
+     "current": 16.67,
+     "prior": 10.13,
+     "avg_def_rank": 23.33,
+     "rank": 7
+    }
+   },
+   "K": {
     "next4": {
      "games": 3,
      "pts_pg": 11.74,
@@ -5117,6 +5741,32 @@
      "avg_def_rank": 14.0,
      "rank": 19
     }
+   },
+   "K": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 11.12,
+     "current": 12.0,
+     "prior": 10.68,
+     "avg_def_rank": 17.75,
+     "rank": 11
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.73,
+     "current": 11.42,
+     "prior": 10.38,
+     "avg_def_rank": 16.08,
+     "rank": 17
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 10.53,
+     "current": 8.73,
+     "prior": 11.43,
+     "avg_def_rank": 14.0,
+     "rank": 19
+    }
    }
   },
   "PHI": {
@@ -5297,6 +5947,32 @@
     }
    },
    "TE": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 11.82,
+     "current": 12.55,
+     "prior": 11.45,
+     "avg_def_rank": 22.75,
+     "rank": 5
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 11.31,
+     "current": 11.03,
+     "prior": 11.46,
+     "avg_def_rank": 19.83,
+     "rank": 6
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 10.04,
+     "current": 7.73,
+     "prior": 11.2,
+     "avg_def_rank": 13.0,
+     "rank": 21
+    }
+   },
+   "K": {
     "next4": {
      "games": 4,
      "pts_pg": 11.82,
@@ -5525,6 +6201,32 @@
      "avg_def_rank": 15.0,
      "rank": 20
     }
+   },
+   "K": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 11.99,
+     "current": 13.97,
+     "prior": 11.15,
+     "avg_def_rank": 23.0,
+     "rank": 4
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 11.08,
+     "current": 11.27,
+     "prior": 11.04,
+     "avg_def_rank": 18.17,
+     "rank": 11
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 10.32,
+     "current": 10.17,
+     "prior": 10.4,
+     "avg_def_rank": 15.0,
+     "rank": 20
+    }
    }
   },
   "SEA": {
@@ -5729,6 +6431,32 @@
      "avg_def_rank": 11.33,
      "rank": 28
     }
+   },
+   "K": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 10.52,
+     "current": 10.67,
+     "prior": 10.45,
+     "avg_def_rank": 16.0,
+     "rank": 18
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.37,
+     "current": 10.74,
+     "prior": 10.18,
+     "avg_def_rank": 15.5,
+     "rank": 23
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 8.97,
+     "current": 8.3,
+     "prior": 9.3,
+     "avg_def_rank": 11.33,
+     "rank": 28
+    }
    }
   },
   "SF": {
@@ -5907,6 +6635,32 @@
     }
    },
    "TE": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 11.43,
+     "current": 12.8,
+     "prior": 10.93,
+     "avg_def_rank": 18.67,
+     "rank": 9
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 9.86,
+     "current": 10.81,
+     "prior": 9.42,
+     "avg_def_rank": 13.08,
+     "rank": 32
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 8.81,
+     "current": 10.83,
+     "prior": 7.8,
+     "avg_def_rank": 10.0,
+     "rank": 29
+    }
+   },
+   "K": {
     "next4": {
      "games": 3,
      "pts_pg": 11.43,
@@ -6135,6 +6889,32 @@
      "avg_def_rank": 13.33,
      "rank": 22
     }
+   },
+   "K": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 11.07,
+     "current": 12.22,
+     "prior": 10.62,
+     "avg_def_rank": 20.0,
+     "rank": 13
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.59,
+     "current": 12.02,
+     "prior": 10.02,
+     "avg_def_rank": 15.92,
+     "rank": 19
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 10.01,
+     "current": 11.93,
+     "prior": 9.43,
+     "avg_def_rank": 13.33,
+     "rank": 22
+    }
    }
   },
   "TEN": {
@@ -6315,6 +7095,32 @@
     }
    },
    "TE": {
+    "next4": {
+     "games": 4,
+     "pts_pg": 12.16,
+     "current": 11.78,
+     "prior": 12.35,
+     "avg_def_rank": 21.25,
+     "rank": 2
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 11.96,
+     "current": 12.46,
+     "prior": 11.72,
+     "avg_def_rank": 21.58,
+     "rank": 1
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 11.31,
+     "current": 11.47,
+     "prior": 11.23,
+     "avg_def_rank": 20.33,
+     "rank": 12
+    }
+   },
+   "K": {
     "next4": {
      "games": 4,
      "pts_pg": 12.16,
@@ -6541,12 +7347,207 @@
      "avg_def_rank": 10.33,
      "rank": 25
     }
+   },
+   "K": {
+    "next4": {
+     "games": 3,
+     "pts_pg": 8.76,
+     "current": 8.0,
+     "prior": 9.13,
+     "avg_def_rank": 8.67,
+     "rank": 32
+    },
+    "ros": {
+     "games": 12,
+     "pts_pg": 10.28,
+     "current": 9.59,
+     "prior": 10.67,
+     "avg_def_rank": 13.5,
+     "rank": 26
+    },
+    "playoffs": {
+     "games": 3,
+     "pts_pg": 9.37,
+     "current": 9.47,
+     "prior": 9.5,
+     "avg_def_rank": 10.33,
+     "rank": 25
+    }
    }
   }
  },
  "source": {
   "schedule": "games.csv",
   "defense_form": "2026-10-05 05:53",
-  "playoff_weeks": "espn_league.json"
+  "playoff_weeks": "espn_league.json",
+  "k_play_by_play": []
+ },
+ "k": {
+  "scoring": "yahoo",
+  "prior_season": null,
+  "prior_used": false,
+  "note": "fixture values: K windows copied from TE for shape only; k_allowed is 6.0 + (index % 7) * 0.5 + index * 0.01"
+ },
+ "k_allowed": {
+  "ARI": {
+   "pts_pg": 6.0,
+   "games": 4,
+   "rank": 1
+  },
+  "ATL": {
+   "pts_pg": 6.51,
+   "games": 4,
+   "rank": 6
+  },
+  "BAL": {
+   "pts_pg": 7.02,
+   "games": 4,
+   "rank": 11
+  },
+  "BUF": {
+   "pts_pg": 7.53,
+   "games": 4,
+   "rank": 16
+  },
+  "CAR": {
+   "pts_pg": 8.04,
+   "games": 4,
+   "rank": 21
+  },
+  "CHI": {
+   "pts_pg": 8.55,
+   "games": 4,
+   "rank": 25
+  },
+  "CIN": {
+   "pts_pg": 9.06,
+   "games": 4,
+   "rank": 29
+  },
+  "CLE": {
+   "pts_pg": 6.07,
+   "games": 4,
+   "rank": 2
+  },
+  "DAL": {
+   "pts_pg": 6.58,
+   "games": 4,
+   "rank": 7
+  },
+  "DEN": {
+   "pts_pg": 7.09,
+   "games": 4,
+   "rank": 12
+  },
+  "DET": {
+   "pts_pg": 7.6,
+   "games": 4,
+   "rank": 17
+  },
+  "GB": {
+   "pts_pg": 8.11,
+   "games": 4,
+   "rank": 22
+  },
+  "HOU": {
+   "pts_pg": 8.62,
+   "games": 4,
+   "rank": 26
+  },
+  "IND": {
+   "pts_pg": 9.13,
+   "games": 4,
+   "rank": 30
+  },
+  "JAX": {
+   "pts_pg": 6.14,
+   "games": 4,
+   "rank": 3
+  },
+  "KC": {
+   "pts_pg": 6.65,
+   "games": 4,
+   "rank": 8
+  },
+  "LA": {
+   "pts_pg": 7.16,
+   "games": 4,
+   "rank": 13
+  },
+  "LAC": {
+   "pts_pg": 7.67,
+   "games": 4,
+   "rank": 18
+  },
+  "LV": {
+   "pts_pg": 8.18,
+   "games": 4,
+   "rank": 23
+  },
+  "MIA": {
+   "pts_pg": 8.69,
+   "games": 4,
+   "rank": 27
+  },
+  "MIN": {
+   "pts_pg": 9.2,
+   "games": 4,
+   "rank": 31
+  },
+  "NE": {
+   "pts_pg": 6.21,
+   "games": 4,
+   "rank": 4
+  },
+  "NO": {
+   "pts_pg": 6.72,
+   "games": 4,
+   "rank": 9
+  },
+  "NYG": {
+   "pts_pg": 7.23,
+   "games": 4,
+   "rank": 14
+  },
+  "NYJ": {
+   "pts_pg": 7.74,
+   "games": 4,
+   "rank": 19
+  },
+  "PHI": {
+   "pts_pg": 8.25,
+   "games": 4,
+   "rank": 24
+  },
+  "PIT": {
+   "pts_pg": 8.76,
+   "games": 4,
+   "rank": 28
+  },
+  "SEA": {
+   "pts_pg": 9.27,
+   "games": 4,
+   "rank": 32
+  },
+  "SF": {
+   "pts_pg": 6.28,
+   "games": 4,
+   "rank": 5
+  },
+  "TB": {
+   "pts_pg": 6.79,
+   "games": 4,
+   "rank": 10
+  },
+  "TEN": {
+   "pts_pg": 7.3,
+   "games": 4,
+   "rank": 15
+  },
+  "WAS": {
+   "pts_pg": 7.81,
+   "games": 4,
+   "rank": 20
+  }
  }
 }

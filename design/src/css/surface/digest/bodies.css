@@ -1,92 +1,31 @@
-/* ============================== DIGEST: OPENED ROWS ==============================
-   The shapes a row opens to, past the player line in ticker.css: the waiver-adds bar, Top 5's four
-   short lists, Stock's two columns, a news line, a weather line. */
+/* ============================== DIGEST: SHORT LISTS, TAGS, MARKS ==============================
+   Tonight's short lists (tonight.js dgResList), Need to know's new-starter tag, and the weather mark the
+   banner draws. The opened rows' bodies (the adds bar, News by player, Weather's lines) left with the
+   ticker on 2026-10-06 (Digest by day). */
 
-/* Waiver adds: the bar grows from last week's % rostered to this week's when the row opens. The
-   motion is the data change: grey is where he was, lime is how far he moved. `.hold` keeps the
-   day's already-open row at last week's value for one frame, so it grows once on arrival too. */
-.dg-bar{position:relative;display:block;height:6px;margin-top:5px;border-radius:3px;background:var(--panel-3)}
-.dg-bar i,.dg-bar u{position:absolute;top:0;bottom:0}
-.dg-bar i{left:0;width:var(--a);border-radius:3px;background:var(--line-2)}
-.dg-bar u{
-  left:var(--a);width:calc(var(--b) - var(--a));border-radius:0 3px 3px 0;background:var(--lime);
-  transform:scaleX(0);transform-origin:left;
-  transition:transform var(--dur-pop) var(--ease) calc(var(--i, 0) * var(--enter-step) * 2.5 + var(--enter-step) * 5);
-}
-.dg-row[data-open] .dg-bar u{transform:scaleX(1)}
-.dg-row[data-open].hold .dg-bar u{transform:scaleX(0);transition:none}
-.dg-plus{color:var(--lime)}
-
-/* Starters: green up = he is now #1, sky arrows = he changed teams; the day it happened at the right. */
-.dg-sk{width:12px;height:12px;margin-right:5px;vertical-align:-1px;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.dg-sk-up{stroke:var(--up)}
-.dg-sk-mv{stroke:var(--sky)}
-.dg-day{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
-/* Nothing new: Blip asleep ahead of the line, the height of a capital. */
-
-/* Top 5: four short lists, five rows each, two across on a phone and four on a desktop. */
+/* Short lists: two across on a phone, four on a desktop. */
 .dg-t5{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 14px;padding-top:6px}
 .dg-t5 h4{margin:0 0 4px;font-size:var(--t-1);font-weight:600;line-height:1;letter-spacing:.07em;color:var(--ink-3)}
 .dg-t5 ol{margin:0;padding:0;list-style:none;display:grid;gap:3px}
 .dg-t5 li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;font-size:var(--t-2)}
 .dg-t5 li span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dg-t5 li em{font-style:normal;font-family:var(--mono);color:var(--ink-2);font-variant-numeric:tabular-nums}
-
-/* A short list's number in its colour: Tonight's moves and who is out. */
 .dg-t5 li em.up{color:var(--up)}
 .dg-t5 li em.dn{color:var(--down)}
 .dg-t5 li em.q{color:var(--amber);font-family:var(--ui);font-size:var(--t-1)}
+.dg-t5 .dg-hd.sm{display:none}
 
-/* News by player: his face, his name (red when out, amber when hurt) over his position, then his
-   lines newest first, each after its time. A phone lists the blocks; the wall makes them cards. */
-.dg-nws{display:grid}
-.dg-nw{
-  appearance:none;border:0;border-bottom:1px solid var(--line);background:none;color:inherit;font:inherit;
-  text-align:left;cursor:pointer;width:100%;padding:10px 0;
-  display:grid;grid-template-columns:32px minmax(0,1fr);gap:10px;align-items:start;
-  transition:transform var(--dur-spring) var(--spring);
-}
-div.dg-nw{cursor:default;grid-template-columns:minmax(0,1fr)}
-/* The face, 48px and cropped to the head (2026-09-29, David: "super small right now and i cant make
-   it out"): the files are chest-up, so a 32px circle held a face a third its size. Drawn at 150% as
-   the Results tiles were. Since 2026-09-30 the face and the name are the profile's taps and each
-   line is its story's link, so the block itself is a div. */
-.dg-nw.who{grid-template-columns:48px minmax(0,1fr);gap:12px}
-.dg-nw > .dg-hd{position:relative;width:48px;height:48px;padding:0;border:0;cursor:pointer}
-.dg-nw > .dg-hd img{position:absolute;left:-25%;top:-6%;width:150%;height:150%;max-width:none}
-.dg-nw:last-child{border-bottom:0}
-.dg-nw > .dg-hd:active,.dg-nw-who:active{transform:scale(var(--press))}
-.dg-nw-t{display:grid;gap:4px;min-width:0}
-.dg-nw-who{
-  appearance:none;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;padding:0;
-  display:flex;align-items:baseline;justify-content:space-between;gap:8px;transition:transform var(--dur-spring) var(--spring);
-}
-.dg-nw-who:focus-visible,.dg-nw a:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
-.dg-nw a{display:grid;grid-template-columns:62px minmax(0,1fr);gap:8px;color:inherit;text-decoration:none;border-radius:4px}
-.dg-nw a:hover span{color:var(--ink);text-decoration:underline;text-decoration-color:var(--ink-3);text-underline-offset:3px}
-.dg-out{display:inline-block;width:11px;height:11px;margin-left:5px;vertical-align:-1px;fill:none;stroke:var(--ink-3);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.dg-nw-who b{font-weight:600;font-size:var(--t-2)}
-.dg-nw-who b.out{color:var(--down)}
-.dg-nw-who b.q{color:var(--amber)}
-.dg-nw-who small{font:500 var(--t-1)/1 var(--mono);color:var(--ink-3);white-space:nowrap}
-.dg-nw ul{margin:0;padding:0;list-style:none;display:grid;gap:3px}
-.dg-nw li{font-size:var(--t-2);line-height:1.35;color:var(--ink-2)}
-.dg-nw li:first-child{color:var(--ink)}
-/* A new starter's tag (rows.js dgStartNewsHTML): green for a new #1, sky for a new team, the colours
-   its marks already had as a row of their own. */
+/* A new starter's tag (need.js): green for a new #1, sky for a new team. */
 .dg-nw-tag{justify-self:start;display:inline-flex;align-items:center;font:700 var(--t-1)/1 var(--mono);letter-spacing:.04em;
   padding:4px 7px;border-radius:999px}
 .dg-nw-tag.up{color:var(--up);background:rgb(var(--up-rgb) / .12)}
 .dg-nw-tag.mv{color:var(--sky);background:rgb(var(--sky-rgb) / .12)}
-.dg-nw time{font-family:var(--mono);font-size:var(--t-1);line-height:1.6;color:var(--ink-3);font-variant-numeric:tabular-nums}
 
-/* Weather: the mark, the game over its kickoff and sky, the number that put it on the list. */
-.dg-wx{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:10px;align-items:center;min-height:46px}
+/* Weather's mark, drawn in the banner (lead.js dgLeadWx). */
 .dg-ico{width:24px;height:24px;fill:none;stroke:var(--sky);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.dg-wx .dg-ico{justify-self:center}
-.dg-wx.near .dg-ico{stroke:var(--ink-3)}
-.dg-wx.near .dg-ln-r{color:var(--ink-3)}
 
 @media (min-width:960px){
-  .dg-t5{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .dg-t5{grid-template-columns:repeat(4,minmax(0,1fr));column-gap:28px}
+  .dg-t5 li{grid-template-columns:24px minmax(0,1fr) auto;align-items:center;gap:10px;min-height:32px}
+  .dg-t5 .dg-hd.sm{display:block;width:24px;height:24px}
 }

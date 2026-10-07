@@ -27,7 +27,7 @@ TOP = re.compile(r"^(?:async )?function (\w+)\(|^(?:const|let) (\w+)\s*=\s*(?:as
 # Calls of pure data/ functions through the browser, per test file, 2026-10-05. Only shrinks.
 BACKLOG = {
     "test_startsit.py": 1,
-    "pages/clips.py": 1, "pages/digest.py": 6, "pages/hurt.py": 1, "pages/profile.py": 4, "pages/profile_head.py": 2,
+    "pages/clips.py": 1, "pages/digest.py": 4, "pages/hurt.py": 1, "pages/profile.py": 4, "pages/profile_head.py": 2,
     "pages/recap.py": 2, "pages/roster.py": 2, "pages/roster_pack.py": 1,
 }   # 20 in all (2026-10-06: test_mates_page.py's 2 now read the build's blocks). 22 before (test_search.py's 8 moved to tests/test_js_search.py). 30 before (test_left_hurt, test_waiver_owner and test_weather moved theirs to Node or dropped
 # them; pages/hurt.py's 1 is gdHurtPoll(), async, which Node cannot run). 47 before that (test_gameday.py's 4 moved to Node; test_leagues.py's searchIndex call moved into

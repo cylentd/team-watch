@@ -1,0 +1,75 @@
+/* ============================== DIGEST: CARDS, ROWS, REST OF THE WEEK ==============================
+   2026-10-06, Digest by day (card.js, row.js, strip.js). A card is one subject (DESIGN.md "Cards"):
+   --panel, 1px --line, 16px radius, its rows divided by --line. A row is a 34px face or team tile, the
+   name over one meta line, the answer at the right: a pick word in a pill or a number over its change.
+   An opened row is shaded --panel-2 and shows its research under it. Colour map: lime SMASH (filled),
+   green START, red SIT and OUT, amber Q; a change is green up, red down, grey flat. */
+
+.dg-main{display:grid;gap:12px;min-width:0;padding:12px 12px 0}
+
+.dg-card{min-width:0;padding:6px 12px 2px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
+.dg-card-h{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:36px}
+.dg-card-t{margin:0;font:700 var(--t-1)/1.2 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.dg-card-more{
+  appearance:none;border:0;background:none;font:inherit;font-size:var(--t-1);font-weight:600;cursor:pointer;
+  display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 0 0 12px;color:var(--lime);white-space:nowrap;
+}
+.dg-card-more:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
+.dg-card-f{margin:0;padding:6px 0 8px;border-top:1px solid var(--line);font-size:var(--t-1);line-height:1.45;color:var(--ink-3)}
+
+/* A row */
+.dg-r{border-top:1px solid var(--line)}
+.dg-card-h + .dg-r{border-top:0}
+.dg-r-b{
+  appearance:none;border:0;background:none;color:inherit;font:inherit;text-align:left;width:100%;
+  display:grid;grid-template-columns:34px minmax(0,1fr) auto auto;gap:4px 8px;align-items:center;min-height:52px;padding:8px 0;
+}
+button.dg-r-b{cursor:pointer;transition:transform var(--dur-spring) var(--spring)}
+button.dg-r-b:active{transform:scale(var(--press))}
+.dg-r-b:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:8px}
+.dg-r-face{width:34px;height:34px}
+.dg-r-tile{
+  display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--panel-3);
+  font:700 var(--t-1)/1 var(--mono);color:var(--ink-2);
+}
+.dg-r-t{min-width:0;display:grid;gap:1px}
+.dg-r-t b{font-weight:700;font-size:var(--t-3);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dg-r-m{font-size:var(--t-1);line-height:1.3;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dg-r-mid{display:flex;align-items:center}
+.dg-r-a{grid-column:4;display:grid;justify-items:end;gap:3px;min-width:52px;text-align:right}
+.dg-r-num{font:700 var(--t-4)/1.1 var(--mono);font-variant-numeric:tabular-nums}
+.dg-r-u{font:600 var(--t-1)/1.1 var(--mono);color:var(--ink-3)}
+.dg-r-d{font:700 var(--t-1)/1.1 var(--mono);font-variant-numeric:tabular-nums}
+.dg-r-d.up{color:var(--up)}
+.dg-r-d.down{color:var(--down)}
+.dg-r-d.flat{color:var(--ink-3)}
+.dg-ans{
+  display:inline-block;padding:4px 7px;border:1px solid currentColor;border-radius:6px;
+  font:700 var(--t-1)/1 var(--mono);letter-spacing:.04em;white-space:nowrap;
+}
+.dg-ans.smash{background:var(--lime);border-color:var(--lime);color:var(--on-lime)}
+.dg-ans.start{color:var(--up)}
+.dg-ans.sit{color:var(--down)}
+.dg-ans.q,.dg-ans.d{background:var(--amber-ground);color:var(--amber)}
+.dg-ans.out,.dg-ans.ir{background:var(--down-ground);color:var(--down)}
+
+/* Opened: the row shaded edge to edge of its card, the research under the name. */
+.dg-r.open{margin:0 -12px;padding:0 12px;background:var(--panel-2)}
+.dg-r-res{display:grid;gap:4px;padding:0 0 8px 42px}
+.dg-r-res dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:3px 12px;font-size:var(--t-1);line-height:1.4}
+.dg-r-res dt{color:var(--ink-3)}
+.dg-r-res dd{margin:0;font-family:var(--mono);color:var(--ink);font-variant-numeric:tabular-nums}
+.dg-r-foot{margin:0;font:500 var(--t-1)/1.4 var(--mono);color:var(--amber)}
+.dg-r-res .dg-go{justify-self:start;padding:0}
+
+/* Rest of the week */
+.dg-strip{display:flex;flex-wrap:wrap;gap:6px;padding:16px 12px 24px}
+.dg-strip-h{flex-basis:100%;margin:0 0 2px;font:600 var(--t-1)/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.dg-chip{
+  appearance:none;background:none;font:inherit;font-size:var(--t-1);cursor:pointer;
+  min-height:40px;padding:0 12px;border:1px solid var(--line-2);border-radius:999px;color:var(--ink-2);
+  transition:transform var(--dur-spring) var(--spring);
+}
+.dg-chip:active{transform:scale(var(--press))}
+.dg-chip:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+@media (hover:hover){ .dg-chip:hover{color:var(--ink);border-color:var(--ink-3)} }

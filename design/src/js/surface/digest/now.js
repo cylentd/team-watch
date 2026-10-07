@@ -166,7 +166,9 @@ function dgPhaseKey(){
   // data-dglv one (the page's one listener), so a swap between them must render again.
   // Tonight's card turns into the game's block at its kickoff (tonight.js), so each one's kickoff is part of the key too.
   const on = (d.tn || []).map(g => Date.parse(g.ko) <= Date.now() ? 1 : 0).join("");
-  return [dgLiveMode(Date.now()), dgMnfSlot(Date.now()) !== null, dgLeadLive(d) !== null, dgNeedEmpty(d), d.hurt.length + d.starters.length, on].join("|");
+  // The Pacific day too: a tab open across midnight turns to the next day's cards at the next poll.
+  return [dgLiveMode(Date.now()), dgMnfSlot(Date.now()) !== null, dgLeadLive(d) !== null, dgNeedEmpty(d), d.hurt.length + d.starters.length, on,
+    dgDayPlan(Date.now()).key].join("|");
 }
 
 function dgSwap(el, key, html){
@@ -188,7 +190,7 @@ function paintDigestLive(){
     window.scrollTo(0, y);
     return;
   }
-  dgSwap(host.querySelector(":scope > .dg-lead"), "lead", dgLeadHTML());
+  dgSwap(host.querySelector(":scope > .dg-bn"), "lead", dgLeadHTML());
   dgSwap(host.querySelector("[data-dgnow]"), "now", dgNowHTML());
   // Each game's block (the last game's card, or Tonight's once it is on) repaints on its own, by its home club.
   const games = gdWeekGames();

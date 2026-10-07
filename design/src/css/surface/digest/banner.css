@@ -1,0 +1,46 @@
+/* ============================== DIGEST: THE BANNER ==============================
+   2026-10-06, Digest by day (lead.js dgLeadHTML): one 128px band on a phone, where the lead panel was
+   236px. The day's label in lime, a two-line headline, a two-line fact, and at the right the 96px face
+   on the band's floor or the game's two codes. Washed in its status colour as the old lead was: red out,
+   amber questionable, sky weather, lime a call, his club's colour for a top score. Fixed height, so a
+   longer headline never pushes the cards down: both lines clamp. */
+.dg-bn{
+  position:relative;overflow:hidden;height:128px;margin:12px 12px 0;padding:12px 108px 12px 14px;
+  display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;background:var(--panel-2);
+}
+.dg-bn:not(.has-side){padding-right:14px}
+.dg-bn.out{background:linear-gradient(180deg,rgb(var(--down-rgb) / .14),transparent 80%),var(--panel-2)}
+.dg-bn.q{background:linear-gradient(180deg,rgb(var(--amber-rgb) / .12),transparent 80%),var(--panel-2)}
+.dg-bn.sky{background:linear-gradient(180deg,rgb(var(--sky-rgb) / .12),transparent 80%),var(--panel-2)}
+.dg-bn.go{background:linear-gradient(180deg,rgb(var(--lime-rgb) / .08),transparent 80%),var(--panel-2)}
+.dg-bn.team{background:linear-gradient(125deg,color-mix(in srgb,var(--team) 55%,transparent),transparent 80%),var(--panel-2)}
+.dg-bn-txt{position:relative;z-index:1;display:flex;flex-direction:column;gap:3px;min-width:0}
+.dg-bn-day{margin:0;font:700 var(--t-1)/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--lime)}
+.dg-bn-h{
+  margin:0;font-family:var(--disp);font-size:var(--t-4);font-weight:800;line-height:1.12;letter-spacing:-.01em;
+  color:var(--ink);text-wrap:balance;overflow-wrap:anywhere;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;
+}
+.dg-bn-fact{
+  font-size:var(--t-1);line-height:1.35;color:var(--ink-2);text-wrap:pretty;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;
+}
+.dg-bn-face{position:absolute;right:0;bottom:0;width:96px;height:96px;object-fit:cover;object-position:top}
+.dg-bn-vs{
+  position:absolute;right:16px;top:50%;transform:translateY(-50%);display:grid;justify-items:center;gap:2px;
+  font:700 var(--t-4)/1.1 var(--mono);color:var(--ink);
+}
+.dg-bn-vs small{font:500 var(--t-1)/1 var(--ui);color:var(--ink-3)}
+.dg-bn-glyph{position:absolute;right:16px;top:50%;transform:translateY(-50%);width:72px;height:72px}
+.dg-bn-glyph .dg-ico{width:100%;height:100%;stroke:rgb(var(--sky-rgb) / .7);stroke-width:1.4}
+/* A band about one player opens his profile (lead.js): the face lifts a little under a pointer to say so. */
+.dg-bn.opens .dg-bn-face{transition:transform var(--dur-spring) var(--spring);transform-origin:bottom right}
+@media (hover:hover){ .dg-bn.opens:hover .dg-bn-face{transform:scale(1.03)} }
+.dg-bn.opens:active .dg-bn-face{transform:scale(var(--press))}
+
+@media (min-width:960px){
+  .dg-bn{margin:0;padding:16px 132px 16px 22px}
+  .dg-bn:not(.has-side){padding-right:22px}
+  .dg-bn-h{font-size:var(--t-5)}
+  .dg-bn-fact{font-size:var(--t-2)}
+}

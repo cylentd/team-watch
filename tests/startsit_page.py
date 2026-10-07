@@ -19,6 +19,9 @@ RESET_JS = """() => {
   'use strict';
   document.querySelectorAll('.modal.on').forEach(d => modalShut(d));
   LAYERS.length = 0; LAYER_SKIP.length = 0;
+  // A fresh load's entry has no state. A test that leaves a layer open (Compare two) leaves its entry
+  // {layer} current, and a later Back would land on it; take the state off so no test inherits it.
+  history.replaceState(null, '');
   const p = window.__pristine;
   for (const [k, v] of Object.entries(p.live)) {
     const s = structuredClone(p.snap[k]);
@@ -28,7 +31,7 @@ RESET_JS = """() => {
   delete window.__takes;
   try { localStorage.clear(); } catch (e) {}
   %s
-  SS_PICKS = null; SS_OPEN = false; SS_Q = ''; SS_BTAB = '';
+  SS_PICKS = null; SS_OPEN = false; SS_Q = ''; SS_BTAB = ''; SS_CMP = false;
   window.scrollTo(0, 0);
   navGo('matchups');
 }""" % PICKED

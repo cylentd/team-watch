@@ -13,7 +13,8 @@ const NAV = [
 /* The most leaves a sub-row holds on a 360 px phone. The row is 332 px (360 less the page's 14 px a side);
    measured in the browser at 360 px, 2026-10-05: This week's six take 316 px at the phone's 16 px gap and
    seven take 383 px; League's six take 324 px at the dense 8 px gap with Waivers' two-digit count (366 px
-   at 16); Stats' five take 312 px at 8 px (344 at 16). A seventh does not fit. */
+   at 16); Stats' five took 312 px at 8 px (344 at 16), and its sixth, Schedule, came back 2026-10-06, so
+   the row scrolls sideways inside itself as one row (STYLE.md "Controls"; chrome/phonenav.css). A seventh does not fit. */
 const NAV_SUBROW_MAX = 6;
 
 /* Groups whose words need a tighter gap than the phone's 16px (navrow.css .dense): League holds six leaves,
@@ -23,14 +24,15 @@ const NAV_DENSE = ["league", "scouting"];
 /* Weather left the sub-row on 2026-10-05 to make room for Recap. It stays in NAV, so #weather,
    navGo("weather") and navGroupOf still work; the Digest's Weather row and every Preview dossier link
    to it. While it is open no sub button is pressed.
-   Schedule (leaf `schedule`, 2026-10-05, plan U7) is hidden the same way: Stats' five tabs take 312 of the
-   332 px a phone's sub-row holds (above), so a sixth would not fit. #schedule and navGo("schedule") open it, from
-   a link in Ranks. */
-const NAV_HIDDEN = ["weather", "schedule"];
+   Schedule (leaf `schedule`, plan U7) was hidden the same way from 2026-10-05, because Stats' five tabs took 312 of
+   the 332 px a phone's sub-row holds; David put it back in the Stats row on 2026-10-06 (plan dbd T4), where a
+   link in Ranks still opens it too. */
+const NAV_HIDDEN = ["weather"];
 
 /* Old names that still land. Movers was the `pool` view until 2026-09-25. Takes kept Matchups' leaf
-   `matchups` (2026-09-29), so #takes is the new name's way in; Start/Sit (2026-10-03) is the same leaf,
-   #startsit its name. `myrecap` and `league` merged into Recap on 2026-10-05. */
+   `matchups` (2026-09-29), so #takes is the new name's way in; Start/Sit (2026-10-03) was the same leaf, #startsit
+   its name; it reads Matchups again since 2026-10-06 (the picker moved behind "Compare two"), and every name
+   still lands. `myrecap` and `league` merged into Recap on 2026-10-05. */
 const NAV_ALIAS = {pool: "movers", takes: "matchups", startsit: "matchups", myrecap: "recap", league: "recap"};
 
 /* A hash or a name -> the leaf it opens, or null when no view has it. */

@@ -1,8 +1,9 @@
-"""design/digest.py: the Digest block, from ff-jarvis's weekly_digest.json; and the Digest's rows (surface/digest/).
+"""design/digest.py: the Digest block, from ff-jarvis's weekly_digest.json; and what the Digest draws from it.
 
-Python for the block, component (`mount`, `DigestPage`) for what a phone and the wall draw from it. The
-view after the week's first kickoff is tests/test_digest_after_kickoff.py, the Recap row is
-tests/test_digest_recap_row.py, and the page's pure functions are tests/test_js_digest.py (Node).
+Python for the block, component (`mount`, `DigestPage`) for what a phone and a wide screen draw from it.
+The view after the week's first kickoff is tests/test_digest_after_kickoff.py, the day's banner, cards,
+rows and strip are tests/test_digest_day.py, and the page's pure functions (the day plan among them) are
+tests/test_js_digest.py (Node).
 """
 import json
 import pathlib
@@ -73,23 +74,20 @@ def test_the_packet_carries_no_results_but_recap_still_cuts_left_hurt_rows():
 def test_the_digest_has_no_results_row_banner_board_or_wait_card(mount):
     """2026-10-05 (David: "we probably need a recap section for the week instead of dumping it into the
     Digest. The Digest should be a curated list of content for readers to enjoy and not just a results
-    section that stays there for the whole week and quickly become stale"). On a phone and on the wall,
+    section that stays there for the whole week and quickly become stale"). On a phone and a wide screen,
     before the week, on a Monday after games and once the week is over: no Results row, no board, no
-    Smashed / Busts / Left hurt tabs, no "Waiting on week N" card. Monday opens no row of its own. The
-    banner the packet's "results" rule used to draw falls to the top headline."""
+    Smashed / Busts / Left hurt tabs, no "Waiting on week N" card, and since 2026-10-06 no ticker row at all
+    (Digest by day). The packet's "results" lead is never drawn: it falls to the top headline."""
     states = ("2026-09-18T12:00:00Z", "2026-09-22T12:00:00Z", "2026-09-28T13:00:00Z", "2026-10-02T12:00:00Z")
     for size in (PHONE, WALL):
         page, errors = mount("digest", size=size)
         dg = DigestPage(page)
         for at in states:
             dg.plant_results_lead(at)       # the old packet still says its lead is the results rule
-            rows, lead, head, news = dg.row_ids(), dg.packet_lead(), dg.headline_text(), dg.packet_first_headline()
-            assert "res" not in rows and dg.retired_parts() == 0, (size, at, rows)
+            lead = dg.packet_lead()
+            assert dg.retired_parts() == 0 and dg.retired_rows() == 0, (size, at)
             assert lead is None or lead["rule"] != "results", (size, at, lead)
-            if news and lead and lead["rule"] == "news":
-                assert head == news, (size, at, head, news)
-            if size[0] < 1100 and dg.weekday() == 1:
-                assert dg.open_row_count() == 0, (size, at)
+            assert dg.lead_pills() == 0 and dg.fits(), (size, at)
         assert errors == []
 
 
@@ -116,14 +114,13 @@ def test_the_parts_the_recap_view_draws_with_still_draw(mount):
 @pytest.mark.render
 @pytest.mark.req("Digest", ac="before kickoff nothing stands beside Need to know")
 def test_before_kickoff_the_digest_has_no_highlights_section(mount):
-    """David, 2026-10-04: bored of the Digest's Highlights. Before kickoff nothing stands beside Need to
-    know, which takes the wall's band; the Players tab keeps the Highlights (test_js_digest.py)."""
+    """David, 2026-10-04: bored of the Digest's Highlights. Before kickoff there is no Highlights section and
+    no Right now; the Players tab keeps the Highlights (test_js_digest.py)."""
     page, errors = mount("digest", size=PHONE)
     dg = DigestPage(page)
     dg.plant_not_live()
     assert dg.retired_highlights() == 0
-    assert "no-facts" in dg.ticker_classes()
-    assert "Highlights" not in dg.section_titles()
+    assert "Highlights" not in dg.section_titles() and "Right now" not in dg.section_titles()
     assert errors == []
 
 
@@ -149,124 +146,51 @@ def test_the_call_picks_its_verb_from_his_day(mount):
 
 
 @pytest.mark.render
-@pytest.mark.req("Digest", ac="a finished week drops the preview rows and draws no wait card")
-def test_a_finished_week_drops_the_preview_rows_and_draws_no_wait_card(mount):
+@pytest.mark.req("Digest", ac="a finished week's Need to know waits on next week's report")
+def test_a_finished_weeks_need_to_know_waits_on_next_weeks_report(mount):
     """Once every game of the packet's week has kicked off (the fixture's week 3 ends with KC @ SF,
-    2026-09-21), Hurt and Matchups have nothing left to preview and next week's are not written: they
-    leave the ticker (2026-09-29). The card that stood in for them, Blip's "Waiting on week N" (storyboard
-    UDoWgLMrzUHup5tX53zaue option B), left on 2026-10-05 with the Results row: the Recap row takes that
-    slot of the page. Weather and Top 5 read next week's data and stay. Hurt is Need to know since
-    2026-09-29, above the rows: with nobody hurt it says so, and once the week is over it waits on next
-    week's report."""
+    2026-09-21) its injury list is moot and next week's is not written: Need to know says so, and never
+    "Week 3's" for a week that is over (2026-10-05). With nobody hurt before then it says that. Blip's
+    "Waiting on week N" card left on 2026-10-05. Sunday's cards are Need to know's own; Tuesday's Top adds
+    and Out, who gains cards are emptied, so Need to know stands in (Digest by day)."""
     page, errors = mount("digest", size=PHONE)
     dg = DigestPage(page)
     # The fixture's page week is 2, the packet's is 3: the page week is set to the packet's, as it is live.
     dg.set_clock("2026-09-20T12:00:00Z", nobody_out=True, packet_week=True)
-    before = dg.row_ids()
-    assert "mu" in before and "hurt" not in before
     assert dg.need_none() == "Nobody new is out since Tuesday."
     dg.set_clock("2026-09-22T12:00:00Z", nobody_out=True, packet_week=True)
-    after = dg.row_ids()
-    assert not {"hurt", "mu", "wait"} & set(after) and ("wx" in after or "t5" in after)
-    # The page week is the packet's (3) and every game of it has kicked off: the row waits for the next
-    # week's report, never "Week 3's" for a week that is over (2026-10-05).
+    dg.plant_empty("adds", "gains")
     assert dg.need_none() == "Week 4's injury report is still in the trainer's room."
     assert dg.retired_wait_card() == 0
-    # Blip's voice for a Matchups row with nothing to call stays (digest.js dgMuNone): one of three lines,
-    # never the record (2026-09-29, David: "say something funny ... instead of boring stats").
-    blip = dg.blip_jokes()
-    assert blip["drawn"] in blip["jokes"]
     assert errors == []
 
 
 @pytest.mark.render
-@pytest.mark.req("Digest", ac="every row of the wall has its grid area in every state the fixture week reaches")
-def test_every_wall_row_has_its_area(mount):
-    """On a desktop the ticker is a grid of named bands, and a band set per state (wall.css). A row whose
-    area the state's template lacks makes the grid invent columns for it, and every band shrinks to a
-    sliver: the Starters row and the finished-week wait card landed on two branches, each passing, and
-    together broke the wall (2026-09-29). So every state the fixture week reaches, from before its first
-    game to after its last, and with each band that comes and goes: each row's area is in the template."""
+@pytest.mark.req("Digest", ac="a lead about one player opens his profile")
+def test_a_lead_about_one_player_opens_his_profile(mount):
+    """A lead about one player opens his profile from anywhere on the band (2026-09-29, David: "should we
+    be able to click on players to open their profile?"). Friday's banner is the packet's top hurt player."""
     page, errors = mount("digest", size=WALL)
     dg = DigestPage(page)
-    seen = {}
-    clocks = ("2026-09-10T12:00:00Z", "2026-09-14T18:00:00Z", "2026-09-17T12:00:00Z", "2026-09-18T12:00:00Z",
-              "2026-09-21T20:00:00Z", "2026-09-22T00:30:00Z", "2026-09-22T12:00:00Z", "2026-09-24T12:00:00Z")
-    # Each clock with the Recap link, then two without it (a recap under half final draws no link).
-    for at, hide in [(c, False) for c in clocks] + [("2026-09-18T12:00:00Z", True), ("2026-09-22T12:00:00Z", True)]:
-        got = dg.plant_wall_clock(at, hide)
-        seen[got["cls"]] = at
-        assert got["missing"] == [], f"{at} ({got['cls']}): rows with no area in the template: {got['missing']}"
-        assert got["cols"] == 12, f"{at} ({got['cls']}): {got['cols']} columns, the wall has 12"
-    # The fixture week must reach the finished-week layout, with and without the Recap link, or the
-    # check above never saw it (the recap fixture's week ends Monday 2026-10-05, so the link shows all of September).
-    assert any("wk-done" in c for c in seen), seen
-    assert any("wk-done" in c and "has-recap" in c for c in seen) and any("wk-done" in c and "has-recap" not in c for c in seen), seen
-    assert any("has-recap" in c and "wk-done" not in c for c in seen) and any("has-recap" not in c for c in seen), seen
-    assert errors == []
-
-
-@pytest.mark.render
-@pytest.mark.req("Digest", ac="a lead about one player and a name in Top 5 open his profile")
-def test_every_player_opens_his_profile(mount):
-    """A lead about one player and a name in Top 5 open his profile, like every other Digest row
-    (2026-09-29, David: "should we be able to click on players to open their profile?"). Top 5 took
-    this from Risers & fallers, which left the Digest the same day."""
-    page, errors = mount("digest", size=WALL)
-    dg = DigestPage(page)
-    dg.set_clock("2026-09-18T12:00:00Z")                  # inside the fixture week
-    assert dg.lead_buttons()["all"] == 1
-    slug = dg.lead_slug()
+    dg.set_clock("2026-09-18T12:00:00Z")                  # a Friday inside the fixture week
+    assert dg.lead_buttons()["all"] == 1 and dg.lead_slug()
     dg.tap_lead()
     assert dg.profile_open()
     assert dg.profile_has_title()
     dg.close_profile()
-    dg.early()                                            # Ranks' fixture week is ahead of it
-    name = dg.tap_top5_first_row()
-    assert name.split(". ")[-1].upper() in dg.profile_title().upper()
-    assert slug
-    assert errors == []
-
-
-@pytest.mark.render
-@pytest.mark.req("Digest", ac="Top 5 links to Ranks; one call reads as 1 call")
-def test_top_5_links_to_ranks_and_one_call_is_singular(mount):
-    """Top 5 is next week's projections, so it goes to Ranks, the same projections for every player
-    (2026-09-29; it went to Leaders, the season's stat leaders). A lone call reads "1 call"."""
-    page, errors = mount("digest", size=WALL)
-    dg = DigestPage(page)
-    assert dg.row_go("t5") == "ranks"
-    dg.plant_one_call()
-    # the link names the view, not a count of takes against FantasyPros (2026-10-04)
-    assert [dg.row_go_text("mu"), dg.row_line_text("mu")] == ["Start/Sit", "1 call this week"]
-    assert errors == []
-
-
-@pytest.mark.render
-@pytest.mark.req("Digest", ac="every news line opens its story in a new tab; the face and name open the profile")
-def test_every_news_line_opens_its_story(mount):
-    """2026-09-30 (David: "For the news on the digest, it should link to the news source"): each line is
-    a link to its story in a new tab, the story's own page when ff-jarvis kept one, else a search for the
-    headline; the face and name still open the profile, and no link sits inside a button."""
-    page, errors = mount("digest", size=WALL)
-    dg = DigestPage(page)
-    lines = dg.news_lines()
-    assert lines and all(a and a["target"] == "_blank" and "noopener" in a["rel"] for a in lines), lines
-    assert dg.news_nested_controls() == 0 and dg.news_names_open_profiles()
-    assert sorted(a["href"] for a in lines) == sorted(dg.news_expected_hrefs())
     assert errors == []
 
 
 @pytest.mark.render
 @pytest.mark.req("Digest", ac="Need to know leads with new starters, then who sits; a started game takes its starters out")
 def test_need_to_know_leads_with_new_starters_then_who_sits(mount):
-    """Need to know (2026-09-29, storyboard 96B1dMss6vfyhhsQLUSK4x B) lies open under the banner: Sleeper's
-    new #1s and team moves first, tagged "New QB1" or "New team" with over whom (with his status), then
-    the packet's out, IR and doubtful, then one line of the questionable. Five lines, then "N more".
-    News no longer carries the starters, and they go with the team's kickoff."""
+    """Need to know (2026-09-29, storyboard 96B1dMss6vfyhhsQLUSK4x B): Sleeper's new #1s and team moves
+    first, tagged "New QB1" or "New team" with over whom (with his status), then the packet's out, IR and
+    doubtful, then one line of the questionable. Five lines, then "N more". News no longer carries the
+    starters, and they go with the team's kickoff. A Sunday morning: Sunday's plan leads with it."""
     page, errors = mount("digest", size=PHONE)
     dg = DigestPage(page)
-    dg.plant_need_clock("2026-09-17T12:00:00Z")
+    dg.plant_need_clock("2026-09-20T12:00:00Z")
     tags, lines = dg.need_tags(), dg.need_lines()
     assert tags[:4] == ["New QB1", "New QB1", "New team", "New RB1"]
     # The tag says "New QB1", so the line starts at "over" (2026-09-29); every line leads with a face.
@@ -276,40 +200,23 @@ def test_need_to_know_leads_with_new_starters_then_who_sits(mount):
     assert tags == ["New QB1", "New QB1", "New team", "New RB1", "OUT"]
     assert dg.need_more() == "3 more"
     assert dg.need_has_questionable_line()
-    assert dg.need_questionable_taps_open_profiles() and dg.news_new_starter_blocks() == 0
+    assert dg.need_questionable_taps_open_profiles()
     dg.start_games_of_new_starters()
     assert dg.need_tag_count() == 0, "a started game takes its starters out of Need to know"
     assert errors == []
 
 
 @pytest.mark.render
-@pytest.mark.req("Digest", ac="Sleeper adds read as counts")
-def test_sleeper_adds_read_as_counts_on_the_digest(mount):
-    page, errors = mount("digest", size=PHONE)
-    dg = DigestPage(page)
-    dg.plant_sleeper_adds("2026-09-22T12:00:00Z")           # a Tuesday: adds lies open
-    assert dg.row_count_text("adds") == "4.0M"
-    assert dg.row_line("adds") == "Ollie Gordon II 4.0M adds"
-    assert "Sleeper trending" in dg.row_foot("adds")
-    assert dg.row_plus("adds") == ["4.0M", "833K"]
-    assert errors == []
-
-
-@pytest.mark.render
 @pytest.mark.req("Digest", ac="a started game drops its rows live and the lead gives way")
 def test_a_started_game_drops_its_rows_live_and_the_lead_gives_way(mount):
-    """The Friday packet read on Monday morning: nothing about a Sunday game survives in the
-    browser, the lead falls to the top headline (it fell to the week's results until 2026-10-05, when
-    those moved to Recap), and the stamp says how old the packet is."""
+    """The Friday packet read on Monday morning: nothing about a Sunday game survives in the browser, and
+    the packet's lead falls to the top headline (it fell to the week's results until 2026-10-05, when those
+    moved to Recap); the banner itself is Monday's, never a results call."""
     page, errors = mount("digest", size=PHONE)
     dg = DigestPage(page)
     dg.set_clock("2026-09-28T13:00:00Z")      # the page's clock is its own after load
-    # the hurt starter's game has started, so the banner is the top headline, never a results call
     assert dg.packet_lead() == {"rule": "news", "index": 0}
-    assert dg.headline() == dg.packet_first_headline()
     assert dg.lead_pills() == 0
-    assert dg.lead_when() == "Week 3 · updated Fri 10:40 PM"
-    assert dg.row_count("res") == 0 and dg.open_row_count() == 0
     assert "LA@DEN" not in dg.packet_hurt_games()
     # The fixture schedule holds one week-3 game, so give one top-5 row a Sunday kickoff by hand.
     n = dg.packet_top5_count()
@@ -319,125 +226,15 @@ def test_a_started_game_drops_its_rows_live_and_the_lead_gives_way(mount):
 
 
 @pytest.mark.render
-@pytest.mark.req("Digest", ac="the wall opens every panel and a head is not a toggle")
-def test_the_wall_opens_every_panel_and_a_head_is_not_a_toggle(mount):
-    """From 1100px the Digest is a wall (2026-09-26): every topic open, the day's row marked, the
-    lead's ghost naming why he leads. A tap on a panel's head must not close it."""
-    page, errors = mount("digest", size=WALL)
-    dg = DigestPage(page)
-    assert dg.panel_row_count() == dg.open_row_count() > 0      # the Recap link is a band to tap, not a panel that opens
-    assert dg.link_row_count() == 1 and dg.open_link_row_count() == 0
-    dg.tap_head("adds")
-    assert dg.row_is_open("adds")
-    assert dg.ghost() == "WR2"
-    assert dg.fits()
-    assert errors == []
-
-
-@pytest.mark.render
-@pytest.mark.req("Digest", ac="Top 5 is Ranks' own rows under position tabs, tiers in Ranks' colours")
-def test_top_5_is_ranks_own_rows_under_position_tabs(mount):
-    """2026-09-29, storyboard Ms6FbdvynVPoRTKEidPGAz 5A (David: "it's supposed to be forward looking ...
-    like a mini feed of our rankings"): Top 5 reads LIVE_RANKS, the rows Ranks draws, never the packet,
-    so the two cannot disagree. A tab per position and FLEX, five rows each, a tap swaps them."""
-    page, errors = mount("digest", size=PHONE)
-    dg = DigestPage(page)
-    dg.early()
-    dg.tap_head("t5")
-    want = dg.t5_expected()
-    assert dg.t5_tabs() == list(want)
-    for pos in want:
-        dg.pick_t5(pos)
-        assert dg.t5_slugs(pos) == want[pos], pos
-    first = dg.ranks_first_pts("QB")
-    dg.pick_t5("QB")
-    assert dg.t5_first_pts("QB") == first
-    assert dg.row_go("t5") == "ranks"
-    # Tiers in Ranks' colours (2026-09-29, David: "colors for T1, T2, T3 so it's easily scannable"):
-    # Tier 1 filled lime, a lower tier an outline, a different colour per tier.
-    tiers, lime = dg.t5_tiers(), dg.lime()
-    assert all(bg == f"rgb({lime})" for name, bg, _ in tiers if name == "T1")
-    colours = {name: c for name, _, c in tiers if name != "T1"}
-    assert len(set(colours.values())) == len(colours)
-    assert errors == []
-
-
-@pytest.mark.render
-@pytest.mark.req("Digest", ac="Start of the week heads the Matchups card; the foot is Start/Sit's record")
-def test_start_of_the_week_heads_the_matchups_card(mount):
-    """2026-10-03, David: yes to a Start of the week: our boldest START (Start/Sit v3: the widest gap
-    between our rank and his season average), first in the Matchups card, our rank over his average
-    on the right. None: no row. The foot is Start/Sit's record, SMASH, START and SIT as hit-miss."""
-    page, errors = mount("digest", size=PHONE)
-    dg = DigestPage(page)
-    want = dg.start_take()
-    dg.open_row("mu")
-    first = dg.first_ln("mu")
-    assert first["sotw"] == "Start of the week"
-    assert first["slug"] == want["slug"]
-    assert first["right"] == f"{want['pos']}{want['rank']} avg {want['pos']}{want['avg_rank']}"
-    foot = dg.row_foot_text("mu")
-    assert foot.startswith("Record since week 5: SMASH 7-3, START 2-2, SIT 4-1.")
-    # 2026-10-06: the foot says what each call has been through (12.61, 12.73, 12.75), and the label loses its lime.
-    assert "Failed test (12.61, 12.73)" in foot and "Failed test (12.75)" in foot and "Untested" in foot
-    assert dg.sotw_color() != dg.lime(), "plain until the week-9 review of START"
-    assert "Failed test (12.75)" in dg.sotw_title()
-    dg.plant_no_start_take()
-    assert dg.sotw_count() == 0
-    assert dg.row_foot_text("mu").startswith("Record starts with week 5.")
-    assert errors == []
-
-
-@pytest.mark.render
-@pytest.mark.req("Digest", ac="Weather counts the Weather view's games; a calm week draws no row on a phone and a sentence on the wall")
-def test_weather_is_the_weather_tabs_own_games(mount):
-    """2026-09-29, 6A (David: "the next tab over is the weather and it's actually already live"): the
-    row counts the games the Weather view says move scoring (wtRows().moves, still to kick off) and
-    links there. A calm week draws no row on a phone and one quiet sentence on the wall."""
-    page, errors = mount("digest", size=PHONE)
-    dg = DigestPage(page)
-    dg.early()
-    dg.plant_weather_moves(True)
-    assert dg.row_count_text("wx") == "1"
-    assert dg.row_line("wx") == "Rain in 1 game"
-    dg.tap_head("wx")
-    assert dg.weather_games() == 1 and dg.weather_readings() == ["60%"]
-    assert dg.row_go("wx") == "weather"
-    dg.plant_weather_moves(False)
-    assert dg.row_display("wx") == "none"
-    assert errors == []
-    page, errors = mount("digest", size=WALL)               # the same calm week on the wall
-    dg = DigestPage(page)
-    dg.early()
-    dg.plant_weather_moves(False)
-    assert dg.row_display("wx") != "none"
-    assert dg.row_line("wx") == "No game's weather moves scoring"
-    assert errors == []
-
-
-@pytest.mark.render
-@pytest.mark.req("Digest", ac="every topic label carries its icon, stroked in the label's colour")
-def test_every_topic_label_carries_its_icon(mount):
-    """2026-09-29, 3A: a drawn icon beside every topic's label, stroked in the label's own colour."""
-    page, errors = mount("digest", size=PHONE)
-    got = DigestPage(page).icons_match_labels()
-    assert got and all(ok for _, ok in got), got
-    assert errors == []
-
-
-@pytest.mark.render
-@pytest.mark.req("Digest", ac="a headline naming no player is a plain block and keeps the Digest up")
+@pytest.mark.req("Digest", ac="a headline naming no player keeps the Digest up")
 def test_a_headline_naming_no_player_keeps_the_digest_up(mount):
     """2026-09-29, David: "the digest is broken". A defender's IR move came through with a slug and no
-    name; News keyed a block to the slug, avatarHTML read the missing name, and the throw blanked the
-    whole Digest. A headline naming no player is a plain block of its own, whatever it carries."""
+    name, and the throw blanked the whole Digest. Leading the banner, it is a headline with no player."""
     page, errors = mount("digest", size=WALL)
     dg = DigestPage(page)
-    dg.plant_news_without_a_player()
-    block = dg.news_block_with("Jalen Davis")
+    dg.plant_news_lead_without_a_player("2026-09-15T19:00:00Z")     # a Tuesday with no adds: the packet leads
     assert errors == []
-    assert dg.row_ids()
-    assert block and block["tag"] == "DIV" and "Jalen Davis placed on IR" in block["text"]   # a plain block, not a profile button
+    assert dg.headline() == "Jalen Davis placed on IR"
 
 
 @pytest.mark.req("Digest", ac="a starter row leaves at the team's next kickoff")
@@ -562,7 +359,7 @@ def test_the_digests_data_layer_calls_no_surface_function():
     src = pathlib.Path(__file__).resolve().parents[1] / "design" / "src" / "js"
     data = (src / "data" / "digest.js").read_text(encoding="utf-8")
     declared = set()
-    for f in (src / "surface" / "digest").glob("*.js"):
+    for f in (src / "surface" / "digest").rglob("*.js"):
         declared |= set(re.findall(r"^(?:function|const|let)\s+([A-Za-z_]\w*)", f.read_text(encoding="utf-8"), re.M))
     code = re.sub(r"/\*.*?\*/|//[^\n]*", "", data, flags=re.S)
     leaked = sorted(n for n in declared if re.search(rf"(?<![\w.]){n}\b", code)

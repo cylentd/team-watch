@@ -192,6 +192,42 @@ def story(h, p, slugify):
             "player": {"n": who["name"], "slug": slugify(who["name"]), "pos": who.get("pos"), "team": who.get("club")} if who else None}
 
 
+GAIN_OUT = ("key", "slug", "name", "pos", "team", "status", "injury")
+GAIN_NEXT = ("key", "slug", "name", "pos", "team", "depth", "snap_last", "tgt_pct_last", "carries_last", "targets_last")
+
+
+def _practice(r):
+    """A hurt row's Wed, Thu and Fri report (since 2026-10-06): [{day, mark "DNP"|"LP"|"FP"|null}], the packet's own
+    list, kept as it comes so a malformed entry fails the contract by name. [] for a packet from before it: the page draws
+    no marks. `mark` null is a day with no report logged."""
+    return [{k: m[k] for k in ("day", "mark") if k in m} for m in r.get("practice") or []]
+
+
+def _gain(g):
+    """A starter who is Out, Doubtful or on IR this week and the man behind him (ff-jarvis weekly_digest_gains, since
+    2026-10-06). Facts only; the packet's slugs are already Team Watch's headshot keys. `next` is null when nobody is
+    behind him. A key the packet dropped stays missing, so the contract names it."""
+    def pick(d, keys):
+        return {k: d[k] for k in keys if k in d} if isinstance(d, dict) else d
+    row = {"out": pick(g.get("out"), GAIN_OUT)}
+    if "next" in g:
+        row["next"] = pick(g["next"], GAIN_NEXT)
+    return row
+
+
+def problems(block):
+    """What design/contract.py's row spec cannot say about the Digest: a gain's `out` is a player (its keys are the
+    row_objs spec's), and each practice entry has its day and mark."""
+    out = []
+    for i, g in enumerate((block or {}).get("gains") or []):
+        if not isinstance(g.get("out"), dict):
+            out.append(f"LIVE_DIGEST.gains[{i}].out")
+    for i, h in enumerate((block or {}).get("hurt") or []):
+        for j, m in enumerate(h.get("practice") or []):
+            out += [f"LIVE_DIGEST.hurt[{i}].practice[{j}].{k}" for k in ("day", "mark") if k not in m]
+    return out
+
+
 def live_digest(p, slugify, schedule=None, headline=None):
     """None when ff-jarvis has written no packet: the view then says so instead of guessing.
     `schedule` is LIVE_SCHEDULE, for each best-spot and top-5 row's kickoff (`ko`); `headline` is
@@ -208,7 +244,9 @@ def live_digest(p, slugify, schedule=None, headline=None):
         "story": story(headline, p, slugify),
         "rules": p.get("rules"),   # ff-jarvis's thresholds, quoted by the row feet; never re-applied here
         "hurt": [{**_player(r, slugify, "pos", "team", "status", "was", "injury", "new", "rank", "rostered"),
-                  "game": _game(r.get("game"))} for r in p.get("hurt") or []],
+                  "game": _game(r.get("game")), "practice": _practice(r)} for r in p.get("hurt") or []],
+        # Since 2026-10-06; a packet from before has none and the Digest draws no Next up block.
+        "gains": [_gain(g) for g in p.get("gains") or []],
         "calls": m.get("calls") or 0,
         "record": ({"through": rec["through"], "ours": rec["ours"], "pl": rec["pl"]} if rec else None),
         "best": [{**_player(best[pos], slugify, "pos", "team", "opp", "home", "pts", "why"), "ko": ko.get(best[pos]["team"])}

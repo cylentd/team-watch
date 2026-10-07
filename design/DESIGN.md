@@ -1053,7 +1053,34 @@ Storyboard: https://claude.ai/artifact/GZzBAiovV45XPYSCzu7Tzr (option B, David's
   above the edge). The side-by-side tried on 2026-09-26 stretched it to the list's full height.
 - **A bar is half the page at most**: each list keeps the phone's row, so bars stay comparable.
 
-## Digest (This week, 2026-09-26)
+## Digest by day (This week, 2026-10-06)
+
+Each Pacific weekday is one job. David, 2026-10-06: the Digest should hold "something that people actually care
+about", and that depends on the day. Storyboard (v3): https://claude.ai/artifact/ETZWMzVyRSgsNTD9Gkjm2M; David
+picked shape B (today's job only, the rest as links). Rule: STYLE.md "Answer first, research one tap away".
+
+| Day | Banner | Cards |
+|---|---|---|
+| Tue | the top add and the number behind it | Top adds, Out and who gains |
+| Wed | the top usage mover, Claude's line | Usage movers (spark, untested 12.105), Defenses giving up the most (QB-TE from LIVE_DEFENSE, K from `LIVE_SOS.k_allowed`; foot: Tested (12.97)) |
+| Thu | Thursday's game: Claude's headline, team codes | Claude vs Vegas (Preview's `pvAnswer`), Start in this game, Injury watch (Q only) |
+| Fri | the top hurt row | Game status with Wed/Thu/Fri practice marks, Out and who gains |
+| Sat | the top SMASH and what his opponent allows | SMASH (#1 per position, +N more), Bold calls, Top calls (Slips' `topCalls`), Weather |
+| Sun | first kickoff, team codes | Need to know, Right now, Weather |
+| Mon | tonight's game, team codes | Start tonight, Out and who gains, Recap link |
+
+- **Banner:** 128px, the day's label, its answer, a 96px headshot or the two team codes. Live headlines still lead
+  once a game is on, and the Digest never names Recap's subject (`lspPick`).
+- **Row** (`surface/digest/row.js`): a 34px headshot (a team tile for a defense or a game), name, one meta line,
+  the answer on the right (a pick pill SMASH/START/SIT/Q/D/OUT/IR with its mark, or a number with its change).
+  A tap opens the research in place, one row at a time. No position tags (David, 2026-10-06).
+- **Card** (`card.js`): `dgCard<Name>(ctx)` returns HTML or "". A card with nothing is skipped. A day with no card
+  shows Need to know.
+- **Rest of the week:** one line of chips to the views that are not today's job.
+- **Data:** `LIVE_USAGE_MOVERS` (ff-jarvis `usage_movers.json`), `LIVE_DIGEST.gains` and `hurt[].practice`,
+  `LIVE_SOS.k_allowed`. Each is null or empty without its file, and its card disappears.
+
+## Digest (This week, 2026-09-26; superseded 2026-10-06 by "Digest by day")
 
 The front page: one fact leads, every other topic is one ticker row. Storyboard (v3):
 https://claude.ai/artifact/QyeSKebCWdeCqA9YvxXsdX; direction contract
@@ -1329,7 +1356,11 @@ else: the template call and box-line pills, as before. On a phone the Recap's fo
 - **Accuracy never computes (2026-10-05).** Every number is ff-jarvis's, copied from its grade files and scorecard; the page only picks which of two printed misses is smaller. A field the file has as null is a sentence, not a zero: weeks graded before the rank fields shipped say "Rank order and top hits were not graded this week."; a null `season_to_date` says "Not available yet. The season line appears once the scorecard has run."; a null range says "no range yet"; a week the files hold but have not graded says "Week 4 is not graded yet."; a season line behind the weeks says so. With no `accuracy.json` the tab hides, like any empty tab. Order, a card per week and the two-across desktop pair follow the Recap's other tabs. Not measured against the 200px first-data budget: the tab sits under the banner and the bar, like the others.
 - Tests: `tests/test_recap_view.py`, `tests/test_accuracy_view.py` (Node: the cut and the card against the fixture's digits; browser: the tab, `#accuracy`, the hidden tab); golden states `weekrecap`, `weekrecap-busts`, `weekrecap-tds-all`, `weekrecap-scores`, `weekrecap-claude`.
 
-## Start/Sit (This week, 2026-10-03; was Takes; v3 2026-10-04)
+## Start/Sit (This week, 2026-10-03; was Takes; v3 2026-10-04; labelled Matchups since 2026-10-06)
+
+**Matchups (2026-10-06).** The tab reads Matchups; the leaf stays `matchups`, and `#startsit` and `#takes` still land.
+The board of best spots leads. The two-or-three player picker opens from the board's Compare two button as a full
+page with a back link, which Back closes (David: the picker is the compare tool with more steps).
 
 The weekly question, "A or B?", then what we would call. Storyboards: v1
 https://claude.ai/artifact/HUVUoVRF3wG6XCxQ3LxHuT (David picked option C); v3 (2026-10-04) option C
@@ -1561,6 +1592,9 @@ on a card. Superseded: the per-game "Does it matter? / Already in our projection
   three across at 1400px, the two lists side by side.
 
 ## Schedule (Stats, 2026-10-05, plan U7)
+
+Back in the Stats sub-row since 2026-10-06 (six tabs; the 360px row scrolls sideways as one row). Kickers since
+2026-10-06: ff-jarvis adds K to every team's windows, and `k_allowed` per defense for the Digest.
 
 Which teams face the softest defenses at a position: the 32 teams ranked easiest first, the points the
 opposing defenses allow that position per game, and the opponents week by week with the byes marked.

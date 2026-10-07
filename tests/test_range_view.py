@@ -41,7 +41,7 @@ def profile_strip(pg, slug="joe-burrow"):
 
 
 def picker_lane(pg, slugs):
-    pg.evaluate("(s) => { SS_PICKS = s; SS_OPEN = false; SS_Q = ''; navGo('matchups'); render(); }", slugs)
+    pg.evaluate("(s) => { SS_PICKS = s; SS_OPEN = false; SS_Q = ''; SS_CMP = true; navGo('matchups'); render(); }", slugs)
     pg.wait_for_selector(".ssv-lanes")
     return pg.evaluate("""() => { const row = [...document.querySelectorAll('.ssv-row')].find(r => r.querySelector('.ssv-lbl span').textContent === 'Projected');
       return {pts: [...row.querySelectorAll('.ssv-v b')].map(b => b.textContent.trim()),

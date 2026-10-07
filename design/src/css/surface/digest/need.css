@@ -7,9 +7,10 @@
    team). The rank at a line's right is grey:
    it says why the line matters, it is not a signal. */
 
-.dg-need,.dg-facts{display:grid;gap:4px;min-width:0;padding:14px 14px 4px;border-bottom:1px solid var(--line)}
-.dg-facts{padding-bottom:14px}
-.dg-sec{margin:0 0 4px;font-size:var(--t-1);font-weight:600;line-height:1.1;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+/* Both are cards among the day's cards since 2026-10-06 (Digest by day; card.css), with the cards' heading voice. */
+.dg-need,.dg-facts{display:grid;gap:4px;min-width:0;padding:10px 12px 4px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
+.dg-facts{padding-bottom:12px}
+.dg-sec{margin:0 0 4px;font:700 var(--t-1)/1.2 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
 
 /* One line: his face, then his name over the tag, what happened and next week's rank, all against
    the face (2026-09-29): no column stands apart, so no gap opens across a wide panel. The face is
@@ -47,31 +48,8 @@
 .dg-q-p:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
 .dg-q-p > .dg-hd{display:none}
 
-@media (min-width:960px){
-  .dg-need,.dg-facts{padding:18px 22px 6px}
-  .dg-facts{padding-bottom:18px}
-}
-
-/* The wall: both are panels, as the rows are. */
+/* A wide screen: the questionable as chips, face and name, wrapping to fill the card. */
 @media (min-width:1100px){
-  .dg-need,.dg-facts{border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:20px 22px 8px}
-  .dg-facts{padding-bottom:20px}
-  /* Need to know fills its panel (2026-09-30): the lines are tiles two across, the size of the
-     Highlights tiles beside it, and the foot sits at the panel's bottom edge whatever the band's height. */
-  .dg-need{grid-area:need;display:flex;flex-direction:column;gap:6px}
-  .dg-need > .dg-foot{margin-top:auto}
-  .dg-nd-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-  .dg-nd{
-    grid-template-columns:48px minmax(0,1fr);align-items:start;min-height:0;padding:12px;
-    border-radius:12px;background:var(--panel-2);
-  }
-  .dg-nd > .dg-hd{width:48px;height:48px}
-  .dg-nd-t{gap:6px}
-  /* The tag, then what happened on a line of its own, so every tile reads the same way. */
-  .dg-nd-t > span{flex-direction:column;align-items:start;gap:5px;white-space:normal;line-height:1.35}
-  /* An odd last tile spans the row, so the grid never ends on a hole. */
-  .dg-nd-list > :last-child:nth-child(odd){grid-column:1/-1}
-  .dg-nd-more{justify-self:stretch;min-height:0;border-radius:12px;background:var(--panel-2)}
   .dg-q{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-top:10px}
   .dg-q-p{
     display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 10px 0 3px;margin:0;
@@ -82,8 +60,4 @@
   .dg-q-p:hover{color:var(--ink);border-color:var(--ink-3)}
   .dg-q-p > .dg-hd{display:block;position:relative;width:24px;height:24px;flex:none}
   .dg-q-p > .dg-hd img{position:absolute;left:-25%;top:-6%;width:150%;height:150%;max-width:none}
-  .dg-facts{grid-area:facts;display:flex;flex-direction:column;gap:4px}
-  /* Before kickoff nothing stands beside Need to know (Highlights left the Digest 2026-10-04), so it takes the band. */
-  .dg-ticker.no-facts .dg-need{grid-column:1 / -1}
-  .dg-sec{font-size:var(--t-2);letter-spacing:.08em;color:var(--ink)}
 }

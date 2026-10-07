@@ -250,7 +250,7 @@ def test_no_calls_at_all_is_blip_not_an_error(view):
     pg = view("LIVE_SS3.takes.length = 0; LIVE_SS3.smash.length = 0")
     assert pg.locator(".mu-blip q").inner_text() == "No calls posted yet this week."
     assert pg.locator(".mu-smash, .mu-takes, .mu-empty").count() == 0
-    assert pg.locator(".mu-rec").count() == 1 and pg.locator(".ssv-pick").count() == 1     # the picker and record stand
+    assert pg.locator(".mu-rec").count() == 1 and pg.locator("[data-sscmp]").count() == 1     # Compare two and the record stand
 
 
 @pytest.mark.render
@@ -293,9 +293,9 @@ def test_desktop_sets_the_two_cards_side_by_side_ending_level(view):
 
 
 @pytest.mark.render
-def test_the_hash_still_opens_the_view_and_the_picker_and_board_keep_their_place(view):
+def test_the_hash_still_opens_the_view_and_the_board_and_record_keep_their_place(view):
     for h in ("#matchups", "#startsit", "#takes"):
         pg = view(hash_=h)
-        assert pg.evaluate("SURFACE") == "matchups" and pg.locator(".ssv-pick").count() == 1
+        assert pg.evaluate("SURFACE") == "matchups" and pg.locator("[data-sscmp]").count() == 1 and pg.locator(".ssv-pick").count() == 0
     assert pg.evaluate("""() => { const q = s => document.querySelector(s);
       return [q('.ssv').compareDocumentPosition(q('.mu-rec')) & 4, q('.mu-rec').compareDocumentPosition(q('.mu-calls')) & 4]; }""") == [4, 4]
