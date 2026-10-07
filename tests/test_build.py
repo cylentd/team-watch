@@ -75,6 +75,12 @@ def test_heads_are_files_not_inlined(built):
     assert injected(built.fragment)["HEADS"] == {s: f"heads/{s}.webp" for s in built.heads}
 
 
+def test_the_build_names_the_fixture_avatars_on_the_yahoo_league(built):
+    # design/avatars.py (2026-10-06); the fixture data holds avatars for Yahoo teams 3 and 9 only (tests/test_avatars.py)
+    teams = {t["id"]: t["avatar"] for t in injected(built.fragment)["LIVE_LEAGUE_YAHOO"]["teams"]}
+    assert teams[3] == "avatars/yahoo/3.webp" and teams[7] == ""
+
+
 def test_write_heads_mirrors_the_source(tmp_path):
     (tmp_path / "heads").mkdir()
     (tmp_path / "heads" / "gone-player.webp").write_bytes(b"old")

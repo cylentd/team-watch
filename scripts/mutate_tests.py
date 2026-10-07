@@ -5,7 +5,7 @@
 The testing skill's mutate.py calls this through `.testing.json` `mutate.select_command`, so the pick follows
 impact.json instead of a hand-kept map. Tests per file: the ones naming it (data/<x>.js, or `import <x>` for
 design/<x>.py), plus impact.py's pick for it minus the always-run core, minus the whole-repo checks (META).
-Node- and Python-layer files are preferred over browser ones (HEAVY).
+Node- and Python-layer files are preferred over browser ones (HEAVY), unless only a heavy one names the file.
 """
 import pathlib
 import re
@@ -34,7 +34,7 @@ def tests_for(path, root=ROOT):
         named = re.compile(r"(?m)^\s*(?:from|import)\s+" + re.escape(stem) + r"\b|\b" + re.escape(stem) + r"\.py\b")
     core = set(impact.select([])["files"])
     picked = {f for f in impact.select([path])["files"] if f not in core and pathlib.PurePosixPath(f).stem not in META}
-    texts = {}
+    texts, naming = {}, set()
     for f in sorted((root / "tests").glob("test_*.py")):
         if f.stem in META:
             continue
@@ -42,8 +42,13 @@ def tests_for(path, root=ROOT):
         texts[rel] = f.read_text(encoding="utf-8")
         if named.search(texts[rel]):
             picked.add(rel)
+            naming.add(rel)
     picked = sorted(f for f in picked if (root / f).is_file())
     light = [f for f in picked if not HEAVY.search(texts.get(f) or (root / f).read_text(encoding="utf-8"))]
+    # A heavy file that names the source stays when no light one does (2026-10-06: avatars.py's own tests sat
+    # beside one `built` test, and the light files left never called it, so every mutant survived).
+    if not naming & set(light):
+        light = sorted(set(light) | naming)
     return light or picked
 
 

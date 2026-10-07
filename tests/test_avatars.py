@@ -8,7 +8,6 @@ from avatars import AVATARS_DIR, avatar_ids, write_avatars
 import contract
 from league_recap import live_league_yahoo
 from conftest import FIXTURES, REPO
-from test_build import injected  # noqa: E402
 
 read = lambda n: json.loads((FIXTURES / "data" / n).read_text(encoding="utf-8"))
 slugify = lambda s: s.lower().replace(" ", "-")
@@ -39,11 +38,17 @@ def test_write_avatars_mirrors_each_leagues_folder_and_drops_what_is_gone(tmp_pa
     assert not (tmp_path / AVATARS_DIR / "gone").exists(), "a league ff-jarvis no longer has leaves the site"
 
 
+def test_a_team_that_changed_its_avatar_gets_the_new_one(tmp_path):
+    # a manager uploads a new picture on Yahoo: ff-jarvis fetches it under the same <id>.webp, and the site's copy follows
+    old = tmp_path / AVATARS_DIR / "yahoo" / "3.webp"
+    old.parent.mkdir(parents=True)
+    old.write_bytes(b"last week's picture")
+    write_avatars(tmp_path)
+    assert old.read_bytes() == (FIXTURES / "data" / "avatars" / "yahoo" / "3.webp").read_bytes()
+
+
 def test_the_site_serves_the_avatars_folder():
     # .vercelignore is an allowlist: a folder not named is never uploaded (memory: Bot Protection, 2026-09-30).
     assert f"!{AVATARS_DIR}" in (REPO / ".vercelignore").read_text(encoding="utf-8").split()
-
-
-def test_the_build_names_the_fixture_avatars_on_the_yahoo_league(built):
-    teams = {t["id"]: t["avatar"] for t in injected(built.fragment)["LIVE_LEAGUE_YAHOO"]["teams"]}
-    assert teams[3] == "avatars/yahoo/3.webp" and teams[7] == ""
+# The build's own check that the avatars reach the page lives in test_build.py, with the other injected blocks:
+# a file holding a `built` test is passed over by the mutator for a light one (scripts/mutate_tests.py).

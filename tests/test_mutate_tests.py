@@ -39,6 +39,14 @@ def test_heavy_files_are_used_when_no_light_one_covers_it(tmp_path):
     assert mutate_tests.tests_for(JS, tmp_path) == ["tests/test_view_x.py"]
 
 
+def test_a_heavy_file_that_names_it_is_kept_when_no_light_file_names_it(tmp_path, monkeypatch):
+    # 2026-10-06: design/avatars.py scored 0% at land. Its own tests sat in a file with one `built` test, so the
+    # picker kept only impact.json's light files for it, which never call avatars.py: every mutant survived.
+    monkeypatch.setattr(mutate_tests.impact, "select", lambda paths: {"files": ["tests/test_near.py"] if paths else []})
+    _suite(tmp_path, {"test_near.py": "import other\n", "test_y.py": "import y\ndef test(built):\n    pass\n"})
+    assert mutate_tests.tests_for("design/y.py", tmp_path) == ["tests/test_near.py", "tests/test_y.py"]
+
+
 def test_the_whole_repo_checks_are_never_picked(tmp_path):
     _suite(tmp_path, {name + ".py": "import y\n" for name in mutate_tests.META})
     assert mutate_tests.tests_for("design/y.py", tmp_path) == []
