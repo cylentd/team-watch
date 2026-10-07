@@ -4,6 +4,26 @@ The rules every view follows. `DESIGN.md` records what each view decided; this f
 new or changed view must pass before it lands. Colour, type and lint rules stay in `DESIGN.md`
 ("Direction", "Theme rules") and are not repeated here.
 
+## Answer first, research one tap away
+
+Decided 2026-10-06 (David: "simple and show the results / decisions ... for the casuals", with the
+research "a click away or somewhere obvious" for the fantasy nerds). Every view serves two readers
+at once, in this order.
+
+| Layer | Who | What it shows | Example |
+|---|---|---|---|
+| **The answer** | the casual, who wants the call | one word or one number per subject, in a chip or at hero size: the decision, the chance, the confidence word | SMASH · START · 60% TD · Confident |
+| **The research** | the fantasy nerd, who wants to check it | the numbers behind the call: usage, matchup ranks, lines, the record | target share 18% → 27%, opponent allows the most WR points |
+
+- The answer leads every row and card. The reader acts without opening anything.
+- The research is one tap from the answer it backs: the row opens, or a "Why" link sits on it.
+  Never on another view the reader has to find, and never above the answer.
+- A verdict word needs a model that makes the call and a kept record (Start/Sit's SMASH, the prop
+  tiers). Data with no tested model behind it (Schedule, the profile's lede) shows its number and
+  no word; the number is the answer there. The profile's market rule and Schedule's
+  no-verdict test (`DESIGN.md`) stand.
+- The answer is in plain words (Confident, not STRONG; 60%, not +EV).
+
 ## Controls: one job per view, one row above the data
 
 A reader on a phone scrolls to reach data, never to get past controls.
@@ -172,7 +192,9 @@ loads. A new curve or duration is a new token, never a literal in a component.
    file): tags, meters and pills, every code named on screen, no prose where a pill fits.
 6. Every line of words is in one face (Type, above): no name in mono, no score in a face its name
    does not use, no stamp under 13.5px or with a name inside it.
-7. `tests/test_style_rules.py` passes: nothing scrolls sideways at 360px (Leaders' faded stat
+7. Answer first (above): each row's answer reads without a tap, its research is one tap away,
+   and every verdict word has a kept record.
+8. `tests/test_style_rules.py` passes: nothing scrolls sideways at 360px (Leaders' faded stat
    tabs are the one exception) and nothing loops while the page is idle.
 
 The playable motion reference is the Bets storyboard, published 2026-09-25:
