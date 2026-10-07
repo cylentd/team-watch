@@ -81,6 +81,7 @@ def _step(row, leaf, modes, d):
     ("live", LIVE, -1, {"seg": "league"}),
     ("live", {"ids": ["league", "games", "tds"], "cur": "league"}, -1, {"leaf": "preview"}),  # off its first tab
     ("preview", None, 1, {"leaf": "live"}),                   # into a view with tabs: the view, on its own tab
+    ("digest", None, 1, {"leaf": "weekrecap"}),               # from the first pill: its end stops only the way back
 ])
 def test_a_swipe_goes_to_the_next_stop_in_the_row(row, leaf, modes, d, want):
     assert _step(row, leaf, modes, d) == want
