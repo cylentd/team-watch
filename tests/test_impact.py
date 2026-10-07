@@ -43,7 +43,7 @@ def test_the_render_areas_are_the_goldens():
     assert sorted(mapped) == sorted(set(mapped)) == test_render.AREAS
 
 
-RANKS_TESTS = ["tests/test_ranks.py", "tests/test_ranks_dst.py", "tests/test_js_dst.py", "tests/test_ros.py", "tests/test_js_ros.py", "tests/test_ros_view.py"]
+RANKS_TESTS = ["tests/test_ranks.py", "tests/test_ranks_dst.py", "tests/test_js_dst.py", "tests/test_ros.py", "tests/test_ros_fp.py", "tests/test_js_ros.py", "tests/test_ros_view.py"]
 
 
 @pytest.mark.parametrize("paths,areas,extra", [

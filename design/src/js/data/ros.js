@@ -25,17 +25,29 @@ function rosScoring(picked, focus, block){
 }
 
 /* One player on one scoring: the numbers the row, the chart and the profile read. */
-function rosRow(p, scoring){
+function rosRow(p, scoring, span, poWeeks){
   const s = scoring === "espn" ? p.espn : p;
+  if (span === "po") {   // the fantasy playoff weeks (2026-10-07): half-PPR only, no history, no FantasyPros (it ranks the whole rest of season)
+    return {slug: p.slug, n: p.n, pos: p.pos, team: p.team, rank: p.po_rank ?? null, pts: p.po_pts ?? null, pg: p.ros_pg,
+      games: p.po_games ?? null, of: poWeeks, hist: [], fp: null};
+  }
   return {slug: p.slug, n: p.n, pos: p.pos, team: p.team, rank: s.rank, pts: s.ros_pts, pg: s.ros_pg,
-    games: p.games_left, of: p.sched_left, hist: s.hist};
+    games: p.games_left, of: p.sched_left, hist: s.hist,
+    fp: scoring === "espn" ? null : p.fp || null};   // FantasyPros is half-PPR, and its gap is against our half-PPR rank
 }
 
-/* A position's list in the file's rank order; a tie (never in a real file) goes to the points, then the name. */
-function rosRows(block, pos, scoring){
+/* A position's list in the file's rank order; a tie (never in a real file) goes to the points, then the name. `span` "po" is
+   the playoff weeks: a player with no playoff rank sits last with blanks. */
+function rosRows(block, pos, scoring, span){
   if (!block || !ROS_POSITIONS.includes(pos)) return [];
-  return block.players.filter(p => p.pos === pos).map(p => rosRow(p, scoring))
-    .sort((a, b) => a.rank - b.rank || b.pts - a.pts || a.n.localeCompare(b.n));
+  const weeks = (block.po_weeks || []).length, big = Number.MAX_SAFE_INTEGER, at = r => r.rank == null ? big : r.rank;
+  return block.players.filter(p => p.pos === pos).map(p => rosRow(p, scoring, span, weeks))
+    .sort((a, b) => at(a) - at(b) || (b.pts ?? 0) - (a.pts ?? 0) || a.n.localeCompare(b.n));
+}
+
+/* The Playoffs toggle exists only when the file names the playoff weeks. */
+function rosHasPlayoffs(block){
+  return !!(block && block.po_weeks && block.po_weeks.length && block.players.some(p => p.po_rank != null));
 }
 
 /* His row, or null: not in the file (a bench player under its floor, a kicker) or no file. */

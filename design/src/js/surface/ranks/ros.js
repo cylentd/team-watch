@@ -32,37 +32,67 @@ navModes("ranks", () => ({ids: rkViews(), cur: rkView(), attr: "rkview", name: t
 const rkViewsHTML = () => rkViews().length < 2 ? "" : `<div class="setrow rk-views view-tabs" role="group" aria-label="${t("ranks.views.label")}">${
   rkViews().map(id => `<button type="button" class="chip" data-testid="ranks-view-tab" data-rkview="${id}" aria-pressed="${id === rkView()}">${rkViewName(id)}</button>`).join("")}</div>`;
 
-function rosRowHTML(r, mine){
-  return `<button type="button" class="ros-row${mine ? " mine" : ""}" data-testid="ros-row" data-rosopen="${esc(r.slug)}">
-    <span class="rk-n" data-testid="ros-rank">${r.rank}</span>
+/* The span: the whole rest of season, or the fantasy playoff weeks (2026-10-07). Only a file with playoff numbers has the toggle. */
+let ROS_SPAN = "ros";
+const rosSpan = block => ROS_SPAN === "po" && rosHasPlayoffs(block) ? "po" : "ros";
+const rosSpans = block => rosHasPlayoffs(block) ? ["ros", "po"] : ["ros"];
+const rosSpanName = (id, block) => id === "po" ? t("ros.span.po", {from: block.po_weeks[0], to: block.po_weeks[block.po_weeks.length - 1]}) : t("ros.span.ros");
+
+function rosSpanHTML(block){
+  const ids = rosSpans(block), cur = rosSpan(block);
+  return ids.length < 2 ? "" : `<div class="setrow ros-spans" role="group" aria-label="${t("ros.span.label")}">${
+    ids.map(id => `<button type="button" class="chip" data-testid="ros-span" data-rosspan="${id}" aria-pressed="${id === cur}">${rosSpanName(id, block)}</button>`).join("")}</div>`;
+}
+
+/* FantasyPros' ROS position rank and the gap (theirs less ours; + = they have him lower), or an empty cell. */
+function rosFpHTML(fp){
+  if (!fp) return `<span class="ros-fp" data-testid="ros-fp"></span>`;
+  const gap = fp.gap > 0 ? `+${fp.gap}` : fp.gap < 0 ? `−${-fp.gap}` : "0";
+  const arg = {rank: fp.rank, n: Math.abs(fp.gap)};
+  const tip = fp.gap > 0 ? t("ros.fp.below", arg) : fp.gap < 0 ? t("ros.fp.above", arg) : t("ros.fp.same", arg);
+  return `<span class="ros-fp" data-testid="ros-fp" title="${esc(tip)}" aria-label="${esc(tip)}"><b>${fp.rank}</b><i>${gap}</i></span>`;
+}
+
+function rosRowHTML(r, mine, withFp){
+  return `<button type="button" class="ros-row${mine ? " mine" : ""}${withFp ? " has-fp" : ""}" data-testid="ros-row" data-rosopen="${esc(r.slug)}">
+    <span class="rk-n" data-testid="ros-rank">${r.rank ?? ""}</span>
     <span class="ros-nm"><span data-testid="ros-name">${esc(nameInitial(r.n))}</span><small data-testid="ros-team">${esc(r.team || "")}</small>${mine ? `<i class="rk-mine">${t("ranks.row.mine")}</i>` : ""}</span>
-    <span class="ros-pts" data-testid="ros-pts">${Math.round(r.pts)}</span>
+    ${withFp ? rosFpHTML(r.fp) : ""}<span class="ros-pts" data-testid="ros-pts">${r.pts == null ? "" : Math.round(r.pts)}</span>
   </button>`;
 }
 
-function rosListHTML(rows, pos){
-  const mine = rkMine();
-  return `<section class="rk-group ros-group"><div class="ros-lh"><span>#</span><span>${esc(pos)}</span><span>${t("ros.list.pts")}</span></div>
-    <div class="ros-rows">${rows.map(r => rosRowHTML(r, mine.has(r.slug))).join("")}</div></section>`;
+function rosListHTML(rows, pos, po){
+  const mine = rkMine(), withFp = rows.some(r => r.fp);
+  return `<section class="rk-group ros-group"><div class="ros-lh${withFp ? " has-fp" : ""}"><span>#</span><span>${esc(pos)}</span>${withFp ? `<span>${t("ros.list.fp")}</span>` : ""}<span>${po ? t("ros.list.ptsPo") : t("ros.list.pts")}</span></div>
+    <div class="ros-rows">${rows.map(r => rosRowHTML(r, mine.has(r.slug), withFp)).join("")}</div></section>`;
 }
 
 function rosViewHTML(){
-  const block = rosBlock(), pos = rosPos(), scoring = rosReaderScoring(block), rows = rosRows(block, pos, scoring);
-  const span = {from: block.week, to: block.last_week};
-  const sub = scoring === "espn" ? t("ros.head.subEspn", span) : t("ros.head.sub", span);
+  const block = rosBlock(), pos = rosPos(), span = rosSpan(block), po = span === "po";
+  const scoring = po ? "half" : rosReaderScoring(block), rows = rosRows(block, pos, scoring, span);
+  const weeks = {from: block.week, to: block.last_week};
+  const sub = po ? t("ros.cap.po", {from: block.po_weeks[0], to: block.po_weeks[block.po_weeks.length - 1]})
+    : scoring === "espn" ? t("ros.head.subEspn", weeks) : t("ros.head.sub", weeks);
+  const fpNote = !po && block.fp && rows.some(r => r.fp) ? `<p data-testid="ros-fp-note">${t("ros.cap.fp", {n: block.fp.experts})}</p>` : "";
   // No heading: the tab says where he is, and the chart is the first data (STYLE.md, ~200px). One caption under the chart says
-  // what the points are, with the way out to the schedule's strength at its end.
-  const cap = `<div class="ros-cap"><p data-testid="ros-sub">${sub}</p>${rkSchedHTML()}</div>`;
+  // what the points are, with the way out to the schedule's strength at its end. The playoff weeks have no chart: it is
+  // rank by week of the whole rest of season.
+  const cap = `<div class="ros-cap"><div><p data-testid="ros-sub">${sub}</p>${fpNote}</div>${rkSchedHTML()}</div>`;
+  const chart = po ? "" : `<div class="ros-bump" data-testid="ros-chart" data-pos="${esc(pos)}">${rosBumpHTML(rosChart(rows), pos, rosBox(window.innerWidth))}</div>`;
   const body = !rows.length
     ? `<div class="state-empty" data-testid="ros-empty" style="min-height:220px"><div><b>${t("ros.empty.title", {pos: esc(pos)})}</b><span>${t("ros.empty.sub")}</span></div></div>`
-    : `<div class="ros-bump" data-testid="ros-chart" data-pos="${esc(pos)}">${rosBumpHTML(rosChart(rows), pos, rosBox(window.innerWidth))}</div>
-       ${cap}<div class="ros-list">${rosListHTML(rows, pos)}</div>`;
-  return `<div class="wrap rk ros">${rkViewsHTML()}${rkChipsHTML(pos, [], ROS_POSITIONS)}${body}</div>`;
+    : `${chart}${cap}<div class="ros-list">${rosListHTML(rows, pos, po)}</div>`;
+  return `<div class="wrap rk ros">${rkViewsHTML()}${rkChipsHTML(pos, [], ROS_POSITIONS)}${rosSpanHTML(block)}${body}</div>`;
 }
 
 /* A row or a chart name opens the profile, which carries the Rest of season block. */
 function wireRos(v){
   const block = rosBlock(), scoring = rosReaderScoring(block);
+  v.querySelectorAll("[data-rosspan]").forEach(b => b.addEventListener("click", () => {
+    if (b.dataset.rosspan === rosSpan(block)) return;
+    ROS_SPAN = b.dataset.rosspan;
+    render();
+  }));
   const open = el => {
     const r = rosOne(block, el.dataset.rosopen, scoring);
     if (r) openProfile({n: r.n, pos: r.pos, team: r.team, slug: r.slug}, el);

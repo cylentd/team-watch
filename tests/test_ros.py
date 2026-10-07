@@ -16,7 +16,8 @@ from test_build import injected
 
 FIXTURE = pathlib.Path(__file__).resolve().parent / "fixtures" / "data" / "ros_value.json"
 RAW = json.loads(FIXTURE.read_text(encoding="utf-8"))
-PLAYER_KEYS = {"slug", "n", "pos", "team", "rank", "ros_pg", "ros_pts", "games_left", "sched_left", "hist", "espn"}
+PLAYER_KEYS = {"slug", "n", "pos", "team", "rank", "ros_pg", "ros_pts", "games_left", "sched_left", "hist", "espn",
+               "po_rank", "po_pts", "po_games", "fp"}
 
 
 def player(block, slug):
@@ -25,7 +26,7 @@ def player(block, slug):
 
 def test_the_cut_keeps_only_what_the_page_reads():
     block = ros.live_ros(RAW)
-    assert set(block) == {"season", "week", "through_week", "last_week", "generated", "players"}
+    assert set(block) == {"season", "week", "through_week", "last_week", "generated", "players", "po_weeks", "fp"}
     assert (block["season"], block["week"], block["last_week"]) == (2026, 5, 17)
     assert len(block["players"]) == len(RAW["players"])
     espn_keys = {"ros_pg", "ros_pts", "rank", "hist"}

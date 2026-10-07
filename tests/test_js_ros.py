@@ -32,7 +32,68 @@ def test_a_position_lists_in_the_files_rank_order_with_the_row_the_page_draws(ro
     assert {r["pos"] for r in rows} == {"WR"}
     allen = ros("rosRows", BLOCK, "QB", "half")[0]
     assert allen == {"slug": "josh-allen", "n": "Josh Allen", "pos": "QB", "team": "BUF", "rank": 1, "pts": 231.4, "pg": 23.61,
-                     "games": 9.8, "of": 12, "hist": [[3, 1], [4, 1], [5, 1]]}
+                     "games": 9.8, "of": 12, "hist": [[3, 1], [4, 1], [5, 1]], "fp": None}
+
+
+@pytest.mark.req("Ranks", ac="Rest of season: a Playoffs toggle ranks the playoff weeks")
+def test_the_playoff_span_lists_by_playoff_rank_with_playoff_points_and_games(ros):
+    rows = ros("rosRows", BLOCK, "WR", "half", "po")
+    raw = {p["slug"]: p for p in BLOCK["players"]}
+    assert [r["rank"] for r in rows] == sorted(r["rank"] for r in rows)
+    assert rows[0]["rank"] == raw[rows[0]["slug"]]["po_rank"] and rows[0]["pts"] == raw[rows[0]["slug"]]["po_pts"]
+    assert (rows[0]["games"], rows[0]["of"]) == (raw[rows[0]["slug"]]["po_games"], 3), "of = the three playoff weeks"
+    assert rows[0]["hist"] == []
+    espn = ros("rosRows", BLOCK, "WR", "espn", "po")
+    assert slugs(espn) == slugs(rows) and [r["pts"] for r in espn] == [r["pts"] for r in rows], "playoff numbers are half-PPR only"
+
+
+def test_a_playoff_rank_tie_goes_to_more_points_and_a_missing_number_counts_as_none(ros):
+    tie = copy.deepcopy(BLOCK)
+    qbs = [p for p in tie["players"] if p["pos"] == "QB"][:2]
+    qbs[0].update(po_rank=1, po_pts=None)
+    qbs[1].update(po_rank=1, po_pts=0.5)
+    rows = ros("rosRows", tie, "QB", "half", "po")
+    assert slugs(rows[:2]) == [qbs[1]["slug"], qbs[0]["slug"]]
+
+
+def test_the_playoff_span_shows_the_playoff_rank_not_the_season_rank(ros):
+    hall = next(r for r in ros("rosRows", BLOCK, "RB", "half", "po") if r["slug"] == "breece-hall")
+    assert hall["rank"] == 30 and next(r for r in ros("rosRows", BLOCK, "RB", "half") if r["slug"] == "breece-hall")["rank"] == 29
+
+
+def test_a_player_with_no_playoff_numbers_is_blank_and_last_not_an_error(ros):
+    gap = copy.deepcopy(BLOCK)
+    qb = next(p for p in gap["players"] if p["slug"] == "josh-allen")
+    qb.update(po_rank=None, po_pts=None, po_games=None)
+    rows = ros("rosRows", gap, "QB", "half", "po")
+    assert rows[-1]["slug"] == "josh-allen" and rows[-1]["rank"] is None and rows[-1]["pts"] is None
+
+
+@pytest.mark.req("Ranks", ac="Rest of season: no playoff fields, no Playoffs toggle")
+def test_the_toggle_exists_only_when_the_file_has_playoff_numbers(ros):
+    assert ros("rosHasPlayoffs", BLOCK) is True
+    old = copy.deepcopy(BLOCK)
+    old["po_weeks"] = None
+    assert ros("rosHasPlayoffs", old) is False
+    assert ros("rosHasPlayoffs", None) is False
+
+
+@pytest.mark.req("Ranks", ac="Rest of season: FantasyPros' rank and the gap sit beside ours")
+def test_a_row_carries_fantasypros_rank_and_gap_or_none(ros):
+    fp = copy.deepcopy(BLOCK)
+    allen = next(p for p in fp["players"] if p["slug"] == "josh-allen")
+    allen["fp"] = {"rank": 3, "gap": 2, "pts": 250.0}
+    rows = ros("rosRows", fp, "QB", "half")
+    assert rows[0]["fp"] == {"rank": 3, "gap": 2, "pts": 250.0} and rows[1]["fp"] is None
+    assert ros("rosRows", fp, "QB", "half", "po")[0]["fp"] is None, "FantasyPros ranks the whole rest of season, not the playoff weeks"
+
+
+@pytest.mark.req("Ranks", ac="Rest of season: FantasyPros' rank and the gap sit beside ours")
+def test_the_espn_view_has_no_fantasypros_column(ros):
+    fp = copy.deepcopy(BLOCK)
+    next(p for p in fp["players"] if p["slug"] == "josh-allen")["fp"] = {"rank": 3, "gap": 2, "pts": 250.0}
+    assert ros("rosRows", fp, "QB", "espn")[0]["fp"] is None, "FantasyPros is half-PPR; the gap is against our half-PPR rank"
+    assert ros("rosOne", fp, "josh-allen", "espn")["fp"] is None
 
 
 @pytest.mark.req("Ranks", ac="Rest of season: ESPN readers read ESPN's numbers and order")

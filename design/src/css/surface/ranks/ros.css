@@ -38,6 +38,14 @@
 .ros-row:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
 .ros-nm{display:flex;align-items:baseline;gap:6px;min-width:0;font-size:var(--t-2);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ros-nm small{font-family:var(--mono);font-size:var(--t-1);font-weight:500;color:var(--ink-3)}
+/* FantasyPros' rank and the gap (2026-10-07): a quiet column between the name and the points, only for a position FantasyPros lists. */
+.ros-lh.has-fp,.ros-row.has-fp{grid-template-columns:24px minmax(0,1fr) 56px auto}
+.ros-lh.has-fp span:nth-child(3){text-align:right}
+.ros-fp{display:flex;justify-content:flex-end;align-items:baseline;gap:5px;font-family:var(--mono);font-size:var(--t-1);font-variant-numeric:tabular-nums;color:var(--ink-3)}
+.ros-fp b{font-weight:600;color:var(--ink-2)}
+.ros-fp i{font-style:normal}
+.ros-spans{margin-top:8px}
+.ros-cap p + p{margin-top:4px}
 .ros-pts{font-family:var(--mono);font-size:var(--t-3);font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink)}
 .ros-row.mine .ros-nm > span{color:var(--lime)}
 @media (min-width:760px){

@@ -15,6 +15,7 @@ import component
 from component import mount  # noqa: F401  (the fixture)
 from pages.ros import RosPage
 from test_ros import RAW
+from test_ros_fp import COMPARE
 import ros as ros_cut
 
 PHONE = (360, 740)
@@ -225,6 +226,83 @@ def test_a_position_with_no_rows_says_so(variant):
     assert ros.empty() and "TE" in ros.empty()
     assert ros.chart() is None and ros.rows() == []
     assert ros.chips() == ["QB", "RB", "WR", "TE"] and ros.fits()
+    assert errors == []
+
+
+def span_tabs(page):
+    loc = page.get_by_test_id("ros-span")
+    return [(t.strip(), p == "true") for t, p in zip(loc.all_text_contents(), loc.evaluate_all("els => els.map(e => e.getAttribute('aria-pressed'))"))]
+
+
+def pick_span(page, span):
+    page.locator(f"[data-testid='ros-span'][data-rosspan='{span}']").click()
+    page.wait_for_function("s => ROS_SPAN === s", arg=span)
+
+
+@pytest.mark.render
+@pytest.mark.req("Ranks", ac="Rest of season: a Playoffs toggle shows the playoff rank and points, labelled")
+def test_the_playoffs_toggle_ranks_weeks_15_to_17_without_the_chart_or_fantasypros(mount):
+    page, errors, ros = open_ros(mount, pos="RB")
+    assert span_tabs(page) == [("To week 17", True), ("Playoffs wk 15-17", False)]
+    season = {r["slug"]: r for r in ros.rows()}
+    pick_span(page, "po")
+    assert span_tabs(page) == [("To week 17", False), ("Playoffs wk 15-17", True)]
+    rows = ros.rows()
+    hall_raw = next(p for p in RAW["players"] if p["slug"] == "breece-hall")
+    hall = next(r for r in rows if r["slug"] == "breece-hall")
+    assert (hall["rank"], hall["pts"]) == (hall_raw["po_rank"], str(int(hall_raw["po_pts"] + 0.5)))
+    assert hall["rank"] != season["breece-hall"]["rank"], "the playoff order is its own"
+    assert [r["rank"] for r in rows] == sorted(r["rank"] for r in rows)
+    assert ros.chart() is None, "the bump chart is rank by week of the whole rest of season"
+    assert page.get_by_test_id("ros-fp").count() == 0, "FantasyPros ranks the whole rest of season, not the playoff weeks"
+    sub = ros.sub()
+    assert "Weeks 15 to 17" in sub and "expected games" in sub and "if he plays" not in sub and "Half-PPR" in sub
+    pick_span(page, "ros")
+    assert ros.chart() is not None and ros.sub().startswith("Expected")
+    assert ros.fits() and errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req("Ranks", ac="Rest of season: FantasyPros' ROS rank sits beside ours with the gap, blank when unlisted")
+def test_fantasypros_rank_and_gap_sit_beside_ours_and_are_blank_for_an_unlisted_player(mount):
+    page, errors, ros = open_ros(mount, pos="QB")
+    cells = {r["slug"]: r for r in page.get_by_test_id("ros-row").evaluate_all("""rs => rs.map(r => ({slug: r.dataset.rosopen,
+      fp: (r.querySelector('[data-testid="ros-fp"]') || {textContent: null}).textContent, text: r.innerText.replace(/\\s+/g, ' ').trim()}))""")}
+    goff = next(p for p in ros_cut.live_ros(RAW, COMPARE)["players"] if p["slug"] == "jared-goff")
+    assert str(goff["fp"]["rank"]) in cells["jared-goff"]["fp"] and f"{goff['fp']['gap']:+d}" in cells["jared-goff"]["fp"]
+    assert cells["josh-allen"]["fp"] == "", "FantasyPros lists no gap for him: an empty cell, not 'null' or 'NaN'"
+    assert "null" not in cells["josh-allen"]["text"] and "NaN" not in cells["josh-allen"]["text"]
+    assert "FantasyPros ROS consensus, 6 experts" in page.locator(".ros-cap").inner_text()
+    assert ros.fits() and errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req("Ranks", ac="Rest of season: a position FantasyPros lists nobody for has no FP column")
+def test_a_position_with_no_fantasypros_row_has_no_fp_column(mount):
+    page, errors, ros = open_ros(mount, pos="WR")
+    assert page.get_by_test_id("ros-fp").count() == 0 and "FantasyPros" not in page.locator(".ros-cap").inner_text()
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req("Ranks", ac="Rest of season: no playoff fields, no Playoffs toggle, and the list reads as before")
+def test_a_file_without_playoff_fields_has_no_toggle_and_no_error(mount):
+    """The block is changed in the page after it loads (the browser bound is six pages a module), then redrawn."""
+    page, errors, ros = open_ros(mount, pos="RB")
+    page.evaluate("() => { LIVE_ROS.po_weeks = null; LIVE_ROS.players.forEach(p => { p.po_rank = p.po_pts = p.po_games = null; }); ROS_SPAN = 'po'; render(); }")
+    assert page.get_by_test_id("ros-span").count() == 0 and len(ros.rows()) > 0
+    assert ros.chart() is not None, "no toggle means the rest of season, even if the page last stood on Playoffs"
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req("Ranks", ac="Rest of season: a player with no playoff number draws blanks, not errors")
+def test_a_player_with_no_playoff_number_is_blank_in_the_playoffs_list(mount):
+    page, errors, ros = open_ros(mount, pos="QB")
+    page.evaluate("() => { const p = LIVE_ROS.players.find(x => x.slug === 'josh-allen'); p.po_rank = p.po_pts = p.po_games = null; }")
+    pick_span(page, "po")
+    last = ros.rows()[-1]
+    assert last["slug"] == "josh-allen" and last["pts"] == "" and "NaN" not in last["text"] and "null" not in last["text"]
     assert errors == []
 
 

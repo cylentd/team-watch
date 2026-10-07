@@ -66,6 +66,20 @@
      -0.9267
     ]
    }
+  },
+  "playoffs": {
+   "weeks": [
+    15,
+    16,
+    17
+   ],
+   "source": "espn_league.json",
+   "methodology": "12.109",
+   "value": "expected half-PPR points in the fantasy playoff weeks still to play = po_pg x po_games",
+   "po_games": "his team's games in those weeks (byes out) x his games_left / sched_left",
+   "po_f": "the remaining schedule factor over the playoff opponents only; shown, not applied",
+   "po_pg": "ros_pg: 12.109 failed (the playoff opponents did not predict weeks 15-17 better than the whole schedule), so only games and byes differ from the ROS value",
+   "use": "display and an opt-in trade lens; never the default trade price (ros_pts is)"
   }
  },
  "players": [
@@ -129,7 +143,13 @@
      1,
      231.4
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 1.014,
+   "po_pg": 23.61,
+   "po_pts": 57.9,
+   "po_rank": 1
   },
   {
    "key": "brock purdy",
@@ -191,7 +211,13 @@
      2,
      204.2
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 0.89,
+   "po_pg": 20.83,
+   "po_pts": 51.0,
+   "po_rank": 2
   },
   {
    "key": "patrick mahomes",
@@ -253,7 +279,13 @@
      3,
      191.5
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 0.905,
+   "po_pg": 19.54,
+   "po_pts": 47.9,
+   "po_rank": 3
   },
   {
    "key": "jared goff",
@@ -315,7 +347,13 @@
      4,
      190.1
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 0.921,
+   "po_pg": 19.4,
+   "po_pts": 47.5,
+   "po_rank": 4
   },
   {
    "key": "dak prescott",
@@ -377,7 +415,13 @@
      5,
      188.2
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 0.957,
+   "po_pg": 19.2,
+   "po_pts": 47.1,
+   "po_rank": 5
   },
   {
    "key": "tyler shough",
@@ -439,7 +483,13 @@
      6,
      184.3
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 1.07,
+   "po_pg": 18.8,
+   "po_pts": 46.1,
+   "po_rank": 6
   },
   {
    "key": "matthew stafford",
@@ -501,7 +551,13 @@
      7,
      182.5
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 1.092,
+   "po_pg": 18.62,
+   "po_pts": 45.6,
+   "po_rank": 7
   },
   {
    "key": "joe burrow",
@@ -563,7 +619,13 @@
      8,
      180.5
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 1.026,
+   "po_pg": 18.41,
+   "po_pts": 45.1,
+   "po_rank": 8
   },
   {
    "key": "bryce young",
@@ -625,7 +687,13 @@
      9,
      178.3
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 0.971,
+   "po_pg": 18.18,
+   "po_pts": 44.6,
+   "po_rank": 9
   },
   {
    "key": "jalen hurts",
@@ -687,7 +755,13 @@
      10,
      174.6
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 0.903,
+   "po_pg": 17.81,
+   "po_pts": 43.6,
+   "po_rank": 10
   },
   {
    "key": "trevor lawrence",
@@ -749,7 +823,13 @@
      11,
      171.6
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 1.188,
+   "po_pg": 17.5,
+   "po_pts": 42.9,
+   "po_rank": 11
   },
   {
    "key": "lamar jackson",
@@ -811,7 +891,13 @@
      12,
      167.9
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 1.003,
+   "po_pg": 17.13,
+   "po_pts": 42.0,
+   "po_rank": 12
   },
   {
    "key": "jordan love",
@@ -873,7 +959,13 @@
      14,
      162.6
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 1.017,
+   "po_pg": 16.58,
+   "po_pts": 40.6,
+   "po_rank": 14
   },
   {
    "key": "cj stroud",
@@ -935,7 +1027,13 @@
      15,
      162.0
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 0.925,
+   "po_pg": 16.53,
+   "po_pts": 40.5,
+   "po_rank": 15
   },
   {
    "key": "jahmyr gibbs",
@@ -997,7 +1095,13 @@
      1,
      205.1
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.52,
+   "po_f": 0.965,
+   "po_pg": 20.39,
+   "po_pts": 51.3,
+   "po_rank": 1
   },
   {
    "key": "bijan robinson",
@@ -1059,7 +1163,13 @@
      2,
      196.7
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.52,
+   "po_f": 1.052,
+   "po_pg": 19.55,
+   "po_pts": 49.2,
+   "po_rank": 2
   },
   {
    "key": "jonathan taylor",
@@ -1121,7 +1231,13 @@
      3,
      186.9
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.52,
+   "po_f": 1.014,
+   "po_pg": 18.58,
+   "po_pts": 46.7,
+   "po_rank": 3
   },
   {
    "key": "kenneth walker",
@@ -1183,7 +1299,13 @@
      4,
      185.4
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.52,
+   "po_f": 0.954,
+   "po_pg": 18.43,
+   "po_pts": 46.4,
+   "po_rank": 4
   },
   {
    "key": "derrick henry",
@@ -1245,7 +1367,13 @@
      5,
      176.4
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.52,
+   "po_f": 1.005,
+   "po_pg": 17.54,
+   "po_pts": 44.1,
+   "po_rank": 5
   },
   {
    "key": "ashton jeanty",
@@ -1307,7 +1435,13 @@
      6,
      165.5
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.52,
+   "po_f": 0.995,
+   "po_pg": 16.45,
+   "po_pts": 41.4,
+   "po_rank": 6
   },
   {
    "key": "kyren williams",
@@ -1369,7 +1503,13 @@
      7,
      152.1
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.52,
+   "po_f": 0.963,
+   "po_pg": 15.11,
+   "po_pts": 38.0,
+   "po_rank": 7
   },
   {
    "key": "christian mccaffrey",
@@ -1431,7 +1571,13 @@
      8,
      150.2
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.52,
+   "po_f": 0.949,
+   "po_pg": 14.92,
+   "po_pts": 37.5,
+   "po_rank": 8
   },
   {
    "key": "james cook",
@@ -1493,7 +1639,13 @@
      9,
      149.8
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.52,
+   "po_f": 1.006,
+   "po_pg": 14.89,
+   "po_pts": 37.5,
+   "po_rank": 9
   },
   {
    "key": "javonte williams",
@@ -1555,7 +1707,13 @@
      10,
      148.0
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.52,
+   "po_f": 0.913,
+   "po_pg": 14.71,
+   "po_pts": 37.0,
+   "po_rank": 10
   },
   {
    "key": "chase brown",
@@ -1617,7 +1775,13 @@
      11,
      140.6
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.52,
+   "po_f": 1.046,
+   "po_pg": 13.97,
+   "po_pts": 35.1,
+   "po_rank": 11
   },
   {
    "key": "dandre swift",
@@ -1679,7 +1843,13 @@
      12,
      140.0
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.52,
+   "po_f": 1.059,
+   "po_pg": 13.91,
+   "po_pts": 35.0,
+   "po_rank": 12
   },
   {
    "key": "breece hall",
@@ -1741,7 +1911,13 @@
      29,
      83.2
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 1.53,
+   "po_f": 0.928,
+   "po_pg": 13.57,
+   "po_pts": 20.8,
+   "po_rank": 30
   },
   {
    "key": "kendre miller",
@@ -1793,7 +1969,13 @@
      47,
      47.4
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.21,
+   "po_f": 0.97,
+   "po_pg": 5.36,
+   "po_pts": 11.8,
+   "po_rank": 49
   },
   {
    "key": "jaxon smithnjigba",
@@ -1855,7 +2037,13 @@
      1,
      188.7
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.54,
+   "po_f": 0.938,
+   "po_pg": 18.57,
+   "po_pts": 47.2,
+   "po_rank": 1
   },
   {
    "key": "amonra st brown",
@@ -1917,7 +2105,13 @@
      2,
      169.1
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.54,
+   "po_f": 0.986,
+   "po_pg": 16.64,
+   "po_pts": 42.3,
+   "po_rank": 2
   },
   {
    "key": "ceedee lamb",
@@ -1979,7 +2173,13 @@
      3,
      167.8
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.54,
+   "po_f": 1.037,
+   "po_pg": 16.51,
+   "po_pts": 41.9,
+   "po_rank": 3
   },
   {
    "key": "chris olave",
@@ -2041,7 +2241,13 @@
      4,
      160.7
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.54,
+   "po_f": 1.041,
+   "po_pg": 15.81,
+   "po_pts": 40.2,
+   "po_rank": 4
   },
   {
    "key": "puka nacua",
@@ -2083,7 +2289,13 @@
      5,
      151.4
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.14,
+   "po_f": 0.984,
+   "po_pg": 17.68,
+   "po_pts": 37.9,
+   "po_rank": 5
   },
   {
    "key": "davante adams",
@@ -2145,7 +2357,13 @@
      6,
      143.2
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.54,
+   "po_f": 0.984,
+   "po_pg": 14.09,
+   "po_pts": 35.8,
+   "po_rank": 6
   },
   {
    "key": "tee higgins",
@@ -2207,7 +2425,13 @@
      7,
      135.1
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.54,
+   "po_f": 1.059,
+   "po_pg": 13.29,
+   "po_pts": 33.8,
+   "po_rank": 7
   },
   {
    "key": "tetairoa mcmillan",
@@ -2269,7 +2493,13 @@
      8,
      129.4
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.54,
+   "po_f": 0.892,
+   "po_pg": 12.73,
+   "po_pts": 32.3,
+   "po_rank": 9
   },
   {
    "key": "christian watson",
@@ -2331,7 +2561,13 @@
      9,
      128.6
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.54,
+   "po_f": 0.981,
+   "po_pg": 12.65,
+   "po_pts": 32.1,
+   "po_rank": 10
   },
   {
    "key": "michael wilson",
@@ -2393,7 +2629,13 @@
      10,
      126.5
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.54,
+   "po_f": 0.954,
+   "po_pg": 12.45,
+   "po_pts": 31.6,
+   "po_rank": 11
   },
   {
    "key": "drake london",
@@ -2455,7 +2697,13 @@
      11,
      122.6
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.54,
+   "po_f": 1.006,
+   "po_pg": 12.07,
+   "po_pts": 30.7,
+   "po_rank": 12
   },
   {
    "key": "nico collins",
@@ -2497,7 +2745,13 @@
      12,
      122.3
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.14,
+   "po_f": 0.998,
+   "po_pg": 14.28,
+   "po_pts": 30.6,
+   "po_rank": 13
   },
   {
    "key": "zay flowers",
@@ -2549,7 +2803,13 @@
      13,
      120.2
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.34,
+   "po_f": 0.963,
+   "po_pg": 12.84,
+   "po_pts": 30.1,
+   "po_rank": 14
   },
   {
    "key": "trey mcbride",
@@ -2611,7 +2871,13 @@
      1,
      152.8
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 0.999,
+   "po_pg": 15.57,
+   "po_pts": 38.2,
+   "po_rank": 1
   },
   {
    "key": "brock bowers",
@@ -2653,7 +2919,13 @@
      2,
      137.4
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.37,
+   "po_f": 1.123,
+   "po_pg": 14.53,
+   "po_pts": 34.4,
+   "po_rank": 2
   },
   {
    "key": "george kittle",
@@ -2715,7 +2987,13 @@
      3,
      103.8
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 0.819,
+   "po_pg": 10.58,
+   "po_pts": 25.9,
+   "po_rank": 3
   },
   {
    "key": "tucker kraft",
@@ -2777,7 +3055,13 @@
      4,
      103.7
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 0.981,
+   "po_pg": 10.57,
+   "po_pts": 25.9,
+   "po_rank": 4
   },
   {
    "key": "sam laporta",
@@ -2839,7 +3123,13 @@
      5,
      102.9
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 0.807,
+   "po_pg": 10.48,
+   "po_pts": 25.7,
+   "po_rank": 5
   },
   {
    "key": "juwan johnson",
@@ -2901,7 +3191,13 @@
      6,
      95.1
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 1.165,
+   "po_pg": 9.69,
+   "po_pts": 23.8,
+   "po_rank": 6
   },
   {
    "key": "tyler warren",
@@ -2963,7 +3259,13 @@
      7,
      94.5
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 1.171,
+   "po_pg": 9.64,
+   "po_pts": 23.6,
+   "po_rank": 7
   },
   {
    "key": "harold fannin",
@@ -3025,7 +3327,13 @@
      8,
      90.7
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 0.929,
+   "po_pg": 9.24,
+   "po_pts": 22.7,
+   "po_rank": 8
   },
   {
    "key": "travis kelce",
@@ -3087,7 +3395,13 @@
      9,
      88.0
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 0.864,
+   "po_pg": 8.96,
+   "po_pts": 22.0,
+   "po_rank": 9
   },
   {
    "key": "dalton schultz",
@@ -3149,7 +3463,13 @@
      10,
      84.9
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 0.799,
+   "po_pg": 8.65,
+   "po_pts": 21.2,
+   "po_rank": 10
   },
   {
    "key": "isaiah likely",
@@ -3211,7 +3531,13 @@
      11,
      81.1
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 1.144,
+   "po_pg": 8.26,
+   "po_pts": 20.3,
+   "po_rank": 11
   },
   {
    "key": "dalton kincaid",
@@ -3273,7 +3599,13 @@
      12,
      80.7
     ]
-   ]
+   ],
+   "po_sched": 3,
+   "po_games": 2.45,
+   "po_f": 1.044,
+   "po_pg": 8.22,
+   "po_pts": 20.2,
+   "po_rank": 12
   }
  ]
 }

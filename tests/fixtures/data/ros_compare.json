@@ -1,0 +1,438 @@
+{
+ "season": 2026,
+ "ours_generated": "2026-10-07T06:01",
+ "ours_week": 5,
+ "fp_last_updated": "2026-10-07T01:20Z",
+ "fp_fetched": "2026-10-07T13:59",
+ "experts": 6,
+ "generated": "2026-10-07T14:28",
+ "positions": {
+  "QB": {
+   "n": 36,
+   "ours_only": 3,
+   "fp_only": 25,
+   "mae": 5.167,
+   "spearman": 0.756,
+   "players": [
+    {
+     "key": "brock purdy",
+     "name": "Brock Purdy",
+     "team": "SF",
+     "ours_pos_rank": 2,
+     "fp_pos_rank": 2,
+     "gap": 0,
+     "fp_pts": 267.4
+    },
+    {
+     "key": "patrick mahomes",
+     "name": "Patrick Mahomes",
+     "team": "KC",
+     "ours_pos_rank": 3,
+     "fp_pos_rank": 5,
+     "gap": 2,
+     "fp_pts": 263.2
+    },
+    {
+     "key": "jared goff",
+     "name": "Jared Goff",
+     "team": "DET",
+     "ours_pos_rank": 4,
+     "fp_pos_rank": 8,
+     "gap": 4,
+     "fp_pts": 252.0
+    },
+    {
+     "key": "dak prescott",
+     "name": "Dak Prescott",
+     "team": "DAL",
+     "ours_pos_rank": 5,
+     "fp_pos_rank": 6,
+     "gap": 1,
+     "fp_pts": 256.2
+    },
+    {
+     "key": "tyler shough",
+     "name": "Tyler Shough",
+     "team": "NO",
+     "ours_pos_rank": 6,
+     "fp_pos_rank": 12,
+     "gap": 6,
+     "fp_pts": 247.8
+    }
+   ],
+   "higher": [
+    {
+     "key": "deshaun watson",
+     "name": "Deshaun Watson",
+     "team": "CLE",
+     "ours_rank": 13,
+     "fp_rank": 30,
+     "gap": 17,
+     "ours_pos_rank": 13,
+     "fp_pos_rank": 30,
+     "ours_pts": 166.5,
+     "fp_pts": 158.2
+    },
+    {
+     "key": "aaron rodgers",
+     "name": "Aaron Rodgers",
+     "team": "PIT",
+     "ours_rank": 19,
+     "fp_rank": 29,
+     "gap": 10,
+     "ours_pos_rank": 19,
+     "fp_pos_rank": 29,
+     "ours_pts": 151.9,
+     "fp_pts": 184.8
+    },
+    {
+     "key": "jacoby brissett",
+     "name": "Jacoby Brissett",
+     "team": "ARI",
+     "ours_rank": 16,
+     "fp_rank": 25,
+     "gap": 9,
+     "ours_pos_rank": 16,
+     "fp_pos_rank": 25,
+     "ours_pts": 161.2,
+     "fp_pts": 210.0
+    }
+   ],
+   "lower": [
+    {
+     "key": "caleb williams",
+     "name": "Caleb Williams",
+     "team": "CHI",
+     "ours_rank": 35,
+     "fp_rank": 11,
+     "gap": 24,
+     "ours_pos_rank": 37,
+     "fp_pos_rank": 11,
+     "ours_pts": 40.4,
+     "fp_pts": 249.2
+    },
+    {
+     "key": "jayden daniels",
+     "name": "Jayden Daniels",
+     "team": "WAS",
+     "ours_rank": 31,
+     "fp_rank": 15,
+     "gap": 16,
+     "ours_pos_rank": 31,
+     "fp_pos_rank": 15,
+     "ours_pts": 67.6,
+     "fp_pts": 240.8
+    },
+    {
+     "key": "lamar jackson",
+     "name": "Lamar Jackson",
+     "team": "BAL",
+     "ours_rank": 12,
+     "fp_rank": 3,
+     "gap": 9,
+     "ours_pos_rank": 12,
+     "fp_pos_rank": 3,
+     "ours_pts": 167.9,
+     "fp_pts": 266.0
+    }
+   ]
+  },
+  "RB": {
+   "n": 64,
+   "ours_only": 1,
+   "fp_only": 45,
+   "mae": 5.75,
+   "spearman": 0.914,
+   "players": [
+    {
+     "key": "jahmyr gibbs",
+     "name": "Jahmyr Gibbs",
+     "team": "DET",
+     "ours_pos_rank": 1,
+     "fp_pos_rank": 1,
+     "gap": 0,
+     "fp_pts": 282.8
+    },
+    {
+     "key": "bijan robinson",
+     "name": "Bijan Robinson",
+     "team": "ATL",
+     "ours_pos_rank": 2,
+     "fp_pos_rank": 2,
+     "gap": 0,
+     "fp_pts": 261.8
+    },
+    {
+     "key": "jonathan taylor",
+     "name": "Jonathan Taylor",
+     "team": "IND",
+     "ours_pos_rank": 3,
+     "fp_pos_rank": 4,
+     "gap": 1,
+     "fp_pts": 238.0
+    },
+    {
+     "key": "kenneth walker",
+     "name": "Kenneth Walker III",
+     "team": "KC",
+     "ours_pos_rank": 4,
+     "fp_pos_rank": 3,
+     "gap": 1,
+     "fp_pts": 243.6
+    },
+    {
+     "key": "derrick henry",
+     "name": "Derrick Henry",
+     "team": "BAL",
+     "ours_pos_rank": 5,
+     "fp_pos_rank": 6,
+     "gap": 1,
+     "fp_pts": 214.2
+    },
+    {
+     "key": "ashton jeanty",
+     "name": "Ashton Jeanty",
+     "team": "LV",
+     "ours_pos_rank": 6,
+     "fp_pos_rank": 8,
+     "gap": 2,
+     "fp_pts": 203.0
+    },
+    {
+     "key": "breece hall",
+     "name": "Breece Hall",
+     "team": "NYJ",
+     "ours_pos_rank": 30,
+     "fp_pos_rank": 20,
+     "gap": 10,
+     "fp_pts": 165.2
+    }
+   ],
+   "higher": [
+    {
+     "key": "emanuel wilson",
+     "name": "Emanuel Wilson",
+     "team": "SEA",
+     "ours_rank": 27,
+     "fp_rank": 50,
+     "gap": 23,
+     "ours_pos_rank": 27,
+     "fp_pos_rank": 53,
+     "ours_pts": 88.6,
+     "fp_pts": 71.4
+    },
+    {
+     "key": "aaron jones",
+     "name": "Aaron Jones",
+     "team": "MIN",
+     "ours_rank": 13,
+     "fp_rank": 27,
+     "gap": 14,
+     "ours_pos_rank": 13,
+     "fp_pos_rank": 27,
+     "ours_pts": 133.8,
+     "fp_pts": 141.4
+    },
+    {
+     "key": "brian robinson",
+     "name": "Brian Robinson",
+     "team": "ATL",
+     "ours_rank": 32,
+     "fp_rank": 45,
+     "gap": 13,
+     "ours_pos_rank": 32,
+     "fp_pos_rank": 47,
+     "ours_pts": 79.2,
+     "fp_pts": 77.0
+    }
+   ],
+   "lower": [
+    {
+     "key": "jonah coleman",
+     "name": "Jonah Coleman",
+     "team": "DEN",
+     "ours_rank": 60,
+     "fp_rank": 41,
+     "gap": 19,
+     "ours_pos_rank": 61,
+     "fp_pos_rank": 43,
+     "ours_pts": 23.6,
+     "fp_pts": 95.2
+    },
+    {
+     "key": "emmett johnson",
+     "name": "Emmett Johnson",
+     "team": "KC",
+     "ours_rank": 56,
+     "fp_rank": 38,
+     "gap": 18,
+     "ours_pos_rank": 57,
+     "fp_pos_rank": 39,
+     "ours_pts": 38.3,
+     "fp_pts": 114.8
+    },
+    {
+     "key": "saquon barkley",
+     "name": "Saquon Barkley",
+     "team": "PHI",
+     "ours_rank": 29,
+     "fp_rank": 15,
+     "gap": 14,
+     "ours_pos_rank": 29,
+     "fp_pos_rank": 15,
+     "ours_pts": 83.9,
+     "fp_pts": 183.4
+    }
+   ]
+  },
+  "WR": {
+   "n": 90,
+   "ours_only": 10,
+   "fp_only": 51,
+   "mae": 10.733,
+   "spearman": 0.84,
+   "players": [],
+   "higher": [],
+   "lower": []
+  },
+  "TE": {
+   "n": 36,
+   "ours_only": 3,
+   "fp_only": 34,
+   "mae": 4.167,
+   "spearman": 0.848,
+   "players": [
+    {
+     "key": "trey mcbride",
+     "name": "Trey McBride",
+     "team": "ARI",
+     "ours_pos_rank": 1,
+     "fp_pos_rank": 2,
+     "gap": 1,
+     "fp_pts": 161.0
+    },
+    {
+     "key": "brock bowers",
+     "name": "Brock Bowers",
+     "team": "LV",
+     "ours_pos_rank": 2,
+     "fp_pos_rank": 1,
+     "gap": 1,
+     "fp_pts": 166.6
+    },
+    {
+     "key": "george kittle",
+     "name": "George Kittle",
+     "team": "SF",
+     "ours_pos_rank": 3,
+     "fp_pos_rank": 3,
+     "gap": 0,
+     "fp_pts": 141.4
+    },
+    {
+     "key": "tucker kraft",
+     "name": "Tucker Kraft",
+     "team": "GB",
+     "ours_pos_rank": 4,
+     "fp_pos_rank": 7,
+     "gap": 3,
+     "fp_pts": 123.2
+    },
+    {
+     "key": "sam laporta",
+     "name": "Sam LaPorta",
+     "team": "DET",
+     "ours_pos_rank": 5,
+     "fp_pos_rank": 5,
+     "gap": 0,
+     "fp_pts": 130.2
+    },
+    {
+     "key": "juwan johnson",
+     "name": "Juwan Johnson",
+     "team": "NO",
+     "ours_pos_rank": 6,
+     "fp_pos_rank": 11,
+     "gap": 5,
+     "fp_pts": 119.0
+    }
+   ],
+   "higher": [
+    {
+     "key": "tyler higbee",
+     "name": "Tyler Higbee",
+     "team": "LA",
+     "ours_rank": 16,
+     "fp_rank": 32,
+     "gap": 16,
+     "ours_pos_rank": 16,
+     "fp_pos_rank": 33,
+     "ours_pts": 73.3,
+     "fp_pts": 61.6
+    },
+    {
+     "key": "darren waller",
+     "name": "Darren Waller",
+     "team": "CAR",
+     "ours_rank": 13,
+     "fp_rank": 22,
+     "gap": 9,
+     "ours_pos_rank": 13,
+     "fp_pos_rank": 22,
+     "ours_pts": 78.9,
+     "fp_pts": 88.2
+    },
+    {
+     "key": "dalton schultz",
+     "name": "Dalton Schultz",
+     "team": "HOU",
+     "ours_rank": 10,
+     "fp_rank": 18,
+     "gap": 8,
+     "ours_pos_rank": 10,
+     "fp_pos_rank": 18,
+     "ours_pts": 84.9,
+     "fp_pts": 100.8
+    }
+   ],
+   "lower": [
+    {
+     "key": "dallas goedert",
+     "name": "Dallas Goedert",
+     "team": "PHI",
+     "ours_rank": 29,
+     "fp_rank": 16,
+     "gap": 13,
+     "ours_pos_rank": 29,
+     "fp_pos_rank": 16,
+     "ours_pts": 53.7,
+     "fp_pts": 103.6
+    },
+    {
+     "key": "terrance ferguson",
+     "name": "Terrance Ferguson",
+     "team": "LA",
+     "ours_rank": 36,
+     "fp_rank": 23,
+     "gap": 13,
+     "ours_pos_rank": 36,
+     "fp_pos_rank": 23,
+     "ours_pts": 32.7,
+     "fp_pts": 86.8
+    },
+    {
+     "key": "colston loveland",
+     "name": "Colston Loveland",
+     "team": "CHI",
+     "ours_rank": 18,
+     "fp_rank": 8,
+     "gap": 10,
+     "ours_pos_rank": 18,
+     "fp_pos_rank": 8,
+     "ours_pts": 72.3,
+     "fp_pts": 123.2
+    }
+   ]
+  }
+ }
+}
