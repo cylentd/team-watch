@@ -97,7 +97,7 @@ CONTRACT = {
     "LIVE_PROPS": {
         "keys": ["fetched", "events", "books", "players", "windows", "days", "model", "props", "wrcb", "logs"],
         "rows": ("props", ["n", "slug", "pos", "team", "mkt", "game", "commence", "kick", "line",
-                           "book", "books", "mine", "win"]),
+                           "book", "books", "win"]),
         # logs[slug] = {g: [[year, week, opp], ...], v: {MKT: [value per game]}} -- the leg sheet
         # (parlay/legdata.js) indexes both, so a log missing either is a crash on open, not a blank
         # chart. `u` (ff-jarvis, 2026-09-27) is optional: per-game usage arrays aligned with `g`,
@@ -168,7 +168,7 @@ CONTRACT = {
     "LIVE_POOL": {
         "keys": ["through_week", "generated", "trended", "players"],
         "rows": ("players", ["n", "slug", "pos", "team", "snaps", "dSnap", "share", "dShare", "opp", "rz",
-                             "ppg", "luck", "v", "why", "leagues", "mine"]),
+                             "ppg", "luck", "v", "why", "leagues"]),
     },
     # design/usage.py, from ff-jarvis's model.season.usage weekly grid. `cols` is the header
     # contract itself -- the JS builds its table from it rather than hardcoding seven labels per

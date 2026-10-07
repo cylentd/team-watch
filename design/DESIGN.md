@@ -231,6 +231,18 @@ followed rosters in the board's league (LAR, JAC and WSH read as LA, JAX and WAS
 read. A star in the switch draws the view again, so the tag follows at once. Live's "mine" is not this rule: it
 is one team per league, the picked one, and it also decides which matchup Live draws (below).
 
+**Bets reads the same rule (2026-10-06).** David: "mine" is the players on the teams the reader follows. Build's
+Mine only, the lime ring on a Build player, the "My players" slip preset, the DFS pool's lime edge, the sort's
+tie-break (the reader's players first among equals) and the chat's `rostered_by_me` read a flag the build wrote
+from David's rosters (`mine` on every prop and every usage-pool row), so a leaguemate who tapped Mine only saw his
+players. Now `mineSlugs()` (`data/mates.js`, `rosterSlugs(TEAMS, tsFollowed())`) is read on each draw and matched
+by slug (`lineMine`, `builder/slips.js`; a line with no headshot slug takes its name's slug, as `slSlug` does).
+The build writes no `mine` on props or the pool, and the samples carry none. **A reader who follows no team has no
+players of their own**: the Mine only chip and the My players preset are not drawn (a disabled chip would need a
+reason beside it; nav leaves with nothing to show are dropped the same way), and a Mine only left on from before
+the last unfollow filters nothing (`betsMineOn`), so no empty list is left that nothing on screen can clear. A
+player with no headshot has no slug on his roster row, so he is never mine (Ranks has the same limit).
+
 Phase 3 (per-team waiver advice) is shelved, 2026-09-26: it would help leaguemates beat David.
 (Built on 2026-09-27 and tabled the same night, unlanded: ff-jarvis branch `waiver-teams`, team-watch
 branch `worktree-waiver-teams`.)
@@ -1805,7 +1817,8 @@ tabs below; the NFL now card (`nflnow.js`) above the matchup went with it).
 **Superseded for Parlay 2026-09-25: Slips and Build.** Parlay is two views, Slips (leaf `parlay`,
 the ready-made tickets stacked down the page) and Build (leaf `build`, the line market). Each has
 one row of controls; its last chip names the book and kickoff and opens a panel with them (and
-Build's market, sort and "my players"). Kickoff is one setting, `GAL_WIN`, for both views. The slip
+Build's market, sort and "my players": the players on the teams the reader follows, no chip for a reader who
+follows none, 2026-10-06). Kickoff is one setting, `GAL_WIN`, for both views. The slip
 is a tray on the bottom edge that opens into a sheet: a bar per leg's chance, the all-hit bar, then
 the slip. At 360px the first slip moved from 303px to 154px. Motion: `surface/parlay/flight.js`,
 per `design/STYLE.md`. DFS keeps the layout below.

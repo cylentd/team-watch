@@ -1,15 +1,15 @@
 /* DraftKings pool. Salaries are the whole contest, not my league. Sample only — no live
    DraftKings export is wired yet (see DFSPOOL_YAHOO below for the Yahoo side). */
 const DFSPOOL_DK = [
-  {n:"De'Von Achane",     slug:"devon-achane",     pos:"RB", team:"MIA", sal:8400, proj:21.1, own:32, mine:1},
-  {n:"Amon-Ra St. Brown", slug:"amonra-st-brown",  pos:"WR", team:"DET", sal:8100, proj:19.8, own:27, mine:1},
-  {n:"Derrick Henry",     slug:"derrick-henry",    pos:"RB", team:"BAL", sal:7900, proj:18.9, own:24, mine:1},
-  {n:"Tee Higgins",       slug:"tee-higgins",      pos:"WR", team:"CIN", sal:6800, proj:15.4, own:16, mine:1},
-  {n:"Jared Goff",        slug:"jared-goff",       pos:"QB", team:"DET", sal:6200, proj:18.4, own:14, mine:1},
+  {n:"De'Von Achane",     slug:"devon-achane",     pos:"RB", team:"MIA", sal:8400, proj:21.1, own:32},
+  {n:"Amon-Ra St. Brown", slug:"amonra-st-brown",  pos:"WR", team:"DET", sal:8100, proj:19.8, own:27},
+  {n:"Derrick Henry",     slug:"derrick-henry",    pos:"RB", team:"BAL", sal:7900, proj:18.9, own:24},
+  {n:"Tee Higgins",       slug:"tee-higgins",      pos:"WR", team:"CIN", sal:6800, proj:15.4, own:16},
+  {n:"Jared Goff",        slug:"jared-goff",       pos:"QB", team:"DET", sal:6200, proj:18.4, own:14},
   {n:"Chase Brown",       slug:"chase-brown",      pos:"RB", team:"CIN", sal:5900, proj:14.2, own:19},
-  {n:"Tetairoa McMillan", slug:"tetairoa-mcmillan",pos:"WR", team:"CAR", sal:5600, proj:13.1, own:12, mine:1},
-  {n:"Brock Purdy",       slug:"brock-purdy",      pos:"QB", team:"SF",  sal:5400, proj:17.2, own:9,  mine:1},
-  {n:"George Kittle",     slug:"george-kittle",    pos:"TE", team:"SF",  sal:5200, proj:13.6, own:21, mine:1},
+  {n:"Tetairoa McMillan", slug:"tetairoa-mcmillan",pos:"WR", team:"CAR", sal:5600, proj:13.1, own:12},
+  {n:"Brock Purdy",       slug:"brock-purdy",      pos:"QB", team:"SF",  sal:5400, proj:17.2, own:9},
+  {n:"George Kittle",     slug:"george-kittle",    pos:"TE", team:"SF",  sal:5200, proj:13.6, own:21},
   {n:"Brenton Strange",   slug:"brenton-strange",  pos:"TE", team:"JAX", sal:4400, proj:11.8, own:8},
   {n:"Isaiah Likely",     slug:"isaiah-likely",    pos:"TE", team:"BAL", sal:4200, proj:11.2, own:11},
   {n:"Braelon Allen",     slug:"braelon-allen",    pos:"RB", team:"NYJ", sal:4100, proj:10.4, own:14},

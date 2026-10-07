@@ -63,6 +63,43 @@ class BuildPage(ParlayPage):
     def build_with_settings_panel(self):
         self.page.evaluate("() => { SURFACE = 'build'; BETS_PANEL = true; render(); }")
 
+    # ---- Mine only (2026-10-06: the players on the teams the reader follows) ----
+
+    def mine_only_chips(self):
+        """How many Mine only chips the settings panel draws."""
+        return self.page.get_by_test_id("parlay-mine-only").count()
+
+    def tap_mine_only(self):
+        self.page.get_by_test_id("parlay-mine-only").click()
+
+    def mine_only_pressed(self):
+        return self.page.get_by_test_id("parlay-mine-only").get_attribute("aria-pressed")
+
+    def listed_slugs(self):
+        """The players Build lists, by slug, from the line rows the screen holds (a line with no slug: his name's)."""
+        return set(self.page.evaluate(
+            "[...document.querySelectorAll('[data-testid=\"parlay-line\"][data-prop]')]"
+            ".map(e => PROPS[+e.dataset.prop]).map(p => p.slug || slugOf(p.n))"))
+
+    def lit_players(self):
+        """How many player blocks wear the lime ring (a player on a followed team), and how many are drawn."""
+        lit = self.page.get_by_test_id("parlay-bplayer").and_(self.page.locator(".mine")).count()
+        return lit, self.player_blocks()
+
+    def slip_presets(self):
+        """The preset chips on the slip: their data-preset ids (the tray's sheet is opened for it)."""
+        return self.page.evaluate("[...document.querySelectorAll('[data-preset]')].map(b => b.dataset.preset)")
+
+    def held_by(self, keys):
+        """Every player on the rosters of these teams (TEAMS keys), as the page holds them."""
+        return set(self.page.evaluate(
+            "ks => [...new Set(ks.flatMap(k => (TEAMS[k] ? TEAMS[k].roster : []).map(p => p.slug)))]", keys))
+
+    def listable_slugs(self):
+        """Every player a line is still to be played for, whatever is followed: what Mine only narrows."""
+        return set(self.page.evaluate(
+            "PROPS.filter(upcoming).map(p => p.slug || slugOf(p.n))"))
+
     # ---- what a reader does ----
 
     def tap_first_line_evidence(self):

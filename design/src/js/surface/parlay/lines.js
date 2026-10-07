@@ -52,10 +52,10 @@ function cbTagHTML(c){
 }
 
 /* Who and when once; OUT, Q, depth, new team, a thin record and his cornerback sit here. */
-function buildPlayerHTML(rows){
+function buildPlayerHTML(rows, mine){
   const p = rows[0], cb = (rows.find(r => r.cb) || {}).cb;
   const tag = whyNotSlip({...p, stale: 0, norole: 0}, null) + roleNoteTagHTML(p) + cbTagHTML(cb);
-  return `<div class="bplayer ${p.mine ? "mine" : ""} ${p.flag === "out" ? "isout" : ""}" data-testid="parlay-bplayer">
+  return `<div class="bplayer ${lineMine(mine, p) ? "mine" : ""} ${p.flag === "out" ? "isout" : ""}" data-testid="parlay-bplayer">
     <div class="bp-who">${avatarHTML(p)}<span class="bp-name">${esc(nameInitial(p.n))}</span><span class="bp-meta">${esc(p.pos)} · ${esc(p.game)}</span>${tag}</div>
     ${rows.map(buildRowHTML).join("")}
   </div>`;
@@ -77,12 +77,12 @@ function buildGroups(lines){
 }
 
 function buildListHTML(lines){
-  const groups = buildGroups(lines), flat = groups.flatMap(g => g.players.map(rows => ({g, rows})));
+  const groups = buildGroups(lines), flat = groups.flatMap(g => g.players.map(rows => ({g, rows}))), mine = mineSlugs();
   const pages = Math.max(1, Math.ceil(flat.length / BUILD_PAGE_SIZE)), page = Math.min(MKT_PAGE, pages);
   const shown = flat.slice((page - 1) * BUILD_PAGE_SIZE, page * BUILD_PAGE_SIZE);
   const body = groups.filter(g => shown.some(x => x.g === g)).map(g => `<section class="bl-group">
       ${g.w ? `<div class="tk-when bl-when"><h3>${esc(galGroupName(g.w))}</h3><span>${t("parlay.build.groupMeta", {kick: esc(g.w.kick || ""), n: g.n, s: g.n === 1 ? "" : "s"})}</span></div>` : ""}
-      ${shown.filter(x => x.g === g).map(x => buildPlayerHTML(x.rows)).join("")}
+      ${shown.filter(x => x.g === g).map(x => buildPlayerHTML(x.rows, mine)).join("")}
     </section>`).join("");
   return {body, page, pages, players: flat.length};
 }

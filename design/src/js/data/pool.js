@@ -21,7 +21,7 @@ const SAMPLE_POOL = [
   {n:"Chig Okonkwo",     slug:"chig-okonkwo",     pos:"TE", team:"TEN", snaps:60, dSnap:-2.6,  share:13.1, dShare:-3.2,  rz:1, ppg:7.2,  luck:-1.8, own:21, v:"hold"},
   {n:"Jalen Nailor",     slug:"jalen-nailor",     pos:"WR", team:"MIN", snaps:46, dSnap:-5.1,  share:11.8, dShare:-4.1,  rz:0, ppg:5.4,  luck:-3.3, own:8,  v:"hold"},
   {n:"Dontayvion Wicks", slug:"dontayvion-wicks", pos:"WR", team:"GB",  snaps:43, dSnap:-7.8,  share:10.4, dShare:-6.2,  rz:2, ppg:11.8, luck:+3.4, own:14, v:"SELL HIGH"},
-  {n:"Jerry Jeudy",      slug:"jerry-jeudy",      pos:"WR", team:"CLE", snaps:49, dSnap:-11.6, share:12.2, dShare:-9.4,  rz:0, ppg:6.4,  luck:-5.2, own:44, v:"SELL NOW", mine:1},
+  {n:"Jerry Jeudy",      slug:"jerry-jeudy",      pos:"WR", team:"CLE", snaps:49, dSnap:-11.6, share:12.2, dShare:-9.4,  rz:0, ppg:6.4,  luck:-5.2, own:44, v:"SELL NOW"},
 ];
 
 /* Live since 2026-09-17: design/pool.py cuts watch.json's league-wide pool to these same fields

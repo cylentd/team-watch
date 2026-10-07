@@ -251,6 +251,8 @@ def test_more_than_one_of_my_teams_is_counted_across_three(mount):
     # Anywhere a player shows which of my leagues rosters him, AYO is one of them.
     assert "AYO" in roster.owners_html({"n": "Justin Jefferson", "slug": "justin-jefferson"})
     assert sorted(roster.search_leagues("Chase Brown")) == ["ayo", "espn", "yahoo"]
+    # A prop line no longer says which of David's leagues hold the player (2026-10-06: the public page carries no
+    # roster of his per line, and nothing read it); the rows above and the search are where leagues show.
     props = roster.prop_leagues("Chase Brown")
-    assert props and all(sorted(x) == ["ayo", "espn", "yahoo"] for x in props)
+    assert props and all(x is None for x in props)
     assert errors == []

@@ -43,7 +43,8 @@ function dfsHandcuffs(pool){
   });
   return handcuffs;
 }
-function dfsPoolRow(p, i, cap, valueLeaders, handcuffs, poolIndex, activeEligible){
+/* `mine`: the reader's own players (mineSlugs(), 2026-10-06; the pool's own `mine` flag was David's). */
+function dfsPoolRow(p, i, cap, valueLeaders, handcuffs, poolIndex, activeEligible, mine){
   const value = (p.proj / (p.sal/(cap/50))).toFixed(2);
   const status = INJ[p.status] || (p.status ? p.status : null);
   const handcuffFor = handcuffs.get(p.n);
@@ -56,7 +57,7 @@ function dfsPoolRow(p, i, cap, valueLeaders, handcuffs, poolIndex, activeEligibl
   // slot this player fits); true/false once a slot IS selected, so a wrong-position player reads
   // as disabled rather than silently doing nothing when tapped.
   const addLabel = activeEligible === false ? t("dfs.row.wrongPos") : activeEligible === true ? t("dfs.row.swapIn") : t("dfs.row.add");
-  return `<div class="prow dfsrow ${p.mine?"mine":""} ${activeEligible===false?"ineligible":""}" style="animation-delay:${40+i*18}ms" data-dfs="${poolIndex}" role="button" tabindex="0">
+  return `<div class="prow dfsrow ${p.slug && mine.has(p.slug) ? "mine" : ""} ${activeEligible===false?"ineligible":""}" style="animation-delay:${40+i*18}ms" data-dfs="${poolIndex}" role="button" tabindex="0">
     <div>${HEADS[p.slug] ? `<img class="pool-head" src="${HEADS[p.slug]}" alt="" loading="lazy" decoding="async">`
         : `<div class="pool-head" style="display:grid;place-items:center;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)">${esc(p.abbr||initials(p.n))}</div>`}</div>
     <div class="pname"><b>${esc(p.n)}${tags}</b><span>${esc(p.pos)} · ${esc(p.team)}</span></div>

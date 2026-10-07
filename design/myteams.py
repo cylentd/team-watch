@@ -67,13 +67,11 @@ def yahoo_gameday(key):
 
 
 def roster_index(*sources):
-    """slug -> {pos, team, leagues} across my teams, for the builder's `mine` flag."""
+    """slug -> {pos, team} across my teams: position and team for a player the TD market names but no yards
+    market does. The `mine` flag and the per-line `leagues` list it once fed are gone (2026-10-06): the page
+    is public and carries no roster of his per line."""
     idx = {}
-    for key, src in sources:
-        if not src:
-            continue
-        for p in src["roster"]:
-            slug = slugify(p["n"])
-            e = idx.setdefault(slug, {"pos": p["pos"], "team": p["team"], "leagues": []})
-            e["leagues"].append(key)
+    for _, src in sources:
+        for p in (src or {}).get("roster", []):
+            idx.setdefault(slugify(p["n"]), {"pos": p["pos"], "team": p["team"]})
     return idx

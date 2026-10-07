@@ -152,7 +152,7 @@
                 "design/src/js/data/market.js", "design/src/js/data/kickwin.js", "design/dfs_backtest.py", "design/slate.py", "design/defense.py", "design/slips.py"],
       "tests": ["tests/test_dfs_backtest.py", "tests/test_dfs_pool.py", "tests/test_dfs_solver.py", "tests/test_legsheet.py",
                 "tests/test_parlay_grid.py", "tests/test_prop_picks.py", "tests/test_claude_calls.py", "tests/test_slip_reasons.py",
-                "tests/test_claude_record.py", "tests/test_js_bets.py", "tests/test_js_topcalls.py", "tests/test_js_kickwin.py", "tests/test_slate_kick.py", "tests/test_top_calls.py"],
+                "tests/test_claude_record.py", "tests/test_js_bets.py", "tests/test_js_bets_mine.py", "tests/test_js_mine_rows.py", "tests/test_build_mine.py", "tests/test_mine_build.py","tests/test_mine_public.py", "tests/test_js_topcalls.py", "tests/test_js_kickwin.py", "tests/test_slate_kick.py", "tests/test_top_calls.py"],
       "render": ["build", "dfs", "parlay"]
     },
     "chat": {

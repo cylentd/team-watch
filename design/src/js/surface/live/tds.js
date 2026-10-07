@@ -73,7 +73,8 @@ function tdAliveRows(scored){
   const seen = new Set(), board = [];
   /* The sample rows are no TD chances: without the live market there is no board. */
   const props = typeof LIVE_MARKET !== "undefined" && LIVE_MARKET ? PROPS : [];
-  for (const p of props.filter(x => x.mkt === "TD" && x.slug).sort(SORTS.model)){
+  const mine = mineSlugs();
+  for (const p of props.filter(x => x.mkt === "TD" && x.slug).sort((a, b) => SORTS.model(a, b, mine))){
     if (seen.has(p.slug)) continue;
     seen.add(p.slug);
     board.push(p);

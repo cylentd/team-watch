@@ -14,15 +14,16 @@ def _r1(v):
     return None if v is None else round(float(v), 1)
 
 
-def _leagues(rostered_by, mine):
+def _leagues(rostered_by):
     """{league key: team or None} for each of David's leagues (a watch label lowercased is its key: ESPN,
-    Yahoo, AYO) and whether one of those teams is mine."""
+    Yahoo, AYO). Whether a player is "mine" is not said here (2026-10-06): the page is public, and "mine" is
+    the teams the reader follows, read in the browser (data/mates.js `mineSlugs`)."""
     out = dict.fromkeys(leagues.KEYS)
     for tag in rostered_by or []:
         label, _, team = tag.partition(":")
         if label.lower() in out:
             out[label.lower()] = team
-    return out, any(f"{k}:{v}" in mine for k, v in out.items() if v)
+    return out
 
 
 def report(pool):
@@ -41,11 +42,10 @@ def live_pool(usage, slugify):
     rows = [r for r in rows if isinstance(r, dict)]
     if not rows:
         return None
-    mine = {f"{(L.get('label') or '').lower()}:{L.get('me')}" for L in usage.get("leagues") or []}
     players = []
     for r in rows:
         share, d_share = SHARE.get(r.get("pos"), ("tgt", "d_tgt"))
-        leagues, is_mine = _leagues(r.get("rostered_by"), mine)
+        leagues = _leagues(r.get("rostered_by"))
         players.append({
             "n": r.get("name"), "slug": slugify(r.get("name") or ""), "pos": r.get("pos"), "team": r.get("team"),
             "snaps": _r1(r.get("snap")), "dSnap": _r1(r.get("d_snap")),
@@ -54,7 +54,7 @@ def live_pool(usage, slugify):
             # watch's luck is a ratio (points over what the usage bought); the page reads percent
             "luck": None if r.get("luck") is None else round(float(r["luck"]) * 100),
             "v": r.get("verdict") or "hold", "why": r.get("why") or "",
-            "leagues": leagues, "mine": is_mine,
+            "leagues": leagues,
         })
     # Role share first, skill players ahead of quarterbacks: a quarterback's dropbacks count as
     # opportunities and his share is his snaps, so either key alone put every QB on top.

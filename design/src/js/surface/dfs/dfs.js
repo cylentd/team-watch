@@ -41,7 +41,7 @@ function dfsSurfaceHTML(){
         ${(() => {
           const cap = site.cap;
           const valueLeaders = dfsValueLeaders(site.pool, cap);
-          const handcuffs = dfsHandcuffs(site.pool);
+          const handcuffs = dfsHandcuffs(site.pool), mine = mineSlugs();
           const all = site.pool.filter(p => DFS_POS==="ALL"||p.pos===DFS_POS);
           const pages = Math.max(1, Math.ceil(all.length / DFS_PAGE_SIZE));
           const page = Math.min(DFS_PAGE, pages);
@@ -59,7 +59,7 @@ function dfsSurfaceHTML(){
             <div class="phead"><div></div><div>${t("dfs.table.player")}</div><div>${t("dfs.table.salary")}</div><div>${t("dfs.table.proj")}</div>
               <div>${t("dfs.table.value")}</div><div>${t("dfs.table.own")}</div><div></div></div>
             ${rows.length ? rows.map((p,i)=>dfsPoolRow(p,i,cap,valueLeaders,handcuffs,
-                site.pool.indexOf(p), pickSlot ? slotEligible(pickSlot.slot, p.pos) : null)).join("")
+                site.pool.indexOf(p), pickSlot ? slotEligible(pickSlot.slot, p.pos) : null, mine)).join("")
               : `<div class="state-empty" style="margin:20px 0;min-height:110px"><div><b>0</b><span>${t("dfs.empty.noPlayers")}</span></div></div>`}
           </div>`;
         })()}

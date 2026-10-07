@@ -55,7 +55,7 @@ function slipHTML(){
   const udP = udMode && legs.length && !corr ? udChance(legs) : null;
   const note = corr ? `<div class="corr" data-testid="parlay-slip-corr"><span>⚠</span>${t("slips.joint.note")}</div>` : "";
   const chips = `<div class="presets">
-    ${PRESETS.map(([k,label]) =>
+    ${presetsFor(mineSlugs()).map(([k,label]) =>
       `<button class="chip" data-preset="${k}" aria-pressed="${SLIP_MODE===k}">${label}</button>`).join("")}</div>`;
   const model = legs.some(l => (udPick(l) || {}).synthetic);
   if (udMode) return `<div class="slip" data-testid="parlay-slip">

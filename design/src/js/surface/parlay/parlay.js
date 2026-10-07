@@ -25,14 +25,14 @@ const buildCount = () => PROPS.filter(upcoming).length;
 /* The lines that pass Build's filters, in the chosen sort. Kickoff is the shared GAL_WIN, read
    through inWin so a whole-day choice ("Sunday") covers its windows. */
 function buildLines(){
-  const win = GAL_WINDOWS.find(w => w.k === GAL_WIN);
+  const win = GAL_WINDOWS.find(w => w.k === GAL_WIN), mine = mineSlugs(), onlyMine = betsMineOn(mine);
   return PROPS.filter(p => upcoming(p) && (MKT_POS==="ALL"||p.pos===MKT_POS) && (MKT_KIND==="ALL"||p.mkt===MKT_KIND)
-    && (GAL_WIN==="ALL"||inWin(p, win)) && (!MKT_MINE||p.mine)
+    && (GAL_WIN==="ALL"||inWin(p, win)) && (!onlyMine||lineMine(mine, p))
     // A real Underdog price without a model rating yet has no higher/lower call to show; udPick
     // covers that plus the TD rows Underdog has no line for at all. Longest reception has no line to
     // pick from (2026-10-03), so Build never lists it.
     && p.mkt !== "LONG" && (PARLAY_BOOK !== "underdog" || udPick(p)) && (!MKT_BEST || bestOdds(p, PARLAY_BOOK)))
-    .sort((a, b) => lineMoved(a, PARLAY_BOOK) - lineMoved(b, PARLAY_BOOK) || SORTS[MKT_SORT](a, b));
+    .sort((a, b) => lineMoved(a, PARLAY_BOOK) - lineMoved(b, PARLAY_BOOK) || SORTS[MKT_SORT](a, b, mine));
 }
 
 /* One column under a heading per kickoff, paged by player (lines.js). */

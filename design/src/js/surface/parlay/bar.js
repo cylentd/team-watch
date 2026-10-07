@@ -55,6 +55,7 @@ function kickName(w){
 /* Book first because it changes everything below it; kickoff second; then Build's own three. */
 function betsPanelHTML(build){
   if (!BETS_PANEL) return "";
+  const mine = mineSlugs();   // a reader who follows no team has no players of their own, so no chip (2026-10-06)
   const sel = (k, label, opts, cur) => `<label class="selwrap"><span class="lbl">${label}</span>
     <select class="msel" data-testid="parlay-select" data-msel="${k}">${opts.map(([v, l]) => `<option value="${v}" ${cur===v?"selected":""}>${l}</option>`).join("")}</select></label>`;
   const sorts = PARLAY_BOOK === "underdog"
@@ -71,7 +72,7 @@ function betsPanelHTML(build){
       ${build ? sel("gwin", t("parlay.filter.kickoff"), [["ALL", t("parlay.option.all")], ...GAL_WINDOWS.map(w => [w.k, esc(galGroupName(w))])], GAL_WIN) : ""}
       ${build ? sel("mkind", t("parlay.filter.market"), [["ALL",t("parlay.option.all")],["TD",MKT.TD],["RUSH",MKT.RUSH],["REC",MKT.REC],["RECS",MKT.RECS],["PASS",MKT.PASS]], MKT_KIND)
         + sel("msort", t("parlay.filter.sort"), sorts, MKT_SORT)
-        + `<button class="chip" data-mine="1" aria-pressed="${MKT_MINE}">${t("parlay.filter.mineOnly")}</button>` : ""}
+        + (mine.size ? `<button class="chip" data-testid="parlay-mine-only" data-mine="1" aria-pressed="${betsMineOn(mine)}">${t("parlay.filter.mineOnly")}</button>` : "") : ""}
       <span style="flex:1"></span>
       ${explainButtonHTML("parlay")}
     </div>

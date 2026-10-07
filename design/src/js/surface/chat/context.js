@@ -24,6 +24,7 @@ const CHAT_STOPWORDS = new Set(["start","sit","best","who","what","how","why","t
 function chatIndex(){
   const stock = (typeof LIVE_MARKET_STOCK !== "undefined" && LIVE_MARKET_STOCK)
     ? LIVE_MARKET_STOCK.players : null;
+  const mine = mineSlugs();   // the teams the reader follows (2026-10-06); the pool's own flag was David's
   return POOL.map(p => {
     const s = stock ? stock[p.slug] : null;
     return {
@@ -34,7 +35,7 @@ function chatIndex(){
         red_zone: p.rz, pts_per_game: p.ppg, td_luck: p.luck,
         usage_verdict: p.v, why: p.why || null,
         market_pts: s ? s.pts : null,
-        rostered_by_me: p.mine ? true : false,
+        rostered_by_me: mine.has(p.slug),
         leagues: p.leagues || null,
       },
       hay: (p.n || "").toLowerCase(),

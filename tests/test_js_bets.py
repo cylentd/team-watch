@@ -34,15 +34,16 @@ GLOBALS = {"KICK_TZ": "America/Los_Angeles", "BETS_NOW": MONDAY_NOON,
            # What Build's controls hold on a fresh load.
            "MKT_POS": "ALL", "MKT_KIND": "ALL", "MKT_MINE": False, "MKT_BEST": False, "GAL_WIN": "ALL",
            "PARLAY_BOOK": "draftkings"}
-FILES = ("lib/kick.js", "data/schedule.js", "data/market.js", "builder/slips.js", "surface/parlay/parlay.js")
+FILES = ("lib/kick.js", "data/schedule.js", "data/market.js", "data/mates.js", "builder/slips.js", "surface/parlay/parlay.js")
 
 
 @pytest.fixture(scope="module")
 def bets(node_js):
-    js = node_js(*FILES, globals=GLOBALS)
-    # The sort and the shared helpers builder/ and lib/odds.js own: not what is under test.
+    js = node_js(*FILES, globals={**GLOBALS, "TEAMS": {}})
+    # The sort and the shared helpers builder/ and lib/odds.js own, and the team switch's follow list (a reader
+    # who follows nobody; whose lines are "mine" is test_js_bets_mine.py's): not what is under test.
     js("(() => { globalThis.SORTS = {edge: () => 0}; globalThis.MKT_SORT = 'edge'; globalThis.lineMoved = () => 0; "
-       "globalThis.udPick = () => ({});globalThis.bestOdds = () => true; return 1; })()")
+       "globalThis.udPick = () => ({});globalThis.bestOdds = () => true; globalThis.tsFollowed = () => []; return 1; })()")
     return js
 
 

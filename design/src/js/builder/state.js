@@ -8,16 +8,19 @@ const DFS_PAGE_SIZE = 25;
 let MKT_PAGE = 1;
 /* Card order. "edge" ranks by what the price leaves on the table; "model" by the model's chance
    alone ("who scores?" on a touchdown list). The choice sticks until changed: a market chip
-   never moves it. Unmodelled rows go last either way, mine first among them. */
+   never moves it. Unmodelled rows go last either way, and a tie goes to the reader's own players
+   (`mine`, mineSlugs(): the caller reads it once, not per comparison). */
 let MKT_SORT = "conf";
+const NO_MINE = new Set();
+const mineFirst = (a, b, mine) => lineMine(mine, b) - lineMine(mine, a);
 const SORTS = {
-  edge:  (a,b) => (typeof b.edge === "number") - (typeof a.edge === "number") || (b.edge||0) - (a.edge||0) || (b.mine||0) - (a.mine||0),
-  model: (a,b) => (typeof b.model === "number") - (typeof a.model === "number") || (b.model||0) - (a.model||0) || (b.mine||0) - (a.mine||0),
-  conf:  (a,b) => (udPick(b)?udPick(b).conf:-1) - (udPick(a)?udPick(a).conf:-1) || (b.mine||0) - (a.mine||0),
+  edge:  (a,b,mine=NO_MINE) => (typeof b.edge === "number") - (typeof a.edge === "number") || (b.edge||0) - (a.edge||0) || mineFirst(a, b, mine),
+  model: (a,b,mine=NO_MINE) => (typeof b.model === "number") - (typeof a.model === "number") || (b.model||0) - (a.model||0) || mineFirst(a, b, mine),
+  conf:  (a,b,mine=NO_MINE) => (udPick(b)?udPick(b).conf:-1) - (udPick(a)?udPick(a).conf:-1) || mineFirst(a, b, mine),
   // Slip-ready first: the rows a gallery card could be built from (every gate in legOKInBook,
   // any scope), then the book's own metric within each half. Answers "why is the top of the
   // confidence sort not on the card" by putting the card's candidates on top.
-  ready: (a,b) => legOKInBook(b, "mix", PARLAY_BOOK) - legOKInBook(a, "mix", PARLAY_BOOK)
-    || (PARLAY_BOOK === "underdog" ? SORTS.conf(a,b) : SORTS.edge(a,b)),
+  ready: (a,b,mine=NO_MINE) => legOKInBook(b, "mix", PARLAY_BOOK) - legOKInBook(a, "mix", PARLAY_BOOK)
+    || (PARLAY_BOOK === "underdog" ? SORTS.conf(a,b,mine) : SORTS.edge(a,b,mine)),
 };
 

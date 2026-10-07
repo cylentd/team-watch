@@ -236,8 +236,8 @@ def live_props(available, rosters):
     (BettingPros prices it as one offer per game whose selections are the players, so the row's
     `player` is a meaningless first participant and the real name is in `side`; team rows are
     dropped), and the consensus line that comes back even when the request filters by book.
-    `rosters` is slug -> {pos, team, leagues} for my two teams; it sets `mine` and fills position
-    and team for a player the TD market names but no yards market does.
+    `rosters` is slug -> {pos, team} for my teams; it fills position and team for a player the TD
+    market names but no yards market does. No `mine` flag: that is the reader's follow list (data/mates.js).
     """
     raw, origin = load_props_raw()
     if not raw:
@@ -316,8 +316,6 @@ def live_props(available, rosters):
             "book": primary,
             "books": {b: books[b] for b in BOOK_ORDER if b in books},
             "ref": books.get(REFERENCE_BOOK),
-            "mine": 1 if ro else 0,
-            "leagues": ro["leagues"] if ro else [],
         })
 
     # The model's P(over) for the line the card shows (the primary book's). `model` is that chance
@@ -394,9 +392,10 @@ def live_props(available, rosters):
                            "url": r.get("source_url")}
 
     windows = assign_windows(out)
-    # Best edge first; unmodelled rows after, mine first, by kickoff; the not-playing last.
+    # Best edge first; unmodelled rows after, by kickoff; the not-playing last; the reader's own lead ties at draw time.
     out.sort(key=lambda p: (0, -p["edge"]) if p.get("edge") is not None
-             else (2 if p.get("flag") == "out" else 1, not p["mine"], p["commence"] or "",
+             else (1,  # nomutate: any rank above the priced rows' 0 sorts the same
+                   p.get("flag") == "out", p["commence"] or "",
                    POS_ORDER.get(p["pos"], 9), p["n"]))
     return {
         "source": raw.get("source"),
@@ -555,10 +554,11 @@ def report_sources(report, mine, props, liveDfsYahoo, news, profiles, missing):
         else:
             report.append(f"{label}: no live file, template falls back to its own copy")
     if props:
-        mine = sum(1 for p in props["props"] if p["mine"])
+        held = {slugify(p["n"]) for _, src in mine if src for p in src["roster"]}
+        on_mine = sum(1 for p in props["props"] if slugify(p["n"]) in held)
         report.append(f"Props: {len(props['props'])} lines, {props['players']} players, "
                       f"{props['events']} games, {'/'.join(props['books'])}, pulled {props['fetched']} "
-                      f"(from {props['origin']}), {mine} on my rosters")
+                      f"(from {props['origin']}), {on_mine} on my rosters")
         report.append("Windows: " + " · ".join(
             f"{w['label']}({w['n']}/{w['games']}g)" for w in props["windows"]))
         if props["model"]:

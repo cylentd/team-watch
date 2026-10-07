@@ -47,6 +47,10 @@ function rosterSlugs(teams, keys){
   keys.forEach(k => ((teams[k] || {}).roster || []).forEach(p => { if (p.slug) out.add(p.slug); }));
   return out;
 }
+/* The reader's own players right now: the rosters of the teams they follow, read on each call (a star in the
+   switch changes it, and a connected league's roster arrives after load). Bets, DFS and the chat read it
+   (2026-10-06; they read a flag the build wrote from David's rosters before). */
+const mineSlugs = () => rosterSlugs(TEAMS, tsFollowed());
 
 /* The teams a reader follows (2026-09-26): the team switch lists only these, and every other team
    in David's leagues sits behind its league's row, one tap further. Kept in this browser. Unset, it

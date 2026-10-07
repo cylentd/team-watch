@@ -64,15 +64,25 @@ const legOKInBook = (p, s, book) => {
     : p.mkt === "RECS" && !u.synthetic && u.conf >= HIT_RECS && u.line >= 2.5)
     && (p.games||0) >= 8 && playing(p) && !u.stale && scopeOK(p, s);
 };
+/* Whose line it is (2026-10-06, David: "mine" is the players on the teams the reader follows): `mine` is
+   mineSlugs() (data/mates.js). A line with no headshot slug takes the slug rule of his name. The build
+   used to write a `mine` flag from David's rosters, so every reader's "mine" was his. */
+const lineMine = (mine, p) => mine.has(p.slug || slugOf(p.n));
+/* Mine only (MKT_MINE, state.js) applies only to a reader who has players of their own. With none the chip
+   is not drawn (bar.js), so a filter left on from before they unfollowed their last team must not leave an
+   empty list they cannot clear. */
+const betsMineOn = (mine = mineSlugs()) => MKT_MINE && mine.size > 0;
 function mineSlip(book){
-  if (!LIVE_MARKET) return [1,2,5];
-  const seen = new Set(), out = [];
+  if (!LIVE_MARKET) return [];
+  const seen = new Set(), out = [], mine = mineSlugs();
   // Longest reception has no line to pick from (2026-10-03), so it is never a leg.
   const ok = book === "underdog" ? p => !!udPick(p) && p.mkt !== "LONG" : p => p.mkt !== "TD" && p.mkt !== "LONG";
-  PROPS.forEach((p,i) => { if (p.mine && ok(p) && !seen.has(p.game) && out.length < SLIP_LEGS){ seen.add(p.game); out.push(i); } });
+  PROPS.forEach((p,i) => { if (lineMine(mine, p) && ok(p) && !seen.has(p.game) && out.length < SLIP_LEGS){ seen.add(p.game); out.push(i); } });
   return out;
 }
+/* "My players" is a preset only for a reader who has some. */
 const PRESETS = [["mine",t("parlay.preset.mine")],["blank",t("parlay.preset.blank")]];
+const presetsFor = mine => PRESETS.filter(([k]) => k !== "mine" || mine.size > 0);
 function presetSlip(k, book){
   if (k === "mine") return mineSlip(book);
   return [];
