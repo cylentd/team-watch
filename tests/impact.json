@@ -107,7 +107,7 @@
     },
     "usage": {
       "paths": ["design/src/js/surface/usage/", "design/src/css/surface/usage/", "design/src/js/data/usage.js", "design/usage.py"],
-      "tests": [],
+      "tests": ["tests/test_usage_mine.py"],
       "render": ["usage"]
     },
     "board": {

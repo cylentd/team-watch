@@ -35,23 +35,43 @@ function dstCell(w, cell, lg, pos){
   };
 }
 
+/* A club spelled as the file spells it: a roster says LAR, JAC and WSH where the file says LA, JAX and WAS. */
+const DST_CLUB = {LAR: "LA", JAC: "JAX", WSH: "WAS"};
+const dstClub = c => DST_CLUB[c] || c;
+
+/* The clubs whose D/ST (pos "DST") or K (pos "K") the reader holds in this league (2026-10-06): the players of that
+   position on the rosters of the teams they follow (`keys`, tsFollowed()) that play in `lg`, spelled as the file
+   spells them. The file's own `mine` flag is David's holdings for every reader, so the board never reads it. A
+   connected league's team is no part of David's leagues, whose holders the file lists. */
+function dstHeld(teams, keys, lg, pos){
+  const out = new Set();
+  keys.forEach(k => {
+    const tm = teams[k];
+    if (!tm || tm.connected || (tm.mate ? tm.league : k) !== lg) return;
+    (tm.roster || []).forEach(p => { if (p.pos === pos && p.team) out.add(dstClub(p.team)); });
+  });
+  return [...out];
+}
+
 /* The board for one position in one league: the first week's rows in the file's rank order (a bye after
    every game, by team), each with the next weeks as small cells. null when there is no file or the league
-   has no such position (ESPN has no K). A team that has already kicked off is no streamer. */
-function dstBoard(block, lg, pos){
+   has no such position (ESPN has no K). A team that has already kicked off is no streamer. `held` is the
+   clubs the reader holds (dstHeld): a row is MINE when its club is one. */
+function dstBoard(block, lg, pos, held = []){
   const L = block && block.leagues && block.leagues[lg];
   const cell = L && (pos === "K" ? L.k : L.dst);
   if (!cell) return null;
+  const mine = new Set(held.map(dstClub));
   const rows = (block.teams || []).map(tm => {
     const [first, ...rest] = tm.weeks, c = dstCell(first, cell, lg, pos);
-    const held = (pos === "K" ? tm.k_rostered : tm.rostered) || {}, h = held[lg];
+    const owned = (pos === "K" ? tm.k_rostered : tm.rostered) || {}, h = owned[lg];
     return {
       ...c, team: tm.team, kickoff: first.kickoff || null, kicked_off: !!first.kicked_off,
       rank: first.bye ? null : (first.rank || {})[cell],
       streamer: c.streamer && !first.kicked_off,
       // On waivers (ESPN's flag) he is nobody's yet, but not Free: he can only be claimed.
       waiver: h ? !!h.waiver : false, free: h ? h.pct < 50 && !h.waiver : null,
-      owner: h ? h.owner : null, mine: h ? !!h.mine : false,
+      owner: h ? h.owner : null, mine: mine.has(dstClub(tm.team)),
       next: rest.map(w => dstCell(w, cell, lg, pos)),
     };
   });

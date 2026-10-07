@@ -73,9 +73,14 @@ class RanksPage:
         return self._sub.first.inner_text()
 
     def dst_rows(self):
-        """D/ST or K rows in order: team, streamer tag shown."""
+        """D/ST or K rows in order: team, streamer tag shown, MINE tag shown."""
         return self._dst_rows.evaluate_all("""rs => rs.map(r => ({team: r.dataset.rkteam,
-          streamer: !!r.querySelector('[data-testid="ranks-dst-streamer"]')}))""")
+          streamer: !!r.querySelector('[data-testid="ranks-dst-streamer"]'),
+          mine: r.classList.contains('mine') && !!r.querySelector('.rk-dhold.mine')}))""")
+
+    def dst_mine_teams(self):
+        """The D/ST or K rows wearing the MINE tag, by club."""
+        return {r["team"] for r in self.dst_rows() if r["mine"]}
 
     def schedule_link(self):
         link = self.page.get_by_test_id("ranks-schedule")
@@ -110,9 +115,21 @@ class RanksPage:
         """The first leaguemate's team key, or None."""
         return self.page.evaluate("MATES.length ? MATES[0].key : null")
 
+    def first_mate_in(self, league):
+        """The first leaguemate's team key in a league, or None."""
+        return self.page.evaluate("lg => (MATES.find(m => m.league === lg) || {}).key || null", league)
+
     def put_on_roster(self, key, slug):
         """Put a player on a team's roster, as the build would (the fixture's leaguemates hold none of the list's)."""
         self.page.evaluate("([k, s]) => TEAMS[k].roster.push({n: s, slug: s})", [key, slug])
+
+    def put_pos_on_roster(self, key, pos, club):
+        """Put a D/ST or K of an NFL club on a team's roster, as the build would (the fixture's rosters hold none)."""
+        self.page.evaluate("([k, pos, club]) => TEAMS[k].roster.push({n: club, pos, team: club, slug: null})", [key, pos, club])
+
+    def follow(self, key):
+        """Follow a team the way a star in the team switch does, and draw the view again."""
+        self.page.evaluate("k => { followToggle(k); render(); }", key)
 
     def surface(self):
         return self.page.evaluate("SURFACE")

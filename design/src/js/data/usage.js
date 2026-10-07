@@ -69,13 +69,12 @@ function usageFmtDelta(d, fmt){
   return (d > 0 ? "+" : "") + n + (fmt === "pct" ? "%" : "");
 }
 
-/* TEAMS.espn.roster is filled by hydrate.js from LIVE_ESPN, so this cannot be a load-time
-   constant -- it is read on each render, which is cheap against two rosters. */
-function usageMine(){
-  const out = new Set();
-  Object.values(TEAMS).forEach(tm => (tm.roster || []).forEach(p => out.add(p.slug)));
-  return out;
-}
+/* The reader's own players (2026-10-06, the same fix as Ranks' MINE): the rosters of the teams the switch
+   lists as followed, and a league they connected (tsFollowed). It was every roster on the page, a
+   leaguemate's included, so the mark and the Mine filter never followed what the reader follows.
+   TEAMS.espn.roster is filled by hydrate.js from LIVE_ESPN, so this cannot be a load-time constant:
+   it is read on each render. */
+const usageMine = () => rosterSlugs(TEAMS, tsFollowed());
 
 const USAGE_POSITIONS = ["QB", "RB", "WR", "TE"];
 let USAGE_POS = "RB";

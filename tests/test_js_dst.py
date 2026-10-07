@@ -113,7 +113,7 @@ def test_who_rosters_it_in_that_league_or_free(dst):
     board = dst("dstBoard", BLOCK, "espn", "DST")
     for r in board["rows"]:
         held = raw(r["team"])["rostered"]["espn"]
-        assert r["free"] is (held["pct"] < 50 and not held["waiver"]) and r["owner"] == held["owner"] and r["mine"] is held["mine"], r["team"]
+        assert r["free"] is (held["pct"] < 50 and not held["waiver"]) and r["owner"] == held["owner"] and r["mine"] is False, r["team"]
     assert any(r["free"] for r in board["rows"]) and any(r["owner"] for r in board["rows"])
     # a different league reads its own roster
     yahoo = dst("dstBoard", BLOCK, "yahoo", "DST")
@@ -180,3 +180,54 @@ def test_the_league_follows_the_readers_team_and_defaults_to_espn(dst):
     assert dst("dstLeagueKey", "yahoo", False, BLOCK) == "espn", "no team picked: ESPN"
     assert dst("dstLeagueKey", None, True, BLOCK) == "espn"
     assert dst("dstLeagueKey", "mystery", True, BLOCK) == "espn", "a league the file lacks reads ESPN's"
+
+
+# ---- who holds it is the reader's: the teams followed, never the file's David flag (2026-10-06) ----
+# The file's `mine` says David holds the team, for every reader. A row is MINE when a team the reader follows,
+# in the board's league, has that club's D/ST (or K) on its roster.
+ROSTERS = {
+    "espn": {"roster": [{"pos": "DST", "team": "SEA"}, {"pos": "QB", "team": "KC"}, {"pos": "K", "team": "JAX"}]},
+    "yahoo": {"roster": [{"pos": "DST", "team": "CIN"}, {"pos": "K", "team": "KC"}]},
+    "espn-run-it-back": {"roster": [{"pos": "DST", "team": "LAR"}, {"pos": "K", "team": "WSH"}], "mate": True, "league": "espn"},
+    "ayo-don-wick": {"roster": [{"pos": "DST", "team": "JAC"}], "mate": True, "league": "ayo"},
+    "connected": {"roster": [{"pos": "DST", "team": "DAL"}], "connected": True},
+}
+
+
+def held(dst, keys, lg, pos):
+    return sorted(dst("dstHeld", ROSTERS, keys, lg, pos))
+
+
+def test_the_clubs_held_are_the_followed_teams_in_the_boards_league_at_that_position(dst):
+    assert held(dst, [], "espn", "DST") == [], "nothing followed, nothing held"
+    assert held(dst, ["espn"], "espn", "DST") == ["SEA"], "his quarterback is no D/ST"
+    assert held(dst, ["espn"], "espn", "K") == ["JAX"]
+    assert held(dst, ["espn", "yahoo"], "espn", "DST") == ["SEA"], "a Yahoo team holds nothing on the ESPN board"
+    assert held(dst, ["yahoo"], "yahoo", "K") == ["KC"]
+
+
+def test_a_leaguemates_team_counts_when_followed_and_only_in_its_own_league(dst):
+    assert held(dst, ["espn", "espn-run-it-back"], "espn", "DST") == ["LA", "SEA"]
+    assert held(dst, ["ayo-don-wick"], "espn", "DST") == [], "an AYO team is not on the ESPN board"
+    assert held(dst, ["ayo-don-wick"], "ayo", "DST") == ["JAX"]
+
+
+def test_a_club_is_held_under_whichever_spelling_the_roster_uses(dst):
+    """The roster says LAR, JAC and WSH; the file says LA, JAX and WAS."""
+    assert held(dst, ["espn-run-it-back"], "espn", "DST") == ["LA"]
+    assert held(dst, ["espn-run-it-back"], "espn", "K") == ["WAS"]
+    assert held(dst, ["ayo-don-wick"], "ayo", "DST") == ["JAX"]
+
+
+def test_a_connected_league_is_not_on_the_files_board(dst):
+    """The file's holders are David's leagues'; a visitor's own league holds nothing here."""
+    assert held(dst, ["connected"], "espn", "DST") == []
+
+
+def test_a_row_is_mine_when_its_club_is_held_and_never_on_the_files_flag(dst):
+    assert any(t["rostered"]["espn"]["mine"] for t in BLOCK["teams"]), "the file flags David's teams"
+    assert not any(r["mine"] for r in dst("dstBoard", BLOCK, "espn", "DST", [])["rows"]), "a reader who holds none"
+    mine = {r["team"] for r in dst("dstBoard", BLOCK, "espn", "DST", ["LA", "ARI"])["rows"] if r["mine"]}
+    assert mine == {"LA", "ARI"}
+    ayo = {r["team"] for r in dst("dstBoard", BLOCK, "ayo", "K", ["JAX"])["rows"] if r["mine"]}
+    assert ayo == {"JAX"}

@@ -5,6 +5,7 @@ import pytest
 
 from component import mount  # noqa: F401  (the fixture)
 from pages.ranks import RanksPage
+from pages.teamswitch import TeamSwitchPage
 from test_render import open_at
 
 PHONE = (390, 844)
@@ -62,6 +63,45 @@ def test_a_dst_file_for_another_week_than_the_page_draws_no_dst_or_k_tab(mount):
     assert "D/ST" in ranks.chips()
     page.evaluate("LIVE_SCHEDULE.week = 3; render()")
     assert ranks.chips() == ["QB", "RB", "WR", "TE", "FLEX"]
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req("Ranks", ac="a D/ST is MINE when a team the reader follows in that league holds it")
+def test_a_dst_is_mine_only_on_a_followed_teams_roster_and_unfollowing_takes_it_off(mount):
+    """The file flags David's D/ST for every reader (2026-10-06): the tag is the reader's followed rosters now.
+    The fixture's rosters hold no D/ST, so each is put on one, as the build would."""
+    page, errors = mount("ranks", size=PHONE)
+    ranks, switch = RanksPage(page), TeamSwitchPage(page)
+    mate = ranks.first_mate_in("espn")
+    ranks.pick_team("espn")
+    ranks.put_pos_on_roster("espn", "DST", "SEA")
+    ranks.put_pos_on_roster(mate, "DST", "DEN")
+    ranks.put_pos_on_roster("yahoo", "DST", "CIN")
+    ranks.pick("DST")
+    assert ranks.dst_mine_teams() == {"SEA"}, "his own team's; a leaguemate's he does not follow and a Yahoo team's are not"
+    ranks.follow(mate)
+    assert ranks.dst_mine_teams() == {"SEA", "DEN"}, "a leaguemate's, once followed"
+    switch.open_menu()
+    switch.follow("espn")
+    assert ranks.dst_mine_teams() == {"DEN"}, "unfollowed, his team's D/ST is no longer his"
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req("Ranks", ac="a K is MINE when a followed team in that league holds him, and the tag is the reader's, not the file's")
+def test_a_k_is_mine_only_on_a_followed_teams_roster_and_a_stranger_reads_none(mount):
+    page, errors = mount("ranks", size=PHONE)
+    ranks, switch = RanksPage(page), TeamSwitchPage(page)
+    ranks.put_pos_on_roster("yahoo", "K", "KC")
+    ranks.pick("K")
+    assert ranks.dst_mine_teams() == {"KC"}
+    ranks.pick("DST")
+    assert ranks.dst_mine_teams() == set(), "no D/ST of his on that roster: the file's David flags (CIN, JAX) are not his"
+    ranks.pick("K")
+    switch.open_menu()
+    switch.follow("yahoo")
+    assert ranks.dst_mine_teams() == set(), "unfollowed, the K goes with it"
     assert errors == []
 
 

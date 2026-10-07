@@ -221,6 +221,16 @@ team alone; the switch's first screen says "No teams yet" and shows a league row
 reader can always reach a team. Live reads the same pick (see "Live", "Whose team is mine").
 ~~`followLoad()` defaulting to David's own teams~~ (superseded 2026-10-04).
 
+**A tag on a player is the teams the reader follows (2026-10-06).** David: "Unselecting your team doesn't remove
+them from the MINE designation." Ranks, the Usage grid (its dot and its Mine filter) and Ranks' D/ST and K list
+each tagged every roster on the page, or the file's David flag, so David's three teams read MINE for every reader
+and nothing in the team switch changed it. Now `rosterSlugs(TEAMS, tsFollowed())` (`data/mates.js`) is the one
+rule for a player: the players on the teams the switch lists as followed, a leaguemate's team included once
+followed, plus a connected league. D/ST and K have no slug, so `dstHeld` (`data/dst.js`) reads the club on the
+followed rosters in the board's league (LAR, JAC and WSH read as LA, JAX and WAS); the file's `mine` flag is not
+read. A star in the switch draws the view again, so the tag follows at once. Live's "mine" is not this rule: it
+is one team per league, the picked one, and it also decides which matchup Live draws (below).
+
 Phase 3 (per-team waiver advice) is shelved, 2026-09-26: it would help leaguemates beat David.
 (Built on 2026-09-27 and tabled the same night, unlanded: ff-jarvis branch `waiver-teams`, team-watch
 branch `worktree-waiver-teams`.)
@@ -798,7 +808,7 @@ schedule, another unit's view; `navGo("schedule")`), top right of the headline o
 | **D/ST and K are teams, so one panel, no tiers.** A row is a team: place (the file's rank), team, `vs`/`@` opponent and kickoff, this week's points; then one line of who holds it and the next three weeks as small cells (`W6 ~7.2`). 32 rows | tiers are natural breaks in a player list; a D/ST list is 32 teams in a 5-point band, and a break there would be noise | `surface/ranks/dst.js`, `css/surface/ranks/dst.css` |
 | **The league is the reader's team's** (`lgFocusKey`, U8's one chip), **ESPN with no team picked**. Points are on that league's scoring (`LIVE_DST.leagues[lg].dst`: `dst_espn` or `dst_yahoo`). K is `leagues[lg].k`, null on ESPN (no K slot), so its tab is not drawn; a K tab left open when the team switches to ESPN falls back to RB | one place to say "my league"; ESPN's D/ST table is not Yahoo's, and The Madden Curse's K (distance ÷ 10) is not AYO's | `data/dst.js` `dstLeagueKey`, `dstTabs`, `dstPos`, `dstBoard` |
 | **Rows are in ff-jarvis's rank order** (`rank[cell]`), byes last by team code. The page computes no points | the model's order is the board; a re-sort here would be a second model | `dstBoard` |
-| **Who holds it:** MINE (lime), FREE (green), WAIVERS (grey: ESPN's `rostered.espn.waiver`, nobody's yet but only claimable, 2026-10-05), else the manager's team name; a **STREAMER** tag (lime fill) replaces FREE, since a streamer is free by definition. The flag is the file's (`streamer[lg]`: free, and top 12 that week); a team already kicked off is never tagged | the question is "can I add him"; one tag answers it | `rkHoldHTML`, `dstBoard` |
+| **Who holds it:** MINE (lime; since 2026-10-06 the reader's own, a team they follow in that league holds that club's D/ST or K on its roster, never the file's `mine` flag, which is David's: `dstHeld`), FREE (green), WAIVERS (grey: ESPN's `rostered.espn.waiver`, nobody's yet but only claimable, 2026-10-05), else the manager's team name; a **STREAMER** tag (lime fill) replaces FREE, since a streamer is free by definition. The flag is the file's (`streamer[lg]`: free, and top 12 that week); a team already kicked off is never tagged | the question is "can I add him"; one tag answers it | `rkHoldHTML`, `dstBoard` |
 | **A week with `line: "rating"` is an estimate:** `~` before the number, a dimmer face, and a footnote under the list. A posted line has neither | the rating is this season's implied totals, not backtested (ff-jarvis 12.85) | `rkNextHTML`, `.rk-dc.est` |
 | **One plain line on the model's gain:** "Mostly the opponent's expected score. The model's extra inputs cut the average miss by 0.02 to 0.04 points a game, so a close rank is a tie." (K: the team's own expected score, "by about 0.01", 12.85 measured 0.014 and 0.015; a cell the file ships as `baseline` says the model's extras are left out) | 12.85 passes 4 of 4 cells against the opponent's implied total alone, but the weekly order barely moves; the board must not read as sharper than that | `rkDstNote`, `ranks.dst.note*` |
 | **Seven chips fit one row at 390px:** the Ranks position row takes a 6px gap and 10px chip padding (334px of chips and eight-pixel gaps overflowed 362px by 21px). **On a phone since 2026-10-06 the positions are the Stats position strip above the bottom bar** (seven segments of 45px at 360px), and this row is a desktop's | one row of controls (STYLE.md) | `css/surface/ranks/dst.css`; "Stats position strip" |
@@ -1655,6 +1665,9 @@ tabs below; the NFL now card (`nflnow.js`) above the matchup went with it).
   With null, My league is the "whose game" card (above; superseded 2026-10-05: the Matchup tab showed the
   league's first game with neutral "BY n" chips and a dashed line, "Pick your team to see your matchup",
   that opened My teams). The NFL tab's count and the sheet's block are empty without a team.
+  (2026-10-06: left as the picked team first, then the followed ones, on purpose. `gdMine` picks the one
+  matchup Live draws, and the same team's lineup is what the sheet, the tiles and the TD Mine chip tag, so
+  unfollowing the picked team does not change Live. Ranks, Usage and D/ST tag every followed team instead.)
 - **The choice** is `tw-live-tab` in `localStorage` (`tabs.js`), never the hash, so another view
   sends the reader to a tab by setting it, then opening `#live` (the Digest's touchdown count does).
   Switching repaints in place (`paintLive`), never through `render()`. NFL and TDs are NFL-wide; the

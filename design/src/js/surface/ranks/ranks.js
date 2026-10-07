@@ -124,7 +124,7 @@ function ranksHTML(){
   if (rkView() === "ros") return rosViewHTML();   // Rest of season (surface/ranks/ros.js)
   const block = rkDstBlock(), lg = rkLeague(), pos = dstPos(RK_POS, block, lg), extra = dstTabs(block, lg);
   const chips = rkViewsHTML() + rkChipsHTML(pos, extra);
-  if (pos === "DST" || pos === "K") return rkDstHTML(chips, dstBoard(block, lg, pos));
+  if (pos === "DST" || pos === "K") return rkDstHTML(chips, dstBoard(block, lg, pos, dstHeld(TEAMS, tsFollowed(), lg, pos)));
   const list = rkList(pos);
   if (!list.length) return `<div class="wrap">${chips}<div class="state-empty" style="min-height:220px">
     <div><b>${t("ranks.empty.title")}</b><span>${t("ranks.empty.sub")}</span></div></div></div>`;
