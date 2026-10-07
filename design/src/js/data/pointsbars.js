@@ -35,6 +35,23 @@ function pbModel(rows, proj, pageWeek, limit){
    never one, an empty slot has no points to mark. */
 const pbIsSigned = (slot, signedWk) => typeof signedWk === "number" && slot.wk === signedWk && slot.pts !== null && slot.pts !== undefined;
 
+/* Every week this player finished top 3 at his position (David, 2026-10-07): LIVE_SIGNED.weeks[slug] (design/signed.py)
+   plus the autograph's own week, so a block without the list still marks the one it knows. Ascending, [] for none. */
+function pbSignedWeeks(signed, slug){
+  if (!signed || !slug) return [];
+  const own = signed.players && signed.players[slug] ? [signed.wk] : [];
+  const all = (signed.weeks && signed.weeks[slug] || []).concat(own);
+  return [...new Set(all)].sort((a, b) => a - b);
+}
+
+/* The model with `signed: true` on each played slot whose week is in `weeks`: a gold bar. The projection is never
+   one; null passes through. */
+function pbMarkSigned(m, weeks){
+  if (!m) return m;
+  m.slots.forEach(s => { if (weeks.includes(s.wk) && s.pts !== null) s.signed = true; });
+  return m;
+}
+
 /* "W5" under a bar; once the week has two digits the W goes, so the label still fits its slot. */
 const pbWeekText = wk => wk < 10 ? t("teams.pb.week", {n: wk}) : String(wk);
 

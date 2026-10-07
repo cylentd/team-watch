@@ -129,8 +129,8 @@ def test_the_strip_is_his_positions_colour_as_a_time_ramp(mount):
     roster.plant(SCENE)
     rows = {r["name"]: r["bars"] for r in roster.look()}
     qb, rb = rows["B. Purdy"], rows["C. Brown"]
-    assert [b["bg"] for b in qb] == ["rgba(90, 180, 255, 0.4)"] * 3 + ["rgba(90, 180, 255, 0.95)", "rgba(90, 180, 255, 0.12)"]
-    assert [b["bg"] for b in rb][-2:] == ["rgba(255, 157, 92, 0.95)", "rgba(255, 157, 92, 0.12)"], "a back is orange"
+    assert [b["bg"] for b in qb] == ["rgba(90, 180, 255, 0.22)"] * 3 + ["rgba(90, 180, 255, 0.55)", "rgba(90, 180, 255, 0.12)"]
+    assert [b["bg"] for b in rb][-2:] == ["rgba(255, 157, 92, 0.55)", "rgba(255, 157, 92, 0.12)"], "a back is orange"
     assert [b["border"] for b in qb] == ["none"] * 4 + ["dashed"], "this week, not yet played: a dashed outline"
     assert errors == []
 

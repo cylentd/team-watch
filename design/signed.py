@@ -12,16 +12,44 @@ TOP = 3
 SKILL = ("QB", "RB", "WR", "TE")
 
 
-def completed_week(rows, games):
-    """The latest week whose game-log teams cover every team scheduled that week, or None."""
+def completed_weeks(rows, games):
+    """Every week whose game-log teams cover every team scheduled that week, ascending."""
     scheduled, logged = {}, {}
     for g in games or []:
         if g.get("week"):
             scheduled.setdefault(g["week"], set()).update((g["home"], g["away"]))
     for r in rows:
         logged.setdefault(r.get("week"), set()).add(r.get("team"))
-    done = [w for w, teams in scheduled.items() if len(logged.get(w, ())) >= len(teams)]
-    return max(done) if done else None
+    return sorted(w for w, teams in scheduled.items() if len(logged.get(w, ())) >= len(teams))
+
+
+def completed_week(rows, games):
+    """The latest week whose game-log teams cover every team scheduled that week, or None."""
+    done = completed_weeks(rows, games)
+    return done[-1] if done else None
+
+
+def top_finishers(rows, wk):
+    """[(rank, row)] for the top TOP at each skill position in week `wk`, over every player logged."""
+    out = []
+    for pos in SKILL:
+        week = sorted((r for r in rows if r.get("week") == wk and r.get("pos") == pos and r.get("pts") is not None),
+                      key=lambda r: -r["pts"])
+        out += list(enumerate(week[:TOP], 1))
+    return out
+
+
+def signed_weeks(gamelog, schedule, slugify, wanted):
+    """{slug: [week, ...]} for every page player, every completed week he finished top 3 at his position
+    (the autograph's rule, applied to each week). Empty without a game log or a completed week."""
+    rows = (gamelog or {}).get("rows") or []
+    out = {}
+    for wk in completed_weeks(rows, (schedule or {}).get("games")):
+        for _, r in top_finishers(rows, wk):
+            slug = slugify(r.get("name") or "")
+            if slug in wanted:
+                out.setdefault(slug, []).append(wk)
+    return out
 
 
 def live_signed(gamelog, schedule, slugify, wanted):
@@ -32,14 +60,18 @@ def live_signed(gamelog, schedule, slugify, wanted):
     if not rows or wk is None:
         return None
     out = {}
-    for pos in SKILL:
-        week = sorted((r for r in rows if r.get("week") == wk and r.get("pos") == pos and r.get("pts") is not None),
-                      key=lambda r: -r["pts"])
-        for rank, r in enumerate(week[:TOP], 1):
-            slug = slugify(r.get("name") or "")
-            if slug in wanted:
-                out[slug] = {"rank": rank, "pts": r["pts"]}
+    for rank, r in top_finishers(rows, wk):
+        slug = slugify(r.get("name") or "")
+        if slug in wanted:
+            out[slug] = {"rank": rank, "pts": r["pts"]}
     return {"wk": wk, "players": out}
+
+
+def with_weeks(gamelog, schedule, slugify, wanted):
+    """The page's LIVE_SIGNED: live_signed's {wk, players} plus `weeks`, {slug -> [week]}, every signed week, for
+    the gold bars. Kept apart from live_signed, whose {wk, players} is the card front's autograph."""
+    block = live_signed(gamelog, schedule, slugify, wanted)
+    return None if block is None else {**block, "weeks": signed_weeks(gamelog, schedule, slugify, wanted)}
 
 
 def report(block):

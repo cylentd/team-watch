@@ -32,6 +32,30 @@ function fitBanner(root){
     s.style.maxWidth = "";
   });
 }
+/* A Sheet row's name (David, 2026-10-07): the full name on one line, or initials when the full one would wrap
+   ("Jacory Croskey-Merritt" took two lines on a desktop bench). Measured in the reader's browser: the full name
+   goes in first, a second line box means it does not fit. A phone already shows initials from CSS (nm-full is
+   hidden there, so it has no boxes and is left alone). */
+function fitRowNames(root){
+  root.querySelectorAll(".row .nm-1 b").forEach(b => {
+    const full = b.querySelector(".nm-full");
+    b.classList.remove("ini", "sm");
+    if (!full || full.getClientRects().length < 2) return;
+    b.classList.add("ini");
+    const ini = b.querySelector(".nm-ini");
+    if (ini && ini.getClientRects().length > 1) b.classList.add("sm");   // initials still wrap: a size down, never cut
+  });
+}
+let ROWNAMES_FIT_WIRED = false;
+function rowNamesFit(){
+  const run = () => fitRowNames(document);
+  requestAnimationFrame(run);
+  if (ROWNAMES_FIT_WIRED) return;
+  ROWNAMES_FIT_WIRED = true;
+  if (document.fonts) document.fonts.addEventListener("loadingdone", run);
+  addEventListener("resize", () => requestAnimationFrame(run));
+}
+
 /* After a render, again whenever fonts finish loading (a face's width is not known before they do:
    the first render asks for them) and when the window resizes (a desktop card's width follows it). */
 let CARDS_FIT_WIRED = false;

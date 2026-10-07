@@ -29,7 +29,7 @@ from gamelog import live_gamelog, report as gamelog_report      # design/gamelog
 from projections import live_projections, report as projections_report  # design/projections.py: projected vs actual
 from ranks import live_ranks, report as ranks_report     # design/ranks.py: Players > Ranks, tiered
 from injury import live_injury, report as injury_report  # design/injury.py: who is out, doubtful, questionable
-from signed import live_signed, report as signed_report  # design/signed.py: who earned an autograph
+from signed import with_weeks, report as signed_report  # design/signed.py: who earned an autograph
 from lines import live_lines, report as lines_report  # design/lines.py: implied points per team
 from routes import live_routes, report as routes_report          # design/routes.py: the profile sheet's YPRR axis
 from archetype import (load_archetype, load_trenches, live_archetype, live_trenches,  # role/style labels + OL context
@@ -674,7 +674,7 @@ def render():
                                      load_status(), load_kickers(), slugify, norm_name,
                                      more=[(k, *yahoo_gameday(k)) for k in leagues.YAHOO[1:]]),
     }
-    blocks["LIVE_SIGNED"] = live_signed(load_gamelog_weekly(), blocks["LIVE_SCHEDULE"], slugify, wanted_set)
+    blocks["LIVE_SIGNED"] = with_weeks(load_gamelog_weekly(), blocks["LIVE_SCHEDULE"], slugify, wanted_set)
     add_market_stock(blocks, report)
     add_start_sit(blocks, report, slugify)
     add_teams(blocks, report, slugify)                             # design/teams.py: League > Teams

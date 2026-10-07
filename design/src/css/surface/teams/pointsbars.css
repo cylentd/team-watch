@@ -2,9 +2,10 @@
    2026-10-07 (David: no usage numbers on the Roster row or the card back). One bar per NFL week of his
    fantasy points, then this week's projection as a dashed bar, all on one scale (js/data/pointsbars.js,
    js/surface/teams/pointsbars.js). A week he did not play is a tick on the baseline, in its place.
-   Colour (David's pick, V3, 2026-10-07): his position's colour as a time ramp, played weeks soft, the latest
-   week strong, this week an outline that has not been played yet. It says which position and which week, never
-   good or bad.
+   Colour (David's pick, V3, 2026-10-07, toned down the same day so gold and the rank stay loudest): his
+   position's colour as a time ramp, played weeks a soft tint (.22), the latest a bit stronger (.55), this week
+   an outline that has not been played yet; a signed week is gold. Position colour says which position and which
+   week, never good or bad.
    Where the space goes (STYLE.md gaps): the strip is a fixed width, whatever the number of weeks, and sits
    centred in its own track; the name block is the row's one flexible track. A card back's block centres
    between the kickoff line and the profile button. */
@@ -17,8 +18,8 @@
 .pb[data-pos="DST"]{--c:var(--pos-def-rgb)}
 .pb-b.faded{opacity:.35}   /* a week another kicker kicked (js/data/kdst.js kdstFaded): the bar stays, softer */
 .pb-s{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
-.pb-b{display:block;width:100%;min-width:1px;height:max(2px,calc(var(--pb-h) * var(--h)));background:rgb(var(--c) / .4);border-radius:2px 2px 0 0}
-.pb-b.last{background:rgb(var(--c) / .95)}
+.pb-b{display:block;width:100%;min-width:1px;height:max(2px,calc(var(--pb-h) * var(--h)));background:rgb(var(--c) / .22);border-radius:2px 2px 0 0}
+.pb-b.last{background:rgb(var(--c) / .55)}
 .pb-b.gap{height:1px;background:var(--line-2);border-radius:0}
 .pb-b.proj{box-sizing:border-box;background:rgb(var(--c) / .12);border:1px dashed rgb(var(--c) / .95)}
 .pb-b.proj.gap{border:0;background:var(--line-2)}
@@ -26,11 +27,11 @@
 .pb-n{margin-bottom:1px}
 .pb-w{margin-top:2px}
 .pb-s.proj :is(.pb-n,.pb-w){color:var(--ink)}
-/* The week a card was signed for: its points in gold and a small gold star over them. No words, the front
-   already shows the signing. */
+/* A signed week (David, 2026-10-07: any week he finished top 3 at his position): a full gold bar, and on the
+   back its points in gold. Gold and the rank's red/green are the row's loudest marks, so it wins over the
+   latest-week strength. No words, no star. */
+.pb-b.signed,.pb-b.last.signed{background:var(--gold-2)}
 .pb-s.signed .pb-n{color:var(--gold-2);font-weight:700}
-.pb-star{display:block;flex:none;width:8px;height:8px;background:var(--gold-2);
-  clip-path:polygon(50% 0,62% 36%,100% 38%,70% 60%,80% 100%,50% 76%,20% 100%,30% 60%,0 38%,38% 36%)}
 
 /* The row's strip: a fixed width in a track that hugs it, bars up to 11px wide, centred. It gives way
    (max-width, not width) when the name block needs the room, so the name never runs into it. */

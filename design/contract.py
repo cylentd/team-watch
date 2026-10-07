@@ -221,7 +221,7 @@ CONTRACT = {
     # design/signed.py: page players who finished top 3 at their position in the last completed
     # week. The card's autograph.
     "LIVE_SIGNED": {
-        "keys": ["wk", "players"],
+        "keys": ["wk", "players", "weeks"],      # weeks: {slug -> [week]}, every signed week (the gold bars)
         "map": ("players", ["rank", "pts"]),
     },
     # design/injury.py, from ff-jarvis's Sleeper status: every hurt player the page can show, `s`

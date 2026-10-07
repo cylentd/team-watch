@@ -28,6 +28,9 @@
 .row.bench .nm-1 b,.row.out .nm-1 b{font-weight:500}
 /* A name renders both ways; a phone's two-up bench shows "D. Goedert", every other row the full name. */
 .nm-ini{display:none}
+.nm-1 b.ini .nm-full{display:none}   /* fitRowNames: the full name would wrap, so initials (cardfit.js) */
+.nm-1 b.ini .nm-ini{display:inline}
+.nm-1 b.ini.sm{font-size:var(--t-2)}
 /* The meta under the name is two lines, the game and its kickoff (surface/teams/matchupline.css). */
 .row .nm-2{display:grid;gap:1px;margin-top:1px;min-width:0;white-space:nowrap}
 

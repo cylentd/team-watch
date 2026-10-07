@@ -140,8 +140,8 @@ def test_a_row_draws_a_bar_a_week_and_a_hollow_one_for_the_projection(mount):
     assert [b["proj"] for b in purdy] == [False, False, False, False, True], "four weeks, then the projection last"
     assert [round(b["h"], 2) for b in purdy] == [.39, 1.0, .76, .35, .69], "one scale, 0 to his largest of bars and projection"
     assert [b["gap"] for b in kittle] == [False, True, False, False, False], "the week he missed is a tick in its place"
-    # David's pick V3, 2026-10-07: his position's colour (a QB's blue), played weeks soft, the latest strong, this week's soft fill
-    assert [b["color"] for b in purdy] == ["rgba(90, 180, 255, 0.4)"] * 3 + ["rgba(90, 180, 255, 0.95)", "rgba(90, 180, 255, 0.12)"]
+    # David's pick V3 toned down, 2026-10-07: his position's colour (a QB's blue), played weeks faint, the latest stronger, this week's soft fill
+    assert [b["color"] for b in purdy] == ["rgba(90, 180, 255, 0.22)"] * 3 + ["rgba(90, 180, 255, 0.55)", "rgba(90, 180, 255, 0.12)"]
     assert rows["B. Purdy"]["text"] == "", "no number and no label in the strip"
     assert errors == []
 

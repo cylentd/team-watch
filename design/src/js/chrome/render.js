@@ -93,7 +93,7 @@ function render(){
     ? `<div class="wrap">${lgChipHTML(waiverHeroHTML(team), team)}${waiverHTML(wvMotionTake())}</div>`
     : `<div class="wrap">${lgChipHTML(rosterModeHTML(), team)}</div><div class="wrap rl${reel ? " rl-reel" : ""}">${reel}${briefHTML(team)}<div class="rl-rows">${
         ROSTER_MODE === "cards" ? cardsHTML(team) : boardHTML(team)}</div></div>`;
-  if (!wire){ wireBrief(v); wireReel(v, team); wireRosterMode(v, team); wirePack(v, team); }
+  if (!wire){ wireBrief(v); wireReel(v, team); wireRosterMode(v, team); wirePack(v, team); if (ROSTER_MODE !== "cards") rowNamesFit(); }
   wireLgChip(v);
   wireProfiles(v);
   if (wire) wireWaivers(v);
