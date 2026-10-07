@@ -53,6 +53,7 @@ function wvFlip(card){
 function wvLive(card){
   const open = card.classList.contains("both"), on = card.classList.contains("flipped");
   const [front, back] = card.querySelectorAll(".wvc-face");
+  if (!back) return;   // a card with no back has nothing to hide
   [[front, !open && on], [back, !open && !on]].forEach(([face, hide]) => {
     face.inert = hide;
     face.setAttribute("aria-hidden", String(hide));
@@ -60,7 +61,7 @@ function wvLive(card){
 }
 
 function wireWaivers(v){
-  v.querySelectorAll(".wvc-flip").forEach(b => b.addEventListener("click", () => wvFlip(b.closest(".wvc"))));
+  v.querySelectorAll(".wvc-flip:not(.wvc-open)").forEach(b => b.addEventListener("click", () => wvFlip(b.closest(".wvc"))));
   v.querySelectorAll("[data-wvdst]").forEach(b => b.addEventListener("click", rkOpenDst));
   wvDesk(v);
   wireHot(v);   // the Most added list, for anyone but David (hot.js)

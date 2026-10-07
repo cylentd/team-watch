@@ -88,8 +88,10 @@ function wvTrendsHTML(r){
   if (typeof USAGE === "undefined" || !USAGE || !WV_PROOF[r.pos]) return "";
   const weeks = (USAGE.weeks || []).slice().sort((a, b) => a - b).filter(k => k <= (USAGE.through || k));
   const [wk] = wvWeeks();
-  const rows = WV_PROOF[r.pos].map(want => wvCol(r.pos, want)).filter(Boolean).map(c => {
-    const vals = weeks.map(k => wvWeekValue(r.slug, c.id, k));
+  const series = WV_PROOF[r.pos].map(want => wvCol(r.pos, want)).filter(Boolean)
+    .map(c => ({c, vals: weeks.map(k => wvWeekValue(r.slug, c.id, k))}))
+    .filter(s => s.vals.some(v => v !== null));   // a stat he has no week of draws no empty line
+  const rows = series.map(({c, vals}) => {
     const now = vals[vals.length - 1];
     const rank = now === null ? null : wvWeekRank(r.pos, c.id, r.slug, wk);
     return `<div class="wvt"><span class="wvp-l">${esc(c.label)}</span>${wvSparkHTML(vals, weeks, c.fmt)}
@@ -100,12 +102,19 @@ function wvTrendsHTML(r){
   return `<div class="wvc-trends"><span class="wvt-span">${span}</span>${rows.join("")}</div>`;
 }
 
+/* The stats this card draws: those with a value this week. */
+function wvProofStats(r){
+  if (typeof USAGE === "undefined" || !USAGE || !WV_PROOF[r.pos]) return [];
+  const [wk] = wvWeeks();
+  return wvProofShown(WV_PROOF[r.pos].map(want => wvCol(r.pos, want)).filter(Boolean).map(c => ({c, now: wvWeekValue(r.slug, c.id, wk)})));
+}
+
 function wvProofHTML(r){
-  if (typeof USAGE === "undefined" || !USAGE || !WV_PROOF[r.pos]) return "";
+  const stats = wvProofStats(r);
+  if (!stats.length) return "";
   const [wk, prev] = wvWeeks();
-  const cells = WV_PROOF[r.pos].map(want => wvCol(r.pos, want)).filter(Boolean).map(c => {
-    const now = wvWeekValue(r.slug, c.id, wk);
-    const rank = now === null ? null : wvWeekRank(r.pos, c.id, r.slug, wk);
+  const cells = stats.map(({c, now}) => {
+    const rank = wvWeekRank(r.pos, c.id, r.slug, wk);
     return `<div class="wvp"><span class="wvp-l">${esc(c.label)}</span>
       <b>${usageFmt(now, c.fmt)}</b>
       <span class="wvp-r">${rank || t("waiver.proof.noRank")}${wvTrendHTML(now, prev === undefined ? null : wvWeekValue(r.slug, c.id, prev))}</span></div>`;

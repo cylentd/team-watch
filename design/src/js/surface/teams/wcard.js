@@ -71,10 +71,10 @@ function wvStatusText(lg, key){
   return when ? t("waiver.card.waiver", {when}) : t("waiver.card.waiverNoWhen");
 }
 
-function wvFrontHTML(r, key, tier){
+function wvFrontHTML(r, key, tier, others = ""){
   const lg = r.leagues[key];
   const opp = !r.opp ? "" : r.home ? t("waiver.card.vs", {opp: esc(r.opp)}) : t("waiver.card.at", {opp: esc(r.opp)});
-  const first = r.summary && r.summary.text ? `<p class="wvc-lede">${esc(wvFirstSentence(r.summary.text))}</p>` : "";
+  const first = r.summary && r.summary.text ? `<p class="wvc-lede">${esc(wvLedeText(r.summary.text, wvProofStats(r).length > 0))}</p>` : "";
   return `<div class="wvc-face wvc-front">
     <div class="wvc-top"><span class="wvc-stamp" title="${t("waiver.tier.mark")}">${(WV_TIER[tier] || WV_TIER.watch)()}</span>
       <span class="wvc-st">${esc(r.pos)} · ${wvStatusText(lg, key)}</span></div>
@@ -83,18 +83,25 @@ function wvFrontHTML(r, key, tier){
     ${wvSwapHTML(r, lg)}
     ${first}
     ${wvProofHTML(r)}
+    ${others}
     <div class="wvc-foot" aria-hidden="true"><span></span><span class="wvc-turn">${t("waiver.card.turnFront")}</span></div>
   </div>`;
 }
 
 /* `n` is the card's place in the deal, so the cards land in rank order. */
 function wvCardHTML(r, i, n, key){
-  const tier = waiverTier(r, key);
+  const tier = waiverTier(r, key), parts = wvBackParts(r, key);
+  const moved = wvOthersToFront(parts), thin = moved || wvBackThin(parts);
+  /* A back with nothing the front lacks is not drawn: the card's Evidence opens the profile directly. */
+  const label = esc(t("waiver.card.flipLabel", {name: r.n}));
+  const cover = thin
+    ? `<button type="button" class="wvc-flip wvc-open" data-wire="${i}" aria-label="${label}"></button>`
+    : `<button type="button" class="wvc-flip" aria-pressed="false" aria-label="${label}"></button>`;
   return `<article class="wvc tier-${esc(tier)}" style="--i:${n}">
-    <button type="button" class="wvc-flip" aria-pressed="false" aria-label="${esc(t("waiver.card.flipLabel", {name: r.n}))}"></button>
+    ${cover}
     <div class="wvc-in">
-      ${wvFrontHTML(r, key, tier)}
-      ${wvBackHTML(r, i, key)}
+      ${wvFrontHTML(r, key, tier, moved ? parts.others : "")}
+      ${thin ? "" : wvBackHTML(r, i, key, parts)}
     </div>
   </article>`;
 }

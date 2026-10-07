@@ -9,7 +9,7 @@
 function wvSummaryHTML(r){
   const s = r.summary;
   if (!s || !s.text) return "";
-  const rest = s.text.slice(wvFirstSentence(s.text).length).trim();
+  const rest = wvBackRest(s.text, wvProofStats(r).length > 0);
   const mark = s.src === "rule"
     ? ` <span class="wvc-rule" title="${t("waiver.summary.ruleTip")}">${t("waiver.summary.rule")}</span>` : "";
   return rest || mark ? `<p class="wvc-sum">${esc(rest)}${mark}</p>` : "";
@@ -41,18 +41,24 @@ function wvOtherText(r, key, lg){
 }
 
 function wvOthersHTML(r, key){
-  const rows = waiverLeagues(r).filter(([k]) => k !== key).map(([k, lg]) => wvOtherText(r, k, lg));
+  const head = r.leagues[key].status;
+  const rows = waiverLeagues(r).filter(([k, lg]) => k !== key && !wvOtherRepeats(head, lg)).map(([k, lg]) => wvOtherText(r, k, lg));
   return rows.length ? `<p class="wvc-other">${rows.join(" · ")}</p>` : "";
 }
 
-function wvBackHTML(r, i, key){
+/* What the back holds beyond the profile button; all empty means the card has no back (wcard.js). */
+function wvBackParts(r, key){
+  return {trends: wvTrendsHTML(r), summary: wvSummaryHTML(r), news: wvNewsHTML(r), others: wvOthersHTML(r, key)};
+}
+
+function wvBackHTML(r, i, key, p){
   return `<div class="wvc-face wvc-back" inert aria-hidden="true">
     <div class="wvc-top"><span class="wvc-bname">${esc(nameInitial(r.n))}</span>
       <span class="wvc-st">${t("waiver.card.backTitle")}</span></div>
-    ${wvTrendsHTML(r)}
-    ${wvSummaryHTML(r)}
-    ${wvNewsHTML(r)}
-    ${wvOthersHTML(r, key)}
+    ${p.trends}
+    ${p.summary}
+    ${p.news}
+    ${p.others}
     <div class="wvc-foot"><button type="button" class="btn ghost wvc-profile" data-wire="${i}">${t("waiver.card.profile")}</button>
       <span class="wvc-turn" aria-hidden="true">${t("waiver.card.turnBack")}</span></div>
   </div>`;
