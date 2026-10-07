@@ -141,14 +141,17 @@ def test_the_banner_opens_its_player_after_swapping_between_the_packets_lead_and
 @pytest.mark.req("Digest", ac="Monday night is one card and the preview rows go")
 def test_monday_night_is_one_card_and_the_preview_rows_go(mount):
     """Monday 6 AM Pacific, PHI @ CHI tonight and all the week has left: the card says who is out and
-    what the books moved, its rows leave the ticker, and the five preview rows go (2026-09-28)."""
+    who steps in, with no word of what the books moved (12.46 failed its backtest; the "Moved" list and the
+    "books moved CHI's pass catchers" line went 2026-10-06), its rows leave the ticker, and the five preview
+    rows go (2026-09-28)."""
     page, errors = mount("digest", size=PHONE)
     dg = DigestLivePage(page)
     dg.set_clock("2026-09-28T13:00:00Z")
     story = dg.tn_story()
-    assert story.startswith("Caleb Williams is out (hamstring). Case Keenum is CHI's projected QB.")
-    assert "CHI's pass catchers −9.8 combined: C. Loveland −4.0, L. Burden −3.2, R. Odunze −1.7." in story
-    assert story.endswith("PHI is flat (+0.3).")
+    assert story == "Caleb Williams is out (hamstring). Case Keenum is CHI's projected QB."
+    assert "books" not in story and "combined" not in story and "flat" not in story
+    assert dg.tn_list_heads() == ["Out", "Our calls", "Projected"], "no Moved list"
+    assert "move" not in dg.tn_foot()
     rows = dg.row_ids()
     assert not {"hurt", "mu", "wx", "t5", "st"} & set(rows) and "adds" in rows
     # After kickoff the card is the game's one block (mnf.js), a tap away from its sheet.

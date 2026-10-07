@@ -11,21 +11,12 @@ const PT_RANK = {slight: 1, confident: 2, very: 3};
    the one a tier belongs to (the same choice lineitem.js slSrc makes). */
 const ptSrc = (p, book) => book === "underdog" && ud(p) && typeof ud(p).line === "number" ? ud(p) : p;
 
-/* The price the model's side would be bet at, in the source's own book: Underdog's entry carries its prices,
-   a DraftKings row its primary book's. */
-function ptPrice(p, s, side){
-  const e = s === p ? (p.books && p.books[p.book]) || null : s;
-  const v = e ? (side === "lower" ? e.under : e.over) : null;
-  return typeof v === "number" ? v : null;
-}
-
 /* The model's strongest lines in games that have not kicked off, strongest first: tier, then the chance of
-   its side, then the edge. One line per player (his strongest). Each is {i, slug, n, pos, team, game, kick,
-   mkt, line, side, tier, pct, be, edge}: `pct` the chance of the model's side, `be` the book's break-even at
-   that side's price (null when the book sent none), `edge` their difference, both whole numbers so the reader
-   can subtract what is printed. Nothing for a touchdown (no side), Longest reception, an Out player, a line
-   the book moved far from the model, a line with no pick, or a call priced worse than its break-even (edge
-   under 0; a call with no price sent stays, with no edge). opts: {now (ms), book ("underdog"|"dk"), limit}. */
+   its side. One line per player (his strongest). Each is {i, slug, n, pos, team, game, kick, mkt, line, side,
+   tier, pct}: `pct` the chance of the model's side. No edge over the book's price since 2026-10-06 (METHODOLOGY
+   12.31: the model's +EV overs lost at the close, ROI -17.9% in weeks 1-4), so the price neither prints nor
+   picks the list. Nothing for a touchdown (no side), Longest reception, an Out player, a line the book moved
+   far from the model, or a line with no pick. opts: {now (ms), book ("underdog"|"dk"), limit}. */
 function topCalls(props, opts){
   const {now, book, limit} = opts, best = new Map();
   props.forEach((p, i) => {
@@ -33,10 +24,8 @@ function topCalls(props, opts){
     const s = ptSrc(p, book);
     if (!PT_RANK[s.tier] || typeof s.model !== "number") return;
     const side = s.side === "lower" ? "lower" : "higher", pct = Math.round(Math.max(s.model, 100 - s.model));
-    const price = ptPrice(p, s, side), be = price === null ? null : Math.round(amToProb(price) * 100);
     const row = {i, slug: p.slug || p.n, n: p.n, pos: p.pos, team: p.team, game: p.game, kick: p.kick, mkt: p.mkt,
-      line: s.line, side, tier: s.tier, pct, be, edge: be === null ? null : pct - be};
-    if (row.edge !== null && row.edge < 0) return;   // priced worse than its break-even: no edge to lead with
+      line: s.line, side, tier: s.tier, pct};
     const had = best.get(row.slug);
     if (!had || ptOrder(row, had) < 0) best.set(row.slug, row);
   });
@@ -44,8 +33,7 @@ function topCalls(props, opts){
   return limit ? out.slice(0, limit) : out;
 }
 
-const ptOrder = (a, b) => PT_RANK[b.tier] - PT_RANK[a.tier] || b.pct - a.pct
-  || (b.edge === null ? -Infinity : b.edge) - (a.edge === null ? -Infinity : a.edge) || a.n.localeCompare(b.n);
+const ptOrder = (a, b) => PT_RANK[b.tier] - PT_RANK[a.tier] || b.pct - a.pct || a.n.localeCompare(b.n);
 
 /* The game two legs of a slip share, or null. `rest` is the game of every leg outside a whole stack and
    `stack` the stack's game (or null): a stack's three legs are one unit because ff-jarvis measured their

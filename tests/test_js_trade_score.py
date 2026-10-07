@@ -342,7 +342,9 @@ def test_chips_are_small_tags_after_the_status_pill_and_nothing_when_there_are_n
     row = {"pos": "WR", "name": "T. Higgins", "injury": "Questionable"}
     assert tb("tbTagsHTML", {**row, "injury": None}) == ""
     assert tb("tbTagsHTML", {**row, "injury": None, "chips": []}) == ""
-    assert tb("tbTagsHTML", {**row, "injury": None, "chips": ["Hot"]}) == '<span class="tb-tags"><i class="tb-chip hot">Hot</i></span>'
+    hot = tb("tbTagsHTML", {**row, "injury": None, "chips": ["Hot"]})
+    # Hot and Cold carry "Untested" in their tooltip (2026-10-06); Early pick is a draft round and carries none.
+    assert hot.startswith('<span class="tb-tags"><i class="tb-chip hot" title="Untested: ') and hot.endswith('">Hot</i></span>')
     both = tb("tbTagsHTML", {**row, "chips": ["Cold", "Early pick"]})
     assert both.index("tb-inj") < both.index("tb-chip cold") < both.index("tb-chip early")
     assert 'class="tb-chip early">Early pick<' in both

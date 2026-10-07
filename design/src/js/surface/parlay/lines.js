@@ -43,7 +43,7 @@ function buildRowHTML(p){
   // model's side is the side this row calls.
   const m = td ? null : slModel(p), tier = m && PT_RANK[m.tier] && m.side === (lower ? "lower" : "higher") ? m.tier : "";
   return `<div class="bline" data-testid="parlay-line" data-prop="${i}" role="button" tabindex="0" aria-pressed="${inSlip}">${ev}
-    <span class="bl-call ${lower ? "lower" : "higher"}" data-testid="parlay-line-call">${word}<b>${pct}${price}</b>${tier ? `<span class="bl-tier ${tier}">${slTierWord(tier)}</span>` : ""}</span></div>`;
+    <span class="bl-call ${lower ? "lower" : "higher"}" data-testid="parlay-line-call">${word}<b>${pct}${price}</b>${tier ? `<span class="bl-tier ${tier}" title="${t("slips.tier.mark")}">${slTierWord(tier)}</span>` : ""}</span></div>`;
 }
 
 /* The cornerback he draws this week, when ff-jarvis rates it an upgrade or a downgrade. */

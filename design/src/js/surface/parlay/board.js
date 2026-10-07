@@ -1,9 +1,11 @@
 /* THE SLIPS BOARD, DRAWN (2026-10-03; the reads are builder/board.js). Per kickoff tab, one card per
    game: its matchup and kickoff, each side's implied points as one bar, Preview's headline as a link
-   to that game's dossier, then four chips (Work rising, TE, Role guys, All N) over the game's players.
+   to that game's dossier, then three chips (TE, Role guys, All N) over the game's players. No Work
+   rising chip, green bar or teammate-out chip since 2026-10-06 (METHODOLOGY 12.33 and 12.55: the line
+   and the book already price both).
    A player is one row in two columns (2026-10-05, storyboard "Slips Board" A): on the left his name,
    his work in his last three games as bars with every number under them, his snap share, and a chip
-   only when something applies (an easy or tough matchup, a teammate out); on the right the model's
+   only when something applies (an easy or tough matchup); on the right the model's
    most confident line with its tier word, then "N lines". Pictures and numbers, no sentences.
 
    Material's rule (DESIGN.md "Cards"): the game is the card, the players are rows in it, divided by
@@ -11,33 +13,29 @@
 const SL_CHEV = `<svg viewBox="0 0 8 12" aria-hidden="true"><path d="M2 1.5 6.5 6 2 10.5"/></svg>`;
 
 const slWorkLabel = k => k === "tgt" ? t("slips.work.tgt") : k === "car" ? t("slips.work.car") : t("slips.work.snap");
-const slChipLabel = (k, n) => k === "rise" ? t("slips.chip.rise") : k === "te" ? t("slips.chip.te") : k === "role" ? t("slips.chip.role") : t("slips.chip.all", {n});
+const slChipLabel = (k, n) => k === "te" ? t("slips.chip.te") : k === "role" ? t("slips.chip.role") : t("slips.chip.all", {n});
 const SL_MKT_WORD = () => ({REC: t("matchups.stat.rec"), RUSH: t("matchups.stat.rush"), PASS: t("matchups.stat.pass"), RECS: t("slips.mkt.recs")});
 
-/* Three bars, each with its number under it, tallest his most in the three. The last is green when his
-   work is rising and bold always. */
+/* Three bars, each with its number under it, tallest his most in the three. The last is bold, never green. */
 const SL_BAR_PX = 18;
-function slSparkHTML(last, up){
+function slSparkHTML(last){
   const top = Math.max(...last, 1);
-  return `<span class="sl-spark">${last.map((v, k) => {
-    const now = k === last.length - 1;
-    return `<span class="${now && up ? "up" : ""}"><i data-testid="parlay-spark-bar" style="--h:${Math.max(2, v / top * SL_BAR_PX).toFixed(0)}px"></i><em>${v}</em></span>`;
-  }).join("")}</span>`;
+  return `<span class="sl-spark">${last.map(v =>
+    `<span><i data-testid="parlay-spark-bar" style="--h:${Math.max(2, v / top * SL_BAR_PX).toFixed(0)}px"></i><em>${v}</em></span>`).join("")}</span>`;
 }
 
 /* "Carries [bars] Snaps 72%": his work, then his snap share unless the bars already are snaps. */
 function slUseHTML(x){
   const w = x.work, snap = slSnapNow(x.p), out = [];
-  if (w) out.push(`<span class="sl-use"><span class="sl-ul">${slWorkLabel(w.key)}</span>${slSparkHTML(w.last, slRising(x))}</span>`);
+  if (w) out.push(`<span class="sl-use"><span class="sl-ul">${slWorkLabel(w.key)}</span>${slSparkHTML(w.last)}</span>`);
   if (snap !== null && (!w || w.key !== "snap")) out.push(`<span class="sl-use"><span class="sl-ul">${t("slips.work.snap")}</span><b>${snap}%</b></span>`);
   return out.length ? `<span class="sl-uses">${out.join("")}</span>` : "";
 }
 
-/* The matchup chip and one per teammate out, only when they apply. A dot, then the words. */
+/* The matchup chip, only when it applies. A dot, then the words. */
 function slFlagsHTML(x){
   const tone = slMatchup(x.p), flags = [];
-  if (tone) flags.push(`<span class="sl-f ${tone}">${tone === "easy" ? t("slips.flag.easy") : t("slips.flag.tough")}</span>`);
-  x.vacated.forEach(v => flags.push(`<span class="sl-f out">${t("slips.flag.out", {last: esc(v.last)})}</span>`));
+  if (tone) flags.push(`<span class="sl-f ${tone}" title="${t("slips.flag.mark")}">${tone === "easy" ? t("slips.flag.easy") : t("slips.flag.tough")}</span>`);
   return flags.length ? `<span class="sl-fl">${flags.join("")}</span>` : "";
 }
 
@@ -76,7 +74,7 @@ function slGameHTML(g, on){
   const chip = slChip(g), shown = slChipPlayers(g, chip);
   const chips = SL_CHIPS.map(c => `<button type="button" class="chip" data-testid="parlay-chip" data-slchip="${c}" data-slgame="${esc(g.game)}" aria-pressed="${chip === c}">${slChipLabel(c, g.players.length)}</button>`).join("");
   const rows = shown.length ? shown.map(x => slRowHTML(x, on.has(x.slug))).join("")
-    : `<li class="sl-none" data-testid="parlay-none">${chip === "rise" ? t("slips.chip.noneRise") : t("slips.chip.none")}</li>`;
+    : `<li class="sl-none" data-testid="parlay-none">${t("slips.chip.none")}</li>`;
   return `<section class="sl-game" data-testid="parlay-game" data-slgamecard="${esc(g.game)}">
       <header class="sl-gh">
         <div class="sl-gt"><h3 data-testid="parlay-game-title">${esc(g.game)}</h3><span>${esc(g.kick || "")}</span></div>

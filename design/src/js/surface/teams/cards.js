@@ -84,7 +84,7 @@ function cardFront(p, tier, g, rank){
   const w = inj && inj.s === "OUT" ? null : cardWeather(g), wx = cardWeatherNote(w, p.pos);
   const adj = wx ? cardWxAdj(p) : "";
   const adjHTML = adj ? `<span class="wx-adj" title="${t("teams.card.wxAdjTip", {n: adj})}">${t("teams.card.wxAdj", {n: adj})}</span>` : "";
-  const chip = wx ? `<span class="tc-chip wx" data-testid="roster-card-chip" title="${t("teams.card.wxTip", wx)}"><span class="wx-long">${wx.what}</span><span class="wx-short">${wx.kind}</span>${adjHTML}</span>` : "";
+  const chip = wx ? `<span class="tc-chip wx" data-testid="roster-card-chip" title="${cardWxTip(wx)}"><span class="wx-long">${wx.what}</span><span class="wx-short">${wx.kind}</span>${adjHTML}</span>` : "";
   const tip = rank ? t("teams.card.rank", {n: rank, pos: esc(p.pos)}) : "";
   // OUT on either source (the projection row or the injury report) reads OUT in red, never a number.
   const out = projOut(p) || (inj && inj.s === "OUT");
@@ -129,7 +129,7 @@ function cardBack(p, rank, teamKey, i, g){
   const stats = cardStats(p), inj = injFor(p), won = cardSigned(p);
   const wx = inj && inj.s === "OUT" ? null : cardWeatherNote(cardWeather(g), p.pos);
   const sub = inj ? `<span class="bk-inj ${inj.s.toLowerCase()}" title="${injLabel(inj)}">${injLabel(inj)}</span>`
-    : wx ? `<span class="bk-wx" title="${t("teams.card.wxTip", wx)}">${t("teams.card.wxNote", wx)}${cardWxAdj(p) ? ` · ${t("teams.card.wxAdjBack", {n: cardWxAdj(p)})}` : ""}</span>`
+    : wx ? `<span class="bk-wx" title="${cardWxTip(wx)}">${t("teams.card.wxNote", wx)}${cardWxAdj(p) ? ` · ${t("teams.card.wxAdjBack", {n: cardWxAdj(p)})}` : ""}</span>`
     : `<span>${stats ? t("teams.card.roleWeek", {wk: stats.wk}) : t("teams.card.thisWeek")}</span>`;
   const signed = won ? `<div class="bk-signed" data-testid="roster-back-signed">${t("teams.card.signedBack", {wk: LIVE_SIGNED.wk, rank: won.rank, pos: esc(p.pos), pts: won.pts})}</div>` : "";
   return `<div class="tc-face tc-back pos-${esc(p.pos)}${won ? " signed" : ""}" data-testid="roster-card-back">

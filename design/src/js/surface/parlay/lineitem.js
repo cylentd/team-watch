@@ -34,8 +34,9 @@ const SL_TIERS = PT_TIERS;   // the one list, data/topcalls.js
 const slTierWord = k => k === "very" ? t("slips.tier.very") : k === "confident" ? t("slips.tier.confident") : k === "slight" ? t("slips.tier.slight") : t("slips.tier.none");
 /* The tier word, in Preview's looks: Slight grey, Confident lime text, Very confident a lime fill, with the
    chance of the model's side before it ("74% Confident", 2026-10-05): one vocabulary in Slips, Top calls and
-   All lines. "No pick" has no chance to print. */
-const slTierHTML = (k, q) => `<span class="sl-tp">${q && k !== "none" ? `<i class="sl-pc">${Math.round(q)}%</i>` : ""}<b class="sl-conf ${k}" data-testid="parlay-tier">${slTierWord(k)}</b></span>`;
+   All lines. "No pick" has no chance to print. The tooltip carries the failed test (2026-10-06, 12.31 and
+   12.82: every tier hit under its stated chance), on a word that names a tier. */
+const slTierHTML = (k, q) => `<span class="sl-tp">${q && k !== "none" ? `<i class="sl-pc">${Math.round(q)}%</i>` : ""}<b class="sl-conf ${k}" data-testid="parlay-tier"${k !== "none" ? ` title="${t("slips.tier.mark")}"` : ""}>${slTierWord(k)}</b></span>`;
 
 const slCleared = (p, line, v) => typeof v === "number" && (p.mkt === "TD" ? v >= 1 : typeof line === "number" && v > line);
 
@@ -69,7 +70,7 @@ function slClaude(p){
 /* Claude backs the model's outlined pick: lime. Any other call (the other side, or a line the model gave
    no pick) is ink. The model's tier word stays the only confidence word; Claude's is never shown. */
 const slClaudeAgrees = (c, m) => !!c && !!m && !m.td && m.tier !== "none" && m.side === c.side;
-const slClaudeBadge = (agree, more = "") => `<i class="sl-cb${agree ? " agree" : ""}${more}" aria-hidden="true">${t("slips.claude.c")}</i>`;
+const slClaudeBadge = (agree, more = "") => `<i class="sl-cb${agree ? " agree" : ""}${more}" aria-hidden="true" title="${t("slips.claude.mark")}">${t("slips.claude.c")}</i>`;
 
 /* Higher and Lower, the model's side outlined; the tier word under that side ("No pick" under Lower).
    A line without a tier is just the two buttons. Claude's side wears a badge on its corner and is named

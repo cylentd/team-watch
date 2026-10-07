@@ -1,5 +1,5 @@
 {
- "label": "Context only: what these defenses have allowed, averaged over the schedule. Not tested as a predictor of points.",
+ "label": "Context only: what these defenses have allowed, averaged over the schedule. Tested (12.97): did not predict points.",
  "generated": "2026-10-05 18:32",
  "season": 2026,
  "from_week": 5,

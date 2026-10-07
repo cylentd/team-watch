@@ -136,10 +136,11 @@ def test_weather_shows_where_it_touches_a_player_and_nowhere_covered(card_js):
     assert "snow" in fx(snow, "QB") and "wind" not in fx(snow, "QB")
     assert fx(fair, "WR") == "" and fx({**storm, "roof": "dome", "wind": "30 mph", "precip_pct": 90, "short": "Snow"}, "WR") == ""
     assert fx(storm, "TE") != "" and fx({**storm, "roof": "retractable"}, "TE") == ""
-    # Wind does not hurt a runner; rain gives him carries.
+    # Wind does not hurt a runner, and rain gives him no "run ↑": 12.53 measured every RB weather cell at about
+    # zero or below (rain -0.09, wind -0.21), so a runner's card says nothing about weather (2026-10-06).
     assert fx(gust, "RB") == "" and note(gust, "RB") is None
     assert note(gust, "WR") == {"what": "WIND 22", "kind": "WIND", "effect": "pass ↓"}
-    assert note(storm, "RB") == {"what": "RAIN 60%", "kind": "RAIN", "effect": "run ↑"}
+    assert note(storm, "RB") is None and note(snow, "RB") is None
 
 
 # ---- the Sheet / Cards choice ----

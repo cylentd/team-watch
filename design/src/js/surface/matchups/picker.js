@@ -137,15 +137,18 @@ function ssRowsHTML(cols){
       return c.pts === null ? "" : ssVal(c.pts.toFixed(1), g ? `<span class="ssv-rng" title="${t("range.tip", {floor: g.floor.toFixed(1), ceil: g.ceil.toFixed(1)})}">${g.text}</span>` : "", "big");
     }), note: cols.some(c => c.pts !== null && ssRange(c.p.slug)) ? t("range.note") : ""},
     {label: t("startsit.row.rank"), cells: cols.map(c => c.rk ? ssVal(t("startsit.fmt.rank", {pos: esc(c.rk.pos), n: c.rk.rank})) : "")},
+    // `tip`: the failed test in the label's tooltip (2026-10-06); a WR's defense row already says it matters little.
     {label: one ? t("startsit.row.defPos", {pos: esc(cols[0].p.pos)}) : t("startsit.row.def"), cells: cols.map(ssDefCell),
-      note: cols.some(c => c.p.pos === "WR") ? t("startsit.def.wr") : ""},
+      note: cols.some(c => c.p.pos === "WR") ? t("startsit.def.wr") : "",
+      tip: cols.some(c => c.p.pos !== "WR") ? t("startsit.def.mark") : ""},
     {label: t("startsit.row.fp"), cells: cols.map(c => fp[c.p.slug] ? ssVal(t("startsit.fmt.rank", {pos: esc(fp[c.p.slug].pos), n: fp[c.p.slug].ecr})) : ""),
       note: fpNote},
-    {label: t("startsit.row.out"), cells: cols.map(ssOutCell)},
-    {label: t("startsit.row.wx"), cells: cols.map(ssWxCell)},
+    {label: t("startsit.row.out"), cells: cols.map(ssOutCell), tip: t("startsit.out.mark")},
+    {label: t("startsit.row.wx"), cells: cols.map(ssWxCell),
+      tip: cols.some(c => ((ssWx(c.p.slug) || {}).cond || []).includes("cold")) ? t("startsit.wx.mark") : ""},
     {label: t("startsit.row.grid"), cells: cols.map(ssGridCell)},
   ].filter(r => r.cells.some(Boolean));
-  return rows.map(r => `<div class="ssv-row"><div class="ssv-lbl lbl"><span>${r.label}</span>${r.note ? `<em>${r.note}</em>` : ""}</div>
+  return rows.map(r => `<div class="ssv-row"><div class="ssv-lbl lbl"><span${r.tip ? ` title="${r.tip}"` : ""}>${r.label}</span>${r.note ? `<em>${r.note}</em>` : ""}</div>
     <div class="ssv-lanes" style="--n:${cols.length}">${r.cells.map(h => h || ssVal("—")).join("")}</div></div>`).join("");
 }
 

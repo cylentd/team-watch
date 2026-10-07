@@ -128,6 +128,17 @@ def test_the_tier_is_the_one_ff_jarvis_sent_never_one_cut_from_the_chance(page):
     close_sheet(page)
 
 
+def test_a_tier_word_says_it_failed_its_test_and_no_pick_does_not(page):
+    """12.31 and 12.82: every tier hit under its stated chance. The tooltip says so (2026-10-06); "No pick" names no tier."""
+    sheet = open_sheet(page, "amonra-st-brown")
+    assert sheet.locator(".sl-conf").first.get_attribute("title").startswith("Failed test (12.31, 12.82)")
+    close_sheet(page)
+    page.evaluate("""() => { const p = PROPS.find(p => p.n === 'Amon-Ra St. Brown' && p.mkt === 'REC'); p.tier = 'none'; render(); }""")
+    sheet = open_sheet(page, "amonra-st-brown")
+    assert sheet.locator(".sl-conf").first.get_attribute("title") is None
+    close_sheet(page)
+
+
 def test_no_tier_from_the_producer_means_no_pick_drawn(page):
     page.evaluate("PROPS.forEach(p => { delete p.tier; delete p.side; for (const b of Object.values(p.books)) { delete b.tier; delete b.side; } }); render()")
     sheet = open_sheet(page, "amonra-st-brown")
@@ -164,16 +175,17 @@ def row(page, slug):
 
 
 def test_a_row_is_work_bars_chips_and_the_best_line(page):
-    """St. Brown: the last bar green (his targets rose 7, 9, 11) with all three numbers, his snaps absent
-    (no usage log), one chip for each teammate out and none for the matchup (GB is mid-table); the pick is
-    his one priced yards line, outlined, its tier under it."""
+    """St. Brown: his three bars (targets 7, 9, 11) with all three numbers, none of them green (12.33: a rise in
+    work is priced into the line), his snaps absent (no usage log), no chip for his two teammates out (12.55: the
+    book prices it) and none for the matchup (GB is mid-table); the pick is his one priced yards line,
+    outlined, its tier under it."""
     all_chips(page)
     r = row(page, "amonra-st-brown")
     assert r.locator(".sl-who b").inner_text() == "A. St. Brown" and r.locator(".sl-pos").inner_text() == "WR · DET"
     assert r.locator(".sl-use .sl-ul").first.inner_text() == "Targets"
     assert r.locator(".sl-spark em").all_inner_texts() == ["7", "9", "11"]
-    assert r.locator(".sl-spark > span").evaluate_all("els => els.map(e => e.classList.contains('up'))") == [False, False, True]
-    assert r.locator(".sl-f").all_inner_texts() == ["Reed out", "Raymond out"] and r.locator(".sl-f.out").count() == 2
+    assert r.locator(".sl-spark > span").evaluate_all("els => els.map(e => e.classList.contains('up'))") == [False, False, False]
+    assert r.locator(".sl-f").count() == 0
     assert r.locator(".sl-pick").inner_text() == "Higher rec yds" and r.locator(".sl-r .sl-conf").inner_text() == "Slight"
     assert r.locator(".sl-go").inner_text() == "2 lines"
     assert r.locator(".sl-why, .sl-odds").count() == 0
@@ -181,10 +193,20 @@ def test_a_row_is_work_bars_chips_and_the_best_line(page):
     assert abs(right(r.locator(".sl-pick")) - right(r.locator(".sl-r .sl-conf"))) <= 1, "the pick and its word share the right edge"
 
 
-def test_the_rising_bar_is_green_only_when_the_work_rose(page):
-    page.evaluate("LIVE_REASONS['amonra-st-brown'].tags = ['trailing']; render()")
+def test_no_bar_is_green_even_when_ff_jarvis_tags_the_work_as_rising(page):
+    """12.33: rising work is in the line, so a `work_up` tag colours nothing (removed 2026-10-06)."""
+    page.evaluate("LIVE_REASONS['amonra-st-brown'].tags = ['work_up']; render()")
     all_chips(page)
     assert row(page, "amonra-st-brown").locator(".sl-spark > span.up").count() == 0
+    assert page.locator(".sl-spark > span.up").count() == 0
+
+
+def test_a_teammate_out_draws_no_chip(page):
+    """12.55: the book prices a teammate ruled out, and the fix made the error worse; the "{name} out" chip
+    went (2026-10-06). The reason's `vacated` still arrives from ff-jarvis; nothing draws it."""
+    page.evaluate("LIVE_REASONS['amonra-st-brown'].vacated = [{name: 'J. Reed', last: 'Reed', status: 'Out', work: 'tgt'}]; render()")
+    all_chips(page)
+    assert page.locator(".sl-f.out").count() == 0 and "Reed out" not in page.locator(".sl-board").inner_text()
 
 
 def test_the_best_line_is_the_most_confident_and_a_row_without_one_says_only_its_lines(page):

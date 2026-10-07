@@ -86,7 +86,7 @@ function bdHeroHTML(a, top, n, picked){
   const src = lg || HEADS[top.slug], set = headSrcset(top.slug);
   const head = src ? `<img class="bd-hero-img" src="${src}"${set ? ` srcset="${set}" sizes="(min-width: 760px) 420px, 160px"` : ""} alt="" decoding="async" onerror="this.remove()">` : "";
   const elite = a.elite === null || a.elite === undefined ? ""
-    : `<span class="bd-hero-elite">${t("board.hero.elite", {v: usageFmt(a.elite, a.fmt)})}</span>`;
+    : `<span class="bd-hero-elite" title="${t("profile.sheet.eliteMark")}">${t("board.hero.elite", {v: usageFmt(a.elite, a.fmt)})}</span>`;
   return `<button type="button" class="bd-hero${picked ? " pick" : ""}" data-bdopen="${esc(top.slug)}">
     ${head}
     <span class="bd-hero-txt">

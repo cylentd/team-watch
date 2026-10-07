@@ -40,20 +40,22 @@ function wtCondHTML(r){
   if (has("wind")) parts.push(`<span class="wt-c on">${wtSky("wind", fc)}${t("weather.cond.wind", {wind: esc(fc.wind)})}</span>`);
   if (has("precip")) parts.push(`<span class="wt-c on">${wtSky("precip", fc)}${wxKind(fc.short) === "snow"
     ? t("weather.cond.snow", {n: fc.precip_pct}) : t("weather.cond.rain", {n: fc.precip_pct})}</span>`);
-  parts.push(`<span class="wt-c${has("cold") ? " on" : ""}">${t("profile.weather.temp", {n: fc.temp_f})}</span>`);
+  // Cold carries its failed test in the tooltip (2026-10-06): the cell reads arm a, which 12.53's arm b did not pass.
+  parts.push(`<span class="wt-c${has("cold") ? " on" : ""}"${has("cold") ? ` title="${t("weather.cond.coldMark")}"` : ""}>${t("profile.weather.temp", {n: fc.temp_f})}</span>`);
   if (r.roof === "retractable") parts.push(`<span class="wt-c">${t("profile.weather.retractable")}</span>`);
   return `<p class="wt-cond" data-testid="weather-cond">${parts.join('<span class="wt-dot"> · </span>')}</p>`;
 }
 
 /* "QBs about 1.5 fewer points · WRs about 1 fewer": the unit once, on the first. */
-function wtFxHTML(effects){
+function wtFxHTML(effects, conds){
   const items = effects.map((e, i) => {
     const who = wtPosWord(e.pos), args = {who: i ? who : who[0].toUpperCase() + who.slice(1), n: `<b>${wtHalf(Math.abs(e.pts))}</b>`};
     const said = e.pts < 0 ? (i ? t("weather.fx.fewer", args) : t("weather.fx.fewerFirst", args))
       : (i ? t("weather.fx.more", args) : t("weather.fx.moreFirst", args));
     return `<span class="wt-e">${said}</span>`;
   });
-  return `<p class="wt-fx" data-testid="weather-fx">${items.join('<span class="wt-dot">&nbsp;· </span>')}</p>`;
+  const tip = conds && conds.includes("cold") ? ` title="${t("weather.cond.coldMark")}"` : "";
+  return `<p class="wt-fx" data-testid="weather-fx"${tip}>${items.join('<span class="wt-dot">&nbsp;· </span>')}</p>`;
 }
 
 /* How old the forecast is, only once it is old enough to doubt. */
@@ -95,7 +97,7 @@ function wtHitsHTML(hits, gi){
 function wtCardHTML(r, gi){
   return `<article class="wt-card${r.done ? " done" : ""}" data-testid="weather-card">
     <div class="wt-top"><b class="wt-match" data-testid="weather-card-match">${esc(r.g.away)} @ ${esc(r.g.home)}</b><span class="wt-kick">${wtKickLabel(r)}</span></div>
-    ${wtCondHTML(r)}${wtFxHTML(r.effects)}${r.done ? "" : wtAgeHTML(r.fc)}
+    ${wtCondHTML(r)}${wtFxHTML(r.effects, r.conds)}${r.done ? "" : wtAgeHTML(r.fc)}
     ${wtHitsHTML(r.hits, gi)}
   </article>`;
 }

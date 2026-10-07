@@ -1,15 +1,7 @@
 /* The market row inside Details: what the books (or, lacking a line, the model) say about his
-   next game. METHODOLOGY 12.46 failed its backtest, so this is numbers only -- no BUY/SELL,
-   no "rising"/"falling". A number can still carry an arrow and the existing up/down colour
-   (roster.css's .delta), which the copy rule allows; the words never do. */
-function pfDelta(v, digits){
-  if (v === null || v === undefined) return "";
-  const k = v > 0 ? "up" : v < 0 ? "down" : "flat";
-  const g = v > 0 ? "▲" : v < 0 ? "▼" : "—";
-  const n = Math.abs(v).toFixed(digits);
-  return ` <span class="delta ${k}" data-testid="profile-delta">${g} ${n}</span>`;
-}
-
+   next game. METHODOLOGY 12.46 failed its backtest (a move against his last game pointed the wrong
+   way), so this is the levels only: no BUY/SELL, no "rising"/"falling", and since 2026-10-06 no arrow,
+   no up/down colour and no z (the move over his sector's sd) on any line. */
 function pfNum(v, digits){
   return v === null || v === undefined ? "—" : Number(v).toFixed(digits);
 }
@@ -36,13 +28,10 @@ function marketHTML(prof){
       ${model}
       ${priced}`);
   }
-  /* d_rank of exactly 0 (or null) gets no marker: "#2 — 0" beside a rank reads as a range, not
-     as "no change." z describes the same role move as role_pts, so it sits on that line; the
-     rank line holds rank and its own delta only. */
   return subHTML(t("profile.market.label"), `
     ${model}
-    <p class="pf-cap" data-testid="profile-cap">${t("profile.market.line.pts", {pts: pfNum(pts.books, 1)})}${pfDelta(m.d_pts, 1)}</p>
-    <p class="pf-cap" data-testid="profile-cap">${t("profile.market.line.role", {role: pfNum(m.role_pts, 1)})}${pfDelta(m.d_role_pts, 1)} · ${t("profile.market.line.z", {z: pfNum(m.z, 2)})}</p>
-    <p class="pf-cap" data-testid="profile-cap">${t("profile.market.line.rank", {pos: esc(m.pos), rank: m.rank ?? "—"})}${m.d_rank ? pfDelta(m.d_rank, 0) : ""}</p>
+    <p class="pf-cap" data-testid="profile-cap">${t("profile.market.line.pts", {pts: pfNum(pts.books, 1)})}</p>
+    <p class="pf-cap" data-testid="profile-cap">${t("profile.market.line.role", {role: pfNum(m.role_pts, 1)})}</p>
+    <p class="pf-cap" data-testid="profile-cap">${t("profile.market.line.rank", {pos: esc(m.pos), rank: m.rank ?? "—"})}</p>
     ${priced}`);
 }

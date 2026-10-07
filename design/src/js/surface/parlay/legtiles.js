@@ -87,5 +87,5 @@ function legMatchupHTML(p){
   const head = [t("legsheet.matchup.vs", {team: esc(opp)}), ...bits].join(" · ");
   if (!d || !d.out.length) return `<p class="ls-match" data-testid="legsheet-match">${head}</p>`;
   const names = d.out.slice(0, 5).map(o => `<li>${esc(nameInitial(o.name))} <span>${esc(o.pos || "")} · ${esc(o.injury || "")}</span></li>`).join("");
-  return `<details class="ls-match" data-testid="legsheet-match"><summary data-testid="legsheet-match-head">${head} · <u>${d.out.length === 1 ? t("legsheet.matchup.outOne") : t("legsheet.matchup.outMany", {n: d.out.length})}</u></summary><ul data-testid="legsheet-match-names">${names}</ul></details>`;
+  return `<details class="ls-match" data-testid="legsheet-match"><summary data-testid="legsheet-match-head">${head} · <u>${d.out.length === 1 ? t("legsheet.matchup.outOne") : t("legsheet.matchup.outMany", {n: d.out.length})}</u></summary><ul data-testid="legsheet-match-names">${names}</ul><p data-testid="legsheet-match-mark">${t("legsheet.matchup.mark")}</p></details>`;
 }

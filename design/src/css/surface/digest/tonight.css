@@ -9,8 +9,6 @@
 .dg-tn-h time{font-family:var(--mono);font-size:var(--t-1);color:var(--sky);white-space:nowrap}
 .dg-tn-sky{margin:0;padding:0 16px 10px;font-size:var(--t-1);color:var(--ink-3)}
 .dg-tn-story{margin:0 16px 12px;padding:10px 12px;border-radius:10px;background:var(--panel-2);font-size:var(--t-2);line-height:1.45;text-wrap:pretty}
-.dg-tn-story .dn{color:var(--down);font-family:var(--mono)}
-.dg-tn-story .up{color:var(--up);font-family:var(--mono)}
 .dg-tn-lists{padding:0 16px 4px}
 .dg-tn .dg-foot{padding:0 16px 12px}
 /* After kickoff: one line and the way to the live board. */

@@ -159,17 +159,18 @@ def test_out_and_moved_lines_leave_the_board_and_a_backup_stays(mount):
     assert errors == []
 
 
-@pytest.mark.req(SECTION, ac="work rising comes first and is the default; a game with no rising work opens on All")
-def test_rising_work_comes_first_and_is_the_default(mount):
-    """Work rising is the chip a game opens on when anyone's work rose (ff-jarvis's reason, else the
-    log's usage); a game where nobody's did opens on All, never empty."""
+@pytest.mark.req(SECTION, ac="no Work rising chip, no rising order, no green bar: a game opens on All")
+def test_no_work_rising_chip_and_a_game_opens_on_all(mount):
+    """12.33: the line already prices a work trend, and calls of rising or falling work hit 46.0% (dev) and 49.8%
+    (held out), so the "Work rising" chip, its rising-first order and the green last bar went (2026-10-06). A
+    game opens on All, with the chips TE, Role guys and All N, and the bars are all one colour."""
     board, errors = ParlayPage.slips(mount, "evening-mon")
-    rising = board.rising_slugs()
-    assert board.pressed_chip() == ("rise" if rising else "all")
-    if rising:
-        assert board.row_slugs() == rising
-        assert board.row_sentences() == 0, "no sentence under the work (2026-10-05)"
-        assert board.spark_bars() >= 3
+    assert board.chip_kinds() == ["te", "role", "all"]
+    assert board.pressed_chip() == "all"
+    assert board.row_sentences() == 0, "no sentence under the work (2026-10-05)"
+    assert board.spark_bars() >= 3
+    assert board.rising_bars() == 0, "the last bar is never green"
+    assert "rising" not in board.board_text().lower()
     assert errors == []
 
 

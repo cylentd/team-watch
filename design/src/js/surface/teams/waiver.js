@@ -12,14 +12,14 @@ function wvSectionHTML(title, list, cap, key, deal){
   if (!list.length) return "";
   const shown = cap ? list.slice(0, cap) : list;
   const more = list.length - shown.length;
-  return `<div class="rule"><h2>${title}</h2>${wvCountHTML(list.length)}<span class="hair"></span>
+  return `<div class="rule"><h2 title="${t("waiver.tier.mark")}">${title}</h2>${wvCountHTML(list.length)}<span class="hair"></span>
       ${more ? `<span class="side">${t("waiver.section.more", {n: more})}</span>` : ""}</div>
     <div class="wvc-list">${shown.map(([r, i]) => wvCardHTML(r, i, deal.n++, key)).join("")}</div>`;
 }
 
 function wvFoldHTML(label, list, key, deal){
   if (!list.length) return "";
-  return `<details class="wvfold"><summary class="wvfold-s">${label}</summary>
+  return `<details class="wvfold"><summary class="wvfold-s" title="${t("waiver.tier.mark")}">${label}</summary>
     <div class="wvc-list">${list.map(([r, i]) => wvCardHTML(r, i, deal.n++, key)).join("")}</div></details>`;
 }
 
@@ -73,7 +73,7 @@ function waiverHeroHTML(team){
   const parts = [
     `<span class="wvhero-mode">${wvMode() === "claim" ? t("waiver.hero.claimDay") : t("waiver.hero.wireWatch")}</span>`,
     when ? `<span>${t("waiver.hero.clears", {when})}</span>` : "",
-    mate ? "" : `<span class="${n ? "up" : ""}">${n === 1 ? t("waiver.hero.mustOne") : t("waiver.hero.must", {n})}</span>`,
+    mate ? "" : `<span class="${n ? "up" : ""}" title="${t("waiver.tier.mark")}">${n === 1 ? t("waiver.hero.mustOne") : t("waiver.hero.must", {n})}</span>`,
     mate || meta.faab_left === null || meta.faab_left === undefined ? "" : `<span>${t("waiver.hero.faab", {n: meta.faab_left})}</span>`,
   ].filter(Boolean);
   // Each part keeps its words together; a narrow hero breaks between parts, never inside one.

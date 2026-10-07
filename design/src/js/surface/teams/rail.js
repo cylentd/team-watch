@@ -53,7 +53,7 @@ function wvRailRowHTML(e, key, since){
   // A drop's availability rides on the meta line, as the card states it: "Wed 9:20 AM · FA".
   const when = [waiverWhen(e.at), e.kind === "drop" ? wvStatusText(e, key) : ""].filter(Boolean).join(" · ");
   return `<li class="wvr-row k-${esc(e.kind)}${fresh}">
-    <span class="wvr-k">${WV_KIND[e.kind]()}</span>
+    <span class="wvr-k"${e.kind === "path" ? ` title="${t("waiver.rail.pathMark")}"` : e.kind === "drop" && e.verdict ? ` title="${t("waiver.swap.mark")}"` : ""}>${WV_KIND[e.kind]()}</span>
     <p class="wvr-t">${wvRailText(e, key)}${e.headline ? `<span class="wvr-h">${esc(e.headline)}</span>` : ""}</p>
     ${when ? `<span class="wvr-at">${when}</span>` : ""}
   </li>`;

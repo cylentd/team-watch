@@ -118,6 +118,12 @@ def test_the_lane_tag_names_why_he_is_listed(open_waivers):
     assert tag.text_content() == "Beats a starter" and "healthy starters" in tag.get_attribute("title")
     out = page.locator(".wvc:has(h3:text-is('Tank Dell')) .wvc-lane")
     assert out.text_content() == "Out now"
+    # 2026-10-06: each lane's tooltip says what test it has had; only Beats a starter, Depth move and Out now are untested.
+    assert tag.get_attribute("title").endswith("Untested.") and out.get_attribute("title").endswith("Untested.")
+    # A card's tier stamp and its swap line say the same (the tiers and the margin rules are judgment).
+    ford = page.locator(".wvc:has(h3:text-is('Jerome Ford'))")
+    assert ford.locator(".wvc-stamp").get_attribute("title").startswith("Untested")
+    assert ford.locator(".wvc-swap").get_attribute("title").startswith("Untested")
     # The lane is ESPN's reason; in Yahoo, where his screen did not list him, there is no tag.
     yahoo = open_waivers("yahoo")
     assert yahoo.locator(".wvc:has(h3:text-is('Jerome Ford')) .wvc-lane").count() == 0

@@ -2,8 +2,8 @@
    stadium's next home kickoff, keyed by the home team, so a card reads its game's venue.
    Only an open-air stadium counts: a dome has none, and a retractable roof is the club's call on
    the day. What it does to a player follows the public splits: wind from 15 mph, rain from a 40%
-   chance and any snow cut passing and kicking; wet weather tilts a game to the run. A card shows
-   it only when it matters, so a fair-weather week draws nothing. */
+   chance and any snow cut passing and kicking. A runner's card says nothing about weather. A card
+   shows it only when it matters, so a fair-weather week draws nothing. */
 const cardWeather = g => g ? schedTeamRow(typeof LIVE_WEATHER !== "undefined" ? LIVE_WEATHER : null, g.venue) : null;
 const WX_WIND_MPH = 15, WX_WET_PCT = 40;
 
@@ -35,14 +35,21 @@ function cardWxAdj(p){
 }
 
 /* What touches him, three ways: `what` for the front's chip ("RAIN 60%"), `kind` for the back's
-   narrow line ("RAIN"), and `effect` ("pass ↓"). Null when the weather does not touch him. */
+   narrow line ("RAIN"), and `effect` ("pass ↓"). Null when the weather does not touch him. A runner has
+   no note at all (2026-10-06): the "run ↑" for rain had the wrong sign, every RB cell of METHODOLOGY 12.53
+   measured about zero or below (rain -0.09, wind -0.21). */
 function cardWeatherNote(w, pos){
   const s = cardSky(w);
-  if (!s) return null;
+  if (!s || pos === "RB") return null;
   const what = s.fall === "snow" ? t("teams.card.wxSnow") : s.fall === "rain" ? t("teams.card.wxRain", {n: w.precip_pct})
-    : pos === "RB" ? null : t("teams.card.wxWind", {n: s.wind});
-  if (!what) return null;
+    : t("teams.card.wxWind", {n: s.wind});
   const kind = s.fall === "snow" ? t("teams.card.wxSnow") : s.fall === "rain" ? t("teams.card.wxRainWord") : t("teams.card.wxWindWord");
-  const effect = pos === "K" ? t("teams.card.wxKick") : pos === "RB" ? t("teams.card.wxRun") : t("teams.card.wxPass");
+  const effect = pos === "K" ? t("teams.card.wxKick") : t("teams.card.wxPass");
   return {what, kind, effect};
+}
+
+/* The chip's tooltip (also the back's line): when and what, and for rain or snow the failed test
+   (2026-10-06, METHODOLOGY 12.53). Wind passes it, so a wind chip carries no mark. */
+function cardWxTip(wx){
+  return t("teams.card.wxTip", wx) + (wx.kind === t("teams.card.wxWindWord") ? "" : " " + t("teams.card.wxMark"));
 }

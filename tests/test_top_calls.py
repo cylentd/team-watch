@@ -46,7 +46,8 @@ def test_top_calls_lead_slips_with_a_verdict_each(page):
     assert first.locator(".tpc-who b").inner_text() == "C. Brown"
     assert first.locator(".tpc-pick").inner_text().startswith("Higher rush yds"), "the side and the line"
     assert first.locator(".sl-pc").inner_text() == "72%" and first.locator(".sl-conf").inner_text() == "Very confident"
-    assert first.locator(".tpc-edge").inner_text().endswith("break-even"), "the edge over the book's break-even"
+    assert page.locator(".tpc-edge").count() == 0 and "break-even" not in page.locator(".tpc").inner_text(), \
+        "no edge over the book's break-even (12.31: the model's +EV overs lose at the close; removed 2026-10-06)"
     tiers = page.locator(".tpc .sl-conf").all_inner_texts()
     assert tiers == sorted(tiers, key=["Slight", "Confident", "Very confident"].index, reverse=True), "strongest first"
 

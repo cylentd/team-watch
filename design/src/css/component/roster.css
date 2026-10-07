@@ -113,12 +113,6 @@
   animation:wipe .9s var(--ease) calc(var(--rowdelay,0ms) + 80ms) forwards}
 @keyframes wipe{to{clip-path:inset(0 0 0 0)}}
 
-/* The price-move chip, drawn by the profile's market block (js/surface/profile/market.js). */
-.delta{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:-.01em;white-space:nowrap}
-.delta.up{color:var(--up)}
-.delta.down{color:var(--down)}
-.delta.flat{color:var(--ink-3)}
-
 /* The row's one number in neutral ink, and under it his TD chance (ui/player.js projNumHTML). */
 .rproj{grid-area:proj;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:3px;
   font-family:var(--mono);font-weight:700;font-size:var(--t-4);font-variant-numeric:tabular-nums;color:var(--ink)}

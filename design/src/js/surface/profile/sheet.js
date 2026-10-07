@@ -207,7 +207,7 @@ function eliteBarsHTML(s, ang, xy, sel, cx, cy, R, n){
     // data-el: elite by sheetElite (the fluke filter), so a vertex that crosses the arc on a raw
     // rank the filter does not back never lights it (radarmotion.js radarGrow).
     const el = sheetElite(s, a, sheetRank(s.pos, a.id, s.row.slug)) ? ` data-el="1"` : "";
-    return `<path class="pf-radar-bar${on}" data-testid="profile-radar-bar" data-col="${esc(a.id)}" data-r="${r.toFixed(1)}"${el} fill="none" d="M ${pt(a0)} A ${r.toFixed(1)} ${r.toFixed(1)} 0 0 1 ${pt(a1)}"/>`
+    return `<path class="pf-radar-bar${on}" data-testid="profile-radar-bar" data-col="${esc(a.id)}" data-r="${r.toFixed(1)}"${el} fill="none" d="M ${pt(a0)} A ${r.toFixed(1)} ${r.toFixed(1)} 0 0 1 ${pt(a1)}"><title>${t("profile.sheet.eliteMark")}</title></path>`
       + `<text class="pf-radar-bartag${on}" data-col="${esc(a.id)}" x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="middle" dominant-baseline="middle">${t("profile.sheet.eliteTag")}</text>`;
   }).join("");
 }

@@ -54,7 +54,6 @@
 .sl-spark em{font-style:normal;font-family:var(--mono);font-size:var(--t-1);line-height:1;color:var(--ink-3);font-variant-numeric:tabular-nums}
 .sl-spark > span:last-child i{background:var(--ink-2)}
 .sl-spark > span:last-child em{color:var(--ink);font-weight:700}
-.sl-spark > span.up:last-child i{background:var(--up)}
 /* a chip only when it applies: a dot, then the words */
 .sl-fl{display:flex;flex-wrap:wrap;gap:6px}
 .sl-f{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border:1px solid var(--line-2);border-radius:999px;
@@ -62,7 +61,6 @@
 .sl-f::before{content:"";flex:none;width:6px;height:6px;border-radius:50%;background:var(--ink-3)}
 .sl-f.easy::before{background:var(--up)}
 .sl-f.tough::before{background:var(--down)}
-.sl-f.out::before{background:var(--amber)}
 /* the model's best line, button-like, its tier under it, then the line count */
 .sl-r{display:grid;justify-items:end;gap:4px}
 .sl-pick{position:relative;padding:4px 8px;border:1px solid var(--lime);box-shadow:inset 0 0 0 1px var(--lime);border-radius:8px;

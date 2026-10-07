@@ -5,7 +5,7 @@
    No footnotes (2026-09-30): rest and travel are facts, and the row prints them bare.
 
    Colour map: --down Out / IR, --amber doubtful / questionable (tags with their word), --sky weather
-   that moves scoring, --amber the Short week tag.
+   that moves scoring. Short week and Off a bye are plain text (2026-10-06, METHODOLOGY 12.62).
 ------------------------------------------------------------------ */
 const pvInjTag = s => ({out: t("preview.inj.out"), ir: t("preview.inj.ir"), d: t("preview.inj.d"), q: t("preview.inj.q")})[s];
 
@@ -37,7 +37,8 @@ function pvWxEffects(w){
   const th = LIVE_WX_HISTORY.thresholds || {};
   const name = c => ({wind: t("preview.wx.wind", {n: th.wind_mph}), precip: t("preview.wx.rain", {n: th.precip_pct}),
     cold: t("preview.wx.cold", {n: th.cold_f})})[c];
-  return conds.map(c => `<li><b>${name(c)}</b>${LIVE_WX_HISTORY.conditions[c].matters.map(m =>
+  // Cold carries its failed test in the tooltip (2026-10-06, METHODOLOGY 12.53).
+  return conds.map(c => `<li${c === "cold" ? ` title="${t("weather.cond.coldMark")}"` : ""}><b>${name(c)}</b>${LIVE_WX_HISTORY.conditions[c].matters.map(m =>
     `<span>${esc(m.pos)} ${m.mean.toFixed(2)}</span>`).join("")}</li>`);
 }
 
@@ -64,11 +65,13 @@ function pvWxRow(g){
 function pvRestLine(team, g){
   const r = (g.rest || {})[team], tr = (g.travel || {})[team], bits = [];
   if (r && r.days != null) bits.push(t("preview.rest.days", {n: r.days}));
-  if (r && r.short) bits.push(`<b class="pv-tag short" data-testid="preview-rest-short">${t("preview.rest.short")}</b>`);
-  if (r && r.bye) bits.push(`<b class="pv-tag bye">${t("preview.rest.bye")}</b>`);
+  // Plain text since 2026-10-06 (12.62: rest is priced into the line, 0 of 23 cells beat it): no tag, no colour.
+  if (r && r.short) bits.push(`<span data-testid="preview-rest-short">${t("preview.rest.short")}</span>`);
+  if (r && r.bye) bits.push(`<span data-testid="preview-rest-bye">${t("preview.rest.bye")}</span>`);
   const z = tr && {n: Math.abs(tr.zones)};
-  if (tr && tr.zones) bits.push((tr.zones > 0 ? t("preview.travel.east", z) : t("preview.travel.west", z))
-    + (tr.body ? " · " + t("preview.travel.body", {clock: kickClock(tr.body)}) : ""));
+  // The zones and body clock carry METHODOLOGY 12.62's result in the tooltip (2026-10-06).
+  if (tr && tr.zones) bits.push(`<span title="${t("preview.travel.mark")}">${(tr.zones > 0 ? t("preview.travel.east", z) : t("preview.travel.west", z))
+    + (tr.body ? " · " + t("preview.travel.body", {clock: kickClock(tr.body)}) : "")}</span>`);
   else if (tr && team === g.home && !(g.site && g.site.neutral)) bits.push(t("preview.travel.home"));
   if (tr && tr.miles) bits.push(t("preview.travel.miles", {n: tr.miles.toLocaleString("en-US")}));
   return pvKV(esc(team), bits.join(" · ") || "–");

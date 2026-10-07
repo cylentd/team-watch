@@ -509,13 +509,32 @@ def test_optional_rows_are_absent_without_data(preview):
 
 
 @pytest.mark.render
+def test_claudes_confidence_words_say_untested(preview):
+    """Claude's Slight / Confident / Very confident / No pick are its own word, scored as a record and not backtested:
+    the tooltip says so (2026-10-06)."""
+    pv, errors = preview
+    pv.tap_game(0)
+    titles = pv.conf_titles()
+    assert titles and all(t.startswith("Untested") for t in titles), titles
+    assert errors == []
+
+
+@pytest.mark.render
 def test_neutral_site_and_short_week(preview):
     pv, errors = preview
     pv.tap_game(1)
     assert "Neutral site: Wembley Stadium" in pv.section_text("rest")
-    assert "OFF A BYE" in pv.section_text("rest")
+    assert "Off a bye" in pv.section_text("rest")
+    assert "OFF A BYE" not in pv.section_text("rest")
+    bye = pv.rest_notes()
+    assert [n["text"] for n in bye] == ["Off a bye"] and "pv-tag" not in bye[0]["cls"]
     pv.step(-1)
-    assert pv.short_tag_count() == 2
+    shorts = pv.rest_notes()
+    assert [n["text"] for n in shorts] == ["Short week"] * 2
+    # 12.62: rest is priced into the line (Thursday total -0.06, off a bye -0.37 ATS), so the note is a fact in
+    # plain text, never an amber tag (2026-10-06).
+    for n in bye + shorts:
+        assert "pv-tag" not in n["cls"] and n["bg"] == "rgba(0, 0, 0, 0)", n
     assert errors == []
 
 

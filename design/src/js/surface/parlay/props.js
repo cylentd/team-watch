@@ -21,5 +21,5 @@ function whyNotSlip(p, u){
    are, so it renders alongside whatever whyNotSlip already says, never instead of it. */
 function roleNoteTagHTML(p){
   return p.role_note
-    ? `<span class="tag t-role" title="${esc(p.role_note)}">${t("parlay.tag.role")}</span>` : "";
+    ? `<span class="tag t-role" title="${esc(p.role_note)} ${t("parlay.tag.roleMark")}">${t("parlay.tag.role")}</span>` : "";
 }

@@ -36,11 +36,12 @@ function dgStartWhat(r, name, bare){
 }
 
 /* Start of the week (2026-10-03, David: yes): our boldest START, the call's own row on Start/Sit (the
-   widest gap between our rank and his season average), leading the card in lime. Our rank on the
-   right with his average under it, as Start/Sit shows it. */
+   widest gap between our rank and his season average), leading the card. Plain, not lime, since
+   2026-10-06: its START failed in-sample (METHODOLOGY 12.75, 10 of 24), so the colour waits for the
+   week-9 review; the tooltip says so. Our rank on the right with his average under it, as Start/Sit shows it. */
 function dgSotwHTML(){
   const s = LIVE_SS3.takes.find(r => r.call === "START");
-  return s ? dgLnHTML({n: s.name, slug: s.slug}, `<b class="dg-sotw" data-testid="digest-sotw">${t("digest.mu.sotw")}</b> · ${esc(s.pos)} · ${dgVs(s)}`,
+  return s ? dgLnHTML({n: s.name, slug: s.slug}, `<b class="dg-sotw" data-testid="digest-sotw" title="${t("matchups.takes.markStart")}">${t("digest.mu.sotw")}</b> · ${esc(s.pos)} · ${dgVs(s)}`,
     `${esc(s.pos)}${s.rank}<small>${t("matchups.takes.avg", {avg: s.avg_rank == null ? "—" : esc(s.pos) + s.avg_rank})}</small>`) : "";
 }
 
@@ -51,7 +52,7 @@ function dgMuBody(d){
   const r = LIVE_SS3.record;
   const rec = ss3Graded(r) ? t("digest.foot.mu", {wk: r.since_week, smash: ss3Wl(r.smash), start: ss3Wl(r.start), sit: ss3Wl(r.sit)})
     : t("digest.foot.muNone", {wk: r.since_week});
-  return lines + dgFootHTML(rec, "matchups", t("digest.go.matchups"));
+  return lines + dgFootHTML(`${rec} ${t("digest.foot.muMark")}`, "matchups", t("digest.go.matchups"));
 }
 
 /* Each bar grows when the row opens (adds.css): from last week's % rostered to this week's on the

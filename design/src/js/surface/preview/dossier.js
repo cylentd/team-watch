@@ -119,7 +119,7 @@ function pvMatchupRow(g){
 function pvPlayerHTML(p, j){
   return `<li><button class="pv-p" data-pvp="${j}" data-testid="preview-player">
     <span class="pv-face">${headHTML(p)}</span>
-    <span class="pv-call ${p.call}" aria-label="${pvCallWord(p.call)}">${PV_CALL[p.call]}</span>
+    <span class="pv-call ${p.call}" aria-label="${pvCallWord(p.call)}" title="${pvCallWord(p.call)}. ${t("preview.call.mark")}">${PV_CALL[p.call]}</span>
     <span class="pv-pn">${shortName(p.n)}<small>${esc(p.pos)} · ${esc(p.team)}</small></span>
     <span class="pv-pj" data-testid="preview-player-proj">${p.proj != null ? p.proj.toFixed(1) : ""}</span>
     <span class="pv-pw">${esc(p.why)}</span></button></li>`;

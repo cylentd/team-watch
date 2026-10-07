@@ -1,8 +1,8 @@
 """Top calls: the model's strongest lines in games still to play, and the same-game slip note (data/topcalls.js, Node).
 
 Slips leads with these (2026-10-05, plan "Bets UX" change 1): strongest tier first, then the model's chance of
-its side, one line per player, only games that have not kicked off, each with the book's break-even so the edge
-is two numbers a reader can subtract. A slip holding two legs of one game says so and shows no combined chance."""
+its side, one line per player, only games that have not kicked off. No edge over the book's price: 12.31 found the
+model's +EV overs lose at the close, so it was removed 2026-10-06. A slip holding two legs of one game says so and shows no combined chance."""
 import pytest
 
 # 2026-10-05 13:00 UTC, Monday: Sunday has kicked off, Monday night (00:15 UTC Tuesday) has not.
@@ -63,45 +63,32 @@ def test_no_pick_a_touchdown_an_out_player_or_a_moved_line_is_a_call(tc):
     assert [c["n"] for c in calls(tc, props, book="dk")] == ["Fine Guy"]
 
 
-def test_the_edge_is_the_chance_less_the_break_even_of_the_sides_own_price(tc):
-    """Lower at Underdog's -110: break-even 52%, so 74% is +22. DraftKings' own Under was -105 (51%)."""
+def test_a_call_carries_the_chance_of_its_side_and_no_edge_over_the_price(tc):
+    """12.31: the model's +EV overs lost at the close (DraftKings ROI -17.9% weeks 1-4), so a row has no break-even
+    and no edge (2026-10-06). The line and tier follow the source the reader's book shows."""
     ud = book(26, line=41.5, side="lower", tier="confident")
     row = prop("Edge Guy", 30, "slight", "lower", ud=ud)
     got = calls(tc, [row])[0]
-    assert (got["pct"], got["be"], got["edge"], got["line"]) == (74, 52, 22, 41.5)
+    assert (got["pct"], got["line"]) == (74, 41.5)
     dk = calls(tc, [row], book="dk")[0]
-    assert (dk["pct"], dk["be"], dk["edge"], dk["tier"]) == (70, 51, 19, "slight")
+    assert (dk["pct"], dk["tier"]) == (70, "slight")
+    assert not {"edge", "be"} & set(got) and not {"edge", "be"} & set(dk)
 
 
-def test_a_call_priced_worse_than_its_break_even_is_not_a_top_call(tc):
-    """Lower at -250 breaks even at 71%: a 70% chance is -1, so the row would print "+-1" and is no edge. A call
-    at exactly break-even stays, and so does one whose price the book never sent."""
+def test_a_call_priced_worse_than_its_break_even_is_still_a_call(tc):
+    """Lower at -250 breaks even at 71%: a 70% chance used to be dropped as "no edge". With no edge shown, the
+    price no longer picks the list: the tier and the chance do."""
     steep = book(30, over=200, under=-250)
-    even = book(29, over=200, under=-250)
     props = [prop("Steep Guy", 30, "very", "lower", ud={**steep, "side": "lower", "tier": "very"}),
-             prop("Even Guy", 29, "very", "lower", ud={**even, "side": "lower", "tier": "very"}),
              prop("Bare Guy", 30, "confident", "lower", books={"DraftKings": {"line": 40.5, "model": 30}})]
-    got = {c["n"]: c["edge"] for c in calls(tc, props)}
-    assert "Steep Guy" not in got and all(e is None or e >= 0 for e in got.values())
-    assert got["Bare Guy"] is None
+    assert [c["n"] for c in calls(tc, props)] == ["Steep Guy", "Bare Guy"]
 
 
-def test_a_players_negative_line_does_not_hide_his_other_one(tc):
+def test_a_steep_line_can_still_be_a_players_strongest(tc):
     steep = book(30, over=200, under=-250)
     props = [prop("Two Lines", 30, "very", "lower", ud={**steep, "side": "lower", "tier": "very"}),
              prop("Two Lines", 40, "slight", "lower", mkt="RUSH")]
-    assert [(c["mkt"], c["tier"]) for c in calls(tc, props)] == [("RUSH", "slight")]
-
-
-def test_a_higher_call_is_priced_at_the_over(tc):
-    ud = book(66, over=-125, under=105, side="higher", tier="confident")
-    got = calls(tc, [prop("Higher Guy", 60, "slight", "higher", ud=ud)])[0]
-    assert (got["side"], got["pct"], got["be"], got["edge"]) == ("higher", 66, 56, 10)
-
-
-def test_a_price_the_book_did_not_send_leaves_the_edge_empty_but_keeps_the_call(tc):
-    got = calls(tc, [prop("Bare Guy", 30, "confident", "lower", books={"DraftKings": {"line": 40.5, "model": 30}})], book="dk")[0]
-    assert (got["pct"], got["be"], got["edge"]) == (70, None, None)
+    assert [(c["mkt"], c["tier"]) for c in calls(tc, props)] == [("REC", "very")]
 
 
 def test_underdog_uses_its_own_tier_and_not_the_other_books(tc):

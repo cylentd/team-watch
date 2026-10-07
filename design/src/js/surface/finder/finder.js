@@ -42,7 +42,7 @@ const tfPartnerBarHTML = tm => `<button type="button" class="lbp-back tf-all" da
 
 /* Under the head: the error, the shapes while the file loads, or the cards (an empty state says so in one line). */
 function tfOffersHTML(lg, me, partner){
-  const head = partner ? "" : `<h2 class="tf-h">${t("finder.offers.pos", {pos: TF.pos})}</h2>`;
+  const head = partner ? "" : `<h2 class="tf-h" title="${t("lboard.offer.mark")}">${t("finder.offers.pos", {pos: TF.pos})}</h2>`;
   if (TB_ERR) return head + `<div class="state-empty tb-empty" data-testid="finder-error"><div><b>${t("lboard.offer.error")}</b>
     <button type="button" class="chip" data-tbretry>${t("lboard.offer.retry")}</button></div></div>`;
   if (!TB_DATA){ TF_SHOWN = []; return head + tbSkelHTML(); }

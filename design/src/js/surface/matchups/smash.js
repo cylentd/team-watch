@@ -28,7 +28,7 @@ function muSmashHTML(){
   const rows = LIVE_SS3.smash;
   if (!rows.length) return "";
   return `<section class="mu-card mu-smash" aria-label="${t("matchups.call.smash")}">
-    <h3 class="mu-ch"><span class="mu-tag smash">${t("matchups.call.smash")}</span><span class="mu-ck">${t("matchups.smash.cols")}</span></h3>
+    <h3 class="mu-ch"><span class="mu-tag smash" title="${t("matchups.takes.markSmash")}">${t("matchups.call.smash")}</span><span class="mu-ck">${t("matchups.smash.cols")}</span></h3>
     ${rows.map(muSmashRowHTML).join("")}
     <div class="mu-cf"><button type="button" class="mu-go" data-ssgo="parlay">${t("matchups.smash.build")}${MU_ARROW}</button></div>
   </section>`;

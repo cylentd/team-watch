@@ -110,7 +110,7 @@ function briefWeather(team, at){
   const top = [...by.values()].sort((a, b) => b.ps.filter(p => p.start).length - a.ps.filter(p => p.start).length || b.ps.length - a.ps.length)[0];
   if (!top) return [];
   const start = top.ps.filter(p => p.start), bench = top.ps.filter(p => !p.start);
-  return [{kind: "wx", tone: "sky", i: at(top.ps[0]),
+  return [{kind: "wx", tone: "sky", i: at(top.ps[0]), tip: top.wx.kind === t("teams.card.wxWindWord") ? t("teams.brief.wxMarkWind") : t("teams.brief.wxMark"),
     text: t("teams.brief.wx", {what: esc(top.wx.what.charAt(0) + top.wx.what.slice(1).toLowerCase()), where: esc(top.g.venue)}),
     sub: [start.length ? t("teams.brief.wxStart", {names: briefList(start)}) : "",
           bench.length ? t("teams.brief.wxBench", {names: briefList(bench)}) : ""].filter(Boolean).join("; ")}];
@@ -124,7 +124,7 @@ function briefMatchups(team, at){
   if (ranked.length < 2) return [];
   const say = x => t("teams.brief.muOne", {name: briefName(x.p), where: whereWord(x.prof.next), opp: esc(x.prof.next.opp), nth: ordinal(x.n)});
   const hard = ranked[0], easy = ranked[ranked.length - 1];
-  return [{kind: "mu", tone: "warn", i: at(hard.p), text: t("teams.brief.muHard", {m: say(hard)}), sub: t("teams.brief.muEasy", {m: say(easy)})}];
+  return [{kind: "mu", tone: "warn", i: at(hard.p), tip: t("teams.brief.muMark"), text: t("teams.brief.muHard", {m: say(hard)}), sub: t("teams.brief.muEasy", {m: say(easy)})}];
 }
 
 /* The wire: must-claims first, else what is worth a claim, with when the claims clear. */
@@ -133,7 +133,7 @@ function briefWire(team){
   const must = waiverMustIn(team.key), worth = waiverIn(team.key).filter(([r]) => waiverTier(r, team.key) === "worth").length;
   if (!must && !worth) return [];
   const meta = waiverMeta()[team.key], when = meta ? waiverWhen(meta.clears || (WAIVER && WAIVER.clears)) : "";
-  return [{kind: "wire", tone: must ? "lime" : "up", go: "waivers",
+  return [{kind: "wire", tone: must ? "lime" : "up", go: "waivers", tip: t("teams.brief.wireMark"),
     text: must ? (must === 1 ? t("teams.brief.mustOne") : t("teams.brief.mustMany", {n: must})) : t("teams.brief.worth", {n: worth}),
     sub: when ? t("waiver.hero.clears", {when}) : ""}];
 }
@@ -185,7 +185,7 @@ function briefHTML(team){
     ${peekDone ? head(t("teams.brief.allChecked", {n: all.length}), `<button type="button" class="brief-act" data-testid="roster-brief-peek" data-briefpeek>${t("teams.brief.hide")}</button>`)
       : head(briefCount(open.length, pill),
           `<button type="button" class="brief-act" data-testid="roster-brief-ok" data-briefok>${t("teams.brief.gotIt")}</button>`)}
-    ${lines.map(l => `<button class="brief-line k-${l.kind} ${l.tone}${checked.has(l.id) ? " checked" : ""}" data-testid="roster-brief-line" data-bid="${l.id}" ${l.go ? `data-go="${l.go}"` : `data-team="${team.key}" data-i="${l.i}"`}>
+    ${lines.map(l => `<button class="brief-line k-${l.kind} ${l.tone}${checked.has(l.id) ? " checked" : ""}" data-testid="roster-brief-line" data-bid="${l.id}"${l.tip ? ` title="${l.tip}"` : ""} ${l.go ? `data-go="${l.go}"` : `data-team="${team.key}" data-i="${l.i}"`}>
         <span class="brief-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${BRIEF_ICON[l.kind]}</svg></span>
         <span class="brief-txt">${l.text}${l.sub ? `<small>${l.sub}</small>` : ""}</span><span class="brief-go" aria-hidden="true">&rsaquo;</span>
       </button>`).join("")}

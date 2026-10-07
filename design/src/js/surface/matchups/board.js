@@ -22,7 +22,7 @@ function ssBoardRowHTML(r, scale, tone){
 }
 
 function ssBoardListHTML(title, rows, tone, scale, avg){
-  return `<div class="ssv-bl"><h4 class="lbl">${title}<span>${t("startsit.board.cols")}</span></h4>
+  return `<div class="ssv-bl"><h4 class="lbl" title="${t("startsit.board.mark")}">${title}<span>${t("startsit.board.cols")}</span></h4>
     <ol class="ssv-bol" style="--avg:${(avg / scale * 100).toFixed(1)}%">${rows.map(r => ssBoardRowHTML(r, scale, tone)).join("")}</ol></div>`;
 }
 
@@ -34,7 +34,7 @@ function ssSpotHTML(pos){
   const out = ((ssSB() && ssSB().out) || {})[s.slug] || [];
   const bits = [esc(muVs(s)), ...s.why.slice(0, 2).map(esc),
     ...out.slice(0, 2).map(o => t("startsit.board.out", {n: esc(nameInitial(o.n)), s: esc(o.s)}))];
-  return `<button type="button" class="ssv-spot" data-ssprof="${esc(s.slug)}">
+  return `<button type="button" class="ssv-spot" data-ssprof="${esc(s.slug)}" title="${t("startsit.board.mark")}">
     <span class="lbl">${t("startsit.board.spot")}</span><span class="xf-head mu-hd">${avatarHTML(s)}</span>
     <span class="mu-nm"><b>${esc(nameInitial(s.n))}</b><span>${bits.join(" · ")}</span></span><em>${s.pts.toFixed(1)}</em></button>`;
 }

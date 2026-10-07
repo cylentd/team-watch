@@ -12,6 +12,8 @@ function sheetTagsHTML(p){
   if (!sig.verdict) return "";
   // The reason is a sentence (data/signals.js signalWords), not watch's shorthand ("snaps -5.0, share +19").
   const why = signalWords(sig.verdict, sig.why);
-  return `<div class="pf-tags" data-testid="profile-tags"><span class="tag verdict" data-testid="profile-verdict">${esc(sig.verdict)}</span>`
+  // RISING carries its test in the tooltip (2026-10-06); SELL HIGH passed 12.41 and carries none.
+  const tip = sig.verdict === "RISING" ? ` title="${t("profile.signal.risingMark")}"` : "";
+  return `<div class="pf-tags" data-testid="profile-tags"><span class="tag verdict" data-testid="profile-verdict"${tip}>${esc(sig.verdict)}</span>`
     + (why ? `<span class="pf-why" data-testid="profile-why">${esc(why)}</span>` : "") + `</div>`;
 }

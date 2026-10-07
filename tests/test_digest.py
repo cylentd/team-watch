@@ -376,10 +376,15 @@ def test_start_of_the_week_heads_the_matchups_card(mount):
     assert first["sotw"] == "Start of the week"
     assert first["slug"] == want["slug"]
     assert first["right"] == f"{want['pos']}{want['rank']} avg {want['pos']}{want['avg_rank']}"
-    assert dg.row_foot_text("mu") == "Record since week 5: SMASH 7-3, START 2-2, SIT 4-1."
+    foot = dg.row_foot_text("mu")
+    assert foot.startswith("Record since week 5: SMASH 7-3, START 2-2, SIT 4-1.")
+    # 2026-10-06: the foot says what each call has been through (12.61, 12.73, 12.75), and the label loses its lime.
+    assert "Failed test (12.61, 12.73)" in foot and "Failed test (12.75)" in foot and "Untested" in foot
+    assert dg.sotw_color() != dg.lime(), "plain until the week-9 review of START"
+    assert "Failed test (12.75)" in dg.sotw_title()
     dg.plant_no_start_take()
     assert dg.sotw_count() == 0
-    assert dg.row_foot_text("mu") == "Record starts with week 5."
+    assert dg.row_foot_text("mu").startswith("Record starts with week 5.")
     assert errors == []
 
 
@@ -490,9 +495,9 @@ def test_tonight_carries_the_card_facts_with_slugs_and_kickoff():
     assert g["wx"] == {"roof": "outdoor", "temp_f": 64, "wind_mph": 5, "precip_pct": 1, "short": "Mostly Clear"}
     assert [(r["n"], r["status"], r["injury"]) for r in g["out"]][0] == ("Caleb Williams", "Out", "Hamstring")
     assert g["next_up"][0]["for"] == "Caleb Williams" and g["next_up"][0]["n"] == "Case Keenum"
-    assert {"team": "CHI", "group": "pass", "d_pts": -9.8} in g["groups"]
+    assert "groups" not in g and "moved" not in g, "12.46 failed: the books' moves are not carried to the page (2026-10-06)"
     assert [r["call"] for r in g["tcalls"]] == ["BEST", "BEST", "START"]
-    assert g["projected"][0]["slug"] == slugify("Jalen Hurts") and g["moved"][0]["d_pts"] == -3.97
+    assert g["projected"][0]["slug"] == slugify("Jalen Hurts")
     assert live_digest({**load_digest(), "tonight": {"games": [], "last": False}}, slugify)["tonight"] == []
 
 

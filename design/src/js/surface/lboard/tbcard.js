@@ -21,8 +21,8 @@ const tbPillHTML = p => p.injury || p.ir
 /* The perceived-value chips (option B, 2026-10-05): how the other manager is likely to price a player. Hot and Cold
    follow his last 2 games, Early pick is a round 1-3 draft pick. Small and flat, in tokens (--heat, --sky, neutral); a
    chip the file adds that the page does not know is left out. */
-const tbChipsHTML = p => (p.chips || []).map(c => c === "Hot" ? `<i class="tb-chip hot">${t("lboard.chip.hot")}</i>`
-  : c === "Cold" ? `<i class="tb-chip cold">${t("lboard.chip.cold")}</i>`
+const tbChipsHTML = p => (p.chips || []).map(c => c === "Hot" ? `<i class="tb-chip hot" title="${t("lboard.chip.mark")}">${t("lboard.chip.hot")}</i>`
+  : c === "Cold" ? `<i class="tb-chip cold" title="${t("lboard.chip.mark")}">${t("lboard.chip.cold")}</i>`
   : c === "Early pick" ? `<i class="tb-chip early">${t("lboard.chip.early")}</i>` : "").join("");
 
 const tbWrapTags = s => s ? `<span class="tb-tags">${s}</span>` : "";
@@ -62,7 +62,7 @@ function tbCardHTML(o, i, lg, canEdit){
   const edit = canEdit ? `<button type="button" class="tb-copy" data-tbedit="${i}" data-testid="finder-edit">${t("lboard.offer.edit")}</button>` : "";
   return `<article class="tb-card" data-testid="finder-card">${tbHeadHTML(o, lg)}
     <div class="tb-cols">${col(t("lboard.offer.send"), o.send)}${col(t("lboard.offer.get"), o.get)}</div>${tbRoomHTML(o)}
-    <div class="tb-foot"><p class="tb-gain" data-testid="finder-gain">${t("lboard.offer.gain", {n: `<b>+${lbNum(o.gain)}</b>`})}</p>
+    <div class="tb-foot"><p class="tb-gain" data-testid="finder-gain" title="${t("lboard.offer.mark")}">${t("lboard.offer.gain", {n: `<b>+${lbNum(o.gain)}</b>`})}</p>
       <div class="tb-acts">${edit}<button type="button" class="tb-copy" data-tbcopy="${i}" data-testid="finder-copy">${t("lboard.offer.copy")}</button></div></div></article>`;
 }
 

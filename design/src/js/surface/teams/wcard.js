@@ -18,15 +18,17 @@ const WV_PRACTICE = {
 };
 
 /* Why this league's screen listed him (`leagues[VIEW].lane`), as a tag under his name with the
-   reason as its tooltip. No lane in this league, or an unknown one, draws nothing. Literal keys, so the copy check sees every one. */
+   reason as its tooltip, and since 2026-10-06 the test each lane has had: Usage failed (12.41), Beats a
+   starter, Depth move and Out now are untested; Open work and Insurance passed (12.42, 12.49) and carry
+   none. No lane in this league, or an unknown one, draws nothing. Literal keys, so the copy check sees every one. */
 const WV_LANE = {
   hole: () => [t("waiver.lane.hole"), t("waiver.lane.holeTip")],
-  starter: () => [t("waiver.lane.starter"), t("waiver.lane.starterTip")],
+  starter: () => [t("waiver.lane.starter"), `${t("waiver.lane.starterTip")}. ${t("waiver.lane.starterMark")}`],
   open: () => [t("waiver.lane.open"), t("waiver.lane.openTip")],
-  usage: () => [t("waiver.lane.usage"), t("waiver.lane.usageTip")],
-  role: () => [t("waiver.lane.role"), t("waiver.lane.roleTip")],
+  usage: () => [t("waiver.lane.usage"), `${t("waiver.lane.usageTip")}. ${t("waiver.lane.usageMark")}`],
+  role: () => [t("waiver.lane.role"), `${t("waiver.lane.roleTip")}. ${t("waiver.lane.roleMark")}`],
   insure: () => [t("waiver.lane.insure"), t("waiver.lane.insureTip")],
-  injured: () => [t("waiver.lane.injured"), t("waiver.lane.injuredTip")],
+  injured: () => [t("waiver.lane.injured"), `${t("waiver.lane.injuredTip")}. ${t("waiver.lane.injuredMark")}`],
 };
 function wvLaneHTML(lane){
   if (!WV_LANE[lane]) return "";
@@ -57,7 +59,7 @@ function wvSwapHTML(r, lg){
     : lg.need ? t("waiver.swap.need", {pos: esc(r.pos)}) : "";
   if (!swap) return "";
   const drop = lg.drop ? `<span class="wvc-drop">${t("waiver.swap.drop", {name: esc(nameInitial(lg.drop.name))})}</span>` : "";
-  return `<p class="wvc-swap">${swap}${drop}</p>`;
+  return `<p class="wvc-swap" title="${t("waiver.swap.mark")}">${swap}${drop}</p>`;
 }
 
 /* FA, or on waivers with the clear time: the one fact that says whether a claim is a bid. Also
@@ -80,7 +82,7 @@ function wvFrontHTML(r, key, tier){
   const opp = !r.opp ? "" : r.home ? t("waiver.card.vs", {opp: esc(r.opp)}) : t("waiver.card.at", {opp: esc(r.opp)});
   const first = r.summary && r.summary.text ? `<p class="wvc-lede">${esc(wvFirstSentence(r.summary.text))}</p>` : "";
   return `<div class="wvc-face wvc-front">
-    <div class="wvc-top"><span class="wvc-stamp">${(WV_TIER[tier] || WV_TIER.watch)()}</span>
+    <div class="wvc-top"><span class="wvc-stamp" title="${t("waiver.tier.mark")}">${(WV_TIER[tier] || WV_TIER.watch)()}</span>
       <span class="wvc-st">${esc(r.pos)} · ${wvStatusText(lg, key)}</span></div>
     <div class="wvc-id"><div class="head">${headHTML(r)}</div>
       <div class="wvc-who"><h3>${esc(r.n)}</h3><span class="wvc-team">${esc(r.team)} ${opp}</span>${wvUsageRankHTML(r)}${wvLaneHTML(lg.lane)}${wvNowHTML(r)}</div></div>

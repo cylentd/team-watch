@@ -47,5 +47,5 @@ function matchupMetaHTML(prof){
   const nx = prof && prof.next;
   const n = nx ? easiestRank(nx.factor) : null;
   if (n === null) return "";
-  return `<span class="mu-meta">${whereWord(nx)} ${esc(nx.opp)} <b class="mu-n ${matchupClass(n, nx.factor.of)}" title="${matchupRankText(prof)}">${ordinal(n)}</b></span>`;
+  return `<span class="mu-meta">${whereWord(nx)} ${esc(nx.opp)} <b class="mu-n ${matchupClass(n, nx.factor.of)}" title="${matchupRankText(prof)}. ${t("profile.matchup.mark")}">${ordinal(n)}</b></span>`;
 }

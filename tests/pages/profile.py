@@ -186,6 +186,12 @@ class ProfilePage(ProfileHead):
     def rank_class(self):
         return self._tid("profile-rank").get_attribute("class")
 
+    def marks(self):
+        """The tooltips on the open profile that say a flag is untested or failed its test (2026-10-06)."""
+        return self._modal.locator("[title], title").evaluate_all(
+            """els => els.map(e => e.getAttribute('title') || e.textContent)
+                 .filter(s => /^(Untested|Failed test)/.test(s))""")
+
     def columns(self):
         """The matchup pane's cards: top and bottom edge of each."""
         return self._tid("profile-col").evaluate_all("cs => cs.map(e => { const b = e.getBoundingClientRect(); return [b.top, b.bottom]; })")

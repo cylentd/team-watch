@@ -373,7 +373,7 @@ def test_weather_shows_stadium_forecast_with_icons(mount):
 
 
 @pytest.mark.render
-@pytest.mark.req(REQ, ac="the market line shows the books' number, role points, rank and what is priced, no verdict words")
+@pytest.mark.req(REQ, ac="the market line shows the books' number, role points, rank and what is priced, no arrows, colour or z")
 def test_market_row_shows_priced_numbers(mount):
     profile, errors = on_roster(mount)
     profile.open_from_roster(ST_BROWN)
@@ -381,8 +381,10 @@ def test_market_row_shows_priced_numbers(mount):
     text = profile.text()
     assert "UNTESTED" not in text                             # tags cut 2026-09-29 (David)
     assert "17.8 pts" in text and "role 18.2 pts" in text
-    assert "WR rank #5" in text and "z 0.82" in text
-    assert "Priced: REC" in text
+    assert "WR rank #5" in text and "Priced: REC" in text
+    # 12.46: a move against his last game failed its backtest (wrong sign), so the arrows, their colour and z went (2026-10-06).
+    assert profile.caps("pts") and all(c["deltas"] == 0 for c in profile.caps("pts"))
+    assert not re.search(r"[▲▼]|\bz [\d-]", text)
     assert not re.search(r"\b(BUY|SELL|RISING|FALLING|HOT|COLD)\b", text, re.I)
     assert errors == []
 
@@ -401,18 +403,29 @@ def test_market_row_falls_back_to_model_pts(mount):
 
 
 @pytest.mark.render
-@pytest.mark.req(REQ, ac="a d_rank of 0 draws no change marker; z moves to the role line")
-def test_market_row_zero_d_rank_shows_no_change_marker(mount):
-    """d_rank 0 (Chase Brown, tests/fixtures/data/market_stock.json) must not render a delta
-    marker next to the rank -- "#8 -- 0" reads as a range, not as "no change." z moves to the
-    role line instead of sharing the rank line."""
+@pytest.mark.req(REQ, ac="the matchup rank says in its tooltip that it failed its test")
+def test_the_matchup_rank_says_it_failed_its_test(mount):
+    """12.61 and 12.73: the defense rank fails as a price (2026-10-06). The sentence and the roster row's ordinal both say so."""
+    profile, errors = on_roster(mount)
+    profile.open_from_roster(ST_BROWN)
+    profile.tab("matchup")
+    assert any(m.startswith("Failed test (12.61, 12.73)") for m in profile.marks()), profile.marks()
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req(REQ, ac="no row of the market line carries a change arrow or a z, whatever the move")
+def test_market_row_draws_no_change_marker_on_any_line(mount):
+    """12.46 failed its backtest: the move against his previous game, its arrows and colour, and z (the move over
+    his sector's sd) are gone from every line of the market block (2026-10-06). Chase Brown has a d_rank of 0
+    and a z of -0.05 in tests/fixtures/data/market_stock.json; St. Brown a real move."""
     profile, errors = on_roster(mount)
     profile.open_from_roster("Chase Brown")
     profile.tab("matchup")
     rank_line = profile.caps("RB rank #8")
-    assert len(rank_line) == 1
-    assert rank_line[0]["deltas"] == 0
-    assert "z -0.05" in profile.text()
+    assert len(rank_line) == 1 and rank_line[0]["deltas"] == 0
+    assert "z -0.05" not in profile.text() and "z " not in profile.caps("role")[0]["text"]
+    assert all(c["deltas"] == 0 for c in profile.caps("pts"))
     assert errors == []
 
 

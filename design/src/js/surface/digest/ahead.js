@@ -34,7 +34,8 @@ function dgWxRow(r){
   const c = dgWxCond(r), fc = r.fc || {};
   const num = c === "wind" ? t("digest.wx.mph", {n: Math.round(r.mph)}) : c === "precip" ? t("digest.wx.pct", {n: fc.precip_pct})
     : t("digest.lead.wx.temp", {f: fc.temp_f});
-  return `<div class="dg-wx" data-testid="digest-wx">${c === "wind" ? DG_WIND : DG_RAIN}
+  // A cold game carries its failed test in the tooltip (2026-10-06, METHODOLOGY 12.53).
+  return `<div class="dg-wx" data-testid="digest-wx"${c === "cold" ? ` title="${t("weather.cond.coldMark")}"` : ""}>${c === "wind" ? DG_WIND : DG_RAIN}
     <span class="dg-ln-t"><b>${esc(r.g.away)} @ ${esc(r.g.home)}</b><span>${wtKick(r.g.kickoff)}</span></span>
     <span class="dg-ln-r" data-testid="digest-ln-right">${num}</span></div>`;
 }

@@ -413,6 +413,17 @@ class DigestPage:
     def sotw_count(self):
         return self.page.get_by_test_id("digest-sotw").count()
 
+    def sotw_color(self):
+        return self.page.get_by_test_id("digest-sotw").evaluate("e => getComputedStyle(e).color")
+
+    def sotw_title(self):
+        return self.page.get_by_test_id("digest-sotw").get_attribute("title")
+
+    def lime(self):
+        """The brand lime, resolved to the colour string getComputedStyle gives."""
+        return self.page.evaluate("""() => { const i = document.createElement('i'); i.style.color = 'var(--lime)';
+          document.body.appendChild(i); const c = getComputedStyle(i).color; i.remove(); return c; }""")
+
     def start_take(self):
         """The take Start of the week must show: our boldest START."""
         return self.page.evaluate("LIVE_SS3.takes.find(r => r.call === 'START')")

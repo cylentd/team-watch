@@ -16,10 +16,10 @@ function zoneReadHTML(prof){
   if (!nx) return "";
   if (!nx.zones || !nx.zones.length) return subHTML(t("profile.zoneRead.label"), `<p class="pf-cap pf-quiet">${t("profile.zoneRead.empty")}</p>`);
   /* No UNTESTED tag and no methodology line since 2026-09-29 (David: "we are just presenting
-     info"). The pane shows what the numbers are; whether one predicts anything lives in
-     ff-jarvis's METHODOLOGY, not in amber on every read. */
+     info"). Since 2026-10-06 the failed test sits in the tooltip of the Softest column head and of the
+     heading, never as a tag: the result is in METHODOLOGY 12.36 and 12.38. */
   return subHTML(t("profile.zoneRead.label"), `<table class="pf-table">
-    <thead><tr><th>${t("profile.zoneRead.colZone")}</th><th>${t("profile.zoneRead.colIndex")}</th><th>${t("profile.zoneRead.colRank")}</th><th>${t("profile.zoneRead.colFaced")}</th></tr></thead>
+    <thead><tr><th>${t("profile.zoneRead.colZone")}</th><th>${t("profile.zoneRead.colIndex")}</th><th title="${t("profile.zoneRead.mark")}">${t("profile.zoneRead.colRank")}</th><th>${t("profile.zoneRead.colFaced")}</th></tr></thead>
     <tbody>${nx.zones.map(z => `<tr><th scope="row">${zoneWord(z.zone)}</th><td>${Number(z.def_index).toFixed(2)}x</td><td>${z.rank}<small>/${z.of}</small></td><td>${z.targets}</td></tr>`).join("")}</tbody>
   </table>`);
 }
@@ -35,7 +35,7 @@ function coverageHTML(prof){
   const row = (label, v, n) => `<tr><th scope="row">${label}</th><td>${ypt(v)}</td><td>${n ?? "—"}</td></tr>`;
   // The producer's reliability note is not drawn (2026-09-29), for the reason zoneReadHTML gives.
   return subHTML(t("profile.coverage.label", {span}),
-    `<p class="pf-say">${words}</p>`
+    `<p class="pf-say" title="${t("profile.coverage.mark")}">${words}</p>`
     + `<table class="pf-table"><thead><tr><th></th><th>${t("profile.coverage.colYpt")}</th><th>${t("profile.coverage.colTargets")}</th></tr></thead>
       <tbody>${row(t("profile.coverage.man"), c.ypt_man, c.targets_man)}${row(t("profile.coverage.zone"), c.ypt_zone, c.targets_zone)}</tbody></table>`);
 }
@@ -95,8 +95,9 @@ function lineHTML(prof){
   const cell = (v, words, down, title) => `<span class="pf-wx-c"${title ? ` title="${esc(title)}"` : ""}><b${down ? ` class="down"` : ""}>${v}</b><em>${words}</em></span>`;
   const startersKnown = r.ol_starters_out !== null && r.ol_starters_out !== undefined && r.ol_starters_out_of;
   const starterNames = r.ol_starters_out_names || [];
+  // The starters' tooltip names who is out, then says the count is untested (2026-10-06).
   const starters = !startersKnown ? "" : cell(`${r.ol_starters_out}/${r.ol_starters_out_of}`,
-    t("profile.line.startersOut"), r.ol_starters_out >= 1, starterNames.length ? starterNames.join(", ") : "");
+    t("profile.line.startersOut"), r.ol_starters_out >= 1, [starterNames.join(", "), t("profile.line.mark")].filter(Boolean).join(". "));
   const list = named.map(k => `${by[k]} ${esc(k.toLowerCase())}`).join(", ");
   // One lineman is "lineman": a literal key per count, because the copy check sees only literal lookups.
   const outWords = r.ol_out === 1

@@ -160,6 +160,13 @@ class DigestLivePage(DigestPage):
     def tn_story(self):
         return self.page.get_by_test_id("digest-tn-story").inner_text()
 
+    def tn_list_heads(self):
+        """The headings of Tonight's short lists, in order."""
+        return self._tn.locator("h4").all_inner_texts()
+
+    def tn_foot(self):
+        return self._tn.get_by_test_id("digest-foot-text").inner_text()
+
     def tn_block_count(self):
         """Tonight's card once it is on: the game's one block."""
         return self._tn.and_(self.page.locator(".on")).get_by_test_id("digest-mnf-block").count()

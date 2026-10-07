@@ -1,6 +1,7 @@
 {
   "core": [
     "tests/test_assemble.py",
+    "tests/test_flag_marks.py",
     "tests/test_budgets.py",
     "tests/test_build.py",
     "tests/test_js_syntax.py",

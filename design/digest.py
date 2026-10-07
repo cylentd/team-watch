@@ -157,8 +157,6 @@ def _tonight(t, slugify):
                       "out": out,
                       "next_up": [{**_player(r, slugify, "pos", "team", "pts"), "for": names.get(r["for"])}
                                   for r in g.get("next_up") or []],
-                      "groups": [{k: r.get(k) for k in ("team", "group", "d_pts")} for r in g.get("groups") or []],
-                      "moved": [_player(r, slugify, "pos", "team", "d_pts") for r in g.get("moved") or []],
                       "tcalls": [_player(r, slugify, "pos", "team", "pts", "call") for r in g.get("calls") or []],
                       "projected": [_player(r, slugify, "pos", "team", "pts") for r in g.get("projected") or []]})
     return {"tonight": games, "tonight_last": bool((t or {}).get("last"))}

@@ -97,4 +97,4 @@ def test_the_view_has_no_verdict_word():
     words = [v for k, v in copy.items() if k.startswith("sos.")] + [FIX["label"]]
     assert len(words) > 10
     assert not [w for w in words if re.search(r"\b(start|sit|buy|sell|stream|add|drop|trade)\b", w, re.I)]
-    assert FIX["label"].startswith("Context only") and "Not tested" in FIX["label"]
+    assert FIX["label"].startswith("Context only") and "Tested (12.97)" in FIX["label"]

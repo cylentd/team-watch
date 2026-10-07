@@ -79,6 +79,7 @@ body:has(.legsheet.on){overflow:hidden}
 .ls-match summary u{text-decoration:underline dotted;text-underline-offset:3px;color:var(--ink)}
 .ls-match ul{margin:6px 0 0;padding:0;list-style:none;display:grid;gap:3px;font-size:var(--t-1)}
 .ls-match li span{color:var(--ink-3)}
+.ls-match p{margin:6px 0 0;font-size:var(--t-1);color:var(--ink-3)}
 
 /* ---- 5. Add: lime is the slip, as on the tray ---- */
 .ls-add{appearance:none;border:0;border-radius:12px;padding:12px 16px;cursor:pointer;

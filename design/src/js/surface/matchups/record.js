@@ -9,7 +9,8 @@ const MU_KINDS = () => [["smash", t("matchups.call.smash")], ["start", t("matchu
 
 function muTileHTML(kind, label, c){
   const v = c.void > 0 ? `<small>${t("matchups.record.void", {n: c.void})}</small>` : "";
-  return `<div class="mu-rt ${kind}"><b>${ss3Wl(c)}</b><span>${label}</span>${v}</div>`;
+  const mark = kind === "smash" ? ` title="${t("matchups.takes.markSmash")}"` : "";
+  return `<div class="mu-rt ${kind}"${mark}><b>${ss3Wl(c)}</b><span>${label}</span>${v}</div>`;
 }
 
 /* The for-fun line, once either has a graded call. */

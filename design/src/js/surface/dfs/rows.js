@@ -51,7 +51,7 @@ function dfsPoolRow(p, i, cap, valueLeaders, handcuffs, poolIndex, activeEligibl
     + (p.src === "yahoo" ? ` <span class="tag t-bk" title="${t("dfs.tag.yahooTitle", {pos: esc(p.pos)})}">${t("dfs.tag.yahoo")}</span>` : "")
     + (p.src === "line" ? ` <span class="tag t-bk" title="${t("dfs.tag.lineTitle")}">${t("dfs.tag.line")}</span>` : "")
     + (valueLeaders.has(p.n) ? ` <span class="tag t-cbup" title="${t("dfs.tag.valueTitle", {pos: esc(p.pos)})}">${t("dfs.tag.value")}</span>` : "")
-    + (handcuffFor ? ` <span class="tag t-role" title="${t("dfs.tag.handcuffTitle", {name: esc(handcuffFor), pos: esc(p.pos)})}">${t("dfs.tag.handcuff")}</span>` : "");
+    + (handcuffFor ? ` <span class="tag t-role" title="${t("dfs.tag.handcuffTitle", {name: esc(handcuffFor), pos: esc(p.pos)})}${p.pos === "RB" ? "" : " " + t("dfs.tag.handcuffMark")}">${t("dfs.tag.handcuff")}</span>` : "");
   // activeEligible: null when no lineup slot is being filled (a tap auto-picks the first open
   // slot this player fits); true/false once a slot IS selected, so a wrong-position player reads
   // as disabled rather than silently doing nothing when tapped.

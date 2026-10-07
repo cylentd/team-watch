@@ -60,7 +60,7 @@ function headlineHTML(prof){
   const cls = n === null ? "" : matchupClass(n, nx.factor.of);
   const rank = n === null
     ? `<p class="pf-cap pf-quiet">${t("profile.matchup.none")}</p>`
-    : `<p class="pf-rank ${cls}" data-testid="profile-rank">${matchupRankText(prof)}</p>` + rankStripHTML(n, nx.factor.of, cls);
+    : `<p class="pf-rank ${cls}" data-testid="profile-rank" title="${t("profile.matchup.mark")}">${matchupRankText(prof)}</p>` + rankStripHTML(n, nx.factor.of, cls);
   // Defenders out (2026-10-06): the defense he faces, narrowed to the unit his position reads; a fact, no verdict.
   const out = dsPlayerView(LIVE_D_STARTERS, prof.pos, nx.week, nx.opp);
   const note = out ? dsChipHTML(out, LIVE_D_STARTERS.rules, "profile") : "";

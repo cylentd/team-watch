@@ -34,7 +34,8 @@ function trDefining(key, best){
    headline roots for the next trade (David: "trading is healthy, we should promote it"). */
 function trLeadCardHTML(r, k){
   const best = k === "best", d = trDefining(r.m, best), cls = best ? "up" : "dn", m = trName(r.m);
-  const head = !best ? t("trades.lead.due", {m}) : r.lost ? t("trades.lead.wins", {m}) : t("trades.lead.clean", {m});
+  // "is due" is a forward claim nothing has tested: the tooltip says so (2026-10-06).
+  const head = !best ? `<span title="${t("trades.lead.dueMark")}">${t("trades.lead.due", {m})}</span>` : r.lost ? t("trades.lead.wins", {m}) : t("trades.lead.clean", {m});
   const fv = d && {y: d.tr.season, n: trB(`${best ? "+" : "−"}${trPar(d.tr.held.margin)}`, cls)};
   const foot = d ? `<p>${best ? t("trades.lead.bestTrade", fv) : t("trades.lead.worstTrade", fv)}</p>` : "";
   return trBox(`tr-lead-card ${k}`, `<span class="tr-lead-ic">${TR_LEAD_ICON[k]}</span>${best ? t("trades.lead.best") : t("trades.lead.worst")}`,

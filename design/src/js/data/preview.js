@@ -89,12 +89,13 @@ const pvSpread = (fav, by) => fav ? t("preview.line.by", {team: esc(fav), n: pvN
 /* Defense rank colour: a soft matchup (bottom 8 of 32) is --up, a tough one (top 8) --down. */
 const pvRankTone = r => r >= 25 ? "pv-soft" : r <= 8 ? "pv-tough" : "";
 
-/* Claude's confidence as a chip: STRONG lime fill, SOLID lime outline, LEAN grey, NO EDGE without one. */
+/* Claude's confidence as a chip: STRONG lime fill, SOLID lime outline, LEAN grey, NO EDGE without one. The
+   tooltip says it is Claude's own word, untested (2026-10-06): Past games keeps its record, a scorecard. */
 const pvConfHTML = conf => ({
-  strong: `<b class="pv-conf strong">${t("preview.conf.strong")}</b>`,
-  solid: `<b class="pv-conf solid">${t("preview.conf.solid")}</b>`,
-  lean: `<b class="pv-conf lean">${t("preview.conf.lean")}</b>`,
-}[conf] || `<b class="pv-conf none">${t("preview.conf.none")}</b>`);
+  strong: `<b class="pv-conf strong" title="${t("preview.conf.mark")}">${t("preview.conf.strong")}</b>`,
+  solid: `<b class="pv-conf solid" title="${t("preview.conf.mark")}">${t("preview.conf.solid")}</b>`,
+  lean: `<b class="pv-conf lean" title="${t("preview.conf.mark")}">${t("preview.conf.lean")}</b>`,
+}[conf] || `<b class="pv-conf none" title="${t("preview.conf.mark")}">${t("preview.conf.none")}</b>`);
 
 /* What a spread call needs, in points (storyboard 3A, 2026-10-05; David could not tell whose "PIT by 2.5"
    was). The favourite must win by more than the line; the underdog may lose by less. A whole-number line's

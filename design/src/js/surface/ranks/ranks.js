@@ -55,7 +55,8 @@ function rkMatchupHTML(r){
   const n = rkSigned(r.mx);
   const say = r.mxp == null ? t("ranks.row.mx", {n, opp: esc(r.opp || "")})
     : t("ranks.row.mxPriced", {n, opp: esc(r.opp || ""), p: rkSigned(r.mxp)});
-  return `<span class="rk-mx ${r.mx > 0 ? "up" : "dn"}" data-testid="ranks-mx" title="${say}" aria-label="${say}">${n}</span>`;
+  const tip = `${say} ${t("ranks.row.mxMark")}`;   // the failed test, in the tap text (2026-10-06)
+  return `<span class="rk-mx ${r.mx > 0 ? "up" : "dn"}" data-testid="ranks-mx" title="${tip}" aria-label="${tip}">${n}</span>`;
 }
 
 /* Floor and ceiling under the projection (plan U5): ff-jarvis's band, from the row's own fields (the

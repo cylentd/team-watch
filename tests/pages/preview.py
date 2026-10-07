@@ -285,9 +285,15 @@ class PreviewPage:
     def injury_text(self, n):
         return self.page.get_by_test_id("preview-injuries").nth(n).inner_text()
 
-    def short_tag_count(self):
-        return self._section("rest").get_by_test_id("preview-rest-short").count()
+    def conf_titles(self):
+        """The tooltip of every Claude confidence word on screen."""
+        return self.page.locator(".pv-conf").evaluate_all("cs => cs.map(c => c.title)")
 
+    def rest_notes(self):
+        """The short-week and off-a-bye words in the rest row: text, class name, colour and background."""
+        notes = self._section("rest").locator("[data-testid='preview-rest-short'], [data-testid='preview-rest-bye']")
+        return notes.evaluate_all("""ns => ns.map(n => { const s = getComputedStyle(n);
+          return {text: n.innerText, cls: n.className, color: s.color, bg: s.backgroundColor}; })""")
     def matchup_count(self):
         return self.page.get_by_test_id("preview-matchup").count()
 

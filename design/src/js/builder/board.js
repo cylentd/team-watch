@@ -1,12 +1,14 @@
 /* THE SLIPS BOARD'S READS (2026-10-03, storyboard "Slips research board", picked A + B). David
    researches here and enters his slips on Underdog, so the board answers "who is getting the work"
-   rather than dealing slips: per kickoff, a card per game, its players by work rising. Nothing here
-   draws (surface/parlay/board.js does); every read is pure over PROPS, LIVE_REASONS and the logs.
+   rather than dealing slips: per kickoff, a card per game, its players by the work in their last game.
+   No rising-work order, chip or colour since 2026-10-06 (METHODOLOGY 12.33: the line already holds a
+   trend in work; calls of rising or falling hit 46.0% and 49.8%). Nothing here draws
+   (surface/parlay/board.js does); every read is pure over PROPS, LIVE_REASONS and the logs.
 
    Shown: every player with a line still to play who is not out and whose line the book has not
    moved far from the model (lineMoved). A WR3 or a backup stays: those were David's wins. */
 const REASONS = (typeof LIVE_REASONS !== "undefined" && LIVE_REASONS) || {};
-let SL_CHIP = {};      // the chip pressed in each game card, keyed by game; "rise" until changed
+let SL_CHIP = {};      // the chip pressed in each game card, keyed by game; "all" until changed
 let SL_FOCUS = null;   // a game to bring into view after the next render (Preview's hand-off)
 
 /* The kickoff the board shows: the chosen one, or the first window still to come. */
@@ -36,14 +38,11 @@ function slPlayerRows(slug){
 function slWork(p){
   const r = REASONS[slSlug(p)], w = r && r.work;
   const nums = a => (a || []).filter(v => typeof v === "number");
-  if (w && nums(w.last).length){
-    const last = nums(w.last);
-    return {key: w.key, last, trend: typeof w.trend === "number" ? w.trend : last[last.length - 1] - last[0]};
-  }
+  if (w && nums(w.last).length) return {key: w.key, last: nums(w.last)};
   const log = LIVE_MARKET && LIVE_MARKET.logs && LIVE_MARKET.logs[slSlug(p)];
   const key = p.pos === "WR" || p.pos === "TE" ? "tgt" : p.pos === "RB" ? "car" : "snap";
   const last = log && log.u ? nums(log.u[key]).slice(-3) : [];
-  return last.length ? {key, last, trend: last[last.length - 1] - last[0]} : null;
+  return last.length ? {key, last} : null;
 }
 
 /* His snap share in his latest game, from the log's usage; null without it. */
@@ -54,8 +53,8 @@ function slSnapNow(p){
 }
 
 function slPlayer(slug, rows){
-  const p = PROPS[rows[0]], r = REASONS[slug] || null;
-  return {slug, p, reason: !!r, rows: slPlayerRows(slug), tags: (r && r.tags) || [], vacated: (r && r.vacated) || [], work: slWork(p)};
+  const p = PROPS[rows[0]];
+  return {slug, p, rows: slPlayerRows(slug), work: slWork(p)};
 }
 
 /* His most confident line, or null: among his lines the model gave a pick (tier not "none", never a
@@ -78,16 +77,12 @@ function slMatchup(p){
   const opp = legOpp(p), d = opp ? seasonDefRank(opp, p.pos) : null;
   return !d ? "" : d[0] <= SL_DEF_EDGE ? "easy" : d[0] > d[1] - SL_DEF_EDGE ? "tough" : "";
 }
-/* One step of work, per kind: two targets, two carries, ten snap points. A bigger move than that is
-   a rise; snaps wobble too much to call a rise without ff-jarvis's tag. */
+/* One step of work, per kind: two targets, two carries, ten snap points, so targets and snaps compare. */
 const SL_UNIT = {tgt: 2, car: 2, snap: 10};
 const slLatest = x => x.work ? x.work.last[x.work.last.length - 1] : -1;
 const slSteps = (x, n) => x.work ? n / SL_UNIT[x.work.key] : -99;
-const slRising = x => !!x.work && (x.reason ? x.tags.includes("work_up")
-  : x.work.key !== "snap" && x.work.trend >= SL_UNIT[x.work.key]);
-/* Rising work first, the biggest rise on top (in steps, so targets and snaps compare); then the most work. */
-const slOrder = (a, b) => slRising(b) - slRising(a) || slSteps(b, (b.work || {}).trend) - slSteps(a, (a.work || {}).trend)
-  || slSteps(b, slLatest(b)) - slSteps(a, slLatest(a)) || a.p.n.localeCompare(b.p.n);
+/* The most work in his last game first, then by name: a neutral order, no rise ranked. */
+const slOrder = (a, b) => slSteps(b, slLatest(b)) - slSteps(a, slLatest(a)) || a.p.n.localeCompare(b.p.n);
 
 /* The kickoff's games in kickoff order, each with its players in board order. */
 function slGames(w){
@@ -102,14 +97,13 @@ function slGames(w){
     .map(g => ({...g, players: [...g.players.entries()].map(([s, rows]) => slPlayer(s, rows)).sort(slOrder)}));
 }
 
-/* The four chips inside a game card: Work rising (the default), TE, Role guys (a WR2 or deeper, a
-   backup back), and All N. A game where nobody's work rose opens on All, never on an empty card. */
-const SL_CHIPS = ["rise", "te", "role", "all"];
-const slChip = g => SL_CHIP[g.game] || (g.players.some(slRising) ? "rise" : "all");
+/* The three chips inside a game card: TE, Role guys (a WR2 or deeper, a backup back), and All N,
+   which a game opens on. */
+const SL_CHIPS = ["te", "role", "all"];
+const slChip = g => SL_CHIP[g.game] || "all";
 function slChipPlayers(g, k){
   if (k === "te") return g.players.filter(x => x.p.pos === "TE");
   if (k === "role") return g.players.filter(x => (x.p.depth || 1) >= 2 || x.p.flag === "backup");
-  if (k === "rise") return g.players.filter(slRising);
   return g.players;
 }
 

@@ -154,9 +154,13 @@ class ParlayPage:
     def pressed_chip(self):
         return self._chips.and_(self.page.locator("[aria-pressed='true']")).first.get_attribute("data-slchip")
 
-    def rising_slugs(self):
-        """Who on the first game's card has rising work, by the page's own reading."""
-        return self.page.evaluate("slGames(slWin())[0].players.filter(slRising).map(x => x.slug)")
+    def chip_kinds(self):
+        """The first game card's chips, left to right."""
+        return self._games.first.get_by_test_id("parlay-chip").evaluate_all("cs => cs.map(c => c.dataset.slchip)")
+
+    def rising_bars(self):
+        """Last bars drawn in the green of a rise (retired 2026-10-06)."""
+        return self.page.locator(".sl-spark > span.up").count()
 
     def line_count_of(self, slug):
         """How many lines the model has for the player: what his row should say."""

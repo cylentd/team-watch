@@ -414,10 +414,10 @@ CONTRACT = {
                  ("news", ["when", "headline", "kind", "n", "rest", "slugs", "link"]),
                  # `over` (a team move alone), `from` (a new #1 alone), `proj`, `depth`, `day` and `ko` may be null.
                  ("starters", ["n", "slug", "pos", "team", "proj", "from", "depth", "day", "ko", "over"]),
-                 # A Tonight card's game; its lists (out, next_up, groups, moved, tcalls, projected)
-                 # are pinned field by field in tests/test_digest.py, since a row spec is one level.
-                 ("tonight", ["away", "home", "kick", "ko", "wx", "out", "next_up", "groups", "moved", "tcalls",
-                              "projected"])],
+                 # A Tonight card's game; its lists (out, next_up, tcalls, projected) are pinned field by
+                 # field in tests/test_digest.py, since a row spec is one level. No `groups` or `moved`
+                 # since 2026-10-06: the books' moves failed 12.46 and the page draws none.
+                 ("tonight", ["away", "home", "kick", "ko", "wx", "out", "next_up", "tcalls", "projected"])],
         "row_objs": [("hurt", "game", ["away", "home", "kick", "ko"]),
                      ("starters", "over", ["n", "slug", "status"]),
                      ("tonight", "wx", ["roof", "temp_f", "wind_mph", "precip_pct", "short"])],

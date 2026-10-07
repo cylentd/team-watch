@@ -71,15 +71,15 @@ function eliteGapHTML(v, a, row){
   // Over the bar, but the fluke filter (sheet.js sheetElite) says his sample is too small to call
   // it: the number stands, the claim waits. Neither green nor red.
   if (gap >= 0 && row && Array.isArray(row.el) && !row.el.includes(a.id))
-    return `<small class="pf-lr-d" data-testid="profile-lr-gap">${t("profile.stat.overEarly", n)}</small>`;
+    return `<small class="pf-lr-d" data-testid="profile-lr-gap" title="${t("profile.sheet.eliteMark")}">${t("profile.stat.overEarly", n)}</small>`;
   // Two literal t() calls, not one built from a ternary: assemble.py --check finds a copy key by
   // scanning for the literal form, and a key assembled at runtime reads to it as an orphan.
   /* The gap, not the threshold. "elite >= 0.00" printed in red said the elite bar was the bad
      thing; what is actually red is him being 0.42 under it. So the line states the distance and
      which side of the bar he is on, and the colour agrees with the sign. */
   return gap >= 0
-    ? `<small class="pf-lr-d up" data-testid="profile-lr-gap">${t("profile.stat.overElite", n)}</small>`
-    : `<small class="pf-lr-d down" data-testid="profile-lr-gap">${t("profile.stat.underElite", n)}</small>`;
+    ? `<small class="pf-lr-d up" data-testid="profile-lr-gap" title="${t("profile.sheet.eliteMark")}">${t("profile.stat.overElite", n)}</small>`
+    : `<small class="pf-lr-d down" data-testid="profile-lr-gap" title="${t("profile.sheet.eliteMark")}">${t("profile.stat.underElite", n)}</small>`;
 }
 
 /* Each stat's name in plain words, 2026-09-25. ff-jarvis's labels are the analyst's shorthand
