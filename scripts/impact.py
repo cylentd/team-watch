@@ -201,6 +201,14 @@ def on_disk(path):
     return p.read_text(encoding="utf-8", errors="replace") if p.is_file() else None
 
 
+def spent(path, areas):
+    """A deleted file that tests nothing: no area owns it, and it is not shared test setup or a
+    shared CSS file (2026-10-07: deleting worker_slots.py and test_slots.py ran everything)."""
+    if path.startswith("tests/"):
+        return path.startswith("tests/test_") and path.endswith(".py") and path != "tests/test_render.py"
+    return owner(path, areas) is None and not path.startswith(CSS_SURFACE)
+
+
 def changed(base, worktree=False):
     """The diff's paths and the golden areas it changes, shared files read by what changed in them.
 
@@ -216,9 +224,13 @@ def changed(base, worktree=False):
         now = lambda path: at("HEAD", path)
     paths = sorted({p for p in listed.splitlines() if p})
     out, golden = [], set()
+    areas = load()[0]["areas"]
     for path in paths:
-        got = expand(path, at(fork, path), now(path), src_texts)
+        text = now(path)
+        got = expand(path, at(fork, path), text, src_texts)
         if got is None:
+            if text is None and spent(path, areas):
+                continue
             out.append(path)
         else:
             out += got[0]

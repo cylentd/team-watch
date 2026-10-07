@@ -22,19 +22,27 @@ timed. An ordinary run lists the tests over their limit; only --repeat-new passe
 failing a new or changed test whose fastest copy is over. The skill dir is $TESTING_SKILL if set,
 else the installed copy (~/.agents/skills/testing/scripts).
 
-Every run claims its xdist workers from a machine-wide budget first (scripts/worker_slots.py): the
-budget is what `-n auto` gives here, a run gets min(wanted, free) and at least 2, and passes
-`-n <claimed>`. One line says what it got and who holds the rest. TW_SLOTS=off bypasses it.
+Workers and the result cache are loadgate's and testsched's (agent-config/testsched/SPEC.md, 2026-10-07).
+The picked files are the cache's units: testsched.runner.run claims workers for the run's class (dev for a
+session, land for land.ps1 and --committed, postland for the after-land run; TW_RUN_KIND names it), serves a
+file whose inputs have not changed since its last pass, and runs the rest. `--dry-run` prints the claim it
+would make and the cache plan. `--results-json PATH` writes {file: passed|failed} for postland's cache check.
+LOADGATE=off (TESTSCHED=off, TW_SLOTS=off) runs everything as before. A run that cannot go through a unit
+(--update-golden, a path or node id after `--`, --repeat-new) claims its workers from loadgate and runs
+pytest itself: --repeat-new exists to run every copy, so it never reads the cache. No library on this machine
+($LOADGATE_CODE, ~/.agents/testsched): plain `-n auto`, with a warning.
 """
 import argparse
 import ast
 import importlib.util
+import json
 import os
 import pathlib
 import re
 import subprocess
 import sys
 import tempfile
+import types
 
 import pytest
 
@@ -43,39 +51,105 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import impact  # noqa: E402
 
 
-def parallel(extra, workers=None):
+def parallel(extra, workers=None, auto=False):
     """xdist flags, or none: --update-golden rewrites one file from every area, so it runs alone.
-    `workers` is what claim_workers got from the shared budget; None leaves it to xdist's auto."""
+    `-n` is only for a run this script starts itself: `workers` is what loadgate granted it, `auto` leaves
+    the count to xdist when there is no grant. testsched.runner adds its own `-n`, so a unit run has neither."""
     if "--update-golden" in extra:
         return []
     if importlib.util.find_spec("xdist") is None:
         print("  pytest-xdist missing (pip install pytest-xdist) -- running serially", file=sys.stderr)
         return []
-    return ["-n", str(workers) if workers else "auto", "--dist", "loadgroup"]
+    n = ["-n", str(workers) if workers else "auto"] if (workers or auto) else []
+    return [*n, "--dist", "loadgroup"]
 
 
-def slots_module():
-    """scripts/worker_slots.py (not test_*.py: the land gate would read that name as a test and freeze it)."""
-    import worker_slots
-    return worker_slots
+# --- loadgate and testsched (SPEC 2, 13) ----------------------------------------------------------------
+
+def reach(environ=None, home=None):
+    """The folder holding loadgate/ and testsched/: $LOADGATE_CODE, else the install junction
+    ~/.agents/testsched; None when there is neither (loadgate is absent, as LOADGATE=off)."""
+    environ = os.environ if environ is None else environ
+    home = pathlib.Path(home) if home else pathlib.Path.home()
+    for cand in (environ.get("LOADGATE_CODE"), home / ".agents" / "testsched"):
+        if cand and (pathlib.Path(cand) / "loadgate" / "__init__.py").is_file():
+            return pathlib.Path(cand)
+    return None
 
 
-def claim_workers(extra, dry_run=False):
-    """(workers to pass as -n or None, the Claim or None): the run's share of the machine-wide worker
-    budget (scripts/worker_slots.py, one claim file per run in the git common dir). A serial run holds 1,
-    a parallel one wants what -n auto would give. TW_SLOTS=off, or no way to claim, leaves it to auto.
-    A dry run only looks. The claim is released at exit; callers also release it in a finally."""
+def load_sched(environ=None):
+    """loadgate.admit and testsched.runner as a namespace, or None when the library is not here."""
+    code = reach(environ)
+    if code is None:
+        return None
+    if str(code) not in sys.path:
+        sys.path.insert(0, str(code))
     try:
-        s = slots_module()
-        serial = "--update-golden" in extra or importlib.util.find_spec("xdist") is None
-        claim = s.acquire(ROOT, 1 if serial else s.budget(), write=not dry_run)
-    except Exception as e:    # a broken budget must never stop a test run
-        print(f"  test slots: not used ({type(e).__name__}: {e})", file=sys.stderr)
+        from loadgate import admit
+        from testsched import runner
+    except ImportError as e:    # psutil missing, a half-installed copy: a broken budget must never stop a test run
+        print(f"  loadgate not usable ({e})", file=sys.stderr)
+        return None
+    return types.SimpleNamespace(admit=admit, runner=runner)
+
+
+def kind_of(environ, committed):
+    """The loadgate class of this run: TW_RUN_KIND when it names land or postland, else land for a
+    --committed run (only land.ps1 and a batch pass it), else dev."""
+    tag = (environ.get("TW_RUN_KIND") or "").strip().lower()
+    return tag if tag in ("land", "postland") else ("land" if committed else "dev")
+
+
+def would_claim(sched, kind, lg=None):
+    """The claim line of a dry run: what the class could get now, claiming nothing."""
+    s = sched.admit.status(kind, **(lg or {}))
+    return f"  loadgate {kind}: would claim up to {s['budget']['cpu']} workers ({s['free']['cpu']} free)"
+
+
+def hold(sched, kind, lg=None, serial=False):
+    """(Claim or None, workers or None) for a run this script starts itself. A serial run holds 1 and passes
+    no `-n`. No library, or a refused claim: (None, None), which leaves the workers to `-n auto`."""
+    if sched is None:
         return None, None
+    claim = sched.admit.claim(kind, cpu=1 if serial else None, browser_workers=True,
+                              label=f"run_tests {kind}", **(lg or {}))
     if claim is None:
         return None, None
-    print(claim.line(), flush=True)
-    return (None if serial else claim.got), claim
+    workers = max(1, int(claim.granted["cpu"]))
+    print(f"  loadgate {kind}: claimed {workers} worker{'' if workers == 1 else 's'}", flush=True)
+    return claim, (None if serial else workers)
+
+
+def run_direct(make, ids, limit, env, sched, kind, lg=None, serial=False):
+    """Claim workers, run the pytest command `make(workers)` builds, release the claim: pytest's exit code."""
+    claim, workers = hold(sched, kind, lg, serial)
+    try:
+        return run_pytest(make(workers), ids, limit, env=env)
+    finally:
+        if claim is not None:
+            claim.release()
+
+
+def all_test_files():
+    return sorted(p.relative_to(ROOT).as_posix() for p in (ROOT / "tests").glob("test_*.py"))
+
+
+def sched_split(picked, extra, quarantine=False, skill=None):
+    """(units, pytest args) for testsched: the picked files are the cache's units (every test file when the
+    pick is everything); the rest of the pick, the gating flags and `extra` go to every unit's pytest."""
+    def is_file(p):    # not an option: --e2e-only-in=a.py,b.py ends in .py too
+        return p.endswith(".py") and not p.startswith("-")
+    units = [p for p in picked if is_file(p)] or all_test_files()
+    flags = [*parallel(extra), *gate(extra, quarantine), *limit_args(skill_dir() if skill is None else skill),
+             "-p", "run_tests", "--tw-empty-ok"]
+    return units, [*flags, *[p for p in picked if not is_file(p)], *extra]
+
+
+def write_results(path, res):
+    """{unit: passed|failed} for every unit that ran: postland feeds it to testsched's cache check."""
+    failed = set(res["failed"])
+    out = {u: ("failed" if u in failed else "passed") for u in res["ran"]}
+    pathlib.Path(path).write_text(json.dumps(out, indent=1), encoding="utf-8")
 
 
 def selection(pick):
@@ -100,7 +174,7 @@ def e2e_args(pick, extra):
     A path or node id after `--` (any existing file or directory, `tests` included) is a wish for that
     test, so it keeps every browser test. The golden follows the areas the changed paths own, so
     an all-pick with areas also passes --areas: only test_render.py carries area marks."""
-    if not pick["all"] or any(a.endswith(".py") or "::" in a or "tests/" in a or names_a_path(a) for a in extra):
+    if not pick["all"] or wants_paths(extra):
         return []
     why = list(pick["why"])
     shown = "; ".join(why[:3]) + (f"; +{len(why) - 3} more" if len(why) > 3 else "")
@@ -111,6 +185,11 @@ def e2e_args(pick, extra):
 def names_a_path(arg):
     """True for a pytest argument that is a file or directory in the repo (not a flag, not a -k word)."""
     return not arg.startswith("-") and (ROOT / arg.split("::")[0]).exists()
+
+
+def wants_paths(extra):
+    """True when `extra` names a test file, directory or node id: a wish for exactly that test."""
+    return any(a.endswith(".py") or "::" in a or "tests/" in a or names_a_path(a) for a in extra)
 
 
 def picked_args(full, base, committed, extra=()):
@@ -146,10 +225,12 @@ def with_path(environ, *dirs):
     return {**environ, "PYTHONPATH": path}
 
 
-def command(full, base, committed, extra, quarantine=False, picked=None, skill=None, workers=None):
+def command(full, base, committed, extra, quarantine=False, picked=None, skill=None, workers=None, auto=False):
+    """The pytest command of a run this script starts itself (the direct path); a unit run is sched_split's."""
     picked = picked_args(full, base, committed, extra) if picked is None else picked
     limits = limit_args(skill_dir() if skill is None else skill)
-    return [sys.executable, "-m", "pytest", *parallel(extra, workers), *gate(extra, quarantine), *limits, *picked, *extra]
+    return [sys.executable, "-m", "pytest", *parallel(extra, workers, auto), *gate(extra, quarantine), *limits,
+            *picked, *extra]
 
 
 ARGV_LIMIT = 8000   # chars of test ids on a command line; Windows allows 32,767 for the whole line
@@ -237,17 +318,32 @@ def new_test_ids(base, committed):
 
 def repeat_command(ids, n, extra, quarantine=False, skill=None, workers=None):
     limits = limit_args(skill_dir() if skill is None else skill, enforce=True)
-    return [sys.executable, "-m", "pytest", "-p", "run_tests", "--tw-repeat", str(n), *parallel(extra, workers),
-            *gate(extra, quarantine), *limits, *ids, *extra]
+    return [sys.executable, "-m", "pytest", "-p", "run_tests", "--tw-repeat", str(n),
+            *parallel(extra, workers, auto=True), *gate(extra, quarantine), *limits, *ids, *extra]
 
 
 # --- the pytest plugin: run every collected test N times, tally passes per function ------------
 
 _TALLY = {}
+_REPEATING = []
 
 
 def pytest_addoption(parser):
     parser.addoption("--tw-repeat", type=int, default=0, help="run every collected test this many times")
+    parser.addoption("--tw-empty-ok", action="store_true", default=False,
+                     help="exit 0 when every test of the run was deselected (pytest's exit 5)")
+
+
+def pytest_configure(config):
+    _REPEATING[:] = [config.getoption("--tw-repeat") > 0]
+
+
+@pytest.hookimpl(trylast=True)
+def pytest_sessionfinish(session, exitstatus):
+    """A unit whose tests are all deselected (browser tests outside --e2e-only-in, another area's golden
+    slice) is not a failure: testsched reads any nonzero exit as one."""
+    if exitstatus == 5 and session.config.getoption("--tw-empty-ok"):
+        session.exitstatus = 0
 
 
 @pytest.fixture
@@ -263,7 +359,7 @@ def pytest_generate_tests(metafunc):
 
 
 def pytest_runtest_logreport(report):
-    if report.when == "call" or (report.when == "setup" and not report.passed):
+    if _REPEATING and _REPEATING[0] and (report.when == "call" or (report.when == "setup" and not report.passed)):
         name = report.nodeid.split("[")[0]
         passed, total = _TALLY.get(name, (0, 0))
         _TALLY[name] = (passed + report.passed, total + 1)
@@ -274,51 +370,87 @@ def pytest_terminal_summary(terminalreporter):
         terminalreporter.write_line(f"  {passed}/{total}  {name}")
 
 
-def repeat_new(a, extra):
+def repeat_new(a, extra, lg=None):
+    """The 10-run: every copy must run, so it claims its workers (class land) and never reads the cache."""
     ids = new_test_ids(a.base, a.committed)
     if not ids:
         print("  no new or changed tests -- nothing to repeat")
         return 0
     print(f"  {len(ids)} new or changed test(s), {a.repeat_new} runs each:\n    " + "\n    ".join(ids))
-    workers, claim = claim_workers(extra, a.dry_run)
-    try:
-        cmd = repeat_command(ids, a.repeat_new, extra, a.with_quarantine, workers=workers)
-        if a.dry_run:
-            print("  python -m pytest " + " ".join(cmd[3:]))
-            return 0
-        env = with_path(os.environ, ROOT / "scripts", skill_dir())
-        code = run_pytest(cmd, ids, getattr(a, "argv_limit", ARGV_LIMIT), env=env)
-        return 0 if code == 5 else code    # 5 = every test deselected (all quarantined): nothing to prove, not a failure
-    finally:
-        slots_module().release(claim)
+    sched, kind = load_sched(), kind_of(os.environ, a.committed)
+
+    def make(workers):
+        return repeat_command(ids, a.repeat_new, extra, a.with_quarantine, workers=workers)
+    if a.dry_run:
+        print(would_claim(sched, kind, lg) if sched else "  loadgate not found: no claim")
+        print("  python -m pytest " + " ".join(make(None)[3:]))
+        return 0
+    env = with_path(os.environ, ROOT / "scripts", skill_dir())
+    code = run_direct(make, ids, getattr(a, "argv_limit", ARGV_LIMIT), env, sched, kind, lg)
+    return 0 if code == 5 else code    # 5 = every test deselected (all quarantined): nothing to prove, not a failure
 
 
-def main(argv=None):
-    argv = list(sys.argv[1:] if argv is None else argv)
-    extra = argv[argv.index("--") + 1:] if "--" in argv else []
-    ours = argv[:argv.index("--")] if "--" in argv else argv
+def parser():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--full", action="store_true", help="every test, not only what the change can break")
     ap.add_argument("--base", default="origin/main")
     ap.add_argument("--committed", action="store_true", help="HEAD only, not the files on disk (land.ps1)")
-    ap.add_argument("--dry-run", action="store_true", help="print the pytest command, run nothing")
+    ap.add_argument("--dry-run", action="store_true", help="print the claim, the cache plan and the command; run nothing")
     ap.add_argument("--repeat-new", type=int, metavar="N", help="run each test the branch added or changed N times")
     ap.add_argument("--with-quarantine", action="store_true", help="keep quarantined tests (no --no-quarantine)")
     ap.add_argument("--argv-limit", type=int, default=ARGV_LIMIT, metavar="CHARS",
                     help="more test-id characters than this go to pytest in an @args file")
-    a = ap.parse_args(ours)
-    if a.repeat_new:
-        return repeat_new(a, extra)
-    picked = picked_args(a.full, a.base, a.committed, extra)
-    workers, claim = claim_workers(extra, a.dry_run)
-    try:
-        cmd = command(a.full, a.base, a.committed, extra, a.with_quarantine, picked, workers=workers)
+    ap.add_argument("--results-json", metavar="PATH", help="write {file: passed|failed} for the units that ran")
+    return ap
+
+
+def run_units(a, extra, picked, kind, sched, lg):
+    """The cached path: the picked files are units of testsched.runner.run, which claims the workers."""
+    units, args = sched_split(picked, extra, a.with_quarantine)
+    env = with_path(os.environ, ROOT / "scripts", skill_dir())
+    if a.dry_run:
+        hits, misses, never = sched.runner.plan(ROOT, units, args, kind, environ=env)
+        print(would_claim(sched, kind, lg))
+        print(f"  testsched {kind} plan: {len(hits)} hit, {len(misses)} miss, {len(never)} never of {len(units)} units")
+        return 0
+    res = sched.runner.run(ROOT, units, args, kind, environ=env, browser=True, lg=lg)
+    print(f"  testsched {kind}: {len(res['ran'])} ran, {len(res['hits'])} cached, {len(res['failed'])} failed")
+    if a.results_json:
+        write_results(a.results_json, res)
+    return res["exit"]
+
+
+def run_alone(a, extra, picked, kind, sched, lg):
+    """The path with no unit: claim the workers, run pytest on the picked files (or none: all)."""
+    serial = "--update-golden" in extra
+    env = with_path(os.environ, skill_dir())
+
+    def make(workers):
+        cmd = command(a.full, a.base, a.committed, extra, a.with_quarantine, picked, workers=workers, auto=True)
         print("  python -m pytest " + " ".join(cmd[3:]), flush=True)
-        if a.dry_run:
-            return 0
-        return run_pytest(cmd, picked, a.argv_limit, env=with_path(os.environ, skill_dir()))
-    finally:
-        slots_module().release(claim)
+        return cmd
+    if a.dry_run:
+        print(would_claim(sched, kind, lg) if sched else "  loadgate not found: no claim")
+        make(None)
+        return 0
+    return run_direct(make, picked, a.argv_limit, env, sched, kind, lg, serial)
+
+
+def main(argv=None, lg=None):
+    argv = list(sys.argv[1:] if argv is None else argv)
+    extra = argv[argv.index("--") + 1:] if "--" in argv else []
+    ours = argv[:argv.index("--")] if "--" in argv else argv
+    a = parser().parse_args(ours)
+    if a.repeat_new:
+        return repeat_new(a, extra, lg)
+    picked = picked_args(a.full, a.base, a.committed, extra)
+    sched, kind = load_sched(), kind_of(os.environ, a.committed)
+    if sched is None:
+        print("  loadgate not found ($LOADGATE_CODE, ~/.agents/testsched): running without a claim or the cache",
+              file=sys.stderr)
+    if sched is None or "--update-golden" in extra or wants_paths(extra):
+        return run_alone(a, extra, picked, kind, sched, lg)
+    return run_units(a, extra, picked, kind, sched, lg)
 
 
 if __name__ == "__main__":

@@ -57,9 +57,13 @@ tests, goldens, test history.
 | Before land | `.\scripts\land.ps1` runs the testing skill's `land_gate.py` itself |
 | Where a run's time went | `python scripts/testlog.py --profile` (harness vs tests, fixtures, workers; `--last` for any run) |
 
-- **Workers are shared** (since 2026-10-07): `run_tests.py` claims its `-n` from one budget for
-  every session (`scripts/worker_slots.py`, 14 here): a dev run gets what is free (at least 2), a
-  land a fair share. `TW_SLOTS=off` bypasses it. Time a change only with no other run holding slots.
+- **Workers are shared** (since 2026-10-07): `run_tests.py` claims its `-n` from loadgate, the one
+  budget for heavy work on this PC (agent-config `testsched/SPEC.md`; code at `$LOADGATE_CODE`, else
+  `~/.agents/testsched`). A dev run gets what is free (at least 2), a land a fair share, the
+  after-land run what is left. testsched also skips a test file whose inputs have not changed since
+  its last pass (dev reads the cache; land and postland only write it, and postland checks it).
+  `LOADGATE=off` bypasses both (`TESTSCHED=off`, `TW_SLOTS=off` are aliases). Time a change only
+  with no other run holding workers: `python scripts/run_tests.py --dry-run` shows the claim.
 
 - **E2e only if needed** (since 2026-10-07): a shared-file change runs every test but the browser
   ones outside its own areas; those run after the land (`scripts/postland.py`, Discord on failure).

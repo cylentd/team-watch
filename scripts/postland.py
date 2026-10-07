@@ -1,33 +1,36 @@
 """The after-land run: the whole suite on exactly what landed, on Discord only when it fails (2026-10-07).
 
     python scripts/postland.py                  # fetch, then test origin/main
-    python scripts/postland.py --sha <sha>      # test that commit (land.ps1 passes the landed one)
+    python scripts/postland.py --sha <sha>      # test that commit (land.ps1 and testsched's after_land pass the landed one)
     python scripts/postland.py --dry-run        # print the plan, move nothing, run nothing, post nothing
 
 A land no longer runs every e2e and golden test when its diff touches a shared file (the land runs what
 the diff can break, scripts/impact.py). `main` deploys to Vercel within a minute, so this run is the net:
 `python scripts/run_tests.py --full` with TW_RUN_KIND=postland (tests/runlog.py records it in the test
-history, `python scripts/testlog.py` lists it), claiming workers from the shared budget like any run.
+history, `python scripts/testlog.py` lists it). run_tests.py runs it through loadgate's `postland` class:
+idle priority, a quarter of the worker budget, waits until 2 workers are free, never reads the result cache.
 
 It runs in its own detached checkout, ~/.team-watch-postland: never the landing worktree (the session
 removes it right after the land) and never ~/.team-watch-rebuild (the scheduled rebuild owns it). The
 checkout is made once with `git worktree add --detach`, then moved to each sha with `checkout --force
---detach` (it is this script's own: a dirty file must not block every later run). The suite runs below
-normal priority and claims at most a quarter of the worker budget (worker_slots.py): it is the one that
-gives way to the sessions in front of it.
+--detach` (it is this script's own: a dirty file must not block every later run).
 
-One run at a time. A lock in <git common dir>/postland holds the running pid; a second call while it
-lives records its sha as pending and exits 0. The running one, when done, runs again on the pending sha
-(the latest only). A dead pid is reaped, like worker_slots.py's claims.
+One run at a time: testsched's coalesce job `postland`. A second call while one lives records its sha as
+pending and exits 0; the running one, when done, runs again on the pending sha (the latest only). A dead
+runner's job is reaped by the next call. No loadgate library on this machine: one run, no lock, no check.
 
 Each failed test is rerun once (same checkout, serially, `-p no:randomly`) before anything is posted: only
 a test that fails twice counts, so a flake pings nobody. A run that failed, or one that gave no result,
 posts one short message through flake_run's Discord poster: the sha, the commit subject, the first 10
 tests that failed twice and a count of the rest, how many failed once and passed on rerun (flaky), the rerun
-command. A clean run posts nothing. A crash clears running.json and pending.json; a busy lock is logged. A dead webhook is logged, never raised: this exits 0 unless the script itself breaks.
-The log is ~/.team-watch-reports/postland-<sha7>.log.
+command. A clean run posts nothing. A busy lock is logged. A dead webhook is logged, never raised: this exits
+0 unless the script itself breaks. The log is ~/.team-watch-reports/postland-<sha7>.log.
 
-Pure and tested without git or pytest: decide, next_sha, failed_ids, message, plan_lines.
+The result cache's check (testsched `cache.verify`): run_tests.py writes {file: passed|failed} next to the log
+(postland-<sha7>.json); a file whose test failed twice while the cache holds a pass for the same inputs is a
+lie. The cache goes off, an event is written, and the message names the file.
+
+Pure and tested without git or pytest: message, failed_ids, still_failing, outcomes, plan_lines.
 """
 import argparse
 import datetime as dt
@@ -39,28 +42,19 @@ import re
 import subprocess
 import sys
 import tempfile
-import time
+import types
 
 HERE = pathlib.Path(__file__).resolve().parent
 CHECKOUT = pathlib.Path.home() / ".team-watch-postland"
 REPORTS = pathlib.Path.home() / ".team-watch-reports"
+JOB = "postland"       # the coalesce job: one run at a time, the latest sha pending
 RUN_TIMEOUT = 3600     # a full run is ~1-2 min, ~10 min on a loaded machine; an hour is a hang
 MAX_LINES = 10         # failed ids named in the message; the rest are counted
 MAX_CHARS = 1900       # Discord refuses a message over 2000
 RERUN = "python scripts/run_tests.py --full"
 
 
-# --- pure: what to do ---------------------------------------------------------------------------
-
-def decide(running, alive):
-    """"run" when no postland run lives (no record, or its process is gone), else "pending"."""
-    return "pending" if running and alive(running) else "run"
-
-
-def next_sha(pending, done):
-    """The sha to run after `done`: the pending one, unless there is none or it is the one just run."""
-    return pending if pending and pending != done else None
-
+# --- pure: what to say --------------------------------------------------------------------------
 
 def failed_ids(text):
     """The failed and errored test ids from pytest's short summary, in order, once each."""
@@ -79,15 +73,10 @@ def still_failing(first, code, out):
     return failed_ids(out) or list(first)
 
 
-def priority_flags(osname=os.name, sp=subprocess):
-    """Popen creationflags that put the suite below normal priority on Windows (workers inherit it), so a
-    background check yields to the sessions in front of it; 0 elsewhere."""
-    return getattr(sp, "BELOW_NORMAL_PRIORITY_CLASS", 0) if osname == "nt" else 0
-
-
-def message(sha, subject, failed, code, error=None, flaky=0):
+def message(sha, subject, failed, code, error=None, flaky=0, lies=()):
     """The Discord text for a run, or None when it was clean (exit 0 and no error). `flaky` is how many tests
-    failed once and passed on rerun: failed holds only those that failed twice."""
+    failed once and passed on rerun: failed holds only those that failed twice. `lies` are the files whose
+    failure the result cache had a pass for."""
     if code == 0 and not failed and not error:
         return None
     s = sha[:7]
@@ -102,8 +91,24 @@ def message(sha, subject, failed, code, error=None, flaky=0):
         lines.append(f"... and {len(failed) - MAX_LINES} more (log: ~/.team-watch-reports/postland-{s}.log)")
     if flaky:
         lines.append(f"{flaky} more failed once and passed on rerun (flaky)")
+    if lies:
+        lines.append(f"cache lie: {', '.join(lies)} failed with a cached pass; the result cache is off")
     lines.append(f"Rerun at {s}: {RERUN}")
     return "\n".join(lines)[:MAX_CHARS]
+
+
+def outcomes(units, failed):
+    """{file: passed|failed} for the files that ran (`units`, a file -> outcome map or None) given the test ids
+    that failed twice: a file is failed only when one of its own tests failed both times. None: nothing ran."""
+    if not units:
+        return None
+    bad = {i.split("::")[0] for i in failed}
+    return {u: ("failed" if u in bad else "passed") for u in units}
+
+
+def results_path(log):
+    """Where run_tests.py writes the units it ran, beside the log."""
+    return pathlib.Path(log).with_suffix(".json")
 
 
 def plan_lines(sha, checkout, exists):
@@ -112,6 +117,9 @@ def plan_lines(sha, checkout, exists):
              else f"checkout: {checkout} (missing; git worktree add --detach {checkout} {sha[:7]})")
     return [f"sha: {sha}", first, f"command: TW_RUN_KIND=postland {RERUN}",
             f"log: {REPORTS / ('postland-' + sha[:7] + '.log')}",
+            f"job: testsched coalesce '{JOB}' (one run at a time; a sha that lands during a run waits, the latest only)",
+            "workers: loadgate class postland (idle priority, a quarter of the budget, waits until 2 are free)",
+            "then: cache verify on the run's results (a cached pass that fails twice is a lie: the cache goes off)",
             "on failure: one Discord message; clean: nothing"]
 
 
@@ -125,6 +133,22 @@ def load(name):
     return mod
 
 
+def load_sched():
+    """testsched's coalesce and cache modules, or None when the library is not on this machine (run_tests.py
+    knows where to look)."""
+    code = load("run_tests").reach()
+    if code is None:
+        return None
+    if str(code) not in sys.path:
+        sys.path.insert(0, str(code))
+    try:
+        from testsched import cache, coalesce
+    except ImportError as e:
+        print(f"loadgate not usable ({e}): one run, no lock, no cache check", file=sys.stderr)
+        return None
+    return types.SimpleNamespace(coalesce=coalesce, cache=cache)
+
+
 def git(repo, *args):
     return subprocess.run(["git", "-C", str(repo), *args], capture_output=True, encoding="utf-8", errors="replace")
 
@@ -135,51 +159,11 @@ def main_checkout():
     return pathlib.Path(out).parent
 
 
-def state_dir(repo):
-    d = pathlib.Path(git(repo, "rev-parse", "--path-format=absolute", "--git-common-dir").stdout.strip()) / "postland"
-    d.mkdir(parents=True, exist_ok=True)
-    return d
-
-
 def read_json(path):
     try:
         return json.loads(pathlib.Path(path).read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return None
-
-
-def write_running(state, sha):
-    started = None
-    try:
-        import psutil
-        started = psutil.Process().create_time()
-    except Exception:
-        pass
-    (state / "running.json").write_text(json.dumps({"pid": os.getpid(), "sha": sha, "started": started,
-                                                    "since": time.time()}), encoding="utf-8")
-
-
-def claim(state, sha, slots):
-    """True when this process now holds the run; False when one lives and `sha` is recorded as pending."""
-    with slots.locked(state):
-        if decide(read_json(state / "running.json"), slots.process_alive) == "pending":
-            (state / "pending.json").write_text(json.dumps({"sha": sha}), encoding="utf-8")
-            return False
-        write_running(state, sha)
-        return True
-
-
-def advance(state, done, slots):
-    """After a run: the pending sha to run next (and the pending record cleared), or None and the lock freed."""
-    with slots.locked(state):
-        pending = (read_json(state / "pending.json") or {}).get("sha")
-        (state / "pending.json").unlink(missing_ok=True)
-        nxt = next_sha(pending, done)
-        if nxt:
-            write_running(state, nxt)
-        else:
-            (state / "running.json").unlink(missing_ok=True)
-        return nxt
 
 
 def resolve(repo, sha):
@@ -203,13 +187,12 @@ def move_checkout(repo, sha, checkout=CHECKOUT):
 
 
 def run_logged(cmd, checkout, log, timeout):
-    """(exit code or None on a timeout, the output cmd appended to `log`): cmd in `checkout`, tagged postland,
-    below normal priority."""
+    """(exit code or None on a timeout, the output cmd appended to `log`): cmd in `checkout`, tagged postland.
+    The priority is the class's: run_tests.py claims `postland` from loadgate, whose runner sets it."""
     env = {**os.environ, "TW_RUN_KIND": "postland", "PYTHONIOENCODING": "utf-8"}
     start = log.stat().st_size if log.exists() else 0
     with open(log, "ab") as f:
-        p = subprocess.Popen(cmd, cwd=checkout, env=env, stdout=f, stderr=subprocess.STDOUT,
-                             creationflags=priority_flags())
+        p = subprocess.Popen(cmd, cwd=checkout, env=env, stdout=f, stderr=subprocess.STDOUT)
         try:
             code = p.wait(timeout=timeout)
         except subprocess.TimeoutExpired:
@@ -222,8 +205,11 @@ def run_logged(cmd, checkout, log, timeout):
 
 
 def run_suite(checkout, log, timeout=RUN_TIMEOUT):
-    """(exit code or None on a timeout, pytest's output): run_tests.py --full in `checkout`."""
-    return run_logged([sys.executable, "scripts/run_tests.py", "--full"], checkout, log, timeout)
+    """(exit code or None on a timeout, pytest's output): run_tests.py --full in `checkout`, which writes the
+    files it ran to results_path(log)."""
+    results_path(log).unlink(missing_ok=True)
+    return run_logged([sys.executable, "scripts/run_tests.py", "--full", "--results-json", str(results_path(log))],
+                      checkout, log, timeout)
 
 
 def rerun_failed(checkout, failed, log, timeout=RUN_TIMEOUT):
@@ -249,12 +235,29 @@ def post(text, say, poster=None):
     return True
 
 
-def one_run(repo, sha, say, log, poster=None):
+def check_cache(sched, repo, sha, log, failed, code, say):
+    """The files whose failure the result cache had a pass for. Only a run that said what failed (or passed) is
+    checked: a crash marks nothing. A check that breaks is logged and changes nothing."""
+    units = read_json(results_path(log))
+    results = outcomes(units, failed)
+    if sched is None or results is None or not (failed or code == 0):
+        return []
+    try:
+        lies = sched.cache.verify(repo, results, root=CHECKOUT, sha=sha)["lies"]
+    except Exception as exc:    # the check is a net under the cache; it must not hide the result
+        say(f"cache check not made: {type(exc).__name__}: {exc}")
+        return []
+    if lies:
+        say(f"cache lie: {', '.join(lies)}")
+    return lies
+
+
+def one_run(repo, sha, say, log, poster=None, sched=None):
     """Test `sha` once and post when it failed; the exit code, or None when it gave no result."""
     subject = git(repo, "log", "-1", "--format=%s", sha).stdout.strip()
     say(f"=== after-land run on {sha[:7]} {subject} ===")
     bad = move_checkout(repo, sha)
-    flaky = 0
+    flaky, lies = 0, []
     if bad:
         code, failed, error = None, [], bad
     else:
@@ -267,7 +270,9 @@ def one_run(repo, sha, say, log, poster=None):
         flaky = len(failed) - len(again)
         say(f"rerun: {len(again)} failed again" + (f", {flaky} failed once and passed on rerun (flaky)" if flaky else ""))
         failed, code = again, (code if again else 0)    # nothing left failing is a clean run
-    text = message(sha, subject, failed, code, error, flaky)
+    if not error:
+        lies = check_cache(sched, repo, sha, log, failed, code, say)
+    text = message(sha, subject, failed, code, error, flaky, lies)
     if text is None:
         say("clean: nothing to post")
     else:
@@ -291,23 +296,20 @@ def main(argv=None):
         print("dry run: nothing moved, nothing run, nothing posted")
         return 0
     REPORTS.mkdir(parents=True, exist_ok=True)
-    slots, state = load("worker_slots"), state_dir(repo)
+    sched = load_sched()
+
+    def work(s):
+        one_run(repo, s, logger(s), REPORTS / f"postland-{s[:7]}.log", sched=sched)
+    if sched is None:    # no lock to share: the one run, as before there was a library
+        work(sha)
+        return 0
     try:
-        mine = claim(state, sha, slots)
+        got = sched.coalesce.submit(repo, JOB, sha, work=work)
     except TimeoutError as e:    # the lock stayed busy: nothing was recorded, so say so and leave cleanly
         logger(sha)(f"postland not run: {e}")
         return 0
-    if not mine:
+    if got == "pending":
         print(f"a postland run is going; {sha[:7]} is pending and runs after it")
-        return 0
-    try:
-        while sha:
-            say = logger(sha)
-            one_run(repo, sha, say, REPORTS / f"postland-{sha[:7]}.log")
-            sha = advance(state, sha, slots)
-    finally:
-        if sha:    # an error mid-run: free the lock and drop the pending sha, which would run after the next land's
-            clear_state(state, slots)
     return 0
 
 
@@ -321,17 +323,6 @@ def logger(sha):
         with open(log, "a", encoding="utf-8") as f:
             f.write(line + "\n")
     return say
-
-
-def clear_state(state, slots):
-    """Delete running.json and pending.json, under the lock when it can be had and without it when it stays busy."""
-    try:
-        with slots.locked(state):
-            for name in ("running.json", "pending.json"):
-                (state / name).unlink(missing_ok=True)
-    except TimeoutError:
-        for name in ("running.json", "pending.json"):
-            (state / name).unlink(missing_ok=True)
 
 
 if __name__ == "__main__":

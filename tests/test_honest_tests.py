@@ -42,6 +42,8 @@ ENV_SKIPS = {
     "test_sources_behind.py": (2, "an ff-jarvis checkout, and one new enough"),
     "test_yt_channels.py": (1, "an ff-jarvis checkout"),
     "test_render.py": (1, "--update-golden: the golden was just written, so there is nothing to compare"),
+    "test_run_tests.py": (1, "loadgate library"),
+    "test_run_tests_plugin.py": (1, "powershell"),
 }
 
 

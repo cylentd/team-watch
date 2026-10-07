@@ -214,6 +214,35 @@ def test_the_committed_mode_reads_head_only(monkeypatch):
     assert not [c for c in calls if c[0] == "ls-files"]
 
 
+def gone_in_head(monkeypatch, listed):
+    """A diff that deletes `listed`: each file is in the fork point and not in HEAD."""
+    fake_git(monkeypatch, {("merge-base", "origin/main"): "abc\n", ("diff", "--no-renames"): listed})
+    monkeypatch.setattr(impact, "at", lambda rev, path: "old" if rev == "abc" else None)
+
+
+def test_a_deleted_file_no_area_owns_does_not_force_the_whole_suite(monkeypatch):
+    # 2026-10-07: removing scripts/worker_slots.py and tests/test_slots.py ran everything and named a deleted test file
+    gone_in_head(monkeypatch, "scripts/worker_slots.py\ntests/test_slots.py\n")
+    paths, golden = impact.changed("origin/main")
+    assert (paths, golden) == ([], [])
+    picked = impact.select(paths, golden=golden)
+    assert picked["all"] is False and "tests/test_slots.py" not in picked["files"]
+
+
+def test_a_deleted_file_an_area_owns_still_runs_that_areas_tests(monkeypatch):
+    gone_in_head(monkeypatch, "design/ranks.py\n")
+    paths, golden = impact.changed("origin/main")
+    assert paths == ["design/ranks.py"]
+    assert impact.select(paths, golden=golden)["all"] is False
+
+
+def test_deleted_shared_test_setup_still_runs_everything(monkeypatch):
+    gone_in_head(monkeypatch, "tests/conftest.py\n")
+    paths, golden = impact.changed("origin/main")
+    assert paths == ["tests/conftest.py"]
+    assert impact.select(paths, golden=golden)["why"] == ["tests/conftest.py is shared test setup"]
+
+
 @pytest.mark.integration      # impact.at reads HEAD through git
 def test_a_binary_file_in_the_diff_is_read_not_a_crash(monkeypatch, tmp_path):
     # 2026-10-06: the team avatars' .webp fixtures stopped the picker with a UnicodeDecodeError, at HEAD and on disk

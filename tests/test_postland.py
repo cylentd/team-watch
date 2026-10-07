@@ -1,7 +1,8 @@
 """scripts/postland.py: the after-land full run posts to Discord only when it fails (2026-10-07).
 
-The message, the lock and pending decisions and the choice of the next sha are pure and tested with fakes:
-no git, no pytest, no network, no real webhook file, no real checkout.
+The message, the failed ids and the plan are pure and tested with fakes. The one-run-at-a-time job and its
+pending sha are testsched's coalesce (real, in a temp loadgate home); git, the checkout, the suite and the
+cache check are replaced. No git, no pytest, no network, no real webhook file, no real checkout.
 """
 import contextlib
 import importlib.util
@@ -22,19 +23,6 @@ SUMMARY = ("FAILED tests/test_a.py::test_one - assert 1 == 2\n"
            "ERROR tests/test_b.py::test_two - fixture error\n"
            "FAILED tests/test_a.py::test_one - assert 1 == 2\n"
            "1 failed, 1 error, 40 passed in 9.0s\n")
-
-
-class FakeSlots:
-    """worker_slots with no files: a lock that never waits, and a process table the test sets."""
-    def __init__(self, alive=True):
-        self.alive = alive
-
-    def process_alive(self, rec):
-        return self.alive
-
-    @contextlib.contextmanager
-    def locked(self, state):
-        yield
 
 
 def ids(n):
@@ -106,69 +94,6 @@ def test_a_summary_with_no_failures_has_no_ids():
     assert pl.failed_ids("40 passed in 9.0s\nFAILED is only a word here\n") == []
 
 
-# --- the lock and the pending decision --------------------------------------------------------------
-
-def test_no_record_or_a_dead_one_means_run():
-    assert pl.decide(None, lambda rec: True) == "run"
-    assert pl.decide({"pid": 7}, lambda rec: False) == "run"
-
-
-def test_a_live_record_means_the_new_sha_is_pending():
-    assert pl.decide({"pid": 7}, lambda rec: True) == "pending"
-
-
-def test_the_first_call_takes_the_lock_and_writes_the_running_record(tmp_path):
-    assert pl.claim(tmp_path, SHA, FakeSlots()) is True
-    rec = json.loads((tmp_path / "running.json").read_text())
-    assert rec["sha"] == SHA and isinstance(rec["pid"], int)
-    assert not (tmp_path / "pending.json").exists()
-
-
-def test_a_second_call_while_one_lives_records_its_sha_as_pending_and_leaves_the_lock(tmp_path):
-    pl.claim(tmp_path, SHA, FakeSlots())
-    assert pl.claim(tmp_path, NEWER, FakeSlots(alive=True)) is False
-    assert json.loads((tmp_path / "pending.json").read_text()) == {"sha": NEWER}
-    assert json.loads((tmp_path / "running.json").read_text())["sha"] == SHA
-
-
-def test_a_call_after_the_runner_died_reaps_the_lock_and_takes_it(tmp_path):
-    pl.claim(tmp_path, SHA, FakeSlots())
-    assert pl.claim(tmp_path, NEWER, FakeSlots(alive=False)) is True
-    assert json.loads((tmp_path / "running.json").read_text())["sha"] == NEWER
-
-
-def test_only_the_latest_pending_sha_is_kept(tmp_path):
-    pl.claim(tmp_path, SHA, FakeSlots())
-    pl.claim(tmp_path, "b" * 40, FakeSlots())
-    pl.claim(tmp_path, NEWER, FakeSlots())
-    assert json.loads((tmp_path / "pending.json").read_text()) == {"sha": NEWER}
-
-
-# --- which sha next ---------------------------------------------------------------------------------
-
-def test_the_pending_sha_runs_next():
-    assert pl.next_sha(NEWER, SHA) == NEWER
-
-
-def test_nothing_pending_or_the_same_sha_runs_nothing_more():
-    assert pl.next_sha(None, SHA) is None
-    assert pl.next_sha(SHA, SHA) is None
-
-
-def test_advance_hands_over_the_pending_sha_and_clears_the_record(tmp_path):
-    pl.claim(tmp_path, SHA, FakeSlots())
-    pl.claim(tmp_path, NEWER, FakeSlots())
-    assert pl.advance(tmp_path, SHA, FakeSlots()) == NEWER
-    assert not (tmp_path / "pending.json").exists()
-    assert json.loads((tmp_path / "running.json").read_text())["sha"] == NEWER
-
-
-def test_advance_with_nothing_pending_frees_the_lock(tmp_path):
-    pl.claim(tmp_path, SHA, FakeSlots())
-    assert pl.advance(tmp_path, SHA, FakeSlots()) is None
-    assert not (tmp_path / "running.json").exists()
-
-
 # --- the plan ---------------------------------------------------------------------------------------
 
 def test_the_plan_names_the_sha_checkout_command_and_log(tmp_path):
@@ -182,6 +107,14 @@ def test_the_plan_names_the_sha_checkout_command_and_log(tmp_path):
 def test_a_missing_checkout_is_planned_as_a_worktree_add(tmp_path):
     line = pl.plan_lines(SHA, tmp_path / "co", exists=False)[1]
     assert f"missing; git worktree add --detach {tmp_path / 'co'} 92f3ed7" in line
+
+
+def test_the_plan_says_who_holds_the_lock_the_workers_and_the_cache_check(tmp_path):
+    assert pl.plan_lines(SHA, tmp_path / "co", exists=True)[4:] == [
+        "job: testsched coalesce 'postland' (one run at a time; a sha that lands during a run waits, the latest only)",
+        "workers: loadgate class postland (idle priority, a quarter of the budget, waits until 2 are free)",
+        "then: cache verify on the run's results (a cached pass that fails twice is a lie: the cache goes off)",
+        "on failure: one Discord message; clean: nothing"]
 
 
 # --- posting and the whole loop, with fakes ------------------------------------------------------------
@@ -208,12 +141,24 @@ def test_a_live_webhook_gets_the_text_once():
     assert poster.sent == ["hello"] and said == ["posted to Discord"]
 
 
+UNITS = ["tests/test_a.py", "tests/test_b.py", "tests/test_c.py"]
+
+
 @pytest.fixture
 def world(tmp_path, monkeypatch):
-    """The module with git, the checkout and the suite replaced: `results` is the queue of (exit code, output)."""
+    """The module with git, the checkout, the suite and the cache check replaced: `results` is the queue of
+    (exit code, output); a run writes the results file run_tests.py would, `UNITS` with the files of its
+    failed tests marked. The job lock is testsched's real coalesce, in a temp loadgate home."""
+    monkeypatch.setenv("LOADGATE_HOME", str(tmp_path / "lg"))
     w = types.SimpleNamespace(poster=Poster(), results=[], ran=[], moved=[], bad=None, during=None, reruns=[],
-                              rerun_ids=[])
+                              rerun_ids=[], verified=[], lies=[], job=None)
     flake = types.SimpleNamespace(post_discord=lambda text: w.poster(text))
+    real = pl.load_sched()
+    w.coalesce = real.coalesce
+    w.job = real.coalesce.job_dir(tmp_path, "postland")
+    cache = types.SimpleNamespace(verify=lambda repo, results, root=None, sha=None:
+                                  w.verified.append((dict(results), sha)) or {"lies": list(w.lies), "verified": []})
+    sched = types.SimpleNamespace(coalesce=real.coalesce, cache=cache)
 
     def fake_git(repo, *args):
         return types.SimpleNamespace(returncode=0, stdout="Digest days hold more\n", stderr="")
@@ -225,7 +170,10 @@ def world(tmp_path, monkeypatch):
     def fake_run(checkout, log, timeout=None):
         w.ran.append(log.name)
         w.during and w.during.pop(0)()    # what another land does while this run is going
-        return w.results.pop(0)
+        code, out = w.results.pop(0)
+        bad = {i.split("::")[0] for i in pl.failed_ids(out)}
+        pl.results_path(log).write_text(json.dumps({u: "failed" if u in bad else "passed" for u in UNITS}))
+        return code, out
 
     def fake_rerun(checkout, failed, log, timeout=None):
         """The second run of the failed ids: queued in `reruns`, else they fail again."""
@@ -239,8 +187,8 @@ def world(tmp_path, monkeypatch):
     monkeypatch.setattr(pl, "REPORTS", tmp_path / "reports")
     monkeypatch.setattr(pl, "resolve", lambda repo, sha: sha or SHA)
     monkeypatch.setattr(pl, "main_checkout", lambda: tmp_path)
-    monkeypatch.setattr(pl, "state_dir", lambda repo: tmp_path)
-    monkeypatch.setattr(pl, "load", lambda name: flake if name == "flake_run" else FakeSlots())
+    monkeypatch.setattr(pl, "load", lambda name: flake)
+    monkeypatch.setattr(pl, "load_sched", lambda: sched)
     return w
 
 
@@ -278,26 +226,28 @@ def test_a_checkout_that_cannot_be_moved_runs_nothing_and_posts_the_reason(world
 
 
 def test_a_run_that_is_going_records_the_new_sha_and_runs_nothing(world, tmp_path):
-    (tmp_path / "running.json").write_text(json.dumps({"pid": 7}))
+    assert world.coalesce.submit(tmp_path, "postland", SHA) == "run"    # a live run: this process holds the job
     assert pl.main(["--sha", NEWER]) == 0
-    assert world.ran == [] and json.loads((tmp_path / "pending.json").read_text()) == {"sha": NEWER}
+    assert world.ran == [] and json.loads((world.job / "pending.json").read_text()) == {"sha": NEWER}
 
 
-def test_a_sha_that_lands_during_a_run_is_tested_after_it_and_then_the_lock_is_freed(world, tmp_path):
+@pytest.mark.integration      # the real testsched coalesce: lock and record files, psutil checks (~300 ms on Windows)
+def test_a_sha_that_lands_during_a_run_is_tested_after_it_and_then_the_job_is_freed(world, tmp_path):
     world.results = [(0, "ok"), (1, SUMMARY)]
-    world.during = [lambda: pl.claim(tmp_path, NEWER, FakeSlots())]
+    world.during = [lambda: world.coalesce.submit(tmp_path, "postland", NEWER)]
     assert pl.main(["--sha", SHA]) == 0
     assert world.moved == [SHA, NEWER]
     assert world.ran == ["postland-92f3ed7.log", "postland-aaaaaaa.log"]
     assert len(world.poster.sent) == 1 and "FAILED on aaaaaaa" in world.poster.sent[0]
-    assert not (tmp_path / "running.json").exists() and not (tmp_path / "pending.json").exists()
+    assert not (world.job / "running.json").exists() and not (world.job / "pending.json").exists()
 
 
-def test_the_dry_run_prints_the_plan_and_touches_nothing(world, capsys, tmp_path):
+def test_the_dry_run_prints_the_plan_and_touches_nothing(world, capsys):
     assert pl.main(["--sha", SHA, "--dry-run"]) == 0
     out = capsys.readouterr().out
     assert f"sha: {SHA}" in out and "TW_RUN_KIND=postland python scripts/run_tests.py --full" in out
-    assert world.moved == [] and world.ran == [] and not (tmp_path / "running.json").exists()
+    assert "loadgate class postland" in out and "testsched coalesce 'postland'" in out
+    assert world.moved == [] and world.ran == [] and not (world.job / "running.json").exists()
 
 
 def test_an_unknown_sha_exits_one(world, monkeypatch):
@@ -361,14 +311,7 @@ def test_the_flaky_count_line_only_appears_when_there_is_one():
     assert pl.message(SHA, "s", ids(1), 1, flaky=3).splitlines()[-2] == "3 more failed once and passed on rerun (flaky)"
 
 
-# --- the suite runs below normal priority, in a checkout that is forced to the sha ---------------------
-
-def test_the_suite_gets_below_normal_priority_on_windows_and_no_flag_elsewhere():
-    sp = types.SimpleNamespace(BELOW_NORMAL_PRIORITY_CLASS=0x4000)
-    assert pl.priority_flags("nt", sp) == 0x4000
-    assert pl.priority_flags("posix", types.SimpleNamespace()) == 0
-    assert pl.priority_flags("nt", types.SimpleNamespace()) == 0
-
+# --- a forced checkout --------------------------------------------------------------------------------
 
 def test_a_dirty_checkout_is_forced_to_the_sha_not_refused(tmp_path, monkeypatch):
     (tmp_path / ".git").write_text("gitdir: elsewhere")
@@ -389,25 +332,97 @@ def test_a_failed_forced_checkout_is_reported(tmp_path, monkeypatch):
     assert pl.move_checkout(tmp_path, SHA, checkout=tmp_path) == "checkout failed: bad object"
 
 
-# --- a crash or a busy lock leaves nothing behind -----------------------------------------------------
+# --- the job lock, the workers and the cache check (loadgate and testsched, 2026-10-07) -----------------
 
-def test_a_crash_mid_run_clears_the_pending_record_too_so_an_older_sha_never_runs_after_the_next_land(world, tmp_path):
+@pytest.mark.integration      # the real testsched coalesce: lock and record files, psutil checks (~140 ms on Windows)
+def test_a_crash_mid_run_clears_the_job_so_an_older_sha_never_runs_after_the_next_land(world, tmp_path):
     def land_then_crash():
-        pl.claim(tmp_path, NEWER, FakeSlots())      # another land records itself as pending
+        world.coalesce.submit(tmp_path, "postland", NEWER)      # another land records itself as pending
         raise RuntimeError("boom")
     world.during = [land_then_crash]
     with pytest.raises(RuntimeError):
         pl.main(["--sha", SHA])
-    assert not (tmp_path / "running.json").exists() and not (tmp_path / "pending.json").exists()
+    assert not (world.job / "running.json").exists() and not (world.job / "pending.json").exists()
 
 
 def test_a_busy_lock_is_logged_and_exits_zero_without_running(world, monkeypatch):
-    class Busy(FakeSlots):
-        @contextlib.contextmanager
-        def locked(self, state):
-            raise TimeoutError("test-slots lock busy for 10 s")
-            yield
-    monkeypatch.setattr(pl, "load", lambda name: Busy())
+    def busy(repo, name, sha, work=None):
+        raise TimeoutError("loadgate lock busy for 10 s")
+    monkeypatch.setattr(world.coalesce, "submit", busy)
     assert pl.main(["--sha", SHA]) == 0
     assert world.ran == [] and world.moved == []
     assert "lock busy for 10 s" in (pl.REPORTS / "postland-92f3ed7.log").read_text()
+
+
+def test_the_suite_command_asks_run_tests_for_a_results_file_next_to_the_log(tmp_path, monkeypatch):
+    seen = []
+    monkeypatch.setattr(pl, "run_logged", lambda cmd, checkout, log, timeout: seen.append(cmd) or (0, ""))
+    log = tmp_path / "postland-92f3ed7.log"
+    pl.run_suite(tmp_path, log)
+    assert seen[0][1:] == ["scripts/run_tests.py", "--full", "--results-json", str(tmp_path / "postland-92f3ed7.json")]
+
+
+def test_a_clean_run_checks_the_cache_with_every_unit_passed(world):
+    world.results = [(0, "40 passed in 9.0s\n")]
+    pl.main(["--sha", SHA])
+    assert world.verified == [({u: "passed" for u in UNITS}, SHA)]
+
+
+def test_a_test_that_failed_twice_marks_only_its_file_failed_in_the_check(world):
+    world.results = [(1, SUMMARY)]
+    world.reruns = [(1, "FAILED tests/test_b.py::test_two - still\n")]
+    pl.main(["--sha", SHA])
+    assert world.verified == [({"tests/test_a.py": "passed", "tests/test_b.py": "failed",
+                                "tests/test_c.py": "passed"}, SHA)]
+
+
+def test_a_flaky_test_is_a_pass_in_the_check_not_a_lie(world):
+    world.results = [(1, SUMMARY)]
+    world.reruns = [(0, "2 passed in 3.0s\n")]
+    pl.main(["--sha", SHA])
+    assert world.verified == [({u: "passed" for u in UNITS}, SHA)]
+
+
+def test_a_lie_the_check_finds_is_named_in_the_message(world):
+    world.results = [(1, SUMMARY)]
+    world.lies = ["tests/test_a.py"]
+    pl.main(["--sha", SHA])
+    lines = world.poster.sent[0].splitlines()
+    assert lines[-2] == "cache lie: tests/test_a.py failed with a cached pass; the result cache is off"
+    assert lines[-1] == "Rerun at 92f3ed7: python scripts/run_tests.py --full"
+
+
+def test_a_run_that_gave_no_failed_ids_and_a_bad_exit_is_not_checked(world):
+    world.results = [(2, "INTERNALERROR boom\n")]
+    pl.main(["--sha", SHA])
+    assert world.verified == []
+
+
+def test_a_run_with_no_results_file_is_not_checked(world, monkeypatch):
+    monkeypatch.setattr(pl, "run_suite", lambda checkout, log, timeout=None: (0, "40 passed\n"))
+    pl.main(["--sha", SHA])
+    assert world.verified == [] and world.poster.sent == []
+
+
+def test_a_dead_cache_check_is_logged_and_does_not_hide_the_result(world, monkeypatch):
+    def broken(repo, results, root=None, sha=None):
+        raise OSError("disk gone")
+    monkeypatch.setattr(pl.load_sched(), "cache", types.SimpleNamespace(verify=broken))
+    world.results = [(1, SUMMARY)]
+    assert pl.main(["--sha", SHA]) == 0
+    assert len(world.poster.sent) == 1
+    assert "cache check not made: OSError: disk gone" in (pl.REPORTS / "postland-92f3ed7.log").read_text()
+
+
+def test_the_message_names_a_lie_only_when_there_is_one():
+    assert "cache lie" not in pl.message(SHA, "s", ids(1), 1)
+    text = pl.message(SHA, "s", ids(1), 1, lies=["tests/test_a.py", "tests/test_b.py"])
+    assert "cache lie: tests/test_a.py, tests/test_b.py failed with a cached pass; the result cache is off" in text
+
+
+def test_without_the_library_the_suite_runs_once_with_no_lock_and_no_check(world, monkeypatch):
+    monkeypatch.setattr(pl, "load_sched", lambda: None)
+    world.results = [(1, SUMMARY)]
+    assert pl.main(["--sha", SHA]) == 0
+    assert world.ran == ["postland-92f3ed7.log"] and world.verified == []
+    assert len(world.poster.sent) == 1

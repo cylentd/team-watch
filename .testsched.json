@@ -1,0 +1,20 @@
+{
+  "test": ["python", "scripts/run_tests.py", "--base", "{base}", "--committed"],
+  "test_full": ["python", "scripts/run_tests.py", "--base", "{base}", "--committed", "--full"],
+  "branch_checks": [
+    ["python", "scripts/run_tests.py", "--repeat-new", "10", "--base", "{base}", "--committed"],
+    ["python", "{testing_scripts}/land_gate.py", "--base", "{base}"]
+  ],
+  "quiet": ["*.md", "tests/**", ".testing-backlog.json"],
+  "dirty_ok": [
+    "index.html", "design/index.html", "build.json", "trade_offers.json",
+    "preview_archive.json", "games", "heads", "avatars", "tests/.frozen.json"
+  ],
+  "pre_build": ["python", "design/sources.py", "--fetch"],
+  "build": ["python", "design/build.py"],
+  "after_land": {"argv": ["python", "scripts/postland.py", "--sha", "{sha}"], "detached": true},
+  "record": ["python", "scripts/testlog.py", "land"],
+  "env": ["TEAM_WATCH_DATA", "TW_RUN_KIND"],
+  "never_cache": [],
+  "declared": {}
+}

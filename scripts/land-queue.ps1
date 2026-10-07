@@ -1,25 +1,50 @@
 <#
 .SYNOPSIS
-  One writer to main at a time: a first-come, first-served queue shared by every checkout.
+  One writer to main at a time: the land queue, testsched's (agent-config/testsched, SPEC 14), or the
+  old git-dir queue when loadgate is off or not installed (SPEC invariant 6).
 
 .DESCRIPTION
-  Dot-source it, then wrap the push:
+  Dot-source it, then wrap the push (the scheduled rebuild job in agent-config does exactly this):
 
       . "$repo\scripts\land-queue.ps1"
       $ticket = Enter-LandQueue -Repo $repo -Label "land worktree-x"
       try { ...fetch, rebase, test, build, push... } finally { Exit-LandQueue $ticket }
 
-  Why (2026-09-26): several Claude sessions and the scheduled rebuild push to main. Each land
-  takes ~2.5 min (fetch, rebase, the suite, the build) and only checks for a moved main at the
-  push, so two lands in that window meant the loser re-ran everything, and a third meant a failed
-  land and a hand rebase through a golden-file conflict. Holding the queue from fetch to push
-  means every land rebases onto the last one that finished, and never races.
+  The queue is `ts.py queue enter|exit` (testsched/queue.py): tickets in <git common dir>/land-queue,
+  `<ticks:D20>-<pid>.ticket`, the oldest live one holds main, a dead or 30-minute-old ticket is cleared by
+  whoever finds it, a wait over -TimeoutMinutes gives up with nothing landed. Why it exists: 2026-09-26.
 
-  The queue lives in the repo's common git dir (<repo>/.git/land-queue), which every worktree
-  and the rebuild job's own checkout share. A ticket is a file named by its UTC ticks and PID;
-  the oldest live ticket holds main. A ticket whose process is gone, or which is older than
-  $StaleMinutes, is removed by whoever finds it, so a killed session never blocks the rest.
+  With LOADGATE=off (TESTSCHED=off, TW_SLOTS=off) or no ts.py ($env:LOADGATE_CODE, ~/.agents/testsched),
+  the same two functions run the queue this file held before testsched (same folder, same ticket names,
+  same messages), so a machine without the library still lands and rebuilds.
 #>
+
+# The folder holding ts.py: $env:LOADGATE_CODE, else the install junction ~/.agents/testsched. $null when neither.
+function Find-TestschedDir {
+    $candidates = @($env:LOADGATE_CODE, (Join-Path $HOME ".agents/testsched"))
+    foreach ($c in $candidates) { if ($c -and (Test-Path (Join-Path $c "ts.py"))) { return $c } }
+    return $null
+}
+
+function Get-TestschedDir {
+    $dir = Find-TestschedDir
+    if (-not $dir) { throw "testsched not found (`$env:LOADGATE_CODE, ~/.agents/testsched): run agent-config's install.ps1" }
+    return $dir
+}
+
+# loadgate's off switch, as loadgate/state.py reads it (OFF_NAMES, OFF_VALUES; PowerShell cannot import it).
+function Test-LoadgateOff {
+    foreach ($name in "LOADGATE", "TESTSCHED", "TW_SLOTS") {
+        $v = [Environment]::GetEnvironmentVariable($name)
+        if ($v -and @("off", "0", "false", "no") -contains $v.Trim().ToLower()) { return $true }
+    }
+    return $false
+}
+
+# True when the queue is testsched's: loadgate is on and ts.py is installed.
+function Use-Testsched { return (-not (Test-LoadgateOff)) -and [bool](Find-TestschedDir) }
+
+# --- the old queue: a ticket file per land in <git common dir>/land-queue, no testsched ---------------
 
 $script:LandQueueStaleMinutes = 30
 
@@ -49,11 +74,9 @@ function Get-LandQueue([string]$Dir) {
     return ,$live
 }
 
-<#
-  Join the queue and return once this ticket is at the front. Throws after -TimeoutMinutes, having
-  left the queue, so a caller that gives up never blocks the next one.
-#>
-function Enter-LandQueue {
+# Join the queue and return once this ticket is at the front. Throws after -TimeoutMinutes, having
+# left the queue, so a caller that gives up never blocks the next one.
+function Enter-GitDirQueue {
     param([Parameter(Mandatory)][string]$Repo, [string]$Label = "land", [int]$TimeoutMinutes = 20)
     $dir = Get-LandQueueDir $Repo
     $now = (Get-Date).ToUniversalTime()
@@ -83,6 +106,23 @@ function Enter-LandQueue {
     }
 }
 
+# --- the two entry points land.ps1 and the rebuild job call --------------------------------------------
+
+# Join the queue; returns the ticket once it is at the front. Throws after -TimeoutMinutes, having left the queue.
+function Enter-LandQueue {
+    param([Parameter(Mandatory)][string]$Repo, [string]$Label = "land", [int]$TimeoutMinutes = 20)
+    if (-not (Use-Testsched)) { return Enter-GitDirQueue -Repo $Repo -Label $Label -TimeoutMinutes $TimeoutMinutes }
+    $ts = Join-Path (Get-TestschedDir) "ts.py"
+    $ticket = $null
+    # -u: each "waiting on" line must reach the console as it is printed. The last line is the ticket.
+    & python -u $ts queue enter --repo $Repo --label $Label --pid $PID --timeout $TimeoutMinutes |
+        ForEach-Object { Write-Host $_; $ticket = "$_" }
+    if ($LASTEXITCODE -ne 0) { throw "land queue: gave up (ts.py exit $LASTEXITCODE) -- nothing landed" }
+    return $ticket
+}
+
 function Exit-LandQueue([string]$Ticket) {
-    if ($Ticket) { Remove-Item -Path $Ticket -Force -ErrorAction SilentlyContinue }
+    if (-not $Ticket) { return }
+    if (-not (Use-Testsched)) { Remove-Item -Path $Ticket -Force -ErrorAction SilentlyContinue; return }
+    & python (Join-Path (Get-TestschedDir) "ts.py") queue exit $Ticket | Out-Null
 }

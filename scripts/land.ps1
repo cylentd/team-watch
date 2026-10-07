@@ -33,6 +33,13 @@
   After a land succeeds, scripts/postland.py starts detached and runs the whole suite on the landed
   commit in its own checkout; it posts to Discord only when that fails. -NoPostland skips it.
 
+  loadgate and testsched (agent-config/testsched, SPEC 2026-10-07; $env:LOADGATE_CODE, else
+  ~/.agents/testsched): the tests above run through scripts/run_tests.py, which claims its workers from
+  loadgate (class land) and writes the result cache; the queue is `ts.py queue` (scripts/land-queue.ps1);
+  the repo's contract for `ts.py land` / `batch-land` is .testsched.json. This script stays the one-branch
+  path with its own switches (-SkipMutate, -AllowStaleData, -NoPostland have no `ts.py land` flag yet), and
+  a dry run also prints what `ts.py land --dry-run` would do. LOADGATE=off gives the old behaviour.
+
 .EXAMPLE
   .\scripts\land.ps1 -DryRun          # say what would happen, change nothing
   .\scripts\land.ps1                  # docs/tests-only diff: lands unattended
@@ -51,6 +58,9 @@ param(
 
 $ErrorActionPreference = "Stop"
 $repo = Split-Path -Parent $PSScriptRoot
+
+# Enter-LandQueue / Exit-LandQueue (testsched's queue) and Get-TestschedDir, used below.
+. (Join-Path $PSScriptRoot "land-queue.ps1")
 
 # The testing skill's scripts: $env:TESTING_SKILL when set (a skill checkout agent-config has not landed
 # yet), else the installed copy. scripts/run_tests.py and scripts/flake_run.py resolve it the same way.
@@ -180,6 +190,24 @@ if ($DryRun) {
     if ($LASTEXITCODE -ne 0) { throw "land gate failed ($LASTEXITCODE) -- add a test, a Test-Exempt: <reason> trailer, or fix what it names" }
 }
 
+# --- testsched ----------------------------------------------------------------------------------------
+
+# What `ts.py land` would do with this branch under .testsched.json: its guards, one line per decision.
+# Informational (a dry run only); the land below is this script's own. A problem here never fails a dry run.
+if ($DryRun) {
+    Write-Host "testsched" -ForegroundColor Cyan
+    try {
+        $ts = Join-Path (Get-TestschedDir) "ts.py"
+        $common = (GitRead "rev-parse --path-format=absolute --git-common-dir").Trim()
+        $tsArgs = @("land", "--dry-run", "--repo", (Split-Path -Parent $common), "--worktree", $repo, "--branch", $branch)
+        if ($Yes) { $tsArgs += "--yes" }
+        if ($Full) { $tsArgs += "--full" }
+        Write-Host "  python ts.py $($tsArgs -join ' ')" -ForegroundColor DarkGray
+        & python $ts @tsArgs
+    } catch { Write-Host "  (testsched not usable: $_)" -ForegroundColor Yellow }
+    $global:LASTEXITCODE = 0
+}
+
 # --- rebase and test --------------------------------------------------------------------------------
 
 # A conflict in the two generated files is expected on any branch predating this convention.
@@ -245,7 +273,6 @@ RebaseAndTest
 # rebuild joins the same queue. A dry run changes nothing, so it does not queue.
 $ticket = $null
 if (-not $DryRun) {
-    . (Join-Path $PSScriptRoot "land-queue.ps1")
     $ticket = Timed queue { Enter-LandQueue -Repo $repo -Label "land $branch" }
 }
 try {
