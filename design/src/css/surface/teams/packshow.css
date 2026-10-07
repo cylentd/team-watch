@@ -17,7 +17,7 @@ body.pk-open{overflow:hidden}
    they wrap to), so the pack's middle is the group's middle. */
 .pk-stage{--pkw:clamp(200px,min(58vw,38vh),320px);
   --pky:calc(var(--hdr-top, 0px) + (100% - var(--hdr-top, 0px) - var(--dock-b, 0px)) / 2);
-  --pk-gap:22px;--pk-blk:calc(var(--t-3) * 3);
+  --pk-gap:22px;--pk-air:calc(var(--pk-gap) + 16px);--pk-blk:calc(var(--t-5) + var(--t-2) * 3);
   position:fixed;inset:0;z-index:57;-webkit-tap-highlight-color:transparent}
 .pk-back{position:absolute;inset:0;opacity:1;transition:opacity .5s var(--ease);
   -webkit-backdrop-filter:blur(18px) saturate(.5);backdrop-filter:blur(18px) saturate(.5);
@@ -29,8 +29,13 @@ body.pk-open{overflow:hidden}
 /* The lead line stands under the pack, in the room the hint's twin above it reserves. Once the pack is
    ripped it has said its piece: the cards' labels (.deal) and the no-metal line (.none) take its place
    above the cards, as it did before it moved. */
-.pk-msg{position:absolute;z-index:4;left:16px;right:16px;top:calc(var(--pky) + var(--pkw) * .85 + var(--pk-gap));height:var(--pk-blk);margin:0;text-align:center;
-  font-size:var(--t-3);color:var(--ink-2);text-wrap:balance}
+.pk-msg{position:absolute;z-index:4;left:16px;right:16px;top:calc(var(--pky) + var(--pkw) * .85 + var(--pk-air));height:var(--pk-blk);margin:0;text-align:center;
+  text-wrap:balance}
+/* It speaks in the stage's own voice (the cards' labels below, .deal): the week as a short display-caps
+   headline, what is inside as one quiet line of body words under it, never one plain sentence. */
+.pk-msg:not(.deal,.none) b{display:block;font-family:var(--tab);font-size:var(--t-5);font-weight:900;line-height:1.1;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink)}
+.pk-msg:not(.deal,.none) small{display:block;margin-top:4px;font-size:var(--t-2);line-height:1.3;color:var(--ink-2)}
 .pk-msg.none{top:calc(var(--pky) - var(--pkw) * .86 - 60px);height:auto}
 .pk-ripped .pk-msg:not(.deal,.none){visibility:hidden}
 /* The label over a hit as it holds (.deal, packdeal.js pkTag; 2026-10-05, it was "#3 RB · Gold"
@@ -55,24 +60,20 @@ body.pk-open{overflow:hidden}
 /* The tier glow stays behind the pack as it spins (2026-09-27): drawn on the turning pack, it
    was a plane that showed edge-on as a coloured line beside the pack's side. */
 .pk-center .pack-glow::before{display:none}
-/* It does not turn, so it follows the pack's width instead (--gs, packshow.js pkLean from data/packrip.js:
-   |cos| of the turn, 30% at least) and fades from its middle (2026-10-07, David: edge-on, a whole flat oval
-   sat behind a pack a few pixels wide, a hard 55% edge, olive on the dark). */
-.pk-center::before{content:"";position:absolute;z-index:-1;inset:calc(var(--glow-r, 0px) * -1.6);border-radius:18px;pointer-events:none;
-  scale:var(--gs, .93) 1;
-  background:radial-gradient(closest-side,var(--glow, transparent),color-mix(in srgb,var(--glow, transparent) 75%,transparent) 60%,transparent);opacity:.75}
-/* Eased with the pack's own settle; a pseudo-element is not reached by the global reduced-motion rule (`*`). */
-@media (prefers-reduced-motion:no-preference){
-  .pk-center::before{transition:scale .5s cubic-bezier(.25,1,.5,1)}
-  .pk-drag .pk-center::before{transition:none}
-}
+/* A light in the room, not a halo of the pack (David, 2026-10-07: it narrowed with the pack's silhouette and
+   read as attached to it): a round pool 1.5x the pack's width, centred on it, that does not change as the
+   pack turns, feathered from its middle to nothing, so it has no edge to see. */
+.pk-center::before{content:"";position:absolute;z-index:-1;left:50%;top:50%;width:calc(var(--pkw) * 1.22 * 1.5);aspect-ratio:1;
+  translate:-50% -50%;border-radius:50%;pointer-events:none;
+  background:radial-gradient(closest-side,var(--glow, transparent),color-mix(in srgb,var(--glow, transparent) 55%,transparent) 35%,
+    color-mix(in srgb,var(--glow, transparent) 18%,transparent) 68%,transparent);opacity:.9}
 .pk-aim:not(.pk-drag) .pk-center .pack-glow{transition:transform .5s cubic-bezier(.25,1,.5,1)}
 /* Larger than the cards inside it, as a real pack is: 1.06x the card on 2026-09-26, 1.22x since
    2026-09-27 (~255px wide on a 360px phone), so the pack is the thing on the screen. */
 .pk-center .pack-seal{width:calc(var(--pkw) * 1.22);height:calc(var(--pkw) * 1.7);perspective:700px}
 /* "Drag across the top to rip" stands over the pack, by the strip where the drag happens, its last line
    on the pack's top edge. Once ripped it says "Tap to go faster" under the cards, where it always stood. */
-.pk-hint{position:absolute;z-index:4;left:16px;right:16px;top:calc(var(--pky) - var(--pkw) * .85 - var(--pk-gap) - var(--pk-blk));height:var(--pk-blk);
+.pk-hint{position:absolute;z-index:4;left:16px;right:16px;top:calc(var(--pky) - var(--pkw) * .85 - var(--pk-air) - var(--pk-blk));height:calc(var(--pk-blk) + var(--pk-air) - var(--pk-gap));
   display:flex;align-items:flex-end;justify-content:center;margin:0;text-align:center;
   font-family:var(--mono);font-size:var(--t-1);letter-spacing:.14em;color:var(--ink-3)}
 .pk-ripped .pk-hint{top:calc(var(--pky) + var(--pkw) * .85 + var(--pk-gap));align-items:flex-start}

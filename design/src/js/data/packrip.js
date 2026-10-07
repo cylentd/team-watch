@@ -1,16 +1,9 @@
-/* The pack's rip screen (2026-10-07, David): the numbers behind three of its fixes, kept apart from the
+/* The pack's rip screen (2026-10-07, David): the numbers behind two of its fixes, kept apart from the
    drawing (surface/teams/packshow.js, pack.js) so each is tested in Node.
 
-   The glow behind the pack (the tier's colour) does not turn with it, so edge-on it was a whole oval
-   behind a pack a few pixels wide. Its width now follows the pack's: |cos| of the turn, never under 30%.
    The torn flap lifts and tips with the tear a little, and the rest with the finger pulling up, so the
    tear feels held; a finger pushing down lifts nothing more. The foil flakes start on the strip, not at the
    top of the leaned pack's box, which stands above it. */
-
-const PK_GLOW_MIN = .3;
-function pkGlowScale(deg){
-  return Math.max(PK_GLOW_MIN, Math.abs(Math.cos(deg * Math.PI / 180)));
-}
 
 /* {lift, tilt}: px the flap rises and degrees it tips, for how far along the tear is (0..1) and how far the
    finger has moved up (dy < 0) or down since it touched. The tear alone gives at most 6px and 6deg, a full pull

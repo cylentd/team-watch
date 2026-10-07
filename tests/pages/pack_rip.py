@@ -87,10 +87,18 @@ class PackRip:
 
     # ---- the stage around it ----
 
-    def glow_scale(self):
-        """The tier glow's drawn width scale (`scale` on the centre's ::before) and the value the page set."""
-        return self.page.evaluate("""() => { const c = document.querySelector('[data-testid="roster-pack-center"]');
-          return [parseFloat(getComputedStyle(c, '::before').scale), parseFloat(c.style.getPropertyValue('--gs'))]; }""")
+    def glow_pool(self):
+        """The tier glow (the centre's ::before) as drawn: its width and height in px, whether it is a circle, and
+        the pack's own width (the seal's, unturned)."""
+        return self.page.evaluate("""() => { const c = document.querySelector('[data-testid="roster-pack-center"]'),
+          g = getComputedStyle(c, '::before');
+          return {w: parseFloat(g.width), h: parseFloat(g.height), round: g.borderTopLeftRadius === '50%',
+                  pack: c.querySelector('[data-testid="roster-pack-seal"]').offsetWidth}; }""")
+
+    def mouth_paint(self):
+        """What the mouth (under the strip) paints: how many gradients, and the height of the one it has."""
+        return self._seal.evaluate("""e => { const c = getComputedStyle(e.querySelector('.pt-mouth'));
+          return {layers: (c.backgroundImage.match(/gradient\\(/g) || []).length, size: c.backgroundSize}; }""")
 
     def spin_body(self, part):
         """Drag the pack's body `part` of its width to the right, the finger staying down."""
@@ -107,8 +115,9 @@ class PackRip:
         self.page.evaluate("document.querySelector('%s').classList.add('pk-ripped')" % STAGE)
 
     def foil_and_seam(self):
-        """The foil's clip and the seam's opacity, once the stage is ripped (or not)."""
+        """The foil's clip, its lit edge (box-shadow) and the seam's opacity, once the stage is ripped (or not)."""
         return self._seal.evaluate("""e => ({foil: getComputedStyle(e.querySelector('.pack-foil')).clipPath,
+          edge: getComputedStyle(e.querySelector('.pack-foil')).boxShadow,
           seam: parseFloat(getComputedStyle(e, '::after').opacity)})""")
 
     def hint(self):

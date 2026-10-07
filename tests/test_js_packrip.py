@@ -1,7 +1,5 @@
-"""The pack's rip screen (David, 2026-10-07): the logic its three fixes share, in Node (data/packrip.js).
-
-`pkGlowScale` is how wide the stage's tier glow draws beside the turning pack: the glow does not turn, so
-its width follows the pack's, |cos| of its turn, never narrower than 30%. `pkFlapPose` is how far the torn
+"""The pack's rip screen (David, 2026-10-07): the logic its fixes share, in Node (data/packrip.js). The tier glow is a pool of light that does not follow the
+pack's turn, so it has no number here (test_pack_rip.py reads it drawn). `pkFlapPose` is how far the torn
 flap lifts and how far it tips: a little with the tear, and the rest with the finger pulling up, never when
 it pushes down. `pkFlakeOrigin` is where the foil flakes start: on the strip, under the finger's x."""
 import pytest
@@ -10,16 +8,6 @@ import pytest
 @pytest.fixture(scope="module")
 def pk(node_js):
     return node_js("data/packrip.js")
-
-
-@pytest.mark.parametrize("deg, want", [(0, 1.0), (60, .5), (-60, .5), (180, 1.0), (-22, .927), (360, 1.0)])
-def test_the_glow_is_as_wide_as_the_pack_faces_the_reader(pk, deg, want):
-    assert pk("pkGlowScale", deg) == pytest.approx(want, abs=.001)
-
-
-@pytest.mark.parametrize("deg", [90, -90, 270, 89.9])
-def test_edge_on_the_glow_keeps_a_third_of_its_width(pk, deg):
-    assert pk("pkGlowScale", deg) == .3
 
 
 def test_a_flap_with_no_tear_and_no_pull_does_not_lift(pk):

@@ -55,7 +55,7 @@ function packShow(team, wk, from){
   st.setAttribute("role", "dialog"); st.setAttribute("aria-modal", "true"); st.setAttribute("aria-label", t("teams.pack.stage"));
   st.innerHTML = `<div class="pk-back"></div><div class="pk-rays"></div><div class="pk-flash"></div><div class="pk-wave"></div>
     <button class="pk-close" type="button" aria-label="${t("teams.pack.closeLabel")}">✕</button>
-    <p class="pk-msg" data-testid="roster-pack-msg" aria-live="polite">${t("teams.pack.lead", {wk})}</p>
+    <p class="pk-msg" data-testid="roster-pack-msg" aria-live="polite"><b>${t("teams.pack.lead", {wk})}</b> <small>${t("teams.pack.leadSub")}</small></p>
     <div class="pk-center" data-testid="roster-pack-center">${packSealHTML(team, wk, cards)}</div>
     <p class="pk-hint">${t("teams.pack.hint")}</p><p class="pk-count" data-testid="roster-pack-count" aria-hidden="true"></p>`;
   document.body.appendChild(st);
@@ -112,7 +112,6 @@ function pkLean(S, deg, shine){
   const c = S.st.querySelector(".pk-center"), seal = c && c.querySelector(".pack-seal");
   if (!seal) return;
   c.style.setProperty("--pry", `${deg.toFixed(1)}deg`);
-  c.style.setProperty("--gs", pkGlowScale(deg).toFixed(3));   // the tier glow is as wide as the pack facing the reader
   seal.style.setProperty("--mx", `${Math.round(50 + Math.max(-1, Math.min(1, shine)) * 40)}%`);
 }
 function pkAim(S){

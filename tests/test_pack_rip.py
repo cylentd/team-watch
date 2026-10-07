@@ -1,11 +1,11 @@
 """The pack's rip screen, David's fixes of 2026-10-07 (design/DESIGN.md "Week's pack"):
 
-- the mouth under the strip is a lit inside cut to the torn stretch, wearing the strip's crimp, not a near-black
-  slab across the whole strip (it showed black between the teeth and under the lifted flap);
+- the mouth under the strip is cut to the torn stretch, wearing the strip's crimp, and paints only a thin lit
+  edge: nothing sits behind the lifted flap (it was a black slab, then a silver one);
 - the flap lifts and tips further as the finger pulls up, and settles flat when let go short of the tear;
 - the foil flakes start on the strip where it is torn, not at the top of the leaned pack's box;
-- the tier glow beside the pack is as wide as the pack facing the reader;
-- once ripped the foil's top is a torn edge and the straight rainbow seam is gone;
+- the tier glow is a round pool 1.5x the pack's width that does not change as the pack turns;
+- once ripped the foil's top is one straight lit edge, and the rainbow seam is gone;
 - the hint under the cards gives way while a card is in the air.
 
 Pure numbers (glow width, flap pose, flake origin) are proved in Node, tests/test_js_packrip.py. These prove
@@ -98,29 +98,40 @@ def test_the_flakes_start_inside_the_torn_edge(stage):
     assert errors == []
 
 
-@pytest.mark.req(REQ, ac="the glow is as wide as the pack facing the reader")
-def test_the_glow_narrows_with_the_pack_and_comes_back(stage):
+@pytest.mark.req(REQ, ac="the glow is a round pool of light that keeps its size when the pack turns")
+def test_the_glow_is_a_round_pool_wider_than_the_pack_and_keeps_its_size_as_it_turns(stage):
     rip, errors = stage
-    resting = rip.glow_scale()
+    resting = rip.glow_pool()
     rip.spin_body(.4)
-    turned = rip.glow_scale()
+    turned = rip.glow_pool()
     rip.let_go()
-    assert resting[0] == pytest.approx(.93, abs=.01), resting      # nothing set yet: the resting turn's width
-    assert turned[0] < .5 and turned[1] < .5, turned
-    assert rip.glow_scale()[1] == pytest.approx(.927, abs=.01), "settled at its resting turn"
+    assert resting["round"] and resting["w"] == pytest.approx(resting["h"], abs=.5), resting
+    assert resting["w"] / resting["pack"] == pytest.approx(1.5, abs=.1), resting
+    assert (turned["w"], turned["h"]) == (resting["w"], resting["h"]), (resting, turned)
     assert errors == []
 
 
-@pytest.mark.req(REQ, ac="after the rip the foil's top is torn and the rainbow seam is gone")
-def test_a_ripped_pack_has_a_torn_top_and_no_rainbow_line(stage):
+@pytest.mark.req(REQ, ac="after the rip the foil's top is one straight edge and the rainbow seam is gone")
+def test_a_ripped_pack_has_a_straight_top_with_a_lit_edge_and_no_rainbow_line(stage):
     rip, errors = stage
     rip.tear_a_little()
     sealed = rip.foil_and_seam()
     rip.tear_the_stage()
     ripped = rip.foil_and_seam()
-    assert sealed["foil"] == "none" and sealed["seam"] > 0, sealed
-    assert ripped["foil"].startswith("polygon("), ripped
+    assert sealed["seam"] > 0, sealed
+    assert ripped["foil"] == "none", "no ragged polygon: the foil's own top edge is the straight line"
+    assert ripped["edge"] != "none", "the opened edge is lit"
     assert ripped["seam"] == 0, ripped
+    assert errors == []
+
+
+@pytest.mark.req(REQ, ac="nothing is painted behind the torn stretch beyond a thin lit edge")
+def test_the_mouth_paints_only_a_thin_lit_edge_so_the_stage_shows_behind_the_flap(stage):
+    rip, errors = stage
+    rip.tear_to(.35, steps=3)
+    paint = rip.mouth_paint()
+    rip.let_go()
+    assert paint == {"layers": 1, "size": "100% 2px"}
     assert errors == []
 
 
