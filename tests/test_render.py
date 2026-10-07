@@ -8,8 +8,10 @@ regenerates the golden with `pytest --update-golden` and the diff is the review.
 
 Deterministic by construction: fixture inputs, Math.random seeded and Date.now pinned before load
 (the gallery hides games that have kicked off), external requests
-(Google Fonts) blocked so fallback fonts always apply, reduced-motion so no animation is mid-flight.
+(Google Fonts) blocked so fallback fonts always apply, a clip's picture answered with a fixed image
+(pin_network), reduced-motion so no animation is mid-flight.
 """
+import base64
 import json
 import os
 import pathlib
@@ -592,6 +594,21 @@ def watch_errors(page, into=None):
     return errors
 
 
+# A clip's picture (cliprail.js reelImg) is the one request off the machine whose answer changes the markup:
+# a refusal fires its onerror, which hides it (hidden=""). The answer reaches the page whenever this
+# process gets to the route, after the probe on a loaded machine, so roster-2 drew hidden="" in one run and
+# not the next (8 branches, 2026-10-06). A picture fires nothing: the markup is the same before and after.
+THUMBS = re.compile(r"^https://i\.ytimg\.com/")
+THUMB_GIF = base64.b64decode("R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7")   # 1x1, transparent
+
+
+def pin_network(page):
+    """Refuse every request off the machine (Google Fonts falls back the same way every run), and answer a
+    clip's picture with THUMB_GIF. A later route wins in Playwright, so the thumbnails' comes second."""
+    page.route(re.compile(r"^https?://"), lambda route: route.abort())
+    page.route(THUMBS, lambda route: route.fulfill(status=200, content_type="image/gif", body=THUMB_GIF))
+
+
 def open_at(browser, page_file, size, hash_="", init=()):
     """Open the page at a size, with a hash or pinned-clock init scripts: (ctx, page, errors)."""
     ctx = browser.new_context(viewport={"width": size[0], "height": size[1]}, reduced_motion="reduce")
@@ -599,7 +616,7 @@ def open_at(browser, page_file, size, hash_="", init=()):
         page = ctx.new_page()
         page.set_default_timeout(5000)     # a missing control is a bug, not something to wait 30 s for
         errors = watch_errors(page)
-        page.route(re.compile(r"^https?://"), lambda route: route.abort())
+        pin_network(page)
         page.add_init_script(SEED)
         for script in init:
             page.add_init_script(script)
@@ -615,6 +632,28 @@ def open_at(browser, page_file, size, hash_="", init=()):
 
 def open_page(browser, page_file, viewport):
     return open_at(browser, page_file, viewport)
+
+
+# A clip's picture as cliprail.js reelImg draws it, with one of the fixture clips' thumbnails.
+REEL_IMG = ('<img src="https://i.ytimg.com/vi/aaaaaaaaaa1/hqdefault.jpg" alt="" loading="lazy" decoding="async"'
+            ' draggable="false" onerror="this.hidden=true">')
+
+
+def test_a_clip_picture_reads_the_same_before_and_after_its_answer(browser):
+    """The golden reads the markup at a moment the route does not control, so the answer to a clip's
+    picture must leave it as drawn: a refusal hid it (onerror, hidden="") in some runs and not in others,
+    and roster-2 failed at random (2026-10-06)."""
+    ctx = browser.new_context()
+    try:
+        page = ctx.new_page()
+        page.set_default_timeout(5000)
+        pin_network(page)
+        page.set_content(f"<body>{REEL_IMG}</body>")
+        page.wait_for_function("(() => { const i = document.images[0];"
+                               " return i.complete && (i.naturalWidth > 0 || i.hidden); })()")
+        assert page.evaluate("document.images[0].outerHTML") == REEL_IMG, "the answer changed the picture's markup"
+    finally:
+        ctx.close()
 
 
 def drive(page, steps):

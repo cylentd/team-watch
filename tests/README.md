@@ -162,6 +162,7 @@ object does not lower it; moving the test to Node does.
 | `digest_story` | `pages/digest_story.py` | The Digest's story banner and Monday block with a planted game day (`DigestStoryPage`) |
 | `league_chip` | `pages/league_chip.py` | The League's one team line on any leaf (`LeagueChip`); class selectors until `surface/league/switch.js` has test ids |
 | `open_at`, `open_page` | `test_render.py` | A full page at a size and hash: `(ctx, page, errors)` |
+| `pin_network` | `test_render.py` | Refuse every request off the machine, and answer a clip's picture (i.ytimg.com) with a fixed image, so no answer changes the markup (2026-10-06) |
 | `watch_errors`, `LOAD_MS` | `test_render.py` | Collect page errors; the 30 s page-load timeout |
 | `open_view` | `startsit_page.py` | A touch page already on Start/Sit |
 | `VCLOCK` | `pages/roster_pack.py` | A virtual clock so motion tests wait on a condition, not a duration |
