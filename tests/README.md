@@ -149,6 +149,23 @@ scheduled rebuild runs the whole suite twice a day, the net for whatever the map
 golden state belongs to the area its name starts with. Fixture files are never claimed by an
 area: the build injects all of them into one page.
 
+**E2e only if needed** (David, 2026-10-07; a replay of 71 lands: 60 ran everything, browser tests
+were 59% of a land, the rule halves it and still caught 16 of 20 browser-only failures). When impact
+says "everything", a gated run still runs every python, node, integration, build and component
+test, but a browser test only in a file impact lists (`--e2e-only-in`) and golden only for the
+areas a changed path owns (`--areas`, passed with the whole-suite pick too; only `test_render.py`
+carries area marks); it prints how many browser tests it left. That count is the browser tests
+outside impact's files, not the golden slices `--areas` dropped: pytest's own "deselected" count
+holds those. A path or directory after `--` (`-- tests` too) is an explicit request: nothing is
+dropped. `tests/test_smoke_views.py` (in `core`)
+mounts every view once, so a shared change that breaks a view nobody touched still fails the land.
+The rest runs after the land: `land.ps1` starts `scripts/postland.py` detached (from the main
+checkout, so the landing worktree can be removed at once), the full suite on the landed commit in
+`~/.team-watch-postland`, below normal priority and on at most a quarter of the worker budget.
+Each failed test is rerun once; only a test that fails twice goes into the one Discord message,
+which says how many failed once and passed (flaky) (`-NoPostland` skips it). `--full`, the 10-run
+of new or changed tests and the scheduled runs are unchanged.
+
 `scripts/run_tests.py` runs the same selection `land.ps1` does, on the files on disk, uncommitted
 ones included; anything after `--` goes to pytest. `python -m pytest -m "not render"` runs
 everything without a browser, ~30 s.

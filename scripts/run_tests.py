@@ -8,7 +8,8 @@
 A Preview edit runs Preview's tests, Preview's golden slice and the core every view shares (the
 build, lint, syntax, budgets), about 15 s; a bare `pytest` runs all of it, one test at a time.
 scripts/impact.py picks the files: a path no area claims, shared CSS or shared test setup still
-runs everything. Exits with pytest's code.
+runs everything, minus the browser tests outside impact's files (--e2e-only-in, 2026-10-07: the
+after-land run covers them; --full runs all). Exits with pytest's code.
 
 Gating runs (the default and --full, which land.ps1 calls) pass --no-quarantine: a test marked
 quarantine drops out of the gate until fixed (--with-quarantine keeps it). --repeat-new N is the
@@ -93,12 +94,33 @@ def gate(extra, quarantine=False):
     return [] if quarantine or "--no-quarantine" in extra else ["--no-quarantine"]
 
 
-def picked_args(full, base, committed):
-    """The files and --areas the change can break; none for --full or a run of the whole suite."""
+def e2e_args(pick, extra):
+    """A gating run of 'everything' (a shared file changed) runs unit + component, and browser tests only
+    in impact's files (tests/conftest.py --e2e-only-in); the after-land run covers the rest (2026-10-07).
+    A path or node id after `--` (any existing file or directory, `tests` included) is a wish for that
+    test, so it keeps every browser test. The golden follows the areas the changed paths own, so
+    an all-pick with areas also passes --areas: only test_render.py carries area marks."""
+    if not pick["all"] or any(a.endswith(".py") or "::" in a or "tests/" in a or names_a_path(a) for a in extra):
+        return []
+    why = list(pick["why"])
+    shown = "; ".join(why[:3]) + (f"; +{len(why) - 3} more" if len(why) > 3 else "")
+    args = ["--e2e-only-in=" + ",".join(pick["files"]), f"--e2e-why=shared file: {shown}"]
+    return args + (["--areas", ",".join(pick["areas"])] if pick["areas"] else [])
+
+
+def names_a_path(arg):
+    """True for a pytest argument that is a file or directory in the repo (not a flag, not a -k word)."""
+    return not arg.startswith("-") and (ROOT / arg.split("::")[0]).exists()
+
+
+def picked_args(full, base, committed, extra=()):
+    """The files and --areas the change can break, or for a run of the whole suite the browser-test limit
+    that goes with it; none for --full."""
     if full:
         return []
     paths, golden = impact.changed(base, worktree=not committed)
-    return selection(impact.select(paths, golden=golden))
+    pick = impact.select(paths, golden=golden)
+    return selection(pick) + e2e_args(pick, extra)
 
 
 def skill_dir(environ=None):
@@ -125,7 +147,7 @@ def with_path(environ, *dirs):
 
 
 def command(full, base, committed, extra, quarantine=False, picked=None, skill=None, workers=None):
-    picked = picked_args(full, base, committed) if picked is None else picked
+    picked = picked_args(full, base, committed, extra) if picked is None else picked
     limits = limit_args(skill_dir() if skill is None else skill)
     return [sys.executable, "-m", "pytest", *parallel(extra, workers), *gate(extra, quarantine), *limits, *picked, *extra]
 
@@ -287,7 +309,7 @@ def main(argv=None):
     a = ap.parse_args(ours)
     if a.repeat_new:
         return repeat_new(a, extra)
-    picked = picked_args(a.full, a.base, a.committed)
+    picked = picked_args(a.full, a.base, a.committed, extra)
     workers, claim = claim_workers(extra, a.dry_run)
     try:
         cmd = command(a.full, a.base, a.committed, extra, a.with_quarantine, picked, workers=workers)

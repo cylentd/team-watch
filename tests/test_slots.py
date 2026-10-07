@@ -263,3 +263,25 @@ def test_the_state_dir_is_in_the_git_common_dir_shared_by_every_worktree():
     assert d.name == "test-slots"
     assert d.parent.name == ".git"
     assert d.is_dir()
+
+
+
+def test_an_after_land_run_is_capped_at_a_quarter_of_the_budget_on_an_empty_machine(tmp_path):
+    c = slots.claim(tmp_path, 14, BUDGET, "wt-a", pid=1, alive=everyone_alive, kind="postland")
+    assert c.got == 3      # max(FLOOR, 14 // 4); a background check never takes the machine
+
+
+def test_an_after_land_run_behind_a_full_budget_gets_the_floor_of_two(tmp_path):
+    hold(tmp_path, 100, 14)
+    c = slots.claim(tmp_path, 14, BUDGET, "wt-a", pid=1, alive=everyone_alive, kind="postland")
+    assert c.got == 2
+
+
+def test_an_after_land_run_on_a_small_budget_keeps_the_floor_and_never_exceeds_what_it_wants(tmp_path):
+    assert slots.claim(tmp_path, 14, 4, "wt-a", pid=1, alive=everyone_alive, kind="postland", write=False).got == 2
+    assert slots.claim(tmp_path, 1, BUDGET, "wt-a", pid=2, alive=everyone_alive, kind="postland").got == 1
+
+
+def test_a_land_and_a_dev_run_are_not_capped_the_way_an_after_land_run_is(tmp_path):
+    assert slots.claim(tmp_path, 14, BUDGET, "wt-a", pid=1, alive=everyone_alive, kind="land", write=False).got == 14
+    assert slots.claim(tmp_path, 14, BUDGET, "wt-b", pid=2, alive=everyone_alive, kind="dev", write=False).got == 14

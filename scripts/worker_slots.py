@@ -5,7 +5,8 @@ meant N x cores workers and browser tests timing out under the load. A run now c
 here first: the budget is what `-n auto` resolves to on this machine, and what other live runs hold
 comes off it. A run that finds it full still gets 2 (a small oversubscription beats waiting), a
 serial run holds 1. A land (env TW_RUN_KIND=land, set by land.ps1) is owed a fair share of the budget
-instead, so a dev run holding it all cannot leave a land on 2 workers.
+instead, so a dev run holding it all cannot leave a land on 2 workers. The after-land run (TW_RUN_KIND=postland,
+scripts/postland.py) is capped at a quarter of the budget (at least 2): it is the one that gives way.
 
 State is one file per claiming run in `<git common dir>/test-slots/`, shared by every worktree:
 `<ticks>-<pid>.claim` holds pid, workers, worktree and start. A claim whose process is gone is reaped
@@ -136,10 +137,13 @@ def live_claims(state, alive=process_alive, now=time.time):
 def decide(wanted, budget_, held, holders=0, kind="dev"):
     """Workers a run gets: min(wanted, free), never under min(FLOOR, wanted). A serial run (wanted 1) gets 1.
     A land (kind "land") is also owed a fair share, budget // (holders + 1), so it is not stuck on the
-    floor behind a dev run that took everything."""
+    floor behind a dev run that took everything. An after-land run (kind "postland") is a background check,
+    so it is the one squeezed: never more than min(wanted, max(FLOOR, budget // 4))."""
     got = max(min(wanted, budget_ - held), min(FLOOR, wanted))
     if kind == "land":
         got = max(got, min(wanted, budget_ // (holders + 1)))
+    if kind == "postland":
+        got = min(got, wanted, max(FLOOR, budget_ // 4))
     return got
 
 

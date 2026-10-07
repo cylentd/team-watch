@@ -35,6 +35,10 @@ def pytest_addoption(parser):
                           "@pytest.mark.area runs only when its area is listed; unmarked tests always run")
     parser.addoption("--no-quarantine", action="store_true", default=False,
                      help="deselect tests marked @pytest.mark.quarantine (the land gate; tests/README.md)")
+    parser.addoption("--e2e-only-in", default=None,
+                     help="comma-separated test files: browser-layer tests outside them are deselected "
+                          "(scripts/run_tests.py, when a shared file means the whole suite; the after-land run covers them)")
+    parser.addoption("--e2e-why", default="", help="what the e2e line says caused the whole suite")
 
 
 def pytest_configure(config):
@@ -72,6 +76,27 @@ def layer_of(item):
     if marker and marker("integration"):     # a subprocess, git, a real build or a scan of the whole repo
         return "integration"
     return "node" if "node_js" in names else "python"
+
+
+def e2e_split(items, files):
+    """(kept, left): browser-layer items whose file is not in `files` are left to the after-land run."""
+    wanted = {f.replace("\\", "/") for f in files}
+    left = [i for i in items if layer_of(i) == "browser" and i.nodeid.split("::")[0] not in wanted]
+    gone = {id(i) for i in left}
+    return [i for i in items if id(i) not in gone], left
+
+
+@pytest.hookimpl(optionalhook=True)
+def pytest_testnodedown(node, error):
+    """xdist: the controller learns how many browser tests a worker left (its collection is the run's)."""
+    node.config._e2e_left = getattr(node, "workeroutput", {}).get("e2e_left", getattr(node.config, "_e2e_left", None))
+
+
+def pytest_terminal_summary(terminalreporter, config):
+    left = getattr(config, "_e2e_left", None)
+    if left is not None:
+        why = config.getoption("--e2e-why")
+        terminalreporter.write_line(f"  e2e: {left} browser tests left to the after-land run" + (f" ({why})" if why else ""))
 
 
 def rep_of(item):
@@ -124,6 +149,13 @@ def pytest_collection_modifyitems(config, items):
         if drop:
             config.hook.pytest_deselected(items=drop)
             items[:] = keep
+    only = config.getoption("--e2e-only-in")
+    if only is not None:    # a shared file means the whole suite: unit + component, browser tests only where the change points
+        items[:], left = e2e_split(items, [f for f in only.split(",") if f])
+        if left:
+            config.hook.pytest_deselected(items=left)
+        config._e2e_left = len(left)
+        getattr(config, "workeroutput", {})["e2e_left"] = len(left)
     # `-n auto --dist loadgroup` (land.ps1) runs one group on one worker. Two kinds of group:
     # - test_render.py's golden slices (test_render.SLICES, at most 6 states each; the area mark's
     #   `slice`): the snapshot (a page per state, both viewports) is taken once and read by the

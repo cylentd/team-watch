@@ -61,6 +61,9 @@ tests, goldens, test history.
   every session (`scripts/worker_slots.py`, 14 here): a dev run gets what is free (at least 2), a
   land a fair share. `TW_SLOTS=off` bypasses it. Time a change only with no other run holding slots.
 
+- **E2e only if needed** (since 2026-10-07): a shared-file change runs every test but the browser
+  ones outside its own areas; those run after the land (`scripts/postland.py`, Discord on failure).
+  tests/README.md "How land picks tests".
 - **Never a bare `python -m pytest`:** all ~3,600 tests one at a time, ~10 min (2026-10-05).
 - **Land gate** (since 2026-10-06; what each check does: tests/README.md "Frozen tests and the
   backlog"): a landed test is frozen. Editing one fails the land unless a commit says

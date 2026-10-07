@@ -30,6 +30,9 @@
   After it passes, `freeze.py --update` writes tests/.frozen.json and the fold below takes it with
   the build output: a feature branch never commits that file.
 
+  After a land succeeds, scripts/postland.py starts detached and runs the whole suite on the landed
+  commit in its own checkout; it posts to Discord only when that fails. -NoPostland skips it.
+
 .EXAMPLE
   .\scripts\land.ps1 -DryRun          # say what would happen, change nothing
   .\scripts\land.ps1                  # docs/tests-only diff: lands unattended
@@ -42,7 +45,8 @@ param(
     [switch]$Yes,
     [switch]$Full,    # every test, not only the ones this diff can break (scripts/impact.py)
     [switch]$AllowStaleData,  # build even when the ff-jarvis checkout is behind its origin/main
-    [switch]$SkipMutate       # leave the mutation check out of the land gate (tests/README.md "Proving a test")
+    [switch]$SkipMutate,      # leave the mutation check out of the land gate (tests/README.md "Proving a test")
+    [switch]$NoPostland       # do not start the after-land full run (scripts/postland.py)
 )
 
 $ErrorActionPreference = "Stop"
@@ -90,6 +94,24 @@ function GitRun($argline) {
 }
 
 function GitRead($argline) { & git.exe -C $repo @($argline -split ' ') }
+
+# After the land, the whole suite runs once more on exactly what landed (scripts/postland.py, 2026-10-07):
+# detached, so the land returns at once, and from the MAIN checkout's copy because this worktree is removed
+# right after. It posts to Discord only on a failure. A problem starting it never fails a land.
+function StartPostland {
+    try {
+        $sha = (GitRead "rev-parse HEAD").Trim()
+        $common = (GitRead "rev-parse --path-format=absolute --git-common-dir").Trim()
+        $main = Split-Path -Parent $common
+        $script = Join-Path $main "scripts/postland.py"
+        if (-not (Test-Path $script)) { Write-Host "  (no ${script}: after-land run not started)" -ForegroundColor Yellow; return }
+        $log = Join-Path $HOME ".team-watch-reports/postland-$($sha.Substring(0, 7)).log"
+        # -WorkingDirectory: the child would otherwise start in this worktree and hold it open, and Windows
+        # refuses to remove a directory a process sits in (git worktree remove, ExitWorktree remove).
+        Start-Process python -ArgumentList @("`"$script`"", "--sha", $sha) -WorkingDirectory $main -WindowStyle Hidden
+        Write-Host "after-land run started (log: $log)" -ForegroundColor Cyan
+    } catch { Write-Host "  (after-land run not started: $_)" -ForegroundColor Yellow }
+}
 
 # --- guards -----------------------------------------------------------------------------------
 
@@ -299,6 +321,7 @@ for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
     Write-Host "  git land $Base" -ForegroundColor DarkGray
     if ($DryRun) {
         Write-Host "(dry run -- nothing above actually ran)" -ForegroundColor Yellow
+        if (-not $NoPostland) { Write-Host "  after-land run: skipped in a dry run (scripts/postland.py --sha <landed commit>)" -ForegroundColor DarkGray }
         break
     }
 
@@ -310,6 +333,7 @@ for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
 
     if ($landCode -eq 0) {
         $outcome = "landed"
+        if (-not $NoPostland -and -not $DryRun) { StartPostland }
         break
     } elseif (($landCode -eq 2 -or $landCode -eq 3) -and $attempt -lt $maxAttempts) {
         Write-Host "origin/$Base moved -- rebasing and re-testing once" -ForegroundColor Yellow
