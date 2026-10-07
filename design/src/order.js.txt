@@ -34,6 +34,7 @@ data/teamcolors.js
 data/schedule.js
 data/matchupline.js
 data/pointsbars.js
+data/packrip.js
 lib/escape.js
 lib/kick.js
 lib/served.js

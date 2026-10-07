@@ -55,8 +55,17 @@ body.pk-open{overflow:hidden}
 /* The tier glow stays behind the pack as it spins (2026-09-27): drawn on the turning pack, it
    was a plane that showed edge-on as a coloured line beside the pack's side. */
 .pk-center .pack-glow::before{display:none}
+/* It does not turn, so it follows the pack's width instead (--gs, packshow.js pkLean from data/packrip.js:
+   |cos| of the turn, 30% at least) and fades from its middle (2026-10-07, David: edge-on, a whole flat oval
+   sat behind a pack a few pixels wide, a hard 55% edge, olive on the dark). */
 .pk-center::before{content:"";position:absolute;z-index:-1;inset:calc(var(--glow-r, 0px) * -1.6);border-radius:18px;pointer-events:none;
-  background:radial-gradient(closest-side,var(--glow, transparent) 55%,transparent);opacity:.75}
+  scale:var(--gs, .93) 1;
+  background:radial-gradient(closest-side,var(--glow, transparent),color-mix(in srgb,var(--glow, transparent) 75%,transparent) 60%,transparent);opacity:.75}
+/* Eased with the pack's own settle; a pseudo-element is not reached by the global reduced-motion rule (`*`). */
+@media (prefers-reduced-motion:no-preference){
+  .pk-center::before{transition:scale .5s cubic-bezier(.25,1,.5,1)}
+  .pk-drag .pk-center::before{transition:none}
+}
 .pk-aim:not(.pk-drag) .pk-center .pack-glow{transition:transform .5s cubic-bezier(.25,1,.5,1)}
 /* Larger than the cards inside it, as a real pack is: 1.06x the card on 2026-09-26, 1.22x since
    2026-09-27 (~255px wide on a 360px phone), so the pack is the thing on the screen. */
@@ -67,8 +76,18 @@ body.pk-open{overflow:hidden}
   display:flex;align-items:flex-end;justify-content:center;margin:0;text-align:center;
   font-family:var(--mono);font-size:var(--t-1);letter-spacing:.14em;color:var(--ink-3)}
 .pk-ripped .pk-hint{top:calc(var(--pky) + var(--pkw) * .85 + var(--pk-gap));align-items:flex-start}
-@media (prefers-reduced-motion:no-preference){ .pk-hint{animation:pk-blink 1.4s ease-in-out infinite alternate} }
+/* A card on its way to the pile crosses the hint's place: it gives way at once and fades back in a beat
+   after the last one has landed (packdeal.js pkToPile; 2026-10-07). */
+.pk-flying .pk-hint{animation:none;opacity:0;transition:opacity .12s var(--ease)}
+/* "Drag across the top to rip" has done its job once the finger is tearing, and the flakes fly up through it. */
+.pk-stage:has(.pack-seal.tearing) .pk-hint{animation:none;opacity:0;transition:opacity .15s var(--ease)}
+@media (prefers-reduced-motion:no-preference){
+  .pk-hint{animation:pk-blink 1.4s ease-in-out infinite alternate}
+  .pk-ripped .pk-hint{animation:pk-blink 1.4s ease-in-out infinite alternate,pk-hint-in .3s var(--ease) .4s backwards}
+  .pk-flying .pk-hint{animation:none}
+}
 @keyframes pk-blink{to{opacity:.35}}
+@keyframes pk-hint-in{from{opacity:0}}
 /* The best card's reveal cannot be hurried (packshow.js pkHurry), so it does not offer to be. */
 .pk-dim .pk-hint,.pk-home .pk-hint{animation:none;opacity:0;transition:opacity .3s var(--ease)}   /* the blink's opacity would win otherwise */
 /* The pile's count, over the pile, going up as each card lands in it: the only place the pack's

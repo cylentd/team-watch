@@ -72,7 +72,11 @@
 .pack-bulge::before{content:"";position:absolute;inset:0 -40%;
   background:linear-gradient(90deg,transparent 34%,rgb(var(--ink-rgb) / .12) 43%,rgb(var(--ink-rgb) / .38) 50%,rgb(var(--ink-rgb) / .1) 58%,transparent 66%);
   translate:calc((var(--mx, 42%) - 50%) * .9) 0}
+/* Its ridges and edge shading are the strip's, so they stop where the strip is torn away (the notch below is
+   .pt-base's), instead of laying dark stripes over the lit inside (2026-10-07). */
 .pack-top::after{content:"";position:absolute;inset:0;pointer-events:none;
+  clip-path:polygon(0 -20px,calc(var(--ta) * 100%) -20px,calc(var(--ta) * 100%) 100%,calc(var(--tb) * 100%) 100%,
+    calc(var(--tb) * 100%) -20px,100% -20px,100% 100%,0 100%);
   background:repeating-linear-gradient(90deg,rgb(var(--ink-rgb) / .06) 0 1px,transparent 1px 6px),
     linear-gradient(90deg,rgb(var(--shadow-rgb) / .6),transparent 24%,transparent 76%,rgb(var(--shadow-rgb) / .65));
   -webkit-mask:conic-gradient(from -45deg at 50% 7px,transparent 90deg,var(--shadow) 0) top/12px 100% repeat-x;
@@ -122,31 +126,39 @@
 @property --ta{syntax:"<number>";inherits:true;initial-value:0}
 @property --tb{syntax:"<number>";inherits:true;initial-value:0}
 @property --te{syntax:"<number>";inherits:true;initial-value:0}
-.pack-seal{--tdir:1;transition:--tear .42s var(--spring),--ta .42s var(--spring),--tb .42s var(--spring),--te .42s var(--spring)}
+/* How far the flap lifts (px) and tips (deg), set from the finger's pull (pack.js wireRip, data/packrip.js). */
+@property --tl{syntax:"<number>";inherits:true;initial-value:0}
+@property --tg{syntax:"<number>";inherits:true;initial-value:0}
+.pack-seal{--tdir:1;transition:--tear .42s var(--spring),--ta .42s var(--spring),--tb .42s var(--spring),--te .42s var(--spring),
+  --tl .42s var(--spring),--tg .42s var(--spring)}
 .pack-seal.tearing{transition:none}
 /* Its own layer (2026-09-27): drawn as part of the turned pack, its masked crimp came out with a
    faint line joining the zigzag's tips, an outline over the pack's top. Its own layer draws clean. */
 .pack-top{position:absolute;z-index:2;left:0;right:0;top:0;height:30px;will-change:transform}
-/* The pack's mouth, under the strip: dark inside, the top edges of the cards at the bottom of it,
-   seen only where the strip is torn away. Not drawn at all until the tear starts (2026-09-27): the
-   strip covers it, but the cards' light top edges bled past the strip's foot as a white line
-   along the whole pack. */
+/* The pack's mouth, under the strip: the inside of the foil, lit, with the top edges of the cards as a
+   light lip at the bottom of it, seen only where the strip is torn away. Not drawn at all until the tear
+   starts (2026-09-27): the strip covers it, but the cards' light top edges bled past the strip's foot as a
+   white line along the whole pack. Since 2026-10-07 it is cut to the torn stretch (--ta to --tb) and wears
+   the strip's crimp (below), so it no longer fills the gaps between the strip's teeth or sits as a
+   near-black slab under the lifted flap (it was void to panel-2 across the whole strip). */
 .pt-mouth{position:absolute;inset:0;opacity:calc(var(--tear) * 40);
-  background:linear-gradient(0deg,rgb(var(--ink-rgb) / .5) 0 1px,transparent 1px 3px,rgb(var(--ink-rgb) / .3) 3px 4px,transparent 4px) bottom/100% 7px no-repeat,
-    linear-gradient(180deg,var(--void),var(--panel-2))}
+  clip-path:inset(0 calc((1 - var(--tb)) * 100%) 0 calc(var(--ta) * 100%));
+  background:linear-gradient(0deg,rgb(var(--ink-rgb) / .85) 0 1px,transparent 1px 3px,rgb(var(--ink-rgb) / .5) 3px 4px,transparent 4px) bottom/100% 7px no-repeat,
+    linear-gradient(180deg,rgb(var(--shadow-rgb) / .14),transparent 55%),
+    linear-gradient(100deg,var(--silver-1),var(--ink-2) 40%,rgb(var(--holo-1-rgb) / .7) 68%,var(--silver-1))}
 .pt-base,.pt-flap{position:absolute;inset:0;overflow:hidden;
   background:radial-gradient(circle,rgb(var(--void-rgb) / .85) 0 1px,transparent 1.6px) 0 100%/6px 5px repeat-x,
     repeating-linear-gradient(90deg,rgb(var(--ink-rgb) / .025) 0 1px,transparent 1px 4px),
     linear-gradient(160deg,var(--panel-3),var(--void) 180%)}
-/* The strip keeps the crimp along its top edge. */
-.pt-base,.pt-flap{-webkit-mask:conic-gradient(from -45deg at 50% 7px,transparent 90deg,var(--shadow) 0) top/12px 100% repeat-x;
+/* The strip keeps the crimp along its top edge, and so does the mouth under it. */
+.pt-base,.pt-flap,.pt-mouth{-webkit-mask:conic-gradient(from -45deg at 50% 7px,transparent 90deg,var(--shadow) 0) top/12px 100% repeat-x;
           mask:conic-gradient(from -45deg at 50% 7px,transparent 90deg,var(--shadow) 0) top/12px 100% repeat-x}
 /* What is left on: the strip with the torn stretch cut out (one outline, notched from the top). */
 .pt-base{clip-path:polygon(0 -20px,calc(var(--ta) * 100%) -20px,calc(var(--ta) * 100%) 100%,calc(var(--tb) * 100%) 100%,
   calc(var(--tb) * 100%) -20px,100% -20px,100% 100%,0 100%)}
 .pt-flap{clip-path:inset(-20px calc((1 - var(--tb)) * 100%) 0 calc(var(--ta) * 100%));transform-origin:calc(var(--te) * 100%) 100%;
-  rotate:calc(var(--tdir) * min(var(--tear), .5) * 18deg);translate:0 calc(min(var(--tear), .6) * -18px);
-  filter:drop-shadow(0 3px 3px rgb(var(--shadow-rgb) / .55))}
+  rotate:calc(var(--tdir) * var(--tg) * 1deg);translate:0 calc(var(--tl) * -1px);
+  filter:drop-shadow(0 2px 3px rgb(var(--shadow-rgb) / .3))}
 .pt-edge{position:absolute;top:0;bottom:0;left:calc(var(--te) * 100% - 3px);width:6px;opacity:calc(var(--tear) * 30);
   background:linear-gradient(180deg,var(--holo-1),var(--ink) 50%,var(--holo-3));filter:blur(1.5px);
   -webkit-mask:repeating-linear-gradient(180deg,var(--shadow) 0 3px,transparent 3px 5px);
@@ -158,6 +170,12 @@
 .pack-seal::after{content:"";position:absolute;z-index:1;left:calc(var(--ta) * 100%);top:29px;height:3px;width:calc((var(--tb) - var(--ta)) * 100%);
   background:linear-gradient(90deg,var(--holo-1),var(--holo-2),var(--holo-3),var(--holo-4));
   box-shadow:0 0 12px 2px rgb(var(--ink-rgb) / .6);opacity:calc(var(--tear) * 1.4)}
+/* Once the strip is gone the seam goes with it, and the foil's top is a torn edge, not a straight cut under
+   a rainbow line (2026-10-07). Only after the rip, so the turned pack on the stage keeps its plain edges. */
+.pk-ripped .pack-seal::after{opacity:0}
+@media (prefers-reduced-motion:no-preference){ .pk-ripped .pack-seal::after{transition:opacity .2s var(--ease)} }
+.pk-ripped .pack-foil{clip-path:polygon(0 3px,4% 0,8% 6px,12% 2px,17% 8px,21% 3px,26% 7px,31% 1px,36% 5px,41% 9px,46% 4px,51% 7px,
+  56% 0,61% 5px,66% 2px,71% 8px,76% 3px,81% 6px,86% 1px,91% 5px,96% 2px,100% 6px,100% 100%,0 100%)}
 /* The tease: the pack glows in the colour of its best card, and the better it is the harder it
    breathes. It says how good, never who. On a wrapper, because the seal's crimp mask would cut a
    glow on the seal itself. */

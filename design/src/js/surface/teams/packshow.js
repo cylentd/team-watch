@@ -60,7 +60,7 @@ function packShow(team, wk, from){
     <p class="pk-hint">${t("teams.pack.hint")}</p><p class="pk-count" data-testid="roster-pack-count" aria-hidden="true"></p>`;
   document.body.appendChild(st);
   document.body.classList.add("pk-open");
-  const S = {st, team, wk, cards, ripped: false, skip: false, rush: false, homing: false, wake: new Set(), shown: [], best: packBest(cards)};
+  const S = {st, team, wk, cards, ripped: false, skip: false, rush: false, homing: false, flying: 0, wake: new Set(), shown: [], best: packBest(cards)};
   st.addEventListener("click", e => { if (!e.target.closest(".pk-close")) pkHurry(S); });
   S.cw = () => document.querySelector("#view .cards .tc")?.offsetWidth || 114;   // a roster card's width, read when dealt
   // The pack's photos, the sharpest size cut, loaded and decoded while the reader tears.
@@ -112,6 +112,7 @@ function pkLean(S, deg, shine){
   const c = S.st.querySelector(".pk-center"), seal = c && c.querySelector(".pack-seal");
   if (!seal) return;
   c.style.setProperty("--pry", `${deg.toFixed(1)}deg`);
+  c.style.setProperty("--gs", pkGlowScale(deg).toFixed(3));   // the tier glow is as wide as the pack facing the reader
   seal.style.setProperty("--mx", `${Math.round(50 + Math.max(-1, Math.min(1, shine)) * 40)}%`);
 }
 function pkAim(S){
@@ -207,8 +208,8 @@ async function pkRip(S){
   else {
     // The strip flies off in 3D, turning over as it goes, while the pack turns to face the reader
     // (it tipped back as well until 2026-09-27, which read as the pack pulling away from the tear).
-    const r = seal.getBoundingClientRect();
-    packBurst(r.left + r.width / 2, r.top + 16, {n: 46, tier: S.best});
+    const o = pkFlakeOrigin(seal.querySelector(".pack-top").getBoundingClientRect(), null);   // on the strip, not the leaned box's top
+    packBurst(o.x, o.y, {n: 46, tier: S.best});
     seal.querySelector(".slashes")?.classList.add("morph");   // the logo's // crosses into an X, as the header's does
     const out = "cubic-bezier(.25,1,.5,1)";
     await Promise.all([

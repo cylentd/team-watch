@@ -131,7 +131,9 @@ function wirePack(v, team){
    It starts under the finger and runs the way the finger goes, either way: the torn stretch of the
    strip runs from --ta to --tb (0..1 of the width), --te is the end the finger is on and --tdir its
    direction, and --tear is how far along the gesture is (the torn length over 75% of the width).
-   The torn stretch lifts off at the finger while the rest stays on (pack.css). Every eighth of the
+   The torn stretch lifts off at the finger while the rest stays on (pack.css), and lifts and tips further
+   the more the finger pulls up (2026-10-07, data/packrip.js pkFlapPose); let go short of the tear and it
+   settles back flat. Every eighth of the
    way ticks: a buzz and a few flakes from the tear point (onTick). Let go past 55% and the whole
    strip tears by itself; short of that it closes back up to where it started, both eased by the
    registered properties' transitions, not a jump. A touch anywhere else goes to onBody (the stage
@@ -139,10 +141,12 @@ function wirePack(v, team){
    Enter or Space on the focused pack tears it at once. */
 const RIP_STEPS = 8, RIP_DONE = .55, RIP_EDGE = .3;
 function wireRip(seal, onRip, onTick, onBody){
-  let s = null, tear = 0, step = 0, done = false;
+  let s = null, tear = 0, step = 0, done = false, y0 = 0, pull = 0;   // pull: the finger's vertical move since it touched (<0 is up)
   const put = (a, b, end, dir, p) => {
     tear = p;
-    [["--ta", a], ["--tb", b], ["--te", end], ["--tdir", dir], ["--tear", p]].forEach(([k, v]) => seal.style.setProperty(k, v.toFixed(3)));
+    const pose = pkFlapPose(p, pull);     // the flap lifts and tips with the tear and with the finger pulling up (data/packrip.js)
+    [["--ta", a], ["--tb", b], ["--te", end], ["--tdir", dir], ["--tear", p], ["--tl", pose.lift], ["--tg", pose.tilt]]
+      .forEach(([k, v]) => seal.style.setProperty(k, v.toFixed(3)));
   };
   const frac = e => { const r = seal.getBoundingClientRect(); return Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)); };
   const finish = () => {
@@ -163,7 +167,7 @@ function wireRip(seal, onRip, onTick, onBody){
     if (e.clientY - r.top > r.height * .3) return onBody ? onBody(e, nudge) : nudge();   // the strip, and a thumb's width under it
     // A grip near either end starts the tear at that end (2026-09-27): a finger never lands on the
     // very edge, and the tear then left a stub of strip standing beside it.
-    s = frac(e); step = 0;
+    s = frac(e); step = 0; y0 = e.clientY; pull = 0;
     if (s < RIP_EDGE) s = 0; else if (s > 1 - RIP_EDGE) s = 1;
     seal.classList.add("tearing"); seal.setPointerCapture?.(e.pointerId);
     put(s, s, s, 1, 0);                          // closed, at the finger, before it moves
@@ -171,12 +175,15 @@ function wireRip(seal, onRip, onTick, onBody){
   seal.addEventListener("pointermove", e => {
     if (s === null) return;
     const end = frac(e), dir = end >= s ? 1 : -1;
+    pull = e.clientY - y0;
     put(Math.min(s, end), Math.max(s, end), end, dir, Math.min(1, Math.abs(end - s) / .75));
     const now = Math.floor(tear * RIP_STEPS);
     if (now > step){
       step = now;
-      const r = seal.getBoundingClientRect();
-      onTick?.(r.left + r.width * end, r.top + 16, tear);
+      // Flakes start on the strip itself, where the finger tears it: the torn edge's box (.pt-edge runs the
+      // strip's height at the finger's end). The leaned pack's own box stands above the strip.
+      const o = pkFlakeOrigin((seal.querySelector(".pt-edge") || seal).getBoundingClientRect(), e.clientX);
+      onTick?.(o.x, o.y, tear);
     }
     if (tear >= 1 || (end <= 0 || end >= 1) && tear > RIP_DONE) finish();
   });
@@ -184,7 +191,7 @@ function wireRip(seal, onRip, onTick, onBody){
     if (s === null) return;
     const at = s;
     s = null; seal.classList.remove("tearing");
-    if (tear > RIP_DONE) finish(); else { const p = tear; put(at, at, at, 1, 0); if (p < .04) nudge(); }
+    if (tear > RIP_DONE) finish(); else { const p = tear; pull = 0; put(at, at, at, 1, 0); if (p < .04) nudge(); }
   };
   seal.addEventListener("pointerup", release);
   seal.addEventListener("pointercancel", release);

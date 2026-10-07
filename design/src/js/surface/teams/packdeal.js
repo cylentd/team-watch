@@ -91,11 +91,14 @@ function pkPilePlace(S, k, el){
 async function pkToPile(S, el, k, quick){
   const to = pkPilePlace(S, k, el);
   if (!S.skip){
+    // The hint under the cards ("Tap to go faster") sits in this flight's path, so it gives way for as long
+    // as any card is in the air (flicks overlap, hence a count, not a flag; packshow.css .pk-flying).
+    S.flying++; S.st.classList.add("pk-flying");
     const a = pkAnim(S, el, [
       {translate: "0 0", scale: "1", rotate: "0deg"},
       {translate: "0 -18px", scale: ".96", rotate: "0deg", offset: .18},
       to], {duration: quick ? 320 : 440, easing: "cubic-bezier(.5,0,.25,1)", fill: "forwards"});
-    await a.finished;
+    try { await a.finished; } finally { if (--S.flying === 0) S.st.classList.remove("pk-flying"); }
     a.cancel();
   }
   Object.assign(el.style, to);
