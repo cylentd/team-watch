@@ -16,13 +16,11 @@ let RK_POS = "RB";
 
 const rkList = pos => !LIVE_RANKS ? [] : pos === "FLEX" ? LIVE_RANKS.flex : LIVE_RANKS.rows.filter(r => r.pos === pos);
 
-/* The reader's own players: his teams and a league he connected, never a leaguemate's roster
-   (data/mates.js), which would mark most of the league as his. */
-function rkMine(){
-  const s = new Set();
-  Object.values(TEAMS).filter(tm => !tm.mate).forEach(tm => (tm.roster || []).forEach(p => p.slug && s.add(p.slug)));
-  return s;
-}
+/* The reader's own players (2026-10-06, David: "Unselecting your team doesn't remove them from the MINE
+   designation"): the rosters of the teams the switch lists as followed, and a league they connected
+   (tsFollowed). It was every roster on the page but a leaguemate's, which marked David's three teams for
+   every reader and never changed when one unfollowed or picked another. */
+const rkMine = () => rosterSlugs(TEAMS, tsFollowed());
 
 const rkKick = iso => kickFmt(iso);   // the page's one kickoff format (lib/kick.js)
 function rkGame(r){

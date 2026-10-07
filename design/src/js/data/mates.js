@@ -38,6 +38,16 @@ function myTeamSave(k){
   try { localStorage.setItem(MY_TEAM, k); } catch (e) {}
 }
 
+/* The players on these teams' rosters, by slug (2026-10-06): what "mine" means in a view that tags the
+   reader's own players. The keys are the teams the reader follows (the switch's list; Ranks passes
+   tsFollowed()), never every roster on the page: David's three teams are three of ~36, and unfollowing
+   a team must take its players off the tag. A leaguemate's team counts when the reader follows it. */
+function rosterSlugs(teams, keys){
+  const out = new Set();
+  keys.forEach(k => ((teams[k] || {}).roster || []).forEach(p => { if (p.slug) out.add(p.slug); }));
+  return out;
+}
+
 /* The teams a reader follows (2026-09-26): the team switch lists only these, and every other team
    in David's leagues sits behind its league's row, one tap further. Kept in this browser. Unset, it
    is the team the reader picked, or nothing: never David's own teams (David, 2026-10-04: "I don't

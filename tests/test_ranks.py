@@ -12,6 +12,10 @@ sys.path.insert(0, str(REPO / "design"))
 from ranks import live_ranks, natural_breaks  # noqa: E402
 from component import mount  # noqa: E402,F401  (the fixture)
 from pages.ranks import RanksPage  # noqa: E402
+from pages.teamswitch import TeamSwitchPage  # noqa: E402
+
+# A first visit: nothing picked, nothing followed (the suite's seed picks and follows David's teams).
+FRESH_READER = 'try { localStorage.removeItem("tw-team"); localStorage.removeItem("tw-follow"); } catch (e) {}\n'
 
 
 def slug(name):
@@ -299,4 +303,53 @@ def test_ranks_draws_tiers_and_opens_a_profile(mount):
     ranks.pick("FLEX")
     assert any(r["pos"] for r in ranks.rows()), "FLEX rows say the position and its rank"
     ranks.open_first_row()
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req("Ranks", ac="unfollowing a team takes its players off the MINE list at once")
+def test_unfollowing_a_team_takes_its_players_off_mine_without_a_reload(mount):
+    """David, 2026-10-06: "Unselecting your team doesn't remove them from the MINE designation in Stats > Ranks."
+    The reader follows what the switch lists (the seed: Yahoo, ESPN, AYO). Each star tapped in the header's menu
+    leaves exactly the players of the teams still followed marked, with the menu still open."""
+    page, errors = mount("ranks", size=(390, 844))
+    ranks, switch = RanksPage(page), TeamSwitchPage(page)
+    ranks.pick("FLEX")
+    shown, followed = ranks.shown_slugs(), ["yahoo", "espn", "ayo"]
+    assert ranks.mine_slugs() == ranks.held_by(followed) & shown != set(), "the fixture holds players the list shows"
+    switch.open_menu()
+    for gone in list(followed):
+        switch.follow(gone)
+        followed.remove(gone)
+        assert ranks.mine_slugs() == ranks.held_by(followed) & shown, f"after unfollowing {gone}"
+        assert switch.menu_is_visible(), "a star keeps the menu open"
+    assert ranks.mine_slugs() == set()
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req("Ranks", ac="a reader's pick marks that team's players, not David's")
+def test_a_leaguemate_who_picks_their_team_sees_their_players_as_mine(mount):
+    """A pick follows the team by default (data/mates.js followLoad); the page is public, and David's three teams
+    are three of ~36, so his rosters are nobody else's MINE."""
+    page, errors = mount("ranks", size=(390, 844), init=(FRESH_READER,))
+    ranks = RanksPage(page)
+    ranks.pick("FLEX")
+    mate, theirs = ranks.first_mate(), "george-kittle"
+    assert mate and theirs in ranks.shown_slugs(), "the fixture has a leaguemate and a TE on the list"
+    ranks.put_on_roster(mate, theirs)
+    ranks.pick_team(mate)
+    assert ranks.mine_slugs() == {theirs}, "David's players, on the list too, are not his"
+    assert ranks.shown_slugs() & ranks.held_by(["yahoo", "espn", "ayo"]), "David's teams do hold players on the list"
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req("Ranks", ac="a reader with no team has no MINE tags")
+def test_a_first_visit_marks_no_one_as_mine(mount):
+    page, errors = mount("ranks", size=(390, 844), init=(FRESH_READER,))
+    ranks = RanksPage(page)
+    ranks.pick("FLEX")
+    assert ranks.shown_slugs() & ranks.held_by(["yahoo", "espn", "ayo"]), "David's teams do hold players on the list"
+    assert ranks.mine_slugs() == set()
     assert errors == []

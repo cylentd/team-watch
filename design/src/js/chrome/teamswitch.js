@@ -169,6 +169,9 @@ function wireTsMenu(sw, menu){
     e.stopPropagation();
     followToggle(b.dataset.follow);
     redraw();
+    // The view reads what is followed (Ranks' MINE tags, Live's team): draw it again, unless the menu
+    // lives inside it (the League team line), where a render would close the menu under the reader's thumb.
+    if (!document.getElementById("view").contains(sw)) render();
     menu.querySelector(`[data-follow="${CSS.escape(b.dataset.follow)}"]`)?.focus();
   }));
   menu.querySelector("[data-tsadd]")?.addEventListener("click", () => {

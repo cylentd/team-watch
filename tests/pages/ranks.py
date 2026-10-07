@@ -90,6 +90,26 @@ class RanksPage:
         return set(self.page.evaluate(
             "[...new Set(Object.values(TEAMS).filter(t => !t.mate).flatMap(t => t.roster.map(p => p.slug)))]"))
 
+    def mine_slugs(self):
+        """The players in view wearing the MINE tag."""
+        return {r["slug"] for r in self.rows() if r["mine"]}
+
+    def shown_slugs(self):
+        return {r["slug"] for r in self.rows()}
+
+    def held_by(self, keys):
+        """Every player on the rosters of these teams (TEAMS keys), as the page holds them."""
+        return set(self.page.evaluate(
+            "ks => [...new Set(ks.flatMap(k => (TEAMS[k] ? TEAMS[k].roster : []).map(p => p.slug)))]", keys))
+
+    def first_mate(self):
+        """The first leaguemate's team key, or None."""
+        return self.page.evaluate("MATES.length ? MATES[0].key : null")
+
+    def put_on_roster(self, key, slug):
+        """Put a player on a team's roster, as the build would (the fixture's leaguemates hold none of the list's)."""
+        self.page.evaluate("([k, s]) => TEAMS[k].roster.push({n: s, slug: s})", [key, slug])
+
     def surface(self):
         return self.page.evaluate("SURFACE")
 

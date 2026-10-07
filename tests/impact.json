@@ -135,7 +135,7 @@
       "paths": ["design/src/js/surface/teams/", "design/src/css/surface/teams/", "design/src/js/data/waiver.js",
                 "design/src/js/data/wire.js", "design/src/js/data/mates.js", "design/waiver.py", "design/wire_watch.py",
                 "design/injury.py", "design/mates.py", "design/yt_clips.py", "design/player_names.py"],
-      "tests": ["tests/test_brief.py", "tests/test_clip_reel.py", "tests/test_clip_sheet.py", "tests/test_clips.py", "tests/test_player_names.py","tests/test_injury.py", "tests/test_mates.py", "tests/test_mates_page.py",
+      "tests": ["tests/test_brief.py", "tests/test_js_mates.py", "tests/test_clip_reel.py", "tests/test_clip_sheet.py", "tests/test_clips.py", "tests/test_player_names.py","tests/test_injury.py", "tests/test_mates.py", "tests/test_mates_page.py",
                 "tests/test_pack_stage.py", "tests/test_render_waivers.py", "tests/test_waiver_owner.py", "tests/test_js_waiver.py", "tests/test_roster_cards.py",
                 "tests/test_roster_pack.py", "tests/test_roster_sheet.py", "tests/test_teamswitch.py", "tests/test_waiver.py",
                 "tests/test_wire_watch.py", "tests/test_yahoo_lineup.py"],
