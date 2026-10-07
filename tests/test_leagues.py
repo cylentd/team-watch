@@ -67,8 +67,9 @@ def test_each_yahoo_league_names_its_blocks_and_files():
 # ---------------------------------------------------------------- (f) the contract covers the new blocks
 
 def test_the_contract_checks_the_new_blocks():
-    for a, b in zip(leagues.blocks("yahoo"), leagues.blocks("ayo")):
-        assert contract.CONTRACT[b] is contract.CONTRACT[a]
+    pairs = list(zip(leagues.blocks("yahoo"), leagues.blocks("ayo")))
+    assert len(pairs) == 3
+    assert [b for a, b in pairs if contract.CONTRACT[b] is not contract.CONTRACT[a]] == []
     row = {"n": "A", "pos": "RB", "team": "PIT", "slot": "RB", "slug": None}
     assert contract.problems("LIVE_AYO", {"name": "T", "league": "L", "updated": "d", "roster": [row]}) == []
     assert contract.problems("LIVE_AYO", {"name": "T", "league": "L", "updated": "d",
@@ -134,11 +135,11 @@ def build_without_ayo(tmp_path, monkeypatch):
     return b, page
 
 
+@pytest.mark.integration      # a real build of the page
 def test_the_build_without_ayo_files_leaves_ayo_out(tmp_path, monkeypatch):
     """Tonight's real data dir had no ayo_* files when this landed: the build must not fail on it."""
     b, _ = build_without_ayo(tmp_path, monkeypatch)
-    for name in leagues.blocks("ayo"):
-        assert injected(b.fragment, name) is None
+    assert [name for name in leagues.blocks("ayo") if injected(b.fragment, name) is not None] == []
     assert not any(t["league"] == "ayo" for t in injected(b.fragment, "LIVE_MATES")["teams"])
     assert [lg["key"] for lg in injected(b.fragment, "LIVE_GAMEDAY")["leagues"]] == ["espn", "yahoo"]
 
@@ -226,9 +227,11 @@ def test_one_yahoo_league_still_draws_the_chip(browser, tmp_path, monkeypatch):
     ctx, page, errors = open_at(browser, path, (390, 844))
     chip = LeagueChip(page)
     assert chip.has_team("ayo") is False
+    chips = {}
     for leaf in ("recap", "records", "trades"):
         drive(page, go(leaf))
-        assert chip.chip_count() == 1, leaf
+        chips[leaf] = chip.chip_count()
+    assert chips == {"recap": 1, "records": 1, "trades": 1}
     drive(page, go("recap"))
     assert chip.league_text() == "Madden Curse"
     drive(page, go("roster"))

@@ -12,13 +12,21 @@ import re
 
 import pytest
 
-from component import Mounter, mount  # noqa: F401  (the fixture)
+from component import Mounter, mount as base_mount
 from lines import live_lines
 from pages.roster import RosterPage
+from pages.roster_motion import show_cards
+from pages.warm import warm
 from projections import position_ranks
 
 REQ = "Phone layout"       # the Roster cards and Week's pack rows
 PHONE = (360, 660)
+
+
+@pytest.fixture(scope="module")
+def mount(base_mount):
+    """`mount`, with the phone's context opened once for the module (pages/warm.py)."""
+    return warm(base_mount, ("roster", PHONE))
 
 
 def slug(n):
@@ -30,19 +38,26 @@ def wr(name, slug_):
     return {"n": name, "pos": "WR", "team": "JAX", "slot": "WR", "start": True, "slug": slug_}
 
 
-def on_cards(mount, size=PHONE, pack="skipped", heads=False):
+def on_cards(mount, size=PHONE, pack="skipped", heads=False, tap_chip=False):
     """The ESPN roster in Cards view, reduced motion. ESPN is a followed team, so this week's pack waits
     in the starters' place (2026-10-05). `pack` "gate" leaves it there, "stage" opens it onto its stage
     with Rip, "skipped" puts the starters face up, so a test reads the cards themselves. `heads` loads
-    the headshot files beside the page."""
+    the headshot files beside the page. The setup presses the Cards chip and Skip or Rip in the page, in
+    one round trip (pages/roster_motion.py); `tap_chip` taps all of them for real instead."""
     page, errors = mount("roster", size=size, heads=heads)
     roster = RosterPage(page)
-    roster.show_cards("espn")
-    assert roster.gates() == 1, "the fixture's schedule has a week ahead, so a pack waits"
+    if tap_chip:
+        roster.show_cards("espn")
+        assert roster.gates() == 1, "the fixture's schedule has a week ahead, so a pack waits"
+        if pack == "stage":
+            roster.open_stage()
+        elif pack == "skipped":
+            roster.skip_pack()
+        return roster, errors
+    waiting = show_cards(roster, "espn", {"stage": "rip", "skipped": "skip"}.get(pack))
+    assert waiting == 1, "the fixture's schedule has a week ahead, so a pack waits"
     if pack == "stage":
-        roster.open_stage()
-    elif pack == "skipped":
-        roster.skip_pack()
+        roster.wait_for_stage()
     return roster, errors
 
 
@@ -148,7 +163,7 @@ def test_weather_shows_where_it_touches_a_player_and_nowhere_covered(card_js):
 @pytest.mark.render
 @pytest.mark.req(REQ, ac="every player is a card, K and DST support cards, and the choice survives a reload")
 def test_cards_draw_every_player_and_the_choice_survives_a_reload(mount):
-    roster, errors = on_cards(mount)
+    roster, errors = on_cards(mount, tap_chip=True)       # the one setup that taps the chip and Skip, for real
     assert roster.card_count() == roster.roster_size()
     assert roster.support_card_count() == roster.support_size()
     roster.reload()

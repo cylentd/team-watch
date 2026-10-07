@@ -35,10 +35,14 @@ def test_a_rule_on_the_page_itself_cannot_be_fenced(css):
         scope_css.fence(css, MODAL)
 
 
+@pytest.mark.integration      # fences every view file of the real tree
 def test_fencing_keeps_every_line_in_place():
-    for rel, names in scope_css.load(assemble.SCOPE)["fenced"].items():
-        src = (assemble.SRC / "css" / rel).read_text(encoding="utf-8")
-        assert assemble.part_text("css", rel).count("\n") == src.count("\n"), rel
+    fenced = scope_css.load(assemble.SCOPE)["fenced"]
+    moved = [rel for rel in fenced
+             if assemble.part_text("css", rel).count("\n")
+             != (assemble.SRC / "css" / rel).read_text(encoding="utf-8").count("\n")]
+    assert fenced
+    assert moved == []
 
 
 def test_every_view_file_is_decided():

@@ -54,13 +54,13 @@ def test_the_record_carries_its_counts_the_weeks_and_the_for_fun_line():
     assert [w["week"] for w in rec["weeks"]] == [5] and len(rec["last_week"]) == 6
 
 
-def test_no_block_is_an_empty_week_that_still_meets_the_contract():
-    for missing in (None, {}):
-        b = startsit_v3.live_ss3(missing, slugify)
-        contract.validate("LIVE_SS3", b)
-        assert b["week"] is None and b["smash"] == [] and b["takes"] == []
-        assert b["record"]["since_week"] == 5 and b["record"]["weeks"] == [] and b["record"]["smash"] == {"hit": 0, "miss": 0, "void": 0}
-        assert startsit_v3.report(b).startswith("Start/Sit v3: no startsit_v3 block")
+@pytest.mark.parametrize("missing", [None, {}], ids=["none", "empty"])
+def test_no_block_is_an_empty_week_that_still_meets_the_contract(missing):
+    b = startsit_v3.live_ss3(missing, slugify)
+    contract.validate("LIVE_SS3", b)
+    assert b["week"] is None and b["smash"] == [] and b["takes"] == []
+    assert b["record"]["since_week"] == 5 and b["record"]["weeks"] == [] and b["record"]["smash"] == {"hit": 0, "miss": 0, "void": 0}
+    assert startsit_v3.report(b).startswith("Start/Sit v3: no startsit_v3 block")
 
 
 def test_a_block_for_another_week_than_the_page_loses_its_calls_but_keeps_its_record():
@@ -227,9 +227,9 @@ def test_no_call_is_close_or_expert_led_and_no_old_block_is_left(view):
     pg = view()
     pg.evaluate("() => document.querySelectorAll('.mu-call').forEach(r => muSetOpen(r, true))")
     text = " ".join(pg.locator(".mu-rec, .mu-calls, .mu-last").all_inner_texts())    # the picker above keeps its own coin flip
-    for gone in ("Close call", "CLOSE", "Coin flip", "More takes", "Most confident", "Higher than", "Lower than", "Splits",
-                 "Backed", "Gut", "Pitcher List's column", "Claude's read"):
-        assert gone not in text, gone
+    still_there = [gone for gone in ("Close call", "CLOSE", "Coin flip", "More takes", "Most confident", "Higher than", "Lower than", "Splits",
+                                     "Backed", "Gut", "Pitcher List's column", "Claude's read") if gone in text]
+    assert text != "" and still_there == []
     assert "FantasyPros" in text and text.count("FantasyPros") == 1               # only the for-fun line names them
     assert pg.locator(".mu-top, .mu-more, .mu-ps, .mu-read, .mu-rb, .mu-spt, .mu-list").count() == 0
 
@@ -293,9 +293,9 @@ def test_desktop_sets_the_two_cards_side_by_side_ending_level(view):
 
 
 @pytest.mark.render
-def test_the_hash_still_opens_the_view_and_the_board_and_record_keep_their_place(view):
-    for h in ("#matchups", "#startsit", "#takes"):
-        pg = view(hash_=h)
-        assert pg.evaluate("SURFACE") == "matchups" and pg.locator("[data-sscmp]").count() == 1 and pg.locator(".ssv-pick").count() == 0
+@pytest.mark.parametrize("h", ["#matchups", "#startsit", "#takes"])
+def test_the_hash_still_opens_the_view_and_the_board_and_record_keep_their_place(view, h):
+    pg = view(hash_=h)
+    assert pg.evaluate("SURFACE") == "matchups" and pg.locator("[data-sscmp]").count() == 1 and pg.locator(".ssv-pick").count() == 0
     assert pg.evaluate("""() => { const q = s => document.querySelector(s);
       return [q('.ssv').compareDocumentPosition(q('.mu-rec')) & 4, q('.mu-rec').compareDocumentPosition(q('.mu-calls')) & 4]; }""") == [4, 4]

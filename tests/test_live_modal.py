@@ -38,11 +38,13 @@ def test_the_game_opens_centred_with_a_margin_on_all_four_sides(mount, size):
 @pytest.mark.render
 def test_the_game_closes_by_the_x_a_tap_on_the_scrim_and_back(mount):
     sheet, errors = GameSheetPage.on_live(mount, size=(390, 844))
+    left_open = {}
     for how in ("x", "scrim", "back"):
         sheet.open()
         sheet.settle()
         {"x": sheet.close_with_x, "scrim": sheet.close_with_scrim, "back": sheet.close_with_back}[how]()
-        assert sheet.current_game() is None and sheet.layer_count() == 0, how
+        left_open[how] = (sheet.current_game(), sheet.layer_count())
+    assert left_open == {"x": (None, 0), "scrim": (None, 0), "back": (None, 0)}
     assert errors == []
 
 

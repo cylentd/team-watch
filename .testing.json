@@ -2,6 +2,32 @@
   "mutate": {
     "include": ["design/src/js/data/**/*.js", "design/*.py"],
     "select_command": "python scripts/mutate_tests.py {path}",
-    "test_command": {"py": "python -m pytest -x -q -p no:randomly -m \"not render\" {tests}"}
+    "test_command": {"py": "python -m pytest -x -q -p no:randomly -m \"not render\" {tests}"},
+    "floor": 75,
+    "target": 90
+  },
+  "limits": {
+    "ms": {"unit": 50, "component": 200, "integration": 1000, "e2e": 15000},
+    "layers": {"python": "unit", "node": "unit", "component": "component", "build": "integration", "browser": "e2e", "integration": "integration"},
+    "suites": {
+      "fast": {"layers": ["unit", "integration"], "wall_s": 10},
+      "component": {"layers": ["component"], "wall_s": 35}
+    },
+    "factor": 2.0
+  },
+  "freeze": {
+    "files": ["tests/golden/render.json"],
+    "shrink": [
+      "tests/test_budgets.py::JS_BACKLOG",
+      "tests/test_budgets.py::PY_BACKLOG",
+      "tests/test_budgets.py::PY_FILE_BACKLOG",
+      "tests/test_layer_ratchet.py::BACKLOG",
+      "tests/test_layer_ratchet.py::FULL_LOADS"
+    ]
+  },
+  "flake": {
+    "runs": 5,
+    "args": ["-n", "auto", "--dist", "loadgroup"],
+    "timeout_s": 900
   }
 }

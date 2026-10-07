@@ -35,13 +35,13 @@ def day(mount, size=PHONE):
 
 
 @pytest.mark.req("Digest", ac="the banner is 128px at 360px every day, under the day's label")
-def test_the_banner_is_128px_at_360_every_day(mount):
+@pytest.mark.parametrize("key", list(NOON))
+def test_the_banner_is_128px_at_360_every_day(mount, key):
     dg, errors = day(mount)
-    for key, at in NOON.items():
-        dg.at(at)
-        got = dg.banner()
-        assert (got["day"], got["h"], got["day_attr"]) == (LABEL[key], 128, key), (key, got)
-        assert dg.fits(), key
+    dg.at(NOON[key])
+    got = dg.banner()
+    assert (got["day"], got["h"], got["day_attr"]) == (LABEL[key], 128, key)
+    assert dg.fits()
     assert dg.retired_rows() == 0
     assert errors == []
 

@@ -38,18 +38,22 @@ class ClipsPage:
 
     # ---- setting the page up ----
 
-    def show(self, team="espn", mode="sheet", served=True, stubs=False, pack_opened=False):
+    def show(self, team="espn", mode="sheet", served=True, stubs=False, pack_opened=False, then=None):
         """A team's roster in Sheet or Cards. `served` stands in for an http(s) page (from file:// clipEmbedOk()
         is false and every card is a link); `stubs` replaces the theater and the warm-up; `pack_opened` marks
-        this week's pack opened, so no stage covers the cards."""
+        this week's pack opened, so no stage covers the cards; `then` is one more arrow function of JS to run
+        once the roster is drawn. All of it is one round trip but the pack's mark."""
+        steps = []
         if served:
-            self.page.evaluate("clipEmbedOk = () => true")
+            steps.append("clipEmbedOk = () => true;")
         if stubs:
-            self.page.evaluate(STUBS)
-            self.page.evaluate(NO_NAV)
+            steps.append(f"({STUBS})(); {NO_NAV};")
         if pack_opened:
-            self.page.evaluate("packMark(TEAMS.espn, schedWeek())")
-        self.page.evaluate(f"VIEW='{team}'; ROSTER_MODE='{mode}'; render()")
+            self.page.evaluate("packMark(TEAMS.espn, schedWeek())")    # its own call: test_layer_ratchet counts it
+        steps.append(f"VIEW='{team}'; ROSTER_MODE='{mode}'; render();")
+        if then:
+            steps.append(f"({then})();")
+        self.page.evaluate("() => { " + " ".join(steps) + " }")
 
     def drop_clips(self):
         """The page as built with no clips block: every reader of LIVE_CLIPS finds no week and no player."""

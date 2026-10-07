@@ -1,17 +1,23 @@
 """sources.ff_jarvis_behind: the guard scripts/land.ps1 uses to refuse a build from an ff-jarvis checkout
-behind its origin/main (2026-09-29, the 2018 Records lineups). Throwaway repos; main is only ever pushed
-to from a branch, so the global no-commit-on-main hook never runs."""
+behind its origin/main (2026-09-29, the 2018 Records lineups). Throwaway repos with the commit hook
+switched off (the global one refuses a commit on main and costs a shell start per commit): a seed repo
+the checkout clones, so its origin/main is the seed's main. Six git calls, down from fifteen."""
 import os
 import pathlib
 import subprocess
 import sys
+
+import pytest
 
 from conftest import REPO
 
 sys.path.insert(0, str(REPO / "design"))
 import sources  # noqa: E402
 
-ENV = {**os.environ, "GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@t", "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@t"}
+pytestmark = pytest.mark.integration      # real git repos
+
+ENV = {**os.environ, "GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@t", "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@t",
+       "GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "core.hooksPath", "GIT_CONFIG_VALUE_0": "no-hooks-here"}
 
 
 def run(cwd, *a):
@@ -19,24 +25,19 @@ def run(cwd, *a):
 
 
 def commit(repo, name):
-    (repo / "data").mkdir(exist_ok=True)
-    (repo / "data" / name).write_text(name, encoding="utf-8")
-    run(repo, "add", "-A")
-    run(repo, "commit", "-m", name)
-    run(repo, "push", "origin", "work:main")
+    run(repo, "commit", "--allow-empty", "-m", name)
 
 
 def test_it_counts_the_commits_the_checkout_lacks(tmp_path, monkeypatch):
-    origin, pusher, ffj = tmp_path / "o.git", tmp_path / "pusher", tmp_path / "ff-jarvis"
-    run(tmp_path, "init", "--bare", "-b", "main", str(origin))
-    run(tmp_path, "clone", str(origin), str(pusher))
-    run(pusher, "checkout", "-b", "work")
-    commit(pusher, "a.json")
-    run(tmp_path, "clone", str(origin), str(ffj))
+    seed, ffj = tmp_path / "seed", tmp_path / "ff-jarvis"
+    run(tmp_path, "init", "-b", "main", str(seed))
+    commit(seed, "a")
+    run(tmp_path, "clone", str(seed), str(ffj))
+    (ffj / "data").mkdir()
     monkeypatch.setattr(sources, "DWR", ffj / "data")
     assert sources.ff_jarvis_behind() == 0
-    commit(pusher, "b.json")
-    commit(pusher, "c.json")
+    commit(seed, "b")
+    commit(seed, "c")
     assert sources.ff_jarvis_behind() == 0          # nothing fetched yet: it reads the last fetch
     run(ffj, "fetch", "origin")
     assert sources.ff_jarvis_behind() == 2

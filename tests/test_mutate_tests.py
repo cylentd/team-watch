@@ -6,7 +6,9 @@ import pathlib
 import subprocess
 import sys
 
-ROOT = pathlib.Path(__file__).resolve().parents[1]
+import pytest
+
+ROOT =pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import mutate_tests  # noqa: E402
 
@@ -52,6 +54,7 @@ def test_the_whole_repo_checks_are_never_picked(tmp_path):
     assert mutate_tests.tests_for("design/y.py", tmp_path) == []
 
 
+@pytest.mark.integration
 def test_the_command_prints_one_test_file_per_line_for_the_mutator():
     out = subprocess.run([sys.executable, str(ROOT / "scripts" / "mutate_tests.py"), "design/src/js/data/stock.js"],
                          capture_output=True, text=True, encoding="utf-8", cwd=ROOT, check=True).stdout

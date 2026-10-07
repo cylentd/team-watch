@@ -12,6 +12,8 @@ data: that is an assert, or the test plants the data itself.
 import pathlib
 import re
 
+import pytest
+
 TESTS = pathlib.Path(__file__).resolve().parent
 SELF = pathlib.Path(__file__).name
 
@@ -28,7 +30,6 @@ PROMISE_WAIT = re.compile(r"wait_for_function\(\s*(?:f?\"\"\"|f?\")[^\n]*new Pro
 # condition until a deadline. file -> how many such lines it holds.
 LATENCY_STUBS = {
     "test_left_hurt.py": 1,       # gsFetchSummary's stub takes 5 ms, so two requests could overlap
-    "test_land_queue.py": 1,      # 50 ms between looks for the first lander's ticket file, 30 s deadline
 }
 
 # file -> (skips, why). Each is about the machine, or about a mode of the run, never the fixture.
@@ -44,46 +45,64 @@ ENV_SKIPS = {
 }
 
 
-def found(pattern):
+@pytest.fixture(scope="module")
+def files():
+    """Every other test file's lines, read once for the four tests that scan them."""
+    return {p.name: p.read_text(encoding="utf-8").splitlines()
+            for p in sorted(TESTS.glob("*.py")) if p.name != SELF}
+
+
+def found(files, pattern):
     out = {}
-    for p in sorted(TESTS.glob("*.py")):
-        if p.name == SELF:
-            continue
-        n = sum(1 for line in p.read_text(encoding="utf-8").splitlines() if pattern.search(line))
+    for name, lines in files.items():
+        n = sum(1 for line in lines if pattern.search(line))
         if n:
-            out[p.name] = n
+            out[name] = n
     return out
 
 
-def test_no_test_waits_a_fixed_time():
-    over = {f: n for f, n in found(WAIT).items() if n > LATENCY_STUBS.get(f, 0)}
+def test_no_test_waits_a_fixed_time(files):
+    over = {f: n for f, n in found(files, WAIT).items() if n > LATENCY_STUBS.get(f, 0)}
     assert over == {}, ("file: fixed waits. Wait for the condition instead: an expect(), "
                         "wait_for_function, wait_for_selector, or the page's clock (VCLOCK)")
 
 
-def test_no_wait_for_function_returns_a_promise():
-    assert found(PROMISE_WAIT) == {}, "wait_for_function needs a plain predicate; keep state on window to compare frames"
+def test_no_wait_for_function_returns_a_promise(files):
+    assert found(files, PROMISE_WAIT) == {}, "wait_for_function needs a plain predicate; keep state on window to compare frames"
 
 
-def test_the_patterns_catch_the_forms_that_have_been_written():
-    for line in ("page.wait_for_timeout(500)", "time.sleep(0.2)", "await asyncio.sleep(1)",
-                 'page.evaluate("new Promise(r => setTimeout(r, 450))")',
-                 'page.evaluate("new Promise((r) => { setTimeout(() => { gsPaint(); r(); }, 0) })")'):
-        assert WAIT.search(line), line
+@pytest.mark.parametrize("line", [
+    "page.wait_for_timeout(500)", "time.sleep(0.2)", "await asyncio.sleep(1)",
+    'page.evaluate("new Promise(r => setTimeout(r, 450))")',
+    'page.evaluate("new Promise((r) => { setTimeout(() => { gsPaint(); r(); }, 0) })")'],
+    ids=["wait_for_timeout", "time.sleep", "asyncio.sleep", "promise setTimeout", "promise arrow block setTimeout"])
+def test_the_wait_pattern_catches_the_forms_that_have_been_written(line):
+    assert WAIT.search(line), line
+
+
+def test_the_wait_pattern_leaves_a_frame_wait_alone():
     assert not WAIT.search("await new Promise(r => requestAnimationFrame(r))")
-    for line in ("@pytest.mark.skip(reason='x')", "pytest.importorskip('numpy')", "pytest.xfail('x')"):
-        assert SKIP.search(line), line
+
+
+@pytest.mark.parametrize("line", ["@pytest.mark.skip(reason='x')", "pytest.importorskip('numpy')", "pytest.xfail('x')"],
+                         ids=["mark.skip", "importorskip", "xfail"])
+def test_the_skip_pattern_catches_the_forms_that_have_been_written(line):
+    assert SKIP.search(line), line
+
+
+def test_the_promise_wait_pattern_catches_a_promise_predicate():
     assert PROMISE_WAIT.search('page.wait_for_function("""(s) => new Promise(done => {')
 
 
-def test_skips_are_about_the_machine_only():
-    over = {f: n for f, n in found(SKIP).items() if n > ENV_SKIPS.get(f, (0,))[0]}
+def test_skips_are_about_the_machine_only(files):
+    over = {f: n for f, n in found(files, SKIP).items() if n > ENV_SKIPS.get(f, (0,))[0]}
     assert over == {}, "file: skips. A fixture that lacks data is an assert, or the test plants the data"
 
 
-def test_the_allowances_are_current():
+@pytest.mark.integration      # reads every test file
+def test_the_allowances_are_current(files):
     """An allowance nobody uses any more is removed, so it cannot quietly cover a new one."""
-    waits, skips = found(WAIT), found(SKIP)
+    waits, skips = found(files, WAIT), found(files, SKIP)
     stale = {f: (waits.get(f, 0), n) for f, n in LATENCY_STUBS.items() if waits.get(f, 0) < n}
     stale |= {f: (skips.get(f, 0), n) for f, (n, _) in ENV_SKIPS.items() if skips.get(f, 0) < n}
     assert stale == {}, f"file: (now, allowed). Lower or remove: {stale}"

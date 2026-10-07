@@ -14,6 +14,12 @@ Gating runs (the default and --full, which land.ps1 calls) pass --no-quarantine:
 quarantine drops out of the gate until fixed (--with-quarantine keeps it). --repeat-new N is the
 10-run gate for new tests (tests/README.md "Proving a test"); this module doubles as its pytest
 plugin (`-p run_tests`), which parametrizes each test N times, so xdist spreads the runs.
+
+The testing skill's time limits (`-p pytest_limits`, `.testing.json` `limits`: a limit per layer and
+a shrink-only backlog) load here and nowhere else, so a mutant run or a shuffled flake run is never
+timed. An ordinary run lists the tests over their limit; only --repeat-new passes --limits-enforce,
+failing a new or changed test whose fastest copy is over. The skill dir is $TESTING_SKILL if set,
+else the installed copy (~/.agents/skills/testing/scripts).
 """
 import argparse
 import ast
@@ -66,9 +72,33 @@ def picked_args(full, base, committed):
     return selection(impact.select(paths, golden=golden))
 
 
-def command(full, base, committed, extra, quarantine=False, picked=None):
+def skill_dir(environ=None):
+    """The testing skill's scripts dir: $TESTING_SKILL when set (a skill checkout not yet installed), else the installed copy."""
+    environ = os.environ if environ is None else environ
+    return pathlib.Path(environ.get("TESTING_SKILL") or pathlib.Path.home() / ".agents" / "skills" / "testing" / "scripts")
+
+
+def limit_args(skill, enforce=False):
+    """The skill's per-layer time limits (.testing.json `limits`), loaded here and nowhere else: not in
+    conftest or pytest.ini, so a mutant run or a shuffled flake run is never timed. An ordinary run
+    only lists the tests over their limit; `enforce` (the 10-run) fails one whose fastest copy is over.
+    The suites' wall budgets are the weekly flake job's (flake_run.py). No plugin in the skill dir: no limits."""
+    if not (pathlib.Path(skill) / "pytest_limits.py").is_file():
+        print(f"  no pytest_limits.py in {skill}: time limits not checked (update the testing skill)", file=sys.stderr)
+        return []
+    return ["-p", "pytest_limits", *(["--limits-enforce"] if enforce else [])]
+
+
+def with_path(environ, *dirs):
+    """environ with `dirs` in front of its PYTHONPATH."""
+    path = os.pathsep.join(filter(None, [*(str(d) for d in dirs), environ.get("PYTHONPATH")]))
+    return {**environ, "PYTHONPATH": path}
+
+
+def command(full, base, committed, extra, quarantine=False, picked=None, skill=None):
     picked = picked_args(full, base, committed) if picked is None else picked
-    return [sys.executable, "-m", "pytest", *parallel(extra), *gate(extra, quarantine), *picked, *extra]
+    limits = limit_args(skill_dir() if skill is None else skill)
+    return [sys.executable, "-m", "pytest", *parallel(extra), *gate(extra, quarantine), *limits, *picked, *extra]
 
 
 ARGV_LIMIT = 8000   # chars of test ids on a command line; Windows allows 32,767 for the whole line
@@ -154,9 +184,10 @@ def new_test_ids(base, committed):
     return nodeids_for(lines, {p: (ROOT / p).read_text(encoding="utf-8") for p in lines})
 
 
-def repeat_command(ids, n, extra, quarantine=False):
+def repeat_command(ids, n, extra, quarantine=False, skill=None):
+    limits = limit_args(skill_dir() if skill is None else skill, enforce=True)
     return [sys.executable, "-m", "pytest", "-p", "run_tests", "--tw-repeat", str(n), *parallel(extra),
-            *gate(extra, quarantine), *ids, *extra]
+            *gate(extra, quarantine), *limits, *ids, *extra]
 
 
 # --- the pytest plugin: run every collected test N times, tally passes per function ------------
@@ -202,8 +233,8 @@ def repeat_new(a, extra):
     if a.dry_run:
         print("  python -m pytest " + " ".join(cmd[3:]))
         return 0
-    path = os.pathsep.join(filter(None, [str(ROOT / "scripts"), os.environ.get("PYTHONPATH")]))
-    code = run_pytest(cmd, ids, getattr(a, "argv_limit", ARGV_LIMIT), env={**os.environ, "PYTHONPATH": path})
+    env = with_path(os.environ, ROOT / "scripts", skill_dir())
+    code = run_pytest(cmd, ids, getattr(a, "argv_limit", ARGV_LIMIT), env=env)
     return 0 if code == 5 else code    # 5 = every test deselected (all quarantined): nothing to prove, not a failure
 
 
@@ -228,7 +259,7 @@ def main(argv=None):
     print("  python -m pytest " + " ".join(cmd[3:]), flush=True)
     if a.dry_run:
         return 0
-    return run_pytest(cmd, picked, a.argv_limit)
+    return run_pytest(cmd, picked, a.argv_limit, env=with_path(os.environ, skill_dir()))
 
 
 if __name__ == "__main__":

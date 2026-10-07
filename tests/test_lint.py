@@ -1,5 +1,7 @@
 """The theme rules: each fires on the thing it names, stays quiet on the thing it must allow,
 and the real tree has no errors (warnings are the tracked backlog)."""
+import pytest
+
 import lint_css
 
 TRIPLES = lint_css.token_triples(":root{--lime:#c8ff2e;--down:#ff5a52;--mono:\"JetBrains Mono\",monospace}")
@@ -9,6 +11,7 @@ def rules(findings):
     return sorted({f.rule for f in findings})
 
 
+@pytest.mark.integration      # lints every CSS file of the real tree
 def test_real_tree_has_no_errors():
     found = lint_css.lint()
     assert lint_css.errors(found) == []
@@ -19,8 +22,10 @@ def test_hex_outside_tokens_fires():
 
 
 def test_hex_in_tokens_file_is_allowed():
-    for f in lint_css.TOKEN_FILES:                                       # tokens.css and newsprint.css
-        assert lint_css.lint_css_text(f, ":root{--lime:#c8ff2e}", TRIPLES) == [], f
+    flagged = [f for f in lint_css.TOKEN_FILES                           # tokens.css and newsprint.css
+               if lint_css.lint_css_text(f, ":root{--lime:#c8ff2e}", TRIPLES)]
+    assert lint_css.TOKEN_FILES
+    assert flagged == []
 
 
 def test_hex_in_comment_or_data_uri_is_prose():

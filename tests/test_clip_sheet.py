@@ -8,10 +8,17 @@ of the player and lets a test fire its events, so nothing leaves the machine.
 Component tests (2026-10-06): the roster mounted (`mount`), read through `ClipSheet` (tests/pages/clip_sheet.py)."""
 import pytest
 
-from component import mount  # noqa: F401  (the fixture)
+from component import mount as base_mount  # noqa: F401  (the fixture, `mount` below)
 from pages.clip_sheet import YT_STUB, ClipSheet
+from pages.warm import warm
 
 PHONE = (360, 800)
+
+
+@pytest.fixture(scope="module")
+def mount(base_mount):
+    """`mount`, with the phone's context opened once for the module (pages/warm.py)."""
+    return warm(base_mount, ("roster", PHONE, (YT_STUB,)))
 
 
 def theater(mount, size=PHONE):
@@ -99,9 +106,9 @@ def test_the_video_and_its_caption_are_centred_together_with_nothing_to_tap_unde
     assert abs(b["capTop"] - b["bottom"]) < 1, "the caption sits right under the video, not at the bottom edge"
     assert b["navH"] == 72 and sheet.top_height() == 56
     assert sheet.taps_under_video() == [], "only the bottom row sits under the video"
-    for which, size in (("prev", 48), ("next", 48), ("close", 44)):
-        r = sheet.control_size(which)
-        assert r["width"] == size and r["height"] == size, which
+    sizes = {which: (r["width"], r["height"])
+             for which, r in ((w, sheet.control_size(w)) for w in ("prev", "next", "close"))}
+    assert sizes == {"prev": (48, 48), "next": (48, 48), "close": (44, 44)}
     assert sheet.up_next() == "Last clip"
     assert sheet.page_width() <= 360
     assert errors == []
@@ -123,12 +130,16 @@ def test_the_caption_names_the_player_and_the_bottom_row_who_is_next(mount):
 def test_error_150_shows_the_link_stage_and_play_all_moves_on_after_two_seconds(mount):
     sheet, errors = theater(mount)
     sheet.play_all(3)
-    sheet.error(150)
-    link = sheet.link_stage()
-    assert link["href"] == "https://www.youtube.com/shorts/bbbbbbbbbb1" and "Watch on YouTube" in link["text"]
-    assert link["img"] == "https://i.ytimg.com/vi/bbbbbbbbbb1/oar2.jpg"
-    sheet.wait_for_load("bbbbbbbbbb2")
-    assert sheet.link_stage_hidden() and sheet.counter() == "3 / 3"
+    # The two seconds run on the page's clock (VCLOCK), not the host's.
+    with sheet.virtual_clock():
+        sheet.error(150)
+        link = sheet.link_stage()
+        assert link["href"] == "https://www.youtube.com/shorts/bbbbbbbbbb1" and "Watch on YouTube" in link["text"]
+        assert link["img"] == "https://i.ytimg.com/vi/bbbbbbbbbb1/oar2.jpg"
+        assert sheet.loads() == ["bbbbbbbbbb1"], "it has not moved on yet"
+        sheet.run_virtual(2400)
+        assert "bbbbbbbbbb2" in sheet.loads(), "after two seconds Play all moves on to the next clip"
+        assert sheet.link_stage_hidden() and sheet.counter() == "3 / 3"
     assert errors == []
 
 

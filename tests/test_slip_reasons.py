@@ -4,6 +4,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "design"))
 import build  # noqa: E402
 import contract  # noqa: E402
@@ -83,6 +85,7 @@ def test_every_tier_rides_on_the_row_and_each_books_own_line(built):
     assert contract.problems("LIVE_PROPS", block(built, "LIVE_PROPS")) == []
 
 
+@pytest.mark.integration      # a real build of the page
 def test_a_producer_without_tiers_still_builds(monkeypatch):
     """Today's ff-jarvis data has no tier or side: the page builds and draws no pick."""
     real = build.load_model_raw
@@ -132,12 +135,14 @@ def test_the_feed_block_wins_over_the_file(tmp_path, monkeypatch):
 def test_long_rows_carry_nulls_not_a_price_or_a_pick(built):
     rows = longs(built)
     assert {p["n"] for p in rows} == {"Tee Higgins", "Amon-Ra St. Brown", "George Kittle"}
-    for p in rows:
-        assert p["model"] is None and p["pick"] is None and p["conf"] is None and p["edge"] is None
-        assert not p.get("norole") and not p.get("stale"), "an unpriced market is not a no-role touchdown line"
-        assert p["mu"] is not None and p["line"] is not None
-        for x in p["books"].values():
-            assert x["model"] is None and x["pick"] is None and x["conf"] is None
+    priced = [p["n"] for p in rows if not (p["model"] is None and p["pick"] is None and p["conf"] is None and p["edge"] is None)]
+    assert priced == []
+    flagged = [p["n"] for p in rows if p.get("norole") or p.get("stale")]
+    assert flagged == [], "an unpriced market is not a no-role touchdown line"
+    assert [p["n"] for p in rows if p["mu"] is None or p["line"] is None] == []
+    book_priced = [(p["n"], b) for p in rows for b, x in p["books"].items()
+                   if not (x["model"] is None and x["pick"] is None and x["conf"] is None)]
+    assert book_priced == []
     higgins = next(p for p in rows if p["n"] == "Tee Higgins")
     assert higgins["books"]["Underdog"]["line"] == 23.5 and higgins["books"]["DraftKings"]["line"] == 22.5
     assert higgins["mu"] == 21.6 and higgins["games"] == 8
@@ -183,11 +188,11 @@ def test_long_rows_sort_after_the_priced_ones(built):
 
 def test_long_log_is_aligned_with_the_games(built):
     logs = block(built, "LIVE_PROPS")["logs"]
-    for slug, log in logs.items():
-        assert len(log["v"]["LONG"]) == len(log["g"]), slug
+    assert [slug for slug, log in logs.items() if len(log["v"]["LONG"]) != len(log["g"])] == []
     assert logs["tee-higgins"]["v"]["LONG"][2] == 41
 
 
+@pytest.mark.integration      # a real build of the page
 def test_a_log_without_long_still_builds(monkeypatch):
     """A producer older than Longest reception sends logs with no `v.LONG`; nothing may need it."""
     real = build.load_model_raw
@@ -204,6 +209,6 @@ def test_a_log_without_long_still_builds(monkeypatch):
     props = injected(b.fragment)["LIVE_PROPS"]
     assert all("LONG" not in log["v"] for log in props["logs"].values())
     # the lines are still in the book's pull: they ride with no model row at all, still null
-    for p in props["props"]:
-        if p["mkt"] == "LONG":
-            assert p["model"] is None and p["pick"] is None
+    longs_ = [p for p in props["props"] if p["mkt"] == "LONG"]
+    assert longs_
+    assert [p for p in longs_ if not (p["model"] is None and p["pick"] is None)] == []

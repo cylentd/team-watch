@@ -8,13 +8,20 @@ Component tests mount Slips or Build (tests/pages/legsheet.py reads the sheet; p
 open it and hold the slip). The one that needs Back is a journey on the full page."""
 import pytest
 
-from component import mount  # noqa: F401  (the fixture)
+from component import mount as base_mount  # noqa: F401  (the fixture, `mount` below)
 from pages.legsheet import PHONE, LegSheetPage
 from pages.parlay import ParlayPage
 from pages.parlay_build import BuildPage
+from pages.warm import warm
 from test_render import open_page
 
 pytestmark = pytest.mark.render
+
+
+@pytest.fixture(scope="module")
+def mount(base_mount):
+    """`mount`, with the phone's contexts for Slips and Build opened once for the module (pages/warm.py)."""
+    return warm(base_mount, ("parlay", PHONE), ("build", PHONE))
 
 
 @pytest.fixture

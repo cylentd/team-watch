@@ -43,8 +43,25 @@ def reader(key):
 def finder(mount, pick, size=(360, 740), init=(), body=None):
     """(page, errors): the Trades view at `size` for the reader `pick`, offers from `body` (the fixture's by default)."""
     page, errors = mount("trades", size=size, init=(reader(pick), serve(body or FIXTURE), *init))
-    page.context.grant_permissions(["clipboard-read", "clipboard-write"])
+    ctx = page.context
+    if not getattr(ctx, "tw_clipboard_granted", False):     # a permission outlasts the page's reloads: once per kept context
+        ctx.grant_permissions(["clipboard-read", "clipboard-write"])
+        ctx.tw_clipboard_granted = True
     return page, errors
+
+
+TAP_ALL = """([scope, names]) => names.forEach(n => {
+  const el = [...document.querySelectorAll(scope)].find(e => e.dataset.tbpick === n);
+  if (!el) throw new Error("no " + scope + " for " + n);
+  el.click();
+})"""
+
+
+def tap_all(page, names, scope=".tb-r"):
+    """Tap each named player in the edit page in turn, in one round trip: `scope` is `.tb-r` for a roster row and
+    `.tb-pkg [data-tbpick]` for a package row. For setup taps a test does not itself assert on; a tap a test is about
+    goes through `page.locator(...).click()`, with its checks that the row can be reached. A missing row throws."""
+    page.evaluate(TAP_ALL, [scope, list(names)])
 
 
 def builder(page, key):

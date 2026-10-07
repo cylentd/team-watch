@@ -832,9 +832,10 @@ def test_a_hash_opens_its_view(browser, page_file, leaf, group, label):
         assert page.locator(".navitem[aria-current='true']").get_attribute("data-s") == group
         sub = page.locator("#subnav .mode-sub[aria-pressed='true']")
         if label is None:
-            assert sub.count() == 0 and page.evaluate("document.getElementById('view').dataset.view") == leaf
+            seen, want = [sub.count(), page.evaluate("document.getElementById('view').dataset.view")], [0, leaf]
         else:
-            assert sub.inner_text().strip().upper().startswith(label)
+            seen, want = sub.inner_text().strip().upper()[:len(label)], label
+        assert seen == want
         # And navigating writes it back, so the next reload holds.
         page.locator(".navitem[data-s='league']").first.click()
         page.wait_for_function("location.hash === '#roster'")
@@ -916,10 +917,8 @@ def test_the_mark_is_smug_blip(browser, page_file, w, shown):
             size: r ? Math.round(r.width) : 0, font: getComputedStyle(n).fontSize,
             bar: Math.round(bar.getBoundingClientRect().height)}; })()""")
         assert got["smug"] and got["eyes"] == 2, got
-        if shown:
-            assert got["size"] == 30 and got["font"] == "22px" and got["bar"] == 57, got
-        else:
-            assert got["size"] == 0, got
+        want = {"size": 30, "font": "22px", "bar": 57} if shown else {"size": 0}
+        assert {k: got[k] for k in want} == want, got
         assert errors == []
     finally:
         ctx.close()
@@ -953,7 +952,7 @@ def test_leaders_page_fits_the_screen(browser, page_file, w, h):
         assert page.evaluate("BD_FIRST_SIZE") >= (15 if h >= 1000 else 5)
         if page.locator(".bd-pager [data-bdpage='2']:not([disabled])").count():
             page.locator(".bd-pager [data-bdpage='2']").click()
-            assert page.evaluate(fits)
+        assert page.evaluate(fits)      # page 1 when there is no page 2, page 2 after the turn
         assert errors == []
     finally:
         ctx.close()
@@ -1088,7 +1087,7 @@ def test_leaders_wide_is_the_one_beside_two_lists(browser, page_file, w, h):
         assert page.evaluate("BD_FIRST_SIZE === BD_PAGE_SIZE"), "every page has the same shape"
         if page.locator(".bd-pager [data-bdpage='2']:not([disabled])").count():
             page.locator(".bd-pager [data-bdpage='2']").click()
-            assert page.evaluate(shape)["hero"] == 440, "the #1 stays beside page 2"
+        assert page.evaluate(shape)["hero"] == 440, "the #1 stays beside page 2"
         assert errors == []
     finally:
         ctx.close()
@@ -1109,10 +1108,7 @@ def test_tuesday_opens_waivers(browser, page_file, day, hash, surface, first):
     try:
         assert page.evaluate("SURFACE") == surface
         subs = page.locator("#subnav .mode-sub")
-        if first:
-            assert subs.first.inner_text().strip().upper().startswith(first)
-        else:
-            assert subs.count() == 0
+        assert subs.first.inner_text().strip().upper().startswith(first)
         # No sideways scroll on a phone, whichever view opened.
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
         assert errors == []
@@ -1123,21 +1119,26 @@ def test_tuesday_opens_waivers(browser, page_file, day, hash, surface, first):
 @pytest.mark.parametrize("state", by_slice([s for s, _ in STATES], SLICE_OF.get))
 def test_state_renders_something(snapshot, state):
     out, _ = snapshot(SLICE_OF[state])
+    bad = []
     for vp in VIEWPORTS:
         view = out[vp][state]["view"]
         # An empty state with no controls left in the view (a phone's Stats positions are the strip outside #view
         # since 2026-10-06: role-empty is its one message, 177 characters) must draw its empty-state block instead.
-        assert len(view) > 200 or (state.endswith("-empty") and 'class="state-empty"' in view), f"{vp}/{state}: #view is empty"
-    if state.endswith("drawer"):
-        assert out["desk"][state]["drawerOpen"], "drawer did not open"
-        assert len(out["desk"][state]["drawer"]) > 100
-    if state.endswith("modal"):
-        assert out["desk"][state]["modalOpen"], "modal did not open"
-        assert len(out["desk"][state]["modal"]) > 100
+        if not (len(view) > 200 or (state.endswith("-empty") and 'class="state-empty"' in view)):
+            bad.append(f"{vp}/{state}: #view is empty")
+    for kind, open_key in (("drawer", "drawerOpen"), ("modal", "modalOpen")):
+        if state.endswith(kind):
+            if not out["desk"][state][open_key]:
+                bad.append(f"{kind} did not open")
+            elif not len(out["desk"][state][kind]) > 100:
+                bad.append(f"{kind} drew under 100 characters")
     if state.startswith("chat-"):
         for vp in VIEWPORTS:
-            assert out[vp][state]["chatOpen"], f"{vp}/{state}: the chat panel did not open"
-            assert len(out[vp][state]["chat"]) > 100
+            if not out[vp][state]["chatOpen"]:
+                bad.append(f"{vp}/{state}: the chat panel did not open")
+            elif not len(out[vp][state]["chat"]) > 100:
+                bad.append(f"{vp}/{state}: the chat panel drew under 100 characters")
+    assert bad == []
 
 
 @pytest.mark.area("chat", slice=SLICE_OF["chat-over-movers"])

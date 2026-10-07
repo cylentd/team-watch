@@ -85,9 +85,10 @@ def test_no_block_is_no_story():
     assert live_digest(load_digest(), slugify, None, None)["story"] is None
 
 
-def test_a_story_without_words_or_a_clock_is_dropped():
-    for bad in ({"head": ""}, {"fact": None}, {"kind": ""}, {"asof": None}, {"asof": "not a date"}):
-        assert _story(**bad) is None, bad
+@pytest.mark.parametrize("bad", [{"head": ""}, {"fact": None}, {"kind": ""}, {"asof": None}, {"asof": "not a date"}],
+                         ids=["empty head", "no fact", "empty kind", "no clock", "unreadable clock"])
+def test_a_story_without_words_or_a_clock_is_dropped(bad):
+    assert _story(**bad) is None, bad
 
 
 def test_a_story_may_have_no_player_and_no_club():
@@ -169,9 +170,12 @@ def test_a_game_in_play_beats_the_story(planted):
 @pytest.mark.render
 def test_a_story_older_than_the_packet_does_not_show(planted):
     dg, errors = planted(at=MONDAY_EARLY, sunState="complete")
+    banners = {}
     for asof in ("2026-09-20 10:00:00", "2026-09-25 22:40:00"):          # older, and the same minute as the packet
         dg.plant_story({**STORY, "asof": asof})
-        assert dg.banner() == "St. Brown went off for 60 yards", asof
+        banners[asof] = dg.banner()
+    assert banners == {"2026-09-20 10:00:00": "St. Brown went off for 60 yards",
+                       "2026-09-25 22:40:00": "St. Brown went off for 60 yards"}
     assert errors == []
 
 
@@ -313,14 +317,16 @@ def test_the_line_is_the_yards_and_tds_that_make_the_call(planted, pos, s, line)
 def test_the_phrasing_is_fixed_by_the_player_and_both_phrasings_are_used(planted):
     names = ["Cam Skattebo", "Tee Higgins", "Josh Allen", "Jahmyr Gibbs", "Puka Nacua", "Ja'Marr Chase", "Bijan Robinson", "Drake London"]
     dg, errors = planted(**ON)
-    seen = set()
+    seen, after, want = set(), {}, {}
     for n in names:
         dg.plant_top([[n, "WR", "NYG", 33.0, {"rec_yd": 120, "rec_td": 2}], ["Z Second", "WR", "CIN", 30.0]])
         first = dg.banner()
         dg.paint_poll()                                                      # a poll
         dg.plant_scorer_stat(100, "rec_yd", 135)                             # more yards: same words
-        assert dg.banner() == first.replace("120 yards", "135 yards")
+        after[n] = dg.banner()
+        want[n] = first.replace("120 yards", "135 yards")
         seen.add("ERUPTS" in first)
+    assert after == want
     assert seen == {True, False}, seen
     assert errors == []
 
@@ -355,12 +361,12 @@ def test_the_by_line_adds_what_the_head_lacks_and_repeats_no_number(planted, pos
 
 
 @pytest.mark.render
-def test_the_banner_never_prints_points(planted):
+@pytest.mark.parametrize("state", [ON, FINAL], ids=["games on", "final"])
+def test_the_banner_never_prints_points(planted, state):
     """David, 2026-10-05: every league scores differently, so the banner counts yards and TDs. A pt count
     in the head or by-line would be one league's scoring."""
     rows = [["Tetairoa McMillan", "WR", "CAR", 38.2, CATCH], ["Tee Higgins", "WR", "CIN", 20.1, {"rec_yd": 80}]]
-    for state in (ON, FINAL):
-        dg, errors = planted(**state)
-        dg.plant_top(rows)
-        assert not re.search(r"point|pts|38\.2", dg.lead_text(), re.I)
-        assert errors == []
+    dg, errors = planted(**state)
+    dg.plant_top(rows)
+    assert not re.search(r"point|pts|38\.2", dg.lead_text(), re.I)
+    assert errors == []

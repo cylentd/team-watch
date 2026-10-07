@@ -17,8 +17,8 @@ AREAS = CFG["areas"]
 def test_every_test_file_is_listed_once():
     # An area may share a file with another area (test_trace.py is in testtools and designdoc: either
     # area's change runs it); core and full_only never overlap an area or each other.
-    for name, a in AREAS.items():
-        assert len(a["tests"]) == len(set(a["tests"])), f"{name} lists a test file twice"
+    twice = [name for name, a in AREAS.items() if len(a["tests"]) != len(set(a["tests"]))]
+    assert twice == [], f"{twice} list a test file twice"
     in_areas = sorted({t for a in AREAS.values() for t in a["tests"]})
     listed = CFG["core"] + list(CFG["full_only"]) + in_areas
     on_disk = sorted(p.relative_to(ROOT).as_posix() for p in (ROOT / "tests").glob("test_*.py"))
@@ -29,11 +29,10 @@ def test_every_test_file_is_listed_once():
 def test_every_path_exists_and_has_one_owner():
     claimed = [p for a in AREAS.values() for p in a["paths"]]
     assert len(claimed) == len(set(claimed))
-    for p in claimed:
-        assert (ROOT / p).is_dir() if p.endswith("/") else (ROOT / p).is_file(), p
-    for p in claimed:
-        others = [q for q in claimed if q != p and q.endswith("/") and p.startswith(q)]
-        assert not others, f"{p} sits inside {others}"
+    missing = [p for p in claimed if not ((ROOT / p).is_dir() if p.endswith("/") else (ROOT / p).is_file())]
+    assert missing == []
+    inside = {p: [q for q in claimed if q != p and q.endswith("/") and p.startswith(q)] for p in claimed}
+    assert {p: o for p, o in inside.items() if o} == {}, "a path sits inside another claimed folder"
     # select() reads every tests/ path before the map, so a claim there would never take effect.
     assert not [p for p in claimed if p.startswith("tests/") and not p.startswith("tests/test_")]
 
@@ -47,32 +46,38 @@ def test_the_render_areas_are_the_goldens():
 RANKS_TESTS = ["tests/test_ranks.py", "tests/test_ranks_dst.py", "tests/test_js_dst.py", "tests/test_ros.py", "tests/test_js_ros.py", "tests/test_ros_view.py"]
 
 
-@pytest.mark.parametrize("paths,want", [
-    (["design/src/css/surface/ranks/ranks.css"], {"all": False, "areas": ["ranks"], "extra": RANKS_TESTS + ["tests/test_render.py"]}),
-    (["design/ranks.py", "README.md"], {"all": False, "areas": ["ranks"], "extra": RANKS_TESTS + ["tests/test_render.py"]}),
-    (["tests/test_ranks.py"], {"all": False, "areas": [], "extra": ["tests/test_ranks.py"]}),
-    (["CLAUDE.md"], {"all": False, "areas": [], "extra": []}),
-    (["design/DESIGN.md"], {"all": False, "areas": [], "extra": ["tests/test_trace.py"]}),   # the one .md a test reads
-    (["scripts/land.ps1"], {"all": False, "areas": [], "extra": ["tests/test_land_queue.py", "tests/test_testlog.py"]}),
-    (["design/src/css/surface/strip/panel.css"], {"all": True}), # shared CSS styles any view
-    (["design/src/css/component/pool.css"], {"all": True}),      # so does a component
-    (["design/src/js/chrome/nav.js"], {"all": True}),            # no area owns chrome
-    (["design/build.py"], {"all": True}),
-    (["tests/conftest.py"], {"all": True}),
-    (["tests/golden/render.json"], {"all": True}),
+@pytest.mark.parametrize("paths,areas,extra", [
+    (["design/src/css/surface/ranks/ranks.css"], ["ranks"], RANKS_TESTS + ["tests/test_render.py"]),
+    (["design/ranks.py", "README.md"], ["ranks"], RANKS_TESTS + ["tests/test_render.py"]),
+    (["tests/test_ranks.py"], [], ["tests/test_ranks.py"]),
+    (["CLAUDE.md"], [], []),
+    (["design/DESIGN.md"], [], ["tests/test_trace.py"]),   # the one .md a test reads
+    (["scripts/land.ps1"], [], ["tests/test_land_queue.py", "tests/test_testlog.py"]),
 ])
-def test_select(paths, want):
+def test_select_narrows_to_its_areas_and_files(paths, areas, extra):
     got = impact.select(paths, CFG, SCOPE)
-    assert got["all"] == want["all"], got["why"]
-    if not want["all"]:
-        assert got["areas"] == want["areas"]
-        assert got["files"] == sorted(set(CFG["core"] + want["extra"]))
+    assert got["all"] is False, got["why"]
+    assert got["areas"] == areas
+    assert got["files"] == sorted(set(CFG["core"] + extra))
+
+
+@pytest.mark.parametrize("paths", [
+    ["design/src/css/surface/strip/panel.css"],  # shared CSS styles any view
+    ["design/src/css/component/pool.css"],       # so does a component
+    ["design/src/js/chrome/nav.js"],             # no area owns chrome
+    ["design/build.py"],
+    ["tests/conftest.py"],
+    ["tests/golden/render.json"],
+])
+def test_select_runs_everything(paths):
+    got = impact.select(paths, CFG, SCOPE)
+    assert got["all"] is True, got["why"]
 
 
 def test_every_fenced_css_file_has_an_area():
-    for rel in SCOPE["fenced"]:
-        path = impact.CSS_SURFACE + rel[len("surface/"):]
-        assert not impact.select([path], CFG, SCOPE)["all"], path
+    runs_all = [rel for rel in SCOPE["fenced"]
+                if impact.select([impact.CSS_SURFACE + rel[len("surface/"):]], CFG, SCOPE)["all"]]
+    assert runs_all == []
 
 
 def test_a_fence_beyond_its_owner_adds_that_view():
@@ -101,10 +106,10 @@ def test_a_changed_copy_key_counts_as_the_file_that_says_it():
     assert not impact.select(paths, CFG, SCOPE)["all"]
 
 
-def test_copy_said_by_chrome_or_the_shell_still_runs_everything():
-    for key in ("nav.tab.grid", "chrome.head.title"):
-        paths, _ = expand("design/src/content.json", "{}", json.dumps({key: "x"}))
-        assert impact.select(paths, CFG, SCOPE)["all"], key
+@pytest.mark.parametrize("key", ["nav.tab.grid", "chrome.head.title"])
+def test_copy_said_by_chrome_or_the_shell_still_runs_everything(key):
+    paths, _ = expand("design/src/content.json", "{}", json.dumps({key: "x"}))
+    assert impact.select(paths, CFG, SCOPE)["all"], key
 
 
 def test_a_key_that_is_a_prefix_of_another_is_not_confused_with_it():
@@ -209,6 +214,7 @@ def test_the_committed_mode_reads_head_only(monkeypatch):
     assert not [c for c in calls if c[0] == "ls-files"]
 
 
+@pytest.mark.integration      # impact.at reads HEAD through git
 def test_a_binary_file_in_the_diff_is_read_not_a_crash(monkeypatch, tmp_path):
     # 2026-10-06: the team avatars' .webp fixtures stopped the picker with a UnicodeDecodeError, at HEAD and on disk
     assert isinstance(impact.at("HEAD", "tests/fixtures/data/avatars/yahoo/3.webp"), str)

@@ -22,9 +22,9 @@ def test_a_back_without_one_falls_back_to_his_projection(rb):
     assert rb("rbOrderPts", {"pos": "RB", "pts": 15.0}) == 15.0, "a file from before the field"
 
 
-def test_no_other_position_is_ordered_by_it(rb):
-    for pos in ("QB", "WR", "TE"):
-        assert rb("rbOrderPts", {"pos": pos, "pts": 15.0, "rank_pts": 20.0}) == 15.0, pos
+@pytest.mark.parametrize("pos", ["QB", "WR", "TE"])
+def test_no_other_position_is_ordered_by_it(rb, pos):
+    assert rb("rbOrderPts", {"pos": pos, "pts": 15.0, "rank_pts": 20.0}) == 15.0
 
 
 def test_a_row_with_no_points_has_no_key(rb):

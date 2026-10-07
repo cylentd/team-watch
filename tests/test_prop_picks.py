@@ -236,12 +236,14 @@ def test_the_matchup_chip_follows_the_defence_rank(page):
 
 
 def test_a_phone_fits_every_row(page):
+    widths, overs = {}, {}
     for win in ("morning", "evening-sun", "evening-mon"):
         page.evaluate(f"GAL_WIN = {win!r}; render()")
         all_chips(page)
-        assert page.evaluate("document.documentElement.scrollWidth") <= 360, win
-        over = page.evaluate("[...document.querySelectorAll('.sl-row *')].filter(e => e.getBoundingClientRect().right > 360 - 8).length")
-        assert over == 0, win
+        widths[win] = page.evaluate("document.documentElement.scrollWidth")
+        overs[win] = page.evaluate("[...document.querySelectorAll('.sl-row *')].filter(e => e.getBoundingClientRect().right > 360 - 8).length")
+    assert [win for win, w in widths.items() if w > 360] == [], widths
+    assert overs == {"morning": 0, "evening-sun": 0, "evening-mon": 0}
 
 
 def test_a_game_card_is_a_headline_link_and_no_sentences(page):

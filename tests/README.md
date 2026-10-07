@@ -11,6 +11,7 @@ applies them.
 |---|---|---|---|
 | **python** | none | build-side logic in `design/*.py`, scripts, contracts | ms |
 | **node** | `node_js` | `design/src/js/data/` logic: data in, data out | ~1 ms a call |
+| **integration** | `@pytest.mark.integration` (a fixture's layer wins) | a python test that runs a subprocess, git or a throwaway pytest, builds the page, or scans the whole repo; a slow one for a fixable reason is fixed, not marked | up to ~1 s |
 | **component** | `mount` (`tests/component.py`) | one surface drawn from a fixture slice: its rows, its taps, its layout at 360px | ~53 ms a load; full page 64 kept, 148 new (2026-10-05) |
 | **build** | `built`, `page_file` | the assembled page's markup and injected blocks, no browser | one build a session |
 | **browser** (e2e) | `browser` | journeys across views, navigation, the hash, overlays, Back | ~1 s a page load |
@@ -86,10 +87,48 @@ a test errors.
   operator at a time, and reports the share of mutants killed. `.testing.json` `mutate` names the
   files and the pytest command (`-m "not render"`); `scripts/mutate_tests.py` picks each file's
   tests: the ones naming it plus `impact.py`'s pick, minus the core and the whole-repo checks,
-  light layers first. Land prints the score; below 60% it warns (`--gate` makes it fail). One file:
+  light layers first. The land gate prints the score and fails below 75% (target 90; since
+  2026-10-06, `.testing.json` `mutate` holds both and a 120 s budget). One file:
   `python $HOME/.agents/skills/testing/scripts/mutate.py --files design/src/js/data/stock.js`
 - **It passes 10 times in a row.** `python scripts/run_tests.py --repeat-new 10` runs every test
   function the branch added or changed 10 times in parallel. Land runs it; one failure blocks.
+
+## Frozen tests and the backlog
+
+(2026-10-06) The testing skill's land gate (`land.ps1` calls it once, after the tests) holds an
+approved test still and lets bad ones only shrink in number. Its checks, in order: test-first,
+backlog, lint, freeze, mutate (the skill's SKILL.md section 4 has each one's way out).
+
+- **Test-first.** Source changed with no test changed fails, unless a commit says
+  `Test-Exempt: <reason>`.
+- **Mutation.** The branch's changed lines in `.testing.json` `mutate.include` are mutated; fewer
+  than 75% killed fails (90% is the target). `-SkipMutate` leaves it out.
+
+- **Frozen.** `tests/.frozen.json` hashes every top-level test, fixture and helper in `tests/`
+  (by AST: comments and docstrings do not count), `tests/golden/render.json`, and nothing else.
+  Land writes it after the gate passes and folds it into the landed commit like `index.html`; a
+  branch never commits it. Deleting an expected value, or a test, changes its hash and fails the
+  land naming the entry. `.testing.json` `freeze.shrink` lists the ratchet constants
+  (`test_budgets.py`, `test_layer_ratchet.py`) that may go down without reapproval. A test new on
+  the branch is free until it lands. To change a frozen one on purpose: ask David, and after his
+  yes add `Test-Reapproved: <entry> <reason>` to a commit message.
+- **Backlog.** `.testing-backlog.json` lists today's tolerated violations under two keys and can
+  only shrink: `lint` (the testing skill's `honest_tests.py`: fixed waits, tests with no assertion,
+  conditional asserts; entries are `path::test::CODE`) and `limits` (tests over their layer's time
+  limit; entries are node ids). A new violation fails. A fixed `lint` entry must leave the file
+  (the gate says so): fix it and delete it in the same commit. A branch that only shrinks the
+  backlog lands without `-Yes`.
+- **Time limits** (`.testing.json` `limits`): per test, unit 50 ms, component 200 ms, integration
+  1 s, e2e 15 s, all x2 because the suite runs in parallel; a layer is the `layer` property
+  conftest records. `scripts/run_tests.py` loads the plugin, nothing else does. An ordinary or
+  full run only lists the tests over their limit; one noisy timing never fails it. The land's
+  10-run of new and changed tests (`--repeat-new 10`) fails a test whose fastest of the 10 runs is
+  over its limit, unless it is in the `limits` backlog. Two wall-time budgets (`limits.suites`,
+  2026-10-06): fast (unit + integration, so python, node and build) 10 s, component 35 s, which only
+  goes down. Wall time swings 15-49 s with other sessions' load, so no land checks it. The weekly
+  flake job (`scripts/flake_run.py`, Wednesday 3:30 am) runs each suite 3 times
+  (`pytest -p pytest_limits --limits-suite <name>`), takes the fastest, logs it, and posts to
+  Discord when a suite is over budget. First measure, loaded machine: fast 12.4 s, component 36.7 s.
 
 ## Goldens
 
@@ -119,8 +158,9 @@ everything without a browser, ~30 s.
 (2026-10-05) Every pytest run and land is one JSON line in `.git/test-history/`, shared by all
 worktrees; `python scripts/testlog.py` summarizes layers, trend, slowest files, flaky tests and
 land phases. Read it before test-speed or flakiness work (it supersedes the hand-timed 2026-10-05
-note: browser 830 of 3,122 tests, 725 of 782 worker-s). A nightly job runs the suite 3 times for
-flakes.
+note: browser 830 of 3,122 tests, 725 of 782 worker-s). A weekly job (Wednesday 3:30 am,
+`scripts/flake_run.py`) runs the suite 5 times in shuffled order and posts the flaky and broken
+tests to Discord; a clean run posts nothing.
 
 ## Exemplars and building blocks
 
@@ -168,6 +208,7 @@ object does not lower it; moving the test to Node does.
 | `VCLOCK` | `pages/roster_pack.py` | A virtual clock so motion tests wait on a condition, not a duration |
 | `jsunit` | `jsunit.py` | The Node host behind `node_js`; read its docstring for the file-order rules |
 | `req`, `quarantine`, `journey`, `area`, `render` | markers, above | Trace, flake quarantine, full-page journey, impact area, Chromium |
+| `integration` | marker, conftest `layer_of` | A test that runs git, a subprocess, a real build or a whole-repo scan: the integration layer and its 1 s limit, not unit's 50 ms |
 
 **Adding a block:** a page object goes in `tests/pages/<view>.py`; a new fixture goes in
 `conftest.py` only when 3 or more files need it; list it in this table in the same change.

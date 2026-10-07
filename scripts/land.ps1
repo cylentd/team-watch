@@ -20,8 +20,15 @@
   script re-fetches, rebases, re-tests and retries once.
 
   A diff that only touches docs and tests (*.md, tests/**) lands on its own. Anything that touches
-  the live page stops and asks -- pass -Yes once a human has said go. Source with no test change
-  stops too, unless a commit says `Test-Exempt: <reason>` (the testing skill's land gate).
+  the live page stops and asks -- pass -Yes once a human has said go.
+
+  The testing skill's land gate (`land_gate.py`, $env:TESTING_SKILL else ~/.agents/skills/testing/
+  scripts) runs once, after the first test run and its 10-run check: test-first (source with no test
+  change stops, unless a commit says `Test-Exempt: <reason>`), the shrink-only backlog, test lint,
+  frozen tests (`Test-Reapproved: <entry> <reason>`) and mutation. Every check is the skill's and
+  every repo gets a new one without a change here. A dry run runs the gate without mutation.
+  After it passes, `freeze.py --update` writes tests/.frozen.json and the fold below takes it with
+  the build output: a feature branch never commits that file.
 
 .EXAMPLE
   .\scripts\land.ps1 -DryRun          # say what would happen, change nothing
@@ -35,16 +42,21 @@ param(
     [switch]$Yes,
     [switch]$Full,    # every test, not only the ones this diff can break (scripts/impact.py)
     [switch]$AllowStaleData,  # build even when the ff-jarvis checkout is behind its origin/main
-    [switch]$SkipMutate       # skip the mutation report (tests/README.md "Proving a test")
+    [switch]$SkipMutate       # leave the mutation check out of the land gate (tests/README.md "Proving a test")
 )
 
 $ErrorActionPreference = "Stop"
 $repo = Split-Path -Parent $PSScriptRoot
 
+# The testing skill's scripts: $env:TESTING_SKILL when set (a skill checkout agent-config has not landed
+# yet), else the installed copy. scripts/run_tests.py and scripts/flake_run.py resolve it the same way.
+$skill = if ($env:TESTING_SKILL) { $env:TESTING_SKILL } else { Join-Path $HOME ".agents/skills/testing/scripts" }
+
 # Seconds per phase, appended to the test history when the land ends, landed or not
 # (scripts/testlog.py land; `python scripts/testlog.py` reads them back). The pytest runs below are
 # recorded there too, as kind "land".
 $clock = [Diagnostics.Stopwatch]::StartNew()
+# `mutate` is the land gate's phase (mutation is its slow check); testlog.py's table still names it so.
 $phase = [ordered]@{ test = 0.0; repeat = 0.0; mutate = 0.0; queue = 0.0; retest = 0.0; build = 0.0; push = 0.0 }
 $testRuns = 0
 function Timed($name, [scriptblock]$block) {
@@ -62,7 +74,9 @@ function Timed($name, [scriptblock]$block) {
 # `trade_offers.json` is the trade builder's offers (design/trade_offers.py), rewritten whole by every build
 # like build.json, and fetched by the page on first open, so Vercel must serve it (.vercelignore).
 # `preview_archive.json` is Preview's earlier weeks (design/preview_archive.py), the same kind of file.
-$generated = @("index.html", "design/index.html", "build.json", "trade_offers.json", "preview_archive.json", "games", "heads", "avatars")
+# `tests/.frozen.json` is the frozen tests' hashes (the testing skill's freeze.py, 2026-10-06), written below once
+# the gate has passed: a branch that carried it would conflict with every other branch, exactly like build.json.
+$generated = @("index.html", "design/index.html", "build.json", "trade_offers.json", "preview_archive.json", "games", "heads", "avatars", "tests/.frozen.json")
 
 # Call git.exe explicitly, and never name a helper `Git`: PowerShell resolves a function name
 # before an external command, case-insensitively, so `function Git { & git ... }` calls itself
@@ -122,22 +136,27 @@ if ($ahead -gt 1) {
 # Docs and tests land themselves; anything that touches the live page needs a human to have said
 # go, because it ships to Vercel within a minute of hitting main.
 # --no-renames: a rename lists only its new path, so moving code into docs/x.md would read as quiet.
+# .testing-backlog.json counts as tests: the gate's backlog check fails any growth, so a change to it
+# can only be a fixed test leaving the list.
 $changedPaths = @(GitRead "diff --no-renames --name-only origin/$Base...HEAD" | Where-Object { $_ })
-$notQuiet = @($changedPaths | Where-Object { -not ($_ -like "*.md" -or $_ -like "tests/*") })
+$notQuiet = @($changedPaths | Where-Object { -not ($_ -like "*.md" -or $_ -like "tests/*" -or $_ -eq ".testing-backlog.json") })
 if ($notQuiet.Count -gt 0 -and -not $Yes) {
     Write-Host ($notQuiet -join "`n")
     throw "This changes the live page. Ask the user, then re-run with -Yes."
 }
 
-# --- test-first gate ------------------------------------------------------------------------------
+# --- the land gate ----------------------------------------------------------------------------------
 
-# Source changed with no test changed fails, unless a branch commit carries `Test-Exempt: <reason>`
-# (CLAUDE.md "Testing"). The script is the testing skill's, from agent-config, shared by every repo
-# rather than copied into each; it only reads git, so a dry run runs it too.
-$gate = Join-Path $HOME ".agents/skills/testing/scripts/land_gate.py"
+# One call runs every check (CLAUDE.md "Testing"): test-first, backlog, lint, freeze, mutate. The script
+# is the testing skill's, shared by every repo rather than copied into each. It runs after the first
+# test run, below; a dry run runs it now, without mutation (mutation needs a green suite, the rest only
+# reads git).
+$gate = Join-Path $skill "land_gate.py"
 if (-not (Test-Path $gate)) { throw "No $gate. Run agent-config's install.ps1, then land again." }
-& python $gate --repo $repo --base "origin/$Base"
-if ($LASTEXITCODE -ne 0) { throw "test-first gate failed ($LASTEXITCODE) -- add a test, or a Test-Exempt: <reason> trailer" }
+if ($DryRun) {
+    & python $gate --repo $repo --base "origin/$Base" --skip mutate
+    if ($LASTEXITCODE -ne 0) { throw "land gate failed ($LASTEXITCODE) -- add a test, a Test-Exempt: <reason> trailer, or fix what it names" }
+}
 
 # --- rebase and test --------------------------------------------------------------------------------
 
@@ -170,22 +189,21 @@ function RebaseAndTest {
         Timed $(if ($script:testRuns -eq 1) { "test" } else { "retest" }) { & python $runner @testArgs }
         if ($LASTEXITCODE -ne 0) { throw "tests failed ($LASTEXITCODE) -- nothing landed" }
         # The branch's new and changed tests, 10 times in parallel: a flake is caught before it
-        # lands, not by the nightly run after it. The mutation report says whether the changed
-        # js/data and design/*.py lines are tested at all; it warns, it does not block. Both run
-        # once: a retest after origin moved changes neither the branch's tests nor its code.
+        # lands, not by the weekly flake run after it. The land gate then runs every check the testing
+        # skill has (test-first, backlog, lint, frozen tests, mutation), and any failure blocks. Both
+        # run once: a retest after origin moved changes neither the branch's tests nor its code.
         if ($script:testRuns -eq 1) {
             Timed repeat { & python $runner --repeat-new 10 --base "origin/$Base" --committed }
             if ($LASTEXITCODE -ne 0) { throw "a new or changed test failed one of 10 runs -- nothing landed" }
-            # The mutator is the testing skill's (2026-10-06), configured by .testing.json `mutate`:
-            # its tests come from scripts/mutate_tests.py. TW_RUN_KIND=mutate tags its pytest runs
-            # in the test history (tests/runlog.py) apart from the land's own.
-            if (-not $SkipMutate) {
-                $mutator = Join-Path $HOME ".agents/skills/testing/scripts/mutate.py"
-                $env:TW_RUN_KIND = "mutate"
-                Timed mutate { & python $mutator --repo $repo --base "origin/$Base" --budget 120 }
-                if ($LASTEXITCODE -ne 0) { Write-Host "  (mutation report exited $LASTEXITCODE; it does not block the land)" -ForegroundColor Yellow }
-                $env:TW_RUN_KIND = "land"
-            }
+            # Configured by .testing.json (mutate, limits, freeze); mutation's tests come from
+            # scripts/mutate_tests.py. TW_RUN_KIND=mutate tags its pytest runs in the test history
+            # (tests/runlog.py) apart from the land's own.
+            $gateArgs = @("--repo", $repo, "--base", "origin/$Base")
+            if ($SkipMutate) { $gateArgs += @("--skip", "mutate") }
+            $env:TW_RUN_KIND = "mutate"
+            Timed mutate { & python $gate @gateArgs }
+            if ($LASTEXITCODE -ne 0) { throw "land gate failed ($LASTEXITCODE) -- nothing landed" }
+            $env:TW_RUN_KIND = "land"
         }
     } finally { Remove-Item Env:TW_RUN_KIND -ErrorAction SilentlyContinue }
 }
@@ -254,7 +272,18 @@ for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
                 if ($LASTEXITCODE -ne 0) { throw "build failed ($LASTEXITCODE)" }
             } finally { Pop-Location }
         }
+    }
 
+    # The frozen tests' hashes, from the tree that ships (the gate passed on it). Docs/tests-only diffs
+    # need this too: they are where tests change. It joins the build output in the one fold below.
+    Write-Host "freezing" -ForegroundColor Cyan
+    Write-Host "  python $skill\freeze.py --repo $repo --update" -ForegroundColor DarkGray
+    if (-not $DryRun) {
+        Timed build { & python (Join-Path $skill "freeze.py") --repo $repo --update }
+        if ($LASTEXITCODE -ne 0) { throw "freeze --update failed ($LASTEXITCODE) -- nothing landed" }
+    }
+
+    if (-not $DryRun) {
         $changed = @(GitRead "status --porcelain" | Where-Object { $_ })
         if ($changed.Count -gt 0) {
             Write-Host "folding the rebuild into the branch commit" -ForegroundColor Cyan

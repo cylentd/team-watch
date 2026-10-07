@@ -43,6 +43,7 @@ FRAMES = "() => new Promise(r => requestAnimationFrame(() => requestAnimationFra
 class StripPage:
     def __init__(self, page):
         self.page = page
+        self._fake = False
         self.root = page.get_by_test_id("strip")
         tid = self.root.get_by_test_id
         self._turf, self._chevrons, self._stage = tid("strip-turf"), tid("strip-chevrons"), tid("strip-stage")
@@ -126,15 +127,39 @@ class StripPage:
           return n;
         }""")
 
+    def fake_time(self):
+        """Run the page's clock by hand (Playwright's: timers, requestAnimationFrame, performance.now), so a
+        replay's seconds pass in the milliseconds its frames take to draw, and every wait below moves the
+        clock on until its condition holds. Installed once per page; time still flows by itself, so another
+        test on this page is not held."""
+        if not self.page.evaluate("!!window.__pwClock"):
+            self.page.clock.install()
+        self._fake = True
+
+    def _until(self, cond, arg=None, step=100, limit=8000):
+        """Move the fake clock on `step` ms at a time until the page predicate `cond` holds; raises
+        TimeoutError after `limit` page-ms."""
+        for _ in range(limit // step):
+            if self.page.evaluate(cond, arg):
+                return
+            self.page.clock.run_for(step)
+        raise TimeoutError(f"{limit} ms of the page's clock passed and this never held: {cond}")
+
     def wait_for_a_runner(self):
-        self.page.wait_for_function("""() => !!document.querySelector('.stfig.run [data-testid="strip-near-hip"]')""",
-                                    timeout=6000)
+        cond = """() => !!document.querySelector('.stfig.run [data-testid="strip-near-hip"]')"""
+        if self._fake:
+            return self._until(cond)
+        self.page.wait_for_function(cond, timeout=6000)
 
     def wait_until_reel_at(self, t):
+        if self._fake:
+            return self._until("t => window.__ctl.T === t", t)
         self.page.wait_for_function("t => window.__ctl.T === t", arg=t, timeout=6000)
 
     def frames(self, n=1):
         """Let n frames of the page's own clock pass."""
+        if self._fake:
+            return self.page.clock.run_for(n * 17)
         for _ in range(n):
             self.page.evaluate(FRAMES)
 
@@ -142,9 +167,16 @@ class StripPage:
 
     def carrier_x_at(self, i, f, hold=0):
         """Screen x of the man with the ball, posed at play i, fraction f."""
-        self.pose(i, f, hold)
-        r = self._carrier.evaluate(RECT)
-        return r["left"] + r["width"] / 2
+        return self.carrier_xs([(i, f, hold)])[0]
+
+    def carrier_xs(self, poses):
+        """Screen x of the man with the ball for each (play, fraction, hold) of `poses`, each posed, then
+        measured: one round trip for the lot."""
+        return self.page.evaluate("""poses => poses.map(([i, f, hold]) => {
+          window.__ctl.pose(i, f, hold, false);
+          const r = document.querySelector('[data-testid="strip"] [data-testid="strip-carrier"]').getBoundingClientRect();
+          return r.left + r.width / 2;
+        })""", [list(p) for p in poses])
 
     def carrier_on_field(self):
         """Where he stands as a fraction of the field: (across, down to his feet)."""
@@ -175,7 +207,11 @@ class StripPage:
 
     def chevron_box(self):
         """The chevron band, the turf and the ball, as left/right screen edges."""
-        a, t, b = self._chevrons.evaluate(RECT), self._turf.evaluate(RECT), self._carrier.evaluate(RECT)
+        a, t, b = self.page.evaluate("""() => {
+          const rect = id => { const r = document.querySelector(`[data-testid="strip"] [data-testid="${id}"]`).getBoundingClientRect();
+                               return {left: r.left, right: r.right, width: r.width}; };
+          return ["strip-chevrons", "strip-turf", "strip-carrier"].map(rect);
+        }""")
         return {"aL": a["left"], "aR": a["right"], "tL": t["left"], "tR": t["right"],
                 "ball": b["left"] + b["width"] / 2}
 
@@ -186,6 +222,13 @@ class StripPage:
 
     def caption_height(self):
         return self._caption.evaluate("e => e.offsetHeight")
+
+    def caption_heights_after(self, frames):
+        """The caption box's height after drawing each of the frames `frames` (play-times), in one round trip."""
+        return self.page.evaluate("""ts => ts.map(t => {
+          stRender(window.__ctl, t);
+          return document.querySelector('[data-testid="strip"] [data-testid="strip-caption"]').offsetHeight;
+        })""", list(frames))
 
     def goalposts(self):
         """The path of each upright's drawing."""
@@ -254,6 +297,13 @@ class StripPage:
 
     def legs_after_moving(self, was):
         """The leg angle once it differs from `was` (up to 3 s of the replay), else whatever it reads."""
+        if self._fake:
+            try:
+                self._until(f"a => {{ const v = ({LEG})(document.querySelector('[data-testid=\"strip\"]')); return v !== a && !!v; }}",
+                            was, limit=3000)
+            except TimeoutError:
+                pass
+            return self.leg_angle()
         try:
             return self.page.wait_for_function(
                 f"([host, a]) => {{ const v = ({LEG})(host); return v !== a && v; }}",

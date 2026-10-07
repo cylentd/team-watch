@@ -6,6 +6,8 @@ test_js_ros.py. Until ff-jarvis lands the producer the live data has no block, s
 import json
 import pathlib
 
+import pytest
+
 import build
 import contract
 import ros
@@ -26,9 +28,9 @@ def test_the_cut_keeps_only_what_the_page_reads():
     assert set(block) == {"season", "week", "through_week", "last_week", "generated", "players"}
     assert (block["season"], block["week"], block["last_week"]) == (2026, 5, 17)
     assert len(block["players"]) == len(RAW["players"])
-    for p in block["players"]:
-        assert set(p) == PLAYER_KEYS, p["slug"]
-        assert set(p["espn"]) == {"ros_pg", "ros_pts", "rank", "hist"}, p["slug"]
+    espn_keys = {"ros_pg", "ros_pts", "rank", "hist"}
+    assert [p["slug"] for p in block["players"] if set(p) != PLAYER_KEYS] == []
+    assert [p["slug"] for p in block["players"] if set(p["espn"]) != espn_keys] == []
 
 
 def test_a_players_numbers_pass_through_and_history_is_week_and_rank_only():
@@ -71,6 +73,7 @@ def test_the_fixture_build_carries_the_block(built):
     assert any("LIVE_ROS" in line or "Rest of season" in line for line in built.report), "the build report says so"
 
 
+@pytest.mark.integration      # a real build of the page
 def test_no_block_builds_and_injects_null(monkeypatch):
     """Today's live data: ff-jarvis has not written the file, and the feed has no block."""
     real = sources.read_first

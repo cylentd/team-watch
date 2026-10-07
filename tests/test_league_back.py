@@ -71,8 +71,10 @@ def test_bench_award_is_the_weeks_biggest_mistake(back):
 
 
 def test_tape_fields_on_every_team(back):
-    for tm in back["teams"]:
-        assert len(tm["all"]) == 3 and isinstance(tm["titles"], list) and isinstance(tm["lasts"], list)
+    assert back["teams"]
+    bad = [tm for tm in back["teams"]
+           if not (len(tm["all"]) == 3 and isinstance(tm["titles"], list) and isinstance(tm["lasts"], list))]
+    assert bad == []
 
 
 def test_book_splits_fame_and_shame(back):
@@ -155,8 +157,9 @@ def test_blip_reacts_on_every_lead_even_one_whose_line_is_about_a_player(back):
 
 
 def test_every_week_names_its_lead_game(back):
-    for w in back["weeks"]:
-        assert w["lead"] in {f"{g['a']}-{g['b']}" for g in w["games"]}
+    assert back["weeks"]
+    stray = [w["week"] for w in back["weeks"] if w["lead"] not in {f"{g['a']}-{g['b']}" for g in w["games"]}]
+    assert stray == []
 
 
 def test_a_private_pairs_record_never_ships():
@@ -442,9 +445,8 @@ def test_a_game_card_and_the_lead_show_only_the_winners_avatar(recap_js, win):
     winner = 3 if win == "home" else 7
     row = recap_js(WITH_AV.replace("FN", "lgRowHTML({games: [], awards: {}}, " + __import__("json").dumps(g) + ", 0)"), 0)
     lead = recap_js(WITH_AV.replace("FN", "lgLeadHTML({games: [], awards: {}, head: 'H'}, " + __import__("json").dumps(g) + ")"), 0)
-    for html in (row, lead):
-        assert html.count('class="lg-av') == 1
-        assert (AV in html) == (winner == 3), "the winner's avatar, never the loser's"
+    assert [html.count('class="lg-av') for html in (row, lead)] == [1, 1]
+    assert [AV in html for html in (row, lead)] == [winner == 3] * 2, "the winner's avatar, never the loser's"
     assert row.index('class="lg-av') < row.index("bp2-sb"), "the card's avatar leads it"
     assert lead.index('class="lg-av') < lead.index('class="bp2-w"'), "the lead's sits before its score line"
 
@@ -459,8 +461,9 @@ def test_the_lead_draws_blip_even_when_the_week_names_a_photo(recap_js):
 
 def test_the_page_has_no_superlative_cards_streaks_block_week_chips_or_extra_stamps(recap_js):
     html = recap_js("() => { LG_WEEK = null; return lgBackWeekHTML(9); }")
-    for gone in ("bp-su", "bp-sups", "lg-weeks", "bp2-streaks", "bp2-you", "bp2-brief", "bp2-tag", "bp-game"):
-        assert gone not in html, gone
+    still_there = [gone for gone in ("bp-su", "bp-sups", "lg-weeks", "bp2-streaks", "bp2-you", "bp2-brief", "bp2-tag", "bp-game")
+                   if gone in html]
+    assert still_there == []
     assert html.count("bp-stamp") <= 1, "only the lead card keeps its stamp"
     assert 'data-lgweek="1"' in html, "the stepper's back button asks for week 1"
 

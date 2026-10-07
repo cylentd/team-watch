@@ -81,10 +81,10 @@ def test_both_spellings_of_an_abbreviated_name_match(hurt, text):
     assert [h["slug"] for h in got] == ["tre-stukes"]
 
 
-def test_the_real_return_line_for_stukes_clears_him_in_either_spelling(hurt):
-    for spelled in (REAL_STUKES, REAL_STUKES.replace("LV-T.Stukes", "LV-T. Stukes")):
-        got = scan(hurt, ["LV", "LAC"], [play("LV-T.Stukes was injured during the play."), play(spelled)])
-        assert [(h["slug"], h["back"]) for h in got] == [("tre-stukes", True)]
+@pytest.mark.parametrize("spelled", [REAL_STUKES, REAL_STUKES.replace("LV-T.Stukes", "LV-T. Stukes")], ids=["no space", "space after the dot"])
+def test_the_real_return_line_for_stukes_clears_him_in_either_spelling(hurt, spelled):
+    got = scan(hurt, ["LV", "LAC"], [play("LV-T.Stukes was injured during the play."), play(spelled)])
+    assert [(h["slug"], h["back"]) for h in got] == [("tre-stukes", True)]
 
 
 def test_the_name_before_the_injured_players_is_not_taken_for_his(hurt):
@@ -107,6 +107,7 @@ def test_the_schedules_spelling_of_a_club_matches_sleepers(hurt):
     assert [h["slug"] for h in got] == ["terry-mclaurin"]
 
 
-def test_a_summary_without_plays_flags_nobody(hurt):
-    for s in (None, {}, {"drives": {}}, {"drives": {"previous": [{}], "current": {}}}, summary(["PHI", "CHI"], [])):
-        assert hurt("gdHurtScan", s, NAMES) == []
+@pytest.mark.parametrize("s", [None, {}, {"drives": {}}, {"drives": {"previous": [{}], "current": {}}}, summary(["PHI", "CHI"], [])],
+                         ids=["none", "empty", "no drives", "empty drive", "no plays"])
+def test_a_summary_without_plays_flags_nobody(hurt, s):
+    assert hurt("gdHurtScan", s, NAMES) == []

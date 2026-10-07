@@ -64,8 +64,7 @@ def test_the_block_holds_no_private_field():
 def test_the_injected_page_holds_no_private_field(built):
     line = next(x for x in built.page.split("\n") if x.startswith("const LIVE_RECAP = "))
     assert not PRIVATE & keys_of(json.loads(line[len("const LIVE_RECAP = "):-1]))
-    for word in PRIVATE:
-        assert f'"{word}"' not in line
+    assert [w for w in PRIVATE if f'"{w}"' in line] == []
 
 
 # --------------------------------------------------------------------------- the block
@@ -82,19 +81,23 @@ def test_the_week_is_the_files_and_half_its_games_are_final():
 
 
 def test_top_three_per_position_in_the_files_order():
-    b = block()
+    b, week = block(), raw()      # the file is read once, not once per player
+    wrong = []
     for pos in ("QB", "RB", "WR", "TE"):
         got = [r["n"] for r in b["stars"] if r["pos"] == pos]
-        want = [p["name"] for p in raw()["players"] if p["key"] in raw()["standouts"][pos][:3]]
-        assert len(got) == 3 and sorted(got) == sorted(want)
+        want = [p["name"] for p in week["players"] if p["key"] in week["standouts"][pos][:3]]
+        if not (len(got) == 3 and sorted(got) == sorted(want)):
+            wrong.append((pos, got, want))
+    assert wrong == []
     assert [r["pos"] for r in b["stars"]] == ["QB"] * 3 + ["RB"] * 3 + ["WR"] * 3 + ["TE"] * 3
 
 
 def test_k_and_dst_top_three_biggest_score_first():
     b = block()
-    for rows in (b["k"], b["dst"]):
-        assert len(rows) == 3
-        assert [r["actual"] for r in rows] == sorted((r["actual"] for r in rows), reverse=True)
+    assert [len(rows) for rows in (b["k"], b["dst"])] == [3, 3]
+    unsorted = [rows for rows in (b["k"], b["dst"])
+                if [r["actual"] for r in rows] != sorted((r["actual"] for r in rows), reverse=True)]
+    assert unsorted == []
     assert b["k"][0]["n"] == "Andre Szmyt" and b["k"][0]["slug"] == "andre-szmyt"
     assert b["dst"][0]["n"] == "BUF" and b["dst"][0]["slug"] is None, "a defense has no face"
 

@@ -28,8 +28,10 @@ def test_the_sphere_turns_rests_and_stops(mount):
         profile.close()
         profile.frames(2)
         shut = profile.orb_yaw()
-        profile.frames(20)                                    # twenty frames of a shut profile: still
+        profile.hold_frames()                                 # twenty frames of a shut profile, run on the test's clock: still
+        profile.run_frames(20)
         assert profile.orb_yaw() == shut
+        profile.release_frames()
         profile.allow_motion(False)
         # The old bug held the sphere still for 2 s and then turned it, so a short run would pass a
         # regression to "hold, then turn" under reduced motion. The page's frames are queued and run by the
@@ -81,8 +83,7 @@ def test_an_elite_stat_glows(mount):
     profile.open_sheet()
     want = profile.elite_expected(ST_BROWN_SLUG)
     assert want, "the fixture needs an elite stat for this receiver"
-    for kind in ("row", "label", "dot"):
-        assert profile.elite(kind) == want, kind
+    assert {kind: profile.elite(kind) for kind in ("row", "label", "dot")} == {"row": want, "label": want, "dot": want}
     assert profile.elite_glow() != "none"
     assert errors == []
 
@@ -138,6 +139,20 @@ def test_stat_sheet_draws_the_positions_own_axes(mount):
     assert "predictor" in wopr["why"]
     assert profile.label_lit("Target share")
     assert profile.lit_dot() == "wopr"
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req(REQ, ac="a label or row tap lights the chart and the row together and opens that row alone")
+def test_a_label_tap_lights_the_chart_and_opens_that_row_alone(mount):
+    """The ladder's rows and the radar's labels move one highlight: a label tap opens its row and shuts
+    the one open before it; a row tap moves the chart."""
+    profile, errors = on_roster(mount)
+    profile.open_from_roster(ST_BROWN)
+    profile.open_sheet()
+    profile.toggle_ladder("wopr")
+    assert profile.lr("wopr")["open"]
+    assert profile.label_lit("Target share")
     # A label tap lights the chart and the row together and opens that row alone.
     profile.tap_label("Yds/route")
     yprr = profile.lr("yprr")
@@ -166,8 +181,16 @@ def test_every_block_says_how_many_weeks_it_covers(mount):
     profile.open_from_roster(ST_BROWN)
     profile.tab("usage")
     assert profile.windows() == {"DET TARGETS": "2 wk", "TARGET DEPTH": "2 wk", "RED ZONE": "2 wk"}   # .lbl uppercases in the render
-    # And per stat, in its ladder row's fold. Three states, because the fixture has no weekly rows
-    # for the sheet stats and that is itself one of them.
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req(REQ, ac="a stat with weekly rows names its window in its ladder row's fold")
+def test_a_stat_names_its_window_in_its_ladder_row(mount):
+    """Per stat, in its ladder row's fold. Three states, because the fixture has no weekly rows
+    for the sheet stats and that is itself one of them."""
+    profile, errors = on_roster(mount)
+    profile.open_from_roster(ST_BROWN)
     profile.open_sheet()
     profile.tap_label("Yds/route")
     assert profile.ladder_facts("yprr")[-1] == "2 gm"          # no weekly rows: games, no window
@@ -191,10 +214,14 @@ def test_too_few_measured_axes_draw_no_shape(mount):
     counts = profile.radar_counts()
     assert counts["shape"] == 1                              # six axes: a real shape
     assert counts["notes"] == 0
-    profile.press_escape()                                   # the sheet
-    profile.settle()
-    profile.close()                                          # the profile
-    # Strip four of his six axes and reopen: two points left, so no polygon and a count instead.
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req(REQ, ac="with four of six axes stripped the radar draws two vertices, no shape and a count")
+def test_two_measured_axes_draw_the_vertices_a_count_and_no_shape(mount):
+    """Strip four of his six axes: two points left, so no polygon and a count instead."""
+    profile, errors = on_roster(mount)
     profile.strip_axes(ST_BROWN_SLUG, ["route_pct", "tprr", "yprr", "fdrr"])
     profile.open_from_roster(ST_BROWN)
     profile.open_sheet()
@@ -217,9 +244,8 @@ def test_each_position_gets_its_own_shape(mount):
     assert axes["RB"] == ["wopp", "opp_pct", "route_pct", "rz", "ryoe", "brk_rate"]
     assert axes["QB"] == ["dropbacks", "designed_pct", "scr_rate", "gl_pct", "rz_att", "fp_db"]
     assert axes["TE"] == axes["WR"]
-    for pos, ids in axes.items():
-        assert 4 <= len(ids) <= 6, pos
-        assert len(set(ids)) == len(ids), pos
+    assert [pos for pos, ids in axes.items() if not 4 <= len(ids) <= 6] == []
+    assert [pos for pos, ids in axes.items() if len(set(ids)) != len(ids)] == []
     profile.open_from_roster("Chase Brown")
     assert profile.orb_tint()["orb"] == "pos-rb"             # the sphere wears the tint too
     profile.open_sheet()

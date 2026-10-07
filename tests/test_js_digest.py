@@ -325,8 +325,13 @@ def test_the_allowed_rank_is_the_nth_most_of_the_clubs_ranked_at_the_position(pl
     got = plan("([d, o, p]) => { const a = dgAllowed(d, o, p); return a && [a.cur.pts_pg, a.most, a.of]; }", [DEF, "DET", "TE"])
     assert got == [23.8, 1, 32]
     assert plan("([d, o, p]) => dgAllowed(d, o, p).most", [DEF, "LA", "QB"]) == 3, "LA is LAR in the defense block"
-    for args in ([None, "DET", "TE"], [DEF, "XXX", "TE"], [DEF, "", "TE"], [DEF, "DET", "K"]):
-        assert plan("([d, o, p]) => dgAllowed(d, o, p)", args) is None, args
+
+
+@pytest.mark.req("Digest", ac="one rank for the banner and the SMASH card: the opponent's nth most allowed to a position")
+@pytest.mark.parametrize("args", [[None, "DET", "TE"], [DEF, "XXX", "TE"], [DEF, "", "TE"], [DEF, "DET", "K"]])
+def test_the_allowed_rank_is_none_without_a_ranked_club_at_the_position(plan, args):
+    """No defense block, an unknown or empty opponent, or a position the block does not rank (K): no rank."""
+    assert plan("([d, o, p]) => dgAllowed(d, o, p)", args) is None, args
 
 
 GAMES = [{"home": "JAX", "away": "PHI", "kickoff": "2026-10-04T13:30:00Z", "final": False},

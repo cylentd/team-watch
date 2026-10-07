@@ -133,12 +133,15 @@ def test_the_higher_projection_starts_and_names_the_margin(ss):
 
 
 @pytest.mark.render
-def test_inside_half_a_point_is_a_coin_flip_with_no_start(ss):
-    for pts in [(10.0, 9.6), (10.5, 10.0)]:                      # 0.4 and exactly 0.5
-        pg = ss(picks_js(*pts))
-        assert verdict(pg) == {"tag": None, "name": None, "gain": None, "flip": "Coin flip"}
-        assert pg.locator(".ssv-verdict .mu-tag").count() == 0
-    # a tenth past the line starts someone, whichever order the two were picked in
+@pytest.mark.parametrize("pts", [(10.0, 9.6), (10.5, 10.0)], ids=["0.4", "exactly 0.5"])
+def test_inside_half_a_point_is_a_coin_flip_with_no_start(ss, pts):
+    pg = ss(picks_js(*pts))
+    assert verdict(pg) == {"tag": None, "name": None, "gain": None, "flip": "Coin flip"}
+    assert pg.locator(".ssv-verdict .mu-tag").count() == 0
+
+
+@pytest.mark.render
+def test_a_tenth_past_the_line_starts_someone_whichever_order_the_two_were_picked_in(ss):
     pg = ss(picks_js(9.0, 9.6))
     v = verdict(pg)
     assert v["tag"] == "START" and v["gain"] == "+0.6"
@@ -238,10 +241,14 @@ def test_the_wr_note_rides_on_the_defense_row_only_when_a_wr_is_picked(ss):
     assert pg.locator(".ssv-lbl span", has_text="Defense").text_content() == "Defense"
     # (the Projected row has its own note about the range, plan U5: the WR note is the defense row's)
     assert pg.locator(".ssv-row", has=pg.locator(".ssv-lbl", has_text="Defense")).locator(".ssv-lbl em").inner_text() == "matters little for WRs"
-    for pos in ("QB", "RB"):
-        pg = ss(picks_js(12.0, 9.0, pos=pos))
-        assert pg.locator(".ssv-lbl", has_text=f"Defense vs {pos}").count() == 1
-        assert pg.locator(".ssv-row", has=pg.locator(".ssv-lbl", has_text="Defense")).locator(".ssv-lbl em").count() == 0
+
+
+@pytest.mark.render
+@pytest.mark.parametrize("pos", ["QB", "RB"])
+def test_the_defense_row_has_no_wr_note_for_a_qb_or_rb_pair(ss, pos):
+    pg = ss(picks_js(12.0, 9.0, pos=pos))
+    assert pg.locator(".ssv-lbl", has_text=f"Defense vs {pos}").count() == 1
+    assert pg.locator(".ssv-row", has=pg.locator(".ssv-lbl", has_text="Defense")).locator(".ssv-lbl em").count() == 0
 
 
 @pytest.mark.render
@@ -270,8 +277,8 @@ def test_the_defense_row_says_softest_or_toughest_with_the_opponent(ss):
     cells = pg.evaluate("""() => [...[...document.querySelectorAll('.ssv-row')].find(r => r.textContent.startsWith('Defense'))
         .querySelectorAll('.ssv-v')].map(v => v.textContent)""")
     assert len(cells) == 2
-    for c in cells:
-        assert re.search(r"(softest|toughest)(vs|@) [A-Z]+$", c) or re.match(r"—(vs|@) [A-Z]+$", c), c
+    bad = [c for c in cells if not (re.search(r"(softest|toughest)(vs|@) [A-Z]+$", c) or re.match(r"—(vs|@) [A-Z]+$", c))]
+    assert bad == []
 
 
 @pytest.mark.render
@@ -341,8 +348,12 @@ def test_startsit_hash_opens_the_view_under_its_new_name(ss):
     assert pg.locator("[data-sscmp]").count() == 1 and pg.locator(".ssv-pick").count() == 0 and pg.locator(".mu-rec").count() == 1
     assert pg.evaluate("SURFACE") == "matchups"
     assert pg.inner_text(".mode-sub[aria-pressed='true']") == "Matchups"
-    for old in ("#takes", "#matchups"):                                  # the old names still land
-        assert ss(hash_=old).evaluate("SURFACE") == "matchups"
+
+
+@pytest.mark.render
+@pytest.mark.parametrize("old", ["#takes", "#matchups"])
+def test_the_old_hash_names_still_land_on_matchups(ss, old):
+    assert ss(hash_=old).evaluate("SURFACE") == "matchups"
 
 
 ROSTER_JS = """

@@ -20,7 +20,7 @@ _spec = importlib.util.spec_from_file_location(
 testlog = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(testlog)
 
-LAYERS = ("python", "node", "component", "build", "browser")
+LAYERS = ("python", "node", "integration", "component", "build", "browser")
 
 
 def git(*args):

@@ -34,9 +34,9 @@ def test_each_card_team_row_holds_its_name_score_and_stamps_on_one_line(mount, s
         r.drop_game_stamps()
     cards = r.card_rows()
     assert cards and all(len(c) == 2 for c in cards), "two rows a card"
-    for card in cards:
-        for name, score, *stamps in card:
-            assert abs(name - score) <= 4 and all(name - 6 <= s <= name + 30 for s in stamps), card
+    off_line = [card for card in cards for name, score, *stamps in card
+                if not (abs(name - score) <= 4 and all(name - 6 <= s <= name + 30 for s in stamps))]
+    assert off_line == []
     assert errors == []
 
 

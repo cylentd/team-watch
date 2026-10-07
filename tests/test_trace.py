@@ -45,6 +45,7 @@ def test_the_real_design_doc_has_sections_the_suite_can_name():
     assert all(n == n.strip() and " (" not in n for n in names)
 
 
+@pytest.mark.integration      # collects the whole suite in a pytest process
 def test_every_req_in_the_suite_names_a_section_design_md_has():
     """A renamed DESIGN.md heading fails here, naming the tests to retarget (impact.json `designdoc`)."""
     tests, code, out = trace.collect()
@@ -91,6 +92,23 @@ def test_the_other_layers_keep_their_order():
     assert conftest.layer_of(fixtures("page_file")) == "build"
     assert conftest.layer_of(fixtures("node_js")) == "node"
     assert conftest.layer_of(fixtures()) == "python"
+
+
+def marked(*names, marks=()):
+    """A stand-in for a collected test with fixtures and marks: what layer_of reads."""
+    return types.SimpleNamespace(fixturenames=names, get_closest_marker=lambda m: object() if m in marks else None)
+
+
+def test_an_integration_marked_test_is_the_integration_layer():
+    assert conftest.layer_of(marked(marks=("integration",))) == "integration"
+    assert conftest.layer_of(marked("node_js", marks=("integration",))) == "integration"
+    assert conftest.layer_of(marked(marks=("journey",))) == "python", "only the integration marker moves a layer"
+
+
+def test_a_fixture_decides_the_layer_before_the_integration_marker_does():
+    assert conftest.layer_of(marked("browser", marks=("integration",))) == "browser"
+    assert conftest.layer_of(marked("mount", marks=("integration",))) == "component"
+    assert conftest.layer_of(marked("built", marks=("integration",))) == "build"
 
 
 def test_quarantine_age_is_counted_from_the_date_in_the_reason():
@@ -142,6 +160,7 @@ def sandbox(pytester, monkeypatch):
     return pytester
 
 
+@pytest.mark.integration      # two pytest runs in this process
 def test_no_quarantine_deselects_only_the_quarantined(sandbox):
     everything = sandbox.runpytest_inprocess(*PLUGINS)
     everything.assert_outcomes(passed=3)
@@ -149,6 +168,7 @@ def test_no_quarantine_deselects_only_the_quarantined(sandbox):
     gated.assert_outcomes(passed=2, deselected=1)
 
 
+@pytest.mark.integration      # a pytest run in this process
 def test_a_bad_req_stops_collection_and_names_the_test(sandbox):
     sandbox.makepyfile(test_bad='import pytest\n\n@pytest.mark.req("Nope")\ndef test_typo(): pass\n')
     res = sandbox.runpytest_inprocess(*PLUGINS)

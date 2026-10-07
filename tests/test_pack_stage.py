@@ -9,10 +9,17 @@ import re
 
 import pytest
 
-from component import mount  # noqa: F401  (the fixture)
-from pages.roster import RosterPage
+from component import mount as base_mount  # noqa: F401  (the fixture, `mount` below)
+from pages.roster import MOTION, RosterPage
 from pages.roster_motion import on_motion
-from test_roster_cards import on_cards, signed_mount  # noqa: F401  (signed_mount is a fixture)
+from pages.warm import warm
+from test_roster_cards import PHONE, on_cards, signed_mount  # noqa: F401  (signed_mount is a fixture)
+
+
+@pytest.fixture(scope="module")
+def mount(base_mount):
+    """`mount`, with the module's two contexts (reduced motion, motion on) opened once (pages/warm.py)."""
+    return warm(base_mount, ("roster", PHONE), ("roster", (390, 844), (MOTION,)))
 
 
 @pytest.mark.render
@@ -239,10 +246,16 @@ def test_a_browsed_team_shows_its_roster_with_the_chip_and_sheet_never_waits(mou
 
 
 @pytest.mark.render
-def test_the_waiting_pack_turns_by_itself_only_with_motion(mount):
+def test_the_waiting_pack_stands_still_under_reduced_motion(mount):
     """STYLE.md motion rule 1: a slow turn as a tap cue, never under reduced motion."""
     roster, errors = on_cards(mount, pack="gate")
     assert roster.idle_turns() == 0, "reduced motion: it stands still"
+    assert errors == []
+
+
+@pytest.mark.render
+def test_the_waiting_pack_turns_by_itself_with_motion(mount):
+    """STYLE.md motion rule 1: a slow turn as a tap cue, with motion on."""
     roster, errors = on_motion(mount)
     assert roster.idle_turns() == 1
     # The turn is the page's own frame loop on the wall clock: it rests 2 s first, then turns.

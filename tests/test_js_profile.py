@@ -132,12 +132,13 @@ def test_a_rising_verdict_says_who_gained_what_in_a_sentence(sig):
     assert got == "Snaps up 5.0 points and his share of the work up 19 points. Worth a start, or an add if he is free."
 
 
-def test_a_rising_verdict_with_snaps_down_says_down_and_keeps_the_minus_out_of_it(sig):
-    # The audit's own line: "RISING snaps −5.0, share +19; buy or start", with a real minus sign.
-    for why in ("snaps -5.0, share +19; buy or start", "snaps −5.0, share +19; buy or start"):
-        got = sig("signalWords", "RISING", why)
-        assert got.startswith("Snaps down 5.0 points and his share of the work up 19 points."), got
-        assert "-" not in got and "−" not in got and "+" not in got
+# The audit's own line: "RISING snaps −5.0, share +19; buy or start", with a real minus sign.
+@pytest.mark.parametrize("why", ["snaps -5.0, share +19; buy or start", "snaps −5.0, share +19; buy or start"],
+                         ids=["hyphen minus", "real minus sign"])
+def test_a_rising_verdict_with_snaps_down_says_down_and_keeps_the_minus_out_of_it(sig, why):
+    got = sig("signalWords", "RISING", why)
+    assert got.startswith("Snaps down 5.0 points and his share of the work up 19 points."), got
+    assert "-" not in got and "−" not in got and "+" not in got
 
 
 def test_flat_snaps_and_flat_share_read_as_flat(sig):

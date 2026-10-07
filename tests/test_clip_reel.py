@@ -16,14 +16,21 @@ import re
 
 import pytest
 
-from component import mount  # noqa: F401  (the fixture)
+from component import mount as base_mount  # noqa: F401  (the fixture, `mount` below)
 from pages.clips import ClipsPage
 from pages.league_chip import LeagueChip
 from pages.roster import RosterPage
+from pages.warm import warm
 from test_render import drive, go, open_page
 
 PHONE = (360, 800)
 DESKTOP = (1100, 800)
+
+
+@pytest.fixture(scope="module")
+def mount(base_mount):
+    """`mount`, with the phone's context opened once for the module (pages/warm.py)."""
+    return warm(base_mount, ("roster", PHONE))
 
 
 def on_roster(mount, size=PHONE, clips=True, **show):
@@ -90,8 +97,9 @@ def test_a_cards_name_points_and_stat_line_sit_inside_its_picture(mount):
     rail, errors = on_roster(mount, mode="cards", pack_opened=True)
     rail.plant_week_row("Brock Purdy", 17.6, "6-86-1 · 11 tgt")
     thumb = rail.rect("thumb")
-    for part, got in rail.inside_its_picture().items():
-        assert got["inside"], (part, got["rect"], thumb)
+    placed = rail.inside_its_picture()
+    assert placed
+    assert [(part, got["rect"], thumb) for part, got in placed.items() if not got["inside"]] == []
     assert rail.text("nm") == "B. Purdy" and rail.text("pt") == "17.6"
     assert rail.text("l2") == "6-86-1 · 11 tgt"
     nm, pt, l2, n = (rail.rect(p) for p in ("nm", "pt", "l2", "n"))
@@ -131,12 +139,13 @@ def test_every_league_leaf_draws_the_same_team_line(browser, page_file):
         ClipsPage(page).show("espn", "cards", pack_opened=True)
         chip = LeagueChip(page)
         chip.pick_on_screen_team()
-        tops, names = {}, {}
+        tops, names, drawn = {}, {}, {}
         for leaf in chip.league_leaves():
             got = chip.visit(leaf)
-            assert got["chips"] == 1 and got["heroes"] == 0, leaf
+            drawn[leaf] = (got["chips"], got["heroes"])
             names[leaf] = got["name"]
             tops[leaf] = got["top"]
+        assert drawn == {leaf: (1, 0) for leaf in drawn}
         assert len(tops) >= 4 and len(set(tops.values())) == 1, tops
         assert len(set(names.values())) == 1, names
         chip.back_to_roster()
@@ -310,10 +319,18 @@ def test_on_a_desktop_four_cards_make_a_page_and_the_arrows_hide_when_the_rail_f
     assert rail.track_fits(), "three cards fit the column"
     assert rail.first_arrow_hidden() and rail.fits_count() == 1
     assert errors == []
+
+
+@pytest.mark.render
+def test_on_a_desktop_a_card_and_the_end_card_fit_the_rail_and_hide_the_arrows(mount):
     rail, errors = on_roster(mount, size=DESKTOP, team="yahoo")     # a card and the end card: they fit
     assert rail.track_fits()
     assert rail.first_arrow_hidden() and rail.fits_count() == 1
     assert errors == []
+
+
+@pytest.mark.render
+def test_on_a_desktop_more_cards_than_a_page_turn_by_four_and_the_end_disables_next(mount):
     # More cards than a page: the page turns by four cards, and the end of the rail disables ›.
     rail, errors = on_roster(mount, size=DESKTOP)
     rail.add_cards(3)
@@ -355,9 +372,14 @@ def test_the_first_starter_stays_on_the_first_screen_under_the_rail(mount, team)
 
 
 @pytest.mark.render
-def test_cards_mode_and_a_desktop_draw_the_rail_too(mount):
+def test_cards_mode_draws_the_rail_too(mount):
     rail, errors = on_roster(mount, mode="cards")
     assert rail.reel_count() == 1 and RosterPage(rail.page).card_grid_count() > 0
+    assert errors == []
+
+
+@pytest.mark.render
+def test_a_desktop_draws_the_rail_above_the_rows_with_the_list_beside_both(mount):
     rail, errors = on_roster(mount, size=(1280, 900))
     assert rail.reel_visible() and rail.first_list_line_visible(), "the list keeps its column"
     cols = rail.columns()

@@ -9,6 +9,7 @@ included, so a view's rule is read from the view and not from what another view 
 import pytest
 
 from component import Mounter, mount  # noqa: F401  (the fixture)
+from conftest import SharedPages
 
 VIEWS = ["roster", "waivers", "board", "movers", "usage", "news", "parlay", "build", "dfs", "weather", "teams"]
 SIDEWAYS = """[...document.querySelectorAll('#view *')].filter(e =>
@@ -24,11 +25,20 @@ LOOPS = """document.getAnimations().filter(a => a.playState === 'running'
   && a.effect && a.effect.getTiming().iterations === Infinity).map(a => a.animationName)"""
 
 
-@pytest.fixture
+class PerSize(SharedPages):
+    """One page per viewport, not per view: each test loads its own view into it, which clears storage
+    and reloads, so a view's rule is still read from that view alone."""
+
+    def get(self, key, opener):
+        return super().get(key[1:], opener)
+
+
+@pytest.fixture(scope="module")
 def mounted(mount, built):
-    """A Mounter of this test's own, on the module's folder: eleven views at one size would keep more
-    contexts than a module may, so each test closes the ones it opened."""
+    """A Mounter of this module's own, on the module's folder, that keeps one page per size and not one
+    per view (eleven views would keep more contexts than a module may)."""
     m = Mounter(mount.browser, mount.folder, built.fragment)
+    m.pages = PerSize()
     yield m
     m.pages.close()
 
@@ -49,13 +59,12 @@ def test_nothing_scrolls_sideways_on_a_phone(mounted, leaf):
 
 
 @pytest.mark.render
-def test_nothing_moves_on_its_own(mounted):
+@pytest.mark.parametrize("leaf", ["board", "news", "parlay"])
+def test_nothing_moves_on_its_own(mounted, leaf):
     """The logo and the chrome hold still; an infinite loop is left only where the motion is the
     content (the drive strip, the trading cards, a game in progress)."""
-    for leaf in ("board", "news", "parlay"):
-        page, errors = mounted(leaf, size=(1280, 900))
-        page.evaluate(f"navGo('{leaf}'); render()")
-        settle(page)
-        loops = page.evaluate(LOOPS)
-        assert loops == [], (leaf, loops)
-        assert errors == []
+    page, errors = mounted(leaf, size=(1280, 900))
+    page.evaluate(f"navGo('{leaf}'); render()")
+    settle(page)
+    assert page.evaluate(LOOPS) == []
+    assert errors == []

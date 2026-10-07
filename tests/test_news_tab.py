@@ -29,9 +29,10 @@ def test_the_players_name_is_the_bright_part_of_the_headline(wide):
     got = news.headlines()
     named = [r for r in got if r["name"]]
     assert named, "at least one fixture headline names its player"
-    for r in named:
-        assert r["name"] in r["title"]
-        assert r["ink"] != r["rest"], "the name is brighter than the rest of the headline"
+    not_in_title = [r["name"] for r in named if r["name"] not in r["title"]]
+    assert not_in_title == []
+    not_brighter = [r["name"] for r in named if r["ink"] == r["rest"]]
+    assert not_brighter == [], "the name is brighter than the rest of the headline"
     assert errors == []
 
 

@@ -318,11 +318,16 @@ def test_unfollowing_a_team_takes_its_players_off_mine_without_a_reload(mount):
     shown, followed = ranks.shown_slugs(), ["yahoo", "espn", "ayo"]
     assert ranks.mine_slugs() == ranks.held_by(followed) & shown != set(), "the fixture holds players the list shows"
     switch.open_menu()
+    wrong_mine, menu_closed = [], []
     for gone in list(followed):
         switch.follow(gone)
         followed.remove(gone)
-        assert ranks.mine_slugs() == ranks.held_by(followed) & shown, f"after unfollowing {gone}"
-        assert switch.menu_is_visible(), "a star keeps the menu open"
+        if ranks.mine_slugs() != ranks.held_by(followed) & shown:
+            wrong_mine.append(gone)
+        if not switch.menu_is_visible():
+            menu_closed.append(gone)
+    assert wrong_mine == [], "MINE did not match the teams still followed after unfollowing these"
+    assert menu_closed == [], "a star keeps the menu open"
     assert ranks.mine_slugs() == set()
     assert errors == []
 

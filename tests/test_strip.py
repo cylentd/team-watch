@@ -67,7 +67,7 @@ def test_the_figure_stands_where_the_yard_line_says(mount, shaped, drive):
     the wrong scale, or off the absolute scale leaves the line and shows up as a residual."""
     d = shaped["drives"][drive]
     strip, errors = StripPage.open_on(mount, shaped, drive)
-    points = []
+    spots, poses = [], []
     for i, p in enumerate(d["plays"]):
         if p["k"] not in ("rush", "pass"):
             continue        # an incompletion and a kick both end past `to`, on purpose
@@ -75,8 +75,11 @@ def test_the_figure_stands_where_the_yard_line_says(mount, shaped, drive):
         # snap -- he takes his release step while the passer drops -- so his f=0 is a choreography
         # number, and asserting on it would be asserting on the view's own arithmetic.
         if p["k"] == "rush":
-            points.append((p["from"], strip.carrier_x_at(i, 0)))
-        points.append((p["to"], strip.carrier_x_at(i, 1)))
+            spots.append(p["from"])
+            poses.append((i, 0, 0))
+        spots.append(p["to"])
+        poses.append((i, 1, 0))
+    points = list(zip(spots, strip.carrier_xs(poses)))
     assert len(points) >= 4, f"drive {drive} gave only {len(points)} samples"
     b, worst = fit(points)
     # The drive's direction is in the SIGN: a home drive runs 0 -> 100 left to right, an away drive
@@ -100,9 +103,10 @@ def test_a_scaled_ancestor_does_not_move_the_figures_off_the_field(mount, shaped
         strip.scale_ancestor(s)
         at.append(strip.carrier_on_field())
     base = at[0]
-    for s, (fx, fy) in zip((0.5, 0.2), at[1:]):
-        assert abs(fx - base[0]) < .01, f"at scale {s} the figure moved {fx - base[0]:+.3f} across the field"
-        assert abs(fy - base[1]) < .02, f"at scale {s} the figure moved {fy - base[1]:+.3f} up the field"
+    moved = [f"at scale {s} the figure moved {fx - base[0]:+.3f} across and {fy - base[1]:+.3f} up the field"
+             for s, (fx, fy) in zip((0.5, 0.2), at[1:])
+             if not (abs(fx - base[0]) < .01 and abs(fy - base[1]) < .02)]
+    assert moved == []
     # and he is standing ON the field, not above it -- the symptom the bug actually showed
     assert 0 < base[1] < 1.2, f"the figure's feet are at {base[1]:.2f} of the field's height"
     assert errors == []
@@ -128,7 +132,7 @@ def test_every_figure_faces_the_way_his_drive_says(mount, shaped):
     """The rig is drawn facing right. Until 2026-09-26 only the chevrons knew the drive's
     direction, and an away offense ran left facing right. The ball carrier faces the end zone his
     drive attacks; the tackler faces him."""
-    out = {}
+    out, errs = {}, {}
     for dirn in (1, -1):
         # the ESPN fixture names no tacklers, so one is added to a copy of the play being drawn
         data = json.loads(json.dumps(shaped))
@@ -138,7 +142,8 @@ def test_every_figure_faces_the_way_his_drive_says(mount, shaped):
         strip, errors = StripPage.open_on(mount, data, d)
         strip.render(i + .5)
         out[dirn] = strip.facing()
-        assert errors == []
+        errs[dirn] = list(errors)
+    assert errs == {1: [], -1: []}
     assert out[1] == ["1", "-1"], f"home drive: carrier, tackler facing {out[1]}"
     assert out[-1] == ["-1", "1"], f"away drive: carrier, tackler facing {out[-1]}"
 
@@ -234,10 +239,7 @@ def test_the_caption_box_never_changes_height(mount, shaped):
     """A box that grows for a two-line pass and shrinks for a one-line run makes the whole panel
     jump under the reader's thumb during a replay. Measured at 360px, where captions wrap."""
     strip, errors = StripPage.open_on(mount, shaped, 0, PHONE)
-    heights = set()
-    for i in range(len(shaped["drives"][0]["plays"])):
-        strip.render(i + 1)
-        heights.add(round(strip.caption_height()))
+    heights = {round(h) for h in strip.caption_heights_after(i + 1 for i in range(len(shaped["drives"][0]["plays"])))}
     assert len(heights) == 1, f"the caption box took {sorted(heights)} across one drive"
     assert errors == []
 
@@ -283,12 +285,12 @@ def test_the_chevrons_run_from_the_ball_to_the_end_zone_being_attacked(mount, sh
     # The band lives on the field's centre lane, which perspective draws ~30px narrower than the
     # turf's own bounding box (that box is the near touchline, the widest part). So the check is
     # "which side of the ball, and does it cover the ground", not "does it touch the edge".
-    if d["dir"] > 0:
-        assert box["aL"] > box["ball"], "the chevrons start behind the ball"
-        assert box["aR"] - box["ball"] > (box["tR"] - box["ball"]) * .7, "the band stops short"
-    else:
-        assert box["aR"] < box["ball"], "the chevrons start ahead of the ball"
-        assert box["ball"] - box["aL"] > (box["ball"] - box["tL"]) * .7, "the band stops short"
+    checks = ([("the chevrons start behind the ball", box["aL"] > box["ball"]),
+               ("the band stops short", box["aR"] - box["ball"] > (box["tR"] - box["ball"]) * .7)]
+              if d["dir"] > 0 else
+              [("the chevrons start ahead of the ball", box["aR"] < box["ball"]),
+               ("the band stops short", box["ball"] - box["aL"] > (box["ball"] - box["tL"]) * .7)])
+    assert [why for why, ok in checks if not ok] == []
     assert errors == []
 
 
@@ -472,7 +474,9 @@ def test_the_legs_run_on_the_replays_clock(mount, shaped):
     moment the replay stops, they stop too."""
     strip, errors = StripPage.open_on(mount, shaped, None)
     # Waits are on what the page draws, not on a clock: under the full suite's load a fixed 120ms
-    # sometimes held no new replay frame, and the legs read "did not move" (2026-09-26).
+    # sometimes held no new replay frame, and the legs read "did not move" (2026-09-26). The page's
+    # clock is moved on by hand (frames count as 17 ms), so the waits take as long as the frames take to draw.
+    strip.fake_time()
     strip.toggle_play()
     strip.wait_for_a_runner()
     a = strip.leg_angle()
@@ -492,6 +496,7 @@ def test_a_row_in_the_list_plays_that_play(mount, shaped):
     """Tapping a row runs its play from the snap to the beat after it, on its own drive's field,
     and lights that row."""
     strip, errors = StripPage.open_on(mount, shaped, None)
+    strip.fake_time()           # the play's second runs on the page's clock, moved on by the wait below
     k = strip.row_count() - 3
     strip.tap_row(k)
     strip.wait_until_reel_at(k + 1)

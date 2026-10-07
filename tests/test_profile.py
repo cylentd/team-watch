@@ -65,6 +65,7 @@ def test_build_injects_the_profiles(built):
 
 
 @pytest.mark.req(REQ, ac="no profiles file injects null")
+@pytest.mark.integration      # a real build of the page
 def test_no_profiles_file_injects_null(monkeypatch):
     monkeypatch.setattr(build, "load_profiles", lambda: None)
     b = build.render()
@@ -97,6 +98,7 @@ def test_build_injects_the_market_stock_from_the_feed(built):
 
 
 @pytest.mark.req(REQ, ac="no market stock file injects null")
+@pytest.mark.integration      # a real build of the page
 def test_no_market_stock_injects_null(monkeypatch):
     monkeypatch.setattr(build, "load_market_stock", lambda: None)
     b = build.render()
@@ -174,6 +176,14 @@ def test_head_carries_the_verdict(mount):
     assert why.startswith("Snaps up 13.0 points and his share of the work up ") and why.endswith("Worth a start, or an add if he is free.")
     assert "+" not in why and "snaps +" not in why
     assert profile.owner_marks() == 0
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req(REQ, ac="a sheet opened from search or a starter row says the same verdict, and a hold with one roster has no line")
+def test_head_carries_the_verdict_from_search_and_says_nothing_on_a_hold(mount):
+    """Search passes a bare {n, pos, team}: the verdict is looked up by slug, so it reads the same."""
+    profile, errors = on_roster(mount, team="espn")
     profile.open_player({"n": "Chase Brown", "pos": "RB", "team": "CIN"})
     assert "RISING" in profile.tags()["text"]
     profile.open_starter("espn", "Brock Purdy")              # watch says hold, one roster: no line
@@ -218,11 +228,22 @@ def test_the_strip_says_how_good_and_how_used(mount):
     assert [c["label"] for c in cells] == ["PROJ.", "PPG", "RANK", "CARRIES", "SNAPS"]
     assert [c["proj"] for c in cells] == [True, False, False, False, False]
     assert "RB1" not in profile.identity()                   # one home for the rank
-    profile.close()
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req(REQ, ac="a receiver's role share is his targets")
+def test_a_receivers_strip_shows_his_targets(mount):
+    profile, errors = on_roster(mount, team="espn")
     profile.open_from_roster("George Kittle")
     assert profile.strip()[3]["label"] == "TARGETS"
-    profile.close()
-    profile.roster.show_team("yahoo")
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req(REQ, ac="a player the pool does not carry shows his projection alone")
+def test_a_player_outside_the_pool_has_his_projection_alone_on_the_strip(mount):
+    profile, errors = on_roster(mount)
     profile.open_from_roster(ST_BROWN)                       # not in the fixture pool: his projection alone
     assert [c["label"] for c in profile.strip()] == ["PROJ."]
     assert errors == []
@@ -244,7 +265,13 @@ def test_the_fantasy_tier_leads_the_strip(mount):
     assert "|" not in head
     assert profile.strip()[2]["value"] == f"RB{rank}"        # projection, ppg, then the rank
     assert of == profile.pool_size("RB")
-    profile.close()
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req(REQ, ac="a player the pool does not carry has no rank on the identity line or the strip")
+def test_a_player_outside_the_pool_has_no_fantasy_tier(mount):
+    profile, errors = on_roster(mount)
     profile.open_from_roster(ST_BROWN)                       # not in the fixture pool: no rank anywhere
     assert profile.identity().upper() == "WR · DET"
     assert len(profile.strip()) == 1                         # his projection; no pool rank or share
@@ -262,8 +289,14 @@ def test_owners_name_each_leagues_team(mount):
     assert [o["text"] for o in owners] == ["Yahoo Yours", "ESPN Free agent", "AYO Free agent"]   # the third league, 2026-09-29
     assert owners[0]["mine"]
     assert owners[1]["free"]
-    profile.close()
-    # A leaguemate's browser: no owner link, no team picked. The same pill names the team.
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req(REQ, ac="a leaguemate's browser sees the owner pill name the team that has him")
+def test_a_leaguemate_sees_the_team_that_rosters_him(mount):
+    """A leaguemate's browser: no owner link, no team picked. The same pill names the team."""
+    profile, errors = on_roster(mount)
     profile.become_a_leaguemate()
     profile.open_from_roster(ST_BROWN)
     owners = profile.owners()

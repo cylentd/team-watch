@@ -131,10 +131,10 @@ def test_playlist_is_the_uploads_playlist_with_50_items(clips, monkeypatch):
 def test_the_key_goes_in_a_header_only_and_calls_time_out(clips, monkeypatch):
     up = Upstream(listing={"items": [item("a", 1)]}, detail={"items": [video("a", "PT10S")]})
     get(clips, "/api/clips?ch=PHI", monkeypatch, up)
-    for req, timeout in up.seen:
-        assert req.get_header("X-goog-api-key") == KEY
-        assert KEY not in req.full_url and "key=" not in req.full_url
-        assert timeout is not None and timeout <= 8
+    assert up.seen
+    assert [req.get_header("X-goog-api-key") for req, _ in up.seen] == [KEY] * len(up.seen)
+    assert [r.full_url for r, _ in up.seen if KEY in r.full_url or "key=" in r.full_url] == []
+    assert [t for _, t in up.seen if t is None or t > 8] == []
 
 
 @pytest.mark.parametrize("path", ["/api/clips", "/api/clips?ch=", "/api/clips?ch=XXX", "/api/clips?ch=sea"])

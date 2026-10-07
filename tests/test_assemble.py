@@ -17,23 +17,26 @@ def read_copy(scratch_tree):
     return json.loads((scratch_tree / "content.json").read_text(encoding="utf-8"))
 
 
+@pytest.mark.integration
 def test_tree_and_manifests_agree():
     assert assemble.check() == []
 
 
-def test_every_part_listed_exactly_once():
-    for kind in ("css", "js"):
-        listed = assemble.manifest(kind)
-        on_disk = sorted(p.relative_to(assemble.SRC / kind).as_posix()
-                         for p in (assemble.SRC / kind).rglob("*") if p.is_file() and p.suffix in (".css", ".js"))
-        assert sorted(listed) == on_disk
-        assert len(listed) == len(set(listed))
+@pytest.mark.parametrize("kind", ["css", "js"])
+def test_every_part_listed_exactly_once(kind):
+    listed = assemble.manifest(kind)
+    on_disk = sorted(p.relative_to(assemble.SRC / kind).as_posix()
+                     for p in (assemble.SRC / kind).rglob("*") if p.is_file() and p.suffix in (".css", ".js"))
+    assert sorted(listed) == on_disk
+    assert len(listed) == len(set(listed))
 
 
+@pytest.mark.integration
 def test_assembly_is_deterministic():
     assert assemble.assemble() == assemble.assemble()
 
 
+@pytest.mark.integration
 def test_banners_are_the_only_difference():
     with_banners = assemble.assemble(banners=True)
     without = assemble.assemble(banners=False)
@@ -42,29 +45,33 @@ def test_banners_are_the_only_difference():
     assert with_banners.count("\n") - without.count("\n") == n_parts
 
 
+@pytest.mark.integration
 def test_parts_are_contiguous_in_the_output():
     """line_map's ranges tile each slot: no gaps (a lost line) and no overlaps."""
     rows = assemble.line_map(banners=True)
     by_kind = {}
     for name, s, e in rows:
         by_kind.setdefault(name.split("/", 1)[0], []).append((s, e))
-    for kind, ranges in by_kind.items():
-        for (s1, e1), (s2, e2) in zip(ranges, ranges[1:]):
-            assert s2 == e1 + 2, f"{kind}: gap or overlap between {e1} and {s2}"   # +1 is the next banner
+    breaks = [f"{kind}: gap or overlap between {e1} and {s2}"        # +1 is the next banner
+              for kind, ranges in by_kind.items()
+              for (s1, e1), (s2, e2) in zip(ranges, ranges[1:]) if s2 != e1 + 2]
+    assert by_kind
+    assert breaks == []
 
 
 def test_every_part_ends_with_a_newline():
     """Concatenation has no separators, so a part without a trailing newline would glue its last
     line to the next part's banner."""
-    for kind in ("css", "js"):
-        for path in assemble.parts(kind):
-            assert path.read_bytes().endswith(b"\n"), path
+    paths = [p for kind in ("css", "js") for p in assemble.parts(kind)]
+    assert paths
+    assert [p for p in paths if not p.read_bytes().endswith(b"\n")] == []
 
 
+@pytest.mark.integration
 def test_placeholders_do_not_survive():
     out = assemble.assemble()
-    for ph in assemble.PLACEHOLDER.values():
-        assert ph not in out
+    assert assemble.PLACEHOLDER
+    assert [ph for ph in assemble.PLACEHOLDER.values() if ph in out] == []
     assert out.count("/*__HEADS__*/") == 1
 
 
@@ -158,14 +165,21 @@ def test_shell_copy_slot_is_substituted_and_html_escaped(scratch_tree):
     assert "{{copy:" not in out
 
 
+@pytest.mark.integration
 def test_line_map_accounts_for_the_injected_copy():
     """A part's reported range has to name its real first and last line in the output."""
     out = assemble.assemble(banners=True).split("\n")
-    for name, start, end in assemble.line_map(banners=True):
+    wrong = []
+    rows = assemble.line_map(banners=True)
+    for name, start, end in rows:
         kind, rel = name.split("/", 1)
         body = assemble.part_text(kind, rel).split("\n")
-        assert out[start - 1] == body[0], name
-        assert out[end - 1] == body[-2], name
+        if out[start - 1] != body[0]:
+            wrong.append((name, "first line"))
+        if out[end - 1] != body[-2]:
+            wrong.append((name, "last line"))
+    assert rows
+    assert wrong == []
 
 
 def test_unknown_copy_key_in_js_is_a_problem(scratch_tree):

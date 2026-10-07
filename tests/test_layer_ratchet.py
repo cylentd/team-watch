@@ -17,6 +17,8 @@ import ast
 import pathlib
 import re
 
+import pytest
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 DATA = ROOT / "design" / "src" / "js" / "data"
 TESTS = ROOT / "tests"
@@ -87,15 +89,27 @@ def test_the_counter_sees_a_call_through_a_constant(tmp_path):
     assert sum(len(re.findall(r"\b(muGame|ss3Wl|render)\(", s)) for s in strings) == 3
 
 
-def test_no_new_logic_is_tested_through_the_browser():
-    over = {f: (n, BACKLOG.get(f, 0)) for f, n in counts().items() if n > BACKLOG.get(f, 0)}
+@pytest.fixture(scope="session")
+def data_calls():
+    """counts() once per worker: it parses every test file, and two tests read it."""
+    return counts()
+
+
+@pytest.fixture(scope="session")
+def page_loads():
+    """full_load_counts() once per worker: it parses every test file and page object, and two tests read it."""
+    return full_load_counts()
+
+
+def test_no_new_logic_is_tested_through_the_browser(data_calls):
+    over = {f: (n, BACKLOG.get(f, 0)) for f, n in data_calls.items() if n > BACKLOG.get(f, 0)}
     assert over == {}, ("file: (now, allowed). A pure data/ function is called through page.evaluate; "
                         "test it in Node instead (tests/jsunit.py)")
 
 
-def test_the_backlog_is_current():
+def test_the_backlog_is_current(data_calls):
     """A file that moved tests to Node lowers its number here, so the ratchet keeps the progress."""
-    now = counts()
+    now = data_calls
     stale = {f: (now.get(f, 0), n) for f, n in BACKLOG.items() if now.get(f, 0) < n}
     assert stale == {}, f"file: (now, listed). Lower these in BACKLOG: {stale}"
 
@@ -228,15 +242,15 @@ def test_a_journey_test_may_load_the_full_page_free():
     assert full_loads(src) == {"test_j.py": 1}, "only the unmarked test counts"
 
 
-def test_full_page_loads_only_go_down():
-    over = {f: (n, FULL_LOADS.get(f, 0)) for f, n in full_load_counts().items() if n > FULL_LOADS.get(f, 0)}
+def test_full_page_loads_only_go_down(page_loads):
+    over = {f: (n, FULL_LOADS.get(f, 0)) for f, n in page_loads.items() if n > FULL_LOADS.get(f, 0)}
     assert over == {}, ("file: (now, allowed). A test that needs the whole page (navigation, hash, Back) "
                         "is marked @pytest.mark.journey (tests/README.md); otherwise a test of one view mounts it "
                         "instead (tests/component.py)")
 
 
-def test_the_full_load_counts_are_current():
+def test_the_full_load_counts_are_current(page_loads):
     """A file that moved tests to `mount` lowers its number here, so the ratchet keeps the progress."""
-    now = full_load_counts()
+    now = page_loads
     stale = {f: (now.get(f, 0), n) for f, n in FULL_LOADS.items() if now.get(f, 0) < n}
     assert stale == {}, f"file: (now, listed). Lower these in FULL_LOADS: {stale}"

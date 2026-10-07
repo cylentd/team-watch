@@ -49,17 +49,15 @@ def test_wind_and_rain_add_up_per_position(weather):
 def test_the_card_says_only_what_moves(weather):
     wx, _ = weather
     text = wx.cards()[0]["text"]
-    for gone in ("RB", "no clear effect", "No clear effect", "not proven", "Not proven"):
-        assert gone not in text, gone
+    assert [g for g in ("RB", "no clear effect", "No clear effect", "not proven", "Not proven") if g in text] == []
 
 
 def test_no_method_notes(weather):
     """Show, don't tell (2026-09-30): no projection note, no "How we know", no method or source line."""
     wx, _ = weather
     text = wx.view_text()
-    for gone in ("Our projections", "Not in our projections", "Kickers aren't projected", "How we know",
-                 "Tested with no effect", "METHODOLOGY", "National Weather Service"):
-        assert gone not in text, gone
+    assert [g for g in ("Our projections", "Not in our projections", "Kickers aren't projected", "How we know",
+                        "Tested with no effect", "METHODOLOGY", "National Weather Service") if g in text] == []
     assert wx.details_count() == 0
 
 
@@ -115,8 +113,7 @@ def test_a_book_priced_hit_says_in_the_odds_and_why_on_tap(weather):
 def test_the_view_shows_no_roster(weather):
     wx, _ = weather
     text = wx.view_text()
-    for gone in ("Gibbs", "Your players", "of your players", "ESPN", "Yahoo"):
-        assert gone not in text, gone
+    assert [g for g in ("Gibbs", "Your players", "of your players", "ESPN", "Yahoo") if g in text] == []
 
 
 def test_a_hit_with_no_wx_has_no_number(weather):
@@ -215,8 +212,7 @@ def test_no_backtest_file_means_no_cards_and_no_error(mount, tmp_path, monkeypat
 def test_no_verdict_words(weather):
     wx, _ = weather
     text = wx.view_text().lower()
-    for word in ("good for", "bad for", "boost", "fade", "start ", "sit ", "↑", "↓", "favor", "favour"):
-        assert word not in text, word
+    assert [w for w in ("good for", "bad for", "boost", "fade", "start ", "sit ", "↑", "↓", "favor", "favour") if w in text] == []
 
 
 def test_the_sky_moves_only_with_motion_allowed(weather):

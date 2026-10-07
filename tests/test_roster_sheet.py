@@ -12,15 +12,17 @@ from component import mount  # noqa: F401  (the fixture)
 from pages.roster_sheet import RosterSheet
 
 
-def espn_roster(mount, size):
-    """The ESPN team's roster as the Sheet, mounted at a size: (RosterSheet, errors)."""
-    page, errors = mount("roster", size=size, heads=True)     # the headshot files beside the page, as served
+def espn_roster(mount, size, heads=False):
+    """The ESPN team's roster as the Sheet, mounted at a size: (RosterSheet, errors). A test that measures a
+    face or a name's room asks for `heads` (the headshot files beside the page, as served); the rest read
+    usage, tags and columns, which no headshot changes, and skip writing ~230 files for it."""
+    page, errors = mount("roster", size=size, heads=heads)
     return RosterSheet(page), errors
 
 
 @pytest.mark.render
 def test_a_phone_row_is_full_size(mount):
-    sheet, errors = espn_roster(mount, (360, 660))
+    sheet, errors = espn_roster(mount, (360, 660), heads=True)
     heads = sheet.head_widths()
     assert heads and min(heads) >= 40, heads
     slots = sheet.starter_slots()
@@ -87,7 +89,7 @@ def test_no_name_loses_its_end(mount, width):
     """A long name wraps to a second line, never ends in "..." (2026-09-25: "Tetairoa McMill..."
     at 1280, nearly every name at 1100). The check measures the text itself against its cell, so
     an ellipsis set on any ancestor counts."""
-    sheet, errors = espn_roster(mount, (width, 900))
+    sheet, errors = espn_roster(mount, (width, 900), heads=True)
     # A third line is clamped away; scrollHeight past the box by more than a descender's 2px says so.
     assert sheet.names_drawn(), "the fixture must draw names to measure"
     assert sheet.names_cut() == []

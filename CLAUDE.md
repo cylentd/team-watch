@@ -53,11 +53,14 @@ tests, goldens, test history.
 | Full suite | `python scripts/run_tests.py --full` (in parallel, ~43-110 s) |
 | One golden slice | `python -m pytest tests/test_render.py --areas ranks` (~10 s) |
 | Regenerate golden | `python -m pytest --update-golden` (never with `-n`: every area rewrites the one file) |
-| Mutation | `python $HOME/.agents/skills/testing/scripts/mutate.py --files <file>` (the testing skill's, since 2026-10-06; `.testing.json` picks the files and `scripts/mutate_tests.py` the tests; land runs it on the branch's changed lines) |
+| Mutation | `python $HOME/.agents/skills/testing/scripts/mutate.py --files <file>` (`.testing.json` picks the files, `scripts/mutate_tests.py` the tests) |
 | Before land | `.\scripts\land.ps1` runs the testing skill's `land_gate.py` itself |
 
 - **Never a bare `python -m pytest`:** all ~3,600 tests one at a time, ~10 min (2026-10-05).
-- **Land gate:** source changed with no test changed fails, unless a commit says `Test-Exempt: <reason>`.
+- **Land gate** (since 2026-10-06; what each check does: tests/README.md "Frozen tests and the
+  backlog"): a landed test is frozen. Editing one fails the land unless a commit says
+  `Test-Reapproved: <entry> <reason>`, written only after David says yes. Source with no test
+  needs `Test-Exempt: <reason>`. `$TESTING_SKILL` points the scripts at an uninstalled skill checkout.
 - **A new test file** is listed in `tests/impact.json` (`test_impact.py` fails otherwise).
 - **Protected:** `tests/golden/render.json` (only through `--update-golden`, diff read as the review);
   `tests/fixtures/` (only with the golden regenerated); the ratchet numbers in `test_budgets.py`

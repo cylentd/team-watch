@@ -16,12 +16,13 @@ import copy
 import pytest
 
 from component import mount  # noqa: E402,F401  (the fixture)
-from pages.finder import COPY_REFUSED, FIXTURE, builder, finder  # noqa: E402
+from pages.finder import COPY_REFUSED, FIXTURE, builder, finder, tap_all  # noqa: E402
 
 RUN = "espn-run-it-back"
 ESPN = FIXTURE["leagues"]["espn"]
 PROJ = {p["name"]: p["proj"] for p in ESPN["values"]["Purdy Big in Japan"]}
 PTS = "pts rest of season"
+PKG = ".tb-pkg [data-tbpick]"
 
 
 def open_edit(page, which=0):
@@ -144,8 +145,7 @@ def test_a_tap_on_a_player_puts_him_in_or_out_and_the_gain_follows(mount):
     assert page.locator(".tb-r[data-tbpick='Bhayshul Tuten']").get_attribute("aria-pressed") == "false"
     assert gain(page) == f"−8.1 {PTS}"
     assert page.locator(".tb-pkg .tb-col").nth(1).locator(".tb-p").count() == 1
-    for name in ("Brock Purdy", "Emanuel Wilson", "Kyren Williams", "Tee Higgins"):
-        pick(page, name)
+    tap_all(page, ("Brock Purdy", "Emanuel Wilson", "Kyren Williams", "Tee Higgins"))
     assert page.locator(".tb-pkg .tb-hint").count() == 2 and gain(page) == f"— {PTS}"
     pick(page, "Tee Higgins")                                                # Higgins for nothing: red
     assert gain(page) == f"−60.8 {PTS}"
@@ -162,8 +162,7 @@ def test_an_empty_package_is_a_dash_and_reset_goes_back_to_the_offer_it_started_
     builder(page, RUN)
     open_edit(page, 1)
     assert page.locator("[data-tbreset]").is_disabled(), "nothing to reset yet"
-    for n in ("Tee Higgins", "Tony Pollard", "Jared Goff", "Bijan Robinson", "KC Concepcion"):
-        page.locator(f".tb-pkg [data-tbpick='{n}']").click()
+    tap_all(page, ("Tee Higgins", "Tony Pollard", "Jared Goff", "Bijan Robinson", "KC Concepcion"), PKG)
     assert gain(page) == f"— {PTS}"
     assert page.locator(".tb-edfoot .tb-gain b").evaluate("e => getComputedStyle(e).color") != "rgb(55, 224, 139)"
     assert page.locator("[data-tbedcopy]").is_disabled(), "an empty package has nothing to copy"
@@ -200,8 +199,7 @@ def test_the_to_ir_line_sits_above_the_drop_line_and_the_foot_keeps_its_size(mou
     open_edit(page, 0)
     foot = "document.querySelector('.tb-edfoot').getBoundingClientRect().height"
     before = page.evaluate(foot)
-    for n in ("Tee Higgins", "Tony Pollard", "Jared Goff", "Bijan Robinson"):   # leave Coker (Out) as the only player in
-        page.locator(f".tb-pkg [data-tbpick='{n}']").click()
+    tap_all(page, ("Tee Higgins", "Tony Pollard", "Jared Goff", "Bijan Robinson"), PKG)   # leave Coker (Out) as the only player in
     assert page.locator(".tb-eir").inner_text() == "" and page.locator(".tb-edrop").inner_text() == "You drop: O. Gordon II", "the IR slot is full, so the one extra player is a drop, not a move"
     pick(page, "Jordan Mason")             # the player in the one IR slot goes: the slot is free, Coker (ir_ok) takes it, nobody is dropped
     assert gain(page) == f"+4.6 {PTS}"
@@ -222,9 +220,9 @@ def test_a_package_the_cap_cannot_take_says_so_and_cannot_be_copied(mount):
     page.wait_for_selector(".tb-card .tb-gain")
     page.locator("[data-tbown]").click()
     page.wait_for_selector(".tb-body.tb-ed")
-    rows = page.locator(".tb-list").nth(1).locator(".tb-r")
-    for i in range(rows.count()):
-        rows.nth(i).click()
+    names = page.locator(".tb-list").nth(1).locator(".tb-r").evaluate_all("rs => rs.map(r => r.dataset.tbpick)")
+    assert len(names) == 16, "every player on his roster"
+    tap_all(page, names)
     assert gain(page) == f"— {PTS}"
     assert page.locator(".tb-edrop").inner_text() == "Over the roster limit, no one to drop"
     assert page.locator("[data-tbedcopy]").is_disabled()
@@ -264,13 +262,12 @@ def test_copy_offer_in_edit_works_out_the_partners_room_for_the_package_it_holds
     builder(page, RUN)
     open_edit(page, 0)                                           # Higgins, Pollard, Goff for Robinson and Coker
     assert tail(page) == "You'd only need to cut I. Davis."
-    pick(page, "Jared Goff")                                     # two for two: nobody to make room for
+    tap_all(page, ("Jared Goff",))                               # two for two: nobody to make room for
     assert tail(page) == ""
-    for n in ("Bijan Robinson", "Jalen Coker"):                  # Higgins and Pollard for nothing
-        pick(page, n)
-    pick(page, "Jordyn Tyson")                                   # ... for his injured reserve: his slot is free, Coker takes it, and one cut
+    # Higgins and Pollard for nothing, then for his injured reserve: his slot is free, Coker takes it, and one cut
+    tap_all(page, ("Bijan Robinson", "Jalen Coker", "Jordyn Tyson"))
     assert tail(page) == "J. Coker can go to your IR slot. You'd only need to cut I. Davis."
-    pick(page, "Tony Pollard")                                   # one in, one out: his IR slot takes Coker, nobody is cut
+    tap_all(page, ("Tony Pollard",))                             # one in, one out: his IR slot takes Coker, nobody is cut
     assert tail(page) == "J. Coker can go to your IR slot, so you don't cut anyone."
     assert errors == []
 
@@ -305,9 +302,7 @@ def test_make_your_own_is_under_the_offers_and_in_the_empty_states_and_starts_em
     assert page.locator("[data-tbpartner]").count() == 0, "the partner was chosen: nothing to pick"
     assert gain(page) == f"— {PTS}"
     assert page.locator("[data-tbreset]").is_disabled()
-    pick(page, "Kyren Williams")
-    pick(page, "Cam Skattebo")
-    pick(page, "Jared Goff")
+    tap_all(page, ("Kyren Williams", "Cam Skattebo", "Jared Goff"))
     assert gain(page) == f"+21.2 {PTS}", "the first offer, built by hand"
     assert page.locator(".tb-edrop").inner_text() == "You drop: I. Davis", "three players in for one: one over, his IR slot is taken"
     assert page.locator(".tb-eir").inner_text() == ""
@@ -356,27 +351,26 @@ def test_make_your_own_from_the_chips_opens_against_the_deepest_team_and_lets_th
 
 
 @pytest.mark.render
-def test_the_edit_state_keeps_its_parts_still_with_the_foot_on_the_bottom_edge_and_fits_both_screens(mount):
-    for w, h in ((360, 740), (1280, 900)):
-        page, _ = finder(mount, "espn", size=(w, h))
-        builder(page, RUN)
-        open_edit(page, 0)
-        geo = "(() => { const g = s => document.querySelector(s).getBoundingClientRect(); return [g('.tb-pkg').top, g('.tb-pkg').height, g('.tb-edfoot').height, g('.tb-edfoot').bottom, g('.tb-lists').top]; })()"
-        before = page.evaluate(geo)
-        for name in ("George Kittle", "Tee Higgins", "Brock Purdy", "Jared Goff", "Kyren Williams", "Nico Collins", "Tyler Warren"):
-            page.locator(f".tb-r[data-tbpick='{name}']").click()
-        page.evaluate("window.scrollTo(0, 0)")
-        assert page.evaluate(geo) == before, "the package, the foot and the rosters do not move or resize when the package changes"
-        assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), "no sideways scroll"
-        assert page.evaluate("document.documentElement.scrollHeight > innerHeight"), "the rosters scroll with the page"
-        assert page.evaluate(f"document.querySelector('.tb-edfoot').getBoundingClientRect().bottom <= {h} - 8"), "the foot is a tray on the bottom edge"
-        assert page.evaluate("[...document.querySelectorAll('.tb-r, .tb-pr, .tb-edfoot .tb-copy')].every(b => b.getBoundingClientRect().height >= 40)")
-        assert page.evaluate("[...document.querySelectorAll('.tb-pkg ul, .tb-lists, .tb-edfoot')].every(e => e.scrollWidth <= e.clientWidth)")
-        page.evaluate("window.scrollTo(0, document.documentElement.scrollHeight)")
-        rest = page.evaluate("(() => { const r = [...document.querySelectorAll('.tb-r')].pop().getBoundingClientRect(), f = document.querySelector('.tb-edfoot').getBoundingClientRect(); return [f.top, r.bottom, innerHeight, scrollY, document.documentElement.scrollHeight]; })()")
-        assert rest[0] >= rest[1] - 1, f"at the end the tray rests under the last row: {rest}"
-        side = page.evaluate("(() => { const t = [...document.querySelectorAll('.tb-roster')].map(e => Math.round(e.getBoundingClientRect().top + scrollY)); return t[0] === t[1]; })()")
-        assert side == (w >= 760), "the two rosters sit side by side on a desktop and stack on a phone"
+@pytest.mark.parametrize("w, h", [(360, 740), (1280, 900)], ids=["phone", "desktop"])
+def test_the_edit_state_keeps_its_parts_still_with_the_foot_on_the_bottom_edge_and_fits_the_screen(mount, w, h):
+    page, _ = finder(mount, "espn", size=(w, h))
+    builder(page, RUN)
+    open_edit(page, 0)
+    geo = "(() => { const g = s => document.querySelector(s).getBoundingClientRect(); return [g('.tb-pkg').top, g('.tb-pkg').height, g('.tb-edfoot').height, g('.tb-edfoot').bottom, g('.tb-lists').top]; })()"
+    before = page.evaluate(geo)
+    tap_all(page, ("George Kittle", "Tee Higgins", "Brock Purdy", "Jared Goff", "Kyren Williams", "Nico Collins", "Tyler Warren"))
+    page.evaluate("window.scrollTo(0, 0)")
+    assert page.evaluate(geo) == before, "the package, the foot and the rosters do not move or resize when the package changes"
+    assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), "no sideways scroll"
+    assert page.evaluate("document.documentElement.scrollHeight > innerHeight"), "the rosters scroll with the page"
+    assert page.evaluate(f"document.querySelector('.tb-edfoot').getBoundingClientRect().bottom <= {h} - 8"), "the foot is a tray on the bottom edge"
+    assert page.evaluate("[...document.querySelectorAll('.tb-r, .tb-pr, .tb-edfoot .tb-copy')].every(b => b.getBoundingClientRect().height >= 40)")
+    assert page.evaluate("[...document.querySelectorAll('.tb-pkg ul, .tb-lists, .tb-edfoot')].every(e => e.scrollWidth <= e.clientWidth)")
+    page.evaluate("window.scrollTo(0, document.documentElement.scrollHeight)")
+    rest = page.evaluate("(() => { const r = [...document.querySelectorAll('.tb-r')].pop().getBoundingClientRect(), f = document.querySelector('.tb-edfoot').getBoundingClientRect(); return [f.top, r.bottom, innerHeight, scrollY, document.documentElement.scrollHeight]; })()")
+    assert rest[0] >= rest[1] - 1, f"at the end the tray rests under the last row: {rest}"
+    side = page.evaluate("(() => { const t = [...document.querySelectorAll('.tb-roster')].map(e => Math.round(e.getBoundingClientRect().top + scrollY)); return t[0] === t[1]; })()")
+    assert side == (w >= 760), "the two rosters sit side by side on a desktop and stack on a phone"
 
 
 # ---- the guard: Edit is hidden when the page cannot reproduce the file ----------------------------------------

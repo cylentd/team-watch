@@ -45,6 +45,9 @@ def pytest_configure(config):
                             "from a gating run, and scripts/trace.py lists it")
     config.addinivalue_line("markers", "journey: an end-to-end test that needs the full page: navigation, "
                             "hash, Back, cross-view (tests/test_layer_ratchet.py does not count its page loads)")
+    config.addinivalue_line("markers", "integration: a python test that is integration by nature: it runs a "
+                            "subprocess, git or a throwaway pytest, builds the page, or scans the whole repo "
+                            "(layer `integration`, limit 1 s; tests/README.md)")
     config.addinivalue_line("markers", "xdist_group(name): set by the hook below; one group runs on one worker")
     if hasattr(config.option, "loadscopereorder"):
         config.option.loadscopereorder = False   # the order the hook below sets is the queue's order
@@ -54,8 +57,8 @@ def pytest_configure(config):
 
 CHUNK = 12   # tests per xdist group outside the golden slices
 
-# The test layers, cheapest first (2026-10-05): python, node, build, browser. A test's layer is the
-# costliest thing it asks for. tests/runlog.py prints each layer's tests and worker seconds at the
+# The test layers, cheapest first (2026-10-05): python, node, integration, build, browser. A test's layer is the
+# costliest thing it asks for; `integration` is the marker (2026-10-06), a fixture wins over it. tests/runlog.py prints each layer's tests and worker seconds at the
 # end of a run (the layers line) and records the run in the test history (scripts/testlog.py).
 def layer_of(item):
     names = set(getattr(item, "fixturenames", ()))
@@ -65,6 +68,9 @@ def layer_of(item):
         return "browser"
     if names & {"built", "page_file"}:
         return "build"
+    marker = getattr(item, "get_closest_marker", None)
+    if marker and marker("integration"):     # a subprocess, git, a real build or a scan of the whole repo
+        return "integration"
     return "node" if "node_js" in names else "python"
 
 
@@ -169,7 +175,10 @@ def browser():
     context is decided below (`keep`), not left to the test."""
     from playwright.sync_api import sync_playwright
     with sync_playwright() as pw:
-        b = pw.chromium.launch()
+        # Headless Chromium draws at most 60 frames a second, so a click (an input event, then a frame)
+        # took two frames, ~33 ms; without the cap ~21 ms. Over the 544 component tests, serial, min of
+        # two: call time 85 s -> 77 s, median 124 -> 116 ms, the motion tests passing (2026-10-06).
+        b = pw.chromium.launch(args=["--disable-frame-rate-limit"])
         # Every kickoff is written in the reader's own clock (design/src/js/lib/kick.js, 2026-10-05), so a
         # context with no zone would print the machine's. Pacific is David's, and the golden's.
         new_context = b.new_context

@@ -52,9 +52,9 @@ def test_highlights_leads_players_and_each_card_opens_its_view(browser, page_fil
           num: c.querySelector('.hl-n').textContent, cls: c.querySelector('.hl-n').className,
           unit: (c.querySelector('.hl-txt > .hl-u') || {}).textContent || ''}))""")
         assert all(c["unit"] for c in cards), cards
-        for c in cards:
-            want = " up" if c["num"].startswith("+") else " down" if c["num"].startswith("-") else ""
-            assert c["cls"] == "hl-n" + want, c
+        def tone(c):
+            return " up" if c["num"].startswith("+") else " down" if c["num"].startswith("-") else ""
+        assert [c for c in cards if c["cls"] != "hl-n" + tone(c)] == []
         text = page.locator("#view").inner_text().lower()
         assert not re.search(r"\b(buy|sell|start him|sit him)\b", text), "the tab describes; it does not advise"
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")

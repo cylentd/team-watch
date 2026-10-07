@@ -37,10 +37,13 @@ def test_unfollowing_a_team_takes_its_players_off_mine_without_a_reload(mount):
     shown, followed = set(usage.shown_slugs()), list(FOLLOWED)
     assert usage.mine_slugs() == usage.held_by(followed) & shown != set(), "the fixture holds players the grid shows"
     switch.open_menu()
+    wrong_mine = []
     for gone in list(followed):
         switch.follow(gone)
         followed.remove(gone)
-        assert usage.mine_slugs() == usage.held_by(followed) & shown, f"after unfollowing {gone}"
+        if usage.mine_slugs() != usage.held_by(followed) & shown:
+            wrong_mine.append(gone)
+    assert wrong_mine == [], "MINE did not match the teams still followed after unfollowing these"
     assert usage.mine_slugs() == set()
     switch.toggle()                     # the menu covers the settings chip
     usage.filter_to_mine()

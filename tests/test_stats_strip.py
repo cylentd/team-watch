@@ -122,10 +122,15 @@ def test_the_position_carries_across_stats(mount):
     page, errors = mount("ranks", size=PHONE, touch=True)
     strip = StatsPosStrip(page)
     strip.tap("WR")
+    not_pressed, not_drawn = [], []
     for leaf in ("board", "usage", "movers", "schedule"):
         strip.open_view(leaf)
-        assert strip.pressed() == ["WR"], leaf
-        assert "WR" in strip.drawn(), leaf
+        if strip.pressed() != ["WR"]:
+            not_pressed.append(leaf)
+        if "WR" not in strip.drawn():
+            not_drawn.append(leaf)
+    assert not_pressed == [], "WR is not the pressed position on these views"
+    assert not_drawn == [], "WR is not drawn on these views"
     strip.open_view("ranks")
     strip.tap("FLEX")
     strip.open_view("movers")

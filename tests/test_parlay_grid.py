@@ -22,6 +22,8 @@ pytestmark = pytest.mark.render
 
 SECTION = "Parlay and DFS"
 NOTE = "Same-game legs move together; the combined chance isn't shown."
+# The book moves every line far from the model (build.py `stale`): a moved line never counts as paying more.
+MOVE_EVERY_LINE = "() => { PROPS.forEach(p => { p.stale = 1; if (p.books && p.books.Underdog) p.books.Underdog.stale = 1; }); render(); }"
 
 
 def passes_best_odds(book, facts):
@@ -102,10 +104,21 @@ def test_best_odds_keeps_only_lines_that_pay_more(mount, book):
     assert all(kept)
     assert len(kept) < build.lines_without_best_odds()
     build.reapply_best_odds()
-    if kept:
-        assert build.line_count() == build.lines_saying_why(), "every kept row says why"
-    else:
-        assert build.empty_shown() == 1
+    assert kept, "the fixture keeps lines for both books"
+    assert build.line_count() == build.lines_saying_why(), "every kept row says why"
+    assert errors == []
+
+
+@pytest.mark.req(SECTION, ac="Best odds with no line paying more says so, once")
+@pytest.mark.parametrize("book", ["underdog", "dk"])
+def test_best_odds_with_no_line_paying_more_shows_the_empty_state(mount, book):
+    """The empty state of Best odds (the "Better price" chip): when the book moved every line, none pays more,
+    so the list is replaced by one empty card. The fixture always keeps lines, so the test moves them all."""
+    build, errors = BuildPage.open(mount, book, size=(360, 780), best=True)
+    assert build.line_count() > 0 and build.empty_shown() == 0, "the fixture starts with lines that pay more"
+    build.page.evaluate(MOVE_EVERY_LINE)
+    assert build.line_count() == 0
+    assert build.empty_shown() == 1
     assert errors == []
 
 
@@ -132,9 +145,9 @@ def test_the_board_is_games_of_players_with_no_line_and_no_chance(mount):
     rows = board.row_summaries()
     assert rows
     assert board.row_controls() == 0
-    for row in rows:
-        n = board.line_count_of(row["slug"])
-        assert row["go"].startswith(f"{n} line"), row["slug"]
+    wrong = [row["slug"] for row in rows
+             if not row["go"].startswith(f"{board.line_count_of(row['slug'])} line")]
+    assert wrong == []
     assert "model" not in board.board_text()
     assert errors == []
 
@@ -190,8 +203,7 @@ def test_the_player_sheet_holds_every_line_with_its_last_four(mount):
     assert len(lines) == 2
     assert lines[0]["market"].startswith("Anytime TD") and lines[1]["market"].startswith(board.market_word("REC"))
     assert lines[0]["sides"] == ["Yes"]
-    for line in lines:
-        assert line["cells"] == 4 and line["notes"] == 0, "no N of 4 any more"
+    assert [(line["cells"], line["notes"]) for line in lines] == [(4, 0), (4, 0)], "no N of 4 any more"
     assert board.sheet_model_pcts() == ["28% to score"], "only the touchdown keeps a %"
     long = board.sheet_longest()
     assert long["count"] == 1 and long["market"] == "Longest catch"

@@ -176,13 +176,13 @@
       "render": []
     },
     "land": {
-      "paths": ["scripts/land-queue.ps1", "scripts/land.ps1", "scripts/impact.py", "scripts/testlog.py", "scripts/flake_run.py"],
+      "paths": ["scripts/land-queue.ps1", "scripts/land.ps1", "scripts/impact.py", "scripts/testlog.py"],
       "tests": ["tests/test_land_queue.py", "tests/test_testlog.py"],
       "render": []
     },
     "testtools": {
-      "paths": ["scripts/run_tests.py", "scripts/trace.py", "scripts/mutate_tests.py", ".testing.json"],
-      "tests": ["tests/test_run_tests.py", "tests/test_trace.py", "tests/test_mutate_tests.py"],
+      "paths": ["scripts/run_tests.py", "scripts/trace.py", "scripts/mutate_tests.py", ".testing.json", ".testing-backlog.json", "scripts/flake_run.py"],
+      "tests": ["tests/test_run_tests.py", "tests/test_trace.py", "tests/test_mutate_tests.py", "tests/test_flake_run.py", "tests/test_testlog.py"],
       "render": []
     },
     "designdoc": {

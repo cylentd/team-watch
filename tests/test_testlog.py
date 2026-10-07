@@ -48,6 +48,7 @@ def test_off_records_nothing(monkeypatch, tmp_path):
     assert testlog.append("runs.jsonl", {"x": 1}) is None
 
 
+@pytest.mark.integration
 def test_the_summary_reads_what_was_recorded(history):
     testlog.append("runs.jsonl", run("a", ["test_x.py"], ["tests/test_x.py::t"]) | {"slow": []})
     testlog.append("runs.jsonl", run("a", ["test_x.py"]) | {"slow": []})
@@ -80,6 +81,7 @@ class Report:
         self.failed, self.skipped = outcome == "failed", outcome == "skipped"
 
 
+@pytest.mark.integration      # record() asks git for the commit and the dirty state
 def test_the_recorder_sums_phases_per_layer_and_file():
     log = RunLog(type("C", (), {"invocation_params": type("I", (), {"args": ()})()})())
     for r in (Report("tests/test_a.py::t1", "setup", "passed", 1.0, "browser"),

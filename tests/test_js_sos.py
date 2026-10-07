@@ -31,9 +31,10 @@ def test_all_32_teams_come_easiest_first_by_the_files_own_rank(sos, pos, win):
     assert len(rows) == 32
     ranks = [r["rank"] for r in rows]
     assert ranks == sorted(ranks) and ranks[0] == 1
-    for r in rows:
-        assert r["rank"] == FIX["teams"][r["team"]][pos][win]["rank"]      # never re-ranked on the page
-        assert r["pts"] == FIX["teams"][r["team"]][pos][win]["pts_pg"]     # printed as the file has it
+    reranked = [r["team"] for r in rows if r["rank"] != FIX["teams"][r["team"]][pos][win]["rank"]]
+    assert reranked == []                                                   # never re-ranked on the page
+    reprinted = [r["team"] for r in rows if r["pts"] != FIX["teams"][r["team"]][pos][win]["pts_pg"]]
+    assert reprinted == []                                                  # printed as the file has it
     pts = [r["pts"] for r in rows]
     assert pts == sorted(pts, reverse=True)                                 # easiest = most points allowed
 

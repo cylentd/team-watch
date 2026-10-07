@@ -79,16 +79,21 @@ def test_the_digest_has_no_results_row_banner_board_or_wait_card(mount):
     Smashed / Busts / Left hurt tabs, no "Waiting on week N" card, and since 2026-10-06 no ticker row at all
     (Digest by day). The packet's "results" lead is never drawn: it falls to the top headline."""
     states = ("2026-09-18T12:00:00Z", "2026-09-22T12:00:00Z", "2026-09-28T13:00:00Z", "2026-10-02T12:00:00Z")
+    bad = []
     for size in (PHONE, WALL):
         page, errors = mount("digest", size=size)
         dg = DigestPage(page)
         for at in states:
             dg.plant_results_lead(at)       # the old packet still says its lead is the results rule
             lead = dg.packet_lead()
-            assert dg.retired_parts() == 0 and dg.retired_rows() == 0, (size, at)
-            assert lead is None or lead["rule"] != "results", (size, at, lead)
-            assert dg.lead_pills() == 0 and dg.fits(), (size, at)
-        assert errors == []
+            if not (dg.retired_parts() == 0 and dg.retired_rows() == 0):
+                bad.append(("retired parts or rows drawn", size, at))
+            if not (lead is None or lead["rule"] != "results"):
+                bad.append(("results lead drawn", size, at, lead))
+            if not (dg.lead_pills() == 0 and dg.fits()):
+                bad.append(("lead pills or overflow", size, at))
+        bad += [("page error", size, e) for e in errors]
+    assert bad == []
 
 
 @pytest.mark.render

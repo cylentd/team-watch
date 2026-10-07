@@ -59,8 +59,9 @@ def test_the_contract_passes_the_fixture_and_names_every_missing_field():
     with pytest.raises(SystemExit) as e:
         contract.validate("TRADE_OFFERS", bad)
     msg = str(e.value)
-    for at in ("['Purdy Big in Japan'][0].gain", "[0].send[1].injury", "['Purdy Big in Japan'][1].partner", "leagues['ayo'].week"):
-        assert at in msg, at
+    unnamed = [at for at in ("['Purdy Big in Japan'][0].gain", "[0].send[1].injury", "['Purdy Big in Japan'][1].partner", "leagues['ayo'].week")
+               if at not in msg]
+    assert unnamed == [], msg
     assert contract.problems("TRADE_OFFERS", None) == []
 
 
@@ -87,14 +88,13 @@ def test_the_rules_numbers_the_unit_and_the_two_rule_texts_are_required():
     """The producer's search ran on these numbers (`rules.max_losses` is gone, `min_gain_week` is new on 2026-10-06); the page
     reads the unit and the two texts it ports (`scoring`, `drop`) and the contract proves they are there."""
     assert trade_offers.problems(FIXTURE) == []
-    for k in ("min_gain_week", "min_gain", "per_pos", "per_partner_pos", "top", "max_out", "max_in"):
+    def problems_without(k):
         bad = copy.deepcopy(FIXTURE)
         del bad["rules"][k]
-        assert f"TRADE_OFFERS.rules.{k}" in trade_offers.problems(bad), k
-    for k in ("unit", "scoring", "drop"):
-        bad = copy.deepcopy(FIXTURE)
-        del bad["rules"][k]
-        assert f"TRADE_OFFERS.rules.{k}" in trade_offers.problems(bad), k
+        return trade_offers.problems(bad)
+
+    required = ("min_gain_week", "min_gain", "per_pos", "per_partner_pos", "top", "max_out", "max_in", "unit", "scoring", "drop")
+    assert [k for k in required if f"TRADE_OFFERS.rules.{k}" not in problems_without(k)] == []
     no_rules = copy.deepcopy(FIXTURE)
     del no_rules["rules"]
     assert "TRADE_OFFERS.rules" in trade_offers.problems(no_rules)
@@ -192,10 +192,12 @@ def test_the_drop_rules_fields_are_required():
 
 
 def test_the_edit_fields_lineup_values_and_other_are_required():
-    for k in ("lineup", "values", "other"):
+    def problems_without(k):
         bad = copy.deepcopy(FIXTURE)
         del bad["leagues"]["espn"][k]
-        assert f"TRADE_OFFERS.leagues['espn'].{k}" in trade_offers.problems(bad), k
+        return trade_offers.problems(bad)
+
+    assert [k for k in ("lineup", "values", "other") if f"TRADE_OFFERS.leagues['espn'].{k}" not in problems_without(k)] == []
     bad = copy.deepcopy(FIXTURE)
     del bad["leagues"]["espn"]["lineup"]["cap"]
     assert "TRADE_OFFERS.leagues['espn'].lineup.cap" in trade_offers.problems(bad)
@@ -214,8 +216,9 @@ def test_a_rest_of_season_number_that_is_not_a_number_is_named():
     bad["leagues"]["espn"]["weeks_left"] = 0
     bad["leagues"]["espn"]["lineup"]["ros_floor"]["QB"] = None
     miss = trade_offers.problems(bad)
-    for at in ("['Run It Back'][0].ros_pg", "['Run It Back'][0].priced", ".their.gain", "leagues['espn'].weeks_left", "lineup.ros_floor.QB"):
-        assert any(m.endswith(at) for m in miss), (at, miss)
+    unnamed = [at for at in ("['Run It Back'][0].ros_pg", "['Run It Back'][0].priced", ".their.gain", "leagues['espn'].weeks_left", "lineup.ros_floor.QB")
+               if not any(m.endswith(at) for m in miss)]
+    assert unnamed == [], miss
 
 
 def test_option_bs_fields_are_required():
@@ -237,8 +240,9 @@ def test_option_bs_fields_are_required():
     offers[0]["send"][1]["chips"] = "Hot"                                               # a string, not a list
     del offers[0]["their"]["drop"][0]["last2"]
     miss = trade_offers.problems(bad)
-    for at in ("['Run It Back'][0].chips", "[1].their.drop", "[0].send[1].chips", "[0].their.drop[0].last2"):
-        assert any(m.endswith(at) for m in miss), (at, miss)
+    unnamed = [at for at in ("['Run It Back'][0].chips", "[1].their.drop", "[0].send[1].chips", "[0].their.drop[0].last2")
+               if not any(m.endswith(at) for m in miss)]
+    assert unnamed == [], miss
 
 
 def test_a_null_last2_is_a_value_and_a_missing_one_is_not():

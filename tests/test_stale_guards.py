@@ -4,6 +4,8 @@ import json
 import pathlib
 import re
 
+import pytest
+
 from news import is_return, mark_superseded, news_kind, news_player
 from preview import live_preview
 from waiver import _overlay, live_waiver
@@ -94,13 +96,17 @@ def test_a_later_bad_news_story_does_not_supersede():
     assert [it["superseded"] for it in items] == [False, False]
 
 
-def test_return_patterns():
-    for t in ("Kupp activated from injured reserve", "Kupp removed from injury report", "Kupp returns to practice",
-              "Kupp cleared for Sunday", "Kupp will play Sunday", "Kupp active for Sunday"):
-        assert is_return({"title": t}), t
-    for t in ("Kupp inactive Sunday", "Kupp signs with active roster", "Kupp not expected to play",
-              "Kupp not cleared to return", "Kupp ruled out"):
-        assert not is_return({"title": t}), t
+@pytest.mark.parametrize("title", ["Kupp activated from injured reserve", "Kupp removed from injury report",
+                                   "Kupp returns to practice", "Kupp cleared for Sunday",
+                                   "Kupp will play Sunday", "Kupp active for Sunday"])
+def test_a_return_headline_is_a_return(title):
+    assert is_return({"title": title})
+
+
+@pytest.mark.parametrize("title", ["Kupp inactive Sunday", "Kupp signs with active roster",
+                                   "Kupp not expected to play", "Kupp not cleared to return", "Kupp ruled out"])
+def test_a_headline_that_is_not_a_return_is_not_one(title):
+    assert not is_return({"title": title})
 
 
 def test_the_lead_pin_skips_a_superseded_story():

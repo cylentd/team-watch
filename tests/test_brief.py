@@ -20,13 +20,13 @@ def on_roster(mount, size):
 
 
 @pytest.mark.render
-def test_the_lineup_check_is_always_there(mount):
+@pytest.mark.parametrize("view", ["yahoo", "espn"])
+def test_the_lineup_check_is_always_there(mount, view):
     brief, errors = on_roster(mount, DESKTOP)
-    for view in ("yahoo", "espn"):
-        brief.show(view)
-        got = brief.lines()
-        assert brief.kinds().count("lu") == 1, got
-        assert all(x["shown"] for x in got), "a desktop shows every line"
+    brief.show(view)
+    got = brief.lines()
+    assert brief.kinds().count("lu") == 1, got
+    assert [x for x in got if not x["shown"]] == [], "a desktop shows every line"
     assert errors == []
 
 

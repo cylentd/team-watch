@@ -220,12 +220,15 @@ def test_a_file_in_another_unit_is_an_error_not_a_card_with_the_wrong_words(moun
         page.evaluate("b => { window.fetch = () => Promise.resolve(new Response(JSON.stringify(b), {status: 200})); }", body)
         page.locator("[data-tbretry]").click()
 
+    seen = []
     for body in (weekly, no_rules):
         retry_with(body)
         page.wait_for_function("TB_BUSY === null && TB_ERR === true")
-        assert page.evaluate("TB_DATA") is None and f.cards() == [], "a file in the wrong unit is never held"
-        assert "Offers did not load" in page.get_by_test_id("finder-error").inner_text()
-        assert f.deep(), "who's deep needs no file"
+        seen.append({"held_nothing": page.evaluate("TB_DATA") is None and f.cards() == [],
+                     "says_so": "Offers did not load" in page.get_by_test_id("finder-error").inner_text(),
+                     "deep_without_file": bool(f.deep())})
+    # a file in the wrong unit is never held, and who's deep needs no file
+    assert seen == [{"held_nothing": True, "says_so": True, "deep_without_file": True}] * 2
     retry_with(FIXTURE)
     page.wait_for_selector("[data-testid=finder-card]")
     assert page.evaluate("TB_DATA.rules.unit") == "rest of season points", "the right unit loads"
@@ -240,17 +243,20 @@ def test_copy_offer_puts_a_message_of_true_season_averages_on_the_clipboard(moun
     f = FinderPage(page)
     f.wait_offers()
     f.open_partner("Run It Back")
-    for i, want in enumerate((
+    wants = (
             # Higgins is Hot and the reader sends him: his last 2 (19.8), Pollard carries the unit; Robinson is Hot but the reader gets him
             "Trade? I send Higgins (19.8 a game his last 2), Pollard (8.0 a game), Goff (28.4) for Robinson (24.2) and Coker (14.0),"
             " priced on the rest of the season. You'd only need to cut I. Davis.",
             "Trade? I send Higgins (19.8 a game his last 2), Pollard (8.0 a game), Goff (28.4) for Robinson (24.2) and Concepcion (4.9),"
             " priced on the rest of the season. You'd only need to cut I. Davis.",
             "Trade? I send Higgins (19.8 a game his last 2), Purdy (28.8 a game), Wilson (12.8 a game his last 2) for Williams (19.1) and Tuten (11.4),"
-            " priced on the rest of the season. You'd only need to cut I. Davis.")):
+            " priced on the rest of the season. You'd only need to cut I. Davis.")
+    got = []
+    for i in range(len(wants)):
         page.locator(f"[data-tbcopy='{i}']").click()
         page.wait_for_function(f"document.querySelector(\"[data-tbcopy='{i}']\").textContent === 'Copied'")
-        assert page.evaluate("navigator.clipboard.readText()") == want
+        got.append(page.evaluate("navigator.clipboard.readText()"))
+    assert got == list(wants)
     assert errors == []
 
 
@@ -339,25 +345,25 @@ def test_on_a_desktop_who_is_deep_is_a_grid_of_team_cards_in_the_same_columns(mo
 
 
 @pytest.mark.req("Trade finder", ac="a team's name and its number share one line, clear of the card's top edge")
-def test_who_is_deep_puts_the_name_level_with_its_number_and_off_the_top_edge(mount):
+@pytest.mark.parametrize("size", [(360, 740), (1280, 900)], ids=["phone", "desktop"])
+def test_who_is_deep_puts_the_name_level_with_its_number_and_off_the_top_edge(mount, size):
     # 2026-10-06, David's screenshot: the name hugged the card's top edge and the number sat lower than it.
-    for size in ((360, 740), (1280, 900)):
-        f, _ = planted(mount, size=size)
-        row = f.page.get_by_test_id("finder-deeprow").first
-        box = lambda sel: row.locator(sel).evaluate("e => { const r = e.getBoundingClientRect(); return [r.top, r.bottom]; }")
-        top, _ = row.evaluate("e => { const r = e.getBoundingClientRect(); return [r.top, r.bottom]; }")
-        name, val = box("[data-testid=finder-deepname] b"), box("[data-testid=finder-deepval]")
-        assert abs((name[0] + name[1]) / 2 - (val[0] + val[1]) / 2) <= 2, f"{size[0]}px: the name and its number on one line"
-        assert name[0] - top >= 10, f"{size[0]}px: the name sits clear of the card's top edge"
+    f, _ = planted(mount, size=size)
+    row = f.page.get_by_test_id("finder-deeprow").first
+    box = lambda sel: row.locator(sel).evaluate("e => { const r = e.getBoundingClientRect(); return [r.top, r.bottom]; }")
+    top, _ = row.evaluate("e => { const r = e.getBoundingClientRect(); return [r.top, r.bottom]; }")
+    name, val = box("[data-testid=finder-deepname] b"), box("[data-testid=finder-deepval]")
+    assert abs((name[0] + name[1]) / 2 - (val[0] + val[1]) / 2) <= 2, f"{size[0]}px: the name and its number on one line"
+    assert name[0] - top >= 10, f"{size[0]}px: the name sits clear of the card's top edge"
 
 
 @pytest.mark.req("Trade finder", ac="the chips are one row, kept to a column's measure")
-def test_the_chip_row_stays_one_row_at_every_width(mount):
-    for size in ((360, 740), (1280, 900)):
-        f, _ = planted(mount, size=size)
-        chips = f.page.get_by_test_id("finder-chip").evaluate_all("bs => bs.map(b => { const r = b.getBoundingClientRect(); return [r.top, r.width]; })")
-        assert len({round(t) for t, _ in chips}) == 1, f"{size[0]}px: four chips on one row"
-        assert f.chips_box()["w"] <= 560 + 1
+@pytest.mark.parametrize("size", [(360, 740), (1280, 900)], ids=["phone", "desktop"])
+def test_the_chip_row_stays_one_row_at_every_width(mount, size):
+    f, _ = planted(mount, size=size)
+    chips = f.page.get_by_test_id("finder-chip").evaluate_all("bs => bs.map(b => { const r = b.getBoundingClientRect(); return [r.top, r.width]; })")
+    assert len({round(t) for t, _ in chips}) == 1, f"{size[0]}px: four chips on one row"
+    assert f.chips_box()["w"] <= 560 + 1
 
 
 @pytest.mark.req("Trade finder", ac="the filtered state's offers are cards in columns too; an empty state spans the frame")
@@ -428,8 +434,9 @@ def test_with_no_team_the_pickers_leagues_sit_in_three_columns_on_a_desktop(moun
 @pytest.mark.req("Trade finder", ac="a phone keeps one column of offers and of teams")
 def test_a_phone_keeps_one_column_of_cards_and_of_teams(mount):
     f, _ = planted(mount, size=(360, 740))
-    for boxes in (f.card_boxes(), f.deep_boxes()):
-        assert across(boxes) == 1 and all(round(2 * b["x"] + b["w"]) == 360 for b in boxes), "one column, the screen less one gutter a side"
+    two_columns = [boxes for boxes in (f.card_boxes(), f.deep_boxes())
+                   if not (across(boxes) == 1 and all(round(2 * b["x"] + b["w"]) == 360 for b in boxes))]
+    assert two_columns == [], "one column, the screen less one gutter a side"
     assert f.page.evaluate("getComputedStyle(document.querySelector('[data-testid=finder-deep] ol')).borderTopWidth") == "1px", "the list is one card on a phone"
 
 

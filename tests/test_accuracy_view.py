@@ -61,12 +61,19 @@ def test_weeks_run_newest_first_and_carry_the_models_label(ac):
 def test_every_number_in_the_view_is_the_files(ac):
     v = ac("acView", RAW)
     by_week = {w["week"]: w for w in v["weeks"]}
+    positions = {}
+    got = {}
+    want = {}
     for raw_week in RAW["weeks"]:
         rows = {r["pos"]: r for r in by_week[raw_week["week"]]["rows"]}
-        assert list(rows) == ["QB", "RB", "WR", "TE"]
+        positions[raw_week["week"]] = list(rows)
         for pos, src in raw_week["by_pos"].items():
             r = rows[pos]
-            assert (r["n"], r["ours"]["mae"], r["fp"]["mae"]) == (src["shared"]["n"], src["shared"]["ours"]["mae"], src["shared"]["fp"]["mae"])
+            got[(raw_week["week"], pos)] = (r["n"], r["ours"]["mae"], r["fp"]["mae"])
+            want[(raw_week["week"], pos)] = (src["shared"]["n"], src["shared"]["ours"]["mae"], src["shared"]["fp"]["mae"])
+    assert positions == {w["week"]: ["QB", "RB", "WR", "TE"] for w in RAW["weeks"]}
+    assert want
+    assert got == want
 
 
 def test_week_3_rb_ours_5_38_against_5_11_and_fantasypros_was_closer(ac):
@@ -121,12 +128,20 @@ def test_week_3_rb_prints_both_numbers_and_names_fantasypros_closer(ac):
 
 def test_every_week_and_position_prints_the_files_digits(ac):
     html = ac("acHTML", ac("acView", RAW))
+    missing = []
+    checked = 0
     for w in RAW["weeks"]:
         block = html.split(f'data-acweek="{w["week"]}"')[1]
         for pos, src in w["by_pos"].items():
             row = block.split(f'data-acpos="{pos}"')[1].split("data-acpos=")[0]
             t = text(row)
-            assert f'{src["shared"]["ours"]["mae"]:.2f}' in t and f'{src["shared"]["fp"]["mae"]:.2f}' in t
+            checked += 1
+            for key in ("ours", "fp"):
+                digits = f'{src["shared"][key]["mae"]:.2f}'
+                if digits not in t:
+                    missing.append((w["week"], pos, key, digits))
+    assert checked
+    assert missing == []
 
 
 def test_null_rank_fields_are_a_stated_empty_state_not_zeros(ac):

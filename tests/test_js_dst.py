@@ -30,10 +30,9 @@ def raw(team):
 def test_the_chosen_leagues_scoring_is_the_cell_the_row_reads(dst):
     espn, yahoo = dst("dstBoard", BLOCK, "espn", "DST"), dst("dstBoard", BLOCK, "yahoo", "DST")
     assert (espn["cell"], yahoo["cell"]) == ("dst_espn", "dst_yahoo")
-    for board, cell in ((espn, "dst_espn"), (yahoo, "dst_yahoo")):
-        for r in board["rows"]:
-            wk = raw(r["team"])["weeks"][0]
-            assert r["pts"] == (None if wk["bye"] else wk["dst"][cell]), r["team"]
+    wrong = [r["team"] for board, cell in ((espn, "dst_espn"), (yahoo, "dst_yahoo")) for r in board["rows"]
+             if r["pts"] != (None if (wk := raw(r["team"])["weeks"][0])["bye"] else wk["dst"][cell])]
+    assert wrong == []
     assert row(espn, "ARI")["pts"] == 1.9 and row(yahoo, "ARI")["pts"] == 3.3
     ayo = dst("dstBoard", BLOCK, "ayo", "DST")
     assert ayo["cell"] == "dst_yahoo", "AYO is Yahoo's default scoring for a D/ST"
@@ -104,21 +103,21 @@ def test_the_streamer_flag_is_the_files_for_that_league_and_never_after_kickoff(
     assert row(dst("dstBoard", other, "espn", "DST"), pick)["streamer"] is False, "a team that has played cannot be streamed"
     # a streamer later in the horizon marks its small cell
     later = [(t["team"], i) for t in BLOCK["teams"] for i, w in enumerate(t["weeks"][1:]) if w["streamer"] and w["streamer"]["espn"]]
-    if later:
-        team, i = later[0]
-        assert row(board, team)["next"][i]["streamer"] is True
+    assert later, "the fixture has a later-week ESPN streamer"
+    team, i = later[0]
+    assert row(board, team)["next"][i]["streamer"] is True
 
 
 def test_who_rosters_it_in_that_league_or_free(dst):
     board = dst("dstBoard", BLOCK, "espn", "DST")
-    for r in board["rows"]:
+    def reads_espn_roster(r):
         held = raw(r["team"])["rostered"]["espn"]
-        assert r["free"] is (held["pct"] < 50 and not held["waiver"]) and r["owner"] == held["owner"] and r["mine"] is False, r["team"]
+        return r["free"] is (held["pct"] < 50 and not held["waiver"]) and r["owner"] == held["owner"] and r["mine"] is False
+    assert [r["team"] for r in board["rows"] if not reads_espn_roster(r)] == []
     assert any(r["free"] for r in board["rows"]) and any(r["owner"] for r in board["rows"])
     # a different league reads its own roster
     yahoo = dst("dstBoard", BLOCK, "yahoo", "DST")
-    for r in yahoo["rows"]:
-        assert r["owner"] == raw(r["team"])["rostered"]["yahoo"]["owner"], r["team"]
+    assert [r["team"] for r in yahoo["rows"] if r["owner"] != raw(r["team"])["rostered"]["yahoo"]["owner"]] == []
 
 
 def test_a_team_on_waivers_is_not_free_it_can_only_be_claimed(dst):
@@ -142,8 +141,7 @@ def test_k_is_a_yahoo_league_tab_and_never_espns(dst):
     yahoo, ayo = dst("dstBoard", BLOCK, "yahoo", "K"), dst("dstBoard", BLOCK, "ayo", "K")
     assert (yahoo["cell"], ayo["cell"]) == ("k_yahoo", "k_ayo")
     assert row(yahoo, "ARI")["pts"] == 7.6 and row(ayo, "ARI")["pts"] == 7.8
-    for r in yahoo["rows"]:
-        assert r["owner"] == raw(r["team"])["k_rostered"]["yahoo"]["owner"], r["team"]
+    assert [r["team"] for r in yahoo["rows"] if r["owner"] != raw(r["team"])["k_rostered"]["yahoo"]["owner"]] == []
 
 
 def test_a_position_the_league_lacks_falls_back_to_the_default(dst):

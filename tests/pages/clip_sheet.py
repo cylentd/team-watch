@@ -64,8 +64,7 @@ class ClipSheet:
         """The ESPN roster drawn as a page that can embed, with the six items to open the theater on."""
         self.page = page
         self.rail = ClipsPage(page)
-        self.rail.show()
-        page.evaluate(ITEMS)
+        self.rail.show(then=ITEMS)
         tid = page.get_by_test_id
         self._sheet = page.locator("#clipsheet")
         self._btn = {"prev": page.locator("[data-clipprev]"), "next": page.locator("[data-clipnext]"),
@@ -83,9 +82,9 @@ class ClipSheet:
         self.page.evaluate(f"clipTheaterOpen(__items, {start}, null)")
 
     def play_all(self, start=2):
-        """Open at item `start` and have the player report ready."""
-        self.open(start)
-        self.fire("onReady")
+        """Open at item `start` and have the player report ready (one round trip: opening builds the player in
+        the same call, so its event can fire at once)."""
+        self.page.evaluate(f"() => {{ clipTheaterOpen(__items, {start}, null); __yt.players[0].opts.events.onReady({{}}); }}")
 
     def open_items(self, name):
         """Open the theater on one starter's own items (his game's video when he has none), at the end card."""

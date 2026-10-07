@@ -13,6 +13,7 @@ import dfs_backtest
 import sources
 
 pytestmark = pytest.mark.skipif(not shutil.which("node"), reason="node not installed")
+pytestmark = [pytestmark, pytest.mark.integration]      # the lineups come from a node process
 
 # name, pos, salary, recap proj, actual. The pool is just big enough to fill 9 slots under $200.
 SLATE = [

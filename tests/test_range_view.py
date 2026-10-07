@@ -20,6 +20,22 @@ def page(browser, page_file):
     ctx.close()
 
 
+@pytest.fixture
+def bandless_page(page):
+    """The shared page with every floor and ceiling nulled, put back after the test: the module's one page
+    must show bands to every other test whatever order they run in (a full page load per test is a ratchet)."""
+    pg, errors = page
+    pg.evaluate("""() => {
+      const all = [...LIVE_RANKS.rows, ...LIVE_RANKS.flex, ...Object.values(LIVE_PROJECTIONS.players)];
+      window.__bands = all.map(r => [r, 'floor' in r, r.floor, 'ceil' in r, r.ceil]);
+      for (const r of all) { r.floor = null; r.ceil = null; } }""")
+    yield pg, errors
+    pg.evaluate("""() => { for (const [r, hf, f, hc, c] of window.__bands) {
+      if (hf) r.floor = f; else delete r.floor;
+      if (hc) r.ceil = c; else delete r.ceil; }
+      delete window.__bands; }""")
+
+
 def ranks_row(pg, slug="joe-burrow"):
     pg.evaluate("() => { statsPick('QB'); navGo('ranks'); }")   # Stats' one position (chrome/statspos.js)
     pg.wait_for_selector(f"[data-rkopen='{slug}']")
@@ -73,20 +89,25 @@ def test_each_view_says_what_the_band_is_once(page):
 
 
 @pytest.mark.render
-def test_nothing_scrolls_sideways_at_360_with_a_band_in_every_view(page):
+@pytest.mark.parametrize("go", [lambda pg: ranks_row(pg), lambda pg: picker_lane(pg, ["joe-burrow", PURDY, "chase-brown"])],
+                         ids=["ranks", "picker"])
+def test_nothing_scrolls_sideways_at_360_with_a_band_in_the_view(page, go):
     pg, errors = page
-    for go in (lambda: ranks_row(pg), lambda: picker_lane(pg, ["joe-burrow", PURDY, "chase-brown"])):
-        go()
-        assert pg.evaluate("document.documentElement.scrollWidth <= innerWidth")
+    go(pg)
+    assert pg.evaluate("document.documentElement.scrollWidth <= innerWidth")
+    assert errors == []
+
+
+@pytest.mark.render
+def test_opening_the_profile_strip_at_360_raises_no_page_error(page):
+    pg, errors = page
     profile_strip(pg)
     assert errors == []
 
 
 @pytest.mark.render
-def test_a_player_with_no_band_draws_no_range_and_no_note(page):
-    pg, errors = page
-    pg.evaluate("""() => { for (const r of [...LIVE_RANKS.rows, ...LIVE_RANKS.flex]) { r.floor = null; r.ceil = null; }
-      for (const r of Object.values(LIVE_PROJECTIONS.players)) { r.floor = null; r.ceil = null; } }""")
+def test_a_player_with_no_band_draws_no_range_and_no_note(bandless_page):
+    pg, errors = bandless_page
     r = ranks_row(pg)
     assert r["band"] is None and "8 in 10" not in r["notes"]
     p = profile_strip(pg)

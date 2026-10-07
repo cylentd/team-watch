@@ -69,8 +69,10 @@ def test_vegas_claude_cells_carry_the_untested_marks(mount):
     dg.at(THU)
     bets = dg.bets()
     assert bets[0]["claude_title"] == COPY["preview.call.mark"]
-    for bet in bets[1:]:        # no spread or total call: the "No pick" chip says it too
-        assert bet["chips"] == [[COPY["preview.conf.none"], COPY["preview.conf.mark"]]], bet
+    no_call = [[COPY["preview.conf.none"], COPY["preview.conf.mark"]]]
+    assert bets[1:], "the spread and total bets are drawn"
+    # no spread or total call: the "No pick" chip says it too
+    assert [bet for bet in bets[1:] if bet["chips"] != no_call] == []
     assert errors == []
 
 

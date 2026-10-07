@@ -79,12 +79,10 @@ def test_block_meets_the_contract_and_keys_defenses_by_team():
                      read_first(DWR / "yahoo_league.json"), read_first(DWR / "league_rosters.json"),
                      read_first(DWR / "yahoo_settings.json"), load_status(), load_kickers(), slugify, norm_name)
     assert contract.problems("LIVE_GAMEDAY", b) == []
-    for lg in b["leagues"]:
-        for tm in lg["teams"].values():
-            for r in tm["lineup"]:
-                assert set(r) == {"slot", "n", "slug", "pos", "team", "sid"}
-                if r["pos"] == "DEF":
-                    assert r["sid"] == r["team"]
+    rows = [r for lg in b["leagues"] for tm in lg["teams"].values() for r in tm["lineup"]]
+    assert rows
+    assert [r for r in rows if set(r) != {"slot", "n", "slug", "pos", "team", "sid"}] == []
+    assert [r for r in rows if r["pos"] == "DEF" and r["sid"] != r["team"]] == []
 
 
 def test_a_defense_and_a_kicker_find_their_sleeper_ids():
@@ -244,6 +242,12 @@ def test_the_board_says_where_each_game_is_and_a_row_opens_his_profile(mount):
     live.tap_first_name()
     live.wait_for_profile()
     live.press_escape()
+    assert errors == []
+
+
+@pytest.mark.render
+def test_the_chip_strip_states_each_game_and_the_picked_team_decides_the_league(mount):
+    live, errors = LiveMinePage.open_board(mount)           # David's ESPN team: Live opens on its league
     # the ranking under the lineups: ESPN pays the top half. Every chip in the strip states its game on
     # the line above two names and two scores; the reader's chip is the one on screen
     assert live.ladder_median_lines() == 1
@@ -285,6 +289,16 @@ def test_where_the_ball_is_reads_as_espn_writes_it(espn_js):
 
 @pytest.mark.render
 def test_the_game_sheet_opens_from_nfl_now_and_draws_four_cards(mount):
+    sheet, errors = open_saved_sheet(mount)
+    assert sheet.card_count() == 5        # scoreboard, yours, then a card per tab (one shows)
+    assert sheet.trailing_score() == "31"        # DET 31, BUF 41: final
+    sheet.close_with_escape()
+    assert sheet.current_game() is None
+    assert errors == []
+
+
+def open_saved_sheet(mount):
+    """The game sheet opened from Live's Games tab (DET and SEA on now), its game swapped for the saved one."""
     sheet, errors = GameSheetPage.on_live(mount, size=(390, 844))     # DET and SEA on now
     live = LiveMinePage(sheet.page)
     # the Games tab lists every game of the week, the one on now first: its clock over two clubs
@@ -294,8 +308,12 @@ def test_the_game_sheet_opens_from_nfl_now_and_draws_four_cards(mount):
     live.tap_in_tile()
     sheet.wait_for_open()
     sheet.swap_in_saved_game()
-    assert sheet.card_count() == 5        # scoreboard, yours, then a card per tab (one shows)
-    assert sheet.trailing_score() == "31"        # DET 31, BUF 41: final
+    return sheet, errors
+
+
+@pytest.mark.render
+def test_the_game_sheet_lists_drives_newest_first_and_keeps_one_open_through_a_repaint(mount):
+    sheet, errors = open_saved_sheet(mount)
     # drives newest first, the newest open, the rest one line each; no "END QUARTER" rows
     sheet.select_tab("plays")
     assert sheet.drive_count() == 5 and sheet.first_drive_is_open()
@@ -306,6 +324,12 @@ def test_the_game_sheet_opens_from_nfl_now_and_draws_four_cards(mount):
     sheet.toggle_drive(2)
     sheet.repaint()
     assert sheet.open_drive_count() == 2
+    assert errors == []
+
+
+@pytest.mark.render
+def test_the_game_sheet_ranks_top_scorers_and_shows_one_boxscore_club_at_a_time(mount):
+    sheet, errors = open_saved_sheet(mount)
     # top scorers, best first, in the league's own scoring
     sheet.select_tab("top")
     pts = sheet.top_scorer_points()

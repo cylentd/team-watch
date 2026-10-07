@@ -255,8 +255,7 @@ def test_the_answer_is_one_row_per_bet_vegas_beside_claude(preview):
     assert pv.bet_rows()[1][1:] == ["LA by 3", "JAX covers Very confident wins, or loses by 2 or less"]   # 3 is a push
     # Gone with 3A: the market's score, the bar, "getting / giving", where a line opened.
     ans = pv.answer_text()
-    for gone in ("market", "getting", "giving", "opened"):
-        assert gone not in ans, gone
+    assert [gone for gone in ("market", "getting", "giving", "opened") if gone in ans] == []
     assert pv.answer_bar_count() == 0
     pv.show_game(4)                                                      # ATL @ NO: no take, Vegas only
     assert pv.score_count() == 0
@@ -286,17 +285,16 @@ def test_the_game_page_reads_like_a_newspaper(preview):
     assert pv.name_buttons() == ["Gibbs", "Young"]
     assert pv.first_name_weight() == "700"
     call = pv.call_text().replace("\n", " ")
-    for want in ("The call.", "Carolina without Coker"):
-        assert want in call, want
+    assert [want for want in ("The call.", "Carolina without Coker") if want not in call] == []
     ans = pv.answer_text().replace("\n", " ")
-    for want in ("DET covers", "Confident", "Under", "Slight", "50.5", "DET by 3.5"):
-        assert want in ans, want
+    assert [want for want in ("DET covers", "Confident", "Under", "Slight", "50.5", "DET by 3.5")
+            if want not in ans] == []
     assert pv.risk_text().startswith("What could go wrong.")
     # Show, don't tell (2026-09-30): no research notes, no before-the-line process, no footnotes.
     dz = pv.dossier_text()
-    for gone in ("before seeing the line", "moved it to 11", "Research notes", "5.1 yards a carry", "2011–2025",
-                 "Opinion, not a tested model", "WR is faded", "1 gives up the fewest", "backtest"):
-        assert gone not in dz, gone
+    assert [gone for gone in ("before seeing the line", "moved it to 11", "Research notes", "5.1 yards a carry",
+                              "2011–2025", "Opinion, not a tested model", "WR is faded",
+                              "1 gives up the fewest", "backtest") if gone in dz] == []
     assert pv.notes_and_footnotes() == 0
     assert pv.uppercase_labels() == 0
     assert pv.score_and_reason_lines() == (0, 0)
@@ -343,8 +341,8 @@ def test_past_games_opens_from_under_the_slate_and_back_closes_it(preview):
     assert pv.record.season_title() == "CLAUDE THIS SEASON · THROUGH WEEK 2"
     assert pv.record.season_rows() == [["Moneyline", "5–3", "63%"], ["Spread", "4–2–1", "67%"], ["Total", "5–1", "83%"]]
     assert pv.record.season_conf() == "Spread by confidence: Very confident 1–0–1 · Confident 1–1 · Slight 2–1"
-    for gone in ("closer than the market", "Fav picks", "Blind number"):
-        assert gone not in pv.record.text(), gone
+    record_text = pv.record.text()
+    assert [gone for gone in ("closer than the market", "Fav picks", "Blind number") if gone in record_text] == []
     assert pv.record.week_label() == "Week 1"
     assert pv.record.game_count() == 4                                      # week 1's graded games, from the record
     pv.browser_back()
@@ -533,8 +531,8 @@ def test_neutral_site_and_short_week(preview):
     assert [n["text"] for n in shorts] == ["Short week"] * 2
     # 12.62: rest is priced into the line (Thursday total -0.06, off a bye -0.37 ATS), so the note is a fact in
     # plain text, never an amber tag (2026-10-06).
-    for n in bye + shorts:
-        assert "pv-tag" not in n["cls"] and n["bg"] == "rgba(0, 0, 0, 0)", n
+    tagged = [n for n in bye + shorts if "pv-tag" in n["cls"] or n["bg"] != "rgba(0, 0, 0, 0)"]
+    assert tagged == []
     assert errors == []
 
 
@@ -597,6 +595,13 @@ def test_a_desktop_shows_the_rail_beside_the_dossier(mount):
     # The box score is a column right of the call, the two sharing a top edge (storyboard option C).
     call, box = pv.edges("call"), pv.edges("box")
     assert box[0] > call[2] and abs(box[1] - call[1]) < 2
+    assert errors == [], errors
+
+
+@pytest.mark.render
+def test_a_desktop_opens_past_games_in_the_dossiers_place_and_a_rail_game_closes_it(mount):
+    page, errors = mount("preview", size=(1280, 900), touch=True)
+    pv = PreviewPage(page)
     # Past games opens in the dossier's place, the rail stays; a game in the rail closes it.
     pv.open_record()
     assert pv.slate_visible() and pv.record.visible() and pv.dossier_count() == 0
@@ -609,9 +614,11 @@ def test_a_desktop_shows_the_rail_beside_the_dossier(mount):
 @pytest.mark.render
 def test_nothing_scrolls_sideways_at_360(preview):
     pv, errors = preview
+    widths = []
     for i in range(5):
         pv.show_game(i)
-        assert pv.scroll_width() <= 360, f"game {i}"
+        widths.append(pv.scroll_width())
+    assert [i for i, w in enumerate(widths) if w > 360] == [], widths
     pv.record.show(2)
     assert pv.record.count() == 1 and pv.record.game_count() > 0
     assert pv.scroll_width() <= 360, "Past games"

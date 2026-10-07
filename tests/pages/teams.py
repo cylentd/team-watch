@@ -147,7 +147,8 @@ class TeamsPage:
         return self._cards.evaluate_all(CARD)
 
     def names(self):
-        return [c["name"] for c in self.cards()]
+        """Each card's team name in order: one `teams-name` a card, read without the rest of the card."""
+        return self._names.evaluate_all("es => es.map(e => e.textContent.replace(/\\s+/g, ' ').trim())")
 
     def sorts(self):
         """The sort chips in order: label, pressed."""

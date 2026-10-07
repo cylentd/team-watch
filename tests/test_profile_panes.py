@@ -56,14 +56,27 @@ def test_panes_split_the_blocks_and_only_one_is_in_the_dom(mount):
     text = profile.text()
     assert "Target depth" not in text and profile.zone_blocks() == 0   # a back: no block
     assert text.index("6 of 11") < text.index("1 of 13")                 # carries before targets
-    profile.close()
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req(REQ, ac="a back's usage counts carries under 10 and a player with no next game says bye in the Matchup pane")
+def test_a_back_with_a_bye_counts_carries_and_says_so_in_matchup(mount):
+    """Jahmyr Gibbs: carries under 10 are counts, and a player with no next game reads the bye line."""
+    profile, errors = on_roster(mount)
     profile.open_from_roster("Jahmyr Gibbs")
     profile.tab("usage")
     assert "5 of 9" in profile.text()                                    # carries, under 10
     profile.tab("matchup")
     assert "Bye, or no schedule yet." in profile.text()
-    profile.close()
-    profile.roster.show_team("espn")
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req(REQ, ac="a red-zone count under 10 stays a count and the matchup rank wears its hardness class")
+def test_a_tight_end_on_the_espn_team_counts_under_ten_and_wears_the_rank_class(mount):
+    """George Kittle, on the ESPN team: his red-zone counts stay counts and his matchup rank is hard."""
+    profile, errors = on_roster(mount, team="espn")
     profile.open_from_roster("George Kittle")
     profile.tab("usage")
     rz = profile.section_text("Red zone")
@@ -96,9 +109,15 @@ def test_desktop_panes_sit_side_by_side_and_a_phone_stacks_them(mount, size, sid
     assert len(leagues) == 3 and len(set(leagues)) == 1        # one grey for every league (AYO the third), no brand colour
     profile.tab("season")
     assert profile.season_icons() == 0
-    # A draft pick sits by the league it belongs to, not at the far edge of the pane (David,
-    # 2026-09-29: "on desktop we stretch out info").
-    profile.close()
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.parametrize("size", [(1400, 900), (360, 800)])
+@pytest.mark.req(REQ, ac="a draft pick sits by the league it belongs to, not at the far edge of the pane")
+def test_a_draft_pick_sits_by_its_league_not_at_the_far_edge(mount, size):
+    """David, 2026-09-29: "on desktop we stretch out info"."""
+    profile, errors = on_roster(mount, size)
     profile.open_from_roster("Chase Brown")
     profile.tab("bio")
     assert profile.draft_row_span() <= 560
@@ -155,7 +174,13 @@ def test_red_zone_split_names_the_teammates(mount):
     assert "Amon-Ra" not in key
     segments = splits[0]["segments"]
     assert len(segments) == 3 and "me" in segments[0]
-    profile.close()
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req(REQ, ac="a back's red zone is a carries split above a targets split")
+def test_a_backs_red_zone_is_a_carries_split_above_a_targets_split(mount):
+    profile, errors = on_roster(mount)
     profile.open_from_roster("Chase Brown")      # a back: a carries split above a targets split
     profile.tab("usage")
     splits = profile.splits()
@@ -335,7 +360,14 @@ def test_facts_show_pedigree_and_fantasy_draft(mount):
     assert profile.draft_leagues().count("ESPN") == 1
     assert "Rd 1.01 · by Big Salty" in facts
     assert "Rd 1.02 · by Team Minh" in facts
-    profile.close()
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req(REQ, ac="a player drafted in one league only shows that league's pick and no row for the other")
+def test_a_pick_in_one_league_only_shows_that_league(mount):
+    """Chase Brown has an ESPN pick only, the per-league optional-ness that fantasy_draft's shape allows."""
+    profile, errors = on_roster(mount)
     profile.open_from_roster("Chase Brown")
     profile.tab("bio")
     assert "Rd 3.07 · by Big Salty" in profile.bio_facts()
@@ -344,12 +376,10 @@ def test_facts_show_pedigree_and_fantasy_draft(mount):
 
 
 @pytest.mark.render
-@pytest.mark.req(REQ, ac="the Matchup pane shows the stadium forecast with icons; a bye has none")
-def test_weather_shows_stadium_forecast_with_icons(mount):
-    """tests/fixtures/data/weather.json: Amon-Ra St. Brown is away at KC (outdoor, sunny), Chase
-    Brown is home at CIN (outdoor, cooler), Jahmyr Gibbs has no next game (a bye in the fixture)
-    so no forecast to show at all. The forecast sits inside the matchup block, in the Matchup
-    pane."""
+@pytest.mark.req(REQ, ac="the Matchup pane shows the stadium forecast with icons")
+def test_weather_shows_the_away_stadium_forecast_with_icons(mount):
+    """tests/fixtures/data/weather.json: Amon-Ra St. Brown is away at KC (outdoor, sunny). The
+    forecast sits inside the matchup block, in the Matchup pane."""
     profile, errors = on_roster(mount)
     profile.open_from_roster(ST_BROWN)
     profile.tab("matchup")
@@ -359,13 +389,27 @@ def test_weather_shows_stadium_forecast_with_icons(mount):
     assert "71°F" in text and "Sunny" in text and "10 mph" in text and "from S" in text
     assert "%" not in text                              # the sky phrase carries the rain chance
     assert wx[0]["icons"] == 2
-    profile.close()
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req(REQ, ac="the Matchup pane shows the home stadium forecast")
+def test_weather_shows_the_home_stadium_forecast(mount):
+    """Chase Brown is home at CIN (outdoor, cooler)."""
+    profile, errors = on_roster(mount)
     profile.open_from_roster("Chase Brown")
     profile.tab("matchup")
     wx = profile.weathers()
     assert len(wx) == 1
     assert "58°F" in wx[0]["text"] and "Partly Cloudy" in wx[0]["text"] and "6 mph" in wx[0]["text"]
-    profile.close()
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req(REQ, ac="a bye has no forecast")
+def test_a_bye_has_no_forecast(mount):
+    """Jahmyr Gibbs has no next game (a bye in the fixture), so no forecast to show at all."""
+    profile, errors = on_roster(mount)
     profile.open_from_roster("Jahmyr Gibbs")
     profile.tab("matchup")
     assert profile.weathers() == []
@@ -450,17 +494,22 @@ def test_market_row_partial_markets_shows_priced_not_no_market(mount):
 def test_no_verdict_words_on_the_page(mount):
     profile, errors = on_roster(mount)
     words = re.compile(r"\b(PLUS|MINUS|EVEN)\b", re.I)
+    found = []
     for view in ("yahoo", "espn"):
         profile.roster.show_team(view)
-        assert not words.search(profile.page_text()), view
+        if words.search(profile.page_text()):
+            found.append(view)
         for i in range(profile.roster.count()):
             profile.open_roster_row(i)
             # Every pane, not just the one that opens: a verdict word hiding in the matchup
             # pane is still on the page.
             for _ in profile.tab_all():
-                assert not words.search(profile.text()), (view, i)
-            assert not words.search(profile.text()), (view, i)
+                if words.search(profile.text()):
+                    found.append((view, i))
+            if words.search(profile.text()):
+                found.append((view, i))
             profile.close()
+    assert found == []
     assert errors == []
 
 

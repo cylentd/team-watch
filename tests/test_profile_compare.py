@@ -71,11 +71,17 @@ def test_head_rail_orders_and_centres_what_he_has(mount):
     profile, errors = on_roster(mount, (360, 800))
     got = profile.rail_survey()
     order = ["role", "style", "orb", "cmp"]
+    bad = []
     for key, v in got.items():
         if key == "none":
-            assert v["small_compare"], "no rail: Compare stays in the name block"
+            if not v["small_compare"]:
+                bad.append("no rail: Compare stays in the name block")
             continue
         kinds = key.split(",")
-        assert kinds[-1] == "cmp" and kinds == sorted(kinds, key=order.index), key
-        assert v["centred"], f"{key} is not centred"
+        if not (kinds[-1] == "cmp" and kinds == sorted(kinds, key=order.index)):
+            bad.append(f"{key} is out of order")
+        if not v["centred"]:
+            bad.append(f"{key} is not centred")
+    assert got
+    assert bad == []
     assert errors == []

@@ -6,20 +6,17 @@ roster_pack.py, for test_pack_stage.py and test_clip_sheet.py.
 """
 import pytest
 
-from component import mount  # noqa: F401  (the fixture)
+from component import mount as base_mount  # noqa: F401  (the fixture, `mount` below)
 from pages.roster import MOTION, NEW_READER, RosterPage
-from test_roster_cards import REQ, on_cards
+from pages.roster_motion import on_motion, press_gate
+from pages.warm import warm
+from test_roster_cards import PHONE, REQ, on_cards
 
 
-def on_motion(mount):
-    """The same with motion on, as a reader without reduced motion sees it, on the virtual clock (a
-    context of its own: `mount` loads with reduced motion on)."""
-    page, errors = mount("roster", size=(390, 844), init=(MOTION,))
-    roster = RosterPage(page)
-    roster.allow_motion()
-    roster.install_clock()
-    roster.show_cards("espn")
-    return roster, errors
+@pytest.fixture(scope="module")
+def mount(base_mount):
+    """`mount`, with the module's contexts opened once (pages/warm.py)."""
+    return warm(base_mount, ("roster", PHONE), ("roster", (390, 844), (MOTION,)))
 
 
 @pytest.mark.render
@@ -33,11 +30,13 @@ def test_a_new_reader_gets_cards_and_the_pack_waits_in_the_starters_place(mount)
     assert roster.roster_mode() == "cards"
     assert roster.stored_mode() is None, "a default is not a choice"
     roster.install_clock()                                      # the wait for a stage that must not open runs on the page's clock
+    seen = {}
     for team in ("yahoo", "espn"):
         roster.show(team)
         roster.run_clock(450)
-        assert roster.stages() == 0, f"{team}: nothing opens by itself"
-        assert roster.sealed_gates() == 1, f"{team}: the pack waits, sealed"
+        seen[team] = {"stages": roster.stages(), "sealed_gates": roster.sealed_gates()}
+    # nothing opens by itself, and the pack waits, sealed, on each team
+    assert seen == {"yahoo": {"stages": 0, "sealed_gates": 1}, "espn": {"stages": 0, "sealed_gates": 1}}
     roster.open_stage()
     assert errors == []
 
@@ -77,7 +76,7 @@ def test_the_pack_opens_once_a_week(mount):
 def test_rip_again_puts_this_weeks_pack_back_on_the_stage(mount):
     roster, errors = on_cards(mount, pack="gate")
     assert roster.rerips() == 0, "nothing to rip again before the pack is opened"
-    roster.rip_gate()
+    press_gate(roster, "rip")                                   # setup: the tap on Rip itself is tested in test_pack_stage
     roster.rip()
     roster.wait_stage_gone()
     roster.rerip()

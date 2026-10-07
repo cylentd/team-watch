@@ -7,11 +7,18 @@ pages/teamswitch.py. The Waivers case of the width test opens that leaf on the s
 is chrome, so the leaf's own CSS does not change where its menu sits."""
 import pytest
 
-from component import mount  # noqa: F401  (the fixture)
+from component import mount as base_mount  # noqa: F401  (the fixture, `mount` below)
 from pages.roster import RosterPage
 from pages.teamswitch import TeamSwitchPage
+from pages.warm import warm
 
 pytestmark = pytest.mark.render
+
+
+@pytest.fixture(scope="module")
+def mount(base_mount):
+    """`mount`, with the module's two phone contexts opened once (pages/warm.py)."""
+    return warm(base_mount, ("roster", (390, 844)), ("roster", (360, 740)))
 
 
 @pytest.mark.parametrize("mode", ["sheet", "cards"])

@@ -124,5 +124,7 @@ def test_the_switch_still_lets_a_reader_with_nothing_followed_pick(mount):
 
 def test_no_live_view_reads_davids_team_as_the_readers():
     """lg.me stays in the data (the build and its tests use it); the Live files go through gdMine."""
-    for path in (SRC / "surface" / "live").glob("*.js"):
-        assert not re.search(r"\.me\b", path.read_text(encoding="utf-8")), path.name
+    paths = list((SRC / "surface" / "live").glob("*.js"))
+    assert paths
+    reads_me = [p.name for p in paths if re.search(r"\.me\b", p.read_text(encoding="utf-8"))]
+    assert reads_me == []

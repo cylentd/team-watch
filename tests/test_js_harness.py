@@ -37,3 +37,43 @@ def test_a_dependency_the_list_lacks_is_a_reference_error(node_js):
 
 def test_undefined_comes_back_as_none(js):
     assert js("(() => {})") is None
+
+
+# One node process serves every sandbox of a Python process (a spawn is 0.4 s, a sandbox is 5 ms),
+# so the sandboxes must stay as apart as two processes were.
+def test_a_global_set_in_one_sandbox_is_not_visible_in_another(node_js):
+    first = node_js("data/startsit.js")
+    second = node_js("data/startsit.js")
+    first("(globalThis.leaked = 7)")
+    assert first("typeof leaked") == "number"       # a sandbox keeps its own state between calls
+    assert second("typeof leaked") == "undefined"
+    first("(Array.prototype.leakedToo = 1)")        # nor does an edited built-in
+    assert second("typeof [].leakedToo") == "undefined"
+
+
+def test_a_planted_global_is_not_shared_between_sandboxes(node_js):
+    first = node_js("data/startsit.js", globals={"PLANTED": {"n": 1}})
+    second = node_js("data/startsit.js", globals={"PLANTED": {"n": 2}})
+    first("(PLANTED.n = 99)")
+    assert second("PLANTED.n") == 2
+
+
+def test_sandboxes_share_one_node_process(node_js):
+    assert node_js("data/startsit.js").pid == node_js("data/schedule.js").pid
+
+
+def test_a_crashed_node_restarts_on_the_next_call(node_js):
+    import jsunit
+    js = node_js("data/startsit.js")
+    js("(globalThis.leaked = 7)")
+    old = js.pid
+    jsunit.kill_host()
+    assert js("typeof ss3Wl") == "function"         # a fresh sandbox of the same files
+    assert js("typeof leaked") == "undefined"
+    assert js.pid != old
+
+
+def test_a_throw_leaves_the_sandbox_and_the_process_usable(js):
+    with pytest.raises(JSError):
+        js("t", "no.such.key")
+    assert js("t", "matchups.vs.home", {"team": "DAL", "opp": "BAL"}) == "DAL vs BAL"

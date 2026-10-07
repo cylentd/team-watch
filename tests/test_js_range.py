@@ -33,14 +33,14 @@ def test_the_text_keeps_one_decimal_on_a_whole_number(rng):
     assert rng("rangeText", 6, 20) == "6.0–20.0"
 
 
-def test_a_ruled_out_or_finished_player_shows_no_band(rng):
-    for slug in ("hurt", "leaky", "gone"):
-        assert rng("rangeFor", {"slug": slug}) is None, slug
+@pytest.mark.parametrize("slug", ["hurt", "leaky", "gone"])
+def test_a_ruled_out_or_finished_player_shows_no_band(rng, slug):
+    assert rng("rangeFor", {"slug": slug}) is None
 
 
-def test_a_null_or_missing_band_shows_nothing(rng):
-    for slug in ("nopos", "older", "half", "nobody"):
-        assert rng("rangeFor", {"slug": slug}) is None, slug
+@pytest.mark.parametrize("slug", ["nopos", "older", "half", "nobody"])
+def test_a_null_or_missing_band_shows_nothing(rng, slug):
+    assert rng("rangeFor", {"slug": slug}) is None
 
 
 def test_a_band_of_zero_to_zero_is_no_band(rng):

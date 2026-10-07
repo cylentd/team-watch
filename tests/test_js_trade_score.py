@@ -67,18 +67,17 @@ SCORE_ALL = """(data) => {
 }"""
 
 
-def assert_reproduced(row):
-    assert row["ok"] and not row["short"], row
-    assert row["js"] == row["file"] and row["theirGain"] == row["wantTheirGain"], row
-    assert row["drop"] == row["want"] and row["moves"] == row["wantMoves"], row
-    assert row["theirMoves"] == row["wantTheirMoves"] and row["theirDrop"] == row["wantTheirDrop"], row
+def reproduced(row):
+    return bool(row["ok"] and not row["short"]
+                and row["js"] == row["file"] and row["theirGain"] == row["wantTheirGain"]
+                and row["drop"] == row["want"] and row["moves"] == row["wantMoves"]
+                and row["theirMoves"] == row["wantTheirMoves"] and row["theirDrop"] == row["wantTheirDrop"])
 
 
 def test_the_scorer_reproduces_every_fixture_gain_drop_ir_move_and_their_exactly(tb):
     rows = tb(SCORE_ALL, FIXTURE)
     assert len(rows) == 8
-    for r in rows:
-        assert_reproduced(r)
+    assert [r for r in rows if not reproduced(r)] == []
     assert [r["drop"] for r in rows if r["drop"]] == [["Isaiah Davis"]] * 3 + [["Kalif Raymond"]], "Run It Back's three offers and AYO's first put the owner over his cap"
     assert [r["theirDrop"] for r in rows if r["theirDrop"]] == [["Isaiah Davis"]] * 3, "Purdy's three offers put Run It Back over his"
 
@@ -401,9 +400,9 @@ def test_the_pitch_ends_with_one_sentence_on_the_partners_room_or_none(tb):
 # ---- the guard: Edit is shut when the page cannot reproduce the file -----------------------------------------------
 
 def test_the_guard_accepts_every_owner_of_the_fixture(tb):
-    for lgk, lg in FIXTURE["leagues"].items():
-        for owner, offers in lg["teams"].items():
-            assert tb("tbMismatch", lg, {"name": owner}, offers) == "", (lgk, owner)
+    refused = {(lgk, owner): why for lgk, lg in FIXTURE["leagues"].items() for owner, offers in lg["teams"].items()
+               if (why := tb("tbMismatch", lg, {"name": owner}, offers)) != ""}
+    assert refused == {}
 
 
 def test_an_owner_with_no_offers_passes_the_guard_so_make_your_own_still_shows(tb):
@@ -480,18 +479,21 @@ def test_the_old_shapes_say_why_there_is_no_edit(tb):
     assert "predates the drop rule" in mismatch(tb, before)
 
 
-def test_a_weekly_file_before_rest_of_season_pricing_says_so_and_shuts_edit(tb):
+@pytest.mark.parametrize("cut", ["weeks_left", "ros_floor", "ros_pg", "games"])
+def test_a_weekly_file_before_rest_of_season_pricing_says_so_and_shuts_edit(tb, cut):
     """2026-10-06: no weeks_left, no lineup.ros_floor, no ros_pg or games on a player. Scoring those as zeros would be a wrong number."""
-    for cut in ("weeks_left", "ros_floor", "ros_pg", "games"):
-        old = copy.deepcopy(FIXTURE)
-        lg = old["leagues"]["espn"]
-        if cut == "weeks_left":
-            del lg["weeks_left"]
-        elif cut == "ros_floor":
-            del lg["lineup"]["ros_floor"]
-        else:
-            del lg["values"][OWNER][0][cut]
-        assert "rest-of-season" in mismatch(tb, old), cut
+    old = copy.deepcopy(FIXTURE)
+    lg = old["leagues"]["espn"]
+    if cut == "weeks_left":
+        del lg["weeks_left"]
+    elif cut == "ros_floor":
+        del lg["lineup"]["ros_floor"]
+    else:
+        del lg["values"][OWNER][0][cut]
+    assert "rest-of-season" in mismatch(tb, old), cut
+
+
+def test_a_partner_priced_without_ros_pg_shuts_edit_on_that_offer(tb):
     partner = copy.deepcopy(FIXTURE)
     del partner["leagues"]["espn"]["values"][PARTNER][0]["ros_pg"]
     assert "offers[0]" in mismatch(tb, partner) and "is with Run It Back" in mismatch(tb, partner)

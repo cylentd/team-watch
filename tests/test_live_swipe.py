@@ -22,9 +22,11 @@ def test_a_swipe_on_my_league_leaves_the_league_alone(live):
     league, errors = live
     assert league.league_count() >= 2, "the fixture needs two leagues"
     before = league.league_and_mine()
+    after = []
     for dx in (-120, 120):
         league.swipe_board(dx)
-        assert league.league_and_mine() == before
+        after.append(league.league_and_mine())
+    assert after == [before, before]
     assert "turn-" not in league.board_class()
     assert errors == []
 

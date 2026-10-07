@@ -4,22 +4,25 @@ A branch declared one top-level function twice, the page's script threw a Syntax
 serial `pytest --update-golden` failed nearly every browser test. Each failure left its context open:
 one Chromium grew to 6.5 GB with ~300 renderers. conftest.py now gives every context an owner (`keep`).
 
-This runs a small suite in its own pytest process, on this repo's conftest, against a page whose
-script does not parse, in the four shapes that leaked: a module's shared page (SharedPages), a module
-fixture whose setup fails after opening, a test whose helper fails inside the load, and a test that
-fails after opening. Its last test asserts nothing is left open and each shared page opened once."""
-import re
-import subprocess
+This runs a small suite in a pytest session of its own (in this process, on the worker's Chromium, so
+it pays no launch), on this repo's conftest, against a page whose script does not parse, in the four
+shapes that leaked: a module's shared page (SharedPages), a module fixture whose setup fails after
+opening, a test whose helper fails inside the load, and a test that fails after opening. Its last
+test asserts nothing is left open and each shared page opened once."""
 import sys
+import types
 
 import pytest
 
 from conftest import REPO
 
-N = 8
+pytest_plugins = ["pytester"]
+
+N = 3    # per shape; a leak is caught by the check's final "nothing open", so N needs no more than the bound's 6 across shapes
 
 INNER_CONFTEST = f"""
 import importlib.util, sys, types
+import pytest
 # This run's failures are planted: kept out of the suite's run history (tests/runlog.py).
 sys.modules["runlog"] = types.SimpleNamespace(register=lambda config: None)
 spec = importlib.util.spec_from_file_location("tw_conftest", r"{REPO / 'tests' / 'conftest.py'}")
@@ -27,6 +30,17 @@ mod = importlib.util.module_from_spec(spec)
 sys.modules["tw_conftest"] = mod
 spec.loader.exec_module(mod)
 globals().update({{k: v for k, v in vars(mod).items() if not k.startswith("__")}})
+
+
+@pytest.fixture(scope="session")
+def browser():
+    # The outer run's Chromium: a launch of its own is the slowest part of this test. Contexts the outer
+    # run holds open are the baseline the check compares with.
+    b = sys.modules["tw_outer"].browser
+    mod._PW["browser"] = b
+    mod.BASELINE = list(b.contexts)
+    yield b
+    mod._PW["browser"] = None
 """
 
 BROKEN = """
@@ -47,7 +61,8 @@ def open_broken(browser, what):
     errors = []
     page.on("pageerror", lambda e: errors.append(str(e)))
     page.goto(URL)
-    page.wait_for_function("document.getElementById('view').children.length > 0", timeout=200)
+    if not page.evaluate("document.getElementById('view').children.length > 0"):
+        raise TimeoutError("the view never drew")     # what the suite's wait_for_function raises, without the wait
     return ctx, page, errors
 
 
@@ -88,29 +103,25 @@ def test_own_assert_fails(browser, i):
 """.format(n=N)
 
 CHECK = """
+import tw_conftest
 from tw_conftest import open_contexts
 from test_a_broken import N, OPENED
 
 
 def test_nothing_is_left_open(browser):
     assert {k: OPENED.count(k) for k in set(OPENED)} == {"shared": 1, "eager": 1, "own": N, "after": N}
-    assert open_contexts() == []
+    assert open_contexts() == tw_conftest.BASELINE
 """
 
 
 @pytest.mark.render
-def test_failing_tests_on_a_broken_page_leave_no_context_open(tmp_path):
-    (tmp_path / "conftest.py").write_text(INNER_CONFTEST, encoding="utf-8")
-    (tmp_path / "broken.html").write_text(
+def test_failing_tests_on_a_broken_page_leave_no_context_open(browser, pytester):
+    sys.modules["tw_outer"] = types.SimpleNamespace(browser=browser)     # read by INNER_CONFTEST's browser
+    pytester.makeconftest(INNER_CONFTEST)
+    (pytester.path / "broken.html").write_text(
         "<div id='view'></div><script>function draw() {} function draw( { let x = ; }</script>", encoding="utf-8")
-    (tmp_path / "test_a_broken.py").write_text(BROKEN, encoding="utf-8")
-    (tmp_path / "test_z_check.py").write_text(CHECK, encoding="utf-8")
-    run = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", "-p", "no:xdist",
-                          str(tmp_path)],
-                         cwd=tmp_path, capture_output=True, text=True, timeout=120)
-    out = run.stdout + run.stderr
-    counts = {k: int(n) for n, k in re.findall(r"(\d+) (passed|failed|errors?)\b", out)}
-    counts["error"] = counts.pop("errors", 0) + counts.pop("error", 0)
+    pytester.makepyfile(test_a_broken=BROKEN, test_z_check=CHECK)
+    run = pytester.runpytest_inprocess("-p", "no:cacheprovider")
     # Every broken test fails, the eager fixture's tests error in setup, none errors in teardown (the
     # bound), and the check passes.
-    assert counts == {"passed": 1, "failed": 3 * N, "error": N}, out[-3000:]
+    assert run.parseoutcomes() == {"passed": 1, "failed": 3 * N, "errors": N}, run.stdout.str()[-3000:]

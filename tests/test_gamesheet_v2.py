@@ -19,10 +19,11 @@ def test_a_phone_gets_the_game_as_a_centred_modal_with_three_tabs(mount):
     assert abs(box[1] - box[2]) <= 1 and abs(box[0] - box[3]) <= 1, box   # centred both ways
     assert sheet.tab_names() == ["Plays", "Box score", "Top scorers"]
     # Box score is the default; each tab shows its own card and no other
+    shown = {}
     for tab in ("box", "plays", "top"):
         sheet.select_tab(tab)
-        assert sheet.tab_selected(tab) == "true"
-        assert sheet.visible_pane_cards() == 1 and sheet.visible_pane(tab) == 1
+        shown[tab] = (sheet.tab_selected(tab), sheet.visible_pane_cards(), sheet.visible_pane(tab))
+    assert shown == {"box": ("true", 1, 1), "plays": ("true", 1, 1), "top": ("true", 1, 1)}
     assert sheet.visible_top_stars() == 5          # any scorer can be followed from here
     # the last tab is remembered through a close and a reopen, and the pinned block never scrolls away
     sheet.close_with_escape()

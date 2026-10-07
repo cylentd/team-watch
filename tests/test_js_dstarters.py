@@ -113,8 +113,8 @@ def test_the_copy_is_a_fact_and_says_unproven(ds):
     from jsunit import COPY
     ds_keys = {k: v for k, v in COPY.items() if k.startswith("ds.")}
     assert ds_keys, "the wording keys are missing from content.json"
-    for k, v in ds_keys.items():
-        assert not VERDICT.search(v), f"{k} says {v!r}"
+    verdicts = {k: v for k, v in ds_keys.items() if VERDICT.search(v)}
+    assert verdicts == {}, "wording that says start, sit, bet, fade or lean"
     why = ds("dsWhyText", FIX["rules"])
     assert why == FIX["rules"]["evidence"] and "unproven" in why and "2028" in why
     fallback = ds("dsWhyText", None)

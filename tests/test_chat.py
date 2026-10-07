@@ -144,5 +144,5 @@ def test_model_is_the_one_that_was_chosen():
 
 def test_every_cost_cap_is_set():
     """Each of these bounds one call's spend. A None or 0 here would silently uncap it."""
-    for name in ("MAX_QUESTION", "MAX_CONTEXT", "MAX_HISTORY", "MAX_TOKENS", "MAX_BODY"):
-        assert getattr(chat, name) > 0, name
+    names = ("MAX_QUESTION", "MAX_CONTEXT", "MAX_HISTORY", "MAX_TOKENS", "MAX_BODY")
+    assert [n for n in names if not getattr(chat, n) > 0] == []

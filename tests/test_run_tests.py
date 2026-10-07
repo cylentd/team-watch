@@ -3,11 +3,17 @@
 The diff -> test function mapping and the nodeids are pure and tested on text. The clone mechanism
 runs a real pytest in a temp dir on a three-line test file: no repo suite, about a second.
 """
+import os
 import pathlib
 import subprocess
 import sys
 
-ROOT = pathlib.Path(__file__).resolve().parents[1]
+import pytest
+
+ROOT =pathlib.Path(__file__).resolve().parents[1]
+# The throwaway pytest needs none of the installed plugins (xdist, the time limits, ...): each one's
+# import is start-up time the test is not about. `-p run_tests` is named, so it loads either way.
+BARE_PYTEST = {**os.environ, "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"}
 sys.path.insert(0, str(ROOT / "scripts"))
 import run_tests as runner  # noqa: E402
 
@@ -106,6 +112,7 @@ def test_diff_hunks_become_new_file_line_numbers():
     assert "tests/test_gone.py" not in lines and "/dev/null" not in lines
 
 
+@pytest.mark.integration      # a real git or pytest subprocess
 def test_a_diff_with_curly_quotes_is_read_as_utf8(tmp_path):
     """2026-10-06: a test whose comment held ” (UTF-8 e2 80 9d) crashed the 10-run gate: Windows decoded
     git's output as cp1252, where 0x9d is undefined, and the reader thread returned nothing."""
@@ -196,11 +203,12 @@ def test_a_long_list_of_ids_goes_to_an_args_file_and_the_file_is_deleted(monkeyp
     assert seen["exists"] and not seen["file"].exists()
 
 
+@pytest.mark.integration      # a real git or pytest subprocess
 def test_pytest_reads_an_args_file(tmp_path):
     (tmp_path / "test_a.py").write_text("def test_one():\n    pass\n\ndef test_two():\n    pass\n", encoding="utf-8")
     (tmp_path / "ids.txt").write_text("test_a.py::test_two\n", encoding="utf-8")
     done = subprocess.run([sys.executable, "-m", "pytest", "-p", "no:cacheprovider", "@ids.txt", "-q"],
-                          cwd=tmp_path, capture_output=True, text=True, timeout=120)
+                          cwd=tmp_path, env=BARE_PYTEST, capture_output=True, text=True, timeout=120)
     assert done.returncode == 0 and "1 passed" in done.stdout, done.stdout + done.stderr
 
 
@@ -224,18 +232,20 @@ def test_the_gate_flag_is_not_doubled_and_can_be_kept_off():
 
 def run_plugin(tmp_path, body, n):
     (tmp_path / "test_sample.py").write_text(body, encoding="utf-8")
-    env = {**__import__("os").environ, "PYTHONPATH": str(ROOT / "scripts")}
+    env = {**BARE_PYTEST, "PYTHONPATH": str(ROOT / "scripts")}
     return subprocess.run(
         [sys.executable, "-m", "pytest", "-p", "run_tests", "-p", "no:cacheprovider", "--tw-repeat", str(n),
          "test_sample.py::test_a", "-q"], cwd=tmp_path, env=env, capture_output=True, text=True, timeout=120)
 
 
+@pytest.mark.integration      # a real git or pytest subprocess
 def test_the_plugin_runs_a_test_n_times_and_tallies_passes(tmp_path):
     done = run_plugin(tmp_path, "def test_a():\n    assert True\n\ndef test_b():\n    assert False\n", 4)
     assert done.returncode == 0, done.stdout + done.stderr
     assert "4 passed" in done.stdout and "4/4  test_sample.py::test_a" in done.stdout
 
 
+@pytest.mark.integration      # a real git or pytest subprocess
 def test_one_failure_among_the_runs_fails_the_gate(tmp_path):
     counter = "import pathlib\n\ndef test_a():\n    p = pathlib.Path('n'); n = int(p.read_text() or 0) if p.exists() else 0\n" \
               "    p.write_text(str(n + 1))\n    assert n != 2\n"
@@ -244,8 +254,67 @@ def test_one_failure_among_the_runs_fails_the_gate(tmp_path):
     assert "4/5  test_sample.py::test_a" in done.stdout
 
 
+@pytest.mark.integration      # a real git or pytest subprocess
 def test_a_parametrized_test_runs_every_variant_n_times(tmp_path):
     body = "import pytest\n\n@pytest.mark.parametrize('v', [1, 2, 3])\ndef test_a(v):\n    assert v\n"
     done = run_plugin(tmp_path, body, 2)
     assert done.returncode == 0, done.stdout + done.stderr
     assert "6/6  test_sample.py::test_a" in done.stdout
+
+
+# ---- the testing skill's time limits (2026-10-06) ----
+
+def skill_with_plugin(tmp_path):
+    (tmp_path / "pytest_limits.py").write_text("", encoding="utf-8")
+    return tmp_path
+
+
+def picked_everything(monkeypatch):
+    monkeypatch.setattr(runner.impact, "changed", lambda base, worktree: ([], []))
+    monkeypatch.setattr(runner.impact, "select", lambda paths, golden: {"all": True, "why": [], "files": [], "areas": []})
+
+
+def test_the_skill_dir_is_testing_skill_else_the_installed_copy(tmp_path):
+    assert runner.skill_dir({"TESTING_SKILL": str(tmp_path)}) == tmp_path
+    assert runner.skill_dir({}) == pathlib.Path.home() / ".agents" / "skills" / "testing" / "scripts"
+
+
+def test_the_limits_plugin_loads_only_when_the_skill_has_it(tmp_path):
+    assert runner.limit_args(tmp_path) == []
+    assert runner.limit_args(skill_with_plugin(tmp_path)) == ["-p", "pytest_limits"]
+    assert runner.limit_args(skill_with_plugin(tmp_path), enforce=True) == ["-p", "pytest_limits", "--limits-enforce"]
+
+
+def test_no_run_passes_the_retired_suite_flag(monkeypatch, tmp_path):
+    """The suite budgets are wall times the weekly flake job measures (flake_run.py), not a land flag."""
+    skill = skill_with_plugin(tmp_path)
+    picked_everything(monkeypatch)
+    runs = [runner.command(True, "origin/main", True, [], skill=skill),
+            runner.command(False, "origin/main", True, [], picked=["tests/test_ranks.py"], skill=skill),
+            runner.repeat_command(["tests/test_x.py::test_a"], 10, [], skill=skill)]
+    assert [r for r in runs if "--limits-no-suite" in r] == []
+
+
+def test_the_repeat_run_enforces_the_limits(tmp_path):
+    """Only the land's 10-run of new and changed tests fails on time: on the fastest of its copies."""
+    cmd = runner.repeat_command(["tests/test_x.py::test_a"], 10, [], skill=skill_with_plugin(tmp_path))
+    assert "pytest_limits" in cmd and "--limits-enforce" in cmd
+
+
+def test_an_ordinary_run_only_reports_the_limits(monkeypatch, tmp_path):
+    picked_everything(monkeypatch)
+    whole = runner.command(True, "origin/main", True, [], skill=skill_with_plugin(tmp_path))
+    assert "pytest_limits" in whole and "--limits-enforce" not in whole
+
+
+def test_the_skill_dir_goes_on_pythonpath_ahead_of_the_existing_path(tmp_path):
+    env = runner.with_path({"PYTHONPATH": "elsewhere", "X": "1"}, tmp_path, "scripts")
+    assert env["PYTHONPATH"].split(os.pathsep) == [str(tmp_path), "scripts", "elsewhere"]
+    assert env["X"] == "1"
+    assert runner.with_path({}, tmp_path)["PYTHONPATH"] == str(tmp_path)
+
+
+def test_the_limits_plugin_is_in_no_pytest_config_so_mutation_and_flake_runs_never_fail_on_time():
+    """Only scripts/run_tests.py loads it (-p pytest_limits): a mutant or a shuffled run is not timed."""
+    assert "pytest_limits" not in (ROOT / "pytest.ini").read_text(encoding="utf-8")
+    assert "pytest_limits" not in (ROOT / "tests" / "conftest.py").read_text(encoding="utf-8")

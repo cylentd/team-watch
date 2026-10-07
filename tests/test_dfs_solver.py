@@ -13,6 +13,7 @@ import subprocess
 import pytest
 
 pytestmark = pytest.mark.skipif(not shutil.which("node"), reason="node not installed")
+pytestmark = [pytestmark, pytest.mark.integration]      # every case runs a node process
 
 JS = pathlib.Path(__file__).resolve().parents[1] / "design" / "src" / "js" / "builder"
 SHAPES = [{"QB": 1, "RB": 3, "WR": 3, "TE": 1, "DST": 1}, {"QB": 1, "RB": 2, "WR": 4, "TE": 1, "DST": 1},

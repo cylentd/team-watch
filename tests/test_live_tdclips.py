@@ -8,10 +8,17 @@ the clock 22:25Z, four scorers, a stubbed window.fetch that answers per channel,
 how a reply joins what a channel held are in Node (tests/test_js_tdclips.py)."""
 import pytest
 
-from component import mount  # noqa: F401  (the fixture)
-from pages.live import LivePage, ORDER, at, clip
+from component import mount as base_mount  # noqa: F401  (the fixture, `mount` below)
+from pages.live import PHONE, LivePage, ORDER, at, clip
+from pages.warm import warm
 
 pytestmark = pytest.mark.render
+
+
+@pytest.fixture(scope="module")
+def mount(base_mount):
+    """`mount`, with Live's phone context opened once for the module (pages/warm.py)."""
+    return warm(base_mount, ("live", PHONE))
 
 
 @pytest.mark.req("Clips", ac="the TD reel sits above Scored, newest first, with both sources merged")
@@ -195,6 +202,10 @@ def test_a_page_opened_after_the_last_whistle_asks_once_for_the_games_of_the_las
     live.advance(301)                                               # every game is over an hour ago now: nothing more
     assert live.call_count() == 7
     assert errors == []
+
+
+@pytest.mark.req("Clips", ac="a page opened the morning after the last whistle asks for nothing")
+def test_a_page_opened_the_morning_after_asks_for_nothing(mount):
     live, errors = LivePage.open_tds(mount, hours=12, post=True, wait=False)     # opened the morning after
     live.wait_for_reel()
     assert live.call_count() == 0

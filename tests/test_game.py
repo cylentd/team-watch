@@ -80,6 +80,7 @@ def test_the_distance_drawn_is_the_distance_the_play_text_states(shaped):
     """The strongest check on the coordinate mapping: what the field shows has to agree with the
     prose, in both directions. A sack is negative in the text and backwards on the field."""
     checked = 0
+    wrong = []
     for d in shaped["drives"]:
         for p in d["plays"]:
             if p["k"] == "fg":
@@ -90,16 +91,17 @@ def test_the_distance_drawn_is_the_distance_the_play_text_states(shaped):
             if not m or "penalty" in p["tx"].lower() or "FUMBLES" in p["tx"]:
                 continue
             drawn = (p["to"] - p["from"]) * d["dir"]
-            assert drawn == int(m.group(1)), f"drew {drawn} for {p['tx'][:70]!r}"
+            if drawn != int(m.group(1)):
+                wrong.append(f"drew {drawn} for {p['tx'][:70]!r}")
             checked += 1
+    assert wrong == []
     assert checked >= 15, f"only {checked} plays stated a distance"
 
 
 def test_the_line_to_gain_is_ahead_of_the_ball_whichever_way_the_drive_runs(shaped):
-    for d in shaped["drives"]:
-        for p in d["plays"]:
-            if "line" in p:
-                assert (p["line"] - p["from"]) * d["dir"] >= 0
+    with_line = [(d, p) for d in shaped["drives"] for p in d["plays"] if "line" in p]
+    assert with_line, "the fixture should contain plays with a line to gain"
+    assert [p["tx"] for d, p in with_line if (p["line"] - p["from"]) * d["dir"] < 0] == []
 
 
 def test_a_generational_suffix_still_finds_a_face(summary):
@@ -144,10 +146,13 @@ def test_an_incompletion_that_names_nobody_is_not_a_crash():
 def test_bookkeeping_records_never_become_plays(shaped):
     texts = " ".join(p["tx"] for d in shaped["drives"] for p in d["plays"])
     assert "kicks" not in texts and "punts" not in texts
-    for label in ("Kickoff", "Punt", "Timeout", "Penalty", "Two-minute warning", "End of Game"):
-        assert game.play_row({"type": {"text": label}, "text": "",
-                              "start": {"yardsToEndzone": 50}, "end": {"yardsToEndzone": 50}},
-                             home_ball=True) is None
+
+
+@pytest.mark.parametrize("label", ["Kickoff", "Punt", "Timeout", "Penalty", "Two-minute warning", "End of Game"])
+def test_a_bookkeeping_record_is_not_a_play(label):
+    assert game.play_row({"type": {"text": label}, "text": "",
+                          "start": {"yardsToEndzone": 50}, "end": {"yardsToEndzone": 50}},
+                         home_ball=True) is None
 
 
 def test_yards_after_the_catch_is_carried_when_the_feed_has_it(shaped):
@@ -161,17 +166,16 @@ def test_the_score_comes_from_the_play_records(shaped):
     opener = shaped["drives"][0]
     assert opener["score"] == [0, 0]
     assert opener["end"]["score"][0] > 0                            # it ended in a touchdown
-    for d in shaped["drives"]:
-        assert d["end"]["score"][0] >= d["score"][0]
-        assert d["end"]["score"][1] >= d["score"][1]
+    went_back = [i for i, d in enumerate(shaped["drives"])
+                 if d["end"]["score"][0] < d["score"][0] or d["end"]["score"][1] < d["score"][1]]
+    assert went_back == []
 
 
 def test_a_field_goal_ends_at_the_posts(shaped):
     kicks = [(d, p) for d in shaped["drives"] for p in d["plays"] if p["k"] == "fg"]
     assert kicks, "the fixture should contain a field goal"
-    for d, p in kicks:
-        assert p["to"] == (100 if d["dir"] == 1 else 0)
-        assert p["made"] is True
+    assert [p["to"] for d, p in kicks] == [100 if d["dir"] == 1 else 0 for d, p in kicks]
+    assert [p["made"] for d, p in kicks] == [True] * len(kicks)
 
 
 def test_a_game_that_has_not_kicked_off_says_so(summary):

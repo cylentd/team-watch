@@ -1,5 +1,6 @@
 """scripts/land-queue.ps1 (2026-09-26): one writer to main at a time. Each case runs the real
 PowerShell functions against a throwaway git repo, so the queue under test is never the real one."""
+import os
 import shutil
 import subprocess
 import time
@@ -12,6 +13,8 @@ REPO = Path(__file__).resolve().parents[1]
 QUEUE = REPO / "scripts" / "land-queue.ps1"
 PS = shutil.which("powershell") or shutil.which("pwsh")
 pytestmark = pytest.mark.skipif(not PS, reason="no PowerShell on this machine")
+pytestmark = [pytestmark, pytest.mark.integration]      # PowerShell processes and git
+DOTNET_EPOCH_TICKS = 621355968000000000                 # 0001-01-01 to 1970-01-01 in 100 ns ticks
 
 
 def ps(script, cwd):
@@ -53,31 +56,28 @@ def popen_ps(script, cwd):
 
 
 def test_the_second_lander_waits_for_the_first(repo):
-    """First holds main until the test releases it; the second, started once the first's ticket is in, must say
-    whose land it waited on and get main only after the first lets go. The release is a file the test writes once
-    the second has said it is waiting, so no step depends on how fast PowerShell starts (2026-10-06: a 4 s hold
-    lost that race under the parallel land suite)."""
-    release = repo / "release"
-    first = popen_ps(f"$t = Enter-LandQueue -Repo '{repo}' -Label first; "
-                     f"while (-not (Test-Path '{release}')) {{ Start-Sleep -Milliseconds 50 }}; "
-                     f"[datetime]::UtcNow.Ticks; Exit-LandQueue $t", repo)
-    deadline = time.monotonic() + 30
-    while not tickets(repo) and first.poll() is None and time.monotonic() < deadline:
-        time.sleep(0.05)   # poll interval, not a wait for an event
-    assert tickets(repo), "the first lander never took a ticket"
-    second = popen_ps(f"$t = Enter-LandQueue -Repo '{repo}' -Label second; [datetime]::UtcNow.Ticks; "
+    """The first holds main until the test releases it; the second must say whose land it waited on and get main
+    only after the first lets go. The first is a live ticket this process writes (the same file the real
+    Enter-LandQueue writes, held by a pid that is running), so only one PowerShell starts, and the release comes
+    once the second has said it is waiting: no step depends on how fast PowerShell starts (2026-10-06: a 4 s hold
+    lost that race under the parallel land suite). The second re-checks every 100 ms, not the queue's 3 s."""
+    q = repo / ".git" / "land-queue"
+    q.mkdir()
+    first = q / "00000000000000000001-{}.ticket".format(os.getpid())
+    first.write_text('{"pid":%d,"label":"first","since":"%s"}' % (os.getpid(), time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())))
+    second = popen_ps(f"function Start-Sleep {{ param($Seconds) Microsoft.PowerShell.Utility\\Start-Sleep -Milliseconds 100 }}; "
+                      f"$t = Enter-LandQueue -Repo '{repo}' -Label second; [datetime]::UtcNow.Ticks; "
                       f"Exit-LandQueue $t", repo)
     pool = ThreadPoolExecutor(1)
     try:
         said = pool.submit(second.stdout.readline).result(timeout=30)
         assert "waiting on first" in said, said
     finally:
-        release.write_text("")   # always let the first go, so a failure here never hangs both
-        out_first, _ = first.communicate(timeout=60)
+        released = time.time_ns() // 100 + DOTNET_EPOCH_TICKS     # .NET ticks, the clock the second prints
+        first.unlink()   # always let the first go, so a failure here never hangs the second
         out_second, err_second = second.communicate(timeout=60)
         pool.shutdown(wait=False)
     assert second.returncode == 0, err_second
-    released = int(out_first.strip().splitlines()[-1])
     got = int(out_second.strip().splitlines()[-1])
     assert got >= released, "the second lander got main while the first still held it"
     assert tickets(repo) == []

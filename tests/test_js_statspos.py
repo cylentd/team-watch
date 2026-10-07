@@ -36,9 +36,9 @@ def test_work_vs_points_lists_all_then_rb_wr_te(sp):
     assert sp("statsPosList", "movers", {}) == ["ALL", "RB", "WR", "TE"]
 
 
-def test_leaders_usage_and_schedule_list_qb_to_te(sp):
-    for leaf in ("board", "usage", "schedule"):
-        assert sp("statsPosList", leaf, {}) == CORE, leaf
+@pytest.mark.parametrize("leaf", ["board", "usage", "schedule"])
+def test_leaders_usage_and_schedule_list_qb_to_te(sp, leaf):
+    assert sp("statsPosList", leaf, {}) == CORE
 
 
 def test_a_view_lists_only_the_positions_it_has_data_for(sp):
@@ -46,9 +46,9 @@ def test_a_view_lists_only_the_positions_it_has_data_for(sp):
     assert sp("statsPosList", "usage", {"have": []}) == []
 
 
-def test_a_view_with_no_position_lists_none(sp):
-    for leaf in ("highlights", "digest", "roster"):
-        assert sp("statsPosList", leaf, {}) == [], leaf
+@pytest.mark.parametrize("leaf", ["highlights", "digest", "roster"])
+def test_a_view_with_no_position_lists_none(sp, leaf):
+    assert sp("statsPosList", leaf, {}) == []
 
 
 # ---- the shared choice -> what a view shows ----
@@ -64,14 +64,14 @@ def test_flex_and_all_stand_for_each_other(sp):
     assert sp("statsPosShown", CORE + ["FLEX"], state("ALL")) == "FLEX"
 
 
-def test_work_vs_points_shows_all_for_a_position_it_lacks(sp):
-    for shared in ("QB", "DST", "K"):
-        assert sp("statsPosShown", ["ALL", "RB", "WR", "TE"], state(shared, core="QB")) == "ALL", shared
+@pytest.mark.parametrize("shared", ["QB", "DST", "K"])
+def test_work_vs_points_shows_all_for_a_position_it_lacks(sp, shared):
+    assert sp("statsPosShown", ["ALL", "RB", "WR", "TE"], state(shared, core="QB")) == "ALL"
 
 
-def test_a_qb_to_te_view_keeps_the_last_of_qb_to_te_the_reader_picked(sp):
-    for shared in ("FLEX", "DST", "K", "ALL"):
-        assert sp("statsPosShown", CORE, state(shared, core="TE")) == "TE", shared
+@pytest.mark.parametrize("shared", ["FLEX", "DST", "K", "ALL"])
+def test_a_qb_to_te_view_keeps_the_last_of_qb_to_te_the_reader_picked(sp, shared):
+    assert sp("statsPosShown", CORE, state(shared, core="TE")) == "TE"
 
 
 def test_with_no_qb_to_te_pick_yet_a_qb_to_te_view_shows_rb(sp):
@@ -97,16 +97,20 @@ def test_a_pick_becomes_the_shared_position(sp):
     assert sp("statsPosPick", state("RB"), "WR") == {"shared": "WR", "core": "WR"}
 
 
-def test_a_pick_outside_qb_to_te_keeps_the_last_qb_to_te(sp):
-    for pos in ("FLEX", "ALL", "DST", "K"):
-        assert sp("statsPosPick", state("WR", core="WR"), pos) == {"shared": pos, "core": "WR"}, pos
+@pytest.mark.parametrize("pos", ["FLEX", "ALL", "DST", "K"])
+def test_a_pick_outside_qb_to_te_keeps_the_last_qb_to_te(sp, pos):
+    assert sp("statsPosPick", state("WR", core="WR"), pos) == {"shared": pos, "core": "WR"}
 
 
-def test_before_any_pick_work_vs_points_opens_on_all_and_the_rest_on_rb(sp):
-    """Each view's own opening position stands until the reader picks one: All on Work vs points, RB elsewhere."""
+def test_before_any_pick_work_vs_points_opens_on_all(sp):
+    """Each view's own opening position stands until the reader picks one: All on Work vs points."""
     assert sp("statsPosShown(statsPosList('movers'), STATS_POS)") == "ALL"
-    for leaf in ("ranks", "board", "usage", "schedule"):
-        assert sp(f"statsPosShown(statsPosList('{leaf}'), STATS_POS)") == "RB", leaf
+
+
+@pytest.mark.parametrize("leaf", ["ranks", "board", "usage", "schedule"])
+def test_before_any_pick_the_rest_open_on_rb(sp, leaf):
+    """Each view's own opening position stands until the reader picks one: RB elsewhere."""
+    assert sp(f"statsPosShown(statsPosList('{leaf}'), STATS_POS)") == "RB"
 
 
 # ---- the segment under the finger ----

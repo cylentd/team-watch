@@ -112,8 +112,9 @@ def test_games_tiles_read_by_state_and_the_leader_wears_its_club_colour(mount):
     # who leads is read off the score: the trailer is grey, the leader is not, a tie is plain
     rows = live.tile_scores()
     assert rows
-    for a, h, ca, ch in rows:
-        assert (ca, ch) == (("lead", "behind") if a > h else ("behind", "lead") if h > a else ("plain", "plain"))
+    wrong = [(a, h, ca, ch) for a, h, ca, ch in rows
+             if (ca, ch) != (("lead", "behind") if a > h else ("behind", "lead") if h > a else ("plain", "plain"))]
+    assert wrong == []
     # the leader's club code and score share one colour; it is the club's own when readable on the
     # panel (set as --tc), else the page's ink; the trailer is --ink-3
     ink, ink3 = live.colours("--ink", "--ink-3")
@@ -165,9 +166,11 @@ def test_the_strip_leads_my_league_and_a_chip_shows_its_game_without_leaving_the
 def test_live_draws_no_league_chips_and_the_picked_team_decides_the_league(mount):
     live, errors = LiveTabsPage.open_league(mount, team="yahoo")
     assert live.league_count() >= 2, "the fixture needs two leagues"
+    chips = {}
     for tab in ("league", "games", "tds"):
         live.open_tab(tab)
-        assert live.league_chip_count() == 0, tab
+        chips[tab] = live.league_chip_count()
+    assert chips == {"league": 0, "games": 0, "tds": 0}
     live.open_tab("league")
     assert live.league_key() == "yahoo"
     assert "Chat Take the Wheel" in live.my_side_text()
@@ -218,9 +221,11 @@ def test_the_tab_survives_a_reload_of_the_view_and_a_blocked_store_still_switche
     live.open_tab("league")
     # another view sends the reader to a tab by setting it, then opening #live; the four tabs' old
     # values land on My league (matchup, league) and NFL (games)
-    for old, tab in (("matchup", "league"), ("league", "league"), ("games", "games")):
+    landed = []
+    for old in ("matchup", "league", "games"):
         live.store_tab_and_render(old)
-        assert live.bar_pressed_tab() == tab
+        landed.append(live.bar_pressed_tab())
+    assert landed == ["league", "league", "games"]
     live.store_tab_and_render("nonsense")
     assert live.mirror_count() >= 1                           # anything else is the default
     live.block_storage()

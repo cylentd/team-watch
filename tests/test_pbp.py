@@ -61,8 +61,9 @@ def espn():
 # --------------------------------------------------------------------------- the shape itself
 
 def test_it_produces_the_payload_the_strip_takes(shaped):
-    for key in ("event", "home", "away", "current", "drives", "faces", "names"):
-        assert key in shaped, key
+    missing = [key for key in ("event", "home", "away", "current", "drives", "faces", "names")
+               if key not in shaped]
+    assert missing == []
     assert shaped["home"]["abbr"] == "BUF" and shaped["away"]["abbr"] == "DET"
     assert shaped["current"] == len(shaped["drives"]) - 1
     assert shaped["source"] == "nflverse"
@@ -84,14 +85,17 @@ def test_the_distance_drawn_is_the_yardage_nflverse_states(shaped, rows):
     """nflverse states `yards_gained` as a column, so unlike the ESPN producer this needs no
     regex over prose -- which makes it a check on the direction, not on the parsing."""
     checked = 0
+    wrong = []
     for d in shaped["drives"]:
         for p in d["plays"]:
             if p["k"] in ("fg", "int") or "fum" in p:
                 continue          # a kick ends at the posts; the others move the ball again after
             drawn = (p["to"] - p["from"]) * d["dir"]
             row = next(r for r in rows if pbp.text(r["desc"]) == p["tx"] and r.get("yards_gained") is not None)
-            assert drawn == row["yards_gained"], f"drew {drawn} for {p['tx'][:70]!r}"
+            if drawn != row["yards_gained"]:
+                wrong.append(f"drew {drawn} for {p['tx'][:70]!r}")
             checked += 1
+    assert wrong == []
     assert checked >= 100, f"only {checked} plays checked"
 
 
@@ -144,8 +148,8 @@ def test_a_face_is_joined_by_id_not_by_spelling(shaped):
 def test_bookkeeping_never_becomes_a_play(shaped):
     texts = " ".join(p["tx"] for d in shaped["drives"] for p in d["plays"])
     assert "kicks off" not in texts and " punts " not in texts
-    for pt in ("kickoff", "punt", "extra_point", "no_play"):
-        assert pbp.kind({"play_type": pt}) is None
+    kinds = {pt: pbp.kind({"play_type": pt}) for pt in ("kickoff", "punt", "extra_point", "no_play")}
+    assert kinds == {"kickoff": None, "punt": None, "extra_point": None, "no_play": None}
 
 
 # --------------------------------------------------------------------------- against ESPN
@@ -166,30 +170,34 @@ def pairs(shaped, espn):
 def test_both_producers_find_the_same_drives(shaped, espn):
     """The strongest check there is on a second producer: one game, described twice, by two
     organisations that never spoke to each other about it."""
-    for mine, theirs in pairs(shaped, espn):
-        assert mine["team"] == theirs["team"]
-        assert mine["dir"] == theirs["dir"]
+    got = [(mine["team"], mine["dir"]) for mine, theirs in pairs(shaped, espn)]
+    want = [(theirs["team"], theirs["dir"]) for mine, theirs in pairs(shaped, espn)]
+    assert got == want
 
 
 def test_both_producers_put_a_drive_in_the_same_place(shaped, espn):
     """Where each drive started, on the one absolute 0-100 scale both of them use. A yard of
     slack: ESPN spots a penalty enforcement where nflverse spots the snap."""
-    for mine, theirs in pairs(shaped, espn):
-        assert abs(mine["plays"][0]["from"] - theirs["plays"][0]["from"]) <= 1, \
-            f"{mine['team']} drive starts at {mine['plays'][0]['from']} vs {theirs['plays'][0]['from']}"
+    off = [f"{mine['team']} drive starts at {mine['plays'][0]['from']} vs {theirs['plays'][0]['from']}"
+           for mine, theirs in pairs(shaped, espn)
+           if abs(mine["plays"][0]["from"] - theirs["plays"][0]["from"]) > 1]
+    assert off == []
 
 
 def test_both_producers_agree_on_where_a_drive_ended_up(shaped, espn):
     """And on the score it left behind -- the number a reader actually looks at."""
-    for mine, theirs in pairs(shaped, espn):
-        assert mine["end"]["score"] == theirs["end"]["score"], \
-            f"{mine['team']} drive ends {mine['end']['score']} vs {theirs['end']['score']}"
+    off = [f"{mine['team']} drive ends {mine['end']['score']} vs {theirs['end']['score']}"
+           for mine, theirs in pairs(shaped, espn)
+           if mine["end"]["score"] != theirs["end"]["score"]]
+    assert off == []
 
 
 def test_neither_producer_invents_plays(shaped, espn):
     """nflverse marks a wiped-out snap `no_play`; ESPN keeps the record. So nflverse draws fewer,
     never more -- and not many fewer, or something else is being dropped silently."""
-    for mine, theirs in pairs(shaped, espn):
-        assert len(mine["plays"]) <= len(theirs["plays"]), \
-            f"{mine['team']}: nflverse drew {len(mine['plays'])}, ESPN {len(theirs['plays'])}"
-        assert len(theirs["plays"]) - len(mine["plays"]) <= 2
+    drew_more = [f"{mine['team']}: nflverse drew {len(mine['plays'])}, ESPN {len(theirs['plays'])}"
+                 for mine, theirs in pairs(shaped, espn) if len(mine["plays"]) > len(theirs["plays"])]
+    assert drew_more == []
+    dropped = [mine["team"] for mine, theirs in pairs(shaped, espn)
+               if len(theirs["plays"]) - len(mine["plays"]) > 2]
+    assert dropped == []

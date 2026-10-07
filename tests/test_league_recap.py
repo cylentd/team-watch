@@ -95,8 +95,7 @@ def test_champions_and_records(league):
 
 def test_no_past_name_ships(league):
     text = json.dumps(league)
-    for old in ("Team Oldname", "The Evil Twin", "Team Gone", "Back Crack"):
-        assert old not in text
+    assert [old for old in ("Team Oldname", "The Evil Twin", "Team Gone", "Back Crack") if old in text] == []
 
 
 @pytest.fixture(scope="module")

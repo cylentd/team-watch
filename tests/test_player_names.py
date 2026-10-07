@@ -57,6 +57,7 @@ def test_the_build_injects_the_block(built):
     assert any(line.startswith("Names: 11 players") for line in built.report)
 
 
+@pytest.mark.integration      # a real build of the page
 def test_a_build_without_the_file_injects_null(monkeypatch):
     import build
     monkeypatch.setattr(build, "load_player_names", lambda: None)

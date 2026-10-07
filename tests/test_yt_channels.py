@@ -33,10 +33,9 @@ def test_every_team_and_the_nfl_is_present():
     table = json.loads(COMMITTED.read_text(encoding="utf-8"))
     assert "NFL" in table
     assert set(table) == set(CODES) | {"NFL"}
-    for code, row in table.items():
-        assert set(row) == {"uploads", "embed"}, code
-        assert row["uploads"].startswith("UU") and len(row["uploads"]) == 24, code
-        assert isinstance(row["embed"], bool), code
+    assert [c for c, row in table.items() if set(row) != {"uploads", "embed"}] == []
+    assert [c for c, row in table.items() if not (row["uploads"].startswith("UU") and len(row["uploads"]) == 24)] == []
+    assert [c for c, row in table.items() if not isinstance(row["embed"], bool)] == []
 
 
 def test_table_derives_the_uploads_playlist_and_the_embed_flag():

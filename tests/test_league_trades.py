@@ -26,12 +26,13 @@ def block(skip=frozenset()):
 def test_the_block_passes_its_contract_and_every_side_is_whole():
     b = block()
     assert contract.problems("LIVE_TRADES", b) == []
-    for tr in b["trades"]:
-        for side in (tr["win"], tr["lose"]):
-            assert set(side) == {"m", "got", "slugs", "tree", "par", "after", "via"}
-            assert len(side["slugs"]) == len(side["got"])
-        for d in tr["decided"]:
-            assert set(d) == {"k", "m", "seed", "without"} and d["k"] in {"title", "in", "out", "bye", "nobye"}
+    assert b["trades"]
+    sides = [side for tr in b["trades"] for side in (tr["win"], tr["lose"])]
+    assert [s for s in sides if set(s) != {"m", "got", "slugs", "tree", "par", "after", "via"}] == []
+    assert [s for s in sides if len(s["slugs"]) != len(s["got"])] == []
+    decided = [d for tr in b["trades"] for d in tr["decided"]]
+    assert [d for d in decided if set(d) != {"k", "m", "seed", "without"}] == []
+    assert [d for d in decided if d["k"] not in {"title", "in", "out", "bye", "nobye"}] == []
 
 
 def test_the_winner_is_the_tree_and_the_held_winner_rides_beside_it():
