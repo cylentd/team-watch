@@ -97,44 +97,25 @@ function cardFront(p, tier, g, rank){
     </div>`;
 }
 
-/* The back holds only what the front does not: the game, why the tier, and his role as a stat sheet.
-   Three usage stats for his position (WV_PROOF, the waiver card's choice, so the two never disagree),
-   each with this week's value, an arrow against last week, and a bar that is his percentile at
-   the position that week (the Grid's own `p`). The snap line it replaced was two or three points
-   with no numbers. The week is his latest game, not the league's (a Thursday or Monday game can
-   leave him a week behind), and the back says which. A player the Grid has no row for keeps the line. */
-function cardStats(p){
-  if (typeof USAGE === "undefined" || !USAGE || !WV_PROOF[p.pos] || !p.slug) return null;
-  const mine = USAGE.rows.filter(x => x.slug === p.slug).sort((a, b) => a.wk - b.wk);
-  const row = mine[mine.length - 1], before = mine[mine.length - 2];
-  const cols = WV_PROOF[p.pos].map(want => wvCol(p.pos, want)).filter(Boolean);
-  if (!row || !cols.length) return null;
-  const val = (r, id) => r && r.v[id] !== undefined ? r.v[id] : null;
-  const html = `<div class="bk-stats" data-testid="roster-back-stats">${cols.map(c => {
-    const now = val(row, c.id);
-    const pct = row.p && typeof row.p[c.id] === "number" ? row.p[c.id] : null;
-    const band = pct === null ? "" : pct >= 67 ? "hi" : pct >= 34 ? "mid" : "lo";
-    const tip = pct === null ? esc(c.label) : t("teams.card.pctTip", {stat: esc(c.label), p: pct, pos: esc(p.pos)});
-    return `<div class="bk-stat ${band}" data-testid="roster-back-stat" title="${tip}">
-        <span class="bk-l">${esc(c.label)}</span><b>${usageFmt(now, c.fmt)}${wvTrendHTML(now, before ? val(before, c.id) : null)}</b>
-        <span class="bk-bar" data-testid="roster-back-bar"><i style="--p:${pct === null ? 0 : pct / 100}"></i></span></div>`;
-  }).join("")}</div>`;
-  return {html, wk: row.wk};
-}
-/* The heading's first line is the rank with the game beside it ("#7 RB", "BAL @ DAL"); its second
-   is what matters most this week: his injury ("OUT · Personal"), else the weather when it touches
-   him ("RAIN · pass ↓"), else which week the stats are from. A signed card adds the autograph's
-   words as one row under the heading. */
+/* The back holds only what the front does not: the matchup line, then his fantasy points week by week as
+   bars (pointsbars.js, from the box score, this week's projection the hollow last bar), each with its points
+   over it and its week under it. Usage stats were here until 2026-10-07 (David: noisy; only a spike or a
+   sustained trend matters, which a glance cannot show). A player with no points and no projection keeps the
+   snap line. */
+/* The heading's first line is the matchup ("vs BUF 29th" and the roof), its second what matters most this
+   week: his injury ("OUT · Personal"), else the weather when it touches him ("RAIN · pass ↓"), else the
+   kickoff. A signed card adds the autograph's words as one row under the heading. */
 function cardBack(p, rank, teamKey, i, g){
-  const stats = cardStats(p), inj = injFor(p), won = cardSigned(p);
+  const bars = pbBackHTML(p), inj = injFor(p), won = cardSigned(p), m = matchupLine(p);
   const wx = inj && inj.s === "OUT" ? null : cardWeatherNote(cardWeather(g), p.pos);
   const sub = inj ? `<span class="bk-inj ${inj.s.toLowerCase()}" title="${injLabel(inj)}">${injLabel(inj)}</span>`
     : wx ? `<span class="bk-wx" title="${cardWxTip(wx)}">${t("teams.card.wxNote", wx)}${cardWxAdj(p) ? ` · ${t("teams.card.wxAdjBack", {n: cardWxAdj(p)})}` : ""}</span>`
-    : `<span>${stats ? t("teams.card.roleWeek", {wk: stats.wk}) : t("teams.card.thisWeek")}</span>`;
+    : m && !m.bye ? `<span class="bk-kick" data-testid="roster-back-kick">${mlKickText(m, p, false)}</span>` : "";
+  const first = !m ? esc(p.pos) : m.bye ? t("teams.line.bye") : mlGameHTML(m, p);
   const signed = won ? `<div class="bk-signed" data-testid="roster-back-signed">${t("teams.card.signedBack", {wk: LIVE_SIGNED.wk, rank: won.rank, pos: esc(p.pos), pts: won.pts})}</div>` : "";
   return `<div class="tc-face tc-back pos-${esc(p.pos)}${won ? " signed" : ""}" data-testid="roster-card-back">
-      <div class="bk-why" data-testid="roster-back-why"><b data-testid="roster-back-rank">${rank ? t("teams.card.rank", {n: rank, pos: esc(p.pos)}) : esc(p.pos)}<small>${esc(cardMatchup(p.team, g))}</small></b>${sub}</div>${signed}
-      ${stats ? stats.html : `<div class="bk-l">${t("teams.card.snap")}</div><div class="bk-sp">${sparkHTML(p.trend, 110, 28)}</div>`}
+      <div class="bk-why" data-testid="roster-back-why"><div class="bk-mu" data-testid="roster-back-matchup">${first}</div>${sub}</div>${signed}
+      ${bars || `<div class="bk-l">${t("teams.card.snap")}</div><div class="bk-sp">${sparkHTML(p.trend, 110, 28)}</div>`}
       <button class="bk-open" type="button" data-testid="roster-back-open" data-cteam="${teamKey}" data-ci="${i}">${t("teams.card.profile")}</button>
     </div>`;
 }

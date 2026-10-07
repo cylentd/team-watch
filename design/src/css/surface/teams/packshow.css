@@ -1,7 +1,7 @@
 /* ============================== ROSTER: THE PACK'S STAGE ============================== */
 /* 2026-09-25 (js/surface/teams/packshow.js, packdeal.js, packfx.js). A dark room over the page:
    the sealed pack in the middle, then one card at a time in the same place (--pkw wide, its centre
-   at 45% of the height), the pile at the foot. The best card's moment turns light rays behind the
+   on --pky, the middle of the free area), the pile at the foot. The best card's moment turns light rays behind the
    centre. .pk-home fades the stage away to the roster while the cards fly into their slots.
 
    The room, reworked the same evening (it was a flat near-black): the roster stays behind it,
@@ -9,34 +9,47 @@
    behind each card and its pool on the floor went on 2026-09-27: the card, its flakes and the
    best card's rays already say the tier, and the light read as a spotlight saying it again. */
 body.pk-open{overflow:hidden}
+/* --pky is the stage's middle line (2026-10-07, David: the pack sat too high; it was 45% of the window):
+   the middle of the free area, between the header bar and the bottom bar a phone draws under the stage
+   (--hdr-top, --dock-b; a desktop has neither, so it is the window's middle). The pack, the cards, the
+   rays and the flash all stand on it. The group is the hint above the pack, the pack, and the lead line
+   under it; the hint and the lead each reserve the same room (--pk-blk, two lines of body text, whatever
+   they wrap to), so the pack's middle is the group's middle. */
 .pk-stage{--pkw:clamp(200px,min(58vw,38vh),320px);
+  --pky:calc(var(--hdr-top, 0px) + (100% - var(--hdr-top, 0px) - var(--dock-b, 0px)) / 2);
+  --pk-gap:22px;--pk-blk:calc(var(--t-3) * 3);
   position:fixed;inset:0;z-index:57;-webkit-tap-highlight-color:transparent}
 .pk-back{position:absolute;inset:0;opacity:1;transition:opacity .5s var(--ease);
   -webkit-backdrop-filter:blur(18px) saturate(.5);backdrop-filter:blur(18px) saturate(.5);
-  background:radial-gradient(ellipse 70% 60% at 50% 45%,rgb(var(--void-rgb) / .78),rgb(var(--void-rgb) / .93) 60%,rgb(var(--void-rgb) / .99))}
+  background:radial-gradient(ellipse 70% 60% at 50% var(--pky),rgb(var(--void-rgb) / .78),rgb(var(--void-rgb) / .93) 60%,rgb(var(--void-rgb) / .99))}
 .pk-close{position:absolute;z-index:4;top:calc(env(safe-area-inset-top, 0px) + 12px);right:14px;width:40px;height:40px;
   border-radius:99px;border:1px solid var(--line-2);background:var(--panel-2);color:var(--ink-2);font-size:var(--t-3);cursor:pointer}
 .pk-close:hover{color:var(--ink)}
 .pk-close:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
-.pk-msg{position:absolute;z-index:4;left:16px;right:16px;top:calc(45% - var(--pkw) * .86 - 60px);margin:0;text-align:center;
+/* The lead line stands under the pack, in the room the hint's twin above it reserves. Once the pack is
+   ripped it has said its piece: the cards' labels (.deal) and the no-metal line (.none) take its place
+   above the cards, as it did before it moved. */
+.pk-msg{position:absolute;z-index:4;left:16px;right:16px;top:calc(var(--pky) + var(--pkw) * .85 + var(--pk-gap));height:var(--pk-blk);margin:0;text-align:center;
   font-size:var(--t-3);color:var(--ink-2);text-wrap:balance}
+.pk-msg.none{top:calc(var(--pky) - var(--pkw) * .86 - 60px);height:auto}
+.pk-ripped .pk-msg:not(.deal,.none){visibility:hidden}
 /* The label over a hit as it holds (.deal, packdeal.js pkTag; 2026-10-05, it was "#3 RB · Gold"
    in one line): the metal's name large in the metal ("GOLD"; the holo spectrum for a #1), and under
    it in small capitals what earned it ("#2 TE THIS WEEK"), or SIGNED in gold over the finish. */
-.pk-msg.deal{top:calc(45% - var(--pkw) * .7 - 86px);line-height:1.1}
+.pk-msg.deal{top:calc(var(--pky) - var(--pkw) * .7 - 86px);height:auto;line-height:1.1}
 .pk-msg.deal b{display:block;margin:0;font-family:var(--tab);font-size:var(--t-6);font-weight:900;letter-spacing:.06em;text-transform:uppercase}
 .pk-msg.deal small{display:block;margin-top:4px;font-family:var(--mono);font-size:var(--t-1);font-weight:600;letter-spacing:.1em;color:var(--ink-2)}
 .pk-tag.t-silver{color:var(--silver-2)}
 .pk-tag.t-gold,.pk-tag.t-signed{color:var(--gold-2)}
 .pk-tag.t-holo{background:var(--m-holo);-webkit-background-clip:text;background-clip:text;color:transparent}
 /* The best card stands 16% larger and framed (packdeal.js pkHero), so its line sits higher. */
-.pk-dim .pk-msg.deal{top:calc(45% - var(--pkw) * .82 - 92px)}
+.pk-dim .pk-msg.deal{top:calc(var(--pky) - var(--pkw) * .82 - 92px)}
 /* The sealed pack in 3D: at rest it stands at a slight lean; it turns toward the mouse, spins with
    a drag on its body (--pry, packshow.js pkLean), and settles when let go. Side to side only since
    2026-09-27. Its strip flies off in 3D (the seal's own perspective) and the pack turns to face the
    reader as the first card rises out of it. It no longer sways by itself on a phone (2026-09-25): nothing to hold, and the reader
    saw a dark box swinging across the foil as it swayed. */
-.pk-center{position:absolute;z-index:3;left:50%;top:45%;translate:-50% -50%;perspective:900px}
+.pk-center{position:absolute;z-index:3;left:50%;top:var(--pky);translate:-50% -50%;perspective:900px}
 .pk-center .pack-glow{--pkd:14px;transform:rotateX(6deg) rotateY(var(--pry, -22deg));transition:transform var(--dur-pop) var(--spring-pop)}
 .pk-drag .pk-center .pack-glow{transition:none}
 /* The tier glow stays behind the pack as it spins (2026-09-27): drawn on the turning pack, it
@@ -48,8 +61,12 @@ body.pk-open{overflow:hidden}
 /* Larger than the cards inside it, as a real pack is: 1.06x the card on 2026-09-26, 1.22x since
    2026-09-27 (~255px wide on a 360px phone), so the pack is the thing on the screen. */
 .pk-center .pack-seal{width:calc(var(--pkw) * 1.22);height:calc(var(--pkw) * 1.7);perspective:700px}
-.pk-hint{position:absolute;z-index:4;left:16px;right:16px;top:calc(45% + var(--pkw) * .85 + 22px);margin:0;text-align:center;
+/* "Drag across the top to rip" stands over the pack, by the strip where the drag happens, its last line
+   on the pack's top edge. Once ripped it says "Tap to go faster" under the cards, where it always stood. */
+.pk-hint{position:absolute;z-index:4;left:16px;right:16px;top:calc(var(--pky) - var(--pkw) * .85 - var(--pk-gap) - var(--pk-blk));height:var(--pk-blk);
+  display:flex;align-items:flex-end;justify-content:center;margin:0;text-align:center;
   font-family:var(--mono);font-size:var(--t-1);letter-spacing:.14em;color:var(--ink-3)}
+.pk-ripped .pk-hint{top:calc(var(--pky) + var(--pkw) * .85 + var(--pk-gap));align-items:flex-start}
 @media (prefers-reduced-motion:no-preference){ .pk-hint{animation:pk-blink 1.4s ease-in-out infinite alternate} }
 @keyframes pk-blink{to{opacity:.35}}
 /* The best card's reveal cannot be hurried (packshow.js pkHurry), so it does not offer to be. */
@@ -62,7 +79,7 @@ body.pk-open{overflow:hidden}
 /* A card on the stage: a wrapper centred by its margins, placed by translate, scale and rotate
    (packdeal.js pkMove), with perspective for the turn. Inside, .pk-inner turns in 3D with two faces
    back to back: the pack's card back, and the card. It starts face down. */
-.pk-card{position:fixed;z-index:3;left:50%;top:45%;width:var(--pkw);aspect-ratio:5/7;margin-left:calc(var(--pkw) / -2);margin-top:calc(var(--pkw) * -.7);
+.pk-card{position:fixed;z-index:3;left:50%;top:var(--pky);width:var(--pkw);aspect-ratio:5/7;margin-left:calc(var(--pkw) / -2);margin-top:calc(var(--pkw) * -.7);
   cursor:default;perspective:1100px}
 .pk-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;rotate:y 180deg}
 .pk-inner > .tc,.pk-cb{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
@@ -91,7 +108,7 @@ body.pk-open{overflow:hidden}
 /* Sized to the card, not the window (2026-09-26): at 170vmax a phone composited a turning layer
    several screens across, the likeliest cause of the stutter on the last card. Only the middle
    36% ever showed, and it turns only while it shows. */
-.pk-rays{position:absolute;left:50%;top:45%;width:calc(var(--pkw) * 5);aspect-ratio:1;translate:-50% -50%;z-index:1;pointer-events:none;opacity:0;
+.pk-rays{position:absolute;left:50%;top:var(--pky);width:calc(var(--pkw) * 5);aspect-ratio:1;translate:-50% -50%;z-index:1;pointer-events:none;opacity:0;
   background:repeating-conic-gradient(from 0deg,rgb(var(--gold-2-rgb) / .16) 0 5deg,transparent 5deg 15deg);
   -webkit-mask:radial-gradient(circle,var(--shadow) 0,transparent 36%);mask:radial-gradient(circle,var(--shadow) 0,transparent 36%);
   transition:opacity .6s var(--ease)}
@@ -100,8 +117,8 @@ body.pk-open{overflow:hidden}
   rgb(var(--holo-3-rgb) / .24) 9deg 13deg,transparent 13deg 18deg,rgb(var(--holo-4-rgb) / .24) 18deg 22deg,transparent 22deg 27deg)}
 .pk-dim .pk-rays{opacity:1}
 .pk-flash{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;
-  background:radial-gradient(circle at 50% 45%,rgb(var(--ink-rgb) / .95),rgb(var(--ink-rgb) / .2) 30%,transparent 60%)}
-.pk-best-holo .pk-flash{background:radial-gradient(circle at 50% 45%,rgb(var(--ink-rgb) / .95),rgb(var(--holo-2-rgb) / .35) 28%,transparent 60%)}
+  background:radial-gradient(circle at 50% var(--pky),rgb(var(--ink-rgb) / .95),rgb(var(--ink-rgb) / .2) 30%,transparent 60%)}
+.pk-best-holo .pk-flash{background:radial-gradient(circle at 50% var(--pky),rgb(var(--ink-rgb) / .95),rgb(var(--holo-2-rgb) / .35) 28%,transparent 60%)}
 @media (prefers-reduced-motion:no-preference){ .pk-dim .pk-rays{animation:pk-spin 22s linear infinite} }
 @keyframes pk-spin{to{rotate:360deg}}
 
@@ -133,7 +150,7 @@ body.pk-open{overflow:hidden}
   background:linear-gradient(105deg,transparent 40%,rgb(var(--ink-rgb) / .08) 45%,rgb(var(--ink-rgb) / .42) 50%,rgb(var(--ink-rgb) / .08) 55%,transparent 60%)}
 .pk-sheen.go::before{animation:pk-sheen .9s cubic-bezier(.4,0,.2,1) forwards}
 @keyframes pk-sheen{to{translate:100% 0}}
-.pk-wave{position:absolute;z-index:2;left:50%;top:45%;width:var(--pkw);aspect-ratio:1;margin:calc(var(--pkw) / -2) 0 0 calc(var(--pkw) / -2);
+.pk-wave{position:absolute;z-index:2;left:50%;top:var(--pky);width:var(--pkw);aspect-ratio:1;margin:calc(var(--pkw) / -2) 0 0 calc(var(--pkw) / -2);
   border-radius:50%;border:3px solid rgb(var(--rc, var(--ink-rgb)));pointer-events:none;opacity:0}
 
 /* Home: the stage fades to the roster; only the flying cards stay. */

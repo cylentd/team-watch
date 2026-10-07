@@ -78,17 +78,18 @@ async function pkSigned(S, el, c){
 }
 
 /* The pile: small at the foot of the screen, fanned so the count shows, each card leaning a little. */
-function pkPilePlace(S, k){
-  // Its foot 18px above the window's: the card is sized by the window (--pkw), so the lift is too.
+function pkPilePlace(S, k, el){
+  // Its foot 18px above the window's: the card is sized by the window (--pkw), so the lift is too. It falls
+  // from the stage's middle line (--pky, packshow.css), read off the card while it still stands there.
   const mid = (S.cards.length - 1) / 2, w = S.shown[0] ? S.shown[0].offsetWidth : 220;
-  const lift = innerHeight * .55 - w * 1.4 * .3 / 2 - 18;
+  const at = el.getBoundingClientRect(), lift = innerHeight - (at.top + at.height / 2) - w * 1.4 * .3 / 2 - 18;
   return {translate: `${(k - mid) * 14}px ${lift}px`, scale: ".3", rotate: `${(k - mid) * 3}deg`};
 }
 
 /* Down to the pile on an arc: up a touch first, then away and small, easing out, no bounce (the
    spring's overshoot made a shrinking card wobble). A flick goes quicker. */
 async function pkToPile(S, el, k, quick){
-  const to = pkPilePlace(S, k);
+  const to = pkPilePlace(S, k, el);
   if (!S.skip){
     const a = pkAnim(S, el, [
       {translate: "0 0", scale: "1", rotate: "0deg"},
@@ -165,7 +166,7 @@ async function pkDeal(S){
 /* No metal and nobody signed: the line says so, a moment, before the cards go home. A tap goes sooner. */
 async function pkNone(S){
   const m = S.st.querySelector(".pk-msg");
-  m.className = "pk-msg";
+  m.className = "pk-msg none";
   m.textContent = t("teams.pack.none");
   if (S.quit) return;
   await new Promise(r => { setTimeout(r, 2200); S.wake.add(r); S.st.addEventListener("click", r, {once: true}); });

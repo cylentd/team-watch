@@ -200,7 +200,6 @@
     "tests/test_roster_pack.py::test_the_pack_opens_once_a_week",
     "tests/test_roster_pack.py::test_the_tear_starts_under_the_finger_and_runs_its_way",
     "tests/test_roster_sheet.py::test_a_phone_row_is_full_size",
-    "tests/test_roster_sheet.py::test_a_starter_row_shows_usage_and_a_td_chance",
     "tests/test_roster_sheet.py::test_no_name_loses_its_end[1100]",
     "tests/test_run_tests.py::test_a_parametrized_test_runs_every_variant_n_times",
     "tests/test_run_tests.py::test_one_failure_among_the_runs_fails_the_gate",

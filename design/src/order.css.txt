@@ -33,6 +33,8 @@ surface/teams/brief.css
 surface/teams/cliprail.css
 surface/teams/reel.css
 surface/teams/matchup.css
+surface/teams/matchupline.css
+surface/teams/pointsbars.css
 surface/teams/wire.css
 surface/teams/wcard.css
 surface/teams/wback.css

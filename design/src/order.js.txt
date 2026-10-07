@@ -32,6 +32,8 @@ data/swipestep.js
 data/statspos.js
 data/teamcolors.js
 data/schedule.js
+data/matchupline.js
+data/pointsbars.js
 lib/escape.js
 lib/kick.js
 lib/served.js
@@ -42,6 +44,8 @@ ui/matchup.js
 data/dstarters.js
 ui/dstarters.js
 ui/weather.js
+surface/teams/matchupline.js
+surface/teams/pointsbars.js
 surface/teams/board.js
 surface/teams/cards.js
 surface/teams/cardfit.js

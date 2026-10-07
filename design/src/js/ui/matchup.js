@@ -39,13 +39,3 @@ function matchupRankText(prof){
     ? t("profile.matchup.rank", {nth: ordinal(n), of: f.of, pos: esc(prof.pos)})
     : t("profile.matchup.rankTough", {nth: ordinal(f.of - n + 1), of: f.of, pos: esc(prof.pos)});
 }
-
-/* The roster row's matchup, a clause on its meta line since the Matchup column went (2026-09-25):
-   "@ KC 20th", the ordinal's title saying what it ranks. A phone drops the ordinal (lists.css); it
-   is the profile's there. No rank -- a bye, no profile -- is no clause at all. */
-function matchupMetaHTML(prof){
-  const nx = prof && prof.next;
-  const n = nx ? easiestRank(nx.factor) : null;
-  if (n === null) return "";
-  return `<span class="mu-meta">${whereWord(nx)} ${esc(nx.opp)} <b class="mu-n ${matchupClass(n, nx.factor.of)}" title="${matchupRankText(prof)}. ${t("profile.matchup.mark")}">${ordinal(n)}</b></span>`;
-}

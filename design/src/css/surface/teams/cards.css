@@ -141,20 +141,6 @@
 .bk-signed{margin:3px -4px 0;text-align:center;font-family:var(--tab);font-size:var(--t-1);font-weight:800;line-height:1.2;letter-spacing:.02em;color:var(--gold-2)}
 .bk-l{margin-top:4px;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.06em;color:var(--ink-3);text-transform:uppercase;white-space:nowrap}
 .bk-sp .spark{width:100%;height:24px}
-/* The role sheet: label and value on one line, the percentile bar under them. The bar's colour
-   is its band (top third lime, middle amber, bottom grey), so three bars read before three numbers. */
-.bk-stats{display:flex;flex-direction:column;gap:4px;margin-top:3px}
-.bk-stat{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;column-gap:4px}
-.bk-stat .bk-l{margin-top:0;overflow:hidden;text-overflow:ellipsis}
-.bk-stat b{font-family:var(--mono);font-size:var(--t-1);font-weight:700;white-space:nowrap}
-.bk-stat .wvp-t{margin-left:2px}
-.bk-bar{grid-column:1/-1;height:3px;margin-top:2px;border-radius:2px;background:var(--line);overflow:hidden}
-.bk-bar i{display:block;height:100%;background:var(--ink-3);transform:scaleX(var(--p));transform-origin:left;
-  transition:transform var(--dur-spring) var(--spring) .15s}
-.bk-stat.mid .bk-bar i{background:var(--amber)}
-.bk-stat.hi .bk-bar i{background:var(--lime)}
-/* The bars fill as the card turns over, not before: the back is hidden until then. */
-.tc:not(.back) .bk-bar i{transform:scaleX(0);transition-delay:0s}
 /* A support card's facts: label and value on one line. */
 .bk-rows{display:flex;flex-direction:column;gap:3px;margin-top:4px}
 .bk-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;column-gap:6px}
@@ -164,27 +150,25 @@
   font-family:var(--ui);font-weight:600;font-size:var(--t-1);padding:4px;cursor:pointer}
 .bk-open:hover{background:var(--panel-3)}
 .bk-open:focus-visible{outline:2px solid var(--lime);outline-offset:1px}
-/* Fitting the back (measured, 2026-10-05): the heading is rank, game and why, then a signed card's
-   autograph row, three stat rows and the button, and a card's back is ~126px (360px screen), ~140px
-   (390px), ~158px (430px) and ~190px (a desktop's largest) inside its padding. A signed card, whose
-   row takes ~30px, loses its why line and last stat row below 180px. Below 150px every card loses
-   its why line and tightens; below 132px a signed card also drops its stat bars. Container queries
-   style descendants of .tc-back, which is the container, and sit after the rules they override. */
+/* Fitting the back (measured, 2026-10-05): the heading is the matchup line and its second line (the
+   kickoff, or his injury, or the weather), then a signed card's autograph row, the points bars (points
+   over, week under) and the button, and a card's back is ~126px (360px screen), ~140px (390px), ~158px
+   (430px) and ~190px (a desktop's largest) inside its padding. A signed card, whose row takes ~30-42px,
+   loses its second line and the bars' numbers below 180px: the bars alone say the shape. Below 150px every
+   card tightens; a support card's second line (the game) goes there, a skill card's stays (2026-10-07:
+   the kickoff is what the back is for). Container queries style descendants of .tc-back, which is the
+   container, and sit after the rules they override. */
 @container (max-height:180px){
   .tc-back.signed .bk-why > span{display:none}
-  .tc-back.signed .bk-stat:last-child{display:none}
 }
 @container (max-height:150px){
-  .bk-why > span{display:none}
-  .bk-why{padding-bottom:0;border-bottom-color:transparent}
-  .bk-stats{gap:1px;margin-top:1px}
-  .bk-stat,.bk-open{line-height:1.15}
-  .bk-bar{height:2px;margin-top:1px}
-  .bk-signed{margin-top:1px}
-  /* a signed card with no role sheet: the snap line gives way to the autograph's row */
+  .bk-why > b + span{display:none}
+  .bk-why{padding-bottom:0;border-bottom-width:0}
+  .bk-open{line-height:1.15;padding:3px 4px}
+  .bk-signed{margin-top:0}
+  /* a signed card with no points to draw: the snap line gives way to the autograph's row */
   .tc-back.signed > .bk-l,.tc-back.signed > .bk-sp{display:none}
 }
-@container (max-height:132px){ .tc-back.signed .bk-bar{display:none} }
 
 /* Support cards: no rank, so no metal; the same stock, banner and badge as the rest. The art is the
    matchup: the kicker's venue, the defense's club. Their chip sits on the row under the projection

@@ -10,6 +10,7 @@ Red zone: Kittle 3 of 8 team targets (counts, under 10), St. Brown 31% · 4 of 1
 """
 import copy
 import json
+import re
 
 import pytest
 
@@ -18,12 +19,19 @@ import contract
 from component import mount  # noqa: F401  (the fixture)
 from conftest import FIXTURES
 from pages.roster import on_roster
+from pages.roster_matchup import MatchupLine
 from test_build import injected
 
 PROFILES = json.loads((FIXTURES / "data" / "player_profiles.json").read_text(encoding="utf-8"))
 MARKET_STOCK = json.loads((FIXTURES / "data" / "market_stock.json").read_text(encoding="utf-8"))
 REQ = "The profile modal"
 ST_BROWN = "Amon-Ra St. Brown"
+# This week's games for the clubs the fixture's profiles name (each profile's next opponent), so the rows' schedule and
+# the profiles' matchup numbers agree: St. Brown at KC, Higgins and Burrow at home to PIT, Kittle and Purdy at home to LAR.
+MATCHUPS = {"games": [{"week": 5, "home": "KC", "away": "DET", "kickoff": "2026-10-11T20:25:00Z"},
+                      {"week": 5, "home": "CIN", "away": "PIT", "kickoff": "2026-10-11T17:00:00Z"},
+                      {"week": 5, "home": "SF", "away": "LAR", "kickoff": "2026-10-12T00:20:00Z"}],
+            "factors": {}, "weather": {}, "form": {}}
 
 
 @pytest.mark.req(REQ, ac="the fixture's profiles meet the contract")
@@ -120,42 +128,58 @@ def test_the_sheet_keeps_the_fluke_filter():
 
 # ------------------------------------------------------------------ the roster rows, rendered
 
+@pytest.fixture(scope="module")
+def roster_mount(mount):
+    """`mount` with the two contexts the two row tests below mount through `on_roster` open (a desktop and a phone):
+    each is a cold context and page load, ~200 ms, in the call of the test that reaches it first otherwise."""
+    mount.prepare("roster", size=(1400, 900))
+    mount.prepare("roster", size=(390, 844))
+    return mount
+
+
 @pytest.mark.render
 @pytest.mark.req(REQ, ac="a roster row's matchup clause names the opponent's rank, tinted, titled")
-def test_matchup_column_rows(mount):
+def test_matchup_column_rows(roster_mount):
+    mount = roster_mount
+    """2026-10-07, the matchup line (David's pick B): a row says the game and the rank the profile's own
+    matchup number gives, 1st = the toughest defense. The fixture's notes above give "Nth easiest", so the
+    toughest-first rank is 33 - N: St. Brown 24th, Higgins 25th, Kittle 8th. 1-8 red, 9-24 neutral, 25-32 green."""
     profile, errors = on_roster(mount)
-    rows = profile.roster
-    st_brown = rows.matchup(ST_BROWN)
-    assert st_brown["text"] == "@ KC 9th"
-    assert st_brown["n_class"].strip() == "mu-n"
-    assert rows.matchup("Jahmyr Gibbs") is None                         # bye: no clause
-    assert rows.matchup("Joe Burrow") is None                           # no profile: no clause
-    rows.show_team("espn")
-    assert "mu-hard" in rows.matchup("George Kittle")["n_class"]
-    higgins = rows.matchup("Tee Higgins")
-    assert "mu-easy" in higgins["n_class"]
-    assert higgins["text"] == "vs PIT 8th"
-    # The ordinal says what it ranks in its title, since the column header that carried it went.
-    assert "easiest of 32" in higgins["n_title"]
-    assert rows.chip_count() == 0
+    lines = MatchupLine(profile.page)
+    lines.plant(MATCHUPS)
+    tok, rows = lines.tokens(), lines.lines()
+    st_brown = rows[ST_BROWN]
+    assert (st_brown["game"], st_brown["cls"].split()[-1], st_brown["color"]) == ("@ KC 24th", "ml-mid", tok["ink2"])
+    assert st_brown["kick"] and re.fullmatch(r"\w{3} \d{1,2}:\d\d [AP]M", st_brown["kick"])
+    assert (rows["Joe Burrow"]["game"], rows["Joe Burrow"]["rank"]) == ("vs PIT", None)       # no profile: the opponent, no rank
+    profile.roster.show_team("espn")
+    rows = lines.lines()
+    kittle, higgins = rows["George Kittle"], rows["Tee Higgins"]
+    assert (kittle["game"], kittle["cls"].split()[-1], kittle["color"]) == ("vs LAR 8th", "ml-hard", tok["down"])
+    assert (higgins["game"], higgins["cls"].split()[-1], higgins["color"]) == ("vs PIT 25th", "ml-easy", tok["up"])
+    # The ordinal says what it ranks in its title.
+    assert higgins["title"] == "25th of 32 defenses against WRs, from toughest to easiest"
+    assert profile.roster.chip_count() == 0
     assert errors == []
 
 
 @pytest.mark.render
 @pytest.mark.req(REQ, ac="a phone row carries the matchup clause on its meta line, not in a column")
-def test_phone_moves_matchup_to_the_meta_line(mount):
+def test_phone_moves_matchup_to_the_meta_line(roster_mount):
+    mount = roster_mount
+    """2026-10-07: a phone row keeps the matchup under the name, two lines, rank included (it was hidden below
+    760px until now), and the projection and the page's width are as before."""
     profile, errors = on_roster(mount, (390, 844), team="espn")
-    rows = profile.roster
-    kittle = rows.phone_matchup("George Kittle")
-    assert not kittle["column_visible"]
-    # The ordinal is the profile's since 2026-09-24: a phone row reads "TE · SF vs LAR".
-    assert kittle["clause"]["visible"] and kittle["clause"]["text"] == "vs LAR"
-    assert not kittle["clause"]["n_visible"]
+    lines = MatchupLine(profile.page)
+    lines.plant(MATCHUPS)
+    kittle = lines.lines()["G. Kittle"]
+    assert (kittle["game"], kittle["rank"]) == ("vs LAR 8th", "8th"), "the rank shows on a phone now"
+    assert re.fullmatch(r"\w{3} \d{1,2}:\d\d [AP]M", kittle["kick"])
     assert kittle["projection_visible"]
-    assert rows.matchup("Brock Purdy") is None                          # no profile: no clause
-    rows.show_team("yahoo")
-    assert rows.matchup("Jahmyr Gibbs") is None                         # bye: no clause
-    assert rows.page_width() <= 390
+    assert not kittle["cut"]
+    purdy = lines.lines()["B. Purdy"]
+    assert (purdy["game"], purdy["rank"]) == ("vs LAR", None)           # no profile: the opponent, no rank
+    assert profile.roster.page_width() <= 390
     assert errors == []
 
 

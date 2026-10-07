@@ -8,11 +8,14 @@ needs the headshot files mounts with `heads=True`. `on_cards` below mounts the r
 clock and its mount (`pages.roster_motion.on_motion`, `rip`, `vc_*`, `VCLOCK`) live in
 tests/pages/roster_motion.py and roster_pack.py, for test_pack_stage.py and test_clip_sheet.py.
 """
+import json
 import re
 
 import pytest
 
 from component import Mounter, mount as base_mount
+from conftest import FIXTURES
+from pages.roster_matchup import MatchupLine
 from lines import live_lines
 from pages.roster import RosterPage
 from pages.roster_motion import show_cards
@@ -20,6 +23,7 @@ from pages.warm import warm
 from projections import position_ranks
 
 REQ = "Phone layout"       # the Roster cards and Week's pack rows
+GAMELOG = json.loads((FIXTURES / "data" / "gamelog_weekly.json").read_text(encoding="utf-8"))
 PHONE = (360, 660)
 
 
@@ -222,15 +226,29 @@ def test_every_card_back_fits_its_card_on_a_small_phone(signed_mount):
     assert errors == []
 
 
+@pytest.fixture(scope="module")
+def signed_phone(signed_mount):
+    """`signed_mount` with the phone's context open: the context and the cold first load of its page are the
+    module's setup, not the call of whichever test mounts it first (measured 2026-10-07: ~200 ms of a 428 ms call)."""
+    signed_mount.prepare("roster", size=PHONE)
+    return signed_mount
+
+
 @pytest.mark.render
-@pytest.mark.req(REQ, ac="the back leads with rank and game, a signed card says why, and the front no longer names the game")
-def test_the_back_leads_with_the_game_and_a_signed_card_says_why(signed_mount):
+@pytest.mark.req(REQ, ac="the back leads with the game and its kickoff, a signed card says why, and the front no longer names the game")
+def test_the_back_leads_with_the_game_and_a_signed_card_says_why(signed_phone):
+    signed_mount = signed_phone
+    """2026-10-07, the matchup line: the back's first line is the game ("vs HOU", no rank for a player the
+    profiles do not cover) and the kickoff under it; the "#2 TE" heading is gone, the rank is the front's badge."""
     roster, errors = on_cards(signed_mount)
-    got = roster.back_facts({"n": "Test Back", "pos": "TE", "team": "JAX", "slot": "TE", "start": True, "slug": "test-back-te"},
-                            2, {"rank": 2, "pts": 22.6})
-    assert got["first"].startswith("#2 TE") and got["matchup"] in got["first"], "rank, then the game, on the first line"
+    lines = MatchupLine(roster.page)
+    lines.plant({"games": [{"week": 5, "home": "JAX", "away": "HOU", "kickoff": "2026-10-11T17:00:00Z"}],
+                 "factors": {}, "weather": {}, "form": {}})
+    got = lines.back_facts_of({"n": "Test Back", "pos": "TE", "team": "JAX", "slot": "TE", "start": True, "slug": "test-back-te"},
+                              2, {"rank": 2, "pts": 22.6})
+    assert (got["matchup"], got["kick"]) == ("vs HOU", "Sun 10:00 AM"), "the game, then its kickoff"
     assert got["signed"] == f"Signed for week {roster.signed_week()}: #2 TE, 22.6 pts"
-    assert got["matchup"] not in got["front"], "the front no longer says the game"
+    assert "#" not in got["back"].replace(got["signed"], "") and "HOU" not in got["front"], "no rank heading on the back, no game on the front"
     assert errors == []
 
 
@@ -366,13 +384,20 @@ def test_a_tap_flips_the_card_and_its_back_opens_the_profile(mount):
 
 
 @pytest.mark.render
-@pytest.mark.req(REQ, ac="a card back is three usage stats with percentile bars, from his latest game")
-def test_a_card_back_is_a_role_sheet_from_his_latest_game(mount):
+@pytest.mark.req(REQ, ac="a card back is his fantasy points week by week as bars, no usage stats")
+def test_a_card_back_draws_his_points_week_by_week(mount):
+    """2026-10-07: the back's three usage stats and their percentile bars are gone (David: usage is noisy); a
+    bar a week from the box score, in the fixture's own numbers, then the projection hollow. Chase Brown's
+    two weeks are in tests/fixtures/data/gamelog_weekly.json; week 3 is the page's week here."""
     roster, errors = on_cards(mount)
-    got = roster.role_sheet_back()
-    assert got is not None, "the fixture's usage grid has a rostered skill player"
-    assert got["stats"] == 3 and all(b != "" for b in got["bars"])
-    assert got["week"] and got["spark"] == 0
+    weeks = sorted((r["week"], r["pts"]) for r in GAMELOG["rows"] if r["key"] == "chase brown")
+    assert [w for w, _ in weeks] == [1, 2], "the fixture holds two weeks for him"
+    lines = MatchupLine(roster.page)
+    lines.set_week(3)
+    got = lines.back("chase-brown")
+    assert got["pts"][:2] == [str(round(p)) for _, p in weeks] and got["weeks"] == ["W1", "W2", "W3"]
+    assert [b["proj"] for b in got["bars"]] == [False, False, True], "two weeks, then the projection hollow"
+    assert "Snap" not in got["text"] and "Avg" not in got["text"]
     assert errors == []
 
 

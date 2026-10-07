@@ -28,9 +28,8 @@
 .row.bench .nm-1 b,.row.out .nm-1 b{font-weight:500}
 /* A name renders both ways; a phone's two-up bench shows "D. Goedert", every other row the full name. */
 .nm-ini{display:none}
-/* The meta line wraps whole clauses too: "vs NYJ 19th" drops under "WR · DET" on a narrow column
-   instead of losing the rank off its end. */
-.row .nm-2{min-width:0;flex-wrap:wrap;column-gap:4px;white-space:nowrap}
+/* The meta under the name is two lines, the game and its kickoff (surface/teams/matchupline.css). */
+.row .nm-2{display:grid;gap:1px;margin-top:1px;min-width:0;white-space:nowrap}
 
 @media (min-width:960px){
   /* Starters and bench side by side: the empty middle of a full-width row becomes the bench. The
@@ -95,10 +94,6 @@
 .tag.q{background:rgb(var(--amber-rgb) / .14);color:var(--amber);border:1px solid rgb(var(--amber-rgb) / .3)}
 .tag.o{background:rgb(var(--down-rgb) / .14);color:var(--down);border:1px solid rgb(var(--down-rgb) / .3)}
 
-/* Usage, where the snap-share line was (board.js rowUsage): the number over what it counts. */
-.ruse{grid-area:trend;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;min-width:0;line-height:1.15}
-.ruse b{font-family:var(--mono);font-size:var(--t-3);font-weight:700;color:var(--ink-2);font-variant-numeric:tabular-nums}
-.ruse small{font-size:var(--t-1);color:var(--ink-3)}
 .spark{flex-shrink:0}
 .spark path.line{fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .spark .area{opacity:.13}

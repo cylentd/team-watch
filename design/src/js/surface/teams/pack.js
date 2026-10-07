@@ -74,12 +74,14 @@ function packChip(team){
    Under the strip is the pack's open mouth, dark with the cards' top edges, so a tear shows an
    opening rather than more foil. The glow is the best tier: how good, never who. */
 function packArtSVG(wk){
-  const size = String(wk).length > 1 ? 74 : 104;
+  // The numeral's foot stands 22 of the 140 units above the pack's, clear of the heat seal and the crimp
+  // (2026-10-07, David: the 5 ran into the bottom crimp); its small WEEK sits just over its top.
+  const size = String(wk).length > 1 ? 70 : 88;
   return `<svg class="pack-art" viewBox="0 0 100 140" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <path class="pa-yards" d="M0 46h100M0 66h100M0 86h100M0 106h100M0 126h100M33 55v3M67 55v3M33 75v3M67 75v3M33 95v3M67 95v3M33 115v3M67 115v3"/>
       <path class="pa-slash" d="M-8 140H14L68 0H46ZM20 140H30L84 0H74Z"/>
-      <text class="pa-wl" x="50" y="${size > 90 ? 58 : 70}" text-anchor="middle" font-size="7">${t("teams.pack.weekWord")}</text>
-      <text class="pa-wk" x="50" y="${size > 90 ? 132 : 124}" text-anchor="middle" font-size="${size}">${wk}</text>
+      <text class="pa-wl" x="50" y="${size > 80 ? 50 : 62}" text-anchor="middle" font-size="7">${t("teams.pack.weekWord")}</text>
+      <text class="pa-wk" x="50" y="118" text-anchor="middle" font-size="${size}">${wk}</text>
     </svg>`;
 }
 /* The back's creases (pack.css .pr-creases), in a 100x140 box stretched to the pack: short folds

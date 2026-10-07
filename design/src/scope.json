@@ -93,6 +93,8 @@
     "surface/teams/reel.css": ["roster", "waivers"],
     "surface/teams/injury.css": ["roster", "waivers"],
     "surface/teams/matchup.css": ["roster", "waivers", "#modal"],
+    "surface/teams/matchupline.css": ["roster", "waivers", ".pk-stage"],
+    "surface/teams/pointsbars.css": ["roster", "waivers", ".pk-stage"],
     "surface/teams/rail.css": ["roster", "waivers"],
     "surface/teams/wback.css": ["roster", "waivers"],
     "surface/teams/wcard.css": ["roster", "waivers"],

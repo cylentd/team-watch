@@ -10,9 +10,12 @@
   .row.start{grid-template-columns:30px var(--hd) minmax(0,1fr) 58px 56px}
   .row .nm-1 b{font-size:var(--t-3)}
   .row .nm-2{margin-top:1px;font-size:var(--t-2)}
+  /* The name is initials on a phone ("M. Stafford"): the full one wrapped to two lines in a 93px column
+     and made every row 82px tall (2026-10-07). */
+  .row .nm-full{display:none}
+  .row .nm-ini{display:inline}
   .rl-rows .rule{margin-top:16px}
   .rl-rows .sheet-col:first-child > .rule:first-child{margin-top:8px}
-  .nm-2 .mu-n{display:none}
   .vpill{display:block}
   /* Filter rows on a phone: one line that scrolls sideways, pill chips in the UI face. The
      "Position" / "Filter" label goes; the chips name themselves. */

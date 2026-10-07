@@ -1,0 +1,21 @@
+/* ============================== THE MATCHUP LINE ==============================
+   2026-10-07 (David's pick "B . Row + back"): the Sheet's row and a card's back say who he faces the same
+   way, "vs BUF 29th" with a roof mark and the kickoff under it (js/surface/teams/matchupline.js). Three
+   colours on the rank, by the projection's own matchup number: 1-8 hard (red), 9-24 neutral, 25-32 easy
+   (green). It explains the projection; it is not an edge claim. Roof: solid dome, outline retractable. */
+.ml-hard{color:var(--down)}
+.ml-mid{color:var(--ink-2)}
+.ml-easy{color:var(--up)}
+.ml-rk{font-weight:700;cursor:help}
+.ml-roof{width:1.1em;height:.9em;flex:none;color:var(--ink-3)}
+.ml-roof.retractable{color:var(--ink-3)}
+
+/* The row's two lines: the game, then the kickoff. A bye is the first line alone. */
+.ml-1{display:flex;align-items:center;gap:4px;min-width:0;overflow:hidden;line-height:1.2}
+.ml-2{font-size:var(--t-1);line-height:1.2;color:var(--ink-3)}
+
+/* The card back's first line, in the face the rest of the back's words use. */
+.bk-why .bk-mu{display:flex;flex-wrap:nowrap;justify-content:flex-start;align-items:center;gap:3px;
+  font-family:var(--ui);font-size:var(--t-1);font-weight:700;line-height:1.15;white-space:nowrap}
+.bk-why :is(.bk-inj,.bk-wx){line-height:1.2}
+.bk-kick{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}

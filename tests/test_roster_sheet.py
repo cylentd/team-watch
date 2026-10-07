@@ -9,6 +9,7 @@ import re
 import pytest
 
 from component import mount  # noqa: F401  (the fixture)
+from pages.roster_matchup import MatchupLine
 from pages.roster_sheet import RosterSheet
 
 
@@ -33,14 +34,25 @@ def test_a_phone_row_is_full_size(mount):
     assert errors == []
 
 
+@pytest.fixture(scope="module")
+def desktop(mount):
+    """`mount` with the 1280px context open: the context and its cold first load are the module's setup, not a call's."""
+    mount.prepare("roster", size=(1280, 900))
+    return mount
+
+
 @pytest.mark.render
-def test_a_starter_row_shows_usage_and_a_td_chance(mount):
-    """Usage by position where the snap-share line was, and the TD chance under the projection
-    only from 25% up (2026-09-25, storyboard option A)."""
-    sheet, errors = espn_roster(mount, (1280, 900))
+def test_a_starter_row_shows_a_points_strip_and_a_td_chance(desktop):
+    """The TD chance under the projection only from 25% up (2026-09-25, storyboard option A); and, since
+    2026-10-07, a strip of his weekly fantasy points bars where the usage number was (David: usage is noisy),
+    the projection its hollow last bar, with no number and no word in it."""
+    sheet, errors = espn_roster(desktop, (1280, 900))
     assert sheet.trend_lines() == 0, "the snap-share line is gone"
-    words = sheet.usage_words()
-    assert set(words) <= {"targets", "touches", "dropbacks"}, words
+    rows = MatchupLine(sheet.page).lines()
+    strips = {n: r["bars"] for n, r in rows.items() if r["bars"]}
+    assert strips, "the fixture's box score gives a rostered player a strip"
+    assert all(bars[-1]["proj"] and not any(b["proj"] for b in bars[:-1]) for bars in strips.values()), "the projection is the last bar, alone hollow"
+    assert all(r["text"] == "" for r in rows.values()), "no number and no label in a strip"
     # The fixture's props give no roster player a TD line: plant 47 (lime), 30 and 24 (under the 25% floor).
     assert len(sheet.plant_td_chances([47, 30, 24])) == 3, "three projected starters to plant on"
     shown = sheet.td_chances()

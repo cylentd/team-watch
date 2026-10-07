@@ -5,5 +5,3 @@
 .mu-n{font-size:var(--t-3);font-weight:700;letter-spacing:-.01em;color:var(--ink)}
 .mu-easy{color:var(--up)}
 .mu-hard{color:var(--down)}
-.mu-meta{display:inline-flex;align-items:baseline;gap:4px;margin-left:4px;white-space:nowrap}
-.mu-meta .mu-n{font-size:var(--t-2);font-weight:600;cursor:help}
