@@ -175,6 +175,8 @@ function navGo(leaf, fromHash){
 function navGoRow(leaf, slug){
   const role = typeof LIVE_ROLE !== "undefined" && LIVE_ROLE;
   const plan = navRowPlan(leaf, slug, leaf === "usage" ? USAGE.rows : role && role.rows, {week: USAGE_WEEK, pos: RV_POS, first: RV_FIRST});
+  // The row's position becomes Stats' one position (chrome/statspos.js); set on the view too, so the render keeps the sort and Show all.
+  if (plan) statsPick(plan.pos);
   if (plan && leaf === "usage"){ USAGE_POS = plan.pos; USAGE_WEEK = plan.week; USAGE_MINE = false; }
   if (plan && leaf === "movers"){ RV_POS = plan.pos; if (plan.all) RV_ALL = true; }
   navGo(leaf);

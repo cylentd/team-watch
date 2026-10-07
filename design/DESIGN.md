@@ -132,6 +132,40 @@ thumb reach). Supersedes "never a swipe between views" (2026-09-30).
 
 Logic: `tabRowStep` and `tabRowEnter` in `js/data/tabrow.js`, `swipeStep` in `js/data/swipestep.js`; the gesture: `js/chrome/tabswipe.js`.
 
+## Stats position strip (2026-10-06)
+
+One position for all of Stats, picked on a phone from a pill above the bottom bar (David picked "A Slide";
+storyboard https://claude.ai/artifact/G93YHzFMaUAHo1fvmMx3h7). Until then each Stats view kept its own
+position and drew its own chips at the top, so WR on Ranks opened Leaders on RB.
+
+| Rule | Why |
+|---|---|
+| Picking a position in any Stats view picks it in every Stats view that has it | One filter, one setting (STYLE.md) |
+| Phone (to 760px): the positions are a strip fixed 12px above the bottom bar, 16px gutters, 48px tall, one segment per position of the open view; the view draws no top chips | The thumb is at the bottom edge; one row of controls fewer above the data |
+| Desktop: the top chips stay, no strip | A pointer reaches the top |
+| A tap picks; a press that slides along the strip picks the segment under the finger as it moves, and the list redraws live | David tried the four ways in the feel prototype and kept this one |
+| One highlight slides between segments on `--spring`; still under reduced motion | The motion is the change (STYLE.md motion rule 3) |
+| The strip owns its touches (`touch-action:none`, `data-ownswipe`): a slide on it never scrolls the page or swipes the tab | One meaning per surface |
+| Highlights (no position) draws no strip; the page's foot rises by the strip so the last row clears it, and Leaders' page fits above it | Nothing hides behind a control |
+
+A view without the shared position shows its nearest and leaves the choice alone:
+
+| Shared | Ranks | Leaders, Usage, Schedule | Work vs points |
+|---|---|---|---|
+| nothing picked yet (a new session) | RB | RB | All |
+| QB, RB, WR, TE | it | it | it (QB: All) |
+| FLEX | FLEX | the last of QB-TE picked, else RB | All |
+| D/ST, K | it, if the league has it, else the last of QB-TE | the last of QB-TE, else RB | All |
+| All (picked on Work vs points) | FLEX | the last of QB-TE, else RB | All |
+
+Ranks' Rest of season has QB-TE only and reads like Leaders. The choice lives for the session: not in the
+hash, not in storage. Each view's list and the mapping: `js/data/statspos.js` (Node,
+`tests/test_js_statspos.py`); the strip: `js/chrome/statspos.js`, `css/chrome/statspos.css`
+(`tests/test_stats_strip.py`). Ranks shows seven segments in a Yahoo league (QB to K), 45px each at 360px.
+On a phone each view keeps only its other controls at the top: Usage's settings chip, Schedule's weeks,
+Leaders' Compare (now at the end of its stat tabs, "The Board"); Ranks and Work vs points have none. The
+tab swipe never starts on the strip: it sits outside `#view`, and is marked `data-ownswipe` besides.
+
 ## Connected leagues (2026-09-24)
 
 A visitor adds an ESPN league from the team switch ("+ Add a league"). Plan and decisions:
@@ -767,7 +801,7 @@ schedule, another unit's view; `navGo("schedule")`), top right of the headline o
 | **Who holds it:** MINE (lime), FREE (green), WAIVERS (grey: ESPN's `rostered.espn.waiver`, nobody's yet but only claimable, 2026-10-05), else the manager's team name; a **STREAMER** tag (lime fill) replaces FREE, since a streamer is free by definition. The flag is the file's (`streamer[lg]`: free, and top 12 that week); a team already kicked off is never tagged | the question is "can I add him"; one tag answers it | `rkHoldHTML`, `dstBoard` |
 | **A week with `line: "rating"` is an estimate:** `~` before the number, a dimmer face, and a footnote under the list. A posted line has neither | the rating is this season's implied totals, not backtested (ff-jarvis 12.85) | `rkNextHTML`, `.rk-dc.est` |
 | **One plain line on the model's gain:** "Mostly the opponent's expected score. The model's extra inputs cut the average miss by 0.02 to 0.04 points a game, so a close rank is a tie." (K: the team's own expected score, "by about 0.01", 12.85 measured 0.014 and 0.015; a cell the file ships as `baseline` says the model's extras are left out) | 12.85 passes 4 of 4 cells against the opponent's implied total alone, but the weekly order barely moves; the board must not read as sharper than that | `rkDstNote`, `ranks.dst.note*` |
-| **Seven chips fit one row at 390px:** the Ranks position row takes a 6px gap and 10px chip padding (334px of chips and eight-pixel gaps overflowed 362px by 21px) | one row of controls (STYLE.md) | `css/surface/ranks/dst.css` |
+| **Seven chips fit one row at 390px:** the Ranks position row takes a 6px gap and 10px chip padding (334px of chips and eight-pixel gaps overflowed 362px by 21px). **On a phone since 2026-10-06 the positions are the Stats position strip above the bottom bar** (seven segments of 45px at 360px), and this row is a desktop's | one row of controls (STYLE.md) | `css/surface/ranks/dst.css`; "Stats position strip" |
 | **`rkOpenDst()`** opens Ranks on D/ST, for a link in another view. The way in by name is Stats, Ranks, D/ST (3 taps); the Digest's Top 5 row is collapsed, so its Ranks link is also 3. Its one caller since 2026-10-05 is Waivers' "Stream a D/ST" button (`wvDstLinkHTML`): League, Waivers, the button = 3 taps from the Digest, 1 on a Tuesday, when Waivers opens first. A Digest link would make it 1 everywhere | the plan's "Stream a D/ST in 2 taps" needs a link in a view this unit does not own; the Waivers one is built, the Digest's is not | `surface/ranks/dst.js` |
 
 Data: `LIVE_DST` (`design/dst.py`, a pass-through of ff-jarvis `dst_projections.json`; shape in its producer's
@@ -838,7 +872,7 @@ space and shows a lot of numbers, which seems busy". The view is calm on purpose
 | Part | Rule | Where |
 |---|---|---|
 | Value | Expected half-PPR points from the week still to play through week 17: points a game times the games he is expected to play (ff-jarvis `ros_value`, beat season pace on 2024-2025 held out by 0.29 points a game). The page computes nothing | `design/ros.py`, `LIVE_ROS` |
-| Positions | QB RB WR TE. No FLEX, D/ST or K. The position is Ranks' one setting (STYLE.md): while it is FLEX, D/ST or K the list shows RB, and This week keeps its pick | `rosPos` |
+| Positions | QB RB WR TE. No FLEX, D/ST or K. The position is Stats' one setting (since 2026-10-06, "Stats position strip"): while it is FLEX, D/ST or K the list shows the last of QB-TE picked, RB before any (~~RB~~ until 2026-10-06), and This week keeps its pick | `data/statspos.js` |
 | Chart | A bump chart of the top 10 at the position: rank by week, rank 1 at the top, rows 1-12. The top three lines wear the position's colour, the rest are quiet. Each name sits at its line's right end and opens the profile. **Rank, never ROS points**: points fall every week for everyone as games run out, so a points line slopes down for the whole league. A rank past row 12 is a hollow dot on the bottom edge, so no line leaves the box; one week of history draws dots, not lines | `data/ros.js` `rosChart`, `roschart.js` |
 | List | One panel under the chart: rank, name with its team, ROS points (rounded). No arrows, sparklines, faces or second number. The full list is every ranked player at the position; the reader's own are lime with MINE. Two columns from 760px, so a name stays within 560px of its number | `ros.js` `rosListHTML` |
 | No heading | The tab says where he is. One caption under the chart says what the points are ("Expected half-PPR points from week 5 to 17."), the Schedule link at its end | `.ros-cap` |
@@ -891,6 +925,12 @@ a rule at that end; the number itself is never lost, because the head carries it
 into one number by this page, would be this page inventing a model, and nothing here is
 backtested. Counting the lanes each player is ahead on says the same thing out of numbers already
 on the screen, and a reader can check it by looking. Only lanes where both have a number count.
+
+**On a phone since 2026-10-06** the position chips are the Stats position strip above the bottom bar, and
+**+ Compare ends the stat tabs' row** instead of a row of its own (`bdTabsHTML`, `.bd-tabrow`). At 360x740 the
+strip covers 60px more of the screen's foot; the freed row (50px) keeps the #1 and five rows on page 1, the
+card ending 5px above the strip, and the first data starts at 190px (238px before). A desktop keeps the
+position row with Compare at its end.
 
 ### Role and style: two words under the picks (2026-09-23)
 
@@ -1522,7 +1562,7 @@ is its `pts_pg` to one decimal, the games its count, a bye its `bye` list (`data
 
 | part | what it shows |
 |---|---|
-| Control row | position (QB RB WR TE), then the weeks (Next 4, Rest, Playoffs): one line at 360px, 40px chips at 11px type (`.sos-ctl`); the full weeks are in the heading ("weeks 5-8"). It wraps only below ~330px |
+| Control row | position (QB RB WR TE), then the weeks (Next 4, Rest, Playoffs); on a phone since 2026-10-06 the weeks alone, the position being the Stats position strip above the bottom bar: one line at 360px, 40px chips at 11px type (`.sos-ctl`); the full weeks are in the heading ("weeks 5-8"). It wraps only below ~330px |
 | Heading and label | "Easiest RB schedules, weeks 5–8" over the file's label, three lines at 360px |
 | Row | rank, team code and games, points allowed per game; under them one small cell per week of the window, the opponent over the week number, a dashed "BYE" cell for a bye. The cells run the row's full width and wrap (7 and 6 for the 13 rest-of-season weeks), so nothing scrolls sideways. From 760px the cells join the first line. Nothing to tap, and no colour for good or bad |
 | No file | "NO SCHEDULE YET", no controls |

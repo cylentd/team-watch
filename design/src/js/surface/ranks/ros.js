@@ -7,8 +7,9 @@
    (QB RB WR TE), a bump chart of the top 10 at the position (rank by week, roschart.js), then a quiet list: rank, name and
    team, ROS points. Nothing else on a row. The numbers are ff-jarvis's (LIVE_ROS, data/ros.js); the page computes none.
 
-   Absent without a file: no tab, and Ranks reads as it did. The position is Ranks' one setting (STYLE.md): FLEX, D/ST
-   and K have no rest of season, so the list shows RB while RK_POS is one of them, and This week still has its pick.
+   Absent without a file: no tab, and Ranks reads as it did. The position is Stats' one setting (data/statspos.js, since
+   2026-10-06): FLEX, D/ST and K have no rest of season, so the list shows the last of QB to TE the reader picked (RB
+   before any) while the shared one is one of them, and This week still has its pick.
 ------------------------------------------------------------------ */
 let RK_VIEW = "week";
 

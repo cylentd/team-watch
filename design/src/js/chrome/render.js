@@ -44,6 +44,7 @@ function renderAsk(v){
 function render(){
   const v = document.getElementById("view");
   v.dataset.view = SURFACE;   // the view drawn, which its CSS is fenced to (design/scope_css.py)
+  statsPosSync();             // a Stats view takes the shared position; the phone's strip follows (chrome/statspos.js)
   paintBadge();
   markEnter(v);
 

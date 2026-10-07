@@ -11,7 +11,7 @@
    named in the heading instead of ranked on a number for a game outside it. Tiers are natural
    breaks in the points, each drawn as its own panel, so the list needs no rule between tiers.
 ------------------------------------------------------------------ */
-const RK_POSITIONS = ["QB", "RB", "WR", "TE", "FLEX"];
+const RK_POSITIONS = statsPosList("ranks");   // QB RB WR TE FLEX; D/ST and K are the league's (dst.js)
 let RK_POS = "RB";
 
 const rkList = pos => !LIVE_RANKS ? [] : pos === "FLEX" ? LIVE_RANKS.flex : LIVE_RANKS.rows.filter(r => r.pos === pos);
@@ -96,11 +96,17 @@ function rkTiersHTML(list, flex){
   }).join("");
 }
 
-/* The position row: QB RB WR TE FLEX, then D/ST and, in a Yahoo league, K (surface/ranks/dst.js, 2026-10-05). */
+/* RK_POS is what the list draws: Stats' one position as Ranks shows it (data/statspos.js, 2026-10-06). */
+const rkPosLabel = p => p === "FLEX" ? t("ranks.filter.flex") : p === "DST" ? t("ranks.filter.dst") : p;
+statsPosView("ranks", {attr: "rkpos", label: rkPosLabel, use: p => { RK_POS = p; },
+  opts: () => ({ros: rkView() === "ros", extra: dstTabs(rkDstBlock(), rkLeague())})});
+
+/* The position row: QB RB WR TE FLEX, then D/ST and, in a Yahoo league, K (surface/ranks/dst.js, 2026-10-05).
+   A desktop's only: a phone picks from the strip above the bottom bar (chrome/statspos.js, 2026-10-06). */
 function rkChipsHTML(pos, extra, base = RK_POSITIONS){
-  const label = p => p === "FLEX" ? t("ranks.filter.flex") : p === "DST" ? t("ranks.filter.dst") : p;
+  if (!spChipsOn()) return "";
   return `<div class="setrow" data-testid="ranks-pos-row" role="group" aria-label="${t("ranks.filter.position")}">
-    ${[...base, ...extra].map(p => `<button class="chip" data-testid="ranks-pos-tab" data-rkpos="${p}" aria-pressed="${pos === p}">${label(p)}</button>`).join("")}
+    ${[...base, ...extra].map(p => `<button class="chip" data-testid="ranks-pos-tab" data-rkpos="${p}" aria-pressed="${pos === p}">${rkPosLabel(p)}</button>`).join("")}
   </div>`;
 }
 
@@ -141,7 +147,7 @@ function wireRanks(v){
   if (rkView() === "ros") wireRos(v);
   v.querySelectorAll("[data-rkpos]").forEach(b => b.addEventListener("click", () => {
     if (b.dataset.rkpos === RK_POS) return;
-    RK_POS = b.dataset.rkpos; render();
+    statsPick(b.dataset.rkpos); render();
   }));
   v.querySelectorAll("[data-rkgo]").forEach(b => b.addEventListener("click", () => navGo(b.dataset.rkgo)));
   v.querySelectorAll("[data-rkopen]").forEach(el => el.addEventListener("click", () => {

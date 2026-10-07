@@ -3,7 +3,8 @@
 
 Every locator lives here, data-testid first (`ros-*` on the view, `profile-ros*` in the profile; test hooks only).
 The two view tabs are the phone's tab-row segments (`#subnav .tr-seg`, chrome/nav.js) or, from 760px, the view's own
-bar (`ranks-view-tab`): `pick_view` taps whichever is drawn. The position chips are Ranks' own (`ranks-pos-tab`).
+bar (`ranks-view-tab`): `pick_view` taps whichever is drawn. The positions are Ranks' own chips (`ranks-pos-tab`) on a
+desktop and Stats' strip above the bottom bar (`stats-pos-seg`, pages/statspos.py) on a phone, since 2026-10-06.
 """
 from pages.profile import ProfilePage
 
@@ -15,7 +16,7 @@ class RosPage:
         self.page = page
         tid = page.get_by_test_id
         self._rows, self._chart, self._sub = tid("ros-row"), tid("ros-chart"), tid("ros-sub")
-        self._chips = tid("ranks-pos-tab")
+        self._chips = tid("ranks-pos-tab").or_(tid("stats-pos-seg"))
 
     # ---- what a reader does ----
 

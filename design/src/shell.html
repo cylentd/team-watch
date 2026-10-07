@@ -57,6 +57,11 @@
      reason Leaders scrolled. Its credits live in the week pill's menu (js/chrome/feed.js). -->
 <main id="view"></main>
 
+<!-- Stats' position strip (js/chrome/statspos.js, 2026-10-06): on a phone, the one position every Stats view
+     shares, a pill above the bottom bar. Outside #view, so a render() during a slide never rebuilds it under
+     the finger. Empty and hidden off Stats and on a desktop. -->
+<div class="sp" id="statspos" data-testid="stats-pos-strip" role="group" aria-label="{{copy:stats.pos.label}}" data-ownswipe hidden></div>
+
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer" aria-hidden="true"></aside>
 

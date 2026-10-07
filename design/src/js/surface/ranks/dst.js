@@ -22,7 +22,7 @@ const rkLeague = () => dstLeagueKey(lgFocusKey(), !!lgMine(), rkDstBlock());
 /* The way in from another view: open Ranks on the D/ST tab. Its one caller today is the Waivers view's
    "Stream a D/ST" link (surface/teams/waiver.js wvDstLinkHTML, wired in wvmotion.js). */
 function rkOpenDst(){
-  RK_POS = "DST";
+  statsPick("DST");   // Stats' one position (data/statspos.js): Leaders and the rest keep the reader's last QB-TE
   RK_VIEW = "week";   // D/ST is a This week list; Rest of season has none (surface/ranks/ros.js)
   navGo("ranks");
 }

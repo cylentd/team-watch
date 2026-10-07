@@ -175,6 +175,9 @@ chrome/setchip.css
 #      (builder/bets.css) and the trade builder's footer (lboard/tbedit.css) above the phone's bottom
 #      bar at equal specificity, and responsive/760.css's .wrap gutter still wins where it should.
 chrome/phonenav.css
+# pin: chrome/statspos.css after phonenav.css: it reads --dock-b, set there, and raises the reload pill
+#      phonenav.css floats over the bar, at higher specificity.
+chrome/statspos.css
 responsive/960.css
 responsive/760.css
 responsive/lists.css

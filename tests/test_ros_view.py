@@ -103,7 +103,7 @@ def test_a_chip_swaps_the_position_and_the_position_is_shared_with_this_week(mou
     assert ros.pressed_chip() == "TE", "one filter, one setting: This week opens on the same position"
     ros.pick("FLEX")
     ros.pick_view("ros")
-    assert ros.pressed_chip() == "RB", "FLEX has no rest of season: the list falls back to RB"
+    assert ros.pressed_chip() == "TE", "FLEX has no rest of season: the list keeps the last of QB-TE picked (2026-10-06)"
     ros.pick_view("week")
     assert ros.pressed_chip() == "FLEX", "and This week still has FLEX"
     assert errors == []

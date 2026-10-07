@@ -19,7 +19,8 @@ class SchedulePage:
     def __init__(self, page):
         self.page = page
         tid = page.get_by_test_id
-        self._control, self._pos, self._win = tid("schedule-control"), tid("schedule-pos-chip"), tid("schedule-win-chip")
+        # The position: the view's chip on a desktop, Stats' strip above the bottom bar on a phone (pages/statspos.py, 2026-10-06).
+        self._control, self._pos, self._win = tid("schedule-control"), tid("schedule-pos-chip").or_(tid("stats-pos-seg")), tid("schedule-win-chip")
         self._head, self._title, self._label = tid("schedule-head"), tid("schedule-title"), tid("schedule-label")
         self._rows, self._cells, self._cell_lists = tid("schedule-row"), tid("schedule-cell"), tid("schedule-cells")
         self._pts, self._empty = tid("schedule-pts-value"), tid("schedule-empty")

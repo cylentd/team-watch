@@ -57,9 +57,12 @@ function bdThinOut(pos, axis, cut){
 
 /* Tabs carry the stat's plain name (axisName, profile/statcard.js), the same name the profile's
    radar and card use; the producer's abbreviation stays as the unit beside the hero's number. */
+/* On a phone Compare ends this row (2026-10-06): the positions left for Stats' strip above the bottom bar
+   (chrome/statspos.js), and a row of its own for one chip pushed the page's last rows under the strip. */
 function bdTabsHTML(axes, sel){
-  return `<div class="bd-tabs" role="tablist" aria-label="${t("board.tabs.label")}">${axes.map(a =>
+  const tabs = `<div class="bd-tabs" role="tablist" aria-label="${t("board.tabs.label")}">${axes.map(a =>
     `<button type="button" class="bd-tab" role="tab" data-bdstat="${esc(a.id)}" aria-selected="${a.id === sel}">${esc(axisName(a))}</button>`).join("")}</div>`;
+  return spChipsOn() ? tabs : `<div class="bd-tabrow">${tabs}${bdAddHTML()}</div>`;
 }
 
 /* The #1. A title, so the name is whole (the page initials names everywhere else). The elite bar

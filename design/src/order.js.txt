@@ -27,6 +27,9 @@ data/navrow.js
 # pin: data/tabrow.js before every surface file: Live, Recap and Slips call navModes() at load.
 data/tabrow.js
 data/swipestep.js
+# pin: data/statspos.js before every Stats surface file: Ranks, Leaders, Work vs points, Usage and Schedule call
+#      statsPosView() at load.
+data/statspos.js
 data/teamcolors.js
 data/schedule.js
 lib/escape.js
@@ -283,6 +286,8 @@ chrome/render.js
 chrome/feed.js
 chrome/fresh.js
 chrome/nav.js
+# pin: statspos.js after nav.js: it binds its listeners at load, on #statspos (shell.html) and NAV_PHONE (nav.js).
+chrome/statspos.js
 chrome/tabswipe.js
 chrome/hidebar.js
 chrome/drawer.js

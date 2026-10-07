@@ -1744,6 +1744,7 @@
  "startsit.wx.cold": "cold",
  "startsit.wx.mark": "Failed test (12.53): cold fails once the opponent and the game total are in; only rain passes, for WR.",
  "startsit.wx.rain": "rain",
+ "stats.pos.label": "Position",
  "strip.caption.brk": "broke {n} tackles this game",
  "strip.caption.brkOne": "broke 1 tackle this game",
  "strip.caption.caught": "caught at {spot} · {n} after the catch",

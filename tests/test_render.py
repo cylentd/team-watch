@@ -898,12 +898,18 @@ def test_leaders_page_fits_the_screen(browser, page_file, w, h):
     phone showed five players before a tap until then; the hero plus the list must beat that.
     Since 2026-10-05 a phone's bottom tab bar (64px) covers the screen's foot, so the card ends above
     the bar, and fit.js's own count stands: at 360x740 the #1 and five rows (six players), the card
-    ending 17px over the bar. A sixth row needs 38px the header bar, tab row and bottom bar now hold."""
+    ending 17px over the bar. A sixth row needs 38px the header bar, tab row and bottom bar now hold.
+    Since 2026-10-06 a phone's Stats position strip (#statspos) sits 12px over the bar, and the card ends above
+    the strip: the edge is the highest fixed thing on the screen's foot, and the strip must be there on a phone."""
     ctx, page, errors = open_at(browser, page_file, (w, h), "#board")
-    fits = """(() => { const m = document.querySelector('.bd-card').getBoundingClientRect(), bar = document.querySelector('.tabbar');
-      const edge = bar && getComputedStyle(bar).position === 'fixed' ? bar.getBoundingClientRect().top : innerHeight;
+    fits = """(() => { const m = document.querySelector('.bd-card').getBoundingClientRect();
+      const foot = [document.querySelector('.tabbar'), document.getElementById('statspos')]
+        .filter(e => e && !e.hidden && getComputedStyle(e).position === 'fixed').map(e => e.getBoundingClientRect().top);
+      const edge = Math.min(innerHeight, ...foot);
       return scrollY === 0 && m.bottom <= edge; })()"""
+    strip = "(() => { const s = document.getElementById('statspos'); return !s.hidden && getComputedStyle(s).position === 'fixed'; })()"
     try:
+        assert page.evaluate(strip) == (w <= 760), "the strip is a phone's, and the fit is measured against it"
         assert page.evaluate(fits)
         assert page.locator(".bd-card > .bd-hero").count() == 1, "the #1 keeps his card"
         rows = page.evaluate("document.querySelectorAll('.bd-card .bd-list:not(.bd-pinned) > .bd-row').length")
@@ -1082,7 +1088,10 @@ def test_tuesday_opens_waivers(browser, page_file, day, hash, surface, first):
 def test_state_renders_something(snapshot, state):
     out, _ = snapshot(SLICE_OF[state])
     for vp in VIEWPORTS:
-        assert len(out[vp][state]["view"]) > 200, f"{vp}/{state}: #view is empty"
+        view = out[vp][state]["view"]
+        # An empty state with no controls left in the view (a phone's Stats positions are the strip outside #view
+        # since 2026-10-06: role-empty is its one message, 177 characters) must draw its empty-state block instead.
+        assert len(view) > 200 or (state.endswith("-empty") and 'class="state-empty"' in view), f"{vp}/{state}: #view is empty"
     if state.endswith("drawer"):
         assert out["desk"][state]["drawerOpen"], "drawer did not open"
         assert len(out["desk"][state]["drawer"]) > 100

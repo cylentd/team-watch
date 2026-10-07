@@ -8,19 +8,23 @@ one way out of Ranks a test needs; it moves to pages/waivers.py when that exists
 from pages.profile import ProfilePage
 
 POSITIONS = {"D/ST": "DST"}       # a chip's label -> its data-rkpos, where they differ
+# The position row as drawn: Ranks' own chips on a desktop, Stats' strip above the bottom bar on a phone
+# (pages/statspos.py, 2026-10-06). The strip's host is always in the page, hidden off a phone.
+POS_ROW = "[data-testid='ranks-pos-row'], [data-testid='stats-pos-strip']:not([hidden])"
 
 
 class RanksPage:
     def __init__(self, page):
         self.page = page
         tid = page.get_by_test_id
-        self._tabs, self._tab_row = tid("ranks-pos-tab"), tid("ranks-pos-row")
+        self._tabs, self._tab_row = tid("ranks-pos-tab").or_(tid("stats-pos-seg")), page.locator(POS_ROW)
         self._rows, self._dst_rows, self._sub = tid("ranks-row"), tid("ranks-dst-row"), tid("ranks-sub")
 
     # ---- what a reader does ----
 
     def pick(self, pos):
-        """Tap a position chip: "QB", "RB", "WR", "TE", "FLEX", "DST" (or "D/ST"), "K"."""
+        """Tap a position: "QB", "RB", "WR", "TE", "FLEX", "DST" (or "D/ST"), "K". A chip on a desktop, the
+        strip's segment on a phone."""
         pos = POSITIONS.get(pos, pos)
         self._tabs.and_(self.page.locator(f"[data-rkpos='{pos}']")).click()
         self.page.wait_for_function("p => RK_POS === p", arg=pos)
@@ -82,8 +86,8 @@ class RanksPage:
         return self.page.evaluate("document.documentElement.scrollWidth <= innerWidth")
 
     def chips_fit(self):
-        """The position chips on one row, none cut off."""
-        return self._tab_row.evaluate("e => e.scrollWidth <= e.clientWidth")
+        """The position chips (or strip segments) on one row, none cut off, its words included."""
+        return self._tab_row.evaluate("e => e.scrollWidth <= e.clientWidth && [...e.querySelectorAll('button')].every(b => b.scrollWidth <= b.clientWidth)")
 
     def own_slugs(self):
         """Every player on the reader's own teams (never a leaguemate's)."""

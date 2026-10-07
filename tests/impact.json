@@ -84,6 +84,11 @@
       "tests": ["tests/test_news_kind.py", "tests/test_news_tab.py", "tests/test_stale_guards.py"],
       "render": ["news"]
     },
+    "statspos": {
+      "paths": ["tests/test_js_statspos.py", "tests/test_stats_strip.py"],
+      "tests": ["tests/test_js_statspos.py", "tests/test_stats_strip.py"],
+      "render": []
+    },
     "schedule": {
       "paths": ["design/src/js/surface/sos/", "design/src/css/surface/sos/", "design/src/js/data/sos.js", "design/sos.py"],
       "tests": ["tests/test_js_sos.py", "tests/test_sos_view.py"],

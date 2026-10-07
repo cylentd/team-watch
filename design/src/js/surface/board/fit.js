@@ -10,11 +10,13 @@
 ------------------------------------------------------------------ */
 const BD_FIT_MIN = 5, BD_FIT_MAX = 40;
 
-// Fixed bars along the screen's bottom edge (the phone's tab bar, .tabbar since 2026-10-05), at their full height.
+/* What covers the screen's foot, from the highest fixed thing there down: the phone's tab bar (.tabbar,
+   2026-10-05) and, above it, Stats' position strip (#statspos, 2026-10-06), the gap between them included. */
 function bdBottomChromeH(){
-  return [...document.querySelectorAll(".navbar, .tabbar, .modes-sub.dock")]
+  const tops = [...document.querySelectorAll(".navbar, .tabbar, .modes-sub.dock, #statspos")]
     .filter(el => getComputedStyle(el).position === "fixed" && el.offsetHeight && el.getBoundingClientRect().top > innerHeight / 2)
-    .reduce((s, el) => s + el.offsetHeight, 0);
+    .map(el => el.getBoundingClientRect().top);
+  return tops.length ? innerHeight - Math.min(...tops) : 0;
 }
 
 /* Rows that fit: from the first row's top (in page terms) to the screen's bottom, less the bottom

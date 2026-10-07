@@ -21,7 +21,7 @@ def page(browser, page_file):
 
 
 def ranks_row(pg, slug="joe-burrow"):
-    pg.evaluate("() => { RK_POS = 'QB'; navGo('ranks'); }")
+    pg.evaluate("() => { statsPick('QB'); navGo('ranks'); }")   # Stats' one position (chrome/statspos.js)
     pg.wait_for_selector(f"[data-rkopen='{slug}']")
     return pg.evaluate("""(slug) => { const r = document.querySelector(`[data-rkopen='${slug}']`);
       return {pts: r.querySelector('.rk-pts').childNodes[0].textContent.trim(),

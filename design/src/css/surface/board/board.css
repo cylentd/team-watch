@@ -107,6 +107,7 @@
   border-bottom:1px solid var(--line);
 }
 .bd-tabs::-webkit-scrollbar{display:none}
+.bd-tabrow{display:flex;align-items:center;gap:8px;margin-top:14px;border-bottom:1px solid var(--line)} .bd-tabrow .bd-tabs{flex:1 1 auto;min-width:0;margin-top:0;border-bottom:0} .bd-tabrow .bd-add{flex:none} /* a phone's: the tabs, then Compare (2026-10-06) */
 /* Leaders' six stats need ~470px, so on a phone the row fades out at its right edge: the half-seen
    tab reads as "more this way" rather than as a cut (STYLE.md audit, 2026-09-25). Bets' tabs fit
    and do not fade. The end padding lets the last tab scroll clear of the fade. */

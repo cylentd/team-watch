@@ -32,12 +32,16 @@ function sosRowHTML(r){
   </li>`;
 }
 
-/* The one control row: position, then the weeks. Chips, not selects: each is a short set that stays visible. */
+/* SOS_PICK_POS is Stats' one position as Schedule shows it (data/statspos.js, 2026-10-06). */
+statsPosView("schedule", {attr: "sospos", label: p => p, use: p => { SOS_PICK_POS = p; }});
+
+/* The one control row: position, then the weeks. Chips, not selects: each is a short set that stays visible.
+   On a phone the position is the strip above the bottom bar (chrome/statspos.js) and the weeks stand alone. */
 function sosControlsHTML(){
   const seg = (label, attr, cur, items, tid) => `<div class="sos-seg" role="group" aria-label="${label}">${
     items.map(([k, text]) => `<button type="button" class="chip" data-testid="${tid}" data-${attr}="${k}" aria-pressed="${cur === k}">${text}</button>`).join("")}</div>`;
-  return `<div class="sos-ctl" data-testid="schedule-control">${seg(t("sos.pos.label"), "sospos", SOS_PICK_POS, SOS_POS.map(p => [p, p]), "schedule-pos-chip")
-    }${seg(t("sos.win.label"), "soswin", SOS_PICK_WIN, SOS_WINDOWS.map(w => [w, sosWinLabel(w)]), "schedule-win-chip")}</div>`;
+  const pos = spChipsOn() ? seg(t("sos.pos.label"), "sospos", SOS_PICK_POS, statsPosList("schedule").map(p => [p, p]), "schedule-pos-chip") : "";
+  return `<div class="sos-ctl" data-testid="schedule-control">${pos}${seg(t("sos.win.label"), "soswin", SOS_PICK_WIN, SOS_WINDOWS.map(w => [w, sosWinLabel(w)]), "schedule-win-chip")}</div>`;
 }
 
 function sosPageHTML(){
@@ -54,7 +58,7 @@ function sosPageHTML(){
 function wireSos(v){
   v.querySelectorAll("[data-sospos]").forEach(b => b.addEventListener("click", () => {
     if (b.dataset.sospos === SOS_PICK_POS) return;
-    SOS_PICK_POS = b.dataset.sospos; render();
+    statsPick(b.dataset.sospos); render();
   }));
   v.querySelectorAll("[data-soswin]").forEach(b => b.addEventListener("click", () => {
     if (b.dataset.soswin === SOS_PICK_WIN) return;

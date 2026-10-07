@@ -1,0 +1,28 @@
+/* ============================== STATS' POSITION STRIP ==============================
+   2026-10-06 (js/chrome/statspos.js, DESIGN.md "Stats position strip"). On a phone, a pill fixed 12px above
+   the bottom bar with 16px gutters, one segment per position of the open Stats view; one highlight slides
+   to the pressed one. The strip takes every touch on it (touch-action:none), so a slide never scrolls the
+   page. Nothing on a desktop: the views keep their chips there. */
+.sp{display:none}
+
+@media (max-width:760px){
+  :root{--sp-h:48px;--sp-gap:12px;--sp-pad:4px}
+  .sp:not([hidden]){position:fixed;left:16px;right:16px;bottom:calc(var(--dock-b) + var(--sp-gap));z-index:39;
+    display:grid;grid-template-columns:repeat(var(--n, 1), minmax(0, 1fr));height:var(--sp-h);padding:var(--sp-pad);
+    border:1px solid var(--line-2);border-radius:99px;background:rgb(var(--panel-3-rgb) / .96);
+    box-shadow:0 8px 24px rgb(var(--shadow-rgb) / .45);
+    touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+  /* The one highlight: a segment wide, moved by the pressed segment's index (--i). */
+  .sp-hl{position:absolute;top:var(--sp-pad);bottom:var(--sp-pad);left:var(--sp-pad);
+    width:calc((100% - 2 * var(--sp-pad)) / var(--n, 1));border-radius:99px;background:var(--ink);
+    transform:translateX(calc(var(--i, 0) * 100%));transition:transform var(--dur-spring) var(--spring)}
+  .sp-seg{position:relative;appearance:none;cursor:pointer;min-width:0;padding:0;border:0;border-radius:99px;background:none;
+    font-family:var(--ui);font-size:var(--t-3);font-weight:600;color:var(--ink-2);white-space:nowrap;
+    transition:color .2s var(--ease)}
+  .sp-seg[aria-pressed="true"]{color:var(--void);font-weight:700}
+  .sp-seg:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+
+  /* The page's foot rises by the strip, so the last row clears it; the reload pill floats over it. */
+  body.has-sp{padding-bottom:calc(var(--dock-b) + var(--sp-h) + 2 * var(--sp-gap))}
+  body.has-sp .statuswrap:has(.status-btn.stale){bottom:calc(var(--dock-b) + var(--sp-h) + 2 * var(--sp-gap))}
+}

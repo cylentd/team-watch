@@ -12,7 +12,6 @@
    Descriptive only. METHODOLOGY 12.41 and 12.44: the gap does not beat our projection, so no row
    says buy or sell, and the rank -- the workload -- is the part that carries forward.
 ------------------------------------------------------------------ */
-const RV_POSITIONS = ["ALL", "RB", "WR", "TE"];
 let RV_POS = "ALL";
 let RV_ALL = false;          // past the first RV_FIRST rows, on a tap
 const RV_FIRST = 20;
@@ -59,9 +58,15 @@ function rvRowHTML(r, top){
   </button>`;
 }
 
+/* RV_POS is Stats' one position as this view shows it (data/statspos.js, 2026-10-06): All for FLEX and for a
+   position it lacks. A new one shows its first RV_FIRST rows again. */
+const rvPosLabel = p => p === "ALL" ? t("role.filter.all") : p;
+statsPosView("movers", {attr: "rvpos", label: rvPosLabel, use: p => { if (p !== RV_POS){ RV_POS = p; RV_ALL = false; } }});
+
 function rvViewHTML(){
-  const chips = `<div class="setrow" role="group" aria-label="${t("role.filter.label")}">
-    ${RV_POSITIONS.map(p => `<button class="chip" data-rvpos="${p}" aria-pressed="${RV_POS === p}">${p === "ALL" ? t("role.filter.all") : p}</button>`).join("")}
+  // A desktop's chips; a phone picks from the strip above the bottom bar (chrome/statspos.js).
+  const chips = !spChipsOn() ? "" : `<div class="setrow" role="group" aria-label="${t("role.filter.label")}">
+    ${statsPosList("movers").map(p => `<button class="chip" data-rvpos="${p}" aria-pressed="${RV_POS === p}">${rvPosLabel(p)}</button>`).join("")}
   </div>`;
   const rows = rvRows();
   if (!rows.length) return `<div class="wrap">${chips}<div class="state-empty" style="min-height:220px">
@@ -84,7 +89,7 @@ function rvViewHTML(){
 function wireRv(v){
   v.querySelectorAll("[data-rvpos]").forEach(b => b.addEventListener("click", () => {
     if (RV_POS === b.dataset.rvpos) return;
-    RV_POS = b.dataset.rvpos; RV_ALL = false; render();
+    statsPick(b.dataset.rvpos); render();
   }));
   v.querySelectorAll("[data-rvmore]").forEach(b => b.addEventListener("click", () => {
     const y = window.scrollY; RV_ALL = true; render(); window.scrollTo(0, y);

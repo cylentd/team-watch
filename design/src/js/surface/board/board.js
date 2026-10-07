@@ -10,7 +10,7 @@
    model — and nothing on it is backtested. Counting the lanes each player is ahead on says the
    same thing out of numbers already on the screen, and a reader can check it by looking.
 ------------------------------------------------------------------ */
-const BD_POSITIONS = ["QB", "RB", "WR", "TE"];
+const BD_POSITIONS = statsPosList("board");   // QB RB WR TE (data/statspos.js)
 let BD_POS = "RB";
 let BD_STAT = null;  // the axis on screen; null is the position's default (bdStatOf)
 let BD_PAGE = 1;     // the list's page, from 1 (leaders.js)
@@ -58,15 +58,28 @@ function bdChipsHTML(picks){
         aria-label="${t("board.action.remove", {name: esc(p.n)})}">✕</button></span>`).join("")}</div>`;
 }
 
+/* BD_POS is Stats' one position as Leaders shows it (data/statspos.js, 2026-10-06); a new one drops the picks,
+   rows of the position that just left the screen, and starts the list over on its default stat. */
+function bdUsePos(p){
+  if (p === BD_POS) return;
+  BD_POS = p; BD_PICKS = []; BD_STAT = null; BD_PAGE = 1; BD_NOTE = "";
+}
+statsPosView("board", {attr: "bdpos", label: p => p, use: bdUsePos,
+  opts: () => ({have: BD_POSITIONS.filter(p => bdAxes(p).length)})});
+
+const bdAddHTML = () => `<button class="chip bd-add" data-bdadd>${t("board.action.add")}</button>`;
+
 /* A position is offered when it has lanes to draw. (Movers shared this row until 2026-09-29, when
-   it became Role, a surface of its own.) */
+   it became Role, a surface of its own.) A desktop's row: on a phone the positions are the strip above
+   the bottom bar (chrome/statspos.js) and Add ends the stat tabs' row (leaders.js bdTabsHTML). */
 function bdControlsHTML(){
+  if (!spChipsOn()) return "";
   // .setrow, not .filters: the chips fit a phone, so the row never scrolls (STYLE.md audit).
   return `<div class="setrow" role="group" aria-label="${t("board.filter.position")}">
     ${BD_POSITIONS.filter(p => bdAxes(p).length).map(p =>
       `<button class="chip" data-bdpos="${p}" aria-pressed="${BD_POS === p}">${p}</button>`).join("")}
     <span style="flex:1"></span>
-    <button class="chip bd-add" data-bdadd>${t("board.action.add")}</button>
+    ${bdAddHTML()}
   </div>`;
 }
 
@@ -97,7 +110,7 @@ function bdAdd(p){
   } else if (!sheetQualified(row)){
     BD_NOTE = t("board.note.fewGames", {name: esc(nameInitial(p.n)), g: row.g || 0, min: sheetMinGames(row.pos)});
   } else {
-    if (row.pos !== BD_POS){ BD_POS = row.pos; BD_PICKS = []; }
+    if (row.pos !== BD_POS){ statsPick(row.pos); bdUsePos(row.pos); }
     BD_PICKS = [...BD_PICKS.filter(s => s !== row.slug), row.slug].slice(-2);
   }
   render();
@@ -105,8 +118,8 @@ function bdAdd(p){
 
 function wireBd(v){
   const set = (sel, fn) => v.querySelectorAll(sel).forEach(b => b.addEventListener("click", () => { fn(b); render(); }));
-  // Switching position drops the picks: they are rows of the position that just left the screen.
-  set("[data-bdpos]", b => { BD_NOTE = ""; if (b.dataset.bdpos !== BD_POS){ BD_POS = b.dataset.bdpos; BD_PICKS = []; BD_STAT = null; BD_PAGE = 1; } });
+  // A position chip (a desktop's) picks Stats' one position; the render's bdUsePos drops the picks.
+  set("[data-bdpos]", b => { BD_NOTE = ""; statsPick(b.dataset.bdpos); });
   // A new stat is a new ranking, so the list starts over: page 3 of TPRR is nobody's page 3 of YPRR.
   set("[data-bdstat]", b => { BD_NOTE = ""; BD_STAT = b.dataset.bdstat; BD_PAGE = 1; });
   // Turning a page keeps the reader where he is: the page is sized to fit from the top.

@@ -5,7 +5,8 @@ Component tests (Schedule mounted, tests/component.py; every locator in tests/pa
 journeys: the hash opening a leaf and the Stats sub-row are the nav chrome, so they need the full page.
 
 Hidden from the sub-row like Weather (NAV_HIDDEN), because Stats' five tabs end at 326 of the 332 px a phone
-holds. The control row is one line at 360 px; the first data starts under the heading and the file's label,
+holds. The control row is one line at 360 px (the weeks alone on a phone since 2026-10-06: the position is Stats'
+strip above the bottom bar); the first data starts under the heading and the file's label,
 which is three lines there, so it sits near 226 px against STYLE.md's ~200 (DESIGN.md "Schedule" says why)."""
 import re
 
@@ -13,6 +14,7 @@ import pytest
 
 from component import Mounter, mount  # noqa: F401  (the fixture)
 from pages.schedule import ScheduleNav, SchedulePage
+from pages.statspos import StatsPosStrip
 from test_render import open_at
 
 LABEL = "Context only"
@@ -62,7 +64,9 @@ def test_the_control_row_is_one_line_and_the_label_is_shown(mount, size):
     page, errors = mount("schedule", size=size)
     sched = SchedulePage(page)
     ys = sched.chip_tops()
-    assert len(ys) == 7 and len(set(ys)) == 1, ys                      # position and weeks share one line
+    # On a phone the position is Stats' strip above the bottom bar (2026-10-06): the row is the weeks alone.
+    assert len(ys) == 3 and len(set(ys)) == 1, ys
+    assert StatsPosStrip(page).positions() == ["QB", "RB", "WR", "TE"]
     assert LABEL in sched.label()
     assert sched.label_is_visible()
     first = sched.first_row_top()

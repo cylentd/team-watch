@@ -82,15 +82,23 @@ function usageLegend(){
   </div>`;
 }
 
+/* USAGE_POS is Stats' one position as the grid shows it (data/statspos.js, 2026-10-06): a position it has
+   columns for. A new one sorts by its own lead column again. */
+const usageHave = () => ({have: USAGE_POSITIONS.filter(p => usageCols(p).length)});
+const usagePosList = () => statsPosList("usage", usageHave());
+statsPosView("usage", {attr: "upos", label: p => p, opts: usageHave,
+  use: p => { if (p !== USAGE_POS){ USAGE_POS = p; USAGE_SORT = null; USAGE_DESC = true; } }});
+
 /* One row above the grid (STYLE.md, 2026-09-25): the position, which is what a reader changes
    most, and a chip naming the week and reading that opens the rest. The row of twelve controls it
-   replaces scrolled its week chips off a phone's edge. */
+   replaces scrolled its week chips off a phone's edge. On a phone the position is the strip above
+   the bottom bar (chrome/statspos.js, 2026-10-06), and the settings chip stands alone here. */
 function usageControls(){
   const weeks = USAGE.weeks || [];
   const set = [t("usage.set.week", {w: USAGE_WEEK}), USAGE_MODE === "change" ? t("usage.mode.change") : "",
     USAGE_MINE ? t("usage.filter.mine") : ""].filter(Boolean).join(" · ");
   const row = `<div class="setrow">
-    ${USAGE_POSITIONS.filter(p => usageCols(p).length).map(p =>
+    ${!spChipsOn() ? "" : usagePosList().map(p =>
       `<button class="chip" data-upos="${p}" aria-pressed="${USAGE_POS === p}">${p}</button>`).join("")}
     <button type="button" class="chip setchip" data-upanel aria-expanded="${USAGE_PANEL}" aria-label="${t("usage.set.label")}">${set}<span class="caret" aria-hidden="true"></span></button>
   </div>`;
@@ -129,7 +137,7 @@ function usageHTML(){
 
 function wireUsage(v){
   const set = (sel, fn) => v.querySelectorAll(sel).forEach(b => b.addEventListener("click", () => { fn(b); render(); }));
-  set("[data-upos]",  b => { USAGE_POS = b.dataset.upos; USAGE_SORT = null; USAGE_DESC = true; });
+  set("[data-upos]",  b => statsPick(b.dataset.upos));
   set("[data-uweek]", b => { USAGE_WEEK = +b.dataset.uweek; });
   set("[data-umode]", b => { USAGE_MODE = b.dataset.umode; });
   set("[data-umine]", () => { USAGE_MINE = !USAGE_MINE; });
