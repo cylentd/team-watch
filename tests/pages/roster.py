@@ -315,7 +315,7 @@ class RosterPage(RosterPack):
         got.update({"count": auto.count(), "cool": card.get_by_test_id("roster-card-auto-cool").text_content(),
                     "hot": card.get_by_test_id("roster-card-auto-hot").text_content(),
                     "opacity": (opacity("roster-card-auto-cool"), opacity("roster-card-auto-hot"), opacity("roster-card-auto-tip")),
-                    "back": card.get_by_test_id("roster-back-signed").text_content(), "title": auto.get_attribute("title")})
+                    "title": auto.get_attribute("title")})
         return got
 
     def fronts_with_at_most_one_autograph(self):

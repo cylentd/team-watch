@@ -39,6 +39,18 @@ function dstCell(w, cell, lg, pos){
 const DST_CLUB = {LAR: "LA", JAC: "JAX", WSH: "WAS"};
 const dstClub = c => DST_CLUB[c] || c;
 
+/* A club's projection for `week` (the page's, the file's first when null) on `lg`'s scoring, for a card's back
+   (2026-10-07): the D/ST cell for pos "DST", the K cell for "K". null with no file, no such club or week, a bye,
+   or a league with no cell for the position (ESPN has no K slot). */
+function dstPointsFor(block, lg, pos, club, week = null){
+  const L = block && block.leagues && block.leagues[lg], cell = L && (pos === "K" ? L.k : L.dst);
+  const tm = cell && (block.teams || []).find(x => x.team === dstClub(club));
+  const w = tm && tm.weeks && (week === null ? tm.weeks[0] : tm.weeks.find(x => x.week === week));
+  if (!w || w.bye) return null;
+  const v = ((pos === "K" ? w.k : w.dst) || {})[cell];
+  return typeof v === "number" ? v : null;
+}
+
 /* The clubs whose D/ST (pos "DST") or K (pos "K") the reader holds in this league (2026-10-06): the players of that
    position on the rosters of the teams they follow (`keys`, tsFollowed()) that play in `lg`, spelled as the file
    spells them. The file's own `mine` flag is David's holdings for every reader, so the board never reads it. A

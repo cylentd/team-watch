@@ -31,6 +31,10 @@ function pbModel(rows, proj, pageWeek, limit){
   return {slots, proj: {wk: pageWeek, pts: pp, h: h(pp)}, max};
 }
 
+/* Is this slot the week a signed card was signed for (LIVE_SIGNED.wk)? A played week only: the projection is
+   never one, an empty slot has no points to mark. */
+const pbIsSigned = (slot, signedWk) => typeof signedWk === "number" && slot.wk === signedWk && slot.pts !== null && slot.pts !== undefined;
+
 /* "W5" under a bar; once the week has two digits the W goes, so the label still fits its slot. */
 const pbWeekText = wk => wk < 10 ? t("teams.pb.week", {n: wk}) : String(wk);
 

@@ -88,3 +88,14 @@ def test_a_week_is_W_and_a_number_until_the_number_has_two_digits(pb, wk, text):
 @pytest.mark.parametrize("pts, text", [(18.6, "19"), (4.4, "4"), (0.0, "0"), (-1.6, "-2"), (None, "")])
 def test_points_read_as_whole_numbers(pb, pts, text):
     assert pb("pbPtsText", pts) == text
+
+
+@pytest.mark.parametrize("slot, signed, marked", [
+    ({"wk": 4, "pts": 27.3}, 4, True),
+    ({"wk": 3, "pts": 27.3}, 4, False),
+    ({"wk": 4, "pts": None}, 4, False),
+    ({"wk": 4, "pts": 27.3}, None, False),
+])
+def test_only_the_week_he_was_signed_for_is_marked(pb, slot, signed, marked):
+    # (2026-10-07) A signed card's back marks that week's bar in gold, in place of a sentence.
+    assert pb("pbIsSigned", slot, signed) is marked

@@ -4,7 +4,7 @@
    bench one to a row like the starters (responsive/lists.css). A desktop puts the
    bench column beside the starters instead of under them. --hd is the head's size in a row. */
 .board{margin-top:4px}
-.sheet-col{min-width:0}
+.sheet-col{min-width:0;container-type:inline-size}
 .row{
   --hd:40px;
   display:grid;
@@ -19,7 +19,7 @@
   animation:rowin .4s var(--ease) forwards;
 }
 .row.start{
-  grid-template-columns:34px var(--hd) minmax(0,1fr) 72px 60px;
+  grid-template-columns:34px var(--hd) minmax(min-content,1fr) minmax(36px,calc(var(--pb-w,50px) + 8px)) 60px;
   grid-template-areas:"slot head name trend proj";
 }
 .slot{grid-area:slot;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.06em;color:var(--ink-3)}
@@ -37,7 +37,7 @@
      it: a bigger head, name and number, since the sheet had room it left empty (2026-09-25). */
   .sheet{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);column-gap:44px;align-items:start}
   .row{--hd:52px;padding:11px 8px}
-  .row.start{grid-template-columns:32px var(--hd) minmax(0,1fr) 64px 64px}
+  .row.start{grid-template-columns:32px var(--hd) minmax(min-content,1fr) minmax(36px,calc(var(--pb-w,50px) + 8px)) 64px}
   .row .nm-1 b{font-size:var(--t-4)}
   .row .nm-2{font-size:var(--t-2)}
   .row .spark{width:64px;height:26px}

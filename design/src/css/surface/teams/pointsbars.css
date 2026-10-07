@@ -1,29 +1,66 @@
 /* ============================== THE POINTS BARS ==============================
    2026-10-07 (David: no usage numbers on the Roster row or the card back). One bar per NFL week of his
-   fantasy points, then this week's projection as a hollow bar, all on one scale (js/data/pointsbars.js,
-   js/surface/teams/pointsbars.js). Neutral ink, never green or red: a bar is a week's points, not a verdict.
-   A week he did not play is a tick on the baseline, in its place. */
-.pb{--pb-h:28px;display:flex;align-items:flex-end;gap:1px;height:var(--pb-h);min-width:0}
-.pb-b{display:block;flex:1 1 0;min-width:1px;max-width:8px;height:max(2px,calc(var(--pb-h) * var(--h)));background:var(--ink-3);border-radius:1px 1px 0 0}
-.pb-b.gap{height:1px;background:var(--line-2)}
-.pb-b.proj{background:none;box-shadow:inset 0 0 0 1px var(--ink);height:max(2px,calc(var(--pb-h) * var(--h)))}
-.pb-b.proj.gap{box-shadow:none;background:var(--line-2);height:1px}
-
-/* The row's strip is the middle column, under no label, right-aligned against the projection. */
-.rbars{grid-area:trend;display:flex;align-items:center;justify-content:flex-end;min-width:0}
-.rbars .pb{width:100%;justify-content:flex-end}
-
-/* A row with the strip: bench and out rows get the middle column the starters have. */
-.row.pbr:not(.start){grid-template-columns:var(--hd) minmax(0,1fr) 58px auto;grid-template-areas:"head name trend proj"}
-
-/* The card back's: each slot is its points over its bar over its week, the five latest weeks across 78px. */
-.pb-back{--pb-h:34px;align-items:flex-end;gap:0;height:auto;margin-top:2px}
-.pb-s{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center}
-.pb-back .pb-b{flex:none;width:60%;max-width:none}
-.pb-n,.pb-w{display:block;font-family:var(--mono);font-size:var(--t-1);line-height:1.15;letter-spacing:-.06em;color:var(--ink-3);white-space:nowrap}
+   fantasy points, then this week's projection as a dashed bar, all on one scale (js/data/pointsbars.js,
+   js/surface/teams/pointsbars.js). A week he did not play is a tick on the baseline, in its place.
+   Colour (David's pick, V3, 2026-10-07): his position's colour as a time ramp, played weeks soft, the latest
+   week strong, this week an outline that has not been played yet. It says which position and which week, never
+   good or bad.
+   Where the space goes (STYLE.md gaps): the strip is a fixed width, whatever the number of weeks, and sits
+   centred in its own track; the name block is the row's one flexible track. A card back's block centres
+   between the kickoff line and the profile button. */
+.pb{--c:var(--ink-rgb);--pb-h:28px;display:flex;align-items:flex-end;justify-content:center;gap:1px;height:var(--pb-h);min-width:0}
+.pb[data-pos="QB"]{--c:var(--pos-qb-rgb)}
+.pb[data-pos="RB"]{--c:var(--pos-rb-rgb)}
+.pb[data-pos="WR"]{--c:var(--pos-wr-rgb)}
+.pb[data-pos="TE"]{--c:var(--pos-te-rgb)}
+.pb-s{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.pb-b{display:block;width:100%;min-width:1px;height:max(2px,calc(var(--pb-h) * var(--h)));background:rgb(var(--c) / .4);border-radius:2px 2px 0 0}
+.pb-b.last{background:rgb(var(--c) / .95)}
+.pb-b.gap{height:1px;background:var(--line-2);border-radius:0}
+.pb-b.proj{box-sizing:border-box;background:rgb(var(--c) / .12);border:1px dashed rgb(var(--c) / .95)}
+.pb-b.proj.gap{border:0;background:var(--line-2)}
+.pb-n,.pb-w{display:none;font-family:var(--mono);font-size:var(--t-1);line-height:1.15;letter-spacing:-.06em;color:var(--ink-3);white-space:nowrap}
 .pb-n{margin-bottom:1px}
 .pb-w{margin-top:2px}
 .pb-s.proj :is(.pb-n,.pb-w){color:var(--ink)}
-@container (max-height:150px){ .pb-back{--pb-h:28px;margin-top:0} .pb-w{margin-top:1px} }
-/* A signed card has no room for the numbers: the bars alone. */
-@container (max-height:180px){ .tc-back.signed .pb-back :is(.pb-n,.pb-w){display:none} }
+/* The week a card was signed for: its points in gold and a small gold star over them. No words, the front
+   already shows the signing. */
+.pb-s.signed .pb-n{color:var(--gold-2);font-weight:700}
+.pb-star{display:block;flex:none;width:8px;height:8px;background:var(--gold-2);
+  clip-path:polygon(50% 0,62% 36%,100% 38%,70% 60%,80% 100%,50% 76%,20% 100%,30% 60%,0 38%,38% 36%)}
+
+/* The row's strip: a fixed width in a track that hugs it, bars up to 11px wide, centred. It gives way
+   (max-width, not width) when the name block needs the room, so the name never runs into it. */
+.row.pbr{--pb-w:50px}
+.rbars{grid-area:trend;display:flex;align-items:center;justify-content:center;min-width:0}
+.rbars .pb{width:100%;max-width:var(--pb-w)}
+.rbars .pb-b{flex:1 1 0;width:auto;max-width:11px}
+/* A starters column wide enough (the sheet column is the container: a desktop beside its rail, a tablet,
+   a wide screen) gives the strip content, not space: each bar carries its points over it and its week
+   under it, drawn from its data-n and data-w so the row holds no text. From nine slots on the labels would
+   touch, so they go. A narrow column, the bench's and a phone's, keeps the bare strip. */
+@container (min-width:560px){
+  .row.pbr.start{--pb-w:clamp(100px,20cqw,140px)}
+  .row.pbr.start .rbars .pb{--pb-h:24px;gap:8px;margin-block:14px 16px}
+  .row.pbr.start .rbars .pb:has(.pb-b:nth-child(n+9)){gap:1px}
+  .row.pbr.start .rbars .pb-b{position:relative;max-width:14px}
+  .row.pbr.start .rbars .pb-b::before,.row.pbr.start .rbars .pb-b::after{position:absolute;left:50%;transform:translateX(-50%);
+    font:normal var(--t-1)/1.15 var(--mono);letter-spacing:-.06em;color:var(--ink-3);white-space:nowrap}
+  .row.pbr.start .rbars .pb-b::before{content:attr(data-n);bottom:calc(100% + 1px)}
+  .row.pbr.start .rbars .pb-b::after{content:attr(data-w);top:calc(100% + 2px)}
+  .row.pbr.start .rbars .pb-b.proj::before,.row.pbr.start .rbars .pb-b.proj::after{color:var(--ink)}
+  .row.pbr.start .rbars .pb:has(.pb-b:nth-child(n+9)) .pb-b::before,.row.pbr.start .rbars .pb:has(.pb-b:nth-child(n+9)) .pb-b::after{content:none}
+}
+
+/* A row with the strip: bench and out rows get the middle column the starters have. */
+.row.pbr:not(.start){grid-template-columns:var(--hd) minmax(min-content,1fr) minmax(36px,calc(var(--pb-w) + 8px)) auto;grid-template-areas:"head name trend proj"}
+
+/* The card back's: each slot is its points over its bar over its week, the five latest weeks across 78px,
+   the block centred between the kickoff line and the profile button (its auto margins share the free space
+   with the button's, which is zero here). */
+.pb-back{--pb-h:34px;height:auto;gap:0;margin-block:auto;padding-block:2px}
+.pb-back .pb-s{flex:1 1 0}
+.pb-back .pb-b{width:72%}
+.pb-back :is(.pb-n,.pb-w){display:block}
+.pb-back + .bk-open{margin-top:0}
+@container (max-height:150px){ .pb-back{--pb-h:28px;padding-block:0} .pb-w{margin-top:1px} }

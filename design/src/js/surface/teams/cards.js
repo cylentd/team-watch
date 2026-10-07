@@ -102,19 +102,24 @@ function cardFront(p, tier, g, rank){
    over it and its week under it. Usage stats were here until 2026-10-07 (David: noisy; only a spike or a
    sustained trend matters, which a glance cannot show). A player with no points and no projection keeps the
    snap line. */
-/* The heading's first line is the matchup ("vs BUF 29th" and the roof), its second what matters most this
-   week: his injury ("OUT · Personal"), else the weather when it touches him ("RAIN · pass ↓"), else the
-   kickoff. A signed card adds the autograph's words as one row under the heading. */
-function cardBack(p, rank, teamKey, i, g){
-  const bars = pbBackHTML(p), inj = injFor(p), won = cardSigned(p), m = matchupLine(p);
+/* The back's heading, the same on every card (a kicker's and a defense's too). Its first line is the matchup
+   ("vs BUF 29th" and the roof), its second what matters most this week: his injury ("OUT · Personal"), else the
+   weather when it touches him ("RAIN · pass ↓"), else the kickoff. A signed card's week is marked on its bar
+   (pointsbars.js), not said here (2026-10-07). */
+function cardBackHead(p, g){
+  const inj = injFor(p), m = matchupLine(p);
   const wx = inj && inj.s === "OUT" ? null : cardWeatherNote(cardWeather(g), p.pos);
   const sub = inj ? `<span class="bk-inj ${inj.s.toLowerCase()}" title="${injLabel(inj)}">${injLabel(inj)}</span>`
     : wx ? `<span class="bk-wx" title="${cardWxTip(wx)}">${t("teams.card.wxNote", wx)}${cardWxAdj(p) ? ` · ${t("teams.card.wxAdjBack", {n: cardWxAdj(p)})}` : ""}</span>`
     : m && !m.bye ? `<span class="bk-kick" data-testid="roster-back-kick">${mlKickText(m, p, false)}</span>` : "";
   const first = !m ? esc(p.pos) : m.bye ? t("teams.line.bye") : mlGameHTML(m, p);
-  const signed = won ? `<div class="bk-signed" data-testid="roster-back-signed">${t("teams.card.signedBack", {wk: LIVE_SIGNED.wk, rank: won.rank, pos: esc(p.pos), pts: won.pts})}</div>` : "";
+  return `<div class="bk-why" data-testid="roster-back-why"><div class="bk-mu" data-testid="roster-back-matchup">${first}</div>${sub}</div>`;
+}
+
+function cardBack(p, rank, teamKey, i, g){
+  const bars = pbBackHTML(p), won = cardSigned(p);
   return `<div class="tc-face tc-back pos-${esc(p.pos)}${won ? " signed" : ""}" data-testid="roster-card-back">
-      <div class="bk-why" data-testid="roster-back-why"><div class="bk-mu" data-testid="roster-back-matchup">${first}</div>${sub}</div>${signed}
+      ${cardBackHead(p, g)}
       ${bars || `<div class="bk-l">${t("teams.card.snap")}</div><div class="bk-sp">${sparkHTML(p.trend, 110, 28)}</div>`}
       <button class="bk-open" type="button" data-testid="roster-back-open" data-cteam="${teamKey}" data-ci="${i}">${t("teams.card.profile")}</button>
     </div>`;

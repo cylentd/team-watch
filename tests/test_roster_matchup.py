@@ -127,7 +127,7 @@ PURDY = {1: 10.4, 2: 27.0, 3: 20.6, 4: 9.5}
 
 
 @pytest.mark.render
-@pytest.mark.req("Phone layout", ac="a row's strip is one bar per completed week and a hollow one last, neutral, with no numbers")
+@pytest.mark.req("Phone layout", ac="a row's strip is one bar per completed week and a dashed one last, in his position's colour, with no numbers")
 def test_a_row_draws_a_bar_a_week_and_a_hollow_one_for_the_projection(mount):
     page, errors = mount("roster", size=PHONE)
     roster = MatchupLine(page)
@@ -140,7 +140,8 @@ def test_a_row_draws_a_bar_a_week_and_a_hollow_one_for_the_projection(mount):
     assert [b["proj"] for b in purdy] == [False, False, False, False, True], "four weeks, then the projection last"
     assert [round(b["h"], 2) for b in purdy] == [.39, 1.0, .76, .35, .69], "one scale, 0 to his largest of bars and projection"
     assert [b["gap"] for b in kittle] == [False, True, False, False, False], "the week he missed is a tick in its place"
-    assert all(b["color"] == tok["ink3"] for b in purdy[:4]) and tok["ink"].replace("rgb(", "").split(")")[0] in purdy[4]["outline"]
+    # David's pick V3, 2026-10-07: his position's colour (a QB's blue), played weeks soft, the latest strong, this week's soft fill
+    assert [b["color"] for b in purdy] == ["rgba(90, 180, 255, 0.4)"] * 3 + ["rgba(90, 180, 255, 0.95)", "rgba(90, 180, 255, 0.12)"]
     assert rows["B. Purdy"]["text"] == "", "no number and no label in the strip"
     assert errors == []
 

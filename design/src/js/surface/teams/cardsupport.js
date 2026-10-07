@@ -20,20 +20,34 @@ function supportArt(p, g){
     <span class="tc-chip r" title="${t("teams.card.lowerBetter")}">${chip}</span>`;
 }
 
+/* A fact's label and value as text. A missing number is a dash, a real minus on the spread. */
+function supportFactText(r){
+  const none = "—", n = r.v === null ? none : String(r.v);
+  switch (r.key){
+    case "roof": return [t("teams.card.roof"), t("teams.card.factDome")];
+    case "wind": return [t("teams.card.windLabel"), r.v === null ? none : t("teams.card.factMph", {n: r.v})];
+    case "team": return [t("teams.card.factTeam"), n];
+    case "opp": return [t("teams.card.factOpp"), n];
+    case "spread": return [t("teams.card.spread"), spreadText(r.v)];
+    default: return [t("teams.card.factProj"), r.v.toFixed(1)];
+  }
+}
+
+/* The back, the same as every other card's (2026-10-07): the matchup and kickoff on top (cardBackHead), then
+   two facts and this week's projection, whole labels, centred between the heading and the button. There are
+   no weekly K or D/ST points to draw as bars (supportback.js), so no bars. */
 function supportBack(p, g, teamKey, i){
   const opp = g ? cardLines(g.opp) : null, mine = cardLines(p.team), w = cardWeather(g);
-  const outside = w && w.roof !== "dome";
-  const rows = p.pos === "K"
-    ? [[t("teams.card.roof"), w ? cardRoof(w) : "—"],
-       [t("teams.card.windLabel"), outside && w.wind ? `${w.wind} ${w.wind_dir || ""}` : "—"],
-       [t("teams.card.rain"), outside && typeof w.precip_pct === "number" ? `${w.precip_pct}%` : "—"],
-       [t("teams.card.teamImplied"), mine ? String(mine.implied) : "—"]]
-    : [[t("teams.card.oppImplied"), opp ? String(opp.implied) : "—"],
-       [t("teams.card.spread"), mine ? `${mine.spread > 0 ? "+" : ""}${mine.spread}` : "—"],
-       [t("teams.card.total"), mine && mine.total ? String(mine.total) : "—"]];
+  const tm = typeof TEAMS !== "undefined" ? TEAMS[teamKey] : null, lg = tm && tm.mate ? tm.league : teamKey;
+  const rows = supportFacts(p.pos, {
+    roof: w ? w.roof : "", windMph: w && w.roof !== "dome" && w.wind ? wxWindMph(w) : null,
+    team: mine ? mine.implied : null, opp: opp ? opp.implied : null, spread: mine ? mine.spread : null,
+    proj: dstPointsFor(typeof LIVE_DST !== "undefined" ? LIVE_DST : null, lg, p.pos, p.team, schedWeek())});
+  const fact = r => { const [label, text] = supportFactText(r);
+    return `<div class="bk-row${r.key === "proj" ? " proj" : ""}" data-testid="roster-back-fact"><span class="bk-l">${label}</span><b>${esc(text)}</b></div>`; };
   return `<div class="tc-face tc-back" data-testid="roster-card-back">
-      <div class="bk-why" data-testid="roster-back-why"><b data-testid="roster-back-rank">${p.pos === "K" ? t("teams.card.kicking") : t("teams.card.defending")}</b><span>${esc(cardMatchup(p.team, g))}</span></div>
-      <div class="bk-rows"${p.pos === "DST" ? ` title="${t("teams.card.lowerBetter")}"` : ""}>${rows.map(([l, v]) => `<div class="bk-row"><span class="bk-l">${l}</span><b>${esc(v)}</b></div>`).join("")}</div>
+      ${cardBackHead(p, g)}
+      <div class="bk-rows" data-testid="roster-back-facts"${p.pos === "DST" ? ` title="${t("teams.card.lowerBetter")}"` : ""}>${rows.map(fact).join("")}</div>
       <button class="bk-open" type="button" data-testid="roster-back-open" data-cteam="${teamKey}" data-ci="${i}">${t("teams.card.profile")}</button>
     </div>`;
 }

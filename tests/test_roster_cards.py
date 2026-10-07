@@ -247,8 +247,8 @@ def test_the_back_leads_with_the_game_and_a_signed_card_says_why(signed_phone):
     got = lines.back_facts_of({"n": "Test Back", "pos": "TE", "team": "JAX", "slot": "TE", "start": True, "slug": "test-back-te"},
                               2, {"rank": 2, "pts": 22.6})
     assert (got["matchup"], got["kick"]) == ("vs HOU", "Sun 10:00 AM"), "the game, then its kickoff"
-    assert got["signed"] == f"Signed for week {roster.signed_week()}: #2 TE, 22.6 pts"
-    assert "#" not in got["back"].replace(got["signed"], "") and "HOU" not in got["front"], "no rank heading on the back, no game on the front"
+    # 2026-10-07: the sentence is gone (the front shows the signing, the signed week's bar the week); a star marks the bar.
+    assert "Signed for" not in got["back"] and "#" not in got["back"] and "HOU" not in got["front"], "no rank heading or sentence on the back, no game on the front"
     assert errors == []
 
 
@@ -292,8 +292,7 @@ def test_a_signed_card_keeps_only_the_golden_name_and_it_fits_a_360_card(signed_
     # It fits: inside the card whole, its font stepped down from the 24px start, never under 12px.
     assert a["inside"] and a["fits"], a
     assert 12 <= a["font"] <= 24, a
-    # Its words are on the back, once, and in the tooltip.
-    assert a["back"] == "Signed for week 3: #2 WR, 22.6 pts"
+    # Its words are in the tooltip (2026-10-07: not on the back, where the signed week's bar wears a star).
     assert "week 3" in a["title"]
     assert roster.fronts_with_at_most_one_autograph()
     assert errors == []

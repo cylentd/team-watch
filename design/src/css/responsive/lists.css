@@ -7,7 +7,7 @@
      like the starters. Rank, the matchup ordinal, the verdict and news tags stay one tap away in
      the profile; the Q/O badge stays on the head. */
   .row{gap:10px;padding:6px 0;border-radius:0}
-  .row.start{grid-template-columns:30px var(--hd) minmax(0,1fr) 58px 56px}
+  .row.start{grid-template-columns:30px var(--hd) minmax(min-content,1fr) minmax(36px,calc(var(--pb-w,50px) + 8px)) 56px}
   .row .nm-1 b{font-size:var(--t-3)}
   .row .nm-2{margin-top:1px;font-size:var(--t-2)}
   /* The name is initials on a phone ("M. Stafford"): the full one wrapped to two lines in a 93px column

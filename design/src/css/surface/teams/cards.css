@@ -133,41 +133,31 @@
 .tc-back{container-type:size}
 .tc .tc-back:is(.pos-QB,.pos-RB,.pos-WR,.pos-TE){background-image:linear-gradient(180deg,rgb(var(--tint) / .4),rgb(var(--tint) / .1) 55%,transparent)}
 .bk-why{font-size:var(--t-1);color:var(--ink-3);padding-bottom:4px;border-bottom:1px solid var(--line)}
-/* First line: the rank, with the game beside it when the card is wide enough, under it when not. */
-.bk-why b{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;column-gap:4px;
-  font-family:var(--disp);font-weight:800;font-size:var(--t-3);line-height:1.2;color:var(--ink)}
-.bk-why b small{font-family:var(--mono);font-size:var(--t-1);font-weight:600;letter-spacing:.02em;line-height:1.2;color:var(--ink-3);white-space:nowrap}
-/* A signed card: what the autograph says, one row under the heading. */
-.bk-signed{margin:3px -4px 0;text-align:center;font-family:var(--tab);font-size:var(--t-1);font-weight:800;line-height:1.2;letter-spacing:.02em;color:var(--gold-2)}
 .bk-l{margin-top:4px;font-family:var(--mono);font-size:var(--t-1);letter-spacing:.06em;color:var(--ink-3);text-transform:uppercase;white-space:nowrap}
 .bk-sp .spark{width:100%;height:24px}
-/* A support card's facts: label and value on one line. */
-.bk-rows{display:flex;flex-direction:column;gap:3px;margin-top:4px}
-.bk-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;column-gap:6px}
-.bk-row .bk-l{margin-top:0;overflow:hidden;text-overflow:ellipsis}
-.bk-row b{font-family:var(--mono);font-size:var(--t-1);font-weight:700;white-space:nowrap}
+/* A support card's facts (2026-10-07): label and value on one line, whole words (a label is never cut, it
+   would be shorter first), the block centred between the heading and the button like the bars on any other
+   back. The projection is the row in ink. */
+.bk-rows{display:flex;flex-direction:column;gap:3px;margin-block:auto}
+.bk-row{display:flex;justify-content:space-between;align-items:baseline;column-gap:2px}
+.bk-row .bk-l{margin-top:0;font-family:var(--ui);letter-spacing:0;text-transform:none}
+.bk-row b{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:-.06em;white-space:nowrap}
+.bk-row.proj :is(.bk-l,b){color:var(--ink)}
+.bk-rows + .bk-open{margin-top:0}
 .bk-open{appearance:none;margin-top:auto;border:1px solid var(--line-2);border-radius:4px;background:var(--panel-2);color:var(--ink);
   font-family:var(--ui);font-weight:600;font-size:var(--t-1);padding:4px;cursor:pointer}
 .bk-open:hover{background:var(--panel-3)}
 .bk-open:focus-visible{outline:2px solid var(--lime);outline-offset:1px}
 /* Fitting the back (measured, 2026-10-05): the heading is the matchup line and its second line (the
-   kickoff, or his injury, or the weather), then a signed card's autograph row, the points bars (points
-   over, week under) and the button, and a card's back is ~126px (360px screen), ~140px (390px), ~158px
-   (430px) and ~190px (a desktop's largest) inside its padding. A signed card, whose row takes ~30-42px,
-   loses its second line and the bars' numbers below 180px: the bars alone say the shape. Below 150px every
-   card tightens; a support card's second line (the game) goes there, a skill card's stays (2026-10-07:
-   the kickoff is what the back is for). Container queries style descendants of .tc-back, which is the
+   kickoff, or his injury, or the weather), then the points bars (points over, week under, a signed week's
+   with a star) or a support card's facts, and the button, and a card's back is ~126px (360px screen),
+   ~140px (390px), ~158px (430px) and ~190px (a desktop's largest) inside its padding. Every back keeps its
+   kickoff line, a signed one too (2026-10-07: the autograph's sentence is gone, its week is marked on the
+   bar). Below 150px every card tightens. Container queries style descendants of .tc-back, which is the
    container, and sit after the rules they override. */
-@container (max-height:180px){
-  .tc-back.signed .bk-why > span{display:none}
-}
 @container (max-height:150px){
-  .bk-why > b + span{display:none}
   .bk-why{padding-bottom:0;border-bottom-width:0}
   .bk-open{line-height:1.15;padding:3px 4px}
-  .bk-signed{margin-top:0}
-  /* a signed card with no points to draw: the snap line gives way to the autograph's row */
-  .tc-back.signed > .bk-l,.tc-back.signed > .bk-sp{display:none}
 }
 
 /* Support cards: no rank, so no metal; the same stock, banner and badge as the rest. The art is the

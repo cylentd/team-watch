@@ -127,10 +127,6 @@ GAPS = r"""(phone) => {
 
 # Today's true violations: (leaf, width, kind, selector) -> why it is one, and where it is being fixed.
 KNOWN = {
-    # The points strip sits at the right end of its 58px track, against the projection, ~140px from the
-    # name it belongs to. Being fixed on branch bars-polish (2026-10-07).
-    ("roster", 360, "track", "div.rbars > div.pb"): "strip pushed right in its track",
-    ("roster", 1280, "track", "div.rbars > div.pb"): "strip pushed right in its track",
     # A Watch card takes its back face's height: the lede hugs the name and a ~160px hole sits above
     # Evidence. The middle block should centre (2026-10-07).
     ("waivers", 360, "card", "div.wvc-in > div.wvc-face.wvc-front"): "middle block hugs the top",
@@ -138,10 +134,6 @@ KNOWN = {
     # A Build player card stretched to its row's tallest: the line and its tier sit in the top 2/3, ~70px
     # empty below (2026-10-07).
     ("build", 1280, "card", "section.bl-group > div.bplayer.mine"): "content high, empty bottom",
-    # A Roster card back: the points bars sit high under the status line, ~51px empty above Open profile
-    # (the rule's origin, seen by David on a phone). bars-polish (2026-10-07).
-    ("roster-cards", 360, "card", "div.tc-flip > div.tc-face.tc-back"): "bars high, gap above the button",
-    ("roster-cards", 1280, "card", "div.tc-flip > div.tc-face.tc-back"): "bars high, gap above the button",
 }
 
 
