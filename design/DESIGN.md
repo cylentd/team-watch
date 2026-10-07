@@ -1058,16 +1058,18 @@ Storyboard: https://claude.ai/artifact/GZzBAiovV45XPYSCzu7Tzr (option B, David's
 Each Pacific weekday is one job. David, 2026-10-06: the Digest should hold "something that people actually care
 about", and that depends on the day. Storyboard (v3): https://claude.ai/artifact/ETZWMzVyRSgsNTD9Gkjm2M; David
 picked shape B (today's job only, the rest as links). Rule: STYLE.md "Answer first, research one tap away".
+Since 2026-10-07 (David: a day of two cards was too thin) each day keeps its job first, then adds the cards that
+have data that day, five at most; superseding "today's job only". A strip chip a card now links left the strip.
 
 | Day | Banner | Cards |
 |---|---|---|
-| Tue | the top add and the number behind it | Top adds, Out and who gains |
-| Wed | the top usage mover, Claude's line | Usage movers (spark, untested 12.105), Defenses giving up the most (QB-TE from LIVE_DEFENSE, K from `LIVE_SOS.k_allowed`; foot: Tested (12.97)) |
-| Thu | Thursday's game: Claude's headline, team codes | Claude vs Vegas (Preview's `pvAnswer`), Start in this game, Injury watch (Q only) |
-| Fri | the top hurt row | Game status with Wed/Thu/Fri practice marks, Out and who gains |
+| Tue | the top add and the number behind it | Top adds, Out and who gains, Usage movers |
+| Wed | the top usage mover, Claude's line | Usage movers (spark, untested 12.105), Out and who gains, Defenses giving up the most (QB-TE from LIVE_DEFENSE, K from `LIVE_SOS.k_allowed`; foot: Tested (12.97)), Top adds, Top calls |
+| Thu | Thursday's game: Claude's headline, team codes | Claude vs Vegas (Preview's `pvAnswer`), Start in this game, Injury watch (Q only), Top calls |
+| Fri | the top hurt row | Game status with Wed/Thu/Fri practice marks, Out and who gains, SMASH, Weather |
 | Sat | the top SMASH and what his opponent allows | SMASH (#1 per position, +N more), Bold calls, Top calls (Slips' `topCalls`), Weather |
-| Sun | first kickoff, team codes | Need to know, Right now, Weather |
-| Mon | tonight's game, team codes | Start tonight, Out and who gains, Recap link |
+| Sun | first kickoff, team codes | Need to know, Right now, Weather, Top calls |
+| Mon | tonight's game, team codes | Start tonight, Out and who gains, Top calls, Recap link |
 
 - **Banner:** 128px, the day's label, its answer, a 96px headshot or the two team codes. Live headlines still lead
   once a game is on, and the Digest never names Recap's subject (`lspPick`).

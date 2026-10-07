@@ -19891,15 +19891,17 @@ function wirePreview(v){
    2026-10-06 (storyboard "Digest by Day", option B): each Pacific weekday is one job, superseding the
    ticker of seven rows and DG_DAY. `banner`: the kind surface/digest/day.js leads with; `cards`: card ids
    in order ("need", "now" are Need to know and Right now); `strip`: nav leaves. Pacific, not the reader's
-   clock: the league's week turns on Pacific time, and a Tuesday is waiver day everywhere. */
+   clock: the league's week turns on Pacific time, and a Tuesday is waiver day everywhere.
+   2026-10-07 (David: two cards was too thin): the day's job first, then the cards with data that day, five at most;
+   a strip chip that a card now links (its "more") left the strip. */
 const DG_PLAN = {
-  2: {key: "tue", banner: "adds",    cards: ["adds", "gains"],                     strip: ["weekrecap", "usage", "schedule", "weather"]},
-  3: {key: "wed", banner: "usage",   cards: ["usage", "defenses"],                 strip: ["waivers", "preview", "matchups", "weekrecap"]},
-  4: {key: "thu", banner: "tnf",     cards: ["vegas", "game", "status"],           strip: ["usage", "schedule", "waivers", "news"]},
-  5: {key: "fri", banner: "status",  cards: ["status", "gains"],                   strip: ["matchups", "weather", "parlay", "news"]},
-  6: {key: "sat", banner: "smash",   cards: ["smash", "bold", "calls", "weather"], strip: ["preview", "news"]},
-  0: {key: "sun", banner: "kickoff", cards: ["need", "now", "weather"],            strip: ["live", "parlay"]},
-  1: {key: "mon", banner: "tonight", cards: ["game", "gains"],                     strip: ["weekrecap", "waivers"]},
+  2: {key: "tue", banner: "adds",    cards: ["adds", "gains", "usage"],                     strip: ["weekrecap", "schedule", "weather", "news"]},
+  3: {key: "wed", banner: "usage",   cards: ["usage", "gains", "defenses", "adds", "calls"], strip: ["preview", "matchups", "weekrecap", "news"]},
+  4: {key: "thu", banner: "tnf",     cards: ["vegas", "game", "status", "calls"],           strip: ["usage", "schedule", "waivers", "news"]},
+  5: {key: "fri", banner: "status",  cards: ["status", "gains", "smash", "weather"],        strip: ["preview", "parlay", "news"]},
+  6: {key: "sat", banner: "smash",   cards: ["smash", "bold", "calls", "weather"],          strip: ["preview", "news"]},
+  0: {key: "sun", banner: "kickoff", cards: ["need", "now", "weather", "calls"],            strip: ["live", "news"]},
+  1: {key: "mon", banner: "tonight", cards: ["game", "gains", "calls"],                     strip: ["weekrecap", "waivers"]},
 };
 
 /* A moment as the league's clock reads it: the weekday (0 Sunday) and the date, Pacific. */

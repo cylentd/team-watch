@@ -70,10 +70,12 @@ def test_the_stats_tab_opens_on_highlights(node_js):
 NOON = {"sun": "2026-10-04T19:00:00Z", "mon": "2026-10-05T19:00:00Z", "tue": "2026-10-06T19:00:00Z",
         "wed": "2026-10-07T19:00:00Z", "thu": "2026-10-08T19:00:00Z", "fri": "2026-10-09T19:00:00Z",
         "sat": "2026-10-10T19:00:00Z"}
-PLAN = {"tue": ("adds", ["adds", "gains"]), "wed": ("usage", ["usage", "defenses"]),
-        "thu": ("tnf", ["vegas", "game", "status"]), "fri": ("status", ["status", "gains"]),
-        "sat": ("smash", ["smash", "bold", "calls", "weather"]), "sun": ("kickoff", ["need", "now", "weather"]),
-        "mon": ("tonight", ["game", "gains"])}
+# David, 2026-10-07: a day of two cards was too thin ("the digest should have more relevant stuff"). Each day
+# keeps its job first, then the cards that have data that day, five at most.
+PLAN = {"tue": ("adds", ["adds", "gains", "usage"]), "wed": ("usage", ["usage", "gains", "defenses", "adds", "calls"]),
+        "thu": ("tnf", ["vegas", "game", "status", "calls"]), "fri": ("status", ["status", "gains", "smash", "weather"]),
+        "sat": ("smash", ["smash", "bold", "calls", "weather"]), "sun": ("kickoff", ["need", "now", "weather", "calls"]),
+        "mon": ("tonight", ["game", "gains", "calls"])}
 
 
 @pytest.fixture

@@ -156,15 +156,15 @@ def test_a_finished_weeks_need_to_know_waits_on_next_weeks_report(mount):
     """Once every game of the packet's week has kicked off (the fixture's week 3 ends with KC @ SF,
     2026-09-21) its injury list is moot and next week's is not written: Need to know says so, and never
     "Week 3's" for a week that is over (2026-10-05). With nobody hurt before then it says that. Blip's
-    "Waiting on week N" card left on 2026-10-05. Sunday's cards are Need to know's own; Tuesday's Top adds
-    and Out, who gains cards are emptied, so Need to know stands in (Digest by day)."""
+    "Waiting on week N" card left on 2026-10-05. Sunday's cards are Need to know's own; Tuesday's Top adds,
+    Out, who gains and Usage movers cards are emptied, so Need to know stands in (Digest by day)."""
     page, errors = mount("digest", size=PHONE)
     dg = DigestPage(page)
     # The fixture's page week is 2, the packet's is 3: the page week is set to the packet's, as it is live.
     dg.set_clock("2026-09-20T12:00:00Z", nobody_out=True, packet_week=True)
     assert dg.need_none() == "Nobody new is out since Tuesday."
     dg.set_clock("2026-09-22T12:00:00Z", nobody_out=True, packet_week=True)
-    dg.plant_empty("adds", "gains")
+    dg.plant_empty("adds", "gains", "usage")
     assert dg.need_none() == "Week 4's injury report is still in the trainer's room."
     assert dg.retired_wait_card() == 0
     assert errors == []

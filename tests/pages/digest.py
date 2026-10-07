@@ -34,9 +34,10 @@ class DigestPage:
           DG_CUT = null; render(); }""", [at, nobody_out, packet_week])
 
     def plant_empty(self, *keys):
-        """Empty packet lists (`adds`, `gains`): the day cards fed by them draw nothing, so a test about Need to
-        know or a planted card is not about the cards the fixtures now feed."""
-        self.page.evaluate("""(keys) => { keys.forEach(k => { LIVE_DIGEST[k] = []; }); DG_CUT = null; render(); }""", list(keys))
+        """Empty packet lists (`adds`, `gains`; `usage` is LIVE_USAGE_MOVERS' rows): the day cards fed by them draw
+        nothing, so a test about Need to know or a planted card is not about the cards the fixtures now feed."""
+        self.page.evaluate("""(keys) => { keys.forEach(k => { if (k === 'usage') LIVE_USAGE_MOVERS.rows = []; else LIVE_DIGEST[k] = []; });
+          DG_CUT = null; render(); }""", list(keys))
 
     def plant_results_lead(self, at):
         """An old packet that still says its lead is the week's results: it must not draw one."""

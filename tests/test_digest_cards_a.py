@@ -31,7 +31,7 @@ def day(mount, key):
 @pytest.mark.req("Digest", ac="Tuesday's Top adds: five rows, the number behind each add at the right, Waivers one tap away")
 def test_top_adds_are_five_rows_with_the_number_that_earned_each(mount):
     dg, errors = day(mount, "tue")
-    assert dg.card_ids() == ["adds", "gains"]
+    assert dg.card_ids() == ["adds", "gains", "usage"]
     assert dg.card_head("adds") == {"title": "Top adds", "more": "waivers"}
     rows = dg.card_rows("adds")
     assert [(r["name"], r["answer"], r["dir"]) for r in rows] == [
@@ -89,7 +89,8 @@ def test_mondays_gains_card_is_about_tonight(mount):
 @pytest.mark.req("Digest", ac="Wednesday's Usage movers: Claude's line, a sparkline, the share now with its change; the card says it is untested")
 def test_usage_movers_show_the_share_the_line_and_the_untested_mark(mount):
     dg, errors = day(mount, "wed")
-    assert dg.card_ids() == ["usage", "defenses"]
+    # Top calls is in Wednesday's plan but the fixture's lines all kicked off in September, so it draws nothing here.
+    assert dg.card_ids() == ["usage", "gains", "defenses", "adds"]
     assert dg.card_head("usage") == {"title": "Usage movers", "more": "usage"}
     rows = dg.card_rows("usage")
     assert [(r["name"], r["answer"], r["dir"], r["spark"], r["right"]) for r in rows] == [

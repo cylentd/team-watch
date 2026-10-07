@@ -134,9 +134,9 @@ def test_sunday_is_the_first_kickoff_and_monday_tonights_game(mount):
 @pytest.mark.req("Digest", ac="a day whose cards are all empty still shows the banner and Need to know")
 def test_a_day_whose_cards_are_empty_shows_need_to_know(mount):
     dg, errors = day(mount)
-    dg.at("2026-09-15T19:00:00Z")                      # a Tuesday: Top adds and Out, who gains
-    assert dg.card_ids() == ["adds", "gains"] and dg.need_count() == 0, "the fixtures feed both cards"
-    dg.plant_empty("adds", "gains")
+    dg.at("2026-09-15T19:00:00Z")                      # a Tuesday: Top adds, Out and who gains, Usage movers
+    assert dg.card_ids() == ["adds", "gains", "usage"] and dg.need_count() == 0, "the fixtures feed all three cards"
+    dg.plant_empty("adds", "gains", "usage")
     assert dg.card_ids() == [] and dg.need_count() == 1
     assert dg.banner()["h"] == 128
     assert errors == []
@@ -146,7 +146,7 @@ def test_a_day_whose_cards_are_empty_shows_need_to_know(mount):
 def test_a_rows_research_opens_in_place_one_at_a_time(mount):
     dg, errors = day(mount)
     dg.at("2026-09-15T19:00:00Z")
-    dg.plant_empty("gains")                            # Tuesday's other card: the rows below are the planted card's alone
+    dg.plant_empty("gains", "usage")                   # Tuesday's other cards: the rows below are the planted card's alone
     dg.plant_card()
     assert dg.card_ids() == ["adds"] and dg.need_count() == 0, "a card that drew takes Need to know's place"
     assert dg.card_title() == "Top adds" and dg.card_more() == {"leaf": "waivers", "text": "Waivers"}
@@ -178,7 +178,7 @@ def test_rest_of_the_week_links_the_other_views(mount):
     dg.plant_recap(RECAP_ON)                          # Monday, the recap half final
     assert dg.strip() == [["weekrecap", "Recap"], ["waivers", "Waivers"]]
     dg.plant_recap(RECAP_LAST_DAY)                    # Wednesday, its last day
-    assert [leaf for leaf, _ in dg.strip()] == ["waivers", "preview", "matchups", "weekrecap"]
+    assert [leaf for leaf, _ in dg.strip()] == ["preview", "matchups", "weekrecap", "news"]
     dg.plant_recap(RECAP_ON, "LIVE_RECAP.n_final = 7")        # under half final: no Recap chip
     assert [leaf for leaf, _ in dg.strip()] == ["waivers"]
     dg.plant_recap(RECAP_ON, "LIVE_RECAP.n_final = 8")        # exactly half
