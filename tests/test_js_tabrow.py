@@ -69,6 +69,38 @@ def test_the_pressed_pill_is_scrolled_into_view(row, left, width, scroll, view, 
     assert row("tabRowScroll", left, width, scroll, view, 16) == want
 
 
+def _step(row, leaf, modes, d):
+    return row("tabRowStep", row("tabRowPlan", WEEK, leaf, modes, True), d)
+
+
+@pytest.mark.req("Swipe between tabs", ac="a swipe is a tap on the next thing in the row")
+@pytest.mark.parametrize("leaf,modes,d,want", [
+    ("news", None, 1, {"leaf": "matchups"}),                  # swipe left: the pill to the right
+    ("news", None, -1, {"leaf": "weekrecap"}),                # swipe right: the pill to the left
+    ("live", LIVE, 1, {"seg": "tds"}),                        # an opened pill: its tabs are stops too
+    ("live", LIVE, -1, {"seg": "league"}),
+    ("live", {"ids": ["league", "games", "tds"], "cur": "league"}, -1, {"leaf": "preview"}),  # off its first tab
+    ("preview", None, 1, {"leaf": "live"}),                   # into a view with tabs: the view, on its own tab
+])
+def test_a_swipe_goes_to_the_next_stop_in_the_row(row, leaf, modes, d, want):
+    assert _step(row, leaf, modes, d) == want
+
+
+@pytest.mark.req("Swipe between tabs", ac="the row's ends stop the swipe")
+@pytest.mark.parametrize("leaf,modes,d", [
+    ("digest", None, -1),                                     # first pill: nothing to the left
+    ("live", {"ids": ["league", "games", "tds"], "cur": "tds"}, 1),  # last tab of the last pill
+    ("weather", None, 1),                                     # a view off the row has no place in it
+])
+def test_a_swipe_past_the_row_goes_nowhere(row, leaf, modes, d):
+    assert _step(row, leaf, modes, d) is None
+
+
+def test_a_hidden_row_takes_no_swipe(row):
+    """A group of one (Bets > Slips with no kickoffs) shows no row, so there is nothing to swipe to."""
+    assert row("tabRowStep", row("tabRowPlan", ["parlay"], "parlay", None, True), 1) is None
+
+
 def test_a_view_declares_its_tabs_once(row):
     """One mechanism: a view registers its tabs; the row reads them. No view-specific code in nav.js."""
     assert row("navModesOf('nothing')") is None

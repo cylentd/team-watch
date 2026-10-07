@@ -113,6 +113,20 @@ question: who, which way, one number.
 | Lead panel | shared by Digest and Matchups since 2026-09-26: one fact on `--panel`, a top wash in its status colour (red will likely sit, amber questionable, sky weather, lime a call), Bricolage headline `--t-6` (`--t-5` for a sentence), one fact line, the headshot masked into the panel at its foot and left edge. Full-bleed on a phone; from 960px a 440px sticky column, headline `--t-7`, photo 260px | `component/lead.css` |
 | KPI tiles | removed at every width (roster and parlay) | — |
 
+## Swipe between tabs (2026-10-06)
+
+A sideways swipe on a view is a tap on the next thing in the top tab row (David: the row is out of
+thumb reach). Supersedes "never a swipe between views" (2026-09-30).
+
+| Rule | Why |
+|---|---|
+| Swipe left = the stop to the right; an opened pill's own tabs are stops too (Live: My league, NFL, TDs) | The row on screen is the map: no hidden order |
+| The row's ends stop it; no wrap, no jump to the next group | The group is the bottom bar's job |
+| A touch that starts on something with its own sideways gesture keeps it: Leaders' card, Preview's game, the Roster brief and pack, anything that scrolls sideways | One meaning per surface (STYLE.md) |
+| A touch within 24px of either screen edge is left to the browser | iOS Safari's own Back swipe starts there |
+
+Logic: `tabRowStep` in `js/data/tabrow.js`; the gesture: `js/chrome/tabswipe.js`.
+
 ## Connected leagues (2026-09-24)
 
 A visitor adds an ESPN league from the team switch ("+ Add a league"). Plan and decisions:

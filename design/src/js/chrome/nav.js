@@ -92,11 +92,11 @@ function navPillHTML(p, m){
    pretending to be a choice. Repainted only when it changed (Live's poll asks every 30 s), and the row
    keeps where the reader scrolled it unless the pressed pill is off screen. */
 let NAV_ROW = null;
+const navTabPlan = () => tabRowPlan(navTabsOf(navGroupOf(SURFACE)).filter(k => !NAV_HIDDEN.includes(k)),
+  SURFACE, navModesOf(SURFACE), NAV_PHONE.matches);   // what the row shows; the tab swipe walks the same plan
 function paintSubnav(){
   paintHdrTeam();
-  const el = document.getElementById("subnav"), m = navModesOf(SURFACE);
-  const tabs = navTabsOf(navGroupOf(SURFACE)).filter(k => !NAV_HIDDEN.includes(k));
-  const plan = tabRowPlan(tabs, SURFACE, m, NAV_PHONE.matches);
+  const el = document.getElementById("subnav"), m = navModesOf(SURFACE), plan = navTabPlan();
   el.hidden = !plan.shown;
   const html = el.hidden ? "" : `<div class="modes-sub${NAV_DENSE.includes(navGroupOf(SURFACE)) ? " dense" : ""}" role="group" aria-label="${t("nav.sub.label")}">
       ${plan.pills.map(p => navPillHTML(p, m)).join("")}</div>`;
@@ -214,6 +214,7 @@ function buildNav(){
   // Crossing 760px swaps the layouts: the header's switch and the row's opened tabs are a phone's only.
   NAV_PHONE.addEventListener("change", paintSubnav);
   paintSubnav();
+  wireTabSwipe();
 }
 
 /* One global listener, registered once, rather than one per render -- render() rebuilds a view's

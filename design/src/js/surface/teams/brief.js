@@ -197,7 +197,7 @@ function briefHTML(team){
    its row closes up. Short of that it springs back, and it is still a tap. Vertical drags scroll. */
 const BRIEF_SWIPE = 1 / 3;
 function wireBriefSwipe(el, team){
-  let x0 = null, y0 = 0, dx = 0, moved = false;
+  let x0 = null, y0 = 0, dx = 0, moved = false; el.dataset.ownswipe = "";   // its swipe, not the tab swipe's
   el.addEventListener("pointerdown", e => { x0 = e.clientX; y0 = e.clientY; dx = 0; moved = false; });
   el.addEventListener("pointermove", e => {
     if (x0 === null) return;

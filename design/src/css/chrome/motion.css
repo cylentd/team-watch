@@ -13,6 +13,16 @@
 @keyframes slash-a{0%,100%{transform:rotate(22deg)}40%,62%{transform:translateX(.183em) rotate(45deg)}}
 @keyframes slash-b{0%,100%{transform:rotate(22deg)}40%,62%{transform:translateX(-.183em) rotate(-45deg)}}
 
+/* A swipe between tabs (chrome/tabswipe.js): the next view arrives from the side it was swiped from
+   and stops in place, the same turn as Preview's dossier and the game sheet. Its children move, not
+   #view, so a transform on #view never makes it the box that a fixed element deep in a view sits in. */
+@media (prefers-reduced-motion:no-preference){
+  #view.in-r > *{animation:view-in-r var(--dur-spring) var(--spring)}
+  #view.in-l > *{animation:view-in-l var(--dur-spring) var(--spring)}
+  @keyframes view-in-r{from{transform:translateX(28px);opacity:.4}}
+  @keyframes view-in-l{from{transform:translateX(-28px);opacity:.4}}
+}
+
 /* A football across the hero on a team switch: a spiral, a slight arc, a fading streak. */
 .zip{position:absolute;left:0;top:44%;z-index:2;pointer-events:none;
   animation:zip-across .95s var(--ease-flight) forwards}

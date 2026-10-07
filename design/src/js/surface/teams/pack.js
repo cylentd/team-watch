@@ -154,6 +154,7 @@ function wireRip(seal, onRip, onTick, onBody){
     seal.classList.remove("nudge"); void seal.offsetWidth; seal.classList.add("nudge");
     packBuzz(8);
   };
+  seal.dataset.ownswipe = "";   // its tear, not the tab swipe (chrome/tabswipe.js)
   seal.addEventListener("pointerdown", e => {
     if (done) return;
     const r = seal.getBoundingClientRect();

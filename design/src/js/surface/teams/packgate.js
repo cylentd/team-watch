@@ -74,6 +74,7 @@ function packIdleFrame(S, now){
 function packSpin(pk, S, open){
   const glow = S.glow, angle = () => parseFloat((getComputedStyle(glow).rotate.match(/(-?[\d.]+)deg/) || [0, 0])[1]);
   let x0 = 0, a0 = 0, down = false, moved = false;
+  pk.dataset.ownswipe = "";   // its turn, not the tab swipe (chrome/tabswipe.js)
   pk.addEventListener("pointerdown", e => {
     down = true; moved = false; x0 = e.clientX; a0 = angle(); S.held = true;
     glow.getAnimations().forEach(a => a.cancel());

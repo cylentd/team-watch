@@ -19,8 +19,9 @@
   ],
   "areas": {
     "gestures": {
-      "paths": ["design/src/js/lib/swipe.js", "tests/test_gestures.py"],
-      "tests": ["tests/test_gestures.py"],
+      "paths": ["design/src/js/lib/swipe.js", "tests/test_gestures.py", "design/src/js/chrome/tabswipe.js",
+                "tests/test_tab_swipe.py"],
+      "tests": ["tests/test_gestures.py", "tests/test_tab_swipe.py"],
       "render": []
     },
     "digest": {

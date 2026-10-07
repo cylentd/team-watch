@@ -63,6 +63,7 @@ function reelStep(track, dir){
    it opens nothing. */
 function reelDrag(track){
   let x0 = null, s0 = 0, moved = false, ended = 0;
+  track.dataset.ownswipe = "";   // its drag, not the tab swipe (chrome/tabswipe.js)
   track.addEventListener("pointerdown", e => {
     if (e.pointerType !== "mouse" || e.button) return;
     x0 = e.clientX; s0 = track.scrollLeft; moved = false;

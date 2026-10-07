@@ -36,6 +36,18 @@ function tabRowPlan(tabs, leaf, modes, phone){
   };
 }
 
+/* tabRowStep(plan, d) -> {leaf} | {seg} | null. A sideways swipe on a view is a tap on the next thing
+   in the row (2026-10-06, David: the row is out of thumb reach; DESIGN.md "Swipe between tabs"). The
+   stops are the row left to right: each pill, except that an opened pill is its tabs instead. d is +1
+   (swipe left: the stop to the right) or -1. Null at either end, with no row, or on a view off the row. */
+function tabRowStep(plan, d){
+  if (!plan.shown) return null;
+  const stops = plan.pills.flatMap(p => p.segs ? p.segs.map(s => ({seg: s.id, on: s.on})) : [{leaf: p.leaf, on: p.on}]);
+  const at = stops.findIndex(s => s.on), next = at < 0 ? null : stops[at + d];
+  if (!next) return null;
+  return next.seg ? {seg: next.seg} : {leaf: next.leaf};
+}
+
 /* Where the row scrolls so the pressed pill shows, `pad` px clear of the edge: left alone when it
    already shows; else just far enough. A pill wider than the row (opened into its tabs) shows its start. */
 function tabRowScroll(left, width, scroll, view, pad){

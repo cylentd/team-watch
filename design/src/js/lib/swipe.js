@@ -2,8 +2,9 @@
    SWIPE — the page's two touch gestures, one definition each (2026-09-29).
    A sideways swipe turns to the next thing in a set the reader already pages with buttons: the
    Leaders card's stat, Preview's game, the profile's tab, the game sheet's game. A pull down from
-   the top closes a sheet: the profile, search, the game sheet. One meaning per surface, never a
-   swipe between views, since those surfaces already own the sideways swipe.
+   the top closes a sheet: the profile, search, the game sheet. One meaning per surface: a swipe on the
+   view itself turns the top tab row (chrome/tabswipe.js, since 2026-10-06; it was "never a swipe
+   between views" until then), and a touch that starts on one of these surfaces stays theirs.
    Board and Preview each carried their own copy of the arithmetic; the third caller made it this file.
 ------------------------------------------------------------------ */
 const SWIPE_MIN = 48;      // px sideways before a drag is a swipe
@@ -11,12 +12,14 @@ const SWIPE_RATIO = 1.5;   // and this many times more sideways than down: a mos
 const PULL_MIN = 96;       // px down, from the top of the sheet's scroll, before a pull closes it
 const PULL_FOLLOW = .6;    // how far the sheet follows the finger: it lags, so it reads as weight
 
-/* step(+1) on a swipe left (the next one), step(-1) on a swipe right. `skip(target)` true means the
-   touch began on something with its own drag (the radar, the orb sheet): that touch is left alone. */
+/* step(+1) on a swipe left (the next one), step(-1) on a swipe right. `skip(target, touch)` true means
+   the touch began on something with its own drag (the radar, the orb sheet): that touch is left alone.
+   `el` is marked data-ownswipe, so the tab swipe on the view around it leaves its touches alone. */
 function onSwipeX(el, step, skip){
   let x0 = null, y0 = 0;
+  el.dataset.ownswipe = "";
   el.addEventListener("touchstart", e => {
-    const ok = e.touches.length === 1 && !(skip && skip(e.target));
+    const ok = e.touches.length === 1 && !(skip && skip(e.target, e.touches[0]));
     x0 = ok ? e.touches[0].clientX : null;
     y0 = ok ? e.touches[0].clientY : 0;
   }, {passive: true});

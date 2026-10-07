@@ -522,6 +522,16 @@ html{scrollbar-color:var(--line-2) var(--void)}
 @keyframes slash-a{0%,100%{transform:rotate(22deg)}40%,62%{transform:translateX(.183em) rotate(45deg)}}
 @keyframes slash-b{0%,100%{transform:rotate(22deg)}40%,62%{transform:translateX(-.183em) rotate(-45deg)}}
 
+/* A swipe between tabs (chrome/tabswipe.js): the next view arrives from the side it was swiped from
+   and stops in place, the same turn as Preview's dossier and the game sheet. Its children move, not
+   #view, so a transform on #view never makes it the box that a fixed element deep in a view sits in. */
+@media (prefers-reduced-motion:no-preference){
+  #view.in-r > *{animation:view-in-r var(--dur-spring) var(--spring)}
+  #view.in-l > *{animation:view-in-l var(--dur-spring) var(--spring)}
+  @keyframes view-in-r{from{transform:translateX(28px);opacity:.4}}
+  @keyframes view-in-l{from{transform:translateX(-28px);opacity:.4}}
+}
+
 /* A football across the hero on a team switch: a spiral, a slight arc, a fading streak. */
 .zip{position:absolute;left:0;top:44%;z-index:2;pointer-events:none;
   animation:zip-across .95s var(--ease-flight) forwards}
@@ -10819,6 +10829,18 @@ function tabRowPlan(tabs, leaf, modes, phone){
   };
 }
 
+/* tabRowStep(plan, d) -> {leaf} | {seg} | null. A sideways swipe on a view is a tap on the next thing
+   in the row (2026-10-06, David: the row is out of thumb reach; DESIGN.md "Swipe between tabs"). The
+   stops are the row left to right: each pill, except that an opened pill is its tabs instead. d is +1
+   (swipe left: the stop to the right) or -1. Null at either end, with no row, or on a view off the row. */
+function tabRowStep(plan, d){
+  if (!plan.shown) return null;
+  const stops = plan.pills.flatMap(p => p.segs ? p.segs.map(s => ({seg: s.id, on: s.on})) : [{leaf: p.leaf, on: p.on}]);
+  const at = stops.findIndex(s => s.on), next = at < 0 ? null : stops[at + d];
+  if (!next) return null;
+  return next.seg ? {seg: next.seg} : {leaf: next.leaf};
+}
+
 /* Where the row scrolls so the pressed pill shows, `pad` px clear of the edge: left alone when it
    already shows; else just far enough. A pill wider than the row (opened into its tabs) shows its start. */
 function tabRowScroll(left, width, scroll, view, pad){
@@ -11041,8 +11063,9 @@ const PAGE_SERVED = () => location.protocol === "http:" || location.protocol ===
    SWIPE — the page's two touch gestures, one definition each (2026-09-29).
    A sideways swipe turns to the next thing in a set the reader already pages with buttons: the
    Leaders card's stat, Preview's game, the profile's tab, the game sheet's game. A pull down from
-   the top closes a sheet: the profile, search, the game sheet. One meaning per surface, never a
-   swipe between views, since those surfaces already own the sideways swipe.
+   the top closes a sheet: the profile, search, the game sheet. One meaning per surface: a swipe on the
+   view itself turns the top tab row (chrome/tabswipe.js, since 2026-10-06; it was "never a swipe
+   between views" until then), and a touch that starts on one of these surfaces stays theirs.
    Board and Preview each carried their own copy of the arithmetic; the third caller made it this file.
 ------------------------------------------------------------------ */
 const SWIPE_MIN = 48;      // px sideways before a drag is a swipe
@@ -11050,12 +11073,14 @@ const SWIPE_RATIO = 1.5;   // and this many times more sideways than down: a mos
 const PULL_MIN = 96;       // px down, from the top of the sheet's scroll, before a pull closes it
 const PULL_FOLLOW = .6;    // how far the sheet follows the finger: it lags, so it reads as weight
 
-/* step(+1) on a swipe left (the next one), step(-1) on a swipe right. `skip(target)` true means the
-   touch began on something with its own drag (the radar, the orb sheet): that touch is left alone. */
+/* step(+1) on a swipe left (the next one), step(-1) on a swipe right. `skip(target, touch)` true means
+   the touch began on something with its own drag (the radar, the orb sheet): that touch is left alone.
+   `el` is marked data-ownswipe, so the tab swipe on the view around it leaves its touches alone. */
 function onSwipeX(el, step, skip){
   let x0 = null, y0 = 0;
+  el.dataset.ownswipe = "";
   el.addEventListener("touchstart", e => {
-    const ok = e.touches.length === 1 && !(skip && skip(e.target));
+    const ok = e.touches.length === 1 && !(skip && skip(e.target, e.touches[0]));
     x0 = ok ? e.touches[0].clientX : null;
     y0 = ok ? e.touches[0].clientY : 0;
   }, {passive: true});
@@ -12159,6 +12184,7 @@ function wireRip(seal, onRip, onTick, onBody){
     seal.classList.remove("nudge"); void seal.offsetWidth; seal.classList.add("nudge");
     packBuzz(8);
   };
+  seal.dataset.ownswipe = "";   // its tear, not the tab swipe (chrome/tabswipe.js)
   seal.addEventListener("pointerdown", e => {
     if (done) return;
     const r = seal.getBoundingClientRect();
@@ -12270,6 +12296,7 @@ function packIdleFrame(S, now){
 function packSpin(pk, S, open){
   const glow = S.glow, angle = () => parseFloat((getComputedStyle(glow).rotate.match(/(-?[\d.]+)deg/) || [0, 0])[1]);
   let x0 = 0, a0 = 0, down = false, moved = false;
+  pk.dataset.ownswipe = "";   // its turn, not the tab swipe (chrome/tabswipe.js)
   pk.addEventListener("pointerdown", e => {
     down = true; moved = false; x0 = e.clientX; a0 = angle(); S.held = true;
     glow.getAnimations().forEach(a => a.cancel());
@@ -13231,7 +13258,7 @@ function briefHTML(team){
    its row closes up. Short of that it springs back, and it is still a tap. Vertical drags scroll. */
 const BRIEF_SWIPE = 1 / 3;
 function wireBriefSwipe(el, team){
-  let x0 = null, y0 = 0, dx = 0, moved = false;
+  let x0 = null, y0 = 0, dx = 0, moved = false; el.dataset.ownswipe = "";   // its swipe, not the tab swipe's
   el.addEventListener("pointerdown", e => { x0 = e.clientX; y0 = e.clientY; dx = 0; moved = false; });
   el.addEventListener("pointermove", e => {
     if (x0 === null) return;
@@ -13348,6 +13375,7 @@ function reelStep(track, dir){
    it opens nothing. */
 function reelDrag(track){
   let x0 = null, s0 = 0, moved = false, ended = 0;
+  track.dataset.ownswipe = "";   // its drag, not the tab swipe (chrome/tabswipe.js)
   track.addEventListener("pointerdown", e => {
     if (e.pointerType !== "mouse" || e.button) return;
     x0 = e.clientX; s0 = track.scrollLeft; moved = false;
@@ -33174,11 +33202,11 @@ function navPillHTML(p, m){
    pretending to be a choice. Repainted only when it changed (Live's poll asks every 30 s), and the row
    keeps where the reader scrolled it unless the pressed pill is off screen. */
 let NAV_ROW = null;
+const navTabPlan = () => tabRowPlan(navTabsOf(navGroupOf(SURFACE)).filter(k => !NAV_HIDDEN.includes(k)),
+  SURFACE, navModesOf(SURFACE), NAV_PHONE.matches);   // what the row shows; the tab swipe walks the same plan
 function paintSubnav(){
   paintHdrTeam();
-  const el = document.getElementById("subnav"), m = navModesOf(SURFACE);
-  const tabs = navTabsOf(navGroupOf(SURFACE)).filter(k => !NAV_HIDDEN.includes(k));
-  const plan = tabRowPlan(tabs, SURFACE, m, NAV_PHONE.matches);
+  const el = document.getElementById("subnav"), m = navModesOf(SURFACE), plan = navTabPlan();
   el.hidden = !plan.shown;
   const html = el.hidden ? "" : `<div class="modes-sub${NAV_DENSE.includes(navGroupOf(SURFACE)) ? " dense" : ""}" role="group" aria-label="${t("nav.sub.label")}">
       ${plan.pills.map(p => navPillHTML(p, m)).join("")}</div>`;
@@ -33296,6 +33324,7 @@ function buildNav(){
   // Crossing 760px swaps the layouts: the header's switch and the row's opened tabs are a phone's only.
   NAV_PHONE.addEventListener("change", paintSubnav);
   paintSubnav();
+  wireTabSwipe();
 }
 
 /* One global listener, registered once, rather than one per render -- render() rebuilds a view's
@@ -33310,6 +33339,47 @@ document.addEventListener("click", e=>{
     }
   });
 });
+/* ── js/chrome/tabswipe.js ── */
+/* ============================== SWIPE BETWEEN TABS ==============================
+   2026-10-06 (David: "I find myself trying to do that a lot because I don't want to reach all the way
+   to the top"). A sideways swipe on the view is a tap on the next thing in the top tab row: the stop
+   is data/tabrow.js tabRowStep, the gesture lib/swipe.js onSwipeX. DESIGN.md "Swipe between tabs".
+   It supersedes "never a swipe between views" (2026-09-30), whose worry was the surfaces that already
+   own a sideways gesture; a touch that starts on one of them stays theirs (tabSwipeSkip). */
+const TAB_SWIPE_EDGE = 24;   // px from either screen edge: iOS Safari's own Back swipe starts there
+
+/* True when the touch is not the tab swipe's: it began on a surface with its own sideways gesture
+   (data-ownswipe, set by onSwipeX and the Roster's drags), in something that scrolls sideways, on a
+   slider, or at a screen edge. */
+function tabSwipeSkip(target, touch){
+  const view = document.getElementById("view");
+  if (touch.clientX < TAB_SWIPE_EDGE || touch.clientX > innerWidth - TAB_SWIPE_EDGE) return true;
+  for (let el = target; el && el !== view; el = el.parentElement){
+    if (el.hasAttribute("data-ownswipe") || el.matches("input[type=range]")) return true;
+    if (el.scrollWidth > el.clientWidth + 1 && /auto|scroll/.test(getComputedStyle(el).overflowX)) return true;
+  }
+  return false;
+}
+
+/* d = +1 on a swipe left. A tab of the open view selects in place, as its segment's tap does; another
+   view opens from its top, sliding in from the side the finger came from. */
+function tabSwipe(d){
+  const to = tabRowStep(navTabPlan(), d);
+  if (!to) return;
+  if (to.seg){ navModesOf(SURFACE).select(to.seg); paintSubnav(); }
+  else { morphLogo(); navGo(to.leaf); window.scrollTo(0, 0); }
+  const v = document.getElementById("view");
+  v.classList.remove("in-r", "in-l");
+  void v.offsetWidth;                      // restart the slide when two swipes come close together
+  v.classList.add(d > 0 ? "in-r" : "in-l");
+}
+
+function wireTabSwipe(){
+  const v = document.getElementById("view");
+  onSwipeX(v, tabSwipe, tabSwipeSkip);
+  delete v.dataset.ownswipe;               // the view is the tab swipe's own surface, not one it skips
+  v.addEventListener("animationend", e => { if (e.target.parentElement === v) v.classList.remove("in-r", "in-l"); });
+}
 /* ── js/chrome/hidebar.js ── */
 /* The phone's header bar (the team switch and Ask) slides up while the reader scrolls down a list and
    comes back on the first scroll up; the tab row under it sticks to the top edge meanwhile, and the
