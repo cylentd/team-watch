@@ -121,11 +121,16 @@ thumb reach). Supersedes "never a swipe between views" (2026-09-30).
 | Rule | Why |
 |---|---|
 | Swipe left = the stop to the right; an opened pill's own tabs are stops too (Live: My league, NFL, TDs) | The row on screen is the map: no hidden order |
+| A swipe into a view that opens into tabs lands on its first tab from the left, its last from the right (Digest → Recap: Players; News → Recap: Accuracy). A tap on the pill still opens the tab it remembers | Landing on a remembered tab far along the row read as a skipped tab (David, 2026-10-06) |
+| The row glides to the pill a swipe opened, far enough on to show the tab it landed on whole (`tabRowAim`); a tap moves it at once, as before | A jump of the row under the eye read as a skip too, and Recap's last tab sat 22px off a 360px row |
+| Anywhere between the tab row and the bottom bar, the empty page under a short view included; never on the header, the tab row, the bottom bar, or while an overlay is open (`LAYERS`) | The thumb is mid-screen, wherever the content ends |
+| A touch is a swipe only when its first 10px go sideways, it ends 72px or more across and 2.2 times more across than down, and the page did not scroll more than 4px meanwhile (`data/swipestep.js` says why each number) | 48px and 1.5 times, read only at the end, turned the tab on a scroll's sideways drift (David, 2026-10-06) |
 | The row's ends stop it; no wrap, no jump to the next group | The group is the bottom bar's job |
-| A touch that starts on something with its own sideways gesture keeps it: Leaders' card, Preview's game, the Roster brief and pack, anything that scrolls sideways | One meaning per surface (STYLE.md) |
+| A touch that starts on something with its own sideways gesture keeps it: Preview's game, the Roster brief and pack, anything that scrolls sideways. Leaders' card turned its stat until 2026-10-06; a swipe there now turns the tab, and the stat tabs turn the stat | One meaning per surface (STYLE.md) |
 | A touch within 24px of either screen edge is left to the browser | iOS Safari's own Back swipe starts there |
+| The slide moves the view's blocks 28px in, never what the view pins to the screen (Bets' slip tray, its sheet and scrim), and the view clips sideways while it runs | The scrim flashed dark over the whole page in Bets; a block past the right edge widened the page, a phone zoomed out, and the bottom bar dropped off screen for the slide (2026-10-06) |
 
-Logic: `tabRowStep` in `js/data/tabrow.js`; the gesture: `js/chrome/tabswipe.js`.
+Logic: `tabRowStep` and `tabRowEnter` in `js/data/tabrow.js`, `swipeStep` in `js/data/swipestep.js`; the gesture: `js/chrome/tabswipe.js`.
 
 ## Connected leagues (2026-09-24)
 
@@ -1459,7 +1464,7 @@ no roster is read, and the players named are the ones ff-jarvis's `game_preview`
   down (4 players, lean 180, market 110, why 70, risk 100 characters; it was 6 / 240 / 160 / 120 / 160,
   and the card ran to 877px), the pager row moved into the header, and three "Out" chips became one line.
   `test_every_game_fits_one_screen` held it on the fixture.~~ (retired)
-- **Swipe:** the Board's touch delta (`board.js`), not scroll-snap: STYLE.md forbids sideways
+- **Swipe:** the Board's touch delta (`lib/swipe.js` since 2026-09-29; the Board's own swipe went 2026-10-06), not scroll-snap: STYLE.md forbids sideways
   scroll inside a page that scrolls down. More than 48px and mostly sideways turns the game; past
   either end nothing happens. The new card slides 28px in from that side on the spring; reduced
   motion draws it in place.

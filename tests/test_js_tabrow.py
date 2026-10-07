@@ -69,6 +69,20 @@ def test_the_pressed_pill_is_scrolled_into_view(row, left, width, scroll, view, 
     assert row("tabRowScroll", left, width, scroll, view, 16) == want
 
 
+PILL = {"left": 92, "width": 367}     # Recap opened into four tabs: wider than a 360 px row
+
+
+@pytest.mark.req("Swipe between tabs", ac="a swipe into a view lands on its nearest tab")
+@pytest.mark.parametrize("seg,want", [
+    (None, 76),                                   # no tab to aim at: the pill's start, as before
+    ({"left": 162, "width": 72}, 76),             # its first tab shows at the pill's start: the same place
+    ({"left": 351, "width": 85}, 76),             # a tab ending right at the row's edge shows whole already
+    ({"left": 377, "width": 85}, 118),            # its last tab is past the edge there: just far enough to show it
+])
+def test_a_swipe_aims_the_row_at_the_tab_it_landed_on(row, seg, want):
+    assert row("tabRowAim", PILL, seg, 0, 360, 16) == want
+
+
 def _step(row, leaf, modes, d):
     return row("tabRowStep", row("tabRowPlan", WEEK, leaf, modes, True), d)
 
@@ -80,7 +94,7 @@ def _step(row, leaf, modes, d):
     ("live", LIVE, 1, {"seg": "tds"}),                        # an opened pill: its tabs are stops too
     ("live", LIVE, -1, {"seg": "league"}),
     ("live", {"ids": ["league", "games", "tds"], "cur": "league"}, -1, {"leaf": "preview"}),  # off its first tab
-    ("preview", None, 1, {"leaf": "live"}),                   # into a view with tabs: the view, on its own tab
+    ("preview", None, 1, {"leaf": "live"}),                   # into a view with tabs: the view (its tab is tabRowEnter's)
     ("digest", None, 1, {"leaf": "weekrecap"}),               # from the first pill: its end stops only the way back
 ])
 def test_a_swipe_goes_to_the_next_stop_in_the_row(row, leaf, modes, d, want):
@@ -95,6 +109,32 @@ def test_a_swipe_goes_to_the_next_stop_in_the_row(row, leaf, modes, d, want):
 ])
 def test_a_swipe_past_the_row_goes_nowhere(row, leaf, modes, d):
     assert _step(row, leaf, modes, d) is None
+
+
+RECAP = {"ids": ["players", "scores", "claude", "accuracy"], "cur": "accuracy"}
+
+
+@pytest.mark.req("Swipe between tabs", ac="a swipe into a view lands on its nearest tab")
+@pytest.mark.parametrize("modes,d,want", [
+    (LIVE, 1, "league"),                                              # Preview -> Live: its first tab, not the one it remembers
+    (RECAP, 1, "players"),                                            # Digest -> Recap left on Accuracy: Players
+    ({**RECAP, "cur": "players"}, -1, "accuracy"),                    # News -> Recap: its last tab
+    ({**LIVE, "cur": "nothing"}, -1, "tds"),                          # a current tab it no longer has
+    ({"ids": ["thu", "sun"], "cur": "thu"}, -1, "sun"),               # Slips with two kickoffs, from All lines
+])
+def test_a_swipe_into_a_view_with_tabs_lands_on_the_tab_nearest_where_it_came_from(row, modes, d, want):
+    assert row("tabRowEnter", modes, d, True) == want
+
+
+@pytest.mark.parametrize("modes,d,phone", [
+    ({**LIVE, "cur": "league"}, 1, True),                             # already on its first tab: nothing to select
+    ({**RECAP, "cur": "nothing"}, 1, True),                           # an unknown tab draws as the first already
+    ({"ids": ["scores"], "cur": "scores"}, -1, True),                 # one tab is not a choice
+    (None, 1, True),                                                  # a view with no tabs
+    (LIVE, 1, False),                                                 # a desktop: the tabs are the view's own bar, not stops
+])
+def test_a_swipe_into_a_view_selects_nothing_when_there_is_nothing_to_move(row, modes, d, phone):
+    assert row("tabRowEnter", modes, d, phone) is None
 
 
 def test_a_hidden_row_takes_no_swipe(row):

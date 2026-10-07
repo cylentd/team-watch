@@ -1,10 +1,12 @@
 /* ------------------------------------------------------------------
    SWIPE — the page's two touch gestures, one definition each (2026-09-29).
-   A sideways swipe turns to the next thing in a set the reader already pages with buttons: the
-   Leaders card's stat, Preview's game, the profile's tab, the game sheet's game. A pull down from
-   the top closes a sheet: the profile, search, the game sheet. One meaning per surface: a swipe on the
-   view itself turns the top tab row (chrome/tabswipe.js, since 2026-10-06; it was "never a swipe
-   between views" until then), and a touch that starts on one of these surfaces stays theirs.
+   A sideways swipe turns to the next thing in a set the reader already pages with buttons: Preview's
+   game, the profile's tab, the game sheet's game, the clip theater's clip. A pull down from the top
+   closes a sheet: the profile, search, the game sheet. One meaning per surface: a swipe on the page
+   itself turns the top tab row (chrome/tabswipe.js, since 2026-10-06; it was "never a swipe between
+   views" until then, and has its own stricter rule, data/swipestep.js), and a touch that starts on one
+   of these surfaces stays theirs. The Leaders card turned its stat on a swipe until 2026-10-06; it gave
+   the swipe to the tab row, and its stat tabs turn the stat.
    Board and Preview each carried their own copy of the arithmetic; the third caller made it this file.
 ------------------------------------------------------------------ */
 const SWIPE_MIN = 48;      // px sideways before a drag is a swipe

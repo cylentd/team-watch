@@ -523,11 +523,17 @@ html{scrollbar-color:var(--line-2) var(--void)}
 @keyframes slash-b{0%,100%{transform:rotate(22deg)}40%,62%{transform:translateX(-.183em) rotate(-45deg)}}
 
 /* A swipe between tabs (chrome/tabswipe.js): the next view arrives from the side it was swiped from
-   and stops in place, the same turn as Preview's dossier and the game sheet. Its children move, not
-   #view, so a transform on #view never makes it the box that a fixed element deep in a view sits in. */
+   and stops in place, the same turn as Preview's dossier and the game sheet. Its blocks move, not
+   #view, so a transform on #view never makes it the box that a fixed element deep in a view sits in;
+   tabSlide marks only the blocks that are not themselves fixed to the screen (Bets' slip tray, sheet, scrim).
+   While it runs #view clips sideways (.sliding, 2026-10-06): a block 28px off to the right widened the
+   page, a phone zoomed out to fit it, and the bottom tab bar, fixed to the now taller viewport, dropped
+   below the screen until the slide ended (Chromium mobile: innerHeight 727 -> 779, the bar at 715-779;
+   WebKit: the page 390 -> 418px wide). `clip`, not `hidden`, so nothing inside becomes a scroller. */
+#view.sliding{overflow-x:clip}
 @media (prefers-reduced-motion:no-preference){
-  #view.in-r > *{animation:view-in-r var(--dur-spring) var(--spring)}
-  #view.in-l > *{animation:view-in-l var(--dur-spring) var(--spring)}
+  #view > .tab-in-r{animation:view-in-r var(--dur-spring) var(--spring)}
+  #view > .tab-in-l{animation:view-in-l var(--dur-spring) var(--spring)}
   @keyframes view-in-r{from{transform:translateX(28px);opacity:.4}}
   @keyframes view-in-l{from{transform:translateX(-28px);opacity:.4}}
 }
@@ -10839,12 +10845,65 @@ function tabRowStep(plan, d){
   return next.seg ? {seg: next.seg} : {leaf: next.leaf};
 }
 
+/* tabRowEnter(modes, d, phone) -> the tab to open | null. A swipe into a view whose pill opens into tabs
+   lands on the tab nearest where it came from: its first on a swipe left, its last on a swipe right
+   (2026-10-06, David: Digest -> Recap opened on the tab Recap remembered, and read as a skipped tab). Null
+   when there is nothing to select: no tabs, one, the view already on that tab, or a desktop, where the
+   tabs are the view's own bar and not stops in the row. A tap on the pill still opens the remembered tab. */
+function tabRowEnter(modes, d, phone){
+  if (!phone || !modes || modes.ids.length < 2) return null;
+  const want = d > 0 ? modes.ids[0] : modes.ids[modes.ids.length - 1];
+  const cur = modes.ids.includes(modes.cur) ? modes.cur : modes.ids[0];
+  return want === cur ? null : want;
+}
+
 /* Where the row scrolls so the pressed pill shows, `pad` px clear of the edge: left alone when it
    already shows; else just far enough. A pill wider than the row (opened into its tabs) shows its start. */
 function tabRowScroll(left, width, scroll, view, pad){
   if (width + 2 * pad >= view || left - pad < scroll) return Math.max(0, left - pad);
   if (left + width + pad > scroll + view) return left + width + pad - view;
   return scroll;
+}
+
+/* After a swipe the row aims at the pressed pill as tabRowScroll does, then, when the tab the swipe landed
+   on (`seg`, null for a plain pill) is still past an edge there, just far enough on to show it whole
+   (2026-10-06: News -> Recap's last tab left Accuracy 22px off a 360px row). {left, width} each, in the
+   row's own coordinates. A tap keeps tabRowScroll alone. */
+function tabRowAim(pill, seg, scroll, view, pad){
+  const to = tabRowScroll(pill.left, pill.width, scroll, view, pad);
+  if (!seg || seg.left >= to && seg.left + seg.width <= to + view) return to;
+  return tabRowScroll(seg.left, seg.width, to, view, pad);
+}
+/* ── js/data/swipestep.js ── */
+/* ============================== IS THIS TOUCH A SWIPE BETWEEN TABS? ==============================
+   2026-10-06 (David: "it switches tabs while I am scrolling"). The tab swipe (chrome/tabswipe.js) first
+   used lib/swipe.js's rule, read only where the finger let go: 48px sideways and 1.5 times more sideways
+   than down. A thumb scrolling a list moves on an arc, and its sideways drift passed that. This reads the
+   whole touch instead. Pure and DOM-free (tests/test_js_swipestep.py); DESIGN.md "Swipe between tabs".
+
+   The rule, and why each number:
+     lock    10px   The axis is decided by the first 10px the finger travels. A touch that starts
+                    more up or down than sideways is a scroll, however it ends: by then the page is
+                    already moving under it. 10px is about where iOS itself decides a pan's axis.
+     min     72px   Sideways distance before it counts: a fifth of a 360-390px phone. 48px fired on
+                    the drift of a quick scroll and on a thumb resting and rolling.
+     ratio   2.2    And 2.2 times more sideways than down: within ~24 degrees of level (atan 1/2.2).
+                    1.5 allowed ~34 degrees, which is a normal scroll's arc.
+     scroll  4px    A touch during which the page scrolled more than this is a scroll. A couple of px
+                    is the rubber band settling, not the reader's intent. */
+const TAB_SWIPE = {lock: 10, min: 72, ratio: 2.2, scroll: 4};
+
+/* swipeStep(pts, scrolled, rule) -> 1 | -1 | null.
+   pts: the touch's points in order, [x, y] each (start, every move, end); scrolled: how many px the page
+   moved while the finger was down. 1 is a swipe left (the next tab), -1 a swipe right, null not a swipe. */
+function swipeStep(pts, scrolled, rule = TAB_SWIPE){
+  if (pts.length < 2 || Math.abs(scrolled) > rule.scroll) return null;
+  const [x0, y0] = pts[0];
+  const first = pts.find(([x, y]) => Math.max(Math.abs(x - x0), Math.abs(y - y0)) >= rule.lock);
+  if (!first || Math.abs(first[1] - y0) >= Math.abs(first[0] - x0)) return null;   // a tap, or it began up or down
+  const [x1, y1] = pts[pts.length - 1], dx = x1 - x0, dy = y1 - y0;
+  if (Math.abs(dx) < rule.min || Math.abs(dx) < rule.ratio * Math.abs(dy)) return null;
+  return dx < 0 ? 1 : -1;
 }
 /* ── js/data/teamcolors.js ── */
 /* Each club's two colours, for the defense support card (surface/teams/cards.js): the card is
@@ -11059,11 +11118,13 @@ const PAGE_SERVED = () => location.protocol === "http:" || location.protocol ===
 /* ── js/lib/swipe.js ── */
 /* ------------------------------------------------------------------
    SWIPE — the page's two touch gestures, one definition each (2026-09-29).
-   A sideways swipe turns to the next thing in a set the reader already pages with buttons: the
-   Leaders card's stat, Preview's game, the profile's tab, the game sheet's game. A pull down from
-   the top closes a sheet: the profile, search, the game sheet. One meaning per surface: a swipe on the
-   view itself turns the top tab row (chrome/tabswipe.js, since 2026-10-06; it was "never a swipe
-   between views" until then), and a touch that starts on one of these surfaces stays theirs.
+   A sideways swipe turns to the next thing in a set the reader already pages with buttons: Preview's
+   game, the profile's tab, the game sheet's game, the clip theater's clip. A pull down from the top
+   closes a sheet: the profile, search, the game sheet. One meaning per surface: a swipe on the page
+   itself turns the top tab row (chrome/tabswipe.js, since 2026-10-06; it was "never a swipe between
+   views" until then, and has its own stricter rule, data/swipestep.js), and a touch that starts on one
+   of these surfaces stays theirs. The Leaders card turned its stat on a swipe until 2026-10-06; it gave
+   the swipe to the tab row, and its stat tabs turn the stat.
    Board and Preview each carried their own copy of the arithmetic; the third caller made it this file.
 ------------------------------------------------------------------ */
 const SWIPE_MIN = 48;      // px sideways before a drag is a swipe
@@ -25609,7 +25670,7 @@ function bdBoardHTML(pos, picks){
         ><div class="bd-list">${shown.slice(half).map(row).join("")}</div></div>`
     : `<div class="bd-list">${shown.map(row).join("")}</div>`;
   return `${bdTabsHTML(axes, sel)}
-    <div class="bd-card" data-bdswipe>
+    <div class="bd-card">
       ${bdPageOf(ranked) === 1 || BD_WIDE.matches ? bdHeroHTML(a, ranked[0], ranked.length, slugs.includes(ranked[0].slug)) : ""}
       <div class="bd-side">
         ${list}
@@ -25938,14 +25999,6 @@ function bdViewHTML(){
   </div>`;
 }
 
-/* Sideways through the stats, the same order as the tabs, stopping at either end. */
-function bdStep(dir){
-  const axes = bdAxes(BD_POS), i = axes.findIndex(a => a.id === bdStatOf(BD_POS)), j = i + dir;
-  if (j < 0 || j >= axes.length) return false;
-  BD_STAT = axes[j].id; BD_PAGE = 1;
-  return true;
-}
-
 /* A pick of another position moves the board to his position and keeps only him. The axes are
    position-specific, so two positions cannot share a lane; refusing the pick instead would make
    the reader undo a search he meant, and the position chip visibly moving says what happened. */
@@ -25975,13 +26028,8 @@ function wireBd(v){
     const r = ((USAGE.sheet || {}).rows || []).find(x => x.slug === el.dataset.bdopen);
     if (r) openProfile({n: r.n, pos: r.pos, team: r.team, slug: r.slug}, el);
   }));
-  // A horizontal swipe on the card moves one stat; a mostly-vertical drag is a scroll and is left alone.
-  v.querySelectorAll("[data-bdswipe]").forEach(el => onSwipeX(el, step => {
-    if (!bdStep(step)) return;
-    BD_NOTE = ""; render();
-    const tab = document.querySelector(".bd-tab[aria-selected=true]");
-    if (tab) tab.scrollIntoView({block: "nearest", inline: "center"});
-  }));
+  // No swipe of its own since 2026-10-06: a sideways swipe here turns the top tab row, as on every view
+  // (chrome/tabswipe.js); the stat tabs above the card turn the stat. It turned the stat until then.
   set("[data-bddrop]", b => { BD_NOTE = ""; BD_PICKS = BD_PICKS.filter(s => s !== b.dataset.bddrop); });
   // The picker is the app's own search sheet, handed a slot to fill instead of a profile to open.
   v.querySelectorAll("[data-bdadd]").forEach(b => b.addEventListener("click", () => searchOpen(bdAdd)));
@@ -33180,8 +33228,10 @@ function navPillHTML(p, m){
 
 /* A group with one leaf gets no row, unless its view opens into tabs: a sub-nav of one is a label
    pretending to be a choice. Repainted only when it changed (Live's poll asks every 30 s), and the row
-   keeps where the reader scrolled it unless the pressed pill is off screen. */
-let NAV_ROW = null;
+   keeps where the reader scrolled it unless the pressed pill is off screen. A swipe (chrome/tabswipe.js)
+   sets NAV_GLIDE, so the row glides to the pill it opened rather than jumping there (2026-10-06); a tap
+   keeps the instant move, the pill being under the finger already. */
+let NAV_ROW = null, NAV_GLIDE = false;
 const navTabPlan = () => tabRowPlan(navTabsOf(navGroupOf(SURFACE)).filter(k => !NAV_HIDDEN.includes(k)),
   SURFACE, navModesOf(SURFACE), NAV_PHONE.matches);   // what the row shows; the tab swipe walks the same plan
 function paintSubnav(){
@@ -33206,8 +33256,12 @@ function paintSubnav(){
   }));
   const row = inner.querySelector(".modes-sub"), on = row && row.querySelector(".tr-x, .mode-sub[aria-pressed='true']");
   if (!on) return;
-  const r = row.getBoundingClientRect(), o = on.getBoundingClientRect();
-  row.scrollLeft = tabRowScroll(o.left - r.left, o.width, was, r.width, 16);   // the new row starts at 0
+  const r = row.getBoundingClientRect(), box = el => { const o = el.getBoundingClientRect(); return {left: o.left - r.left, width: o.width}; };
+  const seg = NAV_GLIDE && row.querySelector(".tr-seg[aria-pressed='true']");
+  const to = NAV_GLIDE ? tabRowAim(box(on), seg && box(seg), was, r.width, 16) : tabRowScroll(box(on).left, box(on).width, was, r.width, 16);
+  const glide = NAV_GLIDE && !REDUCED() && to !== was;
+  row.scrollLeft = glide ? was : to;   // the new row starts at 0
+  if (glide) row.scrollTo({left: to, behavior: "smooth"});
 }
 
 /* The phone's header bar: the reader's team as the team switch, or "Pick your team" until there is one
@@ -33322,43 +33376,91 @@ document.addEventListener("click", e=>{
 /* ── js/chrome/tabswipe.js ── */
 /* ============================== SWIPE BETWEEN TABS ==============================
    2026-10-06 (David: "I find myself trying to do that a lot because I don't want to reach all the way
-   to the top"). A sideways swipe on the view is a tap on the next thing in the top tab row: the stop
-   is data/tabrow.js tabRowStep, the gesture lib/swipe.js onSwipeX. DESIGN.md "Swipe between tabs".
-   It supersedes "never a swipe between views" (2026-09-30), whose worry was the surfaces that already
-   own a sideways gesture; a touch that starts on one of them stays theirs (tabSwipeSkip). */
+   to the top"). A sideways swipe on the page is a tap on the next thing in the top tab row: the stop is
+   data/tabrow.js tabRowStep, whether a touch is a swipe at all data/swipestep.js swipeStep. DESIGN.md
+   "Swipe between tabs". It supersedes "never a swipe between views" (2026-09-30), whose worry was the
+   surfaces that already own a sideways gesture; a touch that starts on one of them stays theirs.
+   Same day, from David's phone: the page's empty space below a short view did nothing (the touch was the
+   body's, not #view's), and a scroll's sideways drift turned the tab (lib/swipe.js's rule reads only the
+   end point). So the gesture listens on the document, keeps every point, and lets swipeStep decide. */
 const TAB_SWIPE_EDGE = 24;   // px from either screen edge: iOS Safari's own Back swipe starts there
 
-/* True when the touch is not the tab swipe's: it began on a surface with its own sideways gesture
-   (data-ownswipe, set by onSwipeX and the Roster's drags), in something that scrolls sideways, on a
-   slider, or at a screen edge. */
+/* True when the touch is not the tab swipe's: an overlay is open (LAYERS, chrome/layers.js), it began
+   outside the view and the page under it (the header, the tab row, the bottom bar, a sheet), at a screen
+   edge, on a surface with its own sideways gesture (data-ownswipe, set by onSwipeX and the Roster's
+   drags), in something that scrolls sideways, or on a slider. */
 function tabSwipeSkip(target, touch){
   const view = document.getElementById("view");
+  if (LAYERS.length) return true;
+  if (target !== document.body && target !== document.documentElement && !view.contains(target)) return true;
   if (touch.clientX < TAB_SWIPE_EDGE || touch.clientX > innerWidth - TAB_SWIPE_EDGE) return true;
-  for (let el = target; el && el !== view; el = el.parentElement){
+  for (let el = target; el && el !== view && el !== document.body; el = el.parentElement){
     if (el.hasAttribute("data-ownswipe") || el.matches("input[type=range]")) return true;
     if (el.scrollWidth > el.clientWidth + 1 && /auto|scroll/.test(getComputedStyle(el).overflowX)) return true;
   }
   return false;
 }
 
+/* The slide: the page's blocks arrive from the side the finger came from (css/chrome/motion.css). What a
+   view pins to the screen (Bets' slip tray, its sheet and scrim) stays put: an animation on it would
+   override its own transform and opacity, and the scrim flashed dark over the whole page (2026-10-06). */
+function tabSlide(v, d){
+  v.classList.remove("enter");               // one arrival: the slide, not the cards' rise on top of it
+  v.classList.toggle("sliding", !REDUCED()); // nothing the slide moves widens the page (motion.css)
+  const on = d > 0 ? "tab-in-r" : "tab-in-l";
+  for (const c of v.children){
+    const again = c.classList.contains("tab-in-r") || c.classList.contains("tab-in-l");
+    c.classList.remove("tab-in-r", "tab-in-l");
+    if (getComputedStyle(c).position === "fixed") continue;
+    if (again) void c.offsetWidth;           // restart a slide still running (two swipes close together)
+    c.classList.add(on);
+  }
+}
+
 /* d = +1 on a swipe left. A tab of the open view selects in place, as its segment's tap does; another
-   view opens from its top, sliding in from the side the finger came from. */
+   view opens from its top on the tab nearest the side it came from (tabRowEnter). */
 function tabSwipe(d){
   const to = tabRowStep(navTabPlan(), d);
   if (!to) return;
-  if (to.seg){ navModesOf(SURFACE).select(to.seg); paintSubnav(); }
-  else { morphLogo(); navGo(to.leaf); window.scrollTo(0, 0); }
-  const v = document.getElementById("view");
-  v.classList.remove("in-r", "in-l");
-  void v.offsetWidth;                      // restart the slide when two swipes come close together
-  v.classList.add(d > 0 ? "in-r" : "in-l");
+  NAV_GLIDE = true;
+  try {
+    if (to.seg){ navModesOf(SURFACE).select(to.seg); paintSubnav(); }
+    else {
+      morphLogo(); navGo(to.leaf); window.scrollTo(0, 0);
+      const m = navModesOf(SURFACE), seg = tabRowEnter(m, d, NAV_PHONE.matches);
+      if (seg){ m.select(seg); paintSubnav(); }
+    }
+  } finally { NAV_GLIDE = false; }
+  tabSlide(document.getElementById("view"), d);
 }
 
+/* One listener set on the document, so the whole page between the tab row and the bottom bar takes the
+   swipe, the empty space under a short view included. Every point is kept for swipeStep, and the page's
+   scroll at the start, so a touch that scrolled the page is never a swipe. */
 function wireTabSwipe(){
   const v = document.getElementById("view");
-  onSwipeX(v, tabSwipe, tabSwipeSkip);
-  delete v.dataset.ownswipe;               // the view is the tab swipe's own surface, not one it skips
-  v.addEventListener("animationend", e => { if (e.target.parentElement === v) v.classList.remove("in-r", "in-l"); });
+  let pts = null, y0 = 0;
+  document.addEventListener("touchstart", e => {
+    const t = e.touches[0];
+    pts = e.touches.length === 1 && !tabSwipeSkip(e.target, t) ? [[t.clientX, t.clientY]] : null;
+    y0 = window.scrollY;
+  }, {passive: true});
+  document.addEventListener("touchmove", e => {
+    if (pts && e.touches.length === 1) pts.push([e.touches[0].clientX, e.touches[0].clientY]);
+    else pts = null;                         // a second finger: a pinch, not a swipe
+  }, {passive: true});
+  document.addEventListener("touchend", e => {
+    if (!pts) return;
+    const t = e.changedTouches[0], step = swipeStep([...pts, [t.clientX, t.clientY]], window.scrollY - y0);
+    pts = null;
+    if (step && !LAYERS.length) tabSwipe(step);
+  });
+  document.addEventListener("touchcancel", () => { pts = null; });
+  v.addEventListener("animationend", e => {
+    if (e.target.parentElement !== v || !/^view-in-/.test(e.animationName)) return;
+    e.target.classList.remove("tab-in-r", "tab-in-l");
+    if (!v.querySelector(":scope > .tab-in-r, :scope > .tab-in-l")) v.classList.remove("sliding");
+  });
 }
 /* ── js/chrome/hidebar.js ── */
 /* The phone's header bar (the team switch and Ask) slides up while the reader scrolls down a list and

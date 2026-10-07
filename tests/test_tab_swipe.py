@@ -60,6 +60,95 @@ def test_a_swipe_on_a_surface_with_its_own_sideways_touch_stays_on_the_tab(week,
     assert week.pressed_pill() == "news"
 
 
+@pytest.mark.req("Swipe between tabs", ac="anywhere between the tab row and the bottom bar")
+def test_a_swipe_on_the_empty_page_below_a_short_view_opens_the_next_tab(week):
+    week.swipe_on_background(LEFT)
+    assert week.pressed_pill() == "matchups"
+
+
+@pytest.mark.req("Swipe between tabs", ac="anywhere between the tab row and the bottom bar")
+@pytest.mark.parametrize("part", ["header", "tab row", "bottom bar"])
+def test_a_swipe_on_the_pages_chrome_is_not_a_tab_swipe(week, part):
+    week.swipe_on_chrome(part, LEFT)
+    assert week.pressed_pill() == "news"
+
+
+@pytest.mark.req("Swipe between tabs", ac="never under an overlay")
+def test_a_swipe_while_an_overlay_is_open_stays_on_the_tab(week):
+    week.open_search()
+    week.swipe_on_background(LEFT)
+    week.swipe(LEFT)
+    assert week.pressed_pill() == "news"
+
+
+@pytest.mark.req("Swipe between tabs", ac="a scroll never turns the tab")
+def test_a_touch_that_scrolls_the_page_is_a_scroll(week):
+    week.scroll_while_swiping(LEFT, 200)
+    assert week.pressed_pill() == "news"
+
+
+@pytest.mark.req("Swipe between tabs", ac="a scroll never turns the tab")
+def test_a_touch_that_starts_down_the_page_is_a_scroll_however_it_ends(week):
+    week.touch([(200, 400), (201, 386), (150, 385), (80, 385)])
+    assert week.pressed_pill() == "news"
+
+
+@pytest.mark.req("Swipe between tabs", ac="a swipe into a view lands on its nearest tab")
+def test_a_swipe_into_recap_lands_on_its_first_tab_from_the_left_and_its_last_from_the_right(week):
+    week.open("weekrecap")
+    segs = week.segs()
+    assert len(segs) >= 3, "the fixture's Recap opens into three tabs or more"
+    week.tap_seg(segs[-1])                   # Recap remembers its last tab
+    week.open("digest")
+    week.swipe(LEFT)
+    assert (week.pressed_pill(), week.pressed_seg()) == ("weekrecap", segs[0])
+    week.open("news")
+    week.swipe(RIGHT)
+    assert (week.pressed_pill(), week.pressed_seg()) == ("weekrecap", segs[-1])
+
+
+@pytest.mark.req("Swipe between tabs", ac="a swipe into a view lands on its nearest tab")
+def test_a_swipe_onto_a_tab_past_the_rows_edge_brings_it_into_view(week):
+    """Recap opened into its four tabs is wider than a 360 px row; landing on its last tab shows that tab."""
+    week.open("weekrecap")
+    week.tap_seg(week.segs()[0])
+    week.open("news")
+    week.swipe(RIGHT)
+    assert week.pressed_seg() == week.segs()[-1]
+    assert week.pressed_seg_overhang() == [0, 0]
+
+
+@pytest.mark.req("Swipe between tabs", ac="a swipe is a tap on the next thing in the row")
+def test_a_swipe_on_the_leaders_card_opens_the_next_tab_not_the_next_stat(mount):
+    page, errors = mount("board")
+    row = TabSwipe(page)
+    pills = row.pills()
+    assert row.pressed_pill() == "board"
+    row.swipe_on_leaders_card(LEFT)
+    assert row.pressed_pill() == pills[pills.index("board") + 1]
+    assert errors == []
+
+
+@pytest.mark.req("Swipe between tabs", ac="the slide moves the page, never what is fixed to the screen")
+def test_the_slide_moves_the_page_and_leaves_the_slip_tray_and_its_sheet_where_they_are(mount):
+    page, errors = mount("dfs")
+    row = TabSwipe(page)
+    row.swipe(RIGHT)
+    assert row.pressed_pill() == "build"
+    kids = row.sliding()
+    assert any(pos == "fixed" for _, pos, _ in kids), "All lines keeps its slip tray in the view"
+    assert [(name, slid) for name, pos, slid in kids] == [(name, pos != "fixed") for name, pos, _ in kids]
+    assert errors == []
+
+
+@pytest.mark.req("Swipe between tabs", ac="the slide moves the page, never what is fixed to the screen")
+def test_the_slide_never_widens_the_page_so_the_bottom_bar_stays_on_screen(week):
+    """A block 28 px off to the right widened the page; a phone zoomed out to fit it and the bottom bar,
+    fixed to the taller viewport, dropped off the screen for the length of the slide (2026-10-06)."""
+    page_w, screen_w = week.width_at_slide_start(LEFT)
+    assert page_w == screen_w
+
+
 @pytest.mark.req("Swipe between tabs", ac="a swipe is a tap on the next thing in the row")
 def test_a_swipe_walks_an_opened_pills_own_tabs_before_the_next_view(mount):
     live, errors = LiveTabsPage.open_league(mount)

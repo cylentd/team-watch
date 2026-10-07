@@ -26,6 +26,7 @@ data/navmap.js
 data/navrow.js
 # pin: data/tabrow.js before every surface file: Live, Recap and Slips call navModes() at load.
 data/tabrow.js
+data/swipestep.js
 data/teamcolors.js
 data/schedule.js
 lib/escape.js

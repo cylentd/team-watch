@@ -154,7 +154,7 @@ function bdBoardHTML(pos, picks){
         ><div class="bd-list">${shown.slice(half).map(row).join("")}</div></div>`
     : `<div class="bd-list">${shown.map(row).join("")}</div>`;
   return `${bdTabsHTML(axes, sel)}
-    <div class="bd-card" data-bdswipe>
+    <div class="bd-card">
       ${bdPageOf(ranked) === 1 || BD_WIDE.matches ? bdHeroHTML(a, ranked[0], ranked.length, slugs.includes(ranked[0].slug)) : ""}
       <div class="bd-side">
         ${list}

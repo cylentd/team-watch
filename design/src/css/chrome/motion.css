@@ -14,11 +14,17 @@
 @keyframes slash-b{0%,100%{transform:rotate(22deg)}40%,62%{transform:translateX(-.183em) rotate(-45deg)}}
 
 /* A swipe between tabs (chrome/tabswipe.js): the next view arrives from the side it was swiped from
-   and stops in place, the same turn as Preview's dossier and the game sheet. Its children move, not
-   #view, so a transform on #view never makes it the box that a fixed element deep in a view sits in. */
+   and stops in place, the same turn as Preview's dossier and the game sheet. Its blocks move, not
+   #view, so a transform on #view never makes it the box that a fixed element deep in a view sits in;
+   tabSlide marks only the blocks that are not themselves fixed to the screen (Bets' slip tray, sheet, scrim).
+   While it runs #view clips sideways (.sliding, 2026-10-06): a block 28px off to the right widened the
+   page, a phone zoomed out to fit it, and the bottom tab bar, fixed to the now taller viewport, dropped
+   below the screen until the slide ended (Chromium mobile: innerHeight 727 -> 779, the bar at 715-779;
+   WebKit: the page 390 -> 418px wide). `clip`, not `hidden`, so nothing inside becomes a scroller. */
+#view.sliding{overflow-x:clip}
 @media (prefers-reduced-motion:no-preference){
-  #view.in-r > *{animation:view-in-r var(--dur-spring) var(--spring)}
-  #view.in-l > *{animation:view-in-l var(--dur-spring) var(--spring)}
+  #view > .tab-in-r{animation:view-in-r var(--dur-spring) var(--spring)}
+  #view > .tab-in-l{animation:view-in-l var(--dur-spring) var(--spring)}
   @keyframes view-in-r{from{transform:translateX(28px);opacity:.4}}
   @keyframes view-in-l{from{transform:translateX(-28px);opacity:.4}}
 }

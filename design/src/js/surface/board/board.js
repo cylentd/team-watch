@@ -86,14 +86,6 @@ function bdViewHTML(){
   </div>`;
 }
 
-/* Sideways through the stats, the same order as the tabs, stopping at either end. */
-function bdStep(dir){
-  const axes = bdAxes(BD_POS), i = axes.findIndex(a => a.id === bdStatOf(BD_POS)), j = i + dir;
-  if (j < 0 || j >= axes.length) return false;
-  BD_STAT = axes[j].id; BD_PAGE = 1;
-  return true;
-}
-
 /* A pick of another position moves the board to his position and keeps only him. The axes are
    position-specific, so two positions cannot share a lane; refusing the pick instead would make
    the reader undo a search he meant, and the position chip visibly moving says what happened. */
@@ -123,13 +115,8 @@ function wireBd(v){
     const r = ((USAGE.sheet || {}).rows || []).find(x => x.slug === el.dataset.bdopen);
     if (r) openProfile({n: r.n, pos: r.pos, team: r.team, slug: r.slug}, el);
   }));
-  // A horizontal swipe on the card moves one stat; a mostly-vertical drag is a scroll and is left alone.
-  v.querySelectorAll("[data-bdswipe]").forEach(el => onSwipeX(el, step => {
-    if (!bdStep(step)) return;
-    BD_NOTE = ""; render();
-    const tab = document.querySelector(".bd-tab[aria-selected=true]");
-    if (tab) tab.scrollIntoView({block: "nearest", inline: "center"});
-  }));
+  // No swipe of its own since 2026-10-06: a sideways swipe here turns the top tab row, as on every view
+  // (chrome/tabswipe.js); the stat tabs above the card turn the stat. It turned the stat until then.
   set("[data-bddrop]", b => { BD_NOTE = ""; BD_PICKS = BD_PICKS.filter(s => s !== b.dataset.bddrop); });
   // The picker is the app's own search sheet, handed a slot to fill instead of a profile to open.
   v.querySelectorAll("[data-bdadd]").forEach(b => b.addEventListener("click", () => searchOpen(bdAdd)));

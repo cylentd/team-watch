@@ -90,8 +90,10 @@ function navPillHTML(p, m){
 
 /* A group with one leaf gets no row, unless its view opens into tabs: a sub-nav of one is a label
    pretending to be a choice. Repainted only when it changed (Live's poll asks every 30 s), and the row
-   keeps where the reader scrolled it unless the pressed pill is off screen. */
-let NAV_ROW = null;
+   keeps where the reader scrolled it unless the pressed pill is off screen. A swipe (chrome/tabswipe.js)
+   sets NAV_GLIDE, so the row glides to the pill it opened rather than jumping there (2026-10-06); a tap
+   keeps the instant move, the pill being under the finger already. */
+let NAV_ROW = null, NAV_GLIDE = false;
 const navTabPlan = () => tabRowPlan(navTabsOf(navGroupOf(SURFACE)).filter(k => !NAV_HIDDEN.includes(k)),
   SURFACE, navModesOf(SURFACE), NAV_PHONE.matches);   // what the row shows; the tab swipe walks the same plan
 function paintSubnav(){
@@ -116,8 +118,12 @@ function paintSubnav(){
   }));
   const row = inner.querySelector(".modes-sub"), on = row && row.querySelector(".tr-x, .mode-sub[aria-pressed='true']");
   if (!on) return;
-  const r = row.getBoundingClientRect(), o = on.getBoundingClientRect();
-  row.scrollLeft = tabRowScroll(o.left - r.left, o.width, was, r.width, 16);   // the new row starts at 0
+  const r = row.getBoundingClientRect(), box = el => { const o = el.getBoundingClientRect(); return {left: o.left - r.left, width: o.width}; };
+  const seg = NAV_GLIDE && row.querySelector(".tr-seg[aria-pressed='true']");
+  const to = NAV_GLIDE ? tabRowAim(box(on), seg && box(seg), was, r.width, 16) : tabRowScroll(box(on).left, box(on).width, was, r.width, 16);
+  const glide = NAV_GLIDE && !REDUCED() && to !== was;
+  row.scrollLeft = glide ? was : to;   // the new row starts at 0
+  if (glide) row.scrollTo({left: to, behavior: "smooth"});
 }
 
 /* The phone's header bar: the reader's team as the team switch, or "Pick your team" until there is one

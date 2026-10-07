@@ -48,10 +48,32 @@ function tabRowStep(plan, d){
   return next.seg ? {seg: next.seg} : {leaf: next.leaf};
 }
 
+/* tabRowEnter(modes, d, phone) -> the tab to open | null. A swipe into a view whose pill opens into tabs
+   lands on the tab nearest where it came from: its first on a swipe left, its last on a swipe right
+   (2026-10-06, David: Digest -> Recap opened on the tab Recap remembered, and read as a skipped tab). Null
+   when there is nothing to select: no tabs, one, the view already on that tab, or a desktop, where the
+   tabs are the view's own bar and not stops in the row. A tap on the pill still opens the remembered tab. */
+function tabRowEnter(modes, d, phone){
+  if (!phone || !modes || modes.ids.length < 2) return null;
+  const want = d > 0 ? modes.ids[0] : modes.ids[modes.ids.length - 1];
+  const cur = modes.ids.includes(modes.cur) ? modes.cur : modes.ids[0];
+  return want === cur ? null : want;
+}
+
 /* Where the row scrolls so the pressed pill shows, `pad` px clear of the edge: left alone when it
    already shows; else just far enough. A pill wider than the row (opened into its tabs) shows its start. */
 function tabRowScroll(left, width, scroll, view, pad){
   if (width + 2 * pad >= view || left - pad < scroll) return Math.max(0, left - pad);
   if (left + width + pad > scroll + view) return left + width + pad - view;
   return scroll;
+}
+
+/* After a swipe the row aims at the pressed pill as tabRowScroll does, then, when the tab the swipe landed
+   on (`seg`, null for a plain pill) is still past an edge there, just far enough on to show it whole
+   (2026-10-06: News -> Recap's last tab left Accuracy 22px off a 360px row). {left, width} each, in the
+   row's own coordinates. A tap keeps tabRowScroll alone. */
+function tabRowAim(pill, seg, scroll, view, pad){
+  const to = tabRowScroll(pill.left, pill.width, scroll, view, pad);
+  if (!seg || seg.left >= to && seg.left + seg.width <= to + view) return to;
+  return tabRowScroll(seg.left, seg.width, to, view, pad);
 }
