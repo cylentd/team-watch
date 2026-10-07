@@ -35,6 +35,7 @@ data/schedule.js
 data/matchupline.js
 data/pointsbars.js
 data/packrip.js
+data/weekstat.js
 lib/escape.js
 lib/kick.js
 lib/served.js

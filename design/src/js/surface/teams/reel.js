@@ -32,7 +32,7 @@ function reelWeek(){
 function reelCards(team){
   const cards = team.roster.filter(p => p.start && p.slug).map(p => ({p, clips: clipsOf(p.slug)}))
     .filter(c => c.clips.length)
-    .map(c => { const w = clipWeekRow(c.p); return {...c, pts: w.pts, line: w.line}; });
+    .map(c => { const w = clipWeekRow(c.p); return {...c, pts: w.pts, line: w.line, cands: w.cands}; });
   return cards.sort((a, b) => (b.pts ?? -999) - (a.pts ?? -999));
 }
 
@@ -60,7 +60,7 @@ function reelModel(team){
   const ends = team.roster.filter(p => p.start && !had.has(p) && clipGameOf(p.team));
   const decks = cards.map(c => {
     const own = items.filter(it => it.ps.includes(c.p));
-    return {p: c.p, pts: c.pts, line: c.line, items: own, first: own.findIndex(it => clipCan(it.c))};
+    return {p: c.p, pts: c.pts, line: c.line, cands: c.cands, items: own, first: own.findIndex(it => clipCan(it.c))};
   });
   return {wk, items, decks, ends, first: items.findIndex(it => clipCan(it.c))};
 }
@@ -87,7 +87,7 @@ function reelCardHTML(x, i){
   const chip = can ? `<span class="reel-n" data-testid="clips-n">${REEL_PLAY}${x.items.length}</span>` : `<span class="reel-mark" data-testid="clips-mark">${clipYtChipHTML()}</span>`;
   const body = `<span class="reel-thumb" data-testid="clips-thumb">${reelImg(first)}${chip}<span class="reel-ov" data-testid="clips-ov">
       <span class="reel-l1"><span class="reel-nm" data-testid="clips-nm">${esc(nameInitial(x.p.n))}</span>${pts ? `<b class="reel-pt" data-testid="clips-pt">${pts}</b>` : ""}</span>
-      <span class="reel-l2" data-testid="clips-l2">${esc(x.line || first.title || "")}</span></span></span>`;
+      <span class="reel-l2" data-testid="clips-l2"${x.cands && x.cands.length > 1 ? ` data-stats="${esc(JSON.stringify(x.cands))}"` : ""}>${esc(x.line || first.title || "")}</span></span></span>`;
   return can
     ? `<button type="button" class="reel-card" data-testid="clips-card" data-reelplay="${i}"${attrs}>${body}</button>`
     : `<a class="reel-card" data-testid="clips-card" href="${esc(clipYtUrl(first))}" target="_blank" rel="noopener" draggable="false"${attrs}
@@ -125,10 +125,25 @@ function reelPageStep(track, dir){
   track.scrollBy({left: dir * per * w, behavior: REDUCED() ? "auto" : "smooth"});
 }
 
+/* Each stat line, as wide as its card allows (data/weekstat.js, 2026-10-07): the whole line, else without the
+   smaller yardage kinds, the touchdowns last to go. Measured in the reader's browser, with the real font:
+   the line fits when its words are no wider than their box. Nothing is cut with an ellipsis. A box with no
+   width yet (not laid out) is left whole; the font arriving and a resize measure again. */
+function reelFitLines(box){
+  if (!box) return;
+  box.querySelectorAll("[data-stats]").forEach(l2 => {
+    if (!l2.clientWidth) return;
+    l2.textContent = wsPick(JSON.parse(l2.dataset.stats), s => { l2.textContent = s; return l2.scrollWidth <= l2.clientWidth; });
+  });
+}
+window.addEventListener("resize", () => reelFitLines(document.querySelector("#view [data-reel]")));
+
 /* A card opens the theater on his clips only, from the first that plays; Play all on every clip. */
 function wireReel(v, team){
   const box = v.querySelector("[data-reel]"), m = reelModel(team);
   if (!box || !m) return;
+  reelFitLines(box);
+  document.fonts.ready.then(() => reelFitLines(box));
   const open = (i, el) => { const d = m.decks[i]; if (d) clipTheaterOpen(d.items, d.first, el); };
   clipRailWire(box, m.items, m.first, {open, step: reelPageStep});
 }

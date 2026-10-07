@@ -32,11 +32,13 @@ function clipGameOf(team){
 }
 const CLIP_POS = ["QB", "RB", "WR", "TE"];   /* the positions whose box score has a stat line */
 /* His box score for the week the clips are of (LIVE_CLIPS.week): the points and the stat line, null
-   where the page has no row for him yet (it lags the clips by a night). `row` is for the rail's TD badge. */
+   where the page has no row for him yet (it lags the clips by a night). `row` is for the rail's TD badge.
+   `line` is the whole line in words (data/weekstat.js, 2026-10-07; it was "7-25-0 · 10-68"); `cands` are
+   its shorter forms, for the card to fall back on when the whole line is wider than it. */
 function clipWeekRow(p){
   const wk = clipData().week, row = p.slug && Number.isInteger(wk) ? gamelogRows(p.slug).find(r => r.wk === wk) || null : null;
-  return {row, pts: row && typeof row.pts === "number" ? row.pts : null,
-    line: row && CLIP_POS.includes(p.pos) ? seasonLine(p.pos, row) : null};
+  const cands = row && CLIP_POS.includes(p.pos) ? wsCandidates(wsParts(p.pos, row)) : [];
+  return {row, pts: row && typeof row.pts === "number" ? row.pts : null, line: row && CLIP_POS.includes(p.pos) ? cands[0] || "" : null, cands};
 }
 /* His clips in order; a player with none plays his game's highlights. */
 function clipItemsOf(p){
