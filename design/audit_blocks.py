@@ -7,6 +7,7 @@ holds Start/Sit's. Each is a cut of one ff-jarvis file; see the cut modules.
 from accuracy import live_accuracy, report as accuracy_report
 from d_starters import live_d_starters, load_d_starters, report as d_starters_report
 from dst import live_dst, report as dst_report
+from kdst import live_kdst, load_kdst, report as kdst_report
 from ros import live_ros, load_ros_value, report as ros_report
 from sos import live_sos, report as sos_report
 from sources import load_accuracy, load_dst, load_sos
@@ -20,6 +21,8 @@ def add_audit_blocks(blocks, report):
     report.append(usage_movers_report(blocks["LIVE_USAGE_MOVERS"]))
     blocks["LIVE_ACCURACY"] = live_accuracy(load_accuracy())
     blocks["LIVE_DST"] = live_dst(load_dst())
+    blocks["LIVE_KDST"] = live_kdst(load_kdst())
+    report.append(kdst_report(blocks["LIVE_KDST"]))
     blocks["LIVE_SOS"] = live_sos(load_sos())
     blocks["LIVE_D_STARTERS"] = live_d_starters(load_d_starters())
     blocks["LIVE_ROS"] = live_ros(load_ros_value())

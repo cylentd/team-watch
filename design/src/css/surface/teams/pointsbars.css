@@ -13,6 +13,9 @@
 .pb[data-pos="RB"]{--c:var(--pos-rb-rgb)}
 .pb[data-pos="WR"]{--c:var(--pos-wr-rgb)}
 .pb[data-pos="TE"]{--c:var(--pos-te-rgb)}
+.pb[data-pos="K"]{--c:var(--pos-k-rgb)}
+.pb[data-pos="DST"]{--c:var(--pos-def-rgb)}
+.pb-b.faded{opacity:.35}   /* a week another kicker kicked (js/data/kdst.js kdstFaded): the bar stays, softer */
 .pb-s{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
 .pb-b{display:block;width:100%;min-width:1px;height:max(2px,calc(var(--pb-h) * var(--h)));background:rgb(var(--c) / .4);border-radius:2px 2px 0 0}
 .pb-b.last{background:rgb(var(--c) / .95)}

@@ -38,7 +38,12 @@ function supportFactText(r){
    no weekly K or D/ST points to draw as bars (supportback.js), so no bars. */
 function supportBack(p, g, teamKey, i){
   const opp = g ? cardLines(g.opp) : null, mine = cardLines(p.team), w = cardWeather(g);
-  const tm = typeof TEAMS !== "undefined" ? TEAMS[teamKey] : null, lg = tm && tm.mate ? tm.league : teamKey;
+  const lg = pbLeague(teamKey), bars = pbBackHTML(p, lg);
+  if (bars) return `<div class="tc-face tc-back pos-${esc(p.pos)}" data-testid="roster-card-back">
+      ${cardBackHead(p, g)}
+      ${bars}
+      <button class="bk-open" type="button" data-testid="roster-back-open" data-cteam="${teamKey}" data-ci="${i}">${t("teams.card.profile")}</button>
+    </div>`;
   const rows = supportFacts(p.pos, {
     roof: w ? w.roof : "", windMph: w && w.roof !== "dome" && w.wind ? wxWindMph(w) : null,
     team: mine ? mine.implied : null, opp: opp ? opp.implied : null, spread: mine ? mine.spread : null,

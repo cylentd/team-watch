@@ -123,6 +123,7 @@ surface/matchups/picker.js
 surface/matchups/board.js
 surface/matchups/matchups.js
 data/dst.js
+data/kdst.js
 data/ros.js
 surface/ranks/ranks.js
 surface/ranks/dst.js

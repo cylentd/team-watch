@@ -1,0 +1,145 @@
+{
+ "generated": "2026-10-07T13:38",
+ "season": 2026,
+ "through_week": 4,
+ "teams": {
+  "ARI": [
+   {
+    "week": 1,
+    "opp": "LAC",
+    "home": false,
+    "dst_espn": 13.0,
+    "dst_yahoo": 10.0,
+    "k_yahoo": 16.4,
+    "k_ayo": 16.0,
+    "kickers": [
+     "C.Ryland"
+    ]
+   },
+   {
+    "week": 2,
+    "opp": "SEA",
+    "home": true,
+    "dst_espn": 2.75,
+    "dst_yahoo": 2.0,
+    "k_yahoo": 1.0,
+    "k_ayo": 1.0,
+    "kickers": [
+     "C.Ryland"
+    ]
+   },
+   {
+    "week": 3,
+    "opp": "SF",
+    "home": false,
+    "dst_espn": -2.0,
+    "dst_yahoo": -2.0,
+    "k_yahoo": 14.6,
+    "k_ayo": 14.0,
+    "kickers": [
+     "C.Ryland"
+    ]
+   },
+   {
+    "week": 4,
+    "opp": "NYG",
+    "home": false,
+    "dst_espn": 9.5,
+    "dst_yahoo": 6.0,
+    "k_yahoo": 9.0,
+    "k_ayo": 8.0,
+    "kickers": [
+     "C.Ryland"
+    ]
+   }
+  ],
+  "BAL": [
+   {
+    "week": 1,
+    "opp": "IND",
+    "home": false,
+    "dst_espn": 10.75,
+    "dst_yahoo": 6.0,
+    "k_yahoo": 15.2,
+    "k_ayo": 14.0,
+    "kickers": [
+     "T.Loop"
+    ]
+   },
+   {
+    "week": 2,
+    "opp": "NO",
+    "home": true,
+    "dst_espn": 6.0,
+    "dst_yahoo": 3.0,
+    "k_yahoo": 5.9,
+    "k_ayo": 6.0,
+    "kickers": [
+     "T.Loop"
+    ]
+   },
+   {
+    "week": 3,
+    "opp": "DAL",
+    "home": false,
+    "dst_espn": 2.75,
+    "dst_yahoo": 4.0,
+    "k_yahoo": 12.3,
+    "k_ayo": 12.0,
+    "kickers": [
+     "Z.Fill"
+    ]
+   },
+   {
+    "week": 4,
+    "opp": "TEN",
+    "home": true,
+    "dst_espn": 8.0,
+    "dst_yahoo": 6.0,
+    "k_yahoo": 8.4,
+    "k_ayo": 8.0,
+    "kickers": [
+     "T.Loop"
+    ]
+   }
+  ],
+  "KC": [
+   {
+    "week": 1,
+    "opp": "DEN",
+    "home": true,
+    "dst_espn": 15.25,
+    "dst_yahoo": 12.0,
+    "k_yahoo": 6.8,
+    "k_ayo": 7.0,
+    "kickers": [
+     "H.Butker"
+    ]
+   },
+   {
+    "week": 3,
+    "opp": "MIA",
+    "home": false,
+    "dst_espn": 8.0,
+    "dst_yahoo": 8.0,
+    "k_yahoo": 5.4,
+    "k_ayo": 6.0,
+    "kickers": [
+     "H.Butker"
+    ]
+   },
+   {
+    "week": 4,
+    "opp": "LV",
+    "home": false,
+    "dst_espn": 2.75,
+    "dst_yahoo": 4.0,
+    "k_yahoo": 5.8,
+    "k_ayo": 6.0,
+    "kickers": [
+     "H.Butker"
+    ]
+   }
+  ]
+ }
+}

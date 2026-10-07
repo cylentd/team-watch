@@ -21,8 +21,8 @@ function rowHTML(p, i, teamKey){
       <div class="nm-1"><b><span class="nm-full">${esc(p.n)}</span><span class="nm-ini">${esc(nameInitial(p.n))}</span></b></div>
       <div class="nm-2" data-testid="roster-row-matchup">${mlRowHTML(p)}</div>
     </div>
-    <div class="rbars">${pbRowHTML(p)}</div>
-    ${projNumHTML(p)}
+    <div class="rbars">${pbRowHTML(p, pbLeague(teamKey))}</div>
+    ${supportNumHTML(p, pbLeague(teamKey)) || projNumHTML(p)}
   </div>`;
 }
 

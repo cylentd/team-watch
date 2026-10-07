@@ -8,6 +8,7 @@ whole. Null values are fine; absent keys are not.
 """
 import contract_checks   # design/contract_checks.py: the rules that read a spec
 import d_starters       # design/d_starters.py: LIVE_D_STARTERS's nested shape check
+import kdst             # design/kdst.py: LIVE_KDST's row shape check
 import leagues
 import startsit_board   # design/startsit_board.py: LIVE_SSB's nested shape check
 import startsit_v3      # design/startsit_v3.py: LIVE_SS3's nested shape check
@@ -352,6 +353,8 @@ CONTRACT = {
     # it; the producers' docstrings hold the nested shapes.
     "LIVE_ACCURACY": {"keys": ["season", "generated", "weeks", "season_to_date"], "rows": [("weeks", ["week", "model", "by_pos"])]},
     "LIVE_DST": {"keys": ["season", "weeks", "source", "leagues", "rules", "teams"], "rows": [("teams", ["team", "rostered", "weeks"])]},
+    # design/kdst.py (2026-10-07): each club's D/ST and K points per played game, the Roster's K and D/ST bars; None without the file.
+    "LIVE_KDST": {"keys": ["generated", "season", "through_week", "teams"], "checks": [kdst.problems]},
     # K (2026-10-06): `k` and `source` are null without it; a team's `K` window has the other positions' fields (sos.problems).
     "LIVE_SOS": {"keys": ["label", "season", "from_week", "playoff_weeks", "windows", "teams", "k", "source"], "checks": [sos.problems]},
     # design/usage_movers.py, the Digest's Usage movers (2026-10-06): None without ff-jarvis's file. A row's `line` is Claude's
