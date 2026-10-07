@@ -15,16 +15,16 @@ function rowHTML(p, i, teamKey){
   const rd = 40+i*24;
   const use = rowUsage(p);
   return `<div class="row ${cls}" data-testid="roster-row" style="animation-delay:${rd}ms;--rowdelay:${rd}ms" data-team="${teamKey}" data-i="${i}" role="button" tabindex="0">
-    ${p.start ? `<span class="slot">${esc(slotLabel(p.slot))}</span>` : ""}
-    <div class="head"${clipRingHTML(p)}>${headHTML(p)}${badge}${ring}</div>
-    <div class="nm">
+    ${p.start ? `<span class="slot" data-testid="roster-row-slot">${esc(slotLabel(p.slot))}</span>` : ""}
+    <div class="head" data-testid="roster-row-head"${clipRingHTML(p)}>${headHTML(p)}${badge}${ring}</div>
+    <div class="nm" data-testid="roster-row-name">
       <div class="nm-1"><b><span class="nm-full">${esc(p.n)}</span><span class="nm-ini">${esc(nameInitial(p.n))}</span></b></div>
       <div class="nm-2">
         <span>${esc(p.pos)}<span class="nm-tm"> · ${esc(p.team)}</span></span>
         ${matchupMetaHTML(profileFor(p))}
       </div>
     </div>
-    ${p.start ? `<div class="ruse">${use ? `<b>${use.v}</b><small>${use.what}</small>` : ""}</div>` : ""}
+    ${p.start ? `<div class="ruse" data-testid="roster-row-usage">${use ? `<b>${use.v}</b><small>${use.what}</small>` : ""}</div>` : ""}
     ${projNumHTML(p)}
   </div>`;
 }
@@ -65,7 +65,7 @@ function boardHTML(team){
     <div class="board ${key === "start" ? "" : "two"}">${list.map(p=>rowHTML(p, n++, team.key)).join("")}</div>`;
   const [start, ...rest] = groups[0] && groups[0][0] === "start" ? groups : [null, ...groups];
   return `<div class="sheet">
-    ${start ? `<section class="sheet-col">${group(start)}</section>` : ""}
-    ${rest.length ? `<section class="sheet-col">${rest.map(group).join("")}</section>` : ""}
+    ${start ? `<section class="sheet-col" data-testid="roster-sheet-col">${group(start)}</section>` : ""}
+    ${rest.length ? `<section class="sheet-col" data-testid="roster-sheet-col">${rest.map(group).join("")}</section>` : ""}
   </div>`;
 }

@@ -40,6 +40,10 @@ class RosterBrief:
     def reload(self):
         self.roster.reload()
 
+    def wire_line(self):
+        """The waiver line the brief draws for the team on screen (surface/teams/brief.js)."""
+        return self.page.evaluate("briefWire(TEAMS[VIEW])")
+
     def unfold(self):
         """On a phone the Week plays reel folds the list to its one row; Show opens it."""
         if self._unfold.count():

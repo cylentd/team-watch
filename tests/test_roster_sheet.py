@@ -1,72 +1,68 @@
 """The roster as a lineup sheet (2026-09-25): full-size rows on a phone in the cards' frame (it was
 squeezed to one screen, and David found it read small), the bench beside the starters on a
-desktop. Runs on the ESPN fixture, the one with a bench."""
+desktop. Runs on the ESPN fixture, the one with a bench.
+
+Component tests (2026-10-06): the roster mounted (`mount`), read through `RosterSheet`
+(tests/pages/roster_sheet.py)."""
 import re
 
 import pytest
 
-from test_render import drive, go, open_page  # noqa: F401
+from component import mount  # noqa: F401  (the fixture)
+from pages.roster_sheet import RosterSheet
 
 
-def espn_roster(browser, page_file, viewport):
-    ctx, page, errors = open_page(browser, page_file, viewport)
-    drive(page, go("roster"))
-    page.evaluate("VIEW='espn'; render()")
-    return ctx, page, errors
+def espn_roster(mount, size):
+    """The ESPN team's roster as the Sheet, mounted at a size: (RosterSheet, errors)."""
+    page, errors = mount("roster", size=size, heads=True)     # the headshot files beside the page, as served
+    return RosterSheet(page), errors
 
 
 @pytest.mark.render
-def test_a_phone_row_is_full_size(browser, page_file):
-    ctx, page, errors = espn_roster(browser, page_file, (360, 660))
-    heads = page.eval_on_selector_all(".row .head img, .row .head .fallback", "els => els.map(e => e.getBoundingClientRect().width)")
+def test_a_phone_row_is_full_size(mount):
+    sheet, errors = espn_roster(mount, (360, 660))
+    heads = sheet.head_widths()
     assert heads and min(heads) >= 40, heads
-    slots = page.eval_on_selector_all(".row.start .slot", "els => els.map(e => e.textContent)")
+    slots = sheet.starter_slots()
     assert slots and not any(re.search(r"\d", s) for s in slots), slots   # RB1 prints RB, FLX2 prints FLX
     # The bench is one to a row, like the starters: every bench row as wide as a starter row.
-    widths = page.eval_on_selector_all(".row", "els => [...new Set(els.map(e => Math.round(e.getBoundingClientRect().width)))]")
+    widths = sheet.row_widths()
     assert len(widths) == 1, widths
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_a_starter_row_shows_usage_and_a_td_chance(browser, page_file):
+def test_a_starter_row_shows_usage_and_a_td_chance(mount):
     """Usage by position where the snap-share line was, and the TD chance under the projection
     only from 25% up (2026-09-25, storyboard option A)."""
-    ctx, page, errors = espn_roster(browser, page_file, (1280, 900))
-    assert page.locator(".row .trend, .row .spark").count() == 0, "the snap-share line is gone"
-    words = page.eval_on_selector_all(".row.start .ruse small", "els => els.map(e => e.textContent)")
+    sheet, errors = espn_roster(mount, (1280, 900))
+    assert sheet.trend_lines() == 0, "the snap-share line is gone"
+    words = sheet.usage_words()
     assert set(words) <= {"targets", "touches", "dropbacks"}, words
-    shown = page.eval_on_selector_all(".rtd", "els => els.map(e => parseInt(e.textContent.replace(/\\D/g, '')))")
+    # The fixture's props give no roster player a TD line: plant 47 (lime), 30 and 24 (under the 25% floor).
+    assert len(sheet.plant_td_chances([47, 30, 24])) == 3, "three projected starters to plant on"
+    shown = sheet.td_chances()
+    assert shown, "the fixture must draw a TD chance"
+    assert sorted(shown) == [30, 47], shown                  # 24 is under the floor and stays off the row
     assert all(n >= 25 for n in shown), shown
-    assert page.evaluate("TEAMS.espn.roster.every(p => { const n = tdChanceFor(p); return n === null || n < 25 || projFor(p) === null"
-                         " || !!document.querySelector(`.row[data-i='${briefOrder(TEAMS.espn).indexOf(p)}'] .rtd`); })")
+    assert sheet.every_td_chance_from_25_is_drawn()
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_an_early_projection_wears_a_label_and_a_lined_or_unstamped_one_does_not(browser, page_file):
+def test_an_early_projection_wears_a_label_and_a_lined_or_unstamped_one_does_not(mount):
     """ff-jarvis's `stage` (2026-10-05): "early" = no prop line for his game yet, drawn as an EARLY tag with
     its note; "lined" = the normal state, a hover note and no tag; no field = nothing, and no error.
     Fixture: Purdy early, Chase Brown lined, Kittle unstamped."""
-    ctx, page, errors = espn_roster(browser, page_file, (1280, 900))
-    got = page.evaluate("""() => Object.fromEntries(['brock-purdy', 'chase-brown', 'george-kittle'].map(slug => {
-        const el = document.createElement('div');
-        el.innerHTML = projNumHTML({slug});
-        const tag = el.querySelector('.rstage');
-        return [slug, {stage: projStage({slug}), tag: tag ? tag.textContent : null, tip: tag ? tag.title : null,
-                       rowTip: el.firstElementChild.title}];
-    }))""")
+    sheet, errors = espn_roster(mount, (1280, 900))
+    got = sheet.stages(["brock-purdy", "chase-brown", "george-kittle"])
     assert got["brock-purdy"] == {"stage": "early", "tag": "EARLY", "rowTip": "",
                                   "tip": "No prop line for this game yet: model, opponent and game total."}, got
     assert got["chase-brown"] == {"stage": "lined", "tag": None, "tip": None,
                                   "rowTip": "Lines are up for this game; blended with his own line if he has one."}, got
     assert got["george-kittle"] == {"stage": None, "tag": None, "tip": None, "rowTip": ""}, got
-    assert page.locator(".row .rstage").count() == page.evaluate(
-        "TEAMS.espn.roster.filter(p => projStage(p) === 'early' && projFor(p) !== null).length")
+    assert sheet.early_tags_drawn() == sheet.early_projections()
     assert errors == []
-    ctx.close()
 
 
 def test_the_projection_cut_carries_stage_and_an_older_feed_without_it_is_no_error():
@@ -87,26 +83,20 @@ def test_the_projection_cut_carries_stage_and_an_older_feed_without_it_is_no_err
 
 @pytest.mark.render
 @pytest.mark.parametrize("width", [360, 1100, 1280])
-def test_no_name_loses_its_end(browser, page_file, width):
+def test_no_name_loses_its_end(mount, width):
     """A long name wraps to a second line, never ends in "..." (2026-09-25: "Tetairoa McMill..."
     at 1280, nearly every name at 1100). The check measures the text itself against its cell, so
     an ellipsis set on any ancestor counts."""
-    ctx, page, errors = espn_roster(browser, page_file, (width, 900))
+    sheet, errors = espn_roster(mount, (width, 900))
     # A third line is clamped away; scrollHeight past the box by more than a descender's 2px says so.
-    cut = page.evaluate("""[...document.querySelectorAll('.row .nm')].filter(nm => {
-      const b = nm.querySelector('.nm-1 b'), r = document.createRange(); r.selectNodeContents(b);
-      return r.getBoundingClientRect().width > nm.getBoundingClientRect().width + 0.5 || b.scrollHeight > b.clientHeight + 2;
-    }).map(nm => nm.querySelector('.nm-1 b').innerText)""")
-    assert cut == []
+    assert sheet.names_drawn(), "the fixture must draw names to measure"
+    assert sheet.names_cut() == []
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_a_desktop_puts_the_bench_beside_the_starters(browser, page_file):
-    ctx, page, errors = espn_roster(browser, page_file, (1280, 900))
-    tops = page.eval_on_selector_all(".sheet-col", "els => els.map(e => Math.round(e.getBoundingClientRect().top))")
-    lefts = page.eval_on_selector_all(".sheet-col", "els => els.map(e => Math.round(e.getBoundingClientRect().left))")
-    assert len(tops) == 2 and tops[0] == tops[1] and lefts[1] > lefts[0]
+def test_a_desktop_puts_the_bench_beside_the_starters(mount):
+    sheet, errors = espn_roster(mount, (1280, 900))
+    cols = sheet.column_corners()
+    assert len(cols) == 2 and cols[0]["top"] == cols[1]["top"] and cols[1]["left"] > cols[0]["left"]
     assert errors == []
-    ctx.close()

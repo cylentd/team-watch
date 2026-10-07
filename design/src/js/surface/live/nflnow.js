@@ -79,11 +79,11 @@ function gdClubTint(club){
 
 /* The ball beside the club that has it (U9): a small football, named for a screen reader. */
 const GD_BALL = `<svg viewBox="0 0 20 12" aria-hidden="true"><g transform="rotate(-28 10 6)"><ellipse cx="10" cy="6" rx="9" ry="4.6"/><path d="M6.5 6h7M8 4.6v2.8M10 4.4v3.2M12 4.6v2.8"/></g></svg>`;
-const gdBallMark = club => `<i class="gd-ball" role="img" aria-label="${esc(t("live.games.ball", {club}))}">${GD_BALL}</i>`;
+const gdBallMark = club => `<i class="gd-ball" data-testid="live-ball" role="img" aria-label="${esc(t("live.games.ball", {club}))}">${GD_BALL}</i>`;
 
 /* A live tile's third line: the down and distance (or who has the ball), and the red-zone mark inside the 20. */
 function gdSitHTML(sit){
-  return `<small class="gd-sit"><span>${esc(gdSitText(sit))}</span>${sit.red ? `<em class="gd-rz">${t("live.games.red")}</em>` : ""}</small>`;
+  return `<small class="gd-sit" data-testid="live-sit"><span data-testid="live-sit-down">${esc(gdSitText(sit))}</span>${sit.red ? `<em class="gd-rz" data-testid="live-red-zone">${t("live.games.red")}</em>` : ""}</small>`;
 }
 
 function gdGamesTabHTML(lg){

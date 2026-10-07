@@ -24,14 +24,14 @@ function connectListHTML(){
     <em class="cn-bad">${e.error === "expired" ? t("connect.list.expired") : t("connect.list.down")}</em>
     <button class="cn-x" data-cnremove="${esc(e.key)}">${t("common.action.remove")}</button></li>`);
   if (!keys.length && !bad.length) return "";
-  return `<h3 class="cn-h">${t("connect.list.title")}</h3><ul class="cn-list">
+  return `<h3 class="cn-h">${t("connect.list.title")}</h3><ul class="cn-list" data-testid="connect-list">
     ${keys.map(k => `<li class="cn-row"><span>${esc(TEAMS[k].name)}<small>${esc(TEAMS[k].meta[0])}</small></span>
       <button class="cn-x" data-cnremove="${esc(k)}">${t("common.action.remove")}</button></li>`).join("")}
     ${bad.join("")}</ul>`;
 }
 
 function connectPrivateHTML(){
-  return `<details class="cn-private" ${CONNECT.step === "private" ? "open" : ""}>
+  return `<details class="cn-private" data-testid="connect-private" ${CONNECT.step === "private" ? "open" : ""}>
     <summary>${t("connect.private.summary")}</summary>
     <p class="cn-p">${t("connect.private.lm")}</p>
     <h4 class="cn-h4">${t("connect.phone.title")}</h4>
@@ -43,7 +43,7 @@ function connectPrivateHTML(){
     </ol>
     <h4 class="cn-h4">${t("connect.desk.title")}</h4>
     <p class="cn-p">${t("connect.desk.how")}</p>
-    <label class="cn-f"><span>espn_s2</span><input id="cn-s2" autocomplete="off" spellcheck="false" value="${esc(CONNECT.s2)}"></label>
+    <label class="cn-f"><span>espn_s2</span><input id="cn-s2" data-testid="connect-s2" autocomplete="off" spellcheck="false" value="${esc(CONNECT.s2)}"></label>
     <label class="cn-f"><span>SWID</span><input id="cn-swid" autocomplete="off" spellcheck="false" value="${esc(CONNECT.swid)}"></label>
   </details>`;
 }
@@ -55,7 +55,7 @@ function connectPickHTML(){
 }
 
 function connectHTML(){
-  return `<div class="cn-in">
+  return `<div class="cn-in" data-testid="connect-sheet">
     <div class="cn-top">
       <div class="brand" aria-hidden="true"><span class="brand-mark">${blipSVG("", "smug")}</span
         ><div class="brand-name">Team<i class="slashes"><b></b><b></b></i>Watch</div></div>
@@ -65,7 +65,7 @@ function connectHTML(){
     <p class="cn-p">${t("connect.lede")}</p>
     ${CONNECT.pick ? connectPickHTML() : `
     <label class="cn-f"><span>${t("connect.link.label")}</span>
-      <input id="cn-league" inputmode="url" autocomplete="off" spellcheck="false"
+      <input id="cn-league" data-testid="connect-league" inputmode="url" autocomplete="off" spellcheck="false"
         placeholder="${t("connect.link.placeholder")}" value="${esc(CONNECT.league)}"></label>
     ${connectPrivateHTML()}
     <button class="cn-btn" data-cngo ${CONNECT.busy ? "disabled" : ""}>${CONNECT.busy ? t("connect.busy") : t("connect.go")}</button>`}

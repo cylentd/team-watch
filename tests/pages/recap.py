@@ -114,6 +114,10 @@ class RecapPage:
     def empty_title(self):
         return self.page.get_by_test_id("recap-empty-title").inner_text()
 
+    def empty_count(self):
+        """How many empty-state blocks the view draws: none while a tab has something to show."""
+        return self.page.locator(".state-empty").count()
+
     def surface(self):
         return self.page.evaluate("SURFACE")
 

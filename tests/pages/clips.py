@@ -274,6 +274,15 @@ class ClipsPage:
         self.page.mouse.down()
         self.page.mouse.up()
 
+    def press_card(self, n=0, dx=20, dy=20):
+        """Scroll a card that plays here into view and press the mouse down at an offset into it, unreleased
+        (the page's `mouse.up` ends it)."""
+        card = self._parts["button_card"].nth(n)
+        card.scroll_into_view_if_needed()
+        r = card.bounding_box()
+        self.page.mouse.move(r["x"] + dx, r["y"] + dy)
+        self.page.mouse.down()
+
     def drag(self, part, n, moves, dx=30, dy=40):
         """Press at an offset into a part, move sideways by each of `moves` from there, release."""
         r = self.rect(part, n)

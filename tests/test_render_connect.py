@@ -1,10 +1,16 @@
 """A connected league in the rendered page. The page is opened from disk, where connectLoad()
 asks nothing (PAGE_SERVED is false), so the test hands it a card in api/league.py's shape the way
-the GET would. The endpoint itself is covered by test_league.py."""
+the GET would. The endpoint itself is covered by test_league.py.
+
+Component tests mount the Roster at 360x780 and add the league through ConnectPage (every locator is in
+tests/pages/connect.py). The bookmark's arrival is a journey: it is a fresh page load with `#connect=...` in
+the address, and the hash is wiped by that load, so it needs the whole page."""
 
 import pytest
 
-from test_render import LOAD_MS, open_page  # noqa: F401
+from component import Mounter, mount  # noqa: F401  (the fixture)
+from pages.connect import ConnectPage
+from test_render import open_page
 
 pytestmark = pytest.mark.render
 
@@ -19,46 +25,50 @@ CARD = {"key": "espn-777", "site": "espn", "league_id": 777, "team_id": 4,
 
 
 @pytest.fixture
-def phone(browser, page_file):
-    ctx, page, errors = open_page(browser, page_file, (360, 780))
-    page.evaluate("card => { connectAdd(card); VIEW = card.key; SURFACE = 'roster'; paintSubnav(); render(); }", CARD)
-    yield page, errors
-    ctx.close()
+def phone(mount):
+    """The Roster mounted at 360x780 with CARD connected: (ConnectPage, page errors)."""
+    page, errors = mount("roster", size=(360, 780))
+    connect = ConnectPage(page)
+    connect.add_league(CARD)
+    return connect, errors
 
 
 def test_a_connected_league_draws_its_roster_in_groups(phone):
-    page, errors = phone
-    assert page.locator("#hdrswitch .ts-team").inner_text().strip() == "Taco Corp"
-    assert page.locator(".row").count() == 4
-    groups = [h.inner_text().strip().upper() for h in page.locator(".rule h2").all()]
+    connect, errors = phone
+    assert connect.header_team() == "Taco Corp"
+    assert connect.row_count() == 4
+    groups = connect.group_headings()
     assert groups[:2] == ["STARTERS", "BENCH"] and groups[2].startswith("OUT")
     assert errors == []
 
 
 def test_a_connected_league_has_no_waivers(phone):
-    page, _ = phone
-    assert page.locator("[data-leaf='waivers']").count() == 0
-    page.evaluate("SURFACE = 'waivers'; render()")          # a stale #waivers
-    assert page.locator(".wv").count() == 0 and page.locator(".row").count() == 4
+    connect, _ = phone
+    assert "waivers" not in connect.leaves()
+    connect.view_waivers_stale()                      # a stale #waivers
+    assert connect.waivers_view_count() == 0 and connect.row_count() == 4
 
 
 def test_the_switch_lists_it_and_offers_to_add_another(phone):
-    page, _ = phone
-    page.click("#hdrswitch [data-tsbtn]")
-    items = [b.inner_text() for b in page.locator("#hdrswitch .ts-item").all()]
-    assert any("Taco Corp" in i for i in items)
-    page.click("#hdrswitch [data-tsadd]")
-    assert page.locator("#connect").is_visible()
-    assert page.locator("#cn-league").is_visible()
-    assert "Taco Corp" in page.locator(".cn-list").inner_text()
+    connect, _ = phone
+    connect.open_switch()
+    assert any("Taco Corp" in i for i in connect.switch_teams())
+    connect.tap_add_a_league()
+    assert connect.sheet_is_visible()
+    assert connect.league_field_is_visible()
+    assert "Taco Corp" in connect.listed_leagues()
 
 
+@pytest.mark.journey
 def test_the_bookmark_hash_is_wiped_on_arrival(browser, page_file):
+    """A journey: the bookmark brings the cookies in the address, and arriving is a fresh page load."""
     ctx, page, errors = open_page(browser, page_file, (360, 780))
-    page.goto(page.url.split("#")[0] + "#connect=" + "%7B%22l%22%3A%22%22%2C%22s%22%3A%22x%22%2C%22w%22%3A%22y%22%7D", timeout=LOAD_MS)
-    page.reload()
-    assert page.evaluate("location.hash") == ""
-    assert page.locator("#connect").is_visible()
-    assert page.locator(".cn-private[open]").count() == 1        # cookies in hand, league link still needed
-    assert page.locator("#cn-s2").input_value() == "x"
-    ctx.close()
+    try:
+        connect = ConnectPage(page)
+        connect.arrive_from_bookmark("%7B%22l%22%3A%22%22%2C%22s%22%3A%22x%22%2C%22w%22%3A%22y%22%7D")
+        assert connect.hash() == ""
+        assert connect.sheet_is_visible()
+        assert connect.private_open_count() == 1        # cookies in hand, league link still needed
+        assert connect.espn_s2() == "x"
+    finally:
+        ctx.close()

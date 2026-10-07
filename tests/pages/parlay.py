@@ -275,6 +275,10 @@ class ParlayPage:
     def tray_count(self):
         return self._count.inner_text()
 
+    def tray_drawn(self):
+        """How many slip trays are drawn: one once a pick is in the slip, wherever it was picked."""
+        return self._tray.count()
+
     def open_tray(self):
         self._tray_open.click()
 

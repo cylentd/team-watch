@@ -14,7 +14,7 @@ function pvInjTeam(team, rows){
     r.avg != null ? " · " + t("preview.inj.avg", {n: r.avg.toFixed(1)}) : ""}${
     r.changed ? " · " + t("preview.inj.changed") : ""}</small></li>`).join("")
     : `<li class="pv-nil">${t("preview.inj.none")}</li>`;
-  return `<div><h4 class="pv-team">${esc(team)}</h4><ul class="pv-inj">${list}</ul></div>`;
+  return `<div><h4 class="pv-team">${esc(team)}</h4><ul class="pv-inj" data-testid="preview-injuries">${list}</ul></div>`;
 }
 
 function pvInjRow(g){
@@ -51,20 +51,20 @@ function pvWxRow(g){
   const tag = covered ? "" : w.roof ? esc(w.roof) : "";
   const place = [g.site && g.site.stadium ? esc(g.site.stadium) : "", tag].filter(Boolean).join(" · ");
   const title = t("preview.row.wx") + (place ? ` <em>${place}</em>` : "");
-  if (covered) return pvRow("wx", title, `<p class="pv-fc">${w.roof === "dome" ? t("preview.wx.dome") : t("preview.wx.closed")}</p>`);
+  if (covered) return pvRow("wx", title, `<p class="pv-fc" data-testid="preview-forecast">${w.roof === "dome" ? t("preview.wx.dome") : t("preview.wx.closed")}</p>`);
   if (w.temp == null && w.wind == null) return "";
   const rain = w.precip != null ? t("preview.wx.pct", {n: w.precip}) : "";
   const fc = [w.temp != null ? `${w.temp}°` : "", w.wind != null ? t("preview.wx.mph", {n: w.wind}) : "", rain].filter(Boolean).join(" · ");
   const eff = pvWxEffects(w);
-  return pvRow("wx", title, `<p class="pv-fc${eff.length ? " moves" : ""}">${fc}${w.sky ? ` <small>${esc(w.sky)}</small>` : ""}</p>
-    ${eff.length ? `<ul class="pv-eff">${eff.join("")}</ul>` : ""}`);
+  return pvRow("wx", title, `<p class="pv-fc${eff.length ? " moves" : ""}" data-testid="preview-forecast">${fc}${w.sky ? ` <small>${esc(w.sky)}</small>` : ""}</p>
+    ${eff.length ? `<ul class="pv-eff" data-testid="preview-effects">${eff.join("")}</ul>` : ""}`);
 }
 
 
 function pvRestLine(team, g){
   const r = (g.rest || {})[team], tr = (g.travel || {})[team], bits = [];
   if (r && r.days != null) bits.push(t("preview.rest.days", {n: r.days}));
-  if (r && r.short) bits.push(`<b class="pv-tag short">${t("preview.rest.short")}</b>`);
+  if (r && r.short) bits.push(`<b class="pv-tag short" data-testid="preview-rest-short">${t("preview.rest.short")}</b>`);
   if (r && r.bye) bits.push(`<b class="pv-tag bye">${t("preview.rest.bye")}</b>`);
   const z = tr && {n: Math.abs(tr.zones)};
   if (tr && tr.zones) bits.push((tr.zones > 0 ? t("preview.travel.east", z) : t("preview.travel.west", z))

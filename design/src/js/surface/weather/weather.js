@@ -15,12 +15,12 @@ function wtRowHTML(r){
   const fc = r.fc;
   const sky = r.roof === "dome" ? t("profile.weather.dome") : fc ? `${t("profile.weather.temp", {n: fc.temp_f})} · ${esc(fc.wind || "")}`
     : r.done ? t("weather.row.nosaved") : t("weather.row.nofc");
-  return `<li class="wt-row${r.done ? " done" : ""}"><b class="wt-match">${esc(r.g.away)} @ ${esc(r.g.home)}</b>
+  return `<li class="wt-row${r.done ? " done" : ""}" data-testid="weather-row"><b class="wt-match">${esc(r.g.away)} @ ${esc(r.g.home)}</b>
     <span class="wt-kick">${wtKickLabel(r)}</span><span class="wt-rs">${sky}</span></li>`;
 }
 
 /* A section rule; the count is said in words ("3 games"), so it never reads as a section number. */
-const wtRule = (label, n) => `<div class="rule"><h2>${label}</h2><span class="wt-n">${n === 1 ? t("weather.count.one") : t("weather.count.many", {n})}</span><span class="hair"></span></div>`;
+const wtRule = (label, n) => `<div class="rule" data-testid="weather-rule"><h2>${label}</h2><span class="wt-n">${n === 1 ? t("weather.count.one") : t("weather.count.many", {n})}</span><span class="hair"></span></div>`;
 
 /* "Games where weather lowers scoring", from the sign of every effect on the page. */
 function wtMovesTitle(moves){
@@ -40,7 +40,7 @@ function wtViewHTML(){
     ? `<section class="wt-sec">${wtRule(wtMovesTitle(d.moves), d.moves.length)}
         <div class="wt-grid">${d.moves.map(wtCardHTML).join("")}</div></section>`
     : `<p class="wt-calm">${t("weather.moves.none")}</p>`;
-  return `<div class="wrap wt">
+  return `<div class="wrap wt" data-testid="weather-view">
     <h2 class="wt-title">${t("weather.head.title", {week: d.week})}</h2>
     ${moves}
     <div class="wt-rest">${wtRestHTML(t("weather.group.open"), d.open)}${wtRestHTML(t("weather.group.indoor"), d.indoor)}</div>

@@ -158,6 +158,10 @@ class RosterPage(RosterPack):
     def support_size(self, team="espn"):
         return self.page.evaluate("k => TEAMS[k].roster.filter(p => p.pos === 'K' || p.pos === 'DST').length", team)
 
+    def lineup(self, team):
+        """Every player on `team`'s roster as the page holds it: [{n, pos, slot, start}], in roster order."""
+        return self.page.evaluate("k => TEAMS[k].roster.map(r => ({n: r.n, pos: r.pos, slot: r.slot, start: r.start}))", team)
+
     def starters_size(self, team="espn"):
         return self.page.evaluate("k => TEAMS[k].roster.filter(p => p.start).length", team)
 

@@ -56,7 +56,7 @@ const clipNames = x => (x.ps || [x.p]).map(p => nameInitial(p.n)).join(", ");
 /* YouTube's mark, for a clip that opens YouTube instead of playing. */
 function clipYtMark(){ return `<svg class="yt-mark" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M6 5h12a4 4 0 0 1 4 4v6a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V9a4 4 0 0 1 4-4zm4 4v6l5-3z"/></svg>`; }
 /* The "YouTube" chip with its arrow: where a tap leaves for YouTube. */
-function clipYtChipHTML(){ return `<span class="clip-ytchip">${esc(t("teams.clips.youtube"))}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M8 7h9v9"/></svg></span>`; }
+function clipYtChipHTML(id){ return `<span class="clip-ytchip"${id ? ` data-testid="${id}"` : ""}>${esc(t("teams.clips.youtube"))}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M8 7h9v9"/></svg></span>`; }
 
 /* ---- open, step, close ---- */
 function clipTheaterOpen(items, i, originEl){
@@ -117,7 +117,7 @@ function clipShow(pos){
   CT.seen.add(pos);
   clipQ("[data-clipbox]").classList.toggle("tall", clipTall(x.c));
   const ps = x.ps || [x.p], uniq = k => [...new Set(ps.map(p => p[k]))].join("/");
-  clipQ("[data-clipcap]").innerHTML = `<p class="clip-who"><b>${esc(ps.length > 1 ? clipNames(x) : x.p.n)}</b>${esc(uniq("pos"))} &middot; ${esc(uniq("team"))}</p><p class="clip-title">${esc(x.c.title)}</p>`;
+  clipQ("[data-clipcap]").innerHTML = `<p class="clip-who" data-testid="clipsheet-who"><b data-testid="clipsheet-who-name">${esc(ps.length > 1 ? clipNames(x) : x.p.n)}</b>${esc(uniq("pos"))} &middot; ${esc(uniq("team"))}</p><p class="clip-title" data-testid="clipsheet-title">${esc(x.c.title)}</p>`;
   clipSoundSync();
   clipPlayerPlay(x.c.id);
 }
@@ -140,10 +140,10 @@ function clipPaintBar(){
 /* The end card: how many played, then every clip that only plays on YouTube as a link. */
 function clipPaintEnd(){
   const rows = CT.items.filter(x => !clipCan(x.c)), n = CT.seen.size;
-  clipQ("[data-clipend]").innerHTML = `${n ? `<h2 class="clip-done">${esc(t("teams.clips.done", {n}))}</h2>` : ""}
-    <ul class="clip-ends">${rows.map(x => `<li><a class="clip-row" href="${esc(clipYtUrl(x.c))}" target="_blank" rel="noopener">
-      <span class="clip-thumb"><img src="${esc(clipThumbOf(x.c))}" alt="" loading="lazy" decoding="async"></span>
-      <span class="clip-rw"><b>${esc(clipNames(x))}</b><span>${esc(x.c.title)}</span></span>${clipYtChipHTML()}</a></li>`).join("")}</ul>`;
+  clipQ("[data-clipend]").innerHTML = `${n ? `<h2 class="clip-done" data-testid="clipsheet-done">${esc(t("teams.clips.done", {n}))}</h2>` : ""}
+    <ul class="clip-ends" data-testid="clipsheet-ends">${rows.map(x => `<li><a class="clip-row" data-testid="clipsheet-row" href="${esc(clipYtUrl(x.c))}" target="_blank" rel="noopener">
+      <span class="clip-thumb"><img data-testid="clipsheet-row-thumb" src="${esc(clipThumbOf(x.c))}" alt="" loading="lazy" decoding="async"></span>
+      <span class="clip-rw"><b data-testid="clipsheet-row-names">${esc(clipNames(x))}</b><span>${esc(x.c.title)}</span></span>${clipYtChipHTML("clipsheet-row-chip")}</a></li>`).join("")}</ul>`;
 }
 
 /* ---- what the player tells us ---- */
@@ -159,7 +159,7 @@ function clipOnError(code){
   if (!CT || CT.pos >= CT.play.length) return;
   const x = CT.items[CT.play[CT.pos]], tok = CT.tok, link = clipQ("[data-cliplink]");
   clipPlayerStop();
-  link.innerHTML = `<a class="clip-linka" href="${esc(clipYtUrl(x.c))}" target="_blank" rel="noopener"><img src="${esc(clipThumbOf(x.c))}" alt="">
+  link.innerHTML = `<a class="clip-linka" data-testid="clipsheet-link" href="${esc(clipYtUrl(x.c))}" target="_blank" rel="noopener"><img data-testid="clipsheet-link-thumb" src="${esc(clipThumbOf(x.c))}" alt="">
     <span class="clip-ytchip">${clipYtMark()}${esc(t("teams.clips.onYouTube"))}</span></a>`;
   link.hidden = false;
   clipQ("[data-clipsound]").hidden = true;

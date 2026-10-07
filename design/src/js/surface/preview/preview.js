@@ -29,7 +29,7 @@ function pvViewHTML(){
   if (rec && PV_ARC === null && PV_ARC_WK !== null && PV_ARC_WK < LIVE_PREVIEW.week) pvArcLoad();
   // The slip's tray joins the page once a pick is in it (handoff.js), the same tray as Slips'.
   const tray = SLIP.length || BETS_SHEET;
-  const html = `<div class="wrap pv${PV_OPEN || arc ? " open" : ""}${PV_REC ? " rec" : ""}${tray ? " pv-tray" : ""}">
+  const html = `<div class="wrap pv${PV_OPEN || arc ? " open" : ""}${PV_REC ? " rec" : ""}${tray ? " pv-tray" : ""}" data-testid="preview-root">
     ${pvSlateHTML(rec || arc ? -1 : i)}
     ${arc ? pvArcDossierHTML(PV_ENTER) : rec ? pvRecSheetHTML() : pvDossierHTML(gs[i], i, gs.length, PV_ENTER)}
   </div>${tray ? trayHTML() + sheetHTML() : ""}`;

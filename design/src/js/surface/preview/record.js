@@ -34,9 +34,9 @@ function pvSeasonHTML(){
   if (!r || !r.weeks.length) return "";
   const tr = (label, s) => { const h = pvHit(s); return `<tr><th scope="row">${label}</th><td>${pvWL(s)}</td><td>${h != null ? h + "%" : "–"}</td></tr>`; };
   const c = r.by_conf || {};
-  return `<section class="pv-season"><h3 class="pv-sk">${t("preview.arc.season", {n: r.through})}</h3>
-    <table class="pv-st"><tbody>${tr(t("preview.bet.ml"), r.su)}${tr(t("preview.bet.spread"), r.ats)}${tr(t("preview.bet.total"), r.total)}</tbody></table>
-    <p class="pv-sc">${t("preview.arc.conf", {s: pvWL(c.strong), c: pvWL(c.solid), l: pvWL(c.lean)})}</p></section>`;
+  return `<section class="pv-season" data-testid="preview-season"><h3 class="pv-sk" data-testid="preview-season-title">${t("preview.arc.season", {n: r.through})}</h3>
+    <table class="pv-st" data-testid="preview-season-table"><tbody>${tr(t("preview.bet.ml"), r.su)}${tr(t("preview.bet.spread"), r.ats)}${tr(t("preview.bet.total"), r.total)}</tbody></table>
+    <p class="pv-sc" data-testid="preview-season-conf">${t("preview.arc.conf", {s: pvWL(c.strong), c: pvWL(c.solid), l: pvWL(c.lean)})}</p></section>`;
 }
 
 /* One call on a row: "Spread ✓ CLE", "Total ✗ Under", "Moneyline CLE" before it is graded. */
@@ -49,8 +49,8 @@ function pvArcCallHTML(label, c){
 function pvArcRowHTML(x){
   const {g, i, key, rg} = x, c = pvArcCalls(g, rg), fin = pvFinal(g, rg);
   const open = i != null ? `data-pvopen="${i}"` : `data-pvarcg="${esc(key)}"`;
-  return `<li><button type="button" class="pv-rg" ${open}>
-    <span class="pv-rg-m">${esc(g.away)} @ ${esc(g.home)}</span><span class="pv-rg-f">${fin || t("preview.final")}</span>
+  return `<li><button type="button" class="pv-rg" ${open} data-testid="preview-game-row">
+    <span class="pv-rg-m" data-testid="preview-game-match">${esc(g.away)} @ ${esc(g.home)}</span><span class="pv-rg-f">${fin || t("preview.final")}</span>
     <span class="pv-rg-c">${pvArcCallHTML(t("preview.bet.ml"), c.ml)}${pvArcCallHTML(t("preview.bet.spread"), c.spread)}${pvArcCallHTML(t("preview.bet.total"), c.total)}</span>
   </button></li>`;
 }
@@ -59,11 +59,11 @@ function pvArcRowHTML(x){
 function pvArcWeekHTML(wk){
   const last = pvArcLast();
   const step = `<header class="pv-top pv-wstep">
-    <button class="pv-arrow" data-pvarcstep="-1"${wk <= 1 ? " disabled" : ""} aria-label="${t("preview.arc.prev")}">‹</button>
-    <b class="pv-mt">${t("preview.arc.week", {n: wk})}</b>
-    <button class="pv-arrow" data-pvarcstep="1"${wk >= last ? " disabled" : ""} aria-label="${t("preview.arc.next")}">›</button></header>`;
+    <button class="pv-arrow" data-pvarcstep="-1" data-testid="preview-week-step"${wk <= 1 ? " disabled" : ""} aria-label="${t("preview.arc.prev")}">‹</button>
+    <b class="pv-mt" data-testid="preview-week">${t("preview.arc.week", {n: wk})}</b>
+    <button class="pv-arrow" data-pvarcstep="1" data-testid="preview-week-step"${wk >= last ? " disabled" : ""} aria-label="${t("preview.arc.next")}">›</button></header>`;
   const rw = pvRecWeek(wk);
-  const line = rw ? `<p class="pv-wl">${t("preview.arc.weekline", {su: pvWL(rw.su), ats: pvWL(rw.ats), tot: pvWL(rw.total)})}</p>` : "";
+  const line = rw ? `<p class="pv-wl" data-testid="preview-week-line">${t("preview.arc.weekline", {su: pvWL(rw.su), ats: pvWL(rw.ats), tot: pvWL(rw.total)})}</p>` : "";
   const rows = pvArcRows(wk);
   const body = rows.length ? `<ul class="pv-rgl">${rows.map(pvArcRowHTML).join("")}</ul>` : `<p class="pv-allover">${t("preview.arc.none")}</p>`;
   return step + line + body;
@@ -71,8 +71,8 @@ function pvArcWeekHTML(wk){
 
 function pvRecSheetHTML(){
   const wk = PV_ARC_WK ?? pvArcWeekDefault();
-  return `<section class="pv-rz" aria-label="${t("preview.arc.title")}">
-    <button class="pv-back" data-pvrecback>${t("preview.backPv")}</button>
+  return `<section class="pv-rz" data-testid="preview-record" aria-label="${t("preview.arc.title")}">
+    <button class="pv-back" data-pvrecback data-testid="preview-record-back">${t("preview.backPv")}</button>
     <h2 class="pv-title">${t("preview.arc.title")}</h2>
     ${pvSeasonHTML()}${pvArcWeekHTML(wk)}</section>`;
 }
@@ -83,5 +83,5 @@ function pvArcDossierHTML(enter){
   if (i >= 0) return pvDossierHTML(gs[i], i, gs.length, enter);
   const msg = PV_ARC === "failed" ? `<button type="button" class="pv-fold" data-pvarcretry>${t("preview.arc.failed", {n: PV_ARC_G.week})}</button>`
     : `<p class="pv-allover">${t("preview.arc.loading", {n: PV_ARC_G.week})}</p>`;
-  return `<div class="pv-dz"><button class="pv-back" data-pvback>${t("preview.backPv")}</button>${msg}</div>`;
+  return `<div class="pv-dz"><button class="pv-back" data-pvback data-testid="preview-back">${t("preview.backPv")}</button>${msg}</div>`;
 }

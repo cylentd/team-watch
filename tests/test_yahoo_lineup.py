@@ -3,6 +3,9 @@
 Until 2026-09-25 build.py dropped the slot the scrape carries and hydrate.js inferred a lineup of
 QB, 2 RB, 3 WR, TE and a flex: 8 starters, the K and DST on the bench, and the flex handed to
 whoever came first in roster order. The league starts 9: QB, 2 RB, 2 WR, TE, W/R/T, K, DEF.
+
+Component tests: the Roster mounted (tests/component.py), read through tests/pages/roster.py. The slotted
+scrape is a premise of its own, so that test mounts its own build on a Mounter, as test_sos_view's does.
 """
 import json
 
@@ -10,7 +13,8 @@ import pytest
 
 import build
 import myteams
-from test_render import open_page  # noqa: F401
+from component import Mounter, mount  # noqa: F401  (the fixture)
+from pages.roster import RosterPage
 
 # The shape of ff-jarvis's league_rosters.json, one row per Yahoo slot the league uses.
 ROWS = [
@@ -37,24 +41,24 @@ def test_the_scrape_slot_is_passed_through_in_the_page_names(slotted):
 
 
 @pytest.mark.render
-def test_the_roster_starts_the_nine_yahoo_started(browser, slotted, tmp_path):
-    p = tmp_path / "index.html"
-    p.write_text(build.render().page, encoding="utf-8")
-    ctx, page, errors = open_page(browser, p, (390, 844))
-    rows = page.evaluate("TEAMS.yahoo.roster.map(r => [r.n, r.slot, r.start])")
-    starters = [n for n, _, start in rows if start]
-    assert len(starters) == 9
-    assert {"Kicker Guy", "Bengals", "Flex Guy"} <= set(starters)
-    assert ["Bench Tight End", "BN", False] in rows
-    assert errors == []
-    ctx.close()
+def test_the_roster_starts_the_nine_yahoo_started(mount, slotted, tmp_path):
+    mounter = Mounter(mount.browser, tmp_path / "component-yahoo-slotted", build.render().fragment)
+    try:
+        page, errors = mounter("roster", size=(390, 844))
+        rows = [[r["n"], r["slot"], r["start"]] for r in RosterPage(page).lineup("yahoo")]
+        starters = [n for n, _, start in rows if start]
+        assert len(starters) == 9
+        assert {"Kicker Guy", "Bengals", "Flex Guy"} <= set(starters)
+        assert ["Bench Tight End", "BN", False] in rows
+        assert errors == []
+    finally:
+        mounter.pages.close()
 
 
 @pytest.mark.render
-def test_a_scrape_without_slots_still_infers_a_lineup(browser, page_file):
+def test_a_scrape_without_slots_still_infers_a_lineup(mount):
     """The fixture's rows carry no slot: the fallback fills QB, 2 RB, 2 WR, TE, flex, K, DST."""
-    ctx, page, errors = open_page(browser, page_file, (390, 844))
-    rows = page.evaluate("TEAMS.yahoo.roster.map(r => [r.pos, r.slot, r.start])")
+    page, errors = mount("roster", size=(390, 844))
+    rows = [[r["pos"], r["slot"], r["start"]] for r in RosterPage(page).lineup("yahoo")]
     assert rows and all(start for _, _, start in rows)
     assert errors == []
-    ctx.close()

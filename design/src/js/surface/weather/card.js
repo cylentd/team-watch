@@ -19,7 +19,7 @@ const WT_STALE_H = 12;   // a forecast older than this says its age on the card
 const WT_WIND = ["M3 8h11a3 3 0 1 0-3-3", "M3 12h15a3 3 0 1 1-3 3", "M3 16h8a2 2 0 1 1-2 2"];
 const WT_CLOUD = "M7 15a4 4 0 0 1-.6-7.95A6 6 0 0 1 18 6.5 3.5 3.5 0 0 1 17.5 15Z";
 function wtSky(kind, fc){
-  const svg = (cls, body, style) => `<svg class="pf-wx-i wt-sky ${cls}" viewBox="0 0 24 24" aria-hidden="true"${style ? ` style="${style}"` : ""}>${body}</svg>`;
+  const svg = (cls, body, style) => `<svg class="pf-wx-i wt-sky ${cls}" data-testid="weather-sky" viewBox="0 0 24 24" aria-hidden="true"${style ? ` style="${style}"` : ""}>${body}</svg>`;
   if (kind === "wind"){
     const side = wxWindSide(fc.wind_dir) < 0 ? " west" : "";
     return svg(`wind${side}`, WT_WIND.map((d, i) => `<path class="wt-gust" style="--i:${i}" d="${d}"/>`).join(""),
@@ -42,7 +42,7 @@ function wtCondHTML(r){
     ? t("weather.cond.snow", {n: fc.precip_pct}) : t("weather.cond.rain", {n: fc.precip_pct})}</span>`);
   parts.push(`<span class="wt-c${has("cold") ? " on" : ""}">${t("profile.weather.temp", {n: fc.temp_f})}</span>`);
   if (r.roof === "retractable") parts.push(`<span class="wt-c">${t("profile.weather.retractable")}</span>`);
-  return `<p class="wt-cond">${parts.join('<span class="wt-dot"> · </span>')}</p>`;
+  return `<p class="wt-cond" data-testid="weather-cond">${parts.join('<span class="wt-dot"> · </span>')}</p>`;
 }
 
 /* "QBs about 1.5 fewer points · WRs about 1 fewer": the unit once, on the first. */
@@ -53,7 +53,7 @@ function wtFxHTML(effects){
       : (i ? t("weather.fx.more", args) : t("weather.fx.moreFirst", args));
     return `<span class="wt-e">${said}</span>`;
   });
-  return `<p class="wt-fx">${items.join('<span class="wt-dot">&nbsp;· </span>')}</p>`;
+  return `<p class="wt-fx" data-testid="weather-fx">${items.join('<span class="wt-dot">&nbsp;· </span>')}</p>`;
 }
 
 /* How old the forecast is, only once it is old enough to doubt. */
@@ -69,15 +69,15 @@ function wtAgeHTML(fc){
    "" when it moved none. */
 function wtAdjHTML(wx){
   if (!wx || typeof wx.adj !== "number") return "";
-  return `<span class="wt-adj" title="${t("weather.hits.adjTip", {n: wtSigned(wx.adj)})}">${wtSigned(wx.adj)}</span>`;
+  return `<span class="wt-adj" data-testid="weather-adj" title="${t("weather.hits.adjTip", {n: wtSigned(wx.adj)})}">${wtSigned(wx.adj)}</span>`;
 }
 
 /* A book-priced row (`src: "line"`) is never adjusted: the sportsbook line already prices the
    forecast. A blank there reads as zero, so it says "in the odds", and a tap or Enter opens why
    (a native popover, so touch and keyboard both reach it). */
 function wtOddsHTML(id){
-  return `<button type="button" class="wt-odds" popovertarget="${id}">${t("weather.hits.odds")}</button>
-    <span class="wt-tip" popover id="${id}">${t("weather.hits.oddsTip")}</span>`;
+  return `<button type="button" class="wt-odds" data-testid="weather-odds" popovertarget="${id}">${t("weather.hits.odds")}</button>
+    <span class="wt-tip" data-testid="weather-odds-tip" popover id="${id}">${t("weather.hits.oddsTip")}</span>`;
 }
 
 /* Who it hits: each side's top QB, two WRs and TE (data/weather.js wtHits), by team then position,
@@ -87,14 +87,14 @@ function wtHitsHTML(hits, gi){
   if (!hits.length) return "";
   const val = hits.map((h, hi) => wtAdjHTML(h.wx) || (h.src === "line" ? wtOddsHTML(`wt-odds-${gi}-${hi}`) : "<span></span>"));
   const head = hits.some(h => wtAdjHTML(h.wx) || h.src === "line") ? `<span>${t("weather.hits.adjHead")}</span>` : "";
-  return `<div class="wt-hits"><h3>${t("weather.hits.title")}${head}</h3><ul>${hits.map((h, hi) => `<li><button type="button" class="wt-p" data-wt="${gi}:${hi}">
-      <span class="wt-pos">${esc(h.pos)}</span><span class="wt-nm">${esc(nameInitial(h.n))}</span>
-      <span class="wt-tm">${esc(h.team)}</span></button>${val[hi]}</li>`).join("")}</ul></div>`;
+  return `<div class="wt-hits"><h3 data-testid="weather-hits-head">${t("weather.hits.title")}${head}</h3><ul>${hits.map((h, hi) => `<li data-testid="weather-hit"><button type="button" class="wt-p" data-wt="${gi}:${hi}">
+      <span class="wt-pos" data-testid="weather-hit-part">${esc(h.pos)}</span><span class="wt-nm" data-testid="weather-hit-part">${esc(nameInitial(h.n))}</span>
+      <span class="wt-tm" data-testid="weather-hit-part">${esc(h.team)}</span></button>${val[hi]}</li>`).join("")}</ul></div>`;
 }
 
 function wtCardHTML(r, gi){
-  return `<article class="wt-card${r.done ? " done" : ""}">
-    <div class="wt-top"><b class="wt-match">${esc(r.g.away)} @ ${esc(r.g.home)}</b><span class="wt-kick">${wtKickLabel(r)}</span></div>
+  return `<article class="wt-card${r.done ? " done" : ""}" data-testid="weather-card">
+    <div class="wt-top"><b class="wt-match" data-testid="weather-card-match">${esc(r.g.away)} @ ${esc(r.g.home)}</b><span class="wt-kick">${wtKickLabel(r)}</span></div>
     ${wtCondHTML(r)}${wtFxHTML(r.effects)}${r.done ? "" : wtAgeHTML(r.fc)}
     ${wtHitsHTML(r.hits, gi)}
   </article>`;

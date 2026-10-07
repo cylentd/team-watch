@@ -24,14 +24,14 @@ function pvSlipRow(g){
     .map(({x, lines}) => ({x, n: lines.length, lines: [lines.find(i => PROPS[i].mkt === SL_PRIMARY[x.pos]) ?? lines.find(i => PROPS[i].mkt !== "TD") ?? lines[0]]}));
   if (!ps.length && !n) return "";
   const on = onSlipSlugs();
-  const body = ps.map(({x, n: nl, lines}) => `<div class="pv-sl">
-      <p class="pv-slh"><b>${shortName(x.n)}</b><small>${esc(x.pos)} · ${esc(x.team)}</small>${on.has(x.slug) ? `<span class="sl-on">${t("slips.onSlip")}</span>` : ""}</p>
+  const body = ps.map(({x, n: nl, lines}) => `<div class="pv-sl" data-testid="preview-slip-player">
+      <p class="pv-slh"><b>${shortName(x.n)}</b><small>${esc(x.pos)} · ${esc(x.team)}</small>${on.has(x.slug) ? `<span class="sl-on" data-testid="preview-slip-on">${t("slips.onSlip")}</span>` : ""}</p>
       ${x.why ? `<p class="pv-slw">${esc(x.why)}</p>` : ""}
       ${lines.map(slLineHTML).join("")}
-      <button type="button" class="chip pv-sln" data-slplayer="${esc(x.slug)}">${t("preview.slip.lines", {n: nl})}${SL_CHEV}</button>
+      <button type="button" class="chip pv-sln" data-testid="preview-slip-lines" data-slplayer="${esc(x.slug)}">${t("preview.slip.lines", {n: nl})}${SL_CHEV}</button>
     </div>`).join("");
   const first = rows[0] && rows[0][0];
-  const go = n ? `<button type="button" class="chip pv-slgo" data-pvslips="${esc(first.win || "")}" data-pvgame="${esc(first.game)}">${t("preview.slip.all", {n})}${SL_CHEV}</button>` : "";
+  const go = n ? `<button type="button" class="chip pv-slgo" data-testid="preview-slip-all" data-pvslips="${esc(first.win || "")}" data-pvgame="${esc(first.game)}">${t("preview.slip.all", {n})}${SL_CHEV}</button>` : "";
   return pvRow("handoff", t("preview.row.slip"), body + go);
 }
 

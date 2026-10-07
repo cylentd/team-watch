@@ -3,8 +3,9 @@ ff-jarvis's accuracy.json (LIVE_ACCURACY, design/accuracy.py). The page computes
 is the file's own, so these tests read the fixture (tests/fixtures/data/accuracy.json, weeks 1-3 real, rank fields
 and season_to_date null) and compare the page to it digit for digit.
 
-Node: the cut (data/accuracy.js acView) and the card (surface/recap/accuracy.js acHTML). Browser: the tab, the
-hash and the 360px fit, which are layout and taps."""
+Node: the cut (data/accuracy.js acView) and the card (surface/recap/accuracy.js acHTML). Browser: the tab and the
+360px fit, which are layout and taps, on Recap mounted alone (tests/component.py; reads in tests/pages/accuracy.py);
+the hash is a journey on the full page."""
 import copy
 import json
 import pathlib
@@ -12,7 +13,9 @@ import re
 
 import pytest
 
-from test_render import drive, go, open_at, open_page  # noqa: F401
+from component import Mounter, mount  # noqa: F401  (the fixture)
+from pages.accuracy import AccuracyPage
+from test_render import open_at
 
 FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "data" / "accuracy.json"
 RAW = json.loads(FIXTURE.read_text(encoding="utf-8"))
@@ -186,57 +189,67 @@ def test_a_week_not_graded_yet_is_named_and_a_model_label_is_escaped(ac):
 
 # ---- the tab: browser ----
 
-def _page_with(page_file, block):
-    html = page_file.read_text(encoding="utf-8")
-    m = re.search(r"const LIVE_ACCURACY = (.*?);\n", html)
-    assert m, "LIVE_ACCURACY is not in the built page"
-    out = page_file.with_name("accuracy-variant.html")
-    out.write_text(html[:m.start()] + f"const LIVE_ACCURACY = {json.dumps(block)};\n" + html[m.end():], encoding="utf-8")
-    return out
+PHONE = (360, 800)
+
+
+def planted(fragment, name, value):
+    """The built page's data with `const NAME = ...;` replaced by `value`: a const, so the data is rewritten."""
+    m = re.search(rf"const {name} = (.*?);\n", fragment)
+    assert m, f"{name} is not in the built page"
+    return fragment[:m.start()] + f"const {name} = {json.dumps(value)};\n" + fragment[m.end():]
+
+
+@pytest.fixture(scope="module")
+def without(mount, built, tmp_path_factory):
+    """`without("LIVE_RECAP")` mounts Recap on a build whose block is null (a week with no recap file, or no
+    accuracy file): (page, errors). It builds on `mount` (same browser), so a test that asks for it is a component test."""
+    made = {}
+
+    def mount_without(name):
+        if name not in made:
+            made[name] = Mounter(mount.browser, tmp_path_factory.getbasetemp() / f"component-accuracy-{name}",
+                                 planted(built.fragment, name, None))
+        return made[name]("weekrecap", size=PHONE)
+    yield mount_without
+    for m in made.values():
+        m.pages.close()
 
 
 @pytest.mark.render
-def test_accuracy_is_the_fourth_tab_and_opens_the_card(browser, page_file):
-    ctx, page, errors = open_page(browser, page_file, (360, 800))
-    drive(page, go("weekrecap") + [("click", "[data-wrtab='accuracy']")])
-    assert page.locator(".gd-tabs button").all_inner_texts() == ["Players", "Scores", "Claude", "Accuracy"]
-    assert page.locator(".wr-body").get_attribute("data-wrtabname") == "accuracy"
-    assert page.locator("[data-acweek]").count() == 3
-    assert page.evaluate("document.scrollingElement.scrollWidth - innerWidth") <= 0
+def test_accuracy_is_the_fourth_tab_and_opens_the_card(mount):
+    page, errors = mount("weekrecap", size=PHONE)
+    acc = AccuracyPage(page)
+    acc.open()
+    assert acc.tab_names() == ["Players", "Scores", "Claude", "Accuracy"]
+    assert acc.open_tab() == "accuracy"
+    assert acc.week_cards() == 3
+    assert acc.sideways() <= 0
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
+@pytest.mark.journey
 def test_the_accuracy_hash_opens_the_recap_on_that_tab(browser, page_file):
-    ctx, page, errors = open_at(browser, page_file, (360, 800), hash_="#accuracy")
+    ctx, page, errors = open_at(browser, page_file, PHONE, hash_="#accuracy")
     page.wait_for_selector(".wr-body")
-    assert page.locator(".wr-body").get_attribute("data-wrtabname") == "accuracy"
+    assert AccuracyPage(page).open_tab() == "accuracy"
     assert errors == []
     ctx.close()
 
 
 @pytest.mark.render
-def test_accuracy_is_reachable_with_no_recap_week(browser, page_file):
+def test_accuracy_is_reachable_with_no_recap_week(without):
     """LIVE_RECAP absent (a week with no recap file): Accuracy is still listed and opens, with no banner."""
-    html = page_file.read_text(encoding="utf-8")
-    m = re.search(r"const LIVE_RECAP = (.*?);\n", html)
-    assert m, "LIVE_RECAP is not in the built page"
-    out = page_file.with_name("accuracy-no-recap.html")
-    out.write_text(html[:m.start()] + "const LIVE_RECAP = null;\n" + html[m.end():], encoding="utf-8")
-    ctx, page, errors = open_page(browser, out, (360, 800))
-    drive(page, go("weekrecap"))
-    assert page.locator(".wr-body").get_attribute("data-wrtabname") == "accuracy"
-    assert page.locator("[data-acweek]").count() == 3
-    assert page.locator(".wr-empty, .state-empty").count() == 0
+    page, errors = without("LIVE_RECAP")
+    acc = AccuracyPage(page)
+    assert acc.open_tab() == "accuracy"
+    assert acc.week_cards() == 3
+    assert acc.empty_states() == 0
     assert errors == []
-    ctx.close()
 
 
 @pytest.mark.render
-def test_no_accuracy_file_hides_the_tab(browser, page_file):
-    ctx, page, errors = open_page(browser, _page_with(page_file, None), (360, 800))
-    drive(page, go("weekrecap"))
-    assert page.locator("[data-wrtab='accuracy']").count() == 0
+def test_no_accuracy_file_hides_the_tab(without):
+    page, errors = without("LIVE_ACCURACY")
+    assert AccuracyPage(page).tab_listed() == 0
     assert errors == []
-    ctx.close()

@@ -1,51 +1,32 @@
 """This week > News, in Chromium (2026-09-30, David: "the first paragraph of each news repeats the headline.
-Player names are hard to find on a scan. Should we have a search for players here?")."""
+Player names are hard to find on a scan. Should we have a search for players here?").
+
+Component tests: News mounted (tests/component.py); every locator is in tests/pages/news.py."""
 import pytest
 
-from test_render import go, open_page  # noqa: F401
+from component import mount  # noqa: F401  (the fixture)
+from pages.news import NewsPage
 
-
-def _news(browser, page_file, size):
-    ctx, page, errors = open_page(browser, page_file, size)
-    for _, sel in go("news"):
-        page.click(sel)
-    page.wait_for_selector(".newsrow")
-    return ctx, page, errors
-
-
-@pytest.fixture(scope="module")
-def _wide(browser, page_file):
-    """One 1400px News page for the two read-only tests below: loaded once per file per worker."""
-    ctx, page, errors = _news(browser, page_file, (1400, 900))
-    assert errors == []                 # whatever the load raised fails here, not lost to a later clear
-    yield page, errors
-    ctx.close()
+pytestmark = pytest.mark.render
 
 
 @pytest.fixture
-def wide(_wide):
-    page, errors = _wide
-    left, errors[:] = list(errors), []  # each test answers for its own page errors only,
-    assert left == []                   # and an error raised or left over since the last one fails this
-    return page, errors
+def wide(mount):
+    """News mounted at 1400x900: (NewsPage, page errors)."""
+    page, errors = mount("news", size=(1400, 900))
+    return NewsPage(page), errors
 
 
-@pytest.mark.render
 def test_a_story_with_a_read_drops_the_summary_that_repeats_its_headline(wide):
-    page, errors = wide
-    got = page.evaluate("""() => [...document.querySelectorAll('.newsrow')].map(r => ({
-      desc: !!r.querySelector('.ndesc'), impact: !!r.querySelector('.nimpact')}))""")
+    news, errors = wide
+    got = news.rows_reading()
     assert got and not any(r["desc"] and r["impact"] for r in got)
     assert errors == []
 
 
-@pytest.mark.render
 def test_the_players_name_is_the_bright_part_of_the_headline(wide):
-    page, errors = wide
-    got = page.evaluate("""() => [...document.querySelectorAll('.newsrow')].map(r => {
-      const t = r.querySelector('.ntitle'), b = t.querySelector('.nname');
-      return {title: t.textContent, name: b && b.textContent,
-              ink: b && getComputedStyle(b).color, rest: getComputedStyle(t).color}; })""")
+    news, errors = wide
+    got = news.headlines()
     named = [r for r in got if r["name"]]
     assert named, "at least one fixture headline names its player"
     for r in named:
@@ -54,24 +35,22 @@ def test_the_players_name_is_the_bright_part_of_the_headline(wide):
     assert errors == []
 
 
-@pytest.mark.render
 @pytest.mark.parametrize("size", [(390, 844), (1400, 900)])
-def test_the_search_narrows_the_list_in_place(browser, page_file, size):
-    ctx, page, errors = _news(browser, page_file, size)
-    total = page.locator(".newslist .newsrow").count()
+def test_the_search_narrows_the_list_in_place(mount, size):
+    page, errors = mount("news", size=size)
+    news = NewsPage(page)
+    total = news.listed_count()
     # A word from the first listed story's own text matches it, and the box keeps the caret.
-    word = page.evaluate("document.querySelector('.newslist .newsrow').dataset.newsq.split(' ')[0]")
-    page.fill("#news-q", word)
-    shown = page.evaluate("[...document.querySelectorAll('.newslist .newsrow')].filter(r => !r.hidden).length")
-    assert 1 <= shown <= total
-    assert page.evaluate("document.activeElement.id") == "news-q"
-    page.fill("#news-q", "zzqxnotaplayer")
-    assert page.evaluate("[...document.querySelectorAll('.newslist .newsrow')].every(r => r.hidden)")
-    assert page.locator(".nsearch-none").is_visible()
+    word = news.first_listed_word()
+    news.search(word)
+    assert 1 <= news.shown_count() <= total
+    assert news.search_has_focus()
+    news.search("zzqxnotaplayer")
+    assert news.all_hidden()
+    assert news.none_visible()
     # A chip re-renders the list and keeps what was typed.
-    page.fill("#news-q", word)
-    page.click("[data-newscat='all']")
-    assert page.input_value("#news-q") == word
-    assert page.evaluate("document.documentElement.scrollWidth") <= size[0]
-    ctx.close()
+    news.search(word)
+    news.pick_all()
+    assert news.search_value() == word
+    assert news.page_scroll_width() <= size[0]
     assert errors == []

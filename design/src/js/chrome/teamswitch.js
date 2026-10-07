@@ -79,10 +79,10 @@ function teamSwitchHTML(label, cls = "", id = "switch"){
    team. It replaced a "Not your team? Pick yours" nudge under David's team name, which left every
    leaguemate on David's roster and his claim advice. The pick is kept in this browser (tw-team). */
 /* One team to pick: here, and in Live's "Whose game are you watching?" card (surface/live/mine.js). */
-const tpTeamHTML = k => `<li><button type="button" class="tp-team" data-pick="${esc(k)}"
+const tpTeamHTML = k => `<li><button type="button" class="tp-team" data-testid="teamswitch-pick" data-pick="${esc(k)}"
       style="--tint:${TEAMS[k].tint}">${esc(TEAMS[k].name)}</button></li>`;
 function pickHTML(){
-  const group = lg => `<section class="tp-lg" aria-labelledby="tp-${lg}"><h2 id="tp-${lg}">${tsLeagueName(lg)}</h2>
+  const group = lg => `<section class="tp-lg" data-testid="teamswitch-pick-league" aria-labelledby="tp-${lg}"><h2 id="tp-${lg}">${tsLeagueName(lg)}</h2>
     <ul>${[lg, ...mateKeys(lg)].sort(tsByName).map(tpTeamHTML).join("")}</ul></section>`;
   return `<div class="wrap tp"><h1>${t("chrome.pick.title")}</h1><p class="tp-sub">${t("chrome.pick.sub")}</p>
     <div class="tp-grid">${tsLeagues().map(group).join("")}</div>

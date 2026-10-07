@@ -15,6 +15,7 @@ poll does (`paintLive`).
 """
 import re
 
+from pages.gamesheet import SWIPE
 from pages.live import LivePage
 from test_render import LIVE_PLANT
 
@@ -76,11 +77,11 @@ class LiveTabsPage(LivePage):
 
     @classmethod
     def open_league(cls, mount, size=PHONE, team="espn", states=None):
-        """Mount Live at `size` as the reader of `team` (espn or yahoo) on the week 2 fixture, My league drawn.
-        Returns (LiveTabsPage, the page's errors)."""
+        """Mount Live at `size` as the reader of `team` (espn or yahoo; None keeps the seed's pick) on the week 2 fixture,
+        My league drawn. Returns (LiveTabsPage, the page's errors)."""
         page, errors = mount("live", size=size)
         live = cls(page)
-        page.evaluate(f"localStorage.setItem('tw-team', '{team}');" + LIVE_PLANT(states))
+        page.evaluate((f"localStorage.setItem('tw-team', '{team}');" if team else "") + LIVE_PLANT(states))
         page.evaluate("render()")
         live._tabbar.wait_for(state="attached")
         return live, errors
@@ -122,6 +123,9 @@ class LiveTabsPage(LivePage):
 
     def tap_first_tile(self):
         self._tiles.first.click()
+
+    def tap_tile(self, i):
+        self._tiles.nth(i).click()
 
     def tap_chip(self, i):
         self._chips.nth(i).click()
@@ -176,6 +180,21 @@ class LiveTabsPage(LivePage):
     def bar_live_label(self):
         """The same count's label in the board's bar."""
         return self._tab_buttons.and_(self.page.locator("[data-gdtab='games']")).locator(".gd-n").get_attribute("aria-label")
+
+    def swipe_board(self, dx):
+        """A one-finger swipe on the board, `dx` px sideways: negative is left."""
+        self.page.evaluate(SWIPE, ["[data-testid='live-board']", dx])
+
+    def league_and_mine(self):
+        """[the league drawn, the reader's team in it]."""
+        return self.page.evaluate("[gdLeague().key, gdMine(gdLeague())]")
+
+    def board_class(self):
+        return self.page.get_by_test_id("live-board").get_attribute("class")
+
+    def tile_games(self):
+        """Each tile's game as the tile carries it, in the order drawn: [espn event, away, home]."""
+        return self._tiles.evaluate_all("ts => ts.map(b => b.dataset.gdnfl.split(','))")
 
     def stored_tab(self):
         return self.page.evaluate("localStorage.getItem('tw-live-tab')")
@@ -379,6 +398,13 @@ class LiveTabsPage(LivePage):
     def tile_kinds(self):
         """in, pre or post for each tile, in the order drawn."""
         return self._tiles.evaluate_all("ts => ts.map(t => t.classList.contains('in') ? 'in' : t.classList.contains('pre') ? 'pre' : 'post')")
+
+    def tile_is_visible(self, i):
+        return self._tiles.nth(i).is_visible()
+
+    def focus_is_on_tile(self, i):
+        """Focus came home to the tile that opened the game sheet."""
+        return self._tiles.nth(i).evaluate("e => document.activeElement === e")
 
     def tile_lefts(self, n=2):
         return self._tiles.evaluate_all(f"ts => ts.slice(0, {n}).map(t => Math.round(t.getBoundingClientRect().left))")

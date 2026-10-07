@@ -119,7 +119,7 @@ function dgHurtRow(h){
   return `<li><button type="button" class="dg-now-r hurt" data-testid="digest-now-row" ${dgLvAttrs({n: h.n, pos: h.pos, team: h.team, slug: h.slug})}>
     <span class="dg-hd">${avatarHTML({n: h.n, slug: h.slug})}</span>
     <span class="dg-now-t"><b>${esc(dgShort(h.n))}</b><span class="dg-now-m">${line}</span></span>
-    <i class="dg-now-p">${t("digest.hurt.row")}</i></button></li>`;
+    <i class="dg-now-p" data-testid="digest-now-hurt">${t("digest.hurt.row")}</i></button></li>`;
 }
 
 /* From the first kickoff to the week's last final: the top five and the day's touchdowns,

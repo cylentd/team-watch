@@ -21,7 +21,7 @@ const pvKick = g => esc(kickFmt(g.kickoff));
 const PV_CALL = {up: "▲", down: "▼", hold: "●"};
 const pvCallWord = c => ({up: t("preview.call.up"), down: t("preview.call.down"), hold: t("preview.call.hold")})[c];
 /* One box-score section: a plain bold name, then its rows. */
-const pvRow = (cls, title, body) => `<section class="pva ${cls}"><h3 class="pva-h">${title}</h3>${body}</section>`;
+const pvRow = (cls, title, body) => `<section class="pva ${cls}" data-testid="preview-section"><h3 class="pva-h" data-testid="preview-section-title">${title}</h3>${body}</section>`;
 const pvRunIn = key => `<b class="pv-rin">${key}</b>`;
 
 /* The headline and the story, the full width. The story is 2-3 paragraphs split by a blank line
@@ -29,10 +29,10 @@ const pvRunIn = key => `<b class="pv-rin">${key}</b>`;
    2026-09-30: a smaller second paragraph read as a different author). */
 function pvHeadHTML(g){
   const k = g.take;
-  if (!k) return `<header class="pvn-head"><p class="pv-none">${t("preview.notake")}</p></header>`;
+  if (!k) return `<header class="pvn-head" data-testid="preview-header"><p class="pv-none">${t("preview.notake")}</p></header>`;
   const paras = k.lean.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean);
-  return `<header class="pvn-head"><h2 class="pv-head">${esc(k.head)}</h2>${
-    pvNamesHTML(paras, k.players).map(h => `<p class="pv-dek">${h}</p>`).join("")}</header>`;
+  return `<header class="pvn-head" data-testid="preview-header"><h2 class="pv-head" data-testid="preview-headline">${esc(k.head)}</h2>${
+    pvNamesHTML(paras, k.players).map(h => `<p class="pv-dek" data-testid="preview-dek">${h}</p>`).join("")}</header>`;
 }
 
 /* Each player call's first mention in the story, bold and a tap to his profile (David, 2026-09-30: "bold
@@ -70,8 +70,8 @@ function pvNamesHTML(paras, players){
 function pvCallHTML(g){
   const k = g.take;
   if (!k) return "";
-  if (!k.ats) return `<div class="pvn-call"><p class="pv-vs">${esc(k.vs)}</p></div>`;
-  return k.ats.edge ? `<div class="pvn-call"><p class="pv-callp">${pvRunIn(t("preview.run.call"))} ${esc(k.ats.edge)}</p></div>` : "";
+  if (!k.ats) return `<div class="pvn-call" data-testid="preview-call"><p class="pv-vs">${esc(k.vs)}</p></div>`;
+  return k.ats.edge ? `<div class="pvn-call" data-testid="preview-call"><p class="pv-callp">${pvRunIn(t("preview.run.call"))} ${esc(k.ats.edge)}</p></div>` : "";
 }
 
 /* The answer block (storyboard 3A, 2026-10-05): a finished game's final, Claude's score, then a table of one
@@ -84,17 +84,17 @@ function pvAnsRowHTML(r, hasTake){
   const label = {ml: t("preview.bet.ml"), spread: t("preview.bet.spread"), total: t("preview.bet.total")}[r.id];
   const call = r.claude ? `${pvMarkHTML(r.hit)}${r.claude}${r.conf ? " " + pvConfHTML(r.conf) : ""}${r.sub && !r.hit ? `<small class="pv-as">${r.sub}</small>` : ""}`
     : hasTake ? pvConfHTML(null) : "–";
-  return `<tr class="${r.id}"><th scope="row">${label}</th><td class="pv-vg">${r.vegas || "–"}</td><td class="pv-cc">${call}</td></tr>`;
+  return `<tr class="${r.id}" data-testid="preview-bet"><th scope="row">${label}</th><td class="pv-vg">${r.vegas || "–"}</td><td class="pv-cc">${call}</td></tr>`;
 }
 
 function pvAnswerHTML(g){
   const rg = pvRecGameOf(g), a = pvAnswer(g, rg), fin = pvFinal(g, rg);
   if (!a.rows.length && !a.score) return "";
   const final = fin ? `<p class="pv-fin"><span>${t("preview.final")}</span><b>${fin}</b></p>` : "";
-  const score = a.score ? `<span class="pv-ak">${t("preview.ans.pick")}</span><b class="pv-am">${a.score}</b>` : "";
-  const table = a.rows.length ? `<table class="pv-bt"><thead><tr><th></th><th>${t("preview.ans.vegas")}</th><th>${t("preview.ans.claude")}</th></tr></thead>
+  const score = a.score ? `<span class="pv-ak">${t("preview.ans.pick")}</span><b class="pv-am" data-testid="preview-score">${a.score}</b>` : "";
+  const table = a.rows.length ? `<table class="pv-bt" data-testid="preview-bets"><thead><tr><th></th><th>${t("preview.ans.vegas")}</th><th>${t("preview.ans.claude")}</th></tr></thead>
     <tbody>${a.rows.map(r => pvAnsRowHTML(r, !!g.take)).join("")}</tbody></table>` : "";
-  return `<section class="pvn-ans" aria-label="${t("preview.ans.label")}">${final}${score}${table}</section>`;
+  return `<section class="pvn-ans" data-testid="preview-answer" aria-label="${t("preview.ans.label")}">${final}${score}${table}</section>`;
 }
 
 const pvKV = (k, v) => `<span class="pv-k">${k}</span><span class="pv-v">${v}</span>`;
@@ -111,26 +111,26 @@ function pvMatchupRow(g){
   if (!m) return "";
   const a = m[g.away], h = m[g.home];
   const tr = (pos, label, dim) => `<tr${dim ? ` class="dim"` : ""}><th scope="row">${label}</th>${pvMatchupCell(a, pos)}${pvMatchupCell(h, pos)}</tr>`;
-  return pvRow("matchup", t("preview.row.matchup"), `<table class="pv-mx">
+  return pvRow("matchup", t("preview.row.matchup"), `<table class="pv-mx" data-testid="preview-matchup">
     <thead><tr><th></th><th>${t("preview.mx.side", {off: esc(g.away)})}</th><th>${t("preview.mx.side", {off: esc(g.home)})}</th></tr></thead>
     <tbody>${tr("QB", "QB")}${tr("RB", "RB")}${tr("TE", "TE")}${tr("WR", "WR", true)}${tr("epa", t("preview.mx.epa"))}</tbody></table>`);
 }
 
 function pvPlayerHTML(p, j){
-  return `<li><button class="pv-p" data-pvp="${j}">
+  return `<li><button class="pv-p" data-pvp="${j}" data-testid="preview-player">
     <span class="pv-face">${headHTML(p)}</span>
     <span class="pv-call ${p.call}" aria-label="${pvCallWord(p.call)}">${PV_CALL[p.call]}</span>
     <span class="pv-pn">${shortName(p.n)}<small>${esc(p.pos)} · ${esc(p.team)}</small></span>
-    <span class="pv-pj">${p.proj != null ? p.proj.toFixed(1) : ""}</span>
+    <span class="pv-pj" data-testid="preview-player-proj">${p.proj != null ? p.proj.toFixed(1) : ""}</span>
     <span class="pv-pw">${esc(p.why)}</span></button></li>`;
 }
 
 /* The rest of the story, after the box score on a phone: the player calls, then what could go wrong. */
 function pvStoryHTML(g){
   const k = g.take, ps = k ? k.players : [];
-  const pl = ps.length ? `<p class="pv-plh">${pvRunIn(t("preview.run.players"))}</p><ul class="pv-pl">${ps.map(pvPlayerHTML).join("")}</ul>` : "";
-  const risk = k ? `<p class="pv-risk">${pvRunIn(t("preview.risk"))} ${esc(k.risk)}</p>` : "";
-  return pl || risk ? `<div class="pvn-story">${pl}${risk}</div>` : "";
+  const pl = ps.length ? `<p class="pv-plh">${pvRunIn(t("preview.run.players"))}</p><ul class="pv-pl" data-testid="preview-players">${ps.map(pvPlayerHTML).join("")}</ul>` : "";
+  const risk = k ? `<p class="pv-risk" data-testid="preview-risk">${pvRunIn(t("preview.risk"))} ${esc(k.risk)}</p>` : "";
+  return pl || risk ? `<div class="pvn-story" data-testid="preview-story">${pl}${risk}</div>` : "";
 }
 
 /* The header: back (a phone) to the slate, or to Past games when it opened the game, ‹ AWAY @ HOME ›, the
@@ -138,17 +138,17 @@ function pvStoryHTML(g){
 function pvTopHTML(g, i, n){
   const kick = PV_ARC_G ? `${t("preview.arc.week", {n: PV_ARC_G.week})} · ${pvKick(g)}`
     : pvOver(g) ? `${t("preview.final")} · ${pvKick(g)}` : pvDone(g) ? t("preview.kicked", {kick: pvKick(g)}) : pvKick(g);
-  return `<button class="pv-back" data-pvback>${PV_ARC_G || PV_REC ? t("preview.backArc") : t("preview.back")}</button>
+  return `<button class="pv-back" data-pvback data-testid="preview-back">${PV_ARC_G || PV_REC ? t("preview.backArc") : t("preview.back")}</button>
     <header class="pv-top">
-    <button class="pv-arrow" data-pvstep="-1"${i === 0 ? " disabled" : ""} aria-label="${t("preview.prev")}">‹</button>
-    <b class="pv-mt" aria-label="${t("preview.count", {i: i + 1, n})}">${esc(g.away)} @ ${esc(g.home)}</b>
-    <button class="pv-arrow" data-pvstep="1"${i === n - 1 ? " disabled" : ""} aria-label="${t("preview.next")}">›</button>
-    <span class="pv-ko">${kick}</span></header>`;
+    <button class="pv-arrow" data-pvstep="-1" data-testid="preview-step"${i === 0 ? " disabled" : ""} aria-label="${t("preview.prev")}">‹</button>
+    <b class="pv-mt" data-testid="preview-match" aria-label="${t("preview.count", {i: i + 1, n})}">${esc(g.away)} @ ${esc(g.home)}</b>
+    <button class="pv-arrow" data-pvstep="1" data-testid="preview-step"${i === n - 1 ? " disabled" : ""} aria-label="${t("preview.next")}">›</button>
+    <span class="pv-ko" data-testid="preview-kickoff">${kick}</span></header>`;
 }
 
 function pvDossierHTML(g, i, n, enter){
   // Once a game is over its lines are gone, so the hand-off to Slips is too; an earlier week's always is.
   const box = [pvMatchupRow(g), PV_ARC_G || pvOver(g) ? "" : pvSlipRow(g), pvInjRow(g), pvDsRow(g), pvWxRow(g), pvRestRow(g)].join("");
-  return `<div class="pv-dz">${pvTopHTML(g, i, n)}
-    <article class="pvn${enter}" data-pvswipe>${pvAnswerHTML(g)}${pvHeadHTML(g)}${pvCallHTML(g)}${box ? `<aside class="pvn-box">${box}</aside>` : ""}${pvStoryHTML(g)}</article></div>`;
+  return `<div class="pv-dz" data-testid="preview-dossier">${pvTopHTML(g, i, n)}
+    <article class="pvn${enter}" data-pvswipe data-testid="preview-article">${pvAnswerHTML(g)}${pvHeadHTML(g)}${pvCallHTML(g)}${box ? `<aside class="pvn-box" data-testid="preview-box">${box}</aside>` : ""}${pvStoryHTML(g)}</article></div>`;
 }

@@ -32,7 +32,7 @@ function newsTitleHTML(it){
   const at = name ? title.indexOf(name) : -1;
   if (at < 0) return esc(title);
   const end = at + name.length;
-  return `${esc(title.slice(0, at))}<b class="nname">${esc(name)}</b>${esc(title.slice(end))}`;
+  return `${esc(title.slice(0, at))}<b class="nname" data-testid="news-name">${esc(name)}</b>${esc(title.slice(end))}`;
 }
 
 /* What a search matches: the player, his team and the headline, lower-cased once at render. */
@@ -45,7 +45,7 @@ function newsRowHTML(it, featured, i){
   const href = it.link || `https://www.google.com/search?tbm=nws&q=${encodeURIComponent(it.title)}`;
   const kind = newsKind(it);
   const head = newsHeadHTML(it);
-  return `<a class="newsrow ${kind} ${featured ? "featured" : ""}" data-newsq="${esc(newsQueryText(it))}" style="animation-delay:${Math.min(i || 0, 14) * 30}ms" href="${esc(href)}" target="_blank" rel="noopener noreferrer">
+  return `<a class="newsrow ${kind} ${featured ? "featured" : ""}" data-testid="news-row" data-newsq="${esc(newsQueryText(it))}" style="animation-delay:${Math.min(i || 0, 14) * 30}ms" href="${esc(href)}" target="_blank" rel="noopener noreferrer">
     ${head}<div class="nbody">
     <div class="newstop">
       ${featured ? `<span class="livedot"></span>` : ""}
@@ -53,9 +53,9 @@ function newsRowHTML(it, featured, i){
       ${it.when ? `<span class="when">${esc(kickFmt(it.at) || it.when)}</span>` : ""}
       ${it.team ? `<span class="nteam">${esc(it.team)}</span>` : ""}
     </div>
-    <div class="ntitle">${newsTitleHTML(it)}</div>
-    ${it.desc && it.desc !== it.title && !it.impact ? `<div class="ndesc">${esc(it.desc)}</div>` : ""}
-    ${it.impact ? `<div class="nimpact">${esc(it.impact)}</div>` : ""}
+    <div class="ntitle" data-testid="news-title">${newsTitleHTML(it)}</div>
+    ${it.desc && it.desc !== it.title && !it.impact ? `<div class="ndesc" data-testid="news-desc">${esc(it.desc)}</div>` : ""}
+    ${it.impact ? `<div class="nimpact" data-testid="news-impact">${esc(it.impact)}</div>` : ""}
     </div>
   </a>`;
 }
@@ -70,7 +70,7 @@ function newsHTML(){
   const counts = {};
   rest.forEach(it => counts[newsKind(it)] = (counts[newsKind(it)] || 0) + 1);
   const shown = NEWS_CAT === "all" ? rest : rest.filter(it => newsKind(it) === NEWS_CAT);
-  const chips = [`<button class="chip" data-newscat="all" aria-pressed="${NEWS_CAT==="all"}">${t("news.kind.all")} (${rest.length})</button>`]
+  const chips = [`<button class="chip" data-testid="news-chip-all" data-newscat="all" aria-pressed="${NEWS_CAT==="all"}">${t("news.kind.all")} (${rest.length})</button>`]
     .concat(NEWS_KINDS.filter(k => counts[k.k]).map(k =>
       `<button class="chip nchip ${k.k}" data-newscat="${k.k}" aria-pressed="${NEWS_CAT===k.k}">${k.icon}${k.label()} (${counts[k.k]})</button>`));
   const label = NEWS_KIND[NEWS_CAT] ? NEWS_KIND[NEWS_CAT].label() : t("news.kind.all");
@@ -89,12 +89,12 @@ function newsHTML(){
       <span class="lbl">${t("news.filter.label")}</span>
       ${chips.join("")}
       <label class="nsearch"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
-        <input type="search" id="news-q" value="${esc(NEWS_Q)}" placeholder="${t("news.search.placeholder")}" aria-label="${t("news.search.placeholder")}" autocomplete="off"></label>
+        <input type="search" id="news-q" data-testid="news-search"value="${esc(NEWS_Q)}" placeholder="${t("news.search.placeholder")}" aria-label="${t("news.search.placeholder")}" autocomplete="off"></label>
     </div>
     ${shown.length
-      ? `<div class="newslist" style="margin-top:14px">${shown.map((it, i) => newsRowHTML(it, false, i)).join("")}</div>`
+      ? `<div class="newslist" data-testid="news-list" style="margin-top:14px">${shown.map((it, i) => newsRowHTML(it, false, i)).join("")}</div>`
       : `<div class="state-empty" style="margin:14px 0;min-height:110px"><div><b>0</b><span>${t("news.empty.noStories", {cat: esc(label.toUpperCase())})}</span></div></div>`}
-    <div class="state-empty nsearch-none" style="margin:14px 0;min-height:110px" hidden><div><b>0</b><span></span></div></div>
+    <div class="state-empty nsearch-none" data-testid="news-none" style="margin:14px 0;min-height:110px" hidden><div><b>0</b><span></span></div></div>
   </div>`;
 }
 

@@ -39,7 +39,7 @@ function searchIdle(){
 function searchRowHTML(e, marks, i){
   const tags = e.leagues.map(k => `<span class="tag sr-lg sr-${k}">${esc(TEAMS[k].plat)}</span>`).join("");
   const meta = [e.pos, e.team].filter(Boolean).map(esc).join(" · ");
-  return `<li class="sr-row" role="option" id="sr-${i}" data-sr="${i}" aria-selected="${i === SEARCH_AT}">
+  return `<li class="sr-row" data-testid="search-row" role="option" id="sr-${i}" data-sr="${i}" aria-selected="${i === SEARCH_AT}">
     <span class="sr-head">${headHTML(e)}</span>
     <span class="sr-who"><span class="sr-name">${searchNameHTML(e.n, marks)}</span><span class="sr-meta">${meta}</span></span>
     <span class="sr-tags">${tags}</span></li>`;
@@ -53,8 +53,8 @@ function searchPaint(){
   SEARCH_AT = 0;
   const rows = SEARCH_ROWS.map((e, i) => searchRowHTML(e, found ? found[i].marks : [], i)).join("");
   searchEl("search-list").innerHTML = found && !found.length
-    ? `<li class="sr-none" role="presentation">${t("search.empty.none", {q: esc(q)})}</li>`
-    : rows + (idle && rows ? `<li class="sr-cap" role="presentation">${idle.cap}</li>` : "");
+    ? `<li class="sr-none" data-testid="search-none" role="presentation">${t("search.empty.none", {q: esc(q)})}</li>`
+    : rows + (idle && rows ? `<li class="sr-cap" data-testid="search-cap" role="presentation">${idle.cap}</li>` : "");
   searchEl("search-q").setAttribute("aria-activedescendant", SEARCH_ROWS.length ? "sr-0" : "");
 }
 

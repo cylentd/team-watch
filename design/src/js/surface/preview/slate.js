@@ -34,23 +34,23 @@ function pvRowHTML(g, i, cur){
   /* Only a confident pick speaks on the slate (David, 2026-09-29: drop the "JAX getting 2.5"): its
      word in lime. A slight pick or no pick draws nothing here; the game page says both. */
   const k = g.take, a = k && k.ats, sure = a && a.side && (a.conf === "solid" || a.conf === "strong");
-  const right = a ? (sure ? `<span class="pv-ats">${pvConfHTML(a.conf)}</span>` : "")
+  const right = a ? (sure ? `<span class="pv-ats" data-testid="preview-row-ats">${pvConfHTML(a.conf)}</span>` : "")
     : k ? `<span class="pv-rs"><i>${esc(k.pick.winner)}</i> ${k.pick.score[k.pick.winner]}–${
       k.pick.score[k.pick.winner === g.home ? g.away : g.home]}</span>` : "";
   const face = pvFacePlayer(k);
   // A game being played says Live where the pick's word sits; the slate drops it once it is over (pvOver).
   const live = pvDone(g) ? `<span class="pv-live">${t("preview.live")}</span>` : right;
-  return `<li><button class="pv-row${cur ? " cur" : ""}" data-pvopen="${i}"${cur ? ` aria-current="true"` : ""}>
-    <span class="pv-hs" aria-hidden="true">${face ? headHTML(face) : ""}</span>
-    <span class="pv-rm">${esc(g.away)} @ ${esc(g.home)}</span>${live}
-    <span class="pv-rh">${k ? esc(k.head) : t("preview.slate.notake")}</span></button></li>`;
+  return `<li><button class="pv-row${cur ? " cur" : ""}" data-pvopen="${i}" data-testid="preview-row"${cur ? ` aria-current="true"` : ""}>
+    <span class="pv-hs" data-testid="preview-row-face" aria-hidden="true">${face ? headHTML(face) : ""}</span>
+    <span class="pv-rm" data-testid="preview-row-match">${esc(g.away)} @ ${esc(g.home)}</span>${live}
+    <span class="pv-rh" data-testid="preview-row-head">${k ? esc(k.head) : t("preview.slate.notake")}</span></button></li>`;
 }
 
 /* The two ways into Past games (storyboard 1A, 2026-10-05): this week's finals, then the earlier weeks with
    Claude's record. Each row is drawn only when it has something behind it. */
 function pvFoldsHTML(){
   const fin = pvFinalIdx().length, wk = LIVE_PREVIEW.week, past = pvArcWeeks().some(w => w < wk);
-  const row = (to, title, sub) => `<button type="button" class="pv-fold${PV_REC && PV_ARC_WK === to ? " cur" : ""}" data-pvarcwk="${to}">
+  const row = (to, title, sub) => `<button type="button" class="pv-fold${PV_REC && PV_ARC_WK === to ? " cur" : ""}" data-pvarcwk="${to}" data-testid="preview-fold">
     <span><b>${title}</b> · ${sub}</span><span aria-hidden="true">›</span></button>`;
   const rows = [fin ? row(wk, t("preview.arc.finals"), fin === 1 ? t("preview.arc.finalsOne") : t("preview.arc.finalsSub", {n: fin})) : "",
     past ? row(Math.max(...pvArcWeeks().filter(w => w < wk)), t("preview.arc.past"), t("preview.arc.pastSub")) : ""].join("");
@@ -59,11 +59,11 @@ function pvFoldsHTML(){
 
 function pvSlateHTML(cur){
   const gs = pvGames(), wins = pvWindows();
-  const empty = wins.length ? "" : `<p class="pv-allover">${t("preview.slate.done")}</p>`;
-  return `<nav class="pv-slate" aria-label="${t("preview.slate.label")}">
-    <h2 class="pv-title">${t("preview.slate.title", {n: LIVE_PREVIEW.week})}</h2>${empty}${wins.map(w => `
-    <section class="pv-win">
-      <h3 class="pv-wh"><span>${pvWinLabel(w)}</span><em>${esc(w.times.join(" · "))}${
+  const empty = wins.length ? "" : `<p class="pv-allover" data-testid="preview-allover">${t("preview.slate.done")}</p>`;
+  return `<nav class="pv-slate" data-testid="preview-slate" aria-label="${t("preview.slate.label")}">
+    <h2 class="pv-title" data-testid="preview-title">${t("preview.slate.title", {n: LIVE_PREVIEW.week})}</h2>${empty}${wins.map(w => `
+    <section class="pv-win" data-testid="preview-win">
+      <h3 class="pv-wh" data-testid="preview-win-head"><span data-testid="preview-win-name">${pvWinLabel(w)}</span><em data-testid="preview-win-time">${esc(w.times.join(" · "))}${
         w.idx.length > 1 ? " · " + t("preview.win.count", {n: w.idx.length}) : ""}</em></h3>
       <ul>${w.idx.map(i => pvRowHTML(gs[i], i, i === cur)).join("")}</ul>
     </section>`).join("")}${pvFoldsHTML()}</nav>`;

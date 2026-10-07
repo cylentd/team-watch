@@ -208,7 +208,7 @@ function paintLive(){
 
 function liveHTML(){
   gdEnsure();
-  return `<div class="wrap"><section class="gd" data-gdboard>${gdBoardHTML()}</section></div>`;
+  return `<div class="wrap"><section class="gd" data-testid="live-board" data-gdboard>${gdBoardHTML()}</section></div>`;
 }
 
 function wireLive(host){

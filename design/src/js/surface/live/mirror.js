@@ -35,7 +35,7 @@ function gdProjHTML(r){
 function gdNameHTML(r, own){
   const h = GD_HURT[r.slug];
   if (!own || !h || h.back || r.state === "pre_game") return `<b>${esc(gdName(r))}</b>`;
-  return `<span class="gd-nm"><b>${esc(gdName(r))}</b><i class="gd-hurt" aria-label="${esc(t("live.hurt.label"))}">${t("live.hurt.chip")}</i></span>`;
+  return `<span class="gd-nm" data-testid="live-name-text"><b>${esc(gdName(r))}</b><i class="gd-hurt" data-testid="live-hurt" aria-label="${esc(t("live.hurt.label"))}">${t("live.hurt.chip")}</i></span>`;
 }
 
 /* His game's second line: the clock, then the club's side of it. Before kickoff the opponent, while

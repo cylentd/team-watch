@@ -38,7 +38,7 @@ function acRankLine(r){
 function acWeekHTML(w){
   const model = acModel(w.model), note = w.note ? `<p class="wr-ac-note">${esc(w.note)}</p>` : "";
   const rows = w.rows.map(r => acRowHTML(r.pos, r.n, r.ours.mae, r.fp.mae, r.closer, w.ranked ? acRankLine(r) : "")).join("");
-  return `<section class="wr-card wr-ac-card" data-acweek="${w.week}"><div class="wr-chr"><h3 class="wr-ch">${
+  return `<section class="wr-card wr-ac-card" data-testid="accuracy-week" data-acweek="${w.week}"><div class="wr-chr"><h3 class="wr-ch">${
     t("weekrecap.acc.week", {n: w.week})}</h3>${model ? `<span class="wr-ac-model">${model}</span>` : ""}</div>${note}${acColsHTML()}${rows}${
     w.ranked ? "" : `<p class="wr-ac-none">${t("weekrecap.acc.rankNone")}</p>`}</section>`;
 }

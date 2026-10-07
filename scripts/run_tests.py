@@ -138,10 +138,13 @@ def nodeids_for(lines, sources):
     return sorted(ids)
 
 
+def git(*args, cwd=ROOT):
+    """A git command's output as text. git writes UTF-8; Windows' default (cp1252) cannot read every byte."""
+    return subprocess.run(["git", *args], cwd=cwd, capture_output=True, encoding="utf-8", check=True).stdout
+
+
 def new_test_ids(base, committed):
     """Nodeids of the test functions added or changed vs `base` (files on disk too, unless committed)."""
-    def git(*args):
-        return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True, check=True).stdout
     spec = ["--", "tests/test_*.py"]
     fork = git("merge-base", base, "HEAD").strip()  # what main had when the branch left it
     lines = changed_lines(git("diff", "-U0", f"{fork}..HEAD" if committed else fork, *spec))

@@ -66,7 +66,8 @@ import scope_css  # noqa: E402
 SURFACES = {"ranks": "ranks", "digest": "digest", "roster": "roster", "parlay": "parlay", "build": "build",
             "live": "live", "teams": "teams", "weekrecap": "weekrecap", "trades": "trades", "records": "records",
             "preview": "preview", "schedule": "schedule", "recap": "recap",
-            "waivers": "waivers"}
+            "waivers": "waivers", "weather": "weather", "news": "news",
+            "board": "board", "movers": "movers", "usage": "usage", "dfs": "dfs"}
 DRAWN = "document.getElementById('view').children.length > 0"
 
 

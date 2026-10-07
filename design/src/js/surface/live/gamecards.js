@@ -38,7 +38,7 @@ function gsSleeperState(){
 
 function gsPlayHTML(p){
   return `<div class="gs-pl${p.sc ? " sc" : ""}"><span>${esc(t("live.sheet.clock", {q: p.q || "", c: p.clock}))}</span>
-    <span>${gsBoldNames(p.text, p.names)}${p.dd ? `<small>${esc(p.dd)}</small>` : ""}</span></div>`;
+    <span data-testid="gamesheet-play-text">${gsBoldNames(p.text, p.names)}${p.dd ? `<small>${esc(p.dd)}</small>` : ""}</span></div>`;
 }
 
 /* Drives newest first. The newest is open; every earlier one is a single line that opens on a tap,
@@ -161,17 +161,17 @@ function gsFootHTML(){
   const btn = (g, k) => {
     if (!g) return `<span></span>`;
     const name = {away: esc(g.away), home: esc(g.home)};
-    return `<button type="button" class="gs-step ${k < 0 ? "prev" : "next"}" data-gsstep="${k}"
+    return `<button type="button" class="gs-step ${k < 0 ? "prev" : "next"}" data-testid="gamesheet-step" data-gsstep="${k}"
       aria-label="${k < 0 ? t("live.sheet.prev", name) : t("live.sheet.next", name)}">
       <b aria-hidden="true">${k < 0 ? "‹" : "›"}</b><span>${t("live.sheet.step", name)}<small>${esc(gdClockOf(g.home).label)}</small></span></button>`;
   };
-  return `<nav class="gs-foot${prev || next ? "" : " solo"}" aria-label="${t("live.sheet.steps")}">${btn(prev, -1)}<button type="button" class="gs-close" data-gsclose>${t("common.action.close")}</button>${btn(next, 1)}</nav>`;
+  return `<nav class="gs-foot${prev || next ? "" : " solo"}" aria-label="${t("live.sheet.steps")}">${btn(prev, -1)}<button type="button" class="gs-close" data-testid="gamesheet-close" data-gsclose>${t("common.action.close")}</button>${btn(next, 1)}</nav>`;
 }
 
 function gsSheetHTML(){
   const tab = GS_WIDE.matches && GS_TAB === "plays" ? "box" : GS_TAB;
   return `<div class="gs-bar"><h2 class="gs-title" id="gs-title">${esc(t("live.sheet.title", {away: GS.away, home: GS.home}))}</h2>
-      <button type="button" class="gs-x" data-gsclose aria-label="${t("common.action.close")}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <button type="button" class="gs-x" data-testid="gamesheet-x" data-gsclose aria-label="${t("common.action.close")}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     ${gsFootHTML()}
     <div class="gs-main" data-testid="gamesheet-main" data-tab="${tab}"><div class="gs-side">${gsScoreHTML()}${gsYoursHTML()}${gsTabsHTML(tab)}</div>
       <div class="gs-panes" data-testid="gamesheet-panes" data-gsscroll role="tabpanel">${gsPlaysHTML()}${gsBoxHTML()}${gsTopHTML()}</div></div>`;

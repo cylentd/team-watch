@@ -106,6 +106,16 @@ def test_diff_hunks_become_new_file_line_numbers():
     assert "tests/test_gone.py" not in lines and "/dev/null" not in lines
 
 
+def test_a_diff_with_curly_quotes_is_read_as_utf8(tmp_path):
+    """2026-10-06: a test whose comment held ” (UTF-8 e2 80 9d) crashed the 10-run gate: Windows decoded
+    git's output as cp1252, where 0x9d is undefined, and the reader thread returned nothing."""
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
+    (tmp_path / "test_q.py").write_text("x = 1\n", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=tmp_path, check=True)    # the diff is the file against the index
+    (tmp_path / "test_q.py").write_text("x = 1  # “the call”\n", encoding="utf-8")
+    assert "+x = 1  # “the call”" in runner.git("diff", "-U0", cwd=tmp_path)
+
+
 def test_a_branch_with_no_new_tests_says_so(monkeypatch, capsys):
     monkeypatch.setattr(runner, "new_test_ids", lambda base, committed: [])
     args = type("A", (), dict(base="origin/main", committed=False, repeat_new=10, dry_run=False,

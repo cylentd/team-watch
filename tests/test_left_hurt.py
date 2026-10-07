@@ -12,275 +12,31 @@ LIVE_RANKS projects at 8 points or more, every live game is scanned, and nothing
 team of mine. The first version watched my starters only (8b91604) and is superseded.
 
 The scan (data/gameday/hurt.js gdHurtScan) is pure and is tested in Node (test_js_hurt.py, since
-2026-10-05); this file is what the page draws. The render tests plant GD_HURT, since ESPN refuses
-servers and headless browsers and the poller cannot be fed from a test's network."""
+2026-10-05); so are who the players to watch are and the order of who is hurt (here, 2026-10-06). This file
+is what the page draws: component tests (the Digest and Live mounted, tests/component.py; every locator in
+tests/pages/hurt.py, which composes the Digest's and Live's page objects). The tests plant GD_HURT, since
+ESPN refuses servers and headless browsers and the poller cannot be fed from a test's network. The two that
+run the poller need the page over http (PAGE_SERVED), which a mounted page, a file, is not: they stay
+journeys on the whole page."""
+import json
+import pathlib
 import re
 
 import pytest
 
-from conftest import SharedPages
+from component import mount  # noqa: F401  (the fixture)
+from pages.hurt import RANKS, HurtPage, served
 from test_js_hurt import play, summary
-from test_render import LOAD_MS, LIVE_PLANT, drive, go, open_page, SEED  # noqa: F401
 
-pytestmark = pytest.mark.render
+FIXTURES = pathlib.Path(__file__).resolve().parent / "fixtures"
 
-
-@pytest.fixture(scope="module")
-def shared_pages(browser, page_file):
-    """One loaded page per viewport for the module, where each test used to load its own. The tests that plant data re-plant everything they read (PLANT) after
-    leaving the view, and the two that stub the poller or need http keep their own page."""
-    pages = SharedPages()
-
-    def opener(size):
-        opened = open_page(browser, page_file, size)
-        assert opened[2] == []              # whatever the load raised fails here, not lost to a clear
-        return opened
-    yield lambda size: pages.get(size, lambda: opener(size))
-    pages.close()
-
-
-@pytest.fixture
-def shared(shared_pages):
-    """shared((w, h)) -> (page, errors): the viewport's page with no dialog open and its error list
-    emptied. The list is asserted empty again when the test ends."""
-    used = []
-
-    def open_shared(size):
-        ctx, page, errors = shared_pages(size)
-        left, errors[:] = list(errors), []
-        assert left == []               # an error left over since the last test fails this one
-        used.append(errors)
-        for _ in range(3):
-            if not page.evaluate("!!document.querySelector('.modal.on')"):
-                break
-            page.keyboard.press("Escape")
-            page.wait_for_function("LAYER_SKIP.length === 0")
-        return page, errors
-    yield open_shared
-    for errors in used:
-        assert errors == []
-
-
-# ---------------------------------------------------------------- the page
-
-LEAD = {
-    "7547": {"n": "Amon-Ra St. Brown", "pos": "WR", "team": "DET", "pts": 31.4, "s": {"rec": 10, "rec_yd": 180, "rec_td": 2}},
-    "9226": {"n": "De'Von Achane", "pos": "RB", "team": "MIA", "pts": 27.1, "s": {"rush_att": 18, "rush_yd": 130, "rush_td": 1}},
-    "8183": {"n": "Brock Purdy", "pos": "QB", "team": "SF", "pts": 24.0, "s": {"pass_cmp": 22, "pass_att": 30, "pass_yd": 290, "pass_td": 3}},
-    "12481": {"n": "Cam Skattebo", "pos": "RB", "team": "NYG", "pts": 19.2, "s": {"rush_att": 20, "rush_yd": 90, "rush_td": 2}},
-    "6801": {"n": "Tee Higgins", "pos": "WR", "team": "CIN", "pts": 17.8, "s": {"rec": 6, "rec_yd": 98}},
-    "4217": {"n": "George Kittle", "pos": "TE", "team": "SF", "pts": 15.5, "s": {"rec": 6, "rec_yd": 85, "rec_td": 1}},
-    "12526": {"n": "Tetairoa McMillan", "pos": "WR", "team": "CAR", "pts": 12.0, "s": {"rec": 5, "rec_yd": 70}},
-}
-SUN = "2026-10-04T12:00:00Z"
-SF_CLOCK = {"SF": {"state": "in", "q": 3, "clock": "4:12", "half": False, "detail": "", "clubs": ["SF"]}}
 PURDY = {"slug": "brock-purdy", "name": "Brock Purdy", "team": "SF", "q": 3, "clock": "5:00", "back": False}
 ACHANE = {"slug": "devon-achane", "name": "De'Von Achane", "team": "MIA", "q": 3, "clock": "6:00", "back": False}
 HUNTLEY = {"slug": "tyler-huntley", "name": "Tyler Huntley", "team": "BAL", "q": 2, "clock": "1:00", "back": False}
 
-# The fixture's LIVE_RANKS holds five players. Planted beside them: Achane (starts for me), Huntley (in none of
-# my lineups, the league-wide case) and Stukes (under the 8-point line).
-RANKS = [
-    {"slug": "devon-achane", "n": "De'Von Achane", "pos": "RB", "team": "MIA", "pts": 21.5},
-    {"slug": "tyler-huntley", "n": "Tyler Huntley", "pos": "QB", "team": "BAL", "pts": 19.9},
-    {"slug": "tre-stukes", "n": "Tre Stukes", "pos": "WR", "team": "LV", "pts": 5.0},
-]
 
-# Week 2 of both leagues, every club given a game of its own (Sunday's, ESPN id "E<club>"), SF on the clock.
-PLANT = """(cfg) => {
-  PLANT_LEAGUES
-  for (const r of cfg.ranks) if (!LIVE_RANKS.rows.some(x => x.slug === r.slug)) LIVE_RANKS.rows.push({kick: null, ...r});
-  const clubs = [...new Set([...GD.leagues.flatMap(lg => Object.values(lg.teams).flatMap(tm => tm.lineup.map(r => r.team))), 'BAL'])];
-  const games = clubs.map(c => ({home: c, away: 'O' + c, kickoff: cfg.sun, week: 2, espn: 'E' + c}));
-  GD_GAMES.splice(0, GD_GAMES.length, ...games);
-  Date.now = () => Date.parse(cfg.at);
-  GD_STATS.games = {};
-  for (const g of games) for (const c of [g.home, g.away]) GD_STATS.games[c] = cfg.state;
-  GD_STATS.lead = cfg.lead;
-  GD_AT = Date.now(); GD_CLOCK = cfg.clock; GD_HURT = {};
-  LIVE_DIGEST.hurt = []; LIVE_DIGEST.starters = [];
-  DG_CUT = null; render();
-}""".replace("PLANT_LEAGUES", LIVE_PLANT())
-
-
-def cfg(**over):
-    c = {"at": "2026-10-04T14:00:00Z", "sun": SUN, "state": "in_game", "lead": LEAD, "clock": SF_CLOCK, "ranks": RANKS}
-    c.update(over)
-    return c
-
-
-def digest(shared, **over):
-    page, errors = shared((390, 844))
-    drive(page, go("roster"))          # a shared page may sit on the Digest already: leave it, then come back
-    drive(page, go("digest"))
-    page.wait_for_selector(".dg")
-    page.evaluate(PLANT, cfg(**over))
-    return page, errors
-
-
-def live(shared, **over):
-    page, errors = shared((360, 780))
-    drive(page, go("roster"))
-    # Live follows the reader's team since 2026-10-05, and the seed picks the Yahoo one: Purdy starts
-    # for David's ESPN team, so that is the pick here.
-    page.evaluate("localStorage.setItem('tw-team', 'espn')")
-    page.evaluate(PLANT, cfg(**over))
-    drive(page, go("live"))
-    page.wait_for_selector(".gd-mirror .gd-mr")
-    return page, errors
-
-
-def personal_names(page):
-    """Every league and team name the page holds (LIVE_GAMEDAY): none may reach the Digest."""
-    names = page.evaluate("[...new Set(GD.leagues.flatMap(lg => [lg.name, ...Object.values(lg.teams).map(tm => tm.name)]))].filter(Boolean)")
-    assert len(names) >= 10, names
-    return names
-
-
-def test_names_are_every_projected_8_plus_player_not_my_starters(shared):
-    page, errors = live(shared)
-    names = page.evaluate("gdHurtNames()")
-    mine = page.evaluate("GD.leagues.flatMap(lg => Object.values(lg.teams).flatMap(tm => tm.lineup.map(r => r.slug)))")
-    ranked = page.evaluate("LIVE_RANKS.rows.map(r => [r.slug, r.pts, r.pos])")
-    assert errors == []
-    assert "tyler-huntley" not in mine                                # nobody of mine: he is watched all the same
-    assert names["t.huntley"] == [{"slug": "tyler-huntley", "name": "Tyler Huntley", "team": "BAL"}]
-    assert names["b.purdy"] == [{"slug": "brock-purdy", "name": "Brock Purdy", "team": "SF"}]
-    assert names["a.st.brown"][0]["team"] == "DET"            # "A.St. Brown" in the play text
-    assert "t.stukes" not in names                             # 5.0 projected: under the 8-point line
-    # exactly the rankings' 8+ rows, which are QB/RB/WR/TE only: no defense, no kicker
-    assert sorted(s for v in names.values() for s in [x["slug"] for x in v]) == sorted(s for s, p, _ in ranked if p >= 8)
-    assert {pos for _, _, pos in ranked} <= {"QB", "RB", "WR", "TE"}
-
-
-def test_hurt_starter_takes_the_headline_and_a_row_and_a_return_gives_it_back(shared):
-    page, errors = digest(shared)
-    assert page.locator(".dg-lead-h").inner_text() == "St. Brown ERUPTS: 10 catches, 180 yards, 2 TDs"
-    rows = page.locator(".dg-now-r").count()
-    page.evaluate("(h) => { GD_HURT = {[h.slug]: h}; paintDigestLive(); }", PURDY)
-    assert page.locator(".dg-lead-h").inner_text() == "B. Purdy left the game hurt"
-    assert page.locator(".dg-lead-fact").inner_text() == "SF · Q3 4:12"          # his club and the clock, no team of mine
-    assert page.locator(".dg-lead").get_attribute("class").split()[1] == "out"
-    # his own row leads Right now, in --down, and he is not in the five as well
-    first = page.locator(".dg-now-r").first
-    assert "hurt" in first.get_attribute("class") and "B. Purdy" in first.inner_text() and first.locator(".dg-now-p").text_content() == "Hurt"
-    assert page.locator(".dg-now-r").count() == 3 and page.locator(".dg-now-r:not(.hurt)").count() == 2   # three rows, he is one
-    page.locator("[data-dgmore]").click()
-    assert page.locator(".dg-now-r:not(.hurt)").count() == 5
-    assert "Purdy" not in " ".join(page.locator(".dg-now-r:not(.hurt)").all_inner_texts())
-    down = page.evaluate("(() => { const d = document.createElement('i'); d.style.color = getComputedStyle(document.body).getPropertyValue('--down'); document.body.append(d); const c = getComputedStyle(d).color; d.remove(); return c; })()")
-    assert first.locator(".dg-now-p").evaluate("e => getComputedStyle(e).color") == down
-    # a tap opens his profile, as every other row does
-    first.click()
-    assert "on" in page.locator("#modal").get_attribute("class")
-    page.keyboard.press("Escape")
-    # the band opens him too
-    assert page.locator(".dg-lead-go").get_attribute("data-n") == "Brock Purdy"
-    # he comes back: the top scorer is the headline again and the extra row is gone
-    page.evaluate("(h) => { GD_HURT = {[h.slug]: {...h, back: true}}; paintDigestLive(); }", PURDY)
-    assert page.locator(".dg-lead-h").inner_text() == "St. Brown ERUPTS: 10 catches, 180 yards, 2 TDs"
-    assert page.locator(".dg-now-r.hurt").count() == 0 and page.locator(".dg-now-r").count() == 5   # More stays open until it is closed
-    page.locator("[data-dgmore]").click()
-    assert page.locator(".dg-now-r").count() == rows == 3
-    assert errors == []
-
-
-def test_with_several_hurt_the_best_projection_leads(shared):
-    page, errors = digest(shared)
-    page.evaluate("(hs) => { GD_HURT = Object.fromEntries(hs.map(h => [h.slug, h])); paintDigestLive(); }", [PURDY, ACHANE, HUNTLEY])
-    order = page.evaluate("() => gdHurtNow().map(e => [e.slug, e.pts])")
-    head = page.locator(".dg-lead-h").inner_text()
-    rows = page.locator(".dg-now-r.hurt").all_inner_texts()
-    assert errors == []
-    assert order == [["devon-achane", 21.5], ["tyler-huntley", 19.9], ["brock-purdy", 18.1]]
-    assert head == "D. Achane left the game hurt"
-    assert len(rows) == 3 and "T. Huntley" in rows[1]              # Huntley is on nobody's team of mine, and a row all the same
-
-
-def test_the_digest_names_no_league_or_team_of_mine_while_a_player_is_hurt(shared):
-    """David, 2026-10-04: the Digest is generic for the public. The by-line is his club and the clock."""
-    page, errors = digest(shared)
-    names = personal_names(page)
-    page.evaluate("(h) => { GD_HURT = {[h.slug]: h}; paintDigestLive(); }", ACHANE)
-    fact = page.locator(".dg-lead-fact").inner_text()
-    dg = page.evaluate("document.querySelector('.dg').outerHTML")
-    assert errors == []
-    assert fact == "MIA · Live"
-    assert [n for n in names if n in dg] == []
-
-
-def test_before_kickoff_nothing_changes(shared):
-    page, errors = digest(shared, at="2026-10-04T08:00:00Z", state="pre_game", clock={})
-    drawn = page.evaluate("document.querySelector('.dg').outerHTML")
-    page.evaluate("(h) => { GD_HURT = {[h.slug]: h}; DG_CUT = null; render(); }", PURDY)
-    assert page.evaluate("document.querySelector('.dg').outerHTML") == drawn
-    assert page.locator(".dg-now-r.hurt").count() == 0
-    assert errors == []
-
-
-def test_between_games_the_banner_is_not_a_hurt_one(shared):
-    """No game is on (every one final): GD_HURT is last Sunday's news and the top score keeps the banner."""
-    page, errors = digest(shared, at="2026-10-04T23:30:00Z", state="complete", clock={})
-    page.evaluate("(h) => { GD_HURT = {[h.slug]: h}; paintDigestLive(); }", PURDY)
-    head = page.locator(".dg-lead-h").inner_text()
-    assert errors == []
-    assert "left the game hurt" not in head
-
-
-def test_live_row_wears_a_hurt_chip_until_he_is_back(shared):
-    page, errors = live(shared)
-    row = lambda: page.locator(".gd-mirror:not(.bn) .gd-mr", has=page.locator(".gd-h.l .gd-nb[data-gdn='Brock Purdy']"))
-    assert row().count() == 1 and page.locator(".gd-hurt").count() == 0
-    plain = page.evaluate("document.querySelector('.gd-mirror').innerHTML")
-    page.evaluate("(h) => { GD_HURT = {[h.slug]: h}; paintLive(); }", PURDY)
-    chip = row().locator(".gd-hurt")
-    assert chip.count() == 1 and chip.inner_text().lower() == "hurt"
-    assert chip.get_attribute("aria-label") == "Left the game hurt"
-    assert page.locator(".gd-hurt").count() == 1
-    # beside his name, inside the one name button, and the red is --down
-    assert row().locator(".gd-nb .gd-nm .gd-hurt").count() == 1
-    assert page.locator(".gd-mirror button button").count() == 0
-    down = page.evaluate("(() => { const d = document.createElement('i'); d.style.color = getComputedStyle(document.body).getPropertyValue('--down'); document.body.append(d); const c = getComputedStyle(d).color; d.remove(); return c; })()")
-    assert chip.evaluate("e => getComputedStyle(e).color") == down
-    # a phone row stays one line of two
-    assert row().evaluate("r => r.getBoundingClientRect().height") <= 52
-    assert page.evaluate("document.documentElement.scrollWidth") <= 360
-    # back in the game: the chip is cleared and the row is as it was
-    page.evaluate("(h) => { GD_HURT = {[h.slug]: {...h, back: true}}; paintLive(); }", PURDY)
-    assert page.locator(".gd-hurt").count() == 0
-    assert page.evaluate("document.querySelector('.gd-mirror').innerHTML") == plain
-    assert errors == []
-
-
-def test_a_player_whose_game_has_not_started_draws_no_chip(shared):
-    page, errors = live(shared)
-    # DET has not kicked off: a stale flag on St. Brown is not drawn
-    page.evaluate("""() => { for (const c of gdCodes('DET')) GD_STATS.games[c] = 'pre_game'; GD_HURT = {'amonra-st-brown': {slug: 'amonra-st-brown', name: 'Amon-Ra St. Brown', team: 'DET', q: 1, clock: '', back: false}}; paintLive(); }""")
-    assert page.locator(".gd-hurt").count() == 0
-    assert errors == []
-
-
-# ---------------------------------------------------------------- the poller
-
-SERVED = "http://team-watch.test/"
-
-
-def served(browser, page_file):
-    """The page over http, so PAGE_SERVED() is true; every other request is refused."""
-    ctx = browser.new_context(viewport={"width": 390, "height": 844}, reduced_motion="reduce")
-    page = ctx.new_page()
-    page.set_default_timeout(5000)
-    errors = []
-    page.on("pageerror", lambda e: errors.append(str(e)))
-    html = page_file.read_text(encoding="utf-8")
-    page.route(re.compile(r"^http://team-watch\.test/?$"), lambda r: r.fulfill(status=200, content_type="text/html", body=html))
-    page.route(re.compile(r"^https?://(?!team-watch\.test/?$)"), lambda r: r.abort())
-    page.add_init_script(SEED)
-    page.goto(SERVED, timeout=LOAD_MS)
-    page.wait_for_function("document.getElementById('view').children.length > 0")
-    return ctx, page, errors
-
-
+# ESPN's summary for a game, as the stub of gsFetchSummary hands it back; ENYG is down. It takes 5 ms, so two
+# requests could overlap: that latency is what lets the test see one at a time.
 STUB = """async (cfg) => {
   window.__calls = []; window.__open = 0; window.__max = 0;
   gsFetchSummary = async event => {
@@ -294,64 +50,212 @@ STUB = """async (cfg) => {
 }"""
 
 
+@pytest.fixture(scope="module")
+def ranks(built):
+    """The rows the page holds once the game day is planted: the build's own LIVE_RANKS (the fixture's), then RANKS' that
+    are not in it, as the page's plant adds them."""
+    rows = json.loads(re.search(r"const LIVE_RANKS = (.*?);\n", built.fragment).group(1))["rows"]
+    return rows + [r for r in RANKS if not any(x["slug"] == r["slug"] for x in rows)]
+
+
+@pytest.fixture(scope="module")
+def ranked(node_js, ranks):
+    """hurt.js with those rankings: who is watched, and who is hurt now."""
+    return node_js("data/gameday/hurt.js", globals={"LIVE_RANKS": {"rows": ranks}})
+
+
+# ---------------------------------------------------------------- the logic, in Node
+
+def test_names_are_every_projected_8_plus_player_not_my_starters(ranked, ranks):
+    names = ranked("gdHurtNames")
+    fix = json.loads((FIXTURES / "gameday.json").read_text(encoding="utf-8"))
+    mine = [r["slug"] for lg in (fix["espn"], fix["yahoo"]) for tm in lg["teams"].values() for r in tm["lineup"]]
+    ranked_rows = [[r["slug"], r["pts"], r["pos"]] for r in ranks]
+    assert "tyler-huntley" not in mine                                # nobody of mine: he is watched all the same
+    assert names["t.huntley"] == [{"slug": "tyler-huntley", "name": "Tyler Huntley", "team": "BAL"}]
+    assert names["b.purdy"] == [{"slug": "brock-purdy", "name": "Brock Purdy", "team": "SF"}]
+    assert names["a.st.brown"][0]["team"] == "DET"        # "A.St. Brown" in the play text
+    assert "t.stukes" not in names                             # 5.0 projected: under the 8-point line
+    # exactly the rankings' 8+ rows, which are QB/RB/WR/TE only: no defense, no kicker
+    assert sorted(s for v in names.values() for s in [x["slug"] for x in v]) == sorted(s for s, p, _ in ranked_rows if p >= 8)
+    assert {pos for _, _, pos in ranked_rows} <= {"QB", "RB", "WR", "TE"}
+
+
+# ---------------------------------------------------------------- the Digest
+
+@pytest.mark.render
+def test_hurt_starter_takes_the_headline_and_a_row_and_a_return_gives_it_back(mount):
+    hurt, errors = HurtPage.on_digest(mount)
+    digest = hurt.digest
+    assert digest.headline() == "St. Brown ERUPTS: 10 catches, 180 yards, 2 TDs"
+    rows = digest.now_rows()
+    hurt.leave_hurt(PURDY)
+    assert digest.headline() == "B. Purdy left the game hurt"
+    assert digest.lead_fact() == "SF · Q3 4:12"          # his club and the clock, no team of mine
+    assert hurt.lead_tone() == "out"
+    # his own row leads Right now, in --down, and he is not in the five as well
+    first = hurt.first_now_row()
+    assert "hurt" in first["cls"] and "B. Purdy" in first["text"] and first["pill"] == "Hurt"
+    assert digest.now_rows() == 3 and hurt.plain_now_row_count() == 2   # three rows, he is one
+    digest.tap_now_more()
+    assert hurt.plain_now_row_count() == 5
+    assert "Purdy" not in " ".join(hurt.plain_now_row_texts())
+    assert hurt.first_now_pill_colour() == hurt.down_colour()
+    # a tap opens his profile, as every other row does
+    hurt.tap_first_now_row()
+    assert digest.profile_open()
+    digest.close_profile()
+    # the band opens him too
+    assert hurt.lead_name() == "Brock Purdy"
+    # he comes back: the top scorer is the headline again and the extra row is gone
+    hurt.return_to_game(PURDY)
+    assert digest.headline() == "St. Brown ERUPTS: 10 catches, 180 yards, 2 TDs"
+    assert hurt.hurt_now_row_count() == 0 and digest.now_rows() == 5   # More stays open until it is closed
+    digest.tap_now_more()
+    assert digest.now_rows() == rows == 3
+    assert errors == []
+
+
+@pytest.mark.render
+def test_with_several_hurt_the_best_projection_leads(mount, ranked):
+    hurt, errors = HurtPage.on_digest(mount)
+    hurt.leave_hurt(PURDY, ACHANE, HUNTLEY)
+    order = ranked("(hs) => { GD_HURT = Object.fromEntries(hs.map(h => [h.slug, h])); return gdHurtNow().map(e => [e.slug, e.pts]); }",
+                   [PURDY, ACHANE, HUNTLEY])
+    head = hurt.digest.headline()
+    rows = hurt.hurt_now_row_texts()
+    assert errors == []
+    assert order == [["devon-achane", 21.5], ["tyler-huntley", 19.9], ["brock-purdy", 18.1]]
+    assert head == "D. Achane left the game hurt"
+    assert len(rows) == 3 and "T. Huntley" in rows[1]              # Huntley is on nobody's team of mine, and a row all the same
+
+
+@pytest.mark.render
+def test_the_digest_names_no_league_or_team_of_mine_while_a_player_is_hurt(mount):
+    """David, 2026-10-04: the Digest is generic for the public. The by-line is his club and the clock."""
+    hurt, errors = HurtPage.on_digest(mount)
+    names = hurt.personal_names()
+    assert len(names) >= 10, names
+    hurt.leave_hurt(ACHANE)
+    fact = hurt.digest.lead_fact()
+    dg = hurt.digest.html()
+    assert errors == []
+    assert fact == "MIA · Live"
+    assert [n for n in names if n in dg] == []
+
+
+@pytest.mark.render
+def test_before_kickoff_nothing_changes(mount):
+    hurt, errors = HurtPage.on_digest(mount, at="2026-10-04T08:00:00Z", state="pre_game", clock={})
+    drawn = hurt.digest.html()
+    hurt.leave_hurt_and_render(PURDY)
+    assert hurt.digest.html() == drawn
+    assert hurt.hurt_now_row_count() == 0
+    assert errors == []
+
+
+@pytest.mark.render
+def test_between_games_the_banner_is_not_a_hurt_one(mount):
+    """No game is on (every one final): GD_HURT is last Sunday's news and the top score keeps the banner."""
+    hurt, errors = HurtPage.on_digest(mount, at="2026-10-04T23:30:00Z", state="complete", clock={})
+    hurt.leave_hurt(PURDY)
+    head = hurt.digest.headline()
+    assert errors == []
+    assert "left the game hurt" not in head
+
+
+# ---------------------------------------------------------------- Live
+
+@pytest.mark.render
+def test_live_row_wears_a_hurt_chip_until_he_is_back(mount):
+    hurt, errors = HurtPage.on_live(mount)
+    assert hurt.purdy_rows() == 1 and hurt.chip_count() == 0
+    plain = hurt.lineups_html()
+    hurt.leave_hurt_on_live(PURDY)
+    assert hurt.purdy_chip_count() == 1 and hurt.purdy_chip_text().lower() == "hurt"
+    assert hurt.purdy_chip_label() == "Left the game hurt"
+    assert hurt.chip_count() == 1
+    # beside his name, inside the one name button, and the red is --down
+    assert hurt.purdy_chip_in_name_count() == 1
+    assert hurt.live.nested_buttons() == 0
+    assert hurt.purdy_chip_colour() == hurt.down_colour()
+    # a phone row stays one line of two
+    assert hurt.purdy_row_height() <= 52
+    assert hurt.scroll_width() <= 360
+    # back in the game: the chip is cleared and the row is as it was
+    hurt.return_to_game_on_live(PURDY)
+    assert hurt.chip_count() == 0
+    assert hurt.lineups_html() == plain
+    assert errors == []
+
+
+@pytest.mark.render
+def test_a_player_whose_game_has_not_started_draws_no_chip(mount):
+    hurt, errors = HurtPage.on_live(mount)
+    # DET has not kicked off: a stale flag on St. Brown is not drawn
+    hurt.flag_before_his_game_starts("DET", {"slug": "amonra-st-brown", "name": "Amon-Ra St. Brown", "team": "DET", "q": 1, "clock": "", "back": False})
+    assert hurt.chip_count() == 0
+    assert errors == []
+
+
+# ---------------------------------------------------------------- the poller
+
+@pytest.mark.render
+@pytest.mark.journey
 def test_the_poller_asks_every_live_game_one_at_a_time_every_three_minutes(browser, page_file):
     ctx, page, errors = served(browser, page_file)
-    page.evaluate(PLANT, cfg(state="complete"))
-    drive(page, go("live"))
-    page.evaluate(STUB, {"summary": summary(["SF", "OSF"], [play("B.Purdy pass incomplete short middle to M.Evans. SF-B.Purdy was injured during the play.", 3, "5:00")])})
-    page.evaluate("""() => {
-      GD_STATS.games.SF = GD_STATS.games.NYG = 'in_game';              // two games with starters of mine; ESPN is down for NYG's
-      GD_GAMES.push({home: 'ZZ', away: 'YY', kickoff: GD_GAMES[0].kickoff, week: 2, espn: 'EZZ'});
-      GD_STATS.games.ZZ = GD_STATS.games.YY = 'in_game';              // a game none of my starters is in: asked all the same
-    }""")
-    page.evaluate("gdHurtPoll()")
-    calls = page.evaluate("window.__calls")
+    hurt = HurtPage(page)
+    hurt.plant(state="complete")
+    hurt.open_view("live")
+    hurt.stub_espn(STUB, summary(["SF", "OSF"], [play("B.Purdy pass incomplete short middle to M.Evans. SF-B.Purdy was injured during the play.", 3, "5:00")]))
+    hurt.start_games()                          # two games with starters of mine, ESPN down for NYG's, and a game none of mine is in: asked all the same
+    hurt.poll()
+    calls = hurt.asked()
     assert sorted(calls) == ["ENYG", "ESF", "EZZ"], calls                # every game that is on
-    assert page.evaluate("window.__max") == 1                            # one request in flight at a time
-    got = page.evaluate("GD_HURT")
+    assert hurt.most_in_flight() == 1                                    # one request in flight at a time
+    got = hurt.who_is_hurt()
     assert list(got) == ["brock-purdy"] and got["brock-purdy"]["back"] is False and got["brock-purdy"]["q"] == 3
     # inside the gap: nothing; a failed fetch (NYG) said nothing and left the last state
-    page.evaluate("gdHurtPoll()")
-    assert page.evaluate("window.__calls.length") == 3
-    page.evaluate("() => { const t = Date.now() + 121000; Date.now = () => t; }")
-    page.evaluate("gdHurtPoll()")
-    assert page.evaluate("window.__calls.length") == 3                   # 121 s is not 180 s
+    hurt.poll()
+    assert hurt.ask_count() == 3
+    hurt.move_clock(121000)
+    hurt.poll()
+    assert hurt.ask_count() == 3                                         # 121 s is not 180 s
     # 181 s after the first ask: all three again; the summary now says he is back, so the next paint clears him
-    page.evaluate("""() => { const t = Date.now() + 60000; Date.now = () => t;
-      window.__summary = {...window.__summary, drives: {previous: [{plays: [...window.__summary.drives.current.plays,
-        {text: '** Injury Update: SF-B.Purdy has returned to the game.', period: {number: 3}, clock: {displayValue: '2:00'}}]}]}}; }""")
-    page.evaluate("gdHurtPoll()")
-    assert page.evaluate("window.__calls.length") == 6
-    assert page.evaluate("GD_HURT['brock-purdy'].back") is True
+    hurt.move_clock(60000)
+    hurt.purdy_returns()
+    hurt.poll()
+    assert hurt.ask_count() == 6
+    assert hurt.who_is_hurt()["brock-purdy"]["back"] is True
     # no game is on any more: nothing is asked, whatever the clock says
-    page.evaluate("""() => { for (const k of Object.keys(GD_STATS.games)) GD_STATS.games[k] = 'complete'; GD_CLOCK = {};
-      const t = Date.now() + 600000; Date.now = () => t; }""")
-    page.evaluate("gdHurtPoll()")
-    assert page.evaluate("window.__calls.length") == 6
+    hurt.finish_every_game()
+    hurt.poll()
+    assert hurt.ask_count() == 6
     ctx.close()
     assert errors == []
 
 
-def test_from_a_file_it_never_asks(browser, page_file):
-    ctx, page, errors = open_page(browser, page_file, (390, 844))
-    page.evaluate(PLANT, cfg(state="complete"))
-    drive(page, go("live"))
-    page.evaluate("GD_STATS.games.SF = 'in_game'")
-    page.evaluate(STUB, {"summary": summary(["SF", "OSF"], [play("SF-B.Purdy was injured during the play.")])})
-    assert page.evaluate("PAGE_SERVED()") is False
-    page.evaluate("gdHurtPoll()")
-    assert page.evaluate("window.__calls.length") == 0 and page.evaluate("GD_HURT") == {}
-    ctx.close()
+@pytest.mark.render
+def test_from_a_file_it_never_asks(mount):
+    hurt, errors = HurtPage.on_live(mount, team=None, state="complete")
+    hurt.start_sf_game()
+    hurt.stub_espn(STUB, summary(["SF", "OSF"], [play("SF-B.Purdy was injured during the play.")]))
+    assert hurt.is_served() is False
+    hurt.poll()
+    assert hurt.ask_count() == 0 and hurt.who_is_hurt() == {}
     assert errors == []
 
 
+@pytest.mark.render
+@pytest.mark.journey
 def test_a_view_that_does_not_show_live_numbers_never_asks(browser, page_file):
     ctx, page, errors = served(browser, page_file)
-    page.evaluate(PLANT, cfg(state="complete"))
-    drive(page, go("ranks"))
-    page.evaluate("GD_STATS.games.SF = 'in_game'")
-    page.evaluate(STUB, {"summary": summary(["SF", "OSF"], [play("SF-B.Purdy was injured during the play.")])})
-    page.evaluate("gdHurtPoll()")
-    assert page.evaluate("window.__calls.length") == 0
+    hurt = HurtPage(page)
+    hurt.plant(state="complete")
+    hurt.open_view("ranks")
+    hurt.start_sf_game()
+    hurt.stub_espn(STUB, summary(["SF", "OSF"], [play("SF-B.Purdy was injured during the play.")]))
+    hurt.poll()
+    assert hurt.ask_count() == 0
     ctx.close()
     assert errors == []
