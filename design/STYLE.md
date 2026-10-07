@@ -112,6 +112,22 @@ A row of centred lanes takes its label on its own line above it, left-aligned, s
 the full width and line up with whatever sits above them (Compare's strips under its cards; a
 label column beside the lanes pushed them off the cards' and the graph's centre, 2026-09-30).
 
+## Gaps: every box says where its free space goes
+
+Decided 2026-10-07, after the Roster points bars: the strip sat pushed right against the projection in
+the Sheet, and the bars sat high on the card back with a gap below.
+
+- **Every box says where its leftover space goes.** A fixed-size card: the top and bottom items hold
+  their edges, the middle block centres. A row: space goes between groups, never piled at one end.
+- **One flexible track per row.** Only the content that gains from width grows (usually the name). A
+  fixed-width thing centres in its track, or the track hugs it.
+- **Check at the extremes.** Widths 360, 390, 768, 1280 and 1920px; content at its longest name, 1 and
+  18 weeks, empty, injured, bye.
+- **Desktop adds content, not space.** Show what the phone hides, or cap the width. See "Desktop fills
+  the width it has" and "A label stays within 560px" (Layout); "Share edges" covers blocks side by side.
+- **Enforced** by `tests/test_gaps.py::test_no_box_piles_its_free_space_in_one_gap`: every view at 360
+  and 1280px. Today's violations are its `KNOWN` list, which only shrinks.
+
 ## Type: one voice per line
 
 A line the reader reads as words stays in one face. Decided 2026-10-06, after League > Recap read badly
@@ -196,6 +212,8 @@ loads. A new curve or duration is a new token, never a literal in a component.
    and every verdict word has a kept record.
 8. `tests/test_style_rules.py` passes: nothing scrolls sideways at 360px (Leaders' faded stat
    tabs are the one exception) and nothing loops while the page is idle.
+9. `tests/test_gaps.py` passes: no row, track or fixed-size card piles its free space in one gap
+   (Gaps, above).
 
 The playable motion reference is the Bets storyboard, published 2026-09-25:
 https://claude.ai/artifact/LQVFzVaNCNKhWWBHzHAL7L
