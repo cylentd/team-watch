@@ -106,7 +106,7 @@ def test_the_sheets_model_side_carries_its_chance_beside_the_tier_word(page):
 
 def test_build_is_all_lines_and_says_what_its_first_chip_keeps(page):
     page.evaluate("navGo('build')")
-    assert page.locator("#subnav").inner_text().split("\n")[:3] == ["Slips", "All lines", "DFS"]
+    assert page.locator("#subnav").inner_text().split("\n")[-3:] == ["Slips", "All lines", "DFS"]
     assert page.locator(".bets-best").inner_text() == words("parlay.bar.best")
     calls = page.locator(".bl-call")
     got = [c.inner_text().replace("\n", " ") for c in calls.all()[:6]]

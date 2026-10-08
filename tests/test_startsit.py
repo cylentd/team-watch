@@ -166,12 +166,12 @@ NOTE = words("ranks.rb.note")
 
 
 @pytest.mark.render
-def test_two_priced_backs_are_called_by_the_books_and_the_page_says_why(ss):
-    """Brown 16.2 points (books 15.4) and Hall 15.0 (books 16.6): the books start Hall (ff-jarvis
-    METHODOLOGY 12.86). The points shown stay ours and the gap is points, so a call on fewer points has none."""
+def test_two_priced_backs_are_called_by_our_rank_with_no_books_note(ss):
+    """Brown 16.2 points and Hall 15.0: with ff-jarvis week_ranks loaded the rank is ours (David 2026-10-08,
+    ledger #23), so the points decide and the page names no books' order."""
     pg = ss(PICK_RBS % "['chase-brown', 'breece-hall']")
-    assert verdict(pg) == {"tag": "START", "name": "B. Hall", "gain": None, "flip": None}
-    assert pg.locator(".ssv-why").all_inner_texts() == [NOTE]
+    assert verdict(pg)["name"] == "C. Brown" and verdict(pg)["gain"] == "+1.2"
+    assert pg.locator(".ssv-why").count() == 0
     shown = pg.evaluate("[...document.querySelectorAll('.ssv-v.big b')].map(b => b.textContent)")
     assert shown == ["16.2", "15.0"], "the books' number is never shown"
 
@@ -190,14 +190,13 @@ def test_a_back_against_a_receiver_is_called_by_points_with_no_note(ss):
 
 
 @pytest.mark.render
-def test_an_unlined_backup_wears_the_tag_and_the_page_says_what_it_means(ss):
-    """Kendre Miller (the books priced a teammate, not him; ff-jarvis METHODOLOGY 12.87)."""
+def test_an_unlined_backup_wears_no_tag_when_the_rank_is_ours(ss):
+    """Kendre Miller (the books priced a teammate, not him): with ff-jarvis week_ranks loaded the page shows
+    one rank, so no No line tag and no note (David 2026-10-08, ledger #23)."""
     pg = ss(PICK_RBS % "['breece-hall', 'kendre-miller']")
-    assert pg.locator(".ssv-who .ssv-noline").all_inner_texts() == ["No line"]
-    tip = words("ranks.noline.tip")
-    assert pg.locator(".ssv-why").all_inner_texts() == ["No line" + tip]
-    assert pg.locator(".ssv-who .ssv-noline").get_attribute("title") == tip
-    assert verdict(pg)["name"] == "B. Hall", "one back unpriced: points decide, so no reorder note"
+    assert pg.locator(".ssv-who .ssv-noline").count() == 0
+    assert pg.locator(".ssv-why").count() == 0
+    assert verdict(pg)["name"] == "B. Hall"
 
 
 @pytest.mark.render
