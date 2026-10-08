@@ -206,11 +206,11 @@ function buildNav(){
   n.querySelectorAll(".navitem").forEach(b => b.addEventListener("click", () => {
     const g = b.dataset.s;
     if (navGroupOf(SURFACE) !== g) morphLogo();
-    // A group click opens the group's first view, every time (2026-10-07, David: League -> Roster, This
-    // week -> Digest, as Yahoo, ESPN and Sleeper do). It returned to the last view seen there until then.
-    // The row's first leaf is the league's own (navLeavesFor), so a leaf the league lacks never leads;
-    // Tuesday's Waivers-first order is the row's, so it leads here too. The hash still restores a leaf.
-    navGo(navTabsOf(g)[0]);
+    // A group click opens the group's first view, every time and on every day (2026-10-07, David: League ->
+    // Roster, This week -> Digest, as Yahoo, ESPN and Sleeper do). It returned to the last view seen there
+    // until then. The first leaf in the normal order (waiverDay false), so a Tuesday's Waivers-first row
+    // does not lead; navLeavesFor still drops a leaf the league lacks. The hash still restores a leaf.
+    navGo(navLeavesFor(g, navFacts(), false)[0]);
     window.scrollTo({top: 0, behavior: "smooth"});
   }));
 

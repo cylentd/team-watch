@@ -24,8 +24,8 @@
   "areas": {
     "gestures": {
       "paths": ["design/src/js/lib/swipe.js", "tests/test_gestures.py", "design/src/js/chrome/tabswipe.js",
-                "tests/test_tab_swipe.py", "design/src/js/data/swipestep.js", "tests/test_js_swipestep.py", "tests/test_group_default_leaf.py"],
-      "tests": ["tests/test_gestures.py", "tests/test_tab_swipe.py", "tests/test_js_swipestep.py", "tests/test_group_default_leaf.py"],
+                "tests/test_tab_swipe.py", "design/src/js/data/swipestep.js", "tests/test_js_swipestep.py", "tests/test_group_default_leaf.py", "tests/test_group_click_tuesday.py"],
+      "tests": ["tests/test_gestures.py", "tests/test_tab_swipe.py", "tests/test_js_swipestep.py", "tests/test_group_default_leaf.py", "tests/test_group_click_tuesday.py"],
       "render": []
     },
     "digest": {
